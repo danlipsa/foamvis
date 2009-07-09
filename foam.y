@@ -199,6 +199,7 @@ const_expr const_expr const_expr
 const_expr const_expr const_expr
 
 vertices: VERTICES vertex_list;
+
 vertex_list: vertex_list
              INTEGER_VALUE number number number vertex_attribute_list
 | ;
@@ -282,7 +283,17 @@ predefined_body_attribute: VOLUME number
 
 %%
 
-int keywordId (char* keyword)
+/**
+ * Standard bison function, called when there is a 
+ * parse error.
+ * @param error error message
+ */
+void yyerror (char const *error)
+{
+    fprintf (stderr, "%s at line %d\n", error, yylloc.first_line);
+}
+
+int KeywordId (char* keyword)
 {
     const int yytnameDisplacement = 255;
     int i;
@@ -299,20 +310,23 @@ int keywordId (char* keyword)
     return 0;
 }
 
-void yyerror (char const *s)
-{
-    fprintf (stderr, "%s at line %d\n", s, yylloc.first_line);
-}
-
-void bisonDebugging (int debugging)
+/**
+ * Turns on or off bison debugginig
+ * @param debugging turns on debugging for 1, off for 0
+ */
+static void bisonDebugging (int debugging)
 {
     yydebug = debugging;
 }
 
 
-int main()
+/**
+ * Parses the data file, reads in vertices, edges, etc and displays them.
+ * @return 0 for success, different than 0 otherwise
+ */
+int main(void)
 {
-    flexDebugging (0);
+    FlexDebugging (0);
     bisonDebugging (0);
     return yyparse();
 }

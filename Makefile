@@ -1,4 +1,4 @@
-objects = foam.tab.o lex.yy.o
+objects = foam.tab.o lex.yy.o Data.o
 CFLAGS = -Wall
 CC=g++
 
@@ -21,5 +21,6 @@ clean:
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 
-
+# sinclude behaves like include but it does not give an error for missing files
+# after a clean, the dependency files are missing
 sinclude $(objects:.o=.d)

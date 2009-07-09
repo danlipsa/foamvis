@@ -1,10 +1,16 @@
 %{
+    /*
+     * WARNING. If a character not  described in this file is matched,
+     * it is simply  printed to stdout. So, an  important way to check
+     * for  parsing  errors,  is  to  make  sure  you  have  no  extra
+     * characters to stdout, even if there are no parsing errors.
+     */
     #include <stdio.h>
     #include <math.h>
     #include "lexYacc.h"
     #include "foam.tab.h"
 
-    long readInteger (char* str, int base);
+    static long readInteger (char* str, int base);
 %}
 
 %option noyywrap
@@ -32,9 +38,7 @@ E     [Ee][+-]?{D}+
     }
 }
 
-"//".*    /* eat comment */ ;
-
-[[:space:]]+   /* ignore whitespace */
+"//".*""    /* eat comment */ ;
 
 [+-]?{D}+ { /* decimal integers */
     yylval.i = readInteger (yytext, 10);
@@ -69,7 +73,7 @@ E     [Ee][+-]?{D}+
 	}
 
 {ID} { /*identifiers*/
-    int id = keywordId (yytext);
+    int id = KeywordId (yytext);
     yylloc.first_line = yylineno;
     if (id)
     {
@@ -100,11 +104,15 @@ E     [Ee][+-]?{D}+
 ","      {/*element separator for arrays*/
     return *yytext;}
 
-"\\"  /*ignore escaping of new lines*/
+"\\\n"  /*ignore escaping of new lines*/
+
+[[:space:]]+   /* ignore whitespace */
+
+
 
 %%
 
-long readInteger (char* str, int base)
+static long readInteger (char* str, int base)
 {
     char *tail = str;
     errno = 0;
@@ -117,7 +125,7 @@ long readInteger (char* str, int base)
     return i;
 }
 
-void flexDebugging (int debugging)
+void FlexDebugging (int debugging)
 {
     yy_flex_debug = debugging;
 }
