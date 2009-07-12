@@ -5,6 +5,9 @@
 
 class OrientedEdge
 {
+public:
+    OrientedEdge(Edge* edge, bool reversed)
+    {m_edge = edge; m_reversed = reversed;}
 private:
     Edge* m_edge;
     bool m_reversed;
@@ -12,3 +15,7 @@ private:
 
 
 #endif
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,17 +1,20 @@
 #ifndef _LEXYACC_H_
 #define _LEXYACC_H_
 
-/**
- * 
- */
-typedef struct 
-{
-    long i;
-    long double r;
-} yystype;
+#include <vector>
 
 /**
- * Standard bison define
+ * Defines the datatype for semantic values for terminals and non-terminals
+ * in the gramar
+ */
+typedef union
+{
+    int i;
+    float r;
+    std::vector<int>* int_list;
+} yystype;
+/**
+ * Defines the datatype for semantic values in bison to be yystype
  */
 #define YYSTYPE yystype
 
@@ -29,4 +32,15 @@ int KeywordId (char* s);
  */
 void FlexDebugging (int debugging);
 
+/**
+ * Standard bison function. Called when there is a 
+ * parse error or an error in the lexical analyzer.
+ * @param error error message
+ */
+void yyerror (const char* error);
+
 #endif
+
+// Local Variables:
+// mode: c++
+// End:

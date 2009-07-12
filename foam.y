@@ -1,12 +1,17 @@
 %{
 
 #include <string.h>
-#include <stdio.h>
+#include <iostream>
+#include <sstream>
+
 #include "lexYacc.h"
+#include "Data.h"
+#include "SemanticError.h"
 
 int yylex(void);
 void yyerror (char const *);
-
+unsigned int intToUnsigned (int i, const char* message);
+using namespace std;
 %}
 // directives
 %defines
@@ -99,8 +104,7 @@ void yyerror (char const *);
 
 
 %%
-datafile: header vertices edges faces bodies eof 
-{fprintf(stdout, "File parsed successfully\n")};
+datafile: header vertices edges faces bodies eof;
 
 eof: READ
 |
@@ -200,8 +204,12 @@ const_expr const_expr const_expr
 
 vertices: VERTICES vertex_list;
 
-vertex_list: vertex_list
-             INTEGER_VALUE number number number vertex_attribute_list
+vertex_list: vertex_list INTEGER_VALUE number number number {
+    Point* p = new Point($3.r, $4.r, $5.r);
+    data.SetPoint (
+	intToUnsigned($2.i, "Semantic error: vertex index less than 0: "), p);
+}
+vertex_attribute_list
 | ;
 
 vertex_attribute_list: vertex_attribute_list predefined_vertex_attribute
@@ -213,9 +221,12 @@ predefined_vertex_attribute: ORIGINAL INTEGER_VALUE;
 user_attribute: IDENTIFIER number | IDENTIFIER '{' number_list '}';
 
 edges: EDGES edge_list;
-edge_list: edge_list
-           INTEGER_VALUE INTEGER_VALUE INTEGER_VALUE 
-           signs_torus_model edge_attribute_list
+edge_list: edge_list INTEGER_VALUE INTEGER_VALUE INTEGER_VALUE {
+    Edge* e = new Edge (data.GetPoint($3.i), data.GetPoint($4.i));
+    data.SetEdge (
+	intToUnsigned($2.i, "Semantic error: edge index less than 0: "), e);
+}
+signs_torus_model edge_attribute_list
 | ;
 
 edge_attribute_list: edge_attribute_list predefined_edge_attribute
@@ -232,8 +243,14 @@ sign_torus_model: '+' | '*' | '-';
 faces: FACES face_list;
 
 
-face_list: face_list
-           INTEGER_VALUE value_list face_attribute_list 
+face_list: face_list INTEGER_VALUE integer_list {
+    data.SetFace (
+	intToUnsigned($2.i, "Semantic error: face index less than 0"), 
+	*$3.int_list);
+    delete $3.int_list;
+}
+
+face_attribute_list
 | ;
 
 face_attribute_list: face_attribute_list predefined_face_attribute
@@ -264,13 +281,26 @@ color_name: BLACK
 
 bodies: BODIES body_list;
 
-body_list: body_list
-INTEGER_VALUE value_list 
+body_list: body_list INTEGER_VALUE integer_list {
+    data.SetBody (
+	intToUnsigned($2.i, "Semantic error: body index less than 0"),
+	*$3.int_list);
+}
+
 body_attribute_list
 | ;
 
-value_list: value_list INTEGER_VALUE
-| ;
+integer_list: integer_list INTEGER_VALUE {
+    vector<int>* int_list = $1.int_list;
+    if (int_list == 0)
+	int_list = new vector<int>();
+    int_list->push_back ($2.i);
+    $$.int_list = int_list;
+}
+| {
+    return 0;
+}
+;
 
 body_attribute_list: body_attribute_list predefined_body_attribute
 | body_attribute_list user_attribute
@@ -283,14 +313,20 @@ predefined_body_attribute: VOLUME number
 
 %%
 
-/**
- * Standard bison function, called when there is a 
- * parse error.
- * @param error error message
- */
 void yyerror (char const *error)
 {
-    fprintf (stderr, "%s at line %d\n", error, yylloc.first_line);
+    cerr << error << " at line " << yylloc.first_line << endl;
+}
+
+unsigned int intToUnsigned (int i, const char* message)
+{
+    if (i < 0)
+    {
+	ostringstream message;
+	message << message << i << ends;
+	throw SemanticError (message.str().c_str());
+    }
+    return static_cast<unsigned int>(i);
 }
 
 int KeywordId (char* keyword)
@@ -320,13 +356,17 @@ static void bisonDebugging (int debugging)
 }
 
 
+Data data;
+
 /**
  * Parses the data file, reads in vertices, edges, etc and displays them.
  * @return 0 for success, different than 0 otherwise
  */
 int main(void)
 {
+    int parseResult;
     FlexDebugging (0);
     bisonDebugging (0);
-    return yyparse();
+    if ((parseResult = yyparse()) == 0)
+	cout << data;
 }

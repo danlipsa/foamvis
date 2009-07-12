@@ -1,16 +1,19 @@
 %{
-    /*
-     * WARNING. If a character not  described in this file is matched,
-     * it is simply  printed to stdout. So, an  important way to check
-     * for  parsing  errors,  is  to  make  sure  you  have  no  extra
-     * characters to stdout, even if there are no parsing errors.
-     */
-    #include <stdio.h>
-    #include <math.h>
-    #include "lexYacc.h"
-    #include "foam.tab.h"
+/*
+ * WARNING. If a character not  described in this file is matched,
+ * it is simply  printed to stdout. So, an  important way to check
+ * for  parsing  errors,  is  to  make  sure  you  have  no  extra
+ * characters to stdout, even if there are no parsing errors.
+ */
+#include <stdio.h>
+#include <math.h>
+#include <iostream>
+#include <sstream>
+#include "lexYacc.h"
+#include "foam.tab.h"
 
-    static long readInteger (char* str, int base);
+static long readInteger (char* str, int base);
+using namespace std;
 %}
 
 %option noyywrap
@@ -34,7 +37,7 @@ E     [Ee][+-]?{D}+
 	    if ( c == '/' ) break;    /* found the end */ 
 	}
 	if ( c == 0 && yywrap() )
-	{ fprintf(stderr,"lexical error, end-of-file in comment\n"); break; }
+	{yyerror ("lexical error, end-of-file in comment\n");break;}
     }
 }
 
@@ -66,7 +69,9 @@ E     [Ee][+-]?{D}+
     yylloc.first_line = yylineno;
     if (errno)
     {
-	fprintf (stderr, "lexical error, overflow %s", yytext);
+	ostringstream message;
+	message << "lexical error, overflow " << yytext << ends;
+	yyerror(message.str().c_str());
 	exit(13);
     }
     return REAL_VALUE;
@@ -119,7 +124,9 @@ static long readInteger (char* str, int base)
     long i = strtol (str, &tail, base);
     if (errno)
     {
-	fprintf (stderr, "lexical error, long overflow %s", str);
+	ostringstream ostr;
+	ostr << "lexical error, long overflow " << str;
+	yyerror (ostr.str().c_str());
 	exit(13);
     }
     return i;
