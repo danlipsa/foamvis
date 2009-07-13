@@ -13,6 +13,7 @@ public:
     const Point* GetEnd(void) {return m_end;}
     void SetEnd(Point* end) {m_end = end;}
 
+    friend std::ostream& operator<< (std::ostream& ostr, Edge& e);
 private:
     Point* m_begin;
     Point* m_end;

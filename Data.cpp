@@ -5,43 +5,49 @@
 
 using namespace std;
 
-struct deleteBody : public unary_function<Body*, void>
-{void operator() (Body* b) {delete b;}};
+template <class E>
+struct deleteElement : public unary_function<E*, void>
+{void operator() (E* e) {delete e;}};
 
-struct deleteFace : public unary_function<Face*, void>
-{void operator() (Face* f) {delete f;}};
-
-struct deleteEdge : public unary_function<Edge*, void>
-{void operator() (Edge* e) {delete e;}};
-
-struct deletePoint : public unary_function<Point*, void>
-{void operator() (Point* p) {delete p;}};
-
-struct PrintPoint : public unary_function<Point*, void>
+template <class E>
+struct PrintElement : public unary_function<E*, void>
 {
 public:
-    PrintPoint (ostream& ostr) : 
-	m_ostr(ostr) {
+    PrintElement (ostream& ostr) : 
+	m_ostr(ostr), m_index(0) {
     }
-    void operator() (Point* p) {
-	m_ostr << *p;}
+    void operator() (E* e) 
+    {
+	m_ostr << m_index << ": ";
+	if (e != 0)
+	    m_ostr << *e;
+	else
+	    m_ostr << "NULL\n";
+	m_index++;
+    }
 private:
     ostream& m_ostr;
+    int m_index;
 };
 
 Data::~Data()
 {
-    for_each(m_bodies.begin(), m_bodies.end(), deleteBody());
-    for_each(m_faces.begin(), m_faces.end(), deleteFace());
-    for_each(m_edges.begin(), m_edges.end(), deleteEdge());
-    for_each(m_vertices.begin(), m_vertices.end(), deletePoint());
+    for_each(m_bodies.begin(), m_bodies.end(), deleteElement<Body>());
+    for_each(m_faces.begin(), m_faces.end(), deleteElement<Face>());
+    for_each(m_edges.begin(), m_edges.end(), deleteElement<Edge>());
+    for_each(m_vertices.begin(), m_vertices.end(), deleteElement<Point>());
 }
 
 ostream& operator<< (ostream& ostr, Data& d)
 {
     ostr << "Data:" << endl;
     ostr << d.m_vertices.size() << " vertices:" << endl;
-    for_each(d.m_vertices.begin (), d.m_vertices.end (), PrintPoint(ostr));
+    for_each(d.m_vertices.begin (), d.m_vertices.end (), 
+	     PrintElement<Point>(ostr));
+    ostr << endl;
+    ostr << d.m_edges.size() << " edges:" << endl;
+    for_each(d.m_edges.begin (), d.m_edges.end (), 
+	     PrintElement<Edge>(ostr));
     return ostr;
 }
 

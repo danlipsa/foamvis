@@ -14,7 +14,7 @@ public:
     void SetZ(float z) {m_z = z;}
     friend std::ostream& operator<< (std::ostream& ostr, Point& p)
     {return ostr << "Point: " << p.m_x << ", " << p.m_y << ", " 
-		 << p.m_z << std::endl;}
+		 << p.m_z;}
 
 private:
     float m_x, m_y, m_z;

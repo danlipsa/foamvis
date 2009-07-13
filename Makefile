@@ -1,4 +1,4 @@
-objects = foam.tab.o lex.yy.o Data.o Body.o Face.o
+objects = foam.tab.o lex.yy.o Data.o Body.o Face.o Edge.o
 CFLAGS = -Wall -g
 CXXFLAGS = -Wall -g
 CC=g++
