@@ -1,19 +1,13 @@
-#include<functional>
 #include <algorithm>
 #include "Face.h"
+#include "Element.h"
 
 using namespace std;
 
-struct DeleteOrientedEdge : public unary_function<OrientedEdge*, void>
-{
-    void operator() (OrientedEdge* e) {delete e;}
-};
-
 Face::~Face()
 {
-    for_each(m_edges.begin(), m_edges.end(), DeleteOrientedEdge());
+    for_each(m_edges.begin(), m_edges.end(), DeleteElement<OrientedEdge>());
 }
-
 
 class IndexToOrientedEdge : public unary_function<int, OrientedEdge*>
 {
@@ -35,7 +29,7 @@ private:
 };
 
 
-Face::Face(vector<int>& edge_indexes, vector<Edge*>& edges)
+Face::Face(const vector<int>& edge_indexes, vector<Edge*>& edges)
 {
     transform (edge_indexes.begin(), edge_indexes.end(), m_edges.begin(), 
 	       IndexToOrientedEdge(edges));

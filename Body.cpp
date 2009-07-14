@@ -1,17 +1,13 @@
 #include<functional>
 #include <algorithm>
 #include "Body.h"
+#include "Element.h"
 
 using namespace std;
 
-struct deleteOrientedFace : public unary_function<OrientedFace*, void>
-{
-    void operator() (OrientedFace* f) {delete f;}
-};
-
 Body::~Body()
 {
-    for_each(m_faces.begin(), m_faces.end(), deleteOrientedFace());
+    for_each(m_faces.begin(), m_faces.end(), DeleteElement<OrientedFace>());
 }
 
 
@@ -35,7 +31,7 @@ private:
 };
 
 
-Body::Body(vector<int>& face_indexes, vector<Face*>& faces)
+Body::Body(const vector<int>& face_indexes, vector<Face*>& faces)
 {
     transform (face_indexes.begin(), face_indexes.end(), m_faces.begin(), 
 	       IndexToOrientedFace(faces));

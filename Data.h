@@ -14,13 +14,12 @@ class Data
 public:
     ~Data ();
     Point* GetPoint (int i) {return m_vertices[i];}    
-    void SetPoint (unsigned int i, Point* p);
-    void SetEdge (unsigned int i, Edge* e);
-    void SetFace (unsigned int i, std::vector<int>& edges);
-    void SetBody (unsigned int i, std::vector<int>& faces);
+    void SetPoint (unsigned int i, float x, float y, float z);
+    void SetEdge (unsigned int i, unsigned int begin, unsigned int end);
+    void SetFace (unsigned int i, const std::vector<int>& edges);
+    void SetBody (unsigned int i, const std::vector<int>& faces);
 
     friend std::ostream& operator<< (std::ostream& ostr, Data& d);
-
 private:
     std::vector<Point*> m_vertices;
     std::vector<Edge*> m_edges;

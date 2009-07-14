@@ -3,6 +3,8 @@
 #include <string.h>
 #include <iostream>
 #include <sstream>
+#include <functional>
+#include <algorithm>
 
 #include "lexYacc.h"
 #include "Data.h"
@@ -205,9 +207,10 @@ const_expr const_expr const_expr
 vertices: VERTICES vertex_list;
 
 vertex_list: vertex_list INTEGER_VALUE number number number {
-    Point* p = new Point($3.r, $4.r, $5.r);
     data.SetPoint (
-	intToUnsigned($2.i, "Semantic error: vertex index less than 0: "), p);
+	intToUnsigned($2.i - 1,
+		      "Semantic error: vertex index less than 0: "),
+	$3.r, $4.r, $5.r);
 }
 vertex_attribute_list
 | ;
@@ -222,9 +225,10 @@ user_attribute: IDENTIFIER number | IDENTIFIER '{' number_list '}';
 
 edges: EDGES edge_list;
 edge_list: edge_list INTEGER_VALUE INTEGER_VALUE INTEGER_VALUE {
-    Edge* e = new Edge (data.GetPoint($3.i), data.GetPoint($4.i));
     data.SetEdge (
-	intToUnsigned($2.i, "Semantic error: edge index less than 0: "), e);
+	intToUnsigned($2.i - 1, "Semantic error: edge index less than 0: "),
+	intToUnsigned($3.i - 1, "Semantic error: edge begin less than 0: "),
+	intToUnsigned($4.i - 1, "Semantic error: edge end less than 0: "));
 }
 signs_torus_model edge_attribute_list
 | ;
@@ -244,10 +248,13 @@ faces: FACES face_list;
 
 
 face_list: face_list INTEGER_VALUE integer_list {
+    vector<int>* int_list = $3.int_list;
+    transform(int_list->begin(), int_list->end(), int_list->begin(),
+	      bind2nd(plus<int>(), -1));
     data.SetFace (
 	intToUnsigned($2.i, "Semantic error: face index less than 0"), 
-	*$3.int_list);
-    delete $3.int_list;
+	*int_list);
+    delete int_list;
 }
 
 face_attribute_list
@@ -282,9 +289,13 @@ color_name: BLACK
 bodies: BODIES body_list;
 
 body_list: body_list INTEGER_VALUE integer_list {
+    vector<int>* int_list = $3.int_list;
+    transform(int_list->begin(), int_list->end(), int_list->begin(),
+	      bind2nd(plus<int>(), -1));
     data.SetBody (
 	intToUnsigned($2.i, "Semantic error: body index less than 0"),
-	*$3.int_list);
+	*int_list);
+    delete int_list;
 }
 
 body_attribute_list

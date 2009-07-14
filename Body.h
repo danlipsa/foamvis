@@ -7,7 +7,7 @@
 class Body
 {
 public:
-    Body(std::vector<int>& face_indexes, std::vector<Face*>& faces);
+    Body(const std::vector<int>& face_indexes, std::vector<Face*>& faces);
     ~Body();
 
 private:

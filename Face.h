@@ -7,7 +7,7 @@
 class Face
 {
 public:
-    Face(std::vector<int>& edge_indexes, std::vector<Edge*>& edges);
+    Face(const std::vector<int>& edge_indexes, std::vector<Edge*>& edges);
     ~Face();
 
 private:
