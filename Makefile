@@ -13,7 +13,10 @@ foam.tab.c foam.tab.h: foam.y lexYacc.h Data.h SemanticError.h
 	bison --verbose --debug foam.y
 
 clean:
-	rm -f lex.yy.c foam.tab.c foam.tab.h *.o *.d foam foam.output
+	rm -f lex.yy.c foam.tab.c foam.tab.h *.o *.d foam foam.output TAGS
+
+tags:
+	etags *.h *.cpp *.y *.lex
 
 # automatic dependency generation
 %.d: %.cpp
