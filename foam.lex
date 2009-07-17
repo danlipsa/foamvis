@@ -106,19 +106,19 @@ E     [Ee][+-]?{D}+
     }
     else
     {
-	yylval.id = data.GetParsingData ().CreateId (yytext);
+	yylval.id = data.GetParsingData ().CreateIdentifier (yytext);
 	return IDENTIFIER;
     }
 }
 
 "+"|"-"|"*"|"/"|"^"  {/*operators*/
-    yylval.id = data.GetParsingData ().CreateId (yytext);
+    yylval.id = data.GetParsingData ().CreateIdentifier (yytext);
     yylloc.first_line = yylineno;
     return *yytext;
 }
 
 ":"|"="  {/*assignments*/
-    yylval.id = data.GetParsingData ().CreateId (yytext);
+    yylval.id = data.GetParsingData ().CreateIdentifier (yytext);
     yylloc.first_line = yylineno;
     return *yytext;
 }

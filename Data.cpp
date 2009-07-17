@@ -10,11 +10,20 @@
 #include "Element.h"
 #include "ParsingData.h"
 
-using namespace std;
-
+/**
+ * Prints a 4x4 matrix element. Used in for_each algorithm.
+ */
 struct printMatrixElement : unary_function<float, void>
 {
+    /**
+     * Constructs the object
+     * @param ostr stream where to print the matrix element
+     */
     printMatrixElement(ostream& ostr) : m_ostr(ostr), m_index (0) {}
+    /**
+     * Prints the matrix element to the output stream
+     * @param f element to be printed.
+     */
     void operator() (float f)
     {
 	if (m_index != 0)
@@ -28,7 +37,13 @@ struct printMatrixElement : unary_function<float, void>
 	m_index++;
     }
 private:
+    /**
+     * Output stream where to print the matrix element
+     */
     ostream& m_ostr;
+    /**
+     * Index of the element currently printed.
+     */
     int m_index;
 };
 

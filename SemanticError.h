@@ -23,6 +23,10 @@ public:
      * @param reason message describing the reason for the exception
      */
     SemanticError (const char* reason): m_reason(reason) {}
+    /**
+     * Constructs a SemanticError object
+     * @param reason message describing the reason for the exception
+     */
     SemanticError (const string& reason): m_reason(reason) {}
 
 

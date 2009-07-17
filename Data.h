@@ -72,8 +72,17 @@ public:
      *         Data object.
      */
     void SetBody (unsigned int i, const vector<int>& faces);
+    /**
+     * Stores an element of the 4x4 view matrix.
+     * @param i index where to store the elment
+     * @param f the value to be stored
+     */
     void SetViewMatrixElement (unsigned int i, float f)
     {m_viewMatrix[i] = f;}
+    /**
+     * Make the parsing data accessible
+     * @return reference to the ParsingData object.
+     */
     ParsingData& GetParsingData () {return *m_parsingData;}
     /**
      * Pretty print for the Data object

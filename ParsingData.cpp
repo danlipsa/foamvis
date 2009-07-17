@@ -3,37 +3,90 @@
 #include "ParsingData.h"
 #include "SemanticError.h"
 
-static float negateFunction (float v)
-{return -v;}
-static float plusFunction (float first, float second)
-{return first + second;}
+/**
+ * Negates a number. Used in the parser expressions.
+ * @param v a floating point number
+ * @return the negation of the parameter
+ */
+static float negateFunction (float v) {return -v;}
+/**
+ * Adds two numbers.Used in the parser expressions.
+ * @param first first number in the sum
+ * @param second second number in the sum
+ * @return the sum of the two parameters
+ */
+static float plusFunction (float first, float second) {return first + second;}
+/**
+ * Subtracts two numbers
+ * @param first first number
+ * @param second second number
+ * @return the difference of the two numbers
+ */
 static float minusFunction (float first, float second)
 {return first - second;}
+/**
+ * Divides two numbers
+ * @param first first number
+ * @param second second number
+ * @return the division of the two numbers
+ */
 static float dividesFunction (float first, float second)
 {return first / second;}
+/**
+ * Multiplies two numbers
+ * @param first first number
+ * @param second second number
+ * @return the multiplication of the two numbers
+ */
 static float multipliesFunction (float first, float second)
 {return first * second;}
+/**
+ * Throws  a  SemanticError  exception  because  we  should  not  have
+ * assignments in constant expressions.
+ * @param first first number
+ * @param second second number
+ * @return it throws an exception before returning.
+ */
 static float assignmentFunction (float first, float second)
 {
     throw SemanticError ("Assignment operation in constant expression");
 }
-
-
+/**
+ * Pretty prints a variable. Used by a for_each algorithm.
+ */
 struct printVariable : unary_function<pair<const char*, float>, void>
 {
+    /**
+     * Constructs a printVariable object
+     * @param ostr stream where the variable is printed
+     */
     printVariable (ostream& ostr) : m_ostr(ostr) {}
-
-    void operator() (pair<const char*, float> value)
+    /**
+     * Pretty prints a variable
+     * @param nameValue a name-value pair
+     */
+    void operator() (pair<const char*, float> nameValue)
     {
-	m_ostr << value.first << ": " << value.second << endl;
+	m_ostr << nameValue.first << ": " << nameValue.second << endl;
     }
 private:
+    /**
+     * Stream where the variable will be printed.
+     */
     ostream& m_ostr;
 };
 
+/**
+ * Deletes an identifier. Used by a for_each algorithm
+ */
 struct deleteIdentifier : 
     public unary_function<pair<const char*, string*>, void>
 {
+    /**
+     * Deletes an identifier
+     * @param  pair  this  is  how  an identifier  is  stored  in  the
+     * ParsingData object. We delete the string* part.
+     */
     void operator() (pair<const char*, string*> pair)
     {
 	delete pair.second;
@@ -66,7 +119,7 @@ float ParsingData::GetVariableValue (const char* id)
 	return it->second;
 }
 
-float (*ParsingData::GetUnaryFunction (const char* name))(float)
+ParsingData::UnaryFunction ParsingData::GetUnaryFunction (const char* name)
 {
     UnaryFunctions::iterator it = m_unaryFunctions.find (name);
     if (it == m_unaryFunctions.end ())
@@ -75,7 +128,18 @@ float (*ParsingData::GetUnaryFunction (const char* name))(float)
 	return it->second;
 }
 
-string* ParsingData::CreateId(const char* id)
+ParsingData::BinaryFunction ParsingData::GetBinaryFunction (const char* name)
+{
+    BinaryFunctions::iterator it = m_binaryFunctions.find (name);
+    if (it == m_binaryFunctions.end ())
+	throw SemanticError (string("Invalid binary function name: ") + name);
+    else
+	return it->second;
+}
+
+
+
+string* ParsingData::CreateIdentifier(const char* id)
 {
     Identifiers::iterator it = m_identifiers.find (id);
     if (it == m_identifiers.end ())

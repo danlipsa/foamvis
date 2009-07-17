@@ -10,26 +10,32 @@
 #include <string>
 using namespace std;
 
+class ExpressionTree;
 /**
  * Defines the datatypes for semantic values for terminals and non-terminals
  * in the gramar
  */
-class ExpressionTree;
 typedef union
 {
     /**
-     * Semantic value for an iteger
+     * Value for an iteger
      */
     int i;
     /**
-     * Semantic value for a floating point
+     * Value for a floating point
      */
     float r;
     /**
-     * Semantic value for a list of integers
+     * Value for a list of integers
      */
     vector<int>* intList;
+    /**
+     * An identifier
+     */
     string* id;
+    /**
+     * An expression tree
+     */
     ExpressionTree* node;
 } SemanticValues;
 /**
