@@ -1,6 +1,13 @@
+/**
+ * @file   foam.y
+ * @author Dan R. Lipsa
+ *
+ * Grammar  description for  the parser  used to  read in  a  DMP file
+ * produced by the Surface Evolver software.
+ */
 %{
-
 #include <string.h>
+#include <math.h>
 #include <iostream>
 #include <sstream>
 #include <functional>
@@ -8,12 +15,45 @@
 
 #include "lexYacc.h"
 #include "Data.h"
+#include "ParsingData.h"
 #include "SemanticError.h"
+#include "ExpressionTree.h"
 
 int yylex(void);
 void yyerror (char const *);
+/**
+ * Converts an int to an unsigned int and print a message if the int is negative
+ * @param i the integer to be converted
+ * @param message the message to printed if the integer is negative
+ * @return the unsigned integer.
+ */
 unsigned int intToUnsigned (int i, const char* message);
 using namespace std;
+
+/**
+ * STL unary function that converts from 1 based indexing to 0 based indexing.
+ */
+struct decrementElementIndex : public unary_function<int, int>
+{
+    /**
+     * Converts an index from 1-based to 0-based.
+     * Decrements the index if it is positive and increments it if it
+     * is negative.
+     * @param i index to be converted
+     * @return the converted index
+     */
+    int operator() (int i)
+    {
+	if (i < 0)
+	    i++;
+	else if (i > 0)
+	    i--;
+	else
+	    throw SemanticError ("Semantic error: invalid element index: 0");
+	return i;
+    }
+};
+
 %}
 // directives
 %defines
@@ -64,7 +104,6 @@ using namespace std;
 %token LINEAR "LINEAR"
 %token QUADRATIC "QUADRATIC"
 %token SIMPLEX_REPRESENTATION "SIMPLEX_REPRESENTATION"
-%token FIXED "FIXED"
 %token TOTAL_TIME "TOTAL_TIME"
 %token CONSTRAINT_TOLERANCE "CONSTRAINT_TOLERANCE"
 %token SYMMETRIC_CONTENT "SYMMETRIC_CONTENT"
@@ -126,7 +165,12 @@ header: header parameter
 |
 ;
 
-parameter: PARAMETER IDENTIFIER '=' const_expr;
+parameter: PARAMETER IDENTIFIER '=' const_expr
+{
+    float v = $4.r;
+    data.GetParsingData ().SetVariable($2.id->c_str(), v);
+}
+;
 
 attribute: DEFINE element_type ATTRIBUTE IDENTIFIER attribute_value_type;
 
@@ -151,11 +195,29 @@ view_matrix: VIEW_MATRIX
 const_expr const_expr const_expr const_expr
 const_expr const_expr const_expr const_expr
 const_expr const_expr const_expr const_expr
-const_expr const_expr const_expr const_expr;
+const_expr const_expr const_expr const_expr
+{
+    data.SetViewMatrixElement (0, $2.r);
+    data.SetViewMatrixElement (1, $3.r);
+    data.SetViewMatrixElement (2, $4.r);
+    data.SetViewMatrixElement (3, $5.r);
+    data.SetViewMatrixElement (4, $6.r);
+    data.SetViewMatrixElement (5, $7.r);
+    data.SetViewMatrixElement (6, $8.r);
+    data.SetViewMatrixElement (7, $9.r);
+    data.SetViewMatrixElement (8, $10.r);
+    data.SetViewMatrixElement (9, $11.r);
+    data.SetViewMatrixElement (10, $12.r);
+    data.SetViewMatrixElement (11, $13.r);
+    data.SetViewMatrixElement (12, $14.r);
+    data.SetViewMatrixElement (13, $15.r);
+    data.SetViewMatrixElement (14, $16.r);
+    data.SetViewMatrixElement (15, $17.r);
+};
 
 
 constraint: CONSTRAINT INTEGER_VALUE constraint_params 
-constraint_type ':' expr 
+constraint_type ':' non_const_expr 
 constraint_energy     
 constraint_content    
 ;
@@ -169,30 +231,92 @@ constraint_params: constraint_params GLOBAL
 
 constraint_type: EQUATION | FORMULA | FUNCTION;
 
-constraint_energy: ENERGY E1 ':' expr E2 ':' expr E3 ':' expr |;
-
-constraint_content: CONTENT 
-C1 ':' expr 
-C2 ':' expr 
-C3 ':' expr 
+constraint_energy: ENERGY 
+E1 ':' non_const_expr 
+E2 ':' non_const_expr 
+E3 ':' non_const_expr 
 |;
 
-const_expr: expr;
+constraint_content: CONTENT 
+C1 ':' non_const_expr 
+C2 ':' non_const_expr 
+C3 ':' non_const_expr 
+|;
 
-expr:     number
-        | IDENTIFIER
-        | IDENTIFIER '(' expr ')'
-        | expr '=' expr
-        | expr '+' expr
-        | expr '-' expr
-        | expr '*' expr
-        | expr '/' expr
-        | '-' expr  %prec NEGATION
-        | expr '^' expr
-        | '(' expr ')'
+non_const_expr: expr
+{
+    ExpressionTree::Delete ($1.node);
+}
 ;
 
-number: INTEGER_VALUE | REAL_VALUE;
+const_expr: expr
+{
+    float v = $1.node->Value ();
+    $$.r = v;
+    ExpressionTree::Delete ($1.node);
+};
+
+expr:     number
+{
+    $$.node = new ExpressionTreeNumber ($1.r);
+}
+| IDENTIFIER
+{
+    $$.node = new ExpressionTreeVariable ($1.id, data.GetParsingData ());
+}
+| IDENTIFIER '(' expr ')'
+{
+    $$.node = new ExpressionTreeUnaryFunction (
+	$1.id, $3.node, data.GetParsingData ());
+}
+| expr '+' expr
+{
+    $$.node = new ExpressionTreeBinaryFunction (
+	$2.id, $1.node, $3.node, data.GetParsingData ());
+}
+| expr '-' expr
+{
+    $$.node = new ExpressionTreeBinaryFunction (
+	$2.id, $1.node, $3.node, data.GetParsingData ());
+}
+| expr '*' expr
+{
+    $$.node = new ExpressionTreeBinaryFunction (
+	$2.id, $1.node, $3.node, data.GetParsingData ());
+}
+| expr '/' expr
+{
+    $$.node = new ExpressionTreeBinaryFunction (
+	$2.id, $1.node, $3.node, data.GetParsingData ());
+}
+| '-' expr  %prec NEGATION
+{
+    $$.node = new ExpressionTreeUnaryFunction (
+	$1.id, $2.node, data.GetParsingData ());
+}
+| expr '^' expr
+{
+    $$.node = new ExpressionTreeBinaryFunction (
+	$2.id, $1.node, $3.node, data.GetParsingData ());
+}
+| '(' expr ')'
+{
+    $$.node = $2.node;
+}
+| expr '=' expr
+{
+    $$.node = new ExpressionTreeBinaryFunction (
+	$2.id, $1.node, $3.node, data.GetParsingData ());
+};
+
+number: INTEGER_VALUE 
+{
+    $$.r = $1.i;
+}
+| REAL_VALUE
+{
+    $$.r = $1.r;
+};
 
 number_list: number | number_list ',' number
 
@@ -206,14 +330,15 @@ const_expr const_expr const_expr
 
 vertices: VERTICES vertex_list;
 
-vertex_list: vertex_list INTEGER_VALUE number number number {
+vertex_list: vertex_list INTEGER_VALUE number number number 
+vertex_attribute_list
+{
     data.SetPoint (
 	intToUnsigned($2.i - 1,
 		      "Semantic error: vertex index less than 0: "),
 	$3.r, $4.r, $5.r);
 }
-vertex_attribute_list
-| ;
+|;
 
 vertex_attribute_list: vertex_attribute_list predefined_vertex_attribute
 | vertex_attribute_list user_attribute
@@ -224,13 +349,13 @@ predefined_vertex_attribute: ORIGINAL INTEGER_VALUE;
 user_attribute: IDENTIFIER number | IDENTIFIER '{' number_list '}';
 
 edges: EDGES edge_list;
-edge_list: edge_list INTEGER_VALUE INTEGER_VALUE INTEGER_VALUE {
+edge_list: edge_list INTEGER_VALUE INTEGER_VALUE INTEGER_VALUE signs_torus_model edge_attribute_list
+{
     data.SetEdge (
 	intToUnsigned($2.i - 1, "Semantic error: edge index less than 0: "),
 	intToUnsigned($3.i - 1, "Semantic error: edge begin less than 0: "),
 	intToUnsigned($4.i - 1, "Semantic error: edge end less than 0: "));
 }
-signs_torus_model edge_attribute_list
 | ;
 
 edge_attribute_list: edge_attribute_list predefined_edge_attribute
@@ -246,19 +371,17 @@ sign_torus_model: '+' | '*' | '-';
 
 faces: FACES face_list;
 
-
-face_list: face_list INTEGER_VALUE integer_list {
-    vector<int>* int_list = $3.int_list;
-    transform(int_list->begin(), int_list->end(), int_list->begin(),
-	      bind2nd(plus<int>(), -1));
+face_list: face_list INTEGER_VALUE integer_list face_attribute_list
+{
+    vector<int>* intList = $3.intList;
+    transform(intList->begin(), intList->end(), intList->begin(),
+	      decrementElementIndex());
     data.SetFace (
-	intToUnsigned($2.i, "Semantic error: face index less than 0"), 
-	*int_list);
-    delete int_list;
+	intToUnsigned($2.i - 1, "Semantic error: face index less than 0"), 
+	*intList);
+    delete intList;
 }
-
-face_attribute_list
-| ;
+|;
 
 face_attribute_list: face_attribute_list predefined_face_attribute
 | face_attribute_list user_attribute
@@ -288,29 +411,27 @@ color_name: BLACK
 
 bodies: BODIES body_list;
 
-body_list: body_list INTEGER_VALUE integer_list {
-    vector<int>* int_list = $3.int_list;
-    transform(int_list->begin(), int_list->end(), int_list->begin(),
-	      bind2nd(plus<int>(), -1));
+body_list: body_list INTEGER_VALUE integer_list body_attribute_list
+{
+    vector<int>* intList = $3.intList;
+    transform(intList->begin (), intList->end (), intList->begin (),
+	      decrementElementIndex ());
     data.SetBody (
-	intToUnsigned($2.i, "Semantic error: body index less than 0"),
-	*int_list);
-    delete int_list;
+	intToUnsigned($2.i - 1, "Semantic error: body index less than 0"),
+	*intList);
+    delete intList;
 }
-
-body_attribute_list
 | ;
 
-integer_list: integer_list INTEGER_VALUE {
-    vector<int>* int_list = $1.int_list;
-    if (int_list == 0)
-	int_list = new vector<int>();
-    int_list->push_back ($2.i);
-    $$.int_list = int_list;
+integer_list: integer_list INTEGER_VALUE
+{
+    vector<int>* intList = $1.intList;
+    if (intList == 0)
+	intList = new vector<int>();
+    intList->push_back ($2.i);
+    $$.intList = intList;
 }
-| {
-    return 0;
-}
+| {$$.intList = 0}
 ;
 
 body_attribute_list: body_attribute_list predefined_body_attribute
@@ -335,7 +456,7 @@ unsigned int intToUnsigned (int i, const char* message)
     {
 	ostringstream message;
 	message << message << i << ends;
-	throw SemanticError (message.str().c_str());
+	throw SemanticError (message.str());
     }
     return static_cast<unsigned int>(i);
 }
@@ -357,27 +478,11 @@ int KeywordId (char* keyword)
     return 0;
 }
 
-/**
- * Turns on or off bison debugginig
- * @param debugging turns on debugging for 1, off for 0
- */
-static void bisonDebugging (int debugging)
+void BisonDebugging (int debugging)
 {
     yydebug = debugging;
 }
 
-
-Data data;
-
-/**
- * Parses the data file, reads in vertices, edges, etc and displays them.
- * @return 0 for success, different than 0 otherwise
- */
-int main(void)
-{
-    int parseResult;
-    FlexDebugging (0);
-    bisonDebugging (0);
-    if ((parseResult = yyparse()) == 0)
-	cout << data;
-}
+// Local Variables:
+// mode: c++
+// End:

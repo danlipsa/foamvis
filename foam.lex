@@ -1,3 +1,10 @@
+/**
+ * @file foam.lex
+ * @author Dan R. Lipsa
+ *
+ * Description file for  the lexical analyser used to  read a DMP data
+ * file produced by the Surface Evolver software
+ */
 %{
 /*
  * WARNING. If a character not  described in this file is matched,
@@ -9,9 +16,19 @@
 #include <math.h>
 #include <iostream>
 #include <sstream>
+#include <string>
 #include "lexYacc.h"
+#include "Data.h"
+#include "ParsingData.h"
 #include "foam.tab.h"
 
+/**
+ * Converts a  string in a given  base to an integer.  Prints an error
+ * and exits if the conversion fails.
+ * @param str string to be converted to an integer
+ * @param base the base that the string uses to represent the integer
+ * @return the converted integer
+ */
 static long readInteger (char* str, int base);
 using namespace std;
 %}
@@ -88,31 +105,47 @@ E     [Ee][+-]?{D}+
 	return id;
     }
     else
+    {
+	yylval.id = data.GetParsingData ().CreateId (yytext);
 	return IDENTIFIER;
+    }
 }
 
 "+"|"-"|"*"|"/"|"^"  {/*operators*/
-    return *yytext;}
+    yylval.id = data.GetParsingData ().CreateId (yytext);
+    yylloc.first_line = yylineno;
+    return *yytext;
+}
 
 ":"|"="  {/*assignments*/
-    return *yytext;}
+    yylval.id = data.GetParsingData ().CreateId (yytext);
+    yylloc.first_line = yylineno;
+    return *yytext;
+}
 
 "("|")"  {/*paranthesis for expressions*/
-    return *yytext;}
+    yylloc.first_line = yylineno;
+    return *yytext;
+}
 
 "["|"]"  {/*brakets the size of arrays*/
-    return *yytext;}
+    yylloc.first_line = yylineno;
+    return *yytext;
+}
 
 "{"|"}"  {/*curly brakets elements of arrays*/
-    return *yytext;}
+    yylloc.first_line = yylineno;
+    return *yytext;
+}
 
 ","      {/*element separator for arrays*/
-    return *yytext;}
+    yylloc.first_line = yylineno;
+    return *yytext;
+}
 
 "\\\n"  /*ignore escaping of new lines*/
 
 [[:space:]]+   /* ignore whitespace */
-
 
 
 %%
@@ -136,3 +169,7 @@ void FlexDebugging (int debugging)
 {
     yy_flex_debug = debugging;
 }
+
+// Local Variables:
+// mode: c++
+// End:

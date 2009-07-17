@@ -1,18 +1,24 @@
+/**
+ * @file   Edge.cpp
+ * @author Dan R. Lipsa
+ * 
+ * Implementation of the Edge class
+ */
 #include "Edge.h"
-
-using namespace std;
 
 ostream& operator<< (ostream& ostr, Edge& e)
 {
-    ostr << "Edge: ";
-    if (e.m_begin == 0)
+    if (&e == 0)
 	ostr << "NULL";
     else
-	ostr << *e.m_begin;
-    ostr << ", ";
-    if (e.m_end == 0)
-	ostr << "NULL";
-    else
-	ostr << *e.m_end;
+	ostr << "Edge: " << *e.m_begin << ", " << *e.m_end;
     return ostr;
+}
+
+void Edge::ReversePrint (ostream& ostr)
+{
+    if (this == 0)
+	ostr << "NULL";
+    else
+	ostr << "Edge: " << *m_end << ", " << *m_begin;
 }

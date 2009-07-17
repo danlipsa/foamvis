@@ -1,4 +1,6 @@
-objects = foam.tab.o lex.yy.o Data.o Body.o Face.o Edge.o
+objects = foam.tab.o lex.yy.o Data.o ParsingData.o\
+	Body.o Face.o OrientedFace.o Edge.o OrientedEdge.o Point.o main.o\
+	ExpressionTree.o
 CFLAGS = -Wall -g
 CXXFLAGS = -Wall -g
 CC=g++
@@ -13,10 +15,13 @@ foam.tab.c foam.tab.h: foam.y lexYacc.h Data.h SemanticError.h
 	bison --verbose --debug foam.y
 
 clean:
-	rm -f lex.yy.c foam.tab.c foam.tab.h *.o *.d foam foam.output TAGS
+	rm -f lex.yy.c foam.tab.c foam.tab.h *.o *.d* foam foam.output TAGS
 
 tags:
 	etags *.h *.cpp *.y *.lex
+
+doc:
+	doxygen
 
 # automatic dependency generation
 %.d: %.cpp
