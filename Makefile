@@ -66,7 +66,7 @@ tags:
 	etags *.h *.cpp *.y *.lex
 
 doc:
-	doxygen
+	mkdir html;doxygen
 
 moc_%.cpp: %.h
 	$(MOC) $(DEFINES) $(INCPATH) $< -o $@
