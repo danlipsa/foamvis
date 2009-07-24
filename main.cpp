@@ -4,9 +4,11 @@
  *
  * Constains the main function of the program.
  */
+#include <QApplication>
 #include "Data.h"
 #include "ParsingData.h"
 #include "lexYacc.h"
+#include "window.h"
 
 /**
  * Global object  that stores data read  from a DMP  file (produced by
@@ -18,7 +20,7 @@ Data data;
  * Parses the data file, reads in vertices, edges, etc and displays them.
  * @return 0 for success, different than 0 otherwise
  */
-int main(void)
+int main(int argc, char *argv[])
 {
     try
     {
@@ -27,10 +29,15 @@ int main(void)
 	BisonDebugging (0);
 	if ((parseResult = yyparse()) == 0)
 	{
-	    cout << data;
-	    cout << data.GetParsingData ();
+	    //cout << data;
+	    //cout << data.GetParsingData ();
+	    QApplication app(argc, argv);
+	    Window window;
+	    window.show();
+	    return app.exec();
 	}
-	return parseResult;
+	else
+	    return parseResult;
     }
     catch (exception e)
     {

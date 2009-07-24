@@ -431,7 +431,7 @@ integer_list: integer_list INTEGER_VALUE
     intList->push_back ($2.i);
     $$.intList = intList;
 }
-| {$$.intList = 0}
+| {$$.intList = 0;}
 ;
 
 body_attribute_list: body_attribute_list predefined_body_attribute
