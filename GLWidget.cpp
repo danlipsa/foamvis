@@ -2,8 +2,7 @@
 #include <QtOpenGL>
 
 #include <math.h>
-
-#include "glwidget.h"
+#include "GLWidget.h"
 
 //! [0]
 GLWidget::GLWidget(QWidget *parent)

@@ -20,7 +20,7 @@
 #include "lexYacc.h"
 #include "Data.h"
 #include "ParsingData.h"
-#include "y.tab.h"
+#include "foamYacc.h"
 
 /**
  * Converts a  string in a given  base to an integer.  Prints an error

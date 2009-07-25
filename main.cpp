@@ -8,7 +8,7 @@
 #include "Data.h"
 #include "ParsingData.h"
 #include "lexYacc.h"
-#include "window.h"
+#include "Window.h"
 
 /**
  * Global object  that stores data read  from a DMP  file (produced by

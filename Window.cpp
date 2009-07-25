@@ -1,7 +1,7 @@
 #include <QtGui>
 
-#include "glwidget.h"
-#include "window.h"
+#include "GLWidget.h"
+#include "Window.h"
 
 //! [0]
 Window::Window()
@@ -12,12 +12,20 @@ Window::Window()
     ySlider = createSlider();
     zSlider = createSlider();
 
-    connect(xSlider, SIGNAL(valueChanged(int)), glWidget, SLOT(setXRotation(int)));
-    connect(glWidget, SIGNAL(xRotationChanged(int)), xSlider, SLOT(setValue(int)));
-    connect(ySlider, SIGNAL(valueChanged(int)), glWidget, SLOT(setYRotation(int)));
-    connect(glWidget, SIGNAL(yRotationChanged(int)), ySlider, SLOT(setValue(int)));
-    connect(zSlider, SIGNAL(valueChanged(int)), glWidget, SLOT(setZRotation(int)));
-    connect(glWidget, SIGNAL(zRotationChanged(int)), zSlider, SLOT(setValue(int)));
+    connect(xSlider, SIGNAL(valueChanged(int)), 
+	    glWidget, SLOT(setXRotation(int)));
+    connect(glWidget, SIGNAL(xRotationChanged(int)), 
+	    xSlider, SLOT(setValue(int)));
+
+    connect(ySlider, SIGNAL(valueChanged(int)), 
+	    glWidget, SLOT(setYRotation(int)));
+    connect(glWidget, SIGNAL(yRotationChanged(int)), 
+	    ySlider, SLOT(setValue(int)));
+
+    connect(zSlider, SIGNAL(valueChanged(int)),
+	    glWidget, SLOT(setZRotation(int)));
+    connect(glWidget, SIGNAL(zRotationChanged(int)),
+	    zSlider, SLOT(setValue(int)));
 //! [0]
 
 //! [1]
