@@ -13,7 +13,7 @@
 /**
  * Prints a 4x4 matrix element. Used in for_each algorithm.
  */
-struct printMatrixElement : unary_function<float, void>
+struct printMatrixElement : public unary_function<float, void>
 {
     /**
      * Constructs the object

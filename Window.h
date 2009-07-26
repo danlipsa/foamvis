@@ -8,18 +8,18 @@ class QSlider;
 QT_END_NAMESPACE
 //! [0]
 class GLWidget;
-
+class Data;
 class Window : public QWidget
 {
     Q_OBJECT
 
 public:
-    Window();
+    Window(Data& data);
 
 private:
     QSlider *createSlider();
 
-    GLWidget *glWidget;
+    GLWidget *m_glWidget;
     QSlider *xSlider;
     QSlider *ySlider;
     QSlider *zSlider;

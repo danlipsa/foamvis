@@ -33,7 +33,8 @@ public:
      * @param i index where the Point object is stored
      * @return a pointer to the Point object
      */
-    Point* GetPoint (int i) {return m_vertices[i];}    
+    Point* GetPoint (int i) {return m_vertices[i];}
+    vector<Point*>& GetPoints () {return m_vertices;}
     /**
      * Stores a Point object a certain index in the Data object
      * @param i where to store the Point object

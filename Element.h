@@ -113,3 +113,7 @@ ostream& ReversePrintElementPtrs (ostream& ostr, vector<E*> v,
 }
 
 #endif
+
+// Local Variables:
+// mode: c++
+// End:

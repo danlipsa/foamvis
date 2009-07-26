@@ -4,33 +4,33 @@
 #include "Window.h"
 
 //! [0]
-Window::Window()
+Window::Window(Data& data)
 {
-    glWidget = new GLWidget;
+    m_glWidget = new GLWidget (data);
 
     xSlider = createSlider();
     ySlider = createSlider();
     zSlider = createSlider();
 
     connect(xSlider, SIGNAL(valueChanged(int)), 
-	    glWidget, SLOT(setXRotation(int)));
-    connect(glWidget, SIGNAL(xRotationChanged(int)), 
+	    m_glWidget, SLOT(setXRotation(int)));
+    connect(m_glWidget, SIGNAL(xRotationChanged(int)), 
 	    xSlider, SLOT(setValue(int)));
 
     connect(ySlider, SIGNAL(valueChanged(int)), 
-	    glWidget, SLOT(setYRotation(int)));
-    connect(glWidget, SIGNAL(yRotationChanged(int)), 
+	    m_glWidget, SLOT(setYRotation(int)));
+    connect(m_glWidget, SIGNAL(yRotationChanged(int)), 
 	    ySlider, SLOT(setValue(int)));
 
     connect(zSlider, SIGNAL(valueChanged(int)),
-	    glWidget, SLOT(setZRotation(int)));
-    connect(glWidget, SIGNAL(zRotationChanged(int)),
+	    m_glWidget, SLOT(setZRotation(int)));
+    connect(m_glWidget, SIGNAL(zRotationChanged(int)),
 	    zSlider, SLOT(setValue(int)));
 //! [0]
 
 //! [1]
     QHBoxLayout *mainLayout = new QHBoxLayout;
-    mainLayout->addWidget(glWidget);
+    mainLayout->addWidget(m_glWidget);
     mainLayout->addWidget(xSlider);
     mainLayout->addWidget(ySlider);
     mainLayout->addWidget(zSlider);

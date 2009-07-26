@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 	    //cout << data;
 	    //cout << data.GetParsingData ();
 	    QApplication app(argc, argv);
-	    Window window;
+	    Window window (data);
 	    window.show();
 	    return app.exec();
 	}

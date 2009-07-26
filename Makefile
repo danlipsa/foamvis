@@ -78,7 +78,7 @@ clean:
 
 .PHONY : tags
 tags:
-	etags *.h *.cpp *.y *.lex
+	etags *.h *.cpp *.y *.l
 
 .PHONY : doc
 doc:

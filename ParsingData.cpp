@@ -54,7 +54,7 @@ static float assignmentFunction (float first, float second)
 /**
  * Pretty prints a variable. Used by a for_each algorithm.
  */
-struct printVariable : unary_function<pair<const char*, float>, void>
+struct printVariable : public unary_function<pair<const char*, float>, void>
 {
     /**
      * Constructs a printVariable object
@@ -77,21 +77,12 @@ private:
 };
 
 /**
- * Deletes an identifier. Used by a for_each algorithm
+ * Deletes an identifier
+ * @param  pair  this  is  how  an identifier  is  stored  in  the
+ * ParsingData object. We delete the string* part.
  */
-struct deleteIdentifier : 
-    public unary_function<pair<const char*, string*>, void>
-{
-    /**
-     * Deletes an identifier
-     * @param  pair  this  is  how  an identifier  is  stored  in  the
-     * ParsingData object. We delete the string* part.
-     */
-    void operator() (pair<const char*, string*> pair)
-    {
-	delete pair.second;
-    }
-};
+inline void deleteIdentifier (pair<const char*, string*> pair)
+{delete pair.second;}
 
 ParsingData::ParsingData ()
 {
@@ -107,7 +98,7 @@ ParsingData::ParsingData ()
 
 ParsingData::~ParsingData ()
 {
-    for_each(m_identifiers.begin (), m_identifiers.end (), deleteIdentifier ());
+    for_each(m_identifiers.begin (), m_identifiers.end (), deleteIdentifier);
 }
 
 float ParsingData::GetVariableValue (const char* id) 

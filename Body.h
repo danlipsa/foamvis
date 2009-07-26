@@ -20,7 +20,7 @@ class Body
 public:
     /**
      * Creates a new body
-     * @param faceIndexes 0 based indexes into a vector of Face objects
+     * @param faceIndexes 0 based indexes into a vector of Face m_objects
      * @param faces vector of Face objects
      */
     Body(const vector<int>& faceIndexes, vector<Face*>& faces);

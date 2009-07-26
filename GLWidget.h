@@ -4,12 +4,13 @@
 #include <QGLWidget>
 
 //! [0]
+class Data;
 class GLWidget : public QGLWidget
 {
     Q_OBJECT
 
 public:
-    GLWidget(QWidget *parent = 0);
+    GLWidget(Data& data, QWidget *parent = 0);
     ~GLWidget();
 
     QSize minimumSizeHint() const;
@@ -42,16 +43,14 @@ private:
     GLuint makeObject();
     void quad(GLdouble x1, GLdouble y1, GLdouble x2, GLdouble y2,
               GLdouble x3, GLdouble y3, GLdouble x4, GLdouble y4);
-    void extrude(GLdouble x1, GLdouble y1, GLdouble x2, GLdouble y2);
     void normalizeAngle(int *angle);
 
-    GLuint object;
-    int xRot;
-    int yRot;
-    int zRot;
-    QPoint lastPos;
-    QColor trolltechGreen;
-    QColor trolltechPurple;
+    GLuint m_object;
+    int m_xRot;
+    int m_yRot;
+    int m_zRot;
+    QPoint m_lastPos;
+    Data& m_data;
 };
 //! [3]
 

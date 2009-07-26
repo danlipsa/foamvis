@@ -31,28 +31,23 @@ unsigned int intToUnsigned (int i, const char* message);
 using namespace std;
 
 /**
- * STL unary function that converts from 1 based indexing to 0 based indexing.
+ * Converts an index from 1-based to 0-based.
+ * Decrements the index if it is positive and increments it if it
+ * is negative.
+ * @param i index to be converted
+ * @return the converted index
  */
-struct decrementElementIndex : public unary_function<int, int>
+int decrementElementIndex (int i)
 {
-    /**
-     * Converts an index from 1-based to 0-based.
-     * Decrements the index if it is positive and increments it if it
-     * is negative.
-     * @param i index to be converted
-     * @return the converted index
-     */
-    int operator() (int i)
-    {
-	if (i < 0)
-	    i++;
-	else if (i > 0)
-	    i--;
-	else
-	    throw SemanticError ("Semantic error: invalid element index: 0");
-	return i;
-    }
-};
+    if (i < 0)
+	i++;
+    else if (i > 0)
+	i--;
+    else
+	throw SemanticError ("Semantic error: invalid element index: 0");
+    return i;
+}
+
 
 %}
 // directives
@@ -375,7 +370,7 @@ face_list: face_list INTEGER_VALUE integer_list face_attribute_list
 {
     vector<int>* intList = $3.intList;
     transform(intList->begin(), intList->end(), intList->begin(),
-	      decrementElementIndex());
+	      decrementElementIndex);
     data.SetFace (
 	intToUnsigned($2.i - 1, "Semantic error: face index less than 0"), 
 	*intList);
@@ -415,7 +410,7 @@ body_list: body_list INTEGER_VALUE integer_list body_attribute_list
 {
     vector<int>* intList = $3.intList;
     transform(intList->begin (), intList->end (), intList->begin (),
-	      decrementElementIndex ());
+	      decrementElementIndex);
     data.SetBody (
 	intToUnsigned($2.i - 1, "Semantic error: body index less than 0"),
 	*intList);
