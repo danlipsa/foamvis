@@ -371,7 +371,7 @@ face_list: face_list INTEGER_VALUE integer_list face_attribute_list
     vector<int>* intList = $3.intList;
     transform(intList->begin(), intList->end(), intList->begin(),
 	      decrementElementIndex);
-    data.SetFace (
+    data.SetFacet (
 	intToUnsigned($2.i - 1, "Semantic error: face index less than 0"), 
 	*intList);
     delete intList;

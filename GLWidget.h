@@ -1,5 +1,5 @@
-#ifndef GLWIDGET_H
-#define GLWIDGET_H
+#ifndef __GLWIDGET_H__
+#define __GLWIDGET_H__
 
 #include <QGLWidget>
 
@@ -33,12 +33,15 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
 
 private:
-    GLuint makeObject();
-    void quad(GLdouble x1, GLdouble y1, GLdouble x2, GLdouble y2,
-              GLdouble x3, GLdouble y3, GLdouble x4, GLdouble y4);
+    GLuint makeVertices ();
+    GLuint makeEdges ();
+    GLuint makeFacets ();
     void normalizeAngle(int *angle);
 
-    GLuint m_object;
+    GLuint m_objectVertices;
+    GLuint m_objectEdges;
+    GLuint m_objectFacets;
+
     int m_xRot;
     int m_yRot;
     int m_zRot;

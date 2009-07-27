@@ -1,11 +1,11 @@
 /**
- * @file   Face.cpp
+ * @file   Facet.cpp
  * @author Dan R. Lipsa
  *
- * Implementation of the Face class
+ * Implementation of the Facet class
  */
 #include <algorithm>
-#include "Face.h"
+#include "Facet.h"
 #include "Element.h"
 
 /**
@@ -45,19 +45,19 @@ private:
     vector<Edge*>& m_edges;
 };
 
-Face::Face(const vector<int>& edgeIndexes, vector<Edge*>& edges)
+Facet::Facet(const vector<int>& edgeIndexes, vector<Edge*>& edges)
 {
     m_edges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_edges.begin(), 
 	       indexToOrientedEdge(edges));
 }
 
-Face::~Face()
+Facet::~Facet()
 {
     for_each(m_edges.begin(), m_edges.end(), DeleteElementPtr<OrientedEdge>);
 }
 
-void Face::ReversePrint (ostream& ostr)
+void Facet::ReversePrint (ostream& ostr)
 {
     if (this == 0)
 	ostr << "NULL";
@@ -66,7 +66,7 @@ void Face::ReversePrint (ostream& ostr)
 	    ostr, m_edges, "edges part of the face", true);
 }
 
-ostream& operator<< (ostream& ostr, Face& f)
+ostream& operator<< (ostream& ostr, Facet& f)
 {
     if (&f == 0)
 	ostr << "NULL";

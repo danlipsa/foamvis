@@ -53,7 +53,7 @@ Data::Data () :m_parsingData (new ParsingData ()) {}
 Data::~Data()
 {
     for_each(m_bodies.begin (), m_bodies.end (), DeleteElementPtr<Body>);
-    for_each(m_faces.begin (), m_faces.end (), DeleteElementPtr<Face>);
+    for_each(m_facets.begin (), m_facets.end (), DeleteElementPtr<Facet>);
     for_each(m_edges.begin (), m_edges.end (), DeleteElementPtr<Edge>);
     for_each(m_vertices.begin (), m_vertices.end (), DeleteElementPtr<Point>);
 }
@@ -72,18 +72,18 @@ void Data::SetEdge (unsigned int i, unsigned int begin, unsigned int end)
     m_edges[i] = new Edge (data.GetPoint(begin), data.GetPoint(end));
 }
 
-void Data::SetFace (unsigned int i, const vector<int>& edges)
+void Data::SetFacet (unsigned int i, const vector<int>& edges)
 {
-    if (i >= m_faces.size ())
-	m_faces.resize (i + 1);
-    m_faces[i] = new Face (edges, m_edges);
+    if (i >= m_facets.size ())
+	m_facets.resize (i + 1);
+    m_facets[i] = new Facet (edges, m_edges);
 }
 
-void Data::SetBody (unsigned int i, const vector<int>& faces)
+void Data::SetBody (unsigned int i, const vector<int>& facets)
 {
     if (i >= m_bodies.size ())
 	m_bodies.resize (i + 1);
-    m_bodies[i] = new Body (faces, m_faces);
+    m_bodies[i] = new Body (facets, m_facets);
 }
 
 ostream& operator<< (ostream& ostr, Data& d)
@@ -91,7 +91,7 @@ ostream& operator<< (ostream& ostr, Data& d)
     ostr << "Data:" << endl;
     PrintElementPtrs<Point> (ostr, d.m_vertices, "vertices", true);
     PrintElementPtrs<Edge> (ostr, d.m_edges, "edges", true);
-    PrintElementPtrs<Face> (ostr, d.m_faces, "faces", true);
+    PrintElementPtrs<Facet> (ostr, d.m_facets, "facets", true);
     PrintElementPtrs<Body> (ostr, d.m_bodies, "bodies", true);
     ostr << "view matrix:" << endl;
     for_each (d.m_viewMatrix, 

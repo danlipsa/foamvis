@@ -11,7 +11,7 @@
 #include <iostream>
 #include "Point.h"
 #include "Edge.h"
-#include "Face.h"
+#include "Facet.h"
 #include "Body.h"
 using namespace std;
 
@@ -50,29 +50,32 @@ public:
      * @param end index of the last Point that determines the edge
      */
     void SetEdge (unsigned int i, unsigned int begin, unsigned int end);
+    const vector<Edge*>& GetEdges () {return m_edges;}
     /**
-     * Stores a Face object in the Data object 
+     * Stores a Facet object in the Data object 
      * 
-     * @param i index where to store the Face object
+     * @param i index where to store the Facet object
      * @param edges  vector of  edges that form  the face. An  edge is
      *        specified using an index of the edge that should already
      *        be stored in the Data  object. If the index is negative,
-     *        the edge part of the  Face is in reversed order than the
+     *        the edge part of the  Facet is in reversed order than the
      *        Edge that is stored in the Data object.
      */
-    void SetFace (unsigned int i, const vector<int>& edges);
+    void SetFacet (unsigned int i, const vector<int>& edges);
+    const vector<Facet*> GetFacets () {return m_facets;}
+
     /**
      * Stores a Body object in the Data object
      * @param i index where to store the Body object
 
-     * @param  faces vector of  faces that  form the  body. A  face is
+     * @param  facets vector of  facets that  form the  body. A  face is
      *         specified  using  an  index  of the  face  that  should
      *         already be *  stored in the Data object.   If the index
      *         is negative, the face * that  is part of the Body is in
-     *         reverse order  than the  Face that *  is stored  in the
+     *         reverse order  than the  Facet that *  is stored  in the
      *         Data object.
      */
-    void SetBody (unsigned int i, const vector<int>& faces);
+    void SetBody (unsigned int i, const vector<int>& facets);
     /**
      * Stores an element of the 4x4 view matrix.
      * @param i index where to store the elment
@@ -100,15 +103,15 @@ private:
      */
     vector<Edge*> m_edges;
     /**
-     * A vector of faces
+     * A vector of facets
      */
-    vector<Face*> m_faces;
+    vector<Facet*> m_facets;
     /**
      * A vector of bodies.
      */
     vector<Body*> m_bodies;
     /**
-     * View matrix for displaying vertices, edges, faces and bodies.
+     * View matrix for displaying vertices, edges, facets and bodies.
      */
     float m_viewMatrix[16];
     ParsingData* m_parsingData;

@@ -2,7 +2,7 @@
  * @file Element.h
  * @author Dan R. Lipsa
  * 
- * Template function definitions that apply to Point, Edge, Face and Body.
+ * Template function definitions that apply to Point, Edge, Facet and Body.
  */
 #ifndef __ELEMENT_H__
 #define __ELEMENT_H__

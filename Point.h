@@ -28,7 +28,7 @@ public:
      * Gets the X coordinate of the Point
      * @return the X coordinate
      */
-    float GetX (void) {return m_x;}
+    float GetX (void) const {return m_x;}
     /**
      * Sets the X coordinate of the Point
      * @param x the value for the X coordinate
@@ -38,7 +38,7 @@ public:
      * Gets the Y coordinate of the Point
      * @return the Y coordinate
      */
-    float GetY (void) {return m_y;}
+    float GetY (void) const {return m_y;}
     /**
      * Sets the Y coordinate of the Point
      * @param y the value for the Y coordinate
@@ -48,7 +48,7 @@ public:
      * Gets the Z coordinate of the Point
      * @return the Z coordinate of the Point
      */
-    float GetZ (void) {return m_z;}
+    float GetZ (void) const {return m_z;}
     /**
      * Sets the Z coordinate of the Point
      * @param z the value for the Z coordinate

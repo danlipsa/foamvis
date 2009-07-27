@@ -1,10 +1,10 @@
 /**
- * @file   OrientedFace.h
+ * @file   OrientedFacet.h
  * @author Dan R. Lipsa
  *
- * Implementation of the OrientedFace class
+ * Implementation of the OrientedFacet class
  */
-#include "OrientedFace.h"
+#include "OrientedFacet.h"
 
 using namespace std;
 

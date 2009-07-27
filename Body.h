@@ -9,21 +9,21 @@
 #define __BODY_H__
 
 #include <vector>
-#include "OrientedFace.h"
+#include "OrientedFacet.h"
 using namespace std;
 
 /**
- * A body is a set of faces
+ * A body is a set of facets
  */
 class Body
 {
 public:
     /**
      * Creates a new body
-     * @param faceIndexes 0 based indexes into a vector of Face m_objects
-     * @param faces vector of Face objects
+     * @param faceIndexes 0 based indexes into a vector of Facet objects
+     * @param facets vector of Facet objects
      */
-    Body(const vector<int>& faceIndexes, vector<Face*>& faces);
+    Body(const vector<int>& faceIndexes, vector<Facet*>& facets);
     /**
      * Deletes the memory allocated to store a Body object
      */
@@ -35,9 +35,9 @@ public:
 
 private:
     /**
-     * Faces that are part of this body.
+     * Facets that are part of this body.
      */
-    vector<OrientedFace*> m_faces;
+    vector<OrientedFacet*> m_facets;
 };
 
 #endif
