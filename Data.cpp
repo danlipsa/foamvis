@@ -48,14 +48,14 @@ private:
 };
 
 
-Data::Data () : m_viewMatrix(16), m_parsingData (new ParsingData ()) {}
+Data::Data () :m_parsingData (new ParsingData ()) {}
 
 Data::~Data()
 {
-    for_each(m_bodies.begin (), m_bodies.end (), DeleteElementPtr<Body> ());
-    for_each(m_faces.begin (), m_faces.end (), DeleteElementPtr<Face> ());
-    for_each(m_edges.begin (), m_edges.end (), DeleteElementPtr<Edge> ());
-    for_each(m_vertices.begin (), m_vertices.end (), DeleteElementPtr<Point> ());
+    for_each(m_bodies.begin (), m_bodies.end (), DeleteElementPtr<Body>);
+    for_each(m_faces.begin (), m_faces.end (), DeleteElementPtr<Face>);
+    for_each(m_edges.begin (), m_edges.end (), DeleteElementPtr<Edge>);
+    for_each(m_vertices.begin (), m_vertices.end (), DeleteElementPtr<Point>);
 }
 
 void Data::SetPoint (unsigned int i, float x, float y, float z) 
@@ -94,7 +94,9 @@ ostream& operator<< (ostream& ostr, Data& d)
     PrintElementPtrs<Face> (ostr, d.m_faces, "faces", true);
     PrintElementPtrs<Body> (ostr, d.m_bodies, "bodies", true);
     ostr << "view matrix:" << endl;
-    for_each (d.m_viewMatrix.begin(), d.m_viewMatrix.end(), 
+    for_each (d.m_viewMatrix, 
+	      d.m_viewMatrix + 
+	      sizeof(d.m_viewMatrix)/sizeof(d.m_viewMatrix[0]), 
 	      printMatrixElement (ostr));
     ostr << endl;
     return ostr;

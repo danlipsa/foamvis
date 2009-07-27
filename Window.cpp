@@ -3,7 +3,6 @@
 #include "GLWidget.h"
 #include "Window.h"
 
-//! [0]
 Window::Window(Data& data)
 {
     m_glWidget = new GLWidget (data);
@@ -26,9 +25,7 @@ Window::Window(Data& data)
 	    m_glWidget, SLOT(setZRotation(int)));
     connect(m_glWidget, SIGNAL(zRotationChanged(int)),
 	    zSlider, SLOT(setValue(int)));
-//! [0]
 
-//! [1]
     QHBoxLayout *mainLayout = new QHBoxLayout;
     mainLayout->addWidget(m_glWidget);
     mainLayout->addWidget(xSlider);
@@ -41,9 +38,7 @@ Window::Window(Data& data)
     zSlider->setValue(0 * 16);
     setWindowTitle(tr("Hello GL"));
 }
-//! [1]
 
-//! [2]
 QSlider *Window::createSlider()
 {
     QSlider *slider = new QSlider(Qt::Vertical);
@@ -54,4 +49,3 @@ QSlider *Window::createSlider()
     slider->setTickPosition(QSlider::TicksRight);
     return slider;
 }
-//! [2]

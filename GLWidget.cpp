@@ -8,7 +8,7 @@
 #include "Data.h"
 
 using namespace std;
-//! [0]
+
 GLWidget::GLWidget(Data& data, QWidget *parent)
     : QGLWidget(parent), m_data(data)
 {
@@ -17,32 +17,23 @@ GLWidget::GLWidget(Data& data, QWidget *parent)
     m_yRot = 0;
     m_zRot = 0;
 }
-//! [0]
 
-//! [1]
 GLWidget::~GLWidget()
 {
     makeCurrent();
     glDeleteLists(m_object, 1);
 }
-//! [1]
 
-//! [2]
 QSize GLWidget::minimumSizeHint() const
 {
     return QSize(50, 50);
 }
-//! [2]
 
-//! [3]
 QSize GLWidget::sizeHint() const
-//! [3] //! [4]
 {
     return QSize(400, 400);
 }
-//! [4]
 
-//! [5]
 void GLWidget::setXRotation(int angle)
 {
     normalizeAngle(&angle);
@@ -52,7 +43,6 @@ void GLWidget::setXRotation(int angle)
         updateGL();
     }
 }
-//! [5]
 
 void GLWidget::setYRotation(int angle)
 {
@@ -74,17 +64,21 @@ void GLWidget::setZRotation(int angle)
     }
 }
 
-//! [6]
 void GLWidget::initializeGL()
 {
     m_object = makeObject();
     glShadeModel(GL_FLAT);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-}
-//! [6]
 
-//! [7]
+    glMatrixMode (GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-1, 1, -1, 1, -1, 1);
+
+    glMatrixMode (GL_MODELVIEW);
+    glLoadMatrixf (m_data.GetViewMatrix ());
+}
+
 void GLWidget::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -95,29 +89,18 @@ void GLWidget::paintGL()
     glRotated(m_zRot / 16.0, 0.0, 0.0, 1.0);
     glCallList(m_object);
 }
-//! [7]
 
-//! [8]
 void GLWidget::resizeGL(int width, int height)
 {
-    int side = qMin(width, height);
+    int side = min (width, height);
     glViewport((width - side) / 2, (height - side) / 2, side, side);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(-0.5, +0.5, +0.5, -0.5, 4.0, 15.0);
-    glMatrixMode(GL_MODELVIEW);
 }
-//! [8]
 
-//! [9]
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
     m_lastPos = event->pos();
 }
-//! [9]
 
-//! [10]
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     int dx = event->x() - m_lastPos.x();
@@ -132,19 +115,22 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     }
     m_lastPos = event->pos();
 }
-//! [10]
 
 inline void sendPointToGL (Point* p)
-{glVertex3d(p->GetX (), p->GetY (), p->GetZ ());}
+{
+    if (p != 0)
+	glVertex3f(p->GetX (), p->GetY (), p->GetZ ());
+}
 
 
 GLuint GLWidget::makeObject()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
-    vector<Point*> points = m_data.GetPoints ();
+    const vector<Point*>& points = m_data.GetPoints ();
     glBegin(GL_POINTS);
     for_each (points.begin (), points.end (), sendPointToGL);
+    glVertex3f (0, 0, 0);
     glEnd();
 
     glEndList();

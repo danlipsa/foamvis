@@ -449,9 +449,9 @@ unsigned int intToUnsigned (int i, const char* message)
 {
     if (i < 0)
     {
-	ostringstream message;
-	message << message << i << ends;
-	throw SemanticError (message.str());
+	ostringstream ostr;
+	ostr << message << i << ends;
+	throw SemanticError (ostr.str());
     }
     return static_cast<unsigned int>(i);
 }

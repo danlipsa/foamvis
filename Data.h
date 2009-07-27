@@ -34,7 +34,7 @@ public:
      * @return a pointer to the Point object
      */
     Point* GetPoint (int i) {return m_vertices[i];}
-    vector<Point*>& GetPoints () {return m_vertices;}
+    const vector<Point*>& GetPoints () {return m_vertices;}
     /**
      * Stores a Point object a certain index in the Data object
      * @param i where to store the Point object
@@ -80,6 +80,7 @@ public:
      */
     void SetViewMatrixElement (unsigned int i, float f)
     {m_viewMatrix[i] = f;}
+    const float* GetViewMatrix () {return m_viewMatrix;}
     /**
      * Make the parsing data accessible
      * @return reference to the ParsingData object.
@@ -109,7 +110,7 @@ private:
     /**
      * View matrix for displaying vertices, edges, faces and bodies.
      */
-    vector<float> m_viewMatrix;
+    float m_viewMatrix[16];
     ParsingData* m_parsingData;
 };
 

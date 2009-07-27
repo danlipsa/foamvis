@@ -47,7 +47,7 @@ static float multipliesFunction (float first, float second)
  * @param second second number
  * @return it throws an exception before returning.
  */
-static float assignmentFunction (float first, float second)
+static float assignmentFunction (float, float)
 {
     throw SemanticError ("Assignment operation in constant expression");
 }

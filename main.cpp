@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
 	    Window window (data);
 	    window.show();
 	    return app.exec();
+	    return 0;
 	}
 	else
 	    return parseResult;

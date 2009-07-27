@@ -22,7 +22,8 @@ CPPFLAGS = $(DEFINES) $(INCPATH)
 DEFINES       = \
 	-DQT_OPENGL_LIB \
 	-DQT_GUI_LIB \
-	-DQT_CORE_LIB
+	-DQT_CORE_LIB \
+	-D_REENTRANT
 INCPATH = \
 	-I/usr/lib/qt4/mkspecs/linux-g++ \
 	-I/usr/include/QtCore \
@@ -34,8 +35,8 @@ INCPATH = \
 
 # C/C++ compiler options
 CC = g++
-CFLAGS = -Wall -g
-CXXFLAGS = -Wall -g
+CFLAGS = -pipe -Wall -Wextra -g
+CXXFLAGS = -pipe -Wall -Wextra -g
 
 # lex options
 LEX = flex

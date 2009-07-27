@@ -49,7 +49,7 @@ private:
 
 Body::~Body()
 {
-    for_each(m_faces.begin(), m_faces.end(), DeleteElementPtr<OrientedFace>());
+    for_each(m_faces.begin(), m_faces.end(), DeleteElementPtr<OrientedFace>);
 }
 
 Body::Body(const vector<int>& faceIndexes, vector<Face*>& faces)

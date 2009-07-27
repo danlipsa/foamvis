@@ -14,18 +14,15 @@
 
 using namespace std;
 
+
 /**
- * Unary function that  deletes an object of type E*
+ * Deletes an object of type E*.
+ * @param pe pointer to the object to be deleted
  */
-template <class E>
-struct DeleteElementPtr : public unary_function<E*, void>
-{
-    /**
-     * Deletes an object of type E*.
-     * @param pe pointer to the object to be deleted
-     */
-    void operator() (E* pe) {delete pe;}
-};
+template <class E> 
+void DeleteElementPtr (E* pe) 
+{delete pe;}
+
 
 /**
  * Unary function  that prints an  object of type  E*. Used to  print a

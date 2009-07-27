@@ -54,7 +54,7 @@ Face::Face(const vector<int>& edgeIndexes, vector<Edge*>& edges)
 
 Face::~Face()
 {
-    for_each(m_edges.begin(), m_edges.end(), DeleteElementPtr<OrientedEdge>());
+    for_each(m_edges.begin(), m_edges.end(), DeleteElementPtr<OrientedEdge>);
 }
 
 void Face::ReversePrint (ostream& ostr)
