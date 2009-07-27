@@ -35,12 +35,12 @@ protected:
 private:
     GLuint makeVertices ();
     GLuint makeEdges ();
-    GLuint makeFacets ();
+    GLuint makeFaces ();
     void normalizeAngle(int *angle);
 
     GLuint m_objectVertices;
     GLuint m_objectEdges;
-    GLuint m_objectFacets;
+    GLuint m_objectFaces;
 
     int m_xRot;
     int m_yRot;

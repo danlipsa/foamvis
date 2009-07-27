@@ -1,8 +1,8 @@
 /**
- * @file   Facet.h
+ * @file   Face.h
  * @author Dan R. Lipsa
  *
- * Declaration of Facet class
+ * Declaration of Face class
  */
 #ifndef __FACE_H__
 #define __FACE_H__
@@ -13,29 +13,29 @@
 using namespace std;
 
 /**
- * A Facet is a oriented list of edges.
+ * A Face is a oriented list of edges.
  */
-class Facet
+class Face
 {
 public:
     /**
-     * Constructs a Facet object
+     * Constructs a Face object
      * @param edgeIndexes indexes into a vector of Edge objects
      * @param edges vector of Edge objects
      */
-    Facet(const vector<int>& edgeIndexes, vector<Edge*>& edges);
+    Face(const vector<int>& edgeIndexes, vector<Edge*>& edges);
     /**
-     * Destroys a Facet object
+     * Destroys a Face object
      */
-    ~Facet();
+    ~Face();
     /**
-     * Pretty prints this Facet by printing the edges in REVERSE order
+     * Pretty prints this Face by printing the edges in REVERSE order
      */
     void ReversePrint (ostream& ostr);
     /**
-     * Pretty prints this Facet by printing the edges in DIRECT order
+     * Pretty prints this Face by printing the edges in DIRECT order
      */
-    friend ostream& operator<< (ostream& ostr, Facet& f); 
+    friend ostream& operator<< (ostream& ostr, Face& f); 
 private:
     /**
      * Edges that are part of this face

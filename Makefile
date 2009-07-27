@@ -5,7 +5,7 @@
 # lex  (processed by  flex), yacc  (processed by  bison), C++,  QT C++
 # (preprocessed by moc)
 
-objects = Data.o ParsingData.o Body.o Facet.o OrientedFacet.o \
+objects = Data.o ParsingData.o Body.o Face.o OrientedFace.o \
 	Edge.o OrientedEdge.o Point.o main.o ExpressionTree.o
 # sources created through other tools (flex and bison)
 prep_objects = foamYacc.o foamLex.o

@@ -14,7 +14,7 @@ GLWidget::GLWidget(Data& data, QWidget *parent)
 {
     m_objectVertices = 0;
     m_objectEdges = 0;
-    m_objectFacets = 0;
+    m_objectFaces = 0;
     m_xRot = 0;
     m_yRot = 0;
     m_zRot = 0;
@@ -25,7 +25,7 @@ GLWidget::~GLWidget()
     makeCurrent();
     glDeleteLists(m_objectVertices, 1);
     glDeleteLists(m_objectEdges, 1);
-    glDeleteLists(m_objectFacets, 1);
+    glDeleteLists(m_objectFaces, 1);
 }
 
 QSize GLWidget::minimumSizeHint() const
@@ -72,7 +72,7 @@ void GLWidget::initializeGL()
 {
     m_objectVertices = makeVertices();
     m_objectEdges = makeEdges ();
-    m_objectFacets = makeFacets ();
+    m_objectFaces = makeFaces ();
     glShadeModel(GL_FLAT);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -92,7 +92,7 @@ void GLWidget::paintGL()
     glRotated(m_xRot / 16.0, 1.0, 0.0, 0.0);
     glRotated(m_yRot / 16.0, 0.0, 1.0, 0.0);
     glRotated(m_zRot / 16.0, 0.0, 0.0, 1.0);
-    glCallList(m_objectFacets);
+    glCallList(m_objectFaces);
 }
 
 void GLWidget::resizeGL(int width, int height)
@@ -138,7 +138,7 @@ void displayEdge (Edge* e)
     }
 }
 
-void displayFacet (Facet* f)
+void displayFace (Face* f)
 {
     if (f != 0)
     {
@@ -170,13 +170,13 @@ GLuint GLWidget::makeEdges ()
     return list;
 }
 
-GLuint GLWidget::makeFacets ()
+GLuint GLWidget::makeFaces ()
 {
     GLuint list = glGenLists(1);
-    const vector<Facet*>& facets = m_data.GetFacets ();
+    const vector<Face*>& faces = m_data.GetFaces ();
     glNewList(list, GL_COMPILE);
     glBegin(GL_TRIANGLES);
-    for_each (facets.begin (), facets.end (), displayFacet);
+    for_each (faces.begin (), faces.end (), displayFace);
     glEnd();
     glEndList();
     return list;

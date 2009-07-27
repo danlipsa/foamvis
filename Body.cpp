@@ -11,24 +11,24 @@
 
 /**
  * STL unary  function that converts a  signed index into  a vector of
- * Facet  objects into a  OrientedFacet object.  A negative  index means
- * that the Facet object is listed  in reverse order in the Body object
- * than in the vector of Facet objects.
+ * Face  objects into a  OrientedFace object.  A negative  index means
+ * that the Face object is listed  in reverse order in the Body object
+ * than in the vector of Face objects.
  */
-class indexToOrientedFacet : public unary_function<int, OrientedFacet*>
+class indexToOrientedFace : public unary_function<int, OrientedFace*>
 {
 public:
     /**
      * Constructor
-     * @param facets vector of Facet pointers. This is where the indexes point to.
+     * @param faces vector of Face pointers. This is where the indexes point to.
      */
-    indexToOrientedFacet(vector<Facet*>& facets): m_facets(facets) {}
+    indexToOrientedFace(vector<Face*>& faces): m_faces(faces) {}
     /**
-     * Converts a signed integer into a OrientedFacet
-     * @param i index into a vector of Facet pointers
-     * @return an OrientedFacet pointer
+     * Converts a signed integer into a OrientedFace
+     * @param i index into a vector of Face pointers
+     * @return an OrientedFace pointer
      */
-    OrientedFacet* operator() (int i)
+    OrientedFace* operator() (int i)
     {
 	bool reversed = false;
 	if (i < 0)
@@ -36,27 +36,27 @@ public:
 	    i = -i;
 	    reversed = true;
 	}
-	return new OrientedFacet(m_facets[i], reversed);
+	return new OrientedFace(m_faces[i], reversed);
     }
 private:
     /**
-     * Vector of Facet pointers
+     * Vector of Face pointers
      */
-    vector<Facet*>& m_facets;
+    vector<Face*>& m_faces;
 };
 
 
 
 Body::~Body()
 {
-    for_each(m_facets.begin(), m_facets.end(), DeleteElementPtr<OrientedFacet>);
+    for_each(m_faces.begin(), m_faces.end(), DeleteElementPtr<OrientedFace>);
 }
 
-Body::Body(const vector<int>& faceIndexes, vector<Facet*>& facets)
+Body::Body(const vector<int>& faceIndexes, vector<Face*>& faces)
 {
-    m_facets.resize (faceIndexes.size ());
-    transform (faceIndexes.begin(), faceIndexes.end(), m_facets.begin(), 
-	       indexToOrientedFacet(facets));
+    m_faces.resize (faceIndexes.size ());
+    transform (faceIndexes.begin(), faceIndexes.end(), m_faces.begin(), 
+	       indexToOrientedFace(faces));
 }
 
 ostream& operator<< (ostream& ostr, Body& b)
@@ -64,7 +64,7 @@ ostream& operator<< (ostream& ostr, Body& b)
     if (&b == 0)
 	ostr << "NULL";
     else
-	PrintElementPtrs<OrientedFacet> (ostr, b.m_facets, 
-					"facets part of the body", true);
+	PrintElementPtrs<OrientedFace> (ostr, b.m_faces, 
+					"faces part of the body", true);
     return ostr;
 }

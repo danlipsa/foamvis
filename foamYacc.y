@@ -70,7 +70,7 @@ int decrementElementIndex (int i)
 %token DEFINE "DEFINE"
 %token ATTRIBUTE "ATTRIBUTE"
 %token EDGE "EDGE"
-%token FACET "FACET"
+%token FACE "FACE"
 %token BODY "BODY"
 %token INTEGER_TYPE "INTEGER"
 %token REAL_TYPE "REAL"
@@ -169,7 +169,7 @@ parameter: PARAMETER IDENTIFIER '=' const_expr
 
 attribute: DEFINE element_type ATTRIBUTE IDENTIFIER attribute_value_type;
 
-element_type: EDGE | FACET | BODY;
+element_type: EDGE | FACE | BODY;
 
 attribute_value_type: INTEGER_TYPE 
 | REAL_TYPE 
@@ -371,7 +371,7 @@ face_list: face_list INTEGER_VALUE integer_list face_attribute_list
     vector<int>* intList = $3.intList;
     transform(intList->begin(), intList->end(), intList->begin(),
 	      decrementElementIndex);
-    data.SetFacet (
+    data.SetFace (
 	intToUnsigned($2.i - 1, "Semantic error: face index less than 0"), 
 	*intList);
     delete intList;
