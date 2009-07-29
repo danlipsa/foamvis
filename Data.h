@@ -76,6 +76,7 @@ public:
      *         Data object.
      */
     void SetBody (unsigned int i, const vector<int>& faces);
+    const vector<Body*> GetBodies () {return m_bodies;}
     /**
      * Stores an element of the 4x4 view matrix.
      * @param i index where to store the elment
@@ -89,6 +90,8 @@ public:
      * @return reference to the ParsingData object.
      */
     ParsingData& GetParsingData () {return *m_parsingData;}
+    void Compact ();
+
     /**
      * Pretty print for the Data object
      */

@@ -5,17 +5,23 @@
 # lex  (processed by  flex), yacc  (processed by  bison), C++,  QT C++
 # (preprocessed by moc)
 
+# additional tools
+LEX = flex
+YACC = bison
+MOC = /usr/lib/qt4/bin/moc
+UIC = /usr/lib/qt4/bin/uic
+
+# regular C++ sources that don't need preprocessing
 objects = Data.o ParsingData.o Body.o Face.o OrientedFace.o \
 	Edge.o OrientedEdge.o Point.o main.o ExpressionTree.o
-# sources created through other tools (flex and bison)
-prep_objects = foamYacc.o foamLex.o
-# QT classes that need preprocessing through moc
-qt_objects = GLWidget.o Window.o
-all_objects = $(prep_objects) $(moc_objects) $(objects) $(qt_objects)
-
+# sources created through lex and yacc
+lexYacc_objects = foamYacc.o foamLex.o
+# sources using QT that need preprocessing through MOC
+moc_objects = GLWidget.o Window.o
 # QT preprocessor options
-MOC = /usr/lib/qt4/bin/moc
-moc_objects = $(addprefix moc_, $(qt_objects))
+generatedMoc_objects = $(addprefix moc_, $(moc_objects))
+all_objects = $(lexYacc_objects) $(generatedMoc_objects) \
+	$(objects) $(moc_objects)
 
 # C/C++ preprocessor options
 CPPFLAGS = $(DEFINES) $(INCPATH)
@@ -30,7 +36,7 @@ INCPATH = \
 	-I/usr/include/QtGui \
 	-I/usr/include/QtOpenGL \
 	-I/usr/include \
-	-I/usr/X11R6/include \
+	-I/usr/local/include \
 	-I.
 
 # C/C++ compiler options
@@ -39,11 +45,9 @@ CFLAGS = -pipe -Wall -Wextra -g
 CXXFLAGS = -pipe -Wall -Wextra -g
 
 # lex options
-LEX = flex
 LFLAGS = --debug
 
 # yacc options
-YACC = bison
 YFLAGS = --debug
 
 # C/C++ linker options
@@ -62,6 +66,9 @@ foam:	$(all_objects)
 moc_%.cpp: %.h
 	$(MOC) $(DEFINES) $(INCPATH) $< -o $@
 
+ui_%.h: %.ui
+	$(UIC) $< -o $@
+
 # Bison generates  y.tab.h as well,  and the authomatic rule  does not
 # specify that.
 foamYacc.c foamYacc.h: foamYacc.y
@@ -71,11 +78,11 @@ foamYacc.c foamYacc.h: foamYacc.y
 
 # Prevent the deletion of intermediate files. See for more information
 # info: make/Implicit Rules/Chained Rules
-.SECONDARY: $(subst .o,.c,$(prep_objects)) $(subst .o,.cpp,$(moc_objects))
+.SECONDARY: $(subst .o,.c,$(lexYacc_objects)) $(subst .o,.cpp,$(generatedMoc_objects))
 
 .PHONY : clean
 clean:
-	rm -f *.o *.d* foam*.c foam*.h foam foam.output TAGS moc_*.cpp
+	rm -f *.o *.d* foam*.c foam*.h foam foam.output TAGS moc_*.cpp ui_*.h
 
 .PHONY : tags
 tags:
@@ -98,7 +105,7 @@ doc:
 # already specified.
 # sinclude behaves like include but it does not give an error for missing files
 # after a clean, the dependency files are missing
-dep_objects = $(prep_objects) $(objects) $(qt_objects)
+dep_objects = $(lexYacc_objects) $(objects) $(moc_objects)
 ifneq ($(MAKECMDGOALS),clean)
 	sinclude $(dep_objects:.o=.d)
 endif

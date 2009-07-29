@@ -32,6 +32,8 @@ public:
      * Pretty prints this Face by printing the edges in REVERSE order
      */
     void ReversePrint (ostream& ostr);
+    const vector<OrientedEdge*> GetOrientedEdges () const 
+    { return m_edges;}
     /**
      * Pretty prints this Face by printing the edges in DIRECT order
      */

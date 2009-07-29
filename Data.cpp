@@ -10,6 +10,24 @@
 #include "Element.h"
 #include "ParsingData.h"
 
+template <class E>
+void compact (vector<E*>& v)
+{
+    unsigned int step = 0;
+    for (unsigned int i = 0; i < v.size (); i++)
+    {
+	if (v[i] == 0)
+	    step++;
+	else if (step != 0)
+	    v[i - step] = v[i];
+    }
+    unsigned int resize = v.size () - step;
+    cerr << "resizing vector with " << step << endl;
+    v.resize (resize);
+}
+
+
+
 /**
  * Prints a 4x4 matrix element. Used in for_each algorithm.
  */
@@ -84,6 +102,14 @@ void Data::SetBody (unsigned int i, const vector<int>& faces)
     if (i >= m_bodies.size ())
 	m_bodies.resize (i + 1);
     m_bodies[i] = new Body (faces, m_faces);
+}
+
+void Data::Compact (void)
+{
+    compact (m_vertices);
+    compact (m_edges);
+    compact (m_faces);
+    compact (m_bodies);
 }
 
 ostream& operator<< (ostream& ostr, Data& d)

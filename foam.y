@@ -70,7 +70,7 @@ int decrementElementIndex (int i)
 %token DEFINE "DEFINE"
 %token ATTRIBUTE "ATTRIBUTE"
 %token EDGE "EDGE"
-%token FACE "FACE"
+%token FACET "FACET"
 %token BODY "BODY"
 %token INTEGER_TYPE "INTEGER"
 %token REAL_TYPE "REAL"
@@ -140,11 +140,11 @@ int decrementElementIndex (int i)
 
 
 %%
-datafile: header vertices edges faces bodies eof;
-
-eof: READ
-|
-;
+datafile: header vertices edges faces bodies
+{
+    cerr << "The end" << endl;
+    data.Compact ();
+};
 
 header: header parameter
 | header attribute              
@@ -169,7 +169,7 @@ parameter: PARAMETER IDENTIFIER '=' const_expr
 
 attribute: DEFINE element_type ATTRIBUTE IDENTIFIER attribute_value_type;
 
-element_type: EDGE | FACE | BODY;
+element_type: EDGE | FACET | BODY;
 
 attribute_value_type: INTEGER_TYPE 
 | REAL_TYPE 

@@ -9,21 +9,25 @@ class GLWidget : public QGLWidget
     Q_OBJECT
 
 public:
-    GLWidget(Data& data, QWidget *parent = 0);
+    GLWidget(QWidget *parent = 0);
     ~GLWidget();
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
+    void SetData (Data* data) 
+    {
+	m_data = data;
+    }
 
 public slots:
-    void setXRotation(int angle);
-    void setYRotation(int angle);
-    void setZRotation(int angle);
+    void SetXRotation(int angle);
+    void SetYRotation(int angle);
+    void SetZRotation(int angle);
 
 signals:
-    void xRotationChanged(int angle);
-    void yRotationChanged(int angle);
-    void zRotationChanged(int angle);
+    void XRotationChanged(int angle);
+    void YRotationChanged(int angle);
+    void ZRotationChanged(int angle);
 
 protected:
     void initializeGL();
@@ -36,17 +40,19 @@ private:
     GLuint makeVertices ();
     GLuint makeEdges ();
     GLuint makeFaces ();
+    GLuint makeBodies ();
     void normalizeAngle(int *angle);
 
     GLuint m_objectVertices;
     GLuint m_objectEdges;
     GLuint m_objectFaces;
+    GLuint m_objectBodies;
 
     int m_xRot;
     int m_yRot;
     int m_zRot;
     QPoint m_lastPos;
-    Data& m_data;
+    Data* m_data;
 };
 
 #endif

@@ -27,6 +27,13 @@ public:
      */
     OrientedEdge (Edge* edge, bool reversed): 
 	m_edge (edge), m_reversed (reversed) {}
+    const Point* GetBegin (void) const
+    {return m_reversed ? m_edge->GetEnd () : m_edge->GetBegin ();}
+
+    const Point* GetEnd (void) const
+    {return m_reversed ? m_edge->GetBegin () : m_edge->GetEnd ();}
+
+
     /**
      * Pretty prints an Edge
      * @param ostr output stream where to print the edge

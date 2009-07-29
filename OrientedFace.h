@@ -27,6 +27,8 @@ public:
      */
     OrientedFace(Face* face, bool reversed)
     {m_face = face; m_reversed = reversed;}
+    const Face* GetFace () {return m_face;}
+    bool IsReversed () {return m_reversed;}
     /**
      * Pretty print for the OrientedFace object
      */

@@ -20,7 +20,7 @@
 #include "lexYacc.h"
 #include "Data.h"
 #include "ParsingData.h"
-#include "foamYacc.h"
+#include "foam_yacc.h"
 
 /**
  * Converts a  string in a given  base to an integer.  Prints an error
@@ -54,26 +54,26 @@ E     [Ee][+-]?{D}+
 	    if ( c == '/' ) break;    /* found the end */ 
 	}
 	if ( c == 0 && yywrap() )
-	{yyerror ("lexical error, end-of-file in comment\n");break;}
+	{foamerror ("lexical error, end-of-file in comment\n");break;}
     }
 }
 
 "//".*""    /* eat comment */ ;
 
 [+-]?{D}+ { /* decimal integers */
-    yylval.i = readInteger (yytext, 10);
-    yylloc.first_line = yylineno;
+    foamlval.i = readInteger (yytext, 10);
+    foamlloc.first_line = yylineno;
     return INTEGER_VALUE;
 	}
 
 [+-]?0x{H}+ { /*hex integers*/
-    yylval.i = readInteger (yytext, 16);
-    yylloc.first_line = yylineno;
+    foamlval.i = readInteger (yytext, 16);
+    foamlloc.first_line = yylineno;
     return INTEGER_VALUE;
 	  }
 [+-]?[01]+[Bb]   { /*binary integers*/
-    yylval.i = readInteger (yytext, 2);
-    yylloc.first_line = yylineno;
+    foamlval.i = readInteger (yytext, 2);
+    foamlloc.first_line = yylineno;
     return INTEGER_VALUE;
 }
 
@@ -82,13 +82,13 @@ E     [Ee][+-]?{D}+
 [+-]?{D}+{E}   { /* reals */
     char *tail = yytext;
     errno = 0;
-    yylval.r = strtod (yytext, &tail);
-    yylloc.first_line = yylineno;
+    foamlval.r = strtod (yytext, &tail);
+    foamlloc.first_line = yylineno;
     if (errno)
     {
 	ostringstream message;
 	message << "lexical error, overflow " << yytext << ends;
-	yyerror(message.str().c_str());
+	foamerror(message.str().c_str());
 	exit(13);
     }
     return REAL_VALUE;
@@ -96,50 +96,50 @@ E     [Ee][+-]?{D}+
 
 {ID} { /*identifiers*/
     int id = KeywordId (yytext);
-    yylloc.first_line = yylineno;
+    foamlloc.first_line = yylineno;
     if (id)
     {
 	if (id == READ)
-	    // ignore everything after READ
+	    // ignore READ and everything after it.
 	    yyterminate();
 	return id;
     }
     else
     {
-	yylval.id = data.GetParsingData ().CreateIdentifier (yytext);
+	foamlval.id = data.GetParsingData ().CreateIdentifier (yytext);
 	return IDENTIFIER;
     }
 }
 
 "+"|"-"|"*"|"/"|"^"  {/*operators*/
-    yylval.id = data.GetParsingData ().CreateIdentifier (yytext);
-    yylloc.first_line = yylineno;
+    foamlval.id = data.GetParsingData ().CreateIdentifier (yytext);
+    foamlloc.first_line = yylineno;
     return *yytext;
 }
 
 ":"|"="  {/*assignments*/
-    yylval.id = data.GetParsingData ().CreateIdentifier (yytext);
-    yylloc.first_line = yylineno;
+    foamlval.id = data.GetParsingData ().CreateIdentifier (yytext);
+    foamlloc.first_line = yylineno;
     return *yytext;
 }
 
 "("|")"  {/*paranthesis for expressions*/
-    yylloc.first_line = yylineno;
+    foamlloc.first_line = yylineno;
     return *yytext;
 }
 
 "["|"]"  {/*brakets the size of arrays*/
-    yylloc.first_line = yylineno;
+    foamlloc.first_line = yylineno;
     return *yytext;
 }
 
 "{"|"}"  {/*curly brakets elements of arrays*/
-    yylloc.first_line = yylineno;
+    foamlloc.first_line = yylineno;
     return *yytext;
 }
 
 ","      {/*element separator for arrays*/
-    yylloc.first_line = yylineno;
+    foamlloc.first_line = yylineno;
     return *yytext;
 }
 
@@ -159,7 +159,7 @@ static long readInteger (char* str, int base)
     {
 	ostringstream ostr;
 	ostr << "lexical error, long overflow " << str;
-	yyerror (ostr.str().c_str());
+	foamerror (ostr.str().c_str());
 	exit(13);
     }
     return i;

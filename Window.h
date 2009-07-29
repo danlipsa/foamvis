@@ -2,27 +2,16 @@
 #define __WINDOW_H__
 
 #include <QWidget>
-
-QT_BEGIN_NAMESPACE
-class QSlider;
-QT_END_NAMESPACE
+#include "ui_Window.h"
 
 class GLWidget;
 class Data;
-class Window : public QWidget
+class Window : public QWidget, private Ui::Window
 {
     Q_OBJECT
 
 public:
-    Window(Data& data);
-
-private:
-    QSlider *createSlider();
-
-    GLWidget *m_glWidget;
-    QSlider *xSlider;
-    QSlider *ySlider;
-    QSlider *zSlider;
+    Window(Data* data);
 };
 
 

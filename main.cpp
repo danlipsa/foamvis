@@ -27,12 +27,10 @@ int main(int argc, char *argv[])
 	int parseResult;
 	FlexDebugging (0);
 	BisonDebugging (0);
-	if ((parseResult = yyparse()) == 0)
+	if ((parseResult = foamparse()) == 0)
 	{
-	    //cout << data;
-	    //cout << data.GetParsingData ();
 	    QApplication app(argc, argv);
-	    Window window (data);
+	    Window window (&data);
 	    window.show();
 	    return app.exec();
 	    return 0;

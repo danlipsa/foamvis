@@ -26,7 +26,8 @@ public:
     /**
      * @return the first vertex of the edge
      */
-    const Point* GetBegin(void) {return m_begin;}
+    const Point* GetBegin(void) const
+    {return m_begin;}
     /**
      * Sets the first vertex of the edge
      * @param begin value stored in the first vertex of the edge
@@ -35,7 +36,8 @@ public:
     /**
      * @return last vertex of the edge
      */
-    const Point* GetEnd(void) {return m_end;}
+    const Point* GetEnd(void) const
+    {return m_end;}
     /**
      * Sets the last vertex of the edge
      * @param end value stored in the last vertex of the edge

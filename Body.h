@@ -28,6 +28,7 @@ public:
      * Deletes the memory allocated to store a Body object
      */
     ~Body();
+    const vector<OrientedFace*> GetOrientedFaces() {return m_faces;}
     /**
      * Prety print a body
      */
