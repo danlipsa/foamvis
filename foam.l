@@ -15,7 +15,6 @@
 #include <stdio.h>
 #include <math.h>
 #include <iostream>
-#include <sstream>
 #include <string>
 #include "lexYacc.h"
 #include "Data.h"
@@ -86,9 +85,7 @@ E     [Ee][+-]?{D}+
     foamlloc.first_line = yylineno;
     if (errno)
     {
-	ostringstream message;
-	message << "lexical error, overflow " << yytext << ends;
-	foamerror(message.str().c_str());
+	foamerror((string("lexical error, overflow ") + yytext).c_str());
 	exit(13);
     }
     return REAL_VALUE;
@@ -157,9 +154,7 @@ static long readInteger (char* str, int base)
     long i = strtol (str, &tail, base);
     if (errno)
     {
-	ostringstream ostr;
-	ostr << "lexical error, long overflow " << str;
-	foamerror (ostr.str().c_str());
+	foamerror ((string("lexical error, long overflow ") + str).c_str());
 	exit(13);
     }
     return i;

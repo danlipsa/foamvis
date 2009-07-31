@@ -8,8 +8,8 @@
 %{
 #include <string.h>
 #include <math.h>
-#include <iostream>
 #include <sstream>
+#include <iostream>
 #include <functional>
 #include <algorithm>
 
@@ -18,6 +18,7 @@
 #include "ParsingData.h"
 #include "SemanticError.h"
 #include "ExpressionTree.h"
+#include "AttributeCreator.h"
 
 int yylex(void);
 void yyerror (char const *);
@@ -69,6 +70,7 @@ int decrementElementIndex (int i)
  // extra attributes
 %token DEFINE "DEFINE"
 %token ATTRIBUTE "ATTRIBUTE"
+%token VERTEX "VERTEX"
 %token EDGE "EDGE"
 %token FACET "FACET"
 %token BODY "BODY"
@@ -167,14 +169,49 @@ parameter: PARAMETER IDENTIFIER '=' const_expr
 }
 ;
 
-attribute: DEFINE element_type ATTRIBUTE IDENTIFIER attribute_value_type;
+attribute: DEFINE element_type ATTRIBUTE IDENTIFIER attribute_value_type
+{
+    data.AddAttributeInfo (
+	$2.attributeType, $4.id->c_str(), $5.attributeCreator);
+}
+;
 
-element_type: EDGE | FACET | BODY;
+element_type: VERTEX
+{
+    $$.attributeType = Attribute::VERTEX_TYPE;
+}
+| EDGE 
+{
+    $$.attributeType = Attribute::EDGE_TYPE;
+}
+| FACET 
+{
+    $$.attributeType = Attribute::FACE_TYPE;
+}
+| BODY
+{
+    $$.attributeType = Attribute::BODY_TYPE;
+}
+;
 
-attribute_value_type: INTEGER_TYPE 
+attribute_value_type: INTEGER_TYPE
+{
+    $$.attributeCreator = new IntegerAttributeCreator ();
+}
 | REAL_TYPE 
-| INTEGER_TYPE '[' INTEGER_VALUE ']' 
-| REAL_TYPE '[' INTEGER_VALUE ']';
+{
+    $$.attributeCreator = new RealAttributeCreator ();
+}
+| INTEGER_TYPE '[' INTEGER_VALUE ']'
+{
+    $$.attributeCreator = new IntegerArrayAttributeCreator ($3.i);
+}
+| REAL_TYPE '[' INTEGER_VALUE ']'
+{
+    $$.attributeCreator = new RealArrayAttributeCreator ($3.i);
+}
+;
+
 
 dimensionality: STRING | SOAPFILM;
 
@@ -451,14 +488,15 @@ unsigned int intToUnsigned (int i, const char* message)
     {
 	ostringstream ostr;
 	ostr << message << i << ends;
-	throw SemanticError (ostr.str());
+	throw SemanticError (ostr.str ());
     }
     return static_cast<unsigned int>(i);
 }
 
-int KeywordId (char* keyword)
+const int YYTNAME_DISPLACEMENT = 255;
+
+int KeywordId (const char* keyword)
 {
-    const int yytnameDisplacement = 255;
     int i;
     for (i = 0; i < YYNTOKENS; i++)
     {
@@ -468,10 +506,16 @@ int KeywordId (char* keyword)
 			  strlen (keyword))
 	    && yytname[i][strlen (keyword) + 1] == '"'
 	    && yytname[i][strlen (keyword) + 2] == 0)
-	    return yytnameDisplacement + i;
+	    return YYTNAME_DISPLACEMENT + i;
     }
     return 0;
 }
+
+const char* KeywordString (int id)
+{
+    return yytname[id - YYTNAME_DISPLACEMENT];
+}
+
 
 void BisonDebugging (int debugging)
 {

@@ -8,11 +8,13 @@
 #define __DATA_H__
 
 #include <vector>
+#include <map>
 #include <iostream>
 #include "Point.h"
 #include "Edge.h"
 #include "Face.h"
 #include "Body.h"
+#include "AttributeCreator.h"
 using namespace std;
 
 class ParsingData;
@@ -91,6 +93,8 @@ public:
      */
     ParsingData& GetParsingData () {return *m_parsingData;}
     void Compact ();
+    void AddAttributeInfo (
+	Attribute::Type type, const char* name, AttributeCreator* creator);
 
     /**
      * Pretty print for the Data object
@@ -117,6 +121,7 @@ private:
      * View matrix for displaying vertices, edges, faces and bodies.
      */
     float m_viewMatrix[16];
+    vector< map<const char*, AttributeInfo*> > m_attributesInfo;
     ParsingData* m_parsingData;
 };
 

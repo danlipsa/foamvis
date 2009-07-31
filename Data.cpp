@@ -9,6 +9,7 @@
 #include "Data.h"
 #include "Element.h"
 #include "ParsingData.h"
+#include "foam_yacc.h"
 
 template <class E>
 void compact (vector<E*>& v)
@@ -65,10 +66,48 @@ private:
     int m_index;
 };
 
+ostream& operator<< (ostream& ostr, Data& d)
+{
+    ostr << "Data:" << endl;
+    PrintElementPtrs<Point> (ostr, d.m_vertices, "vertices", true);
+    PrintElementPtrs<Edge> (ostr, d.m_edges, "edges", true);
+    PrintElementPtrs<Face> (ostr, d.m_faces, "faces", true);
+    PrintElementPtrs<Body> (ostr, d.m_bodies, "bodies", true);
+    ostr << "view matrix:" << endl;
+    for_each (d.m_viewMatrix, 
+	      d.m_viewMatrix + 
+	      sizeof(d.m_viewMatrix)/sizeof(d.m_viewMatrix[0]), 
+	      printMatrixElement (ostr));
+    ostr << endl;
+    return ostr;
+}
 
-Data::Data () :m_parsingData (new ParsingData ()) {}
+Data::Data () : 
+    m_attributesInfo(Attribute::ATTRIBUTE_TYPE_COUNT),
+    m_parsingData (new ParsingData ())
+{
+    m_attributesInfo[Attribute::VERTEX_TYPE][KeywordString(ORIGINAL)] = 
+	new AttributeInfo (0, new IntegerAttributeCreator());
 
-Data::~Data()
+    m_attributesInfo[Attribute::EDGE_TYPE][KeywordString(ORIGINAL)] = 
+	new AttributeInfo (0, new IntegerAttributeCreator());
+
+    m_attributesInfo[Attribute::FACE_TYPE][KeywordString(ORIGINAL)] = 
+	new AttributeInfo (0, new IntegerAttributeCreator());
+    m_attributesInfo[Attribute::FACE_TYPE][KeywordString(COLOR)] = 
+	new AttributeInfo (0, new IntegerAttributeCreator());
+
+    m_attributesInfo[Attribute::BODY_TYPE][KeywordString(ORIGINAL)] = 
+	new AttributeInfo (0, new IntegerAttributeCreator());
+    m_attributesInfo[Attribute::BODY_TYPE]
+	[KeywordString(LAGRANGE_MULTIPLIER)] = 
+	new AttributeInfo (0, new RealAttributeCreator());
+    m_attributesInfo[Attribute::BODY_TYPE]
+	[KeywordString(VOLUME)] = 
+	new AttributeInfo (0, new RealAttributeCreator());
+}
+
+Data::~Data ()
 {
     for_each(m_bodies.begin (), m_bodies.end (), DeleteElementPtr<Body>);
     for_each(m_faces.begin (), m_faces.end (), DeleteElementPtr<Face>);
@@ -112,18 +151,9 @@ void Data::Compact (void)
     compact (m_bodies);
 }
 
-ostream& operator<< (ostream& ostr, Data& d)
+void Data::AddAttributeInfo (
+    Attribute::Type type, const char* name, AttributeCreator* creator)
 {
-    ostr << "Data:" << endl;
-    PrintElementPtrs<Point> (ostr, d.m_vertices, "vertices", true);
-    PrintElementPtrs<Edge> (ostr, d.m_edges, "edges", true);
-    PrintElementPtrs<Face> (ostr, d.m_faces, "faces", true);
-    PrintElementPtrs<Body> (ostr, d.m_bodies, "bodies", true);
-    ostr << "view matrix:" << endl;
-    for_each (d.m_viewMatrix, 
-	      d.m_viewMatrix + 
-	      sizeof(d.m_viewMatrix)/sizeof(d.m_viewMatrix[0]), 
-	      printMatrixElement (ostr));
-    ostr << endl;
-    return ostr;
+    m_attributesInfo[type][name] = new AttributeInfo (
+	m_attributesInfo[type].size(), creator);
 }

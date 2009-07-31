@@ -6,30 +6,58 @@
 #include "GLWidget.h"
 #include "Point.h"
 #include "Data.h"
+#include "InvalidValue.h"
 
 using namespace std;
 using namespace G3D;
 
-GLWidget::GLWidget(QWidget *parent)
-    : QGLWidget(parent)
+inline void deleteObject (GLuint object)
 {
-    m_data = 0;
-    m_objectVertices = 0;
-    m_objectEdges = 0;
-    m_objectFaces = 0;
-    m_objectBodies = 0;
-    m_xRot = 0;
-    m_yRot = 0;
-    m_zRot = 0;
+    glDeleteLists(object, 1);
 }
+
+GLWidget::GLWidget(QWidget *parent)
+    : QGLWidget(parent), m_viewType (BODIES), 
+      m_object(VIEW_TYPE_NUMBER, 0), m_rotation (3, 0),
+      m_accumulator (3, 0), m_data(0)
+{}
 
 GLWidget::~GLWidget()
 {
     makeCurrent();
-    glDeleteLists(m_objectVertices, 1);
-    glDeleteLists(m_objectEdges, 1);
-    glDeleteLists(m_objectFaces, 1);
-    glDeleteLists(m_objectBodies, 1);
+    for_each (m_object.begin (), m_object.end (), deleteObject);
+}
+
+void GLWidget::ViewVertices (bool checked)
+{
+    if (checked)
+	m_viewType = VERTICES;
+    initLightFlat ();
+    updateGL ();
+}
+
+void GLWidget::ViewEdges (bool checked)
+{
+    if (checked)
+	m_viewType = EDGES;
+    initLightFlat ();
+    updateGL ();
+}
+
+void GLWidget::ViewFaces (bool checked)
+{
+    if (checked)
+	m_viewType = FACES;
+    initLightFlat ();
+    updateGL ();
+}
+
+void GLWidget::ViewBodies (bool checked)
+{
+    if (checked)
+	m_viewType = BODIES;
+    initLightBodies ();
+    updateGL ();
 }
 
 QSize GLWidget::minimumSizeHint() const
@@ -42,46 +70,53 @@ QSize GLWidget::sizeHint() const
     return QSize(400, 400);
 }
 
+
 void GLWidget::SetXRotation(int angle)
 {
-    normalizeAngle(&angle);
-    cerr << "SetXRotation: " << angle << endl;
-    if (angle != m_xRot) {
-        m_xRot = angle;
-        emit XRotationChanged(angle);
-        updateGL();
-    }
+    setRotationSlot (0, angle);
 }
 
 void GLWidget::SetYRotation(int angle)
 {
-    normalizeAngle(&angle);
-    cerr << "SetXRotation: " << angle << endl;
-    if (angle != m_yRot) {
-        m_yRot = angle;
-        emit YRotationChanged(angle);
-        updateGL();
-    }
+    setRotationSlot (1, angle);
 }
 
 void GLWidget::SetZRotation(int angle)
 {
+    setRotationSlot (2, angle);
+}
+
+void GLWidget::setRotationSlot (int axis, int angle)
+{
     normalizeAngle(&angle);
-    cerr << "SetXRotation: " << angle << endl;
-    if (angle != m_zRot) {
-        m_zRot = angle;
-        emit ZRotationChanged(angle);
+    int rotation = getRotation (axis);
+    if (angle != rotation) {
+        setRotation (axis, angle);
+        emitRotationChanged (axis, angle);
         updateGL();
     }
 }
 
-void GLWidget::initializeGL()
+void GLWidget::emitRotationChanged (int axis, int angle)
 {
-    m_objectVertices = makeVertices();
-    m_objectEdges = makeEdges ();
-    m_objectFaces = makeFaces ();
-    m_objectBodies = makeBodies ();
+    switch (axis)
+    {
+    case 0:
+	emit XRotationChanged (angle);
+	return;
+    case 1:
+	emit YRotationChanged (angle);
+	return;
+    case 2:
+	emit ZRotationChanged (angle);
+	return;
+    default:
+	throw InvalidValue ("Invalid axis: " + axis);
+    }
+}
 
+void GLWidget::initLightBodies ()
+{
     glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
     //glEnable(GL_CULL_FACE);
 
@@ -102,28 +137,63 @@ void GLWidget::initializeGL()
     glMaterialfv(GL_BACK, GL_SHININESS, mat_shininess_back);
 
 
+    glMatrixMode (GL_MODELVIEW);
+    glPushMatrix ();
+    glLoadIdentity();
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+    glPopMatrix ();
     
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     glEnable(GL_DEPTH_TEST);
+}
 
+void GLWidget::initLightFlat ()
+{
+    glDisable(GL_LIGHTING);
+    glDisable(GL_LIGHT0);
+    glShadeModel(GL_FLAT);
+    glEnable(GL_DEPTH_TEST);
+}
+
+void GLWidget::initializeGL()
+{
+    m_object[VERTICES] = makeVertices();
+    m_object[EDGES] = makeEdges ();
+    m_object[FACES] = makeFaces ();
+    m_object[BODIES] = makeBodies ();
+        
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
     glOrtho(-1.5, 1.5, -1.5, 1.5, -1.5, 1.5);
 
     glMatrixMode (GL_MODELVIEW);
     glLoadMatrixf (m_data->GetViewMatrix ());
+
+    switch (m_viewType)
+    {
+    case VERTICES:
+    case EDGES:
+    case FACES:
+	initLightFlat ();
+	break;
+    case BODIES:
+	GLWidget::initLightBodies ();
+	break;
+    default:
+	throw InvalidValue (
+	    "ViewType enum has an invalid value: " + m_viewType);
+    }
 }
 
 void GLWidget::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-    glRotated(m_xRot, 1.0, 0.0, 0.0);
-    glRotated(m_yRot, 0.0, 1.0, 0.0);
-    glRotated(m_zRot, 0.0, 0.0, 1.0);
-    glCallList(m_objectBodies);
+    glRotated(getRotation (0), 1.0, 0.0, 0.0);
+    glRotated(getRotation (1), 0.0, 1.0, 0.0);
+    glRotated(getRotation (2), 0.0, 0.0, 1.0);
+    glCallList(m_object[m_viewType]);
 }
 
 void GLWidget::resizeGL(int width, int height)
@@ -137,21 +207,60 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
     m_lastPos = event->pos();
 }
 
+void GLWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    setAccumulator (0, 0);
+    if (event->buttons() & Qt::LeftButton) {
+	setAccumulator (1, 0);
+    } else if (event->buttons() & Qt::RightButton) {
+	setAccumulator (2, 0);
+    }
+}
+
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     int dx = event->x() - m_lastPos.x();
     int dy = event->y() - m_lastPos.y();
     // scale this with the size of the window
-    
+    QSize size = this->size ();
+    int side = std::min (size.width (), size.height ());
+    float dxDegrees = static_cast<float>(dx) * 90 / side;
+    float dyDegrees = static_cast<float>(dy) * 90 / side;
 
     if (event->buttons() & Qt::LeftButton) {
-        SetXRotation(m_xRot + 8 * dy);
-        SetYRotation(m_yRot + 8 * dx);
+        accumulate (0, dyDegrees);
+        accumulate (1, dxDegrees);
     } else if (event->buttons() & Qt::RightButton) {
-        SetXRotation(m_xRot + 8 * dy);
-        SetZRotation(m_zRot + 8 * dx);
+        accumulate (0, dyDegrees);
+        accumulate (2, dxDegrees);
     }
     m_lastPos = event->pos();
+}
+
+void GLWidget::accumulate (int axis, float value)
+{
+    float accumulator = getAccumulator (axis) + value;
+    if (accumulator >= 0)
+    {
+	int intPart = static_cast<int>(floorf(accumulator));
+	if (intPart > 0)
+	{
+	    setRotationSlot (axis, getRotation (axis) + intPart);
+	    accumulator -= intPart;
+	}
+    }
+    else
+    {
+	accumulator = - accumulator;
+	int intPart = static_cast<int>(floorf(accumulator));
+	if (intPart > 0)
+	{
+	    setRotationSlot (axis, getRotation (axis) - intPart);
+	    accumulator -= intPart;
+	}
+	accumulator = - accumulator;
+    }
+    setAccumulator (axis, accumulator);
 }
 
 inline void displayVertex (const Point* p)

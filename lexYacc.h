@@ -6,11 +6,15 @@
 #ifndef _LEXYACC_H_
 #define _LEXYACC_H_
 
-#include <vector>
 #include <string>
+#include <vector>
+#include <map>
+#include "Attribute.h"
 using namespace std;
 
 class ExpressionTree;
+class AttributeCreator;
+
 /**
  * Defines the datatypes for semantic values for terminals and non-terminals
  * in the gramar
@@ -30,25 +34,36 @@ typedef union
      */
     vector<int>* intList;
     /**
+     * Value for a list of numbers (ints or reals)
+     */
+    vector<float>* numberList;
+    /**
      * An identifier
      */
-    string* id;
+    std::string* id;
     /**
      * An expression tree
      */
     ExpressionTree* node;
-} SemanticValues;
+    /**
+     * Knows how to create an attribute
+     */
+    AttributeCreator* attributeCreator;
+    enum Attribute::Type attributeType;
+} SemanticValue;
 /**
  * Defines the datatype for semantic values in bison to be yystype
  */
-#define YYSTYPE SemanticValues
+#define YYSTYPE SemanticValue
 
 /**
  * Checks if an identifier is a keyword.
  * @param s identifier to be checked.
  * @return the keyword ID or 0 if `s' is not a keyword
  */
-int KeywordId (char* s);
+int KeywordId (const char* s);
+
+const char* KeywordString (int id);
 
 
 /**
