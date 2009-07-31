@@ -1,6 +1,6 @@
 #include <sstream>
+#include "Attribute.h"
 #include "AttributeCreator.h"
-#include "OtherAttributes.h"
 #include "SemanticError.h"
 using namespace std;
 

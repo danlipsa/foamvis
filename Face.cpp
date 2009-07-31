@@ -7,6 +7,10 @@
 #include <algorithm>
 #include "Face.h"
 #include "Element.h"
+#include "lexYacc.h"
+#include "foam_yacc.h"
+#include "AttributeInfo.h"
+
 
 /**
  * Unary function that converts an index into a vector of Edge objects
@@ -45,6 +49,17 @@ private:
     vector<Edge*>& m_edges;
 };
 
+ostream& operator<< (ostream& ostr, Face& f)
+{
+    if (&f == 0)
+	ostr << "NULL";
+    else
+	PrintElementPtrs<OrientedEdge> (ostr, f.m_edges, 
+					"edges part of the face", true);
+    return ostr;
+}
+
+
 Face::Face(const vector<int>& edgeIndexes, vector<Edge*>& edges)
 {
     m_edges.resize (edgeIndexes.size ());
@@ -66,12 +81,11 @@ void Face::ReversePrint (ostream& ostr)
 	    ostr, m_edges, "edges part of the face", true);
 }
 
-ostream& operator<< (ostream& ostr, Face& f)
+void Face::SetDefaultAttributes (AttributesInfo& info)
 {
-    if (&f == 0)
-	ostr << "NULL";
-    else
-	PrintElementPtrs<OrientedEdge> (ostr, f.m_edges, 
-					"edges part of the face", true);
-    return ostr;
+    info.AddAttributeInfo (
+	KeywordString(ORIGINAL), new IntegerAttributeCreator());
+    const char* colorString = KeywordString(COLOR);
+    info.AddAttributeInfo (colorString, new IntegerAttributeCreator());
+    info.Store (colorString);
 }

@@ -9,11 +9,12 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "Attribute.h"
+#include "AttributeType.h"
 using namespace std;
 
 class ExpressionTree;
 class AttributeCreator;
+class Attribute;
 
 /**
  * Defines the datatypes for semantic values for terminals and non-terminals
@@ -49,7 +50,8 @@ typedef union
      * Knows how to create an attribute
      */
     AttributeCreator* attributeCreator;
-    enum Attribute::Type attributeType;
+    enum AttributeType attributeType;
+    vector< pair<const char*, Attribute*> >* attributeList;
 } SemanticValue;
 /**
  * Defines the datatype for semantic values in bison to be yystype

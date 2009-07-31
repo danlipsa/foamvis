@@ -40,17 +40,6 @@ private:
     unsigned int m_size;
 };
 
-class AttributeInfo
-{
-public:
-    AttributeInfo (int index, AttributeCreator* creator) : 
-	m_index (index), m_creator (creator) {}
-private:
-    int m_index;
-    AttributeCreator* m_creator;
-};
-
-
 
 #endif
 // Local Variables:

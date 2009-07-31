@@ -7,8 +7,9 @@
 #ifndef __EDGE_H__
 #define __EDGE_H__
 
-#include "Point.h"
+#include "Vertex.h"
 using namespace std;
+class AttributesInfo;
 
 /**
  * An edge is an object that stores a begin and an end vertices (Point)
@@ -21,28 +22,28 @@ public:
      * @param begin the first point of the endge
      * @param end the last point of the edge
      */
-    Edge (Point* begin, Point* end):
+    Edge (Vertex* begin, Vertex* end):
 	m_begin(begin), m_end(end) {}
     /**
      * @return the first vertex of the edge
      */
-    const Point* GetBegin(void) const
+    const Vertex* GetBegin(void) const
     {return m_begin;}
     /**
      * Sets the first vertex of the edge
      * @param begin value stored in the first vertex of the edge
      */
-    void SetBegin(Point* begin) {m_begin = begin;}
+    void SetBegin(Vertex* begin) {m_begin = begin;}
     /**
      * @return last vertex of the edge
      */
-    const Point* GetEnd(void) const
+    const Vertex* GetEnd(void) const
     {return m_end;}
     /**
      * Sets the last vertex of the edge
      * @param end value stored in the last vertex of the edge
      */
-    void SetEnd(Point* end) {m_end = end;}
+    void SetEnd(Vertex* end) {m_end = end;}
     /**
      * Prints an edge to the output stream
      * @param ostr where to write the edge
@@ -54,15 +55,16 @@ public:
      * @param ostr the stream where to write the edge
      */
     void ReversePrint (ostream& ostr);
+    static void SetDefaultAttributes (AttributesInfo& info);
 private:
     /**
      * First vertex of the edge
      */
-    Point* m_begin;
+    Vertex* m_begin;
     /**
      * Last vertex of the edge
      */
-    Point* m_end;
+    Vertex* m_end;
 };
 
 

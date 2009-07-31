@@ -178,19 +178,19 @@ attribute: DEFINE element_type ATTRIBUTE IDENTIFIER attribute_value_type
 
 element_type: VERTEX
 {
-    $$.attributeType = Attribute::VERTEX_TYPE;
+    $$.attributeType = VERTEX_TYPE;
 }
 | EDGE 
 {
-    $$.attributeType = Attribute::EDGE_TYPE;
+    $$.attributeType = EDGE_TYPE;
 }
 | FACET 
 {
-    $$.attributeType = Attribute::FACE_TYPE;
+    $$.attributeType = FACE_TYPE;
 }
 | BODY
 {
-    $$.attributeType = Attribute::BODY_TYPE;
+    $$.attributeType = BODY_TYPE;
 }
 ;
 

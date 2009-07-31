@@ -10,11 +10,12 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include "Point.h"
+#include "Vertex.h"
 #include "Edge.h"
 #include "Face.h"
 #include "Body.h"
 #include "AttributeCreator.h"
+#include "AttributeInfo.h"
 using namespace std;
 
 class ParsingData;
@@ -35,8 +36,8 @@ public:
      * @param i index where the Point object is stored
      * @return a pointer to the Point object
      */
-    Point* GetPoint (int i) {return m_vertices[i];}
-    const vector<Point*>& GetPoints () {return m_vertices;}
+    Vertex* GetPoint (int i) {return m_vertices[i];}
+    const vector<Vertex*>& GetPoints () {return m_vertices;}
     /**
      * Stores a Point object a certain index in the Data object
      * @param i where to store the Point object
@@ -94,17 +95,21 @@ public:
     ParsingData& GetParsingData () {return *m_parsingData;}
     void Compact ();
     void AddAttributeInfo (
-	Attribute::Type type, const char* name, AttributeCreator* creator);
+	AttributeType type, const char* name, AttributeCreator* creator)
+    {
+	m_attributesInfo[type].AddAttributeInfo (name, creator);
+    }
 
     /**
      * Pretty print for the Data object
      */
     friend ostream& operator<< (ostream& ostr, Data& d);
 private:
+
     /**
      * A vector of points
      */
-    vector<Point*> m_vertices;
+    vector<Vertex*> m_vertices;
     /**
      * A vector of edges
      */
@@ -121,7 +126,7 @@ private:
      * View matrix for displaying vertices, edges, faces and bodies.
      */
     float m_viewMatrix[16];
-    vector< map<const char*, AttributeInfo*> > m_attributesInfo;
+    vector<AttributesInfo> m_attributesInfo;
     ParsingData* m_parsingData;
 };
 

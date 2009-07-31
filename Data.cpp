@@ -9,7 +9,7 @@
 #include "Data.h"
 #include "Element.h"
 #include "ParsingData.h"
-#include "foam_yacc.h"
+
 
 template <class E>
 void compact (vector<E*>& v)
@@ -69,7 +69,7 @@ private:
 ostream& operator<< (ostream& ostr, Data& d)
 {
     ostr << "Data:" << endl;
-    PrintElementPtrs<Point> (ostr, d.m_vertices, "vertices", true);
+    PrintElementPtrs<Vertex> (ostr, d.m_vertices, "vertices", true);
     PrintElementPtrs<Edge> (ostr, d.m_edges, "edges", true);
     PrintElementPtrs<Face> (ostr, d.m_faces, "faces", true);
     PrintElementPtrs<Body> (ostr, d.m_bodies, "bodies", true);
@@ -83,28 +83,13 @@ ostream& operator<< (ostream& ostr, Data& d)
 }
 
 Data::Data () : 
-    m_attributesInfo(Attribute::ATTRIBUTE_TYPE_COUNT),
+    m_attributesInfo(ATTRIBUTE_TYPE_COUNT),
     m_parsingData (new ParsingData ())
 {
-    m_attributesInfo[Attribute::VERTEX_TYPE][KeywordString(ORIGINAL)] = 
-	new AttributeInfo (0, new IntegerAttributeCreator());
-
-    m_attributesInfo[Attribute::EDGE_TYPE][KeywordString(ORIGINAL)] = 
-	new AttributeInfo (0, new IntegerAttributeCreator());
-
-    m_attributesInfo[Attribute::FACE_TYPE][KeywordString(ORIGINAL)] = 
-	new AttributeInfo (0, new IntegerAttributeCreator());
-    m_attributesInfo[Attribute::FACE_TYPE][KeywordString(COLOR)] = 
-	new AttributeInfo (0, new IntegerAttributeCreator());
-
-    m_attributesInfo[Attribute::BODY_TYPE][KeywordString(ORIGINAL)] = 
-	new AttributeInfo (0, new IntegerAttributeCreator());
-    m_attributesInfo[Attribute::BODY_TYPE]
-	[KeywordString(LAGRANGE_MULTIPLIER)] = 
-	new AttributeInfo (0, new RealAttributeCreator());
-    m_attributesInfo[Attribute::BODY_TYPE]
-	[KeywordString(VOLUME)] = 
-	new AttributeInfo (0, new RealAttributeCreator());
+    Vertex::SetDefaultAttributes (m_attributesInfo[VERTEX_TYPE]);
+    Edge::SetDefaultAttributes (m_attributesInfo[EDGE_TYPE]);
+    Face::SetDefaultAttributes (m_attributesInfo[FACE_TYPE]);
+    Body::SetDefaultAttributes (m_attributesInfo[BODY_TYPE]);
 }
 
 Data::~Data ()
@@ -112,14 +97,14 @@ Data::~Data ()
     for_each(m_bodies.begin (), m_bodies.end (), DeleteElementPtr<Body>);
     for_each(m_faces.begin (), m_faces.end (), DeleteElementPtr<Face>);
     for_each(m_edges.begin (), m_edges.end (), DeleteElementPtr<Edge>);
-    for_each(m_vertices.begin (), m_vertices.end (), DeleteElementPtr<Point>);
+    for_each(m_vertices.begin (), m_vertices.end (), DeleteElementPtr<Vertex>);
 }
 
 void Data::SetPoint (unsigned int i, float x, float y, float z) 
 {
     if (i >= m_vertices.size ())
 	m_vertices.resize (i + 1);
-    m_vertices[i] = new Point (x, y ,z);
+    m_vertices[i] = new Vertex (x, y ,z);
 }
 
 void Data::SetEdge (unsigned int i, unsigned int begin, unsigned int end) 
@@ -151,9 +136,3 @@ void Data::Compact (void)
     compact (m_bodies);
 }
 
-void Data::AddAttributeInfo (
-    Attribute::Type type, const char* name, AttributeCreator* creator)
-{
-    m_attributesInfo[type][name] = new AttributeInfo (
-	m_attributesInfo[type].size(), creator);
-}

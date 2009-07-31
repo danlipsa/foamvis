@@ -10,10 +10,11 @@
 #include <iostream>
 using namespace std;
 
+class AttributesInfo;
 /**
  * Represents a point the the 3D Euclidian space
  */
-class Point
+class Vertex
 {
 public:
     /**
@@ -22,7 +23,7 @@ public:
      * @param y the Y coordinate
      * @param z the Z coordinate
      */
-    Point(float x, float y, float z): 
+    Vertex(float x, float y, float z):
 	m_x(x), m_y(y), m_z(z) {}
     /**
      * Gets the X coordinate of the Point
@@ -60,7 +61,9 @@ public:
      * @param p Point object to be printed
      * @return output stream used to print the object to
      */
-    friend ostream& operator<< (ostream& ostr, Point& p);
+    static void SetDefaultAttributes (AttributesInfo& info);
+
+    friend ostream& operator<< (ostream& ostr, Vertex& p);
 
 private:
     /**

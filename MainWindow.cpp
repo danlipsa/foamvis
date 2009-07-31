@@ -1,9 +1,9 @@
 #include <QtGui>
 
 #include "GLWidget.h"
-#include "Window.h"
+#include "MainWindow.h"
 
-Window::Window(Data* data)
+MainWindow::MainWindow(Data* data)
 {
     setupUi (this);
     m_glWidget->SetData (data);

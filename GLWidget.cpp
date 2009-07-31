@@ -4,7 +4,7 @@
 #include <QtOpenGL>
 #include <G3D/Vector3.h>
 #include "GLWidget.h"
-#include "Point.h"
+#include "Vertex.h"
 #include "Data.h"
 #include "InvalidValue.h"
 
@@ -263,7 +263,7 @@ void GLWidget::accumulate (int axis, float value)
     setAccumulator (axis, accumulator);
 }
 
-inline void displayVertex (const Point* p)
+inline void displayVertex (const Vertex* p)
 {
     if (p != 0)
 	glVertex3f(p->GetX (), p->GetY (), p->GetZ ());
@@ -271,7 +271,7 @@ inline void displayVertex (const Point* p)
 
 inline void displayFirstVertex (const OrientedEdge* e)
 {
-    const Point* p = e->GetBegin ();
+    const Vertex* p = e->GetBegin ();
     glVertex3f(p->GetX (), p->GetY (), p->GetZ ());
 }
 
@@ -280,7 +280,7 @@ void displayEdge (const Edge* e)
 {
     if (e != 0)
     {
-	const Point* p = e->GetBegin ();
+	const Vertex* p = e->GetBegin ();
 	glVertex3f(p->GetX (), p->GetY (), p->GetZ ());
 	p = e->GetEnd ();
 	glVertex3f(p->GetX (), p->GetY (), p->GetZ ());
@@ -297,8 +297,8 @@ struct displayFace : public unary_function<void, const Face*>
 	{
 	    const vector<OrientedEdge*> v = f->GetOrientedEdges ();
 	    // specify the normal vector
-	    const Point* begin = v[0]->GetBegin ();
-	    const Point* end = v[0]->GetEnd ();
+	    const Vertex* begin = v[0]->GetBegin ();
+	    const Vertex* end = v[0]->GetEnd ();
 	    if (m_reversed)
 		swap (begin, end);
 	    Vector3 first(end->GetX () - begin->GetX (),
@@ -337,7 +337,7 @@ void displayBody (Body* b)
 GLuint GLWidget::makeVertices ()
 {
     GLuint list = glGenLists(1);
-    const vector<Point*>& points = m_data->GetPoints ();
+    const vector<Vertex*>& points = m_data->GetPoints ();
     glNewList(list, GL_COMPILE);
     glBegin(GL_POINTS);
     for_each (points.begin (), points.end (), displayVertex);

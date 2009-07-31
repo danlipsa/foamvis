@@ -27,10 +27,10 @@ public:
      */
     OrientedEdge (Edge* edge, bool reversed): 
 	m_edge (edge), m_reversed (reversed) {}
-    const Point* GetBegin (void) const
+    const Vertex* GetBegin (void) const
     {return m_reversed ? m_edge->GetEnd () : m_edge->GetBegin ();}
 
-    const Point* GetEnd (void) const
+    const Vertex* GetEnd (void) const
     {return m_reversed ? m_edge->GetBegin () : m_edge->GetEnd ();}
 
 

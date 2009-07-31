@@ -11,6 +11,7 @@
 #include <iostream>
 #include "OrientedEdge.h"
 using namespace std;
+class AttributesInfo;
 
 /**
  * A Face is a oriented list of edges.
@@ -38,6 +39,8 @@ public:
      * Pretty prints this Face by printing the edges in DIRECT order
      */
     friend ostream& operator<< (ostream& ostr, Face& f); 
+
+    static void SetDefaultAttributes (AttributesInfo& info);
 private:
     /**
      * Edges that are part of this face

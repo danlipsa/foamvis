@@ -6,12 +6,12 @@
 
 class GLWidget;
 class Data;
-class Window : public QWidget, private Ui::Window
+class MainWindow : public QWidget, private Ui::Window
 {
     Q_OBJECT
 
 public:
-    Window(Data* data);
+    MainWindow(Data* data);
 };
 
 

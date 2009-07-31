@@ -8,7 +8,7 @@
 #include "Data.h"
 #include "ParsingData.h"
 #include "lexYacc.h"
-#include "Window.h"
+#include "MainWindow.h"
 
 /**
  * Global object  that stores data read  from a DMP  file (produced by
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 	if ((parseResult = foamparse()) == 0)
 	{
 	    QApplication app(argc, argv);
-	    Window window (&data);
+	    MainWindow window (&data);
 	    window.show();
 	    return app.exec();
 	    return 0;

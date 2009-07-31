@@ -11,6 +11,7 @@
 #include <vector>
 #include "OrientedFace.h"
 using namespace std;
+class AttributesInfo;
 
 /**
  * A body is a set of faces
@@ -34,6 +35,7 @@ public:
      */
     friend ostream& operator<< (ostream& ostr, Body& b); 
 
+    static void SetDefaultAttributes (AttributesInfo& info);
 private:
     /**
      * Faces that are part of this body.

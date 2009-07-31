@@ -8,6 +8,11 @@
 #include <algorithm>
 #include "Body.h"
 #include "Element.h"
+#include "lexYacc.h"
+#include "AttributeInfo.h"
+#include "foam_yacc.h"
+
+
 
 /**
  * STL unary  function that converts a  signed index into  a vector of
@@ -45,6 +50,15 @@ private:
     vector<Face*>& m_faces;
 };
 
+ostream& operator<< (ostream& ostr, Body& b)
+{
+    if (&b == 0)
+	ostr << "NULL";
+    else
+	PrintElementPtrs<OrientedFace> (ostr, b.m_faces, 
+					"faces part of the body", true);
+    return ostr;
+}
 
 
 Body::~Body()
@@ -59,12 +73,13 @@ Body::Body(const vector<int>& faceIndexes, vector<Face*>& faces)
 	       indexToOrientedFace(faces));
 }
 
-ostream& operator<< (ostream& ostr, Body& b)
+void Body::SetDefaultAttributes (AttributesInfo& info)
 {
-    if (&b == 0)
-	ostr << "NULL";
-    else
-	PrintElementPtrs<OrientedFace> (ostr, b.m_faces, 
-					"faces part of the body", true);
-    return ostr;
+    info.AddAttributeInfo (
+	KeywordString(ORIGINAL), new IntegerAttributeCreator());
+    info.AddAttributeInfo (
+	KeywordString(LAGRANGE_MULTIPLIER), new RealAttributeCreator());
+    info.AddAttributeInfo (
+	KeywordString(VOLUME), new RealAttributeCreator());
 }
+
