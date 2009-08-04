@@ -7,7 +7,7 @@
 #include<functional>
 #include <algorithm>
 #include "Body.h"
-#include "Element.h"
+#include "ElementUtils.h"
 #include "lexYacc.h"
 #include "AttributeInfo.h"
 #include "foam_yacc.h"
@@ -57,7 +57,8 @@ ostream& operator<< (ostream& ostr, Body& b)
     else
 	PrintElementPtrs<OrientedFace> (ostr, b.m_faces, 
 					"faces part of the body", true);
-    return ostr;
+    ostr << " ";
+    return b.PrintAttributes (ostr, *Body::m_infos);
 }
 
 
@@ -73,13 +74,16 @@ Body::Body(const vector<int>& faceIndexes, vector<Face*>& faces)
 	       indexToOrientedFace(faces));
 }
 
-void Body::SetDefaultAttributes (AttributesInfo& info)
+
+AttributesInfo* Body::m_infos;
+void Body::SetDefaultAttributes (AttributesInfo& infos)
 {
-    info.AddAttributeInfo (
+    m_infos = &infos;
+    infos.AddAttributeInfo (
 	KeywordString(ORIGINAL), new IntegerAttributeCreator());
-    info.AddAttributeInfo (
+    infos.AddAttributeInfo (
 	KeywordString(LAGRANGE_MULTIPLIER), new RealAttributeCreator());
-    info.AddAttributeInfo (
+    infos.AddAttributeInfo (
 	KeywordString(VOLUME), new RealAttributeCreator());
 }
 

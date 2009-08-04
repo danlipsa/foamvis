@@ -12,13 +12,14 @@
 #include <iostream>
 #include <functional>
 #include <algorithm>
-
+#include <Qt>
 #include "lexYacc.h"
 #include "Data.h"
 #include "ParsingData.h"
 #include "SemanticError.h"
 #include "ExpressionTree.h"
 #include "AttributeCreator.h"
+using namespace std;
 
 int yylex(void);
 void yyerror (char const *);
@@ -29,8 +30,6 @@ void yyerror (char const *);
  * @return the unsigned integer.
  */
 unsigned int intToUnsigned (int i, const char* message);
-using namespace std;
-
 /**
  * Converts an index from 1-based to 0-based.
  * Decrements the index if it is positive and increments it if it
@@ -38,17 +37,7 @@ using namespace std;
  * @param i index to be converted
  * @return the converted index
  */
-int decrementElementIndex (int i)
-{
-    if (i < 0)
-	i++;
-    else if (i > 0)
-	i--;
-    else
-	throw SemanticError ("Semantic error: invalid element index: 0");
-    return i;
-}
-
+int decrementElementIndex (int i);
 
 %}
 // directives
@@ -164,51 +153,51 @@ header: header parameter
 
 parameter: PARAMETER IDENTIFIER '=' const_expr
 {
-    float v = $4.r;
-    data.GetParsingData ().SetVariable($2.id->c_str(), v);
+    float v = $4.m_real;
+    data.GetParsingData ().SetVariable($2.m_id->c_str(), v);
 }
 ;
 
 attribute: DEFINE element_type ATTRIBUTE IDENTIFIER attribute_value_type
 {
     data.AddAttributeInfo (
-	$2.attributeType, $4.id->c_str(), $5.attributeCreator);
+	$2.m_attributeType, $4.m_id->c_str(), $5.m_attributeCreator);
 }
 ;
 
 element_type: VERTEX
 {
-    $$.attributeType = VERTEX_TYPE;
+    $$.m_attributeType = VERTEX_TYPE;
 }
 | EDGE 
 {
-    $$.attributeType = EDGE_TYPE;
+    $$.m_attributeType = EDGE_TYPE;
 }
 | FACET 
 {
-    $$.attributeType = FACE_TYPE;
+    $$.m_attributeType = FACE_TYPE;
 }
 | BODY
 {
-    $$.attributeType = BODY_TYPE;
+    $$.m_attributeType = BODY_TYPE;
 }
 ;
 
 attribute_value_type: INTEGER_TYPE
 {
-    $$.attributeCreator = new IntegerAttributeCreator ();
+    $$.m_attributeCreator = new IntegerAttributeCreator ();
 }
 | REAL_TYPE 
 {
-    $$.attributeCreator = new RealAttributeCreator ();
+    $$.m_attributeCreator = new RealAttributeCreator ();
 }
 | INTEGER_TYPE '[' INTEGER_VALUE ']'
 {
-    $$.attributeCreator = new IntegerArrayAttributeCreator ($3.i);
+    $$.m_attributeCreator = new IntegerArrayAttributeCreator ($3.m_int);
 }
 | REAL_TYPE '[' INTEGER_VALUE ']'
 {
-    $$.attributeCreator = new RealArrayAttributeCreator ($3.i);
+    $$.m_attributeCreator = new RealArrayAttributeCreator ($3.m_int);
 }
 ;
 
@@ -229,22 +218,22 @@ const_expr const_expr const_expr const_expr
 const_expr const_expr const_expr const_expr
 const_expr const_expr const_expr const_expr
 {
-    data.SetViewMatrixElement (0, $2.r);
-    data.SetViewMatrixElement (1, $3.r);
-    data.SetViewMatrixElement (2, $4.r);
-    data.SetViewMatrixElement (3, $5.r);
-    data.SetViewMatrixElement (4, $6.r);
-    data.SetViewMatrixElement (5, $7.r);
-    data.SetViewMatrixElement (6, $8.r);
-    data.SetViewMatrixElement (7, $9.r);
-    data.SetViewMatrixElement (8, $10.r);
-    data.SetViewMatrixElement (9, $11.r);
-    data.SetViewMatrixElement (10, $12.r);
-    data.SetViewMatrixElement (11, $13.r);
-    data.SetViewMatrixElement (12, $14.r);
-    data.SetViewMatrixElement (13, $15.r);
-    data.SetViewMatrixElement (14, $16.r);
-    data.SetViewMatrixElement (15, $17.r);
+    data.SetViewMatrixElement (0, $2.m_real);
+    data.SetViewMatrixElement (1, $3.m_real);
+    data.SetViewMatrixElement (2, $4.m_real);
+    data.SetViewMatrixElement (3, $5.m_real);
+    data.SetViewMatrixElement (4, $6.m_real);
+    data.SetViewMatrixElement (5, $7.m_real);
+    data.SetViewMatrixElement (6, $8.m_real);
+    data.SetViewMatrixElement (7, $9.m_real);
+    data.SetViewMatrixElement (8, $10.m_real);
+    data.SetViewMatrixElement (9, $11.m_real);
+    data.SetViewMatrixElement (10, $12.m_real);
+    data.SetViewMatrixElement (11, $13.m_real);
+    data.SetViewMatrixElement (12, $14.m_real);
+    data.SetViewMatrixElement (13, $15.m_real);
+    data.SetViewMatrixElement (14, $16.m_real);
+    data.SetViewMatrixElement (15, $17.m_real);
 };
 
 
@@ -277,80 +266,78 @@ C3 ':' non_const_expr
 
 non_const_expr: expr
 {
-    ExpressionTree::Delete ($1.node);
+    ExpressionTree::Delete ($1.m_node);
 }
 ;
 
 const_expr: expr
 {
-    float v = $1.node->Value ();
-    $$.r = v;
-    ExpressionTree::Delete ($1.node);
+    float v = $1.m_node->Value ();
+    $$.m_real = v;
+    ExpressionTree::Delete ($1.m_node);
 };
 
 expr:     number
 {
-    $$.node = new ExpressionTreeNumber ($1.r);
+    $$.m_node = new ExpressionTreeNumber ($1.m_real);
 }
 | IDENTIFIER
 {
-    $$.node = new ExpressionTreeVariable ($1.id, data.GetParsingData ());
+    $$.m_node = new ExpressionTreeVariable ($1.m_id, data.GetParsingData ());
 }
 | IDENTIFIER '(' expr ')'
 {
-    $$.node = new ExpressionTreeUnaryFunction (
-	$1.id, $3.node, data.GetParsingData ());
+    $$.m_node = new ExpressionTreeUnaryFunction (
+	$1.m_id, $3.m_node, data.GetParsingData ());
 }
 | expr '+' expr
 {
-    $$.node = new ExpressionTreeBinaryFunction (
-	$2.id, $1.node, $3.node, data.GetParsingData ());
+    $$.m_node = new ExpressionTreeBinaryFunction (
+	$2.m_id, $1.m_node, $3.m_node, data.GetParsingData ());
 }
 | expr '-' expr
 {
-    $$.node = new ExpressionTreeBinaryFunction (
-	$2.id, $1.node, $3.node, data.GetParsingData ());
+    $$.m_node = new ExpressionTreeBinaryFunction (
+	$2.m_id, $1.m_node, $3.m_node, data.GetParsingData ());
 }
 | expr '*' expr
 {
-    $$.node = new ExpressionTreeBinaryFunction (
-	$2.id, $1.node, $3.node, data.GetParsingData ());
+    $$.m_node = new ExpressionTreeBinaryFunction (
+	$2.m_id, $1.m_node, $3.m_node, data.GetParsingData ());
 }
 | expr '/' expr
 {
-    $$.node = new ExpressionTreeBinaryFunction (
-	$2.id, $1.node, $3.node, data.GetParsingData ());
+    $$.m_node = new ExpressionTreeBinaryFunction (
+	$2.m_id, $1.m_node, $3.m_node, data.GetParsingData ());
 }
 | '-' expr  %prec NEGATION
 {
-    $$.node = new ExpressionTreeUnaryFunction (
-	$1.id, $2.node, data.GetParsingData ());
+    $$.m_node = new ExpressionTreeUnaryFunction (
+	$1.m_id, $2.m_node, data.GetParsingData ());
 }
 | expr '^' expr
 {
-    $$.node = new ExpressionTreeBinaryFunction (
-	$2.id, $1.node, $3.node, data.GetParsingData ());
+    $$.m_node = new ExpressionTreeBinaryFunction (
+	$2.m_id, $1.m_node, $3.m_node, data.GetParsingData ());
 }
 | '(' expr ')'
 {
-    $$.node = $2.node;
+    $$.m_node = $2.m_node;
 }
 | expr '=' expr
 {
-    $$.node = new ExpressionTreeBinaryFunction (
-	$2.id, $1.node, $3.node, data.GetParsingData ());
+    $$.m_node = new ExpressionTreeBinaryFunction (
+	$2.m_id, $1.m_node, $3.m_node, data.GetParsingData ());
 };
 
 number: INTEGER_VALUE 
 {
-    $$.r = $1.i;
+    $$.m_real = $1.m_int;
 }
 | REAL_VALUE
 {
-    $$.r = $1.r;
+    $$.m_real = $1.m_real;
 };
-
-number_list: number | number_list ',' number
 
 torus_domain: torus_type torus_periods;
 
@@ -365,36 +352,96 @@ vertices: VERTICES vertex_list;
 vertex_list: vertex_list INTEGER_VALUE number number number 
 vertex_attribute_list
 {
+    vector<NameSemanticValue*>* nameSemanticValueList = 
+	$6.m_nameSemanticValueList;
     data.SetPoint (
-	intToUnsigned($2.i - 1,
+	intToUnsigned($2.m_int- 1,
 		      "Semantic error: vertex index less than 0: "),
-	$3.r, $4.r, $5.r);
+	$3.m_real, $4.m_real, $5.m_real, *nameSemanticValueList);
+    if (nameSemanticValueList != 0)
+	NameSemanticValue::DeleteVector(nameSemanticValueList);
 }
 |;
 
 vertex_attribute_list: vertex_attribute_list predefined_vertex_attribute
+{
+    $$.m_nameSemanticValueList = 
+	$2.m_nameSemanticValue->PushBack ($1.m_nameSemanticValueList);
+}
 | vertex_attribute_list user_attribute
-| ;
+{
+    $$.m_nameSemanticValueList = 
+	$2.m_nameSemanticValue->PushBack ($1.m_nameSemanticValueList);
+}
+|
+{
+    $$.m_nameSemanticValueList = 0;
+}
+;
 
-predefined_vertex_attribute: ORIGINAL INTEGER_VALUE;
+predefined_vertex_attribute: ORIGINAL INTEGER_VALUE
+{
+    $$.m_nameSemanticValue = new NameSemanticValue (
+	$1.m_id->c_str (), $2.m_int);
+}
+;
 
-user_attribute: IDENTIFIER number | IDENTIFIER '{' number_list '}';
+user_attribute: IDENTIFIER INTEGER_VALUE
+{
+    $$.m_nameSemanticValue = new NameSemanticValue ($1.m_id->c_str(), $2.m_int);
+}
+| IDENTIFIER REAL_VALUE
+{
+    $$.m_nameSemanticValue = 
+	new NameSemanticValue ($1.m_id->c_str(), $2.m_real);
+}
+| IDENTIFIER '{' comma_integer_list '}'
+{
+    $$.m_nameSemanticValue = 
+	new NameSemanticValue ($1.m_id->c_str(), $3.m_intList);
+}
+| IDENTIFIER '{' comma_real_list '}'
+{
+    $$.m_nameSemanticValue = 
+	new NameSemanticValue ($1.m_id->c_str(), $3.m_realList);
+}
+;
 
 edges: EDGES edge_list;
-edge_list: edge_list INTEGER_VALUE INTEGER_VALUE INTEGER_VALUE signs_torus_model edge_attribute_list
+edge_list: edge_list INTEGER_VALUE INTEGER_VALUE INTEGER_VALUE 
+signs_torus_model edge_attribute_list
 {
     data.SetEdge (
-	intToUnsigned($2.i - 1, "Semantic error: edge index less than 0: "),
-	intToUnsigned($3.i - 1, "Semantic error: edge begin less than 0: "),
-	intToUnsigned($4.i - 1, "Semantic error: edge end less than 0: "));
+	intToUnsigned($2.m_int- 1, "Semantic error: edge index less than 0: "),
+	intToUnsigned($3.m_int- 1, "Semantic error: edge begin less than 0: "),
+	intToUnsigned($4.m_int- 1, "Semantic error: edge end less than 0: "),
+	*$6.m_nameSemanticValueList);
+    NameSemanticValue::DeleteVector($6.m_nameSemanticValueList);
 }
 | ;
 
 edge_attribute_list: edge_attribute_list predefined_edge_attribute
+{
+    $$.m_nameSemanticValueList = 
+	$2.m_nameSemanticValue->PushBack ($1.m_nameSemanticValueList);
+}
 | edge_attribute_list user_attribute
-| ;
+{
+    $$.m_nameSemanticValueList = 
+	$2.m_nameSemanticValue->PushBack ($1.m_nameSemanticValueList);
+}
+|
+{
+    $$.m_nameSemanticValueList = 0;
+}
+;
 
-predefined_edge_attribute: ORIGINAL INTEGER_VALUE;
+predefined_edge_attribute: ORIGINAL INTEGER_VALUE
+{
+    $$.m_nameSemanticValue = new NameSemanticValue (
+	$1.m_id->c_str (), $2.m_int);
+}
+;
 
 signs_torus_model: sign_torus_model sign_torus_model sign_torus_model
 |;
@@ -405,75 +452,200 @@ faces: FACES face_list;
 
 face_list: face_list INTEGER_VALUE integer_list face_attribute_list
 {
-    vector<int>* intList = $3.intList;
+    vector<int>* intList = $3.m_intList;
     transform(intList->begin(), intList->end(), intList->begin(),
 	      decrementElementIndex);
     data.SetFace (
-	intToUnsigned($2.i - 1, "Semantic error: face index less than 0"), 
-	*intList);
+	intToUnsigned($2.m_int- 1, "Semantic error: face index less than 0"), 
+	*intList, *$4.m_nameSemanticValueList);
     delete intList;
+    NameSemanticValue::DeleteVector($4.m_nameSemanticValueList);
 }
 |;
 
 face_attribute_list: face_attribute_list predefined_face_attribute
+{
+    $$.m_nameSemanticValueList = 
+	$2.m_nameSemanticValue->PushBack ($1.m_nameSemanticValueList);
+}
 | face_attribute_list user_attribute
-| ;
+{
+    $$.m_nameSemanticValueList = 
+	$2.m_nameSemanticValue->PushBack ($1.m_nameSemanticValueList);
+}
+|
+{
+    $$.m_nameSemanticValueList = 0;
+}
+;
 
 predefined_face_attribute: COLOR color_name 
-| ORIGINAL INTEGER_VALUE;
+{
+    $$.m_nameSemanticValue = 
+	new NameSemanticValue ($1.m_id->c_str (), $2.m_color);
+}
+| ORIGINAL INTEGER_VALUE
+{
+    $$.m_nameSemanticValue = 
+	new NameSemanticValue ($1.m_id->c_str (), $2.m_int);
+};
 
 color_name: BLACK
+{
+    $$.m_color = Qt::black;
+}
 | BLUE
+{
+    $$.m_color = Qt::blue;
+}
 | GREEN
+{
+    $$.m_color = Qt::green;
+}
 | CYAN
+{
+    $$.m_color = Qt::cyan;
+}
 | RED
+{
+    $$.m_color = Qt::red;
+}
 | MAGENTA
-| BROWN
-| LIGHTGRAY
-| DARKGRAY
-| LIGHTBLUE
-| LIGHTGREEN
-| LIGHTCYAN
-| LIGHTRED
-| LIGHTMAGENTA
+{
+    $$.m_color = Qt::magenta;
+}
 | YELLOW
+{
+    $$.m_color = Qt::yellow;
+}
 | WHITE
-| CLEAR;
+{
+    $$.m_color = Qt::white;
+}
+| CLEAR
+{
+    $$.m_color = Qt::transparent;
+}
+| BROWN
+{
+    $$.m_color = Qt::darkYellow;
+}
+| LIGHTGRAY
+{
+    $$.m_color = Qt::lightGray;
+}
+| DARKGRAY
+{
+    $$.m_color = Qt::darkGray;
+}
+| LIGHTBLUE
+{
+    $$.m_color = Qt::darkBlue;
+}
+| LIGHTGREEN
+{
+    $$.m_color = Qt::darkGreen;
+}
+| LIGHTCYAN
+{
+    $$.m_color = Qt::darkCyan;
+}
+| LIGHTRED
+{
+    $$.m_color = Qt::darkRed;
+}
+| LIGHTMAGENTA
+{
+    $$.m_color = Qt::darkMagenta;
+}
+
+;
 
 
 bodies: BODIES body_list;
 
 body_list: body_list INTEGER_VALUE integer_list body_attribute_list
 {
-    vector<int>* intList = $3.intList;
+    vector<int>* intList = $3.m_intList;
     transform(intList->begin (), intList->end (), intList->begin (),
 	      decrementElementIndex);
     data.SetBody (
-	intToUnsigned($2.i - 1, "Semantic error: body index less than 0"),
-	*intList);
+	intToUnsigned($2.m_int- 1, "Semantic error: body index less than 0"),
+	*intList, *$4.m_nameSemanticValueList);
     delete intList;
+    NameSemanticValue::DeleteVector ($4.m_nameSemanticValueList);
 }
-| ;
+|;
 
 integer_list: integer_list INTEGER_VALUE
 {
-    vector<int>* intList = $1.intList;
-    if (intList == 0)
-	intList = new vector<int>();
-    intList->push_back ($2.i);
-    $$.intList = intList;
+    vector<int>* intList = $1.m_intList;
+    intList->push_back ($2.m_int);
+    $$.m_intList = intList;
 }
-| {$$.intList = 0;}
+| INTEGER_VALUE
+{
+    $$.m_intList = new vector<int>(1, $1.m_int);
+}
 ;
 
+comma_integer_list: comma_integer_list ',' INTEGER_VALUE
+{
+    vector<int>* intList = $1.m_intList;
+    intList->push_back ($3.m_int);
+    $$.m_intList = intList;
+}
+| INTEGER_VALUE
+{
+    $$.m_intList = new vector<int>(1, $1.m_int);
+}
+;
+
+comma_real_list: comma_real_list ',' REAL_VALUE
+{
+    vector<float>* realList = $1.m_realList;
+    realList->push_back ($3.m_int);
+    $$.m_realList = realList;
+}
+| REAL_VALUE
+{
+    $$.m_realList = new vector<float>(1, $1.m_real);
+}
+;
+
+
 body_attribute_list: body_attribute_list predefined_body_attribute
+{
+    $$.m_nameSemanticValueList = 
+	$2.m_nameSemanticValue->PushBack ($1.m_nameSemanticValueList);
+}
 | body_attribute_list user_attribute
-| ;
+{
+    $$.m_nameSemanticValueList = 
+	$2.m_nameSemanticValue->PushBack ($1.m_nameSemanticValueList);
+}
+| 
+{
+    $$.m_nameSemanticValueList = 0;
+}
+;
 
 predefined_body_attribute: VOLUME number
+{
+    $$.m_nameSemanticValue = 
+	new NameSemanticValue ($1.m_id->c_str (), $2.m_real);
+}
 | LAGRANGE_MULTIPLIER number 
-| ORIGINAL INTEGER_VALUE;
-
+{
+    $$.m_nameSemanticValue = 
+	new NameSemanticValue ($1.m_id->c_str (), $2.m_real);
+}
+| ORIGINAL INTEGER_VALUE
+{
+    $$.m_nameSemanticValue = 
+	new NameSemanticValue ($1.m_id->c_str (), $2.m_int);
+}
+;
 
 %%
 
@@ -513,7 +685,10 @@ int KeywordId (const char* keyword)
 
 const char* KeywordString (int id)
 {
-    return yytname[id - YYTNAME_DISPLACEMENT];
+    string str = yytname[id - YYTNAME_DISPLACEMENT];
+    str.erase (0, 1);
+    str.erase (str.size () - 1, 1);
+    return data.GetParsingData ().CreateIdentifier (str.c_str ())->c_str ();
 }
 
 
@@ -521,6 +696,19 @@ void BisonDebugging (int debugging)
 {
     yydebug = debugging;
 }
+
+int decrementElementIndex (int i)
+{
+    if (i < 0)
+	i++;
+    else if (i > 0)
+	i--;
+    else
+	throw SemanticError ("Semantic error: invalid element index: 0");
+    return i;
+}
+
+
 
 // Local Variables:
 // mode: c++

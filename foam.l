@@ -60,18 +60,18 @@ E     [Ee][+-]?{D}+
 "//".*""    /* eat comment */ ;
 
 [+-]?{D}+ { /* decimal integers */
-    foamlval.i = readInteger (yytext, 10);
+    foamlval.m_int = readInteger (yytext, 10);
     foamlloc.first_line = yylineno;
     return INTEGER_VALUE;
 	}
 
-[+-]?0x{H}+ { /*hex integers*/
-    foamlval.i = readInteger (yytext, 16);
+[+-]?0x{H}+ { /* hexadecimal integers */
+    foamlval.m_int = readInteger (yytext, 16);
     foamlloc.first_line = yylineno;
     return INTEGER_VALUE;
 	  }
-[+-]?[01]+[Bb]   { /*binary integers*/
-    foamlval.i = readInteger (yytext, 2);
+[+-]?[01]+[Bb]   { /* binary integers */
+    foamlval.m_int = readInteger (yytext, 2);
     foamlloc.first_line = yylineno;
     return INTEGER_VALUE;
 }
@@ -81,7 +81,7 @@ E     [Ee][+-]?{D}+
 [+-]?{D}+{E}   { /* reals */
     char *tail = yytext;
     errno = 0;
-    foamlval.r = strtod (yytext, &tail);
+    foamlval.m_real = strtod (yytext, &tail);
     foamlloc.first_line = yylineno;
     if (errno)
     {
@@ -99,23 +99,27 @@ E     [Ee][+-]?{D}+
 	if (id == READ)
 	    // ignore READ and everything after it.
 	    yyterminate();
-	return id;
+	else
+	{
+	    foamlval.m_id = data.GetParsingData ().CreateIdentifier (yytext);
+	    return id;
+	}
     }
     else
     {
-	foamlval.id = data.GetParsingData ().CreateIdentifier (yytext);
+	foamlval.m_id = data.GetParsingData ().CreateIdentifier (yytext);
 	return IDENTIFIER;
     }
 }
 
 "+"|"-"|"*"|"/"|"^"  {/*operators*/
-    foamlval.id = data.GetParsingData ().CreateIdentifier (yytext);
+    foamlval.m_id = data.GetParsingData ().CreateIdentifier (yytext);
     foamlloc.first_line = yylineno;
     return *yytext;
 }
 
 ":"|"="  {/*assignments*/
-    foamlval.id = data.GetParsingData ().CreateIdentifier (yytext);
+    foamlval.m_id = data.GetParsingData ().CreateIdentifier (yytext);
     foamlloc.first_line = yylineno;
     return *yytext;
 }

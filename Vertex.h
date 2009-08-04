@@ -8,13 +8,14 @@
 #ifndef __POINT_H__
 #define __POINT_H__
 #include <iostream>
+#include "Element.h"
 using namespace std;
 
 class AttributesInfo;
 /**
  * Represents a point the the 3D Euclidian space
  */
-class Vertex
+class Vertex : public Element
 {
 public:
     /**
@@ -78,6 +79,8 @@ private:
      * the Y coordinate of the Point
      */
     float m_z;
+
+    static AttributesInfo* m_infos;
 };
 
 #endif

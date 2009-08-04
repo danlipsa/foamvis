@@ -1,5 +1,5 @@
 #include <math.h>
-#include "Element.h"
+#include "ElementUtils.h"
 #include "ParsingData.h"
 #include "SemanticError.h"
 
@@ -136,7 +136,8 @@ string* ParsingData::CreateIdentifier(const char* id)
     if (it == m_identifiers.end ())
     {
 	string* stringId = new string(id);
-	m_identifiers[id] = stringId;
+	// do not store id, as it comes from the parser and it will go away.
+	m_identifiers[stringId->c_str ()] = stringId;
 	return stringId;
     }
     else

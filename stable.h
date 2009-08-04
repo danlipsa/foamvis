@@ -6,7 +6,7 @@
 #if defined __cplusplus
 // Add C++ includes here
 #include <algorithm>
-#include <exception>
+#include <stdexcept>
 #include <functional>
 #include <iostream>
 #include <map>
@@ -17,6 +17,7 @@
 
 #include <QApplication>
 #include <QGLWidget>
+#include <Qt>
 #include <QtGui>
 #include <QtOpenGL>
 #include <QWidget>

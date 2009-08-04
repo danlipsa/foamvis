@@ -16,7 +16,7 @@ class AttributesInfo;
 /**
  * A Face is a oriented list of edges.
  */
-class Face
+class Face : public Element
 {
 public:
     /**
@@ -35,6 +35,7 @@ public:
     void ReversePrint (ostream& ostr);
     const vector<OrientedEdge*> GetOrientedEdges () const 
     { return m_edges;}
+    Qt::GlobalColor GetColor ();
     /**
      * Pretty prints this Face by printing the edges in DIRECT order
      */
@@ -42,10 +43,12 @@ public:
 
     static void SetDefaultAttributes (AttributesInfo& info);
 private:
+    const unsigned int COLOR_INDEX;
     /**
      * Edges that are part of this face
      */
     vector<OrientedEdge*> m_edges;
+    static AttributesInfo* m_infos;
 };
 
 

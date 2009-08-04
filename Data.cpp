@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <iostream>
 #include "Data.h"
-#include "Element.h"
+#include "ElementUtils.h"
 #include "ParsingData.h"
 
 
@@ -23,7 +23,6 @@ void compact (vector<E*>& v)
 	    v[i - step] = v[i];
     }
     unsigned int resize = v.size () - step;
-    cerr << "resizing vector with " << step << endl;
     v.resize (resize);
 }
 
@@ -100,32 +99,48 @@ Data::~Data ()
     for_each(m_vertices.begin (), m_vertices.end (), DeleteElementPtr<Vertex>);
 }
 
-void Data::SetPoint (unsigned int i, float x, float y, float z) 
+void Data::SetPoint (unsigned int i, float x, float y, float z,
+		     vector<NameSemanticValue*>& list) 
 {
     if (i >= m_vertices.size ())
 	m_vertices.resize (i + 1);
-    m_vertices[i] = new Vertex (x, y ,z);
+    Vertex* vertex = new Vertex (x, y ,z);
+    if (&list != 0)
+	vertex->StoreAttributes (list, m_attributesInfo[VERTEX_TYPE]);
+    m_vertices[i] = vertex;
 }
 
-void Data::SetEdge (unsigned int i, unsigned int begin, unsigned int end) 
+void Data::SetEdge (unsigned int i, unsigned int begin, unsigned int end,
+		    vector<NameSemanticValue*>& list) 
 {
     if (i >= m_edges.size ())
 	m_edges.resize (i + 1); 
-    m_edges[i] = new Edge (data.GetPoint(begin), data.GetPoint(end));
+    Edge* edge = new Edge (data.GetPoint(begin), data.GetPoint(end));
+    if (&list != 0)
+	edge->StoreAttributes (list, m_attributesInfo[EDGE_TYPE]);
+    m_edges[i] = edge;
 }
 
-void Data::SetFace (unsigned int i, const vector<int>& edges)
+void Data::SetFace (unsigned int i, const vector<int>& edges,
+		    vector<NameSemanticValue*>& list)
 {
     if (i >= m_faces.size ())
 	m_faces.resize (i + 1);
-    m_faces[i] = new Face (edges, m_edges);
+    Face* face = new Face (edges, m_edges);
+    if (&list != 0)
+	face->StoreAttributes (list, m_attributesInfo[FACE_TYPE]);
+    m_faces[i] = face;
 }
 
-void Data::SetBody (unsigned int i, const vector<int>& faces)
+void Data::SetBody (unsigned int i, const vector<int>& faces,
+		    vector<NameSemanticValue*>& list)
 {
     if (i >= m_bodies.size ())
 	m_bodies.resize (i + 1);
-    m_bodies[i] = new Body (faces, m_faces);
+    Body* body = new Body (faces, m_faces);
+    if (&list != 0)
+	body->StoreAttributes (list, m_attributesInfo[BODY_TYPE]);    
+    m_bodies[i] = body;
 }
 
 void Data::Compact (void)

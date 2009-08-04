@@ -16,7 +16,7 @@ class AttributesInfo;
 /**
  * A body is a set of faces
  */
-class Body
+class Body : public Element
 {
 public:
     /**
@@ -41,6 +41,7 @@ private:
      * Faces that are part of this body.
      */
     vector<OrientedFace*> m_faces;
+    static AttributesInfo* m_infos;
 };
 
 #endif

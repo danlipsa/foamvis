@@ -9,6 +9,7 @@
 #include "ParsingData.h"
 #include "lexYacc.h"
 #include "MainWindow.h"
+#include "SemanticError.h"
 
 /**
  * Global object  that stores data read  from a DMP  file (produced by
@@ -29,6 +30,8 @@ int main(int argc, char *argv[])
 	BisonDebugging (0);
 	if ((parseResult = foamparse()) == 0)
 	{
+	    cout << data;
+	    cout << data.GetParsingData ();
 	    QApplication app(argc, argv);
 	    MainWindow window (&data);
 	    window.show();
@@ -38,7 +41,7 @@ int main(int argc, char *argv[])
 	else
 	    return parseResult;
     }
-    catch (exception e)
+    catch (exception& e)
     {
 	cerr << "Exception: " << e.what () << endl;
     }

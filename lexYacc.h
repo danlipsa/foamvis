@@ -9,13 +9,15 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <Qt>
 #include "AttributeType.h"
+
 using namespace std;
 
 class ExpressionTree;
 class AttributeCreator;
 class Attribute;
-
+class NameSemanticValue;
 /**
  * Defines the datatypes for semantic values for terminals and non-terminals
  * in the gramar
@@ -25,33 +27,35 @@ typedef union
     /**
      * Value for an iteger
      */
-    int i;
+    int m_int;
     /**
      * Value for a floating point
      */
-    float r;
+    float m_real;
     /**
      * Value for a list of integers
      */
-    vector<int>* intList;
+    vector<int>* m_intList;
     /**
-     * Value for a list of numbers (ints or reals)
+     * Value for a list of real numbers
      */
-    vector<float>* numberList;
+    vector<float>* m_realList;
     /**
      * An identifier
      */
-    std::string* id;
+    std::string* m_id;
     /**
      * An expression tree
      */
-    ExpressionTree* node;
+    ExpressionTree* m_node;
     /**
      * Knows how to create an attribute
      */
-    AttributeCreator* attributeCreator;
-    enum AttributeType attributeType;
-    vector< pair<const char*, Attribute*> >* attributeList;
+    AttributeCreator* m_attributeCreator;
+    enum AttributeType m_attributeType;
+    vector<NameSemanticValue*>* m_nameSemanticValueList;
+    NameSemanticValue* m_nameSemanticValue;
+    Qt::GlobalColor m_color;
 } SemanticValue;
 /**
  * Defines the datatype for semantic values in bison to be yystype

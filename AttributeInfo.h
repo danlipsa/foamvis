@@ -5,31 +5,39 @@
 #include <map>
 #include <set>
 #include "AttributeCreator.h"
+#include "ElementUtils.h"
 
 using namespace std;
+
 
 class AttributeInfo
 {
 public:
-    AttributeInfo (int index, AttributeCreator* creator) : 
-	m_index (index), m_creator (creator) {}
+    AttributeInfo (unsigned int index, AttributeCreator* creator) : 
+    m_index (index), m_creator (creator) {}
+    unsigned int GetIndex () {return m_index;}
+    AttributeCreator* GetCreator () {return m_creator;}
+	
 private:
-    int m_index;
+    unsigned int m_index;
     AttributeCreator* m_creator;
 };
 
 class AttributesInfo
 {
 public:
-    AttributesInfo () : INVALID_INDEX(UINT_MAX) {}
+    AttributesInfo ();
     void AddAttributeInfo (const char* name, AttributeCreator* creator);
-    void Store (const char* name) {m_attributeStored.insert (name);}
-
+    void Load (const char* name) {m_loadAttribute.insert (name);}
+    void LoadAll () {m_loadAll = true;}
+    AttributeInfo* GetAttributeInfo (const char* name) const;
+    const char* GetAttributeName (unsigned int index);
     const unsigned int INVALID_INDEX;
 private:
-    set<const char*> m_attributeStored;
-    map<const char*, AttributeInfo*> m_attributes;
+    set<const char*, LessThanNoCase> m_loadAttribute;
+    map<const char*, AttributeInfo*, LessThanNoCase> m_nameInfo;
     unsigned int m_currentIndex;
+    bool m_loadAll;
 };
 
 #endif

@@ -14,7 +14,7 @@ class AttributesInfo;
 /**
  * An edge is an object that stores a begin and an end vertices (Point)
  */
-class Edge
+class Edge : public Element
 {
 public:
     /**
@@ -65,6 +65,7 @@ private:
      * Last vertex of the edge
      */
     Vertex* m_end;
+    static AttributesInfo* m_infos;
 };
 
 

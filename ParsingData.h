@@ -13,23 +13,7 @@
 #include <map>
 #include <set>
 using namespace std;
-
-/**
- * Binary function that compares two C strings
- */
-struct LessThanCharPtr : binary_function<const char*, const char*, bool>
-{
-    /**
-     * Compares two character pointers
-     * @param s1 first C string
-     * @param s2 second C string
-     * @return true if the first argument is less than the second argument.
-     */
-    bool operator()(const char* s1, const char* s2) const
-    {
-	return strcmp(s1, s2) < 0;
-    }
-};
+#include "ElementUtils.h"
 
 /**
  * Stores data used during  the parsing such as identifiers, variables
@@ -41,7 +25,7 @@ public:
     /**
      * How are variables stored
      */
-    typedef map<const char*, float, LessThanCharPtr> Variables;
+    typedef map<const char*, float, LessThanNoCase> Variables;
     /**
      * A unary function
      */
@@ -53,15 +37,15 @@ public:
     /**
      * How are unary functions stored.
      */
-    typedef map<const char*, UnaryFunction, LessThanCharPtr> UnaryFunctions;
+    typedef map<const char*, UnaryFunction, LessThanNoCase> UnaryFunctions;
     /**
      * How are binary functions stored
      */
-    typedef map<const char*, BinaryFunction,LessThanCharPtr> BinaryFunctions;
+    typedef map<const char*, BinaryFunction,LessThanNoCase> BinaryFunctions;
     /**
      * How are identifiers stored
      */
-    typedef map<const char*, string*, LessThanCharPtr> Identifiers;
+    typedef map<const char*, string*, LessThanNoCase> Identifiers;
     /**
      * Constructs a ParsingData object
      */

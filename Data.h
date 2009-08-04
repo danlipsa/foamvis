@@ -16,6 +16,7 @@
 #include "Body.h"
 #include "AttributeCreator.h"
 #include "AttributeInfo.h"
+#include "NameSemanticValue.h"
 using namespace std;
 
 class ParsingData;
@@ -45,14 +46,16 @@ public:
      * @param y coordinate Y of the Point object
      * @param z coordinate Z of the Point object
      */
-    void SetPoint (unsigned int i, float x, float y, float z);
+    void SetPoint (unsigned int i, float x, float y, float z,
+		   vector<NameSemanticValue*>& list);
     /**
      * Stores an Edge object in the Data object at a certain index
      * @param i index where to store the Edge object
      * @param begin index of the first Point that determines the edge
      * @param end index of the last Point that determines the edge
      */
-    void SetEdge (unsigned int i, unsigned int begin, unsigned int end);
+    void SetEdge (unsigned int i, unsigned int begin, unsigned int end,
+		  vector<NameSemanticValue*>& list);
     const vector<Edge*>& GetEdges () {return m_edges;}
     /**
      * Stores a Face object in the Data object 
@@ -64,7 +67,8 @@ public:
      *        the edge part of the  Face is in reversed order than the
      *        Edge that is stored in the Data object.
      */
-    void SetFace (unsigned int i, const vector<int>& edges);
+    void SetFace (unsigned int i, const vector<int>& edges,
+		  vector<NameSemanticValue*>& list);
     const vector<Face*> GetFaces () {return m_faces;}
 
     /**
@@ -78,7 +82,8 @@ public:
      *         reverse order  than the  Face that *  is stored  in the
      *         Data object.
      */
-    void SetBody (unsigned int i, const vector<int>& faces);
+    void SetBody (unsigned int i, const vector<int>& faces,
+		  vector<NameSemanticValue*>& list);
     const vector<Body*> GetBodies () {return m_bodies;}
     /**
      * Stores an element of the 4x4 view matrix.

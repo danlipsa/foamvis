@@ -14,8 +14,8 @@ ostream& operator<< (ostream& ostr, Edge& e)
     if (&e == 0)
 	ostr << "NULL";
     else
-	ostr << "Edge: " << *e.m_begin << ", " << *e.m_end;
-    return ostr;
+	ostr << "Edge: " << *e.m_begin << ", " << *e.m_end << " ";
+    return e.PrintAttributes (ostr, *Edge::m_infos);
 }
 
 void Edge::ReversePrint (ostream& ostr)
@@ -26,8 +26,13 @@ void Edge::ReversePrint (ostream& ostr)
 	ostr << "Edge: " << *m_end << ", " << *m_begin;
 }
 
-void Edge::SetDefaultAttributes (AttributesInfo& info)
+
+AttributesInfo* Edge::m_infos;
+void Edge::SetDefaultAttributes (AttributesInfo& infos)
 {
-    info.AddAttributeInfo (
+    m_infos = &infos;
+    infos.AddAttributeInfo (
 	KeywordString(ORIGINAL), new IntegerAttributeCreator());
 }
+
+

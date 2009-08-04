@@ -4,50 +4,34 @@
  *
  * Declaration of the SemanticError exception
  */
-#ifndef __SEMANTIC_ERROR__
-#define __SEMANTIC_ERROR__
+#ifndef __SEMANTIC_ERROR_H__
+#define __SEMANTIC_ERROR_H__
 
 #include <string>
-#include <exception>
+#include <stdexcept>
 using namespace std;
 
 /**
- * Exception that signals  a semantic error when parsing  the DMP data
+ * Exception that signals  a semantic error when parsing  the .DMP data
  * file (produced by the Surface Evolver software)
  */
-class SemanticError : public exception
+class SemanticError : public logic_error
 {
 public:
     /**
      * Constructs a SemanticError object
      * @param reason message describing the reason for the exception
      */
-    SemanticError (const char* reason): m_reason(reason) {}
+    SemanticError (const char* reason): logic_error(reason) {}
     /**
      * Constructs a SemanticError object
      * @param reason message describing the reason for the exception
      */
-    SemanticError (const string& reason): m_reason(reason) {}
-
-
+    SemanticError (const string& reason): logic_error(reason) {}
     /**
      * Destroys the object
      */
     ~SemanticError() throw() {}
-    /**
-     * Function that describes the reason for the error
-     * @return message describing the reason for the error
-     */
-    virtual const char* what()
-    {
-	return m_reason.c_str();
-    }
-
-private:
-    /**
-     * Stores a string describing the reason for the error.
-     */
-    string m_reason;
 };
 
 #endif

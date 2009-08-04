@@ -13,14 +13,18 @@
 ostream& operator<< (ostream& ostr, Vertex& p)
 {
     if (&p == 0)
-	return ostr << "NULL";
+	ostr << "NULL";
     else
-	return ostr << "Point: " << p.m_x << ", " << p.m_y << ", " 
-		    << p.m_z;
+	ostr << "Point: " << p.m_x << ", " << p.m_y << ", " 
+	     << p.m_z << " ";
+    return p.PrintAttributes (ostr, *Vertex::m_infos);
 }
 
-void Vertex::SetDefaultAttributes (AttributesInfo& info)
+AttributesInfo* Vertex::m_infos;
+
+void Vertex::SetDefaultAttributes (AttributesInfo& infos)
 {
-    info.AddAttributeInfo (
+    m_infos = &infos;
+    infos.AddAttributeInfo (
 	KeywordString(ORIGINAL), new IntegerAttributeCreator());
 }

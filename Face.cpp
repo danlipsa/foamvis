@@ -6,7 +6,7 @@
  */
 #include <algorithm>
 #include "Face.h"
-#include "Element.h"
+#include "ElementUtils.h"
 #include "lexYacc.h"
 #include "foam_yacc.h"
 #include "AttributeInfo.h"
@@ -56,11 +56,13 @@ ostream& operator<< (ostream& ostr, Face& f)
     else
 	PrintElementPtrs<OrientedEdge> (ostr, f.m_edges, 
 					"edges part of the face", true);
-    return ostr;
+    ostr << " ";
+    return f.PrintAttributes (ostr, *Face::m_infos);
 }
 
 
-Face::Face(const vector<int>& edgeIndexes, vector<Edge*>& edges)
+Face::Face(const vector<int>& edgeIndexes, vector<Edge*>& edges) :
+    COLOR_INDEX (0)
 {
     m_edges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_edges.begin(), 
@@ -81,11 +83,20 @@ void Face::ReversePrint (ostream& ostr)
 	    ostr, m_edges, "edges part of the face", true);
 }
 
-void Face::SetDefaultAttributes (AttributesInfo& info)
+
+AttributesInfo* Face::m_infos;
+void Face::SetDefaultAttributes (AttributesInfo& infos)
 {
-    info.AddAttributeInfo (
-	KeywordString(ORIGINAL), new IntegerAttributeCreator());
+    m_infos = &infos;
     const char* colorString = KeywordString(COLOR);
-    info.AddAttributeInfo (colorString, new IntegerAttributeCreator());
-    info.Store (colorString);
+    infos.AddAttributeInfo (colorString, new ColorAttributeCreator());
+    infos.Load (colorString);
+    infos.AddAttributeInfo (
+	KeywordString(ORIGINAL), new IntegerAttributeCreator());
+}
+
+Qt::GlobalColor Face::GetColor ()
+{
+    return dynamic_cast<const ColorAttribute*>(
+	m_attributes[COLOR_INDEX])->GetColor ();
 }

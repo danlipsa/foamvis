@@ -1,12 +1,13 @@
 #include <math.h>
 #include <algorithm>
+#include <stdexcept>
 #include <QtGui>
 #include <QtOpenGL>
 #include <G3D/Vector3.h>
 #include "GLWidget.h"
 #include "Vertex.h"
 #include "Data.h"
-#include "InvalidValue.h"
+
 
 using namespace std;
 using namespace G3D;
@@ -111,7 +112,7 @@ void GLWidget::emitRotationChanged (int axis, int angle)
 	emit ZRotationChanged (angle);
 	return;
     default:
-	throw InvalidValue ("Invalid axis: " + axis);
+	throw domain_error ("Invalid axis: " + axis);
     }
 }
 
@@ -181,7 +182,7 @@ void GLWidget::initializeGL()
 	GLWidget::initLightBodies ();
 	break;
     default:
-	throw InvalidValue (
+	throw domain_error (
 	    "ViewType enum has an invalid value: " + m_viewType);
     }
 }
@@ -287,7 +288,7 @@ void displayEdge (const Edge* e)
     }
 }
 
-struct displayFace : public unary_function<void, const Face*>
+struct displayFace : public unary_function<const Face*, void>
 {
     displayFace (bool reversed) : m_reversed (reversed) {}
 
