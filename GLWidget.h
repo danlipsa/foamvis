@@ -44,10 +44,10 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
 
 private:
-    GLuint makeVertices ();
-    GLuint makeEdges ();
-    GLuint makeFaces ();
-    GLuint makeBodies ();
+    GLuint displayVertices ();
+    GLuint displayEdges ();
+    GLuint displayFaces ();
+    GLuint displayBodies ();
     void normalizeAngle(int *angle);
     void setRotation (int axis, int angle) {m_rotation[axis] = angle;}
     void setRotationSlot (int axis, int angle);

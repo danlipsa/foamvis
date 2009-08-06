@@ -54,9 +54,9 @@ ostream& operator<< (ostream& ostr, Face& f)
     if (&f == 0)
 	ostr << "NULL";
     else
-	PrintElementPtrs<OrientedEdge> (ostr, f.m_edges, 
+	PrintElements<OrientedEdge*> (ostr, f.m_edges, 
 					"edges part of the face", true);
-    ostr << " ";
+    ostr << " Face attributes: ";
     return f.PrintAttributes (ostr, *Face::m_infos);
 }
 
@@ -79,7 +79,7 @@ void Face::ReversePrint (ostream& ostr)
     if (this == 0)
 	ostr << "NULL";
     else
-	ReversePrintElementPtrs<OrientedEdge> (
+	ReversePrintElements<OrientedEdge*> (
 	    ostr, m_edges, "edges part of the face", true);
 }
 
@@ -89,13 +89,15 @@ void Face::SetDefaultAttributes (AttributesInfo& infos)
 {
     m_infos = &infos;
     const char* colorString = KeywordString(COLOR);
-    infos.AddAttributeInfo (colorString, new ColorAttributeCreator());
+    // load the color attribute and nothing else
     infos.Load (colorString);
+
+    infos.AddAttributeInfo (colorString, new ColorAttributeCreator());
     infos.AddAttributeInfo (
 	KeywordString(ORIGINAL), new IntegerAttributeCreator());
 }
 
-Qt::GlobalColor Face::GetColor ()
+Qt::GlobalColor Face::GetColor () const
 {
     return dynamic_cast<const ColorAttribute*>(
 	m_attributes[COLOR_INDEX])->GetColor ();

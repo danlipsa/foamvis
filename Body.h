@@ -44,6 +44,12 @@ private:
     static AttributesInfo* m_infos;
 };
 
+inline ostream& operator<< (ostream& ostr, Body* b)
+{
+    return ostr << *b;
+}
+
+
 #endif
 
 // Local Variables:

@@ -17,9 +17,7 @@ private:
     unsigned int m_index;
 };
 
-
-AttributesInfo::AttributesInfo () : 
-    INVALID_INDEX(UINT_MAX), m_loadAll (true) 
+AttributesInfo::AttributesInfo () : m_loadAll (false) 
 {}
 
 void AttributesInfo::AddAttributeInfo (
@@ -30,7 +28,7 @@ void AttributesInfo::AddAttributeInfo (
 	m_nameInfo[name] = new AttributeInfo (m_currentIndex++, creator);
     else
     {
-	m_nameInfo[name] = new AttributeInfo (INVALID_INDEX, 0);
+	m_nameInfo[name] = new AttributeInfo (AttributeInfo::INVALID_INDEX, 0);
 	delete creator;
     }
 }

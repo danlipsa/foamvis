@@ -27,8 +27,8 @@ public:
      */
     OrientedFace(Face* face, bool reversed)
     {m_face = face; m_reversed = reversed;}
-    const Face* GetFace () {return m_face;}
-    bool IsReversed () {return m_reversed;}
+    const Face* GetFace () const {return m_face;}
+    bool IsReversed () const {return m_reversed;}
     /**
      * Pretty print for the OrientedFace object
      */
@@ -46,6 +46,11 @@ private:
      */
     bool m_reversed;
 };
+
+inline ostream& operator<< (ostream& ostr, OrientedFace* pof)
+{
+    return ostr << *pof;
+}
 
 
 #endif

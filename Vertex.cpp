@@ -16,7 +16,7 @@ ostream& operator<< (ostream& ostr, Vertex& p)
 	ostr << "NULL";
     else
 	ostr << "Point: " << p.m_x << ", " << p.m_y << ", " 
-	     << p.m_z << " ";
+	     << p.m_z << " Vertex attributes: ";
     return p.PrintAttributes (ostr, *Vertex::m_infos);
 }
 

@@ -30,8 +30,8 @@ int main(int argc, char *argv[])
 	BisonDebugging (0);
 	if ((parseResult = foamparse()) == 0)
 	{
-	    cout << data;
-	    cout << data.GetParsingData ();
+	    //cout << data;
+	    //cout << data.GetParsingData ();
 	    QApplication app(argc, argv);
 	    MainWindow window (&data);
 	    window.show();

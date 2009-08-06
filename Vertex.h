@@ -64,7 +64,7 @@ public:
      */
     static void SetDefaultAttributes (AttributesInfo& info);
 
-    friend ostream& operator<< (ostream& ostr, Vertex& p);
+    friend ostream& operator<< (ostream& ostr, Vertex& v);
 
 private:
     /**
@@ -82,6 +82,12 @@ private:
 
     static AttributesInfo* m_infos;
 };
+
+inline ostream& operator<< (ostream& ostr, Vertex* pv)
+{
+    return ostr << *pv;
+}
+
 
 #endif
 

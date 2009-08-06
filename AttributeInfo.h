@@ -17,7 +17,7 @@ public:
     m_index (index), m_creator (creator) {}
     unsigned int GetIndex () {return m_index;}
     AttributeCreator* GetCreator () {return m_creator;}
-	
+    const static unsigned int INVALID_INDEX = UINT_MAX;	
 private:
     unsigned int m_index;
     AttributeCreator* m_creator;
@@ -32,7 +32,6 @@ public:
     void LoadAll () {m_loadAll = true;}
     AttributeInfo* GetAttributeInfo (const char* name) const;
     const char* GetAttributeName (unsigned int index);
-    const unsigned int INVALID_INDEX;
 private:
     set<const char*, LessThanNoCase> m_loadAttribute;
     map<const char*, AttributeInfo*, LessThanNoCase> m_nameInfo;

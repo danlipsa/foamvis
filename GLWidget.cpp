@@ -1,14 +1,14 @@
 #include <math.h>
 #include <algorithm>
 #include <stdexcept>
+
 #include <QtGui>
 #include <QtOpenGL>
+
 #include <G3D/Vector3.h>
 #include "GLWidget.h"
 #include "Vertex.h"
 #include "Data.h"
-
-
 using namespace std;
 using namespace G3D;
 
@@ -129,7 +129,6 @@ void GLWidget::initLightBodies ()
 
 
     GLfloat light_position[] = { 2.0, 2.0, 2.0, 0.0 };
-    glClearColor (0.0, 0.0, 0.0, 0.0);
     glShadeModel (GL_SMOOTH);
 
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular_front);
@@ -159,11 +158,11 @@ void GLWidget::initLightFlat ()
 
 void GLWidget::initializeGL()
 {
-    m_object[VERTICES] = makeVertices();
-    m_object[EDGES] = makeEdges ();
-    m_object[FACES] = makeFaces ();
-    m_object[BODIES] = makeBodies ();
-        
+    m_object[VERTICES] = displayVertices();
+    m_object[EDGES] = displayEdges ();
+    m_object[FACES] = displayFaces ();
+    m_object[BODIES] = displayBodies ();
+    qglClearColor (QColor(Qt::cyan));        
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
     glOrtho(-1.5, 1.5, -1.5, 1.5, -1.5, 1.5);
@@ -194,6 +193,7 @@ void GLWidget::paintGL()
     glRotated(getRotation (0), 1.0, 0.0, 0.0);
     glRotated(getRotation (1), 0.0, 1.0, 0.0);
     glRotated(getRotation (2), 0.0, 0.0, 1.0);
+    qglColor (QColor(Qt::black));
     glCallList(m_object[m_viewType]);
 }
 
@@ -288,46 +288,45 @@ void displayEdge (const Edge* e)
     }
 }
 
-struct displayFace : public unary_function<const Face*, void>
+void displayOrientedFace (const OrientedFace* f)
 {
-    displayFace (bool reversed) : m_reversed (reversed) {}
+    const vector<OrientedEdge*> v = f->GetFace()->GetOrientedEdges ();
+    // specify the normal vector
+    const Vertex* begin = v[0]->GetBegin ();
+    const Vertex* end = v[0]->GetEnd ();
+    if (f->IsReversed ())
+	swap (begin, end);
+    Vector3 first(end->GetX () - begin->GetX (),
+		  end->GetY () - begin->GetY (),
+		  end->GetZ () - begin->GetZ ());
+    begin = v[1]->GetBegin ();
+    end = v[1]->GetEnd ();
+    if (f->IsReversed ())
+	swap (begin, end);
+    Vector3 second(end->GetX () - begin->GetX (),
+		   end->GetY () - begin->GetY (),
+		   end->GetZ () - begin->GetZ ());
+    Vector3 normal (first.cross(second).unit ());
+    glNormal3f (normal.x, normal.y, normal.z);
+
+    // specify the vertices for the triangle
+    for_each (v.begin (), v.end (), displayFirstVertex);
+}
+
+struct displayFaceWithContur : public unary_function<const Face*, void>
+{
+    displayFaceWithContur (GLWidget& widget) : 
+	m_widget (widget) {}
 
     void operator() (const Face* f)
     {
-	if (f != 0)
-	{
-	    const vector<OrientedEdge*> v = f->GetOrientedEdges ();
-	    // specify the normal vector
-	    const Vertex* begin = v[0]->GetBegin ();
-	    const Vertex* end = v[0]->GetEnd ();
-	    if (m_reversed)
-		swap (begin, end);
-	    Vector3 first(end->GetX () - begin->GetX (),
-			  end->GetY () - begin->GetY (),
-			  end->GetZ () - begin->GetZ ());
-	    begin = v[1]->GetBegin ();
-	    end = v[1]->GetEnd ();
-	    if (m_reversed)
-		swap (begin, end);
-	    Vector3 second(end->GetX () - begin->GetX (),
-			   end->GetY () - begin->GetY (),
-			   end->GetZ () - begin->GetZ ());
-	    Vector3 normal (first.cross(second).unit ());
-	    glNormal3f (normal.x, normal.y, normal.z);
-
-	    // specify the vertices for the triangle
-	    for_each (v.begin (), v.end (), displayFirstVertex);
-	}
+	m_widget.qglColor (QColor(f->GetColor ()));
+	const vector<OrientedEdge*> v = f->GetOrientedEdges ();
+	for_each (v.begin (), v.end (), displayFirstVertex);
     }
 private:
-    bool m_reversed;
+    GLWidget& m_widget;
 };
-
-void displayOrientedFace (OrientedFace* of)
-{
-    return displayFace (of->IsReversed ()) (of->GetFace());
-}
-
 
 void displayBody (Body* b)
 {
@@ -335,7 +334,7 @@ void displayBody (Body* b)
     for_each (v.begin (), v.end (), displayOrientedFace);
 }
 
-GLuint GLWidget::makeVertices ()
+GLuint GLWidget::displayVertices ()
 {
     GLuint list = glGenLists(1);
     const vector<Vertex*>& points = m_data->GetPoints ();
@@ -347,7 +346,7 @@ GLuint GLWidget::makeVertices ()
     return list;
 }
 
-GLuint GLWidget::makeEdges ()
+GLuint GLWidget::displayEdges ()
 {
     GLuint list = glGenLists(1);
     const vector<Edge*>& edges = m_data->GetEdges ();
@@ -359,26 +358,29 @@ GLuint GLWidget::makeEdges ()
     return list;
 }
 
-GLuint GLWidget::makeFaces ()
+GLuint GLWidget::displayFaces ()
 {
     GLuint list = glGenLists(1);
     const vector<Face*>& faces = m_data->GetFaces ();
+    QColor black(Qt::black);
     glNewList(list, GL_COMPILE);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     glBegin(GL_TRIANGLES);
-    for_each (faces.begin (), faces.end (), displayFace (false));
-    glEnd();
+    for_each (faces.begin (), faces.end (), 
+	      displayFaceWithContur (*this));
+    glEnd ();
     glEndList();
     return list;
 }
 
-GLuint GLWidget::makeBodies ()
+GLuint GLWidget::displayBodies ()
 {
     GLuint list = glGenLists(1);
     const vector<Body*>& bodies = m_data->GetBodies ();
     glNewList(list, GL_COMPILE);
-    glBegin(GL_TRIANGLES);
+    glBegin (GL_TRIANGLES);
     for_each (bodies.begin (), bodies.end (), displayBody);
-    glEnd();
+    glEnd ();
     glEndList();
     return list;
 }

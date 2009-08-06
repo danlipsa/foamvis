@@ -55,9 +55,9 @@ ostream& operator<< (ostream& ostr, Body& b)
     if (&b == 0)
 	ostr << "NULL";
     else
-	PrintElementPtrs<OrientedFace> (ostr, b.m_faces, 
+	PrintElements<OrientedFace*> (ostr, b.m_faces, 
 					"faces part of the body", true);
-    ostr << " ";
+    ostr << " Body attributes: ";
     return b.PrintAttributes (ostr, *Body::m_infos);
 }
 

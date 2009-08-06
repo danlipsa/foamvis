@@ -53,6 +53,10 @@ private:
     bool m_reversed;
 };
 
+inline ostream& operator<< (ostream& ostr, OrientedEdge* poe)
+{
+    return ostr << *poe;
+}
 
 #endif
 

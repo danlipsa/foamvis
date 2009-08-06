@@ -14,7 +14,8 @@ ostream& operator<< (ostream& ostr, Edge& e)
     if (&e == 0)
 	ostr << "NULL";
     else
-	ostr << "Edge: " << *e.m_begin << ", " << *e.m_end << " ";
+	ostr << "Edge: " << *e.m_begin << ", " << *e.m_end << 
+	    " Edge attributes: ";
     return e.PrintAttributes (ostr, *Edge::m_infos);
 }
 

@@ -68,6 +68,11 @@ private:
     static AttributesInfo* m_infos;
 };
 
+inline ostream& operator<< (ostream& ostr, Edge* e)
+{
+    return ostr << *e;
+}
+
 
 #endif
 

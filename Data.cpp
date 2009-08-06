@@ -68,10 +68,10 @@ private:
 ostream& operator<< (ostream& ostr, Data& d)
 {
     ostr << "Data:" << endl;
-    PrintElementPtrs<Vertex> (ostr, d.m_vertices, "vertices", true);
-    PrintElementPtrs<Edge> (ostr, d.m_edges, "edges", true);
-    PrintElementPtrs<Face> (ostr, d.m_faces, "faces", true);
-    PrintElementPtrs<Body> (ostr, d.m_bodies, "bodies", true);
+    PrintElements<Vertex*> (ostr, d.m_vertices, "vertices", true);
+    PrintElements<Edge*> (ostr, d.m_edges, "edges", true);
+    PrintElements<Face*> (ostr, d.m_faces, "faces", true);
+    PrintElements<Body*> (ostr, d.m_bodies, "bodies", true);
     ostr << "view matrix:" << endl;
     for_each (d.m_viewMatrix, 
 	      d.m_viewMatrix + 

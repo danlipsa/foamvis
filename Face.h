@@ -35,7 +35,7 @@ public:
     void ReversePrint (ostream& ostr);
     const vector<OrientedEdge*> GetOrientedEdges () const 
     { return m_edges;}
-    Qt::GlobalColor GetColor ();
+    Qt::GlobalColor GetColor () const;
     /**
      * Pretty prints this Face by printing the edges in DIRECT order
      */
@@ -50,6 +50,12 @@ private:
     vector<OrientedEdge*> m_edges;
     static AttributesInfo* m_infos;
 };
+
+inline ostream& operator<< (ostream& ostr, Face* f)
+{
+    return ostr << *f;
+}
+
 
 
 #endif

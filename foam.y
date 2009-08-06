@@ -133,7 +133,6 @@ int decrementElementIndex (int i);
 %%
 datafile: header vertices edges faces bodies
 {
-    cerr << "The end" << endl;
     data.Compact ();
 };
 
@@ -496,27 +495,27 @@ color_name: BLACK
 }
 | BLUE
 {
-    $$.m_color = Qt::blue;
+    $$.m_color = Qt::darkBlue;
 }
 | GREEN
 {
-    $$.m_color = Qt::green;
+    $$.m_color = Qt::darkGreen;
 }
 | CYAN
 {
-    $$.m_color = Qt::cyan;
+    $$.m_color = Qt::darkCyan;
 }
 | RED
 {
-    $$.m_color = Qt::red;
+    $$.m_color = Qt::darkRed;
 }
 | MAGENTA
 {
-    $$.m_color = Qt::magenta;
+    $$.m_color = Qt::darkMagenta;
 }
 | YELLOW
 {
-    $$.m_color = Qt::yellow;
+    $$.m_color = Qt::darkYellow;
 }
 | WHITE
 {
@@ -528,7 +527,7 @@ color_name: BLACK
 }
 | BROWN
 {
-    $$.m_color = Qt::darkYellow;
+    $$.m_color = Qt::yellow;
 }
 | LIGHTGRAY
 {
@@ -540,23 +539,23 @@ color_name: BLACK
 }
 | LIGHTBLUE
 {
-    $$.m_color = Qt::darkBlue;
+    $$.m_color = Qt::blue;
 }
 | LIGHTGREEN
 {
-    $$.m_color = Qt::darkGreen;
+    $$.m_color = Qt::green;
 }
 | LIGHTCYAN
 {
-    $$.m_color = Qt::darkCyan;
+    $$.m_color = Qt::cyan;
 }
 | LIGHTRED
 {
-    $$.m_color = Qt::darkRed;
+    $$.m_color = Qt::red;
 }
 | LIGHTMAGENTA
 {
-    $$.m_color = Qt::darkMagenta;
+    $$.m_color = Qt::magenta;
 }
 
 ;

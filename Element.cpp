@@ -26,10 +26,15 @@ public:
 				     nameSemanticValue->GetName () + 
 				     "\" was not defined");
 	    unsigned int index = info->GetIndex ();
-	    AttributeCreator& creator = *(info->GetCreator ());
-	    m_where.SetAttribute (
-		index, creator(nameSemanticValue->GetSemanticValue (), 
-			       nameSemanticValue->GetType ()));
+	    if (index == AttributeInfo::INVALID_INDEX)
+		return;
+	    else
+	    {
+		AttributeCreator& creator = *(info->GetCreator ());
+		m_where.SetAttribute (
+		    index, creator(nameSemanticValue->GetSemanticValue (), 
+				   nameSemanticValue->GetType ()));
+	    }
 	}
 	catch (SemanticError& e)
 	{
@@ -51,8 +56,8 @@ public:
 	m_ostr (ostr), m_infos (infos), m_index(0) {}
     void operator() (const Attribute* attribute)
     {
-	const char* name = m_infos.GetAttributeName (m_index);
-	m_ostr << name << " " << *attribute;
+	const char* name = m_infos.GetAttributeName (m_index++);
+	m_ostr << name << " " << *attribute << " ";
     }
 private:
     ostream& m_ostr;

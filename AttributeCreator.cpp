@@ -15,7 +15,7 @@ Attribute* IntegerAttributeCreator::operator() (const SemanticValue& value,
 	    "has value of type " << type << ends;
 	throw SemanticError (ostr.str ());
     }
-    return new IntegerAttribute (value.m_real);
+    return new IntegerAttribute (value.m_int);
 }
 
 Attribute* ColorAttributeCreator::operator() (const SemanticValue& value, 

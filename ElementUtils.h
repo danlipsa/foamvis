@@ -24,11 +24,11 @@ void DeleteElementPtr (const E* pe)
 
 
 /**
- * Unary function  that prints an  object of type  E*. Used to  print a
+ * Unary function  that prints an  object of type  E&. Used to  print a
  * sequence of objects.
  */
 template <class E>
-struct PrintElementPtr : public unary_function<E*, void>
+struct PrintElement : public unary_function<E&, void>
 {
 public:
     /**
@@ -37,14 +37,14 @@ public:
      * @param useEndOfLine use end of line or comma to separate object
      * of type E.
      */
-    PrintElementPtr (ostream& ostr, bool useEndOfLine) : 
+    PrintElement (ostream& ostr, bool useEndOfLine) : 
     m_ostr(ostr), m_index(0), m_useEndOfLine(useEndOfLine) {
     }
     /**
      * Pretty prints an object
      * @param e the object to be printed.
      */
-    void operator() (E* e) 
+    void operator() (E& e) 
     {
 	if (m_index > 0)
 	{
@@ -53,7 +53,7 @@ public:
 	    else
 		m_ostr << ", ";
 	}
-	m_ostr << m_index << ": " << *e;
+	m_ostr << m_index << ": " << e;
 	m_index++;
     }
 private:
@@ -73,25 +73,25 @@ private:
 };
 
 /**
- * Pretty prints a list of object stored as pointers.
+ * Pretty prints a list of objects.
  * @param ostr output stream where to print the objects to
  * @param v vector of objects to be printed
  * @param elementName string describing an object in the list of objects printed
  * @param useEndOfLine objects are separated by an end of line or by a comma
  */
 template <class E>
-ostream& PrintElementPtrs (
-    ostream& ostr, vector<E*>& v, const char* elementName, 
+ostream& PrintElements (
+    ostream& ostr, vector<E>& v, const char* elementName, 
     bool useEndOfLine)
 {
     ostr << v.size() << " " << elementName << ":"<< endl;
-    for_each(v.begin (), v.end (), PrintElementPtr<E>(ostr, useEndOfLine));
+    for_each(v.begin (), v.end (), PrintElement<E>(ostr, useEndOfLine));
     ostr << endl;
     return ostr;
 }
 
 /**
- * Pretty prints a list of objects stored as pointers in reverse order
+ * Pretty prints a list of objects in reverse order
  * @param ostr output stream where to print the objects to
  * @param v vector of objects to  be printed in reverse order than how
  *        they are stored in the vector.
@@ -99,11 +99,11 @@ ostream& PrintElementPtrs (
  * @param useEndOfLine objects are separated by an end of line or by a comma
  */
 template <class E>
-ostream& ReversePrintElementPtrs (ostream& ostr, vector<E*>& v, 
+ostream& ReversePrintElements (ostream& ostr, vector<E>& v, 
 				  const char* elementName, bool useEndOfLine)
 {
     ostr << v.size() << " " << elementName << ":"<< endl;
-    for_each(v.rbegin (), v.rend (), PrintElementPtr<E>(ostr, useEndOfLine));
+    for_each(v.rbegin (), v.rend (), PrintElement<E>(ostr, useEndOfLine));
     ostr << endl;
     return ostr;
 }
