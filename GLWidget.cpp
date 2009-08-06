@@ -364,7 +364,8 @@ GLuint GLWidget::displayFaces ()
     const vector<Face*>& faces = m_data->GetFaces ();
     QColor black(Qt::black);
     glNewList(list, GL_COMPILE);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    glPointSize (5);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_POINT);
     glBegin(GL_TRIANGLES);
     for_each (faces.begin (), faces.end (), 
 	      displayFaceWithContur (*this));
@@ -378,6 +379,7 @@ GLuint GLWidget::displayBodies ()
     GLuint list = glGenLists(1);
     const vector<Body*>& bodies = m_data->GetBodies ();
     glNewList(list, GL_COMPILE);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glBegin (GL_TRIANGLES);
     for_each (bodies.begin (), bodies.end (), displayBody);
     glEnd ();
