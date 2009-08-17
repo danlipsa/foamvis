@@ -358,14 +358,15 @@ void GLWidget::resizeGL(int width, int height)
 
 void GLWidget::setRotation (int axis, int angle)
 {
-	using G3D::Matrix4;
-	using G3D::Vector4;
-    Matrix4 modelView;
-    makeCurrent ();
+    using G3D::Matrix4;
+    const float axes[3][3] = {{1,0,0}, {0,1,0}, {0,0,1}};
+	makeCurrent ();
+	Matrix4 modelView;
     glGetMatrix (GL_MODELVIEW_MATRIX, modelView);
-    Matrix4& inverse = modelView.inverse ();
-    Vector4& v = inverse.getColumn (axis);
-    glRotatef (angle, v[0], v[1], v[2]);
+	Matrix4& columnOrderMatrix = modelView.transpose ();
+    glLoadIdentity ();
+    glRotatef (angle, axes[axis][0], axes[axis][1], axes[axis][2]);
+    glMultMatrixf (columnOrderMatrix);
     updateGL();
 }
 
