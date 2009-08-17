@@ -13,38 +13,38 @@ class storeAttribute :
 {
 public:
     storeAttribute(
-	Element& where, AttributesInfo& infos) : 
-	m_where (where), m_infos (infos) {}
+        Element& where, AttributesInfo& infos) : 
+        m_where (where), m_infos (infos) {}
     void operator() (const NameSemanticValue* nameSemanticValue)
     {
-	try
-	{
-	    AttributeInfo* info = 
-		m_infos.GetAttributeInfo (nameSemanticValue->GetName ());
-	    if (info == 0)
-		throw SemanticError (string("Attribute \"") + 
-				     nameSemanticValue->GetName () + 
-				     "\" was not defined");
-	    unsigned int index = info->GetIndex ();
-	    if (index == AttributeInfo::INVALID_INDEX)
-		return;
-	    else
-	    {
-		AttributeCreator& creator = *(info->GetCreator ());
-		m_where.SetAttribute (
-		    index, creator(nameSemanticValue->GetSemanticValue (), 
-				   nameSemanticValue->GetType ()));
-	    }
-	}
-	catch (SemanticError& e)
-	{
-	    throw SemanticError (string(nameSemanticValue->GetName ()) + ": "
-				 + e.what ());
-	}
+        try
+        {
+            AttributeInfo* info = 
+                m_infos.GetAttributeInfo (nameSemanticValue->GetName ());
+            if (info == 0)
+                throw SemanticError (string("Attribute \"") + 
+                                     nameSemanticValue->GetName () + 
+                                     "\" was not defined");
+            unsigned int index = info->GetIndex ();
+            if (index == AttributeInfo::INVALID_INDEX)
+                return;
+            else
+            {
+                AttributeCreator& creator = *(info->GetCreator ());
+                m_where.SetAttribute (
+                    index, creator(nameSemanticValue->GetSemanticValue (), 
+                                   nameSemanticValue->GetType ()));
+            }
+        }
+        catch (SemanticError& e)
+        {
+            throw SemanticError (string(nameSemanticValue->GetName ()) + ": "
+                                 + e.what ());
+        }
     }
 private:
     Element& m_where;
-    AttributesInfo m_infos;
+    AttributesInfo& m_infos;
 };
 
 class printAttribute : 
@@ -52,12 +52,12 @@ class printAttribute :
 {
 public:
     printAttribute(
-	ostream& ostr, AttributesInfo& infos) : 
-	m_ostr (ostr), m_infos (infos), m_index(0) {}
+        ostream& ostr, AttributesInfo& infos) : 
+        m_ostr (ostr), m_infos (infos), m_index(0) {}
     void operator() (const Attribute* attribute)
     {
-	const char* name = m_infos.GetAttributeName (m_index++);
-	m_ostr << name << " " << *attribute << " ";
+        const char* name = m_infos.GetAttributeName (m_index++);
+        m_ostr << name << " " << *attribute << " ";
     }
 private:
     ostream& m_ostr;
@@ -66,18 +66,24 @@ private:
 };
 
 
-
 Element::~Element()
 {
-    for_each(m_attributes.begin (), m_attributes.end (), 
-	     DeleteElementPtr<Attribute>);
+        if (m_attributes != 0)
+        {
+                for_each(m_attributes->begin (), m_attributes->end (), 
+                        DeleteElementPtr<Attribute>);
+                delete m_attributes;
+        }
 }
 
 void Element::SetAttribute (unsigned int i, const Attribute* attribute)
 {
-    if (i >= m_attributes.size ())
-	m_attributes.resize (i + 1);
-    m_attributes[i] = attribute;
+        if (m_attributes == 0)
+                m_attributes = new vector<const Attribute*> (
+                DEFAULT_ATTRIBUTE_COUNT);
+    if (i >= m_attributes->size ())
+        m_attributes->resize (i + 1);
+    (*m_attributes)[i] = attribute;
 }
 
 void Element::StoreAttributes (
@@ -88,7 +94,8 @@ void Element::StoreAttributes (
 
 ostream& Element::PrintAttributes(ostream& ostr, AttributesInfo& infos)
 {
-    for_each (m_attributes.begin (), m_attributes.end (),
-	      printAttribute (ostr, infos));
+        if (m_attributes != 0)
+                for_each (m_attributes->begin (), m_attributes->end (),
+                        printAttribute (ostr, infos));
     return ostr;
 }

@@ -17,10 +17,10 @@ void compact (vector<E*>& v)
     unsigned int step = 0;
     for (unsigned int i = 0; i < v.size (); i++)
     {
-	if (v[i] == 0)
-	    step++;
-	else if (step != 0)
-	    v[i - step] = v[i];
+        if (v[i] == 0)
+            step++;
+        else if (step != 0)
+            v[i - step] = v[i];
     }
     unsigned int resize = v.size () - step;
     v.resize (resize);
@@ -44,15 +44,15 @@ struct printMatrixElement : public unary_function<float, void>
      */
     void operator() (float f)
     {
-	if (m_index != 0)
-	{
-	    if ((m_index % 4) == 0)
-		m_ostr << endl;
-	    else
-		m_ostr << ", ";
-	}
-	m_ostr << f;
-	m_index++;
+        if (m_index != 0)
+        {
+            if ((m_index % 4) == 0)
+                m_ostr << endl;
+            else
+                m_ostr << ", ";
+        }
+        m_ostr << f;
+        m_index++;
     }
 private:
     /**
@@ -74,9 +74,9 @@ ostream& operator<< (ostream& ostr, Data& d)
     PrintElements<Body*> (ostr, d.m_bodies, "bodies", true);
     ostr << "view matrix:" << endl;
     for_each (d.m_viewMatrix, 
-	      d.m_viewMatrix + 
-	      sizeof(d.m_viewMatrix)/sizeof(d.m_viewMatrix[0]), 
-	      printMatrixElement (ostr));
+              d.m_viewMatrix + 
+              sizeof(d.m_viewMatrix)/sizeof(d.m_viewMatrix[0]), 
+              printMatrixElement (ostr));
     ostr << endl;
     return ostr;
 }
@@ -85,10 +85,10 @@ Data::Data () :
     m_attributesInfo(ATTRIBUTE_TYPE_COUNT),
     m_parsingData (new ParsingData ())
 {
-    Vertex::SetDefaultAttributes (m_attributesInfo[VERTEX_TYPE]);
-    Edge::SetDefaultAttributes (m_attributesInfo[EDGE_TYPE]);
-    Face::SetDefaultAttributes (m_attributesInfo[FACE_TYPE]);
-    Body::SetDefaultAttributes (m_attributesInfo[BODY_TYPE]);
+    Vertex::StoreDefaultAttributes (m_attributesInfo[VERTEX_TYPE]);
+    Edge::StoreDefaultAttributes (m_attributesInfo[EDGE_TYPE]);
+    Face::StoreDefaultAttributes (m_attributesInfo[FACE_TYPE]);
+    Body::StoreDefaultAttributes (m_attributesInfo[BODY_TYPE]);
 }
 
 Data::~Data ()
@@ -100,46 +100,46 @@ Data::~Data ()
 }
 
 void Data::SetPoint (unsigned int i, float x, float y, float z,
-		     vector<NameSemanticValue*>& list) 
+                     vector<NameSemanticValue*>& list) 
 {
     if (i >= m_vertices.size ())
-	m_vertices.resize (i + 1);
+        m_vertices.resize (i + 1);
     Vertex* vertex = new Vertex (x, y ,z);
     if (&list != 0)
-	vertex->StoreAttributes (list, m_attributesInfo[VERTEX_TYPE]);
+        vertex->StoreAttributes (list, m_attributesInfo[VERTEX_TYPE]);
     m_vertices[i] = vertex;
 }
 
 void Data::SetEdge (unsigned int i, unsigned int begin, unsigned int end,
-		    vector<NameSemanticValue*>& list) 
+                    vector<NameSemanticValue*>& list) 
 {
     if (i >= m_edges.size ())
-	m_edges.resize (i + 1); 
+        m_edges.resize (i + 1); 
     Edge* edge = new Edge (data.GetPoint(begin), data.GetPoint(end));
     if (&list != 0)
-	edge->StoreAttributes (list, m_attributesInfo[EDGE_TYPE]);
+        edge->StoreAttributes (list, m_attributesInfo[EDGE_TYPE]);
     m_edges[i] = edge;
 }
 
 void Data::SetFace (unsigned int i, const vector<int>& edges,
-		    vector<NameSemanticValue*>& list)
+                    vector<NameSemanticValue*>& list)
 {
     if (i >= m_faces.size ())
-	m_faces.resize (i + 1);
+        m_faces.resize (i + 1);
     Face* face = new Face (edges, m_edges);
     if (&list != 0)
-	face->StoreAttributes (list, m_attributesInfo[FACE_TYPE]);
+        face->StoreAttributes (list, m_attributesInfo[FACE_TYPE]);
     m_faces[i] = face;
 }
 
 void Data::SetBody (unsigned int i, const vector<int>& faces,
-		    vector<NameSemanticValue*>& list)
+                    vector<NameSemanticValue*>& list)
 {
     if (i >= m_bodies.size ())
-	m_bodies.resize (i + 1);
+        m_bodies.resize (i + 1);
     Body* body = new Body (faces, m_faces);
     if (&list != 0)
-	body->StoreAttributes (list, m_attributesInfo[BODY_TYPE]);    
+        body->StoreAttributes (list, m_attributesInfo[BODY_TYPE]);    
     m_bodies[i] = body;
 }
 

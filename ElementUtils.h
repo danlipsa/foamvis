@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
-
+#include "SystemDifferences.h"
 using namespace std;
 
 /**
@@ -46,15 +46,15 @@ public:
      */
     void operator() (E& e) 
     {
-	if (m_index > 0)
-	{
-	    if (m_useEndOfLine)
-		m_ostr << endl;
-	    else
-		m_ostr << ", ";
-	}
-	m_ostr << m_index << ": " << e;
-	m_index++;
+        if (m_index > 0)
+        {
+            if (m_useEndOfLine)
+                m_ostr << endl;
+            else
+                m_ostr << ", ";
+        }
+        m_ostr << m_index << ": " << e;
+        m_index++;
     }
 private:
     /**
@@ -100,7 +100,7 @@ ostream& PrintElements (
  */
 template <class E>
 ostream& ReversePrintElements (ostream& ostr, vector<E>& v, 
-				  const char* elementName, bool useEndOfLine)
+                                  const char* elementName, bool useEndOfLine)
 {
     ostr << v.size() << " " << elementName << ":"<< endl;
     for_each(v.rbegin (), v.rend (), PrintElement<E>(ostr, useEndOfLine));
@@ -121,10 +121,9 @@ struct LessThanNoCase : binary_function<const char*, const char*, bool>
      */
     bool operator()(const char* s1, const char* s2) const
     {
-	return strcasecmp(s1, s2) < 0;
+        return strcasecmp(s1, s2) < 0;
     }
 };
-
 
 #endif
 

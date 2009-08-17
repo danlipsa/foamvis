@@ -13,8 +13,8 @@
 
 
 /**
- * Unary function that converts an index into a vector of Edge objects
- * into a oriented edge.
+ * Unary function that  creates an oriented edge from  an index into a
+ * vector of Edge objects.
  */
 class indexToOrientedEdge : public unary_function<int, OrientedEdge*>
 {
@@ -25,7 +25,7 @@ public:
      */
     indexToOrientedEdge(vector<Edge*>& edges): m_edges(edges) {}
     /**
-     * Converts an index (signed integer) into a oriented edge
+     * Creates an oriented edge from an index (signed integer).
      * @param i index into the  vector of edges. A negative sign means
      *        that the edege  apears in the face in  the reverse order
      *        than it appears in the vector of edges.
@@ -34,13 +34,13 @@ public:
      */
     OrientedEdge* operator() (int i)
     {
-	bool reversed = false;
-	if (i < 0)
-	{
-	    i = -i;
-	    reversed = true;
-	}
-	return new OrientedEdge(m_edges[i], reversed);
+        bool reversed = false;
+        if (i < 0)
+        {
+            i = -i;
+            reversed = true;
+        }
+        return new OrientedEdge(m_edges[i], reversed);
     }
 private:
     /**
@@ -52,21 +52,21 @@ private:
 ostream& operator<< (ostream& ostr, Face& f)
 {
     if (&f == 0)
-	ostr << "NULL";
+        ostr << "NULL";
     else
-	PrintElements<OrientedEdge*> (ostr, f.m_edges, 
-					"edges part of the face", true);
+        PrintElements<OrientedEdge*> (ostr, f.m_edges, 
+                                        "edges part of the face", true);
     ostr << " Face attributes: ";
     return f.PrintAttributes (ostr, *Face::m_infos);
 }
 
+AttributesInfo* Face::m_infos;
 
-Face::Face(const vector<int>& edgeIndexes, vector<Edge*>& edges) :
-    COLOR_INDEX (0)
+Face::Face(const vector<int>& edgeIndexes, vector<Edge*>& edges)
 {
     m_edges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_edges.begin(), 
-	       indexToOrientedEdge(edges));
+               indexToOrientedEdge(edges));
 }
 
 Face::~Face()
@@ -77,15 +77,13 @@ Face::~Face()
 void Face::ReversePrint (ostream& ostr)
 {
     if (this == 0)
-	ostr << "NULL";
+        ostr << "NULL";
     else
-	ReversePrintElements<OrientedEdge*> (
-	    ostr, m_edges, "edges part of the face", true);
+        ReversePrintElements<OrientedEdge*> (
+            ostr, m_edges, "edges part of the face", true);
 }
 
-
-AttributesInfo* Face::m_infos;
-void Face::SetDefaultAttributes (AttributesInfo& infos)
+void Face::StoreDefaultAttributes (AttributesInfo& infos)
 {
     m_infos = &infos;
     const char* colorString = KeywordString(COLOR);
@@ -94,11 +92,11 @@ void Face::SetDefaultAttributes (AttributesInfo& infos)
 
     infos.AddAttributeInfo (colorString, new ColorAttributeCreator());
     infos.AddAttributeInfo (
-	KeywordString(ORIGINAL), new IntegerAttributeCreator());
+        KeywordString(ORIGINAL), new IntegerAttributeCreator());
 }
 
-Qt::GlobalColor Face::GetColor () const
+Color::Name Face::GetColor () const
 {
     return dynamic_cast<const ColorAttribute*>(
-	m_attributes[COLOR_INDEX])->GetColor ();
+        (*m_attributes)[COLOR_INDEX])->GetColor ();
 }

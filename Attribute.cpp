@@ -24,12 +24,12 @@ public:
      */
     void operator() (E e) 
     {
-	if (m_index > 0)
-	{
-	    m_ostr << ", ";
-	}
-	m_ostr << e;
-	m_index++;
+        if (m_index > 0)
+        {
+            m_ostr << ", ";
+        }
+        m_ostr << e;
+        m_index++;
     }
 private:
     /**
@@ -59,7 +59,7 @@ ostream& RealArrayAttribute::Print (ostream& ostr) const
 ostream& operator<< (ostream& ostr, const Attribute& attribute)
 {
     if (&attribute == 0)
-	return ostr << "null";
+        return ostr << "null";
     else
-	return attribute.Print(ostr);
+        return attribute.Print(ostr);
 }

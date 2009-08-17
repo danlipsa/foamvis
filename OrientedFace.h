@@ -29,6 +29,8 @@ public:
     {m_face = face; m_reversed = reversed;}
     const Face* GetFace () const {return m_face;}
     bool IsReversed () const {return m_reversed;}
+    const Vertex* GetBegin (unsigned int edgeIndex) const;
+    const Vertex* GetEnd (unsigned int edgeIndex) const;
     /**
      * Pretty print for the OrientedFace object
      */

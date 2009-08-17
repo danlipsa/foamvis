@@ -67,7 +67,7 @@ struct printVariable : public unary_function<pair<const char*, float>, void>
      */
     void operator() (pair<const char*, float> nameValue)
     {
-	m_ostr << nameValue.first << ": " << nameValue.second << endl;
+        m_ostr << nameValue.first << ": " << nameValue.second << endl;
     }
 private:
     /**
@@ -105,27 +105,27 @@ float ParsingData::GetVariableValue (const char* id)
 {
     Variables::iterator it = m_variables.find (id);
     if (it == m_variables.end ())
-	throw SemanticError (string("Undeclared variable: ") + id);
+        throw SemanticError (string("Undeclared variable: ") + id);
     else
-	return it->second;
+        return it->second;
 }
 
 ParsingData::UnaryFunction ParsingData::GetUnaryFunction (const char* name)
 {
     UnaryFunctions::iterator it = m_unaryFunctions.find (name);
     if (it == m_unaryFunctions.end ())
-	throw SemanticError (string("Invalid unary function name: ") + name);
+        throw SemanticError (string("Invalid unary function name: ") + name);
     else
-	return it->second;
+        return it->second;
 }
 
 ParsingData::BinaryFunction ParsingData::GetBinaryFunction (const char* name)
 {
     BinaryFunctions::iterator it = m_binaryFunctions.find (name);
     if (it == m_binaryFunctions.end ())
-	throw SemanticError (string("Invalid binary function name: ") + name);
+        throw SemanticError (string("Invalid binary function name: ") + name);
     else
-	return it->second;
+        return it->second;
 }
 
 
@@ -135,20 +135,20 @@ string* ParsingData::CreateIdentifier(const char* id)
     Identifiers::iterator it = m_identifiers.find (id);
     if (it == m_identifiers.end ())
     {
-	string* stringId = new string(id);
-	// do not store id, as it comes from the parser and it will go away.
-	m_identifiers[stringId->c_str ()] = stringId;
-	return stringId;
+        string* stringId = new string(id);
+        // do not store id, as it comes from the parser and it will go away.
+        m_identifiers[stringId->c_str ()] = stringId;
+        return stringId;
     }
     else
-	return it->second;
+        return it->second;
 }
 
 ostream& operator<< (ostream& ostr, ParsingData& pd)
 {
     ostr << "Variables: " << endl;
     for_each (pd.m_variables.begin (), pd.m_variables.end (),
-	      printVariable (ostr));
+              printVariable (ostr));
     return ostr;
 }
 

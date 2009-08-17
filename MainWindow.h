@@ -6,13 +6,14 @@
 
 class GLWidget;
 class Data;
+
 class MainWindow : public QWidget, private Ui::Window
 {
     Q_OBJECT
 
 public:
     MainWindow(Data* data);
+    void keyPressEvent (QKeyEvent* event);
 };
-
 
 #endif

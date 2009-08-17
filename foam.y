@@ -19,6 +19,7 @@
 #include "SemanticError.h"
 #include "ExpressionTree.h"
 #include "AttributeCreator.h"
+#include "SystemDifferences.h"
 using namespace std;
 
 int yylex(void);
@@ -491,71 +492,71 @@ predefined_face_attribute: COLOR color_name
 
 color_name: BLACK
 {
-    $$.m_color = Qt::black;
+    $$.m_color = Color::COLOR_BLACK;
 }
 | BLUE
 {
-    $$.m_color = Qt::darkBlue;
+    $$.m_color = Color::COLOR_BLUE;
 }
 | GREEN
 {
-    $$.m_color = Qt::darkGreen;
+    $$.m_color = Color::COLOR_GREEN;
 }
 | CYAN
 {
-    $$.m_color = Qt::darkCyan;
+    $$.m_color = Color::COLOR_CYAN;
 }
 | RED
 {
-    $$.m_color = Qt::darkRed;
+    $$.m_color = Color::COLOR_RED;
 }
 | MAGENTA
 {
-    $$.m_color = Qt::darkMagenta;
+    $$.m_color = Color::COLOR_MAGENTA;
 }
 | YELLOW
 {
-    $$.m_color = Qt::darkYellow;
+    $$.m_color = Color::COLOR_YELLOW;
 }
 | WHITE
 {
-    $$.m_color = Qt::white;
+    $$.m_color = Color::COLOR_WHITE;
 }
 | CLEAR
 {
-    $$.m_color = Qt::transparent;
+    $$.m_color = Color::COLOR_CLEAR;
 }
 | BROWN
 {
-    $$.m_color = Qt::yellow;
+    $$.m_color = Color::COLOR_BROWN;
 }
 | LIGHTGRAY
 {
-    $$.m_color = Qt::lightGray;
+    $$.m_color = Color::COLOR_LIGHTGRAY;
 }
 | DARKGRAY
 {
-    $$.m_color = Qt::darkGray;
+    $$.m_color = Color::COLOR_DARKGRAY;
 }
 | LIGHTBLUE
 {
-    $$.m_color = Qt::blue;
+    $$.m_color = Color::COLOR_LIGHTBLUE;
 }
 | LIGHTGREEN
 {
-    $$.m_color = Qt::green;
+    $$.m_color = Color::COLOR_LIGHTGREEN;
 }
 | LIGHTCYAN
 {
-    $$.m_color = Qt::cyan;
+    $$.m_color = Color::COLOR_LIGHTCYAN;
 }
 | LIGHTRED
 {
-    $$.m_color = Qt::red;
+    $$.m_color = Color::COLOR_LIGHTRED;
 }
 | LIGHTMAGENTA
 {
-    $$.m_color = Qt::magenta;
+    $$.m_color = Color::COLOR_LIGHTMAGENTA;
 }
 
 ;

@@ -1,26 +1,53 @@
+/**
+ * @file Attribute.h
+ * @author Dan R. Lipsa
+ * Contains  declaration of classes for all types of attributes
+ */
 #ifndef __ATTRIBUTE_H__
 #define __ATTRIBUTE_H__
-
 #include <iostream>
 #include <vector>
 #include <Qt>
 #include "lexYacc.h"
 using namespace std;
-
 class QColor;
 
+/**
+ * Base class for all attributes
+ */
 class Attribute
 {
 public:
+    /**
+     * Virtual destructor for attributes (so that everything gets deleted from
+     * derived classes)
+     */
     virtual ~Attribute () {}
+    /**
+     * Virtual function that knows how to print an attribute
+     * @param ostr where to print
+     * @return where to print something else
+     */
     virtual ostream& Print(ostream& ostr) const = 0;
 };
-
+/**
+ * An integer attribute
+ */
 class IntegerAttribute : public Attribute
 {
 public:
+    /**
+     * Constructor
+     * @param value the value of the attribute
+     */
     IntegerAttribute (int value) : m_value (value) {}
-    virtual ostream& Print (ostream& ostr) const {return ostr << m_value;}
+    /**
+     *
+     */
+    virtual ostream& Print (ostream& ostr) const
+    {
+        return ostr << m_value;
+    }
 private:
     int m_value;
 };
@@ -38,12 +65,12 @@ private:
 class ColorAttribute : public Attribute
 {
 public:
-    ColorAttribute (Qt::GlobalColor color) : m_color (color) {}
+	ColorAttribute (Color::Name color) : m_color (color) {}
     virtual ostream& Print (ostream& ostr) const {return ostr << m_color;}
-    Qt::GlobalColor GetColor () const
+	Color::Name GetColor () const
     {return m_color;}
 private:
-    Qt::GlobalColor m_color;
+	Color::Name m_color;
 };
 
 
@@ -55,7 +82,7 @@ public:
      */
     IntegerArrayAttribute (vector<int>* values)
     {
-	m_values = values;
+        m_values = values;
     }
     virtual ~IntegerArrayAttribute () {delete m_values;}
     virtual ostream& Print (ostream& ostr) const;
@@ -71,7 +98,7 @@ public:
      */
     RealArrayAttribute (vector<float>* values)
     {
-	m_values = values;
+        m_values = values;
     }
     virtual ~RealArrayAttribute () {delete m_values;}
     virtual ostream& Print (ostream& ostr) const;

@@ -3,7 +3,7 @@
 void ExpressionTree::Delete (ExpressionTree* node)
 {
     if (node == 0)
-	return;
+        return;
     Delete (node->m_left);Delete (node->m_right);
     delete node;
 }

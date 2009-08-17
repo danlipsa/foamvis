@@ -47,7 +47,7 @@ public:
      * @param z coordinate Z of the Point object
      */
     void SetPoint (unsigned int i, float x, float y, float z,
-		   vector<NameSemanticValue*>& list);
+                   vector<NameSemanticValue*>& list);
     /**
      * Stores an Edge object in the Data object at a certain index
      * @param i index where to store the Edge object
@@ -55,7 +55,7 @@ public:
      * @param end index of the last Point that determines the edge
      */
     void SetEdge (unsigned int i, unsigned int begin, unsigned int end,
-		  vector<NameSemanticValue*>& list);
+                  vector<NameSemanticValue*>& list);
     const vector<Edge*>& GetEdges () {return m_edges;}
     /**
      * Stores a Face object in the Data object 
@@ -68,7 +68,7 @@ public:
      *        Edge that is stored in the Data object.
      */
     void SetFace (unsigned int i, const vector<int>& edges,
-		  vector<NameSemanticValue*>& list);
+                  vector<NameSemanticValue*>& list);
     const vector<Face*> GetFaces () {return m_faces;}
 
     /**
@@ -83,7 +83,7 @@ public:
      *         Data object.
      */
     void SetBody (unsigned int i, const vector<int>& faces,
-		  vector<NameSemanticValue*>& list);
+                  vector<NameSemanticValue*>& list);
     const vector<Body*> GetBodies () {return m_bodies;}
     /**
      * Stores an element of the 4x4 view matrix.
@@ -100,9 +100,9 @@ public:
     ParsingData& GetParsingData () {return *m_parsingData;}
     void Compact ();
     void AddAttributeInfo (
-	AttributeType type, const char* name, AttributeCreator* creator)
+        AttributeType type, const char* name, AttributeCreator* creator)
     {
-	m_attributesInfo[type].AddAttributeInfo (name, creator);
+        m_attributesInfo[type].AddAttributeInfo (name, creator);
     }
 
     /**

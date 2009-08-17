@@ -25,24 +25,39 @@ int main(int argc, char *argv[])
 {
     try
     {
-	int parseResult;
-	FlexDebugging (0);
-	BisonDebugging (0);
-	if ((parseResult = foamparse()) == 0)
-	{
-	    //cout << data;
-	    //cout << data.GetParsingData ();
-	    QApplication app(argc, argv);
-	    MainWindow window (&data);
-	    window.show();
-	    return app.exec();
-	    return 0;
-	}
-	else
-	    return parseResult;
+        int parseResult;
+        FlexDebugging (0);
+        BisonDebugging (0);
+        if (argc <= 1)
+        {
+                cerr << "foam <input_file>" << endl;
+                return 13;
+        }
+        else
+        {
+                foamin = fopen (argv[1], "r");
+                if (foamin == 0)
+                {
+                        cerr << "Error: cannot open \""<< argv[1] 
+                             << "\" for reading" << endl;
+                        return 13;
+                }
+        }
+        if ((parseResult = foamparse()) == 0)
+        {
+            //cout << data;
+            //cout << data.GetParsingData ();
+            QApplication app(argc, argv);
+            MainWindow window (&data);
+            window.show();
+            return app.exec();
+            return 0;
+        }
+        else
+            return parseResult;
     }
     catch (exception& e)
     {
-	cerr << "Exception: " << e.what () << endl;
+        cerr << "Exception: " << e.what () << endl;
     }
 }

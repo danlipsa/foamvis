@@ -3,8 +3,8 @@
 
 #include <vector>
 #include <QGLWidget>
-
 using namespace std;
+
 class Data;
 class GLWidget : public QGLWidget
 {
@@ -18,22 +18,17 @@ public:
     QSize sizeHint() const;
     void SetData (Data* data) 
     {
-	m_data = data;
+        m_data = data;
     }
+    unsigned int GetFacesDisplayed ();
+    void IncrementFacesDisplayed ();
+    void DecrementFacesDisplayed ();
 
-public slots:
-    void SetXRotation(int angle);
-    void SetYRotation(int angle);
-    void SetZRotation(int angle);
+public Q_SLOTS:
     void ViewVertices (bool checked);
     void ViewEdges (bool checked);
     void ViewFaces (bool checked);
     void ViewBodies (bool checked);
-
-signals:
-    void XRotationChanged(int angle);
-    void YRotationChanged(int angle);
-    void ZRotationChanged(int angle);
 
 protected:
     void initializeGL();
@@ -44,14 +39,22 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
 
 private:
-    GLuint displayVertices ();
-    GLuint displayEdges ();
+        enum ViewType {
+        VERTICES,
+        EDGES,
+        FACES,
+        BODIES,
+        VIEW_TYPE_NUMBER
+    };
+
+    GLuint displayVertices ()
+    {return displayEV (VERTICES);}
+    GLuint displayEdges ()
+    {return displayEV (EDGES);}
+    GLuint displayEV (ViewType type);
     GLuint displayFaces ();
     GLuint displayBodies ();
-    void normalizeAngle(int *angle);
-    void setRotation (int axis, int angle) {m_rotation[axis] = angle;}
-    void setRotationSlot (int axis, int angle);
-    int getRotation (int axis) {return m_rotation[axis];}
+    void setRotation (int axis, int angle);
     void setAccumulator (int axis, float value) {m_accumulator[axis] = value;}
     float getAccumulator (int axis) {return m_accumulator[axis];}
     void emitRotationChanged (int axis, int angle);
@@ -59,18 +62,17 @@ private:
     static void initLightBodies ();
     static void initLightFlat ();
 
-    enum ViewType {
-	VERTICES,
-	EDGES,
-	FACES,
-	BODIES,
-	VIEW_TYPE_NUMBER
-    } m_viewType;
+    ViewType m_viewType;
     vector<GLuint> m_object;
-    vector<int> m_rotation;
     vector<float> m_accumulator;
     QPoint m_lastPos;
     Data* m_data;
+    unsigned int m_facesDisplayed;
+    bool m_debug;
 };
 
 #endif
+
+// Local Variables:
+// mode: c++
+// End:

@@ -3,26 +3,28 @@
  * @file   lexYacc.h
  * @author Dan R. Lipsa
  */
-#ifndef _LEXYACC_H_
-#define _LEXYACC_H_
+#ifndef __LEX_YACC_H__
+#define __LEX_YACC_H__
 
 #include <string>
 #include <vector>
 #include <map>
 #include <Qt>
+#include "Color.h"
 #include "AttributeType.h"
 
 using namespace std;
 
 class ExpressionTree;
-class AttributeCreator;
-class Attribute;
 class NameSemanticValue;
+class AttributeCreator;
+
+
 /**
  * Defines the datatypes for semantic values for terminals and non-terminals
  * in the gramar
  */
-typedef union
+union SemanticValue
 {
     /**
      * Value for an iteger
@@ -43,7 +45,7 @@ typedef union
     /**
      * An identifier
      */
-    std::string* m_id;
+    string* m_id;
     /**
      * An expression tree
      */
@@ -52,11 +54,11 @@ typedef union
      * Knows how to create an attribute
      */
     AttributeCreator* m_attributeCreator;
-    enum AttributeType m_attributeType;
+    AttributeType m_attributeType;
     vector<NameSemanticValue*>* m_nameSemanticValueList;
     NameSemanticValue* m_nameSemanticValue;
-    Qt::GlobalColor m_color;
-} SemanticValue;
+    Color::Name m_color;
+};
 /**
  * Defines the datatype for semantic values in bison to be yystype
  */
@@ -96,9 +98,12 @@ void foamerror (const char* error);
  * @return 0 for success, different than 0 otherwise
  */
 int foamparse(void);
+/**
+ * File descriptor used by the generated lexer to read data
+ */
+extern FILE *foamin;
 
 #endif
-
 // Local Variables:
 // mode: c++
 // End:

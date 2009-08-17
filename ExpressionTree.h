@@ -30,7 +30,7 @@ public:
      * @param right the right child of the current node
      */
     ExpressionTree (ExpressionTree* left, ExpressionTree* right)
-	: m_left (left), m_right (right) {}
+        : m_left (left), m_right (right) {}
     /**
      * Deletes all nodes in an ExpressionTree
      * @param node tree to be deleted
@@ -87,7 +87,7 @@ public:
      * @param parsingData data which allows us to get the value of a variable.
      */
     ExpressionTreeVariable (string* name, ParsingData& parsingData)
-	: m_name (name->c_str()), m_parsingData (parsingData) {}
+        : m_name (name->c_str()), m_parsingData (parsingData) {}
     /**
      * Value of the variable
      * @return the value of the variable
@@ -118,9 +118,9 @@ public:
      * with the function name
      */
     ExpressionTreeUnaryFunction (
-	string* name, ExpressionTree* param, ParsingData& parsingData)
-	: ExpressionTree (param, 0), m_name (name->c_str()), 
-	  m_parsingData (parsingData) {}
+        string* name, ExpressionTree* param, ParsingData& parsingData)
+        : ExpressionTree (param, 0), m_name (name->c_str()), 
+          m_parsingData (parsingData) {}
     /**
      * Value of the function applied to the parameter.
      * @return the value of the function applied to the parameter.
@@ -152,10 +152,10 @@ public:
      * with the function name
      */
     ExpressionTreeBinaryFunction (
-	string* name, 
-	ExpressionTree* left, ExpressionTree* right, ParsingData& parsingData)
-	: ExpressionTree (left, right), m_name (name->c_str()),
-	  m_parsingData (parsingData) {}
+        string* name, 
+        ExpressionTree* left, ExpressionTree* right, ParsingData& parsingData)
+        : ExpressionTree (left, right), m_name (name->c_str()),
+          m_parsingData (parsingData) {}
     /**
      * Value of the function applied to the parameters
      * @return the value of the function applied to the parameters.

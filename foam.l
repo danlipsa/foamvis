@@ -12,6 +12,10 @@
  * for  parsing  errors,  is  to  make  sure  you  have  no  extra
  * characters to stdout, even if there are no parsing errors.
  */
+#ifdef _MSC_VER
+#include <io.h>
+#define YY_NO_UNISTD_H
+#endif
 #include <stdio.h>
 #include <math.h>
 #include <iostream>
@@ -20,6 +24,7 @@
 #include "Data.h"
 #include "ParsingData.h"
 #include "foam_yacc.h"
+using namespace std;
 
 /**
  * Converts a  string in a given  base to an integer.  Prints an error
@@ -29,7 +34,6 @@
  * @return the converted integer
  */
 static long readInteger (char* str, int base);
-using namespace std;
 %}
 
 %option noyywrap
@@ -168,6 +172,7 @@ void FlexDebugging (int debugging)
 {
     yy_flex_debug = debugging;
 }
+
 
 // Local Variables:
 // mode: c++

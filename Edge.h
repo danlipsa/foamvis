@@ -6,13 +6,12 @@
  */
 #ifndef __EDGE_H__
 #define __EDGE_H__
-
 #include "Vertex.h"
 using namespace std;
-class AttributesInfo;
 
+class AttributesInfo;
 /**
- * An edge is an object that stores a begin and an end vertices (Point)
+ * An edge is an object that stores a begin and an end vertex
  */
 class Edge : public Element
 {
@@ -23,12 +22,14 @@ public:
      * @param end the last point of the edge
      */
     Edge (Vertex* begin, Vertex* end):
-	m_begin(begin), m_end(end) {}
+        m_begin(begin), m_end(end) {}
     /**
      * @return the first vertex of the edge
      */
     const Vertex* GetBegin(void) const
-    {return m_begin;}
+    {
+        return m_begin;
+    }
     /**
      * Sets the first vertex of the edge
      * @param begin value stored in the first vertex of the edge
@@ -38,7 +39,9 @@ public:
      * @return last vertex of the edge
      */
     const Vertex* GetEnd(void) const
-    {return m_end;}
+    {
+        return m_end;
+    }
     /**
      * Sets the last vertex of the edge
      * @param end value stored in the last vertex of the edge
@@ -55,7 +58,12 @@ public:
      * @param ostr the stream where to write the edge
      */
     void ReversePrint (ostream& ostr);
-    static void SetDefaultAttributes (AttributesInfo& info);
+    /**
+     * Specifies the default attributes for an Edge object.
+     * These attributes don't appear as a DEFINE in the .DMP file
+     * @param info the object where the default attributes are stored.
+     */
+    static void StoreDefaultAttributes (AttributesInfo& info);
 private:
     /**
      * First vertex of the edge
@@ -65,9 +73,17 @@ private:
      * Last vertex of the edge
      */
     Vertex* m_end;
+    /**
+     * Information about attributes of the edge
+     */
     static AttributesInfo* m_infos;
 };
-
+/**
+ * Pretty print an Edge*
+ * @param ostr where to print
+ * @param e what to print
+ * @return where to print the next data
+ */
 inline ostream& operator<< (ostream& ostr, Edge* e)
 {
     return ostr << *e;

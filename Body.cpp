@@ -35,13 +35,13 @@ public:
      */
     OrientedFace* operator() (int i)
     {
-	bool reversed = false;
-	if (i < 0)
-	{
-	    i = -i;
-	    reversed = true;
-	}
-	return new OrientedFace(m_faces[i], reversed);
+        bool reversed = false;
+        if (i < 0)
+        {
+            i = -i;
+            reversed = true;
+        }
+        return new OrientedFace(m_faces[i], reversed);
     }
 private:
     /**
@@ -53,37 +53,36 @@ private:
 ostream& operator<< (ostream& ostr, Body& b)
 {
     if (&b == 0)
-	ostr << "NULL";
+        ostr << "NULL";
     else
-	PrintElements<OrientedFace*> (ostr, b.m_faces, 
-					"faces part of the body", true);
+        PrintElements<OrientedFace*> (ostr, b.m_faces, 
+                                        "faces part of the body", true);
     ostr << " Body attributes: ";
     return b.PrintAttributes (ostr, *Body::m_infos);
 }
 
+AttributesInfo* Body::m_infos;
+
+Body::Body(const vector<int>& faceIndexes, vector<Face*>& faces)
+{
+    m_faces.resize (faceIndexes.size ());
+    transform (faceIndexes.begin(), faceIndexes.end(), m_faces.begin(), 
+               indexToOrientedFace(faces));
+}
 
 Body::~Body()
 {
     for_each(m_faces.begin(), m_faces.end(), DeleteElementPtr<OrientedFace>);
 }
 
-Body::Body(const vector<int>& faceIndexes, vector<Face*>& faces)
-{
-    m_faces.resize (faceIndexes.size ());
-    transform (faceIndexes.begin(), faceIndexes.end(), m_faces.begin(), 
-	       indexToOrientedFace(faces));
-}
-
-
-AttributesInfo* Body::m_infos;
-void Body::SetDefaultAttributes (AttributesInfo& infos)
+void Body::StoreDefaultAttributes (AttributesInfo& infos)
 {
     m_infos = &infos;
     infos.AddAttributeInfo (
-	KeywordString(ORIGINAL), new IntegerAttributeCreator());
+        KeywordString(ORIGINAL), new IntegerAttributeCreator());
     infos.AddAttributeInfo (
-	KeywordString(LAGRANGE_MULTIPLIER), new RealAttributeCreator());
+        KeywordString(LAGRANGE_MULTIPLIER), new RealAttributeCreator());
     infos.AddAttributeInfo (
-	KeywordString(VOLUME), new RealAttributeCreator());
+        KeywordString(VOLUME), new RealAttributeCreator());
 }
 

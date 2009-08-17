@@ -9,7 +9,6 @@
 
 using namespace std;
 
-
 class AttributeInfo
 {
 public:
@@ -17,7 +16,7 @@ public:
     m_index (index), m_creator (creator) {}
     unsigned int GetIndex () {return m_index;}
     AttributeCreator* GetCreator () {return m_creator;}
-    const static unsigned int INVALID_INDEX = UINT_MAX;	
+    const static unsigned int INVALID_INDEX = UINT_MAX; 
 private:
     unsigned int m_index;
     AttributeCreator* m_creator;
