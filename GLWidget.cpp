@@ -147,7 +147,7 @@ public:
 
     void operator() (const OrientedFace* f)
     {
-                glColor4fv (Color::GetValue(f->GetFace ()->GetColor ()));
+        glColor4fv (Color::GetValue(f->GetFace ()->GetColor ()));
         displayFaceVertices (f);
     }
 private:
@@ -316,7 +316,7 @@ void GLWidget::initializeGL()
     m_object[EDGES] = displayEdges ();
     m_object[FACES] = displayFaces ();
     m_object[BODIES] = displayBodies ();
-        const float* background = Color::GetValue (Color::COLOR_LIGHTBLUE);
+        const float* background = Color::GetValue (Color::COLOR_WHITE);
     glClearColor (background[0], background[1], background[2], background[3]);        
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
@@ -367,7 +367,6 @@ void GLWidget::setRotation (int axis, int angle)
     glLoadIdentity ();
     glRotatef (angle, axes[axis][0], axes[axis][1], axes[axis][2]);
     glMultMatrixf (columnOrderMatrix);
-    updateGL();
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
@@ -402,6 +401,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
         accumulate (0, dyDegrees);
         accumulate (2, dxDegrees);
     }
+    updateGL ();
     m_lastPos = event->pos();
 }
 
