@@ -69,7 +69,7 @@ public:
      */
     void SetFace (unsigned int i, const vector<int>& edges,
                   vector<NameSemanticValue*>& list);
-    const vector<Face*> GetFaces () {return m_faces;}
+    const vector<Face*>& GetFaces () {return m_faces;}
 
     /**
      * Stores a Body object in the Data object
@@ -84,7 +84,7 @@ public:
      */
     void SetBody (unsigned int i, const vector<int>& faces,
                   vector<NameSemanticValue*>& list);
-    const vector<Body*> GetBodies () {return m_bodies;}
+    const vector<Body*>& GetBodies () {return m_bodies;}
     /**
      * Stores an element of the 4x4 view matrix.
      * @param i index where to store the elment

@@ -15,10 +15,10 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     switch (event->key ())
     {
     case Qt::Key_PageUp:
-        m_glWidget->IncrementFacesDisplayed ();
+        m_glWidget->IncrementDisplayedBody ();
         break;
     case Qt::Key_PageDown:
-        m_glWidget->DecrementFacesDisplayed ();
+        m_glWidget->DecrementDisplayedBody ();
         break;
     case Qt::Key_Space:
         string s = G3D::getOpenGLState (false);

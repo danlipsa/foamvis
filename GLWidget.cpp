@@ -109,6 +109,36 @@ void displayFaceVertices (const OrientedFace* f)
         for_each (v.begin (), v.end (), displayFirstVertex);
 }
 
+class displayFace : public unary_function<const OrientedFace*, void>
+{
+public:
+    displayFace (GLWidget& widget) : 
+        m_widget (widget) {}
+
+    void operator() (const OrientedFace* f)
+    {
+        displayFaceVertices (f);
+    }
+private:
+    GLWidget& m_widget;
+};
+
+
+class displayFaceWithColor : public unary_function<const OrientedFace*, void>
+{
+public:
+    displayFaceWithColor (GLWidget& widget) : 
+        m_widget (widget) {}
+
+    void operator() (const OrientedFace* f)
+    {
+        glColor4fv (Color::GetValue(f->GetFace ()->GetColor ()));
+        displayFaceVertices (f);
+    }
+private:
+    GLWidget& m_widget;
+};
+
 
 class displayFaceWithNormal : public unary_function<const OrientedFace*, void>
 {
@@ -139,86 +169,34 @@ private:
     GLWidget& m_widget;
 };
 
-class displayFaceWithColor : public unary_function<const OrientedFace*, void>
-{
-public:
-    displayFaceWithColor (GLWidget& widget) : 
-        m_widget (widget) {}
-
-    void operator() (const OrientedFace* f)
-    {
-        glColor4fv (Color::GetValue(f->GetFace ()->GetColor ()));
-        displayFaceVertices (f);
-    }
-private:
-    GLWidget& m_widget;
-};
-
-class displayFaceWithContur : public unary_function<const OrientedFace*, void>
-{
-public:
-    displayFaceWithContur (GLWidget& widget) : 
-        m_widget (widget), m_facesCount(0) {}
-
-    void operator() (const OrientedFace* f)
-    {
-        if (m_facesCount < m_widget.GetFacesDisplayed())
-        {
-            displayContur (f);
-            displayFace (f);
-            m_facesCount++;
-        }
-    }
-private:
-    void displayFace (const OrientedFace* f)
-    {
-        glColor4fv (Color::GetValue (f->GetFace ()->GetColor ()));
-        glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-        glEnable (GL_POLYGON_OFFSET_FILL);
-        glPolygonOffset (1, 1);
-        glBegin (GL_TRIANGLES);
-        displayFaceVertices (f);
-        glEnd ();
-        glDisable (GL_POLYGON_OFFSET_FILL);
-    }
-
-    void displayContur (const OrientedFace* f)
-    {
-        m_widget.qglColor (QColor(Qt::black));
-        glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-        glBegin (GL_TRIANGLES);
-        displayFaceVertices (f);
-        glEnd ();
-    }
-
-    GLWidget& m_widget;
-    unsigned int m_facesCount;
-};
 
 template <class displayFace>
 class displayBody : public unary_function<const Body*, void>
 {
 public:
-    displayBody (GLWidget& widget) : 
-        m_displayFace(widget) 
+    displayBody (GLWidget& widget) : m_widget (widget), m_count(0)
     {}
 
     void operator () (const Body* b)
     {
-        const vector<OrientedFace*> v = b->GetOrientedFaces ();
-        for_each (v.begin (), v.end (), m_displayFace);
+        unsigned int displayedBody = m_widget.GetDisplayedBody ();
+        if ( displayedBody == UINT_MAX ||
+             m_count == displayedBody)
+        {
+            const vector<OrientedFace*> v = b->GetOrientedFaces ();
+            for_each (v.begin (), v.end (), displayFace(m_widget));
+        }
+        m_count++;
     }
 private:
-    displayFace m_displayFace;
+    GLWidget& m_widget;
+    unsigned int m_count;
 };
-
-
 
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent), m_viewType (BODIES), 
       m_object(VIEW_TYPE_NUMBER, 0),
-      m_accumulator (3, 0), m_data(0), m_facesDisplayed(0), 
-      m_debug(false)
+      m_data(0), m_displayedBody(UINT_MAX)
 {}
 
 GLWidget::~GLWidget()
@@ -356,7 +334,7 @@ void GLWidget::resizeGL(int width, int height)
     glViewport((width - side) / 2, (height - side) / 2, side, side);
 }
 
-void GLWidget::setRotation (int axis, int angle)
+void GLWidget::setRotation (int axis, float angle)
 {
     using G3D::Matrix4;
     const float axes[3][3] = {{1,0,0}, {0,1,0}, {0,0,1}};
@@ -374,16 +352,6 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
     m_lastPos = event->pos();
 }
 
-void GLWidget::mouseReleaseEvent(QMouseEvent *event)
-{
-    setAccumulator (0, 0);
-    if (event->buttons() & Qt::LeftButton) {
-        setAccumulator (1, 0);
-    } else if (event->buttons() & Qt::RightButton) {
-        setAccumulator (2, 0);
-    }
-}
-
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     int dx = event->x() - m_lastPos.x();
@@ -395,40 +363,14 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     float dyDegrees = static_cast<float>(dy) * 90 / side;
 
     if (event->buttons() & Qt::LeftButton) {
-        accumulate (0, dyDegrees);
-        accumulate (1, dxDegrees);
+        setRotation (0, dyDegrees);
+        setRotation (1, dxDegrees);
     } else if (event->buttons() & Qt::RightButton) {
-        accumulate (0, dyDegrees);
-        accumulate (2, dxDegrees);
+        setRotation (0, dyDegrees);
+        setRotation (2, dxDegrees);
     }
     updateGL ();
     m_lastPos = event->pos();
-}
-
-void GLWidget::accumulate (int axis, float value)
-{
-    float accumulator = getAccumulator (axis) + value;
-    if (accumulator >= 0)
-    {
-        int intPart = static_cast<int>(floorf(accumulator));
-        if (intPart > 0)
-        {
-            setRotation (axis, intPart);
-            accumulator -= intPart;
-        }
-    }
-    else
-    {
-        accumulator = - accumulator;
-        int intPart = static_cast<int>(floorf(accumulator));
-        if (intPart > 0)
-        {
-            setRotation (axis, - intPart);
-            accumulator -= intPart;
-        }
-        accumulator = - accumulator;
-    }
-    setAccumulator (axis, accumulator);
 }
 
 GLuint GLWidget::displayEV (ViewType type)
@@ -451,13 +393,35 @@ GLuint GLWidget::displayEV (ViewType type)
     return list;
 }
 
+void GLWidget::displayFacesContour (const vector<Body*>& bodies)
+{
+    qglColor (QColor(Qt::black));
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    glBegin (GL_TRIANGLES);
+    for_each (bodies.begin (), bodies.end (),
+              displayBody<displayFace> (*this));
+    glEnd ();
+}
+
+void GLWidget::displayFacesOffset (const vector<Body*>& bodies)
+{
+    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+    glEnable (GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset (1, 1);
+    glBegin (GL_TRIANGLES);
+    for_each (bodies.begin (), bodies.end (),
+              displayBody<displayFaceWithColor> (*this));
+    glEnd ();
+    glDisable (GL_POLYGON_OFFSET_FILL);
+}
+
 GLuint GLWidget::displayFaces ()
 {
     GLuint list = glGenLists(1);
     const vector<Body*>& bodies = m_data->GetBodies ();
     glNewList(list, GL_COMPILE);
-    for_each (bodies.begin (), bodies.end (),
-              displayBody<displayFaceWithContur> (*this));
+    displayFacesContour (bodies);
+    displayFacesOffset (bodies);
     glEndList();
     return list;
 }
@@ -476,24 +440,31 @@ GLuint GLWidget::displayBodies ()
     return list;
 }
 
-unsigned int GLWidget::GetFacesDisplayed ()
+unsigned int GLWidget::GetDisplayedBody ()
 {
-    if (m_debug)
-        return m_facesDisplayed;
-    else
-        return UINT_MAX;
+    return m_displayedBody;
 }
 
-void GLWidget::IncrementFacesDisplayed ()
+void GLWidget::IncrementDisplayedBody ()
 {
-    m_facesDisplayed++;
+    m_displayedBody++;
+    if (m_displayedBody == m_data->GetBodies ().size ())
+        m_displayedBody = UINT_MAX;
     m_object[FACES] = displayFaces ();
     updateGL ();
+    ostringstream ostr;
+    ostr << "displayed body: " << m_displayedBody << endl;
+    OutputDebugStringA (ostr.str (). c_str ());
 }
 
-void GLWidget::DecrementFacesDisplayed ()
+void GLWidget::DecrementDisplayedBody ()
 {
-    m_facesDisplayed--;
+    if (m_displayedBody == UINT_MAX)
+        m_displayedBody = m_data->GetBodies ().size ();
+    m_displayedBody--;
     m_object[FACES] = displayFaces ();
     updateGL ();
+    ostringstream ostr;
+    ostr << "displayed body: " << m_displayedBody << endl;
+    OutputDebugStringA (ostr.str (). c_str ());
 }

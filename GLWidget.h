@@ -6,6 +6,7 @@
 using namespace std;
 
 class Data;
+class Body;
 class GLWidget : public QGLWidget
 {
     Q_OBJECT
@@ -20,9 +21,9 @@ public:
     {
         m_data = data;
     }
-    unsigned int GetFacesDisplayed ();
-    void IncrementFacesDisplayed ();
-    void DecrementFacesDisplayed ();
+    unsigned int GetDisplayedBody ();
+    void IncrementDisplayedBody ();
+    void DecrementDisplayedBody ();
 
 public Q_SLOTS:
     void ViewVertices (bool checked);
@@ -35,7 +36,6 @@ protected:
     void paintGL();
     void resizeGL(int width, int height);
     void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
 
 private:
@@ -54,21 +54,18 @@ private:
     GLuint displayEV (ViewType type);
     GLuint displayFaces ();
     GLuint displayBodies ();
-    void setRotation (int axis, int angle);
-    void setAccumulator (int axis, float value) {m_accumulator[axis] = value;}
-    float getAccumulator (int axis) {return m_accumulator[axis];}
+    void setRotation (int axis, float angle);
+    void displayFacesContour (const vector<Body*>& bodies);
+    void displayFacesOffset (const vector<Body*>& bodies);
     void emitRotationChanged (int axis, int angle);
-    void accumulate (int axis, float value);
     static void initLightBodies ();
     static void initLightFlat ();
 
     ViewType m_viewType;
     vector<GLuint> m_object;
-    vector<float> m_accumulator;
     QPoint m_lastPos;
     Data* m_data;
-    unsigned int m_facesDisplayed;
-    bool m_debug;
+    unsigned int m_displayedBody;
 };
 
 #endif
