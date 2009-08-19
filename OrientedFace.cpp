@@ -7,7 +7,7 @@
 
 #include "OrientedFace.h"
 
-ostream& operator<< (ostream& ostr, OrientedFace& of)
+ostream& operator<< (ostream& ostr, const OrientedFace& of)
 {
     ostr << (of.m_reversed ? "(R)" : "(N)");
     if (of.m_reversed)

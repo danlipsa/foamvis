@@ -30,7 +30,7 @@ public:
      * Returns the  vector of oriented faces this body is made of
      * @return a vector of oriented faces
      */
-    const vector<OrientedFace*> GetOrientedFaces() const
+    const vector<OrientedFace*>& GetOrientedFaces() const
     {
         return m_faces;
     }

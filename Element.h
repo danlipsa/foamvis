@@ -26,8 +26,6 @@ public:
     ostream& PrintAttributes (ostream& ostr, AttributesInfo& infos);
 protected:
     vector<const Attribute*>* m_attributes;
-private:
-        static const int DEFAULT_ATTRIBUTE_COUNT = 10;
 };
 
 

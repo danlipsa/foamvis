@@ -25,7 +25,7 @@ public:
      */
     indexToOrientedEdge(vector<Edge*>& edges): m_edges(edges) {}
     /**
-     * Creates an oriented edge from an index (signed integer).
+     * Creates an oriented edge from an 1-based index (signed integer).
      * @param i index into the  vector of edges. A negative sign means
      *        that the edege  apears in the face in  the reverse order
      *        than it appears in the vector of edges.
@@ -40,6 +40,7 @@ public:
             i = -i;
             reversed = true;
         }
+        i--;
         return new OrientedEdge(m_edges[i], reversed);
     }
 private:
@@ -81,6 +82,8 @@ void Face::ReversePrint (ostream& ostr)
     else
         ReversePrintElements<OrientedEdge*> (
             ostr, m_edges, "edges part of the face", true);
+    ostr << " Face attributes: ";
+    PrintAttributes (ostr, *Face::m_infos);
 }
 
 void Face::StoreDefaultAttributes (AttributesInfo& infos)

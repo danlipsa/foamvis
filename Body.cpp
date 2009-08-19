@@ -29,7 +29,7 @@ public:
      */
     indexToOrientedFace(vector<Face*>& faces): m_faces(faces) {}
     /**
-     * Converts a signed integer into a OrientedFace
+     * Converts a 1-based index into an OrientedFace
      * @param i index into a vector of Face pointers
      * @return an OrientedFace pointer
      */
@@ -41,6 +41,7 @@ public:
             i = -i;
             reversed = true;
         }
+        i--;
         return new OrientedFace(m_faces[i], reversed);
     }
 private:

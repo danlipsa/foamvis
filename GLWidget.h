@@ -22,8 +22,12 @@ public:
         m_data = data;
     }
     unsigned int GetDisplayedBody ();
+    unsigned int GetDisplayedFace ();
     void IncrementDisplayedBody ();
     void DecrementDisplayedBody ();
+    void IncrementDisplayedFace ();
+    void DecrementDisplayedFace ();
+
 
 public Q_SLOTS:
     void ViewVertices (bool checked);
@@ -66,6 +70,7 @@ private:
     QPoint m_lastPos;
     Data* m_data;
     unsigned int m_displayedBody;
+    unsigned int m_displayedFace;
 };
 
 #endif

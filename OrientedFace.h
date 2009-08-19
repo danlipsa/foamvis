@@ -34,7 +34,7 @@ public:
     /**
      * Pretty print for the OrientedFace object
      */
-    friend ostream& operator<< (ostream& ostr, OrientedFace& of);
+    friend ostream& operator<< (ostream& ostr, const OrientedFace& of);
 
 
 private:
@@ -49,7 +49,7 @@ private:
     bool m_reversed;
 };
 
-inline ostream& operator<< (ostream& ostr, OrientedFace* pof)
+inline ostream& operator<< (ostream& ostr, const OrientedFace* pof)
 {
     return ostr << *pof;
 }

@@ -113,14 +113,25 @@ class displayFace : public unary_function<const OrientedFace*, void>
 {
 public:
     displayFace (GLWidget& widget) : 
-        m_widget (widget) {}
+        m_widget (widget), m_count(0) {}
 
     void operator() (const OrientedFace* f)
     {
-        displayFaceVertices (f);
+        if (m_count <= m_widget.GetDisplayedFace ())
+        {
+            displayFaceVertices (f);
+			if (m_count == m_widget.GetDisplayedFace ())
+			{
+				ostringstream ostr;
+				ostr << "face " << m_count << ": " << *f << endl << ends;
+				OutputDebugStringA (ostr.str ().c_str ());
+			}
+        }
+        m_count++;
     }
 private:
     GLWidget& m_widget;
+    unsigned int m_count;
 };
 
 
@@ -128,15 +139,20 @@ class displayFaceWithColor : public unary_function<const OrientedFace*, void>
 {
 public:
     displayFaceWithColor (GLWidget& widget) : 
-        m_widget (widget) {}
+        m_widget (widget), m_count(0) {}
 
     void operator() (const OrientedFace* f)
     {
-        glColor4fv (Color::GetValue(f->GetFace ()->GetColor ()));
-        displayFaceVertices (f);
+        if (m_count <= m_widget.GetDisplayedFace ())
+        {
+            glColor4fv (Color::GetValue(f->GetFace ()->GetColor ()));
+            displayFaceVertices (f);
+        }
+        m_count++;
     }
 private:
     GLWidget& m_widget;
+    unsigned int m_count;
 };
 
 
@@ -196,7 +212,7 @@ private:
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent), m_viewType (BODIES), 
       m_object(VIEW_TYPE_NUMBER, 0),
-      m_data(0), m_displayedBody(UINT_MAX)
+      m_data(0), m_displayedBody(UINT_MAX), m_displayedFace(UINT_MAX)
 {}
 
 GLWidget::~GLWidget()
@@ -445,9 +461,28 @@ unsigned int GLWidget::GetDisplayedBody ()
     return m_displayedBody;
 }
 
+unsigned int GLWidget::GetDisplayedFace ()
+{
+    return m_displayedFace;
+}
+
+void GLWidget::IncrementDisplayedFace ()
+{
+    if (m_displayedBody != UINT_MAX)
+    {
+        const Body& body = *m_data->GetBodies ()[m_displayedBody];
+        m_displayedFace++;
+        if (m_displayedFace == body.GetOrientedFaces ().size ())
+            m_displayedFace = UINT_MAX;
+        m_object[FACES] = displayFaces ();
+        updateGL ();
+    }
+}
+
 void GLWidget::IncrementDisplayedBody ()
 {
     m_displayedBody++;
+    m_displayedFace = UINT_MAX;
     if (m_displayedBody == m_data->GetBodies ().size ())
         m_displayedBody = UINT_MAX;
     m_object[FACES] = displayFaces ();
@@ -457,11 +492,27 @@ void GLWidget::IncrementDisplayedBody ()
     OutputDebugStringA (ostr.str (). c_str ());
 }
 
+
+void GLWidget::DecrementDisplayedFace ()
+{
+    if (m_displayedBody != UINT_MAX)
+    {
+        const Body& body = *m_data->GetBodies ()[m_displayedBody];
+        if (m_displayedFace == UINT_MAX)
+            m_displayedFace = body.GetOrientedFaces ().size ();
+        m_displayedFace--;
+        m_object[FACES] = displayFaces ();
+        updateGL ();
+    }
+}
+
+
 void GLWidget::DecrementDisplayedBody ()
 {
     if (m_displayedBody == UINT_MAX)
         m_displayedBody = m_data->GetBodies ().size ();
     m_displayedBody--;
+    m_displayedFace = UINT_MAX;
     m_object[FACES] = displayFaces ();
     updateGL ();
     ostringstream ostr;

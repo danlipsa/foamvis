@@ -26,7 +26,9 @@ void Edge::ReversePrint (ostream& ostr)
     if (this == 0)
         ostr << "NULL";
     else
-        ostr << "Edge: " << *m_end << ", " << *m_begin;
+        ostr << "Edge: " << *m_end << ", " << *m_begin << 
+            " Edge attributes: ";
+    PrintAttributes (ostr, *Edge::m_infos);
 }
 
 void Edge::StoreDefaultAttributes (AttributesInfo& infos)

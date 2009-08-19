@@ -31,14 +31,6 @@ void yyerror (char const *);
  * @return the unsigned integer.
  */
 unsigned int intToUnsigned (int i, const char* message);
-/**
- * Converts an index from 1-based to 0-based.
- * Decrements the index if it is positive and increments it if it
- * is negative.
- * @param i index to be converted
- * @return the converted index
- */
-int decrementElementIndex (int i);
 
 %}
 // directives
@@ -453,8 +445,6 @@ faces: FACES face_list;
 face_list: face_list INTEGER_VALUE integer_list face_attribute_list
 {
     vector<int>* intList = $3.m_intList;
-    transform(intList->begin(), intList->end(), intList->begin(),
-	      decrementElementIndex);
     data.SetFace (
 	intToUnsigned($2.m_int- 1, "Semantic error: face index less than 0"), 
 	*intList, *$4.m_nameSemanticValueList);
@@ -567,8 +557,6 @@ bodies: BODIES body_list;
 body_list: body_list INTEGER_VALUE integer_list body_attribute_list
 {
     vector<int>* intList = $3.m_intList;
-    transform(intList->begin (), intList->end (), intList->begin (),
-	      decrementElementIndex);
     data.SetBody (
 	intToUnsigned($2.m_int- 1, "Semantic error: body index less than 0"),
 	*intList, *$4.m_nameSemanticValueList);
@@ -696,18 +684,6 @@ void BisonDebugging (int debugging)
 {
     yydebug = debugging;
 }
-
-int decrementElementIndex (int i)
-{
-    if (i < 0)
-	i++;
-    else if (i > 0)
-	i--;
-    else
-	throw SemanticError ("Semantic error: invalid element index: 0");
-    return i;
-}
-
 
 
 // Local Variables:

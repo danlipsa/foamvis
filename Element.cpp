@@ -79,8 +79,7 @@ Element::~Element()
 void Element::SetAttribute (unsigned int i, const Attribute* attribute)
 {
         if (m_attributes == 0)
-                m_attributes = new vector<const Attribute*> (
-                DEFAULT_ATTRIBUTE_COUNT);
+                m_attributes = new vector<const Attribute*> ();
     if (i >= m_attributes->size ())
         m_attributes->resize (i + 1);
     (*m_attributes)[i] = attribute;
