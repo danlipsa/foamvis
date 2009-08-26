@@ -5,9 +5,9 @@
  * Implementation of the Edge class
  */
 #include "Edge.h"
-#include "lexYacc.h"
 #include "AttributeInfo.h"
-#include "foam_yacc.h"
+#include "ParserDriver.h"
+#include "EvolverData_yacc.h"
 
 ostream& operator<< (ostream& ostr, Edge& e)
 {
@@ -33,7 +33,9 @@ void Edge::ReversePrint (ostream& ostr)
 
 void Edge::StoreDefaultAttributes (AttributesInfo& infos)
 {
+    using EvolverData::parser;
     m_infos = &infos;
     infos.AddAttributeInfo (
-        KeywordString(ORIGINAL), new IntegerAttributeCreator());
+        ParserDriver::GetKeywordString(parser::token::ORIGINAL),
+        new IntegerAttributeCreator());
 }

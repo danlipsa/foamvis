@@ -5,9 +5,9 @@
  * Implementation of the Vertex class
  */
 #include "Vertex.h"
-#include "lexYacc.h"
 #include "AttributeInfo.h"
-#include "foam_yacc.h"
+#include "ParserDriver.h"
+#include "EvolverData_yacc.h"
 
 ostream& operator<< (ostream& ostr, Vertex& p)
 {
@@ -23,7 +23,9 @@ AttributesInfo* Vertex::m_infos;
 
 void Vertex::StoreDefaultAttributes (AttributesInfo& infos)
 {
+    using EvolverData::parser;
     m_infos = &infos;
     infos.AddAttributeInfo (
-        KeywordString(ORIGINAL), new IntegerAttributeCreator());
+        ParserDriver::GetKeywordString(parser::token::ORIGINAL),
+        new IntegerAttributeCreator());
 }

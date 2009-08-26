@@ -7,10 +7,8 @@
 #define __ATTRIBUTE_H__
 #include <iostream>
 #include <vector>
-#include <Qt>
-#include "lexYacc.h"
+#include "Color.h"
 using namespace std;
-class QColor;
 
 /**
  * Base class for all attributes

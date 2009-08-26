@@ -8,7 +8,6 @@
 #define __EXPRESSION_TREE_H__
 
 #include <string>
-#include "lexYacc.h"
 #include "ParsingData.h"
 using namespace std;
 

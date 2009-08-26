@@ -1,18 +1,21 @@
-HEADERS += AttributeInfo.h Attribute.h NameSemanticValue.h ElementUtils.h \
+HEADERS += DebugStream.h ParserDriver.h AttributeInfo.h Attribute.h \
+	NameSemanticValue.h ElementUtils.h \
 	 Body.h AttributeType.h Color.h \
 	Data.h Edge.h Element.h ExpressionTree.h \
 	Face.h GLWidget.h lexYacc.h OrientedEdge.h OrientedFace.h \
 	ParsingData.h Vertex.h SemanticError.h MainWindow.h \
-        AttributeCreator.h stable.h SystemDifferences.h
-SOURCES += AttributeInfo.cpp Attribute.cpp NameSemanticValue.cpp Element.cpp \
-	 Body.cpp Color.cpp\
+        AttributeCreator.h stable.h SystemDifferences.h \
+	location.hh position.hh stack.hh
+SOURCES += DebugStream.cpp ParserDriver.cpp AttributeInfo.cpp Attribute.cpp \
+	NameSemanticValue.cpp Element.cpp \
+	Body.cpp Color.cpp\
 	Data.cpp Edge.cpp ExpressionTree.cpp Face.cpp \
 	GLWidget.cpp main.cpp OrientedEdge.cpp OrientedFace.cpp \
 	ParsingData.cpp Vertex.cpp MainWindow.cpp AttributeCreator.cpp
 FORMS += Window.ui
-LEXSOURCES += foam.l
-YACCSOURCES += foam.y
-QMAKE_YACC = bison -y --debug --report=state
+LEXSOURCES += EvolverData.l
+YACCSOURCES += EvolverData.y
+QMAKE_YACC = bison -y --report=state
 TARGET = foam
 QT           += opengl
 CONFIG       += qt debug precompile_header

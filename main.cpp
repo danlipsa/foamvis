@@ -7,15 +7,9 @@
 #include <QApplication>
 #include "Data.h"
 #include "ParsingData.h"
-#include "lexYacc.h"
 #include "MainWindow.h"
 #include "SemanticError.h"
-
-/**
- * Global object  that stores data read  from a DMP  file (produced by
- * the Surface Evolver software).
- */
-Data data;
+#include "DebugStream.h"
 
 /**
  * Parses the data file, reads in vertices, edges, etc and displays them.
@@ -25,28 +19,21 @@ int main(int argc, char *argv[])
 {
     try
     {
-        int parseResult;
-        FlexDebugging (0);
-        BisonDebugging (0);
+        Data data;
+        int result;
         if (argc <= 1)
         {
-                cerr << "foam <input_file>" << endl;
-                return 13;
+            cdbg << "foam <input_file>\n";
+            return 13;
         }
         else
         {
-                foamin = fopen (argv[1], "r");
-                if (foamin == 0)
-                {
-                        cerr << "Error: cannot open \""<< argv[1] 
-                             << "\" for reading" << endl;
-                        return 13;
-                }
+            data.m_debugParsing = true;
+            data.m_debugScanning = true;
+            result = data.Parse (argv[1]);
         }
-        if ((parseResult = foamparse()) == 0)
+        if (result == 0)
         {
-            //cout << data;
-            //cout << data.GetParsingData ();
             QApplication app(argc, argv);
             MainWindow window (&data);
             window.show();
@@ -54,10 +41,10 @@ int main(int argc, char *argv[])
             return 0;
         }
         else
-            return parseResult;
+            return result;
     }
     catch (exception& e)
     {
-        cerr << "Exception: " << e.what () << endl;
+        cdbg << "Exception: " << e.what () << endl;
     }
 }

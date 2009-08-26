@@ -10,7 +10,7 @@
 #include <vector>
 #include <iostream>
 #include "OrientedEdge.h"
-#include "lexYacc.h"
+#include "Color.h"
 using namespace std;
 
 class AttributesInfo;

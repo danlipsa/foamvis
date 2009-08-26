@@ -5,7 +5,7 @@
 #include "NameSemanticValue.h"
 using namespace std;
 
-Attribute* IntegerAttributeCreator::operator() (const SemanticValue& value, 
+Attribute* IntegerAttributeCreator::operator() (const EvolverData::parser::semantic_type& value, 
                                                 NameSemanticValue::Type type)
 {
 
@@ -19,7 +19,7 @@ Attribute* IntegerAttributeCreator::operator() (const SemanticValue& value,
     return new IntegerAttribute (value.m_int);
 }
 
-Attribute* ColorAttributeCreator::operator() (const SemanticValue& value, 
+Attribute* ColorAttributeCreator::operator() (const EvolverData::parser::semantic_type& value, 
                                               NameSemanticValue::Type type)
 {
     if (type != NameSemanticValue::COLOR_SEMANTIC_TYPE)
@@ -34,7 +34,7 @@ Attribute* ColorAttributeCreator::operator() (const SemanticValue& value,
 
 
 
-Attribute* RealAttributeCreator::operator() (const SemanticValue& value, 
+Attribute* RealAttributeCreator::operator() (const EvolverData::parser::semantic_type& value, 
                                              NameSemanticValue::Type type)
 {
     switch (type)
@@ -55,7 +55,7 @@ Attribute* RealAttributeCreator::operator() (const SemanticValue& value,
 
 
 Attribute* IntegerArrayAttributeCreator::operator() (
-    const SemanticValue& value, 
+    const EvolverData::parser::semantic_type& value, 
     NameSemanticValue::Type type)
 {
     if (type != NameSemanticValue::INT_ARRAY_SEMANTIC_TYPE)
@@ -77,7 +77,7 @@ Attribute* IntegerArrayAttributeCreator::operator() (
 }
 
 Attribute* RealArrayAttributeCreator::operator() (
-    const SemanticValue& value, 
+    const EvolverData::parser::semantic_type& value, 
     NameSemanticValue::Type type)
 {
     if (type != NameSemanticValue::REAL_ARRAY_SEMANTIC_TYPE)

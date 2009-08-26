@@ -3,6 +3,7 @@
 #include "GLWidget.h"
 #include "MainWindow.h"
 #include "SystemDifferences.h"
+#include "DebugStream.h"
 
 MainWindow::MainWindow(Data* data)
 {
@@ -29,6 +30,6 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
         break;
     case Qt::Key_Space:
         string s = G3D::getOpenGLState (false);
-        OutputDebugStringA (s.c_str ());
+        cdbg << s;
     }
 }

@@ -82,13 +82,13 @@ ostream& operator<< (ostream& ostr, Data& d)
 }
 
 Data::Data () : 
-    m_attributesInfo(ATTRIBUTE_TYPE_COUNT),
+	m_attributesInfo(DefineAttribute::COUNT),
     m_parsingData (new ParsingData ())
 {
-    Vertex::StoreDefaultAttributes (m_attributesInfo[VERTEX_TYPE]);
-    Edge::StoreDefaultAttributes (m_attributesInfo[EDGE_TYPE]);
-    Face::StoreDefaultAttributes (m_attributesInfo[FACE_TYPE]);
-    Body::StoreDefaultAttributes (m_attributesInfo[BODY_TYPE]);
+	Vertex::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::VERTEX]);
+	Edge::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::EDGE]);
+	Face::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::FACE]);
+	Body::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::BODY]);
 }
 
 Data::~Data ()
@@ -106,7 +106,7 @@ void Data::SetPoint (unsigned int i, float x, float y, float z,
         m_vertices.resize (i + 1);
     Vertex* vertex = new Vertex (x, y ,z);
     if (&list != 0)
-        vertex->StoreAttributes (list, m_attributesInfo[VERTEX_TYPE]);
+		vertex->StoreAttributes (list, m_attributesInfo[DefineAttribute::VERTEX]);
     m_vertices[i] = vertex;
 }
 
@@ -115,9 +115,9 @@ void Data::SetEdge (unsigned int i, unsigned int begin, unsigned int end,
 {
     if (i >= m_edges.size ())
         m_edges.resize (i + 1); 
-    Edge* edge = new Edge (data.GetPoint(begin), data.GetPoint(end));
+    Edge* edge = new Edge (GetPoint(begin), GetPoint(end));
     if (&list != 0)
-        edge->StoreAttributes (list, m_attributesInfo[EDGE_TYPE]);
+		edge->StoreAttributes (list, m_attributesInfo[DefineAttribute::EDGE]);
     m_edges[i] = edge;
 }
 
@@ -128,7 +128,7 @@ void Data::SetFace (unsigned int i, const vector<int>& edges,
         m_faces.resize (i + 1);
     Face* face = new Face (edges, m_edges);
     if (&list != 0)
-        face->StoreAttributes (list, m_attributesInfo[FACE_TYPE]);
+        face->StoreAttributes (list, m_attributesInfo[DefineAttribute::FACE]);
     m_faces[i] = face;
 }
 
@@ -139,7 +139,7 @@ void Data::SetBody (unsigned int i, const vector<int>& faces,
         m_bodies.resize (i + 1);
     Body* body = new Body (faces, m_faces);
     if (&list != 0)
-        body->StoreAttributes (list, m_attributesInfo[BODY_TYPE]);    
+        body->StoreAttributes (list, m_attributesInfo[DefineAttribute::BODY]);    
     m_bodies[i] = body;
 }
 
@@ -151,3 +151,13 @@ void Data::Compact (void)
     compact (m_bodies);
 }
 
+int Data::Parse (const std::string &f)
+{
+    m_file = f;
+    ScanBegin ();
+    EvolverData::parser parser (*this, GetScanner ());
+    parser.set_debug_level (m_debugParsing);
+    int result = parser.parse ();
+    ScanEnd ();
+    return result;
+}

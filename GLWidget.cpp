@@ -9,6 +9,7 @@
 #include "GLWidget.h"
 #include "Vertex.h"
 #include "Data.h"
+#include "DebugStream.h"
 using namespace std;
 
 inline void deleteObject (GLuint object)
@@ -20,11 +21,7 @@ void detectOpenGLError ()
 {
     GLenum errCode;
     if ((errCode = glGetError()) != GL_NO_ERROR)
-    {
-        ostringstream ostr;
-        ostr << "OpenGL Error: " << gluErrorString(errCode) << endl << ends;
-        OutputDebugStringA (ostr.str ().c_str ());
-    }
+        cdbg << "OpenGL Error: " << gluErrorString(errCode) << endl;
 }
 
 struct OpenGLParam
@@ -33,28 +30,20 @@ struct OpenGLParam
     GLint* m_where;
     char* m_name;
 };
+
 inline void storeOpenGLParam (OpenGLParam& param)
 {
     glGetIntegerv (param.m_what, param.m_where);
 }
 
-class printOpenGLParam : public unary_function<OpenGLParam&, void>
+void printOpenGLParam (OpenGLParam& param)
 {
-public:
-        printOpenGLParam (ostringstream& ostr) : m_ostr (ostr) {}
-
-    void operator() (OpenGLParam& param)
-    {
-        m_ostr << param.m_name << ": " << *param.m_where << endl;
-    }
-private:
-    ostringstream& m_ostr;
-};
+    cdbg << param.m_name << ": " << *param.m_where << endl;
+}
 
 
 void printOpenGLInfo ()
 {
-    ostringstream ostr;
     GLboolean stereoSupport;
     GLboolean doubleBufferSupport;
     GLint auxBuffers;
@@ -80,7 +69,7 @@ void printOpenGLInfo ()
     glGetBooleanv (GL_STEREO, &stereoSupport);
     glGetBooleanv (GL_DOUBLEBUFFER, &doubleBufferSupport);
     for_each (info, info + sizeof (info) / sizeof (info[0]), storeOpenGLParam);
-    ostr << "OpenGL" << endl
+    cdbg << "OpenGL" << endl
          << "Vendor: " << glGetString (GL_VENDOR) << endl
          << "Renderer: " << glGetString (GL_RENDERER) << endl
          << "Version: " << glGetString (GL_VERSION) << endl
@@ -89,9 +78,7 @@ void printOpenGLInfo ()
          << "Double buffer support: " 
          << static_cast<bool>(doubleBufferSupport) << endl;
     for_each (info, info + sizeof (info) / sizeof (info[0]),
-              printOpenGLParam (ostr));
-    ostr << ends;
-    OutputDebugStringA (ostr.str ().c_str ());
+              printOpenGLParam);
 }
 
 inline void displayFirstVertex (const OrientedEdge* e)
@@ -120,12 +107,8 @@ public:
         if (m_count <= m_widget.GetDisplayedFace ())
         {
             displayFaceVertices (f);
-			if (m_count == m_widget.GetDisplayedFace ())
-			{
-				ostringstream ostr;
-				ostr << "face " << m_count << ": " << *f << endl << ends;
-				OutputDebugStringA (ostr.str ().c_str ());
-			}
+            if (m_count == m_widget.GetDisplayedFace ())
+                cdbg << "face " << m_count << ": " << *f << endl;
         }
         m_count++;
     }
@@ -213,7 +196,8 @@ GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent), m_viewType (BODIES), 
       m_object(VIEW_TYPE_NUMBER, 0),
       m_data(0), m_displayedBody(UINT_MAX), m_displayedFace(UINT_MAX)
-{}
+{
+}
 
 GLWidget::~GLWidget()
 {
@@ -265,24 +249,8 @@ QSize GLWidget::sizeHint() const
 
 void GLWidget::initLightBodies ()
 {
-    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
-    //glEnable(GL_CULL_FACE);
-
-    GLfloat mat_specular_front[] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat mat_shininess_front[] = { 50.0 };
-
-    GLfloat mat_specular_back[] = { 1.0, 0.0, 0.0, 1.0 };
-    GLfloat mat_shininess_back[] = { 50.0 };
-
-
-    GLfloat light_position[] = { 2.0, 2.0, 2.0, 0.0 };
+    GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
     glShadeModel (GL_SMOOTH);
-
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular_front);
-    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess_front);
-    glMaterialfv(GL_BACK, GL_SPECULAR, mat_specular_back);
-    glMaterialfv(GL_BACK, GL_SHININESS, mat_shininess_back);
-
 
     glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
@@ -310,7 +278,7 @@ void GLWidget::initializeGL()
     m_object[EDGES] = displayEdges ();
     m_object[FACES] = displayFaces ();
     m_object[BODIES] = displayBodies ();
-        const float* background = Color::GetValue (Color::COLOR_WHITE);
+    const float* background = Color::GetValue (Color::WHITE);
     glClearColor (background[0], background[1], background[2], background[3]);        
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
@@ -354,10 +322,10 @@ void GLWidget::setRotation (int axis, float angle)
 {
     using G3D::Matrix4;
     const float axes[3][3] = {{1,0,0}, {0,1,0}, {0,0,1}};
-	makeCurrent ();
-	Matrix4 modelView;
+    makeCurrent ();
+    Matrix4 modelView;
     glGetMatrix (GL_MODELVIEW_MATRIX, modelView);
-	Matrix4& columnOrderMatrix = modelView.transpose ();
+    Matrix4& columnOrderMatrix = modelView.transpose ();
     glLoadIdentity ();
     glRotatef (angle, axes[axis][0], axes[axis][1], axes[axis][2]);
     glMultMatrixf (columnOrderMatrix);
@@ -487,9 +455,7 @@ void GLWidget::IncrementDisplayedBody ()
         m_displayedBody = UINT_MAX;
     m_object[FACES] = displayFaces ();
     updateGL ();
-    ostringstream ostr;
-    ostr << "displayed body: " << m_displayedBody << endl;
-    OutputDebugStringA (ostr.str (). c_str ());
+    cdbg << "displayed body: " << m_displayedBody << endl;
 }
 
 
@@ -515,7 +481,5 @@ void GLWidget::DecrementDisplayedBody ()
     m_displayedFace = UINT_MAX;
     m_object[FACES] = displayFaces ();
     updateGL ();
-    ostringstream ostr;
-    ostr << "displayed body: " << m_displayedBody << endl;
-    OutputDebugStringA (ostr.str (). c_str ());
+    cdbg << "displayed body: " << m_displayedBody << endl;
 }

@@ -6,7 +6,6 @@
  */
 #ifndef __PARSING_DATA_H__
 #define __PARSING_DATA_H__
-#include <string.h>
 #include <functional>
 #include <string>
 #include <vector>
@@ -89,7 +88,7 @@ public:
      * Pretty prints the ParsingData object
      * @param ostr output stream where to print the object
      * @param pd object to be printed
-     */
+     */    
     friend ostream& operator<< (ostream& ostr, ParsingData& pd);
 private:
     /**

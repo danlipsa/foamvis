@@ -1,9 +1,9 @@
 #ifndef __NAME_SEMANTIC_ELEMENT_H__
 #define __NAME_SEMANTIC_ELEMENT_H__
 
-#include <Qt>
 #include <vector>
-#include "lexYacc.h"
+#include <iostream>
+#include "EvolverData_yacc.h"
 
 class NameSemanticValue
 {
@@ -32,12 +32,12 @@ public:
         m_semanticValue.m_real = r;
         m_type = REAL_SEMANTIC_TYPE;
     }
-    NameSemanticValue (const char* name, vector<int>* intList) : m_name(name)
+	NameSemanticValue (const char* name, std::vector<int>* intList) : m_name(name)
     {
         m_semanticValue.m_intList = intList;
         m_type = INT_ARRAY_SEMANTIC_TYPE;
     }
-    NameSemanticValue (const char* name, vector<float>* realList) : m_name(name)
+	NameSemanticValue (const char* name, std::vector<float>* realList) : m_name(name)
     {
         m_semanticValue.m_realList = realList;
         m_type = REAL_ARRAY_SEMANTIC_TYPE;
@@ -48,7 +48,7 @@ public:
     {
         return m_name;
     }
-	const SemanticValue GetSemanticValue () const
+	const EvolverData::parser::semantic_type GetSemanticValue () const
     {
         return m_semanticValue;
     }
@@ -57,18 +57,18 @@ public:
         return m_type;
     }
     
-    vector<NameSemanticValue*>* PushBack (
-        vector<NameSemanticValue*>* listSoFar);
-    static void DeleteVector (vector<NameSemanticValue*>* v);
+	std::vector<NameSemanticValue*>* PushBack (
+		std::vector<NameSemanticValue*>* listSoFar);
+	static void DeleteVector (std::vector<NameSemanticValue*>* v);
 
-    friend ostream& operator<< (ostream& ostr, Type& type);
-    friend ostream& operator<< (ostream& ostr, 
+	friend std::ostream& operator<< (std::ostream& ostr, Type& type);
+	friend std::ostream& operator<< (std::ostream& ostr, 
                                 NameSemanticValue& nameSemanticValue);
 
 private:
     const char* m_name;
     Type m_type;
-    SemanticValue m_semanticValue;
+    EvolverData::parser::semantic_type m_semanticValue;
 };
 
 

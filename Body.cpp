@@ -8,9 +8,9 @@
 #include <algorithm>
 #include "Body.h"
 #include "ElementUtils.h"
-#include "lexYacc.h"
 #include "AttributeInfo.h"
-#include "foam_yacc.h"
+#include "ParserDriver.h"
+#include "EvolverData_yacc.h"
 
 
 
@@ -78,12 +78,16 @@ Body::~Body()
 
 void Body::StoreDefaultAttributes (AttributesInfo& infos)
 {
+    using EvolverData::parser;
     m_infos = &infos;
     infos.AddAttributeInfo (
-        KeywordString(ORIGINAL), new IntegerAttributeCreator());
+        ParserDriver::GetKeywordString(parser::token::ORIGINAL),
+        new IntegerAttributeCreator());
     infos.AddAttributeInfo (
-        KeywordString(LAGRANGE_MULTIPLIER), new RealAttributeCreator());
+        ParserDriver::GetKeywordString(parser::token::LAGRANGE_MULTIPLIER),
+        new RealAttributeCreator());
     infos.AddAttributeInfo (
-        KeywordString(VOLUME), new RealAttributeCreator());
+        ParserDriver::GetKeywordString(parser::token::VOLUME),
+        new RealAttributeCreator());
 }
 

@@ -7,9 +7,8 @@
 #include <algorithm>
 #include "Face.h"
 #include "ElementUtils.h"
-#include "lexYacc.h"
-#include "foam_yacc.h"
 #include "AttributeInfo.h"
+#include "ParserDriver.h"
 
 
 /**
@@ -88,14 +87,17 @@ void Face::ReversePrint (ostream& ostr)
 
 void Face::StoreDefaultAttributes (AttributesInfo& infos)
 {
+    using EvolverData::parser;
     m_infos = &infos;
-    const char* colorString = KeywordString(COLOR);
+    const char* colorString = 
+        ParserDriver::GetKeywordString(parser::token::COLOR);
     // load the color attribute and nothing else
     infos.Load (colorString);
 
     infos.AddAttributeInfo (colorString, new ColorAttributeCreator());
     infos.AddAttributeInfo (
-        KeywordString(ORIGINAL), new IntegerAttributeCreator());
+        ParserDriver::GetKeywordString(parser::token::ORIGINAL),
+        new IntegerAttributeCreator());
 }
 
 Color::Name Face::GetColor () const

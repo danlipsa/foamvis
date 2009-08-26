@@ -8,7 +8,6 @@
 #define __DATA_H__
 
 #include <vector>
-#include <map>
 #include <iostream>
 #include "Vertex.h"
 #include "Edge.h"
@@ -17,14 +16,14 @@
 #include "AttributeCreator.h"
 #include "AttributeInfo.h"
 #include "NameSemanticValue.h"
-using namespace std;
+#include "ParserDriver.h"
 
 class ParsingData;
 /**
  * Stores information  read from  a DMP file  produced by  the Surface
  * Evolver software.
  */
-class Data
+class Data : public ParserDriver
 {
 public:
     Data ();
@@ -38,7 +37,7 @@ public:
      * @return a pointer to the Point object
      */
     Vertex* GetPoint (int i) {return m_vertices[i];}
-    const vector<Vertex*>& GetPoints () {return m_vertices;}
+    const std::vector<Vertex*>& GetPoints () {return m_vertices;}
     /**
      * Stores a Point object a certain index in the Data object
      * @param i where to store the Point object
@@ -47,7 +46,7 @@ public:
      * @param z coordinate Z of the Point object
      */
     void SetPoint (unsigned int i, float x, float y, float z,
-                   vector<NameSemanticValue*>& list);
+                   std::vector<NameSemanticValue*>& list);
     /**
      * Stores an Edge object in the Data object at a certain index
      * @param i index where to store the Edge object
@@ -55,8 +54,8 @@ public:
      * @param end index of the last Point that determines the edge
      */
     void SetEdge (unsigned int i, unsigned int begin, unsigned int end,
-                  vector<NameSemanticValue*>& list);
-    const vector<Edge*>& GetEdges () {return m_edges;}
+                  std::vector<NameSemanticValue*>& list);
+    const std::vector<Edge*>& GetEdges () {return m_edges;}
     /**
      * Stores a Face object in the Data object 
      * 
@@ -67,9 +66,9 @@ public:
      *        the edge part of the  Face is in reversed order than the
      *        Edge that is stored in the Data object.
      */
-    void SetFace (unsigned int i, const vector<int>& edges,
-                  vector<NameSemanticValue*>& list);
-    const vector<Face*>& GetFaces () {return m_faces;}
+    void SetFace (unsigned int i, const std::vector<int>& edges,
+                  std::vector<NameSemanticValue*>& list);
+    const std::vector<Face*>& GetFaces () {return m_faces;}
 
     /**
      * Stores a Body object in the Data object
@@ -82,9 +81,9 @@ public:
      *         reverse order  than the  Face that *  is stored  in the
      *         Data object.
      */
-    void SetBody (unsigned int i, const vector<int>& faces,
-                  vector<NameSemanticValue*>& list);
-    const vector<Body*>& GetBodies () {return m_bodies;}
+    void SetBody (unsigned int i, const std::vector<int>& faces,
+                  std::vector<NameSemanticValue*>& list);
+    const std::vector<Body*>& GetBodies () {return m_bodies;}
     /**
      * Stores an element of the 4x4 view matrix.
      * @param i index where to store the elment
@@ -100,45 +99,52 @@ public:
     ParsingData& GetParsingData () {return *m_parsingData;}
     void Compact ();
     void AddAttributeInfo (
-        AttributeType type, const char* name, AttributeCreator* creator)
+		DefineAttribute::Type type, const char* name, AttributeCreator* creator)
     {
         m_attributesInfo[type].AddAttributeInfo (name, creator);
     }
+    int Parse (const std::string& f);
 
     /**
      * Pretty print for the Data object
      */
-    friend ostream& operator<< (ostream& ostr, Data& d);
+    friend std::ostream& operator<< (std::ostream& ostr, Data& d);
 private:
 
     /**
      * A vector of points
      */
-    vector<Vertex*> m_vertices;
+    std::vector<Vertex*> m_vertices;
     /**
      * A vector of edges
      */
-    vector<Edge*> m_edges;
+    std::vector<Edge*> m_edges;
     /**
      * A vector of faces
      */
-    vector<Face*> m_faces;
+    std::vector<Face*> m_faces;
     /**
      * A vector of bodies.
      */
-    vector<Body*> m_bodies;
+    std::vector<Body*> m_bodies;
     /**
      * View matrix for displaying vertices, edges, faces and bodies.
      */
     float m_viewMatrix[16];
-    vector<AttributesInfo> m_attributesInfo;
+    std::vector<AttributesInfo> m_attributesInfo;
     ParsingData* m_parsingData;
 };
 
-/**
- * Declaration of the global Data object
- */
-extern Data data;
+
+// define types used in flex
+typedef EvolverData::parser::semantic_type YYSTYPE;
+typedef EvolverData::parser::location_type YYLTYPE;
+// Announce to Flex the prototype we want for lexing function, ...
+# define YY_DECL int \
+    EvolverDatalex (YYSTYPE* yylval_param, YYLTYPE* yylloc_param, \
+           void* yyscanner)
+// ... and declare it for the parser's sake.
+YY_DECL;
 
 #endif
 

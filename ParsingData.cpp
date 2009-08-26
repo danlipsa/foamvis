@@ -2,6 +2,7 @@
 #include "ElementUtils.h"
 #include "ParsingData.h"
 #include "SemanticError.h"
+#include "EvolverData_yacc.h"
 
 /**
  * Negates a number. Used in the parser expressions.

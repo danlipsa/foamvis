@@ -5,6 +5,11 @@
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 #define isatty _isatty
+
+
+#else
+
+
 #endif
 
 
