@@ -27,8 +27,8 @@ protected:
     std::vector<const Attribute*>* m_attributes;
 };
 
+#endif //__ELEMENT_H__
 
-#endif
 // Local Variables:
 // mode: c++
 // End:

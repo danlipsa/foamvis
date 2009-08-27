@@ -70,7 +70,7 @@ inline std::ostream& operator<< (std::ostream& ostr, Face* f)
 }
 
 
-#endif
+#endif //__FACE_H__
 
 // Local Variables:
 // mode: c++

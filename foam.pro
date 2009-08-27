@@ -1,12 +1,12 @@
-HEADERS += DebugStream.h ParserDriver.h AttributeInfo.h Attribute.h \
+HEADERS += DebugStream.h ParsingDriver.h AttributeInfo.h Attribute.h \
 	NameSemanticValue.h ElementUtils.h \
-	 Body.h AttributeType.h Color.h \
+	 Body.h Color.h DefineAttributeType.h \
 	Data.h Edge.h Element.h ExpressionTree.h \
-	Face.h GLWidget.h lexYacc.h OrientedEdge.h OrientedFace.h \
+	Face.h GLWidget.h OrientedEdge.h OrientedFace.h \
 	ParsingData.h Vertex.h SemanticError.h MainWindow.h \
         AttributeCreator.h stable.h SystemDifferences.h \
 	location.hh position.hh stack.hh
-SOURCES += DebugStream.cpp ParserDriver.cpp AttributeInfo.cpp Attribute.cpp \
+SOURCES += DebugStream.cpp ParsingDriver.cpp AttributeInfo.cpp Attribute.cpp \
 	NameSemanticValue.cpp Element.cpp \
 	Body.cpp Color.cpp\
 	Data.cpp Edge.cpp ExpressionTree.cpp Face.cpp \

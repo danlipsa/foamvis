@@ -33,4 +33,8 @@ public:
     ~SemanticError() throw() {}
 };
 
-#endif
+#endif //__SEMANTIC_ERROR_H__
+
+// Local Variables:
+// mode: c++
+// End:

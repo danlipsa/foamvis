@@ -28,5 +28,4 @@ public:
     static const float* GetValue(Color::Name name);
 };
 
-
-#endif
+#endif //__COLOR_H__

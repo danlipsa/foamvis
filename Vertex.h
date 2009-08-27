@@ -97,7 +97,7 @@ inline std::ostream& operator<< (std::ostream& ostr, Vertex* pv)
     return ostr << *pv;
 }
 
-#endif
+#endif //__VERTEX_H__
 
 // Local Variables:
 // mode: c++

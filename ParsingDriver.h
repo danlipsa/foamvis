@@ -1,5 +1,5 @@
-#ifndef PARSER_DRIVER_H
-#define PARSER_DRIVER_H
+#ifndef __PARSING_DRIVER_H__
+#define __PARSING_DRIVER_H__
 #include <string>
 #include "EvolverData_yacc.h"
 
@@ -58,8 +58,8 @@ private:
     bool m_debugParsing;
     std::string m_file;
 };
-#endif // ! PARSER_DRIVER_H
 
+#endif // __PARSING_DRIVER_H__
 
 // Local Variables:
 // mode: c++

@@ -64,7 +64,7 @@ inline std::ostream& operator<< (std::ostream& ostr, Body* b)
     return ostr << *b;
 }
 
-#endif
+#endif //__BODY_H__
 
 // Local Variables:
 // mode: c++

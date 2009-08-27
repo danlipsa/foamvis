@@ -133,7 +133,7 @@ private:
     std::auto_ptr<ParsingData> m_parsingData;
 };
 
-#endif
+#endif //__DATA_H__
 
 // Local Variables:
 // mode: c++

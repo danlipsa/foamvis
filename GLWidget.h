@@ -72,7 +72,7 @@ private:
     unsigned int m_displayedFace;
 };
 
-#endif
+#endif //__GLWIDGET_H__
 
 // Local Variables:
 // mode: c++

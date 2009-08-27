@@ -36,4 +36,4 @@ private:
     bool m_loadAll;
 };
 
-#endif
+#endif //__ATTRIBUTE_INFO_H__

@@ -1,5 +1,5 @@
-#ifndef __WINDOW_H__
-#define __WINDOW_H__
+#ifndef __MAIN_WINDOW_H__
+#define __MAIN_WINDOW_H__
 
 #include <QWidget>
 #include "ui_Window.h"
@@ -16,4 +16,9 @@ public:
     void keyPressEvent (QKeyEvent* event);
 };
 
-#endif
+#endif //__MAIN_WINDOW_H__
+
+// Local Variables:
+// mode: c++
+// End:
+

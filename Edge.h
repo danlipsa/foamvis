@@ -89,8 +89,7 @@ inline std::ostream& operator<< (std::ostream& ostr, Edge* e)
     return ostr << *e;
 }
 
-
-#endif
+#endif //__EDGE_H__
 
 // Local Variables:
 // mode: c++

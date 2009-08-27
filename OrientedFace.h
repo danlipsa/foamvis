@@ -54,7 +54,7 @@ inline std::ostream& operator<< (std::ostream& ostr, const OrientedFace* pof)
 }
 
 
-#endif
+#endif //__ORIENTED_FACE_H__
 
 // Local Variables:
 // mode: c++

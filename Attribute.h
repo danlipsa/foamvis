@@ -105,8 +105,8 @@ private:
 
 std::ostream& operator<< (std::ostream& ostr, const Attribute& attribute);
 
+#endif //__ATTRIBUTE_H__
 
-#endif
 // Local Variables:
 // mode: c++
 // End:

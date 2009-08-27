@@ -71,5 +71,8 @@ private:
     EvolverData::parser::semantic_type m_semanticValue;
 };
 
+#endif //__NAME_SEMANTIC_ELEMENT_H__
 
-#endif
+// Local Variables:
+// mode: c++
+// End:

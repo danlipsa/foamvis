@@ -170,8 +170,7 @@ private:
     ParsingData& m_parsingData;
 };
 
-
-#endif
+#endif //__EXPRESSION_TREE_H__
 
 // Local Variables:
 // mode: c++

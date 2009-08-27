@@ -57,7 +57,7 @@ inline std::ostream& operator<< (std::ostream& ostr, OrientedEdge* poe)
     return ostr << *poe;
 }
 
-#endif
+#endif //__ORIENTED_EDGE_H__
 
 // Local Variables:
 // mode: c++

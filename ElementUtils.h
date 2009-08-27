@@ -124,7 +124,7 @@ struct LessThanNoCase : std::binary_function<const char*, const char*, bool>
     }
 };
 
-#endif
+#endif //__ELEMENT_UTILS_H__
 
 // Local Variables:
 // mode: c++

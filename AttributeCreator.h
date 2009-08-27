@@ -53,8 +53,8 @@ private:
     unsigned int m_size;
 };
 
+#endif //__ATTRIBUTE_CREATOR_H__
 
-#endif
 // Local Variables:
 // mode: c++
 // End:
