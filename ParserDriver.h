@@ -5,11 +5,11 @@
 
 class Data;
 // Conducting the whole scanning and parsing of Calc++.
-class ParserDriver
+class ParsingDriver
 {
 public:
-    ParserDriver ();
-    virtual ~ParserDriver ();
+    ParsingDriver ();
+    virtual ~ParsingDriver ();
 
     // Handling the scanner.
     void ScanBegin ();

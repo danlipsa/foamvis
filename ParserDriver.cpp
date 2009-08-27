@@ -1,29 +1,29 @@
 #include "SystemDifferences.h"
-#include "ParserDriver.h"
+#include "ParsingDriver.h"
 #include "DebugStream.h"
 using namespace std;
 
-ParserDriver::ParserDriver ()
+ParsingDriver::ParsingDriver ()
   : m_debugScanning (false), m_debugParsing (false)
 {
 }
 
-ParserDriver::~ParserDriver ()
+ParsingDriver::~ParsingDriver ()
 {
 }
 
-void ParserDriver::PrintError (
+void ParsingDriver::PrintError (
     const EvolverData::location& l, const string& m)
 {
 	cdbg << l << ": " << m << endl;
 }
 
-void ParserDriver::PrintError (const string& m)
+void ParsingDriver::PrintError (const string& m)
 {
   cdbg << m << endl;
 }
 
-long ParserDriver::ReadInteger (char* str, int base)
+long ParsingDriver::ReadInteger (char* str, int base)
 {
     char *tail = str;
     errno = 0;
@@ -36,9 +36,9 @@ long ParserDriver::ReadInteger (char* str, int base)
     return i;
 }
 
-const int ParserDriver::FIRST_TOKEN = EvolverData::parser::token::PARAMETER;
+const int ParsingDriver::FIRST_TOKEN = EvolverData::parser::token::PARAMETER;
 
-const char* ParserDriver::m_keywordTable[] = {
+const char* ParsingDriver::m_keywordTable[] = {
     "PARAMETER",
     "PERIODS",
     "VIEW_MATRIX",
@@ -109,7 +109,7 @@ const char* ParserDriver::m_keywordTable[] = {
     "LAGRANGE_MULTIPLIER"
 };
 
-int ParserDriver::GetKeywordId (const char* keyword)
+int ParsingDriver::GetKeywordId (const char* keyword)
 {
     for (int i = 0; 
          i < sizeof (m_keywordTable) / sizeof (m_keywordTable[0]);
@@ -122,13 +122,13 @@ int ParserDriver::GetKeywordId (const char* keyword)
     return 0;
 }
 
-const char* ParserDriver::GetKeywordString (int id)
+const char* ParsingDriver::GetKeywordString (int id)
 {
     
     return m_keywordTable[id - FIRST_TOKEN];
 }
 
-int ParserDriver::Parse (const std::string &f, Data& data)
+int ParsingDriver::Parse (const std::string &f, Data& data)
 {
     m_file = f;
     ScanBegin ();

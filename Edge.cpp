@@ -6,7 +6,7 @@
  */
 #include "Edge.h"
 #include "AttributeInfo.h"
-#include "ParserDriver.h"
+#include "ParsingDriver.h"
 #include "EvolverData_yacc.h"
 using namespace std;
 
@@ -37,6 +37,6 @@ void Edge::StoreDefaultAttributes (AttributesInfo& infos)
     using EvolverData::parser;
     m_infos = &infos;
     infos.AddAttributeInfo (
-        ParserDriver::GetKeywordString(parser::token::ORIGINAL),
+        ParsingDriver::GetKeywordString(parser::token::ORIGINAL),
         new IntegerAttributeCreator());
 }

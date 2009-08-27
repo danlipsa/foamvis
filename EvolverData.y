@@ -15,7 +15,7 @@
 %locations
 %{
 class Data;
-class ParserDriver;
+class ParsingDriver;
 %}
 %parse-param { Data& data }
 %parse-param { void* scanner }

@@ -8,7 +8,7 @@
 #include "Face.h"
 #include "ElementUtils.h"
 #include "AttributeInfo.h"
-#include "ParserDriver.h"
+#include "ParsingDriver.h"
 using namespace std;
 
 /**
@@ -90,13 +90,13 @@ void Face::StoreDefaultAttributes (AttributesInfo& infos)
     using EvolverData::parser;
     m_infos = &infos;
     const char* colorString = 
-        ParserDriver::GetKeywordString(parser::token::COLOR);
+        ParsingDriver::GetKeywordString(parser::token::COLOR);
     // load the color attribute and nothing else
     infos.Load (colorString);
 
     infos.AddAttributeInfo (colorString, new ColorAttributeCreator());
     infos.AddAttributeInfo (
-        ParserDriver::GetKeywordString(parser::token::ORIGINAL),
+        ParsingDriver::GetKeywordString(parser::token::ORIGINAL),
         new IntegerAttributeCreator());
 }
 

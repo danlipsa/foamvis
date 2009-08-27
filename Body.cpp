@@ -9,7 +9,7 @@
 #include "Body.h"
 #include "ElementUtils.h"
 #include "AttributeInfo.h"
-#include "ParserDriver.h"
+#include "ParsingDriver.h"
 #include "EvolverData_yacc.h"
 using namespace std;
 
@@ -81,13 +81,13 @@ void Body::StoreDefaultAttributes (AttributesInfo& infos)
     using EvolverData::parser;
     m_infos = &infos;
     infos.AddAttributeInfo (
-        ParserDriver::GetKeywordString(parser::token::ORIGINAL),
+        ParsingDriver::GetKeywordString(parser::token::ORIGINAL),
         new IntegerAttributeCreator());
     infos.AddAttributeInfo (
-        ParserDriver::GetKeywordString(parser::token::LAGRANGE_MULTIPLIER),
+        ParsingDriver::GetKeywordString(parser::token::LAGRANGE_MULTIPLIER),
         new RealAttributeCreator());
     infos.AddAttributeInfo (
-        ParserDriver::GetKeywordString(parser::token::VOLUME),
+        ParsingDriver::GetKeywordString(parser::token::VOLUME),
         new RealAttributeCreator());
 }
 

@@ -10,13 +10,13 @@
 #include <string>
 #include <map>
 #include "ElementUtils.h"
-#include "ParserDriver.h"
+#include "ParsingDriver.h"
 
 /**
  * Stores data used during  the parsing such as identifiers, variables
  * and functions.
  */
-class ParsingData : public ParserDriver
+class ParsingData : public ParsingDriver
 {
 public:
     /**

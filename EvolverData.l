@@ -150,7 +150,7 @@ E     [Ee][+-]?{D}+
 
 %%
 
-void ParserDriver::ScanBegin ()
+void ParsingDriver::ScanBegin ()
 {
     EvolverDatalex_init_extra (static_cast<ParsingData*>(this), &m_scanner);
     EvolverDataset_debug(m_debugScanning, m_scanner);
@@ -160,7 +160,7 @@ void ParserDriver::ScanBegin ()
     EvolverDataset_in (dataFile, m_scanner);
 }
 
-void ParserDriver::ScanEnd ()
+void ParsingDriver::ScanEnd ()
 {
     fclose ( EvolverDataget_in(m_scanner));
     EvolverDatalex_destroy(m_scanner);
