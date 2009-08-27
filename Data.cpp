@@ -9,7 +9,7 @@
 #include "Data.h"
 #include "ElementUtils.h"
 #include "ParsingData.h"
-
+using namespace std;
 
 template <class E>
 void compact (vector<E*>& v)
@@ -149,15 +149,4 @@ void Data::Compact (void)
     compact (m_edges);
     compact (m_faces);
     compact (m_bodies);
-}
-
-int Data::Parse (const std::string &f)
-{
-    m_file = f;
-    ScanBegin ();
-    EvolverData::parser parser (*this, GetScanner ());
-    parser.set_debug_level (m_debugParsing);
-    int result = parser.parse ();
-    ScanEnd ();
-    return result;
 }

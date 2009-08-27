@@ -9,7 +9,6 @@
 #define __VERTEX_H__
 #include <iostream>
 #include "Element.h"
-using namespace std;
 
 class AttributesInfo;
 /**
@@ -68,7 +67,7 @@ public:
      * @param p Vertex object to be printed
      * @return output stream used to print the object to
      */
-    friend ostream& operator<< (ostream& ostr, Vertex& v);
+    friend std::ostream& operator<< (std::ostream& ostr, Vertex& v);
 private:
     /**
      * the X coordinate of the Vertex
@@ -93,7 +92,7 @@ private:
  * @param pv what to print
  * @return where to print
  */
-inline ostream& operator<< (ostream& ostr, Vertex* pv)
+inline std::ostream& operator<< (std::ostream& ostr, Vertex* pv)
 {
     return ostr << *pv;
 }

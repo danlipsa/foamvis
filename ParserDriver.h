@@ -3,6 +3,7 @@
 #include <string>
 #include "EvolverData_yacc.h"
 
+class Data;
 // Conducting the whole scanning and parsing of Calc++.
 class ParserDriver
 {
@@ -13,17 +14,30 @@ public:
     // Handling the scanner.
     void ScanBegin ();
     void ScanEnd ();
-    bool m_debugScanning;
+    void SetDebugScanning (bool debugScanning)
+    {
+        m_debugScanning = debugScanning;
+    }
 
     // Handling the parser.
-    bool m_debugParsing;
-    std::string m_file;
+    int Parse (const std::string& f, Data& data);
+    void SetDebugParsing (bool debugParsing)
+    {
+        m_debugParsing = debugParsing;
+    }
+	void SetFile (const std::string& file)
+    {
+        m_file = file;
+    }
+	std::string& GetFile ()
+    {
+        return m_file;
+    }
 
     // Error handling.
     void PrintError (const EvolverData::location& l, const std::string& m);
     void PrintError (const std::string& m);
     
-    void* GetScanner () {return m_scanner;}
     /**
      * Converts a  string in a given  base to an integer.  Prints an error
      * and exits if the conversion fails.
@@ -36,9 +50,13 @@ public:
     static int GetKeywordId (const char* keyword);
     static const char* GetKeywordString (int id);
 private:
+    bool m_debugScanning;
     void* m_scanner;
     static const char* m_keywordTable[];
     static const int FIRST_TOKEN;
+
+    bool m_debugParsing;
+    std::string m_file;
 };
 #endif // ! PARSER_DRIVER_H
 

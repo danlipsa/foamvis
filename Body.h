@@ -10,7 +10,6 @@
 
 #include <vector>
 #include "OrientedFace.h"
-using namespace std;
 
 class AttributesInfo;
 /**
@@ -24,20 +23,20 @@ public:
      * @param faceIndexes 0 based indexes into a vector of Face objects
      * @param faces vector of Face objects
      */
-    Body(const vector<int>& faceIndexes, vector<Face*>& faces);
+    Body(const std::vector<int>& faceIndexes, std::vector<Face*>& faces);
         ~Body ();
     /**
      * Returns the  vector of oriented faces this body is made of
      * @return a vector of oriented faces
      */
-    const vector<OrientedFace*>& GetOrientedFaces() const
+    const std::vector<OrientedFace*>& GetOrientedFaces() const
     {
         return m_faces;
     }
     /**
      * Prety print a body
      */
-    friend ostream& operator<< (ostream& ostr, Body& b); 
+    friend std::ostream& operator<< (std::ostream& ostr, Body& b); 
     /**
      * Specifies the default attributes for the Body object.
      * These attributes don't appear as a DEFINE in the .DMP file
@@ -48,7 +47,7 @@ private:
     /**
      * Oriented faces that are part of this body.
      */
-    vector<OrientedFace*> m_faces;
+    std::vector<OrientedFace*> m_faces;
     /**
      * Stores information about all body attributes
      */
@@ -60,7 +59,7 @@ private:
  * @param b what to print
  * @return where to print something else
  */
-inline ostream& operator<< (ostream& ostr, Body* b)
+inline std::ostream& operator<< (std::ostream& ostr, Body* b)
 {
     return ostr << *b;
 }

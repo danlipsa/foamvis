@@ -12,7 +12,6 @@
 #include <iostream>
 #include <vector>
 #include "SystemDifferences.h"
-using namespace std;
 
 /**
  * Deletes an object of type E*.
@@ -28,7 +27,7 @@ void DeleteElementPtr (const E* pe)
  * sequence of objects.
  */
 template <class E>
-struct PrintElement : public unary_function<E&, void>
+struct PrintElement : public std::unary_function<E&, void>
 {
 public:
     /**
@@ -37,7 +36,7 @@ public:
      * @param useEndOfLine use end of line or comma to separate object
      * of type E.
      */
-    PrintElement (ostream& ostr, bool useEndOfLine) : 
+    PrintElement (std::ostream& ostr, bool useEndOfLine) : 
     m_ostr(ostr), m_index(0), m_useEndOfLine(useEndOfLine) {
     }
     /**
@@ -60,7 +59,7 @@ private:
     /**
      * Output stream to print the object to
      */
-    ostream& m_ostr;
+    std::ostream& m_ostr;
     /**
      * Keeps track  of how  many objects where  printed, and  prints an
      * index in front of each object printed.
@@ -80,8 +79,8 @@ private:
  * @param useEndOfLine objects are separated by an end of line or by a comma
  */
 template <class E>
-ostream& PrintElements (
-    ostream& ostr, vector<E>& v, const char* elementName, 
+std::ostream& PrintElements (
+    std::ostream& ostr, std::vector<E>& v, const char* elementName, 
     bool useEndOfLine)
 {
     ostr << v.size() << " " << elementName << ":"<< endl;
@@ -99,7 +98,7 @@ ostream& PrintElements (
  * @param useEndOfLine objects are separated by an end of line or by a comma
  */
 template <class E>
-ostream& ReversePrintElements (ostream& ostr, vector<E>& v, 
+std::ostream& ReversePrintElements (std::ostream& ostr, std::vector<E>& v, 
                                   const char* elementName, bool useEndOfLine)
 {
     ostr << v.size() << " " << elementName << ":"<< endl;
@@ -111,7 +110,7 @@ ostream& ReversePrintElements (ostream& ostr, vector<E>& v,
 /**
  * Binary function that compares two C strings ignoring the case
  */
-struct LessThanNoCase : binary_function<const char*, const char*, bool>
+struct LessThanNoCase : std::binary_function<const char*, const char*, bool>
 {
     /**
      * Compares two character pointers

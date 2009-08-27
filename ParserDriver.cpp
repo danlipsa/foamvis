@@ -127,3 +127,14 @@ const char* ParserDriver::GetKeywordString (int id)
     
     return m_keywordTable[id - FIRST_TOKEN];
 }
+
+int ParserDriver::Parse (const std::string &f, Data& data)
+{
+    m_file = f;
+    ScanBegin ();
+    EvolverData::parser parser (data, m_scanner);
+    parser.set_debug_level (m_debugParsing);
+    int result = parser.parse ();
+    ScanEnd ();
+    return result;
+}

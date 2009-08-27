@@ -4,6 +4,7 @@
 #include "MainWindow.h"
 #include "SystemDifferences.h"
 #include "DebugStream.h"
+using namespace std;
 
 MainWindow::MainWindow(Data* data)
 {

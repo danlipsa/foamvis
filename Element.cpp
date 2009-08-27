@@ -6,7 +6,7 @@
 #include "AttributeInfo.h"
 #include "NameSemanticValue.h"
 #include "SemanticError.h"
-
+using namespace std;
 
 class storeAttribute : 
     public unary_function <const NameSemanticValue*, void>

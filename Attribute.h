@@ -8,7 +8,6 @@
 #include <iostream>
 #include <vector>
 #include "Color.h"
-using namespace std;
 
 /**
  * Base class for all attributes
@@ -26,7 +25,7 @@ public:
      * @param ostr where to print
      * @return where to print something else
      */
-    virtual ostream& Print(ostream& ostr) const = 0;
+    virtual std::ostream& Print(std::ostream& ostr) const = 0;
 };
 /**
  * An integer attribute
@@ -42,7 +41,7 @@ public:
     /**
      *
      */
-    virtual ostream& Print (ostream& ostr) const
+    virtual std::ostream& Print (std::ostream& ostr) const
     {
         return ostr << m_value;
     }
@@ -55,7 +54,7 @@ class RealAttribute : public Attribute
 public:
     RealAttribute (float value) : m_value (value) {}
     virtual ~RealAttribute () {}
-    virtual ostream& Print (ostream& ostr) const {return ostr << m_value;}
+    virtual std::ostream& Print (std::ostream& ostr) const {return ostr << m_value;}
 private:
     float m_value;
 };
@@ -64,7 +63,7 @@ class ColorAttribute : public Attribute
 {
 public:
 	ColorAttribute (Color::Name color) : m_color (color) {}
-    virtual ostream& Print (ostream& ostr) const {return ostr << m_color;}
+    virtual std::ostream& Print (std::ostream& ostr) const {return ostr << m_color;}
 	Color::Name GetColor () const
     {return m_color;}
 private:
@@ -78,14 +77,14 @@ public:
     /**
      * takes ownership of the values vector
      */
-    IntegerArrayAttribute (vector<int>* values)
+    IntegerArrayAttribute (std::vector<int>* values)
     {
         m_values = values;
     }
     virtual ~IntegerArrayAttribute () {delete m_values;}
-    virtual ostream& Print (ostream& ostr) const;
+    virtual std::ostream& Print (std::ostream& ostr) const;
 private:
-    vector<int>* m_values;
+    std::vector<int>* m_values;
 };
 
 class RealArrayAttribute : public Attribute
@@ -94,17 +93,17 @@ public:
     /**
      * takes ownership of values vector
      */
-    RealArrayAttribute (vector<float>* values)
+    RealArrayAttribute (std::vector<float>* values)
     {
         m_values = values;
     }
     virtual ~RealArrayAttribute () {delete m_values;}
-    virtual ostream& Print (ostream& ostr) const;
+    virtual std::ostream& Print (std::ostream& ostr) const;
 private:
-    vector<float>* m_values;
+    std::vector<float>* m_values;
 };
 
-ostream& operator<< (ostream& ostr, const Attribute& attribute);
+std::ostream& operator<< (std::ostream& ostr, const Attribute& attribute);
 
 
 #endif

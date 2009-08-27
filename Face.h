@@ -11,7 +11,6 @@
 #include <iostream>
 #include "OrientedEdge.h"
 #include "Color.h"
-using namespace std;
 
 class AttributesInfo;
 
@@ -26,7 +25,7 @@ public:
      * @param edgeIndexes indexes into a vector of Edge objects
      * @param edges vector of Edge objects
      */
-    Face(const vector<int>& edgeIndexes, vector<Edge*>& edges);
+    Face(const std::vector<int>& edgeIndexes, std::vector<Edge*>& edges);
     /**
      * Destroys a Face object
      */
@@ -34,14 +33,14 @@ public:
     /**
      * Pretty prints this Face by printing the edges in REVERSE order
      */
-    void ReversePrint (ostream& ostr);
-    const vector<OrientedEdge*>& GetOrientedEdges () const 
+    void ReversePrint (std::ostream& ostr);
+    const std::vector<OrientedEdge*>& GetOrientedEdges () const 
     { return m_edges;}
 	Color::Name GetColor () const;
     /**
      * Pretty prints this Face by printing the edges in DIRECT order
      */
-    friend ostream& operator<< (ostream& ostr, Face& f); 
+    friend std::ostream& operator<< (std::ostream& ostr, Face& f); 
     /**
      * Specifies the default attributes for an Face object.
      * These attributes don't appear as a DEFINE in the .DMP file
@@ -53,7 +52,7 @@ private:
     /**
      * Edges that are part of this face
      */
-    vector<OrientedEdge*> m_edges;
+    std::vector<OrientedEdge*> m_edges;
     /**
      * Information about Face attributes
      */
@@ -65,7 +64,7 @@ private:
  * @param f what to print
  * @return stream where to print other data
  */
-inline ostream& operator<< (ostream& ostr, Face* f)
+inline std::ostream& operator<< (std::ostream& ostr, Face* f)
 {
     return ostr << *f;
 }

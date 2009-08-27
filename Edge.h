@@ -6,8 +6,8 @@
  */
 #ifndef __EDGE_H__
 #define __EDGE_H__
+#include <iostream>
 #include "Vertex.h"
-using namespace std;
 
 class AttributesInfo;
 /**
@@ -52,12 +52,12 @@ public:
      * @param ostr where to write the edge
      * @param e edge to write
      */
-    friend ostream& operator<< (ostream& ostr, Edge& e);
+    friend std::ostream& operator<< (std::ostream& ostr, Edge& e);
     /**
      * Prints the two vertices of an edge in reverse order (end , begin)
      * @param ostr the stream where to write the edge
      */
-    void ReversePrint (ostream& ostr);
+    void ReversePrint (std::ostream& ostr);
     /**
      * Specifies the default attributes for an Edge object.
      * These attributes don't appear as a DEFINE in the .DMP file
@@ -84,7 +84,7 @@ private:
  * @param e what to print
  * @return where to print the next data
  */
-inline ostream& operator<< (ostream& ostr, Edge* e)
+inline std::ostream& operator<< (std::ostream& ostr, Edge* e)
 {
     return ostr << *e;
 }

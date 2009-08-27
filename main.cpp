@@ -10,6 +10,7 @@
 #include "MainWindow.h"
 #include "SemanticError.h"
 #include "DebugStream.h"
+using namespace std;
 
 /**
  * Parses the data file, reads in vertices, edges, etc and displays them.
@@ -28,9 +29,10 @@ int main(int argc, char *argv[])
         }
         else
         {
-            data.m_debugParsing = true;
-            data.m_debugScanning = true;
-            result = data.Parse (argv[1]);
+            ParsingData& parsingData = data.GetParsingData ();
+            parsingData.SetDebugParsing (true);
+            parsingData.SetDebugScanning (true);
+            result = parsingData.Parse (argv[1], data);
         }
         if (result == 0)
         {
@@ -43,7 +45,7 @@ int main(int argc, char *argv[])
         else
             return result;
     }
-    catch (exception& e)
+	catch (exception& e)
     {
         cdbg << "Exception: " << e.what () << endl;
     }

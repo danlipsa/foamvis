@@ -16,14 +16,13 @@
 #include "AttributeCreator.h"
 #include "AttributeInfo.h"
 #include "NameSemanticValue.h"
-#include "ParserDriver.h"
 
 class ParsingData;
 /**
  * Stores information  read from  a DMP file  produced by  the Surface
  * Evolver software.
  */
-class Data : public ParserDriver
+class Data
 {
 public:
     Data ();
@@ -103,7 +102,6 @@ public:
     {
         m_attributesInfo[type].AddAttributeInfo (name, creator);
     }
-    int Parse (const std::string& f);
 
     /**
      * Pretty print for the Data object
@@ -132,19 +130,8 @@ private:
      */
     float m_viewMatrix[16];
     std::vector<AttributesInfo> m_attributesInfo;
-    ParsingData* m_parsingData;
+    std::auto_ptr<ParsingData> m_parsingData;
 };
-
-
-// define types used in flex
-typedef EvolverData::parser::semantic_type YYSTYPE;
-typedef EvolverData::parser::location_type YYLTYPE;
-// Announce to Flex the prototype we want for lexing function, ...
-# define YY_DECL int \
-    EvolverDatalex (YYSTYPE* yylval_param, YYLTYPE* yylloc_param, \
-           void* yyscanner)
-// ... and declare it for the parser's sake.
-YY_DECL;
 
 #endif
 

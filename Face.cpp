@@ -9,7 +9,7 @@
 #include "ElementUtils.h"
 #include "AttributeInfo.h"
 #include "ParserDriver.h"
-
+using namespace std;
 
 /**
  * Unary function that  creates an oriented edge from  an index into a

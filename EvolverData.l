@@ -15,12 +15,12 @@
 #ifdef _MSC_VER
 #include <io.h>
 #define YY_NO_UNISTD_H
-#endif
+#endif //_MSC_VER
+
 #include <stdio.h>
 #include <math.h>
 #include <iostream>
 #include <string>
-#include "Data.h"
 #include "ParsingData.h"
 #include "EvolverData_yacc.h"
 using namespace std;
@@ -30,7 +30,7 @@ using EvolverData::parser;
 
 %option reentrant noyywrap nounput yylineno header-file="EvolverData_lex.h"
 %option bison-bridge bison-locations
-%option extra-type="Data*"
+%option extra-type="ParsingData*"
 
 ID    [a-zA-Z][a-zA-Z0-9_]*
 D     [0-9]
@@ -100,25 +100,25 @@ E     [Ee][+-]?{D}+
 	    yyterminate();
 	else
 	{
-	    yylval->m_id = yyextra->GetParsingData ().CreateIdentifier (yytext);
+	    yylval->m_id = yyextra->CreateIdentifier (yytext);
 	    return id;
 	}
     }
     else
     {
-	yylval->m_id = yyextra->GetParsingData ().CreateIdentifier (yytext);
+	yylval->m_id = yyextra->CreateIdentifier (yytext);
 	return parser::token::IDENTIFIER;
     }
 }
 
 "+"|"-"|"*"|"/"|"^"  {/*operators*/
-    yylval->m_id = yyextra->GetParsingData ().CreateIdentifier (yytext);
+    yylval->m_id = yyextra->CreateIdentifier (yytext);
     yylloc->begin.line = yylineno;
     return *yytext;
 }
 
 ":"|"="  {/*assignments*/
-    yylval->m_id = yyextra->GetParsingData ().CreateIdentifier (yytext);
+    yylval->m_id = yyextra->CreateIdentifier (yytext);
     yylloc->begin.line = yylineno;
     return *yytext;
 }
@@ -152,7 +152,7 @@ E     [Ee][+-]?{D}+
 
 void ParserDriver::ScanBegin ()
 {
-    EvolverDatalex_init_extra (static_cast<Data*>(this), &m_scanner);
+    EvolverDatalex_init_extra (static_cast<ParsingData*>(this), &m_scanner);
     EvolverDataset_debug(m_debugScanning, m_scanner);
     FILE* dataFile = fopen (m_file.c_str (), "r");
     if (! dataFile)

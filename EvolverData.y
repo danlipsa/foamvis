@@ -22,8 +22,8 @@ class ParserDriver;
 %lex-param   { void* scanner }
 %initial-action
 {
-  // Initialize the initial location.
-  @$.begin.filename = @$.end.filename = &data.m_file;
+    // Initialize the initial location.
+    @$.begin.filename = @$.end.filename = &data.GetParsingData ().GetFile ();
 };
 
 %{
@@ -731,7 +731,7 @@ void
 EvolverData::parser::error (const EvolverData::parser::location_type& l,
                             const std::string& m)
 {
-    data.PrintError (l, m);
+    data.GetParsingData ().PrintError (l, m);
 }
 
 

@@ -7,8 +7,6 @@
 #include "AttributeCreator.h"
 #include "ElementUtils.h"
 
-using namespace std;
-
 class AttributeInfo
 {
 public:
@@ -32,8 +30,8 @@ public:
     AttributeInfo* GetAttributeInfo (const char* name) const;
     const char* GetAttributeName (unsigned int index);
 private:
-    set<const char*, LessThanNoCase> m_loadAttribute;
-    map<const char*, AttributeInfo*, LessThanNoCase> m_nameInfo;
+    std::set<const char*, LessThanNoCase> m_loadAttribute;
+    std::map<const char*, AttributeInfo*, LessThanNoCase> m_nameInfo;
     unsigned int m_currentIndex;
     bool m_loadAll;
 };

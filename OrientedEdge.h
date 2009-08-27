@@ -9,7 +9,6 @@
 
 #include <iostream>
 #include "Edge.h"
-using namespace std;
 
 /**
  * An oriented  edge is  an edge  that can have  its vertices  read in
@@ -39,7 +38,7 @@ public:
      * @param ostr output stream where to print the edge
      * @param oe the edge to by printed.
      */
-    friend ostream& operator<< (ostream& ostr, OrientedEdge& oe);
+    friend std::ostream& operator<< (std::ostream& ostr, OrientedEdge& oe);
 
 private:
     /**
@@ -53,7 +52,7 @@ private:
     bool m_reversed;
 };
 
-inline ostream& operator<< (ostream& ostr, OrientedEdge* poe)
+inline std::ostream& operator<< (std::ostream& ostr, OrientedEdge* poe)
 {
     return ostr << *poe;
 }

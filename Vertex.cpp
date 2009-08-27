@@ -8,6 +8,7 @@
 #include "AttributeInfo.h"
 #include "ParserDriver.h"
 #include "EvolverData_yacc.h"
+using namespace std;
 
 ostream& operator<< (ostream& ostr, Vertex& p)
 {

@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <QGLWidget>
-using namespace std;
 
 class Data;
 class Body;
@@ -59,14 +58,14 @@ private:
     GLuint displayFaces ();
     GLuint displayBodies ();
     void setRotation (int axis, float angle);
-    void displayFacesContour (const vector<Body*>& bodies);
-    void displayFacesOffset (const vector<Body*>& bodies);
+    void displayFacesContour (const std::vector<Body*>& bodies);
+    void displayFacesOffset (const std::vector<Body*>& bodies);
     void emitRotationChanged (int axis, int angle);
     static void initLightBodies ();
     static void initLightFlat ();
 
     ViewType m_viewType;
-    vector<GLuint> m_object;
+    std::vector<GLuint> m_object;
     QPoint m_lastPos;
     Data* m_data;
     unsigned int m_displayedBody;

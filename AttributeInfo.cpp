@@ -1,5 +1,6 @@
 #include <algorithm>
 #include "AttributeInfo.h"
+using namespace std;
 
 class indexEqual : unary_function<
     pair<const char*, const AttributeInfo*>, bool >

@@ -9,7 +9,6 @@
 
 #include <iostream>
 #include <vector>
-using namespace std;
 
 class Attribute;
 class AttributesInfo;
@@ -22,10 +21,10 @@ public:
     ~Element();
     void SetAttribute (unsigned int i, const Attribute* attribute);
     void StoreAttributes (
-        vector<NameSemanticValue*>& list, AttributesInfo& info);
-    ostream& PrintAttributes (ostream& ostr, AttributesInfo& infos);
+        std::vector<NameSemanticValue*>& list, AttributesInfo& info);
+    std::ostream& PrintAttributes (std::ostream& ostr, AttributesInfo& infos);
 protected:
-    vector<const Attribute*>* m_attributes;
+    std::vector<const Attribute*>* m_attributes;
 };
 
 
