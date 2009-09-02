@@ -1,3 +1,9 @@
+/**
+ * @file   GLWidget.h
+ * @author Dan R. Lipsa
+ *
+ * Widget for displaying foam bubbles using OpenGL
+ */
 #ifndef __GLWIDGET_H__
 #define __GLWIDGET_H__
 

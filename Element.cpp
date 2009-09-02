@@ -1,5 +1,4 @@
 #include <algorithm>
-
 #include "Element.h"
 #include "ElementUtils.h"
 #include "Attribute.h"

@@ -106,7 +106,8 @@ void Data::SetPoint (unsigned int i, float x, float y, float z,
         m_vertices.resize (i + 1);
     Vertex* vertex = new Vertex (x, y ,z);
     if (&list != 0)
-		vertex->StoreAttributes (list, m_attributesInfo[DefineAttribute::VERTEX]);
+        vertex->StoreAttributes (
+            list, m_attributesInfo[DefineAttribute::VERTEX]);
     m_vertices[i] = vertex;
 }
 
@@ -117,7 +118,7 @@ void Data::SetEdge (unsigned int i, unsigned int begin, unsigned int end,
         m_edges.resize (i + 1); 
     Edge* edge = new Edge (GetPoint(begin), GetPoint(end));
     if (&list != 0)
-		edge->StoreAttributes (list, m_attributesInfo[DefineAttribute::EDGE]);
+        edge->StoreAttributes (list, m_attributesInfo[DefineAttribute::EDGE]);
     m_edges[i] = edge;
 }
 

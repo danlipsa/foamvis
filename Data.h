@@ -98,7 +98,7 @@ public:
     ParsingData& GetParsingData () {return *m_parsingData;}
     void Compact ();
     void AddAttributeInfo (
-		DefineAttribute::Type type, const char* name, AttributeCreator* creator)
+        DefineAttribute::Type type, const char* name, AttributeCreator* creator)
     {
         m_attributesInfo[type].AddAttributeInfo (name, creator);
     }

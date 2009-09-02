@@ -215,8 +215,21 @@ unsigned int intToUnsigned (int i, const char* message);
 %}
 
 %%
-datafile: header vertices edges faces bodies
+datafile: header vertices 
 {
+    data.GetParsingData ().PrintTimeCheckpoint ("After vertices:");
+}
+edges 
+{
+    data.GetParsingData ().PrintTimeCheckpoint ("After edges:");
+}
+faces 
+{
+    data.GetParsingData ().PrintTimeCheckpoint ("After faces:");
+}
+bodies
+{
+    data.GetParsingData ().PrintTimeCheckpoint ("After bodies:");
     data.Compact ();
 };
 
@@ -494,9 +507,9 @@ edge_list: edge_list INTEGER_VALUE INTEGER_VALUE INTEGER_VALUE
 signs_torus_model edge_attribute_list
 {
     data.SetEdge (
-	intToUnsigned($2- 1, "Semantic error: edge index less than 0: "),
-	intToUnsigned($3- 1, "Semantic error: edge begin less than 0: "),
-	intToUnsigned($4- 1, "Semantic error: edge end less than 0: "),
+	intToUnsigned($2 - 1, "Semantic error: edge index less than 0: "),
+	intToUnsigned($3 - 1, "Semantic error: edge begin less than 0: "),
+	intToUnsigned($4 - 1, "Semantic error: edge end less than 0: "),
 	*$6);
     NameSemanticValue::DeleteVector($6);
 }

@@ -1,3 +1,9 @@
+/**
+ * @file   Color.h
+ * @author Dan R. Lipsa
+ * 
+ * Colors of faces.
+ */
 #ifndef __COLOR_H__
 #define __COLOR_H__
 
@@ -29,3 +35,7 @@ public:
 };
 
 #endif //__COLOR_H__
+
+// Local Variables:
+// mode: c++
+// End:

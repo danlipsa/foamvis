@@ -1,10 +1,9 @@
 /**
- * @file   Point.h
+ * @file   Vertex.h
  * @author Dan R. Lipsa
  * 
  * Declaration of the Vertex class
  */
-
 #ifndef __VERTEX_H__
 #define __VERTEX_H__
 #include <iostream>

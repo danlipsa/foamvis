@@ -123,17 +123,17 @@ E     [Ee][+-]?{D}+
     return *yytext;
 }
 
-"("|")"  {/*paranthesis for expressions*/
+"("|")"  {/*paranthesis: expressions*/
     yylloc->begin.line = yylineno;
     return *yytext;
 }
 
-"["|"]"  {/*brakets the size of arrays*/
+"["|"]"  {/*brakets: size of arrays*/
     yylloc->begin.line = yylineno;
     return *yytext;
 }
 
-"{"|"}"  {/*curly brakets elements of arrays*/
+"{"|"}"  {/*curly brakets: elements of arrays*/
     yylloc->begin.line = yylineno;
     return *yytext;
 }

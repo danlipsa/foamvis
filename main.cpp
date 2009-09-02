@@ -4,6 +4,7 @@
  *
  * Constains the main function of the program.
  */
+#include <time.h>
 #include <QApplication>
 #include "Data.h"
 #include "ParsingData.h"
@@ -33,6 +34,7 @@ int main(int argc, char *argv[])
             parsingData.SetDebugParsing (true);
             parsingData.SetDebugScanning (true);
             result = parsingData.Parse (argv[1], data);
+            parsingData.PrintTimeCheckpoint ("Parsing time");
         }
         if (result == 0)
         {
@@ -45,7 +47,7 @@ int main(int argc, char *argv[])
         else
             return result;
     }
-	catch (exception& e)
+    catch (exception& e)
     {
         cdbg << "Exception: " << e.what () << endl;
     }

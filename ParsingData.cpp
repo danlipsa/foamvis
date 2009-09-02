@@ -3,6 +3,7 @@
 #include "ParsingData.h"
 #include "SemanticError.h"
 #include "EvolverData_yacc.h"
+#include "DebugStream.h"
 using namespace std;
 
 /**
@@ -86,6 +87,16 @@ private:
 inline void deleteIdentifier (pair<const char*, string*> pair)
 {delete pair.second;}
 
+
+ostream& operator<< (ostream& ostr, ParsingData& pd)
+{
+    ostr << "Variables: " << endl;
+    for_each (pd.m_variables.begin (), pd.m_variables.end (),
+              printVariable (ostr));
+    return ostr;
+}
+
+
 ParsingData::ParsingData ()
 {
     m_unaryFunctions["-"] = negateFunction;
@@ -96,6 +107,7 @@ ParsingData::ParsingData ()
     m_binaryFunctions["/"] = dividesFunction;
     m_binaryFunctions["^"] = powf;
     m_binaryFunctions["="] = assignmentFunction;
+    m_previousTime = clock ();
 }
 
 ParsingData::~ParsingData ()
@@ -146,11 +158,11 @@ string* ParsingData::CreateIdentifier(const char* id)
         return it->second;
 }
 
-ostream& operator<< (ostream& ostr, ParsingData& pd)
+void ParsingData::PrintTimeCheckpoint (const string& description)
 {
-    ostr << "Variables: " << endl;
-    for_each (pd.m_variables.begin (), pd.m_variables.end (),
-              printVariable (ostr));
-    return ostr;
+    clock_t time = clock ();
+	cdbg << description << ": " 
+		<< static_cast<float>(time - m_previousTime) / CLOCKS_PER_SEC
+		<< " sec" << endl;
+	m_previousTime = time;
 }
-

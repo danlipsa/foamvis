@@ -1,3 +1,10 @@
+/**
+ * @file   AttributeInfo.h
+ * @author Dan R. Lipsa
+ * Information about attributes for vertices, edges, ... such as
+ * their creators and their index in the array of attributes carried by each
+ * element.
+ */
 #ifndef __ATTRIBUTE_INFO_H__
 #define __ATTRIBUTE_INFO_H__
 
@@ -37,3 +44,7 @@ private:
 };
 
 #endif //__ATTRIBUTE_INFO_H__
+
+// Local Variables:
+// mode: c++
+// End:

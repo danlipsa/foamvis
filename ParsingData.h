@@ -6,6 +6,7 @@
  */
 #ifndef __PARSING_DATA_H__
 #define __PARSING_DATA_H__
+#include <time.h>
 #include <functional>
 #include <string>
 #include <map>
@@ -88,6 +89,7 @@ public:
      * @param pd object to be printed
      */    
     friend std::ostream& operator<< (std::ostream& ostr, ParsingData& pd);
+	void PrintTimeCheckpoint (const std::string& description);
 private:
     /**
      * Stores  variables  read   from  the  datafile  (declared  using
@@ -106,6 +108,7 @@ private:
      * Identifiers
      */
     Identifiers m_identifiers;
+    clock_t m_previousTime;
 };
 
 // define types used in flex

@@ -1,3 +1,9 @@
+/**
+ * @file   DebugStream.h
+ * @author Dan R. Lipsa
+ *
+ * Stream for printing debug messages in Visual Studio
+ */
 #ifndef __DEBUG_STREAM_H__
 #define __DEBUG_STREAM_H__
 
@@ -25,10 +31,13 @@ public:
 };
 
 extern DebugStream cdbg;
+
 #else   //_MSC_VER
 extern ostream& cdbg;
 
 #endif  //_MSC_VER
-
-
 #endif  //__DEBUG_STREAM_H__
+
+// Local Variables:
+// mode: c++
+// End:

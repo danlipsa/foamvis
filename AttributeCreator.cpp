@@ -9,7 +9,7 @@ Attribute* IntegerAttributeCreator::operator() (const EvolverData::parser::seman
                                                 NameSemanticValue::Type type)
 {
 
-    if (type != NameSemanticValue::INT_SEMANTIC_TYPE)
+    if (type != NameSemanticValue::INT)
     {
         ostringstream ostr;
         ostr << "Attribute declared with INTEGER type "
@@ -22,7 +22,7 @@ Attribute* IntegerAttributeCreator::operator() (const EvolverData::parser::seman
 Attribute* ColorAttributeCreator::operator() (const EvolverData::parser::semantic_type& value, 
                                               NameSemanticValue::Type type)
 {
-    if (type != NameSemanticValue::COLOR_SEMANTIC_TYPE)
+    if (type != NameSemanticValue::COLOR)
     {
         ostringstream ostr;
         ostr << "Attribute declared with INTEGER type "
@@ -39,9 +39,9 @@ Attribute* RealAttributeCreator::operator() (const EvolverData::parser::semantic
 {
     switch (type)
     {
-    case NameSemanticValue::REAL_SEMANTIC_TYPE:
+    case NameSemanticValue::REAL:
         return new RealAttribute (value.m_real);
-    case NameSemanticValue::INT_SEMANTIC_TYPE:
+    case NameSemanticValue::INT:
         return new RealAttribute (value.m_int);
     default:
     {
@@ -58,7 +58,7 @@ Attribute* IntegerArrayAttributeCreator::operator() (
     const EvolverData::parser::semantic_type& value, 
     NameSemanticValue::Type type)
 {
-    if (type != NameSemanticValue::INT_ARRAY_SEMANTIC_TYPE)
+    if (type != NameSemanticValue::INT_ARRAY)
     {
         ostringstream ostr;
         ostr << "Attribute declared with INTEGER_ARRAY type "
@@ -80,7 +80,7 @@ Attribute* RealArrayAttributeCreator::operator() (
     const EvolverData::parser::semantic_type& value, 
     NameSemanticValue::Type type)
 {
-    if (type != NameSemanticValue::REAL_ARRAY_SEMANTIC_TYPE)
+    if (type != NameSemanticValue::REAL_ARRAY)
     {
         ostringstream ostr;
         ostr << "Attribute declared with REAL_ARRAY type "
