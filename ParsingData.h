@@ -89,11 +89,11 @@ public:
      * @param pd object to be printed
      */    
     friend std::ostream& operator<< (std::ostream& ostr, ParsingData& pd);
-	void PrintTimeCheckpoint (const std::string& description);
+    void PrintTimeCheckpoint (const std::string& description);
 private:
     /**
      * Stores  variables  read   from  the  datafile  (declared  using
-     * PARAMETER keyword)
+     * PARAMETER keyword in the Evolver DMP file)
      */
     Variables m_variables;
     /**
