@@ -96,6 +96,7 @@ public:
      * @return reference to the ParsingData object.
      */
     ParsingData& GetParsingData () {return *m_parsingData;}
+    void ReleaseParsingData ();
     void Compact ();
     void AddAttributeInfo (
         DefineAttribute::Type type, const char* name, AttributeCreator* creator)

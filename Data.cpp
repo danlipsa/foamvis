@@ -151,3 +151,7 @@ void Data::Compact (void)
     compact (m_faces);
     compact (m_bodies);
 }
+void Data::ReleaseParsingData ()
+{
+    delete m_parsingData.release ();
+}

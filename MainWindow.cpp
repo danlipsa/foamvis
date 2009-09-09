@@ -6,9 +6,13 @@
 #include "DebugStream.h"
 using namespace std;
 
-MainWindow::MainWindow(Data* data)
+MainWindow::MainWindow(vector<Data*>& data)
 {
     setupUi (this);
+    m_dataSlider->setMinimum (0);
+    m_dataSlider->setMaximum (data.size () - 1);
+    m_dataSlider->setSingleStep (1);
+    m_dataSlider->setPageStep (10);
     m_glWidget->SetData (data);
 }
 

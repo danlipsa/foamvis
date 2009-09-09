@@ -35,11 +35,13 @@ public:
     /**
      * How are unary functions stored.
      */
-    typedef std::map<const char*, UnaryFunction, LessThanNoCase> UnaryFunctions;
+    typedef std::map<const char*, UnaryFunction, 
+                     LessThanNoCase> UnaryFunctions;
     /**
      * How are binary functions stored
      */
-    typedef std::map<const char*, BinaryFunction,LessThanNoCase> BinaryFunctions;
+    typedef std::map<const char*, BinaryFunction, 
+                     LessThanNoCase> BinaryFunctions;
     /**
      * How are identifiers stored
      */

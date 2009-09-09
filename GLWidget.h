@@ -22,9 +22,9 @@ public:
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
-    void SetData (Data* data) 
+	void SetData (std::vector<Data*>& data) 
     {
-        m_data = data;
+        m_data = &data;
     }
     unsigned int GetDisplayedBody ();
     unsigned int GetDisplayedFace ();
@@ -39,6 +39,7 @@ public Q_SLOTS:
     void ViewEdges (bool checked);
     void ViewFaces (bool checked);
     void ViewBodies (bool checked);
+    void DataChanged (int newIndex);
 
 protected:
     void initializeGL();
@@ -73,7 +74,8 @@ private:
     ViewType m_viewType;
     std::vector<GLuint> m_object;
     QPoint m_lastPos;
-    Data* m_data;
+	std::vector<Data*>* m_data;
+    int m_dataIndex;
     unsigned int m_displayedBody;
     unsigned int m_displayedFace;
 };
