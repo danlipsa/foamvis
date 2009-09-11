@@ -1,24 +1,28 @@
 // Add C includes here
 #ifdef _MSC_VER
-// isatty is here
+// isatty is defined here
 #include <io.h>
-#endif
+#endif //_MSC_VER
 
 #include <limits.h>
 #include <math.h>
 #include <string.h>
 #include <time.h>
 
-#if defined __cplusplus
-// Add C++ includes here
-#include <G3D/G3DAll.h>
+#ifdef __cplusplus
 
-#include <QApplication>
-#include <QGLWidget>
+// Add C++ includes here
+
+#ifdef _MSC_VER
+// Visual C wants G3D header before everything else
+#include <G3D/G3DAll.h>
+#endif //_MSC_VER
+
 #include <Qt>
-#include <QtGui>
 #include <QtOpenGL>
-#include <QWidget>
+#include <QApplication>
+
+#include <G3D/G3DAll.h>
 
 #include <algorithm>
 #include <stdexcept>
@@ -30,4 +34,4 @@
 #include <string>
 #include <vector>
 
-#endif
+#endif //__cplusplus

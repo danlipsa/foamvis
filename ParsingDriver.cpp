@@ -1,3 +1,4 @@
+#include <errno.h>
 #include "SystemDifferences.h"
 #include "ParsingDriver.h"
 #include "DebugStream.h"
@@ -111,7 +112,7 @@ const char* ParsingDriver::m_keywordTable[] = {
 
 int ParsingDriver::GetKeywordId (const char* keyword)
 {
-    for (int i = 0; 
+    for (unsigned int i = 0; 
          i < sizeof (m_keywordTable) / sizeof (m_keywordTable[0]);
          i++)
     {

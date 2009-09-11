@@ -4,8 +4,7 @@ HEADERS += DebugStream.h ParsingDriver.h AttributeInfo.h Attribute.h \
 	Data.h Edge.h Element.h ExpressionTree.h \
 	Face.h GLWidget.h OrientedEdge.h OrientedFace.h \
 	ParsingData.h Vertex.h SemanticError.h MainWindow.h \
-        AttributeCreator.h stable.h SystemDifferences.h \
-	location.hh position.hh stack.hh
+        AttributeCreator.h stable.h SystemDifferences.h
 SOURCES += DebugStream.cpp ParsingDriver.cpp AttributeInfo.cpp Attribute.cpp \
 	NameSemanticValue.cpp Element.cpp \
 	Body.cpp Color.cpp\
@@ -18,7 +17,7 @@ YACCSOURCES += EvolverData.y
 QMAKE_YACC = bison -y --report=state
 TARGET = foam
 QT           += opengl
-CONFIG       += qt debug precompile_header
+CONFIG       += qt debug precompile_header no_keywords
 PRECOMPILED_HEADER = stable.h
 
 win32 {
@@ -29,6 +28,16 @@ LIBS += "C:\G3D-7.00-vc8\lib\jpeg.lib"
 LIBS += "C:\G3D-7.00-vc8\lib\zip.lib" 
 LIBS += "C:\G3D-7.00-vc8\lib\G3Dd.lib" 
 LIBS += "C:\G3D-7.00-vc8\lib\GLG3Dd.lib" 
+}
+unix {
+INCLUDEPATH += /usr/local/G3D-7.00/build/linux-i686-g++-4.1/include
+LIBS += -L/usr/local/G3D-7.00/build/linux-i686-g++-4.1/lib
+LIBS += "zlib.a" 
+LIBS += "png.a" 
+LIBS += "jpeg.a" 
+LIBS += "zip.a" 
+LIBS += "G3Dd.a" 
+LIBS += "GLG3Dd.a" 
 }
 
 # Local Variables:

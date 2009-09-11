@@ -33,7 +33,7 @@ public:
 extern DebugStream cdbg;
 
 #else   //_MSC_VER
-extern ostream& cdbg;
+extern std::ostream& cdbg;
 
 #endif  //_MSC_VER
 #endif  //__DEBUG_STREAM_H__

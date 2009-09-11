@@ -14,6 +14,7 @@
 class AttributeCreator
 {
 public:
+    virtual ~AttributeCreator () {}
     virtual Attribute* operator () (
         const EvolverData::parser::semantic_type& value, 
         NameSemanticValue::Type type) = 0;

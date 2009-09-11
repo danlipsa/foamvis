@@ -5,6 +5,6 @@
 DebugStream cdbg;
 
 #else //_MSC_VER
-ostream& cdbg = cerr;
+std::ostream& cdbg = std::cerr;
 
 #endif //_MSC_VER
