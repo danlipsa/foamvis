@@ -30,8 +30,8 @@ LIBS += "C:\G3D-7.00-vc8\lib\G3Dd.lib"
 LIBS += "C:\G3D-7.00-vc8\lib\GLG3Dd.lib" 
 }
 unix {
-INCLUDEPATH += /usr/local/G3D-7.00/build/linux-i686-g++-4.1/include
-LIBS += -L/usr/local/G3D-7.00/build/linux-i686-g++-4.1/lib
+INCLUDEPATH += /usr/local/G3D-7.00/build/linux-i686-g++-4.4/include
+LIBS += -L/usr/local/G3D-7.00/build/linux-i686-g++-4.4/lib
 LIBS += "zlib.a" 
 LIBS += "png.a" 
 LIBS += "jpeg.a" 
