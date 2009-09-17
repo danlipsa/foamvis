@@ -22,6 +22,7 @@ public:
      * Constructs an ExpressionTree with one node
      */
     ExpressionTree () : m_left (0), m_right (0) {}
+    virtual ~ExpressionTree () {}
     /**
      * Constructs an ExpressionTree
      * @param left the left child of the current node

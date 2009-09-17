@@ -9,7 +9,6 @@
 %require "2.1a"
 %defines
 %token-table 
-%debug
 %error-verbose
 %expect 4
 %locations

@@ -2,7 +2,7 @@
 use File::Copy;
 my $inName = "EvolverData_yacc.cpp";
     my $outName = "temp.cpp";
-print "replacing $inName with $outName";
+print "replacing .tab.h with _yacc.h in $inName\n";
 open (my $in, "<", $inName)
     or die ("Could not open $inName: $!\n");
 open (my $out, ">", $outName)
@@ -10,7 +10,7 @@ open (my $out, ">", $outName)
 
 while (<$in>)
 {
-    s/y\.tab\.h/EvolverData_yacc.h/;
+    s/EvolverData\.tab\.h/EvolverData_yacc.h/;
     print $out $_;
 }
 

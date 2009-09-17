@@ -25,12 +25,12 @@
 #include "EvolverData_yacc.h"
 using namespace std;
 using EvolverData::parser;
-
+#define YY_EXTRA_TYPE ParsingData*
 %}
 
 %option reentrant noyywrap nounput yylineno header-file="EvolverData_lex.h"
 %option bison-bridge bison-locations
-%option extra-type="ParsingData*"
+
 
 ID    [a-zA-Z][a-zA-Z0-9_]*
 D     [0-9]
@@ -152,7 +152,8 @@ E     [Ee][+-]?{D}+
 
 void ParsingDriver::ScanBegin ()
 {
-    EvolverDatalex_init_extra (static_cast<ParsingData*>(this), &m_scanner);
+    EvolverDatalex_init (&m_scanner);
+    EvolverDataset_extra (static_cast<ParsingData*>(this), m_scanner);
     EvolverDataset_debug(m_debugScanning, m_scanner);
     FILE* dataFile = fopen (m_file.c_str (), "r");
     if (! dataFile)

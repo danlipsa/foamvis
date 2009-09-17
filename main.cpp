@@ -16,7 +16,7 @@ using namespace std;
 class parseFile : public unary_function<QString&, void>
 {
 public:
-    parseFile (vector<Data*>& data, QString& path) : 
+    parseFile (vector<Data*>& data, const QString& path) : 
         m_data (data), m_path (path)
     {
     }
@@ -27,8 +27,8 @@ public:
         Data* data = new Data ();
         m_data.push_back (data);
         ParsingData& parsingData = data->GetParsingData ();
-        parsingData.SetDebugParsing (true);
-        parsingData.SetDebugScanning (true);
+        parsingData.SetDebugParsing (false);
+        parsingData.SetDebugScanning (false);
         string fullPath = string(qPrintable (m_path)) + 
             '/' + qPrintable (file);
         cdbg << "Parsing " << qPrintable (file) << endl;
@@ -42,7 +42,7 @@ public:
     }
 private:
     vector<Data*>& m_data;
-    QString& m_path;
+    const QString& m_path;
 };
 
 

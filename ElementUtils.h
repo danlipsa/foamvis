@@ -48,7 +48,7 @@ public:
         if (m_index > 0)
         {
             if (m_useEndOfLine)
-                m_ostr << endl;
+                m_ostr << std::endl;
             else
                 m_ostr << ", ";
         }
@@ -83,9 +83,9 @@ std::ostream& PrintElements (
     std::ostream& ostr, std::vector<E>& v, const char* elementName, 
     bool useEndOfLine)
 {
-    ostr << v.size() << " " << elementName << ":"<< endl;
+    ostr << v.size() << " " << elementName << ":"<< std::endl;
     for_each(v.begin (), v.end (), PrintElement<E>(ostr, useEndOfLine));
-    ostr << endl;
+    ostr << std::endl;
     return ostr;
 }
 
@@ -101,9 +101,9 @@ template <class E>
 std::ostream& ReversePrintElements (std::ostream& ostr, std::vector<E>& v, 
                                   const char* elementName, bool useEndOfLine)
 {
-    ostr << v.size() << " " << elementName << ":"<< endl;
+    ostr << v.size() << " " << elementName << ":"<< std::endl;
     for_each(v.rbegin (), v.rend (), PrintElement<E>(ostr, useEndOfLine));
-    ostr << endl;
+    ostr << std::endl;
     return ostr;
 }
 

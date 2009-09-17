@@ -338,7 +338,7 @@ void GLWidget::setRotation (int axis, float angle)
     makeCurrent ();
     Matrix4 modelView;
     glGetMatrix (GL_MODELVIEW_MATRIX, modelView);
-    Matrix4& columnOrderMatrix = modelView.transpose ();
+    const Matrix4& columnOrderMatrix = modelView.transpose ();
     glLoadIdentity ();
     glRotatef (angle, axes[axis][0], axes[axis][1], axes[axis][2]);
     glMultMatrixf (columnOrderMatrix);

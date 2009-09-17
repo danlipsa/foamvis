@@ -14,7 +14,7 @@ SOURCES += DebugStream.cpp ParsingDriver.cpp AttributeInfo.cpp Attribute.cpp \
 FORMS += Window.ui
 LEXSOURCES += EvolverData.l
 YACCSOURCES += EvolverData.y
-QMAKE_YACC = bison -y --report=state
+QMAKE_YACC = bison -y
 TARGET = foam
 QT           += opengl
 CONFIG       += qt debug precompile_header no_keywords
@@ -30,14 +30,13 @@ LIBS += "C:\G3D-7.00-vc8\lib\G3Dd.lib"
 LIBS += "C:\G3D-7.00-vc8\lib\GLG3Dd.lib" 
 }
 unix {
-INCLUDEPATH += /usr/local/G3D-7.00/build/linux-i686-g++-4.4/include
-LIBS += -L/usr/local/G3D-7.00/build/linux-i686-g++-4.4/lib
-LIBS += "zlib.a" 
-LIBS += "png.a" 
-LIBS += "jpeg.a" 
-LIBS += "zip.a" 
-LIBS += "G3Dd.a" 
-LIBS += "GLG3Dd.a" 
+INCLUDEPATH += /usr/local/G3D-7.00/build/linux-i686-g++-4.1/include
+LIBS += -L/usr/local/G3D-7.00/build/linux-i686-g++-4.1/lib
+LIBS += "-lGLG3D"
+LIBS += "-lG3D"
+LIBS += "-lzip"
+LIBS += "-lSDL"
+LIBS += "-ljpeg"
 }
 
 # Local Variables:
