@@ -16,13 +16,13 @@ class GLWidget : public QGLWidget
 {
     Q_OBJECT
 
-public:
+    public:
     GLWidget(QWidget *parent = 0);
     ~GLWidget();
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
-	void SetData (std::vector<Data*>& data) 
+    void SetData (std::vector<Data*>& data) 
     {
         m_data = &data;
     }
@@ -40,6 +40,10 @@ public Q_SLOTS:
     void ViewFaces (bool checked);
     void ViewBodies (bool checked);
     void DataChanged (int newIndex);
+    void SaveMovie (bool checked);
+    void Play ();
+    void Pause ();
+    void Stop ();
 
 protected:
     void initializeGL();
@@ -49,14 +53,15 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
 
 private:
-        enum ViewType {
+    enum ViewType {
         VERTICES,
         EDGES,
         FACES,
         BODIES,
-        VIEW_TYPE_NUMBER
+        COUNT
     };
 
+    GLuint display (ViewType type);
     GLuint displayVertices ()
     {return displayEV (VERTICES);}
     GLuint displayEdges ()
@@ -71,13 +76,38 @@ private:
     static void initLightBodies ();
     static void initLightFlat ();
 
+    /**
+     * The elements displayed from a DMP file: vertices, edges, faces or bodies.
+     */
     ViewType m_viewType;
-    std::vector<GLuint> m_object;
-    QPoint m_lastPos;
-	std::vector<Data*>* m_data;
+    /**
+     * The current DMP file as a OpenGL display list.
+     */
+    GLuint m_object;
+    /**
+     * Vector of data to be displayd. Each element coresponds to a DMP file
+     */
+    std::vector<Data*>* m_data;
+    /**
+     * Index into m_data that shows the current DMP file displayed
+     */
     int m_dataIndex;
+    /**
+     * Used for rotating the view
+     */
+    QPoint m_lastPos;
+    /**
+     * Used to display one body at a time
+     */
     unsigned int m_displayedBody;
+    /**
+     * Used to display one face at a time from the m_displayedBody.
+     */
     unsigned int m_displayedFace;
+    /**
+     * Save a jpeg of the current image.
+     */
+    bool m_saveMovie;
 };
 
 #endif //__GLWIDGET_H__

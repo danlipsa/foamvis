@@ -12,9 +12,10 @@
 #include "DebugStream.h"
 using namespace std;
 
-inline void deleteObject (GLuint object)
+inline void setObject (GLuint* object, GLuint newObject)
 {
-    glDeleteLists(object, 1);
+    glDeleteLists(*object, 1);
+    *object = newObject;
 }
 
 void detectOpenGLError ()
@@ -195,7 +196,7 @@ private:
 
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent), m_viewType (BODIES),
-      m_object(VIEW_TYPE_NUMBER, 0),
+      m_object(0),
       m_data(0), m_dataIndex (0),
       m_displayedBody(UINT_MAX), m_displayedFace(UINT_MAX)
 {
@@ -204,13 +205,19 @@ GLWidget::GLWidget(QWidget *parent)
 GLWidget::~GLWidget()
 {
     makeCurrent();
-    for_each (m_object.begin (), m_object.end (), deleteObject);
+    glDeleteLists(m_object, 1);
 }
+
+// Slots
+// =====
 
 void GLWidget::ViewVertices (bool checked)
 {
     if (checked)
+    {
         m_viewType = VERTICES;
+        setObject (&m_object, displayVertices ());
+    }
     initLightFlat ();
     updateGL ();
 }
@@ -218,7 +225,10 @@ void GLWidget::ViewVertices (bool checked)
 void GLWidget::ViewEdges (bool checked)
 {
     if (checked)
+    {
         m_viewType = EDGES;
+        setObject (&m_object, displayEdges ());
+    }
     initLightFlat ();
     updateGL ();
 }
@@ -226,7 +236,10 @@ void GLWidget::ViewEdges (bool checked)
 void GLWidget::ViewFaces (bool checked)
 {
     if (checked)
+    {
         m_viewType = FACES;
+        setObject (&m_object, displayFaces ());
+    }
     initLightFlat ();
     updateGL ();
 }
@@ -234,7 +247,10 @@ void GLWidget::ViewFaces (bool checked)
 void GLWidget::ViewBodies (bool checked)
 {
     if (checked)
+    {
         m_viewType = BODIES;
+        setObject (&m_object, displayBodies ());
+    }
     initLightBodies ();
     updateGL ();
 }
@@ -242,12 +258,33 @@ void GLWidget::ViewBodies (bool checked)
 void GLWidget::DataChanged (int newIndex)
 {
     m_dataIndex = newIndex;
-    m_object[VERTICES] = displayVertices();
-    m_object[EDGES] = displayEdges ();
-    m_object[FACES] = displayFaces ();
-    m_object[BODIES] = displayBodies ();
+    setObject (&m_object, display(m_viewType));
     updateGL ();
 }
+
+void GLWidget::SaveMovie (bool checked)
+{
+    m_saveMovie = checked;
+    updateGL ();
+}
+
+void GLWidget::Play ()
+{
+    
+}
+
+void GLWidget::Pause ()
+{
+    
+}
+
+void GLWidget::Stop ()
+{
+    
+}
+
+// End Slots
+// =========
 
 QSize GLWidget::minimumSizeHint() const
 {
@@ -286,10 +323,7 @@ void GLWidget::initLightFlat ()
 
 void GLWidget::initializeGL()
 {
-    m_object[VERTICES] = displayVertices();
-    m_object[EDGES] = displayEdges ();
-    m_object[FACES] = displayFaces ();
-    m_object[BODIES] = displayBodies ();
+    m_object = display (m_viewType);
     const float* background = Color::GetValue (Color::WHITE);
     glClearColor (background[0], background[1],
                   background[2], background[3]);        
@@ -321,7 +355,7 @@ void GLWidget::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     qglColor (QColor(Qt::black));
-    glCallList (m_object[m_viewType]);
+    glCallList (m_object);
     detectOpenGLError ();
 }
 
@@ -412,6 +446,25 @@ void GLWidget::displayFacesOffset (const vector<Body*>& bodies)
     glDisable (GL_POLYGON_OFFSET_FILL);
 }
 
+
+GLuint GLWidget::display (ViewType type)
+{
+    switch (type)
+    {
+    case VERTICES:
+        return displayVertices ();
+    case EDGES:
+        return displayEdges ();
+    case FACES:
+        return displayFaces ();
+    case BODIES:
+        return displayBodies ();
+    default:
+        throw domain_error (
+            "ViewType enum has an invalid value: " + m_viewType);
+    }
+}
+
 GLuint GLWidget::displayFaces ()
 {
     GLuint list = glGenLists(1);
@@ -456,7 +509,7 @@ void GLWidget::IncrementDisplayedFace ()
         m_displayedFace++;
         if (m_displayedFace == body.GetOrientedFaces ().size ())
             m_displayedFace = UINT_MAX;
-        m_object[FACES] = displayFaces ();
+        setObject (&m_object, displayFaces ());
         updateGL ();
     }
 }
@@ -467,7 +520,7 @@ void GLWidget::IncrementDisplayedBody ()
     m_displayedFace = UINT_MAX;
     if (m_displayedBody == (*m_data)[m_dataIndex]->GetBodies ().size ())
         m_displayedBody = UINT_MAX;
-    m_object[FACES] = displayFaces ();
+    setObject (&m_object, displayFaces ());
     updateGL ();
     cdbg << "displayed body: " << m_displayedBody << endl;
 }
@@ -482,7 +535,7 @@ void GLWidget::DecrementDisplayedFace ()
         if (m_displayedFace == UINT_MAX)
             m_displayedFace = body.GetOrientedFaces ().size ();
         m_displayedFace--;
-        m_object[FACES] = displayFaces ();
+        setObject (&m_object, displayFaces ());
         updateGL ();
     }
 }
@@ -494,7 +547,7 @@ void GLWidget::DecrementDisplayedBody ()
         m_displayedBody = (*m_data)[m_dataIndex]->GetBodies ().size ();
     m_displayedBody--;
     m_displayedFace = UINT_MAX;
-    m_object[FACES] = displayFaces ();
+    setObject (&m_object, displayFaces ());
     updateGL ();
     cdbg << "displayed body: " << m_displayedBody << endl;
 }

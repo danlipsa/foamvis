@@ -10,7 +10,10 @@ open (my $out, ">", $outName)
 
 while (<$in>)
 {
+    # Linux
     s/EvolverData\.tab\.h/EvolverData_yacc.h/;
+    # Windows XP
+    s/y\.tab\.h/EvolverData_yacc.h/;
     print $out $_;
 }
 

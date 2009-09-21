@@ -27,7 +27,48 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
+   <item row="1" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QToolButton" name="m_toolButtonBegin">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>|&lt;&lt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="m_toolButtonPlayPause">
+       <property name="text">
+        <string>&gt;</string>
+       </property>
+       <property name="arrowType">
+        <enum>Qt::NoArrow</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="m_toolButtonEnd">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>&gt;&gt;|</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSlider" name="m_dataSlider">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="2" colspan="2">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QGroupBox" name="displayGroupBox">
@@ -73,14 +114,27 @@
        <zorder>verticesRadioButton</zorder>
       </widget>
      </item>
+     <item>
+      <widget class="QCheckBox" name="checkBox">
+       <property name="text">
+        <string>Save movie</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
     </layout>
-   </item>
-   <item row="1" column="0">
-    <widget class="QSlider" name="m_dataSlider">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>
@@ -97,11 +151,44 @@
     <slot>ViewBodies(bool)</slot>
     <slot>nextFace()</slot>
     <slot>DataChanged(int)</slot>
+    <slot>SaveMovie(bool)</slot>
    </slots>
   </customwidget>
  </customwidgets>
  <resources/>
  <connections>
+  <connection>
+   <sender>m_dataSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>DataChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>223</x>
+     <y>357</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>217</x>
+     <y>312</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>SaveMovie(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>529</x>
+     <y>157</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>420</x>
+     <y>319</y>
+    </hint>
+   </hints>
+  </connection>
   <connection>
    <sender>verticesRadioButton</sender>
    <signal>toggled(bool)</signal>
@@ -109,8 +196,8 @@
    <slot>ViewVertices(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>461</x>
-     <y>84</y>
+     <x>519</x>
+     <y>51</y>
     </hint>
     <hint type="destinationlabel">
      <x>368</x>
@@ -125,8 +212,8 @@
    <slot>ViewEdges(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>465</x>
-     <y>148</y>
+     <x>519</x>
+     <y>75</y>
     </hint>
     <hint type="destinationlabel">
      <x>388</x>
@@ -141,8 +228,8 @@
    <slot>ViewFaces(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>464</x>
-     <y>215</y>
+     <x>519</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
      <x>405</x>
@@ -157,28 +244,12 @@
    <slot>ViewBodies(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>464</x>
-     <y>283</y>
+     <x>519</x>
+     <y>123</y>
     </hint>
     <hint type="destinationlabel">
      <x>383</x>
      <y>275</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_dataSlider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>m_glWidget</receiver>
-   <slot>DataChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>223</x>
-     <y>357</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>217</x>
-     <y>312</y>
     </hint>
    </hints>
   </connection>
