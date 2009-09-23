@@ -28,8 +28,19 @@ LIBS += "C:\G3D-7.00-vc8\lib\jpeg.lib"
 LIBS += "C:\G3D-7.00-vc8\lib\zip.lib" 
 LIBS += "C:\G3D-7.00-vc8\lib\G3Dd.lib" 
 LIBS += "C:\G3D-7.00-vc8\lib\GLG3Dd.lib" 
+ }
+else:macx {
+QMAKE_CC=gcc-4.2
+QMAKE_CXX=g++-4.2
+INCLUDEPATH = /usr/local/G3D-7.01/build/osx-i386-g++4.2/include $$INCLUDEPATH
+LIBS += -L/usr/local/G3D-7.01/build/osx-i386-g++4.2/lib
+LIBS += "-lGLG3D" 
+LIBS += "-lG3D" 
+LIBS += "-lzip" 
+LIBS += "-lpng" 
+LIBS += "-ljpeg" 
 }
-unix {
+else:unix {
 INCLUDEPATH += /usr/local/G3D-7.00/build/linux-i686-g++-4.1/include
 LIBS += -L/usr/local/G3D-7.00/build/linux-i686-g++-4.1/lib
 LIBS += "-lGLG3D"
