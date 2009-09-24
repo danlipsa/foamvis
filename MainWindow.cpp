@@ -18,12 +18,14 @@ MainWindow::MainWindow(vector<Data*>& data) :
     m_dataSlider->setPageStep (10);
     m_glWidget->SetData (data);
 
-    QObject::connect(m_toolButtonPlayPause, SIGNAL(clicked()), 
+    QObject::connect(m_toolButtonPlay, SIGNAL(clicked()), 
                      this, SLOT(TooglePlay()));
     QObject::connect(m_toolButtonBegin, SIGNAL(clicked()),
                      this, SLOT(BeginSlider ()));
     QObject::connect(m_toolButtonEnd, SIGNAL(clicked()), 
                      this, SLOT(EndSlider ()));
+    QObject::connect(m_dataSlider, SIGNAL(valueChanged(int)), 
+                     this, SLOT(SliderValueChanged (int)));
     QObject::connect(m_timer, SIGNAL(timeout()),
                      this, SLOT(IncrementSlider ()));
 }
@@ -33,14 +35,13 @@ void MainWindow::TooglePlay ()
     if (m_play)
     {
         m_timer->stop ();
-        m_toolButtonPlayPause->setText (PLAY_TEXT);
-        enableBegin (true);
-        enableEnd (true);
+        m_toolButtonPlay->setText (PLAY_TEXT);
+	updateButtons ();
     }
     else
     {
         m_timer->start ();
-        m_toolButtonPlayPause->setText (PAUSE_TEXT);
+        m_toolButtonPlay->setText (PAUSE_TEXT);
         enableBegin (false);
         enableEnd (false);
     }
@@ -50,15 +51,13 @@ void MainWindow::TooglePlay ()
 void MainWindow::BeginSlider ()
 {
     m_dataSlider->setValue (m_dataSlider->minimum ());
-    enableBegin (true);
-    enableEnd (true);
+    updateButtons ();
 }
 
 void MainWindow::EndSlider ()
 {
     m_dataSlider->setValue (m_dataSlider->maximum ());
-    enableBegin (true);
-    enableEnd (true);
+    updateButtons ();
 }
 
 void MainWindow::IncrementSlider ()
@@ -68,6 +67,19 @@ void MainWindow::IncrementSlider ()
         m_dataSlider->setValue (value + 1);
     else
         TooglePlay ();
+}
+
+void MainWindow::SliderValueChanged (int)
+{
+    updateButtons ();
+}
+
+
+void MainWindow::updateButtons ()
+{
+    enableBegin (true);
+    enableEnd (true);
+    enablePlay (true);
 }
 
 void MainWindow::enableBegin (bool enable)
@@ -86,6 +98,15 @@ void MainWindow::enableEnd (bool enable)
         m_toolButtonEnd->setDisabled (false);
     else
         m_toolButtonEnd->setDisabled (true);
+}
+
+void MainWindow::enablePlay (bool enable)
+{
+    if (enable && 
+        m_dataSlider->value () < m_dataSlider->maximum ())
+        m_toolButtonPlay->setDisabled (false);
+    else
+        m_toolButtonPlay->setDisabled (true);
 }
 
 

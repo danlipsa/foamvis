@@ -38,16 +38,19 @@ LIBS += "-lGLG3D"
 LIBS += "-lG3D" 
 LIBS += "-lzip" 
 LIBS += "-lpng" 
-LIBS += "-ljpeg" 
+LIBS += "-ljpeg"
 }
 else:unix {
-INCLUDEPATH += /usr/local/G3D-7.00/build/linux-i686-g++-4.1/include
-LIBS += -L/usr/local/G3D-7.00/build/linux-i686-g++-4.1/lib
+INCLUDEPATH += /usr/local/G3D-7.01/build/linux-i686-g++4.1/include
+LIBS += -L/usr/local/G3D-7.01/build/linux-i686-g++4.1/lib
 LIBS += "-lGLG3D"
 LIBS += "-lG3D"
 LIBS += "-lzip"
 LIBS += "-lSDL"
 LIBS += "-ljpeg"
+LIBS += "-lavformat"
+LIBS += "-lavcodec"
+LIBS += "-lavutil"
 }
 
 # Local Variables:

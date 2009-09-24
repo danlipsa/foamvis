@@ -28,10 +28,13 @@ public Q_SLOTS:
     void BeginSlider ();
     void EndSlider ();
     void IncrementSlider ();
+    void SliderValueChanged (int value);
 
 private:
     void enableBegin (bool enable);
     void enableEnd (bool enable);
+    void enablePlay (bool enable);
+    void updateButtons ();
 
     QTimer* m_timer;
     bool m_play;
