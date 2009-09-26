@@ -357,6 +357,13 @@ void GLWidget::paintGL()
     qglColor (QColor(Qt::black));
     glCallList (m_object);
     detectOpenGLError ();
+    if (m_saveMovie)
+    {
+        ostringstream file;
+        file << "frame" << m_currentFrame << ends;
+        QImage snapshot = grabFrameBuffer ();
+        snapshot.save (file.str ().c_str ());
+    }
 }
 
 void GLWidget::resizeGL(int width, int height)

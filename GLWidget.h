@@ -33,7 +33,6 @@ class GLWidget : public QGLWidget
     void IncrementDisplayedFace ();
     void DecrementDisplayedFace ();
 
-
 public Q_SLOTS:
     void ViewVertices (bool checked);
     void ViewEdges (bool checked);
@@ -75,7 +74,6 @@ private:
     void emitRotationChanged (int axis, int angle);
     static void initLightBodies ();
     static void initLightFlat ();
-
     /**
      * The elements displayed from a DMP file: vertices, edges, faces or bodies.
      */
@@ -108,6 +106,7 @@ private:
      * Save a jpeg of the current image.
      */
     bool m_saveMovie;
+    int m_currentFrame;
 };
 
 #endif //__GLWIDGET_H__
