@@ -10,7 +10,7 @@ open (my $out, ">", $outName)
 
 while (<$in>)
 {
-    # Linux
+    # Linux and Mac OS X
     s/EvolverData\.tab\.h/EvolverData_yacc.h/;
     # Windows XP
     s/y\.tab\.h/EvolverData_yacc.h/;

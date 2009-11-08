@@ -13,7 +13,7 @@
 
 // Add C++ includes here
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__APPLE__)
 // Visual C wants G3D header before everything else
 #include <G3D/G3DAll.h>
 #endif //_MSC_VER

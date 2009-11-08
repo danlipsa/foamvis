@@ -36,9 +36,11 @@ INCLUDEPATH = /usr/local/G3D-7.01/build/osx-i386-g++4.2/include $$INCLUDEPATH
 LIBS += -L/usr/local/G3D-7.01/build/osx-i386-g++4.2/lib
 LIBS += "-lGLG3D" 
 LIBS += "-lG3D" 
-LIBS += "-lzip" 
-LIBS += "-lpng" 
+LIBS += "-lzip"
 LIBS += "-ljpeg"
+LIBS += "-lavformat"
+LIBS += "-lavcodec"
+LIBS += "-lavutil"
 }
 else:unix {
 INCLUDEPATH += /usr/local/G3D-7.01/build/linux-i686-g++4.1/include

@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
         vector<Data*> data;
         if (argc <= 1)
         {
-            cdbg << "foam <path> <name_filer>\n";
+            cdbg << "foam <path> <name_filter>\n";
             return 13;
         }
         else
