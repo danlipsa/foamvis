@@ -17,7 +17,4 @@ OSX Leopard, G3D-7.01, qt-4.5.2, bison-2.3, flex-2.5.33, gcc-4.2.1
 ==================================================================
 - chmod u+x buildg3d bin/icompile
 - dos2unix buildg3d bin/icompile
-
-
-To execute foam:
-./foam <path> <name_filter>
+- after you run bison run ./afterBison.pl
