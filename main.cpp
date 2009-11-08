@@ -58,7 +58,11 @@ int main(int argc, char *argv[])
         vector<Data*> data;
         if (argc <= 1)
         {
-            cdbg << "foam <path> <name_filter>\n";
+            cdbg << "foam <dir> <filter>\n";
+	    cdbg << "where: <dir> is the folder where the data files reside\n"
+		 << "       <filter> is filter for the name of "
+		"the data files\n"
+		 << "       foam reads in Surface Evolver dmp files.\n";
             return 13;
         }
         else

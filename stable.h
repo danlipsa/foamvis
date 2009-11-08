@@ -14,9 +14,9 @@
 // Add C++ includes here
 
 #if defined(_MSC_VER) || defined(__APPLE__)
-// Visual C wants G3D header before everything else
+// Windows and Mac OS X wants G3D header before everything else
 #include <G3D/G3DAll.h>
-#endif //_MSC_VER
+#endif //_MSC_VER || __APPLE__
 
 #include <Qt>
 #include <QtOpenGL>
