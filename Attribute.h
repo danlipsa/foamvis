@@ -1,7 +1,8 @@
 /**
  * @file Attribute.h
  * @author Dan R. Lipsa
- * Contains  declaration of classes for all types of attributes
+ * Contains declaration  of classes for all types  of attributes which
+ * can be attached to vertices, edges, faces and bodies.
  */
 #ifndef __ATTRIBUTE_H__
 #define __ATTRIBUTE_H__

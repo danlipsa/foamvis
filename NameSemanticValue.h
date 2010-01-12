@@ -1,15 +1,18 @@
 /**
- * @file   NameSemanticType.h
+ * @file   NameSemanticValue.h
  * @author Dan R. Lipsa
  *
- * Pair (name, semantic_type) used for attributes
+ * Tupple (name, type, value) used for attributes
  */
-#ifndef __NAME_SEMANTIC_ELEMENT_H__
-#define __NAME_SEMANTIC_ELEMENT_H__
+#ifndef __NAME_SEMANTIC_VALUE_H__
+#define __NAME_SEMANTIC_VALUE_H__
 #include <vector>
 #include <iostream>
 #include "EvolverData_yacc.h"
 
+/**
+ * Tupple (name, type, value) used for attributes
+ */
 class NameSemanticValue
 {
 public:
@@ -78,7 +81,7 @@ private:
     EvolverData::parser::semantic_type m_semanticValue;
 };
 
-#endif //__NAME_SEMANTIC_ELEMENT_H__
+#endif //__NAME_SEMANTIC_VALUE_H__
 
 // Local Variables:
 // mode: c++

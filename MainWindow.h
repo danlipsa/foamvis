@@ -15,6 +15,9 @@ class QTimer;
 class GLWidget;
 class Data;
 
+/**
+ * Class that contains the OpenGL widget and all other UI.
+ */
 class MainWindow : public QWidget, private Ui::Window
 {
     Q_OBJECT

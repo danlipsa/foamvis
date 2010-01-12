@@ -12,6 +12,9 @@
 
 class Data;
 class Body;
+/*
+ * Widget for displaying foam bubbles using OpenGL
+ */
 class GLWidget : public QGLWidget
 {
     Q_OBJECT

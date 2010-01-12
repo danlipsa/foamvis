@@ -1,3 +1,9 @@
+/**
+ * @file stable.h
+ * @author Dan R. Lipsa
+ * 
+ * Precompiled header
+ */
 // Add C includes here
 #ifdef _MSC_VER
 // isatty is defined here

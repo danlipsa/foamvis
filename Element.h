@@ -2,7 +2,7 @@
  * @file Element.h
  * @author Dan R. Lipsa
  * 
- * Template function definitions that apply to Vertex, Edge, Face and Body.
+ * Base class for Vertex, Edge, Face and Body.
  */
 #ifndef __ELEMENT_H__
 #define __ELEMENT_H__
@@ -12,8 +12,13 @@
 
 class Attribute;
 class AttributesInfo;
-
 class NameSemanticValue;
+
+/**
+ * Base class for  Vertex, Edge, Face and Body.  Encapsulates a vector
+ * of attributes.
+ */
+
 class Element
 {
 public:

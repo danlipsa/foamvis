@@ -131,7 +131,7 @@ private:
      */
     float m_viewMatrix[16];
     std::vector<AttributesInfo> m_attributesInfo;
-    std::auto_ptr<ParsingData> m_parsingData;
+    ParsingData* m_parsingData;
 };
 
 #endif //__DATA_H__

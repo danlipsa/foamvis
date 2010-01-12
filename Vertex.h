@@ -2,7 +2,7 @@
  * @file   Vertex.h
  * @author Dan R. Lipsa
  * 
- * Declaration of the Vertex class
+ * Point in the 3D Euclidian space.
  */
 #ifndef __VERTEX_H__
 #define __VERTEX_H__
@@ -11,7 +11,7 @@
 
 class AttributesInfo;
 /**
- * Represents a point the the 3D Euclidian space
+ * Represents a point in the 3D Euclidian space
  */
 class Vertex : public Element
 {

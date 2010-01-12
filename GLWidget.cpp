@@ -29,7 +29,7 @@ struct OpenGLParam
 {
     GLenum m_what;
     GLint* m_where;
-    char* m_name;
+    const char* m_name;
 };
 
 inline void storeOpenGLParam (OpenGLParam& param)
@@ -198,7 +198,8 @@ GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent), m_viewType (BODIES),
       m_object(0),
       m_data(0), m_dataIndex (0),
-      m_displayedBody(UINT_MAX), m_displayedFace(UINT_MAX)
+      m_displayedBody(UINT_MAX), m_displayedFace(UINT_MAX),
+      m_saveMovie(false), m_currentFrame(0)
 {
 }
 
@@ -360,9 +361,12 @@ void GLWidget::paintGL()
     if (m_saveMovie)
     {
         ostringstream file;
-        file << "frame" << m_currentFrame << ends;
+        file << "movie/frame" << m_currentFrame << ".jpg" << ends;
         QImage snapshot = grabFrameBuffer ();
-        snapshot.save (file.str ().c_str ());
+	string f = file.str ();
+	if (! snapshot.save (f.c_str ()))
+	    cdbg << "Error saving " << f << endl;
+	m_currentFrame++;
     }
 }
 

@@ -97,6 +97,7 @@ Data::~Data ()
     for_each(m_faces.begin (), m_faces.end (), DeleteElementPtr<Face>);
     for_each(m_edges.begin (), m_edges.end (), DeleteElementPtr<Edge>);
     for_each(m_vertices.begin (), m_vertices.end (), DeleteElementPtr<Vertex>);
+    delete m_parsingData;
 }
 
 void Data::SetPoint (unsigned int i, float x, float y, float z,
@@ -151,7 +152,8 @@ void Data::Compact (void)
     compact (m_faces);
     compact (m_bodies);
 }
+
 void Data::ReleaseParsingData ()
 {
-    delete m_parsingData.release ();
+    delete m_parsingData;
 }

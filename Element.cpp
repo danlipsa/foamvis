@@ -1,3 +1,9 @@
+/**
+ * @file Element.cpp
+ * @author Dan R. Lipsa
+ * 
+ * Definitions for methods of the Element class.
+ */
 #include <algorithm>
 #include "Element.h"
 #include "ElementUtils.h"

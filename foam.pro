@@ -43,8 +43,8 @@ LIBS += "-lavcodec"
 LIBS += "-lavutil"
 }
 else:unix {
-INCLUDEPATH += /usr/local/G3D-7.01/build/linux-i686-g++4.1/include
-LIBS += -L/usr/local/G3D-7.01/build/linux-i686-g++4.1/lib
+INCLUDEPATH += /usr/local/G3D-7.01/build/linux-x86_64-g++4.4/include
+LIBS += -L/usr/local/G3D-7.01/build/linux-x86_64-g++4.4/lib
 LIBS += "-lGLG3D"
 LIBS += "-lG3D"
 LIBS += "-lzip"
