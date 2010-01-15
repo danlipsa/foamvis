@@ -6,7 +6,7 @@
  */
 #ifndef __PARSING_DRIVER_H__
 #define __PARSING_DRIVER_H__
-#include <string>
+
 #include "EvolverData_yacc.h"
 
 class Data;

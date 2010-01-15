@@ -4,8 +4,6 @@
  *
  * Parses an Evolver DMP file and displays the data from the file.
  */
-#include <time.h>
-#include <QApplication>
 #include "Data.h"
 #include "ParsingData.h"
 #include "MainWindow.h"
@@ -13,14 +11,28 @@
 #include "DebugStream.h"
 using namespace std;
 
+/**
+ * Functor class used to parse each of the DMP files and store the results
+ * in a vector of Data.
+ */
 class parseFile : public unary_function<QString&, void>
 {
 public:
-    parseFile (vector<Data*>& data, const QString& path) : 
-        m_data (data), m_path (path)
+    /**
+     * Constructor
+     * @param data Where to store the data parsed from the DMP files
+     * @param dir directory where all DMP files are
+     */
+    parseFile (
+	vector<Data*>& data, const QString& dir) : 
+        m_data (data), m_dir (dir)
     {
     }
     
+    /**
+     * Parses one file
+     * @param file name of the DMP file to be parsed.
+     */
     void operator () (QString& file)
     {
         int result;
@@ -29,7 +41,7 @@ public:
         ParsingData& parsingData = data->GetParsingData ();
         parsingData.SetDebugParsing (false);
         parsingData.SetDebugScanning (false);
-        string fullPath = string(qPrintable (m_path)) + 
+        string fullPath = string(qPrintable (m_dir)) + 
             '/' + qPrintable (file);
         cdbg << "Parsing " << qPrintable (file) << endl;
         result = parsingData.Parse (fullPath, *data);
@@ -41,8 +53,14 @@ public:
         }
     }
 private:
+    /**
+     * Stores the data parsed from the DMP files
+     */
     vector<Data*>& m_data;
-    const QString& m_path;
+    /**
+     * Directory that stores the DMP files.
+     */
+    const QString& m_dir;
 };
 
 

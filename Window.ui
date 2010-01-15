@@ -1,107 +1,108 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>Window</class>
- <widget class="QWidget" name="Window" >
-  <property name="geometry" >
+ <widget class="QWidget" name="Window">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>540</width>
-    <height>382</height>
+    <width>618</width>
+    <height>551</height>
    </rect>
   </property>
-  <property name="focusPolicy" >
+  <property name="focusPolicy">
    <enum>Qt::StrongFocus</enum>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Foam</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout" >
-   <item row="0" column="0" >
-    <widget class="GLWidget" native="1" name="m_glWidget" >
-     <property name="sizePolicy" >
-      <sizepolicy vsizetype="MinimumExpanding" hsizetype="MinimumExpanding" >
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="GLWidget" name="m_glWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
     </widget>
    </item>
-   <item row="1" column="0" >
-    <layout class="QHBoxLayout" name="horizontalLayout" >
+   <item row="1" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QToolButton" name="m_toolButtonBegin" >
-       <property name="enabled" >
+      <widget class="QToolButton" name="m_toolButtonBegin">
+       <property name="enabled">
         <bool>false</bool>
        </property>
-       <property name="text" >
+       <property name="text">
         <string>|&lt;&lt;</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="m_toolButtonPlay" >
-       <property name="text" >
-        <string>></string>
+      <widget class="QToolButton" name="m_toolButtonPlay">
+       <property name="text">
+        <string>&gt;</string>
        </property>
-       <property name="arrowType" >
+       <property name="arrowType">
         <enum>Qt::NoArrow</enum>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="m_toolButtonEnd" >
-       <property name="enabled" >
+      <widget class="QToolButton" name="m_toolButtonEnd">
+       <property name="enabled">
         <bool>true</bool>
        </property>
-       <property name="text" >
-        <string>>>|</string>
+       <property name="text">
+        <string>&gt;&gt;|</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QSlider" name="m_dataSlider" >
-       <property name="orientation" >
+      <widget class="QSlider" name="m_dataSlider">
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
       </widget>
      </item>
     </layout>
    </item>
-   <item row="0" column="2" colspan="2" >
-    <layout class="QVBoxLayout" name="verticalLayout" >
+   <item row="0" column="2" colspan="2">
+    <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QGroupBox" name="displayGroupBox" >
-       <property name="title" >
+      <widget class="QGroupBox" name="displayGroupBox">
+       <property name="title">
         <string>Display</string>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_5" >
+       <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
-         <widget class="QRadioButton" name="verticesRadioButton" >
-          <property name="text" >
+         <widget class="QRadioButton" name="verticesRadioButton">
+          <property name="text">
            <string>Vertices</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="edgesRadioButton" >
-          <property name="text" >
+         <widget class="QRadioButton" name="edgesRadioButton">
+          <property name="text">
            <string>Edges</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="facesRadioButton" >
-          <property name="text" >
+         <widget class="QRadioButton" name="facesRadioButton">
+          <property name="text">
            <string>Faces</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="bodiesRadioButton" >
-          <property name="text" >
+         <widget class="QRadioButton" name="bodiesRadioButton">
+          <property name="text">
            <string>Bodies</string>
           </property>
-          <property name="checked" >
+          <property name="checked">
            <bool>true</bool>
           </property>
          </widget>
@@ -114,18 +115,18 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox" >
-       <property name="text" >
+      <widget class="QCheckBox" name="checkBox">
+       <property name="text">
         <string>Save movie</string>
        </property>
       </widget>
      </item>
      <item>
-      <spacer name="verticalSpacer" >
-       <property name="orientation" >
+      <spacer name="verticalSpacer">
+       <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
-       <property name="sizeHint" stdset="0" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>20</width>
          <height>40</height>
@@ -162,11 +163,11 @@
    <receiver>m_glWidget</receiver>
    <slot>DataChanged(int)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>223</x>
      <y>357</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>217</x>
      <y>312</y>
     </hint>
@@ -178,11 +179,11 @@
    <receiver>m_glWidget</receiver>
    <slot>SaveMovie(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>529</x>
      <y>157</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>420</x>
      <y>319</y>
     </hint>
@@ -194,11 +195,11 @@
    <receiver>m_glWidget</receiver>
    <slot>ViewVertices(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>519</x>
      <y>51</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>368</x>
      <y>88</y>
     </hint>
@@ -210,11 +211,11 @@
    <receiver>m_glWidget</receiver>
    <slot>ViewEdges(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>519</x>
      <y>75</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>388</x>
      <y>148</y>
     </hint>
@@ -226,11 +227,11 @@
    <receiver>m_glWidget</receiver>
    <slot>ViewFaces(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>519</x>
      <y>99</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>405</x>
      <y>215</y>
     </hint>
@@ -242,11 +243,11 @@
    <receiver>m_glWidget</receiver>
    <slot>ViewBodies(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>519</x>
      <y>123</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>383</x>
      <y>275</y>
     </hint>

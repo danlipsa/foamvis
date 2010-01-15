@@ -7,7 +7,6 @@
 #ifndef __EXPRESSION_TREE_H__
 #define __EXPRESSION_TREE_H__
 
-#include <string>
 #include "ParsingData.h"
 
 /**

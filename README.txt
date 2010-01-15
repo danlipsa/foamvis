@@ -1,5 +1,7 @@
 qmake
 make
+./run.sh
+./movie.sh
 
 
 To compile G3D-7.01 on:

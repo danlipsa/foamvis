@@ -6,7 +6,6 @@
  */
 #ifndef __EDGE_H__
 #define __EDGE_H__
-#include <iostream>
 #include "Vertex.h"
 
 class AttributesInfo;
@@ -48,22 +47,26 @@ public:
      */
     void SetEnd(Vertex* end) {m_end = end;}
     /**
-     * Prints an edge to the output stream
-     * @param ostr where to write the edge
-     * @param e edge to write
-     */
-    friend std::ostream& operator<< (std::ostream& ostr, Edge& e);
-    /**
      * Prints the two vertices of an edge in reverse order (end , begin)
      * @param ostr the stream where to write the edge
      */
     void ReversePrint (std::ostream& ostr);
+    /**
+     * Calculate the average point of this element
+     */
+    virtual void CalculateAverage ();
     /**
      * Specifies the default attributes for an Edge object.
      * These attributes don't appear as a DEFINE in the .DMP file
      * @param info the object where the default attributes are stored.
      */
     static void StoreDefaultAttributes (AttributesInfo& info);
+    /**
+     * Prints an edge to the output stream
+     * @param ostr where to write the edge
+     * @param e edge to write
+     */
+    friend std::ostream& operator<< (std::ostream& ostr, Edge& e);
 private:
     /**
      * First vertex of the edge
@@ -73,10 +76,6 @@ private:
      * Last vertex of the edge
      */
     Vertex* m_end;
-    /**
-     * Information about attributes of the edge
-     */
-    static AttributesInfo* m_infos;
 };
 /**
  * Pretty print an Edge*

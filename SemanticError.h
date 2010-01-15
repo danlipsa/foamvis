@@ -7,8 +7,6 @@
 #ifndef __SEMANTIC_ERROR_H__
 #define __SEMANTIC_ERROR_H__
 
-#include <string>
-#include <stdexcept>
 
 /**
  * Exception that signals  a semantic error when parsing  the .DMP data

@@ -1,4 +1,3 @@
-#include <QColor>
 #include "Color.h"
 
 float colors[][4] = 

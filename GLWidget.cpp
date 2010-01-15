@@ -1,11 +1,3 @@
-#include <math.h>
-#include <limits.h>
-
-#include <G3D/G3DAll.h>
-#include <algorithm>
-#include <stdexcept>
-#include <QtGui>
-#include <QtOpenGL>
 #include "GLWidget.h"
 #include "Vertex.h"
 #include "Data.h"
@@ -98,9 +90,16 @@ void displayFaceVertices (const OrientedFace* f)
         for_each (v.begin (), v.end (), displayFirstVertex);
 }
 
+/**
+ * Functor class that displays a face
+ */
 class displayFace : public unary_function<const OrientedFace*, void>
 {
 public:
+    /**
+     * Constructor
+     * @param widget 
+     */
     displayFace (GLWidget& widget) : 
         m_widget (widget), m_count(0) {}
 
@@ -269,20 +268,6 @@ void GLWidget::SaveMovie (bool checked)
     updateGL ();
 }
 
-void GLWidget::Play ()
-{
-    
-}
-
-void GLWidget::Pause ()
-{
-    
-}
-
-void GLWidget::Stop ()
-{
-    
-}
 
 // End Slots
 // =========
@@ -361,7 +346,8 @@ void GLWidget::paintGL()
     if (m_saveMovie)
     {
         ostringstream file;
-        file << "movie/frame" << m_currentFrame << ".jpg" << ends;
+        file << "movie/frame" << setfill ('0') << setw (4) <<
+	    m_currentFrame << ".jpg" << ends;
         QImage snapshot = grabFrameBuffer ();
 	string f = file.str ();
 	if (! snapshot.save (f.c_str ()))

@@ -7,8 +7,6 @@
 #ifndef __DATA_H__
 #define __DATA_H__
 
-#include <vector>
-#include <iostream>
 #include "Vertex.h"
 #include "Edge.h"
 #include "Face.h"
@@ -25,27 +23,34 @@ class ParsingData;
 class Data
 {
 public:
+    /**
+     * Constructs a Data object.
+     */
     Data ();
     /**
      * Destroys a Data object
      */
     ~Data ();
     /**
-     * Gets a Point object from the Data object
-     * @param i index where the Point object is stored
-     * @return a pointer to the Point object
+     * Gets a Vertex from the Data object
+     * @param i index where the Vertex object is stored
+     * @return a pointer to the Vertex object
      */
-    Vertex* GetPoint (int i) {return m_vertices[i];}
-    const std::vector<Vertex*>& GetPoints () {return m_vertices;}
+    Vertex* GetVertex (int i) {return m_vertices[i];}
     /**
-     * Stores a Point object a certain index in the Data object
-     * @param i where to store the Point object
-     * @param x coordinate X of the Point object
-     * @param y coordinate Y of the Point object
-     * @param z coordinate Z of the Point object
+     * Stores a Vertex object a certain index in the Data object
+     * @param i where to store the Vertex object
+     * @param x coordinate X of the Vertex object
+     * @param y coordinate Y of the Vertex object
+     * @param z coordinate Z of the Vertex object
      */
-    void SetPoint (unsigned int i, float x, float y, float z,
+    void SetVertex (unsigned int i, float x, float y, float z,
                    std::vector<NameSemanticValue*>& list);
+    /**
+     * Returns all edges from this Data
+     * @return a vector of Edge pointers
+     */
+    const std::vector<Edge*>& GetEdges () {return m_edges;}
     /**
      * Stores an Edge object in the Data object at a certain index
      * @param i index where to store the Edge object
@@ -54,7 +59,11 @@ public:
      */
     void SetEdge (unsigned int i, unsigned int begin, unsigned int end,
                   std::vector<NameSemanticValue*>& list);
-    const std::vector<Edge*>& GetEdges () {return m_edges;}
+    /**
+     * Gets all faces from this Data
+     * @return a vector of Face pointers
+     */
+    const std::vector<Face*>& GetFaces () {return m_faces;}
     /**
      * Stores a Face object in the Data object 
      * 
@@ -67,12 +76,14 @@ public:
      */
     void SetFace (unsigned int i, const std::vector<int>& edges,
                   std::vector<NameSemanticValue*>& list);
-    const std::vector<Face*>& GetFaces () {return m_faces;}
-
+    /**
+     * Gets all bodies from the Data
+     * @return a vector of Body pointers
+     */
+    const std::vector<Body*>& GetBodies () {return m_bodies;}
     /**
      * Stores a Body object in the Data object
      * @param i index where to store the Body object
-
      * @param  faces vector of  faces that  form the  body. A  face is
      *         specified  using  an  index  of the  face  that  should
      *         already be *  stored in the Data object.   If the index
@@ -82,7 +93,6 @@ public:
      */
     void SetBody (unsigned int i, const std::vector<int>& faces,
                   std::vector<NameSemanticValue*>& list);
-    const std::vector<Body*>& GetBodies () {return m_bodies;}
     /**
      * Stores an element of the 4x4 view matrix.
      * @param i index where to store the elment
@@ -96,8 +106,22 @@ public:
      * @return reference to the ParsingData object.
      */
     ParsingData& GetParsingData () {return *m_parsingData;}
+    /**
+     * Deletes the parsing data
+     */
     void ReleaseParsingData ();
+    /**
+     * The vectors of vertices, edges, faces and bodies may have holes.
+     * This function compacts the elements in those vectors so that it
+     * eliminates the holes.
+     */
     void Compact ();
+    /**
+     * Stores information about an attribute.
+     * @param type the type of attribute (@see DefineAttribute)
+     * @param name the name of the attribute
+     * @param creator knows to create the attribute (@see AttributeCreator)
+     */
     void AddAttributeInfo (
         DefineAttribute::Type type, const char* name, AttributeCreator* creator)
     {
@@ -130,7 +154,14 @@ private:
      * View matrix for displaying vertices, edges, faces and bodies.
      */
     float m_viewMatrix[16];
+    /**
+     * Vector of maps between the name of an attribute and information about it.
+     * The indexes in the vector are for vertices, edges, faces, ...
+     */
     std::vector<AttributesInfo> m_attributesInfo;
+    /**
+     * Data used in parsing the DMP file.
+     */
     ParsingData* m_parsingData;
 };
 

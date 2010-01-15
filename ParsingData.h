@@ -6,10 +6,7 @@
  */
 #ifndef __PARSING_DATA_H__
 #define __PARSING_DATA_H__
-#include <time.h>
-#include <functional>
-#include <string>
-#include <map>
+
 #include "ElementUtils.h"
 #include "ParsingDriver.h"
 

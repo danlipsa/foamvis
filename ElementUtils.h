@@ -7,10 +7,6 @@
 #ifndef __ELEMENT_UTILS_H__
 #define __ELEMENT_UTILS_H__
 
-#include <functional>
-#include <algorithm>
-#include <iostream>
-#include <vector>
 #include "SystemDifferences.h"
 
 /**

@@ -1,4 +1,3 @@
-#include <algorithm>
 #include "AttributeInfo.h"
 using namespace std;
 

@@ -4,8 +4,6 @@
  *
  * Implementation of the Body class
  */
-#include<functional>
-#include <algorithm>
 #include "Body.h"
 #include "ElementUtils.h"
 #include "AttributeInfo.h"
@@ -61,8 +59,6 @@ ostream& operator<< (ostream& ostr, Body& b)
     ostr << " Body attributes: ";
     return b.PrintAttributes (ostr, *Body::m_infos);
 }
-
-AttributesInfo* Body::m_infos;
 
 Body::Body(const vector<int>& faceIndexes, vector<Face*>& faces)
 {

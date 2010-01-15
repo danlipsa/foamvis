@@ -1,4 +1,3 @@
-#include <errno.h>
 #include "SystemDifferences.h"
 #include "ParsingDriver.h"
 #include "DebugStream.h"

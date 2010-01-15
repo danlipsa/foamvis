@@ -10,17 +10,14 @@
 #include "EvolverData_yacc.h"
 using namespace std;
 
-ostream& operator<< (ostream& ostr, Vertex& p)
+ostream& operator<< (ostream& ostr, const Vertex& p)
 {
     if (&p == 0)
         ostr << "NULL";
     else
-        ostr << "Point: " << p.m_x << ", " << p.m_y << ", " 
-             << p.m_z << " Vertex attributes: ";
+        ostr << static_cast<const Point&>(p) << " Vertex attributes: ";
     return p.PrintAttributes (ostr, *Vertex::m_infos);
 }
-
-AttributesInfo* Vertex::m_infos;
 
 void Vertex::StoreDefaultAttributes (AttributesInfo& infos)
 {
@@ -29,4 +26,13 @@ void Vertex::StoreDefaultAttributes (AttributesInfo& infos)
     infos.AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL),
         new IntegerAttributeCreator());
+}
+
+void Vertex::CalculateAverage ()
+{
+    if (! m_averageCalculated)
+    {
+	m_averageCalculated = true;
+	m_average = *this;
+    }
 }

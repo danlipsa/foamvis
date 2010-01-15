@@ -216,19 +216,19 @@ unsigned int intToUnsigned (int i, const char* message);
 %%
 datafile: header vertices 
 {
-    data.GetParsingData ().PrintTimeCheckpoint ("After vertices:");
+    //data.GetParsingData ().PrintTimeCheckpoint ("After vertices:");
 }
 edges 
 {
-    data.GetParsingData ().PrintTimeCheckpoint ("After edges:");
+    //data.GetParsingData ().PrintTimeCheckpoint ("After edges:");
 }
 faces 
 {
-    data.GetParsingData ().PrintTimeCheckpoint ("After faces:");
+    //data.GetParsingData ().PrintTimeCheckpoint ("After faces:");
 }
 bodies
 {
-    data.GetParsingData ().PrintTimeCheckpoint ("After bodies:");
+    //data.GetParsingData ().PrintTimeCheckpoint ("After bodies:");
     data.Compact ();
 };
 
@@ -448,7 +448,7 @@ vertex_attribute_list
 {
     vector<NameSemanticValue*>* nameSemanticValueList = 
 	$6;
-    data.SetPoint (
+    data.SetVertex (
 	intToUnsigned($2- 1,
 		      "Semantic error: vertex index less than 0: "),
 	$3, $4, $5, *nameSemanticValueList);

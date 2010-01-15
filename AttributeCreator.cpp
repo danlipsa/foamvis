@@ -1,12 +1,12 @@
-#include <sstream>
 #include "Attribute.h"
 #include "AttributeCreator.h"
 #include "SemanticError.h"
 #include "NameSemanticValue.h"
 using namespace std;
 
-Attribute* IntegerAttributeCreator::operator() (const EvolverData::parser::semantic_type& value, 
-                                                NameSemanticValue::Type type)
+Attribute* IntegerAttributeCreator::operator() (
+    const EvolverData::parser::semantic_type& value, 
+    NameSemanticValue::Type type)
 {
 
     if (type != NameSemanticValue::INT)
@@ -19,8 +19,9 @@ Attribute* IntegerAttributeCreator::operator() (const EvolverData::parser::seman
     return new IntegerAttribute (value.m_int);
 }
 
-Attribute* ColorAttributeCreator::operator() (const EvolverData::parser::semantic_type& value, 
-                                              NameSemanticValue::Type type)
+Attribute* ColorAttributeCreator::operator() (
+    const EvolverData::parser::semantic_type& value, 
+    NameSemanticValue::Type type)
 {
     if (type != NameSemanticValue::COLOR)
     {
@@ -34,8 +35,9 @@ Attribute* ColorAttributeCreator::operator() (const EvolverData::parser::semanti
 
 
 
-Attribute* RealAttributeCreator::operator() (const EvolverData::parser::semantic_type& value, 
-                                             NameSemanticValue::Type type)
+Attribute* RealAttributeCreator::operator() (
+    const EvolverData::parser::semantic_type& value, 
+    NameSemanticValue::Type type)
 {
     switch (type)
     {
@@ -52,7 +54,6 @@ Attribute* RealAttributeCreator::operator() (const EvolverData::parser::semantic
     }
     }
 }
-
 
 Attribute* IntegerArrayAttributeCreator::operator() (
     const EvolverData::parser::semantic_type& value, 

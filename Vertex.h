@@ -2,18 +2,19 @@
  * @file   Vertex.h
  * @author Dan R. Lipsa
  * 
- * Point in the 3D Euclidian space.
+ * Vertex represented in a DMP file. Is part of edges, faces and bodies.
  */
 #ifndef __VERTEX_H__
 #define __VERTEX_H__
-#include <iostream>
+
+#include "Point.h"
 #include "Element.h"
 
 class AttributesInfo;
 /**
- * Represents a point in the 3D Euclidian space
+ * Vertex represented in a DMP file. Is part of edges, faces and bodies.
  */
-class Vertex : public Element
+class Vertex : public Point, public Element
 {
 public:
     /**
@@ -23,37 +24,11 @@ public:
      * @param z the Z coordinate
      */
     Vertex(float x, float y, float z):
-        m_x(x), m_y(y), m_z(z) {}
+        Point(x, y, z) {}
     /**
-     * Gets the X coordinate of the Vertex
-     * @return the X coordinate
+     * Calculate the average point of this element
      */
-    float GetX (void) const {return m_x;}
-    /**
-     * Sets the X coordinate of the Vertex
-     * @param x the value for the X coordinate
-     */
-    void SetX (float x) {m_x = x;}
-    /**
-     * Gets the Y coordinate of the Vertex
-     * @return the Y coordinate
-     */
-    float GetY (void) const {return m_y;}
-    /**
-     * Sets the Y coordinate of the Vertex
-     * @param y the value for the Y coordinate
-     */
-    void SetY (float y) {m_y = y;}
-    /**
-     * Gets the Z coordinate of the Vertex
-     * @return the Z coordinate of the Vertex
-     */
-    float GetZ (void) const {return m_z;}
-    /**
-     * Sets the Z coordinate of the Vertex
-     * @param z the value for the Z coordinate
-     */
-    void SetZ (float z) {m_z = z;}
+    void CalculateAverage ();
     /**
      * Specifies the default attributes for the Vertex object.
      * These attributes don't appear as a DEFINE in the .DMP file
@@ -66,24 +41,7 @@ public:
      * @param p Vertex object to be printed
      * @return output stream used to print the object to
      */
-    friend std::ostream& operator<< (std::ostream& ostr, Vertex& v);
-private:
-    /**
-     * the X coordinate of the Vertex
-     */
-    float m_x;
-    /**
-     * the Y coordinate of the Vertex
-     */
-    float m_y;
-    /**
-     * the Y coordinate of the Vertex
-     */
-    float m_z;
-    /**
-     * Stores information about all vertex attributes
-     */
-    static AttributesInfo* m_infos;
+    friend std::ostream& operator<< (std::ostream& ostr, const Vertex& v);
 };
 /**
  * Pretty prints a Vertex* by calling the operator<< for a Vertex.
@@ -91,7 +49,7 @@ private:
  * @param pv what to print
  * @return where to print
  */
-inline std::ostream& operator<< (std::ostream& ostr, Vertex* pv)
+inline std::ostream& operator<< (std::ostream& ostr, const Vertex* pv)
 {
     return ostr << *pv;
 }

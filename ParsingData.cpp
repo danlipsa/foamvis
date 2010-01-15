@@ -1,4 +1,3 @@
-#include <math.h>
 #include "ElementUtils.h"
 #include "ParsingData.h"
 #include "SemanticError.h"

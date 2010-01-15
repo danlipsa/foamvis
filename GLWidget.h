@@ -7,9 +7,6 @@
 #ifndef __GLWIDGET_H__
 #define __GLWIDGET_H__
 
-#include <vector>
-#include <QGLWidget>
-
 class Data;
 class Body;
 /*
@@ -43,9 +40,6 @@ public Q_SLOTS:
     void ViewBodies (bool checked);
     void DataChanged (int newIndex);
     void SaveMovie (bool checked);
-    void Play ();
-    void Pause ();
-    void Stop ();
 
 protected:
     void initializeGL();

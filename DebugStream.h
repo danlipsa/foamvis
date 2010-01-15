@@ -9,8 +9,6 @@
 #define __DEBUG_STREAM_H__
 
 #ifdef _MSC_VER
-#include <iostream>
-#include <sstream>
 class DebugStream
 {
 public:

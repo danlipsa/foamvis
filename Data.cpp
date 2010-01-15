@@ -4,8 +4,6 @@
  *
  * Implementation of the Data object
  */
-#include <algorithm>
-#include <iostream>
 #include "Data.h"
 #include "ElementUtils.h"
 #include "ParsingData.h"
@@ -100,7 +98,7 @@ Data::~Data ()
     delete m_parsingData;
 }
 
-void Data::SetPoint (unsigned int i, float x, float y, float z,
+void Data::SetVertex (unsigned int i, float x, float y, float z,
                      vector<NameSemanticValue*>& list) 
 {
     if (i >= m_vertices.size ())
@@ -117,7 +115,7 @@ void Data::SetEdge (unsigned int i, unsigned int begin, unsigned int end,
 {
     if (i >= m_edges.size ())
         m_edges.resize (i + 1); 
-    Edge* edge = new Edge (GetPoint(begin), GetPoint(end));
+    Edge* edge = new Edge (GetVertex(begin), GetVertex(end));
     if (&list != 0)
         edge->StoreAttributes (list, m_attributesInfo[DefineAttribute::EDGE]);
     m_edges[i] = edge;

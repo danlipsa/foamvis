@@ -7,7 +7,6 @@
 #ifndef __ORIENTED_EDGE_H__
 #define __ORIENTED_EDGE_H__
 
-#include <iostream>
 #include "Edge.h"
 
 /**
@@ -26,13 +25,27 @@ public:
      */
     OrientedEdge (Edge* edge, bool reversed): 
         m_edge (edge), m_reversed (reversed) {}
+    /**
+     * Get the begin vertex of the OrientedEdge. Note that this might be the 
+     * end vertex for the edge stored inside.
+     * @return the begin vertex
+     */
     const Vertex* GetBegin (void) const
     {return m_reversed ? m_edge->GetEnd () : m_edge->GetBegin ();}
-
+    /**
+     * Get the end vertex of the OrientedEdge. Note that this might be the
+     * begin vertex for the edge stored inside.
+     */
     const Vertex* GetEnd (void) const
     {return m_reversed ? m_edge->GetBegin () : m_edge->GetEnd ();}
-
-
+    /**
+     * Calculate the average of this element
+     */
+    void CalculateAverage () {m_edge->CalculateAverage ();}
+    /**
+     * Gets the average of vertices. The average has to be calculated first.
+     */
+    const Point& GetAverage () {return m_edge->GetAverage ();}
     /**
      * Pretty prints an Edge
      * @param ostr output stream where to print the edge
@@ -52,6 +65,12 @@ private:
     bool m_reversed;
 };
 
+/**
+ * Pretty prints an oriented edge pointer
+ * @param ostr where to print
+ * @param poe pointer to the oriented edge
+ * @return where to print something else
+ */
 inline std::ostream& operator<< (std::ostream& ostr, OrientedEdge* poe)
 {
     return ostr << *poe;

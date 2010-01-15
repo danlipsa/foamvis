@@ -4,7 +4,6 @@
  *
  * Implementation of the Face class
  */
-#include <algorithm>
 #include "Face.h"
 #include "ElementUtils.h"
 #include "AttributeInfo.h"
@@ -55,12 +54,10 @@ ostream& operator<< (ostream& ostr, Face& f)
         ostr << "NULL";
     else
         PrintElements<OrientedEdge*> (ostr, f.m_edges, 
-                                        "edges part of the face", true);
+				      "edges part of the face", true);
     ostr << " Face attributes: ";
     return f.PrintAttributes (ostr, *Face::m_infos);
 }
-
-AttributesInfo* Face::m_infos;
 
 Face::Face(const vector<int>& edgeIndexes, vector<Edge*>& edges)
 {
@@ -104,4 +101,13 @@ Color::Name Face::GetColor () const
 {
     return dynamic_cast<const ColorAttribute*>(
         (*m_attributes)[COLOR_INDEX])->GetColor ();
+}
+
+void Face::CalculateAverage ()
+{
+    if (! m_averageCalculated)
+    {
+	m_averageCalculated = true;
+
+    }
 }

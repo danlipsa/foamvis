@@ -7,8 +7,6 @@
 #ifndef __FACE_H__
 #define __FACE_H__
 
-#include <vector>
-#include <iostream>
 #include "OrientedEdge.h"
 #include "Color.h"
 
@@ -34,29 +32,39 @@ public:
      * Pretty prints this Face by printing the edges in REVERSE order
      */
     void ReversePrint (std::ostream& ostr);
+    /**
+     * Gets the list of oriented edges
+     * @return vector of oriented edges
+     */
     const std::vector<OrientedEdge*>& GetOrientedEdges () const 
     { return m_edges;}
-	Color::Name GetColor () const;
     /**
-     * Pretty prints this Face by printing the edges in DIRECT order
+     * Returns the face color
      */
-    friend std::ostream& operator<< (std::ostream& ostr, Face& f); 
+    Color::Name GetColor () const;
+    /**
+     * Calculate the average point of this element
+     */
+    virtual void CalculateAverage ();
     /**
      * Specifies the default attributes for an Face object.
      * These attributes don't appear as a DEFINE in the .DMP file
      * @param info the object where the default attributes are stored.
      */
     static void StoreDefaultAttributes (AttributesInfo& info);
+    /**
+     * Pretty prints this Face by printing the edges in DIRECT order
+     */
+    friend std::ostream& operator<< (std::ostream& ostr, Face& f); 
 private:
+    /**
+     * Index where the color attribute is stored for a face
+     */
     const static unsigned int COLOR_INDEX = 0;
     /**
      * Edges that are part of this face
      */
     std::vector<OrientedEdge*> m_edges;
-    /**
-     * Information about Face attributes
-     */
-    static AttributesInfo* m_infos;
 };
 /**
  * Pretty prints a Face*

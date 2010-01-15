@@ -14,6 +14,7 @@
 #include <math.h>
 #include <string.h>
 #include <time.h>
+#include <errno.h>
 
 #ifdef __cplusplus
 
@@ -39,5 +40,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <iomanip>
 
 #endif //__cplusplus

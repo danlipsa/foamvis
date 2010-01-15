@@ -1,5 +1,5 @@
 /**
- * @file foam.lex
+ * @file EvolverData.l
  * @author Dan R. Lipsa
  *
  * Description file for  the lexical analyser used to  read a DMP data

@@ -7,8 +7,6 @@
 #ifndef __MAIN_WINDOW_H__
 #define __MAIN_WINDOW_H__
 
-#include <vector>
-#include <QWidget>
 #include "ui_Window.h"
 
 class QTimer;

@@ -6,8 +6,6 @@
  */
 #ifndef __NAME_SEMANTIC_VALUE_H__
 #define __NAME_SEMANTIC_VALUE_H__
-#include <vector>
-#include <iostream>
 #include "EvolverData_yacc.h"
 
 /**

@@ -1,9 +1,5 @@
-#include <stdexcept>
-#include <iostream>
-#include <sstream>
 #include "NameSemanticValue.h"
 #include "ElementUtils.h"
-
 using namespace std;
 
 ostream& operator<< (ostream& ostr, NameSemanticValue::Type& type)

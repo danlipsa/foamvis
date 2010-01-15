@@ -1,6 +1,3 @@
-#include <G3D/G3DAll.h>
-#include <QtGui>
-#include <QTimer>
 #include "GLWidget.h"
 #include "MainWindow.h"
 #include "SystemDifferences.h"

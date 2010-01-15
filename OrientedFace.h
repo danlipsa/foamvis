@@ -7,7 +7,6 @@
 #ifndef __ORIENTED_FACE_H__
 #define __ORIENTED_FACE_H__
 
-#include <iostream>
 #include "Face.h"
 
 /**

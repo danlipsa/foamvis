@@ -8,9 +8,6 @@
 #ifndef __ATTRIBUTE_INFO_H__
 #define __ATTRIBUTE_INFO_H__
 
-#include <limits.h>
-#include <map>
-#include <set>
 #include "AttributeCreator.h"
 #include "ElementUtils.h"
 

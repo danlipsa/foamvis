@@ -7,7 +7,7 @@ HEADERS += DebugStream.h ParsingDriver.h AttributeInfo.h Attribute.h \
         AttributeCreator.h stable.h SystemDifferences.h
 SOURCES += DebugStream.cpp ParsingDriver.cpp AttributeInfo.cpp Attribute.cpp \
 	NameSemanticValue.cpp Element.cpp \
-	Body.cpp Color.cpp\
+	Body.cpp Color.cpp Point.cpp\
 	Data.cpp Edge.cpp ExpressionTree.cpp Face.cpp \
 	GLWidget.cpp main.cpp OrientedEdge.cpp OrientedFace.cpp \
 	ParsingData.cpp Vertex.cpp MainWindow.cpp AttributeCreator.cpp
