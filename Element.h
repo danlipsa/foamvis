@@ -23,7 +23,7 @@ public:
     /**
      * Constructor for the Element
      */
-    Element() : m_attributes(0), m_averageCalculated(false)
+    Element() : m_attributes(0)
     {}
     /**
      * Destructor for the Element
@@ -49,31 +49,11 @@ public:
      */
     std::ostream& PrintAttributes (
 	std::ostream& ostr, AttributesInfo& info) const;
-    /**
-     * Calculate the average point of this element
-     */
-    virtual void CalculateAverage () = 0;
-    /**
-     * Gets the average of this element. It has to be calculated first
-     */
-    const Point& GetAverage ();
 protected:
     /**
      * Vector of attributes
      */
     std::vector<const Attribute*>* m_attributes;
-    /**
-     * Average of vertices
-     */
-    Point m_average;
-    /**
-     * Was the average already calculated for this edge
-     */
-    bool m_averageCalculated;
-    /**
-     * Stores information about all vertex attributes
-     */
-    static AttributesInfo* m_infos;
 };
 
 #endif //__ELEMENT_H__

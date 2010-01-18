@@ -45,12 +45,15 @@ public:
      * @param info the object where the default attributes are stored.
      */
     static void StoreDefaultAttributes (AttributesInfo& info);
-    virtual void CalculateAverage () {};
 private:
     /**
      * Oriented faces that are part of this body.
      */
     std::vector<OrientedFace*> m_faces;
+    /**
+     * Stores information about all vertex attributes
+     */
+    static AttributesInfo* m_infos;
 };
 /**
  * Pretty prints a Body*

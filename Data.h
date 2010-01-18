@@ -128,8 +128,10 @@ public:
         m_attributesInfo[type].AddAttributeInfo (name, creator);
     }
 
+    void CalculatePhysical ();
+
     /**
-     * Pretty print for the Data object
+     * Pretty print the Data object
      */
     friend std::ostream& operator<< (std::ostream& ostr, Data& d);
 private:

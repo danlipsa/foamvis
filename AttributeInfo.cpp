@@ -22,7 +22,7 @@ m_currentIndex(0), m_loadAll (false)
 {}
 
 void AttributesInfo::AddAttributeInfo (
-									   const char* name, AttributeCreator* creator)
+    const char* name, AttributeCreator* creator)
 {
     if (m_loadAll || 
         m_loadAttribute.find (name) != m_loadAttribute.end ())

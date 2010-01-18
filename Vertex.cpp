@@ -15,9 +15,13 @@ ostream& operator<< (ostream& ostr, const Vertex& p)
     if (&p == 0)
         ostr << "NULL";
     else
-        ostr << static_cast<const Point&>(p) << " Vertex attributes: ";
+        ostr << static_cast<const Point&>(p)
+	     << " EDGES " << p.m_edges.size ()
+	     << " Vertex attributes: ";
     return p.PrintAttributes (ostr, *Vertex::m_infos);
 }
+
+AttributesInfo* Vertex::m_infos;
 
 void Vertex::StoreDefaultAttributes (AttributesInfo& infos)
 {
@@ -28,11 +32,3 @@ void Vertex::StoreDefaultAttributes (AttributesInfo& infos)
         new IntegerAttributeCreator());
 }
 
-void Vertex::CalculateAverage ()
-{
-    if (! m_averageCalculated)
-    {
-	m_averageCalculated = true;
-	m_average = *this;
-    }
-}

@@ -104,9 +104,6 @@ private:
     unsigned int m_index;
 };
 
-
-AttributesInfo* Element::m_infos;
-
 Element::~Element()
 {
         if (m_attributes != 0)
@@ -140,9 +137,3 @@ ostream& Element::PrintAttributes (ostream& ostr, AttributesInfo& infos) const
     return ostr;
 }
 
-const Point& Element::GetAverage ()
-{
-    if (! m_averageCalculated)
-	throw logic_error ("Call CalculateAverage before GetAverage.");
-    return m_average;
-}

@@ -9,6 +9,7 @@
 #include "Vertex.h"
 
 class AttributesInfo;
+class Face;
 /**
  * An edge is an object that stores a begin and an end vertex
  */
@@ -21,11 +22,11 @@ public:
      * @param end the last point of the edge
      */
     Edge (Vertex* begin, Vertex* end):
-        m_begin(begin), m_end(end) {}
+        m_begin (begin), m_end (end) {}
     /**
      * @return the first vertex of the edge
      */
-    const Vertex* GetBegin(void) const
+    Vertex* GetBegin(void) const
     {
         return m_begin;
     }
@@ -37,7 +38,7 @@ public:
     /**
      * @return last vertex of the edge
      */
-    const Vertex* GetEnd(void) const
+    Vertex* GetEnd(void) const
     {
         return m_end;
     }
@@ -51,10 +52,9 @@ public:
      * @param ostr the stream where to write the edge
      */
     void ReversePrint (std::ostream& ostr);
-    /**
-     * Calculate the average point of this element
-     */
-    virtual void CalculateAverage ();
+    bool IsPhysical () const {return (m_faces.size () == 3);}
+    void AddFace (const Face* face) {m_faces.push_back (face);}
+
     /**
      * Specifies the default attributes for an Edge object.
      * These attributes don't appear as a DEFINE in the .DMP file
@@ -66,7 +66,7 @@ public:
      * @param ostr where to write the edge
      * @param e edge to write
      */
-    friend std::ostream& operator<< (std::ostream& ostr, Edge& e);
+    friend std::ostream& operator<< (std::ostream& ostr, const Edge& e);
 private:
     /**
      * First vertex of the edge
@@ -76,6 +76,11 @@ private:
      * Last vertex of the edge
      */
     Vertex* m_end;
+    std::vector<const Face*> m_faces;
+    /**
+     * Stores information about all vertex attributes
+     */
+    static AttributesInfo* m_infos;
 };
 /**
  * Pretty print an Edge*

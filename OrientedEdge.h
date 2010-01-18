@@ -38,14 +38,7 @@ public:
      */
     const Vertex* GetEnd (void) const
     {return m_reversed ? m_edge->GetBegin () : m_edge->GetEnd ();}
-    /**
-     * Calculate the average of this element
-     */
-    void CalculateAverage () {m_edge->CalculateAverage ();}
-    /**
-     * Gets the average of vertices. The average has to be calculated first.
-     */
-    const Point& GetAverage () {return m_edge->GetAverage ();}
+    void AddFace (const Face* face) {m_edge->AddFace (face);}
     /**
      * Pretty prints an Edge
      * @param ostr output stream where to print the edge

@@ -60,6 +60,8 @@ ostream& operator<< (ostream& ostr, Body& b)
     return b.PrintAttributes (ostr, *Body::m_infos);
 }
 
+AttributesInfo* Body::m_infos;
+
 Body::Body(const vector<int>& faceIndexes, vector<Face*>& faces)
 {
     m_faces.resize (faceIndexes.size ());

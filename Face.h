@@ -43,10 +43,6 @@ public:
      */
     Color::Name GetColor () const;
     /**
-     * Calculate the average point of this element
-     */
-    virtual void CalculateAverage ();
-    /**
      * Specifies the default attributes for an Face object.
      * These attributes don't appear as a DEFINE in the .DMP file
      * @param info the object where the default attributes are stored.
@@ -65,6 +61,10 @@ private:
      * Edges that are part of this face
      */
     std::vector<OrientedEdge*> m_edges;
+    /**
+     * Stores information about all vertex attributes
+     */
+    static AttributesInfo* m_infos;
 };
 /**
  * Pretty prints a Face*

@@ -59,6 +59,8 @@ ostream& operator<< (ostream& ostr, Face& f)
     return f.PrintAttributes (ostr, *Face::m_infos);
 }
 
+AttributesInfo* Face::m_infos;
+
 Face::Face(const vector<int>& edgeIndexes, vector<Edge*>& edges)
 {
     m_edges.resize (edgeIndexes.size ());
@@ -103,11 +105,3 @@ Color::Name Face::GetColor () const
         (*m_attributes)[COLOR_INDEX])->GetColor ();
 }
 
-void Face::CalculateAverage ()
-{
-    if (! m_averageCalculated)
-    {
-	m_averageCalculated = true;
-
-    }
-}

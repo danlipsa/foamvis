@@ -155,3 +155,39 @@ void Data::ReleaseParsingData ()
 {
     delete m_parsingData;
 }
+
+
+class updateFaces 
+{
+public:
+    updateFaces (Face* face) : m_face (face) 
+    {}
+    void operator () (OrientedEdge* orientedEdge)
+    {
+	orientedEdge->AddFace (m_face);
+    }
+private:
+    Face* m_face;
+};
+
+void updateFacesForEdges (Face* face)
+{
+    const std::vector<OrientedEdge*>& orientedEdges = face->GetOrientedEdges ();
+    for_each (orientedEdges.begin (), orientedEdges.end (), updateFaces (face));
+}
+
+
+void updateEdgesForVertices (Edge* edge)
+{
+    if (edge->IsPhysical ())
+    {
+	edge->GetBegin ()->AddEdge (edge);
+	edge->GetEnd ()->AddEdge (edge);
+    }
+}
+
+void Data::CalculatePhysical ()
+{
+    for_each (m_faces.begin (), m_faces.end (), updateFacesForEdges);
+    for_each (m_edges.begin (), m_edges.end (), updateEdgesForVertices);
+}
