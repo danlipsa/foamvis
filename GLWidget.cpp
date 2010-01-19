@@ -446,6 +446,7 @@ void GLWidget::displayFacesOffset (const vector<Body*>& bodies)
 
 GLuint GLWidget::display (ViewType type)
 {
+    
     switch (type)
     {
     case VERTICES:

@@ -16,7 +16,16 @@
   <property name="windowTitle">
    <string>Foam</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
+  <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0">
+   <property name="leftMargin">
+    <number>4</number>
+   </property>
+   <property name="bottomMargin">
+    <number>4</number>
+   </property>
+   <property name="horizontalSpacing">
+    <number>-1</number>
+   </property>
    <item row="0" column="0">
     <widget class="GLWidget" name="m_glWidget" native="true">
      <property name="sizePolicy">
@@ -26,47 +35,6 @@
       </sizepolicy>
      </property>
     </widget>
-   </item>
-   <item row="1" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QToolButton" name="m_toolButtonBegin">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>|&lt;&lt;</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="m_toolButtonPlay">
-       <property name="text">
-        <string>&gt;</string>
-       </property>
-       <property name="arrowType">
-        <enum>Qt::NoArrow</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="m_toolButtonEnd">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="text">
-        <string>&gt;&gt;|</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QSlider" name="m_dataSlider">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </item>
    <item row="0" column="2" colspan="2">
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -107,34 +75,102 @@
           </property>
          </widget>
         </item>
+        <item>
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>10</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBox">
+          <property name="text">
+           <string>Save movie</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
        </layout>
-       <zorder>edgesRadioButton</zorder>
-       <zorder>facesRadioButton</zorder>
-       <zorder>bodiesRadioButton</zorder>
-       <zorder>verticesRadioButton</zorder>
       </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="checkBox">
-       <property name="text">
-        <string>Save movie</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
      </item>
     </layout>
+   </item>
+   <item row="1" column="0" colspan="4">
+    <widget class="QGroupBox" name="m_movie">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>-1</number>
+      </property>
+      <property name="sizeConstraint">
+       <enum>QLayout::SetDefaultConstraint</enum>
+      </property>
+      <item>
+       <widget class="QToolButton" name="m_toolButtonBegin">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>|&lt;&lt;</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="m_toolButtonPlay">
+        <property name="text">
+         <string>&gt;</string>
+        </property>
+        <property name="arrowType">
+         <enum>Qt::NoArrow</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="m_toolButtonEnd">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>&gt;&gt;|</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSlider" name="m_dataSlider">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="4">
+    <widget class="QLabel" name="m_status">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
@@ -157,22 +193,6 @@
  </customwidgets>
  <resources/>
  <connections>
-  <connection>
-   <sender>m_dataSlider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>m_glWidget</receiver>
-   <slot>DataChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>223</x>
-     <y>357</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>217</x>
-     <y>312</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>checkBox</sender>
    <signal>toggled(bool)</signal>
@@ -253,5 +273,91 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>m_dataSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>Window</receiver>
+   <slot>SliderValueChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>331</x>
+     <y>515</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>302</x>
+     <y>565</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_dataSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>DataChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>374</x>
+     <y>496</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>475</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_toolButtonPlay</sender>
+   <signal>clicked()</signal>
+   <receiver>Window</receiver>
+   <slot>TogglePlay()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>62</x>
+     <y>507</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>66</x>
+     <y>560</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_toolButtonBegin</sender>
+   <signal>clicked()</signal>
+   <receiver>Window</receiver>
+   <slot>BeginSlider()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>41</x>
+     <y>511</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>38</x>
+     <y>566</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_toolButtonEnd</sender>
+   <signal>clicked()</signal>
+   <receiver>Window</receiver>
+   <slot>EndSlider()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>99</x>
+     <y>508</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>53</x>
+     <y>558</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>SliderValueChanged(int)</slot>
+  <slot>TogglePlay()</slot>
+  <slot>BeginSlider()</slot>
+  <slot>EndSlider()</slot>
+ </slots>
 </ui>

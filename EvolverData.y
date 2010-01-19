@@ -230,6 +230,7 @@ bodies
 {
     //data.GetParsingData ().PrintTimeCheckpoint ("After bodies:");
     data.Compact ();
+    data.CalculatePhysical ();
 };
 
 header: header parameter

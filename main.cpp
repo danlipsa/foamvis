@@ -89,8 +89,8 @@ int main(int argc, char *argv[])
             QStringList files = dir.entryList ();
             for_each (files.begin (), files.end (), 
                       parseFile (data, dir.absolutePath ()));
-	    cdbg << *data[0];
-	    return 0;
+	    //cdbg << *data[0];
+	    //return 0;
         }
         if (data.size () != 0)
         {

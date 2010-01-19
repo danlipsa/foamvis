@@ -2,6 +2,7 @@
 #include "MainWindow.h"
 #include "SystemDifferences.h"
 #include "DebugStream.h"
+#include "Data.h"
 using namespace std;
 
 MainWindow::MainWindow(vector<Data*>& data) : 
@@ -13,16 +14,13 @@ MainWindow::MainWindow(vector<Data*>& data) :
     m_dataSlider->setMaximum (data.size () - 1);
     m_dataSlider->setSingleStep (1);
     m_dataSlider->setPageStep (10);
+
+    ostringstream ostr;
+    ostr << "Time steps: " << data.size () 
+	 << ", Bubbles: " << data[0]->GetBodies ().size () << ends;
+    m_status->setText (ostr.str().c_str ());
     m_glWidget->SetData (data);
 
-    QObject::connect(m_toolButtonPlay, SIGNAL(clicked()), 
-                     this, SLOT(TooglePlay()));
-    QObject::connect(m_toolButtonBegin, SIGNAL(clicked()),
-                     this, SLOT(BeginSlider ()));
-    QObject::connect(m_toolButtonEnd, SIGNAL(clicked()), 
-                     this, SLOT(EndSlider ()));
-    QObject::connect(m_dataSlider, SIGNAL(valueChanged(int)), 
-                     this, SLOT(SliderValueChanged (int)));
     QObject::connect(m_timer, SIGNAL(timeout()),
                      this, SLOT(IncrementSlider ()));
 }
