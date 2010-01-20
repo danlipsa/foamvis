@@ -1,11 +1,22 @@
 #include "AttributeInfo.h"
 using namespace std;
 
+/**
+ * Functor that checks if (name, AttributeInfo*) pair contains a given index
+ */
 class indexEqual : unary_function<
     pair<const char*, const AttributeInfo*>, bool >
 {
 public:
+    /**
+     * Constructor
+     * @param index the index value that will be checked.
+     */
     indexEqual (unsigned int index) : m_index (index) {}
+    /**
+     * Functor that checks if a (name, AttributeInfo*) pair contains a
+     * given index
+     */
     bool operator() (pair<const char*, AttributeInfo*> p)
     {
         if (p.second->GetIndex () == m_index)
@@ -14,6 +25,10 @@ public:
             return false;
     }
 private:
+    /**
+     * Index  value   that  is   checked  against  values   in  (name,
+     * AttributeInfo*) pairs
+     */
     unsigned int m_index;
 };
 

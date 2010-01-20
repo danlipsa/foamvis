@@ -4,6 +4,185 @@
 #include "DebugStream.h"
 using namespace std;
 
+void displayFaceVertices (const OrientedFace* f);
+
+/**
+ * Stores information about various OpenGL characteristics of the graphic card
+ */
+struct OpenGLParam
+{
+    /**
+     * What OpenGL characteristic
+     */
+    GLenum m_what;
+    /**
+     * Where to store information about that characteristic
+     */
+    GLint* m_where;
+    /**
+     * Name of the OpenGL characteristic
+     */
+    const char* m_name;
+};
+
+/**
+ * Functor that displays a face
+ */
+class displayFace : public unary_function<const OrientedFace*, void>
+{
+public:
+    /**
+     * Constructor
+     * @param widget Where should be the face displayed
+     */
+    displayFace (GLWidget& widget) : 
+        m_widget (widget), m_count(0) {}
+    /**
+     * Functor that displays a face
+     * @param f the face to be displayed
+     */
+    void operator() (const OrientedFace* f)
+    {
+        if (m_count <= m_widget.GetDisplayedFace ())
+        {
+            displayFaceVertices (f);
+            if (m_count == m_widget.GetDisplayedFace ())
+                cdbg << "face " << m_count << ": " << *f << endl;
+        }
+        m_count++;
+    }
+private:
+    /**
+     * Where should be the face displayed
+     */
+    GLWidget& m_widget;
+    /**
+     * Used to display fewer faces (for DEBUG purposes)
+     */
+    unsigned int m_count;
+};
+
+/**
+ * Functor that displays a face using the color specified in the DMP file
+ */
+class displayFaceWithColor : public unary_function<const OrientedFace*, void>
+{
+public:
+    /**
+     * Constructor
+     * @param widget where is the face displayed
+     */
+    displayFaceWithColor (GLWidget& widget) : 
+        m_widget (widget), m_count(0) {}
+
+    /**
+     * Functor that displays a colored face
+     * @param f face to be displayed
+     */
+    void operator() (const OrientedFace* f)
+    {
+        if (m_count <= m_widget.GetDisplayedFace ())
+        {
+            glColor4fv (Color::GetValue(f->GetFace ()->GetColor ()));
+            displayFaceVertices (f);
+        }
+        m_count++;
+    }
+private:
+    /**
+     * Where to display the widget
+     */
+    GLWidget& m_widget;
+    /**
+     * Used  for displaying only  certain faces.  Use Page  Up/Down to
+     * show only  certain bodies and  Shift-Page Up/Down to  only show
+     * certain faces.
+     */
+    unsigned int m_count;
+};
+
+/**
+ * Displays a face and specifies the normal to the face. Used for lighting.
+ */
+class displayFaceWithNormal : public unary_function<const OrientedFace*, void>
+{
+public:
+    /**
+     * Constructor
+     * @param widget where to display the face
+     */
+    displayFaceWithNormal (GLWidget& widget) : 
+        m_widget (widget) {}
+    /**
+     * Functor used to display a face together to the normal
+     * @param f face to be displayed
+     */
+    void operator() (const OrientedFace* f)
+    {
+        // specify the normal vector
+        const Vertex* begin = f->GetBegin (0);
+        const Vertex* end = f->GetEnd (0);
+        Vector3 first(end->GetX () - begin->GetX (),
+                      end->GetY () - begin->GetY (),
+                      end->GetZ () - begin->GetZ ());
+        begin = f->GetBegin (1);
+        end = f->GetEnd (1);
+        Vector3 second(end->GetX () - begin->GetX (),
+                       end->GetY () - begin->GetY (),
+                       end->GetZ () - begin->GetZ ());
+        Vector3 normal (first.cross(second).unit ());
+        glNormal3f (normal.x, normal.y, normal.z);
+
+        // specify the vertices
+        displayFaceVertices (f);
+    }
+private:
+    /**
+     * Where to display the face
+     */
+    GLWidget& m_widget;
+};
+
+/**
+ * Functor used to display a body
+ */
+template <class displayFace>
+class displayBody : public unary_function<const Body*, void>
+{
+public:
+    /**
+     * Constructor
+     * @param widget where to display the body
+     */
+    displayBody (GLWidget& widget) : m_widget (widget), m_count(0)
+    {}
+    /**
+     * Functor used to display a body
+     * @param b the body to be displayed
+     */
+    void operator () (const Body* b)
+    {
+        unsigned int displayedBody = m_widget.GetDisplayedBody ();
+        if ( displayedBody == UINT_MAX ||
+             m_count == displayedBody)
+        {
+            const vector<OrientedFace*> v = b->GetOrientedFaces ();
+            for_each (v.begin (), v.end (), displayFace(m_widget));
+        }
+        m_count++;
+    }
+private:
+    /**
+     * Where to display the body
+     */
+    GLWidget& m_widget;
+    /**
+     * Used for DEBUG to display only certain bodies
+     */
+    unsigned int m_count;
+};
+
+
 inline void setObject (GLuint* object, GLuint newObject)
 {
     glDeleteLists(*object, 1);
@@ -16,13 +195,6 @@ void detectOpenGLError ()
     if ((errCode = glGetError()) != GL_NO_ERROR)
         cdbg << "OpenGL Error: " << gluErrorString(errCode) << endl;
 }
-
-struct OpenGLParam
-{
-    GLenum m_what;
-    GLint* m_where;
-    const char* m_name;
-};
 
 inline void storeOpenGLParam (OpenGLParam& param)
 {
@@ -90,108 +262,6 @@ void displayFaceVertices (const OrientedFace* f)
         for_each (v.begin (), v.end (), displayFirstVertex);
 }
 
-/**
- * Functor class that displays a face
- */
-class displayFace : public unary_function<const OrientedFace*, void>
-{
-public:
-    /**
-     * Constructor
-     * @param widget 
-     */
-    displayFace (GLWidget& widget) : 
-        m_widget (widget), m_count(0) {}
-
-    void operator() (const OrientedFace* f)
-    {
-        if (m_count <= m_widget.GetDisplayedFace ())
-        {
-            displayFaceVertices (f);
-            if (m_count == m_widget.GetDisplayedFace ())
-                cdbg << "face " << m_count << ": " << *f << endl;
-        }
-        m_count++;
-    }
-private:
-    GLWidget& m_widget;
-    unsigned int m_count;
-};
-
-
-class displayFaceWithColor : public unary_function<const OrientedFace*, void>
-{
-public:
-    displayFaceWithColor (GLWidget& widget) : 
-        m_widget (widget), m_count(0) {}
-
-    void operator() (const OrientedFace* f)
-    {
-        if (m_count <= m_widget.GetDisplayedFace ())
-        {
-            glColor4fv (Color::GetValue(f->GetFace ()->GetColor ()));
-            displayFaceVertices (f);
-        }
-        m_count++;
-    }
-private:
-    GLWidget& m_widget;
-    unsigned int m_count;
-};
-
-
-class displayFaceWithNormal : public unary_function<const OrientedFace*, void>
-{
-public:
-    displayFaceWithNormal (GLWidget& widget) : 
-        m_widget (widget) {}
-
-    void operator() (const OrientedFace* f)
-    {
-        // specify the normal vector
-        const Vertex* begin = f->GetBegin (0);
-        const Vertex* end = f->GetEnd (0);
-        Vector3 first(end->GetX () - begin->GetX (),
-                      end->GetY () - begin->GetY (),
-                      end->GetZ () - begin->GetZ ());
-        begin = f->GetBegin (1);
-        end = f->GetEnd (1);
-        Vector3 second(end->GetX () - begin->GetX (),
-                       end->GetY () - begin->GetY (),
-                       end->GetZ () - begin->GetZ ());
-        Vector3 normal (first.cross(second).unit ());
-        glNormal3f (normal.x, normal.y, normal.z);
-
-        // specify the vertices
-        displayFaceVertices (f);
-    }
-private:
-    GLWidget& m_widget;
-};
-
-
-template <class displayFace>
-class displayBody : public unary_function<const Body*, void>
-{
-public:
-    displayBody (GLWidget& widget) : m_widget (widget), m_count(0)
-    {}
-
-    void operator () (const Body* b)
-    {
-        unsigned int displayedBody = m_widget.GetDisplayedBody ();
-        if ( displayedBody == UINT_MAX ||
-             m_count == displayedBody)
-        {
-            const vector<OrientedFace*> v = b->GetOrientedFaces ();
-            for_each (v.begin (), v.end (), displayFace(m_widget));
-        }
-        m_count++;
-    }
-private:
-    GLWidget& m_widget;
-    unsigned int m_count;
-};
 
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent), m_viewType (BODIES),
@@ -279,7 +349,7 @@ QSize GLWidget::minimumSizeHint() const
 
 QSize GLWidget::sizeHint() const
 {
-    return QSize(400, 400);
+    return QSize(512, 512);
 }
 
 void GLWidget::initLightBodies ()

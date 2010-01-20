@@ -7,6 +7,9 @@
 #ifndef __COLOR_H__
 #define __COLOR_H__
 
+/**
+ * Colors of faces
+ */
 class Color
 {
 public:
@@ -31,6 +34,11 @@ public:
         CLEAR,
         COUNT
     };
+    /**
+     * Gets a vector of RGBA components for the given color
+     * @param name color name
+     * @return vector of RGBA components for the given color
+     */
     static const float* GetValue(Color::Name name);
 };
 

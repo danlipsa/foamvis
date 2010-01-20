@@ -9,28 +9,13 @@
 #include "ParsingData.h"
 using namespace std;
 
-template <class E>
-void compact (vector<E*>& v)
-{
-    unsigned int step = 0;
-    for (unsigned int i = 0; i < v.size (); i++)
-    {
-        if (v[i] == 0)
-            step++;
-        else if (step != 0)
-            v[i - step] = v[i];
-    }
-    unsigned int resize = v.size () - step;
-    v.resize (resize);
-}
-
-
 
 /**
  * Prints a 4x4 matrix element. Used in for_each algorithm.
  */
-struct printMatrixElement : public unary_function<float, void>
+class printMatrixElement : public unary_function<float, void>
 {
+public:
     /**
      * Constructs the object
      * @param ostr stream where to print the matrix element
@@ -62,6 +47,48 @@ private:
      */
     int m_index;
 };
+
+/**
+ * Functor that adds a face as being touched by an edge
+ */
+class updateFaces 
+{
+public:
+    /**
+     * Constructor
+     * @param face this face is touched by edges
+     */
+    updateFaces (Face* face) : m_face (face) 
+    {}
+    /**
+     * Functor that adds specifies that a face is touched by an edge
+     * @param orientedEdge the edge that touches the face
+     */
+    void operator () (OrientedEdge* orientedEdge)
+    {
+	orientedEdge->AddFace (m_face);
+    }
+private:
+    /**
+     * Face that is touched by edges
+     */
+    Face* m_face;
+};
+
+template <class E>
+void compact (vector<E*>& v)
+{
+    unsigned int step = 0;
+    for (unsigned int i = 0; i < v.size (); i++)
+    {
+        if (v[i] == 0)
+            step++;
+        else if (step != 0)
+            v[i - step] = v[i];
+    }
+    unsigned int resize = v.size () - step;
+    v.resize (resize);
+}
 
 ostream& operator<< (ostream& ostr, Data& d)
 {
@@ -155,20 +182,6 @@ void Data::ReleaseParsingData ()
 {
     delete m_parsingData;
 }
-
-
-class updateFaces 
-{
-public:
-    updateFaces (Face* face) : m_face (face) 
-    {}
-    void operator () (OrientedEdge* orientedEdge)
-    {
-	orientedEdge->AddFace (m_face);
-    }
-private:
-    Face* m_face;
-};
 
 void updateFacesForEdges (Face* face)
 {
