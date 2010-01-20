@@ -26,6 +26,8 @@ class GLWidget : public QGLWidget
     {
         m_data = &data;
     }
+    std::vector<Data*>& GetData () {return *m_data;}
+    Data& GetCurrentData () {return *(*m_data)[m_dataIndex];}
     unsigned int GetDisplayedBody ();
     unsigned int GetDisplayedFace ();
     void IncrementDisplayedBody ();

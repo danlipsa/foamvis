@@ -318,7 +318,7 @@ void GLWidget::initializeGL()
     glOrtho(-1.5, 1.5, -1.5, 1.5, -1.5, 1.5);
 
     glMatrixMode (GL_MODELVIEW);
-    glLoadMatrixf ((*m_data)[m_dataIndex]->GetViewMatrix ());
+    glLoadMatrixf (GetCurrentData ().GetViewMatrix ());
 
     switch (m_viewType)
     {
@@ -403,7 +403,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 
 GLuint GLWidget::displayEV (ViewType type)
 {
-    const vector<Body*>& bodies = (*m_data)[m_dataIndex]->GetBodies ();
+    const vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
     if (type == VERTICES)
@@ -466,7 +466,7 @@ GLuint GLWidget::display (ViewType type)
 GLuint GLWidget::displayFaces ()
 {
     GLuint list = glGenLists(1);
-    const vector<Body*>& bodies = (*m_data)[m_dataIndex]->GetBodies ();
+    const vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     glNewList(list, GL_COMPILE);
     displayFacesContour (bodies);
     displayFacesOffset (bodies);
@@ -477,7 +477,7 @@ GLuint GLWidget::displayFaces ()
 GLuint GLWidget::displayBodies ()
 {
     GLuint list = glGenLists(1);
-    const vector<Body*>& bodies = (*m_data)[m_dataIndex]->GetBodies ();
+    const vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     glNewList(list, GL_COMPILE);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glBegin (GL_TRIANGLES);
@@ -502,8 +502,7 @@ void GLWidget::IncrementDisplayedFace ()
 {
     if (m_displayedBody != UINT_MAX)
     {
-        const Body& body = *(*m_data)[
-            m_dataIndex]->GetBodies ()[m_displayedBody];
+        const Body& body = *GetCurrentData ().GetBodies ()[m_displayedBody];
         m_displayedFace++;
         if (m_displayedFace == body.GetOrientedFaces ().size ())
             m_displayedFace = UINT_MAX;
@@ -516,7 +515,7 @@ void GLWidget::IncrementDisplayedBody ()
 {
     m_displayedBody++;
     m_displayedFace = UINT_MAX;
-    if (m_displayedBody == (*m_data)[m_dataIndex]->GetBodies ().size ())
+    if (m_displayedBody == GetCurrentData ().GetBodies ().size ())
         m_displayedBody = UINT_MAX;
     setObject (&m_object, displayFaces ());
     updateGL ();
@@ -528,8 +527,7 @@ void GLWidget::DecrementDisplayedFace ()
 {
     if (m_displayedBody != UINT_MAX)
     {
-        const Body& body = *(*m_data)[
-            m_dataIndex]->GetBodies ()[m_displayedBody];
+        const Body& body = *GetCurrentData ().GetBodies ()[m_displayedBody];
         if (m_displayedFace == UINT_MAX)
             m_displayedFace = body.GetOrientedFaces ().size ();
         m_displayedFace--;
@@ -542,7 +540,7 @@ void GLWidget::DecrementDisplayedFace ()
 void GLWidget::DecrementDisplayedBody ()
 {
     if (m_displayedBody == UINT_MAX)
-        m_displayedBody = (*m_data)[m_dataIndex]->GetBodies ().size ();
+        m_displayedBody = GetCurrentData ().GetBodies ().size ();
     m_displayedBody--;
     m_displayedFace = UINT_MAX;
     setObject (&m_object, displayFaces ());

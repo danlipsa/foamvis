@@ -14,18 +14,15 @@ MainWindow::MainWindow(vector<Data*>& data) :
     m_dataSlider->setMaximum (data.size () - 1);
     m_dataSlider->setSingleStep (1);
     m_dataSlider->setPageStep (10);
-
-    ostringstream ostr;
-    ostr << "Time steps: " << data.size () 
-	 << ", Bubbles: " << data[0]->GetBodies ().size () << ends;
-    m_status->setText (ostr.str().c_str ());
     m_glWidget->SetData (data);
+    updateStatus ();
+
 
     QObject::connect(m_timer, SIGNAL(timeout()),
                      this, SLOT(IncrementSlider ()));
 }
 
-void MainWindow::TooglePlay ()
+void MainWindow::TogglePlay ()
 {
     if (m_play)
     {
@@ -41,18 +38,21 @@ void MainWindow::TooglePlay ()
         enableEnd (false);
     }
     m_play = ! m_play;
+    cdbg << "Toogle play" << endl;
 }
 
 void MainWindow::BeginSlider ()
 {
     m_dataSlider->setValue (m_dataSlider->minimum ());
     updateButtons ();
+    updateStatus ();
 }
 
 void MainWindow::EndSlider ()
 {
     m_dataSlider->setValue (m_dataSlider->maximum ());
     updateButtons ();
+    updateStatus ();
 }
 
 void MainWindow::IncrementSlider ()
@@ -61,12 +61,13 @@ void MainWindow::IncrementSlider ()
     if (value < m_dataSlider->maximum ())
         m_dataSlider->setValue (value + 1);
     else
-        TooglePlay ();
+        TogglePlay ();
 }
 
 void MainWindow::SliderValueChanged (int)
 {
     updateButtons ();
+    updateStatus ();
 }
 
 
@@ -76,6 +77,20 @@ void MainWindow::updateButtons ()
     enableEnd (true);
     enablePlay (true);
 }
+
+void MainWindow::updateStatus ()
+{
+    vector<Data*>& data = m_glWidget->GetData ();
+    Data& currentData = m_glWidget->GetCurrentData ();
+    QString oldString = m_status->text ();
+    ostringstream ostr;
+    ostr << "Time steps: " << data.size () 
+	 << ", Bubbles: " << currentData.GetBodies ().size () << ends;
+    QString newString (ostr.str().c_str ());
+    if (oldString != newString)
+	m_status->setText (newString);
+}
+
 
 void MainWindow::enableBegin (bool enable)
 {

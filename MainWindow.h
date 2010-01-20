@@ -25,7 +25,7 @@ public:
     void keyPressEvent (QKeyEvent* event);
 
 public Q_SLOTS:
-    void TooglePlay ();
+    void TogglePlay ();
     void BeginSlider ();
     void EndSlider ();
     void IncrementSlider ();
@@ -36,6 +36,7 @@ private:
     void enableEnd (bool enable);
     void enablePlay (bool enable);
     void updateButtons ();
+    void updateStatus ();
 
     QTimer* m_timer;
     bool m_play;
