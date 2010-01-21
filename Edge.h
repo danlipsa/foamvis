@@ -84,6 +84,9 @@ private:
      * Last vertex of the edge
      */
     Vertex* m_end;
+    /**
+     * Stores adjacent faces to this edge
+     */
     vector<const Face*> m_faces;
     /**
      * Stores information about all vertex attributes

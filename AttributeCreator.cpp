@@ -1,3 +1,11 @@
+/**
+ * @file   AttributeCreator.cpp
+ * @author Dan R. Lipsa
+ *
+ * Member  definitions for  classes that  know how  to  create various
+ * kinds of attributes which can be attached to vertices, edges, faces
+ * and bodies.
+ */
 #include "Attribute.h"
 #include "AttributeCreator.h"
 #include "SemanticError.h"

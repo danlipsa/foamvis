@@ -1,6 +1,11 @@
+/**
+ * @file Attribute.cpp
+ * @author Dan R. Lipsa
+ *
+ * Contains definition  of class members for all types  of attributes which
+ * can be attached to vertices, edges, faces and bodies.
+ */
 #include "Attribute.h"
-
-
 
 /**
  * Unary function  that prints an  object of type  E*. Used to  print a

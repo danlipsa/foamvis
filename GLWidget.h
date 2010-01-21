@@ -201,7 +201,7 @@ private:
      * Displays   the   content   of   faces.   Used   together   with
      * displayFacesContour  and  with  GL_POLYGON_OFFSET_FILL  to  get
      * continuous contours for polygons.
-     * @bodies bodies displays all the faces in these bodies
+     * @param bodies displays all the faces in these bodies
      */
     void displayFacesOffset (const vector<Body*>& bodies);
     /**

@@ -1,5 +1,12 @@
+/**
+ * @file   AttributeInfo.cpp
+ * @author Dan R. Lipsa
+ *
+ * Class member definitions for classes that contain information about
+ * attributes  for vertices,  edges, ...  such as  their  creators and
+ * their index in the array of attributes carried by each element.
+ */
 #include "AttributeInfo.h"
-
 
 /**
  * Functor that checks if (name, AttributeInfo*) pair contains a given index

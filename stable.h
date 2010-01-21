@@ -8,6 +8,7 @@
 #ifdef _MSC_VER
 // isatty is defined here
 #include <io.h>
+#define YY_NO_UNISTD_H
 #endif //_MSC_VER
 
 #include <limits.h>

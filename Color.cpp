@@ -1,3 +1,9 @@
+/**
+ * @file   Color.h
+ * @author Dan R. Lipsa
+ * 
+ * Definitions for class members for the class describing the color of faces
+ */
 #include "Color.h"
 
 float colors[][4] = 

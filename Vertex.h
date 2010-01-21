@@ -50,6 +50,9 @@ public:
      */
     friend ostream& operator<< (ostream& ostr, const Vertex& v);
 private:
+    /**
+     * Edges adjacent to this vertex
+     */
     vector<Edge*> m_edges;
     /**
      * Stores information about all vertex attributes

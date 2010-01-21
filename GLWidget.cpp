@@ -1,11 +1,35 @@
+/**
+ * @file   GLWidget.cpp
+ * @author Dan R. Lipsa
+ *
+ * Definitions for the widget for displaying foam bubbles using OpenGL
+ */
 #include "GLWidget.h"
 #include "Vertex.h"
 #include "Data.h"
 #include "DebugStream.h"
 
-
-void displayFaceVertices (const OrientedFace* f);
-
+/**
+ * Displays the first vertex in an edge
+ * @param e the edge
+ */
+inline void displayFirstVertex (const OrientedEdge* e)
+{
+    const Vertex* p = e->GetBegin ();
+    glVertex3f(p->GetX (), p->GetY (), p->GetZ ());
+}
+/**
+ * Displays all face vertices on the OpenGL canvas
+ * @param f the face to be displayed
+ */
+void displayFaceVertices (const OrientedFace* f)
+{
+    const vector<OrientedEdge*>& v = f->GetFace()->GetOrientedEdges ();
+    if (f->IsReversed ())
+        for_each (v.rbegin (), v.rend (), displayFirstVertex);
+    else
+        for_each (v.begin (), v.end (), displayFirstVertex);
+}
 /**
  * Stores information about various OpenGL characteristics of the graphic card
  */
@@ -182,13 +206,24 @@ private:
     unsigned int m_count;
 };
 
-
+/**
+ * Dealocates the space occupied by  an old OpenGL object and stores a
+ * newObject
+ *
+ * @param object address where the  old object is stored and where the
+ * new object will be stored
+ * @param newObject the new object that will be stored
+ */
 inline void setObject (GLuint* object, GLuint newObject)
 {
     glDeleteLists(*object, 1);
     *object = newObject;
 }
 
+/**
+ * Check the OpenGL  error code and prints a message  to cdbg if there
+ * is an error
+ */
 void detectOpenGLError ()
 {
     GLenum errCode;
@@ -196,17 +231,26 @@ void detectOpenGLError ()
         cdbg << "OpenGL Error: " << gluErrorString(errCode) << endl;
 }
 
+/**
+ * Stores an OpenGLParam
+ */
 inline void storeOpenGLParam (OpenGLParam& param)
 {
     glGetIntegerv (param.m_what, param.m_where);
 }
 
+/**
+ * Prints an OpenGLParam
+ */
 void printOpenGLParam (OpenGLParam& param)
 {
     cdbg << param.m_name << ": " << *param.m_where << endl;
 }
 
-
+/**
+ * Prints information  about the OpenGL  implementation (hardware) the
+ * program runs on.
+ */
 void printOpenGLInfo ()
 {
     GLboolean stereoSupport;
@@ -246,22 +290,6 @@ void printOpenGLInfo ()
     for_each (info, info + sizeof (info) / sizeof (info[0]),
               printOpenGLParam);
 }
-
-inline void displayFirstVertex (const OrientedEdge* e)
-{
-    const Vertex* p = e->GetBegin ();
-    glVertex3f(p->GetX (), p->GetY (), p->GetZ ());
-}
-
-void displayFaceVertices (const OrientedFace* f)
-{
-    const vector<OrientedEdge*>& v = f->GetFace()->GetOrientedEdges ();
-    if (f->IsReversed ())
-        for_each (v.rbegin (), v.rend (), displayFirstVertex);
-    else
-        for_each (v.begin (), v.end (), displayFirstVertex);
-}
-
 
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent), m_viewType (BODIES),

@@ -26,8 +26,6 @@ class ParsingDriver;
 };
 
 %{
-#include <string>
-#include <vector>
 #include "Color.h"
 #include "DefineAttributeType.h"
 class ExpressionTree;
@@ -186,12 +184,6 @@ class AttributeCreator;
 
 
 %{
-#include <string.h>
-#include <math.h>
-#include <sstream>
-#include <iostream>
-#include <functional>
-#include <algorithm>
 #include "Data.h"
 #include "ParsingData.h"
 #include "SemanticError.h"

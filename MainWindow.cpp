@@ -1,3 +1,9 @@
+/**
+ * @file   MainWindow.h
+ * @author Dan R. Lipsa
+ *
+ * Contains definitions for the UI class
+ */
 #include "GLWidget.h"
 #include "MainWindow.h"
 #include "SystemDifferences.h"

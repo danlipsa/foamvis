@@ -1,3 +1,9 @@
+/**
+ * @file   ParsingDriver.h
+ * @author Dan R. Lipsa
+ *
+ * Definitions for the class that drives parsing and scanning
+ */
 #include "SystemDifferences.h"
 #include "ParsingDriver.h"
 #include "DebugStream.h"

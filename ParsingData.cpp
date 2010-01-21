@@ -1,3 +1,10 @@
+/**
+ * @file   ParsingData.cpp
+ * @author Dan R. Lipsa
+ *
+ * Definition of the ParsingData class
+ */
+
 #include "ElementUtils.h"
 #include "ParsingData.h"
 #include "SemanticError.h"
@@ -45,8 +52,6 @@ static float multipliesFunction (float first, float second)
 /**
  * Throws  a  SemanticError  exception  because  we  should  not  have
  * assignments in constant expressions.
- * @param first first number
- * @param second second number
  * @return it throws an exception before returning.
  */
 static float assignmentFunction (float, float)

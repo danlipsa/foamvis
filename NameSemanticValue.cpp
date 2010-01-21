@@ -1,3 +1,9 @@
+/**
+ * @file   NameSemanticValue.h
+ * @author Dan R. Lipsa
+ *
+ * Definitions for tupple (name, type, value) used for attributes
+ */
 #include "NameSemanticValue.h"
 #include "ElementUtils.h"
 

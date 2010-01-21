@@ -112,6 +112,9 @@ private:
      * Identifiers
      */
     Identifiers m_identifiers;
+    /**
+     * Used for profiling. Stores the previous time checkpoint
+     */
     clock_t m_previousTime;
 };
 

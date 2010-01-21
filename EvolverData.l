@@ -12,18 +12,8 @@
  * for  parsing  errors,  is  to  make  sure  you  have  no  extra
  * characters to stdout, even if there are no parsing errors.
  */
-#ifdef _MSC_VER
-#include <io.h>
-#define YY_NO_UNISTD_H
-#endif //_MSC_VER
-
-#include <stdio.h>
-#include <math.h>
-#include <iostream>
-#include <string>
 #include "ParsingData.h"
 #include "EvolverData_yacc.h"
-using namespace std;
 using EvolverData::parser;
 #define YY_EXTRA_TYPE ParsingData*
 %}

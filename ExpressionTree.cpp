@@ -1,3 +1,10 @@
+/**
+ * @file   ExpressionTree.cpp
+ * @author Dan R. Lipsa
+ *
+ * Member definitions  for nodes used  in an expression tree  built in
+ * the parser
+ */
 #include "ExpressionTree.h"
 
 void ExpressionTree::Delete (ExpressionTree* node)
