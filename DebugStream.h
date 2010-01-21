@@ -12,12 +12,12 @@
 class DebugStream
 {
 public:
-	typedef std::ostream& (*EndlFunction) (std::ostream& o);
+	typedef ostream& (*EndlFunction) (ostream& o);
     template <class A>
         DebugStream& operator<<(A a)
     {
-		std::ostringstream ostr;
-		ostr << a << std::ends;
+		ostringstream ostr;
+		ostr << a << ends;
         OutputDebugStringA (ostr.str ().c_str ());
         return *this;
     }
@@ -29,10 +29,18 @@ public:
     }
 };
 
+/**
+ * Stream where all debugging output should be sent. Works bor both MS
+ * Visual C++ and for g++.
+ */
 extern DebugStream cdbg;
 
 #else   //_MSC_VER
-extern std::ostream& cdbg;
+/**
+ * Stream where all debugging output should be sent. Works bor both MS
+ * Visual C++ and for g++.
+ */
+extern ostream& cdbg;
 
 #endif  //_MSC_VER
 #endif  //__DEBUG_STREAM_H__

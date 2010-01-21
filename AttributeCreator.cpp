@@ -2,7 +2,7 @@
 #include "AttributeCreator.h"
 #include "SemanticError.h"
 #include "NameSemanticValue.h"
-using namespace std;
+
 
 Attribute* IntegerAttributeCreator::operator() (
     const EvolverData::parser::semantic_type& value, 

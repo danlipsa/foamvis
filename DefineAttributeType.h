@@ -8,10 +8,14 @@
 #define __DEFINE_ATTRIBUTE_TYPE_H__
 
 /**
- * Types of attributes defined in a Surface Evolver DMP file
+ * Types of  attributes defined in a  Surface Evolver DMP  file. Use a
+ * struct to enclose the enum.
  */
 struct DefineAttribute
 {
+    /**
+     * Types of attributes defined in a Surface Evolver DMP file
+     */
     enum Type {
         VERTEX,
         EDGE,

@@ -10,7 +10,7 @@
 #include "AttributeInfo.h"
 #include "NameSemanticValue.h"
 #include "SemanticError.h"
-using namespace std;
+
 
 /**
  * Functor that stores an attribute in an element.
@@ -84,6 +84,10 @@ public:
     printAttribute(
         ostream& ostr, AttributesInfo& infos) : 
         m_ostr (ostr), m_infos (infos), m_index(0) {}
+    /**
+     * Functor that prints an attribute
+     * @param attribute to be printed.
+     */
     void operator() (const Attribute* attribute)
     {
         const char* name = m_infos.GetAttributeName (m_index++);

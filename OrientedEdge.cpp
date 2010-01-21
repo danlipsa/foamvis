@@ -6,7 +6,7 @@
  */
 #include "OrientedFace.h"
 
-using namespace std;
+
 
 ostream& operator<< (ostream& ostr, OrientedEdge& oe)
 {

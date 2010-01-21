@@ -20,7 +20,7 @@ public:
     /**
      * How are variables stored
      */
-    typedef std::map<const char*, float, LessThanNoCase> Variables;
+    typedef map<const char*, float, LessThanNoCase> Variables;
     /**
      * A unary function
      */
@@ -32,17 +32,17 @@ public:
     /**
      * How are unary functions stored.
      */
-    typedef std::map<const char*, UnaryFunction, 
+    typedef map<const char*, UnaryFunction, 
                      LessThanNoCase> UnaryFunctions;
     /**
      * How are binary functions stored
      */
-    typedef std::map<const char*, BinaryFunction, 
+    typedef map<const char*, BinaryFunction, 
                      LessThanNoCase> BinaryFunctions;
     /**
      * How are identifiers stored
      */
-    typedef std::map<const char*, std::string*, LessThanNoCase> Identifiers;
+    typedef map<const char*, string*, LessThanNoCase> Identifiers;
     /**
      * Constructs a ParsingData object
      */
@@ -69,7 +69,7 @@ public:
      * @param id string from the lexer
      * @return a string pointer which is stored in ParsingData object
      */
-    std::string* CreateIdentifier(const char* id);
+    string* CreateIdentifier(const char* id);
     /**
      * Returns the unary function with the name supplied by the parameter
      * @param name name of the function to be retrieved
@@ -87,8 +87,13 @@ public:
      * @param ostr output stream where to print the object
      * @param pd object to be printed
      */    
-    friend std::ostream& operator<< (std::ostream& ostr, ParsingData& pd);
-    void PrintTimeCheckpoint (const std::string& description);
+    friend ostream& operator<< (ostream& ostr, ParsingData& pd);
+    /**
+     * Used for  profiling. Prints to  the debug stream  a description
+     * and the time since the last checkpoint.  
+     * @param description what should be printed together with the time
+     */
+    void PrintTimeCheckpoint (const string& description);
 private:
     /**
      * Stores  variables  read   from  the  datafile  (declared  using
@@ -110,14 +115,27 @@ private:
     clock_t m_previousTime;
 };
 
-// define types used in flex
+/**
+ * Stores semantic values
+ */
 typedef EvolverData::parser::semantic_type YYSTYPE;
+/**
+ * Stores location in the parsed file
+ */
 typedef EvolverData::parser::location_type YYLTYPE;
-// Announce to Flex the prototype we want for lexing function, ...
+/**
+ * Prototype for lexing function
+ */
 # define YY_DECL int \
     EvolverDatalex (YYSTYPE* yylval_param, YYLTYPE* yylloc_param, \
            void* yyscanner)
-// ... and declare it for the parser's sake.
+/**
+ * The lexing function
+ * @param yylval_param where to store the value read by the lexer
+ * @param yylloc_param where to store the location in the file
+ * @param yyscanner opaque object for the scanner
+ * @return 0 for success, different then 0 otherwise
+ */
 YY_DECL;
 
 #endif //__PARSING_DATA_H__

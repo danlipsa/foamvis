@@ -1,6 +1,6 @@
 #include "NameSemanticValue.h"
 #include "ElementUtils.h"
-using namespace std;
+
 
 ostream& operator<< (ostream& ostr, NameSemanticValue::Type& type)
 {

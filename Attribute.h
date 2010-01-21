@@ -25,7 +25,7 @@ public:
      * @param ostr where to print
      * @return where to print something else
      */
-    virtual std::ostream& Print(std::ostream& ostr) const = 0;
+    virtual ostream& Print(ostream& ostr) const = 0;
 };
 /**
  * An integer attribute
@@ -41,7 +41,7 @@ public:
     /**
      * Pretty prints an integer attribute 
      */
-    virtual std::ostream& Print (std::ostream& ostr) const
+    virtual ostream& Print (ostream& ostr) const
     {
         return ostr << m_value;
     }
@@ -71,7 +71,7 @@ public:
      * @param ostr stream where to print
      * @return stream where we printed
      */
-    virtual std::ostream& Print (std::ostream& ostr) const
+    virtual ostream& Print (ostream& ostr) const
     {return ostr << m_value;}
     
 private:
@@ -97,7 +97,7 @@ public:
      * @param ostr where to print
      * @return where we printed
      */
-    virtual std::ostream& Print (std::ostream& ostr) const 
+    virtual ostream& Print (ostream& ostr) const 
     {return ostr << m_color;}
     /**
      * Get the color of the attribute
@@ -123,7 +123,7 @@ public:
      * @param values pointer to vector of integers.
      * WARNING: it takes ownership of the values vector.
      */
-    IntegerArrayAttribute (std::vector<int>* values)
+    IntegerArrayAttribute (vector<int>* values)
     {
         m_values = values;
     }
@@ -132,14 +132,16 @@ public:
      */
     virtual ~IntegerArrayAttribute () {delete m_values;}
     /**
-     * Pretty print an array of integers attribute
+     * Pretty print an array of integers attributes
+     * @param ostr where to print
+     * @return where to print the next item
      */
-    virtual std::ostream& Print (std::ostream& ostr) const;
+    virtual ostream& Print (ostream& ostr) const;
 private:
     /**
      * Stores a pointer to an array of integers
      */
-    std::vector<int>* m_values;
+    vector<int>* m_values;
 };
 /**
  * An attribute that stores an array of reals
@@ -152,7 +154,7 @@ public:
      * @param values pointer to an array of reals.
      * WARNING: Takes ownership of values vector
      */
-    RealArrayAttribute (std::vector<float>* values)
+    RealArrayAttribute (vector<float>* values)
     {
         m_values = values;
     }
@@ -165,17 +167,17 @@ public:
      * @param ostr where to print
      * @return where we printed
      */
-    virtual std::ostream& Print (std::ostream& ostr) const;
+    virtual ostream& Print (ostream& ostr) const;
 private:
     /**
      * Pointer to a vector of reals
      */
-    std::vector<float>* m_values;
+    vector<float>* m_values;
 };
 /**
  * Knows how to print an Attribute
  */
-std::ostream& operator<< (std::ostream& ostr, const Attribute& attribute);
+ostream& operator<< (ostream& ostr, const Attribute& attribute);
 
 #endif //__ATTRIBUTE_H__
 

@@ -48,7 +48,7 @@ public:
      * @param data object where data is to be stored
      * @return 0 for success, <> than 0 otherwise
      */
-    int Parse (const std::string& f, Data& data);
+    int Parse (const string& f, Data& data);
     /**
      * Turns on or off debugging for parsing
      * @param debugParsing true if you want debugging, false otherwise
@@ -61,7 +61,7 @@ public:
      * Sets the file to be parsed
      * @param file the file to be parsed
      */
-    void SetFile (const std::string& file)
+    void SetFile (const string& file)
     {
         m_file = file;
     }
@@ -69,7 +69,7 @@ public:
      * Gets the file to be parsed
      * @return file to be parsed
      */
-    std::string& GetFile ()
+    string& GetFile ()
     {
         return m_file;
     }
@@ -78,12 +78,12 @@ public:
      * @param l line and column where error occurend in the parsed file
      * @param m message describing the error
      */
-    void PrintError (const EvolverData::location& l, const std::string& m);
+    void PrintError (const EvolverData::location& l, const string& m);
     /**
      * Called by the parser in case of errors
      * @param m message describing the error
      */
-    void PrintError (const std::string& m);
+    void PrintError (const string& m);
     /**
      * Converts a  string in a given  base to an integer.  Prints an error
      * and exits if the conversion fails.
@@ -128,7 +128,7 @@ private:
     /**
      * Parsed file
      */
-    std::string m_file;
+    string m_file;
 };
 
 #endif // __PARSING_DRIVER_H__

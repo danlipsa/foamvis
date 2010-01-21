@@ -8,7 +8,7 @@
 #include "AttributeInfo.h"
 #include "ParsingDriver.h"
 #include "EvolverData_yacc.h"
-using namespace std;
+
 
 ostream& operator<< (ostream& ostr, const Edge& e)
 {

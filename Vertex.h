@@ -26,7 +26,15 @@ public:
      */
     Vertex(float x, float y, float z):
         Point(x, y, z) {}
+    /**
+     * Is this a physical (not tesselation) vertex
+     * @return true if it is physical, false otherwise
+     */
     bool IsPhysical () const {return (m_edges.size () == 4);}
+    /**
+     * Adds an edge that is touched by this vertex
+     * @param edge edge touched by this vertex
+     */
     void AddEdge (Edge* edge) {m_edges.push_back (edge);}
     /**
      * Specifies the default attributes for the Vertex object.
@@ -36,13 +44,13 @@ public:
     static void StoreDefaultAttributes (AttributesInfo& info);
     /**
      * Pretty print for a Vertex object
-     * @param ostr output stream to print the Vertex to
-     * @param p Vertex object to be printed
+     * @param ostr where to print
+     * @param v what to print
      * @return output stream used to print the object to
      */
-    friend std::ostream& operator<< (std::ostream& ostr, const Vertex& v);
+    friend ostream& operator<< (ostream& ostr, const Vertex& v);
 private:
-    std::vector<Edge*> m_edges;
+    vector<Edge*> m_edges;
     /**
      * Stores information about all vertex attributes
      */
@@ -54,7 +62,7 @@ private:
  * @param pv what to print
  * @return where to print
  */
-inline std::ostream& operator<< (std::ostream& ostr, const Vertex* pv)
+inline ostream& operator<< (ostream& ostr, const Vertex* pv)
 {
     return ostr << *pv;
 }

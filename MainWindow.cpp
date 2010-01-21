@@ -3,7 +3,7 @@
 #include "SystemDifferences.h"
 #include "DebugStream.h"
 #include "Data.h"
-using namespace std;
+
 
 MainWindow::MainWindow(vector<Data*>& data) : 
     m_play (false), PLAY_TEXT (">"), PAUSE_TEXT("||")

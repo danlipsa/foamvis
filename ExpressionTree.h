@@ -84,7 +84,7 @@ public:
      * @param name the name of the variable
      * @param parsingData data which allows us to get the value of a variable.
      */
-    ExpressionTreeVariable (std::string* name, ParsingData& parsingData)
+    ExpressionTreeVariable (string* name, ParsingData& parsingData)
         : m_name (name->c_str()), m_parsingData (parsingData) {}
     /**
      * Value of the variable
@@ -116,7 +116,7 @@ public:
      * with the function name
      */
     ExpressionTreeUnaryFunction (
-        std::string* name, ExpressionTree* param, ParsingData& parsingData)
+        string* name, ExpressionTree* param, ParsingData& parsingData)
         : ExpressionTree (param, 0), m_name (name->c_str()), 
           m_parsingData (parsingData) {}
     /**
@@ -150,7 +150,7 @@ public:
      * with the function name
      */
     ExpressionTreeBinaryFunction (
-        std::string* name, 
+        string* name, 
         ExpressionTree* left, ExpressionTree* right, ParsingData& parsingData)
         : ExpressionTree (left, right), m_name (name->c_str()),
           m_parsingData (parsingData) {}

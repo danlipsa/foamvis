@@ -25,14 +25,33 @@ public:
      */
     OrientedFace(Face* face, bool reversed)
     {m_face = face; m_reversed = reversed;}
+    /**
+     * Gets the face associated with this oriented face
+     * @return the face associated with this oriented face
+     */
     const Face* GetFace () const {return m_face;}
+    /**
+     * Is this in the same order or reversed compared with the face associated
+     * with it.
+     * @return true for reversed, false otherwise
+     */
     bool IsReversed () const {return m_reversed;}
+    /**
+     * Gets the begin vertex for an edge in this oriented face
+     * @param edgeIndex what edge we are interested in
+     * @return the begin vertex
+     */
     const Vertex* GetBegin (unsigned int edgeIndex) const;
+    /**
+     * Gets the end vertex for an edge in this oriented face
+     * @param edgeIndex what edge we are interested in
+     * @return the end vertex
+     */
     const Vertex* GetEnd (unsigned int edgeIndex) const;
     /**
      * Pretty print for the OrientedFace object
      */
-    friend std::ostream& operator<< (std::ostream& ostr, const OrientedFace& of);
+    friend ostream& operator<< (ostream& ostr, const OrientedFace& of);
 
 
 private:
@@ -46,8 +65,13 @@ private:
      */
     bool m_reversed;
 };
-
-inline std::ostream& operator<< (std::ostream& ostr, const OrientedFace* pof)
+/**
+ * Pretty prints a pointer to an oriented face
+ * @param ostr where to print
+ * @param pof pointer to an oriented face
+ * @return where to print next
+ */
+inline ostream& operator<< (ostream& ostr, const OrientedFace* pof)
 {
     return ostr << *pof;
 }

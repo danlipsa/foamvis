@@ -23,7 +23,7 @@ public:
      * @param edgeIndexes indexes into a vector of Edge objects
      * @param edges vector of Edge objects
      */
-    Face(const std::vector<int>& edgeIndexes, std::vector<Edge*>& edges);
+    Face(const vector<int>& edgeIndexes, vector<Edge*>& edges);
     /**
      * Destroys a Face object
      */
@@ -31,12 +31,12 @@ public:
     /**
      * Pretty prints this Face by printing the edges in REVERSE order
      */
-    void ReversePrint (std::ostream& ostr);
+    void ReversePrint (ostream& ostr);
     /**
      * Gets the list of oriented edges
      * @return vector of oriented edges
      */
-    const std::vector<OrientedEdge*>& GetOrientedEdges () const 
+    const vector<OrientedEdge*>& GetOrientedEdges () const 
     { return m_edges;}
     /**
      * Returns the face color
@@ -51,7 +51,7 @@ public:
     /**
      * Pretty prints this Face by printing the edges in DIRECT order
      */
-    friend std::ostream& operator<< (std::ostream& ostr, Face& f); 
+    friend ostream& operator<< (ostream& ostr, Face& f); 
 private:
     /**
      * Index where the color attribute is stored for a face
@@ -60,7 +60,7 @@ private:
     /**
      * Edges that are part of this face
      */
-    std::vector<OrientedEdge*> m_edges;
+    vector<OrientedEdge*> m_edges;
     /**
      * Stores information about all vertex attributes
      */
@@ -72,7 +72,7 @@ private:
  * @param f what to print
  * @return stream where to print other data
  */
-inline std::ostream& operator<< (std::ostream& ostr, Face* f)
+inline ostream& operator<< (ostream& ostr, Face* f)
 {
     return ostr << *f;
 }

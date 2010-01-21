@@ -1,5 +1,5 @@
 #include "Attribute.h"
-using namespace std;
+
 
 
 /**
@@ -12,9 +12,7 @@ struct printElement : public unary_function<E, void>
 public:
     /**
      * Constructs the object
-     * @param ostr output stream where the object should be printed to
-     * @param useEndOfLine use end of line or comma to separate object
-     * of type E.
+     * @param ostr where to print
      */
     printElement (ostream& ostr) : m_ostr(ostr), m_index(0) {}
     /**

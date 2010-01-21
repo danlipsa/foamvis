@@ -43,27 +43,29 @@ public:
      * @param x coordinate X of the Vertex object
      * @param y coordinate Y of the Vertex object
      * @param z coordinate Z of the Vertex object
+     * @param list the list of attributes for the vertex
      */
     void SetVertex (unsigned int i, float x, float y, float z,
-                   std::vector<NameSemanticValue*>& list);
+                   vector<NameSemanticValue*>& list);
     /**
      * Returns all edges from this Data
      * @return a vector of Edge pointers
      */
-    const std::vector<Edge*>& GetEdges () {return m_edges;}
+    const vector<Edge*>& GetEdges () {return m_edges;}
     /**
      * Stores an Edge object in the Data object at a certain index
      * @param i index where to store the Edge object
      * @param begin index of the first Point that determines the edge
      * @param end index of the last Point that determines the edge
+     * @param list the list of attributes for this edge
      */
     void SetEdge (unsigned int i, unsigned int begin, unsigned int end,
-                  std::vector<NameSemanticValue*>& list);
+                  vector<NameSemanticValue*>& list);
     /**
      * Gets all faces from this Data
      * @return a vector of Face pointers
      */
-    const std::vector<Face*>& GetFaces () {return m_faces;}
+    const vector<Face*>& GetFaces () {return m_faces;}
     /**
      * Stores a Face object in the Data object 
      * 
@@ -73,14 +75,15 @@ public:
      *        be stored in the Data  object. If the index is negative,
      *        the edge part of the  Face is in reversed order than the
      *        Edge that is stored in the Data object.
+     * @param list the list of attributes for the face
      */
-    void SetFace (unsigned int i, const std::vector<int>& edges,
-                  std::vector<NameSemanticValue*>& list);
+    void SetFace (unsigned int i, const vector<int>& edges,
+                  vector<NameSemanticValue*>& list);
     /**
      * Gets all bodies from the Data
      * @return a vector of Body pointers
      */
-    const std::vector<Body*>& GetBodies () {return m_bodies;}
+    const vector<Body*>& GetBodies () {return m_bodies;}
     /**
      * Stores a Body object in the Data object
      * @param i index where to store the Body object
@@ -90,9 +93,10 @@ public:
      *         is negative, the face * that  is part of the Body is in
      *         reverse order  than the  Face that *  is stored  in the
      *         Data object.
+     * @param list the list of attributes
      */
-    void SetBody (unsigned int i, const std::vector<int>& faces,
-                  std::vector<NameSemanticValue*>& list);
+    void SetBody (unsigned int i, const vector<int>& faces,
+                  vector<NameSemanticValue*>& list);
     /**
      * Stores an element of the 4x4 view matrix.
      * @param i index where to store the elment
@@ -100,6 +104,10 @@ public:
      */
     void SetViewMatrixElement (unsigned int i, float f)
     {m_viewMatrix[i] = f;}
+    /**
+     * Gets the view matrix
+     * @return the 4x4 view matrix
+     */
     const float* GetViewMatrix () {return m_viewMatrix;}
     /**
      * Make the parsing data accessible
@@ -127,31 +135,33 @@ public:
     {
         m_attributesInfo[type].AddAttributeInfo (name, creator);
     }
-
+    /**
+     * Calculate the physical (not tesselated) edges and vertices
+     */
     void CalculatePhysical ();
 
     /**
      * Pretty print the Data object
      */
-    friend std::ostream& operator<< (std::ostream& ostr, Data& d);
+    friend ostream& operator<< (ostream& ostr, Data& d);
 private:
 
     /**
      * A vector of points
      */
-    std::vector<Vertex*> m_vertices;
+    vector<Vertex*> m_vertices;
     /**
      * A vector of edges
      */
-    std::vector<Edge*> m_edges;
+    vector<Edge*> m_edges;
     /**
      * A vector of faces
      */
-    std::vector<Face*> m_faces;
+    vector<Face*> m_faces;
     /**
      * A vector of bodies.
      */
-    std::vector<Body*> m_bodies;
+    vector<Body*> m_bodies;
     /**
      * View matrix for displaying vertices, edges, faces and bodies.
      */
@@ -160,7 +170,7 @@ private:
      * Vector of maps between the name of an attribute and information about it.
      * The indexes in the vector are for vertices, edges, faces, ...
      */
-    std::vector<AttributesInfo> m_attributesInfo;
+    vector<AttributesInfo> m_attributesInfo;
     /**
      * Data used in parsing the DMP file.
      */

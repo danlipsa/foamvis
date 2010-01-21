@@ -41,19 +41,19 @@ public:
      * @param info information about each attribute and how it is created
      */
     void StoreAttributes (
-        std::vector<NameSemanticValue*>& list, AttributesInfo& info);
+        vector<NameSemanticValue*>& list, AttributesInfo& info);
     /**
      * Pretty print attributes of an element
      * @param ostr where to print
      * @param info information about attributes
      */
-    std::ostream& PrintAttributes (
-	std::ostream& ostr, AttributesInfo& info) const;
+    ostream& PrintAttributes (
+	ostream& ostr, AttributesInfo& info) const;
 protected:
     /**
      * Vector of attributes
      */
-    std::vector<const Attribute*>* m_attributes;
+    vector<const Attribute*>* m_attributes;
 };
 
 #endif //__ELEMENT_H__

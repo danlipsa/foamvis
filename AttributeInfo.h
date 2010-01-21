@@ -94,11 +94,11 @@ private:
     /**
      * All the attributes values that should be loaded from the data file
      */
-    std::set<const char*, LessThanNoCase> m_loadAttribute;
+    set<const char*, LessThanNoCase> m_loadAttribute;
     /**
      * Map between an attribute name and an attribute info
      */
-    std::map<const char*, AttributeInfo*, LessThanNoCase> m_nameInfo;
+    map<const char*, AttributeInfo*, LessThanNoCase> m_nameInfo;
     /**
      * Index where a  newly added attribute will be  store in an array
      * of attributes attached to an element.

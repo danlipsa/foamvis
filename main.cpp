@@ -9,7 +9,7 @@
 #include "MainWindow.h"
 #include "SemanticError.h"
 #include "DebugStream.h"
-using namespace std;
+
 
 /**
  * Functor class used to parse each of the DMP files and store the results

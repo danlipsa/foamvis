@@ -13,6 +13,9 @@
 class Color
 {
 public:
+    /**
+     * Names of colors
+     */
     enum Name
     {
         BLACK,    /* dark colors */

@@ -2,7 +2,7 @@
 #include "Vertex.h"
 #include "Data.h"
 #include "DebugStream.h"
-using namespace std;
+
 
 void displayFaceVertices (const OrientedFace* f);
 

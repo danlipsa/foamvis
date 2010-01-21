@@ -1,5 +1,5 @@
 #include "AttributeInfo.h"
-using namespace std;
+
 
 /**
  * Functor that checks if (name, AttributeInfo*) pair contains a given index

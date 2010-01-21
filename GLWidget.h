@@ -40,7 +40,7 @@ class GLWidget : public QGLWidget
      * Sets the data displayed by the GLWidget
      * @param data data displayed by the GLWidget
      */
-    void SetData (std::vector<Data*>& data) 
+    void SetData (vector<Data*>& data) 
     {
         m_data = &data;
     }
@@ -48,7 +48,7 @@ class GLWidget : public QGLWidget
      * Gets the data displayed by the GLWidget
      * @return a vector of Data objects, one of each data file
      */
-    std::vector<Data*>& GetData () {return *m_data;}
+    vector<Data*>& GetData () {return *m_data;}
     /**
      * Gets the currently displayed data
      * @return currently displayed data
@@ -196,14 +196,14 @@ private:
      * continuous contours  for polygons.
      * @param bodies displays all the faces in these bodies
      */
-    void displayFacesContour (const std::vector<Body*>& bodies);
+    void displayFacesContour (const vector<Body*>& bodies);
     /**
      * Displays   the   content   of   faces.   Used   together   with
      * displayFacesContour  and  with  GL_POLYGON_OFFSET_FILL  to  get
      * continuous contours for polygons.
      * @bodies bodies displays all the faces in these bodies
      */
-    void displayFacesOffset (const std::vector<Body*>& bodies);
+    void displayFacesOffset (const vector<Body*>& bodies);
     /**
      * Setup lighting for shaded bodies
      */
@@ -223,7 +223,7 @@ private:
     /**
      * Vector of data to be displayd. Each element coresponds to a DMP file
      */
-    std::vector<Data*>* m_data;
+    vector<Data*>* m_data;
     /**
      * Index into m_data that shows the current DMP file displayed
      */

@@ -41,5 +41,6 @@
 #include <string>
 #include <vector>
 #include <iomanip>
+using namespace std;
 
 #endif //__cplusplus

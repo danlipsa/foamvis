@@ -12,7 +12,7 @@
  * Exception that signals  a semantic error when parsing  the .DMP data
  * file (produced by the Surface Evolver software)
  */
-class SemanticError : public std::logic_error
+class SemanticError : public logic_error
 {
 public:
     /**
@@ -24,7 +24,7 @@ public:
      * Constructs a SemanticError object
      * @param reason message describing the reason for the exception
      */
-    SemanticError (const std::string& reason): logic_error(reason) {}
+    SemanticError (const string& reason): logic_error(reason) {}
     /**
      * Destroys the object
      */

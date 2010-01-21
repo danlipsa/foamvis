@@ -23,7 +23,7 @@ void DeleteElementPtr (const E* pe)
  * sequence of objects.
  */
 template <class E>
-struct PrintElement : public std::unary_function<E&, void>
+struct PrintElement : public unary_function<E&, void>
 {
 public:
     /**
@@ -32,7 +32,7 @@ public:
      * @param useEndOfLine use end of line or comma to separate object
      * of type E.
      */
-    PrintElement (std::ostream& ostr, bool useEndOfLine) : 
+    PrintElement (ostream& ostr, bool useEndOfLine) : 
     m_ostr(ostr), m_index(0), m_useEndOfLine(useEndOfLine) {
     }
     /**
@@ -44,7 +44,7 @@ public:
         if (m_index > 0)
         {
             if (m_useEndOfLine)
-                m_ostr << std::endl;
+                m_ostr << endl;
             else
                 m_ostr << ", ";
         }
@@ -55,7 +55,7 @@ private:
     /**
      * Output stream to print the object to
      */
-    std::ostream& m_ostr;
+    ostream& m_ostr;
     /**
      * Keeps track  of how  many objects where  printed, and  prints an
      * index in front of each object printed.
@@ -75,13 +75,13 @@ private:
  * @param useEndOfLine objects are separated by an end of line or by a comma
  */
 template <class E>
-std::ostream& PrintElements (
-    std::ostream& ostr, std::vector<E>& v, const char* elementName, 
+ostream& PrintElements (
+    ostream& ostr, vector<E>& v, const char* elementName, 
     bool useEndOfLine)
 {
-    ostr << v.size() << " " << elementName << ":"<< std::endl;
+    ostr << v.size() << " " << elementName << ":"<< endl;
     for_each(v.begin (), v.end (), PrintElement<E>(ostr, useEndOfLine));
-    ostr << std::endl;
+    ostr << endl;
     return ostr;
 }
 
@@ -94,19 +94,19 @@ std::ostream& PrintElements (
  * @param useEndOfLine objects are separated by an end of line or by a comma
  */
 template <class E>
-std::ostream& ReversePrintElements (std::ostream& ostr, std::vector<E>& v, 
+ostream& ReversePrintElements (ostream& ostr, vector<E>& v, 
                                   const char* elementName, bool useEndOfLine)
 {
-    ostr << v.size() << " " << elementName << ":"<< std::endl;
+    ostr << v.size() << " " << elementName << ":"<< endl;
     for_each(v.rbegin (), v.rend (), PrintElement<E>(ostr, useEndOfLine));
-    ostr << std::endl;
+    ostr << endl;
     return ostr;
 }
 
 /**
  * Binary function that compares two C strings ignoring the case
  */
-struct LessThanNoCase : std::binary_function<const char*, const char*, bool>
+struct LessThanNoCase : binary_function<const char*, const char*, bool>
 {
     /**
      * Compares two character pointers

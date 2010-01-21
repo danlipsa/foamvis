@@ -3,7 +3,7 @@
 #include "SemanticError.h"
 #include "EvolverData_yacc.h"
 #include "DebugStream.h"
-using namespace std;
+
 
 /**
  * Negates a number. Used in the parser expressions.

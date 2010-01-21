@@ -8,17 +8,17 @@
 #include "AttributeInfo.h"
 #include "ParsingDriver.h"
 #include "EvolverData_yacc.h"
-using namespace std;
 
-ostream& operator<< (ostream& ostr, const Vertex& p)
+
+ostream& operator<< (ostream& ostr, const Vertex& v)
 {
-    if (&p == 0)
+    if (&v == 0)
         ostr << "NULL";
     else
-        ostr << static_cast<const Point&>(p)
-	     << " EDGES " << p.m_edges.size ()
+        ostr << static_cast<const Point&>(v)
+	     << " EDGES " << v.m_edges.size ()
 	     << " Vertex attributes: ";
-    return p.PrintAttributes (ostr, *Vertex::m_infos);
+    return v.PrintAttributes (ostr, *Vertex::m_infos);
 }
 
 AttributesInfo* Vertex::m_infos;

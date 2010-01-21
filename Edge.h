@@ -51,8 +51,16 @@ public:
      * Prints the two vertices of an edge in reverse order (end , begin)
      * @param ostr the stream where to write the edge
      */
-    void ReversePrint (std::ostream& ostr);
+    void ReversePrint (ostream& ostr);
+    /**
+     * Is this a physical edge (not a tesselation edge)?
+     * @return true if this is a physical edge, false otherwise
+     */
     bool IsPhysical () const {return (m_faces.size () == 3);}
+    /**
+     * Adds a face touched by this edge
+     * @param face face touched by this edge
+     */
     void AddFace (const Face* face) {m_faces.push_back (face);}
 
     /**
@@ -66,7 +74,7 @@ public:
      * @param ostr where to write the edge
      * @param e edge to write
      */
-    friend std::ostream& operator<< (std::ostream& ostr, const Edge& e);
+    friend ostream& operator<< (ostream& ostr, const Edge& e);
 private:
     /**
      * First vertex of the edge
@@ -76,7 +84,7 @@ private:
      * Last vertex of the edge
      */
     Vertex* m_end;
-    std::vector<const Face*> m_faces;
+    vector<const Face*> m_faces;
     /**
      * Stores information about all vertex attributes
      */
@@ -88,7 +96,7 @@ private:
  * @param e what to print
  * @return where to print the next data
  */
-inline std::ostream& operator<< (std::ostream& ostr, Edge* e)
+inline ostream& operator<< (ostream& ostr, Edge* e)
 {
     return ostr << *e;
 }

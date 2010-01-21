@@ -38,13 +38,16 @@ public:
      */
     const Vertex* GetEnd (void) const
     {return m_reversed ? m_edge->GetBegin () : m_edge->GetEnd ();}
+    /**
+     * Adds a face that is touched by this oriented edge.
+     */
     void AddFace (const Face* face) {m_edge->AddFace (face);}
     /**
      * Pretty prints an Edge
      * @param ostr output stream where to print the edge
      * @param oe the edge to by printed.
      */
-    friend std::ostream& operator<< (std::ostream& ostr, OrientedEdge& oe);
+    friend ostream& operator<< (ostream& ostr, OrientedEdge& oe);
 
 private:
     /**
@@ -64,7 +67,7 @@ private:
  * @param poe pointer to the oriented edge
  * @return where to print something else
  */
-inline std::ostream& operator<< (std::ostream& ostr, OrientedEdge* poe)
+inline ostream& operator<< (ostream& ostr, OrientedEdge* poe)
 {
     return ostr << *poe;
 }

@@ -7,8 +7,6 @@
 #include "Data.h"
 #include "ElementUtils.h"
 #include "ParsingData.h"
-using namespace std;
-
 
 /**
  * Prints a 4x4 matrix element. Used in for_each algorithm.
@@ -75,6 +73,11 @@ private:
     Face* m_face;
 };
 
+/**
+ * Move elements in a vector toward the begining of the vector so that you 
+ * eliminate holes.
+ * @param v vector of elements
+ */
 template <class E>
 void compact (vector<E*>& v)
 {
@@ -89,6 +92,27 @@ void compact (vector<E*>& v)
     unsigned int resize = v.size () - step;
     v.resize (resize);
 }
+
+/**
+ * For all the edges in the face, add the face as being touched by the edges
+ */
+void updateFaceForEdges (Face* face)
+{
+    const vector<OrientedEdge*>& orientedEdges = face->GetOrientedEdges ();
+    for_each (orientedEdges.begin (), orientedEdges.end (), updateFaces (face));
+}
+/**
+ * For both vertices of this edge, add the edge as being touched by the vertices
+ */
+void updateEdgeForVertices (Edge* edge)
+{
+    if (edge->IsPhysical ())
+    {
+	edge->GetBegin ()->AddEdge (edge);
+	edge->GetEnd ()->AddEdge (edge);
+    }
+}
+
 
 ostream& operator<< (ostream& ostr, Data& d)
 {
@@ -183,24 +207,8 @@ void Data::ReleaseParsingData ()
     delete m_parsingData;
 }
 
-void updateFacesForEdges (Face* face)
-{
-    const std::vector<OrientedEdge*>& orientedEdges = face->GetOrientedEdges ();
-    for_each (orientedEdges.begin (), orientedEdges.end (), updateFaces (face));
-}
-
-
-void updateEdgesForVertices (Edge* edge)
-{
-    if (edge->IsPhysical ())
-    {
-	edge->GetBegin ()->AddEdge (edge);
-	edge->GetEnd ()->AddEdge (edge);
-    }
-}
-
 void Data::CalculatePhysical ()
 {
-    for_each (m_faces.begin (), m_faces.end (), updateFacesForEdges);
-    for_each (m_edges.begin (), m_edges.end (), updateEdgesForVertices);
+    for_each (m_faces.begin (), m_faces.end (), updateFaceForEdges);
+    for_each (m_edges.begin (), m_edges.end (), updateEdgeForVertices);
 }

@@ -1,7 +1,7 @@
 #include "SystemDifferences.h"
 #include "ParsingDriver.h"
 #include "DebugStream.h"
-using namespace std;
+
 
 ParsingDriver::ParsingDriver ()
   : m_debugScanning (false), m_debugParsing (false)
