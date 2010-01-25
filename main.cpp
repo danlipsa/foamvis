@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     try
     {
         vector<Data*> data;
-        if (argc <= 1)
+        if (argc <= 2)
         {
             cdbg << "foam <dir> <filter>\n";
 	    cdbg << "where: <dir> is the folder where the data files reside\n"
@@ -85,6 +85,8 @@ int main(int argc, char *argv[])
         }
         else
         {
+	    cdbg << "argv[1]=" << argv[1] << endl;
+	    cdbg << "argv[2]=" << argv[2] << endl;
             QDir dir (argv[1], argv[2]);
             QStringList files = dir.entryList ();
             for_each (files.begin (), files.end (), 

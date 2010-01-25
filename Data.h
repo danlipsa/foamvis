@@ -7,13 +7,8 @@
 #ifndef __DATA_H__
 #define __DATA_H__
 
-#include "Vertex.h"
-#include "Edge.h"
-#include "Face.h"
 #include "Body.h"
-#include "AttributeCreator.h"
 #include "AttributeInfo.h"
-#include "NameSemanticValue.h"
 
 class ParsingData;
 /**
@@ -23,6 +18,7 @@ class ParsingData;
 class Data
 {
 public:
+    typedef vector<Vertex*>::iterator IteratorVertices;
     /**
      * Constructs a Data object.
      */
@@ -139,6 +135,17 @@ public:
      * Calculate the physical (not tesselated) edges and vertices
      */
     void CalculatePhysical ();
+    void Calculate (
+	IteratorVertices (*f)(
+	    IteratorVertices first,
+	    IteratorVertices last,
+	    bool (*LessThan)(Point* p1, Point* p2)),
+	Point& p);
+    void CalculateMinMax ()
+    {
+	Calculate (min_element, m_min);
+	Calculate (max_element, m_max);
+    }
 
     /**
      * Pretty print the Data object
@@ -175,6 +182,8 @@ private:
      * Data used in parsing the DMP file.
      */
     ParsingData* m_parsingData;
+    Point m_min;
+    Point m_max;
 };
 
 #endif //__DATA_H__

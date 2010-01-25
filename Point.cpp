@@ -7,8 +7,6 @@
 #include "Vertex.h"
 #include "AttributeInfo.h"
 #include "ParsingDriver.h"
-#include "EvolverData_yacc.h"
-
 
 ostream& operator<< (ostream& ostr, const Point& p)
 {

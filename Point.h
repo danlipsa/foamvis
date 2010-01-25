@@ -55,6 +55,19 @@ public:
      * @param z the value for the Z coordinate
      */
     void SetZ (float z) {m_z = z;}
+    static bool lessThanX (Point* first, Point* second)
+    {
+	return first->GetX () < second->GetX ();
+    }
+    static bool lessThanY (Point* first, Point* second)
+    {
+	return first->GetY () < second->GetY ();
+    }
+    static bool lessThanZ (Point* first, Point* second)
+    {
+	return first->GetZ () < second->GetZ ();
+    }
+
     /**
      * Pretty prints a Point object
      * @param ostr output stream to print the Point to

@@ -5,7 +5,6 @@
  * Implementation of the Face class
  */
 #include "Face.h"
-#include "ElementUtils.h"
 #include "AttributeInfo.h"
 #include "ParsingDriver.h"
 

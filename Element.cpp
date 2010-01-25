@@ -6,9 +6,7 @@
  */
 #include "Element.h"
 #include "ElementUtils.h"
-#include "Attribute.h"
 #include "AttributeInfo.h"
-#include "NameSemanticValue.h"
 #include "SemanticError.h"
 
 

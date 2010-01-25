@@ -6,11 +6,8 @@
  * kinds of attributes which can be attached to vertices, edges, faces
  * and bodies.
  */
-#include "Attribute.h"
 #include "AttributeCreator.h"
 #include "SemanticError.h"
-#include "NameSemanticValue.h"
-
 
 Attribute* IntegerAttributeCreator::operator() (
     const EvolverData::parser::semantic_type& value, 

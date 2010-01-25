@@ -5,7 +5,6 @@
  * Definitions for the widget for displaying foam bubbles using OpenGL
  */
 #include "GLWidget.h"
-#include "Vertex.h"
 #include "Data.h"
 #include "DebugStream.h"
 

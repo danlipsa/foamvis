@@ -5,12 +5,8 @@
  * Implementation of the Body class
  */
 #include "Body.h"
-#include "ElementUtils.h"
 #include "AttributeInfo.h"
 #include "ParsingDriver.h"
-#include "EvolverData_yacc.h"
-
-
 
 /**
  * STL unary  function that converts a  signed index into  a vector of

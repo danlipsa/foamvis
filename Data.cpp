@@ -82,7 +82,7 @@ template <class E>
 void compact (vector<E*>& v)
 {
     unsigned int step = 0;
-    for (unsigned int i = 0; i < v.size (); i++)
+    for (unsigned int i = 0; i < v.size (); ++i)
     {
         if (v[i] == 0)
             step++;
@@ -212,3 +212,20 @@ void Data::CalculatePhysical ()
     for_each (m_faces.begin (), m_faces.end (), updateFaceForEdges);
     for_each (m_edges.begin (), m_edges.end (), updateEdgeForVertices);
 }
+
+void Data::Calculate (
+    IteratorVertices (*f)(
+	IteratorVertices first,
+	IteratorVertices last,
+	bool (*LessThan)(Point* p1, Point* p2)),
+    Point& p)
+{
+    vector<Vertex*>::iterator it;
+    it = f (m_vertices.begin (), m_vertices.end (), Point::lessThanX);
+    p.SetX ((*it)->GetX ());
+    it = f (m_vertices.begin (), m_vertices.end (), Point::lessThanY);
+    p.SetY ((*it)->GetY ());
+    it = f (m_vertices.begin (), m_vertices.end (), Point::lessThanZ);
+    p.SetZ ((*it)->GetZ ());
+}
+

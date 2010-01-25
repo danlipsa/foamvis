@@ -7,8 +7,6 @@
 #ifndef __ELEMENT_H__
 #define __ELEMENT_H__
 
-#include "Point.h"
-
 class Attribute;
 class AttributesInfo;
 class NameSemanticValue;
