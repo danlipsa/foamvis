@@ -7,8 +7,10 @@
 #ifndef __GLWIDGET_H__
 #define __GLWIDGET_H__
 
-class Data;
 class Body;
+class Data;
+class DataFiles;
+
 /**
  * Widget for displaying foam bubbles using OpenGL
  */
@@ -40,20 +42,20 @@ class GLWidget : public QGLWidget
      * Sets the data displayed by the GLWidget
      * @param data data displayed by the GLWidget
      */
-    void SetData (vector<Data*>& data) 
+    void SetDataFiles (DataFiles* dataFiles) 
     {
-        m_data = &data;
+        m_dataFiles = dataFiles;
     }
     /**
      * Gets the data displayed by the GLWidget
-     * @return a vector of Data objects, one of each data file
+     * @return a DataFiles object
      */
-    vector<Data*>& GetData () {return *m_data;}
+    DataFiles& GetDataFiles () {return *m_dataFiles;}
     /**
      * Gets the currently displayed data
      * @return currently displayed data
      */
-    Data& GetCurrentData () {return *(*m_data)[m_dataIndex];}
+    Data& GetCurrentData ();
     /**
      * Gets the currently displayed body
      * @return the currrently displayed body or UINT_MAX for all bodies
@@ -83,22 +85,22 @@ class GLWidget : public QGLWidget
 
 public Q_SLOTS:
     /**
-     * Shows vertices (QT slot)
+     * Shows vertices
      * @param checked true for showing vertices false otherwise
      */
     void ViewVertices (bool checked);
     /**
-     * Shows edges (QT slot)
+     * Shows edges
      * @param checked true for showing edges false otherwise
      */
     void ViewEdges (bool checked);
     /**
-     * Shows faces (QT slot)
+     * Shows faces
      * @param checked true for showing faces false otherwise
      */
     void ViewFaces (bool checked);
     /**
-     * Shows bodies (QT slot)
+     * Shows bodies
      * @param checked true for showing bodies false otherwise
      */
     void ViewBodies (bool checked);
@@ -106,12 +108,15 @@ public Q_SLOTS:
      * Signals a change in data displayed
      * @param newIndex the new index for the data object to be displayed
      */
-    void DataChanged (int newIndex);
+    void DataSliderValueChanged (int newIndex);
     /**
      * Save JPG images of the GLWidget
      * @param checked true for saving images of the GLWidget, false otherwise
      */
     void SaveMovie (bool checked);
+    void PhysicalObjectsWidthChanged (int value);
+    void TessellationObjectsWidthChanged (int value);
+
 
 protected:
     /**
@@ -140,8 +145,9 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
 
 private:
+    static const float WIDTH[];
     /**
-     * What kind of objects do we display
+     * WHAT kind of objects do we display
      */
     enum ViewType {
         VERTICES,
@@ -160,14 +166,12 @@ private:
      * Generates a display list for vertices
      * @return the display list
      */
-    GLuint displayVertices ()
-    {return displayEV (VERTICES);}
+    GLuint displayVertices ();
     /**
      * Generates a display list for edges
      * @return the display list
      */
-    GLuint displayEdges ()
-    {return displayEV (EDGES);}
+    GLuint displayEdges ();
     /**
      * Generates a display list for vertices or edges
      * @param type specifies vertices or edges
@@ -207,7 +211,7 @@ private:
     /**
      * Setup lighting for shaded bodies
      */
-    static void initLightBodies ();
+    void initLightBodies ();
     /**
      * Setup lighting for displaying faces edges and vertices
      */
@@ -221,9 +225,9 @@ private:
      */
     GLuint m_object;
     /**
-     * Vector of data to be displayd. Each element coresponds to a DMP file
+     * Data to be displayd. Each element coresponds to a DMP file
      */
-    vector<Data*>* m_data;
+    DataFiles* m_dataFiles;
     /**
      * Index into m_data that shows the current DMP file displayed
      */
@@ -248,6 +252,8 @@ private:
      * Keeps track of the current frame saved in a file.
      */
     int m_currentFrame;
+    int m_physicalObjectsWidth;
+    int m_tessellationObjectsWidth;
 };
 
 #endif //__GLWIDGET_H__

@@ -4,7 +4,7 @@
  *
  * Parses an Evolver DMP file and displays the data from the file.
  */
-#include "Data.h"
+#include "DataFiles.h"
 #include "ParsingData.h"
 #include "MainWindow.h"
 #include "SemanticError.h"
@@ -15,7 +15,7 @@
  * Functor class used to parse each of the DMP files and store the results
  * in a vector of Data.
  */
-class parseFile : public unary_function<QString&, void>
+class parseFile : public unary_function<QString, void>
 {
 public:
     /**
@@ -24,8 +24,8 @@ public:
      * @param dir directory where all DMP files are
      */
     parseFile (
-	vector<Data*>& data, const QString& dir) : 
-        m_data (data), m_dir (dir)
+	vector<Data*>& data, const QString dir) : 
+        m_data (data), m_dir (qPrintable(dir))
     {
     }
     
@@ -33,17 +33,17 @@ public:
      * Parses one file
      * @param file name of the DMP file to be parsed.
      */
-    void operator () (QString& file)
+    void operator () (QString f)
     {
         int result;
+	string file = qPrintable (f);
         Data* data = new Data ();
         m_data.push_back (data);
         ParsingData& parsingData = data->GetParsingData ();
         parsingData.SetDebugParsing (false);
         parsingData.SetDebugScanning (false);
-        string fullPath = string(qPrintable (m_dir)) + 
-            '/' + qPrintable (file);
-        cdbg << "Parsing " << qPrintable (file) << endl;
+        string fullPath = m_dir + '/' + file;
+        cdbg << "Parsing " << file << endl;
         result = parsingData.Parse (fullPath, *data);
         data->ReleaseParsingData ();
         if (result != 0)
@@ -60,7 +60,7 @@ private:
     /**
      * Directory that stores the DMP files.
      */
-    const QString& m_dir;
+    const string m_dir;
 };
 
 
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 {
     try
     {
-        vector<Data*> data;
+	DataFiles dataFiles;
         if (argc <= 2)
         {
             cdbg << "foam <dir> <filter>\n";
@@ -83,21 +83,20 @@ int main(int argc, char *argv[])
 		 << "       foam reads in Surface Evolver dmp files.\n";
             return 13;
         }
-        else
+	cdbg << "argv[1]=" << argv[1] << endl;
+	cdbg << "argv[2]=" << argv[2] << endl;
+	QDir dir (argv[1], argv[2]);
+	QStringList files = dir.entryList ();
+	for_each (files.begin (), files.end (), 
+		  parseFile (dataFiles.GetData (), dir.absolutePath ()));
+        if (dataFiles.GetData ().size () != 0)
         {
-	    cdbg << "argv[1]=" << argv[1] << endl;
-	    cdbg << "argv[2]=" << argv[2] << endl;
-            QDir dir (argv[1], argv[2]);
-            QStringList files = dir.entryList ();
-            for_each (files.begin (), files.end (), 
-                      parseFile (data, dir.absolutePath ()));
-	    //cdbg << *data[0];
+	    dataFiles.CalculateMin ();
+	    dataFiles.CalculateMax ();
+	    //cdbg << dataFiles;
 	    //return 0;
-        }
-        if (data.size () != 0)
-        {
             QApplication app(argc, argv);
-            MainWindow window (data);
+            MainWindow window (dataFiles);
             window.show();
             return app.exec();
             return 0;

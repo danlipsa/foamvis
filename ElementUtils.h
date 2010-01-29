@@ -13,7 +13,7 @@
  * Deletes an object of type E*.
  * @param pe pointer to the object to be deleted
  */
-template <class E> 
+template <typename E> 
 void DeleteElementPtr (const E* pe) 
 {delete pe;}
 
@@ -22,7 +22,7 @@ void DeleteElementPtr (const E* pe)
  * Unary function  that prints an  object of type  E&. Used to  print a
  * sequence of objects.
  */
-template <class E>
+template <typename E>
 struct PrintElement : public unary_function<E&, void>
 {
 public:
@@ -74,7 +74,7 @@ private:
  * @param elementName string describing an object in the list of objects printed
  * @param useEndOfLine objects are separated by an end of line or by a comma
  */
-template <class E>
+template <typename E>
 ostream& PrintElements (
     ostream& ostr, vector<E>& v, const char* elementName, 
     bool useEndOfLine)
@@ -93,7 +93,7 @@ ostream& PrintElements (
  * @param elementName string describing an object in the list of objects printed
  * @param useEndOfLine objects are separated by an end of line or by a comma
  */
-template <class E>
+template <typename E>
 ostream& ReversePrintElements (ostream& ostr, vector<E>& v, 
                                   const char* elementName, bool useEndOfLine)
 {

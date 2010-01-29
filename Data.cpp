@@ -78,7 +78,7 @@ private:
  * eliminate holes.
  * @param v vector of elements
  */
-template <class E>
+template <typename E>
 void compact (vector<E*>& v)
 {
     unsigned int step = 0;
@@ -117,6 +117,8 @@ void updateEdgeForVertices (Edge* edge)
 ostream& operator<< (ostream& ostr, Data& d)
 {
     ostr << "Data:" << endl;
+    ostr << "Minimum point: " << d.m_min << endl;
+    ostr << "Maximum point: " << d.m_max << endl;
     PrintElements<Vertex*> (ostr, d.m_vertices, "vertices", true);
     PrintElements<Edge*> (ostr, d.m_edges, "edges", true);
     PrintElements<Face*> (ostr, d.m_faces, "faces", true);
@@ -205,6 +207,7 @@ void Data::Compact (void)
 void Data::ReleaseParsingData ()
 {
     delete m_parsingData;
+    m_parsingData = 0;
 }
 
 void Data::CalculatePhysical ()
@@ -220,7 +223,7 @@ void Data::Calculate (
 	bool (*LessThan)(Point* p1, Point* p2)),
     Point& p)
 {
-    vector<Vertex*>::iterator it;
+    IteratorVertices it;
     it = f (m_vertices.begin (), m_vertices.end (), Point::lessThanX);
     p.SetX ((*it)->GetX ());
     it = f (m_vertices.begin (), m_vertices.end (), Point::lessThanY);

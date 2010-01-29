@@ -13,7 +13,7 @@ class DebugStream
 {
 public:
 	typedef ostream& (*EndlFunction) (ostream& o);
-    template <class A>
+    template <typename A>
         DebugStream& operator<<(A a)
     {
 		ostringstream ostr;

@@ -83,5 +83,8 @@ void Body::StoreDefaultAttributes (AttributesInfo& infos)
     infos.AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::VOLUME),
         new RealAttributeCreator());
+    infos.AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::VOLCONST),
+        new RealAttributeCreator());
 }
 

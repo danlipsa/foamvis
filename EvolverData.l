@@ -4,14 +4,14 @@
  *
  * Description file for  the lexical analyser used to  read a DMP data
  * file produced by the Surface Evolver software
- */
-%{
-/*
+ *
  * WARNING. If a character not  described in this file is matched,
  * it is simply  printed to stdout. So, an  important way to check
  * for  parsing  errors,  is  to  make  sure  you  have  no  extra
  * characters to stdout, even if there are no parsing errors.
+ *
  */
+%{
 #include "ParsingData.h"
 #include "EvolverData_yacc.h"
 using EvolverData::parser;

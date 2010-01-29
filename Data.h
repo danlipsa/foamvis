@@ -147,6 +147,36 @@ public:
 	Calculate (max_element, m_max);
     }
 
+    const Point& GetMin () {return m_min;}
+    const Point& GetMax () {return m_max;}
+
+    static bool LessThanMinX (Data* d1, Data* d2)
+    {
+	return d1->GetMin().GetX () < d2->GetMin ().GetX ();
+    }
+    static bool LessThanMinY (Data* d1, Data* d2)
+    {
+	return d1->GetMin().GetY () < d2->GetMin ().GetY ();
+    }
+    static bool LessThanMinZ (Data* d1, Data* d2)
+    {
+	return d1->GetMin().GetZ () < d2->GetMin ().GetZ ();
+    }
+
+    static bool LessThanMaxX (Data* d1, Data* d2)
+    {
+	return d1->GetMax().GetX () < d2->GetMax ().GetX ();
+    }
+    static bool LessThanMaxY (Data* d1, Data* d2)
+    {
+	return d1->GetMax().GetY () < d2->GetMax ().GetY ();
+    }
+    static bool LessThanMaxZ (Data* d1, Data* d2)
+    {
+	return d1->GetMax().GetZ () < d2->GetMax ().GetZ ();
+    }
+
+
     /**
      * Pretty print the Data object
      */
@@ -185,6 +215,17 @@ private:
     Point m_min;
     Point m_max;
 };
+
+/**
+ * Pretty prints a Data*
+ * @param ostr where to print
+ * @param e what to print
+ * @return where to print something else
+ */
+inline ostream& operator<< (ostream& ostr, Data* d)
+{
+    return ostr << *d;
+}
 
 #endif //__DATA_H__
 

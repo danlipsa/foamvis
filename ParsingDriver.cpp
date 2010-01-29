@@ -86,6 +86,7 @@ const char* ParsingDriver::m_keywordTable[] = {
     "SOAPFILM",
     "LINEAR",
     "QUADRATIC",
+    "KEEP_ORIGINALS",
     "SIMPLEX_REPRESENTATION",
     "TOTAL_TIME",
     "CONSTRAINT_TOLERANCE",
@@ -112,6 +113,7 @@ const char* ParsingDriver::m_keywordTable[] = {
     "TORUS",
     "ORIGINAL",
     "VOLUME",
+    "VOLCONST",
     "LAGRANGE_MULTIPLIER"
 };
 

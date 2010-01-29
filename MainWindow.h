@@ -11,7 +11,7 @@
 
 class QTimer;
 class GLWidget;
-class Data;
+class DataFiles;
 
 /**
  * Class that contains the OpenGL widget and all other UI.
@@ -25,7 +25,7 @@ public:
      * Constructor
      * @param data data to be displayed read from Surface Evolver files
      */
-    MainWindow(vector<Data*>& data);
+    MainWindow(DataFiles& dataFiles);
     /**
      * Called when a key is pressed
      * @param event object describing the key
@@ -56,7 +56,7 @@ public Q_SLOTS:
      * Invoqued by the UI when  the slider changes to display the data
      * at the current position of the slider.
      */
-    void SliderValueChanged (int value);
+    void DataSliderValueChanged (int value);
 
 private:
     /**

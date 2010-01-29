@@ -86,7 +86,9 @@ private:
  * ParsingData object. We delete the string* part.
  */
 inline void deleteIdentifier (pair<const char*, string*> pair)
-{delete pair.second;}
+{
+    delete pair.second;
+}
 
 
 ostream& operator<< (ostream& ostr, ParsingData& pd)

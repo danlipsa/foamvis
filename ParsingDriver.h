@@ -114,7 +114,9 @@ private:
      */
     void* m_scanner;
     /**
-     * Keywords used in the data files
+     * Keywords used in the data files.  Make sure you add the keyword
+     * in this  table, add the keyword  in the list of  tokens and add
+     * the correct rule in EvolverData.y
      */
     static const char* m_keywordTable[];
     /**

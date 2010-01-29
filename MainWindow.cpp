@@ -8,19 +8,19 @@
 #include "MainWindow.h"
 #include "SystemDifferences.h"
 #include "DebugStream.h"
-#include "Data.h"
+#include "DataFiles.h"
 
 
-MainWindow::MainWindow(vector<Data*>& data) : 
+MainWindow::MainWindow(DataFiles& dataFiles) : 
     m_play (false), PLAY_TEXT (">"), PAUSE_TEXT("||")
 {
     setupUi (this);
     m_timer = new QTimer (this);
     m_dataSlider->setMinimum (0);
-    m_dataSlider->setMaximum (data.size () - 1);
+    m_dataSlider->setMaximum (dataFiles.GetData ().size () - 1);
     m_dataSlider->setSingleStep (1);
     m_dataSlider->setPageStep (10);
-    m_glWidget->SetData (data);
+    m_glWidget->SetDataFiles (&dataFiles);
     updateStatus ();
 
 
@@ -44,7 +44,6 @@ void MainWindow::TogglePlay ()
         enableEnd (false);
     }
     m_play = ! m_play;
-    cdbg << "Toogle play" << endl;
 }
 
 void MainWindow::BeginSlider ()
@@ -70,7 +69,7 @@ void MainWindow::IncrementSlider ()
         TogglePlay ();
 }
 
-void MainWindow::SliderValueChanged (int)
+void MainWindow::DataSliderValueChanged (int)
 {
     updateButtons ();
     updateStatus ();
@@ -86,7 +85,7 @@ void MainWindow::updateButtons ()
 
 void MainWindow::updateStatus ()
 {
-    vector<Data*>& data = m_glWidget->GetData ();
+    vector<Data*>& data = m_glWidget->GetDataFiles ().GetData ();
     Data& currentData = m_glWidget->GetCurrentData ();
     QString oldString = m_status->text ();
     ostringstream ostr;

@@ -11,7 +11,7 @@
  * Unary function  that prints an  object of type  E*. Used to  print a
  * sequence of objects.
  */
-template <class E>
+template <typename E>
 struct printElement : public unary_function<E, void>
 {
 public:

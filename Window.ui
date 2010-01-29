@@ -26,16 +26,6 @@
    <property name="horizontalSpacing">
     <number>-1</number>
    </property>
-   <item row="0" column="0">
-    <widget class="GLWidget" name="m_glWidget" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="2" colspan="2">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
@@ -92,7 +82,7 @@
          </spacer>
         </item>
         <item>
-         <widget class="QCheckBox" name="checkBox">
+         <widget class="QCheckBox" name="saveMovieCheckBox">
           <property name="text">
            <string>Save movie</string>
           </property>
@@ -114,10 +104,88 @@
        </layout>
       </widget>
      </item>
+     <item>
+      <widget class="QGroupBox" name="m_widthGroupBox">
+       <property name="title">
+        <string>Width</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Tesselation Objects</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSlider" name="tessellationObjectsWidthSlider">
+            <property name="maximum">
+             <number>4</number>
+            </property>
+            <property name="value">
+             <number>1</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::TicksAbove</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>13</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Physical Objects</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSlider" name="physicalObjectsWidthSlider">
+            <property name="maximum">
+             <number>4</number>
+            </property>
+            <property name="value">
+             <number>1</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::TicksAbove</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
     </layout>
    </item>
    <item row="1" column="0" colspan="4">
-    <widget class="QGroupBox" name="m_movie">
+    <widget class="QGroupBox" name="movieGroupBox">
+     <property name="title">
+      <string>Time Steps</string>
+     </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="spacing">
        <number>-1</number>
@@ -160,6 +228,9 @@
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
+        <property name="tickPosition">
+         <enum>QSlider::TicksAbove</enum>
+        </property>
        </widget>
       </item>
      </layout>
@@ -169,6 +240,16 @@
     <widget class="QLabel" name="m_status">
      <property name="text">
       <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="GLWidget" name="m_glWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
     </widget>
    </item>
@@ -186,15 +267,17 @@
     <slot>ViewFaces(bool)</slot>
     <slot>ViewBodies(bool)</slot>
     <slot>nextFace()</slot>
-    <slot>DataChanged(int)</slot>
     <slot>SaveMovie(bool)</slot>
+    <slot>PhysicalObjectsWidthChanged(int)</slot>
+    <slot>TessellationObjectsWidthChanged(int)</slot>
+    <slot>DataSliderValueChanged(int)</slot>
    </slots>
   </customwidget>
  </customwidgets>
  <resources/>
  <connections>
   <connection>
-   <sender>checkBox</sender>
+   <sender>saveMovieCheckBox</sender>
    <signal>toggled(bool)</signal>
    <receiver>m_glWidget</receiver>
    <slot>SaveMovie(bool)</slot>
@@ -274,38 +357,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>m_dataSlider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>Window</receiver>
-   <slot>SliderValueChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>331</x>
-     <y>515</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>302</x>
-     <y>565</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_dataSlider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>m_glWidget</receiver>
-   <slot>DataChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>374</x>
-     <y>496</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>375</x>
-     <y>475</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>m_toolButtonPlay</sender>
    <signal>clicked()</signal>
    <receiver>Window</receiver>
@@ -353,11 +404,75 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>tessellationObjectsWidthSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>TessellationObjectsWidthChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>602</x>
+     <y>375</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>382</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>physicalObjectsWidthSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>PhysicalObjectsWidthChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>602</x>
+     <y>444</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>389</x>
+     <y>452</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_dataSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>DataSliderValueChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>244</x>
+     <y>499</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>232</x>
+     <y>436</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_dataSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>Window</receiver>
+   <slot>DataSliderValueChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>190</x>
+     <y>506</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>180</x>
+     <y>555</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
-  <slot>SliderValueChanged(int)</slot>
   <slot>TogglePlay()</slot>
   <slot>BeginSlider()</slot>
   <slot>EndSlider()</slot>
+  <slot>DataSliderValueChanged(int)</slot>
  </slots>
 </ui>

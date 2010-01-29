@@ -117,6 +117,7 @@ class AttributeCreator;
 %token SOAPFILM "SOAPFILM"
 %token LINEAR "LINEAR"
 %token QUADRATIC "QUADRATIC"
+%token KEEP_ORIGINALS "KEEP_ORIGINALS"
 %token SIMPLEX_REPRESENTATION "SIMPLEX_REPRESENTATION"
 %token TOTAL_TIME "TOTAL_TIME"
 %token CONSTRAINT_TOLERANCE "CONSTRAINT_TOLERANCE"
@@ -143,7 +144,9 @@ class AttributeCreator;
 %token TORUS "TORUS"
 %token <m_id> ORIGINAL "ORIGINAL"
 %token <m_id> VOLUME "VOLUME"
+%token <m_id> VOLCONST "VOLCONST"
 %token <m_id> LAGRANGE_MULTIPLIER "LAGRANGE_MULTIPLIER"
+
 
  // terminal symbols
 %token <m_int> INTEGER_VALUE
@@ -234,6 +237,7 @@ header: header parameter
 | header total_time             
 | header constraint_tolerance   
 | header SYMMETRIC_CONTENT      
+| header KEEP_ORIGINALS
 | header view_matrix            
 | header constraint             
 | header torus_domain           
@@ -725,6 +729,11 @@ predefined_body_attribute: VOLUME number
 	new NameSemanticValue ($1->c_str (), $2);
 }
 | ORIGINAL INTEGER_VALUE
+{
+    $$ = 
+	new NameSemanticValue ($1->c_str (), $2);
+}
+| VOLCONST number
 {
     $$ = 
 	new NameSemanticValue ($1->c_str (), $2);

@@ -5,7 +5,7 @@
  * Definitions for the widget for displaying foam bubbles using OpenGL
  */
 #include "GLWidget.h"
-#include "Data.h"
+#include "DataFiles.h"
 #include "DebugStream.h"
 
 /**
@@ -84,6 +84,7 @@ private:
      */
     unsigned int m_count;
 };
+
 
 /**
  * Functor that displays a face using the color specified in the DMP file
@@ -169,7 +170,7 @@ private:
 /**
  * Functor used to display a body
  */
-template <class displayFace>
+template <typename displayFace>
 class displayBody : public unary_function<const Body*, void>
 {
 public:
@@ -290,10 +291,13 @@ void printOpenGLInfo ()
               printOpenGLParam);
 }
 
+const float GLWidget::WIDTH[] = {0.0, 1.0, 3.0, 5.0, 7.0};
+
+
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent), m_viewType (BODIES),
       m_object(0),
-      m_data(0), m_dataIndex (0),
+      m_dataFiles(0), m_dataIndex (0),
       m_displayedBody(UINT_MAX), m_displayedFace(UINT_MAX),
       m_saveMovie(false), m_currentFrame(0)
 {
@@ -314,9 +318,9 @@ void GLWidget::ViewVertices (bool checked)
     {
         m_viewType = VERTICES;
         setObject (&m_object, displayVertices ());
+	initLightFlat ();
+	updateGL ();
     }
-    initLightFlat ();
-    updateGL ();
 }
 
 void GLWidget::ViewEdges (bool checked)
@@ -325,9 +329,9 @@ void GLWidget::ViewEdges (bool checked)
     {
         m_viewType = EDGES;
         setObject (&m_object, displayEdges ());
+	initLightFlat ();
+	updateGL ();
     }
-    initLightFlat ();
-    updateGL ();
 }
 
 void GLWidget::ViewFaces (bool checked)
@@ -336,9 +340,9 @@ void GLWidget::ViewFaces (bool checked)
     {
         m_viewType = FACES;
         setObject (&m_object, displayFaces ());
+	initLightFlat ();
+	updateGL ();
     }
-    initLightFlat ();
-    updateGL ();
 }
 
 void GLWidget::ViewBodies (bool checked)
@@ -347,12 +351,12 @@ void GLWidget::ViewBodies (bool checked)
     {
         m_viewType = BODIES;
         setObject (&m_object, displayBodies ());
+	initLightBodies ();
+	updateGL ();
     }
-    initLightBodies ();
-    updateGL ();
 }
 
-void GLWidget::DataChanged (int newIndex)
+void GLWidget::DataSliderValueChanged (int newIndex)
 {
     m_dataIndex = newIndex;
     setObject (&m_object, display(m_viewType));
@@ -362,6 +366,18 @@ void GLWidget::DataChanged (int newIndex)
 void GLWidget::SaveMovie (bool checked)
 {
     m_saveMovie = checked;
+    updateGL ();
+}
+
+void GLWidget::PhysicalObjectsWidthChanged (int value)
+{
+    m_physicalObjectsWidth = value;
+    updateGL ();
+}
+
+void GLWidget::TessellationObjectsWidthChanged (int value)
+{
+    m_tessellationObjectsWidth = value;
     updateGL ();
 }
 
@@ -381,7 +397,8 @@ QSize GLWidget::sizeHint() const
 
 void GLWidget::initLightBodies ()
 {
-    GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
+    const Point& max = m_dataFiles->GetMax ();
+    GLfloat light_position[] = { max.GetX (), max.GetY (), max.GetZ (), 0.0 };
     glShadeModel (GL_SMOOTH);
 
     glMatrixMode (GL_MODELVIEW);
@@ -404,6 +421,7 @@ void GLWidget::initLightFlat ()
     glEnable(GL_DEPTH_TEST);
 }
 
+
 void GLWidget::initializeGL()
 {
     m_object = display (m_viewType);
@@ -412,10 +430,16 @@ void GLWidget::initializeGL()
                   background[2], background[3]);        
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(-1.5, 1.5, -1.5, 1.5, -1.5, 1.5);
-
+    //glOrtho(-1.5, 1.5, -1.5, 1.5, -1.5, 1.5);
+    const Point& min = m_dataFiles->GetMin ();
+    const Point& max = m_dataFiles->GetMax ();
+    float INCREASE = 1.5;
+    glOrtho(INCREASE * min.GetX (), INCREASE * max.GetX (),
+	    INCREASE * min.GetY (), INCREASE * max.GetY (), 
+	    INCREASE * min.GetZ (), INCREASE * max.GetZ ());
+    
     glMatrixMode (GL_MODELVIEW);
-    glLoadMatrixf (GetCurrentData ().GetViewMatrix ());
+    //glLoadMatrixf (GetCurrentData ().GetViewMatrix ());
 
     switch (m_viewType)
     {
@@ -498,25 +522,6 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     m_lastPos = event->pos();
 }
 
-GLuint GLWidget::displayEV (ViewType type)
-{
-    const vector<Body*>& bodies = GetCurrentData ().GetBodies ();
-    GLuint list = glGenLists(1);
-    glNewList(list, GL_COMPILE);
-    if (type == VERTICES)
-    {
-        glPolygonMode (GL_FRONT_AND_BACK, GL_POINT);
-        glPointSize (2);
-    }
-    else
-        glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-    glBegin(GL_TRIANGLES);
-    for_each (bodies.begin (), bodies.end (),
-              displayBody<displayFaceWithColor> (*this));
-    glEnd();
-    glEndList();
-    return list;
-}
 
 void GLWidget::displayFacesContour (const vector<Body*>& bodies)
 {
@@ -540,24 +545,32 @@ void GLWidget::displayFacesOffset (const vector<Body*>& bodies)
     glDisable (GL_POLYGON_OFFSET_FILL);
 }
 
-
-GLuint GLWidget::display (ViewType type)
+GLuint GLWidget::displayVertices ()
 {
-    
-    switch (type)
-    {
-    case VERTICES:
-        return displayVertices ();
-    case EDGES:
-        return displayEdges ();
-    case FACES:
-        return displayFaces ();
-    case BODIES:
-        return displayBodies ();
-    default:
-        throw domain_error (
-            "ViewType enum has an invalid value: " + m_viewType);
-    }
+    const vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+    GLuint list = glGenLists(1);
+    glNewList(list, GL_COMPILE);
+    glPointSize (2);
+    glBegin(GL_POINTS);
+    for_each (bodies.begin (), bodies.end (),
+              displayBody<displayFaceWithColor> (*this));
+    glEnd();
+    glEndList();
+    return list;
+}
+
+GLuint GLWidget::displayEdges ()
+{
+    const vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+    GLuint list = glGenLists(1);
+    glNewList(list, GL_COMPILE);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    glBegin(GL_TRIANGLES);
+    for_each (bodies.begin (), bodies.end (),
+              displayBody<displayFaceWithColor> (*this));
+    glEnd();
+    glEndList();
+    return list;
 }
 
 GLuint GLWidget::displayFaces ()
@@ -583,6 +596,25 @@ GLuint GLWidget::displayBodies ()
     glEnd ();
     glEndList();
     return list;
+}
+
+GLuint GLWidget::display (ViewType type)
+{
+    
+    switch (type)
+    {
+    case VERTICES:
+        return displayVertices ();
+    case EDGES:
+        return displayEdges ();
+    case FACES:
+        return displayFaces ();
+    case BODIES:
+        return displayBodies ();
+    default:
+        throw domain_error (
+            "ViewType enum has an invalid value: " + m_viewType);
+    }
 }
 
 unsigned int GLWidget::GetDisplayedBody ()
@@ -643,4 +675,10 @@ void GLWidget::DecrementDisplayedBody ()
     setObject (&m_object, displayFaces ());
     updateGL ();
     cdbg << "displayed body: " << m_displayedBody << endl;
+}
+
+
+Data& GLWidget::GetCurrentData ()
+{
+    return *m_dataFiles->GetData ()[m_dataIndex];
 }

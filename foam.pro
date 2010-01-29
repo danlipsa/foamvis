@@ -4,10 +4,10 @@ HEADERS += DebugStream.h ParsingDriver.h AttributeInfo.h Attribute.h \
 	Data.h Edge.h Element.h ExpressionTree.h \
 	Face.h GLWidget.h OrientedEdge.h OrientedFace.h \
 	ParsingData.h Vertex.h SemanticError.h MainWindow.h \
-        AttributeCreator.h stable.h SystemDifferences.h
+        AttributeCreator.h stable.h SystemDifferences.h DataFiles.h
 SOURCES += DebugStream.cpp ParsingDriver.cpp AttributeInfo.cpp Attribute.cpp \
 	NameSemanticValue.cpp Element.cpp \
-	Body.cpp Color.cpp Point.cpp\
+	Body.cpp Color.cpp Point.cpp DataFiles.cpp\
 	Data.cpp Edge.cpp ExpressionTree.cpp Face.cpp \
 	GLWidget.cpp main.cpp OrientedEdge.cpp OrientedFace.cpp \
 	ParsingData.cpp Vertex.cpp MainWindow.cpp AttributeCreator.cpp
