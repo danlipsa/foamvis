@@ -12,10 +12,11 @@
 
 ostream& operator<< (ostream& ostr, const Vertex& v)
 {
+    using namespace G3D;
     if (&v == 0)
         ostr << "NULL";
     else
-        ostr << static_cast<const Point&>(v)
+        ostr << static_cast<const Vector3&>(v)
 	     << " EDGES " << v.m_edges.size ()
 	     << " Vertex attributes: ";
     return v.PrintAttributes (ostr, *Vertex::m_infos);

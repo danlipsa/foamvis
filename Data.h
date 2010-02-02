@@ -18,7 +18,16 @@ class ParsingData;
 class Data
 {
 public:
+    /**
+     * Iterator over the vertices in this Data object
+     */
     typedef vector<Vertex*>::iterator IteratorVertices;
+    /**
+     * Functor applied to a collection of vertices
+     */
+    typedef IteratorVertices (*MinMaxElement)(
+	IteratorVertices first, IteratorVertices last, 
+	Vertex::LessThan lessThan);
     /**
      * Constructs a Data object.
      */
@@ -33,6 +42,11 @@ public:
      * @return a pointer to the Vertex object
      */
     Vertex* GetVertex (int i) {return m_vertices[i];}
+    /**
+     * Gets the vector of vertices
+     * @return the vector of vertices
+     */
+    const vector<Vertex*>& GetVertices () {return m_vertices;}
     /**
      * Stores a Vertex object a certain index in the Data object
      * @param i where to store the Vertex object
@@ -135,53 +149,71 @@ public:
      * Calculate the physical (not tesselated) edges and vertices
      */
     void CalculatePhysical ();
-    void Calculate (
-	IteratorVertices (*f)(
-	    IteratorVertices first,
-	    IteratorVertices last,
-	    bool (*LessThan)(Point* p1, Point* p2)),
-	Point& p);
-    void CalculateMinMax ()
+    /**
+     * Calculate the bounding box for all vertices in this Data
+     */
+    void CalculateAABox ();
+    /**
+     * Gets a AABox of this Data object
+     * @return an AABox of this Data object
+     */
+    const G3D::AABox& GetAABox () {return m_AABox;}
+    /**
+     * Gets the low point of the AABox of this Data object
+     */
+    const G3D::Vector3& GetAABoxLow () const {return m_AABox.low ();}
+    /**
+     * Gets the high point of the AABox of this Data object
+     */
+    const G3D::Vector3& GetAABoxHigh () const {return m_AABox.high ();}
+    /**
+     * Compares the low element of two data objects on the X,Y or Z axes
+     * @return  true if  the  first  object is  less  than the  second
+     * object, false otherwise.
+     */
+    class LessThan
     {
-	Calculate (min_element, m_min);
-	Calculate (max_element, m_max);
-    }
-
-    const Point& GetMin () {return m_min;}
-    const Point& GetMax () {return m_max;}
-
-    static bool LessThanMinX (Data* d1, Data* d2)
-    {
-	return d1->GetMin().GetX () < d2->GetMin ().GetX ();
-    }
-    static bool LessThanMinY (Data* d1, Data* d2)
-    {
-	return d1->GetMin().GetY () < d2->GetMin ().GetY ();
-    }
-    static bool LessThanMinZ (Data* d1, Data* d2)
-    {
-	return d1->GetMin().GetZ () < d2->GetMin ().GetZ ();
-    }
-
-    static bool LessThanMaxX (Data* d1, Data* d2)
-    {
-	return d1->GetMax().GetX () < d2->GetMax ().GetX ();
-    }
-    static bool LessThanMaxY (Data* d1, Data* d2)
-    {
-	return d1->GetMax().GetY () < d2->GetMax ().GetY ();
-    }
-    static bool LessThanMaxZ (Data* d1, Data* d2)
-    {
-	return d1->GetMax().GetZ () < d2->GetMax ().GetZ ();
-    }
-
+    public:
+	/**
+	 * Constructor
+	 * @param axis along which axis to compare
+	 * @param corner which corner of the AABox to compare
+	 */
+	LessThan (G3D::Vector3::Axis axis, 
+		  const G3D::Vector3& (Data::*corner) () const) : 
+	    m_axis (axis), m_corner(corner) {}
+	/**
+	 * Functor that compares two data objects
+	 * @param first first data object
+	 * @param second second data object
+	 */
+	bool operator() (Data* first, Data* second)
+	{
+	    return 
+		(first->*m_corner) ()[m_axis] < (second->*m_corner) ()[m_axis];
+	}
+    private:
+	/**
+	 * Along which axis to compare
+	 */
+	G3D::Vector3::Axis m_axis;
+	/**
+	 * What corner of the AABox to compare
+	 */
+	const G3D::Vector3& (Data::*m_corner) () const;
+    };
 
     /**
      * Pretty print the Data object
      */
     friend ostream& operator<< (ostream& ostr, Data& d);
 private:
+    /**
+     * Calculates low or high element for a AABox of a sequence of Vertices
+     * @param minMaxElement functor applied to the sequence
+     * @param v where to store the min/max element
+     */
+    void Calculate (MinMaxElement minMaxElement, G3D::Vector3& v);
 
     /**
      * A vector of points
@@ -212,14 +244,16 @@ private:
      * Data used in parsing the DMP file.
      */
     ParsingData* m_parsingData;
-    Point m_min;
-    Point m_max;
+    /**
+     * The axially aligned bounding box for all vertices.
+     */
+    G3D::AABox m_AABox;
 };
 
 /**
  * Pretty prints a Data*
  * @param ostr where to print
- * @param e what to print
+ * @param d what to print
  * @return where to print something else
  */
 inline ostream& operator<< (ostream& ostr, Data* d)

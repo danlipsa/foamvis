@@ -15,7 +15,7 @@
 inline void displayFirstVertex (const OrientedEdge* e)
 {
     const Vertex* p = e->GetBegin ();
-    glVertex3f(p->GetX (), p->GetY (), p->GetZ ());
+    glVertex3f(p->x, p->y, p->z);
 }
 /**
  * Displays all face vertices on the OpenGL canvas
@@ -49,6 +49,88 @@ struct OpenGLParam
 };
 
 /**
+ * Functor that displays a vertex
+ */
+class displayVertex : public unary_function<const Vertex*, void>
+{
+public:
+    /**
+     * Constructor
+     * @param widget Where should be the vertex displayed
+     */
+    displayVertex (GLWidget& widget) : 
+	m_widget (widget) 
+    {
+    }
+    /**
+     * Functor that displays a vertex
+     * @param v the vertex to be displayed
+     */
+    void operator() (const Vertex* v)
+    {
+	float pointSize = (v->IsPhysical ()) ? 
+	    m_widget.GetPhysicalObjectsWidth () :
+	    m_widget.GetTessellationObjectsWidth ();
+	if (pointSize != 0.0)
+	{
+	    glPointSize (pointSize);
+	    glBegin(GL_POINTS);
+	    glVertex3f(v->x, v->y, v->z);
+	    glEnd();
+	}
+    }
+protected:
+    /**
+     * Where should be the vertex displayed
+     */
+    GLWidget& m_widget;
+};
+
+
+/**
+ * Functor that displays an edge
+ */
+class displayEdge : public unary_function<const Edge*, void>
+{
+public:
+    /**
+     * Constructor
+     * @param widget Where should be the edge displayed
+     */
+    displayEdge (GLWidget& widget) : 
+	m_widget (widget) 
+    {
+    }
+    /**
+     * Functor that displays an edge
+     * @param e the edge to be displayed
+     */
+    void operator() (const Edge* e)
+    {
+	float edgeSize = (e->IsPhysical ()) ? 
+	    m_widget.GetPhysicalObjectsWidth () :
+	    m_widget.GetTessellationObjectsWidth ();
+	if (edgeSize != 0.0)
+	{
+	    Vertex* begin = e->GetBegin ();
+	    Vertex* end = e->GetEnd ();
+	    glLineWidth (edgeSize);
+	    glBegin(GL_LINES);
+	    glVertex3f(begin->x, begin->y, begin->z);
+	    glVertex3f(end->x, end->y, end->z);
+	    glEnd();
+	}
+    }
+protected:
+    /**
+     * Where should be the vertex displayed
+     */
+    GLWidget& m_widget;
+};
+
+
+
+/**
  * Functor that displays a face
  */
 class displayFace : public unary_function<const OrientedFace*, void>
@@ -64,7 +146,7 @@ public:
      * Functor that displays a face
      * @param f the face to be displayed
      */
-    void operator() (const OrientedFace* f)
+    virtual void operator() (const OrientedFace* f)
     {
         if (m_count <= m_widget.GetDisplayedFace ())
         {
@@ -74,7 +156,7 @@ public:
         }
         m_count++;
     }
-private:
+protected:
     /**
      * Where should be the face displayed
      */
@@ -89,7 +171,7 @@ private:
 /**
  * Functor that displays a face using the color specified in the DMP file
  */
-class displayFaceWithColor : public unary_function<const OrientedFace*, void>
+class displayFaceWithColor : public displayFace
 {
 public:
     /**
@@ -97,13 +179,13 @@ public:
      * @param widget where is the face displayed
      */
     displayFaceWithColor (GLWidget& widget) : 
-        m_widget (widget), m_count(0) {}
+        displayFace (widget) {}
 
     /**
      * Functor that displays a colored face
      * @param f face to be displayed
      */
-    void operator() (const OrientedFace* f)
+    virtual void operator() (const OrientedFace* f)
     {
         if (m_count <= m_widget.GetDisplayedFace ())
         {
@@ -112,23 +194,12 @@ public:
         }
         m_count++;
     }
-private:
-    /**
-     * Where to display the widget
-     */
-    GLWidget& m_widget;
-    /**
-     * Used  for displaying only  certain faces.  Use Page  Up/Down to
-     * show only  certain bodies and  Shift-Page Up/Down to  only show
-     * certain faces.
-     */
-    unsigned int m_count;
 };
 
 /**
  * Displays a face and specifies the normal to the face. Used for lighting.
  */
-class displayFaceWithNormal : public unary_function<const OrientedFace*, void>
+class displayFaceWithNormal : public displayFace
 {
 public:
     /**
@@ -136,35 +207,35 @@ public:
      * @param widget where to display the face
      */
     displayFaceWithNormal (GLWidget& widget) : 
-        m_widget (widget) {}
+        displayFace (widget) {}
     /**
      * Functor used to display a face together to the normal
      * @param f face to be displayed
      */
-    void operator() (const OrientedFace* f)
+    virtual void operator() (const OrientedFace* f)
     {
-        // specify the normal vector
-        const Vertex* begin = f->GetBegin (0);
-        const Vertex* end = f->GetEnd (0);
-        Vector3 first(end->GetX () - begin->GetX (),
-                      end->GetY () - begin->GetY (),
-                      end->GetZ () - begin->GetZ ());
-        begin = f->GetBegin (1);
-        end = f->GetEnd (1);
-        Vector3 second(end->GetX () - begin->GetX (),
-                       end->GetY () - begin->GetY (),
-                       end->GetZ () - begin->GetZ ());
-        Vector3 normal (first.cross(second).unit ());
-        glNormal3f (normal.x, normal.y, normal.z);
+        if (m_count <= m_widget.GetDisplayedFace ())
+        {
 
-        // specify the vertices
-        displayFaceVertices (f);
+	    // specify the normal vector
+	    const Vertex* begin = f->GetBegin (0);
+	    const Vertex* end = f->GetEnd (0);
+	    Vector3 first(end->x - begin->x,
+			  end->y - begin->y,
+			  end->z - begin->z);
+	    begin = f->GetBegin (1);
+	    end = f->GetEnd (1);
+	    Vector3 second(end->x - begin->x,
+			   end->y - begin->y,
+			   end->z - begin->z);
+	    Vector3 normal (first.cross(second).unit ());
+	    glNormal3f (normal.x, normal.y, normal.z);
+
+	    // specify the vertices
+	    displayFaceVertices (f);
+	}
+	m_count++;
     }
-private:
-    /**
-     * Where to display the face
-     */
-    GLWidget& m_widget;
 };
 
 /**
@@ -291,7 +362,7 @@ void printOpenGLInfo ()
               printOpenGLParam);
 }
 
-const float GLWidget::WIDTH[] = {0.0, 1.0, 3.0, 5.0, 7.0};
+const float GLWidget::OBJECTS_WIDTH[] = {0.0, 1.0, 3.0, 5.0, 7.0};
 
 
 GLWidget::GLWidget(QWidget *parent)
@@ -299,7 +370,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_object(0),
       m_dataFiles(0), m_dataIndex (0),
       m_displayedBody(UINT_MAX), m_displayedFace(UINT_MAX),
-      m_saveMovie(false), m_currentFrame(0)
+      m_saveMovie(false), m_currentFrame(0),
+      m_physicalObjectsWidth (1), m_tessellationObjectsWidth (1)
 {
 }
 
@@ -372,12 +444,14 @@ void GLWidget::SaveMovie (bool checked)
 void GLWidget::PhysicalObjectsWidthChanged (int value)
 {
     m_physicalObjectsWidth = value;
+    setObject (&m_object, display(m_viewType));
     updateGL ();
 }
 
 void GLWidget::TessellationObjectsWidthChanged (int value)
 {
     m_tessellationObjectsWidth = value;
+    setObject (&m_object, display(m_viewType));
     updateGL ();
 }
 
@@ -397,8 +471,9 @@ QSize GLWidget::sizeHint() const
 
 void GLWidget::initLightBodies ()
 {
-    const Point& max = m_dataFiles->GetMax ();
-    GLfloat light_position[] = { max.GetX (), max.GetY (), max.GetZ (), 0.0 };
+    using namespace G3D;
+    const Vector3& max = m_dataFiles->GetAABox ().high ();
+    GLfloat light_position[] = { max.x, max.y, max.z, 0.0 };
     glShadeModel (GL_SMOOTH);
 
     glMatrixMode (GL_MODELVIEW);
@@ -424,6 +499,7 @@ void GLWidget::initLightFlat ()
 
 void GLWidget::initializeGL()
 {
+    using namespace G3D;
     m_object = display (m_viewType);
     const float* background = Color::GetValue (Color::WHITE);
     glClearColor (background[0], background[1],
@@ -431,12 +507,12 @@ void GLWidget::initializeGL()
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
     //glOrtho(-1.5, 1.5, -1.5, 1.5, -1.5, 1.5);
-    const Point& min = m_dataFiles->GetMin ();
-    const Point& max = m_dataFiles->GetMax ();
+    const Vector3& min = m_dataFiles->GetAABox ().low ();
+    const Vector3& max = m_dataFiles->GetAABox ().high ();
     float INCREASE = 1.5;
-    glOrtho(INCREASE * min.GetX (), INCREASE * max.GetX (),
-	    INCREASE * min.GetY (), INCREASE * max.GetY (), 
-	    INCREASE * min.GetZ (), INCREASE * max.GetZ ());
+    glOrtho(INCREASE * min.x, INCREASE * max.x,
+	    INCREASE * min.y, INCREASE * max.y, 
+	    INCREASE * min.z, INCREASE * max.z);
     
     glMatrixMode (GL_MODELVIEW);
     //glLoadMatrixf (GetCurrentData ().GetViewMatrix ());
@@ -547,6 +623,22 @@ void GLWidget::displayFacesOffset (const vector<Body*>& bodies)
 
 GLuint GLWidget::displayVertices ()
 {
+    const vector<Vertex*>& vertices = GetCurrentData ().GetVertices ();
+    GLuint list = glGenLists(1);
+    glNewList(list, GL_COMPILE);
+
+    qglColor (QColor(Qt::black));
+    for_each (vertices.begin (), vertices.end (), displayVertex (*this));
+    glPointSize (1.0);
+
+    glEndList();
+    return list;
+}
+
+
+/*
+GLuint GLWidget::displayVertices ()
+{
     const vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
@@ -558,7 +650,26 @@ GLuint GLWidget::displayVertices ()
     glEndList();
     return list;
 }
+*/
 
+
+ 
+GLuint GLWidget::displayEdges ()
+{
+    GLuint list = glGenLists(1);
+    glNewList(list, GL_COMPILE);
+
+    qglColor (QColor(Qt::black));
+    const vector<Edge*>& edges = GetCurrentData ().GetEdges ();
+    for_each (edges.begin (), edges.end (), displayEdge (*this));
+    glLineWidth (1.0);
+
+
+    glEndList();
+    return list;
+}
+
+/*
 GLuint GLWidget::displayEdges ()
 {
     const vector<Body*>& bodies = GetCurrentData ().GetBodies ();
@@ -572,14 +683,22 @@ GLuint GLWidget::displayEdges ()
     glEndList();
     return list;
 }
+*/
 
 GLuint GLWidget::displayFaces ()
 {
     GLuint list = glGenLists(1);
-    const vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     glNewList(list, GL_COMPILE);
+
+    const vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     displayFacesContour (bodies);
     displayFacesOffset (bodies);
+
+    qglColor (QColor(Qt::black));
+    const vector<Edge*>& edges = GetCurrentData ().GetEdges ();
+    for_each (edges.begin (), edges.end (), displayEdge (*this));
+    glLineWidth (1.0);
+
     glEndList();
     return list;
 }
@@ -640,18 +759,6 @@ void GLWidget::IncrementDisplayedFace ()
     }
 }
 
-void GLWidget::IncrementDisplayedBody ()
-{
-    m_displayedBody++;
-    m_displayedFace = UINT_MAX;
-    if (m_displayedBody == GetCurrentData ().GetBodies ().size ())
-        m_displayedBody = UINT_MAX;
-    setObject (&m_object, displayFaces ());
-    updateGL ();
-    cdbg << "displayed body: " << m_displayedBody << endl;
-}
-
-
 void GLWidget::DecrementDisplayedFace ()
 {
     if (m_displayedBody != UINT_MAX)
@@ -665,6 +772,16 @@ void GLWidget::DecrementDisplayedFace ()
     }
 }
 
+void GLWidget::IncrementDisplayedBody ()
+{
+    m_displayedBody++;
+    m_displayedFace = UINT_MAX;
+    if (m_displayedBody == GetCurrentData ().GetBodies ().size ())
+        m_displayedBody = UINT_MAX;
+    setObject (&m_object, displayBodies ());
+    updateGL ();
+    cdbg << "displayed body: " << m_displayedBody << endl;
+}
 
 void GLWidget::DecrementDisplayedBody ()
 {
@@ -672,7 +789,7 @@ void GLWidget::DecrementDisplayedBody ()
         m_displayedBody = GetCurrentData ().GetBodies ().size ();
     m_displayedBody--;
     m_displayedFace = UINT_MAX;
-    setObject (&m_object, displayFaces ());
+    setObject (&m_object, displayBodies ());
     updateGL ();
     cdbg << "displayed body: " << m_displayedBody << endl;
 }

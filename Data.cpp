@@ -117,8 +117,7 @@ void updateEdgeForVertices (Edge* edge)
 ostream& operator<< (ostream& ostr, Data& d)
 {
     ostr << "Data:" << endl;
-    ostr << "Minimum point: " << d.m_min << endl;
-    ostr << "Maximum point: " << d.m_max << endl;
+    ostr << d.m_AABox << endl;
     PrintElements<Vertex*> (ostr, d.m_vertices, "vertices", true);
     PrintElements<Edge*> (ostr, d.m_edges, "edges", true);
     PrintElements<Face*> (ostr, d.m_faces, "faces", true);
@@ -133,7 +132,7 @@ ostream& operator<< (ostream& ostr, Data& d)
 }
 
 Data::Data () : 
-	m_attributesInfo(DefineAttribute::COUNT),
+    m_attributesInfo(DefineAttribute::COUNT),
     m_parsingData (new ParsingData ())
 {
 	Vertex::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::VERTEX]);
@@ -216,19 +215,27 @@ void Data::CalculatePhysical ()
     for_each (m_edges.begin (), m_edges.end (), updateEdgeForVertices);
 }
 
-void Data::Calculate (
-    IteratorVertices (*f)(
-	IteratorVertices first,
-	IteratorVertices last,
-	bool (*LessThan)(Point* p1, Point* p2)),
-    Point& p)
+
+void Data::Calculate (MinMaxElement minMaxElement, G3D::Vector3& v)
 {
+    using namespace G3D;
     IteratorVertices it;
-    it = f (m_vertices.begin (), m_vertices.end (), Point::lessThanX);
-    p.SetX ((*it)->GetX ());
-    it = f (m_vertices.begin (), m_vertices.end (), Point::lessThanY);
-    p.SetY ((*it)->GetY ());
-    it = f (m_vertices.begin (), m_vertices.end (), Point::lessThanZ);
-    p.SetZ ((*it)->GetZ ());
+    it = minMaxElement (m_vertices.begin (), m_vertices.end (), 
+	    Vertex::LessThan(Vector3::X_AXIS));;
+    v.x = (*it)->x;
+    it = minMaxElement (m_vertices.begin (), m_vertices.end (), 
+	    Vertex::LessThan(Vector3::Y_AXIS));
+    v.y = (*it)->y;
+    it = minMaxElement (m_vertices.begin (), m_vertices.end (), 
+	    Vertex::LessThan(Vector3::Z_AXIS));
+    v.z = (*it)->z;
 }
 
+
+void Data::CalculateAABox ()
+{
+    Vector3 low, high;
+    Calculate (min_element, low);
+    Calculate (max_element, high);
+    m_AABox.set(low, high);
+}

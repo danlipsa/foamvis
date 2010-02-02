@@ -226,7 +226,7 @@ bodies
     //data.GetParsingData ().PrintTimeCheckpoint ("After bodies:");
     data.Compact ();
     data.CalculatePhysical ();
-    data.CalculateMinMax ();
+    data.CalculateAABox ();
 };
 
 header: header parameter

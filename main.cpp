@@ -10,6 +10,15 @@
 #include "SemanticError.h"
 #include "DebugStream.h"
 
+/**
+ * \mainpage The Foam Project
+ * \section intro_sec Introduction
+ *
+ * This  project  is  meant  to  visualize and  help  understand  foam
+ * modeling data.
+ */
+
+
 
 /**
  * Functor class used to parse each of the DMP files and store the results
@@ -31,7 +40,7 @@ public:
     
     /**
      * Parses one file
-     * @param file name of the DMP file to be parsed.
+     * @param f name of the DMP file to be parsed.
      */
     void operator () (QString f)
     {
@@ -91,10 +100,7 @@ int main(int argc, char *argv[])
 		  parseFile (dataFiles.GetData (), dir.absolutePath ()));
         if (dataFiles.GetData ().size () != 0)
         {
-	    dataFiles.CalculateMin ();
-	    dataFiles.CalculateMax ();
-	    //cdbg << dataFiles;
-	    //return 0;
+	    dataFiles.CalculateAABox ();
             QApplication app(argc, argv);
             MainWindow window (dataFiles);
             window.show();

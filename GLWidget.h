@@ -40,7 +40,7 @@ class GLWidget : public QGLWidget
     QSize sizeHint() const;
     /**
      * Sets the data displayed by the GLWidget
-     * @param data data displayed by the GLWidget
+     * @param dataFiles data displayed by the GLWidget
      */
     void SetDataFiles (DataFiles* dataFiles) 
     {
@@ -82,7 +82,20 @@ class GLWidget : public QGLWidget
      * Decrement displayed face
      */
     void DecrementDisplayedFace ();
-
+    /**
+     * Returns the actual size of physical objects
+     */
+    float GetPhysicalObjectsWidth () 
+    {
+	return OBJECTS_WIDTH[m_physicalObjectsWidth];
+    }
+    /**
+     * Returns the actual size of tessellation objects
+     */
+    float GetTessellationObjectsWidth () 
+    {
+	return OBJECTS_WIDTH[m_tessellationObjectsWidth];
+    }
 public Q_SLOTS:
     /**
      * Shows vertices
@@ -114,10 +127,16 @@ public Q_SLOTS:
      * @param checked true for saving images of the GLWidget, false otherwise
      */
     void SaveMovie (bool checked);
+    /**
+     * Signals a change in the size of the physical objects
+     * @param value the new size
+     */
     void PhysicalObjectsWidthChanged (int value);
+    /**
+     * Signals a change in the size of the tessellation objects
+     * @param value the new size
+     */
     void TessellationObjectsWidthChanged (int value);
-
-
 protected:
     /**
      * Initializes OpenGL
@@ -143,9 +162,12 @@ protected:
      * @param event specifies how much did the mouse move
      */
     void mouseMoveEvent(QMouseEvent *event);
-
 private:
-    static const float WIDTH[];
+    /**
+     * Mapping between the index in  the slider and an actual size for
+     * physical and tessellation objects.
+     */
+    static const float OBJECTS_WIDTH[];
     /**
      * WHAT kind of objects do we display
      */
@@ -252,7 +274,13 @@ private:
      * Keeps track of the current frame saved in a file.
      */
     int m_currentFrame;
+    /**
+     * Stores the size of physical objects
+     */
     int m_physicalObjectsWidth;
+    /**
+     * Stores the size of tessellation objects
+     */
     int m_tessellationObjectsWidth;
 };
 

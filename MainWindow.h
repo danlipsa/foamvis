@@ -23,7 +23,7 @@ class MainWindow : public QWidget, private Ui::Window
 public:
     /**
      * Constructor
-     * @param data data to be displayed read from Surface Evolver files
+     * @param dataFiles data to be displayed read from Surface Evolver files
      */
     MainWindow(DataFiles& dataFiles);
     /**

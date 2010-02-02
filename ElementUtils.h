@@ -120,6 +120,15 @@ struct LessThanNoCase : binary_function<const char*, const char*, bool>
     }
 };
 
+/**
+ * Pretty prints a G3D::AABox
+ * @param ostr where to print
+ * @param box what to print
+ * @return where to print next
+ */
+ostream& operator<< (ostream& ostr, const G3D::AABox& box);
+
+
 #endif //__ELEMENT_UTILS_H__
 
 // Local Variables:
