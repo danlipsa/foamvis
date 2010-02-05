@@ -57,7 +57,26 @@ public Q_SLOTS:
      * at the current position of the slider.
      */
     void DataSliderValueChanged (int value);
-
+        /**
+     * Shows vertices
+     * @param checked true for showing vertices false otherwise
+     */
+    void ViewVertices (bool checked);
+    /**
+     * Shows edges
+     * @param checked true for showing edges false otherwise
+     */
+    void ViewEdges (bool checked);
+    /**
+     * Shows faces
+     * @param checked true for showing faces false otherwise
+     */
+    void ViewFaces (bool checked);
+    /**
+     * Shows bodies
+     * @param checked true for showing bodies false otherwise
+     */
+    void ViewBodies (bool checked);
 private:
     /**
      * Enables/Disables the Begin button

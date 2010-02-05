@@ -33,6 +33,7 @@
 #include <G3D/G3DAll.h>
 
 #include <algorithm>
+#include <numeric>
 #include <stdexcept>
 #include <functional>
 #include <iostream>

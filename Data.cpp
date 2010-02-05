@@ -216,17 +216,17 @@ void Data::CalculatePhysical ()
 }
 
 
-void Data::Calculate (MinMaxElement minMaxElement, G3D::Vector3& v)
+void Data::Calculate (AggregateOnVertices aggregate, G3D::Vector3& v)
 {
     using namespace G3D;
     IteratorVertices it;
-    it = minMaxElement (m_vertices.begin (), m_vertices.end (), 
+    it = aggregate (m_vertices.begin (), m_vertices.end (), 
 	    Vertex::LessThan(Vector3::X_AXIS));;
     v.x = (*it)->x;
-    it = minMaxElement (m_vertices.begin (), m_vertices.end (), 
+    it = aggregate (m_vertices.begin (), m_vertices.end (), 
 	    Vertex::LessThan(Vector3::Y_AXIS));
     v.y = (*it)->y;
-    it = minMaxElement (m_vertices.begin (), m_vertices.end (), 
+    it = aggregate (m_vertices.begin (), m_vertices.end (), 
 	    Vertex::LessThan(Vector3::Z_AXIS));
     v.z = (*it)->z;
 }
@@ -238,4 +238,16 @@ void Data::CalculateAABox ()
     Calculate (min_element, low);
     Calculate (max_element, high);
     m_AABox.set(low, high);
+}
+
+void Data::CacheEdgesVerticesInBodies ()
+{
+    for_each (m_bodies.begin (), m_bodies.end (), 
+	      mem_fun_t<void, Body>(&Body::CacheEdgesVertices));
+}
+
+void Data::CalculateBodiesCenters ()
+{
+    for_each (m_bodies.begin (), m_bodies.end (),
+	      mem_fun_t<void, Body>(&Body::CalculateCenter));
 }

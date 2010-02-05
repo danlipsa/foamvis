@@ -22,9 +22,9 @@ public:
     /**
      * Functor applied to a collection of Data objects
      */
-    typedef IteratorData (*MinMaxElement)(IteratorData first,
-					  IteratorData last,
-					  Data::LessThan lessThan);
+    typedef IteratorData (*Aggregate)(IteratorData first,
+				      IteratorData last,
+				      Data::LessThan lessThan);
     /**
      * Calculate the  axially aligned bounding box for  this vector of
      * Data objects
@@ -47,15 +47,12 @@ public:
 private:
     /**
      * Calculates the low/high point for the AABox of this list of Data objects
-     * @param minMaxElement functor to be applied to the list of data objects
+     * @param aggregate functor to be applied to the list of data objects
      * @param corner pointer to a function member of Data that returns
      * the low or high corner of AABox of the data object
      * @param v where to store the low/high point
      */
-    void Calculate (
-	MinMaxElement minMaxElement,
-	const G3D::Vector3& (Data::*corner) () const,
-	G3D::Vector3& v);
+    void Calculate (Aggregate aggregate, Data::Corner corner, G3D::Vector3& v);
     /**
      * Vector of Data objects
      */

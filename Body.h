@@ -23,15 +23,53 @@ public:
      * @param faces vector of Face objects
      */
     Body(const vector<int>& faceIndexes, vector<Face*>& faces);
-        ~Body ();
+    ~Body ();
     /**
      * Returns the  vector of oriented faces this body is made of
      * @return a vector of oriented faces
      */
     const vector<OrientedFace*>& GetOrientedFaces() const
     {
-        return m_faces;
+	return m_faces;
     }
+    /**
+     * Does this body have this edge
+     * @param e the edge to be tested
+     * @return true if the body has the edge, false otherwise
+     */
+    bool HasEdge (const Edge* e) const
+    {
+	return m_edges.find (e) != m_edges.end ();
+    }
+    /**
+     * Caches an edge
+     * @param e the edge to cache
+     */
+    void CacheEdge (const Edge* e)
+    {
+	m_edges.insert (e);
+    }
+    /**
+     * Cache a vertex
+     * @param v the vertex to cache
+     */
+    void CacheVertex (const Vertex* v)
+    {
+	m_vertices.insert (v);
+    }
+    /**
+     * Caches edges and vertices
+     */
+    void CacheEdgesVertices ();
+    /**
+     * Calculates the center
+     */
+    void CalculateCenter ();
+    /**
+     * Gets the center
+     * @return the center of the body
+     */
+    const G3D::Vector3& GetCenter () const {return m_center;}
     /**
      * Prety prints a Body
      * @param ostr where to print
@@ -47,9 +85,50 @@ public:
     static void StoreDefaultAttributes (AttributesInfo& info);
 private:
     /**
+     * Splits a  set of  objects (vertices or  edges) in  physical and
+     * tesselation objects.
+     * @param src source for the objects
+     * @param destTessellation where we store tessellation objects
+     * @param destPhysical where we store physical objects
+     */
+    template <typename T>
+    void split (
+	set<const T*>& src,
+	vector<const T*>& destTessellation,
+	vector<const T*>& destPhysical);
+    /**
      * Oriented faces that are part of this body.
      */
     vector<OrientedFace*> m_faces;
+    /**
+     * Edges for this body
+     */
+    set<const Edge*> m_edges;
+    /**
+     * Vertices for this body
+     */
+    set<const Vertex*> m_vertices;
+    /**
+     * Physical vertices for this body
+     */
+    vector<const Vertex*> m_physicalVertices;
+    /**
+     * Tessellation vertices for this body
+     */
+    vector<const Vertex*> m_tessellationVertices;
+    /**
+     * Physical edges for this body
+     */
+    vector<const Edge*> m_physicalEdges;
+    /**
+     * Tessellation edges for this body
+     */
+    vector<const Edge*> m_tessellationEdges;
+    /**
+     * Center of the body
+     */
+    G3D::Vector3 m_center;
+
     /**
      * Stores information about all vertex attributes
      */

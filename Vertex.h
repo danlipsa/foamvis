@@ -78,6 +78,17 @@ public:
 	G3D::Vector3::Axis m_axis;
     };
 
+    /**
+     * Accumulates along X, Y or Z
+     * @param result where we accumulate
+     * @param v the vertex
+     * @return result + the value of the vertex along the specified axis
+     */
+    static G3D::Vector3 Accumulate (Vector3 result, const Vertex* v)
+    {
+	return result + *v;
+    }
+
 private:
     /**
      * Edges adjacent to this vertex

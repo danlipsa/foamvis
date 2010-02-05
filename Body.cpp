@@ -88,3 +88,98 @@ void Body::StoreDefaultAttributes (AttributesInfo& infos)
         new RealAttributeCreator());
 }
 
+/**
+ * Functor that caches an edge and its vertices
+ */
+class cacheEdgeVertices
+{
+public:
+    /**
+     * Constructor
+     * @param body where to cache the edge and vertices
+     */
+    cacheEdgeVertices (Body& body) : m_body (body) {}
+    /**
+     * Functor that caches an edge and its vertices
+     * @param oe the edge to cache
+     */
+    void operator () (OrientedEdge* oe)
+    {
+	const Edge *e = oe->GetEdge ();
+	m_body.CacheEdge (e);
+	m_body.CacheVertex (e->GetBegin ());
+	m_body.CacheVertex (e->GetEnd ());
+    }
+private:
+    /**
+     * Where to cache the edge and vertices
+     */
+    Body& m_body;
+};
+
+/**
+ * Functor that caches edges and vertices in vectors stored in the Body
+ */
+class cacheEdgesVertices
+{
+public:
+    /**
+     * Constructor
+     * @param body object we work on
+     */
+    cacheEdgesVertices (Body& body) : m_body(body) {}
+    /**
+     * Functor that caches edges and vertices in vectors stored in the Body
+     * @param of cache all edges and vertices for this OrientedFace
+     */
+    void operator() (OrientedFace* of)
+    {
+	const vector<OrientedEdge*> oev = of->GetFace ()->GetOrientedEdges ();
+	for_each (oev.begin (), oev.end (), cacheEdgeVertices (m_body));
+    }
+private:
+    /**
+     * Where to we store edges and vertices
+     */
+    Body& m_body;
+};
+
+
+void Body::CacheEdgesVertices ()
+{
+    for_each (m_faces.begin (), m_faces.end(), cacheEdgesVertices(*this));
+    split (m_vertices, m_tessellationVertices, m_physicalVertices);
+    split (m_edges, m_tessellationEdges, m_physicalEdges);
+}
+
+template <typename T>
+void Body::split (
+    set<const T*>& src,
+    vector<const T*>& destTessellation,
+    vector<const T*>& destPhysical)
+{
+    destTessellation.resize (src.size ());
+    copy (src.begin (), src.end (), destTessellation.begin ());
+    typename vector<const T*>::iterator bp;
+    bp = partition (destTessellation.begin (),destTessellation.end (), 
+		    not1(const_mem_fun_t<bool, T> (&T::IsPhysical)));
+    destPhysical.resize (destTessellation.end () - bp);
+    copy (bp, destTessellation.end (), 
+	  destPhysical.begin ());
+    destTessellation.resize (
+	bp - destTessellation.begin ());
+}
+
+
+void Body::CalculateCenter ()
+{
+    using namespace G3D;
+    unsigned int size = m_physicalVertices.size ();
+    if (size == 0)
+	throw logic_error (
+	    "Call CacheEdgesVertices before calling this function");
+    m_center = accumulate (
+	m_physicalVertices.begin (), m_physicalVertices.end (), m_center, 
+	&Vertex::Accumulate);
+    m_center /= Vector3(size, size, size);
+}

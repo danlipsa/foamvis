@@ -103,4 +103,3 @@ Color::Name Face::GetColor () const
     return dynamic_cast<const ColorAttribute*>(
         (*m_attributes)[COLOR_INDEX])->GetColor ();
 }
-

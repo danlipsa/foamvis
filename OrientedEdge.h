@@ -43,6 +43,11 @@ public:
      */
     void AddFace (const Face* face) {m_edge->AddFace (face);}
     /**
+     * Edge for this oriented edge
+     * @return the edge for this oriented edge
+     */
+    const Edge* GetEdge () const {return m_edge;}
+    /**
      * Pretty prints an Edge
      * @param ostr output stream where to print the edge
      * @param oe the edge to by printed.

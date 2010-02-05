@@ -29,13 +29,11 @@ class GLWidget : public QGLWidget
      */
     ~GLWidget();
     /**
-     * Specifies the minimum size of the GLWidget
-     * @return minimum size of the GLWidget
+     * Gets the minimum size of the GLWidget
      */
     QSize minimumSizeHint() const;
     /**
-     * Specifies the prefered size
-     * @return the prefered size
+     * Gets the prefered size
      */
     QSize sizeHint() const;
     /**
@@ -48,24 +46,33 @@ class GLWidget : public QGLWidget
     }
     /**
      * Gets the data displayed by the GLWidget
-     * @return a DataFiles object
      */
     DataFiles& GetDataFiles () {return *m_dataFiles;}
     /**
      * Gets the currently displayed data
-     * @return currently displayed data
      */
     Data& GetCurrentData ();
+    /**
+     * Gets the index of the currently displayed data.
+     */
+    unsigned int GetCurrentDataIndex () {return m_dataIndex;}
+    
     /**
      * Gets the currently displayed body
      * @return the currrently displayed body or UINT_MAX for all bodies
      */
-    unsigned int GetDisplayedBody ();
+    unsigned int GetDisplayedBody ()
+    {
+	return m_displayedBody;
+    }
     /**
      * Gets the face number up to which faces are displayed
      * @return face number up to which faces are displayed or UINT_MAX for all
      */
-    unsigned int GetDisplayedFace ();
+    unsigned int GetDisplayedFace ()
+    {
+	return m_displayedFace;
+    }
     /**
      * Increment displayed body
      */
@@ -253,7 +260,7 @@ private:
     /**
      * Index into m_data that shows the current DMP file displayed
      */
-    int m_dataIndex;
+    unsigned int m_dataIndex;
     /**
      * Used for rotating the view
      */

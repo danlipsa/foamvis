@@ -48,6 +48,16 @@ struct OpenGLParam
     const char* m_name;
 };
 
+
+/**
+ * Function that displays a body center
+ */
+void displayBodyCenter (const Body* b)
+{
+    G3D::Vector3 v = b->GetCenter ();
+    glVertex3f(v.x, v.y, v.z);
+}
+
 /**
  * Functor that displays a vertex
  */
@@ -110,7 +120,11 @@ public:
 	float edgeSize = (e->IsPhysical ()) ? 
 	    m_widget.GetPhysicalObjectsWidth () :
 	    m_widget.GetTessellationObjectsWidth ();
-	if (edgeSize != 0.0)
+
+        unsigned int db = m_widget.GetDisplayedBody ();
+	if ( edgeSize != 0.0 &&
+	     (db == UINT_MAX ||
+	      m_widget.GetCurrentData ().GetBody (db).HasEdge (e)))
 	{
 	    Vertex* begin = e->GetBegin ();
 	    Vertex* end = e->GetEnd ();
@@ -241,8 +255,7 @@ public:
 /**
  * Functor used to display a body
  */
-template <typename displayFace>
-class displayBody : public unary_function<const Body*, void>
+class displayBody
 {
 public:
     /**
@@ -261,10 +274,23 @@ public:
         if ( displayedBody == UINT_MAX ||
              m_count == displayedBody)
         {
-            const vector<OrientedFace*> v = b->GetOrientedFaces ();
-            for_each (v.begin (), v.end (), displayFace(m_widget));
+	    display (b);
         }
         m_count++;
+    }
+    /**
+     * Returns the widget where we display
+     */
+    GLWidget& GetWidget () {return m_widget;}
+    
+protected:
+    /**
+     * Displays the body
+     * @param b the body
+     */
+    virtual void display (const Body* b)
+    {
+	displayBodyCenter (b);
     }
 private:
     /**
@@ -276,6 +302,33 @@ private:
      */
     unsigned int m_count;
 };
+
+/**
+ * Displays a body going through all its faces
+ */
+template <typename displayFunction>
+class displayBodyWithFace : public displayBody
+{
+public:
+    /**
+     * Constructor
+     * @param widget where to display the body
+     */
+    displayBodyWithFace (GLWidget& widget) : 
+	displayBody (widget)
+    {}
+protected:
+    /**
+     * Displays a body going through all its faces
+     * @param b the body to be displayed
+     */
+    virtual void display (const Body* b)
+    {
+	const vector<OrientedFace*> v = b->GetOrientedFaces ();
+	for_each (v.begin (), v.end (), displayFunction(GetWidget ()));
+    }
+};
+
 
 /**
  * Dealocates the space occupied by  an old OpenGL object and stores a
@@ -605,7 +658,7 @@ void GLWidget::displayFacesContour (const vector<Body*>& bodies)
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     glBegin (GL_TRIANGLES);
     for_each (bodies.begin (), bodies.end (),
-              displayBody<displayFace> (*this));
+              displayBodyWithFace<displayFace> (*this));
     glEnd ();
 }
 
@@ -616,7 +669,7 @@ void GLWidget::displayFacesOffset (const vector<Body*>& bodies)
     glPolygonOffset (1, 1);
     glBegin (GL_TRIANGLES);
     for_each (bodies.begin (), bodies.end (),
-              displayBody<displayFaceWithColor> (*this));
+              displayBodyWithFace<displayFaceWithColor> (*this));
     glEnd ();
     glDisable (GL_POLYGON_OFFSET_FILL);
 }
@@ -662,9 +715,16 @@ GLuint GLWidget::displayEdges ()
     qglColor (QColor(Qt::black));
     const vector<Edge*>& edges = GetCurrentData ().GetEdges ();
     for_each (edges.begin (), edges.end (), displayEdge (*this));
+
+    glPointSize (3.0);
+    qglColor (QColor (Qt::red));
+    glBegin(GL_POINTS);
+    const vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+    for_each (bodies.begin (),bodies.end (),
+	      displayBody(*this));
+    glEnd ();
+
     glLineWidth (1.0);
-
-
     glEndList();
     return list;
 }
@@ -694,11 +754,6 @@ GLuint GLWidget::displayFaces ()
     displayFacesContour (bodies);
     displayFacesOffset (bodies);
 
-    qglColor (QColor(Qt::black));
-    const vector<Edge*>& edges = GetCurrentData ().GetEdges ();
-    for_each (edges.begin (), edges.end (), displayEdge (*this));
-    glLineWidth (1.0);
-
     glEndList();
     return list;
 }
@@ -711,7 +766,7 @@ GLuint GLWidget::displayBodies ()
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glBegin (GL_TRIANGLES);
     for_each (bodies.begin (), bodies.end (),
-              displayBody<displayFaceWithNormal>(*this));
+              displayBodyWithFace<displayFaceWithNormal>(*this));
     glEnd ();
     glEndList();
     return list;
@@ -734,16 +789,6 @@ GLuint GLWidget::display (ViewType type)
         throw domain_error (
             "ViewType enum has an invalid value: " + m_viewType);
     }
-}
-
-unsigned int GLWidget::GetDisplayedBody ()
-{
-    return m_displayedBody;
-}
-
-unsigned int GLWidget::GetDisplayedFace ()
-{
-    return m_displayedFace;
 }
 
 void GLWidget::IncrementDisplayedFace ()
@@ -778,7 +823,7 @@ void GLWidget::IncrementDisplayedBody ()
     m_displayedFace = UINT_MAX;
     if (m_displayedBody == GetCurrentData ().GetBodies ().size ())
         m_displayedBody = UINT_MAX;
-    setObject (&m_object, displayBodies ());
+    setObject (&m_object, display(m_viewType));
     updateGL ();
     cdbg << "displayed body: " << m_displayedBody << endl;
 }
@@ -789,7 +834,7 @@ void GLWidget::DecrementDisplayedBody ()
         m_displayedBody = GetCurrentData ().GetBodies ().size ();
     m_displayedBody--;
     m_displayedFace = UINT_MAX;
-    setObject (&m_object, displayBodies ());
+    setObject (&m_object, display(m_viewType));
     updateGL ();
     cdbg << "displayed body: " << m_displayedBody << endl;
 }

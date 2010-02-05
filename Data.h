@@ -25,9 +25,14 @@ public:
     /**
      * Functor applied to a collection of vertices
      */
-    typedef IteratorVertices (*MinMaxElement)(
+    typedef IteratorVertices (*AggregateOnVertices)(
 	IteratorVertices first, IteratorVertices last, 
 	Vertex::LessThan lessThan);
+    /**
+     * Member function which returns one of the corners of the AABox for a
+     * data object
+     */
+    typedef const G3D::Vector3& (Data::*Corner) () const;
     /**
      * Constructs a Data object.
      */
@@ -89,6 +94,12 @@ public:
      */
     void SetFace (unsigned int i, const vector<int>& edges,
                   vector<NameSemanticValue*>& list);
+    /**
+     * Gets ith body
+     * @param i index of the body to be returned
+     * @return the body
+     */
+    const Body& GetBody (unsigned int i) {return *m_bodies[i];}
     /**
      * Gets all bodies from the Data
      * @return a vector of Body pointers
@@ -154,6 +165,14 @@ public:
      */
     void CalculateAABox ();
     /**
+     * Cache edges and vertices for all bodies stored in the Data object
+     */
+    void CacheEdgesVerticesInBodies ();
+    /**
+     * Calculate centers for all bodies.
+     */
+    void CalculateBodiesCenters ();
+    /**
      * Gets a AABox of this Data object
      * @return an AABox of this Data object
      */
@@ -210,10 +229,10 @@ public:
 private:
     /**
      * Calculates low or high element for a AABox of a sequence of Vertices
-     * @param minMaxElement functor applied to the sequence
+     * @param aggregateOnVertices functor applied to the sequence
      * @param v where to store the min/max element
      */
-    void Calculate (MinMaxElement minMaxElement, G3D::Vector3& v);
+    void Calculate (AggregateOnVertices aggregateOnVertices, G3D::Vector3& v);
 
     /**
      * A vector of points

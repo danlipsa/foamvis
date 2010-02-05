@@ -227,6 +227,8 @@ bodies
     data.Compact ();
     data.CalculatePhysical ();
     data.CalculateAABox ();
+    data.CacheEdgesVerticesInBodies ();
+    data.CalculateBodiesCenters ();
 };
 
 header: header parameter

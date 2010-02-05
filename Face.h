@@ -42,6 +42,7 @@ public:
      * Returns the face color
      */
     Color::Name GetColor () const;
+
     /**
      * Specifies the default attributes for an Face object.
      * These attributes don't appear as a DEFINE in the .DMP file

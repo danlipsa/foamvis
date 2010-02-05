@@ -17,21 +17,19 @@ ostream& operator<< (ostream& ostr, DataFiles& dataFiles)
 }
 
 void DataFiles::Calculate (
-    MinMaxElement minMaxElement,
-    const G3D::Vector3& (Data::*corner) () const,
-    G3D::Vector3& v)
+    Aggregate aggregate, Data::Corner corner, G3D::Vector3& v)
 {
     using namespace G3D;
     vector<Data*>::iterator it;
-    it = minMaxElement (m_data.begin (), m_data.end (), 
+    it = aggregate (m_data.begin (), m_data.end (), 
 	    Data::LessThan(Vector3::X_AXIS, corner));
     v.x = ((*it)->*corner) ().x;
 
-    it = minMaxElement (m_data.begin (), m_data.end (), 
+    it = aggregate (m_data.begin (), m_data.end (), 
 	    Data::LessThan(Vector3::Y_AXIS, corner));    
     v.y = ((*it)->*corner) ().y;
 
-    it = minMaxElement (m_data.begin (), m_data.end (), 
+    it = aggregate (m_data.begin (), m_data.end (), 
 	    Data::LessThan(Vector3::Z_AXIS, corner));
     v.z = ((*it)->*corner) ().z;
 }

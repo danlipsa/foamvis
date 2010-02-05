@@ -28,6 +28,32 @@ MainWindow::MainWindow(DataFiles& dataFiles) :
                      this, SLOT(IncrementSlider ()));
 }
 
+
+void MainWindow::ViewVertices (bool checked)
+{
+    if (checked)
+	m_widthGroupBox->setEnabled (true);
+}
+
+void MainWindow::ViewEdges (bool checked)
+{
+    if (checked)
+	m_widthGroupBox->setEnabled (true);
+}
+
+void MainWindow::ViewFaces (bool checked)
+{
+    if (checked)
+	m_widthGroupBox->setEnabled (false);
+}
+
+void MainWindow::ViewBodies (bool checked)
+{
+    if (checked)
+	m_widthGroupBox->setEnabled (false);
+}
+
+
 void MainWindow::TogglePlay ()
 {
     if (m_play)
@@ -89,7 +115,9 @@ void MainWindow::updateStatus ()
     Data& currentData = m_glWidget->GetCurrentData ();
     QString oldString = m_status->text ();
     ostringstream ostr;
-    ostr << "Time steps: " << data.size () 
+    ostr << "Time step: " 
+	 << (m_glWidget->GetCurrentDataIndex () + 1) << " of "
+	 << data.size () 
 	 << ", Bubbles: " << currentData.GetBodies ().size () << ends;
     QString newString (ostr.str().c_str ());
     if (oldString != newString)
