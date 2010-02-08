@@ -18,11 +18,12 @@ class Edge : public Element
 public:
     /**
      * Creates an Edge object
+     * @param originalIndex what is the original index for this edge
      * @param begin the first point of the endge
      * @param end the last point of the edge
      */
-    Edge (Vertex* begin, Vertex* end):
-        m_begin (begin), m_end (end) {}
+    Edge (unsigned int originalIndex, Vertex* begin, Vertex* end):
+        Element(originalIndex), m_begin (begin), m_end (end) {}
     /**
      * @return the first vertex of the edge
      */

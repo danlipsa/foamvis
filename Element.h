@@ -21,7 +21,7 @@ public:
     /**
      * Constructor for the Element
      */
-    Element() : m_attributes(0)
+    Element(unsigned int index) : m_attributes(0), m_originalIndex (index)
     {}
     /**
      * Destructor for the Element
@@ -41,6 +41,10 @@ public:
     void StoreAttributes (
         vector<NameSemanticValue*>& list, AttributesInfo& info);
     /**
+     * Gets the original index of this element
+     */
+    unsigned int GetOriginalIndex () const {return m_originalIndex;}
+    /**
      * Pretty print attributes of an element
      * @param ostr where to print
      * @param info information about attributes
@@ -52,6 +56,10 @@ protected:
      * Vector of attributes
      */
     vector<const Attribute*>* m_attributes;
+    /**
+     * The original index for this element
+     */
+    unsigned int m_originalIndex;
 };
 
 #endif //__ELEMENT_H__

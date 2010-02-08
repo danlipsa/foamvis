@@ -77,6 +77,11 @@ public Q_SLOTS:
      * @param checked true for showing bodies false otherwise
      */
     void ViewBodies (bool checked);
+    /**
+     * Shows center paths
+     * param checked true for showing center paths false otherwise
+     */
+    void ViewCenterPaths (bool checked);
 private:
     /**
      * Enables/Disables the Begin button

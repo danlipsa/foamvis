@@ -224,6 +224,11 @@ faces
 bodies
 {
     //data.GetParsingData ().PrintTimeCheckpoint ("After bodies:");
+    /*
+     *holes  in bodies are  important, as  they allow  you to  track a
+     *certain body though multiple time  steps (for instance if body 1
+     *disappears, there is a whole and body 2 stays body 2.
+     */
     data.Compact ();
     data.CalculatePhysical ();
     data.CalculateAABox ();

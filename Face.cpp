@@ -60,7 +60,9 @@ ostream& operator<< (ostream& ostr, Face& f)
 
 AttributesInfo* Face::m_infos;
 
-Face::Face(const vector<int>& edgeIndexes, vector<Edge*>& edges)
+Face::Face(unsigned int index, 
+	   const vector<int>& edgeIndexes, vector<Edge*>& edges) :
+    Element (index)
 {
     m_edges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_edges.begin(), 

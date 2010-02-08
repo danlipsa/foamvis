@@ -19,12 +19,13 @@ class Vertex : public G3D::Vector3, public Element
 public:
     /**
      * Creates a Vertex object
+     * @param originalIndex original index for this vertex (before invoque 'compact')
      * @param x the X coordinate
      * @param y the Y coordinate
      * @param z the Z coordinate
      */
-    Vertex(float x, float y, float z):
-        G3D::Vector3 (x, y, z) {}
+    Vertex(unsigned int originalIndex, float x, float y, float z) :
+        G3D::Vector3 (x, y, z), Element(originalIndex) {}
     /**
      * Is this a physical (not tesselation) vertex
      * @return true if it is physical, false otherwise

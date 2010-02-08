@@ -99,7 +99,7 @@ public:
      * @param i index of the body to be returned
      * @return the body
      */
-    const Body& GetBody (unsigned int i) {return *m_bodies[i];}
+    const Body* GetBody (unsigned int i);
     /**
      * Gets all bodies from the Data
      * @return a vector of Body pointers
@@ -221,6 +221,16 @@ public:
 	 */
 	const G3D::Vector3& (Data::*m_corner) () const;
     };
+    /**
+     * Insert into the original index - body map
+     * @param body to insert
+     */
+    void InsertOriginalIndexBodyMap (const Body* body);
+    /**
+     * Gets the original index - body map
+     */
+    const map<unsigned int, const Body*>& GetOriginalIndexBodyMap ()
+    {return m_originalIndexBodyMap;}
 
     /**
      * Pretty print the Data object
@@ -267,6 +277,10 @@ private:
      * The axially aligned bounding box for all vertices.
      */
     G3D::AABox m_AABox;
+    /**
+     * Map between the original index and the body pointer
+     */
+    map<unsigned int, const Body*> m_originalIndexBodyMap;
 };
 
 /**

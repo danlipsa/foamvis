@@ -47,17 +47,6 @@ struct OpenGLParam
      */
     const char* m_name;
 };
-
-
-/**
- * Function that displays a body center
- */
-void displayBodyCenter (const Body* b)
-{
-    G3D::Vector3 v = b->GetCenter ();
-    glVertex3f(v.x, v.y, v.z);
-}
-
 /**
  * Functor that displays a vertex
  */
@@ -120,11 +109,13 @@ public:
 	float edgeSize = (e->IsPhysical ()) ? 
 	    m_widget.GetPhysicalObjectsWidth () :
 	    m_widget.GetTessellationObjectsWidth ();
+	const Body* body;
+	unsigned int db = m_widget.GetDisplayedBody ();
 
-        unsigned int db = m_widget.GetDisplayedBody ();
-	if ( edgeSize != 0.0 &&
-	     (db == UINT_MAX ||
-	      m_widget.GetCurrentData ().GetBody (db).HasEdge (e)))
+	if (edgeSize != 0.0 &&
+	    (db == UINT_MAX ||
+	     ((body = m_widget.GetCurrentData ().GetBody (db)) != 0 &&
+	      body->HasEdge (e))))
 	{
 	    Vertex* begin = e->GetBegin ();
 	    Vertex* end = e->GetEnd ();
@@ -262,7 +253,7 @@ public:
      * Constructor
      * @param widget where to display the body
      */
-    displayBody (GLWidget& widget) : m_widget (widget), m_count(0)
+    displayBody (GLWidget& widget) : m_widget (widget)
     {}
     /**
      * Functor used to display a body
@@ -272,11 +263,10 @@ public:
     {
         unsigned int displayedBody = m_widget.GetDisplayedBody ();
         if ( displayedBody == UINT_MAX ||
-             m_count == displayedBody)
+             b->GetOriginalIndex () == displayedBody)
         {
 	    display (b);
         }
-        m_count++;
     }
     /**
      * Returns the widget where we display
@@ -288,20 +278,38 @@ protected:
      * Displays the body
      * @param b the body
      */
-    virtual void display (const Body* b)
-    {
-	displayBodyCenter (b);
-    }
+    virtual void display (const Body* b) = 0;
 private:
     /**
      * Where to display the body
      */
     GLWidget& m_widget;
-    /**
-     * Used for DEBUG to display only certain bodies
-     */
-    unsigned int m_count;
 };
+
+
+/**
+ * Functor that displays the center of a bubble
+ */
+class displayBodyCenter : public displayBody
+{
+public:
+    /**
+     * Constructor
+     * @param widget where to display the center of the bubble
+     */
+    displayBodyCenter (GLWidget& widget) : displayBody (widget) {}
+protected:
+    /**
+     * Displays the center of a body (bubble)
+     * @param b body to display the center of
+     */
+    virtual void display (const Body* b)
+    {
+	G3D::Vector3 v = b->GetCenter ();
+	glVertex3f(v.x, v.y, v.z);
+    }
+};
+
 
 /**
  * Displays a body going through all its faces
@@ -328,7 +336,6 @@ protected:
 	for_each (v.begin (), v.end (), displayFunction(GetWidget ()));
     }
 };
-
 
 /**
  * Dealocates the space occupied by  an old OpenGL object and stores a
@@ -434,6 +441,8 @@ GLWidget::~GLWidget()
     glDeleteLists(m_object, 1);
 }
 
+
+
 // Slots
 // =====
 
@@ -480,6 +489,18 @@ void GLWidget::ViewBodies (bool checked)
 	updateGL ();
     }
 }
+
+void GLWidget::ViewCenterPaths (bool checked)
+{
+    if (checked)
+    {
+        m_viewType = CENTER_PATHS;
+        setObject (&m_object, displayCenterPaths ());
+	initLightFlat ();
+	updateGL ();
+    }
+}
+
 
 void GLWidget::DataSliderValueChanged (int newIndex)
 {
@@ -575,6 +596,7 @@ void GLWidget::initializeGL()
     case VERTICES:
     case EDGES:
     case FACES:
+    case CENTER_PATHS:
         initLightFlat ();
         break;
     case BODIES:
@@ -688,25 +710,6 @@ GLuint GLWidget::displayVertices ()
     return list;
 }
 
-
-/*
-GLuint GLWidget::displayVertices ()
-{
-    const vector<Body*>& bodies = GetCurrentData ().GetBodies ();
-    GLuint list = glGenLists(1);
-    glNewList(list, GL_COMPILE);
-    glPointSize (2);
-    glBegin(GL_POINTS);
-    for_each (bodies.begin (), bodies.end (),
-              displayBody<displayFaceWithColor> (*this));
-    glEnd();
-    glEndList();
-    return list;
-}
-*/
-
-
- 
 GLuint GLWidget::displayEdges ()
 {
     GLuint list = glGenLists(1);
@@ -716,34 +719,107 @@ GLuint GLWidget::displayEdges ()
     const vector<Edge*>& edges = GetCurrentData ().GetEdges ();
     for_each (edges.begin (), edges.end (), displayEdge (*this));
 
-    glPointSize (3.0);
-    qglColor (QColor (Qt::red));
-    glBegin(GL_POINTS);
-    const vector<Body*>& bodies = GetCurrentData ().GetBodies ();
-    for_each (bodies.begin (),bodies.end (),
-	      displayBody(*this));
-    glEnd ();
+    displayCenterOfBodies ();
 
     glLineWidth (1.0);
     glEndList();
     return list;
 }
 
-/*
-GLuint GLWidget::displayEdges ()
+void GLWidget::displayCenterOfBodies ()
 {
+    glPointSize (4.0);
+    qglColor (QColor (Qt::red));
+    glBegin(GL_POINTS);
     const vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+    for_each (bodies.begin (),bodies.end (), displayBodyCenter (*this));
+    glEnd ();
+}
+
+/**
+ * Functor that displays a body center given the index of the body
+ */
+class displayBodyCenterFromData : public displayBodyCenter
+{
+public:
+    /**
+     * Constructor
+     * @param widget where to display the body center
+     * @param index what body to display
+     */
+    displayBodyCenterFromData (GLWidget& widget, unsigned int index) :
+	displayBodyCenter (widget), m_index (index) {}
+    /**
+     * Functor that displays a body center
+     * @param data Data object that constains the body
+     */
+    void operator () (Data* data)
+    {
+	const Body* body = data->GetBody (m_index);
+	if (body != 0)
+	    operator () (body);
+    }
+private:
+    /**
+     * What body to display
+     */
+    int m_index;
+};
+
+
+/**
+ * Displays the center path for a certain body
+ */
+class displayCenterPath
+{
+public:
+    /**
+     * Constructor
+     * @param widget where to display the center path
+     */
+    displayCenterPath (GLWidget& widget) : m_widget (widget) {}
+    /**
+     * Displays the center path for a certain body
+     * @param index what body to display the center path for
+     */
+    void operator () (unsigned int index)
+    {
+	glBegin(GL_LINE_STRIP);
+	vector<Data*>& data = m_widget.GetDataFiles ().GetData ();
+	for_each (data.begin (), data.end (), 
+		  displayBodyCenterFromData (m_widget, index));
+	glEnd ();
+    }
+    /**
+     * Helper function which calls operator () (unsigned int).
+     * @param p a pair original index body pointer
+     */
+    inline void operator () (
+	pair<unsigned int, const Body*> p) {operator() (p.first);}
+
+private:
+    /**
+     * Where to display the center path
+     */
+    GLWidget& m_widget;
+};
+
+
+GLuint GLWidget::displayCenterPaths ()
+{
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-    glBegin(GL_TRIANGLES);
-    for_each (bodies.begin (), bodies.end (),
-              displayBody<displayFaceWithColor> (*this));
-    glEnd();
+    qglColor (QColor (Qt::black));
+    const map<unsigned int, const Body*> originalIndexBodyMap = 
+	GetDataFiles ().GetData ()[0]->GetOriginalIndexBodyMap ();
+    for_each (originalIndexBodyMap.begin (), originalIndexBodyMap.end (),
+	      displayCenterPath (*this));
+
+    displayCenterOfBodies ();
+
     glEndList();
     return list;
 }
-*/
 
 GLuint GLWidget::displayFaces ()
 {
@@ -785,6 +861,8 @@ GLuint GLWidget::display (ViewType type)
         return displayFaces ();
     case BODIES:
         return displayBodies ();
+    case CENTER_PATHS:
+	return displayCenterPaths ();
     default:
         throw domain_error (
             "ViewType enum has an invalid value: " + m_viewType);
@@ -821,7 +899,7 @@ void GLWidget::IncrementDisplayedBody ()
 {
     m_displayedBody++;
     m_displayedFace = UINT_MAX;
-    if (m_displayedBody == GetCurrentData ().GetBodies ().size ())
+    if (m_displayedBody == GetDataFiles ().GetData ()[0]->GetBodies ().size ())
         m_displayedBody = UINT_MAX;
     setObject (&m_object, display(m_viewType));
     updateGL ();
@@ -831,7 +909,7 @@ void GLWidget::IncrementDisplayedBody ()
 void GLWidget::DecrementDisplayedBody ()
 {
     if (m_displayedBody == UINT_MAX)
-        m_displayedBody = GetCurrentData ().GetBodies ().size ();
+        m_displayedBody = GetDataFiles ().GetData ()[0]->GetBodies ().size ();
     m_displayedBody--;
     m_displayedFace = UINT_MAX;
     setObject (&m_object, display(m_viewType));

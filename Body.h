@@ -19,10 +19,12 @@ class Body : public Element
 public:
     /**
      * Creates a new body
+     * @param originalIndex the original index for this body
      * @param faceIndexes 0 based indexes into a vector of Face objects
      * @param faces vector of Face objects
      */
-    Body(const vector<int>& faceIndexes, vector<Face*>& faces);
+    Body(unsigned int originalIndex, 
+	 const vector<int>& faceIndexes, vector<Face*>& faces);
     ~Body ();
     /**
      * Returns the  vector of oriented faces this body is made of

@@ -20,10 +20,12 @@ class Face : public Element
 public:
     /**
      * Constructs a Face object
+     * @param originalIndex original index for this face
      * @param edgeIndexes indexes into a vector of Edge objects
      * @param edges vector of Edge objects
      */
-    Face(const vector<int>& edgeIndexes, vector<Edge*>& edges);
+    Face(unsigned int originalIndex, 
+	 const vector<int>& edgeIndexes, vector<Edge*>& edges);
     /**
      * Destroys a Face object
      */

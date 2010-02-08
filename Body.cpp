@@ -58,7 +58,9 @@ ostream& operator<< (ostream& ostr, Body& b)
 
 AttributesInfo* Body::m_infos;
 
-Body::Body(const vector<int>& faceIndexes, vector<Face*>& faces)
+Body::Body(unsigned int originalIndex, 
+	   const vector<int>& faceIndexes, vector<Face*>& faces) :
+    Element(originalIndex)
 {
     m_faces.resize (faceIndexes.size ());
     transform (faceIndexes.begin(), faceIndexes.end(), m_faces.begin(), 
@@ -147,6 +149,8 @@ private:
 
 void Body::CacheEdgesVertices ()
 {
+    if (this == 0)
+	return;
     for_each (m_faces.begin (), m_faces.end(), cacheEdgesVertices(*this));
     split (m_vertices, m_tessellationVertices, m_physicalVertices);
     split (m_edges, m_tessellationEdges, m_physicalEdges);
@@ -162,7 +166,7 @@ void Body::split (
     copy (src.begin (), src.end (), destTessellation.begin ());
     typename vector<const T*>::iterator bp;
     bp = partition (destTessellation.begin (),destTessellation.end (), 
-		    not1(const_mem_fun_t<bool, T> (&T::IsPhysical)));
+		    not1(mem_fun(&T::IsPhysical)));
     destPhysical.resize (destTessellation.end () - bp);
     copy (bp, destTessellation.end (), 
 	  destPhysical.begin ());
@@ -173,6 +177,8 @@ void Body::split (
 
 void Body::CalculateCenter ()
 {
+    if (this == 0)
+	return;
     using namespace G3D;
     unsigned int size = m_physicalVertices.size ();
     if (size == 0)

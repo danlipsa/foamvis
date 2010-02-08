@@ -53,6 +53,12 @@ void MainWindow::ViewBodies (bool checked)
 	m_widthGroupBox->setEnabled (false);
 }
 
+void MainWindow::ViewCenterPaths (bool checked)
+{
+    if (checked)
+	m_widthGroupBox->setEnabled (false);
+}
+
 
 void MainWindow::TogglePlay ()
 {
@@ -114,11 +120,14 @@ void MainWindow::updateStatus ()
     vector<Data*>& data = m_glWidget->GetDataFiles ().GetData ();
     Data& currentData = m_glWidget->GetCurrentData ();
     QString oldString = m_status->text ();
-    ostringstream ostr;
+    ostringstream ostr, bubble;
     ostr << "Time step: " 
 	 << (m_glWidget->GetCurrentDataIndex () + 1) << " of "
 	 << data.size () 
-	 << ", Bubbles: " << currentData.GetBodies ().size () << ends;
+	 << ", Bubbles: " << currentData.GetBodies ().size ();
+    if (m_glWidget->GetDisplayedBody () != UINT_MAX)
+	bubble << ", Bubble: " << m_glWidget->GetDisplayedBody () << ends;
+    ostr << bubble.str () << ends;
     QString newString (ostr.str().c_str ());
     if (oldString != newString)
 	m_status->setText (newString);
@@ -162,13 +171,19 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
         if (modifiers == Qt::ShiftModifier)
             m_glWidget->IncrementDisplayedFace ();
         else
+	{
             m_glWidget->IncrementDisplayedBody ();
+	    updateStatus ();
+	}
         break;
     case Qt::Key_PageDown:
         if (modifiers == Qt::ShiftModifier)
             m_glWidget->DecrementDisplayedFace ();
         else
+	{
             m_glWidget->DecrementDisplayedBody ();
+	    updateStatus ();
+	}
         break;
     case Qt::Key_Space:
         string s = G3D::getOpenGLState (false);

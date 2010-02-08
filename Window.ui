@@ -39,6 +39,9 @@
           <property name="text">
            <string>Vertices</string>
           </property>
+          <attribute name="buttonGroup">
+           <string>buttonGroup</string>
+          </attribute>
          </widget>
         </item>
         <item>
@@ -46,6 +49,9 @@
           <property name="text">
            <string>Edges</string>
           </property>
+          <attribute name="buttonGroup">
+           <string>buttonGroup</string>
+          </attribute>
          </widget>
         </item>
         <item>
@@ -53,6 +59,9 @@
           <property name="text">
            <string>Faces</string>
           </property>
+          <attribute name="buttonGroup">
+           <string>buttonGroup</string>
+          </attribute>
          </widget>
         </item>
         <item>
@@ -63,6 +72,19 @@
           <property name="checked">
            <bool>true</bool>
           </property>
+          <attribute name="buttonGroup">
+           <string>buttonGroup</string>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="centerPathsRadioButton">
+          <property name="text">
+           <string>Center Paths</string>
+          </property>
+          <attribute name="buttonGroup">
+           <string>buttonGroup</string>
+          </attribute>
          </widget>
         </item>
         <item>
@@ -274,6 +296,7 @@
     <slot>PhysicalObjectsWidthChanged(int)</slot>
     <slot>TessellationObjectsWidthChanged(int)</slot>
     <slot>DataSliderValueChanged(int)</slot>
+    <slot>ViewCenterPaths(bool)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -287,7 +310,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>529</x>
-     <y>157</y>
+     <y>182</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -535,6 +558,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>centerPathsRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>ViewCenterPaths(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>542</x>
+     <y>150</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>435</x>
+     <y>185</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>centerPathsRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>Window</receiver>
+   <slot>ViewCenterPaths(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>588</x>
+     <y>151</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>645</x>
+     <y>151</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>TogglePlay()</slot>
@@ -545,5 +600,9 @@
   <slot>ViewEdges(bool)</slot>
   <slot>ViewFaces(bool)</slot>
   <slot>ViewBodies(bool)</slot>
+  <slot>ViewCenterPaths(bool)</slot>
  </slots>
+ <buttongroups>
+  <buttongroup name="buttonGroup"/>
+ </buttongroups>
 </ui>

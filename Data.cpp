@@ -74,7 +74,7 @@ private:
 };
 
 /**
- * Move elements in a vector toward the begining of the vector so that you 
+ * Move elements in a vector toward the begining of the vector so that we 
  * eliminate holes.
  * @param v vector of elements
  */
@@ -82,7 +82,7 @@ template <typename E>
 void compact (vector<E*>& v)
 {
     unsigned int step = 0;
-    for (unsigned int i = 0; i < v.size (); ++i)
+    for (unsigned int i = 0; i < v.size (); i++)
     {
         if (v[i] == 0)
             step++;
@@ -155,7 +155,7 @@ void Data::SetVertex (unsigned int i, float x, float y, float z,
 {
     if (i >= m_vertices.size ())
         m_vertices.resize (i + 1);
-    Vertex* vertex = new Vertex (x, y ,z);
+    Vertex* vertex = new Vertex (i, x, y ,z);
     if (&list != 0)
         vertex->StoreAttributes (
             list, m_attributesInfo[DefineAttribute::VERTEX]);
@@ -167,7 +167,7 @@ void Data::SetEdge (unsigned int i, unsigned int begin, unsigned int end,
 {
     if (i >= m_edges.size ())
         m_edges.resize (i + 1); 
-    Edge* edge = new Edge (GetVertex(begin), GetVertex(end));
+    Edge* edge = new Edge (i, GetVertex(begin), GetVertex(end));
     if (&list != 0)
         edge->StoreAttributes (list, m_attributesInfo[DefineAttribute::EDGE]);
     m_edges[i] = edge;
@@ -178,7 +178,7 @@ void Data::SetFace (unsigned int i, const vector<int>& edges,
 {
     if (i >= m_faces.size ())
         m_faces.resize (i + 1);
-    Face* face = new Face (edges, m_edges);
+    Face* face = new Face (i, edges, m_edges);
     if (&list != 0)
         face->StoreAttributes (list, m_attributesInfo[DefineAttribute::FACE]);
     m_faces[i] = face;
@@ -189,11 +189,13 @@ void Data::SetBody (unsigned int i, const vector<int>& faces,
 {
     if (i >= m_bodies.size ())
         m_bodies.resize (i + 1);
-    Body* body = new Body (faces, m_faces);
+    Body* body = new Body (i, faces, m_faces);
     if (&list != 0)
         body->StoreAttributes (list, m_attributesInfo[DefineAttribute::BODY]);    
     m_bodies[i] = body;
 }
+
+
 
 void Data::Compact (void)
 {
@@ -201,6 +203,23 @@ void Data::Compact (void)
     compact (m_edges);
     compact (m_faces);
     compact (m_bodies);
+    for_each (m_bodies.begin (), m_bodies.end (),
+	      bind1st(mem_fun(&Data::InsertOriginalIndexBodyMap), this));
+}
+
+const Body* Data::GetBody (unsigned int i)
+{
+    map<unsigned int, const Body*>::iterator it = 
+	m_originalIndexBodyMap.find (i);
+    if (it == m_originalIndexBodyMap.end ())
+	return 0;
+    else
+	return it->second;
+}
+
+void Data::InsertOriginalIndexBodyMap (const Body* body)
+{
+    m_originalIndexBodyMap[body->GetOriginalIndex ()] = body;
 }
 
 void Data::ReleaseParsingData ()
@@ -243,11 +262,11 @@ void Data::CalculateAABox ()
 void Data::CacheEdgesVerticesInBodies ()
 {
     for_each (m_bodies.begin (), m_bodies.end (), 
-	      mem_fun_t<void, Body>(&Body::CacheEdgesVertices));
+	      mem_fun(&Body::CacheEdgesVertices));
 }
 
 void Data::CalculateBodiesCenters ()
 {
     for_each (m_bodies.begin (), m_bodies.end (),
-	      mem_fun_t<void, Body>(&Body::CalculateCenter));
+	      mem_fun(&Body::CalculateCenter));
 }

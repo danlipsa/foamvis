@@ -103,6 +103,11 @@ class GLWidget : public QGLWidget
     {
 	return OBJECTS_WIDTH[m_tessellationObjectsWidth];
     }
+    /**
+     * Displays the center of the bodies
+     */
+    void displayCenterOfBodies ();
+
 public Q_SLOTS:
     /**
      * Shows vertices
@@ -124,6 +129,11 @@ public Q_SLOTS:
      * @param checked true for showing bodies false otherwise
      */
     void ViewBodies (bool checked);
+    /**
+     * Shows center paths
+     * param checked true for showing the center paths false otherwise
+     */
+    void ViewCenterPaths (bool checked);
     /**
      * Signals a change in data displayed
      * @param newIndex the new index for the data object to be displayed
@@ -183,6 +193,7 @@ private:
         EDGES,
         FACES,
         BODIES,
+	CENTER_PATHS,
         COUNT
     };
     /**
@@ -217,6 +228,10 @@ private:
      * @return the display list
      */
     GLuint displayBodies ();
+    /**
+     * Generates a display list for center paths
+     */
+    GLuint displayCenterPaths ();
     /**
      * Rotates the foam around an axis with a certain angle
      * @param axis can be 0, 1 or 2 for X, Y or Z
