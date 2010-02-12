@@ -19,23 +19,23 @@ class Vertex : public G3D::Vector3, public Element
 public:
     /**
      * Creates a Vertex object
-     * @param originalIndex original index for this vertex (before invoque 'compact')
+     * @param originalIndex original index for this vertex 
+     *    (before invoque 'compact')
      * @param x the X coordinate
      * @param y the Y coordinate
      * @param z the Z coordinate
      */
-    Vertex(unsigned int originalIndex, float x, float y, float z) :
-        G3D::Vector3 (x, y, z), Element(originalIndex) {}
+    Vertex(unsigned int originalIndex, float x, float y, float z);
     /**
      * Is this a physical (not tesselation) vertex
      * @return true if it is physical, false otherwise
      */
-    bool IsPhysical () const {return (m_edges.size () == 4);}
+    bool IsPhysical () const {return (m_adjacentPhysicalEdgesCount == 4);}
     /**
-     * Adds an edge that is touched by this vertex
+     * Adds an edge that is adjacent to this vertex
      * @param edge edge touched by this vertex
      */
-    void AddEdge (Edge* edge) {m_edges.push_back (edge);}
+    void AddAdjacentEdge (const Edge* edge);
     /**
      * Specifies the default attributes for the Vertex object.
      * These attributes don't appear as a DEFINE in the .DMP file
@@ -79,6 +79,12 @@ public:
 	G3D::Vector3::Axis m_axis;
     };
 
+    const Vector3int16& GetDomain () const {return m_domain;}
+    void SetDomain (const Vector3int16& v) {m_domain = v;}
+    static void CalculateDomains (Vertex* root);
+
+    const static Vector3int16 INVALID_DOMAIN;
+
     /**
      * Accumulates along X, Y or Z
      * @param result where we accumulate
@@ -94,7 +100,9 @@ private:
     /**
      * Edges adjacent to this vertex
      */
-    vector<Edge*> m_edges;
+    vector<const Edge*> m_adjacentEdges;
+    unsigned int m_adjacentPhysicalEdgesCount;
+    Vector3int16 m_domain;
     /**
      * Stores information about all vertex attributes
      */

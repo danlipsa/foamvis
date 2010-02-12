@@ -75,6 +75,7 @@ public:
      * @param list the list of attributes for this edge
      */
     void SetEdge (unsigned int i, unsigned int begin, unsigned int end,
+		  G3D::Vector3int16& domainIncrement,
                   vector<NameSemanticValue*>& list);
     /**
      * Gets all faces from this Data
@@ -190,6 +191,10 @@ public:
      * @return  true if  the  first  object is  less  than the  second
      * object, false otherwise.
      */
+    void PostProcess ();
+
+    ostream& PrintDomains (ostream& ostr);
+
     class LessThan
     {
     public:
@@ -231,6 +236,8 @@ public:
      */
     const map<unsigned int, const Body*>& GetOriginalIndexBodyMap ()
     {return m_originalIndexBodyMap;}
+
+    void CalculateVertexDomains ();
 
     /**
      * Pretty print the Data object
@@ -281,6 +288,7 @@ private:
      * Map between the original index and the body pointer
      */
     map<unsigned int, const Body*> m_originalIndexBodyMap;
+    ostream& PrintFacesWithIntersection (ostream& ostr);
 };
 
 /**

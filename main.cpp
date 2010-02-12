@@ -14,8 +14,7 @@
  * \mainpage The Foam Project
  * \section intro_sec Introduction
  *
- * This  project  is  meant  to  visualize and  help  understand  foam
- * modeling data.
+ * This project visualizes and helps understand foam modeling data.
  */
 
 
@@ -101,6 +100,8 @@ int main(int argc, char *argv[])
         if (dataFiles.GetData ().size () != 0)
         {
 	    dataFiles.CalculateAABox ();
+	    cdbg << dataFiles;
+	    return 0;
             QApplication app(argc, argv);
             MainWindow window (dataFiles);
             window.show();

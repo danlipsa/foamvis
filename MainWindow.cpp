@@ -125,7 +125,7 @@ void MainWindow::updateStatus ()
 	 << (m_glWidget->GetCurrentDataIndex () + 1) << " of "
 	 << data.size () 
 	 << ", Bubbles: " << currentData.GetBodies ().size ();
-    if (m_glWidget->GetDisplayedBody () != UINT_MAX)
+    if (m_glWidget->GetDisplayedBody () != m_glWidget->DISPLAY_ALL)
 	bubble << ", Bubble: " << m_glWidget->GetDisplayedBody () << ends;
     ostr << bubble.str () << ends;
     QString newString (ostr.str().c_str ());

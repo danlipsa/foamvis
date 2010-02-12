@@ -11,12 +11,6 @@
 #define YY_NO_UNISTD_H
 #endif //_MSC_VER
 
-#include <limits.h>
-#include <math.h>
-#include <string.h>
-#include <time.h>
-#include <errno.h>
-
 #ifdef __cplusplus
 
 // Add C++ includes here
@@ -32,6 +26,12 @@
 
 #include <G3D/G3DAll.h>
 
+#include <cstring>
+#include <ctime>
+#include <cerrno>
+#include <cassert>
+
+#include <limits>
 #include <algorithm>
 #include <numeric>
 #include <stdexcept>

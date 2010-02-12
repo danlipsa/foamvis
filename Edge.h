@@ -22,8 +22,11 @@ public:
      * @param begin the first point of the endge
      * @param end the last point of the edge
      */
-    Edge (unsigned int originalIndex, Vertex* begin, Vertex* end):
-        Element(originalIndex), m_begin (begin), m_end (end) {}
+    Edge (unsigned int originalIndex, Vertex* begin, Vertex* end, 
+	  G3D::Vector3int16& domainIncrement):
+        Element(originalIndex), m_begin (begin), m_end (end),
+	m_domainIncrement (domainIncrement)
+    {}
     /**
      * @return the first vertex of the edge
      */
@@ -48,6 +51,7 @@ public:
      * @param end value stored in the last vertex of the edge
      */
     void SetEnd(Vertex* end) {m_end = end;}
+    static short SignToNumber (char sign);
     /**
      * Prints the two vertices of an edge in reverse order (end , begin)
      * @param ostr the stream where to write the edge
@@ -57,13 +61,16 @@ public:
      * Is this a physical edge (not a tesselation edge)?
      * @return true if this is a physical edge, false otherwise
      */
-    bool IsPhysical () const {return (m_faces.size () == 3);}
+    bool IsPhysical () const {return (m_adjacentFaces.size () == 3);}
     /**
      * Adds a face touched by this edge
      * @param face face touched by this edge
      */
-    void AddFace (const Face* face) {m_faces.push_back (face);}
-
+    void AddAdjacentFace (const Face* face) {m_adjacentFaces.push_back (face);}
+    const G3D::Vector3int16& GetDomainIncrement () const 
+    {
+	return m_domainIncrement;
+    }
     /**
      * Specifies the default attributes for an Edge object.
      * These attributes don't appear as a DEFINE in the .DMP file
@@ -85,10 +92,11 @@ private:
      * Last vertex of the edge
      */
     Vertex* m_end;
+    Vector3int16 m_domainIncrement;
     /**
      * Stores adjacent faces to this edge
      */
-    vector<const Face*> m_faces;
+    vector<const Face*> m_adjacentFaces;
     /**
      * Stores information about all vertex attributes
      */

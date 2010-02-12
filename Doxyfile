@@ -628,6 +628,8 @@ RECURSIVE              = NO
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
 EXCLUDE                = stack.hh \
+		         position.hh \
+			 location.hh \
 		       	 EvolverData_lex.h \
                          EvolverData_lex.cpp \
 			 EvolverData_yacc.h \

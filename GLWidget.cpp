@@ -70,9 +70,18 @@ public:
 	float pointSize = (v->IsPhysical ()) ? 
 	    m_widget.GetPhysicalObjectsWidth () :
 	    m_widget.GetTessellationObjectsWidth ();
-	if (pointSize != 0.0)
+	const Body* body;
+	unsigned int db = m_widget.GetDisplayedBody ();
+	if (pointSize != 0.0 &&
+	    (db == numeric_limits<unsigned int>::max() ||
+	     ((body = m_widget.GetCurrentData ().GetBody (db)) != 0 &&
+	      body->HasVertex (v))))
 	{
 	    glPointSize (pointSize);
+	    m_widget.qglColor (
+		v->IsPhysical () ? 
+		m_widget.GetPhysicalObjectsColor () : 
+		m_widget.GetTessellationObjectsColor () );
 	    glBegin(GL_POINTS);
 	    glVertex3f(v->x, v->y, v->z);
 	    glEnd();
@@ -111,15 +120,18 @@ public:
 	    m_widget.GetTessellationObjectsWidth ();
 	const Body* body;
 	unsigned int db = m_widget.GetDisplayedBody ();
-
 	if (edgeSize != 0.0 &&
-	    (db == UINT_MAX ||
+	    (db == m_widget.DISPLAY_ALL ||
 	     ((body = m_widget.GetCurrentData ().GetBody (db)) != 0 &&
 	      body->HasEdge (e))))
 	{
 	    Vertex* begin = e->GetBegin ();
 	    Vertex* end = e->GetEnd ();
 	    glLineWidth (edgeSize);
+	    m_widget.qglColor (
+		e->IsPhysical () ? 
+		m_widget.GetPhysicalObjectsColor () : 
+		m_widget.GetTessellationObjectsColor () );
 	    glBegin(GL_LINES);
 	    glVertex3f(begin->x, begin->y, begin->z);
 	    glVertex3f(end->x, end->y, end->z);
@@ -262,7 +274,7 @@ public:
     void operator () (const Body* b)
     {
         unsigned int displayedBody = m_widget.GetDisplayedBody ();
-        if ( displayedBody == UINT_MAX ||
+        if ( displayedBody == m_widget.DISPLAY_ALL ||
              b->GetOriginalIndex () == displayedBody)
         {
 	    display (b);
@@ -424,14 +436,20 @@ void printOpenGLInfo ()
 
 const float GLWidget::OBJECTS_WIDTH[] = {0.0, 1.0, 3.0, 5.0, 7.0};
 
+const unsigned int GLWidget::DISPLAY_ALL(numeric_limits<unsigned int>::max());
 
 GLWidget::GLWidget(QWidget *parent)
-    : QGLWidget(parent), m_viewType (BODIES),
+    : QGLWidget(parent), 
+      m_viewType (BODIES),
       m_object(0),
       m_dataFiles(0), m_dataIndex (0),
-      m_displayedBody(UINT_MAX), m_displayedFace(UINT_MAX),
+      m_displayedBody(DISPLAY_ALL), m_displayedFace(DISPLAY_ALL),
       m_saveMovie(false), m_currentFrame(0),
-      m_physicalObjectsWidth (1), m_tessellationObjectsWidth (1)
+      m_physicalObjectsWidth (1), 
+      m_physicalObjectsColor (Qt::blue),
+      m_tessellationObjectsWidth (1),
+      m_tessellationObjectsColor (Qt::green),
+      m_centerPathColor (Qt::red)
 {
 }
 
@@ -702,7 +720,6 @@ GLuint GLWidget::displayVertices ()
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
 
-    qglColor (QColor(Qt::black));
     for_each (vertices.begin (), vertices.end (), displayVertex (*this));
     glPointSize (1.0);
 
@@ -715,7 +732,6 @@ GLuint GLWidget::displayEdges ()
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
 
-    qglColor (QColor(Qt::black));
     const vector<Edge*>& edges = GetCurrentData ().GetEdges ();
     for_each (edges.begin (), edges.end (), displayEdge (*this));
 
@@ -757,7 +773,7 @@ public:
     {
 	const Body* body = data->GetBody (m_index);
 	if (body != 0)
-	    operator () (body);
+	    display (body);
     }
 private:
     /**
@@ -791,7 +807,7 @@ public:
 	glEnd ();
     }
     /**
-     * Helper function which calls operator () (unsigned int).
+     * Helper function which calls operator () (unsigned int index).
      * @param p a pair original index body pointer
      */
     inline void operator () (
@@ -810,11 +826,17 @@ GLuint GLWidget::displayCenterPaths ()
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
     qglColor (QColor (Qt::black));
-    const map<unsigned int, const Body*> originalIndexBodyMap = 
+    const map<unsigned int, const Body*>& originalIndexBodyMap = 
 	GetDataFiles ().GetData ()[0]->GetOriginalIndexBodyMap ();
-    for_each (originalIndexBodyMap.begin (), originalIndexBodyMap.end (),
-	      displayCenterPath (*this));
-
+    if (GetDisplayedBody () == DISPLAY_ALL)
+	for_each (originalIndexBodyMap.begin (), originalIndexBodyMap.end (),
+		  displayCenterPath (*this));
+    else
+    {
+	map<unsigned int, const Body*>::const_iterator it = 
+	    originalIndexBodyMap.find (GetDisplayedBody());
+	displayCenterPath (*this) (*it);
+    }
     displayCenterOfBodies ();
 
     glEndList();
@@ -871,12 +893,12 @@ GLuint GLWidget::display (ViewType type)
 
 void GLWidget::IncrementDisplayedFace ()
 {
-    if (m_displayedBody != UINT_MAX)
+    if (m_displayedBody != DISPLAY_ALL)
     {
         const Body& body = *GetCurrentData ().GetBodies ()[m_displayedBody];
         m_displayedFace++;
         if (m_displayedFace == body.GetOrientedFaces ().size ())
-            m_displayedFace = UINT_MAX;
+            m_displayedFace = DISPLAY_ALL;
         setObject (&m_object, displayFaces ());
         updateGL ();
     }
@@ -884,10 +906,10 @@ void GLWidget::IncrementDisplayedFace ()
 
 void GLWidget::DecrementDisplayedFace ()
 {
-    if (m_displayedBody != UINT_MAX)
+    if (m_displayedBody != DISPLAY_ALL)
     {
         const Body& body = *GetCurrentData ().GetBodies ()[m_displayedBody];
-        if (m_displayedFace == UINT_MAX)
+        if (m_displayedFace == DISPLAY_ALL)
             m_displayedFace = body.GetOrientedFaces ().size ();
         m_displayedFace--;
         setObject (&m_object, displayFaces ());
@@ -898,9 +920,9 @@ void GLWidget::DecrementDisplayedFace ()
 void GLWidget::IncrementDisplayedBody ()
 {
     m_displayedBody++;
-    m_displayedFace = UINT_MAX;
+    m_displayedFace = DISPLAY_ALL;
     if (m_displayedBody == GetDataFiles ().GetData ()[0]->GetBodies ().size ())
-        m_displayedBody = UINT_MAX;
+        m_displayedBody = DISPLAY_ALL;
     setObject (&m_object, display(m_viewType));
     updateGL ();
     cdbg << "displayed body: " << m_displayedBody << endl;
@@ -908,10 +930,10 @@ void GLWidget::IncrementDisplayedBody ()
 
 void GLWidget::DecrementDisplayedBody ()
 {
-    if (m_displayedBody == UINT_MAX)
+    if (m_displayedBody == DISPLAY_ALL)
         m_displayedBody = GetDataFiles ().GetData ()[0]->GetBodies ().size ();
     m_displayedBody--;
-    m_displayedFace = UINT_MAX;
+    m_displayedFace = DISPLAY_ALL;
     setObject (&m_object, display(m_viewType));
     updateGL ();
     cdbg << "displayed body: " << m_displayedBody << endl;

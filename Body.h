@@ -43,6 +43,10 @@ public:
     {
 	return m_edges.find (e) != m_edges.end ();
     }
+    bool HasVertex (const Vertex* v) const
+    {
+	return m_vertices.find (v) != m_vertices.end ();
+    }
     /**
      * Caches an edge
      * @param e the edge to cache

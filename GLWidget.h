@@ -103,10 +103,17 @@ class GLWidget : public QGLWidget
     {
 	return OBJECTS_WIDTH[m_tessellationObjectsWidth];
     }
+    const QColor& GetTessellationObjectsColor () 
+    {return m_tessellationObjectsColor;}
+    
+    const QColor& GetPhysicalObjectsColor () 
+    {return m_physicalObjectsColor;}
+
     /**
      * Displays the center of the bodies
      */
     void displayCenterOfBodies ();
+    static const unsigned int DISPLAY_ALL;
 
 public Q_SLOTS:
     /**
@@ -300,10 +307,13 @@ private:
      * Stores the size of physical objects
      */
     int m_physicalObjectsWidth;
+    QColor m_physicalObjectsColor;
     /**
      * Stores the size of tessellation objects
      */
     int m_tessellationObjectsWidth;
+    QColor m_tessellationObjectsColor;
+    QColor m_centerPathColor;
 };
 
 #endif //__GLWIDGET_H__

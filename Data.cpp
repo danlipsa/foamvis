@@ -47,7 +47,7 @@ private:
 };
 
 /**
- * Functor that adds a face as being touched by an edge
+ * Functor that adds a face adjacent to an edge
  */
 class updateFaces 
 {
@@ -59,16 +59,16 @@ public:
     updateFaces (Face* face) : m_face (face) 
     {}
     /**
-     * Functor that adds specifies that a face is touched by an edge
+     * Functor that adds a face adjacent to an edge
      * @param orientedEdge the edge that touches the face
      */
     void operator () (OrientedEdge* orientedEdge)
     {
-	orientedEdge->AddFace (m_face);
+	orientedEdge->AddAdjacentFace (m_face);
     }
 private:
     /**
-     * Face that is touched by edges
+     * Face adjacent to edges
      */
     Face* m_face;
 };
@@ -102,15 +102,13 @@ void updateFaceForEdges (Face* face)
     for_each (orientedEdges.begin (), orientedEdges.end (), updateFaces (face));
 }
 /**
- * For both vertices of this edge, add the edge as being touched by the vertices
+ * For both  vertices of this edge,  add the edge as  being adjacent to
+ * the vertices
  */
 void updateEdgeForVertices (Edge* edge)
 {
-    if (edge->IsPhysical ())
-    {
-	edge->GetBegin ()->AddEdge (edge);
-	edge->GetEnd ()->AddEdge (edge);
-    }
+    edge->GetBegin ()->AddAdjacentEdge (edge);
+    edge->GetEnd ()->AddAdjacentEdge (edge);
 }
 
 
@@ -128,6 +126,8 @@ ostream& operator<< (ostream& ostr, Data& d)
               sizeof(d.m_viewMatrix)/sizeof(d.m_viewMatrix[0]), 
               printMatrixElement (ostr));
     ostr << endl;
+    d.PrintDomains (ostr);
+    d.PrintFacesWithIntersection (ostr);
     return ostr;
 }
 
@@ -163,11 +163,13 @@ void Data::SetVertex (unsigned int i, float x, float y, float z,
 }
 
 void Data::SetEdge (unsigned int i, unsigned int begin, unsigned int end,
+		    G3D::Vector3int16& domainIncrement,
                     vector<NameSemanticValue*>& list) 
 {
     if (i >= m_edges.size ())
         m_edges.resize (i + 1); 
-    Edge* edge = new Edge (i, GetVertex(begin), GetVertex(end));
+    Edge* edge = new Edge (
+	i, GetVertex(begin), GetVertex(end), domainIncrement);
     if (&list != 0)
         edge->StoreAttributes (list, m_attributesInfo[DefineAttribute::EDGE]);
     m_edges[i] = edge;
@@ -269,4 +271,125 @@ void Data::CalculateBodiesCenters ()
 {
     for_each (m_bodies.begin (), m_bodies.end (),
 	      mem_fun(&Body::CalculateCenter));
+}
+
+void Data::PostProcess ()
+{
+    Compact ();
+    CalculatePhysical ();
+    CalculateAABox ();
+    CacheEdgesVerticesInBodies ();
+    CalculateBodiesCenters ();
+    CalculateVertexDomains ();
+}
+
+void Data::CalculateVertexDomains ()
+{
+    //Vertex* v = m_edges[0]->GetBegin ();
+    Vertex* v = m_vertices[0];
+    v->SetDomain (Vector3int16 (0,0,0));
+    Vertex::CalculateDomains (v);
+}
+
+struct lessThanVector3int16
+{
+bool operator () (const Vector3int16& first, const Vector3int16& second)
+{
+    return 
+	first.x < second.x ||
+	(first.x == second.x && first.y < second.y) ||
+	(first.x == second.x && first.y == second.y && first.z < second.z);
+}
+};
+
+
+class storeByDomain
+{
+public:
+    storeByDomain (map< G3D::Vector3int16, list<const Vertex*>,
+		   lessThanVector3int16 >& 
+		   domainVerticesMap) : m_domainVerticesMap (domainVerticesMap)
+    {}
+    void operator() (Vertex* v)
+    {
+	m_domainVerticesMap[v->GetDomain ()].push_back (v);
+    }
+private:
+    map< G3D::Vector3int16, list<const Vertex*>, 
+	 lessThanVector3int16 >& m_domainVerticesMap;
+};
+
+class printVertexIndex
+{
+public:
+    printVertexIndex (ostream& ostr) : m_ostr(ostr) {}
+    void operator() (const Vertex* v)
+    {
+	m_ostr << (v->GetOriginalIndex () + 1) << " ";
+    }
+private:
+    ostream& m_ostr;
+};
+
+class printDomainVertices
+{
+public:
+    printDomainVertices (ostream& ostr) : m_ostr(ostr) {}
+
+    void operator() (pair<const G3D::Vector3int16, list<const Vertex*> >& pair)
+    {
+	m_ostr << "Domain: " << pair.first
+	     << " Vertices: ";
+	for_each (pair.second.begin (), pair.second.end (), 
+		  printVertexIndex (m_ostr));
+	m_ostr << endl;
+    }
+private:
+    ostream& m_ostr;
+};
+
+ostream& Data::PrintDomains (ostream& ostr)
+{
+    map < G3D::Vector3int16, list<const Vertex*>,lessThanVector3int16 > 
+	domainVerticesMap;
+    for_each (m_vertices.begin (), m_vertices.end (),
+	      storeByDomain (domainVerticesMap));
+    for_each (domainVerticesMap.begin (), domainVerticesMap.end (),
+	      printDomainVertices (ostr));
+    return ostr;
+}
+
+unsigned int countIntersections (OrientedEdge* e)
+{
+    const Vector3int16& domainIncrement = e->GetEdge ()->GetDomainIncrement ();
+    return ((domainIncrement.x != 0) + 
+	    (domainIncrement.y != 0) + (domainIncrement.z != 0));
+}
+
+class printFaceIfIntersection
+{
+public:
+    printFaceIfIntersection (ostream& ostr) : m_ostr(ostr) {}
+    void operator () (Face* f)
+    {
+	vector<const OrientedEdge*>::iterator it;
+	const vector<OrientedEdge*>& v = f->GetOrientedEdges ();
+	vector<unsigned int> intersections(v.size ());
+	transform (
+	    v.begin (), v.end (), intersections.begin (), countIntersections);
+	unsigned int totalIntersections = accumulate (
+	    intersections.begin (), intersections.end (), 0);
+	m_ostr << (f->GetOriginalIndex () + 1) << " has " 
+	       << totalIntersections << " intersections" << endl;
+    }
+private:
+    ostream& m_ostr;
+};
+
+
+ostream& Data::PrintFacesWithIntersection (ostream& ostr)
+{
+    ostr << "Face intersections:" << endl;
+    for_each(m_faces.begin (), m_faces.end (), printFaceIfIntersection (ostr));
+    return ostr;
 }

@@ -16,7 +16,7 @@ ostream& operator<< (ostream& ostr, const Edge& e)
         ostr << "NULL";
     else
         ostr << "Edge: " << *e.m_begin << ", " << *e.m_end 
-	     << " FACES " << e.m_faces.size ()
+	     << " ADJACENT FACES " << e.m_adjacentFaces.size ()
 	     << " Edge attributes: ";
     return e.PrintAttributes (ostr, *Edge::m_infos);
 }
@@ -25,12 +25,9 @@ AttributesInfo* Edge::m_infos;
 
 void Edge::ReversePrint (ostream& ostr)
 {
-    if (this == 0)
-        ostr << "NULL";
-    else
-        ostr << "Edge: " << *m_end << ", " << *m_begin
-	     << " FACES " << m_faces.size ()
-	     << " Edge attributes: ";
+    ostr << "Edge: " << *m_end << ", " << *m_begin
+	 << " ADJACENT FACES " << m_adjacentFaces.size ()
+	 << " Edge attributes: ";
     PrintAttributes (ostr, *Edge::m_infos);
 }
 
@@ -43,3 +40,17 @@ void Edge::StoreDefaultAttributes (AttributesInfo& infos)
         new IntegerAttributeCreator());
 }
 
+short Edge::SignToNumber (char sign)
+{
+    switch (sign)
+    {
+    case '*':
+	return 0;
+    case '+':
+	return 1;
+    case '-':
+	return -1;
+    default:
+	throw invalid_argument (string ("Invalid sign: ") + sign);
+    }
+}

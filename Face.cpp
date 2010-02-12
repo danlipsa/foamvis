@@ -76,11 +76,8 @@ Face::~Face()
 
 void Face::ReversePrint (ostream& ostr)
 {
-    if (this == 0)
-        ostr << "NULL";
-    else
-        ReversePrintElements<OrientedEdge*> (
-            ostr, m_edges, "edges part of the face", true);
+    ReversePrintElements<OrientedEdge*> (
+	ostr, m_edges, "edges part of the face", true);
     ostr << " Face attributes: ";
     PrintAttributes (ostr, *Face::m_infos);
 }

@@ -39,6 +39,7 @@ class AttributeCreator;
  */
 %union
 {
+    short m_short;
     /**
      * Value for an iteger
      */
@@ -70,6 +71,7 @@ class AttributeCreator;
     DefineAttribute::Type m_attributeType;
     std::vector<NameSemanticValue*>* m_nameSemanticValueList;
     NameSemanticValue* m_nameSemanticValue;
+    G3D::Vector3int16* m_vector3int16;
     Color::Name m_color;
 }
 
@@ -184,7 +186,8 @@ class AttributeCreator;
 %type <m_intList> integer_list
 %type <m_realList> comma_real_list
 %type <m_color> color_name
-
+%type <m_vector3int16> signs_torus_model
+%type <m_short> sign_torus_model
 
 %{
 #include "Data.h"
@@ -224,16 +227,7 @@ faces
 bodies
 {
     //data.GetParsingData ().PrintTimeCheckpoint ("After bodies:");
-    /*
-     *holes  in bodies are  important, as  they allow  you to  track a
-     *certain body though multiple time  steps (for instance if body 1
-     *disappears, there is a whole and body 2 stays body 2.
-     */
-    data.Compact ();
-    data.CalculatePhysical ();
-    data.CalculateAABox ();
-    data.CacheEdgesVerticesInBodies ();
-    data.CalculateBodiesCenters ();
+    data.PostProcess ();
 };
 
 header: header parameter
@@ -514,7 +508,9 @@ signs_torus_model edge_attribute_list
 	intToUnsigned($2 - 1, "Semantic error: edge index less than 0: "),
 	intToUnsigned($3 - 1, "Semantic error: edge begin less than 0: "),
 	intToUnsigned($4 - 1, "Semantic error: edge end less than 0: "),
+	*$5,
 	*$6);
+    delete $5;
     NameSemanticValue::DeleteVector($6);
 }
 | ;
@@ -543,9 +539,27 @@ predefined_edge_attribute: ORIGINAL INTEGER_VALUE
 ;
 
 signs_torus_model: sign_torus_model sign_torus_model sign_torus_model
-|;
+{
+    $$ = new G3D::Vector3int16 ($1, $2, $3);
+}
+|
+{
+    $$ = new G3D::Vector3int16 (0,0,0);
+};
 
-sign_torus_model: '+' | '*' | '-';
+sign_torus_model: '+' 
+{
+    $$ = Edge::SignToNumber((*$1)[0]);
+}
+| '*' 
+{
+    $$ = Edge::SignToNumber((*$1)[0]);
+}
+| '-'
+{
+    $$ = Edge::SignToNumber((*$1)[0]);
+}
+;
 
 faces: FACES face_list;
 

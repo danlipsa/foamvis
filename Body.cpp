@@ -149,8 +149,6 @@ private:
 
 void Body::CacheEdgesVertices ()
 {
-    if (this == 0)
-	return;
     for_each (m_faces.begin (), m_faces.end(), cacheEdgesVertices(*this));
     split (m_vertices, m_tessellationVertices, m_physicalVertices);
     split (m_edges, m_tessellationEdges, m_physicalEdges);
@@ -177,13 +175,11 @@ void Body::split (
 
 void Body::CalculateCenter ()
 {
-    if (this == 0)
-	return;
     using namespace G3D;
     unsigned int size = m_physicalVertices.size ();
     if (size == 0)
 	throw logic_error (
-	    "Call CacheEdgesVertices before calling this function");
+	    "Call Body::CacheEdgesVertices before calling this function");
     m_center = accumulate (
 	m_physicalVertices.begin (), m_physicalVertices.end (), m_center, 
 	&Vertex::Accumulate);

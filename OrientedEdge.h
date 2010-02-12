@@ -41,7 +41,7 @@ public:
     /**
      * Adds a face that is touched by this oriented edge.
      */
-    void AddFace (const Face* face) {m_edge->AddFace (face);}
+    void AddAdjacentFace (const Face* face) {m_edge->AddAdjacentFace (face);}
     /**
      * Edge for this oriented edge
      * @return the edge for this oriented edge
