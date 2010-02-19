@@ -23,10 +23,7 @@ public:
      * @param end the last point of the edge
      */
     Edge (unsigned int originalIndex, Vertex* begin, Vertex* end, 
-	  G3D::Vector3int16& domainIncrement):
-        Element(originalIndex), m_begin (begin), m_end (end),
-	m_endDomainIncrement (domainIncrement)
-    {}
+	  G3D::Vector3int16& endDomainIncrement, bool duplicate = false);
     /**
      * @return the first vertex of the edge
      */

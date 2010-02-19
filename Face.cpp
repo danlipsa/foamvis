@@ -77,8 +77,9 @@ ostream& operator<< (ostream& ostr, Face& f)
 AttributesInfo* Face::m_infos;
 
 Face::Face(unsigned int index, 
-	   const vector<int>& edgeIndexes, vector<Edge*>& edges) :
-    Element (index)
+	   const vector<int>& edgeIndexes, vector<Edge*>& edges, 
+	   bool duplicate) :
+    Element (index, duplicate)
 {
     m_edges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_edges.begin(), 

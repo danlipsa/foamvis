@@ -23,6 +23,18 @@ ostream& operator<< (ostream& ostr, const Edge& e)
 
 AttributesInfo* Edge::m_infos;
 
+
+Edge::Edge (unsigned int originalIndex, Vertex* begin, Vertex* end, 
+	    G3D::Vector3int16& endDomainIncrement, bool duplicate = false):
+    Element(originalIndex, duplicate), m_begin (begin), m_end (end),
+    m_endDomainIncrement (endDomainIncrement)
+{
+    if (! m_duplicate)
+    {
+	
+    }
+}
+
 void Edge::ReversePrint (ostream& ostr)
 {
     ostr << "Edge: " << *m_end << ", " << *m_begin

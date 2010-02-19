@@ -27,7 +27,8 @@ public:
      * @param y the Y coordinate
      * @param z the Z coordinate
      */
-    Vertex(unsigned int originalIndex, float x, float y, float z);
+    Vertex(unsigned int originalIndex, float x, float y, float z,
+	   bool duplicate=false);
     /**
      * Is this a physical (not tesselation) vertex
      * @return true if it is physical, false otherwise
@@ -38,6 +39,7 @@ public:
      * @param edge edge touched by this vertex
      */
     void AddAdjacentEdge (const Edge* edge);
+    G3D::Vector3int16 GetDomain (const G3D::Vector3* periods) const;
     /**
      * Specifies the default attributes for the Vertex object.
      * These attributes don't appear as a DEFINE in the .DMP file
@@ -81,25 +83,19 @@ public:
 	G3D::Vector3::Axis m_axis;
     };
 
-    void TranslateVertex (const G3D::Vector3* periods);
-
     template <typename Vertices>
-    static ostream& PrintDomains (ostream& ostr, Vertices vertices)
+    static ostream& PrintDomains (ostream& ostr, Vertices vertices,
+				  const G3D::Vector3* periods)
     {
 	map < G3D::Vector3int16, list<const Vertex*>,lessThanVector3int16 > 
 	    domainVerticesMap;
 	for_each (vertices.begin (), vertices.end (),
-		  storeByDomain (domainVerticesMap));
+		  storeByDomain (domainVerticesMap, periods));
 	ostr << domainVerticesMap.size () << " domains:" << endl;
 	for_each (domainVerticesMap.begin (), domainVerticesMap.end (),
 		  printDomainVertices (ostr));
 	return ostr;
     }
-
-    static void CalculateDomains (const Vertex* start, const Body* b);
-    
-
-    const static Vector3int16 INVALID_DOMAIN;
 
     /**
      * Accumulates along X, Y or Z
@@ -118,7 +114,6 @@ private:
      */
     vector<const Edge*> m_adjacentEdges;
     unsigned int m_adjacentPhysicalEdgesCount;
-    Vector3int16 m_domain;
     /**
      * Stores information about all vertex attributes
      */
@@ -140,45 +135,48 @@ private:
     public:
 	storeByDomain (map< G3D::Vector3int16, list<const Vertex*>,
 		       lessThanVector3int16 >& 
-	domainVerticesMap) : m_domainVerticesMap (domainVerticesMap)
+		       domainVerticesMap, 
+		       const G3D::Vector3* periods) : 
+	    m_domainVerticesMap (domainVerticesMap), m_periods (periods)
 	{}
 	void operator() (const Vertex* v)
 	{
-	    m_domainVerticesMap[v->GetDomain ()].push_back (v);
+	    m_domainVerticesMap[v->GetDomain (m_periods)].push_back (v);
 	}
     private:
 	map< G3D::Vector3int16, list<const Vertex*>, 
 	     lessThanVector3int16 >& m_domainVerticesMap;
+	const G3D::Vector3* m_periods;
     };
 
-class printVertexIndex
-{
-public:
-    printVertexIndex (ostream& ostr) : m_ostr(ostr) {}
-    void operator() (const Vertex* v)
+    class printVertexIndex
     {
-	m_ostr << (v->GetOriginalIndex () + 1) << " ";
-    }
-private:
-    ostream& m_ostr;
-};
+    public:
+	printVertexIndex (ostream& ostr) : m_ostr(ostr) {}
+	void operator() (const Vertex* v)
+	{
+	    m_ostr << (v->GetOriginalIndex () + 1) << " ";
+	}
+    private:
+	ostream& m_ostr;
+    };
 
-class printDomainVertices
-{
-public:
-    printDomainVertices (ostream& ostr) : m_ostr(ostr) {}
-
-    void operator() (pair<const G3D::Vector3int16, list<const Vertex*> >& pair)
+    class printDomainVertices
     {
-	m_ostr << "Domain: " << pair.first
-	       << " Vertices: ";
-	for_each (pair.second.begin (), pair.second.end (), 
-		  printVertexIndex (m_ostr));
-	m_ostr << endl;
-    }
-private:
-    ostream& m_ostr;
-};
+    public:
+	printDomainVertices (ostream& ostr) : m_ostr(ostr) {}
+
+	void operator() (pair<const G3D::Vector3int16, list<const Vertex*> >& pair)
+	{
+	    m_ostr << "Domain: " << pair.first
+		   << " Vertices: ";
+	    for_each (pair.second.begin (), pair.second.end (), 
+		      printVertexIndex (m_ostr));
+	    m_ostr << endl;
+	}
+    private:
+	ostream& m_ostr;
+    };
 
 
 };

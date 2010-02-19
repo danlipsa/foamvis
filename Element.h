@@ -21,7 +21,8 @@ public:
     /**
      * Constructor for the Element
      */
-    Element(unsigned int index) : m_attributes(0), m_originalIndex (index)
+    Element(unsigned int index, bool duplicate) : 
+	m_attributes(0), m_originalIndex (index), m_duplicate (duplicate)
     {}
     /**
      * Destructor for the Element
@@ -60,6 +61,7 @@ protected:
      * The original index for this element
      */
     unsigned int m_originalIndex;
+    bool m_duplicate;
 };
 
 #endif //__ELEMENT_H__

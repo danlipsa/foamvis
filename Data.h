@@ -193,7 +193,8 @@ public:
      * object, false otherwise.
      */
     void PostProcess ();
-    void PrintDomains (ostream& ostr) {Vertex::PrintDomains(ostr, m_vertices);}
+    void PrintDomains (ostream& ostr) 
+    {Vertex::PrintDomains(ostr, m_vertices, m_period);}
 
     class LessThan
     {

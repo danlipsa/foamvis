@@ -100,7 +100,7 @@ ostream& operator<< (ostream& ostr, Data& d)
               sizeof(d.m_viewMatrix)/sizeof(d.m_viewMatrix[0]), 
               printMatrixElement (ostr));
     ostr << endl;
-    Vertex::PrintDomains (ostr, d.m_vertices);
+    Vertex::PrintDomains (ostr, d.m_vertices, d.m_period);
     d.PrintFacesWithIntersection (ostr);
     return ostr;
 }

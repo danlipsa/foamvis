@@ -26,7 +26,8 @@ public:
      * @param edges vector of Edge objects
      */
     Face(unsigned int originalIndex, 
-	 const vector<int>& edgeIndexes, vector<Edge*>& edges);
+	 const vector<int>& edgeIndexes, vector<Edge*>& edges, 
+	 bool duplicate = false);
     /**
      * Destroys a Face object
      */

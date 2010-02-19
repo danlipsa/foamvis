@@ -24,7 +24,8 @@ public:
      * @param faces vector of Face objects
      */
     Body(unsigned int originalIndex, 
-	 const vector<int>& faceIndexes, vector<Face*>& faces);
+	 const vector<int>& faceIndexes, vector<Face*>& faces,
+	 bool duplicate = false);
     ~Body ();
     /**
      * Returns the  vector of oriented faces this body is made of
@@ -79,10 +80,8 @@ public:
      * @return the center of the body
      */
     const G3D::Vector3& GetCenter () const {return m_center;}
-    void PrintDomains (ostream& ostr) const
-    {Vertex::PrintDomains (ostr, m_vertices);}
-    bool AreDomainsCalculated () const {return m_areDomainsCalculated;}
-    void CalculateDomains (const Vertex* start);
+    void PrintDomains (ostream& ostr, const G3D::Vector3* periods) const
+    {Vertex::PrintDomains (ostr, m_vertices, periods);}
     /**
      * Prety prints a Body
      * @param ostr where to print
@@ -141,7 +140,6 @@ private:
      * Center of the body
      */
     G3D::Vector3 m_center;
-    bool m_areDomainsCalculated;
     /**
      * Stores information about all vertex attributes
      */
