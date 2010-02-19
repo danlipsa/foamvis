@@ -11,6 +11,8 @@
 
 class AttributesInfo;
 class Edge;
+class Body;
+
 /**
  * Vertex represented in a DMP file. Is part of edges, faces and bodies.
  */
@@ -79,9 +81,23 @@ public:
 	G3D::Vector3::Axis m_axis;
     };
 
-    const Vector3int16& GetDomain () const {return m_domain;}
-    void SetDomain (const Vector3int16& v) {m_domain = v;}
-    static void CalculateDomains (Vertex* root);
+    void TranslateVertex (const G3D::Vector3* periods);
+
+    template <typename Vertices>
+    static ostream& PrintDomains (ostream& ostr, Vertices vertices)
+    {
+	map < G3D::Vector3int16, list<const Vertex*>,lessThanVector3int16 > 
+	    domainVerticesMap;
+	for_each (vertices.begin (), vertices.end (),
+		  storeByDomain (domainVerticesMap));
+	ostr << domainVerticesMap.size () << " domains:" << endl;
+	for_each (domainVerticesMap.begin (), domainVerticesMap.end (),
+		  printDomainVertices (ostr));
+	return ostr;
+    }
+
+    static void CalculateDomains (const Vertex* start, const Body* b);
+    
 
     const static Vector3int16 INVALID_DOMAIN;
 
@@ -107,6 +123,64 @@ private:
      * Stores information about all vertex attributes
      */
     static AttributesInfo* m_infos;
+
+    struct lessThanVector3int16
+    {
+	bool operator () (const Vector3int16& first, const Vector3int16& second)
+	{
+	    return 
+		first.x < second.x ||
+		(first.x == second.x && first.y < second.y) ||
+		(first.x == second.x && first.y == second.y && first.z < second.z);
+	}
+    };
+
+    class storeByDomain
+    {
+    public:
+	storeByDomain (map< G3D::Vector3int16, list<const Vertex*>,
+		       lessThanVector3int16 >& 
+	domainVerticesMap) : m_domainVerticesMap (domainVerticesMap)
+	{}
+	void operator() (const Vertex* v)
+	{
+	    m_domainVerticesMap[v->GetDomain ()].push_back (v);
+	}
+    private:
+	map< G3D::Vector3int16, list<const Vertex*>, 
+	     lessThanVector3int16 >& m_domainVerticesMap;
+    };
+
+class printVertexIndex
+{
+public:
+    printVertexIndex (ostream& ostr) : m_ostr(ostr) {}
+    void operator() (const Vertex* v)
+    {
+	m_ostr << (v->GetOriginalIndex () + 1) << " ";
+    }
+private:
+    ostream& m_ostr;
+};
+
+class printDomainVertices
+{
+public:
+    printDomainVertices (ostream& ostr) : m_ostr(ostr) {}
+
+    void operator() (pair<const G3D::Vector3int16, list<const Vertex*> >& pair)
+    {
+	m_ostr << "Domain: " << pair.first
+	       << " Vertices: ";
+	for_each (pair.second.begin (), pair.second.end (), 
+		  printVertexIndex (m_ostr));
+	m_ostr << endl;
+    }
+private:
+    ostream& m_ostr;
+};
+
+
 };
 /**
  * Pretty prints a Vertex* by calling the operator<< for a Vertex.

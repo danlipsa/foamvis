@@ -47,33 +47,6 @@ private:
 };
 
 /**
- * Functor that adds a face adjacent to an edge
- */
-class updateFaces 
-{
-public:
-    /**
-     * Constructor
-     * @param face this face is touched by edges
-     */
-    updateFaces (Face* face) : m_face (face) 
-    {}
-    /**
-     * Functor that adds a face adjacent to an edge
-     * @param orientedEdge the edge that touches the face
-     */
-    void operator () (OrientedEdge* orientedEdge)
-    {
-	orientedEdge->AddAdjacentFace (m_face);
-    }
-private:
-    /**
-     * Face adjacent to edges
-     */
-    Face* m_face;
-};
-
-/**
  * Move elements in a vector toward the begining of the vector so that we 
  * eliminate holes.
  * @param v vector of elements
@@ -94,12 +67,13 @@ void compact (vector<E*>& v)
 }
 
 /**
- * For all the edges in the face, add the face as being touched by the edges
+ * For all the edges in the face, add the face as being adjacent to the edge
  */
 void updateFaceForEdges (Face* face)
 {
     const vector<OrientedEdge*>& orientedEdges = face->GetOrientedEdges ();
-    for_each (orientedEdges.begin (), orientedEdges.end (), updateFaces (face));
+    for_each (orientedEdges.begin (), orientedEdges.end (),
+	      bind2nd (mem_fun (&OrientedEdge::AddAdjacentFace), face));
 }
 /**
  * For both  vertices of this edge,  add the edge as  being adjacent to
@@ -126,7 +100,7 @@ ostream& operator<< (ostream& ostr, Data& d)
               sizeof(d.m_viewMatrix)/sizeof(d.m_viewMatrix[0]), 
               printMatrixElement (ostr));
     ostr << endl;
-    d.PrintDomains (ostr);
+    Vertex::PrintDomains (ostr, d.m_vertices);
     d.PrintFacesWithIntersection (ostr);
     return ostr;
 }
@@ -209,9 +183,9 @@ void Data::Compact (void)
 	      bind1st(mem_fun(&Data::InsertOriginalIndexBodyMap), this));
 }
 
-const Body* Data::GetBody (unsigned int i)
+Body* Data::GetBody (unsigned int i)
 {
-    map<unsigned int, const Body*>::iterator it = 
+    map<unsigned int, Body*>::iterator it = 
 	m_originalIndexBodyMap.find (i);
     if (it == m_originalIndexBodyMap.end ())
 	return 0;
@@ -219,7 +193,7 @@ const Body* Data::GetBody (unsigned int i)
 	return it->second;
 }
 
-void Data::InsertOriginalIndexBodyMap (const Body* body)
+void Data::InsertOriginalIndexBodyMap (Body* body)
 {
     m_originalIndexBodyMap[body->GetOriginalIndex ()] = body;
 }
@@ -230,8 +204,16 @@ void Data::ReleaseParsingData ()
     m_parsingData = 0;
 }
 
+void updateBodyForFaces (const Body* body)
+{
+    const vector<OrientedFace*>& of = body->GetOrientedFaces ();
+    for_each (of.begin (), of.end (),
+	      bind2nd(mem_fun(&OrientedFace::AddAdjacentBody), body));
+}
+
 void Data::CalculatePhysical ()
 {
+    for_each (m_bodies.begin (), m_bodies.end (), updateBodyForFaces);
     for_each (m_faces.begin (), m_faces.end (), updateFaceForEdges);
     for_each (m_edges.begin (), m_edges.end (), updateEdgeForVertices);
 }
@@ -280,88 +262,39 @@ void Data::PostProcess ()
     CalculateAABox ();
     CacheEdgesVerticesInBodies ();
     CalculateBodiesCenters ();
-    CalculateVertexDomains ();
+    CalculateDomains ();
+    TranslateVertices ();
 }
 
-void Data::CalculateVertexDomains ()
+void Data::TranslateVertices ()
 {
-    //Vertex* v = m_edges[0]->GetBegin ();
-    Vertex* v = m_vertices[0];
-    v->SetDomain (Vector3int16 (0,0,0));
-    Vertex::CalculateDomains (v);
+    for_each (m_vertices.begin (), m_vertices.end (), 
+	      bind2nd (mem_fun (&Vertex::TranslateVertex), GetPeriods ()));
 }
 
-struct lessThanVector3int16
+
+void calculateDomainsForAdjacentBodies (const OrientedFace* of)
 {
-bool operator () (const Vector3int16& first, const Vector3int16& second)
-{
-    return 
-	first.x < second.x ||
-	(first.x == second.x && first.y < second.y) ||
-	(first.x == second.x && first.y == second.y && first.z < second.z);
+    const vector<Body*>& adjacentBodies = of->GetAdjacentBodies ();
+    const Vertex* vertex = of->GetBegin (0);
+    for_each (adjacentBodies.begin (), adjacentBodies.end (),
+	      bind2nd (mem_fun (&Body::CalculateDomains), vertex));
 }
-};
 
-
-class storeByDomain
+void Data::CalculateDomains ()
 {
-public:
-    storeByDomain (map< G3D::Vector3int16, list<const Vertex*>,
-		   lessThanVector3int16 >& 
-		   domainVerticesMap) : m_domainVerticesMap (domainVerticesMap)
-    {}
-    void operator() (Vertex* v)
-    {
-	m_domainVerticesMap[v->GetDomain ()].push_back (v);
-    }
-private:
-    map< G3D::Vector3int16, list<const Vertex*>, 
-	 lessThanVector3int16 >& m_domainVerticesMap;
-};
-
-class printVertexIndex
-{
-public:
-    printVertexIndex (ostream& ostr) : m_ostr(ostr) {}
-    void operator() (const Vertex* v)
-    {
-	m_ostr << (v->GetOriginalIndex () + 1) << " ";
-    }
-private:
-    ostream& m_ostr;
-};
-
-class printDomainVertices
-{
-public:
-    printDomainVertices (ostream& ostr) : m_ostr(ostr) {}
-
-    void operator() (pair<const G3D::Vector3int16, list<const Vertex*> >& pair)
-    {
-	m_ostr << "Domain: " << pair.first
-	     << " Vertices: ";
-	for_each (pair.second.begin (), pair.second.end (), 
-		  printVertexIndex (m_ostr));
-	m_ostr << endl;
-    }
-private:
-    ostream& m_ostr;
-};
-
-ostream& Data::PrintDomains (ostream& ostr)
-{
-    map < G3D::Vector3int16, list<const Vertex*>,lessThanVector3int16 > 
-	domainVerticesMap;
-    for_each (m_vertices.begin (), m_vertices.end (),
-	      storeByDomain (domainVerticesMap));
-    for_each (domainVerticesMap.begin (), domainVerticesMap.end (),
-	      printDomainVertices (ostr));
-    return ostr;
+    Body* body = GetBody (0);
+    Vertex* vertex = body->GetOrientedFace(0)->GetFace ()
+	->GetOrientedEdge (0)->GetBegin ();
+    vertex->SetDomain (Vector3int16 (0,0,0));
+    body->CalculateDomains (vertex);
+    const vector<OrientedFace*>& of = body->GetOrientedFaces ();
+    for_each (of.begin (), of.end (), calculateDomainsForAdjacentBodies);
 }
 
 unsigned int countIntersections (OrientedEdge* e)
 {
-    const Vector3int16& domainIncrement = e->GetEdge ()->GetDomainIncrement ();
+    const Vector3int16& domainIncrement = e->GetEdge ()->GetEndDomainIncrement ();
     return ((domainIncrement.x != 0) + 
 	    (domainIncrement.y != 0) + (domainIncrement.z != 0));
 }
@@ -379,7 +312,7 @@ public:
 	    v.begin (), v.end (), intersections.begin (), countIntersections);
 	unsigned int totalIntersections = accumulate (
 	    intersections.begin (), intersections.end (), 0);
-	m_ostr << (f->GetOriginalIndex () + 1) << " has " 
+	m_ostr << f->GetOriginalIndex () << " has " 
 	       << totalIntersections << " intersections" << endl;
     }
 private:
@@ -393,3 +326,4 @@ ostream& Data::PrintFacesWithIntersection (ostream& ostr)
     for_each(m_faces.begin (), m_faces.end (), printFaceIfIntersection (ostr));
     return ostr;
 }
+

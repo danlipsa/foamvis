@@ -34,6 +34,8 @@ public:
     {
 	return m_faces;
     }
+
+    OrientedFace* GetOrientedFace (unsigned int i) const {return m_faces[i];}
     /**
      * Does this body have this edge
      * @param e the edge to be tested
@@ -47,6 +49,7 @@ public:
     {
 	return m_vertices.find (v) != m_vertices.end ();
     }
+
     /**
      * Caches an edge
      * @param e the edge to cache
@@ -76,6 +79,10 @@ public:
      * @return the center of the body
      */
     const G3D::Vector3& GetCenter () const {return m_center;}
+    void PrintDomains (ostream& ostr) const
+    {Vertex::PrintDomains (ostr, m_vertices);}
+    bool AreDomainsCalculated () const {return m_areDomainsCalculated;}
+    void CalculateDomains (const Vertex* start);
     /**
      * Prety prints a Body
      * @param ostr where to print
@@ -134,7 +141,7 @@ private:
      * Center of the body
      */
     G3D::Vector3 m_center;
-
+    bool m_areDomainsCalculated;
     /**
      * Stores information about all vertex attributes
      */

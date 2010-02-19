@@ -60,7 +60,7 @@ AttributesInfo* Body::m_infos;
 
 Body::Body(unsigned int originalIndex, 
 	   const vector<int>& faceIndexes, vector<Face*>& faces) :
-    Element(originalIndex)
+    Element(originalIndex), m_areDomainsCalculated (false)
 {
     m_faces.resize (faceIndexes.size ());
     transform (faceIndexes.begin(), faceIndexes.end(), m_faces.begin(), 
@@ -184,4 +184,12 @@ void Body::CalculateCenter ()
 	m_physicalVertices.begin (), m_physicalVertices.end (), m_center, 
 	&Vertex::Accumulate);
     m_center /= Vector3(size, size, size);
+}
+
+void Body::CalculateDomains (const Vertex* start)
+{
+    if (m_areDomainsCalculated)
+	return;
+    Vertex::CalculateDomains (start, this);
+    m_areDomainsCalculated = true;
 }

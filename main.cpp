@@ -100,8 +100,8 @@ int main(int argc, char *argv[])
         if (dataFiles.GetData ().size () != 0)
         {
 	    dataFiles.CalculateAABox ();
-	    cdbg << dataFiles;
-	    return 0;
+	    //cdbg << dataFiles;
+	    //return 0;
             QApplication app(argc, argv);
             MainWindow window (dataFiles);
             window.show();

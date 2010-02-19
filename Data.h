@@ -82,6 +82,7 @@ public:
      * @return a vector of Face pointers
      */
     const vector<Face*>& GetFaces () {return m_faces;}
+    Face* GetFace (unsigned int i) {return m_faces[i];}
     /**
      * Stores a Face object in the Data object 
      * 
@@ -100,7 +101,7 @@ public:
      * @param i index of the body to be returned
      * @return the body
      */
-    const Body* GetBody (unsigned int i);
+    Body* GetBody (unsigned int i);
     /**
      * Gets all bodies from the Data
      * @return a vector of Body pointers
@@ -192,8 +193,7 @@ public:
      * object, false otherwise.
      */
     void PostProcess ();
-
-    ostream& PrintDomains (ostream& ostr);
+    void PrintDomains (ostream& ostr) {Vertex::PrintDomains(ostr, m_vertices);}
 
     class LessThan
     {
@@ -230,14 +230,18 @@ public:
      * Insert into the original index - body map
      * @param body to insert
      */
-    void InsertOriginalIndexBodyMap (const Body* body);
+    void InsertOriginalIndexBodyMap (Body* body);
     /**
      * Gets the original index - body map
      */
-    const map<unsigned int, const Body*>& GetOriginalIndexBodyMap ()
+    const map<unsigned int, Body*>& GetOriginalIndexBodyMap ()
     {return m_originalIndexBodyMap;}
 
-    void CalculateVertexDomains ();
+    void CalculateDomains ();
+    void TranslateVertices ();
+    void SetPeriod (unsigned int i, const G3D::Vector3& v) {m_period[i] = v;}
+    const G3D::Vector3& GetPeriod (unsigned int i) const {return m_period[i];}
+    const G3D::Vector3* GetPeriods () const {return m_period;}
 
     /**
      * Pretty print the Data object
@@ -271,6 +275,7 @@ private:
      * View matrix for displaying vertices, edges, faces and bodies.
      */
     float m_viewMatrix[16];
+    G3D::Vector3 m_period[3];
     /**
      * Vector of maps between the name of an attribute and information about it.
      * The indexes in the vector are for vertices, edges, faces, ...
@@ -287,7 +292,7 @@ private:
     /**
      * Map between the original index and the body pointer
      */
-    map<unsigned int, const Body*> m_originalIndexBodyMap;
+    map<unsigned int, Body*> m_originalIndexBodyMap;
     ostream& PrintFacesWithIntersection (ostream& ostr);
 };
 

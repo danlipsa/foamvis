@@ -826,14 +826,14 @@ GLuint GLWidget::displayCenterPaths ()
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
     qglColor (QColor (Qt::black));
-    const map<unsigned int, const Body*>& originalIndexBodyMap = 
+    const map<unsigned int, Body*>& originalIndexBodyMap = 
 	GetDataFiles ().GetData ()[0]->GetOriginalIndexBodyMap ();
     if (GetDisplayedBody () == DISPLAY_ALL)
 	for_each (originalIndexBodyMap.begin (), originalIndexBodyMap.end (),
 		  displayCenterPath (*this));
     else
     {
-	map<unsigned int, const Body*>::const_iterator it = 
+	map<unsigned int, Body*>::const_iterator it = 
 	    originalIndexBodyMap.find (GetDisplayedBody());
 	displayCenterPath (*this) (*it);
     }

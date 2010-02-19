@@ -113,6 +113,7 @@ class GLWidget : public QGLWidget
      * Displays the center of the bodies
      */
     void displayCenterOfBodies ();
+    void DataChanged () {DataSliderValueChanged (m_dataIndex);}
     static const unsigned int DISPLAY_ALL;
 
 public Q_SLOTS:

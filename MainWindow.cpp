@@ -186,7 +186,12 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 	}
         break;
     case Qt::Key_Space:
-        string s = G3D::getOpenGLState (false);
-        cdbg << s;
+        //string s = G3D::getOpenGLState (false);
+        //cdbg << s;
+	m_glWidget->GetCurrentData ().TranslateVertices ();
+	m_glWidget->DataChanged ();
+	m_glWidget->GetCurrentData ().GetBody (
+	    m_glWidget->GetDisplayedBody ())->PrintDomains (cdbg);
+	break;
     }
 }

@@ -30,6 +30,12 @@ public:
      * @return the face associated with this oriented face
      */
     const Face* GetFace () const {return m_face;}
+    void AddAdjacentBody (Body* body) {m_face->AddAdjacentBody (body);}
+    const vector<Body*>& GetAdjacentBodies () const
+    {
+	return m_face->GetAdjacentBodies ();
+    }
+    
     /**
      * Is this in the same order or reversed compared with the face associated
      * with it.

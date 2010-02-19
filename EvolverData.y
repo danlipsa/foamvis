@@ -439,6 +439,13 @@ torus_periods: PERIODS
 const_expr const_expr const_expr
 const_expr const_expr const_expr
 const_expr const_expr const_expr
+{
+    data.SetPeriod (0, G3D::Vector3 ($2, $3, $4));
+    data.SetPeriod (1, G3D::Vector3 ($5, $6, $7));
+    data.SetPeriod (2, G3D::Vector3 ($8, $9, $10));
+}
+;
+
 
 vertices: VERTICES vertex_list;
 

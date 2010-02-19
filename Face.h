@@ -11,6 +11,7 @@
 #include "Color.h"
 
 class AttributesInfo;
+class Body;
 
 /**
  * A Face is a oriented list of edges.
@@ -40,11 +41,16 @@ public:
      */
     const vector<OrientedEdge*>& GetOrientedEdges () const 
     { return m_edges;}
+    OrientedEdge* GetOrientedEdge (int i) const {return m_edges[i];}
     /**
      * Returns the face color
      */
     Color::Name GetColor () const;
-
+    void AddAdjacentBody (Body* body) {m_adjacentBodies.push_back (body);}
+    const vector<Body*>& GetAdjacentBodies () const
+    {
+	return m_adjacentBodies;
+    }
     /**
      * Specifies the default attributes for an Face object.
      * These attributes don't appear as a DEFINE in the .DMP file
@@ -64,6 +70,8 @@ private:
      * Edges that are part of this face
      */
     vector<OrientedEdge*> m_edges;
+    vector<Vector3int16> m_edgesDomainIncrement;
+    vector<Body*> m_adjacentBodies;
     /**
      * Stores information about all vertex attributes
      */

@@ -7,7 +7,8 @@
 #include "Face.h"
 #include "AttributeInfo.h"
 #include "ParsingDriver.h"
-
+#include "Debug.h"
+#include "Body.h"
 
 /**
  * Unary function that  creates an oriented edge from  an index into a
@@ -47,16 +48,31 @@ private:
     vector<Edge*>& m_edges;
 };
 
+class printIndex
+{
+public:
+    printIndex (ostream& ostr) : m_ostr (ostr) {}
+    void operator () (const Body* body)
+    {
+	m_ostr << body->GetOriginalIndex () << " ";
+    }
+private:
+    ostream& m_ostr;
+};
+
+
 ostream& operator<< (ostream& ostr, Face& f)
 {
-    if (&f == 0)
-        ostr << "NULL";
-    else
-        PrintElements<OrientedEdge*> (ostr, f.m_edges, 
-				      "edges part of the face", true);
+    ostr << "Adjacent bodies" << "(" << f.m_adjacentBodies.size () << "): ";
+    for_each (f.m_adjacentBodies.begin (), f.m_adjacentBodies.end (),
+	      printIndex (ostr));
+    ostr << endl;
+    PrintElements<OrientedEdge*> (ostr, f.m_edges, 
+				  "edges part of the face", true);
     ostr << " Face attributes: ";
     return f.PrintAttributes (ostr, *Face::m_infos);
 }
+
 
 AttributesInfo* Face::m_infos;
 
@@ -67,6 +83,19 @@ Face::Face(unsigned int index,
     m_edges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_edges.begin(), 
                indexToOrientedEdge(edges));
+    G3D::Vector3int16 beginDomainInc (0, 0, 0);
+    vector<OrientedEdge*>::iterator edgeIt;
+    vector<G3D::Vector3int16>::iterator edgeDomainIncIt;
+    for (edgeIt = m_edges.begin (), edgeDomainIncIt = 
+	     m_edgesDomainIncrement.begin ();
+	 edgeIt < m_edges.end (); 
+	 edgeIt++, edgeDomainIncIt++)
+    {
+	G3D::Vector3int16 endDomainInc = 
+	    (*edgeIt)->GetEndDomainIncrement ();
+	*edgeDomainIncIt = beginDomainInc + endDomainInc;
+	beginDomainInc = endDomainInc;
+    }
 }
 
 Face::~Face()
@@ -102,3 +131,4 @@ Color::Name Face::GetColor () const
     return dynamic_cast<const ColorAttribute*>(
         (*m_attributes)[COLOR_INDEX])->GetColor ();
 }
+

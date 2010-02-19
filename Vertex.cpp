@@ -10,6 +10,8 @@
 #include "ParsingDriver.h"
 #include "EvolverData_yacc.h"
 #include "DebugStream.h"
+#include "Debug.h"
+#include "Body.h"
 
 ostream& operator<< (ostream& ostr, const Vertex& v)
 {
@@ -53,80 +55,66 @@ void Vertex::AddAdjacentEdge (const Edge* edge)
 class calculateAdjacencyDomains
 {
 public:
-    calculateAdjacencyDomains (const Vertex* known) : m_known (known) {}
+    calculateAdjacencyDomains (const Vertex* known, const Body* body) : 
+	m_known (known), m_body (body) {}
     void operator () (const Edge* e)
     {
 	Vector3int16 knownDomain = m_known->GetDomain ();
 	Vector3int16 newDomain;
-	assert (knownDomain != Vertex::INVALID_DOMAIN);
+	RuntimeAssert (knownDomain != Vertex::INVALID_DOMAIN, 
+	    "The known domain is invalid");
 	if (m_known == e->GetBegin ())
 	{
+	    if (! m_body->HasVertex (e->GetEnd ()))
+		return;
 	    if (e->GetEnd ()->GetDomain () != Vertex::INVALID_DOMAIN)
 	    {
-		// {
-		//     newDomain = knownDomain + e->GetDomainIncrement ();
-		//     if (e->GetEnd ()->GetDomain () != newDomain)
-		//     {
-		// 	cdbg << "WARNING: (" 
-		// 	     << e->GetBegin ()->GetOriginalIndex () + 1
-		// 	     << ", " << e->GetEnd ()->GetOriginalIndex () + 1 
-		// 	     << ")"
-		// 	     << " domains: " << newDomain << ", " 
-		// 	     << e->GetEnd ()->GetDomain () << endl;
-		//     }
-
-		//     //assert (e->GetEnd ()->GetDomain () == newDomain);
-		// }
+		newDomain = knownDomain + e->GetEndDomainIncrement ();
+		RuntimeAssert (e->GetEnd ()->GetDomain () == newDomain,
+			       "Inconsistent intersections");
 		return;
 	    }
-	    newDomain = knownDomain + e->GetDomainIncrement ();
+	    newDomain = knownDomain + e->GetEndDomainIncrement ();
 	    e->GetEnd ()->SetDomain (newDomain);
-	    // cdbg << e->GetOriginalIndex () + 1<< ":"
-	    // 	 << e->GetDomainIncrement () << ":"
-	    // 	 << "(" << e->GetBegin ()->GetOriginalIndex () + 1
-	    // 	 << ", " << e->GetEnd ()->GetOriginalIndex () + 1 << ")"
-	    // 	 << " domain " << newDomain << endl;
-	    Vertex::CalculateDomains (e->GetEnd ());
+	    Vertex::CalculateDomains (e->GetEnd (), m_body);
 	}
 	else
 	{
-	    assert (m_known == e->GetEnd ());
+	    if (! m_body->HasVertex (e->GetBegin ()))
+		return;
+	    RuntimeAssert (m_known == e->GetEnd (),
+			   "The known domain is not at the end of the edge");
 	    if (e->GetBegin ()->GetDomain () != Vertex::INVALID_DOMAIN)
 	    {
-		// {
-		//     newDomain = knownDomain - e->GetDomainIncrement ();
-		//     if (e->GetBegin ()->GetDomain () != newDomain)
-		//     {
-		// 	cdbg << "WARNING: (" 
-		// 	     << e->GetBegin ()->GetOriginalIndex () + 1
-		// 	     << ", " << e->GetEnd ()->GetOriginalIndex () + 1 
-		// 	     << ")"
-		// 	     << " domains: " << newDomain << ", " 
-		// 	     << e->GetBegin ()->GetDomain () << endl;
-		//     }
-		//     //assert (e->GetBegin ()->GetDomain () == newDomain);
-		// }
+
+		newDomain = knownDomain - e->GetEndDomainIncrement ();
+		RuntimeAssert (e->GetBegin ()->GetDomain () == newDomain,
+			       "Inconsistent intersections");
 		return;
 	    }
-	    newDomain = knownDomain - e->GetDomainIncrement ();
+	    newDomain = knownDomain - e->GetEndDomainIncrement ();
 	    e->GetBegin ()->SetDomain (newDomain);
-	    // cdbg << e->GetOriginalIndex () + 1 << ":"
-	    // 	 << e->GetDomainIncrement () << ":"
-	    // 	 << "(" << e->GetBegin ()->GetOriginalIndex () + 1
-	    // 	 << ", " << e->GetEnd ()->GetOriginalIndex () + 1 << ")"
-	    // 	 << " domain " << newDomain << endl;
-	    Vertex::CalculateDomains (e->GetBegin ());
+	    Vertex::CalculateDomains (e->GetBegin (), m_body);
 	}
     }
 
 private:
     const Vertex* m_known;
+    const Body* m_body;
 };
 
 
-void Vertex::CalculateDomains (Vertex* known)
+void Vertex::CalculateDomains (const Vertex* start, const Body* body)
 {
-    for_each (known->m_adjacentEdges.begin (), 
-	      known->m_adjacentEdges.end (),
-	      calculateAdjacencyDomains (known));
+    for_each (start->m_adjacentEdges.begin (), 
+	      start->m_adjacentEdges.end (),
+	      calculateAdjacencyDomains (start, body));
 }
+
+void Vertex::TranslateVertex (const G3D::Vector3* periods)
+{
+    (*this) += periods[0] * GetDomain ()[0] + periods[1] * GetDomain ()[1] +
+	periods[2] * GetDomain ()[2];
+}
+
+

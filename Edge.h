@@ -25,7 +25,7 @@ public:
     Edge (unsigned int originalIndex, Vertex* begin, Vertex* end, 
 	  G3D::Vector3int16& domainIncrement):
         Element(originalIndex), m_begin (begin), m_end (end),
-	m_domainIncrement (domainIncrement)
+	m_endDomainIncrement (domainIncrement)
     {}
     /**
      * @return the first vertex of the edge
@@ -67,10 +67,12 @@ public:
      * @param face face touched by this edge
      */
     void AddAdjacentFace (const Face* face) {m_adjacentFaces.push_back (face);}
-    const G3D::Vector3int16& GetDomainIncrement () const 
+    const vector<const Face*>& GetAdjacentFaces () const;
+    const G3D::Vector3int16& GetEndDomainIncrement () const 
     {
-	return m_domainIncrement;
+	return m_endDomainIncrement;
     }
+    bool HasInvalidDomain () const;
     /**
      * Specifies the default attributes for an Edge object.
      * These attributes don't appear as a DEFINE in the .DMP file
@@ -92,7 +94,7 @@ private:
      * Last vertex of the edge
      */
     Vertex* m_end;
-    Vector3int16 m_domainIncrement;
+    Vector3int16 m_endDomainIncrement;
     /**
      * Stores adjacent faces to this edge
      */

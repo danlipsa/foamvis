@@ -16,7 +16,7 @@ ostream& operator<< (ostream& ostr, const Edge& e)
         ostr << "NULL";
     else
         ostr << "Edge: " << *e.m_begin << ", " << *e.m_end 
-	     << " ADJACENT FACES " << e.m_adjacentFaces.size ()
+	     << " Adjacent faces(" << e.m_adjacentFaces.size () << ")"
 	     << " Edge attributes: ";
     return e.PrintAttributes (ostr, *Edge::m_infos);
 }
@@ -26,7 +26,7 @@ AttributesInfo* Edge::m_infos;
 void Edge::ReversePrint (ostream& ostr)
 {
     ostr << "Edge: " << *m_end << ", " << *m_begin
-	 << " ADJACENT FACES " << m_adjacentFaces.size ()
+	 << " Adjacent faces(" << m_adjacentFaces.size () << ")"
 	 << " Edge attributes: ";
     PrintAttributes (ostr, *Edge::m_infos);
 }
@@ -53,4 +53,16 @@ short Edge::SignToNumber (char sign)
     default:
 	throw invalid_argument (string ("Invalid sign: ") + sign);
     }
+}
+
+bool Edge::HasInvalidDomain () const
+{
+    return 
+	m_begin->GetDomain () == Vertex::INVALID_DOMAIN ||
+	m_end->GetDomain () == Vertex::INVALID_DOMAIN;
+}
+
+const vector<const Face*>& Edge::GetAdjacentFaces () const
+{
+    return m_adjacentFaces;
 }

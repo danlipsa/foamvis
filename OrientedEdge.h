@@ -30,13 +30,13 @@ public:
      * end vertex for the edge stored inside.
      * @return the begin vertex
      */
-    const Vertex* GetBegin (void) const
+    Vertex* GetBegin (void) const
     {return m_reversed ? m_edge->GetEnd () : m_edge->GetBegin ();}
     /**
      * Get the end vertex of the OrientedEdge. Note that this might be the
      * begin vertex for the edge stored inside.
      */
-    const Vertex* GetEnd (void) const
+    Vertex* GetEnd (void) const
     {return m_reversed ? m_edge->GetBegin () : m_edge->GetEnd ();}
     /**
      * Adds a face that is touched by this oriented edge.
@@ -47,6 +47,10 @@ public:
      * @return the edge for this oriented edge
      */
     const Edge* GetEdge () const {return m_edge;}
+    void CalculateDomains ();
+    G3D::Vector3int16 GetEndDomainIncrement () const;
+    bool HasInvalidDomain () const {return m_edge->HasInvalidDomain ();}
+
     /**
      * Pretty prints an Edge
      * @param ostr output stream where to print the edge

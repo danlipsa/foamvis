@@ -29,7 +29,6 @@
 #include <cstring>
 #include <ctime>
 #include <cerrno>
-#include <cassert>
 
 #include <limits>
 #include <algorithm>
