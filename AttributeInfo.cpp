@@ -12,7 +12,7 @@
  * Functor that checks if (name, AttributeInfo*) pair contains a given index
  */
 class indexEqual : unary_function<
-    pair<const char*, const AttributeInfo*>, bool >
+    pair<const char*,  AttributeInfo*>, bool >
 {
 public:
     /**
@@ -63,9 +63,9 @@ const char* AttributesInfo::GetAttributeName (unsigned int index)
     return it->first;
 }
 
-AttributeInfo* AttributesInfo::GetAttributeInfo (const char* name) const
+AttributeInfo* AttributesInfo::GetAttributeInfo (const char* name) 
 {
-    map<const char*, AttributeInfo*, LessThanNoCase>::const_iterator it = 
+    map<const char*, AttributeInfo*, LessThanNoCase>::iterator it = 
         m_nameInfo.find (name);
     if (it == m_nameInfo.end ())
         return 0;

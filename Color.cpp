@@ -28,7 +28,7 @@ float colors[][4] =
 };
 
 
-const float* Color::GetValue(Color::Name color)
+ float* Color::GetValue(Color::Name color)
 {
     return colors[color];
 }

@@ -22,7 +22,7 @@ void DataFiles::Calculate (
     using namespace G3D;
     vector<Data*>::iterator it;
     it = aggregate (m_data.begin (), m_data.end (), 
-	    Data::LessThan(Vector3::X_AXIS, corner));
+		    Data::LessThan(Vector3::X_AXIS, corner));
     v.x = ((*it)->*corner) ().x;
 
     it = aggregate (m_data.begin (), m_data.end (), 

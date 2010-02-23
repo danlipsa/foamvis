@@ -28,7 +28,7 @@ public:
      * @return a pointer to the created attribute
      */
     virtual Attribute* operator () (
-        const EvolverData::parser::semantic_type& value, 
+	EvolverData::parser::semantic_type& value, 
         NameSemanticValue::Type type) = 0;
 };
 
@@ -45,7 +45,7 @@ public:
      * @return a pointer to the created attribute
      */
     virtual Attribute* operator() (
-        const EvolverData::parser::semantic_type& value,
+         EvolverData::parser::semantic_type& value,
         NameSemanticValue::Type type);
 };
 
@@ -62,7 +62,7 @@ public:
      * @return a pointer to the created attribute
      */
     virtual Attribute* operator() (
-        const EvolverData::parser::semantic_type& value,
+         EvolverData::parser::semantic_type& value,
         NameSemanticValue::Type type);
 };
 /**
@@ -78,7 +78,7 @@ public:
      * @return a pointer to the created attribute
      */
     virtual Attribute* operator() (
-        const EvolverData::parser::semantic_type& value, 
+         EvolverData::parser::semantic_type& value, 
         NameSemanticValue::Type type);
 };
 /**
@@ -88,7 +88,7 @@ class IntegerArrayAttributeCreator : public AttributeCreator
 {
 public:
     /**
-     * Constructor for the functor
+     * ructor for the functor
      * @param size the size of the array
      */
     IntegerArrayAttributeCreator (int size) : m_size (size) {}
@@ -99,7 +99,7 @@ public:
      * @return pointer to the created attribute
      */
     virtual Attribute* operator() (
-        const EvolverData::parser::semantic_type& value,
+         EvolverData::parser::semantic_type& value,
         NameSemanticValue::Type type);
 private:
     /**
@@ -125,7 +125,7 @@ public:
      * @return pointer to the created attribute
      */
     virtual Attribute* operator() (
-        const EvolverData::parser::semantic_type& value,
+         EvolverData::parser::semantic_type& value,
         NameSemanticValue::Type type);
 private:
     /**

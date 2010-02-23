@@ -48,7 +48,7 @@ public:
      * @param data object where data is to be stored
      * @return 0 for success, <> than 0 otherwise
      */
-    int Parse (const string& f, Data& data);
+    int Parse (string& f, Data& data);
     /**
      * Turns on or off debugging for parsing
      * @param debugParsing true if you want debugging, false otherwise
@@ -61,7 +61,7 @@ public:
      * Sets the file to be parsed
      * @param file the file to be parsed
      */
-    void SetFile (const string& file)
+    void SetFile (string& file)
     {
         m_file = file;
     }
@@ -97,7 +97,7 @@ public:
      * @param keyword keyword name
      * @return keyword ID
      */
-    static int GetKeywordId (const char* keyword);
+    static int GetKeywordId (char* keyword);
     /**
      * Gets the name associated with a keyword ID
      * @param id keyword ID
@@ -122,7 +122,7 @@ private:
     /**
      * The ID of the first token
      */
-    static const int FIRST_TOKEN;
+    static  int FIRST_TOKEN;
     /**
      * Do we want debugging information from the parser?
      */

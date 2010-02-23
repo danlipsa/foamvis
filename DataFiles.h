@@ -38,7 +38,7 @@ public:
     /**
      * Gets the AABox for this vector of Data objects
      */
-    const G3D::AABox& GetAABox () {return m_AABox;}
+     G3D::AABox& GetAABox () {return m_AABox;}
     /**
      * Pretty print the DataFile object
      */

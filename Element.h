@@ -10,6 +10,7 @@
 class Attribute;
 class AttributesInfo;
 class NameSemanticValue;
+class Data;
 
 /**
  * Base class for  Vertex, Edge, Face and Body.  Encapsulates a vector
@@ -21,8 +22,12 @@ public:
     /**
      * Constructor for the Element
      */
-    Element(unsigned int index, bool duplicate) : 
-	m_attributes(0), m_originalIndex (index), m_duplicate (duplicate)
+    Element(unsigned int originalIndex, Data& data,
+	    bool duplicate) : 
+	m_attributes(0),
+	m_originalIndex (originalIndex), 
+	m_data (data),
+	m_duplicate (duplicate)
     {}
     /**
      * Destructor for the Element
@@ -33,7 +38,7 @@ public:
      * @param i position in the vector of attributes
      * @param attribute pointer to the attribute to set
      */
-    void SetAttribute (unsigned int i, const Attribute* attribute);
+    void SetAttribute (unsigned int i, Attribute* attribute);
     /**
      * Stores all attributes in the element
      * @param list the list of attributes values
@@ -44,23 +49,27 @@ public:
     /**
      * Gets the original index of this element
      */
-    unsigned int GetOriginalIndex () const {return m_originalIndex;}
+    unsigned int GetOriginalIndex ()  {return m_originalIndex;}
     /**
      * Pretty print attributes of an element
      * @param ostr where to print
      * @param info information about attributes
      */
     ostream& PrintAttributes (
-	ostream& ostr, AttributesInfo& info) const;
+	ostream& ostr, AttributesInfo& info) ;
+
+    bool IsDuplicate ()  {return m_duplicate;}
+    void SetDuplicate (bool duplicate) {m_duplicate = duplicate;}
 protected:
     /**
      * Vector of attributes
      */
-    vector<const Attribute*>* m_attributes;
+    vector<boost::shared_ptr<Attribute> >* m_attributes;
     /**
      * The original index for this element
      */
     unsigned int m_originalIndex;
+    Data& m_data;
     bool m_duplicate;
 };
 

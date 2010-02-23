@@ -14,7 +14,7 @@
  * Functor that stores an attribute in an element.
  */
 class storeAttribute : 
-    public unary_function <const NameSemanticValue*, void>
+    public unary_function < NameSemanticValue*, void>
 {
 public:
     /**
@@ -29,7 +29,7 @@ public:
      * Stores an attribute
      * @param nameSemanticValue Name and value of the attribute
      */
-    void operator() (const NameSemanticValue* nameSemanticValue)
+    void operator() (NameSemanticValue* nameSemanticValue)
     {
         try
         {
@@ -46,8 +46,9 @@ public:
             {
                 AttributeCreator& creator = *(info->GetCreator ());
                 m_where.SetAttribute (
-                    index, creator(nameSemanticValue->GetSemanticValue (), 
-                                   nameSemanticValue->GetType ()));
+                    index, 
+		    creator(nameSemanticValue->GetSemanticValue (), 
+			    nameSemanticValue->GetType ()));
             }
         }
         catch (SemanticError& e)
@@ -71,7 +72,7 @@ private:
  * Functor that prints an attribute
  */
 class printAttribute : 
-    public unary_function <const Attribute*, void>
+    public unary_function < Attribute*, void>
 {
 public:
     /**
@@ -86,9 +87,9 @@ public:
      * Functor that prints an attribute
      * @param attribute to be printed.
      */
-    void operator() (const Attribute* attribute)
+    void operator() (boost::shared_ptr<Attribute> attribute)
     {
-        const char* name = m_infos.GetAttributeName (m_index++);
+	const char* name = m_infos.GetAttributeName (m_index++);
         m_ostr << name << " " << *attribute << " ";
     }
 private:
@@ -108,21 +109,18 @@ private:
 
 Element::~Element()
 {
-        if (m_attributes != 0)
-        {
-                for_each(m_attributes->begin (), m_attributes->end (), 
-                        DeleteElementPtr<Attribute>);
-                delete m_attributes;
-        }
+    delete m_attributes;
 }
 
-void Element::SetAttribute (unsigned int i, const Attribute* attribute)
+void Element::SetAttribute (unsigned int i, Attribute* attribute)
 {
-        if (m_attributes == 0)
-                m_attributes = new vector<const Attribute*> ();
+    using namespace boost;
+    if (m_attributes == 0)
+	m_attributes = new vector<shared_ptr<Attribute> > ();
     if (i >= m_attributes->size ())
         m_attributes->resize (i + 1);
-    (*m_attributes)[i] = attribute;
+    shared_ptr<Attribute> p(attribute);
+    (*m_attributes)[i] = p;
 }
 
 void Element::StoreAttributes (
@@ -131,11 +129,11 @@ void Element::StoreAttributes (
     for_each (list.begin (), list.end (), storeAttribute(*this, infos));
 }
 
-ostream& Element::PrintAttributes (ostream& ostr, AttributesInfo& infos) const
+ostream& Element::PrintAttributes (ostream& ostr, AttributesInfo& infos) 
 {
-        if (m_attributes != 0)
-                for_each (m_attributes->begin (), m_attributes->end (),
-                        printAttribute (ostr, infos));
+    if (m_attributes != 0)
+	for_each (m_attributes->begin (), m_attributes->end (),
+		  printAttribute (ostr, infos));
     return ostr;
 }
 

@@ -82,7 +82,7 @@ public:
      * Gets the name of the attribute
      * @return the name of the attribute
      */
-    const char* GetName () const
+    const char* GetName () 
     {
         return m_name;
     }
@@ -90,7 +90,7 @@ public:
      * Gets the value of the attribute (as a semantic_type union)
      * @return the value of the attribute as a semantic_type union
      */
-    const EvolverData::parser::semantic_type GetSemanticValue () const
+     EvolverData::parser::semantic_type& GetSemanticValue () 
     {
         return m_semanticValue;
     }
@@ -98,7 +98,7 @@ public:
      * Gets the type of the attribute
      * @return the type of the attribute
      */
-    Type GetType () const
+    Type GetType () 
     {
         return m_type;
     }

@@ -12,6 +12,7 @@
 class AttributesInfo;
 class Edge;
 class Body;
+class Data;
 
 /**
  * Vertex represented in a DMP file. Is part of edges, faces and bodies.
@@ -27,19 +28,21 @@ public:
      * @param y the Y coordinate
      * @param z the Z coordinate
      */
-    Vertex(unsigned int originalIndex, float x, float y, float z,
+    Vertex(float x, float y, float z,
+	   unsigned int originalIndex, Data& data,
 	   bool duplicate=false);
     /**
      * Is this a physical (not tesselation) vertex
      * @return true if it is physical, false otherwise
      */
-    bool IsPhysical () const {return (m_adjacentPhysicalEdgesCount == 4);}
+    bool IsPhysical ()  {return (m_adjacentPhysicalEdgesCount == 4);}
     /**
      * Adds an edge that is adjacent to this vertex
      * @param edge edge touched by this vertex
      */
-    void AddAdjacentEdge (const Edge* edge);
-    G3D::Vector3int16 GetDomain (const G3D::Vector3* periods) const;
+    void AddAdjacentEdge (Edge* edge);
+    G3D::Vector3int16 GetDomain () ;
+    void AdjustPosition (G3D::Vector3int16& domainIncrement);
     /**
      * Specifies the default attributes for the Vertex object.
      * These attributes don't appear as a DEFINE in the .DMP file
@@ -52,18 +55,18 @@ public:
      * @param v what to print
      * @return output stream used to print the object to
      */
-    friend ostream& operator<< (ostream& ostr, const Vertex& v);
+    friend ostream& operator<< (ostream& ostr,  Vertex& v);
     /**
      * Functor that compares two vertices along X, Y or Z axis
      */
-    class LessThan
+    class LessThanAlong
     {
     public:
 	/**
 	 * Constructor
 	 * Stores the axis we want to do the comparison on.
 	 */
-	LessThan(G3D::Vector3::Axis axis) : 
+	LessThanAlong(G3D::Vector3::Axis axis) : 
 	    m_axis(axis) 
 	{}
 	/**
@@ -72,7 +75,7 @@ public:
 	 * @param second the second vertex
 	 * @return true if first is less than second false otherwise
 	 */
-	bool operator() (const Vertex* first, const Vertex* second) const
+	bool operator() (Vertex* first,  Vertex* second) 
 	{
 	    return (*first)[m_axis] < (*second)[m_axis];
 	}
@@ -83,14 +86,25 @@ public:
 	G3D::Vector3::Axis m_axis;
     };
 
-    template <typename Vertices>
-    static ostream& PrintDomains (ostream& ostr, Vertices vertices,
-				  const G3D::Vector3* periods)
+    class LessThan
     {
-	map < G3D::Vector3int16, list<const Vertex*>,lessThanVector3int16 > 
+    public:
+	bool operator () (Vertex* first, Vertex* second) const
+	{
+	    return first->x < second->x ||
+		(first->x == second->x && first->y < second->y) ||
+		(first->x == second->x && first->y == second->y && 
+		 first->z < second->z);
+	}
+    };
+
+    template <typename Vertices>
+    static ostream& PrintDomains (ostream& ostr, Vertices vertices)
+    {
+	map < G3D::Vector3int16, list< Vertex*>,lessThanVector3int16 > 
 	    domainVerticesMap;
 	for_each (vertices.begin (), vertices.end (),
-		  storeByDomain (domainVerticesMap, periods));
+		  storeByDomain (domainVerticesMap));
 	ostr << domainVerticesMap.size () << " domains:" << endl;
 	for_each (domainVerticesMap.begin (), domainVerticesMap.end (),
 		  printDomainVertices (ostr));
@@ -103,7 +117,7 @@ public:
      * @param v the vertex
      * @return result + the value of the vertex along the specified axis
      */
-    static G3D::Vector3 Accumulate (Vector3 result, const Vertex* v)
+    static G3D::Vector3 Accumulate (Vector3 result,  Vertex* v)
     {
 	return result + *v;
     }
@@ -112,7 +126,7 @@ private:
     /**
      * Edges adjacent to this vertex
      */
-    vector<const Edge*> m_adjacentEdges;
+    vector<Edge*> m_adjacentEdges;
     unsigned int m_adjacentPhysicalEdgesCount;
     /**
      * Stores information about all vertex attributes
@@ -133,27 +147,25 @@ private:
     class storeByDomain
     {
     public:
-	storeByDomain (map< G3D::Vector3int16, list<const Vertex*>,
+	storeByDomain (map< G3D::Vector3int16, list< Vertex*>,
 		       lessThanVector3int16 >& 
-		       domainVerticesMap, 
-		       const G3D::Vector3* periods) : 
-	    m_domainVerticesMap (domainVerticesMap), m_periods (periods)
+		       domainVerticesMap) : 
+	    m_domainVerticesMap (domainVerticesMap)
 	{}
-	void operator() (const Vertex* v)
+	void operator() (Vertex* v)
 	{
-	    m_domainVerticesMap[v->GetDomain (m_periods)].push_back (v);
+	    m_domainVerticesMap[v->GetDomain ()].push_back (v);
 	}
     private:
-	map< G3D::Vector3int16, list<const Vertex*>, 
+	map< G3D::Vector3int16, list< Vertex*>, 
 	     lessThanVector3int16 >& m_domainVerticesMap;
-	const G3D::Vector3* m_periods;
     };
 
     class printVertexIndex
     {
     public:
 	printVertexIndex (ostream& ostr) : m_ostr(ostr) {}
-	void operator() (const Vertex* v)
+	void operator() (Vertex* v)
 	{
 	    m_ostr << (v->GetOriginalIndex () + 1) << " ";
 	}
@@ -166,7 +178,7 @@ private:
     public:
 	printDomainVertices (ostream& ostr) : m_ostr(ostr) {}
 
-	void operator() (pair<const G3D::Vector3int16, list<const Vertex*> >& pair)
+	void operator() (pair<const G3D::Vector3int16, list< Vertex*> >& pair)
 	{
 	    m_ostr << "Domain: " << pair.first
 		   << " Vertices: ";
@@ -186,7 +198,7 @@ private:
  * @param pv what to print
  * @return where to print
  */
-inline ostream& operator<< (ostream& ostr, const Vertex* pv)
+inline ostream& operator<< (ostream& ostr,  Vertex* pv)
 {
     return ostr << *pv;
 }

@@ -12,6 +12,7 @@
 
 class AttributesInfo;
 class Body;
+class Data;
 
 /**
  * A Face is a oriented list of edges.
@@ -25,8 +26,8 @@ public:
      * @param edgeIndexes indexes into a vector of Edge objects
      * @param edges vector of Edge objects
      */
-    Face(unsigned int originalIndex, 
-	 const vector<int>& edgeIndexes, vector<Edge*>& edges, 
+    Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
+	 unsigned int originalIndex, Data& data,
 	 bool duplicate = false);
     /**
      * Destroys a Face object
@@ -40,15 +41,15 @@ public:
      * Gets the list of oriented edges
      * @return vector of oriented edges
      */
-    const vector<OrientedEdge*>& GetOrientedEdges () const 
+     vector<OrientedEdge*>& GetOrientedEdges ()  
     { return m_edges;}
-    OrientedEdge* GetOrientedEdge (int i) const {return m_edges[i];}
+    OrientedEdge* GetOrientedEdge (int i)  {return m_edges[i];}
     /**
      * Returns the face color
      */
-    Color::Name GetColor () const;
+    Color::Name GetColor () ;
     void AddAdjacentBody (Body* body) {m_adjacentBodies.push_back (body);}
-    const vector<Body*>& GetAdjacentBodies () const
+     vector<Body*>& GetAdjacentBodies () 
     {
 	return m_adjacentBodies;
     }
@@ -66,7 +67,7 @@ private:
     /**
      * Index where the color attribute is stored for a face
      */
-    const static unsigned int COLOR_INDEX = 0;
+     static const unsigned int COLOR_INDEX = 0;
     /**
      * Edges that are part of this face
      */

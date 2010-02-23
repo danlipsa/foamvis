@@ -42,6 +42,8 @@
 #include <string>
 #include <vector>
 #include <iomanip>
+
+#include <boost/shared_ptr.hpp>
 using namespace std;
 
 #endif //__cplusplus

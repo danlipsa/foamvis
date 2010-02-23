@@ -12,18 +12,18 @@
  * Displays the first vertex in an edge
  * @param e the edge
  */
-inline void displayFirstVertex (const OrientedEdge* e)
+inline void displayFirstVertex (OrientedEdge* e)
 {
-    const Vertex* p = e->GetBegin ();
+     Vertex* p = e->GetBegin ();
     glVertex3f(p->x, p->y, p->z);
 }
 /**
  * Displays all face vertices on the OpenGL canvas
  * @param f the face to be displayed
  */
-void displayFaceVertices (const OrientedFace* f)
+void displayFaceVertices (OrientedFace* f)
 {
-    const vector<OrientedEdge*>& v = f->GetFace()->GetOrientedEdges ();
+     vector<OrientedEdge*>& v = f->GetFace()->GetOrientedEdges ();
     if (f->IsReversed ())
         for_each (v.rbegin (), v.rend (), displayFirstVertex);
     else
@@ -50,7 +50,7 @@ struct OpenGLParam
 /**
  * Functor that displays a vertex
  */
-class displayVertex : public unary_function<const Vertex*, void>
+class displayVertex : public unary_function<Vertex*, void>
 {
 public:
     /**
@@ -65,12 +65,12 @@ public:
      * Functor that displays a vertex
      * @param v the vertex to be displayed
      */
-    void operator() (const Vertex* v)
+    void operator() (Vertex* v)
     {
 	float pointSize = (v->IsPhysical ()) ? 
 	    m_widget.GetPhysicalObjectsWidth () :
 	    m_widget.GetTessellationObjectsWidth ();
-	const Body* body;
+	 Body* body;
 	unsigned int db = m_widget.GetDisplayedBody ();
 	if (pointSize != 0.0 &&
 	    (db == numeric_limits<unsigned int>::max() ||
@@ -98,7 +98,7 @@ protected:
 /**
  * Functor that displays an edge
  */
-class displayEdge : public unary_function<const Edge*, void>
+class displayEdge : public unary_function< Edge*, void>
 {
 public:
     /**
@@ -113,12 +113,12 @@ public:
      * Functor that displays an edge
      * @param e the edge to be displayed
      */
-    void operator() (const Edge* e)
+    void operator() (Edge* e)
     {
 	float edgeSize = (e->IsPhysical ()) ? 
 	    m_widget.GetPhysicalObjectsWidth () :
 	    m_widget.GetTessellationObjectsWidth ();
-	const Body* body;
+	 Body* body;
 	unsigned int db = m_widget.GetDisplayedBody ();
 	if (edgeSize != 0.0 &&
 	    (db == m_widget.DISPLAY_ALL ||
@@ -150,7 +150,7 @@ protected:
 /**
  * Functor that displays a face
  */
-class displayFace : public unary_function<const OrientedFace*, void>
+class displayFace : public unary_function< OrientedFace*, void>
 {
 public:
     /**
@@ -163,7 +163,7 @@ public:
      * Functor that displays a face
      * @param f the face to be displayed
      */
-    virtual void operator() (const OrientedFace* f)
+    virtual void operator() (OrientedFace* f)
     {
         if (m_count <= m_widget.GetDisplayedFace ())
         {
@@ -202,7 +202,7 @@ public:
      * Functor that displays a colored face
      * @param f face to be displayed
      */
-    virtual void operator() (const OrientedFace* f)
+    virtual void operator() (OrientedFace* f)
     {
         if (m_count <= m_widget.GetDisplayedFace ())
         {
@@ -229,14 +229,14 @@ public:
      * Functor used to display a face together to the normal
      * @param f face to be displayed
      */
-    virtual void operator() (const OrientedFace* f)
+    virtual void operator() (OrientedFace* f)
     {
         if (m_count <= m_widget.GetDisplayedFace ())
         {
 
 	    // specify the normal vector
-	    const Vertex* begin = f->GetBegin (0);
-	    const Vertex* end = f->GetEnd (0);
+	     Vertex* begin = f->GetBegin (0);
+	     Vertex* end = f->GetEnd (0);
 	    Vector3 first(end->x - begin->x,
 			  end->y - begin->y,
 			  end->z - begin->z);
@@ -271,10 +271,10 @@ public:
      * Functor used to display a body
      * @param b the body to be displayed
      */
-    void operator () (const Body* b)
+    void operator () (Body* b)
     {
         unsigned int displayedBody = m_widget.GetDisplayedBody ();
-        if ( displayedBody == m_widget.DISPLAY_ALL ||
+        if (displayedBody == m_widget.DISPLAY_ALL ||
              b->GetOriginalIndex () == displayedBody)
         {
 	    display (b);
@@ -290,7 +290,7 @@ protected:
      * Displays the body
      * @param b the body
      */
-    virtual void display (const Body* b) = 0;
+    virtual void display (Body* b) = 0;
 private:
     /**
      * Where to display the body
@@ -315,7 +315,7 @@ protected:
      * Displays the center of a body (bubble)
      * @param b body to display the center of
      */
-    virtual void display (const Body* b)
+    virtual void display (Body* b)
     {
 	G3D::Vector3 v = b->GetCenter ();
 	glVertex3f(v.x, v.y, v.z);
@@ -342,9 +342,9 @@ protected:
      * Displays a body going through all its faces
      * @param b the body to be displayed
      */
-    virtual void display (const Body* b)
+    virtual void display (Body* b)
     {
-	const vector<OrientedFace*> v = b->GetOrientedFaces ();
+	 vector<OrientedFace*> v = b->GetOrientedFaces ();
 	for_each (v.begin (), v.end (), displayFunction(GetWidget ()));
     }
 };
@@ -434,9 +434,9 @@ void printOpenGLInfo ()
               printOpenGLParam);
 }
 
-const float GLWidget::OBJECTS_WIDTH[] = {0.0, 1.0, 3.0, 5.0, 7.0};
+ float GLWidget::OBJECTS_WIDTH[] = {0.0, 1.0, 3.0, 5.0, 7.0};
 
-const unsigned int GLWidget::DISPLAY_ALL(numeric_limits<unsigned int>::max());
+ unsigned int GLWidget::DISPLAY_ALL(numeric_limits<unsigned int>::max());
 
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent), 
@@ -551,12 +551,12 @@ void GLWidget::TessellationObjectsWidthChanged (int value)
 // End Slots
 // =========
 
-QSize GLWidget::minimumSizeHint() const
+QSize GLWidget::minimumSizeHint() 
 {
     return QSize(50, 50);
 }
 
-QSize GLWidget::sizeHint() const
+QSize GLWidget::sizeHint() 
 {
     return QSize(512, 512);
 }
@@ -593,7 +593,7 @@ void GLWidget::initializeGL()
 {
     using namespace G3D;
     m_object = display (m_viewType);
-    const float* background = Color::GetValue (Color::WHITE);
+     float* background = Color::GetValue (Color::WHITE);
     glClearColor (background[0], background[1],
                   background[2], background[3]);        
     glMatrixMode (GL_PROJECTION);
@@ -655,7 +655,7 @@ void GLWidget::resizeGL(int width, int height)
 void GLWidget::setRotation (int axis, float angle)
 {
     using G3D::Matrix4;
-    const float axes[3][3] = {{1,0,0}, {0,1,0}, {0,0,1}};
+     float axes[3][3] = {{1,0,0}, {0,1,0}, {0,0,1}};
     makeCurrent ();
     Matrix4 modelView;
     glGetMatrix (GL_MODELVIEW_MATRIX, modelView);
@@ -692,7 +692,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 }
 
 
-void GLWidget::displayFacesContour (const vector<Body*>& bodies)
+void GLWidget::displayFacesContour (vector<Body*>& bodies)
 {
     qglColor (QColor(Qt::black));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
@@ -702,7 +702,7 @@ void GLWidget::displayFacesContour (const vector<Body*>& bodies)
     glEnd ();
 }
 
-void GLWidget::displayFacesOffset (const vector<Body*>& bodies)
+void GLWidget::displayFacesOffset (vector<Body*>& bodies)
 {
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glEnable (GL_POLYGON_OFFSET_FILL);
@@ -716,7 +716,7 @@ void GLWidget::displayFacesOffset (const vector<Body*>& bodies)
 
 GLuint GLWidget::displayVertices ()
 {
-    const vector<Vertex*>& vertices = GetCurrentData ().GetVertices ();
+     vector<Vertex*>& vertices = GetCurrentData ().GetVertices ();
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
 
@@ -732,7 +732,7 @@ GLuint GLWidget::displayEdges ()
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
 
-    const vector<Edge*>& edges = GetCurrentData ().GetEdges ();
+     vector<Edge*>& edges = GetCurrentData ().GetEdges ();
     for_each (edges.begin (), edges.end (), displayEdge (*this));
 
     displayCenterOfBodies ();
@@ -747,7 +747,7 @@ void GLWidget::displayCenterOfBodies ()
     glPointSize (4.0);
     qglColor (QColor (Qt::red));
     glBegin(GL_POINTS);
-    const vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+     vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     for_each (bodies.begin (),bodies.end (), displayBodyCenter (*this));
     glEnd ();
 }
@@ -771,7 +771,7 @@ public:
      */
     void operator () (Data* data)
     {
-	const Body* body = data->GetBody (m_index);
+	 Body* body = data->GetBody (m_index);
 	if (body != 0)
 	    display (body);
     }
@@ -811,7 +811,7 @@ public:
      * @param p a pair original index body pointer
      */
     inline void operator () (
-	pair<unsigned int, const Body*> p) {operator() (p.first);}
+	pair<unsigned int,  Body*> p) {operator() (p.first);}
 
 private:
     /**
@@ -826,7 +826,7 @@ GLuint GLWidget::displayCenterPaths ()
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
     qglColor (QColor (Qt::black));
-    const map<unsigned int, Body*>& originalIndexBodyMap = 
+     map<unsigned int, Body*>& originalIndexBodyMap = 
 	GetDataFiles ().GetData ()[0]->GetOriginalIndexBodyMap ();
     if (GetDisplayedBody () == DISPLAY_ALL)
 	for_each (originalIndexBodyMap.begin (), originalIndexBodyMap.end (),
@@ -848,7 +848,7 @@ GLuint GLWidget::displayFaces ()
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
 
-    const vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+    vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     displayFacesContour (bodies);
     displayFacesOffset (bodies);
 
@@ -859,7 +859,7 @@ GLuint GLWidget::displayFaces ()
 GLuint GLWidget::displayBodies ()
 {
     GLuint list = glGenLists(1);
-    const vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+    vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     glNewList(list, GL_COMPILE);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glBegin (GL_TRIANGLES);
@@ -895,7 +895,7 @@ void GLWidget::IncrementDisplayedFace ()
 {
     if (m_displayedBody != DISPLAY_ALL)
     {
-        const Body& body = *GetCurrentData ().GetBodies ()[m_displayedBody];
+        Body& body = *GetCurrentData ().GetBodies ()[m_displayedBody];
         m_displayedFace++;
         if (m_displayedFace == body.GetOrientedFaces ().size ())
             m_displayedFace = DISPLAY_ALL;
@@ -908,7 +908,7 @@ void GLWidget::DecrementDisplayedFace ()
 {
     if (m_displayedBody != DISPLAY_ALL)
     {
-        const Body& body = *GetCurrentData ().GetBodies ()[m_displayedBody];
+        Body& body = *GetCurrentData ().GetBodies ()[m_displayedBody];
         if (m_displayedFace == DISPLAY_ALL)
             m_displayedFace = body.GetOrientedFaces ().size ();
         m_displayedFace--;

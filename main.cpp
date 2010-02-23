@@ -32,7 +32,7 @@ public:
      * @param dir directory where all DMP files are
      */
     parseFile (
-	vector<Data*>& data, const QString dir) : 
+	vector<Data*>& data, QString dir) : 
         m_data (data), m_dir (qPrintable(dir))
     {
     }
@@ -68,7 +68,7 @@ private:
     /**
      * Directory that stores the DMP files.
      */
-    const string m_dir;
+    string m_dir;
 };
 
 

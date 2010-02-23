@@ -147,7 +147,7 @@ ParsingData::BinaryFunction ParsingData::GetBinaryFunction (const char* name)
 
 
 
-string* ParsingData::CreateIdentifier(const char* id)
+string* ParsingData::CreateIdentifier(char* id)
 {
     Identifiers::iterator it = m_identifiers.find (id);
     if (it == m_identifiers.end ())
@@ -161,7 +161,7 @@ string* ParsingData::CreateIdentifier(const char* id)
         return it->second;
 }
 
-void ParsingData::PrintTimeCheckpoint (const string& description)
+void ParsingData::PrintTimeCheckpoint (string& description)
 {
     clock_t time = clock ();
 	cdbg << description << ": " 

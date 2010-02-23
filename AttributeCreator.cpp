@@ -10,7 +10,7 @@
 #include "SemanticError.h"
 
 Attribute* IntegerAttributeCreator::operator() (
-    const EvolverData::parser::semantic_type& value, 
+     EvolverData::parser::semantic_type& value, 
     NameSemanticValue::Type type)
 {
 
@@ -25,7 +25,7 @@ Attribute* IntegerAttributeCreator::operator() (
 }
 
 Attribute* ColorAttributeCreator::operator() (
-    const EvolverData::parser::semantic_type& value, 
+     EvolverData::parser::semantic_type& value, 
     NameSemanticValue::Type type)
 {
     if (type != NameSemanticValue::COLOR)
@@ -41,7 +41,7 @@ Attribute* ColorAttributeCreator::operator() (
 
 
 Attribute* RealAttributeCreator::operator() (
-    const EvolverData::parser::semantic_type& value, 
+     EvolverData::parser::semantic_type& value, 
     NameSemanticValue::Type type)
 {
     switch (type)
@@ -61,7 +61,7 @@ Attribute* RealAttributeCreator::operator() (
 }
 
 Attribute* IntegerArrayAttributeCreator::operator() (
-    const EvolverData::parser::semantic_type& value, 
+     EvolverData::parser::semantic_type& value, 
     NameSemanticValue::Type type)
 {
     if (type != NameSemanticValue::INT_ARRAY)
@@ -83,7 +83,7 @@ Attribute* IntegerArrayAttributeCreator::operator() (
 }
 
 Attribute* RealArrayAttributeCreator::operator() (
-    const EvolverData::parser::semantic_type& value, 
+     EvolverData::parser::semantic_type& value, 
     NameSemanticValue::Type type)
 {
     if (type != NameSemanticValue::REAL_ARRAY)

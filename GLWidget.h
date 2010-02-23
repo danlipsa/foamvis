@@ -31,11 +31,11 @@ class GLWidget : public QGLWidget
     /**
      * Gets the minimum size of the GLWidget
      */
-    QSize minimumSizeHint() const;
+    QSize minimumSizeHint() ;
     /**
      * Gets the prefered size
      */
-    QSize sizeHint() const;
+    QSize sizeHint() ;
     /**
      * Sets the data displayed by the GLWidget
      * @param dataFiles data displayed by the GLWidget
@@ -103,10 +103,10 @@ class GLWidget : public QGLWidget
     {
 	return OBJECTS_WIDTH[m_tessellationObjectsWidth];
     }
-    const QColor& GetTessellationObjectsColor () 
+     QColor& GetTessellationObjectsColor () 
     {return m_tessellationObjectsColor;}
     
-    const QColor& GetPhysicalObjectsColor () 
+     QColor& GetPhysicalObjectsColor () 
     {return m_physicalObjectsColor;}
 
     /**
@@ -114,7 +114,7 @@ class GLWidget : public QGLWidget
      */
     void displayCenterOfBodies ();
     void DataChanged () {DataSliderValueChanged (m_dataIndex);}
-    static const unsigned int DISPLAY_ALL;
+    static  unsigned int DISPLAY_ALL;
 
 public Q_SLOTS:
     /**
@@ -192,7 +192,7 @@ private:
      * Mapping between the index in  the slider and an actual size for
      * physical and tessellation objects.
      */
-    static const float OBJECTS_WIDTH[];
+    static  float OBJECTS_WIDTH[];
     /**
      * WHAT kind of objects do we display
      */
@@ -252,14 +252,14 @@ private:
      * continuous contours  for polygons.
      * @param bodies displays all the faces in these bodies
      */
-    void displayFacesContour (const vector<Body*>& bodies);
+    void displayFacesContour (vector<Body*>& bodies);
     /**
      * Displays   the   content   of   faces.   Used   together   with
      * displayFacesContour  and  with  GL_POLYGON_OFFSET_FILL  to  get
      * continuous contours for polygons.
      * @param bodies displays all the faces in these bodies
      */
-    void displayFacesOffset (const vector<Body*>& bodies);
+    void displayFacesOffset (vector<Body*>& bodies);
     /**
      * Setup lighting for shaded bodies
      */

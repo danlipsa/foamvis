@@ -8,7 +8,7 @@
 #include "ElementUtils.h"
 #include "DebugStream.h"
 
-ostream& operator<< (ostream& ostr, const G3D::AABox& box)
+ostream& operator<< (ostream& ostr,  G3D::AABox& box)
 {
     using namespace G3D;
     cdbg << "AABox(" << box.low () << ", " << box.high () << ")";

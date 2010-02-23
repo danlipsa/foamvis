@@ -27,12 +27,12 @@ public:
      */
     typedef IteratorVertices (*AggregateOnVertices)(
 	IteratorVertices first, IteratorVertices last, 
-	Vertex::LessThan lessThan);
+	Vertex::LessThanAlong lessThan);
     /**
      * Member function which returns one of the corners of the AABox for a
      * data object
      */
-    typedef const G3D::Vector3& (Data::*Corner) () const;
+    typedef const G3D::Vector3& (Data::*Corner) () ;
     /**
      * Constructs a Data object.
      */
@@ -47,11 +47,13 @@ public:
      * @return a pointer to the Vertex object
      */
     Vertex* GetVertex (int i) {return m_vertices[i];}
+    Vertex* GetVertexDuplicate (Vertex* original,
+				Vector3int16& domainIncrement);
     /**
      * Gets the vector of vertices
      * @return the vector of vertices
      */
-    const vector<Vertex*>& GetVertices () {return m_vertices;}
+     vector<Vertex*>& GetVertices () {return m_vertices;}
     /**
      * Stores a Vertex object a certain index in the Data object
      * @param i where to store the Vertex object
@@ -61,12 +63,12 @@ public:
      * @param list the list of attributes for the vertex
      */
     void SetVertex (unsigned int i, float x, float y, float z,
-                   vector<NameSemanticValue*>& list);
+		    vector<NameSemanticValue*>& list);
     /**
      * Returns all edges from this Data
      * @return a vector of Edge pointers
      */
-    const vector<Edge*>& GetEdges () {return m_edges;}
+     vector<Edge*>& GetEdges () {return m_edges;}
     /**
      * Stores an Edge object in the Data object at a certain index
      * @param i index where to store the Edge object
@@ -81,7 +83,7 @@ public:
      * Gets all faces from this Data
      * @return a vector of Face pointers
      */
-    const vector<Face*>& GetFaces () {return m_faces;}
+     vector<Face*>& GetFaces () {return m_faces;}
     Face* GetFace (unsigned int i) {return m_faces[i];}
     /**
      * Stores a Face object in the Data object 
@@ -94,7 +96,7 @@ public:
      *        Edge that is stored in the Data object.
      * @param list the list of attributes for the face
      */
-    void SetFace (unsigned int i, const vector<int>& edges,
+    void SetFace (unsigned int i,  vector<int>& edges,
                   vector<NameSemanticValue*>& list);
     /**
      * Gets ith body
@@ -106,7 +108,7 @@ public:
      * Gets all bodies from the Data
      * @return a vector of Body pointers
      */
-    const vector<Body*>& GetBodies () {return m_bodies;}
+     vector<Body*>& GetBodies () {return m_bodies;}
     /**
      * Stores a Body object in the Data object
      * @param i index where to store the Body object
@@ -118,7 +120,7 @@ public:
      *         Data object.
      * @param list the list of attributes
      */
-    void SetBody (unsigned int i, const vector<int>& faces,
+    void SetBody (unsigned int i,  vector<int>& faces,
                   vector<NameSemanticValue*>& list);
     /**
      * Stores an element of the 4x4 view matrix.
@@ -131,7 +133,7 @@ public:
      * Gets the view matrix
      * @return the 4x4 view matrix
      */
-    const float* GetViewMatrix () {return m_viewMatrix;}
+     float* GetViewMatrix () {return m_viewMatrix;}
     /**
      * Make the parsing data accessible
      * @return reference to the ParsingData object.
@@ -178,15 +180,15 @@ public:
      * Gets a AABox of this Data object
      * @return an AABox of this Data object
      */
-    const G3D::AABox& GetAABox () {return m_AABox;}
+     G3D::AABox& GetAABox () {return m_AABox;}
     /**
      * Gets the low point of the AABox of this Data object
      */
-    const G3D::Vector3& GetAABoxLow () const {return m_AABox.low ();}
+    const G3D::Vector3& GetAABoxLow ()  {return m_AABox.low ();}
     /**
      * Gets the high point of the AABox of this Data object
      */
-    const G3D::Vector3& GetAABoxHigh () const {return m_AABox.high ();}
+    const G3D::Vector3& GetAABoxHigh ()  {return m_AABox.high ();}
     /**
      * Compares the low element of two data objects on the X,Y or Z axes
      * @return  true if  the  first  object is  less  than the  second
@@ -194,7 +196,7 @@ public:
      */
     void PostProcess ();
     void PrintDomains (ostream& ostr) 
-    {Vertex::PrintDomains(ostr, m_vertices, m_period);}
+    {Vertex::PrintDomains(ostr, m_vertices);}
 
     class LessThan
     {
@@ -205,7 +207,7 @@ public:
 	 * @param corner which corner of the AABox to compare
 	 */
 	LessThan (G3D::Vector3::Axis axis, 
-		  const G3D::Vector3& (Data::*corner) () const) : 
+		  const G3D::Vector3& (Data::*corner) () ) : 
 	    m_axis (axis), m_corner(corner) {}
 	/**
 	 * Functor that compares two data objects
@@ -225,7 +227,7 @@ public:
 	/**
 	 * What corner of the AABox to compare
 	 */
-	const G3D::Vector3& (Data::*m_corner) () const;
+	 const G3D::Vector3& (Data::*m_corner) () ;
     };
     /**
      * Insert into the original index - body map
@@ -235,14 +237,12 @@ public:
     /**
      * Gets the original index - body map
      */
-    const map<unsigned int, Body*>& GetOriginalIndexBodyMap ()
+     map<unsigned int, Body*>& GetOriginalIndexBodyMap ()
     {return m_originalIndexBodyMap;}
 
-    void CalculateDomains ();
-    void TranslateVertices ();
-    void SetPeriod (unsigned int i, const G3D::Vector3& v) {m_period[i] = v;}
-    const G3D::Vector3& GetPeriod (unsigned int i) const {return m_period[i];}
-    const G3D::Vector3* GetPeriods () const {return m_period;}
+    void SetPeriod (unsigned int i,  G3D::Vector3 v) {m_periods[i] = v;}
+     G3D::Vector3& GetPeriod (unsigned int i)  {return m_periods[i];}
+     G3D::Vector3* GetPeriods ()  {return m_periods;}
 
     /**
      * Pretty print the Data object
@@ -260,10 +260,12 @@ private:
      * A vector of points
      */
     vector<Vertex*> m_vertices;
+    set<Vertex*, Vertex::LessThan> m_duplicateVertices;
     /**
      * A vector of edges
      */
     vector<Edge*> m_edges;
+    map<G3D::Vector3, Edge*, Vertex::LessThan> m_duplicateEdges;
     /**
      * A vector of faces
      */
@@ -276,7 +278,7 @@ private:
      * View matrix for displaying vertices, edges, faces and bodies.
      */
     float m_viewMatrix[16];
-    G3D::Vector3 m_period[3];
+    G3D::Vector3 m_periods[3];
     /**
      * Vector of maps between the name of an attribute and information about it.
      * The indexes in the vector are for vertices, edges, faces, ...

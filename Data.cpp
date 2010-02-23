@@ -71,7 +71,7 @@ void compact (vector<E*>& v)
  */
 void updateFaceForEdges (Face* face)
 {
-    const vector<OrientedEdge*>& orientedEdges = face->GetOrientedEdges ();
+     vector<OrientedEdge*>& orientedEdges = face->GetOrientedEdges ();
     for_each (orientedEdges.begin (), orientedEdges.end (),
 	      bind2nd (mem_fun (&OrientedEdge::AddAdjacentFace), face));
 }
@@ -100,7 +100,7 @@ ostream& operator<< (ostream& ostr, Data& d)
               sizeof(d.m_viewMatrix)/sizeof(d.m_viewMatrix[0]), 
               printMatrixElement (ostr));
     ostr << endl;
-    Vertex::PrintDomains (ostr, d.m_vertices, d.m_period);
+    Vertex::PrintDomains (ostr, d.m_vertices);
     d.PrintFacesWithIntersection (ostr);
     return ostr;
 }
@@ -129,11 +129,34 @@ void Data::SetVertex (unsigned int i, float x, float y, float z,
 {
     if (i >= m_vertices.size ())
         m_vertices.resize (i + 1);
-    Vertex* vertex = new Vertex (i, x, y ,z);
+    Vertex* vertex = new Vertex (x, y ,z, i, *this);
     if (&list != 0)
         vertex->StoreAttributes (
             list, m_attributesInfo[DefineAttribute::VERTEX]);
     m_vertices[i] = vertex;
+}
+
+Vertex* Data::GetVertexDuplicate (
+    Vertex* original, G3D::Vector3int16& domainIncrement)
+{
+    Vertex* duplicate;
+    original->AdjustPosition (domainIncrement);
+    set<Vertex*, Vertex::LessThan>::iterator it = 
+	m_duplicateVertices.find (original);
+    if (it == m_duplicateVertices.end ())
+    {
+	duplicate = new Vertex (*original);
+	duplicate->SetDuplicate (true);
+	m_duplicateVertices.insert (duplicate);
+    }
+    else
+    {
+	duplicate = *it;
+    }
+    m_vertices.push_back (duplicate);
+    G3D::Vector3int16 negation = G3D::Vector3int16 (0, 0, 0) - domainIncrement;
+    original->AdjustPosition (negation);
+    return duplicate;
 }
 
 void Data::SetEdge (unsigned int i, unsigned int begin, unsigned int end,
@@ -143,29 +166,29 @@ void Data::SetEdge (unsigned int i, unsigned int begin, unsigned int end,
     if (i >= m_edges.size ())
         m_edges.resize (i + 1); 
     Edge* edge = new Edge (
-	i, GetVertex(begin), GetVertex(end), domainIncrement);
+	GetVertex(begin), GetVertex(end), domainIncrement, i, *this);
     if (&list != 0)
         edge->StoreAttributes (list, m_attributesInfo[DefineAttribute::EDGE]);
     m_edges[i] = edge;
 }
 
-void Data::SetFace (unsigned int i, const vector<int>& edges,
+void Data::SetFace (unsigned int i,  vector<int>& edges,
                     vector<NameSemanticValue*>& list)
 {
     if (i >= m_faces.size ())
         m_faces.resize (i + 1);
-    Face* face = new Face (i, edges, m_edges);
+    Face* face = new Face (edges, m_edges, i, *this);
     if (&list != 0)
         face->StoreAttributes (list, m_attributesInfo[DefineAttribute::FACE]);
     m_faces[i] = face;
 }
 
-void Data::SetBody (unsigned int i, const vector<int>& faces,
+void Data::SetBody (unsigned int i,  vector<int>& faces,
                     vector<NameSemanticValue*>& list)
 {
     if (i >= m_bodies.size ())
         m_bodies.resize (i + 1);
-    Body* body = new Body (i, faces, m_faces);
+    Body* body = new Body (faces, m_faces, i, *this);
     if (&list != 0)
         body->StoreAttributes (list, m_attributesInfo[DefineAttribute::BODY]);    
     m_bodies[i] = body;
@@ -204,9 +227,9 @@ void Data::ReleaseParsingData ()
     m_parsingData = 0;
 }
 
-void updateBodyForFaces (const Body* body)
+void updateBodyForFaces (Body* body)
 {
-    const vector<OrientedFace*>& of = body->GetOrientedFaces ();
+     vector<OrientedFace*>& of = body->GetOrientedFaces ();
     for_each (of.begin (), of.end (),
 	      bind2nd(mem_fun(&OrientedFace::AddAdjacentBody), body));
 }
@@ -224,13 +247,13 @@ void Data::Calculate (AggregateOnVertices aggregate, G3D::Vector3& v)
     using namespace G3D;
     IteratorVertices it;
     it = aggregate (m_vertices.begin (), m_vertices.end (), 
-	    Vertex::LessThan(Vector3::X_AXIS));;
+	    Vertex::LessThanAlong(Vector3::X_AXIS));;
     v.x = (*it)->x;
     it = aggregate (m_vertices.begin (), m_vertices.end (), 
-	    Vertex::LessThan(Vector3::Y_AXIS));
+	    Vertex::LessThanAlong(Vector3::Y_AXIS));
     v.y = (*it)->y;
     it = aggregate (m_vertices.begin (), m_vertices.end (), 
-	    Vertex::LessThan(Vector3::Z_AXIS));
+	    Vertex::LessThanAlong(Vector3::Z_AXIS));
     v.z = (*it)->z;
 }
 
@@ -262,39 +285,11 @@ void Data::PostProcess ()
     CalculateAABox ();
     CacheEdgesVerticesInBodies ();
     CalculateBodiesCenters ();
-    CalculateDomains ();
-    TranslateVertices ();
-}
-
-void Data::TranslateVertices ()
-{
-    for_each (m_vertices.begin (), m_vertices.end (), 
-	      bind2nd (mem_fun (&Vertex::TranslateVertex), GetPeriods ()));
-}
-
-
-void calculateDomainsForAdjacentBodies (const OrientedFace* of)
-{
-    const vector<Body*>& adjacentBodies = of->GetAdjacentBodies ();
-    const Vertex* vertex = of->GetBegin (0);
-    for_each (adjacentBodies.begin (), adjacentBodies.end (),
-	      bind2nd (mem_fun (&Body::CalculateDomains), vertex));
-}
-
-void Data::CalculateDomains ()
-{
-    Body* body = GetBody (0);
-    Vertex* vertex = body->GetOrientedFace(0)->GetFace ()
-	->GetOrientedEdge (0)->GetBegin ();
-    vertex->SetDomain (Vector3int16 (0,0,0));
-    body->CalculateDomains (vertex);
-    const vector<OrientedFace*>& of = body->GetOrientedFaces ();
-    for_each (of.begin (), of.end (), calculateDomainsForAdjacentBodies);
 }
 
 unsigned int countIntersections (OrientedEdge* e)
 {
-    const Vector3int16& domainIncrement = e->GetEdge ()->GetEndDomainIncrement ();
+     Vector3int16& domainIncrement = e->GetEdge ()->GetEndDomainIncrement ();
     return ((domainIncrement.x != 0) + 
 	    (domainIncrement.y != 0) + (domainIncrement.z != 0));
 }
@@ -305,8 +300,8 @@ public:
     printFaceIfIntersection (ostream& ostr) : m_ostr(ostr) {}
     void operator () (Face* f)
     {
-	vector<const OrientedEdge*>::iterator it;
-	const vector<OrientedEdge*>& v = f->GetOrientedEdges ();
+	vector<OrientedEdge*>::iterator it;
+	 vector<OrientedEdge*>& v = f->GetOrientedEdges ();
 	vector<unsigned int> intersections(v.size ());
 	transform (
 	    v.begin (), v.end (), intersections.begin (), countIntersections);

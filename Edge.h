@@ -22,12 +22,14 @@ public:
      * @param begin the first point of the endge
      * @param end the last point of the edge
      */
-    Edge (unsigned int originalIndex, Vertex* begin, Vertex* end, 
-	  G3D::Vector3int16& endDomainIncrement, bool duplicate = false);
+    Edge (Vertex* begin, Vertex* end, 
+	  G3D::Vector3int16& endDomainIncrement, 
+	  unsigned int originalIndex, Data& data,
+	  bool duplicate = false);
     /**
      * @return the first vertex of the edge
      */
-    Vertex* GetBegin(void) const
+    Vertex* GetBegin(void) 
     {
         return m_begin;
     }
@@ -39,7 +41,7 @@ public:
     /**
      * @return last vertex of the edge
      */
-    Vertex* GetEnd(void) const
+    Vertex* GetEnd(void) 
     {
         return m_end;
     }
@@ -58,18 +60,17 @@ public:
      * Is this a physical edge (not a tesselation edge)?
      * @return true if this is a physical edge, false otherwise
      */
-    bool IsPhysical () const {return (m_adjacentFaces.size () == 3);}
+    bool IsPhysical ()  {return (m_adjacentFaces.size () == 3);}
     /**
      * Adds a face touched by this edge
      * @param face face touched by this edge
      */
-    void AddAdjacentFace (const Face* face) {m_adjacentFaces.push_back (face);}
-    const vector<const Face*>& GetAdjacentFaces () const;
-    const G3D::Vector3int16& GetEndDomainIncrement () const 
+    void AddAdjacentFace (Face* face) {m_adjacentFaces.push_back (face);}
+     vector<Face*>& GetAdjacentFaces () ;
+     G3D::Vector3int16& GetEndDomainIncrement ()  
     {
 	return m_endDomainIncrement;
     }
-    bool HasInvalidDomain () const;
     /**
      * Specifies the default attributes for an Edge object.
      * These attributes don't appear as a DEFINE in the .DMP file
@@ -81,7 +82,7 @@ public:
      * @param ostr where to write the edge
      * @param e edge to write
      */
-    friend ostream& operator<< (ostream& ostr, const Edge& e);
+    friend ostream& operator<< (ostream& ostr,  Edge& e);
 private:
     /**
      * First vertex of the edge
@@ -95,7 +96,7 @@ private:
     /**
      * Stores adjacent faces to this edge
      */
-    vector<const Face*> m_adjacentFaces;
+    vector<Face*> m_adjacentFaces;
     /**
      * Stores information about all vertex attributes
      */

@@ -42,7 +42,7 @@ public:
      * @param name color name
      * @return vector of RGBA components for the given color
      */
-    static const float* GetValue(Color::Name name);
+    static  float* GetValue(Color::Name name);
 };
 
 #endif //__COLOR_H__

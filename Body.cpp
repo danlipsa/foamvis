@@ -51,17 +51,17 @@ ostream& operator<< (ostream& ostr, Body& b)
         ostr << "NULL";
     else
         PrintElements<OrientedFace*> (ostr, b.m_faces, 
-                                        "faces part of the body", true);
+				      "faces part of the body", true);
     ostr << " Body attributes: ";
     return b.PrintAttributes (ostr, *Body::m_infos);
 }
 
 AttributesInfo* Body::m_infos;
 
-Body::Body(unsigned int originalIndex, 
-	   const vector<int>& faceIndexes, vector<Face*>& faces,
+Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
+	   unsigned int originalIndex, Data& data,
 	   bool duplicate) :
-    Element(originalIndex, duplicate)
+    Element(originalIndex, data, duplicate)
 {
     m_faces.resize (faceIndexes.size ());
     transform (faceIndexes.begin(), faceIndexes.end(), m_faces.begin(), 
@@ -108,7 +108,7 @@ public:
      */
     void operator () (OrientedEdge* oe)
     {
-	const Edge *e = oe->GetEdge ();
+	 Edge *e = oe->GetEdge ();
 	m_body.CacheEdge (e);
 	m_body.CacheVertex (e->GetBegin ());
 	m_body.CacheVertex (e->GetEnd ());
@@ -137,7 +137,7 @@ public:
      */
     void operator() (OrientedFace* of)
     {
-	const vector<OrientedEdge*> oev = of->GetFace ()->GetOrientedEdges ();
+	 vector<OrientedEdge*> oev = of->GetFace ()->GetOrientedEdges ();
 	for_each (oev.begin (), oev.end (), cacheEdgeVertices (m_body));
     }
 private:
@@ -157,13 +157,13 @@ void Body::CacheEdgesVertices ()
 
 template <typename T>
 void Body::split (
-    set<const T*>& src,
-    vector<const T*>& destTessellation,
-    vector<const T*>& destPhysical)
+    set<T*>& src,
+    vector<T*>& destTessellation,
+    vector<T*>& destPhysical)
 {
     destTessellation.resize (src.size ());
     copy (src.begin (), src.end (), destTessellation.begin ());
-    typename vector<const T*>::iterator bp;
+    typename vector<T*>::iterator bp;
     bp = partition (destTessellation.begin (),destTessellation.end (), 
 		    not1(mem_fun(&T::IsPhysical)));
     destPhysical.resize (destTessellation.end () - bp);

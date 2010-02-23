@@ -8,9 +8,10 @@
 #include "AttributeInfo.h"
 #include "ParsingDriver.h"
 #include "EvolverData_yacc.h"
+#include "Data.h"
 
 
-ostream& operator<< (ostream& ostr, const Edge& e)
+ostream& operator<< (ostream& ostr,  Edge& e)
 {
     if (&e == 0)
         ostr << "NULL";
@@ -24,14 +25,16 @@ ostream& operator<< (ostream& ostr, const Edge& e)
 AttributesInfo* Edge::m_infos;
 
 
-Edge::Edge (unsigned int originalIndex, Vertex* begin, Vertex* end, 
-	    G3D::Vector3int16& endDomainIncrement, bool duplicate = false):
-    Element(originalIndex, duplicate), m_begin (begin), m_end (end),
-    m_endDomainIncrement (endDomainIncrement)
+Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endDomainIncrement, 
+	    unsigned int originalIndex, Data& data, bool duplicate):
+    Element(originalIndex, data, duplicate),
+    m_begin (begin), m_end (end), m_endDomainIncrement (endDomainIncrement)
 {
     if (! m_duplicate)
     {
-	
+	if (m_endDomainIncrement == Vector3int16(0, 0, 0))
+	    return;
+	m_end = m_data.GetVertexDuplicate (m_end, m_endDomainIncrement);
     }
 }
 
@@ -67,14 +70,7 @@ short Edge::SignToNumber (char sign)
     }
 }
 
-bool Edge::HasInvalidDomain () const
-{
-    return 
-	m_begin->GetDomain () == Vertex::INVALID_DOMAIN ||
-	m_end->GetDomain () == Vertex::INVALID_DOMAIN;
-}
-
-const vector<const Face*>& Edge::GetAdjacentFaces () const
+vector<Face*>& Edge::GetAdjacentFaces () 
 {
     return m_adjacentFaces;
 }

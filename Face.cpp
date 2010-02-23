@@ -52,7 +52,7 @@ class printIndex
 {
 public:
     printIndex (ostream& ostr) : m_ostr (ostr) {}
-    void operator () (const Body* body)
+    void operator () (Body* body)
     {
 	m_ostr << body->GetOriginalIndex () << " ";
     }
@@ -76,14 +76,15 @@ ostream& operator<< (ostream& ostr, Face& f)
 
 AttributesInfo* Face::m_infos;
 
-Face::Face(unsigned int index, 
-	   const vector<int>& edgeIndexes, vector<Edge*>& edges, 
-	   bool duplicate) :
-    Element (index, duplicate)
+Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
+	   unsigned int originalIndex, Data& data, bool duplicate) :
+    Element (originalIndex, data, duplicate)
 {
     m_edges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_edges.begin(), 
                indexToOrientedEdge(edges));
+    
+
     G3D::Vector3int16 beginDomainInc (0, 0, 0);
     vector<OrientedEdge*>::iterator edgeIt;
     vector<G3D::Vector3int16>::iterator edgeDomainIncIt;
@@ -127,9 +128,9 @@ void Face::StoreDefaultAttributes (AttributesInfo& infos)
         new IntegerAttributeCreator());
 }
 
-Color::Name Face::GetColor () const
+Color::Name Face::GetColor () 
 {
-    return dynamic_cast<const ColorAttribute*>(
-        (*m_attributes)[COLOR_INDEX])->GetColor ();
+    return dynamic_cast<ColorAttribute*>(
+        (*m_attributes)[COLOR_INDEX].get ())->GetColor ();
 }
 

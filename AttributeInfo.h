@@ -40,7 +40,7 @@ public:
     /**
      * Constant used to signal an attribute that will not be stored.
      */
-    const static unsigned int INVALID_INDEX = UINT_MAX; 
+     static const unsigned int INVALID_INDEX = UINT_MAX; 
 private:
     /**
      * The index where this attribute is going to be stored
@@ -82,14 +82,14 @@ public:
      * @param name the name of the attribute we are interested in
      * @return information about the attribute
      */
-    AttributeInfo* GetAttributeInfo (const char* name) const;
+    AttributeInfo* GetAttributeInfo (const char* name) ;
     /**
      * Gets the name of an attribute stored at a certain index in the array of
      * attributes attached to a certain element (vertex, edge, ...)
      * @param index where the attribute is stored
      * @return name of the attribute
      */
-    const char* GetAttributeName (unsigned int index);
+     const char* GetAttributeName (unsigned int index);
 private:
     /**
      * All the attributes values that should be loaded from the data file

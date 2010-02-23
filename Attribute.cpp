@@ -46,19 +46,19 @@ private:
 };
 
 
-ostream& IntegerArrayAttribute::Print (ostream& ostr) const
+ostream& IntegerArrayAttribute::Print (ostream& ostr) 
 {
     for_each (m_values->begin (), m_values->end (), printElement<int> (ostr));
     return ostr;
 }
 
-ostream& RealArrayAttribute::Print (ostream& ostr) const
+ostream& RealArrayAttribute::Print (ostream& ostr) 
 {
     for_each (m_values->begin (), m_values->end (), printElement<float> (ostr));
     return ostr;
 }
 
-ostream& operator<< (ostream& ostr, const Attribute& attribute)
+ostream& operator<< (ostream& ostr,  Attribute& attribute)
 {
     if (&attribute == 0)
         return ostr << "null";

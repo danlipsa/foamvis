@@ -33,7 +33,7 @@ public:
      * How are unary functions stored.
      */
     typedef map<const char*, UnaryFunction, 
-                     LessThanNoCase> UnaryFunctions;
+		LessThanNoCase> UnaryFunctions;
     /**
      * How are binary functions stored
      */
@@ -69,7 +69,7 @@ public:
      * @param id string from the lexer
      * @return a string pointer which is stored in ParsingData object
      */
-    string* CreateIdentifier(const char* id);
+    string* CreateIdentifier(char* id);
     /**
      * Returns the unary function with the name supplied by the parameter
      * @param name name of the function to be retrieved
@@ -93,7 +93,7 @@ public:
      * and the time since the last checkpoint.  
      * @param description what should be printed together with the time
      */
-    void PrintTimeCheckpoint (const string& description);
+    void PrintTimeCheckpoint (string& description);
 private:
     /**
      * Stores  variables  read   from  the  datafile  (declared  using

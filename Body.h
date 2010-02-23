@@ -11,6 +11,7 @@
 #include "OrientedFace.h"
 
 class AttributesInfo;
+class Data;
 /**
  * A body is a set of faces
  */
@@ -23,30 +24,30 @@ public:
      * @param faceIndexes 0 based indexes into a vector of Face objects
      * @param faces vector of Face objects
      */
-    Body(unsigned int originalIndex, 
-	 const vector<int>& faceIndexes, vector<Face*>& faces,
+    Body(vector<int>& faceIndexes, vector<Face*>& faces,
+	 unsigned int originalIndex, Data& data,
 	 bool duplicate = false);
     ~Body ();
     /**
      * Returns the  vector of oriented faces this body is made of
      * @return a vector of oriented faces
      */
-    const vector<OrientedFace*>& GetOrientedFaces() const
+     vector<OrientedFace*>& GetOrientedFaces() 
     {
 	return m_faces;
     }
 
-    OrientedFace* GetOrientedFace (unsigned int i) const {return m_faces[i];}
+    OrientedFace* GetOrientedFace (unsigned int i)  {return m_faces[i];}
     /**
      * Does this body have this edge
      * @param e the edge to be tested
      * @return true if the body has the edge, false otherwise
      */
-    bool HasEdge (const Edge* e) const
+    bool HasEdge (Edge* e) 
     {
 	return m_edges.find (e) != m_edges.end ();
     }
-    bool HasVertex (const Vertex* v) const
+    bool HasVertex (Vertex* v) 
     {
 	return m_vertices.find (v) != m_vertices.end ();
     }
@@ -55,7 +56,7 @@ public:
      * Caches an edge
      * @param e the edge to cache
      */
-    void CacheEdge (const Edge* e)
+    void CacheEdge (Edge* e)
     {
 	m_edges.insert (e);
     }
@@ -63,7 +64,7 @@ public:
      * Cache a vertex
      * @param v the vertex to cache
      */
-    void CacheVertex (const Vertex* v)
+    void CacheVertex (Vertex* v)
     {
 	m_vertices.insert (v);
     }
@@ -79,9 +80,9 @@ public:
      * Gets the center
      * @return the center of the body
      */
-    const G3D::Vector3& GetCenter () const {return m_center;}
-    void PrintDomains (ostream& ostr, const G3D::Vector3* periods) const
-    {Vertex::PrintDomains (ostr, m_vertices, periods);}
+     G3D::Vector3& GetCenter ()  {return m_center;}
+    void PrintDomains (ostream& ostr) 
+    {Vertex::PrintDomains (ostr, m_vertices);}
     /**
      * Prety prints a Body
      * @param ostr where to print
@@ -105,9 +106,9 @@ private:
      */
     template <typename T>
     void split (
-	set<const T*>& src,
-	vector<const T*>& destTessellation,
-	vector<const T*>& destPhysical);
+	set<T*>& src,
+	vector<T*>& destTessellation,
+	vector<T*>& destPhysical);
     /**
      * Oriented faces that are part of this body.
      */
@@ -115,27 +116,27 @@ private:
     /**
      * Edges for this body
      */
-    set<const Edge*> m_edges;
+    set<Edge*> m_edges;
     /**
      * Vertices for this body
      */
-    set<const Vertex*> m_vertices;
+    set<Vertex*> m_vertices;
     /**
      * Physical vertices for this body
      */
-    vector<const Vertex*> m_physicalVertices;
+    vector<Vertex*> m_physicalVertices;
     /**
      * Tessellation vertices for this body
      */
-    vector<const Vertex*> m_tessellationVertices;
+    vector<Vertex*> m_tessellationVertices;
     /**
      * Physical edges for this body
      */
-    vector<const Edge*> m_physicalEdges;
+    vector<Edge*> m_physicalEdges;
     /**
      * Tessellation edges for this body
      */
-    vector<const Edge*> m_tessellationEdges;
+    vector<Edge*> m_tessellationEdges;
     /**
      * Center of the body
      */

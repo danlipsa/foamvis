@@ -36,13 +36,13 @@ long ParsingDriver::ReadInteger (char* str, int base)
     long i = strtol (str, &tail, base);
     if (errno)
     {
-		PrintError (string("Scanner: long overflow ") + str);
+	PrintError (string("Scanner: long overflow ") + str);
 	exit(13);
     }
     return i;
 }
 
-const int ParsingDriver::FIRST_TOKEN = EvolverData::parser::token::PARAMETER;
+ int ParsingDriver::FIRST_TOKEN = EvolverData::parser::token::PARAMETER;
 
 const char* ParsingDriver::m_keywordTable[] = {
     "PARAMETER",
@@ -117,7 +117,7 @@ const char* ParsingDriver::m_keywordTable[] = {
     "LAGRANGE_MULTIPLIER"
 };
 
-int ParsingDriver::GetKeywordId (const char* keyword)
+int ParsingDriver::GetKeywordId (char* keyword)
 {
     for (unsigned int i = 0; 
          i < sizeof (m_keywordTable) / sizeof (m_keywordTable[0]);
@@ -136,7 +136,7 @@ const char* ParsingDriver::GetKeywordString (int id)
     return m_keywordTable[id - FIRST_TOKEN];
 }
 
-int ParsingDriver::Parse (const string &f, Data& data)
+int ParsingDriver::Parse (string &f, Data& data)
 {
     m_file = f;
     ScanBegin ();

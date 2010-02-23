@@ -14,7 +14,7 @@
  * @param pe pointer to the object to be deleted
  */
 template <typename E> 
-void DeleteElementPtr (const E* pe) 
+void DeleteElementPtr (E* pe) 
 {delete pe;}
 
 
@@ -95,7 +95,7 @@ ostream& PrintElements (
  */
 template <typename E>
 ostream& ReversePrintElements (ostream& ostr, vector<E>& v, 
-                                  const char* elementName, bool useEndOfLine)
+			       const char* elementName, bool useEndOfLine)
 {
     ostr << v.size() << " " << elementName << ":"<< endl;
     for_each(v.rbegin (), v.rend (), PrintElement<E>(ostr, useEndOfLine));
@@ -114,7 +114,7 @@ struct LessThanNoCase : binary_function<const char*, const char*, bool>
      * @param s2 second C string
      * @return true if the first argument is less than the second argument.
      */
-    bool operator()(const char* s1, const char* s2) const
+    bool operator()(const char* s1, const char* s2) 
     {
         return strcasecmp(s1, s2) < 0;
     }
@@ -126,7 +126,7 @@ struct LessThanNoCase : binary_function<const char*, const char*, bool>
  * @param box what to print
  * @return where to print next
  */
-ostream& operator<< (ostream& ostr, const G3D::AABox& box);
+ostream& operator<< (ostream& ostr,  G3D::AABox& box);
 
 
 #endif //__ELEMENT_UTILS_H__
