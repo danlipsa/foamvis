@@ -17,7 +17,9 @@
 ostream& operator<< (ostream& ostr, Vertex& v)
 {
     using namespace G3D;
-    ostr << static_cast<Vector3&>(v)
+    ostr << "Vertex " << v.GetOriginalIndex ()
+	 << (v.IsDuplicate () ? " DUPLICATE": "")
+	 << static_cast<Vector3&>(v)
 	 << " Vertex attributes: ";
     return v.PrintAttributes (ostr, *Vertex::m_infos);
 }
@@ -25,9 +27,15 @@ ostream& operator<< (ostream& ostr, Vertex& v)
 AttributesInfo* Vertex::m_infos;
 
 Vertex::Vertex(float x, float y, float z, 
-	       unsigned int originalIndex, Data& data, bool duplicate) :
+	       unsigned int originalIndex, Data* data, bool duplicate) :
     G3D::Vector3 (x, y, z),
     Element(originalIndex, data, duplicate),
+    m_adjacentPhysicalEdgesCount (0)
+{}
+
+Vertex::Vertex (const G3D::Vector3* position, Data* data) : 
+    G3D::Vector3 (position->x, position->y, position->z),
+    Element (Element::INVALID_INDEX, data, false),
     m_adjacentPhysicalEdgesCount (0)
 {}
 
@@ -52,10 +60,11 @@ G3D::Vector3int16 Vertex::GetDomain ()
     return Vector3int16 (0, 0, 0);
 }
 
-void Vertex::AdjustPosition (G3D::Vector3int16& domainIncrement)
+void Vertex::AdjustPosition (const G3D::Vector3int16& domainIncrement)
 {
     for (int i = 0; i < 3; i++)
     {
-	*this += m_data.GetPeriod(i) * domainIncrement[i];
+	*this += m_data->GetPeriod(i) * domainIncrement[i];
     }
 }
+

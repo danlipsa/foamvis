@@ -168,23 +168,35 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     switch (event->key ())
     {
     case Qt::Key_PageUp:
-        if (modifiers == Qt::ShiftModifier)
-            m_glWidget->IncrementDisplayedFace ();
-        else
+	switch (modifiers)
 	{
+	case Qt::NoModifier:
             m_glWidget->IncrementDisplayedBody ();
 	    updateStatus ();
+	    break;
+	case Qt::ShiftModifier:
+	    m_glWidget->IncrementDisplayedFace ();
+	    break;
+	case Qt::ControlModifier:
+	    //m_glWidget->IncrementDisplayedEdge ();
+	    break;
 	}
         break;
     case Qt::Key_PageDown:
-        if (modifiers == Qt::ShiftModifier)
-            m_glWidget->DecrementDisplayedFace ();
-        else
+	switch (modifiers)
 	{
+	case Qt::NoModifier:
             m_glWidget->DecrementDisplayedBody ();
 	    updateStatus ();
+	    break;
+	case Qt::ShiftModifier:
+	    m_glWidget->DecrementDisplayedFace ();
+	    break;
+	case Qt::ControlModifier:
+	    //m_glWidget->DecrementDisplayedEdge ();
+	    break;
 	}
-        break;
+	break;
     case Qt::Key_Space:
         string s = G3D::getOpenGLState (false);
         cdbg << s;

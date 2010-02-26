@@ -22,7 +22,7 @@ public:
     /**
      * Constructor for the Element
      */
-    Element(unsigned int originalIndex, Data& data,
+    Element(unsigned int originalIndex, Data* data,
 	    bool duplicate) : 
 	m_attributes(0),
 	m_originalIndex (originalIndex), 
@@ -69,7 +69,8 @@ protected:
      * The original index for this element
      */
     unsigned int m_originalIndex;
-    Data& m_data;
+    const static unsigned int INVALID_INDEX;
+    Data* m_data;
     bool m_duplicate;
 };
 

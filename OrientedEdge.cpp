@@ -11,13 +11,11 @@
 ostream& operator<< (ostream& ostr, OrientedEdge& oe)
 {
     ostr << (oe.m_reversed ? "(R)" : "(N)");
-    if (oe.m_reversed)
-        oe.m_edge->ReversePrint (ostr);
-    else
-        ostr << *oe.m_edge;
+    ostr << "Oriented Edge " << oe.GetEdge ()-> GetOriginalIndex () << ": "
+	 << static_cast<G3D::Vector3>(*oe.GetBegin ()) << ", " 
+	 << static_cast<G3D::Vector3>(*oe.GetEnd ());
     return ostr;
 }
-
 
 G3D::Vector3int16 OrientedEdge::GetEndDomainIncrement ()
 {

@@ -9,14 +9,6 @@
 
 #include "SystemDifferences.h"
 
-/**
- * Deletes an object of type E*.
- * @param pe pointer to the object to be deleted
- */
-template <typename E> 
-void DeleteElementPtr (E* pe) 
-{delete pe;}
-
 
 /**
  * Unary function  that prints an  object of type  E&. Used to  print a
@@ -127,6 +119,8 @@ struct LessThanNoCase : binary_function<const char*, const char*, bool>
  * @return where to print next
  */
 ostream& operator<< (ostream& ostr,  G3D::AABox& box);
+
+G3D::Matrix2 inverse(const Matrix2& original);
 
 
 #endif //__ELEMENT_UTILS_H__

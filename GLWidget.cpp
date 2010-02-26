@@ -344,7 +344,7 @@ protected:
      */
     virtual void display (Body* b)
     {
-	 vector<OrientedFace*> v = b->GetOrientedFaces ();
+	vector<OrientedFace*> v = b->GetOrientedFaces ();
 	for_each (v.begin (), v.end (), displayFunction(GetWidget ()));
     }
 };
@@ -601,10 +601,10 @@ void GLWidget::initializeGL()
     //glOrtho(-1.5, 1.5, -1.5, 1.5, -1.5, 1.5);
     const Vector3& min = m_dataFiles->GetAABox ().low ();
     const Vector3& max = m_dataFiles->GetAABox ().high ();
-    float INCREASE = 1.5;
-    glOrtho(INCREASE * min.x, INCREASE * max.x,
-	    INCREASE * min.y, INCREASE * max.y, 
-	    INCREASE * min.z, INCREASE * max.z);
+    Vector3 increase = (max - min) / 8;
+    glOrtho(min.x - increase.x, max.x + increase.x,
+	    min.y - increase.y, max.y + increase.y, 
+	    min.z - increase.y, max.z + increase.y);
     
     glMatrixMode (GL_MODELVIEW);
     //glLoadMatrixf (GetCurrentData ().GetViewMatrix ());
@@ -732,7 +732,7 @@ GLuint GLWidget::displayEdges ()
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
 
-     vector<Edge*>& edges = GetCurrentData ().GetEdges ();
+    vector<Edge*>& edges = GetCurrentData ().GetEdges ();
     for_each (edges.begin (), edges.end (), displayEdge (*this));
 
     displayCenterOfBodies ();

@@ -47,8 +47,8 @@ public:
      * @return a pointer to the Vertex object
      */
     Vertex* GetVertex (int i) {return m_vertices[i];}
-    Vertex* GetVertexDuplicate (Vertex* original,
-				Vector3int16& domainIncrement);
+    Vertex* GetVertexDuplicate (
+	const Vertex& original, const Vector3int16& domainIncrement);
     /**
      * Gets the vector of vertices
      * @return the vector of vertices
@@ -69,6 +69,7 @@ public:
      * @return a vector of Edge pointers
      */
      vector<Edge*>& GetEdges () {return m_edges;}
+    Edge* GetEdgeDuplicate (Edge& original, G3D::Vector3& edgeBegin);
     /**
      * Stores an Edge object in the Data object at a certain index
      * @param i index where to store the Edge object
@@ -133,7 +134,7 @@ public:
      * Gets the view matrix
      * @return the 4x4 view matrix
      */
-     float* GetViewMatrix () {return m_viewMatrix;}
+    const boost::array<float,16>& GetViewMatrix () {return m_viewMatrix;}
     /**
      * Make the parsing data accessible
      * @return reference to the ParsingData object.
@@ -241,8 +242,15 @@ public:
     {return m_originalIndexBodyMap;}
 
     void SetPeriod (unsigned int i,  G3D::Vector3 v) {m_periods[i] = v;}
-     G3D::Vector3& GetPeriod (unsigned int i)  {return m_periods[i];}
-     G3D::Vector3* GetPeriods ()  {return m_periods;}
+    const G3D::Vector3& GetPeriod (unsigned int i) const {return m_periods[i];}
+    const G3D::Vector3* GetPeriods () const {return m_periods;}
+    bool HasEdge (Edge* edge) const 
+    {return m_edgeSet.find (edge) != m_edgeSet.end ();}
+    G3D::Vector3int16 GetDomainIncrement (
+	const G3D::Vector3& original, const G3D::Vector3& duplicate) const;
+    void SetSpaceDimension (unsigned int spaceDimension) 
+    {m_spaceDimension = spaceDimension;}
+    unsigned int GetSpaceDimension () const {return m_spaceDimension;}
 
     /**
      * Pretty print the Data object
@@ -255,17 +263,18 @@ private:
      * @param v where to store the min/max element
      */
     void Calculate (AggregateOnVertices aggregateOnVertices, G3D::Vector3& v);
+    ostream& PrintFacesWithIntersection (ostream& ostr);
 
     /**
      * A vector of points
      */
     vector<Vertex*> m_vertices;
-    set<Vertex*, Vertex::LessThan> m_duplicateVertices;
+    set<Vertex*, Vertex::LessThan> m_vertexSet;
     /**
      * A vector of edges
      */
     vector<Edge*> m_edges;
-    map<G3D::Vector3, Edge*, Vertex::LessThan> m_duplicateEdges;
+    set<Edge*, Edge::LessThan> m_edgeSet;
     /**
      * A vector of faces
      */
@@ -277,7 +286,7 @@ private:
     /**
      * View matrix for displaying vertices, edges, faces and bodies.
      */
-    float m_viewMatrix[16];
+    boost::array<float,16> m_viewMatrix;
     G3D::Vector3 m_periods[3];
     /**
      * Vector of maps between the name of an attribute and information about it.
@@ -296,7 +305,7 @@ private:
      * Map between the original index and the body pointer
      */
     map<unsigned int, Body*> m_originalIndexBodyMap;
-    ostream& PrintFacesWithIntersection (ostream& ostr);
+    unsigned int m_spaceDimension;
 };
 
 /**

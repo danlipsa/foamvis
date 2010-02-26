@@ -27,7 +27,7 @@ public:
      * @param edges vector of Edge objects
      */
     Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
-	 unsigned int originalIndex, Data& data,
+	 unsigned int originalIndex, Data* data,
 	 bool duplicate = false);
     /**
      * Destroys a Face object
@@ -72,7 +72,6 @@ private:
      * Edges that are part of this face
      */
     vector<OrientedEdge*> m_edges;
-    vector<Vector3int16> m_edgesDomainIncrement;
     vector<Body*> m_adjacentBodies;
     /**
      * Stores information about all vertex attributes

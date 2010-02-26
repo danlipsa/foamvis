@@ -111,6 +111,7 @@ const char* ParsingDriver::m_keywordTable[] = {
     "EQUATION",
     "TORUS_FILLED",
     "TORUS",
+    "SPACE_DIMENSION",
     "ORIGINAL",
     "VOLUME",
     "VOLCONST",

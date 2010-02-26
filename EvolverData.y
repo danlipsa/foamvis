@@ -10,7 +10,7 @@
 %defines
 %token-table 
 %error-verbose
-%expect 4
+%expect 5
 %locations
 %{
 class Data;
@@ -28,6 +28,7 @@ class ParsingDriver;
 %{
 #include "Color.h"
 #include "DefineAttributeType.h"
+#include "DebugStream.h"
 class ExpressionTree;
 class NameSemanticValue;
 class AttributeCreator;
@@ -144,11 +145,11 @@ class AttributeCreator;
 %token EQUATION "EQUATION"
 %token TORUS_FILLED "TORUS_FILLED"
 %token TORUS "TORUS"
+%token SPACE_DIMENSION "SPACE_DIMENSION"
 %token <m_id> ORIGINAL "ORIGINAL"
 %token <m_id> VOLUME "VOLUME"
 %token <m_id> VOLCONST "VOLCONST"
 %token <m_id> LAGRANGE_MULTIPLIER "LAGRANGE_MULTIPLIER"
-
 
  // terminal symbols
 %token <m_int> INTEGER_VALUE
@@ -169,6 +170,7 @@ class AttributeCreator;
 %right '^'      /* exponentiation */
 
 %type <m_real> const_expr
+%type <m_real> vertex_list_rest
 %type <m_attributeType> element_type
 %type <m_attributeCreator> attribute_value_type
 %type <m_node> expr
@@ -188,6 +190,7 @@ class AttributeCreator;
 %type <m_color> color_name
 %type <m_vector3int16> signs_torus_model
 %type <m_short> sign_torus_model
+%type <m_short> opt_sign_torus_model
 
 %{
 #include "Data.h"
@@ -212,38 +215,45 @@ unsigned int intToUnsigned (int i, const char* message);
 %}
 
 %%
-datafile: header vertices 
+datafile: nlstar header vertices nlstar
 {
     //data.GetParsingData ().PrintTimeCheckpoint ("After vertices:");
 }
-edges 
+edges nlstar
 {
     //data.GetParsingData ().PrintTimeCheckpoint ("After edges:");
 }
-faces 
+faces nlstar
 {
     //data.GetParsingData ().PrintTimeCheckpoint ("After faces:");
 }
-bodies
+bodies nlstar
 {
     //data.GetParsingData ().PrintTimeCheckpoint ("After bodies:");
     data.PostProcess ();
 };
 
-header: header parameter
-| header attribute              
-| header dimensionality         
-| header representation         
-| header scale_factor           
-| header total_time             
-| header constraint_tolerance   
-| header SYMMETRIC_CONTENT      
-| header KEEP_ORIGINALS
-| header view_matrix            
-| header constraint             
-| header torus_domain           
+header: 
+  header dimensionality nlplus
+| header space_dimension nlplus           
+| header parameter nlplus
+| header attribute nlplus             
+| header representation nlplus
+| header scale_factor nlplus           
+| header total_time nlplus
+| header constraint_tolerance nlplus
+| header SYMMETRIC_CONTENT nlplus      
+| header KEEP_ORIGINALS nlplus
+| header view_matrix nlplus            
+| header constraint nlplus             
+| header torus_domain nlplus
 |
 ;
+
+nl: '\n'
+nlstar: nlstar nl |;
+nlplus: nlplus nl | nl;
+
 
 parameter: PARAMETER IDENTIFIER '=' const_expr
 {
@@ -294,7 +304,6 @@ attribute_value_type: INTEGER_TYPE
 }
 ;
 
-
 dimensionality: STRING | SOAPFILM;
 
 representation: LINEAR | QUADRATIC | SIMPLEX_REPRESENTATION;
@@ -305,34 +314,42 @@ total_time: TOTAL_TIME const_expr;
 
 constraint_tolerance: CONSTRAINT_TOLERANCE ':' REAL_VALUE;
 
-view_matrix: VIEW_MATRIX
-const_expr const_expr const_expr const_expr
-const_expr const_expr const_expr const_expr
-const_expr const_expr const_expr const_expr
+space_dimension: SPACE_DIMENSION const_expr
+{
+    data.SetSpaceDimension ($2);
+};
+
+view_matrix: VIEW_MATRIX nlstar
+const_expr const_expr const_expr const_expr nlstar
+const_expr const_expr const_expr const_expr nlstar
+const_expr const_expr const_expr const_expr nlstar
 const_expr const_expr const_expr const_expr
 {
-    data.SetViewMatrixElement (0, $2);
-    data.SetViewMatrixElement (1, $3);
-    data.SetViewMatrixElement (2, $4);
-    data.SetViewMatrixElement (3, $5);
-    data.SetViewMatrixElement (4, $6);
-    data.SetViewMatrixElement (5, $7);
-    data.SetViewMatrixElement (6, $8);
-    data.SetViewMatrixElement (7, $9);
-    data.SetViewMatrixElement (8, $10);
-    data.SetViewMatrixElement (9, $11);
-    data.SetViewMatrixElement (10, $12);
-    data.SetViewMatrixElement (11, $13);
-    data.SetViewMatrixElement (12, $14);
-    data.SetViewMatrixElement (13, $15);
-    data.SetViewMatrixElement (14, $16);
-    data.SetViewMatrixElement (15, $17);
+    data.SetViewMatrixElement (0, $3);
+    data.SetViewMatrixElement (1, $4);
+    data.SetViewMatrixElement (2, $5);
+    data.SetViewMatrixElement (3, $6);
+
+    data.SetViewMatrixElement (4, $8);
+    data.SetViewMatrixElement (5, $9);
+    data.SetViewMatrixElement (6, $10);
+    data.SetViewMatrixElement (7, $11);
+
+    data.SetViewMatrixElement (8, $13);
+    data.SetViewMatrixElement (9, $14);
+    data.SetViewMatrixElement (10, $15);
+    data.SetViewMatrixElement (11, $16);
+
+    data.SetViewMatrixElement (12, $18);
+    data.SetViewMatrixElement (13, $19);
+    data.SetViewMatrixElement (14, $20);
+    data.SetViewMatrixElement (15, $21);
 };
 
 
-constraint: CONSTRAINT INTEGER_VALUE constraint_params 
-constraint_type ':' non_const_expr 
-constraint_energy     
+constraint: CONSTRAINT INTEGER_VALUE constraint_params nlplus
+constraint_type ':' non_const_expr nl
+constraint_energy nl
 constraint_content    
 ;
 
@@ -345,16 +362,16 @@ constraint_params: constraint_params GLOBAL
 
 constraint_type: EQUATION | FORMULA | FUNCTION;
 
-constraint_energy: ENERGY 
-E1 ':' non_const_expr 
-E2 ':' non_const_expr 
-E3 ':' non_const_expr 
+constraint_energy: ENERGY nl
+E1 ':' non_const_expr nl
+E2 ':' non_const_expr nl
+E3 ':' non_const_expr
 |;
 
-constraint_content: CONTENT 
-C1 ':' non_const_expr 
-C2 ':' non_const_expr 
-C3 ':' non_const_expr 
+constraint_content: CONTENT nl
+C1 ':' non_const_expr nl
+C2 ':' non_const_expr nl
+C3 ':' non_const_expr
 |;
 
 non_const_expr: expr
@@ -432,25 +449,35 @@ number: INTEGER_VALUE
     $$ = $1;
 };
 
-torus_domain: torus_type torus_periods;
+torus_domain: torus_type nlplus torus_periods;
 
 torus_type: TORUS | TORUS_FILLED;
-torus_periods: PERIODS
-const_expr const_expr const_expr
-const_expr const_expr const_expr
+torus_periods: PERIODS nl
+const_expr const_expr nl
+const_expr const_expr
+{
+    using namespace G3D;
+    data.SetPeriod (0, Vector3 ($3, $4, 0));
+    data.SetPeriod (1, Vector3 ($6, $7, 0));
+    data.SetPeriod (2, Vector3 (0, 0, 0));
+}
+| PERIODS nl
+const_expr const_expr const_expr nl
+const_expr const_expr const_expr nl
 const_expr const_expr const_expr
 {
-    data.SetPeriod (0, G3D::Vector3 ($2, $3, $4));
-    data.SetPeriod (1, G3D::Vector3 ($5, $6, $7));
-    data.SetPeriod (2, G3D::Vector3 ($8, $9, $10));
+    using namespace G3D;
+    data.SetPeriod (0, Vector3 ($3, $4, $5));
+    data.SetPeriod (1, Vector3 ($7, $8, $9));
+    data.SetPeriod (2, Vector3 ($11, $12, $13));
 }
 ;
 
 
-vertices: VERTICES vertex_list;
+vertices: VERTICES nlstar vertex_list;
 
-vertex_list: vertex_list INTEGER_VALUE number number number 
-vertex_attribute_list
+vertex_list: vertex_list INTEGER_VALUE const_expr const_expr vertex_list_rest
+vertex_attribute_list nl
 {
     vector<NameSemanticValue*>* nameSemanticValueList = 
 	$6;
@@ -462,6 +489,16 @@ vertex_attribute_list
 	NameSemanticValue::DeleteVector(nameSemanticValueList);
 }
 |;
+
+vertex_list_rest:
+{
+    $$ = 0;
+}
+|
+const_expr
+{
+    $$ = $1;    
+};
 
 vertex_attribute_list: vertex_attribute_list predefined_vertex_attribute
 {
@@ -507,9 +544,9 @@ user_attribute: IDENTIFIER INTEGER_VALUE
 }
 ;
 
-edges: EDGES edge_list;
+edges: EDGES nlplus edge_list;
 edge_list: edge_list INTEGER_VALUE INTEGER_VALUE INTEGER_VALUE 
-signs_torus_model edge_attribute_list
+signs_torus_model edge_attribute_list nl
 {
     data.SetEdge (
 	intToUnsigned($2 - 1, "Semantic error: edge index less than 0: "),
@@ -545,7 +582,7 @@ predefined_edge_attribute: ORIGINAL INTEGER_VALUE
 }
 ;
 
-signs_torus_model: sign_torus_model sign_torus_model sign_torus_model
+signs_torus_model: sign_torus_model sign_torus_model opt_sign_torus_model
 {
     $$ = new G3D::Vector3int16 ($1, $2, $3);
 }
@@ -553,6 +590,17 @@ signs_torus_model: sign_torus_model sign_torus_model sign_torus_model
 {
     $$ = new G3D::Vector3int16 (0,0,0);
 };
+
+opt_sign_torus_model: sign_torus_model
+{
+    $$ = $1;
+}
+|
+{
+    $$ = Edge::SignToNumber ('*');
+}
+;
+
 
 sign_torus_model: '+' 
 {
@@ -568,9 +616,9 @@ sign_torus_model: '+'
 }
 ;
 
-faces: FACES face_list;
+faces: FACES nl face_list;
 
-face_list: face_list INTEGER_VALUE integer_list face_attribute_list
+face_list: face_list INTEGER_VALUE integer_list face_attribute_list nl
 {
     vector<int>* intList = $3;
     data.SetFace (
@@ -680,9 +728,9 @@ color_name: BLACK
 ;
 
 
-bodies: BODIES body_list;
+bodies: BODIES nl body_list;
 
-body_list: body_list INTEGER_VALUE integer_list body_attribute_list
+body_list: body_list INTEGER_VALUE integer_list body_attribute_list nl
 {
     vector<int>* intList = $3;
     data.SetBody (

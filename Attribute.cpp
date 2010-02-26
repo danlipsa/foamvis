@@ -46,13 +46,13 @@ private:
 };
 
 
-ostream& IntegerArrayAttribute::Print (ostream& ostr) 
+ostream& IntegerArrayAttribute::Print (ostream& ostr) const 
 {
     for_each (m_values->begin (), m_values->end (), printElement<int> (ostr));
     return ostr;
 }
 
-ostream& RealArrayAttribute::Print (ostream& ostr) 
+ostream& RealArrayAttribute::Print (ostream& ostr) const
 {
     for_each (m_values->begin (), m_values->end (), printElement<float> (ostr));
     return ostr;

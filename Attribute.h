@@ -25,7 +25,7 @@ public:
      * @param ostr where to print
      * @return where to print something else
      */
-    virtual ostream& Print(ostream& ostr)  = 0;
+    virtual ostream& Print(ostream& ostr) const = 0;
 };
 /**
  * An integer attribute
@@ -41,7 +41,7 @@ public:
     /**
      * Pretty prints an integer attribute 
      */
-    virtual ostream& Print (ostream& ostr) 
+    virtual ostream& Print (ostream& ostr) const
     {
         return ostr << m_value;
     }
@@ -71,7 +71,7 @@ public:
      * @param ostr stream where to print
      * @return stream where we printed
      */
-    virtual ostream& Print (ostream& ostr) 
+    virtual ostream& Print (ostream& ostr) const
     {return ostr << m_value;}
     
 private:
@@ -97,13 +97,13 @@ public:
      * @param ostr where to print
      * @return where we printed
      */
-    virtual ostream& Print (ostream& ostr)  
+    virtual ostream& Print (ostream& ostr) const
     {return ostr << m_color;}
     /**
      * Get the color of the attribute
      * @return color value of the attribute
      */
-    Color::Name GetColor () 
+    Color::Name GetColor () const
     {return m_color;}
 private:
     /**
@@ -136,7 +136,7 @@ public:
      * @param ostr where to print
      * @return where to print the next item
      */
-    virtual ostream& Print (ostream& ostr) ;
+    virtual ostream& Print (ostream& ostr) const;
 private:
     /**
      * Stores a pointer to an array of integers
@@ -167,7 +167,7 @@ public:
      * @param ostr where to print
      * @return where we printed
      */
-    virtual ostream& Print (ostream& ostr) ;
+    virtual ostream& Print (ostream& ostr) const;
 private:
     /**
      * Pointer to a vector of reals

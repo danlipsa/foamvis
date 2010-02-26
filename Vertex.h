@@ -29,20 +29,22 @@ public:
      * @param z the Z coordinate
      */
     Vertex(float x, float y, float z,
-	   unsigned int originalIndex, Data& data,
+	   unsigned int originalIndex, Data* data,
 	   bool duplicate=false);
+    Vertex (const G3D::Vector3* position, Data* data);
     /**
      * Is this a physical (not tesselation) vertex
      * @return true if it is physical, false otherwise
      */
-    bool IsPhysical ()  {return (m_adjacentPhysicalEdgesCount == 4);}
+    bool IsPhysical () const {return (m_adjacentPhysicalEdgesCount == 4);}
     /**
      * Adds an edge that is adjacent to this vertex
      * @param edge edge touched by this vertex
      */
     void AddAdjacentEdge (Edge* edge);
     G3D::Vector3int16 GetDomain () ;
-    void AdjustPosition (G3D::Vector3int16& domainIncrement);
+    void AdjustPosition (const G3D::Vector3int16& domainIncrement);
+
     /**
      * Specifies the default attributes for the Vertex object.
      * These attributes don't appear as a DEFINE in the .DMP file

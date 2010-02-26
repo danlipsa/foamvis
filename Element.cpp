@@ -107,6 +107,10 @@ private:
     unsigned int m_index;
 };
 
+
+const unsigned int Element::INVALID_INDEX = 
+				 numeric_limits<unsigned int>::max ();
+
 Element::~Element()
 {
     delete m_attributes;

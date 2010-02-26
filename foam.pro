@@ -14,7 +14,7 @@ SOURCES += DebugStream.cpp ParsingDriver.cpp AttributeInfo.cpp Attribute.cpp \
 FORMS += Window.ui
 LEXSOURCES += EvolverData.l
 YACCSOURCES += EvolverData.y
-QMAKE_YACC = bison -y
+QMAKE_YACC = .\/bison.pl -y --report=state
 TARGET = foam
 QT           += opengl
 CONFIG       += qt debug precompile_header no_keywords

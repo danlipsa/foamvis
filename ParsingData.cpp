@@ -103,6 +103,7 @@ ostream& operator<< (ostream& ostr, ParsingData& pd)
 ParsingData::ParsingData ()
 {
     m_unaryFunctions["-"] = negateFunction;
+    m_unaryFunctions["sqrt"] = sqrtf;
 
     m_binaryFunctions["+"] = plusFunction;
     m_binaryFunctions["-"] = minusFunction;

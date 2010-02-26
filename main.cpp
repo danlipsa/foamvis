@@ -51,7 +51,6 @@ public:
         parsingData.SetDebugParsing (false);
         parsingData.SetDebugScanning (false);
         string fullPath = m_dir + '/' + file;
-        cdbg << "Parsing " << file << endl;
         result = parsingData.Parse (fullPath, *data);
         data->ReleaseParsingData ();
         if (result != 0)

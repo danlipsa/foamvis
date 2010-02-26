@@ -9,6 +9,7 @@
 #include "ParsingDriver.h"
 #include "Debug.h"
 #include "Body.h"
+#include "Data.h"
 
 /**
  * Unary function that  creates an oriented edge from  an index into a
@@ -77,32 +78,36 @@ ostream& operator<< (ostream& ostr, Face& f)
 AttributesInfo* Face::m_infos;
 
 Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
-	   unsigned int originalIndex, Data& data, bool duplicate) :
+	   unsigned int originalIndex, Data* data, bool duplicate) :
     Element (originalIndex, data, duplicate)
 {
     m_edges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_edges.begin(), 
                indexToOrientedEdge(edges));
     
-
-    G3D::Vector3int16 beginDomainInc (0, 0, 0);
+    G3D::Vector3* begin = (*m_edges.begin())->GetBegin ();
     vector<OrientedEdge*>::iterator edgeIt;
-    vector<G3D::Vector3int16>::iterator edgeDomainIncIt;
-    for (edgeIt = m_edges.begin (), edgeDomainIncIt = 
-	     m_edgesDomainIncrement.begin ();
-	 edgeIt < m_edges.end (); 
-	 edgeIt++, edgeDomainIncIt++)
+    for (edgeIt = m_edges.begin (); edgeIt < m_edges.end (); edgeIt++)
     {
-	G3D::Vector3int16 endDomainInc = 
-	    (*edgeIt)->GetEndDomainIncrement ();
-	*edgeDomainIncIt = beginDomainInc + endDomainInc;
-	beginDomainInc = endDomainInc;
+	G3D::Vector3 edgeBegin;
+	if ((*edgeIt)->IsReversed ())
+	    edgeBegin = (*edgeIt)->GetEdge ()->GetBegin (begin);
+	else
+	    edgeBegin = *begin;
+	Vertex beginDummy (&edgeBegin, m_data);
+	Edge searchDummy(&beginDummy,
+			 (*edgeIt)->GetEdge ()->GetOriginalIndex ());
+	if (! m_data->HasEdge (&searchDummy))
+	    (*edgeIt)->SetEdge (
+		m_data->GetEdgeDuplicate (*(*edgeIt)->GetEdge (), edgeBegin));
+	begin = (*edgeIt)->GetEnd ();
     }
 }
 
 Face::~Face()
 {
-    for_each(m_edges.begin(), m_edges.end(), DeleteElementPtr<OrientedEdge>);
+    using namespace boost::lambda;
+    for_each(m_edges.begin(), m_edges.end(), bind(delete_ptr(), _1));
 }
 
 void Face::ReversePrint (ostream& ostr)
@@ -130,7 +135,10 @@ void Face::StoreDefaultAttributes (AttributesInfo& infos)
 
 Color::Name Face::GetColor () 
 {
-    return dynamic_cast<ColorAttribute*>(
-        (*m_attributes)[COLOR_INDEX].get ())->GetColor ();
+    if (m_attributes != 0)
+	return dynamic_cast<ColorAttribute*>(
+	    (*m_attributes)[COLOR_INDEX].get ())->GetColor ();
+    else
+	return static_cast<Color::Name>(GetOriginalIndex () % Color::COUNT);
 }
 

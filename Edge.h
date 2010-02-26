@@ -24,8 +24,9 @@ public:
      */
     Edge (Vertex* begin, Vertex* end, 
 	  G3D::Vector3int16& endDomainIncrement, 
-	  unsigned int originalIndex, Data& data,
+	  unsigned int originalIndex, Data* data,
 	  bool duplicate = false);
+    Edge (Vertex* begin, unsigned int originalIndex);
     /**
      * @return the first vertex of the edge
      */
@@ -33,6 +34,7 @@ public:
     {
         return m_begin;
     }
+    G3D::Vector3 GetBegin (G3D::Vector3* end);
     /**
      * Sets the first vertex of the edge
      * @param begin value stored in the first vertex of the edge
@@ -83,6 +85,18 @@ public:
      * @param e edge to write
      */
     friend ostream& operator<< (ostream& ostr,  Edge& e);
+
+    class LessThan
+    {
+    public:
+	bool operator () (Edge* first, Edge* second) const
+	{
+	    return first->GetOriginalIndex () < second->GetOriginalIndex () ||
+		(first->GetOriginalIndex () == second->GetOriginalIndex () &&
+		 Vertex::LessThan () (first->GetBegin (), second->GetBegin ()));
+	}
+    };
+
 private:
     /**
      * First vertex of the edge

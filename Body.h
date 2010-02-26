@@ -25,7 +25,7 @@ public:
      * @param faces vector of Face objects
      */
     Body(vector<int>& faceIndexes, vector<Face*>& faces,
-	 unsigned int originalIndex, Data& data,
+	 unsigned int originalIndex, Data* data,
 	 bool duplicate = false);
     ~Body ();
     /**

@@ -95,9 +95,8 @@ ostream& operator<< (ostream& ostr, Data& d)
     PrintElements<Face*> (ostr, d.m_faces, "faces", true);
     PrintElements<Body*> (ostr, d.m_bodies, "bodies", true);
     ostr << "view matrix:" << endl;
-    for_each (d.m_viewMatrix, 
-              d.m_viewMatrix + 
-              sizeof(d.m_viewMatrix)/sizeof(d.m_viewMatrix[0]), 
+    for_each (d.m_viewMatrix.begin (), 
+              d.m_viewMatrix.end (), 
               printMatrixElement (ostr));
     ostr << endl;
     Vertex::PrintDomains (ostr, d.m_vertices);
@@ -107,20 +106,24 @@ ostream& operator<< (ostream& ostr, Data& d)
 
 Data::Data () : 
     m_attributesInfo(DefineAttribute::COUNT),
-    m_parsingData (new ParsingData ())
+    m_parsingData (new ParsingData ()),
+    m_spaceDimension (3)
 {
-	Vertex::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::VERTEX]);
-	Edge::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::EDGE]);
-	Face::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::FACE]);
-	Body::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::BODY]);
+    using namespace boost::lambda;
+    for_each (m_viewMatrix.begin (), m_viewMatrix.end (), _1 = 0);
+    Vertex::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::VERTEX]);
+    Edge::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::EDGE]);
+    Face::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::FACE]);
+    Body::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::BODY]);
 }
 
 Data::~Data ()
 {
-    for_each(m_bodies.begin (), m_bodies.end (), DeleteElementPtr<Body>);
-    for_each(m_faces.begin (), m_faces.end (), DeleteElementPtr<Face>);
-    for_each(m_edges.begin (), m_edges.end (), DeleteElementPtr<Edge>);
-    for_each(m_vertices.begin (), m_vertices.end (), DeleteElementPtr<Vertex>);
+    using namespace boost::lambda;
+    for_each(m_bodies.begin (), m_bodies.end (), bind (delete_ptr (), _1));
+    for_each(m_faces.begin (), m_faces.end (), bind (delete_ptr (), _1));
+    for_each(m_edges.begin (), m_edges.end (), bind (delete_ptr (), _1));
+    for_each(m_vertices.begin (), m_vertices.end (), bind (delete_ptr (), _1));
     delete m_parsingData;
 }
 
@@ -129,33 +132,51 @@ void Data::SetVertex (unsigned int i, float x, float y, float z,
 {
     if (i >= m_vertices.size ())
         m_vertices.resize (i + 1);
-    Vertex* vertex = new Vertex (x, y ,z, i, *this);
+    Vertex* vertex = new Vertex (x, y ,z, i, this);
     if (&list != 0)
         vertex->StoreAttributes (
             list, m_attributesInfo[DefineAttribute::VERTEX]);
     m_vertices[i] = vertex;
+    m_vertexSet.insert (vertex);
 }
 
 Vertex* Data::GetVertexDuplicate (
-    Vertex* original, G3D::Vector3int16& domainIncrement)
+    const Vertex& original, const G3D::Vector3int16& domainIncrement)
 {
-    Vertex* duplicate;
-    original->AdjustPosition (domainIncrement);
+    Vertex searchDummy (&original, this);
+    searchDummy.AdjustPosition (domainIncrement);
     set<Vertex*, Vertex::LessThan>::iterator it = 
-	m_duplicateVertices.find (original);
-    if (it == m_duplicateVertices.end ())
-    {
-	duplicate = new Vertex (*original);
-	duplicate->SetDuplicate (true);
-	m_duplicateVertices.insert (duplicate);
-    }
-    else
-    {
-	duplicate = *it;
-    }
+	m_vertexSet.find (&searchDummy);
+    if (it != m_vertexSet.end ())
+	return *it;
+    Vertex* duplicate = new Vertex (original);
+    duplicate->SetDuplicate (true);
+    duplicate->AdjustPosition (domainIncrement);
+    m_vertexSet.insert (duplicate);
     m_vertices.push_back (duplicate);
-    G3D::Vector3int16 negation = G3D::Vector3int16 (0, 0, 0) - domainIncrement;
-    original->AdjustPosition (negation);
+    return duplicate;
+}
+
+Edge* Data::GetEdgeDuplicate (Edge& original, G3D::Vector3& newBegin)
+{
+    using namespace G3D;
+    Vertex beginDummy (&newBegin, this);
+    Edge searchDummy (&beginDummy, original.GetOriginalIndex ());
+    set<Edge*, Edge::LessThan>::iterator it = m_edgeSet.find (&searchDummy);
+    if (it != m_edgeSet.end ())
+	return *it;
+    G3D::Vector3int16 domainIncrement = GetDomainIncrement (
+	*original.GetBegin (), newBegin);
+    Vertex* beginDuplicate = GetVertexDuplicate (*original.GetBegin (),
+						 domainIncrement);
+    Vertex* endDuplicate = GetVertexDuplicate (*original.GetEnd (),
+					       domainIncrement);
+    Edge* duplicate = new Edge (original);
+    duplicate->SetDuplicate (true);
+    duplicate->SetBegin (beginDuplicate);
+    duplicate->SetEnd (endDuplicate);
+    m_edgeSet.insert (duplicate);
+    m_edges.push_back (duplicate);
     return duplicate;
 }
 
@@ -166,10 +187,11 @@ void Data::SetEdge (unsigned int i, unsigned int begin, unsigned int end,
     if (i >= m_edges.size ())
         m_edges.resize (i + 1); 
     Edge* edge = new Edge (
-	GetVertex(begin), GetVertex(end), domainIncrement, i, *this);
+	GetVertex(begin), GetVertex(end), domainIncrement, i, this);
     if (&list != 0)
         edge->StoreAttributes (list, m_attributesInfo[DefineAttribute::EDGE]);
     m_edges[i] = edge;
+    m_edgeSet.insert (edge);
 }
 
 void Data::SetFace (unsigned int i,  vector<int>& edges,
@@ -177,7 +199,7 @@ void Data::SetFace (unsigned int i,  vector<int>& edges,
 {
     if (i >= m_faces.size ())
         m_faces.resize (i + 1);
-    Face* face = new Face (edges, m_edges, i, *this);
+    Face* face = new Face (edges, m_edges, i, this);
     if (&list != 0)
         face->StoreAttributes (list, m_attributesInfo[DefineAttribute::FACE]);
     m_faces[i] = face;
@@ -188,7 +210,7 @@ void Data::SetBody (unsigned int i,  vector<int>& faces,
 {
     if (i >= m_bodies.size ())
         m_bodies.resize (i + 1);
-    Body* body = new Body (faces, m_faces, i, *this);
+    Body* body = new Body (faces, m_faces, i, this);
     if (&list != 0)
         body->StoreAttributes (list, m_attributesInfo[DefineAttribute::BODY]);    
     m_bodies[i] = body;
@@ -284,7 +306,7 @@ void Data::PostProcess ()
     CalculatePhysical ();
     CalculateAABox ();
     CacheEdgesVerticesInBodies ();
-    CalculateBodiesCenters ();
+    //CalculateBodiesCenters ();
 }
 
 unsigned int countIntersections (OrientedEdge* e)
@@ -322,3 +344,34 @@ ostream& Data::PrintFacesWithIntersection (ostream& ostr)
     return ostr;
 }
 
+G3D::Vector3int16 Data::GetDomainIncrement (
+    const G3D::Vector3& original, const G3D::Vector3& duplicate) const
+{
+    using namespace G3D;
+    Matrix3 toOrthonormal;
+    if (GetSpaceDimension () == 2)
+    {
+	Matrix2 toPeriods (GetPeriod (0).x, GetPeriod (1).x,
+			   GetPeriod (0).y, GetPeriod (1).y);
+	// inverse does not work in G3D 7.01
+	const Matrix2& toOrthonormal2d = inverse (toPeriods);
+	const float* v = toOrthonormal2d[0];
+	toOrthonormal.setRow (0, Vector3 (v[0], v[1], 0));
+	v = toOrthonormal2d[1];
+	toOrthonormal.setRow (1, Vector3 (v[0], v[1], 0));
+	toOrthonormal.setRow (2, Vector3 (0, 0, 0));
+    }
+    else
+    {
+	Matrix3 toPeriods (
+	    GetPeriod (0).x, GetPeriod (1).x, GetPeriod (2).x,
+	    GetPeriod (0).y, GetPeriod (1).y, GetPeriod (2).y,
+	    GetPeriod (0).z, GetPeriod (1).z, GetPeriod (2).z);
+	toOrthonormal = toPeriods.inverse ();
+    }
+    Vector3 o = toOrthonormal * original;
+    Vector3 d = toOrthonormal * duplicate;
+    Vector3int16 originalDomain (floorf (o.x), floorf(o.y), floorf(o.z));
+    Vector3int16 duplicateDomain (floorf (d.x), floorf(d.y), floorf(o.z));
+    return duplicateDomain - originalDomain;
+}

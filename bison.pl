@@ -1,7 +1,12 @@
 #!/usr/bin/perl
 use File::Copy;
-my $inName = "EvolverData_yacc.cpp";
-    my $outName = "temp.cpp";
+
+my @args = ("bison", @ARGV);
+system(@args) == 0
+    or die "system @args failed: $?";
+
+my $inName = "EvolverData.tab.c";
+my $outName = "temp.cpp";
 print "replacing .tab.h with _yacc.h in $inName\n";
 open (my $in, "<", $inName)
     or die ("Could not open $inName: $!\n");

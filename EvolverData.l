@@ -14,6 +14,7 @@
 %{
 #include "ParsingData.h"
 #include "EvolverData_yacc.h"
+#include "DebugStream.h"
 using EvolverData::parser;
 #define YY_EXTRA_TYPE ParsingData*
 %}
@@ -26,10 +27,12 @@ ID    [a-zA-Z][a-zA-Z0-9_]*
 D     [0-9]
 H     [0-9A-Fa-f]
 E     [Ee][+-]?{D}+
+NEWLINE "\n"
+SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
 
 %%
 
-"/*"   { /* eat comment */
+"/*"             { /* eat comment */
     register int c;
     while (1)
     { while ( (c = yyinput(yyscanner)) != '*' && c != 0 )
@@ -44,9 +47,9 @@ E     [Ee][+-]?{D}+
             break;
         }
     }
-}
+		  }
 
-"//".*""    /* eat comment */ ;
+"//".*       /* eat comments */
 
 [+-]?{D}+ { /* decimal integers */
 	yylval->m_int = yyextra->ReadInteger (yytext, 10);
@@ -135,7 +138,18 @@ E     [Ee][+-]?{D}+
 
 "\\\n"  /*ignore escaping of new lines*/
 
-[[:space:]]+   /* ignore whitespace */
+{SPACENONEWLINE}*{NEWLINE}{SPACENONEWLINE}* {
+    yylloc->begin.line = yylineno;
+    return '\n';
+}
+
+
+
+{SPACENONEWLINE}+ /* ignore  white spaces, for  some reason  this eats
+		   * the end  of the line too  so that is  why we need
+		   * the rule above */
+
+
 
 
 %%

@@ -59,7 +59,7 @@ ostream& operator<< (ostream& ostr, Body& b)
 AttributesInfo* Body::m_infos;
 
 Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
-	   unsigned int originalIndex, Data& data,
+	   unsigned int originalIndex, Data* data,
 	   bool duplicate) :
     Element(originalIndex, data, duplicate)
 {
@@ -70,7 +70,8 @@ Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
 
 Body::~Body()
 {
-    for_each(m_faces.begin(), m_faces.end(), DeleteElementPtr<OrientedFace>);
+    using namespace boost::lambda;
+    for_each(m_faces.begin(), m_faces.end(), bind (delete_ptr(), _1));
 }
 
 void Body::StoreDefaultAttributes (AttributesInfo& infos)

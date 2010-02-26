@@ -32,6 +32,7 @@ public:
      */
     Vertex* GetBegin (void) 
     {return m_reversed ? m_edge->GetEnd () : m_edge->GetBegin ();}
+    bool IsReversed () const {return m_reversed;}
     /**
      * Get the end vertex of the OrientedEdge. Note that this might be the
      * begin vertex for the edge stored inside.
@@ -46,7 +47,8 @@ public:
      * Edge for this oriented edge
      * @return the edge for this oriented edge
      */
-     Edge* GetEdge ()  {return m_edge;}
+    Edge* GetEdge () const {return m_edge;}
+    void SetEdge (Edge* edge) {m_edge = edge;}
     G3D::Vector3int16 GetEndDomainIncrement () ;
 
     /**
