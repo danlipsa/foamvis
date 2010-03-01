@@ -244,6 +244,7 @@ public:
     void SetPeriod (unsigned int i,  G3D::Vector3 v) {m_periods[i] = v;}
     const G3D::Vector3& GetPeriod (unsigned int i) const {return m_periods[i];}
     const G3D::Vector3* GetPeriods () const {return m_periods;}
+    bool IsTorus () const;
     bool HasEdge (Edge* edge) const 
     {return m_edgeSet.find (edge) != m_edgeSet.end ();}
     G3D::Vector3int16 GetDomainIncrement (

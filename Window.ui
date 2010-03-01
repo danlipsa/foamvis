@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>618</width>
-    <height>551</height>
+    <width>619</width>
+    <height>602</height>
    </rect>
   </property>
   <property name="focusPolicy">
@@ -24,7 +24,7 @@
     <number>4</number>
    </property>
    <property name="horizontalSpacing">
-    <number>-1</number>
+    <number>6</number>
    </property>
    <item row="0" column="2" colspan="2">
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -35,7 +35,7 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
-         <widget class="QRadioButton" name="verticesRadioButton">
+         <widget class="QRadioButton" name="radioButtonVertices">
           <property name="text">
            <string>Vertices</string>
           </property>
@@ -45,7 +45,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="edgesRadioButton">
+         <widget class="QRadioButton" name="radioButtonEdges">
           <property name="text">
            <string>Edges</string>
           </property>
@@ -55,7 +55,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="facesRadioButton">
+         <widget class="QRadioButton" name="radioButtonFaces">
           <property name="text">
            <string>Faces</string>
           </property>
@@ -65,7 +65,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="bodiesRadioButton">
+         <widget class="QRadioButton" name="radioButtonBodies">
           <property name="text">
            <string>Bodies</string>
           </property>
@@ -78,7 +78,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="centerPathsRadioButton">
+         <widget class="QRadioButton" name="radioButtoncenterPaths">
           <property name="text">
            <string>Center Paths</string>
           </property>
@@ -88,7 +88,7 @@
          </widget>
         </item>
         <item>
-         <spacer name="verticalSpacer_2">
+         <spacer name="verticalSpacerAboveMovie">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
@@ -104,14 +104,14 @@
          </spacer>
         </item>
         <item>
-         <widget class="QCheckBox" name="saveMovieCheckBox">
+         <widget class="QCheckBox" name="checkBoxSaveMovie">
           <property name="text">
            <string>Save movie</string>
           </property>
          </widget>
         </item>
         <item>
-         <spacer name="verticalSpacer">
+         <spacer name="verticalSpacerBelowMovie">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
@@ -122,6 +122,45 @@
            </size>
           </property>
          </spacer>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="m_periodicModelGroupBox">
+       <property name="title">
+        <string>Torus Model Raw Display</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <widget class="QRadioButton" name="periodicVerticesRadioButton">
+          <property name="text">
+           <string>Vertices</string>
+          </property>
+          <attribute name="buttonGroup">
+           <string>buttonGroup</string>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="periodicEdgesRadioButton">
+          <property name="text">
+           <string>Edges</string>
+          </property>
+          <attribute name="buttonGroup">
+           <string>buttonGroup</string>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="periodicFacesRadioButton">
+          <property name="text">
+           <string>Faces</string>
+          </property>
+          <attribute name="buttonGroup">
+           <string>buttonGroup</string>
+          </attribute>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -213,7 +252,7 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="spacing">
-       <number>-1</number>
+       <number>6</number>
       </property>
       <property name="sizeConstraint">
        <enum>QLayout::SetDefaultConstraint</enum>
@@ -297,20 +336,23 @@
     <slot>TessellationObjectsWidthChanged(int)</slot>
     <slot>DataSliderValueChanged(int)</slot>
     <slot>ViewCenterPaths(bool)</slot>
+    <slot>ViewRawVertices(bool)</slot>
+    <slot>ViewRawEdges(bool)</slot>
+    <slot>ViewRawFaces(bool)</slot>
    </slots>
   </customwidget>
  </customwidgets>
  <resources/>
  <connections>
   <connection>
-   <sender>saveMovieCheckBox</sender>
+   <sender>checkBoxSaveMovie</sender>
    <signal>toggled(bool)</signal>
    <receiver>m_glWidget</receiver>
    <slot>SaveMovie(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>529</x>
-     <y>182</y>
+     <x>597</x>
+     <y>214</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -319,7 +361,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>verticesRadioButton</sender>
+   <sender>radioButtonVertices</sender>
    <signal>toggled(bool)</signal>
    <receiver>m_glWidget</receiver>
    <slot>ViewVertices(bool)</slot>
@@ -335,7 +377,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>edgesRadioButton</sender>
+   <sender>radioButtonEdges</sender>
    <signal>toggled(bool)</signal>
    <receiver>m_glWidget</receiver>
    <slot>ViewEdges(bool)</slot>
@@ -351,7 +393,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>facesRadioButton</sender>
+   <sender>radioButtonFaces</sender>
    <signal>toggled(bool)</signal>
    <receiver>m_glWidget</receiver>
    <slot>ViewFaces(bool)</slot>
@@ -367,7 +409,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>bodiesRadioButton</sender>
+   <sender>radioButtonBodies</sender>
    <signal>toggled(bool)</signal>
    <receiver>m_glWidget</receiver>
    <slot>ViewBodies(bool)</slot>
@@ -389,8 +431,8 @@
    <slot>TogglePlay()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>62</x>
-     <y>507</y>
+     <x>77</x>
+     <y>564</y>
     </hint>
     <hint type="destinationlabel">
      <x>66</x>
@@ -405,8 +447,8 @@
    <slot>BeginSlider()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>41</x>
-     <y>511</y>
+     <x>48</x>
+     <y>564</y>
     </hint>
     <hint type="destinationlabel">
      <x>38</x>
@@ -421,8 +463,8 @@
    <slot>EndSlider()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>508</y>
+     <x>117</x>
+     <y>564</y>
     </hint>
     <hint type="destinationlabel">
      <x>53</x>
@@ -437,8 +479,8 @@
    <slot>TessellationObjectsWidthChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>602</x>
-     <y>372</y>
+     <x>596</x>
+     <y>429</y>
     </hint>
     <hint type="destinationlabel">
      <x>382</x>
@@ -453,8 +495,8 @@
    <slot>PhysicalObjectsWidthChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>602</x>
-     <y>441</y>
+     <x>596</x>
+     <y>496</y>
     </hint>
     <hint type="destinationlabel">
      <x>389</x>
@@ -469,8 +511,8 @@
    <slot>DataSliderValueChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>244</x>
-     <y>499</y>
+     <x>368</x>
+     <y>563</y>
     </hint>
     <hint type="destinationlabel">
      <x>232</x>
@@ -485,8 +527,8 @@
    <slot>DataSliderValueChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>190</x>
-     <y>506</y>
+     <x>314</x>
+     <y>563</y>
     </hint>
     <hint type="destinationlabel">
      <x>180</x>
@@ -495,7 +537,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>bodiesRadioButton</sender>
+   <sender>radioButtonBodies</sender>
    <signal>toggled(bool)</signal>
    <receiver>Window</receiver>
    <slot>ViewBodies(bool)</slot>
@@ -505,13 +547,13 @@
      <y>125</y>
     </hint>
     <hint type="destinationlabel">
-     <x>637</x>
+     <x>618</x>
      <y>125</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>facesRadioButton</sender>
+   <sender>radioButtonFaces</sender>
    <signal>toggled(bool)</signal>
    <receiver>Window</receiver>
    <slot>ViewFaces(bool)</slot>
@@ -521,13 +563,13 @@
      <y>100</y>
     </hint>
     <hint type="destinationlabel">
-     <x>626</x>
+     <x>618</x>
      <y>97</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>edgesRadioButton</sender>
+   <sender>radioButtonEdges</sender>
    <signal>toggled(bool)</signal>
    <receiver>Window</receiver>
    <slot>ViewEdges(bool)</slot>
@@ -537,13 +579,13 @@
      <y>74</y>
     </hint>
     <hint type="destinationlabel">
-     <x>624</x>
+     <x>618</x>
      <y>75</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>verticesRadioButton</sender>
+   <sender>radioButtonVertices</sender>
    <signal>toggled(bool)</signal>
    <receiver>Window</receiver>
    <slot>ViewVertices(bool)</slot>
@@ -553,13 +595,13 @@
      <y>48</y>
     </hint>
     <hint type="destinationlabel">
-     <x>630</x>
+     <x>618</x>
      <y>51</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>centerPathsRadioButton</sender>
+   <sender>radioButtoncenterPaths</sender>
    <signal>toggled(bool)</signal>
    <receiver>m_glWidget</receiver>
    <slot>ViewCenterPaths(bool)</slot>
@@ -569,13 +611,13 @@
      <y>150</y>
     </hint>
     <hint type="destinationlabel">
-     <x>435</x>
-     <y>185</y>
+     <x>429</x>
+     <y>194</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>centerPathsRadioButton</sender>
+   <sender>radioButtoncenterPaths</sender>
    <signal>toggled(bool)</signal>
    <receiver>Window</receiver>
    <slot>ViewCenterPaths(bool)</slot>
@@ -585,8 +627,56 @@
      <y>151</y>
     </hint>
     <hint type="destinationlabel">
-     <x>645</x>
+     <x>618</x>
      <y>151</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>periodicVerticesRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>ViewRawVertices(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>513</x>
+     <y>278</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>400</x>
+     <y>110</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>periodicEdgesRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>ViewEdges(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>478</x>
+     <y>304</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>398</x>
+     <y>170</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>periodicFacesRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>ViewRawFaces(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>464</x>
+     <y>329</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>424</x>
+     <y>256</y>
     </hint>
    </hints>
   </connection>

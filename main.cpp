@@ -81,8 +81,25 @@ int main(int argc, char *argv[])
     try
     {
 	DataFiles dataFiles;
-        if (argc <= 2)
-        {
+	switch (argc)
+	{
+	case 2:
+	{
+	    QFileInfo fileInfo (argv[1]);
+	    QDir dir = fileInfo.absoluteDir ();
+	    parseFile (dataFiles.GetData (), dir.absolutePath ()) (
+		fileInfo.fileName ());
+	    break;
+	}
+	case 3:
+	{
+	    QDir dir (argv[1], argv[2]);
+	    QStringList files = dir.entryList ();
+	    for_each (files.begin (), files.end (), 
+		      parseFile (dataFiles.GetData (), dir.absolutePath ()));
+	    break;
+	}
+	default:
             cdbg << "foam <dir> <filter>\n";
 	    cdbg << "where: <dir> is the folder where the data files reside\n"
 		 << "       <filter> is filter for the name of "
@@ -90,12 +107,7 @@ int main(int argc, char *argv[])
 		 << "       foam reads in Surface Evolver dmp files.\n";
             return 13;
         }
-	cdbg << "argv[1]=" << argv[1] << endl;
-	cdbg << "argv[2]=" << argv[2] << endl;
-	QDir dir (argv[1], argv[2]);
-	QStringList files = dir.entryList ();
-	for_each (files.begin (), files.end (), 
-		  parseFile (dataFiles.GetData (), dir.absolutePath ()));
+
         if (dataFiles.GetData ().size () != 0)
         {
 	    dataFiles.CalculateAABox ();
@@ -107,6 +119,11 @@ int main(int argc, char *argv[])
             return app.exec();
             return 0;
         }
+	else
+	{
+	    cdbg << "Error: The patern provided does not match any file" 
+		 << endl;
+	}
     }
     catch (exception& e)
     {

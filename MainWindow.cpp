@@ -22,7 +22,8 @@ MainWindow::MainWindow(DataFiles& dataFiles) :
     m_dataSlider->setPageStep (10);
     m_glWidget->SetDataFiles (&dataFiles);
     updateStatus ();
-
+    if (! dataFiles.GetData()[0]->IsTorus ())
+	m_periodicModelGroupBox->hide ();
 
     QObject::connect(m_timer, SIGNAL(timeout()),
                      this, SLOT(IncrementSlider ()));

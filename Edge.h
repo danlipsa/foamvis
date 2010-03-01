@@ -68,8 +68,8 @@ public:
      * @param face face touched by this edge
      */
     void AddAdjacentFace (Face* face) {m_adjacentFaces.push_back (face);}
-     vector<Face*>& GetAdjacentFaces () ;
-     G3D::Vector3int16& GetEndDomainIncrement ()  
+    vector<Face*>& GetAdjacentFaces () ;
+    G3D::Vector3int16& GetEndDomainIncrement ()  
     {
 	return m_endDomainIncrement;
     }

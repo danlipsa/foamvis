@@ -122,16 +122,19 @@ public Q_SLOTS:
      * @param checked true for showing vertices false otherwise
      */
     void ViewVertices (bool checked);
+    void ViewRawVertices (bool checked);
     /**
      * Shows edges
      * @param checked true for showing edges false otherwise
      */
     void ViewEdges (bool checked);
+    void ViewRawEdges (bool checked);
     /**
      * Shows faces
      * @param checked true for showing faces false otherwise
      */
     void ViewFaces (bool checked);
+    void ViewRawFaces (bool checked);
     /**
      * Shows bodies
      * @param checked true for showing bodies false otherwise
@@ -202,6 +205,9 @@ private:
         FACES,
         BODIES,
 	CENTER_PATHS,
+	RAW_VERTICES,
+	RAW_EDGES,
+	RAW_FACES,
         COUNT
     };
     /**

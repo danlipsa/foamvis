@@ -12,23 +12,92 @@
  * Displays the first vertex in an edge
  * @param e the edge
  */
-inline void displayFirstVertex (OrientedEdge* e)
+
+void displaySameVertex (OrientedEdge* e)
 {
-     Vertex* p = e->GetBegin ();
+    Vertex* p = e->GetBegin ();
     glVertex3f(p->x, p->y, p->z);
 }
+
+
+/**
+ * Functor that displays a vertex
+ */
+class displayDifferentVertex
+{
+public:
+    /**
+     * Constructor
+     * @param widget Where should be the vertex displayed
+     */
+    displayDifferentVertex (GLWidget& glWidget) : 
+	m_glWidget (glWidget) 
+    {
+    }
+    /**
+     * Functor that displays a vertex
+     * @param v the vertex to be displayed
+     */
+    void operator() (OrientedEdge* oe)
+    {
+	Vertex* v = oe->GetBegin ();
+	float pointSize = (v->IsPhysical ()) ? 
+	    m_glWidget.GetPhysicalObjectsWidth () :
+	    m_glWidget.GetTessellationObjectsWidth ();
+	if (pointSize != 0.0)
+	{
+	    glPointSize (pointSize);
+	    m_glWidget.qglColor (
+		v->IsPhysical () ? 
+		m_glWidget.GetPhysicalObjectsColor () : 
+		m_glWidget.GetTessellationObjectsColor () );
+	    glBegin(GL_POINTS);
+	    glVertex3f(v->x, v->y, v->z);
+	    glEnd();
+	}
+    }
+private:
+    /**
+     * Where should be the vertex displayed
+     */
+    GLWidget& m_glWidget;
+};
+
+
 /**
  * Displays all face vertices on the OpenGL canvas
  * @param f the face to be displayed
  */
-void displayFaceVertices (OrientedFace* f)
+class displaySameEdges
 {
-     vector<OrientedEdge*>& v = f->GetFace()->GetOrientedEdges ();
-    if (f->IsReversed ())
-        for_each (v.rbegin (), v.rend (), displayFirstVertex);
-    else
-        for_each (v.begin (), v.end (), displayFirstVertex);
-}
+public:
+    displaySameEdges (GLWidget& glWidget) : m_glWidget (glWidget) {}
+    void operator() (OrientedFace* f)
+    {
+	glBegin (GL_POLYGON);
+	vector<OrientedEdge*>& v = f->GetFace()->GetOrientedEdges ();
+	for_each (v.begin (), v.end (), displaySameVertex);
+	glEnd ();
+    }
+private:
+    GLWidget& m_glWidget;
+};
+
+class displayDifferentVertices
+{
+public:
+    displayDifferentVertices (GLWidget& glWidget) : m_glWidget (glWidget) {}
+    void operator() (OrientedFace* f)
+    {
+	vector<OrientedEdge*>& v = f->GetFace()->GetOrientedEdges ();
+	for_each (v.begin (), v.end (), displayDifferentVertex (m_glWidget));
+    }
+private:
+    GLWidget& m_glWidget;
+};
+
+
+
 /**
  * Stores information about various OpenGL characteristics of the graphic card
  */
@@ -47,58 +116,12 @@ struct OpenGLParam
      */
     const char* m_name;
 };
-/**
- * Functor that displays a vertex
- */
-class displayVertex : public unary_function<Vertex*, void>
-{
-public:
-    /**
-     * Constructor
-     * @param widget Where should be the vertex displayed
-     */
-    displayVertex (GLWidget& widget) : 
-	m_widget (widget) 
-    {
-    }
-    /**
-     * Functor that displays a vertex
-     * @param v the vertex to be displayed
-     */
-    void operator() (Vertex* v)
-    {
-	float pointSize = (v->IsPhysical ()) ? 
-	    m_widget.GetPhysicalObjectsWidth () :
-	    m_widget.GetTessellationObjectsWidth ();
-	 Body* body;
-	unsigned int db = m_widget.GetDisplayedBody ();
-	if (pointSize != 0.0 &&
-	    (db == numeric_limits<unsigned int>::max() ||
-	     ((body = m_widget.GetCurrentData ().GetBody (db)) != 0 &&
-	      body->HasVertex (v))))
-	{
-	    glPointSize (pointSize);
-	    m_widget.qglColor (
-		v->IsPhysical () ? 
-		m_widget.GetPhysicalObjectsColor () : 
-		m_widget.GetTessellationObjectsColor () );
-	    glBegin(GL_POINTS);
-	    glVertex3f(v->x, v->y, v->z);
-	    glEnd();
-	}
-    }
-protected:
-    /**
-     * Where should be the vertex displayed
-     */
-    GLWidget& m_widget;
-};
 
 
 /**
  * Functor that displays an edge
  */
-class displayEdge : public unary_function< Edge*, void>
+class displayEdge
 {
 public:
     /**
@@ -113,23 +136,18 @@ public:
      * Functor that displays an edge
      * @param e the edge to be displayed
      */
-    void operator() (Edge* e)
+    void operator() (OrientedEdge* e)
     {
-	float edgeSize = (e->IsPhysical ()) ? 
+	float edgeSize = (e->GetEdge ()->IsPhysical ()) ? 
 	    m_widget.GetPhysicalObjectsWidth () :
 	    m_widget.GetTessellationObjectsWidth ();
-	 Body* body;
-	unsigned int db = m_widget.GetDisplayedBody ();
-	if (edgeSize != 0.0 &&
-	    (db == m_widget.DISPLAY_ALL ||
-	     ((body = m_widget.GetCurrentData ().GetBody (db)) != 0 &&
-	      body->HasEdge (e))))
+	if (edgeSize != 0.0)
 	{
 	    Vertex* begin = e->GetBegin ();
 	    Vertex* end = e->GetEnd ();
 	    glLineWidth (edgeSize);
 	    m_widget.qglColor (
-		e->IsPhysical () ? 
+		e->GetEdge()->IsPhysical () ? 
 		m_widget.GetPhysicalObjectsColor () : 
 		m_widget.GetTessellationObjectsColor () );
 	    glBegin(GL_LINES);
@@ -146,10 +164,29 @@ protected:
 };
 
 
+class displayDifferentEdges
+{
+public:
+    displayDifferentEdges (GLWidget& glWidget) : m_glWidget (glWidget) {}
+    void operator() (OrientedFace* f)
+    {
+	vector<OrientedEdge*>& v = f->GetFace()->GetOrientedEdges ();
+	if (f->IsReversed ())
+	    for_each (v.rbegin (), v.rend (), displayEdge (m_glWidget));
+	else
+	    for_each (v.begin (), v.end (), displayEdge (m_glWidget));
+    }
+private:
+    GLWidget& m_glWidget;
+};
+
+
+
 
 /**
  * Functor that displays a face
  */
+template <typename displayEdges = displaySameEdges>
 class displayFace : public unary_function< OrientedFace*, void>
 {
 public:
@@ -167,7 +204,7 @@ public:
     {
         if (m_count <= m_widget.GetDisplayedFace ())
         {
-            displayFaceVertices (f);
+            (displayEdges (m_widget)) (f);
             if (m_count == m_widget.GetDisplayedFace ())
                 cdbg << "face " << m_count << ": " << *f << endl;
         }
@@ -188,7 +225,7 @@ protected:
 /**
  * Functor that displays a face using the color specified in the DMP file
  */
-class displayFaceWithColor : public displayFace
+class displayFaceWithColor : public displayFace<>
 {
 public:
     /**
@@ -196,7 +233,7 @@ public:
      * @param widget where is the face displayed
      */
     displayFaceWithColor (GLWidget& widget) : 
-        displayFace (widget) {}
+        displayFace<> (widget) {}
 
     /**
      * Functor that displays a colored face
@@ -207,7 +244,7 @@ public:
         if (m_count <= m_widget.GetDisplayedFace ())
         {
             glColor4fv (Color::GetValue(f->GetFace ()->GetColor ()));
-            displayFaceVertices (f);
+            (displaySameEdges (m_widget)) (f);
         }
         m_count++;
     }
@@ -216,7 +253,7 @@ public:
 /**
  * Displays a face and specifies the normal to the face. Used for lighting.
  */
-class displayFaceWithNormal : public displayFace
+class displayFaceWithNormal : public displayFace<>
 {
 public:
     /**
@@ -224,7 +261,7 @@ public:
      * @param widget where to display the face
      */
     displayFaceWithNormal (GLWidget& widget) : 
-        displayFace (widget) {}
+        displayFace<> (widget) {}
     /**
      * Functor used to display a face together to the normal
      * @param f face to be displayed
@@ -233,7 +270,6 @@ public:
     {
         if (m_count <= m_widget.GetDisplayedFace ())
         {
-
 	    // specify the normal vector
 	     Vertex* begin = f->GetBegin (0);
 	     Vertex* end = f->GetEnd (0);
@@ -249,7 +285,7 @@ public:
 	    glNormal3f (normal.x, normal.y, normal.z);
 
 	    // specify the vertices
-	    displayFaceVertices (f);
+	    (displaySameEdges (m_widget)) (f);
 	}
 	m_count++;
     }
@@ -497,6 +533,41 @@ void GLWidget::ViewFaces (bool checked)
     }
 }
 
+void GLWidget::ViewRawVertices (bool checked)
+{
+    if (checked)
+    {
+        m_viewType = RAW_VERTICES;
+        setObject (&m_object, displayVertices ());
+	initLightFlat ();
+	updateGL ();
+    }
+}
+
+void GLWidget::ViewRawEdges (bool checked)
+{
+    if (checked)
+    {
+        m_viewType = RAW_EDGES;
+        setObject (&m_object, displayEdges ());
+	initLightFlat ();
+	updateGL ();
+    }
+}
+
+void GLWidget::ViewRawFaces (bool checked)
+{
+    if (checked)
+    {
+        m_viewType = RAW_FACES;
+        setObject (&m_object, displayFaces ());
+	initLightFlat ();
+	updateGL ();
+    }
+}
+
+
+
 void GLWidget::ViewBodies (bool checked)
 {
     if (checked)
@@ -696,10 +767,8 @@ void GLWidget::displayFacesContour (vector<Body*>& bodies)
 {
     qglColor (QColor(Qt::black));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-    glBegin (GL_TRIANGLES);
     for_each (bodies.begin (), bodies.end (),
-              displayBodyWithFace<displayFace> (*this));
-    glEnd ();
+              displayBodyWithFace< displayFace<displaySameEdges> > (*this));
 }
 
 void GLWidget::displayFacesOffset (vector<Body*>& bodies)
@@ -707,22 +776,20 @@ void GLWidget::displayFacesOffset (vector<Body*>& bodies)
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
-    glBegin (GL_TRIANGLES);
     for_each (bodies.begin (), bodies.end (),
               displayBodyWithFace<displayFaceWithColor> (*this));
-    glEnd ();
     glDisable (GL_POLYGON_OFFSET_FILL);
 }
 
 GLuint GLWidget::displayVertices ()
 {
-     vector<Vertex*>& vertices = GetCurrentData ().GetVertices ();
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
-
-    for_each (vertices.begin (), vertices.end (), displayVertex (*this));
+    vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+    for_each (bodies.begin (), bodies.end (),
+	      displayBodyWithFace<
+	      displayFace<displayDifferentVertices> >(*this));
     glPointSize (1.0);
-
     glEndList();
     return list;
 }
@@ -732,10 +799,12 @@ GLuint GLWidget::displayEdges ()
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
 
-    vector<Edge*>& edges = GetCurrentData ().GetEdges ();
-    for_each (edges.begin (), edges.end (), displayEdge (*this));
+    vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+    for_each (bodies.begin (), bodies.end (),
+	      displayBodyWithFace< displayFace<displayDifferentEdges> >(*this));
 
-    displayCenterOfBodies ();
+    if (! GetCurrentData ().IsTorus ())
+	displayCenterOfBodies ();
 
     glLineWidth (1.0);
     glEndList();
@@ -862,10 +931,8 @@ GLuint GLWidget::displayBodies ()
     vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     glNewList(list, GL_COMPILE);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-    glBegin (GL_TRIANGLES);
     for_each (bodies.begin (), bodies.end (),
               displayBodyWithFace<displayFaceWithNormal>(*this));
-    glEnd ();
     glEndList();
     return list;
 }
@@ -899,7 +966,7 @@ void GLWidget::IncrementDisplayedFace ()
         m_displayedFace++;
         if (m_displayedFace == body.GetOrientedFaces ().size ())
             m_displayedFace = DISPLAY_ALL;
-        setObject (&m_object, displayFaces ());
+	setObject (&m_object, display(m_viewType));
         updateGL ();
     }
 }
@@ -912,7 +979,7 @@ void GLWidget::DecrementDisplayedFace ()
         if (m_displayedFace == DISPLAY_ALL)
             m_displayedFace = body.GetOrientedFaces ().size ();
         m_displayedFace--;
-        setObject (&m_object, displayFaces ());
+	setObject (&m_object, display(m_viewType));
         updateGL ();
     }
 }

@@ -31,7 +31,7 @@ Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endDomainIncrement,
     Element(originalIndex, data, duplicate),
     m_begin (begin), m_end (end), m_endDomainIncrement (endDomainIncrement)
 {
-    if (! m_duplicate)
+    if (m_data->IsTorus () && ! m_duplicate)
     {
 	if (m_endDomainIncrement == Vector3int16(0, 0, 0))
 	    return;

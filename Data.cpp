@@ -71,7 +71,7 @@ void compact (vector<E*>& v)
  */
 void updateFaceForEdges (Face* face)
 {
-     vector<OrientedEdge*>& orientedEdges = face->GetOrientedEdges ();
+    vector<OrientedEdge*>& orientedEdges = face->GetOrientedEdges ();
     for_each (orientedEdges.begin (), orientedEdges.end (),
 	      bind2nd (mem_fun (&OrientedEdge::AddAdjacentFace), face));
 }
@@ -109,8 +109,7 @@ Data::Data () :
     m_parsingData (new ParsingData ()),
     m_spaceDimension (3)
 {
-    using namespace boost::lambda;
-    for_each (m_viewMatrix.begin (), m_viewMatrix.end (), _1 = 0);
+    for_each (m_viewMatrix.begin (), m_viewMatrix.end (), bl::_1 = 0);
     Vertex::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::VERTEX]);
     Edge::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::EDGE]);
     Face::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::FACE]);
@@ -119,11 +118,14 @@ Data::Data () :
 
 Data::~Data ()
 {
-    using namespace boost::lambda;
-    for_each(m_bodies.begin (), m_bodies.end (), bind (delete_ptr (), _1));
-    for_each(m_faces.begin (), m_faces.end (), bind (delete_ptr (), _1));
-    for_each(m_edges.begin (), m_edges.end (), bind (delete_ptr (), _1));
-    for_each(m_vertices.begin (), m_vertices.end (), bind (delete_ptr (), _1));
+    for_each(m_bodies.begin (), m_bodies.end (),
+	     bl::bind (bl::delete_ptr (), bl::_1));
+    for_each(m_faces.begin (), m_faces.end (),
+	     bl::bind (bl::delete_ptr (), bl::_1));
+    for_each(m_edges.begin (), m_edges.end (),
+	     bl::bind (bl::delete_ptr (), bl::_1));
+    for_each(m_vertices.begin (), m_vertices.end (),
+	     bl::bind (bl::delete_ptr (), bl::_1));
     delete m_parsingData;
 }
 
@@ -251,7 +253,7 @@ void Data::ReleaseParsingData ()
 
 void updateBodyForFaces (Body* body)
 {
-     vector<OrientedFace*>& of = body->GetOrientedFaces ();
+    vector<OrientedFace*>& of = body->GetOrientedFaces ();
     for_each (of.begin (), of.end (),
 	      bind2nd(mem_fun(&OrientedFace::AddAdjacentBody), body));
 }
@@ -306,7 +308,8 @@ void Data::PostProcess ()
     CalculatePhysical ();
     CalculateAABox ();
     CacheEdgesVerticesInBodies ();
-    //CalculateBodiesCenters ();
+    if (! IsTorus ())
+	CalculateBodiesCenters ();
 }
 
 unsigned int countIntersections (OrientedEdge* e)
@@ -374,4 +377,12 @@ G3D::Vector3int16 Data::GetDomainIncrement (
     Vector3int16 originalDomain (floorf (o.x), floorf(o.y), floorf(o.z));
     Vector3int16 duplicateDomain (floorf (d.x), floorf(d.y), floorf(o.z));
     return duplicateDomain - originalDomain;
+}
+
+bool Data::IsTorus () const
+{
+    return 
+	! (GetPeriod (0).isZero () && 
+	   GetPeriod (1).isZero () && 
+	   GetPeriod (2).isZero ());
 }

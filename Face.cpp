@@ -84,30 +84,33 @@ Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges,
     m_edges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_edges.begin(), 
                indexToOrientedEdge(edges));
-    
-    G3D::Vector3* begin = (*m_edges.begin())->GetBegin ();
-    vector<OrientedEdge*>::iterator edgeIt;
-    for (edgeIt = m_edges.begin (); edgeIt < m_edges.end (); edgeIt++)
+    if (m_data->IsTorus ())
     {
-	G3D::Vector3 edgeBegin;
-	if ((*edgeIt)->IsReversed ())
-	    edgeBegin = (*edgeIt)->GetEdge ()->GetBegin (begin);
-	else
-	    edgeBegin = *begin;
-	Vertex beginDummy (&edgeBegin, m_data);
-	Edge searchDummy(&beginDummy,
-			 (*edgeIt)->GetEdge ()->GetOriginalIndex ());
-	if (! m_data->HasEdge (&searchDummy))
-	    (*edgeIt)->SetEdge (
-		m_data->GetEdgeDuplicate (*(*edgeIt)->GetEdge (), edgeBegin));
-	begin = (*edgeIt)->GetEnd ();
+	G3D::Vector3* begin = (*m_edges.begin())->GetBegin ();
+	vector<OrientedEdge*>::iterator edgeIt;
+	for (edgeIt = m_edges.begin (); edgeIt < m_edges.end (); edgeIt++)
+	{
+	    G3D::Vector3 edgeBegin;
+	    if ((*edgeIt)->IsReversed ())
+		edgeBegin = (*edgeIt)->GetEdge ()->GetBegin (begin);
+	    else
+		edgeBegin = *begin;
+	    Vertex beginDummy (&edgeBegin, m_data);
+	    Edge searchDummy(&beginDummy,
+			     (*edgeIt)->GetEdge ()->GetOriginalIndex ());
+	    if (! m_data->HasEdge (&searchDummy))
+		(*edgeIt)->SetEdge (
+		    m_data->GetEdgeDuplicate (
+			*(*edgeIt)->GetEdge (), edgeBegin));
+	    begin = (*edgeIt)->GetEnd ();
+	}
     }
 }
 
 Face::~Face()
 {
-    using namespace boost::lambda;
-    for_each(m_edges.begin(), m_edges.end(), bind(delete_ptr(), _1));
+    for_each(m_edges.begin(), m_edges.end(),
+	     bl::bind(bl::delete_ptr(), bl::_1));
 }
 
 void Face::ReversePrint (ostream& ostr)
@@ -139,6 +142,6 @@ Color::Name Face::GetColor ()
 	return dynamic_cast<ColorAttribute*>(
 	    (*m_attributes)[COLOR_INDEX].get ())->GetColor ();
     else
-	return static_cast<Color::Name>(GetOriginalIndex () % Color::COUNT);
+	return static_cast<Color::Name>((GetOriginalIndex ()+1) % Color::COUNT);
 }
 

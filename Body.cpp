@@ -70,8 +70,8 @@ Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
 
 Body::~Body()
 {
-    using namespace boost::lambda;
-    for_each(m_faces.begin(), m_faces.end(), bind (delete_ptr(), _1));
+    for_each(m_faces.begin(), m_faces.end(), 
+	     bl::bind (bl::delete_ptr(), bl::_1));
 }
 
 void Body::StoreDefaultAttributes (AttributesInfo& infos)
@@ -109,7 +109,7 @@ public:
      */
     void operator () (OrientedEdge* oe)
     {
-	 Edge *e = oe->GetEdge ();
+	Edge *e = oe->GetEdge ();
 	m_body.CacheEdge (e);
 	m_body.CacheVertex (e->GetBegin ());
 	m_body.CacheVertex (e->GetEnd ());
@@ -138,7 +138,7 @@ public:
      */
     void operator() (OrientedFace* of)
     {
-	 vector<OrientedEdge*> oev = of->GetFace ()->GetOrientedEdges ();
+	vector<OrientedEdge*> oev = of->GetFace ()->GetOrientedEdges ();
 	for_each (oev.begin (), oev.end (), cacheEdgeVertices (m_body));
     }
 private:
