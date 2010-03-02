@@ -16,7 +16,6 @@
 
 ostream& operator<< (ostream& ostr, Vertex& v)
 {
-    using namespace G3D;
     ostr << "Vertex " << v.GetOriginalIndex ()
 	 << (v.IsDuplicate () ? " DUPLICATE": "")
 	 << static_cast<Vector3&>(v)

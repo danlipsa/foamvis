@@ -19,7 +19,7 @@ ostream& operator<< (ostream& ostr, DataFiles& dataFiles)
 void DataFiles::Calculate (
     Aggregate aggregate, Data::Corner corner, G3D::Vector3& v)
 {
-    using namespace G3D;
+    using G3D::Vector3;
     vector<Data*>::iterator it;
     it = aggregate (m_data.begin (), m_data.end (), 
 		    Data::LessThan(Vector3::X_AXIS, corner));
@@ -36,7 +36,7 @@ void DataFiles::Calculate (
 
 void DataFiles::CalculateAABox ()
 {
-    using namespace G3D;
+    using G3D::Vector3;
     Vector3 low, high;
     Calculate (min_element, &Data::GetAABoxLow, low);
     Calculate (max_element, &Data::GetAABoxHigh, high);

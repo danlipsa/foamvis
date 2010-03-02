@@ -252,18 +252,13 @@ public:
     void SetSpaceDimension (unsigned int spaceDimension) 
     {m_spaceDimension = spaceDimension;}
     unsigned int GetSpaceDimension () const {return m_spaceDimension;}
+    void calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high);
 
     /**
      * Pretty print the Data object
      */
     friend ostream& operator<< (ostream& ostr, Data& d);
 private:
-    /**
-     * Calculates low or high element for a AABox of a sequence of Vertices
-     * @param aggregateOnVertices functor applied to the sequence
-     * @param v where to store the min/max element
-     */
-    void Calculate (AggregateOnVertices aggregateOnVertices, G3D::Vector3& v);
     ostream& PrintFacesWithIntersection (ostream& ostr);
 
     /**

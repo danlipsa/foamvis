@@ -221,11 +221,14 @@ private:
      * @return the display list
      */
     GLuint displayVertices ();
+    GLuint displayRawVertices ();
     /**
      * Generates a display list for edges
      * @return the display list
      */
     GLuint displayEdges ();
+    GLuint displayRawEdges ();
+
     /**
      * Generates a display list for vertices or edges
      * @param type specifies vertices or edges
@@ -237,6 +240,8 @@ private:
      * @return the display list
      */
     GLuint displayFaces ();
+    GLuint displayRawFaces ();
+
     /**
      * Generates a display list for bodies
      * @return the display list
@@ -310,6 +315,7 @@ private:
      * Keeps track of the current frame saved in a file.
      */
     int m_currentFrame;
+    float m_ratio;
     /**
      * Stores the size of physical objects
      */

@@ -79,7 +79,13 @@ public:
 	 */
 	bool operator() (Vertex* first,  Vertex* second) 
 	{
-	    return (*first)[m_axis] < (*second)[m_axis];
+	    return operator() (static_cast<G3D::Vector3*>(first),
+			       static_cast<G3D::Vector3*>(second));
+	}
+
+	bool operator() (G3D::Vector3* first, G3D::Vector3* second)
+	{
+	    return (*first)[m_axis] < (*second)[m_axis];	    
 	}
     private:
 	/**

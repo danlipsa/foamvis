@@ -649,22 +649,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>periodicEdgesRadioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>m_glWidget</receiver>
-   <slot>ViewEdges(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>478</x>
-     <y>304</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>398</x>
-     <y>170</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>periodicFacesRadioButton</sender>
    <signal>toggled(bool)</signal>
    <receiver>m_glWidget</receiver>
@@ -677,6 +661,22 @@
     <hint type="destinationlabel">
      <x>424</x>
      <y>256</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>periodicEdgesRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>ViewRawEdges(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>486</x>
+     <y>306</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>419</x>
+     <y>169</y>
     </hint>
    </hints>
   </connection>

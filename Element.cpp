@@ -118,7 +118,7 @@ Element::~Element()
 
 void Element::SetAttribute (unsigned int i, Attribute* attribute)
 {
-    using namespace boost;
+    using boost::shared_ptr;
     if (m_attributes == 0)
 	m_attributes = new vector<shared_ptr<Attribute> > ();
     if (i >= m_attributes->size ())

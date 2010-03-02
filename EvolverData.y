@@ -200,8 +200,6 @@ class AttributeCreator;
 #include "AttributeCreator.h"
 #include "SystemDifferences.h"
 
-using namespace std;
-
 int yylex(void);
 void yyerror (char const *);
 /**
@@ -456,7 +454,7 @@ torus_periods: PERIODS nl
 const_expr const_expr nl
 const_expr const_expr
 {
-    using namespace G3D;
+    using G3D::Vector3;
     data.SetPeriod (0, Vector3 ($3, $4, 0));
     data.SetPeriod (1, Vector3 ($6, $7, 0));
     data.SetPeriod (2, Vector3 (0, 0, 0));
@@ -466,7 +464,7 @@ const_expr const_expr const_expr nl
 const_expr const_expr const_expr nl
 const_expr const_expr const_expr
 {
-    using namespace G3D;
+    using G3D::Vector3;
     data.SetPeriod (0, Vector3 ($3, $4, $5));
     data.SetPeriod (1, Vector3 ($7, $8, $9));
     data.SetPeriod (2, Vector3 ($11, $12, $13));

@@ -177,7 +177,7 @@ void Body::split (
 
 void Body::CalculateCenter ()
 {
-    using namespace G3D;
+    using G3D::Vector3;
     unsigned int size = m_physicalVertices.size ();
     if (size == 0)
 	throw logic_error (

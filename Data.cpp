@@ -161,13 +161,13 @@ Vertex* Data::GetVertexDuplicate (
 
 Edge* Data::GetEdgeDuplicate (Edge& original, G3D::Vector3& newBegin)
 {
-    using namespace G3D;
+    using G3D::Vector3int16;
     Vertex beginDummy (&newBegin, this);
     Edge searchDummy (&beginDummy, original.GetOriginalIndex ());
     set<Edge*, Edge::LessThan>::iterator it = m_edgeSet.find (&searchDummy);
     if (it != m_edgeSet.end ())
 	return *it;
-    G3D::Vector3int16 domainIncrement = GetDomainIncrement (
+    Vector3int16 domainIncrement = GetDomainIncrement (
 	*original.GetBegin (), newBegin);
     Vertex* beginDuplicate = GetVertexDuplicate (*original.GetBegin (),
 						 domainIncrement);
@@ -214,7 +214,8 @@ void Data::SetBody (unsigned int i,  vector<int>& faces,
         m_bodies.resize (i + 1);
     Body* body = new Body (faces, m_faces, i, this);
     if (&list != 0)
-        body->StoreAttributes (list, m_attributesInfo[DefineAttribute::BODY]);    
+        body->StoreAttributes (list,
+			       m_attributesInfo[DefineAttribute::BODY]);    
     m_bodies[i] = body;
 }
 
@@ -265,29 +266,66 @@ void Data::CalculatePhysical ()
     for_each (m_edges.begin (), m_edges.end (), updateEdgeForVertices);
 }
 
-
-void Data::Calculate (AggregateOnVertices aggregate, G3D::Vector3& v)
+template<typename Container, typename ContainerIterator>
+struct calculateAggregate
 {
-    using namespace G3D;
-    IteratorVertices it;
-    it = aggregate (m_vertices.begin (), m_vertices.end (), 
-	    Vertex::LessThanAlong(Vector3::X_AXIS));;
-    v.x = (*it)->x;
-    it = aggregate (m_vertices.begin (), m_vertices.end (), 
-	    Vertex::LessThanAlong(Vector3::Y_AXIS));
-    v.y = (*it)->y;
-    it = aggregate (m_vertices.begin (), m_vertices.end (), 
-	    Vertex::LessThanAlong(Vector3::Z_AXIS));
-    v.z = (*it)->z;
-}
+    typedef ContainerIterator (*AggregateOnContainer) (
+	ContainerIterator first, 
+	ContainerIterator second, 
+	Vertex::LessThanAlong lessThan);
+    void operator() (AggregateOnContainer aggregate,
+		     G3D::Vector3* v,
+		     Container& vertices)
+    {
+	using G3D::Vector3;
+	ContainerIterator it;
+	it = aggregate (vertices.begin (), vertices.end (), 
+			Vertex::LessThanAlong(Vector3::X_AXIS));;
+	v->x = (*it)->x;
+	it = aggregate (vertices.begin (), vertices.end (), 
+			Vertex::LessThanAlong(Vector3::Y_AXIS));
+	v->y = (*it)->y;
+	it = aggregate (vertices.begin (), vertices.end (), 
+			Vertex::LessThanAlong(Vector3::Z_AXIS));
+	v->z = (*it)->z;
+    }
+};
 
 
 void Data::CalculateAABox ()
 {
+    using G3D::Vector3;
     Vector3 low, high;
-    Calculate (min_element, low);
-    Calculate (max_element, high);
+    calculateAggregate <vector<Vertex*>, vector<Vertex*>::iterator>() (
+	min_element, &low, m_vertices);
+    calculateAggregate <vector<Vertex*>, vector<Vertex*>::iterator>()(
+	max_element, &high, m_vertices);
+    if (IsTorus ())
+	calculateAABoxForTorus (&low, &high);
     m_AABox.set(low, high);
+}
+
+void Data::calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high)
+{
+    using boost::array;
+    using G3D::Vector3;
+    Vector3 origin(0, 0, 0);
+    Vector3 first = m_periods[0];
+    Vector3 second = m_periods[1];
+    Vector3 sum = first + second;
+    Vector3 third = m_periods[2];
+    array<Vector3, 10> additionalVertices = 
+    {{
+	    *low, origin, first, sum, second,
+	    origin + third, first + third, sum + third, second + third, *high
+    }};
+    vector<Vector3*> v(additionalVertices.size ());
+    transform (additionalVertices.begin (), additionalVertices.end (),
+	       v.begin (), &bl::_1);
+    calculateAggregate<vector<Vector3*>, vector<Vector3*>::iterator>() (
+	min_element, low, v);
+    calculateAggregate<vector<Vector3*>, vector<Vector3*>::iterator>() (
+	max_element, high, v);
 }
 
 void Data::CacheEdgesVerticesInBodies ()
@@ -350,7 +388,8 @@ ostream& Data::PrintFacesWithIntersection (ostream& ostr)
 G3D::Vector3int16 Data::GetDomainIncrement (
     const G3D::Vector3& original, const G3D::Vector3& duplicate) const
 {
-    using namespace G3D;
+    using G3D::Matrix3;
+    using G3D::Matrix2;
     Matrix3 toOrthonormal;
     if (GetSpaceDimension () == 2)
     {

@@ -63,22 +63,23 @@ private:
     GLWidget& m_glWidget;
 };
 
-
-/**
- * Displays all face vertices on the OpenGL canvas
- * @param f the face to be displayed
- */
 class displaySameEdges
 {
 public:
     displaySameEdges (GLWidget& glWidget) : m_glWidget (glWidget) {}
-    void operator() (OrientedFace* f)
+    inline void operator() (OrientedFace* f)
+    {
+	operator() (f->GetFace ());
+    }
+    
+    void operator() (Face* f)
     {
 	glBegin (GL_POLYGON);
-	vector<OrientedEdge*>& v = f->GetFace()->GetOrientedEdges ();
+	vector<OrientedEdge*>& v = f->GetOrientedEdges ();
 	for_each (v.begin (), v.end (), displaySameVertex);
 	glEnd ();
     }
+
 private:
     GLWidget& m_glWidget;
 };
@@ -538,7 +539,7 @@ void GLWidget::ViewRawVertices (bool checked)
     if (checked)
     {
         m_viewType = RAW_VERTICES;
-        setObject (&m_object, displayVertices ());
+        setObject (&m_object, displayRawVertices ());
 	initLightFlat ();
 	updateGL ();
     }
@@ -549,7 +550,7 @@ void GLWidget::ViewRawEdges (bool checked)
     if (checked)
     {
         m_viewType = RAW_EDGES;
-        setObject (&m_object, displayEdges ());
+        setObject (&m_object, displayRawEdges ());
 	initLightFlat ();
 	updateGL ();
     }
@@ -560,7 +561,7 @@ void GLWidget::ViewRawFaces (bool checked)
     if (checked)
     {
         m_viewType = RAW_FACES;
-        setObject (&m_object, displayFaces ());
+        setObject (&m_object, displayRawFaces ());
 	initLightFlat ();
 	updateGL ();
     }
@@ -634,8 +635,7 @@ QSize GLWidget::sizeHint()
 
 void GLWidget::initLightBodies ()
 {
-    using namespace G3D;
-    const Vector3& max = m_dataFiles->GetAABox ().high ();
+    const G3D::Vector3& max = m_dataFiles->GetAABox ().high ();
     GLfloat light_position[] = { max.x, max.y, max.z, 0.0 };
     glShadeModel (GL_SMOOTH);
 
@@ -662,21 +662,20 @@ void GLWidget::initLightFlat ()
 
 void GLWidget::initializeGL()
 {
-    using namespace G3D;
+    using G3D::Vector3;
     m_object = display (m_viewType);
      float* background = Color::GetValue (Color::WHITE);
     glClearColor (background[0], background[1],
                   background[2], background[3]);        
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
-    //glOrtho(-1.5, 1.5, -1.5, 1.5, -1.5, 1.5);
     const Vector3& min = m_dataFiles->GetAABox ().low ();
     const Vector3& max = m_dataFiles->GetAABox ().high ();
-    Vector3 increase = (max - min) / 8;
-    glOrtho(min.x - increase.x, max.x + increase.x,
-	    min.y - increase.y, max.y + increase.y, 
-	    min.z - increase.y, max.z + increase.y);
-    
+    const Vector3 border = (max - min) / 10;
+    glOrtho(min.x - border.x, max.x + border.x,
+	    min.y - border.y, max.y + border.y, 
+	    min.z - border.y, max.z + border.y);
+    m_ratio = (max.x - min.x + 2*border.x) / (max.y - min.y + 2*border.y);
     glMatrixMode (GL_MODELVIEW);
     //glLoadMatrixf (GetCurrentData ().GetViewMatrix ());
 
@@ -719,8 +718,16 @@ void GLWidget::paintGL()
 
 void GLWidget::resizeGL(int width, int height)
 {
-    int side = std::min (width, height);
-    glViewport((width - side) / 2, (height - side) / 2, side, side);
+    if ((static_cast<float>(width) / height) > m_ratio)
+    {
+	int newWidth = m_ratio * height;
+	glViewport( (width - newWidth) / 2, 0, newWidth, height);
+    }
+    else
+    {
+	int newHeight = 1 / m_ratio * width;
+	glViewport(0, (height - newHeight) / 2, width, newHeight);
+    }
 }
 
 void GLWidget::setRotation (int axis, float angle)
@@ -794,11 +801,112 @@ GLuint GLWidget::displayVertices ()
     return list;
 }
 
+void displayOriginalVertex (Vertex* v)
+{
+    if (! v->IsDuplicate ())
+    {
+	glVertex3f(v->x, v->y, v->z);	
+    }
+}
+
+void displayOriginalDomainFaces (G3D::Vector3 first,
+				 G3D::Vector3 second,
+				 const G3D::Vector3& third)
+{
+    G3D::Vector3 origin(0, 0, 0);
+    G3D::Vector3 sum = first + second;
+    for (int i = 0; i < 2; i++)
+    {
+	glBegin (GL_POLYGON);
+	glVertex3f (origin.x, origin.y, origin.z);
+	glVertex3f (first.x, first.y, first.z);
+	glVertex3f (sum.x, sum.y, sum.z);
+	glVertex3f (second.x, second.y, second.z);
+	glEnd ();
+	origin += third;
+	first += third;
+	second += third;
+	sum += third;
+    }
+}
+
+
+void displayOriginalDomain (const G3D::Vector3* periods)
+{
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    glLineWidth (1.0);
+    displayOriginalDomainFaces (periods[0], periods[1], periods[2]);
+    displayOriginalDomainFaces (periods[1], periods[2], periods[0]);
+    displayOriginalDomainFaces (periods[2], periods[0], periods[1]);
+}
+
+
+GLuint GLWidget::displayRawVertices ()
+{
+    GLuint list = glGenLists(1);
+    glNewList(list, GL_COMPILE);
+    glPointSize (3.0);
+    glBegin (GL_POINTS);
+    vector<Vertex*>& vertices = GetCurrentData ().GetVertices ();
+    for_each (vertices.begin (), vertices.end (), displayOriginalVertex);
+    glEnd ();
+    glPointSize (1.0);
+
+    displayOriginalDomain (GetCurrentData().GetPeriods ());
+    glEndList();
+    return list;
+}
+
+void displayOriginalEdge (Edge* edge)
+{
+    if (! edge->IsDuplicate ())
+    {
+	const Vertex& b = *(edge->GetBegin ());
+	const Vertex& e = *(edge->GetEnd ());
+	glVertex3f (b.x, b.y, b.z);
+	glVertex3f (e.x, e.y, e.z);
+    }
+}
+
+GLuint GLWidget::displayRawEdges ()
+{
+    GLuint list = glGenLists(1);
+    glNewList(list, GL_COMPILE);
+    qglColor (QColor (Qt::black));
+    glLineWidth (3.0);
+    glBegin (GL_LINES);
+    vector<Edge*>& edges = GetCurrentData ().GetEdges ();
+    for_each (edges.begin (), edges.end (), displayOriginalEdge);
+    glEnd ();
+    glLineWidth (1.0);
+
+    displayOriginalDomain (GetCurrentData().GetPeriods ());
+    glEndList();
+    return list;
+}
+
+GLuint GLWidget::displayRawFaces ()
+{
+    GLuint list = glGenLists(1);
+    glNewList(list, GL_COMPILE);
+    qglColor (QColor (Qt::black));
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    glLineWidth (3.0);
+    vector<Face*>& faces = GetCurrentData ().GetFaces ();
+    for_each (faces.begin (), faces.end (), displaySameEdges(*this) );
+    glLineWidth (1.0);
+
+    displayOriginalDomain (GetCurrentData().GetPeriods ());
+    glEndList();
+    return list;
+}
+
+
+
 GLuint GLWidget::displayEdges ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
-
     vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     for_each (bodies.begin (), bodies.end (),
 	      displayBodyWithFace< displayFace<displayDifferentEdges> >(*this));
@@ -952,6 +1060,12 @@ GLuint GLWidget::display (ViewType type)
         return displayBodies ();
     case CENTER_PATHS:
 	return displayCenterPaths ();
+    case RAW_VERTICES:
+	return displayRawVertices ();
+    case RAW_EDGES:
+	return displayRawEdges ();
+    case RAW_FACES:
+	return displayRawFaces ();
     default:
         throw domain_error (
             "ViewType enum has an invalid value: " + m_viewType);
