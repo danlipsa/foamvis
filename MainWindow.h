@@ -82,6 +82,9 @@ public Q_SLOTS:
      * param checked true for showing center paths false otherwise
      */
     void ViewCenterPaths (bool checked);
+    void InteractionModeRotate ();
+    void InteractionModeScale ();
+    void InteractionModeTranslate ();
 private:
     /**
      * Enables/Disables the Begin button
@@ -107,11 +110,6 @@ private:
      */
     void updateStatus ();
     /**
-     * Timer used  in displaying the  data files. Otherwise  you would
-     * display the files too fast.
-     */
-    QTimer* m_timer;
-    /**
      * True if the programs displays the data files iteratively, false
      * otherwise
      */
@@ -124,6 +122,11 @@ private:
      * Character used on the play button when we can pause the play
      */
     const char* PAUSE_TEXT;
+    /**
+     * Timer used  in displaying the  data files. Otherwise  you would
+     * display the files too fast.
+     */
+    boost::scoped_ptr<QTimer> m_timer;
 };
 
 #endif //__MAIN_WINDOW_H__

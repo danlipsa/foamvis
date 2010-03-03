@@ -592,6 +592,11 @@ void GLWidget::ViewCenterPaths (bool checked)
 }
 
 
+void GLWidget::InteractionModeChanged (int index)
+{
+    m_interactionMode = static_cast<InteractionMode>(index);
+}
+
 void GLWidget::DataSliderValueChanged (int newIndex)
 {
     m_dataIndex = newIndex;
@@ -659,23 +664,35 @@ void GLWidget::initLightFlat ()
     glEnable(GL_DEPTH_TEST);
 }
 
+void GLWidget::viewingVolumeFromAABox ()
+{
+    using G3D::Vector3;
+    const Vector3& min = m_dataFiles->GetAABox ().low ();
+    const Vector3& max = m_dataFiles->GetAABox ().high ();
+    float border = ((max - min) / 10).max ();
+    m_viewingVolume.set (
+	Vector3 (min.x - border, min.y - border, min.z - border),
+	Vector3 (max.x + border, max.y + border, max.z + border));
+}
+
+void GLWidget::project ()
+{
+    glMatrixMode (GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(m_viewingVolume.low ().x, m_viewingVolume.high ().x,
+	    m_viewingVolume.low ().y, m_viewingVolume.high ().y, 
+	    m_viewingVolume.low ().z, m_viewingVolume.high ().z);
+}
 
 void GLWidget::initializeGL()
 {
     using G3D::Vector3;
     m_object = display (m_viewType);
-     float* background = Color::GetValue (Color::WHITE);
+    float* background = Color::GetValue (Color::WHITE);
     glClearColor (background[0], background[1],
-                  background[2], background[3]);        
-    glMatrixMode (GL_PROJECTION);
-    glLoadIdentity();
-    const Vector3& min = m_dataFiles->GetAABox ().low ();
-    const Vector3& max = m_dataFiles->GetAABox ().high ();
-    const Vector3 border = (max - min) / 10;
-    glOrtho(min.x - border.x, max.x + border.x,
-	    min.y - border.y, max.y + border.y, 
-	    min.z - border.y, max.z + border.y);
-    m_ratio = (max.x - min.x + 2*border.x) / (max.y - min.y + 2*border.y);
+		  background[2], background[3]);        
+    viewingVolumeFromAABox ();
+    project ();
     glMatrixMode (GL_MODELVIEW);
     //glLoadMatrixf (GetCurrentData ().GetViewMatrix ());
 
@@ -718,16 +735,23 @@ void GLWidget::paintGL()
 
 void GLWidget::resizeGL(int width, int height)
 {
-    if ((static_cast<float>(width) / height) > m_ratio)
+    float ratio = (m_viewingVolume.high ().x - m_viewingVolume.low ().x) / 
+	(m_viewingVolume.high ().y - m_viewingVolume.low ().y);
+    if ((static_cast<float>(width) / height) > ratio)
     {
-	int newWidth = m_ratio * height;
-	glViewport( (width - newWidth) / 2, 0, newWidth, height);
+	int newWidth = ratio * height;
+	m_viewport = Rect2D::xywh ( (width - newWidth) / 2, 0,
+				    newWidth, height);
     }
     else
     {
-	int newHeight = 1 / m_ratio * width;
-	glViewport(0, (height - newHeight) / 2, width, newHeight);
+	int newHeight = 1 / ratio * width;
+	m_viewport = Rect2D::xywh (0, (height - newHeight) / 2,
+				   width, newHeight);
     }
+    glViewport (m_viewportStart.x + m_viewport.x0 (),
+		m_viewportStart.y + m_viewport.y0 (), 
+		m_viewport.width (), m_viewport.height ());
 }
 
 void GLWidget::setRotation (int axis, float angle)
@@ -748,24 +772,64 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
     m_lastPos = event->pos();
 }
 
+void scaleAABox (G3D::AABox* aabox, float change)
+{
+    using G3D::Vector3;
+    Vector3 center = aabox->center ();
+    Vector3 newLow = aabox->low ()*change + center * (1 - change);
+    Vector3 newHigh = aabox->high ()*change + center * (1 - change);
+    aabox->set (newLow, newHigh);
+}
+
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     int dx = event->x() - m_lastPos.x();
     int dy = event->y() - m_lastPos.y();
-    // scale this with the size of the window
-    QSize size = this->size ();
-    int side = std::min (size.width (), size.height ());
-    float dxDegrees = static_cast<float>(dx) * 90 / side;
-    float dyDegrees = static_cast<float>(dy) * 90 / side;
+    switch (m_interactionMode)
+    {
+    case ROTATE:
+    {
+	// scale this with the size of the window
+	QSize size = this->size ();
+	int side = std::min (size.width (), size.height ());
+	float dxDegrees = static_cast<float>(dx) * 90 / side;
+	float dyDegrees = static_cast<float>(dy) * 90 / side;
 
-    if (event->buttons() & Qt::LeftButton) {
-        setRotation (0, dyDegrees);
-        setRotation (1, dxDegrees);
-    } else if (event->buttons() & Qt::RightButton) {
-        setRotation (0, dyDegrees);
-        setRotation (2, dxDegrees);
+	if (event->buttons() & Qt::LeftButton) {
+	    setRotation (0, dyDegrees);
+	    setRotation (1, dxDegrees);
+	} else if (event->buttons() & Qt::RightButton) {
+	    setRotation (0, dyDegrees);
+	    setRotation (2, dxDegrees);
+	}
+	updateGL ();
+	break;
     }
-    updateGL ();
+    case TRANSLATE:
+    {
+	m_viewportStart.x += dx;
+	m_viewportStart.y -= dy;
+	resizeGL (width (), height ());
+	updateGL ();	
+	break;
+    }
+    case SCALE:
+    {
+	Vector2 center = m_viewport.center () + m_viewportStart;
+	Vector2 lastPos (m_lastPos.x (), m_lastPos.y());
+	Vector2 currentPos (event->x (), event->y ());
+	float change = (currentPos - center).length () - 
+	    (lastPos - center).length ();
+	change /= std::min(m_viewport.width (), m_viewport.height ());
+	change = powf (2, -change);
+	scaleAABox (&m_viewingVolume, change);
+	project ();
+	updateGL ();
+	break;
+    }
+    default:
+	break;
+    }
     m_lastPos = event->pos();
 }
 

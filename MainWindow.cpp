@@ -12,10 +12,10 @@
 
 
 MainWindow::MainWindow(DataFiles& dataFiles) : 
-    m_play (false), PLAY_TEXT (">"), PAUSE_TEXT("||")
+    m_play (false), PLAY_TEXT (">"), PAUSE_TEXT("||"),
+    m_timer (new QTimer(this))
 {
     setupUi (this);
-    m_timer = new QTimer (this);
     m_dataSlider->setMinimum (0);
     m_dataSlider->setMaximum (dataFiles.GetData ().size () - 1);
     m_dataSlider->setSingleStep (1);
@@ -25,8 +25,24 @@ MainWindow::MainWindow(DataFiles& dataFiles) :
     if (! dataFiles.GetData()[0]->IsTorus ())
 	m_periodicModelGroupBox->hide ();
 
-    QObject::connect(m_timer, SIGNAL(timeout()),
+    QObject::connect(m_timer.get (), SIGNAL(timeout()),
                      this, SLOT(IncrementSlider ()));
+}
+
+
+void MainWindow::InteractionModeRotate ()
+{
+    m_interactionModeComboBox->setCurrentIndex (0);
+}
+
+void MainWindow::InteractionModeScale ()
+{
+    m_interactionModeComboBox->setCurrentIndex (1);
+}
+
+void MainWindow::InteractionModeTranslate ()
+{
+    m_interactionModeComboBox->setCurrentIndex (2);
 }
 
 
@@ -199,7 +215,23 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 	}
 	break;
     case Qt::Key_Space:
+    {
         string s = G3D::getOpenGLState (false);
         cdbg << s;
+	break;
+    }
+
+    case Qt::Key_R:
+	InteractionModeRotate ();
+	cdbg << "rotate" << endl;
+	break;
+    case Qt::Key_S:
+	InteractionModeScale ();
+	cdbg << "scale" << endl;
+	break;
+    case Qt::Key_T:
+	InteractionModeTranslate ();
+	cdbg << "translate" << endl;
+	break;
     }
 }

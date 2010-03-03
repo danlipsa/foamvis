@@ -29,6 +29,25 @@
    <item row="0" column="2" colspan="2">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
+      <widget class="QComboBox" name="m_interactionModeComboBox">
+       <item>
+        <property name="text">
+         <string>Rotate (r)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Scale (s)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Translate (t)</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
       <widget class="QGroupBox" name="displayGroupBox">
        <property name="title">
         <string>Display</string>
@@ -339,6 +358,7 @@
     <slot>ViewRawVertices(bool)</slot>
     <slot>ViewRawEdges(bool)</slot>
     <slot>ViewRawFaces(bool)</slot>
+    <slot>InteractionModeChanged(int)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -368,7 +388,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>519</x>
-     <y>51</y>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
      <x>368</x>
@@ -384,7 +404,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>519</x>
-     <y>75</y>
+     <y>102</y>
     </hint>
     <hint type="destinationlabel">
      <x>388</x>
@@ -400,7 +420,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>519</x>
-     <y>99</y>
+     <y>121</y>
     </hint>
     <hint type="destinationlabel">
      <x>405</x>
@@ -416,7 +436,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>519</x>
-     <y>123</y>
+     <y>139</y>
     </hint>
     <hint type="destinationlabel">
      <x>383</x>
@@ -544,7 +564,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>588</x>
-     <y>125</y>
+     <y>141</y>
     </hint>
     <hint type="destinationlabel">
      <x>618</x>
@@ -560,7 +580,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>583</x>
-     <y>100</y>
+     <y>122</y>
     </hint>
     <hint type="destinationlabel">
      <x>618</x>
@@ -576,7 +596,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>570</x>
-     <y>74</y>
+     <y>101</y>
     </hint>
     <hint type="destinationlabel">
      <x>618</x>
@@ -592,7 +612,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>594</x>
-     <y>48</y>
+     <y>80</y>
     </hint>
     <hint type="destinationlabel">
      <x>618</x>
@@ -608,7 +628,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>542</x>
-     <y>150</y>
+     <y>161</y>
     </hint>
     <hint type="destinationlabel">
      <x>429</x>
@@ -624,7 +644,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>588</x>
-     <y>151</y>
+     <y>162</y>
     </hint>
     <hint type="destinationlabel">
      <x>618</x>
@@ -677,6 +697,22 @@
     <hint type="destinationlabel">
      <x>419</x>
      <y>169</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_interactionModeComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>InteractionModeChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>488</x>
+     <y>19</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>376</x>
+     <y>22</y>
     </hint>
    </hints>
   </connection>

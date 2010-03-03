@@ -44,6 +44,7 @@
 #include <iomanip>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 #include <boost/array.hpp>
 #include <boost/bind.hpp>
 

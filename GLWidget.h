@@ -165,6 +165,7 @@ public Q_SLOTS:
      * @param value the new size
      */
     void TessellationObjectsWidthChanged (int value);
+    void InteractionModeChanged (int index);
 protected:
     /**
      * Initializes OpenGL
@@ -208,8 +209,19 @@ private:
 	RAW_VERTICES,
 	RAW_EDGES,
 	RAW_FACES,
-        COUNT
+        VIEW_TYPE_COUNT
     };
+
+    enum InteractionMode {
+	ROTATE,
+	SCALE,
+	TRANSLATE,
+	INTERACTION_MODE_COUNT
+    };
+
+
+    void project ();
+    void viewingVolumeFromAABox ();
     /**
      * Generates a display list for a certain kind of objects
      * @param type the type of object that we want displayed.
@@ -283,6 +295,7 @@ private:
      * The elements displayed from a DMP file: vertices, edges, faces or bodies.
      */
     ViewType m_viewType;
+    InteractionMode m_interactionMode;
     /**
      * The current DMP file as a OpenGL display list.
      */
@@ -315,7 +328,6 @@ private:
      * Keeps track of the current frame saved in a file.
      */
     int m_currentFrame;
-    float m_ratio;
     /**
      * Stores the size of physical objects
      */
@@ -327,6 +339,9 @@ private:
     int m_tessellationObjectsWidth;
     QColor m_tessellationObjectsColor;
     QColor m_centerPathColor;
+    G3D::AABox m_viewingVolume;
+    G3D::AABox2D m_viewport;
+    G3D::Vector2 m_viewportStart;
 };
 
 #endif //__GLWIDGET_H__
