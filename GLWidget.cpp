@@ -18,19 +18,6 @@
 struct OpenGLParam
 {
     /**
-     * What OpenGL characteristic
-     */
-    GLenum m_what;
-    /**
-     * Where to store information about that characteristic
-     */
-    GLint* m_where;
-    /**
-     * Name of the OpenGL characteristic
-     */
-    const char* m_name;
-
-    /**
      * Reads an OpenGLParam from OpenGL
      */
     void get ()
@@ -45,6 +32,18 @@ struct OpenGLParam
     {
 	cdbg << m_name << ": " << *m_where << endl;
     }
+    /**
+     * What OpenGL characteristic
+     */
+    GLenum m_what;
+    /**
+     * Where to store information about that characteristic
+     */
+    GLint* m_where;
+    /**
+     * Name of the OpenGL characteristic
+     */
+    const char* m_name;
 };
 
 /**
@@ -487,8 +486,7 @@ void GLWidget::displayFacesContour (vector<Body*>& bodies)
     qglColor (QColor(Qt::black));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     for_each (bodies.begin (), bodies.end (),
-              displayBodyWithFace (*this,
-				   displayFace<displaySameEdges>(*this)));
+              DisplayBodyWithFace< DisplayFace<> > (*this));
 }
 
 void GLWidget::displayFacesOffset (vector<Body*>& bodies)
@@ -497,7 +495,7 @@ void GLWidget::displayFacesOffset (vector<Body*>& bodies)
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
     for_each (bodies.begin (), bodies.end (),
-              displayBodyWithFace (*this, displayFaceWithColor(*this)));
+              DisplayBodyWithFace<DisplayFaceWithColor> (*this));
     glDisable (GL_POLYGON_OFFSET_FILL);
 }
 
@@ -507,8 +505,7 @@ GLuint GLWidget::displayVertices ()
     glNewList(list, GL_COMPILE);
     vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     for_each (bodies.begin (), bodies.end (),
-	      displayBodyWithFace (
-		  *this, displayFace<displayDifferentVertices>(*this)));
+	      DisplayBodyWithFace< DisplayFace<DisplayDifferentVertices> > (*this));
     glPointSize (1.0);
     glEndList();
     return list;
@@ -605,8 +602,8 @@ GLuint GLWidget::displayRawFaces ()
     qglColor (QColor (Qt::black));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     glLineWidth (3.0);
-    vector<Face*>& faces = GetCurrentData ().GetFaces ();
-    for_each (faces.begin (), faces.end (), displayFace<> (*this) );
+    const vector<Face*>& faces = GetCurrentData ().GetFaces ();
+    for_each (faces.begin (), faces.end (), DisplayFace<> (*this) );
     
     glLineWidth (1.0);
 
@@ -623,8 +620,8 @@ GLuint GLWidget::displayEdges ()
     glNewList(list, GL_COMPILE);
     vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     for_each (bodies.begin (), bodies.end (),
-	      displayBodyWithFace(
-		  *this, displayFace<displayDifferentEdges>(*this)));
+	      DisplayBodyWithFace< DisplayFace<DisplayDifferentEdges> >(
+		  *this));
 
     if (! GetCurrentData ().IsTorus ())
 	displayCenterOfBodies ();
@@ -640,7 +637,7 @@ void GLWidget::displayCenterOfBodies ()
     qglColor (QColor (Qt::red));
     glBegin(GL_POINTS);
      vector<Body*>& bodies = GetCurrentData ().GetBodies ();
-    for_each (bodies.begin (),bodies.end (), displayBodyCenter (*this));
+    for_each (bodies.begin (),bodies.end (), DisplayBodyCenter (*this));
     glEnd ();
 }
 
@@ -666,7 +663,7 @@ public:
 	glBegin(GL_LINE_STRIP);
 	vector<Data*>& data = m_widget.GetDataFiles ().GetData ();
 	for_each (data.begin (), data.end (), 
-		  displayBodyCenterFromData (m_widget, index));
+		  DisplayBodyCenterFromData (m_widget, index));
 	glEnd ();
     }
     /**
@@ -689,7 +686,7 @@ GLuint GLWidget::displayCenterPaths ()
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
     qglColor (QColor (Qt::black));
-     map<unsigned int, Body*>& originalIndexBodyMap = 
+    map<unsigned int, Body*>& originalIndexBodyMap = 
 	GetDataFiles ().GetData ()[0]->GetOriginalIndexBodyMap ();
     if (GetDisplayedBody () == DISPLAY_ALL)
 	for_each (originalIndexBodyMap.begin (), originalIndexBodyMap.end (),
@@ -726,7 +723,7 @@ GLuint GLWidget::displayBodies ()
     glNewList(list, GL_COMPILE);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     for_each (bodies.begin (), bodies.end (),
-              displayBodyWithFace(*this, displayFaceWithNormal(*this)));
+              DisplayBodyWithFace<DisplayFaceWithNormal>(*this));
     glEndList();
     return list;
 }

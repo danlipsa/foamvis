@@ -6,7 +6,7 @@ HEADERS += DebugStream.h ParsingDriver.h AttributeInfo.h Attribute.h \
 	ParsingData.h Vertex.h SemanticError.h MainWindow.h \
         AttributeCreator.h stable.h SystemDifferences.h DataFiles.h Debug.h\
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h\
-	DisplayEdgeFunctors.h DisplayFace.h
+	DisplayEdgeFunctors.h DisplayElement.h
 SOURCES += DebugStream.cpp ParsingDriver.cpp AttributeInfo.cpp Attribute.cpp \
 	NameSemanticValue.cpp Element.cpp ElementUtils.cpp\
 	Body.cpp Color.cpp DataFiles.cpp Debug.cpp\

@@ -29,7 +29,7 @@ public:
      * Gets the face associated with this oriented face
      * @return the face associated with this oriented face
      */
-     Face* GetFace ()  {return m_face;}
+    Face* GetFace () const  {return m_face;}
     void AddAdjacentBody (Body* body) {m_face->AddAdjacentBody (body);}
      vector<Body*>& GetAdjacentBodies () 
     {
@@ -41,24 +41,31 @@ public:
      * with it.
      * @return true for reversed, false otherwise
      */
-    bool IsReversed ()  {return m_reversed;}
+    bool IsReversed () const {return m_reversed;}
     /**
      * Gets the begin vertex for an edge in this oriented face
      * @param edgeIndex what edge we are interested in
      * @return the begin vertex
      */
-     Vertex* GetBegin (unsigned int edgeIndex) ;
+    Vertex* GetBegin (unsigned int edgeIndex) {return getBegin (edgeIndex);}
+    const Vertex* GetBegin (unsigned int edgeIndex) const
+    {return getBegin (edgeIndex);}
     /**
      * Gets the end vertex for an edge in this oriented face
      * @param edgeIndex what edge we are interested in
      * @return the end vertex
      */
-     Vertex* GetEnd (unsigned int edgeIndex) ;
+    Vertex* GetEnd (unsigned int edgeIndex) {return getEnd (edgeIndex);}
+    const Vertex* GetEnd (unsigned int edgeIndex) const
+    {return getEnd (edgeIndex);}
     /**
      * Pretty print for the OrientedFace object
      */
-    friend ostream& operator<< (ostream& ostr,  OrientedFace& of);
+    friend ostream& operator<< (ostream& ostr, const OrientedFace& of);
 
+private:
+    Vertex* getBegin (unsigned int edgeIndex) const;
+    Vertex* getEnd (unsigned int edgeIndex) const;
 
 private:
     /**
@@ -77,7 +84,7 @@ private:
  * @param pof pointer to an oriented face
  * @return where to print next
  */
-inline ostream& operator<< (ostream& ostr,  OrientedFace* pof)
+inline ostream& operator<< (ostream& ostr, const OrientedFace* pof)
 {
     return ostr << *pof;
 }

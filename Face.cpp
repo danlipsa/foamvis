@@ -136,7 +136,7 @@ void Face::StoreDefaultAttributes (AttributesInfo& infos)
         new IntegerAttributeCreator());
 }
 
-Color::Name Face::GetColor () 
+Color::Name Face::GetColor () const
 {
     if (m_attributes != 0)
 	return dynamic_cast<ColorAttribute*>(

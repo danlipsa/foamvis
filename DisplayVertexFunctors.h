@@ -9,13 +9,15 @@
 #ifndef __DISPLAY_VERTEX_FUNCTORS_H__
 #define __DISPLAY_VERTEX_FUNCTORS_H__
 
+#include "DisplayElement.h"
+
 /**
  * Displays the first vertex in an edge
  * @param e the edge
  */
-struct displaySameVertex
+struct DisplaySameVertex
 {
-    void operator() (OrientedEdge* e)
+    void operator() (const OrientedEdge* e)
     {
 	Vertex* p = e->GetBegin ();
 	glVertex3f(p->x, p->y, p->z);
@@ -26,62 +28,56 @@ struct displaySameVertex
 /**
  * Functor that displays a vertex
  */
-class displayDifferentVertex
+class DisplayTessellationOrPhysicalVertex : public DisplayElement
 {
 public:
     /**
      * Constructor
      * @param widget Where should be the vertex displayed
      */
-    displayDifferentVertex (const GLWidget& glWidget) : 
-	m_glWidget (glWidget) 
+    DisplayTessellationOrPhysicalVertex (const GLWidget& widget) : 
+    DisplayElement (widget) 
     {
     }
     /**
      * Functor that displays a vertex
      * @param v the vertex to be displayed
      */
-    void operator() (OrientedEdge* oe)
+    void operator() (const OrientedEdge* oe)
     {
 	Vertex* v = oe->GetBegin ();
 	float pointSize = (v->IsPhysical ()) ? 
-	    m_glWidget.GetPhysicalObjectsWidth () :
-	    m_glWidget.GetTessellationObjectsWidth ();
+	    m_widget.GetPhysicalObjectsWidth () :
+	    m_widget.GetTessellationObjectsWidth ();
 	if (pointSize != 0.0)
 	{
 	    glPointSize (pointSize);
-	    m_glWidget.qglColor (
+	    m_widget.qglColor (
 		v->IsPhysical () ? 
-		m_glWidget.GetPhysicalObjectsColor () : 
-		m_glWidget.GetTessellationObjectsColor () );
+		m_widget.GetPhysicalObjectsColor () : 
+		m_widget.GetTessellationObjectsColor () );
 	    glBegin(GL_POINTS);
 	    glVertex3f(v->x, v->y, v->z);
 	    glEnd();
 	}
     }
-private:
-    /**
-     * Where should be the vertex displayed
-     */
-    const GLWidget& m_glWidget;
 };
 
-class displayDifferentVertices
+class DisplayDifferentVertices : public DisplayElement
 {
 public:
-    displayDifferentVertices (const GLWidget& glWidget) : 
-	m_glWidget (glWidget) {}
-    inline void operator() (OrientedFace* f)
+    DisplayDifferentVertices (const GLWidget& widget) : 
+	DisplayElement (widget) {}
+    inline void operator() (const OrientedFace* f)
     {
 	operator() (f->GetFace ());
     }
-    void operator () (Face* f)
+    void operator () (const Face* f)
     {
-	vector<OrientedEdge*>& v = f->GetOrientedEdges ();
-	for_each (v.begin (), v.end (), displayDifferentVertex (m_glWidget));
+	const vector<OrientedEdge*>& v = f->GetOrientedEdges ();
+	for_each (v.begin (), v.end (),
+		  DisplayTessellationOrPhysicalVertex (m_widget));
     }
-private:
-    const GLWidget& m_glWidget;
 };
 
 

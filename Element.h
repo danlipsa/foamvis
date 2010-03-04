@@ -49,7 +49,7 @@ public:
     /**
      * Gets the original index of this element
      */
-    unsigned int GetOriginalIndex ()  {return m_originalIndex;}
+    unsigned int GetOriginalIndex () const {return m_originalIndex;}
     /**
      * Pretty print attributes of an element
      * @param ostr where to print
@@ -58,7 +58,7 @@ public:
     ostream& PrintAttributes (
 	ostream& ostr, AttributesInfo& info) ;
 
-    bool IsDuplicate ()  {return m_duplicate;}
+    bool IsDuplicate () const {return m_duplicate;}
     void SetDuplicate (bool duplicate) {m_duplicate = duplicate;}
 protected:
     /**

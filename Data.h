@@ -85,6 +85,7 @@ public:
      * @return a vector of Face pointers
      */
     vector<Face*>& GetFaces () {return m_faces;}
+    const vector<Face*>& GetFaces () const {return m_faces;}
     Face* GetFace (unsigned int i) {return m_faces[i];}
     /**
      * Stores a Face object in the Data object 

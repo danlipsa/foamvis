@@ -9,47 +9,25 @@
 #ifndef __DISPLAY_EDGE_FUNCTORS_H__
 #define __DISPLAY_EDGE_FUNCTORS_H__
 
-class displaySameEdges
-{
-public:
-    displaySameEdges (const GLWidget& glWidget) : m_glWidget (glWidget) {}
-    inline void operator() (OrientedFace* f)
-    {
-	operator() (f->GetFace ());
-    }
-    
-    void operator() (Face* f)
-    {
-	glBegin (GL_POLYGON);
-	vector<OrientedEdge*>& v = f->GetOrientedEdges ();
-	for_each (v.begin (), v.end (), displaySameVertex());
-	glEnd ();
-    }
-
-private:
-    const GLWidget& m_glWidget;
-};
-
+#include "DisplayElement.h"
 
 /**
  * Functor that displays an edge
  */
-class displayTessellationOrPhysicalEdge
+class DisplayTessellationOrPhysicalEdge : public DisplayElement
 {
 public:
     /**
      * Constructor
      * @param widget Where should be the edge displayed
      */
-    displayTessellationOrPhysicalEdge (const GLWidget& widget) : 
-	m_widget (widget) 
-    {
-    }
+    DisplayTessellationOrPhysicalEdge (const GLWidget& widget) : 
+    DisplayElement (widget) {}
     /**
      * Functor that displays an edge
      * @param e the edge to be displayed
      */
-    void operator() (OrientedEdge* e)
+    void operator() (const OrientedEdge* e)
     {
 	float edgeSize = (e->GetEdge ()->IsPhysical ()) ? 
 	    m_widget.GetPhysicalObjectsWidth () :
@@ -69,32 +47,43 @@ public:
 	    glEnd();
 	}
     }
-protected:
-    /**
-     * Where should be the vertex displayed
-     */
-    const GLWidget& m_widget;
 };
 
 
-class displayDifferentEdges
+class DisplaySameEdges : public DisplayElement
 {
 public:
-    displayDifferentEdges (const GLWidget& glWidget) : m_glWidget (glWidget) {}
-    inline void operator() (OrientedFace* f)
+    DisplaySameEdges (const GLWidget& widget) : DisplayElement (widget) {}
+    inline void operator() (const OrientedFace* f)
+    {
+	operator() (f->GetFace ());
+    }
+    
+    void operator() (const Face* f)
+    {
+	glBegin (GL_POLYGON);
+	const vector<OrientedEdge*>& v = f->GetOrientedEdges ();
+	for_each (v.begin (), v.end (), DisplaySameVertex());
+	glEnd ();
+    }
+};
+
+
+class DisplayDifferentEdges : public DisplayElement
+{
+public:
+    DisplayDifferentEdges (const GLWidget& widget) : DisplayElement (widget) {}
+    inline void operator() (const OrientedFace* f)
     {
 	operator () (f->GetFace ());
     }
-    void operator () (Face* f)
+    void operator () (const Face* f)
     {
-	vector<OrientedEdge*>& v = f->GetOrientedEdges ();
+	const vector<OrientedEdge*>& v = f->GetOrientedEdges ();
 	for_each (v.begin (), v.end (), 
-		  displayTessellationOrPhysicalEdge (m_glWidget));
+		  DisplayTessellationOrPhysicalEdge (m_widget));
     }
-private:
-    const GLWidget& m_glWidget;
 };
-
 
 
 #endif //__DISPLAY_EDGE_FUNCTORS_H__

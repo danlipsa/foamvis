@@ -9,44 +9,51 @@
 #ifndef __DISPLAY_FACE_FUNCTORS_H__
 #define __DISPLAY_FACE_FUNCTORS_H__
 
-#include "DisplayFace.h"
 #include "DisplayEdgeFunctors.h"
 
 /**
  * Functor that displays a face
  */
-template <typename displayEdges = displaySameEdges>
-class displayFace : public DisplayFace
+template <typename displayEdges = DisplaySameEdges>
+class DisplayFace : public DisplayElement
 {
 public:
     /**
      * Constructor
      * @param widget Where should be the face displayed
      */
-    displayFace (const GLWidget& widget) : 
-        DisplayFace (widget), m_count(0) {}
+    DisplayFace (const GLWidget& widget) : 
+    DisplayElement (widget), m_count(0) {}
     /**
      * Functor that displays a face
      * @param f the face to be displayed
      */
-    virtual void operator() (OrientedFace* f)
-    {
-	operator() (f->GetFace ());
-    }
-
-    void operator () (Face* f)
+    void operator() (const OrientedFace* of)
     {
         if (m_widget.GetDisplayedFace () == GLWidget::DISPLAY_ALL ||
 	    m_count == m_widget.GetDisplayedFace ())
         {
-            (displayEdges (m_widget)) (f);
-            if (m_count == m_widget.GetDisplayedFace ())
-                cdbg << "face " << m_count << ": " << *f << endl;
+	    display (of);
+	    if (m_count == m_widget.GetDisplayedFace ())
+		cdbg << "face " << m_count << ": " << *of << endl;
         }
         m_count++;
     }
 
+    void operator () (const Face* f)
+    {
+	OrientedFace of(const_cast<Face*>(f), false);
+	operator() (&of);
+    }
+
+
 protected:
+    virtual void display (const OrientedFace* of)
+    {
+	(displayEdges (m_widget)) (of);
+    }
+
+private:
     /**
      * Used to display fewer faces (for DEBUG purposes)
      */
@@ -57,75 +64,61 @@ protected:
 /**
  * Functor that displays a face using the color specified in the DMP file
  */
-class displayFaceWithColor : public displayFace<>
+class DisplayFaceWithColor : public DisplayFace<>
 {
 public:
     /**
      * Constructor
      * @param widget where is the face displayed
      */
-    displayFaceWithColor (GLWidget& widget) : 
-        displayFace<> (widget) {}
+    DisplayFaceWithColor (const GLWidget& widget) : 
+        DisplayFace<> (widget) {}
 
-    /**
-     * Functor that displays a colored face
-     * @param f face to be displayed
-     */
-    virtual void operator() (OrientedFace* f)
+protected:
+    virtual void display (const OrientedFace* of)
     {
-	operator() (f->GetFace ());
-    }
-
-    void operator () (Face* f)
-    {
-        if (m_count <= m_widget.GetDisplayedFace ())
-        {
-            glColor4fv (Color::GetValue(f->GetColor ()));
-            (displaySameEdges (m_widget)) (f);
-        }
-        m_count++;
+	glColor4fv (Color::GetValue(of->GetFace()->GetColor ()));
+	(DisplaySameEdges (m_widget)) (of);
     }
 };
 
 /**
  * Displays a face and specifies the normal to the face. Used for lighting.
  */
-class displayFaceWithNormal : public displayFace<>
+class DisplayFaceWithNormal : public DisplayFace<>
 {
 public:
     /**
      * Constructor
      * @param widget where to display the face
      */
-    displayFaceWithNormal (GLWidget& widget) : 
-        displayFace<> (widget) {}
+    DisplayFaceWithNormal (const GLWidget& widget) : 
+    DisplayFace<> (widget) {}
+
+protected:
     /**
      * Functor used to display a face together to the normal
      * @param f face to be displayed
      */
-    virtual void operator() (OrientedFace* f)
+    virtual void display (const OrientedFace* f)
     {
-        if (m_count <= m_widget.GetDisplayedFace ())
-        {
-	    using G3D::Vector3;
-	    // specify the normal vector
-	    Vertex* begin = f->GetBegin (0);
-	    Vertex* end = f->GetEnd (0);
-	    Vector3 first(end->x - begin->x,
-			  end->y - begin->y,
-			  end->z - begin->z);
-	    begin = f->GetBegin (1);
-	    end = f->GetEnd (1);
-	    Vector3 second(end->x - begin->x,
-			   end->y - begin->y,
-			   end->z - begin->z);
-	    Vector3 normal (first.cross(second).unit ());
-	    glNormal3f (normal.x, normal.y, normal.z);
+	using G3D::Vector3;
+	// specify the normal vector
+	const Vertex* begin = f->GetBegin (0);
+	const Vertex* end = f->GetEnd (0);
+	Vector3 first(end->x - begin->x,
+		      end->y - begin->y,
+		      end->z - begin->z);
+	begin = f->GetBegin (1);
+	end = f->GetEnd (1);
+	Vector3 second(end->x - begin->x,
+		       end->y - begin->y,
+		       end->z - begin->z);
+	Vector3 normal (first.cross(second).unit ());
+	glNormal3f (normal.x, normal.y, normal.z);
 
-	    // specify the vertices
-	    (displaySameEdges (m_widget)) (f);
-	}
-	m_count++;
+	// specify the vertices
+	(DisplaySameEdges (m_widget)) (f);
     }
 };
 

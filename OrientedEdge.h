@@ -30,14 +30,14 @@ public:
      * end vertex for the edge stored inside.
      * @return the begin vertex
      */
-    Vertex* GetBegin (void) 
+    Vertex* GetBegin (void) const
     {return m_reversed ? m_edge->GetEnd () : m_edge->GetBegin ();}
     bool IsReversed () const {return m_reversed;}
     /**
      * Get the end vertex of the OrientedEdge. Note that this might be the
      * begin vertex for the edge stored inside.
      */
-    Vertex* GetEnd (void) 
+    Vertex* GetEnd (void) const
     {return m_reversed ? m_edge->GetBegin () : m_edge->GetEnd ();}
     /**
      * Adds a face that is touched by this oriented edge.

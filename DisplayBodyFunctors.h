@@ -6,24 +6,23 @@
  * Functors to display a body
  */
 
-#include "GLWidget.h"
-#include "DisplayFace.h"
-
 #ifndef __DISPLAY_BODY_FUNCTORS_H__
 #define __DISPLAY_BODY_FUNCTORS_H__
 
 
+#include "GLWidget.h"
+
 /**
  * Functor used to display a body
  */
-class displayBody
+class DisplayBody : public DisplayElement
 {
 public:
     /**
      * Constructor
      * @param widget where to display the body
      */
-    displayBody (GLWidget& widget) : m_widget (widget)
+    DisplayBody (const GLWidget& widget) : DisplayElement (widget)
     {}
     /**
      * Functor used to display a body
@@ -38,35 +37,26 @@ public:
 	    display (b);
         }
     }
-    /**
-     * Returns the widget where we display
-     */
-    GLWidget& GetWidget () {return m_widget;}
-    
+
 protected:
     /**
      * Displays the body
      * @param b the body
      */
     virtual void display (Body* b) = 0;
-private:
-    /**
-     * Where to display the body
-     */
-    GLWidget& m_widget;
 };
 
 /**
  * Functor that displays the center of a bubble
  */
-class displayBodyCenter : public displayBody
+class DisplayBodyCenter : public DisplayBody
 {
 public:
     /**
      * Constructor
      * @param widget where to display the center of the bubble
      */
-    displayBodyCenter (GLWidget& widget) : displayBody (widget) {}
+    DisplayBodyCenter (GLWidget& widget) : DisplayBody (widget) {}
 protected:
     /**
      * Displays the center of a body (bubble)
@@ -83,15 +73,16 @@ protected:
 /**
  * Displays a body going through all its faces
  */
-class displayBodyWithFace : public displayBody
+template<typename displayFace>
+class DisplayBodyWithFace : public DisplayBody
 {
 public:
     /**
      * Constructor
      * @param widget where to display the body
      */
-    displayBodyWithFace (GLWidget& widget, const DisplayFace& df) : 
-	displayBody (widget), m_df(df)
+    DisplayBodyWithFace (GLWidget& widget) : 
+    DisplayBody (widget)
     {}
 protected:
     /**
@@ -101,17 +92,15 @@ protected:
     virtual void display (Body* b)
     {
 	vector<OrientedFace*> v = b->GetOrientedFaces ();
-	for_each (v.begin (), v.end (), m_df);
+	for_each (v.begin (), v.end (), displayFace(m_widget));
     }
-private:
-    const DisplayFace& m_df;
 };
 
 
 /**
  * Functor that displays a body center given the index of the body
  */
-class displayBodyCenterFromData : public displayBodyCenter
+class DisplayBodyCenterFromData : public DisplayBodyCenter
 {
 public:
     /**
@@ -119,8 +108,8 @@ public:
      * @param widget where to display the body center
      * @param index what body to display
      */
-    displayBodyCenterFromData (GLWidget& widget, unsigned int index) :
-    displayBodyCenter (widget), m_index (index) {}
+    DisplayBodyCenterFromData (GLWidget& widget, unsigned int index) :
+    DisplayBodyCenter (widget), m_index (index) {}
     /**
      * Functor that displays a body center
      * @param data Data object that constains the body

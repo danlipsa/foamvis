@@ -41,13 +41,13 @@ public:
      * Gets the list of oriented edges
      * @return vector of oriented edges
      */
-     vector<OrientedEdge*>& GetOrientedEdges ()  
-    { return m_edges;}
+    const vector<OrientedEdge*>& GetOrientedEdges () const {return m_edges;}
+    vector<OrientedEdge*>& GetOrientedEdges () {return m_edges;}
     OrientedEdge* GetOrientedEdge (int i)  {return m_edges[i];}
     /**
      * Returns the face color
      */
-    Color::Name GetColor () ;
+    Color::Name GetColor () const;
     void AddAdjacentBody (Body* body) {m_adjacentBodies.push_back (body);}
      vector<Body*>& GetAdjacentBodies () 
     {

@@ -365,7 +365,7 @@ public:
     void operator () (Face* f)
     {
 	vector<OrientedEdge*>::iterator it;
-	 vector<OrientedEdge*>& v = f->GetOrientedEdges ();
+	vector<OrientedEdge*>& v = f->GetOrientedEdges ();
 	vector<unsigned int> intersections(v.size ());
 	transform (
 	    v.begin (), v.end (), intersections.begin (), countIntersections);

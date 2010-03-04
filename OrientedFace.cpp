@@ -8,7 +8,7 @@
 #include "OrientedFace.h"
 
 
-ostream& operator<< (ostream& ostr, OrientedFace& of)
+ostream& operator<< (ostream& ostr, const OrientedFace& of)
 {
     ostr << (of.m_reversed ? "(R)" : "(N)");
     if (of.m_reversed)
@@ -18,7 +18,7 @@ ostream& operator<< (ostream& ostr, OrientedFace& of)
     return ostr;
 }
 
-Vertex* OrientedFace::GetBegin (unsigned int edgeIndex)
+Vertex* OrientedFace::getBegin (unsigned int edgeIndex) const
 {
     vector<OrientedEdge*>& v = m_face->GetOrientedEdges ();
     if (edgeIndex >= v.size ())
@@ -41,7 +41,7 @@ Vertex* OrientedFace::GetBegin (unsigned int edgeIndex)
     }
 }
 
-Vertex* OrientedFace::GetEnd (unsigned int edgeIndex)
+Vertex* OrientedFace::getEnd (unsigned int edgeIndex) const
 {
     vector<OrientedEdge*>& v = m_face->GetOrientedEdges ();
     if (edgeIndex >= v.size ())
