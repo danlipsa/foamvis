@@ -48,7 +48,7 @@ public:
      */
     Vertex* GetVertex (int i) {return m_vertices[i];}
     Vertex* GetVertexDuplicate (
-	const Vertex& original, const Vector3int16& domainIncrement);
+	const Vertex& original, const G3D::Vector3int16& domainIncrement);
     /**
      * Gets the vector of vertices
      * @return the vector of vertices
@@ -84,7 +84,7 @@ public:
      * Gets all faces from this Data
      * @return a vector of Face pointers
      */
-     vector<Face*>& GetFaces () {return m_faces;}
+    vector<Face*>& GetFaces () {return m_faces;}
     Face* GetFace (unsigned int i) {return m_faces[i];}
     /**
      * Stores a Face object in the Data object 

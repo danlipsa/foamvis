@@ -18,7 +18,7 @@ ostream& operator<< (ostream& ostr, Vertex& v)
 {
     ostr << "Vertex " << v.GetOriginalIndex ()
 	 << (v.IsDuplicate () ? " DUPLICATE": "")
-	 << static_cast<Vector3&>(v)
+	 << static_cast<G3D::Vector3&>(v)
 	 << " Vertex attributes: ";
     return v.PrintAttributes (ostr, *Vertex::m_infos);
 }
@@ -56,7 +56,7 @@ void Vertex::AddAdjacentEdge (Edge* edge)
 
 G3D::Vector3int16 Vertex::GetDomain ()
 {
-    return Vector3int16 (0, 0, 0);
+    return G3D::Vector3int16 (0, 0, 0);
 }
 
 void Vertex::AdjustPosition (const G3D::Vector3int16& domainIncrement)

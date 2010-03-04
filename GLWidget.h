@@ -61,7 +61,7 @@ class GLWidget : public QGLWidget
      * Gets the currently displayed body
      * @return the currrently displayed body or UINT_MAX for all bodies
      */
-    unsigned int GetDisplayedBody ()
+    unsigned int GetDisplayedBody () const
     {
 	return m_displayedBody;
     }
@@ -69,10 +69,11 @@ class GLWidget : public QGLWidget
      * Gets the face number up to which faces are displayed
      * @return face number up to which faces are displayed or UINT_MAX for all
      */
-    unsigned int GetDisplayedFace ()
+    unsigned int GetDisplayedFace () const
     {
 	return m_displayedFace;
     }
+
     /**
      * Increment displayed body
      */
@@ -92,21 +93,21 @@ class GLWidget : public QGLWidget
     /**
      * Returns the actual size of physical objects
      */
-    float GetPhysicalObjectsWidth () 
+    float GetPhysicalObjectsWidth () const
     {
 	return OBJECTS_WIDTH[m_physicalObjectsWidth];
     }
     /**
      * Returns the actual size of tessellation objects
      */
-    float GetTessellationObjectsWidth () 
+    float GetTessellationObjectsWidth () const
     {
 	return OBJECTS_WIDTH[m_tessellationObjectsWidth];
     }
-     QColor& GetTessellationObjectsColor () 
+    const QColor& GetTessellationObjectsColor () const
     {return m_tessellationObjectsColor;}
     
-     QColor& GetPhysicalObjectsColor () 
+    const QColor& GetPhysicalObjectsColor () const
     {return m_physicalObjectsColor;}
 
     /**
@@ -221,7 +222,7 @@ private:
 
 
     void project ();
-    void viewingVolumeFromAABox ();
+    void calculateViewingVolume ();
     /**
      * Generates a display list for a certain kind of objects
      * @param type the type of object that we want displayed.

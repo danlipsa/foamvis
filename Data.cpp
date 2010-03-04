@@ -352,7 +352,8 @@ void Data::PostProcess ()
 
 unsigned int countIntersections (OrientedEdge* e)
 {
-     Vector3int16& domainIncrement = e->GetEdge ()->GetEndDomainIncrement ();
+    G3D::Vector3int16& domainIncrement = 
+	e->GetEdge ()->GetEndDomainIncrement ();
     return ((domainIncrement.x != 0) + 
 	    (domainIncrement.y != 0) + (domainIncrement.z != 0));
 }
@@ -390,6 +391,8 @@ G3D::Vector3int16 Data::GetDomainIncrement (
 {
     using G3D::Matrix3;
     using G3D::Matrix2;
+    using G3D::Vector3;
+    using G3D::Vector3int16;
     Matrix3 toOrthonormal;
     if (GetSpaceDimension () == 2)
     {

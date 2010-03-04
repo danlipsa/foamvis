@@ -120,7 +120,7 @@ struct LessThanNoCase : binary_function<const char*, const char*, bool>
  */
 ostream& operator<< (ostream& ostr,  G3D::AABox& box);
 
-G3D::Matrix2 inverse(const Matrix2& original);
+G3D::Matrix2 inverse(const G3D::Matrix2& original);
 
 
 #endif //__ELEMENT_UTILS_H__

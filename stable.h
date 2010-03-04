@@ -24,7 +24,15 @@
 #include <QtOpenGL>
 #include <QApplication>
 
-#include <G3D/G3DAll.h>
+#include <G3D/AABox.h>
+#include <G3D/Vector3.h>
+#include <G3D/Vector3int16.h>
+#include <G3D/Vector2.h>
+#include <G3D/Rect2D.h>
+#include <G3D/Matrix2.h>
+#include <G3D/Matrix3.h>
+#include <G3D/Matrix4.h>
+#include <GLG3D/getOpenGLState.h>
 
 #include <cstring>
 #include <ctime>

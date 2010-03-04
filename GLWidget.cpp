@@ -7,97 +7,10 @@
 #include "GLWidget.h"
 #include "DataFiles.h"
 #include "DebugStream.h"
-
-/**
- * Displays the first vertex in an edge
- * @param e the edge
- */
-
-void displaySameVertex (OrientedEdge* e)
-{
-    Vertex* p = e->GetBegin ();
-    glVertex3f(p->x, p->y, p->z);
-}
-
-
-/**
- * Functor that displays a vertex
- */
-class displayDifferentVertex
-{
-public:
-    /**
-     * Constructor
-     * @param widget Where should be the vertex displayed
-     */
-    displayDifferentVertex (GLWidget& glWidget) : 
-	m_glWidget (glWidget) 
-    {
-    }
-    /**
-     * Functor that displays a vertex
-     * @param v the vertex to be displayed
-     */
-    void operator() (OrientedEdge* oe)
-    {
-	Vertex* v = oe->GetBegin ();
-	float pointSize = (v->IsPhysical ()) ? 
-	    m_glWidget.GetPhysicalObjectsWidth () :
-	    m_glWidget.GetTessellationObjectsWidth ();
-	if (pointSize != 0.0)
-	{
-	    glPointSize (pointSize);
-	    m_glWidget.qglColor (
-		v->IsPhysical () ? 
-		m_glWidget.GetPhysicalObjectsColor () : 
-		m_glWidget.GetTessellationObjectsColor () );
-	    glBegin(GL_POINTS);
-	    glVertex3f(v->x, v->y, v->z);
-	    glEnd();
-	}
-    }
-private:
-    /**
-     * Where should be the vertex displayed
-     */
-    GLWidget& m_glWidget;
-};
-
-class displaySameEdges
-{
-public:
-    displaySameEdges (GLWidget& glWidget) : m_glWidget (glWidget) {}
-    inline void operator() (OrientedFace* f)
-    {
-	operator() (f->GetFace ());
-    }
-    
-    void operator() (Face* f)
-    {
-	glBegin (GL_POLYGON);
-	vector<OrientedEdge*>& v = f->GetOrientedEdges ();
-	for_each (v.begin (), v.end (), displaySameVertex);
-	glEnd ();
-    }
-
-private:
-    GLWidget& m_glWidget;
-};
-
-class displayDifferentVertices
-{
-public:
-    displayDifferentVertices (GLWidget& glWidget) : m_glWidget (glWidget) {}
-    void operator() (OrientedFace* f)
-    {
-	vector<OrientedEdge*>& v = f->GetFace()->GetOrientedEdges ();
-	for_each (v.begin (), v.end (), displayDifferentVertex (m_glWidget));
-    }
-private:
-    GLWidget& m_glWidget;
-};
-
-
+#include "DisplayVertexFunctors.h"
+#include "DisplayEdgeFunctors.h"
+#include "DisplayFaceFunctors.h"
+#include "DisplayBodyFunctors.h"
 
 /**
  * Stores information about various OpenGL characteristics of the graphic card
@@ -116,273 +29,21 @@ struct OpenGLParam
      * Name of the OpenGL characteristic
      */
     const char* m_name;
-};
 
-
-/**
- * Functor that displays an edge
- */
-class displayEdge
-{
-public:
     /**
-     * Constructor
-     * @param widget Where should be the edge displayed
+     * Reads an OpenGLParam from OpenGL
      */
-    displayEdge (GLWidget& widget) : 
-	m_widget (widget) 
+    void get ()
     {
+	glGetIntegerv (m_what, m_where);
     }
+
     /**
-     * Functor that displays an edge
-     * @param e the edge to be displayed
+     * Prints an OpenGLParam
      */
-    void operator() (OrientedEdge* e)
+    void print ()
     {
-	float edgeSize = (e->GetEdge ()->IsPhysical ()) ? 
-	    m_widget.GetPhysicalObjectsWidth () :
-	    m_widget.GetTessellationObjectsWidth ();
-	if (edgeSize != 0.0)
-	{
-	    Vertex* begin = e->GetBegin ();
-	    Vertex* end = e->GetEnd ();
-	    glLineWidth (edgeSize);
-	    m_widget.qglColor (
-		e->GetEdge()->IsPhysical () ? 
-		m_widget.GetPhysicalObjectsColor () : 
-		m_widget.GetTessellationObjectsColor () );
-	    glBegin(GL_LINES);
-	    glVertex3f(begin->x, begin->y, begin->z);
-	    glVertex3f(end->x, end->y, end->z);
-	    glEnd();
-	}
-    }
-protected:
-    /**
-     * Where should be the vertex displayed
-     */
-    GLWidget& m_widget;
-};
-
-
-class displayDifferentEdges
-{
-public:
-    displayDifferentEdges (GLWidget& glWidget) : m_glWidget (glWidget) {}
-    void operator() (OrientedFace* f)
-    {
-	vector<OrientedEdge*>& v = f->GetFace()->GetOrientedEdges ();
-	if (f->IsReversed ())
-	    for_each (v.rbegin (), v.rend (), displayEdge (m_glWidget));
-	else
-	    for_each (v.begin (), v.end (), displayEdge (m_glWidget));
-    }
-private:
-    GLWidget& m_glWidget;
-};
-
-
-
-
-/**
- * Functor that displays a face
- */
-template <typename displayEdges = displaySameEdges>
-class displayFace : public unary_function< OrientedFace*, void>
-{
-public:
-    /**
-     * Constructor
-     * @param widget Where should be the face displayed
-     */
-    displayFace (GLWidget& widget) : 
-        m_widget (widget), m_count(0) {}
-    /**
-     * Functor that displays a face
-     * @param f the face to be displayed
-     */
-    virtual void operator() (OrientedFace* f)
-    {
-        if (m_count <= m_widget.GetDisplayedFace ())
-        {
-            (displayEdges (m_widget)) (f);
-            if (m_count == m_widget.GetDisplayedFace ())
-                cdbg << "face " << m_count << ": " << *f << endl;
-        }
-        m_count++;
-    }
-protected:
-    /**
-     * Where should be the face displayed
-     */
-    GLWidget& m_widget;
-    /**
-     * Used to display fewer faces (for DEBUG purposes)
-     */
-    unsigned int m_count;
-};
-
-
-/**
- * Functor that displays a face using the color specified in the DMP file
- */
-class displayFaceWithColor : public displayFace<>
-{
-public:
-    /**
-     * Constructor
-     * @param widget where is the face displayed
-     */
-    displayFaceWithColor (GLWidget& widget) : 
-        displayFace<> (widget) {}
-
-    /**
-     * Functor that displays a colored face
-     * @param f face to be displayed
-     */
-    virtual void operator() (OrientedFace* f)
-    {
-        if (m_count <= m_widget.GetDisplayedFace ())
-        {
-            glColor4fv (Color::GetValue(f->GetFace ()->GetColor ()));
-            (displaySameEdges (m_widget)) (f);
-        }
-        m_count++;
-    }
-};
-
-/**
- * Displays a face and specifies the normal to the face. Used for lighting.
- */
-class displayFaceWithNormal : public displayFace<>
-{
-public:
-    /**
-     * Constructor
-     * @param widget where to display the face
-     */
-    displayFaceWithNormal (GLWidget& widget) : 
-        displayFace<> (widget) {}
-    /**
-     * Functor used to display a face together to the normal
-     * @param f face to be displayed
-     */
-    virtual void operator() (OrientedFace* f)
-    {
-        if (m_count <= m_widget.GetDisplayedFace ())
-        {
-	    // specify the normal vector
-	     Vertex* begin = f->GetBegin (0);
-	     Vertex* end = f->GetEnd (0);
-	    Vector3 first(end->x - begin->x,
-			  end->y - begin->y,
-			  end->z - begin->z);
-	    begin = f->GetBegin (1);
-	    end = f->GetEnd (1);
-	    Vector3 second(end->x - begin->x,
-			   end->y - begin->y,
-			   end->z - begin->z);
-	    Vector3 normal (first.cross(second).unit ());
-	    glNormal3f (normal.x, normal.y, normal.z);
-
-	    // specify the vertices
-	    (displaySameEdges (m_widget)) (f);
-	}
-	m_count++;
-    }
-};
-
-/**
- * Functor used to display a body
- */
-class displayBody
-{
-public:
-    /**
-     * Constructor
-     * @param widget where to display the body
-     */
-    displayBody (GLWidget& widget) : m_widget (widget)
-    {}
-    /**
-     * Functor used to display a body
-     * @param b the body to be displayed
-     */
-    void operator () (Body* b)
-    {
-        unsigned int displayedBody = m_widget.GetDisplayedBody ();
-        if (displayedBody == m_widget.DISPLAY_ALL ||
-             b->GetOriginalIndex () == displayedBody)
-        {
-	    display (b);
-        }
-    }
-    /**
-     * Returns the widget where we display
-     */
-    GLWidget& GetWidget () {return m_widget;}
-    
-protected:
-    /**
-     * Displays the body
-     * @param b the body
-     */
-    virtual void display (Body* b) = 0;
-private:
-    /**
-     * Where to display the body
-     */
-    GLWidget& m_widget;
-};
-
-
-/**
- * Functor that displays the center of a bubble
- */
-class displayBodyCenter : public displayBody
-{
-public:
-    /**
-     * Constructor
-     * @param widget where to display the center of the bubble
-     */
-    displayBodyCenter (GLWidget& widget) : displayBody (widget) {}
-protected:
-    /**
-     * Displays the center of a body (bubble)
-     * @param b body to display the center of
-     */
-    virtual void display (Body* b)
-    {
-	G3D::Vector3 v = b->GetCenter ();
-	glVertex3f(v.x, v.y, v.z);
-    }
-};
-
-
-/**
- * Displays a body going through all its faces
- */
-template <typename displayFunction>
-class displayBodyWithFace : public displayBody
-{
-public:
-    /**
-     * Constructor
-     * @param widget where to display the body
-     */
-    displayBodyWithFace (GLWidget& widget) : 
-	displayBody (widget)
-    {}
-protected:
-    /**
-     * Displays a body going through all its faces
-     * @param b the body to be displayed
-     */
-    virtual void display (Body* b)
-    {
-	vector<OrientedFace*> v = b->GetOrientedFaces ();
-	for_each (v.begin (), v.end (), displayFunction(GetWidget ()));
+	cdbg << m_name << ": " << *m_where << endl;
     }
 };
 
@@ -412,22 +73,6 @@ void detectOpenGLError ()
 }
 
 /**
- * Stores an OpenGLParam
- */
-inline void storeOpenGLParam (OpenGLParam& param)
-{
-    glGetIntegerv (param.m_what, param.m_where);
-}
-
-/**
- * Prints an OpenGLParam
- */
-void printOpenGLParam (OpenGLParam& param)
-{
-    cdbg << param.m_name << ": " << *param.m_where << endl;
-}
-
-/**
  * Prints information  about the OpenGL  implementation (hardware) the
  * program runs on.
  */
@@ -441,7 +86,7 @@ void printOpenGLInfo ()
     GLint indexBits;
     GLint depthBits;
     GLint stencilBits;
-    OpenGLParam info[] = {
+    boost::array<OpenGLParam, 12> info = {{
         {GL_AUX_BUFFERS, &auxBuffers, "AUX_BUFFERS"},
         {GL_RED_BITS, &redBits, "RED_BITS"},
         {GL_GREEN_BITS, &greenBits, "GREEN_BITS"},
@@ -454,11 +99,10 @@ void printOpenGLInfo ()
         {GL_INDEX_BITS, &indexBits, "INDEX_BITS"},
         {GL_DEPTH_BITS, &depthBits, "DEPTH_BITS"},
         {GL_STENCIL_BITS, &stencilBits, "STENCIL_BITS"},
-    };
+    }};
     glGetBooleanv (GL_STEREO, &stereoSupport);
     glGetBooleanv (GL_DOUBLEBUFFER, &doubleBufferSupport);
-    for_each (info, 
-              info + sizeof (info) / sizeof (info[0]), storeOpenGLParam);
+    for_each (info.begin (), info.end (), mem_fun_ref(&OpenGLParam::get));
     cdbg << "OpenGL" << endl
          << "Vendor: " << glGetString (GL_VENDOR) << endl
          << "Renderer: " << glGetString (GL_RENDERER) << endl
@@ -467,8 +111,7 @@ void printOpenGLInfo ()
          << "Stereo support: " << static_cast<bool>(stereoSupport) << endl
          << "Double buffer support: " 
          << static_cast<bool>(doubleBufferSupport) << endl;
-    for_each (info, info + sizeof (info) / sizeof (info[0]),
-              printOpenGLParam);
+    for_each (info.begin (), info.end (), mem_fun_ref(&OpenGLParam::print));
 }
 
  float GLWidget::OBJECTS_WIDTH[] = {0.0, 1.0, 3.0, 5.0, 7.0};
@@ -664,7 +307,7 @@ void GLWidget::initLightFlat ()
     glEnable(GL_DEPTH_TEST);
 }
 
-void GLWidget::viewingVolumeFromAABox ()
+void GLWidget::calculateViewingVolume ()
 {
     using G3D::Vector3;
     const Vector3& min = m_dataFiles->GetAABox ().low ();
@@ -691,8 +334,9 @@ void GLWidget::initializeGL()
     float* background = Color::GetValue (Color::WHITE);
     glClearColor (background[0], background[1],
 		  background[2], background[3]);        
-    viewingVolumeFromAABox ();
+    calculateViewingVolume ();
     project ();
+
     glMatrixMode (GL_MODELVIEW);
     //glLoadMatrixf (GetCurrentData ().GetViewMatrix ());
 
@@ -733,8 +377,11 @@ void GLWidget::paintGL()
     }
 }
 
+
+
 void GLWidget::resizeGL(int width, int height)
 {
+    using G3D::Rect2D;
     float ratio = (m_viewingVolume.high ().x - m_viewingVolume.low ().x) / 
 	(m_viewingVolume.high ().y - m_viewingVolume.low ().y);
     if ((static_cast<float>(width) / height) > ratio)
@@ -757,8 +404,9 @@ void GLWidget::resizeGL(int width, int height)
 void GLWidget::setRotation (int axis, float angle)
 {
     using G3D::Matrix4;
-     float axes[3][3] = {{1,0,0}, {0,1,0}, {0,0,1}};
+    float axes[3][3] = {{1,0,0}, {0,1,0}, {0,0,1}};
     makeCurrent ();
+    glMatrixMode (GL_MODELVIEW);
     Matrix4 modelView;
     glGetMatrix (GL_MODELVIEW_MATRIX, modelView);
     const Matrix4& columnOrderMatrix = modelView.transpose ();
@@ -783,6 +431,7 @@ void scaleAABox (G3D::AABox* aabox, float change)
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
+    using G3D::Vector2;
     int dx = event->x() - m_lastPos.x();
     int dy = event->y() - m_lastPos.y();
     switch (m_interactionMode)
@@ -790,8 +439,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     case ROTATE:
     {
 	// scale this with the size of the window
-	QSize size = this->size ();
-	int side = std::min (size.width (), size.height ());
+	int side = std::min (m_viewport.width (), m_viewport.height ());
 	float dxDegrees = static_cast<float>(dx) * 90 / side;
 	float dyDegrees = static_cast<float>(dy) * 90 / side;
 
@@ -821,7 +469,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	float change = (currentPos - center).length () - 
 	    (lastPos - center).length ();
 	change /= std::min(m_viewport.width (), m_viewport.height ());
-	change = powf (2, -change);
+	change = powf (2, - change);
 	scaleAABox (&m_viewingVolume, change);
 	project ();
 	updateGL ();
@@ -839,7 +487,8 @@ void GLWidget::displayFacesContour (vector<Body*>& bodies)
     qglColor (QColor(Qt::black));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     for_each (bodies.begin (), bodies.end (),
-              displayBodyWithFace< displayFace<displaySameEdges> > (*this));
+              displayBodyWithFace (*this,
+				   displayFace<displaySameEdges>(*this)));
 }
 
 void GLWidget::displayFacesOffset (vector<Body*>& bodies)
@@ -848,7 +497,7 @@ void GLWidget::displayFacesOffset (vector<Body*>& bodies)
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
     for_each (bodies.begin (), bodies.end (),
-              displayBodyWithFace<displayFaceWithColor> (*this));
+              displayBodyWithFace (*this, displayFaceWithColor(*this)));
     glDisable (GL_POLYGON_OFFSET_FILL);
 }
 
@@ -858,8 +507,8 @@ GLuint GLWidget::displayVertices ()
     glNewList(list, GL_COMPILE);
     vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     for_each (bodies.begin (), bodies.end (),
-	      displayBodyWithFace<
-	      displayFace<displayDifferentVertices> >(*this));
+	      displayBodyWithFace (
+		  *this, displayFace<displayDifferentVertices>(*this)));
     glPointSize (1.0);
     glEndList();
     return list;
@@ -957,7 +606,8 @@ GLuint GLWidget::displayRawFaces ()
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     glLineWidth (3.0);
     vector<Face*>& faces = GetCurrentData ().GetFaces ();
-    for_each (faces.begin (), faces.end (), displaySameEdges(*this) );
+    for_each (faces.begin (), faces.end (), displayFace<> (*this) );
+    
     glLineWidth (1.0);
 
     displayOriginalDomain (GetCurrentData().GetPeriods ());
@@ -973,7 +623,8 @@ GLuint GLWidget::displayEdges ()
     glNewList(list, GL_COMPILE);
     vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     for_each (bodies.begin (), bodies.end (),
-	      displayBodyWithFace< displayFace<displayDifferentEdges> >(*this));
+	      displayBodyWithFace(
+		  *this, displayFace<displayDifferentEdges>(*this)));
 
     if (! GetCurrentData ().IsTorus ())
 	displayCenterOfBodies ();
@@ -993,35 +644,6 @@ void GLWidget::displayCenterOfBodies ()
     glEnd ();
 }
 
-/**
- * Functor that displays a body center given the index of the body
- */
-class displayBodyCenterFromData : public displayBodyCenter
-{
-public:
-    /**
-     * Constructor
-     * @param widget where to display the body center
-     * @param index what body to display
-     */
-    displayBodyCenterFromData (GLWidget& widget, unsigned int index) :
-	displayBodyCenter (widget), m_index (index) {}
-    /**
-     * Functor that displays a body center
-     * @param data Data object that constains the body
-     */
-    void operator () (Data* data)
-    {
-	 Body* body = data->GetBody (m_index);
-	if (body != 0)
-	    display (body);
-    }
-private:
-    /**
-     * What body to display
-     */
-    int m_index;
-};
 
 
 /**
@@ -1104,7 +726,7 @@ GLuint GLWidget::displayBodies ()
     glNewList(list, GL_COMPILE);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     for_each (bodies.begin (), bodies.end (),
-              displayBodyWithFace<displayFaceWithNormal>(*this));
+              displayBodyWithFace(*this, displayFaceWithNormal(*this)));
     glEndList();
     return list;
 }
@@ -1138,32 +760,46 @@ GLuint GLWidget::display (ViewType type)
 
 void GLWidget::IncrementDisplayedFace ()
 {
+    m_displayedFace++;
+    if (m_viewType == RAW_FACES)
+    {
+	if (m_displayedFace == 	GetCurrentData ().GetFaces ().size ())
+	    m_displayedFace = DISPLAY_ALL;
+    }
     if (m_displayedBody != DISPLAY_ALL)
     {
         Body& body = *GetCurrentData ().GetBodies ()[m_displayedBody];
-        m_displayedFace++;
         if (m_displayedFace == body.GetOrientedFaces ().size ())
             m_displayedFace = DISPLAY_ALL;
-	setObject (&m_object, display(m_viewType));
-        updateGL ();
     }
+    setObject (&m_object, display(m_viewType));
+    updateGL ();
 }
 
 void GLWidget::DecrementDisplayedFace ()
 {
+    if (m_viewType == RAW_FACES)
+    {
+	if (m_displayedFace == DISPLAY_ALL)
+	    m_displayedFace = GetCurrentData ().GetFaces ().size ();
+    }
     if (m_displayedBody != DISPLAY_ALL)
     {
         Body& body = *GetCurrentData ().GetBodies ()[m_displayedBody];
         if (m_displayedFace == DISPLAY_ALL)
             m_displayedFace = body.GetOrientedFaces ().size ();
-        m_displayedFace--;
-	setObject (&m_object, display(m_viewType));
-        updateGL ();
     }
+    m_displayedFace--;
+    setObject (&m_object, display(m_viewType));
+    updateGL ();
+
 }
 
 void GLWidget::IncrementDisplayedBody ()
 {
+    if (m_viewType == RAW_VERTICES || m_viewType == RAW_EDGES ||
+	m_viewType == RAW_FACES)
+	return;
     m_displayedBody++;
     m_displayedFace = DISPLAY_ALL;
     if (m_displayedBody == GetDataFiles ().GetData ()[0]->GetBodies ().size ())
@@ -1175,6 +811,9 @@ void GLWidget::IncrementDisplayedBody ()
 
 void GLWidget::DecrementDisplayedBody ()
 {
+    if (m_viewType == RAW_VERTICES || m_viewType == RAW_EDGES ||
+	m_viewType == RAW_FACES)
+	return;
     if (m_displayedBody == DISPLAY_ALL)
         m_displayedBody = GetDataFiles ().GetData ()[0]->GetBodies ().size ();
     m_displayedBody--;

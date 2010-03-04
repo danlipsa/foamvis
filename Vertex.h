@@ -143,7 +143,8 @@ private:
 
     struct lessThanVector3int16
     {
-	bool operator () (const Vector3int16& first, const Vector3int16& second)
+	bool operator () (const G3D::Vector3int16& first, 
+			  const G3D::Vector3int16& second)
 	{
 	    return 
 		first.x < second.x ||

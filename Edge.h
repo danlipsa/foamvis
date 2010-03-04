@@ -106,7 +106,7 @@ private:
      * Last vertex of the edge
      */
     Vertex* m_end;
-    Vector3int16 m_endDomainIncrement;
+    G3D::Vector3int16 m_endDomainIncrement;
     /**
      * Stores adjacent faces to this edge
      */
