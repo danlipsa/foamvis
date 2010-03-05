@@ -11,14 +11,14 @@ class Body;
 class Data;
 class DataFiles;
 
+#include "ElementUtils.h"
+
 /**
  * Widget for displaying foam bubbles using OpenGL
  */
 class GLWidget : public QGLWidget
-{
-    Q_OBJECT
-    
-    public:
+{    
+public:
     /**
      * Constructor
      * @param parent parent widget
@@ -106,6 +106,7 @@ class GLWidget : public QGLWidget
     }
     const QColor& GetTessellationObjectsColor () const
     {return m_tessellationObjectsColor;}
+    const QColor& GetDomainIncrementColor (const G3D::Vector3int16& di) const;
     
     const QColor& GetPhysicalObjectsColor () const
     {return m_physicalObjectsColor;}
@@ -115,6 +116,13 @@ class GLWidget : public QGLWidget
      */
     void displayCenterOfBodies ();
     void DataChanged () {DataSliderValueChanged (m_dataIndex);}
+
+    GLUquadricObj* GetQuadricObject () const 
+    {
+	return m_quadric;
+    }
+
+public:
     static  unsigned int DISPLAY_ALL;
 
 public Q_SLOTS:
@@ -194,11 +202,6 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
 private:
     /**
-     * Mapping between the index in  the slider and an actual size for
-     * physical and tessellation objects.
-     */
-    static  float OBJECTS_WIDTH[];
-    /**
      * WHAT kind of objects do we display
      */
     enum ViewType {
@@ -219,8 +222,10 @@ private:
 	TRANSLATE,
 	INTERACTION_MODE_COUNT
     };
+    typedef boost::unordered_map<G3D::Vector3int16, QColor,
+				 Vector3int16Hash> DomainIncrementColor;
 
-
+private:
     void project ();
     void calculateViewingVolume ();
     /**
@@ -287,11 +292,16 @@ private:
     /**
      * Setup lighting for shaded bodies
      */
-    void initLightBodies ();
+    void enableLighting ();
+private:
     /**
      * Setup lighting for displaying faces edges and vertices
      */
-    static void initLightFlat ();
+    static void disableLighting ();
+    static void quadricErrorCallback (GLenum errorCode);
+private:
+    Q_OBJECT
+
     /**
      * The elements displayed from a DMP file: vertices, edges, faces or bodies.
      */
@@ -343,6 +353,14 @@ private:
     G3D::AABox m_viewingVolume;
     G3D::AABox2D m_viewport;
     G3D::Vector2 m_viewportStart;
+    DomainIncrementColor m_domainIncrementColor;
+    GLUquadricObj* m_quadric;    
+private:
+    /**
+     * Mapping between the index in  the slider and an actual size for
+     * physical and tessellation objects.
+     */
+    static  float OBJECTS_WIDTH[];
 };
 
 #endif //__GLWIDGET_H__

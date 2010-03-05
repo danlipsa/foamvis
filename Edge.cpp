@@ -54,7 +54,7 @@ void Edge::StoreDefaultAttributes (AttributesInfo& infos)
         new IntegerAttributeCreator());
 }
 
-short Edge::SignToNumber (char sign)
+short Edge::DomainIncrementCharToNumber (char sign)
 {
     switch (sign)
     {
@@ -77,4 +77,17 @@ vector<Face*>& Edge::GetAdjacentFaces ()
 G3D::Vector3 Edge::GetBegin (G3D::Vector3* end)
 {
     return *end + (*GetBegin () - *GetEnd ());
+}
+
+G3D::Vector3int16 Edge::IntToDomainIncrement (int value)
+{
+    G3D::Vector3int16 result;
+    const int DIMENSIONS = 3;
+    const int POSSIBILITIES = 3; // *, -, +
+    for (int i = 0; i < DIMENSIONS; i++)
+    {
+	result[i] = (value % POSSIBILITIES) - 1; // we store -1, 0 or 1
+	value /= POSSIBILITIES;
+    }
+    return result;
 }

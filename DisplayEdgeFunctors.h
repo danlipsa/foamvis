@@ -11,17 +11,97 @@
 
 #include "DisplayElement.h"
 
-/**
- * Functor that displays an edge
- */
-class DisplayTessellationOrPhysicalEdge : public DisplayElement
+class DisplayEdgeTorus : public DisplayElement
 {
 public:
     /**
      * Constructor
      * @param widget Where should be the edge displayed
      */
-    DisplayTessellationOrPhysicalEdge (const GLWidget& widget) : 
+    DisplayEdgeTorus (const GLWidget& widget) : DisplayElement (widget) 
+    {
+    }
+    ~DisplayEdgeTorus() 
+    {
+    }
+    /**
+     * Functor that displays an edge
+     * @param e the edge to be displayed
+     */
+    void operator() (const OrientedEdge* oe) 
+    {
+	operator() (oe->GetEdge());
+    }
+    
+    void operator() (const Edge* e)
+    {
+	display (e);
+    }
+protected:
+    void display (const Edge* e)
+    {
+	const Vertex* begin = e->GetBegin ();
+	const Vertex* end = e->GetEnd ();
+	G3D::Vector3int16 domainIncrement = e->GetEndDomainIncrement ();
+	m_widget.qglColor (m_widget.GetDomainIncrementColor (domainIncrement));
+	if (domainIncrement != G3D::Vector3int16 (0, 0, 0))
+	    displayArrow (m_widget.GetQuadricObject (), *begin, *end);
+	glBegin(GL_LINES);
+	glVertex3f(begin->x, begin->y, begin->z);
+	glVertex3f(end->x, end->y, end->z);
+	glEnd();
+    }
+
+private:
+    static void displayArrow (
+	GLUquadricObj* quadric,
+	const G3D::Vector3& begin, const G3D::Vector3& end)
+    {
+	using G3D::Vector3;
+	Vector3 newZ = end - begin;
+	if (newZ.isZero ())
+	    return;
+	newZ = newZ.unit ();
+	Vector3 newX = aNormal (newZ);
+	Vector3 newY = newZ.cross (newX);
+	G3D::Matrix3 rotation;
+	rotation.setColumn (0, newX);
+	rotation.setColumn (1, newY);
+	rotation.setColumn (2, newZ);
+	G3D::CoordinateFrame frame (rotation, (begin + end)/2);
+	glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);	
+	gluQuadricDrawStyle (quadric, GLU_FILL);
+	gluQuadricNormals (quadric, GLU_SMOOTH);
+	glMatrixMode (GL_MODELVIEW);
+	glPushMatrix ();
+	glMultMatrix (frame);
+	gluCylinder (quadric, .05, 0, .1, 20, 20);
+	glPopMatrix ();
+    }
+
+};
+
+class DisplayOriginalEdgeTorus : public DisplayEdgeTorus
+{
+public:
+    DisplayOriginalEdgeTorus (const GLWidget& widget) : 
+    DisplayEdgeTorus (widget) {}
+    void operator () (const Edge* e)
+    {
+	if (! e->IsDuplicate ())
+	    display (e);
+    }
+};
+
+
+class DisplayEdgeTessellationOrPhysical : public DisplayElement
+{
+public:
+    /**
+     * Constructor
+     * @param widget Where should be the edge displayed
+     */
+    DisplayEdgeTessellationOrPhysical (const GLWidget& widget) : 
     DisplayElement (widget) {}
     /**
      * Functor that displays an edge
@@ -50,6 +130,10 @@ public:
 };
 
 
+
+/**
+ * Functor that displays an edge
+ */
 class DisplaySameEdges : public DisplayElement
 {
 public:
@@ -69,10 +153,11 @@ public:
 };
 
 
-class DisplayDifferentEdges : public DisplayElement
+template<typename displayEdge>
+class DisplayEdges : public DisplayElement
 {
 public:
-    DisplayDifferentEdges (const GLWidget& widget) : DisplayElement (widget) {}
+    DisplayEdges (const GLWidget& widget) : DisplayElement (widget) {}
     inline void operator() (const OrientedFace* f)
     {
 	operator () (f->GetFace ());
@@ -80,10 +165,8 @@ public:
     void operator () (const Face* f)
     {
 	const vector<OrientedEdge*>& v = f->GetOrientedEdges ();
-	for_each (v.begin (), v.end (), 
-		  DisplayTessellationOrPhysicalEdge (m_widget));
+	for_each (v.begin (), v.end (), displayEdge (m_widget));
     }
 };
-
 
 #endif //__DISPLAY_EDGE_FUNCTORS_H__

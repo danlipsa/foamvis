@@ -82,10 +82,10 @@ public:
                   vector<NameSemanticValue*>& list);
     /**
      * Gets all faces from this Data
-     * @return a vector of Face pointers
      */
     vector<Face*>& GetFaces () {return m_faces;}
     const vector<Face*>& GetFaces () const {return m_faces;}
+
     Face* GetFace (unsigned int i) {return m_faces[i];}
     /**
      * Stores a Face object in the Data object 
@@ -135,7 +135,7 @@ public:
      * Gets the view matrix
      * @return the 4x4 view matrix
      */
-    const boost::array<float,16>& GetViewMatrix () {return m_viewMatrix;}
+    const boost::array<float,16>& GetViewMatrix () const {return m_viewMatrix;}
     /**
      * Make the parsing data accessible
      * @return reference to the ParsingData object.

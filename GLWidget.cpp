@@ -11,6 +11,7 @@
 #include "DisplayEdgeFunctors.h"
 #include "DisplayFaceFunctors.h"
 #include "DisplayBodyFunctors.h"
+#include "ElementUtils.h"
 
 /**
  * Stores information about various OpenGL characteristics of the graphic card
@@ -113,9 +114,11 @@ void printOpenGLInfo ()
     for_each (info.begin (), info.end (), mem_fun_ref(&OpenGLParam::print));
 }
 
- float GLWidget::OBJECTS_WIDTH[] = {0.0, 1.0, 3.0, 5.0, 7.0};
+float GLWidget::OBJECTS_WIDTH[] = {0.0, 1.0, 3.0, 5.0, 7.0};
 
- unsigned int GLWidget::DISPLAY_ALL(numeric_limits<unsigned int>::max());
+unsigned int GLWidget::DISPLAY_ALL(numeric_limits<unsigned int>::max());
+
+
 
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent), 
@@ -130,14 +133,36 @@ GLWidget::GLWidget(QWidget *parent)
       m_tessellationObjectsColor (Qt::green),
       m_centerPathColor (Qt::red)
 {
+    const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
+    const int POSSIBILITIES = 3; //domain increment can be *, - or +
+    using G3D::Vector3int16;
+    for (int i = 0;
+	 i < POSSIBILITIES * POSSIBILITIES * POSSIBILITIES; i++)
+    {
+	G3D::Vector3int16 di = Edge::IntToDomainIncrement (i);
+	QColor color (
+	    DOMAIN_INCREMENT_COLOR[di.x + 1],
+	    DOMAIN_INCREMENT_COLOR[di.y + 1],
+	    DOMAIN_INCREMENT_COLOR[di.z + 1]);
+	m_domainIncrementColor[di] = color;
+    }
+	      
+    m_domainIncrementColor[Vector3int16(0,0,0)] = QColor(0,0,0);
+    m_domainIncrementColor[Vector3int16(0,0,0)] = QColor(0,0,0);
+
+    m_quadric = gluNewQuadric ();
+    gluQuadricCallback (m_quadric, GLU_ERROR,
+			reinterpret_cast<void (*)()>(&quadricErrorCallback));
 }
 
 GLWidget::~GLWidget()
 {
     makeCurrent();
     glDeleteLists(m_object, 1);
+    m_object = 0;
+    gluDeleteQuadric (m_quadric);
+    m_quadric = 0;
 }
-
 
 
 // Slots
@@ -149,7 +174,7 @@ void GLWidget::ViewVertices (bool checked)
     {
         m_viewType = VERTICES;
         setObject (&m_object, displayVertices ());
-	initLightFlat ();
+	disableLighting ();
 	updateGL ();
     }
 }
@@ -160,7 +185,7 @@ void GLWidget::ViewEdges (bool checked)
     {
         m_viewType = EDGES;
         setObject (&m_object, displayEdges ());
-	initLightFlat ();
+	disableLighting ();
 	updateGL ();
     }
 }
@@ -171,7 +196,7 @@ void GLWidget::ViewFaces (bool checked)
     {
         m_viewType = FACES;
         setObject (&m_object, displayFaces ());
-	initLightFlat ();
+	disableLighting ();
 	updateGL ();
     }
 }
@@ -182,7 +207,7 @@ void GLWidget::ViewRawVertices (bool checked)
     {
         m_viewType = RAW_VERTICES;
         setObject (&m_object, displayRawVertices ());
-	initLightFlat ();
+	disableLighting ();
 	updateGL ();
     }
 }
@@ -193,7 +218,7 @@ void GLWidget::ViewRawEdges (bool checked)
     {
         m_viewType = RAW_EDGES;
         setObject (&m_object, displayRawEdges ());
-	initLightFlat ();
+	enableLighting ();
 	updateGL ();
     }
 }
@@ -204,7 +229,7 @@ void GLWidget::ViewRawFaces (bool checked)
     {
         m_viewType = RAW_FACES;
         setObject (&m_object, displayRawFaces ());
-	initLightFlat ();
+	enableLighting ();
 	updateGL ();
     }
 }
@@ -217,7 +242,7 @@ void GLWidget::ViewBodies (bool checked)
     {
         m_viewType = BODIES;
         setObject (&m_object, displayBodies ());
-	initLightBodies ();
+	enableLighting ();
 	updateGL ();
     }
 }
@@ -228,7 +253,7 @@ void GLWidget::ViewCenterPaths (bool checked)
     {
         m_viewType = CENTER_PATHS;
         setObject (&m_object, displayCenterPaths ());
-	initLightFlat ();
+	disableLighting ();
 	updateGL ();
     }
 }
@@ -266,9 +291,16 @@ void GLWidget::TessellationObjectsWidthChanged (int value)
     updateGL ();
 }
 
-
 // End Slots
 // =========
+
+void GLWidget::quadricErrorCallback (GLenum errorCode)
+{
+    const GLubyte* message = gluErrorString (errorCode);
+    cdbg << "Quadric error: " << message << endl;
+}
+
+
 
 QSize GLWidget::minimumSizeHint() 
 {
@@ -280,7 +312,7 @@ QSize GLWidget::sizeHint()
     return QSize(512, 512);
 }
 
-void GLWidget::initLightBodies ()
+void GLWidget::enableLighting ()
 {
     const G3D::Vector3& max = m_dataFiles->GetAABox ().high ();
     GLfloat light_position[] = { max.x, max.y, max.z, 0.0 };
@@ -297,7 +329,7 @@ void GLWidget::initLightBodies ()
     glEnable(GL_DEPTH_TEST);
 }
 
-void GLWidget::initLightFlat ()
+void GLWidget::disableLighting ()
 {
     //glEnable(GL_CULL_FACE);
     glDisable(GL_LIGHTING);
@@ -345,10 +377,10 @@ void GLWidget::initializeGL()
     case EDGES:
     case FACES:
     case CENTER_PATHS:
-        initLightFlat ();
+        disableLighting ();
         break;
     case BODIES:
-        GLWidget::initLightBodies ();
+        GLWidget::enableLighting ();
         break;
     default:
         throw domain_error (
@@ -486,7 +518,7 @@ void GLWidget::displayFacesContour (vector<Body*>& bodies)
     qglColor (QColor(Qt::black));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     for_each (bodies.begin (), bodies.end (),
-              DisplayBodyWithFace< DisplayFace<> > (*this));
+              DisplayBody< DisplayFace<DisplaySameEdges> > (*this));
 }
 
 void GLWidget::displayFacesOffset (vector<Body*>& bodies)
@@ -495,7 +527,7 @@ void GLWidget::displayFacesOffset (vector<Body*>& bodies)
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
     for_each (bodies.begin (), bodies.end (),
-              DisplayBodyWithFace<DisplayFaceWithColor> (*this));
+              DisplayBody<DisplayFaceWithColor> (*this));
     glDisable (GL_POLYGON_OFFSET_FILL);
 }
 
@@ -505,18 +537,10 @@ GLuint GLWidget::displayVertices ()
     glNewList(list, GL_COMPILE);
     vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     for_each (bodies.begin (), bodies.end (),
-	      DisplayBodyWithFace< DisplayFace<DisplayDifferentVertices> > (*this));
+	      DisplayBody< DisplayFace<DisplayDifferentVertices> > (*this));
     glPointSize (1.0);
     glEndList();
     return list;
-}
-
-void displayOriginalVertex (Vertex* v)
-{
-    if (! v->IsDuplicate ())
-    {
-	glVertex3f(v->x, v->y, v->z);	
-    }
 }
 
 void displayOriginalDomainFaces (G3D::Vector3 first,
@@ -528,10 +552,10 @@ void displayOriginalDomainFaces (G3D::Vector3 first,
     for (int i = 0; i < 2; i++)
     {
 	glBegin (GL_POLYGON);
-	glVertex3f (origin.x, origin.y, origin.z);
-	glVertex3f (first.x, first.y, first.z);
-	glVertex3f (sum.x, sum.y, sum.z);
-	glVertex3f (second.x, second.y, second.z);
+	glVertex (origin);
+	glVertex (first);
+	glVertex (sum);
+	glVertex (second);
 	glEnd ();
 	origin += third;
 	first += third;
@@ -558,7 +582,7 @@ GLuint GLWidget::displayRawVertices ()
     glPointSize (3.0);
     glBegin (GL_POINTS);
     vector<Vertex*>& vertices = GetCurrentData ().GetVertices ();
-    for_each (vertices.begin (), vertices.end (), displayOriginalVertex);
+    for_each (vertices.begin (), vertices.end (), DisplayOriginalVertex());
     glEnd ();
     glPointSize (1.0);
 
@@ -567,29 +591,16 @@ GLuint GLWidget::displayRawVertices ()
     return list;
 }
 
-void displayOriginalEdge (Edge* edge)
-{
-    if (! edge->IsDuplicate ())
-    {
-	const Vertex& b = *(edge->GetBegin ());
-	const Vertex& e = *(edge->GetEnd ());
-	glVertex3f (b.x, b.y, b.z);
-	glVertex3f (e.x, e.y, e.z);
-    }
-}
-
 GLuint GLWidget::displayRawEdges ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
     qglColor (QColor (Qt::black));
     glLineWidth (3.0);
-    glBegin (GL_LINES);
     vector<Edge*>& edges = GetCurrentData ().GetEdges ();
-    for_each (edges.begin (), edges.end (), displayOriginalEdge);
-    glEnd ();
+    for_each (edges.begin (), edges.end (), DisplayOriginalEdgeTorus(*this));
     glLineWidth (1.0);
-
+    qglColor (QColor (Qt::black));
     displayOriginalDomain (GetCurrentData().GetPeriods ());
     glEndList();
     return list;
@@ -599,14 +610,12 @@ GLuint GLWidget::displayRawFaces ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
-    qglColor (QColor (Qt::black));
-    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     glLineWidth (3.0);
     const vector<Face*>& faces = GetCurrentData ().GetFaces ();
-    for_each (faces.begin (), faces.end (), DisplayFace<> (*this) );
-    
+    for_each (faces.begin (), faces.end (),
+	      DisplayFace< DisplayEdges< DisplayEdgeTorus > > (*this) );
     glLineWidth (1.0);
-
+    qglColor (QColor (Qt::black));
     displayOriginalDomain (GetCurrentData().GetPeriods ());
     glEndList();
     return list;
@@ -620,8 +629,10 @@ GLuint GLWidget::displayEdges ()
     glNewList(list, GL_COMPILE);
     vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     for_each (bodies.begin (), bodies.end (),
-	      DisplayBodyWithFace< DisplayFace<DisplayDifferentEdges> >(
-		  *this));
+	      DisplayBody<
+	      DisplayFace<
+	      DisplayEdges<
+	      DisplayEdgeTessellationOrPhysical> > >(*this));
 
     if (! GetCurrentData ().IsTorus ())
 	displayCenterOfBodies ();
@@ -723,7 +734,7 @@ GLuint GLWidget::displayBodies ()
     glNewList(list, GL_COMPILE);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     for_each (bodies.begin (), bodies.end (),
-              DisplayBodyWithFace<DisplayFaceWithNormal>(*this));
+              DisplayBody<DisplayFaceWithNormal>(*this));
     glEndList();
     return list;
 }
@@ -824,4 +835,17 @@ void GLWidget::DecrementDisplayedBody ()
 Data& GLWidget::GetCurrentData ()
 {
     return *m_dataFiles->GetData ()[m_dataIndex];
+}
+
+const QColor& GLWidget::GetDomainIncrementColor (
+    const G3D::Vector3int16& di) const
+{
+    DomainIncrementColor::const_iterator it = m_domainIncrementColor.find (di);
+    if (it == m_domainIncrementColor.end ())
+    {
+	ostringstream ostr;
+	ostr << "Invalid domain increment " << di << ends;
+	throw invalid_argument (ostr.str ());
+    }
+    return (*it).second;
 }

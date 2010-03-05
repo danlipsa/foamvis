@@ -15,14 +15,14 @@
 /**
  * Functor used to display a body
  */
-class DisplayBody : public DisplayElement
+class DisplayBodyBase : public DisplayElement
 {
 public:
     /**
      * Constructor
      * @param widget where to display the body
      */
-    DisplayBody (const GLWidget& widget) : DisplayElement (widget)
+    DisplayBodyBase (const GLWidget& widget) : DisplayElement (widget)
     {}
     /**
      * Functor used to display a body
@@ -49,14 +49,14 @@ protected:
 /**
  * Functor that displays the center of a bubble
  */
-class DisplayBodyCenter : public DisplayBody
+class DisplayBodyCenter : public DisplayBodyBase
 {
 public:
     /**
      * Constructor
      * @param widget where to display the center of the bubble
      */
-    DisplayBodyCenter (GLWidget& widget) : DisplayBody (widget) {}
+    DisplayBodyCenter (GLWidget& widget) : DisplayBodyBase (widget) {}
 protected:
     /**
      * Displays the center of a body (bubble)
@@ -74,15 +74,15 @@ protected:
  * Displays a body going through all its faces
  */
 template<typename displayFace>
-class DisplayBodyWithFace : public DisplayBody
+class DisplayBody : public DisplayBodyBase
 {
 public:
     /**
      * Constructor
      * @param widget where to display the body
      */
-    DisplayBodyWithFace (GLWidget& widget) : 
-    DisplayBody (widget)
+    DisplayBody (GLWidget& widget) : 
+    DisplayBodyBase (widget)
     {}
 protected:
     /**

@@ -30,10 +30,11 @@ public:
     /**
      * @return the first vertex of the edge
      */
-    Vertex* GetBegin(void) 
+    Vertex* GetBegin() const 
     {
-        return m_begin;
+	return m_begin;
     }
+
     G3D::Vector3 GetBegin (G3D::Vector3* end);
     /**
      * Sets the first vertex of the edge
@@ -43,16 +44,17 @@ public:
     /**
      * @return last vertex of the edge
      */
-    Vertex* GetEnd(void) 
+    Vertex* GetEnd() const 
     {
-        return m_end;
+	return m_end;
     }
     /**
      * Sets the last vertex of the edge
      * @param end value stored in the last vertex of the edge
      */
     void SetEnd(Vertex* end) {m_end = end;}
-    static short SignToNumber (char sign);
+    static short DomainIncrementCharToNumber (char sign);
+    static G3D::Vector3int16 IntToDomainIncrement (int i);
     /**
      * Prints the two vertices of an edge in reverse order (end , begin)
      * @param ostr the stream where to write the edge
@@ -69,7 +71,7 @@ public:
      */
     void AddAdjacentFace (Face* face) {m_adjacentFaces.push_back (face);}
     vector<Face*>& GetAdjacentFaces () ;
-    G3D::Vector3int16& GetEndDomainIncrement ()  
+    const G3D::Vector3int16& GetEndDomainIncrement () const
     {
 	return m_endDomainIncrement;
     }

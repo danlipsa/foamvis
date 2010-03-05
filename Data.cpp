@@ -71,9 +71,10 @@ void compact (vector<E*>& v)
  */
 void updateFaceForEdges (Face* face)
 {
+    using boost::bind;
     vector<OrientedEdge*>& orientedEdges = face->GetOrientedEdges ();
     for_each (orientedEdges.begin (), orientedEdges.end (),
-	      bind2nd (mem_fun (&OrientedEdge::AddAdjacentFace), face));
+	      bind (&OrientedEdge::AddAdjacentFace, _1, face));
 }
 /**
  * For both  vertices of this edge,  add the edge as  being adjacent to
@@ -118,14 +119,13 @@ Data::Data () :
 
 Data::~Data ()
 {
-    for_each(m_bodies.begin (), m_bodies.end (),
-	     bl::bind (bl::delete_ptr (), bl::_1));
-    for_each(m_faces.begin (), m_faces.end (),
-	     bl::bind (bl::delete_ptr (), bl::_1));
-    for_each(m_edges.begin (), m_edges.end (),
-	     bl::bind (bl::delete_ptr (), bl::_1));
-    for_each(m_vertices.begin (), m_vertices.end (),
-	     bl::bind (bl::delete_ptr (), bl::_1));
+    using bl::bind;
+    using bl::delete_ptr;
+    using bl::_1;
+    for_each(m_bodies.begin (), m_bodies.end (), bind (delete_ptr (), _1));
+    for_each(m_faces.begin (), m_faces.end (), bind (delete_ptr (), _1));
+    for_each(m_edges.begin (), m_edges.end (), bind (delete_ptr (), _1));
+    for_each(m_vertices.begin (), m_vertices.end (), bind (delete_ptr (), _1));
     delete m_parsingData;
 }
 
@@ -223,12 +223,13 @@ void Data::SetBody (unsigned int i,  vector<int>& faces,
 
 void Data::Compact (void)
 {
+    using boost::bind;
     compact (m_vertices);
     compact (m_edges);
     compact (m_faces);
     compact (m_bodies);
     for_each (m_bodies.begin (), m_bodies.end (),
-	      bind1st(mem_fun(&Data::InsertOriginalIndexBodyMap), this));
+	      bind(&Data::InsertOriginalIndexBodyMap, this, _1));
 }
 
 Body* Data::GetBody (unsigned int i)
@@ -254,9 +255,10 @@ void Data::ReleaseParsingData ()
 
 void updateBodyForFaces (Body* body)
 {
+    using boost::bind;
     vector<OrientedFace*>& of = body->GetOrientedFaces ();
     for_each (of.begin (), of.end (),
-	      bind2nd(mem_fun(&OrientedFace::AddAdjacentBody), body));
+	      bind(&OrientedFace::AddAdjacentBody, _1, body));
 }
 
 void Data::CalculatePhysical ()
@@ -309,7 +311,7 @@ void Data::calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high)
 {
     using boost::array;
     using G3D::Vector3;
-    Vector3 origin(0, 0, 0);
+    Vector3 origin = Vector3::zero ();
     Vector3 first = m_periods[0];
     Vector3 second = m_periods[1];
     Vector3 sum = first + second;
@@ -352,7 +354,7 @@ void Data::PostProcess ()
 
 unsigned int countIntersections (OrientedEdge* e)
 {
-    G3D::Vector3int16& domainIncrement = 
+    const G3D::Vector3int16& domainIncrement = 
 	e->GetEdge ()->GetEndDomainIncrement ();
     return ((domainIncrement.x != 0) + 
 	    (domainIncrement.y != 0) + (domainIncrement.z != 0));
@@ -404,20 +406,19 @@ G3D::Vector3int16 Data::GetDomainIncrement (
 	toOrthonormal.setRow (0, Vector3 (v[0], v[1], 0));
 	v = toOrthonormal2d[1];
 	toOrthonormal.setRow (1, Vector3 (v[0], v[1], 0));
-	toOrthonormal.setRow (2, Vector3 (0, 0, 0));
+	toOrthonormal.setRow (2, Vector3::zero ());
     }
     else
     {
-	Matrix3 toPeriods (
-	    GetPeriod (0).x, GetPeriod (1).x, GetPeriod (2).x,
-	    GetPeriod (0).y, GetPeriod (1).y, GetPeriod (2).y,
-	    GetPeriod (0).z, GetPeriod (1).z, GetPeriod (2).z);
+	Matrix3 toPeriods;
+	for (int i = 0; i < 3; i++)
+	    toPeriods.setColumn (i, GetPeriod (i));
 	toOrthonormal = toPeriods.inverse ();
     }
     Vector3 o = toOrthonormal * original;
     Vector3 d = toOrthonormal * duplicate;
     Vector3int16 originalDomain (floorf (o.x), floorf(o.y), floorf(o.z));
-    Vector3int16 duplicateDomain (floorf (d.x), floorf(d.y), floorf(o.z));
+    Vector3int16 duplicateDomain (floorf (d.x), floorf(d.y), floorf(d.z));
     return duplicateDomain - originalDomain;
 }
 

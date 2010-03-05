@@ -14,7 +14,7 @@
 /**
  * Functor that displays a face
  */
-template <typename displayEdges = DisplaySameEdges>
+template <typename displayEdges>
 class DisplayFace : public DisplayElement
 {
 public:
@@ -64,7 +64,7 @@ private:
 /**
  * Functor that displays a face using the color specified in the DMP file
  */
-class DisplayFaceWithColor : public DisplayFace<>
+class DisplayFaceWithColor : public DisplayFace<DisplaySameEdges>
 {
 public:
     /**
@@ -72,7 +72,7 @@ public:
      * @param widget where is the face displayed
      */
     DisplayFaceWithColor (const GLWidget& widget) : 
-        DisplayFace<> (widget) {}
+    DisplayFace<DisplaySameEdges> (widget) {}
 
 protected:
     virtual void display (const OrientedFace* of)
@@ -85,7 +85,7 @@ protected:
 /**
  * Displays a face and specifies the normal to the face. Used for lighting.
  */
-class DisplayFaceWithNormal : public DisplayFace<>
+class DisplayFaceWithNormal : public DisplayFace<DisplaySameEdges>
 {
 public:
     /**
@@ -93,7 +93,7 @@ public:
      * @param widget where to display the face
      */
     DisplayFaceWithNormal (const GLWidget& widget) : 
-    DisplayFace<> (widget) {}
+    DisplayFace<DisplaySameEdges> (widget) {}
 
 protected:
     /**

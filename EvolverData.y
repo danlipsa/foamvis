@@ -457,7 +457,7 @@ const_expr const_expr
     using G3D::Vector3;
     data.SetPeriod (0, Vector3 ($3, $4, 0));
     data.SetPeriod (1, Vector3 ($6, $7, 0));
-    data.SetPeriod (2, Vector3 (0, 0, 0));
+    data.SetPeriod (2, Vector3::zero ());
 }
 | PERIODS nl
 const_expr const_expr const_expr nl
@@ -595,22 +595,22 @@ opt_sign_torus_model: sign_torus_model
 }
 |
 {
-    $$ = Edge::SignToNumber ('*');
+    $$ = Edge::DomainIncrementCharToNumber ('*');
 }
 ;
 
 
 sign_torus_model: '+' 
 {
-    $$ = Edge::SignToNumber((*$1)[0]);
+    $$ = Edge::DomainIncrementCharToNumber((*$1)[0]);
 }
 | '*' 
 {
-    $$ = Edge::SignToNumber((*$1)[0]);
+    $$ = Edge::DomainIncrementCharToNumber((*$1)[0]);
 }
 | '-'
 {
-    $$ = Edge::SignToNumber((*$1)[0]);
+    $$ = Edge::DomainIncrementCharToNumber((*$1)[0]);
 }
 ;
 

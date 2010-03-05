@@ -11,6 +11,17 @@
 
 #include "DisplayElement.h"
 
+struct DisplayOriginalVertex
+{
+    void operator() (Vertex* v)
+    {
+	if (! v->IsDuplicate ())
+	{
+	    glVertex (*v);	
+	}
+    }
+};
+
 /**
  * Displays the first vertex in an edge
  * @param e the edge
@@ -25,9 +36,6 @@ struct DisplaySameVertex
 };
 
 
-/**
- * Functor that displays a vertex
- */
 class DisplayTessellationOrPhysicalVertex : public DisplayElement
 {
 public:

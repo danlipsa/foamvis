@@ -95,13 +95,8 @@ Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges,
 		edgeBegin = (*edgeIt)->GetEdge ()->GetBegin (begin);
 	    else
 		edgeBegin = *begin;
-	    Vertex beginDummy (&edgeBegin, m_data);
-	    Edge searchDummy(&beginDummy,
-			     (*edgeIt)->GetEdge ()->GetOriginalIndex ());
-	    if (! m_data->HasEdge (&searchDummy))
-		(*edgeIt)->SetEdge (
-		    m_data->GetEdgeDuplicate (
-			*(*edgeIt)->GetEdge (), edgeBegin));
+	    (*edgeIt)->SetEdge (
+		data->GetEdgeDuplicate (*(*edgeIt)->GetEdge (), edgeBegin));
 	    begin = (*edgeIt)->GetEnd ();
 	}
     }
@@ -109,8 +104,10 @@ Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges,
 
 Face::~Face()
 {
-    for_each(m_edges.begin(), m_edges.end(),
-	     bl::bind(bl::delete_ptr(), bl::_1));
+    using bl::bind;
+    using bl::delete_ptr;
+    using bl::_1;
+    for_each(m_edges.begin(), m_edges.end(), bind(delete_ptr(), _1));
 }
 
 void Face::ReversePrint (ostream& ostr)
