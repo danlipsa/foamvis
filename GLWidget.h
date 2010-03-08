@@ -123,7 +123,9 @@ public:
     }
 
 public:
-    static  unsigned int DISPLAY_ALL;
+    const static  unsigned int DISPLAY_ALL;
+    const static unsigned int QUADRIC_SLICES;
+    const static unsigned int QUADRIC_STACKS;;
 
 public Q_SLOTS:
     /**
@@ -175,6 +177,10 @@ public Q_SLOTS:
      */
     void TessellationObjectsWidthChanged (int value);
     void InteractionModeChanged (int index);
+    float GetArrowBaseRadius () const {return m_arrowBaseRadius;}
+    float GetArrowHeight () const {return m_arrowHeight;}
+    float GetEdgeRadius () const {return m_edgeRadius;}
+
 protected:
     /**
      * Initializes OpenGL
@@ -219,7 +225,8 @@ private:
     enum InteractionMode {
 	ROTATE,
 	SCALE,
-	TRANSLATE,
+	SCALE_VIEWPORT,
+	TRANSLATE_VIEWPORT,
 	INTERACTION_MODE_COUNT
     };
     typedef boost::unordered_map<G3D::Vector3int16, QColor,
@@ -293,11 +300,18 @@ private:
      * Setup lighting for shaded bodies
      */
     void enableLighting ();
+    float ratioFromCenter (const QPoint& p);
+    void rotate (const QPoint& position);
+    void translateViewport (const QPoint& position);
+    void scale (const QPoint& position);
+    void scaleViewport (const QPoint& position);
+
 private:
     /**
      * Setup lighting for displaying faces edges and vertices
      */
     static void disableLighting ();
+    static void materialProperties ();
     static void quadricErrorCallback (GLenum errorCode);
 private:
     Q_OBJECT
@@ -351,10 +365,12 @@ private:
     QColor m_tessellationObjectsColor;
     QColor m_centerPathColor;
     G3D::AABox m_viewingVolume;
-    G3D::AABox2D m_viewport;
-    G3D::Vector2 m_viewportStart;
+    G3D::Rect2D m_viewport;
     DomainIncrementColor m_domainIncrementColor;
     GLUquadricObj* m_quadric;    
+    float m_arrowBaseRadius;
+    float m_arrowHeight;
+    float m_edgeRadius;
 private:
     /**
      * Mapping between the index in  the slider and an actual size for

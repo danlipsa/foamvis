@@ -37,12 +37,14 @@ void MainWindow::InteractionModeRotate ()
 
 void MainWindow::InteractionModeScale ()
 {
-    m_interactionModeComboBox->setCurrentIndex (1);
+    int index = m_interactionModeComboBox->currentIndex ();
+    index = (index == 1) ? 2 : 1;
+    m_interactionModeComboBox->setCurrentIndex (index);
 }
 
 void MainWindow::InteractionModeTranslate ()
 {
-    m_interactionModeComboBox->setCurrentIndex (2);
+    m_interactionModeComboBox->setCurrentIndex (3);
 }
 
 

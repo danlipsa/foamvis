@@ -42,7 +42,12 @@
        </item>
        <item>
         <property name="text">
-         <string>Translate (t)</string>
+         <string>Scale (s) Viewport</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Translate (t) Viewport</string>
         </property>
        </item>
       </widget>

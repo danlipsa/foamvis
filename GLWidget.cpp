@@ -116,9 +116,9 @@ void printOpenGLInfo ()
 
 float GLWidget::OBJECTS_WIDTH[] = {0.0, 1.0, 3.0, 5.0, 7.0};
 
-unsigned int GLWidget::DISPLAY_ALL(numeric_limits<unsigned int>::max());
-
-
+const unsigned int GLWidget::DISPLAY_ALL(numeric_limits<unsigned int>::max());
+const unsigned int GLWidget::QUADRIC_SLICES (20);
+const unsigned int GLWidget::QUADRIC_STACKS (20);
 
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent), 
@@ -131,7 +131,10 @@ GLWidget::GLWidget(QWidget *parent)
       m_physicalObjectsColor (Qt::blue),
       m_tessellationObjectsWidth (1),
       m_tessellationObjectsColor (Qt::green),
-      m_centerPathColor (Qt::red)
+      m_centerPathColor (Qt::red),
+      m_arrowBaseRadius (0.05),
+      m_arrowHeight (0.1),
+      m_edgeRadius (0.01)
 {
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
     const int POSSIBILITIES = 3; //domain increment can be *, - or +
@@ -315,18 +318,29 @@ QSize GLWidget::sizeHint()
 void GLWidget::enableLighting ()
 {
     const G3D::Vector3& max = m_dataFiles->GetAABox ().high ();
-    GLfloat light_position[] = { max.x, max.y, max.z, 0.0 };
-    glShadeModel (GL_SMOOTH);
+    GLfloat lightPosition[] = { max.x, max.y, max.z, 0.0 };
+    GLfloat lightAmbient[] = {1.0, 1.0, 1.0, 1.0};
 
     glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
     glLoadIdentity();
-    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
     glPopMatrix ();
     
+    glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
+    glShadeModel (GL_SMOOTH);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     glEnable(GL_DEPTH_TEST);
+
+    materialProperties ();
+}
+
+void GLWidget::materialProperties ()
+{
+    GLfloat materialDiffuse[] = { 0.5, 0.5, 0.5, 1.0 };
+    
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, materialDiffuse);
 }
 
 void GLWidget::disableLighting ()
@@ -413,22 +427,25 @@ void GLWidget::paintGL()
 void GLWidget::resizeGL(int width, int height)
 {
     using G3D::Rect2D;
+    using G3D::Vector2;
+    Vector2 viewportStart = m_viewport.x0y0 ();
     float ratio = (m_viewingVolume.high ().x - m_viewingVolume.low ().x) / 
 	(m_viewingVolume.high ().y - m_viewingVolume.low ().y);
     if ((static_cast<float>(width) / height) > ratio)
     {
 	int newWidth = ratio * height;
-	m_viewport = Rect2D::xywh ( (width - newWidth) / 2, 0,
+	m_viewport = Rect2D::xywh ( viewportStart.x + (width - newWidth) / 2,
+				    viewportStart.y,
 				    newWidth, height);
     }
     else
     {
 	int newHeight = 1 / ratio * width;
-	m_viewport = Rect2D::xywh (0, (height - newHeight) / 2,
+	m_viewport = Rect2D::xywh (viewportStart.x,
+				   viewportStart.y + (height - newHeight) / 2,
 				   width, newHeight);
     }
-    glViewport (m_viewportStart.x + m_viewport.x0 (),
-		m_viewportStart.y + m_viewport.y0 (), 
+    glViewport (m_viewport.x0 (), m_viewport.y0 (), 
 		m_viewport.width (), m_viewport.height ());
 }
 
@@ -455,60 +472,93 @@ void scaleAABox (G3D::AABox* aabox, float change)
 {
     using G3D::Vector3;
     Vector3 center = aabox->center ();
-    Vector3 newLow = aabox->low ()*change + center * (1 - change);
-    Vector3 newHigh = aabox->high ()*change + center * (1 - change);
+    Vector3 newLow = aabox->low () * change + center * (1 - change);
+    Vector3 newHigh = aabox->high () * change + center * (1 - change);
     aabox->set (newLow, newHigh);
+}
+
+void scaleRect2D (G3D::Rect2D* aabox, float change)
+{
+    using G3D::Vector2;
+    Vector2 center = aabox->center ();
+    Vector2 newLow = aabox->x0y0 () * change + center * (1 - change);
+    Vector2 newHigh = aabox->x1y1 () * change + center * (1 - change);
+    *aabox = G3D::Rect2D::xyxy ( newLow, newHigh);
+}
+
+float GLWidget::ratioFromCenter (const QPoint& p)
+{
+    using G3D::Vector2;
+    Vector2 center = m_viewport.center ();
+    Vector2 lastPos (m_lastPos.x (), m_lastPos.y());
+    Vector2 currentPos (p.x (), p.y ());
+    float ratio = 
+	(currentPos - center).length () / 
+	(lastPos - center).length ();
+    return ratio;
+}
+
+
+void GLWidget::rotate (const QPoint& position)
+{
+    int dx = position.x() - m_lastPos.x();
+    int dy = position.y() - m_lastPos.y();
+
+    // scale this with the size of the window
+    int side = std::min (m_viewport.width (), m_viewport.height ());
+    float dxDegrees = static_cast<float>(dx) * 90 / side;
+    float dyDegrees = static_cast<float>(dy) * 90 / side;
+    setRotation (0, dyDegrees);
+    setRotation (1, dxDegrees);
+}
+
+void GLWidget::translateViewport (const QPoint& position)
+{
+    int dx = position.x() - m_lastPos.x();
+    int dy = position.y() - m_lastPos.y();
+    m_viewport = G3D::Rect2D::xywh (m_viewport.x0 () + dx,
+				    m_viewport.y0 () - dy,
+				    m_viewport.width (),
+				    m_viewport.height ());
+    glViewport (m_viewport.x0 (), m_viewport.y0 (), 
+		m_viewport.width (), m_viewport.height ());
+}
+
+
+void GLWidget::scale (const QPoint& position)
+{
+    float ratio = 1 / ratioFromCenter (position);
+    scaleAABox (&m_viewingVolume, ratio);
+    project ();
+}
+
+void GLWidget::scaleViewport (const QPoint& position)
+{
+    float ratio = ratioFromCenter (position);
+    scaleRect2D (&m_viewport, ratio);
+    glViewport (m_viewport.x0 (), m_viewport.y0 (), 
+		m_viewport.width (), m_viewport.height ());
 }
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    using G3D::Vector2;
-    int dx = event->x() - m_lastPos.x();
-    int dy = event->y() - m_lastPos.y();
     switch (m_interactionMode)
     {
     case ROTATE:
-    {
-	// scale this with the size of the window
-	int side = std::min (m_viewport.width (), m_viewport.height ());
-	float dxDegrees = static_cast<float>(dx) * 90 / side;
-	float dyDegrees = static_cast<float>(dy) * 90 / side;
-
-	if (event->buttons() & Qt::LeftButton) {
-	    setRotation (0, dyDegrees);
-	    setRotation (1, dxDegrees);
-	} else if (event->buttons() & Qt::RightButton) {
-	    setRotation (0, dyDegrees);
-	    setRotation (2, dxDegrees);
-	}
-	updateGL ();
+	rotate (event->pos ());
 	break;
-    }
-    case TRANSLATE:
-    {
-	m_viewportStart.x += dx;
-	m_viewportStart.y -= dy;
-	resizeGL (width (), height ());
-	updateGL ();	
+    case TRANSLATE_VIEWPORT:
+	translateViewport (event->pos ());
 	break;
-    }
     case SCALE:
-    {
-	Vector2 center = m_viewport.center () + m_viewportStart;
-	Vector2 lastPos (m_lastPos.x (), m_lastPos.y());
-	Vector2 currentPos (event->x (), event->y ());
-	float change = (currentPos - center).length () - 
-	    (lastPos - center).length ();
-	change /= std::min(m_viewport.width (), m_viewport.height ());
-	change = powf (2, - change);
-	scaleAABox (&m_viewingVolume, change);
-	project ();
-	updateGL ();
+	scale (event->pos ());
 	break;
-    }
+    case SCALE_VIEWPORT:
+	scaleViewport (event->pos ());
     default:
 	break;
     }
+    updateGL ();
     m_lastPos = event->pos();
 }
 
@@ -595,13 +645,17 @@ GLuint GLWidget::displayRawEdges ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
-    qglColor (QColor (Qt::black));
+    glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+    gluQuadricDrawStyle (m_quadric, GLU_FILL);
+    gluQuadricNormals (m_quadric, GLU_SMOOTH);
     glLineWidth (3.0);
     vector<Edge*>& edges = GetCurrentData ().GetEdges ();
     for_each (edges.begin (), edges.end (), DisplayOriginalEdgeTorus(*this));
     glLineWidth (1.0);
     qglColor (QColor (Qt::black));
     displayOriginalDomain (GetCurrentData().GetPeriods ());
+    glPopAttrib ();
     glEndList();
     return list;
 }
@@ -610,13 +664,16 @@ GLuint GLWidget::displayRawFaces ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
+    glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glLineWidth (3.0);
+    gluQuadricDrawStyle (m_quadric, GLU_FILL);
+    gluQuadricNormals (m_quadric, GLU_SMOOTH);
     const vector<Face*>& faces = GetCurrentData ().GetFaces ();
     for_each (faces.begin (), faces.end (),
 	      DisplayFace< DisplayEdges< DisplayEdgeTorus > > (*this) );
-    glLineWidth (1.0);
-    qglColor (QColor (Qt::black));
     displayOriginalDomain (GetCurrentData().GetPeriods ());
+    glPopAttrib ();
     glEndList();
     return list;
 }
