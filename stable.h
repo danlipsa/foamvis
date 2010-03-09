@@ -15,8 +15,8 @@
 
 // Qt headers
 #include <Qt>
-#include <QtOpenGL>
 #include <QApplication>
+#include <QtOpenGL>
 
 // G3D headers
 #include <G3D/AABox.h>
@@ -58,13 +58,7 @@
 #include <boost/bind.hpp>
 #include <boost/unordered_map.hpp>
 
-// boost headers other than TR1
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/construct.hpp>
-#include <boost/lambda/if.hpp>
-
 using namespace std;
-namespace bl = boost::lambda;
+
 
 #endif //__cplusplus

@@ -104,10 +104,9 @@ Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges,
 
 Face::~Face()
 {
-    using bl::bind;
-    using bl::delete_ptr;
-    using bl::_1;
-    for_each(m_edges.begin(), m_edges.end(), bind(delete_ptr(), _1));
+    using boost::bind;
+    for_each(m_edges.begin(), m_edges.end(),
+	     bind(DeletePointer<OrientedEdge>(), _1));
 }
 
 void Face::ReversePrint (ostream& ostr)

@@ -110,7 +110,7 @@ Data::Data () :
     m_parsingData (new ParsingData ()),
     m_spaceDimension (3)
 {
-    for_each (m_viewMatrix.begin (), m_viewMatrix.end (), bl::_1 = 0);
+    fill (m_viewMatrix.begin (), m_viewMatrix.end (), 0);
     Vertex::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::VERTEX]);
     Edge::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::EDGE]);
     Face::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::FACE]);
@@ -119,13 +119,15 @@ Data::Data () :
 
 Data::~Data ()
 {
-    using bl::bind;
-    using bl::delete_ptr;
-    using bl::_1;
-    for_each(m_bodies.begin (), m_bodies.end (), bind (delete_ptr (), _1));
-    for_each(m_faces.begin (), m_faces.end (), bind (delete_ptr (), _1));
-    for_each(m_edges.begin (), m_edges.end (), bind (delete_ptr (), _1));
-    for_each(m_vertices.begin (), m_vertices.end (), bind (delete_ptr (), _1));
+    using boost::bind;
+    for_each(m_bodies.begin (), m_bodies.end (),
+	     bind ( DeletePointer<Body>(), _1));
+    for_each(m_faces.begin (), m_faces.end (),
+	     bind (DeletePointer<Face> (), _1));
+    for_each(m_edges.begin (), m_edges.end (),
+	     bind (DeletePointer<Edge> (), _1));
+    for_each(m_vertices.begin (), m_vertices.end (),
+	     bind (DeletePointer<Vertex> (), _1));
     delete m_parsingData;
 }
 
@@ -307,6 +309,11 @@ void Data::CalculateAABox ()
     m_AABox.set(low, high);
 }
 
+G3D::Vector3* Vector3Address (G3D::Vector3& v)
+{
+    return &v;
+}
+
 void Data::calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high)
 {
     using boost::array;
@@ -323,7 +330,7 @@ void Data::calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high)
     }};
     vector<Vector3*> v(additionalVertices.size ());
     transform (additionalVertices.begin (), additionalVertices.end (),
-	       v.begin (), &bl::_1);
+	       v.begin (), Vector3Address);
     calculateAggregate<vector<Vector3*>, vector<Vector3*>::iterator>() (
 	min_element, low, v);
     calculateAggregate<vector<Vector3*>, vector<Vector3*>::iterator>() (

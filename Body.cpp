@@ -70,10 +70,9 @@ Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
 
 Body::~Body()
 {
-    using bl::bind;
-    using bl::delete_ptr;
-    using bl::_1;
-    for_each(m_faces.begin(), m_faces.end(), bind (delete_ptr(), _1));
+    using boost::bind;
+    for_each(m_faces.begin(), m_faces.end(), 
+	     bind (DeletePointer<OrientedFace>(), _1));
 }
 
 void Body::StoreDefaultAttributes (AttributesInfo& infos)

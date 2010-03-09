@@ -112,6 +112,15 @@ struct LessThanNoCase : binary_function<const char*, const char*, bool>
     }
 };
 
+template<typename O>
+struct DeletePointer : public unary_function<O*, void>
+{
+    void operator() (O* p) const
+    {
+	delete p;
+    }
+};
+
 /**
  * Pretty prints a G3D::AABox
  * @param ostr where to print

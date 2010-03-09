@@ -34,8 +34,9 @@ LIBS += "C:\G3D-7.00-vc8\lib\GLG3Dd.lib"
 else:macx {
 QMAKE_CC=gcc-4.2
 QMAKE_CXX=g++-4.2
-INCLUDEPATH = /usr/local/G3D-7.01/build/osx-i386-g++4.2/include $$INCLUDEPATH
-LIBS += -L/usr/local/G3D-7.01/build/osx-i386-g++4.2/lib
+INCLUDEPATH += /usr/local/G3D-8.00-b04/build/osx-i386-g++4.2/include
+INCLUDEPATH += /usr/local/boost_1_39_0
+LIBS += -L/usr/local/G3D-8.00-b04/build/osx-i386-g++4.2/lib
 LIBS += "-lGLG3D" 
 LIBS += "-lG3D" 
 LIBS += "-lzip"
