@@ -16,6 +16,15 @@ class Face;
 class Edge : public Element
 {
 public:
+    class LessThan
+    {
+    public:
+	bool operator () (const Edge* first, const Edge* second) const
+	{
+	    return *first < *second;
+	}
+    };
+public:
     /**
      * Creates an Edge object
      * @param originalIndex what is the original index for this edge
@@ -35,12 +44,15 @@ public:
 	return m_begin;
     }
 
-    G3D::Vector3 GetBegin (G3D::Vector3* end);
+    G3D::Vector3 GetBegin (const G3D::Vector3* end) const;
     /**
      * Sets the first vertex of the edge
      * @param begin value stored in the first vertex of the edge
      */
-    void SetBegin(Vertex* begin) {m_begin = begin;}
+    void SetBegin(Vertex* begin) 
+    {
+	m_begin = begin;
+    }
     /**
      * @return last vertex of the edge
      */
@@ -52,52 +64,64 @@ public:
      * Sets the last vertex of the edge
      * @param end value stored in the last vertex of the edge
      */
-    void SetEnd(Vertex* end) {m_end = end;}
-    static short DomainIncrementCharToNumber (char sign);
-    static G3D::Vector3int16 IntToDomainIncrement (int i);
+    void SetEnd(Vertex* end) 
+    {
+	m_end = end;
+    }
     /**
      * Prints the two vertices of an edge in reverse order (end , begin)
      * @param ostr the stream where to write the edge
      */
-    void ReversePrint (ostream& ostr);
+    void ReversePrint (ostream& ostr) const;
     /**
      * Is this a physical edge (not a tesselation edge)?
      * @return true if this is a physical edge, false otherwise
      */
-    bool IsPhysical ()  {return (m_adjacentFaces.size () == 3);}
+    bool IsPhysical () const
+    {
+	return (m_adjacentFaces.size () == 3);
+    }
     /**
      * Adds a face touched by this edge
      * @param face face touched by this edge
      */
-    void AddAdjacentFace (Face* face) {m_adjacentFaces.push_back (face);}
+    void AddAdjacentFace (Face* face)
+    {
+	m_adjacentFaces.push_back (face);
+    }
+    void ClearAdjacentFaces ()
+    {
+	m_adjacentFaces.clear ();
+    }
     vector<Face*>& GetAdjacentFaces () ;
+    /**
+     * For both  vertices of this edge,  add the edge as  being adjacent to
+     * the vertices
+     */
+    void UpdateVerticesAdjacency ();
     const G3D::Vector3int16& GetEndDomainIncrement () const
     {
 	return m_endDomainIncrement;
     }
+    bool operator== (const Edge& other) const;
+    bool operator< (const Edge& other) const;
+
+
+public:
+    static short DomainIncrementCharToNumber (char sign);
+    static G3D::Vector3int16 IntToDomainIncrement (int i);
     /**
      * Specifies the default attributes for an Edge object.
      * These attributes don't appear as a DEFINE in the .DMP file
      * @param info the object where the default attributes are stored.
      */
-    static void StoreDefaultAttributes (AttributesInfo& info);
+    static void StoreDefaultAttributes (AttributesInfo* info);
     /**
      * Prints an edge to the output stream
      * @param ostr where to write the edge
      * @param e edge to write
      */
-    friend ostream& operator<< (ostream& ostr,  Edge& e);
-
-    class LessThan
-    {
-    public:
-	bool operator () (Edge* first, Edge* second) const
-	{
-	    return first->GetOriginalIndex () < second->GetOriginalIndex () ||
-		(first->GetOriginalIndex () == second->GetOriginalIndex () &&
-		 Vertex::LessThan () (first->GetBegin (), second->GetBegin ()));
-	}
-    };
+    friend ostream& operator<< (ostream& ostr, const Edge& e);
 
 private:
     /**
@@ -113,6 +137,8 @@ private:
      * Stores adjacent faces to this edge
      */
     vector<Face*> m_adjacentFaces;
+
+private:
     /**
      * Stores information about all vertex attributes
      */
@@ -124,7 +150,7 @@ private:
  * @param e what to print
  * @return where to print the next data
  */
-inline ostream& operator<< (ostream& ostr, Edge* e)
+inline ostream& operator<< (ostream& ostr, const Edge* e)
 {
     return ostr << *e;
 }

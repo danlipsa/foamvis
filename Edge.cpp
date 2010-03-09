@@ -11,7 +11,7 @@
 #include "Data.h"
 
 
-ostream& operator<< (ostream& ostr,  Edge& e)
+ostream& operator<< (ostream& ostr, const Edge& e)
 {
     ostr << "Edge " << e.GetOriginalIndex () 
 	 << (e.IsDuplicate () ? " DUPLICATE" : "")
@@ -45,11 +45,11 @@ Edge::Edge (Vertex* begin, unsigned int originalIndex) :
 {}
 
 
-void Edge::StoreDefaultAttributes (AttributesInfo& infos)
+void Edge::StoreDefaultAttributes (AttributesInfo* infos)
 {
     using EvolverData::parser;
-    m_infos = &infos;
-    infos.AddAttributeInfo (
+    m_infos = infos;
+    infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL),
         new IntegerAttributeCreator());
 }
@@ -74,7 +74,7 @@ vector<Face*>& Edge::GetAdjacentFaces ()
     return m_adjacentFaces;
 }
 
-G3D::Vector3 Edge::GetBegin (G3D::Vector3* end)
+G3D::Vector3 Edge::GetBegin (const G3D::Vector3* end) const
 {
     return *end + (*GetBegin () - *GetEnd ());
 }
@@ -90,4 +90,23 @@ G3D::Vector3int16 Edge::IntToDomainIncrement (int value)
 	value /= POSSIBILITIES;
     }
     return result;
+}
+
+void Edge::UpdateVerticesAdjacency ()
+{
+    this->GetBegin ()->AddAdjacentEdge (this);
+    this->GetEnd ()->AddAdjacentEdge (this);
+}
+
+bool Edge::operator< (const Edge& other) const
+{
+    return GetOriginalIndex () < other.GetOriginalIndex () ||
+	(GetOriginalIndex () == other.GetOriginalIndex () &&
+	 *GetBegin () < *other.GetBegin ());
+}
+
+bool Edge::operator== (const Edge& other) const
+{
+    return GetOriginalIndex () == other.GetOriginalIndex () &&
+	*GetBegin () == *other.GetBegin ();
 }

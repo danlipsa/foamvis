@@ -66,27 +66,6 @@ void compact (vector<E*>& v)
     v.resize (resize);
 }
 
-/**
- * For all the edges in the face, add the face as being adjacent to the edge
- */
-void updateFaceForEdges (Face* face)
-{
-    using boost::bind;
-    vector<OrientedEdge*>& orientedEdges = face->GetOrientedEdges ();
-    for_each (orientedEdges.begin (), orientedEdges.end (),
-	      bind (&OrientedEdge::AddAdjacentFace, _1, face));
-}
-/**
- * For both  vertices of this edge,  add the edge as  being adjacent to
- * the vertices
- */
-void updateEdgeForVertices (Edge* edge)
-{
-    edge->GetBegin ()->AddAdjacentEdge (edge);
-    edge->GetEnd ()->AddAdjacentEdge (edge);
-}
-
-
 ostream& operator<< (ostream& ostr, Data& d)
 {
     ostr << "Data:" << endl;
@@ -111,10 +90,10 @@ Data::Data () :
     m_spaceDimension (3)
 {
     fill (m_viewMatrix.begin (), m_viewMatrix.end (), 0);
-    Vertex::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::VERTEX]);
-    Edge::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::EDGE]);
-    Face::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::FACE]);
-    Body::StoreDefaultAttributes (m_attributesInfo[DefineAttribute::BODY]);
+    Vertex::StoreDefaultAttributes (&m_attributesInfo[DefineAttribute::VERTEX]);
+    Edge::StoreDefaultAttributes (&m_attributesInfo[DefineAttribute::EDGE]);
+    Face::StoreDefaultAttributes (&m_attributesInfo[DefineAttribute::FACE]);
+    Body::StoreDefaultAttributes (&m_attributesInfo[DefineAttribute::BODY]);
 }
 
 Data::~Data ()
@@ -207,6 +186,7 @@ void Data::SetFace (unsigned int i,  vector<int>& edges,
     if (&list != 0)
         face->StoreAttributes (list, m_attributesInfo[DefineAttribute::FACE]);
     m_faces[i] = face;
+    m_faceSet.insert (face);
 }
 
 void Data::SetBody (unsigned int i,  vector<int>& faces,
@@ -255,19 +235,15 @@ void Data::ReleaseParsingData ()
     m_parsingData = 0;
 }
 
-void updateBodyForFaces (Body* body)
-{
-    using boost::bind;
-    vector<OrientedFace*>& of = body->GetOrientedFaces ();
-    for_each (of.begin (), of.end (),
-	      bind(&OrientedFace::AddAdjacentBody, _1, body));
-}
-
 void Data::CalculatePhysical ()
 {
-    for_each (m_bodies.begin (), m_bodies.end (), updateBodyForFaces);
-    for_each (m_faces.begin (), m_faces.end (), updateFaceForEdges);
-    for_each (m_edges.begin (), m_edges.end (), updateEdgeForVertices);
+    using boost::bind;
+    for_each (m_bodies.begin (), m_bodies.end (), 
+	      bind (&Body::UpdateFacesAdjacency, _1));
+    for_each (m_faces.begin (), m_faces.end (), 
+	      bind (&Face::UpdateEdgesAdjacency, _1));
+    for_each (m_edges.begin (), m_edges.end (), 
+	      bind (&Edge::UpdateVerticesAdjacency, _1));
 }
 
 template<typename Container, typename ContainerIterator>

@@ -89,7 +89,7 @@ public:
      * @param index where the attribute is stored
      * @return name of the attribute
      */
-     const char* GetAttributeName (unsigned int index);
+     const char* GetAttributeName (unsigned int index) const;
 private:
     /**
      * All the attributes values that should be loaded from the data file

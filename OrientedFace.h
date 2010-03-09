@@ -23,17 +23,32 @@ public:
      *        reverse order,  otherwise they should be  read in direct
      *        order
      */
-    OrientedFace(Face* face, bool reversed)
-    {m_face = face; m_reversed = reversed;}
+    OrientedFace(Face* face, bool reversed) : 
+	m_face (face), m_reversed (reversed), m_placed (false)
+    {}
     /**
      * Gets the face associated with this oriented face
      * @return the face associated with this oriented face
      */
-    Face* GetFace () const  {return m_face;}
-    void AddAdjacentBody (Body* body) {m_face->AddAdjacentBody (body);}
-     vector<Body*>& GetAdjacentBodies () 
+    Face* GetFace () const
+    {
+	return m_face;
+    }
+    void AddAdjacentBody (Body* body) 
+    {
+	m_face->AddAdjacentBody (body);
+    }
+    vector<Body*>& GetAdjacentBodies ()
     {
 	return m_face->GetAdjacentBodies ();
+    }
+    void UpdateEdgesAdjacency ()
+    {
+	m_face->UpdateEdgesAdjacency ();
+    }
+    void ClearEdgesAdjacency ()
+    {
+	m_face->ClearEdgesAdjacency ();
     }
     
     /**
@@ -41,23 +56,46 @@ public:
      * with it.
      * @return true for reversed, false otherwise
      */
-    bool IsReversed () const {return m_reversed;}
+    bool IsReversed () const
+    {
+	return m_reversed;
+    }
     /**
      * Gets the begin vertex for an edge in this oriented face
      * @param edgeIndex what edge we are interested in
      * @return the begin vertex
      */
-    Vertex* GetBegin (unsigned int edgeIndex) {return getBegin (edgeIndex);}
+    Vertex* GetBegin (unsigned int edgeIndex) 
+    {
+	return getBegin (edgeIndex);
+    }
     const Vertex* GetBegin (unsigned int edgeIndex) const
-    {return getBegin (edgeIndex);}
+    {
+	return getBegin (edgeIndex);
+    }
     /**
      * Gets the end vertex for an edge in this oriented face
      * @param edgeIndex what edge we are interested in
      * @return the end vertex
      */
-    Vertex* GetEnd (unsigned int edgeIndex) {return getEnd (edgeIndex);}
+    Vertex* GetEnd (unsigned int edgeIndex) 
+    {
+	return getEnd (edgeIndex);
+    }
     const Vertex* GetEnd (unsigned int edgeIndex) const
-    {return getEnd (edgeIndex);}
+    {
+	return getEnd (edgeIndex);
+    }
+    bool IsPlaced () const
+    {
+	return m_placed;
+    }
+    void SetPlaced (bool placed)
+    {
+	m_placed = placed;
+    }
+
+public:
     /**
      * Pretty print for the OrientedFace object
      */
@@ -77,6 +115,7 @@ private:
      * reversed order
      */
     bool m_reversed;
+    bool m_placed;
 };
 /**
  * Pretty prints a pointer to an oriented face

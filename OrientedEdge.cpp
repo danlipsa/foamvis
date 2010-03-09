@@ -19,7 +19,7 @@ ostream& operator<< (ostream& ostr, OrientedEdge& oe)
     return ostr;
 }
 
-G3D::Vector3int16 OrientedEdge::GetEndDomainIncrement ()
+G3D::Vector3int16 OrientedEdge::GetEndDomainIncrement () const
 {
     if (m_reversed)
 	return G3D::Vector3int16 (0,0,0) - m_edge->GetEndDomainIncrement ();

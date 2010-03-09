@@ -49,17 +49,26 @@ public:
     /**
      * Gets the original index of this element
      */
-    unsigned int GetOriginalIndex () const {return m_originalIndex;}
+    unsigned int GetOriginalIndex () const
+    {
+	return m_originalIndex;
+    }
     /**
      * Pretty print attributes of an element
      * @param ostr where to print
      * @param info information about attributes
      */
     ostream& PrintAttributes (
-	ostream& ostr, AttributesInfo& info) ;
-
-    bool IsDuplicate () const {return m_duplicate;}
-    void SetDuplicate (bool duplicate) {m_duplicate = duplicate;}
+	ostream& ostr, const AttributesInfo& info) const;
+    
+    bool IsDuplicate () const
+    {
+	return m_duplicate;
+    }
+    void SetDuplicate (bool duplicate) 
+    {
+	m_duplicate = duplicate;
+    }
 protected:
     /**
      * Vector of attributes
@@ -69,9 +78,10 @@ protected:
      * The original index for this element
      */
     unsigned int m_originalIndex;
-    const static unsigned int INVALID_INDEX;
     Data* m_data;
     bool m_duplicate;
+protected:
+    const static unsigned int INVALID_INDEX;
 };
 
 #endif //__ELEMENT_H__

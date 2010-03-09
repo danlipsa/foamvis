@@ -276,6 +276,7 @@ private:
      * A vector of faces
      */
     vector<Face*> m_faces;
+    set<Face*, Face::LessThan> m_faceSet;
     /**
      * A vector of bodies.
      */

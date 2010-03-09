@@ -62,7 +62,7 @@ private:
 };
 
 
-ostream& operator<< (ostream& ostr, Face& f)
+ostream& operator<< (ostream& ostr, const Face& f)
 {
     ostr << "Adjacent bodies" << "(" << f.m_adjacentBodies.size () << "): ";
     for_each (f.m_adjacentBodies.begin (), f.m_adjacentBodies.end (),
@@ -109,7 +109,7 @@ Face::~Face()
 	     bind(DeletePointer<OrientedEdge>(), _1));
 }
 
-void Face::ReversePrint (ostream& ostr)
+void Face::ReversePrint (ostream& ostr) const
 {
     ReversePrintElements<OrientedEdge*> (
 	ostr, m_edges, "edges part of the face", true);
@@ -117,17 +117,17 @@ void Face::ReversePrint (ostream& ostr)
     PrintAttributes (ostr, *Face::m_infos);
 }
 
-void Face::StoreDefaultAttributes (AttributesInfo& infos)
+void Face::StoreDefaultAttributes (AttributesInfo* infos)
 {
     using EvolverData::parser;
-    m_infos = &infos;
+    m_infos = infos;
     const char* colorString = 
         ParsingDriver::GetKeywordString(parser::token::COLOR);
     // load the color attribute and nothing else
-    infos.Load (colorString);
+    infos->Load (colorString);
 
-    infos.AddAttributeInfo (colorString, new ColorAttributeCreator());
-    infos.AddAttributeInfo (
+    infos->AddAttributeInfo (colorString, new ColorAttributeCreator());
+    infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL),
         new IntegerAttributeCreator());
 }
@@ -141,3 +141,18 @@ Color::Name Face::GetColor () const
 	return static_cast<Color::Name>((GetOriginalIndex ()+1) % Color::COUNT);
 }
 
+void Face::UpdateEdgesAdjacency ()
+{
+    using boost::bind;
+    vector<OrientedEdge*>& orientedEdges = GetOrientedEdges ();
+    for_each (orientedEdges.begin (), orientedEdges.end (),
+	      bind (&OrientedEdge::AddAdjacentFace, _1, this));
+}
+
+void Face::ClearEdgesAdjacency ()
+{
+    using boost::bind;
+    vector<OrientedEdge*>& orientedEdges = GetOrientedEdges ();
+    for_each (orientedEdges.begin (), orientedEdges.end (),
+	      bind (&OrientedEdge::ClearAdjacentFaces, _1));
+}

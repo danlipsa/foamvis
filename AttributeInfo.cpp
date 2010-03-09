@@ -56,9 +56,9 @@ void AttributesInfo::AddAttributeInfo (
     }
 }
 
-const char* AttributesInfo::GetAttributeName (unsigned int index)
+const char* AttributesInfo::GetAttributeName (unsigned int index) const
 {
-    map<const char*, AttributeInfo*, LessThanNoCase>::iterator it = 
+    map<const char*, AttributeInfo*, LessThanNoCase>::const_iterator it = 
         find_if (m_nameInfo.begin (), m_nameInfo.end (), indexEqual (index));
     return it->first;
 }

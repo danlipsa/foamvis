@@ -15,7 +15,7 @@
  * sequence of objects.
  */
 template <typename E>
-struct PrintElement : public unary_function<E&, void>
+struct PrintElement
 {
 public:
     /**
@@ -25,13 +25,13 @@ public:
      * of type E.
      */
     PrintElement (ostream& ostr, bool useEndOfLine) : 
-    m_ostr(ostr), m_index(0), m_useEndOfLine(useEndOfLine) {
+	m_ostr(ostr), m_index(0), m_useEndOfLine(useEndOfLine) {
     }
     /**
      * Pretty prints an object
      * @param e the object to be printed.
      */
-    void operator() (E& e) 
+    void operator() (const E& e) 
     {
         if (m_index > 0)
         {
@@ -68,7 +68,7 @@ private:
  */
 template <typename E>
 ostream& PrintElements (
-    ostream& ostr, vector<E>& v, const char* elementName, 
+    ostream& ostr, const vector<E>& v, const char* elementName, 
     bool useEndOfLine)
 {
     ostr << v.size() << " " << elementName << ":"<< endl;
@@ -86,7 +86,7 @@ ostream& PrintElements (
  * @param useEndOfLine objects are separated by an end of line or by a comma
  */
 template <typename E>
-ostream& ReversePrintElements (ostream& ostr, vector<E>& v, 
+ostream& ReversePrintElements (ostream& ostr, const vector<E>& v, 
 			       const char* elementName, bool useEndOfLine)
 {
     ostr << v.size() << " " << elementName << ":"<< endl;

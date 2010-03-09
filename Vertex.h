@@ -21,6 +21,50 @@ class Vertex : public G3D::Vector3, public Element
 {
 public:
     /**
+     * Functor that compares two vertices along X, Y or Z axis
+     */
+    class LessThanAlong
+    {
+    public:
+	/**
+	 * Constructor
+	 * Stores the axis we want to do the comparison on.
+	 */
+	LessThanAlong(G3D::Vector3::Axis axis) : 
+	    m_axis(axis) {}
+	/**
+	 * Compares two vertices
+	 * @param first the first vertex
+	 * @param second the second vertex
+	 * @return true if first is less than second false otherwise
+	 */
+	bool operator() (const Vertex* first,  const Vertex* second) const
+	{
+	    return operator() (static_cast<const G3D::Vector3*>(first),
+			       static_cast<const G3D::Vector3*>(second));
+	}
+	bool operator() (
+	    const G3D::Vector3* first, const G3D::Vector3* second) const
+	{
+	    return (*first)[m_axis] < (*second)[m_axis];	    
+	}
+    private:
+	/**
+	 * Axis along which we make the comparison
+	 */
+	G3D::Vector3::Axis m_axis;
+    };
+
+    struct LessThan
+    {
+	bool operator () (const Vertex* first, const Vertex* second) const
+	{
+	    return *first < *second;
+	}
+    };
+
+public:
+    /**
      * Creates a Vertex object
      * @param originalIndex original index for this vertex 
      *    (before invoque 'compact')
@@ -36,80 +80,25 @@ public:
      * Is this a physical (not tesselation) vertex
      * @return true if it is physical, false otherwise
      */
-    bool IsPhysical () const {return (m_adjacentPhysicalEdgesCount == 4);}
+    bool IsPhysical () const 
+    {
+	return (m_adjacentPhysicalEdgesCount == 4);
+    }
     /**
      * Adds an edge that is adjacent to this vertex
      * @param edge edge touched by this vertex
      */
     void AddAdjacentEdge (Edge* edge);
-    G3D::Vector3int16 GetDomain () ;
+    G3D::Vector3int16 GetDomain () const;
     void AdjustPosition (const G3D::Vector3int16& domainIncrement);
+    bool operator< (const Vertex& other);
+    bool operator== (const Vertex& other);
 
-    /**
-     * Specifies the default attributes for the Vertex object.
-     * These attributes don't appear as a DEFINE in the .DMP file
-     * @param info the object where the default attributes are stored.
-     */
-    static void StoreDefaultAttributes (AttributesInfo& info);
-    /**
-     * Pretty print for a Vertex object
-     * @param ostr where to print
-     * @param v what to print
-     * @return output stream used to print the object to
-     */
-    friend ostream& operator<< (ostream& ostr,  Vertex& v);
-    /**
-     * Functor that compares two vertices along X, Y or Z axis
-     */
-    class LessThanAlong
-    {
-    public:
-	/**
-	 * Constructor
-	 * Stores the axis we want to do the comparison on.
-	 */
-	LessThanAlong(G3D::Vector3::Axis axis) : 
-	    m_axis(axis) 
-	{}
-	/**
-	 * Compares two vertices
-	 * @param first the first vertex
-	 * @param second the second vertex
-	 * @return true if first is less than second false otherwise
-	 */
-	bool operator() (Vertex* first,  Vertex* second) 
-	{
-	    return operator() (static_cast<G3D::Vector3*>(first),
-			       static_cast<G3D::Vector3*>(second));
-	}
-
-	bool operator() (G3D::Vector3* first, G3D::Vector3* second)
-	{
-	    return (*first)[m_axis] < (*second)[m_axis];	    
-	}
-    private:
-	/**
-	 * Axis along which we make the comparison
-	 */
-	G3D::Vector3::Axis m_axis;
-    };
-
-    class LessThan
-    {
-    public:
-	bool operator () (Vertex* first, Vertex* second) const
-	{
-	    return first->x < second->x ||
-		(first->x == second->x && first->y < second->y) ||
-		(first->x == second->x && first->y == second->y && 
-		 first->z < second->z);
-	}
-    };
-
+public:
     template <typename Vertices>
     static ostream& PrintDomains (ostream& ostr, Vertices vertices)
     {
-	map < G3D::Vector3int16, list< Vertex*>,lessThanVector3int16 > 
+	map< G3D::Vector3int16, list<Vertex*>, lessThanVector3int16 > 
 	    domainVerticesMap;
 	for_each (vertices.begin (), vertices.end (),
 		  storeByDomain (domainVerticesMap));
@@ -119,28 +108,32 @@ public:
 	return ostr;
     }
 
+public:
     /**
      * Accumulates along X, Y or Z
      * @param result where we accumulate
      * @param v the vertex
      * @return result + the value of the vertex along the specified axis
      */
-    static G3D::Vector3 Accumulate (Vector3 result,  Vertex* v)
+    static G3D::Vector3 Accumulate (Vector3 result, const Vertex* v)
     {
 	return result + *v;
     }
+    /**
+     * Specifies the default attributes for the Vertex object.
+     * These attributes don't appear as a DEFINE in the .DMP file
+     * @param info the object where the default attributes are stored.
+     */
+    static void StoreDefaultAttributes (AttributesInfo* info);
+    /**
+     * Pretty print for a Vertex object
+     * @param ostr where to print
+     * @param v what to print
+     * @return output stream used to print the object to
+     */
+    friend ostream& operator<< (ostream& ostr, const Vertex& v);
 
 private:
-    /**
-     * Edges adjacent to this vertex
-     */
-    vector<Edge*> m_adjacentEdges;
-    unsigned int m_adjacentPhysicalEdgesCount;
-    /**
-     * Stores information about all vertex attributes
-     */
-    static AttributesInfo* m_infos;
-
     struct lessThanVector3int16
     {
 	bool operator () (const G3D::Vector3int16& first, 
@@ -199,7 +192,18 @@ private:
 	ostream& m_ostr;
     };
 
+private:
+    /**
+     * Edges adjacent to this vertex
+     */
+    vector<Edge*> m_adjacentEdges;
+    unsigned int m_adjacentPhysicalEdgesCount;
 
+private:
+    /**
+     * Stores information about all vertex attributes
+     */
+    static AttributesInfo* m_infos;
 };
 /**
  * Pretty prints a Vertex* by calling the operator<< for a Vertex.
@@ -207,7 +211,7 @@ private:
  * @param pv what to print
  * @return where to print
  */
-inline ostream& operator<< (ostream& ostr,  Vertex* pv)
+inline ostream& operator<< (ostream& ostr, const Vertex* pv)
 {
     return ostr << *pv;
 }

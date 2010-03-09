@@ -14,11 +14,11 @@
 #include "Body.h"
 #include "Data.h"
 
-ostream& operator<< (ostream& ostr, Vertex& v)
+ostream& operator<< (ostream& ostr, const Vertex& v)
 {
     ostr << "Vertex " << v.GetOriginalIndex ()
 	 << (v.IsDuplicate () ? " DUPLICATE": "")
-	 << static_cast<G3D::Vector3&>(v)
+	 << static_cast<const G3D::Vector3&>(v)
 	 << " Vertex attributes: ";
     return v.PrintAttributes (ostr, *Vertex::m_infos);
 }
@@ -38,11 +38,11 @@ Vertex::Vertex (const G3D::Vector3* position, Data* data) :
     m_adjacentPhysicalEdgesCount (0)
 {}
 
-void Vertex::StoreDefaultAttributes (AttributesInfo& infos)
+void Vertex::StoreDefaultAttributes (AttributesInfo* infos)
 {
     using EvolverData::parser;
-    m_infos = &infos;
-    infos.AddAttributeInfo (
+    m_infos = infos;
+    infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL),
         new IntegerAttributeCreator());
 }
@@ -54,7 +54,7 @@ void Vertex::AddAdjacentEdge (Edge* edge)
 	m_adjacentPhysicalEdgesCount++;
 }
 
-G3D::Vector3int16 Vertex::GetDomain ()
+G3D::Vector3int16 Vertex::GetDomain () const
 {
     return G3D::Vector3int16 (0, 0, 0);
 }
@@ -67,3 +67,15 @@ void Vertex::AdjustPosition (const G3D::Vector3int16& domainIncrement)
     }
 }
 
+bool Vertex::operator< (const Vertex& other)
+{
+    return x < other.x ||
+	(x == other.x && y < other.y) ||
+	(x == other.x && y == other.y && z < other.z);
+}
+
+bool Vertex::operator== (const Vertex& other)
+{
+    return static_cast<const G3D::Vector3&>(*this) ==
+	static_cast<const G3D::Vector3&>(other);
+}

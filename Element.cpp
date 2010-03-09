@@ -71,8 +71,7 @@ private:
 /**
  * Functor that prints an attribute
  */
-class printAttribute : 
-    public unary_function < Attribute*, void>
+class printAttribute
 {
 public:
     /**
@@ -81,7 +80,7 @@ public:
      * @param infos information about attributes
      */
     printAttribute(
-        ostream& ostr, AttributesInfo& infos) : 
+        ostream& ostr, const AttributesInfo& infos) : 
         m_ostr (ostr), m_infos (infos), m_index(0) {}
     /**
      * Functor that prints an attribute
@@ -100,7 +99,7 @@ private:
     /**
      * Information about attributes
      */
-    AttributesInfo& m_infos;
+    const AttributesInfo& m_infos;
     /**
      * Current attribute index
      */
@@ -133,7 +132,8 @@ void Element::StoreAttributes (
     for_each (list.begin (), list.end (), storeAttribute(*this, infos));
 }
 
-ostream& Element::PrintAttributes (ostream& ostr, AttributesInfo& infos) 
+ostream& Element::PrintAttributes (
+    ostream& ostr, const AttributesInfo& infos) const
 {
     if (m_attributes != 0)
 	for_each (m_attributes->begin (), m_attributes->end (),
