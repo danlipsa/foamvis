@@ -67,15 +67,20 @@ void Vertex::AdjustPosition (const G3D::Vector3int16& domainIncrement)
     }
 }
 
-bool Vertex::operator< (const Vertex& other)
+bool Vertex::operator< (const Vertex& other) const
 {
     return x < other.x ||
 	(x == other.x && y < other.y) ||
 	(x == other.x && y == other.y && z < other.z);
 }
 
-bool Vertex::operator== (const Vertex& other)
+bool Vertex::operator== (const Vertex& other) const
 {
     return static_cast<const G3D::Vector3&>(*this) ==
 	static_cast<const G3D::Vector3&>(other);
+}
+
+size_t hash_value (Vertex const& v)
+{
+    return Vertex::Hash () (v);
 }

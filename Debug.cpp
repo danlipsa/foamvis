@@ -1,6 +1,6 @@
 #include "Debug.h"
 
-void _RuntimeAssert (bool condition,  string& message)
+void RuntimeAssert (bool condition, const string& message)
 {
     if (! condition)
 	throw logic_error (message);

@@ -8,6 +8,7 @@
 #include "AttributeInfo.h"
 #include "ParsingDriver.h"
 #include "Data.h"
+#include "Debug.h"
 
 /**
  * STL unary  function that converts a  signed index into  a vector of
@@ -67,28 +68,30 @@ Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
                indexToOrientedFace(faces));
     if (m_data->IsTorus ())
     {
-	vector<Triangle> queue;
+	NormalFaceMap normalFaceMap;
+	BOOST_FOREACH (OrientedFace* f, m_faces)
+	    normalFaceMap.insert (
+		NormalFaceMap::value_type (
+		    f->GetFace ()->GetNormal (), f));
+	vector<FaceIntersectionMargin> queue;
 	// start with two faces, mark them as placed
 	m_faces[0]->SetPlaced (true);
 	m_faces[1]->SetPlaced (true);
 
 	// add the two intersection triangles into a queue
-	Triangle firstTriangle, secondTriangle;
+	FaceIntersectionMargin firstTriangle, secondTriangle;
 	getTrianglesFromFaceIntersection (
 	    *m_faces[0], *m_faces[1], &firstTriangle, &secondTriangle);
 	queue.push_back (firstTriangle);
 	queue.push_back (secondTriangle);
-
-	// while there are "angles" in the queue
 	while (queue.empty ())
 	{
-	    // remove an angle
-	    Triangle triangle = queue.back ();
+	    FaceIntersectionMargin triangle = queue.back ();
 	    queue.pop_back ();
 
-	    // place the face that  fits over that angle (this creates
-	    // duplicates)
-	    OrientedFace* face = fitFace (triangle);
+	    // place the face that fits over that triangle (this might
+	    // create a duplicate face)
+	    OrientedFace* face = fitFace (triangle, normalFaceMap);
 
 	    // if the face was not placed before
 	       // add two more angles in the queue
@@ -96,10 +99,12 @@ Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
 	    {
 		face->SetPlaced (true);
 		getTrianglesFromFaceIntersection (
-		    *face, *triangle.m_first, &firstTriangle, &secondTriangle);
+		    *face, *triangle.m_first.m_face, 
+		    &firstTriangle, &secondTriangle);
 		queue.push_back (secondTriangle);
 		getTrianglesFromFaceIntersection (
-		    *face, *triangle.m_second, &firstTriangle, &secondTriangle);
+		    *face, *triangle.m_second.m_face, 
+		    &firstTriangle, &secondTriangle);
 		queue.push_back (firstTriangle);
 	    }
 	}
@@ -220,9 +225,9 @@ void Body::CalculateCenter ()
 {
     using G3D::Vector3;
     unsigned int size = m_physicalVertices.size ();
-    if (size == 0)
-	throw logic_error (
-	    "Call Body::CacheEdgesVertices before calling this function");
+    RuntimeAssert (
+	size != 0, 
+	"Call Body::CacheEdgesVertices before calling this function");
     m_center = accumulate (
 	m_physicalVertices.begin (), m_physicalVertices.end (), m_center, 
 	&Vertex::Accumulate);
@@ -238,29 +243,115 @@ void Body::UpdateFacesAdjacency ()
 }
 
 void Body::getTrianglesFromFaceIntersection (
-    OrientedFace& firstFace, OrientedFace& secondFace,
-    Triangle* firstTriangle, Triangle* secondTriangle)
+    const OrientedFace& firstFace, const OrientedFace& secondFace,
+    FaceIntersectionMargin* firstTriangle, FaceIntersectionMargin* secondTriangle)
 {
-    for (size_t i = 0; i < firstFace.GetFace ()->GetEdgeCount (); i++)
+    for (size_t i = 0; i < firstFace.GetEdgeCount (); i++)
     {
-	for (size_t j = 0; j < secondFace.GetFace ()->GetEdgeCount (); j++)
+	for (size_t j = 0; j < secondFace.GetEdgeCount (); j++)
 	{
-	    if (*(firstFace.GetFace ()->GetOrientedEdge (i)->GetEdge ()) == 
-		*(secondFace.GetFace ()->GetOrientedEdge (j)->GetEdge ()))
+	    if (*(firstFace.GetOrientedEdge (i)->GetEdge ()) == 
+		*(secondFace.GetOrientedEdge (j)->GetEdge ()))
 	    {
-		firstTriangle->m_first = &firstFace;
-		firstTriangle->m_intersectionEdgeFirst = i;
-		firstTriangle->m_second = &secondFace;
-		firstTriangle->m_intersectionEdgeFirst = j;
-		firstTriangle->m_edges = Triangle::BEFORE_AFTER;
+		firstTriangle->m_first.m_face = &firstFace;
+		firstTriangle->m_first.m_edgeIndex = i;
+		firstTriangle->m_second.m_face = &secondFace;
+		firstTriangle->m_second.m_edgeIndex = j;
+		firstTriangle->m_margin = FaceIntersectionMargin::BEFORE_FIRST_AFTER_SECOND;
 		*secondTriangle = *firstTriangle;
-		secondTriangle->m_edges = Triangle::AFTER_BEFORE;
+		secondTriangle->m_margin = FaceIntersectionMargin::AFTER_FIRST_BEFORE_SECOND;
 	    }
 	}
     }
 }
 
-OrientedFace* Body::fitFace (const Triangle& triangle)
+
+void Body::FaceIntersectionMargin::GetTriangle (
+    const FaceEdgeIndex& first, const FaceEdgeIndex& second,
+    boost::array<G3D::Vector3, 3>* t)
 {
-    
+    boost::array<G3D::Vector3, 3>& triangle = *t;
+    size_t afterIndex = second.m_face->GetNextValidIndex (
+	second.m_edgeIndex);
+    triangle[0] = *second.m_face->GetEnd (afterIndex);
+    triangle[1] = *second.m_face->GetBegin (afterIndex);
+    size_t beforeIndex = first.m_face->GetPreviousValidIndex (
+	first.m_edgeIndex);
+    G3D::Vector3 otherTwo = *first.m_face->GetEnd (beforeIndex);
+    RuntimeAssert (triangle[1] == otherTwo,
+		   "Invalid triangle: ", triangle[1], ", ", otherTwo);
+    triangle[2] = *first.m_face->GetBegin (beforeIndex);
 }
+
+
+OrientedFace* Body::fitFace (
+    const FaceIntersectionMargin& faceIntersectionMargin, 
+    const NormalFaceMap& normalFaceMap)
+{
+    using G3D::Vector3;
+    boost::array<Vector3, 3> triangle;
+    if (faceIntersectionMargin.m_margin == 
+	FaceIntersectionMargin::BEFORE_FIRST_AFTER_SECOND)
+	FaceIntersectionMargin::GetTriangle (
+	    faceIntersectionMargin.m_first, 
+	    faceIntersectionMargin.m_second, &triangle);
+    else
+	FaceIntersectionMargin::GetTriangle (
+	    faceIntersectionMargin.m_second,
+	    faceIntersectionMargin.m_first, &triangle);
+    Vector3 normal = (triangle[1] - triangle[0]).cross (
+	triangle[2] - triangle[1]);
+    pair<NormalFaceMap::const_iterator, NormalFaceMap::const_iterator> range = 
+	normalFaceMap.equal_range (normal);
+    for (NormalFaceMap::const_iterator it = range.first;
+	 it != range.second; ++it)
+    {
+	OrientedFace* face = fitFace ((*it).second, triangle);
+	if (face != 0)
+	    return face;
+    }
+}
+
+OrientedFace* Body::fitFace (
+    OrientedFace* face, const boost::array<G3D::Vector3, 3>& triangle)
+{
+    using G3D::Vector3;
+    size_t currentFitPoint = 0;
+    bool found = false;
+
+    Vector3 translate;
+    for (size_t i = 0; ! found && i < face->GetEdgeCount (); i++)
+    {
+	Vector3 current = *face->GetEnd (i);
+	switch (currentFitPoint)
+	{
+	case 0:
+	    translate = (triangle[currentFitPoint] - current);
+	    currentFitPoint++;
+	    break;
+	case 1:
+	    if ((triangle[currentFitPoint] - current).fuzzyEq(translate))
+		currentFitPoint++;
+	    else
+	    {
+		i--;
+		currentFitPoint = 0;
+	    }
+	    break;
+	case 2:
+	    if ((triangle[currentFitPoint] - current).fuzzyEq(translate))
+	    {
+		found = true;
+		//found a fit, we might need a translation
+		face->SetFace (
+		    m_data->GetFaceDuplicate (
+			*face->GetFace (),
+			*(face->GetOrientedEdge(0)->GetBegin ())));
+		break;
+	    }
+	}
+    }
+    RuntimeAssert (found, "Cannot fit face");
+    return face;
+}
+

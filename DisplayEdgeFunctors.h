@@ -107,8 +107,8 @@ private:
 	if (newZ.isZero ())
 	    return;
 	newZ = newZ.unit ();
-	Vector3 newX = aNormal (newZ);
-	Vector3 newY = newZ.cross (newX);
+	Vector3 newX, newY;
+	newZ.getTangents (newX, newY);
 	rotation->setColumn (0, newX);
 	rotation->setColumn (1, newY);
 	rotation->setColumn (2, newZ);

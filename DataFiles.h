@@ -24,7 +24,7 @@ public:
      */
     typedef IteratorData (*Aggregate)(IteratorData first,
 				      IteratorData last,
-				      Data::LessThan lessThan);
+				      Data::LessThanAlong lessThanAlong);
     /**
      * Calculate the  axially aligned bounding box for  this vector of
      * Data objects

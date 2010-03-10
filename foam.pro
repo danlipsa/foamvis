@@ -3,7 +3,7 @@ HEADERS += DebugStream.h ParsingDriver.h AttributeInfo.h Attribute.h \
 	 Body.h Color.h DefineAttributeType.h \
 	Data.h Edge.h Element.h ExpressionTree.h \
 	Face.h GLWidget.h OrientedEdge.h OrientedFace.h \
-	ParsingData.h Vertex.h SemanticError.h MainWindow.h \
+	ParsingData.h Vertex.h MainWindow.h \
         AttributeCreator.h stable.h SystemDifferences.h DataFiles.h Debug.h\
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h\
 	DisplayEdgeFunctors.h DisplayElement.h
@@ -46,8 +46,10 @@ LIBS += "-lavcodec"
 LIBS += "-lavutil"
 }
 else:unix {
-INCLUDEPATH = /usr/local/G3D-7.01/build/linux-x86_64-g++4.4/include $$INCLUDEPATH
-LIBS += -L/usr/local/G3D-7.01/build/linux-x86_64-g++4.4/lib
+#INCLUDEPATH = /usr/local/G3D-7.01/build/linux-x86_64-g++4.4/include $$INCLUDEPATH
+INCLUDEPATH =  /usr/local/G3D-8.00-b04/build/linux-x86_64-g++4.4/include $$INCLUDEPATH
+#LIBS += -L/usr/local/G3D-7.01/build/linux-x86_64-g++4.4/lib
+LIBS += -L/usr/local/G3D-8.00-b04/build/linux-x86_64-g++4.4/lib
 LIBS += "-lGLG3D"
 LIBS += "-lG3D"
 LIBS += "-lzip"

@@ -9,6 +9,7 @@
 #include "ParsingDriver.h"
 #include "EvolverData_yacc.h"
 #include "Data.h"
+#include "Debug.h"
 
 
 ostream& operator<< (ostream& ostr, const Edge& e)
@@ -65,7 +66,8 @@ short Edge::DomainIncrementCharToNumber (char sign)
     case '-':
 	return -1;
     default:
-	throw invalid_argument (string ("Invalid sign: ") + sign);
+	RuntimeAssert (false, "Invalid sign: ", sign);
+	return 0;
     }
 }
 
@@ -109,4 +111,9 @@ bool Edge::operator== (const Edge& other) const
 {
     return GetOriginalIndex () == other.GetOriginalIndex () &&
 	*GetBegin () == *other.GetBegin ();
+}
+
+bool Edge::IsZero () const
+{
+    return (*GetEnd () - *GetBegin ()).isZero ();
 }

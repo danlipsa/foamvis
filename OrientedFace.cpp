@@ -6,7 +6,7 @@
  */
 
 #include "OrientedFace.h"
-
+#include "Debug.h"
 
 ostream& operator<< (ostream& ostr, const OrientedFace& of)
 {
@@ -18,48 +18,38 @@ ostream& operator<< (ostream& ostr, const OrientedFace& of)
     return ostr;
 }
 
-Vertex* OrientedFace::getBegin (unsigned int edgeIndex) const
+Vertex* OrientedFace::getBegin (size_t edgeIndex) const
 {
-    vector<OrientedEdge*>& v = m_face->GetOrientedEdges ();
-    if (edgeIndex >= v.size ())
-    {
-        ostringstream ostr;
-        ostr << "Edge index " << edgeIndex 
-             << " greater than the number of edges " << v.size () << ends;
-        throw invalid_argument (ostr.str ());
-    }
-    OrientedEdge* edge;
+    OrientedEdge* edge = getOrientedEdge (edgeIndex);
     if (IsReversed ())
-    {
-        edge = v[v.size() - 1 - edgeIndex];
         return edge->GetEnd ();
-    }
     else
-    {
-        edge = v[edgeIndex];
         return edge->GetBegin ();
-    }
 }
 
-Vertex* OrientedFace::getEnd (unsigned int edgeIndex) const
+Vertex* OrientedFace::getEnd (size_t edgeIndex) const
+{
+    OrientedEdge* edge = getOrientedEdge (edgeIndex);
+    if (IsReversed ())
+        return edge->GetBegin ();
+    else
+        return edge->GetEnd ();
+}
+
+OrientedEdge* OrientedFace::getOrientedEdge (size_t edgeIndex) const
 {
     vector<OrientedEdge*>& v = m_face->GetOrientedEdges ();
-    if (edgeIndex >= v.size ())
-    {
-        ostringstream ostr;
-        ostr << "Edge index " << edgeIndex 
-             << " greater than the number of edges " << v.size () << ends;
-        throw invalid_argument (ostr.str ());
-    }
+    RuntimeAssert (edgeIndex < v.size (),
+		   "Edge index ", edgeIndex,
+		   " greater than the number of edges ", v.size ());
     OrientedEdge* edge;
     if (IsReversed ())
     {
         edge = v[v.size() - 1 - edgeIndex];
-        return edge->GetBegin ();
     }
     else
     {
         edge = v[edgeIndex];
-        return edge->GetEnd ();
     }
+    return edge;
 }

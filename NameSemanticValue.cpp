@@ -6,6 +6,7 @@
  */
 #include "NameSemanticValue.h"
 #include "ElementUtils.h"
+#include "Debug.h"
 
 
 ostream& operator<< (ostream& ostr, NameSemanticValue::Type& type)
@@ -28,11 +29,8 @@ ostream& operator<< (ostream& ostr, NameSemanticValue::Type& type)
         ostr << "REAL_ARRAY";
         break;
     default:
-    {
-        ostringstream sstr;
-        sstr << "Invalid NameSemanticValue::Type: " << type << ends;
-        throw domain_error (sstr.str ());
-    }
+	RuntimeAssert (false,
+		       "Invalid NameSemanticValue::Type: ", type);
     }
     return ostr;
 }
@@ -60,12 +58,8 @@ ostream& operator<< (ostream& ostr,
         ostr << nameSemanticValue.m_semanticValue.m_realList;
         break;
     default:
-    {
-        ostringstream sstr;
-        sstr << "Invalid NameSemanticValue::Type: " 
-             << nameSemanticValue.m_type << ends;
-        throw domain_error (sstr.str ());
-    }
+	RuntimeAssert (false, "Invalid NameSemanticValue::Type: ",
+		       nameSemanticValue.m_type);
     }
     return ostr;
 }

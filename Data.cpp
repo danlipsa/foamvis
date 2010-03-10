@@ -140,7 +140,8 @@ Vertex* Data::GetVertexDuplicate (
     return duplicate;
 }
 
-Edge* Data::GetEdgeDuplicate (Edge& original, G3D::Vector3& newBegin)
+Edge* Data::GetEdgeDuplicate (
+    const Edge& original, const G3D::Vector3& newBegin)
 {
     using G3D::Vector3int16;
     Vertex beginDummy (&newBegin, this);
@@ -162,6 +163,12 @@ Edge* Data::GetEdgeDuplicate (Edge& original, G3D::Vector3& newBegin)
     m_edges.push_back (duplicate);
     return duplicate;
 }
+
+Face* Data::GetFaceDuplicate (
+    const Face& original, const G3D::Vector3& newBegin)
+{
+}
+
 
 void Data::SetEdge (unsigned int i, unsigned int begin, unsigned int end,
 		    G3D::Vector3int16& domainIncrement,

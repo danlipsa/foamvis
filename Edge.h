@@ -105,7 +105,7 @@ public:
     }
     bool operator== (const Edge& other) const;
     bool operator< (const Edge& other) const;
-
+    bool IsZero () const;
 
 public:
     static short DomainIncrementCharToNumber (char sign);

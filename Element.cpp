@@ -7,7 +7,7 @@
 #include "Element.h"
 #include "ElementUtils.h"
 #include "AttributeInfo.h"
-#include "SemanticError.h"
+#include "Debug.h"
 
 
 /**
@@ -35,10 +35,9 @@ public:
         {
             AttributeInfo* info = 
                 m_infos.GetAttributeInfo (nameSemanticValue->GetName ());
-            if (info == 0)
-                throw SemanticError (string("Attribute \"") + 
-                                     nameSemanticValue->GetName () + 
-                                     "\" was not defined");
+            RuntimeAssert (info != 0, 
+			   "Attribute \"", nameSemanticValue->GetName (),
+			   "\" was not defined");
             unsigned int index = info->GetIndex ();
             if (index == AttributeInfo::INVALID_INDEX)
                 return;
@@ -51,10 +50,10 @@ public:
 			    nameSemanticValue->GetType ()));
             }
         }
-        catch (SemanticError& e)
+        catch (exception& e)
         {
-            throw SemanticError (string(nameSemanticValue->GetName ()) + ": "
-                                 + e.what ());
+            throw logic_error (string(nameSemanticValue->GetName ()) + ": "
+			       + e.what ());
         }
     }
 private:

@@ -143,8 +143,6 @@ struct Vector3int16Hash
     }
 };
 
-G3D::Vector3 aNormal (const G3D::Vector3& v);
-
 #endif //__ELEMENT_UTILS_H__
 
 // Local Variables:

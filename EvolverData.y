@@ -29,6 +29,7 @@ class ParsingDriver;
 #include "Color.h"
 #include "DefineAttributeType.h"
 #include "DebugStream.h"
+#include "Debug.h"
 class ExpressionTree;
 class NameSemanticValue;
 class AttributeCreator;
@@ -195,7 +196,6 @@ class AttributeCreator;
 %{
 #include "Data.h"
 #include "ParsingData.h"
-#include "SemanticError.h"
 #include "ExpressionTree.h"
 #include "AttributeCreator.h"
 #include "SystemDifferences.h"
@@ -826,12 +826,7 @@ EvolverData::parser::error (const EvolverData::parser::location_type& l,
 
 unsigned int intToUnsigned (int i, const char* message)
 {
-    if (i < 0)
-    {
-	ostringstream ostr;
-	ostr << message << i << ends;
-	throw SemanticError (ostr.str ());
-    }
+    RuntimeAssert (i >= 0, message, i);
     return static_cast<unsigned int>(i);
 }
 

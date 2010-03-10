@@ -70,7 +70,16 @@ public:
 	m_edge = edge;
     }
     G3D::Vector3int16 GetEndDomainIncrement () const;
+    bool IsZero () const
+    {
+	return m_edge->IsZero ();
+    }
+    G3D::Vector3 GetEdgeVector () const
+    {
+	return *GetEnd () - *GetBegin ();
+    }
 
+public:
     /**
      * Pretty prints an Edge
      * @param ostr output stream where to print the edge

@@ -7,20 +7,15 @@
  * and bodies.
  */
 #include "AttributeCreator.h"
-#include "SemanticError.h"
+#include "Debug.h"
 
 Attribute* IntegerAttributeCreator::operator() (
      EvolverData::parser::semantic_type& value, 
     NameSemanticValue::Type type)
 {
-
-    if (type != NameSemanticValue::INT)
-    {
-        ostringstream ostr;
-        ostr << "Attribute declared with INTEGER type "
-            "has value of type " << type << ends;
-        throw SemanticError (ostr.str ());
-    }
+    RuntimeAssert (type == NameSemanticValue::INT,
+		   "Attribute declared with INTEGER type has value of type ",
+		   type);
     return new IntegerAttribute (value.m_int);
 }
 
@@ -28,13 +23,10 @@ Attribute* ColorAttributeCreator::operator() (
      EvolverData::parser::semantic_type& value, 
     NameSemanticValue::Type type)
 {
-    if (type != NameSemanticValue::COLOR)
-    {
-        ostringstream ostr;
-        ostr << "Attribute declared with INTEGER type "
-            "has value of type " << type << ends;
-        throw SemanticError (ostr.str ());
-    }
+    
+    RuntimeAssert (type == NameSemanticValue::COLOR,
+		   "Attribute declared with INTEGER type has value of type ",
+		   type);
     return new ColorAttribute (value.m_color);
 }
 
@@ -51,12 +43,10 @@ Attribute* RealAttributeCreator::operator() (
     case NameSemanticValue::INT:
         return new RealAttribute (value.m_int);
     default:
-    {
-        ostringstream ostr;
-        ostr << "Attribute declared with REAL type "
-            "has value of type " << type << ends;
-        throw SemanticError (ostr.str ());
-    }
+	RuntimeAssert (false,
+		       "Attribute declared with REAL type has value of type ",
+		       type);
+	return 0;
     }
 }
 
@@ -64,21 +54,15 @@ Attribute* IntegerArrayAttributeCreator::operator() (
      EvolverData::parser::semantic_type& value, 
     NameSemanticValue::Type type)
 {
-    if (type != NameSemanticValue::INT_ARRAY)
-    {
-        ostringstream ostr;
-        ostr << "Attribute declared with INTEGER_ARRAY type "
-            "has value of type " << type << ends;
-        throw SemanticError (ostr.str ());
-    }
-    if (value.m_intList->size () != m_size)
-    {
-        ostringstream ostr;
-        ostr << "Declared size of integer array attribute differs "
-            "from size of the attribute value: "
-             << m_size << " != " << value.m_intList->size() << ends;
-        throw SemanticError (ostr.str ());
-    }
+    RuntimeAssert (
+	type == NameSemanticValue::INT_ARRAY,
+	"Attribute declared with INTEGER_ARRAY type has value of type ",
+	type);
+    RuntimeAssert (
+	value.m_intList->size () == m_size,
+	"Declared size of integer array attribute differs "
+	"from size of the attribute value: ",
+	m_size, " != ", value.m_intList->size());
     return new IntegerArrayAttribute (value.m_intList);
 }
 
@@ -86,20 +70,14 @@ Attribute* RealArrayAttributeCreator::operator() (
      EvolverData::parser::semantic_type& value, 
     NameSemanticValue::Type type)
 {
-    if (type != NameSemanticValue::REAL_ARRAY)
-    {
-        ostringstream ostr;
-        ostr << "Attribute declared with REAL_ARRAY type "
-            "has value of type " << type << ends;
-        throw SemanticError (ostr.str ());
-    }
-    if (value.m_realList->size () != m_size)
-    {
-        ostringstream ostr;
-        ostr << "Declared size of integer array attribute differs "
-            "from size of the attribute value: "
-             << m_size << " != " << value.m_realList->size() << ends;
-        throw SemanticError (ostr.str ());
-    }
+    RuntimeAssert (
+	type == NameSemanticValue::REAL_ARRAY,
+	"Attribute declared with REAL_ARRAY type "
+	"has value of type ", type);
+    RuntimeAssert (
+	value.m_realList->size () == m_size,
+	"Declared size of integer array attribute differs "
+	"from size of the attribute value: ", m_size, " != ", 
+	value.m_realList->size());
     return new RealArrayAttribute (value.m_realList);
 }

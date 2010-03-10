@@ -12,6 +12,7 @@
 #include "DisplayFaceFunctors.h"
 #include "DisplayBodyFunctors.h"
 #include "ElementUtils.h"
+#include "Debug.h"
 
 /**
  * Stores information about various OpenGL characteristics of the graphic card
@@ -397,8 +398,8 @@ void GLWidget::initializeGL()
         GLWidget::enableLighting ();
         break;
     default:
-        throw domain_error (
-            "ViewType enum has an invalid value: " + m_viewType);
+	RuntimeAssert (false,
+		       "ViewType enum has an invalid value: ", m_viewType);
     }
     printOpenGLInfo ();
 }
@@ -818,8 +819,9 @@ GLuint GLWidget::display (ViewType type)
     case RAW_FACES:
 	return displayRawFaces ();
     default:
-        throw domain_error (
-            "ViewType enum has an invalid value: " + m_viewType);
+        RuntimeAssert (false, 
+		       "ViewType enum has an invalid value: ", m_viewType);
+	return 0;
     }
 }
 
@@ -898,11 +900,7 @@ const QColor& GLWidget::GetDomainIncrementColor (
     const G3D::Vector3int16& di) const
 {
     DomainIncrementColor::const_iterator it = m_domainIncrementColor.find (di);
-    if (it == m_domainIncrementColor.end ())
-    {
-	ostringstream ostr;
-	ostr << "Invalid domain increment " << di << ends;
-	throw invalid_argument (ostr.str ());
-    }
+    RuntimeAssert (it != m_domainIncrementColor.end (),
+		   "Invalid domain increment ", di);
     return (*it).second;
 }

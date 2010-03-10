@@ -13,25 +13,6 @@
 
 #ifdef __cplusplus
 
-// Qt headers
-#include <Qt>
-#include <QApplication>
-#include <QtOpenGL>
-
-// G3D headers
-#include <G3D/AABox.h>
-#include <G3D/Vector3.h>
-#include <G3D/Vector3int16.h>
-#include <G3D/Vector2.h>
-#include <G3D/Rect2D.h>
-#include <G3D/Matrix2.h>
-#include <G3D/Matrix3.h>
-#include <G3D/Matrix4.h>
-#include <G3D/CoordinateFrame.h>
-
-// OpenGL G3D headers
-#include <GLG3D/getOpenGLState.h>
-
 // standard C headers
 #include <cstring>
 #include <ctime>
@@ -56,9 +37,34 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/array.hpp>
 #include <boost/bind.hpp>
+#include <boost/unordered_set.hpp>
 #include <boost/unordered_map.hpp>
 
-using namespace std;
+// other BOOST headers
+#include <boost/foreach.hpp>
 
+// required by GLG3D
+#include <GLG3D/GL/glew.h>
+
+// Qt headers
+#include <Qt>
+#include <QApplication>
+#include <QtOpenGL>
+
+// G3D headers
+#include <G3D/AABox.h>
+#include <G3D/Vector3.h>
+#include <G3D/Vector3int16.h>
+#include <G3D/Vector2.h>
+#include <G3D/Rect2D.h>
+#include <G3D/Matrix2.h>
+#include <G3D/Matrix3.h>
+#include <G3D/Matrix4.h>
+#include <G3D/CoordinateFrame.h>
+
+// OpenGL G3D headers
+#include <GLG3D/getOpenGLState.h>
+
+using namespace std;
 
 #endif //__cplusplus

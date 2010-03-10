@@ -6,7 +6,6 @@
  */
 
 #include "ParsingData.h"
-#include "SemanticError.h"
 #include "DebugStream.h"
 
 /**
@@ -47,13 +46,13 @@ static float dividesFunction (float first, float second)
 static float multipliesFunction (float first, float second)
 {return first * second;}
 /**
- * Throws  a  SemanticError  exception  because  we  should  not  have
+ * Throws  an  exception  because  we  should  not  have
  * assignments in constant expressions.
  * @return it throws an exception before returning.
  */
 static float assignmentFunction (float, float)
 {
-    throw SemanticError ("Assignment operation in constant expression");
+    throw logic_error ("Assignment operation in constant expression");
 }
 /**
  * Pretty prints a variable. Used by a for_each algorithm.
@@ -122,28 +121,24 @@ ParsingData::~ParsingData ()
 float ParsingData::GetVariableValue (const char* id) 
 {
     Variables::iterator it = m_variables.find (id);
-    if (it == m_variables.end ())
-        throw SemanticError (string("Undeclared variable: ") + id);
-    else
-        return it->second;
+    RuntimeAssert (it != m_variables.end (), "Undeclared variable: ", id);
+    return it->second;
 }
 
 ParsingData::UnaryFunction ParsingData::GetUnaryFunction (const char* name)
 {
     UnaryFunctions::iterator it = m_unaryFunctions.find (name);
-    if (it == m_unaryFunctions.end ())
-        throw SemanticError (string("Invalid unary function name: ") + name);
-    else
-        return it->second;
+    RuntimeAssert (it != m_unaryFunctions.end (),
+		   "Invalid unary function name: ", name);
+    return it->second;
 }
 
 ParsingData::BinaryFunction ParsingData::GetBinaryFunction (const char* name)
 {
     BinaryFunctions::iterator it = m_binaryFunctions.find (name);
-    if (it == m_binaryFunctions.end ())
-        throw SemanticError (string("Invalid binary function name: ") + name);
-    else
-        return it->second;
+    RuntimeAssert (it != m_binaryFunctions.end (),
+		   "Invalid binary function name: ", name);
+    return it->second;
 }
 
 

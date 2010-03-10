@@ -22,15 +22,3 @@ G3D::Matrix2 inverse(const G3D::Matrix2& o)
 	r1[1]/o.determinant (), -r0[1]/o.determinant (),
 	-r1[0]/o.determinant (), r0[0]/o.determinant ());
 }
-
-G3D::Vector3 aNormal (const G3D::Vector3& v)
-{
-    G3D::Vector3 result (-v.y, v.x, 0);
-    if (result.isZero ())
-    {
-	result.x = 0;
-	result.y = - v.z;
-	result.z = v.y;
-    }
-    return result;
-}

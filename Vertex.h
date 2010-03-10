@@ -62,6 +62,27 @@ public:
 	    return *first < *second;
 	}
     };
+    
+    struct Hash
+    {
+	size_t operator() (const G3D::Vector3& v) const
+	{
+	    std::size_t seed = 0;
+	    boost::hash_combine (seed, v.x);
+	    boost::hash_combine (seed, v.y);
+	    boost::hash_combine (seed, v.z);
+	    return seed;
+	}
+    };
+    struct FuzzyEqual
+    {
+	bool operator() (
+	    const G3D::Vector3& first, const G3D::Vector3& second) const
+	{
+	    return first.fuzzyEq (second) ||
+		first.fuzzyEq (-second);
+	}
+    };
 
 public:
     /**
@@ -91,8 +112,8 @@ public:
     void AddAdjacentEdge (Edge* edge);
     G3D::Vector3int16 GetDomain () const;
     void AdjustPosition (const G3D::Vector3int16& domainIncrement);
-    bool operator< (const Vertex& other);
-    bool operator== (const Vertex& other);
+    bool operator< (const Vertex& other) const;
+    bool operator== (const Vertex& other) const;
 
 public:
     template <typename Vertices>
@@ -215,6 +236,8 @@ inline ostream& operator<< (ostream& ostr, const Vertex* pv)
 {
     return ostr << *pv;
 }
+
+size_t hash_value (Vertex const& v);
 
 #endif //__VERTEX_H__
 

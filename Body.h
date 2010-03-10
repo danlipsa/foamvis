@@ -107,25 +107,28 @@ public:
     static void StoreDefaultAttributes (AttributesInfo* info);
 
 private:
-    struct Triangle
+    struct FaceIntersectionMargin
     {
 	enum
 	{
-	    BEFORE_AFTER,
-	    AFTER_BEFORE
-	} m_edges;
-	OrientedFace* m_first;
-	/**
-	 * Index in the first face (not oriented face)
-	 */
-	size_t m_intersectionEdgeFirst;
-	OrientedFace* m_second;
-	/**
-	 * Index in the second face (not oriented face)
-	 */
-	size_t m_intersectionEdgeSecond;
+	    BEFORE_FIRST_AFTER_SECOND,
+	    AFTER_FIRST_BEFORE_SECOND
+	} m_margin;
+	struct FaceEdgeIndex
+	{
+	    const OrientedFace* m_face;
+	    /**
+	     * Index in the oriented face
+	     */
+	    size_t m_edgeIndex; 
+	} m_first, m_second;
+	static void GetTriangle (
+	    const FaceEdgeIndex& first, const FaceEdgeIndex& second,
+	    boost::array<G3D::Vector3, 3>* triangle);
     };
-
+    typedef boost::unordered_multimap<G3D::Vector3, OrientedFace*,
+				      Vertex::Hash,
+				      Vertex::FuzzyEqual> NormalFaceMap;
 private:
     /**
      * Splits a  set of  objects (vertices or  edges) in  physical and
@@ -137,12 +140,17 @@ private:
     template <typename T>
     void split (
 	set<T*>& src, vector<T*>& destTessellation, vector<T*>& destPhysical);
-    OrientedFace* fitFace (const Triangle& triangle);
+    OrientedFace* fitFace (const FaceIntersectionMargin& faceIntersection,
+			   const NormalFaceMap& normalFaceMap);
+    OrientedFace* fitFace (
+	OrientedFace* face, 
+	const boost::array<G3D::Vector3, 3>& triangle);
+
 	
 private:
     static void getTrianglesFromFaceIntersection (
-	OrientedFace& firstFace, OrientedFace& secondFace,
-	Triangle* firstTriangle, Triangle* secondTriangle);
+	const OrientedFace& firstFace, const OrientedFace& secondFace,
+	FaceIntersectionMargin* one, FaceIntersectionMargin* two);
 
 
 private:

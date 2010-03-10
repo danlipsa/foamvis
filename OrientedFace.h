@@ -34,6 +34,10 @@ public:
     {
 	return m_face;
     }
+    void SetFace (Face* face)
+    {
+	m_face = face;
+    }
     void AddAdjacentBody (Body* body) 
     {
 	m_face->AddAdjacentBody (body);
@@ -65,11 +69,11 @@ public:
      * @param edgeIndex what edge we are interested in
      * @return the begin vertex
      */
-    Vertex* GetBegin (unsigned int edgeIndex) 
+    Vertex* GetBegin (size_t edgeIndex) 
     {
 	return getBegin (edgeIndex);
     }
-    const Vertex* GetBegin (unsigned int edgeIndex) const
+    const Vertex* GetBegin (size_t edgeIndex) const
     {
 	return getBegin (edgeIndex);
     }
@@ -78,14 +82,28 @@ public:
      * @param edgeIndex what edge we are interested in
      * @return the end vertex
      */
-    Vertex* GetEnd (unsigned int edgeIndex) 
+    Vertex* GetEnd (size_t edgeIndex) 
     {
 	return getEnd (edgeIndex);
     }
-    const Vertex* GetEnd (unsigned int edgeIndex) const
+    const Vertex* GetEnd (size_t edgeIndex) const
     {
 	return getEnd (edgeIndex);
     }
+
+    /**
+     * Gets the edge at edgeIndex in face order. The edge itself might
+     * not be in face order.
+     */
+    OrientedEdge* GetOrientedEdge (size_t edgeIndex)
+    {
+	return getOrientedEdge (edgeIndex);
+    }
+    const OrientedEdge* GetOrientedEdge (size_t edgeIndex) const
+    {
+	return getOrientedEdge (edgeIndex);
+    }
+
     bool IsPlaced () const
     {
 	return m_placed;
@@ -93,6 +111,18 @@ public:
     void SetPlaced (bool placed)
     {
 	m_placed = placed;
+    }
+    size_t GetEdgeCount () const
+    {
+	return m_face->GetEdgeCount ();
+    }
+    size_t GetNextValidIndex (size_t index) const
+    {
+	return m_face->GetNextValidIndex (index);
+    }
+    size_t GetPreviousValidIndex (size_t index) const
+    {
+	return m_face->GetPreviousValidIndex (index);
     }
 
 public:
@@ -102,8 +132,9 @@ public:
     friend ostream& operator<< (ostream& ostr, const OrientedFace& of);
 
 private:
-    Vertex* getBegin (unsigned int edgeIndex) const;
-    Vertex* getEnd (unsigned int edgeIndex) const;
+    Vertex* getBegin (size_t edgeIndex) const;
+    Vertex* getEnd (size_t edgeIndex) const;
+    OrientedEdge* getOrientedEdge (size_t edgeIndex) const;
 
 private:
     /**

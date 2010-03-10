@@ -20,17 +20,21 @@ class Data;
 class Face : public Element
 {
 public:
-    struct LessThan
+    struct Hash
     {
-	bool operator() (const Face* first, const Face* second)
+	size_t operator() (const Face& face) const
 	{
-	    return first->GetOriginalIndex () < second->GetOriginalIndex () ||
-		(first->GetOriginalIndex () == second->GetOriginalIndex () &&
-		 Edge::LessThan () (
-		     first->GetOrientedEdge (0)->GetEdge (), 
-		     second->GetOrientedEdge (0)->GetEdge ()));
+	    std::size_t seed = 0;
+	    boost::hash_combine (seed, face.GetOriginalIndex ());
+	    boost::hash_combine (seed, *face.GetOrientedEdge (0)->GetBegin ());
+	    return seed;
+	}
+	size_t operator () (const Face* f) const
+	{
+	    return operator() (*f);
 	}
     };
+    typedef vector<OrientedEdge*> OrientedEdges;
 
 public:
     /**
@@ -89,6 +93,10 @@ public:
      */
     void UpdateEdgesAdjacency ();
     void ClearEdgesAdjacency ();
+    size_t GetNextValidIndex (size_t index) const;
+    size_t GetPreviousValidIndex (size_t index) const;
+    bool operator== (const Face& face) const;
+    G3D::Vector3 GetNormal () const;
 
 public:
     /**
@@ -106,7 +114,7 @@ private:
     /**
      * Edges that are part of this face
      */
-    vector<OrientedEdge*> m_edges;
+    OrientedEdges m_edges;
     vector<Body*> m_adjacentBodies;
 
 private:

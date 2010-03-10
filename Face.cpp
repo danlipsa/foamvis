@@ -156,3 +156,46 @@ void Face::ClearEdgesAdjacency ()
     for_each (orientedEdges.begin (), orientedEdges.end (),
 	      bind (&OrientedEdge::ClearAdjacentFaces, _1));
 }
+
+size_t Face::GetNextValidIndex (size_t index) const
+{
+    RuntimeAssert (index < m_edges.size (),
+		   "Edge index ", index, 
+		   " greater than the number of edges ", m_edges.size ());
+    if (index == (m_edges.size () - 1))
+	return 0;
+    else
+	return index + 1;
+}
+
+size_t Face::GetPreviousValidIndex (size_t index) const
+{
+    RuntimeAssert (index < m_edges.size (), "Edge index ", index,
+		   " greater than the number of edges ", m_edges.size ());
+    if (index == 0)
+	return m_edges.size () - 1;
+    else
+	return index - 1;
+}
+
+bool Face::operator== (const Face& face) const
+{
+    return GetOriginalIndex () == face.GetOriginalIndex () &&
+	*GetOrientedEdge (0)->GetBegin () == 
+	*face.GetOrientedEdge (0)->GetBegin ();
+}
+
+G3D::Vector3 Face::GetNormal () const
+{
+    using boost::bind;
+    using G3D::Vector3;
+    OrientedEdges::const_iterator it = find_if (
+	m_edges.begin (), m_edges.end (), !bind (&OrientedEdge::IsZero, _1));
+    RuntimeAssert (it != m_edges.end (), "Face with all edges 0");
+    Vector3 one = (*it)->GetEdgeVector ();
+    it = find_if (
+	it, m_edges.end (), !bind (&OrientedEdge::IsZero, _1));
+    RuntimeAssert (it != m_edges.end (), "Face with only one edge != 0");
+    Vector3 two = (*it)->GetEdgeVector ();
+    return (one.cross (two).unit ());
+}

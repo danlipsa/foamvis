@@ -7,7 +7,6 @@
 #include "DataFiles.h"
 #include "ParsingData.h"
 #include "MainWindow.h"
-#include "SemanticError.h"
 #include "DebugStream.h"
 
 /**
