@@ -71,7 +71,7 @@ ostream& operator<< (ostream& ostr, const Face& f)
     PrintElements<OrientedEdge*> (ostr, f.m_edges, 
 				  "edges part of the face", true);
     ostr << " Face attributes: ";
-    return f.PrintAttributes (ostr, *Face::m_infos);
+    return f.PrintAttributes (ostr);
 }
 
 
@@ -87,19 +87,32 @@ Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges,
     if (m_data->IsTorus ())
     {
 	G3D::Vector3* begin = (*m_edges.begin())->GetBegin ();
-	vector<OrientedEdge*>::iterator edgeIt;
-	for (edgeIt = m_edges.begin (); edgeIt < m_edges.end (); edgeIt++)
+	BOOST_FOREACH (OrientedEdge* oe, m_edges)
 	{
 	    G3D::Vector3 edgeBegin;
-	    if ((*edgeIt)->IsReversed ())
-		edgeBegin = (*edgeIt)->GetEdge ()->GetBegin (begin);
+	    if (oe->IsReversed ())
+		edgeBegin = oe->GetEdge ()->GetBegin (begin);
 	    else
 		edgeBegin = *begin;
-	    (*edgeIt)->SetEdge (
-		data->GetEdgeDuplicate (*(*edgeIt)->GetEdge (), edgeBegin));
-	    begin = (*edgeIt)->GetEnd ();
+	    oe->SetEdge (
+		data->GetEdgeDuplicate (*oe->GetEdge (), edgeBegin));
+	    begin = oe->GetEnd ();
 	}
     }
+}
+
+
+Face::Face (Edge* edge, size_t originalIndex) :
+    Element (originalIndex, 0, false)
+{
+    m_edges.push_back (new OrientedEdge (edge, false));
+}
+
+Face::Face (const Face& original) :
+    Element (original.GetOriginalIndex (), original.GetData (), true)
+{
+    BOOST_FOREACH (OrientedEdge* oe, original.m_edges)
+	m_edges.push_back (new OrientedEdge (*oe));
 }
 
 Face::~Face()
@@ -107,14 +120,6 @@ Face::~Face()
     using boost::bind;
     for_each(m_edges.begin(), m_edges.end(),
 	     bind(DeletePointer<OrientedEdge>(), _1));
-}
-
-void Face::ReversePrint (ostream& ostr) const
-{
-    ReversePrintElements<OrientedEdge*> (
-	ostr, m_edges, "edges part of the face", true);
-    ostr << " Face attributes: ";
-    PrintAttributes (ostr, *Face::m_infos);
 }
 
 void Face::StoreDefaultAttributes (AttributesInfo* infos)
@@ -199,3 +204,23 @@ G3D::Vector3 Face::GetNormal () const
     Vector3 two = (*it)->GetEdgeVector ();
     return (one.cross (two).unit ());
 }
+
+Face* Face::CreateDuplicate (const G3D::Vector3& newBegin) const
+{
+    Face* faceDuplicate = new Face(*this);
+    G3D::Vector3 begin = newBegin;
+    BOOST_FOREACH (OrientedEdge* oe, faceDuplicate->m_edges)
+    {
+	G3D::Vector3 edgeBegin;
+	if (oe->IsReversed ())
+	    edgeBegin = oe->GetEdge ()->GetBegin (&begin);
+	else
+	    edgeBegin = begin;
+	Edge* edgeDuplicate = m_data->GetEdgeDuplicate (
+	    *oe->GetEdge (), edgeBegin);
+	oe->SetEdge (edgeDuplicate);
+	begin = *oe->GetEnd ();
+    }
+    return faceDuplicate;
+}
+

@@ -52,7 +52,7 @@ ostream& operator<< (ostream& ostr, const Body& b)
     PrintElements<OrientedFace*> (ostr, b.m_faces, 
 				  "faces part of the body", true);
     ostr << " Body attributes: ";
-    return b.PrintAttributes (ostr, *Body::m_infos);
+    return b.PrintAttributes (ostr);
 }
 
 AttributesInfo* Body::m_infos;
@@ -66,46 +66,43 @@ Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
     m_faces.resize (faceIndexes.size ());
     transform (faceIndexes.begin(), faceIndexes.end(), m_faces.begin(), 
                indexToOrientedFace(faces));
-    if (m_data->IsTorus ())
+    if (m_data->IsTorus () && m_data->GetSpaceDimension () == 3)
+    //if (false)
     {
-	NormalFaceMap normalFaceMap;
-	BOOST_FOREACH (OrientedFace* f, m_faces)
-	    normalFaceMap.insert (
-		NormalFaceMap::value_type (
-		    f->GetFace ()->GetNormal (), f));
-	vector<FaceIntersectionMargin> queue;
+	RemainingFaces remainingFaces (m_faces.size () - 2);
 	// start with two faces, mark them as placed
 	m_faces[0]->SetPlaced (true);
 	m_faces[1]->SetPlaced (true);
-
+	copy (m_faces.begin (), m_faces.end (), remainingFaces.begin ());
+	list<FaceIntersectionMargin> queue;
 	// add the two intersection triangles into a queue
-	FaceIntersectionMargin firstTriangle, secondTriangle;
-	getTrianglesFromFaceIntersection (
-	    *m_faces[0], *m_faces[1], &firstTriangle, &secondTriangle);
-	queue.push_back (firstTriangle);
-	queue.push_back (secondTriangle);
-	while (queue.empty ())
+	FaceIntersectionMargin firstMargin, secondMargin;
+	GetFaceIntersectionMargins (
+	    *m_faces[0], *m_faces[1], &firstMargin, &secondMargin);
+	queue.push_back (firstMargin);
+	queue.push_back (secondMargin);
+	while (! queue.empty ())
 	{
-	    FaceIntersectionMargin triangle = queue.back ();
+	    FaceIntersectionMargin margin = queue.back ();
 	    queue.pop_back ();
 
-	    // place the face that fits over that triangle (this might
+	    // place the face that fits over that margin (this might
 	    // create a duplicate face)
-	    OrientedFace* face = fitFace (triangle, normalFaceMap);
+	    RemainingFaces::iterator fittedFaceIt = fitFace (
+		margin, &remainingFaces);
+	    OrientedFace* face = *fittedFaceIt;
 
 	    // if the face was not placed before
 	       // add two more angles in the queue
 	    if (! face->IsPlaced ())
 	    {
 		face->SetPlaced (true);
-		getTrianglesFromFaceIntersection (
-		    *face, *triangle.m_first.m_face, 
-		    &firstTriangle, &secondTriangle);
-		queue.push_back (secondTriangle);
-		getTrianglesFromFaceIntersection (
-		    *face, *triangle.m_second.m_face, 
-		    &firstTriangle, &secondTriangle);
-		queue.push_back (firstTriangle);
+		GetFaceIntersectionMargins (*face, *margin.m_first.m_face,
+					    &firstMargin, &secondMargin);
+		queue.push_back (secondMargin);
+		GetFaceIntersectionMargins (*face, *margin.m_second.m_face, 
+					    &firstMargin, &secondMargin);
+		queue.push_back (firstMargin);
 	    }
 	}
 	for_each (m_faces.begin (), m_faces.end (),
@@ -242,9 +239,9 @@ void Body::UpdateFacesAdjacency ()
 	      bind(&OrientedFace::AddAdjacentBody, _1, this));
 }
 
-void Body::getTrianglesFromFaceIntersection (
+void Body::GetFaceIntersectionMargins (
     const OrientedFace& firstFace, const OrientedFace& secondFace,
-    FaceIntersectionMargin* firstTriangle, FaceIntersectionMargin* secondTriangle)
+    FaceIntersectionMargin* firstMargin, FaceIntersectionMargin* secondMargin)
 {
     for (size_t i = 0; i < firstFace.GetEdgeCount (); i++)
     {
@@ -253,16 +250,20 @@ void Body::getTrianglesFromFaceIntersection (
 	    if (*(firstFace.GetOrientedEdge (i)->GetEdge ()) == 
 		*(secondFace.GetOrientedEdge (j)->GetEdge ()))
 	    {
-		firstTriangle->m_first.m_face = &firstFace;
-		firstTriangle->m_first.m_edgeIndex = i;
-		firstTriangle->m_second.m_face = &secondFace;
-		firstTriangle->m_second.m_edgeIndex = j;
-		firstTriangle->m_margin = FaceIntersectionMargin::BEFORE_FIRST_AFTER_SECOND;
-		*secondTriangle = *firstTriangle;
-		secondTriangle->m_margin = FaceIntersectionMargin::AFTER_FIRST_BEFORE_SECOND;
+		firstMargin->m_first.m_face = &firstFace;
+		firstMargin->m_first.m_edgeIndex = i;
+		firstMargin->m_second.m_face = &secondFace;
+		firstMargin->m_second.m_edgeIndex = j;
+		firstMargin->m_margin = 
+		    FaceIntersectionMargin::BEFORE_FIRST_AFTER_SECOND;
+		*secondMargin = *firstMargin;
+		secondMargin->m_margin = 
+		    FaceIntersectionMargin::AFTER_FIRST_BEFORE_SECOND;
+		return;
 	    }
 	}
     }
+    RuntimeAssert (false, "No face intersection found");
 }
 
 
@@ -284,9 +285,9 @@ void Body::FaceIntersectionMargin::GetTriangle (
 }
 
 
-OrientedFace* Body::fitFace (
+Body::RemainingFaces::iterator Body::fitFace (
     const FaceIntersectionMargin& faceIntersectionMargin, 
-    const NormalFaceMap& normalFaceMap)
+    RemainingFaces* remainingFaces)
 {
     using G3D::Vector3;
     boost::array<Vector3, 3> triangle;
@@ -299,59 +300,62 @@ OrientedFace* Body::fitFace (
 	FaceIntersectionMargin::GetTriangle (
 	    faceIntersectionMargin.m_second,
 	    faceIntersectionMargin.m_first, &triangle);
-    Vector3 normal = (triangle[1] - triangle[0]).cross (
-	triangle[2] - triangle[1]);
-    pair<NormalFaceMap::const_iterator, NormalFaceMap::const_iterator> range = 
-	normalFaceMap.equal_range (normal);
-    for (NormalFaceMap::const_iterator it = range.first;
-	 it != range.second; ++it)
-    {
-	OrientedFace* face = fitFace ((*it).second, triangle);
-	if (face != 0)
-	    return face;
-    }
+    for (RemainingFaces::iterator it = remainingFaces->begin ();
+	 it != remainingFaces->end (); ++it)
+	if (fitFace (*it, triangle))
+	    return it;
+    RuntimeAssert (
+	false, "No face was fitted for this face intersection margin");
+    return remainingFaces->end ();
 }
 
-OrientedFace* Body::fitFace (
-    OrientedFace* face, const boost::array<G3D::Vector3, 3>& triangle)
+bool Body::fitFace (
+    OrientedFace* candidate, const boost::array<G3D::Vector3, 3>& triangle)
 {
     using G3D::Vector3;
     size_t currentFitPoint = 0;
     bool found = false;
 
     Vector3 translate;
-    for (size_t i = 0; ! found && i < face->GetEdgeCount (); i++)
+    for (size_t start = 0; 
+	 ! found && start < (candidate->GetEdgeCount () + triangle.size () - 1);
+	 start++)
     {
-	Vector3 current = *face->GetEnd (i);
+	size_t i = start % candidate->GetEdgeCount ();
+	Vector3 current = *candidate->GetEnd (i);
 	switch (currentFitPoint)
 	{
 	case 0:
-	    translate = (triangle[currentFitPoint] - current);
+	    translate = (triangle[0] - current);
 	    currentFitPoint++;
 	    break;
 	case 1:
-	    if ((triangle[currentFitPoint] - current).fuzzyEq(translate))
+	    if ((triangle[1] - current).fuzzyEq(translate))
 		currentFitPoint++;
 	    else
 	    {
-		i--;
+		start--;
 		currentFitPoint = 0;
 	    }
 	    break;
 	case 2:
-	    if ((triangle[currentFitPoint] - current).fuzzyEq(translate))
+	    if ((triangle[2] - current).fuzzyEq(translate))
 	    {
 		found = true;
-		//found a fit, we might need a translation
-		face->SetFace (
+		//found a fit, we might need a duplicate
+		candidate->SetFace (
 		    m_data->GetFaceDuplicate (
-			*face->GetFace (),
-			*(face->GetOrientedEdge(0)->GetBegin ())));
-		break;
+			*candidate->GetFace (),
+			*(candidate->GetOrientedEdge(0)->GetBegin ())));
 	    }
+	    else
+	    {
+		start--;
+		currentFitPoint = 0;
+	    }
+	    break;
 	}
     }
-    RuntimeAssert (found, "Cannot fit face");
-    return face;
+    return found;
 }
 

@@ -126,39 +126,26 @@ void Data::SetVertex (unsigned int i, float x, float y, float z,
 Vertex* Data::GetVertexDuplicate (
     const Vertex& original, const G3D::Vector3int16& domainIncrement)
 {
-    Vertex searchDummy (&original, this);
-    searchDummy.AdjustPosition (domainIncrement);
-    set<Vertex*, Vertex::LessThan>::iterator it = 
-	m_vertexSet.find (&searchDummy);
+    Vertex searchDummy (&original, this, domainIncrement);
+    VertexSet::iterator it = m_vertexSet.find (&searchDummy);
     if (it != m_vertexSet.end ())
 	return *it;
-    Vertex* duplicate = new Vertex (original);
-    duplicate->SetDuplicate (true);
-    duplicate->AdjustPosition (domainIncrement);
+    Vertex* duplicate = original.CreateDuplicate (domainIncrement);
     m_vertexSet.insert (duplicate);
     m_vertices.push_back (duplicate);
     return duplicate;
 }
 
+
+
 Edge* Data::GetEdgeDuplicate (
     const Edge& original, const G3D::Vector3& newBegin)
 {
-    using G3D::Vector3int16;
-    Vertex beginDummy (&newBegin, this);
-    Edge searchDummy (&beginDummy, original.GetOriginalIndex ());
-    set<Edge*, Edge::LessThan>::iterator it = m_edgeSet.find (&searchDummy);
+    EdgeSearchDummy searchDummy (&newBegin, this, original.GetOriginalIndex ());
+    EdgeSet::iterator it = m_edgeSet.find (&searchDummy.m_edge);
     if (it != m_edgeSet.end ())
 	return *it;
-    Vector3int16 domainIncrement = GetDomainIncrement (
-	*original.GetBegin (), newBegin);
-    Vertex* beginDuplicate = GetVertexDuplicate (*original.GetBegin (),
-						 domainIncrement);
-    Vertex* endDuplicate = GetVertexDuplicate (*original.GetEnd (),
-					       domainIncrement);
-    Edge* duplicate = new Edge (original);
-    duplicate->SetDuplicate (true);
-    duplicate->SetBegin (beginDuplicate);
-    duplicate->SetEnd (endDuplicate);
+    Edge* duplicate = original.CreateDuplicate (newBegin);
     m_edgeSet.insert (duplicate);
     m_edges.push_back (duplicate);
     return duplicate;
@@ -167,6 +154,14 @@ Edge* Data::GetEdgeDuplicate (
 Face* Data::GetFaceDuplicate (
     const Face& original, const G3D::Vector3& newBegin)
 {
+    FaceSearchDummy searchDummy (&newBegin, this, original.GetOriginalIndex ());
+    FaceSet::iterator it = m_faceSet.find (&searchDummy.m_face);
+    if (it != m_faceSet.end ())
+	return *it;
+    Face* duplicate = original.CreateDuplicate (newBegin);
+    m_faceSet.insert (duplicate);
+    m_faces.push_back (duplicate);
+    return duplicate;
 }
 
 
@@ -283,9 +278,9 @@ void Data::CalculateAABox ()
 {
     using G3D::Vector3;
     Vector3 low, high;
-    calculateAggregate <vector<Vertex*>, vector<Vertex*>::iterator>() (
+    calculateAggregate <Vertices, Vertices::iterator>() (
 	min_element, &low, m_vertices);
-    calculateAggregate <vector<Vertex*>, vector<Vertex*>::iterator>()(
+    calculateAggregate <Vertices, Vertices::iterator>()(
 	max_element, &high, m_vertices);
     if (IsTorus ())
 	calculateAABoxForTorus (&low, &high);
@@ -371,7 +366,7 @@ private:
 };
 
 
-ostream& Data::PrintFacesWithIntersection (ostream& ostr)
+ostream& Data::PrintFacesWithIntersection (ostream& ostr) const
 {
     ostr << "Face intersections:" << endl;
     for_each(m_faces.begin (), m_faces.end (), printFaceIfIntersection (ostr));

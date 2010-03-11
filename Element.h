@@ -52,15 +52,7 @@ public:
     unsigned int GetOriginalIndex () const
     {
 	return m_originalIndex;
-    }
-    /**
-     * Pretty print attributes of an element
-     * @param ostr where to print
-     * @param info information about attributes
-     */
-    ostream& PrintAttributes (
-	ostream& ostr, const AttributesInfo& info) const;
-    
+    }    
     bool IsDuplicate () const
     {
 	return m_duplicate;
@@ -69,6 +61,19 @@ public:
     {
 	m_duplicate = duplicate;
     }
+    Data* GetData () const
+    {
+	return m_data;
+    }
+protected:
+    /**
+     * Pretty print attributes of an element
+     * @param ostr where to print
+     * @param info information about attributes
+     */
+    ostream& printAttributes (
+	ostream& ostr, const AttributesInfo& info) const;
+
 protected:
     /**
      * Vector of attributes
@@ -80,6 +85,7 @@ protected:
     unsigned int m_originalIndex;
     Data* m_data;
     bool m_duplicate;
+
 protected:
     const static unsigned int INVALID_INDEX;
 };

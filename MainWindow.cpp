@@ -225,15 +225,12 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 
     case Qt::Key_R:
 	InteractionModeRotate ();
-	cdbg << "rotate" << endl;
 	break;
     case Qt::Key_S:
 	InteractionModeScale ();
-	cdbg << "scale" << endl;
 	break;
     case Qt::Key_T:
 	InteractionModeTranslate ();
-	cdbg << "translate" << endl;
 	break;
     }
 }

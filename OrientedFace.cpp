@@ -10,12 +10,20 @@
 
 ostream& operator<< (ostream& ostr, const OrientedFace& of)
 {
-    ostr << (of.m_reversed ? "(R)" : "(N)");
-    if (of.m_reversed)
-        of.m_face->ReversePrint (ostr);
-    else
-        ostr << *of.m_face;
-    return ostr;
+    ostr << (of.m_reversed ? "(R) " : "(N) ");
+    ostr << of.GetEdgeCount () << " edges part of the face:" << endl;
+    for (size_t i = 0; i < of.GetEdgeCount (); i++)
+    {
+	const OrientedEdge* oe = of.GetOrientedEdge (i);
+	ostr << i << ": ";
+	if (of.m_reversed)
+	    oe->PrintReversed (ostr);
+	else
+	    ostr << *oe;
+	ostr << endl;
+    }
+    ostr << " Face attributes: ";
+    return of.m_face->PrintAttributes (ostr);
 }
 
 Vertex* OrientedFace::getBegin (size_t edgeIndex) const

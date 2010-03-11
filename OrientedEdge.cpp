@@ -8,16 +8,21 @@
 #include "Debug.h"
 
 
-ostream& operator<< (ostream& ostr, OrientedEdge& oe)
+ostream& OrientedEdge::print (ostream& ostr, bool reversed) const
 {
-    ostr << (oe.m_reversed ? "(R)" : "(N)");
-    ostr << "Oriented Edge " << oe.GetEdge ()-> GetOriginalIndex () 
-	 << (oe.GetEdge ()->IsDuplicate () ? " DUPLICATE" : "")
-	 << ": "
-	 << static_cast<G3D::Vector3>(*oe.GetBegin ()) << ", " 
-	 << static_cast<G3D::Vector3>(*oe.GetEnd ());
+    using G3D::Vector3;
+    ostr << (m_reversed ? "(R)" : "(N)");
+    ostr << "Oriented Edge " << GetEdge ()-> GetOriginalIndex () 
+	 << (GetEdge ()->IsDuplicate () ? " DUPLICATE" : "")
+	 << ": ";
+    const Vector3* begin = static_cast<const G3D::Vector3*>(GetBegin ());
+    const Vector3* end = static_cast<const G3D::Vector3*>(GetEnd ());
+    if (reversed)
+	swap (begin, end);
+    ostr << *begin << ", " << *end;
     return ostr;
 }
+
 
 G3D::Vector3int16 OrientedEdge::GetEndDomainIncrement () const
 {

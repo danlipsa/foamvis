@@ -23,6 +23,19 @@ public:
      * data object
      */
     typedef const G3D::Vector3& (Data::*Corner) () const;
+    typedef set<Vertex*, Vertex::LessThan> VertexSet;
+    typedef set<Edge*, Edge::LessThan> EdgeSet;
+    typedef boost::unordered_set<Face*, Face::Hash> FaceSet;
+    /**
+     * Iterator over the vertices in this Data object
+     */
+    typedef vector<Vertex*> Vertices;
+    /**
+     * Functor applied to a collection of vertices
+     */
+    typedef Vertices::iterator (*AggregateOnVertices)(
+	Vertices::iterator first, Vertices::iterator last, 
+	Vertex::LessThanAlong lessThan);
 
     class LessThanAlong
     {
@@ -60,16 +73,6 @@ public:
 	 */
 	Corner m_corner;
     };
-    /**
-     * Iterator over the vertices in this Data object
-     */
-    typedef vector<Vertex*>::iterator IteratorVertices;
-    /**
-     * Functor applied to a collection of vertices
-     */
-    typedef IteratorVertices (*AggregateOnVertices)(
-	IteratorVertices first, IteratorVertices last, 
-	Vertex::LessThanAlong lessThan);
 public:
     /**
      * Constructs a Data object.
@@ -330,23 +333,45 @@ public:
     friend ostream& operator<< (ostream& ostr, Data& d);
 
 private:
-    ostream& PrintFacesWithIntersection (ostream& ostr);
+    struct EdgeSearchDummy
+    {
+	EdgeSearchDummy (const G3D::Vector3* position, Data* data,
+			 size_t edgeOriginalIndex) : 
+	    m_vertex (position, data), m_edge (&m_vertex, edgeOriginalIndex) {}
+	Vertex m_vertex;
+	Edge m_edge;
+    };
 
+    struct FaceSearchDummy
+    {
+	FaceSearchDummy (const G3D::Vector3* position, Data* data,
+			 size_t faceOriginalIndex) : 
+	    m_vertex (position, data), m_edge (&m_vertex, 0),
+	    m_face (&m_edge, faceOriginalIndex) {}
+	Vertex m_vertex;
+	Edge m_edge;
+	Face m_face;
+    };
+
+private:
+    ostream& PrintFacesWithIntersection (ostream& ostr) const;
+
+private:
     /**
      * A vector of points
      */
-    vector<Vertex*> m_vertices;
-    set<Vertex*, Vertex::LessThan> m_vertexSet;
+    Vertices m_vertices;
+    VertexSet m_vertexSet;
     /**
      * A vector of edges
      */
     vector<Edge*> m_edges;
-    set<Edge*, Edge::LessThan> m_edgeSet;
+    EdgeSet m_edgeSet;
     /**
      * A vector of faces
      */
     vector<Face*> m_faces;
-    boost::unordered_set<Face*, Face::Hash> m_faceSet;
+    FaceSet m_faceSet;
     /**
      * A vector of bodies.
      */

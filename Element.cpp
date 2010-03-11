@@ -131,7 +131,7 @@ void Element::StoreAttributes (
     for_each (list.begin (), list.end (), storeAttribute(*this, infos));
 }
 
-ostream& Element::PrintAttributes (
+ostream& Element::printAttributes (
     ostream& ostr, const AttributesInfo& infos) const
 {
     if (m_attributes != 0)

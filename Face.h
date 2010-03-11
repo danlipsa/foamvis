@@ -20,6 +20,8 @@ class Data;
 class Face : public Element
 {
 public:
+    typedef vector<OrientedEdge*> OrientedEdges;
+
     struct Hash
     {
 	size_t operator() (const Face& face) const
@@ -34,7 +36,6 @@ public:
 	    return operator() (*f);
 	}
     };
-    typedef vector<OrientedEdge*> OrientedEdges;
 
 public:
     /**
@@ -46,14 +47,13 @@ public:
     Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
 	 unsigned int originalIndex, Data* data,
 	 bool duplicate = false);
+    Face (const Face& original);
+    Face (Edge* edge, size_t originalIndex);
+
     /**
      * Destroys a Face object
      */
     ~Face();
-    /**
-     * Pretty prints this Face by printing the edges in REVERSE order
-     */
-    void ReversePrint (ostream& ostr) const;
     /**
      * Gets the list of oriented edges
      * @return vector of oriented edges
@@ -97,6 +97,12 @@ public:
     size_t GetPreviousValidIndex (size_t index) const;
     bool operator== (const Face& face) const;
     G3D::Vector3 GetNormal () const;
+    Face* CreateDuplicate (const G3D::Vector3& newBegin) const;
+    ostream& PrintAttributes (ostream& ostr) const
+    {
+	return printAttributes (ostr, *Face::m_infos);
+    }
+
 
 public:
     /**

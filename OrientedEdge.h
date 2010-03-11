@@ -78,6 +78,10 @@ public:
     {
 	return *GetEnd () - *GetBegin ();
     }
+    ostream& PrintReversed (ostream& ostr) const
+    {
+	return print (ostr, true);
+    }
 
 public:
     /**
@@ -85,7 +89,13 @@ public:
      * @param ostr output stream where to print the edge
      * @param oe the edge to by printed.
      */
-    friend ostream& operator<< (ostream& ostr, OrientedEdge& oe);
+    friend ostream& operator<< (ostream& ostr, const OrientedEdge& oe)
+    {
+	return oe.print (ostr);
+    }
+
+private:
+    ostream& print (ostream& ostr, bool reversed = false) const;
 
 private:
     /**

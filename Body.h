@@ -18,6 +18,9 @@ class Data;
 class Body : public Element
 {
 public:
+    typedef vector<OrientedFace*> OrientedFaces;
+
+public:
     /**
      * Creates a new body
      * @param originalIndex the original index for this body
@@ -126,9 +129,7 @@ private:
 	    const FaceEdgeIndex& first, const FaceEdgeIndex& second,
 	    boost::array<G3D::Vector3, 3>* triangle);
     };
-    typedef boost::unordered_multimap<G3D::Vector3, OrientedFace*,
-				      Vertex::Hash,
-				      Vertex::FuzzyEqual> NormalFaceMap;
+    typedef list<OrientedFace*> RemainingFaces;
 private:
     /**
      * Splits a  set of  objects (vertices or  edges) in  physical and
@@ -140,15 +141,19 @@ private:
     template <typename T>
     void split (
 	set<T*>& src, vector<T*>& destTessellation, vector<T*>& destPhysical);
-    OrientedFace* fitFace (const FaceIntersectionMargin& faceIntersection,
-			   const NormalFaceMap& normalFaceMap);
-    OrientedFace* fitFace (
-	OrientedFace* face, 
-	const boost::array<G3D::Vector3, 3>& triangle);
-
+    RemainingFaces::iterator fitFace (
+	const FaceIntersectionMargin& faceIntersection,
+	RemainingFaces* remainingFaces);
+    bool fitFace (OrientedFace* face, 
+		  const boost::array<G3D::Vector3, 3>& triangle);
+    ostream& PrintAttributes (ostream& ostr) const
+    {
+	return printAttributes (ostr, *Body::m_infos);
+    }
+    
 	
 private:
-    static void getTrianglesFromFaceIntersection (
+    static void GetFaceIntersectionMargins (
 	const OrientedFace& firstFace, const OrientedFace& secondFace,
 	FaceIntersectionMargin* one, FaceIntersectionMargin* two);
 
@@ -157,7 +162,7 @@ private:
     /**
      * Oriented faces that are part of this body.
      */
-    vector<OrientedFace*> m_faces;
+    OrientedFaces m_faces;
     /**
      * Edges for this body
      */

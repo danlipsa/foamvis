@@ -21,7 +21,7 @@ ostream& operator<< (ostream& ostr, const Edge& e)
 	 << static_cast<G3D::Vector3>(*e.m_end)
 	 << " Adjacent faces(" << e.m_adjacentFaces.size () << ")"
 	 << " Edge attributes: ";
-    return e.PrintAttributes (ostr, *Edge::m_infos);
+    return e.PrintAttributes (ostr);
 }
 
 AttributesInfo* Edge::m_infos;
@@ -43,6 +43,12 @@ Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endDomainIncrement,
 Edge::Edge (Vertex* begin, unsigned int originalIndex) :
     Element (originalIndex, 0, false),
     m_begin (begin), m_end (0)
+{}
+
+Edge::Edge (const Edge& o) : 
+    Element (o.GetOriginalIndex (), o.GetData (), true),
+    m_begin (o.GetBegin ()), m_end (o.GetEnd ()),
+    m_endDomainIncrement (o.GetEndDomainIncrement ())
 {}
 
 
@@ -116,4 +122,19 @@ bool Edge::operator== (const Edge& other) const
 bool Edge::IsZero () const
 {
     return (*GetEnd () - *GetBegin ()).isZero ();
+}
+
+Edge* Edge::CreateDuplicate (const G3D::Vector3& newBegin) const
+{
+    G3D::Vector3int16 domainIncrement = m_data->GetDomainIncrement (
+	*GetBegin (), newBegin);
+    Vertex* beginDuplicate = m_data->GetVertexDuplicate (
+	*GetBegin (), domainIncrement);
+    Vertex* endDuplicate = m_data->GetVertexDuplicate (
+	*GetEnd (), domainIncrement);
+
+    Edge* duplicate = new Edge (*this);
+    duplicate->SetBegin (beginDuplicate);
+    duplicate->SetEnd (endDuplicate);
+    return duplicate;
 }

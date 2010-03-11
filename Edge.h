@@ -36,6 +36,7 @@ public:
 	  unsigned int originalIndex, Data* data,
 	  bool duplicate = false);
     Edge (Vertex* begin, unsigned int originalIndex);
+    Edge (const Edge& edge);
     /**
      * @return the first vertex of the edge
      */
@@ -106,6 +107,11 @@ public:
     bool operator== (const Edge& other) const;
     bool operator< (const Edge& other) const;
     bool IsZero () const;
+    Edge* CreateDuplicate (const G3D::Vector3& newBegin) const;
+    ostream& PrintAttributes (ostream& ostr) const
+    {
+	return printAttributes (ostr, *Edge::m_infos);
+    }
 
 public:
     static short DomainIncrementCharToNumber (char sign);

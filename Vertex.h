@@ -74,15 +74,6 @@ public:
 	    return seed;
 	}
     };
-    struct FuzzyEqual
-    {
-	bool operator() (
-	    const G3D::Vector3& first, const G3D::Vector3& second) const
-	{
-	    return first.fuzzyEq (second) ||
-		first.fuzzyEq (-second);
-	}
-    };
 
 public:
     /**
@@ -97,6 +88,8 @@ public:
 	   unsigned int originalIndex, Data* data,
 	   bool duplicate=false);
     Vertex (const G3D::Vector3* position, Data* data);
+    Vertex (const G3D::Vector3* position, Data* data,
+	    const G3D::Vector3int16& domainIncrement);
     /**
      * Is this a physical (not tesselation) vertex
      * @return true if it is physical, false otherwise
@@ -114,6 +107,11 @@ public:
     void AdjustPosition (const G3D::Vector3int16& domainIncrement);
     bool operator< (const Vertex& other) const;
     bool operator== (const Vertex& other) const;
+    Vertex* CreateDuplicate (const G3D::Vector3int16& domainIncrement) const;
+    ostream& PrintAttributes (ostream& ostr) const
+    {
+	return printAttributes (ostr, *Vertex::m_infos);
+    }
 
 public:
     template <typename Vertices>
