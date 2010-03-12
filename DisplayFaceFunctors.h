@@ -57,7 +57,7 @@ private:
     /**
      * Used to display fewer faces (for DEBUG purposes)
      */
-    unsigned int m_count;
+    size_t m_count;
 };
 
 

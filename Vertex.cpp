@@ -26,7 +26,7 @@ ostream& operator<< (ostream& ostr, const Vertex& v)
 AttributesInfo* Vertex::m_infos;
 
 Vertex::Vertex(float x, float y, float z, 
-	       unsigned int originalIndex, Data* data, bool duplicate) :
+	       size_t originalIndex, Data* data, bool duplicate) :
     G3D::Vector3 (x, y, z),
     Element(originalIndex, data, duplicate),
     m_adjacentPhysicalEdgesCount (0)

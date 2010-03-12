@@ -38,7 +38,7 @@ public:
             RuntimeAssert (info != 0, 
 			   "Attribute \"", nameSemanticValue->GetName (),
 			   "\" was not defined");
-            unsigned int index = info->GetIndex ();
+            size_t index = info->GetIndex ();
             if (index == AttributeInfo::INVALID_INDEX)
                 return;
             else
@@ -102,19 +102,19 @@ private:
     /**
      * Current attribute index
      */
-    unsigned int m_index;
+    size_t m_index;
 };
 
 
-const unsigned int Element::INVALID_INDEX = 
-				 numeric_limits<unsigned int>::max ();
+const size_t Element::INVALID_INDEX = 
+				 numeric_limits<size_t>::max ();
 
 Element::~Element()
 {
     delete m_attributes;
 }
 
-void Element::SetAttribute (unsigned int i, Attribute* attribute)
+void Element::SetAttribute (size_t i, Attribute* attribute)
 {
     using boost::shared_ptr;
     if (m_attributes == 0)

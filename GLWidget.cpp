@@ -49,20 +49,6 @@ struct OpenGLParam
 };
 
 /**
- * Dealocates the space occupied by  an old OpenGL object and stores a
- * newObject
- *
- * @param object address where the  old object is stored and where the
- * new object will be stored
- * @param newObject the new object that will be stored
- */
-inline void setObject (GLuint* object, GLuint newObject)
-{
-    glDeleteLists(*object, 1);
-    *object = newObject;
-}
-
-/**
  * Check the OpenGL  error code and prints a message  to cdbg if there
  * is an error
  */
@@ -117,9 +103,9 @@ void printOpenGLInfo ()
 
 float GLWidget::OBJECTS_WIDTH[] = {0.0, 1.0, 3.0, 5.0, 7.0};
 
-const unsigned int GLWidget::DISPLAY_ALL(numeric_limits<unsigned int>::max());
-const unsigned int GLWidget::QUADRIC_SLICES (20);
-const unsigned int GLWidget::QUADRIC_STACKS (20);
+const size_t GLWidget::DISPLAY_ALL(numeric_limits<size_t>::max());
+const size_t GLWidget::QUADRIC_SLICES (20);
+const size_t GLWidget::QUADRIC_STACKS (20);
 
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent), 
@@ -177,9 +163,8 @@ void GLWidget::ViewVertices (bool checked)
     if (checked)
     {
         m_viewType = VERTICES;
-        setObject (&m_object, displayVertices ());
 	disableLighting ();
-	updateGL ();
+	UpdateDisplay ();
     }
 }
 
@@ -188,9 +173,8 @@ void GLWidget::ViewEdges (bool checked)
     if (checked)
     {
         m_viewType = EDGES;
-        setObject (&m_object, displayEdges ());
 	disableLighting ();
-	updateGL ();
+	UpdateDisplay ();
     }
 }
 
@@ -199,9 +183,8 @@ void GLWidget::ViewFaces (bool checked)
     if (checked)
     {
         m_viewType = FACES;
-        setObject (&m_object, displayFaces ());
 	disableLighting ();
-	updateGL ();
+	UpdateDisplay ();
     }
 }
 
@@ -210,9 +193,8 @@ void GLWidget::ViewRawVertices (bool checked)
     if (checked)
     {
         m_viewType = RAW_VERTICES;
-        setObject (&m_object, displayRawVertices ());
 	disableLighting ();
-	updateGL ();
+	UpdateDisplay ();
     }
 }
 
@@ -221,9 +203,8 @@ void GLWidget::ViewRawEdges (bool checked)
     if (checked)
     {
         m_viewType = RAW_EDGES;
-        setObject (&m_object, displayRawEdges ());
 	enableLighting ();
-	updateGL ();
+	UpdateDisplay ();
     }
 }
 
@@ -232,9 +213,8 @@ void GLWidget::ViewRawFaces (bool checked)
     if (checked)
     {
         m_viewType = RAW_FACES;
-        setObject (&m_object, displayRawFaces ());
 	enableLighting ();
-	updateGL ();
+	UpdateDisplay ();
     }
 }
 
@@ -245,9 +225,8 @@ void GLWidget::ViewBodies (bool checked)
     if (checked)
     {
         m_viewType = BODIES;
-        setObject (&m_object, displayBodies ());
 	enableLighting ();
-	updateGL ();
+	UpdateDisplay ();
     }
 }
 
@@ -256,9 +235,8 @@ void GLWidget::ViewCenterPaths (bool checked)
     if (checked)
     {
         m_viewType = CENTER_PATHS;
-        setObject (&m_object, displayCenterPaths ());
 	disableLighting ();
-	updateGL ();
+	UpdateDisplay ();
     }
 }
 
@@ -271,8 +249,7 @@ void GLWidget::InteractionModeChanged (int index)
 void GLWidget::DataSliderValueChanged (int newIndex)
 {
     m_dataIndex = newIndex;
-    setObject (&m_object, display(m_viewType));
-    updateGL ();
+    UpdateDisplay ();
 }
 
 void GLWidget::SaveMovie (bool checked)
@@ -284,15 +261,13 @@ void GLWidget::SaveMovie (bool checked)
 void GLWidget::PhysicalObjectsWidthChanged (int value)
 {
     m_physicalObjectsWidth = value;
-    setObject (&m_object, display(m_viewType));
-    updateGL ();
+    UpdateDisplay ();
 }
 
 void GLWidget::TessellationObjectsWidthChanged (int value)
 {
     m_tessellationObjectsWidth = value;
-    setObject (&m_object, display(m_viewType));
-    updateGL ();
+    UpdateDisplay ();
 }
 
 // End Slots
@@ -727,7 +702,7 @@ public:
      * Displays the center path for a certain body
      * @param index what body to display the center path for
      */
-    void operator () (unsigned int index)
+    void operator () (size_t index)
     {
 	glBegin(GL_LINE_STRIP);
 	vector<Data*>& data = m_widget.GetDataFiles ().GetData ();
@@ -736,11 +711,11 @@ public:
 	glEnd ();
     }
     /**
-     * Helper function which calls operator () (unsigned int index).
+     * Helper function which calls operator () (size_t index).
      * @param p a pair original index body pointer
      */
     inline void operator () (
-	pair<unsigned int,  Body*> p) {operator() (p.first);}
+	pair<size_t,  Body*> p) {operator() (p.first);}
 
 private:
     /**
@@ -755,14 +730,14 @@ GLuint GLWidget::displayCenterPaths ()
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
     qglColor (QColor (Qt::black));
-    map<unsigned int, Body*>& originalIndexBodyMap = 
+    map<size_t, Body*>& originalIndexBodyMap = 
 	GetDataFiles ().GetData ()[0]->GetOriginalIndexBodyMap ();
     if (GetDisplayedBody () == DISPLAY_ALL)
 	for_each (originalIndexBodyMap.begin (), originalIndexBodyMap.end (),
 		  displayCenterPath (*this));
     else
     {
-	map<unsigned int, Body*>::const_iterator it = 
+	map<size_t, Body*>::const_iterator it = 
 	    originalIndexBodyMap.find (GetDisplayedBody());
 	displayCenterPath (*this) (*it);
     }
@@ -839,8 +814,7 @@ void GLWidget::IncrementDisplayedFace ()
         if (m_displayedFace == body.GetOrientedFaces ().size ())
             m_displayedFace = DISPLAY_ALL;
     }
-    setObject (&m_object, display(m_viewType));
-    updateGL ();
+    UpdateDisplay ();
 }
 
 void GLWidget::DecrementDisplayedFace ()
@@ -857,9 +831,7 @@ void GLWidget::DecrementDisplayedFace ()
             m_displayedFace = body.GetOrientedFaces ().size ();
     }
     m_displayedFace--;
-    setObject (&m_object, display(m_viewType));
-    updateGL ();
-
+    UpdateDisplay ();
 }
 
 void GLWidget::IncrementDisplayedBody ()
@@ -871,8 +843,7 @@ void GLWidget::IncrementDisplayedBody ()
     m_displayedFace = DISPLAY_ALL;
     if (m_displayedBody == GetDataFiles ().GetData ()[0]->GetBodies ().size ())
         m_displayedBody = DISPLAY_ALL;
-    setObject (&m_object, display(m_viewType));
-    updateGL ();
+    UpdateDisplay ();
     cdbg << "displayed body: " << m_displayedBody << endl;
 }
 
@@ -885,8 +856,7 @@ void GLWidget::DecrementDisplayedBody ()
         m_displayedBody = GetDataFiles ().GetData ()[0]->GetBodies ().size ();
     m_displayedBody--;
     m_displayedFace = DISPLAY_ALL;
-    setObject (&m_object, display(m_viewType));
-    updateGL ();
+    UpdateDisplay ();
     cdbg << "displayed body: " << m_displayedBody << endl;
 }
 

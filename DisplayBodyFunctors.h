@@ -30,7 +30,7 @@ public:
      */
     void operator () (Body* b)
     {
-        unsigned int displayedBody = m_widget.GetDisplayedBody ();
+        size_t displayedBody = m_widget.GetDisplayedBody ();
         if (displayedBody == m_widget.DISPLAY_ALL ||
              b->GetOriginalIndex () == displayedBody)
         {
@@ -108,7 +108,7 @@ public:
      * @param widget where to display the body center
      * @param index what body to display
      */
-    DisplayBodyCenterFromData (GLWidget& widget, unsigned int index) :
+    DisplayBodyCenterFromData (GLWidget& widget, size_t index) :
     DisplayBodyCenter (widget), m_index (index) {}
     /**
      * Functor that displays a body center

@@ -85,7 +85,7 @@ public:
      * @param z the Z coordinate
      */
     Vertex(float x, float y, float z,
-	   unsigned int originalIndex, Data* data,
+	   size_t originalIndex, Data* data,
 	   bool duplicate=false);
     Vertex (const G3D::Vector3* position, Data* data);
     Vertex (const G3D::Vector3* position, Data* data,
@@ -216,7 +216,7 @@ private:
      * Edges adjacent to this vertex
      */
     vector<Edge*> m_adjacentEdges;
-    unsigned int m_adjacentPhysicalEdgesCount;
+    size_t m_adjacentPhysicalEdgesCount;
 
 private:
     /**

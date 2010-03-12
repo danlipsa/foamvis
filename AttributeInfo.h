@@ -24,14 +24,14 @@ public:
      * element where this attribute is stored.
      * @param creator functor that knows how to create this attribute.
      */
-    AttributeInfo (unsigned int index, AttributeCreator* creator) : 
+    AttributeInfo (size_t index, AttributeCreator* creator) : 
 	m_index (index), m_creator (creator) {}
     /**
      * Gets the index where this attribute is stored
      * @return  index in  the  array of  attributes  attached to  each
      * element where this attribute is stored.
      */
-    unsigned int GetIndex () {return m_index;}
+    size_t GetIndex () {return m_index;}
     /**
      * Gets the functor that knows how to create this attribute
      * @return functor that knows how to create this attribute
@@ -40,12 +40,12 @@ public:
     /**
      * Constant used to signal an attribute that will not be stored.
      */
-     static const unsigned int INVALID_INDEX = UINT_MAX; 
+     static const size_t INVALID_INDEX = UINT_MAX; 
 private:
     /**
      * The index where this attribute is going to be stored
      */
-    unsigned int m_index;
+    size_t m_index;
     /**
      * Knows how to create a kind of attribute.
      */
@@ -89,7 +89,7 @@ public:
      * @param index where the attribute is stored
      * @return name of the attribute
      */
-     const char* GetAttributeName (unsigned int index) const;
+     const char* GetAttributeName (size_t index) const;
 private:
     /**
      * All the attributes values that should be loaded from the data file
@@ -103,7 +103,7 @@ private:
      * Index where a  newly added attribute will be  store in an array
      * of attributes attached to an element.
      */
-    unsigned int m_currentIndex;
+    size_t m_currentIndex;
     /**
      * Specify if we should load all attributes from the DMP file or not.
      */

@@ -45,7 +45,7 @@ public:
      * @param edges vector of Edge objects
      */
     Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
-	 unsigned int originalIndex, Data* data,
+	 size_t originalIndex, Data* data,
 	 bool duplicate = false);
     Face (const Face& original);
     Face (Edge* edge, size_t originalIndex);
@@ -127,7 +127,7 @@ private:
     /**
      * Index where the color attribute is stored for a face
      */
-    const static unsigned int COLOR_INDEX = 0;
+    const static size_t COLOR_INDEX = 0;
     /**
      * Stores information about all vertex attributes
      */

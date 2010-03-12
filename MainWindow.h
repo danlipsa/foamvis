@@ -18,8 +18,6 @@ class DataFiles;
  */
 class MainWindow : public QWidget, private Ui::Window
 {
-    Q_OBJECT
-    
 public:
     /**
      * Constructor
@@ -85,6 +83,7 @@ public Q_SLOTS:
     void InteractionModeRotate ();
     void InteractionModeScale ();
     void InteractionModeTranslate ();
+
 private:
     /**
      * Enables/Disables the Begin button
@@ -109,6 +108,9 @@ private:
      * Updates the status bar based on the postion of the slider.
      */
     void updateStatus ();
+
+private:
+    Q_OBJECT
     /**
      * True if the programs displays the data files iteratively, false
      * otherwise
@@ -127,6 +129,7 @@ private:
      * display the files too fast.
      */
     boost::scoped_ptr<QTimer> m_timer;
+    void* m_processTorusStatus;
 };
 
 #endif //__MAIN_WINDOW_H__

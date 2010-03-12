@@ -13,7 +13,7 @@
 
 MainWindow::MainWindow(DataFiles& dataFiles) : 
     m_play (false), PLAY_TEXT (">"), PAUSE_TEXT("||"),
-    m_timer (new QTimer(this))
+    m_timer (new QTimer(this)), m_processTorusStatus (0)
 {
     setupUi (this);
     m_dataSlider->setMinimum (0);
@@ -218,8 +218,24 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 	break;
     case Qt::Key_Space:
     {
-        string s = G3D::getOpenGLState (false);
-        cdbg << s;
+	try
+	{
+	    Body* b = m_glWidget->GetCurrentData ().GetBody (0);
+	    if (m_processTorusStatus == 0)
+		m_processTorusStatus = b->ProcessTorusInit ();
+	    else
+		if (! b->ProcessTorusStep (m_processTorusStatus))
+		{
+		    b->ProcessTorusEnd (m_processTorusStatus);
+		    m_processTorusStatus = 0;
+		    cdbg << "End process torus" << endl;
+		}
+	    m_glWidget->UpdateDisplay ();
+	}
+	catch (exception& e)
+	{
+	    cdbg << "Exception: " << e.what () << endl;
+	}
 	break;
     }
 

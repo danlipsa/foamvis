@@ -19,6 +19,75 @@ class Body : public Element
 {
 public:
     typedef vector<OrientedFace*> OrientedFaces;
+    class FaceIntersectionMargin
+    {
+    public:
+	enum Margin
+	{
+	    BEFORE_FIRST_AFTER_SECOND,
+	    AFTER_FIRST_BEFORE_SECOND
+	};
+
+	struct FaceEdgeIndex
+	{
+	    FaceEdgeIndex () : m_face (0), m_edgeIndex (0) {}
+	    FaceEdgeIndex (const OrientedFace* face, size_t edgeIndex) :
+		m_face (face), m_edgeIndex (edgeIndex) {}
+	    const OrientedFace* m_face;
+	    /**
+	     * Index in the oriented face
+	     */
+	    size_t m_edgeIndex; 
+	};
+
+    public:
+	FaceIntersectionMargin (
+	    Margin margin,
+	    const FaceEdgeIndex& first,
+	    const FaceEdgeIndex& second) :
+	    m_margin (margin), m_first(first), m_second(second) {}
+	FaceIntersectionMargin () :
+	    m_margin (BEFORE_FIRST_AFTER_SECOND) {}
+	void SetMargin (Margin margin)
+	{
+	    m_margin = margin;
+	}
+	Margin GetMargin () const
+	{
+	    return m_margin;
+	}
+	const FaceEdgeIndex& GetFirst () const
+	{
+	    return m_first;
+	}
+	const FaceEdgeIndex& GetSecond () const
+	{
+	    return m_second;
+	}
+	const OrientedFace& GetFirstFace () const
+	{
+	    return *m_first.m_face;
+	}
+	const OrientedFace& GetSecondFace () const
+	{
+	    return *m_second.m_face;
+	}
+	ostream& operator<< (ostream& ostr) const;
+
+    public:
+	static void GetTriangle (
+	    const FaceEdgeIndex& first, const FaceEdgeIndex& second,
+	    boost::array<G3D::Vector3, 3>* triangle);
+	friend ostream& operator<< (ostream& ostr,
+				    const FaceEdgeIndex& fei);
+	friend ostream& operator<< (
+	    ostream& ostr, const Body::FaceIntersectionMargin& fim);
+
+    private:
+	Margin m_margin;
+	FaceEdgeIndex m_first;
+	FaceEdgeIndex m_second;
+    };
 
 public:
     /**
@@ -28,7 +97,7 @@ public:
      * @param faces vector of Face objects
      */
     Body(vector<int>& faceIndexes, vector<Face*>& faces,
-	 unsigned int originalIndex, Data* data,
+	 size_t originalIndex, Data* data,
 	 bool duplicate = false);
     ~Body ();
     /**
@@ -39,7 +108,7 @@ public:
     {
 	return m_faces;
     }
-    OrientedFace* GetOrientedFace (unsigned int i) const
+    OrientedFace* GetOrientedFace (size_t i) const
     {
 	return m_faces[i];
     }
@@ -93,6 +162,24 @@ public:
 	Vertex::PrintDomains (ostr, m_vertices);
     }
     void UpdateFacesAdjacency ();
+    void* ProcessTorusInit ()
+    {
+	ProcessForTorus* p = new ProcessForTorus (this);
+	p->Initialize ();
+	return p;
+    }
+
+    bool ProcessTorusStep (void* p)
+    {
+	return static_cast<ProcessForTorus*>(p)->Step ();
+    }
+    
+    void ProcessTorusEnd (void* p)
+    {
+	ProcessForTorus* process = static_cast<ProcessForTorus*>(p);
+	process->End ();
+	delete process;
+    }
 
 public:
     /**
@@ -110,26 +197,18 @@ public:
     static void StoreDefaultAttributes (AttributesInfo* info);
 
 private:
-    struct FaceIntersectionMargin
+    class ProcessForTorus
     {
-	enum
-	{
-	    BEFORE_FIRST_AFTER_SECOND,
-	    AFTER_FIRST_BEFORE_SECOND
-	} m_margin;
-	struct FaceEdgeIndex
-	{
-	    const OrientedFace* m_face;
-	    /**
-	     * Index in the oriented face
-	     */
-	    size_t m_edgeIndex; 
-	} m_first, m_second;
-	static void GetTriangle (
-	    const FaceEdgeIndex& first, const FaceEdgeIndex& second,
-	    boost::array<G3D::Vector3, 3>* triangle);
+    public:
+	ProcessForTorus (Body* body) : m_body (body) {}
+	void Initialize ();
+	bool Step ();
+	void End ();
+    private:
+	list<FaceIntersectionMargin> m_queue;
+	Body* m_body;
     };
-    typedef list<OrientedFace*> RemainingFaces;
+
 private:
     /**
      * Splits a  set of  objects (vertices or  edges) in  physical and
@@ -141,11 +220,11 @@ private:
     template <typename T>
     void split (
 	set<T*>& src, vector<T*>& destTessellation, vector<T*>& destPhysical);
-    RemainingFaces::iterator fitFace (
-	const FaceIntersectionMargin& faceIntersection,
-	RemainingFaces* remainingFaces);
-    bool fitFace (OrientedFace* face, 
-		  const boost::array<G3D::Vector3, 3>& triangle);
+    OrientedFace* fitAndDuplicateFace (
+	const FaceIntersectionMargin& faceIntersection);
+    bool fitFace (const OrientedFace& face, 
+		  const boost::array<G3D::Vector3, 3>& triangle,
+		  G3D::Vector3* translation);
     ostream& PrintAttributes (ostream& ostr) const
     {
 	return printAttributes (ostr, *Body::m_infos);

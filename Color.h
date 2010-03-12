@@ -37,12 +37,14 @@ public:
         CLEAR,
         COUNT
     };
+public:
     /**
      * Gets a vector of RGBA components for the given color
      * @param name color name
      * @return vector of RGBA components for the given color
      */
     static  float* GetValue(Color::Name name);
+    friend ostream& operator<< (ostream& ostr, Color::Name name);
 };
 
 #endif //__COLOR_H__

@@ -10,7 +10,11 @@
 
 ostream& operator<< (ostream& ostr, const OrientedFace& of)
 {
-    ostr << (of.m_reversed ? "(R) " : "(N) ");
+    ostr << (of.m_reversed ? "(R) " : "(N) ")
+	 << "Oriented Face " << of.GetFace ()-> GetOriginalIndex () 
+	 << " " << of.GetFace ()->GetColor () << " "
+	 << (of.GetFace ()->IsDuplicate () ? " DUPLICATE" : "")
+	 << ": " << endl;
     ostr << of.GetEdgeCount () << " edges part of the face:" << endl;
     for (size_t i = 0; i < of.GetEdgeCount (); i++)
     {

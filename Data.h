@@ -109,7 +109,7 @@ public:
      * @param z coordinate Z of the Vertex object
      * @param list the list of attributes for the vertex
      */
-    void SetVertex (unsigned int i, float x, float y, float z,
+    void SetVertex (size_t i, float x, float y, float z,
 		    vector<NameSemanticValue*>& list);
     /**
      * Returns all edges from this Data
@@ -128,7 +128,7 @@ public:
      * @param end index of the last Point that determines the edge
      * @param list the list of attributes for this edge
      */
-    void SetEdge (unsigned int i, unsigned int begin, unsigned int end,
+    void SetEdge (size_t i, size_t begin, size_t end,
 		  G3D::Vector3int16& domainIncrement,
                   vector<NameSemanticValue*>& list);
     /**
@@ -145,7 +145,7 @@ public:
     Face* GetFaceDuplicate (
 	const Face& original, const G3D::Vector3& newBegin);
 
-    Face* GetFace (unsigned int i)
+    Face* GetFace (size_t i)
     {
 	return m_faces[i];
     }
@@ -160,14 +160,14 @@ public:
      *        Edge that is stored in the Data object.
      * @param list the list of attributes for the face
      */
-    void SetFace (unsigned int i,  vector<int>& edges,
+    void SetFace (size_t i,  vector<int>& edges,
                   vector<NameSemanticValue*>& list);
     /**
      * Gets ith body
      * @param i index of the body to be returned
      * @return the body
      */
-    Body* GetBody (unsigned int i);
+    Body* GetBody (size_t i);
     /**
      * Gets all bodies from the Data
      * @return a vector of Body pointers
@@ -187,14 +187,14 @@ public:
      *         Data object.
      * @param list the list of attributes
      */
-    void SetBody (unsigned int i,  vector<int>& faces,
+    void SetBody (size_t i,  vector<int>& faces,
                   vector<NameSemanticValue*>& list);
     /**
      * Stores an element of the 4x4 view matrix.
      * @param i index where to store the elment
      * @param f the value to be stored
      */
-    void SetViewMatrixElement (unsigned int i, float f)
+    void SetViewMatrixElement (size_t i, float f)
     {
 	m_viewMatrix[i] = f;
     }
@@ -292,16 +292,16 @@ public:
     /**
      * Gets the original index - body map
      */
-    map<unsigned int, Body*>& GetOriginalIndexBodyMap ()
+    map<size_t, Body*>& GetOriginalIndexBodyMap ()
     {
 	return m_originalIndexBodyMap;
     }
 
-    void SetPeriod (unsigned int i,  G3D::Vector3 v) 
+    void SetPeriod (size_t i,  G3D::Vector3 v) 
     {
 	m_periods[i] = v;
     }
-    const G3D::Vector3& GetPeriod (unsigned int i) const
+    const G3D::Vector3& GetPeriod (size_t i) const
     {
 	return m_periods[i];
     }
@@ -316,11 +316,11 @@ public:
     }
     G3D::Vector3int16 GetDomainIncrement (
 	const G3D::Vector3& original, const G3D::Vector3& duplicate) const;
-    void SetSpaceDimension (unsigned int spaceDimension) 
+    void SetSpaceDimension (size_t spaceDimension) 
     {
 	m_spaceDimension = spaceDimension;
     }
-    unsigned int GetSpaceDimension () const 
+    size_t GetSpaceDimension () const 
     {
 	return m_spaceDimension;
     }
@@ -397,8 +397,8 @@ private:
     /**
      * Map between the original index and the body pointer
      */
-    map<unsigned int, Body*> m_originalIndexBodyMap;
-    unsigned int m_spaceDimension;
+    map<size_t, Body*> m_originalIndexBodyMap;
+    size_t m_spaceDimension;
 };
 
 /**

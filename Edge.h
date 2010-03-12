@@ -33,9 +33,9 @@ public:
      */
     Edge (Vertex* begin, Vertex* end, 
 	  G3D::Vector3int16& endDomainIncrement, 
-	  unsigned int originalIndex, Data* data,
+	  size_t originalIndex, Data* data,
 	  bool duplicate = false);
-    Edge (Vertex* begin, unsigned int originalIndex);
+    Edge (Vertex* begin, size_t originalIndex);
     Edge (const Edge& edge);
     /**
      * @return the first vertex of the edge

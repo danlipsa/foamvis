@@ -55,13 +55,13 @@ public:
     /**
      * Gets the index of the currently displayed data.
      */
-    unsigned int GetCurrentDataIndex () {return m_dataIndex;}
+    size_t GetCurrentDataIndex () {return m_dataIndex;}
     
     /**
      * Gets the currently displayed body
      * @return the currrently displayed body or UINT_MAX for all bodies
      */
-    unsigned int GetDisplayedBody () const
+    size_t GetDisplayedBody () const
     {
 	return m_displayedBody;
     }
@@ -69,7 +69,7 @@ public:
      * Gets the face number up to which faces are displayed
      * @return face number up to which faces are displayed or UINT_MAX for all
      */
-    unsigned int GetDisplayedFace () const
+    size_t GetDisplayedFace () const
     {
 	return m_displayedFace;
     }
@@ -122,10 +122,11 @@ public:
 	return m_quadric;
     }
 
-public:
-    const static  unsigned int DISPLAY_ALL;
-    const static unsigned int QUADRIC_SLICES;
-    const static unsigned int QUADRIC_STACKS;;
+    void UpdateDisplay ()
+    {
+	setObject (&m_object, display(m_viewType));
+	updateGL ();
+    }
 
 public Q_SLOTS:
     /**
@@ -181,6 +182,11 @@ public Q_SLOTS:
     float GetArrowHeight () const {return m_arrowHeight;}
     float GetEdgeRadius () const {return m_edgeRadius;}
 
+public:
+    const static  size_t DISPLAY_ALL;
+    const static size_t QUADRIC_SLICES;
+    const static size_t QUADRIC_STACKS;;
+
 protected:
     /**
      * Initializes OpenGL
@@ -233,6 +239,20 @@ private:
 				 Vector3int16Hash> DomainIncrementColor;
 
 private:
+    /**
+     * Dealocates the space occupied by  an old OpenGL object and stores a
+     * newObject
+     *
+     * @param object address where the  old object is stored and where the
+     * new object will be stored
+     * @param newObject the new object that will be stored
+     */
+    static void setObject (GLuint* object, GLuint newObject)
+    {
+	glDeleteLists(*object, 1);
+	*object = newObject;
+    }
+
     void project ();
     void calculateViewingVolume ();
     /**
@@ -332,7 +352,7 @@ private:
     /**
      * Index into m_data that shows the current DMP file displayed
      */
-    unsigned int m_dataIndex;
+    size_t m_dataIndex;
     /**
      * Used for rotating the view
      */
@@ -340,11 +360,11 @@ private:
     /**
      * Used to display one body at a time
      */
-    unsigned int m_displayedBody;
+    size_t m_displayedBody;
     /**
      * Used to display one face at a time from the m_displayedBody.
      */
-    unsigned int m_displayedFace;
+    size_t m_displayedFace;
     /**
      * Save a jpeg of the current image.
      */

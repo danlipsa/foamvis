@@ -28,7 +28,7 @@ AttributesInfo* Edge::m_infos;
 
 
 Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endDomainIncrement, 
-	    unsigned int originalIndex, Data* data, bool duplicate):
+	    size_t originalIndex, Data* data, bool duplicate):
     Element(originalIndex, data, duplicate),
     m_begin (begin), m_end (end), m_endDomainIncrement (endDomainIncrement)
 {
@@ -40,7 +40,7 @@ Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endDomainIncrement,
     }
 }
 
-Edge::Edge (Vertex* begin, unsigned int originalIndex) :
+Edge::Edge (Vertex* begin, size_t originalIndex) :
     Element (originalIndex, 0, false),
     m_begin (begin), m_end (0)
 {}

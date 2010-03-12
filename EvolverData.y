@@ -208,7 +208,7 @@ void yyerror (char const *);
  * @param message the message to printed if the integer is negative
  * @return the unsigned integer.
  */
-unsigned int intToUnsigned (int i, const char* message);
+size_t intToUnsigned (int i, const char* message);
 
 %}
 
@@ -824,10 +824,10 @@ EvolverData::parser::error (const EvolverData::parser::location_type& l,
 }
 
 
-unsigned int intToUnsigned (int i, const char* message)
+size_t intToUnsigned (int i, const char* message)
 {
     RuntimeAssert (i >= 0, message, i);
-    return static_cast<unsigned int>(i);
+    return static_cast<size_t>(i);
 }
 
 // Local Variables:

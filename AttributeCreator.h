@@ -105,7 +105,7 @@ private:
     /**
      * Size of the array of integers
      */
-    unsigned int m_size;
+    size_t m_size;
 };
 /**
  * Functor that creates an attribute that stores an array of real values
@@ -131,7 +131,7 @@ private:
     /**
      * Size of the array of reals
      */
-    unsigned int m_size;
+    size_t m_size;
 };
 
 #endif //__ATTRIBUTE_CREATOR_H__

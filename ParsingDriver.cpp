@@ -120,7 +120,7 @@ const char* ParsingDriver::m_keywordTable[] = {
 
 int ParsingDriver::GetKeywordId (char* keyword)
 {
-    for (unsigned int i = 0; 
+    for (size_t i = 0; 
          i < sizeof (m_keywordTable) / sizeof (m_keywordTable[0]);
          i++)
     {

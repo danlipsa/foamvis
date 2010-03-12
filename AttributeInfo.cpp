@@ -19,7 +19,7 @@ public:
      * Constructor
      * @param index the index value that will be checked.
      */
-    indexEqual (unsigned int index) : m_index (index) {}
+    indexEqual (size_t index) : m_index (index) {}
     /**
      * Functor that checks if a (name, AttributeInfo*) pair contains a
      * given index
@@ -36,7 +36,7 @@ private:
      * Index  value   that  is   checked  against  values   in  (name,
      * AttributeInfo*) pairs
      */
-    unsigned int m_index;
+    size_t m_index;
 };
 
 AttributesInfo::AttributesInfo () : 
@@ -56,7 +56,7 @@ void AttributesInfo::AddAttributeInfo (
     }
 }
 
-const char* AttributesInfo::GetAttributeName (unsigned int index) const
+const char* AttributesInfo::GetAttributeName (size_t index) const
 {
     map<const char*, AttributeInfo*, LessThanNoCase>::const_iterator it = 
         find_if (m_nameInfo.begin (), m_nameInfo.end (), indexEqual (index));

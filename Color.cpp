@@ -27,8 +27,69 @@ float colors[][4] =
     {0.,0.,0.,0.}
 };
 
+ostream& operator<< (ostream& ostr, Color::Name color)
+{
+    switch (color)
+    {
+    case Color::BLACK:
+	ostr << "Black";
+	break;
+    case Color::BLUE:
+	ostr << "Blue";
+	break;
+    case Color::GREEN:
+	ostr << "Green";
+	break;
+    case Color::CYAN:
+	ostr << "Cyan";
+	break;
+    case Color::RED:
+	ostr << "Red";
+	break;
+    case Color::MAGENTA:
+	ostr << "Magenta";
+	break;
+    case Color::BROWN:
+	ostr << "Brown";
+	break;
+    case Color::LIGHTGRAY:
+	ostr << "Lightgray";
+	break;
+    case Color::DARKGRAY:
+	ostr << "Darkgray";
+	break;
+    case Color::LIGHTBLUE:
+	ostr << "Lightblue";
+	break;
+    case Color::LIGHTGREEN:
+	ostr << "Lightgreen";
+	break;
+    case Color::LIGHTCYAN:
+	ostr << "Lightcyan";
+	break;
+    case Color::LIGHTRED:
+	ostr << "Lightred";
+	break;
+    case Color::LIGHTMAGENTA:
+	ostr << "Lightmagenta";
+	break;
+    case Color::YELLOW:
+	ostr << "Yellow";
+	break;
+    case Color::WHITE:
+	ostr << "White";
+	break;
+    case Color::CLEAR:
+	ostr << "Clear";
+	break;
+    default:
+	ostr << "Invalid color";
+	break;
+    }
+    return ostr;
+}
 
- float* Color::GetValue(Color::Name color)
+float* Color::GetValue(Color::Name color)
 {
     return colors[color];
 }

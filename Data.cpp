@@ -54,15 +54,15 @@ private:
 template <typename E>
 void compact (vector<E*>& v)
 {
-    unsigned int step = 0;
-    for (unsigned int i = 0; i < v.size (); i++)
+    size_t step = 0;
+    for (size_t i = 0; i < v.size (); i++)
     {
         if (v[i] == 0)
             step++;
         else if (step != 0)
             v[i - step] = v[i];
     }
-    unsigned int resize = v.size () - step;
+    size_t resize = v.size () - step;
     v.resize (resize);
 }
 
@@ -110,7 +110,7 @@ Data::~Data ()
     delete m_parsingData;
 }
 
-void Data::SetVertex (unsigned int i, float x, float y, float z,
+void Data::SetVertex (size_t i, float x, float y, float z,
                      vector<NameSemanticValue*>& list) 
 {
     if (i >= m_vertices.size ())
@@ -165,7 +165,7 @@ Face* Data::GetFaceDuplicate (
 }
 
 
-void Data::SetEdge (unsigned int i, unsigned int begin, unsigned int end,
+void Data::SetEdge (size_t i, size_t begin, size_t end,
 		    G3D::Vector3int16& domainIncrement,
                     vector<NameSemanticValue*>& list) 
 {
@@ -179,7 +179,7 @@ void Data::SetEdge (unsigned int i, unsigned int begin, unsigned int end,
     m_edgeSet.insert (edge);
 }
 
-void Data::SetFace (unsigned int i,  vector<int>& edges,
+void Data::SetFace (size_t i,  vector<int>& edges,
                     vector<NameSemanticValue*>& list)
 {
     if (i >= m_faces.size ())
@@ -191,7 +191,7 @@ void Data::SetFace (unsigned int i,  vector<int>& edges,
     m_faceSet.insert (face);
 }
 
-void Data::SetBody (unsigned int i,  vector<int>& faces,
+void Data::SetBody (size_t i,  vector<int>& faces,
                     vector<NameSemanticValue*>& list)
 {
     if (i >= m_bodies.size ())
@@ -216,9 +216,9 @@ void Data::Compact (void)
 	      bind(&Data::InsertOriginalIndexBodyMap, this, _1));
 }
 
-Body* Data::GetBody (unsigned int i)
+Body* Data::GetBody (size_t i)
 {
-    map<unsigned int, Body*>::iterator it = 
+    map<size_t, Body*>::iterator it = 
 	m_originalIndexBodyMap.find (i);
     if (it == m_originalIndexBodyMap.end ())
 	return 0;
@@ -337,7 +337,7 @@ void Data::PostProcess ()
 	CalculateBodiesCenters ();
 }
 
-unsigned int countIntersections (OrientedEdge* e)
+size_t countIntersections (OrientedEdge* e)
 {
     const G3D::Vector3int16& domainIncrement = 
 	e->GetEdge ()->GetEndDomainIncrement ();
@@ -353,10 +353,10 @@ public:
     {
 	vector<OrientedEdge*>::iterator it;
 	vector<OrientedEdge*>& v = f->GetOrientedEdges ();
-	vector<unsigned int> intersections(v.size ());
+	vector<size_t> intersections(v.size ());
 	transform (
 	    v.begin (), v.end (), intersections.begin (), countIntersections);
-	unsigned int totalIntersections = accumulate (
+	size_t totalIntersections = accumulate (
 	    intersections.begin (), intersections.end (), 0);
 	m_ostr << f->GetOriginalIndex () << " has " 
 	       << totalIntersections << " intersections" << endl;

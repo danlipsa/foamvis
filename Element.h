@@ -22,7 +22,7 @@ public:
     /**
      * Constructor for the Element
      */
-    Element(unsigned int originalIndex, Data* data,
+    Element(size_t originalIndex, Data* data,
 	    bool duplicate) : 
 	m_attributes(0),
 	m_originalIndex (originalIndex), 
@@ -38,7 +38,7 @@ public:
      * @param i position in the vector of attributes
      * @param attribute pointer to the attribute to set
      */
-    void SetAttribute (unsigned int i, Attribute* attribute);
+    void SetAttribute (size_t i, Attribute* attribute);
     /**
      * Stores all attributes in the element
      * @param list the list of attributes values
@@ -49,7 +49,7 @@ public:
     /**
      * Gets the original index of this element
      */
-    unsigned int GetOriginalIndex () const
+    size_t GetOriginalIndex () const
     {
 	return m_originalIndex;
     }    
@@ -82,12 +82,12 @@ protected:
     /**
      * The original index for this element
      */
-    unsigned int m_originalIndex;
+    size_t m_originalIndex;
     Data* m_data;
     bool m_duplicate;
 
 protected:
-    const static unsigned int INVALID_INDEX;
+    const static size_t INVALID_INDEX;
 };
 
 #endif //__ELEMENT_H__
