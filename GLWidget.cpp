@@ -756,6 +756,10 @@ GLuint GLWidget::displayFaces ()
     displayFacesContour (bodies);
     displayFacesOffset (bodies);
 
+    glLineWidth (1.0);
+    qglColor (QColor (Qt::black));
+    displayOriginalDomain (GetCurrentData().GetPeriods ());
+
     glEndList();
     return list;
 }

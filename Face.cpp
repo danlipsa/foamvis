@@ -68,8 +68,9 @@ ostream& operator<< (ostream& ostr, const Face& f)
     for_each (f.m_adjacentBodies.begin (), f.m_adjacentBodies.end (),
 	      printIndex (ostr));
     ostr << endl;
-    PrintElements<OrientedEdge*> (ostr, f.m_edges, 
-				  "edges part of the face", true);
+    ostr << "edges part of the face" << endl;
+    ostream_iterator<OrientedEdge*> output (ostr, "\n");
+    copy (f.m_edges.begin (), f.m_edges.end (), output);
     ostr << " Face attributes: ";
     return f.PrintAttributes (ostr);
 }

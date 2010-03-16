@@ -9,11 +9,12 @@
 #include "SystemDifferences.h"
 #include "DebugStream.h"
 #include "DataFiles.h"
+#include "ProcessBodyTorus.h"
 
 
 MainWindow::MainWindow(DataFiles& dataFiles) : 
     m_play (false), PLAY_TEXT (">"), PAUSE_TEXT("||"),
-    m_timer (new QTimer(this)), m_processTorusStatus (0)
+    m_timer (new QTimer(this)), m_processBodyTorus (0), m_currentBody (0)
 {
     setupUi (this);
     m_dataSlider->setMinimum (0);
@@ -220,15 +221,20 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     {
 	try
 	{
-	    Body* b = m_glWidget->GetCurrentData ().GetBody (0);
-	    if (m_processTorusStatus == 0)
-		m_processTorusStatus = b->ProcessTorusInit ();
+	    Body* b = m_glWidget->GetCurrentData ().GetBody (m_currentBody);
+	    if (m_processBodyTorus == 0)
+	    {
+		m_processBodyTorus = new ProcessBodyTorus<FaceEdgeIndex> (b);
+		m_processBodyTorus->Initialize ();
+	    }
 	    else
-		if (! b->ProcessTorusStep (m_processTorusStatus))
+		if (! m_processBodyTorus->Step ())
 		{
-		    b->ProcessTorusEnd (m_processTorusStatus);
-		    m_processTorusStatus = 0;
+		    m_processBodyTorus->End ();
+		    m_processBodyTorus = 0;
 		    cdbg << "End process torus" << endl;
+		    m_currentBody = (m_currentBody + 1) % 
+			m_glWidget->GetCurrentData ().GetBodies ().size ();
 		}
 	    m_glWidget->UpdateDisplay ();
 	}

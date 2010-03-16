@@ -6,10 +6,10 @@ HEADERS += DebugStream.h ParsingDriver.h AttributeInfo.h Attribute.h \
 	ParsingData.h Vertex.h MainWindow.h \
         AttributeCreator.h stable.h SystemDifferences.h DataFiles.h Debug.h\
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h\
-	DisplayEdgeFunctors.h DisplayElement.h
+	DisplayEdgeFunctors.h DisplayElement.h ProcessBodyTorus.h
 SOURCES += DebugStream.cpp ParsingDriver.cpp AttributeInfo.cpp Attribute.cpp \
 	NameSemanticValue.cpp Element.cpp ElementUtils.cpp\
-	Body.cpp Color.cpp DataFiles.cpp Debug.cpp\
+	Body.cpp Color.cpp DataFiles.cpp Debug.cpp ProcessBodyTorus.cpp\
 	Data.cpp Edge.cpp ExpressionTree.cpp Face.cpp \
 	GLWidget.cpp main.cpp OrientedEdge.cpp OrientedFace.cpp \
 	ParsingData.cpp Vertex.cpp MainWindow.cpp AttributeCreator.cpp

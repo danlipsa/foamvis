@@ -70,10 +70,21 @@ ostream& operator<< (ostream& ostr, Data& d)
 {
     ostr << "Data:" << endl;
     ostr << d.m_AABox << endl;
-    PrintElements<Vertex*> (ostr, d.m_vertices, "vertices", true);
-    PrintElements<Edge*> (ostr, d.m_edges, "edges", true);
-    PrintElements<Face*> (ostr, d.m_faces, "faces", true);
-    PrintElements<Body*> (ostr, d.m_bodies, "bodies", true);
+    ostr << "vertices" << endl;
+    ostream_iterator<Vertex*> vOutput (ostr, "\n");
+    copy (d.m_vertices.begin (), d.m_vertices.end (), vOutput);
+    
+    ostr << "edges" << endl;
+    ostream_iterator<Edge*> eOutput (ostr, "\n");
+    copy (d.m_edges.begin (), d.m_edges.end (), eOutput);
+
+    ostr << "faces" << endl;
+    ostream_iterator<Face*> fOutput (ostr, "\n");
+    copy (d.m_faces.begin (), d.m_faces.end (), fOutput);
+
+    ostr << "bodies" << endl;
+    ostream_iterator<Body*> bOutput (ostr, "\n");
+    copy (d.m_bodies.begin (), d.m_bodies.end (), bOutput);
     ostr << "view matrix:" << endl;
     for_each (d.m_viewMatrix.begin (), 
               d.m_viewMatrix.end (), 
@@ -161,6 +172,10 @@ Face* Data::GetFaceDuplicate (
     Face* duplicate = original.CreateDuplicate (newBegin);
     m_faceSet.insert (duplicate);
     m_faces.push_back (duplicate);
+    /*
+    cdbg << "Original face:" << endl << original << endl
+	 << "Duplicate face:" << endl << *duplicate << endl;
+    */
     return duplicate;
 }
 

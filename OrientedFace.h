@@ -99,6 +99,12 @@ public:
     {
 	return getOrientedEdge (edgeIndex);
     }
+    /**
+     * Get the  edge at edgeIndex in  face order and  sets reversed if
+     * the edge is reversed in face order.
+     */
+    void GetOrientedEdge (size_t i, Edge** edge, bool* reversed);
+
     const OrientedEdge* GetOrientedEdge (size_t edgeIndex) const
     {
 	return getOrientedEdge (edgeIndex);

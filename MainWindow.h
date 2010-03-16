@@ -12,6 +12,9 @@
 class QTimer;
 class GLWidget;
 class DataFiles;
+class TriangleFit;
+class FaceEdgeIndex;
+template <typename Fit> class ProcessBodyTorus;
 
 /**
  * Class that contains the OpenGL widget and all other UI.
@@ -129,7 +132,8 @@ private:
      * display the files too fast.
      */
     boost::scoped_ptr<QTimer> m_timer;
-    void* m_processTorusStatus;
+    ProcessBodyTorus<FaceEdgeIndex>* m_processBodyTorus;
+    size_t m_currentBody;
 };
 
 #endif //__MAIN_WINDOW_H__

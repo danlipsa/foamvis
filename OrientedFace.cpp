@@ -65,3 +65,12 @@ OrientedEdge* OrientedFace::getOrientedEdge (size_t edgeIndex) const
     }
     return edge;
 }
+
+void OrientedFace::GetOrientedEdge (size_t i, Edge** edge, bool* reversed)
+{
+    OrientedEdge* oe = GetOrientedEdge (i);
+    *edge = oe->GetEdge ();
+    *reversed = oe->IsReversed ();
+    if (m_reversed)
+	*reversed = !*reversed;
+}
