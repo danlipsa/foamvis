@@ -268,7 +268,18 @@ bool Body::fitFace (
     const FaceEdgeIndex& fit,
     G3D::Vector3* translation)
 {
-    
+    OrientedEdge fitEdge = fit.m_face->GetOrientedEdge (fit.m_edgeIndex);
+    for (size_t i = 0; i < candidate.GetEdgeCount (); i++)
+    {
+	OrientedEdge candidateEdge = candidate.GetOrientedEdge (i);
+	if (candidateEdge.fits (fitEdge))
+	{
+	    *translation = *candidateEdge.GetEdge()->GetBegin () - 
+		*fitEdge.GetEdge()->GetBegin ();
+	    return true;
+	}
+    }
+    return false;
 }
 
 

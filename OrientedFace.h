@@ -92,23 +92,9 @@ public:
     }
 
     /**
-     * Gets the edge at edgeIndex in face order. The edge itself might
-     * not be in face order.
+     * Gets the oriented edge at edgeIndex in face order.
      */
-    OrientedEdge* GetOrientedEdge (size_t edgeIndex)
-    {
-	return getOrientedEdge (edgeIndex);
-    }
-    /**
-     * Get the  edge at edgeIndex in  face order and  sets reversed if
-     * the edge is reversed in face order.
-     */
-    void GetOrientedEdge (size_t i, Edge** edge, bool* reversed);
-
-    const OrientedEdge* GetOrientedEdge (size_t edgeIndex) const
-    {
-	return getOrientedEdge (edgeIndex);
-    }
+    OrientedEdge GetOrientedEdge (size_t edgeIndex) const;
 
     bool IsPlaced () const
     {
@@ -138,9 +124,16 @@ public:
     friend ostream& operator<< (ostream& ostr, const OrientedFace& of);
 
 private:
-    Vertex* getBegin (size_t edgeIndex) const;
-    Vertex* getEnd (size_t edgeIndex) const;
-    OrientedEdge* getOrientedEdge (size_t edgeIndex) const;
+
+    Vertex* getBegin (size_t edgeIndex) const
+    {
+	return GetOrientedEdge (edgeIndex).GetBegin ();
+    }
+
+    Vertex* getEnd (size_t edgeIndex) const
+    {
+	return GetOrientedEdge (edgeIndex).GetEnd ();
+    }
 
 private:
     /**
