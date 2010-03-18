@@ -61,7 +61,19 @@ public:
 	{
 	    return *first < *second;
 	}
+	static double angle (
+	    const G3D::Vector3& first, const G3D::Vector3& second);
+
     };
+
+    struct LessThanAngleX
+    {
+	bool operator () (
+	    const G3D::Vector3& first, const G3D::Vector3& second) const;
+	static double angle (
+	    const G3D::Vector3& first, const G3D::Vector3& second);
+    };
+
     
     struct Hash
     {

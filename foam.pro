@@ -3,16 +3,18 @@ HEADERS += DebugStream.h ParsingDriver.h AttributeInfo.h Attribute.h \
 	 Body.h Color.h DefineAttributeType.h \
 	Data.h Edge.h Element.h ExpressionTree.h \
 	Face.h GLWidget.h OrientedEdge.h OrientedFace.h \
-	ParsingData.h Vertex.h MainWindow.h \
-        AttributeCreator.h stable.h SystemDifferences.h DataFiles.h Debug.h\
-	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h\
-	DisplayEdgeFunctors.h DisplayElement.h ProcessBodyTorus.h
+	ParsingData.h Vertex.h MainWindow.h  FaceEdgeIndex.h \
+        AttributeCreator.h stable.h SystemDifferences.h DataFiles.h Debug.h \
+	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
+	DisplayEdgeFunctors.h DisplayElement.h ProcessBodyTorus.h \
+	TriangleFit.h EdgeNormalFit.h
 SOURCES += DebugStream.cpp ParsingDriver.cpp AttributeInfo.cpp Attribute.cpp \
 	NameSemanticValue.cpp Element.cpp ElementUtils.cpp\
-	Body.cpp Color.cpp DataFiles.cpp Debug.cpp ProcessBodyTorus.cpp\
-	Data.cpp Edge.cpp ExpressionTree.cpp Face.cpp \
+	Body.cpp Color.cpp DataFiles.cpp Debug.cpp EdgeNormalFit.cpp\
+	Data.cpp Edge.cpp ExpressionTree.cpp Face.cpp FaceEdgeIndex.cpp\
 	GLWidget.cpp main.cpp OrientedEdge.cpp OrientedFace.cpp \
-	ParsingData.cpp Vertex.cpp MainWindow.cpp AttributeCreator.cpp
+	ParsingData.cpp Vertex.cpp MainWindow.cpp AttributeCreator.cpp \
+	TriangleFit.cpp
 FORMS += Window.ui
 LEXSOURCES += EvolverData.l
 YACCSOURCES += EvolverData.y

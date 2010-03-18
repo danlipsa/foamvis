@@ -43,3 +43,10 @@ OrientedEdge OrientedFace::GetOrientedEdge (size_t edgeIndex) const
     return OrientedEdge (oe->GetEdge (), oe->IsReversed () ^ IsReversed ());
 }
 
+G3D::Vector3 OrientedFace::GetNormal () const
+{
+    if (m_reversed)
+	return - m_face->GetNormal ();
+    else
+	return m_face->GetNormal ();
+}

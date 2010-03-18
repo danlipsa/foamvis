@@ -14,6 +14,7 @@ class AttributesInfo;
 class Data;
 class TriangleFit;
 class FaceEdgeIndex;
+class EdgeNormalFit;
 
 /**
  * A body is a set of faces
@@ -22,6 +23,8 @@ class Body : public Element
 {
 public:
     typedef vector<OrientedFace*> OrientedFaces;
+    typedef multimap<G3D::Vector3, OrientedFace*, 
+		     Vertex::LessThanAngleX> NormalFaceMap;
 
 public:
     /**
@@ -45,6 +48,10 @@ public:
     const vector<OrientedFace*>& GetOrientedFaces () const
     {
 	return m_faces;
+    }
+    NormalFaceMap& GetNormalFaceMap ()
+    {
+	return m_normalFaceMap;
     }
 
     OrientedFace* GetOrientedFace (size_t i) const
@@ -102,9 +109,6 @@ public:
     }
     void UpdateFacesAdjacency ();
 
-    OrientedFace* FitAndDuplicateFace (const TriangleFit& fit);
-    OrientedFace* FitAndDuplicateFace (const FaceEdgeIndex& fit);
-
     void SetPlacedOrientedFace (size_t index)
     {
 	SetPlacedOrientedFace (GetOrientedFace (index));
@@ -131,6 +135,13 @@ public:
      * @param info the object where the default attributes are stored.
      */
     static void StoreDefaultAttributes (AttributesInfo* info);
+    static bool FitFace (const OrientedFace& face, 
+		  const G3D::Vector3* triangle,
+		  size_t triangleSize,
+		  G3D::Vector3* translation);
+    static bool FitFace (const OrientedFace& candidate,
+			 const FaceEdgeIndex& fit,
+			 G3D::Vector3* translation);
 
 private:
     /**
@@ -143,22 +154,11 @@ private:
     template <typename T>
     void split (
 	set<T*>& src, vector<T*>& destTessellation, vector<T*>& destPhysical);
-    bool fitFace (const OrientedFace& face, 
-		  const G3D::Vector3* triangle,
-		  size_t triangleSize,
-		  G3D::Vector3* translation);
-    bool fitFace (
-	const OrientedFace& candidate,
-	const FaceEdgeIndex& fit,
-	G3D::Vector3* translation);
 
     ostream& PrintAttributes (ostream& ostr) const
     {
 	return printAttributes (ostr, *Body::m_infos);
     }
-    
-	
-private:
 
 private:
     /**
@@ -166,6 +166,7 @@ private:
      */
     OrientedFaces m_faces;
     size_t m_placedOrientedFaces;
+    NormalFaceMap m_normalFaceMap;
     /**
      * Edges for this body
      */

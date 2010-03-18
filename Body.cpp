@@ -10,6 +10,7 @@
 #include "Data.h"
 #include "Debug.h"
 #include "ProcessBodyTorus.h"
+#include "TriangleFit.h"
 
 /**
  * Functor that caches an edge and its vertices
@@ -123,6 +124,9 @@ Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
     m_faces.resize (faceIndexes.size ());
     transform (faceIndexes.begin(), faceIndexes.end(), m_faces.begin(), 
                indexToOrientedFace(faces));
+    BOOST_FOREACH (OrientedFace* of, m_faces)
+	m_normalFaceMap.insert (of->ToNormalFacePair ());
+
     //if (m_data->IsTorus () && m_data->GetSpaceDimension () == 3)
     if (false)
     {
@@ -205,65 +209,7 @@ void Body::UpdateFacesAdjacency ()
 	      bind(&OrientedFace::AddAdjacentBody, _1, this));
 }
 
-
-OrientedFace* Body::FitAndDuplicateFace (const TriangleFit& fit)
-{
-    using G3D::Vector3;
-    Vector3 points[3];
-    fit.GetPoints (points);
-    Vector3 translation;
-    bool found = false;
-    OrientedFace* of = 0;
-    BOOST_FOREACH (of, m_faces)
-	if (fitFace (*of, points, 3, &translation))
-	{
-	    // you  only need  to consider  one match  because  of the
-	    // orientation of the face.
-	    found = true;
-	    break;
-	}
-    RuntimeAssert (found, "No face was fitted for : ", fit);
-    if (! translation.isZero ())
-    {
-	//found a possible fit
-	of->SetFace (
-	    m_data->GetFaceDuplicate (
-		*of->GetFace (),
-		*(of->GetFace ()->GetOrientedEdge(0)->GetBegin ()) + 
-		translation));
-    }
-    return of;
-}
-
-
-OrientedFace* Body::FitAndDuplicateFace (const FaceEdgeIndex& fit)
-{
-    using G3D::Vector3;
-    Vector3 translation;
-    bool found = false;
-    OrientedFace* of = 0;
-    BOOST_FOREACH (of, m_faces)
-	if (fitFace (*of, fit,  &translation))
-	{
-	    // you  only need  to consider  one match  because  of the
-	    // orientation of the face.
-	    found = true;
-	    break;
-	}
-    RuntimeAssert (found, "No face was fitted for : ", fit);
-    if (! translation.isZero ())
-    {
-	//found a possible fit
-	of->SetFace (
-	    m_data->GetFaceDuplicate (
-		*of->GetFace (),
-		*(of->GetFace ()->GetOrientedEdge(0)->GetBegin ()) + 
-		translation));
-    }
-    return of;
-}
-
-bool Body::fitFace (
+bool Body::FitFace (
     const OrientedFace& candidate,
     const FaceEdgeIndex& fit,
     G3D::Vector3* translation)
@@ -284,7 +230,7 @@ bool Body::fitFace (
 
 
 
-bool Body::fitFace (
+bool Body::FitFace (
     const OrientedFace& candidate,
     const G3D::Vector3* points, size_t pointCount,
     G3D::Vector3* translation)

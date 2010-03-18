@@ -103,3 +103,20 @@ Vertex* Vertex::CreateDuplicate (
     duplicate->AdjustPosition (domainIncrement);
     return duplicate;
 }
+
+bool Vertex::LessThanAngleX::operator () (
+    const G3D::Vector3& first, const G3D::Vector3& second) const
+{
+    using G3D::Vector3;
+    return angle (first, Vector3::unitX ()) < angle (second, Vector3::unitX ());
+}
+
+double Vertex::LessThanAngleX::angle (
+    const G3D::Vector3& first, const G3D::Vector3& second)
+{
+    double angle = acos (first.dot (second));
+    double sinValue = first.cross (second).length ();
+    if (sinValue < 0)
+	angle += M_PI;
+    return angle;
+}

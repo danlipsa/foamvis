@@ -116,6 +116,11 @@ public:
     {
 	return m_face->GetPreviousValidIndex (index);
     }
+    G3D::Vector3 GetNormal () const;
+    pair<G3D::Vector3, OrientedFace*> ToNormalFacePair ()
+    {
+	return pair<G3D::Vector3, OrientedFace*> (GetNormal (), this);
+    }
 
 public:
     /**
