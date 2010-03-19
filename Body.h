@@ -120,6 +120,10 @@ public:
     {
 	return m_placedOrientedFaces;
     }
+    NormalFaceMap::iterator GetStartNormalFace ()
+    {
+	return m_startNormalFace;
+    }
 
 public:
     /**
@@ -135,14 +139,11 @@ public:
      * @param info the object where the default attributes are stored.
      */
     static void StoreDefaultAttributes (AttributesInfo* info);
-    static bool FitFace (const OrientedFace& face, 
-		  const G3D::Vector3* triangle,
-		  size_t triangleSize,
-		  G3D::Vector3* translation);
+    static bool FitFace (const OrientedFace& face, const G3D::Vector3* triangle,
+			 size_t triangleSize, G3D::Vector3* translation);
     static bool FitFace (const OrientedFace& candidate,
-			 const FaceEdgeIndex& fit,
+			 const OrientedEdge& fitEdge,
 			 G3D::Vector3* translation);
-
 private:
     /**
      * Splits a  set of  objects (vertices or  edges) in  physical and
@@ -167,6 +168,10 @@ private:
     OrientedFaces m_faces;
     size_t m_placedOrientedFaces;
     NormalFaceMap m_normalFaceMap;
+    /**
+     * Points to the next group of normals
+     */
+    NormalFaceMap::iterator m_startNormalFace;
     /**
      * Edges for this body
      */

@@ -42,6 +42,7 @@
 
 // other BOOST headers
 #include <boost/foreach.hpp>
+#include <boost/operators.hpp>
 
 // required by GLG3D
 #include <GLG3D/GL/glew.h>

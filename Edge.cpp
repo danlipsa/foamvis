@@ -30,7 +30,8 @@ AttributesInfo* Edge::m_infos;
 Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endDomainIncrement, 
 	    size_t originalIndex, Data* data, bool duplicate):
     Element(originalIndex, data, duplicate),
-    m_begin (begin), m_end (end), m_endDomainIncrement (endDomainIncrement)
+    m_begin (begin), m_end (end), m_endDomainIncrement (endDomainIncrement), 
+    m_physical (false)
 {
     if (m_data->IsTorus () && ! m_duplicate)
     {
@@ -42,13 +43,13 @@ Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endDomainIncrement,
 
 Edge::Edge (Vertex* begin, size_t originalIndex) :
     Element (originalIndex, 0, false),
-    m_begin (begin), m_end (0)
+    m_begin (begin), m_end (0), m_physical (false)
 {}
 
 Edge::Edge (const Edge& o) : 
     Element (o.GetOriginalIndex (), o.GetData (), true),
     m_begin (o.GetBegin ()), m_end (o.GetEnd ()),
-    m_endDomainIncrement (o.GetEndDomainIncrement ())
+    m_endDomainIncrement (o.GetEndDomainIncrement ()), m_physical (false)
 {}
 
 

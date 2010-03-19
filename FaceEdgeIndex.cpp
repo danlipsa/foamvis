@@ -26,9 +26,9 @@ bool FaceEdgeIndex::GetFaceIntersection (
     const OrientedFace& firstFace, const OrientedFace& secondFace,
     FaceEdgeIndex* first, FaceEdgeIndex* second)
 {
-    for (size_t i = 0; i < firstFace.GetEdgeCount (); i++)
+    for (size_t i = 0; i < firstFace.size (); i++)
     {
-	for (size_t j = 0; j < secondFace.GetEdgeCount (); j++)
+	for (size_t j = 0; j < secondFace.size (); j++)
 	{
 	    if (*(firstFace.GetOrientedEdge (i).GetEdge ()) == 
 		*(secondFace.GetOrientedEdge (j).GetEdge ()))
@@ -46,14 +46,6 @@ bool FaceEdgeIndex::GetFaceIntersection (
     return false;
 }
 
-void FaceEdgeIndex::Initialize (list<FaceEdgeIndex>* queue, Body* body)
-{
-    OrientedFace* of = body->GetOrientedFace (0);
-    body->SetPlacedOrientedFace (static_cast<size_t>(0));
-    size_t size = body->GetOrientedFaces().size ();
-    for (size_t i = 0; i < size; i++)
-	queue->push_back (FaceEdgeIndex (of, i));
-}
 
 void FaceEdgeIndex::TwoConnectedFaces (
     Body* body, FaceEdgeIndex* first, FaceEdgeIndex* second)
@@ -75,39 +67,3 @@ void FaceEdgeIndex::TwoConnectedFaces (
 	found, "The first face is not directly connected to any other face");
 }
 
-void FaceEdgeIndex::AddQueue (
-    list<FaceEdgeIndex>* queue, OrientedFace* fit)
-{
-    size_t size = fit->GetFace ()->GetOrientedEdges ().size ();
-    for (size_t i = 0; i < size; i++)
-	if (i != m_edgeIndex)
-	    queue->push_back (FaceEdgeIndex (fit, i));
-}
-
-
-OrientedFace* FaceEdgeIndex::FitAndDuplicateFace (Body* body) const
-{
-    using G3D::Vector3;
-    Vector3 translation;
-    bool found = false;
-    OrientedFace* of = 0;
-    BOOST_FOREACH (of, body->GetOrientedFaces ())
-	if (Body::FitFace (*of, *this,  &translation))
-	{
-	    // you  only need  to consider  one match  because  of the
-	    // orientation of the face.
-	    found = true;
-	    break;
-	}
-    RuntimeAssert (found, "No face was fitted for : ", *this);
-    if (! translation.isZero ())
-    {
-	//found a possible fit
-	of->SetFace (
-	    body->GetData ()->GetFaceDuplicate (
-		*of->GetFace (),
-		*(of->GetFace ()->GetOrientedEdge(0)->GetBegin ()) + 
-		translation));
-    }
-    return of;
-}

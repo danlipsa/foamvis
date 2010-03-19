@@ -8,6 +8,8 @@
 
 #include "EdgeNormalFit.h"
 #include "Body.h"
+#include "Debug.h"
+#include "Data.h"
 
 /**
  * Designate the X axis as the normal origin.
@@ -48,23 +50,94 @@ ostream& operator<< (ostream& ostr, const EdgeNormalFit& edgeNormalFit)
     return ostr;
 }
 
-const G3D::Vector3 EdgeNormalFit::UNKNOWN_NORMAL = G3D::Vector3::inf ();
+const G3D::Vector3 EdgeNormalFit::NO_NORMAL = G3D::Vector3::inf ();
 
 void EdgeNormalFit::Initialize (list<EdgeNormalFit>* queue, Body* body)
 {
     Body::NormalFaceMap& normalFaceMap = body->GetNormalFaceMap ();
     OrientedFace* of = (*normalFaceMap.begin ()).second;
-    queue->push_back (EdgeNormalFit (of->GetOrientedEdge (0), UNKNOWN_NORMAL));
+    queue->push_back (EdgeNormalFit (of->GetOrientedEdge (0),
+				     G3D::Vector3::inf ()));
 }
 
 void EdgeNormalFit::AddQueue (
-    list<EdgeNormalFit>* queue, 
-    const EdgeNormalFit& src, OrientedFace* fit)
+    list<EdgeNormalFit>* queue, EdgeNormalFit* src, OrientedFace* fit)
 {
-    
+    if (src->HasNormal ())
+    {
+	if (fit != 0)
+ 	    for (OrientedFace::iterator it = fit->begin ();
+		 it != fit->end (); ++it)
+		queue->push_front (EdgeNormalFit (*it, src->GetNormal ()));
+	else
+	{
+	    Edge* edge = src->GetOrientedEdge ().GetEdge ();
+	    edge->SetPhysical ();
+	    Vertex* b = edge->GetBegin ();
+	    Vertex* e = edge->GetEnd ();
+	    b->SetPhysical ();
+	    e->SetPhysical ();
+	    queue->push_back (EdgeNormalFit (src->GetOrientedEdge ()));
+	}
+    }
+    else
+    {
+	RuntimeAssert (fit != 0, "No fit was found for an edge without normal");
+	for (OrientedFace::iterator it = fit->begin ();
+	     it != fit->end (); ++it)
+	    queue->push_front (EdgeNormalFit (*it, fit->GetNormal ()));
+    }
+}
+
+OrientedFace* EdgeNormalFit::fitAndDuplicateFaceFindNormal (Body* body) const
+{
+    RuntimeAssert (! HasNormal (), 
+		   "EdgeNormalFit has a normal where it should not");
+}
+
+
+OrientedFace* EdgeNormalFit::fitAndDuplicateFaceSameNormal (Body* body) const
+{
+    using G3D::Vector3;
+    Vector3 translation;
+    bool found = false;
+    OrientedFace* of = 0;
+
+    Body::NormalFaceMap::iterator it = 
+	body->GetNormalFaceMap ().find (GetNormal ());
+    Vector3 normal = it->first;
+    Vector3 currentNormal = normal;
+    while (it != body->GetNormalFaceMap ().end () && 
+	   currentNormal.fuzzyEq (normal))
+    {
+	if (Body::FitFace (*it->second, GetOrientedEdge (),  &translation))
+	{
+	    // you  only need  to consider  one match  because  of the
+	    // orientation of the face.
+	    found = true;
+	    break;
+	}
+	++it;
+    }
+    if (! found)
+	return 0;
+    if (! translation.isZero ())
+    {
+	Face* face = of->GetFace ();
+	//found a possible fit
+	of->SetFace (
+	    body->GetData ()->GetFaceDuplicate (
+		*face, 
+		*(face->GetOrientedEdge(0)->GetBegin ()) + translation));
+    }
+    return of;
+
 }
 
 OrientedFace* EdgeNormalFit::FitAndDuplicateFace (Body* body) const
 {
-    
+    if (HasNormal ())
+	return fitAndDuplicateFaceSameNormal (body);
+    else
+	return fitAndDuplicateFaceFindNormal (body);
 }

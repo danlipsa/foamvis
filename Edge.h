@@ -80,7 +80,7 @@ public:
      */
     bool IsPhysical () const
     {
-	return (m_adjacentFaces.size () == 3);
+	return m_physical || (m_adjacentFaces.size () == 3);
     }
     /**
      * Adds a face touched by this edge
@@ -111,6 +111,10 @@ public:
     ostream& PrintAttributes (ostream& ostr) const
     {
 	return printAttributes (ostr, *Edge::m_infos);
+    }
+    void SetPhysical ()
+    {
+	m_physical = true;
     }
 
 public:
@@ -143,6 +147,7 @@ private:
      * Stores adjacent faces to this edge
      */
     vector<Face*> m_adjacentFaces;
+    bool m_physical;
 
 private:
     /**

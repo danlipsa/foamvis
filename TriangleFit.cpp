@@ -58,7 +58,7 @@ void TriangleFit::Initialize (
 }
 
 void TriangleFit::AddQueue (
-    list<TriangleFit>* queue, const TriangleFit&, OrientedFace* fit)
+    list<TriangleFit>* queue, TriangleFit*, OrientedFace* fit)
 {
     FaceEdgeIndex first, second;
     FaceEdgeIndex::GetFaceIntersection (

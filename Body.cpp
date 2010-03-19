@@ -125,7 +125,8 @@ Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
     transform (faceIndexes.begin(), faceIndexes.end(), m_faces.begin(), 
                indexToOrientedFace(faces));
     BOOST_FOREACH (OrientedFace* of, m_faces)
-	m_normalFaceMap.insert (of->ToNormalFacePair ());
+	m_normalFaceMap.insert (OrientedFace::MakeNormalFacePair (of));
+    m_startNormalFace = m_normalFaceMap.begin ();
 
     //if (m_data->IsTorus () && m_data->GetSpaceDimension () == 3)
     if (false)
@@ -211,13 +212,13 @@ void Body::UpdateFacesAdjacency ()
 
 bool Body::FitFace (
     const OrientedFace& candidate,
-    const FaceEdgeIndex& fit,
+    const OrientedEdge& fitEdge,
     G3D::Vector3* translation)
 {
-    OrientedEdge fitEdge = fit.m_face->GetOrientedEdge (fit.m_edgeIndex);
-    for (size_t i = 0; i < candidate.GetEdgeCount (); i++)
+    for (OrientedFace::const_iterator it = candidate.begin ();
+	 it != candidate.end (); ++it)
     {
-	OrientedEdge candidateEdge = candidate.GetOrientedEdge (i);
+	OrientedEdge candidateEdge = *it;
 	if (candidateEdge.fits (fitEdge))
 	{
 	    *translation = *candidateEdge.GetEdge()->GetBegin () - 
@@ -240,10 +241,10 @@ bool Body::FitFace (
     bool found = false;
 
     for (size_t start = 0; 
-	 ! found && start < (candidate.GetEdgeCount () + pointCount - 1);
+	 ! found && start < (candidate.size () + pointCount - 1);
 	 start++)
     {
-	size_t i = start % candidate.GetEdgeCount ();
+	size_t i = start % candidate.size ();
 	Vector3 current = *candidate.GetEnd (i);
 	switch (currentFitPoint)
 	{
@@ -283,11 +284,8 @@ bool Body::FitFace (
 
 void Body::SetPlacedOrientedFace (OrientedFace* of)
 {
-    if (! of->IsPlaced ())
-    {
-	m_placedOrientedFaces++;
-	of->SetPlaced (true);
-    }
+    m_placedOrientedFaces++;
+    of->SetPlaced (true);
 }
 
 void Body::ResetPlacedOrientedFaces ()
@@ -298,3 +296,4 @@ void Body::ResetPlacedOrientedFaces ()
     m_placedOrientedFaces = 0;
     
 }
+

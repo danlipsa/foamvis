@@ -45,25 +45,31 @@ public:
 
 	// if the face was not placed before
 	// add two more angles in the queue
-	if (! face->IsPlaced ())
-	{
-	    if (face->GetFace ()->IsDuplicate ())
-		cdbg << "Fitted face: " << endl << *face << endl;
+	if (face == 0)
+	    cdbg << "No face fitted" << endl;
+	else
+	{ 
+	    if (! face->IsPlaced ())
+	    {
+		if (face->GetFace ()->IsDuplicate ())
+		    cdbg << "Fitted face: " << endl << *face << endl;
+		else
+		{
+		    Face& f = *face->GetFace ();
+		    cdbg << "Fitted face " << f.GetOriginalIndex () 
+			 << " " << f.GetColor () << " "
+			 << " not a DUPLICATE" << endl;
+		}
+		m_body->SetPlacedOrientedFace (face);
+		fit.AddQueue (&m_queue, &fit, face);
+	    }
 	    else
 	    {
 		cdbg << "Fitted face " << face->GetFace ()->GetOriginalIndex () 
 		     << " " << face->GetFace ()->GetColor () << " "
-		     << " not a DUPLICATE" << endl;
+		     << " already PLACED" << endl;
 	    }
 	}
-	else
-	{
-	    cdbg << "Fitted face " << face->GetFace ()->GetOriginalIndex () 
-		 << " " << face->GetFace ()->GetColor () << " "
-		 << " already PLACED" << endl;
-	}
-	m_body->SetPlacedOrientedFace (face);
-	fit.AddQueue (&m_queue, fit, face);
 	return true;
     }
 

@@ -29,20 +29,20 @@ Vertex::Vertex(float x, float y, float z,
 	       size_t originalIndex, Data* data, bool duplicate) :
     G3D::Vector3 (x, y, z),
     Element(originalIndex, data, duplicate),
-    m_adjacentPhysicalEdgesCount (0)
+    m_adjacentPhysicalEdgesCount (0), m_physical (false)
 {}
 
 Vertex::Vertex (const G3D::Vector3* position, Data* data) : 
     G3D::Vector3 (position->x, position->y, position->z),
     Element (Element::INVALID_INDEX, data, false),
-    m_adjacentPhysicalEdgesCount (0)
+    m_adjacentPhysicalEdgesCount (0), m_physical (false)
 {}
 
 Vertex::Vertex (const G3D::Vector3* position, Data* data,
 		const G3D::Vector3int16& domainIncrement) : 
     G3D::Vector3 (position->x, position->y, position->z),
     Element (Element::INVALID_INDEX, data, false),
-    m_adjacentPhysicalEdgesCount (0)
+    m_adjacentPhysicalEdgesCount (0), m_physical (false)
 {
     AdjustPosition (domainIncrement);
 }
@@ -108,7 +108,12 @@ bool Vertex::LessThanAngleX::operator () (
     const G3D::Vector3& first, const G3D::Vector3& second) const
 {
     using G3D::Vector3;
-    return angle (first, Vector3::unitX ()) < angle (second, Vector3::unitX ());
+    return 
+	(angle0pi (first, Vector3::unitX ()) < 
+	 angle0pi (second, Vector3::unitX ())) ||
+	(angle0pi (first, Vector3::unitX ()) ==
+	 angle0pi (second, Vector3::unitX ()) &&
+	 angle (first, Vector3::unitY ()) < angle (second, Vector3::unitY ()));
 }
 
 double Vertex::LessThanAngleX::angle (
@@ -117,6 +122,6 @@ double Vertex::LessThanAngleX::angle (
     double angle = acos (first.dot (second));
     double sinValue = first.cross (second).length ();
     if (sinValue < 0)
-	angle += M_PI;
+	angle = 2*M_PI - angle;
     return angle;
 }

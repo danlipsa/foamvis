@@ -18,21 +18,15 @@ public:
     FaceEdgeIndex () : m_face (0), m_edgeIndex (0) {}
     FaceEdgeIndex (const OrientedFace* face, size_t edgeIndex) :
     m_face (face), m_edgeIndex (edgeIndex) {}
-    void AddQueue (
-	list<FaceEdgeIndex>* queue, OrientedFace* fit);
-    OrientedFace* FitAndDuplicateFace (Body* body) const;
-
 
 public:
     friend ostream& operator<< (ostream& ostr, const FaceEdgeIndex& fei);
     static bool GetFaceIntersection (
 	const OrientedFace& firstFace, const OrientedFace& secondFace,
 	FaceEdgeIndex* first, FaceEdgeIndex* second);
-    static void Initialize (list<FaceEdgeIndex>* queue,
-			    Body* body);
     static void TwoConnectedFaces (
 	Body* body, FaceEdgeIndex* first, FaceEdgeIndex* second);
-
+    
 public:
     const OrientedFace* m_face;
     /**

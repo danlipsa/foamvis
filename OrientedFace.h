@@ -16,6 +16,37 @@
 class OrientedFace
 {
 public:
+    template <typename T>
+    class Iterator : 
+	boost::input_iterator_helper < Iterator<T>, OrientedEdge, 
+				       Face::OrientedEdges::pointer,
+				       Face::OrientedEdges::reference>
+    {
+    public:
+	Iterator (T* of, size_t index) : m_of (of), m_index (index)
+	{}
+	friend bool operator==(Iterator first, Iterator second)
+	{
+	    return first.m_of == second.m_of && 
+		first.m_index == second.m_index;
+	}
+	Iterator& operator++ ()
+	{
+	    m_index++;
+	    return *this;
+	}
+	OrientedEdge operator* ()
+	{
+	    return m_of->GetOrientedEdge (m_index);
+	}
+    private:
+	T* m_of;
+	size_t m_index;
+    };
+    typedef Iterator<OrientedFace> iterator;
+    typedef Iterator<const OrientedFace> const_iterator;
+
+public:
     /**
      * Constructs a OrientedFace object
      * @param face a pointer to a Face
@@ -104,10 +135,6 @@ public:
     {
 	m_placed = placed;
     }
-    size_t GetEdgeCount () const
-    {
-	return m_face->GetEdgeCount ();
-    }
     size_t GetNextValidIndex (size_t index) const
     {
 	return m_face->GetNextValidIndex (index);
@@ -117,9 +144,27 @@ public:
 	return m_face->GetPreviousValidIndex (index);
     }
     G3D::Vector3 GetNormal () const;
-    pair<G3D::Vector3, OrientedFace*> ToNormalFacePair ()
+
+    size_t size () const
     {
-	return pair<G3D::Vector3, OrientedFace*> (GetNormal (), this);
+	return m_face->GetEdgeCount ();
+    }
+    iterator begin ()
+    {
+	return Iterator<OrientedFace> (this, 0);
+    }
+    const_iterator begin () const
+    {
+	return Iterator<const OrientedFace> (this, 0);
+    }
+
+    iterator end ()
+    {
+	return Iterator<OrientedFace> (this, size ());
+    }
+    const_iterator end () const
+    {
+	return Iterator<const OrientedFace> (this, size ());
     }
 
 public:
@@ -127,6 +172,12 @@ public:
      * Pretty print for the OrientedFace object
      */
     friend ostream& operator<< (ostream& ostr, const OrientedFace& of);
+    static pair<G3D::Vector3, OrientedFace*> MakeNormalFacePair (
+	OrientedFace* face)
+    {
+	return pair<G3D::Vector3, OrientedFace*> (face->GetNormal (), face);
+    }
+
 
 private:
 

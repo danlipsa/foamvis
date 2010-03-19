@@ -52,7 +52,7 @@ public:
     }
 
     void AddQueue (list<TriangleFit>* queue, 
-		   const TriangleFit& src, OrientedFace* fit);
+		   TriangleFit* src, OrientedFace* fit);
     OrientedFace* FitAndDuplicateFace (Body* body) const;
 
 public:

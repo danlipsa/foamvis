@@ -15,8 +15,8 @@ ostream& operator<< (ostream& ostr, const OrientedFace& of)
 	 << " " << of.GetFace ()->GetColor () << " "
 	 << (of.GetFace ()->IsDuplicate () ? " DUPLICATE" : "")
 	 << ": " << endl;
-    ostr << of.GetEdgeCount () << " edges part of the face:" << endl;
-    for (size_t i = 0; i < of.GetEdgeCount (); i++)
+    ostr << of.size () << " edges part of the face:" << endl;
+    for (size_t i = 0; i < of.size (); i++)
     {
 	const OrientedEdge oe = of.GetOrientedEdge (i);
 	ostr << i << ": " << oe << endl;

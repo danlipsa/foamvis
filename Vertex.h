@@ -72,6 +72,11 @@ public:
 	    const G3D::Vector3& first, const G3D::Vector3& second) const;
 	static double angle (
 	    const G3D::Vector3& first, const G3D::Vector3& second);
+	static double angle0pi (
+	    const G3D::Vector3& first, const G3D::Vector3& second)
+	{
+	    return acos (first.dot (second));
+	}
     };
 
     
@@ -108,7 +113,11 @@ public:
      */
     bool IsPhysical () const 
     {
-	return (m_adjacentPhysicalEdgesCount == 4);
+	return m_physical || (m_adjacentPhysicalEdgesCount == 4);
+    }
+    void SetPhysical ()
+    {
+	m_physical = true;
     }
     /**
      * Adds an edge that is adjacent to this vertex
@@ -229,6 +238,7 @@ private:
      */
     vector<Edge*> m_adjacentEdges;
     size_t m_adjacentPhysicalEdgesCount;
+    bool m_physical;
 
 private:
     /**
