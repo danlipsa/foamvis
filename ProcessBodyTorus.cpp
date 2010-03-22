@@ -27,7 +27,7 @@ bool ProcessBodyTorus::Step ()
 	return false;
 	
     cdbg << "Queue " << m_queue.size () << " elements" << endl;
-    ostream_iterator<OrientedEdge> output (cdbg, "\n");
+    ostream_iterator<EdgeFit> output (cdbg, "\n");
 
     copy (m_queue.begin (), m_queue.end (), output);
 
@@ -53,13 +53,14 @@ bool ProcessBodyTorus::Step ()
 
 void ProcessBodyTorus::addQueue (OrientedFace* of)
 {
+    using G3D::Vector3;
+    Vector3 normal = of->GetNormal ();
     for (OrientedFace::iterator it = of->begin (); it != of->end (); ++it)
     {
 	OrientedEdge oe = *it;
-	G3D::Vector3 edgeVector = *oe.GetEnd () - *oe.GetBegin ();
+	G3D::Vector3 edgeVector = oe.GetEdgeVector ();
 	m_queue.push_back (
-	    EdgeFit(oe, 
-		    of->GetNormal ().cross (edgeVector).unit ()));
+	    EdgeFit(oe, normal.cross (edgeVector).unit ()));
     }
     m_body->IncrementNormalFace ();
 }

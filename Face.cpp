@@ -199,6 +199,7 @@ G3D::Vector3 Face::GetNormal () const
 	m_edges.begin (), m_edges.end (), !bind (&OrientedEdge::IsZero, _1));
     RuntimeAssert (it != m_edges.end (), "Face with all edges 0");
     Vector3 one = (*it)->GetEdgeVector ();
+    it++;
     it = find_if (
 	it, m_edges.end (), !bind (&OrientedEdge::IsZero, _1));
     RuntimeAssert (it != m_edges.end (), "Face with only one edge != 0");

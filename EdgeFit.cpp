@@ -18,7 +18,7 @@ ostream& operator<< (ostream& ostr, const EdgeFit& ef)
 
 bool EdgeFit::Fits (const OrientedFace& face) const
 {
-    G3D::Vector3 edgeDirection = *m_edge.GetEnd () - *m_edge.GetBegin ();
+    G3D::Vector3 edgeDirection = m_edge.GetEdgeVector ();
     G3D::Vector3 crossNormals = face.GetNormal ().cross (m_normal);
     return edgeDirection.dot (crossNormals) > 0;
 }
