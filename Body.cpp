@@ -133,7 +133,8 @@ Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
     {
 	ProcessBodyTorus<TriangleFit> processForTorus (this);
 	processForTorus.Initialize ();
-	while (processForTorus.Step ());
+	while (processForTorus.Step ())
+	    ;
 	processForTorus.End ();
     }
 }
@@ -297,3 +298,20 @@ void Body::ResetPlacedOrientedFaces ()
     
 }
 
+Body::NormalFaceMap::const_iterator Body::FindNormalFace (
+    const G3D::Vector3& normal) const
+{
+    NormalFaceMap::const_iterator it = m_normalFaceMap.find (normal);
+    G3D::Vector3 n = it->first;
+    NormalFaceMap::const_iterator prev = it;
+    while (n.fuzzyEq (normal) && it != m_normalFaceMap.begin ())
+    {
+	prev = it;
+	--it;	
+	n = it->first;
+    }
+    if (it == m_normalFaceMap.begin () && n.fuzzyEq (normal))
+	return it;
+    else
+	return prev;
+}

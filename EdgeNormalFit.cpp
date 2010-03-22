@@ -17,16 +17,16 @@
  * Order oriented faces  based on the angle between  the normal to the
  * face and the normal origin.
  *
- * Add to the  end of the queue an EdgeNormalFit  with the first edge
- * of the first face and an infinite normal.  An infinite normal means
- * that we  don't know the  normal of  the face we  try to fit  and we
- * choose  the next normal  not processed  for which  we find  an edge
- * fit. This the face most perpendicular on axis X.
+ * Add to the end of the queue an EdgeNormalFit with the first edge of
+ * the first  face and an  no normal.  No  normal means that  we don't
+ * know the normal  of the face we  try to fit and we  choose the next
+ * normal  not  processed for  which  we find  an  edge  fit. For  G3D
+ * NO_NORMAL  is stored  using  Vector3::inf (). 
  *
  * until we fit all faces
  *   Remove an EdgeNormalFit  from the queue.
  *
- *   If the normal is infinite find a face that fits the edge with the
+ *   If there is no normal find a face that fits the edge with the
  *   normal having the smallest angle to the normals already processed
  *   (smallest in the list of normals not processed yet).
  *
@@ -54,10 +54,9 @@ const G3D::Vector3 EdgeNormalFit::NO_NORMAL = G3D::Vector3::inf ();
 
 void EdgeNormalFit::Initialize (list<EdgeNormalFit>* queue, Body* body)
 {
-    Body::NormalFaceMap& normalFaceMap = body->GetNormalFaceMap ();
-    OrientedFace* of = (*normalFaceMap.begin ()).second;
+    OrientedFace* of = body->GetFirstFace ();
     queue->push_back (EdgeNormalFit (of->GetOrientedEdge (0),
-				     G3D::Vector3::inf ()));
+				     EdgeNormalFit::NO_NORMAL));
 }
 
 void EdgeNormalFit::AddQueue (
@@ -93,6 +92,36 @@ OrientedFace* EdgeNormalFit::fitAndDuplicateFaceFindNormal (Body* body) const
 {
     RuntimeAssert (! HasNormal (), 
 		   "EdgeNormalFit has a normal where it should not");
+    using G3D::Vector3;
+    Vector3 translation;
+    Vector3 normal;
+    bool found = false;
+    OrientedFace* candidate = 0;
+    Body::NormalFaceMap::iterator it = body->GetStartNormalFace ();
+    while (it != body->GetNormalFaceMap ().end ())
+    {
+	candidate = it->second;
+	if (Body::FitFace (*candidate, GetOrientedEdge (),  &translation))
+	{
+	    // you  only need  to consider  one match  because  of the
+	    // orientation of the face and of the smallest normal
+	    found = true;
+	    normal = it->first;
+	    break;
+	}
+	++it;
+    }
+    RuntimeAssert (found, "No face was fitted for edge: ", GetOrientedEdge ());
+    if (! translation.isZero ())
+    {
+	Face* face = candidate->GetFace ();
+	//found a possible fit
+	candidate->SetFace (
+	    body->GetData ()->GetFaceDuplicate (
+		*face, 
+		*(face->GetOrientedEdge(0)->GetBegin ()) + translation));
+    }
+    return candidate;    
 }
 
 
@@ -101,16 +130,17 @@ OrientedFace* EdgeNormalFit::fitAndDuplicateFaceSameNormal (Body* body) const
     using G3D::Vector3;
     Vector3 translation;
     bool found = false;
-    OrientedFace* of = 0;
+    OrientedFace* candidate = 0;
 
-    Body::NormalFaceMap::iterator it = 
-	body->GetNormalFaceMap ().find (GetNormal ());
+    Body::NormalFaceMap::const_iterator it = 
+	body->FindNormalFace (GetNormal ());
     Vector3 normal = it->first;
     Vector3 currentNormal = normal;
     while (it != body->GetNormalFaceMap ().end () && 
 	   currentNormal.fuzzyEq (normal))
     {
-	if (Body::FitFace (*it->second, GetOrientedEdge (),  &translation))
+	candidate = it->second;
+	if (Body::FitFace (*candidate, GetOrientedEdge (),  &translation))
 	{
 	    // you  only need  to consider  one match  because  of the
 	    // orientation of the face.
@@ -123,15 +153,14 @@ OrientedFace* EdgeNormalFit::fitAndDuplicateFaceSameNormal (Body* body) const
 	return 0;
     if (! translation.isZero ())
     {
-	Face* face = of->GetFace ();
+	Face* face = candidate->GetFace ();
 	//found a possible fit
-	of->SetFace (
+	candidate->SetFace (
 	    body->GetData ()->GetFaceDuplicate (
 		*face, 
 		*(face->GetOrientedEdge(0)->GetBegin ()) + translation));
     }
-    return of;
-
+    return candidate;
 }
 
 OrientedFace* EdgeNormalFit::FitAndDuplicateFace (Body* body) const

@@ -49,9 +49,16 @@ public:
     {
 	return m_faces;
     }
+
+    NormalFaceMap::const_iterator FindNormalFace (
+	const G3D::Vector3& normal) const;
     NormalFaceMap& GetNormalFaceMap ()
     {
 	return m_normalFaceMap;
+    }
+    OrientedFace* GetFirstFace ()
+    {
+	return (*m_normalFaceMap.begin ()).second;
     }
 
     OrientedFace* GetOrientedFace (size_t i) const
