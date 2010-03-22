@@ -10,8 +10,6 @@
 #include "DebugStream.h"
 #include "DataFiles.h"
 #include "ProcessBodyTorus.h"
-#include "EdgeFit.h"
-#include "TriangleFit.h"
 
 
 MainWindow::MainWindow(DataFiles& dataFiles) : 
@@ -226,13 +224,12 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 	    Body* b = m_glWidget->GetCurrentData ().GetBody (m_currentBody);
 	    if (m_processBodyTorus == 0)
 	    {
-		m_processBodyTorus = new ProcessBodyTorus<Fit> (b);
+		m_processBodyTorus = new ProcessBodyTorus (b);
 		m_processBodyTorus->Initialize ();
 	    }
 	    else
 		if (! m_processBodyTorus->Step ())
 		{
-		    m_processBodyTorus->End ();
 		    m_processBodyTorus = 0;
 		    cdbg << "End process torus" << endl;
 		    m_currentBody = (m_currentBody + 1) % 

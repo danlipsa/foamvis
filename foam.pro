@@ -1,20 +1,21 @@
-HEADERS += DebugStream.h ParsingDriver.h AttributeInfo.h Attribute.h \
-	NameSemanticValue.h ElementUtils.h \
-	 Body.h Color.h DefineAttributeType.h \
-	Data.h Edge.h Element.h ExpressionTree.h \
-	Face.h GLWidget.h OrientedEdge.h OrientedFace.h \
-	ParsingData.h Vertex.h MainWindow.h  FaceEdgeIndex.h \
-        AttributeCreator.h stable.h SystemDifferences.h DataFiles.h Debug.h \
+HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h Color.h \
+	Data.h DataFiles.h Debug.h DebugStream.h DefineAttributeType.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
-	DisplayEdgeFunctors.h DisplayElement.h ProcessBodyTorus.h \
-	TriangleFit.h EdgeFit.h
-SOURCES += DebugStream.cpp ParsingDriver.cpp AttributeInfo.cpp Attribute.cpp \
-	NameSemanticValue.cpp Element.cpp ElementUtils.cpp\
-	Body.cpp Color.cpp DataFiles.cpp Debug.cpp EdgeFit.cpp\
-	Data.cpp Edge.cpp ExpressionTree.cpp Face.cpp FaceEdgeIndex.cpp\
-	GLWidget.cpp main.cpp OrientedEdge.cpp OrientedFace.cpp \
-	ParsingData.cpp Vertex.cpp MainWindow.cpp AttributeCreator.cpp \
-	TriangleFit.cpp
+	DisplayEdgeFunctors.h DisplayElement.h \
+	Edge.h EdgeFit.h Element.h ElementUtils.h ExpressionTree.h \
+	Face.h FaceEdgeIndex.h \
+	GLWidget.h MainWindow.h NameSemanticValue.h \
+	OrientedEdge.h OrientedFace.h \
+	ParsingData.h ParsingDriver.h ProcessBodyTorus.h \
+	stable.h SystemDifferences.h Vertex.h
+SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
+	Body.cpp Color.cpp Data.cpp DataFiles.cpp \
+	Debug.cpp DebugStream.cpp Edge.cpp EdgeFit.cpp\
+	Element.cpp ElementUtils.cpp ExpressionTree.cpp Face.cpp \
+	FaceEdgeIndex.cpp GLWidget.cpp main.cpp MainWindow.cpp  \
+	NameSemanticValue.cpp \
+	OrientedEdge.cpp OrientedFace.cpp \
+	ParsingData.cpp ParsingDriver.cpp ProcessBodyTorus.cpp Vertex.cpp 
 FORMS += Window.ui
 LEXSOURCES += EvolverData.l
 YACCSOURCES += EvolverData.y

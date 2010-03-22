@@ -32,7 +32,7 @@ G3D::Vector3int16 OrientedEdge::GetEndDomainIncrement () const
 	return m_edge->GetEndDomainIncrement ();;
 }
 
-bool OrientedEdge::fits (const OrientedEdge& other) const
+bool OrientedEdge::Fits (const OrientedEdge& other) const
 {
     return 
 	GetEdge ()->GetOriginalIndex () == 

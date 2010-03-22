@@ -8,13 +8,15 @@
 #ifndef __BODY_H__
 #define __BODY_H__
 
-#include "OrientedFace.h"
-
+#include "Vertex.h"
+#include "EdgeFit.h"
+class Face;
 class AttributesInfo;
 class Data;
-class TriangleFit;
 class FaceEdgeIndex;
-class EdgeFit;
+class OrientedFace;
+class OrientedEdge;
+
 
 /**
  * A body is a set of faces
@@ -142,8 +144,9 @@ public:
     static bool FitFace (const OrientedFace& face, const G3D::Vector3* triangle,
 			 size_t triangleSize, G3D::Vector3* translation);
     static bool FitFace (const OrientedFace& candidate,
-			 const OrientedEdge& fitEdge,
+			 const EdgeFit& edgeFit,
 			 G3D::Vector3* translation);
+    OrientedFace* FitFromQueue (list<EdgeFit>* queue);
 private:
     /**
      * Splits a  set of  objects (vertices or  edges) in  physical and

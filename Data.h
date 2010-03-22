@@ -8,6 +8,8 @@
 #define __DATA_H__
 
 #include "Body.h"
+#include "Edge.h"
+#include "Face.h"
 #include "AttributeInfo.h"
 
 class ParsingData;

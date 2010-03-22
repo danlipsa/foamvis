@@ -10,6 +10,7 @@
 #define __DISPLAY_VERTEX_FUNCTORS_H__
 
 #include "DisplayElement.h"
+#include "OrientedFace.h"
 
 struct DisplayOriginalVertex
 {

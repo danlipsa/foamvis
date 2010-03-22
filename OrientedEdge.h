@@ -82,7 +82,7 @@ public:
     {
 	return print (ostr, true);
     }
-    bool fits (const OrientedEdge& other) const;
+    bool Fits (const OrientedEdge& other) const;
 
 public:
     /**

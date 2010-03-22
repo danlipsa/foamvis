@@ -5,13 +5,12 @@
  * Implementation of the Body class
  */
 #include "Body.h"
+#include "OrientedFace.h"
 #include "AttributeInfo.h"
 #include "ParsingDriver.h"
 #include "Data.h"
 #include "Debug.h"
 #include "ProcessBodyTorus.h"
-#include "TriangleFit.h"
-#include "EdgeFit.h"
 
 /**
  * Functor that caches an edge and its vertices
@@ -134,11 +133,10 @@ Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
     //if (m_data->IsTorus () && m_data->GetSpaceDimension () == 3)
     if (false)
     {
-	ProcessBodyTorus<EdgeFit> processForTorus (this);
+	ProcessBodyTorus processForTorus (this);
 	processForTorus.Initialize ();
 	while (processForTorus.Step ())
 	    ;
-	processForTorus.End ();
     }
 }
 
@@ -216,17 +214,19 @@ void Body::UpdateFacesAdjacency ()
 
 bool Body::FitFace (
     const OrientedFace& candidate,
-    const OrientedEdge& fitEdge,
+    const EdgeFit& edgeFit,
     G3D::Vector3* translation)
 {
     for (OrientedFace::const_iterator it = candidate.begin ();
 	 it != candidate.end (); ++it)
     {
 	OrientedEdge candidateEdge = *it;
-	if (candidateEdge.fits (fitEdge))
+	if (edgeFit.m_edge.Fits (candidateEdge) && edgeFit.Fits (candidate))
 	{
-	    *translation = *candidateEdge.GetEdge()->GetBegin () - 
-		*fitEdge.GetEdge()->GetBegin ();
+	    *translation = *(edgeFit.m_edge.GetEdge ()->GetBegin ()) - 
+		*(candidateEdge.GetEdge ()->GetBegin ());
+	    cdbg << "Fitted edge: " << candidateEdge
+		 << " translation: " << *translation << endl;
 	    return true;
 	}
     }
@@ -284,6 +284,38 @@ bool Body::FitFace (
     }
     return found;
 }
+
+
+OrientedFace* Body::FitFromQueue (list<EdgeFit>* queue)
+{
+    // find an edge that fits this face
+    OrientedFace* candidate = GetCurrentNormalFace ()->second;
+    for (list<EdgeFit>::iterator it = queue->begin ();
+	 it != queue->end ();
+	 it++)
+    {
+	G3D::Vector3 translation;
+	if (Body::FitFace (*candidate, *it, &translation))
+	{
+	    if (! translation.isZero ())
+	    {
+		Face* face = candidate->GetFace ();
+		//found a possible fit
+		candidate->SetFace (
+		    GetData ()->GetFaceDuplicate (
+			*face, 
+			*(face->GetOrientedEdge(0)->GetBegin ()) + 
+			translation));
+	    }
+	    
+	    queue->erase (it);
+	    return candidate;
+	}
+    }
+    RuntimeAssert (false, "No match found for: ", *candidate);
+    return candidate;
+}
+
 
 
 
