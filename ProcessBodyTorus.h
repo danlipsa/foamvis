@@ -27,10 +27,11 @@ public:
     }
     bool Step ()
     {
-	if (m_body->GetPlacedOrientedFaces () == 
-	    m_body->GetOrientedFaces ().size ())
+	Body::NormalFaceMap::iterator normalFaceIt = 
+	    m_body->GetCurrentNormalFace ();
+	if ( normalFaceIt == m_body->GetNormalFaceMap ().end ())
 	    return false;
-
+	
 	cdbg << "Queue " << m_queue.size () << " elements" << endl;
 	ostream_iterator<Fit> output (cdbg, "\n");
 	copy (m_queue.begin (), m_queue.end (), output);
@@ -39,43 +40,23 @@ public:
 	// create a duplicate face)
 	RuntimeAssert (m_queue.size () > 0,
 		       "Process body torus queue is empty");
-	Fit fit = m_queue.front ();
-	m_queue.pop_front ();
-	OrientedFace* face = fit.FitAndDuplicateFace (m_body);
-
-	// if the face was not placed before
-	// add two more angles in the queue
-	if (face == 0)
-	    cdbg << "No face fitted" << endl;
+	OrientedFace* face = Fit::FitFromQueue (&m_queue, m_body);
+	
+	if (face->GetFace ()->IsDuplicate ())
+	    cdbg << "Fitted face: " << endl << *face << endl;
 	else
-	{ 
-	    if (! face->IsPlaced ())
-	    {
-		if (face->GetFace ()->IsDuplicate ())
-		    cdbg << "Fitted face: " << endl << *face << endl;
-		else
-		{
-		    Face& f = *face->GetFace ();
-		    cdbg << "Fitted face " << f.GetOriginalIndex () 
-			 << " " << f.GetColor () << " "
-			 << " not a DUPLICATE" << endl;
-		}
-		m_body->SetPlacedOrientedFace (face);
-		fit.AddQueue (&m_queue, &fit, face);
-	    }
-	    else
-	    {
-		cdbg << "Fitted face " << face->GetFace ()->GetOriginalIndex () 
-		     << " " << face->GetFace ()->GetColor () << " "
-		     << " already PLACED" << endl;
-	    }
+	{
+	    Face& f = *face->GetFace ();
+	    cdbg << "Fitted face " << f.GetOriginalIndex () 
+		 << " " << f.GetColor () << " "
+		 << " not a DUPLICATE" << endl;
 	}
+	Fit::AddQueue (&m_queue, face);
 	return true;
     }
 
     void End ()
     {
-	m_body->ResetPlacedOrientedFaces ();
     }
 
 private:

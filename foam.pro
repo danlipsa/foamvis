@@ -7,10 +7,10 @@ HEADERS += DebugStream.h ParsingDriver.h AttributeInfo.h Attribute.h \
         AttributeCreator.h stable.h SystemDifferences.h DataFiles.h Debug.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h ProcessBodyTorus.h \
-	TriangleFit.h EdgeNormalFit.h
+	TriangleFit.h EdgeFit.h
 SOURCES += DebugStream.cpp ParsingDriver.cpp AttributeInfo.cpp Attribute.cpp \
 	NameSemanticValue.cpp Element.cpp ElementUtils.cpp\
-	Body.cpp Color.cpp DataFiles.cpp Debug.cpp EdgeNormalFit.cpp\
+	Body.cpp Color.cpp DataFiles.cpp Debug.cpp EdgeFit.cpp\
 	Data.cpp Edge.cpp ExpressionTree.cpp Face.cpp FaceEdgeIndex.cpp\
 	GLWidget.cpp main.cpp OrientedEdge.cpp OrientedFace.cpp \
 	ParsingData.cpp Vertex.cpp MainWindow.cpp AttributeCreator.cpp \

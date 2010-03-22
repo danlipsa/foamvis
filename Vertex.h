@@ -66,8 +66,11 @@ public:
 
     };
 
-    struct LessThanAngleX
+    class LessThanAngle
     {
+    public:
+	LessThanAngle (const G3D::Vector3& originNormal) : 
+	    m_originNormal (originNormal) {}
 	bool operator () (
 	    const G3D::Vector3& first, const G3D::Vector3& second) const;
 	static double angle (
@@ -77,6 +80,8 @@ public:
 	{
 	    return acos (first.dot (second));
 	}
+    private:
+	G3D::Vector3 m_originNormal;
     };
 
     

@@ -108,3 +108,10 @@ OrientedFace* TriangleFit::FitAndDuplicateFace (Body* body) const
     }
     return of;
 }
+
+TriangleFit TriangleFit::PopQueue (list<TriangleFit>* queue)
+{
+    TriangleFit fit = queue->front ();
+    queue->pop_front ();
+    return fit;
+}

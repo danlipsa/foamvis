@@ -55,7 +55,7 @@ public:
      *        order
      */
     OrientedFace(Face* face, bool reversed) : 
-	m_face (face), m_reversed (reversed), m_placed (false)
+	m_face (face), m_reversed (reversed)
     {}
     /**
      * Gets the face associated with this oriented face
@@ -127,14 +127,6 @@ public:
      */
     OrientedEdge GetOrientedEdge (size_t edgeIndex) const;
 
-    bool IsPlaced () const
-    {
-	return m_placed;
-    }
-    void SetPlaced (bool placed)
-    {
-	m_placed = placed;
-    }
     size_t GetNextValidIndex (size_t index) const
     {
 	return m_face->GetNextValidIndex (index);
@@ -201,7 +193,6 @@ private:
      * reversed order
      */
     bool m_reversed;
-    bool m_placed;
 };
 /**
  * Pretty prints a pointer to an oriented face

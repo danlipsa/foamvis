@@ -65,6 +65,8 @@ public:
     static void GetTriangle (
 	const FaceEdgeIndex& first, const FaceEdgeIndex& second,
 	G3D::Vector3* triangle);
+    static TriangleFit PopQueue (list<TriangleFit>* queue);
+
     friend ostream& operator<< (ostream& ostr, const TriangleFit& fit);
 
 private:

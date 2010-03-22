@@ -10,7 +10,7 @@
 #include "DebugStream.h"
 #include "DataFiles.h"
 #include "ProcessBodyTorus.h"
-#include "EdgeNormalFit.h"
+#include "EdgeFit.h"
 #include "TriangleFit.h"
 
 

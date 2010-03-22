@@ -104,19 +104,28 @@ Vertex* Vertex::CreateDuplicate (
     return duplicate;
 }
 
-bool Vertex::LessThanAngleX::operator () (
+bool Vertex::LessThanAngle::operator () (
     const G3D::Vector3& first, const G3D::Vector3& second) const
 {
     using G3D::Vector3;
-    return 
-	(angle0pi (first, Vector3::unitX ()) < 
-	 angle0pi (second, Vector3::unitX ())) ||
-	(angle0pi (first, Vector3::unitX ()) ==
-	 angle0pi (second, Vector3::unitX ()) &&
-	 angle (first, Vector3::unitY ()) < angle (second, Vector3::unitY ()));
+    double firstAngle = angle0pi (first, m_originNormal);
+    double secondAngle = angle0pi (second, m_originNormal);
+    if (firstAngle < secondAngle)
+	return true;
+    else if (firstAngle == secondAngle)
+    {
+	Vector3 normal1, normal2;
+	m_originNormal.getTangents (normal1, normal2);
+	if (angle (first, normal1) < angle (second, normal1))
+	    return true;
+	else
+	    return false;
+    }
+    else
+	return false;
 }
 
-double Vertex::LessThanAngleX::angle (
+double Vertex::LessThanAngle::angle (
     const G3D::Vector3& first, const G3D::Vector3& second)
 {
     double angle = acos (first.dot (second));

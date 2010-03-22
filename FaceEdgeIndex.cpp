@@ -57,8 +57,6 @@ void FaceEdgeIndex::TwoConnectedFaces (
 		*body->GetOrientedFace (0), *body->GetOrientedFace (j),
 		first, second))
 	{
-	    body->SetPlacedOrientedFace (static_cast<size_t>(0));
-	    body->SetPlacedOrientedFace (j);
 	    found = true;
 	    break;
 	}

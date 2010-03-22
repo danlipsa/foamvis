@@ -1,9 +1,9 @@
 /**
- * @file   EdgeNormalFit.h
+ * @file   EdgeFit.h
  * @author Dan R. Lipsa
  * @date 18 March 2010
  *
- * Declaration of the EdgeNormalFit class
+ * Declaration of the EdgeFit class
  */
 
 #ifndef __EDGE_NORMAL_FIT_H__
@@ -14,14 +14,12 @@
 class OrientedFace;
 class Body;
 
-class EdgeNormalFit
+class EdgeFit
 {
 public:
-    EdgeNormalFit (
+    EdgeFit (
 	const OrientedEdge& oe, const G3D::Vector3& normal = NO_NORMAL) :
     m_edge (oe), m_normal (normal) {}
-    void AddQueue (list<EdgeNormalFit>* queue, 
-		   EdgeNormalFit* src, OrientedFace* fit);
     OrientedFace* FitAndDuplicateFace (Body* body) const;
 
     bool HasNormal () const
@@ -42,13 +40,12 @@ public:
     }
 
 public:
-    static void Initialize (list<EdgeNormalFit>* queue, Body* body);
+    static void Initialize (list<EdgeFit>* queue, Body* body);
     friend ostream& operator<< (
-	ostream& ostr, const EdgeNormalFit& edgeNormalFit);
-
-private:
-    OrientedFace* fitAndDuplicateFaceSameNormal (Body* body) const;
-    OrientedFace* fitAndDuplicateFaceFindNormal (Body* body) const;
+	ostream& ostr, const EdgeFit& edgeNormalFit);
+    static OrientedFace* FitFromQueue (list<EdgeFit>* queue, Body* body);
+    static void AddQueue (list<EdgeFit>* queue, 
+			  OrientedFace* fit);
 
 public:
     static const G3D::Vector3 NO_NORMAL;

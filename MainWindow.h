@@ -13,7 +13,7 @@ class QTimer;
 class GLWidget;
 class DataFiles;
 class TriangleFit;
-class EdgeNormalFit;
+class EdgeFit;
 class FaceEdgeIndex;
 
 template <typename Fit> class ProcessBodyTorus;
@@ -134,7 +134,7 @@ private:
      * display the files too fast.
      */
     boost::scoped_ptr<QTimer> m_timer;
-    typedef EdgeNormalFit Fit;
+    typedef EdgeFit Fit;
     ProcessBodyTorus<Fit>* m_processBodyTorus;
     size_t m_currentBody;
 };

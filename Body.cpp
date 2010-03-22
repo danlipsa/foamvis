@@ -11,6 +11,7 @@
 #include "Debug.h"
 #include "ProcessBodyTorus.h"
 #include "TriangleFit.h"
+#include "EdgeFit.h"
 
 /**
  * Functor that caches an edge and its vertices
@@ -124,14 +125,16 @@ Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
     m_faces.resize (faceIndexes.size ());
     transform (faceIndexes.begin(), faceIndexes.end(), m_faces.begin(), 
                indexToOrientedFace(faces));
+    m_normalFaceMap.reset (
+	new NormalFaceMap (Vertex::LessThanAngle (m_faces[0]->GetNormal ())));
     BOOST_FOREACH (OrientedFace* of, m_faces)
-	m_normalFaceMap.insert (OrientedFace::MakeNormalFacePair (of));
-    m_startNormalFace = m_normalFaceMap.begin ();
+	m_normalFaceMap->insert (OrientedFace::MakeNormalFacePair (of));
+    m_currentNormalFace = m_normalFaceMap->begin ();
 
     //if (m_data->IsTorus () && m_data->GetSpaceDimension () == 3)
     if (false)
     {
-	ProcessBodyTorus<TriangleFit> processForTorus (this);
+	ProcessBodyTorus<EdgeFit> processForTorus (this);
 	processForTorus.Initialize ();
 	while (processForTorus.Step ())
 	    ;
@@ -283,34 +286,20 @@ bool Body::FitFace (
 }
 
 
-void Body::SetPlacedOrientedFace (OrientedFace* of)
-{
-    m_placedOrientedFaces++;
-    of->SetPlaced (true);
-}
-
-void Body::ResetPlacedOrientedFaces ()
-{
-    vector<OrientedFace*>& of = GetOrientedFaces ();
-    for_each (of.begin (), of.end (),
-	      bind (&OrientedFace::SetPlaced, _1, false));
-    m_placedOrientedFaces = 0;
-    
-}
 
 Body::NormalFaceMap::const_iterator Body::FindNormalFace (
     const G3D::Vector3& normal) const
 {
-    NormalFaceMap::const_iterator it = m_normalFaceMap.find (normal);
+    NormalFaceMap::const_iterator it = m_normalFaceMap->find (normal);
     G3D::Vector3 n = it->first;
     NormalFaceMap::const_iterator prev = it;
-    while (n.fuzzyEq (normal) && it != m_normalFaceMap.begin ())
+    while (n.fuzzyEq (normal) && it != m_normalFaceMap->begin ())
     {
 	prev = it;
 	--it;	
 	n = it->first;
     }
-    if (it == m_normalFaceMap.begin () && n.fuzzyEq (normal))
+    if (it == m_normalFaceMap->begin () && n.fuzzyEq (normal))
 	return it;
     else
 	return prev;

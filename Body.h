@@ -14,7 +14,7 @@ class AttributesInfo;
 class Data;
 class TriangleFit;
 class FaceEdgeIndex;
-class EdgeNormalFit;
+class EdgeFit;
 
 /**
  * A body is a set of faces
@@ -24,7 +24,7 @@ class Body : public Element
 public:
     typedef vector<OrientedFace*> OrientedFaces;
     typedef multimap<G3D::Vector3, OrientedFace*, 
-		     Vertex::LessThanAngleX> NormalFaceMap;
+		     Vertex::LessThanAngle> NormalFaceMap;
 
 public:
     /**
@@ -54,11 +54,11 @@ public:
 	const G3D::Vector3& normal) const;
     NormalFaceMap& GetNormalFaceMap ()
     {
-	return m_normalFaceMap;
+	return *m_normalFaceMap.get ();
     }
     OrientedFace* GetFirstFace ()
     {
-	return (*m_normalFaceMap.begin ()).second;
+	return (*m_normalFaceMap->begin ()).second;
     }
 
     OrientedFace* GetOrientedFace (size_t i) const
@@ -116,20 +116,13 @@ public:
     }
     void UpdateFacesAdjacency ();
 
-    void SetPlacedOrientedFace (size_t index)
+    NormalFaceMap::iterator GetCurrentNormalFace ()
     {
-	SetPlacedOrientedFace (GetOrientedFace (index));
+	return m_currentNormalFace;
     }
-    void SetPlacedOrientedFace (OrientedFace* of);
-
-    void ResetPlacedOrientedFaces ();
-    size_t GetPlacedOrientedFaces () const
+    void IncrementNormalFace ()
     {
-	return m_placedOrientedFaces;
-    }
-    NormalFaceMap::iterator GetStartNormalFace ()
-    {
-	return m_startNormalFace;
+	++m_currentNormalFace;
     }
 
 public:
@@ -174,11 +167,11 @@ private:
      */
     OrientedFaces m_faces;
     size_t m_placedOrientedFaces;
-    NormalFaceMap m_normalFaceMap;
+    auto_ptr<NormalFaceMap> m_normalFaceMap;
     /**
      * Points to the next group of normals
      */
-    NormalFaceMap::iterator m_startNormalFace;
+    NormalFaceMap::iterator m_currentNormalFace;
     /**
      * Edges for this body
      */
