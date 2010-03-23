@@ -10,6 +10,7 @@
 
 #include "Vertex.h"
 #include "EdgeFit.h"
+#include "OrientedFace.h"
 class Face;
 class AttributesInfo;
 class Data;
@@ -141,12 +142,12 @@ public:
      * @param info the object where the default attributes are stored.
      */
     static void StoreDefaultAttributes (AttributesInfo* info);
-    static bool FitFace (const OrientedFace& face, const G3D::Vector3* triangle,
-			 size_t triangleSize, G3D::Vector3* translation);
     static bool FitFace (const OrientedFace& candidate,
 			 const EdgeFit& edgeFit,
+			 OrientedFace::const_iterator* fitPosition,
 			 G3D::Vector3* translation);
-    OrientedFace* FitFromQueue (list<EdgeFit>* queue);
+    OrientedFace* FitFromQueue (list<EdgeFit>* queue,
+				OrientedFace::const_iterator* fitPosition);
 private:
     /**
      * Splits a  set of  objects (vertices or  edges) in  physical and

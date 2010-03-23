@@ -17,12 +17,13 @@ class OrientedFace
 {
 public:
     template <typename T>
-    class Iterator : 
-	boost::input_iterator_helper < Iterator<T>, OrientedEdge, 
-				       Face::OrientedEdges::pointer,
-				       Face::OrientedEdges::reference>
+    class Iterator : public boost::input_iterator_helper < 
+    Iterator<T>, OrientedEdge, 
+    Face::OrientedEdges::pointer,
+    Face::OrientedEdges::reference>
     {
     public:
+	Iterator () : m_of (0), m_index (0) {}
 	Iterator (T* of, size_t index) : m_of (of), m_index (index)
 	{}
 	friend bool operator==(Iterator first, Iterator second)
@@ -35,10 +36,11 @@ public:
 	    m_index++;
 	    return *this;
 	}
-	OrientedEdge operator* ()
+	OrientedEdge operator* () const
 	{
 	    return m_of->GetOrientedEdge (m_index);
 	}
+
     private:
 	T* m_of;
 	size_t m_index;

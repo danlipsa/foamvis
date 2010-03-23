@@ -15,8 +15,17 @@
 
 void ProcessBodyTorus::Initialize ()
 {
-    OrientedFace* of = m_body->GetFirstFace ();
-    addQueue (of);
+    const Body::NormalFaceMap& map (m_body->GetNormalFaceMap ());
+    cdbg << "Map " << map.size () << " elements" << endl;
+    pair<G3D::Vector3, OrientedFace*> p;
+    BOOST_FOREACH (p, map)
+    {
+	cdbg << "normal: " << p.first << endl
+	     << *p.second << endl;
+    }
+
+    const OrientedFace* of = m_body->GetFirstFace ();
+    addQueue (of, of->end ());
 }
 
 bool ProcessBodyTorus::Step ()
@@ -35,10 +44,12 @@ bool ProcessBodyTorus::Step ()
     // create a duplicate face)
     RuntimeAssert (m_queue.size () > 0,
 		   "Process body torus queue is empty");
-    OrientedFace* face = m_body->FitFromQueue (&m_queue);
+    OrientedFace::const_iterator fitPosition;
+    OrientedFace* face = m_body->FitFromQueue (&m_queue, &fitPosition);
 	
     if (face->GetFace ()->IsDuplicate ())
-	cdbg << "Fitted face: " << endl << *face << endl;
+	cdbg << "Fitted face: " << endl << *face << endl
+	     << "normal: " << face->GetNormal () << endl;
     else
     {
 	Face& f = *face->GetFace ();
@@ -46,21 +57,24 @@ bool ProcessBodyTorus::Step ()
 	     << " " << f.GetColor () << " "
 	     << " not a DUPLICATE" << endl;
     }
-    addQueue (face);
+    addQueue (face, fitPosition);
     return true;
 }
 
 
-void ProcessBodyTorus::addQueue (OrientedFace* of)
+void ProcessBodyTorus::addQueue (const OrientedFace* of,
+				 OrientedFace::const_iterator fitPosition)
 {
     using G3D::Vector3;
     Vector3 normal = of->GetNormal ();
-    for (OrientedFace::iterator it = of->begin (); it != of->end (); ++it)
+    for (OrientedFace::const_iterator it = of->begin (); it != of->end (); ++it)
     {
+	if (it == fitPosition)
+	    continue;
 	OrientedEdge oe = *it;
 	G3D::Vector3 edgeVector = oe.GetEdgeVector ();
-	m_queue.push_back (
-	    EdgeFit(oe, normal.cross (edgeVector).unit ()));
+	m_queue.push_front (
+	    EdgeFit(oe, edgeVector.cross (normal).unit ()));
     }
     m_body->IncrementNormalFace ();
 }

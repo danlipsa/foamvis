@@ -195,15 +195,18 @@ G3D::Vector3 Face::GetNormal () const
 {
     using boost::bind;
     using G3D::Vector3;
+
+/*
     OrientedEdges::const_iterator it = find_if (
 	m_edges.begin (), m_edges.end (), !bind (&OrientedEdge::IsZero, _1));
     RuntimeAssert (it != m_edges.end (), "Face with all edges 0");
     Vector3 one = (*it)->GetEdgeVector ();
     it++;
-    it = find_if (
-	it, m_edges.end (), !bind (&OrientedEdge::IsZero, _1));
-    RuntimeAssert (it != m_edges.end (), "Face with only one edge != 0");
+    it = find_if (it, m_edges.end (), !bind (&OrientedEdge::IsZero, _1));
     Vector3 two = (*it)->GetEdgeVector ();
+*/
+    Vector3 one = GetOrientedEdge (0)->GetEdgeVector ();
+    Vector3 two = GetOrientedEdge (1)->GetEdgeVector ();
     return (one.cross (two).unit ());
 }
 

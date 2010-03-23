@@ -24,6 +24,10 @@ public:
     ~DisplayEdgeTorus() 
     {
     }
+    void operator () (const OrientedEdge& oe)
+    {
+	operator () (oe.GetEdge ());
+    }
     /**
      * Functor that displays an edge
      * @param e the edge to be displayed
@@ -151,6 +155,10 @@ public:
      */
     DisplayEdgeTessellationOrPhysical (const GLWidget& widget) : 
     DisplayElement (widget) {}
+    void operator () (const OrientedEdge& oe)
+    {
+	operator () (&oe);
+    }
     /**
      * Functor that displays an edge
      * @param e the edge to be displayed
@@ -206,9 +214,9 @@ class DisplayEdges : public DisplayElement
 {
 public:
     DisplayEdges (const GLWidget& widget) : DisplayElement (widget) {}
-    inline void operator() (const OrientedFace* f)
+    void operator() (const OrientedFace* f)
     {
-	operator () (f->GetFace ());
+	for_each (f->begin (), f->end (), displayEdge (m_widget));
     }
     void operator () (const Face* f)
     {

@@ -20,7 +20,8 @@ public:
     bool Step ();
 
 private:
-    void addQueue (OrientedFace* fit);
+    void addQueue (const OrientedFace* of,
+		   OrientedFace::const_iterator fitPosition);
 
 private:
     list<EdgeFit> m_queue;

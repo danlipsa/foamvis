@@ -103,23 +103,60 @@ protected:
     virtual void display (const OrientedFace* f)
     {
 	using G3D::Vector3;
-	// specify the normal vector
-	const Vertex* begin = f->GetBegin (0);
-	const Vertex* end = f->GetEnd (0);
-	Vector3 first(end->x - begin->x,
-		      end->y - begin->y,
-		      end->z - begin->z);
-	begin = f->GetBegin (1);
-	end = f->GetEnd (1);
-	Vector3 second(end->x - begin->x,
-		       end->y - begin->y,
-		       end->z - begin->z);
-	Vector3 normal (first.cross(second).unit ());
-	glNormal3f (normal.x, normal.y, normal.z);
+	Vector3 normal = f->GetNormal ();
+	glNormal (normal);
 
 	// specify the vertices
 	(DisplaySameEdges (m_widget)) (f);
     }
 };
+
+
+/**
+ * Displays a face and specifies the normal to the face. Used for lighting.
+ */
+class DisplayFaceVectors : public DisplayFace<DisplaySameEdges>
+{
+public:
+    /**
+     * Constructor
+     * @param widget where to display the face
+     */
+    DisplayFaceVectors (const GLWidget& widget) : 
+    DisplayFace<DisplaySameEdges> (widget) {}
+
+protected:
+    /**
+     * Functor used to display a face together to the normal
+     * @param f face to be displayed
+     */
+    virtual void display (const OrientedFace* f)
+    {
+	using G3D::Vector3;
+	OrientedEdge oe = f->GetOrientedEdge (0);
+	float size = oe.GetEdgeVector ().length ();
+	Vector3 normal = f->GetNormal ();
+	Vector3 begin = *oe.GetBegin ();
+	glBegin (GL_LINES);
+	glVertex (begin);
+	glVertex (begin + normal * size);
+
+
+	for (OrientedFace::const_iterator it = f->begin (); 
+	     it != f->end (); ++it)
+	{
+	    OrientedEdge oe = *it;
+	    Vector3 edgeVector = oe.GetEdgeVector ();
+	    Vector3 edgeNormal = edgeVector.cross (normal).unit ();
+	    begin = *oe.GetBegin ();
+	    glVertex (begin);
+	    glVertex (begin + edgeNormal * size);
+	}
+	glEnd ();
+
+    }
+};
+
+
 
 #endif //__DISPLAY_FACE_FUNCTORS_H__

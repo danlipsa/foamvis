@@ -40,13 +40,14 @@ OrientedEdge OrientedFace::GetOrientedEdge (size_t edgeIndex) const
     {
         oe = v[edgeIndex];
     }
-    return OrientedEdge (oe->GetEdge (), oe->IsReversed () ^ IsReversed ());
+    bool reversed = oe->IsReversed ();
+    if (IsReversed ())
+	reversed = ! reversed;
+    return OrientedEdge (oe->GetEdge (), reversed);
 }
 
 G3D::Vector3 OrientedFace::GetNormal () const
 {
-    if (m_reversed)
-	return - m_face->GetNormal ();
-    else
-	return m_face->GetNormal ();
+    G3D::Vector3 normal = m_face->GetNormal ();
+    return m_reversed ? - normal : normal;
 }

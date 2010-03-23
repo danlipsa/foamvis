@@ -212,81 +212,30 @@ void Body::UpdateFacesAdjacency ()
 	      bind(&OrientedFace::AddAdjacentBody, _1, this));
 }
 
-bool Body::FitFace (
-    const OrientedFace& candidate,
-    const EdgeFit& edgeFit,
-    G3D::Vector3* translation)
+bool Body::FitFace (const OrientedFace& candidate, const EdgeFit& edgeFit,
+		    OrientedFace::const_iterator* fitPosition,
+		    G3D::Vector3* translation)
 {
     for (OrientedFace::const_iterator it = candidate.begin ();
 	 it != candidate.end (); ++it)
     {
 	OrientedEdge candidateEdge = *it;
-	if (edgeFit.m_edge.Fits (candidateEdge) && edgeFit.Fits (candidate))
+	if (edgeFit.Fits (candidate, candidateEdge))
 	{
 	    *translation = *(edgeFit.m_edge.GetEdge ()->GetBegin ()) - 
 		*(candidateEdge.GetEdge ()->GetBegin ());
+	    *fitPosition = it;
 	    cdbg << "Fitted edge: " << candidateEdge
-		 << " translation: " << *translation << endl;
+		 << " translation: " << *translation << " into "
+		 << edgeFit << endl;
 	    return true;
 	}
     }
     return false;
 }
 
-
-
-bool Body::FitFace (
-    const OrientedFace& candidate,
-    const G3D::Vector3* points, size_t pointCount,
-    G3D::Vector3* translation)
-{
-    using G3D::Vector3;
-    size_t currentFitPoint = 0;
-    bool found = false;
-
-    for (size_t start = 0; 
-	 ! found && start < (candidate.size () + pointCount - 1);
-	 start++)
-    {
-	size_t i = start % candidate.size ();
-	Vector3 current = *candidate.GetEnd (i);
-	switch (currentFitPoint)
-	{
-	case 0:
-	    *translation = (points[0] - current);
-	    currentFitPoint++;
-	    break;
-
-	case 1:
-	    if ((points[1] - current).fuzzyEq(*translation))
-	    {
-		currentFitPoint++;
-		if (pointCount == currentFitPoint)
-		    found = true;
-	    }
-	    else
-	    {
-		start--;
-		currentFitPoint = 0;
-	    }
-	    break;
-
-	case 2:
-	    if ((points[2] - current).fuzzyEq(*translation))	 
-		found = true;	    
-	    else
-	    {
-		start--;
-		currentFitPoint = 0;
-	    }
-	    break;
-	}
-    }
-    return found;
-}
-
-
-OrientedFace* Body::FitFromQueue (list<EdgeFit>* queue)
+OrientedFace* Body::FitFromQueue (
+    list<EdgeFit>* queue, OrientedFace::const_iterator* fitPosition)
 {
     // find an edge that fits this face
     OrientedFace* candidate = GetCurrentNormalFace ()->second;
@@ -295,7 +244,7 @@ OrientedFace* Body::FitFromQueue (list<EdgeFit>* queue)
 	 it++)
     {
 	G3D::Vector3 translation;
-	if (Body::FitFace (*candidate, *it, &translation))
+	if (Body::FitFace (*candidate, *it, fitPosition, &translation))
 	{
 	    if (! translation.isZero ())
 	    {

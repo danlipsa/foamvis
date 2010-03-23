@@ -8,6 +8,7 @@
 
 #include "EdgeFit.h"
 #include "OrientedFace.h"
+#include "DebugStream.h"
 
 ostream& operator<< (ostream& ostr, const EdgeFit& ef)
 {
@@ -16,10 +17,16 @@ ostream& operator<< (ostream& ostr, const EdgeFit& ef)
     return ostr;
 }
 
-bool EdgeFit::Fits (const OrientedFace& face) const
+bool EdgeFit::Fits (const OrientedFace& face, const OrientedEdge& edge) const
 {
-    G3D::Vector3 edgeDirection = m_edge.GetEdgeVector ();
-    G3D::Vector3 crossNormals = face.GetNormal ().cross (m_normal);
-    return edgeDirection.dot (crossNormals) > 0;
+    G3D::Vector3 normal = face.GetNormal ();
+    bool edgeFits = m_edge.Fits (edge );
+    bool orientationFits = (normal.dot (m_normal) >= 0);
+    if (edgeFits && ! orientationFits)
+	cdbg << "Edge fits but orientation does not:" << endl
+	     << face << edge << " angle: " 
+	     << acos (normal.dot (m_normal)) * 180 / M_PI << " degrees"
+	     << endl;
+    return edgeFits && orientationFits;
 }
 

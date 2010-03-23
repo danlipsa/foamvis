@@ -17,8 +17,7 @@ struct EdgeFit
 public:
     EdgeFit (const OrientedEdge& oe, const G3D::Vector3& n) :
     m_edge (oe), m_normal (n) {}
-    bool Fits (const OrientedFace& face) const;
-
+    bool Fits (const OrientedFace& face, const OrientedEdge& edge) const;
 public:
     friend ostream& operator<< (ostream& ostr, const EdgeFit& ef);
 

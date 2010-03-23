@@ -333,10 +333,11 @@ void GLWidget::calculateViewingVolume ()
     using G3D::Vector3;
     const Vector3& min = m_dataFiles->GetAABox ().low ();
     const Vector3& max = m_dataFiles->GetAABox ().high ();
-    float border = ((max - min) / 10).max ();
+    float border = ((max - min) / 8).max ();
     m_viewingVolume.set (
 	Vector3 (min.x - border, min.y - border, min.z - border),
 	Vector3 (max.x + border, max.y + border, max.z + border));
+    cdbg << "Viewing volume: " << m_viewingVolume << endl;
 }
 
 void GLWidget::project ()
@@ -345,7 +346,7 @@ void GLWidget::project ()
     glLoadIdentity();
     glOrtho(m_viewingVolume.low ().x, m_viewingVolume.high ().x,
 	    m_viewingVolume.low ().y, m_viewingVolume.high ().y, 
-	    m_viewingVolume.low ().z, m_viewingVolume.high ().z);
+	    -m_viewingVolume.low ().z, -m_viewingVolume.high ().z);
 }
 
 void GLWidget::initializeGL()
@@ -410,15 +411,13 @@ void GLWidget::resizeGL(int width, int height)
     if ((static_cast<float>(width) / height) > ratio)
     {
 	int newWidth = ratio * height;
-	m_viewport = Rect2D::xywh ( viewportStart.x + (width - newWidth) / 2,
-				    viewportStart.y,
-				    newWidth, height);
+	m_viewport = Rect2D::xywh ((width - newWidth) / 2, 0,
+				   newWidth, height);
     }
     else
     {
 	int newHeight = 1 / ratio * width;
-	m_viewport = Rect2D::xywh (viewportStart.x,
-				   viewportStart.y + (height - newHeight) / 2,
+	m_viewport = Rect2D::xywh (0, (height - newHeight) / 2,
 				   width, newHeight);
     }
     glViewport (m_viewport.x0 (), m_viewport.y0 (), 
@@ -666,6 +665,9 @@ GLuint GLWidget::displayEdges ()
 	      DisplayFace<
 	      DisplayEdges<
 	      DisplayEdgeTessellationOrPhysical> > >(*this));
+    qglColor (QColor (Qt::black));
+    for_each (bodies.begin (), bodies.end (),
+	      DisplayBody<DisplayFaceVectors>(*this));
 
     if (! GetCurrentData ().IsTorus ())
 	displayCenterOfBodies ();
