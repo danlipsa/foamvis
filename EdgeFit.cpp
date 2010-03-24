@@ -21,7 +21,7 @@ bool EdgeFit::Fits (const OrientedFace& face, const OrientedEdge& edge) const
 {
     G3D::Vector3 normal = face.GetNormal ();
     bool edgeFits = m_edge.Fits (edge );
-    bool orientationFits = (normal.dot (m_normal) >= 0);
+    bool orientationFits = /*(normal.dot (m_normal) >= 0)*/true;
     if (edgeFits && ! orientationFits)
 	cdbg << "Edge fits but orientation does not:" << endl
 	     << face << edge << " angle: " 
