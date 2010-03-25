@@ -4,13 +4,15 @@
  *
  * Implementation of the Body class
  */
+#include "AttributeCreator.h"
+#include "AttributeInfo.h"
 #include "Body.h"
 #include "OrientedFace.h"
-#include "AttributeInfo.h"
 #include "ParsingDriver.h"
 #include "Data.h"
 #include "Debug.h"
 #include "ProcessBodyTorus.h"
+#include "ElementUtils.h"
 
 /**
  * Functor that caches an edge and its vertices
@@ -125,7 +127,7 @@ Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
     transform (faceIndexes.begin(), faceIndexes.end(), m_faces.begin(), 
                indexToOrientedFace(faces));
     m_normalFaceMap.reset (
-	new NormalFaceMap (Vertex::LessThanAngle (m_faces[0]->GetNormal ())));
+	new NormalFaceMap (VectorLessThanAngle (m_faces[0]->GetNormal ())));
     BOOST_FOREACH (OrientedFace* of, m_faces)
 	m_normalFaceMap->insert (OrientedFace::MakeNormalFacePair (of));
     m_currentNormalFace = m_normalFaceMap->begin ();

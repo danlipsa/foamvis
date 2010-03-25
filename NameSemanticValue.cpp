@@ -8,53 +8,26 @@
 #include "ElementUtils.h"
 #include "Debug.h"
 
-
-ostream& operator<< (ostream& ostr, NameSemanticValue::Type& type)
-{
-    switch (type)
-    {
-    case NameSemanticValue::INT:
-        ostr << "INT";
-        break;
-    case NameSemanticValue::REAL:
-        ostr << "REAL";
-        break;
-    case NameSemanticValue::COLOR:
-        ostr << "COLOR";
-        break;
-    case NameSemanticValue::INT_ARRAY:
-        ostr << "INT_ARRAY";
-        break;
-    case NameSemanticValue::REAL_ARRAY:
-        ostr << "REAL_ARRAY";
-        break;
-    default:
-	RuntimeAssert (false,
-		       "Invalid NameSemanticValue::Type: ", type);
-    }
-    return ostr;
-}
-
 ostream& operator<< (ostream& ostr, 
-                     NameSemanticValue& nameSemanticValue)
+                     const NameSemanticValue& nameSemanticValue)
 {
     ostr << nameSemanticValue.m_name << ", " 
          << nameSemanticValue.m_type << ", ";
     switch (nameSemanticValue.m_type)
     {
-    case NameSemanticValue::INT:
+    case SemanticType::INT:
         ostr << nameSemanticValue.m_semanticValue.m_int;
         break;
-    case NameSemanticValue::REAL:
+    case SemanticType::REAL:
         ostr << nameSemanticValue.m_semanticValue.m_real;
         break;
-    case NameSemanticValue::COLOR:
+    case SemanticType::COLOR:
         ostr << nameSemanticValue.m_semanticValue.m_color;
         break;
-    case NameSemanticValue::INT_ARRAY:
+    case SemanticType::INT_ARRAY:
         ostr << nameSemanticValue.m_semanticValue.m_intList;
         break;
-    case NameSemanticValue::REAL_ARRAY:
+    case SemanticType::REAL_ARRAY:
         ostr << nameSemanticValue.m_semanticValue.m_realList;
         break;
     default:

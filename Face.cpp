@@ -4,12 +4,15 @@
  *
  * Implementation of the Face class
  */
-#include "Face.h"
+#include "Attribute.h"
+#include "AttributeCreator.h"
 #include "AttributeInfo.h"
+#include "Face.h"
 #include "ParsingDriver.h"
 #include "Debug.h"
 #include "Body.h"
 #include "Data.h"
+#include "ElementUtils.h"
 
 /**
  * Unary function that  creates an oriented edge from  an index into a

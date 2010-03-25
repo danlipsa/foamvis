@@ -7,6 +7,7 @@
  * their index in the array of attributes carried by each element.
  */
 #include "AttributeInfo.h"
+#include "AttributeCreator.h"
 
 /**
  * Functor that checks if (name, AttributeInfo*) pair contains a given index

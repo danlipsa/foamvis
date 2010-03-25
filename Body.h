@@ -8,16 +8,17 @@
 #ifndef __BODY_H__
 #define __BODY_H__
 
-#include "Vertex.h"
 #include "EdgeFit.h"
 #include "OrientedFace.h"
-class Face;
+#include "VectorLessThan.h"
+
 class AttributesInfo;
 class Data;
+class Face;
 class FaceEdgeIndex;
 class OrientedFace;
 class OrientedEdge;
-
+class Vertex;
 
 /**
  * A body is a set of faces
@@ -27,7 +28,7 @@ class Body : public Element
 public:
     typedef vector<OrientedFace*> OrientedFaces;
     typedef multimap<G3D::Vector3, OrientedFace*, 
-		     Vertex::LessThanAngle> NormalFaceMap;
+		     VectorLessThanAngle> NormalFaceMap;
 
 public:
     /**
@@ -127,6 +128,10 @@ public:
     {
 	++m_currentNormalFace;
     }
+    OrientedFace* FitFromQueue (
+	list<EdgeFit>* queue,
+	OrientedFace::const_iterator* fitPosition);
+
 
 public:
     /**
@@ -146,8 +151,6 @@ public:
 			 const EdgeFit& edgeFit,
 			 OrientedFace::const_iterator* fitPosition,
 			 G3D::Vector3* translation);
-    OrientedFace* FitFromQueue (list<EdgeFit>* queue,
-				OrientedFace::const_iterator* fitPosition);
 private:
     /**
      * Splits a  set of  objects (vertices or  edges) in  physical and

@@ -4,15 +4,16 @@
  *
  * Implementation of the Vertex class
  */
-#include "Vertex.h"
-#include "Edge.h"
 #include "AttributeInfo.h"
+#include "AttributeCreator.h"
+#include "Edge.h"
 #include "ParsingDriver.h"
 #include "EvolverData_yacc.h"
 #include "DebugStream.h"
 #include "Debug.h"
 #include "Body.h"
 #include "Data.h"
+#include "Vertex.h"
 
 ostream& operator<< (ostream& ostr, const Vertex& v)
 {
@@ -102,35 +103,4 @@ Vertex* Vertex::CreateDuplicate (
     duplicate->SetDuplicate (true);
     duplicate->AdjustPosition (domainIncrement);
     return duplicate;
-}
-
-bool Vertex::LessThanAngle::operator () (
-    const G3D::Vector3& first, const G3D::Vector3& second) const
-{
-    using G3D::Vector3;
-    double firstAngle = angle0pi (first, m_originNormal);
-    double secondAngle = angle0pi (second, m_originNormal);
-    if (firstAngle < secondAngle)
-	return true;
-    else if (firstAngle == secondAngle)
-    {
-	Vector3 normal1, normal2;
-	m_originNormal.getTangents (normal1, normal2);
-	if (angle (first, normal1) < angle (second, normal1))
-	    return true;
-	else
-	    return false;
-    }
-    else
-	return false;
-}
-
-double Vertex::LessThanAngle::angle (
-    const G3D::Vector3& first, const G3D::Vector3& second)
-{
-    double angle = acos (first.dot (second));
-    double sinValue = first.cross (second).length ();
-    if (sinValue < 0)
-	angle = 2*M_PI - angle;
-    return angle;
 }

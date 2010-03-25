@@ -7,25 +7,6 @@
 #ifndef __ELEMENT_UTILS_H__
 #define __ELEMENT_UTILS_H__
 
-#include "SystemDifferences.h"
-
-
-/**
- * Binary function that compares two C strings ignoring the case
- */
-struct LessThanNoCase : binary_function<const char*, const char*, bool>
-{
-    /**
-     * Compares two character pointers
-     * @param s1 first C string
-     * @param s2 second C string
-     * @return true if the first argument is less than the second argument.
-     */
-    bool operator()(const char* s1, const char* s2) 
-    {
-        return strcasecmp(s1, s2) < 0;
-    }
-};
 
 template<typename O>
 struct DeletePointer : public unary_function<O*, void>

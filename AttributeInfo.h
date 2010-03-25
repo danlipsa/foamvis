@@ -8,8 +8,9 @@
 #ifndef __ATTRIBUTE_INFO_H__
 #define __ATTRIBUTE_INFO_H__
 
-#include "AttributeCreator.h"
-#include "ElementUtils.h"
+#include "LessThanNoCase.h"
+class AttributeCreator;
+
 
 /**
  * Information about an attribute attached to a vertex, edge, ...

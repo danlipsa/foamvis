@@ -199,6 +199,7 @@ class AttributeCreator;
 #include "ExpressionTree.h"
 #include "AttributeCreator.h"
 #include "SystemDifferences.h"
+#include "NameSemanticValue.h"
 
 int yylex(void);
 void yyerror (char const *);

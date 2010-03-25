@@ -4,13 +4,13 @@
  * 
  * Implementation of the Edge class
  */
-#include "Edge.h"
+#include "AttributeCreator.h"
 #include "AttributeInfo.h"
-#include "ParsingDriver.h"
+#include "Edge.h"
 #include "EvolverData_yacc.h"
 #include "Data.h"
 #include "Debug.h"
-
+#include "ParsingDriver.h"
 
 ostream& operator<< (ostream& ostr, const Edge& e)
 {

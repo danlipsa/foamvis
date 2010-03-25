@@ -7,6 +7,7 @@
 #ifndef __DATA_H__
 #define __DATA_H__
 
+#include "DefineAttributeType.h"
 #include "Body.h"
 #include "Edge.h"
 #include "Face.h"

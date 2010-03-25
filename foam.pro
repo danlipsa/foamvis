@@ -4,10 +4,12 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h Color.h \
 	DisplayEdgeFunctors.h DisplayElement.h \
 	Edge.h EdgeFit.h Element.h ElementUtils.h ExpressionTree.h \
 	Face.h FaceEdgeIndex.h \
-	GLWidget.h MainWindow.h NameSemanticValue.h \
+	GLWidget.h \
+	LessThanNoCase.h MainWindow.h NameSemanticValue.h \
 	OrientedEdge.h OrientedFace.h \
 	ParsingData.h ParsingDriver.h ProcessBodyTorus.h \
-	stable.h SystemDifferences.h Vertex.h
+	SemanticType.h stable.h SystemDifferences.h \
+	VectorLessThan.h Vertex.h
 SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	Body.cpp Color.cpp Data.cpp DataFiles.cpp \
 	Debug.cpp DebugStream.cpp Edge.cpp EdgeFit.cpp\
@@ -15,7 +17,8 @@ SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	FaceEdgeIndex.cpp GLWidget.cpp main.cpp MainWindow.cpp  \
 	NameSemanticValue.cpp \
 	OrientedEdge.cpp OrientedFace.cpp \
-	ParsingData.cpp ParsingDriver.cpp ProcessBodyTorus.cpp Vertex.cpp 
+	ParsingData.cpp ParsingDriver.cpp ProcessBodyTorus.cpp \
+	SemanticType.cpp VectorLessThan.cpp Vertex.cpp 
 FORMS += Window.ui
 LEXSOURCES += EvolverData.l
 YACCSOURCES += EvolverData.y

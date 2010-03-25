@@ -8,8 +8,10 @@
 #ifndef __ATTRIBUTE_CREATOR_H__
 #define __ATTRIBUTE_CREATOR_H__
 
-#include "Attribute.h"
-#include "NameSemanticValue.h"
+class Attribute;
+class IntegerAttribute;
+#include "SemanticType.h"
+#include "EvolverData_yacc.h"
 
 /**
  * Base class for all attribute creators
@@ -28,8 +30,8 @@ public:
      * @return a pointer to the created attribute
      */
     virtual Attribute* operator () (
-	EvolverData::parser::semantic_type& value, 
-        NameSemanticValue::Type type) = 0;
+	const EvolverData::parser::semantic_type& value, 
+        SemanticType::Name type) const = 0;
 };
 
 /**
@@ -45,8 +47,8 @@ public:
      * @return a pointer to the created attribute
      */
     virtual Attribute* operator() (
-         EvolverData::parser::semantic_type& value,
-        NameSemanticValue::Type type);
+	const EvolverData::parser::semantic_type& value,
+        SemanticType::Name type) const;
 };
 
 /**
@@ -62,8 +64,8 @@ public:
      * @return a pointer to the created attribute
      */
     virtual Attribute* operator() (
-         EvolverData::parser::semantic_type& value,
-        NameSemanticValue::Type type);
+	const EvolverData::parser::semantic_type& value,
+        SemanticType::Name type) const;
 };
 /**
  * Functor which creates a real attribute
@@ -78,8 +80,8 @@ public:
      * @return a pointer to the created attribute
      */
     virtual Attribute* operator() (
-         EvolverData::parser::semantic_type& value, 
-        NameSemanticValue::Type type);
+	const EvolverData::parser::semantic_type& value, 
+        SemanticType::Name type) const;
 };
 /**
  * Functor which creates an attribute which stores an integer array 
@@ -99,8 +101,8 @@ public:
      * @return pointer to the created attribute
      */
     virtual Attribute* operator() (
-         EvolverData::parser::semantic_type& value,
-        NameSemanticValue::Type type);
+	const EvolverData::parser::semantic_type& value,
+        SemanticType::Name type) const;
 private:
     /**
      * Size of the array of integers
@@ -125,8 +127,8 @@ public:
      * @return pointer to the created attribute
      */
     virtual Attribute* operator() (
-         EvolverData::parser::semantic_type& value,
-        NameSemanticValue::Type type);
+	const EvolverData::parser::semantic_type& value,
+        SemanticType::Name type) const;
 private:
     /**
      * Size of the array of reals

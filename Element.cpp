@@ -4,10 +4,13 @@
  * 
  * Definitions for methods of the Element class.
  */
-#include "Element.h"
-#include "ElementUtils.h"
+#include "Attribute.h"
+#include "AttributeCreator.h"
 #include "AttributeInfo.h"
 #include "Debug.h"
+#include "Element.h"
+#include "ElementUtils.h"
+#include "NameSemanticValue.h"
 
 
 /**
