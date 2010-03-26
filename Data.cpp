@@ -10,6 +10,7 @@
 #include "Edge.h"
 #include "Face.h"
 #include "ElementUtils.h"
+#include "OrientedEdge.h"
 #include "ParsingData.h"
 #include "Vertex.h"
 

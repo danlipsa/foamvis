@@ -7,7 +7,8 @@
 #ifndef __DATA_FILES_H__
 #define __DATA_FILES_H__
 
-#include "Data.h"
+#include "Comparisons.h"
+class Data;
 
 /**
  * Stores information about a list of DMP files
@@ -24,7 +25,7 @@ public:
      */
     typedef IteratorData (*Aggregate)(IteratorData first,
 				      IteratorData last,
-				      Data::LessThanAlong lessThanAlong);
+				      DataLessThanAlong lessThanAlong);
     /**
      * Calculate the  axially aligned bounding box for  this vector of
      * Data objects
@@ -52,7 +53,8 @@ private:
      * the low or high corner of AABox of the data object
      * @param v where to store the low/high point
      */
-    void Calculate (Aggregate aggregate, Data::Corner corner, G3D::Vector3& v);
+    void Calculate (Aggregate aggregate, 
+		    DataLessThanAlong::Corner corner, G3D::Vector3& v);
     /**
      * Vector of Data objects
      */

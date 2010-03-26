@@ -5,8 +5,10 @@
  * Hash functors
  */
 
-#include "Hashes.h"
 #include "Face.h"
+#include "Hashes.h"
+#include "OrientedEdge.h"
+#include "Vertex.h"
 
 size_t FaceHash::operator() (const Face& face) const
 {

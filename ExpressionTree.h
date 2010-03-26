@@ -7,7 +7,7 @@
 #ifndef __EXPRESSION_TREE_H__
 #define __EXPRESSION_TREE_H__
 
-#include "ParsingData.h"
+class ParsingData;
 
 /**
  * Base  class for  all  types of  nodes  in an  expression tree.   An

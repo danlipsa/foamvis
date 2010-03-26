@@ -8,12 +8,13 @@
 #define __FACE_H__
 
 #include "Color.h"
-#include "OrientedEdge.h"
-#include "Vertex.h"
+#include "Element.h"
 
 class AttributesInfo;
 class Body;
 class Data;
+class Edge;
+class OrientedEdge;
 
 /**
  * A Face is a oriented list of edges.

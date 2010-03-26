@@ -5,6 +5,7 @@
  * Method implementation for a list of Data objects
  */
 
+#include "Data.h"
 #include "DataFiles.h"
 #include "ElementUtils.h"
 
@@ -19,20 +20,20 @@ ostream& operator<< (ostream& ostr, DataFiles& dataFiles)
 }
 
 void DataFiles::Calculate (
-    Aggregate aggregate, Data::Corner corner, G3D::Vector3& v)
+    Aggregate aggregate, DataLessThanAlong::Corner corner, G3D::Vector3& v)
 {
     using G3D::Vector3;
     vector<Data*>::iterator it;
     it = aggregate (m_data.begin (), m_data.end (), 
-		    Data::LessThanAlong(Vector3::X_AXIS, corner));
+		    DataLessThanAlong(Vector3::X_AXIS, corner));
     v.x = ((*it)->*corner) ().x;
 
     it = aggregate (m_data.begin (), m_data.end (), 
-	    Data::LessThanAlong(Vector3::Y_AXIS, corner));    
+	    DataLessThanAlong(Vector3::Y_AXIS, corner));    
     v.y = ((*it)->*corner) ().y;
 
     it = aggregate (m_data.begin (), m_data.end (), 
-	    Data::LessThanAlong(Vector3::Z_AXIS, corner));
+	    DataLessThanAlong(Vector3::Z_AXIS, corner));
     v.z = ((*it)->*corner) ().z;
 }
 

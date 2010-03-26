@@ -8,6 +8,7 @@
 #ifndef __COMPARISONS_H__
 #define __COMPARISONS_H__
 
+class Data;
 class Edge;
 class Vertex;
 
@@ -91,6 +92,45 @@ class EdgeLessThan
 {
 public:
     bool operator () (const Edge* first, const Edge* second) const;
+};
+
+
+class DataLessThanAlong
+{
+public:
+    typedef const G3D::Vector3& (Data::*Corner) () const;
+    /**
+     * Constructor
+     * @param axis along which axis to compare
+     * @param corner which corner of the AABox to compare
+     */
+    DataLessThanAlong (G3D::Vector3::Axis axis, Corner corner) : 
+    m_axis (axis), m_corner(corner) {}
+    /**
+     * Functor that compares two data objects
+     * @param first first data object
+     * @param second second data object
+     */
+    bool operator() (const Data* first, const Data* second)
+    {
+	return operator() (*first, *second);
+    }
+
+    bool operator() (const Data& first, const Data& second)
+    {
+	return 
+	    (first.*m_corner) ()[m_axis] < (second.*m_corner) ()[m_axis];
+    }
+	
+private:
+    /**
+     * Along which axis to compare
+     */
+    G3D::Vector3::Axis m_axis;
+    /**
+     * What corner of the AABox to compare
+     */
+    Corner m_corner;
 };
 
 

@@ -2,7 +2,7 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h Color.h \
 	Data.h DataFiles.h Debug.h DebugStream.h DefineAttributeType.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h \
-	Edge.h EdgeFit.h Element.h ElementUtils.h ExpressionTree.h \
+	Edge.h Element.h ElementUtils.h ExpressionTree.h \
 	Face.h FaceEdgeIndex.h \
 	GLWidget.h Hashes.h\
 	MainWindow.h NameSemanticValue.h \
@@ -12,7 +12,7 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h Color.h \
 	Comparisons.h Vertex.h
 SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	Body.cpp Color.cpp Data.cpp DataFiles.cpp \
-	Debug.cpp DebugStream.cpp Edge.cpp EdgeFit.cpp\
+	Debug.cpp DebugStream.cpp Edge.cpp \
 	Element.cpp ElementUtils.cpp ExpressionTree.cpp Face.cpp \
 	FaceEdgeIndex.cpp \
 	GLWidget.cpp Hashes.cpp main.cpp MainWindow.cpp  \

@@ -6,6 +6,7 @@
  * the parser
  */
 #include "ExpressionTree.h"
+#include "ParsingData.h"
 
 void ExpressionTree::Delete (ExpressionTree* node)
 {

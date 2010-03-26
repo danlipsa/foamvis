@@ -7,8 +7,10 @@
 #ifndef __ORIENTED_FACE_H__
 #define __ORIENTED_FACE_H__
 
-#include "Face.h"
-#include "EdgeFit.h"
+#include "OrientedEdge.h"
+class Body;
+class Face;
+
 
 /**
  * An oriented face is a face  (list of edges) that can have its edges
@@ -18,10 +20,8 @@ class OrientedFace
 {
 public:
     template <typename T>
-    class Iterator : public boost::input_iterator_helper < 
-    Iterator<T>, OrientedEdge, 
-    Face::OrientedEdges::pointer,
-    Face::OrientedEdges::reference>
+    class Iterator : boost::equality_comparable< Iterator<T> >,
+		     boost::incrementable< Iterator<T> >
     {
     public:
 	Iterator () : m_of (0), m_index (0) {}
@@ -72,22 +72,10 @@ public:
     {
 	m_face = face;
     }
-    void AddAdjacentBody (Body* body) 
-    {
-	m_face->AddAdjacentBody (body);
-    }
-    vector<Body*>& GetAdjacentBodies ()
-    {
-	return m_face->GetAdjacentBodies ();
-    }
-    void UpdateEdgesAdjacency ()
-    {
-	m_face->UpdateEdgesAdjacency ();
-    }
-    void ClearEdgesAdjacency ()
-    {
-	m_face->ClearEdgesAdjacency ();
-    }
+    void AddAdjacentBody (Body* body);
+    vector<Body*>& GetAdjacentBodies ();
+    void UpdateEdgesAdjacency ();
+    void ClearEdgesAdjacency ();
     
     /**
      * Is this in the same order or reversed compared with the face associated
@@ -130,20 +118,11 @@ public:
      */
     OrientedEdge GetOrientedEdge (size_t edgeIndex) const;
 
-    size_t GetNextValidIndex (size_t index) const
-    {
-	return m_face->GetNextValidIndex (index);
-    }
-    size_t GetPreviousValidIndex (size_t index) const
-    {
-	return m_face->GetPreviousValidIndex (index);
-    }
+    size_t GetNextValidIndex (size_t index) const;
+    size_t GetPreviousValidIndex (size_t index) const;
     G3D::Vector3 GetNormal () const;
 
-    size_t size () const
-    {
-	return m_face->GetEdgeCount ();
-    }
+    size_t size () const;
     iterator begin ()
     {
 	return Iterator<OrientedFace> (this, 0);
@@ -161,11 +140,6 @@ public:
     {
 	return Iterator<const OrientedFace> (this, size ());
     }
-    bool FitFace (const EdgeFit& edgeFit,
-		  OrientedFace::const_iterator* fitPosition,
-		  G3D::Vector3* translation) const;
-
-
 
 public:
     /**

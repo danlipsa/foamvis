@@ -6,12 +6,13 @@
  * Implementation of the FaceEdgeIndex class
  */
 
-#include "FaceEdgeIndex.h"
-#include "Face.h"
-#include "OrientedFace.h"
 #include "Body.h"
 #include "Debug.h"
 #include "Data.h"
+#include "Edge.h"
+#include "FaceEdgeIndex.h"
+#include "Face.h"
+#include "OrientedFace.h"
 
 ostream& operator<< (ostream& ostr, const FaceEdgeIndex& fei)
 {

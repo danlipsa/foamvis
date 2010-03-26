@@ -6,7 +6,8 @@
  */
 #include "OrientedFace.h"
 #include "Debug.h"
-
+#include "Edge.h"
+#include "Vertex.h"
 
 ostream& OrientedEdge::print (ostream& ostr, bool reversed) const
 {
@@ -43,4 +44,29 @@ bool OrientedEdge::Fits (const OrientedEdge& other) const
 G3D::Vector3 OrientedEdge::GetEdgeVector () const
 {
     return *GetEnd () - *GetBegin ();
+}
+
+Vertex* OrientedEdge::GetBegin (void) const
+{
+    return m_reversed ? m_edge->GetEnd () : m_edge->GetBegin ();
+}
+
+Vertex* OrientedEdge::GetEnd (void) const
+{
+    return m_reversed ? m_edge->GetBegin () : m_edge->GetEnd ();
+}
+
+void OrientedEdge::AddAdjacentFace (Face* face) 
+{
+    m_edge->AddAdjacentFace (face);
+}
+
+void OrientedEdge::ClearAdjacentFaces ()
+{
+    m_edge->ClearAdjacentFaces ();
+}
+
+bool OrientedEdge::IsZero () const
+{
+    return m_edge->IsZero ();
 }

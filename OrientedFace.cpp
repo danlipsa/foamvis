@@ -8,6 +8,7 @@
 #include "OrientedFace.h"
 #include "Debug.h"
 #include "DebugStream.h"
+#include "Face.h"
 
 ostream& operator<< (ostream& ostr, const OrientedFace& of)
 {
@@ -53,23 +54,37 @@ G3D::Vector3 OrientedFace::GetNormal () const
     return m_reversed ? - normal : normal;
 }
 
-bool OrientedFace::FitFace (const EdgeFit& edgeFit,
-			    OrientedFace::const_iterator* fitPosition,
-			    G3D::Vector3* translation) const
+void OrientedFace::AddAdjacentBody (Body* body) 
 {
-    for (OrientedFace::const_iterator it = begin (); it != end (); ++it)
-    {
-	OrientedEdge candidateEdge = *it;
-	if (edgeFit.Fits (*this, candidateEdge))
-	{
-	    *translation = *(edgeFit.m_edge.GetEdge ()->GetBegin ()) - 
-		*(candidateEdge.GetEdge ()->GetBegin ());
-	    *fitPosition = it;
-	    cdbg << "Fitted edge: " << candidateEdge
-		 << " translation: " << *translation << " into "
-		 << edgeFit << endl;
-	    return true;
-	}
-    }
-    return false;
+    m_face->AddAdjacentBody (body);
+}
+
+vector<Body*>& OrientedFace::GetAdjacentBodies ()
+{
+    return m_face->GetAdjacentBodies ();
+}
+
+void OrientedFace::UpdateEdgesAdjacency ()
+{
+    m_face->UpdateEdgesAdjacency ();
+}
+
+void OrientedFace::ClearEdgesAdjacency ()
+{
+    m_face->ClearEdgesAdjacency ();
+}
+
+size_t OrientedFace::GetNextValidIndex (size_t index) const
+{
+    return m_face->GetNextValidIndex (index);
+}
+
+size_t OrientedFace::GetPreviousValidIndex (size_t index) const
+{
+    return m_face->GetPreviousValidIndex (index);
+}
+
+size_t OrientedFace::size () const
+{
+    return m_face->GetEdgeCount ();
 }

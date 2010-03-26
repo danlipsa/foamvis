@@ -28,8 +28,6 @@ class ParsingDriver;
 %{
 #include "Color.h"
 #include "DefineAttributeType.h"
-#include "DebugStream.h"
-#include "Debug.h"
 class ExpressionTree;
 class NameSemanticValue;
 class AttributeCreator;
@@ -195,6 +193,7 @@ class AttributeCreator;
 
 %{
 #include "Data.h"
+#include "Debug.h"
 #include "Edge.h"
 #include "ParsingData.h"
 #include "ExpressionTree.h"

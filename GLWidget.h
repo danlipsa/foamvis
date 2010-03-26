@@ -7,11 +7,13 @@
 #ifndef __GLWIDGET_H__
 #define __GLWIDGET_H__
 
+#include "Hashes.h"
+
 class Body;
 class Data;
 class DataFiles;
 
-#include "ElementUtils.h"
+
 
 /**
  * Widget for displaying foam bubbles using OpenGL

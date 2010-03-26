@@ -8,8 +8,10 @@
 #include "AttributeInfo.h"
 #include "Body.h"
 #include "Data.h"
+#include "Edge.h"
 #include "Debug.h"
 #include "ElementUtils.h"
+#include "Face.h"
 #include "OrientedFace.h"
 #include "ParsingDriver.h"
 #include "ProcessBodyTorus.h"
@@ -214,39 +216,6 @@ void Body::UpdateFacesAdjacency ()
     for_each (of.begin (), of.end (),
 	      bind(&OrientedFace::AddAdjacentBody, _1, this));
 }
-
-OrientedFace* Body::FitFromQueue (
-    list<EdgeFit>* queue, OrientedFace::const_iterator* fitPosition)
-{
-    // find an edge that fits this face
-    OrientedFace* candidate = GetCurrentNormalFace ()->second;
-    for (list<EdgeFit>::iterator it = queue->begin ();
-	 it != queue->end ();
-	 it++)
-    {
-	G3D::Vector3 translation;
-	if (candidate->FitFace (*it, fitPosition, &translation))
-	{
-	    if (! translation.isZero ())
-	    {
-		Face* face = candidate->GetFace ();
-		//found a possible fit
-		candidate->SetFace (
-		    GetData ()->GetFaceDuplicate (
-			*face, 
-			*(face->GetOrientedEdge(0)->GetBegin ()) + 
-			translation));
-	    }
-	    
-	    queue->erase (it);
-	    return candidate;
-	}
-    }
-    RuntimeAssert (false, "No match found for: ", *candidate);
-    return candidate;
-}
-
-
 
 
 Body::NormalFaceMap::const_iterator Body::FindNormalFace (

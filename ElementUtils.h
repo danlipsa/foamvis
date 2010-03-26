@@ -27,17 +27,6 @@ ostream& operator<< (ostream& ostr,  G3D::AABox& box);
 
 G3D::Matrix2 inverse(const G3D::Matrix2& original);
 
-struct Vector3int16Hash
-{
-    std::size_t operator() (const G3D::Vector3int16& v) const
-    {
-	std::size_t seed = 0;
-	boost::hash_combine (seed, v.x);
-	boost::hash_combine (seed, v.y);
-	boost::hash_combine (seed, v.z);
-	return seed;
-    }
-};
 
 #endif //__ELEMENT_UTILS_H__
 

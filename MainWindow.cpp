@@ -4,12 +4,13 @@
  *
  * Contains definitions for the UI class
  */
+#include "Data.h"
+#include "DataFiles.h"
+#include "DebugStream.h"
 #include "GLWidget.h"
 #include "MainWindow.h"
-#include "SystemDifferences.h"
-#include "DebugStream.h"
-#include "DataFiles.h"
 #include "ProcessBodyTorus.h"
+#include "SystemDifferences.h"
 
 
 MainWindow::MainWindow(DataFiles& dataFiles) : 

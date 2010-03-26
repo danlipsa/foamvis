@@ -10,6 +10,7 @@
 #define __DISPLAY_EDGE_FUNCTORS_H__
 
 #include "DisplayElement.h"
+#include "Edge.h"
 
 class DisplayEdgeTorus : public DisplayElement
 {

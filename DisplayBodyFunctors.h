@@ -11,6 +11,7 @@
 
 
 #include "GLWidget.h"
+#include "Data.h"
 
 /**
  * Functor used to display a body

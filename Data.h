@@ -29,7 +29,6 @@ public:
      * Member function which returns one of the corners of the AABox for a
      * data object
      */
-    typedef const G3D::Vector3& (Data::*Corner) () const;
     typedef set<Vertex*, VertexLessThan> VertexSet;
     typedef set<Edge*, EdgeLessThan> EdgeSet;
     typedef boost::unordered_set<Face*, FaceHash> FaceSet;
@@ -44,42 +43,6 @@ public:
 	Vertices::iterator first, Vertices::iterator last, 
 	VertexLessThanAlong lessThan);
 
-    class LessThanAlong
-    {
-    public:
-	/**
-	 * Constructor
-	 * @param axis along which axis to compare
-	 * @param corner which corner of the AABox to compare
-	 */
-	LessThanAlong (G3D::Vector3::Axis axis, Corner corner) : 
-	    m_axis (axis), m_corner(corner) {}
-	/**
-	 * Functor that compares two data objects
-	 * @param first first data object
-	 * @param second second data object
-	 */
-	bool operator() (const Data* first, const Data* second)
-	{
-	    return operator() (*first, *second);
-	}
-
-	bool operator() (const Data& first, const Data& second)
-	{
-	    return 
-		(first.*m_corner) ()[m_axis] < (second.*m_corner) ()[m_axis];
-	}
-	
-    private:
-	/**
-	 * Along which axis to compare
-	 */
-	G3D::Vector3::Axis m_axis;
-	/**
-	 * What corner of the AABox to compare
-	 */
-	Corner m_corner;
-    };
 public:
     /**
      * Constructs a Data object.

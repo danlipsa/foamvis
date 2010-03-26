@@ -19,5 +19,18 @@ struct FaceHash
     }
 };
 
+struct Vector3int16Hash
+{
+    std::size_t operator() (const G3D::Vector3int16& v) const
+    {
+	std::size_t seed = 0;
+	boost::hash_combine (seed, v.x);
+	boost::hash_combine (seed, v.y);
+	boost::hash_combine (seed, v.z);
+	return seed;
+    }
+};
+
+
 
 #endif //__HASHES_H__

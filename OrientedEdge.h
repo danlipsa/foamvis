@@ -7,7 +7,9 @@
 #ifndef __ORIENTED_EDGE_H__
 #define __ORIENTED_EDGE_H__
 
-#include "Edge.h"
+class Edge;
+class Face;
+class Vertex;
 
 /**
  * An oriented  edge is  an edge  that can have  its vertices  read in
@@ -30,32 +32,20 @@ public:
      * end vertex for the edge stored inside.
      * @return the begin vertex
      */
-    Vertex* GetBegin (void) const
-    {
-	return m_reversed ? m_edge->GetEnd () : m_edge->GetBegin ();
-    }
+    Vertex* GetBegin (void) const;
 
     bool IsReversed () const {return m_reversed;}
     /**
      * Get the end vertex of the OrientedEdge. Note that this might be the
      * begin vertex for the edge stored inside.
      */
-    Vertex* GetEnd (void) const
-    {
-	return m_reversed ? m_edge->GetBegin () : m_edge->GetEnd ();
-    }
+    Vertex* GetEnd (void) const;
     /**
      * Adds a face that is touched by this oriented edge.
      */
-    void AddAdjacentFace (Face* face) 
-    {
-	m_edge->AddAdjacentFace (face);
-    }
+    void AddAdjacentFace (Face* face);
     
-    void ClearAdjacentFaces ()
-    {
-	m_edge->ClearAdjacentFaces ();
-    }
+    void ClearAdjacentFaces ();
     /**
      * Edge for this oriented edge
      * @return the edge for this oriented edge
@@ -70,10 +60,7 @@ public:
 	m_edge = edge;
     }
     G3D::Vector3int16 GetEndDomainIncrement () const;
-    bool IsZero () const
-    {
-	return m_edge->IsZero ();
-    }
+    bool IsZero () const;
     G3D::Vector3 GetEdgeVector () const;
     ostream& PrintReversed (ostream& ostr) const
     {

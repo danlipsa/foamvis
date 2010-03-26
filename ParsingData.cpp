@@ -5,8 +5,9 @@
  * Definition of the ParsingData class
  */
 
-#include "ParsingData.h"
+#include "Debug.h"
 #include "DebugStream.h"
+#include "ParsingData.h"
 
 /**
  * Negates a number. Used in the parser expressions.

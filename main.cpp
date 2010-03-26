@@ -4,6 +4,7 @@
  *
  * Parses an Evolver DMP file and displays the data from the file.
  */
+#include "Data.h"
 #include "DataFiles.h"
 #include "ParsingData.h"
 #include "MainWindow.h"

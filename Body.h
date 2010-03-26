@@ -8,9 +8,8 @@
 #ifndef __BODY_H__
 #define __BODY_H__
 
-#include "EdgeFit.h"
-#include "OrientedFace.h"
 #include "Comparisons.h"
+#include "Element.h"
 
 class AttributesInfo;
 class Data;
@@ -125,9 +124,6 @@ public:
     {
 	++m_currentNormalFace;
     }
-    OrientedFace* FitFromQueue (
-	list<EdgeFit>* queue,
-	OrientedFace::const_iterator* fitPosition);
 
 
 public:

@@ -9,9 +9,7 @@
 #ifndef __PROCESS_BODY_TORUS_H__
 #define __PROCESS_BODY_TORUS_H__
 
-#include "OrientedFace.h"
-#include "OrientedEdge.h"
-
+class Body;
 class ProcessBodyTorus
 {
 public:
@@ -20,11 +18,6 @@ public:
     bool Step ();
 
 private:
-    void addQueue (const OrientedFace* of,
-		   OrientedFace::const_iterator fitPosition);
-
-private:
-    list<EdgeFit> m_queue;
     Body* m_body;
 };
 
