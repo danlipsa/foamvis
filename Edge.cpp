@@ -11,6 +11,7 @@
 #include "Data.h"
 #include "Debug.h"
 #include "ParsingDriver.h"
+#include "Vertex.h"
 
 ostream& operator<< (ostream& ostr, const Edge& e)
 {

@@ -4,7 +4,11 @@
  *
  * Implementation of the Data object
  */
+#include "AttributeInfo.h"
+#include "Body.h"
 #include "Data.h"
+#include "Edge.h"
+#include "Face.h"
 #include "ElementUtils.h"
 #include "ParsingData.h"
 #include "Vertex.h"
@@ -455,4 +459,10 @@ bool Data::IsTorus () const
 void Data::PrintDomains (ostream& ostr) const
 {
     Vertex::PrintDomains(ostr, m_vertices);
+}
+
+void Data::AddAttributeInfo (
+    DefineAttribute::Type type, const char* name, AttributeCreator* creator)
+{
+    m_attributesInfo[type].AddAttributeInfo (name, creator);
 }

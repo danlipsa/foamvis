@@ -9,7 +9,7 @@
 #ifndef __PROCESS_BODY_TORUS_H__
 #define __PROCESS_BODY_TORUS_H__
 
-class OrientedFace;
+#include "OrientedFace.h"
 #include "OrientedEdge.h"
 
 class ProcessBodyTorus

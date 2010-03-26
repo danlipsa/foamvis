@@ -195,6 +195,7 @@ class AttributeCreator;
 
 %{
 #include "Data.h"
+#include "Edge.h"
 #include "ParsingData.h"
 #include "ExpressionTree.h"
 #include "AttributeCreator.h"

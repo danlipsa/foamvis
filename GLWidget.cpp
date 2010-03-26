@@ -4,15 +4,17 @@
  *
  * Definitions for the widget for displaying foam bubbles using OpenGL
  */
+
 #include "GLWidget.h"
+#include "Body.h"
 #include "DataFiles.h"
+#include "Debug.h"
 #include "DebugStream.h"
 #include "DisplayVertexFunctors.h"
 #include "DisplayEdgeFunctors.h"
 #include "DisplayFaceFunctors.h"
 #include "DisplayBodyFunctors.h"
 #include "ElementUtils.h"
-#include "Debug.h"
 
 /**
  * Stores information about various OpenGL characteristics of the graphic card

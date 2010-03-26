@@ -7,14 +7,16 @@
 #ifndef __DATA_H__
 #define __DATA_H__
 
-#include "DefineAttributeType.h"
-#include "Body.h"
 #include "AttributeInfo.h"
+#include "DefineAttributeType.h"
 #include "Comparisons.h"
 #include "Hashes.h"
 
+class AttributeCreator;
+class Body;
 class Edge;
 class Face;
+class NameSemanticValue;
 class ParsingData;
 /**
  * Stores information  read from  a DMP file  produced by  the Surface
@@ -236,10 +238,8 @@ public:
      * @param creator knows to create the attribute (@see AttributeCreator)
      */
     void AddAttributeInfo (
-        DefineAttribute::Type type, const char* name, AttributeCreator* creator)
-    {
-        m_attributesInfo[type].AddAttributeInfo (name, creator);
-    }
+        DefineAttribute::Type type, const char* name,
+	AttributeCreator* creator);
     /**
      * Calculate the physical (not tesselated) edges and vertices
      */
