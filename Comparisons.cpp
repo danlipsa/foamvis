@@ -1,12 +1,14 @@
 /**
- * @file   Body.cpp
+ * @file   Comparisons.cpp
  * @author Dan R. Lipsa
  * @date 25 March 2010
  *
- * Implementation comparison functors between vectors
+ * Implementation comparison functors
  */
 
-#include "VectorLessThan.h"
+#include "Comparisons.h"
+#include "Vertex.h"
+#include "Edge.h"
 
 
 bool VectorLessThanAngle::operator () (
@@ -38,4 +40,23 @@ double VectorLessThanAngle::angle (
     if (sinValue < 0)
 	angle = 2*M_PI - angle;
     return angle;
+}
+
+
+bool VertexLessThan::operator () (
+    const Vertex* first, const Vertex* second) const
+{
+    return *first < *second;
+}
+
+bool VertexLessThanAlong::operator() (
+    const Vertex* first,  const Vertex* second) const
+{
+    return operator() (static_cast<const G3D::Vector3*>(first),
+		       static_cast<const G3D::Vector3*>(second));
+}
+
+bool EdgeLessThan::operator () (const Edge* first, const Edge* second) const
+{
+    return *first < *second;
 }

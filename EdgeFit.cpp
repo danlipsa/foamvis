@@ -17,6 +17,12 @@ ostream& operator<< (ostream& ostr, const EdgeFit& ef)
     return ostr;
 }
 
+EdgeFit::EdgeFit (const OrientedEdge& oe, const G3D::Vector3& n) :
+    m_edge (oe), m_normal (n) 
+{
+}
+
+
 bool EdgeFit::Fits (const OrientedFace& face, const OrientedEdge& edge) const
 {
     G3D::Vector3 normal = face.GetNormal ();

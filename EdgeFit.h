@@ -9,14 +9,13 @@
 #ifndef __EDGE_FIT_H__
 #define __EDGE_FIT_H__
 
-#include "OrientedEdge.h"
 class OrientedFace;
+#include "OrientedEdge.h"
 
 struct EdgeFit
 {
 public:
-    EdgeFit (const OrientedEdge& oe, const G3D::Vector3& n) :
-    m_edge (oe), m_normal (n) {}
+    EdgeFit (const OrientedEdge& oe, const G3D::Vector3& n);
     bool Fits (const OrientedFace& face, const OrientedEdge& edge) const;
 public:
     friend ostream& operator<< (ostream& ostr, const EdgeFit& ef);

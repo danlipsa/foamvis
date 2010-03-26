@@ -6,8 +6,8 @@
  */
 #ifndef __EDGE_H__
 #define __EDGE_H__
-#include "Vertex.h"
-
+#include "Element.h"
+class Vertex;
 class AttributesInfo;
 class Face;
 /**
@@ -16,14 +16,6 @@ class Face;
 class Edge : public Element
 {
 public:
-    class LessThan
-    {
-    public:
-	bool operator () (const Edge* first, const Edge* second) const
-	{
-	    return *first < *second;
-	}
-    };
 public:
     /**
      * Creates an Edge object

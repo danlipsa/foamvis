@@ -19,54 +19,7 @@ class Data;
  */
 class Vertex : public G3D::Vector3, public Element
 {
-public:
-    /**
-     * Functor that compares two vertices along X, Y or Z axis
-     */
-    class LessThanAlong
-    {
-    public:
-	/**
-	 * Constructor
-	 * Stores the axis we want to do the comparison on.
-	 */
-	LessThanAlong(G3D::Vector3::Axis axis) : 
-	    m_axis(axis) {}
-	/**
-	 * Compares two vertices
-	 * @param first the first vertex
-	 * @param second the second vertex
-	 * @return true if first is less than second false otherwise
-	 */
-	bool operator() (const Vertex* first,  const Vertex* second) const
-	{
-	    return operator() (static_cast<const G3D::Vector3*>(first),
-			       static_cast<const G3D::Vector3*>(second));
-	}
-	bool operator() (
-	    const G3D::Vector3* first, const G3D::Vector3* second) const
-	{
-	    return (*first)[m_axis] < (*second)[m_axis];	    
-	}
-    private:
-	/**
-	 * Axis along which we make the comparison
-	 */
-	G3D::Vector3::Axis m_axis;
-    };
-
-    struct LessThan
-    {
-	bool operator () (const Vertex* first, const Vertex* second) const
-	{
-	    return *first < *second;
-	}
-	static double angle (
-	    const G3D::Vector3& first, const G3D::Vector3& second);
-
-    };
-
-    
+public:    
     struct Hash
     {
 	size_t operator() (const G3D::Vector3& v) const

@@ -10,7 +10,7 @@
 
 #include "EdgeFit.h"
 #include "OrientedFace.h"
-#include "VectorLessThan.h"
+#include "Comparisons.h"
 
 class AttributesInfo;
 class Data;
@@ -114,10 +114,7 @@ public:
     {
 	return m_center;
     }
-    void PrintDomains (ostream& ostr) const
-    {
-	Vertex::PrintDomains (ostr, m_vertices);
-    }
+    void PrintDomains (ostream& ostr) const;
     void UpdateFacesAdjacency ();
 
     NormalFaceMap::iterator GetCurrentNormalFace ()
@@ -147,10 +144,6 @@ public:
      * @param info the object where the default attributes are stored.
      */
     static void StoreDefaultAttributes (AttributesInfo* info);
-    static bool FitFace (const OrientedFace& candidate,
-			 const EdgeFit& edgeFit,
-			 OrientedFace::const_iterator* fitPosition,
-			 G3D::Vector3* translation);
 private:
     /**
      * Splits a  set of  objects (vertices or  edges) in  physical and

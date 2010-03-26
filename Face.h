@@ -7,8 +7,9 @@
 #ifndef __FACE_H__
 #define __FACE_H__
 
-#include "OrientedEdge.h"
 #include "Color.h"
+#include "OrientedEdge.h"
+#include "Vertex.h"
 
 class AttributesInfo;
 class Body;
@@ -21,21 +22,6 @@ class Face : public Element
 {
 public:
     typedef vector<OrientedEdge*> OrientedEdges;
-
-    struct Hash
-    {
-	size_t operator() (const Face& face) const
-	{
-	    std::size_t seed = 0;
-	    boost::hash_combine (seed, face.GetOriginalIndex ());
-	    boost::hash_combine (seed, *face.GetOrientedEdge (0)->GetBegin ());
-	    return seed;
-	}
-	size_t operator () (const Face* f) const
-	{
-	    return operator() (*f);
-	}
-    };
 
 public:
     /**

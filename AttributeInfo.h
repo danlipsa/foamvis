@@ -8,7 +8,7 @@
 #ifndef __ATTRIBUTE_INFO_H__
 #define __ATTRIBUTE_INFO_H__
 
-#include "LessThanNoCase.h"
+#include "Comparisons.h"
 class AttributeCreator;
 
 

@@ -8,6 +8,7 @@
 #define __ORIENTED_FACE_H__
 
 #include "Face.h"
+#include "EdgeFit.h"
 
 /**
  * An oriented face is a face  (list of edges) that can have its edges
@@ -160,6 +161,11 @@ public:
     {
 	return Iterator<const OrientedFace> (this, size ());
     }
+    bool FitFace (const EdgeFit& edgeFit,
+		  OrientedFace::const_iterator* fitPosition,
+		  G3D::Vector3* translation) const;
+
+
 
 public:
     /**

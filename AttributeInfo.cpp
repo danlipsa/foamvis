@@ -8,6 +8,7 @@
  */
 #include "AttributeInfo.h"
 #include "AttributeCreator.h"
+#include "Comparisons.h"
 
 /**
  * Functor that checks if (name, AttributeInfo*) pair contains a given index

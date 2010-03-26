@@ -7,6 +7,28 @@
 #include "Data.h"
 #include "ElementUtils.h"
 #include "ParsingData.h"
+#include "Vertex.h"
+
+struct EdgeSearchDummy
+{
+    EdgeSearchDummy (const G3D::Vector3* position, Data* data,
+		     size_t edgeOriginalIndex) : 
+	m_vertex (position, data), m_edge (&m_vertex, edgeOriginalIndex) {}
+    Vertex m_vertex;
+    Edge m_edge;
+};
+
+struct FaceSearchDummy
+{
+    FaceSearchDummy (const G3D::Vector3* position, Data* data,
+		     size_t faceOriginalIndex) : 
+	m_vertex (position, data), m_edge (&m_vertex, 0),
+	m_face (&m_edge, faceOriginalIndex) {}
+    Vertex m_vertex;
+    Edge m_edge;
+    Face m_face;
+};
+
 
 /**
  * Prints a 4x4 matrix element. Used in for_each algorithm.
@@ -269,7 +291,7 @@ struct calculateAggregate
     typedef ContainerIterator (*AggregateOnContainer) (
 	ContainerIterator first, 
 	ContainerIterator second, 
-	Vertex::LessThanAlong lessThan);
+	VertexLessThanAlong lessThan);
     void operator() (AggregateOnContainer aggregate,
 		     G3D::Vector3* v,
 		     Container& vertices)
@@ -277,13 +299,13 @@ struct calculateAggregate
 	using G3D::Vector3;
 	ContainerIterator it;
 	it = aggregate (vertices.begin (), vertices.end (), 
-			Vertex::LessThanAlong(Vector3::X_AXIS));;
+			VertexLessThanAlong(Vector3::X_AXIS));;
 	v->x = (*it)->x;
 	it = aggregate (vertices.begin (), vertices.end (), 
-			Vertex::LessThanAlong(Vector3::Y_AXIS));
+			VertexLessThanAlong(Vector3::Y_AXIS));
 	v->y = (*it)->y;
 	it = aggregate (vertices.begin (), vertices.end (), 
-			Vertex::LessThanAlong(Vector3::Z_AXIS));
+			VertexLessThanAlong(Vector3::Z_AXIS));
 	v->z = (*it)->z;
     }
 };
@@ -428,4 +450,9 @@ bool Data::IsTorus () const
 	! (GetPeriod (0).isZero () && 
 	   GetPeriod (1).isZero () && 
 	   GetPeriod (2).isZero ());
+}
+
+void Data::PrintDomains (ostream& ostr) const
+{
+    Vertex::PrintDomains(ostr, m_vertices);
 }

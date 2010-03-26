@@ -9,10 +9,12 @@
 
 #include "DefineAttributeType.h"
 #include "Body.h"
-#include "Edge.h"
-#include "Face.h"
 #include "AttributeInfo.h"
+#include "Comparisons.h"
+#include "Hashes.h"
 
+class Edge;
+class Face;
 class ParsingData;
 /**
  * Stores information  read from  a DMP file  produced by  the Surface
@@ -26,9 +28,9 @@ public:
      * data object
      */
     typedef const G3D::Vector3& (Data::*Corner) () const;
-    typedef set<Vertex*, Vertex::LessThan> VertexSet;
-    typedef set<Edge*, Edge::LessThan> EdgeSet;
-    typedef boost::unordered_set<Face*, Face::Hash> FaceSet;
+    typedef set<Vertex*, VertexLessThan> VertexSet;
+    typedef set<Edge*, EdgeLessThan> EdgeSet;
+    typedef boost::unordered_set<Face*, FaceHash> FaceSet;
     /**
      * Iterator over the vertices in this Data object
      */
@@ -38,7 +40,7 @@ public:
      */
     typedef Vertices::iterator (*AggregateOnVertices)(
 	Vertices::iterator first, Vertices::iterator last, 
-	Vertex::LessThanAlong lessThan);
+	VertexLessThanAlong lessThan);
 
     class LessThanAlong
     {
@@ -282,10 +284,7 @@ public:
      * object, false otherwise.
      */
     void PostProcess ();
-    void PrintDomains (ostream& ostr) const
-    {
-	Vertex::PrintDomains(ostr, m_vertices);
-    }
+    void PrintDomains (ostream& ostr) const;
 
     /**
      * Insert into the original index - body map
@@ -334,27 +333,6 @@ public:
      * Pretty print the Data object
      */
     friend ostream& operator<< (ostream& ostr, Data& d);
-
-private:
-    struct EdgeSearchDummy
-    {
-	EdgeSearchDummy (const G3D::Vector3* position, Data* data,
-			 size_t edgeOriginalIndex) : 
-	    m_vertex (position, data), m_edge (&m_vertex, edgeOriginalIndex) {}
-	Vertex m_vertex;
-	Edge m_edge;
-    };
-
-    struct FaceSearchDummy
-    {
-	FaceSearchDummy (const G3D::Vector3* position, Data* data,
-			 size_t faceOriginalIndex) : 
-	    m_vertex (position, data), m_edge (&m_vertex, 0),
-	    m_face (&m_edge, faceOriginalIndex) {}
-	Vertex m_vertex;
-	Edge m_edge;
-	Face m_face;
-    };
 
 private:
     ostream& PrintFacesWithIntersection (ostream& ostr) const;

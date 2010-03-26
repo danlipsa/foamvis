@@ -74,10 +74,7 @@ public:
     {
 	return m_edge->IsZero ();
     }
-    G3D::Vector3 GetEdgeVector () const
-    {
-	return *GetEnd () - *GetBegin ();
-    }
+    G3D::Vector3 GetEdgeVector () const;
     ostream& PrintReversed (ostream& ostr) const
     {
 	return print (ostr, true);

@@ -39,3 +39,8 @@ bool OrientedEdge::Fits (const OrientedEdge& other) const
 	other.GetEdge ()->GetOriginalIndex () &&
 	IsReversed () == ! other.IsReversed ();
 }
+
+G3D::Vector3 OrientedEdge::GetEdgeVector () const
+{
+    return *GetEnd () - *GetBegin ();
+}

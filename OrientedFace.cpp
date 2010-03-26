@@ -7,6 +7,7 @@
 
 #include "OrientedFace.h"
 #include "Debug.h"
+#include "DebugStream.h"
 
 ostream& operator<< (ostream& ostr, const OrientedFace& of)
 {
@@ -50,4 +51,25 @@ G3D::Vector3 OrientedFace::GetNormal () const
 {
     G3D::Vector3 normal = m_face->GetNormal ();
     return m_reversed ? - normal : normal;
+}
+
+bool OrientedFace::FitFace (const EdgeFit& edgeFit,
+			    OrientedFace::const_iterator* fitPosition,
+			    G3D::Vector3* translation) const
+{
+    for (OrientedFace::const_iterator it = begin (); it != end (); ++it)
+    {
+	OrientedEdge candidateEdge = *it;
+	if (edgeFit.Fits (*this, candidateEdge))
+	{
+	    *translation = *(edgeFit.m_edge.GetEdge ()->GetBegin ()) - 
+		*(candidateEdge.GetEdge ()->GetBegin ());
+	    *fitPosition = it;
+	    cdbg << "Fitted edge: " << candidateEdge
+		 << " translation: " << *translation << " into "
+		 << edgeFit << endl;
+	    return true;
+	}
+    }
+    return false;
 }

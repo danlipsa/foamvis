@@ -7,12 +7,13 @@
 #include "AttributeCreator.h"
 #include "AttributeInfo.h"
 #include "Body.h"
-#include "OrientedFace.h"
-#include "ParsingDriver.h"
 #include "Data.h"
 #include "Debug.h"
-#include "ProcessBodyTorus.h"
 #include "ElementUtils.h"
+#include "OrientedFace.h"
+#include "ParsingDriver.h"
+#include "ProcessBodyTorus.h"
+#include "Vertex.h"
 
 /**
  * Functor that caches an edge and its vertices
@@ -214,28 +215,6 @@ void Body::UpdateFacesAdjacency ()
 	      bind(&OrientedFace::AddAdjacentBody, _1, this));
 }
 
-bool Body::FitFace (const OrientedFace& candidate, const EdgeFit& edgeFit,
-		    OrientedFace::const_iterator* fitPosition,
-		    G3D::Vector3* translation)
-{
-    for (OrientedFace::const_iterator it = candidate.begin ();
-	 it != candidate.end (); ++it)
-    {
-	OrientedEdge candidateEdge = *it;
-	if (edgeFit.Fits (candidate, candidateEdge))
-	{
-	    *translation = *(edgeFit.m_edge.GetEdge ()->GetBegin ()) - 
-		*(candidateEdge.GetEdge ()->GetBegin ());
-	    *fitPosition = it;
-	    cdbg << "Fitted edge: " << candidateEdge
-		 << " translation: " << *translation << " into "
-		 << edgeFit << endl;
-	    return true;
-	}
-    }
-    return false;
-}
-
 OrientedFace* Body::FitFromQueue (
     list<EdgeFit>* queue, OrientedFace::const_iterator* fitPosition)
 {
@@ -246,7 +225,7 @@ OrientedFace* Body::FitFromQueue (
 	 it++)
     {
 	G3D::Vector3 translation;
-	if (Body::FitFace (*candidate, *it, fitPosition, &translation))
+	if (candidate->FitFace (*it, fitPosition, &translation))
 	{
 	    if (! translation.isZero ())
 	    {
@@ -286,4 +265,9 @@ Body::NormalFaceMap::const_iterator Body::FindNormalFace (
 	return it;
     else
 	return prev;
+}
+
+void Body::PrintDomains (ostream& ostr) const
+{
+    Vertex::PrintDomains (ostr, m_vertices);
 }

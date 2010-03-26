@@ -7,7 +7,7 @@
 #ifndef __PARSING_DATA_H__
 #define __PARSING_DATA_H__
 
-#include "LessThanNoCase.h"
+#include "Comparisons.h"
 #include "ParsingDriver.h"
 
 /**
