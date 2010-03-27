@@ -41,6 +41,8 @@ private:
     size_t m_index;
 };
 
+
+
 AttributesInfo::AttributesInfo () : 
 m_currentIndex(0), m_loadAll (false)
 {}

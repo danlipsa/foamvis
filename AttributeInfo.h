@@ -9,8 +9,8 @@
 #define __ATTRIBUTE_INFO_H__
 
 #include "Comparisons.h"
-class AttributeCreator;
 
+class AttributeCreator;
 
 /**
  * Information about an attribute attached to a vertex, edge, ...

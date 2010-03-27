@@ -13,8 +13,8 @@
 
 class AttributesInfo;
 class Data;
+class Edge;
 class Face;
-class FaceEdgeIndex;
 class OrientedFace;
 class OrientedEdge;
 class Vertex;

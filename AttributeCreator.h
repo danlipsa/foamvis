@@ -8,10 +8,11 @@
 #ifndef __ATTRIBUTE_CREATOR_H__
 #define __ATTRIBUTE_CREATOR_H__
 
-class Attribute;
-class IntegerAttribute;
 #include "SemanticType.h"
 #include "EvolverData_yacc.h"
+
+class Attribute;
+class IntegerAttribute;
 
 /**
  * Base class for all attribute creators

@@ -12,7 +12,6 @@
 class QTimer;
 class GLWidget;
 class DataFiles;
-class FaceEdgeIndex;
 class ProcessBodyTorus;
 
 /**
