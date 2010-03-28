@@ -18,6 +18,7 @@ class Vertex;
 class OrientedEdge
 {
 public:
+    OrientedEdge () : m_edge (0), m_reversed (false) {}
     /**
      * Constructs an oriented edge
      * @param edge information about the two vertices in the oriented edge
@@ -66,7 +67,13 @@ public:
     {
 	return print (ostr, true);
     }
-    bool Fits (const OrientedEdge& other) const;
+    /**
+     * Tests if this OrientedEdge fits another one.
+     * @param destination Other oriented edge
+     * @param translation vector to translate this edge to destination
+     */
+    bool Fits (const OrientedEdge& destination, 
+	       G3D::Vector3* translation = 0) const;
 
 public:
     /**

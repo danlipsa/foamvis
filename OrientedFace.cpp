@@ -6,6 +6,7 @@
  */
 
 #include "OrientedFace.h"
+#include "OrientedEdge.h"
 #include "Debug.h"
 #include "DebugStream.h"
 #include "Face.h"
@@ -26,6 +27,7 @@ ostream& operator<< (ostream& ostr, const OrientedFace& of)
     ostr << " Face attributes: ";
     return of.m_face->PrintAttributes (ostr);
 }
+
 
 OrientedEdge OrientedFace::GetOrientedEdge (size_t edgeIndex) const
 {
@@ -87,4 +89,26 @@ size_t OrientedFace::GetPreviousValidIndex (size_t index) const
 size_t OrientedFace::size () const
 {
     return m_face->GetEdgeCount ();
+}
+
+Vertex* OrientedFace::getBegin (size_t edgeIndex) const
+{
+    return GetOrientedEdge (edgeIndex).GetBegin ();
+}
+
+Vertex* OrientedFace::getEnd (size_t edgeIndex) const
+{
+    return GetOrientedEdge (edgeIndex).GetEnd ();
+}
+
+void OrientedFace::CalculateTranslation (
+    const OrientedEdge& edge, G3D::Vector3* translation) const
+{
+    for (const_iterator it = begin (); it != end (); ++it)
+    {
+	if (edge.Fits (*it, translation))
+	    return;
+    }
+    RuntimeAssert (false, "The edge: ", edge, 
+		   " is not part of the face: ", *this);
 }

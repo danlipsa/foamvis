@@ -12,6 +12,7 @@
 #include "Debug.h"
 #include "ElementUtils.h"
 #include "Face.h"
+#include "OrientedEdge.h"
 #include "OrientedFace.h"
 #include "ParsingDriver.h"
 #include "ProcessBodyTorus.h"

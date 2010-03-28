@@ -10,7 +10,7 @@
 #include "OrientedEdge.h"
 class Body;
 class Face;
-
+class Vertex;
 
 /**
  * An oriented face is a face  (list of edges) that can have its edges
@@ -42,6 +42,7 @@ public:
 	    return m_of->GetOrientedEdge (m_index);
 	}
 
+
     private:
 	T* m_of;
 	size_t m_index;
@@ -58,7 +59,7 @@ public:
      *        order
      */
     OrientedFace(Face* face, bool reversed) : 
-	m_face (face), m_reversed (reversed)
+	m_face (face), m_reversed (reversed), m_traversed (false)
     {}
     /**
      * Gets the face associated with this oriented face
@@ -85,6 +86,14 @@ public:
     bool IsReversed () const
     {
 	return m_reversed;
+    }
+    bool IsTraversed () const
+    {
+	return m_traversed;
+    }
+    void SetTraversed (bool traversed)
+    {
+	m_traversed = traversed;
     }
     /**
      * Gets the begin vertex for an edge in this oriented face
@@ -140,6 +149,9 @@ public:
     {
 	return Iterator<const OrientedFace> (this, size ());
     }
+    void CalculateTranslation (
+	const OrientedEdge& edge, G3D::Vector3* translation) const;
+    
 
 public:
     /**
@@ -155,15 +167,9 @@ public:
 
 private:
 
-    Vertex* getBegin (size_t edgeIndex) const
-    {
-	return GetOrientedEdge (edgeIndex).GetBegin ();
-    }
+    Vertex* getBegin (size_t edgeIndex) const;
 
-    Vertex* getEnd (size_t edgeIndex) const
-    {
-	return GetOrientedEdge (edgeIndex).GetEnd ();
-    }
+    Vertex* getEnd (size_t edgeIndex) const;
 
 private:
     /**
@@ -175,6 +181,7 @@ private:
      * reversed order
      */
     bool m_reversed;
+    bool m_traversed;
 };
 /**
  * Pretty prints a pointer to an oriented face

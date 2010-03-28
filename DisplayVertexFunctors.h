@@ -12,6 +12,7 @@
 #include "DisplayElement.h"
 #include "Face.h"
 #include "GLWidget.h"
+#include "OrientedEdge.h"
 #include "OrientedFace.h"
 #include "Vertex.h"
 

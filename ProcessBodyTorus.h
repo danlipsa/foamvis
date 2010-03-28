@@ -9,9 +9,15 @@
 #ifndef __PROCESS_BODY_TORUS_H__
 #define __PROCESS_BODY_TORUS_H__
 
+#include "OrientedEdge.h"
 class Body;
+class OrientedFace;
+
 class ProcessBodyTorus
 {
+public:
+    typedef pair<OrientedEdge, OrientedFace*> QueueElement;
+
 public:
     ProcessBodyTorus (Body* body) : m_body (body) {}
     void Initialize ();
@@ -19,6 +25,7 @@ public:
 
 private:
     Body* m_body;
+    queue<QueueElement> m_queue;
 };
 
 

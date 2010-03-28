@@ -30,6 +30,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <queue>
 #include <iomanip>
 
 // boost TR1 headers

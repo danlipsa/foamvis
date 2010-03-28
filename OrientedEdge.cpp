@@ -4,6 +4,7 @@
  *
  * Implementation of the OrientedFace class
  */
+#include "OrientedEdge.h"
 #include "OrientedFace.h"
 #include "Debug.h"
 #include "Edge.h"
@@ -33,12 +34,19 @@ G3D::Vector3int16 OrientedEdge::GetEndDomainIncrement () const
 	return m_edge->GetEndDomainIncrement ();;
 }
 
-bool OrientedEdge::Fits (const OrientedEdge& other) const
+bool OrientedEdge::Fits (const OrientedEdge& destination,
+			 G3D::Vector3* translation) const
 {
-    return 
-	GetEdge ()->GetOriginalIndex () == 
-	other.GetEdge ()->GetOriginalIndex () &&
-	IsReversed () == ! other.IsReversed ();
+    if (GetEdge ()->GetOriginalIndex () == 
+	destination.GetEdge ()->GetOriginalIndex () &&
+	IsReversed () == ! destination.IsReversed ())
+    {
+	if (translation != 0)
+	    *translation = *destination.GetEnd () - *GetBegin ();
+	return true;
+    }
+    else
+	return false;
 }
 
 G3D::Vector3 OrientedEdge::GetEdgeVector () const
