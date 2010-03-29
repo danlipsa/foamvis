@@ -7,10 +7,12 @@
  */
 
 #include "Body.h"
+#include "Data.h"
 #include "Debug.h"
 #include "DebugStream.h"
 #include "ProcessBodyTorus.h"
 #include "OrientedFace.h"
+#include "Vertex.h"
 
 void ProcessBodyTorus::Initialize ()
 {
@@ -35,8 +37,11 @@ bool ProcessBodyTorus::Step ()
     const OrientedEdge& edge = element.first;
     G3D::Vector3 translation;
     of->CalculateTranslation (edge, &translation);
-    if (translation.isZero ())
+    if (! translation.isZero ())
     {
+	const G3D::Vector3& begin = *of->GetOrientedEdge (0).GetBegin ();
+	Face* f = m_body->GetData ()->GetFaceDuplicate (*of->GetFace (), begin);
+	of->SetFace (f);
     }
 
     return true;
