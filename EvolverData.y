@@ -273,7 +273,8 @@ view_transform_generators_matrices
 
 swap_colors: SWAP_COLORS nlplus |
 
-view_transform_generators_matrices: view_transform_generators_matrices view_transform_generators_matrix nlplus |
+view_transform_generators_matrices: 
+view_transform_generators_matrices view_transform_generators_matrix nlplus |
 view_transform_generators_matrix nlplus
 
 view_transform_generators_matrix:
