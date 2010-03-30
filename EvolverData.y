@@ -145,10 +145,18 @@ class AttributeCreator;
 %token TORUS_FILLED "TORUS_FILLED"
 %token TORUS "TORUS"
 %token SPACE_DIMENSION "SPACE_DIMENSION"
+%token LENGTH_METHOD_NAME "LENGTH_METHOD_NAME"
+%token AREA_METHOD_NAME "AREA_METHOD_NAME"
+%token QUANTITY "QUANTITY"
+%token METHOD_INSTANCE "METHOD_INSTANCE"
+%token VIEW_TRANSFORM_GENERATORS "VIEW_TRANSFORM_GENERATORS"
+%token SWAP_COLORS "SWAP_COLORS"
 %token <m_id> ORIGINAL "ORIGINAL"
 %token <m_id> VOLUME "VOLUME"
 %token <m_id> VOLCONST "VOLCONST"
 %token <m_id> LAGRANGE_MULTIPLIER "LAGRANGE_MULTIPLIER"
+
+
 
  // terminal symbols
 %token <m_int> INTEGER_VALUE
@@ -234,18 +242,24 @@ bodies nlstar
 
 header: 
   header dimensionality nlplus
-| header space_dimension nlplus           
+| header space_dimension  nlplus      
 | header parameter nlplus
-| header attribute nlplus             
+| header attribute nlplus              
 | header representation nlplus
-| header scale_factor nlplus           
+| header scale_factor nlplus   
 | header total_time nlplus
 | header constraint_tolerance nlplus
-| header SYMMETRIC_CONTENT nlplus      
+| header SYMMETRIC_CONTENT nlplus
 | header KEEP_ORIGINALS nlplus
-| header view_matrix nlplus            
-| header constraint nlplus             
+| header view_matrix nlplus   
+| header constraint nlplus      
 | header torus_domain nlplus
+| header length_method_name nlplus
+| header area_method_name nlplus
+| header quantity nlplus
+| header method_instance nlplus
+| header function_declaration nlplus
+| header view_transform_generators
 |
 ;
 
@@ -253,6 +267,44 @@ nl: '\n'
 nlstar: nlstar nl |;
 nlplus: nlplus nl | nl;
 
+view_transform_generators: VIEW_TRANSFORM_GENERATORS INTEGER_VALUE nlplus
+swap_colors
+view_transform_generators_matrices
+
+swap_colors: SWAP_COLORS nlplus |
+
+view_transform_generators_matrices: view_transform_generators_matrices view_transform_generators_matrix nlplus |
+view_transform_generators_matrix nlplus
+
+view_transform_generators_matrix:
+const_expr const_expr const_expr nlplus
+const_expr const_expr const_expr nlplus
+const_expr const_expr const_expr
+|
+const_expr const_expr const_expr const_expr nlplus
+const_expr const_expr const_expr const_expr nlplus
+const_expr const_expr const_expr const_expr nlplus
+const_expr const_expr const_expr const_expr
+
+length_method_name: LENGTH_METHOD_NAME '"' IDENTIFIER '"'
+
+area_method_name: AREA_METHOD_NAME '"' IDENTIFIER '"'
+
+quantity: QUANTITY IDENTIFIER ';'
+
+method_instance: METHOD_INSTANCE IDENTIFIER ';'
+
+function_declaration: FUNCTION function_return_type IDENTIFIER '(' 
+function_parameters ')' ';'
+
+function_return_type: INTEGER_TYPE | REAL_TYPE
+
+function_parameters: function_parameters ',' function_parameter |
+function_parameter
+
+function_parameter: function_parameter_type IDENTIFIER
+
+function_parameter_type: INTEGER_TYPE | REAL_TYPE
 
 parameter: PARAMETER IDENTIFIER '=' const_expr
 {

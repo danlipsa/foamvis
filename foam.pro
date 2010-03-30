@@ -22,7 +22,7 @@ SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 FORMS += Window.ui
 LEXSOURCES += EvolverData.l
 YACCSOURCES += EvolverData.y
-QMAKE_YACC = .\/bison.pl -y --report=state
+QMAKE_YACC = .\/bison.pl -y --report=state --debug
 TARGET = foam
 QT           += opengl
 CONFIG       += qt debug precompile_header no_keywords

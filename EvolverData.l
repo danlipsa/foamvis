@@ -84,6 +84,7 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
 	}
 
 {ID} { /*identifiers*/
+    char* t = yytext;
     int id = yyextra->GetKeywordId (yytext);
     yylloc->begin.line = yylineno;
     if (id)
@@ -103,6 +104,7 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
 	return parser::token::IDENTIFIER;
     }
 }
+
 
 "+"|"-"|"*"|"/"|"^"  {/*operators*/
     yylval->m_id = yyextra->CreateIdentifier (yytext);
@@ -131,7 +133,7 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
     return *yytext;
 }
 
-","      {/*element separator for arrays*/
+","|"\""|";"      {/*element separator for arrays, quote, semicolon*/
     yylloc->begin.line = yylineno;
     return *yytext;
 }

@@ -23,7 +23,7 @@
  * Functor class used to parse each of the DMP files and store the results
  * in a vector of Data.
  */
-class parseFile : public unary_function<QString, void>
+class parseFile : public unary_function<QString, bool>
 {
 public:
     /**
@@ -41,14 +41,14 @@ public:
      * Parses one file
      * @param f name of the DMP file to be parsed.
      */
-    void operator () (QString f)
+    bool operator () (QString f)
     {
         int result;
 	string file = qPrintable (f);
         Data* data = new Data ();
         m_data.push_back (data);
         ParsingData& parsingData = data->GetParsingData ();
-        parsingData.SetDebugParsing (false);
+        parsingData.SetDebugParsing (true);
         parsingData.SetDebugScanning (false);
         string fullPath = m_dir + '/' + file;
         result = parsingData.Parse (fullPath, *data);
@@ -57,7 +57,10 @@ public:
         {
             m_data.pop_back ();
             delete data;
+	    return false;
         }
+	else
+	    return true;
     }
 private:
     /**
@@ -87,16 +90,19 @@ int main(int argc, char *argv[])
 	{
 	    QFileInfo fileInfo (argv[1]);
 	    QDir dir = fileInfo.absoluteDir ();
-	    parseFile (dataFiles.GetData (), dir.absolutePath ()) (
-		fileInfo.fileName ());
+	    if (! parseFile (dataFiles.GetData (), dir.absolutePath ()) (
+		    fileInfo.fileName ()))
+		return 13;
 	    break;
 	}
 	case 3:
 	{
 	    QDir dir (argv[1], argv[2]);
 	    QStringList files = dir.entryList ();
-	    for_each (files.begin (), files.end (), 
-		      parseFile (dataFiles.GetData (), dir.absolutePath ()));
+	    if (count_if (files.begin (), files.end (), 
+			  parseFile (dataFiles.GetData (), 
+				     dir.absolutePath ())) != files.size ())
+		return 13;
 	    break;
 	}
 	default:

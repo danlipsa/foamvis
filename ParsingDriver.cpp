@@ -112,6 +112,12 @@ const char* ParsingDriver::m_keywordTable[] = {
     "TORUS_FILLED",
     "TORUS",
     "SPACE_DIMENSION",
+    "LENGTH_METHOD_NAME",
+    "AREA_METHOD_NAME",
+    "QUANTITY",
+    "METHOD_INSTANCE",
+    "VIEW_TRANSFORM_GENERATORS",
+    "SWAP_COLORS",
     "ORIGINAL",
     "VOLUME",
     "VOLCONST",
@@ -121,11 +127,9 @@ const char* ParsingDriver::m_keywordTable[] = {
 int ParsingDriver::GetKeywordId (char* keyword)
 {
     for (size_t i = 0; 
-         i < sizeof (m_keywordTable) / sizeof (m_keywordTable[0]);
-         i++)
+         i < sizeof (m_keywordTable) / sizeof (m_keywordTable[0]); ++i)
     {
-	if (strcasecmp (m_keywordTable[i], 
-                         keyword) == 0)
+	if (strcasecmp (m_keywordTable[i], keyword) == 0)
 	    return i + FIRST_TOKEN;
     }
     return 0;
