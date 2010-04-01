@@ -258,6 +258,8 @@ void GLWidget::DataSliderValueChanged (int newIndex)
 void GLWidget::SaveMovie (bool checked)
 {
     m_saveMovie = checked;
+    if (checked)
+	m_currentFrame = 0;
     updateGL ();
 }
 
@@ -668,10 +670,10 @@ GLuint GLWidget::displayEdges ()
 	      DisplayFace<
 	      DisplayEdges<
 	      DisplayEdgeTessellationOrPhysical> > >(*this));
-    qglColor (QColor (Qt::black));
+    /*qglColor (QColor (Qt::black));
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<DisplayFaceVectors>(*this));
-
+    */
     if (! GetCurrentData ().IsTorus ())
 	displayCenterOfBodies ();
 

@@ -27,6 +27,8 @@ MainWindow::MainWindow(DataFiles& dataFiles) :
     if (! dataFiles.GetData()[0]->IsTorus ())
 	m_periodicModelGroupBox->hide ();
 
+    // 100 ms
+    m_timer->setInterval (100);
     QObject::connect(m_timer.get (), SIGNAL(timeout()),
                      this, SLOT(IncrementSlider ()));
 }

@@ -45,6 +45,7 @@ public:
     {
         int result;
 	string file = qPrintable (f);
+	cdbg << "Parsing " << file << " ..." << endl;
         Data* data = new Data ();
         m_data.push_back (data);
         ParsingData& parsingData = data->GetParsingData ();
