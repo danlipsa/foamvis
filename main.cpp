@@ -108,9 +108,11 @@ int main(int argc, char *argv[])
 	}
 	default:
             cdbg << "foam <dir> <filter>\n";
+	    cdbg << "foam <file>\n";
 	    cdbg << "where: <dir> is the folder where the data files reside\n"
 		 << "       <filter> is filter for the name of "
 		"the data files\n"
+		 << "       <file> is the name of a data file\n"
 		 << "       foam reads in Surface Evolver dmp files.\n";
             return 13;
         }

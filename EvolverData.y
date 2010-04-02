@@ -10,7 +10,7 @@
 %defines
 %token-table 
 %error-verbose
-%expect 5
+%expect 7 // state 55, 64, 68, 174, 180, 184
 %locations
 %{
 class Data;
@@ -149,8 +149,11 @@ class AttributeCreator;
 %token AREA_METHOD_NAME "AREA_METHOD_NAME"
 %token QUANTITY "QUANTITY"
 %token METHOD_INSTANCE "METHOD_INSTANCE"
+%token METHOD "METHOD"
+%token SCALAR_INTEGRAND "SCALAR_INTEGRAND"
 %token VIEW_TRANSFORM_GENERATORS "VIEW_TRANSFORM_GENERATORS"
 %token SWAP_COLORS "SWAP_COLORS"
+%token INTEGRAL_ORDER_1D "INTEGRAL_ORDER_1D"
 %token <m_id> ORIGINAL "ORIGINAL"
 %token <m_id> VOLUME "VOLUME"
 %token <m_id> VOLCONST "VOLCONST"
@@ -260,12 +263,15 @@ header:
 | header method_instance nlplus
 | header function_declaration nlplus
 | header view_transform_generators
+| header integral_order_1d nlplus
 |
 ;
 
 nl: '\n'
 nlstar: nlstar nl |;
 nlplus: nlplus nl | nl;
+
+integral_order_1d: INTEGRAL_ORDER_1D ':' INTEGER_VALUE
 
 view_transform_generators: VIEW_TRANSFORM_GENERATORS INTEGER_VALUE nlplus
 swap_colors
@@ -278,14 +284,17 @@ view_transform_generators_matrices view_transform_generators_matrix nlplus |
 view_transform_generators_matrix nlplus
 
 view_transform_generators_matrix:
-const_expr const_expr const_expr nlplus
-const_expr const_expr const_expr nlplus
-const_expr const_expr const_expr
+const_expr const_expr opt_const_expr nlplus
+const_expr const_expr opt_const_expr nlplus
+const_expr const_expr opt_const_expr
 |
 const_expr const_expr const_expr const_expr nlplus
 const_expr const_expr const_expr const_expr nlplus
 const_expr const_expr const_expr const_expr nlplus
 const_expr const_expr const_expr const_expr
+
+opt_const_expr: const_expr |
+
 
 length_method_name: LENGTH_METHOD_NAME '"' IDENTIFIER '"'
 
@@ -293,7 +302,12 @@ area_method_name: AREA_METHOD_NAME '"' IDENTIFIER '"'
 
 quantity: QUANTITY IDENTIFIER ';'
 
-method_instance: METHOD_INSTANCE IDENTIFIER ';'
+method_instance: METHOD_INSTANCE IDENTIFIER method_instance_rest
+
+method_instance_rest: ';'
+| METHOD IDENTIFIER nlplus method_instance_parameters
+
+method_instance_parameters: SCALAR_INTEGRAND ':' expr nlplus |
 
 function_declaration: FUNCTION function_return_type IDENTIFIER '(' 
 function_parameters ')' ';'
@@ -371,10 +385,10 @@ space_dimension: SPACE_DIMENSION const_expr
     data.SetSpaceDimension ($2);
 };
 
-view_matrix: VIEW_MATRIX nlstar
-const_expr const_expr const_expr const_expr nlstar
-const_expr const_expr const_expr const_expr nlstar
-const_expr const_expr const_expr const_expr nlstar
+view_matrix: VIEW_MATRIX nlplus
+const_expr const_expr const_expr const_expr nlplus
+const_expr const_expr const_expr const_expr nlplus
+const_expr const_expr const_expr const_expr nlplus
 const_expr const_expr const_expr const_expr
 {
     data.SetViewMatrixElement (0, $3);
@@ -396,7 +410,25 @@ const_expr const_expr const_expr const_expr
     data.SetViewMatrixElement (13, $19);
     data.SetViewMatrixElement (14, $20);
     data.SetViewMatrixElement (15, $21);
+}
+| VIEW_MATRIX nlplus
+const_expr const_expr const_expr nlplus
+const_expr const_expr const_expr nlplus
+const_expr const_expr const_expr
+{
+    data.SetViewMatrixElement (0, $3);
+    data.SetViewMatrixElement (1, $4);
+    data.SetViewMatrixElement (2, $5);
+
+    data.SetViewMatrixElement (4, $7);
+    data.SetViewMatrixElement (5, $8);
+    data.SetViewMatrixElement (6, $9);
+
+    data.SetViewMatrixElement (8, $11);
+    data.SetViewMatrixElement (9, $12);
+    data.SetViewMatrixElement (10, $13);
 };
+
 
 
 constraint: CONSTRAINT INTEGER_VALUE constraint_params nlplus
@@ -526,7 +558,7 @@ const_expr const_expr const_expr
 ;
 
 
-vertices: VERTICES nlstar vertex_list;
+vertices: VERTICES nlplus vertex_list;
 
 vertex_list: vertex_list INTEGER_VALUE const_expr const_expr vertex_list_rest
 vertex_attribute_list nl
