@@ -10,7 +10,7 @@
 %defines
 %token-table 
 %error-verbose
-%expect 7 // state 55, 64, 68, 174, 180, 184
+%expect 5 // state 55, 64, 68, 179, 183
 %locations
 %{
 class Data;
@@ -150,6 +150,7 @@ class AttributeCreator;
 %token QUANTITY "QUANTITY"
 %token METHOD_INSTANCE "METHOD_INSTANCE"
 %token METHOD "METHOD"
+%token FIXED "FIXED"
 %token SCALAR_INTEGRAND "SCALAR_INTEGRAND"
 %token VIEW_TRANSFORM_GENERATORS "VIEW_TRANSFORM_GENERATORS"
 %token SWAP_COLORS "SWAP_COLORS"
@@ -259,8 +260,8 @@ header:
 | header torus_domain nlplus
 | header length_method_name nlplus
 | header area_method_name nlplus
-| header quantity nlplus
-| header method_instance nlplus
+| header quantity
+| header method_instance
 | header function_declaration nlplus
 | header view_transform_generators
 | header integral_order_1d nlplus
@@ -300,11 +301,19 @@ length_method_name: LENGTH_METHOD_NAME '"' IDENTIFIER '"'
 
 area_method_name: AREA_METHOD_NAME '"' IDENTIFIER '"'
 
-quantity: QUANTITY IDENTIFIER ';'
+quantity: QUANTITY IDENTIFIER quantity_rest
+
+quantity_rest: ';' nlplus 
+| FIXED '=' REAL_VALUE LAGRANGE_MULTIPLIER number quantity_method_list nlplus
+
+quantity_method_list: quantity_method_list quantity_method | quantity_method
+
+quantity_method: METHOD IDENTIFIER
+
 
 method_instance: METHOD_INSTANCE IDENTIFIER method_instance_rest
 
-method_instance_rest: ';'
+method_instance_rest: ';' nlplus
 | METHOD IDENTIFIER nlplus method_instance_parameters
 
 method_instance_parameters: SCALAR_INTEGRAND ':' expr nlplus |
@@ -483,6 +492,11 @@ expr:     number
 {
     $$ = new ExpressionTreeUnaryFunction (
 	$1, $3, data.GetParsingData ());
+}
+| IDENTIFIER '(' expr ',' expr ')'
+{
+    $$ = new ExpressionTreeBinaryFunction (
+	$1, $3, $5, data.GetParsingData ());
 }
 | expr '+' expr
 {

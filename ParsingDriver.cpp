@@ -117,6 +117,7 @@ const char* ParsingDriver::m_keywordTable[] = {
     "QUANTITY",
     "METHOD_INSTANCE",
     "METHOD",
+    "FIXED",
     "SCALAR_INTEGRAND",
     "VIEW_TRANSFORM_GENERATORS",
     "SWAP_COLORS",
