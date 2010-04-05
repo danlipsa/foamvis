@@ -20,7 +20,7 @@
 
 
 /**
- * Functor class used to parse each of the DMP files and store the results
+ * Functor used to parse each of the DMP files and store the results
  * in a vector of Data.
  */
 class parseFile : public unary_function<QString, bool>
