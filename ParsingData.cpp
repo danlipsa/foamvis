@@ -10,43 +10,6 @@
 #include "ParsingData.h"
 
 /**
- * Negates a number. Used in the parser expressions.
- * @param v a floating point number
- * @return the negation of the parameter
- */
-static float negateFunction (float v) {return -v;}
-/**
- * Adds two numbers.Used in the parser expressions.
- * @param first first number in the sum
- * @param second second number in the sum
- * @return the sum of the two parameters
- */
-static float plusFunction (float first, float second) {return first + second;}
-/**
- * Subtracts two numbers
- * @param first first number
- * @param second second number
- * @return the difference of the two numbers
- */
-static float minusFunction (float first, float second)
-{return first - second;}
-/**
- * Divides two numbers
- * @param first first number
- * @param second second number
- * @return the division of the two numbers
- */
-static float dividesFunction (float first, float second)
-{return first / second;}
-/**
- * Multiplies two numbers
- * @param first first number
- * @param second second number
- * @return the multiplication of the two numbers
- */
-static float multipliesFunction (float first, float second)
-{return first * second;}
-/**
  * Throws  an  exception  because  we  should  not  have
  * assignments in constant expressions.
  * @return it throws an exception before returning.
@@ -102,15 +65,28 @@ ostream& operator<< (ostream& ostr, ParsingData& pd)
 
 ParsingData::ParsingData ()
 {
-    m_unaryFunctions["-"] = negateFunction;
-    m_unaryFunctions["sqrt"] = sqrtf;
+    BinaryFunctionInformation BINARY_FUNCTION_INFORMATION[] = 
+    {
+	{"+", plus<float> ()},
+	{"-", minus<float> ()},
+	{"*", multiplies<float> ()},
+	{"/", divides<float> ()},
+	{"^", powf},
+	{"=", assignmentFunction},
+	{"atan2", atan2f},
+	{">=", greater_equal<float>()}
+    };
+    UnaryFunctionInformation UNARY_FUNCTION_INFORMATION[] =
+    {
+	{"-", negate<float> ()},
+	{"sqrt", sqrtf}
+    };
 
-    m_binaryFunctions["+"] = plusFunction;
-    m_binaryFunctions["-"] = minusFunction;
-    m_binaryFunctions["*"] = multipliesFunction;
-    m_binaryFunctions["/"] = dividesFunction;
-    m_binaryFunctions["^"] = powf;
-    m_binaryFunctions["="] = assignmentFunction;
+    BOOST_FOREACH (BinaryFunctionInformation bfi, BINARY_FUNCTION_INFORMATION)
+	m_binaryFunctions[bfi.m_name] = bfi.m_function;
+    BOOST_FOREACH (UnaryFunctionInformation ufi, UNARY_FUNCTION_INFORMATION)
+	m_unaryFunctions[ufi.m_name] = ufi.m_function;
+
     m_previousTime = clock ();
 }
 

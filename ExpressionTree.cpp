@@ -30,7 +30,7 @@ float ExpressionTreeVariable::Value (void)
 float ExpressionTreeUnaryFunction::Value (void)
 {
     float value = m_left->Value ();
-    float (*f)(float) = m_parsingData.GetUnaryFunction (m_name);
+    ParsingData::UnaryFunction f = m_parsingData.GetUnaryFunction (m_name);
     return f (value);
 }
 
@@ -38,6 +38,6 @@ float ExpressionTreeBinaryFunction::Value (void)
 {
     float right = m_right->Value ();
     float left = m_left->Value ();
-    float (*f)(float, float) = m_parsingData.GetBinaryFunction (m_name);
+    ParsingData::BinaryFunction f = m_parsingData.GetBinaryFunction (m_name);
     return f (left, right);
 }

@@ -24,11 +24,12 @@ public:
     /**
      * A unary function
      */
-    typedef float (*UnaryFunction)(float);
+    //typedef float (*UnaryFunction)(float);
+    typedef boost::function<float (float)> UnaryFunction;
     /**
      * A binary function
      */
-    typedef float (*BinaryFunction)(float, float);
+    typedef boost::function<float (float, float)> BinaryFunction;
     /**
      * How are unary functions stored.
      */
@@ -94,6 +95,20 @@ public:
      * @param description what should be printed together with the time
      */
     void PrintTimeCheckpoint (string& description);
+
+private:
+    struct BinaryFunctionInformation
+    {
+	const char* m_name;
+	BinaryFunction m_function;
+    };
+    struct UnaryFunctionInformation
+    {
+	const char* m_name;
+	UnaryFunction m_function;
+    };
+
+
 private:
     /**
      * Stores  variables  read   from  the  datafile  (declared  using
