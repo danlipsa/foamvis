@@ -49,7 +49,7 @@ public:
         Data* data = new Data ();
         m_data.push_back (data);
         ParsingData& parsingData = data->GetParsingData ();
-        parsingData.SetDebugParsing (false);
+        parsingData.SetDebugParsing (true);
         parsingData.SetDebugScanning (false);
         string fullPath = m_dir + '/' + file;
         result = parsingData.Parse (fullPath, *data);
