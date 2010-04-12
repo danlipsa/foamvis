@@ -38,11 +38,12 @@ ostream& operator<< (ostream& ostr,
 }
 
 vector<NameSemanticValue*>* NameSemanticValue::PushBack (
-    vector<NameSemanticValue*>* listSoFar)
+    vector<NameSemanticValue*>* listSoFar, NameSemanticValue* attribute)
 {
     if (listSoFar == 0)
         listSoFar = new vector<NameSemanticValue*>();
-    listSoFar->push_back (this);
+    if (attribute != 0)
+	listSoFar->push_back (attribute);
     return listSoFar;
 }
 

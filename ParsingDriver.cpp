@@ -125,7 +125,8 @@ const char* ParsingDriver::m_keywordTable[] = {
     "ORIGINAL",
     "VOLUME",
     "VOLCONST",
-    "LAGRANGE_MULTIPLIER"
+    "LAGRANGE_MULTIPLIER",
+    "CONSTRAINTS"
 };
 
 int ParsingDriver::GetKeywordId (char* keyword)

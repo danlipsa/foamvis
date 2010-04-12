@@ -20,6 +20,7 @@ struct SemanticType
         COLOR,
         INT_ARRAY,
         REAL_ARRAY,
+	METHOD_OR_QUANTITY_NAME,
         COUNT
     };
 

@@ -56,6 +56,9 @@ void Vertex::StoreDefaultAttributes (AttributesInfo* infos)
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL),
         new IntegerAttributeCreator());
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS),
+        new IntegerVectorAttributeCreator());
 }
 
 void Vertex::AddAdjacentEdge (Edge* edge) 

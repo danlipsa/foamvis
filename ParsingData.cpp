@@ -74,7 +74,10 @@ ParsingData::ParsingData ()
 	{"^", powf},
 	{"=", assignmentFunction},
 	{"atan2", atan2f},
-	{">=", greater_equal<float>()}
+	{">", greater<float> ()},
+	{">=", greater_equal<float> ()},
+	{"<", less<float> ()},
+	{"<=", less_equal<float> ()}
     };
     UnaryFunctionInformation UNARY_FUNCTION_INFORMATION[] =
     {

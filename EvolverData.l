@@ -84,7 +84,6 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
 	}
 
 {ID} { /*identifiers*/
-    char* t = yytext;
     int id = yyextra->GetKeywordId (yytext);
     yylloc->begin.line = yylineno;
     if (id)
@@ -105,8 +104,26 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
     }
 }
 
+">="|"<=" {
+    yylval->m_id = yyextra->CreateIdentifier (yytext);
+    yylloc->begin.line = yylineno;
+    return *yytext == '>' ? parser::token::GE : parser::token::LE;
+}
 
-"+"|"-"|"*"|"/"|"^"  {/*operators*/
+"&&" {
+    yylval->m_id = yyextra->CreateIdentifier (yytext);
+    yylloc->begin.line = yylineno;
+    return parser::token::AND;
+}
+
+"||" {
+    yylval->m_id = yyextra->CreateIdentifier (yytext);
+    yylloc->begin.line = yylineno;
+    return parser::token::OR;
+}
+
+
+"+"|"-"|"*"|"/"|"^"|">"|"<"|"!"  {/*operators*/
     yylval->m_id = yyextra->CreateIdentifier (yytext);
     yylloc->begin.line = yylineno;
     return *yytext;
@@ -117,6 +134,12 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
     yylloc->begin.line = yylineno;
     return *yytext;
 }
+
+"?"  {/*conditional*/
+    yylloc->begin.line = yylineno;
+    return *yytext;
+}
+
 
 "("|")"  {/*paranthesis: expressions*/
     yylloc->begin.line = yylineno;
@@ -137,6 +160,7 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
     yylloc->begin.line = yylineno;
     return *yytext;
 }
+
 
 "\\\n"  /*ignore escaping of new lines*/
 

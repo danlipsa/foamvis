@@ -67,6 +67,18 @@ Attribute* IntegerArrayAttributeCreator::operator() (
     return new IntegerArrayAttribute (value.m_intList);
 }
 
+Attribute* IntegerVectorAttributeCreator::operator() (
+    const EvolverData::parser::semantic_type& value, 
+    SemanticType::Name type) const
+{
+    RuntimeAssert (
+	type == SemanticType::INT_ARRAY,
+	"Attribute declared with INTEGER_ARRAY type has value of type ",
+	type);
+    return new IntegerArrayAttribute (value.m_intList);
+}
+
+
 Attribute* RealArrayAttributeCreator::operator() (
     const EvolverData::parser::semantic_type& value, 
     SemanticType::Name type) const

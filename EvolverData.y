@@ -10,7 +10,7 @@
 %defines
 %token-table 
 %error-verbose
-%expect 5 // state 55, 64, 68, 179, 183
+%expect 4 // state 55, 64, 69, 201
 %locations
 %{
 class Data;
@@ -23,7 +23,7 @@ class ParsingDriver;
 {
     // Initialize the initial location.
     @$.begin.filename = @$.end.filename = &data.GetParsingData ().GetFile ();
-};
+}
 
 %{
 #include "Color.h"
@@ -159,26 +159,41 @@ class AttributeCreator;
 %token <m_id> VOLUME "VOLUME"
 %token <m_id> VOLCONST "VOLCONST"
 %token <m_id> LAGRANGE_MULTIPLIER "LAGRANGE_MULTIPLIER"
-
+%token <m_id> CONSTRAINTS "CONSTRAINTS"
 
 
  // terminal symbols
 %token <m_int> INTEGER_VALUE
 %token <m_real> REAL_VALUE
 %token <m_id> IDENTIFIER
+%token <m_id> '='
+%token <m_id> '?'
+ /* arithmetic */
 %token <m_id> '+'
 %token <m_id> '-'
 %token <m_id> '*'
 %token <m_id> '/'
 %token <m_id> '^'
-%token <m_id> '='
+ /*comparison */
+%token <m_id> GE ">="
+%token <m_id> '>'
+%token <m_id> '<'
+%token <m_id> LE "<="
+ /* logical */
+%token <m_id> '!'
+%token <m_id> AND "&&"
+%token <m_id> OR "||"
 
  // operator precedence
 %right '='
+%right '?' ':'
+%left OR
+%left AND
+%left '>' '<' LE GE
 %left '-' '+'
 %left '*' '/'
-%left NEGATION  /* negation--unary minus */
 %right '^'      /* exponentiation */
+%right '!' NEGATION  /* negation--unary minus */
 
 %type <m_real> const_expr
 %type <m_real> vertex_list_rest
@@ -195,6 +210,7 @@ class AttributeCreator;
 %type <m_nameSemanticValue> predefined_face_attribute
 %type <m_nameSemanticValue> predefined_body_attribute
 %type <m_nameSemanticValue> user_attribute
+%type <m_nameSemanticValue> method_or_quantity
 %type <m_intList> comma_integer_list
 %type <m_intList> integer_list
 %type <m_realList> comma_real_list
@@ -226,7 +242,8 @@ size_t intToUnsigned (int i, const char* message);
 %}
 
 %%
-datafile: nlstar header vertices nlstar
+datafile
+: nlstar header vertices nlstar
 {
     //data.GetParsingData ().PrintTimeCheckpoint ("After vertices:");
 }
@@ -242,10 +259,10 @@ bodies nlstar
 {
     //data.GetParsingData ().PrintTimeCheckpoint ("After bodies:");
     data.PostProcess ();
-};
+}
 
-header: 
-  header dimensionality nlplus
+header
+: header dimensionality nlplus
 | header space_dimension  nlplus      
 | header parameter nlplus
 | header attribute nlplus              
@@ -256,7 +273,7 @@ header:
 | header SYMMETRIC_CONTENT nlplus
 | header KEEP_ORIGINALS nlplus
 | header view_matrix nlplus   
-| header constraint nlplus      
+| header constraint
 | header torus_domain nlplus
 | header length_method_name nlplus
 | header area_method_name nlplus
@@ -266,11 +283,11 @@ header:
 | header view_transform_generators
 | header integral_order_1d nlplus
 |
-;
+
 
 nl: '\n'
-nlstar: nlstar nl |;
-nlplus: nlplus nl | nl;
+nlstar: nlstar nl |
+nlplus: nlplus nl | nl
 
 integral_order_1d: INTEGRAL_ORDER_1D ':' INTEGER_VALUE
 
@@ -335,13 +352,12 @@ parameter: PARAMETER IDENTIFIER '=' const_expr
     float v = $4;
     data.GetParsingData ().SetVariable($2->c_str(), v);
 }
-;
+
 
 attribute: DEFINE element_type ATTRIBUTE IDENTIFIER attribute_value_type
 {
     data.AddAttributeInfo ($2, $4->c_str(), $5);
 }
-;
 
 element_type: VERTEX
 {
@@ -359,9 +375,9 @@ element_type: VERTEX
 {
     $$ = DefineAttribute::BODY;
 }
-;
 
-attribute_value_type: INTEGER_TYPE
+attribute_value_type
+: INTEGER_TYPE
 {
     $$ = new IntegerAttributeCreator ();
 }
@@ -377,22 +393,21 @@ attribute_value_type: INTEGER_TYPE
 {
     $$ = new RealArrayAttributeCreator ($3);
 }
-;
 
-dimensionality: STRING | SOAPFILM;
+dimensionality: STRING | SOAPFILM
 
-representation: LINEAR | QUADRATIC | SIMPLEX_REPRESENTATION;
+representation: LINEAR | QUADRATIC | SIMPLEX_REPRESENTATION
 
-scale_factor: SCALE ':' const_expr;
+scale_factor: SCALE ':' const_expr
 
-total_time: TOTAL_TIME const_expr;
+total_time: TOTAL_TIME const_expr
 
-constraint_tolerance: CONSTRAINT_TOLERANCE ':' REAL_VALUE;
+constraint_tolerance: CONSTRAINT_TOLERANCE ':' REAL_VALUE
 
 space_dimension: SPACE_DIMENSION const_expr
 {
     data.SetSpaceDimension ($2);
-};
+}
 
 view_matrix: VIEW_MATRIX nlplus
 const_expr const_expr const_expr const_expr nlplus
@@ -436,35 +451,42 @@ const_expr const_expr const_expr
     data.SetViewMatrixElement (8, $11);
     data.SetViewMatrixElement (9, $12);
     data.SetViewMatrixElement (10, $13);
-};
+}
 
 
 
 constraint: CONSTRAINT INTEGER_VALUE constraint_params nlplus
-constraint_type ':' non_const_expr nl
-constraint_energy nl
-constraint_content    
-;
+constraint_type ':' non_const_expr nlplus
+constraint_energy
+constraint_content
 
 constraint_params: constraint_params GLOBAL
 | constraint_params CONVEX
 | constraint_params NONNEGATIVE
 | constraint_params NONPOSITIVE
 | constraint_params NOWALL
-|;
+|
 
-constraint_type: EQUATION | FORMULA | FUNCTION;
+constraint_type: EQUATION | FORMULA | FUNCTION
 
-constraint_energy: ENERGY nl
-E1 ':' non_const_expr nl
-E2 ':' non_const_expr nl
-E3 ':' non_const_expr
-|;
+constraint_energy
+: ENERGY nl
+  E1 ':' non_const_expr nlplus constraint_energy_rest
+|
 
-constraint_content: CONTENT nl
-C1 ':' non_const_expr nl
-C2 ':' non_const_expr nl
-C3 ':' non_const_expr
+constraint_energy_rest
+: E2 ':' non_const_expr nlplus
+  E3 ':' non_const_expr nlplus
+|
+
+constraint_content
+: CONTENT nl
+  C1 ':' non_const_expr nlplus constraint_content_rest
+|
+
+constraint_content_rest
+: C2 ':' non_const_expr nlplus
+  C3 ':' non_const_expr nlplus
 |;
 
 non_const_expr: expr
@@ -488,55 +510,91 @@ expr:     number
 {
     $$ = new ExpressionTreeVariable ($1, data.GetParsingData ());
 }
+
+/* Function calls */
 | IDENTIFIER '(' expr ')'
 {
-    $$ = new ExpressionTreeUnaryFunction (
-	$1, $3, data.GetParsingData ());
+    $$ = new ExpressionTreeUnaryFunction ($1, $3, data.GetParsingData ());
 }
 | IDENTIFIER '(' expr ',' expr ')'
 {
-    $$ = new ExpressionTreeBinaryFunction (
-	$1, $3, $5, data.GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction ($1, $3, $5, data.GetParsingData ());
+}
+
+/* Arithmetic operations */
+| '-' expr  %prec NEGATION
+{
+    $$ = new ExpressionTreeUnaryFunction ($1, $2, data.GetParsingData ());
 }
 | expr '+' expr
 {
-    $$ = new ExpressionTreeBinaryFunction (
-	$2, $1, $3, data.GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
 }
 | expr '-' expr
 {
-    $$ = new ExpressionTreeBinaryFunction (
-	$2, $1, $3, data.GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
 }
 | expr '*' expr
 {
-    $$ = new ExpressionTreeBinaryFunction (
-	$2, $1, $3, data.GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
 }
 | expr '/' expr
 {
-    $$ = new ExpressionTreeBinaryFunction (
-	$2, $1, $3, data.GetParsingData ());
-}
-| '-' expr  %prec NEGATION
-{
-    $$ = new ExpressionTreeUnaryFunction (
-	$1, $2, data.GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
 }
 | expr '^' expr
 {
-    $$ = new ExpressionTreeBinaryFunction (
-	$2, $1, $3, data.GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
 }
+
+/* Comparisions */
+| expr '>' expr
+{
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
+}
+| expr GE expr
+{
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
+}
+| expr '<' expr
+{
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
+}
+| expr LE expr
+{
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
+}
+
+/* Logical operations */
+| '!' expr
+{
+    $$ = new ExpressionTreeUnaryFunction ($1, $2, data.GetParsingData ());
+}
+| expr AND expr
+{
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
+}
+| expr OR expr
+{
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
+}
+
+/* Other expressions */
 | '(' expr ')'
 {
     $$ = $2;
 }
 | expr '=' expr
 {
-    $$ = new ExpressionTreeBinaryFunction (
-	$2, $1, $3, data.GetParsingData ());
-};
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
+}
+| expr '?' expr ':' expr
+{
+    $$ = new ExpressionTreeConditional ($1, $3, $5, data.GetParsingData ());
+}
+
+
+
 
 number: INTEGER_VALUE 
 {
@@ -574,7 +632,7 @@ const_expr const_expr const_expr
 
 vertices: VERTICES nlplus vertex_list;
 
-vertex_list: vertex_list INTEGER_VALUE const_expr const_expr vertex_list_rest
+vertex_list: vertex_list INTEGER_VALUE number number vertex_list_rest
 vertex_attribute_list nl
 {
     vector<NameSemanticValue*>* nameSemanticValueList = 
@@ -593,31 +651,48 @@ vertex_list_rest:
     $$ = 0;
 }
 |
-const_expr
+number
 {
     $$ = $1;    
 };
 
-vertex_attribute_list: vertex_attribute_list predefined_vertex_attribute
+vertex_attribute_list
+: vertex_attribute_list predefined_vertex_attribute
 {
-    $$ = 
-	$2->PushBack ($1);
+    $$ = NameSemanticValue::PushBack ($1, $2);
 }
 | vertex_attribute_list user_attribute
 {
-    $$ = 
-	$2->PushBack ($1);
+    $$ = NameSemanticValue::PushBack ($1, $2);
+}
+| vertex_attribute_list method_or_quantity
+{
+    // ignore the method or quantity name
+    $$ = $1;
 }
 |
 {
     $$ = 0;
 }
-;
 
-predefined_vertex_attribute: ORIGINAL INTEGER_VALUE
+method_or_quantity
+: IDENTIFIER
 {
-    $$ = new NameSemanticValue (
-	$1->c_str (), $2);
+    $$ = 0;
+}
+
+predefined_vertex_attribute
+: ORIGINAL INTEGER_VALUE
+{
+    $$ = new NameSemanticValue ($1->c_str (), $2);
+}
+| FIXED
+{
+    $$ = 0;
+}
+| CONSTRAINTS integer_list
+{
+    $$ = new NameSemanticValue ($1->c_str (), $2);
 }
 ;
 
@@ -643,29 +718,33 @@ user_attribute: IDENTIFIER INTEGER_VALUE
 ;
 
 edges: EDGES nlplus edge_list;
-edge_list: edge_list INTEGER_VALUE INTEGER_VALUE INTEGER_VALUE 
-signs_torus_model edge_attribute_list nl
+
+edge_list
+: edge_list INTEGER_VALUE INTEGER_VALUE INTEGER_VALUE edge_midpoint 
+  signs_torus_model edge_attribute_list nl
 {
     data.SetEdge (
 	intToUnsigned($2 - 1, "Semantic error: edge index less than 0: "),
 	intToUnsigned($3 - 1, "Semantic error: edge begin less than 0: "),
 	intToUnsigned($4 - 1, "Semantic error: edge end less than 0: "),
-	*$5,
-	*$6);
-    delete $5;
-    NameSemanticValue::DeleteVector($6);
+	*$6,
+	*$7);
+    delete $6;
+    NameSemanticValue::DeleteVector($7);
 }
-| ;
+|
+
+edge_midpoint
+: INTEGER_VALUE
+|
 
 edge_attribute_list: edge_attribute_list predefined_edge_attribute
 {
-    $$ = 
-	$2->PushBack ($1);
+    $$ = NameSemanticValue::PushBack ($1, $2);
 }
 | edge_attribute_list user_attribute
 {
-    $$ = 
-	$2->PushBack ($1);
+    $$ = NameSemanticValue::PushBack ($1, $2);
 }
 |
 {
@@ -673,12 +752,15 @@ edge_attribute_list: edge_attribute_list predefined_edge_attribute
 }
 ;
 
-predefined_edge_attribute: ORIGINAL INTEGER_VALUE
+predefined_edge_attribute
+: ORIGINAL INTEGER_VALUE
 {
-    $$ = new NameSemanticValue (
-	$1->c_str (), $2);
+    $$ = new NameSemanticValue ($1->c_str (), $2);
 }
-;
+| COLOR color_name 
+{
+    $$ = new NameSemanticValue ($1->c_str (), $2);
+}
 
 signs_torus_model: sign_torus_model sign_torus_model opt_sign_torus_model
 {
@@ -729,13 +811,11 @@ face_list: face_list INTEGER_VALUE integer_list face_attribute_list nl
 
 face_attribute_list: face_attribute_list predefined_face_attribute
 {
-    $$ = 
-	$2->PushBack ($1);
+    $$ = NameSemanticValue::PushBack ($1, $2);
 }
 | face_attribute_list user_attribute
 {
-    $$ = 
-	$2->PushBack ($1);
+    $$ = NameSemanticValue::PushBack ($1, $2);
 }
 |
 {
@@ -743,15 +823,14 @@ face_attribute_list: face_attribute_list predefined_face_attribute
 }
 ;
 
-predefined_face_attribute: COLOR color_name 
+predefined_face_attribute
+: COLOR color_name 
 {
-    $$ = 
-	new NameSemanticValue ($1->c_str (), $2);
+    $$ = new NameSemanticValue ($1->c_str (), $2);
 }
 | ORIGINAL INTEGER_VALUE
 {
-    $$ = 
-	new NameSemanticValue ($1->c_str (), $2);
+    $$ = new NameSemanticValue ($1->c_str (), $2);
 };
 
 color_name: BLACK
@@ -878,13 +957,11 @@ comma_real_list: comma_real_list ',' REAL_VALUE
 
 body_attribute_list: body_attribute_list predefined_body_attribute
 {
-    $$ = 
-	$2->PushBack ($1);
+    $$ = NameSemanticValue::PushBack ($1, $2);
 }
 | body_attribute_list user_attribute
 {
-    $$ = 
-	$2->PushBack ($1);
+    $$ = NameSemanticValue::PushBack ($1, $2);
 }
 | 
 {
@@ -894,13 +971,11 @@ body_attribute_list: body_attribute_list predefined_body_attribute
 
 predefined_body_attribute: VOLUME number
 {
-    $$ = 
-	new NameSemanticValue ($1->c_str (), $2);
+    $$ = new NameSemanticValue ($1->c_str (), $2);
 }
 | LAGRANGE_MULTIPLIER number 
 {
-    $$ = 
-	new NameSemanticValue ($1->c_str (), $2);
+    $$ = new NameSemanticValue ($1->c_str (), $2);
 }
 | ORIGINAL INTEGER_VALUE
 {

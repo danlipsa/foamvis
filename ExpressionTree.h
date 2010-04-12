@@ -20,15 +20,16 @@ public:
     /**
      * Constructs an ExpressionTree with one node
      */
-    ExpressionTree () : m_left (0), m_right (0) {}
+    ExpressionTree () : m_first (0), m_second (0) {}
     virtual ~ExpressionTree () {}
     /**
      * Constructs an ExpressionTree
      * @param left the left child of the current node
-     * @param right the right child of the current node
+     * @param second the second child of the current node
      */
-    ExpressionTree (ExpressionTree* left, ExpressionTree* right)
-        : m_left (left), m_right (right) {}
+    ExpressionTree (ExpressionTree* first, ExpressionTree* second = 0,
+		    ExpressionTree* third = 0)
+        : m_first (first), m_second (second), m_third (third) {}
     /**
      * Deletes all nodes in an ExpressionTree
      * @param node tree to be deleted
@@ -42,13 +43,14 @@ public:
     virtual float Value (void) = 0;
 protected:
     /**
-     * Left child of this node
+     * First child of this node
      */
-    ExpressionTree* m_left;
+    ExpressionTree* m_first;
     /**
-     * Right child of this node
+     * Second child of this node
      */
-    ExpressionTree* m_right;
+    ExpressionTree* m_second;
+    ExpressionTree* m_third;
 };
 
 /**
@@ -84,7 +86,7 @@ public:
      * @param name the name of the variable
      * @param parsingData data which allows us to get the value of a variable.
      */
-    ExpressionTreeVariable (string* name, ParsingData& parsingData)
+    ExpressionTreeVariable (const string* name, ParsingData& parsingData)
         : m_name (name->c_str()), m_parsingData (parsingData) {}
     /**
      * Value of the variable
@@ -116,8 +118,8 @@ public:
      * with the function name
      */
     ExpressionTreeUnaryFunction (
-        string* name, ExpressionTree* param, ParsingData& parsingData)
-        : ExpressionTree (param, 0), m_name (name->c_str()), 
+        const string* name, ExpressionTree* param, ParsingData& parsingData)
+        : ExpressionTree (param), m_name (name->c_str()), 
           m_parsingData (parsingData) {}
     /**
      * Value of the function applied to the parameter.
@@ -144,15 +146,15 @@ public:
     /**
      * Constructs a binary function tree node
      * @param name name of the function
-     * @param left child of the tree node
-     * @param right right child of the tree node
+     * @param first child of the tree node
+     * @param second second child of the tree node
      * @param  parsingData allows  us to  get the  function associated
      * with the function name
      */
     ExpressionTreeBinaryFunction (
-        string* name, 
-        ExpressionTree* left, ExpressionTree* right, ParsingData& parsingData)
-        : ExpressionTree (left, right), m_name (name->c_str()),
+        const string* name, 
+        ExpressionTree* first, ExpressionTree* second, ParsingData& parsingData)
+        : ExpressionTree (first, second), m_name (name->c_str()),
           m_parsingData (parsingData) {}
     /**
      * Value of the function applied to the parameters
@@ -169,6 +171,43 @@ private:
      */
     ParsingData& m_parsingData;
 };
+
+
+/**
+ * A binary function or binary operator expression tree node
+ */
+class ExpressionTreeConditional : public ExpressionTree
+{
+public:
+    /**
+     * Constructs a binary function tree node
+     * @param name name of the function
+     * @param first child of the tree node
+     * @param second second child of the tree node
+     * @param  parsingData allows  us to  get the  function associated
+     * with the function name
+     */
+    ExpressionTreeConditional (
+        ExpressionTree* first, ExpressionTree* second, ExpressionTree* third,
+	ParsingData& parsingData)
+        : ExpressionTree (first, second, third), m_name ("?:"),
+          m_parsingData (parsingData) {}
+    /**
+     * Value of the function applied to the parameters
+     * @return the value of the function applied to the parameters.
+     */
+    virtual float Value (void);
+private:
+    /**
+     * Function name
+     */
+    const char* m_name;
+    /**
+     * Allows us to get the function associated with the function name.
+     */
+    ParsingData& m_parsingData;
+};
+
 
 #endif //__EXPRESSION_TREE_H__
 

@@ -91,7 +91,7 @@ class IntegerArrayAttributeCreator : public AttributeCreator
 {
 public:
     /**
-     * ructor for the functor
+     * Constructor for the functor
      * @param size the size of the array
      */
     IntegerArrayAttributeCreator (int size) : m_size (size) {}
@@ -109,6 +109,20 @@ private:
      * Size of the array of integers
      */
     size_t m_size;
+};
+
+class IntegerVectorAttributeCreator : public AttributeCreator
+{
+public:
+    /**
+     * Creates an attribute which stores an integer array
+     * @param value an integer list stored in a m_intList
+     * @param type has to be NameSemanticValue::INT_ARRAY
+     * @return pointer to the created attribute
+     */
+    virtual Attribute* operator() (
+	const EvolverData::parser::semantic_type& value,
+        SemanticType::Name type) const;
 };
 /**
  * Functor that creates an attribute that stores an array of real values
