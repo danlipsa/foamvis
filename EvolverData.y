@@ -676,10 +676,13 @@ vertex_attribute_list
 }
 
 method_or_quantity
-: IDENTIFIER
+: IDENTIFIER method_or_quantity_sign
 {
     $$ = 0;
 }
+
+method_or_quantity_sign : '-' |
+
 
 predefined_vertex_attribute
 : ORIGINAL INTEGER_VALUE
@@ -738,13 +741,19 @@ edge_midpoint
 : INTEGER_VALUE
 |
 
-edge_attribute_list: edge_attribute_list predefined_edge_attribute
+edge_attribute_list
+: edge_attribute_list predefined_edge_attribute
 {
     $$ = NameSemanticValue::PushBack ($1, $2);
 }
 | edge_attribute_list user_attribute
 {
     $$ = NameSemanticValue::PushBack ($1, $2);
+}
+| edge_attribute_list method_or_quantity
+{
+    // ignore the method or quantity name
+    $$ = $1;
 }
 |
 {
