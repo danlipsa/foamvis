@@ -10,7 +10,7 @@
 %defines
 %token-table 
 %error-verbose
-%expect 4 // state 55, 64, 69, 201
+%expect 5 // state 55, 64, 69, 201, 205
 %locations
 %{
 class Data;
@@ -160,6 +160,7 @@ class AttributeCreator;
 %token <m_id> VOLCONST "VOLCONST"
 %token <m_id> LAGRANGE_MULTIPLIER "LAGRANGE_MULTIPLIER"
 %token <m_id> CONSTRAINTS "CONSTRAINTS"
+%token <m_id> DENSITY "DENSITY"
 
 
  // terminal symbols
@@ -262,7 +263,8 @@ bodies nlstar
 }
 
 header
-: header dimensionality nlplus
+: /* empty */
+| header dimensionality nlplus
 | header space_dimension  nlplus      
 | header parameter nlplus
 | header attribute nlplus              
@@ -282,70 +284,119 @@ header
 | header function_declaration nlplus
 | header view_transform_generators
 | header integral_order_1d nlplus
-|
-
+;
 
 nl: '\n'
-nlstar: nlstar nl |
-nlplus: nlplus nl | nl
+;
 
-integral_order_1d: INTEGRAL_ORDER_1D ':' INTEGER_VALUE
+nlstar
+: /* empty */
+| nlstar nl 
+;
 
-view_transform_generators: VIEW_TRANSFORM_GENERATORS INTEGER_VALUE nlplus
+nlplus
+: nlplus nl 
+| nl
+;
+
+integral_order_1d
+: INTEGRAL_ORDER_1D ':' INTEGER_VALUE
+;
+
+view_transform_generators
+: VIEW_TRANSFORM_GENERATORS INTEGER_VALUE nlplus
+  swap_colors
+  view_transform_generators_matrices
+;
+
 swap_colors
+: /* empty */
+| SWAP_COLORS nlplus 
+;
+
 view_transform_generators_matrices
+: view_transform_generators_matrices view_transform_generators_matrix nlplus 
+| view_transform_generators_matrix nlplus
+;
 
-swap_colors: SWAP_COLORS nlplus |
+view_transform_generators_matrix
+: const_expr const_expr opt_const_expr nlplus
+  const_expr const_expr opt_const_expr nlplus
+  const_expr const_expr opt_const_expr
+| const_expr const_expr const_expr const_expr nlplus
+  const_expr const_expr const_expr const_expr nlplus
+  const_expr const_expr const_expr const_expr nlplus
+  const_expr const_expr const_expr const_expr
+;
 
-view_transform_generators_matrices: 
-view_transform_generators_matrices view_transform_generators_matrix nlplus |
-view_transform_generators_matrix nlplus
+opt_const_expr
+: /* empty */
+| const_expr 
+;
 
-view_transform_generators_matrix:
-const_expr const_expr opt_const_expr nlplus
-const_expr const_expr opt_const_expr nlplus
-const_expr const_expr opt_const_expr
-|
-const_expr const_expr const_expr const_expr nlplus
-const_expr const_expr const_expr const_expr nlplus
-const_expr const_expr const_expr const_expr nlplus
-const_expr const_expr const_expr const_expr
+length_method_name
+: LENGTH_METHOD_NAME '"' IDENTIFIER '"'
+;
 
-opt_const_expr: const_expr |
+area_method_name
+: AREA_METHOD_NAME '"' IDENTIFIER '"'
+;
 
+quantity
+: QUANTITY IDENTIFIER quantity_rest
+;
 
-length_method_name: LENGTH_METHOD_NAME '"' IDENTIFIER '"'
-
-area_method_name: AREA_METHOD_NAME '"' IDENTIFIER '"'
-
-quantity: QUANTITY IDENTIFIER quantity_rest
-
-quantity_rest: ';' nlplus 
+quantity_rest
+: ';' nlplus 
 | FIXED '=' REAL_VALUE LAGRANGE_MULTIPLIER number quantity_method_list nlplus
+;
 
-quantity_method_list: quantity_method_list quantity_method | quantity_method
+quantity_method_list
+: quantity_method_list quantity_method 
+| quantity_method
+;
 
-quantity_method: METHOD IDENTIFIER
+quantity_method
+: METHOD IDENTIFIER
+;
 
+method_instance: 
+METHOD_INSTANCE IDENTIFIER method_instance_rest
+;
 
-method_instance: METHOD_INSTANCE IDENTIFIER method_instance_rest
-
-method_instance_rest: ';' nlplus
+method_instance_rest
+: ';' nlplus
 | METHOD IDENTIFIER nlplus method_instance_parameters
+;
 
-method_instance_parameters: SCALAR_INTEGRAND ':' expr nlplus |
+method_instance_parameters
+: /* empty */
+| SCALAR_INTEGRAND ':' expr nlplus 
+;
 
-function_declaration: FUNCTION function_return_type IDENTIFIER '(' 
-function_parameters ')' ';'
+function_declaration
+: FUNCTION function_return_type IDENTIFIER '(' 
+  function_parameters ')' ';'
+;
 
-function_return_type: INTEGER_TYPE | REAL_TYPE
+function_return_type
+: INTEGER_TYPE 
+| REAL_TYPE
+;
 
-function_parameters: function_parameters ',' function_parameter |
+function_parameters
+: function_parameters ',' function_parameter 
+| function_parameter
+;
+
 function_parameter
+: function_parameter_type IDENTIFIER
+;
 
-function_parameter: function_parameter_type IDENTIFIER
-
-function_parameter_type: INTEGER_TYPE | REAL_TYPE
+function_parameter_type
+: INTEGER_TYPE 
+| REAL_TYPE
+;
 
 parameter: PARAMETER IDENTIFIER '=' const_expr
 {
@@ -354,7 +405,8 @@ parameter: PARAMETER IDENTIFIER '=' const_expr
 }
 
 
-attribute: DEFINE element_type ATTRIBUTE IDENTIFIER attribute_value_type
+attribute
+: DEFINE element_type ATTRIBUTE IDENTIFIER attribute_value_type
 {
     data.AddAttributeInfo ($2, $4->c_str(), $5);
 }
@@ -394,26 +446,41 @@ attribute_value_type
     $$ = new RealArrayAttributeCreator ($3);
 }
 
-dimensionality: STRING | SOAPFILM
+dimensionality
+: STRING 
+| SOAPFILM
+;
 
-representation: LINEAR | QUADRATIC | SIMPLEX_REPRESENTATION
+representation
+: LINEAR 
+| QUADRATIC 
+| SIMPLEX_REPRESENTATION
+;
 
-scale_factor: SCALE ':' const_expr
+scale_factor
+: SCALE ':' const_expr
+;
 
-total_time: TOTAL_TIME const_expr
+total_time
+: TOTAL_TIME const_expr
+;
 
-constraint_tolerance: CONSTRAINT_TOLERANCE ':' REAL_VALUE
+constraint_tolerance
+: CONSTRAINT_TOLERANCE ':' REAL_VALUE
+;
 
-space_dimension: SPACE_DIMENSION const_expr
+space_dimension
+: SPACE_DIMENSION const_expr
 {
     data.SetSpaceDimension ($2);
 }
 
-view_matrix: VIEW_MATRIX nlplus
-const_expr const_expr const_expr const_expr nlplus
-const_expr const_expr const_expr const_expr nlplus
-const_expr const_expr const_expr const_expr nlplus
-const_expr const_expr const_expr const_expr
+view_matrix
+: VIEW_MATRIX nlplus
+  const_expr const_expr const_expr const_expr nlplus
+  const_expr const_expr const_expr const_expr nlplus
+  const_expr const_expr const_expr const_expr nlplus
+  const_expr const_expr const_expr const_expr
 {
     data.SetViewMatrixElement (0, $3);
     data.SetViewMatrixElement (1, $4);
@@ -436,9 +503,9 @@ const_expr const_expr const_expr const_expr
     data.SetViewMatrixElement (15, $21);
 }
 | VIEW_MATRIX nlplus
-const_expr const_expr const_expr nlplus
-const_expr const_expr const_expr nlplus
-const_expr const_expr const_expr
+  const_expr const_expr const_expr nlplus
+  const_expr const_expr const_expr nlplus
+  const_expr const_expr const_expr
 {
     data.SetViewMatrixElement (0, $3);
     data.SetViewMatrixElement (1, $4);
@@ -453,56 +520,68 @@ const_expr const_expr const_expr
     data.SetViewMatrixElement (10, $13);
 }
 
+constraint
+: CONSTRAINT INTEGER_VALUE constraint_params nlplus
+  constraint_type ':' non_const_expr nlplus
+  constraint_energy
+  constraint_content
+;
 
-
-constraint: CONSTRAINT INTEGER_VALUE constraint_params nlplus
-constraint_type ':' non_const_expr nlplus
-constraint_energy
-constraint_content
-
-constraint_params: constraint_params GLOBAL
+constraint_params
+: /* empty */
+| constraint_params GLOBAL
 | constraint_params CONVEX
 | constraint_params NONNEGATIVE
 | constraint_params NONPOSITIVE
 | constraint_params NOWALL
-|
+;
 
-constraint_type: EQUATION | FORMULA | FUNCTION
+constraint_type
+: EQUATION 
+| FORMULA 
+| FUNCTION
+;
 
 constraint_energy
-: ENERGY nl
+: /* empty */
+| ENERGY nl
   E1 ':' non_const_expr nlplus constraint_energy_rest
-|
+;
 
 constraint_energy_rest
-: E2 ':' non_const_expr nlplus
+: /* empty */
+| E2 ':' non_const_expr nlplus
   E3 ':' non_const_expr nlplus
-|
+;
 
 constraint_content
-: CONTENT nl
+: /* empty */
+| CONTENT nl
   C1 ':' non_const_expr nlplus constraint_content_rest
-|
+;
 
 constraint_content_rest
-: C2 ':' non_const_expr nlplus
+: /* empty */
+| C2 ':' non_const_expr nlplus
   C3 ':' non_const_expr nlplus
-|;
+;
 
-non_const_expr: expr
+non_const_expr
+: expr
 {
     ExpressionTree::Delete ($1);
 }
-;
 
-const_expr: expr
+const_expr
+: expr
 {
     float v = $1->Value ();
     $$ = v;
     ExpressionTree::Delete ($1);
-};
+}
 
-expr:     number
+expr
+: number
 {
     $$ = new ExpressionTreeNumber ($1);
 }
@@ -593,24 +672,29 @@ expr:     number
     $$ = new ExpressionTreeConditional ($1, $3, $5, data.GetParsingData ());
 }
 
-
-
-
-number: INTEGER_VALUE 
+number
+: INTEGER_VALUE 
 {
     $$ = $1;
 }
 | REAL_VALUE
 {
     $$ = $1;
-};
+}
 
-torus_domain: torus_type nlplus torus_periods;
+torus_domain
+: torus_type nlplus torus_periods
+;
 
-torus_type: TORUS | TORUS_FILLED;
-torus_periods: PERIODS nl
-const_expr const_expr nl
-const_expr const_expr
+torus_type
+: TORUS 
+| TORUS_FILLED
+;
+
+torus_periods
+: PERIODS nl
+  const_expr const_expr nl
+  const_expr const_expr
 {
     using G3D::Vector3;
     data.SetPeriod (0, Vector3 ($3, $4, 0));
@@ -618,22 +702,24 @@ const_expr const_expr
     data.SetPeriod (2, Vector3::zero ());
 }
 | PERIODS nl
-const_expr const_expr const_expr nl
-const_expr const_expr const_expr nl
-const_expr const_expr const_expr
+  const_expr const_expr const_expr nl
+  const_expr const_expr const_expr nl
+  const_expr const_expr const_expr
 {
     using G3D::Vector3;
     data.SetPeriod (0, Vector3 ($3, $4, $5));
     data.SetPeriod (1, Vector3 ($7, $8, $9));
     data.SetPeriod (2, Vector3 ($11, $12, $13));
 }
+
+vertices
+: VERTICES nlplus vertex_list
 ;
 
-
-vertices: VERTICES nlplus vertex_list;
-
-vertex_list: vertex_list INTEGER_VALUE number number vertex_list_rest
-vertex_attribute_list nl
+vertex_list
+: /* empty */
+| vertex_list INTEGER_VALUE const_expr const_expr vertex_list_rest 
+  vertex_attribute_list nl
 {
     vector<NameSemanticValue*>* nameSemanticValueList = 
 	$6;
@@ -644,20 +730,25 @@ vertex_attribute_list nl
     if (nameSemanticValueList != 0)
 	NameSemanticValue::DeleteVector(nameSemanticValueList);
 }
-|;
 
-vertex_list_rest:
+
+vertex_list_rest
+: /* empty */
 {
     $$ = 0;
 }
 |
-number
+const_expr
 {
     $$ = $1;    
-};
+}
 
 vertex_attribute_list
-: vertex_attribute_list predefined_vertex_attribute
+: /* empty */
+{
+    $$ = 0;
+}
+| vertex_attribute_list predefined_vertex_attribute
 {
     $$ = NameSemanticValue::PushBack ($1, $2);
 }
@@ -670,10 +761,6 @@ vertex_attribute_list
     // ignore the method or quantity name
     $$ = $1;
 }
-|
-{
-    $$ = 0;
-}
 
 method_or_quantity
 : IDENTIFIER method_or_quantity_sign
@@ -681,7 +768,10 @@ method_or_quantity
     $$ = 0;
 }
 
-method_or_quantity_sign : '-' |
+method_or_quantity_sign 
+: /* empty */
+| '-' 
+;
 
 
 predefined_vertex_attribute
@@ -697,9 +787,9 @@ predefined_vertex_attribute
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
-;
 
-user_attribute: IDENTIFIER INTEGER_VALUE
+user_attribute
+: IDENTIFIER INTEGER_VALUE
 {
     $$ = new NameSemanticValue ($1->c_str(), $2);
 }
@@ -718,12 +808,14 @@ user_attribute: IDENTIFIER INTEGER_VALUE
     $$ = 
 	new NameSemanticValue ($1->c_str(), $3);
 }
+
+edges
+: EDGES nlplus edge_list
 ;
 
-edges: EDGES nlplus edge_list;
-
 edge_list
-: edge_list INTEGER_VALUE INTEGER_VALUE INTEGER_VALUE edge_midpoint 
+: /* empty */
+| edge_list INTEGER_VALUE INTEGER_VALUE INTEGER_VALUE edge_midpoint 
   signs_torus_model edge_attribute_list nl
 {
     data.SetEdge (
@@ -735,14 +827,17 @@ edge_list
     delete $6;
     NameSemanticValue::DeleteVector($7);
 }
-|
 
 edge_midpoint
-: INTEGER_VALUE
-|
+: /* empty */
+| INTEGER_VALUE
 
 edge_attribute_list
-: edge_attribute_list predefined_edge_attribute
+: /* empty */
+{
+    $$ = 0;
+}
+| edge_attribute_list predefined_edge_attribute
 {
     $$ = NameSemanticValue::PushBack ($1, $2);
 }
@@ -755,11 +850,6 @@ edge_attribute_list
     // ignore the method or quantity name
     $$ = $1;
 }
-|
-{
-    $$ = 0;
-}
-;
 
 predefined_edge_attribute
 : ORIGINAL INTEGER_VALUE
@@ -770,17 +860,31 @@ predefined_edge_attribute
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
+| CONSTRAINTS integer_list
+{
+    $$ = new NameSemanticValue ($1->c_str (), $2);
+}
+| DENSITY const_expr
+{
+    $$ = new NameSemanticValue ($1->c_str (), $2);
+}
+| FIXED
+{
+    $$ = 0;
+}
 
-signs_torus_model: sign_torus_model sign_torus_model opt_sign_torus_model
+signs_torus_model
+: sign_torus_model sign_torus_model opt_sign_torus_model
 {
     $$ = new G3D::Vector3int16 ($1, $2, $3);
 }
 |
 {
     $$ = new G3D::Vector3int16 (0,0,0);
-};
+}
 
-opt_sign_torus_model: sign_torus_model
+opt_sign_torus_model
+: sign_torus_model
 {
     $$ = $1;
 }
@@ -788,10 +892,10 @@ opt_sign_torus_model: sign_torus_model
 {
     $$ = Edge::DomainIncrementCharToNumber ('*');
 }
-;
 
 
-sign_torus_model: '+' 
+sign_torus_model
+: '+' 
 {
     $$ = Edge::DomainIncrementCharToNumber((*$1)[0]);
 }
@@ -805,9 +909,13 @@ sign_torus_model: '+'
 }
 ;
 
-faces: FACES nl face_list;
+faces
+: FACES nl face_list
+;
 
-face_list: face_list INTEGER_VALUE integer_list face_attribute_list nl
+face_list
+: /* empty */
+| face_list INTEGER_VALUE integer_list face_attribute_list nl
 {
     vector<int>* intList = $3;
     data.SetFace (
@@ -816,9 +924,13 @@ face_list: face_list INTEGER_VALUE integer_list face_attribute_list nl
     delete intList;
     NameSemanticValue::DeleteVector($4);
 }
-|;
 
-face_attribute_list: face_attribute_list predefined_face_attribute
+face_attribute_list
+: /* empty */
+{
+    $$ = 0;
+}
+| face_attribute_list predefined_face_attribute
 {
     $$ = NameSemanticValue::PushBack ($1, $2);
 }
@@ -826,11 +938,6 @@ face_attribute_list: face_attribute_list predefined_face_attribute
 {
     $$ = NameSemanticValue::PushBack ($1, $2);
 }
-|
-{
-    $$ = 0;
-}
-;
 
 predefined_face_attribute
 : COLOR color_name 
@@ -840,9 +947,10 @@ predefined_face_attribute
 | ORIGINAL INTEGER_VALUE
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
-};
+}
 
-color_name: BLACK
+color_name
+: BLACK
 {
     $$ = Color::BLACK;
 }
@@ -911,12 +1019,14 @@ color_name: BLACK
     $$ = Color::LIGHTMAGENTA;
 }
 
+
+bodies
+: BODIES nl body_list
 ;
 
-
-bodies: BODIES nl body_list;
-
-body_list: body_list INTEGER_VALUE integer_list body_attribute_list nl
+body_list
+: /* empty */
+| body_list INTEGER_VALUE integer_list body_attribute_list nl
 {
     vector<int>* intList = $3;
     data.SetBody (
@@ -925,7 +1035,6 @@ body_list: body_list INTEGER_VALUE integer_list body_attribute_list nl
     delete intList;
     NameSemanticValue::DeleteVector ($4);
 }
-|;
 
 integer_list: integer_list INTEGER_VALUE
 {
@@ -937,9 +1046,9 @@ integer_list: integer_list INTEGER_VALUE
 {
     $$ = new vector<int>(1, $1);
 }
-;
 
-comma_integer_list: comma_integer_list ',' INTEGER_VALUE
+comma_integer_list
+: comma_integer_list ',' INTEGER_VALUE
 {
     vector<int>* intList = $1;
     intList->push_back ($3);
@@ -949,9 +1058,9 @@ comma_integer_list: comma_integer_list ',' INTEGER_VALUE
 {
     $$ = new vector<int>(1, $1);
 }
-;
 
-comma_real_list: comma_real_list ',' REAL_VALUE
+comma_real_list
+: comma_real_list ',' REAL_VALUE
 {
     vector<float>* realList = $1;
     realList->push_back ($3);
@@ -961,10 +1070,14 @@ comma_real_list: comma_real_list ',' REAL_VALUE
 {
     $$ = new vector<float>(1, $1);
 }
-;
 
 
-body_attribute_list: body_attribute_list predefined_body_attribute
+body_attribute_list
+: /* empty */ 
+{
+    $$ = 0;
+}
+| body_attribute_list predefined_body_attribute
 {
     $$ = NameSemanticValue::PushBack ($1, $2);
 }
@@ -972,13 +1085,9 @@ body_attribute_list: body_attribute_list predefined_body_attribute
 {
     $$ = NameSemanticValue::PushBack ($1, $2);
 }
-| 
-{
-    $$ = 0;
-}
-;
 
-predefined_body_attribute: VOLUME number
+predefined_body_attribute
+: VOLUME number
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
@@ -996,7 +1105,7 @@ predefined_body_attribute: VOLUME number
     $$ = 
 	new NameSemanticValue ($1->c_str (), $2);
 }
-;
+
 
 %%
 

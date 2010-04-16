@@ -375,7 +375,7 @@ void Data::PostProcess ()
     CalculatePhysical ();
     CalculateAABox ();
     CacheEdgesVerticesInBodies ();
-    if (! IsTorus ())
+    if (! IsTorus () && GetSpaceDimension () == 3)
 	CalculateBodiesCenters ();
 }
 

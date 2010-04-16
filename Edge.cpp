@@ -66,7 +66,12 @@ void Edge::StoreDefaultAttributes (AttributesInfo* infos)
     // load the color attribute and nothing else
     infos->Load (colorString);
     infos->AddAttributeInfo (colorString, new ColorAttributeCreator());
-
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS),
+        new IntegerVectorAttributeCreator());
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::DENSITY),
+        new RealAttributeCreator());
 }
 
 short Edge::DomainIncrementCharToNumber (char sign)

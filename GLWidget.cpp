@@ -631,7 +631,9 @@ GLuint GLWidget::displayRawEdges ()
     gluQuadricNormals (m_quadric, GLU_SMOOTH);
     glLineWidth (3.0);
     vector<Edge*>& edges = GetCurrentData ().GetEdges ();
+
     for_each (edges.begin (), edges.end (), DisplayOriginalEdgeTorus(*this));
+
     glLineWidth (1.0);
     qglColor (QColor (Qt::black));
     displayOriginalDomain (GetCurrentData().GetPeriods ());
@@ -670,10 +672,12 @@ GLuint GLWidget::displayEdges ()
 	      DisplayFace<
 	      DisplayEdges<
 	      DisplayEdgeTessellationOrPhysical> > >(*this));
+
     /*qglColor (QColor (Qt::black));
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<DisplayFaceVectors>(*this));
     */
+
     if (! GetCurrentData ().IsTorus ())
 	displayCenterOfBodies ();
 
