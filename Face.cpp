@@ -86,7 +86,7 @@ AttributesInfo* Face::m_infos;
 
 Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
 	   size_t originalIndex, Data* data, bool duplicate) :
-    Element (originalIndex, data, duplicate)
+    ColoredElement (originalIndex, data, duplicate)
 {
     m_edges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_edges.begin(), 
@@ -110,13 +110,13 @@ Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges,
 
 
 Face::Face (Edge* edge, size_t originalIndex) :
-    Element (originalIndex, 0, false)
+    ColoredElement (originalIndex, 0, false)
 {
     m_edges.push_back (new OrientedEdge (edge, false));
 }
 
 Face::Face (const Face& original) :
-    Element (original.GetOriginalIndex (), original.GetData (), true)
+    ColoredElement (original.GetOriginalIndex (), original.GetData (), true)
 {
     BOOST_FOREACH (OrientedEdge* oe, original.m_edges)
 	m_edges.push_back (new OrientedEdge (*oe));
@@ -133,24 +133,10 @@ void Face::StoreDefaultAttributes (AttributesInfo* infos)
 {
     using EvolverData::parser;
     m_infos = infos;
-    const char* colorString = 
-        ParsingDriver::GetKeywordString(parser::token::COLOR);
-    // load the color attribute and nothing else
-    infos->Load (colorString);
-
-    infos->AddAttributeInfo (colorString, new ColorAttributeCreator());
+    ColoredElement::StoreDefaultAttributes (infos);
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL),
         new IntegerAttributeCreator());
-}
-
-Color::Name Face::GetColor () const
-{
-    if (m_attributes != 0)
-	return dynamic_cast<ColorAttribute*>(
-	    (*m_attributes)[COLOR_INDEX].get ())->GetColor ();
-    else
-	return static_cast<Color::Name>((GetOriginalIndex ()+1) % Color::COUNT);
 }
 
 void Face::UpdateEdgesAdjacency ()

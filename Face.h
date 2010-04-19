@@ -7,8 +7,7 @@
 #ifndef __FACE_H__
 #define __FACE_H__
 
-#include "Color.h"
-#include "Element.h"
+#include "ColoredElement.h"
 
 class AttributesInfo;
 class Body;
@@ -19,7 +18,7 @@ class OrientedEdge;
 /**
  * A Face is a oriented list of edges.
  */
-class Face : public Element
+class Face : public ColoredElement
 {
 public:
     typedef vector<OrientedEdge*> OrientedEdges;
@@ -61,10 +60,6 @@ public:
     {
 	return m_edges[i];
     }
-    /**
-     * Returns the face color
-     */
-    Color::Name GetColor () const;
     void AddAdjacentBody (Body* body) 
     {
 	m_adjacentBodies.push_back (body);
@@ -109,12 +104,7 @@ private:
      */
     OrientedEdges m_edges;
     vector<Body*> m_adjacentBodies;
-
 private:
-    /**
-     * Index where the color attribute is stored for a face
-     */
-    const static size_t COLOR_INDEX = 0;
     /**
      * Stores information about all vertex attributes
      */

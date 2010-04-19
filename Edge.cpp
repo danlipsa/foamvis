@@ -30,7 +30,7 @@ AttributesInfo* Edge::m_infos;
 
 Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endDomainIncrement, 
 	    size_t originalIndex, Data* data, bool duplicate):
-    Element(originalIndex, data, duplicate),
+    ColoredElement(originalIndex, data, duplicate),
     m_begin (begin), m_end (end), m_endDomainIncrement (endDomainIncrement), 
     m_physical (false)
 {
@@ -43,12 +43,12 @@ Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endDomainIncrement,
 }
 
 Edge::Edge (Vertex* begin, size_t originalIndex) :
-    Element (originalIndex, 0, false),
+    ColoredElement (originalIndex, 0, false),
     m_begin (begin), m_end (0), m_physical (false)
 {}
 
 Edge::Edge (const Edge& o) : 
-    Element (o.GetOriginalIndex (), o.GetData (), true),
+    ColoredElement (o.GetOriginalIndex (), o.GetData (), true),
     m_begin (o.GetBegin ()), m_end (o.GetEnd ()),
     m_endDomainIncrement (o.GetEndDomainIncrement ()), m_physical (false)
 {}
@@ -58,14 +58,10 @@ void Edge::StoreDefaultAttributes (AttributesInfo* infos)
 {
     using EvolverData::parser;
     m_infos = infos;
+    ColoredElement::StoreDefaultAttributes (infos);
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL),
         new IntegerAttributeCreator());
-    const char* colorString = 
-        ParsingDriver::GetKeywordString(parser::token::COLOR);
-    // load the color attribute and nothing else
-    infos->Load (colorString);
-    infos->AddAttributeInfo (colorString, new ColorAttributeCreator());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS),
         new IntegerVectorAttributeCreator());

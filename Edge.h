@@ -6,14 +6,15 @@
  */
 #ifndef __EDGE_H__
 #define __EDGE_H__
-#include "Element.h"
+
+#include "ColoredElement.h"
 class Vertex;
 class AttributesInfo;
 class Face;
 /**
  * An edge is an object that stores a begin and an end vertex
  */
-class Edge : public Element
+class Edge : public ColoredElement
 {
 public:
 public:

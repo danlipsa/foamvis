@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>619</width>
-    <height>602</height>
+    <height>634</height>
    </rect>
   </property>
   <property name="focusPolicy">
@@ -69,7 +69,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="radioButtonEdges">
+         <widget class="QRadioButton" name="m_radioButtonEdges">
           <property name="text">
            <string>Edges</string>
           </property>
@@ -402,7 +402,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioButtonEdges</sender>
+   <sender>m_radioButtonEdges</sender>
    <signal>toggled(bool)</signal>
    <receiver>m_glWidget</receiver>
    <slot>ViewEdges(bool)</slot>
@@ -594,7 +594,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioButtonEdges</sender>
+   <sender>m_radioButtonEdges</sender>
    <signal>toggled(bool)</signal>
    <receiver>Window</receiver>
    <slot>ViewEdges(bool)</slot>

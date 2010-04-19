@@ -101,7 +101,8 @@ public:
     }
     bool IsMethodOrQuantity (const char* s)
     {
-	return m_methodOrQuantity.find (s) != m_methodOrQuantity.end ();
+	bool result = m_methodOrQuantity.find (s) != m_methodOrQuantity.end ();
+	return result;
     }
     void AddMethodOrQuantity (const char* s)
     {

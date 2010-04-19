@@ -26,6 +26,8 @@ MainWindow::MainWindow(DataFiles& dataFiles) :
     updateStatus ();
     if (! dataFiles.GetData()[0]->IsTorus ())
 	m_periodicModelGroupBox->hide ();
+    if (dataFiles.GetData ()[0]->GetSpaceDimension () == 2)
+	m_radioButtonEdges->toggle ();
 
     // 100 ms
     m_timer->setInterval (100);

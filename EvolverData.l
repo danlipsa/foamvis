@@ -21,6 +21,7 @@ using EvolverData::parser;
 
 %option reentrant noyywrap nounput yylineno header-file="EvolverData_lex.h"
 %option bison-bridge bison-locations
+%option debug
 
 
 ID    [a-zA-Z][a-zA-Z0-9_]*

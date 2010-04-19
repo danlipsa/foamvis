@@ -34,45 +34,6 @@ struct FaceSearchDummy
     Face m_face;
 };
 
-
-/**
- * Prints a 4x4 matrix element. Used in for_each algorithm.
- */
-class printMatrixElement : public unary_function<float, void>
-{
-public:
-    /**
-     * Constructs the object
-     * @param ostr stream where to print the matrix element
-     */
-    printMatrixElement(ostream& ostr) : m_ostr(ostr), m_index (0) {}
-    /**
-     * Prints the matrix element to the output stream
-     * @param f element to be printed.
-     */
-    void operator() (float f)
-    {
-        if (m_index != 0)
-        {
-            if ((m_index % 4) == 0)
-                m_ostr << endl;
-            else
-                m_ostr << ", ";
-        }
-        m_ostr << f;
-        m_index++;
-    }
-private:
-    /**
-     * Output stream where to print the matrix element
-     */
-    ostream& m_ostr;
-    /**
-     * Index of the element currently printed.
-     */
-    int m_index;
-};
-
 /**
  * Move elements in a vector toward the begining of the vector so that we 
  * eliminate holes.
@@ -95,28 +56,39 @@ void compact (vector<E*>& v)
 
 ostream& operator<< (ostream& ostr, Data& d)
 {
-    ostr << "Data:" << endl;
+    ostr << "Data:\n";
+    ostr << "AABox:\n";
     ostr << d.m_AABox << endl;
-    ostr << "vertices" << endl;
+    {
+	ostr << "view matrix:\n";
+	ostream_iterator<float> o (ostr, " ");
+	copy (d.m_viewMatrix.begin (), d.m_viewMatrix.end (), o);
+	ostr << endl;
+    }
+    if (d.IsTorus ())
+    {
+	ostr << "torus periods:\n";
+	ostream_iterator<G3D::Vector3> o (ostr, "\n");
+	copy (d.m_periods.begin (), d.m_periods.end (), o);
+	ostr << endl;
+    }
+
+    ostr << "vertices:\n";
     ostream_iterator<Vertex*> vOutput (ostr, "\n");
     copy (d.m_vertices.begin (), d.m_vertices.end (), vOutput);
     
-    ostr << "edges" << endl;
+    ostr << "edges:\n";
     ostream_iterator<Edge*> eOutput (ostr, "\n");
     copy (d.m_edges.begin (), d.m_edges.end (), eOutput);
 
-    ostr << "faces" << endl;
+    ostr << "faces:";
     ostream_iterator<Face*> fOutput (ostr, "\n");
     copy (d.m_faces.begin (), d.m_faces.end (), fOutput);
 
-    ostr << "bodies" << endl;
+    ostr << "bodies:\n";
     ostream_iterator<Body*> bOutput (ostr, "\n");
     copy (d.m_bodies.begin (), d.m_bodies.end (), bOutput);
-    ostr << "view matrix:" << endl;
-    for_each (d.m_viewMatrix.begin (), 
-              d.m_viewMatrix.end (), 
-              printMatrixElement (ostr));
-    ostr << endl;
+
     Vertex::PrintDomains (ostr, d.m_vertices);
     d.PrintFacesWithIntersection (ostr);
     return ostr;

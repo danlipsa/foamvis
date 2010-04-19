@@ -187,6 +187,40 @@ public:
 };
 
 
+class DisplayEdgeWithColor : public DisplayElement
+{
+public:
+    /**
+     * Constructor
+     * @param widget Where should be the edge displayed
+     */
+    DisplayEdgeWithColor (const GLWidget& widget) : 
+    DisplayElement (widget) {}
+    void operator () (const Edge* edge)
+    {
+	Color::Name color = edge->GetColor (Color::BLACK);
+	glColor4fv (Color::GetValue(color));
+	Vertex* b = edge->GetBegin ();
+	Vertex* e = edge->GetEnd ();
+	glBegin(GL_LINES);
+	glVertex(*b);
+	glVertex (*e);
+	glEnd ();
+    }
+    void operator () (const OrientedEdge& oe)
+    {
+	operator () (&oe);
+    }
+    /**
+     * Functor that displays an edge
+     * @param e the edge to be displayed
+     */
+    void operator() (const OrientedEdge* oe)
+    {
+	operator () (oe->GetEdge ());
+    }
+};
+
 
 /**
  * Functor that displays an edge

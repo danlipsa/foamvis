@@ -13,7 +13,6 @@ ostream& operator<< (ostream& ostr, DataFiles& dataFiles)
 {
     ostr << "DataFiles: " << endl;
     ostr << dataFiles.m_AABox << endl;
-    ostr << "Data:" << endl;
     ostream_iterator<Data*> output (ostr, "\n");
     copy (dataFiles.m_data.begin (), dataFiles.m_data.end (), output);
     return ostr;

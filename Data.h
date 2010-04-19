@@ -32,6 +32,7 @@ public:
     typedef set<Vertex*, VertexLessThan> VertexSet;
     typedef set<Edge*, EdgeLessThan> EdgeSet;
     typedef boost::unordered_set<Face*, FaceHash> FaceSet;
+    typedef boost::array<G3D::Vector3, 3> Periods;
     /**
      * Iterator over the vertices in this Data object
      */
@@ -270,7 +271,7 @@ public:
     {
 	return m_periods[i];
     }
-    const G3D::Vector3* GetPeriods () const 
+    const Periods& GetPeriods () const 
     {
 	return m_periods;
     }
@@ -323,8 +324,8 @@ private:
     /**
      * View matrix for displaying vertices, edges, faces and bodies.
      */
-    boost::array<float,16> m_viewMatrix;
-    G3D::Vector3 m_periods[3];
+    boost::array<float, 16> m_viewMatrix;
+    Periods m_periods;
     /**
      * Vector of maps between the name of an attribute and information about it.
      * The indexes in the vector are for vertices, edges, faces, ...

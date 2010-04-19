@@ -31,9 +31,10 @@ public:
      * @param data Where to store the data parsed from the DMP files
      * @param dir directory where all DMP files are
      */
-    parseFile (
-	vector<Data*>& data, QString dir) : 
-        m_data (data), m_dir (qPrintable(dir))
+    parseFile (vector<Data*>& data, QString dir,
+	       bool debugParsing = false, bool debugScanning = false) : 
+        m_data (data), m_dir (qPrintable(dir)), m_debugParsing (debugParsing),
+	m_debugScanning (debugScanning)
     {
     }
     
@@ -49,8 +50,8 @@ public:
         Data* data = new Data ();
         m_data.push_back (data);
         ParsingData& parsingData = data->GetParsingData ();
-        parsingData.SetDebugParsing (false);
-        parsingData.SetDebugScanning (false);
+        parsingData.SetDebugParsing (m_debugParsing);
+        parsingData.SetDebugScanning (m_debugScanning);
         string fullPath = m_dir + '/' + file;
         result = parsingData.Parse (fullPath, *data);
         data->ReleaseParsingData ();
@@ -72,9 +73,93 @@ private:
      * Directory that stores the DMP files.
      */
     string m_dir;
+    bool m_debugParsing;
+    bool m_debugScanning;
 };
 
 
+void readOptions (
+    int argc, char *argv[],
+    bool* debugParsing, bool* debugScanning, bool* textOutput)
+{
+    *textOutput = false;
+    *debugParsing = false;
+    *debugScanning =false;
+    int c;
+
+    opterr = 0;
+
+    while ((c = getopt (argc, argv, "pst")) != -1)
+	switch (c)
+	{
+	case 'p':
+	    *debugParsing = true;
+	    break;
+	case 's':
+	    *debugScanning = true;
+	    break;
+	case 't':
+	    *textOutput = true;
+	    break;
+	case '?':
+	    if (isprint (optopt))
+		cdbg << "Unknown option `-" << optopt << "'." << endl;
+	    else
+		cdbg << "Unknown option character `x" 
+		     << hex << optopt << "'."  << endl;
+	    exit (13);
+	default:
+	    exit (13);
+	}
+}
+
+void printHelp ()
+{
+    cdbg << "foam [OPTIONS] <dir> <filter>\n";
+    cdbg << "foam [OPTIONS] <file>\n";
+    cdbg << "where: <dir> is the folder where the data files reside\n"
+	 << "       <filter> is filter for the name of "
+	"the data files\n"
+	 << "       <file> is the name of a data file\n"
+	 << "OPTIONS:\n"
+	 << "       -p : debug parsing\n"
+	 << "       -s : debug scanning\n"
+	 << "       -t : outputs a text representation of the data\n";
+}
+
+void parseFiles (int argc, char *argv[],
+		 DataFiles* dataFiles,
+		 bool debugParsing, bool debugScanning)
+{
+    switch (argc - optind)
+    {
+    case 1:
+    {
+	QFileInfo fileInfo (argv[optind]);
+	QDir dir = fileInfo.absoluteDir ();
+	if (! parseFile (dataFiles->GetData (), dir.absolutePath (),
+			 debugParsing, debugScanning) (
+			     fileInfo.fileName ()))
+	    exit (13);
+	break;
+    }
+    case 2:
+    {
+	QDir dir (argv[optind], argv[optind + 1]);
+	QStringList files = dir.entryList ();
+	if (count_if (
+		files.begin (), files.end (), 
+		parseFile (dataFiles->GetData (), dir.absolutePath (), 
+			   debugParsing, debugScanning))
+	    != files.size ())
+	    exit (13);
+	break;
+    }
+    default:
+	printHelp ();
+	exit (13);
+    }
+}
 
 /**
  * Parses the data file, reads in vertices, edges, etc and displays them.
@@ -84,48 +169,24 @@ int main(int argc, char *argv[])
 {
     try
     {
+	bool debugParsing, debugScanning, textOutput;
 	DataFiles dataFiles;
-	switch (argc)
-	{
-	case 2:
-	{
-	    QFileInfo fileInfo (argv[1]);
-	    QDir dir = fileInfo.absoluteDir ();
-	    if (! parseFile (dataFiles.GetData (), dir.absolutePath ()) (
-		    fileInfo.fileName ()))
-		return 13;
-	    break;
-	}
-	case 3:
-	{
-	    QDir dir (argv[1], argv[2]);
-	    QStringList files = dir.entryList ();
-	    if (count_if (files.begin (), files.end (), 
-			  parseFile (dataFiles.GetData (), 
-				     dir.absolutePath ())) != files.size ())
-		return 13;
-	    break;
-	}
-	default:
-            cdbg << "foam <dir> <filter>\n";
-	    cdbg << "foam <file>\n";
-	    cdbg << "where: <dir> is the folder where the data files reside\n"
-		 << "       <filter> is filter for the name of "
-		"the data files\n"
-		 << "       <file> is the name of a data file\n"
-		 << "       foam reads in Surface Evolver dmp files.\n";
-            return 13;
-        }
-
+	readOptions (argc, argv,
+		     &debugParsing, &debugScanning, &textOutput);
+	parseFiles (argc, argv, &dataFiles,
+		    debugParsing, debugScanning);
         if (dataFiles.GetData ().size () != 0)
         {
 	    dataFiles.CalculateAABox ();
-	    //cdbg << dataFiles;
-	    //return 0;
-            QApplication app(argc, argv);
-            MainWindow window (dataFiles);
-            window.show();
-            return app.exec();
+	    if (textOutput)
+		cdbg << dataFiles;
+	    else
+	    {
+		QApplication app(argc, argv);
+		MainWindow window (dataFiles);
+		window.show();
+		return app.exec();
+	    }
             return 0;
         }
 	else

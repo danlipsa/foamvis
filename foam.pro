@@ -1,4 +1,5 @@
 HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h Color.h \
+	ColoredElement.h \
 	Data.h DataFiles.h Debug.h DebugStream.h DefineAttributeType.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h \
@@ -11,7 +12,7 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h Color.h \
 	SemanticType.h stable.h SystemDifferences.h \
 	Comparisons.h Vertex.h
 SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
-	Body.cpp Color.cpp Data.cpp DataFiles.cpp \
+	Body.cpp Color.cpp ColoredElement.cpp Data.cpp DataFiles.cpp \
 	Debug.cpp DebugStream.cpp Edge.cpp \
 	Element.cpp ElementUtils.cpp ExpressionTree.cpp Face.cpp \
 	GLWidget.cpp Hashes.cpp main.cpp MainWindow.cpp  \

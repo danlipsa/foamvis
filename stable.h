@@ -17,6 +17,7 @@
 #include <cstring>
 #include <ctime>
 #include <cerrno>
+#include <unistd.h>
 
 // standard C++ headers
 #include <limits>

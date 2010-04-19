@@ -151,6 +151,7 @@ class AttributeCreator;
 %token METHOD_INSTANCE "METHOD_INSTANCE"
 %token METHOD "METHOD"
 %token FIXED "FIXED"
+%token NO_REFINE "NO_REFINE"
 %token SCALAR_INTEGRAND "SCALAR_INTEGRAND"
 %token VIEW_TRANSFORM_GENERATORS "VIEW_TRANSFORM_GENERATORS"
 %token SWAP_COLORS "SWAP_COLORS"
@@ -196,7 +197,7 @@ class AttributeCreator;
 %left '-' '+'
 %left '*' '/'
 %right '^'      /* exponentiation */
-%right '!' NEGATION  /* negation--unary minus */
+%right '!' UMINUS  /* negation--unary minus */
 
 %type <m_real> const_expr
 %type <m_real> vertex_list_rest
@@ -370,7 +371,7 @@ quantity_method_list
 ;
 
 quantity_method
-: METHOD IDENTIFIER
+: METHOD METHOD_OR_QUANTITY_ID
 ;
 
 method_instance: 
@@ -625,7 +626,7 @@ expr
 }
 
 /* Arithmetic operations */
-| '-' expr  %prec NEGATION
+| '-' expr  %prec UMINUS
 {
     $$ = new ExpressionTreeUnaryFunction ($1, $2, data.GetParsingData ());
 }
@@ -895,6 +896,10 @@ predefined_edge_attribute
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
 | FIXED
+{
+    $$ = 0;
+}
+| NO_REFINE
 {
     $$ = 0;
 }

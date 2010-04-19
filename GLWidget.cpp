@@ -351,7 +351,7 @@ void GLWidget::project ()
     glLoadIdentity();
     glOrtho(m_viewingVolume.low ().x, m_viewingVolume.high ().x,
 	    m_viewingVolume.low ().y, m_viewingVolume.high ().y, 
-	    -m_viewingVolume.low ().z, -m_viewingVolume.high ().z);
+	    m_viewingVolume.low ().z, m_viewingVolume.high ().z);
 }
 
 void GLWidget::initializeGL()
@@ -595,7 +595,7 @@ void displayOriginalDomainFaces (G3D::Vector3 first,
 }
 
 
-void displayOriginalDomain (const G3D::Vector3* periods)
+void displayOriginalDomain (const Data::Periods& periods)
 {
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     glLineWidth (1.0);
@@ -621,27 +621,6 @@ GLuint GLWidget::displayRawVertices ()
     return list;
 }
 
-GLuint GLWidget::displayRawEdges ()
-{
-    GLuint list = glGenLists(1);
-    glNewList(list, GL_COMPILE);
-    glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-    gluQuadricDrawStyle (m_quadric, GLU_FILL);
-    gluQuadricNormals (m_quadric, GLU_SMOOTH);
-    glLineWidth (3.0);
-    vector<Edge*>& edges = GetCurrentData ().GetEdges ();
-
-    for_each (edges.begin (), edges.end (), DisplayOriginalEdgeTorus(*this));
-
-    glLineWidth (1.0);
-    qglColor (QColor (Qt::black));
-    displayOriginalDomain (GetCurrentData().GetPeriods ());
-    glPopAttrib ();
-    glEndList();
-    return list;
-}
-
 GLuint GLWidget::displayRawFaces ()
 {
     GLuint list = glGenLists(1);
@@ -660,12 +639,36 @@ GLuint GLWidget::displayRawFaces ()
     return list;
 }
 
+GLuint GLWidget::displayRawEdges ()
+{
+    GLuint list = glGenLists(1);
+    glNewList(list, GL_COMPILE);
+    glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+    gluQuadricDrawStyle (m_quadric, GLU_FILL);
+    gluQuadricNormals (m_quadric, GLU_SMOOTH);
+    glLineWidth (3.0);
 
+    vector<Edge*>& edges = GetCurrentData ().GetEdges ();
+    for_each (edges.begin (), edges.end (), DisplayOriginalEdgeTorus(*this));
+
+    glLineWidth (1.0);
+    qglColor (QColor (Qt::black));
+    displayOriginalDomain (GetCurrentData().GetPeriods ());
+    glPopAttrib ();
+    glEndList();
+    return list;
+}
 
 GLuint GLWidget::displayEdges ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
+ 
+    vector<Edge*>& edges = GetCurrentData ().GetEdges ();
+    for_each (edges.begin (), edges.end (), DisplayEdgeWithColor (*this));
+
+    /*
     vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
@@ -673,11 +676,7 @@ GLuint GLWidget::displayEdges ()
 	      DisplayEdges<
 	      DisplayEdgeTessellationOrPhysical> > >(*this));
 
-    /*qglColor (QColor (Qt::black));
-    for_each (bodies.begin (), bodies.end (),
-	      DisplayBody<DisplayFaceVectors>(*this));
     */
-
     if (! GetCurrentData ().IsTorus ())
 	displayCenterOfBodies ();
 
