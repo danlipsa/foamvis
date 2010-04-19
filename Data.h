@@ -329,7 +329,7 @@ private:
      * Vector of maps between the name of an attribute and information about it.
      * The indexes in the vector are for vertices, edges, faces, ...
      */
-    vector<AttributesInfo> m_attributesInfo;
+    boost::array<AttributesInfo, DefineAttribute::COUNT> m_attributesInfo;
     /**
      * Data used in parsing the DMP file.
      */

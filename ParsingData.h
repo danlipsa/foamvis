@@ -44,6 +44,8 @@ public:
      * How are identifiers stored
      */
     typedef map<const char*, string*, LessThanNoCase> Identifiers;
+
+public:
     /**
      * Constructs a ParsingData object
      */
@@ -84,17 +86,35 @@ public:
      */
     BinaryFunction GetBinaryFunction (const char* name);
     /**
-     * Pretty prints the ParsingData object
-     * @param ostr output stream where to print the object
-     * @param pd object to be printed
-     */    
-    friend ostream& operator<< (ostream& ostr, ParsingData& pd);
-    /**
      * Used for  profiling. Prints to  the debug stream  a description
      * and the time since the last checkpoint.  
      * @param description what should be printed together with the time
      */
     void PrintTimeCheckpoint (string& description);
+    bool IsAttribute (const char* s)
+    {
+	return m_attributes.find (s) != m_attributes.end ();
+    }
+    void AddAttribute (const char* s)
+    {
+	m_attributes.insert (s);
+    }
+    bool IsMethodOrQuantity (const char* s)
+    {
+	return m_methodOrQuantity.find (s) != m_methodOrQuantity.end ();
+    }
+    void AddMethodOrQuantity (const char* s)
+    {
+	m_methodOrQuantity.insert (s);
+    }
+
+public:
+    /**
+     * Pretty prints the ParsingData object
+     * @param ostr output stream where to print the object
+     * @param pd object to be printed
+     */    
+    friend ostream& operator<< (ostream& ostr, ParsingData& pd);
 
 private:
     struct BinaryFunctionInformation
@@ -127,6 +147,8 @@ private:
      * Identifiers
      */
     Identifiers m_identifiers;
+    set<const char*, LessThanNoCase> m_attributes;
+    set<const char*, LessThanNoCase> m_methodOrQuantity;
     /**
      * Used for profiling. Stores the previous time checkpoint
      */

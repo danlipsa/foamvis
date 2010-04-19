@@ -84,7 +84,7 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
 	}
 
 {ID} { /*identifiers*/
-    int id = yyextra->GetKeywordId (yytext);
+    int id = ParsingDriver::GetKeywordId (yytext);
     yylloc->begin.line = yylineno;
     if (id)
     {
@@ -99,8 +99,15 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
     }
     else
     {
-	yylval->m_id = yyextra->CreateIdentifier (yytext);
-	return parser::token::IDENTIFIER;
+	string* s = yyextra->CreateIdentifier (yytext);
+	yylval->m_id = s;
+	const char* id = s->c_str ();
+	if (yyextra->IsAttribute (id))
+	    return parser::token::ATTRIBUTE_ID;
+	else if (yyextra->IsMethodOrQuantity (id))
+	    return parser::token::METHOD_OR_QUANTITY_ID;
+	else
+	    return parser::token::IDENTIFIER;
     }
 }
 

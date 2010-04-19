@@ -10,7 +10,7 @@
 %defines
 %token-table 
 %error-verbose
-%expect 5 // state 55, 64, 69, 201, 205
+%expect 4 // state 55, 64, 69, 201
 %locations
 %{
 class Data;
@@ -167,6 +167,8 @@ class AttributeCreator;
 %token <m_int> INTEGER_VALUE
 %token <m_real> REAL_VALUE
 %token <m_id> IDENTIFIER
+%token <m_id> ATTRIBUTE_ID
+%token <m_id> METHOD_OR_QUANTITY_ID
 %token <m_id> '='
 %token <m_id> '?'
  /* arithmetic */
@@ -219,6 +221,8 @@ class AttributeCreator;
 %type <m_vector3int16> signs_torus_model
 %type <m_short> sign_torus_model
 %type <m_short> opt_sign_torus_model
+%type <m_int> quantity_rest
+%type <m_int> method_instance_rest
 
 %{
 #include "Data.h"
@@ -319,6 +323,7 @@ view_transform_generators_matrices
 | view_transform_generators_matrix nlplus
 ;
 
+/* 2D or 3D */
 view_transform_generators_matrix
 : const_expr const_expr opt_const_expr nlplus
   const_expr const_expr opt_const_expr nlplus
@@ -344,12 +349,20 @@ area_method_name
 
 quantity
 : QUANTITY IDENTIFIER quantity_rest
-;
+{
+    if ($3 != 0)
+	data.GetParsingData ().AddMethodOrQuantity ($2->c_str ());
+}
 
 quantity_rest
 : ';' nlplus 
+{
+    $$ = 0;
+}
 | FIXED '=' REAL_VALUE LAGRANGE_MULTIPLIER number quantity_method_list nlplus
-;
+{
+    $$ = 1;
+}
 
 quantity_method_list
 : quantity_method_list quantity_method 
@@ -362,12 +375,20 @@ quantity_method
 
 method_instance: 
 METHOD_INSTANCE IDENTIFIER method_instance_rest
-;
+{
+    if ($3 != 0)
+	data.GetParsingData ().AddMethodOrQuantity ($2->c_str ());
+}
 
 method_instance_rest
 : ';' nlplus
+{
+    $$ = 0;
+}
 | METHOD IDENTIFIER nlplus method_instance_parameters
-;
+{
+    $$ = 1;
+}
 
 method_instance_parameters
 : /* empty */
@@ -475,6 +496,7 @@ space_dimension
     data.SetSpaceDimension ($2);
 }
 
+/* 2D or 3D */
 view_matrix
 : VIEW_MATRIX nlplus
   const_expr const_expr const_expr const_expr nlplus
@@ -542,6 +564,7 @@ constraint_type
 | FUNCTION
 ;
 
+/* 2D or 3D */
 constraint_energy
 : /* empty */
 | ENERGY nl
@@ -554,6 +577,7 @@ constraint_energy_rest
   E3 ':' non_const_expr nlplus
 ;
 
+/* 2D or 3D */
 constraint_content
 : /* empty */
 | CONTENT nl
@@ -691,6 +715,7 @@ torus_type
 | TORUS_FILLED
 ;
 
+/* 2D or 3D */
 torus_periods
 : PERIODS nl
   const_expr const_expr nl
@@ -716,6 +741,7 @@ vertices
 : VERTICES nlplus vertex_list
 ;
 
+/* 2D or 3D */
 vertex_list
 : /* empty */
 | vertex_list INTEGER_VALUE const_expr const_expr vertex_list_rest 
@@ -763,7 +789,7 @@ vertex_attribute_list
 }
 
 method_or_quantity
-: IDENTIFIER method_or_quantity_sign
+: METHOD_OR_QUANTITY_ID method_or_quantity_sign
 {
     $$ = 0;
 }
@@ -789,21 +815,21 @@ predefined_vertex_attribute
 }
 
 user_attribute
-: IDENTIFIER INTEGER_VALUE
+: ATTRIBUTE_ID INTEGER_VALUE
 {
     $$ = new NameSemanticValue ($1->c_str(), $2);
 }
-| IDENTIFIER REAL_VALUE
+| ATTRIBUTE_ID REAL_VALUE
 {
     $$ = 
 	new NameSemanticValue ($1->c_str(), $2);
 }
-| IDENTIFIER '{' comma_integer_list '}'
+| ATTRIBUTE_ID '{' comma_integer_list '}'
 {
     $$ = 
 	new NameSemanticValue ($1->c_str(), $3);
 }
-| IDENTIFIER '{' comma_real_list '}'
+| ATTRIBUTE_ID '{' comma_real_list '}'
 {
     $$ = 
 	new NameSemanticValue ($1->c_str(), $3);

@@ -123,7 +123,6 @@ ostream& operator<< (ostream& ostr, Data& d)
 }
 
 Data::Data () : 
-    m_attributesInfo(DefineAttribute::COUNT),
     m_parsingData (new ParsingData ()),
     m_spaceDimension (3)
 {
@@ -466,4 +465,5 @@ void Data::AddAttributeInfo (
     DefineAttribute::Type type, const char* name, AttributeCreator* creator)
 {
     m_attributesInfo[type].AddAttributeInfo (name, creator);
+    m_parsingData->AddAttribute (name);
 }
