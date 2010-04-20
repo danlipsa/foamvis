@@ -387,6 +387,10 @@ private:
     QColor m_tessellationObjectsColor;
     QColor m_centerPathColor;
     G3D::AABox m_viewingVolume;
+    /**
+     * Rotations and translations
+     */
+    G3D::CoordinateFrame m_transform;
     G3D::Rect2D m_viewport;
     DomainIncrementColor m_domainIncrementColor;
     GLUquadricObj* m_quadric;    

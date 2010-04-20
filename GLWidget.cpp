@@ -92,15 +92,15 @@ void printOpenGLInfo ()
     }};
     glGetBooleanv (GL_STEREO, &stereoSupport);
     glGetBooleanv (GL_DOUBLEBUFFER, &doubleBufferSupport);
-    for_each (info.begin (), info.end (), mem_fun_ref(&OpenGLParam::get));
     cdbg << "OpenGL" << endl
          << "Vendor: " << glGetString (GL_VENDOR) << endl
          << "Renderer: " << glGetString (GL_RENDERER) << endl
          << "Version: " << glGetString (GL_VERSION) << endl
-         << "Extensions: " << glGetString (GL_EXTENSIONS) << endl
+	//<< "Extensions: " << glGetString (GL_EXTENSIONS) << endl
          << "Stereo support: " << static_cast<bool>(stereoSupport) << endl
          << "Double buffer support: " 
-         << static_cast<bool>(doubleBufferSupport) << endl;
+	 << static_cast<bool>(doubleBufferSupport) << endl;
+    for_each (info.begin (), info.end (), mem_fun_ref(&OpenGLParam::get));
     for_each (info.begin (), info.end (), mem_fun_ref(&OpenGLParam::print));
 }
 
@@ -299,7 +299,7 @@ QSize GLWidget::sizeHint()
 void GLWidget::enableLighting ()
 {
     const G3D::Vector3& max = m_dataFiles->GetAABox ().high ();
-    GLfloat lightPosition[] = { max.x, max.y, max.z, 0.0 };
+    GLfloat lightPosition[] = { 2*max.x, 2*max.y, 2*max.z, 0.0 };
     GLfloat lightAmbient[] = {1.0, 1.0, 1.0, 1.0};
 
     glMatrixMode (GL_MODELVIEW);
@@ -388,7 +388,9 @@ void GLWidget::initializeGL()
 void GLWidget::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    qglColor (QColor(Qt::black));
+    glMatrixMode (GL_MODELVIEW);
+    glLoadMatrix (m_transform);
+
     glCallList (m_object);
     detectOpenGLError ();
     if (m_saveMovie)
@@ -429,18 +431,15 @@ void GLWidget::resizeGL(int width, int height)
 		m_viewport.width (), m_viewport.height ());
 }
 
-void GLWidget::setRotation (int axis, float angle)
+void GLWidget::setRotation (int axis, float angleRadians)
 {
-    using G3D::Matrix4;
-    float axes[3][3] = {{1,0,0}, {0,1,0}, {0,0,1}};
-    makeCurrent ();
-    glMatrixMode (GL_MODELVIEW);
-    Matrix4 modelView;
-    glGetMatrix (GL_MODELVIEW_MATRIX, modelView);
-    const Matrix4& columnOrderMatrix = modelView.transpose ();
-    glLoadIdentity ();
-    glRotatef (angle, axes[axis][0], axes[axis][1], axes[axis][2]);
-    glMultMatrixf (columnOrderMatrix);
+    using G3D::Matrix3;
+    using G3D::Vector3;
+    Vector3 axes[3] = {
+	Vector3::unitX (), Vector3::unitY (), Vector3::unitZ ()
+    };
+    m_transform.rotation = 
+	Matrix3::fromAxisAngle (axes[axis], angleRadians) * m_transform.rotation;
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
@@ -486,10 +485,10 @@ void GLWidget::rotate (const QPoint& position)
 
     // scale this with the size of the window
     int side = std::min (m_viewport.width (), m_viewport.height ());
-    float dxDegrees = static_cast<float>(dx) * 90 / side;
-    float dyDegrees = static_cast<float>(dy) * 90 / side;
-    setRotation (0, dyDegrees);
-    setRotation (1, dxDegrees);
+    float dxRadians = static_cast<float>(dx) * (M_PI / 2) / side;
+    float dyRadians = static_cast<float>(dy) * (M_PI / 2) / side;
+    setRotation (0, dyRadians);
+    setRotation (1, dxRadians);
 }
 
 void GLWidget::translateViewport (const QPoint& position)
