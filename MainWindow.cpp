@@ -25,7 +25,9 @@ MainWindow::MainWindow(DataFiles& dataFiles) :
     m_glWidget->SetDataFiles (&dataFiles);
     updateStatus ();
     if (! dataFiles.GetData()[0]->IsTorus ())
-	m_periodicModelGroupBox->hide ();
+    {
+	//m_periodicModelGroupBox->hide ();
+    }
     if (dataFiles.GetData ()[0]->GetSpaceDimension () == 2)
 	m_radioButtonEdges->toggle ();
 

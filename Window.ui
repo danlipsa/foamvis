@@ -7,8 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>619</width>
-    <height>634</height>
+    <height>670</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="focusPolicy">
    <enum>Qt::StrongFocus</enum>
@@ -26,189 +32,314 @@
    <property name="horizontalSpacing">
     <number>6</number>
    </property>
-   <item row="0" column="2" colspan="2">
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QComboBox" name="m_interactionModeComboBox">
-       <item>
-        <property name="text">
-         <string>Rotate (r)</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Scale (s)</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Scale (s) Viewport</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Translate (t) Viewport</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="displayGroupBox">
-       <property name="title">
-        <string>Display</string>
+   <item row="0" column="0">
+    <widget class="GLWidget" name="m_glWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="display">
+      <attribute name="title">
+       <string>Display</string>
+      </attribute>
+      <widget class="QWidget" name="layoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>168</width>
+         <height>533</height>
+        </rect>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_5">
+       <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QRadioButton" name="radioButtonVertices">
-          <property name="text">
-           <string>Vertices</string>
-          </property>
-          <attribute name="buttonGroup">
-           <string>buttonGroup</string>
-          </attribute>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="m_radioButtonEdges">
-          <property name="text">
-           <string>Edges</string>
-          </property>
-          <attribute name="buttonGroup">
-           <string>buttonGroup</string>
-          </attribute>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="radioButtonFaces">
-          <property name="text">
-           <string>Faces</string>
-          </property>
-          <attribute name="buttonGroup">
-           <string>buttonGroup</string>
-          </attribute>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="radioButtonBodies">
-          <property name="text">
-           <string>Bodies</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-          <attribute name="buttonGroup">
-           <string>buttonGroup</string>
-          </attribute>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="radioButtoncenterPaths">
-          <property name="text">
-           <string>Center Paths</string>
-          </property>
-          <attribute name="buttonGroup">
-           <string>buttonGroup</string>
-          </attribute>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacerAboveMovie">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Fixed</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>10</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="checkBoxSaveMovie">
-          <property name="text">
-           <string>Save movie</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacerBelowMovie">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="m_periodicModelGroupBox">
-       <property name="title">
-        <string>Torus Model Raw Display</string>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_4">
-        <item>
-         <widget class="QRadioButton" name="periodicVerticesRadioButton">
-          <property name="text">
-           <string>Vertices</string>
-          </property>
-          <attribute name="buttonGroup">
-           <string>buttonGroup</string>
-          </attribute>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="periodicEdgesRadioButton">
-          <property name="text">
-           <string>Edges</string>
-          </property>
-          <attribute name="buttonGroup">
-           <string>buttonGroup</string>
-          </attribute>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="periodicFacesRadioButton">
-          <property name="text">
-           <string>Faces</string>
-          </property>
-          <attribute name="buttonGroup">
-           <string>buttonGroup</string>
-          </attribute>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="m_widthGroupBox">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="title">
-        <string>Width</string>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
+         <widget class="QComboBox" name="m_interactionModeComboBox">
           <item>
-           <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Rotate (r)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Scale (s)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Scale (s) Viewport</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Translate (t) Viewport</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="displayGroupBox">
+          <property name="title">
+           <string>Display</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item>
+            <widget class="QRadioButton" name="radioButtonVertices">
+             <property name="text">
+              <string>Vertices</string>
+             </property>
+             <attribute name="buttonGroup">
+              <string>buttonGroup</string>
+             </attribute>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="m_radioButtonEdges">
+             <property name="text">
+              <string>Edges</string>
+             </property>
+             <attribute name="buttonGroup">
+              <string>buttonGroup</string>
+             </attribute>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radioButtonFaces">
+             <property name="text">
+              <string>Faces</string>
+             </property>
+             <attribute name="buttonGroup">
+              <string>buttonGroup</string>
+             </attribute>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radioButtonBodies">
+             <property name="text">
+              <string>Bodies</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+             <attribute name="buttonGroup">
+              <string>buttonGroup</string>
+             </attribute>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radioButtoncenterPaths">
+             <property name="text">
+              <string>Composite</string>
+             </property>
+             <attribute name="buttonGroup">
+              <string>buttonGroup</string>
+             </attribute>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacerAboveMovie">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>10</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBoxSaveMovie">
+             <property name="text">
+              <string>Save movie</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacerBelowMovie">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="m_widthGroupBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="title">
+           <string>Width</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+             <item>
+              <widget class="QLabel" name="label_2">
+               <property name="text">
+                <string>Tesselation Objects</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSlider" name="tessellationObjectsWidthSlider">
+               <property name="maximum">
+                <number>4</number>
+               </property>
+               <property name="value">
+                <number>1</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="tickPosition">
+                <enum>QSlider::TicksAbove</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>13</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLabel" name="label">
+               <property name="text">
+                <string>Physical Objects</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSlider" name="physicalObjectsWidthSlider">
+               <property name="maximum">
+                <number>4</number>
+               </property>
+               <property name="value">
+                <number>1</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="tickPosition">
+                <enum>QSlider::TicksAbove</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="vertices">
+      <attribute name="title">
+       <string>Vertices</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_9">
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Display</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_16">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <item>
+             <widget class="QRadioButton" name="radioButton">
+              <property name="text">
+               <string>Normal</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="torusVertices">
+              <property name="text">
+               <string>Torus Model</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="radioButton_3">
+              <property name="text">
+               <string>Tesselation and Physical</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="m_widthGroupBox_2">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="title">
+          <string>Width</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <widget class="QLabel" name="label_3">
             <property name="text">
-             <string>Tesselation Objects</string>
+             <string>Tesselation</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QSlider" name="tessellationObjectsWidthSlider">
+           <widget class="QSlider" name="tessellationObjectsWidthSlider_2">
             <property name="maximum">
              <number>4</number>
             </property>
@@ -224,30 +355,14 @@
            </widget>
           </item>
           <item>
-           <spacer name="verticalSpacer_3">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>13</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="label_4">
             <property name="text">
-             <string>Physical Objects</string>
+             <string>Physical</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QSlider" name="physicalObjectsWidthSlider">
+           <widget class="QSlider" name="physicalObjectsWidthSlider_2">
             <property name="maximum">
              <number>4</number>
             </property>
@@ -263,13 +378,234 @@
            </widget>
           </item>
          </layout>
-        </item>
-       </layout>
-      </widget>
-     </item>
-    </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="edges">
+      <attribute name="title">
+       <string>Edges</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_8">
+       <item>
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Display</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_17">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_7">
+            <item>
+             <widget class="QRadioButton" name="radioButton_4">
+              <property name="text">
+               <string>Normal</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="torusEdges">
+              <property name="text">
+               <string>Torus Model</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="radioButton_6">
+              <property name="text">
+               <string>Tesselation and Physical</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="m_widthGroupBox_3">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="title">
+          <string>Width</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_15">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_14">
+            <item>
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Tesselation</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSlider" name="tessellationObjectsWidthSlider_3">
+              <property name="maximum">
+               <number>4</number>
+              </property>
+              <property name="value">
+               <number>1</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="tickPosition">
+               <enum>QSlider::TicksAbove</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>Physical</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSlider" name="physicalObjectsWidthSlider_3">
+              <property name="maximum">
+               <number>4</number>
+              </property>
+              <property name="value">
+               <number>1</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="tickPosition">
+               <enum>QSlider::TicksAbove</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="faces">
+      <attribute name="title">
+       <string>Faces</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_13">
+       <item>
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Display</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_18">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_12">
+            <item>
+             <widget class="QRadioButton" name="radioButton_8">
+              <property name="text">
+               <string>Normal</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="torusFaces">
+              <property name="text">
+               <string>Torus Model</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Composite</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_11">
+       <item>
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Display</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_19">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_10">
+            <item>
+             <widget class="QRadioButton" name="radioButton_7">
+              <property name="text">
+               <string>Center Path</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </item>
-   <item row="1" column="0" colspan="4">
+   <item row="1" column="0" colspan="3">
     <widget class="QGroupBox" name="movieGroupBox">
      <property name="title">
       <string>Time Steps</string>
@@ -324,20 +660,10 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="0" colspan="4">
+   <item row="2" column="0" colspan="3">
     <widget class="QLabel" name="m_status">
      <property name="text">
       <string/>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="GLWidget" name="m_glWidget" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
      </property>
     </widget>
    </item>
@@ -370,86 +696,6 @@
  <resources/>
  <connections>
   <connection>
-   <sender>checkBoxSaveMovie</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>m_glWidget</receiver>
-   <slot>SaveMovie(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>597</x>
-     <y>214</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>420</x>
-     <y>319</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonVertices</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>m_glWidget</receiver>
-   <slot>ViewVertices(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>519</x>
-     <y>83</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>368</x>
-     <y>88</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_radioButtonEdges</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>m_glWidget</receiver>
-   <slot>ViewEdges(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>519</x>
-     <y>102</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>388</x>
-     <y>148</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonFaces</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>m_glWidget</receiver>
-   <slot>ViewFaces(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>519</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>405</x>
-     <y>215</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonBodies</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>m_glWidget</receiver>
-   <slot>ViewBodies(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>519</x>
-     <y>139</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>383</x>
-     <y>275</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>m_toolButtonPlay</sender>
    <signal>clicked()</signal>
    <receiver>Window</receiver>
@@ -457,7 +703,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>77</x>
-     <y>564</y>
+     <y>632</y>
     </hint>
     <hint type="destinationlabel">
      <x>66</x>
@@ -473,7 +719,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>48</x>
-     <y>564</y>
+     <y>632</y>
     </hint>
     <hint type="destinationlabel">
      <x>38</x>
@@ -489,43 +735,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>117</x>
-     <y>564</y>
+     <y>632</y>
     </hint>
     <hint type="destinationlabel">
      <x>53</x>
      <y>558</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>tessellationObjectsWidthSlider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>m_glWidget</receiver>
-   <slot>TessellationObjectsWidthChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>596</x>
-     <y>429</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>382</x>
-     <y>373</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>physicalObjectsWidthSlider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>m_glWidget</receiver>
-   <slot>PhysicalObjectsWidthChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>596</x>
-     <y>496</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>389</x>
-     <y>452</y>
     </hint>
    </hints>
   </connection>
@@ -536,8 +750,8 @@
    <slot>DataSliderValueChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>368</x>
-     <y>563</y>
+     <x>492</x>
+     <y>631</y>
     </hint>
     <hint type="destinationlabel">
      <x>232</x>
@@ -552,12 +766,92 @@
    <slot>DataSliderValueChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>314</x>
-     <y>563</y>
+     <x>438</x>
+     <y>631</y>
     </hint>
     <hint type="destinationlabel">
      <x>180</x>
      <y>555</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxSaveMovie</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>SaveMovie(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>464</x>
+     <y>270</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>300</x>
+     <y>328</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonVertices</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>ViewVertices(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>464</x>
+     <y>114</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>300</x>
+     <y>97</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_radioButtonEdges</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>ViewEdges(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>464</x>
+     <y>142</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>300</x>
+     <y>157</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonFaces</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>ViewFaces(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>464</x>
+     <y>170</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>300</x>
+     <y>224</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonBodies</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>ViewBodies(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>464</x>
+     <y>198</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>300</x>
+     <y>284</y>
     </hint>
    </hints>
   </connection>
@@ -568,12 +862,44 @@
    <slot>ViewBodies(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>588</x>
-     <y>141</y>
+     <x>464</x>
+     <y>198</y>
     </hint>
     <hint type="destinationlabel">
      <x>618</x>
      <y>125</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>physicalObjectsWidthSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>PhysicalObjectsWidthChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>463</x>
+     <y>552</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>300</x>
+     <y>461</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tessellationObjectsWidthSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>TessellationObjectsWidthChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>463</x>
+     <y>485</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>300</x>
+     <y>382</y>
     </hint>
    </hints>
   </connection>
@@ -584,8 +910,8 @@
    <slot>ViewFaces(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>583</x>
-     <y>122</y>
+     <x>464</x>
+     <y>170</y>
     </hint>
     <hint type="destinationlabel">
      <x>618</x>
@@ -600,8 +926,8 @@
    <slot>ViewEdges(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>570</x>
-     <y>101</y>
+     <x>464</x>
+     <y>142</y>
     </hint>
     <hint type="destinationlabel">
      <x>618</x>
@@ -616,8 +942,8 @@
    <slot>ViewVertices(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>80</y>
+     <x>464</x>
+     <y>114</y>
     </hint>
     <hint type="destinationlabel">
      <x>618</x>
@@ -632,12 +958,12 @@
    <slot>ViewCenterPaths(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>542</x>
-     <y>161</y>
+     <x>464</x>
+     <y>226</y>
     </hint>
     <hint type="destinationlabel">
-     <x>429</x>
-     <y>194</y>
+     <x>300</x>
+     <y>203</y>
     </hint>
    </hints>
   </connection>
@@ -648,60 +974,12 @@
    <slot>ViewCenterPaths(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>588</x>
-     <y>162</y>
+     <x>464</x>
+     <y>226</y>
     </hint>
     <hint type="destinationlabel">
      <x>618</x>
      <y>151</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>periodicVerticesRadioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>m_glWidget</receiver>
-   <slot>ViewRawVertices(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>513</x>
-     <y>278</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>400</x>
-     <y>110</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>periodicFacesRadioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>m_glWidget</receiver>
-   <slot>ViewRawFaces(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>464</x>
-     <y>329</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>424</x>
-     <y>256</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>periodicEdgesRadioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>m_glWidget</receiver>
-   <slot>ViewRawEdges(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>486</x>
-     <y>306</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>419</x>
-     <y>169</y>
     </hint>
    </hints>
   </connection>
@@ -712,12 +990,60 @@
    <slot>InteractionModeChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>488</x>
-     <y>19</y>
+     <x>475</x>
+     <y>53</y>
     </hint>
     <hint type="destinationlabel">
-     <x>376</x>
-     <y>22</y>
+     <x>300</x>
+     <y>31</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>torusVertices</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>ViewRawVertices(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>405</x>
+     <y>98</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>292</x>
+     <y>110</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>torusEdges</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>ViewRawEdges(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>381</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>284</x>
+     <y>109</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>torusFaces</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_glWidget</receiver>
+   <slot>ViewRawFaces(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>371</x>
+     <y>104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>262</x>
+     <y>108</y>
     </hint>
    </hints>
   </connection>
