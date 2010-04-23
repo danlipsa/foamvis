@@ -564,10 +564,18 @@ GLuint GLWidget::displayVertices ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
+    glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT);
+    qglColor (QColor (Qt::black));
+    glPointSize (1);
     vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+    glBegin(GL_POINTS);
     for_each (bodies.begin (), bodies.end (),
-	      DisplayBody< DisplayFace<DisplayDifferentVertices> > (*this));
-    glPointSize (1.0);
+	      DisplayBody<
+	      DisplayFace<
+	      DisplayEdges<
+	      DisplayBeginVertex> > > (*this));
+    glEnd ();
+    glPopAttrib ();
     glEndList();
     return list;
 }

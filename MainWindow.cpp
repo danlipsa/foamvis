@@ -29,7 +29,7 @@ MainWindow::MainWindow(DataFiles& dataFiles) :
 	//m_periodicModelGroupBox->hide ();
     }
     if (dataFiles.GetData ()[0]->GetSpaceDimension () == 2)
-	m_radioButtonEdges->toggle ();
+	radioButtonEdgesNormal->toggle ();
 
     // 100 ms
     m_timer->setInterval (100);
@@ -58,32 +58,18 @@ void MainWindow::InteractionModeTranslate ()
 
 void MainWindow::ViewVertices (bool checked)
 {
-    if (checked)
-	m_widthGroupBox->setEnabled (true);
 }
 
 void MainWindow::ViewEdges (bool checked)
 {
-    if (checked)
-	m_widthGroupBox->setEnabled (true);
 }
 
 void MainWindow::ViewFaces (bool checked)
 {
-    if (checked)
-	m_widthGroupBox->setEnabled (false);
 }
 
-void MainWindow::ViewBodies (bool checked)
+void MainWindow::ViewComposite (bool checked)
 {
-    if (checked)
-	m_widthGroupBox->setEnabled (false);
-}
-
-void MainWindow::ViewCenterPaths (bool checked)
-{
-    if (checked)
-	m_widthGroupBox->setEnabled (false);
 }
 
 

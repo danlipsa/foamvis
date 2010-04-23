@@ -31,12 +31,14 @@ struct DisplayOriginalVertex
  * Displays the first vertex in an edge
  * @param e the edge
  */
-struct DisplaySameVertex
+struct DisplayBeginVertex
 {
+    DisplayBeginVertex () {}
+    DisplayBeginVertex (const GLWidget&) {}
     void operator() (const OrientedEdge* e)
     {
 	Vertex* p = e->GetBegin ();
-	glVertex3f(p->x, p->y, p->z);
+	glVertex(*p);
     }
 };
 
@@ -75,24 +77,6 @@ public:
 	}
     }
 };
-
-class DisplayDifferentVertices : public DisplayElement
-{
-public:
-    DisplayDifferentVertices (const GLWidget& widget) : 
-	DisplayElement (widget) {}
-    inline void operator() (const OrientedFace* f)
-    {
-	operator() (f->GetFace ());
-    }
-    void operator () (const Face* f)
-    {
-	const vector<OrientedEdge*>& v = f->GetOrientedEdges ();
-	for_each (v.begin (), v.end (),
-		  DisplayTessellationOrPhysicalVertex (m_widget));
-    }
-};
-
 
 
 #endif //__DISPLAY_VERTEX_FUNCTORS_H__

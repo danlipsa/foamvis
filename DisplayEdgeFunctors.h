@@ -238,7 +238,7 @@ public:
     {
 	glBegin (GL_POLYGON);
 	const vector<OrientedEdge*>& v = f->GetOrientedEdges ();
-	for_each (v.begin (), v.end (), DisplaySameVertex());
+	for_each (v.begin (), v.end (), DisplayBeginVertex());
 	glEnd ();
     }
 };
@@ -251,7 +251,7 @@ public:
     DisplayEdges (const GLWidget& widget) : DisplayElement (widget) {}
     void operator() (const OrientedFace* f)
     {
-	for_each (f->begin (), f->end (), displayEdge (m_widget));
+	operator() (f->GetFace ());
     }
     void operator () (const Face* f)
     {

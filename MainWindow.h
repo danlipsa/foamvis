@@ -72,15 +72,10 @@ public Q_SLOTS:
      */
     void ViewFaces (bool checked);
     /**
-     * Shows bodies
-     * @param checked true for showing bodies false otherwise
-     */
-    void ViewBodies (bool checked);
-    /**
      * Shows center paths
      * param checked true for showing center paths false otherwise
      */
-    void ViewCenterPaths (bool checked);
+    void ViewComposite (bool checked);
     void InteractionModeRotate ();
     void InteractionModeScale ();
     void InteractionModeTranslate ();
