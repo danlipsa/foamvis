@@ -18,18 +18,36 @@ MainWindow::MainWindow(DataFiles& dataFiles) :
     m_timer (new QTimer(this)), m_processBodyTorus (0), m_currentBody (0)
 {
     setupUi (this);
-    m_dataSlider->setMinimum (0);
-    m_dataSlider->setMaximum (dataFiles.GetData ().size () - 1);
-    m_dataSlider->setSingleStep (1);
-    m_dataSlider->setPageStep (10);
+    sliderData->setMinimum (0);
+    sliderData->setMaximum (dataFiles.GetData ().size () - 1);
+    sliderData->setSingleStep (1);
+    sliderData->setPageStep (10);
     m_glWidget->SetDataFiles (&dataFiles);
     updateStatus ();
-    if (! dataFiles.GetData()[0]->IsTorus ())
+    if (dataFiles.GetData()[0]->IsTorus ())
     {
-	//m_periodicModelGroupBox->hide ();
+	radioButtonVerticesPhysical->setEnabled (false);
+	radioButtonEdgesPhysical->setEnabled (false);
+	radioButtonCenterPath->setEnabled (false);
+    }
+    else
+    {
+	radioButtonVerticesTorus->setEnabled (false);
+	radioButtonEdgesTorus->setEnabled (false);
+	radioButtonFacesTorus->setEnabled (false);
+	checkBoxTorusOriginalDomain->setEnabled (false);
     }
     if (dataFiles.GetData ()[0]->GetSpaceDimension () == 2)
+    {
 	radioButtonEdgesNormal->toggle ();
+	tabWidget->setCurrentWidget (edges);
+	radioButtonCenterPath->setEnabled (false);
+    }
+    else
+    {
+	radioButtonFacesNormal->toggle ();
+	tabWidget->setCurrentWidget (faces);
+    }
 
     // 100 ms
     m_timer->setInterval (100);
@@ -40,51 +58,51 @@ MainWindow::MainWindow(DataFiles& dataFiles) :
 
 void MainWindow::InteractionModeRotate ()
 {
-    m_interactionModeComboBox->setCurrentIndex (0);
+    comboBoxInteractionMode->setCurrentIndex (InteractionMode::ROTATE);
 }
 
 void MainWindow::InteractionModeScale ()
 {
-    int index = m_interactionModeComboBox->currentIndex ();
-    index = (index == 1) ? 2 : 1;
-    m_interactionModeComboBox->setCurrentIndex (index);
+    int index = comboBoxInteractionMode->currentIndex ();
+    index = (index == InteractionMode::SCALE) ? 
+	InteractionMode::SCALE_VIEWPORT : InteractionMode::SCALE;
+    comboBoxInteractionMode->setCurrentIndex (index);
 }
 
 void MainWindow::InteractionModeTranslate ()
 {
-    m_interactionModeComboBox->setCurrentIndex (3);
+    comboBoxInteractionMode->setCurrentIndex (
+	InteractionMode::TRANSLATE_VIEWPORT);
 }
 
-
-void MainWindow::ViewVertices (bool checked)
+void MainWindow::ViewPhysicalVertices (bool checked)
 {
+    if (checked)
+	stackedWidgetVertices->setCurrentWidget (pageVerticesPhysical);
+    else
+	stackedWidgetVertices->setCurrentWidget (pageVerticesEmpty);
 }
 
-void MainWindow::ViewEdges (bool checked)
+void MainWindow::ViewPhysicalEdges (bool checked)
 {
+    if (checked)
+	stackedWidgetEdges->setCurrentWidget (pageEdgesPhysical);
+    else
+	stackedWidgetEdges->setCurrentWidget (pageEdgesEmpty);
 }
-
-void MainWindow::ViewFaces (bool checked)
-{
-}
-
-void MainWindow::ViewComposite (bool checked)
-{
-}
-
 
 void MainWindow::TogglePlay ()
 {
     if (m_play)
     {
         m_timer->stop ();
-        m_toolButtonPlay->setText (PLAY_TEXT);
+        toolButtonPlay->setText (PLAY_TEXT);
 	updateButtons ();
     }
     else
     {
         m_timer->start ();
-        m_toolButtonPlay->setText (PAUSE_TEXT);
+        toolButtonPlay->setText (PAUSE_TEXT);
         enableBegin (false);
         enableEnd (false);
     }
@@ -93,23 +111,23 @@ void MainWindow::TogglePlay ()
 
 void MainWindow::BeginSlider ()
 {
-    m_dataSlider->setValue (m_dataSlider->minimum ());
+    sliderData->setValue (sliderData->minimum ());
     updateButtons ();
     updateStatus ();
 }
 
 void MainWindow::EndSlider ()
 {
-    m_dataSlider->setValue (m_dataSlider->maximum ());
+    sliderData->setValue (sliderData->maximum ());
     updateButtons ();
     updateStatus ();
 }
 
 void MainWindow::IncrementSlider ()
 {
-    int value = m_dataSlider->value ();
-    if (value < m_dataSlider->maximum ())
-        m_dataSlider->setValue (value + 1);
+    int value = sliderData->value ();
+    if (value < sliderData->maximum ())
+        sliderData->setValue (value + 1);
     else
         TogglePlay ();
 }
@@ -132,7 +150,7 @@ void MainWindow::updateStatus ()
 {
     vector<Data*>& data = m_glWidget->GetDataFiles ().GetData ();
     Data& currentData = m_glWidget->GetCurrentData ();
-    QString oldString = m_status->text ();
+    QString oldString = labelStatus->text ();
     ostringstream ostr, bubble;
     ostr << "Time step: " 
 	 << (m_glWidget->GetCurrentDataIndex () + 1) << " of "
@@ -143,35 +161,35 @@ void MainWindow::updateStatus ()
     ostr << bubble.str () << ends;
     QString newString (ostr.str().c_str ());
     if (oldString != newString)
-	m_status->setText (newString);
+	labelStatus->setText (newString);
 }
 
 
 void MainWindow::enableBegin (bool enable)
 {
     if (enable && 
-        m_dataSlider->value () > m_dataSlider->minimum ())
-        m_toolButtonBegin->setDisabled (false);
+        sliderData->value () > sliderData->minimum ())
+        toolButtonBegin->setDisabled (false);
     else
-        m_toolButtonBegin->setDisabled (true);
+        toolButtonBegin->setDisabled (true);
 }
 
 void MainWindow::enableEnd (bool enable)
 {
     if (enable && 
-        m_dataSlider->value () < m_dataSlider->maximum ())
-        m_toolButtonEnd->setDisabled (false);
+        sliderData->value () < sliderData->maximum ())
+        toolButtonEnd->setDisabled (false);
     else
-        m_toolButtonEnd->setDisabled (true);
+        toolButtonEnd->setDisabled (true);
 }
 
 void MainWindow::enablePlay (bool enable)
 {
     if (enable && 
-        m_dataSlider->value () < m_dataSlider->maximum ())
-        m_toolButtonPlay->setDisabled (false);
+        sliderData->value () < sliderData->maximum ())
+        toolButtonPlay->setDisabled (false);
     else
-        m_toolButtonPlay->setDisabled (true);
+        toolButtonPlay->setDisabled (true);
 }
 
 

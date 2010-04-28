@@ -167,8 +167,8 @@ public:
     void operator() (const OrientedEdge* e)
     {
 	float edgeSize = (e->GetEdge ()->IsPhysical ()) ? 
-	    m_widget.GetPhysicalObjectsWidth () :
-	    m_widget.GetTessellationObjectsWidth ();
+	    m_widget.GetPhysicalEdgeWidth () :
+	    m_widget.GetTessellationEdgeWidth ();
 	if (edgeSize != 0.0)
 	{
 	    Vertex* begin = e->GetBegin ();
@@ -176,8 +176,8 @@ public:
 	    glLineWidth (edgeSize);
 	    m_widget.qglColor (
 		e->GetEdge()->IsPhysical () ? 
-		m_widget.GetPhysicalObjectsColor () : 
-		m_widget.GetTessellationObjectsColor () );
+		m_widget.GetPhysicalEdgeColor () : 
+		m_widget.GetTessellationEdgeColor () );
 	    glBegin(GL_LINES);
 	    glVertex3f(begin->x, begin->y, begin->z);
 	    glVertex3f(end->x, end->y, end->z);

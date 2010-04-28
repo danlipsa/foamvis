@@ -8,12 +8,11 @@
 #define __GLWIDGET_H__
 
 #include "Hashes.h"
+#include "InteractionMode.h"
 
 class Body;
 class Data;
 class DataFiles;
-
-
 
 /**
  * Widget for displaying foam bubbles using OpenGL
@@ -95,23 +94,45 @@ public:
     /**
      * Returns the actual size of physical objects
      */
-    float GetPhysicalObjectsWidth () const
+    float GetPhysicalVertexSize () const
     {
-	return OBJECTS_WIDTH[m_physicalObjectsWidth];
+	return OBJECTS_WIDTH[m_physicalVertexSize];
+    }
+    float GetPhysicalEdgeWidth () const
+    {
+	return OBJECTS_WIDTH[m_physicalEdgeWidth];
     }
     /**
      * Returns the actual size of tessellation objects
      */
-    float GetTessellationObjectsWidth () const
+    float GetTessellationVertexSize () const
     {
-	return OBJECTS_WIDTH[m_tessellationObjectsWidth];
+	return OBJECTS_WIDTH[m_tessellationVertexSize];
     }
-    const QColor& GetTessellationObjectsColor () const
-    {return m_tessellationObjectsColor;}
+    float GetTessellationEdgeWidth () const
+    {
+	return OBJECTS_WIDTH[m_tessellationEdgeWidth];
+    }
+    const QColor& GetTessellationVertexColor () const
+    {
+	return m_tessellationVertexColor;
+    }
+    const QColor& GetTessellationEdgeColor () const
+    {
+	return m_tessellationVertexColor;
+    }
+
     const QColor& GetDomainIncrementColor (const G3D::Vector3int16& di) const;
     
-    const QColor& GetPhysicalObjectsColor () const
-    {return m_physicalObjectsColor;}
+    const QColor& GetPhysicalVertexColor () const
+    {
+	return m_physicalVertexColor;
+    }
+    const QColor& GetPhysicalEdgeColor () const
+    {
+	return m_physicalEdgeColor;
+    }
+
 
     /**
      * Displays the center of the bodies
@@ -130,12 +151,18 @@ public:
 	updateGL ();
     }
 
+    float GetArrowBaseRadius () const {return m_arrowBaseRadius;}
+    float GetArrowHeight () const {return m_arrowHeight;}
+    float GetEdgeRadius () const {return m_edgeRadius;}
+
+
 public Q_SLOTS:
     /**
      * Shows vertices
      * @param checked true for showing vertices false otherwise
      */
     void ViewVertices (bool checked);
+    void ViewPhysicalVertices (bool checked);
     void ViewRawVertices (bool checked);
     /**
      * Shows edges
@@ -143,6 +170,7 @@ public Q_SLOTS:
      */
     void ViewEdges (bool checked);
     void ViewRawEdges (bool checked);
+    void ViewPhysicalEdges (bool checked);
     /**
      * Shows faces
      * @param checked true for showing faces false otherwise
@@ -154,6 +182,7 @@ public Q_SLOTS:
      * @param checked true for showing bodies false otherwise
      */
     void ViewBodies (bool checked);
+    void ViewTorusOriginalDomain (bool checked);
     /**
      * Shows center paths
      * param checked true for showing the center paths false otherwise
@@ -173,16 +202,15 @@ public Q_SLOTS:
      * Signals a change in the size of the physical objects
      * @param value the new size
      */
-    void PhysicalObjectsWidthChanged (int value);
+    void PhysicalVertexSizeChanged (int value);
+    void PhysicalEdgeWidthChanged (int value);
     /**
      * Signals a change in the size of the tessellation objects
      * @param value the new size
      */
-    void TessellationObjectsWidthChanged (int value);
+    void TessellationVertexSizeChanged (int value);
+    void TessellationEdgeWidthChanged (int value);
     void InteractionModeChanged (int index);
-    float GetArrowBaseRadius () const {return m_arrowBaseRadius;}
-    float GetArrowHeight () const {return m_arrowHeight;}
-    float GetEdgeRadius () const {return m_edgeRadius;}
 
 public:
     const static  size_t DISPLAY_ALL;
@@ -214,33 +242,40 @@ protected:
      * @param event specifies how much did the mouse move
      */
     void mouseMoveEvent(QMouseEvent *event);
+
 private:
     /**
      * WHAT kind of objects do we display
      */
     enum ViewType {
         VERTICES,
+	RAW_VERTICES,
+	PHYSICAL_VERTICES,
+
         EDGES,
+	RAW_EDGES,
+	PHYSICAL_EDGES,
+
         FACES,
+	RAW_FACES,
         BODIES,
 	CENTER_PATHS,
-	RAW_VERTICES,
-	RAW_EDGES,
-	RAW_FACES,
         VIEW_TYPE_COUNT
     };
 
-    enum InteractionMode {
-	ROTATE,
-	SCALE,
-	SCALE_VIEWPORT,
-	TRANSLATE_VIEWPORT,
-	INTERACTION_MODE_COUNT
+    enum Lighting
+    {
+	NO_LIGHTING,
+	LIGHTING,
+	LIGHTING_COUNT
     };
+
     typedef boost::unordered_map<G3D::Vector3int16, QColor,
 				 Vector3int16Hash> DomainIncrementColor;
 
 private:
+    void view (bool checked, ViewType view, Lighting lighting);
+
     /**
      * Dealocates the space occupied by  an old OpenGL object and stores a
      * newObject
@@ -269,12 +304,14 @@ private:
      */
     GLuint displayVertices ();
     GLuint displayRawVertices ();
+    GLuint displayPhysicalVertices ();
     /**
      * Generates a display list for edges
      * @return the display list
      */
     GLuint displayEdges ();
     GLuint displayRawEdges ();
+    GLuint displayPhysicalEdges ();
 
     /**
      * Generates a display list for vertices or edges
@@ -298,6 +335,7 @@ private:
      * Generates a display list for center paths
      */
     GLuint displayCenterPaths ();
+    void displayOriginalDomain ();
     /**
      * Rotates the foam around an axis with a certain angle
      * @param axis can be 0, 1 or 2 for X, Y or Z
@@ -335,6 +373,7 @@ private:
     static void disableLighting ();
     static void materialProperties ();
     static void quadricErrorCallback (GLenum errorCode);
+    
 private:
     Q_OBJECT
 
@@ -342,7 +381,8 @@ private:
      * The elements displayed from a DMP file: vertices, edges, faces or bodies.
      */
     ViewType m_viewType;
-    InteractionMode m_interactionMode;
+    bool m_viewTorusOriginalDomain;
+    InteractionMode::Name m_interactionMode;
     /**
      * The current DMP file as a OpenGL display list.
      */
@@ -378,13 +418,22 @@ private:
     /**
      * Stores the size of physical objects
      */
-    int m_physicalObjectsWidth;
-    QColor m_physicalObjectsColor;
+    int m_physicalVertexSize;
+    int m_physicalEdgeWidth;
+    QColor m_physicalVertexColor;
+    QColor m_physicalEdgeColor;
     /**
      * Stores the size of tessellation objects
      */
-    int m_tessellationObjectsWidth;
-    QColor m_tessellationObjectsColor;
+    int m_tessellationVertexSize;
+    int m_tessellationEdgeWidth;
+
+    int m_normalVertexSize;
+    int m_normalEdgeWidth;
+
+
+    QColor m_tessellationVertexColor;
+    QColor m_tessellationEdgeColor;
     QColor m_centerPathColor;
     G3D::AABox m_viewingVolume;
     /**

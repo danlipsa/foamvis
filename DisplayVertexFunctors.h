@@ -43,14 +43,14 @@ struct DisplayBeginVertex
 };
 
 
-class DisplayTessellationOrPhysicalVertex : public DisplayElement
+class DisplayPhysicalVertex : public DisplayElement
 {
 public:
     /**
      * Constructor
      * @param widget Where should be the vertex displayed
      */
-    DisplayTessellationOrPhysicalVertex (const GLWidget& widget) : 
+    DisplayPhysicalVertex (const GLWidget& widget) : 
     DisplayElement (widget) 
     {
     }
@@ -62,15 +62,15 @@ public:
     {
 	Vertex* v = oe->GetBegin ();
 	float pointSize = (v->IsPhysical ()) ? 
-	    m_widget.GetPhysicalObjectsWidth () :
-	    m_widget.GetTessellationObjectsWidth ();
+	    m_widget.GetPhysicalVertexSize () :
+	    m_widget.GetTessellationVertexSize ();
 	if (pointSize != 0.0)
 	{
 	    glPointSize (pointSize);
 	    m_widget.qglColor (
 		v->IsPhysical () ? 
-		m_widget.GetPhysicalObjectsColor () : 
-		m_widget.GetTessellationObjectsColor () );
+		m_widget.GetPhysicalVertexColor () : 
+		m_widget.GetTessellationVertexColor () );
 	    glBegin(GL_POINTS);
 	    glVertex3f(v->x, v->y, v->z);
 	    glEnd();

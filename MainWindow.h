@@ -8,6 +8,7 @@
 #define __MAIN_WINDOW_H__
 
 #include "ui_Window.h"
+#include "InteractionMode.h"
 
 class QTimer;
 class GLWidget;
@@ -30,6 +31,15 @@ public:
      * @param event object describing the key
      */
     void keyPressEvent (QKeyEvent* event);
+
+    /**
+     * Shows center paths
+     * param checked true for showing center paths false otherwise
+     */
+    void InteractionModeRotate ();
+    void InteractionModeScale ();
+    void InteractionModeTranslate ();
+
 
 public Q_SLOTS:
     /**
@@ -60,25 +70,12 @@ public Q_SLOTS:
      * Shows vertices
      * @param checked true for showing vertices false otherwise
      */
-    void ViewVertices (bool checked);
+    void ViewPhysicalVertices (bool checked);
     /**
      * Shows edges
      * @param checked true for showing edges false otherwise
      */
-    void ViewEdges (bool checked);
-    /**
-     * Shows faces
-     * @param checked true for showing faces false otherwise
-     */
-    void ViewFaces (bool checked);
-    /**
-     * Shows center paths
-     * param checked true for showing center paths false otherwise
-     */
-    void ViewComposite (bool checked);
-    void InteractionModeRotate ();
-    void InteractionModeScale ();
-    void InteractionModeTranslate ();
+    void ViewPhysicalEdges (bool checked);
 
 private:
     /**

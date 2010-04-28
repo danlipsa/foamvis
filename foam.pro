@@ -5,7 +5,7 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h Color.h \
 	DisplayEdgeFunctors.h DisplayElement.h \
 	Edge.h Element.h ElementUtils.h ExpressionTree.h \
 	Face.h \
-	GLWidget.h Hashes.h\
+	GLWidget.h Hashes.h InteractionMode.h\
 	MainWindow.h NameSemanticValue.h \
 	OrientedEdge.h OrientedFace.h \
 	ParsingData.h ParsingDriver.h ProcessBodyTorus.h \

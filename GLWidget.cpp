@@ -104,6 +104,29 @@ void printOpenGLInfo ()
     for_each (info.begin (), info.end (), mem_fun_ref(&OpenGLParam::print));
 }
 
+
+void displayOriginalDomainFaces (G3D::Vector3 first,
+				 G3D::Vector3 second,
+				 G3D::Vector3 third)
+{
+    G3D::Vector3 origin(0, 0, 0);
+    G3D::Vector3 sum = first + second;
+    for (int i = 0; i < 2; i++)
+    {
+	glBegin (GL_POLYGON);
+	glVertex (origin);
+	glVertex (first);
+	glVertex (sum);
+	glVertex (second);
+	glEnd ();
+	origin += third;
+	first += third;
+	second += third;
+	sum += third;
+    }
+}
+
+
 float GLWidget::OBJECTS_WIDTH[] = {0.0, 1.0, 3.0, 5.0, 7.0};
 
 const size_t GLWidget::DISPLAY_ALL(numeric_limits<size_t>::max());
@@ -113,14 +136,17 @@ const size_t GLWidget::QUADRIC_STACKS (20);
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent), 
       m_viewType (BODIES),
+      m_viewTorusOriginalDomain (false),
+      m_interactionMode (InteractionMode::ROTATE),
       m_object(0),
       m_dataFiles(0), m_dataIndex (0),
       m_displayedBody(DISPLAY_ALL), m_displayedFace(DISPLAY_ALL),
       m_saveMovie(false), m_currentFrame(0),
-      m_physicalObjectsWidth (1), 
-      m_physicalObjectsColor (Qt::blue),
-      m_tessellationObjectsWidth (1),
-      m_tessellationObjectsColor (Qt::green),
+      m_physicalVertexSize (1), m_physicalEdgeWidth (1),
+      m_physicalVertexColor (Qt::blue), m_physicalEdgeColor (Qt::blue),
+      m_tessellationVertexSize (1), m_tessellationEdgeWidth (1),
+      m_normalVertexSize (2), m_normalEdgeWidth (1),
+      m_tessellationVertexColor (Qt::green), m_tessellationEdgeColor (Qt::green),
       m_centerPathColor (Qt::red),
       m_arrowBaseRadius (0.05),
       m_arrowHeight (0.1),
@@ -158,95 +184,85 @@ GLWidget::~GLWidget()
 }
 
 
+void GLWidget::view (bool checked, ViewType view, Lighting lighting)
+{
+    if (checked)
+    {
+        m_viewType = view;
+	if (lighting == LIGHTING)
+	    enableLighting ();
+	else
+	    disableLighting ();
+	UpdateDisplay ();
+    }
+}
+
+
+
 // Slots
 // =====
 
 void GLWidget::ViewVertices (bool checked)
 {
-    if (checked)
-    {
-        m_viewType = VERTICES;
-	disableLighting ();
-	UpdateDisplay ();
-    }
+    view (checked, VERTICES, NO_LIGHTING);
+}
+
+void GLWidget::ViewPhysicalVertices (bool checked)
+{
+    view (checked, PHYSICAL_VERTICES, NO_LIGHTING);
 }
 
 void GLWidget::ViewEdges (bool checked)
 {
-    if (checked)
-    {
-        m_viewType = EDGES;
-	disableLighting ();
-	UpdateDisplay ();
-    }
+    view (checked, EDGES, NO_LIGHTING);
 }
+
+void GLWidget::ViewTorusOriginalDomain (bool checked)
+{
+    m_viewTorusOriginalDomain = checked;
+    UpdateDisplay ();
+}
+
+void GLWidget::ViewPhysicalEdges (bool checked)
+{
+    view (checked, PHYSICAL_EDGES, NO_LIGHTING);
+}
+
 
 void GLWidget::ViewFaces (bool checked)
 {
-    if (checked)
-    {
-        m_viewType = FACES;
-	disableLighting ();
-	UpdateDisplay ();
-    }
+    view (checked, FACES, NO_LIGHTING);
 }
 
 void GLWidget::ViewRawVertices (bool checked)
 {
-    if (checked)
-    {
-        m_viewType = RAW_VERTICES;
-	disableLighting ();
-	UpdateDisplay ();
-    }
+    view (checked, RAW_VERTICES, NO_LIGHTING);
 }
 
 void GLWidget::ViewRawEdges (bool checked)
 {
-    if (checked)
-    {
-        m_viewType = RAW_EDGES;
-	enableLighting ();
-	UpdateDisplay ();
-    }
+    view (checked, RAW_EDGES, LIGHTING);
 }
 
 void GLWidget::ViewRawFaces (bool checked)
 {
-    if (checked)
-    {
-        m_viewType = RAW_FACES;
-	enableLighting ();
-	UpdateDisplay ();
-    }
+    view (checked, RAW_FACES, LIGHTING);
 }
-
-
 
 void GLWidget::ViewBodies (bool checked)
 {
-    if (checked)
-    {
-        m_viewType = BODIES;
-	enableLighting ();
-	UpdateDisplay ();
-    }
+    view (checked, BODIES, LIGHTING);
 }
 
 void GLWidget::ViewCenterPaths (bool checked)
 {
-    if (checked)
-    {
-        m_viewType = CENTER_PATHS;
-	disableLighting ();
-	UpdateDisplay ();
-    }
+    view (checked, CENTER_PATHS, NO_LIGHTING);
 }
 
 
 void GLWidget::InteractionModeChanged (int index)
 {
-    m_interactionMode = static_cast<InteractionMode>(index);
+    m_interactionMode = static_cast<InteractionMode::Name>(index);
 }
 
 void GLWidget::DataSliderValueChanged (int newIndex)
@@ -263,15 +279,27 @@ void GLWidget::SaveMovie (bool checked)
     updateGL ();
 }
 
-void GLWidget::PhysicalObjectsWidthChanged (int value)
+void GLWidget::PhysicalVertexSizeChanged (int value)
 {
-    m_physicalObjectsWidth = value;
+    m_physicalVertexSize = value;
     UpdateDisplay ();
 }
 
-void GLWidget::TessellationObjectsWidthChanged (int value)
+void GLWidget::PhysicalEdgeWidthChanged (int value)
 {
-    m_tessellationObjectsWidth = value;
+    m_physicalEdgeWidth = value;
+    UpdateDisplay ();
+}
+
+void GLWidget::TessellationVertexSizeChanged (int value)
+{
+    m_tessellationVertexSize = value;
+    UpdateDisplay ();
+}
+
+void GLWidget::TessellationEdgeWidthChanged (int value)
+{
+    m_tessellationEdgeWidth = value;
     UpdateDisplay ();
 }
 
@@ -523,16 +551,16 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     switch (m_interactionMode)
     {
-    case ROTATE:
+    case InteractionMode::ROTATE:
 	rotate (event->pos ());
 	break;
-    case TRANSLATE_VIEWPORT:
+    case InteractionMode::TRANSLATE_VIEWPORT:
 	translateViewport (event->pos ());
 	break;
-    case SCALE:
+    case InteractionMode::SCALE:
 	scale (event->pos ());
 	break;
-    case SCALE_VIEWPORT:
+    case InteractionMode::SCALE_VIEWPORT:
 	scaleViewport (event->pos ());
     default:
 	break;
@@ -564,9 +592,11 @@ GLuint GLWidget::displayVertices ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
+
     glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT);
     qglColor (QColor (Qt::black));
-    glPointSize (1);
+    glPointSize (m_normalVertexSize);
+
     vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     glBegin(GL_POINTS);
     for_each (bodies.begin (), bodies.end (),
@@ -576,54 +606,64 @@ GLuint GLWidget::displayVertices ()
 	      DisplayBeginVertex> > > (*this));
     glEnd ();
     glPopAttrib ();
+    displayOriginalDomain ();
     glEndList();
     return list;
 }
 
-void displayOriginalDomainFaces (G3D::Vector3 first,
-				 G3D::Vector3 second,
-				 const G3D::Vector3& third)
+void GLWidget::displayOriginalDomain ()
 {
-    G3D::Vector3 origin(0, 0, 0);
-    G3D::Vector3 sum = first + second;
-    for (int i = 0; i < 2; i++)
+    const Data::Periods& periods = GetCurrentData().GetPeriods ();
+    if (m_viewTorusOriginalDomain)
     {
-	glBegin (GL_POLYGON);
-	glVertex (origin);
-	glVertex (first);
-	glVertex (sum);
-	glVertex (second);
-	glEnd ();
-	origin += third;
-	first += third;
-	second += third;
-	sum += third;
+	glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
+	glLineWidth (1.0);
+	qglColor (QColor (Qt::black));
+	glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+
+	displayOriginalDomainFaces (periods[0], periods[1], periods[2]);
+	displayOriginalDomainFaces (periods[1], periods[2], periods[0]);
+	displayOriginalDomainFaces (periods[2], periods[0], periods[1]);
+	glPopAttrib ();
     }
 }
 
 
-void displayOriginalDomain (const Data::Periods& periods)
-{
-    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-    glLineWidth (1.0);
-    displayOriginalDomainFaces (periods[0], periods[1], periods[2]);
-    displayOriginalDomainFaces (periods[1], periods[2], periods[0]);
-    displayOriginalDomainFaces (periods[2], periods[0], periods[1]);
-}
 
+
+GLuint GLWidget::displayPhysicalVertices ()
+{
+    vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+    GLuint list = glGenLists(1);
+    glNewList(list, GL_COMPILE);
+    glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
+    for_each (bodies.begin (), bodies.end (),
+	      DisplayBody<
+	      DisplayFace<
+	      DisplayEdges<
+	      DisplayPhysicalVertex> > > (*this));
+    glPopAttrib ();
+
+    displayOriginalDomain ();
+    glEndList();
+    return list;
+}
 
 GLuint GLWidget::displayRawVertices ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
-    glPointSize (3.0);
+
+    glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
+    glPointSize (m_normalVertexSize);
+    qglColor (QColor (Qt::black));
     glBegin (GL_POINTS);
     vector<Vertex*>& vertices = GetCurrentData ().GetVertices ();
     for_each (vertices.begin (), vertices.end (), DisplayOriginalVertex());
     glEnd ();
-    glPointSize (1.0);
+    glPopAttrib ();
 
-    displayOriginalDomain (GetCurrentData().GetPeriods ());
+    displayOriginalDomain ();
     glEndList();
     return list;
 }
@@ -640,8 +680,9 @@ GLuint GLWidget::displayRawFaces ()
     const vector<Face*>& faces = GetCurrentData ().GetFaces ();
     for_each (faces.begin (), faces.end (),
 	      DisplayFace< DisplayEdges< DisplayEdgeTorus > > (*this) );
-    displayOriginalDomain (GetCurrentData().GetPeriods ());
     glPopAttrib ();
+
+    displayOriginalDomain ();
     glEndList();
     return list;
 }
@@ -658,11 +699,9 @@ GLuint GLWidget::displayRawEdges ()
 
     vector<Edge*>& edges = GetCurrentData ().GetEdges ();
     for_each (edges.begin (), edges.end (), DisplayOriginalEdgeTorus(*this));
-
-    glLineWidth (1.0);
-    qglColor (QColor (Qt::black));
-    displayOriginalDomain (GetCurrentData().GetPeriods ());
     glPopAttrib ();
+
+    displayOriginalDomain ();
     glEndList();
     return list;
 }
@@ -671,23 +710,46 @@ GLuint GLWidget::displayEdges ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
- 
-    vector<Edge*>& edges = GetCurrentData ().GetEdges ();
-    for_each (edges.begin (), edges.end (), DisplayEdgeWithColor (*this));
+    glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
+    glLineWidth (m_normalEdgeWidth);
+    qglColor (QColor (Qt::black));
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 
-    /*
+    // vector<Edge*>& edges = GetCurrentData ().GetEdges ();
+    // for_each (edges.begin (), edges.end (), DisplayEdgeWithColor (*this));
+
+    vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+    for_each (bodies.begin (), bodies.end (),
+	      DisplayBody<DisplayFace<DisplaySameEdges > > (*this));
+    glPopAttrib ();
+
+    displayOriginalDomain ();
+    
+    if (! GetCurrentData ().IsTorus ())
+	displayCenterOfBodies ();
+
+    glEndList();
+    return list;
+}
+
+GLuint GLWidget::displayPhysicalEdges ()
+{
+    GLuint list = glGenLists(1);
+    glNewList(list, GL_COMPILE);
+    glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
     vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
 	      DisplayFace<
 	      DisplayEdges<
 	      DisplayEdgeTessellationOrPhysical> > >(*this));
+    glPopAttrib ();
 
-    */
+    displayOriginalDomain ();
+
     if (! GetCurrentData ().IsTorus ())
 	displayCenterOfBodies ();
 
-    glLineWidth (1.0);
     glEndList();
     return list;
 }
@@ -701,7 +763,6 @@ void GLWidget::displayCenterOfBodies ()
     for_each (bodies.begin (),bodies.end (), DisplayBodyCenter (*this));
     glEnd ();
 }
-
 
 
 /**
@@ -773,10 +834,7 @@ GLuint GLWidget::displayFaces ()
     displayFacesContour (bodies);
     displayFacesOffset (bodies);
 
-    glLineWidth (1.0);
-    qglColor (QColor (Qt::black));
-    displayOriginalDomain (GetCurrentData().GetPeriods ());
-
+    displayOriginalDomain ();
     glEndList();
     return list;
 }
@@ -800,20 +858,28 @@ GLuint GLWidget::display (ViewType type)
     {
     case VERTICES:
         return displayVertices ();
+    case RAW_VERTICES:
+	return displayRawVertices ();
+    case PHYSICAL_VERTICES:
+	return displayPhysicalVertices ();
+
     case EDGES:
         return displayEdges ();
+    case RAW_EDGES:
+	return displayRawEdges ();
+    case PHYSICAL_EDGES:
+	return displayPhysicalEdges ();
+
     case FACES:
         return displayFaces ();
+    case RAW_FACES:
+	return displayRawFaces ();
+
     case BODIES:
         return displayBodies ();
     case CENTER_PATHS:
 	return displayCenterPaths ();
-    case RAW_VERTICES:
-	return displayRawVertices ();
-    case RAW_EDGES:
-	return displayRawEdges ();
-    case RAW_FACES:
-	return displayRawFaces ();
+
     default:
         RuntimeAssert (false, 
 		       "ViewType enum has an invalid value: ", m_viewType);
