@@ -51,12 +51,10 @@ protected:
 	G3D::Vector3int16 domainIncrement = e->GetEndDomainIncrement ();
 	setColor (m_widget.GetDomainIncrementColor (domainIncrement));
 	if (domainIncrement != G3D::Vector3int16 (0, 0, 0))
-	{
 	    displayArrow (m_widget.GetQuadricObject (), 
 			  m_widget.GetArrowBaseRadius (),
 			  m_widget.GetArrowHeight (),
 			  *begin, *end);
-	}
 	displayEdge (m_widget.GetQuadricObject (),
 		     m_widget.GetEdgeRadius (), *begin, *end);
 	glPopAttrib ();
