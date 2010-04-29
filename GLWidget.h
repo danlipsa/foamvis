@@ -158,6 +158,8 @@ public:
     void DataSliderValueChanged (int newIndex);
     void ViewPhysicalVertices (bool checked);
     void ViewPhysicalEdges (bool checked);
+    void ViewRawEdges (bool checked);
+    void ViewRawFaces (bool checked);
 
 public Q_SLOTS:
     /**
@@ -171,13 +173,11 @@ public Q_SLOTS:
      * @param checked true for showing edges false otherwise
      */
     void ViewEdges (bool checked);
-    void ViewRawEdges (bool checked);
     /**
      * Shows faces
      * @param checked true for showing faces false otherwise
      */
     void ViewFaces (bool checked);
-    void ViewRawFaces (bool checked);
     /**
      * Shows bodies
      * @param checked true for showing bodies false otherwise

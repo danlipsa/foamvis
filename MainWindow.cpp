@@ -283,6 +283,25 @@ void MainWindow::ViewPhysicalVertices (bool checked)
 	stackedWidgetVertices->setCurrentWidget (pageVerticesEmpty);
 }
 
+void MainWindow::ViewRawEdges (bool checked)
+{
+    widgetGl->ViewRawEdges (checked);
+    if (checked)
+	stackedWidgetEdges->setCurrentWidget (pageEdgesTorus);
+    else
+	stackedWidgetEdges->setCurrentWidget (pageEdgesEmpty);
+}
+
+void MainWindow::ViewRawFaces (bool checked)
+{
+    widgetGl->ViewRawFaces (checked);
+    if (checked)
+	stackedWidgetFaces->setCurrentWidget (pageFacesTorus);
+    else
+	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
+}
+
+
 void MainWindow::ViewPhysicalEdges (bool checked)
 {
     widgetGl->ViewPhysicalEdges (checked);

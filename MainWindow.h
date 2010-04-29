@@ -76,6 +76,9 @@ public Q_SLOTS:
      * @param checked true for showing edges false otherwise
      */
     void ViewPhysicalEdges (bool checked);
+    void ViewRawEdges (bool checked);
+    void ViewRawFaces (bool checked);
+
     /**
      * Save JPG images of the widgetDisplay
      * @param checked true for saving images, false otherwise

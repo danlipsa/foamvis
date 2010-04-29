@@ -18,6 +18,9 @@
 #include "GLWidget.h"
 
 
+// Private Classes
+// ======================================================================
+
 /**
  * Displays the center path for a certain body
  */
@@ -89,6 +92,9 @@ struct OpenGLParam
      */
     const char* m_name;
 };
+
+// Private Functions
+// ======================================================================
 
 /**
  * Check the OpenGL  error code and prints a message  to cdbg if there
@@ -165,7 +171,7 @@ void displayOriginalDomainFaces (G3D::Vector3 first,
     }
 }
 
-// Static Data
+// Static Fields
 // ======================================================================
 
 float GLWidget::OBJECTS_WIDTH[] = {0.0, 1.0, 3.0, 5.0, 7.0};
@@ -632,8 +638,10 @@ GLuint GLWidget::displayEdges ()
 	      DisplayFace<
 	      DisplayEdges<
 	      DisplayEdgeWithColor > > >(*this));
+    /*
     const vector<Edge*>& edges = GetCurrentData ().GetEdgesNoAdjacentFace ();
     for_each (edges.begin (), edges.end (), DisplayEdgeWithColor (*this));
+    */
     glPopAttrib ();
     displayOriginalDomain ();
     displayCenterOfBodies ();
@@ -849,6 +857,16 @@ void GLWidget::ViewPhysicalEdges (bool checked)
     view (checked, PHYSICAL_EDGES, NO_LIGHTING);
 }
 
+void GLWidget::ViewRawEdges (bool checked)
+{
+    view (checked, RAW_EDGES, m_edgesTorusLighting);
+}
+
+void GLWidget::ViewRawFaces (bool checked)
+{
+    view (checked, RAW_FACES, m_facesTorusLighting);
+}
+
 // Slots
 // ======================================================================
 
@@ -878,15 +896,6 @@ void GLWidget::ViewRawVertices (bool checked)
     view (checked, RAW_VERTICES, NO_LIGHTING);
 }
 
-void GLWidget::ViewRawEdges (bool checked)
-{
-    view (checked, RAW_EDGES, m_edgesTorusLighting);
-}
-
-void GLWidget::ViewRawFaces (bool checked)
-{
-    view (checked, RAW_FACES, m_facesTorusLighting);
-}
 
 void GLWidget::ViewBodies (bool checked)
 {
@@ -941,11 +950,10 @@ void GLWidget::ToggledFacesTorusLighting (bool checked)
 }
 
 
-// Static Functions
+// Static Methods
 //======================================================================
 void GLWidget::disableLighting ()
 {
-    //glEnable(GL_CULL_FACE);
     glDisable(GL_LIGHTING);
     glDisable(GL_LIGHT0);
     glShadeModel(GL_FLAT);
