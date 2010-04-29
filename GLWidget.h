@@ -41,10 +41,7 @@ public:
      * Sets the data displayed by the GLWidget
      * @param dataFiles data displayed by the GLWidget
      */
-    void SetDataFiles (DataFiles* dataFiles) 
-    {
-        m_dataFiles = dataFiles;
-    }
+    void SetDataFiles (DataFiles* dataFiles);
     /**
      * Gets the data displayed by the GLWidget
      */
@@ -154,7 +151,13 @@ public:
     float GetArrowBaseRadius () const {return m_arrowBaseRadius;}
     float GetArrowHeight () const {return m_arrowHeight;}
     float GetEdgeRadius () const {return m_edgeRadius;}
-
+    /**
+     * Signals a change in data displayed
+     * @param newIndex the new index for the data object to be displayed
+     */
+    void DataSliderValueChanged (int newIndex);
+    void ViewPhysicalVertices (bool checked);
+    void ViewPhysicalEdges (bool checked);
 
 public Q_SLOTS:
     /**
@@ -162,7 +165,6 @@ public Q_SLOTS:
      * @param checked true for showing vertices false otherwise
      */
     void ViewVertices (bool checked);
-    void ViewPhysicalVertices (bool checked);
     void ViewRawVertices (bool checked);
     /**
      * Shows edges
@@ -170,7 +172,6 @@ public Q_SLOTS:
      */
     void ViewEdges (bool checked);
     void ViewRawEdges (bool checked);
-    void ViewPhysicalEdges (bool checked);
     /**
      * Shows faces
      * @param checked true for showing faces false otherwise
@@ -189,16 +190,6 @@ public Q_SLOTS:
      */
     void ViewCenterPaths (bool checked);
     /**
-     * Signals a change in data displayed
-     * @param newIndex the new index for the data object to be displayed
-     */
-    void DataSliderValueChanged (int newIndex);
-    /**
-     * Save JPG images of the GLWidget
-     * @param checked true for saving images of the GLWidget, false otherwise
-     */
-    void SaveMovie (bool checked);
-    /**
      * Signals a change in the size of the physical objects
      * @param value the new size
      */
@@ -211,6 +202,8 @@ public Q_SLOTS:
     void TessellationVertexSizeChanged (int value);
     void TessellationEdgeWidthChanged (int value);
     void InteractionModeChanged (int index);
+    void ToggledEdgesTorusLighting (bool checked);
+    void ToggledFacesTorusLighting (bool checked);
 
 public:
     const static  size_t DISPLAY_ALL;
@@ -276,20 +269,6 @@ private:
 private:
     void view (bool checked, ViewType view, Lighting lighting);
 
-    /**
-     * Dealocates the space occupied by  an old OpenGL object and stores a
-     * newObject
-     *
-     * @param object address where the  old object is stored and where the
-     * new object will be stored
-     * @param newObject the new object that will be stored
-     */
-    static void setObject (GLuint* object, GLuint newObject)
-    {
-	glDeleteLists(*object, 1);
-	*object = newObject;
-    }
-
     void project ();
     void calculateViewingVolume ();
     /**
@@ -310,7 +289,7 @@ private:
      * @return the display list
      */
     GLuint displayEdges ();
-    GLuint displayRawEdges ();
+    GLuint displayRawEdgesLighting ();
     GLuint displayPhysicalEdges ();
 
     /**
@@ -324,7 +303,7 @@ private:
      * @return the display list
      */
     GLuint displayFaces ();
-    GLuint displayRawFaces ();
+    GLuint displayRawFacesLighting ();
 
     /**
      * Generates a display list for bodies
@@ -368,10 +347,22 @@ private:
 
 private:
     /**
+     * Dealocates the space occupied by  an old OpenGL object and stores a
+     * newObject
+     *
+     * @param object address where the  old object is stored and where the
+     * new object will be stored
+     * @param newObject the new object that will be stored
+     */
+    static void setObject (GLuint* object, GLuint newObject)
+    {
+	glDeleteLists(*object, 1);
+	*object = newObject;
+    }
+    /**
      * Setup lighting for displaying faces edges and vertices
      */
     static void disableLighting ();
-    static void materialProperties ();
     static void quadricErrorCallback (GLenum errorCode);
     
 private:
@@ -408,14 +399,6 @@ private:
      */
     size_t m_displayedFace;
     /**
-     * Save a jpeg of the current image.
-     */
-    bool m_saveMovie;
-    /**
-     * Keeps track of the current frame saved in a file.
-     */
-    int m_currentFrame;
-    /**
      * Stores the size of physical objects
      */
     int m_physicalVertexSize;
@@ -443,9 +426,18 @@ private:
     G3D::Rect2D m_viewport;
     DomainIncrementColor m_domainIncrementColor;
     GLUquadricObj* m_quadric;    
+    /**
+     * For displaying Torus Model edges as cylinders
+     */
+    float m_edgeRadius;
+    /**
+     * For displaying arrows in the Torus Model edges
+     */
     float m_arrowBaseRadius;
     float m_arrowHeight;
-    float m_edgeRadius;
+
+    Lighting m_edgesTorusLighting;
+    Lighting m_facesTorusLighting;
 private:
     /**
      * Mapping between the index in  the slider and an actual size for

@@ -76,6 +76,11 @@ public Q_SLOTS:
      * @param checked true for showing edges false otherwise
      */
     void ViewPhysicalEdges (bool checked);
+    /**
+     * Save JPG images of the widgetDisplay
+     * @param checked true for saving images, false otherwise
+     */
+    void SaveMovie (bool checked);
 
 private:
     /**
@@ -124,6 +129,14 @@ private:
     boost::scoped_ptr<QTimer> m_timer;
     ProcessBodyTorus* m_processBodyTorus;
     size_t m_currentBody;
+    /**
+     * Save a jpeg of the current image.
+     */
+    bool m_saveMovie;
+    /**
+     * Keeps track of the current frame saved in a file.
+     */
+    int m_currentFrame;
 };
 
 #endif //__MAIN_WINDOW_H__

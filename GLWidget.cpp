@@ -17,6 +17,45 @@
 #include "ElementUtils.h"
 #include "GLWidget.h"
 
+
+/**
+ * Displays the center path for a certain body
+ */
+class displayCenterPath
+{
+public:
+    /**
+     * Constructor
+     * @param widget where to display the center path
+     */
+    displayCenterPath (GLWidget& widget) : m_widget (widget) {}
+    /**
+     * Displays the center path for a certain body
+     * @param index what body to display the center path for
+     */
+    void operator () (size_t index)
+    {
+	glBegin(GL_LINE_STRIP);
+	vector<Data*>& data = m_widget.GetDataFiles ().GetData ();
+	for_each (data.begin (), data.end (), 
+		  DisplayBodyCenterFromData (m_widget, index));
+	glEnd ();
+    }
+    /**
+     * Helper function which calls operator () (size_t index).
+     * @param p a pair original index body pointer
+     */
+    inline void operator () (
+	pair<size_t,  Body*> p) {operator() (p.first);}
+
+private:
+    /**
+     * Where to display the center path
+     */
+    GLWidget& m_widget;
+};
+
+
 /**
  * Stores information about various OpenGL characteristics of the graphic card
  */
@@ -126,12 +165,16 @@ void displayOriginalDomainFaces (G3D::Vector3 first,
     }
 }
 
+// Static Data
+// ======================================================================
 
 float GLWidget::OBJECTS_WIDTH[] = {0.0, 1.0, 3.0, 5.0, 7.0};
-
 const size_t GLWidget::DISPLAY_ALL(numeric_limits<size_t>::max());
 const size_t GLWidget::QUADRIC_SLICES (20);
 const size_t GLWidget::QUADRIC_STACKS (20);
+
+// Methods
+// ======================================================================
 
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent), 
@@ -141,16 +184,14 @@ GLWidget::GLWidget(QWidget *parent)
       m_object(0),
       m_dataFiles(0), m_dataIndex (0),
       m_displayedBody(DISPLAY_ALL), m_displayedFace(DISPLAY_ALL),
-      m_saveMovie(false), m_currentFrame(0),
       m_physicalVertexSize (1), m_physicalEdgeWidth (1),
       m_physicalVertexColor (Qt::blue), m_physicalEdgeColor (Qt::blue),
       m_tessellationVertexSize (1), m_tessellationEdgeWidth (1),
       m_normalVertexSize (2), m_normalEdgeWidth (1),
       m_tessellationVertexColor (Qt::green), m_tessellationEdgeColor (Qt::green),
       m_centerPathColor (Qt::red),
-      m_arrowBaseRadius (0.05),
-      m_arrowHeight (0.1),
-      m_edgeRadius (0.01)
+      m_edgesTorusLighting (NO_LIGHTING),
+      m_facesTorusLighting (NO_LIGHTING)
 {
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
     const int POSSIBILITIES = 3; //domain increment can be *, - or +
@@ -174,6 +215,21 @@ GLWidget::GLWidget(QWidget *parent)
 			reinterpret_cast<void (*)()>(&quadricErrorCallback));
 }
 
+void GLWidget::SetDataFiles (DataFiles* dataFiles) 
+{
+    m_dataFiles = dataFiles;
+    Face* f = 
+	GetCurrentData ().GetBody (0)->GetOrientedFace (0)->GetFace ();
+    Edge* e = f->GetOrientedEdge (0)->GetEdge ();
+    float length = (*e->GetEnd () - *e->GetBegin ()).length ();
+
+    m_edgeRadius = length / 100;
+    m_arrowBaseRadius = 5 * m_edgeRadius;
+    m_arrowHeight = 10 * m_edgeRadius;
+}
+
+
+
 GLWidget::~GLWidget()
 {
     makeCurrent();
@@ -182,7 +238,6 @@ GLWidget::~GLWidget()
     gluDeleteQuadric (m_quadric);
     m_quadric = 0;
 }
-
 
 void GLWidget::view (bool checked, ViewType view, Lighting lighting)
 {
@@ -196,122 +251,6 @@ void GLWidget::view (bool checked, ViewType view, Lighting lighting)
 	UpdateDisplay ();
     }
 }
-
-
-
-// Slots
-// =====
-
-void GLWidget::ViewVertices (bool checked)
-{
-    view (checked, VERTICES, NO_LIGHTING);
-}
-
-void GLWidget::ViewPhysicalVertices (bool checked)
-{
-    view (checked, PHYSICAL_VERTICES, NO_LIGHTING);
-}
-
-void GLWidget::ViewEdges (bool checked)
-{
-    view (checked, EDGES, NO_LIGHTING);
-}
-
-void GLWidget::ViewTorusOriginalDomain (bool checked)
-{
-    m_viewTorusOriginalDomain = checked;
-    UpdateDisplay ();
-}
-
-void GLWidget::ViewPhysicalEdges (bool checked)
-{
-    view (checked, PHYSICAL_EDGES, NO_LIGHTING);
-}
-
-
-void GLWidget::ViewFaces (bool checked)
-{
-    view (checked, FACES, NO_LIGHTING);
-}
-
-void GLWidget::ViewRawVertices (bool checked)
-{
-    view (checked, RAW_VERTICES, NO_LIGHTING);
-}
-
-void GLWidget::ViewRawEdges (bool checked)
-{
-    view (checked, RAW_EDGES, LIGHTING);
-}
-
-void GLWidget::ViewRawFaces (bool checked)
-{
-    view (checked, RAW_FACES, LIGHTING);
-}
-
-void GLWidget::ViewBodies (bool checked)
-{
-    view (checked, BODIES, LIGHTING);
-}
-
-void GLWidget::ViewCenterPaths (bool checked)
-{
-    view (checked, CENTER_PATHS, NO_LIGHTING);
-}
-
-
-void GLWidget::InteractionModeChanged (int index)
-{
-    m_interactionMode = static_cast<InteractionMode::Name>(index);
-}
-
-void GLWidget::DataSliderValueChanged (int newIndex)
-{
-    m_dataIndex = newIndex;
-    UpdateDisplay ();
-}
-
-void GLWidget::SaveMovie (bool checked)
-{
-    m_saveMovie = checked;
-    if (checked)
-	m_currentFrame = 0;
-    updateGL ();
-}
-
-void GLWidget::PhysicalVertexSizeChanged (int value)
-{
-    m_physicalVertexSize = value;
-    UpdateDisplay ();
-}
-
-void GLWidget::PhysicalEdgeWidthChanged (int value)
-{
-    m_physicalEdgeWidth = value;
-    UpdateDisplay ();
-}
-
-void GLWidget::TessellationVertexSizeChanged (int value)
-{
-    m_tessellationVertexSize = value;
-    UpdateDisplay ();
-}
-
-void GLWidget::TessellationEdgeWidthChanged (int value)
-{
-    m_tessellationEdgeWidth = value;
-    UpdateDisplay ();
-}
-
-// End Slots
-// =========
-
-void GLWidget::quadricErrorCallback (GLenum errorCode)
-{
-    const GLubyte* message = gluErrorString (errorCode);
-    cdbg << "Quadric error: " << message << endl;
-}
-
 
 
 QSize GLWidget::minimumSizeHint() 
@@ -336,29 +275,14 @@ void GLWidget::enableLighting ()
     glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
     glPopMatrix ();
     
-    glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
     glShadeModel (GL_SMOOTH);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     glEnable(GL_DEPTH_TEST);
 
-    materialProperties ();
-}
-
-void GLWidget::materialProperties ()
-{
-    GLfloat materialDiffuse[] = { 0.5, 0.5, 0.5, 1.0 };
-    
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, materialDiffuse);
-}
-
-void GLWidget::disableLighting ()
-{
-    //glEnable(GL_CULL_FACE);
-    glDisable(GL_LIGHTING);
-    glDisable(GL_LIGHT0);
-    glShadeModel(GL_FLAT);
-    glEnable(GL_DEPTH_TEST);
+    glEnable (GL_COLOR_MATERIAL);
+    glColorMaterial (GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 }
 
 void GLWidget::calculateViewingVolume ()
@@ -372,6 +296,7 @@ void GLWidget::calculateViewingVolume ()
 	Vector3 (max.x + border, max.y + border, max.z + border));
     cdbg << "Viewing volume: " << m_viewingVolume << endl;
 }
+
 
 void GLWidget::project ()
 {
@@ -421,17 +346,6 @@ void GLWidget::paintGL()
 
     glCallList (m_object);
     detectOpenGLError ();
-    if (m_saveMovie)
-    {
-        ostringstream file;
-        file << "movie/frame" << setfill ('0') << setw (4) <<
-	    m_currentFrame << ".jpg" << ends;
-        QImage snapshot = grabFrameBuffer ();
-	string f = file.str ();
-	if (! snapshot.save (f.c_str ()))
-	    cdbg << "Error saving " << f << endl;
-	m_currentFrame++;
-    }
 }
 
 
@@ -668,7 +582,7 @@ GLuint GLWidget::displayRawVertices ()
     return list;
 }
 
-GLuint GLWidget::displayRawFaces ()
+GLuint GLWidget::displayRawFacesLighting ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
@@ -687,7 +601,7 @@ GLuint GLWidget::displayRawFaces ()
     return list;
 }
 
-GLuint GLWidget::displayRawEdges ()
+GLuint GLWidget::displayRawEdgesLighting ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
@@ -710,24 +624,19 @@ GLuint GLWidget::displayEdges ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
-    glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
+    glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
     glLineWidth (m_normalEdgeWidth);
-    qglColor (QColor (Qt::black));
-    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-
-    // vector<Edge*>& edges = GetCurrentData ().GetEdges ();
-    // for_each (edges.begin (), edges.end (), DisplayEdgeWithColor (*this));
-
-    vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+    const vector<Body*>& bodies = GetCurrentData ().GetBodies ();
     for_each (bodies.begin (), bodies.end (),
-	      DisplayBody<DisplayFace<DisplaySameEdges > > (*this));
+	      DisplayBody<
+	      DisplayFace<
+	      DisplayEdges<
+	      DisplayEdgeWithColor > > >(*this));
+    const vector<Edge*>& edges = GetCurrentData ().GetEdgesNoAdjacentFace ();
+    for_each (edges.begin (), edges.end (), DisplayEdgeWithColor (*this));
     glPopAttrib ();
-
     displayOriginalDomain ();
-    
-    if (! GetCurrentData ().IsTorus ())
-	displayCenterOfBodies ();
-
+    displayCenterOfBodies ();
     glEndList();
     return list;
 }
@@ -744,64 +653,26 @@ GLuint GLWidget::displayPhysicalEdges ()
 	      DisplayEdges<
 	      DisplayEdgeTessellationOrPhysical> > >(*this));
     glPopAttrib ();
-
     displayOriginalDomain ();
-
-    if (! GetCurrentData ().IsTorus ())
-	displayCenterOfBodies ();
-
+    displayCenterOfBodies ();
     glEndList();
     return list;
 }
 
 void GLWidget::displayCenterOfBodies ()
 {
-    glPointSize (4.0);
-    qglColor (QColor (Qt::red));
-    glBegin(GL_POINTS);
-     vector<Body*>& bodies = GetCurrentData ().GetBodies ();
-    for_each (bodies.begin (),bodies.end (), DisplayBodyCenter (*this));
-    glEnd ();
-}
-
-
-/**
- * Displays the center path for a certain body
- */
-class displayCenterPath
-{
-public:
-    /**
-     * Constructor
-     * @param widget where to display the center path
-     */
-    displayCenterPath (GLWidget& widget) : m_widget (widget) {}
-    /**
-     * Displays the center path for a certain body
-     * @param index what body to display the center path for
-     */
-    void operator () (size_t index)
+    if (! GetCurrentData ().IsTorus ())
     {
-	glBegin(GL_LINE_STRIP);
-	vector<Data*>& data = m_widget.GetDataFiles ().GetData ();
-	for_each (data.begin (), data.end (), 
-		  DisplayBodyCenterFromData (m_widget, index));
+	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
+	glPointSize (4.0);
+	qglColor (QColor (Qt::red));
+	glBegin(GL_POINTS);
+	vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+	for_each (bodies.begin (),bodies.end (), DisplayBodyCenter (*this));
 	glEnd ();
+	glPopAttrib ();
     }
-    /**
-     * Helper function which calls operator () (size_t index).
-     * @param p a pair original index body pointer
-     */
-    inline void operator () (
-	pair<size_t,  Body*> p) {operator() (p.first);}
-
-private:
-    /**
-     * Where to display the center path
-     */
-    GLWidget& m_widget;
-};
-
+}
 
 GLuint GLWidget::displayCenterPaths ()
 {
@@ -866,14 +737,14 @@ GLuint GLWidget::display (ViewType type)
     case EDGES:
         return displayEdges ();
     case RAW_EDGES:
-	return displayRawEdges ();
+	return displayRawEdgesLighting ();
     case PHYSICAL_EDGES:
 	return displayPhysicalEdges ();
 
     case FACES:
         return displayFaces ();
     case RAW_FACES:
-	return displayRawFaces ();
+	return displayRawFacesLighting ();
 
     case BODIES:
         return displayBodies ();
@@ -960,4 +831,129 @@ const QColor& GLWidget::GetDomainIncrementColor (
     RuntimeAssert (it != m_domainIncrementColor.end (),
 		   "Invalid domain increment ", di);
     return (*it).second;
+}
+
+void GLWidget::DataSliderValueChanged (int newIndex)
+{
+    m_dataIndex = newIndex;
+    UpdateDisplay ();
+}
+
+void GLWidget::ViewPhysicalVertices (bool checked)
+{
+    view (checked, PHYSICAL_VERTICES, NO_LIGHTING);
+}
+
+void GLWidget::ViewPhysicalEdges (bool checked)
+{
+    view (checked, PHYSICAL_EDGES, NO_LIGHTING);
+}
+
+// Slots
+// ======================================================================
+
+void GLWidget::ViewVertices (bool checked)
+{
+    view (checked, VERTICES, NO_LIGHTING);
+}
+
+void GLWidget::ViewEdges (bool checked)
+{
+    view (checked, EDGES, NO_LIGHTING);
+}
+
+void GLWidget::ViewTorusOriginalDomain (bool checked)
+{
+    m_viewTorusOriginalDomain = checked;
+    UpdateDisplay ();
+}
+
+void GLWidget::ViewFaces (bool checked)
+{
+    view (checked, FACES, NO_LIGHTING);
+}
+
+void GLWidget::ViewRawVertices (bool checked)
+{
+    view (checked, RAW_VERTICES, NO_LIGHTING);
+}
+
+void GLWidget::ViewRawEdges (bool checked)
+{
+    view (checked, RAW_EDGES, m_edgesTorusLighting);
+}
+
+void GLWidget::ViewRawFaces (bool checked)
+{
+    view (checked, RAW_FACES, m_facesTorusLighting);
+}
+
+void GLWidget::ViewBodies (bool checked)
+{
+    view (checked, BODIES, LIGHTING);
+}
+
+void GLWidget::ViewCenterPaths (bool checked)
+{
+    view (checked, CENTER_PATHS, NO_LIGHTING);
+}
+
+
+void GLWidget::InteractionModeChanged (int index)
+{
+    m_interactionMode = static_cast<InteractionMode::Name>(index);
+}
+
+void GLWidget::PhysicalVertexSizeChanged (int value)
+{
+    m_physicalVertexSize = value;
+    UpdateDisplay ();
+}
+
+void GLWidget::PhysicalEdgeWidthChanged (int value)
+{
+    m_physicalEdgeWidth = value;
+    UpdateDisplay ();
+}
+
+void GLWidget::TessellationVertexSizeChanged (int value)
+{
+    m_tessellationVertexSize = value;
+    UpdateDisplay ();
+}
+
+void GLWidget::TessellationEdgeWidthChanged (int value)
+{
+    m_tessellationEdgeWidth = value;
+    UpdateDisplay ();
+}
+
+void GLWidget::ToggledEdgesTorusLighting (bool checked)
+{
+    m_edgesTorusLighting = static_cast<Lighting>(checked);
+    ViewRawEdges (true);
+}
+
+void GLWidget::ToggledFacesTorusLighting (bool checked)
+{
+    m_facesTorusLighting = static_cast<Lighting>(checked);
+    ViewRawFaces (true);
+}
+
+
+// Static Functions
+//======================================================================
+void GLWidget::disableLighting ()
+{
+    //glEnable(GL_CULL_FACE);
+    glDisable(GL_LIGHTING);
+    glDisable(GL_LIGHT0);
+    glShadeModel(GL_FLAT);
+    glEnable(GL_DEPTH_TEST);
+}
+
+void GLWidget::quadricErrorCallback (GLenum errorCode)
+{
+    const GLubyte* message = gluErrorString (errorCode);
+    cdbg << "Quadric error: " << message << endl;
 }

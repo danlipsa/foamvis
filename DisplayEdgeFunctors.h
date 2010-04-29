@@ -49,12 +49,13 @@ protected:
 	const Vertex* begin = e->GetBegin ();
 	const Vertex* end = e->GetEnd ();
 	G3D::Vector3int16 domainIncrement = e->GetEndDomainIncrement ();
-	setColor (m_widget.GetDomainIncrementColor (domainIncrement));
+	m_widget.qglColor (m_widget.GetDomainIncrementColor (domainIncrement));
 	if (domainIncrement != G3D::Vector3int16 (0, 0, 0))
-	    displayArrow (m_widget.GetQuadricObject (), 
-			  m_widget.GetArrowBaseRadius (),
-			  m_widget.GetArrowHeight (),
-			  *begin, *end);
+	    displayArrow (
+		m_widget.GetQuadricObject (), 
+		m_widget.GetArrowBaseRadius (), m_widget.GetEdgeRadius (),
+		m_widget.GetArrowHeight (),
+		*begin, *end);
 	displayEdge (m_widget.GetQuadricObject (),
 		     m_widget.GetEdgeRadius (), *begin, *end);
 	glPopAttrib ();
@@ -63,7 +64,8 @@ protected:
 private:
 
     static void displayArrow (
-	GLUquadricObj* quadric, float baseRadius, float height,
+	GLUquadricObj* quadric,
+	float baseRadius, float topRadius, float height,
 	const G3D::Vector3& begin, const G3D::Vector3& end)
     {
 	G3D::Matrix3 rotation;
@@ -73,7 +75,7 @@ private:
 	glMatrixMode (GL_MODELVIEW);
 	glPushMatrix ();
 	glMultMatrix (frame);
-	gluCylinder (quadric, baseRadius, 0, height,
+	gluCylinder (quadric, baseRadius, topRadius, height,
 		     GLWidget::QUADRIC_SLICES, GLWidget::QUADRIC_STACKS);
 	gluQuadricOrientation (quadric, GLU_INSIDE);
 	gluDisk (quadric, 0, baseRadius, GLWidget::QUADRIC_SLICES,
@@ -115,20 +117,6 @@ private:
 	rotation->setColumn (0, newX);
 	rotation->setColumn (1, newY);
 	rotation->setColumn (2, newZ);
-    }
-
-    static void setColor (const QColor& color)
-    {
-	GLfloat diffuseMaterial[] = 
-	{
-	    color.redF (), color.greenF (), color.blueF (), 1.0 
-	};
-	GLfloat ambientMaterial[] = 
-	{
-	    color.redF (), color.greenF (), color.blueF (), 1.0 
-	};
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuseMaterial);
-	glMaterialfv(GL_FRONT, GL_AMBIENT, ambientMaterial);
     }
 };
 

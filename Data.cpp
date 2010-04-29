@@ -344,11 +344,21 @@ void Data::PostProcess ()
 {
     Compact ();
     CalculatePhysical ();
+    StoreEdgesNoAdjacentFace ();
     CalculateAABox ();
     CacheEdgesVerticesInBodies ();
     if (! IsTorus () && GetSpaceDimension () == 3)
 	CalculateBodiesCenters ();
 }
+
+void Data::StoreEdgesNoAdjacentFace ()
+{
+    using boost::bind;
+    BOOST_FOREACH (Edge* e, m_edges)
+	if (e->GetAdjacentFaces ().size () == 0)
+	    m_edgesNoAdjacentFace.push_back (e);
+}
+
 
 size_t countIntersections (OrientedEdge* e)
 {

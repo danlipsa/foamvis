@@ -15,14 +15,16 @@
 
 MainWindow::MainWindow(DataFiles& dataFiles) : 
     m_play (false), PLAY_TEXT (">"), PAUSE_TEXT("||"),
-    m_timer (new QTimer(this)), m_processBodyTorus (0), m_currentBody (0)
+    m_timer (new QTimer(this)), m_processBodyTorus (0), 
+    m_currentBody (0),
+    m_saveMovie(false), m_currentFrame(0)
 {
     setupUi (this);
     sliderData->setMinimum (0);
     sliderData->setMaximum (dataFiles.GetData ().size () - 1);
     sliderData->setSingleStep (1);
     sliderData->setPageStep (10);
-    m_glWidget->SetDataFiles (&dataFiles);
+    widgetGl->SetDataFiles (&dataFiles);
     updateStatus ();
     if (dataFiles.GetData()[0]->IsTorus ())
     {
@@ -48,7 +50,7 @@ MainWindow::MainWindow(DataFiles& dataFiles) :
 	radioButtonFacesNormal->toggle ();
 	tabWidget->setCurrentWidget (faces);
     }
-
+    
     // 100 ms
     m_timer->setInterval (100);
     QObject::connect(m_timer.get (), SIGNAL(timeout()),
@@ -75,70 +77,6 @@ void MainWindow::InteractionModeTranslate ()
 	InteractionMode::TRANSLATE_VIEWPORT);
 }
 
-void MainWindow::ViewPhysicalVertices (bool checked)
-{
-    if (checked)
-	stackedWidgetVertices->setCurrentWidget (pageVerticesPhysical);
-    else
-	stackedWidgetVertices->setCurrentWidget (pageVerticesEmpty);
-}
-
-void MainWindow::ViewPhysicalEdges (bool checked)
-{
-    if (checked)
-	stackedWidgetEdges->setCurrentWidget (pageEdgesPhysical);
-    else
-	stackedWidgetEdges->setCurrentWidget (pageEdgesEmpty);
-}
-
-void MainWindow::TogglePlay ()
-{
-    if (m_play)
-    {
-        m_timer->stop ();
-        toolButtonPlay->setText (PLAY_TEXT);
-	updateButtons ();
-    }
-    else
-    {
-        m_timer->start ();
-        toolButtonPlay->setText (PAUSE_TEXT);
-        enableBegin (false);
-        enableEnd (false);
-    }
-    m_play = ! m_play;
-}
-
-void MainWindow::BeginSlider ()
-{
-    sliderData->setValue (sliderData->minimum ());
-    updateButtons ();
-    updateStatus ();
-}
-
-void MainWindow::EndSlider ()
-{
-    sliderData->setValue (sliderData->maximum ());
-    updateButtons ();
-    updateStatus ();
-}
-
-void MainWindow::IncrementSlider ()
-{
-    int value = sliderData->value ();
-    if (value < sliderData->maximum ())
-        sliderData->setValue (value + 1);
-    else
-        TogglePlay ();
-}
-
-void MainWindow::DataSliderValueChanged (int)
-{
-    updateButtons ();
-    updateStatus ();
-}
-
-
 void MainWindow::updateButtons ()
 {
     enableBegin (true);
@@ -148,17 +86,19 @@ void MainWindow::updateButtons ()
 
 void MainWindow::updateStatus ()
 {
-    vector<Data*>& data = m_glWidget->GetDataFiles ().GetData ();
-    Data& currentData = m_glWidget->GetCurrentData ();
+    vector<Data*>& data = widgetGl->GetDataFiles ().GetData ();
+    Data& currentData = widgetGl->GetCurrentData ();
     QString oldString = labelStatus->text ();
-    ostringstream ostr, bubble;
+    ostringstream ostr;
     ostr << "Time step: " 
-	 << (m_glWidget->GetCurrentDataIndex () + 1) << " of "
+	 << (widgetGl->GetCurrentDataIndex () + 1) << " of "
 	 << data.size () 
 	 << ", Bubbles: " << currentData.GetBodies ().size ();
-    if (m_glWidget->GetDisplayedBody () != m_glWidget->DISPLAY_ALL)
-	bubble << ", Bubble: " << m_glWidget->GetDisplayedBody () << ends;
-    ostr << bubble.str () << ends;
+    if (widgetGl->GetDisplayedBody () != widgetGl->DISPLAY_ALL)
+	ostr << ", Bubble: " << widgetGl->GetDisplayedBody ();
+    if (widgetGl->GetDisplayedFace () != widgetGl->DISPLAY_ALL)
+	ostr << ", Face: " << widgetGl->GetDisplayedFace ();
+    ostr << ends;
     QString newString (ostr.str().c_str ());
     if (oldString != newString)
 	labelStatus->setText (newString);
@@ -202,14 +142,15 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 	switch (modifiers)
 	{
 	case Qt::NoModifier:
-            m_glWidget->IncrementDisplayedBody ();
+            widgetGl->IncrementDisplayedBody ();
 	    updateStatus ();
 	    break;
 	case Qt::ShiftModifier:
-	    m_glWidget->IncrementDisplayedFace ();
+	    widgetGl->IncrementDisplayedFace ();
+	    updateStatus ();
 	    break;
 	case Qt::ControlModifier:
-	    //m_glWidget->IncrementDisplayedEdge ();
+	    //widgetGl->IncrementDisplayedEdge ();
 	    break;
 	}
         break;
@@ -217,14 +158,15 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 	switch (modifiers)
 	{
 	case Qt::NoModifier:
-            m_glWidget->DecrementDisplayedBody ();
+            widgetGl->DecrementDisplayedBody ();
 	    updateStatus ();
 	    break;
 	case Qt::ShiftModifier:
-	    m_glWidget->DecrementDisplayedFace ();
+	    widgetGl->DecrementDisplayedFace ();
+	    updateStatus ();
 	    break;
 	case Qt::ControlModifier:
-	    //m_glWidget->DecrementDisplayedEdge ();
+	    //widgetGl->DecrementDisplayedEdge ();
 	    break;
 	}
 	break;
@@ -232,7 +174,7 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     {
 	try
 	{
-	    Body* b = m_glWidget->GetCurrentData ().GetBody (m_currentBody);
+	    Body* b = widgetGl->GetCurrentData ().GetBody (m_currentBody);
 	    if (m_processBodyTorus == 0)
 	    {
 		m_processBodyTorus = new ProcessBodyTorus (b);
@@ -244,9 +186,9 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 		    m_processBodyTorus = 0;
 		    cdbg << "End process torus" << endl;
 		    m_currentBody = (m_currentBody + 1) % 
-			m_glWidget->GetCurrentData ().GetBodies ().size ();
+			widgetGl->GetCurrentData ().GetBodies ().size ();
 		}
-	    m_glWidget->UpdateDisplay ();
+	    widgetGl->UpdateDisplay ();
 	}
 	catch (exception& e)
 	{
@@ -265,4 +207,95 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 	InteractionModeTranslate ();
 	break;
     }
+}
+
+
+// Slots
+// ======================================================================
+
+void MainWindow::TogglePlay ()
+{
+    if (m_play)
+    {
+        m_timer->stop ();
+        toolButtonPlay->setText (PLAY_TEXT);
+	updateButtons ();
+    }
+    else
+    {
+        m_timer->start ();
+        toolButtonPlay->setText (PAUSE_TEXT);
+        enableBegin (false);
+        enableEnd (false);
+    }
+    m_play = ! m_play;
+}
+
+void MainWindow::BeginSlider ()
+{
+    sliderData->setValue (sliderData->minimum ());
+    updateButtons ();
+    updateStatus ();
+}
+
+void MainWindow::EndSlider ()
+{
+    sliderData->setValue (sliderData->maximum ());
+    updateButtons ();
+    updateStatus ();
+}
+
+void MainWindow::IncrementSlider ()
+{
+    int value = sliderData->value ();
+    if (value < sliderData->maximum ())
+        sliderData->setValue (value + 1);
+    else
+        TogglePlay ();
+}
+
+void MainWindow::DataSliderValueChanged (int value)
+{
+    widgetGl->DataSliderValueChanged (value);
+    widgetGl->UpdateDisplay ();
+    updateButtons ();
+    updateStatus ();
+    if (m_saveMovie)
+    {
+        ostringstream file;
+        file << "movie/frame" << setfill ('0') << setw (4) <<
+	    m_currentFrame << ".jpg" << ends;
+        QImage snapshot = QPixmap::grabWidget (widgetDisplay).toImage ();
+	string f = file.str ();
+	if (! snapshot.save (f.c_str ()))
+	    cdbg << "Error saving " << f << endl;
+	m_currentFrame++;
+    }
+}
+
+
+void MainWindow::ViewPhysicalVertices (bool checked)
+{
+    widgetGl->ViewPhysicalVertices (checked);
+    if (checked)
+	stackedWidgetVertices->setCurrentWidget (pageVerticesPhysical);
+    else
+	stackedWidgetVertices->setCurrentWidget (pageVerticesEmpty);
+}
+
+void MainWindow::ViewPhysicalEdges (bool checked)
+{
+    widgetGl->ViewPhysicalEdges (checked);
+    if (checked)
+	stackedWidgetEdges->setCurrentWidget (pageEdgesPhysical);
+    else
+	stackedWidgetEdges->setCurrentWidget (pageEdgesEmpty);
+}
+
+void MainWindow::SaveMovie (bool checked)
+{
+    m_saveMovie = checked;
+    if (checked)
+	m_currentFrame = 0;
+    DataSliderValueChanged (sliderData->value ());
 }

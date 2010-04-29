@@ -292,6 +292,12 @@ public:
     }
     void calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high);
 
+    void StoreEdgesNoAdjacentFace ();
+    const vector<Edge*> GetEdgesNoAdjacentFace () const
+    {
+	return m_edgesNoAdjacentFace;
+    }
+
 public:
     /**
      * Pretty print the Data object
@@ -312,6 +318,7 @@ private:
      */
     vector<Edge*> m_edges;
     EdgeSet m_edgeSet;
+    vector<Edge*> m_edgesNoAdjacentFace;
     /**
      * A vector of faces
      */
