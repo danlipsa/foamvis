@@ -46,44 +46,44 @@ public Q_SLOTS:
      * Called when  the user pushed  the play button. Starts  or stops
      * showing the time steps of the Surface Evolver data.
      */
-    void TogglePlay ();
+    void ClickedPlay ();
     /**
      * Called when the Begin Slider button is pressed. Shows the first
      * data in the vector.
      */
-    void BeginSlider ();
+    void ClickedBegin ();
     /**
      * Called when  the End Slider  button is pressed. Shows  the last
      * data in the vector.
      */
-    void EndSlider ();
+    void ClickedEnd ();
     /**
      * Invoqued by the timer to show the next data in the vector
      */
-    void IncrementSlider ();
+    void TimeoutTimer ();
     /**
      * Invoqued by the UI when  the slider changes to display the data
      * at the current position of the slider.
      */
-    void DataSliderValueChanged (int value);
+    void ValueChangedSliderData (int value);
         /**
      * Shows vertices
      * @param checked true for showing vertices false otherwise
      */
-    void ViewPhysicalVertices (bool checked);
+    void ToggledVerticesPhysical (bool checked);
     /**
      * Shows edges
      * @param checked true for showing edges false otherwise
      */
-    void ViewPhysicalEdges (bool checked);
-    void ViewRawEdges (bool checked);
-    void ViewRawFaces (bool checked);
+    void ToggledEdgesPhysical (bool checked);
+    void ToggledEdgesTorus (bool checked);
+    void ToggledFacesTorus (bool checked);
 
     /**
      * Save JPG images of the widgetDisplay
      * @param checked true for saving images, false otherwise
      */
-    void SaveMovie (bool checked);
+    void ToggledSaveMovie (bool checked);
 
 private:
     /**

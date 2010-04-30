@@ -11,7 +11,103 @@
 
 #include "DisplayElement.h"
 #include "Edge.h"
+#include "GLWidget.h"
 
+void edgeRotation (
+    G3D::Matrix3* rotation,
+    const G3D::Vector3& begin, const G3D::Vector3& end)
+{
+    using G3D::Vector3;
+    Vector3 newZ = end - begin;
+    if (newZ.isZero ())
+	return;
+    newZ = newZ.unit ();
+    Vector3 newX, newY;
+    newZ.getTangents (newX, newY);
+    rotation->setColumn (0, newX);
+    rotation->setColumn (1, newY);
+    rotation->setColumn (2, newZ);
+}
+
+struct DisplayEdgeLighting
+{
+    void operator() (
+	GLUquadricObj* quadric,
+	float edgeRadius,
+	const G3D::Vector3& begin, const G3D::Vector3& end)
+    {
+	G3D::Matrix3 rotation;
+	edgeRotation (&rotation, begin, end);
+	G3D::CoordinateFrame frame (rotation, begin);
+	gluQuadricOrientation (quadric, GLU_OUTSIDE);
+	glMatrixMode (GL_MODELVIEW);
+	glPushMatrix ();
+	glMultMatrix (frame);
+	gluCylinder (quadric, edgeRadius, edgeRadius, (end - begin).length (),
+		     GLWidget::QUADRIC_SLICES, GLWidget::QUADRIC_STACKS);
+	gluQuadricOrientation (quadric, GLU_INSIDE);
+	gluDisk (quadric, 0, edgeRadius, GLWidget::QUADRIC_SLICES,
+		 GLWidget::QUADRIC_STACKS);
+	glTranslatef (end.x, end.y, end.z);
+	glPopMatrix ();
+    }
+};
+
+struct DisplayEdge
+{
+    void operator() (
+	GLUquadricObj*,
+	float,
+	const G3D::Vector3& begin, const G3D::Vector3& end)
+    {
+	glLineWidth (1.0);
+	glBegin(GL_LINES);
+	glVertex(begin);
+	glVertex(end);
+	glEnd();
+    }
+};
+
+struct DisplayArrowLighting
+{
+    void operator () (
+	GLUquadricObj* quadric,
+	float baseRadius, float topRadius, float height,
+	const G3D::Vector3& begin, const G3D::Vector3& end)
+    {
+	G3D::Matrix3 rotation;
+	edgeRotation (&rotation, begin, end);
+	G3D::CoordinateFrame frame (rotation, (begin + end)/2);
+	gluQuadricOrientation (quadric, GLU_OUTSIDE);
+	glMatrixMode (GL_MODELVIEW);
+	glPushMatrix ();
+	glMultMatrix (frame);
+	gluCylinder (quadric, baseRadius, topRadius, height,
+		     GLWidget::QUADRIC_SLICES, GLWidget::QUADRIC_STACKS);
+	gluQuadricOrientation (quadric, GLU_INSIDE);
+	gluDisk (quadric, 0, baseRadius, GLWidget::QUADRIC_SLICES,
+		 GLWidget::QUADRIC_STACKS);
+	glPopMatrix ();
+    }
+};
+
+struct DisplayArrow
+{
+    void operator () (
+	GLUquadricObj*,
+	float, float, float,
+	const G3D::Vector3& begin, const G3D::Vector3& end)
+    {
+	glLineWidth (2.0);
+	glBegin(GL_LINES);
+	glVertex(begin);
+	glVertex((begin + end) / 2);
+	glEnd();
+    }
+};
+
+
+template <typename displayEdge, typename displayArrow, bool showDuplicates>
 class DisplayEdgeTorus : public DisplayElement
 {
 public:
@@ -40,7 +136,8 @@ public:
     
     void operator() (const Edge* e)
     {
-	display (e);
+	if (showDuplicates || ! e->IsDuplicate ())
+	    display (e);
     }
 protected:
     void display (const Edge* e)
@@ -51,84 +148,14 @@ protected:
 	G3D::Vector3int16 domainIncrement = e->GetEndDomainIncrement ();
 	m_widget.qglColor (m_widget.GetDomainIncrementColor (domainIncrement));
 	if (domainIncrement != G3D::Vector3int16 (0, 0, 0))
-	    displayArrow (
+	    displayArrow() (
 		m_widget.GetQuadricObject (), 
 		m_widget.GetArrowBaseRadius (), m_widget.GetEdgeRadius (),
 		m_widget.GetArrowHeight (),
 		*begin, *end);
-	displayEdge (m_widget.GetQuadricObject (),
-		     m_widget.GetEdgeRadius (), *begin, *end);
+	displayEdge() (m_widget.GetQuadricObject (),
+		       m_widget.GetEdgeRadius (), *begin, *end);
 	glPopAttrib ();
-    }
-
-private:
-
-    static void displayArrow (
-	GLUquadricObj* quadric,
-	float baseRadius, float topRadius, float height,
-	const G3D::Vector3& begin, const G3D::Vector3& end)
-    {
-	G3D::Matrix3 rotation;
-	edgeRotation (&rotation, begin, end);
-	G3D::CoordinateFrame frame (rotation, (begin + end)/2);
-	gluQuadricOrientation (quadric, GLU_OUTSIDE);
-	glMatrixMode (GL_MODELVIEW);
-	glPushMatrix ();
-	glMultMatrix (frame);
-	gluCylinder (quadric, baseRadius, topRadius, height,
-		     GLWidget::QUADRIC_SLICES, GLWidget::QUADRIC_STACKS);
-	gluQuadricOrientation (quadric, GLU_INSIDE);
-	gluDisk (quadric, 0, baseRadius, GLWidget::QUADRIC_SLICES,
-		 GLWidget::QUADRIC_STACKS);
-	glPopMatrix ();
-    }
-
-    static void displayEdge (
-	GLUquadricObj* quadric, float edgeRadius,
-	const G3D::Vector3& begin, const G3D::Vector3& end)
-    {
-	G3D::Matrix3 rotation;
-	edgeRotation (&rotation, begin, end);
-	G3D::CoordinateFrame frame (rotation, begin);
-	gluQuadricOrientation (quadric, GLU_OUTSIDE);
-	glMatrixMode (GL_MODELVIEW);
-	glPushMatrix ();
-	glMultMatrix (frame);
-	gluCylinder (quadric, edgeRadius, edgeRadius, (end - begin).length (),
-		     GLWidget::QUADRIC_SLICES, GLWidget::QUADRIC_STACKS);
-	gluQuadricOrientation (quadric, GLU_INSIDE);
-	gluDisk (quadric, 0, edgeRadius, GLWidget::QUADRIC_SLICES,
-		 GLWidget::QUADRIC_STACKS);
-	glTranslatef (end.x, end.y, end.z);
-	glPopMatrix ();
-    }
-
-    static void edgeRotation (
-	G3D::Matrix3* rotation,
-	const G3D::Vector3& begin, const G3D::Vector3& end)
-    {
-	using G3D::Vector3;
-	Vector3 newZ = end - begin;
-	if (newZ.isZero ())
-	    return;
-	newZ = newZ.unit ();
-	Vector3 newX, newY;
-	newZ.getTangents (newX, newY);
-	rotation->setColumn (0, newX);
-	rotation->setColumn (1, newY);
-	rotation->setColumn (2, newZ);
-    }
-};
-
-class DisplayOriginalEdgeTorus : public DisplayEdgeTorus
-{
-public:
-    DisplayOriginalEdgeTorus (const GLWidget& widget) : 
-    DisplayEdgeTorus (widget) {}
-    void operator () (const Edge* e)
-    {
-	if (! e->IsDuplicate ())
-	    display (e);
     }
 };
 
@@ -225,6 +252,8 @@ public:
 	glBegin (GL_POLYGON);
 	const vector<OrientedEdge*>& v = f->GetOrientedEdges ();
 	for_each (v.begin (), v.end (), DisplayBeginVertex());
+	if (! f->IsClosed ())
+	    DisplayEdgeVertices () (v[v.size () - 1]);
 	glEnd ();
     }
 };

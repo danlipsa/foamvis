@@ -54,7 +54,7 @@ MainWindow::MainWindow(DataFiles& dataFiles) :
     // 100 ms
     m_timer->setInterval (100);
     QObject::connect(m_timer.get (), SIGNAL(timeout()),
-                     this, SLOT(IncrementSlider ()));
+                     this, SLOT(TimeoutTimer ()));
 }
 
 
@@ -213,7 +213,7 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 // Slots
 // ======================================================================
 
-void MainWindow::TogglePlay ()
+void MainWindow::ClickedPlay ()
 {
     if (m_play)
     {
@@ -231,32 +231,32 @@ void MainWindow::TogglePlay ()
     m_play = ! m_play;
 }
 
-void MainWindow::BeginSlider ()
+void MainWindow::ClickedBegin ()
 {
     sliderData->setValue (sliderData->minimum ());
     updateButtons ();
     updateStatus ();
 }
 
-void MainWindow::EndSlider ()
+void MainWindow::ClickedEnd ()
 {
     sliderData->setValue (sliderData->maximum ());
     updateButtons ();
     updateStatus ();
 }
 
-void MainWindow::IncrementSlider ()
+void MainWindow::TimeoutTimer ()
 {
     int value = sliderData->value ();
     if (value < sliderData->maximum ())
         sliderData->setValue (value + 1);
     else
-        TogglePlay ();
+        ClickedPlay ();
 }
 
-void MainWindow::DataSliderValueChanged (int value)
+void MainWindow::ValueChangedSliderData (int value)
 {
-    widgetGl->DataSliderValueChanged (value);
+    widgetGl->ValueChangedSliderData (value);
     widgetGl->UpdateDisplay ();
     updateButtons ();
     updateStatus ();
@@ -274,27 +274,27 @@ void MainWindow::DataSliderValueChanged (int value)
 }
 
 
-void MainWindow::ViewPhysicalVertices (bool checked)
+void MainWindow::ToggledVerticesPhysical (bool checked)
 {
-    widgetGl->ViewPhysicalVertices (checked);
+    widgetGl->ToggledVerticesPhysical (checked);
     if (checked)
 	stackedWidgetVertices->setCurrentWidget (pageVerticesPhysical);
     else
 	stackedWidgetVertices->setCurrentWidget (pageVerticesEmpty);
 }
 
-void MainWindow::ViewRawEdges (bool checked)
+void MainWindow::ToggledEdgesTorus (bool checked)
 {
-    widgetGl->ViewRawEdges (checked);
+    widgetGl->ToggledEdgesTorus (checked);
     if (checked)
 	stackedWidgetEdges->setCurrentWidget (pageEdgesTorus);
     else
 	stackedWidgetEdges->setCurrentWidget (pageEdgesEmpty);
 }
 
-void MainWindow::ViewRawFaces (bool checked)
+void MainWindow::ToggledFacesTorus (bool checked)
 {
-    widgetGl->ViewRawFaces (checked);
+    widgetGl->ToggledFacesTorus (checked);
     if (checked)
 	stackedWidgetFaces->setCurrentWidget (pageFacesTorus);
     else
@@ -302,19 +302,19 @@ void MainWindow::ViewRawFaces (bool checked)
 }
 
 
-void MainWindow::ViewPhysicalEdges (bool checked)
+void MainWindow::ToggledEdgesPhysical (bool checked)
 {
-    widgetGl->ViewPhysicalEdges (checked);
+    widgetGl->ToggledEdgesPhysical (checked);
     if (checked)
 	stackedWidgetEdges->setCurrentWidget (pageEdgesPhysical);
     else
 	stackedWidgetEdges->setCurrentWidget (pageEdgesEmpty);
 }
 
-void MainWindow::SaveMovie (bool checked)
+void MainWindow::ToggledSaveMovie (bool checked)
 {
     m_saveMovie = checked;
     if (checked)
 	m_currentFrame = 0;
-    DataSliderValueChanged (sliderData->value ());
+    ValueChangedSliderData (sliderData->value ());
 }

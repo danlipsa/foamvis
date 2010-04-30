@@ -135,7 +135,7 @@ public:
      * Displays the center of the bodies
      */
     void displayCenterOfBodies ();
-    void DataChanged () {DataSliderValueChanged (m_dataIndex);}
+    void DataChanged () {ValueChangedSliderData (m_dataIndex);}
 
     GLUquadricObj* GetQuadricObject () const 
     {
@@ -151,57 +151,60 @@ public:
     float GetArrowBaseRadius () const {return m_arrowBaseRadius;}
     float GetArrowHeight () const {return m_arrowHeight;}
     float GetEdgeRadius () const {return m_edgeRadius;}
+
+    // Slot like methods
+    // ======================================================================
     /**
      * Signals a change in data displayed
      * @param newIndex the new index for the data object to be displayed
      */
-    void DataSliderValueChanged (int newIndex);
-    void ViewPhysicalVertices (bool checked);
-    void ViewPhysicalEdges (bool checked);
-    void ViewRawEdges (bool checked);
-    void ViewRawFaces (bool checked);
+    void ValueChangedSliderData (int newIndex);
+    void ToggledVerticesPhysical (bool checked);
+    void ToggledEdgesPhysical (bool checked);
+    void ToggledEdgesTorus (bool checked);
+    void ToggledFacesTorus (bool checked);
 
 public Q_SLOTS:
     /**
      * Shows vertices
      * @param checked true for showing vertices false otherwise
      */
-    void ViewVertices (bool checked);
-    void ViewRawVertices (bool checked);
+    void ToggledVerticesNormal (bool checked);
+    void ToggledVerticesTorus (bool checked);
     /**
      * Shows edges
      * @param checked true for showing edges false otherwise
      */
-    void ViewEdges (bool checked);
+    void ToggledEdgesNormal (bool checked);
     /**
      * Shows faces
      * @param checked true for showing faces false otherwise
      */
-    void ViewFaces (bool checked);
+    void ToggledFacesNormal (bool checked);
     /**
      * Shows bodies
      * @param checked true for showing bodies false otherwise
      */
-    void ViewBodies (bool checked);
-    void ViewTorusOriginalDomain (bool checked);
+    void ToggledBodies (bool checked);
+    void ToggledTorusOriginalDomain (bool checked);
     /**
      * Shows center paths
      * param checked true for showing the center paths false otherwise
      */
-    void ViewCenterPaths (bool checked);
+    void ToggledCenterPath (bool checked);
     /**
      * Signals a change in the size of the physical objects
      * @param value the new size
      */
-    void PhysicalVertexSizeChanged (int value);
-    void PhysicalEdgeWidthChanged (int value);
+    void ValueChangedVerticesPhysical (int value);
+    void ValueChangedEdgesPhysical (int value);
     /**
      * Signals a change in the size of the tessellation objects
      * @param value the new size
      */
-    void TessellationVertexSizeChanged (int value);
-    void TessellationEdgeWidthChanged (int value);
-    void InteractionModeChanged (int index);
+    void ValueChangedVerticesTessellation (int value);
+    void ValueChangedEdgesTessellation (int value);
+    void currentIndexChangedInteractionMode (int index);
     void ToggledEdgesTorusLighting (bool checked);
     void ToggledFacesTorusLighting (bool checked);
 
@@ -242,16 +245,16 @@ private:
      */
     enum ViewType {
         VERTICES,
-	RAW_VERTICES,
-	PHYSICAL_VERTICES,
+	VERTICES_TORUS,
+	VERTICES_PHYSICAL,
 
         EDGES,
-	RAW_EDGES,
-	PHYSICAL_EDGES,
+	EDGES_TORUS,
+	EDGES_PHYSICAL,
 
         FACES,
-	RAW_FACES,
-        BODIES,
+	FACES_TORUS,
+        FACES_LIGHTING,
 	CENTER_PATHS,
         VIEW_TYPE_COUNT
     };
@@ -281,39 +284,34 @@ private:
      * Generates a display list for vertices
      * @return the display list
      */
-    GLuint displayVertices ();
-    GLuint displayRawVertices ();
-    GLuint displayPhysicalVertices ();
+    GLuint displayListVerticesNormal ();
+    GLuint displayListVerticesTorus ();
+    GLuint displayListVerticesPhysical ();
     /**
      * Generates a display list for edges
      * @return the display list
      */
-    GLuint displayEdges ();
-    GLuint displayRawEdgesLighting ();
-    GLuint displayPhysicalEdges ();
+    GLuint displayListEdgesNormal ();
+    GLuint displayListEdgesTorusLighting ();
+    GLuint displayListEdgesTorus ();
+    GLuint displayListEdgesPhysical ();
 
-    /**
-     * Generates a display list for vertices or edges
-     * @param type specifies vertices or edges
-     * @return the display list
-     */
-    GLuint displayEV (ViewType type);
     /**
      * Generates a display list for faces
      * @return the display list
      */
-    GLuint displayFaces ();
-    GLuint displayRawFacesLighting ();
-
+    GLuint displayListFacesNormal ();
+    GLuint displayListFacesTorusLighting ();
+    GLuint displayListFacesTorus ();
     /**
      * Generates a display list for bodies
      * @return the display list
      */
-    GLuint displayBodies ();
+    GLuint displayListFacesLighting ();
     /**
      * Generates a display list for center paths
      */
-    GLuint displayCenterPaths ();
+    GLuint displayListCenterPaths ();
     void displayOriginalDomain ();
     /**
      * Rotates the foam around an axis with a certain angle

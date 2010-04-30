@@ -162,7 +162,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="vertices">
             <attribute name="title">
@@ -258,7 +258,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QSlider" name="sliderVertexTessellation">
+                     <widget class="QSlider" name="sliderVerticesTessellation">
                       <property name="maximum">
                        <number>4</number>
                       </property>
@@ -281,7 +281,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QSlider" name="sliderVertexPhysical">
+                     <widget class="QSlider" name="sliderVerticesPhysical">
                       <property name="maximum">
                        <number>4</number>
                       </property>
@@ -390,7 +390,7 @@
                <widget class="QWidget" name="pageEdgesTorus">
                 <layout class="QVBoxLayout" name="verticalLayout_17">
                  <item>
-                  <widget class="QCheckBox" name="checkBox">
+                  <widget class="QCheckBox" name="checkBoxEdgesTorusLighting">
                    <property name="text">
                     <string>Lighting</string>
                    </property>
@@ -439,7 +439,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QSlider" name="sliderEdgeTessellation">
+                     <widget class="QSlider" name="sliderEdgesTessellation">
                       <property name="maximum">
                        <number>4</number>
                       </property>
@@ -462,7 +462,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QSlider" name="sliderEdgePhysical">
+                     <widget class="QSlider" name="sliderEdgesPhysical">
                       <property name="maximum">
                        <number>4</number>
                       </property>
@@ -555,7 +555,7 @@
                <widget class="QWidget" name="pageFacesTorus">
                 <layout class="QVBoxLayout" name="verticalLayout_21">
                  <item>
-                  <widget class="QCheckBox" name="checkBox_2">
+                  <widget class="QCheckBox" name="checkBoxFacesTorusLighting">
                    <property name="text">
                     <string>Lighting</string>
                    </property>
@@ -701,23 +701,28 @@
    <header>GLWidget.h</header>
    <container>1</container>
    <slots>
-    <slot>ViewVertices(bool)</slot>
-    <slot>ViewEdges(bool)</slot>
-    <slot>ViewFaces(bool)</slot>
-    <slot>ViewBodies(bool)</slot>
-    <slot>nextFace()</slot>
-    <slot>ViewCenterPaths(bool)</slot>
-    <slot>ViewRawVertices(bool)</slot>
-    <slot>ViewRawEdges(bool)</slot>
-    <slot>ViewRawFaces(bool)</slot>
-    <slot>InteractionModeChanged(int)</slot>
-    <slot>PhysicalVertexWidthChanged(int)</slot>
-    <slot>PhysicalEdgeWidthChanged(int)</slot>
-    <slot>ViewTorusOriginalDomain(bool)</slot>
-    <slot>TessellationVertexSizeChanged(int)</slot>
-    <slot>PhysicalVertexSizeChanged(int)</slot>
     <slot>ToggledEdgesTorusLighting(bool)</slot>
     <slot>ToggledFacesTorusLighting(bool)</slot>
+    <slot>ToggledVertices(bool)</slot>
+    <slot>ToggledEdges(bool)</slot>
+    <slot>ToggledFaces(bool)</slot>
+    <slot>ToggledBodies(bool)</slot>
+    <slot>ToggledCenterPaths(bool)</slot>
+    <slot>ToggledRawVertices(bool)</slot>
+    <slot>ToggledRawEdges(bool)</slot>
+    <slot>ToggledRawFaces(bool)</slot>
+    <slot>ToggledTorusOriginalDomain(bool)</slot>
+    <slot>currentIndexChangedInteractionMode(int)</slot>
+    <slot>ToggledEdgesNormal(bool)</slot>
+    <slot>ToggledVerticesTorus(bool)</slot>
+    <slot>ToggledEdgesTorus(bool)</slot>
+    <slot>ValueChangedEdgesPhysical(int)</slot>
+    <slot>ValueChangedVerticesPhysical(int)</slot>
+    <slot>ToggledVerticesNormal(bool)</slot>
+    <slot>ToggledFacesNormal(bool)</slot>
+    <slot>ToggledCenterPath(bool)</slot>
+    <slot>ToggledFacesTorus(bool)</slot>
+    <slot>ValueChangedVerticesTessellation(int)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -727,7 +732,7 @@
    <sender>toolButtonPlay</sender>
    <signal>clicked()</signal>
    <receiver>Window</receiver>
-   <slot>TogglePlay()</slot>
+   <slot>ClickedPlay()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>82</x>
@@ -743,7 +748,7 @@
    <sender>toolButtonBegin</sender>
    <signal>clicked()</signal>
    <receiver>Window</receiver>
-   <slot>BeginSlider()</slot>
+   <slot>ClickedBegin()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>53</x>
@@ -759,7 +764,7 @@
    <sender>toolButtonEnd</sender>
    <signal>clicked()</signal>
    <receiver>Window</receiver>
-   <slot>EndSlider()</slot>
+   <slot>ClickedEnd()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>122</x>
@@ -775,7 +780,7 @@
    <sender>sliderData</sender>
    <signal>valueChanged(int)</signal>
    <receiver>Window</receiver>
-   <slot>DataSliderValueChanged(int)</slot>
+   <slot>ValueChangedSliderData(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>572</x>
@@ -791,7 +796,7 @@
    <sender>radioButtonVerticesPhysical</sender>
    <signal>toggled(bool)</signal>
    <receiver>Window</receiver>
-   <slot>ViewPhysicalVertices(bool)</slot>
+   <slot>ToggledVerticesPhysical(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>879</x>
@@ -807,7 +812,7 @@
    <sender>radioButtonEdgesPhysical</sender>
    <signal>toggled(bool)</signal>
    <receiver>Window</receiver>
-   <slot>ViewPhysicalEdges(bool)</slot>
+   <slot>ToggledEdgesPhysical(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>733</x>
@@ -823,7 +828,7 @@
    <sender>checkBoxSaveMovie</sender>
    <signal>toggled(bool)</signal>
    <receiver>Window</receiver>
-   <slot>SaveMovie(bool)</slot>
+   <slot>ToggledSaveMovie(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>657</x>
@@ -839,7 +844,7 @@
    <sender>comboBoxInteractionMode</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>InteractionModeChanged(int)</slot>
+   <slot>currentIndexChangedInteractionMode(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>679</x>
@@ -855,7 +860,7 @@
    <sender>radioButtonEdgesNormal</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ViewEdges(bool)</slot>
+   <slot>ToggledEdgesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>733</x>
@@ -871,7 +876,7 @@
    <sender>radioButtonVerticesTorus</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ViewRawVertices(bool)</slot>
+   <slot>ToggledVerticesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>879</x>
@@ -887,7 +892,7 @@
    <sender>radioButtonEdgesTorus</sender>
    <signal>toggled(bool)</signal>
    <receiver>Window</receiver>
-   <slot>ViewRawEdges(bool)</slot>
+   <slot>ToggledEdgesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>733</x>
@@ -903,7 +908,7 @@
    <sender>radioButtonFacesTorus</sender>
    <signal>toggled(bool)</signal>
    <receiver>Window</receiver>
-   <slot>ViewRawFaces(bool)</slot>
+   <slot>ToggledFacesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>733</x>
@@ -919,7 +924,7 @@
    <sender>radioButtonCenterPath</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ViewCenterPaths(bool)</slot>
+   <slot>ToggledCenterPath(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>733</x>
@@ -935,7 +940,7 @@
    <sender>radioButtonFacesNormal</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ViewFaces(bool)</slot>
+   <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>733</x>
@@ -951,7 +956,7 @@
    <sender>radioButtonVerticesNormal</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ViewVertices(bool)</slot>
+   <slot>ToggledVerticesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>879</x>
@@ -964,10 +969,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>sliderEdgePhysical</sender>
+   <sender>sliderEdgesPhysical</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>PhysicalEdgeWidthChanged(int)</slot>
+   <slot>ValueChangedEdgesPhysical(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>732</x>
@@ -980,10 +985,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>sliderEdgeTessellation</sender>
+   <sender>sliderEdgesTessellation</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>TessellationEdgeWidthChanged(int)</slot>
+   <slot>ValueChangedEdgesTessellation(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>732</x>
@@ -996,10 +1001,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>sliderVertexPhysical</sender>
+   <sender>sliderVerticesPhysical</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>PhysicalVertexSizeChanged(int)</slot>
+   <slot>ValueChangedVerticesPhysical(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>732</x>
@@ -1012,10 +1017,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>sliderVertexTessellation</sender>
+   <sender>sliderVerticesTessellation</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>TessellationVertexSizeChanged(int)</slot>
+   <slot>ValueChangedVerticesTessellation(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>732</x>
@@ -1031,7 +1036,7 @@
    <sender>checkBoxTorusOriginalDomain</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ViewTorusOriginalDomain(bool)</slot>
+   <slot>ToggledTorusOriginalDomain(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>902</x>
@@ -1044,7 +1049,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBox</sender>
+   <sender>checkBoxEdgesTorusLighting</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
    <slot>ToggledEdgesTorusLighting(bool)</slot>
@@ -1060,7 +1065,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_2</sender>
+   <sender>checkBoxFacesTorusLighting</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
    <slot>ToggledFacesTorusLighting(bool)</slot>
@@ -1077,15 +1082,15 @@
   </connection>
  </connections>
  <slots>
-  <slot>TogglePlay()</slot>
-  <slot>BeginSlider()</slot>
-  <slot>EndSlider()</slot>
-  <slot>DataSliderValueChanged(int)</slot>
-  <slot>ViewPhysicalVertices(bool)</slot>
-  <slot>ViewPhysicalEdges(bool)</slot>
-  <slot>SaveMovie(bool)</slot>
-  <slot>ViewRawEdges(bool)</slot>
-  <slot>ViewRawFaces(bool)</slot>
+  <slot>ClickedPlay()</slot>
+  <slot>ClickedBegin()</slot>
+  <slot>ClickedEnd()</slot>
+  <slot>ValueChangedSliderData(int)</slot>
+  <slot>ToggledVerticesPhysical(bool)</slot>
+  <slot>ToggledEdgesPhysical(bool)</slot>
+  <slot>ToggledSaveMovie(bool)</slot>
+  <slot>ToggledEdgesTorus(bool)</slot>
+  <slot>ToggledFacesTorus(bool)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroup"/>

@@ -2,13 +2,13 @@
  * @file   Color.h
  * @author Dan R. Lipsa
  * 
- * Colors of faces.
+ * Declaration of the color class
  */
 #ifndef __COLOR_H__
 #define __COLOR_H__
 
 /**
- * Colors of faces
+ * Colors of faces or edges
  */
 class Color
 {

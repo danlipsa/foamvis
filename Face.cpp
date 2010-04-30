@@ -17,6 +17,9 @@
 #include "ParsingDriver.h"
 #include "Vertex.h"
 
+// Private Classes
+// ======================================================================
+
 /**
  * Unary function that  creates an oriented edge from  an index into a
  * vector of Edge objects.
@@ -55,34 +58,15 @@ private:
     vector<Edge*>& m_edges;
 };
 
-class printIndex
-{
-public:
-    printIndex (ostream& ostr) : m_ostr (ostr) {}
-    void operator () (Body* body)
-    {
-	m_ostr << body->GetOriginalIndex () << " ";
-    }
-private:
-    ostream& m_ostr;
-};
 
-
-ostream& operator<< (ostream& ostr, const Face& f)
-{
-    ostr << "Adjacent bodies" << "(" << f.m_adjacentBodies.size () << "): ";
-    for_each (f.m_adjacentBodies.begin (), f.m_adjacentBodies.end (),
-	      printIndex (ostr));
-    ostr << endl;
-    ostr << "edges part of the face" << endl;
-    ostream_iterator<OrientedEdge*> output (ostr, "\n");
-    copy (f.m_edges.begin (), f.m_edges.end (), output);
-    ostr << " Face attributes: ";
-    return f.PrintAttributes (ostr);
-}
-
+// Static Fields
+// ======================================================================
 
 AttributesInfo* Face::m_infos;
+
+
+// Methods
+// ======================================================================
 
 Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
 	   size_t originalIndex, Data* data, bool duplicate) :
@@ -127,16 +111,6 @@ Face::~Face()
     using boost::bind;
     for_each(m_edges.begin(), m_edges.end(),
 	     bind(DeletePointer<OrientedEdge>(), _1));
-}
-
-void Face::StoreDefaultAttributes (AttributesInfo* infos)
-{
-    using EvolverData::parser;
-    m_infos = infos;
-    ColoredElement::StoreDefaultAttributes (infos);
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::ORIGINAL),
-        new IntegerAttributeCreator());
 }
 
 void Face::UpdateEdgesAdjacency ()
@@ -221,3 +195,34 @@ Face* Face::CreateDuplicate (const G3D::Vector3& newBegin) const
     return faceDuplicate;
 }
 
+bool Face::IsClosed () const
+{
+    return *m_edges[0]->GetBegin () == *m_edges[m_edges.size () - 1]->GetEnd ();
+}
+
+
+// Static and Friends Methods
+// ======================================================================
+
+void Face::StoreDefaultAttributes (AttributesInfo* infos)
+{
+    using EvolverData::parser;
+    m_infos = infos;
+    ColoredElement::StoreDefaultAttributes (infos);
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::ORIGINAL),
+        new IntegerAttributeCreator());
+}
+
+ostream& operator<< (ostream& ostr, const Face& f)
+{
+    ostr << "Adjacent bodies" << "(" << f.m_adjacentBodies.size () << "): ";
+    BOOST_FOREACH (Body* b, f.m_adjacentBodies)
+	ostr << b->GetOriginalIndex () << " ";
+    ostr << endl;
+    ostr << "edges part of the face" << endl;
+    ostream_iterator<OrientedEdge*> output (ostr, "\n");
+    copy (f.m_edges.begin (), f.m_edges.end (), output);
+    ostr << " Face attributes: ";
+    return f.PrintAttributes (ostr);
+}

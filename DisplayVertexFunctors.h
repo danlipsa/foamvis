@@ -42,6 +42,21 @@ struct DisplayBeginVertex
     }
 };
 
+struct DisplayEdgeVertices
+{
+    DisplayEdgeVertices () {}
+    DisplayEdgeVertices (const GLWidget&) {}
+    void operator() (const OrientedEdge* edge)
+    {
+	Vertex& b = *edge->GetBegin ();
+	glVertex (b);
+	Vertex& e = *edge->GetEnd ();
+	glVertex (e);
+    }
+};
+
+
+
 
 class DisplayPhysicalVertex : public DisplayElement
 {
