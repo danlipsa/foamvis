@@ -98,6 +98,7 @@ public:
 	return m_endDomainIncrement;
     }
     bool operator== (const Edge& other) const;
+    bool fuzzyEq (const Edge& other) const;
     bool operator< (const Edge& other) const;
     bool IsZero () const;
     Edge* CreateDuplicate (const G3D::Vector3& newBegin) const;

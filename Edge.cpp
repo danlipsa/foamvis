@@ -128,6 +128,12 @@ bool Edge::operator== (const Edge& other) const
 	*GetBegin () == *other.GetBegin ();
 }
 
+bool Edge::fuzzyEq (const Edge& other) const
+{
+    return GetOriginalIndex () == other.GetOriginalIndex () &&
+	GetBegin ()->fuzzyEq(*other.GetBegin ());
+}
+
 bool Edge::IsZero () const
 {
     return (*GetEnd () - *GetBegin ()).isZero ();

@@ -14,6 +14,32 @@
 #include "ParsingData.h"
 #include "Vertex.h"
 
+// Private Classes
+// ======================================================================
+
+size_t countIntersections (OrientedEdge* e);
+
+class printFaceIfIntersection
+{
+public:
+    printFaceIfIntersection (ostream& ostr) : m_ostr(ostr) {}
+    void operator () (Face* f)
+    {
+	vector<OrientedEdge*>::iterator it;
+	vector<OrientedEdge*>& v = f->GetOrientedEdges ();
+	vector<size_t> intersections(v.size ());
+	transform (
+	    v.begin (), v.end (), intersections.begin (), countIntersections);
+	size_t totalIntersections = accumulate (
+	    intersections.begin (), intersections.end (), 0);
+	m_ostr << f->GetOriginalIndex () << " has " 
+	       << totalIntersections << " intersections" << endl;
+    }
+private:
+    ostream& m_ostr;
+};
+
+
 struct EdgeSearchDummy
 {
     EdgeSearchDummy (const G3D::Vector3* position, Data* data,
@@ -33,6 +59,65 @@ struct FaceSearchDummy
     Edge m_edge;
     Face m_face;
 };
+
+template<typename Container, typename ContainerIterator>
+struct calculateAggregate
+{
+    typedef ContainerIterator (*AggregateOnContainer) (
+	ContainerIterator first, 
+	ContainerIterator second, 
+	VertexLessThanAlong lessThan);
+    void operator() (AggregateOnContainer aggregate,
+		     G3D::Vector3* v,
+		     Container& vertices)
+    {
+	using G3D::Vector3;
+	ContainerIterator it;
+	it = aggregate (vertices.begin (), vertices.end (), 
+			VertexLessThanAlong(Vector3::X_AXIS));;
+	v->x = (*it)->x;
+	it = aggregate (vertices.begin (), vertices.end (), 
+			VertexLessThanAlong(Vector3::Y_AXIS));
+	v->y = (*it)->y;
+	it = aggregate (vertices.begin (), vertices.end (), 
+			VertexLessThanAlong(Vector3::Z_AXIS));
+	v->z = (*it)->z;
+    }
+};
+
+
+// Private Functions
+// ======================================================================
+
+size_t countIntersections (OrientedEdge* e)
+{
+    const G3D::Vector3int16& domainIncrement = 
+	e->GetEdge ()->GetEndDomainIncrement ();
+    return ((domainIncrement.x != 0) + 
+	    (domainIncrement.y != 0) + (domainIncrement.z != 0));
+}
+
+template <typename Container, 
+	  typename ContainerIterator, typename ContainerKeyType>
+ContainerIterator fuzzyFind (const Container& s, const ContainerKeyType& x)
+{
+    ContainerIterator it = s.lower_bound (x);
+    if (it != s.end () && (*it)->fuzzyEq (*x))
+	return it;
+    if (it != s.begin ())
+    {
+	--it;
+	if ((*(it))->fuzzyEq (*x))
+	    return it;
+    }
+    return s.end ();
+}
+
+
+G3D::Vector3* Vector3Address (G3D::Vector3& v)
+{
+    return &v;
+}
 
 /**
  * Move elements in a vector toward the begining of the vector so that we 
@@ -54,45 +139,15 @@ void compact (vector<E*>& v)
     v.resize (resize);
 }
 
-ostream& operator<< (ostream& ostr, Data& d)
+void equalize (G3D::Vector3& first, G3D::Vector3& second)
 {
-    ostr << "Data:\n";
-    ostr << "AABox:\n";
-    ostr << d.m_AABox << endl;
-    {
-	ostr << "view matrix:\n";
-	ostream_iterator<float> o (ostr, " ");
-	copy (d.m_viewMatrix.begin (), d.m_viewMatrix.end (), o);
-	ostr << endl;
-    }
-    if (d.IsTorus ())
-    {
-	ostr << "torus periods:\n";
-	ostream_iterator<G3D::Vector3> o (ostr, "\n");
-	copy (d.m_periods.begin (), d.m_periods.end (), o);
-	ostr << endl;
-    }
-
-    ostr << "vertices:\n";
-    ostream_iterator<Vertex*> vOutput (ostr, "\n");
-    copy (d.m_vertices.begin (), d.m_vertices.end (), vOutput);
-    
-    ostr << "edges:\n";
-    ostream_iterator<Edge*> eOutput (ostr, "\n");
-    copy (d.m_edges.begin (), d.m_edges.end (), eOutput);
-
-    ostr << "faces:";
-    ostream_iterator<Face*> fOutput (ostr, "\n");
-    copy (d.m_faces.begin (), d.m_faces.end (), fOutput);
-
-    ostr << "bodies:\n";
-    ostream_iterator<Body*> bOutput (ostr, "\n");
-    copy (d.m_bodies.begin (), d.m_bodies.end (), bOutput);
-
-    Vertex::PrintDomains (ostr, d.m_vertices);
-    d.PrintFacesWithIntersection (ostr);
-    return ostr;
+    for (int i = 0; i < 3; i++)
+	if (G3D::fuzzyEq (first[i], second[i]))
+	    first[i] = second[i];
 }
+
+// Methods
+// ======================================================================
 
 Data::Data () : 
     m_parsingData (new ParsingData ()),
@@ -136,7 +191,9 @@ Vertex* Data::GetVertexDuplicate (
     const Vertex& original, const G3D::Vector3int16& domainIncrement)
 {
     Vertex searchDummy (&original, this, domainIncrement);
-    VertexSet::iterator it = m_vertexSet.find (&searchDummy);
+    VertexSet::iterator it = fuzzyFind 
+	<VertexSet, VertexSet::iterator, VertexSet::key_type> (
+	m_vertexSet, &searchDummy);
     if (it != m_vertexSet.end ())
 	return *it;
     Vertex* duplicate = original.CreateDuplicate (domainIncrement);
@@ -145,13 +202,13 @@ Vertex* Data::GetVertexDuplicate (
     return duplicate;
 }
 
-
-
 Edge* Data::GetEdgeDuplicate (
     const Edge& original, const G3D::Vector3& newBegin)
 {
     EdgeSearchDummy searchDummy (&newBegin, this, original.GetOriginalIndex ());
-    EdgeSet::iterator it = m_edgeSet.find (&searchDummy.m_edge);
+    EdgeSet::iterator it = 
+	fuzzyFind <EdgeSet, EdgeSet::iterator, EdgeSet::key_type> (
+	    m_edgeSet, &searchDummy.m_edge);
     if (it != m_edgeSet.end ())
 	return *it;
     Edge* duplicate = original.CreateDuplicate (newBegin);
@@ -261,32 +318,6 @@ void Data::CalculatePhysical ()
 	      bind (&Edge::UpdateVerticesAdjacency, _1));
 }
 
-template<typename Container, typename ContainerIterator>
-struct calculateAggregate
-{
-    typedef ContainerIterator (*AggregateOnContainer) (
-	ContainerIterator first, 
-	ContainerIterator second, 
-	VertexLessThanAlong lessThan);
-    void operator() (AggregateOnContainer aggregate,
-		     G3D::Vector3* v,
-		     Container& vertices)
-    {
-	using G3D::Vector3;
-	ContainerIterator it;
-	it = aggregate (vertices.begin (), vertices.end (), 
-			VertexLessThanAlong(Vector3::X_AXIS));;
-	v->x = (*it)->x;
-	it = aggregate (vertices.begin (), vertices.end (), 
-			VertexLessThanAlong(Vector3::Y_AXIS));
-	v->y = (*it)->y;
-	it = aggregate (vertices.begin (), vertices.end (), 
-			VertexLessThanAlong(Vector3::Z_AXIS));
-	v->z = (*it)->z;
-    }
-};
-
-
 void Data::CalculateAABox ()
 {
     using G3D::Vector3;
@@ -298,11 +329,6 @@ void Data::CalculateAABox ()
     if (IsTorus ())
 	calculateAABoxForTorus (&low, &high);
     m_AABox.set(low, high);
-}
-
-G3D::Vector3* Vector3Address (G3D::Vector3& v)
-{
-    return &v;
 }
 
 void Data::calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high)
@@ -359,36 +385,6 @@ void Data::StoreEdgesNoAdjacentFace ()
 	    m_edgesNoAdjacentFace.push_back (e);
 }
 
-
-size_t countIntersections (OrientedEdge* e)
-{
-    const G3D::Vector3int16& domainIncrement = 
-	e->GetEdge ()->GetEndDomainIncrement ();
-    return ((domainIncrement.x != 0) + 
-	    (domainIncrement.y != 0) + (domainIncrement.z != 0));
-}
-
-class printFaceIfIntersection
-{
-public:
-    printFaceIfIntersection (ostream& ostr) : m_ostr(ostr) {}
-    void operator () (Face* f)
-    {
-	vector<OrientedEdge*>::iterator it;
-	vector<OrientedEdge*>& v = f->GetOrientedEdges ();
-	vector<size_t> intersections(v.size ());
-	transform (
-	    v.begin (), v.end (), intersections.begin (), countIntersections);
-	size_t totalIntersections = accumulate (
-	    intersections.begin (), intersections.end (), 0);
-	m_ostr << f->GetOriginalIndex () << " has " 
-	       << totalIntersections << " intersections" << endl;
-    }
-private:
-    ostream& m_ostr;
-};
-
-
 ostream& Data::PrintFacesWithIntersection (ostream& ostr) const
 {
     ostr << "Face intersections:" << endl;
@@ -425,6 +421,7 @@ G3D::Vector3int16 Data::GetDomainIncrement (
     }
     Vector3 o = toOrthonormal * original;
     Vector3 d = toOrthonormal * duplicate;
+    equalize (o, d);
     Vector3int16 originalDomain (floorf (o.x), floorf(o.y), floorf(o.z));
     Vector3int16 duplicateDomain (floorf (d.x), floorf(d.y), floorf(d.z));
     return duplicateDomain - originalDomain;
@@ -448,4 +445,48 @@ void Data::AddAttributeInfo (
 {
     m_attributesInfo[type].AddAttributeInfo (name, creator);
     m_parsingData->AddAttribute (name);
+}
+
+
+// Static and Friends Methods
+// ======================================================================
+
+ostream& operator<< (ostream& ostr, Data& d)
+{
+    ostr << "Data:\n";
+    ostr << "AABox:\n";
+    ostr << d.m_AABox << endl;
+    {
+	ostr << "view matrix:\n";
+	ostream_iterator<float> o (ostr, " ");
+	copy (d.m_viewMatrix.begin (), d.m_viewMatrix.end (), o);
+	ostr << endl;
+    }
+    if (d.IsTorus ())
+    {
+	ostr << "torus periods:\n";
+	ostream_iterator<G3D::Vector3> o (ostr, "\n");
+	copy (d.m_periods.begin (), d.m_periods.end (), o);
+	ostr << endl;
+    }
+
+    ostr << "vertices:\n";
+    ostream_iterator<Vertex*> vOutput (ostr, "\n");
+    copy (d.m_vertices.begin (), d.m_vertices.end (), vOutput);
+    
+    ostr << "edges:\n";
+    ostream_iterator<Edge*> eOutput (ostr, "\n");
+    copy (d.m_edges.begin (), d.m_edges.end (), eOutput);
+
+    ostr << "faces:";
+    ostream_iterator<Face*> fOutput (ostr, "\n");
+    copy (d.m_faces.begin (), d.m_faces.end (), fOutput);
+
+    ostr << "bodies:\n";
+    ostream_iterator<Body*> bOutput (ostr, "\n");
+    copy (d.m_bodies.begin (), d.m_bodies.end (), bOutput);
+
+    Vertex::PrintDomains (ostr, d.m_vertices);
+    d.PrintFacesWithIntersection (ostr);
+    return ostr;
 }
