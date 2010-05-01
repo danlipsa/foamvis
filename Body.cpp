@@ -123,8 +123,8 @@ AttributesInfo* Body::m_infos;
 
 Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
 	   size_t originalIndex, Data* data,
-	   bool duplicate) :
-    Element(originalIndex, data, duplicate), m_placedOrientedFaces (0)
+	   ElementStatus::Name status) :
+    Element(originalIndex, data, status), m_placedOrientedFaces (0)
 {
     using boost::bind;
     m_faces.resize (faceIndexes.size ());

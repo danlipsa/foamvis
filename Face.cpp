@@ -69,8 +69,8 @@ AttributesInfo* Face::m_infos;
 // ======================================================================
 
 Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
-	   size_t originalIndex, Data* data, bool duplicate) :
-    ColoredElement (originalIndex, data, duplicate)
+	   size_t originalIndex, Data* data, ElementStatus::Name status) :
+    ColoredElement (originalIndex, data, status)
 {
     m_edges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_edges.begin(), 
@@ -86,7 +86,7 @@ Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges,
 	    else
 		edgeBegin = *begin;
 	    oe->SetEdge (
-		data->GetEdgeDuplicate (*oe->GetEdge (), edgeBegin));
+		data->GetEdgeDuplicate (oe->GetEdge (), edgeBegin));
 	    begin = oe->GetEnd ();
 	}
     }
@@ -94,13 +94,14 @@ Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges,
 
 
 Face::Face (Edge* edge, size_t originalIndex) :
-    ColoredElement (originalIndex, 0, false)
+    ColoredElement (originalIndex, 0, ElementStatus::ORIGINAL)
 {
     m_edges.push_back (new OrientedEdge (edge, false));
 }
 
 Face::Face (const Face& original) :
-    ColoredElement (original.GetOriginalIndex (), original.GetData (), true)
+    ColoredElement (original.GetOriginalIndex (), original.GetData (), 
+		    ElementStatus::DUPLICATE)
 {
     BOOST_FOREACH (OrientedEdge* oe, original.m_edges)
 	m_edges.push_back (new OrientedEdge (*oe));
@@ -188,7 +189,7 @@ Face* Face::CreateDuplicate (const G3D::Vector3& newBegin) const
 	else
 	    edgeBegin = begin;
 	Edge* edgeDuplicate = m_data->GetEdgeDuplicate (
-	    *oe->GetEdge (), edgeBegin);
+	    oe->GetEdge (), edgeBegin);
 	oe->SetEdge (edgeDuplicate);
 	begin = *oe->GetEnd ();
     }

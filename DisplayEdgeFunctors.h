@@ -136,7 +136,7 @@ public:
     
     void operator() (const Edge* e)
     {
-	if (showDuplicates || ! e->IsDuplicate ())
+	if (showDuplicates || e->GetStatus () != ElementStatus::DUPLICATE)
 	    display (e);
     }
 protected:

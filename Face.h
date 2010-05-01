@@ -32,7 +32,7 @@ public:
      */
     Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
 	 size_t originalIndex, Data* data,
-	 bool duplicate = false);
+	 ElementStatus::Name status = ElementStatus::ORIGINAL);
     Face (const Face& original);
     Face (Edge* edge, size_t originalIndex);
 

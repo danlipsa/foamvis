@@ -15,8 +15,8 @@ class ColoredElement : public Element
 {
 public:
     ColoredElement(size_t originalIndex, Data* data,
-		   bool duplicate) :
-    Element (originalIndex, data, duplicate) 
+		   ElementStatus::Name status) :
+    Element (originalIndex, data, status) 
     {}
 
     /**
@@ -44,3 +44,7 @@ private:
 
 
 #endif //__COLORED_ELEMENT_H__
+
+// Local Variables:
+// mode: c++
+// End:

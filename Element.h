@@ -7,6 +7,7 @@
 #ifndef __ELEMENT_H__
 #define __ELEMENT_H__
 
+#include "ElementStatus.h"
 class Attribute;
 class AttributesInfo;
 class NameSemanticValue;
@@ -23,11 +24,11 @@ public:
      * Constructor for the Element
      */
     Element(size_t originalIndex, Data* data,
-	    bool duplicate) : 
+	    ElementStatus::Name status) : 
 	m_attributes(0),
 	m_originalIndex (originalIndex), 
 	m_data (data),
-	m_duplicate (duplicate)
+	m_status (status)
     {}
     /**
      * Destructor for the Element
@@ -53,13 +54,13 @@ public:
     {
 	return m_originalIndex;
     }    
-    bool IsDuplicate () const
+    ElementStatus::Name GetStatus () const
     {
-	return m_duplicate;
+	return m_status;
     }
-    void SetDuplicate (bool duplicate) 
+    void SetStatus (ElementStatus::Name status) 
     {
-	m_duplicate = duplicate;
+	m_status = status;
     }
     Data* GetData () const
     {
@@ -84,7 +85,7 @@ protected:
      */
     size_t m_originalIndex;
     Data* m_data;
-    bool m_duplicate;
+    ElementStatus::Name m_status;
 
 protected:
     const static size_t INVALID_INDEX;

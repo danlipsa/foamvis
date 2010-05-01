@@ -3,7 +3,7 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h Color.h \
 	Data.h DataFiles.h Debug.h DebugStream.h DefineAttributeType.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h \
-	Edge.h Element.h ElementUtils.h ExpressionTree.h \
+	Edge.h Element.h ElementUtils.h ExpressionTree.h ElementStatus.h\
 	Face.h \
 	GLWidget.h Hashes.h InteractionMode.h\
 	MainWindow.h NameSemanticValue.h \
@@ -14,7 +14,8 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h Color.h \
 SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	Body.cpp Color.cpp ColoredElement.cpp Data.cpp DataFiles.cpp \
 	Debug.cpp DebugStream.cpp Edge.cpp \
-	Element.cpp ElementUtils.cpp ExpressionTree.cpp Face.cpp \
+	Element.cpp ElementUtils.cpp ExpressionTree.cpp ElementStatus.cpp\
+	Face.cpp \
 	GLWidget.cpp Hashes.cpp main.cpp MainWindow.cpp  \
 	NameSemanticValue.cpp \
 	OrientedEdge.cpp OrientedFace.cpp \

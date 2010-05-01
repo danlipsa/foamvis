@@ -38,7 +38,7 @@ public:
      */
     Body(vector<int>& faceIndexes, vector<Face*>& faces,
 	 size_t originalIndex, Data* data,
-	 bool duplicate = false);
+	 ElementStatus::Name status = ElementStatus::ORIGINAL);
     ~Body ();
     /**
      * Returns the  vector of oriented faces this body is made of

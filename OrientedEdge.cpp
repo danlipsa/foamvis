@@ -14,8 +14,8 @@ ostream& OrientedEdge::print (ostream& ostr, bool reversed) const
 {
     using G3D::Vector3;
     ostr << (m_reversed ? "(R)" : "(N)");
-    ostr << "Oriented Edge " << GetEdge ()-> GetOriginalIndex () 
-	 << (GetEdge ()->IsDuplicate () ? " DUPLICATE" : "")
+    ostr << "Oriented Edge " << GetEdge ()-> GetOriginalIndex () << " "
+	 << GetEdge ()->GetStatus ()
 	 << ": ";
     const Vector3* begin = static_cast<const G3D::Vector3*>(GetBegin ());
     const Vector3* end = static_cast<const G3D::Vector3*>(GetEnd ());

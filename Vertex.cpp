@@ -17,8 +17,8 @@
 
 ostream& operator<< (ostream& ostr, const Vertex& v)
 {
-    ostr << "Vertex " << v.GetOriginalIndex ()
-	 << (v.IsDuplicate () ? " DUPLICATE": "")
+    ostr << "Vertex " << v.GetOriginalIndex () << " "
+	 << v.GetStatus ()
 	 << static_cast<const G3D::Vector3&>(v)
 	 << " Vertex attributes: ";
     return v.PrintAttributes (ostr);
@@ -27,22 +27,22 @@ ostream& operator<< (ostream& ostr, const Vertex& v)
 AttributesInfo* Vertex::m_infos;
 
 Vertex::Vertex(float x, float y, float z, 
-	       size_t originalIndex, Data* data, bool duplicate) :
+	       size_t originalIndex, Data* data, ElementStatus::Name status) :
     G3D::Vector3 (x, y, z),
-    Element(originalIndex, data, duplicate),
+    Element(originalIndex, data, status),
     m_adjacentPhysicalEdgesCount (0), m_physical (false)
 {}
 
 Vertex::Vertex (const G3D::Vector3* position, Data* data) : 
     G3D::Vector3 (position->x, position->y, position->z),
-    Element (Element::INVALID_INDEX, data, false),
+    Element (Element::INVALID_INDEX, data, ElementStatus::ORIGINAL),
     m_adjacentPhysicalEdgesCount (0), m_physical (false)
 {}
 
 Vertex::Vertex (const G3D::Vector3* position, Data* data,
 		const G3D::Vector3int16& domainIncrement) : 
     G3D::Vector3 (position->x, position->y, position->z),
-    Element (Element::INVALID_INDEX, data, false),
+    Element (Element::INVALID_INDEX, data, ElementStatus::ORIGINAL),
     m_adjacentPhysicalEdgesCount (0), m_physical (false)
 {
     AdjustPosition (domainIncrement);
@@ -100,10 +100,11 @@ size_t hash_value (Vertex const& v)
 }
 
 Vertex* Vertex::CreateDuplicate (
-    const G3D::Vector3int16& domainIncrement) const
+    const G3D::Vector3int16& domainIncrement)
 {
+    SetStatus (ElementStatus::DUPLICATE_MADE);
     Vertex* duplicate = new Vertex (*this);
-    duplicate->SetDuplicate (true);
+    duplicate->SetStatus (ElementStatus::DUPLICATE);
     duplicate->AdjustPosition (domainIncrement);
     return duplicate;
 }

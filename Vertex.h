@@ -43,7 +43,7 @@ public:
      */
     Vertex(float x, float y, float z,
 	   size_t originalIndex, Data* data,
-	   bool duplicate=false);
+	   ElementStatus::Name status = ElementStatus::ORIGINAL);
     Vertex (const G3D::Vector3* position, Data* data);
     Vertex (const G3D::Vector3* position, Data* data,
 	    const G3D::Vector3int16& domainIncrement);
@@ -68,7 +68,7 @@ public:
     void AdjustPosition (const G3D::Vector3int16& domainIncrement);
     bool operator< (const Vertex& other) const;
     bool operator== (const Vertex& other) const;
-    Vertex* CreateDuplicate (const G3D::Vector3int16& domainIncrement) const;
+    Vertex* CreateDuplicate (const G3D::Vector3int16& domainIncrement);
     ostream& PrintAttributes (ostream& ostr) const
     {
 	return printAttributes (ostr, *Vertex::m_infos);

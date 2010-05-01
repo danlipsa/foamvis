@@ -188,30 +188,31 @@ void Data::SetVertex (size_t i, float x, float y, float z,
 }
 
 Vertex* Data::GetVertexDuplicate (
-    const Vertex& original, const G3D::Vector3int16& domainIncrement)
+    Vertex* original, const G3D::Vector3int16& domainIncrement)
 {
-    Vertex searchDummy (&original, this, domainIncrement);
+    Vertex searchDummy (original, this, domainIncrement);
     VertexSet::iterator it = fuzzyFind 
 	<VertexSet, VertexSet::iterator, VertexSet::key_type> (
-	m_vertexSet, &searchDummy);
+	    m_vertexSet, &searchDummy);
     if (it != m_vertexSet.end ())
 	return *it;
-    Vertex* duplicate = original.CreateDuplicate (domainIncrement);
+    Vertex* duplicate = original->CreateDuplicate (domainIncrement);
     m_vertexSet.insert (duplicate);
     m_vertices.push_back (duplicate);
     return duplicate;
 }
 
 Edge* Data::GetEdgeDuplicate (
-    const Edge& original, const G3D::Vector3& newBegin)
+    Edge* original, const G3D::Vector3& newBegin)
 {
-    EdgeSearchDummy searchDummy (&newBegin, this, original.GetOriginalIndex ());
+    EdgeSearchDummy searchDummy (
+	&newBegin, this, original->GetOriginalIndex ());
     EdgeSet::iterator it = 
 	fuzzyFind <EdgeSet, EdgeSet::iterator, EdgeSet::key_type> (
 	    m_edgeSet, &searchDummy.m_edge);
     if (it != m_edgeSet.end ())
 	return *it;
-    Edge* duplicate = original.CreateDuplicate (newBegin);
+    Edge* duplicate = original->CreateDuplicate (newBegin);
     m_edgeSet.insert (duplicate);
     m_edges.push_back (duplicate);
     return duplicate;
@@ -381,7 +382,8 @@ void Data::StoreEdgesNoAdjacentFace ()
 {
     using boost::bind;
     BOOST_FOREACH (Edge* e, m_edges)
-	if (e->GetAdjacentFaces ().size () == 0)
+	if (e->GetAdjacentFaces ().size () == 0 && 
+	    e->GetStatus () == ElementStatus::ORIGINAL)
 	    m_edgesNoAdjacentFace.push_back (e);
 }
 

@@ -20,7 +20,7 @@ struct DisplayOriginalVertex
 {
     void operator() (Vertex* v)
     {
-	if (! v->IsDuplicate ())
+	if (v->GetStatus () != ElementStatus::DUPLICATE)
 	{
 	    glVertex (*v);	
 	}

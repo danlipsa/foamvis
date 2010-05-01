@@ -27,7 +27,7 @@ public:
     Edge (Vertex* begin, Vertex* end, 
 	  G3D::Vector3int16& endDomainIncrement, 
 	  size_t originalIndex, Data* data,
-	  bool duplicate = false);
+	  ElementStatus::Name status = ElementStatus::ORIGINAL);
     Edge (Vertex* begin, size_t originalIndex);
     Edge (const Edge& edge);
     /**
@@ -101,7 +101,7 @@ public:
     bool fuzzyEq (const Edge& other) const;
     bool operator< (const Edge& other) const;
     bool IsZero () const;
-    Edge* CreateDuplicate (const G3D::Vector3& newBegin) const;
+    Edge* CreateDuplicate (const G3D::Vector3& newBegin);
     ostream& PrintAttributes (ostream& ostr) const
     {
 	return printAttributes (ostr, *Edge::m_infos);

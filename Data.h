@@ -63,7 +63,7 @@ public:
 	return m_vertices[i];
     }
     Vertex* GetVertexDuplicate (
-	const Vertex& original, const G3D::Vector3int16& domainIncrement);
+	Vertex* original, const G3D::Vector3int16& domainIncrement);
     /**
      * Gets the vector of vertices
      * @return the vector of vertices
@@ -91,7 +91,7 @@ public:
 	return m_edges;
     }
     Edge* GetEdgeDuplicate (
-	const Edge& original, const G3D::Vector3& edgeBegin);
+	Edge* original, const G3D::Vector3& edgeBegin);
     /**
      * Stores an Edge object in the Data object at a certain index
      * @param i index where to store the Edge object
