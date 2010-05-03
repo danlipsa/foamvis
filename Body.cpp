@@ -18,6 +18,9 @@
 #include "ProcessBodyTorus.h"
 #include "Vertex.h"
 
+// Private Classes
+// ======================================================================
+
 /**
  * Functor that caches an edge and its vertices
  */
@@ -111,15 +114,13 @@ private:
     vector<Face*>& m_faces;
 };
 
-ostream& operator<< (ostream& ostr, const Body& b)
-{
-    ostream_iterator<OrientedFace*> output (ostr, "\n");
-    copy (b.m_faces.begin (), b.m_faces.end (), output);
-    ostr << " Body attributes: ";
-    return b.PrintAttributes (ostr);
-}
+// Static Fields
+// ======================================================================
 
 AttributesInfo* Body::m_infos;
+
+// Methods
+// ======================================================================
 
 Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
 	   size_t originalIndex, Data* data,
@@ -151,24 +152,6 @@ Body::~Body()
     using boost::bind;
     for_each(m_faces.begin(), m_faces.end(), 
 	     bind (DeletePointer<OrientedFace>(), _1));
-}
-
-void Body::StoreDefaultAttributes (AttributesInfo* infos)
-{
-    using EvolverData::parser;
-    m_infos = infos;
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::ORIGINAL),
-        new IntegerAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::LAGRANGE_MULTIPLIER),
-        new RealAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::VOLUME),
-        new RealAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::VOLCONST),
-        new RealAttributeCreator());
 }
 
 void Body::CacheEdgesVertices ()
@@ -240,4 +223,33 @@ Body::NormalFaceMap::const_iterator Body::FindNormalFace (
 void Body::PrintDomains (ostream& ostr) const
 {
     Vertex::PrintDomains (ostr, m_vertices);
+}
+
+// Static and Friends Methods
+// ======================================================================
+
+void Body::StoreDefaultAttributes (AttributesInfo* infos)
+{
+    using EvolverData::parser;
+    m_infos = infos;
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::ORIGINAL),
+        new IntegerAttributeCreator());
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::LAGRANGE_MULTIPLIER),
+        new RealAttributeCreator());
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::VOLUME),
+        new RealAttributeCreator());
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::VOLCONST),
+        new RealAttributeCreator());
+}
+
+ostream& operator<< (ostream& ostr, const Body& b)
+{
+    ostream_iterator<OrientedFace*> output (ostr, "\n");
+    copy (b.m_faces.begin (), b.m_faces.end (), output);
+    ostr << " Body attributes: ";
+    return b.PrintAttributes (ostr);
 }
