@@ -93,9 +93,6 @@ struct OpenGLParam
     const char* m_name;
 };
 
-// Private Functions
-// ======================================================================
-
 template<typename T>
 class identity 
 {
@@ -111,6 +108,11 @@ public:
 private:
     T m_value;
 };
+
+
+// Private Functions
+// ======================================================================
+
 
 /**
  * Check the OpenGL  error code and prints a message  to cdbg if there
@@ -231,17 +233,19 @@ GLWidget::GLWidget(QWidget *parent)
 	    DOMAIN_INCREMENT_COLOR[di.z + 1]);
 	m_domainIncrementColor[di] = color;
     }
-	      
     m_domainIncrementColor[Vector3int16(0,0,0)] = QColor(0,0,0);
     m_domainIncrementColor[Vector3int16(0,0,0)] = QColor(0,0,0);
-
     m_quadric = gluNewQuadric ();
     gluQuadricCallback (m_quadric, GLU_ERROR,
 			reinterpret_cast<void (*)()>(&quadricErrorCallback));
-    
+    initViewTypeDisplay ();
+}
+
+void GLWidget::initViewTypeDisplay ()
+{
     boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> vtd = 
 	{{
-        {&GLWidget::displayListVerticesNormal, identity<Lighting>(NO_LIGHTING)},
+	{&GLWidget::displayListVerticesNormal, identity<Lighting>(NO_LIGHTING)},
 	{&GLWidget::displayListVerticesPhysical, 
 	 identity<Lighting> (NO_LIGHTING)},
 	{&GLWidget::displayListVerticesTorus, identity<Lighting> (NO_LIGHTING)},

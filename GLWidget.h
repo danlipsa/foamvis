@@ -372,6 +372,7 @@ private:
     void translateViewport (const QPoint& position);
     void scale (const QPoint& position);
     void scaleViewport (const QPoint& position);
+    void initViewTypeDisplay ();
 
 private:
     /**

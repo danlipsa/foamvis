@@ -162,7 +162,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>2</number>
            </property>
            <widget class="QWidget" name="vertices">
             <attribute name="title">
@@ -392,7 +392,7 @@
                  <item>
                   <widget class="QCheckBox" name="checkBoxEdgesTorusLighting">
                    <property name="text">
-                    <string>Lighting</string>
+                    <string>Tubes</string>
                    </property>
                   </widget>
                  </item>
@@ -549,7 +549,7 @@
              <item>
               <widget class="QStackedWidget" name="stackedWidgetFaces">
                <property name="currentIndex">
-                <number>0</number>
+                <number>1</number>
                </property>
                <widget class="QWidget" name="pageFacesEmpty"/>
                <widget class="QWidget" name="pageFacesTorus">
@@ -557,7 +557,7 @@
                  <item>
                   <widget class="QCheckBox" name="checkBoxFacesTorusLighting">
                    <property name="text">
-                    <string>Lighting</string>
+                    <string>Tubes</string>
                    </property>
                   </widget>
                  </item>
