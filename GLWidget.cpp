@@ -1,4 +1,4 @@
-/**
+/**s
  * @file   GLWidget.cpp
  * @author Dan R. Lipsa
  *
@@ -96,6 +96,22 @@ struct OpenGLParam
 // Private Functions
 // ======================================================================
 
+template<typename T>
+class identity 
+{
+public:
+    identity (T value)
+    {
+	m_value = value;
+    }
+    T operator() ()
+    {
+	return m_value;
+    }
+private:
+    T m_value;
+};
+
 /**
  * Check the OpenGL  error code and prints a message  to cdbg if there
  * is an error
@@ -174,10 +190,13 @@ void displayOriginalDomainFaces (G3D::Vector3 first,
 // Static Fields
 // ======================================================================
 
-float GLWidget::OBJECTS_WIDTH[] = {0.0, 1.0, 3.0, 5.0, 7.0};
 const size_t GLWidget::DISPLAY_ALL(numeric_limits<size_t>::max());
 const size_t GLWidget::QUADRIC_SLICES (20);
 const size_t GLWidget::QUADRIC_STACKS (20);
+
+
+const float GLWidget::OBJECTS_WIDTH[] = {0.0, 1.0, 3.0, 5.0, 7.0};
+
 
 // Methods
 // ======================================================================
@@ -219,6 +238,27 @@ GLWidget::GLWidget(QWidget *parent)
     m_quadric = gluNewQuadric ();
     gluQuadricCallback (m_quadric, GLU_ERROR,
 			reinterpret_cast<void (*)()>(&quadricErrorCallback));
+    
+    boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> vtd = 
+	{{
+        {&GLWidget::displayListVerticesNormal, identity<Lighting>(NO_LIGHTING)},
+	{&GLWidget::displayListVerticesPhysical, 
+	 identity<Lighting> (NO_LIGHTING)},
+	{&GLWidget::displayListVerticesTorus, identity<Lighting> (NO_LIGHTING)},
+	
+	{&GLWidget::displayListEdgesNormal, identity<Lighting> (NO_LIGHTING)},
+	{&GLWidget::displayListEdgesPhysical, identity<Lighting> (NO_LIGHTING)},
+	{&GLWidget::displayListEdgesTorus, 
+	 boost::bind (&GLWidget::edgesTorusLighting, this)},
+	
+	{&GLWidget::displayListFacesNormal, identity<Lighting> (NO_LIGHTING)},
+	{&GLWidget::displayListFacesLighting, identity<Lighting> (LIGHTING)},
+	{&GLWidget::displayListFacesTorus, 
+	 boost::bind (&GLWidget::facesTorusLighting, this)},
+	
+	{&GLWidget::displayListCenterPaths, identity<Lighting> (LIGHTING)},
+	}};
+    copy (vtd.begin (), vtd.end (), VIEW_TYPE_DISPLAY.begin ());
 }
 
 void GLWidget::SetDataFiles (DataFiles* dataFiles) 
@@ -229,7 +269,7 @@ void GLWidget::SetDataFiles (DataFiles* dataFiles)
     Edge* e = f->GetOrientedEdge (0)->GetEdge ();
     float length = (*e->GetEnd () - *e->GetBegin ()).length ();
 
-    m_edgeRadius = length / 100;
+    m_edgeRadius = length / 20;
     m_arrowBaseRadius = 5 * m_edgeRadius;
     m_arrowHeight = 10 * m_edgeRadius;
 }
@@ -245,12 +285,12 @@ GLWidget::~GLWidget()
     m_quadric = 0;
 }
 
-void GLWidget::view (bool checked, ViewType view, Lighting lighting)
+void GLWidget::view (bool checked, ViewType view)
 {
     if (checked)
     {
         m_viewType = view;
-	if (lighting == LIGHTING)
+	if ((VIEW_TYPE_DISPLAY[view].m_lighting) () == LIGHTING)
 	    enableLighting ();
 	else
 	    disableLighting ();
@@ -315,33 +355,12 @@ void GLWidget::project ()
 
 void GLWidget::initializeGL()
 {
-    using G3D::Vector3;
-    m_object = display (m_viewType);
-    float* background = Color::GetValue (Color::WHITE);
-    glClearColor (background[0], background[1],
-		  background[2], background[3]);        
-    calculateViewingVolume ();
-    project ();
+    qglClearColor (QColor(Qt::white));
 
-    glMatrixMode (GL_MODELVIEW);
-    //glLoadMatrixf (GetCurrentData ().GetViewMatrix ());
-
-    switch (m_viewType)
-    {
-    case VERTICES:
-    case EDGES:
-    case FACES:
-    case CENTER_PATHS:
-        disableLighting ();
-        break;
-    case FACES_LIGHTING:
-        GLWidget::enableLighting ();
-        break;
-    default:
-	RuntimeAssert (false,
-		       "ViewType enum has an invalid value: ", m_viewType);
-    }
     printOpenGLInfo ();
+
+    m_object = displayList (m_viewType);
+    cdbg << "initializeGL" << endl;
 }
 
 void GLWidget::paintGL()
@@ -352,6 +371,7 @@ void GLWidget::paintGL()
 
     glCallList (m_object);
     detectOpenGLError ();
+    cdbg << "paintGL" << endl;
 }
 
 
@@ -360,6 +380,8 @@ void GLWidget::resizeGL(int width, int height)
 {
     using G3D::Rect2D;
     using G3D::Vector2;
+
+    calculateViewingVolume ();
     Vector2 viewportStart = m_viewport.x0y0 ();
     float ratio = (m_viewingVolume.high ().x - m_viewingVolume.low ().x) / 
 	(m_viewingVolume.high ().y - m_viewingVolume.low ().y);
@@ -377,6 +399,8 @@ void GLWidget::resizeGL(int width, int height)
     }
     glViewport (m_viewport.x0 (), m_viewport.y0 (), 
 		m_viewport.width (), m_viewport.height ());
+    project ();
+    cdbg << "resizeGL" << endl;
 }
 
 void GLWidget::setRotation (int axis, float angleRadians)
@@ -629,7 +653,7 @@ GLuint GLWidget::displayListEdgesPhysical ()
     return list;
 }
 
-GLuint GLWidget::displayListEdgesTorusLighting ()
+GLuint GLWidget::displayListEdgesTorusTubes ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
@@ -649,7 +673,7 @@ GLuint GLWidget::displayListEdgesTorusLighting ()
     return list;
 }
 
-GLuint GLWidget::displayListEdgesTorus ()
+GLuint GLWidget::displayListEdgesTorusLines ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
@@ -708,7 +732,7 @@ GLuint GLWidget::displayListFacesLighting ()
     return list;
 }
 
-GLuint GLWidget::displayListFacesTorusLighting ()
+GLuint GLWidget::displayListFacesTorusTubes ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
@@ -731,7 +755,7 @@ GLuint GLWidget::displayListFacesTorusLighting ()
 }
 
 
-GLuint GLWidget::displayListFacesTorus ()
+GLuint GLWidget::displayListFacesTorusLines ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
@@ -772,46 +796,11 @@ GLuint GLWidget::displayListCenterPaths ()
     return list;
 }
 
-GLuint GLWidget::display (ViewType type)
+GLuint GLWidget::displayList (ViewType type)
 {
-    
-    switch (type)
-    {
-    case VERTICES:
-        return displayListVerticesNormal ();
-    case VERTICES_TORUS:
-	return displayListVerticesTorus ();
-    case VERTICES_PHYSICAL:
-	return displayListVerticesPhysical ();
-
-    case EDGES:
-        return displayListEdgesNormal ();
-    case EDGES_TORUS:
-	if (m_edgesTorusLighting)
-	    return displayListEdgesTorusLighting ();
-	else
-	    return displayListEdgesTorus ();
-    case EDGES_PHYSICAL:
-	return displayListEdgesPhysical ();
-
-    case FACES:
-        return displayListFacesNormal ();
-    case FACES_TORUS:
-	if (m_facesTorusLighting)
-	    return displayListFacesTorusLighting ();
-	else
-	    return displayListFacesTorus ();
-
-    case FACES_LIGHTING:
-        return displayListFacesLighting ();
-    case CENTER_PATHS:
-	return displayListCenterPaths ();
-
-    default:
-        RuntimeAssert (false, 
-		       "ViewType enum has an invalid value: ", m_viewType);
-	return 0;
-    }
+    RuntimeAssert (type < VIEW_TYPE_COUNT, 
+		   "ViewType enum has an invalid value: ", m_viewType);
+    return (this->*(VIEW_TYPE_DISPLAY[type].m_displayList)) ();
 }
 
 void GLWidget::IncrementDisplayedFace ()
@@ -894,63 +883,38 @@ const QColor& GLWidget::GetDomainIncrementColor (
 // Slots and slot like methods
 // ======================================================================
 
-void GLWidget::ToggledVerticesPhysical (bool checked)
-{
-    view (checked, VERTICES_PHYSICAL, NO_LIGHTING);
-}
-
-void GLWidget::ToggledEdgesPhysical (bool checked)
-{
-    view (checked, EDGES_PHYSICAL, NO_LIGHTING);
-}
-
-void GLWidget::ToggledEdgesTorus (bool checked)
-{
-    view (checked, EDGES_TORUS, m_edgesTorusLighting);
-}
-
-void GLWidget::ToggledFacesTorus (bool checked)
-{
-    view (checked, FACES_TORUS, m_facesTorusLighting);
-}
-
 void GLWidget::ToggledVerticesNormal (bool checked)
 {
-    view (checked, VERTICES, NO_LIGHTING);
+    view (checked, VERTICES);
 }
 
-void GLWidget::ToggledEdgesNormal (bool checked)
+void GLWidget::ToggledVerticesPhysical (bool checked)
 {
-    view (checked, EDGES, NO_LIGHTING);
-}
-
-void GLWidget::ToggledTorusOriginalDomain (bool checked)
-{
-    m_viewTorusOriginalDomain = checked;
-    UpdateDisplay ();
-}
-
-void GLWidget::ToggledFacesNormal (bool checked)
-{
-    view (checked, FACES, NO_LIGHTING);
+    view (checked, VERTICES_PHYSICAL);
 }
 
 void GLWidget::ToggledVerticesTorus (bool checked)
 {
-    view (checked, VERTICES_TORUS, NO_LIGHTING);
+    view (checked, VERTICES_TORUS);
 }
 
 
-void GLWidget::ToggledBodies (bool checked)
+
+
+void GLWidget::ToggledEdgesNormal (bool checked)
 {
-    view (checked, FACES_LIGHTING, LIGHTING);
+    view (checked, EDGES);
 }
 
-void GLWidget::ToggledCenterPath (bool checked)
+void GLWidget::ToggledEdgesPhysical (bool checked)
 {
-    view (checked, CENTER_PATHS, NO_LIGHTING);
+    view (checked, EDGES_PHYSICAL);
 }
 
+void GLWidget::ToggledEdgesTorus (bool checked)
+{
+    view (checked, EDGES_TORUS);
+}
 
 void GLWidget::ToggledEdgesTorusLighting (bool checked)
 {
@@ -958,10 +922,41 @@ void GLWidget::ToggledEdgesTorusLighting (bool checked)
     ToggledEdgesTorus (true);
 }
 
+
+
+
+void GLWidget::ToggledFacesNormal (bool checked)
+{
+    view (checked, FACES);
+}
+
+void GLWidget::ToggledFacesTorus (bool checked)
+{
+    view (checked, FACES_TORUS);
+}
+
 void GLWidget::ToggledFacesTorusLighting (bool checked)
 {
     m_facesTorusLighting = static_cast<Lighting>(checked);
     ToggledFacesTorus (true);
+}
+
+
+
+void GLWidget::ToggledTorusOriginalDomain (bool checked)
+{
+    m_viewTorusOriginalDomain = checked;
+    UpdateDisplay ();
+}
+
+void GLWidget::ToggledBodies (bool checked)
+{
+    view (checked, FACES_LIGHTING);
+}
+
+void GLWidget::ToggledCenterPath (bool checked)
+{
+    view (checked, CENTER_PATHS);
 }
 
 

@@ -26,6 +26,12 @@ MainWindow::MainWindow(DataFiles& dataFiles) :
     sliderData->setPageStep (10);
     widgetGl->SetDataFiles (&dataFiles);
     updateStatus ();
+    if (dataFiles.GetData ().size ())
+    {
+        toolButtonBegin->setDisabled (true);
+	toolButtonEnd->setDisabled (true);
+	toolButtonPlay->setDisabled (true);
+    }
     if (dataFiles.GetData()[0]->IsTorus ())
     {
 	radioButtonVerticesPhysical->setEnabled (false);
@@ -79,9 +85,9 @@ void MainWindow::InteractionModeTranslate ()
 
 void MainWindow::updateButtons ()
 {
-    enableBegin (true);
-    enableEnd (true);
-    enablePlay (true);
+    enableBegin ();
+    enableEnd ();
+    enablePlay ();
 }
 
 void MainWindow::updateStatus ()
@@ -105,31 +111,22 @@ void MainWindow::updateStatus ()
 }
 
 
-void MainWindow::enableBegin (bool enable)
+void MainWindow::enableBegin ()
 {
-    if (enable && 
-        sliderData->value () > sliderData->minimum ())
+    if (sliderData->value () > sliderData->minimum ())
         toolButtonBegin->setDisabled (false);
-    else
-        toolButtonBegin->setDisabled (true);
 }
 
-void MainWindow::enableEnd (bool enable)
+void MainWindow::enableEnd ()
 {
-    if (enable && 
-        sliderData->value () < sliderData->maximum ())
+    if (sliderData->value () < sliderData->maximum ())
         toolButtonEnd->setDisabled (false);
-    else
-        toolButtonEnd->setDisabled (true);
 }
 
-void MainWindow::enablePlay (bool enable)
+void MainWindow::enablePlay ()
 {
-    if (enable && 
-        sliderData->value () < sliderData->maximum ())
+    if (sliderData->value () < sliderData->maximum ())
         toolButtonPlay->setDisabled (false);
-    else
-        toolButtonPlay->setDisabled (true);
 }
 
 
@@ -225,8 +222,8 @@ void MainWindow::ClickedPlay ()
     {
         m_timer->start ();
         toolButtonPlay->setText (PAUSE_TEXT);
-        enableBegin (false);
-        enableEnd (false);
+        toolButtonBegin->setDisabled (true);
+        toolButtonEnd->setDisabled (true);
     }
     m_play = ! m_play;
 }

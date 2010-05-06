@@ -144,7 +144,7 @@ public:
 
     void UpdateDisplay ()
     {
-	setObject (&m_object, display(m_viewType));
+	setObject (&m_object, displayList (m_viewType));
 	updateGL ();
     }
 
@@ -245,16 +245,17 @@ private:
      */
     enum ViewType {
         VERTICES,
-	VERTICES_TORUS,
 	VERTICES_PHYSICAL,
+	VERTICES_TORUS,
 
         EDGES,
-	EDGES_TORUS,
 	EDGES_PHYSICAL,
+	EDGES_TORUS,
 
         FACES,
-	FACES_TORUS,
         FACES_LIGHTING,
+	FACES_TORUS,
+
 	CENTER_PATHS,
         VIEW_TYPE_COUNT
     };
@@ -268,9 +269,24 @@ private:
 
     typedef boost::unordered_map<G3D::Vector3int16, QColor,
 				 Vector3int16Hash> DomainIncrementColor;
+    struct ViewTypeDisplay
+    {
+	GLuint (GLWidget::* m_displayList) ();
+	boost::function<Lighting ()> m_lighting;
+    };
 
 private:
-    void view (bool checked, ViewType view, Lighting lighting);
+    Lighting edgesTorusLighting ()
+    {
+	return m_edgesTorusLighting;
+    }
+
+    Lighting facesTorusLighting ()
+    {
+	return m_facesTorusLighting;
+    }
+
+    void view (bool checked, ViewType view);
 
     void project ();
     void calculateViewingVolume ();
@@ -279,7 +295,7 @@ private:
      * @param type the type of object that we want displayed.
      * @return the display list
      */
-    GLuint display (ViewType type);
+    GLuint displayList (ViewType type);
     /**
      * Generates a display list for vertices
      * @return the display list
@@ -292,8 +308,15 @@ private:
      * @return the display list
      */
     GLuint displayListEdgesNormal ();
-    GLuint displayListEdgesTorusLighting ();
-    GLuint displayListEdgesTorus ();
+    GLuint displayListEdgesTorus ()
+    {
+	if (m_edgesTorusLighting)
+	    return displayListEdgesTorusTubes ();
+	else
+	    return displayListEdgesTorusLines ();
+    }
+    GLuint displayListEdgesTorusTubes ();
+    GLuint displayListEdgesTorusLines ();
     GLuint displayListEdgesPhysical ();
 
     /**
@@ -301,8 +324,15 @@ private:
      * @return the display list
      */
     GLuint displayListFacesNormal ();
-    GLuint displayListFacesTorusLighting ();
-    GLuint displayListFacesTorus ();
+    GLuint displayListFacesTorus ()
+    {
+	if (m_facesTorusLighting)
+	    return displayListFacesTorusTubes ();
+	else
+	    return displayListFacesTorusLines ();
+    }
+    GLuint displayListFacesTorusTubes ();
+    GLuint displayListFacesTorusLines ();
     /**
      * Generates a display list for bodies
      * @return the display list
@@ -436,12 +466,13 @@ private:
 
     Lighting m_edgesTorusLighting;
     Lighting m_facesTorusLighting;
+    boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> VIEW_TYPE_DISPLAY;
 private:
     /**
      * Mapping between the index in  the slider and an actual size for
      * physical and tessellation objects.
      */
-    static  float OBJECTS_WIDTH[];
+    const static  float OBJECTS_WIDTH[];
 };
 
 #endif //__GLWIDGET_H__

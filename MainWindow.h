@@ -90,17 +90,17 @@ private:
      * Enables/Disables the Begin button
      * @param enable true to enable and false to disable the button
      */
-    void enableBegin (bool enable);
+    void enableBegin ();
     /**
      * Enables/Disables the End button
      * @param enable true to enable and false to disable the button
      */
-    void enableEnd (bool enable);
+    void enableEnd ();
     /**
      * Enables/Disables the Play button
      * @param enable true to enable and false to disable the button
      */
-    void enablePlay (bool enable);
+    void enablePlay ();
     /**
      * Enables/Disables all buttons based on the position of the slider.
      */
