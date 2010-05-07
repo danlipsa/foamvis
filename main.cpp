@@ -14,8 +14,37 @@
  * \mainpage The Foam Project
  * \section intro_sec Introduction
  *
- * This project visualizes and helps understand foam modeling data.
- */
+ * This project visualizes and helps understand foam modeling data produced
+ * by Surface Evolver.
+ *
+ * \section torus Processing done for the Torus model
+ * <h3>procedure executed when reading an edge from the data file 
+ * (may create duplicate vertices)</h3>
+ *
+ <pre>
+first vertex of the edge is CONSIDERED inside the original domain
+  if (edge has a + or -) {
+    create a duplicate of the second vertex by translating it
+      one domain up for a + and one domain down for a - along each of 
+      the three axes.
+  }
+ </pre>
+ * 
+ * <h3>procedure executed when reading a face from the data file 
+ * (may create duplicate edges)</h3>
+ *
+<pre>
+  first vertex of the face is CONSIDERED inside the original domain
+  set beginVertex to be the first vertex of the face
+  foreach (edge in the face) {
+    if (the beginVertex does not match the begin vertex 
+        of the edge in the data file) {
+      create a duplicate edge
+      set beginVertex  to be the end vertex of the (potential  duplicate) edge
+    }
+  }
+</pre>
+*/
 
 
 

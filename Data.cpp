@@ -17,8 +17,6 @@
 // Private Classes
 // ======================================================================
 
-size_t countIntersections (OrientedEdge* e);
-
 class printFaceIfIntersection
 {
 public:
@@ -29,7 +27,8 @@ public:
 	vector<OrientedEdge*>& v = f->GetOrientedEdges ();
 	vector<size_t> intersections(v.size ());
 	transform (
-	    v.begin (), v.end (), intersections.begin (), countIntersections);
+	    v.begin (), v.end (), intersections.begin (), 
+	    boost::bind(&OrientedEdge::CountIntersections, _1));
 	size_t totalIntersections = accumulate (
 	    intersections.begin (), intersections.end (), 0);
 	m_ostr << f->GetOriginalIndex () << " has " 
@@ -89,13 +88,6 @@ struct calculateAggregate
 // Private Functions
 // ======================================================================
 
-size_t countIntersections (OrientedEdge* e)
-{
-    const G3D::Vector3int16& domainIncrement = 
-	e->GetEdge ()->GetEndDomainIncrement ();
-    return ((domainIncrement.x != 0) + 
-	    (domainIncrement.y != 0) + (domainIncrement.z != 0));
-}
 
 template <typename Container, 
 	  typename ContainerIterator, typename ContainerKeyType>
@@ -467,9 +459,7 @@ ostream& operator<< (ostream& ostr, Data& d)
     if (d.IsTorus ())
     {
 	ostr << "torus periods:\n";
-	ostream_iterator<G3D::Vector3> o (ostr, "\n");
-	copy (d.m_periods.begin (), d.m_periods.end (), o);
-	ostr << endl;
+	ostr << d.m_periods;
     }
 
     ostr << "vertices:\n";

@@ -43,7 +43,7 @@ MainWindow::MainWindow(DataFiles& dataFiles) :
 	radioButtonVerticesTorus->setEnabled (false);
 	radioButtonEdgesTorus->setEnabled (false);
 	radioButtonFacesTorus->setEnabled (false);
-	checkBoxTorusOriginalDomain->setEnabled (false);
+	groupBoxTorusOriginalDomain->setEnabled (false);
     }
     if (dataFiles.GetData ()[0]->GetSpaceDimension () == 2)
     {

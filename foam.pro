@@ -7,7 +7,7 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h Color.h \
 	Face.h \
 	GLWidget.h Hashes.h InteractionMode.h\
 	MainWindow.h NameSemanticValue.h \
-	OrientedEdge.h OrientedFace.h \
+	OOBox.h OrientedEdge.h OrientedFace.h \
 	ParsingData.h ParsingDriver.h ProcessBodyTorus.h \
 	SemanticType.h stable.h SystemDifferences.h \
 	Comparisons.h Vertex.h
@@ -18,7 +18,7 @@ SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	Face.cpp \
 	GLWidget.cpp Hashes.cpp main.cpp MainWindow.cpp  \
 	NameSemanticValue.cpp \
-	OrientedEdge.cpp OrientedFace.cpp \
+	OOBox.cpp OrientedEdge.cpp OrientedFace.cpp \
 	ParsingData.cpp ParsingDriver.cpp ProcessBodyTorus.cpp \
 	SemanticType.cpp Comparisons.cpp Vertex.cpp 
 FORMS += Window.ui

@@ -11,6 +11,7 @@
 #include "DefineAttributeType.h"
 #include "Comparisons.h"
 #include "Hashes.h"
+#include "OOBox.h"
 
 class AttributeCreator;
 class Body;
@@ -32,7 +33,6 @@ public:
     typedef set<Vertex*, VertexLessThan> VertexSet;
     typedef set<Edge*, EdgeLessThan> EdgeSet;
     typedef boost::unordered_set<Face*, FaceHash> FaceSet;
-    typedef boost::array<G3D::Vector3, 3> Periods;
     /**
      * Iterator over the vertices in this Data object
      */
@@ -263,15 +263,11 @@ public:
 	return m_originalIndexBodyMap;
     }
 
-    void SetPeriod (size_t i,  G3D::Vector3 v) 
-    {
-	m_periods[i] = v;
-    }
     const G3D::Vector3& GetPeriod (size_t i) const
     {
 	return m_periods[i];
     }
-    const Periods& GetPeriods () const 
+    const OOBox& GetPeriods () const 
     {
 	return m_periods;
     }
@@ -332,7 +328,7 @@ private:
      * View matrix for displaying vertices, edges, faces and bodies.
      */
     boost::array<float, 16> m_viewMatrix;
-    Periods m_periods;
+    OOBox m_periods;
     /**
      * Vector of maps between the name of an attribute and information about it.
      * The indexes in the vector are for vertices, edges, faces, ...

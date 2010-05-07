@@ -26,12 +26,12 @@ ostream& OrientedEdge::print (ostream& ostr, bool reversed) const
 }
 
 
-G3D::Vector3int16 OrientedEdge::GetEndDomainIncrement () const
+G3D::Vector3int16 OrientedEdge::GetDomainIncrement () const
 {
     if (m_reversed)
-	return G3D::Vector3int16 (0,0,0) - m_edge->GetEndDomainIncrement ();
+	return G3D::Vector3int16 (0,0,0) - m_edge->GetDomainIncrement ();
     else
-	return m_edge->GetEndDomainIncrement ();;
+	return m_edge->GetDomainIncrement ();;
 }
 
 bool OrientedEdge::Fits (const OrientedEdge& destination,
@@ -77,4 +77,9 @@ void OrientedEdge::ClearAdjacentFaces ()
 bool OrientedEdge::IsZero () const
 {
     return m_edge->IsZero ();
+}
+
+size_t OrientedEdge::CountIntersections () const
+{
+    return GetEdge ()->CountIntersections ();
 }

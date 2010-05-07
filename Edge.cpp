@@ -21,23 +21,28 @@ AttributesInfo* Edge::m_infos;
 
 // Methods
 // ======================================================================
-Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endDomainIncrement, 
+Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& domainIncrement, 
 	    size_t originalIndex, Data* data, ElementStatus::Name status):
     ColoredElement(originalIndex, data, status),
-    m_begin (begin), m_end (end), m_endDomainIncrement (endDomainIncrement), 
-    m_physical (false)
+    m_begin (begin), m_end (end),
+    m_domainIncrement (domainIncrement), 
+    m_physical (false),
+    m_torusWrapped (0)
 {
     if (m_data->IsTorus () && GetStatus () == ElementStatus::ORIGINAL)
     {
-	if (m_endDomainIncrement == G3D::Vector3int16(0, 0, 0))
+	if (m_domainIncrement == G3D::Vector3int16(0, 0, 0))
 	    return;
-	m_end = m_data->GetVertexDuplicate (m_end, m_endDomainIncrement);
+	m_end = m_data->GetVertexDuplicate (m_end, m_domainIncrement);
     }
 }
 
 Edge::Edge (Vertex* begin, size_t originalIndex) :
     ColoredElement (originalIndex, 0, ElementStatus::ORIGINAL),
-    m_begin (begin), m_end (0), m_physical (false)
+    m_begin (begin),
+    m_end (0),
+    m_physical (false),
+    m_torusWrapped (0)
 {
 }
 
@@ -45,7 +50,9 @@ Edge::Edge (const Edge& o) :
     ColoredElement (o.GetOriginalIndex (), o.GetData (), 
 		    ElementStatus::DUPLICATE),
     m_begin (o.GetBegin ()), m_end (o.GetEnd ()),
-    m_endDomainIncrement (o.GetEndDomainIncrement ()), m_physical (false)
+    m_domainIncrement (o.GetDomainIncrement ()),
+    m_physical (false),
+    m_torusWrapped (0)
 {
 }
 
@@ -59,7 +66,6 @@ G3D::Vector3 Edge::GetBegin (const G3D::Vector3* end) const
 {
     return *end + (*GetBegin () - *GetEnd ());
 }
-
 
 void Edge::UpdateVerticesAdjacency ()
 {
@@ -105,6 +111,79 @@ Edge* Edge::CreateDuplicate (const G3D::Vector3& newBegin)
     duplicate->SetBegin (beginDuplicate);
     duplicate->SetEnd (endDuplicate);
     return duplicate;
+}
+
+
+const G3D::Vector3& Edge::GetTorusWrappedBegin (size_t index) const
+{
+    if (m_torusWrapped == 0)
+    {
+	RuntimeAssert (index == 0, "index should be 0 and is ", index);
+	return *m_begin;
+    }
+    else
+    {
+	size_t n = m_torusWrapped->size ();
+	RuntimeAssert (index < n, 
+		       "index should be less than ", n, " and is ", index);
+	return (*m_torusWrapped)[2 * index];
+    }
+}
+
+const G3D::Vector3& Edge::GetTorusWrappedEnd (size_t index) const
+{
+    if (m_torusWrapped == 0)
+    {
+	RuntimeAssert (index == 0, "index should be 0 and is ", index);
+	return *m_end;
+    }
+    else
+    {
+	size_t n = m_torusWrapped->size ();
+	RuntimeAssert (index < n, 
+		       "index should be less than ", n, " and is ", index);
+	return (*m_torusWrapped)[2 * index + 1];
+    }
+}
+
+size_t Edge::GetTorusWrappedSize () const
+{
+    if (m_domainIncrement == G3D::Vector3int16(0, 0, 0))
+	return 1;
+    else
+	return 2;
+}
+
+void Edge::CalculateTorusWrapped ()
+{
+    using G3D::Vector3int16;
+    if (GetDomainIncrement () == Vector3int16 (0, 0, 0))
+    {
+	G3D::Vector3int16 domainIncrement = m_begin->GetDomainIncrement ();
+	if (domainIncrement == Vector3int16 (0, 0, 0))
+	    return;
+	else
+	{
+	    domainIncrement = Vector3int16 (0, 0, 0) - domainIncrement;
+	    m_torusWrapped = new vector<G3D::Vector3>(2);
+	    (*m_torusWrapped)[0] = 
+		m_data->GetPeriods ().Translate (*m_begin, domainIncrement);
+	    (*m_torusWrapped)[1] = 
+		m_data->GetPeriods ().Translate (*m_end, domainIncrement);
+	}
+    }
+    else
+    {
+    }
+}
+
+
+
+size_t Edge::CountIntersections () const
+{
+    const G3D::Vector3int16& domainIncrement = GetDomainIncrement ();
+    return ((domainIncrement.x != 0) + 
+	    (domainIncrement.y != 0) + (domainIncrement.z != 0));
 }
 
 // Static and Friends Methods

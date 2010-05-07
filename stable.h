@@ -46,6 +46,9 @@
 #include <boost/foreach.hpp>
 #include <boost/operators.hpp>
 #include <boost/function.hpp>
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/if.hpp>
 
 // required by GLG3D
 #include <GLG3D/GL/glew.h>
@@ -57,18 +60,21 @@
 
 // G3D headers
 #include <G3D/AABox.h>
-#include <G3D/Vector3.h>
-#include <G3D/Vector3int16.h>
-#include <G3D/Vector2.h>
-#include <G3D/Rect2D.h>
+#include <G3D/CoordinateFrame.h>
 #include <G3D/Matrix2.h>
 #include <G3D/Matrix3.h>
 #include <G3D/Matrix4.h>
-#include <G3D/CoordinateFrame.h>
+#include <G3D/Plane.h>
+#include <G3D/Rect2D.h>
+#include <G3D/Vector3.h>
+#include <G3D/Vector3int16.h>
+#include <G3D/Vector2.h>
+
 
 // OpenGL G3D headers
 #include <GLG3D/getOpenGLState.h>
 
 using namespace std;
+namespace bl = boost::lambda;
 
 #endif //__cplusplus

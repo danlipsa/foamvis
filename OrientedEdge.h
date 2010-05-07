@@ -60,7 +60,7 @@ public:
     {
 	m_edge = edge;
     }
-    G3D::Vector3int16 GetEndDomainIncrement () const;
+    G3D::Vector3int16 GetDomainIncrement () const;
     bool IsZero () const;
     G3D::Vector3 GetEdgeVector () const;
     ostream& PrintReversed (ostream& ostr) const
@@ -74,6 +74,8 @@ public:
      */
     bool Fits (const OrientedEdge& destination, 
 	       G3D::Vector3* translation = 0) const;
+    size_t CountIntersections () const;
+
 
 public:
     /**

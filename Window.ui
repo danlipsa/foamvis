@@ -147,10 +147,26 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBoxTorusOriginalDomain">
-           <property name="text">
+          <widget class="QGroupBox" name="groupBoxTorusOriginalDomain">
+           <property name="title">
             <string>Torus Original Domain</string>
            </property>
+           <layout class="QVBoxLayout" name="verticalLayout_22">
+            <item>
+             <widget class="QCheckBox" name="checkBoxTorusOriginalDomainDisplay">
+              <property name="text">
+               <string>Display</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxTorusOriginalDomainWrapInside">
+              <property name="text">
+               <string>Wrap inside</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
          <item>
@@ -162,7 +178,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>2</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="vertices">
             <attribute name="title">
@@ -390,7 +406,7 @@
                <widget class="QWidget" name="pageEdgesTorus">
                 <layout class="QVBoxLayout" name="verticalLayout_17">
                  <item>
-                  <widget class="QCheckBox" name="checkBoxEdgesTorusLighting">
+                  <widget class="QCheckBox" name="checkBoxEdgesTorusTubes">
                    <property name="text">
                     <string>Tubes</string>
                    </property>
@@ -549,13 +565,13 @@
              <item>
               <widget class="QStackedWidget" name="stackedWidgetFaces">
                <property name="currentIndex">
-                <number>1</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="pageFacesEmpty"/>
                <widget class="QWidget" name="pageFacesTorus">
                 <layout class="QVBoxLayout" name="verticalLayout_21">
                  <item>
-                  <widget class="QCheckBox" name="checkBoxFacesTorusLighting">
+                  <widget class="QCheckBox" name="checkBoxFacesTorusTubes">
                    <property name="text">
                     <string>Tubes</string>
                    </property>
@@ -723,6 +739,10 @@
     <slot>ToggledCenterPath(bool)</slot>
     <slot>ToggledFacesTorus(bool)</slot>
     <slot>ValueChangedVerticesTessellation(int)</slot>
+    <slot>ToggledEdgesTorusTubes(bool)</slot>
+    <slot>ToggledFacesTorusTubes(bool)</slot>
+    <slot>ToggledTorusOriginalDomainDisplay(bool)</slot>
+    <slot>ToggledTorusOriginalDomainWrapInside(bool)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -736,7 +756,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>82</x>
-     <y>731</y>
+     <y>699</y>
     </hint>
     <hint type="destinationlabel">
      <x>66</x>
@@ -752,7 +772,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>53</x>
-     <y>731</y>
+     <y>699</y>
     </hint>
     <hint type="destinationlabel">
      <x>38</x>
@@ -768,7 +788,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>122</x>
-     <y>731</y>
+     <y>699</y>
     </hint>
     <hint type="destinationlabel">
      <x>53</x>
@@ -783,8 +803,8 @@
    <slot>ValueChangedSliderData(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>572</x>
-     <y>730</y>
+     <x>701</x>
+     <y>698</y>
     </hint>
     <hint type="destinationlabel">
      <x>180</x>
@@ -800,7 +820,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>879</x>
-     <y>244</y>
+     <y>310</y>
     </hint>
     <hint type="destinationlabel">
      <x>374</x>
@@ -815,8 +835,8 @@
    <slot>ToggledEdgesPhysical(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>733</x>
-     <y>244</y>
+     <x>721</x>
+     <y>234</y>
     </hint>
     <hint type="destinationlabel">
      <x>374</x>
@@ -863,8 +883,8 @@
    <slot>ToggledEdgesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>733</x>
-     <y>188</y>
+     <x>721</x>
+     <y>234</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -880,7 +900,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>879</x>
-     <y>216</y>
+     <y>282</y>
     </hint>
     <hint type="destinationlabel">
      <x>292</x>
@@ -895,8 +915,8 @@
    <slot>ToggledEdgesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>733</x>
-     <y>216</y>
+     <x>721</x>
+     <y>234</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -911,8 +931,8 @@
    <slot>ToggledFacesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>733</x>
-     <y>216</y>
+     <x>721</x>
+     <y>234</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -927,8 +947,8 @@
    <slot>ToggledCenterPath(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>733</x>
-     <y>188</y>
+     <x>721</x>
+     <y>234</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -943,8 +963,8 @@
    <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>733</x>
-     <y>188</y>
+     <x>721</x>
+     <y>234</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -960,7 +980,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>879</x>
-     <y>188</y>
+     <y>254</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -975,8 +995,8 @@
    <slot>ValueChangedEdgesPhysical(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>732</x>
-     <y>388</y>
+     <x>721</x>
+     <y>358</y>
     </hint>
     <hint type="destinationlabel">
      <x>255</x>
@@ -991,8 +1011,8 @@
    <slot>ValueChangedEdgesTessellation(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>732</x>
-     <y>340</y>
+     <x>721</x>
+     <y>358</y>
     </hint>
     <hint type="destinationlabel">
      <x>255</x>
@@ -1007,8 +1027,8 @@
    <slot>ValueChangedVerticesPhysical(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>732</x>
-     <y>388</y>
+     <x>721</x>
+     <y>358</y>
     </hint>
     <hint type="destinationlabel">
      <x>255</x>
@@ -1023,8 +1043,8 @@
    <slot>ValueChangedVerticesTessellation(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>732</x>
-     <y>340</y>
+     <x>721</x>
+     <y>358</y>
     </hint>
     <hint type="destinationlabel">
      <x>255</x>
@@ -1033,14 +1053,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxTorusOriginalDomain</sender>
+   <sender>checkBoxTorusOriginalDomainDisplay</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledTorusOriginalDomain(bool)</slot>
+   <slot>ToggledTorusOriginalDomainDisplay(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>902</x>
-     <y>99</y>
+     <x>891</x>
+     <y>126</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1049,14 +1069,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxEdgesTorusLighting</sender>
+   <sender>checkBoxEdgesTorusTubes</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledEdgesTorusLighting(bool)</slot>
+   <slot>ToggledEdgesTorusTubes(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>672</x>
-     <y>278</y>
+     <x>721</x>
+     <y>358</y>
     </hint>
     <hint type="destinationlabel">
      <x>502</x>
@@ -1065,18 +1085,34 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxFacesTorusLighting</sender>
+   <sender>checkBoxFacesTorusTubes</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledFacesTorusLighting(bool)</slot>
+   <slot>ToggledFacesTorusTubes(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>666</x>
-     <y>255</y>
+     <x>721</x>
+     <y>330</y>
     </hint>
     <hint type="destinationlabel">
      <x>556</x>
      <y>260</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxTorusOriginalDomainWrapInside</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledTorusOriginalDomainWrapInside(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>681</x>
+     <y>145</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>550</x>
+     <y>139</y>
     </hint>
    </hints>
   </connection>

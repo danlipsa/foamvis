@@ -186,7 +186,8 @@ public Q_SLOTS:
      * @param checked true for showing bodies false otherwise
      */
     void ToggledBodies (bool checked);
-    void ToggledTorusOriginalDomain (bool checked);
+    void ToggledTorusOriginalDomainDisplay (bool checked);
+    void ToggledTorusOriginalDomainWrapInside (bool checked);
     /**
      * Shows center paths
      * param checked true for showing the center paths false otherwise
@@ -205,8 +206,8 @@ public Q_SLOTS:
     void ValueChangedVerticesTessellation (int value);
     void ValueChangedEdgesTessellation (int value);
     void currentIndexChangedInteractionMode (int index);
-    void ToggledEdgesTorusLighting (bool checked);
-    void ToggledFacesTorusLighting (bool checked);
+    void ToggledEdgesTorusTubes (bool checked);
+    void ToggledFacesTorusTubes (bool checked);
 
 public:
     const static  size_t DISPLAY_ALL;
@@ -276,14 +277,14 @@ private:
     };
 
 private:
-    Lighting edgesTorusLighting ()
+    bool edgesTorusTubes ()
     {
-	return m_edgesTorusLighting;
+	return m_edgesTorusTubes;
     }
 
-    Lighting facesTorusLighting ()
+    bool facesTorusTubes ()
     {
-	return m_facesTorusLighting;
+	return m_facesTorusTubes;
     }
 
     void view (bool checked, ViewType view);
@@ -310,7 +311,7 @@ private:
     GLuint displayListEdgesNormal ();
     GLuint displayListEdgesTorus ()
     {
-	if (m_edgesTorusLighting)
+	if (m_edgesTorusTubes)
 	    return displayListEdgesTorusTubes ();
 	else
 	    return displayListEdgesTorusLines ();
@@ -326,7 +327,7 @@ private:
     GLuint displayListFacesNormal ();
     GLuint displayListFacesTorus ()
     {
-	if (m_facesTorusLighting)
+	if (m_facesTorusTubes)
 	    return displayListFacesTorusTubes ();
 	else
 	    return displayListFacesTorusLines ();
@@ -401,7 +402,8 @@ private:
      * The elements displayed from a DMP file: vertices, edges, faces or bodies.
      */
     ViewType m_viewType;
-    bool m_viewTorusOriginalDomain;
+    bool m_torusOriginalDomainDisplay;
+    bool m_torusOriginalDomainWrapInside;
     InteractionMode::Name m_interactionMode;
     /**
      * The current DMP file as a OpenGL display list.
@@ -465,8 +467,8 @@ private:
     float m_arrowBaseRadius;
     float m_arrowHeight;
 
-    Lighting m_edgesTorusLighting;
-    Lighting m_facesTorusLighting;
+    bool m_edgesTorusTubes;
+    bool m_facesTorusTubes;
     boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> VIEW_TYPE_DISPLAY;
 private:
     /**

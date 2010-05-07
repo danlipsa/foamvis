@@ -206,7 +206,8 @@ const float GLWidget::OBJECTS_WIDTH[] = {0.0, 1.0, 3.0, 5.0, 7.0};
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent), 
       m_viewType (FACES_LIGHTING),
-      m_viewTorusOriginalDomain (false),
+      m_torusOriginalDomainDisplay (false),
+      m_torusOriginalDomainWrapInside (false),
       m_interactionMode (InteractionMode::ROTATE),
       m_object(0),
       m_dataFiles(0), m_dataIndex (0),
@@ -217,8 +218,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_normalVertexSize (2), m_normalEdgeWidth (1),
       m_tessellationVertexColor (Qt::green), m_tessellationEdgeColor (Qt::green),
       m_centerPathColor (Qt::red),
-      m_edgesTorusLighting (NO_LIGHTING),
-      m_facesTorusLighting (NO_LIGHTING)
+      m_edgesTorusTubes (false),
+      m_facesTorusTubes (false)
 {
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
     const int POSSIBILITIES = 3; //domain increment can be *, - or +
@@ -241,6 +242,10 @@ GLWidget::GLWidget(QWidget *parent)
     initViewTypeDisplay ();
 }
 
+
+
+
+
 void GLWidget::initViewTypeDisplay ()
 {
     boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> vtd = 
@@ -253,12 +258,14 @@ void GLWidget::initViewTypeDisplay ()
 	{&GLWidget::displayListEdgesNormal, identity<Lighting> (NO_LIGHTING)},
 	{&GLWidget::displayListEdgesPhysical, identity<Lighting> (NO_LIGHTING)},
 	{&GLWidget::displayListEdgesTorus, 
-	 boost::bind (&GLWidget::edgesTorusLighting, this)},
+	 bl::if_then_else_return (bl::bind (&GLWidget::edgesTorusTubes, this), 
+				  LIGHTING, NO_LIGHTING)},
 	
 	{&GLWidget::displayListFacesNormal, identity<Lighting> (NO_LIGHTING)},
 	{&GLWidget::displayListFacesLighting, identity<Lighting> (LIGHTING)},
 	{&GLWidget::displayListFacesTorus, 
-	 boost::bind (&GLWidget::facesTorusLighting, this)},
+	 bl::if_then_else_return (bl::bind (&GLWidget::facesTorusTubes, this),
+				  LIGHTING, NO_LIGHTING)},
 	
 	{&GLWidget::displayListCenterPaths, identity<Lighting> (LIGHTING)},
 	}};
@@ -375,7 +382,6 @@ void GLWidget::paintGL()
 
     glCallList (m_object);
     detectOpenGLError ();
-    cdbg << "paintGL" << endl;
 }
 
 
@@ -540,8 +546,8 @@ void GLWidget::displayFacesOffset (vector<Body*>& bodies)
 
 void GLWidget::displayOriginalDomain ()
 {
-    const Data::Periods& periods = GetCurrentData().GetPeriods ();
-    if (m_viewTorusOriginalDomain)
+    const OOBox& periods = GetCurrentData().GetPeriods ();
+    if (m_torusOriginalDomainDisplay)
     {
 	glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
 	glLineWidth (1.0);
@@ -920,9 +926,9 @@ void GLWidget::ToggledEdgesTorus (bool checked)
     view (checked, EDGES_TORUS);
 }
 
-void GLWidget::ToggledEdgesTorusLighting (bool checked)
+void GLWidget::ToggledEdgesTorusTubes (bool checked)
 {
-    m_edgesTorusLighting = static_cast<Lighting>(checked);
+    m_edgesTorusTubes = checked;
     ToggledEdgesTorus (true);
 }
 
@@ -939,17 +945,23 @@ void GLWidget::ToggledFacesTorus (bool checked)
     view (checked, FACES_TORUS);
 }
 
-void GLWidget::ToggledFacesTorusLighting (bool checked)
+void GLWidget::ToggledFacesTorusTubes (bool checked)
 {
-    m_facesTorusLighting = static_cast<Lighting>(checked);
+    m_facesTorusTubes = checked;
     ToggledFacesTorus (true);
 }
 
 
 
-void GLWidget::ToggledTorusOriginalDomain (bool checked)
+void GLWidget::ToggledTorusOriginalDomainDisplay (bool checked)
 {
-    m_viewTorusOriginalDomain = checked;
+    m_torusOriginalDomainDisplay = checked;
+    UpdateDisplay ();
+}
+
+void GLWidget::ToggledTorusOriginalDomainWrapInside (bool checked)
+{
+    m_torusOriginalDomainWrapInside = checked;
     UpdateDisplay ();
 }
 

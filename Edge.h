@@ -25,7 +25,7 @@ public:
      * @param end the last point of the edge
      */
     Edge (Vertex* begin, Vertex* end, 
-	  G3D::Vector3int16& endDomainIncrement, 
+	  G3D::Vector3int16& domainIncrement, 
 	  size_t originalIndex, Data* data,
 	  ElementStatus::Name status = ElementStatus::ORIGINAL);
     Edge (Vertex* begin, size_t originalIndex);
@@ -93,9 +93,9 @@ public:
      * the vertices
      */
     void UpdateVerticesAdjacency ();
-    const G3D::Vector3int16& GetEndDomainIncrement () const
+    const G3D::Vector3int16& GetDomainIncrement () const
     {
-	return m_endDomainIncrement;
+	return m_domainIncrement;
     }
     bool operator== (const Edge& other) const;
     bool fuzzyEq (const Edge& other) const;
@@ -110,6 +110,13 @@ public:
     {
 	m_physical = true;
     }
+
+
+    const G3D::Vector3& GetTorusWrappedBegin (size_t index) const;
+    const G3D::Vector3& GetTorusWrappedEnd (size_t index) const;
+    size_t GetTorusWrappedSize () const;
+    void CalculateTorusWrapped ();
+    size_t CountIntersections () const;
 
 public:
     static short DomainIncrementCharToNumber (char sign);
@@ -136,12 +143,13 @@ private:
      * Last vertex of the edge
      */
     Vertex* m_end;
-    G3D::Vector3int16 m_endDomainIncrement;
+    G3D::Vector3int16 m_domainIncrement;
     /**
      * Stores adjacent faces to this edge
      */
     vector<Face*> m_adjacentFaces;
     bool m_physical;
+    vector<G3D::Vector3>* m_torusWrapped;
 
 private:
     /**
