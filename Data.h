@@ -271,6 +271,12 @@ public:
     {
 	return m_periods;
     }
+    void SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y,
+		     const G3D::Vector3& z)
+    {
+	m_periods.Set (x, y, z);
+    }
+
     bool IsTorus () const;
     bool HasEdge (Edge* edge) const 
     {

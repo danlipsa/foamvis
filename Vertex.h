@@ -68,16 +68,16 @@ public:
     bool operator< (const Vertex& other) const;
     bool operator== (const Vertex& other) const;
     Vertex* CreateDuplicate (const G3D::Vector3int16& domainIncrement);
-    G3D::Vector3int16 GetDomainIncrement () const;
+    G3D::Vector3int16 GetTorusLocation () const;
     bool InsideTorusOriginalDomain () const
     {
-	return GetDomainIncrement () == G3D::Vector3int16 (0, 0, 0);
+	return GetTorusLocation () == G3D::Vector3int16 (0, 0, 0);
     }
     ostream& PrintAttributes (ostream& ostr) const
     {
 	return printAttributes (ostr, *Vertex::m_infos);
     }
-    void Translate (const G3D::Vector3int16& domainIncrement);
+    void TorusTranslate (const G3D::Vector3int16& domainIncrement);
 
 public:
     template <typename Vertices>

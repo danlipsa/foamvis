@@ -441,7 +441,6 @@ void Data::AddAttributeInfo (
     m_parsingData->AddAttribute (name);
 }
 
-
 // Static and Friends Methods
 // ======================================================================
 

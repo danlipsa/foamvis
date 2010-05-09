@@ -61,14 +61,17 @@
 // G3D headers
 #include <G3D/AABox.h>
 #include <G3D/CoordinateFrame.h>
+#include <G3D/Line.h>
+#include <G3D/LineSegment.h>
 #include <G3D/Matrix2.h>
 #include <G3D/Matrix3.h>
 #include <G3D/Matrix4.h>
 #include <G3D/Plane.h>
 #include <G3D/Rect2D.h>
+#include <G3D/Vector2.h>
 #include <G3D/Vector3.h>
 #include <G3D/Vector3int16.h>
-#include <G3D/Vector2.h>
+
 
 
 // OpenGL G3D headers

@@ -16,6 +16,7 @@ public:
     m_x (x), m_y (y), m_z (z)
     {}
     OOBox () {}
+
     const G3D::Vector3& GetX () const
     {
 	return m_x;
@@ -28,10 +29,22 @@ public:
     {
 	return m_z;
     }
+    void Set (const G3D::Vector3& x, const G3D::Vector3& y, 
+	      const G3D::Vector3& z)
+    {
+	m_x = x;
+	m_y = y;
+	m_z = z;
+    }
     const G3D::Vector3& operator[] (size_t i) const;
-    G3D::Vector3 Translate (const G3D::Vector3& v, 
-			    const G3D::Vector3int16& domainIncrement) const;
+    G3D::Vector3 TorusTranslate (
+	const G3D::Vector3& v, const G3D::Vector3int16& domainIncrement) const;
+    G3D::Vector3 Intersect (
+	const G3D::Vector3& begin, const G3D::Vector3& end, 
+	const G3D::Vector3int16& domainIncrement) const;
+    G3D::Vector3int16 GetTorusLocation (const G3D::Vector3& point) const;
 
+public:
     friend ostream& operator<< (ostream& ostr, const OOBox& box);
 
 private:

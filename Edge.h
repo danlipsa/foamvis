@@ -112,8 +112,8 @@ public:
     }
 
 
-    const G3D::Vector3& GetTorusWrappedBegin (size_t index) const;
-    const G3D::Vector3& GetTorusWrappedEnd (size_t index) const;
+    G3D::Vector3 GetTorusWrappedBegin (size_t index) const;
+    G3D::Vector3 GetTorusWrappedEnd (size_t index) const;
     size_t GetTorusWrappedSize () const;
     void CalculateTorusWrapped ();
     size_t CountIntersections () const;
@@ -149,7 +149,7 @@ private:
      */
     vector<Face*> m_adjacentFaces;
     bool m_physical;
-    vector<G3D::Vector3>* m_torusWrapped;
+    vector<G3D::LineSegment>* m_torusWrapped;
 
 private:
     /**

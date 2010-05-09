@@ -114,7 +114,7 @@ Edge* Edge::CreateDuplicate (const G3D::Vector3& newBegin)
 }
 
 
-const G3D::Vector3& Edge::GetTorusWrappedBegin (size_t index) const
+G3D::Vector3 Edge::GetTorusWrappedBegin (size_t index) const
 {
     if (m_torusWrapped == 0)
     {
@@ -126,11 +126,11 @@ const G3D::Vector3& Edge::GetTorusWrappedBegin (size_t index) const
 	size_t n = m_torusWrapped->size ();
 	RuntimeAssert (index < n, 
 		       "index should be less than ", n, " and is ", index);
-	return (*m_torusWrapped)[2 * index];
+	return (*m_torusWrapped)[index].point (0);
     }
 }
 
-const G3D::Vector3& Edge::GetTorusWrappedEnd (size_t index) const
+G3D::Vector3 Edge::GetTorusWrappedEnd (size_t index) const
 {
     if (m_torusWrapped == 0)
     {
@@ -142,7 +142,7 @@ const G3D::Vector3& Edge::GetTorusWrappedEnd (size_t index) const
 	size_t n = m_torusWrapped->size ();
 	RuntimeAssert (index < n, 
 		       "index should be less than ", n, " and is ", index);
-	return (*m_torusWrapped)[2 * index + 1];
+	return (*m_torusWrapped)[index].point (1);
     }
 }
 
@@ -157,23 +157,36 @@ size_t Edge::GetTorusWrappedSize () const
 void Edge::CalculateTorusWrapped ()
 {
     using G3D::Vector3int16;
-    if (GetDomainIncrement () == Vector3int16 (0, 0, 0))
+    using G3D::Vector3;
+    using G3D::LineSegment;
+    Vector3int16 domainIncrement = GetDomainIncrement ();
+    if (domainIncrement == Vector3int16 (0, 0, 0))
     {
-	G3D::Vector3int16 domainIncrement = m_begin->GetDomainIncrement ();
-	if (domainIncrement == Vector3int16 (0, 0, 0))
+	Vector3int16 torusLocation = m_begin->GetTorusLocation ();
+	if (torusLocation == Vector3int16 (0, 0, 0))
 	    return;
 	else
 	{
-	    domainIncrement = Vector3int16 (0, 0, 0) - domainIncrement;
-	    m_torusWrapped = new vector<G3D::Vector3>(2);
-	    (*m_torusWrapped)[0] = 
-		m_data->GetPeriods ().Translate (*m_begin, domainIncrement);
-	    (*m_torusWrapped)[1] = 
-		m_data->GetPeriods ().Translate (*m_end, domainIncrement);
+	    domainIncrement = Vector3int16 (0, 0, 0) - torusLocation;
+	    const OOBox& periods = m_data->GetPeriods ();
+	    m_torusWrapped = new vector<LineSegment>(1);
+	    (*m_torusWrapped)[0] = LineSegment::fromTwoPoints (
+		periods.TorusTranslate (*m_begin, domainIncrement),
+		periods.TorusTranslate (*m_end, domainIncrement));
 	}
     }
     else
     {
+	const OOBox& periods = m_data->GetPeriods ();
+	Vector3 intersection = periods.Intersect (
+	    *m_begin, *m_end, domainIncrement);
+	domainIncrement = Vector3int16 (0, 0, 0) - domainIncrement;
+	m_torusWrapped = new vector<LineSegment> (2);
+	(*m_torusWrapped)[0] = LineSegment::fromTwoPoints (
+	    *m_begin, intersection);
+	(*m_torusWrapped)[1] = LineSegment::fromTwoPoints (
+	    periods.TorusTranslate (intersection, domainIncrement),
+	    periods.TorusTranslate (*m_end, domainIncrement));
     }
 }
 

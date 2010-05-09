@@ -723,9 +723,9 @@ torus_periods
   const_expr const_expr
 {
     using G3D::Vector3;
-    data.SetPeriod (0, Vector3 ($3, $4, 0));
-    data.SetPeriod (1, Vector3 ($6, $7, 0));
-    data.SetPeriod (2, Vector3::zero ());
+    data.SetPeriods (Vector3 ($3, $4, 0),
+		     Vector3 ($6, $7, 0),
+		     Vector3::zero ());
 }
 | PERIODS nl
   const_expr const_expr const_expr nl
@@ -733,9 +733,9 @@ torus_periods
   const_expr const_expr const_expr
 {
     using G3D::Vector3;
-    data.SetPeriod (0, Vector3 ($3, $4, $5));
-    data.SetPeriod (1, Vector3 ($7, $8, $9));
-    data.SetPeriod (2, Vector3 ($11, $12, $13));
+    data.SetPeriods (Vector3 ($3, $4, $5),
+		     Vector3 ($7, $8, $9),
+		     Vector3 ($11, $12, $13));
 }
 
 vertices
