@@ -60,7 +60,6 @@ public:
     {
 	m_edge = edge;
     }
-    G3D::Vector3int16 GetDomainIncrement () const;
     bool IsZero () const;
     G3D::Vector3 GetEdgeVector () const;
     ostream& PrintReversed (ostream& ostr) const

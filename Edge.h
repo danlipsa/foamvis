@@ -25,7 +25,7 @@ public:
      * @param end the last point of the edge
      */
     Edge (Vertex* begin, Vertex* end, 
-	  G3D::Vector3int16& domainIncrement, 
+	  G3D::Vector3int16& endLocation, 
 	  size_t originalIndex, Data* data,
 	  ElementStatus::Name status = ElementStatus::ORIGINAL);
     Edge (Vertex* begin, size_t originalIndex);
@@ -93,9 +93,9 @@ public:
      * the vertices
      */
     void UpdateVerticesAdjacency ();
-    const G3D::Vector3int16& GetDomainIncrement () const
+    const G3D::Vector3int16& GetEndLocation () const
     {
-	return m_domainIncrement;
+	return m_endLocation;
     }
     bool operator== (const Edge& other) const;
     bool fuzzyEq (const Edge& other) const;
@@ -118,8 +118,8 @@ public:
     void CalculateTorusClipped ();
     
 public:
-    static short DomainIncrementCharToNumber (char sign);
-    static G3D::Vector3int16 IntToDomainIncrement (int i);
+    static short LocationCharToNumber (char sign);
+    static G3D::Vector3int16 IntToLocation (int i);
     /**
      * Specifies the default attributes for an Edge object.
      * These attributes don't appear as a DEFINE in the .DMP file
@@ -142,7 +142,7 @@ private:
      * Last vertex of the edge
      */
     Vertex* m_end;
-    G3D::Vector3int16 m_domainIncrement;
+    G3D::Vector3int16 m_endLocation;
     /**
      * Stores adjacent faces to this edge
      */

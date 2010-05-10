@@ -145,9 +145,9 @@ protected:
 	glPushAttrib (GL_LIGHTING_BIT);
 	const Vertex* begin = e->GetBegin ();
 	const Vertex* end = e->GetEnd ();
-	G3D::Vector3int16 domainIncrement = e->GetDomainIncrement ();
-	m_widget.qglColor (m_widget.GetDomainIncrementColor (domainIncrement));
-	if (domainIncrement != G3D::Vector3int16 (0, 0, 0))
+	G3D::Vector3int16 endLocation = e->GetEndLocation ();
+	m_widget.qglColor (m_widget.GetEndLocationColor (endLocation));
+	if (endLocation != G3D::Vector3int16 (0, 0, 0))
 	    displayArrow() (
 		m_widget.GetQuadricObject (), 
 		m_widget.GetArrowBaseRadius (), m_widget.GetEdgeRadius (),

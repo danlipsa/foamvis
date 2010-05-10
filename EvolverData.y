@@ -921,22 +921,22 @@ opt_sign_torus_model
 }
 |
 {
-    $$ = Edge::DomainIncrementCharToNumber ('*');
+    $$ = Edge::LocationCharToNumber ('*');
 }
 
 
 sign_torus_model
 : '+' 
 {
-    $$ = Edge::DomainIncrementCharToNumber((*$1)[0]);
+    $$ = Edge::LocationCharToNumber((*$1)[0]);
 }
 | '*' 
 {
-    $$ = Edge::DomainIncrementCharToNumber((*$1)[0]);
+    $$ = Edge::LocationCharToNumber((*$1)[0]);
 }
 | '-'
 {
-    $$ = Edge::DomainIncrementCharToNumber((*$1)[0]);
+    $$ = Edge::LocationCharToNumber((*$1)[0]);
 }
 ;
 

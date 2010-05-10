@@ -49,22 +49,22 @@ OOBox::OOBox (const G3D::Vector3& x, const G3D::Vector3& y,
 
 G3D::Vector3 OOBox::TorusTranslate (
     const G3D::Vector3& v,
-    const G3D::Vector3int16& domainIncrement) const
+    const G3D::Vector3int16& translation) const
 {
     G3D::Vector3 ret = v;
     for (int i = 0; i < 3; i++)
-	ret += (*this)[i] * domainIncrement[i];
+	ret += (*this)[i] * translation[i];
     return ret;
 }
 
 OOBox::Intersections OOBox::Intersect (
     const G3D::Vector3& begin, const G3D::Vector3& end,
-    const G3D::Vector3int16& domainIncrement) const
+    const G3D::Vector3int16& beginLocation,
+    const G3D::Vector3int16& translation) const
 {
     using G3D::Vector3;using G3D::Line;using G3D::Plane;
-    size_t size = CountIntersections (domainIncrement) + 2;
-    OOBox::Intersections intersections;
-    intersections.resize (size);
+    size_t size = CountIntersections (translation) + 2;
+    OOBox::Intersections intersections (size);
     intersections[0] = begin;
     intersections[size - 1] = end;
     Vector3 planeNormal, planePoint;
@@ -72,14 +72,16 @@ OOBox::Intersections OOBox::Intersect (
     Line line = Line::fromTwoPoints (begin, end);
     BOOST_FOREACH (NormalPoint np, OOBox::PLANES)
     {
-	if (domainIncrement[np[0]] == 0)
+	size_t axis = np[0];
+	if (translation[axis] == 0)
 	    continue;
-	planeNormal = (*this)[np[0]];
+	planeNormal = (*this)[axis];
 	planePoint = (*this)[np[1]];
-	if (domainIncrement[np[0]] == 1)
+	planePoint += planeNormal * beginLocation[axis];
+	if (translation[axis] == 1)
 	    planePoint += planeNormal;
 	plane = Plane (planeNormal, planePoint);
-	intersections[np[0] + 1] = line.intersection (plane);
+	intersections[axis + 1] = line.intersection (plane);
     }
     sort (intersections.begin (), intersections.end (), 
 	  LessThanDistanceFrom (begin));
@@ -94,7 +96,7 @@ G3D::Vector3int16 OOBox::GetTorusLocation (const G3D::Vector3& point) const
     using G3D::Plane;
     Vector3 planeNormal, planePoint;
     Plane plane;
-    Vector3int16 domainIncrement;
+    Vector3int16 location;
     BOOST_FOREACH (NormalPoint np, OOBox::PLANES)
     {
 	planeNormal = (*this)[np[0]];
@@ -102,12 +104,12 @@ G3D::Vector3int16 OOBox::GetTorusLocation (const G3D::Vector3& point) const
 	Vector3int16 increment = Vertex::UnitVector3int16 (np[0]);
 	plane = Plane (planeNormal, planePoint);
 	if (! plane.halfSpaceContainsFinite (point))
-	    domainIncrement -= increment;;
+	    location -= increment;;
 	plane = Plane(-planeNormal, planePoint + planeNormal);
 	if (! plane.halfSpaceContainsFinite (point))
-	    domainIncrement += increment;;
+	    location += increment;;
     }
-    return domainIncrement;
+    return location;
 }
 
 
@@ -120,8 +122,7 @@ ostream& operator<< (ostream& ostr, const OOBox& box)
 		<< box.GetZ () << endl;
 }
 
-size_t OOBox::CountIntersections (const G3D::Vector3int16& domainIncrement)
+size_t OOBox::CountIntersections (const G3D::Vector3int16& location)
 {
-    return ((domainIncrement.x != 0) + 
-	    (domainIncrement.y != 0) + (domainIncrement.z != 0));
+    return ((location.x != 0) + (location.y != 0) + (location.z != 0));
 }

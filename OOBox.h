@@ -43,15 +43,16 @@ public:
 	return m_vector[i];
     }
     G3D::Vector3 TorusTranslate (
-	const G3D::Vector3& v, const G3D::Vector3int16& domainIncrement) const;
+	const G3D::Vector3& v, const G3D::Vector3int16& translation) const;
     Intersections Intersect (
 	const G3D::Vector3& begin, const G3D::Vector3& end,
-	const G3D::Vector3int16& domainIncrement) const;
+	const G3D::Vector3int16& beginLocation,
+	const G3D::Vector3int16& translation) const;
     G3D::Vector3int16 GetTorusLocation (const G3D::Vector3& point) const;
 
 public:
     friend ostream& operator<< (ostream& ostr, const OOBox& box);
-    static size_t CountIntersections (const G3D::Vector3int16& domainIncrement);
+    static size_t CountIntersections (const G3D::Vector3int16& location);
 
 private:
     boost::array<G3D::Vector3, 3> m_vector;

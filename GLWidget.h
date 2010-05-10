@@ -119,7 +119,7 @@ public:
 	return m_tessellationVertexColor;
     }
 
-    const QColor& GetDomainIncrementColor (const G3D::Vector3int16& di) const;
+    const QColor& GetEndLocationColor (const G3D::Vector3int16& di) const;
     
     const QColor& GetPhysicalVertexColor () const
     {
@@ -269,7 +269,7 @@ private:
     };
 
     typedef boost::unordered_map<G3D::Vector3int16, QColor,
-				 Vector3int16Hash> DomainIncrementColor;
+				 Vector3int16Hash> EndLocationColor;
     struct ViewTypeDisplay
     {
 	GLuint (GLWidget::* m_displayList) ();
@@ -456,7 +456,7 @@ private:
      */
     G3D::CoordinateFrame m_transform;
     G3D::Rect2D m_viewport;
-    DomainIncrementColor m_domainIncrementColor;
+    EndLocationColor m_endLocationColor;
     GLUquadricObj* m_quadric;    
     /**
      * For displaying Torus Model edges as cylinders
