@@ -25,6 +25,11 @@ size_t hash_value (Vertex const& v)
 // Static Fields
 // ======================================================================
 AttributesInfo* Vertex::m_infos;
+const G3D::Vector3int16 Vertex::m_unitVector3int16[3] = {
+    G3D::Vector3int16 (1, 0, 0),
+    G3D::Vector3int16 (0, 1, 0),
+    G3D::Vector3int16 (0, 0, 1)
+};
 
 // Methods
 // ======================================================================
@@ -65,7 +70,7 @@ G3D::Vector3int16 Vertex::GetDomain () const
 
 void Vertex::TorusTranslate (const G3D::Vector3int16& domainIncrement)
 {
-    static_cast<G3D::Vector3>(*this) = 
+    *static_cast<G3D::Vector3*>(this) = 
 	m_data->GetPeriods ().TorusTranslate (*this, domainIncrement);
 }
 

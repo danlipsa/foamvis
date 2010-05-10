@@ -162,7 +162,7 @@
             <item>
              <widget class="QCheckBox" name="checkBoxTorusOriginalDomainWrapInside">
               <property name="text">
-               <string>Wrap inside</string>
+               <string>Clipped</string>
               </property>
              </widget>
             </item>
@@ -742,7 +742,7 @@
     <slot>ToggledEdgesTorusTubes(bool)</slot>
     <slot>ToggledFacesTorusTubes(bool)</slot>
     <slot>ToggledTorusOriginalDomainDisplay(bool)</slot>
-    <slot>ToggledTorusOriginalDomainWrapInside(bool)</slot>
+    <slot>ToggledTorusOriginalDomainClipped(bool)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -1104,7 +1104,7 @@
    <sender>checkBoxTorusOriginalDomainWrapInside</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledTorusOriginalDomainWrapInside(bool)</slot>
+   <slot>ToggledTorusOriginalDomainClipped(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>681</x>

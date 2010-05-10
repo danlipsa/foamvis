@@ -78,8 +78,3 @@ bool OrientedEdge::IsZero () const
 {
     return m_edge->IsZero ();
 }
-
-size_t OrientedEdge::CountIntersections () const
-{
-    return GetEdge ()->CountIntersections ();
-}

@@ -11,46 +11,55 @@
 class OOBox
 {
 public:
+    typedef vector<G3D::Vector3> Intersections;
+    typedef boost::array<size_t, 2> NormalPoint;
+
+public:
     OOBox (const G3D::Vector3& x, const G3D::Vector3& y,
-	   const G3D::Vector3& z) :
-    m_x (x), m_y (y), m_z (z)
-    {}
+	   const G3D::Vector3& z);
     OOBox () {}
 
     const G3D::Vector3& GetX () const
     {
-	return m_x;
+	return m_vector[0];
     }
     const G3D::Vector3& GetY () const
     {
-	return m_y;
+	return m_vector[1];
     }
     const G3D::Vector3& GetZ () const
     {
-	return m_z;
+	return m_vector[2];
     }
     void Set (const G3D::Vector3& x, const G3D::Vector3& y, 
 	      const G3D::Vector3& z)
     {
-	m_x = x;
-	m_y = y;
-	m_z = z;
+	m_vector[0] = x;
+	m_vector[1] = y;
+	m_vector[2] = z;
     }
-    const G3D::Vector3& operator[] (size_t i) const;
+    const G3D::Vector3& operator[] (size_t i) const
+    {
+	return m_vector[i];
+    }
     G3D::Vector3 TorusTranslate (
 	const G3D::Vector3& v, const G3D::Vector3int16& domainIncrement) const;
-    G3D::Vector3 Intersect (
-	const G3D::Vector3& begin, const G3D::Vector3& end, 
+    Intersections Intersect (
+	const G3D::Vector3& begin, const G3D::Vector3& end,
 	const G3D::Vector3int16& domainIncrement) const;
     G3D::Vector3int16 GetTorusLocation (const G3D::Vector3& point) const;
 
 public:
     friend ostream& operator<< (ostream& ostr, const OOBox& box);
+    static size_t CountIntersections (const G3D::Vector3int16& domainIncrement);
 
 private:
-    G3D::Vector3 m_x;
-    G3D::Vector3 m_y;
-    G3D::Vector3 m_z;
+    boost::array<G3D::Vector3, 3> m_vector;
+    /**
+     * Three planes specified by normal, point in the plane.
+     * All values in this 2d array are indexes in m_vector.
+     */
+    static const boost::array<NormalPoint,3> PLANES;
 };
 
 

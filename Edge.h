@@ -112,12 +112,11 @@ public:
     }
 
 
-    G3D::Vector3 GetTorusWrappedBegin (size_t index) const;
-    G3D::Vector3 GetTorusWrappedEnd (size_t index) const;
-    size_t GetTorusWrappedSize () const;
-    void CalculateTorusWrapped ();
-    size_t CountIntersections () const;
-
+    G3D::Vector3 GetTorusClippedBegin (size_t index) const;
+    G3D::Vector3 GetTorusClippedEnd (size_t index) const;
+    size_t GetTorusClippedSize () const;
+    void CalculateTorusClipped ();
+    
 public:
     static short DomainIncrementCharToNumber (char sign);
     static G3D::Vector3int16 IntToDomainIncrement (int i);
@@ -149,7 +148,7 @@ private:
      */
     vector<Face*> m_adjacentFaces;
     bool m_physical;
-    vector<G3D::LineSegment>* m_torusWrapped;
+    vector<G3D::LineSegment>* m_torusClipped;
 
 private:
     /**

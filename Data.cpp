@@ -17,28 +17,6 @@
 // Private Classes
 // ======================================================================
 
-class printFaceIfIntersection
-{
-public:
-    printFaceIfIntersection (ostream& ostr) : m_ostr(ostr) {}
-    void operator () (Face* f)
-    {
-	vector<OrientedEdge*>::iterator it;
-	vector<OrientedEdge*>& v = f->GetOrientedEdges ();
-	vector<size_t> intersections(v.size ());
-	transform (
-	    v.begin (), v.end (), intersections.begin (), 
-	    boost::bind(&OrientedEdge::CountIntersections, _1));
-	size_t totalIntersections = accumulate (
-	    intersections.begin (), intersections.end (), 0);
-	m_ostr << f->GetOriginalIndex () << " has " 
-	       << totalIntersections << " intersections" << endl;
-    }
-private:
-    ostream& m_ostr;
-};
-
-
 struct EdgeSearchDummy
 {
     EdgeSearchDummy (const G3D::Vector3* position, Data* data,
@@ -359,6 +337,12 @@ void Data::CalculateBodiesCenters ()
 	      mem_fun(&Body::CalculateCenter));
 }
 
+void Data::CalculateTorusClipped ()
+{
+    for_each (m_edges.begin (), m_edges.end (),
+	      mem_fun(&Edge::CalculateTorusClipped));
+}
+
 void Data::PostProcess ()
 {
     Compact ();
@@ -368,6 +352,7 @@ void Data::PostProcess ()
     CacheEdgesVerticesInBodies ();
     if (! IsTorus () && GetSpaceDimension () == 3)
 	CalculateBodiesCenters ();
+    CalculateTorusClipped ();
 }
 
 void Data::StoreEdgesNoAdjacentFace ()
@@ -377,13 +362,6 @@ void Data::StoreEdgesNoAdjacentFace ()
 	if (e->GetAdjacentFaces ().size () == 0 && 
 	    e->GetStatus () == ElementStatus::ORIGINAL)
 	    m_edgesNoAdjacentFace.push_back (e);
-}
-
-ostream& Data::PrintFacesWithIntersection (ostream& ostr) const
-{
-    ostr << "Face intersections:" << endl;
-    for_each(m_faces.begin (), m_faces.end (), printFaceIfIntersection (ostr));
-    return ostr;
 }
 
 G3D::Vector3int16 Data::GetDomainIncrement (
@@ -478,6 +456,5 @@ ostream& operator<< (ostream& ostr, Data& d)
     copy (d.m_bodies.begin (), d.m_bodies.end (), bOutput);
 
     Vertex::PrintDomains (ostr, d.m_vertices);
-    d.PrintFacesWithIntersection (ostr);
     return ostr;
 }

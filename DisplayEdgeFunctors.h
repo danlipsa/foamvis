@@ -213,8 +213,8 @@ public:
     {
 	Color::Name color = edge->GetColor (Color::BLACK);
 	glColor4fv (Color::GetValue(color));
-	Vertex* b = edge->GetBegin ();
-	Vertex* e = edge->GetEnd ();
+	G3D::Vector3* b = edge->GetBegin ();
+	G3D::Vector3* e = edge->GetEnd ();
 	glBegin(GL_LINES);
 	glVertex(*b);
 	glVertex (*e);
@@ -233,6 +233,31 @@ public:
 	operator () (oe->GetEdge ());
     }
 };
+
+class DisplayEdgeTorusClipped : public DisplayElement
+{
+public:
+    DisplayEdgeTorusClipped (const GLWidget& widget) : 
+    DisplayElement (widget) {}
+    void operator () (const Edge* edge)
+    {
+	Color::Name color = edge->GetColor (Color::BLACK);
+	glColor4fv (Color::GetValue(color));
+	glBegin(GL_LINES);
+	for (size_t i = 0; i < edge->GetTorusClippedSize (); i++)
+	{
+	    glVertex(edge->GetTorusClippedBegin (i));
+	    glVertex (edge->GetTorusClippedEnd (i));
+	}
+	glEnd ();
+    }
+    void operator() (const OrientedEdge* oe)
+    {
+	operator () (oe->GetEdge ());
+    }
+
+};
+
 
 
 /**

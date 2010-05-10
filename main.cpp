@@ -17,21 +17,20 @@
  * This project visualizes and helps understand foam modeling data produced
  * by Surface Evolver.
  *
- * \section torus Processing done for the Torus model
- * <h3>procedure executed when reading an edge from the data file 
- * (may create duplicate vertices)</h3>
+ * \section torus_sec Processing done for the Torus model
+ * \subsection onedge_sec Executed when creating an edge (may create duplicate vertices)
  *
  <pre>
 first vertex of the edge is CONSIDERED inside the original domain
   if (edge has a + or -) {
     create a duplicate of the second vertex by translating it
       one domain up for a + and one domain down for a - along each of 
-      the three axes.
+      the three axes. The translation is done from the ORIGINAL domain, not from
+      the domain where the first vertex is.
   }
  </pre>
  * 
- * <h3>procedure executed when reading a face from the data file 
- * (may create duplicate edges)</h3>
+ * \subsection onface_sec Executed when creating a face (may create duplicate edges)
  *
 <pre>
   first vertex of the face is CONSIDERED inside the original domain

@@ -117,6 +117,10 @@ public:
      * @param v what to print
      * @return output stream used to print the object to
      */
+    static const G3D::Vector3int16& UnitVector3int16 (size_t direction)
+    {
+	return m_unitVector3int16[direction];
+    }
     friend ostream& operator<< (ostream& ostr, const Vertex& v);
 
 private:
@@ -191,6 +195,7 @@ private:
      * Stores information about all vertex attributes
      */
     static AttributesInfo* m_infos;
+    static const G3D::Vector3int16 m_unitVector3int16[3];
 };
 /**
  * Pretty prints a Vertex* by calling the operator<< for a Vertex.

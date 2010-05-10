@@ -74,8 +74,6 @@ public:
      */
     bool Fits (const OrientedEdge& destination, 
 	       G3D::Vector3* translation = 0) const;
-    size_t CountIntersections () const;
-
 
 public:
     /**

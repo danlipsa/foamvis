@@ -187,7 +187,7 @@ public Q_SLOTS:
      */
     void ToggledBodies (bool checked);
     void ToggledTorusOriginalDomainDisplay (bool checked);
-    void ToggledTorusOriginalDomainWrapInside (bool checked);
+    void ToggledTorusOriginalDomainClipped (bool checked);
     /**
      * Shows center paths
      * param checked true for showing the center paths false otherwise
@@ -308,6 +308,7 @@ private:
      * Generates a display list for edges
      * @return the display list
      */
+    template<typename displayEdge> GLuint displayListEdges ();
     GLuint displayListEdgesNormal ();
     GLuint displayListEdgesTorus ()
     {
@@ -403,7 +404,7 @@ private:
      */
     ViewType m_viewType;
     bool m_torusOriginalDomainDisplay;
-    bool m_torusOriginalDomainWrapInside;
+    bool m_torusOriginalDomainClipped;
     InteractionMode::Name m_interactionMode;
     /**
      * The current DMP file as a OpenGL display list.

@@ -207,7 +207,7 @@ GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent), 
       m_viewType (FACES_LIGHTING),
       m_torusOriginalDomainDisplay (false),
-      m_torusOriginalDomainWrapInside (false),
+      m_torusOriginalDomainClipped (false),
       m_interactionMode (InteractionMode::ROTATE),
       m_object(0),
       m_dataFiles(0), m_dataIndex (0),
@@ -345,12 +345,13 @@ void GLWidget::enableLighting ()
 void GLWidget::calculateViewingVolume ()
 {
     using G3D::Vector3;
-    const Vector3& min = m_dataFiles->GetAABox ().low ();
-    const Vector3& max = m_dataFiles->GetAABox ().high ();
-    float border = ((max - min) / 8).max ();
-    m_viewingVolume.set (
-	Vector3 (min.x - border, min.y - border, min.z - border),
-	Vector3 (max.x + border, max.y + border, max.z + border));
+    const Vector3& low = m_dataFiles->GetAABox ().low ();
+    const Vector3& high = m_dataFiles->GetAABox ().high ();
+    float border = ((high - low) / 8).max ();
+    float min = low.min () - border;
+    float max = high.max () + border;
+    m_viewingVolume.set (Vector3 (min, min, min),
+			 Vector3 (max, max, max));
     cdbg << "Viewing volume: " << m_viewingVolume << endl;
 }
 
@@ -622,7 +623,8 @@ GLuint GLWidget::displayListVerticesTorus ()
     return list;
 }
 
-GLuint GLWidget::displayListEdgesNormal ()
+template<typename displayEdge>
+GLuint GLWidget::displayListEdges ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
@@ -633,10 +635,10 @@ GLuint GLWidget::displayListEdgesNormal ()
 	      DisplayBody<
 	      DisplayFace<
 	      DisplayEdges<
-	      DisplayEdgeWithColor > > >(*this));
+	      displayEdge> > >(*this));
     
     const vector<Edge*>& edges = GetCurrentData ().GetEdgesNoAdjacentFace ();
-    for_each (edges.begin (), edges.end (), DisplayEdgeWithColor (*this));
+    for_each (edges.begin (), edges.end (), displayEdge (*this));
     
     glPopAttrib ();
     displayOriginalDomain ();
@@ -644,6 +646,14 @@ GLuint GLWidget::displayListEdgesNormal ()
     glEndList();
     return list;
 }
+
+GLuint GLWidget::displayListEdgesNormal ()
+{
+    return m_torusOriginalDomainClipped ?
+	displayListEdges<DisplayEdgeTorusClipped> () :
+	displayListEdges<DisplayEdgeWithColor> ();
+}
+
 
 GLuint GLWidget::displayListEdgesPhysical ()
 {
@@ -959,9 +969,9 @@ void GLWidget::ToggledTorusOriginalDomainDisplay (bool checked)
     UpdateDisplay ();
 }
 
-void GLWidget::ToggledTorusOriginalDomainWrapInside (bool checked)
+void GLWidget::ToggledTorusOriginalDomainClipped (bool checked)
 {
-    m_torusOriginalDomainWrapInside = checked;
+    m_torusOriginalDomainClipped = checked;
     UpdateDisplay ();
 }
 

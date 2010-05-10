@@ -220,6 +220,7 @@ public:
      * Calculate centers for all bodies.
      */
     void CalculateBodiesCenters ();
+    void CalculateTorusClipped ();
     /**
      * Gets a AABox of this Data object
      * @return an AABox of this Data object

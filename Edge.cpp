@@ -27,7 +27,7 @@ Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& domainIncrement,
     m_begin (begin), m_end (end),
     m_domainIncrement (domainIncrement), 
     m_physical (false),
-    m_torusWrapped (0)
+    m_torusClipped (0)
 {
     if (m_data->IsTorus () && GetStatus () == ElementStatus::ORIGINAL)
     {
@@ -42,7 +42,7 @@ Edge::Edge (Vertex* begin, size_t originalIndex) :
     m_begin (begin),
     m_end (0),
     m_physical (false),
-    m_torusWrapped (0)
+    m_torusClipped (0)
 {
 }
 
@@ -52,7 +52,7 @@ Edge::Edge (const Edge& o) :
     m_begin (o.GetBegin ()), m_end (o.GetEnd ()),
     m_domainIncrement (o.GetDomainIncrement ()),
     m_physical (false),
-    m_torusWrapped (0)
+    m_torusClipped (0)
 {
 }
 
@@ -114,93 +114,94 @@ Edge* Edge::CreateDuplicate (const G3D::Vector3& newBegin)
 }
 
 
-G3D::Vector3 Edge::GetTorusWrappedBegin (size_t index) const
+G3D::Vector3 Edge::GetTorusClippedBegin (size_t index) const
 {
-    if (m_torusWrapped == 0)
+    if (m_torusClipped == 0)
     {
 	RuntimeAssert (index == 0, "index should be 0 and is ", index);
 	return *m_begin;
     }
     else
     {
-	size_t n = m_torusWrapped->size ();
+	size_t n = m_torusClipped->size ();
 	RuntimeAssert (index < n, 
 		       "index should be less than ", n, " and is ", index);
-	return (*m_torusWrapped)[index].point (0);
+	return (*m_torusClipped)[index].point (0);
     }
 }
 
-G3D::Vector3 Edge::GetTorusWrappedEnd (size_t index) const
+G3D::Vector3 Edge::GetTorusClippedEnd (size_t index) const
 {
-    if (m_torusWrapped == 0)
+    if (m_torusClipped == 0)
     {
 	RuntimeAssert (index == 0, "index should be 0 and is ", index);
 	return *m_end;
     }
     else
     {
-	size_t n = m_torusWrapped->size ();
+	size_t n = m_torusClipped->size ();
 	RuntimeAssert (index < n, 
 		       "index should be less than ", n, " and is ", index);
-	return (*m_torusWrapped)[index].point (1);
+	return (*m_torusClipped)[index].point (1);
     }
 }
 
-size_t Edge::GetTorusWrappedSize () const
+void Edge::CalculateTorusClipped ()
 {
-    if (m_domainIncrement == G3D::Vector3int16(0, 0, 0))
-	return 1;
-    else
-	return 2;
-}
-
-void Edge::CalculateTorusWrapped ()
-{
-    using G3D::Vector3int16;
-    using G3D::Vector3;
-    using G3D::LineSegment;
-    Vector3int16 domainIncrement = GetDomainIncrement ();
-    if (domainIncrement == Vector3int16 (0, 0, 0))
+    using G3D::Vector3int16;using G3D::Vector3;using G3D::LineSegment;
+    const OOBox& periods = m_data->GetPeriods ();
+    Vector3int16 beginTorusLocation = m_begin->GetTorusLocation ();
+    Vector3int16 endTorusLocation = m_end->GetTorusLocation ();
+    Vector3int16 domainIncrement = endTorusLocation - beginTorusLocation;
+    size_t intersectionCount = OOBox::CountIntersections (
+	domainIncrement);
+    if (intersectionCount == 0)
     {
-	Vector3int16 torusLocation = m_begin->GetTorusLocation ();
-	if (torusLocation == Vector3int16 (0, 0, 0))
+	if (beginTorusLocation == Vector3int16 (0, 0, 0))
 	    return;
 	else
 	{
-	    domainIncrement = Vector3int16 (0, 0, 0) - torusLocation;
-	    const OOBox& periods = m_data->GetPeriods ();
-	    m_torusWrapped = new vector<LineSegment>(1);
-	    (*m_torusWrapped)[0] = LineSegment::fromTwoPoints (
+	    domainIncrement = Vector3int16 (0, 0, 0) - 
+		beginTorusLocation;
+	    m_torusClipped = new vector<LineSegment>(1);
+	    (*m_torusClipped)[0] = LineSegment::fromTwoPoints (
 		periods.TorusTranslate (*m_begin, domainIncrement),
 		periods.TorusTranslate (*m_end, domainIncrement));
 	}
     }
     else
     {
-	const OOBox& periods = m_data->GetPeriods ();
-	Vector3 intersection = periods.Intersect (
+	vector<Vector3> intersection = periods.Intersect (
 	    *m_begin, *m_end, domainIncrement);
-	domainIncrement = Vector3int16 (0, 0, 0) - domainIncrement;
-	m_torusWrapped = new vector<LineSegment> (2);
-	(*m_torusWrapped)[0] = LineSegment::fromTwoPoints (
-	    *m_begin, intersection);
-	(*m_torusWrapped)[1] = LineSegment::fromTwoPoints (
-	    periods.TorusTranslate (intersection, domainIncrement),
-	    periods.TorusTranslate (*m_end, domainIncrement));
+	m_torusClipped = new vector<LineSegment> (intersectionCount + 1);
+	for (size_t i = 0; i < intersection.size () - 1; i++)
+	{
+	    Vector3int16 domainIncrement = Vector3int16 (0, 0, 0) -
+		periods.GetTorusLocation (
+		    (intersection[i] + intersection[i+1]) / 2);
+	    (*m_torusClipped)[i] = LineSegment::fromTwoPoints (
+		periods.TorusTranslate (intersection[i], domainIncrement),
+		periods.TorusTranslate (intersection[i + 1], domainIncrement));
+	}
     }
 }
 
-
-
-size_t Edge::CountIntersections () const
+size_t Edge::GetTorusClippedSize () const
 {
-    const G3D::Vector3int16& domainIncrement = GetDomainIncrement ();
-    return ((domainIncrement.x != 0) + 
-	    (domainIncrement.y != 0) + (domainIncrement.z != 0));
+    using G3D::Vector3int16;
+    Vector3int16 beginTorusLocation = m_begin->GetTorusLocation ();
+    Vector3int16 endTorusLocation = m_end->GetTorusLocation ();
+    Vector3int16 relativeDomainIncrement = endTorusLocation - beginTorusLocation;
+    size_t intersectionCount = OOBox::CountIntersections (
+	relativeDomainIncrement);
+    return intersectionCount + 1;
 }
+
+
 
 // Static and Friends Methods
 // ======================================================================
+
 
 short Edge::DomainIncrementCharToNumber (char sign)
 {
