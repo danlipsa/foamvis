@@ -42,7 +42,7 @@ public:
 
     void operator () (const Face* f)
     {
-	OrientedFace of(const_cast<Face*>(f), false);
+	const OrientedFace of(const_cast<Face*>(f), false);
 	operator() (&of);
     }
 

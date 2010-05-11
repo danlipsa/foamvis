@@ -29,7 +29,7 @@ void edgeRotation (
     rotation->setColumn (2, newZ);
 }
 
-struct DisplayEdgeLighting
+struct DisplayEdgeTube
 {
     void operator() (
 	GLUquadricObj* quadric,
@@ -68,7 +68,7 @@ struct DisplayEdge
     }
 };
 
-struct DisplayArrowLighting
+struct DisplayArrowTube
 {
     void operator () (
 	GLUquadricObj* quadric,
@@ -296,7 +296,19 @@ public:
     void operator () (const Face* f)
     {
 	const vector<OrientedEdge*>& v = f->GetOrientedEdges ();
-	for_each (v.begin (), v.end (), displayEdge (m_widget));
+	displayEdge display(m_widget);
+	for (size_t i = 0; i < v.size (); i++)
+	{
+	    OrientedEdge* oe = v[i];
+	    size_t displayedEdge = m_widget.GetDisplayedEdge ();
+	    displayEdge display(m_widget);
+	    if (displayedEdge == GLWidget::DISPLAY_ALL || displayedEdge == i)
+	    {
+		display (oe);
+		if (i == displayedEdge)
+		    cdbg << "edge " << i << ": " << *oe << endl;
+	    }
+	}
     }
 };
 

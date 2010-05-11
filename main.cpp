@@ -189,6 +189,25 @@ void parseFiles (int argc, char *argv[],
     }
 }
 
+
+class Application: public QApplication
+{
+public:
+    Application(int &c, char **v): QApplication(c, v) {}
+    virtual bool notify(QObject *rec, QEvent *ev)
+    {
+	try
+	{
+	    return QApplication::notify(rec, ev);
+	}
+	catch (exception& e)
+	{
+	    cdbg << "Exception: " << e.what () << endl;
+	    return false;
+	}
+    }
+};
+
 /**
  * Parses the data file, reads in vertices, edges, etc and displays them.
  * @return 0 for success, different than 0 otherwise
@@ -210,7 +229,7 @@ int main(int argc, char *argv[])
 		cdbg << dataFiles;
 	    else
 	    {
-		QApplication app(argc, argv);
+		Application app(argc, argv);
 		MainWindow window (dataFiles);
 		window.show();
 		return app.exec();

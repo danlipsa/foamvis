@@ -6,6 +6,7 @@
  */
 
 #include "Debug.h"
+#include "DebugStream.h"
 #include "Edge.h"
 #include "OOBox.h"
 #include "Vertex.h"
@@ -60,13 +61,21 @@ G3D::Vector3 OOBox::TorusTranslate (
 OOBox::Intersections OOBox::Intersect (
     const G3D::Vector3& begin, const G3D::Vector3& end,
     const G3D::Vector3int16& beginLocation,
-    const G3D::Vector3int16& translation) const
+    const G3D::Vector3int16& endLocation) const
 {
-    using G3D::Vector3;using G3D::Line;using G3D::Plane;
+    using G3D::Vector3;using G3D::Line;using G3D::Plane;using G3D::Vector3int16;
+    Vector3int16 translation = endLocation - beginLocation;
     size_t size = CountIntersections (translation) + 2;
     OOBox::Intersections intersections (size);
     intersections[0] = begin;
     intersections[size - 1] = end;
+    ostream_iterator<G3D::Vector3> o (cdbg, " ");
+    cdbg << &intersections;
+    copy (intersections.begin (), intersections.end (), o);
+    cdbg << endl;
+
+
+
     Vector3 planeNormal, planePoint;
     Plane plane;
     Line line = Line::fromTwoPoints (begin, end);
@@ -77,12 +86,15 @@ OOBox::Intersections OOBox::Intersect (
 	    continue;
 	planeNormal = (*this)[axis];
 	planePoint = (*this)[np[1]];
-	planePoint += planeNormal * beginLocation[axis];
-	if (translation[axis] == 1)
+	if ((beginLocation[axis] == 0 && endLocation[axis] == 1) ||
+	    (beginLocation[axis] == 1 && endLocation[axis] == 0))
 	    planePoint += planeNormal;
 	plane = Plane (planeNormal, planePoint);
 	intersections[axis + 1] = line.intersection (plane);
     }
+    cdbg << "Intersections for begin=" << begin << ", end=" << end << endl;
+    copy (intersections.begin (), intersections.end (), o);
+    cdbg << endl;
     sort (intersections.begin (), intersections.end (), 
 	  LessThanDistanceFrom (begin));
     return intersections;
@@ -107,7 +119,9 @@ G3D::Vector3int16 OOBox::GetTorusLocation (const G3D::Vector3& point) const
 	    location -= increment;;
 	plane = Plane(-planeNormal, planePoint + planeNormal);
 	if (! plane.halfSpaceContainsFinite (point))
-	    location += increment;;
+	    // G3D bug: Vector3int16::operator+=
+	    // location = location + increment;
+	    location += increment;
     }
     return location;
 }

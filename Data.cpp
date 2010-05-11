@@ -339,8 +339,13 @@ void Data::CalculateBodiesCenters ()
 
 void Data::CalculateTorusClipped ()
 {
-    for_each (m_edges.begin (), m_edges.end (),
-	      mem_fun(&Edge::CalculateTorusClipped));
+    BOOST_FOREACH (Edge* e, m_edges)
+    {
+	ElementStatus::Name status = e->GetStatus ();
+	if (status == ElementStatus::ORIGINAL || 
+	    status == ElementStatus::DUPLICATE)
+	    e->CalculateTorusClipped ();
+    }
 }
 
 void Data::PostProcess ()
@@ -376,8 +381,9 @@ G3D::Vector3int16 Data::GetDomainIncrement (
     {
 	Matrix2 toPeriods (GetPeriod (0).x, GetPeriod (1).x,
 			   GetPeriod (0).y, GetPeriod (1).y);
-	// inverse does not work in G3D 7.01
-	const Matrix2& toOrthonormal2d = inverse (toPeriods);
+	// G3D bug: Matrix2::inverse
+	//const Matrix2& toOrthonormal2d = inverse (toPeriods);
+	const Matrix2& toOrthonormal2d = toPeriods.inverse ();
 	const float* v = toOrthonormal2d[0];
 	toOrthonormal.setRow (0, Vector3 (v[0], v[1], 0));
 	v = toOrthonormal2d[1];

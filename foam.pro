@@ -56,8 +56,8 @@ LIBS += "-lavutil"
 LIBS += "-framework Carbon"
 }
 else:unix {
-INCLUDEPATH =  /usr/local/G3D-8.00-b04/build/linux-x86_64-g++4.4/include $$INCLUDEPATH
-LIBS += -L/usr/local/G3D-8.00-b04/build/linux-x86_64-g++4.4/lib
+INCLUDEPATH =  /usr/local/G3D/build/linux-x86_64-g++4.4/include $$INCLUDEPATH
+LIBS += -L/usr/local/G3D/build/linux-x86_64-g++4.4/lib
 LIBS += "-lGLG3D"
 LIBS += "-lG3D"
 LIBS += "-lzip"

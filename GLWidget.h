@@ -71,23 +71,30 @@ public:
     {
 	return m_displayedFace;
     }
+    size_t GetDisplayedEdge () const
+    {
+	return m_displayedEdge;
+    }
 
     /**
      * Increment displayed body
      */
     void IncrementDisplayedBody ();
     /**
+     * Increment displayed face
+     */
+    void IncrementDisplayedFace ();
+    void IncrementDisplayedEdge ();
+
+    /**
      * Decrement displayed body
      */
     void DecrementDisplayedBody ();
     /**
-     * Increment displayed face
-     */
-    void IncrementDisplayedFace ();
-    /**
      * Decrement displayed face
      */
     void DecrementDisplayedFace ();
+    void DecrementDisplayedEdge ();
     /**
      * Returns the actual size of physical objects
      */
@@ -430,6 +437,7 @@ private:
      * Used to display one face at a time from the m_displayedBody.
      */
     size_t m_displayedFace;
+    size_t m_displayedEdge;
     /**
      * Stores the size of physical objects
      */

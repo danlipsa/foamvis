@@ -209,9 +209,10 @@ GLWidget::GLWidget(QWidget *parent)
       m_torusOriginalDomainDisplay (false),
       m_torusOriginalDomainClipped (false),
       m_interactionMode (InteractionMode::ROTATE),
-      m_object(0),
-      m_dataFiles(0), m_dataIndex (0),
-      m_displayedBody(DISPLAY_ALL), m_displayedFace(DISPLAY_ALL),
+      m_object (0),
+      m_dataFiles (0), m_dataIndex (0),
+      m_displayedBody (DISPLAY_ALL), m_displayedFace (DISPLAY_ALL),
+      m_displayedEdge (DISPLAY_ALL),
       m_physicalVertexSize (1), m_physicalEdgeWidth (1),
       m_physicalVertexColor (Qt::blue), m_physicalEdgeColor (Qt::blue),
       m_tessellationVertexSize (1), m_tessellationEdgeWidth (1),
@@ -684,8 +685,7 @@ GLuint GLWidget::displayListEdgesTorusTubes ()
 
     vector<Edge*>& edges = GetCurrentData ().GetEdges ();
     for_each (edges.begin (), edges.end (),
-	      DisplayEdgeTorus<
-	      DisplayEdgeLighting, DisplayArrowLighting, false>(*this));
+	      DisplayEdgeTorus<DisplayEdgeTube, DisplayArrowTube, false>(*this));
     glPopAttrib ();
 
     displayOriginalDomain ();
@@ -701,8 +701,7 @@ GLuint GLWidget::displayListEdgesTorusLines ()
 
     vector<Edge*>& edges = GetCurrentData ().GetEdges ();
     for_each (edges.begin (), edges.end (),
-	      DisplayEdgeTorus<
-	      DisplayEdge, DisplayArrow, false> (*this));
+	      DisplayEdgeTorus<DisplayEdge, DisplayArrow, false> (*this));
     glPopAttrib ();
 
     displayOriginalDomain ();
@@ -766,7 +765,7 @@ GLuint GLWidget::displayListFacesTorusTubes ()
 	      DisplayFace<
 	      DisplayEdges<
 	      DisplayEdgeTorus<
-	      DisplayEdgeLighting, DisplayArrowLighting, true> > > (*this) );
+	      DisplayEdgeTube, DisplayArrowTube, true> > > (*this) );
     glPopAttrib ();
 
     displayOriginalDomain ();
@@ -823,9 +822,25 @@ GLuint GLWidget::displayList (ViewType type)
     return (this->*(VIEW_TYPE_DISPLAY[type].m_displayList)) ();
 }
 
+
+
+void GLWidget::IncrementDisplayedBody ()
+{
+    if (m_viewType == VERTICES_TORUS || m_viewType == EDGES_TORUS ||
+	m_viewType == FACES_TORUS)
+	return;
+    ++m_displayedBody;
+    m_displayedFace = DISPLAY_ALL;
+    if (m_displayedBody == GetDataFiles ().GetData ()[0]->GetBodies ().size ())
+        m_displayedBody = DISPLAY_ALL;
+    UpdateDisplay ();
+    cdbg << "displayed body: " << m_displayedBody << endl;
+}
+
+
 void GLWidget::IncrementDisplayedFace ()
 {
-    m_displayedFace++;
+    ++m_displayedFace;
     if (m_viewType == FACES_TORUS)
     {
 	if (m_displayedFace == 	GetCurrentData ().GetFaces ().size ())
@@ -838,6 +853,32 @@ void GLWidget::IncrementDisplayedFace ()
             m_displayedFace = DISPLAY_ALL;
     }
     UpdateDisplay ();
+}
+
+void GLWidget::IncrementDisplayedEdge ()
+{
+    if (m_displayedBody != DISPLAY_ALL && m_displayedFace != DISPLAY_ALL)
+    {
+	++m_displayedEdge;
+	Body& body = *GetCurrentData ().GetBodies ()[m_displayedBody];
+	Face& face = *body.GetOrientedFaces ()[m_displayedFace]->GetFace ();
+	if (m_displayedEdge == face.GetOrientedEdges ().size ())
+	    m_displayedEdge = DISPLAY_ALL;
+	UpdateDisplay ();
+    }
+}
+
+void GLWidget::DecrementDisplayedBody ()
+{
+    if (m_viewType == VERTICES_TORUS || m_viewType == EDGES_TORUS ||
+	m_viewType == FACES_TORUS)
+	return;
+    if (m_displayedBody == DISPLAY_ALL)
+        m_displayedBody = GetDataFiles ().GetData ()[0]->GetBodies ().size ();
+    --m_displayedBody;
+    m_displayedFace = DISPLAY_ALL;
+    UpdateDisplay ();
+    cdbg << "displayed body: " << m_displayedBody << endl;
 }
 
 void GLWidget::DecrementDisplayedFace ()
@@ -853,35 +894,23 @@ void GLWidget::DecrementDisplayedFace ()
         if (m_displayedFace == DISPLAY_ALL)
             m_displayedFace = body.GetOrientedFaces ().size ();
     }
-    m_displayedFace--;
+    --m_displayedFace;
     UpdateDisplay ();
 }
 
-void GLWidget::IncrementDisplayedBody ()
+void GLWidget::DecrementDisplayedEdge ()
 {
-    if (m_viewType == VERTICES_TORUS || m_viewType == EDGES_TORUS ||
-	m_viewType == FACES_TORUS)
-	return;
-    m_displayedBody++;
-    m_displayedFace = DISPLAY_ALL;
-    if (m_displayedBody == GetDataFiles ().GetData ()[0]->GetBodies ().size ())
-        m_displayedBody = DISPLAY_ALL;
-    UpdateDisplay ();
-    cdbg << "displayed body: " << m_displayedBody << endl;
+    if (m_displayedBody != DISPLAY_ALL && m_displayedFace != DISPLAY_ALL)
+    {
+	Body& body = *GetCurrentData ().GetBodies ()[m_displayedBody];
+	Face& face = *body.GetOrientedFaces ()[m_displayedFace]->GetFace ();
+	if (m_displayedEdge == DISPLAY_ALL)
+	    m_displayedEdge = face.GetOrientedEdges ().size ();
+	--m_displayedEdge;
+	UpdateDisplay ();
+    }
 }
 
-void GLWidget::DecrementDisplayedBody ()
-{
-    if (m_viewType == VERTICES_TORUS || m_viewType == EDGES_TORUS ||
-	m_viewType == FACES_TORUS)
-	return;
-    if (m_displayedBody == DISPLAY_ALL)
-        m_displayedBody = GetDataFiles ().GetData ()[0]->GetBodies ().size ();
-    m_displayedBody--;
-    m_displayedFace = DISPLAY_ALL;
-    UpdateDisplay ();
-    cdbg << "displayed body: " << m_displayedBody << endl;
-}
 
 
 Data& GLWidget::GetCurrentData ()

@@ -100,10 +100,12 @@ void MainWindow::updateStatus ()
 	 << (widgetGl->GetCurrentDataIndex () + 1) << " of "
 	 << data.size () 
 	 << ", Bubbles: " << currentData.GetBodies ().size ();
-    if (widgetGl->GetDisplayedBody () != widgetGl->DISPLAY_ALL)
+    if (widgetGl->GetDisplayedBody () != GLWidget::DISPLAY_ALL)
 	ostr << ", Bubble: " << widgetGl->GetDisplayedBody ();
-    if (widgetGl->GetDisplayedFace () != widgetGl->DISPLAY_ALL)
+    if (widgetGl->GetDisplayedFace () != GLWidget::DISPLAY_ALL)
 	ostr << ", Face: " << widgetGl->GetDisplayedFace ();
+    if (widgetGl->GetDisplayedEdge () != GLWidget::DISPLAY_ALL)
+	ostr << ", Edge: " << widgetGl->GetDisplayedEdge ();
     ostr << ends;
     QString newString (ostr.str().c_str ());
     if (oldString != newString)
@@ -147,7 +149,8 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 	    updateStatus ();
 	    break;
 	case Qt::ControlModifier:
-	    //widgetGl->IncrementDisplayedEdge ();
+	    widgetGl->IncrementDisplayedEdge ();
+	    updateStatus ();
 	    break;
 	}
         break;
@@ -163,7 +166,8 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 	    updateStatus ();
 	    break;
 	case Qt::ControlModifier:
-	    //widgetGl->DecrementDisplayedEdge ();
+	    widgetGl->DecrementDisplayedEdge ();
+	    updateStatus ();
 	    break;
 	}
 	break;
