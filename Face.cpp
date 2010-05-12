@@ -106,9 +106,7 @@ Face::Face (const Face& original) :
 
 Face::~Face()
 {
-    using boost::bind;
-    for_each(m_edges.begin(), m_edges.end(),
-	     bind(DeletePointer<OrientedEdge>(), _1));
+    for_each(m_edges.begin(), m_edges.end(), bl::delete_ptr ());
 }
 
 void Face::UpdateEdgesAdjacency ()

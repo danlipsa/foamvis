@@ -49,11 +49,9 @@ vector<NameSemanticValue*>* NameSemanticValue::PushBack (
 
 void NameSemanticValue::DeleteVector (vector<NameSemanticValue*>* v)
 {
-    using boost::bind;
     if (v != 0)
     {
-        for_each (v->begin (), v->end (),
-		  bind (DeletePointer<NameSemanticValue>(), _1));
+        for_each (v->begin (), v->end (), bl::delete_ptr ());
         delete v;
     }
 }

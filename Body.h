@@ -44,11 +44,11 @@ public:
      * Returns the  vector of oriented faces this body is made of
      * @return a vector of oriented faces
      */
-    vector<OrientedFace*>& GetOrientedFaces ()
+    OrientedFaces& GetOrientedFaces ()
     {
 	return m_faces;
     }
-    const vector<OrientedFace*>& GetOrientedFaces () const
+    const OrientedFaces& GetOrientedFaces () const
     {
 	return m_faces;
     }

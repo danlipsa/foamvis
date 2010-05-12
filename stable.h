@@ -46,6 +46,7 @@
 #include <boost/foreach.hpp>
 #include <boost/operators.hpp>
 #include <boost/function.hpp>
+#include <boost/lambda/construct.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/if.hpp>

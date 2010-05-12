@@ -125,15 +125,10 @@ Data::Data () :
 
 Data::~Data ()
 {
-    using boost::bind;
-    for_each(m_bodies.begin (), m_bodies.end (),
-	     bind ( DeletePointer<Body>(), _1));
-    for_each(m_faces.begin (), m_faces.end (),
-	     bind (DeletePointer<Face> (), _1));
-    for_each(m_edges.begin (), m_edges.end (),
-	     bind (DeletePointer<Edge> (), _1));
-    for_each(m_vertices.begin (), m_vertices.end (),
-	     bind (DeletePointer<Vertex> (), _1));
+    for_each(m_bodies.begin (), m_bodies.end (), bl::delete_ptr());
+    for_each(m_faces.begin (), m_faces.end (), bl::delete_ptr ());
+    for_each(m_edges.begin (), m_edges.end (), bl::delete_ptr ());
+    for_each(m_vertices.begin (), m_vertices.end (), bl::delete_ptr ());
     delete m_parsingData;
 }
 
