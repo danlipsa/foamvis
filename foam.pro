@@ -42,9 +42,9 @@ LIBS += "C:\G3D-7.00-vc8\lib\GLG3Dd.lib"
 else:macx {
 QMAKE_CXXFLAGS += -arch i686 -msse3 -mfpmath=sse
 QMAKE_LFLAGS += -arch i686
-INCLUDEPATH += /usr/local/G3D-20100511/build/osx-i386-g++4.2/include
+INCLUDEPATH += /usr/local/G3D-20100512/build/osx-i386-g++4.2/include
 INCLUDEPATH += /usr/local/boost_1_39_0
-LIBS += -L/usr/local/G3D-20100511/build/osx-i386-g++4.2/lib
+LIBS += -L/usr/local/G3D-20100512/build/osx-i386-g++4.2/lib
 LIBS += "-lGLG3D" 
 LIBS += "-lG3D" 
 LIBS += "-ljpeg"

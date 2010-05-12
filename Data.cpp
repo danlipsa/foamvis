@@ -379,7 +379,6 @@ void Data::AddAttributeInfo (
 
 // Static and Friends Methods
 // ======================================================================
-
 ostream& operator<< (ostream& ostr, Data& d)
 {
     ostr << "Data:\n";
