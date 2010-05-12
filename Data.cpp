@@ -109,13 +109,6 @@ void compact (vector<E*>& v)
     v.resize (resize);
 }
 
-void equalize (G3D::Vector3& first, G3D::Vector3& second)
-{
-    for (int i = 0; i < 3; i++)
-	if (G3D::fuzzyEq (first[i], second[i]))
-	    first[i] = second[i];
-}
-
 // Methods
 // ======================================================================
 
@@ -158,15 +151,15 @@ void Data::SetVertex (size_t i, float x, float y, float z,
 }
 
 Vertex* Data::GetVertexDuplicate (
-    Vertex* original, const G3D::Vector3int16& domainIncrement)
+    Vertex* original, const G3D::Vector3int16& translation)
 {
-    Vertex searchDummy (original, this, domainIncrement);
+    Vertex searchDummy (original, this, translation);
     VertexSet::iterator it = fuzzyFind 
 	<VertexSet, VertexSet::iterator, VertexSet::key_type> (
 	    m_vertexSet, &searchDummy);
     if (it != m_vertexSet.end ())
 	return *it;
-    Vertex* duplicate = original->CreateDuplicate (domainIncrement);
+    Vertex* duplicate = original->CreateDuplicate (translation);
     m_vertexSet.insert (duplicate);
     m_vertices.push_back (duplicate);
     return duplicate;
@@ -207,13 +200,13 @@ Face* Data::GetFaceDuplicate (
 
 
 void Data::SetEdge (size_t i, size_t begin, size_t end,
-		    G3D::Vector3int16& domainIncrement,
+		    G3D::Vector3int16& endTranslation,
                     vector<NameSemanticValue*>& list) 
 {
     if (i >= m_edges.size ())
         m_edges.resize (i + 1); 
     Edge* edge = new Edge (
-	GetVertex(begin), GetVertex(end), domainIncrement, i, this);
+	GetVertex(begin), GetVertex(end), endTranslation, i, this);
     if (&list != 0)
         edge->StoreAttributes (list, m_attributesInfo[DefineAttribute::EDGE]);
     m_edges[i] = edge;
@@ -341,9 +334,9 @@ void Data::CalculateTorusClipped ()
 {
     BOOST_FOREACH (Edge* e, m_edges)
     {
-	ElementStatus::Name status = e->GetStatus ();
-	if (status == ElementStatus::ORIGINAL || 
-	    status == ElementStatus::DUPLICATE)
+	//ElementStatus::Name status = e->GetStatus ();
+	//if (status == ElementStatus::ORIGINAL || 
+	//    status == ElementStatus::DUPLICATE)
 	    e->CalculateTorusClipped ();
     }
 }
@@ -367,42 +360,6 @@ void Data::StoreEdgesNoAdjacentFace ()
 	if (e->GetAdjacentFaces ().size () == 0 && 
 	    e->GetStatus () == ElementStatus::ORIGINAL)
 	    m_edgesNoAdjacentFace.push_back (e);
-}
-
-G3D::Vector3int16 Data::GetDomainIncrement (
-    const G3D::Vector3& original, const G3D::Vector3& duplicate) const
-{
-    using G3D::Matrix3;
-    using G3D::Matrix2;
-    using G3D::Vector3;
-    using G3D::Vector3int16;
-    Matrix3 toOrthonormal;
-    if (GetSpaceDimension () == 2)
-    {
-	Matrix2 toPeriods (GetPeriod (0).x, GetPeriod (1).x,
-			   GetPeriod (0).y, GetPeriod (1).y);
-	// G3D bug: Matrix2::inverse
-	//const Matrix2& toOrthonormal2d = inverse (toPeriods);
-	const Matrix2& toOrthonormal2d = toPeriods.inverse ();
-	const float* v = toOrthonormal2d[0];
-	toOrthonormal.setRow (0, Vector3 (v[0], v[1], 0));
-	v = toOrthonormal2d[1];
-	toOrthonormal.setRow (1, Vector3 (v[0], v[1], 0));
-	toOrthonormal.setRow (2, Vector3::zero ());
-    }
-    else
-    {
-	Matrix3 toPeriods;
-	for (int i = 0; i < 3; i++)
-	    toPeriods.setColumn (i, GetPeriod (i));
-	toOrthonormal = toPeriods.inverse ();
-    }
-    Vector3 o = toOrthonormal * original;
-    Vector3 d = toOrthonormal * duplicate;
-    equalize (o, d);
-    Vector3int16 originalDomain (floorf (o.x), floorf(o.y), floorf(o.z));
-    Vector3int16 duplicateDomain (floorf (d.x), floorf(d.y), floorf(d.z));
-    return duplicateDomain - originalDomain;
 }
 
 bool Data::IsTorus () const

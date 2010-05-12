@@ -12,7 +12,7 @@ class OOBox
 {
 public:
     typedef vector<G3D::Vector3> Intersections;
-    typedef boost::array<size_t, 2> NormalPoint;
+    typedef boost::array<size_t, 3> PlaneTranslation;
 
 public:
     OOBox (const G3D::Vector3& x, const G3D::Vector3& y,
@@ -49,6 +49,9 @@ public:
 	const G3D::Vector3int16& beginLocation,
 	const G3D::Vector3int16& endLocation) const;
     G3D::Vector3int16 GetTorusLocation (const G3D::Vector3& point) const;
+    G3D::Vector3int16 GetTranslation (
+	const G3D::Vector3& source, const G3D::Vector3& destination) const;
+
 
 public:
     friend ostream& operator<< (ostream& ostr, const OOBox& box);
@@ -60,7 +63,7 @@ private:
      * Three planes specified by normal, point in the plane.
      * All values in this 2d array are indexes in m_vector.
      */
-    static const boost::array<NormalPoint,3> PLANES;
+    static const boost::array<PlaneTranslation,3> PLANES;
 };
 
 

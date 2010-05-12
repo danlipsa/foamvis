@@ -80,13 +80,10 @@ Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges,
 	G3D::Vector3* begin = (*m_edges.begin())->GetBegin ();
 	BOOST_FOREACH (OrientedEdge* oe, m_edges)
 	{
-	    G3D::Vector3 edgeBegin;
-	    if (oe->IsReversed ())
-		edgeBegin = oe->GetEdge ()->GetBegin (begin);
-	    else
-		edgeBegin = *begin;
-	    oe->SetEdge (
-		data->GetEdgeDuplicate (oe->GetEdge (), edgeBegin));
+	    Edge* edge = oe->GetEdge ();
+	    G3D::Vector3 edgeBegin = 
+		(oe->IsReversed ()) ? edge->GetBegin (begin) : *begin;
+	    oe->SetEdge (data->GetEdgeDuplicate (edge, edgeBegin));
 	    begin = oe->GetEnd ();
 	}
     }

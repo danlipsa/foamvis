@@ -126,7 +126,7 @@ public:
 	return m_tessellationVertexColor;
     }
 
-    const QColor& GetEndLocationColor (const G3D::Vector3int16& di) const;
+    const QColor& GetEndTranslationColor (const G3D::Vector3int16& di) const;
     
     const QColor& GetPhysicalVertexColor () const
     {
@@ -464,7 +464,7 @@ private:
      */
     G3D::CoordinateFrame m_transform;
     G3D::Rect2D m_viewport;
-    EndLocationColor m_endLocationColor;
+    EndLocationColor m_endTranslationColor;
     GLUquadricObj* m_quadric;    
     /**
      * For displaying Torus Model edges as cylinders

@@ -21,19 +21,19 @@ AttributesInfo* Edge::m_infos;
 
 // Methods
 // ======================================================================
-Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endLocation, 
+Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endTranslation, 
 	    size_t originalIndex, Data* data, ElementStatus::Name status):
     ColoredElement(originalIndex, data, status),
     m_begin (begin), m_end (end),
-    m_endLocation (endLocation), 
+    m_endTranslation (endTranslation), 
     m_physical (false),
     m_torusClipped (0)
 {
     if (m_data->IsTorus () && GetStatus () == ElementStatus::ORIGINAL)
     {
-	if (m_endLocation == G3D::Vector3int16(0, 0, 0))
+	if (m_endTranslation == G3D::Vector3int16(0, 0, 0))
 	    return;
-	m_end = m_data->GetVertexDuplicate (m_end, m_endLocation);
+	m_end = m_data->GetVertexDuplicate (m_end, m_endTranslation);
     }
 }
 
@@ -50,7 +50,7 @@ Edge::Edge (const Edge& o) :
     ColoredElement (o.GetOriginalIndex (), o.GetData (), 
 		    ElementStatus::DUPLICATE),
     m_begin (o.GetBegin ()), m_end (o.GetEnd ()),
-    m_endLocation (o.GetEndLocation ()),
+    m_endTranslation (o.GetEndTranslation ()),
     m_physical (false),
     m_torusClipped (0)
 {
@@ -100,13 +100,11 @@ bool Edge::IsZero () const
 Edge* Edge::CreateDuplicate (const G3D::Vector3& newBegin)
 {
     SetStatus (ElementStatus::DUPLICATE_MADE);
-    G3D::Vector3int16 domainIncrement = m_data->GetDomainIncrement (
+    G3D::Vector3int16 translation = m_data->GetPeriods ().GetTranslation (
 	*GetBegin (), newBegin);
     Vertex* beginDuplicate = m_data->GetVertexDuplicate (
-	GetBegin (), domainIncrement);
-    Vertex* endDuplicate = m_data->GetVertexDuplicate (
-	GetEnd (), domainIncrement);
-
+	GetBegin (), translation);
+    Vertex* endDuplicate = m_data->GetVertexDuplicate (GetEnd (), translation);
     Edge* duplicate = new Edge (*this);
     duplicate->SetBegin (beginDuplicate);
     duplicate->SetEnd (endDuplicate);
@@ -156,33 +154,26 @@ void Edge::CalculateTorusClipped ()
     Vector3int16 endLocation = m_end->GetTorusLocation ();
     Vector3int16 translation = endLocation - beginLocation;
     size_t intersectionCount = OOBox::CountIntersections (translation);
+    vector<Vector3> intersections(2);
     if (intersectionCount == 0)
     {
 	if (beginLocation == Vector3int16 (0, 0, 0))
 	    return;
-	else
-	{
-	    translation = Vector3int16 (0, 0, 0) - beginLocation;
-	    m_torusClipped = new vector<LineSegment>(1);
-	    (*m_torusClipped)[0] = LineSegment::fromTwoPoints (
-		periods.TorusTranslate (*m_begin, translation),
-		periods.TorusTranslate (*m_end, translation));
-	}
+	intersections[0] = *m_begin;
+	intersections[1] = *m_end;
     }
     else
-    {
-	const vector<Vector3>& intersections = periods.Intersect (
+	intersections = periods.Intersect (
 	    *m_begin, *m_end, beginLocation, endLocation);
-	m_torusClipped = new vector<LineSegment> (intersectionCount + 1);
-	for (size_t i = 0; i < intersections.size () - 1; i++)
-	{
-	    Vector3int16 translation = Vector3int16 (0, 0, 0) -
-		periods.GetTorusLocation (
-		    (intersections[i] + intersections[i+1]) / 2);
-	    (*m_torusClipped)[i] = LineSegment::fromTwoPoints (
-		periods.TorusTranslate (intersections[i], translation),
-		periods.TorusTranslate (intersections[i + 1], translation));
-	}
+
+    m_torusClipped = new vector<LineSegment> (intersectionCount + 1);
+    for (size_t i = 0; i < intersections.size () - 1; i++)
+    {
+	translation = Vector3int16 (0, 0, 0) - periods.GetTorusLocation (
+	    (intersections[i] + intersections[i+1]) / 2);
+	(*m_torusClipped)[i] = LineSegment::fromTwoPoints (
+	    periods.TorusTranslate (intersections[i], translation),
+	    periods.TorusTranslate (intersections[i + 1], translation));
     }
 }
 

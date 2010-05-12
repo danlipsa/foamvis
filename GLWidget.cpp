@@ -233,10 +233,10 @@ GLWidget::GLWidget(QWidget *parent)
 	    DOMAIN_INCREMENT_COLOR[di.x + 1],
 	    DOMAIN_INCREMENT_COLOR[di.y + 1],
 	    DOMAIN_INCREMENT_COLOR[di.z + 1]);
-	m_endLocationColor[di] = color;
+	m_endTranslationColor[di] = color;
     }
-    m_endLocationColor[Vector3int16(0,0,0)] = QColor(0,0,0);
-    m_endLocationColor[Vector3int16(0,0,0)] = QColor(0,0,0);
+    m_endTranslationColor[Vector3int16(0,0,0)] = QColor(0,0,0);
+    m_endTranslationColor[Vector3int16(0,0,0)] = QColor(0,0,0);
     m_quadric = gluNewQuadric ();
     gluQuadricCallback (m_quadric, GLU_ERROR,
 			reinterpret_cast<void (*)()>(&quadricErrorCallback));
@@ -918,11 +918,11 @@ Data& GLWidget::GetCurrentData ()
     return *m_dataFiles->GetData ()[m_dataIndex];
 }
 
-const QColor& GLWidget::GetEndLocationColor (
+const QColor& GLWidget::GetEndTranslationColor (
     const G3D::Vector3int16& di) const
 {
-    EndLocationColor::const_iterator it = m_endLocationColor.find (di);
-    RuntimeAssert (it != m_endLocationColor.end (),
+    EndLocationColor::const_iterator it = m_endTranslationColor.find (di);
+    RuntimeAssert (it != m_endTranslationColor.end (),
 		   "Invalid domain increment ", di);
     return (*it).second;
 }

@@ -137,6 +137,14 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     Qt::KeyboardModifiers modifiers = event->modifiers ();
     switch (event->key ())
     {
+    case Qt::Key_Up:
+	widgetGl->IncrementDisplayedEdge ();
+	updateStatus ();
+	break;
+    case Qt::Key_Down:
+	widgetGl->DecrementDisplayedEdge ();
+	updateStatus ();
+	break;
     case Qt::Key_PageUp:
 	switch (modifiers)
 	{
@@ -146,10 +154,6 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 	    break;
 	case Qt::ShiftModifier:
 	    widgetGl->IncrementDisplayedFace ();
-	    updateStatus ();
-	    break;
-	case Qt::ControlModifier:
-	    widgetGl->IncrementDisplayedEdge ();
 	    updateStatus ();
 	    break;
 	}
@@ -163,10 +167,6 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 	    break;
 	case Qt::ShiftModifier:
 	    widgetGl->DecrementDisplayedFace ();
-	    updateStatus ();
-	    break;
-	case Qt::ControlModifier:
-	    widgetGl->DecrementDisplayedEdge ();
 	    updateStatus ();
 	    break;
 	}

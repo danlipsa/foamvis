@@ -93,9 +93,9 @@ public:
      * the vertices
      */
     void UpdateVerticesAdjacency ();
-    const G3D::Vector3int16& GetEndLocation () const
+    const G3D::Vector3int16& GetEndTranslation () const
     {
-	return m_endLocation;
+	return m_endTranslation;
     }
     bool operator== (const Edge& other) const;
     bool fuzzyEq (const Edge& other) const;
@@ -142,7 +142,7 @@ private:
      * Last vertex of the edge
      */
     Vertex* m_end;
-    G3D::Vector3int16 m_endLocation;
+    G3D::Vector3int16 m_endTranslation;
     /**
      * Stores adjacent faces to this edge
      */

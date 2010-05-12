@@ -63,7 +63,7 @@ public:
 	return m_vertices[i];
     }
     Vertex* GetVertexDuplicate (
-	Vertex* original, const G3D::Vector3int16& domainIncrement);
+	Vertex* original, const G3D::Vector3int16& translation);
     /**
      * Gets the vector of vertices
      * @return the vector of vertices
@@ -100,7 +100,7 @@ public:
      * @param list the list of attributes for this edge
      */
     void SetEdge (size_t i, size_t begin, size_t end,
-		  G3D::Vector3int16& domainIncrement,
+		  G3D::Vector3int16& endTranslation,
                   vector<NameSemanticValue*>& list);
     /**
      * Gets all faces from this Data
@@ -283,8 +283,6 @@ public:
     {
 	return m_edgeSet.find (edge) != m_edgeSet.end ();
     }
-    G3D::Vector3int16 GetDomainIncrement (
-	const G3D::Vector3& original, const G3D::Vector3& duplicate) const;
     void SetSpaceDimension (size_t spaceDimension) 
     {
 	m_spaceDimension = spaceDimension;

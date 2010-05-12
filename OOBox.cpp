@@ -28,14 +28,24 @@ private:
     
 };
 
+// Private Functions
+// ======================================================================
+void equalize (G3D::Vector3& first, G3D::Vector3& second)
+{
+    for (int i = 0; i < 3; i++)
+	if (G3D::fuzzyEq (first[i], second[i]))
+	    first[i] = second[i];
+}
+
+
 
 // Static Fields
 // ======================================================================
-const boost::array<OOBox::NormalPoint,3> OOBox::PLANES =
+const boost::array<OOBox::PlaneTranslation,3> OOBox::PLANES =
 {{
-	{{0, 1}},
-	{{1, 2}},
-	{{2, 0}}
+	{{1, 2, 0}},
+	{{2, 0, 1}},
+	{{0, 1, 2}}
 }};
 
 // Methods
@@ -69,55 +79,48 @@ OOBox::Intersections OOBox::Intersect (
     OOBox::Intersections intersections (size);
     intersections[0] = begin;
     intersections[size - 1] = end;
-    ostream_iterator<G3D::Vector3> o (cdbg, " ");
-    cdbg << &intersections;
-    copy (intersections.begin (), intersections.end (), o);
-    cdbg << endl;
-
-
-
     Vector3 planeNormal, planePoint;
     Plane plane;
     Line line = Line::fromTwoPoints (begin, end);
-    BOOST_FOREACH (NormalPoint np, OOBox::PLANES)
+    size_t index = 1;
+    BOOST_FOREACH (PlaneTranslation pt, OOBox::PLANES)
     {
-	size_t axis = np[0];
+	size_t axis = pt[2];
 	if (translation[axis] == 0)
 	    continue;
-	planeNormal = (*this)[axis];
-	planePoint = (*this)[np[1]];
+	planeNormal = (*this)[pt[0]].cross((*this)[pt[1]]);
 	if ((beginLocation[axis] == 0 && endLocation[axis] == 1) ||
 	    (beginLocation[axis] == 1 && endLocation[axis] == 0))
-	    planePoint += planeNormal;
+	    planePoint = (*this)[axis];
+	else
+	    planePoint = Vector3::zero ();	    
 	plane = Plane (planeNormal, planePoint);
-	intersections[axis + 1] = line.intersection (plane);
+	intersections[index++] = line.intersection (plane);
     }
-    cdbg << "Intersections for begin=" << begin << ", end=" << end << endl;
-    copy (intersections.begin (), intersections.end (), o);
-    cdbg << endl;
     sort (intersections.begin (), intersections.end (), 
 	  LessThanDistanceFrom (begin));
+
+    cdbg << "Intersections for begin=" << begin << ", end=" << end << endl;
+    ostream_iterator<G3D::Vector3> o (cdbg, " ");
+    copy (intersections.begin (), intersections.end (), o);
+    cdbg << endl;
     return intersections;
 }
 
 
 G3D::Vector3int16 OOBox::GetTorusLocation (const G3D::Vector3& point) const
 {
-    using G3D::Vector3int16;
-    using G3D::Vector3;
-    using G3D::Plane;
-    Vector3 planeNormal, planePoint;
-    Plane plane;
+    using G3D::Vector3int16;using G3D::Vector3;using G3D::Plane;
     Vector3int16 location;
-    BOOST_FOREACH (NormalPoint np, OOBox::PLANES)
+    BOOST_FOREACH (PlaneTranslation pt, OOBox::PLANES)
     {
-	planeNormal = (*this)[np[0]];
-	planePoint = (*this)[np[1]];
-	Vector3int16 increment = Vertex::UnitVector3int16 (np[0]);
-	plane = Plane (planeNormal, planePoint);
+	size_t axis = pt[2];
+	Vector3 planeNormal = (*this)[pt[0]].cross((*this)[pt[1]]);
+	Vector3int16 increment = Vertex::UnitVector3int16 (axis);
+	Plane plane = Plane (planeNormal, Vector3::zero ());
 	if (! plane.halfSpaceContainsFinite (point))
 	    location -= increment;;
-	plane = Plane(-planeNormal, planePoint + planeNormal);
+	plane = Plane(-planeNormal, (*this)[pt[2]]);
 	if (! plane.halfSpaceContainsFinite (point))
 	    // G3D bug: Vector3int16::operator+=
 	    // location = location + increment;
@@ -125,6 +128,45 @@ G3D::Vector3int16 OOBox::GetTorusLocation (const G3D::Vector3& point) const
     }
     return location;
 }
+
+G3D::Vector3int16 OOBox::GetTranslation (
+    const G3D::Vector3& source, const G3D::Vector3& destination) const
+{
+    using G3D::Matrix3;
+    using G3D::Matrix2;
+    using G3D::Vector3;
+    using G3D::Vector3int16;
+    Matrix3 toOrthonormal;
+/*
+    if (GetSpaceDimension () == 2)
+    {
+	Matrix2 toPeriods ((*this)[0].x, (*this)[1].x,
+			   (*this)[0].y, (*this)[1].y);
+	// G3D bug: Matrix2::inverse
+	//const Matrix2& toOrthonormal2d = inverse (toPeriods);
+	const Matrix2& toOrthonormal2d = toPeriods.inverse ();
+	const float* v = toOrthonormal2d[0];
+	toOrthonormal.setRow (0, Vector3 (v[0], v[1], 0));
+	v = toOrthonormal2d[1];
+	toOrthonormal.setRow (1, Vector3 (v[0], v[1], 0));
+	toOrthonormal.setRow (2, Vector3::zero ());
+    }
+    else
+*/
+    {
+	Matrix3 toPeriods;
+	for (int i = 0; i < 3; i++)
+	    toPeriods.setColumn (i, (*this)[i]);
+	toOrthonormal = toPeriods.inverse ();
+    }
+    Vector3 o = toOrthonormal * source;
+    Vector3 d = toOrthonormal * destination;
+    equalize (o, d);
+    Vector3int16 sourceLocation (floorf (o.x), floorf(o.y), floorf(o.z));
+    Vector3int16 destinationLocation (floorf (d.x), floorf(d.y), floorf(d.z));
+    return destinationLocation - sourceLocation;
+}
+
 
 
 // Static and Friends Methods

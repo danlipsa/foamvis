@@ -21,25 +21,30 @@
  * \subsection onedge_sec Executed when creating an edge (may create duplicate vertices)
  *
  <pre>
-first vertex of the edge is CONSIDERED inside the original domain
-  if (edge has a + or -) {
-    create a duplicate of the second vertex by translating it
+The first vertex of an edge is always defined in the data file (it's not a 
+duplicate).
+  if (edge is marked with a *)
+    the second vertex is defined in the data file (no DUPLICATE needed)
+  else if (edge is marked with a + or -) {
+    create a DUPLICATE of the second vertex by translating it
       one domain up for a + and one domain down for a - along each of 
-      the three axes. The translation is done from the ORIGINAL domain, not from
-      the domain where the first vertex is.
+      the three axes. The translation is done relative to the domain where the 
+      ORIGINAL second vertex is defined in the data file. This means that
+      (* * *) is the domain where the second vertex is defined in the data file
+      NOT the original domain.
   }
  </pre>
  * 
  * \subsection onface_sec Executed when creating a face (may create duplicate edges)
  *
 <pre>
-  first vertex of the face is CONSIDERED inside the original domain
+  first vertex of the face is defined in the data file (not a DUPLICATE).
   set beginVertex to be the first vertex of the face
-  foreach (edge in the face) {
-    if (the beginVertex does not match the begin vertex 
-        of the edge in the data file) {
-      create a duplicate edge
-      set beginVertex  to be the end vertex of the (potential  duplicate) edge
+  foreach (currentEdge, edges in the face) {
+    if (the beginVertex does not match the begin vertex of the currentEdge) {
+      create a DUPLICATE edge
+      set beginVertex  to be the end vertex of the potential DUPLICATE of
+        currentEdge
     }
   }
 </pre>
