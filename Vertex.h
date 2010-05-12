@@ -68,10 +68,10 @@ public:
     bool operator< (const Vertex& other) const;
     bool operator== (const Vertex& other) const;
     Vertex* CreateDuplicate (const G3D::Vector3int16& domainIncrement);
-    G3D::Vector3int16 GetTorusLocation () const;
+    G3D::Vector3int16 GetLocation () const;
     bool InsideTorusOriginalDomain () const
     {
-	return GetTorusLocation () == G3D::Vector3int16 (0, 0, 0);
+	return GetLocation () == G3D::Vector3int16 (0, 0, 0);
     }
     ostream& PrintAttributes (ostream& ostr) const
     {

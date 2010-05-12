@@ -48,7 +48,7 @@ public:
 	const G3D::Vector3& begin, const G3D::Vector3& end,
 	const G3D::Vector3int16& beginLocation,
 	const G3D::Vector3int16& endLocation) const;
-    G3D::Vector3int16 GetTorusLocation (const G3D::Vector3& point) const;
+    G3D::Vector3int16 GetLocation (const G3D::Vector3& point) const;
     G3D::Vector3int16 GetTranslation (
 	const G3D::Vector3& source, const G3D::Vector3& destination) const;
 

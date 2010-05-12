@@ -79,8 +79,6 @@ OOBox::Intersections OOBox::Intersect (
     OOBox::Intersections intersections (size);
     intersections[0] = begin;
     intersections[size - 1] = end;
-    Vector3 planeNormal, planePoint;
-    Plane plane;
     Line line = Line::fromTwoPoints (begin, end);
     size_t index = 1;
     BOOST_FOREACH (PlaneTranslation pt, OOBox::PLANES)
@@ -88,13 +86,12 @@ OOBox::Intersections OOBox::Intersect (
 	size_t axis = pt[2];
 	if (translation[axis] == 0)
 	    continue;
-	planeNormal = (*this)[pt[0]].cross((*this)[pt[1]]);
-	if ((beginLocation[axis] == 0 && endLocation[axis] == 1) ||
-	    (beginLocation[axis] == 1 && endLocation[axis] == 0))
-	    planePoint = (*this)[axis];
-	else
-	    planePoint = Vector3::zero ();	    
-	plane = Plane (planeNormal, planePoint);
+	Vector3 planeTranslation = (*this)[axis];
+	Vector3 planeNormal = (*this)[pt[0]].cross((*this)[pt[1]]);
+	Vector3 planePoint = beginLocation[axis] * planeTranslation;
+	if (translation[axis] == 1)
+	    planePoint += planeTranslation;
+	Plane plane = Plane (planeNormal, planePoint);
 	intersections[index++] = line.intersection (plane);
     }
     sort (intersections.begin (), intersections.end (), 
@@ -108,7 +105,7 @@ OOBox::Intersections OOBox::Intersect (
 }
 
 
-G3D::Vector3int16 OOBox::GetTorusLocation (const G3D::Vector3& point) const
+G3D::Vector3int16 OOBox::GetLocation (const G3D::Vector3& point) const
 {
     using G3D::Vector3int16;using G3D::Vector3;using G3D::Plane;
     Vector3int16 location;
@@ -116,15 +113,27 @@ G3D::Vector3int16 OOBox::GetTorusLocation (const G3D::Vector3& point) const
     {
 	size_t axis = pt[2];
 	Vector3 planeNormal = (*this)[pt[0]].cross((*this)[pt[1]]);
+	Vector3 planePoint;
+	Vector3 planeTranslation = (*this)[axis];
 	Vector3int16 increment = Vertex::UnitVector3int16 (axis);
-	Plane plane = Plane (planeNormal, Vector3::zero ());
-	if (! plane.halfSpaceContainsFinite (point))
-	    location -= increment;;
-	plane = Plane(-planeNormal, (*this)[pt[2]]);
-	if (! plane.halfSpaceContainsFinite (point))
+	Plane plane = Plane (planeNormal, planePoint);
+	while (! plane.halfSpaceContainsFinite (point))
+	{
+	    location -= increment;
+	    planePoint -= planeTranslation;
+	    plane = Plane (planeNormal, planePoint);
+	}
+	planeNormal = - planeNormal;
+	planePoint += planeTranslation;
+	plane = Plane(planeNormal, planePoint);
+	while (! plane.halfSpaceContainsFinite (point))
+	{
 	    // G3D bug: Vector3int16::operator+=
 	    // location = location + increment;
 	    location += increment;
+	    planePoint += planeTranslation;
+	    plane = Plane (planeNormal, planePoint);
+	}
     }
     return location;
 }
@@ -132,33 +141,11 @@ G3D::Vector3int16 OOBox::GetTorusLocation (const G3D::Vector3& point) const
 G3D::Vector3int16 OOBox::GetTranslation (
     const G3D::Vector3& source, const G3D::Vector3& destination) const
 {
-    using G3D::Matrix3;
-    using G3D::Matrix2;
-    using G3D::Vector3;
-    using G3D::Vector3int16;
-    Matrix3 toOrthonormal;
-/*
-    if (GetSpaceDimension () == 2)
-    {
-	Matrix2 toPeriods ((*this)[0].x, (*this)[1].x,
-			   (*this)[0].y, (*this)[1].y);
-	// G3D bug: Matrix2::inverse
-	//const Matrix2& toOrthonormal2d = inverse (toPeriods);
-	const Matrix2& toOrthonormal2d = toPeriods.inverse ();
-	const float* v = toOrthonormal2d[0];
-	toOrthonormal.setRow (0, Vector3 (v[0], v[1], 0));
-	v = toOrthonormal2d[1];
-	toOrthonormal.setRow (1, Vector3 (v[0], v[1], 0));
-	toOrthonormal.setRow (2, Vector3::zero ());
-    }
-    else
-*/
-    {
-	Matrix3 toPeriods;
-	for (int i = 0; i < 3; i++)
-	    toPeriods.setColumn (i, (*this)[i]);
-	toOrthonormal = toPeriods.inverse ();
-    }
+    using G3D::Matrix3;using G3D::Vector3;using G3D::Vector3int16;
+    Matrix3 toOrthonormal, toPeriods;
+    for (int i = 0; i < 3; i++)
+	toPeriods.setColumn (i, (*this)[i]);
+    toOrthonormal = toPeriods.inverse ();
     Vector3 o = toOrthonormal * source;
     Vector3 d = toOrthonormal * destination;
     equalize (o, d);

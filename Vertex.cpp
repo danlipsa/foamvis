@@ -98,9 +98,9 @@ Vertex* Vertex::CreateDuplicate (
     return duplicate;
 }
 
-G3D::Vector3int16 Vertex::GetTorusLocation () const
+G3D::Vector3int16 Vertex::GetLocation () const
 {
-    return m_data->GetPeriods ().GetTorusLocation (*this);
+    return m_data->GetPeriods ().GetLocation (*this);
 }
 
 
