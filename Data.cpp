@@ -329,9 +329,7 @@ void Data::CalculateTorusClipped ()
 {
     BOOST_FOREACH (Edge* e, m_edges)
     {
-	//ElementStatus::Name status = e->GetStatus ();
-	//if (status == ElementStatus::ORIGINAL || 
-	//    status == ElementStatus::DUPLICATE)
+	if (e->IsClipped ())
 	    e->CalculateTorusClipped ();
     }
 }
@@ -340,21 +338,16 @@ void Data::PostProcess ()
 {
     Compact ();
     CalculatePhysical ();
-    StoreEdgesNoAdjacentFace ();
     CalculateAABox ();
     CacheEdgesVerticesInBodies ();
-    if (! IsTorus () && GetSpaceDimension () == 3)
-	CalculateBodiesCenters ();
-    CalculateTorusClipped ();
-}
+    if (IsTorus ())
+	CalculateTorusClipped ();
+    else
+    {
+	if (GetSpaceDimension () == 3)
+	    CalculateBodiesCenters ();
+    }
 
-void Data::StoreEdgesNoAdjacentFace ()
-{
-    using boost::bind;
-    BOOST_FOREACH (Edge* e, m_edges)
-	if (e->GetAdjacentFaces ().size () == 0 && 
-	    e->GetStatus () == ElementStatus::ORIGINAL)
-	    m_edgesNoAdjacentFace.push_back (e);
 }
 
 bool Data::IsTorus () const

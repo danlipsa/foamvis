@@ -8,7 +8,7 @@
 #ifndef __ATTRIBUTE_CREATOR_H__
 #define __ATTRIBUTE_CREATOR_H__
 
-#include "SemanticType.h"
+#include "Enums.h"
 #include "EvolverData_yacc.h"
 
 class Attribute;

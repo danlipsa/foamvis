@@ -7,7 +7,7 @@
 #ifndef __ELEMENT_H__
 #define __ELEMENT_H__
 
-#include "ElementStatus.h"
+#include "Enums.h"
 class Attribute;
 class AttributesInfo;
 class NameSemanticValue;

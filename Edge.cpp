@@ -57,11 +57,6 @@ Edge::Edge (const Edge& o) :
 }
 
 
-vector<Face*>& Edge::GetAdjacentFaces () 
-{
-    return m_adjacentFaces;
-}
-
 G3D::Vector3 Edge::GetBegin (const G3D::Vector3* end) const
 {
     return *end + (*GetBegin () - *GetEnd ());

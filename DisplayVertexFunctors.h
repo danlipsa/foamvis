@@ -96,5 +96,6 @@ public:
 
 #endif //__DISPLAY_VERTEX_FUNCTORS_H__
 
-
-
+// Local Variables:
+// mode: c++
+// End:

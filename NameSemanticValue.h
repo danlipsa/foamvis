@@ -7,7 +7,7 @@
 #ifndef __NAME_SEMANTIC_VALUE_H__
 #define __NAME_SEMANTIC_VALUE_H__
 
-#include "SemanticType.h"
+#include "Enums.h"
 #include "EvolverData_yacc.h"
 
 

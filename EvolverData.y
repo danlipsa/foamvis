@@ -26,8 +26,7 @@ class ParsingDriver;
 }
 
 %{
-#include "Color.h"
-#include "DefineAttributeType.h"
+#include "Enums.h"
 class ExpressionTree;
 class NameSemanticValue;
 class AttributeCreator;

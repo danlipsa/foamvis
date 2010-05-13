@@ -8,8 +8,8 @@
 #define __DATA_H__
 
 #include "AttributeInfo.h"
-#include "DefineAttributeType.h"
 #include "Comparisons.h"
+#include "Enums.h"
 #include "Hashes.h"
 #include "OOBox.h"
 
@@ -293,11 +293,6 @@ public:
     }
     void calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high);
 
-    void StoreEdgesNoAdjacentFace ();
-    const vector<Edge*> GetEdgesNoAdjacentFace () const
-    {
-	return m_edgesNoAdjacentFace;
-    }
 
 public:
     /**
@@ -319,7 +314,6 @@ private:
      */
     vector<Edge*> m_edges;
     EdgeSet m_edgeSet;
-    vector<Edge*> m_edgesNoAdjacentFace;
     /**
      * A vector of faces
      */

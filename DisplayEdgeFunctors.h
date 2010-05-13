@@ -241,15 +241,18 @@ public:
     DisplayElement (widget) {}
     void operator () (const Edge* edge)
     {
-	Color::Name color = edge->GetColor (Color::BLACK);
-	glColor4fv (Color::GetValue(color));
-	glBegin(GL_LINES);
-	for (size_t i = 0; i < edge->GetTorusClippedSize (); i++)
+	if (edge->IsClipped ())
 	{
-	    glVertex(edge->GetTorusClippedBegin (i));
-	    glVertex (edge->GetTorusClippedEnd (i));
+	    Color::Name color = edge->GetColor (Color::BLACK);
+	    glColor4fv (Color::GetValue(color));
+	    glBegin(GL_LINES);
+	    for (size_t i = 0; i < edge->GetTorusClippedSize (); i++)
+	    {
+		glVertex(edge->GetTorusClippedBegin (i));
+		glVertex (edge->GetTorusClippedEnd (i));
+	    }
+	    glEnd ();
 	}
-	glEnd ();
     }
     void operator() (const OrientedEdge* oe)
     {
@@ -313,3 +316,7 @@ public:
 };
 
 #endif //__DISPLAY_EDGE_FUNCTORS_H__
+
+// Local Variables:
+// mode: c++
+// End:

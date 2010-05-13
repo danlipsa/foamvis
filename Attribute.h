@@ -7,7 +7,7 @@
 #ifndef __ATTRIBUTE_H__
 #define __ATTRIBUTE_H__
 
-#include "Color.h"
+#include "Enums.h"
 
 /**
  * Base class for all attributes

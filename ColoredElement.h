@@ -9,7 +9,7 @@
 #define __COLORED_ELEMENT_H__
 
 #include "Element.h"
-#include "Color.h"
+#include "Enums.h"
 
 class ColoredElement : public Element
 {

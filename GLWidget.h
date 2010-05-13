@@ -8,10 +8,11 @@
 #define __GLWIDGET_H__
 
 #include "Hashes.h"
-#include "InteractionMode.h"
+#include "Enums.h"
 
 class Body;
 class Data;
+class Edge;
 class DataFiles;
 
 /**
@@ -315,7 +316,9 @@ private:
      * Generates a display list for edges
      * @return the display list
      */
-    template<typename displayEdge> GLuint displayListEdges ();
+    GLuint displayListEdges (
+	boost::function<void (Edge*)> displayEdge,
+	boost::function<bool (Edge*)> shouldDisplayEdge);
     GLuint displayListEdgesNormal ();
     GLuint displayListEdgesTorus ()
     {

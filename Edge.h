@@ -87,7 +87,10 @@ public:
     {
 	m_adjacentFaces.clear ();
     }
-    vector<Face*>& GetAdjacentFaces () ;
+    const vector<Face*>& GetAdjacentFaces () const
+    {
+	return m_adjacentFaces;
+    }
     /**
      * For both  vertices of this edge,  add the edge as  being adjacent to
      * the vertices
@@ -116,6 +119,18 @@ public:
     G3D::Vector3 GetTorusClippedEnd (size_t index) const;
     size_t GetTorusClippedSize () const;
     void CalculateTorusClipped ();
+    bool IsClipped () const
+    {
+	ElementStatus::Name status = GetStatus ();
+	return (status == ElementStatus::ORIGINAL || 
+		status == ElementStatus::DUPLICATE_MADE);
+    }
+
+    bool ShouldDisplay () const
+    {
+	return GetAdjacentFaces ().size () != 0 ||
+	    GetStatus () == ElementStatus::ORIGINAL;
+    }
     
 public:
     static short LocationCharToNumber (char sign);

@@ -8,7 +8,7 @@
 #define __MAIN_WINDOW_H__
 
 #include "ui_Window.h"
-#include "InteractionMode.h"
+#include "Enums.h"
 
 class QTimer;
 class GLWidget;

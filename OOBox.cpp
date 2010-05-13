@@ -96,11 +96,6 @@ OOBox::Intersections OOBox::Intersect (
     }
     sort (intersections.begin (), intersections.end (), 
 	  LessThanDistanceFrom (begin));
-
-    cdbg << "Intersections for begin=" << begin << ", end=" << end << endl;
-    ostream_iterator<G3D::Vector3> o (cdbg, " ");
-    copy (intersections.begin (), intersections.end (), o);
-    cdbg << endl;
     return intersections;
 }
 

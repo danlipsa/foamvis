@@ -160,3 +160,7 @@ protected:
 
 
 #endif //__DISPLAY_FACE_FUNCTORS_H__
+
+// Local Variables:
+// mode: c++
+// End:

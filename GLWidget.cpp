@@ -624,23 +624,17 @@ GLuint GLWidget::displayListVerticesTorus ()
     return list;
 }
 
-template<typename displayEdge>
-GLuint GLWidget::displayListEdges ()
+GLuint GLWidget::displayListEdges (
+    boost::function<void (Edge*)> displayEdge,
+    boost::function<bool (Edge*)> shouldDisplayEdge)
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
     glLineWidth (m_normalEdgeWidth);
-    const vector<Body*>& bodies = GetCurrentData ().GetBodies ();
-    for_each (bodies.begin (), bodies.end (),
-	      DisplayBody<
-	      DisplayFace<
-	      DisplayEdges<
-	      displayEdge> > >(*this));
-    
-    const vector<Edge*>& edges = GetCurrentData ().GetEdgesNoAdjacentFace ();
-    for_each (edges.begin (), edges.end (), displayEdge (*this));
-    
+    BOOST_FOREACH (Edge* e, GetCurrentData ().GetEdges ())
+	if (shouldDisplayEdge (e))
+	    displayEdge (e);
     glPopAttrib ();
     displayOriginalDomain ();
     displayCenterOfBodies ();
@@ -651,10 +645,11 @@ GLuint GLWidget::displayListEdges ()
 GLuint GLWidget::displayListEdgesNormal ()
 {
     return m_torusOriginalDomainClipped ?
-	displayListEdges<DisplayEdgeTorusClipped> () :
-	displayListEdges<DisplayEdgeWithColor> ();
+	displayListEdges (DisplayEdgeTorusClipped (this), 
+			  boost::mem_fn(&Edge::IsClipped)) :
+	displayListEdges (DisplayEdgeWithColor(this),
+			  boost::mem_fn(&Edge::ShouldDisplay));
 }
-
 
 GLuint GLWidget::displayListEdgesPhysical ()
 {

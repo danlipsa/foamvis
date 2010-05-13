@@ -129,3 +129,7 @@ private:
 };
 
 #endif //__DISPLAY_BODY_FUNCTORS_H__
+
+// Local Variables:
+// mode: c++
+// End:
