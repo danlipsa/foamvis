@@ -196,6 +196,14 @@ bool Face::IsClosed () const
     return *m_edges[0]->GetBegin () == *m_edges[m_edges.size () - 1]->GetEnd ();
 }
 
+bool Face::IsAdjacent (size_t bodyOriginalIndex)
+{
+    BOOST_FOREACH (Body* b, m_adjacentBodies)
+	if (b->GetOriginalIndex () == bodyOriginalIndex)
+	    return true;
+    return false;
+}
+
 
 // Static and Friends Methods
 // ======================================================================
@@ -219,6 +227,6 @@ ostream& operator<< (ostream& ostr, const Face& f)
     ostr << "edges part of the face" << endl;
     ostream_iterator<OrientedEdge*> output (ostr, "\n");
     copy (f.m_edges.begin (), f.m_edges.end (), output);
-    ostr << " Face attributes: ";
+    ostr << "Face attributes: ";
     return f.PrintAttributes (ostr);
 }

@@ -75,6 +75,11 @@ public:
     {
 	return m_physical || (m_adjacentFaces.size () == 3);
     }
+    void SetPhysical (bool physical)
+    {
+	m_physical = physical;
+    }
+
     /**
      * Adds a face touched by this edge
      * @param face face touched by this edge
@@ -109,11 +114,6 @@ public:
     {
 	return printAttributes (ostr, *Edge::m_infos);
     }
-    void SetPhysical ()
-    {
-	m_physical = true;
-    }
-
 
     G3D::Vector3 GetTorusClippedBegin (size_t index) const;
     G3D::Vector3 GetTorusClippedEnd (size_t index) const;

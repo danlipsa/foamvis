@@ -11,23 +11,6 @@
 #include "DebugStream.h"
 #include "Face.h"
 
-ostream& operator<< (ostream& ostr, const OrientedFace& of)
-{
-    ostr << (of.m_reversed ? "(R) " : "(N) ")
-	 << "Oriented Face " << of.GetFace ()-> GetOriginalIndex () 
-	 << " " << of.GetFace ()->GetColor () << " "
-	 << of.GetFace ()->GetStatus ()
-	 << ": " << endl;
-    ostr << of.size () << " edges part of the face:" << endl;
-    for (size_t i = 0; i < of.size (); i++)
-    {
-	const OrientedEdge oe = of.GetOrientedEdge (i);
-	ostr << i << ": " << oe << endl;
-    }
-    ostr << " Face attributes: ";
-    return of.m_face->PrintAttributes (ostr);
-}
-
 
 OrientedEdge OrientedFace::GetOrientedEdge (size_t edgeIndex) const
 {
@@ -111,4 +94,24 @@ void OrientedFace::CalculateTranslation (
     }
     RuntimeAssert (false, "The edge: ", edge, 
 		   " is not part of the face: ", *this);
+}
+
+// Static and Friends methods
+// ======================================================================
+
+ostream& operator<< (ostream& ostr, const OrientedFace& of)
+{
+    ostr << (of.m_reversed ? "(R) " : "(N) ")
+	 << "Oriented Face " << of.GetFace ()-> GetOriginalIndex () 
+	 << " " << of.GetFace ()->GetColor () << " "
+	 << of.GetFace ()->GetStatus ()
+	 << ": " << endl;
+    ostr << of.size () << " edges part of the face:" << endl;
+    for (size_t i = 0; i < of.size (); i++)
+    {
+	const OrientedEdge oe = of.GetOrientedEdge (i);
+	ostr << i << ": " << oe << endl;
+    }
+    ostr << " Face attributes: ";
+    return of.m_face->PrintAttributes (ostr);
 }

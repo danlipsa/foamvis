@@ -48,7 +48,7 @@ public:
     /**
      * Constructs a Data object.
      */
-    Data ();
+    Data (size_t timeStep);
     /**
      * Destroys a Data object
      */
@@ -135,10 +135,10 @@ public:
                   vector<NameSemanticValue*>& list);
     /**
      * Gets ith body
-     * @param i index of the body to be returned
+     * @param originalIndex index of the body to be returned
      * @return the body
      */
-    Body* GetBody (size_t i);
+    Body* GetBody (size_t originalIndex);
     /**
      * Gets all bodies from the Data
      * @return a vector of Body pointers
@@ -207,7 +207,7 @@ public:
     /**
      * Calculate the physical (not tesselated) edges and vertices
      */
-    void CalculatePhysical ();
+    void UpdateAdjacency ();
     /**
      * Calculate the bounding box for all vertices in this Data
      */
@@ -251,19 +251,6 @@ public:
     void PostProcess ();
     void PrintDomains (ostream& ostr) const;
 
-    /**
-     * Insert into the original index - body map
-     * @param body to insert
-     */
-    void InsertOriginalIndexBodyMap (Body* body);
-    /**
-     * Gets the original index - body map
-     */
-    map<size_t, Body*>& GetOriginalIndexBodyMap ()
-    {
-	return m_originalIndexBodyMap;
-    }
-
     const G3D::Vector3& GetPeriod (size_t i) const
     {
 	return m_periods[i];
@@ -292,7 +279,10 @@ public:
 	return m_spaceDimension;
     }
     void calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high);
-
+    size_t GetTimeStep () const
+    {
+	return m_timeStep;
+    }
 
 public:
     /**
@@ -341,11 +331,8 @@ private:
      * The axially aligned bounding box for all vertices.
      */
     G3D::AABox m_AABox;
-    /**
-     * Map between the original index and the body pointer
-     */
-    map<size_t, Body*> m_originalIndexBodyMap;
     size_t m_spaceDimension;
+    const size_t m_timeStep;
 };
 
 /**

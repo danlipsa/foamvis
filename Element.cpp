@@ -12,6 +12,8 @@
 #include "ElementUtils.h"
 #include "NameSemanticValue.h"
 
+// Private Classes
+// ======================================================================
 
 /**
  * Functor that stores an attribute in an element.
@@ -108,9 +110,13 @@ private:
     size_t m_index;
 };
 
+// Static Fields
+// ======================================================================
 
 const size_t Element::INVALID_INDEX = 
 				 numeric_limits<size_t>::max ();
+// Methods
+// ======================================================================
 
 Element::~Element()
 {

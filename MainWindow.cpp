@@ -26,7 +26,7 @@ MainWindow::MainWindow(DataFiles& dataFiles) :
     sliderData->setPageStep (10);
     widgetGl->SetDataFiles (&dataFiles);
     updateStatus ();
-    if (dataFiles.GetData ().size ())
+    if (dataFiles.GetData ().size () == 1)
     {
         toolButtonBegin->setDisabled (true);
 	toolButtonEnd->setDisabled (true);
@@ -36,7 +36,6 @@ MainWindow::MainWindow(DataFiles& dataFiles) :
     {
 	radioButtonVerticesPhysical->setEnabled (false);
 	radioButtonEdgesPhysical->setEnabled (false);
-	radioButtonCenterPath->setEnabled (false);
     }
     else
     {
@@ -49,7 +48,6 @@ MainWindow::MainWindow(DataFiles& dataFiles) :
     {
 	radioButtonEdgesNormal->toggle ();
 	tabWidget->setCurrentWidget (edges);
-	radioButtonCenterPath->setEnabled (false);
     }
     else
     {

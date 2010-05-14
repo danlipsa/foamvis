@@ -53,14 +53,14 @@ private:
 /**
  * Functor that caches edges and vertices in vectors stored in the Body
  */
-class cacheEdgesVertices
+class cacheEdges
 {
 public:
     /**
      * Constructor
      * @param body object we work on
      */
-    cacheEdgesVertices (Body& body) : m_body(body) {}
+    cacheEdges (Body& body) : m_body(body) {}
     /**
      * Functor that caches edges and vertices in vectors stored in the Body
      * @param of cache all edges and vertices for this OrientedFace
@@ -118,6 +118,7 @@ private:
 // ======================================================================
 
 AttributesInfo* Body::m_infos;
+map<size_t, Body::BodyAlongTime> Body::m_bodyAlongTime;
 
 // Methods
 // ======================================================================
@@ -154,7 +155,7 @@ Body::~Body()
 
 void Body::CacheEdgesVertices ()
 {
-    for_each (m_faces.begin (), m_faces.end(), cacheEdgesVertices(*this));
+    for_each (m_faces.begin (), m_faces.end(), cacheEdges(*this));
     split (m_vertices, m_tessellationVertices, m_physicalVertices);
     split (m_edges, m_tessellationEdges, m_physicalEdges);
 }
@@ -168,13 +169,11 @@ void Body::split (
     destTessellation.resize (src.size ());
     copy (src.begin (), src.end (), destTessellation.begin ());
     typename vector<T*>::iterator bp;
-    bp = partition (destTessellation.begin (),destTessellation.end (), 
+    bp = partition (destTessellation.begin (), destTessellation.end (), 
 		    not1(mem_fun(&T::IsPhysical)));
     destPhysical.resize (destTessellation.end () - bp);
-    copy (bp, destTessellation.end (), 
-	  destPhysical.begin ());
-    destTessellation.resize (
-	bp - destTessellation.begin ());
+    copy (bp, destTessellation.end (), destPhysical.begin ());
+    destTessellation.resize (bp - destTessellation.begin ());
 }
 
 
@@ -184,7 +183,8 @@ void Body::CalculateCenter ()
     size_t size = m_physicalVertices.size ();
     RuntimeAssert (
 	size != 0, 
-	"Call Body::CacheEdgesVertices before calling this function");
+	"There are no physical vertices in this body. Call"
+	" Body::CacheEdgesVertices before calling this function");
     m_center = accumulate (
 	m_physicalVertices.begin (), m_physicalVertices.end (), m_center, 
 	&Vertex::Accumulate);
@@ -246,8 +246,27 @@ void Body::StoreDefaultAttributes (AttributesInfo* infos)
 
 ostream& operator<< (ostream& ostr, const Body& b)
 {
+    ostr << "Body " << b.GetOriginalIndex () << ":" << endl;
     ostream_iterator<OrientedFace*> output (ostr, "\n");
     copy (b.m_faces.begin (), b.m_faces.end (), output);
-    ostr << " Body attributes: ";
-    return b.PrintAttributes (ostr);
+    ostr << "Body attributes: ";
+    b.PrintAttributes (ostr);
+    ostr << "\nBody center: " << b.m_center;
+    return ostr;
+}
+
+
+void Body::SetTimeSteps (size_t timeSteps)
+{
+    pair<size_t, BodyAlongTime> indexBodyAlongTime;
+    BOOST_FOREACH (indexBodyAlongTime, m_bodyAlongTime)
+	indexBodyAlongTime.second.resize (timeSteps);
+}
+
+Body::BodyAlongTime& Body::GetBodyAlongTime (size_t originalIndex)
+{
+    BodiesAlongTime::iterator it = m_bodyAlongTime.find (originalIndex);
+    RuntimeAssert (it != m_bodyAlongTime.end (),
+		   "Body not found: ", originalIndex);
+    return it->second;
 }

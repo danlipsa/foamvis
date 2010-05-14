@@ -55,9 +55,9 @@ public:
     {
 	return m_physical || (m_adjacentPhysicalEdgesCount == 4);
     }
-    void SetPhysical ()
+    void SetPhysical (bool physical)
     {
-	m_physical = true;
+	m_physical = physical;
     }
     /**
      * Adds an edge that is adjacent to this vertex

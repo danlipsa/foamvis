@@ -66,34 +66,7 @@ protected:
     virtual void display (Body* b)
     {
 	G3D::Vector3 v = b->GetCenter ();
-	glVertex3f(v.x, v.y, v.z);
-    }
-};
-
-
-/**
- * Displays a body going through all its faces
- */
-template<typename displayFace>
-class DisplayBody : public DisplayBodyBase
-{
-public:
-    /**
-     * Constructor
-     * @param widget where to display the body
-     */
-    DisplayBody (GLWidget& widget) : 
-    DisplayBodyBase (widget)
-    {}
-protected:
-    /**
-     * Displays a body going through all its faces
-     * @param b the body to be displayed
-     */
-    virtual void display (Body* b)
-    {
-	vector<OrientedFace*> v = b->GetOrientedFaces ();
-	for_each (v.begin (), v.end (), displayFace(m_widget));
+	glVertex(v);
     }
 };
 
@@ -127,6 +100,34 @@ private:
      */
     int m_index;
 };
+
+
+/**
+ * Displays a body going through all its faces
+ */
+template<typename displayFace>
+class DisplayBody : public DisplayBodyBase
+{
+public:
+    /**
+     * Constructor
+     * @param widget where to display the body
+     */
+    DisplayBody (GLWidget& widget) : 
+    DisplayBodyBase (widget)
+    {}
+protected:
+    /**
+     * Displays a body going through all its faces
+     * @param b the body to be displayed
+     */
+    virtual void display (Body* b)
+    {
+	vector<OrientedFace*> v = b->GetOrientedFaces ();
+	for_each (v.begin (), v.end (), displayFace(m_widget));
+    }
+};
+
 
 #endif //__DISPLAY_BODY_FUNCTORS_H__
 

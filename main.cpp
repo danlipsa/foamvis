@@ -80,7 +80,7 @@ public:
         int result;
 	string file = qPrintable (f);
 	cdbg << "Parsing " << file << " ..." << endl;
-        Data* data = new Data ();
+        Data* data = new Data (m_data.size ());
         m_data.push_back (data);
         ParsingData& parsingData = data->GetParsingData ();
         parsingData.SetDebugParsing (m_debugParsing);
@@ -225,11 +225,13 @@ int main(int argc, char *argv[])
 	DataFiles dataFiles;
 	readOptions (argc, argv,
 		     &debugParsing, &debugScanning, &textOutput);
-	parseFiles (argc, argv, &dataFiles,
-		    debugParsing, debugScanning);
-        if (dataFiles.GetData ().size () != 0)
+	parseFiles (argc, argv, &dataFiles, debugParsing, debugScanning);
+	size_t timeSteps = dataFiles.GetData ().size ();
+        if (timeSteps != 0)
         {
 	    dataFiles.CalculateAABox ();
+	    if (timeSteps > 1)
+		dataFiles.CacheBodiesAlongTime ();
 	    if (textOutput)
 		cdbg << dataFiles;
 	    else

@@ -34,22 +34,24 @@ public:
     displayCenterPath (GLWidget& widget) : m_widget (widget) {}
     /**
      * Displays the center path for a certain body
-     * @param index what body to display the center path for
+     * @param bodyOriginalIndex what body to display the center path for
      */
-    void operator () (size_t index)
+    void operator () (size_t bodyOriginalIndex)
     {
 	glBegin(GL_LINE_STRIP);
 	vector<Data*>& data = m_widget.GetDataFiles ().GetData ();
 	for_each (data.begin (), data.end (), 
-		  DisplayBodyCenterFromData (m_widget, index));
+		  DisplayBodyCenterFromData (m_widget, bodyOriginalIndex));
 	glEnd ();
     }
     /**
-     * Helper function which calls operator () (size_t index).
+     * Helper function which calls operator () (size_t bodyOriginalIndex).
      * @param p a pair original index body pointer
      */
-    inline void operator () (
-	pair<size_t,  Body*> p) {operator() (p.first);}
+    inline void operator () (pair<size_t,  Body*> p)
+    {
+	operator() (p.first);
+    }
 
 private:
     /**
@@ -205,7 +207,7 @@ const float GLWidget::OBJECTS_WIDTH[] = {0.0, 1.0, 3.0, 5.0, 7.0};
 
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent), 
-      m_viewType (FACES_LIGHTING),
+      m_viewType (VIEW_TYPE_COUNT),
       m_torusOriginalDomainDisplay (false),
       m_torusOriginalDomainClipped (false),
       m_interactionMode (InteractionMode::ROTATE),
@@ -707,17 +709,14 @@ GLuint GLWidget::displayListEdgesTorusLines ()
 
 void GLWidget::displayCenterOfBodies ()
 {
-    if (! GetCurrentData ().IsTorus ())
-    {
-	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
-	glPointSize (4.0);
-	qglColor (QColor (Qt::red));
-	glBegin(GL_POINTS);
-	vector<Body*>& bodies = GetCurrentData ().GetBodies ();
-	for_each (bodies.begin (),bodies.end (), DisplayBodyCenter (*this));
-	glEnd ();
-	glPopAttrib ();
-    }
+    glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
+    glPointSize (4.0);
+    qglColor (QColor (Qt::red));
+    glBegin(GL_POINTS);
+    vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+    for_each (bodies.begin (),bodies.end (), DisplayBodyCenter (*this));
+    glEnd ();
+    glPopAttrib ();
 }
 
 GLuint GLWidget::displayListFacesNormal ()
@@ -793,14 +792,12 @@ GLuint GLWidget::displayListCenterPaths ()
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
     qglColor (QColor (Qt::black));
-    map<size_t, Body*>& originalIndexBodyMap = 
-	GetDataFiles ().GetData ()[0]->GetOriginalIndexBodyMap ();
+    Body::BodiesAlongTime& bats = Body::GetBodiesAlongTime ();
     if (GetDisplayedBody () == DISPLAY_ALL)
-	for_each (originalIndexBodyMap.begin (), originalIndexBodyMap.end (),
-		  displayCenterPath (*this));
+	for_each (bats.begin (), bats.end (), displayCenterPath (*this));
     else
     {
-	map<size_t, Body*>::const_iterator it = 
+	Body::BodyAlongTime::const_iterator it = 
 	    originalIndexBodyMap.find (GetDisplayedBody());
 	displayCenterPath (*this) (*it);
     }
@@ -821,8 +818,7 @@ GLuint GLWidget::displayList (ViewType type)
 
 void GLWidget::IncrementDisplayedBody ()
 {
-    if (m_viewType == VERTICES_TORUS || m_viewType == EDGES_TORUS ||
-	m_viewType == FACES_TORUS)
+    if (m_viewType == VERTICES_TORUS || m_viewType == EDGES_TORUS)
 	return;
     ++m_displayedBody;
     m_displayedFace = DISPLAY_ALL;
@@ -865,8 +861,7 @@ void GLWidget::IncrementDisplayedEdge ()
 
 void GLWidget::DecrementDisplayedBody ()
 {
-    if (m_viewType == VERTICES_TORUS || m_viewType == EDGES_TORUS ||
-	m_viewType == FACES_TORUS)
+    if (m_viewType == VERTICES_TORUS || m_viewType == EDGES_TORUS)
 	return;
     if (m_displayedBody == DISPLAY_ALL)
         m_displayedBody = GetDataFiles ().GetData ()[0]->GetBodies ().size ();

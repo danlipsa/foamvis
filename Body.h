@@ -28,7 +28,8 @@ public:
     typedef vector<OrientedFace*> OrientedFaces;
     typedef multimap<G3D::Vector3, OrientedFace*, 
 		     VectorLessThanAngle> NormalFaceMap;
-
+    typedef vector<Body*> BodyAlongTime;
+    typedef map<size_t, BodyAlongTime> BodiesAlongTime;
 public:
     /**
      * Creates a new body
@@ -124,7 +125,10 @@ public:
     {
 	++m_currentNormalFace;
     }
-
+    BodyAlongTime& GetBodyAlongTime()
+    {
+	return Body::m_bodyAlongTime[GetOriginalIndex ()];
+    }
 
 public:
     /**
@@ -140,6 +144,30 @@ public:
      * @param info the object where the default attributes are stored.
      */
     static void StoreDefaultAttributes (AttributesInfo* info);
+    
+    static size_t GetBodyCount ()
+    {
+	return m_bodyAlongTime.size ();
+    }
+    static size_t GetTimeSteps ()
+    {
+	return m_bodyAlongTime[0].size ();
+    }
+    static void SetTimeSteps (size_t timeSteps);
+    static void SetTimeStep (size_t bodyOriginalIndex, size_t timeSteps)
+    {
+	m_bodyAlongTime[bodyOriginalIndex].resize (timeSteps);
+    }
+    static void CacheAlongTime (
+	size_t bodyOriginalIndex, size_t timeStep, Body* body)
+    {
+	m_bodyAlongTime[bodyOriginalIndex][timeStep] = body;
+    }
+    static BodiesAlongTime& GetBodiesAlongTime ()
+    {
+	return m_bodyAlongTime;
+    }
+    static BodyAlongTime& GetBodyAlongTime (size_t originalIndex);
 private:
     /**
      * Splits a  set of  objects (vertices or  edges) in  physical and
@@ -196,12 +224,15 @@ private:
      * Center of the body
      */
     G3D::Vector3 m_center;
-
 private:
     /**
      * Stores information about all vertex attributes
      */
     static AttributesInfo* m_infos;
+    /**
+     * Map between the original index of the body and the body along time
+     */
+    static map<size_t, BodyAlongTime> m_bodyAlongTime;
 };
 /**
  * Pretty prints a Body*

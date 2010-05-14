@@ -112,9 +112,10 @@ void compact (vector<E*>& v)
 // Methods
 // ======================================================================
 
-Data::Data () : 
+Data::Data (size_t timeStep) : 
     m_parsingData (new ParsingData ()),
-    m_spaceDimension (3)
+    m_spaceDimension (3),
+    m_timeStep (timeStep)
 {
     fill (m_viewMatrix.begin (), m_viewMatrix.end (), 0);
     Vertex::StoreDefaultAttributes (&m_attributesInfo[DefineAttribute::VERTEX]);
@@ -236,29 +237,18 @@ void Data::SetBody (size_t i,  vector<int>& faces,
 
 void Data::Compact (void)
 {
-    using boost::bind;
     compact (m_vertices);
     compact (m_edges);
     compact (m_faces);
     compact (m_bodies);
-    for_each (m_bodies.begin (), m_bodies.end (),
-	      bind(&Data::InsertOriginalIndexBodyMap, this, _1));
 }
 
-Body* Data::GetBody (size_t i)
+Body* Data::GetBody (size_t originalIndex)
 {
-    map<size_t, Body*>::iterator it = 
-	m_originalIndexBodyMap.find (i);
-    if (it == m_originalIndexBodyMap.end ())
-	return 0;
-    else
-	return it->second;
+    Body::BodyAlongTime bat = Body::GetBodyAlongTime (originalIndex);
+    return bat[GetTimeStep ()];
 }
 
-void Data::InsertOriginalIndexBodyMap (Body* body)
-{
-    m_originalIndexBodyMap[body->GetOriginalIndex ()] = body;
-}
 
 void Data::ReleaseParsingData ()
 {
@@ -266,15 +256,15 @@ void Data::ReleaseParsingData ()
     m_parsingData = 0;
 }
 
-void Data::CalculatePhysical ()
+void Data::UpdateAdjacency ()
 {
-    using boost::bind;
+    using boost::mem_fn;
     for_each (m_bodies.begin (), m_bodies.end (), 
-	      bind (&Body::UpdateFacesAdjacency, _1));
+	      mem_fn(&Body::UpdateFacesAdjacency));
     for_each (m_faces.begin (), m_faces.end (), 
-	      bind (&Face::UpdateEdgesAdjacency, _1));
+	      mem_fn (&Face::UpdateEdgesAdjacency));
     for_each (m_edges.begin (), m_edges.end (), 
-	      bind (&Edge::UpdateVerticesAdjacency, _1));
+	      mem_fn (&Edge::UpdateVerticesAdjacency));
 }
 
 void Data::CalculateAABox ()
@@ -337,17 +327,20 @@ void Data::CalculateTorusClipped ()
 void Data::PostProcess ()
 {
     Compact ();
-    CalculatePhysical ();
+    UpdateAdjacency ();
+    if (GetSpaceDimension () == 2)
+    {
+	for_each (m_vertices.begin (), m_vertices.end (),
+		  boost::bind (&Vertex::SetPhysical, _1, true));
+	for_each (m_edges.begin (), m_edges.end (),
+		  boost::bind (&Edge::SetPhysical, _1, true));
+    }
     CalculateAABox ();
     CacheEdgesVerticesInBodies ();
+    if (! IsTorus () || GetSpaceDimension () == 2)
+	CalculateBodiesCenters ();
     if (IsTorus ())
 	CalculateTorusClipped ();
-    else
-    {
-	if (GetSpaceDimension () == 3)
-	    CalculateBodiesCenters ();
-    }
-
 }
 
 bool Data::IsTorus () const

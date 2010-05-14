@@ -68,6 +68,7 @@ public:
     {
 	return m_adjacentBodies;
     }
+    bool IsAdjacent (size_t bodyOriginalIndex);
 
     /**
      * For all the  edges in the face, add the  face as being adjacent

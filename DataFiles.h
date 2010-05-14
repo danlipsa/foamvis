@@ -27,6 +27,13 @@ public:
 				      IteratorData last,
 				      DataLessThanAlong lessThanAlong);
     /**
+     * List of times (indexes of Data objects) where a body wraps
+     * around the torus original domain.
+     */
+    typedef vector<size_t> Wraps;
+
+public:
+    /**
      * Calculate the  axially aligned bounding box for  this vector of
      * Data objects
      */
@@ -40,6 +47,9 @@ public:
      * Gets the AABox for this vector of Data objects
      */
      G3D::AABox& GetAABox () {return m_AABox;}
+    void CacheBodiesAlongTime ();
+
+public:
     /**
      * Pretty print the DataFile object
      */
@@ -55,6 +65,8 @@ private:
      */
     void Calculate (Aggregate aggregate, 
 		    DataLessThanAlong::Corner corner, G3D::Vector3& v);
+    void CalculateWraps ();
+private:
     /**
      * Vector of Data objects
      */
@@ -63,6 +75,10 @@ private:
      * The AABox for this vector of Data objects
      */
     G3D::AABox m_AABox;
+    /**
+     * List of wraps, one for each body.
+     */
+    vector<Wraps> m_wraps;
 };
 
 #endif //__DATA_FILES_H__
