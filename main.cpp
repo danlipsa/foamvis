@@ -5,7 +5,7 @@
  * Parses an Evolver DMP file and displays the data from the file.
  */
 #include "Data.h"
-#include "DataFiles.h"
+#include "DataAlongTime.h"
 #include "ParsingData.h"
 #include "MainWindow.h"
 #include "DebugStream.h"
@@ -161,7 +161,7 @@ void printHelp ()
 }
 
 void parseFiles (int argc, char *argv[],
-		 DataFiles* dataFiles,
+		 DataAlongTime* dataAlongTime,
 		 bool debugParsing, bool debugScanning)
 {
     switch (argc - optind)
@@ -170,7 +170,7 @@ void parseFiles (int argc, char *argv[],
     {
 	QFileInfo fileInfo (argv[optind]);
 	QDir dir = fileInfo.absoluteDir ();
-	if (! parseFile (dataFiles->GetData (), dir.absolutePath (),
+	if (! parseFile (dataAlongTime->GetData (), dir.absolutePath (),
 			 debugParsing, debugScanning) (
 			     fileInfo.fileName ()))
 	    exit (13);
@@ -182,7 +182,7 @@ void parseFiles (int argc, char *argv[],
 	QStringList files = dir.entryList ();
 	if (count_if (
 		files.begin (), files.end (), 
-		parseFile (dataFiles->GetData (), dir.absolutePath (), 
+		parseFile (dataAlongTime->GetData (), dir.absolutePath (), 
 			   debugParsing, debugScanning))
 	    != files.size ())
 	    exit (13);
@@ -222,22 +222,20 @@ int main(int argc, char *argv[])
     try
     {
 	bool debugParsing, debugScanning, textOutput;
-	DataFiles dataFiles;
+	DataAlongTime dataAlongTime;
 	readOptions (argc, argv,
 		     &debugParsing, &debugScanning, &textOutput);
-	parseFiles (argc, argv, &dataFiles, debugParsing, debugScanning);
-	size_t timeSteps = dataFiles.GetData ().size ();
+	parseFiles (argc, argv, &dataAlongTime, debugParsing, debugScanning);
+	size_t timeSteps = dataAlongTime.GetData ().size ();
         if (timeSteps != 0)
         {
-	    dataFiles.CalculateAABox ();
-	    if (timeSteps > 1)
-		dataFiles.CacheBodiesAlongTime ();
+	    dataAlongTime.PostProcess ();
 	    if (textOutput)
-		cdbg << dataFiles;
+		cdbg << dataAlongTime;
 	    else
 	    {
 		Application app(argc, argv);
-		MainWindow window (dataFiles);
+		MainWindow window (dataAlongTime);
 		window.show();
 		return app.exec();
 	    }

@@ -12,7 +12,7 @@
 
 class QTimer;
 class GLWidget;
-class DataFiles;
+class DataAlongTime;
 class ProcessBodyTorus;
 
 /**
@@ -23,9 +23,9 @@ class MainWindow : public QWidget, private Ui::Window
 public:
     /**
      * Constructor
-     * @param dataFiles data to be displayed read from Surface Evolver files
+     * @param dataAlongTime data to be displayed read from Surface Evolver files
      */
-    MainWindow(DataFiles& dataFiles);
+    MainWindow(DataAlongTime& dataAlongTime);
     /**
      * Called when a key is pressed
      * @param event object describing the key

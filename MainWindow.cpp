@@ -5,7 +5,7 @@
  * Contains definitions for the UI class
  */
 #include "Data.h"
-#include "DataFiles.h"
+#include "DataAlongTime.h"
 #include "DebugStream.h"
 #include "GLWidget.h"
 #include "MainWindow.h"
@@ -13,7 +13,7 @@
 #include "SystemDifferences.h"
 
 
-MainWindow::MainWindow(DataFiles& dataFiles) : 
+MainWindow::MainWindow(DataAlongTime& dataAlongTime) : 
     m_play (false), PLAY_TEXT (">"), PAUSE_TEXT("||"),
     m_timer (new QTimer(this)), m_processBodyTorus (0), 
     m_currentBody (0),
@@ -21,18 +21,18 @@ MainWindow::MainWindow(DataFiles& dataFiles) :
 {
     setupUi (this);
     sliderData->setMinimum (0);
-    sliderData->setMaximum (dataFiles.GetData ().size () - 1);
+    sliderData->setMaximum (dataAlongTime.GetData ().size () - 1);
     sliderData->setSingleStep (1);
     sliderData->setPageStep (10);
-    widgetGl->SetDataFiles (&dataFiles);
+    widgetGl->SetDataAlongTime (&dataAlongTime);
     updateStatus ();
-    if (dataFiles.GetData ().size () == 1)
+    if (dataAlongTime.GetData ().size () == 1)
     {
         toolButtonBegin->setDisabled (true);
 	toolButtonEnd->setDisabled (true);
 	toolButtonPlay->setDisabled (true);
     }
-    if (dataFiles.GetData()[0]->IsTorus ())
+    if (dataAlongTime.GetData()[0]->IsTorus ())
     {
 	radioButtonVerticesPhysical->setEnabled (false);
 	radioButtonEdgesPhysical->setEnabled (false);
@@ -44,7 +44,7 @@ MainWindow::MainWindow(DataFiles& dataFiles) :
 	radioButtonFacesTorus->setEnabled (false);
 	groupBoxTorusOriginalDomain->setEnabled (false);
     }
-    if (dataFiles.GetData ()[0]->GetSpaceDimension () == 2)
+    if (dataAlongTime.GetData ()[0]->GetSpaceDimension () == 2)
     {
 	radioButtonEdgesNormal->toggle ();
 	tabWidget->setCurrentWidget (edges);
@@ -90,7 +90,7 @@ void MainWindow::updateButtons ()
 
 void MainWindow::updateStatus ()
 {
-    vector<Data*>& data = widgetGl->GetDataFiles ().GetData ();
+    vector<Data*>& data = widgetGl->GetDataAlongTime ().GetData ();
     Data& currentData = widgetGl->GetCurrentData ();
     QString oldString = labelStatus->text ();
     ostringstream ostr;

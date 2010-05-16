@@ -243,12 +243,6 @@ void Data::Compact (void)
     compact (m_bodies);
 }
 
-Body* Data::GetBody (size_t originalIndex)
-{
-    Body::BodyAlongTime bat = Body::GetBodyAlongTime (originalIndex);
-    return bat[GetTimeStep ()];
-}
-
 
 void Data::ReleaseParsingData ()
 {

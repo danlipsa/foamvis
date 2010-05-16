@@ -11,9 +11,11 @@
 #include "Enums.h"
 
 class Body;
+class BodyAlongTime;
+class BodiesAlongTime;
 class Data;
 class Edge;
-class DataFiles;
+class DataAlongTime;
 
 /**
  * Widget for displaying foam bubbles using OpenGL
@@ -40,13 +42,18 @@ public:
     QSize sizeHint() ;
     /**
      * Sets the data displayed by the GLWidget
-     * @param dataFiles data displayed by the GLWidget
+     * @param dataAlongTime data displayed by the GLWidget
      */
-    void SetDataFiles (DataFiles* dataFiles);
+    void SetDataAlongTime (DataAlongTime* dataAlongTime);
     /**
      * Gets the data displayed by the GLWidget
      */
-    DataFiles& GetDataFiles () {return *m_dataFiles;}
+    DataAlongTime& GetDataAlongTime () 
+    {
+	return *m_dataAlongTime;
+    }
+    BodiesAlongTime& GetBodiesAlongTime ();
+    BodyAlongTime& GetBodyAlongTime (size_t originalIndex);
     /**
      * Gets the currently displayed data
      */
@@ -423,7 +430,7 @@ private:
     /**
      * Data to be displayd. Each element coresponds to a DMP file
      */
-    DataFiles* m_dataFiles;
+    DataAlongTime* m_dataAlongTime;
     /**
      * Index into m_data that shows the current DMP file displayed
      */

@@ -1,5 +1,5 @@
 /**
- * @file DataFiles.cpp
+ * @file DataAlongTime.cpp
  * @author Dan R. Lipsa
  *
  * Method implementation for a list of Data objects
@@ -7,26 +7,20 @@
 
 #include "Body.h"
 #include "Data.h"
-#include "DataFiles.h"
+#include "DataAlongTime.h"
 #include "ElementUtils.h"
-
-
-// Private Classes
-// ======================================================================
-
-
 
 // Private Functions
 // ======================================================================
-bool isNull (Body* body)
+void calculateWraps (BodiesAlongTime::BodyMap::value_type& v)
 {
-    return body == 0;
+    v.second->CalculateBodyCenterWraps ();
 }
 
 
 // Members
 // ======================================================================
-void DataFiles::Calculate (
+void DataAlongTime::Calculate (
     Aggregate aggregate, DataLessThanAlong::Corner corner, G3D::Vector3& v)
 {
     using G3D::Vector3;
@@ -44,7 +38,7 @@ void DataFiles::Calculate (
     v.z = ((*it)->*corner) ().z;
 }
 
-void DataFiles::CalculateAABox ()
+void DataAlongTime::CalculateAABox ()
 {
     using G3D::Vector3;
     Vector3 low, high;
@@ -53,40 +47,49 @@ void DataFiles::CalculateAABox ()
     m_AABox.set (low, high);
 }
 
-void DataFiles::CalculateWraps ()
+void DataAlongTime::CalculateBodyCenterWraps ()
 {
     if (m_data.size () > 1 && m_data[0]->IsTorus ())
     {
+	BodiesAlongTime::BodyMap bodyMap = m_bodiesAlongTime.GetBodyMap ();
+	for_each (bodyMap.begin (), bodyMap.end (), calculateWraps);
     }
 }
 
-void DataFiles::CacheBodiesAlongTime ()
+void DataAlongTime::PostProcess ()
 {
-    for (size_t timeStep; timeStep < m_data.size (); timeStep++)
+    CalculateAABox ();
+    CacheBodiesAlongTime ();
+    CalculateBodyCenterWraps ();
+}
+
+void DataAlongTime::CacheBodiesAlongTime ()
+{
+    if (m_data.size () <= 1)
+	return;
+    vector<Body*>& bodies = m_data[0]->GetBodies ();
+    for_each (bodies.begin (), bodies.end (), 
+	      boost::bind (&BodiesAlongTime::Allocate,
+			   &m_bodiesAlongTime, _1, m_data.size ()));
+    for (size_t timeStep = 0; timeStep < m_data.size (); timeStep++)
     {
 	vector<Body*>& bodies = m_data[timeStep]->GetBodies ();
 	BOOST_FOREACH (Body* body, bodies)
-	    Body::CacheAlongTime (body->GetOriginalIndex (), timeStep, body);
+	    m_bodiesAlongTime.Cache (body, timeStep);
     }
-    pair<size_t, Body::BodyAlongTime> ibat;
-    BOOST_FOREACH (ibat, Body::GetBodiesAlongTime ())
-    {
-	Body::BodyAlongTime& bat = ibat.second;
-	Body::BodyAlongTime::iterator it = find_if (
-	    bat.begin (), bat.end (), isNull);
-	size_t size = it - bat.begin () + 1;
-	Body::SetTimeSteps (size);
-    }
+    for_each (bodies.begin (), bodies.end (),
+	      boost::bind (&BodiesAlongTime::Resize, &m_bodiesAlongTime, _1));
 }
 
 // Static and Friend Members
 //======================================================================
 
-ostream& operator<< (ostream& ostr, DataFiles& dataFiles)
+ostream& operator<< (ostream& ostr, const DataAlongTime& dataAlongTime)
 {
-    ostr << "DataFiles: " << endl;
-    ostr << dataFiles.m_AABox << endl;
+    ostr << "DataAlongTime: " << endl;
+    ostr << dataAlongTime.m_AABox << endl;
     ostream_iterator<Data*> output (ostr, "\n");
-    copy (dataFiles.m_data.begin (), dataFiles.m_data.end (), output);
+    copy (dataAlongTime.m_data.begin (), dataAlongTime.m_data.end (), output);
+    ostr << dataAlongTime.m_bodiesAlongTime;
     return ostr;
 }

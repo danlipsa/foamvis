@@ -7,7 +7,8 @@
 
 
 #include "Body.h"
-#include "DataFiles.h"
+#include "BodiesAlongTime.h"
+#include "DataAlongTime.h"
 #include "Debug.h"
 #include "DebugStream.h"
 #include "DisplayVertexFunctors.h"
@@ -20,46 +21,6 @@
 
 // Private Classes
 // ======================================================================
-
-/**
- * Displays the center path for a certain body
- */
-class displayCenterPath
-{
-public:
-    /**
-     * Constructor
-     * @param widget where to display the center path
-     */
-    displayCenterPath (GLWidget& widget) : m_widget (widget) {}
-    /**
-     * Displays the center path for a certain body
-     * @param bodyOriginalIndex what body to display the center path for
-     */
-    void operator () (size_t bodyOriginalIndex)
-    {
-	glBegin(GL_LINE_STRIP);
-	vector<Data*>& data = m_widget.GetDataFiles ().GetData ();
-	for_each (data.begin (), data.end (), 
-		  DisplayBodyCenterFromData (m_widget, bodyOriginalIndex));
-	glEnd ();
-    }
-    /**
-     * Helper function which calls operator () (size_t bodyOriginalIndex).
-     * @param p a pair original index body pointer
-     */
-    inline void operator () (pair<size_t,  Body*> p)
-    {
-	operator() (p.first);
-    }
-
-private:
-    /**
-     * Where to display the center path
-     */
-    GLWidget& m_widget;
-};
-
 
 /**
  * Stores information about various OpenGL characteristics of the graphic card
@@ -212,7 +173,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_torusOriginalDomainClipped (false),
       m_interactionMode (InteractionMode::ROTATE),
       m_object (0),
-      m_dataFiles (0), m_dataIndex (0),
+      m_dataAlongTime (0), m_dataIndex (0),
       m_displayedBody (DISPLAY_ALL), m_displayedFace (DISPLAY_ALL),
       m_displayedEdge (DISPLAY_ALL),
       m_physicalVertexSize (1), m_physicalEdgeWidth (1),
@@ -275,9 +236,9 @@ void GLWidget::initViewTypeDisplay ()
     copy (vtd.begin (), vtd.end (), VIEW_TYPE_DISPLAY.begin ());
 }
 
-void GLWidget::SetDataFiles (DataFiles* dataFiles) 
+void GLWidget::SetDataAlongTime (DataAlongTime* dataAlongTime) 
 {
-    m_dataFiles = dataFiles;
+    m_dataAlongTime = dataAlongTime;
     Face* f = 
 	GetCurrentData ().GetBody (0)->GetOrientedFace (0)->GetFace ();
     Edge* e = f->GetOrientedEdge (0)->GetEdge ();
@@ -325,7 +286,7 @@ QSize GLWidget::sizeHint()
 
 void GLWidget::enableLighting ()
 {
-    const G3D::Vector3& max = m_dataFiles->GetAABox ().high ();
+    const G3D::Vector3& max = m_dataAlongTime->GetAABox ().high ();
     GLfloat lightPosition[] = { 2*max.x, 2*max.y, 2*max.z, 0.0 };
     GLfloat lightAmbient[] = {1.0, 1.0, 1.0, 1.0};
 
@@ -348,8 +309,8 @@ void GLWidget::enableLighting ()
 void GLWidget::calculateViewingVolume ()
 {
     using G3D::Vector3;
-    const Vector3& low = m_dataFiles->GetAABox ().low ();
-    const Vector3& high = m_dataFiles->GetAABox ().high ();
+    const Vector3& low = m_dataAlongTime->GetAABox ().low ();
+    const Vector3& high = m_dataAlongTime->GetAABox ().high ();
     float border = ((high - low) / 8).max ();
     float min = low.min () - border;
     float max = high.max () + border;
@@ -792,14 +753,14 @@ GLuint GLWidget::displayListCenterPaths ()
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
     qglColor (QColor (Qt::black));
-    Body::BodiesAlongTime& bats = Body::GetBodiesAlongTime ();
+    BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
+    DisplayCenterPath dcp(*this);
     if (GetDisplayedBody () == DISPLAY_ALL)
-	for_each (bats.begin (), bats.end (), displayCenterPath (*this));
+	for_each (bats.begin (), bats.end (), dcp);
     else
     {
-	Body::BodyAlongTime::const_iterator it = 
-	    originalIndexBodyMap.find (GetDisplayedBody());
-	displayCenterPath (*this) (*it);
+	Body* body = GetCurrentData().GetBody (GetDisplayedBody ());
+	dcp (body->GetOriginalIndex ());
     }
     displayCenterOfBodies ();
 
@@ -822,7 +783,7 @@ void GLWidget::IncrementDisplayedBody ()
 	return;
     ++m_displayedBody;
     m_displayedFace = DISPLAY_ALL;
-    if (m_displayedBody == GetDataFiles ().GetData ()[0]->GetBodies ().size ())
+    if (m_displayedBody == GetDataAlongTime ().GetData ()[0]->GetBodies ().size ())
         m_displayedBody = DISPLAY_ALL;
     UpdateDisplay ();
     cdbg << "displayed body: " << m_displayedBody << endl;
@@ -864,7 +825,7 @@ void GLWidget::DecrementDisplayedBody ()
     if (m_viewType == VERTICES_TORUS || m_viewType == EDGES_TORUS)
 	return;
     if (m_displayedBody == DISPLAY_ALL)
-        m_displayedBody = GetDataFiles ().GetData ()[0]->GetBodies ().size ();
+        m_displayedBody = GetDataAlongTime ().GetData ()[0]->GetBodies ().size ();
     --m_displayedBody;
     m_displayedFace = DISPLAY_ALL;
     UpdateDisplay ();
@@ -905,7 +866,7 @@ void GLWidget::DecrementDisplayedEdge ()
 
 Data& GLWidget::GetCurrentData ()
 {
-    return *m_dataFiles->GetData ()[m_dataIndex];
+    return *m_dataAlongTime->GetData ()[m_dataIndex];
 }
 
 const QColor& GLWidget::GetEndTranslationColor (
@@ -1041,6 +1002,15 @@ void GLWidget::ValueChangedEdgesTessellation (int value)
     UpdateDisplay ();
 }
 
+BodiesAlongTime& GLWidget::GetBodiesAlongTime ()
+{
+    return GetDataAlongTime ().GetBodiesAlongTime ();
+}
+
+BodyAlongTime& GLWidget::GetBodyAlongTime (size_t originalIndex)
+{
+    return GetBodiesAlongTime ().GetOneBody (originalIndex);
+}
 
 // Static Methods
 //======================================================================

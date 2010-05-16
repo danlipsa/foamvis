@@ -72,37 +72,6 @@ protected:
 
 
 /**
- * Functor that displays a body center given the index of the body
- */
-class DisplayBodyCenterFromData : public DisplayBodyCenter
-{
-public:
-    /**
-     * Constructor
-     * @param widget where to display the body center
-     * @param index what body to display
-     */
-    DisplayBodyCenterFromData (GLWidget& widget, size_t index) :
-    DisplayBodyCenter (widget), m_index (index) {}
-    /**
-     * Functor that displays a body center
-     * @param data Data object that constains the body
-     */
-    void operator () (Data* data)
-    {
-	Body* body = data->GetBody (m_index);
-	if (body != 0)
-	    display (body);
-    }
-private:
-    /**
-     * What body to display
-     */
-    int m_index;
-};
-
-
-/**
  * Displays a body going through all its faces
  */
 template<typename displayFace>
@@ -127,6 +96,56 @@ protected:
 	for_each (v.begin (), v.end (), displayFace(m_widget));
     }
 };
+
+
+/**
+ * Displays the center path for a certain body
+ */
+class DisplayCenterPath
+{
+public:
+    /**
+     * Constructor
+     * @param widget where to display the center path
+     */
+    DisplayCenterPath (GLWidget& widget) : m_widget (widget) {}
+    /**
+     * Displays the center path for a certain body
+     * @param bodyOriginalIndex what body to display the center path for
+     */
+    void operator () (size_t bodyOriginalIndex)
+    {	
+	BodyAlongTime& bat = m_widget.GetBodyAlongTime (bodyOriginalIndex);
+	const BodyAlongTime::Bodies& bodyAlongTime = bat.GetBodies ();
+	BodyAlongTime::Bodies::const_iterator begin = bodyAlongTime.begin ();
+	BOOST_FOREACH (size_t wrapIndex, bat.GetWraps ())
+	{
+	    BodyAlongTime::Bodies::const_iterator end = 
+		bodyAlongTime.begin () + wrapIndex;
+	    glBegin(GL_LINE_STRIP);
+	    for_each (begin, end, DisplayBodyCenter (m_widget));
+	    glEnd ();
+	    begin = end + 1;
+	}
+
+
+    }
+    /**
+     * Helper function which calls operator () (size_t bodyOriginalIndex).
+     * @param p a pair original index body pointer
+     */
+    inline void operator () (const BodiesAlongTime::BodyMap::value_type& p)
+    {
+	operator() (p.first);
+    }
+
+private:
+    /**
+     * Where to display the center path
+     */
+    GLWidget& m_widget;
+};
+
 
 
 #endif //__DISPLAY_BODY_FUNCTORS_H__

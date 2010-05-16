@@ -135,10 +135,13 @@ public:
                   vector<NameSemanticValue*>& list);
     /**
      * Gets ith body
-     * @param originalIndex index of the body to be returned
+     * @param i index of the body to be returned
      * @return the body
      */
-    Body* GetBody (size_t originalIndex);
+    Body* GetBody (size_t i)
+    {
+	return m_bodies[i];
+    }
     /**
      * Gets all bodies from the Data
      * @return a vector of Body pointers

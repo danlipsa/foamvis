@@ -1,19 +1,21 @@
 /**
- * @file DataFiles.h
+ * @file DataAlongTime.h
  * @author Dan R. Lipsa
  *
- * A list of Data objects
+ * Declaration of DataAlongTime object
  */
-#ifndef __DATA_FILES_H__
-#define __DATA_FILES_H__
+#ifndef __DATA_ALONG_TIME_H__
+#define __DATA_ALONG_TIME_H__
 
 #include "Comparisons.h"
+#include "BodiesAlongTime.h"
+
 class Data;
 
 /**
  * Stores information about a list of DMP files
  */
-class DataFiles
+class DataAlongTime
 {
 public:
     /**
@@ -26,12 +28,6 @@ public:
     typedef IteratorData (*Aggregate)(IteratorData first,
 				      IteratorData last,
 				      DataLessThanAlong lessThanAlong);
-    /**
-     * List of times (indexes of Data objects) where a body wraps
-     * around the torus original domain.
-     */
-    typedef vector<size_t> Wraps;
-
 public:
     /**
      * Calculate the  axially aligned bounding box for  this vector of
@@ -48,12 +44,18 @@ public:
      */
      G3D::AABox& GetAABox () {return m_AABox;}
     void CacheBodiesAlongTime ();
+    void PostProcess ();
+    BodiesAlongTime& GetBodiesAlongTime ()
+    {
+	return m_bodiesAlongTime;
+    }
 
 public:
     /**
      * Pretty print the DataFile object
      */
-    friend ostream& operator<< (ostream& ostr, DataFiles& dataFiles);
+    friend ostream& operator<< (
+	ostream& ostr, const DataAlongTime& dataAlongTime);
 
 private:
     /**
@@ -65,23 +67,20 @@ private:
      */
     void Calculate (Aggregate aggregate, 
 		    DataLessThanAlong::Corner corner, G3D::Vector3& v);
-    void CalculateWraps ();
+    void CalculateBodyCenterWraps ();
 private:
     /**
      * Vector of Data objects
      */
     vector<Data*> m_data;
+    BodiesAlongTime m_bodiesAlongTime;
     /**
      * The AABox for this vector of Data objects
      */
     G3D::AABox m_AABox;
-    /**
-     * List of wraps, one for each body.
-     */
-    vector<Wraps> m_wraps;
 };
 
-#endif //__DATA_FILES_H__
+#endif //__DATA_ALONG_TIME_H__
 
 // Local Variables:
 // mode: c++

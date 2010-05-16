@@ -42,13 +42,13 @@ public:
 	m_body.CacheEdge (e);
 	m_body.CacheVertex (e->GetBegin ());
 	m_body.CacheVertex (e->GetEnd ());
-    }
+	}
 private:
     /**
      * Where to cache the edge and vertices
      */
     Body& m_body;
-};
+	};
 
 /**
  * Functor that caches edges and vertices in vectors stored in the Body
@@ -118,7 +118,6 @@ private:
 // ======================================================================
 
 AttributesInfo* Body::m_infos;
-map<size_t, Body::BodyAlongTime> Body::m_bodyAlongTime;
 
 // Methods
 // ======================================================================
@@ -252,21 +251,5 @@ ostream& operator<< (ostream& ostr, const Body& b)
     ostr << "Body attributes: ";
     b.PrintAttributes (ostr);
     ostr << "\nBody center: " << b.m_center;
-    return ostr;
-}
-
-
-void Body::SetTimeSteps (size_t timeSteps)
-{
-    pair<size_t, BodyAlongTime> indexBodyAlongTime;
-    BOOST_FOREACH (indexBodyAlongTime, m_bodyAlongTime)
-	indexBodyAlongTime.second.resize (timeSteps);
-}
-
-Body::BodyAlongTime& Body::GetBodyAlongTime (size_t originalIndex)
-{
-    BodiesAlongTime::iterator it = m_bodyAlongTime.find (originalIndex);
-    RuntimeAssert (it != m_bodyAlongTime.end (),
-		   "Body not found: ", originalIndex);
-    return it->second;
+				 return ostr;
 }

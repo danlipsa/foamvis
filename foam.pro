@@ -1,6 +1,6 @@
 HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h \
-	ColoredElement.h \
-	Data.h DataFiles.h Debug.h DebugStream.h \
+	BodiesAlongTime.h ColoredElement.h \
+	Data.h DataAlongTime.h Debug.h DebugStream.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h \
 	Edge.h Element.h ElementUtils.h ExpressionTree.h Enums.h\
@@ -12,7 +12,8 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h \
 	stable.h SystemDifferences.h \
 	Comparisons.h Vertex.h
 SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
-	Body.cpp ColoredElement.cpp Data.cpp DataFiles.cpp \
+	Body.cpp BodiesAlongTime.cpp ColoredElement.cpp Data.cpp \
+	DataAlongTime.cpp \
 	Debug.cpp DebugStream.cpp Edge.cpp \
 	Element.cpp ElementUtils.cpp ExpressionTree.cpp Enums.cpp\
 	Face.cpp \
@@ -25,6 +26,7 @@ FORMS += Window.ui
 LEXSOURCES += EvolverData.l
 YACCSOURCES += EvolverData.y
 QMAKE_YACC = .\/bison.pl -y --report=state --debug
+QMAKE_LEX = .\/flex.pl
 TARGET = foam
 QT           += opengl
 CONFIG       += qt debug precompile_header no_keywords

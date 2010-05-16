@@ -51,6 +51,7 @@
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/if.hpp>
 
+
 // required by GLG3D
 #include <GLG3D/GL/glew.h>
 
@@ -80,5 +81,6 @@
 
 using namespace std;
 namespace bl = boost::lambda;
+
 
 #endif //__cplusplus

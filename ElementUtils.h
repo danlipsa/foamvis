@@ -13,7 +13,7 @@
  * @param box what to print
  * @return where to print next
  */
-ostream& operator<< (ostream& ostr,  G3D::AABox& box);
+ostream& operator<< (ostream& ostr, const G3D::AABox& box);
 
 
 #endif //__ELEMENT_UTILS_H__

@@ -1,29 +1,17 @@
 #!/usr/bin/perl
-use File::Copy;
 
+do "replace.pl";
 my @args = ("bison", @ARGV);
 system(@args) == 0
     or die "system @args failed: $?";
+my @substitutionsC = (
+    ["EvolverData\\.tab\\.h", "EvolverData_yacc.h"],
+    ["EvolverData\\.tab\\.c", "EvolverData_yacc.cpp"],
+    ["y\\.tab\\.h", "EvolverData_yacc.h"]);
+replace ("EvolverData.tab.c", \@substitutionsC);
 
-my $inName = "EvolverData.tab.c";
-my $outName = "temp.cpp";
-print "replacing .tab.h with _yacc.h in $inName\n";
-open (my $in, "<", $inName)
-    or die ("Could not open $inName: $!\n");
-open (my $out, ">", $outName)
-    or die ("Could not open $outName: $!\n");
+my @substitutionsH = (
+    ["EvolverData\\.tab\\.h", "EvolverData_yacc.h"]
+    );
+replace ("EvolverData.tab.h", \@substitutionsH);
 
-while (<$in>)
-{
-    # Linux and Mac OS X
-    s/EvolverData\.tab\.h/EvolverData_yacc.h/;
-    # Windows XP
-    s/y\.tab\.h/EvolverData_yacc.h/;
-    print $out $_;
-}
-
-close ($in)
-    or die "$in: $!";
-close ($out)
-    or die "$out: $!";
-move($outName, $inName);
