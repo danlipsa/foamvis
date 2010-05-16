@@ -384,7 +384,7 @@ ostream& operator<< (ostream& ostr, Data& d)
     ostream_iterator<Edge*> eOutput (ostr, "\n");
     copy (d.m_edges.begin (), d.m_edges.end (), eOutput);
 
-    ostr << "faces:";
+    ostr << "faces:\n";
     ostream_iterator<Face*> fOutput (ostr, "\n");
     copy (d.m_faces.begin (), d.m_faces.end (), fOutput);
 

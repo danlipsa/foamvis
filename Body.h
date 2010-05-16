@@ -123,6 +123,7 @@ public:
     {
 	++m_currentNormalFace;
     }
+    bool HasWrap () const;
 
 public:
     /**

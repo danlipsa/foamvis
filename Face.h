@@ -86,7 +86,7 @@ public:
 	return printAttributes (ostr, *Face::m_infos);
     }
     bool IsClosed () const;
-
+    bool HasWrap () const;
 
 public:
     /**

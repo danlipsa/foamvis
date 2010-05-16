@@ -222,6 +222,15 @@ void Body::PrintDomains (ostream& ostr) const
     Vertex::PrintDomains (ostr, m_vertices);
 }
 
+
+bool Body::HasWrap () const
+{
+    BOOST_FOREACH (OrientedFace* of, m_faces)
+	if (of->GetFace ()->HasWrap ())
+	    return true;
+    return false;
+}
+
 // Static and Friends Methods
 // ======================================================================
 

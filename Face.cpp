@@ -205,6 +205,15 @@ bool Face::IsAdjacent (size_t bodyOriginalIndex)
 }
 
 
+bool Face::HasWrap () const
+{
+    BOOST_FOREACH (OrientedEdge* oe, m_edges)
+	if (oe->GetEdge ()->GetEndTranslation () != G3D::Vector3int16 (0, 0, 0))
+	    return true;
+    return false;
+}
+
+
 // Static and Friends Methods
 // ======================================================================
 
@@ -220,13 +229,15 @@ void Face::StoreDefaultAttributes (AttributesInfo* infos)
 
 ostream& operator<< (ostream& ostr, const Face& f)
 {
+    ostr << "face " << f.GetOriginalIndex () << ":\n";
+    ostr << "edges:\n";
+    ostream_iterator<OrientedEdge*> output (ostr, "\n");
+    copy (f.m_edges.begin (), f.m_edges.end (), output);
+    ostr << "Face attributes: ";
+    f.PrintAttributes (ostr);
     ostr << "Adjacent bodies" << "(" << f.m_adjacentBodies.size () << "): ";
     BOOST_FOREACH (Body* b, f.m_adjacentBodies)
 	ostr << b->GetOriginalIndex () << " ";
     ostr << endl;
-    ostr << "edges part of the face" << endl;
-    ostream_iterator<OrientedEdge*> output (ostr, "\n");
-    copy (f.m_edges.begin (), f.m_edges.end (), output);
-    ostr << "Face attributes: ";
-    return f.PrintAttributes (ostr);
+    return ostr;
 }
