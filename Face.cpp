@@ -72,13 +72,13 @@ Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges,
 	   size_t originalIndex, Data* data, ElementStatus::Name status) :
     ColoredElement (originalIndex, data, status)
 {
-    m_edges.resize (edgeIndexes.size ());
-    transform (edgeIndexes.begin(), edgeIndexes.end(), m_edges.begin(), 
+    m_orientedEdges.resize (edgeIndexes.size ());
+    transform (edgeIndexes.begin(), edgeIndexes.end(), m_orientedEdges.begin(), 
                indexToOrientedEdge(edges));
     if (m_data->IsTorus ())
     {
-	G3D::Vector3* begin = (*m_edges.begin())->GetBegin ();
-	BOOST_FOREACH (OrientedEdge* oe, m_edges)
+	G3D::Vector3* begin = (*m_orientedEdges.begin())->GetBegin ();
+	BOOST_FOREACH (OrientedEdge* oe, m_orientedEdges)
 	{
 	    Edge* edge = oe->GetEdge ();
 	    G3D::Vector3 edgeBegin = 
@@ -93,20 +93,20 @@ Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges,
 Face::Face (Edge* edge, size_t originalIndex) :
     ColoredElement (originalIndex, 0, ElementStatus::ORIGINAL)
 {
-    m_edges.push_back (new OrientedEdge (edge, false));
+    m_orientedEdges.push_back (new OrientedEdge (edge, false));
 }
 
 Face::Face (const Face& original) :
     ColoredElement (original.GetOriginalIndex (), original.GetData (), 
 		    ElementStatus::DUPLICATE)
 {
-    BOOST_FOREACH (OrientedEdge* oe, original.m_edges)
-	m_edges.push_back (new OrientedEdge (*oe));
+    BOOST_FOREACH (OrientedEdge* oe, original.m_orientedEdges)
+	m_orientedEdges.push_back (new OrientedEdge (*oe));
 }
 
 Face::~Face()
 {
-    for_each(m_edges.begin(), m_edges.end(), bl::delete_ptr ());
+    for_each(m_orientedEdges.begin(), m_orientedEdges.end(), bl::delete_ptr ());
 }
 
 void Face::UpdateEdgesAdjacency ()
@@ -127,10 +127,10 @@ void Face::ClearEdgesAdjacency ()
 
 size_t Face::GetNextValidIndex (size_t index) const
 {
-    RuntimeAssert (index < m_edges.size (),
-		   "Edge index ", index, 
-		   " greater than the number of edges ", m_edges.size ());
-    if (index == (m_edges.size () - 1))
+    RuntimeAssert (
+	index < m_orientedEdges.size (), "Edge index ", index, 
+	" greater than the number of edges ", m_orientedEdges.size ());
+    if (index == (m_orientedEdges.size () - 1))
 	return 0;
     else
 	return index + 1;
@@ -138,10 +138,11 @@ size_t Face::GetNextValidIndex (size_t index) const
 
 size_t Face::GetPreviousValidIndex (size_t index) const
 {
-    RuntimeAssert (index < m_edges.size (), "Edge index ", index,
-		   " greater than the number of edges ", m_edges.size ());
+    RuntimeAssert (
+	index < m_orientedEdges.size (), "Edge index ", index,
+	" greater than the number of edges ", m_orientedEdges.size ());
     if (index == 0)
-	return m_edges.size () - 1;
+	return m_orientedEdges.size () - 1;
     else
 	return index - 1;
 }
@@ -155,18 +156,7 @@ bool Face::operator== (const Face& face) const
 
 G3D::Vector3 Face::GetNormal () const
 {
-    using boost::bind;
-    using G3D::Vector3;
-
-/*
-    OrientedEdges::const_iterator it = find_if (
-	m_edges.begin (), m_edges.end (), !bind (&OrientedEdge::IsZero, _1));
-    RuntimeAssert (it != m_edges.end (), "Face with all edges 0");
-    Vector3 one = (*it)->GetEdgeVector ();
-    it++;
-    it = find_if (it, m_edges.end (), !bind (&OrientedEdge::IsZero, _1));
-    Vector3 two = (*it)->GetEdgeVector ();
-*/
+    using boost::bind; using G3D::Vector3;
     Vector3 one = GetOrientedEdge (0)->GetEdgeVector ();
     Vector3 two = GetOrientedEdge (1)->GetEdgeVector ();
     return (one.cross (two).unit ());
@@ -176,7 +166,7 @@ Face* Face::CreateDuplicate (const G3D::Vector3& newBegin) const
 {
     Face* faceDuplicate = new Face(*this);
     G3D::Vector3 begin = newBegin;
-    BOOST_FOREACH (OrientedEdge* oe, faceDuplicate->m_edges)
+    BOOST_FOREACH (OrientedEdge* oe, faceDuplicate->m_orientedEdges)
     {
 	G3D::Vector3 edgeBegin;
 	if (oe->IsReversed ())
@@ -193,7 +183,9 @@ Face* Face::CreateDuplicate (const G3D::Vector3& newBegin) const
 
 bool Face::IsClosed () const
 {
-    return *m_edges[0]->GetBegin () == *m_edges[m_edges.size () - 1]->GetEnd ();
+    return 
+	*m_orientedEdges[0]->GetBegin () == 
+	*m_orientedEdges[m_orientedEdges.size () - 1]->GetEnd ();
 }
 
 bool Face::IsAdjacent (size_t bodyOriginalIndex)
@@ -207,7 +199,7 @@ bool Face::IsAdjacent (size_t bodyOriginalIndex)
 
 bool Face::HasWrap () const
 {
-    BOOST_FOREACH (OrientedEdge* oe, m_edges)
+    BOOST_FOREACH (OrientedEdge* oe, m_orientedEdges)
 	if (oe->GetEdge ()->GetEndTranslation () != G3D::Vector3int16 (0, 0, 0))
 	    return true;
     return false;
@@ -237,7 +229,7 @@ ostream& operator<< (ostream& ostr, const Face& f)
     ostr << "face " << f.GetOriginalIndex () << ":\n";
     ostr << "edges:\n";
     ostream_iterator<OrientedEdge*> output (ostr, "\n");
-    copy (f.m_edges.begin (), f.m_edges.end (), output);
+    copy (f.m_orientedEdges.begin (), f.m_orientedEdges.end (), output);
     ostr << "Face attributes: ";
     f.PrintAttributes (ostr);
     ostr << "Adjacent bodies" << "(" << f.m_adjacentBodies.size () << "): ";

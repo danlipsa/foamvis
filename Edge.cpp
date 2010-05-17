@@ -161,7 +161,7 @@ void Edge::CalculateTorusClipped ()
 	intersections = periods.Intersect (
 	    *m_begin, *m_end, beginLocation, endLocation);
 
-    m_torusClipped = new vector<LineSegment> (intersectionCount + 1);
+    m_torusClipped.reset (new vector<LineSegment> (intersectionCount + 1));
     for (size_t i = 0; i < intersections.size () - 1; i++)
     {
 	translation = Vector3int16 (0, 0, 0) - periods.GetLocation (

@@ -46,19 +46,19 @@ public:
      */
     const vector<OrientedEdge*>& GetOrientedEdges () const
     {
-	return m_edges;
+	return m_orientedEdges;
     }
     size_t GetEdgeCount () const
     {
-	return m_edges.size ();
+	return m_orientedEdges.size ();
     }
     vector<OrientedEdge*>& GetOrientedEdges ()
     {
-	return m_edges;
+	return m_orientedEdges;
     }
     OrientedEdge* GetOrientedEdge (size_t i) const
     {
-	return m_edges[i];
+	return m_orientedEdges[i];
     }
     Edge* GetEdge (size_t i) const;
 
@@ -106,7 +106,7 @@ private:
     /**
      * Edges that are part of this face
      */
-    OrientedEdges m_edges;
+    OrientedEdges m_orientedEdges;
     vector<Body*> m_adjacentBodies;
 private:
     /**

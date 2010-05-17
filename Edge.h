@@ -163,7 +163,7 @@ private:
      */
     vector<Face*> m_adjacentFaces;
     bool m_physical;
-    vector<G3D::LineSegment>* m_torusClipped;
+    boost::scoped_ptr< vector<G3D::LineSegment> > m_torusClipped;
 
 private:
     /**

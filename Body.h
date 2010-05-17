@@ -25,7 +25,7 @@ class Vertex;
 class Body : public Element
 {
 public:
-    typedef vector<OrientedFace*> OrientedFaces;
+    typedef vector< OrientedFace* > OrientedFaces;
     typedef multimap<G3D::Vector3, OrientedFace*, 
 		     VectorLessThanAngle> NormalFaceMap;
 public:
@@ -39,17 +39,18 @@ public:
 	 size_t originalIndex, Data* data,
 	 ElementStatus::Name status = ElementStatus::ORIGINAL);
     ~Body ();
+
     /**
      * Returns the  vector of oriented faces this body is made of
      * @return a vector of oriented faces
      */
     OrientedFaces& GetOrientedFaces ()
     {
-	return m_faces;
+	return m_orientedFaces;
     }
     const OrientedFaces& GetOrientedFaces () const
     {
-	return m_faces;
+	return m_orientedFaces;
     }
 
     NormalFaceMap::const_iterator FindNormalFace (
@@ -65,7 +66,7 @@ public:
 
     OrientedFace* GetOrientedFace (size_t i) const
     {
-	return m_faces[i];
+	return m_orientedFaces[i];
     }
     Face* GetFace (size_t i) const;
     /**
@@ -162,7 +163,7 @@ private:
     /**
      * Oriented faces that are part of this body.
      */
-    OrientedFaces m_faces;
+    OrientedFaces m_orientedFaces;
     size_t m_placedOrientedFaces;
     auto_ptr<NormalFaceMap> m_normalFaceMap;
     /**

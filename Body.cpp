@@ -128,12 +128,13 @@ Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
     Element(originalIndex, data, status), m_placedOrientedFaces (0)
 {
     using boost::bind;
-    m_faces.resize (faceIndexes.size ());
-    transform (faceIndexes.begin(), faceIndexes.end(), m_faces.begin(), 
+    m_orientedFaces.resize (faceIndexes.size ());
+    transform (faceIndexes.begin(), faceIndexes.end(), m_orientedFaces.begin(), 
                indexToOrientedFace(faces));
     m_normalFaceMap.reset (
-	new NormalFaceMap (VectorLessThanAngle (m_faces[0]->GetNormal ())));
-    BOOST_FOREACH (OrientedFace* of, m_faces)
+	new NormalFaceMap (
+	    VectorLessThanAngle (m_orientedFaces[0]->GetNormal ())));
+    BOOST_FOREACH (OrientedFace* of, m_orientedFaces)
 	m_normalFaceMap->insert (OrientedFace::MakeNormalFacePair (of));
     m_currentNormalFace = m_normalFaceMap->begin ();
 
@@ -147,14 +148,15 @@ Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
     }
 }
 
-Body::~Body()
+Body::~Body ()
 {
-    for_each(m_faces.begin(), m_faces.end(), bl::delete_ptr ());
+    for_each(m_orientedFaces.begin(), m_orientedFaces.end(), bl::delete_ptr ());
 }
 
 void Body::CacheEdgesVertices ()
 {
-    for_each (m_faces.begin (), m_faces.end(), cacheEdges(*this));
+    for_each (m_orientedFaces.begin (), m_orientedFaces.end(),
+	      cacheEdges(*this));
     split (m_vertices, m_tessellationVertices, m_physicalVertices);
     split (m_edges, m_tessellationEdges, m_physicalEdges);
 }
@@ -225,7 +227,7 @@ void Body::PrintDomains (ostream& ostr) const
 
 bool Body::HasWrap () const
 {
-    BOOST_FOREACH (OrientedFace* of, m_faces)
+    BOOST_FOREACH (OrientedFace* of, m_orientedFaces)
 	if (of->GetFace ()->HasWrap ())
 	    return true;
     return false;
@@ -261,7 +263,7 @@ ostream& operator<< (ostream& ostr, const Body& b)
 {
     ostr << "Body " << b.GetOriginalIndex () << ":" << endl;
     ostream_iterator<OrientedFace*> output (ostr, "\n");
-    copy (b.m_faces.begin (), b.m_faces.end (), output);
+    copy (b.m_orientedFaces.begin (), b.m_orientedFaces.end (), output);
     ostr << "Body attributes: ";
     b.PrintAttributes (ostr);
     ostr << "\nBody center: " << b.m_center;
