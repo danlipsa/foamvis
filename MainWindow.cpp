@@ -95,15 +95,14 @@ void MainWindow::updateStatus ()
     QString oldString = labelStatus->text ();
     ostringstream ostr;
     ostr << "Time step: " 
-	 << (widgetGl->GetCurrentDataIndex () + 1) << " of "
-	 << data.size () 
+	 << (widgetGl->GetTimeStep () + 1)<< " of " << data.size () 
 	 << ", Bubbles: " << currentData.GetBodies ().size ();
-    if (widgetGl->GetDisplayedBody () != GLWidget::DISPLAY_ALL)
-	ostr << ", Bubble: " << widgetGl->GetDisplayedBody ();
-    if (widgetGl->GetDisplayedFace () != GLWidget::DISPLAY_ALL)
-	ostr << ", Face: " << widgetGl->GetDisplayedFace ();
-    if (widgetGl->GetDisplayedEdge () != GLWidget::DISPLAY_ALL)
-	ostr << ", Edge: " << widgetGl->GetDisplayedEdge ();
+    if (widgetGl->GetDisplayedBodyIndex () != GLWidget::DISPLAY_ALL)
+	ostr << ", Bubble: " << (widgetGl->GetDisplayedBodyOriginalIndex () + 1);
+    if (widgetGl->GetDisplayedFaceIndex () != GLWidget::DISPLAY_ALL)
+	ostr << ", Face: " << (widgetGl->GetDisplayedFaceOriginalIndex () + 1);
+    if (widgetGl->GetDisplayedEdgeIndex () != GLWidget::DISPLAY_ALL)
+	ostr << ", Edge: " << (widgetGl->GetDisplayedEdgeOriginalIndex () + 1);
     ostr << ends;
     QString newString (ostr.str().c_str ());
     if (oldString != newString)
@@ -264,8 +263,11 @@ void MainWindow::ValueChangedSliderData (int value)
         ostringstream file;
         file << "movie/frame" << setfill ('0') << setw (4) <<
 	    m_currentFrame << ".jpg" << ends;
-        QImage snapshot = QPixmap::grabWidget (widgetDisplay).toImage ();
+	cdbg << "Taking snapshot ...";
+        QImage snapshot = 
+	    QPixmap::grabWindow (widgetDisplay->winId ()).toImage ();
 	string f = file.str ();
+	cdbg << "Saving " << f << " ..." << endl;
 	if (! snapshot.save (f.c_str ()))
 	    cdbg << "Error saving " << f << endl;
 	m_currentFrame++;

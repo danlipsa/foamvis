@@ -213,6 +213,11 @@ bool Face::HasWrap () const
     return false;
 }
 
+Edge* Face::GetEdge (size_t i) const
+{
+    return GetOrientedEdge (i)->GetEdge ();
+}
+
 
 // Static and Friends Methods
 // ======================================================================

@@ -67,6 +67,7 @@ public:
     {
 	return m_faces[i];
     }
+    Face* GetFace (size_t i) const;
     /**
      * Does this body have this edge
      * @param e the edge to be tested

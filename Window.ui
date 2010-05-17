@@ -178,7 +178,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="vertices">
             <attribute name="title">
@@ -400,9 +400,33 @@
              <item>
               <widget class="QStackedWidget" name="stackedWidgetEdges">
                <property name="currentIndex">
-                <number>0</number>
+                <number>1</number>
                </property>
                <widget class="QWidget" name="pageEdgesEmpty"/>
+               <widget class="QWidget" name="pageEdgesNormal">
+                <layout class="QVBoxLayout" name="verticalLayout_23">
+                 <item>
+                  <widget class="QCheckBox" name="checkBoxEdgesBodyCenter">
+                   <property name="text">
+                    <string>Body Center</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="verticalSpacer_4">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </widget>
                <widget class="QWidget" name="pageEdgesTorus">
                 <layout class="QVBoxLayout" name="verticalLayout_17">
                  <item>
@@ -743,6 +767,7 @@
     <slot>ToggledFacesTorusTubes(bool)</slot>
     <slot>ToggledTorusOriginalDomainDisplay(bool)</slot>
     <slot>ToggledTorusOriginalDomainClipped(bool)</slot>
+    <slot>ToggledEdgesBodyCenter(bool)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -835,8 +860,8 @@
    <slot>ToggledEdgesPhysical(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>721</x>
-     <y>234</y>
+     <x>879</x>
+     <y>310</y>
     </hint>
     <hint type="destinationlabel">
      <x>374</x>
@@ -915,8 +940,8 @@
    <slot>ToggledEdgesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>721</x>
-     <y>234</y>
+     <x>879</x>
+     <y>282</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -931,8 +956,8 @@
    <slot>ToggledFacesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>721</x>
-     <y>234</y>
+     <x>879</x>
+     <y>282</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -995,8 +1020,8 @@
    <slot>ValueChangedEdgesPhysical(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>721</x>
-     <y>358</y>
+     <x>880</x>
+     <y>454</y>
     </hint>
     <hint type="destinationlabel">
      <x>255</x>
@@ -1011,8 +1036,8 @@
    <slot>ValueChangedEdgesTessellation(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>721</x>
-     <y>358</y>
+     <x>880</x>
+     <y>406</y>
     </hint>
     <hint type="destinationlabel">
      <x>255</x>
@@ -1113,6 +1138,22 @@
     <hint type="destinationlabel">
      <x>550</x>
      <y>139</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxEdgesBodyCenter</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledEdgesBodyCenter(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>721</x>
+     <y>346</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>556</x>
+     <y>349</y>
     </hint>
    </hints>
   </connection>

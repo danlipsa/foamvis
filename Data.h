@@ -138,7 +138,7 @@ public:
      * @param i index of the body to be returned
      * @return the body
      */
-    Body* GetBody (size_t i)
+    Body* GetBody (size_t i) const
     {
 	return m_bodies[i];
     }

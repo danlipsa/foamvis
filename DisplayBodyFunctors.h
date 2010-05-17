@@ -31,7 +31,7 @@ public:
      */
     void operator () (Body* b)
     {
-        size_t displayedBody = m_widget.GetDisplayedBody ();
+        size_t displayedBody = m_widget.GetDisplayedBodyIndex ();
         if (displayedBody == m_widget.DISPLAY_ALL ||
              b->GetOriginalIndex () == displayedBody)
         {

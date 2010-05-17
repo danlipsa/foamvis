@@ -56,10 +56,12 @@ public:
     {
 	return m_edges;
     }
-    OrientedEdge* GetOrientedEdge (int i) const
+    OrientedEdge* GetOrientedEdge (size_t i) const
     {
 	return m_edges[i];
     }
+    Edge* GetEdge (size_t i) const;
+
     void AddAdjacentBody (Body* body) 
     {
 	m_adjacentBodies.push_back (body);

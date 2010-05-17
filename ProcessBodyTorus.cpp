@@ -16,7 +16,7 @@
 
 void ProcessBodyTorus::Initialize ()
 {
-    OrientedFace* of = m_body->GetOrientedFaces ()[0];
+    OrientedFace* of = m_body->GetOrientedFace (0);
     m_queue.push (QueueElement (of->GetOrientedEdge (0), of));
 }
 

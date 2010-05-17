@@ -57,33 +57,39 @@ public:
     /**
      * Gets the currently displayed data
      */
-    Data& GetCurrentData ();
+    Data& GetCurrentData () const;
     /**
      * Gets the index of the currently displayed data.
      */
-    size_t GetCurrentDataIndex () {return m_dataIndex;}
+    size_t GetTimeStep () {return m_timeStep;}
     
     /**
      * Gets the currently displayed body
      * @return the currrently displayed body or UINT_MAX for all bodies
      */
-    size_t GetDisplayedBody () const
+    size_t GetDisplayedBodyIndex () const
     {
-	return m_displayedBody;
+	return m_displayedBodyIndex;
     }
+    size_t GetDisplayedBodyOriginalIndex () const;
+    Body* GetDisplayedBody () const;
     /**
      * Gets the face number up to which faces are displayed
      * @return face number up to which faces are displayed or UINT_MAX for all
      */
-    size_t GetDisplayedFace () const
+    size_t GetDisplayedFaceIndex () const
     {
-	return m_displayedFace;
+	return m_displayedFaceIndex;
     }
-    size_t GetDisplayedEdge () const
-    {
-	return m_displayedEdge;
-    }
+    size_t GetDisplayedFaceOriginalIndex () const;
+    Face* GetDisplayedFace () const;
 
+    size_t GetDisplayedEdgeIndex () const
+    {
+	return m_displayedEdgeIndex;
+    }
+    size_t GetDisplayedEdgeOriginalIndex () const;
+    Edge* GetDisplayedEdge () const;
     /**
      * Increment displayed body
      */
@@ -150,7 +156,7 @@ public:
      * Displays the center of the bodies
      */
     void displayCenterOfBodies ();
-    void DataChanged () {ValueChangedSliderData (m_dataIndex);}
+    void DataChanged () {ValueChangedSliderData (m_timeStep);}
 
     GLUquadricObj* GetQuadricObject () const 
     {
@@ -223,6 +229,7 @@ public Q_SLOTS:
     void currentIndexChangedInteractionMode (int index);
     void ToggledEdgesTorusTubes (bool checked);
     void ToggledFacesTorusTubes (bool checked);
+    void ToggledEdgesBodyCenter (bool checked);
 
 public:
     const static  size_t DISPLAY_ALL;
@@ -434,7 +441,7 @@ private:
     /**
      * Index into m_data that shows the current DMP file displayed
      */
-    size_t m_dataIndex;
+    size_t m_timeStep;
     /**
      * Used for rotating the view
      */
@@ -442,12 +449,12 @@ private:
     /**
      * Used to display one body at a time
      */
-    size_t m_displayedBody;
+    size_t m_displayedBodyIndex;
     /**
-     * Used to display one face at a time from the m_displayedBody.
+     * Used to display one face at a time from the m_displayedBodyIndex.
      */
-    size_t m_displayedFace;
-    size_t m_displayedEdge;
+    size_t m_displayedFaceIndex;
+    size_t m_displayedEdgeIndex;
     /**
      * Stores the size of physical objects
      */
@@ -488,6 +495,7 @@ private:
 
     bool m_edgesTorusTubes;
     bool m_facesTorusTubes;
+    bool m_edgesBodyCenter;
     boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> VIEW_TYPE_DISPLAY;
 private:
     /**

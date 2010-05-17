@@ -96,6 +96,11 @@ void OrientedFace::CalculateTranslation (
 		   " is not part of the face: ", *this);
 }
 
+size_t OrientedFace::GetOriginalIndex () const
+{
+    return GetFace ()->GetOriginalIndex ();
+}
+
 // Static and Friends methods
 // ======================================================================
 

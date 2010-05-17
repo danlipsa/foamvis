@@ -173,9 +173,9 @@ GLWidget::GLWidget(QWidget *parent)
       m_torusOriginalDomainClipped (false),
       m_interactionMode (InteractionMode::ROTATE),
       m_object (0),
-      m_dataAlongTime (0), m_dataIndex (0),
-      m_displayedBody (DISPLAY_ALL), m_displayedFace (DISPLAY_ALL),
-      m_displayedEdge (DISPLAY_ALL),
+      m_dataAlongTime (0), m_timeStep (0),
+      m_displayedBodyIndex (DISPLAY_ALL), m_displayedFaceIndex (DISPLAY_ALL),
+      m_displayedEdgeIndex (DISPLAY_ALL),
       m_physicalVertexSize (1), m_physicalEdgeWidth (1),
       m_physicalVertexColor (Qt::blue), m_physicalEdgeColor (Qt::blue),
       m_tessellationVertexSize (1), m_tessellationEdgeWidth (1),
@@ -183,7 +183,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_tessellationVertexColor (Qt::green), m_tessellationEdgeColor (Qt::green),
       m_centerPathColor (Qt::red),
       m_edgesTorusTubes (false),
-      m_facesTorusTubes (false)
+      m_facesTorusTubes (false),
+      m_edgesBodyCenter (false)
 {
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
     const int POSSIBILITIES = 3; //domain increment can be *, - or +
@@ -240,8 +241,8 @@ void GLWidget::SetDataAlongTime (DataAlongTime* dataAlongTime)
 {
     m_dataAlongTime = dataAlongTime;
     Face* f = 
-	GetCurrentData ().GetBody (0)->GetOrientedFace (0)->GetFace ();
-    Edge* e = f->GetOrientedEdge (0)->GetEdge ();
+	GetCurrentData ().GetBody (0)->GetFace (0);
+    Edge* e = f->GetEdge (0);
     float length = (*e->GetEnd () - *e->GetBegin ()).length ();
 
     m_edgeRadius = length / 20;
@@ -331,12 +332,12 @@ void GLWidget::project ()
 
 void GLWidget::initializeGL()
 {
+    cdbg << "initializeGL" << endl;
     qglClearColor (QColor(Qt::white));
 
     printOpenGLInfo ();
 
     m_object = displayList (m_viewType);
-    cdbg << "initializeGL" << endl;
 }
 
 void GLWidget::paintGL()
@@ -353,9 +354,8 @@ void GLWidget::paintGL()
 
 void GLWidget::resizeGL(int width, int height)
 {
-    using G3D::Rect2D;
-    using G3D::Vector2;
-
+    using G3D::Rect2D;using G3D::Vector2;
+    cdbg << "resizeGL" << endl;
     calculateViewingVolume ();
     Vector2 viewportStart = m_viewport.x0y0 ();
     float ratio = (m_viewingVolume.high ().x - m_viewingVolume.low ().x) / 
@@ -375,13 +375,11 @@ void GLWidget::resizeGL(int width, int height)
     glViewport (m_viewport.x0 (), m_viewport.y0 (), 
 		m_viewport.width (), m_viewport.height ());
     project ();
-    cdbg << "resizeGL" << endl;
 }
 
 void GLWidget::setRotation (int axis, float angleRadians)
 {
-    using G3D::Matrix3;
-    using G3D::Vector3;
+    using G3D::Matrix3;using G3D::Vector3;
     Vector3 axes[3] = {
 	Vector3::unitX (), Vector3::unitY (), Vector3::unitZ ()
     };
@@ -670,6 +668,9 @@ GLuint GLWidget::displayListEdgesTorusLines ()
 
 void GLWidget::displayCenterOfBodies ()
 {
+    if (m_torusOriginalDomainClipped ||
+	! m_edgesBodyCenter)
+	return;
     glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
     glPointSize (4.0);
     qglColor (QColor (Qt::red));
@@ -755,13 +756,10 @@ GLuint GLWidget::displayListCenterPaths ()
     qglColor (QColor (Qt::black));
     BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
     DisplayCenterPath dcp(*this);
-    if (GetDisplayedBody () == DISPLAY_ALL)
+    if (GetDisplayedBodyIndex () == DISPLAY_ALL)
 	for_each (bats.begin (), bats.end (), dcp);
     else
-    {
-	Body* body = GetCurrentData().GetBody (GetDisplayedBody ());
-	dcp (body->GetOriginalIndex ());
-    }
+	dcp (GetDisplayedBodyOriginalIndex ());
     displayCenterOfBodies ();
 
     glEndList();
@@ -781,41 +779,41 @@ void GLWidget::IncrementDisplayedBody ()
 {
     if (m_viewType == VERTICES_TORUS || m_viewType == EDGES_TORUS)
 	return;
-    ++m_displayedBody;
-    m_displayedFace = DISPLAY_ALL;
-    if (m_displayedBody == GetDataAlongTime ().GetData ()[0]->GetBodies ().size ())
-        m_displayedBody = DISPLAY_ALL;
+    ++m_displayedBodyIndex;
+    m_displayedFaceIndex = DISPLAY_ALL;
+    if (m_displayedBodyIndex == 
+	GetDataAlongTime ().GetData ()[0]->GetBodies ().size ())
+        m_displayedBodyIndex = DISPLAY_ALL;
     UpdateDisplay ();
-    cdbg << "displayed body: " << m_displayedBody << endl;
+    cdbg << "displayed body: " << m_displayedBodyIndex << endl;
 }
 
 
 void GLWidget::IncrementDisplayedFace ()
 {
-    ++m_displayedFace;
+    ++m_displayedFaceIndex;
     if (m_viewType == FACES_TORUS)
     {
-	if (m_displayedFace == 	GetCurrentData ().GetFaces ().size ())
-	    m_displayedFace = DISPLAY_ALL;
+	if (m_displayedFaceIndex == 	GetCurrentData ().GetFaces ().size ())
+	    m_displayedFaceIndex = DISPLAY_ALL;
     }
-    if (m_displayedBody != DISPLAY_ALL)
+    if (m_displayedBodyIndex != DISPLAY_ALL)
     {
-        Body& body = *GetCurrentData ().GetBodies ()[m_displayedBody];
-        if (m_displayedFace == body.GetOrientedFaces ().size ())
-            m_displayedFace = DISPLAY_ALL;
+        Body& body = *GetCurrentData ().GetBodies ()[m_displayedBodyIndex];
+        if (m_displayedFaceIndex == body.GetOrientedFaces ().size ())
+            m_displayedFaceIndex = DISPLAY_ALL;
     }
     UpdateDisplay ();
 }
 
 void GLWidget::IncrementDisplayedEdge ()
 {
-    if (m_displayedBody != DISPLAY_ALL && m_displayedFace != DISPLAY_ALL)
+    if (m_displayedBodyIndex != DISPLAY_ALL && m_displayedFaceIndex != DISPLAY_ALL)
     {
-	++m_displayedEdge;
-	Body& body = *GetCurrentData ().GetBodies ()[m_displayedBody];
-	Face& face = *body.GetOrientedFaces ()[m_displayedFace]->GetFace ();
-	if (m_displayedEdge == face.GetOrientedEdges ().size ())
-	    m_displayedEdge = DISPLAY_ALL;
+	++m_displayedEdgeIndex;
+	Face& face = *GetDisplayedFace ();
+	if (m_displayedEdgeIndex == face.GetOrientedEdges ().size ())
+	    m_displayedEdgeIndex = DISPLAY_ALL;
 	UpdateDisplay ();
     }
 }
@@ -824,49 +822,48 @@ void GLWidget::DecrementDisplayedBody ()
 {
     if (m_viewType == VERTICES_TORUS || m_viewType == EDGES_TORUS)
 	return;
-    if (m_displayedBody == DISPLAY_ALL)
-        m_displayedBody = GetDataAlongTime ().GetData ()[0]->GetBodies ().size ();
-    --m_displayedBody;
-    m_displayedFace = DISPLAY_ALL;
+    if (m_displayedBodyIndex == DISPLAY_ALL)
+        m_displayedBodyIndex = GetDataAlongTime ().GetData ()[0]->GetBodies ().size ();
+    --m_displayedBodyIndex;
+    m_displayedFaceIndex = DISPLAY_ALL;
     UpdateDisplay ();
-    cdbg << "displayed body: " << m_displayedBody << endl;
+    cdbg << "displayed body: " << m_displayedBodyIndex << endl;
 }
 
 void GLWidget::DecrementDisplayedFace ()
 {
     if (m_viewType == FACES_TORUS)
     {
-	if (m_displayedFace == DISPLAY_ALL)
-	    m_displayedFace = GetCurrentData ().GetFaces ().size ();
+	if (m_displayedFaceIndex == DISPLAY_ALL)
+	    m_displayedFaceIndex = GetCurrentData ().GetFaces ().size ();
     }
-    if (m_displayedBody != DISPLAY_ALL)
+    if (m_displayedBodyIndex != DISPLAY_ALL)
     {
-        Body& body = *GetCurrentData ().GetBodies ()[m_displayedBody];
-        if (m_displayedFace == DISPLAY_ALL)
-            m_displayedFace = body.GetOrientedFaces ().size ();
+        Body& body = *GetCurrentData ().GetBodies ()[m_displayedBodyIndex];
+        if (m_displayedFaceIndex == DISPLAY_ALL)
+            m_displayedFaceIndex = body.GetOrientedFaces ().size ();
     }
-    --m_displayedFace;
+    --m_displayedFaceIndex;
     UpdateDisplay ();
 }
 
 void GLWidget::DecrementDisplayedEdge ()
 {
-    if (m_displayedBody != DISPLAY_ALL && m_displayedFace != DISPLAY_ALL)
+    if (m_displayedBodyIndex != DISPLAY_ALL && m_displayedFaceIndex != DISPLAY_ALL)
     {
-	Body& body = *GetCurrentData ().GetBodies ()[m_displayedBody];
-	Face& face = *body.GetOrientedFaces ()[m_displayedFace]->GetFace ();
-	if (m_displayedEdge == DISPLAY_ALL)
-	    m_displayedEdge = face.GetOrientedEdges ().size ();
-	--m_displayedEdge;
+	Face& face = *GetDisplayedFace ();
+	if (m_displayedEdgeIndex == DISPLAY_ALL)
+	    m_displayedEdgeIndex = face.GetOrientedEdges ().size ();
+	--m_displayedEdgeIndex;
 	UpdateDisplay ();
     }
 }
 
 
 
-Data& GLWidget::GetCurrentData ()
+Data& GLWidget::GetCurrentData () const
 {
-    return *m_dataAlongTime->GetData ()[m_dataIndex];
+    return *m_dataAlongTime->GetData ()[m_timeStep];
 }
 
 const QColor& GLWidget::GetEndTranslationColor (
@@ -922,8 +919,11 @@ void GLWidget::ToggledEdgesTorusTubes (bool checked)
     ToggledEdgesTorus (true);
 }
 
-
-
+void GLWidget::ToggledEdgesBodyCenter (bool checked)
+{
+    m_edgesBodyCenter = checked;
+    UpdateDisplay ();
+}
 
 void GLWidget::ToggledFacesNormal (bool checked)
 {
@@ -973,7 +973,7 @@ void GLWidget::currentIndexChangedInteractionMode (int index)
 
 void GLWidget::ValueChangedSliderData (int newIndex)
 {
-    m_dataIndex = newIndex;
+    m_timeStep = newIndex;
     UpdateDisplay ();
 }
 
@@ -1011,6 +1011,55 @@ BodyAlongTime& GLWidget::GetBodyAlongTime (size_t originalIndex)
 {
     return GetBodiesAlongTime ().GetOneBody (originalIndex);
 }
+
+Body* GLWidget::GetDisplayedBody () const
+{
+    size_t i = GetDisplayedBodyIndex ();
+    const Data& data = GetCurrentData ();
+    return data.GetBody (i);
+}
+
+size_t GLWidget::GetDisplayedBodyOriginalIndex () const
+{
+    return GetDisplayedBody ()->GetOriginalIndex ();
+}
+
+size_t GLWidget::GetDisplayedFaceOriginalIndex () const
+{
+    return GetDisplayedFace ()->GetOriginalIndex ();
+}
+
+Face* GLWidget::GetDisplayedFace () const
+{
+    size_t i = GetDisplayedFaceIndex ();
+    if  (m_viewType == FACES_TORUS)
+	return GetCurrentData ().GetFaces ()[i];
+    else if (m_displayedBodyIndex != DISPLAY_ALL)
+    {
+	Body& body = *GetDisplayedBody ();
+	return body.GetFace (i);
+    }
+    RuntimeAssert (false, "There is no displayed face");
+    return 0;
+}
+
+Edge* GLWidget::GetDisplayedEdge () const
+{
+    if (m_displayedBodyIndex != DISPLAY_ALL && 
+	m_displayedFaceIndex != DISPLAY_ALL)
+    {
+	Face* face = GetDisplayedFace ();
+	return face->GetEdge (m_displayedEdgeIndex);
+    }
+    RuntimeAssert (false, "There is no displayed edge");
+    return 0;
+}
+
+size_t GLWidget::GetDisplayedEdgeOriginalIndex () const
+{
+    return GetDisplayedEdge ()->GetOriginalIndex ();
+}
+
 
 // Static Methods
 //======================================================================

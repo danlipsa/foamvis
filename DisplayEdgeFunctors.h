@@ -303,7 +303,7 @@ public:
 	for (size_t i = 0; i < v.size (); i++)
 	{
 	    OrientedEdge* oe = v[i];
-	    size_t displayedEdge = m_widget.GetDisplayedEdge ();
+	    size_t displayedEdge = m_widget.GetDisplayedEdgeIndex ();
 	    displayEdge display(m_widget);
 	    if (displayedEdge == GLWidget::DISPLAY_ALL || displayedEdge == i)
 	    {

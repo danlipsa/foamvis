@@ -231,6 +231,11 @@ bool Body::HasWrap () const
     return false;
 }
 
+Face* Body::GetFace (size_t i) const
+{
+    return GetOrientedFace (i)->GetFace ();
+}
+
 // Static and Friends Methods
 // ======================================================================
 

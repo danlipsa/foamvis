@@ -87,6 +87,7 @@ public:
     {
 	return m_reversed;
     }
+    size_t GetOriginalIndex () const;
     bool IsTraversed () const
     {
 	return m_traversed;

@@ -30,10 +30,10 @@ public:
      */
     void operator() (const OrientedFace* of)
     {
-	size_t displayedFace = m_widget.GetDisplayedFace ();
-	size_t displayedBody = m_widget.GetDisplayedBody ();
+	size_t displayedFace = m_widget.GetDisplayedFaceIndex ();
+	size_t displayedBody = m_widget.GetDisplayedBodyIndex ();
         if (( displayedFace == GLWidget::DISPLAY_ALL ||
-	     m_count == m_widget.GetDisplayedFace ()) && 
+	     m_count == m_widget.GetDisplayedFaceIndex ()) && 
 	    (displayedBody == GLWidget::DISPLAY_ALL ||
 	     of->GetFace ()->IsAdjacent (displayedBody)))
         {
