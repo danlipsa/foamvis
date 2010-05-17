@@ -275,6 +275,9 @@ void MainWindow::ValueChangedSliderData (int value)
 }
 
 
+
+
+
 void MainWindow::ToggledVerticesPhysical (bool checked)
 {
     widgetGl->ToggledVerticesPhysical (checked);
@@ -283,6 +286,16 @@ void MainWindow::ToggledVerticesPhysical (bool checked)
     else
 	stackedWidgetVertices->setCurrentWidget (pageVerticesEmpty);
 }
+
+void MainWindow::ToggledEdgesNormal (bool checked)
+{
+    widgetGl->ToggledEdgesNormal (checked);
+    if (checked)
+	stackedWidgetEdges->setCurrentWidget (pageEdgesNormal);
+    else
+	stackedWidgetEdges->setCurrentWidget (pageEdgesEmpty);
+}
+
 
 void MainWindow::ToggledEdgesTorus (bool checked)
 {

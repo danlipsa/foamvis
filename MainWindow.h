@@ -71,10 +71,13 @@ public Q_SLOTS:
      * @param checked true for showing vertices false otherwise
      */
     void ToggledVerticesPhysical (bool checked);
+
+
     /**
      * Shows edges
      * @param checked true for showing edges false otherwise
      */
+    void ToggledEdgesNormal (bool checked);
     void ToggledEdgesPhysical (bool checked);
     void ToggledEdgesTorus (bool checked);
     void ToggledFacesTorus (bool checked);

@@ -181,6 +181,11 @@ public:
      */
     void ValueChangedSliderData (int newIndex);
     void ToggledVerticesPhysical (bool checked);
+    /**
+     * Shows edges
+     * @param checked true for showing edges false otherwise
+     */
+    void ToggledEdgesNormal (bool checked);
     void ToggledEdgesPhysical (bool checked);
     void ToggledEdgesTorus (bool checked);
     void ToggledFacesTorus (bool checked);
@@ -192,11 +197,6 @@ public Q_SLOTS:
      */
     void ToggledVerticesNormal (bool checked);
     void ToggledVerticesTorus (bool checked);
-    /**
-     * Shows edges
-     * @param checked true for showing edges false otherwise
-     */
-    void ToggledEdgesNormal (bool checked);
     /**
      * Shows faces
      * @param checked true for showing faces false otherwise

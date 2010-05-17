@@ -668,17 +668,18 @@ GLuint GLWidget::displayListEdgesTorusLines ()
 
 void GLWidget::displayCenterOfBodies ()
 {
-    if (m_torusOriginalDomainClipped ||
-	! m_edgesBodyCenter)
-	return;
-    glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
-    glPointSize (4.0);
-    qglColor (QColor (Qt::red));
-    glBegin(GL_POINTS);
-    vector<Body*>& bodies = GetCurrentData ().GetBodies ();
-    for_each (bodies.begin (),bodies.end (), DisplayBodyCenter (*this));
-    glEnd ();
-    glPopAttrib ();
+    if ((m_viewType == EDGES && m_edgesBodyCenter) ||
+	m_viewType == CENTER_PATHS)
+    {
+	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
+	glPointSize (4.0);
+	qglColor (QColor (Qt::red));
+	glBegin(GL_POINTS);
+	vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+	for_each (bodies.begin (),bodies.end (), DisplayBodyCenter (*this));
+	glEnd ();
+	glPopAttrib ();
+    }
 }
 
 GLuint GLWidget::displayListFacesNormal ()

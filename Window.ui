@@ -753,7 +753,6 @@
     <slot>ToggledRawFaces(bool)</slot>
     <slot>ToggledTorusOriginalDomain(bool)</slot>
     <slot>currentIndexChangedInteractionMode(int)</slot>
-    <slot>ToggledEdgesNormal(bool)</slot>
     <slot>ToggledVerticesTorus(bool)</slot>
     <slot>ToggledEdgesTorus(bool)</slot>
     <slot>ValueChangedEdgesPhysical(int)</slot>
@@ -904,7 +903,7 @@
   <connection>
    <sender>radioButtonEdgesNormal</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>Window</receiver>
    <slot>ToggledEdgesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1164,6 +1163,7 @@
   <slot>ClickedEnd()</slot>
   <slot>ValueChangedSliderData(int)</slot>
   <slot>ToggledVerticesPhysical(bool)</slot>
+  <slot>ToggledEdgesNormal(bool)</slot>
   <slot>ToggledEdgesPhysical(bool)</slot>
   <slot>ToggledSaveMovie(bool)</slot>
   <slot>ToggledEdgesTorus(bool)</slot>
