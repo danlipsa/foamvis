@@ -7,50 +7,19 @@
 #ifndef __ORIENTED_FACE_H__
 #define __ORIENTED_FACE_H__
 
-#include "OrientedEdge.h"
 class Body;
 class Face;
 class Vertex;
+class OrientedEdge;
 
 /**
  * An oriented face is a face  (list of edges) that can have its edges
- * read in direct or reversed order.
+ * read in direct or reversed order. If 0, 1, 2, ..., n-1 are the
+ * edges of the face in direct order, n-1, n-2, ..., 1, 0 are the
+ * edges of the face in reverse order.
  */
 class OrientedFace
 {
-public:
-/*
-    template <typename T>
-    class Iterator : boost::equality_comparable< Iterator<T> >,
-		     boost::incrementable< Iterator<T> >
-    {
-    public:
-	Iterator () : m_of (0), m_index (0) {}
-	Iterator (T* of, size_t index) : m_of (of), m_index (index)
-	{}
-	friend bool operator==(Iterator first, Iterator second)
-	{
-	    return first.m_of == second.m_of && 
-		first.m_index == second.m_index;
-	}
-	Iterator& operator++ ()
-	{
-	    m_index++;
-	    return *this;
-	}
-	OrientedEdge operator* () const
-	{
-	    return m_of->GetOrientedEdge (m_index);
-	}
-
-
-    private:
-	T* m_of;
-	size_t m_index;
-    };
-    typedef Iterator<OrientedFace> iterator;
-    typedef Iterator<const OrientedFace> const_iterator;
-*/
 public:
     /**
      * Constructs a OrientedFace object
@@ -119,38 +88,16 @@ public:
     {
 	return getEnd (edgeIndex);
     }
-
-    void GetOrientedEdge (size_t OrientedEdge* oe);
-
     /**
      * Gets the oriented edge at edgeIndex in face order.
      */
-    OrientedEdge GetOrientedEdge (size_t edgeIndex) const;
+    void GetOrientedEdge (size_t edgeIndex, OrientedEdge* oe) const;
 
     size_t GetNextValidIndex (size_t index) const;
     size_t GetPreviousValidIndex (size_t index) const;
     G3D::Vector3 GetNormal () const;
 
     size_t size () const;
-/*
-    iterator begin ()
-    {
-	return Iterator<OrientedFace> (this, 0);
-    }
-    const_iterator begin () const
-    {
-	return Iterator<const OrientedFace> (this, 0);
-    }
-
-    iterator end ()
-    {
-	return Iterator<OrientedFace> (this, size ());
-    }
-    const_iterator end () const
-    {
-	return Iterator<const OrientedFace> (this, size ());
-    }
-*/
     void CalculateTranslation (
 	const OrientedEdge& edge, G3D::Vector3* translation) const;
     

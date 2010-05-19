@@ -8,9 +8,11 @@
 #define __EDGE_H__
 
 #include "ColoredElement.h"
-class Vertex;
+#include "OrientedFaceIndex.h"
 class AttributesInfo;
 class Face;
+class OrientedFace;
+class Vertex;
 /**
  * An edge is an object that stores a begin and an end vertex
  */
@@ -81,20 +83,26 @@ public:
 
     /**
      * Adds a face touched by this edge
-     * @param face face touched by this edge
+     * @param face face adjacent to this edge
+     * @param reversed the edge is reversed in the face list
+     * @param
      */
-    void AddAdjacentFace (Face* face)
-    {
-	m_adjacentFaces.push_back (face);
-    }
+    void AddAdjacentOrientedFace (const OrientedFace& of, size_t i);
     void ClearAdjacentFaces ()
     {
 	m_adjacentFaces.clear ();
     }
-    const vector<Face*>& GetAdjacentFaces () const
+    size_t GetAdjacentOrientedFaceSize () const
     {
-	return m_adjacentFaces;
+	return m_adjacentFaces.size ();
     }
+
+    const OrientedFaceIndex& GetAdjacentOrientedFaceIndex (
+	size_t faceIndex) const
+    {
+	return m_adjacentFaces[faceIndex];
+    }
+
     /**
      * For both  vertices of this edge,  add the edge as  being adjacent to
      * the vertices
@@ -127,7 +135,7 @@ public:
 
     bool ShouldDisplay () const
     {
-	return GetAdjacentFaces ().size () != 0 ||
+	return GetAdjacentOrientedFaceSize () != 0 ||
 	    GetStatus () == ElementStatus::ORIGINAL;
     }
     
@@ -148,6 +156,9 @@ public:
     friend ostream& operator<< (ostream& ostr, const Edge& e);
 
 private:
+    typedef vector<OrientedFaceIndex> AdjacentOrientedFaces;
+
+private:
     /**
      * First vertex of the edge
      */
@@ -161,7 +172,7 @@ private:
      * Stores adjacent faces to this edge. Assume no duplicate edges
      * in 3D torus model.
      */
-    vector<Face*> m_adjacentFaces;
+    AdjacentOrientedFaces m_adjacentFaces;
     bool m_physical;
     boost::scoped_ptr< vector<G3D::LineSegment> > m_torusClipped;
 

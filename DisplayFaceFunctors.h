@@ -137,7 +137,8 @@ protected:
     virtual void display (const OrientedFace* f)
     {
 	using G3D::Vector3;
-	OrientedEdge oe = f->GetOrientedEdge (0);
+	OrientedEdge oe;
+	f->GetOrientedEdge (0, &oe);
 	float size = oe.GetEdgeVector ().length ();
 	Vector3 normal = f->GetNormal ();
 	Vector3 begin = *oe.GetBegin ();
@@ -145,11 +146,10 @@ protected:
 	glVertex (begin);
 	glVertex (begin + normal * size);
 
-
-	for (OrientedFace::const_iterator it = f->begin (); 
-	     it != f->end (); ++it)
+	for (size_t i = 0; i < f->size (); i++)
 	{
-	    OrientedEdge oe = *it;
+	    OrientedEdge oe;
+	    f->GetOrientedEdge (i, &oe);
 	    Vector3 edgeVector = oe.GetEdgeVector ();
 	    Vector3 edgeNormal = edgeVector.cross (normal).unit ();
 	    begin = *oe.GetBegin ();

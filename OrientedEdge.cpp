@@ -4,10 +4,11 @@
  *
  * Implementation of the OrientedFace class
  */
-#include "OrientedEdge.h"
-#include "OrientedFace.h"
 #include "Debug.h"
 #include "Edge.h"
+#include "Face.h"
+#include "OrientedEdge.h"
+#include "OrientedFace.h"
 #include "Vertex.h"
 
 ostream& OrientedEdge::print (ostream& ostr, bool reversed) const
@@ -55,10 +56,6 @@ Vertex* OrientedEdge::GetEnd (void) const
     return m_reversed ? m_edge->GetBegin () : m_edge->GetEnd ();
 }
 
-void OrientedEdge::AddAdjacentFace (Face* face) 
-{
-    m_edge->AddAdjacentFace (face);
-}
 
 void OrientedEdge::ClearAdjacentFaces ()
 {
@@ -68,4 +65,36 @@ void OrientedEdge::ClearAdjacentFaces ()
 bool OrientedEdge::IsZero () const
 {
     return m_edge->IsZero ();
+}
+
+
+void OrientedEdge::GetAdjacentOrientedFaceIndex (
+    size_t faceIndex, OrientedFace* ofResult, size_t* indexResult) const
+{
+    OrientedFaceIndex ofi =
+	m_edge->GetAdjacentOrientedFaceIndex (faceIndex);
+    OrientedFace& of = *ofi.m_orientedFace;
+    size_t edgeIndex = ofi.m_index;
+    size_t reversed = of.IsReversed ();
+    if (m_reversed)
+    {
+	*indexResult = of.size () - edgeIndex - 1;
+	reversed = ! reversed;
+    }
+    else
+	*indexResult = edgeIndex;
+    *ofResult = OrientedFace (of.GetFace (), reversed);
+}
+
+void OrientedEdge::AddAdjacentFace (Face* face, size_t oEdgeIndex)
+{
+    size_t edgeIndex;
+    if (m_reversed)
+    {
+	edgeIndex = face->size () - 1 - oEdgeIndex;
+    }
+    else
+	edgeIndex = oEdgeIndex;
+    m_edge->AddAdjacentOrientedFace (
+	OrientedFace (face, m_reversed), edgeIndex);
 }

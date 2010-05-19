@@ -12,7 +12,8 @@
 #include "Face.h"
 
 
-OrientedEdge OrientedFace::GetOrientedEdge (size_t edgeIndex) const
+void OrientedFace::GetOrientedEdge (
+    size_t edgeIndex, OrientedEdge* oEdge) const
 {
     Face::OrientedEdges& v = m_face->GetOrientedEdges ();
     RuntimeAssert (edgeIndex < v.size (),
@@ -30,7 +31,7 @@ OrientedEdge OrientedFace::GetOrientedEdge (size_t edgeIndex) const
     bool reversed = oe->IsReversed ();
     if (IsReversed ())
 	reversed = ! reversed;
-    return OrientedEdge (oe->GetEdge (), reversed);
+    *oEdge = OrientedEdge (oe->GetEdge (), reversed);
 }
 
 G3D::Vector3 OrientedFace::GetNormal () const
@@ -76,20 +77,26 @@ size_t OrientedFace::size () const
 
 Vertex* OrientedFace::getBegin (size_t edgeIndex) const
 {
-    return GetOrientedEdge (edgeIndex).GetBegin ();
+    OrientedEdge oe;
+    GetOrientedEdge (edgeIndex, &oe);
+    return oe.GetBegin ();
 }
 
 Vertex* OrientedFace::getEnd (size_t edgeIndex) const
 {
-    return GetOrientedEdge (edgeIndex).GetEnd ();
+    OrientedEdge oe;
+    GetOrientedEdge (edgeIndex, &oe);
+    return oe.GetEnd ();
 }
 
 void OrientedFace::CalculateTranslation (
     const OrientedEdge& edge, G3D::Vector3* translation) const
 {
-    for (const_iterator it = begin (); it != end (); ++it)
+    for (size_t i = 0; i < size (); i++)
     {
-	if (edge.Fits (*it, translation))
+	OrientedEdge oe;
+	GetOrientedEdge (i, &oe);
+	if (edge.Fits (oe, translation))
 	    return;
     }
     RuntimeAssert (false, "The edge: ", edge, 
@@ -114,7 +121,8 @@ ostream& operator<< (ostream& ostr, const OrientedFace& of)
     ostr << of.size () << " edges part of the face:" << endl;
     for (size_t i = 0; i < of.size (); i++)
     {
-	const OrientedEdge oe = of.GetOrientedEdge (i);
+	OrientedEdge oe;
+	of.GetOrientedEdge (i, &oe);
 	ostr << i << ": " << oe << endl;
     }
     ostr << " Face attributes: ";

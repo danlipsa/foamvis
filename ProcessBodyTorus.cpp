@@ -30,12 +30,13 @@ void ProcessBodyTorus::Initialize ()
 	      boost::mem_fn (&OrientedFace::UpdateEdgeAdjacency));
     OrientedFace* of = m_body->GetOrientedFace (0);
     m_idTraversedMap[of->GetSignedId ()] = true;
-    for (OrientedFace::iterator it = of->begin (); it != of->end (); ++it)
-	m_queue.push (*it);
+    for (size_t i = 0; i < of->size (); i++)
+    {
+	OrientedEdge oe;
+	of->GetOrientedEdge (i, &oe);
+	m_queue.push (oe);
+    }
 }
-
-
-
 
 
 bool ProcessBodyTorus::Step ()
@@ -53,6 +54,9 @@ bool ProcessBodyTorus::Step ()
     if (m_queue.size () == 0)
 	return false;
     OrientedFace* of = oe.second;
+
+
+
 
 
     const OrientedEdge& edge = oe.first;

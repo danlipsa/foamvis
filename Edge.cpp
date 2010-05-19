@@ -6,10 +6,11 @@
  */
 #include "AttributeCreator.h"
 #include "AttributeInfo.h"
+#include "Debug.h"
 #include "Edge.h"
 #include "EvolverData_yacc.h"
 #include "Foam.h"
-#include "Debug.h"
+#include "OrientedFace.h"
 #include "ParsingDriver.h"
 #include "Vertex.h"
 
@@ -180,6 +181,13 @@ size_t Edge::GetTorusClippedSize () const
     Vector3int16 translation = endLocation - beginLocation;
     size_t intersectionCount = OOBox::CountIntersections (translation);
     return intersectionCount + 1;
+}
+
+
+void Edge::AddAdjacentOrientedFace (const OrientedFace& face, size_t i)
+{
+    boost::shared_ptr<OrientedFace> of (new OrientedFace (face));
+    m_adjacentFaces.push_back (OrientedFaceIndex (of, i));
 }
 
 

@@ -89,6 +89,10 @@ public:
     }
     bool IsClosed () const;
     bool HasWrap () const;
+    size_t size () const
+    {
+	return m_orientedEdges.size ();
+    }
 
 public:
     /**

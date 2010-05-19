@@ -7,8 +7,10 @@
 #ifndef __ORIENTED_EDGE_H__
 #define __ORIENTED_EDGE_H__
 
+
 class Edge;
 class Face;
+class OrientedFace;
 class Vertex;
 
 /**
@@ -44,8 +46,13 @@ public:
     /**
      * Adds a face that is touched by this oriented edge.
      */
-    void AddAdjacentFace (Face* face);
+    void AddAdjacentFace (Face* face, size_t oEdgeIndex);
     void ClearAdjacentFaces ();
+    size_t GetAdjacentOrientedFacesSize () const;
+    void GetAdjacentOrientedFaceIndex (
+	size_t faceIndex, OrientedFace* of, size_t* index) const;
+
+
     /**
      * Edge for this oriented edge
      * @return the edge for this oriented edge

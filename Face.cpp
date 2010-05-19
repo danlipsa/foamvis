@@ -72,7 +72,8 @@ Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges,
 	   size_t id, Foam* data, ElementStatus::Name status) :
     ColoredElement (id, data, status)
 {
-    m_adjacentBodies[0] = m_adjacentBodies[1] = 0;
+    Body* nullBody = 0;
+    fill (m_adjacentBodies.begin (), m_adjacentBodies.end (), nullBody);
     m_orientedEdges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_orientedEdges.begin(), 
                indexToOrientedEdge(edges));
@@ -94,7 +95,8 @@ Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges,
 Face::Face (Edge* edge, size_t id) :
     ColoredElement (id, 0, ElementStatus::ORIGINAL)
 {
-    m_adjacentBodies[0] = m_adjacentBodies[1] = 0;
+    Body* nullBody = 0;
+    fill (m_adjacentBodies.begin (), m_adjacentBodies.end (), nullBody);
     m_orientedEdges.push_back (new OrientedEdge (edge, false));
 }
 
@@ -102,7 +104,8 @@ Face::Face (const Face& original) :
     ColoredElement (original.GetId (), original.GetFoam (), 
 		    ElementStatus::DUPLICATE)
 {
-    m_adjacentBodies[0] = m_adjacentBodies[1] = 0;
+    Body* nullBody = 0;
+    fill (m_adjacentBodies.begin (), m_adjacentBodies.end (), nullBody);
     BOOST_FOREACH (OrientedEdge* oe, original.m_orientedEdges)
 	m_orientedEdges.push_back (new OrientedEdge (*oe));
 }
@@ -116,8 +119,11 @@ void Face::UpdateEdgeAdjacency ()
 {
     using boost::bind;
     OrientedEdges& orientedEdges = GetOrientedEdges ();
-    for_each (orientedEdges.begin (), orientedEdges.end (),
-	      bind (&OrientedEdge::AddAdjacentFace, _1, this));
+    for (size_t i = 0; i < orientedEdges.size (); i++)
+    {
+	OrientedEdge* oe = orientedEdges[i];
+	oe->AddAdjacentFace (this, i);
+    }
 }
 
 void Face::ClearEdgeAdjacency ()
