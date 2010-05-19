@@ -4,8 +4,8 @@
  *
  * Declaration of the Foam class
  */
-#ifndef __DATA_H__
-#define __DATA_H__
+#ifndef __FOAM_H__
+#define __FOAM_H__
 
 #include "AttributeInfo.h"
 #include "Comparisons.h"
@@ -352,7 +352,7 @@ inline ostream& operator<< (ostream& ostr, Foam* d)
     return ostr << *d;
 }
 
-#endif //__DATA_H__
+#endif //__FOAM_H__
 
 // Local Variables:
 // mode: c++

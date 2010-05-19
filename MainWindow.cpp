@@ -90,7 +90,7 @@ void MainWindow::updateButtons ()
 
 void MainWindow::updateStatus ()
 {
-    vector<Foam*>& data = widgetGl->GetFoamAlongTime ().GetFoam ();
+    FoamAlongTime::Foams& data = widgetGl->GetFoamAlongTime ().GetFoam ();
     Foam& currentFoam = widgetGl->GetCurrentFoam ();
     QString oldString = labelStatus->text ();
     ostringstream ostr;

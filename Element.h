@@ -23,10 +23,10 @@ public:
     /**
      * Constructor for the Element
      */
-    Element(size_t originalIndex, Foam* data,
+    Element(size_t id, Foam* data,
 	    ElementStatus::Name status) : 
 	m_attributes(0),
-	m_originalIndex (originalIndex), 
+	m_id (id), 
 	m_data (data),
 	m_status (status)
     {}
@@ -50,9 +50,9 @@ public:
     /**
      * Gets the original index of this element
      */
-    size_t GetOriginalIndex () const
+    size_t GetId () const
     {
-	return m_originalIndex;
+	return m_id;
     }    
     ElementStatus::Name GetStatus () const
     {
@@ -83,7 +83,7 @@ protected:
     /**
      * The original index for this element
      */
-    size_t m_originalIndex;
+    size_t m_id;
     Foam* m_data;
     ElementStatus::Name m_status;
 

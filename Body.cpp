@@ -123,9 +123,9 @@ AttributesInfo* Body::m_infos;
 // ======================================================================
 
 Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
-	   size_t originalIndex, Foam* data,
+	   size_t id, Foam* data,
 	   ElementStatus::Name status) :
-    Element(originalIndex, data, status), m_placedOrientedFaces (0)
+    Element(id, data, status)
 {
     using boost::bind;
     m_orientedFaces.resize (faceIndexes.size ());
@@ -192,7 +192,7 @@ void Body::CalculateCenter ()
     m_center /= Vector3(size, size, size);
 }
 
-void Body::UpdateFacesAdjacency ()
+void Body::UpdateFaceAdjacency ()
 {
     using boost::bind;
     OrientedFaces& of = GetOrientedFaces ();
@@ -261,7 +261,7 @@ void Body::StoreDefaultAttributes (AttributesInfo* infos)
 
 ostream& operator<< (ostream& ostr, const Body& b)
 {
-    ostr << "Body " << b.GetOriginalIndex () << ":" << endl;
+    ostr << "Body " << b.GetId () << ":" << endl;
     ostream_iterator<OrientedFace*> output (ostr, "\n");
     copy (b.m_orientedFaces.begin (), b.m_orientedFaces.end (), output);
     ostr << "Body attributes: ";

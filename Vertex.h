@@ -35,14 +35,14 @@ public:
 public:
     /**
      * Creates a Vertex object
-     * @param originalIndex original index for this vertex 
+     * @param id original index for this vertex 
      *    (before invoque 'compact')
      * @param x the X coordinate
      * @param y the Y coordinate
      * @param z the Z coordinate
      */
     Vertex(float x, float y, float z,
-	   size_t originalIndex, Foam* data,
+	   size_t id, Foam* data,
 	   ElementStatus::Name status = ElementStatus::ORIGINAL);
     Vertex (const G3D::Vector3* position, Foam* data);
     Vertex (const G3D::Vector3* position, Foam* data,
@@ -159,7 +159,7 @@ private:
 	printVertexIndex (ostream& ostr) : m_ostr(ostr) {}
 	void operator() (Vertex* v)
 	{
-	    m_ostr << (v->GetOriginalIndex () + 1) << " ";
+	    m_ostr << (v->GetId () + 1) << " ";
 	}
     private:
 	ostream& m_ostr;

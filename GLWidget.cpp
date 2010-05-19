@@ -7,7 +7,7 @@
 
 
 #include "Body.h"
-#include "BodiesAlongTime.h"
+#include "BodyAlongTime.h"
 #include "FoamAlongTime.h"
 #include "Debug.h"
 #include "DebugStream.h"
@@ -1008,9 +1008,9 @@ BodiesAlongTime& GLWidget::GetBodiesAlongTime ()
     return GetFoamAlongTime ().GetBodiesAlongTime ();
 }
 
-BodyAlongTime& GLWidget::GetBodyAlongTime (size_t originalIndex)
+BodyAlongTime& GLWidget::GetBodyAlongTime (size_t id)
 {
-    return GetBodiesAlongTime ().GetOneBody (originalIndex);
+    return GetBodiesAlongTime ().GetOneBody (id);
 }
 
 Body* GLWidget::GetDisplayedBody () const
@@ -1022,12 +1022,12 @@ Body* GLWidget::GetDisplayedBody () const
 
 size_t GLWidget::GetDisplayedBodyOriginalIndex () const
 {
-    return GetDisplayedBody ()->GetOriginalIndex ();
+    return GetDisplayedBody ()->GetId ();
 }
 
 size_t GLWidget::GetDisplayedFaceOriginalIndex () const
 {
-    return GetDisplayedFace ()->GetOriginalIndex ();
+    return GetDisplayedFace ()->GetId ();
 }
 
 Face* GLWidget::GetDisplayedFace () const
@@ -1058,7 +1058,7 @@ Edge* GLWidget::GetDisplayedEdge () const
 
 size_t GLWidget::GetDisplayedEdgeOriginalIndex () const
 {
-    return GetDisplayedEdge ()->GetOriginalIndex ();
+    return GetDisplayedEdge ()->GetId ();
 }
 
 

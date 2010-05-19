@@ -22,8 +22,8 @@ AttributesInfo* Edge::m_infos;
 // Methods
 // ======================================================================
 Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endTranslation, 
-	    size_t originalIndex, Foam* data, ElementStatus::Name status):
-    ColoredElement(originalIndex, data, status),
+	    size_t id, Foam* data, ElementStatus::Name status):
+    ColoredElement(id, data, status),
     m_begin (begin), m_end (end),
     m_endTranslation (endTranslation), 
     m_physical (false),
@@ -37,8 +37,8 @@ Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endTranslation,
     }
 }
 
-Edge::Edge (Vertex* begin, size_t originalIndex) :
-    ColoredElement (originalIndex, 0, ElementStatus::ORIGINAL),
+Edge::Edge (Vertex* begin, size_t id) :
+    ColoredElement (id, 0, ElementStatus::ORIGINAL),
     m_begin (begin),
     m_end (0),
     m_physical (false),
@@ -47,7 +47,7 @@ Edge::Edge (Vertex* begin, size_t originalIndex) :
 }
 
 Edge::Edge (const Edge& o) : 
-    ColoredElement (o.GetOriginalIndex (), o.GetFoam (), 
+    ColoredElement (o.GetId (), o.GetFoam (), 
 		    ElementStatus::DUPLICATE),
     m_begin (o.GetBegin ()), m_end (o.GetEnd ()),
     m_endTranslation (o.GetEndTranslation ()),
@@ -62,7 +62,7 @@ G3D::Vector3 Edge::GetBegin (const G3D::Vector3* end) const
     return *end + (*GetBegin () - *GetEnd ());
 }
 
-void Edge::UpdateVerticesAdjacency ()
+void Edge::UpdateVertexAdjacency ()
 {
     this->GetBegin ()->AddAdjacentEdge (this);
     this->GetEnd ()->AddAdjacentEdge (this);
@@ -70,20 +70,20 @@ void Edge::UpdateVerticesAdjacency ()
 
 bool Edge::operator< (const Edge& other) const
 {
-    return GetOriginalIndex () < other.GetOriginalIndex () ||
-	(GetOriginalIndex () == other.GetOriginalIndex () &&
+    return GetId () < other.GetId () ||
+	(GetId () == other.GetId () &&
 	 *GetBegin () < *other.GetBegin ());
 }
 
 bool Edge::operator== (const Edge& other) const
 {
-    return GetOriginalIndex () == other.GetOriginalIndex () &&
+    return GetId () == other.GetId () &&
 	*GetBegin () == *other.GetBegin ();
 }
 
 bool Edge::fuzzyEq (const Edge& other) const
 {
-    return GetOriginalIndex () == other.GetOriginalIndex () &&
+    return GetId () == other.GetId () &&
 	GetBegin ()->fuzzyEq(*other.GetBegin ());
 }
 
@@ -234,7 +234,7 @@ void Edge::StoreDefaultAttributes (AttributesInfo* infos)
 
 ostream& operator<< (ostream& ostr, const Edge& e)
 {
-    ostr << "Edge " << e.GetOriginalIndex () << " "
+    ostr << "Edge " << e.GetId () << " "
 	 << e.GetStatus ()
 	 << ": "
 	 << static_cast<G3D::Vector3>(*e.m_begin) << ", " 

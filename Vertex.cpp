@@ -34,9 +34,9 @@ const G3D::Vector3int16 Vertex::m_unitVector3int16[3] = {
 // Methods
 // ======================================================================
 Vertex::Vertex(float x, float y, float z, 
-	       size_t originalIndex, Foam* data, ElementStatus::Name status) :
+	       size_t id, Foam* data, ElementStatus::Name status) :
     G3D::Vector3 (x, y, z),
-    Element(originalIndex, data, status),
+    Element(id, data, status),
     m_adjacentPhysicalEdgesCount (0), m_physical (false)
 {}
 
@@ -108,7 +108,7 @@ G3D::Vector3int16 Vertex::GetLocation () const
 // ======================================================================
 ostream& operator<< (ostream& ostr, const Vertex& v)
 {
-    ostr << "Vertex " << v.GetOriginalIndex () << " "
+    ostr << "Vertex " << v.GetId () << " "
 	 << v.GetStatus ()
 	 << static_cast<const G3D::Vector3&>(v)
 	 << " Vertex attributes: ";

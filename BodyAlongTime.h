@@ -1,5 +1,5 @@
 /**
- * @file   BodiesAlongTime.h
+ * @file   BodyAlongTime.h
  * @author Dan R. Lipsa
  * @date 15 May 2010
  *
@@ -73,15 +73,15 @@ public:
 
     size_t GetBodyCount ()
     {
-	return m_bodiesAlongTime.size ();
+	return m_bodyMap.size ();
     }
 
     void Allocate (const Body* body, size_t timeSteps);
     void Cache (Body* body, size_t timeStep);
-    OneBody& GetOneBody (size_t originalIndex);
+    OneBody& GetOneBody (size_t id);
     BodyMap& GetBodyMap ()
     {
-	return m_bodiesAlongTime;
+	return m_bodyMap;
     }
     void Resize (const Body* body);
 
@@ -96,7 +96,7 @@ private:
     /**
      * Map between the original index of the body and the body along time
      */
-    BodyMap m_bodiesAlongTime;
+    BodyMap m_bodyMap;
 };
 
 

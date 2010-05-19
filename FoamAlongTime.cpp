@@ -24,7 +24,7 @@ void FoamAlongTime::Calculate (
     Aggregate aggregate, FoamLessThanAlong::Corner corner, G3D::Vector3& v)
 {
     using G3D::Vector3;
-    vector<Foam*>::iterator it;
+    Foams::iterator it;
     it = aggregate (m_data.begin (), m_data.end (), 
 		    FoamLessThanAlong(Vector3::X_AXIS, corner));
     v.x = ((*it)->*corner) ().x;

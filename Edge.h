@@ -19,15 +19,15 @@ class Edge : public ColoredElement
 public:
     /**
      * Creates an Edge object
-     * @param originalIndex what is the original index for this edge
+     * @param id what is the original index for this edge
      * @param begin the first point of the endge
      * @param end the last point of the edge
      */
     Edge (Vertex* begin, Vertex* end, 
 	  G3D::Vector3int16& endLocation, 
-	  size_t originalIndex, Foam* data,
+	  size_t id, Foam* data,
 	  ElementStatus::Name status = ElementStatus::ORIGINAL);
-    Edge (Vertex* begin, size_t originalIndex);
+    Edge (Vertex* begin, size_t id);
     Edge (const Edge& edge);
     /**
      * @return the first vertex of the edge
@@ -99,7 +99,7 @@ public:
      * For both  vertices of this edge,  add the edge as  being adjacent to
      * the vertices
      */
-    void UpdateVerticesAdjacency ();
+    void UpdateVertexAdjacency ();
     const G3D::Vector3int16& GetEndTranslation () const
     {
 	return m_endTranslation;
@@ -158,7 +158,8 @@ private:
     Vertex* m_end;
     G3D::Vector3int16 m_endTranslation;
     /**
-     * Stores adjacent faces to this edge
+     * Stores adjacent faces to this edge. Assume no duplicate edges
+     * in 3D torus model.
      */
     vector<Face*> m_adjacentFaces;
     bool m_physical;

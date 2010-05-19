@@ -1,5 +1,5 @@
 HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h \
-	BodiesAlongTime.h ColoredElement.h \
+	BodyAlongTime.h ColoredElement.h \
 	Debug.h DebugStream.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h \
@@ -12,7 +12,7 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h \
 	stable.h SystemDifferences.h \
 	Comparisons.h Vertex.h
 SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
-	Body.cpp BodiesAlongTime.cpp ColoredElement.cpp \
+	Body.cpp BodyAlongTime.cpp ColoredElement.cpp \
 	Debug.cpp DebugStream.cpp Edge.cpp \
 	Element.cpp ElementUtils.cpp ExpressionTree.cpp Enums.cpp\
 	Foam.cpp FoamAlongTime.cpp Face.cpp \

@@ -18,7 +18,8 @@
  * by Surface Evolver.
  *
  * \section torus_sec Processing done for the Torus model
- * \subsection onedge_sec Executed when creating an edge (may create duplicate vertices)
+ * \subsection onedge_sec Executed when creating an edge (may create
+ * duplicate vertices)
  *
  <pre>
 The first vertex of an edge is always defined in the data file (it's not a 
@@ -35,7 +36,8 @@ duplicate).
   }
  </pre>
  * 
- * \subsection onface_sec Executed when creating a face (may create duplicate edges)
+ * \subsection onface_sec Executed when creating a face (may create
+ * duplicate edges)
  *
 <pre>
   first vertex of the face is defined in the data file (not a DUPLICATE).
@@ -48,7 +50,9 @@ duplicate).
     }
   }
 </pre>
-*/
+ *
+ *
+ */
 
 
 
@@ -101,7 +105,7 @@ private:
     /**
      * Stores the data parsed from the DMP files
      */
-    vector<Foam*>& m_data;
+    FoamAlongTime::Foams& m_data;
     /**
      * Directory that stores the DMP files.
      */

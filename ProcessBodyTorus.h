@@ -16,16 +16,15 @@ class OrientedFace;
 class ProcessBodyTorus
 {
 public:
-    typedef pair<OrientedEdge, OrientedFace*> QueueElement;
-
-public:
-    ProcessBodyTorus (Body* body) : m_body (body) {}
+    ProcessBodyTorus (Body* body);
     void Initialize ();
     bool Step ();
+    void Cleanup ();
 
 private:
     Body* m_body;
-    queue<QueueElement> m_queue;
+    queue<OrientedEdge> m_queue;
+    map<int, bool> m_idTraversedMap;
 };
 
 

@@ -19,6 +19,7 @@ class Vertex;
 class OrientedFace
 {
 public:
+/*
     template <typename T>
     class Iterator : boost::equality_comparable< Iterator<T> >,
 		     boost::incrementable< Iterator<T> >
@@ -49,7 +50,7 @@ public:
     };
     typedef Iterator<OrientedFace> iterator;
     typedef Iterator<const OrientedFace> const_iterator;
-
+*/
 public:
     /**
      * Constructs a OrientedFace object
@@ -59,7 +60,7 @@ public:
      *        order
      */
     OrientedFace(Face* face, bool reversed) : 
-	m_face (face), m_reversed (reversed), m_traversed (false)
+	m_face (face), m_reversed (reversed)
     {}
     /**
      * Gets the face associated with this oriented face
@@ -74,9 +75,9 @@ public:
 	m_face = face;
     }
     void AddAdjacentBody (Body* body);
-    vector<Body*>& GetAdjacentBodies ();
-    void UpdateEdgesAdjacency ();
-    void ClearEdgesAdjacency ();
+    Body* GetAdjacentBody ();
+    void UpdateEdgeAdjacency ();
+    void ClearEdgeAdjacency ();
     
     /**
      * Is this in the same order or reversed compared with the face associated
@@ -87,14 +88,10 @@ public:
     {
 	return m_reversed;
     }
-    size_t GetOriginalIndex () const;
-    bool IsTraversed () const
+    size_t GetId () const;
+    int GetSignedId () const
     {
-	return m_traversed;
-    }
-    void SetTraversed (bool traversed)
-    {
-	m_traversed = traversed;
+	return IsReversed () ? (- GetId ()) : GetId ();
     }
     /**
      * Gets the begin vertex for an edge in this oriented face
@@ -123,6 +120,8 @@ public:
 	return getEnd (edgeIndex);
     }
 
+    void GetOrientedEdge (size_t OrientedEdge* oe);
+
     /**
      * Gets the oriented edge at edgeIndex in face order.
      */
@@ -133,6 +132,7 @@ public:
     G3D::Vector3 GetNormal () const;
 
     size_t size () const;
+/*
     iterator begin ()
     {
 	return Iterator<OrientedFace> (this, 0);
@@ -150,6 +150,7 @@ public:
     {
 	return Iterator<const OrientedFace> (this, size ());
     }
+*/
     void CalculateTranslation (
 	const OrientedEdge& edge, G3D::Vector3* translation) const;
     
@@ -181,7 +182,6 @@ private:
      * reversed order
      */
     bool m_reversed;
-    bool m_traversed;
 };
 /**
  * Pretty prints a pointer to an oriented face

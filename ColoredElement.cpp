@@ -32,7 +32,7 @@ Color::Name ColoredElement::GetColor (Color::Name color) const
     {
 	if (color == Color::COUNT)
 	    return static_cast<Color::Name>(
-		(GetOriginalIndex ()+1) % Color::COUNT);
+		(GetId ()+1) % Color::COUNT);
 	else
 	    return color;
     }

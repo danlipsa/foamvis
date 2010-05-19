@@ -4,11 +4,11 @@
  *
  * Declaration of FoamAlongTime object
  */
-#ifndef __DATA_ALONG_TIME_H__
-#define __DATA_ALONG_TIME_H__
+#ifndef __FOAM_ALONG_TIME_H__
+#define __FOAM_ALONG_TIME_H__
 
 #include "Comparisons.h"
-#include "BodiesAlongTime.h"
+#include "BodyAlongTime.h"
 
 class Foam;
 
@@ -18,10 +18,11 @@ class Foam;
 class FoamAlongTime
 {
 public:
+    typedef vector<Foam*> Foams;
     /**
      * Iterator over a vector of Foam
      */
-    typedef vector<Foam*>::iterator IteratorFoam;
+    typedef Foams::iterator IteratorFoam;
     /**
      * Functor applied to a collection of Foam objects
      */
@@ -38,7 +39,7 @@ public:
      * Gets the vector of Foam objects
      * @return vector of data objects
      */
-    vector<Foam*>& GetFoam () {return m_data;}
+    Foams& GetFoam () {return m_data;}
     /**
      * Gets the AABox for this vector of Foam objects
      */
@@ -72,7 +73,7 @@ private:
     /**
      * Vector of Foam objects
      */
-    vector<Foam*> m_data;
+    Foams m_data;
     BodiesAlongTime m_bodiesAlongTime;
     /**
      * The AABox for this vector of Foam objects
@@ -80,7 +81,7 @@ private:
     G3D::AABox m_AABox;
 };
 
-#endif //__DATA_ALONG_TIME_H__
+#endif //__FOAM_ALONG_TIME_H__
 
 // Local Variables:
 // mode: c++

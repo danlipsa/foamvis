@@ -45,7 +45,6 @@ public:
      * Adds a face that is touched by this oriented edge.
      */
     void AddAdjacentFace (Face* face);
-    
     void ClearAdjacentFaces ();
     /**
      * Edge for this oriented edge

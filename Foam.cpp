@@ -165,7 +165,7 @@ Edge* Foam::GetEdgeDuplicate (
     Edge* original, const G3D::Vector3& newBegin)
 {
     EdgeSearchDummy searchDummy (
-	&newBegin, this, original->GetOriginalIndex ());
+	&newBegin, this, original->GetId ());
     EdgeSet::iterator it = 
 	fuzzyFind <EdgeSet, EdgeSet::iterator, EdgeSet::key_type> (
 	    m_edgeSet, &searchDummy.m_edge);
@@ -180,7 +180,7 @@ Edge* Foam::GetEdgeDuplicate (
 Face* Foam::GetFaceDuplicate (
     const Face& original, const G3D::Vector3& newBegin)
 {
-    FaceSearchDummy searchDummy (&newBegin, this, original.GetOriginalIndex ());
+    FaceSearchDummy searchDummy (&newBegin, this, original.GetId ());
     FaceSet::iterator it = m_faceSet.find (&searchDummy.m_face);
     if (it != m_faceSet.end ())
 	return *it;
@@ -254,11 +254,11 @@ void Foam::UpdateAdjacency ()
 {
     using boost::mem_fn;
     for_each (m_bodies.begin (), m_bodies.end (), 
-	      mem_fn(&Body::UpdateFacesAdjacency));
+	      mem_fn(&Body::UpdateFaceAdjacency));
     for_each (m_faces.begin (), m_faces.end (), 
-	      mem_fn (&Face::UpdateEdgesAdjacency));
+	      mem_fn (&Face::UpdateEdgeAdjacency));
     for_each (m_edges.begin (), m_edges.end (), 
-	      mem_fn (&Edge::UpdateVerticesAdjacency));
+	      mem_fn (&Edge::UpdateVertexAdjacency));
 }
 
 void Foam::CalculateAABox ()

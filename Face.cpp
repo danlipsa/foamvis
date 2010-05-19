@@ -69,9 +69,10 @@ AttributesInfo* Face::m_infos;
 // ======================================================================
 
 Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
-	   size_t originalIndex, Foam* data, ElementStatus::Name status) :
-    ColoredElement (originalIndex, data, status)
+	   size_t id, Foam* data, ElementStatus::Name status) :
+    ColoredElement (id, data, status)
 {
+    m_adjacentBodies[0] = m_adjacentBodies[1] = 0;
     m_orientedEdges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_orientedEdges.begin(), 
                indexToOrientedEdge(edges));
@@ -90,16 +91,18 @@ Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges,
 }
 
 
-Face::Face (Edge* edge, size_t originalIndex) :
-    ColoredElement (originalIndex, 0, ElementStatus::ORIGINAL)
+Face::Face (Edge* edge, size_t id) :
+    ColoredElement (id, 0, ElementStatus::ORIGINAL)
 {
+    m_adjacentBodies[0] = m_adjacentBodies[1] = 0;
     m_orientedEdges.push_back (new OrientedEdge (edge, false));
 }
 
 Face::Face (const Face& original) :
-    ColoredElement (original.GetOriginalIndex (), original.GetFoam (), 
+    ColoredElement (original.GetId (), original.GetFoam (), 
 		    ElementStatus::DUPLICATE)
 {
+    m_adjacentBodies[0] = m_adjacentBodies[1] = 0;
     BOOST_FOREACH (OrientedEdge* oe, original.m_orientedEdges)
 	m_orientedEdges.push_back (new OrientedEdge (*oe));
 }
@@ -109,7 +112,7 @@ Face::~Face()
     for_each(m_orientedEdges.begin(), m_orientedEdges.end(), bl::delete_ptr ());
 }
 
-void Face::UpdateEdgesAdjacency ()
+void Face::UpdateEdgeAdjacency ()
 {
     using boost::bind;
     OrientedEdges& orientedEdges = GetOrientedEdges ();
@@ -117,7 +120,7 @@ void Face::UpdateEdgesAdjacency ()
 	      bind (&OrientedEdge::AddAdjacentFace, _1, this));
 }
 
-void Face::ClearEdgesAdjacency ()
+void Face::ClearEdgeAdjacency ()
 {
     using boost::bind;
     OrientedEdges& orientedEdges = GetOrientedEdges ();
@@ -149,7 +152,7 @@ size_t Face::GetPreviousValidIndex (size_t index) const
 
 bool Face::operator== (const Face& face) const
 {
-    return GetOriginalIndex () == face.GetOriginalIndex () &&
+    return GetId () == face.GetId () &&
 	*GetOrientedEdge (0)->GetBegin () == 
 	*face.GetOrientedEdge (0)->GetBegin ();
 }
@@ -191,7 +194,7 @@ bool Face::IsClosed () const
 bool Face::IsAdjacent (size_t bodyOriginalIndex)
 {
     BOOST_FOREACH (Body* b, m_adjacentBodies)
-	if (b->GetOriginalIndex () == bodyOriginalIndex)
+	if (b->GetId () == bodyOriginalIndex)
 	    return true;
     return false;
 }
@@ -226,7 +229,7 @@ void Face::StoreDefaultAttributes (AttributesInfo* infos)
 
 ostream& operator<< (ostream& ostr, const Face& f)
 {
-    ostr << "face " << f.GetOriginalIndex () << ":\n";
+    ostr << "face " << f.GetId () << ":\n";
     ostr << "edges:\n";
     ostream_iterator<OrientedEdge*> output (ostr, "\n");
     copy (f.m_orientedEdges.begin (), f.m_orientedEdges.end (), output);
@@ -234,7 +237,7 @@ ostream& operator<< (ostream& ostr, const Face& f)
     f.PrintAttributes (ostr);
     ostr << "Adjacent bodies" << "(" << f.m_adjacentBodies.size () << "): ";
     BOOST_FOREACH (Body* b, f.m_adjacentBodies)
-	ostr << b->GetOriginalIndex () << " ";
+	ostr << b->GetId () << " ";
     ostr << endl;
     return ostr;
 }

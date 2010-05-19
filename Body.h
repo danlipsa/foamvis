@@ -31,12 +31,12 @@ public:
 public:
     /**
      * Creates a new body
-     * @param originalIndex the original index for this body
+     * @param id the original index for this body
      * @param faceIndexes 0 based indexes into a vector of Face objects
      * @param faces vector of Face objects
      */
     Body(vector<int>& faceIndexes, vector<Face*>& faces,
-	 size_t originalIndex, Foam* data,
+	 size_t id, Foam* data,
 	 ElementStatus::Name status = ElementStatus::ORIGINAL);
     ~Body ();
 
@@ -115,7 +115,7 @@ public:
 	return m_center;
     }
     void PrintDomains (ostream& ostr) const;
-    void UpdateFacesAdjacency ();
+    void UpdateFaceAdjacency ();
 
     NormalFaceMap::iterator GetCurrentNormalFace ()
     {
@@ -164,7 +164,6 @@ private:
      * Oriented faces that are part of this body.
      */
     OrientedFaces m_orientedFaces;
-    size_t m_placedOrientedFaces;
     boost::scoped_ptr<NormalFaceMap> m_normalFaceMap;
     /**
      * Points to the next group of normals

@@ -33,7 +33,7 @@ public:
     {
         size_t displayedBody = m_widget.GetDisplayedBodyIndex ();
         if (displayedBody == m_widget.DISPLAY_ALL ||
-             b->GetOriginalIndex () == displayedBody)
+             b->GetId () == displayedBody)
         {
 	    display (b);
         }

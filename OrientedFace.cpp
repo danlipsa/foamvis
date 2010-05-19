@@ -14,7 +14,7 @@
 
 OrientedEdge OrientedFace::GetOrientedEdge (size_t edgeIndex) const
 {
-    vector<OrientedEdge*>& v = m_face->GetOrientedEdges ();
+    Face::OrientedEdges& v = m_face->GetOrientedEdges ();
     RuntimeAssert (edgeIndex < v.size (),
 		   "Edge index ", edgeIndex,
 		   " greater than the number of edges ", v.size ());
@@ -41,22 +41,22 @@ G3D::Vector3 OrientedFace::GetNormal () const
 
 void OrientedFace::AddAdjacentBody (Body* body) 
 {
-    m_face->AddAdjacentBody (body);
+    m_face->AddAdjacentBody (body, m_reversed);
 }
 
-vector<Body*>& OrientedFace::GetAdjacentBodies ()
+Body* OrientedFace::GetAdjacentBody ()
 {
-    return m_face->GetAdjacentBodies ();
+    return m_face->GetAdjacentBodies ()[m_reversed];
 }
 
-void OrientedFace::UpdateEdgesAdjacency ()
+void OrientedFace::UpdateEdgeAdjacency ()
 {
-    m_face->UpdateEdgesAdjacency ();
+    m_face->UpdateEdgeAdjacency ();
 }
 
-void OrientedFace::ClearEdgesAdjacency ()
+void OrientedFace::ClearEdgeAdjacency ()
 {
-    m_face->ClearEdgesAdjacency ();
+    m_face->ClearEdgeAdjacency ();
 }
 
 size_t OrientedFace::GetNextValidIndex (size_t index) const
@@ -96,9 +96,9 @@ void OrientedFace::CalculateTranslation (
 		   " is not part of the face: ", *this);
 }
 
-size_t OrientedFace::GetOriginalIndex () const
+size_t OrientedFace::GetId () const
 {
-    return GetFace ()->GetOriginalIndex ();
+    return GetFace ()->GetId ();
 }
 
 // Static and Friends methods
@@ -107,7 +107,7 @@ size_t OrientedFace::GetOriginalIndex () const
 ostream& operator<< (ostream& ostr, const OrientedFace& of)
 {
     ostr << (of.m_reversed ? "(R) " : "(N) ")
-	 << "Oriented Face " << of.GetFace ()-> GetOriginalIndex () 
+	 << "Oriented Face " << of.GetFace ()-> GetId () 
 	 << " " << of.GetFace ()->GetColor () << " "
 	 << of.GetFace ()->GetStatus ()
 	 << ": " << endl;

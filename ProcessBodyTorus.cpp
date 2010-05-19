@@ -7,34 +7,55 @@
  */
 
 #include "Body.h"
-#include "Foam.h"
 #include "Debug.h"
 #include "DebugStream.h"
+#include "Foam.h"
 #include "ProcessBodyTorus.h"
 #include "OrientedFace.h"
 #include "Vertex.h"
 
+ProcessBodyTorus::ProcessBodyTorus (Body* body) : 
+    m_body (body)
+{
+    Body::OrientedFaces& oFaces = m_body->GetOrientedFaces ();
+    BOOST_FOREACH (OrientedFace* of, oFaces)
+	m_idTraversedMap[of->GetSignedId ()] = false;
+}
+
+
 void ProcessBodyTorus::Initialize ()
 {
+    Body::OrientedFaces& oFaces = m_body->GetOrientedFaces ();
+    for_each (oFaces.begin (), oFaces.end (), 
+	      boost::mem_fn (&OrientedFace::UpdateEdgeAdjacency));
     OrientedFace* of = m_body->GetOrientedFace (0);
-    m_queue.push (QueueElement (of->GetOrientedEdge (0), of));
+    m_idTraversedMap[of->GetSignedId ()] = true;
+    for (OrientedFace::iterator it = of->begin (); it != of->end (); ++it)
+	m_queue.push (*it);
 }
+
+
+
+
 
 bool ProcessBodyTorus::Step ()
 {
-    QueueElement element;
+/*
+    OrientedEdge oe;
     while (m_queue.size () > 0)
     {
-	element = m_queue.front ();
-	if (element.second->IsTraversed ())
+	oe = m_queue.front ();
+	if (oe.second->IsTraversed ())
 	    m_queue.pop ();
 	else
 	    break;
     }
     if (m_queue.size () == 0)
 	return false;
-    OrientedFace* of = element.second;
-    const OrientedEdge& edge = element.first;
+    OrientedFace* of = oe.second;
+
+
+    const OrientedEdge& edge = oe.first;
     G3D::Vector3 translation;
     of->CalculateTranslation (edge, &translation);
     if (! translation.isZero ())
@@ -45,4 +66,14 @@ bool ProcessBodyTorus::Step ()
     }
 
     return true;
+*/
 }
+
+void ProcessBodyTorus::Cleanup ()
+{
+    Body::OrientedFaces& oFaces = m_body->GetOrientedFaces ();
+    for_each (oFaces.begin (), oFaces.end (), 
+	      boost::mem_fn (&OrientedFace::ClearEdgeAdjacency));
+}
+
+

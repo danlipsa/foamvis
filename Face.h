@@ -26,15 +26,15 @@ public:
 public:
     /**
      * Constructs a Face object
-     * @param originalIndex original index for this face
+     * @param id original index for this face
      * @param edgeIndexes indexes into a vector of Edge objects
      * @param edges vector of Edge objects
      */
     Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
-	 size_t originalIndex, Foam* data,
+	 size_t id, Foam* data,
 	 ElementStatus::Name status = ElementStatus::ORIGINAL);
     Face (const Face& original);
-    Face (Edge* edge, size_t originalIndex);
+    Face (Edge* edge, size_t id);
 
     /**
      * Destroys a Face object
@@ -62,11 +62,11 @@ public:
     }
     Edge* GetEdge (size_t i) const;
 
-    void AddAdjacentBody (Body* body) 
+    void AddAdjacentBody (Body* body, bool reversed)
     {
-	m_adjacentBodies.push_back (body);
+	m_adjacentBodies[reversed] = body;
     }
-    vector<Body*>& GetAdjacentBodies ()
+    boost::array<Body*,2>& GetAdjacentBodies ()
     {
 	return m_adjacentBodies;
     }
@@ -76,8 +76,8 @@ public:
      * For all the  edges in the face, add the  face as being adjacent
      * to the edge
      */
-    void UpdateEdgesAdjacency ();
-    void ClearEdgesAdjacency ();
+    void UpdateEdgeAdjacency ();
+    void ClearEdgeAdjacency ();
     size_t GetNextValidIndex (size_t index) const;
     size_t GetPreviousValidIndex (size_t index) const;
     bool operator== (const Face& face) const;
@@ -107,7 +107,7 @@ private:
      * Edges that are part of this face
      */
     OrientedEdges m_orientedEdges;
-    vector<Body*> m_adjacentBodies;
+    boost::array<Body*, 2> m_adjacentBodies;
 private:
     /**
      * Stores information about all vertex attributes

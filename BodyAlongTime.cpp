@@ -1,5 +1,5 @@
 /**
- * @file   Body.cpp
+ * @file   BodyAlongTime.cpp
  * @author Dan R. Lipsa
  * @date 15 May 2010
  *
@@ -7,7 +7,7 @@
  */
 
 #include "Body.h"
-#include "BodiesAlongTime.h"
+#include "BodyAlongTime.h"
 #include "Debug.h"
 #include "DebugStream.h"
 
@@ -37,36 +37,36 @@ bool isNull (const Body* body)
 
 // BodiesAlongTime Methods
 // ======================================================================
-BodiesAlongTime::OneBody& BodiesAlongTime::GetOneBody (size_t originalIndex)
+BodiesAlongTime::OneBody& BodiesAlongTime::GetOneBody (size_t id)
 {
-    BodyMap::iterator it = m_bodiesAlongTime.find (originalIndex);
-    RuntimeAssert (it != m_bodiesAlongTime.end (),
-		   "Body not found: ", originalIndex);
+    BodyMap::iterator it = m_bodyMap.find (id);
+    RuntimeAssert (it != m_bodyMap.end (),
+		   "Body not found: ", id);
     return *(it->second);
 }
 
 void BodiesAlongTime::Allocate (const Body* body, size_t timeSteps)
 {
-    size_t originalIndex = body->GetOriginalIndex ();
+    size_t id = body->GetId ();
     OneBodyPtr oneBodyPtr (new OneBody (timeSteps));
-    m_bodiesAlongTime.insert (
-	BodyMap::value_type (originalIndex, oneBodyPtr));
+    m_bodyMap.insert (
+	BodyMap::value_type (id, oneBodyPtr));
 }
 
 void BodiesAlongTime::Cache (Body* body, size_t timeStep)
 {
-    size_t originalIndex = body->GetOriginalIndex ();
-    m_bodiesAlongTime[originalIndex]->GetBody(timeStep) = body;
+    size_t id = body->GetId ();
+    m_bodyMap[id]->GetBody(timeStep) = body;
 }
 
 void BodiesAlongTime::Resize (const Body* body)
 {
-    GetOneBody (body->GetOriginalIndex ()).Resize ();
+    GetOneBody (body->GetId ()).Resize ();
 }
 
-void BodiesAlongTime::resize (size_t originalIndex, size_t timeSteps)
+void BodiesAlongTime::resize (size_t id, size_t timeSteps)
 {
-    m_bodiesAlongTime[originalIndex]->Resize (timeSteps);
+    m_bodyMap[id]->Resize (timeSteps);
 }
 
 // Static and Friends BodiesAlongTime Methods
@@ -74,7 +74,7 @@ void BodiesAlongTime::resize (size_t originalIndex, size_t timeSteps)
 ostream& operator<< (
     ostream& ostr, const BodiesAlongTime& bat)
 {
-    const BodiesAlongTime::BodyMap& bm = bat.m_bodiesAlongTime;
+    const BodiesAlongTime::BodyMap& bm = bat.m_bodyMap;
     for (BodiesAlongTime::BodyMap::const_iterator it = bm.begin ();
 	 it != bm.end(); ++it)
 	ostr << *(it->second) << endl;
@@ -133,7 +133,7 @@ ostream& operator<< (
     ostream& ostr, const BodyAlongTime& bat)
 {
     const BodyAlongTime::Bodies& bodies = bat.GetBodies ();
-    ostr << "BodyAlongTime " << bodies[0]->GetOriginalIndex () 
+    ostr << "BodyAlongTime " << bodies[0]->GetId () 
 	 << ": " << endl;
     ostr << "Center movement: ";
     ostream_iterator<float> of (ostr, " ");

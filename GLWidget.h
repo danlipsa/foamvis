@@ -53,7 +53,7 @@ public:
 	return *m_dataAlongTime;
     }
     BodiesAlongTime& GetBodiesAlongTime ();
-    BodyAlongTime& GetBodyAlongTime (size_t originalIndex);
+    BodyAlongTime& GetBodyAlongTime (size_t id);
     /**
      * Gets the currently displayed data
      */
