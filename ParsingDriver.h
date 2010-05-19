@@ -9,7 +9,7 @@
 
 #include "EvolverData_yacc.h"
 
-class Data;
+class Foam;
 
 /**
  * Drives parsing and scanning
@@ -43,12 +43,12 @@ public:
     }
 
     /**
-     * Parses a data file and stores the parsed data in an Data object
+     * Parses a data file and stores the parsed data in an Foam object
      * @param f the file to be parsed
      * @param data object where data is to be stored
      * @return 0 for success, <> than 0 otherwise
      */
-    int Parse (string& f, Data& data);
+    int Parse (string& f, Foam& data);
     /**
      * Turns on or off debugging for parsing
      * @param debugParsing true if you want debugging, false otherwise

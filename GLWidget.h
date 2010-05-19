@@ -13,9 +13,9 @@
 class Body;
 class BodyAlongTime;
 class BodiesAlongTime;
-class Data;
+class Foam;
 class Edge;
-class DataAlongTime;
+class FoamAlongTime;
 
 /**
  * Widget for displaying foam bubbles using OpenGL
@@ -44,11 +44,11 @@ public:
      * Sets the data displayed by the GLWidget
      * @param dataAlongTime data displayed by the GLWidget
      */
-    void SetDataAlongTime (DataAlongTime* dataAlongTime);
+    void SetFoamAlongTime (FoamAlongTime* dataAlongTime);
     /**
      * Gets the data displayed by the GLWidget
      */
-    DataAlongTime& GetDataAlongTime () 
+    FoamAlongTime& GetFoamAlongTime () 
     {
 	return *m_dataAlongTime;
     }
@@ -57,7 +57,7 @@ public:
     /**
      * Gets the currently displayed data
      */
-    Data& GetCurrentData () const;
+    Foam& GetCurrentFoam () const;
     /**
      * Gets the index of the currently displayed data.
      */
@@ -435,9 +435,9 @@ private:
      */
     GLuint m_object;
     /**
-     * Data to be displayd. Each element coresponds to a DMP file
+     * Foam to be displayd. Each element coresponds to a DMP file
      */
-    DataAlongTime* m_dataAlongTime;
+    FoamAlongTime* m_dataAlongTime;
     /**
      * Index into m_data that shows the current DMP file displayed
      */

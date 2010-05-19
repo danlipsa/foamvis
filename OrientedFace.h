@@ -169,7 +169,6 @@ public:
 private:
 
     Vertex* getBegin (size_t edgeIndex) const;
-
     Vertex* getEnd (size_t edgeIndex) const;
 
 private:

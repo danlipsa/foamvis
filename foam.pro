@@ -1,10 +1,10 @@
 HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h \
 	BodiesAlongTime.h ColoredElement.h \
-	Data.h DataAlongTime.h Debug.h DebugStream.h \
+	Debug.h DebugStream.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h \
 	Edge.h Element.h ElementUtils.h ExpressionTree.h Enums.h\
-	Face.h \
+	Foam.h FoamAlongTime.h Face.h \
 	GLWidget.h Hashes.h \
 	MainWindow.h NameSemanticValue.h \
 	OOBox.h OrientedEdge.h OrientedFace.h \
@@ -12,11 +12,10 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h \
 	stable.h SystemDifferences.h \
 	Comparisons.h Vertex.h
 SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
-	Body.cpp BodiesAlongTime.cpp ColoredElement.cpp Data.cpp \
-	DataAlongTime.cpp \
+	Body.cpp BodiesAlongTime.cpp ColoredElement.cpp \
 	Debug.cpp DebugStream.cpp Edge.cpp \
 	Element.cpp ElementUtils.cpp ExpressionTree.cpp Enums.cpp\
-	Face.cpp \
+	Foam.cpp FoamAlongTime.cpp Face.cpp \
 	GLWidget.cpp Hashes.cpp main.cpp MainWindow.cpp  \
 	NameSemanticValue.cpp \
 	OOBox.cpp OrientedEdge.cpp OrientedFace.cpp \

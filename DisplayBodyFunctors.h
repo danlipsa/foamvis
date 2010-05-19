@@ -11,7 +11,7 @@
 
 
 #include "GLWidget.h"
-#include "Data.h"
+#include "Foam.h"
 
 /**
  * Functor used to display a body

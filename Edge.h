@@ -17,7 +17,6 @@ class Face;
 class Edge : public ColoredElement
 {
 public:
-public:
     /**
      * Creates an Edge object
      * @param originalIndex what is the original index for this edge
@@ -26,7 +25,7 @@ public:
      */
     Edge (Vertex* begin, Vertex* end, 
 	  G3D::Vector3int16& endLocation, 
-	  size_t originalIndex, Data* data,
+	  size_t originalIndex, Foam* data,
 	  ElementStatus::Name status = ElementStatus::ORIGINAL);
     Edge (Vertex* begin, size_t originalIndex);
     Edge (const Edge& edge);

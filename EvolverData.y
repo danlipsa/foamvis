@@ -13,10 +13,10 @@
 %expect 4 // state 55, 64, 69, 201
 %locations
 %{
-class Data;
+class Foam;
 class ParsingDriver;
 %}
-%parse-param { Data& data }
+%parse-param { Foam& data }
 %parse-param { void* scanner }
 %lex-param   { void* scanner }
 %initial-action
@@ -225,7 +225,7 @@ class AttributeCreator;
 %type <m_int> method_instance_rest
 
 %{
-#include "Data.h"
+#include "Foam.h"
 #include "Debug.h"
 #include "Edge.h"
 #include "ParsingData.h"

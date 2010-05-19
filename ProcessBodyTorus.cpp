@@ -7,7 +7,7 @@
  */
 
 #include "Body.h"
-#include "Data.h"
+#include "Foam.h"
 #include "Debug.h"
 #include "DebugStream.h"
 #include "ProcessBodyTorus.h"
@@ -40,7 +40,7 @@ bool ProcessBodyTorus::Step ()
     if (! translation.isZero ())
     {
 	const G3D::Vector3& begin = *of->GetOrientedEdge (0).GetBegin ();
-	Face* f = m_body->GetData ()->GetFaceDuplicate (*of->GetFace (), begin);
+	Face* f = m_body->GetFoam ()->GetFaceDuplicate (*of->GetFace (), begin);
 	of->SetFace (f);
     }
 

@@ -12,7 +12,7 @@
 class AttributesInfo;
 class Edge;
 class Body;
-class Data;
+class Foam;
 
 /**
  * Vertex represented in a DMP file. Is part of edges, faces and bodies.
@@ -42,10 +42,10 @@ public:
      * @param z the Z coordinate
      */
     Vertex(float x, float y, float z,
-	   size_t originalIndex, Data* data,
+	   size_t originalIndex, Foam* data,
 	   ElementStatus::Name status = ElementStatus::ORIGINAL);
-    Vertex (const G3D::Vector3* position, Data* data);
-    Vertex (const G3D::Vector3* position, Data* data,
+    Vertex (const G3D::Vector3* position, Foam* data);
+    Vertex (const G3D::Vector3* position, Foam* data,
 	    const G3D::Vector3int16& domainIncrement);
     /**
      * Is this a physical (not tesselation) vertex

@@ -8,7 +8,7 @@
 #include "AttributeInfo.h"
 #include "Edge.h"
 #include "EvolverData_yacc.h"
-#include "Data.h"
+#include "Foam.h"
 #include "Debug.h"
 #include "ParsingDriver.h"
 #include "Vertex.h"
@@ -22,7 +22,7 @@ AttributesInfo* Edge::m_infos;
 // Methods
 // ======================================================================
 Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endTranslation, 
-	    size_t originalIndex, Data* data, ElementStatus::Name status):
+	    size_t originalIndex, Foam* data, ElementStatus::Name status):
     ColoredElement(originalIndex, data, status),
     m_begin (begin), m_end (end),
     m_endTranslation (endTranslation), 
@@ -47,7 +47,7 @@ Edge::Edge (Vertex* begin, size_t originalIndex) :
 }
 
 Edge::Edge (const Edge& o) : 
-    ColoredElement (o.GetOriginalIndex (), o.GetData (), 
+    ColoredElement (o.GetOriginalIndex (), o.GetFoam (), 
 		    ElementStatus::DUPLICATE),
     m_begin (o.GetBegin ()), m_end (o.GetEnd ()),
     m_endTranslation (o.GetEndTranslation ()),

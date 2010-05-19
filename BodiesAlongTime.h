@@ -16,7 +16,7 @@ class BodyAlongTime
 public:
     typedef vector<Body*> Bodies;
     /**
-     * List of times (indexes of Data objects) where a body wraps
+     * List of times (indexes of Foam objects) where a body wraps
      * around the torus original domain. The wrap is 
      * between index and index + 1. It includes the index equal with the 
      * number of time steps + 1.

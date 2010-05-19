@@ -12,7 +12,7 @@
 #include "DebugStream.h"
 #include "Debug.h"
 #include "Body.h"
-#include "Data.h"
+#include "Foam.h"
 #include "Vertex.h"
 
 // Private Functions
@@ -34,19 +34,19 @@ const G3D::Vector3int16 Vertex::m_unitVector3int16[3] = {
 // Methods
 // ======================================================================
 Vertex::Vertex(float x, float y, float z, 
-	       size_t originalIndex, Data* data, ElementStatus::Name status) :
+	       size_t originalIndex, Foam* data, ElementStatus::Name status) :
     G3D::Vector3 (x, y, z),
     Element(originalIndex, data, status),
     m_adjacentPhysicalEdgesCount (0), m_physical (false)
 {}
 
-Vertex::Vertex (const G3D::Vector3* position, Data* data) : 
+Vertex::Vertex (const G3D::Vector3* position, Foam* data) : 
     G3D::Vector3 (position->x, position->y, position->z),
     Element (Element::INVALID_INDEX, data, ElementStatus::ORIGINAL),
     m_adjacentPhysicalEdgesCount (0), m_physical (false)
 {}
 
-Vertex::Vertex (const G3D::Vector3* position, Data* data,
+Vertex::Vertex (const G3D::Vector3* position, Foam* data,
 		const G3D::Vector3int16& domainIncrement) : 
     G3D::Vector3 (position->x, position->y, position->z),
     Element (Element::INVALID_INDEX, data, ElementStatus::ORIGINAL),

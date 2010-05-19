@@ -8,7 +8,7 @@
 
 #include "Body.h"
 #include "BodiesAlongTime.h"
-#include "DataAlongTime.h"
+#include "FoamAlongTime.h"
 #include "Debug.h"
 #include "DebugStream.h"
 #include "DisplayVertexFunctors.h"
@@ -237,11 +237,11 @@ void GLWidget::initViewTypeDisplay ()
     copy (vtd.begin (), vtd.end (), VIEW_TYPE_DISPLAY.begin ());
 }
 
-void GLWidget::SetDataAlongTime (DataAlongTime* dataAlongTime) 
+void GLWidget::SetFoamAlongTime (FoamAlongTime* dataAlongTime) 
 {
     m_dataAlongTime = dataAlongTime;
     Face* f = 
-	GetCurrentData ().GetBody (0)->GetFace (0);
+	GetCurrentFoam ().GetBody (0)->GetFace (0);
     Edge* e = f->GetEdge (0);
     float length = (*e->GetEnd () - *e->GetBegin ()).length ();
 
@@ -509,7 +509,7 @@ void GLWidget::displayFacesOffset (vector<Body*>& bodies)
 
 void GLWidget::displayOriginalDomain ()
 {
-    const OOBox& periods = GetCurrentData().GetPeriods ();
+    const OOBox& periods = GetCurrentFoam().GetPeriods ();
     if (m_torusOriginalDomainDisplay)
     {
 	glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
@@ -534,7 +534,7 @@ GLuint GLWidget::displayListVerticesNormal ()
     qglColor (QColor (Qt::black));
     glPointSize (m_normalVertexSize);
 
-    vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+    Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
     glBegin(GL_POINTS);
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
@@ -550,7 +550,7 @@ GLuint GLWidget::displayListVerticesNormal ()
 
 GLuint GLWidget::displayListVerticesPhysical ()
 {
-    vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+    Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
     glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
@@ -575,7 +575,7 @@ GLuint GLWidget::displayListVerticesTorus ()
     glPointSize (m_normalVertexSize);
     qglColor (QColor (Qt::black));
     glBegin (GL_POINTS);
-    vector<Vertex*>& vertices = GetCurrentData ().GetVertices ();
+    Foam::Vertices& vertices = GetCurrentFoam ().GetVertices ();
     for_each (vertices.begin (), vertices.end (), DisplayOriginalVertex());
     glEnd ();
     glPopAttrib ();
@@ -593,7 +593,7 @@ GLuint GLWidget::displayListEdges (
     glNewList(list, GL_COMPILE);
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
     glLineWidth (m_normalEdgeWidth);
-    BOOST_FOREACH (Edge* e, GetCurrentData ().GetEdges ())
+    BOOST_FOREACH (Edge* e, GetCurrentFoam ().GetEdges ())
 	if (shouldDisplayEdge (e))
 	    displayEdge (e);
     glPopAttrib ();
@@ -617,7 +617,7 @@ GLuint GLWidget::displayListEdgesPhysical ()
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
-    vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+    Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
 	      DisplayFace<
@@ -639,7 +639,7 @@ GLuint GLWidget::displayListEdgesTorusTubes ()
     gluQuadricDrawStyle (m_quadric, GLU_FILL);
     gluQuadricNormals (m_quadric, GLU_SMOOTH);
 
-    vector<Edge*>& edges = GetCurrentData ().GetEdges ();
+    Foam::Edges& edges = GetCurrentFoam ().GetEdges ();
     for_each (edges.begin (), edges.end (),
 	      DisplayEdgeTorus<DisplayEdgeTube, DisplayArrowTube, false>(*this));
     glPopAttrib ();
@@ -655,7 +655,7 @@ GLuint GLWidget::displayListEdgesTorusLines ()
     glNewList(list, GL_COMPILE);
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
 
-    vector<Edge*>& edges = GetCurrentData ().GetEdges ();
+    Foam::Edges& edges = GetCurrentFoam ().GetEdges ();
     for_each (edges.begin (), edges.end (),
 	      DisplayEdgeTorus<DisplayEdge, DisplayArrow, false> (*this));
     glPopAttrib ();
@@ -675,7 +675,7 @@ void GLWidget::displayCenterOfBodies ()
 	glPointSize (4.0);
 	qglColor (QColor (Qt::red));
 	glBegin(GL_POINTS);
-	vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+	Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	for_each (bodies.begin (),bodies.end (), DisplayBodyCenter (*this));
 	glEnd ();
 	glPopAttrib ();
@@ -687,7 +687,7 @@ GLuint GLWidget::displayListFacesNormal ()
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
 
-    vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+    Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
     displayFacesContour (bodies);
     displayFacesOffset (bodies);
 
@@ -699,7 +699,7 @@ GLuint GLWidget::displayListFacesNormal ()
 GLuint GLWidget::displayListFacesLighting ()
 {
     GLuint list = glGenLists(1);
-    vector<Body*>& bodies = GetCurrentData ().GetBodies ();
+    Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
     glNewList(list, GL_COMPILE);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     for_each (bodies.begin (), bodies.end (),
@@ -717,7 +717,7 @@ GLuint GLWidget::displayListFacesTorusTubes ()
     glLineWidth (3.0);
     gluQuadricDrawStyle (m_quadric, GLU_FILL);
     gluQuadricNormals (m_quadric, GLU_SMOOTH);
-    const vector<Face*>& faces = GetCurrentData ().GetFaces ();
+    const Foam::Faces& faces = GetCurrentFoam ().GetFaces ();
     for_each (faces.begin (), faces.end (),
 	      DisplayFace<
 	      DisplayEdges<
@@ -737,7 +737,7 @@ GLuint GLWidget::displayListFacesTorusLines ()
     glNewList(list, GL_COMPILE);
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
 
-    const vector<Face*>& faces = GetCurrentData ().GetFaces ();
+    const Foam::Faces& faces = GetCurrentFoam ().GetFaces ();
     for_each (faces.begin (), faces.end (),
 	      DisplayFace<
 	      DisplayEdges<
@@ -783,7 +783,7 @@ void GLWidget::IncrementDisplayedBody ()
     ++m_displayedBodyIndex;
     m_displayedFaceIndex = DISPLAY_ALL;
     if (m_displayedBodyIndex == 
-	GetDataAlongTime ().GetData ()[0]->GetBodies ().size ())
+	GetFoamAlongTime ().GetFoam ()[0]->GetBodies ().size ())
         m_displayedBodyIndex = DISPLAY_ALL;
     UpdateDisplay ();
     cdbg << "displayed body: " << m_displayedBodyIndex << endl;
@@ -795,12 +795,12 @@ void GLWidget::IncrementDisplayedFace ()
     ++m_displayedFaceIndex;
     if (m_viewType == FACES_TORUS)
     {
-	if (m_displayedFaceIndex == 	GetCurrentData ().GetFaces ().size ())
+	if (m_displayedFaceIndex == 	GetCurrentFoam ().GetFaces ().size ())
 	    m_displayedFaceIndex = DISPLAY_ALL;
     }
     if (m_displayedBodyIndex != DISPLAY_ALL)
     {
-        Body& body = *GetCurrentData ().GetBodies ()[m_displayedBodyIndex];
+        Body& body = *GetCurrentFoam ().GetBodies ()[m_displayedBodyIndex];
         if (m_displayedFaceIndex == body.GetOrientedFaces ().size ())
             m_displayedFaceIndex = DISPLAY_ALL;
     }
@@ -824,7 +824,7 @@ void GLWidget::DecrementDisplayedBody ()
     if (m_viewType == VERTICES_TORUS || m_viewType == EDGES_TORUS)
 	return;
     if (m_displayedBodyIndex == DISPLAY_ALL)
-        m_displayedBodyIndex = GetDataAlongTime ().GetData ()[0]->GetBodies ().size ();
+        m_displayedBodyIndex = GetFoamAlongTime ().GetFoam ()[0]->GetBodies ().size ();
     --m_displayedBodyIndex;
     m_displayedFaceIndex = DISPLAY_ALL;
     UpdateDisplay ();
@@ -836,11 +836,11 @@ void GLWidget::DecrementDisplayedFace ()
     if (m_viewType == FACES_TORUS)
     {
 	if (m_displayedFaceIndex == DISPLAY_ALL)
-	    m_displayedFaceIndex = GetCurrentData ().GetFaces ().size ();
+	    m_displayedFaceIndex = GetCurrentFoam ().GetFaces ().size ();
     }
     if (m_displayedBodyIndex != DISPLAY_ALL)
     {
-        Body& body = *GetCurrentData ().GetBodies ()[m_displayedBodyIndex];
+        Body& body = *GetCurrentFoam ().GetBodies ()[m_displayedBodyIndex];
         if (m_displayedFaceIndex == DISPLAY_ALL)
             m_displayedFaceIndex = body.GetOrientedFaces ().size ();
     }
@@ -862,9 +862,9 @@ void GLWidget::DecrementDisplayedEdge ()
 
 
 
-Data& GLWidget::GetCurrentData () const
+Foam& GLWidget::GetCurrentFoam () const
 {
-    return *m_dataAlongTime->GetData ()[m_timeStep];
+    return *m_dataAlongTime->GetFoam ()[m_timeStep];
 }
 
 const QColor& GLWidget::GetEndTranslationColor (
@@ -1005,7 +1005,7 @@ void GLWidget::ValueChangedEdgesTessellation (int value)
 
 BodiesAlongTime& GLWidget::GetBodiesAlongTime ()
 {
-    return GetDataAlongTime ().GetBodiesAlongTime ();
+    return GetFoamAlongTime ().GetBodiesAlongTime ();
 }
 
 BodyAlongTime& GLWidget::GetBodyAlongTime (size_t originalIndex)
@@ -1016,7 +1016,7 @@ BodyAlongTime& GLWidget::GetBodyAlongTime (size_t originalIndex)
 Body* GLWidget::GetDisplayedBody () const
 {
     size_t i = GetDisplayedBodyIndex ();
-    const Data& data = GetCurrentData ();
+    const Foam& data = GetCurrentFoam ();
     return data.GetBody (i);
 }
 
@@ -1034,7 +1034,7 @@ Face* GLWidget::GetDisplayedFace () const
 {
     size_t i = GetDisplayedFaceIndex ();
     if  (m_viewType == FACES_TORUS)
-	return GetCurrentData ().GetFaces ()[i];
+	return GetCurrentFoam ().GetFaces ()[i];
     else if (m_displayedBodyIndex != DISPLAY_ALL)
     {
 	Body& body = *GetDisplayedBody ();

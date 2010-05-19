@@ -8,7 +8,7 @@
 #ifndef __COMPARISONS_H__
 #define __COMPARISONS_H__
 
-class Data;
+class Foam;
 class Edge;
 class Vertex;
 
@@ -95,28 +95,28 @@ public:
 };
 
 
-class DataLessThanAlong
+class FoamLessThanAlong
 {
 public:
-    typedef const G3D::Vector3& (Data::*Corner) () const;
+    typedef const G3D::Vector3& (Foam::*Corner) () const;
     /**
      * Constructor
      * @param axis along which axis to compare
      * @param corner which corner of the AABox to compare
      */
-    DataLessThanAlong (G3D::Vector3::Axis axis, Corner corner) : 
+    FoamLessThanAlong (G3D::Vector3::Axis axis, Corner corner) : 
     m_axis (axis), m_corner(corner) {}
     /**
      * Functor that compares two data objects
      * @param first first data object
      * @param second second data object
      */
-    bool operator() (const Data* first, const Data* second)
+    bool operator() (const Foam* first, const Foam* second)
     {
 	return operator() (*first, *second);
     }
 
-    bool operator() (const Data& first, const Data& second)
+    bool operator() (const Foam& first, const Foam& second)
     {
 	return 
 	    (first.*m_corner) ()[m_axis] < (second.*m_corner) ()[m_axis];

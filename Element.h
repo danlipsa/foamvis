@@ -11,7 +11,7 @@
 class Attribute;
 class AttributesInfo;
 class NameSemanticValue;
-class Data;
+class Foam;
 
 /**
  * Base class for  Vertex, Edge, Face and Body.  Encapsulates a vector
@@ -23,7 +23,7 @@ public:
     /**
      * Constructor for the Element
      */
-    Element(size_t originalIndex, Data* data,
+    Element(size_t originalIndex, Foam* data,
 	    ElementStatus::Name status) : 
 	m_attributes(0),
 	m_originalIndex (originalIndex), 
@@ -62,7 +62,7 @@ public:
     {
 	m_status = status;
     }
-    Data* GetData () const
+    Foam* GetFoam () const
     {
 	return m_data;
     }
@@ -84,7 +84,7 @@ protected:
      * The original index for this element
      */
     size_t m_originalIndex;
-    Data* m_data;
+    Foam* m_data;
     ElementStatus::Name m_status;
 
 protected:

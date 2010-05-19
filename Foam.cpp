@@ -1,12 +1,12 @@
 /**
- * @file   Data.cpp
+ * @file   Foam.cpp
  * @author Dan R. Lipsa
  *
- * Implementation of the Data object
+ * Implementation of the Foam object
  */
 #include "AttributeInfo.h"
 #include "Body.h"
-#include "Data.h"
+#include "Foam.h"
 #include "Edge.h"
 #include "Face.h"
 #include "ElementUtils.h"
@@ -19,7 +19,7 @@
 
 struct EdgeSearchDummy
 {
-    EdgeSearchDummy (const G3D::Vector3* position, Data* data,
+    EdgeSearchDummy (const G3D::Vector3* position, Foam* data,
 		     size_t edgeOriginalIndex) : 
 	m_vertex (position, data), m_edge (&m_vertex, edgeOriginalIndex) {}
     Vertex m_vertex;
@@ -28,7 +28,7 @@ struct EdgeSearchDummy
 
 struct FaceSearchDummy
 {
-    FaceSearchDummy (const G3D::Vector3* position, Data* data,
+    FaceSearchDummy (const G3D::Vector3* position, Foam* data,
 		     size_t faceOriginalIndex) : 
 	m_vertex (position, data), m_edge (&m_vertex, 0),
 	m_face (&m_edge, faceOriginalIndex) {}
@@ -112,7 +112,7 @@ void compact (vector<E*>& v)
 // Methods
 // ======================================================================
 
-Data::Data (size_t timeStep) : 
+Foam::Foam (size_t timeStep) : 
     m_parsingData (new ParsingData ()),
     m_spaceDimension (3),
     m_timeStep (timeStep)
@@ -124,7 +124,7 @@ Data::Data (size_t timeStep) :
     Body::StoreDefaultAttributes (&m_attributesInfo[DefineAttribute::BODY]);
 }
 
-Data::~Data ()
+Foam::~Foam ()
 {
     for_each(m_bodies.begin (), m_bodies.end (), bl::delete_ptr());
     for_each(m_faces.begin (), m_faces.end (), bl::delete_ptr ());
@@ -133,7 +133,7 @@ Data::~Data ()
     delete m_parsingData;
 }
 
-void Data::SetVertex (size_t i, float x, float y, float z,
+void Foam::SetVertex (size_t i, float x, float y, float z,
                      vector<NameSemanticValue*>& list) 
 {
     if (i >= m_vertices.size ())
@@ -146,7 +146,7 @@ void Data::SetVertex (size_t i, float x, float y, float z,
     m_vertexSet.insert (vertex);
 }
 
-Vertex* Data::GetVertexDuplicate (
+Vertex* Foam::GetVertexDuplicate (
     Vertex* original, const G3D::Vector3int16& translation)
 {
     Vertex searchDummy (original, this, translation);
@@ -161,7 +161,7 @@ Vertex* Data::GetVertexDuplicate (
     return duplicate;
 }
 
-Edge* Data::GetEdgeDuplicate (
+Edge* Foam::GetEdgeDuplicate (
     Edge* original, const G3D::Vector3& newBegin)
 {
     EdgeSearchDummy searchDummy (
@@ -177,7 +177,7 @@ Edge* Data::GetEdgeDuplicate (
     return duplicate;
 }
 
-Face* Data::GetFaceDuplicate (
+Face* Foam::GetFaceDuplicate (
     const Face& original, const G3D::Vector3& newBegin)
 {
     FaceSearchDummy searchDummy (&newBegin, this, original.GetOriginalIndex ());
@@ -195,7 +195,7 @@ Face* Data::GetFaceDuplicate (
 }
 
 
-void Data::SetEdge (size_t i, size_t begin, size_t end,
+void Foam::SetEdge (size_t i, size_t begin, size_t end,
 		    G3D::Vector3int16& endTranslation,
                     vector<NameSemanticValue*>& list) 
 {
@@ -209,7 +209,7 @@ void Data::SetEdge (size_t i, size_t begin, size_t end,
     m_edgeSet.insert (edge);
 }
 
-void Data::SetFace (size_t i,  vector<int>& edges,
+void Foam::SetFace (size_t i,  vector<int>& edges,
                     vector<NameSemanticValue*>& list)
 {
     if (i >= m_faces.size ())
@@ -221,7 +221,7 @@ void Data::SetFace (size_t i,  vector<int>& edges,
     m_faceSet.insert (face);
 }
 
-void Data::SetBody (size_t i,  vector<int>& faces,
+void Foam::SetBody (size_t i,  vector<int>& faces,
                     vector<NameSemanticValue*>& list)
 {
     if (i >= m_bodies.size ())
@@ -235,7 +235,7 @@ void Data::SetBody (size_t i,  vector<int>& faces,
 
 
 
-void Data::Compact (void)
+void Foam::Compact (void)
 {
     compact (m_vertices);
     compact (m_edges);
@@ -244,13 +244,13 @@ void Data::Compact (void)
 }
 
 
-void Data::ReleaseParsingData ()
+void Foam::ReleaseParsingData ()
 {
     delete m_parsingData;
     m_parsingData = 0;
 }
 
-void Data::UpdateAdjacency ()
+void Foam::UpdateAdjacency ()
 {
     using boost::mem_fn;
     for_each (m_bodies.begin (), m_bodies.end (), 
@@ -261,7 +261,7 @@ void Data::UpdateAdjacency ()
 	      mem_fn (&Edge::UpdateVerticesAdjacency));
 }
 
-void Data::CalculateAABox ()
+void Foam::CalculateAABox ()
 {
     using G3D::Vector3;
     Vector3 low, high;
@@ -274,7 +274,7 @@ void Data::CalculateAABox ()
     m_AABox.set(low, high);
 }
 
-void Data::calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high)
+void Foam::calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high)
 {
     using boost::array;
     using G3D::Vector3;
@@ -297,19 +297,19 @@ void Data::calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high)
 	max_element, high, v);
 }
 
-void Data::CacheEdgesVerticesInBodies ()
+void Foam::CacheEdgesVerticesInBodies ()
 {
     for_each (m_bodies.begin (), m_bodies.end (), 
 	      mem_fun(&Body::CacheEdgesVertices));
 }
 
-void Data::CalculateBodiesCenters ()
+void Foam::CalculateBodiesCenters ()
 {
     for_each (m_bodies.begin (), m_bodies.end (),
 	      mem_fun(&Body::CalculateCenter));
 }
 
-void Data::CalculateTorusClipped ()
+void Foam::CalculateTorusClipped ()
 {
     BOOST_FOREACH (Edge* e, m_edges)
     {
@@ -318,7 +318,7 @@ void Data::CalculateTorusClipped ()
     }
 }
 
-void Data::PostProcess ()
+void Foam::PostProcess ()
 {
     Compact ();
     UpdateAdjacency ();
@@ -337,7 +337,7 @@ void Data::PostProcess ()
 	CalculateTorusClipped ();
 }
 
-bool Data::IsTorus () const
+bool Foam::IsTorus () const
 {
     return 
 	! (GetPeriod (0).isZero () && 
@@ -345,12 +345,12 @@ bool Data::IsTorus () const
 	   GetPeriod (2).isZero ());
 }
 
-void Data::PrintDomains (ostream& ostr) const
+void Foam::PrintDomains (ostream& ostr) const
 {
     Vertex::PrintDomains(ostr, m_vertices);
 }
 
-void Data::AddAttributeInfo (
+void Foam::AddAttributeInfo (
     DefineAttribute::Type type, const char* name, AttributeCreator* creator)
 {
     m_attributesInfo[type].AddAttributeInfo (name, creator);
@@ -359,9 +359,9 @@ void Data::AddAttributeInfo (
 
 // Static and Friends Methods
 // ======================================================================
-ostream& operator<< (ostream& ostr, Data& d)
+ostream& operator<< (ostream& ostr, Foam& d)
 {
-    ostr << "Data:\n";
+    ostr << "Foam:\n";
     ostr << "AABox:\n";
     ostr << d.m_AABox << endl;
     {

@@ -4,8 +4,8 @@
  *
  * Parses an Evolver DMP file and displays the data from the file.
  */
-#include "Data.h"
-#include "DataAlongTime.h"
+#include "Foam.h"
+#include "FoamAlongTime.h"
 #include "ParsingData.h"
 #include "MainWindow.h"
 #include "DebugStream.h"
@@ -54,7 +54,7 @@ duplicate).
 
 /**
  * Functor used to parse each of the DMP files and store the results
- * in a vector of Data.
+ * in a vector of Foam.
  */
 class parseFile : public unary_function<QString, bool>
 {
@@ -64,7 +64,7 @@ public:
      * @param data Where to store the data parsed from the DMP files
      * @param dir directory where all DMP files are
      */
-    parseFile (vector<Data*>& data, QString dir,
+    parseFile (vector<Foam*>& data, QString dir,
 	       bool debugParsing = false, bool debugScanning = false) : 
         m_data (data), m_dir (qPrintable(dir)), m_debugParsing (debugParsing),
 	m_debugScanning (debugScanning)
@@ -80,7 +80,7 @@ public:
         int result;
 	string file = qPrintable (f);
 	cdbg << "Parsing " << file << " ..." << endl;
-        Data* data = new Data (m_data.size ());
+        Foam* data = new Foam (m_data.size ());
         m_data.push_back (data);
         ParsingData& parsingData = data->GetParsingData ();
         parsingData.SetDebugParsing (m_debugParsing);
@@ -101,7 +101,7 @@ private:
     /**
      * Stores the data parsed from the DMP files
      */
-    vector<Data*>& m_data;
+    vector<Foam*>& m_data;
     /**
      * Directory that stores the DMP files.
      */
@@ -161,7 +161,7 @@ void printHelp ()
 }
 
 void parseFiles (int argc, char *argv[],
-		 DataAlongTime* dataAlongTime,
+		 FoamAlongTime* dataAlongTime,
 		 bool debugParsing, bool debugScanning)
 {
     switch (argc - optind)
@@ -170,7 +170,7 @@ void parseFiles (int argc, char *argv[],
     {
 	QFileInfo fileInfo (argv[optind]);
 	QDir dir = fileInfo.absoluteDir ();
-	if (! parseFile (dataAlongTime->GetData (), dir.absolutePath (),
+	if (! parseFile (dataAlongTime->GetFoam (), dir.absolutePath (),
 			 debugParsing, debugScanning) (
 			     fileInfo.fileName ()))
 	    exit (13);
@@ -182,7 +182,7 @@ void parseFiles (int argc, char *argv[],
 	QStringList files = dir.entryList ();
 	if (count_if (
 		files.begin (), files.end (), 
-		parseFile (dataAlongTime->GetData (), dir.absolutePath (), 
+		parseFile (dataAlongTime->GetFoam (), dir.absolutePath (), 
 			   debugParsing, debugScanning))
 	    != files.size ())
 	    exit (13);
@@ -222,11 +222,11 @@ int main(int argc, char *argv[])
     try
     {
 	bool debugParsing, debugScanning, textOutput;
-	DataAlongTime dataAlongTime;
+	FoamAlongTime dataAlongTime;
 	readOptions (argc, argv,
 		     &debugParsing, &debugScanning, &textOutput);
 	parseFiles (argc, argv, &dataAlongTime, debugParsing, debugScanning);
-	size_t timeSteps = dataAlongTime.GetData ().size ();
+	size_t timeSteps = dataAlongTime.GetFoam ().size ();
         if (timeSteps != 0)
         {
 	    dataAlongTime.PostProcess ();

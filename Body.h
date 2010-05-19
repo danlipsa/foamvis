@@ -12,7 +12,7 @@
 #include "Element.h"
 
 class AttributesInfo;
-class Data;
+class Foam;
 class Edge;
 class Face;
 class OrientedFace;
@@ -25,7 +25,7 @@ class Vertex;
 class Body : public Element
 {
 public:
-    typedef vector< OrientedFace* > OrientedFaces;
+    typedef vector<OrientedFace*> OrientedFaces;
     typedef multimap<G3D::Vector3, OrientedFace*, 
 		     VectorLessThanAngle> NormalFaceMap;
 public:
@@ -36,7 +36,7 @@ public:
      * @param faces vector of Face objects
      */
     Body(vector<int>& faceIndexes, vector<Face*>& faces,
-	 size_t originalIndex, Data* data,
+	 size_t originalIndex, Foam* data,
 	 ElementStatus::Name status = ElementStatus::ORIGINAL);
     ~Body ();
 
@@ -165,7 +165,7 @@ private:
      */
     OrientedFaces m_orientedFaces;
     size_t m_placedOrientedFaces;
-    auto_ptr<NormalFaceMap> m_normalFaceMap;
+    boost::scoped_ptr<NormalFaceMap> m_normalFaceMap;
     /**
      * Points to the next group of normals
      */

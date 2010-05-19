@@ -11,7 +11,7 @@
 
 class AttributesInfo;
 class Body;
-class Data;
+class Foam;
 class Edge;
 class OrientedEdge;
 
@@ -31,7 +31,7 @@ public:
      * @param edges vector of Edge objects
      */
     Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
-	 size_t originalIndex, Data* data,
+	 size_t originalIndex, Foam* data,
 	 ElementStatus::Name status = ElementStatus::ORIGINAL);
     Face (const Face& original);
     Face (Edge* edge, size_t originalIndex);
@@ -44,17 +44,17 @@ public:
      * Gets the list of oriented edges
      * @return vector of oriented edges
      */
-    const vector<OrientedEdge*>& GetOrientedEdges () const
+    const OrientedEdges& GetOrientedEdges () const
+    {
+	return m_orientedEdges;
+    }
+    OrientedEdges& GetOrientedEdges ()
     {
 	return m_orientedEdges;
     }
     size_t GetEdgeCount () const
     {
 	return m_orientedEdges.size ();
-    }
-    vector<OrientedEdge*>& GetOrientedEdges ()
-    {
-	return m_orientedEdges;
     }
     OrientedEdge* GetOrientedEdge (size_t i) const
     {

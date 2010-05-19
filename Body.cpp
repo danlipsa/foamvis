@@ -7,7 +7,7 @@
 #include "AttributeCreator.h"
 #include "AttributeInfo.h"
 #include "Body.h"
-#include "Data.h"
+#include "Foam.h"
 #include "Edge.h"
 #include "Debug.h"
 #include "ElementUtils.h"
@@ -67,7 +67,7 @@ public:
      */
     void operator() (OrientedFace* of)
     {
-	vector<OrientedEdge*> oev = of->GetFace ()->GetOrientedEdges ();
+	Face::OrientedEdges& oev = of->GetFace ()->GetOrientedEdges ();
 	for_each (oev.begin (), oev.end (), cacheEdgeVertices (m_body));
     }
 private:
@@ -123,7 +123,7 @@ AttributesInfo* Body::m_infos;
 // ======================================================================
 
 Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
-	   size_t originalIndex, Data* data,
+	   size_t originalIndex, Foam* data,
 	   ElementStatus::Name status) :
     Element(originalIndex, data, status), m_placedOrientedFaces (0)
 {
@@ -195,7 +195,7 @@ void Body::CalculateCenter ()
 void Body::UpdateFacesAdjacency ()
 {
     using boost::bind;
-    vector<OrientedFace*>& of = GetOrientedFaces ();
+    OrientedFaces& of = GetOrientedFaces ();
     for_each (of.begin (), of.end (),
 	      bind(&OrientedFace::AddAdjacentBody, _1, this));
 }

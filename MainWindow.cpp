@@ -4,8 +4,8 @@
  *
  * Contains definitions for the UI class
  */
-#include "Data.h"
-#include "DataAlongTime.h"
+#include "Foam.h"
+#include "FoamAlongTime.h"
 #include "DebugStream.h"
 #include "GLWidget.h"
 #include "MainWindow.h"
@@ -13,7 +13,7 @@
 #include "SystemDifferences.h"
 
 
-MainWindow::MainWindow(DataAlongTime& dataAlongTime) : 
+MainWindow::MainWindow(FoamAlongTime& dataAlongTime) : 
     m_play (false), PLAY_TEXT (">"), PAUSE_TEXT("||"),
     m_timer (new QTimer(this)), m_processBodyTorus (0), 
     m_currentBody (0),
@@ -21,18 +21,18 @@ MainWindow::MainWindow(DataAlongTime& dataAlongTime) :
 {
     setupUi (this);
     sliderData->setMinimum (0);
-    sliderData->setMaximum (dataAlongTime.GetData ().size () - 1);
+    sliderData->setMaximum (dataAlongTime.GetFoam ().size () - 1);
     sliderData->setSingleStep (1);
     sliderData->setPageStep (10);
-    widgetGl->SetDataAlongTime (&dataAlongTime);
+    widgetGl->SetFoamAlongTime (&dataAlongTime);
     updateStatus ();
-    if (dataAlongTime.GetData ().size () == 1)
+    if (dataAlongTime.GetFoam ().size () == 1)
     {
         toolButtonBegin->setDisabled (true);
 	toolButtonEnd->setDisabled (true);
 	toolButtonPlay->setDisabled (true);
     }
-    if (dataAlongTime.GetData()[0]->IsTorus ())
+    if (dataAlongTime.GetFoam()[0]->IsTorus ())
     {
 	radioButtonVerticesPhysical->setEnabled (false);
 	radioButtonEdgesPhysical->setEnabled (false);
@@ -44,7 +44,7 @@ MainWindow::MainWindow(DataAlongTime& dataAlongTime) :
 	radioButtonFacesTorus->setEnabled (false);
 	groupBoxTorusOriginalDomain->setEnabled (false);
     }
-    if (dataAlongTime.GetData ()[0]->GetSpaceDimension () == 2)
+    if (dataAlongTime.GetFoam ()[0]->GetSpaceDimension () == 2)
     {
 	radioButtonEdgesNormal->toggle ();
 	tabWidget->setCurrentWidget (edges);
@@ -90,13 +90,13 @@ void MainWindow::updateButtons ()
 
 void MainWindow::updateStatus ()
 {
-    vector<Data*>& data = widgetGl->GetDataAlongTime ().GetData ();
-    Data& currentData = widgetGl->GetCurrentData ();
+    vector<Foam*>& data = widgetGl->GetFoamAlongTime ().GetFoam ();
+    Foam& currentFoam = widgetGl->GetCurrentFoam ();
     QString oldString = labelStatus->text ();
     ostringstream ostr;
     ostr << "Time step: " 
 	 << (widgetGl->GetTimeStep () + 1)<< " of " << data.size () 
-	 << ", Bubbles: " << currentData.GetBodies ().size ();
+	 << ", Bubbles: " << currentFoam.GetBodies ().size ();
     if (widgetGl->GetDisplayedBodyIndex () != GLWidget::DISPLAY_ALL)
 	ostr << ", Bubble: " << (widgetGl->GetDisplayedBodyOriginalIndex () + 1);
     if (widgetGl->GetDisplayedFaceIndex () != GLWidget::DISPLAY_ALL)
@@ -172,7 +172,7 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     {
 	try
 	{
-	    Body* b = widgetGl->GetCurrentData ().GetBody (m_currentBody);
+	    Body* b = widgetGl->GetCurrentFoam ().GetBody (m_currentBody);
 	    if (m_processBodyTorus == 0)
 	    {
 		m_processBodyTorus = new ProcessBodyTorus (b);
@@ -184,7 +184,7 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 		    m_processBodyTorus = 0;
 		    cdbg << "End process torus" << endl;
 		    m_currentBody = (m_currentBody + 1) % 
-			widgetGl->GetCurrentData ().GetBodies ().size ();
+			widgetGl->GetCurrentFoam ().GetBodies ().size ();
 		}
 	    widgetGl->UpdateDisplay ();
 	}

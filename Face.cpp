@@ -8,7 +8,7 @@
 #include "AttributeCreator.h"
 #include "AttributeInfo.h"
 #include "Body.h"
-#include "Data.h"
+#include "Foam.h"
 #include "Debug.h"
 #include "Edge.h"
 #include "ElementUtils.h"
@@ -69,7 +69,7 @@ AttributesInfo* Face::m_infos;
 // ======================================================================
 
 Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
-	   size_t originalIndex, Data* data, ElementStatus::Name status) :
+	   size_t originalIndex, Foam* data, ElementStatus::Name status) :
     ColoredElement (originalIndex, data, status)
 {
     m_orientedEdges.resize (edgeIndexes.size ());
@@ -97,7 +97,7 @@ Face::Face (Edge* edge, size_t originalIndex) :
 }
 
 Face::Face (const Face& original) :
-    ColoredElement (original.GetOriginalIndex (), original.GetData (), 
+    ColoredElement (original.GetOriginalIndex (), original.GetFoam (), 
 		    ElementStatus::DUPLICATE)
 {
     BOOST_FOREACH (OrientedEdge* oe, original.m_orientedEdges)
@@ -112,7 +112,7 @@ Face::~Face()
 void Face::UpdateEdgesAdjacency ()
 {
     using boost::bind;
-    vector<OrientedEdge*>& orientedEdges = GetOrientedEdges ();
+    OrientedEdges& orientedEdges = GetOrientedEdges ();
     for_each (orientedEdges.begin (), orientedEdges.end (),
 	      bind (&OrientedEdge::AddAdjacentFace, _1, this));
 }
@@ -120,7 +120,7 @@ void Face::UpdateEdgesAdjacency ()
 void Face::ClearEdgesAdjacency ()
 {
     using boost::bind;
-    vector<OrientedEdge*>& orientedEdges = GetOrientedEdges ();
+    OrientedEdges& orientedEdges = GetOrientedEdges ();
     for_each (orientedEdges.begin (), orientedEdges.end (),
 	      bind (&OrientedEdge::ClearAdjacentFaces, _1));
 }
