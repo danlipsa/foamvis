@@ -65,11 +65,16 @@ size_t OrientedEdge::GetFacePartOfSize () const
 
 const OrientedFaceIndex& OrientedEdge::GetFacePartOf (size_t i) const
 {
-    return m_edge->GetFacePartOf (i, m_reversed);
+    return m_edge->GetFacePartOf (m_reversed, i);
 }
 
 void OrientedEdge::AddFacePartOf (
     Face* face, bool faceReversed, size_t edgeIndex)
 {
     m_edge->AddFacePartOf (face, faceReversed, edgeIndex, m_reversed);
+}
+
+size_t OrientedEdge::GetId () const
+{
+    return m_edge->GetId ();
 }

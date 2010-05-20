@@ -25,9 +25,14 @@ struct OrientedFaceIndex
 	m_faceReversed = false;
 	m_edgeIndex = 0;
     }
+
+    friend ostream& operator<< (ostream& ostr, const OrientedFaceIndex& ofi);
+
     Face* m_face;
     bool m_faceReversed;
     size_t m_edgeIndex;
+
+
 };
 
 #endif //__ORIENTED_FACE_INDEX_H__

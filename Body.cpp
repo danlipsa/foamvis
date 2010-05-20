@@ -10,6 +10,7 @@
 #include "Foam.h"
 #include "Edge.h"
 #include "Debug.h"
+#include "DebugStream.h"
 #include "ElementUtils.h"
 #include "Face.h"
 #include "OrientedEdge.h"
@@ -199,6 +200,26 @@ void Body::UpdatePartOf ()
 	OrientedFace* of = m_orientedFaces[i];
 	of->AddBodyPartOf (this, i);
 	of->UpdateFacePartOf ();
+    }
+
+    for (size_t i = 0; i < m_orientedFaces.size (); i++)
+    {
+	OrientedFace* of = m_orientedFaces[i];
+	const BodyIndex& bi = of->GetBodyPartOf ();
+	cdbg << "Face " << of->GetSignedId () 
+	     << " at index " << bi.m_orientedFaceIndex << endl;
+	for (size_t j = 0; j < of->size (); j++)
+	{
+	    OrientedEdge oe;
+	    of->GetOrientedEdge (i, &oe);
+	    cdbg << "Faces edge " << oe.GetSignedId () << " is part of: ";
+	    for (size_t k = 0; k < oe.GetFacePartOfSize (); k++)
+	    {
+		const OrientedFaceIndex& ofi = oe.GetFacePartOf (k);
+		cdbg << ofi << " ";
+	    }
+	    cdbg << endl;
+	}
     }
 }
 

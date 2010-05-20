@@ -85,6 +85,14 @@ bool ProcessBodyTorus::pop (
 	    const OrientedFaceIndex& ofi = oe.GetFacePartOf (i);
 	    OrientedFace of (ofi.m_face, ofi.m_faceReversed);
 	    const BodyIndex& bi = of.GetBodyPartOf ();
+	    
+	    cdbg << "Edge part of " << oe.GetFacePartOfSize () 
+		 << " faces" << endl
+		 << oe << endl
+		 << of << endl
+		 << "Edge index: " << ofi.m_edgeIndex << endl
+		 << "Face index: " << bi.m_orientedFaceIndex << endl;
+
 	    if (! m_traversed[bi.m_orientedFaceIndex])
 	    {
 		push (of);

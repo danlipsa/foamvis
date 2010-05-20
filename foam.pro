@@ -18,7 +18,7 @@ SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	Foam.cpp FoamAlongTime.cpp Face.cpp \
 	GLWidget.cpp Hashes.cpp main.cpp MainWindow.cpp  \
 	NameSemanticValue.cpp \
-	OOBox.cpp OrientedEdge.cpp OrientedFace.cpp \
+	OOBox.cpp OrientedEdge.cpp OrientedFace.cpp OrientedFaceIndex.cpp\
 	ParsingData.cpp ParsingDriver.cpp ProcessBodyTorus.cpp \
 	Comparisons.cpp Vertex.cpp 
 FORMS += Window.ui

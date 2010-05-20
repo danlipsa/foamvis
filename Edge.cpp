@@ -7,10 +7,12 @@
 #include "AttributeCreator.h"
 #include "AttributeInfo.h"
 #include "Debug.h"
+#include "DebugStream.h"
 #include "Edge.h"
 #include "EvolverData_yacc.h"
 #include "Foam.h"
 #include "OrientedFace.h"
+#include "OrientedEdge.h"
 #include "ParsingDriver.h"
 #include "Vertex.h"
 
@@ -189,6 +191,11 @@ void Edge::AddFacePartOf (Face* face, bool faceReversed,
 {
     m_adjacentFaces[edgeReversed].push_back (
 	OrientedFaceIndex (face, faceReversed, edgeIndex));
+    cdbg << "Edge " << setw (3) 
+	 << OrientedEdge (this, edgeReversed).GetSignedId ()
+	 << " part of face (id=" << setw(3)
+	 << OrientedFace(face, faceReversed).GetSignedId()
+	 << ", edgeIndex=" << edgeIndex << ")" << endl;
 }
 
 void Edge::ClearFacePartOf ()

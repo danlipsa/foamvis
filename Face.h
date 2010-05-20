@@ -63,9 +63,9 @@ public:
     }
     Edge* GetEdge (size_t i) const;
 
-    void AddBodyPartOf (Body* body, size_t ofIndex, bool reversed)
+    void AddBodyPartOf (Body* body, size_t orientedFaceIndex, bool reversed)
     {
-	m_bodiesPartOf[reversed] = BodyIndex (body, ofIndex);
+	m_bodiesPartOf[reversed] = BodyIndex (body, orientedFaceIndex);
     }
     const BodyIndex& GetBodyPartOf (size_t faceSide) const
     {
