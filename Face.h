@@ -8,6 +8,7 @@
 #define __FACE_H__
 
 #include "ColoredElement.h"
+#include "BodyIndex.h"
 
 class AttributesInfo;
 class Body;
@@ -62,22 +63,23 @@ public:
     }
     Edge* GetEdge (size_t i) const;
 
-    void AddAdjacentBody (Body* body, bool reversed)
+    void AddBodyPartOf (Body* body, size_t ofIndex, bool reversed)
     {
-	m_adjacentBodies[reversed] = body;
+	m_bodiesPartOf[reversed] = BodyIndex (body, ofIndex);
     }
-    boost::array<Body*,2>& GetAdjacentBodies ()
+    const BodyIndex& GetBodyPartOf (size_t faceSide) const
     {
-	return m_adjacentBodies;
+	return m_bodiesPartOf[faceSide];
     }
+    void ClearBodyPartOf ();
+    void ClearFacePartOf ();
     bool IsAdjacent (size_t bodyOriginalIndex);
 
     /**
      * For all the  edges in the face, add the  face as being adjacent
      * to the edge
      */
-    void UpdateEdgeAdjacency ();
-    void ClearEdgeAdjacency ();
+    void UpdateFacePartOf (bool faceReversed);
     size_t GetNextValidIndex (size_t index) const;
     size_t GetPreviousValidIndex (size_t index) const;
     bool operator== (const Face& face) const;
@@ -86,6 +88,10 @@ public:
     ostream& PrintAttributes (ostream& ostr) const
     {
 	return printAttributes (ostr, *Face::m_infos);
+    }
+    int GetSignedId (bool reversed) const
+    {
+	return reversed ? (- GetId ()) : GetId ();
     }
     bool IsClosed () const;
     bool HasWrap () const;
@@ -111,7 +117,7 @@ private:
      * Edges that are part of this face
      */
     OrientedEdges m_orientedEdges;
-    boost::array<Body*, 2> m_adjacentBodies;
+    boost::array<BodyIndex, 2> m_bodiesPartOf;
 private:
     /**
      * Stores information about all vertex attributes

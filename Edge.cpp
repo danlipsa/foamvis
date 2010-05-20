@@ -184,12 +184,18 @@ size_t Edge::GetTorusClippedSize () const
 }
 
 
-void Edge::AddAdjacentOrientedFace (const OrientedFace& face, size_t i)
+void Edge::AddFacePartOf (Face* face, bool faceReversed,
+			  size_t edgeIndex, bool edgeReversed)
 {
-    boost::shared_ptr<OrientedFace> of (new OrientedFace (face));
-    m_adjacentFaces.push_back (OrientedFaceIndex (of, i));
+    m_adjacentFaces[edgeReversed].push_back (
+	OrientedFaceIndex (face, faceReversed, edgeIndex));
 }
 
+void Edge::ClearFacePartOf ()
+{
+    BOOST_FOREACH (vector<OrientedFaceIndex>& v, m_adjacentFaces)
+	v.resize (0);
+}
 
 
 // Static and Friends Methods

@@ -211,9 +211,9 @@ public:
         DefineAttribute::Type type, const char* name,
 	AttributeCreator* creator);
     /**
-     * Calculate the physical (not tesselated) edges and vertices
+     * Calculate faces part of a body, edges part of a face, ...
      */
-    void UpdateAdjacency ();
+    void UpdatePartOf ();
     /**
      * Calculate the bounding box for all vertices in this Foam
      */

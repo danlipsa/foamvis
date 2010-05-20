@@ -1,5 +1,5 @@
 HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h \
-	BodyAlongTime.h ColoredElement.h \
+	BodyAlongTime.h ColoredElement.h BodyIndex.h\
 	Debug.h DebugStream.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h \
@@ -7,7 +7,7 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h \
 	Foam.h FoamAlongTime.h Face.h \
 	GLWidget.h Hashes.h \
 	MainWindow.h NameSemanticValue.h \
-	OOBox.h OrientedEdge.h OrientedFace.h \
+	OOBox.h OrientedEdge.h OrientedFace.h OrientedFaceIndex.h \
 	ParsingData.h ParsingDriver.h ProcessBodyTorus.h \
 	stable.h SystemDifferences.h \
 	Comparisons.h Vertex.h

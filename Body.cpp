@@ -192,12 +192,24 @@ void Body::CalculateCenter ()
     m_center /= Vector3(size, size, size);
 }
 
-void Body::UpdateFaceAdjacency ()
+void Body::UpdatePartOf ()
 {
-    using boost::bind;
-    OrientedFaces& of = GetOrientedFaces ();
-    for_each (of.begin (), of.end (),
-	      bind(&OrientedFace::AddAdjacentBody, _1, this));
+    for (size_t i = 0; i < m_orientedFaces.size (); i++)
+    {
+	OrientedFace* of = m_orientedFaces[i];
+	of->AddBodyPartOf (this, i);
+	of->UpdateFacePartOf ();
+    }
+}
+
+void Body::ClearPartOf ()
+{
+    for (size_t i = 0; i < m_orientedFaces.size (); i++)
+    {
+	OrientedFace* of = m_orientedFaces[i];
+	of->ClearBodyPartOf ();
+	of->ClearFacePartOf ();
+    }
 }
 
 

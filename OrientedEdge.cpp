@@ -26,19 +26,10 @@ ostream& OrientedEdge::print (ostream& ostr, bool reversed) const
     return ostr;
 }
 
-bool OrientedEdge::Fits (const OrientedEdge& destination,
-			 G3D::Vector3* translation) const
+void OrientedEdge::CalculateTranslation (
+    const OrientedEdge& source, G3D::Vector3* translation) const
 {
-    if (GetEdge ()->GetId () == 
-	destination.GetEdge ()->GetId () &&
-	IsReversed () == ! destination.IsReversed ())
-    {
-	if (translation != 0)
-	    *translation = *destination.GetEnd () - *GetBegin ();
-	return true;
-    }
-    else
-	return false;
+    *translation = *GetBegin () - *source.GetEnd ();
 }
 
 G3D::Vector3 OrientedEdge::GetEdgeVector () const
@@ -57,9 +48,9 @@ Vertex* OrientedEdge::GetEnd (void) const
 }
 
 
-void OrientedEdge::ClearAdjacentFaces ()
+void OrientedEdge::ClearFacePartOf ()
 {
-    m_edge->ClearAdjacentFaces ();
+    m_edge->ClearFacePartOf ();
 }
 
 bool OrientedEdge::IsZero () const
@@ -67,34 +58,18 @@ bool OrientedEdge::IsZero () const
     return m_edge->IsZero ();
 }
 
-
-void OrientedEdge::GetAdjacentOrientedFaceIndex (
-    size_t faceIndex, OrientedFace* ofResult, size_t* indexResult) const
+size_t OrientedEdge::GetFacePartOfSize () const
 {
-    OrientedFaceIndex ofi =
-	m_edge->GetAdjacentOrientedFaceIndex (faceIndex);
-    OrientedFace& of = *ofi.m_orientedFace;
-    size_t edgeIndex = ofi.m_index;
-    size_t reversed = of.IsReversed ();
-    if (m_reversed)
-    {
-	*indexResult = of.size () - edgeIndex - 1;
-	reversed = ! reversed;
-    }
-    else
-	*indexResult = edgeIndex;
-    *ofResult = OrientedFace (of.GetFace (), reversed);
+    return m_edge->GetFacePartOfSize ();
 }
 
-void OrientedEdge::AddAdjacentFace (Face* face, size_t oEdgeIndex)
+const OrientedFaceIndex& OrientedEdge::GetFacePartOf (size_t i) const
 {
-    size_t edgeIndex;
-    if (m_reversed)
-    {
-	edgeIndex = face->size () - 1 - oEdgeIndex;
-    }
-    else
-	edgeIndex = oEdgeIndex;
-    m_edge->AddAdjacentOrientedFace (
-	OrientedFace (face, m_reversed), edgeIndex);
+    return m_edge->GetFacePartOf (i, m_reversed);
+}
+
+void OrientedEdge::AddFacePartOf (
+    Face* face, bool faceReversed, size_t edgeIndex)
+{
+    m_edge->AddFacePartOf (face, faceReversed, edgeIndex, m_reversed);
 }

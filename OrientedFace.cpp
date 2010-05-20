@@ -40,24 +40,29 @@ G3D::Vector3 OrientedFace::GetNormal () const
     return m_reversed ? - normal : normal;
 }
 
-void OrientedFace::AddAdjacentBody (Body* body) 
+void OrientedFace::AddBodyPartOf (Body* body, size_t ofIndex) 
 {
-    m_face->AddAdjacentBody (body, m_reversed);
+    m_face->AddBodyPartOf (body, ofIndex, m_reversed);
 }
 
-Body* OrientedFace::GetAdjacentBody ()
+const BodyIndex& OrientedFace::GetBodyPartOf () const
 {
-    return m_face->GetAdjacentBodies ()[m_reversed];
+    return m_face->GetBodyPartOf (m_reversed);
 }
 
-void OrientedFace::UpdateEdgeAdjacency ()
+void OrientedFace::UpdateFacePartOf ()
 {
-    m_face->UpdateEdgeAdjacency ();
+    m_face->UpdateFacePartOf (m_reversed);
 }
 
-void OrientedFace::ClearEdgeAdjacency ()
+void OrientedFace::ClearFacePartOf ()
 {
-    m_face->ClearEdgeAdjacency ();
+    m_face->ClearFacePartOf ();
+}
+
+void OrientedFace::ClearBodyPartOf ()
+{
+    m_face->ClearBodyPartOf ();
 }
 
 size_t OrientedFace::GetNextValidIndex (size_t index) const
@@ -90,17 +95,12 @@ Vertex* OrientedFace::getEnd (size_t edgeIndex) const
 }
 
 void OrientedFace::CalculateTranslation (
-    const OrientedEdge& edge, G3D::Vector3* translation) const
+    const OrientedEdge& destination, size_t edgeIndex, 
+    G3D::Vector3* translation) const
 {
-    for (size_t i = 0; i < size (); i++)
-    {
-	OrientedEdge oe;
-	GetOrientedEdge (i, &oe);
-	if (edge.Fits (oe, translation))
-	    return;
-    }
-    RuntimeAssert (false, "The edge: ", edge, 
-		   " is not part of the face: ", *this);
+    OrientedEdge source;
+    GetOrientedEdge (edgeIndex, &source);
+    destination.CalculateTranslation (source, translation);
 }
 
 size_t OrientedFace::GetId () const

@@ -69,6 +69,10 @@ public:
 	return m_orientedFaces[i];
     }
     Face* GetFace (size_t i) const;
+    size_t size () const
+    {
+	return m_orientedFaces.size ();
+    }
     /**
      * Does this body have this edge
      * @param e the edge to be tested
@@ -115,7 +119,8 @@ public:
 	return m_center;
     }
     void PrintDomains (ostream& ostr) const;
-    void UpdateFaceAdjacency ();
+    void UpdatePartOf ();
+    void ClearPartOf ();
 
     NormalFaceMap::iterator GetCurrentNormalFace ()
     {

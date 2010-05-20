@@ -22,9 +22,14 @@ public:
     void Cleanup ();
 
 private:
+    void push (const OrientedFace& of);
+    bool pop (
+	OrientedEdge* orientedEdge, OrientedFaceIndex* orientedFaceIndex);
+
+private:
     Body* m_body;
     queue<OrientedEdge> m_queue;
-    map<int, bool> m_idTraversedMap;
+    vector<bool> m_traversed;
 };
 
 

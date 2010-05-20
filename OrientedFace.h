@@ -7,7 +7,7 @@
 #ifndef __ORIENTED_FACE_H__
 #define __ORIENTED_FACE_H__
 
-class Body;
+#include "BodyIndex.h"
 class Face;
 class Vertex;
 class OrientedEdge;
@@ -31,6 +31,7 @@ public:
     OrientedFace(Face* face, bool reversed) : 
 	m_face (face), m_reversed (reversed)
     {}
+    OrientedFace () : m_face(0), m_reversed(false) {}
     /**
      * Gets the face associated with this oriented face
      * @return the face associated with this oriented face
@@ -43,10 +44,11 @@ public:
     {
 	m_face = face;
     }
-    void AddAdjacentBody (Body* body);
-    Body* GetAdjacentBody ();
-    void UpdateEdgeAdjacency ();
-    void ClearEdgeAdjacency ();
+    void AddBodyPartOf (Body* body, size_t ofIndex);
+    const BodyIndex& GetBodyPartOf () const;
+    void UpdateFacePartOf ();
+    void ClearFacePartOf ();
+    void ClearBodyPartOf ();
     
     /**
      * Is this in the same order or reversed compared with the face associated
@@ -99,7 +101,8 @@ public:
 
     size_t size () const;
     void CalculateTranslation (
-	const OrientedEdge& edge, G3D::Vector3* translation) const;
+	const OrientedEdge& edge, size_t edgeIndex, 
+	G3D::Vector3* translation) const;
     
 
 public:

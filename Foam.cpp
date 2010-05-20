@@ -250,13 +250,11 @@ void Foam::ReleaseParsingData ()
     m_parsingData = 0;
 }
 
-void Foam::UpdateAdjacency ()
+void Foam::UpdatePartOf ()
 {
     using boost::mem_fn;
     for_each (m_bodies.begin (), m_bodies.end (), 
-	      mem_fn(&Body::UpdateFaceAdjacency));
-    for_each (m_faces.begin (), m_faces.end (), 
-	      mem_fn (&Face::UpdateEdgeAdjacency));
+	      mem_fn(&Body::UpdatePartOf));
     for_each (m_edges.begin (), m_edges.end (), 
 	      mem_fn (&Edge::UpdateVertexAdjacency));
 }
@@ -321,7 +319,7 @@ void Foam::CalculateTorusClipped ()
 void Foam::PostProcess ()
 {
     Compact ();
-    UpdateAdjacency ();
+    UpdatePartOf ();
     if (GetSpaceDimension () == 2)
     {
 	for_each (m_vertices.begin (), m_vertices.end (),

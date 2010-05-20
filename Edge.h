@@ -10,8 +10,6 @@
 #include "ColoredElement.h"
 #include "OrientedFaceIndex.h"
 class AttributesInfo;
-class Face;
-class OrientedFace;
 class Vertex;
 /**
  * An edge is an object that stores a begin and an end vertex
@@ -87,20 +85,16 @@ public:
      * @param reversed the edge is reversed in the face list
      * @param
      */
-    void AddAdjacentOrientedFace (const OrientedFace& of, size_t i);
-    void ClearAdjacentFaces ()
-    {
-	m_adjacentFaces.clear ();
-    }
-    size_t GetAdjacentOrientedFaceSize () const
+    void AddFacePartOf (Face* face, bool faceReversed,
+			size_t edgeIndex, bool edgeReversed);
+    void ClearFacePartOf ();
+    size_t GetFacePartOfSize () const
     {
 	return m_adjacentFaces.size ();
     }
-
-    const OrientedFaceIndex& GetAdjacentOrientedFaceIndex (
-	size_t faceIndex) const
+    const OrientedFaceIndex& GetFacePartOf (bool edgeReversed, size_t i) const
     {
-	return m_adjacentFaces[faceIndex];
+	return m_adjacentFaces[edgeReversed][i];
     }
 
     /**
@@ -135,7 +129,7 @@ public:
 
     bool ShouldDisplay () const
     {
-	return GetAdjacentOrientedFaceSize () != 0 ||
+	return GetFacePartOfSize () != 0 ||
 	    GetStatus () == ElementStatus::ORIGINAL;
     }
     
@@ -156,7 +150,7 @@ public:
     friend ostream& operator<< (ostream& ostr, const Edge& e);
 
 private:
-    typedef vector<OrientedFaceIndex> AdjacentOrientedFaces;
+    typedef boost::array<vector<OrientedFaceIndex>, 2> AdjacentOrientedFaces;
 
 private:
     /**

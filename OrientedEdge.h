@@ -7,7 +7,7 @@
 #ifndef __ORIENTED_EDGE_H__
 #define __ORIENTED_EDGE_H__
 
-
+#include "OrientedFaceIndex.h"
 class Edge;
 class Face;
 class OrientedFace;
@@ -38,6 +38,16 @@ public:
     Vertex* GetBegin (void) const;
 
     bool IsReversed () const {return m_reversed;}
+    void Reverse ()
+    {
+	m_reversed = ! m_reversed;
+    }
+    size_t GetId () const;
+    int GetSignedId () const
+    {
+	return IsReversed () ? (- GetId ()) : GetId ();
+    }
+    
     /**
      * Get the end vertex of the OrientedEdge. Note that this might be the
      * begin vertex for the edge stored inside.
@@ -46,12 +56,10 @@ public:
     /**
      * Adds a face that is touched by this oriented edge.
      */
-    void AddAdjacentFace (Face* face, size_t oEdgeIndex);
-    void ClearAdjacentFaces ();
-    size_t GetAdjacentOrientedFacesSize () const;
-    void GetAdjacentOrientedFaceIndex (
-	size_t faceIndex, OrientedFace* of, size_t* index) const;
-
+    void AddFacePartOf (Face* face, bool faceReversed, size_t edgeIndex);
+    void ClearFacePartOf ();
+    size_t GetFacePartOfSize () const;
+    const OrientedFaceIndex& GetFacePartOf (size_t i) const;
 
     /**
      * Edge for this oriented edge
@@ -73,12 +81,12 @@ public:
 	return print (ostr, true);
     }
     /**
-     * Tests if this OrientedEdge fits another one.
-     * @param destination Other oriented edge
-     * @param translation vector to translate this edge to destination
+     * Calculate the translation from a source oriented edge to this edge
+     * @param source source oriented edge
+     * @param translation vector to translate the source edge to this edge
      */
-    bool Fits (const OrientedEdge& destination, 
-	       G3D::Vector3* translation = 0) const;
+    void CalculateTranslation (const OrientedEdge& source, 
+			       G3D::Vector3* translation = 0) const;
 
 public:
     /**
