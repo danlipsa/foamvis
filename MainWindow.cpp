@@ -98,11 +98,11 @@ void MainWindow::updateStatus ()
 	 << (widgetGl->GetTimeStep () + 1)<< " of " << data.size () 
 	 << ", Bubbles: " << currentFoam.GetBodies ().size ();
     if (widgetGl->GetDisplayedBodyIndex () != GLWidget::DISPLAY_ALL)
-	ostr << ", Bubble: " << (widgetGl->GetDisplayedBodyOriginalIndex () + 1);
+	ostr << ", Bubble: " << (widgetGl->GetDisplayedBodyId () + 1);
     if (widgetGl->GetDisplayedFaceIndex () != GLWidget::DISPLAY_ALL)
-	ostr << ", Face: " << (widgetGl->GetDisplayedFaceOriginalIndex () + 1);
+	ostr << ", Face: " << (widgetGl->GetDisplayedFaceId () + 1);
     if (widgetGl->GetDisplayedEdgeIndex () != GLWidget::DISPLAY_ALL)
-	ostr << ", Edge: " << (widgetGl->GetDisplayedEdgeOriginalIndex () + 1);
+	ostr << ", Edge: " << (widgetGl->GetDisplayedEdgeId () + 1);
     ostr << ends;
     QString newString (ostr.str().c_str ());
     if (oldString != newString)

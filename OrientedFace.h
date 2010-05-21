@@ -8,6 +8,7 @@
 #define __ORIENTED_FACE_H__
 
 #include "BodyIndex.h"
+#include "OrientedElement.h"
 class Face;
 class Vertex;
 class OrientedEdge;
@@ -18,7 +19,7 @@ class OrientedEdge;
  * edges of the face in direct order, n-1, n-2, ..., 1, 0 are the
  * edges of the face in reverse order.
  */
-class OrientedFace
+class OrientedFace : public OrientedElement
 {
 public:
     /**
@@ -28,42 +29,22 @@ public:
      *        reverse order,  otherwise they should be  read in direct
      *        order
      */
-    OrientedFace(Face* face, bool reversed) : 
-	m_face (face), m_reversed (reversed)
-    {}
-    OrientedFace () : m_face(0), m_reversed(false) {}
+    OrientedFace () : OrientedElement() {}
+    OrientedFace(Face* face, bool reversed);
     /**
      * Gets the face associated with this oriented face
      * @return the face associated with this oriented face
      */
-    Face* GetFace () const
-    {
-	return m_face;
-    }
-    void SetFace (Face* face)
-    {
-	m_face = face;
-    }
+    Face* GetFace () const;
+    void SetFace (Face* face);
+
     void AddBodyPartOf (Body* body, size_t ofIndex);
     const BodyIndex& GetBodyPartOf () const;
     void UpdateFacePartOf ();
     void ClearFacePartOf ();
     void ClearBodyPartOf ();
-    
-    /**
-     * Is this in the same order or reversed compared with the face associated
-     * with it.
-     * @return true for reversed, false otherwise
-     */
-    bool IsReversed () const
-    {
-	return m_reversed;
-    }
-    size_t GetId () const;
-    int GetSignedId () const
-    {
-	return IsReversed () ? (- GetId ()) : GetId ();
-    }
+    bool IsPartOfBody (size_t bodyId) const;
+
     /**
      * Gets the begin vertex for an edge in this oriented face
      * @param edgeIndex what edge we are interested in
@@ -104,7 +85,6 @@ public:
 	const OrientedEdge& edge, size_t edgeIndex, 
 	G3D::Vector3* translation) const;
     
-
 public:
     /**
      * Pretty print for the OrientedFace object
@@ -121,17 +101,6 @@ private:
 
     Vertex* getBegin (size_t edgeIndex) const;
     Vertex* getEnd (size_t edgeIndex) const;
-
-private:
-    /**
-     * Object that has information about the edges in this OrientedFace
-     */
-    Face* m_face;
-    /**
-     * If true,  edges in the refering  Face object should  be read in
-     * reversed order
-     */
-    bool m_reversed;
 };
 /**
  * Pretty prints a pointer to an oriented face

@@ -11,11 +11,26 @@
 #include "OrientedFace.h"
 #include "Vertex.h"
 
+OrientedEdge::OrientedEdge (Edge* edge, bool reversed) : 
+    OrientedElement (edge, reversed) 
+{
+}
+
+Edge* OrientedEdge::GetEdge () const 
+{
+    return static_cast<Edge*>(GetElement());
+}
+
+void OrientedEdge::SetEdge (Edge* edge) 
+{
+    SetElement (edge);
+}
+
+
 ostream& OrientedEdge::print (ostream& ostr, bool reversed) const
 {
     using G3D::Vector3;
-    ostr << (m_reversed ? "(R)" : "(N)");
-    ostr << "Oriented Edge " << GetEdge ()-> GetId () << " "
+    ostr << "Oriented Edge " << GetSignedIdString () << " "
 	 << GetEdge ()->GetStatus ()
 	 << ": ";
     const Vector3* begin = static_cast<const G3D::Vector3*>(GetBegin ());
@@ -39,42 +54,38 @@ G3D::Vector3 OrientedEdge::GetEdgeVector () const
 
 Vertex* OrientedEdge::GetBegin (void) const
 {
-    return m_reversed ? m_edge->GetEnd () : m_edge->GetBegin ();
+    return IsReversed () ? GetEdge ()->GetEnd () : GetEdge ()->GetBegin ();
 }
 
 Vertex* OrientedEdge::GetEnd (void) const
 {
-    return m_reversed ? m_edge->GetBegin () : m_edge->GetEnd ();
+    return IsReversed () ? GetEdge ()->GetBegin () : GetEdge ()->GetEnd ();
 }
 
 
 void OrientedEdge::ClearFacePartOf ()
 {
-    m_edge->ClearFacePartOf ();
+    GetEdge ()->ClearFacePartOf ();
 }
 
 bool OrientedEdge::IsZero () const
 {
-    return m_edge->IsZero ();
+    return GetEdge ()->IsZero ();
 }
 
 size_t OrientedEdge::GetFacePartOfSize () const
 {
-    return m_edge->GetFacePartOfSize ();
+    return GetEdge ()->GetFacePartOfSize (IsReversed ());
 }
 
 const OrientedFaceIndex& OrientedEdge::GetFacePartOf (size_t i) const
 {
-    return m_edge->GetFacePartOf (m_reversed, i);
+    return GetEdge ()->GetFacePartOf (IsReversed (), i);
 }
 
 void OrientedEdge::AddFacePartOf (
     Face* face, bool faceReversed, size_t edgeIndex)
 {
-    m_edge->AddFacePartOf (face, faceReversed, edgeIndex, m_reversed);
+    GetEdge ()->AddFacePartOf (face, faceReversed, edgeIndex, IsReversed ());
 }
 
-size_t OrientedEdge::GetId () const
-{
-    return m_edge->GetId ();
-}

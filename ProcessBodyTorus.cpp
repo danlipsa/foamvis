@@ -40,8 +40,15 @@ bool ProcessBodyTorus::Step ()
     if (! pop (&oe, &ofi))
 	return false;
     OrientedFace of (ofi.m_face, ofi.m_faceReversed);
-    cdbg << oe << endl << of << endl 
+
+    cdbg << "Edge part of " << oe.GetFacePartOfSize () 
+	 << " faces" << endl
+	 << oe << endl
+	 << of << endl
 	 << "Edge index: " << ofi.m_edgeIndex << endl;
+
+
+
     G3D::Vector3 translation;
     of.CalculateTranslation (oe, ofi.m_edgeIndex, &translation);
     if (! translation.isZero ())
@@ -53,6 +60,9 @@ bool ProcessBodyTorus::Step ()
 	OrientedFace* bodyOf = 
 	    bi.m_body->GetOrientedFace (bi.m_orientedFaceIndex);
 	bodyOf->SetFace (f);
+
+	cdbg << "Translation: Face index: " << bi.m_orientedFaceIndex << endl;
+
     }
     return true;
 }
@@ -86,13 +96,6 @@ bool ProcessBodyTorus::pop (
 	    OrientedFace of (ofi.m_face, ofi.m_faceReversed);
 	    const BodyIndex& bi = of.GetBodyPartOf ();
 	    
-	    cdbg << "Edge part of " << oe.GetFacePartOfSize () 
-		 << " faces" << endl
-		 << oe << endl
-		 << of << endl
-		 << "Edge index: " << ofi.m_edgeIndex << endl
-		 << "Face index: " << bi.m_orientedFaceIndex << endl;
-
 	    if (! m_traversed[bi.m_orientedFaceIndex])
 	    {
 		push (of);

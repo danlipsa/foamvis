@@ -73,7 +73,7 @@ public:
     }
     void ClearBodyPartOf ();
     void ClearFacePartOf ();
-    bool IsAdjacent (size_t bodyOriginalIndex);
+    bool IsPartOfBody (size_t bodyId, bool reversed) const;
 
     /**
      * For all the  edges in the face, add the  face as being adjacent
@@ -89,7 +89,7 @@ public:
     {
 	return printAttributes (ostr, *Face::m_infos);
     }
-    int GetSignedId (bool reversed) const
+    int GetSignedIdString (bool reversed) const
     {
 	return reversed ? (- GetId ()) : GetId ();
     }
@@ -99,6 +99,7 @@ public:
     {
 	return m_orientedEdges.size ();
     }
+    void Unwrap ();
 
 public:
     /**

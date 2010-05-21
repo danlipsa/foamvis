@@ -24,22 +24,6 @@ AttributesInfo* Edge::m_infos;
 
 // Methods
 // ======================================================================
-Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endTranslation, 
-	    size_t id, Foam* data, ElementStatus::Name status):
-    ColoredElement(id, data, status),
-    m_begin (begin), m_end (end),
-    m_endTranslation (endTranslation), 
-    m_physical (false),
-    m_torusClipped (0)
-{
-    if (m_data->IsTorus () && GetStatus () == ElementStatus::ORIGINAL)
-    {
-	if (m_endTranslation == G3D::Vector3int16(0, 0, 0))
-	    return;
-	m_end = m_data->GetVertexDuplicate (m_end, m_endTranslation);
-    }
-}
-
 Edge::Edge (Vertex* begin, size_t id) :
     ColoredElement (id, 0, ElementStatus::ORIGINAL),
     m_begin (begin),
@@ -59,6 +43,24 @@ Edge::Edge (const Edge& o) :
 {
 }
 
+Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endTranslation, 
+	    size_t id, Foam* data, ElementStatus::Name status):
+    ColoredElement(id, data, status),
+    m_begin (begin), m_end (end),
+    m_endTranslation (endTranslation), 
+    m_physical (false),
+    m_torusClipped (0)
+{
+    if (false && m_data->IsTorus () && GetStatus () == ElementStatus::ORIGINAL)
+	Unwrap ();
+}
+
+void Edge::Unwrap ()
+{
+    if (m_endTranslation == G3D::Vector3int16(0, 0, 0))
+	return;
+    m_end = m_data->GetVertexDuplicate (m_end, m_endTranslation);
+}
 
 G3D::Vector3 Edge::GetBegin (const G3D::Vector3* end) const
 {
@@ -191,11 +193,6 @@ void Edge::AddFacePartOf (Face* face, bool faceReversed,
 {
     m_adjacentFaces[edgeReversed].push_back (
 	OrientedFaceIndex (face, faceReversed, edgeIndex));
-    cdbg << "Edge " << setw (3) 
-	 << OrientedEdge (this, edgeReversed).GetSignedId ()
-	 << " part of face (id=" << setw(3)
-	 << OrientedFace(face, faceReversed).GetSignedId()
-	 << ", edgeIndex=" << edgeIndex << ")" << endl;
 }
 
 void Edge::ClearFacePartOf ()

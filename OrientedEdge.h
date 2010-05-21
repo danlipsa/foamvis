@@ -8,6 +8,7 @@
 #define __ORIENTED_EDGE_H__
 
 #include "OrientedFaceIndex.h"
+#include "OrientedElement.h"
 class Edge;
 class Face;
 class OrientedFace;
@@ -17,10 +18,14 @@ class Vertex;
  * An oriented  edge is  an edge  that can have  its vertices  read in
  * direct and reverse order
  */
-class OrientedEdge
+class OrientedEdge : public OrientedElement
 {
 public:
-    OrientedEdge () : m_edge (0), m_reversed (false) {}
+    OrientedEdge () :
+	OrientedElement () 
+    {
+    }
+
     /**
      * Constructs an oriented edge
      * @param edge information about the two vertices in the oriented edge
@@ -28,25 +33,13 @@ public:
      * @param  reversed specifies  if  the two  vertices  are read  in
      *        reverse order or not.
      */
-    OrientedEdge (Edge* edge, bool reversed): 
-        m_edge (edge), m_reversed (reversed) {}
+    OrientedEdge (Edge* edge, bool reversed);
     /**
      * Get the begin vertex of the OrientedEdge. Note that this might be the 
      * end vertex for the edge stored inside.
      * @return the begin vertex
      */
     Vertex* GetBegin (void) const;
-
-    bool IsReversed () const {return m_reversed;}
-    void Reverse ()
-    {
-	m_reversed = ! m_reversed;
-    }
-    size_t GetId () const;
-    int GetSignedId () const
-    {
-	return IsReversed () ? (- GetId ()) : GetId ();
-    }
     
     /**
      * Get the end vertex of the OrientedEdge. Note that this might be the
@@ -65,15 +58,9 @@ public:
      * Edge for this oriented edge
      * @return the edge for this oriented edge
      */
-    Edge* GetEdge () const 
-    {
-	return m_edge;
-    }
+    Edge* GetEdge () const;
     
-    void SetEdge (Edge* edge) 
-    {
-	m_edge = edge;
-    }
+    void SetEdge (Edge* edge);
     bool IsZero () const;
     G3D::Vector3 GetEdgeVector () const;
     ostream& PrintReversed (ostream& ostr) const
@@ -101,17 +88,6 @@ public:
 
 private:
     ostream& print (ostream& ostr, bool reversed = false) const;
-
-private:
-    /**
-     * Stores information about the two vertices in this oriented edge
-     */
-    Edge* m_edge;
-    /**
-     * Specifies if the  two vertices should be read  in reverse order
-     * or in direct order.
-     */
-    bool m_reversed;
 };
 
 /**

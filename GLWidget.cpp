@@ -760,7 +760,7 @@ GLuint GLWidget::displayListCenterPaths ()
     if (GetDisplayedBodyIndex () == DISPLAY_ALL)
 	for_each (bats.begin (), bats.end (), dcp);
     else
-	dcp (GetDisplayedBodyOriginalIndex ());
+	dcp (GetDisplayedBodyId ());
     displayCenterOfBodies ();
 
     glEndList();
@@ -1020,12 +1020,12 @@ Body* GLWidget::GetDisplayedBody () const
     return data.GetBody (i);
 }
 
-size_t GLWidget::GetDisplayedBodyOriginalIndex () const
+size_t GLWidget::GetDisplayedBodyId () const
 {
     return GetDisplayedBody ()->GetId ();
 }
 
-size_t GLWidget::GetDisplayedFaceOriginalIndex () const
+size_t GLWidget::GetDisplayedFaceId () const
 {
     return GetDisplayedFace ()->GetId ();
 }
@@ -1056,7 +1056,7 @@ Edge* GLWidget::GetDisplayedEdge () const
     return 0;
 }
 
-size_t GLWidget::GetDisplayedEdgeOriginalIndex () const
+size_t GLWidget::GetDisplayedEdgeId () const
 {
     return GetDisplayedEdge ()->GetId ();
 }

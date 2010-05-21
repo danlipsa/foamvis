@@ -12,7 +12,7 @@
 ostream& operator<< (ostream& ostr, const OrientedFaceIndex& ofi)
 {
     OrientedFace of (ofi.m_face, ofi.m_faceReversed);
-    ostr << "(oface=" << of.GetSignedId () << ", " 
+    ostr << "(oface=" << of.GetSignedIdString () << ", " 
 	 << "index=" << ofi.m_edgeIndex << ")";
     return ostr;
 }

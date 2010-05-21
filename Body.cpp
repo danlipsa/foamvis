@@ -193,6 +193,30 @@ void Body::CalculateCenter ()
     m_center /= Vector3(size, size, size);
 }
 
+ostream& Body::PrintFaceEdgeInformation (ostream& ostr)
+{
+    for (size_t i = 0; i < m_orientedFaces.size (); i++)
+    {
+	OrientedFace* of = m_orientedFaces[i];
+	const BodyIndex& bi = of->GetBodyPartOf ();
+	ostr << "Face " << of->GetSignedIdString () 
+	     << " at index " << bi.m_orientedFaceIndex << endl;
+	for (size_t j = 0; j < of->size (); j++)
+	{
+	    OrientedEdge oe;
+	    of->GetOrientedEdge (j, &oe);
+	    ostr << "    Edge " << oe.GetSignedIdString () << " is part of: ";
+	    for (size_t k = 0; k < oe.GetFacePartOfSize (); k++)
+	    {
+		const OrientedFaceIndex& ofi = oe.GetFacePartOf (k);
+		ostr << ofi << " ";
+	    }
+	    ostr << endl;
+	}
+    }
+    return ostr;
+}
+
 void Body::UpdatePartOf ()
 {
     for (size_t i = 0; i < m_orientedFaces.size (); i++)
@@ -201,26 +225,7 @@ void Body::UpdatePartOf ()
 	of->AddBodyPartOf (this, i);
 	of->UpdateFacePartOf ();
     }
-
-    for (size_t i = 0; i < m_orientedFaces.size (); i++)
-    {
-	OrientedFace* of = m_orientedFaces[i];
-	const BodyIndex& bi = of->GetBodyPartOf ();
-	cdbg << "Face " << of->GetSignedId () 
-	     << " at index " << bi.m_orientedFaceIndex << endl;
-	for (size_t j = 0; j < of->size (); j++)
-	{
-	    OrientedEdge oe;
-	    of->GetOrientedEdge (i, &oe);
-	    cdbg << "Faces edge " << oe.GetSignedId () << " is part of: ";
-	    for (size_t k = 0; k < oe.GetFacePartOfSize (); k++)
-	    {
-		const OrientedFaceIndex& ofi = oe.GetFacePartOf (k);
-		cdbg << ofi << " ";
-	    }
-	    cdbg << endl;
-	}
-    }
+    PrintFaceEdgeInformation (cdbg);
 }
 
 void Body::ClearPartOf ()

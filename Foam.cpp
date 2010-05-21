@@ -319,7 +319,7 @@ void Foam::CalculateTorusClipped ()
 void Foam::PostProcess ()
 {
     Compact ();
-    UpdatePartOf ();
+    //UpdatePartOf ();
     if (GetSpaceDimension () == 2)
     {
 	for_each (m_vertices.begin (), m_vertices.end (),

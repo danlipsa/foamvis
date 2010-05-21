@@ -71,7 +71,7 @@ public:
     {
 	return m_displayedBodyIndex;
     }
-    size_t GetDisplayedBodyOriginalIndex () const;
+    size_t GetDisplayedBodyId () const;
     Body* GetDisplayedBody () const;
     /**
      * Gets the face number up to which faces are displayed
@@ -81,14 +81,14 @@ public:
     {
 	return m_displayedFaceIndex;
     }
-    size_t GetDisplayedFaceOriginalIndex () const;
+    size_t GetDisplayedFaceId () const;
     Face* GetDisplayedFace () const;
 
     size_t GetDisplayedEdgeIndex () const
     {
 	return m_displayedEdgeIndex;
     }
-    size_t GetDisplayedEdgeOriginalIndex () const;
+    size_t GetDisplayedEdgeId () const;
     Edge* GetDisplayedEdge () const;
     /**
      * Increment displayed body

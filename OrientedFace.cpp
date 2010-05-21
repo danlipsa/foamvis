@@ -12,10 +12,25 @@
 #include "Face.h"
 
 
+OrientedFace::OrientedFace(Face* face, bool reversed) : 
+    OrientedElement (face, reversed) 
+{
+}
+
+Face* OrientedFace::GetFace () const
+{
+    return static_cast<Face*>(GetElement());
+}
+
+void OrientedFace::SetFace (Face* face)
+{
+    SetElement (face);
+}
+
 void OrientedFace::GetOrientedEdge (
     size_t edgeIndex, OrientedEdge* oEdge) const
 {
-    Face::OrientedEdges& v = m_face->GetOrientedEdges ();
+    Face::OrientedEdges& v = GetFace ()->GetOrientedEdges ();
     RuntimeAssert (edgeIndex < v.size (),
 		   "Edge index ", edgeIndex,
 		   " greater than the number of edges ", v.size ());
@@ -36,48 +51,48 @@ void OrientedFace::GetOrientedEdge (
 
 G3D::Vector3 OrientedFace::GetNormal () const
 {
-    G3D::Vector3 normal = m_face->GetNormal ();
-    return m_reversed ? - normal : normal;
+    G3D::Vector3 normal = GetFace ()->GetNormal ();
+    return IsReversed () ? - normal : normal;
 }
 
 void OrientedFace::AddBodyPartOf (Body* body, size_t ofIndex) 
 {
-    m_face->AddBodyPartOf (body, ofIndex, m_reversed);
+    GetFace ()->AddBodyPartOf (body, ofIndex, IsReversed ());
 }
 
 const BodyIndex& OrientedFace::GetBodyPartOf () const
 {
-    return m_face->GetBodyPartOf (m_reversed);
+    return GetFace ()->GetBodyPartOf (IsReversed ());
 }
 
 void OrientedFace::UpdateFacePartOf ()
 {
-    m_face->UpdateFacePartOf (m_reversed);
+    GetFace ()->UpdateFacePartOf (IsReversed ());
 }
 
 void OrientedFace::ClearFacePartOf ()
 {
-    m_face->ClearFacePartOf ();
+    GetFace ()->ClearFacePartOf ();
 }
 
 void OrientedFace::ClearBodyPartOf ()
 {
-    m_face->ClearBodyPartOf ();
+    GetFace ()->ClearBodyPartOf ();
 }
 
 size_t OrientedFace::GetNextValidIndex (size_t index) const
 {
-    return m_face->GetNextValidIndex (index);
+    return GetFace ()->GetNextValidIndex (index);
 }
 
 size_t OrientedFace::GetPreviousValidIndex (size_t index) const
 {
-    return m_face->GetPreviousValidIndex (index);
+    return GetFace ()->GetPreviousValidIndex (index);
 }
 
 size_t OrientedFace::size () const
 {
-    return m_face->GetEdgeCount ();
+    return GetFace ()->GetEdgeCount ();
 }
 
 Vertex* OrientedFace::getBegin (size_t edgeIndex) const
@@ -103,18 +118,18 @@ void OrientedFace::CalculateTranslation (
     destination.CalculateTranslation (source, translation);
 }
 
-size_t OrientedFace::GetId () const
+bool OrientedFace::IsPartOfBody (size_t bodyId) const
 {
-    return GetFace ()->GetId ();
+    return GetFace ()->IsPartOfBody (bodyId, IsReversed ());
 }
+
 
 // Static and Friends methods
 // ======================================================================
 
 ostream& operator<< (ostream& ostr, const OrientedFace& of)
 {
-    ostr << (of.m_reversed ? "(R) " : "(N) ")
-	 << "Oriented Face " << of.GetFace ()-> GetId () 
+    ostr << "Oriented Face " << of.GetSignedIdString () 
 	 << " " << of.GetFace ()->GetColor () << " "
 	 << of.GetFace ()->GetStatus ()
 	 << ": " << endl;
@@ -126,5 +141,6 @@ ostream& operator<< (ostream& ostr, const OrientedFace& of)
 	ostr << i << ": " << oe << endl;
     }
     ostr << " Face attributes: ";
-    return of.m_face->PrintAttributes (ostr);
+    return of.GetFace ()->PrintAttributes (ostr);
 }
+

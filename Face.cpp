@@ -68,29 +68,6 @@ AttributesInfo* Face::m_infos;
 
 // Methods
 // ======================================================================
-
-Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
-	   size_t id, Foam* data, ElementStatus::Name status) :
-    ColoredElement (id, data, status)
-{
-    m_orientedEdges.resize (edgeIndexes.size ());
-    transform (edgeIndexes.begin(), edgeIndexes.end(), m_orientedEdges.begin(), 
-               indexToOrientedEdge(edges));
-    if (m_data->IsTorus ())
-    {
-	G3D::Vector3* begin = (*m_orientedEdges.begin())->GetBegin ();
-	BOOST_FOREACH (OrientedEdge* oe, m_orientedEdges)
-	{
-	    Edge* edge = oe->GetEdge ();
-	    G3D::Vector3 edgeBegin = 
-		(oe->IsReversed ()) ? edge->GetBegin (begin) : *begin;
-	    oe->SetEdge (data->GetEdgeDuplicate (edge, edgeBegin));
-	    begin = oe->GetEnd ();
-	}
-    }
-}
-
-
 Face::Face (Edge* edge, size_t id) :
     ColoredElement (id, 0, ElementStatus::ORIGINAL)
 {
@@ -105,10 +82,36 @@ Face::Face (const Face& original) :
 	m_orientedEdges.push_back (new OrientedEdge (*oe));
 }
 
+Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
+	   size_t id, Foam* data, ElementStatus::Name status) :
+    ColoredElement (id, data, status)
+{
+    m_orientedEdges.resize (edgeIndexes.size ());
+    transform (edgeIndexes.begin(), edgeIndexes.end(), m_orientedEdges.begin(), 
+               indexToOrientedEdge(edges));
+    if (false && m_data->IsTorus ())
+	Unwrap ();
+}
+
 Face::~Face()
 {
     for_each(m_orientedEdges.begin(), m_orientedEdges.end(), bl::delete_ptr ());
 }
+
+
+void Face::Unwrap ()
+{
+    G3D::Vector3* begin = (*m_orientedEdges.begin())->GetBegin ();
+    BOOST_FOREACH (OrientedEdge* oe, m_orientedEdges)
+    {
+	Edge* edge = oe->GetEdge ();
+	G3D::Vector3 edgeBegin = 
+	    (oe->IsReversed ()) ? edge->GetBegin (begin) : *begin;
+	oe->SetEdge (m_data->GetEdgeDuplicate (edge, edgeBegin));
+	begin = oe->GetEnd ();
+    }
+}
+
 
 void Face::UpdateFacePartOf (bool faceReversed)
 {
@@ -197,10 +200,9 @@ bool Face::IsClosed () const
 	*m_orientedEdges[m_orientedEdges.size () - 1]->GetEnd ();
 }
 
-bool Face::IsAdjacent (size_t bodyId)
+bool Face::IsPartOfBody (size_t bodyId, bool reversed) const
 {
-    return m_bodiesPartOf[0].m_body->GetId () == bodyId ||
-	m_bodiesPartOf[1].m_body->GetId () == bodyId;
+    return m_bodiesPartOf[reversed].m_body->GetId () == bodyId;
 }
 
 

@@ -88,9 +88,9 @@ public:
     void AddFacePartOf (Face* face, bool faceReversed,
 			size_t edgeIndex, bool edgeReversed);
     void ClearFacePartOf ();
-    size_t GetFacePartOfSize () const
+    size_t GetFacePartOfSize (bool reversed) const
     {
-	return m_adjacentFaces.size ();
+	return m_adjacentFaces[reversed].size ();
     }
     const OrientedFaceIndex& GetFacePartOf (bool edgeReversed, size_t i) const
     {
@@ -129,9 +129,12 @@ public:
 
     bool ShouldDisplay () const
     {
-	return GetFacePartOfSize () != 0 ||
+	return 
+	    GetFacePartOfSize (true) != 0 || 
+	    GetFacePartOfSize (false) != 0 ||
 	    GetStatus () == ElementStatus::ORIGINAL;
     }
+    void Unwrap ();
     
 public:
     static short LocationCharToNumber (char sign);
