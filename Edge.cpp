@@ -51,15 +51,16 @@ Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endTranslation,
     m_physical (false),
     m_torusClipped (0)
 {
-    if (false && m_data->IsTorus () && GetStatus () == ElementStatus::ORIGINAL)
-	Unwrap ();
 }
 
-void Edge::Unwrap ()
+void Edge::Unwrap (Foam& foam)
 {
-    if (m_endTranslation == G3D::Vector3int16(0, 0, 0))
-	return;
-    m_end = m_data->GetVertexDuplicate (m_end, m_endTranslation);
+    if (GetStatus () == ElementStatus::ORIGINAL)
+    {
+	if (m_endTranslation == G3D::Vector3int16(0, 0, 0))
+	    return;
+	m_end = foam.GetVertexDuplicate (m_end, m_endTranslation);
+    }
 }
 
 G3D::Vector3 Edge::GetBegin (const G3D::Vector3* end) const
@@ -97,20 +98,6 @@ bool Edge::IsZero () const
     return (*GetEnd () - *GetBegin ()).isZero ();
 }
 
-Edge* Edge::CreateDuplicate (const G3D::Vector3& newBegin)
-{
-    SetStatus (ElementStatus::DUPLICATE_MADE);
-    G3D::Vector3int16 translation = m_data->GetPeriods ().GetTranslation (
-	*GetBegin (), newBegin);
-    Vertex* beginDuplicate = m_data->GetVertexDuplicate (
-	GetBegin (), translation);
-    Vertex* endDuplicate = m_data->GetVertexDuplicate (GetEnd (), translation);
-    Edge* duplicate = new Edge (*this);
-    duplicate->SetBegin (beginDuplicate);
-    duplicate->SetEnd (endDuplicate);
-    return duplicate;
-}
-
 
 G3D::Vector3 Edge::GetTorusClippedBegin (size_t index) const
 {
@@ -146,12 +133,11 @@ G3D::Vector3 Edge::GetTorusClippedEnd (size_t index) const
 }
 
 
-void Edge::CalculateTorusClipped ()
+void Edge::CalculateTorusClipped (const OOBox& periods)
 {
     using G3D::Vector3int16;using G3D::Vector3;using G3D::LineSegment;
-    const OOBox& periods = m_data->GetPeriods ();
-    Vector3int16 beginLocation = m_begin->GetLocation ();
-    Vector3int16 endLocation = m_end->GetLocation ();
+    Vector3int16 beginLocation = periods.GetLocation (*m_begin);
+    Vector3int16 endLocation = periods.GetLocation (*m_end);
     Vector3int16 translation = endLocation - beginLocation;
     size_t intersectionCount = OOBox::CountIntersections (translation);
     vector<Vector3> intersections(2);
@@ -177,11 +163,11 @@ void Edge::CalculateTorusClipped ()
     }
 }
 
-size_t Edge::GetTorusClippedSize () const
+size_t Edge::GetTorusClippedSize (const OOBox& periods) const
 {
     using G3D::Vector3int16;
-    Vector3int16 beginLocation = m_begin->GetLocation ();
-    Vector3int16 endLocation = m_end->GetLocation ();
+    Vector3int16 beginLocation = periods.GetLocation (*m_begin);
+    Vector3int16 endLocation = periods.GetLocation (*m_end);
     Vector3int16 translation = endLocation - beginLocation;
     size_t intersectionCount = OOBox::CountIntersections (translation);
     return intersectionCount + 1;

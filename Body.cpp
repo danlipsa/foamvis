@@ -200,6 +200,7 @@ ostream& Body::PrintFaceEdgeInformation (ostream& ostr)
 	OrientedFace* of = m_orientedFaces[i];
 	const BodyIndex& bi = of->GetBodyPartOf ();
 	ostr << "Face " << of->GetSignedIdString () 
+	     << " part of body " << setw (3) << bi.m_body->GetId ()
 	     << " at index " << bi.m_orientedFaceIndex << endl;
 	for (size_t j = 0; j < of->size (); j++)
 	{

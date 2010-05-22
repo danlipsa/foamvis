@@ -11,7 +11,7 @@
 string OrientedElement::GetSignedIdString () const
 {
     ostringstream ostr;
-    ostr << (m_reversed ? "R" : "N") << setw(4) << GetId () << ends;
+    ostr << (m_reversed ? "R" : "N") << setw(3) << GetId () << ends;
     return ostr.str ();
 }
 

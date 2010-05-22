@@ -19,7 +19,7 @@
 
 struct EdgeSearchDummy
 {
-    EdgeSearchDummy (const G3D::Vector3* position, Foam* data,
+    EdgeSearchDummy (const G3D::Vector3& position, Foam* data,
 		     size_t edgeOriginalIndex) : 
 	m_vertex (position, data), m_edge (&m_vertex, edgeOriginalIndex) {}
     Vertex m_vertex;
@@ -28,7 +28,7 @@ struct EdgeSearchDummy
 
 struct FaceSearchDummy
 {
-    FaceSearchDummy (const G3D::Vector3* position, Foam* data,
+    FaceSearchDummy (const G3D::Vector3& position, Foam* data,
 		     size_t faceOriginalIndex) : 
 	m_vertex (position, data), m_edge (&m_vertex, 0),
 	m_face (&m_edge, faceOriginalIndex) {}
@@ -133,6 +133,105 @@ Foam::~Foam ()
     delete m_parsingData;
 }
 
+Vertex* Foam::GetVertexDuplicate (
+    Vertex* original, const G3D::Vector3int16& translation)
+{
+    Vertex searchDummy (
+	GetPeriods ().TorusTranslate (*original, translation), this);
+    VertexSet::iterator it = fuzzyFind 
+	<VertexSet, VertexSet::iterator, VertexSet::key_type> (
+	    m_vertexSet, &searchDummy);
+    if (it != m_vertexSet.end ())
+	return *it;
+    Vertex* duplicate = CreateVertexDuplicate (original, translation);
+    m_vertexSet.insert (duplicate);
+    m_vertices.push_back (duplicate);
+    return duplicate;
+}
+
+Edge* Foam::GetEdgeDuplicate (
+    Edge* original, const G3D::Vector3& newBegin)
+{
+    EdgeSearchDummy searchDummy (
+	newBegin, this, original->GetId ());
+    EdgeSet::iterator it = 
+	fuzzyFind <EdgeSet, EdgeSet::iterator, EdgeSet::key_type> (
+	    m_edgeSet, &searchDummy.m_edge);
+    if (it != m_edgeSet.end ())
+	return *it;
+    Edge* duplicate = CreateEdgeDuplicate (original, newBegin);
+    m_edgeSet.insert (duplicate);
+    m_edges.push_back (duplicate);
+    return duplicate;
+}
+
+Face* Foam::GetFaceDuplicate (
+    const Face& original, const G3D::Vector3& newBegin)
+{
+    FaceSearchDummy searchDummy (newBegin, this, original.GetId ());
+    FaceSet::iterator it = m_faceSet.find (&searchDummy.m_face);
+    if (it != m_faceSet.end ())
+	return *it;
+    Face* duplicate = CreateFaceDuplicate (original, newBegin);
+    m_faceSet.insert (duplicate);
+    m_faces.push_back (duplicate);
+    return duplicate;
+}
+
+Vertex* Foam::CreateVertexDuplicate (
+    Vertex* original, const G3D::Vector3int16& domainIncrement)
+{
+    original->SetStatus (ElementStatus::DUPLICATE_MADE);
+    Vertex* duplicate = new Vertex (*original);
+    duplicate->SetStatus (ElementStatus::DUPLICATE);
+    TorusTranslate (duplicate, domainIncrement);
+    return duplicate;
+}
+
+void Foam::TorusTranslate (
+    Vertex* vertex, const G3D::Vector3int16& domainIncrement) const
+{
+    *static_cast<G3D::Vector3*>(vertex) = 
+	GetPeriods ().TorusTranslate (*vertex, domainIncrement);
+}
+
+
+Edge* Foam::CreateEdgeDuplicate (Edge* original, const G3D::Vector3& newBegin)
+{
+    original->SetStatus (ElementStatus::DUPLICATE_MADE);
+    G3D::Vector3int16 translation = GetPeriods ().GetTranslation (
+	*original->GetBegin (), newBegin);
+    Vertex* beginDuplicate = GetVertexDuplicate (
+	original->GetBegin (), translation);
+    Vertex* endDuplicate = GetVertexDuplicate (
+	original->GetEnd (), translation);
+    Edge* duplicate = new Edge (*original);
+    duplicate->SetBegin (beginDuplicate);
+    duplicate->SetEnd (endDuplicate);
+    return duplicate;
+}
+
+Face* Foam::CreateFaceDuplicate (
+    const Face& original, const G3D::Vector3& newBegin)
+{
+    Face* faceDuplicate = new Face(original);
+    G3D::Vector3 begin = newBegin;
+    BOOST_FOREACH (OrientedEdge* oe, faceDuplicate->GetOrientedEdges ())
+    {
+	G3D::Vector3 edgeBegin;
+	if (oe->IsReversed ())
+	    edgeBegin = oe->GetEdge ()->GetBegin (&begin);
+	else
+	    edgeBegin = begin;
+	Edge* edgeDuplicate = GetEdgeDuplicate (oe->GetEdge (), edgeBegin);
+	oe->SetEdge (edgeDuplicate);
+	begin = *oe->GetEnd ();
+    }
+    return faceDuplicate;
+}
+
+
+
 void Foam::SetVertex (size_t i, float x, float y, float z,
                      vector<NameSemanticValue*>& list) 
 {
@@ -144,54 +243,6 @@ void Foam::SetVertex (size_t i, float x, float y, float z,
             list, m_attributesInfo[DefineAttribute::VERTEX]);
     m_vertices[i] = vertex;
     m_vertexSet.insert (vertex);
-}
-
-Vertex* Foam::GetVertexDuplicate (
-    Vertex* original, const G3D::Vector3int16& translation)
-{
-    Vertex searchDummy (original, this, translation);
-    VertexSet::iterator it = fuzzyFind 
-	<VertexSet, VertexSet::iterator, VertexSet::key_type> (
-	    m_vertexSet, &searchDummy);
-    if (it != m_vertexSet.end ())
-	return *it;
-    Vertex* duplicate = original->CreateDuplicate (translation);
-    m_vertexSet.insert (duplicate);
-    m_vertices.push_back (duplicate);
-    return duplicate;
-}
-
-Edge* Foam::GetEdgeDuplicate (
-    Edge* original, const G3D::Vector3& newBegin)
-{
-    EdgeSearchDummy searchDummy (
-	&newBegin, this, original->GetId ());
-    EdgeSet::iterator it = 
-	fuzzyFind <EdgeSet, EdgeSet::iterator, EdgeSet::key_type> (
-	    m_edgeSet, &searchDummy.m_edge);
-    if (it != m_edgeSet.end ())
-	return *it;
-    Edge* duplicate = original->CreateDuplicate (newBegin);
-    m_edgeSet.insert (duplicate);
-    m_edges.push_back (duplicate);
-    return duplicate;
-}
-
-Face* Foam::GetFaceDuplicate (
-    const Face& original, const G3D::Vector3& newBegin)
-{
-    FaceSearchDummy searchDummy (&newBegin, this, original.GetId ());
-    FaceSet::iterator it = m_faceSet.find (&searchDummy.m_face);
-    if (it != m_faceSet.end ())
-	return *it;
-    Face* duplicate = original.CreateDuplicate (newBegin);
-    m_faceSet.insert (duplicate);
-    m_faces.push_back (duplicate);
-    /*
-    cdbg << "Original face:" << endl << original << endl
-	 << "Duplicate face:" << endl << *duplicate << endl;
-    */
-    return duplicate;
 }
 
 
@@ -206,7 +257,7 @@ void Foam::SetEdge (size_t i, size_t begin, size_t end,
     if (&list != 0)
         edge->StoreAttributes (list, m_attributesInfo[DefineAttribute::EDGE]);
     m_edges[i] = edge;
-    m_edgeSet.insert (edge);
+    // we insert the edge into m_edgeSet after unwrapping
 }
 
 void Foam::SetFace (size_t i,  vector<int>& edges,
@@ -218,7 +269,7 @@ void Foam::SetFace (size_t i,  vector<int>& edges,
     if (&list != 0)
         face->StoreAttributes (list, m_attributesInfo[DefineAttribute::FACE]);
     m_faces[i] = face;
-    m_faceSet.insert (face);
+    // we insert the face into m_faceSet after unwrapping
 }
 
 void Foam::SetBody (size_t i,  vector<int>& faces,
@@ -309,17 +360,36 @@ void Foam::CalculateBodiesCenters ()
 
 void Foam::CalculateTorusClipped ()
 {
+    const OOBox& periods = GetPeriods ();
     BOOST_FOREACH (Edge* e, m_edges)
     {
 	if (e->IsClipped ())
-	    e->CalculateTorusClipped ();
+	    e->CalculateTorusClipped (periods);
+    }
+}
+
+void Foam::Unwrap ()
+{
+    if (IsTorus ())
+    {
+	BOOST_FOREACH (Edge* e, m_edges)
+	{
+	    e->Unwrap (*this);
+	    m_edgeSet.insert (e);
+	}
+	BOOST_FOREACH (Face* f, m_faces)
+	{
+	    f->Unwrap (*this);
+	    m_faceSet.insert (f);
+	}
     }
 }
 
 void Foam::PostProcess ()
 {
     Compact ();
-    //UpdatePartOf ();
+    UpdatePartOf ();
+    Unwrap ();
     if (GetSpaceDimension () == 2)
     {
 	for_each (m_vertices.begin (), m_vertices.end (),

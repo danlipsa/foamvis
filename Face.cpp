@@ -89,8 +89,6 @@ Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges,
     m_orientedEdges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_orientedEdges.begin(), 
                indexToOrientedEdge(edges));
-    if (false && m_data->IsTorus ())
-	Unwrap ();
 }
 
 Face::~Face()
@@ -99,7 +97,7 @@ Face::~Face()
 }
 
 
-void Face::Unwrap ()
+void Face::Unwrap (Foam& foam)
 {
     G3D::Vector3* begin = (*m_orientedEdges.begin())->GetBegin ();
     BOOST_FOREACH (OrientedEdge* oe, m_orientedEdges)
@@ -107,7 +105,7 @@ void Face::Unwrap ()
 	Edge* edge = oe->GetEdge ();
 	G3D::Vector3 edgeBegin = 
 	    (oe->IsReversed ()) ? edge->GetBegin (begin) : *begin;
-	oe->SetEdge (m_data->GetEdgeDuplicate (edge, edgeBegin));
+	oe->SetEdge (foam.GetEdgeDuplicate (edge, edgeBegin));
 	begin = oe->GetEnd ();
     }
 }
@@ -172,25 +170,6 @@ G3D::Vector3 Face::GetNormal () const
     Vector3 one = GetOrientedEdge (0)->GetEdgeVector ();
     Vector3 two = GetOrientedEdge (1)->GetEdgeVector ();
     return (one.cross (two).unit ());
-}
-
-Face* Face::CreateDuplicate (const G3D::Vector3& newBegin) const
-{
-    Face* faceDuplicate = new Face(*this);
-    G3D::Vector3 begin = newBegin;
-    BOOST_FOREACH (OrientedEdge* oe, faceDuplicate->m_orientedEdges)
-    {
-	G3D::Vector3 edgeBegin;
-	if (oe->IsReversed ())
-	    edgeBegin = oe->GetEdge ()->GetBegin (&begin);
-	else
-	    edgeBegin = begin;
-	Edge* edgeDuplicate = m_data->GetEdgeDuplicate (
-	    oe->GetEdge (), edgeBegin);
-	oe->SetEdge (edgeDuplicate);
-	begin = *oe->GetEnd ();
-    }
-    return faceDuplicate;
 }
 
 bool Face::IsClosed () const

@@ -14,23 +14,23 @@ struct OrientedFaceIndex
 {
     OrientedFaceIndex (Face* face, bool faceReversed,
 		       size_t edgeIndex) :
-	m_face (face), m_faceReversed (faceReversed), m_edgeIndex (edgeIndex)
+	m_face (face), m_faceReversed (faceReversed), m_orientedEdgeIndex (edgeIndex)
     {}
     OrientedFaceIndex () :
-	m_face(0), m_faceReversed(false), m_edgeIndex(0)
+	m_face(0), m_faceReversed(false), m_orientedEdgeIndex(0)
     {}
     void clear ()
     {
 	m_face = 0;
 	m_faceReversed = false;
-	m_edgeIndex = 0;
+	m_orientedEdgeIndex = 0;
     }
 
     friend ostream& operator<< (ostream& ostr, const OrientedFaceIndex& ofi);
 
     Face* m_face;
     bool m_faceReversed;
-    size_t m_edgeIndex;
+    size_t m_orientedEdgeIndex;
 
 
 };

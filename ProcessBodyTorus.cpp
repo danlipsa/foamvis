@@ -21,7 +21,6 @@ ProcessBodyTorus::ProcessBodyTorus (Body* body) :
 
 void ProcessBodyTorus::Initialize ()
 {
-    m_body->UpdatePartOf ();
     OrientedFace* of = m_body->GetOrientedFace (0);
     m_traversed[0] = true;
     push (*of);
@@ -45,12 +44,12 @@ bool ProcessBodyTorus::Step ()
 	 << " faces" << endl
 	 << oe << endl
 	 << of << endl
-	 << "Edge index: " << ofi.m_edgeIndex << endl;
+	 << "Edge index: " << ofi.m_orientedEdgeIndex << endl;
 
 
 
     G3D::Vector3 translation;
-    of.CalculateTranslation (oe, ofi.m_edgeIndex, &translation);
+    of.CalculateTranslation (oe, ofi.m_orientedEdgeIndex, &translation);
     if (! translation.isZero ())
     {
 	Face* face = of.GetFace ();

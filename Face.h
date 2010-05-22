@@ -84,7 +84,6 @@ public:
     size_t GetPreviousValidIndex (size_t index) const;
     bool operator== (const Face& face) const;
     G3D::Vector3 GetNormal () const;
-    Face* CreateDuplicate (const G3D::Vector3& newBegin) const;
     ostream& PrintAttributes (ostream& ostr) const
     {
 	return printAttributes (ostr, *Face::m_infos);
@@ -99,7 +98,7 @@ public:
     {
 	return m_orientedEdges.size ();
     }
-    void Unwrap ();
+    void Unwrap (Foam& foam);
 
 public:
     /**

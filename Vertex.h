@@ -44,9 +44,8 @@ public:
     Vertex(float x, float y, float z,
 	   size_t id, Foam* data,
 	   ElementStatus::Name status = ElementStatus::ORIGINAL);
-    Vertex (const G3D::Vector3* position, Foam* data);
-    Vertex (const G3D::Vector3* position, Foam* data,
-	    const G3D::Vector3int16& domainIncrement);
+    Vertex (const G3D::Vector3& position, Foam* data);
+
     /**
      * Is this a physical (not tesselation) vertex
      * @return true if it is physical, false otherwise
@@ -67,17 +66,10 @@ public:
     G3D::Vector3int16 GetDomain () const;
     bool operator< (const Vertex& other) const;
     bool operator== (const Vertex& other) const;
-    Vertex* CreateDuplicate (const G3D::Vector3int16& domainIncrement);
-    G3D::Vector3int16 GetLocation () const;
-    bool InsideTorusOriginalDomain () const
-    {
-	return GetLocation () == G3D::Vector3int16 (0, 0, 0);
-    }
     ostream& PrintAttributes (ostream& ostr) const
     {
 	return printAttributes (ostr, *Vertex::m_infos);
     }
-    void TorusTranslate (const G3D::Vector3int16& domainIncrement);
 
 public:
     template <typename Vertices>

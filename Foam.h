@@ -67,6 +67,15 @@ public:
     }
     Vertex* GetVertexDuplicate (
 	Vertex* original, const G3D::Vector3int16& translation);
+    Edge* GetEdgeDuplicate (
+	Edge* original, const G3D::Vector3& edgeBegin);
+    Face* GetFaceDuplicate (
+	const Face& original, const G3D::Vector3& newBegin);
+    Vertex* CreateVertexDuplicate (
+	Vertex* original, const G3D::Vector3int16& domainIncrement);
+    Edge* CreateEdgeDuplicate (Edge* original, const G3D::Vector3& newBegin);
+    Face* CreateFaceDuplicate (
+	const Face& original, const G3D::Vector3& newBegin);
     /**
      * Gets the vector of vertices
      * @return the vector of vertices
@@ -93,8 +102,6 @@ public:
     {
 	return m_edges;
     }
-    Edge* GetEdgeDuplicate (
-	Edge* original, const G3D::Vector3& edgeBegin);
     /**
      * Stores an Edge object in the Foam object at a certain index
      * @param i index where to store the Edge object
@@ -116,8 +123,6 @@ public:
     {
 	return m_faces;
     }
-    Face* GetFaceDuplicate (
-	const Face& original, const G3D::Vector3& newBegin);
 
     Face* GetFace (size_t i)
     {
@@ -276,6 +281,7 @@ public:
     {
 	return m_edgeSet.find (edge) != m_edgeSet.end ();
     }
+    
     void SetSpaceDimension (size_t spaceDimension) 
     {
 	m_spaceDimension = spaceDimension;
@@ -289,6 +295,9 @@ public:
     {
 	return m_timeStep;
     }
+    void Unwrap ();
+    void TorusTranslate (
+	Vertex* vertex, const G3D::Vector3int16& domainIncrement) const;
 
 public:
     /**

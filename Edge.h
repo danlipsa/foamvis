@@ -11,6 +11,7 @@
 #include "OrientedFaceIndex.h"
 class AttributesInfo;
 class Vertex;
+class OOBox;
 /**
  * An edge is an object that stores a begin and an end vertex
  */
@@ -110,7 +111,6 @@ public:
     bool fuzzyEq (const Edge& other) const;
     bool operator< (const Edge& other) const;
     bool IsZero () const;
-    Edge* CreateDuplicate (const G3D::Vector3& newBegin);
     ostream& PrintAttributes (ostream& ostr) const
     {
 	return printAttributes (ostr, *Edge::m_infos);
@@ -118,8 +118,8 @@ public:
 
     G3D::Vector3 GetTorusClippedBegin (size_t index) const;
     G3D::Vector3 GetTorusClippedEnd (size_t index) const;
-    size_t GetTorusClippedSize () const;
-    void CalculateTorusClipped ();
+    size_t GetTorusClippedSize (const OOBox& periods) const;
+    void CalculateTorusClipped (const OOBox& periods);
     bool IsClipped () const
     {
 	ElementStatus::Name status = GetStatus ();
@@ -134,7 +134,7 @@ public:
 	    GetFacePartOfSize (false) != 0 ||
 	    GetStatus () == ElementStatus::ORIGINAL;
     }
-    void Unwrap ();
+    void Unwrap (Foam& foam);
     
 public:
     static short LocationCharToNumber (char sign);

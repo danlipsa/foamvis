@@ -12,6 +12,7 @@
 #include "DisplayElement.h"
 #include "Edge.h"
 #include "GLWidget.h"
+#include "Foam.h"
 
 void edgeRotation (
     G3D::Matrix3* rotation,
@@ -241,12 +242,13 @@ public:
     DisplayElement (widget) {}
     void operator () (const Edge* edge)
     {
+	const OOBox& periods = m_widget.GetCurrentFoam ().GetPeriods ();
 	if (edge->IsClipped ())
 	{
 	    Color::Name color = edge->GetColor (Color::BLACK);
 	    glColor4fv (Color::GetValue(color));
 	    glBegin(GL_LINES);
-	    for (size_t i = 0; i < edge->GetTorusClippedSize (); i++)
+	    for (size_t i = 0; i < edge->GetTorusClippedSize (periods); i++)
 	    {
 		glVertex(edge->GetTorusClippedBegin (i));
 		glVertex (edge->GetTorusClippedEnd (i));
