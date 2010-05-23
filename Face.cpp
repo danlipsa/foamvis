@@ -69,22 +69,21 @@ AttributesInfo* Face::m_infos;
 // Methods
 // ======================================================================
 Face::Face (Edge* edge, size_t id) :
-    ColoredElement (id, 0, ElementStatus::ORIGINAL)
+    ColoredElement (id, ElementStatus::ORIGINAL)
 {
     m_orientedEdges.push_back (new OrientedEdge (edge, false));
 }
 
 Face::Face (const Face& original) :
-    ColoredElement (original.GetId (), original.GetFoam (), 
-		    ElementStatus::DUPLICATE)
+    ColoredElement (original.GetId (), ElementStatus::DUPLICATE)
 {
     BOOST_FOREACH (OrientedEdge* oe, original.m_orientedEdges)
 	m_orientedEdges.push_back (new OrientedEdge (*oe));
 }
 
 Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
-	   size_t id, Foam* data, ElementStatus::Name status) :
-    ColoredElement (id, data, status)
+	   size_t id, ElementStatus::Name status) :
+    ColoredElement (id, status)
 {
     m_orientedEdges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_orientedEdges.begin(), 

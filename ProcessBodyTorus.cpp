@@ -15,8 +15,8 @@
 #include "OrientedFace.h"
 #include "Vertex.h"
 
-ProcessBodyTorus::ProcessBodyTorus (Body* body) : 
-    m_body (body), m_traversed (body->size (), false)
+ProcessBodyTorus::ProcessBodyTorus (Foam* foam, Body* body) : 
+    m_foam (foam), m_body (body), m_traversed (body->size (), false)
 {}
 
 void ProcessBodyTorus::Initialize ()
@@ -54,7 +54,7 @@ bool ProcessBodyTorus::Step ()
     {
 	Face* face = of.GetFace ();
 	const G3D::Vector3& begin = *face->GetOrientedEdge (0)->GetBegin ();
-	Face* f = m_body->GetFoam ()->GetFaceDuplicate (*face, begin);
+	Face* f = m_foam->GetFaceDuplicate (*face, begin);
 	const BodyIndex& bi = of.GetBodyPartOf ();
 	OrientedFace* bodyOf = 
 	    bi.m_body->GetOrientedFace (bi.m_orientedFaceIndex);

@@ -19,18 +19,16 @@
 
 struct EdgeSearchDummy
 {
-    EdgeSearchDummy (const G3D::Vector3& position, Foam* data,
-		     size_t edgeOriginalIndex) : 
-	m_vertex (position, data), m_edge (&m_vertex, edgeOriginalIndex) {}
+    EdgeSearchDummy (const G3D::Vector3& position, size_t edgeOriginalIndex) : 
+	m_vertex (position), m_edge (&m_vertex, edgeOriginalIndex) {}
     Vertex m_vertex;
     Edge m_edge;
 };
 
 struct FaceSearchDummy
 {
-    FaceSearchDummy (const G3D::Vector3& position, Foam* data,
-		     size_t faceOriginalIndex) : 
-	m_vertex (position, data), m_edge (&m_vertex, 0),
+    FaceSearchDummy (const G3D::Vector3& position, size_t faceOriginalIndex) : 
+	m_vertex (position), m_edge (&m_vertex, 0),
 	m_face (&m_edge, faceOriginalIndex) {}
     Vertex m_vertex;
     Edge m_edge;
@@ -137,7 +135,7 @@ Vertex* Foam::GetVertexDuplicate (
     Vertex* original, const G3D::Vector3int16& translation)
 {
     Vertex searchDummy (
-	GetPeriods ().TorusTranslate (*original, translation), this);
+	GetPeriods ().TorusTranslate (*original, translation));
     VertexSet::iterator it = fuzzyFind 
 	<VertexSet, VertexSet::iterator, VertexSet::key_type> (
 	    m_vertexSet, &searchDummy);
@@ -152,8 +150,7 @@ Vertex* Foam::GetVertexDuplicate (
 Edge* Foam::GetEdgeDuplicate (
     Edge* original, const G3D::Vector3& newBegin)
 {
-    EdgeSearchDummy searchDummy (
-	newBegin, this, original->GetId ());
+    EdgeSearchDummy searchDummy (newBegin, original->GetId ());
     EdgeSet::iterator it = 
 	fuzzyFind <EdgeSet, EdgeSet::iterator, EdgeSet::key_type> (
 	    m_edgeSet, &searchDummy.m_edge);
@@ -168,7 +165,7 @@ Edge* Foam::GetEdgeDuplicate (
 Face* Foam::GetFaceDuplicate (
     const Face& original, const G3D::Vector3& newBegin)
 {
-    FaceSearchDummy searchDummy (newBegin, this, original.GetId ());
+    FaceSearchDummy searchDummy (newBegin, original.GetId ());
     FaceSet::iterator it = m_faceSet.find (&searchDummy.m_face);
     if (it != m_faceSet.end ())
 	return *it;
@@ -237,7 +234,7 @@ void Foam::SetVertex (size_t i, float x, float y, float z,
 {
     if (i >= m_vertices.size ())
         m_vertices.resize (i + 1);
-    Vertex* vertex = new Vertex (x, y ,z, i, this);
+    Vertex* vertex = new Vertex (x, y ,z, i);
     if (&list != 0)
         vertex->StoreAttributes (
             list, m_attributesInfo[DefineAttribute::VERTEX]);
@@ -253,7 +250,7 @@ void Foam::SetEdge (size_t i, size_t begin, size_t end,
     if (i >= m_edges.size ())
         m_edges.resize (i + 1); 
     Edge* edge = new Edge (
-	GetVertex(begin), GetVertex(end), endTranslation, i, this);
+	GetVertex(begin), GetVertex(end), endTranslation, i);
     if (&list != 0)
         edge->StoreAttributes (list, m_attributesInfo[DefineAttribute::EDGE]);
     m_edges[i] = edge;
@@ -265,7 +262,7 @@ void Foam::SetFace (size_t i,  vector<int>& edges,
 {
     if (i >= m_faces.size ())
         m_faces.resize (i + 1);
-    Face* face = new Face (edges, m_edges, i, this);
+    Face* face = new Face (edges, m_edges, i);
     if (&list != 0)
         face->StoreAttributes (list, m_attributesInfo[DefineAttribute::FACE]);
     m_faces[i] = face;
@@ -277,7 +274,7 @@ void Foam::SetBody (size_t i,  vector<int>& faces,
 {
     if (i >= m_bodies.size ())
         m_bodies.resize (i + 1);
-    Body* body = new Body (faces, m_faces, i, this);
+    Body* body = new Body (faces, m_faces, i);
     if (&list != 0)
         body->StoreAttributes (list,
 			       m_attributesInfo[DefineAttribute::BODY]);    

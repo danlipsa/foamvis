@@ -32,7 +32,7 @@ public:
      * @param edges vector of Edge objects
      */
     Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
-	 size_t id, Foam* data,
+	 size_t id, 
 	 ElementStatus::Name status = ElementStatus::ORIGINAL);
     Face (const Face& original);
     Face (Edge* edge, size_t id);

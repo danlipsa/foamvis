@@ -186,6 +186,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_facesTorusTubes (false),
       m_edgesBodyCenter (false)
 {
+    cdbg << "---------- GLWidget constructor ----------\n";
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
     const int POSSIBILITIES = 3; //domain increment can be *, - or +
     using G3D::Vector3int16;
@@ -239,6 +240,7 @@ void GLWidget::initViewTypeDisplay ()
 
 void GLWidget::SetFoamAlongTime (FoamAlongTime* dataAlongTime) 
 {
+    cdbg << "SetFoamAlongTime\n";
     m_dataAlongTime = dataAlongTime;
     Face* f = 
 	GetCurrentFoam ().GetBody (0)->GetFace (0);
@@ -585,6 +587,7 @@ GLuint GLWidget::displayListVerticesTorus ()
     return list;
 }
 
+
 GLuint GLWidget::displayListEdges (
     boost::function<void (Edge*)> displayEdge,
     boost::function<bool (Edge*)> shouldDisplayEdge)
@@ -603,13 +606,15 @@ GLuint GLWidget::displayListEdges (
     return list;
 }
 
+
 GLuint GLWidget::displayListEdgesNormal ()
 {
+    using boost::mem_fn;
     return m_torusOriginalDomainClipped ?
-	displayListEdges (DisplayEdgeTorusClipped (this), 
-			  boost::mem_fn(&Edge::IsClipped)) :
-	displayListEdges (DisplayEdgeWithColor(this),
-			  boost::mem_fn(&Edge::ShouldDisplay));
+	displayListEdges (DisplayEdgeTorusClipped (*this),
+			  mem_fn(&Edge::IsClipped)) :
+	displayListEdges (DisplayEdgeWithColor (*this),
+			  mem_fn(&Edge::ShouldDisplay));
 }
 
 GLuint GLWidget::displayListEdgesPhysical ()

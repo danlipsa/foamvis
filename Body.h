@@ -12,7 +12,6 @@
 #include "Element.h"
 
 class AttributesInfo;
-class Foam;
 class Edge;
 class Face;
 class OrientedFace;
@@ -36,8 +35,7 @@ public:
      * @param faces vector of Face objects
      */
     Body(vector<int>& faceIndexes, vector<Face*>& faces,
-	 size_t id, Foam* data,
-	 ElementStatus::Name status = ElementStatus::ORIGINAL);
+	 size_t id, ElementStatus::Name status = ElementStatus::ORIGINAL);
     ~Body ();
 
     /**

@@ -333,6 +333,8 @@ private:
     GLuint displayListEdges (
 	boost::function<void (Edge*)> displayEdge,
 	boost::function<bool (Edge*)> shouldDisplayEdge);
+
+
     GLuint displayListEdgesNormal ();
     GLuint displayListEdgesTorus ()
     {

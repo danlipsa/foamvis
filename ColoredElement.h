@@ -14,9 +14,8 @@
 class ColoredElement : public Element
 {
 public:
-    ColoredElement(size_t id, Foam* data,
-		   ElementStatus::Name status) :
-    Element (id, data, status) 
+    ColoredElement(size_t id, ElementStatus::Name status) :
+    Element (id, status) 
     {}
 
     /**

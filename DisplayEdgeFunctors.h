@@ -210,7 +210,7 @@ public:
      */
     DisplayEdgeWithColor (const GLWidget& widget) : 
     DisplayElement (widget) {}
-    void operator () (const Edge* edge)
+    void operator () (const Edge* edge) const
     {
 	Color::Name color = edge->GetColor (Color::BLACK);
 	glColor4fv (Color::GetValue(color));
@@ -221,7 +221,7 @@ public:
 	glVertex (*e);
 	glEnd ();
     }
-    void operator () (const OrientedEdge& oe)
+    void operator () (const OrientedEdge& oe) const
     {
 	operator () (&oe);
     }
@@ -229,7 +229,7 @@ public:
      * Functor that displays an edge
      * @param e the edge to be displayed
      */
-    void operator() (const OrientedEdge* oe)
+    void operator() (const OrientedEdge* oe) const
     {
 	operator () (oe->GetEdge ());
     }
@@ -239,8 +239,8 @@ class DisplayEdgeTorusClipped : public DisplayElement
 {
 public:
     DisplayEdgeTorusClipped (const GLWidget& widget) : 
-    DisplayElement (widget) {}
-    void operator () (const Edge* edge)
+	DisplayElement (widget) {}
+    void operator () (const Edge* edge) const
     {
 	const OOBox& periods = m_widget.GetCurrentFoam ().GetPeriods ();
 	if (edge->IsClipped ())
@@ -256,11 +256,10 @@ public:
 	    glEnd ();
 	}
     }
-    void operator() (const OrientedEdge* oe)
+    void operator() (const OrientedEdge* oe) const
     {
 	operator () (oe->GetEdge ());
     }
-
 };
 
 

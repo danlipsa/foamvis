@@ -25,7 +25,7 @@ AttributesInfo* Edge::m_infos;
 // Methods
 // ======================================================================
 Edge::Edge (Vertex* begin, size_t id) :
-    ColoredElement (id, 0, ElementStatus::ORIGINAL),
+    ColoredElement (id, ElementStatus::ORIGINAL),
     m_begin (begin),
     m_end (0),
     m_physical (false),
@@ -34,8 +34,7 @@ Edge::Edge (Vertex* begin, size_t id) :
 }
 
 Edge::Edge (const Edge& o) : 
-    ColoredElement (o.GetId (), o.GetFoam (), 
-		    ElementStatus::DUPLICATE),
+    ColoredElement (o.GetId (), ElementStatus::DUPLICATE),
     m_begin (o.GetBegin ()), m_end (o.GetEnd ()),
     m_endTranslation (o.GetEndTranslation ()),
     m_physical (false),
@@ -44,8 +43,8 @@ Edge::Edge (const Edge& o) :
 }
 
 Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endTranslation, 
-	    size_t id, Foam* data, ElementStatus::Name status):
-    ColoredElement(id, data, status),
+	    size_t id, ElementStatus::Name status):
+    ColoredElement(id, status),
     m_begin (begin), m_end (end),
     m_endTranslation (endTranslation), 
     m_physical (false),

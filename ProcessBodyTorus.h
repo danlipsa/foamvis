@@ -11,12 +11,13 @@
 
 #include "OrientedEdge.h"
 class Body;
+class Foam;
 class OrientedFace;
 
 class ProcessBodyTorus
 {
 public:
-    ProcessBodyTorus (Body* body);
+    ProcessBodyTorus (Foam* foam, Body* body);
     void Initialize ();
     bool Step ();
     void Cleanup ();
@@ -27,6 +28,7 @@ private:
 	OrientedEdge* orientedEdge, OrientedFaceIndex* orientedFaceIndex);
 
 private:
+    Foam* m_foam;
     Body* m_body;
     queue<OrientedEdge> m_queue;
     vector<bool> m_traversed;

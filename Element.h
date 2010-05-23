@@ -11,7 +11,6 @@
 class Attribute;
 class AttributesInfo;
 class NameSemanticValue;
-class Foam;
 
 /**
  * Base class for  Vertex, Edge, Face and Body.  Encapsulates a vector
@@ -23,11 +22,10 @@ public:
     /**
      * Constructor for the Element
      */
-    Element(size_t id, Foam* data,
+    Element(size_t id,
 	    ElementStatus::Name status) : 
 	m_attributes(0),
 	m_id (id), 
-	m_data (data),
 	m_status (status)
     {}
     /**
@@ -62,10 +60,6 @@ public:
     {
 	m_status = status;
     }
-    Foam* GetFoam () const
-    {
-	return m_data;
-    }
 protected:
     /**
      * Pretty print attributes of an element
@@ -84,7 +78,6 @@ protected:
      * The original index for this element
      */
     size_t m_id;
-    Foam* m_data;
     ElementStatus::Name m_status;
 
 protected:

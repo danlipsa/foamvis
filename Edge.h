@@ -12,6 +12,7 @@
 class AttributesInfo;
 class Vertex;
 class OOBox;
+class Foam;
 /**
  * An edge is an object that stores a begin and an end vertex
  */
@@ -26,8 +27,7 @@ public:
      */
     Edge (Vertex* begin, Vertex* end, 
 	  G3D::Vector3int16& endLocation, 
-	  size_t id, Foam* data,
-	  ElementStatus::Name status = ElementStatus::ORIGINAL);
+	  size_t id, ElementStatus::Name status = ElementStatus::ORIGINAL);
     Edge (Vertex* begin, size_t id);
     Edge (const Edge& edge);
     /**

@@ -7,7 +7,6 @@
 #include "AttributeCreator.h"
 #include "AttributeInfo.h"
 #include "Body.h"
-#include "Foam.h"
 #include "Edge.h"
 #include "Debug.h"
 #include "DebugStream.h"
@@ -16,7 +15,6 @@
 #include "OrientedEdge.h"
 #include "OrientedFace.h"
 #include "ParsingDriver.h"
-#include "ProcessBodyTorus.h"
 #include "Vertex.h"
 
 // Private Classes
@@ -124,9 +122,8 @@ AttributesInfo* Body::m_infos;
 // ======================================================================
 
 Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
-	   size_t id, Foam* data,
-	   ElementStatus::Name status) :
-    Element(id, data, status)
+	   size_t id, ElementStatus::Name status) :
+    Element(id, status)
 {
     using boost::bind;
     m_orientedFaces.resize (faceIndexes.size ());
@@ -138,15 +135,6 @@ Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
     BOOST_FOREACH (OrientedFace* of, m_orientedFaces)
 	m_normalFaceMap->insert (OrientedFace::MakeNormalFacePair (of));
     m_currentNormalFace = m_normalFaceMap->begin ();
-
-    //if (m_data->IsTorus () && m_data->GetSpaceDimension () == 3)
-    if (false)
-    {
-	ProcessBodyTorus processForTorus (this);
-	processForTorus.Initialize ();
-	while (processForTorus.Step ())
-	    ;
-    }
 }
 
 Body::~Body ()
@@ -226,7 +214,7 @@ void Body::UpdatePartOf ()
 	of->AddBodyPartOf (this, i);
 	of->UpdateFacePartOf ();
     }
-    PrintFaceEdgeInformation (cdbg);
+    //PrintFaceEdgeInformation (cdbg);
 }
 
 void Body::ClearPartOf ()

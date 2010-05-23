@@ -172,10 +172,11 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     {
 	try
 	{
-	    Body* b = widgetGl->GetCurrentFoam ().GetBody (m_currentBody);
+	    Foam* foam = &widgetGl->GetCurrentFoam ();
+	    Body* b = foam->GetBody (m_currentBody);
 	    if (m_processBodyTorus == 0)
 	    {
-		m_processBodyTorus = new ProcessBodyTorus (b);
+		m_processBodyTorus = new ProcessBodyTorus (foam, b);
 		m_processBodyTorus->Initialize ();
 	    }
 	    else
