@@ -163,8 +163,11 @@ Edge* Foam::GetEdgeDuplicate (
 }
 
 Face* Foam::GetFaceDuplicate (
-    const Face& original, const G3D::Vector3& newBegin)
+    const Face& original, const G3D::Vector3& translation)
 {
+    const G3D::Vector3* begin = original.GetOrientedEdge (0)->GetBegin ();
+    const G3D::Vector3& newBegin = 
+	GetPeriods ().TorusTranslate (*begin, translation);
     FaceSearchDummy searchDummy (newBegin, original.GetId ());
     FaceSet::iterator it = m_faceSet.find (&searchDummy.m_face);
     if (it != m_faceSet.end ())

@@ -8,8 +8,11 @@
 #ifndef __ORIENTED_FACE_INDEX_H__
 #define __ORIENTED_FACE_INDEX_H__
 
-class OrientedFace;
 class BodyIndex;
+class Face;
+class OrientedEdge;
+class OrientedFace;
+
 
 class OrientedFaceIndex
 {
@@ -27,7 +30,8 @@ public:
     {
 	return m_orientedFace;
     }
-    void GetOrientedEdge (OrientedEdge* oe) const;
+    Face* GetFace () const;
+    OrientedEdge GetOrientedEdge () const;
     size_t GetOrientedEdgeIndex () const
     {
 	return m_orientedEdgeIndex;
@@ -42,7 +46,10 @@ public:
 	m_orientedFace = 0;
 	m_orientedEdgeIndex = 0;
     }
+    bool IsValidNext (const OrientedFaceIndex& next) const;
 
+
+public:
     friend ostream& operator<< (ostream& ostr, const OrientedFaceIndex& ofi);
 
 private:

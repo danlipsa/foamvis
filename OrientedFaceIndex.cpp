@@ -18,19 +18,32 @@ const BodyIndex& OrientedFaceIndex::GetBodyIndex () const
 
 bool OrientedFaceIndex::IsOrientedEdgeReversed () const
 {
-    OrientedEdge orientedEdge;
-    GetOrientedEdge (&orientedEdge);
-    return orientedEdge.IsReversed ();
+    return GetOrientedEdge ().IsReversed ();
 }
 
-void OrientedFaceIndex::GetOrientedEdge (OrientedEdge* oe) const
+OrientedEdge OrientedFaceIndex::GetOrientedEdge () const
 {
-    GetOrientedFace ()->GetOrientedEdge (GetOrientedEdgeIndex (), oe);
+    return GetOrientedFace ()->GetOrientedEdge (GetOrientedEdgeIndex ());
 }
 
 size_t OrientedFaceIndex::GetBodyId () const
 {
     return GetBodyIndex ().GetBodyId ();
+}
+
+bool OrientedFaceIndex::IsValidNext (const OrientedFaceIndex& next) const
+{
+    using G3D::Vector3;
+    Vector3 originalNormal = GetOrientedFace()->GetNormal ();
+    Vector3 nextNormal = next.GetOrientedFace()->GetNormal ();
+    Vector3 nextEdge = next.GetOrientedEdge ().GetEdgeVector ().unit ();
+    Vector3 alongEdge = nextNormal.cross (originalNormal).direction ();
+    return alongEdge.fuzzyEq (nextEdge);
+}
+
+Face* OrientedFaceIndex::GetFace () const
+{
+    GetOrientedFace ()->GetFace ();
 }
 
 

@@ -142,8 +142,7 @@ protected:
     virtual void display (const OrientedFace* f)
     {
 	using G3D::Vector3;
-	OrientedEdge oe;
-	f->GetOrientedEdge (0, &oe);
+	const OrientedEdge& oe = f->GetOrientedEdge (0);
 	float size = oe.GetEdgeVector ().length ();
 	Vector3 normal = f->GetNormal ();
 	Vector3 begin = *oe.GetBegin ();
@@ -153,8 +152,7 @@ protected:
 
 	for (size_t i = 0; i < f->size (); i++)
 	{
-	    OrientedEdge oe;
-	    f->GetOrientedEdge (i, &oe);
+	    const OrientedEdge& oe = f->GetOrientedEdge (i);
 	    Vector3 edgeVector = oe.GetEdgeVector ();
 	    Vector3 edgeNormal = edgeVector.cross (normal).unit ();
 	    begin = *oe.GetBegin ();

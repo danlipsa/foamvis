@@ -194,8 +194,7 @@ ostream& Body::PrintFaceEdgeInformation (ostream& ostr) const
 	     << " at index " << bi.GetOrientedFaceIndex () << endl;
 	for (size_t j = 0; j < of->size (); j++)
 	{
-	    OrientedEdge oe;
-	    of->GetOrientedEdge (j, &oe);
+	    const OrientedEdge& oe = of->GetOrientedEdge (j);
 	    ostr << "    Edge " << oe.GetSignedIdString () << " is part of: ";
 	    for (size_t k = 0; k < oe.GetFacePartOfSize (); k++)
 	    {

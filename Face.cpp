@@ -155,10 +155,11 @@ bool Face::operator== (const Face& face) const
 
 void Face::CalculateNormal ()
 {
-    using boost::bind; using G3D::Vector3;
-    Vector3 one = GetOrientedEdge (0)->GetEdgeVector ();
-    Vector3 two = GetOrientedEdge (1)->GetEdgeVector ();
-    m_normal = (one.cross (two).unit ());
+    using G3D::Vector3; using G3D::Plane;
+    OrientedEdge* one = GetOrientedEdge (0);
+    OrientedEdge* two = GetOrientedEdge (1);
+    G3D::Plane plane (*one->GetBegin (), *two->GetBegin (), *two->GetEnd ());
+    m_normal = plane.normal ();
 }
 
 bool Face::IsClosed () const

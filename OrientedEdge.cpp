@@ -83,7 +83,7 @@ const OrientedFaceIndex& OrientedEdge::GetFacePartOf (size_t i) const
     return GetEdge ()->GetFacePartOf (i);
 }
 
-void OrientedEdge::AddFacePartOf (OrientedFace* face, size_t edgeIndex)
+void OrientedEdge::AddFacePartOf (OrientedFace* face, size_t edgeIndex) const
 {
     GetEdge ()->AddFacePartOf (face, edgeIndex);
 }

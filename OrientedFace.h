@@ -74,16 +74,13 @@ public:
     /**
      * Gets the oriented edge at edgeIndex in face order.
      */
-    void GetOrientedEdge (size_t edgeIndex, OrientedEdge* oe) const;
+    OrientedEdge GetOrientedEdge (size_t edgeIndex) const;
 
     size_t GetNextValidIndex (size_t index) const;
     size_t GetPreviousValidIndex (size_t index) const;
     G3D::Vector3 GetNormal () const;
 
     size_t size () const;
-    void CalculateTranslation (
-	const OrientedEdge& edge, size_t edgeIndex, 
-	G3D::Vector3* translation) const;
     
 public:
     /**

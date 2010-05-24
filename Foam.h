@@ -70,7 +70,7 @@ public:
     Edge* GetEdgeDuplicate (
 	Edge* original, const G3D::Vector3& edgeBegin);
     Face* GetFaceDuplicate (
-	const Face& original, const G3D::Vector3& newBegin);
+	const Face& original, const G3D::Vector3& translation);
     Vertex* CreateVertexDuplicate (
 	Vertex* original, const G3D::Vector3int16& translation);
     Edge* CreateEdgeDuplicate (Edge* original, const G3D::Vector3& newBegin);

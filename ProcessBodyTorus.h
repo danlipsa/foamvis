@@ -24,9 +24,8 @@ public:
 
 private:
     void push (OrientedFace* of);
-    bool pop (
-	OrientedEdge* orientedEdge, OrientedFaceIndex* orientedFaceIndex);
-
+    bool pop (OrientedFaceIndex* orientedFaceIndex,
+	      OrientedFaceIndex* nextOrientedFaceIndex);
 private:
     Foam* m_foam;
     Body* m_body;

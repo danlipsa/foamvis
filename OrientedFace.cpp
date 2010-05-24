@@ -27,8 +27,8 @@ void OrientedFace::SetFace (Face* face)
     SetElement (face);
 }
 
-void OrientedFace::GetOrientedEdge (
-    size_t edgeIndex, OrientedEdge* oEdge) const
+OrientedEdge OrientedFace::GetOrientedEdge (
+    size_t edgeIndex) const
 {
     Face::OrientedEdges& v = GetFace ()->GetOrientedEdges ();
     RuntimeAssert (edgeIndex < v.size (),
@@ -46,7 +46,7 @@ void OrientedFace::GetOrientedEdge (
     bool reversed = oe->IsReversed ();
     if (IsReversed ())
 	reversed = ! reversed;
-    *oEdge = OrientedEdge (oe->GetEdge (), reversed);
+    return OrientedEdge (oe->GetEdge (), reversed);
 }
 
 G3D::Vector3 OrientedFace::GetNormal () const
@@ -69,8 +69,7 @@ void OrientedFace::UpdateFacePartOf ()
 {
     for (size_t i = 0; i < size (); i++)
     {
-	OrientedEdge oe;
-	GetOrientedEdge (i, &oe);
+	const OrientedEdge& oe = GetOrientedEdge (i);
 	oe.AddFacePartOf (this, i);
     }
 }
@@ -102,25 +101,14 @@ size_t OrientedFace::size () const
 
 Vertex* OrientedFace::getBegin (size_t edgeIndex) const
 {
-    OrientedEdge oe;
-    GetOrientedEdge (edgeIndex, &oe);
+    const OrientedEdge& oe = GetOrientedEdge (edgeIndex);
     return oe.GetBegin ();
 }
 
 Vertex* OrientedFace::getEnd (size_t edgeIndex) const
 {
-    OrientedEdge oe;
-    GetOrientedEdge (edgeIndex, &oe);
+    const OrientedEdge& oe = GetOrientedEdge (edgeIndex);
     return oe.GetEnd ();
-}
-
-void OrientedFace::CalculateTranslation (
-    const OrientedEdge& destination, size_t edgeIndex, 
-    G3D::Vector3* translation) const
-{
-    OrientedEdge source;
-    GetOrientedEdge (edgeIndex, &source);
-    destination.CalculateTranslation (source, translation);
 }
 
 bool OrientedFace::IsPartOfBody (size_t bodyId) const
@@ -140,11 +128,7 @@ ostream& operator<< (ostream& ostr, const OrientedFace& of)
 	 << ": " << endl;
     ostr << of.size () << " edges part of the face:" << endl;
     for (size_t i = 0; i < of.size (); i++)
-    {
-	OrientedEdge oe;
-	of.GetOrientedEdge (i, &oe);
-	ostr << i << ": " << oe << endl;
-    }
+	ostr << i << ": " << of.GetOrientedEdge (i) << endl;
     ostr << " Face attributes: ";
     return of.GetFace ()->PrintAttributes (ostr);
 }
