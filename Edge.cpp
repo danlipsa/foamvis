@@ -67,10 +67,10 @@ G3D::Vector3 Edge::GetBegin (const G3D::Vector3* end) const
     return *end + (*GetBegin () - *GetEnd ());
 }
 
-void Edge::UpdateVertexAdjacency ()
+void Edge::UpdateEdgePartOf ()
 {
-    this->GetBegin ()->AddAdjacentEdge (this);
-    this->GetEnd ()->AddAdjacentEdge (this);
+    this->GetBegin ()->AddEdgePartOf (this);
+    this->GetEnd ()->AddEdgePartOf (this);
 }
 
 bool Edge::operator< (const Edge& other) const
@@ -173,17 +173,14 @@ size_t Edge::GetTorusClippedSize (const OOBox& periods) const
 }
 
 
-void Edge::AddFacePartOf (Face* face, bool faceReversed,
-			  size_t edgeIndex, bool edgeReversed)
+void Edge::AddFacePartOf (OrientedFace* orientedFace, size_t edgeIndex)
 {
-    m_adjacentFaces[edgeReversed].push_back (
-	OrientedFaceIndex (face, faceReversed, edgeIndex));
+    m_facesPartOf.push_back (OrientedFaceIndex (orientedFace, edgeIndex));
 }
 
 void Edge::ClearFacePartOf ()
 {
-    BOOST_FOREACH (vector<OrientedFaceIndex>& v, m_adjacentFaces)
-	v.resize (0);
+    m_facesPartOf.resize (0);
 }
 
 
@@ -242,7 +239,7 @@ ostream& operator<< (ostream& ostr, const Edge& e)
 	 << ": "
 	 << static_cast<G3D::Vector3>(*e.m_begin) << ", " 
 	 << static_cast<G3D::Vector3>(*e.m_end)
-	 << " Adjacent faces(" << e.m_adjacentFaces.size () << ")"
+	 << " Adjacent faces(" << e.m_facesPartOf.size () << ")"
 	 << " Edge attributes: ";
     return e.PrintAttributes (ostr);
 }

@@ -181,15 +181,17 @@ void Body::CalculateCenter ()
     m_center /= Vector3(size, size, size);
 }
 
-ostream& Body::PrintFaceEdgeInformation (ostream& ostr)
+ostream& Body::PrintFaceEdgeInformation (ostream& ostr) const
 {
+    size_t bodyId = GetId ();
+    ostr << "Face edge information for body :" << bodyId << endl;
     for (size_t i = 0; i < m_orientedFaces.size (); i++)
     {
 	OrientedFace* of = m_orientedFaces[i];
 	const BodyIndex& bi = of->GetBodyPartOf ();
 	ostr << "Face " << of->GetSignedIdString () 
-	     << " part of body " << setw (3) << bi.m_body->GetId ()
-	     << " at index " << bi.m_orientedFaceIndex << endl;
+	     << " part of body " << setw (3) << bi.GetBody ()->GetId ()
+	     << " at index " << bi.GetOrientedFaceIndex () << endl;
 	for (size_t j = 0; j < of->size (); j++)
 	{
 	    OrientedEdge oe;
@@ -198,7 +200,9 @@ ostream& Body::PrintFaceEdgeInformation (ostream& ostr)
 	    for (size_t k = 0; k < oe.GetFacePartOfSize (); k++)
 	    {
 		const OrientedFaceIndex& ofi = oe.GetFacePartOf (k);
-		ostr << ofi << " ";
+		if (ofi.GetBodyId () == bodyId &&
+		    oe.IsReversed () == ofi.IsOrientedEdgeReversed ())
+		    ostr << ofi << " ";
 	    }
 	    ostr << endl;
 	}

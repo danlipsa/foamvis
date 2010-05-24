@@ -6,18 +6,41 @@
  * Implementation of the OrientedFaceIndex class
  */
 
+#include "Body.h"
 #include "OrientedFaceIndex.h"
 #include "OrientedFace.h"
-#include "Body.h"
+#include "OrientedEdge.h"
+
+const BodyIndex& OrientedFaceIndex::GetBodyIndex () const
+{
+    return GetOrientedFace ()->GetBodyPartOf ();
+}
+
+bool OrientedFaceIndex::IsOrientedEdgeReversed () const
+{
+    OrientedEdge orientedEdge;
+    GetOrientedEdge (&orientedEdge);
+    return orientedEdge.IsReversed ();
+}
+
+void OrientedFaceIndex::GetOrientedEdge (OrientedEdge* oe) const
+{
+    GetOrientedFace ()->GetOrientedEdge (GetOrientedEdgeIndex (), oe);
+}
+
+size_t OrientedFaceIndex::GetBodyId () const
+{
+    return GetBodyIndex ().GetBodyId ();
+}
+
+
+// Static and friends methods
+// ======================================================================
 
 ostream& operator<< (ostream& ostr, const OrientedFaceIndex& ofi)
 {
-    OrientedFace of (ofi.m_face, ofi.m_faceReversed);
-    const BodyIndex& bi = of.GetBodyPartOf ();
-    ostr << "(of=" << of.GetSignedIdString () << ", " 
-	 << "oeI=" << ofi.m_orientedEdgeIndex 
-	 << ", b=" << bi.m_body->GetId () 
-	 << ", ofI=" << bi.m_orientedFaceIndex
+    ostr << "(of=" << ofi.GetOrientedFace ()->GetSignedIdString () << ", " 
+	 << "oeI=" << ofi.GetOrientedEdgeIndex ()
 	 << ")";
     return ostr;
 }

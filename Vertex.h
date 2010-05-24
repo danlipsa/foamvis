@@ -60,7 +60,7 @@ public:
      * Adds an edge that is adjacent to this vertex
      * @param edge edge touched by this vertex
      */
-    void AddAdjacentEdge (Edge* edge);
+    void AddEdgePartOf (Edge* edge);
     G3D::Vector3int16 GetDomain () const;
     bool operator< (const Vertex& other) const;
     bool operator== (const Vertex& other) const;

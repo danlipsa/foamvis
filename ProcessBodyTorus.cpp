@@ -23,7 +23,7 @@ void ProcessBodyTorus::Initialize ()
 {
     OrientedFace* of = m_body->GetOrientedFace (0);
     m_traversed[0] = true;
-    push (*of);
+    push (of);
 }
 
 void ProcessBodyTorus::Cleanup ()
@@ -38,18 +38,17 @@ bool ProcessBodyTorus::Step ()
     OrientedFaceIndex ofi;
     if (! pop (&oe, &ofi))
 	return false;
-    OrientedFace of (ofi.m_face, ofi.m_faceReversed);
-
+    OrientedFace& of = *ofi.GetOrientedFace ();
     cdbg << "Edge part of " << oe.GetFacePartOfSize () 
 	 << " faces" << endl
 	 << oe << endl
 	 << of << endl
-	 << "Edge index: " << ofi.m_orientedEdgeIndex << endl;
+	 << "Edge index: " << ofi.GetOrientedEdgeIndex () << endl;
 
 
 
     G3D::Vector3 translation;
-    of.CalculateTranslation (oe, ofi.m_orientedEdgeIndex, &translation);
+    of.CalculateTranslation (oe, ofi.GetOrientedEdgeIndex (), &translation);
     if (! translation.isZero ())
     {
 	Face* face = of.GetFace ();
@@ -57,10 +56,10 @@ bool ProcessBodyTorus::Step ()
 	Face* f = m_foam->GetFaceDuplicate (*face, begin);
 	const BodyIndex& bi = of.GetBodyPartOf ();
 	OrientedFace* bodyOf = 
-	    bi.m_body->GetOrientedFace (bi.m_orientedFaceIndex);
+	    bi.GetBody ()->GetOrientedFace (bi.GetOrientedFaceIndex ());
 	bodyOf->SetFace (f);
 
-	cdbg << "Translation: Face index: " << bi.m_orientedFaceIndex << endl;
+	cdbg << "Translation: Face index: " << bi.GetOrientedFaceIndex () << endl;
 
     }
     return true;
@@ -69,38 +68,41 @@ bool ProcessBodyTorus::Step ()
 
 // Private Methods
 // ======================================================================
-void ProcessBodyTorus::push (const OrientedFace& of)
+void ProcessBodyTorus::push (OrientedFace* of)
 {
-    for (size_t i = 0; i < of.size (); i++)
-    {
-	OrientedEdge oe;
-	of.GetOrientedEdge (i, &oe);
-	oe.Reverse ();
-	m_queue.push (oe);
-    }
+    for (size_t i = 0; i < of->size (); i++)
+	m_queue.push (OrientedFaceIndex (of, i));
 }
 
 bool ProcessBodyTorus::pop (
     OrientedEdge* orientedEdge, OrientedFaceIndex* orientedFaceIndex)
 {
-    OrientedEdge oe;
+    OrientedFaceIndex srcOfi;
     while (m_queue.size () > 0)
     {
-	oe = m_queue.front ();
+	srcOfi = m_queue.front ();
 	m_queue.pop ();
+	OrientedEdge destOe;
+	srcOfi.GetOrientedEdge (&destOe);
+	size_t srcBodyId = srcOfi.
+	destOe.Reverse ();
 	size_t i;
-	for (i = 0; i < oe.GetFacePartOfSize (); i++)
+	for (i = 0; i < destOe.GetFacePartOfSize (); i++)
 	{
-	    const OrientedFaceIndex& ofi = oe.GetFacePartOf (i);
-	    OrientedFace of (ofi.m_face, ofi.m_faceReversed);
+	    const OrientedFaceIndex& destOfi = destOe.GetFacePartOf (i);
+	    if (srcBodyId != destOfi.GetBodyId () ||
+		destOe.IsReversed () != destOfi.IsOrientedEdgeReversed ())
+		continue;
+
+	    const OrientedFace& of = *destOfi.GetOrientedFace ();
 	    const BodyIndex& bi = of.GetBodyPartOf ();
 	    
-	    if (! m_traversed[bi.m_orientedFaceIndex])
+	    if (! m_traversed[bi.GetOrientedFaceIndex ()])
 	    {
 		push (of);
-		m_traversed[bi.m_orientedFaceIndex] = true;
-		*orientedEdge = oe;
-		*orientedFaceIndex = ofi;
+		m_traversed[bi.GetOrientedFaceIndex ()] = true;
+		*orientedEdge = destOe;
+		*orientedFaceIndex = destOfi;
 		return true;
 	    }
 	}

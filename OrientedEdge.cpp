@@ -75,17 +75,16 @@ bool OrientedEdge::IsZero () const
 
 size_t OrientedEdge::GetFacePartOfSize () const
 {
-    return GetEdge ()->GetFacePartOfSize (IsReversed ());
+    return GetEdge ()->GetFacePartOfSize ();
 }
 
 const OrientedFaceIndex& OrientedEdge::GetFacePartOf (size_t i) const
 {
-    return GetEdge ()->GetFacePartOf (IsReversed (), i);
+    return GetEdge ()->GetFacePartOf (i);
 }
 
-void OrientedEdge::AddFacePartOf (
-    Face* face, bool faceReversed, size_t edgeIndex)
+void OrientedEdge::AddFacePartOf (OrientedFace* face, size_t edgeIndex)
 {
-    GetEdge ()->AddFacePartOf (face, faceReversed, edgeIndex, IsReversed ());
+    GetEdge ()->AddFacePartOf (face, edgeIndex);
 }
 

@@ -8,28 +8,45 @@
 #ifndef __ORIENTED_FACE_INDEX_H__
 #define __ORIENTED_FACE_INDEX_H__
 
-class Face;
+class OrientedFace;
+class BodyIndex;
 
-struct OrientedFaceIndex
+class OrientedFaceIndex
 {
-    OrientedFaceIndex (Face* face, bool faceReversed,
-		       size_t edgeIndex) :
-	m_face (face), m_faceReversed (faceReversed), m_orientedEdgeIndex (edgeIndex)
-    {}
+public:
+    OrientedFaceIndex (OrientedFace* face, size_t edgeIndex) :
+	m_orientedFace (face),
+	m_orientedEdgeIndex (edgeIndex)
+    {
+    }
     OrientedFaceIndex () :
-	m_face(0), m_faceReversed(false), m_orientedEdgeIndex(0)
-    {}
+	m_orientedFace(0), m_orientedEdgeIndex(0)
+    {
+    }
+    OrientedFace* GetOrientedFace () const
+    {
+	return m_orientedFace;
+    }
+    void GetOrientedEdge (OrientedEdge* oe) const;
+    size_t GetOrientedEdgeIndex () const
+    {
+	return m_orientedEdgeIndex;
+    }
+    bool IsOrientedEdgeReversed () const;
+
+    const BodyIndex& GetBodyIndex () const;
+    size_t GetBodyId () const;
+
     void clear ()
     {
-	m_face = 0;
-	m_faceReversed = false;
+	m_orientedFace = 0;
 	m_orientedEdgeIndex = 0;
     }
 
     friend ostream& operator<< (ostream& ostr, const OrientedFaceIndex& ofi);
 
-    Face* m_face;
-    bool m_faceReversed;
+private:
+    OrientedFace* m_orientedFace;
     size_t m_orientedEdgeIndex;
 
 

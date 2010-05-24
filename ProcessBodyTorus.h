@@ -9,7 +9,7 @@
 #ifndef __PROCESS_BODY_TORUS_H__
 #define __PROCESS_BODY_TORUS_H__
 
-#include "OrientedEdge.h"
+#include "OrientedFaceIndex.h"
 class Body;
 class Foam;
 class OrientedFace;
@@ -23,14 +23,14 @@ public:
     void Cleanup ();
 
 private:
-    void push (const OrientedFace& of);
+    void push (OrientedFace* of);
     bool pop (
 	OrientedEdge* orientedEdge, OrientedFaceIndex* orientedFaceIndex);
 
 private:
     Foam* m_foam;
     Body* m_body;
-    queue<OrientedEdge> m_queue;
+    queue<OrientedFaceIndex> m_queue;
     vector<bool> m_traversed;
 };
 

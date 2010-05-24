@@ -46,7 +46,7 @@ Vertex::Vertex (const G3D::Vector3& position) :
 {}
 
 
-void Vertex::AddAdjacentEdge (Edge* edge) 
+void Vertex::AddEdgePartOf (Edge* edge) 
 {
     m_adjacentEdges.push_back (edge);
     if (edge->IsPhysical ())

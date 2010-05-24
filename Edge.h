@@ -10,9 +10,11 @@
 #include "ColoredElement.h"
 #include "OrientedFaceIndex.h"
 class AttributesInfo;
-class Vertex;
-class OOBox;
 class Foam;
+class OOBox;
+class OrientedFace;
+class Vertex;
+
 /**
  * An edge is an object that stores a begin and an end vertex
  */
@@ -73,7 +75,7 @@ public:
      */
     bool IsPhysical () const
     {
-	return m_physical || (m_adjacentFaces.size () == 3);
+	return m_physical || (m_facesPartOf.size () == 3);
     }
     void SetPhysical (bool physical)
     {
@@ -86,23 +88,22 @@ public:
      * @param reversed the edge is reversed in the face list
      * @param
      */
-    void AddFacePartOf (Face* face, bool faceReversed,
-			size_t edgeIndex, bool edgeReversed);
+    void AddFacePartOf (OrientedFace* face, size_t edgeIndex);
     void ClearFacePartOf ();
-    size_t GetFacePartOfSize (bool reversed) const
+    size_t GetFacePartOfSize () const
     {
-	return m_adjacentFaces[reversed].size ();
+	return m_facesPartOf.size ();
     }
-    const OrientedFaceIndex& GetFacePartOf (bool edgeReversed, size_t i) const
+    const OrientedFaceIndex& GetFacePartOf (size_t i) const
     {
-	return m_adjacentFaces[edgeReversed][i];
+	return m_facesPartOf[i];
     }
 
     /**
      * For both  vertices of this edge,  add the edge as  being adjacent to
      * the vertices
      */
-    void UpdateVertexAdjacency ();
+    void UpdateEdgePartOf ();
     const G3D::Vector3int16& GetEndTranslation () const
     {
 	return m_endTranslation;
@@ -129,9 +130,7 @@ public:
 
     bool ShouldDisplay () const
     {
-	return 
-	    GetFacePartOfSize (true) != 0 || 
-	    GetFacePartOfSize (false) != 0 ||
+	return GetFacePartOfSize () != 0 || 
 	    GetStatus () == ElementStatus::ORIGINAL;
     }
     void Unwrap (Foam& foam);
@@ -153,7 +152,7 @@ public:
     friend ostream& operator<< (ostream& ostr, const Edge& e);
 
 private:
-    typedef boost::array<vector<OrientedFaceIndex>, 2> AdjacentOrientedFaces;
+    typedef vector<OrientedFaceIndex> OrientedFacesPartOf;
 
 private:
     /**
@@ -169,7 +168,7 @@ private:
      * Stores adjacent faces to this edge. Assume no duplicate edges
      * in 3D torus model.
      */
-    AdjacentOrientedFaces m_adjacentFaces;
+    OrientedFacesPartOf m_facesPartOf;
     bool m_physical;
     boost::scoped_ptr< vector<G3D::LineSegment> > m_torusClipped;
 

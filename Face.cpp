@@ -77,6 +77,7 @@ Face::Face (Edge* edge, size_t id) :
 Face::Face (const Face& original) :
     ColoredElement (original.GetId (), ElementStatus::DUPLICATE)
 {
+    m_bodiesPartOf.reserve (2);
     BOOST_FOREACH (OrientedEdge* oe, original.m_orientedEdges)
 	m_orientedEdges.push_back (new OrientedEdge (*oe));
 }
@@ -85,6 +86,7 @@ Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges,
 	   size_t id, ElementStatus::Name status) :
     ColoredElement (id, status)
 {
+    m_bodiesPartOf.reserve (2);
     m_orientedEdges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_orientedEdges.begin(), 
                indexToOrientedEdge(edges));
@@ -106,18 +108,6 @@ void Face::Unwrap (Foam& foam)
 	    (oe->IsReversed ()) ? edge->GetBegin (begin) : *begin;
 	oe->SetEdge (foam.GetEdgeDuplicate (edge, edgeBegin));
 	begin = oe->GetEnd ();
-    }
-}
-
-
-void Face::UpdateFacePartOf (bool faceReversed)
-{
-    OrientedFace of (this, faceReversed);
-    for (size_t i = 0; i < of.size (); i++)
-    {
-	OrientedEdge oe;
-	of.GetOrientedEdge (i, &oe);
-	oe.AddFacePartOf (this, faceReversed, i);
     }
 }
 
@@ -163,12 +153,12 @@ bool Face::operator== (const Face& face) const
 	*face.GetOrientedEdge (0)->GetBegin ();
 }
 
-G3D::Vector3 Face::GetNormal () const
+void Face::CalculateNormal ()
 {
     using boost::bind; using G3D::Vector3;
     Vector3 one = GetOrientedEdge (0)->GetEdgeVector ();
     Vector3 two = GetOrientedEdge (1)->GetEdgeVector ();
-    return (one.cross (two).unit ());
+    m_normal = (one.cross (two).unit ());
 }
 
 bool Face::IsClosed () const
@@ -180,7 +170,7 @@ bool Face::IsClosed () const
 
 bool Face::IsPartOfBody (size_t bodyId, bool reversed) const
 {
-    return m_bodiesPartOf[reversed].m_body->GetId () == bodyId;
+    return GetBodyPartOf (reversed).GetBody ()->GetId () == bodyId;
 }
 
 
@@ -196,6 +186,13 @@ Edge* Face::GetEdge (size_t i) const
 {
     return GetOrientedEdge (i)->GetEdge ();
 }
+
+const BodyIndex& Face::GetBodyPartOf (bool faceReversed) const
+{
+    size_t index = faceReversed ^ m_bodiesPartOf[0].IsOrientedFaceReversed ();
+    return m_bodiesPartOf[index];
+}
+
 
 
 // Static and Friends Methods
@@ -221,7 +218,8 @@ ostream& operator<< (ostream& ostr, const Face& f)
     f.PrintAttributes (ostr);
     ostr << "Adjacent bodies" << "(" << f.m_bodiesPartOf.size () << "): ";
     BOOST_FOREACH (BodyIndex bi, f.m_bodiesPartOf)
-	ostr << "(" << bi.m_body->GetId () << ", " << bi.m_orientedFaceIndex << ") ";
+	ostr << "(" << bi.GetBody ()->GetId () 
+	     << ", " << bi.GetOrientedFaceIndex ()<< ") ";
     ostr << endl;
     return ostr;
 }

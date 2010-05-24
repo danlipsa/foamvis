@@ -57,7 +57,7 @@ G3D::Vector3 OrientedFace::GetNormal () const
 
 void OrientedFace::AddBodyPartOf (Body* body, size_t ofIndex) 
 {
-    GetFace ()->AddBodyPartOf (body, ofIndex, IsReversed ());
+    GetFace ()->AddBodyPartOf (body, ofIndex);
 }
 
 const BodyIndex& OrientedFace::GetBodyPartOf () const
@@ -67,7 +67,12 @@ const BodyIndex& OrientedFace::GetBodyPartOf () const
 
 void OrientedFace::UpdateFacePartOf ()
 {
-    GetFace ()->UpdateFacePartOf (IsReversed ());
+    for (size_t i = 0; i < size (); i++)
+    {
+	OrientedEdge oe;
+	GetOrientedEdge (i, &oe);
+	oe.AddFacePartOf (this, i);
+    }
 }
 
 void OrientedFace::ClearFacePartOf ()

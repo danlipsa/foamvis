@@ -13,7 +13,7 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h \
 	stable.h SystemDifferences.h \
 	Comparisons.h Vertex.h
 SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
-	Body.cpp BodyAlongTime.cpp ColoredElement.cpp \
+	Body.cpp BodyAlongTime.cpp BodyIndex.cpp ColoredElement.cpp \
 	Debug.cpp DebugStream.cpp Edge.cpp \
 	Element.cpp ElementUtils.cpp ExpressionTree.cpp Enums.cpp\
 	Foam.cpp FoamAlongTime.cpp Face.cpp \

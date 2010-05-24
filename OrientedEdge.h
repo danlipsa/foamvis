@@ -10,7 +10,6 @@
 #include "OrientedFaceIndex.h"
 #include "OrientedElement.h"
 class Edge;
-class Face;
 class OrientedFace;
 class Vertex;
 
@@ -49,7 +48,7 @@ public:
     /**
      * Adds a face that is touched by this oriented edge.
      */
-    void AddFacePartOf (Face* face, bool faceReversed, size_t edgeIndex);
+    void AddFacePartOf (OrientedFace* face, size_t edgeIndex);
     void ClearFacePartOf ();
     size_t GetFacePartOfSize () const;
     const OrientedFaceIndex& GetFacePartOf (size_t i) const;

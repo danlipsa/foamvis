@@ -129,7 +129,7 @@ public:
 	++m_currentNormalFace;
     }
     bool HasWrap () const;
-    ostream& PrintFaceEdgeInformation (ostream& ostr);
+    ostream& PrintFaceEdgeInformation (ostream& ostr) const;
 
 public:
     /**

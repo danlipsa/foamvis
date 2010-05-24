@@ -63,27 +63,25 @@ public:
     }
     Edge* GetEdge (size_t i) const;
 
-    void AddBodyPartOf (Body* body, size_t orientedFaceIndex, bool reversed)
+    void AddBodyPartOf (Body* body, size_t orientedFaceIndex)
     {
-	m_bodiesPartOf[reversed] = BodyIndex (body, orientedFaceIndex);
+	m_bodiesPartOf.push_back (BodyIndex (body, orientedFaceIndex));
     }
-    const BodyIndex& GetBodyPartOf (size_t faceSide) const
-    {
-	return m_bodiesPartOf[faceSide];
-    }
+    const BodyIndex& GetBodyPartOf (bool faceReversed) const;
     void ClearBodyPartOf ();
     void ClearFacePartOf ();
     bool IsPartOfBody (size_t bodyId, bool reversed) const;
 
-    /**
-     * For all the  edges in the face, add the  face as being adjacent
-     * to the edge
-     */
-    void UpdateFacePartOf (bool faceReversed);
+
     size_t GetNextValidIndex (size_t index) const;
     size_t GetPreviousValidIndex (size_t index) const;
+
     bool operator== (const Face& face) const;
-    G3D::Vector3 GetNormal () const;
+    G3D::Vector3 GetNormal () const
+    {
+	return m_normal;
+    }
+    void CalculateNormal ();
     ostream& PrintAttributes (ostream& ostr) const
     {
 	return printAttributes (ostr, *Face::m_infos);
@@ -117,7 +115,8 @@ private:
      * Edges that are part of this face
      */
     OrientedEdges m_orientedEdges;
-    boost::array<BodyIndex, 2> m_bodiesPartOf;
+    vector<BodyIndex> m_bodiesPartOf;
+    G3D::Vector3 m_normal;
 private:
     /**
      * Stores information about all vertex attributes

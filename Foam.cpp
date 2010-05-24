@@ -239,7 +239,6 @@ void Foam::SetVertex (size_t i, float x, float y, float z,
         vertex->StoreAttributes (
             list, m_attributesInfo[DefineAttribute::VERTEX]);
     m_vertices[i] = vertex;
-    m_vertexSet.insert (vertex);
 }
 
 
@@ -254,7 +253,6 @@ void Foam::SetEdge (size_t i, size_t begin, size_t end,
     if (&list != 0)
         edge->StoreAttributes (list, m_attributesInfo[DefineAttribute::EDGE]);
     m_edges[i] = edge;
-    // we insert the edge into m_edgeSet after unwrapping
 }
 
 void Foam::SetFace (size_t i,  vector<int>& edges,
@@ -266,7 +264,6 @@ void Foam::SetFace (size_t i,  vector<int>& edges,
     if (&list != 0)
         face->StoreAttributes (list, m_attributesInfo[DefineAttribute::FACE]);
     m_faces[i] = face;
-    // we insert the face into m_faceSet after unwrapping
 }
 
 void Foam::SetBody (size_t i,  vector<int>& faces,
@@ -304,7 +301,7 @@ void Foam::UpdatePartOf ()
     for_each (m_bodies.begin (), m_bodies.end (), 
 	      mem_fn(&Body::UpdatePartOf));
     for_each (m_edges.begin (), m_edges.end (), 
-	      mem_fn (&Edge::UpdateVertexAdjacency));
+	      mem_fn (&Edge::UpdateEdgePartOf));
 }
 
 void Foam::CalculateAABox ()
@@ -367,18 +364,20 @@ void Foam::CalculateTorusClipped ()
 
 void Foam::Unwrap ()
 {
-    if (IsTorus ())
+    BOOST_FOREACH (Vertex* v, m_vertices)
     {
-	BOOST_FOREACH (Edge* e, m_edges)
-	{
-	    e->Unwrap (*this);
-	    m_edgeSet.insert (e);
-	}
-	BOOST_FOREACH (Face* f, m_faces)
-	{
-	    f->Unwrap (*this);
-	    m_faceSet.insert (f);
-	}
+	m_vertexSet.insert (v);
+    }
+    BOOST_FOREACH (Edge* e, m_edges)
+    {
+	e->Unwrap (*this);
+	m_edgeSet.insert (e);
+    }
+    BOOST_FOREACH (Face* f, m_faces)
+    {
+	f->Unwrap (*this);
+	f->CalculateNormal ();
+	m_faceSet.insert (f);
     }
 }
 
@@ -386,7 +385,8 @@ void Foam::PostProcess ()
 {
     Compact ();
     UpdatePartOf ();
-    Unwrap ();
+    if (IsTorus ())
+	Unwrap ();
     if (GetSpaceDimension () == 2)
     {
 	for_each (m_vertices.begin (), m_vertices.end (),
@@ -404,10 +404,8 @@ void Foam::PostProcess ()
 
 bool Foam::IsTorus () const
 {
-    return 
-	! (GetPeriod (0).isZero () && 
-	   GetPeriod (1).isZero () && 
-	   GetPeriod (2).isZero ());
+    return ! (GetPeriod (0).isZero () && GetPeriod (1).isZero () && 
+	      GetPeriod (2).isZero ());
 }
 
 void Foam::PrintDomains (ostream& ostr) const
