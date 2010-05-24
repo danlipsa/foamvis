@@ -609,6 +609,8 @@ GLuint GLWidget::displayListEdges (
 
 GLuint GLWidget::displayListEdgesNormal ()
 {
+    //GCC BUG: if  you pass 'this' instead  of '*this', you  don't get any
+    //compilation error but you get strange runtime error.
     using boost::mem_fn;
     return m_torusOriginalDomainClipped ?
 	displayListEdges (DisplayEdgeTorusClipped (*this),

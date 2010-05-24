@@ -176,20 +176,20 @@ Face* Foam::GetFaceDuplicate (
 }
 
 Vertex* Foam::CreateVertexDuplicate (
-    Vertex* original, const G3D::Vector3int16& domainIncrement)
+    Vertex* original, const G3D::Vector3int16& translation)
 {
     original->SetStatus (ElementStatus::DUPLICATE_MADE);
     Vertex* duplicate = new Vertex (*original);
     duplicate->SetStatus (ElementStatus::DUPLICATE);
-    TorusTranslate (duplicate, domainIncrement);
+    TorusTranslate (duplicate, translation);
     return duplicate;
 }
 
 void Foam::TorusTranslate (
-    Vertex* vertex, const G3D::Vector3int16& domainIncrement) const
+    Vertex* vertex, const G3D::Vector3int16& translation) const
 {
     *static_cast<G3D::Vector3*>(vertex) = 
-	GetPeriods ().TorusTranslate (*vertex, domainIncrement);
+	GetPeriods ().TorusTranslate (*vertex, translation);
 }
 
 
