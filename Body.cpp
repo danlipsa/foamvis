@@ -275,18 +275,18 @@ void Body::StoreDefaultAttributes (AttributesInfo* infos)
 {
     using EvolverData::parser;
     m_infos = infos;
+    auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
     infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::ORIGINAL),
-        new IntegerAttributeCreator());
+        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
+    ac.reset (new RealAttributeCreator());
     infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::LAGRANGE_MULTIPLIER),
-        new RealAttributeCreator());
+        ParsingDriver::GetKeywordString(parser::token::LAGRANGE_MULTIPLIER), ac);
+    ac.reset (new RealAttributeCreator());
     infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::VOLUME),
-        new RealAttributeCreator());
+        ParsingDriver::GetKeywordString(parser::token::VOLUME), ac);
+    ac.reset (new RealAttributeCreator());
     infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::VOLCONST),
-        new RealAttributeCreator());
+        ParsingDriver::GetKeywordString(parser::token::VOLCONST), ac);
 }
 
 ostream& operator<< (ostream& ostr, const Body& b)

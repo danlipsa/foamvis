@@ -50,7 +50,7 @@ public:
      */
     FoamAlongTime& GetFoamAlongTime () 
     {
-	return *m_dataAlongTime;
+	return *m_foamAlongTime;
     }
     BodiesAlongTime& GetBodiesAlongTime ();
     BodyAlongTime& GetBodyAlongTime (size_t id);
@@ -439,9 +439,9 @@ private:
     /**
      * Foam to be displayd. Each element coresponds to a DMP file
      */
-    FoamAlongTime* m_dataAlongTime;
+    FoamAlongTime* m_foamAlongTime;
     /**
-     * Index into m_data that shows the current DMP file displayed
+     * Index into m_foam that shows the current DMP file displayed
      */
     size_t m_timeStep;
     /**

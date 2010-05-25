@@ -48,7 +48,7 @@ public:
                 return;
             else
             {
-                AttributeCreator& creator = *(info->GetCreator ());
+                AttributeCreator& creator = info->GetCreator ();
                 m_where.SetAttribute (
                     index, 
 		    creator(nameSemanticValue->GetSemanticValue (), 

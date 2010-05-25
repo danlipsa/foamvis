@@ -16,13 +16,13 @@
 class Foam;
 class ParsingDriver;
 %}
-%parse-param { Foam& data }
+%parse-param { Foam& foam }
 %parse-param { void* scanner }
 %lex-param   { void* scanner }
 %initial-action
 {
     // Initialize the initial location.
-    @$.begin.filename = @$.end.filename = &data.GetParsingData ().GetFile ();
+    @$.begin.filename = @$.end.filename = &foam.GetParsingData ().GetFile ();
 }
 
 %{
@@ -250,20 +250,20 @@ size_t intToUnsigned (int i, const char* message);
 datafile
 : nlstar header vertices nlstar
 {
-    //data.GetParsingData ().PrintTimeCheckpoint ("After vertices:");
+    //foam.GetParsingData ().PrintTimeCheckpoint ("After vertices:");
 }
 edges nlstar
 {
-    //data.GetParsingData ().PrintTimeCheckpoint ("After edges:");
+    //foam.GetParsingData ().PrintTimeCheckpoint ("After edges:");
 }
 faces nlstar
 {
-    //data.GetParsingData ().PrintTimeCheckpoint ("After faces:");
+    //foam.GetParsingData ().PrintTimeCheckpoint ("After faces:");
 }
 bodies nlstar
 {
-    //data.GetParsingData ().PrintTimeCheckpoint ("After bodies:");
-    data.PostProcess ();
+    //foam.GetParsingData ().PrintTimeCheckpoint ("After bodies:");
+    foam.PostProcess ();
 }
 
 header
@@ -351,7 +351,7 @@ quantity
 : QUANTITY IDENTIFIER quantity_rest
 {
     if ($3 != 0)
-	data.GetParsingData ().AddMethodOrQuantity ($2->c_str ());
+	foam.GetParsingData ().AddMethodOrQuantity ($2->c_str ());
 }
 
 quantity_rest
@@ -377,7 +377,7 @@ method_instance:
 METHOD_INSTANCE IDENTIFIER method_instance_rest
 {
     if ($3 != 0)
-	data.GetParsingData ().AddMethodOrQuantity ($2->c_str ());
+	foam.GetParsingData ().AddMethodOrQuantity ($2->c_str ());
 }
 
 method_instance_rest
@@ -422,14 +422,15 @@ function_parameter_type
 parameter: PARAMETER IDENTIFIER '=' const_expr
 {
     float v = $4;
-    data.GetParsingData ().SetVariable($2->c_str(), v);
+    foam.GetParsingData ().SetVariable($2->c_str(), v);
 }
 
 
 attribute
 : DEFINE element_type ATTRIBUTE IDENTIFIER attribute_value_type
 {
-    data.AddAttributeInfo ($2, $4->c_str(), $5);
+    auto_ptr<AttributeCreator> ac ($5);
+    foam.AddAttributeInfo ($2, $4->c_str(), ac);
 }
 
 element_type: VERTEX
@@ -493,7 +494,7 @@ constraint_tolerance
 space_dimension
 : SPACE_DIMENSION const_expr
 {
-    data.SetSpaceDimension ($2);
+    foam.SetSpaceDimension ($2);
 }
 
 /* 2D or 3D */
@@ -504,42 +505,42 @@ view_matrix
   const_expr const_expr const_expr const_expr nlplus
   const_expr const_expr const_expr const_expr
 {
-    data.SetViewMatrixElement (0, $3);
-    data.SetViewMatrixElement (1, $4);
-    data.SetViewMatrixElement (2, $5);
-    data.SetViewMatrixElement (3, $6);
+    foam.SetViewMatrixElement (0, $3);
+    foam.SetViewMatrixElement (1, $4);
+    foam.SetViewMatrixElement (2, $5);
+    foam.SetViewMatrixElement (3, $6);
 
-    data.SetViewMatrixElement (4, $8);
-    data.SetViewMatrixElement (5, $9);
-    data.SetViewMatrixElement (6, $10);
-    data.SetViewMatrixElement (7, $11);
+    foam.SetViewMatrixElement (4, $8);
+    foam.SetViewMatrixElement (5, $9);
+    foam.SetViewMatrixElement (6, $10);
+    foam.SetViewMatrixElement (7, $11);
 
-    data.SetViewMatrixElement (8, $13);
-    data.SetViewMatrixElement (9, $14);
-    data.SetViewMatrixElement (10, $15);
-    data.SetViewMatrixElement (11, $16);
+    foam.SetViewMatrixElement (8, $13);
+    foam.SetViewMatrixElement (9, $14);
+    foam.SetViewMatrixElement (10, $15);
+    foam.SetViewMatrixElement (11, $16);
 
-    data.SetViewMatrixElement (12, $18);
-    data.SetViewMatrixElement (13, $19);
-    data.SetViewMatrixElement (14, $20);
-    data.SetViewMatrixElement (15, $21);
+    foam.SetViewMatrixElement (12, $18);
+    foam.SetViewMatrixElement (13, $19);
+    foam.SetViewMatrixElement (14, $20);
+    foam.SetViewMatrixElement (15, $21);
 }
 | VIEW_MATRIX nlplus
   const_expr const_expr const_expr nlplus
   const_expr const_expr const_expr nlplus
   const_expr const_expr const_expr
 {
-    data.SetViewMatrixElement (0, $3);
-    data.SetViewMatrixElement (1, $4);
-    data.SetViewMatrixElement (2, $5);
+    foam.SetViewMatrixElement (0, $3);
+    foam.SetViewMatrixElement (1, $4);
+    foam.SetViewMatrixElement (2, $5);
 
-    data.SetViewMatrixElement (4, $7);
-    data.SetViewMatrixElement (5, $8);
-    data.SetViewMatrixElement (6, $9);
+    foam.SetViewMatrixElement (4, $7);
+    foam.SetViewMatrixElement (5, $8);
+    foam.SetViewMatrixElement (6, $9);
 
-    data.SetViewMatrixElement (8, $11);
-    data.SetViewMatrixElement (9, $12);
-    data.SetViewMatrixElement (10, $13);
+    foam.SetViewMatrixElement (8, $11);
+    foam.SetViewMatrixElement (9, $12);
+    foam.SetViewMatrixElement (10, $13);
 }
 
 constraint
@@ -611,75 +612,75 @@ expr
 }
 | IDENTIFIER
 {
-    $$ = new ExpressionTreeVariable ($1, data.GetParsingData ());
+    $$ = new ExpressionTreeVariable ($1, foam.GetParsingData ());
 }
 
 /* Function calls */
 | IDENTIFIER '(' expr ')'
 {
-    $$ = new ExpressionTreeUnaryFunction ($1, $3, data.GetParsingData ());
+    $$ = new ExpressionTreeUnaryFunction ($1, $3, foam.GetParsingData ());
 }
 | IDENTIFIER '(' expr ',' expr ')'
 {
-    $$ = new ExpressionTreeBinaryFunction ($1, $3, $5, data.GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction ($1, $3, $5, foam.GetParsingData ());
 }
 
 /* Arithmetic operations */
 | '-' expr  %prec UMINUS
 {
-    $$ = new ExpressionTreeUnaryFunction ($1, $2, data.GetParsingData ());
+    $$ = new ExpressionTreeUnaryFunction ($1, $2, foam.GetParsingData ());
 }
 | expr '+' expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam.GetParsingData ());
 }
 | expr '-' expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam.GetParsingData ());
 }
 | expr '*' expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam.GetParsingData ());
 }
 | expr '/' expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam.GetParsingData ());
 }
 | expr '^' expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam.GetParsingData ());
 }
 
 /* Comparisions */
 | expr '>' expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam.GetParsingData ());
 }
 | expr GE expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam.GetParsingData ());
 }
 | expr '<' expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam.GetParsingData ());
 }
 | expr LE expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam.GetParsingData ());
 }
 
 /* Logical operations */
 | '!' expr
 {
-    $$ = new ExpressionTreeUnaryFunction ($1, $2, data.GetParsingData ());
+    $$ = new ExpressionTreeUnaryFunction ($1, $2, foam.GetParsingData ());
 }
 | expr AND expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam.GetParsingData ());
 }
 | expr OR expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam.GetParsingData ());
 }
 
 /* Other expressions */
@@ -689,11 +690,11 @@ expr
 }
 | expr '=' expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, data.GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam.GetParsingData ());
 }
 | expr '?' expr ':' expr
 {
-    $$ = new ExpressionTreeConditional ($1, $3, $5, data.GetParsingData ());
+    $$ = new ExpressionTreeConditional ($1, $3, $5, foam.GetParsingData ());
 }
 
 number
@@ -722,7 +723,7 @@ torus_periods
   const_expr const_expr
 {
     using G3D::Vector3;
-    data.SetPeriods (Vector3 ($3, $4, 0),
+    foam.SetPeriods (Vector3 ($3, $4, 0),
 		     Vector3 ($6, $7, 0),
 		     Vector3::unitZ ());
 }
@@ -732,7 +733,7 @@ torus_periods
   const_expr const_expr const_expr
 {
     using G3D::Vector3;
-    data.SetPeriods (Vector3 ($3, $4, $5),
+    foam.SetPeriods (Vector3 ($3, $4, $5),
 		     Vector3 ($7, $8, $9),
 		     Vector3 ($11, $12, $13));
 }
@@ -749,7 +750,7 @@ vertex_list
 {
     vector<NameSemanticValue*>* nameSemanticValueList = 
 	$6;
-    data.SetVertex (
+    foam.SetVertex (
 	intToUnsigned($2- 1,
 		      "Semantic error: vertex index less than 0: "),
 	$3, $4, $5, *nameSemanticValueList);
@@ -844,7 +845,7 @@ edge_list
 | edge_list INTEGER_VALUE INTEGER_VALUE INTEGER_VALUE edge_midpoint 
   signs_torus_model edge_attribute_list nl
 {
-    data.SetEdge (
+    foam.SetEdge (
 	intToUnsigned($2 - 1, "Semantic error: edge index less than 0: "),
 	intToUnsigned($3 - 1, "Semantic error: edge begin less than 0: "),
 	intToUnsigned($4 - 1, "Semantic error: edge end less than 0: "),
@@ -948,7 +949,7 @@ face_list
 | face_list INTEGER_VALUE integer_list face_attribute_list nl
 {
     vector<int>* intList = $3;
-    data.SetFace (
+    foam.SetFace (
 	intToUnsigned($2- 1, "Semantic error: face index less than 0"), 
 	*intList, *$4);
     delete intList;
@@ -1059,7 +1060,7 @@ body_list
 | body_list INTEGER_VALUE integer_list body_attribute_list nl
 {
     vector<int>* intList = $3;
-    data.SetBody (
+    foam.SetBody (
 	intToUnsigned($2- 1, "Semantic error: body index less than 0"),
 	*intList, *$4);
     delete intList;
@@ -1143,7 +1144,7 @@ void
 EvolverData::parser::error (const EvolverData::parser::location_type& l,
                             const std::string& m)
 {
-    data.GetParsingData ().PrintError (l, m);
+    foam.GetParsingData ().PrintError (l, m);
 }
 
 

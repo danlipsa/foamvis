@@ -70,7 +70,7 @@ public:
      */
     parseFile (vector<Foam*>& data, QString dir,
 	       bool debugParsing = false, bool debugScanning = false) : 
-        m_data (data), m_dir (qPrintable(dir)), m_debugParsing (debugParsing),
+        m_foam (data), m_dir (qPrintable(dir)), m_debugParsing (debugParsing),
 	m_debugScanning (debugScanning)
     {
     }
@@ -84,8 +84,8 @@ public:
         int result;
 	string file = qPrintable (f);
 	cdbg << "Parsing " << file << " ..." << endl;
-        Foam* data = new Foam (m_data.size ());
-        m_data.push_back (data);
+        Foam* data = new Foam (m_foam.size ());
+        m_foam.push_back (data);
         ParsingData& parsingData = data->GetParsingData ();
         parsingData.SetDebugParsing (m_debugParsing);
         parsingData.SetDebugScanning (m_debugScanning);
@@ -94,7 +94,7 @@ public:
         data->ReleaseParsingData ();
         if (result != 0)
         {
-            m_data.pop_back ();
+            m_foam.pop_back ();
             delete data;
 	    return false;
         }
@@ -105,7 +105,7 @@ private:
     /**
      * Stores the data parsed from the DMP files
      */
-    FoamAlongTime::Foams& m_data;
+    FoamAlongTime::Foams& m_foam;
     /**
      * Directory that stores the DMP files.
      */
@@ -174,7 +174,7 @@ void parseFiles (int argc, char *argv[],
     {
 	QFileInfo fileInfo (argv[optind]);
 	QDir dir = fileInfo.absoluteDir ();
-	if (! parseFile (dataAlongTime->GetFoam (), dir.absolutePath (),
+	if (! parseFile (dataAlongTime->GetFoams (), dir.absolutePath (),
 			 debugParsing, debugScanning) (
 			     fileInfo.fileName ()))
 	    exit (13);
@@ -186,7 +186,7 @@ void parseFiles (int argc, char *argv[],
 	QStringList files = dir.entryList ();
 	if (count_if (
 		files.begin (), files.end (), 
-		parseFile (dataAlongTime->GetFoam (), dir.absolutePath (), 
+		parseFile (dataAlongTime->GetFoams (), dir.absolutePath (), 
 			   debugParsing, debugScanning))
 	    != files.size ())
 	    exit (13);
@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
 	readOptions (argc, argv,
 		     &debugParsing, &debugScanning, &textOutput);
 	parseFiles (argc, argv, &dataAlongTime, debugParsing, debugScanning);
-	size_t timeSteps = dataAlongTime.GetFoam ().size ();
+	size_t timeSteps = dataAlongTime.GetFoams ().size ();
         if (timeSteps != 0)
         {
 	    dataAlongTime.PostProcess ();

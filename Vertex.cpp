@@ -87,10 +87,10 @@ void Vertex::StoreDefaultAttributes (AttributesInfo* infos)
 {
     using EvolverData::parser;
     m_infos = infos;
+    auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
     infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::ORIGINAL),
-        new IntegerAttributeCreator());
+        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
+    ac.reset (new IntegerVectorAttributeCreator());
     infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS),
-        new IntegerVectorAttributeCreator());
+        ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
 }

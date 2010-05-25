@@ -39,7 +39,10 @@ public:
      * Gets the vector of Foam objects
      * @return vector of data objects
      */
-    Foams& GetFoam () {return m_data;}
+    Foams& GetFoams () 
+    {
+	return m_foams;
+    }
     /**
      * Gets the AABox for this vector of Foam objects
      */
@@ -73,7 +76,7 @@ private:
     /**
      * Vector of Foam objects
      */
-    Foams m_data;
+    Foams m_foams;
     BodiesAlongTime m_bodiesAlongTime;
     /**
      * The AABox for this vector of Foam objects

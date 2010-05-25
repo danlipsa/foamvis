@@ -25,15 +25,15 @@ void FoamAlongTime::Calculate (
 {
     using G3D::Vector3;
     Foams::iterator it;
-    it = aggregate (m_data.begin (), m_data.end (), 
+    it = aggregate (m_foams.begin (), m_foams.end (), 
 		    FoamLessThanAlong(Vector3::X_AXIS, corner));
     v.x = ((*it)->*corner) ().x;
 
-    it = aggregate (m_data.begin (), m_data.end (), 
+    it = aggregate (m_foams.begin (), m_foams.end (), 
 	    FoamLessThanAlong(Vector3::Y_AXIS, corner));    
     v.y = ((*it)->*corner) ().y;
 
-    it = aggregate (m_data.begin (), m_data.end (), 
+    it = aggregate (m_foams.begin (), m_foams.end (), 
 	    FoamLessThanAlong(Vector3::Z_AXIS, corner));
     v.z = ((*it)->*corner) ().z;
 }
@@ -49,7 +49,7 @@ void FoamAlongTime::CalculateAABox ()
 
 void FoamAlongTime::CalculateBodyCenterWraps ()
 {
-    if (m_data.size () > 1 && m_data[0]->IsTorus ())
+    if (m_foams.size () > 1 && m_foams[0]->IsTorus ())
     {
 	BodiesAlongTime::BodyMap bodyMap = m_bodiesAlongTime.GetBodyMap ();
 	for_each (bodyMap.begin (), bodyMap.end (), calculateWraps);
@@ -65,15 +65,15 @@ void FoamAlongTime::PostProcess ()
 
 void FoamAlongTime::CacheBodiesAlongTime ()
 {
-    if (m_data.size () <= 1)
+    if (m_foams.size () <= 1)
 	return;
-    Foam::Bodies& bodies = m_data[0]->GetBodies ();
+    Foam::Bodies& bodies = m_foams[0]->GetBodies ();
     for_each (bodies.begin (), bodies.end (), 
 	      boost::bind (&BodiesAlongTime::Allocate,
-			   &m_bodiesAlongTime, _1, m_data.size ()));
-    for (size_t timeStep = 0; timeStep < m_data.size (); timeStep++)
+			   &m_bodiesAlongTime, _1, m_foams.size ()));
+    for (size_t timeStep = 0; timeStep < m_foams.size (); timeStep++)
     {
-	Foam::Bodies& bodies = m_data[timeStep]->GetBodies ();
+	Foam::Bodies& bodies = m_foams[timeStep]->GetBodies ();
 	BOOST_FOREACH (Body* body, bodies)
 	    m_bodiesAlongTime.Cache (body, timeStep);
     }
@@ -89,7 +89,7 @@ ostream& operator<< (ostream& ostr, const FoamAlongTime& dataAlongTime)
     ostr << "FoamAlongTime: " << endl;
     ostr << dataAlongTime.m_AABox << endl;
     ostream_iterator<Foam*> output (ostr, "\n");
-    copy (dataAlongTime.m_data.begin (), dataAlongTime.m_data.end (), output);
+    copy (dataAlongTime.m_foams.begin (), dataAlongTime.m_foams.end (), output);
     ostr << dataAlongTime.m_bodiesAlongTime;
     return ostr;
 }

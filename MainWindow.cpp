@@ -21,18 +21,18 @@ MainWindow::MainWindow(FoamAlongTime& dataAlongTime) :
 {
     setupUi (this);
     sliderData->setMinimum (0);
-    sliderData->setMaximum (dataAlongTime.GetFoam ().size () - 1);
+    sliderData->setMaximum (dataAlongTime.GetFoams ().size () - 1);
     sliderData->setSingleStep (1);
     sliderData->setPageStep (10);
     widgetGl->SetFoamAlongTime (&dataAlongTime);
     updateStatus ();
-    if (dataAlongTime.GetFoam ().size () == 1)
+    if (dataAlongTime.GetFoams ().size () == 1)
     {
         toolButtonBegin->setDisabled (true);
 	toolButtonEnd->setDisabled (true);
 	toolButtonPlay->setDisabled (true);
     }
-    if (dataAlongTime.GetFoam()[0]->IsTorus ())
+    if (dataAlongTime.GetFoams ()[0]->IsTorus ())
     {
 	radioButtonVerticesPhysical->setEnabled (false);
 	radioButtonEdgesPhysical->setEnabled (false);
@@ -44,7 +44,7 @@ MainWindow::MainWindow(FoamAlongTime& dataAlongTime) :
 	radioButtonFacesTorus->setEnabled (false);
 	groupBoxTorusOriginalDomain->setEnabled (false);
     }
-    if (dataAlongTime.GetFoam ()[0]->GetSpaceDimension () == 2)
+    if (dataAlongTime.GetFoams ()[0]->GetSpaceDimension () == 2)
     {
 	radioButtonEdgesNormal->toggle ();
 	tabWidget->setCurrentWidget (edges);
@@ -90,7 +90,7 @@ void MainWindow::updateButtons ()
 
 void MainWindow::updateStatus ()
 {
-    FoamAlongTime::Foams& data = widgetGl->GetFoamAlongTime ().GetFoam ();
+    FoamAlongTime::Foams& data = widgetGl->GetFoamAlongTime ().GetFoams ();
     Foam& currentFoam = widgetGl->GetCurrentFoam ();
     QString oldString = labelStatus->text ();
     ostringstream ostr;

@@ -40,5 +40,6 @@ void ColoredElement::StoreDefaultAttributes (AttributesInfo* infos)
     const char* colorString = 
         ParsingDriver::GetKeywordString(parser::token::COLOR);
     infos->Load (colorString);
-    infos->AddAttributeInfo (colorString, new ColorAttributeCreator());
+    auto_ptr<AttributeCreator> ac (new ColorAttributeCreator());
+    infos->AddAttributeInfo (colorString, ac);
 }

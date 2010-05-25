@@ -222,15 +222,15 @@ void Edge::StoreDefaultAttributes (AttributesInfo* infos)
     using EvolverData::parser;
     m_infos = infos;
     ColoredElement::StoreDefaultAttributes (m_infos);
+    auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
     m_infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::ORIGINAL),
-        new IntegerAttributeCreator());
+        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
+    ac.reset (new IntegerVectorAttributeCreator());
     m_infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS),
-        new IntegerVectorAttributeCreator());
+        ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
+    ac.reset (new RealAttributeCreator());
     m_infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::DENSITY),
-        new RealAttributeCreator());
+        ParsingDriver::GetKeywordString(parser::token::DENSITY), ac);
 }
 
 ostream& operator<< (ostream& ostr, const Edge& e)

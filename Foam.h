@@ -214,7 +214,7 @@ public:
      */
     void AddAttributeInfo (
         DefineAttribute::Type type, const char* name,
-	AttributeCreator* creator);
+        auto_ptr<AttributeCreator> creator);
     /**
      * Calculate faces part of a body, edges part of a face, ...
      */

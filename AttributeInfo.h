@@ -25,7 +25,7 @@ public:
      * element where this attribute is stored.
      * @param creator functor that knows how to create this attribute.
      */
-    AttributeInfo (size_t index, AttributeCreator* creator) : 
+    AttributeInfo (size_t index, auto_ptr<AttributeCreator> creator) : 
 	m_index (index), m_creator (creator) {}
     /**
      * Gets the index where this attribute is stored
@@ -37,7 +37,7 @@ public:
      * Gets the functor that knows how to create this attribute
      * @return functor that knows how to create this attribute
      */
-    AttributeCreator* GetCreator () {return m_creator;}
+    AttributeCreator& GetCreator () {return *m_creator;}
     /**
      * Constant used to signal an attribute that will not be stored.
      */
@@ -50,7 +50,7 @@ private:
     /**
      * Knows how to create a kind of attribute.
      */
-    AttributeCreator* m_creator;
+    auto_ptr<AttributeCreator> m_creator;
 };
 
 /**
@@ -68,7 +68,7 @@ public:
      * @param name name of the attribute
      * @param creator functor that creates the attribute
      */
-    void AddAttributeInfo (const char* name, AttributeCreator* creator);
+    void AddAttributeInfo (const char* name, auto_ptr<AttributeCreator> creator);
     /**
      * Specify that a certain attribute should be loaded from the data file
      * @param name the attribute that should be loaded from the data file

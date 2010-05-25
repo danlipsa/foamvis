@@ -173,7 +173,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_torusOriginalDomainClipped (false),
       m_interactionMode (InteractionMode::ROTATE),
       m_object (0),
-      m_dataAlongTime (0), m_timeStep (0),
+      m_foamAlongTime (0), m_timeStep (0),
       m_displayedBodyIndex (DISPLAY_ALL), m_displayedFaceIndex (DISPLAY_ALL),
       m_displayedEdgeIndex (DISPLAY_ALL),
       m_physicalVertexSize (1), m_physicalEdgeWidth (1),
@@ -241,7 +241,7 @@ void GLWidget::initViewTypeDisplay ()
 void GLWidget::SetFoamAlongTime (FoamAlongTime* dataAlongTime) 
 {
     cdbg << "SetFoamAlongTime\n";
-    m_dataAlongTime = dataAlongTime;
+    m_foamAlongTime = dataAlongTime;
     Face* f = 
 	GetCurrentFoam ().GetBody (0)->GetFace (0);
     Edge* e = f->GetEdge (0);
@@ -289,7 +289,7 @@ QSize GLWidget::sizeHint()
 
 void GLWidget::enableLighting ()
 {
-    const G3D::Vector3& max = m_dataAlongTime->GetAABox ().high ();
+    const G3D::Vector3& max = m_foamAlongTime->GetAABox ().high ();
     GLfloat lightPosition[] = { 2*max.x, 2*max.y, 2*max.z, 0.0 };
     GLfloat lightAmbient[] = {1.0, 1.0, 1.0, 1.0};
 
@@ -312,8 +312,8 @@ void GLWidget::enableLighting ()
 void GLWidget::calculateViewingVolume ()
 {
     using G3D::Vector3;
-    const Vector3& low = m_dataAlongTime->GetAABox ().low ();
-    const Vector3& high = m_dataAlongTime->GetAABox ().high ();
+    const Vector3& low = m_foamAlongTime->GetAABox ().low ();
+    const Vector3& high = m_foamAlongTime->GetAABox ().high ();
     float border = ((high - low) / 8).max ();
     float min = low.min () - border;
     float max = high.max () + border;
@@ -790,7 +790,7 @@ void GLWidget::IncrementDisplayedBody ()
     ++m_displayedBodyIndex;
     m_displayedFaceIndex = DISPLAY_ALL;
     if (m_displayedBodyIndex == 
-	GetFoamAlongTime ().GetFoam ()[0]->GetBodies ().size ())
+	GetFoamAlongTime ().GetFoams ()[0]->GetBodies ().size ())
         m_displayedBodyIndex = DISPLAY_ALL;
     UpdateDisplay ();
     cdbg << "displayed body: " << m_displayedBodyIndex << endl;
@@ -831,7 +831,8 @@ void GLWidget::DecrementDisplayedBody ()
     if (m_viewType == VERTICES_TORUS || m_viewType == EDGES_TORUS)
 	return;
     if (m_displayedBodyIndex == DISPLAY_ALL)
-        m_displayedBodyIndex = GetFoamAlongTime ().GetFoam ()[0]->GetBodies ().size ();
+        m_displayedBodyIndex = 
+	    GetFoamAlongTime ().GetFoams ()[0]->GetBodies ().size ();
     --m_displayedBodyIndex;
     m_displayedFaceIndex = DISPLAY_ALL;
     UpdateDisplay ();
@@ -871,7 +872,7 @@ void GLWidget::DecrementDisplayedEdge ()
 
 Foam& GLWidget::GetCurrentFoam () const
 {
-    return *m_dataAlongTime->GetFoam ()[m_timeStep];
+    return *m_foamAlongTime->GetFoams ()[m_timeStep];
 }
 
 const QColor& GLWidget::GetEndTranslationColor (

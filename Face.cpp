@@ -205,9 +205,9 @@ void Face::StoreDefaultAttributes (AttributesInfo* infos)
     using EvolverData::parser;
     m_infos = infos;
     ColoredElement::StoreDefaultAttributes (infos);
+    auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
     infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::ORIGINAL),
-        new IntegerAttributeCreator());
+        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
 }
 
 ostream& operator<< (ostream& ostr, const Face& f)

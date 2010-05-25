@@ -422,12 +422,15 @@ void Foam::PrintDomains (ostream& ostr) const
     Vertex::PrintDomains(ostr, m_vertices);
 }
 
+
 void Foam::AddAttributeInfo (
-    DefineAttribute::Type type, const char* name, AttributeCreator* creator)
+    DefineAttribute::Type type, const char* name,
+    auto_ptr<AttributeCreator> creator)
 {
     m_attributesInfo[type].AddAttributeInfo (name, creator);
     m_parsingData->AddAttribute (name);
 }
+
 
 // Static and Friends Methods
 // ======================================================================
