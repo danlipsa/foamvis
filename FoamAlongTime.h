@@ -18,7 +18,7 @@ class Foam;
 class FoamAlongTime
 {
 public:
-    typedef vector<Foam*> Foams;
+    typedef vector< boost::shared_ptr<Foam> > Foams;
     /**
      * Iterator over a vector of Foam
      */
@@ -39,10 +39,21 @@ public:
      * Gets the vector of Foam objects
      * @return vector of data objects
      */
-    Foams& GetFoams () 
+    Foam* GetFoam (size_t i) 
     {
-	return m_foams;
+	return m_foams[i].get ();
     }
+
+    size_t GetFoamsSize ()
+    {
+	return m_foams.size ();
+    }
+
+    void PushBack (boost::shared_ptr<Foam> foam)
+    {
+	m_foams.push_back (foam);
+    }
+
     /**
      * Gets the AABox for this vector of Foam objects
      */

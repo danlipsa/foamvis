@@ -5,6 +5,7 @@
  * Implementation of the Foam object
  */
 #include "AttributeInfo.h"
+#include "AttributeCreator.h"
 #include "Body.h"
 #include "Foam.h"
 #include "Edge.h"
@@ -111,10 +112,9 @@ void compact (vector<E*>& v)
 // Methods
 // ======================================================================
 
-Foam::Foam (size_t timeStep) : 
+Foam::Foam () : 
     m_parsingData (new ParsingData ()),
-    m_spaceDimension (3),
-    m_timeStep (timeStep)
+    m_spaceDimension (3)
 {
     fill (m_viewMatrix.begin (), m_viewMatrix.end (), 0);
     Vertex::StoreDefaultAttributes (&m_attributesInfo[DefineAttribute::VERTEX]);
@@ -434,7 +434,7 @@ void Foam::AddAttributeInfo (
 
 // Static and Friends Methods
 // ======================================================================
-ostream& operator<< (ostream& ostr, Foam& d)
+ostream& operator<< (ostream& ostr, const Foam& d)
 {
     ostr << "Foam:\n";
     ostr << "AABox:\n";

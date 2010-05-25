@@ -790,7 +790,7 @@ void GLWidget::IncrementDisplayedBody ()
     ++m_displayedBodyIndex;
     m_displayedFaceIndex = DISPLAY_ALL;
     if (m_displayedBodyIndex == 
-	GetFoamAlongTime ().GetFoams ()[0]->GetBodies ().size ())
+	GetFoamAlongTime ().GetFoam (0)->GetBodies ().size ())
         m_displayedBodyIndex = DISPLAY_ALL;
     UpdateDisplay ();
     cdbg << "displayed body: " << m_displayedBodyIndex << endl;
@@ -832,7 +832,7 @@ void GLWidget::DecrementDisplayedBody ()
 	return;
     if (m_displayedBodyIndex == DISPLAY_ALL)
         m_displayedBodyIndex = 
-	    GetFoamAlongTime ().GetFoams ()[0]->GetBodies ().size ();
+	    GetFoamAlongTime ().GetFoam (0)->GetBodies ().size ();
     --m_displayedBodyIndex;
     m_displayedFaceIndex = DISPLAY_ALL;
     UpdateDisplay ();
@@ -872,7 +872,7 @@ void GLWidget::DecrementDisplayedEdge ()
 
 Foam& GLWidget::GetCurrentFoam () const
 {
-    return *m_foamAlongTime->GetFoams ()[m_timeStep];
+    return *m_foamAlongTime->GetFoam (m_timeStep);
 }
 
 const QColor& GLWidget::GetEndTranslationColor (

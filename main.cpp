@@ -4,6 +4,7 @@
  *
  * Parses an Evolver DMP file and displays the data from the file.
  */
+#include "Debug.h"
 #include "Foam.h"
 #include "FoamAlongTime.h"
 #include "ParsingData.h"
@@ -57,8 +58,7 @@ duplicate).
 
 
 /**
- * Functor used to parse each of the DMP files and store the results
- * in a vector of Foam.
+ * Functor used to parse a DMP file
  */
 class parseFile : public unary_function<QString, bool>
 {
@@ -68,9 +68,9 @@ public:
      * @param data Where to store the data parsed from the DMP files
      * @param dir directory where all DMP files are
      */
-    parseFile (vector<Foam*>& data, QString dir,
+    parseFile (QString dir,
 	       bool debugParsing = false, bool debugScanning = false) : 
-        m_foam (data), m_dir (qPrintable(dir)), m_debugParsing (debugParsing),
+        m_dir (qPrintable(dir)), m_debugParsing (debugParsing),
 	m_debugScanning (debugScanning)
     {
     }
@@ -79,33 +79,23 @@ public:
      * Parses one file
      * @param f name of the DMP file to be parsed.
      */
-    bool operator () (QString f)
+    boost::shared_ptr<Foam> operator () (QString f)
     {
         int result;
 	string file = qPrintable (f);
 	cdbg << "Parsing " << file << " ..." << endl;
-        Foam* data = new Foam (m_foam.size ());
-        m_foam.push_back (data);
-        ParsingData& parsingData = data->GetParsingData ();
+	boost::shared_ptr<Foam> foam (new Foam ());
+        ParsingData& parsingData = foam->GetParsingData ();
         parsingData.SetDebugParsing (m_debugParsing);
         parsingData.SetDebugScanning (m_debugScanning);
         string fullPath = m_dir + '/' + file;
-        result = parsingData.Parse (fullPath, *data);
-        data->ReleaseParsingData ();
+        result = parsingData.Parse (fullPath, *foam);
+        foam->ReleaseParsingData ();
         if (result != 0)
-        {
-            m_foam.pop_back ();
-            delete data;
-	    return false;
-        }
-	else
-	    return true;
+	    ThrowException ("Error parsing ", fullPath);
+	return foam;
     }
 private:
-    /**
-     * Stores the data parsed from the DMP files
-     */
-    FoamAlongTime::Foams& m_foam;
     /**
      * Directory that stores the DMP files.
      */
@@ -165,7 +155,7 @@ void printHelp ()
 }
 
 void parseFiles (int argc, char *argv[],
-		 FoamAlongTime* dataAlongTime,
+		 FoamAlongTime* foamAlongTime,
 		 bool debugParsing, bool debugScanning)
 {
     switch (argc - optind)
@@ -174,22 +164,23 @@ void parseFiles (int argc, char *argv[],
     {
 	QFileInfo fileInfo (argv[optind]);
 	QDir dir = fileInfo.absoluteDir ();
-	if (! parseFile (dataAlongTime->GetFoams (), dir.absolutePath (),
-			 debugParsing, debugScanning) (
-			     fileInfo.fileName ()))
-	    exit (13);
+	boost::shared_ptr<Foam> foam = 
+	    parseFile (dir.absolutePath (), debugParsing, debugScanning) (
+		fileInfo.fileName ());
+	foamAlongTime->PushBack (foam);
 	break;
     }
     case 2:
     {
 	QDir dir (argv[optind], argv[optind + 1]);
 	QStringList files = dir.entryList ();
-	if (count_if (
-		files.begin (), files.end (), 
-		parseFile (dataAlongTime->GetFoams (), dir.absolutePath (), 
-			   debugParsing, debugScanning))
-	    != files.size ())
-	    exit (13);
+	BOOST_FOREACH (QString file, files)
+	{
+	    boost::shared_ptr<Foam> foam = 
+		parseFile (dir.absolutePath (), debugParsing, debugScanning) (
+		    file);
+	    foamAlongTime->PushBack (foam);
+	}
 	break;
     }
     default:
@@ -226,20 +217,20 @@ int main(int argc, char *argv[])
     try
     {
 	bool debugParsing, debugScanning, textOutput;
-	FoamAlongTime dataAlongTime;
+	FoamAlongTime foamAlongTime;
 	readOptions (argc, argv,
 		     &debugParsing, &debugScanning, &textOutput);
-	parseFiles (argc, argv, &dataAlongTime, debugParsing, debugScanning);
-	size_t timeSteps = dataAlongTime.GetFoams ().size ();
+	parseFiles (argc, argv, &foamAlongTime, debugParsing, debugScanning);
+	size_t timeSteps = foamAlongTime.GetFoamsSize ();
         if (timeSteps != 0)
         {
-	    dataAlongTime.PostProcess ();
+	    foamAlongTime.PostProcess ();
 	    if (textOutput)
-		cdbg << dataAlongTime;
+		cdbg << foamAlongTime;
 	    else
 	    {
 		Application app(argc, argv);
-		MainWindow window (dataAlongTime);
+		MainWindow window (foamAlongTime);
 		window.show();
 		return app.exec();
 	    }

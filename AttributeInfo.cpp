@@ -42,6 +42,16 @@ private:
 };
 
 
+// Methods
+// ======================================================================
+
+AttributeInfo::AttributeInfo (
+    size_t index, auto_ptr<AttributeCreator>& creator) :
+    m_index (index),
+    m_creator (creator)
+{
+}
+
 
 AttributesInfo::AttributesInfo () : 
 m_currentIndex(0), m_loadAll (false)

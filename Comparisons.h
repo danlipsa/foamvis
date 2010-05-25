@@ -111,9 +111,15 @@ public:
      * @param first first data object
      * @param second second data object
      */
-    bool operator() (const Foam* first, const Foam* second)
+    bool operator () (const Foam* first, const Foam* second)
     {
-	return operator() (*first, *second);
+	return operator () (*first, *second);
+    }
+
+    bool operator () (
+	boost::shared_ptr<Foam> first, boost::shared_ptr<Foam> second)
+    {
+	return operator () (*first, *second);
     }
 
     bool operator() (const Foam& first, const Foam& second)

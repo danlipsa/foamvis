@@ -25,8 +25,7 @@ public:
      * element where this attribute is stored.
      * @param creator functor that knows how to create this attribute.
      */
-    AttributeInfo (size_t index, auto_ptr<AttributeCreator> creator) : 
-	m_index (index), m_creator (creator) {}
+    AttributeInfo (size_t index, auto_ptr<AttributeCreator>& creator);
     /**
      * Gets the index where this attribute is stored
      * @return  index in  the  array of  attributes  attached to  each

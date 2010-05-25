@@ -27,15 +27,15 @@ void FoamAlongTime::Calculate (
     Foams::iterator it;
     it = aggregate (m_foams.begin (), m_foams.end (), 
 		    FoamLessThanAlong(Vector3::X_AXIS, corner));
-    v.x = ((*it)->*corner) ().x;
+    v.x = ((*it).get()->*corner) ().x;
 
     it = aggregate (m_foams.begin (), m_foams.end (), 
 	    FoamLessThanAlong(Vector3::Y_AXIS, corner));    
-    v.y = ((*it)->*corner) ().y;
+    v.y = ((*it).get()->*corner) ().y;
 
     it = aggregate (m_foams.begin (), m_foams.end (), 
 	    FoamLessThanAlong(Vector3::Z_AXIS, corner));
-    v.z = ((*it)->*corner) ().z;
+    v.z = ((*it).get()->*corner) ().z;
 }
 
 void FoamAlongTime::CalculateAABox ()
@@ -88,7 +88,7 @@ ostream& operator<< (ostream& ostr, const FoamAlongTime& dataAlongTime)
 {
     ostr << "FoamAlongTime: " << endl;
     ostr << dataAlongTime.m_AABox << endl;
-    ostream_iterator<Foam*> output (ostr, "\n");
+    ostream_iterator< boost::shared_ptr<const Foam> > output (ostr, "\n");
     copy (dataAlongTime.m_foams.begin (), dataAlongTime.m_foams.end (), output);
     ostr << dataAlongTime.m_bodiesAlongTime;
     return ostr;

@@ -51,7 +51,7 @@ public:
     /**
      * Constructs a Foam object.
      */
-    Foam (size_t timeStep);
+    Foam ();
     /**
      * Destroys a Foam object
      */
@@ -291,10 +291,6 @@ public:
 	return m_spaceDimension;
     }
     void calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high);
-    size_t GetTimeStep () const
-    {
-	return m_timeStep;
-    }
     void Unwrap ();
     void TorusTranslate (
 	Vertex* vertex, const G3D::Vector3int16& domainIncrement) const;
@@ -303,7 +299,7 @@ public:
     /**
      * Pretty print the Foam object
      */
-    friend ostream& operator<< (ostream& ostr, Foam& d);
+    friend ostream& operator<< (ostream& ostr, const Foam& d);
 
 private:
     ostream& PrintFacesWithIntersection (ostream& ostr) const;
@@ -347,7 +343,6 @@ private:
      */
     G3D::AABox m_AABox;
     size_t m_spaceDimension;
-    const size_t m_timeStep;
 };
 
 /**
@@ -356,7 +351,12 @@ private:
  * @param d what to print
  * @return where to print something else
  */
-inline ostream& operator<< (ostream& ostr, Foam* d)
+inline ostream& operator<< (ostream& ostr, const Foam* d)
+{
+    return ostr << *d;
+}
+
+inline ostream& operator<< (ostream& ostr, boost::shared_ptr<const Foam> d)
 {
     return ostr << *d;
 }
