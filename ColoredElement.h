@@ -19,12 +19,13 @@ public:
     {}
 
     /**
-     * Returns the element color.
-     * @param color the color that should be returned if the element doesn't
-     *        have any color. The default is a color based on the index of the 
-     *        element if the parameter is Color::COUNT
+     * Returns  the  element color.   
+     *
+     * @param defaultColor  the color that  should be returned  if the
+     * element doesn't have any  color. If the default is Color::COUNT
+     * the color returned is based on the index of the element
      */
-    Color::Name GetColor (Color::Name color = Color::COUNT) const;
+    Color::Name GetColor (Color::Name defaultColor = Color::CLEAR) const;
 
 public:
     /**

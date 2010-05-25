@@ -75,14 +75,15 @@ Face::Face (Edge* edge, size_t id) :
 }
 
 Face::Face (const Face& original) :
-    ColoredElement (original.GetId (), ElementStatus::DUPLICATE)
+    ColoredElement (original),
+    m_bodiesPartOf (original.m_bodiesPartOf),
+    m_normal (original.m_normal)
 {
-    m_bodiesPartOf.reserve (2);
     BOOST_FOREACH (OrientedEdge* oe, original.m_orientedEdges)
 	m_orientedEdges.push_back (new OrientedEdge (*oe));
 }
 
-Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
+Face::Face (vector<int>& edgeIndexes, vector<Edge*>& edges, 
 	   size_t id, ElementStatus::Name status) :
     ColoredElement (id, status)
 {
@@ -92,7 +93,7 @@ Face::Face(vector<int>& edgeIndexes, vector<Edge*>& edges,
                indexToOrientedEdge(edges));
 }
 
-Face::~Face()
+Face::~Face ()
 {
     for_each(m_orientedEdges.begin(), m_orientedEdges.end(), bl::delete_ptr ());
 }

@@ -8,7 +8,7 @@
 #ifndef __ORIENTED_ELEMENT_H__
 #define __ORIENTED_ELEMENT_H__
 
-class Element;
+class ColoredElement;
 
 /**
  * Base class for OrientedFace and OrientedEdge
@@ -16,17 +16,17 @@ class Element;
 class OrientedElement
 {
 public:
-    OrientedElement (Element* element, bool reversed) :
-	m_element (element), m_reversed (reversed) {}
-    OrientedElement () : m_element (0), m_reversed(false) {}
+    OrientedElement (ColoredElement* coloredElement, bool reversed) :
+	m_coloredElement (coloredElement), m_reversed (reversed) {}
+    OrientedElement () : m_coloredElement (0), m_reversed(false) {}
 
-    Element* GetElement () const
+    ColoredElement* GetColoredElement () const
     {
-	return m_element;
+	return m_coloredElement;
     }
-    void SetElement (Element* element)
+    void SetElement (ColoredElement* coloredElement)
     {
-	m_element = element;
+	m_coloredElement = coloredElement;
     }
 
     size_t GetId () const;
@@ -36,19 +36,19 @@ public:
     }
 
     /**
-     * Is this in the same order or reversed compared with the Element associated
-     * with it.
-     * @return true for reversed, false otherwise
+     * Is  this  in the  same  order  or  reversed compared  with  the
+     * ColoredElement associated with  it.  @return true for reversed,
+     * false otherwise
      */
     bool IsReversed () const
     {
 	return m_reversed;
     }
 
-    string GetSignedIdString () const;
+    string GetStringId () const;
 
 private:
-    Element* m_element;
+    ColoredElement* m_coloredElement;
     bool m_reversed;
 };
 

@@ -31,7 +31,7 @@ public:
      * @param edgeIndexes indexes into a vector of Edge objects
      * @param edges vector of Edge objects
      */
-    Face(vector<int>& edgeIndexes, vector<Edge*>& edges, 
+    Face (vector<int>& edgeIndexes, vector<Edge*>& edges, 
 	 size_t id, 
 	 ElementStatus::Name status = ElementStatus::ORIGINAL);
     Face (const Face& original);
@@ -40,7 +40,7 @@ public:
     /**
      * Destroys a Face object
      */
-    ~Face();
+    ~Face ();
     /**
      * Gets the list of oriented edges
      * @return vector of oriented edges
@@ -85,10 +85,6 @@ public:
     ostream& PrintAttributes (ostream& ostr) const
     {
 	return printAttributes (ostr, *Face::m_infos);
-    }
-    int GetSignedIdString (bool reversed) const
-    {
-	return reversed ? (- GetId ()) : GetId ();
     }
     bool IsClosed () const;
     bool HasWrap () const;

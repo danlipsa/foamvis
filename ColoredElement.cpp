@@ -12,6 +12,27 @@
 #include "ColoredElement.h"
 #include "ParsingDriver.h"
 
+// Methods
+// ======================================================================
+
+Color::Name ColoredElement::GetColor (Color::Name defaultColor) const
+{
+    if (m_attributes != 0)
+	return dynamic_cast<ColorAttribute*>(
+	    (*m_attributes)[COLOR_INDEX].get ())->GetColor ();
+    else
+    {
+	if (defaultColor == Color::COUNT)
+	    return static_cast<Color::Name>(
+		(GetId ()+1) % Color::COUNT);
+	else
+	    return defaultColor;
+    }
+}
+
+
+// Static and Friends methods
+// ======================================================================
 
 void ColoredElement::StoreDefaultAttributes (AttributesInfo* infos)
 {
@@ -20,20 +41,4 @@ void ColoredElement::StoreDefaultAttributes (AttributesInfo* infos)
         ParsingDriver::GetKeywordString(parser::token::COLOR);
     infos->Load (colorString);
     infos->AddAttributeInfo (colorString, new ColorAttributeCreator());
-}
-
-
-Color::Name ColoredElement::GetColor (Color::Name color) const
-{
-    if (m_attributes != 0)
-	return dynamic_cast<ColorAttribute*>(
-	    (*m_attributes)[COLOR_INDEX].get ())->GetColor ();
-    else
-    {
-	if (color == Color::COUNT)
-	    return static_cast<Color::Name>(
-		(GetId ()+1) % Color::COUNT);
-	else
-	    return color;
-    }
 }

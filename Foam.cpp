@@ -12,6 +12,7 @@
 #include "ElementUtils.h"
 #include "OrientedEdge.h"
 #include "ParsingData.h"
+#include "ProcessBodyTorus.h"
 #include "Vertex.h"
 
 // Private Classes
@@ -163,7 +164,7 @@ Edge* Foam::GetEdgeDuplicate (
 }
 
 Face* Foam::GetFaceDuplicate (
-    const Face& original, const G3D::Vector3& translation)
+    const Face& original, const G3D::Vector3int16& translation)
 {
     const G3D::Vector3* begin = original.GetOrientedEdge (0)->GetBegin ();
     const G3D::Vector3& newBegin = 
@@ -208,13 +209,15 @@ Edge* Foam::CreateEdgeDuplicate (Edge* original, const G3D::Vector3& newBegin)
     Edge* duplicate = new Edge (*original);
     duplicate->SetBegin (beginDuplicate);
     duplicate->SetEnd (endDuplicate);
+    duplicate->SetStatus (ElementStatus::DUPLICATE);
     return duplicate;
 }
 
 Face* Foam::CreateFaceDuplicate (
     const Face& original, const G3D::Vector3& newBegin)
 {
-    Face* faceDuplicate = new Face(original);
+    Face* faceDuplicate = new Face (original);
+    faceDuplicate->SetStatus (ElementStatus::DUPLICATE);
     G3D::Vector3 begin = newBegin;
     BOOST_FOREACH (OrientedEdge* oe, faceDuplicate->GetOrientedEdges ())
     {
@@ -251,8 +254,7 @@ void Foam::SetEdge (size_t i, size_t begin, size_t end,
 {
     if (i >= m_edges.size ())
         m_edges.resize (i + 1); 
-    Edge* edge = new Edge (
-	GetVertex(begin), GetVertex(end), endTranslation, i);
+    Edge* edge = new Edge (GetVertex(begin), GetVertex(end), endTranslation, i);
     if (&list != 0)
         edge->StoreAttributes (list, m_attributesInfo[DefineAttribute::EDGE]);
     m_edges[i] = edge;
@@ -381,6 +383,10 @@ void Foam::Unwrap ()
 	f->Unwrap (*this);
 	f->CalculateNormal ();
 	m_faceSet.insert (f);
+    }
+    BOOST_FOREACH (Body* b, m_bodies)
+    {
+	ProcessBodyTorus(this, b).Unwrap ();
     }
 }
 

@@ -112,22 +112,30 @@ private:
 
 // Static Fields
 // ======================================================================
+const size_t Element::INVALID_INDEX = numeric_limits<size_t>::max ();
 
-const size_t Element::INVALID_INDEX = 
-				 numeric_limits<size_t>::max ();
 // Methods
 // ======================================================================
 
-Element::~Element()
+Element::Element (const Element& other) :
+    m_id (other.m_id),
+    m_status (other.m_status)
 {
-    delete m_attributes;
+    if (other.m_attributes.get () != 0)
+    {
+	m_attributes.reset (new Attributes (other.m_attributes->size ()));
+	*m_attributes = *other.m_attributes;
+    }
 }
+
 
 void Element::SetAttribute (size_t i, Attribute* attribute)
 {
     using boost::shared_ptr;
     if (m_attributes == 0)
-	m_attributes = new vector<shared_ptr<Attribute> > ();
+    {
+	m_attributes.reset (new Attributes ());
+    }
     if (i >= m_attributes->size ())
         m_attributes->resize (i + 1);
     shared_ptr<Attribute> p(attribute);

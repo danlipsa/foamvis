@@ -6,16 +6,19 @@
  */
 
 #include "OrientedElement.h"
-#include "Element.h"
+#include "ColoredElement.h"
 
-string OrientedElement::GetSignedIdString () const
+string OrientedElement::GetStringId () const
 {
-    ostringstream ostr;
-    ostr << (m_reversed ? "R" : "N") << setw(3) << GetId () << ends;
+    ostringstream id, ostr;
+    id << (m_reversed ? "R" : "N") 
+       << GetId () << " "
+       << GetColoredElement ()->GetColor ();
+    ostr << setw (15) << id.str () << ends;
     return ostr.str ();
 }
 
 size_t OrientedElement::GetId () const
 {
-    return GetElement ()->GetId ();
+    return GetColoredElement ()->GetId ();
 }

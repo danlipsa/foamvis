@@ -19,7 +19,7 @@ OrientedFace::OrientedFace(Face* face, bool reversed) :
 
 Face* OrientedFace::GetFace () const
 {
-    return static_cast<Face*>(GetElement());
+    return static_cast<Face*>(GetColoredElement());
 }
 
 void OrientedFace::SetFace (Face* face)
@@ -122,7 +122,7 @@ bool OrientedFace::IsPartOfBody (size_t bodyId) const
 
 ostream& operator<< (ostream& ostr, const OrientedFace& of)
 {
-    ostr << "Oriented Face " << of.GetSignedIdString () 
+    ostr << "Oriented Face " << of.GetStringId () 
 	 << " " << of.GetFace ()->GetColor () << " "
 	 << of.GetFace ()->GetStatus ()
 	 << ": " << endl;

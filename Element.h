@@ -27,11 +27,10 @@ public:
 	m_attributes(0),
 	m_id (id), 
 	m_status (status)
-    {}
-    /**
-     * Destructor for the Element
-     */
-    ~Element();
+    {
+    }
+    Element (const Element& other);
+
     /**
      * Sets an attribute for the element
      * @param i position in the vector of attributes
@@ -60,6 +59,10 @@ public:
     {
 	m_status = status;
     }
+
+protected:
+    typedef vector< boost::shared_ptr<Attribute> > Attributes;
+
 protected:
     /**
      * Pretty print attributes of an element
@@ -73,7 +76,7 @@ protected:
     /**
      * Vector of attributes
      */
-    vector<boost::shared_ptr<Attribute> >* m_attributes;
+    boost::scoped_ptr<Attributes> m_attributes;
     /**
      * The original index for this element
      */

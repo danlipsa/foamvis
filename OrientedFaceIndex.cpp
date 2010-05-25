@@ -43,7 +43,7 @@ bool OrientedFaceIndex::IsValidNext (const OrientedFaceIndex& next) const
 
 Face* OrientedFaceIndex::GetFace () const
 {
-    GetOrientedFace ()->GetFace ();
+    return GetOrientedFace ()->GetFace ();
 }
 
 
@@ -52,7 +52,7 @@ Face* OrientedFaceIndex::GetFace () const
 
 ostream& operator<< (ostream& ostr, const OrientedFaceIndex& ofi)
 {
-    ostr << "(of=" << ofi.GetOrientedFace ()->GetSignedIdString () << ", " 
+    ostr << "(of=" << ofi.GetOrientedFace ()->GetStringId () << ", " 
 	 << "oeI=" << ofi.GetOrientedEdgeIndex ()
 	 << ")";
     return ostr;

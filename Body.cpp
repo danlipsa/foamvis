@@ -189,13 +189,13 @@ ostream& Body::PrintFaceEdgeInformation (ostream& ostr) const
     {
 	OrientedFace* of = m_orientedFaces[i];
 	const BodyIndex& bi = of->GetBodyPartOf ();
-	ostr << "Face " << of->GetSignedIdString () 
+	ostr << "Face " << of->GetStringId () 
 	     << " part of body " << setw (3) << bi.GetBody ()->GetId ()
 	     << " at index " << bi.GetOrientedFaceIndex () << endl;
 	for (size_t j = 0; j < of->size (); j++)
 	{
 	    const OrientedEdge& oe = of->GetOrientedEdge (j);
-	    ostr << "    Edge " << oe.GetSignedIdString () << " is part of: ";
+	    ostr << "    Edge " << oe.GetStringId () << " is part of: ";
 	    for (size_t k = 0; k < oe.GetFacePartOfSize (); k++)
 	    {
 		const OrientedFaceIndex& ofi = oe.GetFacePartOf (k);
@@ -217,7 +217,7 @@ void Body::UpdatePartOf ()
 	of->AddBodyPartOf (this, i);
 	of->UpdateFacePartOf ();
     }
-    PrintFaceEdgeInformation (cdbg);
+    //PrintFaceEdgeInformation (cdbg);
 }
 
 void Body::ClearPartOf ()

@@ -20,12 +20,19 @@ public:
     ProcessBodyTorus (Foam* foam, Body* body);
     void Initialize ();
     bool Step ();
-    void Cleanup ();
+    void Unwrap ();
 
 private:
     void push (OrientedFace* of);
     bool pop (OrientedFaceIndex* orientedFaceIndex,
 	      OrientedFaceIndex* nextOrientedFaceIndex);
+    void restrictFacesAroundAnEdge (const OrientedFaceIndex& ofi, 
+				    vector<OrientedFaceIndex>* possibilities);
+    bool chooseFaceNeighbor (
+	const OrientedFaceIndex& ofi, 
+	const vector<OrientedFaceIndex>& possibilities,
+	OrientedFaceIndex* nextOrientedFaceIndex);
+
 private:
     Foam* m_foam;
     Body* m_body;

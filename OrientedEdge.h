@@ -66,13 +66,6 @@ public:
     {
 	return print (ostr, true);
     }
-    /**
-     * Calculate the translation from a source oriented edge to this edge
-     * @param source source oriented edge
-     * @param translation vector to translate the source edge to this edge
-     */
-    void CalculateTranslation (const OrientedEdge& source, 
-			       G3D::Vector3* translation = 0) const;
 
 public:
     /**

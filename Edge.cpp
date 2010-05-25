@@ -24,6 +24,16 @@ AttributesInfo* Edge::m_infos;
 
 // Methods
 // ======================================================================
+Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endTranslation, 
+	    size_t id, ElementStatus::Name status):
+    ColoredElement(id, status),
+    m_begin (begin), m_end (end),
+    m_endTranslation (endTranslation), 
+    m_physical (false),
+    m_torusClipped (0)
+{
+}
+
 Edge::Edge (Vertex* begin, size_t id) :
     ColoredElement (id, ElementStatus::ORIGINAL),
     m_begin (begin),
@@ -34,20 +44,11 @@ Edge::Edge (Vertex* begin, size_t id) :
 }
 
 Edge::Edge (const Edge& o) : 
-    ColoredElement (o.GetId (), ElementStatus::DUPLICATE),
+    ColoredElement (o),
     m_begin (o.GetBegin ()), m_end (o.GetEnd ()),
     m_endTranslation (o.GetEndTranslation ()),
-    m_physical (false),
-    m_torusClipped (0)
-{
-}
-
-Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endTranslation, 
-	    size_t id, ElementStatus::Name status):
-    ColoredElement(id, status),
-    m_begin (begin), m_end (end),
-    m_endTranslation (endTranslation), 
-    m_physical (false),
+    m_facesPartOf (o.m_facesPartOf),
+    m_physical (o.m_physical),
     m_torusClipped (0)
 {
 }
@@ -220,14 +221,14 @@ void Edge::StoreDefaultAttributes (AttributesInfo* infos)
 {
     using EvolverData::parser;
     m_infos = infos;
-    ColoredElement::StoreDefaultAttributes (infos);
-    infos->AddAttributeInfo (
+    ColoredElement::StoreDefaultAttributes (m_infos);
+    m_infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL),
         new IntegerAttributeCreator());
-    infos->AddAttributeInfo (
+    m_infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS),
         new IntegerVectorAttributeCreator());
-    infos->AddAttributeInfo (
+    m_infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::DENSITY),
         new RealAttributeCreator());
 }

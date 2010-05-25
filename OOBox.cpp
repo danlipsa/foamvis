@@ -59,8 +59,7 @@ OOBox::OOBox (const G3D::Vector3& x, const G3D::Vector3& y,
 }
 
 G3D::Vector3 OOBox::TorusTranslate (
-    const G3D::Vector3& v,
-    const G3D::Vector3int16& translation) const
+    const G3D::Vector3& v, const G3D::Vector3int16& translation) const
 {
     G3D::Vector3 ret = v;
     for (int i = 0; i < 3; i++)

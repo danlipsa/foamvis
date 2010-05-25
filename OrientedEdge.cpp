@@ -18,7 +18,7 @@ OrientedEdge::OrientedEdge (Edge* edge, bool reversed) :
 
 Edge* OrientedEdge::GetEdge () const 
 {
-    return static_cast<Edge*>(GetElement());
+    return static_cast<Edge*>(GetColoredElement());
 }
 
 void OrientedEdge::SetEdge (Edge* edge) 
@@ -30,7 +30,7 @@ void OrientedEdge::SetEdge (Edge* edge)
 ostream& OrientedEdge::print (ostream& ostr, bool reversed) const
 {
     using G3D::Vector3;
-    ostr << "Oriented Edge " << GetSignedIdString () << " "
+    ostr << "Oriented Edge " << GetStringId () << " "
 	 << GetEdge ()->GetStatus ()
 	 << ": ";
     const Vector3* begin = static_cast<const G3D::Vector3*>(GetBegin ());
@@ -39,12 +39,6 @@ ostream& OrientedEdge::print (ostream& ostr, bool reversed) const
 	swap (begin, end);
     ostr << *begin << ", " << *end;
     return ostr;
-}
-
-void OrientedEdge::CalculateTranslation (
-    const OrientedEdge& source, G3D::Vector3* translation) const
-{
-    *translation = *GetBegin () - *source.GetEnd ();
 }
 
 G3D::Vector3 OrientedEdge::GetEdgeVector () const
