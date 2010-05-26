@@ -20,15 +20,11 @@ class FoamAlongTime
 public:
     typedef vector< boost::shared_ptr<Foam> > Foams;
     /**
-     * Iterator over a vector of Foam
-     */
-    typedef Foams::iterator IteratorFoam;
-    /**
      * Functor applied to a collection of Foam objects
      */
-    typedef IteratorFoam (*Aggregate)(IteratorFoam first,
-				      IteratorFoam last,
-				      FoamLessThanAlong lessThanAlong);
+    typedef Foams::iterator (*Aggregate)(Foams::iterator first,
+					 Foams::iterator last,
+					 FoamLessThanAlong lessThanAlong);
 public:
     /**
      * Calculate the  axially aligned bounding box for  this vector of
@@ -49,9 +45,14 @@ public:
 	return m_foams.size ();
     }
 
-    void PushBack (boost::shared_ptr<Foam> foam)
+    void SetFoamsSize (size_t size)
     {
-	m_foams.push_back (foam);
+	m_foams.resize (size);
+    }
+
+    Foams::iterator GetFoamsBegin ()
+    {
+	return m_foams.begin ();
     }
 
     /**

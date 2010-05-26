@@ -12,7 +12,8 @@ void ExpressionTree::Delete (ExpressionTree* node)
 {
     if (node == 0)
         return;
-    Delete (node->m_first);Delete (node->m_second);
+    Delete (node->m_first);
+    Delete (node->m_second);
     delete node;
 }
 

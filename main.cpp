@@ -60,7 +60,7 @@ duplicate).
 /**
  * Functor used to parse a DMP file
  */
-class parseFile : public unary_function<QString, bool>
+class parseFile : public unary_function< QString, boost::shared_ptr<Foam> >
 {
 public:
     /**
@@ -83,7 +83,9 @@ public:
     {
         int result;
 	string file = qPrintable (f);
-	cdbg << "Parsing " << file << " ..." << endl;
+	ostringstream ostr;
+	ostr << "Parsing " << file << " ..." << endl << ends;
+	cdbg << ostr.str ();
 	boost::shared_ptr<Foam> foam (new Foam ());
         ParsingData& parsingData = foam->GetParsingData ();
         parsingData.SetDebugParsing (m_debugParsing);
@@ -99,9 +101,9 @@ private:
     /**
      * Directory that stores the DMP files.
      */
-    string m_dir;
-    bool m_debugParsing;
-    bool m_debugScanning;
+    const string m_dir;
+    const bool m_debugParsing;
+    const bool m_debugScanning;
 };
 
 
@@ -158,35 +160,41 @@ void parseFiles (int argc, char *argv[],
 		 FoamAlongTime* foamAlongTime,
 		 bool debugParsing, bool debugScanning)
 {
+    QDir dir;
+    QStringList files;
     switch (argc - optind)
     {
     case 1:
     {
 	QFileInfo fileInfo (argv[optind]);
-	QDir dir = fileInfo.absoluteDir ();
-	boost::shared_ptr<Foam> foam = 
-	    parseFile (dir.absolutePath (), debugParsing, debugScanning) (
-		fileInfo.fileName ());
-	foamAlongTime->PushBack (foam);
+	dir = fileInfo.absoluteDir ();
+	files << fileInfo.fileName ();
 	break;
     }
     case 2:
     {
-	QDir dir (argv[optind], argv[optind + 1]);
-	QStringList files = dir.entryList ();
-	BOOST_FOREACH (QString file, files)
-	{
-	    boost::shared_ptr<Foam> foam = 
-		parseFile (dir.absolutePath (), debugParsing, debugScanning) (
-		    file);
-	    foamAlongTime->PushBack (foam);
-	}
+	dir = QDir(argv[optind], argv[optind + 1]);
+	files = dir.entryList ();
 	break;
     }
     default:
 	printHelp ();
 	exit (13);
     }
+
+    foamAlongTime->SetFoamsSize (files.size ());
+/*
+    QFuture< boost::shared_ptr<Foam> > future = QtConcurrent::mapped (
+	files,
+	parseFile (dir.absolutePath (), debugParsing, debugScanning));
+    future.waitForFinished ();
+    QList< boost::shared_ptr<Foam> > foams = future.results ();
+    copy (foams.constBegin (), foams.constEnd (),
+	  foamAlongTime->GetFoamsBegin ());
+*/
+    transform (files.constBegin (), files.constEnd (), 
+	       foamAlongTime->GetFoamsBegin (),
+	       parseFile (dir.absolutePath (), debugParsing, debugScanning));
 }
 
 

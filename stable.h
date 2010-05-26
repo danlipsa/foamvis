@@ -59,6 +59,7 @@
 #include <Qt>
 #include <QApplication>
 #include <QtOpenGL>
+#include <QtConcurrentMap>
 
 // G3D headers
 #include <G3D/AABox.h>
