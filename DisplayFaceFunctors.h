@@ -31,16 +31,14 @@ public:
     void operator() (const OrientedFace* of)
     {
 	size_t faceIndex = m_widget.GetDisplayedFaceIndex ();
-/*
-	size_t bodyIndex = m_widget.GetDisplayedBodyIndex ();
-	size_t bodyId = m_widget.GetDisplayedBodyId ();
 
+	size_t bodyIndex = m_widget.GetDisplayedBodyIndex ();
         if ((faceIndex == GLWidget::DISPLAY_ALL ||
 	     m_count == m_widget.GetDisplayedFaceIndex ()) &&
-
+	    
 	    (bodyIndex == GLWidget::DISPLAY_ALL ||
-	     of->IsPartOfBody (bodyId)))
-*/
+	     of->GetBodyPartOf ().GetBodyId () == 
+	     m_widget.GetDisplayedBodyId ()))
         {
 	    display (of);
 	    if (m_count == faceIndex)

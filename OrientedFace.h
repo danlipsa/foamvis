@@ -43,7 +43,6 @@ public:
     void UpdateFacePartOf ();
     void ClearFacePartOf ();
     void ClearBodyPartOf ();
-    bool IsPartOfBody (size_t bodyId) const;
 
     /**
      * Gets the begin vertex for an edge in this oriented face

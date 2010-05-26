@@ -28,16 +28,6 @@ private:
     
 };
 
-// Private Functions
-// ======================================================================
-void equalize (G3D::Vector3& first, G3D::Vector3& second)
-{
-    for (int i = 0; i < 3; i++)
-	if (G3D::fuzzyEq (first[i], second[i]))
-	    first[i] = second[i];
-}
-
-
 
 // Static Fields
 // ======================================================================
@@ -140,12 +130,11 @@ G3D::Vector3int16 OOBox::GetTranslation (
     for (int i = 0; i < 3; i++)
 	toPeriods.setColumn (i, (*this)[i]);
     toOrthonormal = toPeriods.inverse ();
-    Vector3 o = toOrthonormal * source;
+    Vector3 s = toOrthonormal * source;
     Vector3 d = toOrthonormal * destination;
-    equalize (o, d);
-    Vector3int16 sourceLocation (floorf (o.x), floorf(o.y), floorf(o.z));
-    Vector3int16 destinationLocation (floorf (d.x), floorf(d.y), floorf(d.z));
-    return destinationLocation - sourceLocation;
+    Vector3 t = d - s - Vector3 (0.5, 0.5, 0.5);
+    Vector3int16 translation (ceil (t.x), ceil(t.y), ceil (t.z));
+    return translation;
 }
 
 

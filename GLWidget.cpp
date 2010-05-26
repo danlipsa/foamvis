@@ -338,7 +338,7 @@ void GLWidget::initializeGL()
     qglClearColor (QColor(Qt::white));
 
     printOpenGLInfo ();
-
+    GLWidget::disableLighting ();
     m_object = displayList (m_viewType);
 }
 
@@ -816,7 +816,8 @@ void GLWidget::IncrementDisplayedFace ()
 
 void GLWidget::IncrementDisplayedEdge ()
 {
-    if (m_displayedBodyIndex != DISPLAY_ALL && m_displayedFaceIndex != DISPLAY_ALL)
+    if (m_displayedBodyIndex != DISPLAY_ALL && 
+	m_displayedFaceIndex != DISPLAY_ALL)
     {
 	++m_displayedEdgeIndex;
 	Face& face = *GetDisplayedFace ();
@@ -858,7 +859,8 @@ void GLWidget::DecrementDisplayedFace ()
 
 void GLWidget::DecrementDisplayedEdge ()
 {
-    if (m_displayedBodyIndex != DISPLAY_ALL && m_displayedFaceIndex != DISPLAY_ALL)
+    if (m_displayedBodyIndex != DISPLAY_ALL && 
+	m_displayedFaceIndex != DISPLAY_ALL)
     {
 	Face& face = *GetDisplayedFace ();
 	if (m_displayedEdgeIndex == DISPLAY_ALL)

@@ -111,11 +111,6 @@ Vertex* OrientedFace::getEnd (size_t edgeIndex) const
     return oe.GetEnd ();
 }
 
-bool OrientedFace::IsPartOfBody (size_t bodyId) const
-{
-    return GetFace ()->IsPartOfBody (bodyId, IsReversed ());
-}
-
 
 // Static and Friends methods
 // ======================================================================

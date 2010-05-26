@@ -63,9 +63,9 @@ void Edge::Unwrap (Foam& foam)
     }
 }
 
-G3D::Vector3 Edge::GetBegin (const G3D::Vector3* end) const
+G3D::Vector3 Edge::GetTranslatedBegin (const G3D::Vector3& newEnd) const
 {
-    return *end + (*GetBegin () - *GetEnd ());
+    return newEnd + (*GetBegin () - *GetEnd ());
 }
 
 void Edge::UpdateEdgePartOf ()

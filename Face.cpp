@@ -106,7 +106,7 @@ void Face::Unwrap (Foam& foam)
     {
 	Edge* edge = oe->GetEdge ();
 	G3D::Vector3 edgeBegin = 
-	    (oe->IsReversed ()) ? edge->GetBegin (begin) : *begin;
+	    (oe->IsReversed ()) ? edge->GetTranslatedBegin (*begin) : *begin;
 	oe->SetEdge (foam.GetEdgeDuplicate (edge, edgeBegin));
 	begin = oe->GetEnd ();
     }
@@ -169,12 +169,6 @@ bool Face::IsClosed () const
 	*m_orientedEdges[0]->GetBegin () == 
 	*m_orientedEdges[m_orientedEdges.size () - 1]->GetEnd ();
 }
-
-bool Face::IsPartOfBody (size_t bodyId, bool reversed) const
-{
-    return GetBodyPartOf (reversed).GetBody ()->GetId () == bodyId;
-}
-
 
 bool Face::HasWrap () const
 {

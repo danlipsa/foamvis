@@ -14,6 +14,8 @@
 #include "GLWidget.h"
 #include "Foam.h"
 
+
+
 void edgeRotation (
     G3D::Matrix3* rotation,
     const G3D::Vector3& begin, const G3D::Vector3& end)
@@ -304,12 +306,13 @@ public:
 	for (size_t i = 0; i < v.size (); i++)
 	{
 	    OrientedEdge* oe = v[i];
-	    size_t displayedEdge = m_widget.GetDisplayedEdgeIndex ();
+	    size_t displayedEdgeIndex = m_widget.GetDisplayedEdgeIndex ();
 	    displayEdge display(m_widget);
-	    if (displayedEdge == GLWidget::DISPLAY_ALL || displayedEdge == i)
+	    if (displayedEdgeIndex == GLWidget::DISPLAY_ALL || 
+		displayedEdgeIndex == i)
 	    {
 		display (oe);
-		if (i == displayedEdge)
+		if (i == displayedEdgeIndex)
 		    cdbg << "edge " << i << ": " << *oe << endl;
 	    }
 	}

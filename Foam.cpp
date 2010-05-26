@@ -7,6 +7,7 @@
 #include "AttributeInfo.h"
 #include "AttributeCreator.h"
 #include "Body.h"
+#include "DebugStream.h"
 #include "Foam.h"
 #include "Edge.h"
 #include "Face.h"
@@ -223,7 +224,7 @@ Face* Foam::CreateFaceDuplicate (
     {
 	G3D::Vector3 edgeBegin;
 	if (oe->IsReversed ())
-	    edgeBegin = oe->GetEdge ()->GetBegin (&begin);
+	    edgeBegin = oe->GetEdge ()->GetTranslatedBegin (begin);
 	else
 	    edgeBegin = begin;
 	Edge* edgeDuplicate = GetEdgeDuplicate (oe->GetEdge (), edgeBegin);

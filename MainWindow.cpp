@@ -205,6 +205,10 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     case Qt::Key_T:
 	InteractionModeTranslate ();
 	break;
+    case Qt::Key_P:
+	cdbg << "OpenGL State:" << endl;
+	cdbg << G3D::getOpenGLState (false) << endl;
+	break;
     }
 }
 
@@ -274,9 +278,6 @@ void MainWindow::ValueChangedSliderData (int value)
 	m_currentFrame++;
     }
 }
-
-
-
 
 
 void MainWindow::ToggledVerticesPhysical (bool checked)

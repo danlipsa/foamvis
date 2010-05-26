@@ -39,8 +39,11 @@ public:
     {
 	return m_begin;
     }
-
-    G3D::Vector3 GetBegin (const G3D::Vector3* end) const;
+    /**
+     * Translate the begin vertex so that the end vertex coincides with 
+     * the 'end' parameter.
+     */
+    G3D::Vector3 GetTranslatedBegin (const G3D::Vector3& newEnd) const;
     /**
      * Sets the first vertex of the edge
      * @param begin value stored in the first vertex of the edge

@@ -70,7 +70,6 @@ public:
     const BodyIndex& GetBodyPartOf (bool faceReversed) const;
     void ClearBodyPartOf ();
     void ClearFacePartOf ();
-    bool IsPartOfBody (size_t bodyId, bool reversed) const;
 
 
     size_t GetNextValidIndex (size_t index) const;
