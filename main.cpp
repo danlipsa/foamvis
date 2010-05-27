@@ -183,18 +183,12 @@ void parseFiles (int argc, char *argv[],
     }
 
     foamAlongTime->SetFoamsSize (files.size ());
-/*
-    QFuture< boost::shared_ptr<Foam> > future = QtConcurrent::mapped (
+
+    QList< boost::shared_ptr<Foam> > foams = QtConcurrent::blockingMapped (
 	files,
 	parseFile (dir.absolutePath (), debugParsing, debugScanning));
-    future.waitForFinished ();
-    QList< boost::shared_ptr<Foam> > foams = future.results ();
     copy (foams.constBegin (), foams.constEnd (),
 	  foamAlongTime->GetFoamsBegin ());
-*/
-    transform (files.constBegin (), files.constEnd (), 
-	       foamAlongTime->GetFoamsBegin (),
-	       parseFile (dir.absolutePath (), debugParsing, debugScanning));
 }
 
 

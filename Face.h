@@ -81,10 +81,6 @@ public:
 	return m_normal;
     }
     void CalculateNormal ();
-    ostream& PrintAttributes (ostream& ostr) const
-    {
-	return printAttributes (ostr, *Face::m_infos);
-    }
     bool IsClosed () const;
     bool HasWrap () const;
     size_t size () const
@@ -112,11 +108,6 @@ private:
     OrientedEdges m_orientedEdges;
     vector<BodyIndex> m_bodiesPartOf;
     G3D::Vector3 m_normal;
-private:
-    /**
-     * Stores information about all vertex attributes
-     */
-    static AttributesInfo* m_infos;
 };
 /**
  * Pretty prints a Face*

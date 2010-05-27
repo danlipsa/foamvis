@@ -115,10 +115,6 @@ public:
     bool fuzzyEq (const Edge& other) const;
     bool operator< (const Edge& other) const;
     bool IsZero () const;
-    ostream& PrintAttributes (ostream& ostr) const
-    {
-	return printAttributes (ostr, *Edge::m_infos);
-    }
 
     G3D::Vector3 GetTorusClippedBegin (size_t index) const;
     G3D::Vector3 GetTorusClippedEnd (size_t index) const;
@@ -175,11 +171,6 @@ private:
     bool m_physical;
     boost::scoped_ptr< vector<G3D::LineSegment> > m_torusClipped;
 
-private:
-    /**
-     * Stores information about all vertex attributes
-     */
-    static AttributesInfo* m_infos;
 };
 /**
  * Pretty print an Edge*

@@ -158,11 +158,6 @@ private:
     void split (
 	set<T*>& src, vector<T*>& destTessellation, vector<T*>& destPhysical);
 
-    ostream& PrintAttributes (ostream& ostr) const
-    {
-	return printAttributes (ostr, *Body::m_infos);
-    }
-
 private:
     /**
      * Oriented faces that are part of this body.
@@ -201,11 +196,6 @@ private:
      * Center of the body
      */
     G3D::Vector3 m_center;
-private:
-    /**
-     * Stores information about all vertex attributes
-     */
-    static AttributesInfo* m_infos;
 };
 /**
  * Pretty prints a Body*

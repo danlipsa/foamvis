@@ -113,11 +113,6 @@ private:
     vector<Face*>& m_faces;
 };
 
-// Static Fields
-// ======================================================================
-
-AttributesInfo* Body::m_infos;
-
 // Methods
 // ======================================================================
 
@@ -274,7 +269,6 @@ Face* Body::GetFace (size_t i) const
 void Body::StoreDefaultAttributes (AttributesInfo* infos)
 {
     using EvolverData::parser;
-    m_infos = infos;
     auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);

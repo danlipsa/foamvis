@@ -111,6 +111,11 @@ Vertex* OrientedFace::getEnd (size_t edgeIndex) const
     return oe.GetEnd ();
 }
 
+ostream& OrientedFace::PrintAttributes (ostream& ostr) const
+{
+    return GetFace ()->PrintAttributes (ostr);
+}
+
 
 // Static and Friends methods
 // ======================================================================

@@ -91,7 +91,7 @@ public:
     {
 	return pair<G3D::Vector3, OrientedFace*> (face->GetNormal (), face);
     }
-
+    ostream& PrintAttributes (ostream& ostr) const;
 
 private:
 

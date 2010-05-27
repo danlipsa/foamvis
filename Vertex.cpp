@@ -23,7 +23,6 @@ size_t hash_value (Vertex const& v)
 
 // Static Fields
 // ======================================================================
-AttributesInfo* Vertex::m_infos;
 const G3D::Vector3int16 Vertex::m_unitVector3int16[3] = {
     G3D::Vector3int16 (1, 0, 0),
     G3D::Vector3int16 (0, 1, 0),
@@ -86,7 +85,6 @@ ostream& operator<< (ostream& ostr, const Vertex& v)
 void Vertex::StoreDefaultAttributes (AttributesInfo* infos)
 {
     using EvolverData::parser;
-    m_infos = infos;
     auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);

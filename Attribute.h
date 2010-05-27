@@ -25,7 +25,10 @@ public:
      * @param ostr where to print
      * @return where to print something else
      */
-    virtual ostream& Print(ostream& ostr) const = 0;
+    virtual ostream& Print(ostream& ostr) const 
+    {
+	return ostr << "Attribute placeholder" << endl;
+    }
 };
 /**
  * An integer attribute

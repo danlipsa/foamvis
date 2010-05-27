@@ -60,12 +60,6 @@ private:
 };
 
 
-// Static Fields
-// ======================================================================
-
-AttributesInfo* Face::m_infos;
-
-
 // Methods
 // ======================================================================
 Face::Face (Edge* edge, size_t id) :
@@ -197,7 +191,6 @@ const BodyIndex& Face::GetBodyPartOf (bool faceReversed) const
 void Face::StoreDefaultAttributes (AttributesInfo* infos)
 {
     using EvolverData::parser;
-    m_infos = infos;
     ColoredElement::StoreDefaultAttributes (infos);
     auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
     infos->AddAttributeInfo (

@@ -72,43 +72,6 @@ private:
     AttributesInfo& m_infos;
 };
 
-/**
- * Functor that prints an attribute
- */
-class printAttribute
-{
-public:
-    /**
-     * Constructor for the functor
-     * @param ostr where to print the attribute
-     * @param infos information about attributes
-     */
-    printAttribute(
-        ostream& ostr, const AttributesInfo& infos) : 
-        m_ostr (ostr), m_infos (infos), m_index(0) {}
-    /**
-     * Functor that prints an attribute
-     * @param attribute to be printed.
-     */
-    void operator() (boost::shared_ptr<Attribute> attribute)
-    {
-	const char* name = m_infos.GetAttributeName (m_index++);
-        m_ostr << name << " " << *attribute << " ";
-    }
-private:
-    /**
-     * Stream where to print
-     */
-    ostream& m_ostr;
-    /**
-     * Information about attributes
-     */
-    const AttributesInfo& m_infos;
-    /**
-     * Current attribute index
-     */
-    size_t m_index;
-};
 
 // Static Fields
 // ======================================================================
@@ -148,12 +111,11 @@ void Element::StoreAttributes (
     for_each (list.begin (), list.end (), storeAttribute(*this, infos));
 }
 
-ostream& Element::printAttributes (
-    ostream& ostr, const AttributesInfo& infos) const
+ostream& Element::PrintAttributes (ostream& ostr) const
 {
+    ostream_iterator< boost::shared_ptr<Attribute> > oi (ostr, " ");
     if (m_attributes != 0)
-	for_each (m_attributes->begin (), m_attributes->end (),
-		  printAttribute (ostr, infos));
+	copy (m_attributes->begin (), m_attributes->end (), oi);
     return ostr;
 }
 

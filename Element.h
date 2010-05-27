@@ -60,17 +60,15 @@ public:
 	m_status = status;
     }
 
-protected:
-    typedef vector< boost::shared_ptr<Attribute> > Attributes;
-
-protected:
     /**
      * Pretty print attributes of an element
      * @param ostr where to print
      * @param info information about attributes
      */
-    ostream& printAttributes (
-	ostream& ostr, const AttributesInfo& info) const;
+    ostream& PrintAttributes (ostream& ostr) const;
+
+protected:
+    typedef vector< boost::shared_ptr<Attribute> > Attributes;
 
 protected:
     /**

@@ -17,11 +17,6 @@
 #include "Vertex.h"
 
 
-// Static Fields
-// ======================================================================
-AttributesInfo* Edge::m_infos;
-
-
 // Methods
 // ======================================================================
 Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endTranslation, 
@@ -220,16 +215,15 @@ G3D::Vector3int16 Edge::IntToLocation (int value)
 void Edge::StoreDefaultAttributes (AttributesInfo* infos)
 {
     using EvolverData::parser;
-    m_infos = infos;
-    ColoredElement::StoreDefaultAttributes (m_infos);
+    ColoredElement::StoreDefaultAttributes (infos);
     auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
-    m_infos->AddAttributeInfo (
+    infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
     ac.reset (new IntegerVectorAttributeCreator());
-    m_infos->AddAttributeInfo (
+    infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
     ac.reset (new RealAttributeCreator());
-    m_infos->AddAttributeInfo (
+    infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::DENSITY), ac);
 }
 

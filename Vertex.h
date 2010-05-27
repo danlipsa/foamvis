@@ -64,10 +64,6 @@ public:
     G3D::Vector3int16 GetDomain () const;
     bool operator< (const Vertex& other) const;
     bool operator== (const Vertex& other) const;
-    ostream& PrintAttributes (ostream& ostr) const
-    {
-	return printAttributes (ostr, *Vertex::m_infos);
-    }
 
 public:
     template <typename Vertices>
@@ -181,10 +177,6 @@ private:
     bool m_physical;
 
 private:
-    /**
-     * Stores information about all vertex attributes
-     */
-    static AttributesInfo* m_infos;
     static const G3D::Vector3int16 m_unitVector3int16[3];
 };
 /**
