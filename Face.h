@@ -68,6 +68,15 @@ public:
 	m_bodiesPartOf.push_back (BodyIndex (body, orientedFaceIndex));
     }
     const BodyIndex& GetBodyPartOf (bool faceReversed) const;
+    const BodyIndex& GetBodyPartOf (size_t i) const
+    {
+	return m_bodiesPartOf[i];
+    }
+
+    size_t GetBodyPartOfSize () const
+    {
+	return m_bodiesPartOf.size ();
+    }
     void ClearBodyPartOf ();
     void ClearFacePartOf ();
 
@@ -87,7 +96,7 @@ public:
     {
 	return m_orientedEdges.size ();
     }
-    void Unwrap (Foam& foam);
+    void Unwrap (Foam* foam);
 
 public:
     /**

@@ -93,7 +93,7 @@ Face::~Face ()
 }
 
 
-void Face::Unwrap (Foam& foam)
+void Face::Unwrap (Foam* foam)
 {
     G3D::Vector3* begin = (*m_orientedEdges.begin())->GetBegin ();
     BOOST_FOREACH (OrientedEdge* oe, m_orientedEdges)
@@ -101,7 +101,7 @@ void Face::Unwrap (Foam& foam)
 	Edge* edge = oe->GetEdge ();
 	G3D::Vector3 edgeBegin = 
 	    (oe->IsReversed ()) ? edge->GetTranslatedBegin (*begin) : *begin;
-	oe->SetEdge (foam.GetEdgeDuplicate (edge, edgeBegin));
+	oe->SetEdge (foam->GetEdgeDuplicate (edge, edgeBegin));
 	begin = oe->GetEnd ();
     }
 }
@@ -182,7 +182,6 @@ const BodyIndex& Face::GetBodyPartOf (bool faceReversed) const
     size_t index = faceReversed ^ m_bodiesPartOf[0].IsOrientedFaceReversed ();
     return m_bodiesPartOf[index];
 }
-
 
 
 // Static and Friends Methods

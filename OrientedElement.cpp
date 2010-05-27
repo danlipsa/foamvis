@@ -10,11 +10,9 @@
 
 string OrientedElement::GetStringId () const
 {
-    ostringstream id, ostr;
-    id << (m_reversed ? "R" : "N") 
-       << GetId () << " "
-       << GetColoredElement ()->GetColor ();
-    ostr << setw (15) << id.str () << ends;
+    ostringstream ostr;
+    ostr << (m_reversed ? "R" : "N") 
+	 << GetColoredElement ()->GetStringId ();
     return ostr.str ();
 }
 

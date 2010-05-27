@@ -48,13 +48,13 @@ Edge::Edge (const Edge& o) :
 {
 }
 
-void Edge::Unwrap (Foam& foam)
+void Edge::Unwrap (Foam* foam)
 {
     if (GetStatus () == ElementStatus::ORIGINAL)
     {
 	if (m_endTranslation == G3D::Vector3int16(0, 0, 0))
 	    return;
-	m_end = foam.GetVertexDuplicate (m_end, m_endTranslation);
+	m_end = foam->GetVertexDuplicate (m_end, m_endTranslation);
     }
 }
 

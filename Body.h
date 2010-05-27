@@ -129,7 +129,9 @@ public:
 	++m_currentNormalFace;
     }
     bool HasWrap () const;
-    ostream& PrintFaceEdgeInformation (ostream& ostr) const;
+    ostream& PrintEdgeInformation (ostream& ostr) const;
+    ostream& PrintFaceInformation (ostream& ostr) const;
+    void Unwrap (Foam* foam);
 
 public:
     /**

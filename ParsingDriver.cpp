@@ -42,9 +42,9 @@ long ParsingDriver::ReadInteger (char* str, int base)
     return i;
 }
 
- int ParsingDriver::FIRST_TOKEN = EvolverData::parser::token::PARAMETER;
+ int const ParsingDriver::FIRST_TOKEN = EvolverData::parser::token::PARAMETER;
 
-const char* ParsingDriver::m_keywordTable[] = {
+const char* ParsingDriver::KEYWORD_TABLE[] = {
     "PARAMETER",
     "PERIODS",
     "VIEW_MATRIX",
@@ -134,9 +134,9 @@ const char* ParsingDriver::m_keywordTable[] = {
 int ParsingDriver::GetKeywordId (char* keyword)
 {
     for (size_t i = 0; 
-         i < sizeof (m_keywordTable) / sizeof (m_keywordTable[0]); ++i)
+         i < sizeof (KEYWORD_TABLE) / sizeof (KEYWORD_TABLE[0]); ++i)
     {
-	if (strcasecmp (m_keywordTable[i], keyword) == 0)
+	if (strcasecmp (KEYWORD_TABLE[i], keyword) == 0)
 	    return i + FIRST_TOKEN;
     }
     return 0;
@@ -145,7 +145,7 @@ int ParsingDriver::GetKeywordId (char* keyword)
 const char* ParsingDriver::GetKeywordString (int id)
 {
     
-    return m_keywordTable[id - FIRST_TOKEN];
+    return KEYWORD_TABLE[id - FIRST_TOKEN];
 }
 
 int ParsingDriver::Parse (string &f, Foam& data)

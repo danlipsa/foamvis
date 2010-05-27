@@ -376,18 +376,18 @@ void Foam::Unwrap ()
     }
     BOOST_FOREACH (Edge* e, m_edges)
     {
-	e->Unwrap (*this);
+	e->Unwrap (this);
 	m_edgeSet.insert (e);
     }
     BOOST_FOREACH (Face* f, m_faces)
     {
-	f->Unwrap (*this);
+	f->Unwrap (this);
 	f->CalculateNormal ();
 	m_faceSet.insert (f);
     }
     BOOST_FOREACH (Body* b, m_bodies)
     {
-	ProcessBodyTorus(this, b).Unwrap ();
+	b->Unwrap (this);
     }
 }
 

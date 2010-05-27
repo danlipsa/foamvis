@@ -84,7 +84,7 @@ public:
         int result;
 	string file = qPrintable (f);
 	ostringstream ostr;
-	ostr << "Parsing " << file << " ..." << endl << ends;
+	ostr << "Parsing " << file << " ..." << endl;
 	cdbg << ostr.str ();
 	boost::shared_ptr<Foam> foam (new Foam ());
         ParsingData& parsingData = foam->GetParsingData ();

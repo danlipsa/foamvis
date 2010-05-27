@@ -30,6 +30,16 @@ Color::Name ColoredElement::GetColor (Color::Name defaultColor) const
     }
 }
 
+string ColoredElement::GetStringId () const
+{
+    ostringstream id, ostr;
+    id << GetId () << " "
+       << GetColor ();
+    ostr << setw (15) << id.str ();
+    return ostr.str ();
+}
+
+
 
 // Static and Friends methods
 // ======================================================================

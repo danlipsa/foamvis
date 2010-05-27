@@ -15,6 +15,7 @@
 #include "OrientedEdge.h"
 #include "OrientedFace.h"
 #include "ParsingDriver.h"
+#include "ProcessBodyTorus.h"
 #include "Vertex.h"
 
 // Private Classes
@@ -176,7 +177,30 @@ void Body::CalculateCenter ()
     m_center /= Vector3(size, size, size);
 }
 
-ostream& Body::PrintFaceEdgeInformation (ostream& ostr) const
+
+ostream& Body::PrintFaceInformation (ostream& ostr) const
+{
+    size_t bodyId = GetId ();
+    ostr << "Face edge information for body :" << bodyId << endl;
+    for (size_t i = 0; i < m_orientedFaces.size (); i++)
+    {
+	Face* f = m_orientedFaces[i]->GetFace ();
+	ostr << "Face " << f->GetStringId () 
+	     << " part of bodies: ";
+	for (size_t j = 0; j < f->GetBodyPartOfSize (); j++)
+	{
+	    const BodyIndex& bi = f->GetBodyPartOf (j);
+	    ostr << setw (3) << bi.GetBody ()->GetId ()
+		 << " at index " << bi.GetOrientedFaceIndex () << " ";
+	}
+	ostr << endl;
+    }
+    return ostr;
+}
+
+
+
+ostream& Body::PrintEdgeInformation (ostream& ostr) const
 {
     size_t bodyId = GetId ();
     ostr << "Face edge information for body :" << bodyId << endl;
@@ -212,7 +236,7 @@ void Body::UpdatePartOf ()
 	of->AddBodyPartOf (this, i);
 	of->UpdateFacePartOf ();
     }
-    //PrintFaceEdgeInformation (cdbg);
+    PrintFaceInformation (cdbg);
 }
 
 void Body::ClearPartOf ()
@@ -261,6 +285,11 @@ bool Body::HasWrap () const
 Face* Body::GetFace (size_t i) const
 {
     return GetOrientedFace (i)->GetFace ();
+}
+
+void Body::Unwrap (Foam* foam)
+{
+    ProcessBodyTorus(foam, this).Unwrap ();
 }
 
 // Static and Friends Methods

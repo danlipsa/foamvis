@@ -87,7 +87,7 @@ ostream& operator<< (ostream& ostr, Color::Name color)
 	ostr << "Clear";
 	break;
     default:
-	ostr << "Invalid color";
+	ostr << "Invalid";
 	break;
     }
     return ostr;

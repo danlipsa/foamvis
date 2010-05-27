@@ -114,17 +114,6 @@ private:
      */
     void* m_scanner;
     /**
-     * Keywords used in the data files.  Make sure you 
-     *    - add the keyword in this  table
-     *    - add the keyword  in the list of  tokens
-     *    - add the correct rule in EvolverData.y
-     */
-    static const char* m_keywordTable[];
-    /**
-     * The ID of the first token
-     */
-    static  int FIRST_TOKEN;
-    /**
      * Do we want debugging information from the parser?
      */
     bool m_debugParsing;
@@ -132,6 +121,19 @@ private:
      * Parsed file
      */
     string m_file;
+
+private:
+    /**
+     * Keywords used in the data files.  Make sure you 
+     *    - add the keyword in this  table
+     *    - add the keyword  in the list of  tokens
+     *    - add the correct rule in EvolverData.y
+     */
+    static const char* KEYWORD_TABLE[];
+    /**
+     * The ID of the first token
+     */
+    static const int FIRST_TOKEN;
 };
 
 #endif // __PARSING_DRIVER_H__

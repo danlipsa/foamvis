@@ -402,6 +402,8 @@ private:
     void scaleViewport (const QPoint& position);
     void initViewTypeDisplay ();
 
+    bool DoesSelectBody ();
+
 private:
     /**
      * Dealocates the space occupied by  an old OpenGL object and stores a

@@ -782,18 +782,25 @@ GLuint GLWidget::displayList (ViewType type)
 }
 
 
+bool GLWidget::DoesSelectBody ()
+{
+    return ! (m_viewType == VERTICES_TORUS || m_viewType == EDGES_TORUS ||
+	      m_viewType == FACES_TORUS);
+}
+
 
 void GLWidget::IncrementDisplayedBody ()
 {
-    if (m_viewType == VERTICES_TORUS || m_viewType == EDGES_TORUS)
-	return;
-    ++m_displayedBodyIndex;
-    m_displayedFaceIndex = DISPLAY_ALL;
-    if (m_displayedBodyIndex == 
-	GetFoamAlongTime ().GetFoam (0)->GetBodies ().size ())
-        m_displayedBodyIndex = DISPLAY_ALL;
-    UpdateDisplay ();
-    cdbg << "displayed body: " << m_displayedBodyIndex << endl;
+    if (DoesSelectBody ())
+    {
+	++m_displayedBodyIndex;
+	m_displayedFaceIndex = DISPLAY_ALL;
+	if (m_displayedBodyIndex == 
+	    GetFoamAlongTime ().GetFoam (0)->GetBodies ().size ())
+	    m_displayedBodyIndex = DISPLAY_ALL;
+	UpdateDisplay ();
+	cdbg << "displayed body: " << m_displayedBodyIndex << endl;
+    }
 }
 
 
@@ -829,15 +836,16 @@ void GLWidget::IncrementDisplayedEdge ()
 
 void GLWidget::DecrementDisplayedBody ()
 {
-    if (m_viewType == VERTICES_TORUS || m_viewType == EDGES_TORUS)
-	return;
-    if (m_displayedBodyIndex == DISPLAY_ALL)
-        m_displayedBodyIndex = 
-	    GetFoamAlongTime ().GetFoam (0)->GetBodies ().size ();
-    --m_displayedBodyIndex;
-    m_displayedFaceIndex = DISPLAY_ALL;
-    UpdateDisplay ();
-    cdbg << "displayed body: " << m_displayedBodyIndex << endl;
+    if (DoesSelectBody ())
+    {
+	if (m_displayedBodyIndex == DISPLAY_ALL)
+	    m_displayedBodyIndex = 
+		GetFoamAlongTime ().GetFoam (0)->GetBodies ().size ();
+	--m_displayedBodyIndex;
+	m_displayedFaceIndex = DISPLAY_ALL;
+	UpdateDisplay ();
+	cdbg << "displayed body: " << m_displayedBodyIndex << endl;
+    }
 }
 
 void GLWidget::DecrementDisplayedFace ()

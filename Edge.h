@@ -132,7 +132,7 @@ public:
 	return GetFacePartOfSize () != 0 || 
 	    GetStatus () == ElementStatus::ORIGINAL;
     }
-    void Unwrap (Foam& foam);
+    void Unwrap (Foam* foam);
     
 public:
     static short LocationCharToNumber (char sign);

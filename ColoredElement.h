@@ -26,7 +26,7 @@ public:
      * the color returned is based on the index of the element
      */
     Color::Name GetColor (Color::Name defaultColor = Color::CLEAR) const;
-
+    string GetStringId () const;
 public:
     /**
      * Specifies the default attributes for an Face object.
