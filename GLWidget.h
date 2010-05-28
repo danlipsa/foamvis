@@ -16,6 +16,8 @@ class BodiesAlongTime;
 class Foam;
 class Edge;
 class FoamAlongTime;
+class OrientedFace;
+class OrientedEdge;
 
 /**
  * Widget for displaying foam bubbles using OpenGL
@@ -139,6 +141,11 @@ public:
     {
 	return m_tessellationVertexColor;
     }
+    float GetNotSelectedAlpha () const
+    {
+	return m_notSelectedAlpha;
+    }
+
 
     const QColor& GetEndTranslationColor (const G3D::Vector3int16& di) const;
     
@@ -173,6 +180,12 @@ public:
     float GetArrowHeight () const {return m_arrowHeight;}
     float GetEdgeRadius () const {return m_edgeRadius;}
 
+    bool IsDisplayedBody (const Body* body) const;
+    bool IsDisplayedBody (size_t bodyId) const;
+    bool IsDisplayedFace (size_t faceI) const;
+    bool IsDisplayedEdge (size_t edgeI) const;
+
+
     // Slot like methods
     // ======================================================================
     /**
@@ -189,6 +202,8 @@ public:
     void ToggledEdgesPhysical (bool checked);
     void ToggledEdgesTorus (bool checked);
     void ToggledFacesTorus (bool checked);
+
+
 
 public Q_SLOTS:
     /**
@@ -330,12 +345,12 @@ private:
      * Generates a display list for edges
      * @return the display list
      */
-    GLuint displayListEdges (
-	boost::function<void (Edge*)> displayEdge,
-	boost::function<bool (Edge*)> shouldDisplayEdge);
+    template<typename displayEdge>
+    GLuint displayListEdges ();
 
 
     GLuint displayListEdgesNormal ();
+    void displayStandaloneEdges () const;
     GLuint displayListEdgesTorus ()
     {
 	if (m_edgesTorusTubes)
@@ -402,7 +417,9 @@ private:
     void scaleViewport (const QPoint& position);
     void initViewTypeDisplay ();
 
-    bool DoesSelectBody ();
+    bool DoesSelectBody () const;
+    bool DoesSelectFace () const;
+    bool DoesSelectEdge () const;
 
 private:
     /**
@@ -478,6 +495,8 @@ private:
 
     QColor m_tessellationVertexColor;
     QColor m_tessellationEdgeColor;
+    float m_notSelectedAlpha;
+
     QColor m_centerPathColor;
     G3D::AABox m_viewingVolume;
     /**

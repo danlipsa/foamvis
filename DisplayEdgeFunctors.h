@@ -15,7 +15,6 @@
 #include "Foam.h"
 
 
-
 void edgeRotation (
     G3D::Matrix3* rotation,
     const G3D::Vector3& begin, const G3D::Vector3& end)
@@ -109,6 +108,9 @@ struct DisplayArrow
     }
 };
 
+
+// Display one edge
+// ======================================================================
 
 template <typename displayEdge, typename displayArrow, bool showDuplicates>
 class DisplayEdgeTorus : public DisplayElement
@@ -215,7 +217,8 @@ public:
     void operator () (const Edge* edge) const
     {
 	Color::Name color = edge->GetColor (Color::BLACK);
-	glColor4fv (Color::GetValue(color));
+	glColor (G3D::Color4 (Color::GetValue(color),
+			      m_widget.GetNotSelectedAlpha ()));
 	G3D::Vector3* b = edge->GetBegin ();
 	G3D::Vector3* e = edge->GetEnd ();
 	glBegin(GL_LINES);
@@ -248,7 +251,7 @@ public:
 	if (edge->IsClipped ())
 	{
 	    Color::Name color = edge->GetColor (Color::BLACK);
-	    glColor4fv (Color::GetValue(color));
+	    glColor (Color::GetValue(color));
 	    glBegin(GL_LINES);
 	    for (size_t i = 0; i < edge->GetTorusClippedSize (periods); i++)
 	    {
@@ -265,6 +268,8 @@ public:
 };
 
 
+// Display all edges of a face
+// ======================================================================
 
 /**
  * Functor that displays an edge
@@ -307,9 +312,7 @@ public:
 	{
 	    OrientedEdge* oe = v[i];
 	    size_t displayedEdgeIndex = m_widget.GetDisplayedEdgeIndex ();
-	    displayEdge display(m_widget);
-	    if (displayedEdgeIndex == GLWidget::DISPLAY_ALL || 
-		displayedEdgeIndex == i)
+	    if (m_widget.IsDisplayedEdge (i))
 	    {
 		display (oe);
 		if (i == displayedEdgeIndex)

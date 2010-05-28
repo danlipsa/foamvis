@@ -236,7 +236,6 @@ void Body::UpdatePartOf ()
 	of->AddBodyPartOf (this, i);
 	of->UpdateFacePartOf ();
     }
-    PrintFaceInformation (cdbg);
 }
 
 void Body::ClearPartOf ()

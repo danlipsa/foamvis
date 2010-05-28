@@ -31,12 +31,20 @@ public:
      */
     void operator () (Body* b)
     {
-        size_t displayedBody = m_widget.GetDisplayedBodyId ();
-        if (displayedBody == m_widget.DISPLAY_ALL ||
-             b->GetId () == displayedBody)
-        {
+        if (m_widget.IsDisplayedBody (b))
 	    display (b);
-        }
+	else
+	{
+	    
+	    glEnable (GL_BLEND);
+	    glDepthMask (GL_FALSE);
+	    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	    
+	    display (b);
+
+	    glDepthMask (GL_TRUE);
+	    glDisable (GL_BLEND);
+	}
     }
 
 protected:

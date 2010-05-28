@@ -294,6 +294,7 @@ public:
     void Unwrap ();
     void TorusTranslate (
 	Vertex* vertex, const G3D::Vector3int16& domainIncrement) const;
+    ostream& PrintFaceInformation (ostream& ostr) const;
 
 public:
     /**

@@ -8,6 +8,7 @@
 #ifndef __ORIENTED_ELEMENT_H__
 #define __ORIENTED_ELEMENT_H__
 
+#include "Enums.h"
 class ColoredElement;
 
 /**
@@ -44,6 +45,9 @@ public:
     {
 	return m_reversed;
     }
+
+    Color::Name GetColor (Color::Name defaultColor = Color::CLEAR) const;
+
 
     string GetStringId () const;
 

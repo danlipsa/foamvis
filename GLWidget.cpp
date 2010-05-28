@@ -181,6 +181,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_tessellationVertexSize (1), m_tessellationEdgeWidth (1),
       m_normalVertexSize (2), m_normalEdgeWidth (1),
       m_tessellationVertexColor (Qt::green), m_tessellationEdgeColor (Qt::green),
+      m_notSelectedAlpha (0.05),
       m_centerPathColor (Qt::red),
       m_edgesTorusTubes (false),
       m_facesTorusTubes (false),
@@ -488,27 +489,6 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     m_lastPos = event->pos();
 }
 
-
-void GLWidget::displayFacesContour (vector<Body*>& bodies)
-{
-    qglColor (QColor(Qt::black));
-    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-    for_each (bodies.begin (), bodies.end (),
-              DisplayBody<
-	      DisplayFace<
-	      DisplaySameEdges> > (*this));
-}
-
-void GLWidget::displayFacesOffset (vector<Body*>& bodies)
-{
-    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-    glEnable (GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset (1, 1);
-    for_each (bodies.begin (), bodies.end (),
-              DisplayBody<DisplayFaceWithColor> (*this));
-    glDisable (GL_POLYGON_OFFSET_FILL);
-}
-
 void GLWidget::displayOriginalDomain ()
 {
     const OOBox& periods = GetCurrentFoam().GetPeriods ();
@@ -588,53 +568,50 @@ GLuint GLWidget::displayListVerticesTorus ()
 }
 
 
-GLuint GLWidget::displayListEdges (
-    boost::function<void (Edge*)> displayEdge,
-    boost::function<bool (Edge*)> shouldDisplayEdge)
+template<typename displayEdge>
+GLuint GLWidget::displayListEdges ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
     glLineWidth (m_normalEdgeWidth);
-    BOOST_FOREACH (Edge* e, GetCurrentFoam ().GetEdges ())
-	if (shouldDisplayEdge (e))
-	    displayEdge (e);
-    glPopAttrib ();
-    displayOriginalDomain ();
-    displayCenterOfBodies ();
-    glEndList();
-    return list;
-}
 
-
-GLuint GLWidget::displayListEdgesNormal ()
-{
-    //GCC BUG: if  you pass 'this' instead  of '*this', you  don't get any
-    //compilation error but you get strange runtime error.
-    using boost::mem_fn;
-    return m_torusOriginalDomainClipped ?
-	displayListEdges (DisplayEdgeTorusClipped (*this),
-			  mem_fn(&Edge::IsClipped)) :
-	displayListEdges (DisplayEdgeWithColor (*this),
-			  mem_fn(&Edge::ShouldDisplay));
-}
-
-GLuint GLWidget::displayListEdgesPhysical ()
-{
-    GLuint list = glGenLists(1);
-    glNewList(list, GL_COMPILE);
-    glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
     Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
 	      DisplayFace<
 	      DisplayEdges<
-	      DisplayEdgeTessellationOrPhysical> > >(*this));
+	      displayEdge> > >(*this));
+    displayStandaloneEdges ();
+
     glPopAttrib ();
     displayOriginalDomain ();
     displayCenterOfBodies ();
     glEndList();
     return list;
+}
+
+void GLWidget::displayStandaloneEdges () const
+{
+    const Foam::Edges& edges = GetCurrentFoam ().GetEdges ();
+    BOOST_FOREACH (const Edge* edge, edges)
+    {
+	if (edge->IsStandaloneEdge ())
+	    DisplayEdgeWithColor (*this) (edge);
+    }
+}
+
+
+GLuint GLWidget::displayListEdgesNormal ()
+{
+    return m_torusOriginalDomainClipped ?
+	displayListEdges <DisplayEdgeTorusClipped> () :
+	displayListEdges <DisplayEdgeWithColor>();
+}
+
+GLuint GLWidget::displayListEdgesPhysical ()
+{
+    return displayListEdges <DisplayEdgeTessellationOrPhysical> ();
 }
 
 GLuint GLWidget::displayListEdgesTorusTubes ()
@@ -698,9 +675,32 @@ GLuint GLWidget::displayListFacesNormal ()
     displayFacesContour (bodies);
     displayFacesOffset (bodies);
 
+    displayStandaloneEdges ();
     displayOriginalDomain ();
     glEndList();
     return list;
+}
+
+void GLWidget::displayFacesContour (vector<Body*>& bodies)
+{
+    glColor (G3D::Color4 (Color::GetValue(Color::BLACK), 
+			  GetNotSelectedAlpha ()));
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    for_each (bodies.begin (), bodies.end (),
+              DisplayBody<
+	      DisplayFace<
+	      DisplaySameEdges> > (*this));
+}
+
+void GLWidget::displayFacesOffset (vector<Body*>& bodies)
+{
+    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+    glEnable (GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset (1, 1);
+    for_each (bodies.begin (), bodies.end (),
+              DisplayBody<
+	      DisplayFaceWithColor> (*this));
+    glDisable (GL_POLYGON_OFFSET_FILL);
 }
 
 GLuint GLWidget::displayListFacesLighting ()
@@ -781,11 +781,50 @@ GLuint GLWidget::displayList (ViewType type)
     return (this->*(VIEW_TYPE_DISPLAY[type].m_displayList)) ();
 }
 
-
-bool GLWidget::DoesSelectBody ()
+bool GLWidget::IsDisplayedBody (size_t bodyId) const
 {
-    return ! (m_viewType == VERTICES_TORUS || m_viewType == EDGES_TORUS ||
-	      m_viewType == FACES_TORUS);
+    return 
+	(GetDisplayedBodyIndex () == DISPLAY_ALL ||
+	 GetDisplayedBodyId () == bodyId);
+}
+
+bool GLWidget::IsDisplayedBody (const Body* body) const
+{
+    return IsDisplayedBody (body->GetId ());
+}
+
+bool GLWidget::IsDisplayedFace (size_t faceI) const
+{
+    size_t faceIndex = GetDisplayedFaceIndex ();
+    return (faceIndex == DISPLAY_ALL || faceIndex == faceI);
+}
+
+bool GLWidget::IsDisplayedEdge (size_t oeI) const
+{
+    size_t edgeIndex = GetDisplayedEdgeIndex ();
+    return edgeIndex == DISPLAY_ALL || edgeIndex == oeI;
+}
+
+
+bool GLWidget::DoesSelectBody () const
+{
+    return 
+	m_viewType != VERTICES_TORUS && 
+	m_viewType != EDGES_TORUS &&
+	m_viewType != FACES_TORUS;
+}
+
+bool GLWidget::DoesSelectFace () const
+{
+    return 
+	m_displayedBodyIndex != DISPLAY_ALL;
+}
+
+bool GLWidget::DoesSelectEdge () const
+{
+    return 
+	m_displayedFaceIndex != DISPLAY_ALL &&
+	m_viewType != FACES;
 }
 
 
@@ -799,32 +838,25 @@ void GLWidget::IncrementDisplayedBody ()
 	    GetFoamAlongTime ().GetFoam (0)->GetBodies ().size ())
 	    m_displayedBodyIndex = DISPLAY_ALL;
 	UpdateDisplay ();
-	cdbg << "displayed body: " << m_displayedBodyIndex << endl;
     }
 }
 
 
 void GLWidget::IncrementDisplayedFace ()
 {
-    ++m_displayedFaceIndex;
-    if (m_viewType == FACES_TORUS)
+    if (DoesSelectFace ())
     {
-	if (m_displayedFaceIndex == 	GetCurrentFoam ().GetFaces ().size ())
-	    m_displayedFaceIndex = DISPLAY_ALL;
-    }
-    if (m_displayedBodyIndex != DISPLAY_ALL)
-    {
+	++m_displayedFaceIndex;
         Body& body = *GetCurrentFoam ().GetBodies ()[m_displayedBodyIndex];
         if (m_displayedFaceIndex == body.GetOrientedFaces ().size ())
             m_displayedFaceIndex = DISPLAY_ALL;
+	UpdateDisplay ();
     }
-    UpdateDisplay ();
 }
 
 void GLWidget::IncrementDisplayedEdge ()
 {
-    if (m_displayedBodyIndex != DISPLAY_ALL && 
-	m_displayedFaceIndex != DISPLAY_ALL)
+    if (DoesSelectEdge ())
     {
 	++m_displayedEdgeIndex;
 	Face& face = *GetDisplayedFace ();
@@ -844,31 +876,24 @@ void GLWidget::DecrementDisplayedBody ()
 	--m_displayedBodyIndex;
 	m_displayedFaceIndex = DISPLAY_ALL;
 	UpdateDisplay ();
-	cdbg << "displayed body: " << m_displayedBodyIndex << endl;
     }
 }
 
 void GLWidget::DecrementDisplayedFace ()
 {
-    if (m_viewType == FACES_TORUS)
-    {
-	if (m_displayedFaceIndex == DISPLAY_ALL)
-	    m_displayedFaceIndex = GetCurrentFoam ().GetFaces ().size ();
-    }
-    if (m_displayedBodyIndex != DISPLAY_ALL)
+    if (DoesSelectFace ())
     {
         Body& body = *GetCurrentFoam ().GetBodies ()[m_displayedBodyIndex];
         if (m_displayedFaceIndex == DISPLAY_ALL)
             m_displayedFaceIndex = body.GetOrientedFaces ().size ();
+	--m_displayedFaceIndex;
+	UpdateDisplay ();
     }
-    --m_displayedFaceIndex;
-    UpdateDisplay ();
 }
 
 void GLWidget::DecrementDisplayedEdge ()
 {
-    if (m_displayedBodyIndex != DISPLAY_ALL && 
-	m_displayedFaceIndex != DISPLAY_ALL)
+    if (DoesSelectEdge ())
     {
 	Face& face = *GetDisplayedFace ();
 	if (m_displayedEdgeIndex == DISPLAY_ALL)

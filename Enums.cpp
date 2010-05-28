@@ -10,25 +10,25 @@
 #include "Debug.h"
 
 
-float colors[][4] = 
+const G3D::Color3 Color::COLORS[] = 
 {
-    {0.0, 0.0, 0.0, 1.},  // BLACK
-    {0.0, 0.0, 1.0, 1.},  // BLUE
-    {0.0, 1.0, 0.0, 1.},  // GREEN
-    {0.0, 1.0, 1.0, 1.},  // CYAN
-    {1.0, 0.0, 0.0, 1.},  // RED
-    {1.0, 0.0, 1.0, 1.},  // MAGENTA
-    {1.0, 0.5, 0.0, 1.},  // BROWN
-    {.6f, .6f, .6f, 1.},  // LIGHTGRAY
-    {.3f, .3f, .3f, 1.},  // DARKGRAY
-    {.3f, .8f, 1.0, 1.},  // LIGHTBLUE
-    {0.5, 1.0, 0.5, 1.},  // LIGHTGREEN
-    {0.5, 1.0, 1.0, 1.},  // LIGHTCYAN
-    {1.0, 0.5, 0.5, 1.},  // LIGHTRED
-    {1.0, 0.5, 1.0, 1.},  // LIGHTMAGENTA
-    {1.0, 1.0, 0.0, 1.},  // YELLOW
-    {1.0, 1.0, 1.0, 1.},  // WHITE
-    {0.0, 0.0, 0.0, 0.}   // CLEAR
+    G3D::Color3(0.0, 0.0, 0.0),  // BLACK
+    G3D::Color3(0.0, 0.0, 1.0),  // BLUE
+    G3D::Color3(0.0, 1.0, 0.0),  // GREEN
+    G3D::Color3(0.0, 1.0, 1.0),  // CYAN
+    G3D::Color3(1.0, 0.0, 0.0),  // RED
+    G3D::Color3(1.0, 0.0, 1.0),  // MAGENTA
+    G3D::Color3(1.0, 0.5, 0.0),  // BROWN
+    G3D::Color3(.6f, .6f, .6f),  // LIGHTGRAY
+    G3D::Color3(.3f, .3f, .3f),  // DARKGRAY
+    G3D::Color3(.3f, .8f, 1.0),  // LIGHTBLUE
+    G3D::Color3(0.5, 1.0, 0.5),  // LIGHTGREEN
+    G3D::Color3(0.5, 1.0, 1.0),  // LIGHTCYAN
+    G3D::Color3(1.0, 0.5, 0.5),  // LIGHTRED
+    G3D::Color3(1.0, 0.5, 1.0),  // LIGHTMAGENTA
+    G3D::Color3(1.0, 1.0, 0.0),  // YELLOW
+    G3D::Color3(1.0, 1.0, 1.0),  // WHITE
+    G3D::Color3(0.0, 0.0, 0.0)   // CLEAR
 };
 
 ostream& operator<< (ostream& ostr, Color::Name color)
@@ -93,9 +93,9 @@ ostream& operator<< (ostream& ostr, Color::Name color)
     return ostr;
 }
 
-float* Color::GetValue(Color::Name color)
+const G3D::Color3& Color::GetValue(Color::Name color)
 {
-    return colors[color];
+    return COLORS[color];
 }
 
 

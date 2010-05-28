@@ -32,13 +32,7 @@ public:
     {
 	size_t faceIndex = m_widget.GetDisplayedFaceIndex ();
 
-	size_t bodyIndex = m_widget.GetDisplayedBodyIndex ();
-        if ((faceIndex == GLWidget::DISPLAY_ALL ||
-	     m_count == m_widget.GetDisplayedFaceIndex ()) &&
-	    
-	    (bodyIndex == GLWidget::DISPLAY_ALL ||
-	     of->GetBodyPartOf ().GetBodyId () == 
-	     m_widget.GetDisplayedBodyId ()))
+        if (m_widget.IsDisplayedFace (m_count))
         {
 	    display (of);
 	    if (m_count == faceIndex)
@@ -84,7 +78,8 @@ public:
 protected:
     virtual void display (const OrientedFace* of)
     {
-	glColor4fv (Color::GetValue(of->GetFace()->GetColor ()));
+	glColor (G3D::Color4 (Color::GetValue(of->GetColor ()),
+			      m_widget.GetNotSelectedAlpha ()));
 	(DisplaySameEdges (m_widget)) (of);
     }
 };
@@ -117,51 +112,6 @@ protected:
 	(DisplaySameEdges (m_widget)) (f);
     }
 };
-
-
-/**
- * Displays a face and specifies the normal to the face. Used for lighting.
- */
-class DisplayFaceVectors : public DisplayFace<DisplaySameEdges>
-{
-public:
-    /**
-     * Constructor
-     * @param widget where to display the face
-     */
-    DisplayFaceVectors (const GLWidget& widget) : 
-    DisplayFace<DisplaySameEdges> (widget) {}
-
-protected:
-    /**
-     * Functor used to display a face together to the normal
-     * @param f face to be displayed
-     */
-    virtual void display (const OrientedFace* f)
-    {
-	using G3D::Vector3;
-	const OrientedEdge& oe = f->GetOrientedEdge (0);
-	float size = oe.GetEdgeVector ().length ();
-	Vector3 normal = f->GetNormal ();
-	Vector3 begin = *oe.GetBegin ();
-	glBegin (GL_LINES);
-	glVertex (begin);
-	glVertex (begin + normal * size);
-
-	for (size_t i = 0; i < f->size (); i++)
-	{
-	    const OrientedEdge& oe = f->GetOrientedEdge (i);
-	    Vector3 edgeVector = oe.GetEdgeVector ();
-	    Vector3 edgeNormal = edgeVector.cross (normal).unit ();
-	    begin = *oe.GetBegin ();
-	    glVertex (begin);
-	    glVertex (begin + edgeNormal * size);
-	}
-	glEnd ();
-
-    }
-};
-
 
 
 #endif //__DISPLAY_FACE_FUNCTORS_H__

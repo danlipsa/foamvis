@@ -391,10 +391,18 @@ void Foam::Unwrap ()
     }
 }
 
+ostream& Foam::PrintFaceInformation (ostream& ostr) const
+{
+    BOOST_FOREACH (Body* b, m_bodies)
+	b->PrintFaceInformation (ostr);
+    return ostr;
+}
+
 void Foam::PostProcess ()
 {
     Compact ();
     UpdatePartOf ();
+    //PrintFaceInformation (cdbg);
     if (IsTorus ())
 	Unwrap ();
     if (GetSpaceDimension () == 2)

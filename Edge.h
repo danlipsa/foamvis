@@ -127,11 +127,11 @@ public:
 		status == ElementStatus::DUPLICATE_MADE);
     }
 
-    bool ShouldDisplay () const
+    bool IsStandaloneEdge () const
     {
-	return GetFacePartOfSize () != 0 || 
-	    GetStatus () == ElementStatus::ORIGINAL;
+	return GetFacePartOfSize () == 0 ;
     }
+
     void Unwrap (Foam* foam);
     
 public:
