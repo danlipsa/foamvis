@@ -36,14 +36,8 @@ MainWindow::MainWindow(FoamAlongTime& dataAlongTime) :
 	toolButtonEnd->setDisabled (true);
 	toolButtonPlay->setDisabled (true);
     }
-/*
-    if (dataAlongTime.GetFoam (0)->IsTorus ())
-    {
-	radioButtonVerticesPhysical->setEnabled (false);
-	radioButtonEdgesPhysical->setEnabled (false);
-    }
-    else
-*/
+
+    if (! dataAlongTime.GetFoam (0)->IsTorus ())
     {
 	radioButtonVerticesTorus->setEnabled (false);
 	radioButtonEdgesTorus->setEnabled (false);
