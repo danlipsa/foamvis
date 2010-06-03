@@ -38,6 +38,8 @@ void RuntimeAssert (bool condition,
     RuntimeAssert (condition, ostr.str ());
 }
 
+void ThrowException (const string& message);
+
 template<typename T>
 void ThrowException (const string& message, const T& t)
 {

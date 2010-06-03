@@ -6,3 +6,8 @@ void RuntimeAssert (bool condition, const string& message)
 	throw logic_error (message);
 }
 
+
+void ThrowException (const string& message)
+{
+    RuntimeAssert (false, message);
+}

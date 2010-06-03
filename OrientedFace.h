@@ -41,8 +41,6 @@ public:
     void AddBodyPartOf (Body* body, size_t ofIndex);
     const BodyIndex& GetBodyPartOf () const;
     void UpdateFacePartOf ();
-    void ClearFacePartOf ();
-    void ClearBodyPartOf ();
 
     /**
      * Gets the begin vertex for an edge in this oriented face

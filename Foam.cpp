@@ -115,7 +115,8 @@ void compact (vector<E*>& v)
 
 Foam::Foam () : 
     m_parsingData (new ParsingData ()),
-    m_spaceDimension (3)
+    m_spaceDimension (3),
+    m_quadratic (false)
 {
     fill (m_viewMatrix.begin (), m_viewMatrix.end (), 0);
     Vertex::StoreDefaultAttributes (&m_attributesInfo[DefineAttribute::VERTEX]);
@@ -349,7 +350,8 @@ void Foam::calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high)
 void Foam::CacheEdgesVerticesInBodies ()
 {
     for_each (m_bodies.begin (), m_bodies.end (), 
-	      mem_fun(&Body::CacheEdgesVertices));
+	      boost::bind(&Body::CacheEdgesVertices, _1, 
+			  GetSpaceDimension (), IsQuadratic ()));
 }
 
 void Foam::CalculateBodiesCenters ()
@@ -391,27 +393,26 @@ void Foam::Unwrap ()
     }
 }
 
-ostream& Foam::PrintFaceInformation (ostream& ostr) const
+void Foam::PrintFaceInformation (ostream& ostr) const
 {
-    BOOST_FOREACH (Body* b, m_bodies)
-	b->PrintFaceInformation (ostr);
-    return ostr;
+    BOOST_FOREACH (Face* f, m_faces)
+	f->PrintBodyPartOfInformation (ostr);
 }
+
+void Foam::PrintEdgeInformation (ostream& ostr) const
+{
+    BOOST_FOREACH (Edge* e, m_edges)
+	e->PrintFacePartOfInformation (ostr);
+}
+
 
 void Foam::PostProcess ()
 {
     Compact ();
     UpdatePartOf ();
-    //PrintFaceInformation (cdbg);
+    PrintEdgeInformation (cdbg);
     if (IsTorus ())
 	Unwrap ();
-    if (GetSpaceDimension () == 2)
-    {
-	for_each (m_vertices.begin (), m_vertices.end (),
-		  boost::bind (&Vertex::SetPhysical, _1, true));
-	for_each (m_edges.begin (), m_edges.end (),
-		  boost::bind (&Edge::SetPhysical, _1, true));
-    }
     CalculateAABox ();
     CacheEdgesVerticesInBodies ();
     if (! IsTorus () || GetSpaceDimension () == 2)

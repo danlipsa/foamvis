@@ -11,6 +11,7 @@
 class Foam;
 class Edge;
 class Vertex;
+class OrientedFaceIndex;
 
 #include "SystemDifferences.h"
 
@@ -139,6 +140,13 @@ private:
     Corner m_corner;
 };
 
+
+class OrientedFaceIndexLessThan
+{
+public:
+    bool operator () (
+	const OrientedFaceIndex& first, const OrientedFaceIndex& second) const;
+};
 
 
 #endif //__COMPARISONS_H__

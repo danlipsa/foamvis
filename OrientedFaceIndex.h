@@ -8,6 +8,7 @@
 #ifndef __ORIENTED_FACE_INDEX_H__
 #define __ORIENTED_FACE_INDEX_H__
 
+#include "Comparisons.h"
 class BodyIndex;
 class Face;
 class OrientedEdge;
@@ -58,6 +59,10 @@ private:
 
 
 };
+
+typedef multiset<OrientedFaceIndex, OrientedFaceIndexLessThan> 
+OrientedFaceIndexList;
+
 
 #endif //__ORIENTED_FACE_INDEX_H__
 

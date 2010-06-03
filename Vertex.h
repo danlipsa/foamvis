@@ -48,14 +48,7 @@ public:
      * Is this a physical (not tesselation) vertex
      * @return true if it is physical, false otherwise
      */
-    bool IsPhysical () const 
-    {
-	return m_physical || (m_adjacentPhysicalEdgesCount == 4);
-    }
-    void SetPhysical (bool physical)
-    {
-	m_physical = physical;
-    }
+    bool IsPhysical (size_t dimension, bool isQuadratic) const ;
     /**
      * Adds an edge that is adjacent to this vertex
      * @param edge edge touched by this vertex
@@ -172,9 +165,7 @@ private:
     /**
      * Edges adjacent to this vertex
      */
-    vector<Edge*> m_adjacentEdges;
-    size_t m_adjacentPhysicalEdgesCount;
-    bool m_physical;
+    vector<Edge*> m_edgesPartOf;
 
 private:
     static const G3D::Vector3int16 m_unitVector3int16[3];

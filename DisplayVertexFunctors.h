@@ -11,6 +11,7 @@
 
 #include "DisplayElement.h"
 #include "Face.h"
+#include "Foam.h"
 #include "GLWidget.h"
 #include "OrientedEdge.h"
 #include "OrientedFace.h"
@@ -76,14 +77,17 @@ public:
     void operator() (const OrientedEdge* oe)
     {
 	Vertex* v = oe->GetBegin ();
-	float pointSize = (v->IsPhysical ()) ? 
+	size_t dimension = m_widget.GetCurrentFoam ().GetSpaceDimension ();
+	bool isQuadratic = m_widget.GetCurrentFoam ().IsQuadratic ();
+	float pointSize = 
+	    (v->IsPhysical (dimension, isQuadratic)) ? 
 	    m_widget.GetPhysicalVertexSize () :
 	    m_widget.GetTessellationVertexSize ();
 	if (pointSize != 0.0)
 	{
 	    glPointSize (pointSize);
 	    m_widget.qglColor (
-		v->IsPhysical () ? 
+		v->IsPhysical (dimension, isQuadratic) ? 
 		m_widget.GetPhysicalVertexColor () : 
 		m_widget.GetTessellationVertexColor () );
 	    glBegin(GL_POINTS);

@@ -34,22 +34,18 @@ const G3D::Vector3int16 Vertex::m_unitVector3int16[3] = {
 Vertex::Vertex(float x, float y, float z, 
 	       size_t id, ElementStatus::Name status) :
     G3D::Vector3 (x, y, z),
-    Element(id, status),
-    m_adjacentPhysicalEdgesCount (0), m_physical (false)
+    Element(id, status)
 {}
 
 Vertex::Vertex (const G3D::Vector3& position) : 
     G3D::Vector3 (position),
-    Element (Element::INVALID_INDEX, ElementStatus::ORIGINAL),
-    m_adjacentPhysicalEdgesCount (0), m_physical (false)
+    Element (Element::INVALID_INDEX, ElementStatus::ORIGINAL)
 {}
 
 
 void Vertex::AddEdgePartOf (Edge* edge) 
 {
-    m_adjacentEdges.push_back (edge);
-    if (edge->IsPhysical ())
-	m_adjacentPhysicalEdgesCount++;
+    m_edgesPartOf.push_back (edge);
 }
 
 G3D::Vector3int16 Vertex::GetDomain () const
@@ -69,6 +65,18 @@ bool Vertex::operator== (const Vertex& other) const
     return static_cast<const G3D::Vector3&>(*this) ==
 	static_cast<const G3D::Vector3&>(other);
 }
+
+bool Vertex::IsPhysical (size_t dimension, bool isQuadratic) const 
+{
+    (void)isQuadratic;
+    if (dimension == 3)
+	return count_if (m_edgesPartOf.begin (), m_edgesPartOf.end (),
+			 boost::bind (&Edge::IsPhysical, _1, 
+				      dimension, isQuadratic)) == 4;
+    else
+	return m_edgesPartOf.size () >= 3;
+}
+
 
 
 // Static and Friend functions

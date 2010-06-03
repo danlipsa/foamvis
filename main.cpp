@@ -52,6 +52,14 @@ duplicate).
   }
 </pre>
  *
+ * \section physical_sec Physical and tesselation edges and vertices
+ * In 2D we don't have physical edges. A vertex is "physical" if has
+ * >= 3 edges adjacent to it.
+ *
+ * In 3D, an edge is physical if it has 6 OrientedFaceIndex is part of. (is
+ * adjacent with 3 faces)
+ * An vertex is physical if it has 4 physical edges adjacent to it.
+ *
  *
  */
 
@@ -81,20 +89,31 @@ public:
      */
     boost::shared_ptr<Foam> operator () (QString f)
     {
-        int result;
-	string file = qPrintable (f);
-	ostringstream ostr;
-	ostr << "Parsing " << file << " ..." << endl;
-	cdbg << ostr.str ();
-	boost::shared_ptr<Foam> foam (new Foam ());
-        ParsingData& parsingData = foam->GetParsingData ();
-        parsingData.SetDebugParsing (m_debugParsing);
-        parsingData.SetDebugScanning (m_debugScanning);
-        string fullPath = m_dir + '/' + file;
-        result = parsingData.Parse (fullPath, *foam);
-        foam->ReleaseParsingData ();
-        if (result != 0)
-	    ThrowException ("Error parsing ", fullPath);
+	boost::shared_ptr<Foam> foam;
+	string file;
+	try
+	{
+	    int result;
+	    file = qPrintable (f);
+	    ostringstream ostr;
+	    ostr << "Parsing " << file << " ..." << endl;
+	    cdbg << ostr.str ();
+	    foam.reset (new Foam ());
+	    ParsingData& parsingData = foam->GetParsingData ();
+	    parsingData.SetDebugParsing (m_debugParsing);
+	    parsingData.SetDebugScanning (m_debugScanning);
+	    string fullPath = m_dir + '/' + file;
+	    result = parsingData.Parse (fullPath, *foam);
+	    foam->ReleaseParsingData ();
+	    if (result != 0)
+		ThrowException ("Error parsing ", fullPath);
+	}
+	catch (const exception& e)
+	{
+	    cdbg << "Exception for " << file << ": "
+		 << e.what () << endl;
+	    foam.reset ();
+	}
 	return foam;
     }
 private:
@@ -187,6 +206,9 @@ void parseFiles (int argc, char *argv[],
     QList< boost::shared_ptr<Foam> > foams = QtConcurrent::blockingMapped (
 	files,
 	parseFile (dir.absolutePath (), debugParsing, debugScanning));
+    if (count_if (foams.constBegin (), foams.constEnd (),
+		  bl::_1 != boost::shared_ptr<Foam>()) != foams.size ())
+	ThrowException ("Could not process all files\n");
     copy (foams.constBegin (), foams.constEnd (),
 	  foamAlongTime->GetFoamsBegin ());
 }
@@ -202,7 +224,7 @@ public:
 	{
 	    return QApplication::notify(rec, ev);
 	}
-	catch (exception& e)
+	catch (const exception& e)
 	{
 	    cdbg << "Exception: " << e.what () << endl;
 	    return false;
@@ -244,8 +266,8 @@ int main(int argc, char *argv[])
 		 << endl;
 	}
     }
-    catch (exception& e)
+    catch (const exception& e)
     {
-        cdbg << "Exception: " << e.what () << endl;
+	cdbg << "Exception: " << e.what () << endl;
     }
 }

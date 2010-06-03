@@ -184,7 +184,9 @@ public:
      */
     void operator() (const OrientedEdge* e)
     {
-	float edgeSize = (e->GetEdge ()->IsPhysical ()) ? 
+	size_t dimension = m_widget.GetCurrentFoam ().GetSpaceDimension ();
+	bool quadratic = m_widget.GetCurrentFoam ().IsQuadratic ();
+	float edgeSize = (e->GetEdge ()->IsPhysical (dimension, quadratic)) ? 
 	    m_widget.GetPhysicalEdgeWidth () :
 	    m_widget.GetTessellationEdgeWidth ();
 	if (edgeSize != 0.0)
@@ -193,7 +195,7 @@ public:
 	    Vertex* end = e->GetEnd ();
 	    glLineWidth (edgeSize);
 	    m_widget.qglColor (
-		e->GetEdge()->IsPhysical () ? 
+		e->GetEdge()->IsPhysical (dimension, quadratic) ? 
 		m_widget.GetPhysicalEdgeColor () : 
 		m_widget.GetTessellationEdgeColor () );
 	    glBegin(GL_LINES);
@@ -218,7 +220,7 @@ public:
     {
 	Color::Name color = edge->GetColor (Color::BLACK);
 	glColor (G3D::Color4 (Color::GetValue(color),
-			      m_widget.GetNotSelectedAlpha ()));
+			      m_widget.GetContextAlpha ()));
 	G3D::Vector3* b = edge->GetBegin ();
 	G3D::Vector3* e = edge->GetEnd ();
 	glBegin(GL_LINES);

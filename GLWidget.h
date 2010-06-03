@@ -141,9 +141,9 @@ public:
     {
 	return m_tessellationVertexColor;
     }
-    float GetNotSelectedAlpha () const
+    float GetContextAlpha () const
     {
-	return m_notSelectedAlpha;
+	return m_contextAlpha;
     }
 
 
@@ -495,7 +495,7 @@ private:
 
     QColor m_tessellationVertexColor;
     QColor m_tessellationEdgeColor;
-    float m_notSelectedAlpha;
+    float m_contextAlpha;
 
     QColor m_centerPathColor;
     G3D::AABox m_viewingVolume;

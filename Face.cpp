@@ -106,18 +106,6 @@ void Face::Unwrap (Foam* foam)
     }
 }
 
-void Face::ClearFacePartOf ()
-{
-    for_each (m_orientedEdges.begin (), m_orientedEdges.end (),
-	      bind (&OrientedEdge::ClearFacePartOf, _1));
-}
-
-void Face::ClearBodyPartOf ()
-{
-    fill (m_bodiesPartOf.begin (), m_bodiesPartOf.end (), BodyIndex ());
-}
-
-
 
 size_t Face::GetNextValidIndex (size_t index) const
 {
@@ -181,6 +169,20 @@ const BodyIndex& Face::GetBodyPartOf (bool faceReversed) const
 {
     size_t index = faceReversed ^ m_bodiesPartOf[0].IsOrientedFaceReversed ();
     return m_bodiesPartOf[index];
+}
+
+void Face::PrintBodyPartOfInformation (ostream& ostr) const
+{
+    size_t bodyPartOfSize = GetBodyPartOfSize ();
+    ostr << "Face " << GetStringId () << " part of " 
+	 << bodyPartOfSize << " bodies: ";
+    for (size_t j = 0; j < bodyPartOfSize; j++)
+    {
+	const BodyIndex& bi = GetBodyPartOf (j);
+	ostr << setw (3) << bi.GetBody ()->GetId ()
+	     << " at index " << bi.GetOrientedFaceIndex () << " ";
+    }
+    ostr << endl;
 }
 
 

@@ -138,25 +138,27 @@ Body::~Body ()
     for_each(m_orientedFaces.begin(), m_orientedFaces.end(), bl::delete_ptr ());
 }
 
-void Body::CacheEdgesVertices ()
+void Body::CacheEdgesVertices (size_t dimension, bool isQuadratic)
 {
     for_each (m_orientedFaces.begin (), m_orientedFaces.end(),
 	      cacheEdges(*this));
-    split (m_vertices, m_tessellationVertices, m_physicalVertices);
-    split (m_edges, m_tessellationEdges, m_physicalEdges);
+    split (m_vertices, m_tessellationVertices, m_physicalVertices, 
+	   dimension, isQuadratic);
+    split (m_edges, m_tessellationEdges, m_physicalEdges,
+	   dimension, isQuadratic);
 }
 
 template <typename T>
 void Body::split (
-    set<T*>& src,
-    vector<T*>& destTessellation,
-    vector<T*>& destPhysical)
+    set<T*>& src, vector<T*>& destTessellation, vector<T*>& destPhysical,
+    size_t dimension, bool isQuadratic)
 {
     destTessellation.resize (src.size ());
     copy (src.begin (), src.end (), destTessellation.begin ());
     typename vector<T*>::iterator bp;
     bp = partition (destTessellation.begin (), destTessellation.end (), 
-		    not1(mem_fun(&T::IsPhysical)));
+		    !boost::bind(&T::IsPhysical, _1, 
+				dimension, isQuadratic));
     destPhysical.resize (destTessellation.end () - bp);
     copy (bp, destTessellation.end (), destPhysical.begin ());
     destTessellation.resize (bp - destTessellation.begin ());
@@ -178,56 +180,6 @@ void Body::CalculateCenter ()
 }
 
 
-ostream& Body::PrintFaceInformation (ostream& ostr) const
-{
-    size_t bodyId = GetId ();
-    ostr << "Face edge information for body :" << bodyId << endl;
-    for (size_t i = 0; i < m_orientedFaces.size (); i++)
-    {
-	Face* f = m_orientedFaces[i]->GetFace ();
-	ostr << "Face " << f->GetStringId () 
-	     << " part of bodies: ";
-	for (size_t j = 0; j < f->GetBodyPartOfSize (); j++)
-	{
-	    const BodyIndex& bi = f->GetBodyPartOf (j);
-	    ostr << setw (3) << bi.GetBody ()->GetId ()
-		 << " at index " << bi.GetOrientedFaceIndex () << " ";
-	}
-	ostr << endl;
-    }
-    return ostr;
-}
-
-
-
-ostream& Body::PrintEdgeInformation (ostream& ostr) const
-{
-    size_t bodyId = GetId ();
-    ostr << "Face edge information for body :" << bodyId << endl;
-    for (size_t i = 0; i < m_orientedFaces.size (); i++)
-    {
-	OrientedFace* of = m_orientedFaces[i];
-	const BodyIndex& bi = of->GetBodyPartOf ();
-	ostr << "Face " << of->GetStringId () 
-	     << " part of body " << setw (3) << bi.GetBody ()->GetId ()
-	     << " at index " << bi.GetOrientedFaceIndex () << endl;
-	for (size_t j = 0; j < of->size (); j++)
-	{
-	    const OrientedEdge& oe = of->GetOrientedEdge (j);
-	    ostr << "    Edge " << oe.GetStringId () << " is part of: ";
-	    for (size_t k = 0; k < oe.GetFacePartOfSize (); k++)
-	    {
-		const OrientedFaceIndex& ofi = oe.GetFacePartOf (k);
-		if (ofi.GetBodyId () == bodyId &&
-		    oe.IsReversed () == ofi.IsOrientedEdgeReversed ())
-		    ostr << ofi << " ";
-	    }
-	    ostr << endl;
-	}
-    }
-    return ostr;
-}
-
 void Body::UpdatePartOf ()
 {
     for (size_t i = 0; i < m_orientedFaces.size (); i++)
@@ -235,16 +187,6 @@ void Body::UpdatePartOf ()
 	OrientedFace* of = m_orientedFaces[i];
 	of->AddBodyPartOf (this, i);
 	of->UpdateFacePartOf ();
-    }
-}
-
-void Body::ClearPartOf ()
-{
-    for (size_t i = 0; i < m_orientedFaces.size (); i++)
-    {
-	OrientedFace* of = m_orientedFaces[i];
-	of->ClearBodyPartOf ();
-	of->ClearFacePartOf ();
     }
 }
 

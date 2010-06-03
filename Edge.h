@@ -74,16 +74,14 @@ public:
     void ReversePrint (ostream& ostr) const;
     /**
      * Is this a physical edge (not a tesselation edge)?
+     * 3D:
+     * A physical edge has 3 faces adjacent to it 
+     * (or 6 oriented faces or 4 oriented faces for outside faces).
+     * 2D:
+     * In quadradic model all edges are physical
      * @return true if this is a physical edge, false otherwise
      */
-    bool IsPhysical () const
-    {
-	return m_physical || (m_facesPartOf.size () == 3);
-    }
-    void SetPhysical (bool physical)
-    {
-	m_physical = physical;
-    }
+    bool IsPhysical (size_t dimension, bool isQuadratic) const;
 
     /**
      * Adds a face touched by this edge
@@ -92,15 +90,20 @@ public:
      * @param
      */
     void AddFacePartOf (OrientedFace* face, size_t edgeIndex);
-    void ClearFacePartOf ();
     size_t GetFacePartOfSize () const
     {
 	return m_facesPartOf.size ();
     }
-    const OrientedFaceIndex& GetFacePartOf (size_t i) const
+    OrientedFaceIndexList::const_iterator GetFacePartOfBegin () const
     {
-	return m_facesPartOf[i];
+	return m_facesPartOf.begin ();
     }
+    OrientedFaceIndexList::const_iterator GetFacePartOfEnd () const
+    {
+	return m_facesPartOf.end ();
+    }
+    void PrintFacePartOfInformation (ostream& ostr) const;
+
 
     /**
      * For both  vertices of this edge,  add the edge as  being adjacent to
@@ -151,9 +154,6 @@ public:
     friend ostream& operator<< (ostream& ostr, const Edge& e);
 
 private:
-    typedef vector<OrientedFaceIndex> OrientedFacesPartOf;
-
-private:
     /**
      * First vertex of the edge
      */
@@ -167,8 +167,7 @@ private:
      * Stores adjacent faces to this edge. Assume no duplicate edges
      * in 3D torus model.
      */
-    OrientedFacesPartOf m_facesPartOf;
-    bool m_physical;
+    OrientedFaceIndexList m_facesPartOf;
     boost::scoped_ptr< vector<G3D::LineSegment> > m_torusClipped;
 
 };

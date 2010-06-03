@@ -103,7 +103,7 @@ public:
     /**
      * Caches edges and vertices
      */
-    void CacheEdgesVertices ();
+    void CacheEdgesVertices (size_t dimension, bool isQuadratic);
     /**
      * Calculates the center
      */
@@ -118,7 +118,6 @@ public:
     }
     void PrintDomains (ostream& ostr) const;
     void UpdatePartOf ();
-    void ClearPartOf ();
 
     NormalFaceMap::iterator GetCurrentNormalFace ()
     {
@@ -129,8 +128,6 @@ public:
 	++m_currentNormalFace;
     }
     bool HasWrap () const;
-    ostream& PrintEdgeInformation (ostream& ostr) const;
-    ostream& PrintFaceInformation (ostream& ostr) const;
     void Unwrap (Foam* foam);
 
 public:
@@ -158,7 +155,8 @@ private:
      */
     template <typename T>
     void split (
-	set<T*>& src, vector<T*>& destTessellation, vector<T*>& destPhysical);
+	set<T*>& src, vector<T*>& destTessellation, vector<T*>& destPhysical,
+	size_t dimension, bool isQuadratic);
 
 private:
     /**

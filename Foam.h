@@ -290,11 +290,20 @@ public:
     {
 	return m_spaceDimension;
     }
+    bool IsQuadratic () const
+    {
+	return m_quadratic;
+    }
+    void SetQuadratic ()
+    {
+	m_quadratic = true;
+    }
     void calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high);
     void Unwrap ();
     void TorusTranslate (
 	Vertex* vertex, const G3D::Vector3int16& domainIncrement) const;
-    ostream& PrintFaceInformation (ostream& ostr) const;
+    void PrintFaceInformation (ostream& ostr) const;
+    void PrintEdgeInformation (ostream& ostr) const;
 
 public:
     /**
@@ -344,6 +353,7 @@ private:
      */
     G3D::AABox m_AABox;
     size_t m_spaceDimension;
+    bool m_quadratic;
 };
 
 /**

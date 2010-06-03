@@ -80,14 +80,16 @@ void ProcessBodyTorus::restrictFacesAroundAnEdge (
     OrientedEdge nextOe = ofi.GetOrientedEdge ();
     size_t bodyId = ofi.GetBodyId ();
     nextOe.Reverse ();
-    size_t i;
 /*
     cdbg << " ---------- Trying " << nextOe.GetFacePartOfSize ()
 	 << " possibilities ----------    " << "ofi: " << ofi << endl;
 */
-    for (i = 0; i < nextOe.GetFacePartOfSize (); i++)
+
+    for (OrientedFaceIndexList::const_iterator 
+	     it = nextOe.GetFacePartOfBegin ();
+	 it != nextOe.GetFacePartOfEnd (); it++)
     {
-	const OrientedFaceIndex& nextOfi = nextOe.GetFacePartOf (i);
+	const OrientedFaceIndex& nextOfi = *it;
 	//cdbg << " nextOfi: " << nextOfi << endl;
 
 	if (bodyId != nextOfi.GetBodyId ())

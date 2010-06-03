@@ -24,7 +24,6 @@ Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endTranslation,
     ColoredElement(id, status),
     m_begin (begin), m_end (end),
     m_endTranslation (endTranslation), 
-    m_physical (false),
     m_torusClipped (0)
 {
 }
@@ -33,7 +32,6 @@ Edge::Edge (Vertex* begin, size_t id) :
     ColoredElement (id, ElementStatus::ORIGINAL),
     m_begin (begin),
     m_end (0),
-    m_physical (false),
     m_torusClipped (0)
 {
 }
@@ -43,7 +41,6 @@ Edge::Edge (const Edge& o) :
     m_begin (o.GetBegin ()), m_end (o.GetEnd ()),
     m_endTranslation (o.GetEndTranslation ()),
     m_facesPartOf (o.m_facesPartOf),
-    m_physical (o.m_physical),
     m_torusClipped (0)
 {
 }
@@ -171,13 +168,47 @@ size_t Edge::GetTorusClippedSize (const OOBox& periods) const
 
 void Edge::AddFacePartOf (OrientedFace* orientedFace, size_t edgeIndex)
 {
-    m_facesPartOf.push_back (OrientedFaceIndex (orientedFace, edgeIndex));
+    m_facesPartOf.insert (OrientedFaceIndex (orientedFace, edgeIndex));
 }
 
-void Edge::ClearFacePartOf ()
+
+void Edge::PrintFacePartOfInformation (ostream& ostr) const
 {
-    m_facesPartOf.resize (0);
+    size_t facePartOfSize = GetFacePartOfSize ();
+    ostr << "Edge " << GetStringId () << " is part of " 
+	 << facePartOfSize << " faces: ";
+    ostream_iterator<const OrientedFaceIndex&> output (ostr, " ");
+    copy (GetFacePartOfBegin (), GetFacePartOfEnd (), output);
+    ostr << endl;
 }
+
+bool Edge::IsPhysical (size_t dimension, bool isQuadratic) const
+{
+    if (dimension == 3)
+    {
+	if (m_facesPartOf.size () < 4)
+	    return false;
+	OrientedFaceIndexList::const_iterator end = m_facesPartOf.end ();
+	OrientedFaceIndexList::const_iterator begin;
+	OrientedFaceIndexList::const_iterator next = m_facesPartOf.begin ();
+	size_t facesPartOfSize = 0;
+	do
+	{
+	    begin = next;
+	    next = m_facesPartOf.equal_range (*begin).second;
+	    ++facesPartOfSize;
+	} while (next != end);
+	return facesPartOfSize == 3;
+    }
+    else
+    {
+	if (isQuadratic)
+	    return true;
+	else
+	    return false;
+    }
+}
+
 
 
 // Static and Friends Methods

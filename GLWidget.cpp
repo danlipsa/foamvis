@@ -181,7 +181,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_tessellationVertexSize (1), m_tessellationEdgeWidth (1),
       m_normalVertexSize (2), m_normalEdgeWidth (1),
       m_tessellationVertexColor (Qt::green), m_tessellationEdgeColor (Qt::green),
-      m_notSelectedAlpha (0.05),
+      m_contextAlpha (0.05),
       m_centerPathColor (Qt::red),
       m_edgesTorusTubes (false),
       m_facesTorusTubes (false),
@@ -304,7 +304,6 @@ void GLWidget::enableLighting ()
     glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
-    glEnable(GL_DEPTH_TEST);
 
     glEnable (GL_COLOR_MATERIAL);
     glColorMaterial (GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
@@ -336,11 +335,17 @@ void GLWidget::project ()
 void GLWidget::initializeGL()
 {
     cdbg << "initializeGL" << endl;
-    qglClearColor (QColor(Qt::white));
+    glClearColor (1., 1., 1., 0.);
+    
 
     printOpenGLInfo ();
     GLWidget::disableLighting ();
     m_object = displayList (m_viewType);
+
+    glEnable(GL_DEPTH_TEST);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable (GL_LINE_SMOOTH);
+    glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
 }
 
 void GLWidget::paintGL()
@@ -684,7 +689,7 @@ GLuint GLWidget::displayListFacesNormal ()
 void GLWidget::displayFacesContour (vector<Body*>& bodies)
 {
     glColor (G3D::Color4 (Color::GetValue(Color::BLACK), 
-			  GetNotSelectedAlpha ()));
+			  GetContextAlpha ()));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     for_each (bodies.begin (), bodies.end (),
               DisplayBody<
@@ -729,7 +734,8 @@ GLuint GLWidget::displayListFacesTorusTubes ()
 	      DisplayFace<
 	      DisplayEdges<
 	      DisplayEdgeTorus<
-	      DisplayEdgeTube, DisplayArrowTube, true> > > (*this) );
+	      DisplayEdgeTube, DisplayArrowTube, true> > > (
+		  *this, DisplayElement::FOCUS) );
     glPopAttrib ();
 
     displayOriginalDomain ();
@@ -749,7 +755,8 @@ GLuint GLWidget::displayListFacesTorusLines ()
 	      DisplayFace<
 	      DisplayEdges<
 	      DisplayEdgeTorus<
-	      DisplayEdge, DisplayArrow, true> > > (*this) );
+	      DisplayEdge, DisplayArrow, true> > > (
+		  *this, DisplayElement::FOCUS) );
     glPopAttrib ();
 
     displayOriginalDomain ();
@@ -1112,7 +1119,6 @@ void GLWidget::disableLighting ()
     glDisable(GL_LIGHTING);
     glDisable(GL_LIGHT0);
     glShadeModel(GL_FLAT);
-    glEnable(GL_DEPTH_TEST);
 }
 
 void GLWidget::quadricErrorCallback (GLenum errorCode)

@@ -49,9 +49,9 @@ public:
      * Adds a face that is touched by this oriented edge.
      */
     void AddFacePartOf (OrientedFace* face, size_t edgeIndex) const;
-    void ClearFacePartOf ();
     size_t GetFacePartOfSize () const;
-    const OrientedFaceIndex& GetFacePartOf (size_t i) const;
+    OrientedFaceIndexList::const_iterator GetFacePartOfBegin () const;
+    OrientedFaceIndexList::const_iterator GetFacePartOfEnd () const;
 
     /**
      * Edge for this oriented edge

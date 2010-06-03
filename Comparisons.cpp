@@ -9,7 +9,12 @@
 #include "Comparisons.h"
 #include "Vertex.h"
 #include "Edge.h"
+#include "OrientedFace.h"
+#include "OrientedFaceIndex.h"
 
+
+// ======================================================================
+// VectorLessThanAngle
 
 bool VectorLessThanAngle::operator () (
     const G3D::Vector3& first, const G3D::Vector3& second) const
@@ -43,11 +48,22 @@ double VectorLessThanAngle::angle (
 }
 
 
+// ======================================================================
+// VectorLessThan
+
 bool VertexLessThan::operator () (
     const Vertex* first, const Vertex* second) const
 {
     return *first < *second;
 }
+
+bool EdgeLessThan::operator () (const Edge* first, const Edge* second) const
+{
+    return *first < *second;
+}
+
+// ======================================================================
+// VectorLessThanAlong
 
 bool VertexLessThanAlong::operator() (
     const Vertex* first,  const Vertex* second) const
@@ -56,7 +72,12 @@ bool VertexLessThanAlong::operator() (
 		       static_cast<const G3D::Vector3*>(second));
 }
 
-bool EdgeLessThan::operator () (const Edge* first, const Edge* second) const
+// ======================================================================
+// OrientedFaceIndexLessThan
+
+bool OrientedFaceIndexLessThan::operator () (
+    const OrientedFaceIndex& first, const OrientedFaceIndex& second) const
 {
-    return *first < *second;
+    return first.GetOrientedFace ()->GetId () <
+	second.GetOrientedFace ()->GetId ();
 }

@@ -32,7 +32,7 @@ public:
     void operator () (Body* b)
     {
         if (m_widget.IsDisplayedBody (b))
-	    display (b);
+	    display (b, FOCUS);
 	else
 	{
 	    
@@ -40,7 +40,7 @@ public:
 	    glDepthMask (GL_FALSE);
 	    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	    
-	    display (b);
+	    display (b, CONTEXT);
 
 	    glDepthMask (GL_TRUE);
 	    glDisable (GL_BLEND);
@@ -52,7 +52,7 @@ protected:
      * Displays the body
      * @param b the body
      */
-    virtual void display (Body* b) = 0;
+    virtual void display (Body* b, FocusContext fc) = 0;
 };
 
 /**
@@ -71,8 +71,9 @@ protected:
      * Displays the center of a body (bubble)
      * @param b body to display the center of
      */
-    virtual void display (Body* b)
+    virtual void display (Body* b, FocusContext fc)
     {
+	(void)fc;
 	G3D::Vector3 v = b->GetCenter ();
 	glVertex(v);
     }
@@ -98,10 +99,10 @@ protected:
      * Displays a body going through all its faces
      * @param b the body to be displayed
      */
-    virtual void display (Body* b)
+    virtual void display (Body* b, FocusContext bodyFc)
     {
 	vector<OrientedFace*> v = b->GetOrientedFaces ();
-	for_each (v.begin (), v.end (), displayFace(m_widget));
+	for_each (v.begin (), v.end (), displayFace(m_widget, bodyFc));
     }
 };
 
@@ -119,11 +120,11 @@ public:
     DisplayCenterPath (GLWidget& widget) : m_widget (widget) {}
     /**
      * Displays the center path for a certain body
-     * @param bodyOriginalIndex what body to display the center path for
+     * @param bodyId what body to display the center path for
      */
-    void operator () (size_t bodyOriginalIndex)
+    void operator () (size_t bodyId)
     {	
-	BodyAlongTime& bat = m_widget.GetBodyAlongTime (bodyOriginalIndex);
+	BodyAlongTime& bat = m_widget.GetBodyAlongTime (bodyId);
 	const BodyAlongTime::Bodies& bodyAlongTime = bat.GetBodies ();
 	BodyAlongTime::Bodies::const_iterator begin = bodyAlongTime.begin ();
 	BOOST_FOREACH (size_t wrapIndex, bat.GetWraps ())
@@ -139,7 +140,7 @@ public:
 
     }
     /**
-     * Helper function which calls operator () (size_t bodyOriginalIndex).
+     * Helper function which calls operator () (size_t bodyId).
      * @param p a pair original index body pointer
      */
     inline void operator () (const BodiesAlongTime::BodyMap::value_type& p)

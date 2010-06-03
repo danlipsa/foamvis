@@ -33,6 +33,9 @@ public:
     }
     bool IsOrientedFaceReversed () const;
 
+public:
+    friend ostream& operator<< (ostream& ostr, const BodyIndex& bi);
+
 private:
     Body* m_body;
     size_t m_orientedFaceIndex;

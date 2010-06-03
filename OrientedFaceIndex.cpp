@@ -52,7 +52,9 @@ Face* OrientedFaceIndex::GetFace () const
 
 ostream& operator<< (ostream& ostr, const OrientedFaceIndex& ofi)
 {
-    ostr << "(of=" << ofi.GetOrientedFace ()->GetStringId () << ", " 
+    const BodyIndex& bi = ofi.GetBodyIndex ();
+    ostr << "(" << bi
+	 << ", of=" << ofi.GetOrientedFace ()->GetStringId () << ", " 
 	 << "oeI=" << ofi.GetOrientedEdgeIndex ()
 	 << ")";
     return ostr;

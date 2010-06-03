@@ -56,12 +56,6 @@ Vertex* OrientedEdge::GetEnd (void) const
     return IsReversed () ? GetEdge ()->GetBegin () : GetEdge ()->GetEnd ();
 }
 
-
-void OrientedEdge::ClearFacePartOf ()
-{
-    GetEdge ()->ClearFacePartOf ();
-}
-
 bool OrientedEdge::IsZero () const
 {
     return GetEdge ()->IsZero ();
@@ -72,9 +66,14 @@ size_t OrientedEdge::GetFacePartOfSize () const
     return GetEdge ()->GetFacePartOfSize ();
 }
 
-const OrientedFaceIndex& OrientedEdge::GetFacePartOf (size_t i) const
+OrientedFaceIndexList::const_iterator OrientedEdge::GetFacePartOfBegin () const
 {
-    return GetEdge ()->GetFacePartOf (i);
+    return GetEdge ()->GetFacePartOfBegin ();
+}
+
+OrientedFaceIndexList::const_iterator OrientedEdge::GetFacePartOfEnd () const
+{
+    return GetEdge ()->GetFacePartOfEnd ();
 }
 
 void OrientedEdge::AddFacePartOf (OrientedFace* face, size_t edgeIndex) const

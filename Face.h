@@ -72,14 +72,11 @@ public:
     {
 	return m_bodiesPartOf[i];
     }
-
     size_t GetBodyPartOfSize () const
     {
 	return m_bodiesPartOf.size ();
     }
-    void ClearBodyPartOf ();
-    void ClearFacePartOf ();
-
+    void PrintBodyPartOfInformation (ostream& ostr) const;
 
     size_t GetNextValidIndex (size_t index) const;
     size_t GetPreviousValidIndex (size_t index) const;

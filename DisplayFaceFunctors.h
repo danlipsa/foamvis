@@ -22,8 +22,8 @@ public:
      * Constructor
      * @param widget Where should be the face displayed
      */
-    DisplayFace (const GLWidget& widget) : 
-    DisplayElement (widget), m_count(0) {}
+    DisplayFace (const GLWidget& widget, FocusContext bodyFc) : 
+	DisplayElement (widget), m_bodyFc (bodyFc), m_count(0) {}
     /**
      * Functor that displays a face
      * @param f the face to be displayed
@@ -53,6 +53,7 @@ protected:
     {
 	(displayEdges (m_widget)) (of);
     }
+    FocusContext m_bodyFc;
 
 private:
     /**
@@ -72,14 +73,17 @@ public:
      * Constructor
      * @param widget where is the face displayed
      */
-    DisplayFaceWithColor (const GLWidget& widget) : 
-    DisplayFace<DisplaySameEdges> (widget) {}
+    DisplayFaceWithColor (const GLWidget& widget, FocusContext bodyFc) : 
+	DisplayFace<DisplaySameEdges> (widget, bodyFc) {}
 
 protected:
     virtual void display (const OrientedFace* of)
     {
-	glColor (G3D::Color4 (Color::GetValue(of->GetColor ()),
-			      m_widget.GetNotSelectedAlpha ()));
+	if (m_bodyFc == FOCUS)
+	    glColor (G3D::Color4 (Color::GetValue(of->GetColor ()), 1.));
+	else
+	    glColor (G3D::Color4 (Color::GetValue(Color::BLACK),
+				  m_widget.GetContextAlpha ()));
 	(DisplaySameEdges (m_widget)) (of);
     }
 };
@@ -94,8 +98,8 @@ public:
      * Constructor
      * @param widget where to display the face
      */
-    DisplayFaceWithNormal (const GLWidget& widget) : 
-    DisplayFace<DisplaySameEdges> (widget) {}
+    DisplayFaceWithNormal (const GLWidget& widget, FocusContext bodyFc) : 
+	DisplayFace<DisplaySameEdges> (widget, bodyFc) {}
 
 protected:
     /**

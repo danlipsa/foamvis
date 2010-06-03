@@ -25,3 +25,12 @@ bool BodyIndex::IsOrientedFaceReversed () const
 {
     return GetOrientedFace ()->IsReversed ();
 }
+
+// Static and friends methods
+// ======================================================================
+
+ostream& operator<< (ostream& ostr, const BodyIndex& bi)
+{
+    return ostr << "(body=" << bi.GetBodyId () 
+		<< ", ofI=" << bi.GetOrientedFaceIndex () << ")";
+}

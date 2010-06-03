@@ -19,6 +19,10 @@ MainWindow::MainWindow(FoamAlongTime& dataAlongTime) :
     m_currentBody (0),
     m_saveMovie(false), m_currentFrame(0)
 {
+    QGLFormat fmt;
+    fmt.setAlpha(true);
+    QGLFormat::setDefaultFormat(fmt);    
+
     setupUi (this);
     sliderData->setMinimum (0);
     sliderData->setMaximum (dataAlongTime.GetFoamsSize () - 1);
@@ -32,12 +36,14 @@ MainWindow::MainWindow(FoamAlongTime& dataAlongTime) :
 	toolButtonEnd->setDisabled (true);
 	toolButtonPlay->setDisabled (true);
     }
+/*
     if (dataAlongTime.GetFoam (0)->IsTorus ())
     {
 	radioButtonVerticesPhysical->setEnabled (false);
 	radioButtonEdgesPhysical->setEnabled (false);
     }
     else
+*/
     {
 	radioButtonVerticesTorus->setEnabled (false);
 	radioButtonEdgesTorus->setEnabled (false);
@@ -189,7 +195,7 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 		}
 	    widgetGl->UpdateDisplay ();
 	}
-	catch (exception& e)
+	catch (const exception& e)
 	{
 	    cdbg << "Exception: " << e.what () << endl;
 	}

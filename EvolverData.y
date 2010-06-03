@@ -476,6 +476,9 @@ dimensionality
 representation
 : LINEAR 
 | QUADRATIC 
+{
+    foam.SetQuadratic ();
+}
 | SIMPLEX_REPRESENTATION
 ;
 

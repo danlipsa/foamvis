@@ -74,15 +74,6 @@ void OrientedFace::UpdateFacePartOf ()
     }
 }
 
-void OrientedFace::ClearFacePartOf ()
-{
-    GetFace ()->ClearFacePartOf ();
-}
-
-void OrientedFace::ClearBodyPartOf ()
-{
-    GetFace ()->ClearBodyPartOf ();
-}
 
 size_t OrientedFace::GetNextValidIndex (size_t index) const
 {

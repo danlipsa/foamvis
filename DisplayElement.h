@@ -13,6 +13,13 @@ class GLWidget;
 class DisplayElement
 {
 public:
+    enum FocusContext
+    {
+	FOCUS,
+	CONTEXT
+    };
+
+public:
     DisplayElement (const GLWidget& widget) : m_widget (widget) {}
 protected:
     const GLWidget& m_widget;
