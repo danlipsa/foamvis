@@ -19,6 +19,7 @@ MainWindow::MainWindow(FoamAlongTime& dataAlongTime) :
     m_currentBody (0),
     m_saveMovie(false), m_currentFrame(0)
 {
+    // for anti-aliased lines
     QGLFormat fmt;
     fmt.setAlpha(true);
     QGLFormat::setDefaultFormat(fmt);    

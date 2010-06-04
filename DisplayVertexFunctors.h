@@ -38,8 +38,8 @@ struct DisplayBeginVertex
     DisplayBeginVertex (const GLWidget&) {}
     void operator() (const OrientedEdge* e)
     {
-	Vertex* p = e->GetBegin ();
-	glVertex(*p);
+	const Vertex& b = *e->GetBegin ();
+	glVertex(b);
     }
 };
 
@@ -49,9 +49,9 @@ struct DisplayEdgeVertices
     DisplayEdgeVertices (const GLWidget&) {}
     void operator() (const OrientedEdge* edge)
     {
-	Vertex& b = *edge->GetBegin ();
+	const Vertex& b = *edge->GetBegin ();
 	glVertex (b);
-	Vertex& e = *edge->GetEnd ();
+	const Vertex& e = *edge->GetEnd ();
 	glVertex (e);
     }
 };

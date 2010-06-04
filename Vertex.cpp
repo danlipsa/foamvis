@@ -68,13 +68,15 @@ bool Vertex::operator== (const Vertex& other) const
 
 bool Vertex::IsPhysical (size_t dimension, bool isQuadratic) const 
 {
-    (void)isQuadratic;
     if (dimension == 3)
 	return count_if (m_edgesPartOf.begin (), m_edgesPartOf.end (),
 			 boost::bind (&Edge::IsPhysical, _1, 
 				      dimension, isQuadratic)) == 4;
     else
-	return m_edgesPartOf.size () >= 3;
+	if (isQuadratic)
+	    return true;
+	else
+	    return m_edgesPartOf.size () >= 3;
 }
 
 

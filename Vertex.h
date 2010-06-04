@@ -163,7 +163,7 @@ private:
 
 private:
     /**
-     * Edges adjacent to this vertex
+     * Edges this vertex is part of
      */
     vector<Edge*> m_edgesPartOf;
 

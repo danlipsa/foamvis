@@ -32,18 +32,16 @@ public:
     void operator () (Body* b)
     {
         if (m_widget.IsDisplayedBody (b))
+	{
+	    glDisable (GL_BLEND);
 	    display (b, FOCUS);
+	    glEnable (GL_BLEND);
+	}
 	else
 	{
-	    
-	    glEnable (GL_BLEND);
 	    glDepthMask (GL_FALSE);
-	    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	    
 	    display (b, CONTEXT);
-
 	    glDepthMask (GL_TRUE);
-	    glDisable (GL_BLEND);
 	}
     }
 
@@ -73,9 +71,13 @@ protected:
      */
     virtual void display (Body* b, FocusContext fc)
     {
-	(void)fc;
-	G3D::Vector3 v = b->GetCenter ();
-	glVertex(v);
+	if (fc == FOCUS)
+	{
+	    glBegin(GL_POINTS);
+	    G3D::Vector3 v = b->GetCenter ();
+	    glVertex(v);
+	    glEnd ();
+	}
     }
 };
 
@@ -124,6 +126,7 @@ public:
      */
     void operator () (size_t bodyId)
     {	
+	using boost::bind;
 	BodyAlongTime& bat = m_widget.GetBodyAlongTime (bodyId);
 	const BodyAlongTime::Bodies& bodyAlongTime = bat.GetBodies ();
 	BodyAlongTime::Bodies::const_iterator begin = bodyAlongTime.begin ();
@@ -131,13 +134,13 @@ public:
 	{
 	    BodyAlongTime::Bodies::const_iterator end = 
 		bodyAlongTime.begin () + wrapIndex;
+	    BodyAlongTime::Bodies::const_iterator it;
 	    glBegin(GL_LINE_STRIP);
-	    for_each (begin, end, DisplayBodyCenter (m_widget));
+	    for (it = begin; it != end; ++it)
+		glVertex((*it)->GetCenter ());
 	    glEnd ();
 	    begin = end + 1;
 	}
-
-
     }
     /**
      * Helper function which calls operator () (size_t bodyId).

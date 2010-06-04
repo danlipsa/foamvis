@@ -30,12 +30,10 @@ public:
      */
     void operator() (const OrientedFace* of)
     {
-	size_t faceIndex = m_widget.GetDisplayedFaceIndex ();
-
         if (m_widget.IsDisplayedFace (m_count))
         {
 	    display (of);
-	    if (m_count == faceIndex)
+	    if (m_count == m_widget.GetDisplayedFaceIndex ())
 		cdbg << "face " << m_count << ": " << *of << endl;
         }
         m_count++;
@@ -51,6 +49,12 @@ public:
 protected:
     virtual void display (const OrientedFace* of)
     {
+	if (m_bodyFc == FOCUS)
+	{
+	    glColor (G3D::Color4 (Color::BLACK, 1.));
+	}
+	else
+	    glColor (G3D::Color4 (Color::BLACK, m_widget.GetContextAlpha ()));
 	(displayEdges (m_widget)) (of);
     }
     FocusContext m_bodyFc;

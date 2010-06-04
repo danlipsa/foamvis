@@ -410,13 +410,12 @@ void Foam::PostProcess ()
 {
     Compact ();
     UpdatePartOf ();
-    PrintEdgeInformation (cdbg);
+    //PrintEdgeInformation (cdbg);
     if (IsTorus ())
 	Unwrap ();
     CalculateAABox ();
     CacheEdgesVerticesInBodies ();
-    if (! IsTorus () || GetSpaceDimension () == 2)
-	CalculateBodiesCenters ();
+    CalculateBodiesCenters ();
     if (IsTorus ())
 	CalculateTorusClipped ();
 }

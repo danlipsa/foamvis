@@ -179,9 +179,9 @@ GLWidget::GLWidget(QWidget *parent)
       m_physicalVertexSize (1), m_physicalEdgeWidth (1),
       m_physicalVertexColor (Qt::blue), m_physicalEdgeColor (Qt::blue),
       m_tessellationVertexSize (1), m_tessellationEdgeWidth (1),
-      m_normalVertexSize (2), m_normalEdgeWidth (1),
+      m_normalVertexSize (3), m_normalEdgeWidth (1),
       m_tessellationVertexColor (Qt::green), m_tessellationEdgeColor (Qt::green),
-      m_contextAlpha (0.05),
+      m_contextAlpha (0.03),
       m_centerPathColor (Qt::red),
       m_edgesTorusTubes (false),
       m_facesTorusTubes (false),
@@ -337,15 +337,15 @@ void GLWidget::initializeGL()
     cdbg << "initializeGL" << endl;
     glClearColor (1., 1., 1., 0.);
     
-
     printOpenGLInfo ();
     GLWidget::disableLighting ();
     m_object = displayList (m_viewType);
-
     glEnable(GL_DEPTH_TEST);
+
+    // for anti-aliased lines and points
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable (GL_LINE_SMOOTH);
-    glHint (GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
+    glEnable (GL_POINT_SMOOTH);
 }
 
 void GLWidget::paintGL()
@@ -517,18 +517,15 @@ GLuint GLWidget::displayListVerticesNormal ()
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
 
-    glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT);
-    qglColor (QColor (Qt::black));
+    glPushAttrib (GL_CURRENT_BIT | GL_POLYGON_BIT);
     glPointSize (m_normalVertexSize);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_POINT);
 
     Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
-    glBegin(GL_POINTS);
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
 	      DisplayFace<
-	      DisplayEdges<
-	      DisplayEdgeVertices> > > (*this));
-    glEnd ();
+	      DisplaySameEdges> > (*this));
     glPopAttrib ();
     displayOriginalDomain ();
     glEndList();
@@ -663,10 +660,8 @@ void GLWidget::displayCenterOfBodies ()
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
 	glPointSize (4.0);
 	qglColor (QColor (Qt::red));
-	glBegin(GL_POINTS);
 	Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	for_each (bodies.begin (),bodies.end (), DisplayBodyCenter (*this));
-	glEnd ();
 	glPopAttrib ();
     }
 }
@@ -733,8 +728,7 @@ GLuint GLWidget::displayListFacesTorusTubes ()
     for_each (faces.begin (), faces.end (),
 	      DisplayFace<
 	      DisplayEdges<
-	      DisplayEdgeTorus<
-	      DisplayEdgeTube, DisplayArrowTube, true> > > (
+	      DisplayEdgeTorus<DisplayEdgeTube, DisplayArrowTube, true> > > (
 		  *this, DisplayElement::FOCUS) );
     glPopAttrib ();
 
@@ -754,8 +748,7 @@ GLuint GLWidget::displayListFacesTorusLines ()
     for_each (faces.begin (), faces.end (),
 	      DisplayFace<
 	      DisplayEdges<
-	      DisplayEdgeTorus<
-	      DisplayEdge, DisplayArrow, true> > > (
+	      DisplayEdgeTorus<DisplayEdge, DisplayArrow, true> > > (
 		  *this, DisplayElement::FOCUS) );
     glPopAttrib ();
 
@@ -769,6 +762,8 @@ GLuint GLWidget::displayListCenterPaths ()
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
     qglColor (QColor (Qt::black));
+    glLineWidth (1.0);
+
     BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
     DisplayCenterPath dcp(*this);
     if (GetDisplayedBodyIndex () == DISPLAY_ALL)
@@ -776,6 +771,7 @@ GLuint GLWidget::displayListCenterPaths ()
     else
 	dcp (GetDisplayedBodyId ());
     displayCenterOfBodies ();
+    displayOriginalDomain ();
 
     glEndList();
     return list;

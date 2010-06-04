@@ -63,15 +63,15 @@ struct ElementStatus
     enum Name
     {
 	/**
-	 * No duplicate was made
+	 * Is in the data file, no duplicate was made
 	 */
 	ORIGINAL,
 	/**
-	 * A duplicate was made
+	 * Is in the data file, a duplicate was made
 	 */
 	DUPLICATE_MADE,
 	/**
-	 * This is a duplicate of another element.
+	 * Not in the data file, a duplicate of an element in the data file
 	 */
 	DUPLICATE
     };
