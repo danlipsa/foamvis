@@ -50,6 +50,7 @@
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/if.hpp>
+#include <boost/make_shared.hpp>
 
 
 // required by GLG3D

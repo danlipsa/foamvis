@@ -10,7 +10,7 @@
 #include "Edge.h"
 #include "Debug.h"
 #include "DebugStream.h"
-#include "ElementUtils.h"
+#include "Utils.h"
 #include "Face.h"
 #include "OrientedEdge.h"
 #include "OrientedFace.h"
@@ -114,6 +114,21 @@ private:
     vector<Face*>& m_faces;
 };
 
+// Private functions
+// ======================================================================
+/**
+ * Accumulates along X, Y or Z
+ * @param result where we accumulate
+ * @param v the vertex
+ * @return result + the value of the vertex along the specified axis
+ */
+G3D::Vector3 VertexAccumulate (G3D::Vector3 result,
+			       const boost::shared_ptr<Vertex>& v)
+{
+    return result + *v;
+}
+
+
 // Methods
 // ======================================================================
 
@@ -150,12 +165,14 @@ void Body::CacheEdgesVertices (size_t dimension, bool isQuadratic)
 
 template <typename T>
 void Body::split (
-    set<T*>& src, vector<T*>& destTessellation, vector<T*>& destPhysical,
+    set< boost::shared_ptr<T> >& src,
+    vector< boost::shared_ptr<T> >& destTessellation,
+    vector< boost::shared_ptr<T> >& destPhysical,
     size_t dimension, bool isQuadratic)
 {
     destTessellation.resize (src.size ());
     copy (src.begin (), src.end (), destTessellation.begin ());
-    typename vector<T*>::iterator bp;
+    typename vector< boost::shared_ptr<T> >::iterator bp;
     bp = partition (destTessellation.begin (), destTessellation.end (), 
 		    !boost::bind(&T::IsPhysical, _1, 
 				dimension, isQuadratic));
@@ -175,7 +192,7 @@ void Body::CalculateCenter ()
 	" Body::CacheEdgesVertices before calling this function");
     m_center = accumulate (
 	m_physicalVertices.begin (), m_physicalVertices.end (), m_center, 
-	&Vertex::Accumulate);
+	&VertexAccumulate);
     m_center /= Vector3(size, size, size);
 }
 

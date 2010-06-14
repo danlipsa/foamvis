@@ -111,6 +111,11 @@ private:
     size_t m_size;
 };
 
+/**
+ * Functor that creates an attribute that stores an integer array.
+ * Similar with an IntegerArrayAttributeCreator but does not store the
+ * size of the array. Used for edge and vertex CONSTRAINTS
+ */
 class IntegerVectorAttributeCreator : public AttributeCreator
 {
 public:

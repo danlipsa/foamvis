@@ -148,8 +148,8 @@ protected:
     void display (const Edge* e)
     {
 	glPushAttrib (GL_LIGHTING_BIT);
-	const Vertex* begin = e->GetBegin ();
-	const Vertex* end = e->GetEnd ();
+	const Vertex* begin = e->GetBegin ().get ();
+	const Vertex* end = e->GetEnd ().get ();
 	G3D::Vector3int16 endLocation = e->GetEndTranslation ();
 	m_widget.qglColor (m_widget.GetEndTranslationColor (endLocation));
 	if (endLocation != G3D::Vector3int16 (0, 0, 0))
@@ -191,8 +191,8 @@ public:
 	    m_widget.GetTessellationEdgeWidth ();
 	if (edgeSize != 0.0)
 	{
-	    Vertex* begin = e->GetBegin ();
-	    Vertex* end = e->GetEnd ();
+	    Vertex* begin = e->GetBegin ().get ();
+	    Vertex* end = e->GetEnd ().get ();
 	    glLineWidth (edgeSize);
 	    m_widget.qglColor (
 		e->GetEdge()->IsPhysical (dimension, quadratic) ? 
@@ -221,8 +221,8 @@ public:
 	Color::Name color = edge->GetColor (Color::BLACK);
 	glColor (G3D::Color4 (Color::GetValue(color),
 			      m_widget.GetContextAlpha ()));
-	G3D::Vector3* b = edge->GetBegin ();
-	G3D::Vector3* e = edge->GetEnd ();
+	G3D::Vector3* b = edge->GetBegin ().get ();
+	G3D::Vector3* e = edge->GetEnd ().get ();
 	glBegin(GL_LINES);
 	glVertex(*b);
 	glVertex (*e);

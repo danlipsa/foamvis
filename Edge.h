@@ -27,18 +27,20 @@ public:
      * @param begin the first point of the endge
      * @param end the last point of the edge
      */
-    Edge (Vertex* begin, Vertex* end, 
+    Edge (boost::shared_ptr<Vertex> begin,
+	  boost::shared_ptr<Vertex> end, 
 	  G3D::Vector3int16& endLocation, 
 	  size_t id, ElementStatus::Name status = ElementStatus::ORIGINAL);
-    Edge (Vertex* begin, size_t id);
+    Edge (boost::shared_ptr<Vertex> begin, size_t id);
     Edge (const Edge& edge);
     /**
      * @return the first vertex of the edge
      */
-    Vertex* GetBegin() const 
+    boost::shared_ptr<Vertex> GetBegin() const 
     {
 	return m_begin;
     }
+
     /**
      * Translate the begin vertex so that the end vertex coincides with 
      * the 'end' parameter.
@@ -48,14 +50,14 @@ public:
      * Sets the first vertex of the edge
      * @param begin value stored in the first vertex of the edge
      */
-    void SetBegin(Vertex* begin) 
+    void SetBegin(boost::shared_ptr<Vertex> begin) 
     {
 	m_begin = begin;
     }
     /**
      * @return last vertex of the edge
      */
-    Vertex* GetEnd() const 
+    boost::shared_ptr<Vertex> GetEnd() const 
     {
 	return m_end;
     }
@@ -63,7 +65,7 @@ public:
      * Sets the last vertex of the edge
      * @param end value stored in the last vertex of the edge
      */
-    void SetEnd(Vertex* end) 
+    void SetEnd(boost::shared_ptr<Vertex> end) 
     {
 	m_end = end;
     }
@@ -157,11 +159,11 @@ private:
     /**
      * First vertex of the edge
      */
-    Vertex* m_begin;
+    boost::shared_ptr<Vertex> m_begin;
     /**
      * Last vertex of the edge
      */
-    Vertex* m_end;
+    boost::shared_ptr<Vertex> m_end;
     G3D::Vector3int16 m_endTranslation;
     /**
      * Stores adjacent faces to this edge. Assume no duplicate edges

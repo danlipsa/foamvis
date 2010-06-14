@@ -33,6 +33,20 @@ struct LessThanNoCase : binary_function<const char*, const char*, bool>
 };
 
 
+struct Vector3int16LessThan
+{
+    bool operator () (const G3D::Vector3int16& first, 
+		      const G3D::Vector3int16& second)
+    {
+	return 
+	    first.x < second.x ||
+	    (first.x == second.x && first.y < second.y) ||
+	    (first.x == second.x && first.y == second.y && first.z < second.z);
+    }
+};
+
+
+
 class VectorLessThanAngle
 {
 public:
@@ -54,7 +68,8 @@ private:
 
 struct VertexLessThan
 {
-    bool operator () (const Vertex* first, const Vertex* second) const;
+    bool operator () (const boost::shared_ptr<Vertex>& first,
+		      const boost::shared_ptr<Vertex>& second) const;
 };
 
 
@@ -76,7 +91,8 @@ VertexLessThanAlong(G3D::Vector3::Axis axis) :
      * @param second the second vertex
      * @return true if first is less than second false otherwise
      */
-    bool operator() (const Vertex* first,  const Vertex* second) const;
+    bool operator() (const boost::shared_ptr<Vertex>& first,
+		     const boost::shared_ptr<Vertex>& second) const;
     bool operator() (
 	const G3D::Vector3* first, const G3D::Vector3* second) const
     {

@@ -3,26 +3,26 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h \
 	Debug.h DebugStream.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h \
-	Edge.h Element.h ElementUtils.h ExpressionTree.h Enums.h\
+	Edge.h Element.h ExpressionTree.h Enums.h\
 	Foam.h FoamAlongTime.h Face.h \
 	GLWidget.h Hashes.h \
 	MainWindow.h NameSemanticValue.h \
 	OOBox.h OrientedElement.h\
 	OrientedEdge.h OrientedFace.h OrientedFaceIndex.h \
 	ParsingData.h ParsingDriver.h ProcessBodyTorus.h \
-	stable.h SystemDifferences.h \
+	Utils.h stable.h SystemDifferences.h \
 	Comparisons.h Vertex.h
 SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	Body.cpp BodyAlongTime.cpp BodyIndex.cpp ColoredElement.cpp \
-	Debug.cpp DebugStream.cpp Edge.cpp \
-	Element.cpp ElementUtils.cpp ExpressionTree.cpp Enums.cpp\
+	Comparisons.cpp Debug.cpp DebugStream.cpp Edge.cpp \
+	Element.cpp ExpressionTree.cpp Enums.cpp\
 	Foam.cpp FoamAlongTime.cpp Face.cpp \
 	GLWidget.cpp Hashes.cpp main.cpp MainWindow.cpp  \
 	NameSemanticValue.cpp \
 	OOBox.cpp OrientedElement.cpp\
 	OrientedEdge.cpp OrientedFace.cpp OrientedFaceIndex.cpp\
 	ParsingData.cpp ParsingDriver.cpp ProcessBodyTorus.cpp \
-	Comparisons.cpp Vertex.cpp 
+	Utils.cpp Vertex.cpp 
 FORMS += Window.ui
 LEXSOURCES += EvolverData.l
 YACCSOURCES += EvolverData.y

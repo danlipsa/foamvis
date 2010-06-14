@@ -93,13 +93,13 @@ size_t OrientedFace::size () const
 Vertex* OrientedFace::getBegin (size_t edgeIndex) const
 {
     const OrientedEdge& oe = GetOrientedEdge (edgeIndex);
-    return oe.GetBegin ();
+    return oe.GetBegin ().get ();
 }
 
 Vertex* OrientedFace::getEnd (size_t edgeIndex) const
 {
     const OrientedEdge& oe = GetOrientedEdge (edgeIndex);
-    return oe.GetEnd ();
+    return oe.GetEnd ().get ();
 }
 
 ostream& OrientedFace::PrintAttributes (ostream& ostr) const

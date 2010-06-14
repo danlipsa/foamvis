@@ -11,7 +11,7 @@
 #include "Foam.h"
 #include "Debug.h"
 #include "Edge.h"
-#include "ElementUtils.h"
+#include "Utils.h"
 #include "Face.h"
 #include "OrientedEdge.h"
 #include "OrientedFace.h"
@@ -95,14 +95,14 @@ Face::~Face ()
 
 void Face::Unwrap (Foam* foam)
 {
-    G3D::Vector3* begin = (*m_orientedEdges.begin())->GetBegin ();
+    G3D::Vector3* begin = (*m_orientedEdges.begin())->GetBegin ().get ();
     BOOST_FOREACH (OrientedEdge* oe, m_orientedEdges)
     {
 	Edge* edge = oe->GetEdge ();
 	G3D::Vector3 edgeBegin = 
 	    (oe->IsReversed ()) ? edge->GetTranslatedBegin (*begin) : *begin;
 	oe->SetEdge (foam->GetEdgeDuplicate (edge, edgeBegin));
-	begin = oe->GetEnd ();
+	begin = oe->GetEnd ().get ();
     }
 }
 

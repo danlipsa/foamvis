@@ -15,7 +15,7 @@
 #include "DisplayEdgeFunctors.h"
 #include "DisplayFaceFunctors.h"
 #include "DisplayBodyFunctors.h"
-#include "ElementUtils.h"
+#include "Utils.h"
 #include "GLWidget.h"
 
 

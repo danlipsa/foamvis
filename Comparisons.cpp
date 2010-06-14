@@ -52,7 +52,8 @@ double VectorLessThanAngle::angle (
 // VectorLessThan
 
 bool VertexLessThan::operator () (
-    const Vertex* first, const Vertex* second) const
+    const boost::shared_ptr<Vertex>& first,
+    const boost::shared_ptr<Vertex>& second) const
 {
     return *first < *second;
 }
@@ -66,10 +67,11 @@ bool EdgeLessThan::operator () (const Edge* first, const Edge* second) const
 // VectorLessThanAlong
 
 bool VertexLessThanAlong::operator() (
-    const Vertex* first,  const Vertex* second) const
+    const boost::shared_ptr<Vertex>& first,
+    const boost::shared_ptr<Vertex>& second) const
 {
-    return operator() (static_cast<const G3D::Vector3*>(first),
-		       static_cast<const G3D::Vector3*>(second));
+    return operator() (static_cast<const G3D::Vector3*>(first.get ()),
+		       static_cast<const G3D::Vector3*>(second.get ()));
 }
 
 // ======================================================================

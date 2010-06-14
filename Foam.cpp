@@ -11,7 +11,7 @@
 #include "Foam.h"
 #include "Edge.h"
 #include "Face.h"
-#include "ElementUtils.h"
+#include "Utils.h"
 #include "OrientedEdge.h"
 #include "ParsingData.h"
 #include "ProcessBodyTorus.h"
@@ -20,20 +20,11 @@
 // Private Classes
 // ======================================================================
 
-struct EdgeSearchDummy
-{
-    EdgeSearchDummy (const G3D::Vector3& position, size_t edgeOriginalIndex) : 
-	m_vertex (position), m_edge (&m_vertex, edgeOriginalIndex) {}
-    Vertex m_vertex;
-    Edge m_edge;
-};
-
 struct FaceSearchDummy
 {
     FaceSearchDummy (const G3D::Vector3& position, size_t faceOriginalIndex) : 
-	m_vertex (position), m_edge (&m_vertex, 0),
+	m_edge (boost::make_shared<Vertex>(position), 0),
 	m_face (&m_edge, faceOriginalIndex) {}
-    Vertex m_vertex;
     Edge m_edge;
     Face m_face;
 };
@@ -69,7 +60,8 @@ struct calculateAggregate
 
 
 template <typename Container, 
-	  typename ContainerIterator, typename ContainerKeyType>
+	  typename ContainerIterator,
+	  typename ContainerKeyType>
 ContainerIterator fuzzyFind (const Container& s, const ContainerKeyType& x)
 {
     ContainerIterator it = s.lower_bound (x);
@@ -130,21 +122,21 @@ Foam::~Foam ()
     for_each(m_bodies.begin (), m_bodies.end (), bl::delete_ptr());
     for_each(m_faces.begin (), m_faces.end (), bl::delete_ptr ());
     for_each(m_edges.begin (), m_edges.end (), bl::delete_ptr ());
-    for_each(m_vertices.begin (), m_vertices.end (), bl::delete_ptr ());
     delete m_parsingData;
 }
 
-Vertex* Foam::GetVertexDuplicate (
+boost::shared_ptr<Vertex> Foam::GetVertexDuplicate (
     Vertex* original, const G3D::Vector3int16& translation)
 {
-    Vertex searchDummy (
+    boost::shared_ptr<Vertex> searchDummy = boost::make_shared<Vertex>(
 	GetPeriods ().TorusTranslate (*original, translation));
     VertexSet::iterator it = fuzzyFind 
 	<VertexSet, VertexSet::iterator, VertexSet::key_type> (
-	    m_vertexSet, &searchDummy);
+	    m_vertexSet, searchDummy);
     if (it != m_vertexSet.end ())
 	return *it;
-    Vertex* duplicate = CreateVertexDuplicate (original, translation);
+    boost::shared_ptr<Vertex> duplicate = CreateVertexDuplicate (
+	original, translation);
     m_vertexSet.insert (duplicate);
     m_vertices.push_back (duplicate);
     return duplicate;
@@ -153,10 +145,11 @@ Vertex* Foam::GetVertexDuplicate (
 Edge* Foam::GetEdgeDuplicate (
     Edge* original, const G3D::Vector3& newBegin)
 {
-    EdgeSearchDummy searchDummy (newBegin, original->GetId ());
+    Edge searchDummy(boost::make_shared<Vertex> (newBegin), original->GetId ());
+
     EdgeSet::iterator it = 
 	fuzzyFind <EdgeSet, EdgeSet::iterator, EdgeSet::key_type> (
-	    m_edgeSet, &searchDummy.m_edge);
+	    m_edgeSet, &searchDummy);
     if (it != m_edgeSet.end ())
 	return *it;
     Edge* duplicate = CreateEdgeDuplicate (original, newBegin);
@@ -168,7 +161,8 @@ Edge* Foam::GetEdgeDuplicate (
 Face* Foam::GetFaceDuplicate (
     const Face& original, const G3D::Vector3int16& translation)
 {
-    const G3D::Vector3* begin = original.GetOrientedEdge (0)->GetBegin ();
+    const G3D::Vector3* begin = 
+	original.GetOrientedEdge (0)->GetBegin ().get ();
     const G3D::Vector3& newBegin = 
 	GetPeriods ().TorusTranslate (*begin, translation);
     FaceSearchDummy searchDummy (newBegin, original.GetId ());
@@ -181,13 +175,14 @@ Face* Foam::GetFaceDuplicate (
     return duplicate;
 }
 
-Vertex* Foam::CreateVertexDuplicate (
+boost::shared_ptr<Vertex> Foam::CreateVertexDuplicate (
     Vertex* original, const G3D::Vector3int16& translation)
 {
     original->SetStatus (ElementStatus::DUPLICATE_MADE);
-    Vertex* duplicate = new Vertex (*original);
+    boost::shared_ptr<Vertex> duplicate = boost::make_shared<Vertex> (
+	*original);
     duplicate->SetStatus (ElementStatus::DUPLICATE);
-    TorusTranslate (duplicate, translation);
+    TorusTranslate (duplicate.get (), translation);
     return duplicate;
 }
 
@@ -204,10 +199,10 @@ Edge* Foam::CreateEdgeDuplicate (Edge* original, const G3D::Vector3& newBegin)
     original->SetStatus (ElementStatus::DUPLICATE_MADE);
     G3D::Vector3int16 translation = GetPeriods ().GetTranslation (
 	*original->GetBegin (), newBegin);
-    Vertex* beginDuplicate = GetVertexDuplicate (
-	original->GetBegin (), translation);
-    Vertex* endDuplicate = GetVertexDuplicate (
-	original->GetEnd (), translation);
+    boost::shared_ptr<Vertex> beginDuplicate = GetVertexDuplicate (
+	original->GetBegin ().get (), translation);
+    boost::shared_ptr<Vertex> endDuplicate = GetVertexDuplicate (
+	original->GetEnd ().get (), translation);
     Edge* duplicate = new Edge (*original);
     duplicate->SetBegin (beginDuplicate);
     duplicate->SetEnd (endDuplicate);
@@ -242,7 +237,7 @@ void Foam::SetVertex (size_t i, float x, float y, float z,
 {
     if (i >= m_vertices.size ())
         m_vertices.resize (i + 1);
-    Vertex* vertex = new Vertex (x, y ,z, i);
+    boost::shared_ptr<Vertex> vertex = boost::make_shared<Vertex> (x, y ,z, i);
     if (&list != 0)
         vertex->StoreAttributes (
             list, m_attributesInfo[DefineAttribute::VERTEX]);
@@ -372,7 +367,7 @@ void Foam::CalculateTorusClipped ()
 
 void Foam::Unwrap ()
 {
-    BOOST_FOREACH (Vertex* v, m_vertices)
+    BOOST_FOREACH (boost::shared_ptr<Vertex> v, m_vertices)
     {
 	m_vertexSet.insert (v);
     }
@@ -461,7 +456,7 @@ ostream& operator<< (ostream& ostr, const Foam& d)
     }
 
     ostr << "vertices:\n";
-    ostream_iterator<Vertex*> vOutput (ostr, "\n");
+    ostream_iterator< boost::shared_ptr<Vertex> > vOutput (ostr, "\n");
     copy (d.m_vertices.begin (), d.m_vertices.end (), vOutput);
     
     ostr << "edges:\n";

@@ -8,6 +8,7 @@
 #define __VERTEX_H__
 
 #include "Element.h"
+#include "Comparisons.h"
 
 class AttributesInfo;
 class Edge;
@@ -18,19 +19,6 @@ class Body;
  */
 class Vertex : public G3D::Vector3, public Element
 {
-public:    
-    struct Hash
-    {
-	size_t operator() (const G3D::Vector3& v) const
-	{
-	    std::size_t seed = 0;
-	    boost::hash_combine (seed, v.x);
-	    boost::hash_combine (seed, v.y);
-	    boost::hash_combine (seed, v.z);
-	    return seed;
-	}
-    };
-
 public:
     /**
      * Creates a Vertex object
@@ -62,7 +50,8 @@ public:
     template <typename Vertices>
     static ostream& PrintDomains (ostream& ostr, Vertices vertices)
     {
-	map< G3D::Vector3int16, list<Vertex*>, lessThanVector3int16 > 
+	map< G3D::Vector3int16, 
+	    list< boost::shared_ptr<Vertex> >, Vector3int16LessThan > 
 	    domainVerticesMap;
 	for_each (vertices.begin (), vertices.end (),
 		  storeByDomain (domainVerticesMap));
@@ -73,17 +62,6 @@ public:
     }
 
 public:
-    /**
-     * Accumulates along X, Y or Z
-     * @param result where we accumulate
-     * @param v the vertex
-     * @return result + the value of the vertex along the specified axis
-     */
-    static G3D::Vector3 Accumulate (Vector3 result, const Vertex* v)
-    {
-	return result + *v;
-    }
-
     /**
      * Specifies the default attributes for the Vertex object.
      * These attributes don't appear as a DEFINE in the .DMP file
@@ -96,47 +74,32 @@ public:
      * @param v what to print
      * @return output stream used to print the object to
      */
-    static const G3D::Vector3int16& UnitVector3int16 (size_t direction)
-    {
-	return m_unitVector3int16[direction];
-    }
     friend ostream& operator<< (ostream& ostr, const Vertex& v);
 
 private:
-    struct lessThanVector3int16
-    {
-	bool operator () (const G3D::Vector3int16& first, 
-			  const G3D::Vector3int16& second)
-	{
-	    return 
-		first.x < second.x ||
-		(first.x == second.x && first.y < second.y) ||
-		(first.x == second.x && first.y == second.y && first.z < second.z);
-	}
-    };
-
     class storeByDomain
     {
     public:
-	storeByDomain (map< G3D::Vector3int16, list< Vertex*>,
-		       lessThanVector3int16 >& 
+	storeByDomain (map< G3D::Vector3int16,
+		       list< boost::shared_ptr<Vertex> >,
+		       Vector3int16LessThan >& 
 		       domainVerticesMap) : 
 	    m_domainVerticesMap (domainVerticesMap)
 	{}
-	void operator() (Vertex* v)
+	void operator() (boost::shared_ptr<Vertex> v)
 	{
 	    m_domainVerticesMap[v->GetDomain ()].push_back (v);
 	}
     private:
-	map< G3D::Vector3int16, list< Vertex*>, 
-	     lessThanVector3int16 >& m_domainVerticesMap;
+	map< G3D::Vector3int16, list< boost::shared_ptr<Vertex> >, 
+	     Vector3int16LessThan >& m_domainVerticesMap;
     };
 
     class printVertexIndex
     {
     public:
 	printVertexIndex (ostream& ostr) : m_ostr(ostr) {}
-	void operator() (Vertex* v)
+	void operator() (boost::shared_ptr<Vertex> v)
 	{
 	    m_ostr << (v->GetId () + 1) << " ";
 	}
@@ -149,7 +112,8 @@ private:
     public:
 	printDomainVertices (ostream& ostr) : m_ostr(ostr) {}
 
-	void operator() (pair<const G3D::Vector3int16, list< Vertex*> >& pair)
+	void operator() (pair<const G3D::Vector3int16,
+			 list< boost::shared_ptr<Vertex> > >& pair)
 	{
 	    m_ostr << "Domain: " << pair.first
 		   << " Vertices: ";
@@ -166,9 +130,6 @@ private:
      * Edges this vertex is part of
      */
     vector<Edge*> m_edgesPartOf;
-
-private:
-    static const G3D::Vector3int16 m_unitVector3int16[3];
 };
 /**
  * Pretty prints a Vertex* by calling the operator<< for a Vertex.

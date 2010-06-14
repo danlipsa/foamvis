@@ -33,8 +33,8 @@ ostream& OrientedEdge::print (ostream& ostr, bool reversed) const
     ostr << "Oriented Edge " << GetStringId () << " "
 	 << GetEdge ()->GetStatus ()
 	 << ": ";
-    const Vector3* begin = static_cast<const G3D::Vector3*>(GetBegin ());
-    const Vector3* end = static_cast<const G3D::Vector3*>(GetEnd ());
+    const Vector3* begin = GetBegin ().get ();
+    const Vector3* end = GetEnd ().get ();;
     if (reversed)
 	swap (begin, end);
     ostr << *begin << ", " << *end;
@@ -46,12 +46,12 @@ G3D::Vector3 OrientedEdge::GetEdgeVector () const
     return *GetEnd () - *GetBegin ();
 }
 
-Vertex* OrientedEdge::GetBegin (void) const
+boost::shared_ptr<Vertex> OrientedEdge::GetBegin (void) const
 {
     return IsReversed () ? GetEdge ()->GetEnd () : GetEdge ()->GetBegin ();
 }
 
-Vertex* OrientedEdge::GetEnd (void) const
+boost::shared_ptr<Vertex> OrientedEdge::GetEnd (void) const
 {
     return IsReversed () ? GetEdge ()->GetBegin () : GetEdge ()->GetEnd ();
 }

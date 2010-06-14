@@ -9,6 +9,7 @@
 #include "DebugStream.h"
 #include "Edge.h"
 #include "OOBox.h"
+#include "Utils.h"
 #include "Vertex.h"
 
 // Private Classes
@@ -99,7 +100,7 @@ G3D::Vector3int16 OOBox::GetLocation (const G3D::Vector3& point) const
 	Vector3 planeNormal = (*this)[pt[0]].cross((*this)[pt[1]]);
 	Vector3 planePoint;
 	Vector3 planeTranslation = (*this)[axis];
-	Vector3int16 increment = Vertex::UnitVector3int16 (axis);
+	Vector3int16 increment = UnitVector3int16 (axis);
 	Plane plane = Plane (planeNormal, planePoint);
 	while (! plane.halfSpaceContainsFinite (point))
 	{

@@ -38,13 +38,13 @@ public:
      * end vertex for the edge stored inside.
      * @return the begin vertex
      */
-    Vertex* GetBegin (void) const;
+    boost::shared_ptr<Vertex> GetBegin (void) const;
     
     /**
      * Get the end vertex of the OrientedEdge. Note that this might be the
      * begin vertex for the edge stored inside.
      */
-    Vertex* GetEnd (void) const;
+    boost::shared_ptr<Vertex> GetEnd (void) const;
     /**
      * Adds a face that is touched by this oriented edge.
      */

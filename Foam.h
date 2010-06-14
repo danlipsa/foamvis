@@ -26,17 +26,13 @@ class ParsingData;
 class Foam
 {
 public:
-    /**
-     * Member function which returns one of the corners of the AABox for a
-     * data object
-     */
-    typedef set<Vertex*, VertexLessThan> VertexSet;
+    typedef set<boost::shared_ptr<Vertex>, VertexLessThan> VertexSet;
     typedef set<Edge*, EdgeLessThan> EdgeSet;
     typedef boost::unordered_set<Face*, FaceHash> FaceSet;
     /**
      * Iterator over the vertices in this Foam object
      */
-    typedef vector<Vertex*> Vertices;
+    typedef vector< boost::shared_ptr<Vertex> > Vertices;
     typedef vector<Edge*> Edges;
     typedef vector<Face*> Faces;
     typedef vector<Body*> Bodies;
@@ -61,18 +57,18 @@ public:
      * @param i index where the Vertex object is stored
      * @return a pointer to the Vertex object
      */
-    Vertex* GetVertex (int i) 
+    boost::shared_ptr<Vertex> GetVertex (int i) 
     {
 	return m_vertices[i];
     }
-    Vertex* GetVertexDuplicate (
+    boost::shared_ptr<Vertex> GetVertexDuplicate (
 	Vertex* original, const G3D::Vector3int16& translation);
     Edge* GetEdgeDuplicate (
 	Edge* original, const G3D::Vector3& edgeBegin);
     Face* GetFaceDuplicate (
 	const Face& original, const G3D::Vector3int16& translation);
-    Vertex* CreateVertexDuplicate (
-	Vertex* original, const G3D::Vector3int16& translation);
+    boost::shared_ptr<Vertex> CreateVertexDuplicate (
+	Vertex* original, G3D::Vector3int16 const& translation);
     Edge* CreateEdgeDuplicate (Edge* original, const G3D::Vector3& newBegin);
     Face* CreateFaceDuplicate (
 	const Face& original, const G3D::Vector3& newBegin);

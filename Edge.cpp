@@ -19,7 +19,8 @@
 
 // Methods
 // ======================================================================
-Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endTranslation, 
+Edge::Edge (boost::shared_ptr<Vertex> begin,
+	    boost::shared_ptr<Vertex> end, G3D::Vector3int16& endTranslation, 
 	    size_t id, ElementStatus::Name status):
     ColoredElement(id, status),
     m_begin (begin), m_end (end),
@@ -28,10 +29,9 @@ Edge::Edge (Vertex* begin, Vertex* end, G3D::Vector3int16& endTranslation,
 {
 }
 
-Edge::Edge (Vertex* begin, size_t id) :
+Edge::Edge (boost::shared_ptr<Vertex> begin, size_t id) :
     ColoredElement (id, ElementStatus::ORIGINAL),
     m_begin (begin),
-    m_end (0),
     m_torusClipped (0)
 {
 }
@@ -48,7 +48,7 @@ Edge::Edge (const Edge& o) :
 void Edge::Unwrap (Foam* foam)
 {
     if (m_endTranslation != G3D::Vector3int16(0, 0, 0))
-	m_end = foam->GetVertexDuplicate (m_end, m_endTranslation);
+	m_end = foam->GetVertexDuplicate (m_end.get (), m_endTranslation);
 }
 
 G3D::Vector3 Edge::GetTranslatedBegin (const G3D::Vector3& newEnd) const
@@ -173,7 +173,7 @@ void Edge::PrintFacePartOfInformation (ostream& ostr) const
     size_t facePartOfSize = GetFacePartOfSize ();
     ostr << "Edge " << GetStringId () << " is part of " 
 	 << facePartOfSize << " faces: ";
-    ostream_iterator<const OrientedFaceIndex&> output (ostr, " ");
+    ostream_iterator<OrientedFaceIndex> output (ostr, " ");
     copy (GetFacePartOfBegin (), GetFacePartOfEnd (), output);
     ostr << endl;
 }

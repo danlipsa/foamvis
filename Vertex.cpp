@@ -6,28 +6,21 @@
  */
 #include "AttributeInfo.h"
 #include "AttributeCreator.h"
+#include "Body.h"
 #include "Edge.h"
-#include "ParsingDriver.h"
 #include "EvolverData_yacc.h"
 #include "DebugStream.h"
 #include "Debug.h"
-#include "Body.h"
+#include "ParsingDriver.h"
+#include "Utils.h"
 #include "Vertex.h"
 
 // Private Functions
 // ======================================================================
 size_t hash_value (Vertex const& v)
 {
-    return Vertex::Hash () (v);
+    return Vector3Hash () (v);
 }
-
-// Static Fields
-// ======================================================================
-const G3D::Vector3int16 Vertex::m_unitVector3int16[3] = {
-    G3D::Vector3int16 (1, 0, 0),
-    G3D::Vector3int16 (0, 1, 0),
-    G3D::Vector3int16 (0, 0, 1)
-};
 
 // Methods
 // ======================================================================

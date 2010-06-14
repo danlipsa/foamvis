@@ -80,10 +80,6 @@ public:
     {
 	return m_edges.find (e) != m_edges.end ();
     }
-    bool HasVertex (Vertex* v) const
-    {
-	return m_vertices.find (v) != m_vertices.end ();
-    }
     /**
      * Caches an edge
      * @param e the edge to cache
@@ -96,7 +92,7 @@ public:
      * Cache a vertex
      * @param v the vertex to cache
      */
-    void CacheVertex (Vertex* v)
+    void CacheVertex (boost::shared_ptr<Vertex> v)
     {
 	m_vertices.insert (v);
     }
@@ -155,7 +151,9 @@ private:
      */
     template <typename T>
     void split (
-	set<T*>& src, vector<T*>& destTessellation, vector<T*>& destPhysical,
+	set< boost::shared_ptr<T> >& src,
+	vector< boost::shared_ptr<T> >& destTessellation,
+	vector< boost::shared_ptr<T> >& destPhysical,
 	size_t dimension, bool isQuadratic);
 
 private:
@@ -175,15 +173,15 @@ private:
     /**
      * Vertices for this body
      */
-    set<Vertex*> m_vertices;
+    set< boost::shared_ptr<Vertex> > m_vertices;
     /**
      * Physical vertices for this body
      */
-    vector<Vertex*> m_physicalVertices;
+    vector< boost::shared_ptr<Vertex> > m_physicalVertices;
     /**
      * Tessellation vertices for this body
      */
-    vector<Vertex*> m_tessellationVertices;
+    vector< boost::shared_ptr<Vertex> > m_tessellationVertices;
     /**
      * Physical edges for this body
      */

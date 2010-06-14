@@ -19,7 +19,7 @@
 
 struct DisplayOriginalVertex
 {
-    void operator() (Vertex* v)
+    void operator() (const boost::shared_ptr<Vertex>& v)
     {
 	if (v->GetStatus () != ElementStatus::DUPLICATE)
 	{
@@ -76,7 +76,7 @@ public:
      */
     void operator() (const OrientedEdge* oe)
     {
-	Vertex* v = oe->GetBegin ();
+	Vertex* v = oe->GetBegin ().get ();
 	size_t dimension = m_widget.GetCurrentFoam ().GetSpaceDimension ();
 	bool isQuadratic = m_widget.GetCurrentFoam ().IsQuadratic ();
 	float pointSize = 
