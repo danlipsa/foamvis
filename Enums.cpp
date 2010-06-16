@@ -99,21 +99,18 @@ const G3D::Color3& Color::GetValue(Color::Name color)
 }
 
 
-ostream& operator<< (ostream& ostr, ElementStatus::Name status)
+ostream& operator<< (ostream& ostr, ElementStatus::Duplicate duplicateStatus)
 {
-    switch (status)
+    switch (duplicateStatus)
     {
     case ElementStatus::ORIGINAL:
 	ostr << "ORIGINAL";
-	break;
-    case ElementStatus::DUPLICATE_MADE:
-	ostr << "DUPLICATE_MADE";
 	break;
     case ElementStatus::DUPLICATE:
 	ostr << "DUPLICATE";
 	break;
     default:
-	RuntimeAssert (false, "Invalid ElementStatus: ", status);
+	RuntimeAssert (false, "Invalid ElementStatus: ", duplicateStatus);
     }
     return ostr;
 }

@@ -29,7 +29,7 @@ public:
      * Functor used to display a body
      * @param b the body to be displayed
      */
-    void operator () (Body* b)
+    void operator () (boost::shared_ptr<Body>  b)
     {
         if (m_widget.IsDisplayedBody (b))
 	{
@@ -50,7 +50,7 @@ protected:
      * Displays the body
      * @param b the body
      */
-    virtual void display (Body* b, FocusContext fc) = 0;
+    virtual void display (boost::shared_ptr<Body>  b, FocusContext fc) = 0;
 };
 
 /**
@@ -69,7 +69,7 @@ protected:
      * Displays the center of a body (bubble)
      * @param b body to display the center of
      */
-    virtual void display (Body* b, FocusContext fc)
+    virtual void display (boost::shared_ptr<Body>  b, FocusContext fc)
     {
 	if (fc == FOCUS)
 	{
@@ -101,9 +101,9 @@ protected:
      * Displays a body going through all its faces
      * @param b the body to be displayed
      */
-    virtual void display (Body* b, FocusContext bodyFc)
+    virtual void display (boost::shared_ptr<Body>  b, FocusContext bodyFc)
     {
-	vector<OrientedFace*> v = b->GetOrientedFaces ();
+	vector<boost::shared_ptr<OrientedFace> > v = b->GetOrientedFaces ();
 	for_each (v.begin (), v.end (), displayFace(m_widget, bodyFc));
     }
 };

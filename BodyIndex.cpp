@@ -10,7 +10,7 @@
 #include "Body.h"
 #include "OrientedFace.h"
 
-OrientedFace* BodyIndex::GetOrientedFace () const
+boost::shared_ptr<OrientedFace>  BodyIndex::GetOrientedFace () const
 {
     return GetBody ()->GetOrientedFace (GetOrientedFaceIndex ());
 }

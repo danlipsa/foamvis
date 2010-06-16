@@ -21,7 +21,7 @@ struct DisplayOriginalVertex
 {
     void operator() (const boost::shared_ptr<Vertex>& v)
     {
-	if (v->GetStatus () != ElementStatus::DUPLICATE)
+	if (v->GetDuplicateStatus () != ElementStatus::DUPLICATE)
 	{
 	    glVertex (*v);	
 	}
@@ -36,7 +36,7 @@ struct DisplayBeginVertex
 {
     DisplayBeginVertex () {}
     DisplayBeginVertex (const GLWidget&) {}
-    void operator() (const OrientedEdge* e)
+    void operator() (const boost::shared_ptr<OrientedEdge> e)
     {
 	const Vertex& b = *e->GetBegin ();
 	glVertex(b);
@@ -47,7 +47,7 @@ struct DisplayEdgeVertices
 {
     DisplayEdgeVertices () {}
     DisplayEdgeVertices (const GLWidget&) {}
-    void operator() (const OrientedEdge* edge)
+    void operator() (const boost::shared_ptr<OrientedEdge> edge)
     {
 	const Vertex& b = *edge->GetBegin ();
 	glVertex (b);
@@ -59,22 +59,23 @@ struct DisplayEdgeVertices
 
 
 
-class DisplayPhysicalVertex : public DisplayElement
+class DisplayVertexPhysical : public DisplayElementFocus
 {
 public:
     /**
      * Constructor
      * @param widget Where should be the vertex displayed
      */
-    DisplayPhysicalVertex (const GLWidget& widget) : 
-    DisplayElement (widget) 
+    DisplayVertexPhysical (const GLWidget& widget, FocusContext focus = FOCUS) : 
+	DisplayElementFocus (widget, focus) 
     {
     }
+
     /**
      * Functor that displays a vertex
      * @param v the vertex to be displayed
      */
-    void operator() (const OrientedEdge* oe)
+    void operator() (const boost::shared_ptr<OrientedEdge> oe)
     {
 	Vertex* v = oe->GetBegin ().get ();
 	size_t dimension = m_widget.GetCurrentFoam ().GetSpaceDimension ();

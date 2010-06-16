@@ -14,19 +14,19 @@ class OrientedFace;
 class BodyIndex
 {
 public:
-    BodyIndex (Body* body, size_t ofIndex) :
+    BodyIndex (boost::shared_ptr<Body>  body, size_t ofIndex) :
 	m_body (body), m_orientedFaceIndex (ofIndex)
     {}
     BodyIndex () :
-	m_body(0), m_orientedFaceIndex (0) 
+	m_orientedFaceIndex (0) 
     {}
-    Body* GetBody () const
+    boost::shared_ptr<Body>  GetBody () const
     {
 	return m_body;
     }
     size_t GetBodyId () const;
 
-    OrientedFace* GetOrientedFace () const;
+    boost::shared_ptr<OrientedFace>  GetOrientedFace () const;
     size_t GetOrientedFaceIndex () const
     {
 	return m_orientedFaceIndex;
@@ -37,7 +37,7 @@ public:
     friend ostream& operator<< (ostream& ostr, const BodyIndex& bi);
 
 private:
-    Body* m_body;
+    boost::shared_ptr<Body>  m_body;
     size_t m_orientedFaceIndex;
 };
 

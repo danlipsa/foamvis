@@ -74,7 +74,7 @@ public:
 	return m_displayedBodyIndex;
     }
     size_t GetDisplayedBodyId () const;
-    Body* GetDisplayedBody () const;
+    boost::shared_ptr<Body>  GetDisplayedBody () const;
     /**
      * Gets the face number up to which faces are displayed
      * @return face number up to which faces are displayed or UINT_MAX for all
@@ -84,14 +84,14 @@ public:
 	return m_displayedFaceIndex;
     }
     size_t GetDisplayedFaceId () const;
-    Face* GetDisplayedFace () const;
+    boost::shared_ptr<Face>  GetDisplayedFace () const;
 
     size_t GetDisplayedEdgeIndex () const
     {
 	return m_displayedEdgeIndex;
     }
     size_t GetDisplayedEdgeId () const;
-    Edge* GetDisplayedEdge () const;
+    boost::shared_ptr<Edge>  GetDisplayedEdge () const;
     /**
      * Increment displayed body
      */
@@ -180,7 +180,7 @@ public:
     float GetArrowHeight () const {return m_arrowHeight;}
     float GetEdgeRadius () const {return m_edgeRadius;}
 
-    bool IsDisplayedBody (const Body* body) const;
+    bool IsDisplayedBody (const boost::shared_ptr<Body>  body) const;
     bool IsDisplayedBody (size_t bodyId) const;
     bool IsDisplayedFace (size_t faceI) const;
     bool IsDisplayedEdge (size_t edgeI) const;
@@ -398,14 +398,14 @@ private:
      * continuous contours  for polygons.
      * @param bodies displays all the faces in these bodies
      */
-    void displayFacesContour (vector<Body*>& bodies);
+    void displayFacesContour (vector<boost::shared_ptr<Body> >& bodies);
     /**
      * Displays   the   content   of   faces.   Used   together   with
      * displayFacesContour  and  with  GL_POLYGON_OFFSET_FILL  to  get
      * continuous contours for polygons.
      * @param bodies displays all the faces in these bodies
      */
-    void displayFacesOffset (vector<Body*>& bodies);
+    void displayFacesOffset (vector<boost::shared_ptr<Body> >& bodies);
     /**
      * Setup lighting for shaded bodies
      */

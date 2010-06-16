@@ -14,6 +14,7 @@
 #include "ProcessBodyTorus.h"
 #include "OrientedFace.h"
 #include "OrientedEdge.h"
+#include "Utils.h"
 #include "Vertex.h"
 
 ProcessBodyTorus::ProcessBodyTorus (Foam* foam, Body* body) : 
@@ -22,7 +23,7 @@ ProcessBodyTorus::ProcessBodyTorus (Foam* foam, Body* body) :
 
 void ProcessBodyTorus::Initialize ()
 {
-    OrientedFace* of = m_body->GetOrientedFace (0);
+    boost::shared_ptr<OrientedFace>  of = m_body->GetOrientedFace (0);
     m_traversed[0] = true;
     push (of);
 }
@@ -42,15 +43,15 @@ bool ProcessBodyTorus::Step ()
 	return false;
     const OrientedEdge& oe = ofi.GetOrientedEdge ();
     const OrientedEdge& nextOe = nextOfi.GetOrientedEdge ();
-    const OOBox& periods = m_foam->GetPeriods ();
+    const OOBox& periods = m_foam->GetOriginalDomain ();
 
     G3D::Vector3int16 translation = 
 	periods.GetTranslation (*nextOe.GetBegin (), *oe.GetEnd ());
-    if (translation != Vector3int16 (0, 0, 0))
+    if (translation != Vector3int16Zero)
     {
-	Face* translatedNextFace = 
+	boost::shared_ptr<Face>  translatedNextFace = 
 	    m_foam->GetFaceDuplicate (*nextOfi.GetFace (), translation);
-	OrientedFace* nextOf = nextOfi.GetOrientedFace ();
+	boost::shared_ptr<OrientedFace>  nextOf = nextOfi.GetOrientedFace ();
 	nextOf->SetFace (translatedNextFace);
 	//cdbg << "    Face " << nextOf->GetStringId ()
 	//     << " translated " << translation << endl;
@@ -67,7 +68,7 @@ bool ProcessBodyTorus::Step ()
 
 // Private Methods
 // ======================================================================
-void ProcessBodyTorus::push (OrientedFace* of)
+void ProcessBodyTorus::push (boost::shared_ptr<OrientedFace>  of)
 {
     for (size_t i = 0; i < of->size (); i++)
 	m_queue.push (OrientedFaceIndex (of, i));
@@ -120,7 +121,7 @@ bool ProcessBodyTorus::chooseFaceNeighbor (
 	return false;
     BOOST_FOREACH (nextOfi, possibilities)
     {
-	OrientedFace* nextOf = nextOfi.GetOrientedFace ();
+	boost::shared_ptr<OrientedFace>  nextOf = nextOfi.GetOrientedFace ();
 	const BodyIndex& nextBi = nextOf->GetBodyPartOf ();
 	if (m_traversed[nextBi.GetOrientedFaceIndex ()])
 	{
@@ -155,7 +156,7 @@ bool ProcessBodyTorus::pop (
 	if (chooseFaceNeighbor (ofi, possibilities, nextOrientedFaceIndex))
 	{
 
-	    OrientedFace* nextOf = nextOrientedFaceIndex->GetOrientedFace ();
+	    boost::shared_ptr<OrientedFace>  nextOf = nextOrientedFaceIndex->GetOrientedFace ();
 	    const BodyIndex& nextBi = nextOf->GetBodyPartOf ();
 	    push (nextOf);
 	    m_traversed[nextBi.GetOrientedFaceIndex ()] = true;

@@ -21,10 +21,12 @@ ostream& RealArrayAttribute::Print (ostream& ostr) const
     return ostr;
 }
 
-ostream& operator<< (ostream& ostr,  Attribute& attribute)
+ostream& operator<< (ostream& ostr, const Attribute& attribute)
 {
-    if (&attribute == 0)
-        return ostr << "null";
-    else
-        return attribute.Print(ostr);
+    return attribute.Print(ostr);
+}
+
+ostream& operator<< (ostream& ostr, const Attribute* attribute)
+{
+    return ostr << *attribute;
 }

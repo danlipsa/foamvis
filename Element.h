@@ -23,10 +23,10 @@ public:
      * Constructor for the Element
      */
     Element(size_t id,
-	    ElementStatus::Name status) : 
+	    ElementStatus::Duplicate duplicateStatus) : 
 	m_attributes(0),
 	m_id (id), 
-	m_status (status)
+	m_duplicateStatus (duplicateStatus)
     {
     }
     Element (const Element& other);
@@ -51,14 +51,16 @@ public:
     {
 	return m_id;
     }    
-    ElementStatus::Name GetStatus () const
+
+    ElementStatus::Duplicate GetDuplicateStatus () const
     {
-	return m_status;
+	return m_duplicateStatus;
     }
-    void SetStatus (ElementStatus::Name status) 
+    void SetDuplicateStatus (ElementStatus::Duplicate duplicateStatus) 
     {
-	m_status = status;
+	m_duplicateStatus = duplicateStatus;
     }
+
 
     /**
      * Pretty print attributes of an element
@@ -79,7 +81,7 @@ protected:
      * The original index for this element
      */
     size_t m_id;
-    ElementStatus::Name m_status;
+    ElementStatus::Duplicate m_duplicateStatus;
 
 protected:
     const static size_t INVALID_INDEX;

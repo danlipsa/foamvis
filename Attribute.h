@@ -101,7 +101,9 @@ public:
      * @return where we printed
      */
     virtual ostream& Print (ostream& ostr) const
-    {return ostr << m_color;}
+    {
+	return ostr << "COLOR: " << m_color;
+    }
     /**
      * Get the color of the attribute
      * @return color value of the attribute
@@ -180,7 +182,8 @@ private:
 /**
  * Knows how to print an Attribute
  */
-ostream& operator<< (ostream& ostr,  Attribute& attribute);
+ostream& operator<< (ostream& ostr, const Attribute& attribute);
+ostream& operator<< (ostream& ostr, const Attribute* attribute);
 
 #endif //__ATTRIBUTE_H__
 

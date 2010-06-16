@@ -25,9 +25,9 @@ size_t hash_value (Vertex const& v)
 // Methods
 // ======================================================================
 Vertex::Vertex(float x, float y, float z, 
-	       size_t id, ElementStatus::Name status) :
+	       size_t id, ElementStatus::Duplicate duplicateStatus) :
     G3D::Vector3 (x, y, z),
-    Element(id, status)
+    Element(id, duplicateStatus)
 {}
 
 Vertex::Vertex (const G3D::Vector3& position) : 
@@ -36,14 +36,14 @@ Vertex::Vertex (const G3D::Vector3& position) :
 {}
 
 
-void Vertex::AddEdgePartOf (Edge* edge) 
+void Vertex::AddEdgePartOf (const boost::shared_ptr<Edge>& edge) 
 {
     m_edgesPartOf.push_back (edge);
 }
 
 G3D::Vector3int16 Vertex::GetDomain () const
 {
-    return G3D::Vector3int16 (0, 0, 0);
+    return Vector3int16Zero;
 }
 
 bool Vertex::operator< (const Vertex& other) const
@@ -79,7 +79,7 @@ bool Vertex::IsPhysical (size_t dimension, bool isQuadratic) const
 ostream& operator<< (ostream& ostr, const Vertex& v)
 {
     ostr << "Vertex " << v.GetId () << " "
-	 << v.GetStatus ()
+	 << v.GetDuplicateStatus ()
 	 << static_cast<const G3D::Vector3&>(v)
 	 << " Vertex attributes: ";
     return v.PrintAttributes (ostr);

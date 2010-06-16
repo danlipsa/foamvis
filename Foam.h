@@ -27,15 +27,15 @@ class Foam
 {
 public:
     typedef set<boost::shared_ptr<Vertex>, VertexLessThan> VertexSet;
-    typedef set<Edge*, EdgeLessThan> EdgeSet;
-    typedef boost::unordered_set<Face*, FaceHash> FaceSet;
+    typedef set<boost::shared_ptr<Edge>, EdgeLessThan> EdgeSet;
+    typedef boost::unordered_set<boost::shared_ptr<Face> , FaceHash> FaceSet;
     /**
      * Iterator over the vertices in this Foam object
      */
     typedef vector< boost::shared_ptr<Vertex> > Vertices;
-    typedef vector<Edge*> Edges;
-    typedef vector<Face*> Faces;
-    typedef vector<Body*> Bodies;
+    typedef vector< boost::shared_ptr<Edge> > Edges;
+    typedef vector< boost::shared_ptr<Face> > Faces;
+    typedef vector< boost::shared_ptr<Body> > Bodies;
     /**
      * Functor applied to a collection of vertices
      */
@@ -49,10 +49,6 @@ public:
      */
     Foam ();
     /**
-     * Destroys a Foam object
-     */
-    ~Foam ();
-    /**
      * Gets a Vertex from the Foam object
      * @param i index where the Vertex object is stored
      * @return a pointer to the Vertex object
@@ -62,16 +58,24 @@ public:
 	return m_vertices[i];
     }
     boost::shared_ptr<Vertex> GetVertexDuplicate (
-	Vertex* original, const G3D::Vector3int16& translation);
-    Edge* GetEdgeDuplicate (
-	Edge* original, const G3D::Vector3& edgeBegin);
-    Face* GetFaceDuplicate (
+	const Vertex& original, const G3D::Vector3int16& translation);
+    boost::shared_ptr<Edge>  GetEdgeDuplicate (
+	const Edge& original, const G3D::Vector3& edgeBegin);
+    boost::shared_ptr<Face>  GetFaceDuplicate (
 	const Face& original, const G3D::Vector3int16& translation);
+    void BodyTranslate (const boost::shared_ptr<Body>& body,
+			      const G3D::Vector3int16& translate);
+
     boost::shared_ptr<Vertex> CreateVertexDuplicate (
-	Vertex* original, G3D::Vector3int16 const& translation);
-    Edge* CreateEdgeDuplicate (Edge* original, const G3D::Vector3& newBegin);
-    Face* CreateFaceDuplicate (
+	const Vertex& original, G3D::Vector3int16 const& translation);
+    boost::shared_ptr<Edge>  CreateEdgeDuplicate (
+	const Edge& original, const G3D::Vector3& newBegin);
+    boost::shared_ptr<Face>  CreateFaceDuplicate (
 	const Face& original, const G3D::Vector3& newBegin);
+
+    void BodyInsideOriginalDomain (const boost::shared_ptr<Body>& body);
+    void BodiesInsideOriginalDomain ();
+
     /**
      * Gets the vector of vertices
      * @return the vector of vertices
@@ -120,7 +124,7 @@ public:
 	return m_faces;
     }
 
-    Face* GetFace (size_t i)
+    boost::shared_ptr<Face>  GetFace (size_t i)
     {
 	return m_faces[i];
     }
@@ -142,7 +146,7 @@ public:
      * @param i index of the body to be returned
      * @return the body
      */
-    Body* GetBody (size_t i) const
+    boost::shared_ptr<Body>  GetBody (size_t i) const
     {
 	return m_bodies[i];
     }
@@ -258,11 +262,7 @@ public:
     void PostProcess ();
     void PrintDomains (ostream& ostr) const;
 
-    const G3D::Vector3& GetPeriod (size_t i) const
-    {
-	return m_periods[i];
-    }
-    const OOBox& GetPeriods () const 
+    const OOBox& GetOriginalDomain () const 
     {
 	return m_periods;
     }
@@ -273,10 +273,6 @@ public:
     }
 
     bool IsTorus () const;
-    bool HasEdge (Edge* edge) const 
-    {
-	return m_edgeSet.find (edge) != m_edgeSet.end ();
-    }
     
     void SetSpaceDimension (size_t spaceDimension) 
     {
@@ -343,7 +339,7 @@ private:
     /**
      * Foam used in parsing the DMP file.
      */
-    ParsingData* m_parsingData;
+    boost::scoped_ptr<ParsingData> m_parsingData;
     /**
      * The axially aligned bounding box for all vertices.
      */

@@ -19,13 +19,13 @@ class OrientedEdge;
 class Vertex;
 
 /**
- * A body is a set of faces
+ * A body is a list of oriented faces
  */
 class Body : public Element
 {
 public:
-    typedef vector<OrientedFace*> OrientedFaces;
-    typedef multimap<G3D::Vector3, OrientedFace*, 
+    typedef vector<boost::shared_ptr<OrientedFace> > OrientedFaces;
+    typedef multimap<G3D::Vector3, boost::shared_ptr<OrientedFace> , 
 		     VectorLessThanAngle> NormalFaceMap;
 public:
     /**
@@ -34,9 +34,10 @@ public:
      * @param faceIndexes 0 based indexes into a vector of Face objects
      * @param faces vector of Face objects
      */
-    Body(vector<int>& faceIndexes, vector<Face*>& faces,
-	 size_t id, ElementStatus::Name status = ElementStatus::ORIGINAL);
-    ~Body ();
+    Body(const vector<int>& faceIndexes,
+	 const vector< boost::shared_ptr<Face> >& faces,
+	 size_t id, 
+	 ElementStatus::Duplicate duplicateStatus = ElementStatus::ORIGINAL);
 
     /**
      * Returns the  vector of oriented faces this body is made of
@@ -57,34 +58,25 @@ public:
     {
 	return *m_normalFaceMap.get ();
     }
-    OrientedFace* GetFirstFace ()
+    boost::shared_ptr<OrientedFace>  GetFirstFace ()
     {
 	return (*m_normalFaceMap->begin ()).second;
     }
 
-    OrientedFace* GetOrientedFace (size_t i) const
+    boost::shared_ptr<OrientedFace>  GetOrientedFace (size_t i) const
     {
 	return m_orientedFaces[i];
     }
-    Face* GetFace (size_t i) const;
+    boost::shared_ptr<Face>  GetFace (size_t i) const;
     size_t size () const
     {
 	return m_orientedFaces.size ();
     }
     /**
-     * Does this body have this edge
-     * @param e the edge to be tested
-     * @return true if the body has the edge, false otherwise
-     */
-    bool HasEdge (Edge* e) const
-    {
-	return m_edges.find (e) != m_edges.end ();
-    }
-    /**
      * Caches an edge
      * @param e the edge to cache
      */
-    void CacheEdge (Edge* e)
+    void CacheEdge (boost::shared_ptr<Edge> e)
     {
 	m_edges.insert (e);
     }
@@ -113,7 +105,7 @@ public:
 	return m_center;
     }
     void PrintDomains (ostream& ostr) const;
-    void UpdatePartOf ();
+    void UpdatePartOf (const boost::shared_ptr<Body>& body);
 
     NormalFaceMap::iterator GetCurrentNormalFace ()
     {
@@ -169,7 +161,7 @@ private:
     /**
      * Edges for this body
      */
-    set<Edge*> m_edges;
+    set< boost::shared_ptr<Edge> > m_edges;
     /**
      * Vertices for this body
      */
@@ -185,23 +177,23 @@ private:
     /**
      * Physical edges for this body
      */
-    vector<Edge*> m_physicalEdges;
+    vector< boost::shared_ptr<Edge> > m_physicalEdges;
     /**
      * Tessellation edges for this body
      */
-    vector<Edge*> m_tessellationEdges;
+    vector< boost::shared_ptr<Edge> > m_tessellationEdges;
     /**
      * Center of the body
      */
     G3D::Vector3 m_center;
 };
 /**
- * Pretty prints a Body*
+ * Pretty prints a boost::shared_ptr<Body> 
  * @param ostr where to print
  * @param b what to print
  * @return where to print something else
  */
-inline ostream& operator<< (ostream& ostr, const Body* b)
+inline ostream& operator<< (ostream& ostr, const boost::shared_ptr<Body>  b)
 {
     return ostr << *b;
 }

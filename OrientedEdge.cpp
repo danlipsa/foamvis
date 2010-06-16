@@ -11,27 +11,27 @@
 #include "OrientedFace.h"
 #include "Vertex.h"
 
-OrientedEdge::OrientedEdge (Edge* edge, bool reversed) : 
-    OrientedElement (edge, reversed) 
+OrientedEdge::OrientedEdge (
+    const boost::shared_ptr<Edge>& edge, bool reversed) : 
+    OrientedElement (edge, reversed)
 {
 }
 
-Edge* OrientedEdge::GetEdge () const 
+boost::shared_ptr<Edge> OrientedEdge::GetEdge () const 
 {
-    return static_cast<Edge*>(GetColoredElement());
+    return boost::static_pointer_cast<Edge> (GetColoredElement());
 }
 
-void OrientedEdge::SetEdge (Edge* edge) 
+void OrientedEdge::SetEdge (boost::shared_ptr<Edge>  edge) 
 {
     SetElement (edge);
 }
-
 
 ostream& OrientedEdge::print (ostream& ostr, bool reversed) const
 {
     using G3D::Vector3;
     ostr << "Oriented Edge " << GetStringId () << " "
-	 << GetEdge ()->GetStatus ()
+	 << GetEdge ()->GetDuplicateStatus ()
 	 << ": ";
     const Vector3* begin = GetBegin ().get ();
     const Vector3* end = GetEnd ().get ();;
@@ -76,7 +76,7 @@ OrientedFaceIndexList::const_iterator OrientedEdge::GetFacePartOfEnd () const
     return GetEdge ()->GetFacePartOfEnd ();
 }
 
-void OrientedEdge::AddFacePartOf (OrientedFace* face, size_t edgeIndex) const
+void OrientedEdge::AddFacePartOf (boost::shared_ptr<OrientedFace>  face, size_t edgeIndex) const
 {
     GetEdge ()->AddFacePartOf (face, edgeIndex);
 }

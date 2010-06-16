@@ -17,15 +17,17 @@ class ColoredElement;
 class OrientedElement
 {
 public:
-    OrientedElement (ColoredElement* coloredElement, bool reversed) :
+    OrientedElement (
+	boost::shared_ptr<ColoredElement> coloredElement, bool reversed) :
 	m_coloredElement (coloredElement), m_reversed (reversed) {}
-    OrientedElement () : m_coloredElement (0), m_reversed(false) {}
 
-    ColoredElement* GetColoredElement () const
+    OrientedElement () : m_reversed(false) {}
+
+    boost::shared_ptr<ColoredElement> GetColoredElement () const
     {
 	return m_coloredElement;
     }
-    void SetElement (ColoredElement* coloredElement)
+    void SetElement (boost::shared_ptr<ColoredElement> coloredElement)
     {
 	m_coloredElement = coloredElement;
     }
@@ -52,7 +54,7 @@ public:
     string GetStringId () const;
 
 private:
-    ColoredElement* m_coloredElement;
+    boost::shared_ptr<ColoredElement> m_coloredElement;
     bool m_reversed;
 };
 

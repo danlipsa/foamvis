@@ -13,6 +13,7 @@
 #include "Edge.h"
 #include "GLWidget.h"
 #include "Foam.h"
+#include "Utils.h"
 
 
 void edgeRotation (
@@ -113,19 +114,18 @@ struct DisplayArrow
 // ======================================================================
 
 template <typename displayEdge, typename displayArrow, bool showDuplicates>
-class DisplayEdgeTorus : public DisplayElement
+class DisplayEdgeTorus : public DisplayElementFocus
 {
 public:
     /**
      * Constructor
      * @param widget Where should be the edge displayed
      */
-    DisplayEdgeTorus (const GLWidget& widget) : DisplayElement (widget)
+    DisplayEdgeTorus (const GLWidget& widget, FocusContext focus = FOCUS) : 
+	DisplayElementFocus (widget, focus)
     {
     }
-    ~DisplayEdgeTorus() 
-    {
-    }
+
     void operator () (const OrientedEdge& oe)
     {
 	operator () (oe.GetEdge ());
@@ -134,25 +134,26 @@ public:
      * Functor that displays an edge
      * @param e the edge to be displayed
      */
-    void operator() (const OrientedEdge* oe) 
+    void operator() (const boost::shared_ptr<OrientedEdge> oe) 
     {
 	operator() (oe->GetEdge());
     }
     
-    void operator() (const Edge* e)
+    void operator() (const boost::shared_ptr<Edge>  e)
     {
-	if (showDuplicates || e->GetStatus () != ElementStatus::DUPLICATE)
+	if (showDuplicates 
+	    || e->GetDuplicateStatus () != ElementStatus::DUPLICATE)
 	    display (e);
     }
 protected:
-    void display (const Edge* e)
+    void display (const boost::shared_ptr<Edge>  e)
     {
 	glPushAttrib (GL_LIGHTING_BIT);
 	const Vertex* begin = e->GetBegin ().get ();
 	const Vertex* end = e->GetEnd ().get ();
 	G3D::Vector3int16 endLocation = e->GetEndTranslation ();
 	m_widget.qglColor (m_widget.GetEndTranslationColor (endLocation));
-	if (endLocation != G3D::Vector3int16 (0, 0, 0))
+	if (endLocation != Vector3int16Zero)
 	    displayArrow() (
 		m_widget.GetQuadricObject (), 
 		m_widget.GetArrowBaseRadius (), m_widget.GetEdgeRadius (),
@@ -165,37 +166,33 @@ protected:
 };
 
 
-class DisplayEdgeTessellationOrPhysical : public DisplayElement
+class DisplayEdgePhysical : public DisplayElementFocus
 {
 public:
     /**
      * Constructor
      * @param widget Where should be the edge displayed
      */
-    DisplayEdgeTessellationOrPhysical (const GLWidget& widget) : 
-    DisplayElement (widget) {}
-    void operator () (const OrientedEdge& oe)
+    DisplayEdgePhysical (const GLWidget& widget,
+				       FocusContext focus = FOCUS) : 
+	DisplayElementFocus (widget, focus) 
     {
-	operator () (&oe);
     }
-    /**
-     * Functor that displays an edge
-     * @param e the edge to be displayed
-     */
-    void operator() (const OrientedEdge* e)
+
+    void operator () (const OrientedEdge& oe)
     {
 	size_t dimension = m_widget.GetCurrentFoam ().GetSpaceDimension ();
 	bool quadratic = m_widget.GetCurrentFoam ().IsQuadratic ();
-	float edgeSize = (e->GetEdge ()->IsPhysical (dimension, quadratic)) ? 
+	float edgeSize = (oe.GetEdge ()->IsPhysical (dimension, quadratic)) ? 
 	    m_widget.GetPhysicalEdgeWidth () :
 	    m_widget.GetTessellationEdgeWidth ();
 	if (edgeSize != 0.0)
 	{
-	    Vertex* begin = e->GetBegin ().get ();
-	    Vertex* end = e->GetEnd ().get ();
+	    Vertex* begin = oe.GetBegin ().get ();
+	    Vertex* end = oe.GetEnd ().get ();
 	    glLineWidth (edgeSize);
 	    m_widget.qglColor (
-		e->GetEdge()->IsPhysical (dimension, quadratic) ? 
+		oe.GetEdge()->IsPhysical (dimension, quadratic) ? 
 		m_widget.GetPhysicalEdgeColor () : 
 		m_widget.GetTessellationEdgeColor () );
 	    glBegin(GL_LINES);
@@ -203,53 +200,74 @@ public:
 	    glVertex3f(end->x, end->y, end->z);
 	    glEnd();
 	}
+
+
+    }
+    /**
+     * Functor that displays an edge
+     * @param e the edge to be displayed
+     */
+    void operator() (const boost::shared_ptr<OrientedEdge>& e)
+    {
+	operator() (*e);
     }
 };
 
 
-class DisplayEdgeWithColor : public DisplayElement
+class DisplayEdgeWithColor : public DisplayElementFocus
 {
 public:
     /**
      * Constructor
      * @param widget Where should be the edge displayed
      */
-    DisplayEdgeWithColor (const GLWidget& widget) : 
-    DisplayElement (widget) {}
-    void operator () (const Edge* edge) const
+    DisplayEdgeWithColor (const GLWidget& widget, 
+			  FocusContext focus) : 
+	DisplayElementFocus (widget, focus)
     {
-	Color::Name color = edge->GetColor (Color::BLACK);
-	glColor (G3D::Color4 (Color::GetValue(color),
-			      m_widget.GetContextAlpha ()));
-	G3D::Vector3* b = edge->GetBegin ().get ();
-	G3D::Vector3* e = edge->GetEnd ().get ();
+    }
+    void operator () (const boost::shared_ptr<Edge> edge) const
+    {
+	operator () (*edge);
+    }
+    void operator () (const Edge& oe) const
+    {
+	Color::Name color = oe.GetColor (Color::BLACK);
+	glColor (
+	    G3D::Color4 (
+		Color::GetValue(color),
+		m_focus == FOCUS ? 1.0 : m_widget.GetContextAlpha ()
+		));
+	G3D::Vector3* b = oe.GetBegin ().get ();
+	G3D::Vector3* e = oe.GetEnd ().get ();
 	glBegin(GL_LINES);
 	glVertex(*b);
 	glVertex (*e);
 	glEnd ();
     }
-    void operator () (const OrientedEdge& oe) const
-    {
-	operator () (&oe);
-    }
+
+
     /**
      * Functor that displays an edge
      * @param e the edge to be displayed
      */
-    void operator() (const OrientedEdge* oe) const
+    void operator() (const boost::shared_ptr<OrientedEdge> oe) const
     {
 	operator () (oe->GetEdge ());
     }
 };
 
-class DisplayEdgeTorusClipped : public DisplayElement
+class DisplayEdgeTorusClipped : public DisplayElementFocus
 {
 public:
-    DisplayEdgeTorusClipped (const GLWidget& widget) : 
-	DisplayElement (widget) {}
-    void operator () (const Edge* edge) const
+    DisplayEdgeTorusClipped (const GLWidget& widget, FocusContext focus) : 
+	DisplayElementFocus (widget, focus) 
     {
-	const OOBox& periods = m_widget.GetCurrentFoam ().GetPeriods ();
+    }
+
+    void operator () (const boost::shared_ptr<Edge>  edge) const
+    {
+	const OOBox& periods = m_widget.GetCurrentFoam ().GetOriginalDomain ();
 	if (edge->IsClipped ())
 	{
 	    Color::Name color = edge->GetColor (Color::BLACK);
@@ -263,7 +281,7 @@ public:
 	    glEnd ();
 	}
     }
-    void operator() (const OrientedEdge* oe) const
+    void operator() (const boost::shared_ptr<OrientedEdge> oe) const
     {
 	operator () (oe->GetEdge ());
     }
@@ -276,19 +294,23 @@ public:
 /**
  * Functor that displays an edge
  */
-class DisplaySameEdges : public DisplayElement
+class DisplaySameEdges : public DisplayElementFocus
 {
 public:
-    DisplaySameEdges (const GLWidget& widget) : DisplayElement (widget) {}
-    inline void operator() (const OrientedFace* f)
+    DisplaySameEdges (const GLWidget& widget, FocusContext focus = FOCUS) : 
+	DisplayElementFocus (widget, focus) 
+    {
+    }
+    inline void operator() (const boost::shared_ptr<OrientedFace>  f)
     {
 	operator() (f->GetFace ());
     }
     
-    void operator() (const Face* f)
+    void operator() (const boost::shared_ptr<Face>  f)
     {
 	glBegin (GL_POLYGON);
-	const vector<OrientedEdge*>& v = f->GetOrientedEdges ();
+	const vector<boost::shared_ptr<OrientedEdge> >& v = 
+	    f->GetOrientedEdges ();
 	for_each (v.begin (), v.end (), DisplayBeginVertex());
 	if (! f->IsClosed ())
 	    DisplayEdgeVertices () (v[v.size () - 1]);
@@ -298,21 +320,26 @@ public:
 
 
 template<typename displayEdge>
-class DisplayEdges : public DisplayElement
+class DisplayEdges : public DisplayElementFocus
 {
 public:
-    DisplayEdges (const GLWidget& widget) : DisplayElement (widget) {}
-    void operator() (const OrientedFace* f)
+    DisplayEdges (const GLWidget& widget, FocusContext focus) : 
+	DisplayElementFocus (widget, focus)
+    {
+    }
+
+    void operator() (const boost::shared_ptr<OrientedFace>  f)
     {
 	operator() (f->GetFace ());
     }
-    void operator () (const Face* f)
+    void operator () (const boost::shared_ptr<Face>  f)
     {
-	const vector<OrientedEdge*>& v = f->GetOrientedEdges ();
-	displayEdge display(m_widget);
+	const vector< boost::shared_ptr<OrientedEdge> >& v = 
+	    f->GetOrientedEdges ();
+	displayEdge display(m_widget, m_focus);
 	for (size_t i = 0; i < v.size (); i++)
 	{
-	    OrientedEdge* oe = v[i];
+	    boost::shared_ptr<OrientedEdge> oe = v[i];
 	    size_t displayedEdgeIndex = m_widget.GetDisplayedEdgeIndex ();
 	    if (m_widget.IsDisplayedEdge (i))
 	    {

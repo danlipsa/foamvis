@@ -18,11 +18,28 @@ public:
 	FOCUS,
 	CONTEXT
     };
-
 public:
     DisplayElement (const GLWidget& widget) : m_widget (widget) {}
 protected:
     const GLWidget& m_widget;
 };
 
+class DisplayElementFocus : public DisplayElement
+{
+public:
+    DisplayElementFocus (const GLWidget& widget,
+			 FocusContext focus = FOCUS) :
+	DisplayElement (widget), m_focus (focus)
+    {
+    }
+    
+protected:
+    FocusContext m_focus;
+};
+
+
 #endif //__DISPLAY_ELEMENT_H__
+
+// Local Variables:
+// mode: c++
+// End:

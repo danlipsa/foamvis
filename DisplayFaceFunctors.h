@@ -15,20 +15,20 @@
  * Functor that displays a face
  */
 template <typename displayEdges>
-class DisplayFace : public DisplayElement
+class DisplayFace : public DisplayElementFocus
 {
 public:
     /**
      * Constructor
      * @param widget Where should be the face displayed
      */
-    DisplayFace (const GLWidget& widget, FocusContext bodyFc) : 
-	DisplayElement (widget), m_bodyFc (bodyFc), m_count(0) {}
+    DisplayFace (const GLWidget& widget, FocusContext focus = FOCUS) : 
+	DisplayElementFocus (widget, focus), m_count(0) {}
     /**
      * Functor that displays a face
      * @param f the face to be displayed
      */
-    void operator() (const OrientedFace* of)
+    void operator() (const boost::shared_ptr<OrientedFace>& of)
     {
         if (m_widget.IsDisplayedFace (m_count))
         {
@@ -39,25 +39,25 @@ public:
         m_count++;
     }
 
-    void operator () (const Face* f)
+    void operator () (const boost::shared_ptr<Face>& f)
     {
-	const OrientedFace of(const_cast<Face*>(f), false);
-	operator() (&of);
+	boost::shared_ptr<OrientedFace> of = 
+	    boost::make_shared<OrientedFace>(f, false);
+	operator() (of);
     }
 
 
 protected:
-    virtual void display (const OrientedFace* of)
+    virtual void display (const boost::shared_ptr<OrientedFace>  of)
     {
-	if (m_bodyFc == FOCUS)
+	if (m_focus == FOCUS)
 	{
 	    glColor (G3D::Color4 (Color::BLACK, 1.));
 	}
 	else
 	    glColor (G3D::Color4 (Color::BLACK, m_widget.GetContextAlpha ()));
-	(displayEdges (m_widget)) (of);
+	(displayEdges (m_widget, m_focus)) (of);
     }
-    FocusContext m_bodyFc;
 
 private:
     /**
@@ -77,13 +77,13 @@ public:
      * Constructor
      * @param widget where is the face displayed
      */
-    DisplayFaceWithColor (const GLWidget& widget, FocusContext bodyFc) : 
-	DisplayFace<DisplaySameEdges> (widget, bodyFc) {}
+    DisplayFaceWithColor (const GLWidget& widget, FocusContext focus) : 
+	DisplayFace<DisplaySameEdges> (widget, focus) {}
 
 protected:
-    virtual void display (const OrientedFace* of)
+    virtual void display (const boost::shared_ptr<OrientedFace>  of)
     {
-	if (m_bodyFc == FOCUS)
+	if (m_focus == FOCUS)
 	    glColor (G3D::Color4 (Color::GetValue(of->GetColor ()), 1.));
 	else
 	    glColor (G3D::Color4 (Color::GetValue(Color::BLACK),
@@ -102,15 +102,17 @@ public:
      * Constructor
      * @param widget where to display the face
      */
-    DisplayFaceWithNormal (const GLWidget& widget, FocusContext bodyFc) : 
-	DisplayFace<DisplaySameEdges> (widget, bodyFc) {}
+    DisplayFaceWithNormal (const GLWidget& widget, FocusContext focus) : 
+	DisplayFace<DisplaySameEdges> (widget, focus)
+    {
+    }
 
 protected:
     /**
      * Functor used to display a face together to the normal
      * @param f face to be displayed
      */
-    virtual void display (const OrientedFace* f)
+    virtual void display (const boost::shared_ptr<OrientedFace>  f)
     {
 	using G3D::Vector3;
 	Vector3 normal = f->GetNormal ();

@@ -22,7 +22,7 @@ class OrientedEdge;
 class Face : public ColoredElement
 {
 public:
-    typedef vector<OrientedEdge*> OrientedEdges;
+    typedef vector< boost::shared_ptr<OrientedEdge> > OrientedEdges;
 
 public:
     /**
@@ -31,16 +31,11 @@ public:
      * @param edgeIndexes indexes into a vector of Edge objects
      * @param edges vector of Edge objects
      */
-    Face (vector<int>& edgeIndexes, vector<Edge*>& edges, 
-	 size_t id, 
-	 ElementStatus::Name status = ElementStatus::ORIGINAL);
+    Face (const vector<int>& edgeIndexes,
+	  const vector< boost::shared_ptr<Edge> >& edges, 
+	  size_t id, ElementStatus::Duplicate duplicateStatus = ElementStatus::ORIGINAL);
     Face (const Face& original);
-    Face (Edge* edge, size_t id);
-
-    /**
-     * Destroys a Face object
-     */
-    ~Face ();
+    Face (const boost::shared_ptr<Edge>& firstEdge, size_t id);
     /**
      * Gets the list of oriented edges
      * @return vector of oriented edges
@@ -57,13 +52,13 @@ public:
     {
 	return m_orientedEdges.size ();
     }
-    OrientedEdge* GetOrientedEdge (size_t i) const
+    boost::shared_ptr<OrientedEdge> GetOrientedEdge (size_t i) const
     {
 	return m_orientedEdges[i];
     }
-    Edge* GetEdge (size_t i) const;
+    boost::shared_ptr<Edge>  GetEdge (size_t i) const;
 
-    void AddBodyPartOf (Body* body, size_t orientedFaceIndex)
+    void AddBodyPartOf (boost::shared_ptr<Body>  body, size_t orientedFaceIndex)
     {
 	m_bodiesPartOf.push_back (BodyIndex (body, orientedFaceIndex));
     }
@@ -116,12 +111,12 @@ private:
     G3D::Vector3 m_normal;
 };
 /**
- * Pretty prints a Face*
+ * Pretty prints a boost::shared_ptr<Face> 
  * @param ostr where to print the Face object
  * @param f what to print
  * @return stream where to print other data
  */
-inline ostream& operator<< (ostream& ostr, const Face* f)
+inline ostream& operator<< (ostream& ostr, const boost::shared_ptr<Face>  f)
 {
     return ostr << *f;
 }

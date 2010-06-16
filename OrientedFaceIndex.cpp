@@ -41,7 +41,7 @@ bool OrientedFaceIndex::IsValidNext (const OrientedFaceIndex& next) const
     return alongEdge.fuzzyEq (nextEdge);
 }
 
-Face* OrientedFaceIndex::GetFace () const
+boost::shared_ptr<Face>  OrientedFaceIndex::GetFace () const
 {
     return GetOrientedFace ()->GetFace ();
 }

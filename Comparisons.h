@@ -68,8 +68,8 @@ private:
 
 struct VertexLessThan
 {
-    bool operator () (const boost::shared_ptr<Vertex>& first,
-		      const boost::shared_ptr<Vertex>& second) const;
+    bool operator () (const boost::shared_ptr<const Vertex>& first,
+		      const boost::shared_ptr<const Vertex>& second) const;
 };
 
 
@@ -91,8 +91,8 @@ VertexLessThanAlong(G3D::Vector3::Axis axis) :
      * @param second the second vertex
      * @return true if first is less than second false otherwise
      */
-    bool operator() (const boost::shared_ptr<Vertex>& first,
-		     const boost::shared_ptr<Vertex>& second) const;
+    bool operator() (const boost::shared_ptr<const Vertex>& first,
+		     const boost::shared_ptr<const Vertex>& second) const;
     bool operator() (
 	const G3D::Vector3* first, const G3D::Vector3* second) const
     {
@@ -108,7 +108,8 @@ private:
 class EdgeLessThan
 {
 public:
-    bool operator () (const Edge* first, const Edge* second) const;
+    bool operator () (const boost::shared_ptr<const Edge>& first,
+		      const boost::shared_ptr<const Edge>& second) const;
 };
 
 

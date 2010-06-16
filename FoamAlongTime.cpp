@@ -74,7 +74,7 @@ void FoamAlongTime::CacheBodiesAlongTime ()
     for (size_t timeStep = 0; timeStep < m_foams.size (); timeStep++)
     {
 	Foam::Bodies& bodies = m_foams[timeStep]->GetBodies ();
-	BOOST_FOREACH (Body* body, bodies)
+	BOOST_FOREACH (boost::shared_ptr<Body>  body, bodies)
 	    m_bodiesAlongTime.Cache (body, timeStep);
     }
     for_each (bodies.begin (), bodies.end (),

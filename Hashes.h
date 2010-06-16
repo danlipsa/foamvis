@@ -13,7 +13,7 @@ class Face;
 struct FaceHash
 {
     size_t operator() (const Face& face) const;
-    size_t operator () (const Face* f) const
+    size_t operator () (const boost::shared_ptr<Face>  f) const
     {
 	return operator() (*f);
     }

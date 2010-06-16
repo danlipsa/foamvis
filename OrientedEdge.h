@@ -32,7 +32,7 @@ public:
      * @param  reversed specifies  if  the two  vertices  are read  in
      *        reverse order or not.
      */
-    OrientedEdge (Edge* edge, bool reversed);
+    OrientedEdge (const boost::shared_ptr<Edge>& edge, bool reversed);
     /**
      * Get the begin vertex of the OrientedEdge. Note that this might be the 
      * end vertex for the edge stored inside.
@@ -48,7 +48,7 @@ public:
     /**
      * Adds a face that is touched by this oriented edge.
      */
-    void AddFacePartOf (OrientedFace* face, size_t edgeIndex) const;
+    void AddFacePartOf (boost::shared_ptr<OrientedFace>  face, size_t edgeIndex) const;
     size_t GetFacePartOfSize () const;
     OrientedFaceIndexList::const_iterator GetFacePartOfBegin () const;
     OrientedFaceIndexList::const_iterator GetFacePartOfEnd () const;
@@ -57,9 +57,9 @@ public:
      * Edge for this oriented edge
      * @return the edge for this oriented edge
      */
-    Edge* GetEdge () const;
+    boost::shared_ptr<Edge>  GetEdge () const;
     
-    void SetEdge (Edge* edge);
+    void SetEdge (boost::shared_ptr<Edge>  edge);
     bool IsZero () const;
     G3D::Vector3 GetEdgeVector () const;
     ostream& PrintReversed (ostream& ostr) const
@@ -88,7 +88,7 @@ private:
  * @param poe pointer to the oriented edge
  * @return where to print something else
  */
-inline ostream& operator<< (ostream& ostr, OrientedEdge* poe)
+inline ostream& operator<< (ostream& ostr, boost::shared_ptr<OrientedEdge> poe)
 {
     return ostr << *poe;
 }

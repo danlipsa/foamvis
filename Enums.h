@@ -60,22 +60,19 @@ private:
  */
 struct ElementStatus
 {
-    enum Name
+    enum Duplicate
     {
 	/**
 	 * Is in the data file, no duplicate was made
 	 */
 	ORIGINAL,
 	/**
-	 * Is in the data file, a duplicate was made
-	 */
-	DUPLICATE_MADE,
-	/**
 	 * Not in the data file, a duplicate of an element in the data file
 	 */
 	DUPLICATE
     };
-    friend ostream& operator<< (ostream& ostr, ElementStatus::Name status);
+    friend ostream& operator<< (ostream& ostr,
+				ElementStatus::Duplicate duplicateStatus);    
 };
 
 

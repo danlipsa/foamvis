@@ -14,22 +14,24 @@
 #include "OrientedFace.h"
 #include "OrientedEdge.h"
 #include "ParsingDriver.h"
+#include "Utils.h"
 #include "Vertex.h"
 
 
 // Methods
 // ======================================================================
-Edge::Edge (boost::shared_ptr<Vertex> begin,
-	    boost::shared_ptr<Vertex> end, G3D::Vector3int16& endTranslation, 
-	    size_t id, ElementStatus::Name status):
-    ColoredElement(id, status),
+Edge::Edge (const boost::shared_ptr<Vertex>& begin,
+	    const boost::shared_ptr<Vertex>& end,
+	    const G3D::Vector3int16& endTranslation, 
+	    size_t id, ElementStatus::Duplicate duplicateStatus):
+    ColoredElement(id, duplicateStatus),
     m_begin (begin), m_end (end),
     m_endTranslation (endTranslation), 
     m_torusClipped (0)
 {
 }
 
-Edge::Edge (boost::shared_ptr<Vertex> begin, size_t id) :
+Edge::Edge (const boost::shared_ptr<Vertex>& begin, size_t id) :
     ColoredElement (id, ElementStatus::ORIGINAL),
     m_begin (begin),
     m_torusClipped (0)
@@ -47,8 +49,8 @@ Edge::Edge (const Edge& o) :
 
 void Edge::Unwrap (Foam* foam)
 {
-    if (m_endTranslation != G3D::Vector3int16(0, 0, 0))
-	m_end = foam->GetVertexDuplicate (m_end.get (), m_endTranslation);
+    if (m_endTranslation != Vector3int16Zero)
+	m_end = foam->GetVertexDuplicate (*m_end, m_endTranslation);
 }
 
 G3D::Vector3 Edge::GetTranslatedBegin (const G3D::Vector3& newEnd) const
@@ -56,10 +58,10 @@ G3D::Vector3 Edge::GetTranslatedBegin (const G3D::Vector3& newEnd) const
     return newEnd + (*GetBegin () - *GetEnd ());
 }
 
-void Edge::UpdateEdgePartOf ()
+void Edge::UpdateEdgePartOf (const boost::shared_ptr<Edge>& edge)
 {
-    this->GetBegin ()->AddEdgePartOf (this);
-    this->GetEnd ()->AddEdgePartOf (this);
+    GetBegin ()->AddEdgePartOf (edge);
+    GetEnd ()->AddEdgePartOf (edge);
 }
 
 bool Edge::operator< (const Edge& other) const
@@ -131,7 +133,7 @@ void Edge::CalculateTorusClipped (const OOBox& periods)
     vector<Vector3> intersections(2);
     if (intersectionCount == 0)
     {
-	if (beginLocation == Vector3int16 (0, 0, 0))
+	if (beginLocation == Vector3int16Zero)
 	    return;
 	intersections[0] = *m_begin;
 	intersections[1] = *m_end;
@@ -143,7 +145,7 @@ void Edge::CalculateTorusClipped (const OOBox& periods)
     m_torusClipped.reset (new vector<LineSegment> (intersectionCount + 1));
     for (size_t i = 0; i < intersections.size () - 1; i++)
     {
-	translation = Vector3int16 (0, 0, 0) - periods.GetLocation (
+	translation = Vector3int16Zero - periods.GetLocation (
 	    (intersections[i] + intersections[i+1]) / 2);
 	(*m_torusClipped)[i] = LineSegment::fromTwoPoints (
 	    periods.TorusTranslate (intersections[i], translation),
@@ -162,7 +164,7 @@ size_t Edge::GetTorusClippedSize (const OOBox& periods) const
 }
 
 
-void Edge::AddFacePartOf (OrientedFace* orientedFace, size_t edgeIndex)
+void Edge::AddFacePartOf (boost::shared_ptr<OrientedFace>  orientedFace, size_t edgeIndex)
 {
     m_facesPartOf.insert (OrientedFaceIndex (orientedFace, edgeIndex));
 }
@@ -257,7 +259,7 @@ void Edge::StoreDefaultAttributes (AttributesInfo* infos)
 ostream& operator<< (ostream& ostr, const Edge& e)
 {
     ostr << "Edge " << e.GetId () << " "
-	 << e.GetStatus ()
+	 << e.GetDuplicateStatus ()
 	 << ": "
 	 << static_cast<G3D::Vector3>(*e.m_begin) << ", " 
 	 << static_cast<G3D::Vector3>(*e.m_end)

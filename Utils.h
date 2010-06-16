@@ -15,7 +15,7 @@
  */
 ostream& operator<< (ostream& ostr, const G3D::AABox& box);
 
-const G3D::Vector3int16& UnitVector3int16 (size_t direction);
+const G3D::Vector3int16& Vector3int16Unit (size_t direction);
 
 struct Vector3Hash
 {
@@ -29,6 +29,7 @@ struct Vector3Hash
     }
 };
 
+extern const G3D::Vector3int16 Vector3int16Zero;
 
 
 #endif //__ELEMENT_UTILS_H__

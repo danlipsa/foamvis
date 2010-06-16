@@ -30,28 +30,28 @@ public:
      *        order
      */
     OrientedFace () : OrientedElement() {}
-    OrientedFace(Face* face, bool reversed);
+    OrientedFace(const boost::shared_ptr<Face>& face, bool reversed);
     /**
      * Gets the face associated with this oriented face
      * @return the face associated with this oriented face
      */
-    Face* GetFace () const;
-    void SetFace (Face* face);
+    boost::shared_ptr<Face>  GetFace () const;
+    void SetFace (boost::shared_ptr<Face>  face);
 
-    void AddBodyPartOf (Body* body, size_t ofIndex);
+    void AddBodyPartOf (boost::shared_ptr<Body>  body, size_t ofIndex);
     const BodyIndex& GetBodyPartOf () const;
-    void UpdateFacePartOf ();
+    void UpdateFacePartOf (boost::shared_ptr<OrientedFace> of);
 
     /**
      * Gets the begin vertex for an edge in this oriented face
      * @param edgeIndex what edge we are interested in
      * @return the begin vertex
      */
-    Vertex* GetBegin (size_t edgeIndex) 
+    boost::shared_ptr<Vertex> GetBegin (size_t edgeIndex) 
     {
 	return getBegin (edgeIndex);
     }
-    const Vertex* GetBegin (size_t edgeIndex) const
+    boost::shared_ptr<const Vertex> GetBegin (size_t edgeIndex) const
     {
 	return getBegin (edgeIndex);
     }
@@ -60,11 +60,11 @@ public:
      * @param edgeIndex what edge we are interested in
      * @return the end vertex
      */
-    Vertex* GetEnd (size_t edgeIndex) 
+    boost::shared_ptr<Vertex> GetEnd (size_t edgeIndex)
     {
 	return getEnd (edgeIndex);
     }
-    const Vertex* GetEnd (size_t edgeIndex) const
+    boost::shared_ptr<const Vertex> GetEnd (size_t edgeIndex) const
     {
 	return getEnd (edgeIndex);
     }
@@ -84,17 +84,17 @@ public:
      * Pretty print for the OrientedFace object
      */
     friend ostream& operator<< (ostream& ostr, const OrientedFace& of);
-    static pair<G3D::Vector3, OrientedFace*> MakeNormalFacePair (
-	OrientedFace* face)
+    static pair<G3D::Vector3, boost::shared_ptr<OrientedFace> > MakeNormalFacePair (
+	boost::shared_ptr<OrientedFace>  face)
     {
-	return pair<G3D::Vector3, OrientedFace*> (face->GetNormal (), face);
+	return pair<G3D::Vector3, boost::shared_ptr<OrientedFace> > (face->GetNormal (), face);
     }
     ostream& PrintAttributes (ostream& ostr) const;
 
 private:
 
-    Vertex* getBegin (size_t edgeIndex) const;
-    Vertex* getEnd (size_t edgeIndex) const;
+    boost::shared_ptr<Vertex> getBegin (size_t edgeIndex) const;
+    boost::shared_ptr<Vertex> getEnd (size_t edgeIndex) const;
 };
 /**
  * Pretty prints a pointer to an oriented face
@@ -102,7 +102,7 @@ private:
  * @param pof pointer to an oriented face
  * @return where to print next
  */
-inline ostream& operator<< (ostream& ostr, const OrientedFace* pof)
+inline ostream& operator<< (ostream& ostr, const boost::shared_ptr<OrientedFace>  pof)
 {
     return ostr << *pof;
 }

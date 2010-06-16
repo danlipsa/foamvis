@@ -25,14 +25,18 @@
  * Unary function that  creates an oriented edge from  an index into a
  * vector of Edge objects.
  */
-class indexToOrientedEdge : public unary_function<int, OrientedEdge*>
+class indexToOrientedEdge : 
+    public unary_function<int, boost::shared_ptr<OrientedEdge> >
 {
 public:
     /**
      * Constructs this function object
      * @param edges vector of Edge objects
      */
-    indexToOrientedEdge(vector<Edge*>& edges): m_edges(edges) {}
+    indexToOrientedEdge(
+	const vector<boost::shared_ptr<Edge> >& edges): m_edges(edges)
+    {
+    }
     /**
      * Creates an oriented edge from an 1-based index (signed integer).
      * @param i index into the  vector of edges. A negative sign means
@@ -41,7 +45,7 @@ public:
      * @return an OrientedEdge which is  like an Edge and a boolean that
      *        specifies the order of the edge.
      */
-    OrientedEdge* operator() (int i)
+    boost::shared_ptr<OrientedEdge> operator() (int i)
     {
         bool reversed = false;
         if (i < 0)
@@ -50,22 +54,22 @@ public:
             reversed = true;
         }
         i--;
-        return new OrientedEdge(m_edges[i], reversed);
+        return boost::make_shared<OrientedEdge> (m_edges[i], reversed);
     }
 private:
     /**
      * Vector of edges
      */
-    vector<Edge*>& m_edges;
+    const vector<boost::shared_ptr<Edge> >& m_edges;
 };
 
 
 // Methods
 // ======================================================================
-Face::Face (Edge* edge, size_t id) :
+Face::Face (const boost::shared_ptr<Edge>& edge, size_t id) :
     ColoredElement (id, ElementStatus::ORIGINAL)
 {
-    m_orientedEdges.push_back (new OrientedEdge (edge, false));
+    m_orientedEdges.push_back (boost::make_shared<OrientedEdge> (edge, false));
 }
 
 Face::Face (const Face& original) :
@@ -73,13 +77,14 @@ Face::Face (const Face& original) :
     m_bodiesPartOf (original.m_bodiesPartOf),
     m_normal (original.m_normal)
 {
-    BOOST_FOREACH (OrientedEdge* oe, original.m_orientedEdges)
-	m_orientedEdges.push_back (new OrientedEdge (*oe));
+    BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, original.m_orientedEdges)
+	m_orientedEdges.push_back (boost::make_shared<OrientedEdge> (*oe));
 }
 
-Face::Face (vector<int>& edgeIndexes, vector<Edge*>& edges, 
-	   size_t id, ElementStatus::Name status) :
-    ColoredElement (id, status)
+Face::Face (const vector<int>& edgeIndexes,
+	    const vector<boost::shared_ptr<Edge> >& edges, 
+	    size_t id, ElementStatus::Duplicate duplicateStatus) :
+    ColoredElement (id, duplicateStatus)
 {
     m_bodiesPartOf.reserve (2);
     m_orientedEdges.resize (edgeIndexes.size ());
@@ -87,21 +92,15 @@ Face::Face (vector<int>& edgeIndexes, vector<Edge*>& edges,
                indexToOrientedEdge(edges));
 }
 
-Face::~Face ()
-{
-    for_each(m_orientedEdges.begin(), m_orientedEdges.end(), bl::delete_ptr ());
-}
-
-
 void Face::Unwrap (Foam* foam)
 {
     G3D::Vector3* begin = (*m_orientedEdges.begin())->GetBegin ().get ();
-    BOOST_FOREACH (OrientedEdge* oe, m_orientedEdges)
+    BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, m_orientedEdges)
     {
-	Edge* edge = oe->GetEdge ();
+	boost::shared_ptr<Edge>  edge = oe->GetEdge ();
 	G3D::Vector3 edgeBegin = 
 	    (oe->IsReversed ()) ? edge->GetTranslatedBegin (*begin) : *begin;
-	oe->SetEdge (foam->GetEdgeDuplicate (edge, edgeBegin));
+	oe->SetEdge (foam->GetEdgeDuplicate (*edge, edgeBegin));
 	begin = oe->GetEnd ().get ();
     }
 }
@@ -139,8 +138,8 @@ bool Face::operator== (const Face& face) const
 void Face::CalculateNormal ()
 {
     using G3D::Vector3; using G3D::Plane;
-    OrientedEdge* one = GetOrientedEdge (0);
-    OrientedEdge* two = GetOrientedEdge (1);
+    boost::shared_ptr<OrientedEdge> one = GetOrientedEdge (0);
+    boost::shared_ptr<OrientedEdge> two = GetOrientedEdge (1);
     G3D::Plane plane (*one->GetBegin (), *two->GetBegin (), *two->GetEnd ());
     m_normal = plane.normal ();
 }
@@ -154,13 +153,13 @@ bool Face::IsClosed () const
 
 bool Face::HasWrap () const
 {
-    BOOST_FOREACH (OrientedEdge* oe, m_orientedEdges)
-	if (oe->GetEdge ()->GetEndTranslation () != G3D::Vector3int16 (0, 0, 0))
+    BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, m_orientedEdges)
+	if (oe->GetEdge ()->GetEndTranslation () != Vector3int16Zero)
 	    return true;
     return false;
 }
 
-Edge* Face::GetEdge (size_t i) const
+boost::shared_ptr<Edge>  Face::GetEdge (size_t i) const
 {
     return GetOrientedEdge (i)->GetEdge ();
 }
@@ -202,7 +201,7 @@ ostream& operator<< (ostream& ostr, const Face& f)
 {
     ostr << "face " << f.GetId () << ":\n";
     ostr << "edges:\n";
-    ostream_iterator<OrientedEdge*> output (ostr, "\n");
+    ostream_iterator< boost::shared_ptr<OrientedEdge> > output (ostr, "\n");
     copy (f.m_orientedEdges.begin (), f.m_orientedEdges.end (), output);
     ostr << "Face attributes: ";
     f.PrintAttributes (ostr);

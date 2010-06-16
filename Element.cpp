@@ -82,7 +82,7 @@ const size_t Element::INVALID_INDEX = numeric_limits<size_t>::max ();
 
 Element::Element (const Element& other) :
     m_id (other.m_id),
-    m_status (other.m_status)
+    m_duplicateStatus (other.m_duplicateStatus)
 {
     if (other.m_attributes.get () != 0)
     {

@@ -14,7 +14,7 @@ class Body;
 class BodyAlongTime
 {
 public:
-    typedef vector<Body*> Bodies;
+    typedef vector<boost::shared_ptr<Body> > Bodies;
     /**
      * List of times (indexes of Foam objects) where a body wraps
      * around the torus original domain. The wrap is 
@@ -28,7 +28,7 @@ public:
 	m_bodyAlongTime (timeSteps),
 	m_centerMovement (timeSteps - 1)
     {}
-    Body*& GetBody (size_t timeStep)
+    boost::shared_ptr<Body> & GetBody (size_t timeStep)
     {
 	return m_bodyAlongTime[timeStep];
     }
@@ -76,14 +76,14 @@ public:
 	return m_bodyMap.size ();
     }
 
-    void Allocate (const Body* body, size_t timeSteps);
-    void Cache (Body* body, size_t timeStep);
+    void Allocate (const boost::shared_ptr<Body>  body, size_t timeSteps);
+    void Cache (boost::shared_ptr<Body>  body, size_t timeStep);
     OneBody& GetOneBody (size_t id);
     BodyMap& GetBodyMap ()
     {
 	return m_bodyMap;
     }
-    void Resize (const Body* body);
+    void Resize (const boost::shared_ptr<Body>  body);
 
 public:
     friend ostream& operator<< (

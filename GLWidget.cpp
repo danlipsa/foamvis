@@ -135,7 +135,7 @@ void displayOriginalDomainFaces (G3D::Vector3 first,
 				 G3D::Vector3 second,
 				 G3D::Vector3 third)
 {
-    G3D::Vector3 origin(0, 0, 0);
+    G3D::Vector3 origin;
     G3D::Vector3 sum = first + second;
     for (int i = 0; i < 2; i++)
     {
@@ -243,9 +243,9 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* dataAlongTime)
 {
     cdbg << "SetFoamAlongTime\n";
     m_foamAlongTime = dataAlongTime;
-    Face* f = 
+    boost::shared_ptr<Face>  f = 
 	GetCurrentFoam ().GetBody (0)->GetFace (0);
-    Edge* e = f->GetEdge (0);
+    boost::shared_ptr<Edge>  e = f->GetEdge (0);
     float length = (*e->GetEnd () - *e->GetBegin ()).length ();
 
     m_edgeRadius = length / 20;
@@ -496,7 +496,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 
 void GLWidget::displayOriginalDomain ()
 {
-    const OOBox& periods = GetCurrentFoam().GetPeriods ();
+    const OOBox& periods = GetCurrentFoam().GetOriginalDomain ();
     if (m_torusOriginalDomainDisplay)
     {
 	glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
@@ -542,7 +542,7 @@ GLuint GLWidget::displayListVerticesPhysical ()
 	      DisplayBody<
 	      DisplayFace<
 	      DisplayEdges<
-	      DisplayPhysicalVertex> > > (*this));
+	      DisplayVertexPhysical> > > (*this));
     glPopAttrib ();
 
     displayOriginalDomain ();
@@ -596,10 +596,14 @@ GLuint GLWidget::displayListEdges ()
 void GLWidget::displayStandaloneEdges () const
 {
     const Foam::Edges& edges = GetCurrentFoam ().GetEdges ();
-    BOOST_FOREACH (const Edge* edge, edges)
+    BOOST_FOREACH (boost::shared_ptr<Edge> edge, edges)
     {
+	if (edge->GetId () == 2177)
+	{
+	    cdbg << *edge << endl;
+	}
 	if (edge->IsStandaloneEdge ())
-	    DisplayEdgeWithColor (*this) (edge);
+	    DisplayEdgeWithColor (*this, DisplayElement::FOCUS) (*edge);
     }
 }
 
@@ -613,7 +617,7 @@ GLuint GLWidget::displayListEdgesNormal ()
 
 GLuint GLWidget::displayListEdgesPhysical ()
 {
-    return displayListEdges <DisplayEdgeTessellationOrPhysical> ();
+    return displayListEdges <DisplayEdgePhysical> ();
 }
 
 GLuint GLWidget::displayListEdgesTorusTubes ()
@@ -681,7 +685,7 @@ GLuint GLWidget::displayListFacesNormal ()
     return list;
 }
 
-void GLWidget::displayFacesContour (vector<Body*>& bodies)
+void GLWidget::displayFacesContour (vector<boost::shared_ptr<Body> >& bodies)
 {
     glColor (G3D::Color4 (Color::GetValue(Color::BLACK), 
 			  GetContextAlpha ()));
@@ -692,7 +696,7 @@ void GLWidget::displayFacesContour (vector<Body*>& bodies)
 	      DisplaySameEdges> > (*this));
 }
 
-void GLWidget::displayFacesOffset (vector<Body*>& bodies)
+void GLWidget::displayFacesOffset (vector<boost::shared_ptr<Body> >& bodies)
 {
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glEnable (GL_POLYGON_OFFSET_FILL);
@@ -729,7 +733,7 @@ GLuint GLWidget::displayListFacesTorusTubes ()
 	      DisplayFace<
 	      DisplayEdges<
 	      DisplayEdgeTorus<DisplayEdgeTube, DisplayArrowTube, true> > > (
-		  *this, DisplayElement::FOCUS) );
+		  *this));
     glPopAttrib ();
 
     displayOriginalDomain ();
@@ -791,7 +795,7 @@ bool GLWidget::IsDisplayedBody (size_t bodyId) const
 	 GetDisplayedBodyId () == bodyId);
 }
 
-bool GLWidget::IsDisplayedBody (const Body* body) const
+bool GLWidget::IsDisplayedBody (const boost::shared_ptr<Body>  body) const
 {
     return IsDisplayedBody (body->GetId ());
 }
@@ -1059,7 +1063,7 @@ BodyAlongTime& GLWidget::GetBodyAlongTime (size_t id)
     return GetBodiesAlongTime ().GetOneBody (id);
 }
 
-Body* GLWidget::GetDisplayedBody () const
+boost::shared_ptr<Body>  GLWidget::GetDisplayedBody () const
 {
     size_t i = GetDisplayedBodyIndex ();
     const Foam& data = GetCurrentFoam ();
@@ -1076,7 +1080,7 @@ size_t GLWidget::GetDisplayedFaceId () const
     return GetDisplayedFace ()->GetId ();
 }
 
-Face* GLWidget::GetDisplayedFace () const
+boost::shared_ptr<Face> GLWidget::GetDisplayedFace () const
 {
     size_t i = GetDisplayedFaceIndex ();
     if  (m_viewType == FACES_TORUS)
@@ -1087,19 +1091,19 @@ Face* GLWidget::GetDisplayedFace () const
 	return body.GetFace (i);
     }
     RuntimeAssert (false, "There is no displayed face");
-    return 0;
+    return boost::shared_ptr<Face>();
 }
 
-Edge* GLWidget::GetDisplayedEdge () const
+boost::shared_ptr<Edge>  GLWidget::GetDisplayedEdge () const
 {
     if (m_displayedBodyIndex != DISPLAY_ALL && 
 	m_displayedFaceIndex != DISPLAY_ALL)
     {
-	Face* face = GetDisplayedFace ();
+	boost::shared_ptr<Face>  face = GetDisplayedFace ();
 	return face->GetEdge (m_displayedEdgeIndex);
     }
     RuntimeAssert (false, "There is no displayed edge");
-    return 0;
+    return boost::shared_ptr<Edge>();
 }
 
 size_t GLWidget::GetDisplayedEdgeId () const

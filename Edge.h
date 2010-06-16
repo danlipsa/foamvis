@@ -27,11 +27,11 @@ public:
      * @param begin the first point of the endge
      * @param end the last point of the edge
      */
-    Edge (boost::shared_ptr<Vertex> begin,
-	  boost::shared_ptr<Vertex> end, 
-	  G3D::Vector3int16& endLocation, 
-	  size_t id, ElementStatus::Name status = ElementStatus::ORIGINAL);
-    Edge (boost::shared_ptr<Vertex> begin, size_t id);
+    Edge (const boost::shared_ptr<Vertex>& begin,
+	  const boost::shared_ptr<Vertex>& end, 
+	  const G3D::Vector3int16& endLocation, 
+	  size_t id, ElementStatus::Duplicate duplicateStatus = ElementStatus::ORIGINAL);
+    Edge (const boost::shared_ptr<Vertex>& begin, size_t id);
     Edge (const Edge& edge);
     /**
      * @return the first vertex of the edge
@@ -91,7 +91,7 @@ public:
      * @param reversed the edge is reversed in the face list
      * @param
      */
-    void AddFacePartOf (OrientedFace* face, size_t edgeIndex);
+    void AddFacePartOf (boost::shared_ptr<OrientedFace>  face, size_t edgeIndex);
     size_t GetFacePartOfSize () const
     {
 	return m_facesPartOf.size ();
@@ -111,7 +111,7 @@ public:
      * For both  vertices of this edge,  add the edge as  being adjacent to
      * the vertices
      */
-    void UpdateEdgePartOf ();
+    void UpdateEdgePartOf (const boost::shared_ptr<Edge>& edge);
     const G3D::Vector3int16& GetEndTranslation () const
     {
 	return m_endTranslation;
@@ -127,14 +127,13 @@ public:
     void CalculateTorusClipped (const OOBox& periods);
     bool IsClipped () const
     {
-	ElementStatus::Name status = GetStatus ();
-	return (status == ElementStatus::ORIGINAL || 
-		status == ElementStatus::DUPLICATE_MADE);
+	ElementStatus::Duplicate duplicateStatus = GetDuplicateStatus ();
+	return (duplicateStatus != ElementStatus::DUPLICATE);
     }
 
     bool IsStandaloneEdge () const
     {
-	return GetFacePartOfSize () == 0 ;
+	return GetFacePartOfSize () == 0;
     }
 
     void Unwrap (Foam* foam);
@@ -174,12 +173,12 @@ private:
 
 };
 /**
- * Pretty print an Edge*
+ * Pretty print an boost::shared_ptr<Edge> 
  * @param ostr where to print
  * @param e what to print
  * @return where to print the next data
  */
-inline ostream& operator<< (ostream& ostr, const Edge* e)
+inline ostream& operator<< (ostream& ostr, const boost::shared_ptr<Edge>  e)
 {
     return ostr << *e;
 }

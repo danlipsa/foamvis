@@ -38,6 +38,8 @@ public:
 	m_vector[1] = y;
 	m_vector[2] = z;
     }
+    bool IsZero () const;
+
     const G3D::Vector3& operator[] (size_t i) const
     {
 	return m_vector[i];

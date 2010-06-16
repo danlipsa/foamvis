@@ -14,8 +14,8 @@
 class ColoredElement : public Element
 {
 public:
-    ColoredElement(size_t id, ElementStatus::Name status) :
-    Element (id, status) 
+    ColoredElement(size_t id, ElementStatus::Duplicate duplicateStatus) :
+    Element (id, duplicateStatus) 
     {}
 
     /**

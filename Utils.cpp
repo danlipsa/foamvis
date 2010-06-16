@@ -8,6 +8,8 @@
 #include "Utils.h"
 #include "DebugStream.h"
 
+const G3D::Vector3int16 Vector3int16Zero (0, 0, 0);
+
 ostream& operator<< (ostream& ostr, const G3D::AABox& box)
 {
     cdbg << "AABox(" << box.low () << ", " << box.high () << ")";
@@ -15,7 +17,7 @@ ostream& operator<< (ostream& ostr, const G3D::AABox& box)
 }
 
 
-const G3D::Vector3int16& UnitVector3int16 (size_t direction)
+const G3D::Vector3int16& Vector3int16Unit (size_t direction)
 {
     static const G3D::Vector3int16 unitVector3int16[3] = {
 	G3D::Vector3int16 (1, 0, 0),

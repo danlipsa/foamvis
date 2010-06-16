@@ -23,7 +23,7 @@ public:
     void Unwrap ();
 
 private:
-    void push (OrientedFace* of);
+    void push (boost::shared_ptr<OrientedFace>  of);
     bool pop (OrientedFaceIndex* orientedFaceIndex,
 	      OrientedFaceIndex* nextOrientedFaceIndex);
     void restrictFacesAroundAnEdge (const OrientedFaceIndex& ofi, 

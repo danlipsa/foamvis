@@ -29,7 +29,8 @@ public:
      * @param z the Z coordinate
      */
     Vertex(float x, float y, float z,
-	   size_t id, ElementStatus::Name status = ElementStatus::ORIGINAL);
+	   size_t id, 
+	   ElementStatus::Duplicate duplicateStatus = ElementStatus::ORIGINAL);
     Vertex (const G3D::Vector3& position);
 
     /**
@@ -41,7 +42,7 @@ public:
      * Adds an edge that is adjacent to this vertex
      * @param edge edge touched by this vertex
      */
-    void AddEdgePartOf (Edge* edge);
+    void AddEdgePartOf (const boost::shared_ptr<Edge>& edge);
     G3D::Vector3int16 GetDomain () const;
     bool operator< (const Vertex& other) const;
     bool operator== (const Vertex& other) const;
@@ -129,7 +130,7 @@ private:
     /**
      * Edges this vertex is part of
      */
-    vector<Edge*> m_edgesPartOf;
+    vector<boost::shared_ptr<Edge> > m_edgesPartOf;
 };
 /**
  * Pretty prints a Vertex* by calling the operator<< for a Vertex.

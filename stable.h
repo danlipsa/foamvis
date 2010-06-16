@@ -41,6 +41,7 @@
 #include <boost/bind.hpp>
 #include <boost/unordered_set.hpp>
 #include <boost/unordered_map.hpp>
+#include <boost/pointer_cast.hpp>
 
 // other BOOST headers
 #include <boost/foreach.hpp>

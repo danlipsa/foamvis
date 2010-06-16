@@ -29,7 +29,7 @@ private:
 
 // Private Functions
 // ======================================================================
-bool isNull (const Body* body)
+bool isNull (const boost::shared_ptr<Body>  body)
 {
     return body == 0;
 }
@@ -45,7 +45,7 @@ BodiesAlongTime::OneBody& BodiesAlongTime::GetOneBody (size_t id)
     return *(it->second);
 }
 
-void BodiesAlongTime::Allocate (const Body* body, size_t timeSteps)
+void BodiesAlongTime::Allocate (const boost::shared_ptr<Body>  body, size_t timeSteps)
 {
     size_t id = body->GetId ();
     OneBodyPtr oneBodyPtr (new OneBody (timeSteps));
@@ -53,13 +53,13 @@ void BodiesAlongTime::Allocate (const Body* body, size_t timeSteps)
 	BodyMap::value_type (id, oneBodyPtr));
 }
 
-void BodiesAlongTime::Cache (Body* body, size_t timeStep)
+void BodiesAlongTime::Cache (boost::shared_ptr<Body>  body, size_t timeStep)
 {
     size_t id = body->GetId ();
     m_bodyMap[id]->GetBody(timeStep) = body;
 }
 
-void BodiesAlongTime::Resize (const Body* body)
+void BodiesAlongTime::Resize (const boost::shared_ptr<Body>  body)
 {
     GetOneBody (body->GetId ()).Resize ();
 }

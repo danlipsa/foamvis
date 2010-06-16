@@ -36,9 +36,9 @@ public:
      * Functor that caches an edge and its vertices
      * @param oe the edge to cache
      */
-    void operator () (OrientedEdge* oe)
+    void operator () (boost::shared_ptr<OrientedEdge> oe)
     {
-	Edge *e = oe->GetEdge ();
+	boost::shared_ptr<Edge> e = oe->GetEdge ();
 	m_body.CacheEdge (e);
 	m_body.CacheVertex (e->GetBegin ());
 	m_body.CacheVertex (e->GetEnd ());
@@ -65,7 +65,7 @@ public:
      * Functor that caches edges and vertices in vectors stored in the Body
      * @param of cache all edges and vertices for this OrientedFace
      */
-    void operator() (OrientedFace* of)
+    void operator() (boost::shared_ptr<OrientedFace> of)
     {
 	Face::OrientedEdges& oev = of->GetFace ()->GetOrientedEdges ();
 	for_each (oev.begin (), oev.end (), cacheEdgeVertices (m_body));
@@ -83,20 +83,22 @@ private:
  * that the Face object is listed  in reverse order in the Body object
  * than in the vector of Face objects.
  */
-class indexToOrientedFace : public unary_function<int, OrientedFace*>
+class indexToOrientedFace : 
+    public unary_function<int, boost::shared_ptr<OrientedFace> >
 {
 public:
     /**
      * Constructor
      * @param faces vector of Face pointers. This is where the indexes point to.
      */
-    indexToOrientedFace(vector<Face*>& faces): m_faces(faces) {}
+    indexToOrientedFace(const vector< boost::shared_ptr<Face> >& faces): 
+	m_faces(faces) {}
     /**
      * Converts a 1-based index into an OrientedFace
      * @param i index into a vector of Face pointers
      * @return an OrientedFace pointer
      */
-    OrientedFace* operator() (int i)
+    boost::shared_ptr<OrientedFace>  operator() (int i)
     {
         bool reversed = false;
         if (i < 0)
@@ -105,13 +107,13 @@ public:
             reversed = true;
         }
         i--;
-        return new OrientedFace(m_faces[i], reversed);
+        return boost::make_shared<OrientedFace> (m_faces[i], reversed);
     }
 private:
     /**
      * Vector of Face pointers
      */
-    vector<Face*>& m_faces;
+    const vector<boost::shared_ptr<Face> >& m_faces;
 };
 
 // Private functions
@@ -132,9 +134,11 @@ G3D::Vector3 VertexAccumulate (G3D::Vector3 result,
 // Methods
 // ======================================================================
 
-Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
-	   size_t id, ElementStatus::Name status) :
-    Element(id, status)
+Body::Body(
+    const vector<int>& faceIndexes,
+    const vector<boost::shared_ptr<Face> >& faces,
+    size_t id, ElementStatus::Duplicate duplicateStatus) :
+    Element(id, duplicateStatus)
 {
     using boost::bind;
     m_orientedFaces.resize (faceIndexes.size ());
@@ -143,14 +147,9 @@ Body::Body(vector<int>& faceIndexes, vector<Face*>& faces,
     m_normalFaceMap.reset (
 	new NormalFaceMap (
 	    VectorLessThanAngle (m_orientedFaces[0]->GetNormal ())));
-    BOOST_FOREACH (OrientedFace* of, m_orientedFaces)
+    BOOST_FOREACH (boost::shared_ptr<OrientedFace>  of, m_orientedFaces)
 	m_normalFaceMap->insert (OrientedFace::MakeNormalFacePair (of));
     m_currentNormalFace = m_normalFaceMap->begin ();
-}
-
-Body::~Body ()
-{
-    for_each(m_orientedFaces.begin(), m_orientedFaces.end(), bl::delete_ptr ());
 }
 
 void Body::CacheEdgesVertices (size_t dimension, bool isQuadratic)
@@ -197,13 +196,13 @@ void Body::CalculateCenter ()
 }
 
 
-void Body::UpdatePartOf ()
+void Body::UpdatePartOf (const boost::shared_ptr<Body>& body)
 {
     for (size_t i = 0; i < m_orientedFaces.size (); i++)
     {
-	OrientedFace* of = m_orientedFaces[i];
-	of->AddBodyPartOf (this, i);
-	of->UpdateFacePartOf ();
+	boost::shared_ptr<OrientedFace>  of = m_orientedFaces[i];
+	of->AddBodyPartOf (body, i);
+	of->UpdateFacePartOf (of);
     }
 }
 
@@ -234,13 +233,13 @@ void Body::PrintDomains (ostream& ostr) const
 
 bool Body::HasWrap () const
 {
-    BOOST_FOREACH (OrientedFace* of, m_orientedFaces)
+    BOOST_FOREACH (boost::shared_ptr<OrientedFace>  of, m_orientedFaces)
 	if (of->GetFace ()->HasWrap ())
 	    return true;
     return false;
 }
 
-Face* Body::GetFace (size_t i) const
+boost::shared_ptr<Face>  Body::GetFace (size_t i) const
 {
     return GetOrientedFace (i)->GetFace ();
 }
@@ -273,10 +272,9 @@ void Body::StoreDefaultAttributes (AttributesInfo* infos)
 ostream& operator<< (ostream& ostr, const Body& b)
 {
     ostr << "Body " << b.GetId () << ":" << endl;
-    ostream_iterator<OrientedFace*> output (ostr, "\n");
+    ostream_iterator<boost::shared_ptr<OrientedFace> > output (ostr, "\n");
     copy (b.m_orientedFaces.begin (), b.m_orientedFaces.end (), output);
     ostr << "Body attributes: ";
     b.PrintAttributes (ostr);
-    ostr << "\nBody center: " << b.m_center;
-				 return ostr;
+    return ostr << "\nBody center: " << b.m_center;
 }

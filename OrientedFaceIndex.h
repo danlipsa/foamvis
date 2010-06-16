@@ -18,20 +18,21 @@ class OrientedFace;
 class OrientedFaceIndex
 {
 public:
-    OrientedFaceIndex (OrientedFace* face, size_t edgeIndex) :
+    OrientedFaceIndex (boost::shared_ptr<OrientedFace>  face, size_t edgeIndex) :
 	m_orientedFace (face),
 	m_orientedEdgeIndex (edgeIndex)
     {
     }
-    OrientedFaceIndex () :
-	m_orientedFace(0), m_orientedEdgeIndex(0)
+
+    OrientedFaceIndex () : m_orientedEdgeIndex(0)
     {
     }
-    OrientedFace* GetOrientedFace () const
+
+    boost::shared_ptr<OrientedFace>  GetOrientedFace () const
     {
 	return m_orientedFace;
     }
-    Face* GetFace () const;
+    boost::shared_ptr<Face>  GetFace () const;
     OrientedEdge GetOrientedEdge () const;
     size_t GetOrientedEdgeIndex () const
     {
@@ -44,7 +45,7 @@ public:
 
     void clear ()
     {
-	m_orientedFace = 0;
+	m_orientedFace.reset ();
 	m_orientedEdgeIndex = 0;
     }
     bool IsValidNext (const OrientedFaceIndex& next) const;
@@ -54,7 +55,7 @@ public:
     friend ostream& operator<< (ostream& ostr, const OrientedFaceIndex& ofi);
 
 private:
-    OrientedFace* m_orientedFace;
+    boost::shared_ptr<OrientedFace>  m_orientedFace;
     size_t m_orientedEdgeIndex;
 
 
