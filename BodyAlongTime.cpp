@@ -45,7 +45,8 @@ BodiesAlongTime::OneBody& BodiesAlongTime::GetOneBody (size_t id)
     return *(it->second);
 }
 
-void BodiesAlongTime::Allocate (const boost::shared_ptr<Body>  body, size_t timeSteps)
+void BodiesAlongTime::Allocate (
+    const boost::shared_ptr<Body>  body, size_t timeSteps)
 {
     size_t id = body->GetId ();
     OneBodyPtr oneBodyPtr (new OneBody (timeSteps));

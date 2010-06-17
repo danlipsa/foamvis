@@ -28,7 +28,7 @@ class Foam
 public:
     typedef set<boost::shared_ptr<Vertex>, VertexLessThan> VertexSet;
     typedef set<boost::shared_ptr<Edge>, EdgeLessThan> EdgeSet;
-    typedef boost::unordered_set<boost::shared_ptr<Face> , FaceHash> FaceSet;
+    typedef set<boost::shared_ptr<Face>, FaceLessThan> FaceSet;
     /**
      * Iterator over the vertices in this Foam object
      */
@@ -36,12 +36,6 @@ public:
     typedef vector< boost::shared_ptr<Edge> > Edges;
     typedef vector< boost::shared_ptr<Face> > Faces;
     typedef vector< boost::shared_ptr<Body> > Bodies;
-    /**
-     * Functor applied to a collection of vertices
-     */
-    typedef Vertices::iterator (*AggregateOnVertices)(
-	Vertices::iterator first, Vertices::iterator last, 
-	VertexLessThanAlong lessThan);
 
 public:
     /**
@@ -73,17 +67,28 @@ public:
     boost::shared_ptr<Face>  CreateFaceDuplicate (
 	const Face& original, const G3D::Vector3& newBegin);
 
-    void BodyInsideOriginalDomain (const boost::shared_ptr<Body>& body);
+    /**
+     * Insures a body's center is inside the original domain.
+     * @return true if the body is already inside the original domain,
+     *         so no translation is necessary, false otherwise
+     */
+    bool BodyInsideOriginalDomain (const boost::shared_ptr<Body>& body);
+    Bodies::iterator BodyInsideOriginalDomainStep (Bodies::iterator begin);
     void BodiesInsideOriginalDomain ();
 
     /**
      * Gets the vector of vertices
      * @return the vector of vertices
      */
-    Vertices& GetVertices () 
+    const Vertices& GetVertices () 
     {
 	return m_vertices;
     }
+    const VertexSet& GetVertexSet ()
+    {
+	return m_vertexSet;
+    }
+
     /**
      * Stores a Vertex object a certain index in the Foam object
      * @param i where to store the Vertex object
@@ -264,12 +269,12 @@ public:
 
     const OOBox& GetOriginalDomain () const 
     {
-	return m_periods;
+	return m_originalDomain;
     }
     void SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y,
 		     const G3D::Vector3& z)
     {
-	m_periods.Set (x, y, z);
+	m_originalDomain.Set (x, y, z);
     }
 
     bool IsTorus () const;
@@ -330,7 +335,7 @@ private:
      * View matrix for displaying vertices, edges, faces and bodies.
      */
     boost::array<float, 16> m_viewMatrix;
-    OOBox m_periods;
+    OOBox m_originalDomain;
     /**
      * Vector of maps between the name of an attribute and information about it.
      * The indexes in the vector are for vertices, edges, faces, ...
@@ -355,11 +360,6 @@ private:
  * @return where to print something else
  */
 inline ostream& operator<< (ostream& ostr, const Foam* d)
-{
-    return ostr << *d;
-}
-
-inline ostream& operator<< (ostream& ostr, boost::shared_ptr<const Foam> d)
 {
     return ostr << *d;
 }

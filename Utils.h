@@ -17,18 +17,6 @@ ostream& operator<< (ostream& ostr, const G3D::AABox& box);
 
 const G3D::Vector3int16& Vector3int16Unit (size_t direction);
 
-struct Vector3Hash
-{
-    size_t operator() (const G3D::Vector3& v) const
-    {
-	std::size_t seed = 0;
-	boost::hash_combine (seed, v.x);
-	boost::hash_combine (seed, v.y);
-	boost::hash_combine (seed, v.z);
-	return seed;
-    }
-};
-
 extern const G3D::Vector3int16 Vector3int16Zero;
 
 

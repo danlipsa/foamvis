@@ -119,3 +119,9 @@ ostream& Element::PrintAttributes (ostream& ostr) const
     return ostr;
 }
 
+string Element::GetStringId () const
+{
+    ostringstream ostr;
+    ostr << setw(4) << GetId ();
+    return ostr.str ();
+}

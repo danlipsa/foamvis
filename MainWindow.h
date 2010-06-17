@@ -9,6 +9,7 @@
 
 #include "ui_Window.h"
 #include "Enums.h"
+#include "Foam.h"
 
 class QTimer;
 class GLWidget;
@@ -134,6 +135,7 @@ private:
      */
     boost::scoped_ptr<QTimer> m_timer;
     ProcessBodyTorus* m_processBodyTorus;
+    Foam::Bodies::iterator m_currentTranslatedBody;
     size_t m_currentBody;
     /**
      * Save a jpeg of the current image.

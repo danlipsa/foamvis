@@ -11,6 +11,7 @@
 #include "EvolverData_yacc.h"
 #include "DebugStream.h"
 #include "Debug.h"
+#include "Hashes.h"
 #include "ParsingDriver.h"
 #include "Utils.h"
 #include "Vertex.h"
@@ -78,9 +79,9 @@ bool Vertex::IsPhysical (size_t dimension, bool isQuadratic) const
 // ======================================================================
 ostream& operator<< (ostream& ostr, const Vertex& v)
 {
-    ostr << "Vertex " << v.GetId () << " "
+    ostr << "Vertex " << v.GetStringId () << " "
+	 << static_cast<const G3D::Vector3&>(v) << " "
 	 << v.GetDuplicateStatus ()
-	 << static_cast<const G3D::Vector3&>(v)
 	 << " Vertex attributes: ";
     return v.PrintAttributes (ostr);
 }

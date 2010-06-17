@@ -128,11 +128,26 @@ size_t Face::GetPreviousValidIndex (size_t index) const
 	return index - 1;
 }
 
-bool Face::operator== (const Face& face) const
+bool Face::operator== (const Face& other) const
 {
-    return GetId () == face.GetId () &&
+    return GetId () == other.GetId () &&
 	*GetOrientedEdge (0)->GetBegin () == 
-	*face.GetOrientedEdge (0)->GetBegin ();
+	*other.GetOrientedEdge (0)->GetBegin ();
+}
+
+bool Face::fuzzyEq (const Face& other) const
+{
+    return GetId () == other.GetId () &&
+	GetOrientedEdge (0)->GetBegin ()->fuzzyEq (
+	    *other.GetOrientedEdge (0)->GetBegin ());
+}
+
+bool Face::operator< (const Face& other) const
+{
+    return GetId () < other.GetId () ||
+	(GetId () == other.GetId () &&
+	 *GetOrientedEdge (0)->GetBegin () < 
+	 *other.GetOrientedEdge (0)->GetBegin ());
 }
 
 void Face::CalculateNormal ()
@@ -199,7 +214,8 @@ void Face::StoreDefaultAttributes (AttributesInfo* infos)
 
 ostream& operator<< (ostream& ostr, const Face& f)
 {
-    ostr << "face " << f.GetId () << ":\n";
+    ostr << "Face " << f.GetStringId () << " "
+	 << f.GetDuplicateStatus () << ":\n";
     ostr << "edges:\n";
     ostream_iterator< boost::shared_ptr<OrientedEdge> > output (ostr, "\n");
     copy (f.m_orientedEdges.begin (), f.m_orientedEdges.end (), output);

@@ -33,7 +33,7 @@ Color::Name ColoredElement::GetColor (Color::Name defaultColor) const
 string ColoredElement::GetStringId () const
 {
     ostringstream id, ostr;
-    id << GetId () << " "
+    id << Element::GetStringId () << " "
        << GetColor ();
     ostr << setw (15) << id.str ();
     return ostr.str ();

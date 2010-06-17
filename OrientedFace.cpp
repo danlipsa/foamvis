@@ -17,12 +17,12 @@ OrientedFace::OrientedFace(const boost::shared_ptr<Face>& face, bool reversed) :
 {
 }
 
-boost::shared_ptr<Face>  OrientedFace::GetFace () const
+boost::shared_ptr<Face> OrientedFace::GetFace () const
 {
     return boost::static_pointer_cast<Face>(GetColoredElement());
 }
 
-void OrientedFace::SetFace (boost::shared_ptr<Face>  face)
+void OrientedFace::SetFace (const boost::shared_ptr<Face>& face)
 {
     SetElement (face);
 }
@@ -55,7 +55,8 @@ G3D::Vector3 OrientedFace::GetNormal () const
     return IsReversed () ? - normal : normal;
 }
 
-void OrientedFace::AddBodyPartOf (boost::shared_ptr<Body>  body, size_t ofIndex) 
+void OrientedFace::AddBodyPartOf (const boost::shared_ptr<Body>& body, 
+				  size_t ofIndex) 
 {
     GetFace ()->AddBodyPartOf (body, ofIndex);
 }
@@ -65,7 +66,7 @@ const BodyIndex& OrientedFace::GetBodyPartOf () const
     return GetFace ()->GetBodyPartOf (IsReversed ());
 }
 
-void OrientedFace::UpdateFacePartOf (boost::shared_ptr<OrientedFace> of)
+void OrientedFace::UpdateFacePartOf (const boost::shared_ptr<OrientedFace>& of)
 {
     for (size_t i = 0; i < size (); i++)
     {

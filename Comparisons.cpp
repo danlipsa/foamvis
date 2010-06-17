@@ -9,6 +9,7 @@
 #include "Comparisons.h"
 #include "Vertex.h"
 #include "Edge.h"
+#include "Face.h"
 #include "OrientedFace.h"
 #include "OrientedFaceIndex.h"
 
@@ -58,12 +59,28 @@ bool VertexLessThan::operator () (
     return *first < *second;
 }
 
+
+// ======================================================================
+// EdgeLessThan
+
 bool EdgeLessThan::operator () (
     const boost::shared_ptr<const Edge>& first,
     const boost::shared_ptr<const Edge>& second) const
 {
     return *first < *second;
 }
+
+// ======================================================================
+// FaceLessThan
+
+bool FaceLessThan::operator () (
+    const boost::shared_ptr<const Face>& first,
+    const boost::shared_ptr<const Face>& second) const
+{
+    return *first < *second;
+}
+
+
 
 // ======================================================================
 // VectorLessThanAlong

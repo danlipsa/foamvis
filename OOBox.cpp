@@ -113,8 +113,8 @@ G3D::Vector3int16 OOBox::GetLocation (const G3D::Vector3& point) const
 	plane = Plane(planeNormal, planePoint);
 	while (! plane.halfSpaceContainsFinite (point))
 	{
-	    // G3D bug: Vector3int16::operator+=
-	    // location = location + increment;
+
+
 	    location += increment;
 	    planePoint += planeTranslation;
 	    plane = Plane (planeNormal, planePoint);

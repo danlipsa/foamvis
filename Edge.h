@@ -178,9 +178,9 @@ private:
  * @param e what to print
  * @return where to print the next data
  */
-inline ostream& operator<< (ostream& ostr, const boost::shared_ptr<Edge>  e)
+inline ostream& operator<< (ostream& ostr, const boost::shared_ptr<Edge>& e)
 {
-    return ostr << *e;
+    return ostr << *e << "useCount=" << e.use_count ();;
 }
 
 #endif //__EDGE_H__

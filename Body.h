@@ -25,8 +25,6 @@ class Body : public Element
 {
 public:
     typedef vector<boost::shared_ptr<OrientedFace> > OrientedFaces;
-    typedef multimap<G3D::Vector3, boost::shared_ptr<OrientedFace> , 
-		     VectorLessThanAngle> NormalFaceMap;
 public:
     /**
      * Creates a new body
@@ -52,22 +50,11 @@ public:
 	return m_orientedFaces;
     }
 
-    NormalFaceMap::const_iterator FindNormalFace (
-	const G3D::Vector3& normal) const;
-    NormalFaceMap& GetNormalFaceMap ()
-    {
-	return *m_normalFaceMap.get ();
-    }
-    boost::shared_ptr<OrientedFace>  GetFirstFace ()
-    {
-	return (*m_normalFaceMap->begin ()).second;
-    }
-
-    boost::shared_ptr<OrientedFace>  GetOrientedFace (size_t i) const
+    boost::shared_ptr<OrientedFace> GetOrientedFace (size_t i) const
     {
 	return m_orientedFaces[i];
     }
-    boost::shared_ptr<Face>  GetFace (size_t i) const;
+    boost::shared_ptr<Face> GetFace (size_t i) const;
     size_t size () const
     {
 	return m_orientedFaces.size ();
@@ -106,17 +93,9 @@ public:
     }
     void PrintDomains (ostream& ostr) const;
     void UpdatePartOf (const boost::shared_ptr<Body>& body);
-
-    NormalFaceMap::iterator GetCurrentNormalFace ()
-    {
-	return m_currentNormalFace;
-    }
-    void IncrementNormalFace ()
-    {
-	++m_currentNormalFace;
-    }
     bool HasWrap () const;
     void Unwrap (Foam* foam);
+    void Print ();
 
 public:
     /**
@@ -153,11 +132,6 @@ private:
      * Oriented faces that are part of this body.
      */
     OrientedFaces m_orientedFaces;
-    boost::scoped_ptr<NormalFaceMap> m_normalFaceMap;
-    /**
-     * Points to the next group of normals
-     */
-    NormalFaceMap::iterator m_currentNormalFace;
     /**
      * Edges for this body
      */
@@ -193,9 +167,9 @@ private:
  * @param b what to print
  * @return where to print something else
  */
-inline ostream& operator<< (ostream& ostr, const boost::shared_ptr<Body>  b)
+inline ostream& operator<< (ostream& ostr, const boost::shared_ptr<Body>& b)
 {
-    return ostr << *b;
+    return ostr << *b << " useCount=" << b.use_count ();;
 }
 
 #endif //__BODY_H__

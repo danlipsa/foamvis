@@ -138,9 +138,10 @@ private:
  * @param pv what to print
  * @return where to print
  */
-inline ostream& operator<< (ostream& ostr, const Vertex* pv)
+inline ostream& operator<< (ostream& ostr,
+			    const boost::shared_ptr<Vertex>& vertex)
 {
-    return ostr << *pv;
+    return ostr << *vertex << "useCount=" << vertex.use_count ();
 }
 
 size_t hash_value (Vertex const& v);

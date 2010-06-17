@@ -241,7 +241,6 @@ void GLWidget::initViewTypeDisplay ()
 
 void GLWidget::SetFoamAlongTime (FoamAlongTime* dataAlongTime) 
 {
-    cdbg << "SetFoamAlongTime\n";
     m_foamAlongTime = dataAlongTime;
     boost::shared_ptr<Face>  f = 
 	GetCurrentFoam ().GetBody (0)->GetFace (0);
@@ -528,6 +527,7 @@ GLuint GLWidget::displayListVerticesNormal ()
 	      DisplaySameEdges> > (*this));
     glPopAttrib ();
     displayOriginalDomain ();
+    displayStandaloneEdges ();
     glEndList();
     return list;
 }
@@ -559,7 +559,7 @@ GLuint GLWidget::displayListVerticesTorus ()
     glPointSize (m_normalVertexSize);
     qglColor (QColor (Qt::black));
     glBegin (GL_POINTS);
-    Foam::Vertices& vertices = GetCurrentFoam ().GetVertices ();
+    const Foam::Vertices& vertices = GetCurrentFoam ().GetVertices ();
     for_each (vertices.begin (), vertices.end (), DisplayOriginalVertex());
     glEnd ();
     glPopAttrib ();
@@ -598,10 +598,6 @@ void GLWidget::displayStandaloneEdges () const
     const Foam::Edges& edges = GetCurrentFoam ().GetEdges ();
     BOOST_FOREACH (boost::shared_ptr<Edge> edge, edges)
     {
-	if (edge->GetId () == 2177)
-	{
-	    cdbg << *edge << endl;
-	}
 	if (edge->IsStandaloneEdge ())
 	    DisplayEdgeWithColor (*this, DisplayElement::FOCUS) (*edge);
     }
@@ -769,13 +765,14 @@ GLuint GLWidget::displayListCenterPaths ()
     glLineWidth (1.0);
 
     BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
-    DisplayCenterPath dcp(*this);
+    DisplayCenterPath displayCenterPath(*this);
     if (GetDisplayedBodyIndex () == DISPLAY_ALL)
-	for_each (bats.begin (), bats.end (), dcp);
+	for_each (bats.begin (), bats.end (), displayCenterPath);
     else
-	dcp (GetDisplayedBodyId ());
+	displayCenterPath (GetDisplayedBodyId ());
     displayCenterOfBodies ();
     displayOriginalDomain ();
+    displayStandaloneEdges ();
 
     glEndList();
     return list;

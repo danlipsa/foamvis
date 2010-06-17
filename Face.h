@@ -33,7 +33,8 @@ public:
      */
     Face (const vector<int>& edgeIndexes,
 	  const vector< boost::shared_ptr<Edge> >& edges, 
-	  size_t id, ElementStatus::Duplicate duplicateStatus = ElementStatus::ORIGINAL);
+	  size_t id,
+	  ElementStatus::Duplicate duplicateStatus = ElementStatus::ORIGINAL);
     Face (const Face& original);
     Face (const boost::shared_ptr<Edge>& firstEdge, size_t id);
     /**
@@ -77,6 +78,9 @@ public:
     size_t GetPreviousValidIndex (size_t index) const;
 
     bool operator== (const Face& face) const;
+    bool fuzzyEq (const Face& other) const;
+    bool operator< (const Face& other) const;
+
     G3D::Vector3 GetNormal () const
     {
 	return m_normal;
@@ -116,9 +120,10 @@ private:
  * @param f what to print
  * @return stream where to print other data
  */
-inline ostream& operator<< (ostream& ostr, const boost::shared_ptr<Face>  f)
+inline ostream& operator<< (ostream& ostr,
+			    const boost::shared_ptr<Face>& f)
 {
-    return ostr << *f;
+    return ostr << *f << "useCount=" << f.use_count ();
 }
 
 

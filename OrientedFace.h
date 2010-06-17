@@ -35,12 +35,12 @@ public:
      * Gets the face associated with this oriented face
      * @return the face associated with this oriented face
      */
-    boost::shared_ptr<Face>  GetFace () const;
-    void SetFace (boost::shared_ptr<Face>  face);
+    boost::shared_ptr<Face> GetFace () const;
+    void SetFace (const boost::shared_ptr<Face>& face);
 
-    void AddBodyPartOf (boost::shared_ptr<Body>  body, size_t ofIndex);
+    void AddBodyPartOf (const boost::shared_ptr<Body>& body, size_t ofIndex);
     const BodyIndex& GetBodyPartOf () const;
-    void UpdateFacePartOf (boost::shared_ptr<OrientedFace> of);
+    void UpdateFacePartOf (const boost::shared_ptr<OrientedFace>& of);
 
     /**
      * Gets the begin vertex for an edge in this oriented face
@@ -84,10 +84,11 @@ public:
      * Pretty print for the OrientedFace object
      */
     friend ostream& operator<< (ostream& ostr, const OrientedFace& of);
-    static pair<G3D::Vector3, boost::shared_ptr<OrientedFace> > MakeNormalFacePair (
-	boost::shared_ptr<OrientedFace>  face)
+    static pair< G3D::Vector3, boost::shared_ptr<OrientedFace> > 
+    MakeNormalFacePair (boost::shared_ptr<OrientedFace> face)
     {
-	return pair<G3D::Vector3, boost::shared_ptr<OrientedFace> > (face->GetNormal (), face);
+	return pair<G3D::Vector3, boost::shared_ptr<OrientedFace> > (
+	    face->GetNormal (), face);
     }
     ostream& PrintAttributes (ostream& ostr) const;
 
@@ -102,9 +103,10 @@ private:
  * @param pof pointer to an oriented face
  * @return where to print next
  */
-inline ostream& operator<< (ostream& ostr, const boost::shared_ptr<OrientedFace>  pof)
+inline ostream& operator<< (ostream& ostr, 
+			    const boost::shared_ptr<OrientedFace>& of)
 {
-    return ostr << *pof;
+    return ostr << *of << "useCount=" << of.use_count ();;
 }
 
 

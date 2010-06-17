@@ -24,14 +24,14 @@
 /**
  * Functor that caches an edge and its vertices
  */
-class cacheEdgeVertices
+class cacheEdge
 {
 public:
     /**
      * Constructor
      * @param body where to cache the edge and vertices
      */
-    cacheEdgeVertices (Body& body) : m_body (body) {}
+    cacheEdge (Body& body) : m_body (body) {}
     /**
      * Functor that caches an edge and its vertices
      * @param oe the edge to cache
@@ -68,7 +68,7 @@ public:
     void operator() (boost::shared_ptr<OrientedFace> of)
     {
 	Face::OrientedEdges& oev = of->GetFace ()->GetOrientedEdges ();
-	for_each (oev.begin (), oev.end (), cacheEdgeVertices (m_body));
+	for_each (oev.begin (), oev.end (), cacheEdge (m_body));
     }
 private:
     /**
@@ -140,20 +140,20 @@ Body::Body(
     size_t id, ElementStatus::Duplicate duplicateStatus) :
     Element(id, duplicateStatus)
 {
-    using boost::bind;
     m_orientedFaces.resize (faceIndexes.size ());
     transform (faceIndexes.begin(), faceIndexes.end(), m_orientedFaces.begin(), 
                indexToOrientedFace(faces));
-    m_normalFaceMap.reset (
-	new NormalFaceMap (
-	    VectorLessThanAngle (m_orientedFaces[0]->GetNormal ())));
-    BOOST_FOREACH (boost::shared_ptr<OrientedFace>  of, m_orientedFaces)
-	m_normalFaceMap->insert (OrientedFace::MakeNormalFacePair (of));
-    m_currentNormalFace = m_normalFaceMap->begin ();
 }
 
 void Body::CacheEdgesVertices (size_t dimension, bool isQuadratic)
 {
+    m_edges.clear ();
+    m_vertices.clear ();
+    m_physicalVertices.clear ();
+    m_tessellationVertices.clear ();
+    m_physicalEdges.clear ();
+    m_tessellationEdges.clear ();
+
     for_each (m_orientedFaces.begin (), m_orientedFaces.end(),
 	      cacheEdges(*this));
     split (m_vertices, m_tessellationVertices, m_physicalVertices, 
@@ -207,23 +207,6 @@ void Body::UpdatePartOf (const boost::shared_ptr<Body>& body)
 }
 
 
-Body::NormalFaceMap::const_iterator Body::FindNormalFace (
-    const G3D::Vector3& normal) const
-{
-    NormalFaceMap::const_iterator it = m_normalFaceMap->find (normal);
-    G3D::Vector3 n = it->first;
-    NormalFaceMap::const_iterator prev = it;
-    while (n.fuzzyEq (normal) && it != m_normalFaceMap->begin ())
-    {
-	prev = it;
-	--it;	
-	n = it->first;
-    }
-    if (it == m_normalFaceMap->begin () && n.fuzzyEq (normal))
-	return it;
-    else
-	return prev;
-}
 
 void Body::PrintDomains (ostream& ostr) const
 {
@@ -248,6 +231,12 @@ void Body::Unwrap (Foam* foam)
 {
     ProcessBodyTorus(foam, this).Unwrap ();
 }
+
+void Body::Print ()
+{
+    cout << *this;
+}
+
 
 // Static and Friends Methods
 // ======================================================================

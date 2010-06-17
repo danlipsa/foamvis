@@ -258,11 +258,10 @@ void Edge::StoreDefaultAttributes (AttributesInfo* infos)
 
 ostream& operator<< (ostream& ostr, const Edge& e)
 {
-    ostr << "Edge " << e.GetId () << " "
-	 << e.GetDuplicateStatus ()
-	 << ": "
+    ostr << "Edge " << e.GetStringId () << " "
 	 << static_cast<G3D::Vector3>(*e.m_begin) << ", " 
-	 << static_cast<G3D::Vector3>(*e.m_end)
+	 << static_cast<G3D::Vector3>(*e.m_end) << " "
+	 << e.GetDuplicateStatus () << " "
 	 << " Adjacent faces(" << e.m_facesPartOf.size () << ")"
 	 << " Edge attributes: ";
     return e.PrintAttributes (ostr);

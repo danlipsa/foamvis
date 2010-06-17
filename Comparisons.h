@@ -9,6 +9,7 @@
 #define __COMPARISONS_H__
 
 class Foam;
+class Face;
 class Edge;
 class Vertex;
 class OrientedFaceIndex;
@@ -113,6 +114,22 @@ public:
 };
 
 
+class FaceLessThan
+{
+public:
+    bool operator () (const boost::shared_ptr<const Face>& first,
+		      const boost::shared_ptr<const Face>& second) const;
+};
+
+
+class OrientedFaceIndexLessThan
+{
+public:
+    bool operator () (
+	const OrientedFaceIndex& first, const OrientedFaceIndex& second) const;
+};
+
+
 class FoamLessThanAlong
 {
 public:
@@ -155,14 +172,6 @@ private:
      * What corner of the AABox to compare
      */
     Corner m_corner;
-};
-
-
-class OrientedFaceIndexLessThan
-{
-public:
-    bool operator () (
-	const OrientedFaceIndex& first, const OrientedFaceIndex& second) const;
 };
 
 

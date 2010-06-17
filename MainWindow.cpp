@@ -31,6 +31,8 @@ MainWindow::MainWindow(FoamAlongTime& dataAlongTime) :
     sliderData->setPageStep (10);
     widgetGl->SetFoamAlongTime (&dataAlongTime);
     updateStatus ();
+    m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
+
     if (dataAlongTime.GetFoamsSize () == 1)
     {
         toolButtonBegin->setDisabled (true);
@@ -170,6 +172,19 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 	}
 	break;
     case Qt::Key_Space:
+    {
+	Foam& currentFoam = widgetGl->GetCurrentFoam ();
+	m_currentTranslatedBody = currentFoam.BodyInsideOriginalDomainStep (
+	    m_currentTranslatedBody);
+	if (m_currentTranslatedBody == currentFoam.GetBodies ().end ())
+	{
+	    cdbg << "End body translation" << endl;
+	}
+	widgetGl->UpdateDisplay ();
+	break;
+    }
+
+    case Qt::Key_A:
     {
 	try
 	{

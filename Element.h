@@ -51,6 +51,8 @@ public:
     {
 	return m_id;
     }    
+    
+    string GetStringId () const;
 
     ElementStatus::Duplicate GetDuplicateStatus () const
     {
