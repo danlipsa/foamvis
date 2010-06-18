@@ -333,17 +333,11 @@ void Foam::calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high)
 	max_element, high, v);
 }
 
-void Foam::CacheEdgesVerticesInBodies ()
-{
-    for_each (m_bodies.begin (), m_bodies.end (), 
-	      boost::bind(&Body::CacheEdgesVertices, _1, 
-			  GetSpaceDimension (), IsQuadratic ()));
-}
-
 void Foam::CalculateBodiesCenters ()
 {
     for_each (m_bodies.begin (), m_bodies.end (),
-	      boost::mem_fn(&Body::CalculateCenter));
+	      boost::bind(&Body::CalculateCenter, _1,
+			  GetSpaceDimension (), IsQuadratic ()));
 }
 
 void Foam::CalculateTorusClipped ()
@@ -399,7 +393,6 @@ void Foam::PostProcess ()
     if (IsTorus ())
 	Unwrap ();
     CalculateAABox ();
-    CacheEdgesVerticesInBodies ();
     CalculateBodiesCenters ();
     if (IsTorus ())
     {
@@ -411,11 +404,6 @@ void Foam::PostProcess ()
 bool Foam::IsTorus () const
 {
     return ! GetOriginalDomain ().IsZero ();
-}
-
-void Foam::PrintDomains (ostream& ostr) const
-{
-    Vertex::PrintDomains(ostr, m_vertices);
 }
 
 
@@ -469,8 +457,7 @@ void Foam::BodyTranslate (const boost::shared_ptr<Body>& body,
 	    original, translate);
 	of->SetFace (duplicate);
     }
-    body->CacheEdgesVertices (GetSpaceDimension (), IsQuadratic ());
-    body->CalculateCenter ();
+    body->CalculateCenter (GetSpaceDimension (), IsQuadratic ());
 }
 
 

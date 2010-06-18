@@ -31,7 +31,10 @@ public:
      * Constructor
      * @param body where to cache the edge and vertices
      */
-    cacheEdge (Body& body) : m_body (body) {}
+    cacheEdge (set< boost::shared_ptr<Vertex> >* vertices) :
+	m_vertices (vertices)
+    {
+    }
     /**
      * Functor that caches an edge and its vertices
      * @param oe the edge to cache
@@ -39,16 +42,15 @@ public:
     void operator () (boost::shared_ptr<OrientedEdge> oe)
     {
 	boost::shared_ptr<Edge> e = oe->GetEdge ();
-	m_body.CacheEdge (e);
-	m_body.CacheVertex (e->GetBegin ());
-	m_body.CacheVertex (e->GetEnd ());
-	}
+	m_vertices->insert (e->GetBegin ());
+	m_vertices->insert (e->GetEnd ());
+    }
 private:
     /**
      * Where to cache the edge and vertices
      */
-    Body& m_body;
-	};
+    set< boost::shared_ptr<Vertex> >* m_vertices;
+};
 
 /**
  * Functor that caches edges and vertices in vectors stored in the Body
@@ -60,7 +62,10 @@ public:
      * Constructor
      * @param body object we work on
      */
-    cacheEdges (Body& body) : m_body(body) {}
+    cacheEdges (set< boost::shared_ptr<Vertex> >* vertices) :
+	m_vertices(vertices) 
+    {
+    }
     /**
      * Functor that caches edges and vertices in vectors stored in the Body
      * @param of cache all edges and vertices for this OrientedFace
@@ -68,13 +73,13 @@ public:
     void operator() (boost::shared_ptr<OrientedFace> of)
     {
 	Face::OrientedEdges& oev = of->GetFace ()->GetOrientedEdges ();
-	for_each (oev.begin (), oev.end (), cacheEdge (m_body));
+	for_each (oev.begin (), oev.end (), cacheEdge (m_vertices));
     }
 private:
     /**
      * Where to we store edges and vertices
      */
-    Body& m_body;
+    set< boost::shared_ptr<Vertex> >* m_vertices;
 };
 
 /**
@@ -145,20 +150,15 @@ Body::Body(
                indexToOrientedFace(faces));
 }
 
-void Body::CacheEdgesVertices (size_t dimension, bool isQuadratic)
+void Body::cacheBodyEdges (size_t dimension, bool isQuadratic,
+			   vector< boost::shared_ptr<Vertex> >* physicalVertices)
 {
-    m_edges.clear ();
-    m_vertices.clear ();
-    m_physicalVertices.clear ();
-    m_tessellationVertices.clear ();
-    m_physicalEdges.clear ();
-    m_tessellationEdges.clear ();
+    set< boost::shared_ptr<Vertex> > vertices;
+    vector< boost::shared_ptr<Vertex> > tessellationVertices;
 
-    for_each (m_orientedFaces.begin (), m_orientedFaces.end(),
-	      cacheEdges(*this));
-    split (m_vertices, m_tessellationVertices, m_physicalVertices, 
-	   dimension, isQuadratic);
-    split (m_edges, m_tessellationEdges, m_physicalEdges,
+    cacheEdges c(&vertices);
+    for_each (m_orientedFaces.begin (), m_orientedFaces.end(), c);
+    split (vertices, tessellationVertices, *physicalVertices, 
 	   dimension, isQuadratic);
 }
 
@@ -181,16 +181,18 @@ void Body::split (
 }
 
 
-void Body::CalculateCenter ()
+void Body::CalculateCenter (size_t dimension, bool isQuadratic)
 {
     using G3D::Vector3;
-    size_t size = m_physicalVertices.size ();
+    vector< boost::shared_ptr<Vertex> > physicalVertices;
+    cacheBodyEdges (dimension, isQuadratic, &physicalVertices);
+    size_t size = physicalVertices.size ();
     RuntimeAssert (
 	size != 0, 
 	"There are no physical vertices in this body. Call"
 	" Body::CacheEdgesVertices before calling this function");
     m_center = accumulate (
-	m_physicalVertices.begin (), m_physicalVertices.end (),
+	physicalVertices.begin (), physicalVertices.end (),
 	G3D::Vector3::zero (), &VertexAccumulate);
     m_center /= Vector3(size, size, size);
 }
@@ -204,13 +206,6 @@ void Body::UpdatePartOf (const boost::shared_ptr<Body>& body)
 	of->AddBodyPartOf (body, i);
 	of->UpdateFacePartOf (of);
     }
-}
-
-
-
-void Body::PrintDomains (ostream& ostr) const
-{
-    Vertex::PrintDomains (ostr, m_vertices);
 }
 
 
@@ -239,10 +234,6 @@ string Body::ToString () const
     ostr << m_orientedFaces.size () << " faces part of the body\n";
     ostream_iterator<boost::shared_ptr<OrientedFace> > ofOutput (ostr, "\n");
     copy (m_orientedFaces.begin (), m_orientedFaces.end (), ofOutput);
-
-    ostream_iterator<boost::shared_ptr<Vertex> > vOutput (ostr, "\n");
-    ostr << "Physical vertices:\n";
-    copy (m_physicalVertices.begin (), m_physicalVertices.end (), vOutput);
     ostr << "Body attributes: ";
     PrintAttributes (ostr);
     ostr << "\nBody center: " << m_center;

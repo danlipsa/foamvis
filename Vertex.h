@@ -49,21 +49,6 @@ public:
     string ToString () const;
 
 public:
-    template <typename Vertices>
-    static ostream& PrintDomains (ostream& ostr, Vertices vertices)
-    {
-	map< G3D::Vector3int16, 
-	    list< boost::shared_ptr<Vertex> >, Vector3int16LessThan > 
-	    domainVerticesMap;
-	for_each (vertices.begin (), vertices.end (),
-		  storeByDomain (domainVerticesMap));
-	ostr << domainVerticesMap.size () << " domains:" << endl;
-	for_each (domainVerticesMap.begin (), domainVerticesMap.end (),
-		  printDomainVertices (ostr));
-	return ostr;
-    }
-
-public:
     /**
      * Specifies the default attributes for the Vertex object.
      * These attributes don't appear as a DEFINE in the .DMP file

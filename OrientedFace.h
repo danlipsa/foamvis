@@ -90,7 +90,6 @@ public:
     ostream& PrintAttributes (ostream& ostr) const;
 
 private:
-
     boost::shared_ptr<Vertex> getBegin (size_t edgeIndex) const;
     boost::shared_ptr<Vertex> getEnd (size_t edgeIndex) const;
 };

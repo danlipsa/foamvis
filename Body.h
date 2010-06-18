@@ -60,29 +60,9 @@ public:
 	return m_orientedFaces.size ();
     }
     /**
-     * Caches an edge
-     * @param e the edge to cache
-     */
-    void CacheEdge (boost::shared_ptr<Edge> e)
-    {
-	m_edges.insert (e);
-    }
-    /**
-     * Cache a vertex
-     * @param v the vertex to cache
-     */
-    void CacheVertex (boost::shared_ptr<Vertex> v)
-    {
-	m_vertices.insert (v);
-    }
-    /**
-     * Caches edges and vertices
-     */
-    void CacheEdgesVertices (size_t dimension, bool isQuadratic);
-    /**
      * Calculates the center
      */
-    void CalculateCenter ();
+    void CalculateCenter (size_t dimension, bool isQuadratic);
     /**
      * Gets the center
      * @return the center of the body
@@ -91,7 +71,6 @@ public:
     {
 	return m_center;
     }
-    void PrintDomains (ostream& ostr) const;
     void UpdatePartOf (const boost::shared_ptr<Body>& body);
     bool HasWrap () const;
     void Unwrap (Foam* foam);
@@ -119,36 +98,18 @@ private:
 	vector< boost::shared_ptr<T> >& destTessellation,
 	vector< boost::shared_ptr<T> >& destPhysical,
 	size_t dimension, bool isQuadratic);
+    /**
+     * Caches edges and vertices
+     */
+    void cacheBodyEdges (size_t dimension, bool isQuadratic,
+			 vector< boost::shared_ptr<Vertex> >* physicalVertices);
+
 
 private:
     /**
      * Oriented faces that are part of this body.
      */
     OrientedFaces m_orientedFaces;
-    /**
-     * Edges for this body
-     */
-    set< boost::shared_ptr<Edge> > m_edges;
-    /**
-     * Vertices for this body
-     */
-    set< boost::shared_ptr<Vertex> > m_vertices;
-    /**
-     * Physical vertices for this body
-     */
-    vector< boost::shared_ptr<Vertex> > m_physicalVertices;
-    /**
-     * Tessellation vertices for this body
-     */
-    vector< boost::shared_ptr<Vertex> > m_tessellationVertices;
-    /**
-     * Physical edges for this body
-     */
-    vector< boost::shared_ptr<Edge> > m_physicalEdges;
-    /**
-     * Tessellation edges for this body
-     */
-    vector< boost::shared_ptr<Edge> > m_tessellationEdges;
     /**
      * Center of the body
      */

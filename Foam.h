@@ -229,10 +229,6 @@ public:
      */
     void CalculateAABox ();
     /**
-     * Cache edges and vertices for all bodies stored in the Foam object
-     */
-    void CacheEdgesVerticesInBodies ();
-    /**
      * Calculate centers for all bodies.
      */
     void CalculateBodiesCenters ();
@@ -265,7 +261,6 @@ public:
      * object, false otherwise.
      */
     void PostProcess ();
-    void PrintDomains (ostream& ostr) const;
 
     const OOBox& GetOriginalDomain () const 
     {
