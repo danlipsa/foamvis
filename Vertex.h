@@ -46,6 +46,7 @@ public:
     G3D::Vector3int16 GetDomain () const;
     bool operator< (const Vertex& other) const;
     bool operator== (const Vertex& other) const;
+    string ToString () const;
 
 public:
     template <typename Vertices>
@@ -69,13 +70,6 @@ public:
      * @param info the object where the default attributes are stored.
      */
     static void StoreDefaultAttributes (AttributesInfo* info);
-    /**
-     * Pretty print for a Vertex object
-     * @param ostr where to print
-     * @param v what to print
-     * @return output stream used to print the object to
-     */
-    friend ostream& operator<< (ostream& ostr, const Vertex& v);
 
 private:
     class storeByDomain
@@ -132,6 +126,16 @@ private:
      */
     vector<boost::shared_ptr<Edge> > m_edgesPartOf;
 };
+/**
+ * Pretty print for a Vertex object
+ * @param ostr where to print
+ * @param v what to print
+ * @return output stream used to print the object to
+ */
+inline ostream& operator<< (ostream& ostr, const Vertex& v)
+{
+    return ostr << v.ToString ();
+}
 /**
  * Pretty prints a Vertex* by calling the operator<< for a Vertex.
  * @param ostr where to print

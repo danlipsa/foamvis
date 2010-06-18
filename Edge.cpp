@@ -207,6 +207,19 @@ bool Edge::IsPhysical (size_t dimension, bool isQuadratic) const
     }
 }
 
+string Edge::ToString () const
+{
+    ostringstream ostr;
+    ostr << "Edge " << GetStringId () << " "
+	 << static_cast<G3D::Vector3>(*m_begin) << ", " 
+	 << static_cast<G3D::Vector3>(*m_end) << " "
+	 << GetDuplicateStatus () << " "
+	 << " Adjacent faces(" << m_facesPartOf.size () << ")"
+	 << " Edge attributes: ";
+    PrintAttributes (ostr);
+    return ostr.str ();
+}
+
 
 
 // Static and Friends Methods
@@ -254,15 +267,4 @@ void Edge::StoreDefaultAttributes (AttributesInfo* infos)
     ac.reset (new RealAttributeCreator());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::DENSITY), ac);
-}
-
-ostream& operator<< (ostream& ostr, const Edge& e)
-{
-    ostr << "Edge " << e.GetStringId () << " "
-	 << static_cast<G3D::Vector3>(*e.m_begin) << ", " 
-	 << static_cast<G3D::Vector3>(*e.m_end) << " "
-	 << e.GetDuplicateStatus () << " "
-	 << " Adjacent faces(" << e.m_facesPartOf.size () << ")"
-	 << " Edge attributes: ";
-    return e.PrintAttributes (ostr);
 }

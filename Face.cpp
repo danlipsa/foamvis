@@ -199,6 +199,24 @@ void Face::PrintBodyPartOfInformation (ostream& ostr) const
     ostr << endl;
 }
 
+string Face::ToString () const
+{
+    ostringstream ostr;
+    ostr << "Face " << GetStringId () << " "
+	 << GetDuplicateStatus () << ":\n";
+    ostr << "edges:\n";
+    ostream_iterator< boost::shared_ptr<OrientedEdge> > output (ostr, "\n");
+    copy (m_orientedEdges.begin (), m_orientedEdges.end (), output);
+    ostr << "Face attributes: ";
+    PrintAttributes (ostr);
+    ostr << "Adjacent bodies" << "(" << m_bodiesPartOf.size () << "): ";
+    BOOST_FOREACH (BodyIndex bi, m_bodiesPartOf)
+	ostr << "(" << bi.GetBody ()->GetId () 
+	     << ", " << bi.GetOrientedFaceIndex ()<< ") ";
+    ostr << endl;
+    return ostr.str ();
+}
+
 
 // Static and Friends Methods
 // ======================================================================
@@ -210,21 +228,4 @@ void Face::StoreDefaultAttributes (AttributesInfo* infos)
     auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
-}
-
-ostream& operator<< (ostream& ostr, const Face& f)
-{
-    ostr << "Face " << f.GetStringId () << " "
-	 << f.GetDuplicateStatus () << ":\n";
-    ostr << "edges:\n";
-    ostream_iterator< boost::shared_ptr<OrientedEdge> > output (ostr, "\n");
-    copy (f.m_orientedEdges.begin (), f.m_orientedEdges.end (), output);
-    ostr << "Face attributes: ";
-    f.PrintAttributes (ostr);
-    ostr << "Adjacent bodies" << "(" << f.m_bodiesPartOf.size () << "): ";
-    BOOST_FOREACH (BodyIndex bi, f.m_bodiesPartOf)
-	ostr << "(" << bi.GetBody ()->GetId () 
-	     << ", " << bi.GetOrientedFaceIndex ()<< ") ";
-    ostr << endl;
-    return ostr;
 }

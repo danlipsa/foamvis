@@ -137,7 +137,8 @@ public:
     }
 
     void Unwrap (Foam* foam);
-    
+    string ToString () const;
+
 public:
     static short LocationCharToNumber (char sign);
     static G3D::Vector3int16 IntToLocation (int i);
@@ -147,12 +148,6 @@ public:
      * @param info the object where the default attributes are stored.
      */
     static void StoreDefaultAttributes (AttributesInfo* info);
-    /**
-     * Prints an edge to the output stream
-     * @param ostr where to write the edge
-     * @param e edge to write
-     */
-    friend ostream& operator<< (ostream& ostr, const Edge& e);
 
 private:
     /**
@@ -172,6 +167,16 @@ private:
     boost::scoped_ptr< vector<G3D::LineSegment> > m_torusClipped;
 
 };
+/**
+ * Prints an edge to the output stream
+ * @param ostr where to write the edge
+ * @param e edge to write
+ */
+inline ostream& operator<< (ostream& ostr, const Edge& e)
+{
+    return ostr << e.ToString ();
+}
+
 /**
  * Pretty print an boost::shared_ptr<Edge> 
  * @param ostr where to print

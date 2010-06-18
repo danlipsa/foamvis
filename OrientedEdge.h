@@ -48,7 +48,8 @@ public:
     /**
      * Adds a face that is touched by this oriented edge.
      */
-    void AddFacePartOf (boost::shared_ptr<OrientedFace>  face, size_t edgeIndex) const;
+    void AddFacePartOf (boost::shared_ptr<OrientedFace> face, 
+			size_t edgeIndex) const;
     size_t GetFacePartOfSize () const;
     OrientedFaceIndexList::const_iterator GetFacePartOfBegin () const;
     OrientedFaceIndexList::const_iterator GetFacePartOfEnd () const;
@@ -57,30 +58,29 @@ public:
      * Edge for this oriented edge
      * @return the edge for this oriented edge
      */
-    boost::shared_ptr<Edge>  GetEdge () const;
+    boost::shared_ptr<Edge> GetEdge () const;
     
-    void SetEdge (boost::shared_ptr<Edge>  edge);
+    void SetEdge (boost::shared_ptr<Edge> edge);
     bool IsZero () const;
     G3D::Vector3 GetEdgeVector () const;
     ostream& PrintReversed (ostream& ostr) const
     {
 	return print (ostr, true);
     }
-
-public:
-    /**
-     * Pretty prints an Edge
-     * @param ostr output stream where to print the edge
-     * @param oe the edge to by printed.
-     */
-    friend ostream& operator<< (ostream& ostr, const OrientedEdge& oe)
-    {
-	return oe.print (ostr);
-    }
+    string ToString () const;
 
 private:
     ostream& print (ostream& ostr, bool reversed = false) const;
 };
+/**
+ * Pretty prints an Edge
+ * @param ostr output stream where to print the edge
+ * @param oe the edge to by printed.
+ */
+inline ostream& operator<< (ostream& ostr, const OrientedEdge& oe)
+{
+    return ostr << oe.ToString ();
+}
 
 /**
  * Pretty prints an oriented edge pointer

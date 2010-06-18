@@ -396,17 +396,14 @@ void Foam::PostProcess ()
 {
     Compact ();
     UpdatePartOf ();
-    //PrintEdgeInformation (cdbg);
     if (IsTorus ())
 	Unwrap ();
     CalculateAABox ();
-
     CacheEdgesVerticesInBodies ();
     CalculateBodiesCenters ();
-
     if (IsTorus ())
     {
-	//BodiesInsideOriginalDomain ();
+	BodiesInsideOriginalDomain ();
 	CalculateTorusClipped ();
     }
 }
@@ -444,10 +441,7 @@ Foam::Bodies::iterator Foam::BodyInsideOriginalDomainStep (
     while (it != m_bodies.end () && BodyInsideOriginalDomain (*it))
 	++it;
     if (it == m_bodies.end ())
-    {
-	cdbg << "End of bodies" << endl;
 	return it;
-    }
     else
 	return ++it;
 }
@@ -459,19 +453,15 @@ bool Foam::BodyInsideOriginalDomain (const boost::shared_ptr<Body>& body)
     Vector3int16 centerLocation = 
 	GetOriginalDomain ().GetLocation (body->GetCenter ());
     if (centerLocation == Vector3int16Zero)
-	return false;
+	return true;
     Vector3int16 translation = Vector3int16Zero - centerLocation;
     BodyTranslate (body, translation);
-    return true;
+    return false;
 }
 
 void Foam::BodyTranslate (const boost::shared_ptr<Body>& body,
 			  const G3D::Vector3int16& translate)
 {
-//    if (body->GetId () == 536)
-    {
-	cdbg << body << endl;
-    }
     BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, body->GetOrientedFaces ())
     {
 	const Face& original = *of->GetFace ();
@@ -481,10 +471,6 @@ void Foam::BodyTranslate (const boost::shared_ptr<Body>& body,
     }
     body->CacheEdgesVertices (GetSpaceDimension (), IsQuadratic ());
     body->CalculateCenter ();
-//    if (body->GetId () == 536)
-    {
-	cdbg << body << endl;
-    }
 }
 
 

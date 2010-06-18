@@ -95,16 +95,9 @@ public:
     void UpdatePartOf (const boost::shared_ptr<Body>& body);
     bool HasWrap () const;
     void Unwrap (Foam* foam);
-    void Print ();
+    string ToString () const;
 
 public:
-    /**
-     * Prety prints a Body
-     * @param ostr where to print
-     * @param b what to print
-     * @return the stream where we printed.
-     */
-    friend ostream& operator<< (ostream& ostr, const Body& b);
     /**
      * Specifies the default attributes for the Body object.
      * These attributes don't appear as a DEFINE in the .DMP file
@@ -161,6 +154,17 @@ private:
      */
     G3D::Vector3 m_center;
 };
+
+/**
+ * Prety prints a Body
+ * @param ostr where to print
+ * @param b what to print
+ * @return the stream where we printed.
+ */
+inline ostream& operator<< (ostream& ostr, const Body& b)
+{
+    return ostr << b.ToString ();
+}
 /**
  * Pretty prints a boost::shared_ptr<Body> 
  * @param ostr where to print

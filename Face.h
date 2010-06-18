@@ -93,7 +93,7 @@ public:
 	return m_orientedEdges.size ();
     }
     void Unwrap (Foam* foam);
-
+    string ToString () const;
 public:
     /**
      * Specifies the default attributes for an Face object.
@@ -101,11 +101,6 @@ public:
      * @param info the object where the default attributes are stored.
      */
     static void StoreDefaultAttributes (AttributesInfo* info);
-    /**
-     * Pretty prints this Face by printing the edges in DIRECT order
-     */
-    friend ostream& operator<< (ostream& ostr, const Face& f); 
-
 private:
     /**
      * Edges that are part of this face
@@ -114,6 +109,14 @@ private:
     vector<BodyIndex> m_bodiesPartOf;
     G3D::Vector3 m_normal;
 };
+/**
+ * Pretty prints this Face by printing the edges in DIRECT order
+ */
+inline ostream& operator<< (ostream& ostr, const Face& f)
+{
+    return ostr << f.ToString ();
+}
+
 /**
  * Pretty prints a boost::shared_ptr<Face> 
  * @param ostr where to print the Face object

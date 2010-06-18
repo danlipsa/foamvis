@@ -190,8 +190,8 @@ void Body::CalculateCenter ()
 	"There are no physical vertices in this body. Call"
 	" Body::CacheEdgesVertices before calling this function");
     m_center = accumulate (
-	m_physicalVertices.begin (), m_physicalVertices.end (), m_center, 
-	&VertexAccumulate);
+	m_physicalVertices.begin (), m_physicalVertices.end (),
+	G3D::Vector3::zero (), &VertexAccumulate);
     m_center /= Vector3(size, size, size);
 }
 
@@ -232,9 +232,21 @@ void Body::Unwrap (Foam* foam)
     ProcessBodyTorus(foam, this).Unwrap ();
 }
 
-void Body::Print ()
+string Body::ToString () const
 {
-    cout << *this;
+    ostringstream ostr;
+    ostr << "Body " << GetId () << ":" << endl;
+    ostr << m_orientedFaces.size () << " faces part of the body\n";
+    ostream_iterator<boost::shared_ptr<OrientedFace> > ofOutput (ostr, "\n");
+    copy (m_orientedFaces.begin (), m_orientedFaces.end (), ofOutput);
+
+    ostream_iterator<boost::shared_ptr<Vertex> > vOutput (ostr, "\n");
+    ostr << "Physical vertices:\n";
+    copy (m_physicalVertices.begin (), m_physicalVertices.end (), vOutput);
+    ostr << "Body attributes: ";
+    PrintAttributes (ostr);
+    ostr << "\nBody center: " << m_center;
+    return ostr.str ();
 }
 
 
@@ -258,12 +270,3 @@ void Body::StoreDefaultAttributes (AttributesInfo* infos)
         ParsingDriver::GetKeywordString(parser::token::VOLCONST), ac);
 }
 
-ostream& operator<< (ostream& ostr, const Body& b)
-{
-    ostr << "Body " << b.GetId () << ":" << endl;
-    ostream_iterator<boost::shared_ptr<OrientedFace> > output (ostr, "\n");
-    copy (b.m_orientedFaces.begin (), b.m_orientedFaces.end (), output);
-    ostr << "Body attributes: ";
-    b.PrintAttributes (ostr);
-    return ostr << "\nBody center: " << b.m_center;
-}

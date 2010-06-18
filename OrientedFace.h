@@ -78,12 +78,9 @@ public:
     G3D::Vector3 GetNormal () const;
 
     size_t size () const;
-    
+    string ToString () const;
+
 public:
-    /**
-     * Pretty print for the OrientedFace object
-     */
-    friend ostream& operator<< (ostream& ostr, const OrientedFace& of);
     static pair< G3D::Vector3, boost::shared_ptr<OrientedFace> > 
     MakeNormalFacePair (boost::shared_ptr<OrientedFace> face)
     {
@@ -97,6 +94,15 @@ private:
     boost::shared_ptr<Vertex> getBegin (size_t edgeIndex) const;
     boost::shared_ptr<Vertex> getEnd (size_t edgeIndex) const;
 };
+
+/**
+ * Pretty print for the OrientedFace object
+ */
+inline ostream& operator<< (ostream& ostr, const OrientedFace& of)
+{
+    return ostr << of.ToString ();
+}
+
 /**
  * Pretty prints a pointer to an oriented face
  * @param ostr where to print

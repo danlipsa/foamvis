@@ -81,3 +81,9 @@ void OrientedEdge::AddFacePartOf (boost::shared_ptr<OrientedFace>  face, size_t 
     GetEdge ()->AddFacePartOf (face, edgeIndex);
 }
 
+string OrientedEdge::ToString () const
+{
+    ostringstream ostr;
+    print (ostr);
+    return ostr.str ();
+}

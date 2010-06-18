@@ -73,18 +73,20 @@ bool Vertex::IsPhysical (size_t dimension, bool isQuadratic) const
 	    return m_edgesPartOf.size () >= 3;
 }
 
+string Vertex::ToString () const
+{
+    ostringstream ostr;
+    ostr << "Vertex " << GetStringId () << " "
+	 << static_cast<const G3D::Vector3&>(*this) << " "
+	 << GetDuplicateStatus ()
+	 << " Vertex attributes: ";
+    PrintAttributes (ostr);
+    return ostr.str ();
+}
 
 
 // Static and Friend functions
 // ======================================================================
-ostream& operator<< (ostream& ostr, const Vertex& v)
-{
-    ostr << "Vertex " << v.GetStringId () << " "
-	 << static_cast<const G3D::Vector3&>(v) << " "
-	 << v.GetDuplicateStatus ()
-	 << " Vertex attributes: ";
-    return v.PrintAttributes (ostr);
-}
 
 void Vertex::StoreDefaultAttributes (AttributesInfo* infos)
 {

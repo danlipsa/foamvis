@@ -108,20 +108,17 @@ ostream& OrientedFace::PrintAttributes (ostream& ostr) const
     return GetFace ()->PrintAttributes (ostr);
 }
 
-
-// Static and Friends methods
-// ======================================================================
-
-ostream& operator<< (ostream& ostr, const OrientedFace& of)
+string OrientedFace::ToString () const
 {
-    ostr << "Oriented Face " << of.GetStringId () 
-	 << " " << of.GetFace ()->GetColor () << " "
-	 << of.GetFace ()->GetDuplicateStatus ()
+    ostringstream ostr;
+    ostr << "Oriented Face " << GetStringId () 
+	 << " " << GetFace ()->GetColor () << " "
+	 << GetFace ()->GetDuplicateStatus ()
 	 << ": " << endl;
-    ostr << of.size () << " edges part of the face:" << endl;
-    for (size_t i = 0; i < of.size (); i++)
-	ostr << i << ": " << of.GetOrientedEdge (i) << endl;
+    ostr << size () << " edges part of the face:" << endl;
+    for (size_t i = 0; i < size (); i++)
+	ostr << i << ": " << GetOrientedEdge (i) << endl;
     ostr << " Face attributes: ";
-    return of.GetFace ()->PrintAttributes (ostr);
+    GetFace ()->PrintAttributes (ostr);
+    return ostr.str ();
 }
-
