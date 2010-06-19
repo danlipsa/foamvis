@@ -14,7 +14,7 @@ class OrientedFace;
 class BodyIndex
 {
 public:
-    BodyIndex (boost::shared_ptr<Body> body, size_t ofIndex) :
+    BodyIndex (const boost::shared_ptr<Body>& body, size_t ofIndex) :
 	m_body (body), m_orientedFaceIndex (ofIndex)
     {}
     BodyIndex () :
@@ -22,7 +22,7 @@ public:
     {}
     boost::shared_ptr<Body> GetBody () const
     {
-	return m_body;
+	return m_body.lock ();
     }
     size_t GetBodyId () const;
 
@@ -32,14 +32,18 @@ public:
 	return m_orientedFaceIndex;
     }
     bool IsOrientedFaceReversed () const;
-
-public:
-    friend ostream& operator<< (ostream& ostr, const BodyIndex& bi);
+    string ToString () const;
 
 private:
-    boost::shared_ptr<Body> m_body;
+    boost::weak_ptr<Body> m_body;
     size_t m_orientedFaceIndex;
 };
+
+inline ostream& operator<< (ostream& ostr, const BodyIndex& bi)
+{
+    return ostr << bi.ToString ();
+}
+
 
 #endif //__BODY_INDEX_H__
 

@@ -18,19 +18,21 @@ class OrientedFace;
 class OrientedFaceIndex
 {
 public:
-    OrientedFaceIndex (boost::shared_ptr<OrientedFace> face, size_t edgeIndex) :
+    OrientedFaceIndex (const boost::shared_ptr<OrientedFace>& face,
+		       size_t edgeIndex) :
 	m_orientedFace (face),
 	m_orientedEdgeIndex (edgeIndex)
     {
     }
 
-    OrientedFaceIndex () : m_orientedEdgeIndex(0)
+    OrientedFaceIndex () : 
+	m_orientedEdgeIndex(0)
     {
     }
 
     boost::shared_ptr<OrientedFace> GetOrientedFace () const
     {
-	return m_orientedFace;
+	return m_orientedFace.lock ();
     }
     boost::shared_ptr<Face> GetFace () const;
     OrientedEdge GetOrientedEdge () const;
@@ -49,21 +51,21 @@ public:
 	m_orientedEdgeIndex = 0;
     }
     bool IsValidNext (const OrientedFaceIndex& next) const;
-
-
-public:
-    friend ostream& operator<< (ostream& ostr, const OrientedFaceIndex& ofi);
+    string ToString () const;
 
 private:
-    boost::shared_ptr<OrientedFace> m_orientedFace;
+    boost::weak_ptr<OrientedFace> m_orientedFace;
     size_t m_orientedEdgeIndex;
 
 
 };
 
-typedef multiset<OrientedFaceIndex, OrientedFaceIndexLessThan> 
-OrientedFaceIndexList;
-
+typedef multiset<OrientedFaceIndex,
+		 OrientedFaceIndexLessThan> OrientedFaceIndexList;
+inline ostream& operator<< (ostream& ostr, const OrientedFaceIndex& ofi)
+{
+    return ostr << ofi.ToString ();
+}
 
 #endif //__ORIENTED_FACE_INDEX_H__
 

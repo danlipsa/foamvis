@@ -180,7 +180,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_physicalVertexColor (Qt::blue), m_physicalEdgeColor (Qt::blue),
       m_tessellationVertexSize (1), m_tessellationEdgeWidth (1),
       m_normalVertexSize (3), m_normalEdgeWidth (1),
-      m_tessellationVertexColor (Qt::green), m_tessellationEdgeColor (Qt::green),
+      m_tessellationVertexColor (Qt::green), 
+      m_tessellationEdgeColor (Qt::green),
       m_contextAlpha (0.03),
       m_centerPathColor (Qt::red),
       m_edgesTorusTubes (false),
@@ -391,7 +392,8 @@ void GLWidget::setRotation (int axis, float angleRadians)
 	Vector3::unitX (), Vector3::unitY (), Vector3::unitZ ()
     };
     m_transform.rotation = 
-	Matrix3::fromAxisAngle (axes[axis], angleRadians) * m_transform.rotation;
+	Matrix3::fromAxisAngle (axes[axis], 
+				angleRadians) * m_transform.rotation;
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
@@ -627,7 +629,8 @@ GLuint GLWidget::displayListEdgesTorusTubes ()
 
     Foam::Edges& edges = GetCurrentFoam ().GetEdges ();
     for_each (edges.begin (), edges.end (),
-	      DisplayEdgeTorus<DisplayEdgeTube, DisplayArrowTube, false>(*this));
+	      DisplayEdgeTorus<DisplayEdgeTube, 
+	      DisplayArrowTube, false>(*this));
     glPopAttrib ();
 
     displayOriginalDomain ();
@@ -1081,7 +1084,7 @@ boost::shared_ptr<Face> GLWidget::GetDisplayedFace () const
 {
     size_t i = GetDisplayedFaceIndex ();
     if  (m_viewType == FACES_TORUS)
-	return GetCurrentFoam ().GetFaces ()[i];
+	return GetCurrentFoam ().GetFace (i);
     else if (m_displayedBodyIndex != DISPLAY_ALL)
     {
 	Body& body = *GetDisplayedBody ();

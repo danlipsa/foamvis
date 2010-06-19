@@ -44,6 +44,7 @@
 #include <boost/pointer_cast.hpp>
 
 // other BOOST headers
+#include <boost/weak_ptr.hpp>
 #include <boost/foreach.hpp>
 #include <boost/operators.hpp>
 #include <boost/function.hpp>

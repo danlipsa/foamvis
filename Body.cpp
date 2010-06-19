@@ -39,7 +39,7 @@ public:
      * Functor that caches an edge and its vertices
      * @param oe the edge to cache
      */
-    void operator () (boost::shared_ptr<OrientedEdge> oe)
+    void operator () (const boost::shared_ptr<OrientedEdge>& oe)
     {
 	boost::shared_ptr<Edge> e = oe->GetEdge ();
 	m_vertices->insert (e->GetBegin ());
@@ -70,7 +70,7 @@ public:
      * Functor that caches edges and vertices in vectors stored in the Body
      * @param of cache all edges and vertices for this OrientedFace
      */
-    void operator() (boost::shared_ptr<OrientedFace> of)
+    void operator() (const boost::shared_ptr<OrientedFace>& of)
     {
 	Face::OrientedEdges& oev = of->GetFace ()->GetOrientedEdges ();
 	for_each (oev.begin (), oev.end (), cacheEdge (m_vertices));
@@ -103,7 +103,7 @@ public:
      * @param i index into a vector of Face pointers
      * @return an OrientedFace pointer
      */
-    boost::shared_ptr<OrientedFace>  operator() (int i)
+    boost::shared_ptr<OrientedFace> operator() (int i)
     {
         bool reversed = false;
         if (i < 0)
@@ -202,7 +202,7 @@ void Body::UpdatePartOf (const boost::shared_ptr<Body>& body)
 {
     for (size_t i = 0; i < m_orientedFaces.size (); i++)
     {
-	boost::shared_ptr<OrientedFace>  of = m_orientedFaces[i];
+	boost::shared_ptr<OrientedFace> of = m_orientedFaces[i];
 	of->AddBodyPartOf (body, i);
 	of->UpdateFacePartOf (of);
     }
@@ -211,13 +211,13 @@ void Body::UpdatePartOf (const boost::shared_ptr<Body>& body)
 
 bool Body::HasWrap () const
 {
-    BOOST_FOREACH (boost::shared_ptr<OrientedFace>  of, m_orientedFaces)
+    BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, m_orientedFaces)
 	if (of->GetFace ()->HasWrap ())
 	    return true;
     return false;
 }
 
-boost::shared_ptr<Face>  Body::GetFace (size_t i) const
+boost::shared_ptr<Face> Body::GetFace (size_t i) const
 {
     return GetOrientedFace (i)->GetFace ();
 }

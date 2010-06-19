@@ -41,21 +41,22 @@ bool OrientedFaceIndex::IsValidNext (const OrientedFaceIndex& next) const
     return alongEdge.fuzzyEq (nextEdge);
 }
 
-boost::shared_ptr<Face>  OrientedFaceIndex::GetFace () const
+boost::shared_ptr<Face> OrientedFaceIndex::GetFace () const
 {
     return GetOrientedFace ()->GetFace ();
+}
+
+string OrientedFaceIndex::ToString () const
+{
+    ostringstream ostr;
+    const BodyIndex& bi = GetBodyIndex ();
+    ostr << "(" << bi
+	 << ", of=" << GetOrientedFace ()->GetStringId () << ", " 
+	 << "oeI=" << GetOrientedEdgeIndex ()
+	 << ")";
+    return ostr.str ();
 }
 
 
 // Static and friends methods
 // ======================================================================
-
-ostream& operator<< (ostream& ostr, const OrientedFaceIndex& ofi)
-{
-    const BodyIndex& bi = ofi.GetBodyIndex ();
-    ostr << "(" << bi
-	 << ", of=" << ofi.GetOrientedFace ()->GetStringId () << ", " 
-	 << "oeI=" << ofi.GetOrientedEdgeIndex ()
-	 << ")";
-    return ostr;
-}
