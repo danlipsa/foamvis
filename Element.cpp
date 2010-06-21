@@ -28,7 +28,7 @@ public:
      * @param infos information about attributes and how are they created
      */
     storeAttribute(
-        Element& where, AttributesInfo& infos) : 
+        Element& where, const AttributesInfo& infos) : 
         m_where (where), m_infos (infos) {}
     /**
      * Stores an attribute
@@ -69,7 +69,7 @@ private:
     /**
      * Information about all attributes and how they are created.
      */
-    AttributesInfo& m_infos;
+    const AttributesInfo& m_infos;
 };
 
 
@@ -106,7 +106,7 @@ void Element::SetAttribute (size_t i, Attribute* attribute)
 }
 
 void Element::StoreAttributes (
-    vector<NameSemanticValue*>& list, AttributesInfo& infos)
+    vector<NameSemanticValue*>& list, const AttributesInfo& infos)
 {
     for_each (list.begin (), list.end (), storeAttribute(*this, infos));
 }

@@ -82,7 +82,7 @@ public:
      * @param name the name of the attribute we are interested in
      * @return information about the attribute
      */
-    AttributeInfo* GetAttributeInfo (const char* name) ;
+    AttributeInfo* GetAttributeInfo (const char* name) const;
     /**
      * Gets the name of an attribute stored at a certain index in the array of
      * attributes attached to a certain element (vertex, edge, ...)

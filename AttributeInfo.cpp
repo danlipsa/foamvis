@@ -78,9 +78,9 @@ const char* AttributesInfo::GetAttributeName (size_t index) const
     return it->first;
 }
 
-AttributeInfo* AttributesInfo::GetAttributeInfo (const char* name) 
+AttributeInfo* AttributesInfo::GetAttributeInfo (const char* name) const
 {
-    map<const char*, AttributeInfo*, LessThanNoCase>::iterator it = 
+    map<const char*, AttributeInfo*, LessThanNoCase>::const_iterator it = 
         m_nameInfo.find (name);
     if (it == m_nameInfo.end ())
         return 0;

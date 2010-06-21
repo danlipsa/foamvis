@@ -43,7 +43,7 @@ public:
      * @param info information about each attribute and how it is created
      */
     void StoreAttributes (
-        vector<NameSemanticValue*>& list, AttributesInfo& info);
+        vector<NameSemanticValue*>& list, const AttributesInfo& info);
     /**
      * Gets the original index of this element
      */

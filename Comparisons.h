@@ -27,7 +27,7 @@ struct LessThanNoCase : binary_function<const char*, const char*, bool>
      * @param s2 second C string
      * @return true if the first argument is less than the second argument.
      */
-    bool operator()(const char* s1, const char* s2) 
+    bool operator()(const char* s1, const char* s2) const
     {
         return strcasecmp(s1, s2) < 0;
     }
