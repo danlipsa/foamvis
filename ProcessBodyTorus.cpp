@@ -28,14 +28,16 @@ void ProcessBodyTorus::Initialize ()
     push (of);
 }
 
-void ProcessBodyTorus::Unwrap ()
+void ProcessBodyTorus::Unwrap (
+    VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
 {
     Initialize ();
-    while (Step ())
+    while (Step (vertexSet, edgeSet, faceSet))
 	;
 }
 
-bool ProcessBodyTorus::Step ()
+bool ProcessBodyTorus::Step (
+    VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
 {
     using G3D::Vector3int16;
     OrientedFaceIndex ofi, nextOfi;
@@ -50,7 +52,8 @@ bool ProcessBodyTorus::Step ()
     if (translation != Vector3int16Zero)
     {
 	boost::shared_ptr<Face>  translatedNextFace = 
-	    m_foam->GetFaceDuplicate (*nextOfi.GetFace (), translation);
+	    m_foam->GetFaceDuplicate (*nextOfi.GetFace (), translation,
+				      vertexSet, edgeSet, faceSet);
 	boost::shared_ptr<OrientedFace>  nextOf = nextOfi.GetOrientedFace ();
 	nextOf->SetFace (translatedNextFace);
 	//cdbg << "    Face " << nextOf->GetStringId ()

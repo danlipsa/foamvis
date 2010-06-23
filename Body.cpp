@@ -222,9 +222,10 @@ boost::shared_ptr<Face> Body::GetFace (size_t i) const
     return GetOrientedFace (i)->GetFace ();
 }
 
-void Body::Unwrap (Foam* foam)
+void Body::Unwrap (Foam* foam,
+		   VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
 {
-    ProcessBodyTorus(foam, this).Unwrap ();
+    ProcessBodyTorus(foam, this).Unwrap (vertexSet, edgeSet, faceSet);
 }
 
 string Body::ToString () const

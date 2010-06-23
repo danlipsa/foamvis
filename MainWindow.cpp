@@ -174,8 +174,14 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     case Qt::Key_Space:
     {
 	Foam& currentFoam = widgetGl->GetCurrentFoam ();
+	VertexSet vertexSet (currentFoam.GetVertices ().begin (),
+			     currentFoam.GetVertices ().end ());
+	EdgeSet edgeSet (currentFoam.GetEdges ().begin (),
+			 currentFoam.GetEdges ().end ());
+	FaceSet faceSet (currentFoam.GetFaces ().begin (),
+			 currentFoam.GetFaces ().end ());
 	m_currentTranslatedBody = currentFoam.BodyInsideOriginalDomainStep (
-	    m_currentTranslatedBody);
+	    m_currentTranslatedBody, &vertexSet, &edgeSet, &faceSet);
 	if (m_currentTranslatedBody == currentFoam.GetBodies ().end ())
 	{
 	    cdbg << "End body translation" << endl;
@@ -196,13 +202,21 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 		m_processBodyTorus->Initialize ();
 	    }
 	    else
-		if (! m_processBodyTorus->Step ())
+	    {
+		VertexSet vertexSet (foam->GetVertices ().begin (),
+				     foam->GetVertices ().end ());
+		EdgeSet edgeSet (foam->GetEdges ().begin (),
+				 foam->GetEdges ().end ());
+		FaceSet faceSet (foam->GetFaces ().begin (),
+				 foam->GetFaces ().end ());
+		if (! m_processBodyTorus->Step (&vertexSet, &edgeSet, &faceSet))
 		{
 		    m_processBodyTorus = 0;
 		    cdbg << "End process torus" << endl;
 		    m_currentBody = (m_currentBody + 1) % 
 			widgetGl->GetCurrentFoam ().GetBodies ().size ();
 		}
+	    }
 	    widgetGl->UpdateDisplay ();
 	}
 	catch (const exception& e)

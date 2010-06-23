@@ -110,41 +110,45 @@ Foam::Foam () :
 }
 
 boost::shared_ptr<Vertex> Foam::GetVertexDuplicate (
-    const Vertex& original, const G3D::Vector3int16& translation)
+    const Vertex& original, const G3D::Vector3int16& translation,
+    VertexSet* vertexSet)
 {
     boost::shared_ptr<Vertex> searchDummy = boost::make_shared<Vertex>(
 	GetOriginalDomain ().TorusTranslate (original, translation));
     VertexSet::iterator it = fuzzyFind 
 	<VertexSet, VertexSet::iterator, VertexSet::key_type> (
-	    m_vertexSet, searchDummy);
-    if (it != m_vertexSet.end ())
+	    *vertexSet, searchDummy);
+    if (it != vertexSet->end ())
 	return *it;
     boost::shared_ptr<Vertex> duplicate = CreateVertexDuplicate (
 	original, translation);
-    m_vertexSet.insert (duplicate);
+    vertexSet->insert (duplicate);
     m_vertices.push_back (duplicate);
     return duplicate;
 }
 
 boost::shared_ptr<Edge> Foam::GetEdgeDuplicate (
-    const Edge& original, const G3D::Vector3& newBegin)
+    const Edge& original, const G3D::Vector3& newBegin,
+    VertexSet* vertexSet, EdgeSet* edgeSet)
 {
     boost::shared_ptr<Edge> searchDummy = 
 	boost::make_shared<Edge>(
 	    boost::make_shared<Vertex> (newBegin), original.GetId ());
     EdgeSet::iterator it = 
 	fuzzyFind <EdgeSet, EdgeSet::iterator, EdgeSet::key_type> (
-	    m_edgeSet, searchDummy);
-    if (it != m_edgeSet.end ())
+	    *edgeSet, searchDummy);
+    if (it != edgeSet->end ())
 	return *it;
-    boost::shared_ptr<Edge> duplicate = CreateEdgeDuplicate (original, newBegin);
-    m_edgeSet.insert (duplicate);
+    boost::shared_ptr<Edge> duplicate = CreateEdgeDuplicate (
+	original, newBegin, vertexSet);
+    edgeSet->insert (duplicate);
     m_edges.push_back (duplicate);
     return duplicate;
 }
 
 boost::shared_ptr<Face> Foam::GetFaceDuplicate (
-    const Face& original, const G3D::Vector3int16& translation)
+    const Face& original, const G3D::Vector3int16& translation,
+    VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
 {
     const G3D::Vector3* begin = 
 	original.GetOrientedEdge (0)->GetBegin ().get ();
@@ -156,11 +160,12 @@ boost::shared_ptr<Face> Foam::GetFaceDuplicate (
 		boost::make_shared<Vertex> (newBegin), 0), original.GetId ());
     FaceSet::iterator it = 
 	fuzzyFind <FaceSet, FaceSet::iterator, FaceSet::key_type> (
-	    m_faceSet, searchDummy);
-    if (it != m_faceSet.end ())
+	    *faceSet, searchDummy);
+    if (it != faceSet->end ())
 	return *it;
-    boost::shared_ptr<Face> duplicate = CreateFaceDuplicate (original, newBegin);
-    m_faceSet.insert (duplicate);
+    boost::shared_ptr<Face> duplicate = CreateFaceDuplicate (
+	original, newBegin, vertexSet, edgeSet);
+    faceSet->insert (duplicate);
     m_faces.push_back (duplicate);
     return duplicate;
 }
@@ -184,14 +189,14 @@ void Foam::TorusTranslate (
 
 
 boost::shared_ptr<Edge> Foam::CreateEdgeDuplicate (
-    const Edge& original, const G3D::Vector3& newBegin)
+    const Edge& original, const G3D::Vector3& newBegin, VertexSet* vertexSet)
 {
     G3D::Vector3int16 translation = GetOriginalDomain ().GetTranslation (
 	*original.GetBegin (), newBegin);
     boost::shared_ptr<Vertex> beginDuplicate = GetVertexDuplicate (
-	*original.GetBegin (), translation);
+	*original.GetBegin (), translation, vertexSet);
     boost::shared_ptr<Vertex> endDuplicate = GetVertexDuplicate (
-	*original.GetEnd (), translation);
+	*original.GetEnd (), translation, vertexSet);
     boost::shared_ptr<Edge> duplicate = boost::make_shared<Edge> (original);
     duplicate->SetBegin (beginDuplicate);
     duplicate->SetEnd (endDuplicate);
@@ -200,7 +205,8 @@ boost::shared_ptr<Edge> Foam::CreateEdgeDuplicate (
 }
 
 boost::shared_ptr<Face> Foam::CreateFaceDuplicate (
-    const Face& original, const G3D::Vector3& newBegin)
+    const Face& original, const G3D::Vector3& newBegin,
+    VertexSet* vertexSet, EdgeSet* edgeSet)
 {
     boost::shared_ptr<Face> faceDuplicate = boost::make_shared<Face> (original);
     faceDuplicate->SetDuplicateStatus (ElementStatus::DUPLICATE);
@@ -214,7 +220,7 @@ boost::shared_ptr<Face> Foam::CreateFaceDuplicate (
 	else
 	    edgeBegin = begin;
 	boost::shared_ptr<Edge> edgeDuplicate = 
-	    GetEdgeDuplicate (*oe->GetEdge (), edgeBegin);
+	    GetEdgeDuplicate (*oe->GetEdge (), edgeBegin, vertexSet, edgeSet);
 	oe->SetEdge (edgeDuplicate);
 	begin = *oe->GetEnd ();
     }
@@ -224,50 +230,52 @@ boost::shared_ptr<Face> Foam::CreateFaceDuplicate (
 
 
 void Foam::SetVertex (size_t i, float x, float y, float z,
-                     vector<NameSemanticValue*>& list) 
+                     vector<NameSemanticValue*>& attributes) 
 {
     if (i >= m_vertices.size ())
         m_vertices.resize (i + 1);
     boost::shared_ptr<Vertex> vertex = boost::make_shared<Vertex> (x, y ,z, i);
-    if (&list != 0)
+    if (&attributes != 0)
         vertex->StoreAttributes (
-            list, m_attributesInfo[DefineAttribute::VERTEX]);
+            attributes, m_attributesInfo[DefineAttribute::VERTEX]);
     m_vertices[i] = vertex;
 }
 
 
 void Foam::SetEdge (size_t i, size_t begin, size_t end,
 		    G3D::Vector3int16& endTranslation,
-                    vector<NameSemanticValue*>& list) 
+                    vector<NameSemanticValue*>& attributes) 
 {
     if (i >= m_edges.size ())
         m_edges.resize (i + 1); 
     boost::shared_ptr<Edge> edge = boost::make_shared<Edge> (
 	GetVertex(begin), GetVertex(end), endTranslation, i);
-    if (&list != 0)
-        edge->StoreAttributes (list, m_attributesInfo[DefineAttribute::EDGE]);
+    if (&attributes != 0)
+        edge->StoreAttributes (
+	    attributes, m_attributesInfo[DefineAttribute::EDGE]);
     m_edges[i] = edge;
 }
 
 void Foam::SetFace (size_t i,  vector<int>& edges,
-                    vector<NameSemanticValue*>& list)
+                    vector<NameSemanticValue*>& attributes)
 {
     if (i >= m_faces.size ())
         m_faces.resize (i + 1);
     boost::shared_ptr<Face> face = boost::make_shared<Face> (edges, m_edges, i);
-    if (&list != 0)
-        face->StoreAttributes (list, m_attributesInfo[DefineAttribute::FACE]);
+    if (&attributes != 0)
+        face->StoreAttributes (
+	    attributes, m_attributesInfo[DefineAttribute::FACE]);
     m_faces[i] = face;
 }
 
 void Foam::SetBody (size_t i, vector<int>& faces,
-                    vector<NameSemanticValue*>& list)
+                    vector<NameSemanticValue*>& attributes)
 {
     if (i >= m_bodies.size ())
         m_bodies.resize (i + 1);
     boost::shared_ptr<Body> body = boost::make_shared<Body> (faces, m_faces, i);
-    if (&list != 0)
-        body->StoreAttributes (list,
+    if (&attributes != 0)
+        body->StoreAttributes (attributes,
 			       m_attributesInfo[DefineAttribute::BODY]);    
     m_bodies[i] = body;
 }
@@ -350,26 +358,26 @@ void Foam::CalculateTorusClipped ()
     }
 }
 
-void Foam::Unwrap ()
+void Foam::Unwrap (VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
 {
     BOOST_FOREACH (boost::shared_ptr<Vertex> v, m_vertices)
     {
-	m_vertexSet.insert (v);
+	vertexSet->insert (v);
     }
     BOOST_FOREACH (boost::shared_ptr<Edge> e, m_edges)
     {
-	e->Unwrap (this);
-	m_edgeSet.insert (e);
+	e->Unwrap (this, vertexSet);
+	edgeSet->insert (e);
     }
     BOOST_FOREACH (boost::shared_ptr<Face> f, m_faces)
     {
-	f->Unwrap (this);
+	f->Unwrap (this, vertexSet, edgeSet);
 	f->CalculateNormal ();
-	m_faceSet.insert (f);
+	faceSet->insert (f);
     }
     BOOST_FOREACH (boost::shared_ptr<Body> b, m_bodies)
     {
-	b->Unwrap (this);
+	b->Unwrap (this, vertexSet, edgeSet, faceSet);
     }
 }
 
@@ -388,15 +396,18 @@ void Foam::PrintEdgeInformation (ostream& ostr) const
 
 void Foam::PostProcess ()
 {
+    VertexSet vertexSet;
+    EdgeSet edgeSet;
+    FaceSet faceSet;
     Compact ();
     UpdatePartOf ();
     if (IsTorus ())
-	Unwrap ();
+	Unwrap (&vertexSet, &edgeSet, &faceSet);
     CalculateAABox ();
     CalculateBodiesCenters ();
     if (IsTorus ())
     {
-	BodiesInsideOriginalDomain ();
+	BodiesInsideOriginalDomain (&vertexSet, &edgeSet, &faceSet);
 	CalculateTorusClipped ();
     }
 }
@@ -415,18 +426,22 @@ void Foam::AddAttributeInfo (
     m_parsingData->AddAttribute (name);
 }
 
-void Foam::BodiesInsideOriginalDomain ()
+void Foam::BodiesInsideOriginalDomain (
+    VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
 {
     for_each (m_bodies.begin (), m_bodies.end (),
-	      boost::bind (&Foam::BodyInsideOriginalDomain, this, _1));
+	      boost::bind (&Foam::BodyInsideOriginalDomain, this,
+			   _1, vertexSet, edgeSet, faceSet));
 }
 
 Foam::Bodies::iterator Foam::BodyInsideOriginalDomainStep (
-    Foam::Bodies::iterator begin)
+    Foam::Bodies::iterator begin,
+    VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
 {
     cdbg << "BodyInsideOriginalDomainStep" << endl;
     Bodies::iterator it = begin;
-    while (it != m_bodies.end () && BodyInsideOriginalDomain (*it))
+    while (it != m_bodies.end () && 
+	   BodyInsideOriginalDomain (*it, vertexSet, edgeSet, faceSet))
 	++it;
     if (it == m_bodies.end ())
 	return it;
@@ -435,7 +450,9 @@ Foam::Bodies::iterator Foam::BodyInsideOriginalDomainStep (
 }
 
 
-bool Foam::BodyInsideOriginalDomain (const boost::shared_ptr<Body>& body)
+bool Foam::BodyInsideOriginalDomain (
+    const boost::shared_ptr<Body>& body,
+    VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
 {
     using G3D::Vector3int16;
     Vector3int16 centerLocation = 
@@ -443,18 +460,19 @@ bool Foam::BodyInsideOriginalDomain (const boost::shared_ptr<Body>& body)
     if (centerLocation == Vector3int16Zero)
 	return true;
     Vector3int16 translation = Vector3int16Zero - centerLocation;
-    BodyTranslate (body, translation);
+    BodyTranslate (body, translation, vertexSet, edgeSet, faceSet);
     return false;
 }
 
-void Foam::BodyTranslate (const boost::shared_ptr<Body>& body,
-			  const G3D::Vector3int16& translate)
+void Foam::BodyTranslate (
+    const boost::shared_ptr<Body>& body,const G3D::Vector3int16& translate,
+    VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
 {
     BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, body->GetOrientedFaces ())
     {
 	const Face& original = *of->GetFace ();
 	boost::shared_ptr<Face> duplicate = GetFaceDuplicate (
-	    original, translate);
+	    original, translate, vertexSet, edgeSet, faceSet);
 	of->SetFace (duplicate);
     }
     body->CalculateCenter (GetSpaceDimension (), IsQuadratic ());

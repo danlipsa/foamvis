@@ -174,5 +174,8 @@ private:
     Corner m_corner;
 };
 
+typedef set<boost::shared_ptr<Vertex>, VertexLessThan> VertexSet;
+typedef set<boost::shared_ptr<Edge>, EdgeLessThan> EdgeSet;
+typedef set<boost::shared_ptr<Face>, FaceLessThan> FaceSet;
 
 #endif //__COMPARISONS_H__

@@ -92,7 +92,7 @@ Face::Face (const vector<int>& edgeIndexes,
                indexToOrientedEdge(edges));
 }
 
-void Face::Unwrap (Foam* foam)
+void Face::Unwrap (Foam* foam, VertexSet* vertexSet, EdgeSet* edgeSet)
 {
     G3D::Vector3* begin = (*m_orientedEdges.begin())->GetBegin ().get ();
     BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, m_orientedEdges)
@@ -100,7 +100,8 @@ void Face::Unwrap (Foam* foam)
 	boost::shared_ptr<Edge>  edge = oe->GetEdge ();
 	G3D::Vector3 edgeBegin = 
 	    (oe->IsReversed ()) ? edge->GetTranslatedBegin (*begin) : *begin;
-	oe->SetEdge (foam->GetEdgeDuplicate (*edge, edgeBegin));
+	oe->SetEdge (foam->GetEdgeDuplicate (
+			 *edge, edgeBegin, vertexSet, edgeSet));
 	begin = oe->GetEnd ().get ();
     }
 }

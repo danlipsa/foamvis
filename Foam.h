@@ -19,6 +19,7 @@ class Edge;
 class Face;
 class NameSemanticValue;
 class ParsingData;
+
 /**
  * Stores information  read from  a DMP file  produced by  the Surface
  * Evolver software.
@@ -26,12 +27,6 @@ class ParsingData;
 class Foam
 {
 public:
-    typedef set<boost::shared_ptr<Vertex>, VertexLessThan> VertexSet;
-    typedef set<boost::shared_ptr<Edge>, EdgeLessThan> EdgeSet;
-    typedef set<boost::shared_ptr<Face>, FaceLessThan> FaceSet;
-    /**
-     * Iterator over the vertices in this Foam object
-     */
     typedef vector< boost::shared_ptr<Vertex> > Vertices;
     typedef vector< boost::shared_ptr<Edge> > Edges;
     typedef vector< boost::shared_ptr<Face> > Faces;
@@ -52,29 +47,41 @@ public:
 	return m_vertices[i];
     }
     boost::shared_ptr<Vertex> GetVertexDuplicate (
-	const Vertex& original, const G3D::Vector3int16& translation);
+	const Vertex& original, const G3D::Vector3int16& translation,
+	VertexSet* vertexSet);
     boost::shared_ptr<Edge>  GetEdgeDuplicate (
-	const Edge& original, const G3D::Vector3& edgeBegin);
+	const Edge& original, const G3D::Vector3& edgeBegin,
+	VertexSet* vertexSet, EdgeSet* edgeSet);
     boost::shared_ptr<Face>  GetFaceDuplicate (
-	const Face& original, const G3D::Vector3int16& translation);
-    void BodyTranslate (const boost::shared_ptr<Body>& body,
-			      const G3D::Vector3int16& translate);
+	const Face& original, const G3D::Vector3int16& translation,
+	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
+    void BodyTranslate (
+	const boost::shared_ptr<Body>& body,
+	const G3D::Vector3int16& translate,
+	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
 
     boost::shared_ptr<Vertex> CreateVertexDuplicate (
 	const Vertex& original, G3D::Vector3int16 const& translation);
     boost::shared_ptr<Edge>  CreateEdgeDuplicate (
-	const Edge& original, const G3D::Vector3& newBegin);
+	const Edge& original, const G3D::Vector3& newBegin, 
+	VertexSet* vertexSet);
     boost::shared_ptr<Face>  CreateFaceDuplicate (
-	const Face& original, const G3D::Vector3& newBegin);
+	const Face& original, const G3D::Vector3& newBegin,
+	VertexSet* vertexSet, EdgeSet* edgeSet);
 
     /**
      * Insures a body's center is inside the original domain.
      * @return true if the body is already inside the original domain,
      *         so no translation is necessary, false otherwise
      */
-    bool BodyInsideOriginalDomain (const boost::shared_ptr<Body>& body);
-    Bodies::iterator BodyInsideOriginalDomainStep (Bodies::iterator begin);
-    void BodiesInsideOriginalDomain ();
+    bool BodyInsideOriginalDomain (
+	const boost::shared_ptr<Body>& body,
+	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
+    Bodies::iterator BodyInsideOriginalDomainStep (
+	Bodies::iterator begin,
+	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
+    void BodiesInsideOriginalDomain (
+	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
 
     /**
      * Gets the vector of vertices
@@ -84,10 +91,6 @@ public:
     {
 	return m_vertices;
     }
-    const VertexSet& GetVertexSet ()
-    {
-	return m_vertexSet;
-    }
 
     /**
      * Stores a Vertex object a certain index in the Foam object
@@ -95,10 +98,10 @@ public:
      * @param x coordinate X of the Vertex object
      * @param y coordinate Y of the Vertex object
      * @param z coordinate Z of the Vertex object
-     * @param list the list of attributes for the vertex
+     * @param attributes the list of attributes for the vertex
      */
     void SetVertex (size_t i, float x, float y, float z,
-		    vector<NameSemanticValue*>& list);
+		    vector<NameSemanticValue*>& attributes);
     /**
      * Returns all edges from this Foam
      * @return a vector of Edge pointers
@@ -112,11 +115,11 @@ public:
      * @param i index where to store the Edge object
      * @param begin index of the first Point that determines the edge
      * @param end index of the last Point that determines the edge
-     * @param list the list of attributes for this edge
+     * @param attributes the list of attributes for this edge
      */
     void SetEdge (size_t i, size_t begin, size_t end,
 		  G3D::Vector3int16& endTranslation,
-                  vector<NameSemanticValue*>& list);
+                  vector<NameSemanticValue*>& attributes);
     /**
      * Gets all faces from this Foam
      */
@@ -142,10 +145,10 @@ public:
      *        be stored in the Foam  object. If the index is negative,
      *        the edge part of the  Face is in reversed order than the
      *        Edge that is stored in the Foam object.
-     * @param list the list of attributes for the face
+     * @param attributes the list of attributes for the face
      */
     void SetFace (size_t i,  vector<int>& edges,
-                  vector<NameSemanticValue*>& list);
+                  vector<NameSemanticValue*>& attributes);
     /**
      * Gets ith body
      * @param i index of the body to be returned
@@ -172,10 +175,10 @@ public:
      *         is negative, the face * that  is part of the Body is in
      *         reverse order  than the  Face that *  is stored  in the
      *         Foam object.
-     * @param list the list of attributes
+     * @param attributes the list of attributes
      */
     void SetBody (size_t i,  vector<int>& faces,
-                  vector<NameSemanticValue*>& list);
+                  vector<NameSemanticValue*>& attributes);
     /**
      * Stores an element of the 4x4 view matrix.
      * @param i index where to store the elment
@@ -291,9 +294,9 @@ public:
 	m_quadratic = true;
     }
     void calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high);
-    void Unwrap ();
+    void Unwrap (VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
     void TorusTranslate (
-	Vertex* vertex, const G3D::Vector3int16& domainIncrement) const;
+      Vertex* vertex, const G3D::Vector3int16& domainIncrement) const;
     void PrintFaceInformation (ostream& ostr) const;
     void PrintEdgeInformation (ostream& ostr) const;
 
@@ -311,17 +314,14 @@ private:
      * A vector of points
      */
     Vertices m_vertices;
-    VertexSet m_vertexSet;
     /**
      * A vector of edges
      */
     Edges m_edges;
-    EdgeSet m_edgeSet;
     /**
      * A vector of faces
      */
     Faces m_faces;
-    FaceSet m_faceSet;
     /**
      * A vector of bodies.
      */

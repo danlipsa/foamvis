@@ -136,7 +136,7 @@ public:
 	return GetFacePartOfSize () == 0;
     }
 
-    void Unwrap (Foam* foam);
+    void Unwrap (Foam* foam, VertexSet* vertexSet);
     string ToString () const;
 
 public:

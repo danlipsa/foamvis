@@ -19,8 +19,8 @@ class ProcessBodyTorus
 public:
     ProcessBodyTorus (Foam* foam, Body* body);
     void Initialize ();
-    bool Step ();
-    void Unwrap ();
+    bool Step (VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
+    void Unwrap (VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
 
 private:
     void push (boost::shared_ptr<OrientedFace>  of);

@@ -8,6 +8,7 @@
 #define __FACE_H__
 
 #include "ColoredElement.h"
+#include "Comparisons.h"
 #include "BodyIndex.h"
 
 class AttributesInfo;
@@ -92,7 +93,7 @@ public:
     {
 	return m_orientedEdges.size ();
     }
-    void Unwrap (Foam* foam);
+    void Unwrap (Foam* foam, VertexSet* vertexSet, EdgeSet* edgeSet);
     string ToString () const;
 public:
     /**

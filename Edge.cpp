@@ -47,10 +47,10 @@ Edge::Edge (const Edge& o) :
 {
 }
 
-void Edge::Unwrap (Foam* foam)
+void Edge::Unwrap (Foam* foam, VertexSet* vertexSet)
 {
     if (m_endTranslation != Vector3int16Zero)
-	m_end = foam->GetVertexDuplicate (*m_end, m_endTranslation);
+	m_end = foam->GetVertexDuplicate (*m_end, m_endTranslation, vertexSet);
 }
 
 G3D::Vector3 Edge::GetTranslatedBegin (const G3D::Vector3& newEnd) const

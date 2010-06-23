@@ -664,7 +664,7 @@ void GLWidget::displayCenterOfBodies ()
 	glPointSize (4.0);
 	qglColor (QColor (Qt::red));
 	Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
-	for_each (bodies.begin (),bodies.end (), DisplayBodyCenter (*this));
+	for_each (bodies.begin (), bodies.end (), DisplayBodyCenter (*this));
 	glPopAttrib ();
     }
 }
@@ -748,8 +748,7 @@ GLuint GLWidget::displayListFacesTorusLines ()
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
 
     const Foam::Faces& faces = GetCurrentFoam ().GetFaces ();
-    for_each (faces.begin (), faces.end (),
-	      DisplayFace<
+    for_each (faces.begin (), faces.end (),                                            	      DisplayFace<
 	      DisplayEdges<
 	      DisplayEdgeTorus<DisplayEdge, DisplayArrow, true> > > (
 		  *this, DisplayElement::FOCUS) );
@@ -773,6 +772,12 @@ GLuint GLWidget::displayListCenterPaths ()
 	for_each (bats.begin (), bats.end (), displayCenterPath);
     else
 	displayCenterPath (GetDisplayedBodyId ());
+
+    Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
+    for_each (bodies.begin (), bodies.end (),
+	      DisplayBody<DisplayFace<
+	      DisplayEdges<DisplayEdgeWithColor> > >(*this));
+
     displayCenterOfBodies ();
     displayOriginalDomain ();
     displayStandaloneEdges ();
