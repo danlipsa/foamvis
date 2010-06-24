@@ -561,8 +561,9 @@ GLuint GLWidget::displayListVerticesTorus ()
     glPointSize (m_normalVertexSize);
     qglColor (QColor (Qt::black));
     glBegin (GL_POINTS);
-    const Foam::Vertices& vertices = GetCurrentFoam ().GetVertices ();
-    for_each (vertices.begin (), vertices.end (), DisplayOriginalVertex());
+    VertexSet vertexSet;
+    GetCurrentFoam ().GetVertexSet (&vertexSet);
+    for_each (vertexSet.begin (), vertexSet.end (), DisplayOriginalVertex());
     glEnd ();
     glPopAttrib ();
 
@@ -597,12 +598,9 @@ GLuint GLWidget::displayListEdges ()
 
 void GLWidget::displayStandaloneEdges () const
 {
-    const Foam::Edges& edges = GetCurrentFoam ().GetEdges ();
-    BOOST_FOREACH (boost::shared_ptr<Edge> edge, edges)
-    {
-	if (edge->IsStandaloneEdge ())
-	    DisplayEdgeWithColor (*this, DisplayElement::FOCUS) (*edge);
-    }
+    const Foam::Edges& standaloneEdges = GetCurrentFoam ().GetStandaloneEdges ();
+    BOOST_FOREACH (boost::shared_ptr<Edge> edge, standaloneEdges)
+	DisplayEdgeWithColor (*this, DisplayElement::FOCUS) (*edge);
 }
 
 
@@ -627,8 +625,9 @@ GLuint GLWidget::displayListEdgesTorusTubes ()
     gluQuadricDrawStyle (m_quadric, GLU_FILL);
     gluQuadricNormals (m_quadric, GLU_SMOOTH);
 
-    Foam::Edges& edges = GetCurrentFoam ().GetEdges ();
-    for_each (edges.begin (), edges.end (),
+    EdgeSet edgeSet;
+    GetCurrentFoam ().GetEdgeSet (&edgeSet);
+    for_each (edgeSet.begin (), edgeSet.end (),
 	      DisplayEdgeTorus<DisplayEdgeTube, 
 	      DisplayArrowTube, false>(*this));
     glPopAttrib ();
@@ -644,8 +643,9 @@ GLuint GLWidget::displayListEdgesTorusLines ()
     glNewList(list, GL_COMPILE);
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
 
-    Foam::Edges& edges = GetCurrentFoam ().GetEdges ();
-    for_each (edges.begin (), edges.end (),
+    EdgeSet edgeSet;
+    GetCurrentFoam ().GetEdgeSet (&edgeSet);
+    for_each (edgeSet.begin (), edgeSet.end (),
 	      DisplayEdgeTorus<DisplayEdge, DisplayArrow, false> (*this));
     glPopAttrib ();
 
@@ -727,8 +727,9 @@ GLuint GLWidget::displayListFacesTorusTubes ()
     glLineWidth (3.0);
     gluQuadricDrawStyle (m_quadric, GLU_FILL);
     gluQuadricNormals (m_quadric, GLU_SMOOTH);
-    const Foam::Faces& faces = GetCurrentFoam ().GetFaces ();
-    for_each (faces.begin (), faces.end (),
+    FaceSet faceSet;
+    GetCurrentFoam ().GetFaceSet (&faceSet);
+    for_each (faceSet.begin (), faceSet.end (),
 	      DisplayFace<
 	      DisplayEdges<
 	      DisplayEdgeTorus<DisplayEdgeTube, DisplayArrowTube, true> > > (
@@ -747,8 +748,10 @@ GLuint GLWidget::displayListFacesTorusLines ()
     glNewList(list, GL_COMPILE);
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
 
-    const Foam::Faces& faces = GetCurrentFoam ().GetFaces ();
-    for_each (faces.begin (), faces.end (),                                            	      DisplayFace<
+    FaceSet faceSet;
+    GetCurrentFoam ().GetFaceSet (&faceSet);
+    for_each (faceSet.begin (), faceSet.end (),
+	      DisplayFace<
 	      DisplayEdges<
 	      DisplayEdgeTorus<DisplayEdge, DisplayArrow, true> > > (
 		  *this, DisplayElement::FOCUS) );
@@ -773,10 +776,12 @@ GLuint GLWidget::displayListCenterPaths ()
     else
 	displayCenterPath (GetDisplayedBodyId ());
 
+/*
     Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<DisplayFace<
 	      DisplayEdges<DisplayEdgeWithColor> > >(*this));
+*/
 
     displayCenterOfBodies ();
     displayOriginalDomain ();
@@ -1088,9 +1093,7 @@ size_t GLWidget::GetDisplayedFaceId () const
 boost::shared_ptr<Face> GLWidget::GetDisplayedFace () const
 {
     size_t i = GetDisplayedFaceIndex ();
-    if  (m_viewType == FACES_TORUS)
-	return GetCurrentFoam ().GetFace (i);
-    else if (m_displayedBodyIndex != DISPLAY_ALL)
+    if (m_displayedBodyIndex != DISPLAY_ALL)
     {
 	Body& body = *GetDisplayedBody ();
 	return body.GetFace (i);

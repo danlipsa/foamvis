@@ -37,118 +37,11 @@ public:
      * Constructs a Foam object.
      */
     Foam ();
-    /**
-     * Gets a Vertex from the Foam object
-     * @param i index where the Vertex object is stored
-     * @return a pointer to the Vertex object
-     */
-    boost::shared_ptr<Vertex> GetVertex (int i) 
-    {
-	return m_vertices[i];
-    }
-    boost::shared_ptr<Vertex> GetVertexDuplicate (
-	const Vertex& original, const G3D::Vector3int16& translation,
-	VertexSet* vertexSet);
-    boost::shared_ptr<Edge>  GetEdgeDuplicate (
-	const Edge& original, const G3D::Vector3& edgeBegin,
-	VertexSet* vertexSet, EdgeSet* edgeSet);
-    boost::shared_ptr<Face>  GetFaceDuplicate (
-	const Face& original, const G3D::Vector3int16& translation,
-	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
-    void BodyTranslate (
-	const boost::shared_ptr<Body>& body,
-	const G3D::Vector3int16& translate,
-	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
 
-    boost::shared_ptr<Vertex> CreateVertexDuplicate (
-	const Vertex& original, G3D::Vector3int16 const& translation);
-    boost::shared_ptr<Edge>  CreateEdgeDuplicate (
-	const Edge& original, const G3D::Vector3& newBegin, 
-	VertexSet* vertexSet);
-    boost::shared_ptr<Face>  CreateFaceDuplicate (
-	const Face& original, const G3D::Vector3& newBegin,
-	VertexSet* vertexSet, EdgeSet* edgeSet);
+    void GetVertexSet (VertexSet* vertexSet) const;
+    void GetEdgeSet (EdgeSet* edgeSet) const;
+    void GetFaceSet (FaceSet* faceSet) const;
 
-    /**
-     * Insures a body's center is inside the original domain.
-     * @return true if the body is already inside the original domain,
-     *         so no translation is necessary, false otherwise
-     */
-    bool BodyInsideOriginalDomain (
-	const boost::shared_ptr<Body>& body,
-	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
-    Bodies::iterator BodyInsideOriginalDomainStep (
-	Bodies::iterator begin,
-	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
-    void BodiesInsideOriginalDomain (
-	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
-
-    /**
-     * Gets the vector of vertices
-     * @return the vector of vertices
-     */
-    const Vertices& GetVertices () 
-    {
-	return m_vertices;
-    }
-
-    /**
-     * Stores a Vertex object a certain index in the Foam object
-     * @param i where to store the Vertex object
-     * @param x coordinate X of the Vertex object
-     * @param y coordinate Y of the Vertex object
-     * @param z coordinate Z of the Vertex object
-     * @param attributes the list of attributes for the vertex
-     */
-    void SetVertex (size_t i, float x, float y, float z,
-		    vector<NameSemanticValue*>& attributes);
-    /**
-     * Returns all edges from this Foam
-     * @return a vector of Edge pointers
-     */
-    Edges& GetEdges () 
-    {
-	return m_edges;
-    }
-    /**
-     * Stores an Edge object in the Foam object at a certain index
-     * @param i index where to store the Edge object
-     * @param begin index of the first Point that determines the edge
-     * @param end index of the last Point that determines the edge
-     * @param attributes the list of attributes for this edge
-     */
-    void SetEdge (size_t i, size_t begin, size_t end,
-		  G3D::Vector3int16& endTranslation,
-                  vector<NameSemanticValue*>& attributes);
-    /**
-     * Gets all faces from this Foam
-     */
-    Faces& GetFaces () 
-    {
-	return m_faces;
-    }
-    const Faces& GetFaces () const
-    {
-	return m_faces;
-    }
-
-    boost::shared_ptr<Face>  GetFace (size_t i)
-    {
-	return m_faces[i];
-    }
-    /**
-     * Stores a Face object in the Foam object 
-     * 
-     * @param i index where to store the Face object
-     * @param edges  vector of  edges that form  the face. An  edge is
-     *        specified using an index of the edge that should already
-     *        be stored in the Foam  object. If the index is negative,
-     *        the edge part of the  Face is in reversed order than the
-     *        Edge that is stored in the Foam object.
-     * @param attributes the list of attributes for the face
-     */
-    void SetFace (size_t i,  vector<int>& edges,
-                  vector<NameSemanticValue*>& attributes);
     /**
      * Gets ith body
      * @param i index of the body to be returned
@@ -162,10 +55,15 @@ public:
      * Gets all bodies from the Foam
      * @return a vector of Body pointers
      */
-    Bodies& GetBodies () 
+    Bodies& GetBodies ()
     {
 	return m_bodies;
     }
+    const Bodies& GetBodies () const
+    {
+	return m_bodies;
+    }
+
     /**
      * Stores a Body object in the Foam object
      * @param i index where to store the Body object
@@ -209,12 +107,6 @@ public:
      */
     void ReleaseParsingData ();
     /**
-     * The vectors of vertices, edges, faces and bodies may have holes.
-     * This function compacts the elements in those vectors so that it
-     * eliminates the holes.
-     */
-    void Compact ();
-    /**
      * Stores information about an attribute.
      * @param type the type of attribute (@see DefineAttribute)
      * @param name the name of the attribute
@@ -223,19 +115,6 @@ public:
     void AddAttributeInfo (
         DefineAttribute::Type type, const char* name,
         auto_ptr<AttributeCreator> creator);
-    /**
-     * Calculate faces part of a body, edges part of a face, ...
-     */
-    void UpdatePartOf ();
-    /**
-     * Calculate the bounding box for all vertices in this Foam
-     */
-    void CalculateAABox ();
-    /**
-     * Calculate centers for all bodies.
-     */
-    void CalculateBodiesCenters ();
-    void CalculateTorusClipped ();
     /**
      * Gets a AABox of this Foam object
      * @return an AABox of this Foam object
@@ -293,12 +172,23 @@ public:
     {
 	m_quadratic = true;
     }
-    void calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high);
-    void Unwrap (VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
-    void TorusTranslate (
-      Vertex* vertex, const G3D::Vector3int16& domainIncrement) const;
-    void PrintFaceInformation (ostream& ostr) const;
-    void PrintEdgeInformation (ostream& ostr) const;
+    const AttributesInfo& GetAttributesInfo (
+	DefineAttribute::Type attributeType) const;
+    const Edges& GetStandaloneEdges () const
+    {
+	return m_standaloneEdges;
+    }
+    boost::shared_ptr<Face>  GetFaceDuplicate (
+	const Face& original, const G3D::Vector3int16& translation,
+	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet) const;
+    /**
+     * Insures a body's center is inside the original domain.
+     * @return true if the body is already inside the original domain,
+     *         so no translation is necessary, false otherwise
+     */
+    Bodies::iterator BodyInsideOriginalDomainStep (
+	Bodies::iterator begin,
+	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
 
 public:
     /**
@@ -307,21 +197,65 @@ public:
     friend ostream& operator<< (ostream& ostr, const Foam& d);
 
 private:
-    ostream& PrintFacesWithIntersection (ostream& ostr) const;
+    void copyStandaloneElements ();
+    /**
+     * The vectors of vertices, edges, faces and bodies may have holes.
+     * This function compacts the elements in those vectors so that it
+     * eliminates the holes.
+     */
+    void compact ();
+    /**
+     * Calculate the bounding box for all vertices in this Foam
+     */
+    void calculateAABox ();
+    /**
+     * Calculate centers for all bodies.
+     */
+    void calculateBodiesCenters ();
+    void calculateTorusClipped ();
+    /**
+     * Calculate faces part of a body, edges part of a face, ...
+     */
+    void updatePartOf ();
+    bool bodyInsideOriginalDomain (
+	const boost::shared_ptr<Body>& body,
+	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
+    void bodiesInsideOriginalDomain (
+	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
+
+    boost::shared_ptr<Vertex> createVertexDuplicate (
+	const Vertex& original, G3D::Vector3int16 const& translation) const;
+    boost::shared_ptr<Edge>  createEdgeDuplicate (
+	const Edge& original, const G3D::Vector3& newBegin, 
+	VertexSet* vertexSet) const;
+    boost::shared_ptr<Face>  createFaceDuplicate (
+	const Face& original, const G3D::Vector3& newBegin,
+	VertexSet* vertexSet, EdgeSet* edgeSet) const;
+    void calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high);
+    void torusTranslate (
+      Vertex* vertex, const G3D::Vector3int16& domainIncrement) const;
+    void unwrap (VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
+    void unwrap (boost::shared_ptr<Edge> edge, VertexSet* vertexSet) const;
+    void unwrap (boost::shared_ptr<Face> face, 
+		 VertexSet* vertexSet, EdgeSet* edgeSet) const;
+    void unwrap (boost::shared_ptr<Body> body,
+		 VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet) const;
+    boost::shared_ptr<Vertex> getVertexDuplicate (
+	const Vertex& original, const G3D::Vector3int16& translation,
+	VertexSet* vertexSet) const;
+    boost::shared_ptr<Edge>  getEdgeDuplicate (
+	const Edge& original, const G3D::Vector3& edgeBegin,
+	VertexSet* vertexSet, EdgeSet* edgeSet) const;
+    void bodyTranslate (
+	const boost::shared_ptr<Body>& body,
+	const G3D::Vector3int16& translate,
+	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
+
 
 private:
-    /**
-     * A vector of points
-     */
-    Vertices m_vertices;
-    /**
-     * A vector of edges
-     */
-    Edges m_edges;
-    /**
-     * A vector of faces
-     */
-    Faces m_faces;
+    Edges m_standaloneEdges;
+    Faces m_standaloneFaces;
+
     /**
      * A vector of bodies.
      */

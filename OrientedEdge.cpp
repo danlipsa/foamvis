@@ -87,3 +87,8 @@ string OrientedEdge::ToString () const
     print (ostr);
     return ostr.str ();
 }
+
+void OrientedEdge::GetVertexSet (VertexSet* vertexSet) const
+{
+    GetEdge ()->GetVertexSet (vertexSet);
+}

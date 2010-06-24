@@ -17,7 +17,7 @@ class OrientedFace;
 class ProcessBodyTorus
 {
 public:
-    ProcessBodyTorus (Foam* foam, Body* body);
+    ProcessBodyTorus (const Foam& foam, const boost::shared_ptr<Body>& body);
     void Initialize ();
     bool Step (VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
     void Unwrap (VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
@@ -34,8 +34,8 @@ private:
 	OrientedFaceIndex* nextOrientedFaceIndex);
 
 private:
-    Foam* m_foam;
-    Body* m_body;
+    const Foam& m_foam;
+    boost::shared_ptr<Body> m_body;
     queue<OrientedFaceIndex> m_queue;
     vector<bool> m_traversed;
 };

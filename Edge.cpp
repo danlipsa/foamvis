@@ -47,12 +47,6 @@ Edge::Edge (const Edge& o) :
 {
 }
 
-void Edge::Unwrap (Foam* foam, VertexSet* vertexSet)
-{
-    if (m_endTranslation != Vector3int16Zero)
-	m_end = foam->GetVertexDuplicate (*m_end, m_endTranslation, vertexSet);
-}
-
 G3D::Vector3 Edge::GetTranslatedBegin (const G3D::Vector3& newEnd) const
 {
     return newEnd + (*GetBegin () - *GetEnd ());
@@ -267,4 +261,10 @@ void Edge::StoreDefaultAttributes (AttributesInfo* infos)
     ac.reset (new RealAttributeCreator());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::DENSITY), ac);
+}
+
+void Edge::GetVertexSet (VertexSet* vertexSet) const
+{
+    vertexSet->insert (GetBegin ());
+    vertexSet->insert (GetEnd ());
 }

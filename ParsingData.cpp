@@ -7,7 +7,10 @@
 
 #include "Debug.h"
 #include "DebugStream.h"
+#include "Edge.h"
+#include "Face.h"
 #include "ParsingData.h"
+#include "Vertex.h"
 
 /**
  * Throws  an  exception  because  we  should  not  have
@@ -144,4 +147,42 @@ void ParsingData::PrintTimeCheckpoint (string& description)
 		<< static_cast<float>(time - m_previousTime) / CLOCKS_PER_SEC
 		<< " sec" << endl;
 	m_previousTime = time;
+}
+
+void ParsingData::SetVertex (size_t i, float x, float y, float z,
+			     vector<NameSemanticValue*>& attributes,
+			     const AttributesInfo& attributesInfo) 
+{
+    if (i >= m_vertices.size ())
+        m_vertices.resize (i + 1);
+    boost::shared_ptr<Vertex> vertex = boost::make_shared<Vertex> (x, y ,z, i);
+    if (&attributes != 0)
+        vertex->StoreAttributes (attributes, attributesInfo);
+    m_vertices[i] = vertex;
+}
+
+void ParsingData::SetEdge (size_t i, size_t begin, size_t end,
+			   G3D::Vector3int16& endTranslation,
+			   vector<NameSemanticValue*>& attributes,
+			   const AttributesInfo& attributesInfo) 
+{
+    if (i >= m_edges.size ())
+        m_edges.resize (i + 1); 
+    boost::shared_ptr<Edge> edge = boost::make_shared<Edge> (
+	GetVertex(begin), GetVertex(end), endTranslation, i);
+    if (&attributes != 0)
+        edge->StoreAttributes (attributes, attributesInfo);
+    m_edges[i] = edge;
+}
+
+void ParsingData::SetFace (size_t i,  vector<int>& edges,
+			   vector<NameSemanticValue*>& attributes,
+			   const AttributesInfo& attributesInfo)
+{
+    if (i >= m_faces.size ())
+        m_faces.resize (i + 1);
+    boost::shared_ptr<Face> face = boost::make_shared<Face> (edges, m_edges, i);
+    if (&attributes != 0)
+        face->StoreAttributes (attributes, attributesInfo);
+    m_faces[i] = face;
 }

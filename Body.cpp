@@ -222,12 +222,6 @@ boost::shared_ptr<Face> Body::GetFace (size_t i) const
     return GetOrientedFace (i)->GetFace ();
 }
 
-void Body::Unwrap (Foam* foam,
-		   VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
-{
-    ProcessBodyTorus(foam, this).Unwrap (vertexSet, edgeSet, faceSet);
-}
-
 string Body::ToString () const
 {
     ostringstream ostr;
@@ -240,6 +234,29 @@ string Body::ToString () const
     ostr << "\nBody center: " << m_center;
     return ostr.str ();
 }
+
+void Body::GetVertexSet (VertexSet* vertexSet) const
+{
+    const OrientedFaces& orientedFaces = GetOrientedFaces ();
+    for_each (orientedFaces.begin (), orientedFaces.end (),
+	      boost::bind (&OrientedFace::GetVertexSet, _1, vertexSet));
+}
+
+void Body::GetEdgeSet (EdgeSet* edgeSet) const
+{
+    const OrientedFaces& orientedFaces = GetOrientedFaces ();
+    for_each (orientedFaces.begin (), orientedFaces.end (),
+	      boost::bind (&OrientedFace::GetEdgeSet, _1, edgeSet));
+}
+
+void Body::GetFaceSet (FaceSet* faceSet) const
+{
+    const OrientedFaces& orientedFaces = GetOrientedFaces ();
+    BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, orientedFaces)
+	faceSet->insert (of->GetFace ());
+}
+
+
 
 
 // Static and Friends Methods

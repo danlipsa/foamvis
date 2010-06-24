@@ -174,12 +174,12 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     case Qt::Key_Space:
     {
 	Foam& currentFoam = widgetGl->GetCurrentFoam ();
-	VertexSet vertexSet (currentFoam.GetVertices ().begin (),
-			     currentFoam.GetVertices ().end ());
-	EdgeSet edgeSet (currentFoam.GetEdges ().begin (),
-			 currentFoam.GetEdges ().end ());
-	FaceSet faceSet (currentFoam.GetFaces ().begin (),
-			 currentFoam.GetFaces ().end ());
+	VertexSet vertexSet;
+	EdgeSet edgeSet;
+	FaceSet faceSet;
+	currentFoam.GetVertexSet (&vertexSet);
+	currentFoam.GetEdgeSet (&edgeSet);
+	currentFoam.GetFaceSet (&faceSet);
 	m_currentTranslatedBody = currentFoam.BodyInsideOriginalDomainStep (
 	    m_currentTranslatedBody, &vertexSet, &edgeSet, &faceSet);
 	if (m_currentTranslatedBody == currentFoam.GetBodies ().end ())
@@ -194,21 +194,22 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     {
 	try
 	{
-	    Foam* foam = &widgetGl->GetCurrentFoam ();
-	    boost::shared_ptr<Body>  b = foam->GetBody (m_currentBody);
+	    Foam& currentFoam = widgetGl->GetCurrentFoam ();
+	    boost::shared_ptr<Body>  b = currentFoam.GetBody (m_currentBody);
 	    if (m_processBodyTorus == 0)
 	    {
-		m_processBodyTorus = new ProcessBodyTorus (foam, b.get ());
+		m_processBodyTorus = new ProcessBodyTorus (
+		    currentFoam, b);
 		m_processBodyTorus->Initialize ();
 	    }
 	    else
 	    {
-		VertexSet vertexSet (foam->GetVertices ().begin (),
-				     foam->GetVertices ().end ());
-		EdgeSet edgeSet (foam->GetEdges ().begin (),
-				 foam->GetEdges ().end ());
-		FaceSet faceSet (foam->GetFaces ().begin (),
-				 foam->GetFaces ().end ());
+		VertexSet vertexSet;
+		EdgeSet edgeSet;
+		FaceSet faceSet;
+		currentFoam.GetVertexSet (&vertexSet);
+		currentFoam.GetEdgeSet (&edgeSet);
+		currentFoam.GetFaceSet (&faceSet);
 		if (! m_processBodyTorus->Step (&vertexSet, &edgeSet, &faceSet))
 		{
 		    m_processBodyTorus = 0;

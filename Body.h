@@ -73,9 +73,11 @@ public:
     }
     void UpdatePartOf (const boost::shared_ptr<Body>& body);
     bool HasWrap () const;
-    void Unwrap (Foam* foam,
-		 VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
     string ToString () const;
+    void GetVertexSet (VertexSet* vertexSet) const;
+    void GetEdgeSet (EdgeSet* edgeSet) const;
+    void GetFaceSet (FaceSet* faceSet) const;
+
 
 public:
     /**

@@ -93,8 +93,15 @@ public:
     {
 	return m_orientedEdges.size ();
     }
-    void Unwrap (Foam* foam, VertexSet* vertexSet, EdgeSet* edgeSet);
     string ToString () const;
+    void GetVertexSet (VertexSet* vertexSet) const;
+    void GetEdgeSet (EdgeSet* edgeSet) const;
+    bool IsStandalone () const
+    {
+	return GetBodyPartOfSize () == 0;
+    }
+
+
 public:
     /**
      * Specifies the default attributes for an Face object.

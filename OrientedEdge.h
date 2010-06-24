@@ -68,6 +68,7 @@ public:
 	return print (ostr, true);
     }
     string ToString () const;
+    void GetVertexSet (VertexSet* vertexSet) const;
 
 private:
     ostream& print (ostream& ostr, bool reversed = false) const;

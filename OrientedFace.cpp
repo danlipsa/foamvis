@@ -111,14 +111,24 @@ ostream& OrientedFace::PrintAttributes (ostream& ostr) const
 string OrientedFace::ToString () const
 {
     ostringstream ostr;
-    ostr << "Oriented Face " << GetStringId () 
-	 << " " << GetFace ()->GetColor () << " "
-	 << GetFace ()->GetDuplicateStatus ()
+    boost::shared_ptr<Face> face = GetFace ();
+    ostr << "Oriented Face " << GetStringId () << " " 
+	 << face->GetDuplicateStatus () << " useCount=" << face.use_count ()
 	 << ": " << endl;
     ostr << size () << " edges part of the face:" << endl;
     for (size_t i = 0; i < size (); i++)
 	ostr << i << ": " << GetOrientedEdge (i) << endl;
     ostr << " Face attributes: ";
-    GetFace ()->PrintAttributes (ostr);
+    face->PrintAttributes (ostr);
     return ostr.str ();
+}
+
+void OrientedFace::GetVertexSet (VertexSet* vertexSet) const
+{
+    GetFace ()->GetVertexSet (vertexSet);
+}
+
+void OrientedFace::GetEdgeSet (EdgeSet* edgeSet) const
+{
+    GetFace ()->GetEdgeSet (edgeSet);
 }

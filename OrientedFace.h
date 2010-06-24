@@ -8,7 +8,9 @@
 #define __ORIENTED_FACE_H__
 
 #include "BodyIndex.h"
+#include "Comparisons.h"
 #include "OrientedElement.h"
+
 class Face;
 class Vertex;
 class OrientedEdge;
@@ -79,6 +81,9 @@ public:
 
     size_t size () const;
     string ToString () const;
+    void GetVertexSet (VertexSet* vertexSet) const;
+    void GetEdgeSet (EdgeSet* edgeSet) const;
+
 
 public:
     static pair< G3D::Vector3, boost::shared_ptr<OrientedFace> > 
@@ -111,7 +116,7 @@ inline ostream& operator<< (ostream& ostr, const OrientedFace& of)
 inline ostream& operator<< (ostream& ostr, 
 			    const boost::shared_ptr<OrientedFace>& of)
 {
-    return ostr << *of << "useCount=" << of.use_count ();;
+    return ostr << *of;
 }
 
 

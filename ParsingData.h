@@ -10,6 +10,8 @@
 #include "Comparisons.h"
 #include "ParsingDriver.h"
 
+class AttributesInfo;
+
 /**
  * Stores data used during  the parsing such as identifiers, variables
  * and functions.
@@ -44,6 +46,9 @@ public:
      * How are identifiers stored
      */
     typedef map<const char*, string*, LessThanNoCase> Identifiers;
+    typedef vector< boost::shared_ptr<Vertex> > Vertices;
+    typedef vector< boost::shared_ptr<Edge> > Edges;
+    typedef vector< boost::shared_ptr<Face> > Faces;
 
 public:
     /**
@@ -109,6 +114,89 @@ public:
 	m_methodOrQuantity.insert (s);
     }
 
+    /**
+     * Gets the vector of vertices
+     * @return the vector of vertices
+     */
+    const Vertices& GetVertices () const
+    {
+	return m_vertices;
+    }
+    Vertices& GetVertices ()
+    {
+	return m_vertices;
+    }
+    /**
+     * Stores a Vertex object a certain index in the Foam object
+     * @param i where to store the Vertex object
+     * @param x coordinate X of the Vertex object
+     * @param y coordinate Y of the Vertex object
+     * @param z coordinate Z of the Vertex object
+     * @param attributes the list of attributes for the vertex
+     */
+    void SetVertex (size_t i, float x, float y, float z,
+		    vector<NameSemanticValue*>& attributes,
+		    const AttributesInfo& attributesInfo);
+    /**
+     * Gets a Vertex from the Foam object
+     * @param i index where the Vertex object is stored
+     * @return a pointer to the Vertex object
+     */
+    boost::shared_ptr<Vertex> GetVertex (int i) 
+    {
+	return m_vertices[i];
+    }
+    /**
+     * Returns all edges from this Foam
+     * @return a vector of Edge pointers
+     */
+    Edges& GetEdges () 
+    {
+	return m_edges;
+    }
+    /**
+     * Stores an Edge object in the Foam object at a certain index
+     * @param i index where to store the Edge object
+     * @param begin index of the first Point that determines the edge
+     * @param end index of the last Point that determines the edge
+     * @param attributes the list of attributes for this edge
+     */
+    void SetEdge (size_t i, size_t begin, size_t end,
+		  G3D::Vector3int16& endTranslation,
+                  vector<NameSemanticValue*>& attributes,
+		  const AttributesInfo& attributesInfo);
+    /**
+     * Gets all faces from this Foam
+     */
+    Faces& GetFaces () 
+    {
+	return m_faces;
+    }
+    const Faces& GetFaces () const
+    {
+	return m_faces;
+    }
+
+    boost::shared_ptr<Face>  GetFace (size_t i)
+    {
+	return m_faces[i];
+    }
+    /**
+     * Stores a Face object in the Foam object 
+     * 
+     * @param i index where to store the Face object
+     * @param edges  vector of  edges that form  the face. An  edge is
+     *        specified using an index of the edge that should already
+     *        be stored in the Foam  object. If the index is negative,
+     *        the edge part of the  Face is in reversed order than the
+     *        Edge that is stored in the Foam object.
+     * @param attributes the list of attributes for the face
+     */
+    void SetFace (size_t i,  vector<int>& edges,
+                  vector<NameSemanticValue*>& attributes,
+		  const AttributesInfo& attributesInfo);
+
+
 public:
     /**
      * Pretty prints the ParsingData object
@@ -130,7 +218,21 @@ private:
     };
 
 
+
+
 private:
+    /**
+     * A vector of points
+     */
+    Vertices m_vertices;
+    /**
+     * A vector of edges
+     */
+    Edges m_edges;
+    /**
+     * A vector of faces
+     */
+    Faces m_faces;
     /**
      * Stores  variables  read   from  the  datafile  (declared  using
      * PARAMETER keyword in the Evolver DMP file)

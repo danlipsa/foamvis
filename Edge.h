@@ -131,13 +131,13 @@ public:
 	return (duplicateStatus != ElementStatus::DUPLICATE);
     }
 
-    bool IsStandaloneEdge () const
+    bool IsStandalone () const
     {
 	return GetFacePartOfSize () == 0;
     }
 
-    void Unwrap (Foam* foam, VertexSet* vertexSet);
     string ToString () const;
+    void GetVertexSet (VertexSet* vertexSet) const;
 
 public:
     static short LocationCharToNumber (char sign);

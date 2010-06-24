@@ -17,7 +17,8 @@
 #include "Utils.h"
 #include "Vertex.h"
 
-ProcessBodyTorus::ProcessBodyTorus (Foam* foam, Body* body) : 
+ProcessBodyTorus::ProcessBodyTorus (const Foam& foam, 
+				    const boost::shared_ptr<Body>& body) : 
     m_foam (foam), m_body (body), m_traversed (body->size (), false)
 {}
 
@@ -45,15 +46,15 @@ bool ProcessBodyTorus::Step (
 	return false;
     const OrientedEdge& oe = ofi.GetOrientedEdge ();
     const OrientedEdge& nextOe = nextOfi.GetOrientedEdge ();
-    const OOBox& periods = m_foam->GetOriginalDomain ();
+    const OOBox& periods = m_foam.GetOriginalDomain ();
 
     G3D::Vector3int16 translation = 
 	periods.GetTranslation (*nextOe.GetBegin (), *oe.GetEnd ());
     if (translation != Vector3int16Zero)
     {
 	boost::shared_ptr<Face>  translatedNextFace = 
-	    m_foam->GetFaceDuplicate (*nextOfi.GetFace (), translation,
-				      vertexSet, edgeSet, faceSet);
+	    m_foam.GetFaceDuplicate (*nextOfi.GetFace (), translation,
+				     vertexSet, edgeSet, faceSet);
 	boost::shared_ptr<OrientedFace>  nextOf = nextOfi.GetOrientedFace ();
 	nextOf->SetFace (translatedNextFace);
 	//cdbg << "    Face " << nextOf->GetStringId ()

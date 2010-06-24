@@ -753,10 +753,11 @@ vertex_list
 {
     vector<NameSemanticValue*>* nameSemanticValueList = 
 	$6;
-    foam.SetVertex (
+    foam.GetParsingData ().SetVertex (
 	intToUnsigned($2- 1,
 		      "Semantic error: vertex index less than 0: "),
-	$3, $4, $5, *nameSemanticValueList);
+	$3, $4, $5, *nameSemanticValueList, 
+	foam.GetAttributesInfo (DefineAttribute::VERTEX));
     if (nameSemanticValueList != 0)
 	NameSemanticValue::DeleteVector(nameSemanticValueList);
 }
@@ -848,12 +849,13 @@ edge_list
 | edge_list INTEGER_VALUE INTEGER_VALUE INTEGER_VALUE edge_midpoint 
   signs_torus_model edge_attribute_list nl
 {
-    foam.SetEdge (
+    foam.GetParsingData ().SetEdge (
 	intToUnsigned($2 - 1, "Semantic error: edge index less than 0: "),
 	intToUnsigned($3 - 1, "Semantic error: edge begin less than 0: "),
 	intToUnsigned($4 - 1, "Semantic error: edge end less than 0: "),
 	*$6,
-	*$7);
+	*$7,
+	foam.GetAttributesInfo (DefineAttribute::EDGE));
     delete $6;
     NameSemanticValue::DeleteVector($7);
 }
@@ -952,9 +954,10 @@ face_list
 | face_list INTEGER_VALUE integer_list face_attribute_list nl
 {
     vector<int>* intList = $3;
-    foam.SetFace (
+    foam.GetParsingData ().SetFace (
 	intToUnsigned($2- 1, "Semantic error: face index less than 0"), 
-	*intList, *$4);
+	*intList, *$4,
+	foam.GetAttributesInfo (DefineAttribute::FACE));
     delete intList;
     NameSemanticValue::DeleteVector($4);
 }
