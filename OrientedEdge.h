@@ -69,6 +69,7 @@ public:
     }
     string ToString () const;
     void GetVertexSet (VertexSet* vertexSet) const;
+    bool IsPhysical (size_t dimension, bool isQuadratic) const;
 
 private:
     ostream& print (ostream& ostr, bool reversed = false) const;

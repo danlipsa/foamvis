@@ -67,20 +67,14 @@ public Q_SLOTS:
      * at the current position of the slider.
      */
     void ValueChangedSliderData (int value);
-        /**
-     * Shows vertices
-     * @param checked true for showing vertices false otherwise
-     */
-    void ToggledVerticesPhysical (bool checked);
-
 
     /**
      * Shows edges
      * @param checked true for showing edges false otherwise
      */
     void ToggledEdgesNormal (bool checked);
-    void ToggledEdgesPhysical (bool checked);
     void ToggledEdgesTorus (bool checked);
+
     void ToggledFacesTorus (bool checked);
 
     /**
@@ -88,6 +82,7 @@ public Q_SLOTS:
      * @param checked true for saving images, false otherwise
      */
     void ToggledSaveMovie (bool checked);
+    void ToggledCenterPath (bool checked);
 
 private:
     /**

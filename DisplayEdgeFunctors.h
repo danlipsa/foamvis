@@ -166,54 +166,6 @@ protected:
 };
 
 
-class DisplayEdgePhysical : public DisplayElementFocus
-{
-public:
-    /**
-     * Constructor
-     * @param widget Where should be the edge displayed
-     */
-    DisplayEdgePhysical (const GLWidget& widget,
-				       FocusContext focus = FOCUS) : 
-	DisplayElementFocus (widget, focus) 
-    {
-    }
-
-    void operator () (const OrientedEdge& oe)
-    {
-	size_t dimension = m_widget.GetCurrentFoam ().GetSpaceDimension ();
-	bool quadratic = m_widget.GetCurrentFoam ().IsQuadratic ();
-	float edgeSize = (oe.GetEdge ()->IsPhysical (dimension, quadratic)) ? 
-	    m_widget.GetPhysicalEdgeWidth () :
-	    m_widget.GetTessellationEdgeWidth ();
-	if (edgeSize != 0.0)
-	{
-	    Vertex* begin = oe.GetBegin ().get ();
-	    Vertex* end = oe.GetEnd ().get ();
-	    glLineWidth (edgeSize);
-	    m_widget.qglColor (
-		oe.GetEdge()->IsPhysical (dimension, quadratic) ? 
-		m_widget.GetPhysicalEdgeColor () : 
-		m_widget.GetTessellationEdgeColor () );
-	    glBegin(GL_LINES);
-	    glVertex3f(begin->x, begin->y, begin->z);
-	    glVertex3f(end->x, end->y, end->z);
-	    glEnd();
-	}
-
-
-    }
-    /**
-     * Functor that displays an edge
-     * @param e the edge to be displayed
-     */
-    void operator() (const boost::shared_ptr<OrientedEdge>& e)
-    {
-	operator() (*e);
-    }
-};
-
-
 class DisplayEdgeWithColor : public DisplayElementFocus
 {
 public:
@@ -232,18 +184,21 @@ public:
     }
     void operator () (const Edge& oe) const
     {
-	Color::Name color = oe.GetColor (Color::BLACK);
-	glColor (
-	    G3D::Color4 (
-		Color::GetValue(color),
-		m_focus == FOCUS ? 1.0 : m_widget.GetContextAlpha ()
-		));
-	G3D::Vector3* b = oe.GetBegin ().get ();
-	G3D::Vector3* e = oe.GetEnd ().get ();
-	glBegin(GL_LINES);
-	glVertex(*b);
-	glVertex (*e);
-	glEnd ();
+	Foam& foam = m_widget.GetCurrentFoam ();
+	bool isPhysical = oe.IsPhysical (foam.GetSpaceDimension (),
+					 foam.IsQuadratic ());
+	if (isPhysical || (m_widget.IsEdgesTessellation () && m_focus == FOCUS))
+	{
+	    float alpha = m_focus == FOCUS ? 1.0 : m_widget.GetContextAlpha (); 
+	    Color::Name color = oe.GetColor (Color::BLACK);
+	    glColor (G3D::Color4 (Color::GetValue(color), alpha));
+	    G3D::Vector3* b = oe.GetBegin ().get ();
+	    G3D::Vector3* e = oe.GetEnd ().get ();
+	    glBegin(GL_LINES);
+	    glVertex(*b);
+	    glVertex (*e);
+	    glEnd ();
+	}
     }
 
 

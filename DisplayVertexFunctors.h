@@ -57,48 +57,6 @@ struct DisplayEdgeVertices
 };
 
 
-
-
-class DisplayVertexPhysical : public DisplayElementFocus
-{
-public:
-    /**
-     * Constructor
-     * @param widget Where should be the vertex displayed
-     */
-    DisplayVertexPhysical (const GLWidget& widget, FocusContext focus = FOCUS) : 
-	DisplayElementFocus (widget, focus) 
-    {
-    }
-
-    /**
-     * Functor that displays a vertex
-     * @param v the vertex to be displayed
-     */
-    void operator() (const boost::shared_ptr<OrientedEdge> oe)
-    {
-	Vertex* v = oe->GetBegin ().get ();
-	size_t dimension = m_widget.GetCurrentFoam ().GetSpaceDimension ();
-	bool isQuadratic = m_widget.GetCurrentFoam ().IsQuadratic ();
-	float pointSize = 
-	    (v->IsPhysical (dimension, isQuadratic)) ? 
-	    m_widget.GetPhysicalVertexSize () :
-	    m_widget.GetTessellationVertexSize ();
-	if (pointSize != 0.0)
-	{
-	    glPointSize (pointSize);
-	    m_widget.qglColor (
-		v->IsPhysical (dimension, isQuadratic) ? 
-		m_widget.GetPhysicalVertexColor () : 
-		m_widget.GetTessellationVertexColor () );
-	    glBegin(GL_POINTS);
-	    glVertex3f(v->x, v->y, v->z);
-	    glEnd();
-	}
-    }
-};
-
-
 #endif //__DISPLAY_VERTEX_FUNCTORS_H__
 
 // Local Variables:

@@ -111,53 +111,12 @@ public:
      */
     void DecrementDisplayedFace ();
     void DecrementDisplayedEdge ();
-    /**
-     * Returns the actual size of physical objects
-     */
-    float GetPhysicalVertexSize () const
-    {
-	return OBJECTS_WIDTH[m_physicalVertexSize];
-    }
-    float GetPhysicalEdgeWidth () const
-    {
-	return OBJECTS_WIDTH[m_physicalEdgeWidth];
-    }
-    /**
-     * Returns the actual size of tessellation objects
-     */
-    float GetTessellationVertexSize () const
-    {
-	return OBJECTS_WIDTH[m_tessellationVertexSize];
-    }
-    float GetTessellationEdgeWidth () const
-    {
-	return OBJECTS_WIDTH[m_tessellationEdgeWidth];
-    }
-    const QColor& GetTessellationVertexColor () const
-    {
-	return m_tessellationVertexColor;
-    }
-    const QColor& GetTessellationEdgeColor () const
-    {
-	return m_tessellationVertexColor;
-    }
     float GetContextAlpha () const
     {
 	return m_contextAlpha;
     }
 
-
-    const QColor& GetEndTranslationColor (const G3D::Vector3int16& di) const;
-    
-    const QColor& GetPhysicalVertexColor () const
-    {
-	return m_physicalVertexColor;
-    }
-    const QColor& GetPhysicalEdgeColor () const
-    {
-	return m_physicalEdgeColor;
-    }
-
+    const QColor& GetEndTranslationColor (const G3D::Vector3int16& di) const;    
 
     /**
      * Displays the center of the bodies
@@ -184,7 +143,15 @@ public:
     bool IsDisplayedBody (size_t bodyId) const;
     bool IsDisplayedFace (size_t faceI) const;
     bool IsDisplayedEdge (size_t edgeI) const;
-
+    bool IsEdgesTessellation () const
+    {
+	return m_edgesTessellation;
+    }
+    bool IsCenterPathDisplayBody () const
+    {
+	return m_centerPathDisplayBody;
+    }
+    
 
     // Slot like methods
     // ======================================================================
@@ -193,58 +160,36 @@ public:
      * @param newIndex the new index for the data object to be displayed
      */
     void ValueChangedSliderData (int newIndex);
-    void ToggledVerticesPhysical (bool checked);
     /**
      * Shows edges
      * @param checked true for showing edges false otherwise
      */
     void ToggledEdgesNormal (bool checked);
-    void ToggledEdgesPhysical (bool checked);
     void ToggledEdgesTorus (bool checked);
-    void ToggledFacesTorus (bool checked);
-
-
-
-public Q_SLOTS:
-    /**
-     * Shows vertices
-     * @param checked true for showing vertices false otherwise
-     */
-    void ToggledVerticesNormal (bool checked);
-    void ToggledVerticesTorus (bool checked);
     /**
      * Shows faces
      * @param checked true for showing faces false otherwise
      */
-    void ToggledFacesNormal (bool checked);
-    /**
-     * Shows bodies
-     * @param checked true for showing bodies false otherwise
-     */
-    void ToggledBodies (bool checked);
-    void ToggledTorusOriginalDomainDisplay (bool checked);
-    void ToggledTorusOriginalDomainClipped (bool checked);
+    void ToggledFacesTorus (bool checked);
     /**
      * Shows center paths
      * param checked true for showing the center paths false otherwise
      */
     void ToggledCenterPath (bool checked);
-    /**
-     * Signals a change in the size of the physical objects
-     * @param value the new size
-     */
-    void ValueChangedVerticesPhysical (int value);
-    void ValueChangedEdgesPhysical (int value);
-    /**
-     * Signals a change in the size of the tessellation objects
-     * @param value the new size
-     */
-    void ValueChangedVerticesTessellation (int value);
-    void ValueChangedEdgesTessellation (int value);
+
+public Q_SLOTS:
+    void ToggledFacesNormal (bool checked);
+    void ToggledBodies (bool checked);
+    void ToggledTorusOriginalDomainDisplay (bool checked);
+    void ToggledTorusOriginalDomainClipped (bool checked);
+
     void currentIndexChangedInteractionMode (int index);
     void ToggledEdgesTorusTubes (bool checked);
     void ToggledFacesTorusTubes (bool checked);
     void ToggledEdgesBodyCenter (bool checked);
+    void ToggledEdgesTessellation (bool checked);
+    void ToggledCenterPathDisplayBody (bool checked);
+
 
 public:
     const static  size_t DISPLAY_ALL;
@@ -282,12 +227,7 @@ private:
      * WHAT kind of objects do we display
      */
     enum ViewType {
-        VERTICES,
-	VERTICES_PHYSICAL,
-	VERTICES_TORUS,
-
         EDGES,
-	EDGES_PHYSICAL,
 	EDGES_TORUS,
 
         FACES,
@@ -335,13 +275,6 @@ private:
      */
     GLuint displayList (ViewType type);
     /**
-     * Generates a display list for vertices
-     * @return the display list
-     */
-    GLuint displayListVerticesNormal ();
-    GLuint displayListVerticesTorus ();
-    GLuint displayListVerticesPhysical ();
-    /**
      * Generates a display list for edges
      * @return the display list
      */
@@ -360,7 +293,6 @@ private:
     }
     GLuint displayListEdgesTorusTubes ();
     GLuint displayListEdgesTorusLines ();
-    GLuint displayListEdgesPhysical ();
 
     /**
      * Generates a display list for faces
@@ -476,25 +408,11 @@ private:
      */
     size_t m_displayedFaceIndex;
     size_t m_displayedEdgeIndex;
-    /**
-     * Stores the size of physical objects
-     */
-    int m_physicalVertexSize;
-    int m_physicalEdgeWidth;
-    QColor m_physicalVertexColor;
-    QColor m_physicalEdgeColor;
-    /**
-     * Stores the size of tessellation objects
-     */
-    int m_tessellationVertexSize;
-    int m_tessellationEdgeWidth;
 
     int m_normalVertexSize;
     int m_normalEdgeWidth;
 
 
-    QColor m_tessellationVertexColor;
-    QColor m_tessellationEdgeColor;
     float m_contextAlpha;
 
     QColor m_centerPathColor;
@@ -519,13 +437,9 @@ private:
     bool m_edgesTorusTubes;
     bool m_facesTorusTubes;
     bool m_edgesBodyCenter;
+    bool m_edgesTessellation;
+    bool m_centerPathDisplayBody;
     boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> VIEW_TYPE_DISPLAY;
-private:
-    /**
-     * Mapping between the index in  the slider and an actual size for
-     * physical and tessellation objects.
-     */
-    const static  float OBJECTS_WIDTH[];
 };
 
 #endif //__GLWIDGET_H__

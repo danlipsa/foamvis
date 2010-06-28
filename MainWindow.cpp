@@ -42,7 +42,6 @@ MainWindow::MainWindow(FoamAlongTime& dataAlongTime) :
 
     if (! dataAlongTime.GetFoam (0)->IsTorus ())
     {
-	radioButtonVerticesTorus->setEnabled (false);
 	radioButtonEdgesTorus->setEnabled (false);
 	radioButtonFacesTorus->setEnabled (false);
 	groupBoxTorusOriginalDomain->setEnabled (false);
@@ -310,16 +309,6 @@ void MainWindow::ValueChangedSliderData (int value)
     }
 }
 
-
-void MainWindow::ToggledVerticesPhysical (bool checked)
-{
-    widgetGl->ToggledVerticesPhysical (checked);
-    if (checked)
-	stackedWidgetVertices->setCurrentWidget (pageVerticesPhysical);
-    else
-	stackedWidgetVertices->setCurrentWidget (pageVerticesEmpty);
-}
-
 void MainWindow::ToggledEdgesNormal (bool checked)
 {
     widgetGl->ToggledEdgesNormal (checked);
@@ -348,20 +337,19 @@ void MainWindow::ToggledFacesTorus (bool checked)
 	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
 }
 
-
-void MainWindow::ToggledEdgesPhysical (bool checked)
-{
-    widgetGl->ToggledEdgesPhysical (checked);
-    if (checked)
-	stackedWidgetEdges->setCurrentWidget (pageEdgesPhysical);
-    else
-	stackedWidgetEdges->setCurrentWidget (pageEdgesEmpty);
-}
-
 void MainWindow::ToggledSaveMovie (bool checked)
 {
     m_saveMovie = checked;
     if (checked)
 	m_currentFrame = 0;
     ValueChangedSliderData (sliderData->value ());
+}
+
+void MainWindow::ToggledCenterPath (bool checked)
+{
+    widgetGl->ToggledCenterPath (checked);
+    if (checked)
+	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
+    else
+	stackedWidgetComposite->setCurrentWidget (pageCompositeEmpty);
 }

@@ -92,3 +92,8 @@ void OrientedEdge::GetVertexSet (VertexSet* vertexSet) const
 {
     GetEdge ()->GetVertexSet (vertexSet);
 }
+
+bool OrientedEdge::IsPhysical (size_t dimension, bool isQuadratic) const
+{
+    return GetEdge ()->IsPhysical (dimension, isQuadratic);
+}

@@ -175,162 +175,8 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>2</number>
            </property>
-           <widget class="QWidget" name="vertices">
-            <attribute name="title">
-             <string>Vertices</string>
-            </attribute>
-            <layout class="QVBoxLayout" name="verticalLayout_9">
-             <item>
-              <widget class="QGroupBox" name="groupBox">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="title">
-                <string>Display</string>
-               </property>
-               <layout class="QVBoxLayout" name="verticalLayout_16">
-                <item>
-                 <layout class="QVBoxLayout" name="verticalLayout_6">
-                  <item>
-                   <widget class="QRadioButton" name="radioButtonVerticesNormal">
-                    <property name="text">
-                     <string>Normal</string>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string>buttonGroup</string>
-                    </attribute>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QRadioButton" name="radioButtonVerticesTorus">
-                    <property name="text">
-                     <string>Torus Model</string>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string>buttonGroup</string>
-                    </attribute>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QRadioButton" name="radioButtonVerticesPhysical">
-                    <property name="text">
-                     <string>Tesselation and Physical</string>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string>buttonGroup</string>
-                    </attribute>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item>
-              <widget class="QStackedWidget" name="stackedWidgetVertices">
-               <property name="currentIndex">
-                <number>0</number>
-               </property>
-               <widget class="QWidget" name="pageVerticesEmpty"/>
-               <widget class="QWidget" name="pageVerticesPhysical">
-                <layout class="QVBoxLayout" name="verticalLayout">
-                 <property name="leftMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>9</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <widget class="QGroupBox" name="groupBoxVerticesWidth">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="title">
-                    <string>Width</string>
-                   </property>
-                   <layout class="QVBoxLayout" name="verticalLayout_4">
-                    <item>
-                     <widget class="QLabel" name="label_3">
-                      <property name="text">
-                       <string>Tesselation</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QSlider" name="sliderVerticesTessellation">
-                      <property name="maximum">
-                       <number>4</number>
-                      </property>
-                      <property name="value">
-                       <number>1</number>
-                      </property>
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="tickPosition">
-                       <enum>QSlider::TicksAbove</enum>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QLabel" name="label_4">
-                      <property name="text">
-                       <string>Physical</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QSlider" name="sliderVerticesPhysical">
-                      <property name="maximum">
-                       <number>4</number>
-                      </property>
-                      <property name="value">
-                       <number>1</number>
-                      </property>
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="tickPosition">
-                       <enum>QSlider::TicksAbove</enum>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="verticalSpacer_3">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>20</width>
-                     <height>40</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </widget>
-              </widget>
-             </item>
-            </layout>
-           </widget>
            <widget class="QWidget" name="edges">
             <attribute name="title">
              <string>Edges</string>
@@ -379,16 +225,6 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item>
-                   <widget class="QRadioButton" name="radioButtonEdgesPhysical">
-                    <property name="text">
-                     <string>Tesselation and Physical</string>
-                    </property>
-                    <attribute name="buttonGroup">
-                     <string>buttonGroup</string>
-                    </attribute>
-                   </widget>
-                  </item>
                  </layout>
                 </item>
                </layout>
@@ -397,7 +233,7 @@
              <item>
               <widget class="QStackedWidget" name="stackedWidgetEdges">
                <property name="currentIndex">
-                <number>1</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="pageEdgesEmpty"/>
                <widget class="QWidget" name="pageEdgesNormal">
@@ -406,6 +242,13 @@
                   <widget class="QCheckBox" name="checkBoxEdgesBodyCenter">
                    <property name="text">
                     <string>Body Center</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="checkBoxEdgesTessellation">
+                   <property name="text">
+                    <string>Tessellation Edges</string>
                    </property>
                   </widget>
                  </item>
@@ -435,90 +278,6 @@
                  </item>
                  <item>
                   <spacer name="verticalSpacer_2">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>20</width>
-                     <height>40</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </widget>
-               <widget class="QWidget" name="pageEdgesPhysical">
-                <layout class="QVBoxLayout" name="verticalLayout_3">
-                 <property name="leftMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <widget class="QGroupBox" name="groupBoxEdgesWidth">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="title">
-                    <string>Width</string>
-                   </property>
-                   <layout class="QVBoxLayout" name="verticalLayout_5">
-                    <item>
-                     <widget class="QLabel" name="label_5">
-                      <property name="text">
-                       <string>Tesselation</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QSlider" name="sliderEdgesTessellation">
-                      <property name="maximum">
-                       <number>4</number>
-                      </property>
-                      <property name="value">
-                       <number>1</number>
-                      </property>
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="tickPosition">
-                       <enum>QSlider::TicksAbove</enum>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QLabel" name="label_6">
-                      <property name="text">
-                       <string>Physical</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QSlider" name="sliderEdgesPhysical">
-                      <property name="maximum">
-                       <number>4</number>
-                      </property>
-                      <property name="value">
-                       <number>1</number>
-                      </property>
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="tickPosition">
-                       <enum>QSlider::TicksAbove</enum>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="verticalSpacer">
                    <property name="orientation">
                     <enum>Qt::Vertical</enum>
                    </property>
@@ -633,7 +392,7 @@
                <property name="title">
                 <string>Display</string>
                </property>
-               <layout class="QVBoxLayout" name="verticalLayout_19">
+               <layout class="QVBoxLayout" name="verticalLayout">
                 <item>
                  <layout class="QVBoxLayout" name="verticalLayout_10">
                   <item>
@@ -646,22 +405,38 @@
                     </attribute>
                    </widget>
                   </item>
-                  <item>
-                   <spacer name="verticalSpacer_5">
-                    <property name="orientation">
-                     <enum>Qt::Vertical</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>20</width>
-                      <height>40</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
                  </layout>
                 </item>
                </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QStackedWidget" name="stackedWidgetComposite">
+               <widget class="QWidget" name="pageCompositeEmpty"/>
+               <widget class="QWidget" name="pageCenterPath">
+                <layout class="QVBoxLayout" name="verticalLayout_3">
+                 <item>
+                  <widget class="QCheckBox" name="checkBoxCenterPathCurrentBody">
+                   <property name="text">
+                    <string>Current Body</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="verticalSpacer">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </widget>
               </widget>
              </item>
             </layout>
@@ -755,18 +530,17 @@
     <slot>currentIndexChangedInteractionMode(int)</slot>
     <slot>ToggledVerticesTorus(bool)</slot>
     <slot>ToggledEdgesTorus(bool)</slot>
-    <slot>ValueChangedEdgesPhysical(int)</slot>
-    <slot>ValueChangedVerticesPhysical(int)</slot>
     <slot>ToggledVerticesNormal(bool)</slot>
     <slot>ToggledFacesNormal(bool)</slot>
     <slot>ToggledCenterPath(bool)</slot>
     <slot>ToggledFacesTorus(bool)</slot>
-    <slot>ValueChangedVerticesTessellation(int)</slot>
     <slot>ToggledEdgesTorusTubes(bool)</slot>
     <slot>ToggledFacesTorusTubes(bool)</slot>
     <slot>ToggledTorusOriginalDomainDisplay(bool)</slot>
     <slot>ToggledTorusOriginalDomainClipped(bool)</slot>
     <slot>ToggledEdgesBodyCenter(bool)</slot>
+    <slot>ToggledEdgesTessellation(bool)</slot>
+    <slot>ToggledCenterPathDisplayBody(bool)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -837,38 +611,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioButtonVerticesPhysical</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>Window</receiver>
-   <slot>ToggledVerticesPhysical(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>879</x>
-     <y>310</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>374</x>
-     <y>375</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonEdgesPhysical</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>Window</receiver>
-   <slot>ToggledEdgesPhysical(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>879</x>
-     <y>310</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>374</x>
-     <y>375</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkBoxSaveMovie</sender>
    <signal>toggled(bool)</signal>
    <receiver>Window</receiver>
@@ -901,6 +643,22 @@
    </hints>
   </connection>
   <connection>
+   <sender>checkBoxTorusOriginalDomainDisplay</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledTorusOriginalDomainDisplay(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>891</x>
+     <y>126</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>420</x>
+     <y>96</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>radioButtonEdgesNormal</sender>
    <signal>toggled(bool)</signal>
    <receiver>Window</receiver>
@@ -913,22 +671,6 @@
     <hint type="destinationlabel">
      <x>420</x>
      <y>162</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonVerticesTorus</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledVerticesTorus(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>879</x>
-     <y>282</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>292</x>
-     <y>110</y>
     </hint>
    </hints>
   </connection>
@@ -967,7 +709,7 @@
   <connection>
    <sender>radioButtonCenterPath</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>Window</receiver>
    <slot>ToggledCenterPath(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -975,120 +717,8 @@
      <y>234</y>
     </hint>
     <hint type="destinationlabel">
-     <x>420</x>
-     <y>167</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonFacesNormal</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledFacesNormal(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>721</x>
-     <y>234</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>420</x>
-     <y>168</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonVerticesNormal</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledVerticesNormal(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>879</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>420</x>
-     <y>166</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>sliderEdgesPhysical</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedEdgesPhysical(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>880</x>
-     <y>454</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>255</x>
-     <y>334</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>sliderEdgesTessellation</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedEdgesTessellation(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>880</x>
-     <y>406</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>255</x>
-     <y>334</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>sliderVerticesPhysical</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedVerticesPhysical(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>721</x>
-     <y>358</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>255</x>
-     <y>334</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>sliderVerticesTessellation</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedVerticesTessellation(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>721</x>
-     <y>358</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>255</x>
-     <y>334</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxTorusOriginalDomainDisplay</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledTorusOriginalDomainDisplay(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>891</x>
-     <y>126</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>420</x>
-     <y>96</y>
+     <x>460</x>
+     <y>359</y>
     </hint>
    </hints>
   </connection>
@@ -1099,8 +729,8 @@
    <slot>ToggledEdgesTorusTubes(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>721</x>
-     <y>358</y>
+     <x>882</x>
+     <y>331</y>
     </hint>
     <hint type="destinationlabel">
      <x>502</x>
@@ -1147,12 +777,60 @@
    <slot>ToggledEdgesBodyCenter(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>721</x>
-     <y>346</y>
+     <x>882</x>
+     <y>331</y>
     </hint>
     <hint type="destinationlabel">
      <x>556</x>
      <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxEdgesTessellation</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledEdgesTessellation(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>702</x>
+     <y>350</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>571</x>
+     <y>457</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonFacesNormal</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledFacesNormal(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>693</x>
+     <y>243</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>529</x>
+     <y>458</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxCenterPathCurrentBody</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledCenterPathDisplayBody(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>697</x>
+     <y>292</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>588</x>
+     <y>417</y>
     </hint>
    </hints>
   </connection>
@@ -1168,6 +846,9 @@
   <slot>ToggledSaveMovie(bool)</slot>
   <slot>ToggledEdgesTorus(bool)</slot>
   <slot>ToggledFacesTorus(bool)</slot>
+  <slot>ValueChangedSliderEdgesTessellation(int)</slot>
+  <slot>ToggledFacesNormal(bool)</slot>
+  <slot>ToggledCenterPath(bool)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroup"/>

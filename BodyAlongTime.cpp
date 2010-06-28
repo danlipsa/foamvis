@@ -98,9 +98,10 @@ void BodyAlongTime::CalculateBodyCenterWraps ()
     for (size_t time = 0; time < m_centerMovement.size (); time++)
     {
 	if (fabs (m_centerMovement[time] - m_meanCenterMovement) > 
-	    m_stddevCenterMovement && 
-	    (m_bodyAlongTime[time]->HasWrap () ||
-	     m_bodyAlongTime[time + 1]->HasWrap ()))
+	    3*m_stddevCenterMovement && 
+	    (m_bodyAlongTime[time]->HasWrap () || m_bodyAlongTime[
+		time + 1]->HasWrap ())
+	    )
 	    m_wraps.push_back (time);
     }
     m_wraps.push_back (m_centerMovement.size ());

@@ -160,9 +160,6 @@ const size_t GLWidget::QUADRIC_SLICES (20);
 const size_t GLWidget::QUADRIC_STACKS (20);
 
 
-const float GLWidget::OBJECTS_WIDTH[] = {0.0, 1.0, 3.0, 5.0, 7.0};
-
-
 // Methods
 // ======================================================================
 
@@ -176,17 +173,14 @@ GLWidget::GLWidget(QWidget *parent)
       m_foamAlongTime (0), m_timeStep (0),
       m_displayedBodyIndex (DISPLAY_ALL), m_displayedFaceIndex (DISPLAY_ALL),
       m_displayedEdgeIndex (DISPLAY_ALL),
-      m_physicalVertexSize (1), m_physicalEdgeWidth (1),
-      m_physicalVertexColor (Qt::blue), m_physicalEdgeColor (Qt::blue),
-      m_tessellationVertexSize (1), m_tessellationEdgeWidth (1),
       m_normalVertexSize (3), m_normalEdgeWidth (1),
-      m_tessellationVertexColor (Qt::green), 
-      m_tessellationEdgeColor (Qt::green),
       m_contextAlpha (0.03),
       m_centerPathColor (Qt::red),
       m_edgesTorusTubes (false),
       m_facesTorusTubes (false),
-      m_edgesBodyCenter (false)
+      m_edgesBodyCenter (false),
+      m_edgesTessellation (false),
+      m_centerPathDisplayBody (false)
 {
     cdbg << "---------- GLWidget constructor ----------\n";
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
@@ -217,14 +211,8 @@ GLWidget::GLWidget(QWidget *parent)
 void GLWidget::initViewTypeDisplay ()
 {
     boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> vtd = 
-	{{
-	{&GLWidget::displayListVerticesNormal, identity<Lighting>(NO_LIGHTING)},
-	{&GLWidget::displayListVerticesPhysical, 
-	 identity<Lighting> (NO_LIGHTING)},
-	{&GLWidget::displayListVerticesTorus, identity<Lighting> (NO_LIGHTING)},
-	
+	{{	
 	{&GLWidget::displayListEdgesNormal, identity<Lighting> (NO_LIGHTING)},
-	{&GLWidget::displayListEdgesPhysical, identity<Lighting> (NO_LIGHTING)},
 	{&GLWidget::displayListEdgesTorus, 
 	 bl::if_then_else_return (bl::bind (&GLWidget::edgesTorusTubes, this), 
 				  LIGHTING, NO_LIGHTING)},
@@ -512,67 +500,6 @@ void GLWidget::displayOriginalDomain ()
     }
 }
 
-
-GLuint GLWidget::displayListVerticesNormal ()
-{
-    GLuint list = glGenLists(1);
-    glNewList(list, GL_COMPILE);
-
-    glPushAttrib (GL_CURRENT_BIT | GL_POLYGON_BIT);
-    glPointSize (m_normalVertexSize);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_POINT);
-
-    Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
-    for_each (bodies.begin (), bodies.end (),
-	      DisplayBody<
-	      DisplayFace<
-	      DisplaySameEdges> > (*this));
-    glPopAttrib ();
-    displayOriginalDomain ();
-    displayStandaloneEdges ();
-    glEndList();
-    return list;
-}
-
-GLuint GLWidget::displayListVerticesPhysical ()
-{
-    Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
-    GLuint list = glGenLists(1);
-    glNewList(list, GL_COMPILE);
-    glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
-    for_each (bodies.begin (), bodies.end (),
-	      DisplayBody<
-	      DisplayFace<
-	      DisplayEdges<
-	      DisplayVertexPhysical> > > (*this));
-    glPopAttrib ();
-
-    displayOriginalDomain ();
-    glEndList();
-    return list;
-}
-
-GLuint GLWidget::displayListVerticesTorus ()
-{
-    GLuint list = glGenLists(1);
-    glNewList(list, GL_COMPILE);
-
-    glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
-    glPointSize (m_normalVertexSize);
-    qglColor (QColor (Qt::black));
-    glBegin (GL_POINTS);
-    VertexSet vertexSet;
-    GetCurrentFoam ().GetVertexSet (&vertexSet);
-    for_each (vertexSet.begin (), vertexSet.end (), DisplayOriginalVertex());
-    glEnd ();
-    glPopAttrib ();
-
-    displayOriginalDomain ();
-    glEndList();
-    return list;
-}
-
-
 template<typename displayEdge>
 GLuint GLWidget::displayListEdges ()
 {
@@ -581,7 +508,7 @@ GLuint GLWidget::displayListEdges ()
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
     glLineWidth (m_normalEdgeWidth);
 
-    Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
+    const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
 	      DisplayFace<
@@ -609,11 +536,6 @@ GLuint GLWidget::displayListEdgesNormal ()
     return m_torusOriginalDomainClipped ?
 	displayListEdges <DisplayEdgeTorusClipped> () :
 	displayListEdges <DisplayEdgeWithColor>();
-}
-
-GLuint GLWidget::displayListEdgesPhysical ()
-{
-    return displayListEdges <DisplayEdgePhysical> ();
 }
 
 GLuint GLWidget::displayListEdgesTorusTubes ()
@@ -776,12 +698,13 @@ GLuint GLWidget::displayListCenterPaths ()
     else
 	displayCenterPath (GetDisplayedBodyId ());
 
-/*
-    Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
-    for_each (bodies.begin (), bodies.end (),
-	      DisplayBody<DisplayFace<
-	      DisplayEdges<DisplayEdgeWithColor> > >(*this));
-*/
+    if (IsCenterPathDisplayBody ())
+    {
+	Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
+	for_each (bodies.begin (), bodies.end (),
+		  DisplayBody<DisplayFace<
+		  DisplayEdges<DisplayEdgeWithColor> > >(*this));
+    }
 
     displayCenterOfBodies ();
     displayOriginalDomain ();
@@ -826,7 +749,6 @@ bool GLWidget::IsDisplayedEdge (size_t oeI) const
 bool GLWidget::DoesSelectBody () const
 {
     return 
-	m_viewType != VERTICES_TORUS && 
 	m_viewType != EDGES_TORUS &&
 	m_viewType != FACES_TORUS;
 }
@@ -941,32 +863,16 @@ const QColor& GLWidget::GetEndTranslationColor (
 // Slots and slot like methods
 // ======================================================================
 
-void GLWidget::ToggledVerticesNormal (bool checked)
+
+void GLWidget::ToggledCenterPathDisplayBody (bool checked)
 {
-    view (checked, VERTICES);
+    m_centerPathDisplayBody = checked;
+    UpdateDisplay ();
 }
-
-void GLWidget::ToggledVerticesPhysical (bool checked)
-{
-    view (checked, VERTICES_PHYSICAL);
-}
-
-void GLWidget::ToggledVerticesTorus (bool checked)
-{
-    view (checked, VERTICES_TORUS);
-}
-
-
-
 
 void GLWidget::ToggledEdgesNormal (bool checked)
 {
     view (checked, EDGES);
-}
-
-void GLWidget::ToggledEdgesPhysical (bool checked)
-{
-    view (checked, EDGES_PHYSICAL);
 }
 
 void GLWidget::ToggledEdgesTorus (bool checked)
@@ -1002,6 +908,11 @@ void GLWidget::ToggledFacesTorusTubes (bool checked)
     ToggledFacesTorus (true);
 }
 
+void GLWidget::ToggledEdgesTessellation (bool checked)
+{
+    m_edgesTessellation = checked;
+    UpdateDisplay ();
+}
 
 
 void GLWidget::ToggledTorusOriginalDomainDisplay (bool checked)
@@ -1038,30 +949,6 @@ void GLWidget::ValueChangedSliderData (int newIndex)
     UpdateDisplay ();
 }
 
-
-void GLWidget::ValueChangedVerticesPhysical (int value)
-{
-    m_physicalVertexSize = value;
-    UpdateDisplay ();
-}
-
-void GLWidget::ValueChangedEdgesPhysical (int value)
-{
-    m_physicalEdgeWidth = value;
-    UpdateDisplay ();
-}
-
-void GLWidget::ValueChangedVerticesTessellation (int value)
-{
-    m_tessellationVertexSize = value;
-    UpdateDisplay ();
-}
-
-void GLWidget::ValueChangedEdgesTessellation (int value)
-{
-    m_tessellationEdgeWidth = value;
-    UpdateDisplay ();
-}
 
 BodiesAlongTime& GLWidget::GetBodiesAlongTime ()
 {

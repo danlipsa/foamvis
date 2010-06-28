@@ -9,7 +9,6 @@
 #ifndef __DISPLAY_BODY_FUNCTORS_H__
 #define __DISPLAY_BODY_FUNCTORS_H__
 
-
 #include "GLWidget.h"
 #include "Foam.h"
 
