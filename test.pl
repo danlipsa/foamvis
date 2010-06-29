@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-my $location = "/home/dlipsa/Documents/phd-swansea/foam";
+my $location = "/home/dlipsa/Documents/swansea-phd/foam/";
 my @tests = 
     ("CTRCTN/dump_0.1520_0.2400_8.0000_0001.dmp",
      "PERIODICSHEAR/shear_65_0001_2.dmp",
@@ -17,7 +17,7 @@ sub main ()
     foreach (@tests)
     {
 	my $test = $_;
-	@args = ("./foam", $test);
+	my @args = ("./foam", $location . $test);
 	system(@args) == 0
 	    or die "system @args failed: $?"
     }
