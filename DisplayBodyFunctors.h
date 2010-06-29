@@ -25,7 +25,12 @@ public:
     DisplayBodyBase (const GLWidget& widget) : DisplayElement (widget)
     {}
     /**
-     * Functor used to display a body
+     * Functor used  to display a body. Uses  transparencey to display
+     * the context.
+     *
+     * See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
+     * Antialiasing, Fog and Polygon Offset page 293
+     *
      * @param b the body to be displayed
      */
     void operator () (boost::shared_ptr<Body> b)

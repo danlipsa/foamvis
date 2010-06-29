@@ -320,6 +320,9 @@ void GLWidget::project ()
 	    m_viewingVolume.low ().z, m_viewingVolume.high ().z);
 }
 
+// Uses antialiased points and lines
+// See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
+// Antialiasing, Fog and Polygon Offset page 293
 void GLWidget::initializeGL()
 {
     cdbg << "initializeGL" << endl;
@@ -617,6 +620,8 @@ void GLWidget::displayFacesContour (vector<boost::shared_ptr<Body> >& bodies)
 	      DisplaySameEdges> > (*this));
 }
 
+// See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
+// Antialiasing, Fog and Polygon Offset page 293
 void GLWidget::displayFacesOffset (vector<boost::shared_ptr<Body> >& bodies)
 {
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
