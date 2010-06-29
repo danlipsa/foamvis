@@ -92,8 +92,9 @@ public:
      * Constructor
      * @param widget where to display the body
      */
-    DisplayBody (GLWidget& widget) : 
-    DisplayBodyBase (widget)
+    DisplayBody (GLWidget& widget,
+		 ContextDisplay contextDisplay = TRANSPARENT_CONTEXT) : 
+	DisplayBodyBase (widget), m_contextDisplay (contextDisplay)
     {}
 protected:
     /**
@@ -102,9 +103,13 @@ protected:
      */
     virtual void display (boost::shared_ptr<Body> b, FocusContext bodyFc)
     {
+	if (bodyFc == CONTEXT && m_contextDisplay == INVISIBLE_CONTEXT)
+	    return;
 	vector<boost::shared_ptr<OrientedFace> > v = b->GetOrientedFaces ();
 	for_each (v.begin (), v.end (), displayFace(m_widget, bodyFc));
     }
+private:
+    ContextDisplay m_contextDisplay;
 };
 
 

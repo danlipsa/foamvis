@@ -18,6 +18,18 @@ public:
 	FOCUS,
 	CONTEXT
     };
+    enum ContextDisplay
+    {
+	TRANSPARENT_CONTEXT,
+	INVISIBLE_CONTEXT
+    };
+
+    enum TessellationEdgesDisplay
+    {
+	TEST_DISPLAY_TESSELLATION,
+	DONT_DISPLAY_TESSELLATION
+    };
+
 public:
     DisplayElement (const GLWidget& widget) : m_widget (widget) {}
 protected:

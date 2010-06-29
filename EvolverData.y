@@ -10,7 +10,7 @@
 %defines
 %token-table 
 %error-verbose
-%expect 4 // state 55, 64, 69, 201
+%expect 5 // state 55, 64, 69, 213, 231
 %locations
 %{
 class Foam;
@@ -77,6 +77,9 @@ class AttributeCreator;
 
 
 // KEYWORDS  -- should come before other tokens --
+//    - add the keyword in the table in ParsingDriver.cpp
+//    - add the keyword  in the list of  tokens in EvolverData.y
+//    - add the correct rule in EvolverData.y
 %token PARAMETER "PARAMETER"
 %token PERIODS "PERIODS"
 %token VIEW_MATRIX "VIEW_MATRIX"
@@ -121,6 +124,7 @@ class AttributeCreator;
 %token KEEP_ORIGINALS "KEEP_ORIGINALS"
 %token SIMPLEX_REPRESENTATION "SIMPLEX_REPRESENTATION"
 %token TOTAL_TIME "TOTAL_TIME"
+%token TEMPERATURE "TEMPERATURE"
 %token CONSTRAINT_TOLERANCE "CONSTRAINT_TOLERANCE"
 %token SYMMETRIC_CONTENT "SYMMETRIC_CONTENT"
 %token SCALE "SCALE"
@@ -132,6 +136,8 @@ class AttributeCreator;
 %token C3 "C3"
 %token CONVEX "CONVEX"
 %token ENERGY "ENERGY"
+%token INFO_ONLY "INFO_ONLY"
+%token CONSERVED "CONSERVED"
 %token E1 "E1"
 %token E2 "E2"
 %token E3 "E3"
@@ -275,6 +281,7 @@ header
 | header representation nlplus
 | header scale_factor nlplus   
 | header total_time nlplus
+| header temperature nlplus
 | header constraint_tolerance nlplus
 | header SYMMETRIC_CONTENT nlplus
 | header KEEP_ORIGINALS nlplus
@@ -304,7 +311,7 @@ nlplus
 ;
 
 integral_order_1d
-: INTEGRAL_ORDER_1D ':' INTEGER_VALUE
+: INTEGRAL_ORDER_1D colon_assignment INTEGER_VALUE
 ;
 
 view_transform_generators
@@ -359,10 +366,25 @@ quantity_rest
 {
     $$ = 0;
 }
-| FIXED '=' REAL_VALUE LAGRANGE_MULTIPLIER number quantity_method_list nlplus
+| quantity_type quantity_lagrange_multiplier quantity_method_list nlplus
 {
     $$ = 1;
 }
+
+quantity_type
+: ENERGY
+| FIXED '=' REAL_VALUE
+| INFO_ONLY
+| CONSERVED
+;
+
+
+quantity_lagrange_multiplier
+: /*empty*/
+| LAGRANGE_MULTIPLIER number
+;
+
+
 
 quantity_method_list
 : quantity_method_list quantity_method 
@@ -370,8 +392,14 @@ quantity_method_list
 ;
 
 quantity_method
-: METHOD METHOD_OR_QUANTITY_ID
+: METHOD quantity_method_rest
 ;
+
+quantity_method_rest
+: METHOD_OR_QUANTITY_ID
+| method_definition
+;
+
 
 method_instance: 
 METHOD_INSTANCE IDENTIFIER method_instance_rest
@@ -385,14 +413,25 @@ method_instance_rest
 {
     $$ = 0;
 }
-| METHOD IDENTIFIER nlplus method_instance_parameters
+| nlstar METHOD method_definition nlstar
 {
     $$ = 1;
 }
 
+method_definition
+: IDENTIFIER method_instance_global nlstar method_instance_parameters
+;
+
+
+method_instance_global
+: /* empty */
+| GLOBAL
+;
+
+
 method_instance_parameters
 : /* empty */
-| SCALAR_INTEGRAND ':' expr nlplus 
+| SCALAR_INTEGRAND colon_assignment expr
 ;
 
 function_declaration
@@ -482,16 +521,26 @@ representation
 | SIMPLEX_REPRESENTATION
 ;
 
+colon_assignment
+: /* empty */
+| ':'
+
+
 scale_factor
-: SCALE ':' const_expr
+: SCALE colon_assignment const_expr
 ;
 
 total_time
-: TOTAL_TIME const_expr
+: TOTAL_TIME colon_assignment const_expr
 ;
 
+temperature
+: TEMPERATURE colon_assignment const_expr
+;
+
+
 constraint_tolerance
-: CONSTRAINT_TOLERANCE ':' REAL_VALUE
+: CONSTRAINT_TOLERANCE colon_assignment REAL_VALUE
 ;
 
 space_dimension

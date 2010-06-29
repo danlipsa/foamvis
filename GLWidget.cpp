@@ -527,7 +527,7 @@ void GLWidget::displayStandaloneEdges () const
 {
     const Foam::Edges& standaloneEdges = GetCurrentFoam ().GetStandaloneEdges ();
     BOOST_FOREACH (boost::shared_ptr<Edge> edge, standaloneEdges)
-	DisplayEdgeWithColor (*this, DisplayElement::FOCUS) (*edge);
+	DisplayEdgeWithColor<> (*this, DisplayElement::FOCUS) (*edge);
 }
 
 
@@ -535,7 +535,7 @@ GLuint GLWidget::displayListEdgesNormal ()
 {
     return m_torusOriginalDomainClipped ?
 	displayListEdges <DisplayEdgeTorusClipped> () :
-	displayListEdges <DisplayEdgeWithColor>();
+	displayListEdges <DisplayEdgeWithColor<> >();
 }
 
 GLuint GLWidget::displayListEdgesTorusTubes ()
@@ -703,7 +703,9 @@ GLuint GLWidget::displayListCenterPaths ()
 	Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	for_each (bodies.begin (), bodies.end (),
 		  DisplayBody<DisplayFace<
-		  DisplayEdges<DisplayEdgeWithColor> > >(*this));
+		  DisplayEdges<DisplayEdgeWithColor<
+		  DisplayElement::DONT_DISPLAY_TESSELLATION> > > > (
+		      *this, DisplayElement::INVISIBLE_CONTEXT));
     }
 
     displayCenterOfBodies ();

@@ -166,6 +166,8 @@ protected:
 };
 
 
+template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay = 
+	  DisplayElement::TEST_DISPLAY_TESSELLATION>
 class DisplayEdgeWithColor : public DisplayElementFocus
 {
 public:
@@ -187,7 +189,10 @@ public:
 	Foam& foam = m_widget.GetCurrentFoam ();
 	bool isPhysical = oe.IsPhysical (foam.GetSpaceDimension (),
 					 foam.IsQuadratic ());
-	if (isPhysical || (m_widget.IsEdgesTessellation () && m_focus == FOCUS))
+	if (isPhysical || 
+	    (tesselationEdgesDisplay == TEST_DISPLAY_TESSELLATION &&
+	     m_widget.IsEdgesTessellation () && 
+	     m_focus == FOCUS))
 	{
 	    float alpha = m_focus == FOCUS ? 1.0 : m_widget.GetContextAlpha (); 
 	    Color::Name color = oe.GetColor (Color::BLACK);
@@ -200,7 +205,6 @@ public:
 	    glEnd ();
 	}
     }
-
 
     /**
      * Functor that displays an edge
