@@ -52,12 +52,13 @@ void MainWindow::setupScaleWidget ()
     QwtDoubleInterval interval (0.0, 1.0);
     QwtLinearColorMap colorMap;
 
-    QwtScaleTransformation scaleTransform (QwtScaleTransformation::Linear);
+    QwtScaleTransformation* scaleTransform  = 
+	new QwtScaleTransformation (QwtScaleTransformation::Linear);
     QwtValueList ticks[QwtScaleDiv::NTickTypes];
     ticks[QwtScaleDiv::MajorTick].append (interval.minValue ());
     ticks[QwtScaleDiv::MajorTick].append (interval.maxValue ());
     QwtScaleDiv scaleDiv (interval, ticks);
-    scaleWidgetColorBar->setScaleDiv (&scaleTransform, scaleDiv);
+    scaleWidgetColorBar->setScaleDiv (scaleTransform, scaleDiv);
 
     colorMap.setMode (QwtLinearColorMap::ScaledColors);
     for (size_t i = 0; i <= COLORS; ++i)
