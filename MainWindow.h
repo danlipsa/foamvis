@@ -24,9 +24,9 @@ class MainWindow : public QWidget, private Ui::Window
 public:
     /**
      * Constructor
-     * @param dataAlongTime data to be displayed read from Surface Evolver files
+     * @param foamAlongTime data to be displayed read from Surface Evolver files
      */
-    MainWindow(FoamAlongTime& dataAlongTime);
+    MainWindow(FoamAlongTime& foamAlongTime);
     /**
      * Called when a key is pressed
      * @param event object describing the key
@@ -41,13 +41,7 @@ public:
     void InteractionModeScale ();
     void InteractionModeTranslate ();
 
-
 public Q_SLOTS:
-    /**
-     * Called when  the user pushed  the play button. Starts  or stops
-     * showing the time steps of the Surface Evolver data.
-     */
-    void ClickedPlay ();
     /**
      * Called when the Begin Slider button is pressed. Shows the first
      * data in the vector.
@@ -59,22 +53,22 @@ public Q_SLOTS:
      */
     void ClickedEnd ();
     /**
+     * Called when  the user pushed  the play button. Starts  or stops
+     * showing the time steps of the Surface Evolver data.
+     */
+    void ClickedPlay ();
+    /**
      * Invoqued by the timer to show the next data in the vector
      */
     void TimeoutTimer ();
-    /**
-     * Invoqued by the UI when  the slider changes to display the data
-     * at the current position of the slider.
-     */
-    void ValueChangedSliderData (int value);
 
+    void ToggledCenterPath (bool checked);
     /**
      * Shows edges
      * @param checked true for showing edges false otherwise
      */
     void ToggledEdgesNormal (bool checked);
     void ToggledEdgesTorus (bool checked);
-
     void ToggledFacesTorus (bool checked);
 
     /**
@@ -82,7 +76,11 @@ public Q_SLOTS:
      * @param checked true for saving images, false otherwise
      */
     void ToggledSaveMovie (bool checked);
-    void ToggledCenterPath (bool checked);
+    /**
+     * Invoqued by the UI when  the slider changes to display the data
+     * at the current position of the slider.
+     */
+    void ValueChangedSliderData (int value);
 
 private:
     /**
@@ -108,6 +106,9 @@ private:
      * Updates the status bar based on the postion of the slider.
      */
     void updateStatus ();
+    void setupSliderData (const FoamAlongTime& foamAlongTime);
+    void configureInterface (const FoamAlongTime& foamAlongTime);
+    void setupScaleWidget ();
 
 private:
     Q_OBJECT

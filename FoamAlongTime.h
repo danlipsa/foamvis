@@ -35,12 +35,18 @@ public:
      * Gets the vector of Foam objects
      * @return vector of data objects
      */
-    Foam* GetFoam (size_t i) 
+    boost::shared_ptr<Foam> GetFoam (size_t i)
     {
-	return m_foams[i].get ();
+	return m_foams[i];
     }
 
-    size_t GetFoamsSize ()
+    boost::shared_ptr<const Foam> GetFoam (size_t i) const
+    {
+	return m_foams[i];
+    }
+
+
+    size_t GetFoamsSize () const
     {
 	return m_foams.size ();
     }

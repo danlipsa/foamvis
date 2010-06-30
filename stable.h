@@ -64,6 +64,12 @@
 #include <QtOpenGL>
 #include <QtConcurrentMap>
 
+// QWT headers
+#include <qwt_scale_widget.h>
+#include <qwt_color_map.h>
+#include <qwt_scale_map.h>
+#include <qwt_scale_div.h>
+
 // G3D headers
 #include <G3D/AABox.h>
 #include <G3D/CoordinateFrame.h>

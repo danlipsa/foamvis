@@ -11,9 +11,9 @@
 #include "MainWindow.h"
 #include "ProcessBodyTorus.h"
 #include "SystemDifferences.h"
+#include "Utils.h"
 
-
-MainWindow::MainWindow(FoamAlongTime& dataAlongTime) : 
+MainWindow::MainWindow (FoamAlongTime& foamAlongTime) : 
     m_play (false), PLAY_TEXT (">"), PAUSE_TEXT("||"),
     m_timer (new QTimer(this)), m_processBodyTorus (0), 
     m_currentBody (0),
@@ -25,28 +25,70 @@ MainWindow::MainWindow(FoamAlongTime& dataAlongTime) :
     QGLFormat::setDefaultFormat(fmt);    
 
     setupUi (this);
-    sliderData->setMinimum (0);
-    sliderData->setMaximum (dataAlongTime.GetFoamsSize () - 1);
-    sliderData->setSingleStep (1);
-    sliderData->setPageStep (10);
-    widgetGl->SetFoamAlongTime (&dataAlongTime);
+    setupSliderData (foamAlongTime);
+    setupScaleWidget ();
+    widgetGl->SetFoamAlongTime (&foamAlongTime);
     updateStatus ();
     m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
+    configureInterface (foamAlongTime);
+    // 100 ms
+    m_timer->setInterval (100);
+    QObject::connect(m_timer.get (), SIGNAL(timeout()),
+                     this, SLOT(TimeoutTimer ()));
+}
 
-    if (dataAlongTime.GetFoamsSize () == 1)
+
+void MainWindow::setupSliderData (const FoamAlongTime& foamAlongTime)
+{
+    sliderData->setMinimum (0);
+    sliderData->setMaximum (foamAlongTime.GetFoamsSize () - 1);
+    sliderData->setSingleStep (1);
+    sliderData->setPageStep (10);
+}
+
+void MainWindow::setupScaleWidget ()
+{
+    const size_t COLORS = 256;
+    QwtDoubleInterval interval (0.0, 1.0);
+    QwtLinearColorMap colorMap;
+
+    QwtScaleTransformation scaleTransform (QwtScaleTransformation::Linear);
+    QwtValueList ticks[QwtScaleDiv::NTickTypes];
+    ticks[QwtScaleDiv::MajorTick].append (interval.minValue ());
+    ticks[QwtScaleDiv::MajorTick].append (interval.maxValue ());
+    QwtScaleDiv scaleDiv (interval, ticks);
+    scaleWidgetColorBar->setScaleDiv (&scaleTransform, scaleDiv);
+
+    colorMap.setMode (QwtLinearColorMap::ScaledColors);
+    for (size_t i = 0; i <= COLORS; ++i)
+    {
+	QColor color;
+	double value = static_cast<double>(i)/COLORS;
+	RainbowColor (value, &color);
+	colorMap.addColorStop (value, color);
+    }
+    scaleWidgetColorBar->setColorMap (interval, colorMap);
+    scaleWidgetColorBar->setColorBarEnabled (true);
+}
+
+
+void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
+{
+    if (foamAlongTime.GetFoamsSize () == 1)
     {
         toolButtonBegin->setDisabled (true);
 	toolButtonEnd->setDisabled (true);
 	toolButtonPlay->setDisabled (true);
     }
 
-    if (! dataAlongTime.GetFoam (0)->IsTorus ())
+    boost::shared_ptr<const Foam> foam = foamAlongTime.GetFoam (0);
+    if (! foam->IsTorus ())
     {
 	radioButtonEdgesTorus->setEnabled (false);
 	radioButtonFacesTorus->setEnabled (false);
 	groupBoxTorusOriginalDomain->setEnabled (false);
     }
-    if (dataAlongTime.GetFoam (0)->GetSpaceDimension () == 2)
+    if (foam->GetSpaceDimension () == 2)
     {
 	radioButtonEdgesNormal->toggle ();
 	tabWidget->setCurrentWidget (edges);
@@ -56,11 +98,7 @@ MainWindow::MainWindow(FoamAlongTime& dataAlongTime) :
 	radioButtonFacesNormal->toggle ();
 	tabWidget->setCurrentWidget (faces);
     }
-    
-    // 100 ms
-    m_timer->setInterval (100);
-    QObject::connect(m_timer.get (), SIGNAL(timeout()),
-                     this, SLOT(TimeoutTimer ()));
+    scaleWidgetColorBar->setVisible (false);
 }
 
 
@@ -349,7 +387,13 @@ void MainWindow::ToggledCenterPath (bool checked)
 {
     widgetGl->ToggledCenterPath (checked);
     if (checked)
+    {
 	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
+	scaleWidgetColorBar->setVisible (true);
+    }
     else
+    {
 	stackedWidgetComposite->setCurrentWidget (pageCompositeEmpty);
+	scaleWidgetColorBar->setVisible (false);
+    }
 }

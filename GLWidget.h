@@ -178,18 +178,19 @@ public:
     void ToggledCenterPath (bool checked);
 
 public Q_SLOTS:
-    void ToggledFacesNormal (bool checked);
-    void ToggledBodies (bool checked);
-    void ToggledTorusOriginalDomainDisplay (bool checked);
-    void ToggledTorusOriginalDomainClipped (bool checked);
-
     void currentIndexChangedInteractionMode (int index);
-    void ToggledEdgesTorusTubes (bool checked);
-    void ToggledFacesTorusTubes (bool checked);
-    void ToggledEdgesBodyCenter (bool checked);
-    void ToggledEdgesTessellation (bool checked);
+    void ToggledBodies (bool checked);
     void ToggledCenterPathDisplayBody (bool checked);
 
+    void ToggledEdgesBodyCenter (bool checked);
+    void ToggledEdgesTessellation (bool checked);
+    void ToggledEdgesTorusTubes (bool checked);
+
+    void ToggledFacesNormal (bool checked);
+    void ToggledFacesTorusTubes (bool checked);
+
+    void ToggledTorusOriginalDomainDisplay (bool checked);
+    void ToggledTorusOriginalDomainClipped (bool checked);
 
 public:
     const static  size_t DISPLAY_ALL;
