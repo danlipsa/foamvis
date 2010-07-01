@@ -123,13 +123,18 @@ G3D::Vector3int16 OOBox::GetLocation (const G3D::Vector3& point) const
     return location;
 }
 
+void OOBox::GetMatrix (G3D::Matrix3* m) const
+{
+    for (size_t i = 0; i < 3; i++)
+	m->setColumn (i, (*this)[i]);
+}
+
 G3D::Vector3int16 OOBox::GetTranslation (
     const G3D::Vector3& source, const G3D::Vector3& destination) const
 {
     using G3D::Matrix3;using G3D::Vector3;using G3D::Vector3int16;
     Matrix3 toOrthonormal, toPeriods;
-    for (int i = 0; i < 3; i++)
-	toPeriods.setColumn (i, (*this)[i]);
+    GetMatrix (&toPeriods);
     toOrthonormal = toPeriods.inverse ();
     Vector3 s = toOrthonormal * source;
     Vector3 d = toOrthonormal * destination;
@@ -141,6 +146,21 @@ G3D::Vector3int16 OOBox::GetTranslation (
 bool OOBox::IsZero () const
 {
     return GetX ().isZero () && GetY ().isZero () && GetZ ().isZero ();
+}
+
+
+
+bool OOBox::IsWrap (const G3D::Vector3& begin, const G3D::Vector3& end,
+		    G3D::Vector3* unwrappedEnd) const
+{
+    G3D::Vector3int16 translation;
+    G3D::Vector3 v = end - begin;
+    for (size_t i = 0; i < 3; ++i)
+    {
+	G3D::Vector3 e = (*this)[i];
+	if (v.dot(e) > e.length () / 2)
+	    
+    }
 }
 
 

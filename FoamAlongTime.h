@@ -89,7 +89,7 @@ private:
      */
     void Calculate (Aggregate aggregate, 
 		    FoamLessThanAlong::Corner corner, G3D::Vector3& v);
-    void CalculateBodyCenterWraps ();
+    void CalculateBodyWraps ();
 private:
     /**
      * Vector of Foam objects

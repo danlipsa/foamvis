@@ -134,15 +134,14 @@ public:
      * @param bodyId what body to display the center path for
      */
     void operator () (size_t bodyId)
-    {	
-	using boost::bind;
+    {
 	BodyAlongTime& bat = m_widget.GetBodyAlongTime (bodyId);
-	const BodyAlongTime::Bodies& bodyAlongTime = bat.GetBodies ();
-	BodyAlongTime::Bodies::const_iterator begin = bodyAlongTime.begin ();
+	const BodyAlongTime::Bodies& bodies = bat.GetBodies ();
+	BodyAlongTime::Bodies::const_iterator begin = bodies.begin ();
 	BOOST_FOREACH (size_t wrapIndex, bat.GetWraps ())
 	{
 	    BodyAlongTime::Bodies::const_iterator end = 
-		bodyAlongTime.begin () + wrapIndex;
+		bodies.begin () + wrapIndex + 1;
 	    BodyAlongTime::Bodies::const_iterator it;
 	    glBegin(GL_LINE_STRIP);
 	    for (it = begin; it != end; ++it)

@@ -69,7 +69,9 @@ void MainWindow::setupScaleWidget ()
     QwtDoubleInterval interval (0.0, 1.0);
     QwtLinearScaleEngine scaleEngine;
     scaleWidgetColorBar->setScaleDiv (
-	scaleEngine.transformation (), scaleEngine.divideScale (0, 1, 3, 10));
+	scaleEngine.transformation (),
+	scaleEngine.divideScale (
+	    interval.minValue (), interval.maxValue (), 3, 10));
     scaleWidgetColorBar->setTitle ("Speed");
     scaleWidgetColorBar->setAlignment (QwtScaleDraw::RightScale);
     scaleWidgetColorBar->setBorderDist (5, 5);

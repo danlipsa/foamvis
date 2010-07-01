@@ -6,17 +6,19 @@
  * Declaration for bodies along time classes
  */
 
-#ifndef __BODIES_ALONG_TIME_H__
-#define __BODIES_ALONG_TIME_H__
+#ifndef __BODY_ALONG_TIME_H__
+#define __BODY_ALONG_TIME_H__
 
 class Body;
+class FoamAlongTime;
+
 
 class BodyAlongTime
 {
 public:
     typedef vector<boost::shared_ptr<Body> > Bodies;
     /**
-     * List of times (indexes of Foam objects) where a body wraps
+     * List of times (indexes in Bodies vector) where a body wraps
      * around the torus original domain. The wrap is 
      * between index and index + 1. It includes the index equal with the 
      * number of time steps + 1.
@@ -25,8 +27,7 @@ public:
 
 public:
     BodyAlongTime (size_t timeSteps) :
-	m_bodyAlongTime (timeSteps),
-	m_centerMovement (timeSteps - 1)
+	m_bodyAlongTime (timeSteps)
     {}
     boost::shared_ptr<Body> & GetBody (size_t timeStep)
     {
@@ -35,13 +36,17 @@ public:
     void Resize (size_t timeSteps)
     {
 	m_bodyAlongTime.resize (timeSteps);
-	m_centerMovement.resize (timeSteps - 1);
     }
     const Bodies& GetBodies () const
     {
 	return m_bodyAlongTime;
     }
-    void CalculateBodyCenterWraps ();
+    /**
+     * Calculates when from one time step to another a body is wrapped around
+     * the original domain. A body wraps around when it moves a distance longer
+     * than 1/2 of min all sides of the original domain
+     */
+    void CalculateBodyWraps (const FoamAlongTime& foamAlongTime);
     const Wraps& GetWraps ()
     {
 	return m_wraps;
@@ -53,13 +58,7 @@ public:
 	ostream& ostr, const BodyAlongTime& bodyAlongTime);
 
 private:
-    void calculateStatisticsCenterMovement ();
-
-private:
     Bodies m_bodyAlongTime;
-    vector<float> m_centerMovement;
-    float m_meanCenterMovement;
-    float m_stddevCenterMovement;
     Wraps m_wraps;
 };
 
@@ -100,7 +99,7 @@ private:
 };
 
 
-#endif //__BODIES_ALONG_TIME_H__
+#endif //__BODY_ALONG_TIME_H__
 
 // Local Variables:
 // mode: c++

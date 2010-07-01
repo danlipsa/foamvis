@@ -38,6 +38,8 @@ public:
 	m_vector[1] = y;
 	m_vector[2] = z;
     }
+    void GetMatrix (G3D::Matrix3* m) const;
+
     bool IsZero () const;
 
     const G3D::Vector3& operator[] (size_t i) const
@@ -53,6 +55,8 @@ public:
     G3D::Vector3int16 GetLocation (const G3D::Vector3& point) const;
     G3D::Vector3int16 GetTranslation (
 	const G3D::Vector3& source, const G3D::Vector3& destination) const;
+    bool IsWrap (const G3D::Vector3& begin, const G3D::Vector3& end,
+		 G3D::Vector3* unwrappedEnd = 0) const;
 
 
 public:
