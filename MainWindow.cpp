@@ -46,28 +46,35 @@ void MainWindow::setupSliderData (const FoamAlongTime& foamAlongTime)
     sliderData->setPageStep (10);
 }
 
-void MainWindow::setupScaleWidget ()
+void MainWindow::setupRainbowColorMap (QwtLinearColorMap* colorMap)
 {
     const size_t COLORS = 256;
-    QwtDoubleInterval interval (0.0, 1.0);
-    QwtLinearColorMap colorMap;
-
-    QwtScaleTransformation* scaleTransform  = 
-	new QwtScaleTransformation (QwtScaleTransformation::Linear);
-    QwtValueList ticks[QwtScaleDiv::NTickTypes];
-    ticks[QwtScaleDiv::MajorTick].append (interval.minValue ());
-    ticks[QwtScaleDiv::MajorTick].append (interval.maxValue ());
-    QwtScaleDiv scaleDiv (interval, ticks);
-    scaleWidgetColorBar->setScaleDiv (scaleTransform, scaleDiv);
-
-    colorMap.setMode (QwtLinearColorMap::ScaledColors);
-    for (size_t i = 0; i <= COLORS; ++i)
+    QColor begin, end;
+    RainbowColor (0, &begin);
+    RainbowColor (1, &end);
+    colorMap->setColorInterval (begin, end);
+    colorMap->setMode (QwtLinearColorMap::ScaledColors);
+    for (size_t i = 1; i <= COLORS - 1; ++i)
     {
 	QColor color;
 	double value = static_cast<double>(i)/COLORS;
 	RainbowColor (value, &color);
-	colorMap.addColorStop (value, color);
+	colorMap->addColorStop (value, color);
     }
+}
+
+
+void MainWindow::setupScaleWidget ()
+{
+    QwtDoubleInterval interval (0.0, 1.0);
+    QwtLinearScaleEngine scaleEngine;
+    scaleWidgetColorBar->setScaleDiv (
+	scaleEngine.transformation (), scaleEngine.divideScale (0, 1, 3, 10));
+    scaleWidgetColorBar->setTitle ("Speed");
+    scaleWidgetColorBar->setAlignment (QwtScaleDraw::RightScale);
+    scaleWidgetColorBar->setBorderDist (5, 5);
+    QwtLinearColorMap colorMap;
+    setupRainbowColorMap (&colorMap);
     scaleWidgetColorBar->setColorMap (interval, colorMap);
     scaleWidgetColorBar->setColorBarEnabled (true);
 }

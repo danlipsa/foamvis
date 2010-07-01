@@ -35,9 +35,10 @@ const G3D::Vector3int16& Vector3int16Unit (size_t direction)
  */
 double trapezoid (double value, size_t begin, size_t end)
 {
-    return max (
-	0.0, ((end - begin + 2) - (abs (value - begin) + abs (value - end)))
-	/ 2);
+    double color = max (
+	0.0,
+	((end - begin + 2) - (abs (value - begin) + abs (value - end))) / 2);
+    return color;
 }
 
 void RainbowColor (double f, QColor* color)

@@ -111,6 +111,9 @@ private:
     void setupScaleWidget ();
 
 private:
+    static void setupRainbowColorMap (QwtLinearColorMap* colorMap);
+
+private:
     Q_OBJECT
     /**
      * True if the programs displays the data files iteratively, false
