@@ -38,7 +38,7 @@ public:
 	m_vector[1] = y;
 	m_vector[2] = z;
     }
-    void GetMatrix (G3D::Matrix3* m) const;
+    G3D::Matrix3 GetMatrix () const;
 
     bool IsZero () const;
 

@@ -47,7 +47,9 @@ QMAKE_CXXFLAGS += -arch i686 -msse3 -mfpmath=sse
 QMAKE_LFLAGS += -arch i686
 INCLUDEPATH += /usr/local/G3D-20100524/build/osx-i386-g++4.2/include
 INCLUDEPATH += /usr/local/boost_1_39_0
+INCLUDEPATH += /usr/local/qwt-5.2.1/include
 LIBS += -L/usr/local/G3D-20100524/build/osx-i386-g++4.2/lib
+LIBS += -L/usr/local/qwt-5.2.1/lib
 LIBS += "-lGLG3D" 
 LIBS += "-lG3D" 
 LIBS += "-ljpeg"

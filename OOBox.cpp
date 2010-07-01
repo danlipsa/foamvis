@@ -123,18 +123,19 @@ G3D::Vector3int16 OOBox::GetLocation (const G3D::Vector3& point) const
     return location;
 }
 
-void OOBox::GetMatrix (G3D::Matrix3* m) const
+G3D::Matrix3 OOBox::GetMatrix () const
 {
+    G3D::Matrix3 m;
     for (size_t i = 0; i < 3; i++)
-	m->setColumn (i, (*this)[i]);
+	m.setColumn (i, (*this)[i]);
+    return m;
 }
 
 G3D::Vector3int16 OOBox::GetTranslation (
     const G3D::Vector3& source, const G3D::Vector3& destination) const
 {
     using G3D::Matrix3;using G3D::Vector3;using G3D::Vector3int16;
-    Matrix3 toOrthonormal, toPeriods;
-    GetMatrix (&toPeriods);
+    Matrix3 toOrthonormal, toPeriods = GetMatrix ();
     toOrthonormal = toPeriods.inverse ();
     Vector3 s = toOrthonormal * source;
     Vector3 d = toOrthonormal * destination;
@@ -151,16 +152,26 @@ bool OOBox::IsZero () const
 
 
 bool OOBox::IsWrap (const G3D::Vector3& begin, const G3D::Vector3& end,
-		    G3D::Vector3* unwrappedEnd) const
+		    G3D::Vector3* endUnwrapped) const
 {
     G3D::Vector3int16 translation;
-    G3D::Vector3 v = end - begin;
+    G3D::Matrix3 m = GetMatrix ();
+    G3D::Vector3 u = m.inverse () * (end - begin);
     for (size_t i = 0; i < 3; ++i)
     {
-	G3D::Vector3 e = (*this)[i];
-	if (v.dot(e) > e.length () / 2)
-	    
+	if (abs (u[i]) > 0.5)
+	    if (u[i] > 0)
+		translation += Vector3int16Unit (i);
+	    else
+		translation -= Vector3int16Unit (i);
     }
+    if (translation != Vector3int16Zero)
+    {
+	*endUnwrapped = TorusTranslate (end, translation);
+	return true;
+    }
+    else
+	return false;
 }
 
 
