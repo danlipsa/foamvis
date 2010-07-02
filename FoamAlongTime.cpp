@@ -12,7 +12,7 @@
 
 // Private Functions
 // ======================================================================
-void calculateWraps (BodiesAlongTime::BodyMap::value_type& v,
+void calculateBodyWraps (BodiesAlongTime::BodyMap::value_type& v,
     const FoamAlongTime& foamAlongTime)
 {
     v.second->CalculateBodyWraps (foamAlongTime);
@@ -50,11 +50,11 @@ void FoamAlongTime::CalculateAABox ()
 
 void FoamAlongTime::CalculateBodyWraps ()
 {
-    if (m_foams.size () > 1 && GetFoam (0)->IsTorus ())
+    if (m_foams.size () > 1)
     {
 	BodiesAlongTime::BodyMap bodyMap = GetBodiesAlongTime ().GetBodyMap ();
 	for_each (bodyMap.begin (), bodyMap.end (),
-		  boost::bind(calculateWraps, _1, *this));
+		  boost::bind(calculateBodyWraps, _1, *this));
     }
 }
 

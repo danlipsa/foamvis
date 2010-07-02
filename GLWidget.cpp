@@ -231,9 +231,9 @@ void GLWidget::initViewTypeDisplay ()
 void GLWidget::SetFoamAlongTime (FoamAlongTime* dataAlongTime) 
 {
     m_foamAlongTime = dataAlongTime;
-    boost::shared_ptr<Face>  f = 
+    boost::shared_ptr<Face> f = 
 	GetCurrentFoam ().GetBody (0)->GetFace (0);
-    boost::shared_ptr<Edge>  e = f->GetEdge (0);
+    boost::shared_ptr<Edge> e = f->GetEdge (0);
     float length = (*e->GetEnd () - *e->GetBegin ()).length ();
 
     m_edgeRadius = length / 20;
@@ -696,9 +696,9 @@ GLuint GLWidget::displayListCenterPaths ()
     qglColor (QColor (Qt::black));
     glLineWidth (1.0);
 
-    BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
+    const BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
     DisplayCenterPath displayCenterPath(*this);
-    if (GetDisplayedBodyIndex () == DISPLAY_ALL)
+    if (IsDisplayedAllBodies ())
 	for_each (bats.begin (), bats.end (), displayCenterPath);
     else
 	displayCenterPath (GetDisplayedBodyId ());
@@ -730,12 +730,10 @@ GLuint GLWidget::displayList (ViewType type)
 
 bool GLWidget::IsDisplayedBody (size_t bodyId) const
 {
-    return 
-	(GetDisplayedBodyIndex () == DISPLAY_ALL ||
-	 GetDisplayedBodyId () == bodyId);
+    return (IsDisplayedAllBodies () || GetDisplayedBodyId () == bodyId);
 }
 
-bool GLWidget::IsDisplayedBody (const boost::shared_ptr<Body>  body) const
+bool GLWidget::IsDisplayedBody (const boost::shared_ptr<Body> body) const
 {
     return IsDisplayedBody (body->GetId ());
 }
@@ -957,26 +955,25 @@ void GLWidget::ValueChangedSliderData (int newIndex)
 }
 
 
-BodiesAlongTime& GLWidget::GetBodiesAlongTime ()
+const BodiesAlongTime& GLWidget::GetBodiesAlongTime () const
 {
     return GetFoamAlongTime ().GetBodiesAlongTime ();
 }
 
-BodyAlongTime& GLWidget::GetBodyAlongTime (size_t id)
+const BodyAlongTime& GLWidget::GetBodyAlongTime (size_t id) const
 {
     return GetBodiesAlongTime ().GetOneBody (id);
 }
 
-boost::shared_ptr<Body>  GLWidget::GetDisplayedBody () const
+boost::shared_ptr<Body> GLWidget::GetDisplayedBody () const
 {
-    size_t i = GetDisplayedBodyIndex ();
-    const Foam& data = GetCurrentFoam ();
-    return data.GetBody (i);
+    return GetBodyAlongTime (GetDisplayedBodyId ()).GetBody (GetTimeStep ());
 }
 
 size_t GLWidget::GetDisplayedBodyId () const
 {
-    return GetDisplayedBody ()->GetId ();
+    return GetFoamAlongTime ().GetFoam (0)->GetBody (
+	m_displayedBodyIndex)->GetId ();
 }
 
 size_t GLWidget::GetDisplayedFaceId () const
@@ -996,12 +993,12 @@ boost::shared_ptr<Face> GLWidget::GetDisplayedFace () const
     return boost::shared_ptr<Face>();
 }
 
-boost::shared_ptr<Edge>  GLWidget::GetDisplayedEdge () const
+boost::shared_ptr<Edge> GLWidget::GetDisplayedEdge () const
 {
     if (m_displayedBodyIndex != DISPLAY_ALL && 
 	m_displayedFaceIndex != DISPLAY_ALL)
     {
-	boost::shared_ptr<Face>  face = GetDisplayedFace ();
+	boost::shared_ptr<Face> face = GetDisplayedFace ();
 	return face->GetEdge (m_displayedEdgeIndex);
     }
     RuntimeAssert (false, "There is no displayed edge");

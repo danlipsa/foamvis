@@ -28,13 +28,30 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     setupSliderData (foamAlongTime);
     setupScaleWidget ();
     widgetGl->SetFoamAlongTime (&foamAlongTime);
+    calculateStats (*foamAlongTime.GetFoam (0));
     updateStatus ();
     m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
     configureInterface (foamAlongTime);
-    // 100 ms
-    m_timer->setInterval (100);
+    // 30 ms
+    m_timer->setInterval (30);
     QObject::connect(m_timer.get (), SIGNAL(timeout()),
                      this, SLOT(TimeoutTimer ()));
+}
+
+void MainWindow::calculateStats (const Foam& foam)
+{
+    VertexSet vertexSet;
+    EdgeSet edgeSet;
+    FaceSet faceSet;
+    foam.GetVertexSet (&vertexSet);
+    foam.GetEdgeSet (&edgeSet);
+    foam.GetFaceSet (&faceSet);
+    ostringstream ostr;
+    ostr << foam.GetBodies ().size () << ","
+	 << faceSet.size () << ","
+	 << edgeSet.size () << ","
+	 << vertexSet.size ();
+    m_stats = ostr.str ();
 }
 
 
@@ -140,15 +157,14 @@ void MainWindow::updateButtons ()
 
 void MainWindow::updateStatus ()
 {
-    Foam& currentFoam = widgetGl->GetCurrentFoam ();
     QString oldString = labelStatus->text ();
     ostringstream ostr;
-    ostr << "Time step: " 
+    ostr << "(B,F,E,V)=" << "(" << m_stats << ")"
+	 << " Time: " 
 	 << (widgetGl->GetTimeStep () + 1)<< " of " 
-	 << widgetGl->GetFoamAlongTime ().GetFoamsSize ()
-	 << ", Bubbles: " << currentFoam.GetBodies ().size ();
-    if (widgetGl->GetDisplayedBodyIndex () != GLWidget::DISPLAY_ALL)
-	ostr << ", Bubble: " << (widgetGl->GetDisplayedBodyId () + 1);
+	 << widgetGl->GetFoamAlongTime ().GetFoamsSize ();
+    if (! widgetGl->IsDisplayedAllBodies ())
+	ostr << ", Body: " << (widgetGl->GetDisplayedBodyId () + 1);
     if (widgetGl->GetDisplayedFaceIndex () != GLWidget::DISPLAY_ALL)
 	ostr << ", Face: " << (widgetGl->GetDisplayedFaceId () + 1);
     if (widgetGl->GetDisplayedEdgeIndex () != GLWidget::DISPLAY_ALL)
@@ -298,16 +314,16 @@ void MainWindow::ClickedPlay ()
 {
     if (m_play)
     {
-        m_timer->stop ();
+	m_timer->stop ();
         toolButtonPlay->setText (PLAY_TEXT);
 	updateButtons ();
     }
     else
     {
-        m_timer->start ();
-        toolButtonPlay->setText (PAUSE_TEXT);
-        toolButtonBegin->setDisabled (true);
-        toolButtonEnd->setDisabled (true);
+	m_timer->start ();
+	toolButtonPlay->setText (PAUSE_TEXT);
+	toolButtonBegin->setDisabled (true);
+	toolButtonEnd->setDisabled (true);
     }
     m_play = ! m_play;
 }

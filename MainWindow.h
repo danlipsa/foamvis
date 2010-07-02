@@ -109,6 +109,7 @@ private:
     void setupSliderData (const FoamAlongTime& foamAlongTime);
     void configureInterface (const FoamAlongTime& foamAlongTime);
     void setupScaleWidget ();
+    void calculateStats (const Foam& foam);
 
 private:
     static void setupRainbowColorMap (QwtLinearColorMap* colorMap);
@@ -144,6 +145,7 @@ private:
      * Keeps track of the current frame saved in a file.
      */
     int m_currentFrame;
+    string m_stats;
 };
 
 #endif //__MAIN_WINDOW_H__

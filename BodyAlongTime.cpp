@@ -14,22 +14,6 @@
 #include "DebugStream.h"
 
 
-// Private Classes
-// ======================================================================
-struct squareDeviation
-{
-public:
-    squareDeviation (float mean) : m_mean (mean) {}
-    float operator() (float acc, float x)
-    {
-	float deviation = x - m_mean;
-	return acc + deviation * deviation;
-    }
-private:
-    float m_mean;
-};
-
-
 // Private Functions
 // ======================================================================
 bool isNull (const boost::shared_ptr<Body>  body)
@@ -40,9 +24,9 @@ bool isNull (const boost::shared_ptr<Body>  body)
 
 // BodiesAlongTime Methods
 // ======================================================================
-BodiesAlongTime::OneBody& BodiesAlongTime::GetOneBody (size_t id)
+BodiesAlongTime::OneBody& BodiesAlongTime::getOneBody (size_t id) const
 {
-    BodyMap::iterator it = m_bodyMap.find (id);
+    BodyMap::const_iterator it = m_bodyMap.find (id);
     RuntimeAssert (it != m_bodyMap.end (),
 		   "Body not found: ", id);
     return *(it->second);
@@ -90,26 +74,23 @@ ostream& operator<< (
 // ======================================================================
 void BodyAlongTime::CalculateBodyWraps (const FoamAlongTime& foamAlongTime)
 {
-    using G3D::Vector3;
-    vector<float> centerMovement (m_bodyAlongTime.size () - 1);
-    for (size_t time = 0; time < m_bodyAlongTime.size () - 1; time++)
+    if (foamAlongTime.GetFoam (0)->IsTorus ())
     {
-	const Vector3& begin = m_bodyAlongTime[time]->GetCenter ();
-	const Vector3& end = m_bodyAlongTime[time + 1]->GetCenter ();
-	centerMovement[time] = (end - begin).length ();
+	for (size_t time = 0; time < (m_bodyAlongTime.size () - 1); time++)
+	{
+	    const OOBox& originalDomain = 
+		foamAlongTime.GetFoam (time+1)->GetOriginalDomain ();
+	    G3D::Vector3int16 translation;
+	    const G3D::Vector3& begin = m_bodyAlongTime[time]->GetCenter ();
+	    const G3D::Vector3& end = m_bodyAlongTime[time + 1]->GetCenter ();
+	    if (originalDomain.IsWrap (begin, end, &translation))
+	    {
+		m_wraps.push_back (time);
+		m_translations.push_back (translation);
+	    }
+	}
     }
-
-    for (size_t time = 0; time < centerMovement.size (); time++)
-    {
-	const OOBox& originalDomain = 
-	    foamAlongTime.GetFoam (time)->GetOriginalDomain ();
-	float minDomainSide = min (originalDomain.GetX ().length (),
-				   min (originalDomain.GetY ().length(),
-					originalDomain.GetZ ().length ()));
-	if (centerMovement[time] > minDomainSide / 2)
-	    m_wraps.push_back (time);
-    }
-    m_wraps.push_back (centerMovement.size ());
+    m_wraps.push_back (m_bodyAlongTime.size () - 1);
 }
 
 void BodyAlongTime::Resize ()
@@ -120,18 +101,21 @@ void BodyAlongTime::Resize ()
     m_bodyAlongTime.resize (size);
 }
 
-// Static and Friends BodyAlongTime Methods
-// ======================================================================
-ostream& operator<< (
-    ostream& ostr, const BodyAlongTime& bat)
+string BodyAlongTime::ToString () const
 {
-    const BodyAlongTime::Bodies& bodies = bat.GetBodies ();
-    ostr << "BodyAlongTime " << bodies[0]->GetId () 
-	 << ": " << endl;
+    ostringstream ostr;
+    const BodyAlongTime::Bodies& bodies = GetBodies ();
+    ostr << "BodyAlongTime " << bodies[0]->GetId () << ": " << endl;
     
     ostr << "Wraps: ";
     ostream_iterator<size_t> os (ostr, " ");
-    copy (bat.m_wraps.begin (), bat.m_wraps.end (), os);
+    copy (m_wraps.begin (), m_wraps.end (), os);
     ostr << endl;
-    return ostr;
+
+    ostr << "Translations: ";
+    ostream_iterator<G3D::Vector3int16> ov (ostr, " ");
+    copy (m_translations.begin (), m_translations.end (), ov);
+    ostr << endl;
+    return ostr.str ();
 }
+

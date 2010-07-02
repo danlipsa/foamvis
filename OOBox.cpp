@@ -135,8 +135,7 @@ G3D::Vector3int16 OOBox::GetTranslation (
     const G3D::Vector3& source, const G3D::Vector3& destination) const
 {
     using G3D::Matrix3;using G3D::Vector3;using G3D::Vector3int16;
-    Matrix3 toOrthonormal, toPeriods = GetMatrix ();
-    toOrthonormal = toPeriods.inverse ();
+    Matrix3 toOrthonormal = GetMatrix ().inverse ();
     Vector3 s = toOrthonormal * source;
     Vector3 d = toOrthonormal * destination;
     Vector3 t = d - s - Vector3 (0.5, 0.5, 0.5);
@@ -152,22 +151,23 @@ bool OOBox::IsZero () const
 
 
 bool OOBox::IsWrap (const G3D::Vector3& begin, const G3D::Vector3& end,
-		    G3D::Vector3* endUnwrapped) const
+		    G3D::Vector3int16* translation) const
 {
-    G3D::Vector3int16 translation;
-    G3D::Matrix3 m = GetMatrix ();
-    G3D::Vector3 u = m.inverse () * (end - begin);
+    G3D::Vector3int16 t;
+    G3D::Vector3 u = GetMatrix ().inverse () * (end - begin);
     for (size_t i = 0; i < 3; ++i)
     {
 	if (abs (u[i]) > 0.5)
+	{
 	    if (u[i] > 0)
-		translation += Vector3int16Unit (i);
+		t += Vector3int16Unit (i);
 	    else
-		translation -= Vector3int16Unit (i);
+		t -= Vector3int16Unit (i);
+	}
     }
-    if (translation != Vector3int16Zero)
+    if (translation != 0 && t != Vector3int16Zero)
     {
-	*endUnwrapped = TorusTranslate (end, translation);
+	*translation = t;
 	return true;
     }
     else

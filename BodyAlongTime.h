@@ -20,19 +20,30 @@ public:
     /**
      * List of times (indexes in Bodies vector) where a body wraps
      * around the torus original domain. The wrap is 
-     * between index and index + 1. It includes the index equal with the 
-     * number of time steps + 1.
+     * between index and index + 1. It includes the last index in the Bodies 
+     * vector.
      */
     typedef vector<size_t> Wraps;
+    /**
+     * Translation between step index and step index + 1. It has one less
+     * elements than Wraps.
+     * @see Wraps
+     */
+    typedef vector<G3D::Vector3int16> Translations;
 
 public:
     BodyAlongTime (size_t timeSteps) :
 	m_bodyAlongTime (timeSteps)
     {}
-    boost::shared_ptr<Body> & GetBody (size_t timeStep)
+    boost::shared_ptr<Body>& GetBody (size_t timeStep)
     {
 	return m_bodyAlongTime[timeStep];
     }
+    const boost::shared_ptr<Body>& GetBody (size_t timeStep) const
+    {
+	return m_bodyAlongTime[timeStep];
+    }
+
     void Resize (size_t timeSteps)
     {
 	m_bodyAlongTime.resize (timeSteps);
@@ -47,11 +58,16 @@ public:
      * than 1/2 of min all sides of the original domain
      */
     void CalculateBodyWraps (const FoamAlongTime& foamAlongTime);
-    const Wraps& GetWraps ()
+    const Wraps& GetWraps () const
     {
 	return m_wraps;
     }
     void Resize ();
+    G3D::Vector3int16 GetTranslation (size_t i) const
+    {
+	return m_translations[i];
+    }
+    string ToString () const;
 
 public:
     friend ostream& operator<< (
@@ -60,6 +76,7 @@ public:
 private:
     Bodies m_bodyAlongTime;
     Wraps m_wraps;
+    Translations m_translations;
 };
 
 
@@ -77,12 +94,24 @@ public:
 
     void Allocate (const boost::shared_ptr<Body>  body, size_t timeSteps);
     void Cache (boost::shared_ptr<Body>  body, size_t timeStep);
-    OneBody& GetOneBody (size_t id);
     BodyMap& GetBodyMap ()
     {
 	return m_bodyMap;
     }
+    const BodyMap& GetBodyMap () const
+    {
+	return m_bodyMap;
+    }
     void Resize (const boost::shared_ptr<Body>  body);
+    OneBody& GetOneBody (size_t id)
+    {
+	return getOneBody (id);
+    }
+
+    const OneBody& GetOneBody (size_t id) const
+    {
+	return getOneBody (id);
+    }
 
 public:
     friend ostream& operator<< (
@@ -90,6 +119,7 @@ public:
 
 private:
     void resize (size_t bodyOriginalIndex, size_t timeSteps);
+    OneBody& getOneBody (size_t id) const;
 
 private:
     /**
@@ -97,6 +127,12 @@ private:
      */
     BodyMap m_bodyMap;
 };
+
+inline ostream& operator<< (ostream& ostr, const BodyAlongTime& bat)
+{
+    return ostr << bat.ToString ();
+}
+
 
 
 #endif //__BODY_ALONG_TIME_H__

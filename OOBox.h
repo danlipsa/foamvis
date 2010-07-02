@@ -56,7 +56,7 @@ public:
     G3D::Vector3int16 GetTranslation (
 	const G3D::Vector3& source, const G3D::Vector3& destination) const;
     bool IsWrap (const G3D::Vector3& begin, const G3D::Vector3& end,
-		 G3D::Vector3* unwrappedEnd = 0) const;
+		 G3D::Vector3int16* translation = 0) const;
 
 
 public:

@@ -50,12 +50,13 @@ public:
     /**
      * Gets the data displayed by the GLWidget
      */
-    FoamAlongTime& GetFoamAlongTime () 
+    const FoamAlongTime& GetFoamAlongTime () const
     {
 	return *m_foamAlongTime;
     }
-    BodiesAlongTime& GetBodiesAlongTime ();
-    BodyAlongTime& GetBodyAlongTime (size_t id);
+
+    const BodiesAlongTime& GetBodiesAlongTime () const;
+    const BodyAlongTime& GetBodyAlongTime (size_t bodyId) const;
     /**
      * Gets the currently displayed data
      */
@@ -63,15 +64,14 @@ public:
     /**
      * Gets the index of the currently displayed data.
      */
-    size_t GetTimeStep () {return m_timeStep;}
-    
-    /**
-     * Gets the currently displayed body
-     * @return the currrently displayed body or UINT_MAX for all bodies
-     */
-    size_t GetDisplayedBodyIndex () const
+    size_t GetTimeStep () const
     {
-	return m_displayedBodyIndex;
+	return m_timeStep;
+    }
+    
+    bool IsDisplayedAllBodies () const
+    {
+	return m_displayedBodyIndex == DISPLAY_ALL;
     }
     size_t GetDisplayedBodyId () const;
     boost::shared_ptr<Body>  GetDisplayedBody () const;

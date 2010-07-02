@@ -10,7 +10,9 @@
 #define __DISPLAY_BODY_FUNCTORS_H__
 
 #include "GLWidget.h"
+#include "DebugStream.h"
 #include "Foam.h"
+
 
 /**
  * Functor used to display a body
@@ -135,19 +137,32 @@ public:
      */
     void operator () (size_t bodyId)
     {
-	BodyAlongTime& bat = m_widget.GetBodyAlongTime (bodyId);
+	const BodyAlongTime& bat = m_widget.GetBodyAlongTime (bodyId);
 	const BodyAlongTime::Bodies& bodies = bat.GetBodies ();
 	BodyAlongTime::Bodies::const_iterator begin = bodies.begin ();
-	BOOST_FOREACH (size_t wrapIndex, bat.GetWraps ())
+	const BodyAlongTime::Wraps& wraps = bat.GetWraps ();
+	for (size_t i = 0; i < wraps.size (); ++i)
 	{
+	    size_t timeStep = wraps[i];
 	    BodyAlongTime::Bodies::const_iterator end = 
-		bodies.begin () + wrapIndex + 1;
+		bodies.begin () + timeStep + 1;
 	    BodyAlongTime::Bodies::const_iterator it;
 	    glBegin(GL_LINE_STRIP);
 	    for (it = begin; it != end; ++it)
 		glVertex((*it)->GetCenter ());
+	    // add a segment for the wrap around the original domain
+	    if (end != bodies.end ())
+	    {
+		const OOBox& originalDomain = 
+		    m_widget.GetFoamAlongTime ().
+		    GetFoam (timeStep + 1)->GetOriginalDomain ();
+		glVertex(originalDomain.TorusTranslate (
+			     (*end)->GetCenter (),
+			     Vector3int16Zero - bat.GetTranslation (i)));
+	    }
+
 	    glEnd ();
-	    begin = end + 1;
+	    begin = end;
 	}
     }
     /**

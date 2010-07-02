@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>921</width>
-    <height>720</height>
+    <width>974</width>
+    <height>724</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -55,6 +55,12 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>512</width>
+          <height>512</height>
+         </size>
+        </property>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <widget class="QWidget" name="widgetDisplayStatus" native="true">
@@ -66,8 +72,8 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>512</width>
-             <height>512</height>
+             <width>0</width>
+             <height>0</height>
             </size>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_14">
@@ -87,8 +93,8 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>0</width>
-                <height>0</height>
+                <width>512</width>
+                <height>512</height>
                </size>
               </property>
              </widget>
