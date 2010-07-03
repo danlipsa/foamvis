@@ -1,4 +1,4 @@
-/**s
+/**
  * @file   GLWidget.cpp
  * @author Dan R. Lipsa
  *

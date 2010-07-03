@@ -59,6 +59,7 @@ LIBS += "-lavformat"
 LIBS += "-lavcodec"
 LIBS += "-lavutil"
 LIBS += "-framework Carbon"
+LIBS += "-lqwt"
 }
 else:unix {
 INCLUDEPATH += /usr/local/G3D-20100524/build/linux-x86_64-g++4.4/include
