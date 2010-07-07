@@ -231,6 +231,12 @@ private:
     boost::shared_ptr<Face>  createFaceDuplicate (
 	const Face& original, const G3D::Vector3& newBegin,
 	VertexSet* vertexSet, EdgeSet* edgeSet) const;
+    /**
+     * Calculates the AABOX for the the foam and the 8 corners of the 
+     * original domain.
+     * @params low low point of the aabox for the Foam (input/output)
+     * @params high high point of the aabox for the foam (input/output)
+     */
     void calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high);
     void torusTranslate (
       Vertex* vertex, const G3D::Vector3int16& domainIncrement) const;

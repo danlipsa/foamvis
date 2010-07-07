@@ -131,27 +131,6 @@ void printOpenGLInfo ()
 }
 
 
-void displayOriginalDomainFaces (G3D::Vector3 first,
-				 G3D::Vector3 second,
-				 G3D::Vector3 third)
-{
-    G3D::Vector3 origin;
-    G3D::Vector3 sum = first + second;
-    for (int i = 0; i < 2; i++)
-    {
-	glBegin (GL_POLYGON);
-	glVertex (origin);
-	glVertex (first);
-	glVertex (sum);
-	glVertex (second);
-	glEnd ();
-	origin += third;
-	first += third;
-	second += third;
-	sum += third;
-    }
-}
-
 // Static Fields
 // ======================================================================
 
@@ -488,20 +467,44 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 
 void GLWidget::displayOriginalDomain ()
 {
-    const OOBox& periods = GetCurrentFoam().GetOriginalDomain ();
     if (m_torusOriginalDomainDisplay)
     {
+	const OOBox& periods = GetCurrentFoam().GetOriginalDomain ();
 	glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
 	glLineWidth (1.0);
 	qglColor (QColor (Qt::black));
 	glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 
-	displayOriginalDomainFaces (periods[0], periods[1], periods[2]);
-	displayOriginalDomainFaces (periods[1], periods[2], periods[0]);
-	displayOriginalDomainFaces (periods[2], periods[0], periods[1]);
+	displayOpositeFaces (G3D::Vector3::zero (), 
+			     periods[0], periods[1], periods[2]);
+	displayOpositeFaces (G3D::Vector3::zero (),
+			     periods[1], periods[2], periods[0]);
+	displayOpositeFaces (G3D::Vector3::zero (), 
+			     periods[2], periods[0], periods[1]);
 	glPopAttrib ();
     }
 }
+
+void GLWidget::displayAABox ()
+{
+    using G3D::Vector3;
+    const G3D::AABox& aabb = GetCurrentFoam().GetAABox ();
+    glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
+    glLineWidth (1.0);
+    qglColor (QColor (Qt::black));
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    Vector3 diagonal = aabb.high () - aabb.low ();
+    Vector3 first = diagonal.x * Vector3::unitX ();
+    Vector3 second = diagonal.y * Vector3::unitY ();
+    Vector3 third = diagonal.z * Vector3::unitZ ();
+    
+    displayOpositeFaces (aabb.low (), first, second, third);
+    //displayOpositeFaces (aabb.low (), second, third, first);
+    //displayOpositeFaces (aabb.low (), third, first, second);
+    glPopAttrib ();
+    cdbg << "AABox: " << aabb << endl;
+}
+
 
 template<typename displayEdge>
 GLuint GLWidget::displayListEdges ()
@@ -522,6 +525,7 @@ GLuint GLWidget::displayListEdges ()
     glPopAttrib ();
     displayOriginalDomain ();
     displayCenterOfBodies ();
+    displayAABox ();
     glEndList();
     return list;
 }
@@ -1024,4 +1028,28 @@ void GLWidget::quadricErrorCallback (GLenum errorCode)
 {
     const GLubyte* message = gluErrorString (errorCode);
     cdbg << "Quadric error: " << message << endl;
+}
+
+void GLWidget::displayOpositeFaces (G3D::Vector3 origin,
+				    G3D::Vector3 faceFirst,
+				    G3D::Vector3 faceSecond,
+				    G3D::Vector3 translation)
+{
+    G3D::Vector3 sum = faceFirst + faceSecond;
+    faceFirst += origin;
+    faceSecond += origin;
+    translation += origin;
+    for (int i = 0; i < 2; i++)
+    {
+	glBegin (GL_POLYGON);
+	glVertex (origin);
+	glVertex (faceFirst);
+	glVertex (sum);
+	glVertex (faceSecond);
+	glEnd ();
+	origin += translation;
+	faceFirst += translation;
+	faceSecond += translation;
+	sum += translation;
+    }
 }

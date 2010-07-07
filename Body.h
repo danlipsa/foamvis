@@ -107,7 +107,6 @@ private:
     void cacheBodyEdges (size_t dimension, bool isQuadratic,
 			 vector< boost::shared_ptr<Vertex> >* physicalVertices);
 
-
 private:
     /**
      * Oriented faces that are part of this body.
@@ -117,6 +116,7 @@ private:
      * Center of the body
      */
     G3D::Vector3 m_center;
+    G3D::AABox m_AABox;
 };
 
 /**

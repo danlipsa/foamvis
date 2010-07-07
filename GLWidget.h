@@ -319,6 +319,8 @@ private:
      */
     GLuint displayListCenterPaths ();
     void displayOriginalDomain ();
+    void displayAABox ();
+
     /**
      * Rotates the foam around an axis with a certain angle
      * @param axis can be 0, 1 or 2 for X, Y or Z
@@ -368,6 +370,11 @@ private:
 	glDeleteLists(*object, 1);
 	*object = newObject;
     }
+    static void displayOpositeFaces (G3D::Vector3 origin,
+				     G3D::Vector3 faceFirst,
+				     G3D::Vector3 faceSecond,
+				     G3D::Vector3 translation);
+
     /**
      * Setup lighting for displaying faces edges and vertices
      */

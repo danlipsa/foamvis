@@ -300,8 +300,10 @@ void Foam::calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high)
     Vector3 third = m_originalDomain[2];
     array<Vector3, 10> additionalVertices = 
     {{
-	    *low, origin, first, sum, second,
-	    origin + third, first + third, sum + third, second + third, *high
+	    *low, 
+	    origin, first, sum, second,
+	    origin + third, first + third, sum + third, second + third, 
+	    *high
     }};
     vector<Vector3*> v(additionalVertices.size ());
     transform (additionalVertices.begin (), additionalVertices.end (),
