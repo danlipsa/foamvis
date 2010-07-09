@@ -25,6 +25,11 @@ extern const G3D::Vector3int16 Vector3int16Zero;
  */
 void RainbowColor (double value, QColor* color);
 
+inline void glTranslate (const G3D::Vector3& translate)
+{
+    glTranslatef (translate.x, translate.y, translate.z);
+}
+
 #endif //__ELEMENT_UTILS_H__
 
 // Local Variables:

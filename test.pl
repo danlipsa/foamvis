@@ -14,10 +14,20 @@ my @tests =
 
 sub main ()
 {
+    my $foam;
+    if ($ENV{'OSTYPE'} eq "darwin10.0")
+    {
+	$foam = "./foam.app/Contents/MacOS/foam";
+    }
+    else
+    {
+	$foam = "./foam";
+    }
+
     foreach (@tests)
     {
 	my $test = $_;
-	my @args = ("./foam", $location . $test);
+	my @args = ($foam, $location . $test);
 	system(@args) == 0
 	    or die "system @args failed: $?"
     }

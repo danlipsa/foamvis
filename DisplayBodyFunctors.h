@@ -99,7 +99,7 @@ public:
      * Constructor
      * @param widget where to display the body
      */
-    DisplayBody (GLWidget& widget,
+    DisplayBody (const GLWidget& widget,
 		 ContextDisplay contextDisplay = TRANSPARENT_CONTEXT) : 
 	DisplayBodyBase (widget), m_contextDisplay (contextDisplay)
     {}

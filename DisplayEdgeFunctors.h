@@ -186,7 +186,7 @@ public:
     }
     void operator () (const Edge& oe) const
     {
-	Foam& foam = m_widget.GetCurrentFoam ();
+	const Foam& foam = m_widget.GetCurrentFoam ();
 	bool isPhysical = oe.IsPhysical (foam.GetSpaceDimension (),
 					 foam.IsQuadratic ());
 	if (isPhysical || 

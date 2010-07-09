@@ -64,7 +64,10 @@ public:
     /**
      * Gets the AABox for this vector of Foam objects
      */
-     G3D::AABox& GetAABox () {return m_AABox;}
+    const G3D::AABox& GetAABox () const
+    {
+	return m_AABox;
+    }
     void CacheBodiesAlongTime ();
     void PostProcess ();
     BodiesAlongTime& GetBodiesAlongTime ()

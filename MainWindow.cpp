@@ -119,6 +119,7 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
     {
 	radioButtonEdgesNormal->toggle ();
 	tabWidget->setCurrentWidget (edges);
+	groupBoxProjection->setEnabled (false);
     }
     else
     {
@@ -257,7 +258,7 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     {
 	try
 	{
-	    Foam& currentFoam = widgetGl->GetCurrentFoam ();
+	    const Foam& currentFoam = widgetGl->GetCurrentFoam ();
 	    boost::shared_ptr<Body>  b = currentFoam.GetBody (m_currentBody);
 	    if (m_processBodyTorus == 0)
 	    {
@@ -293,7 +294,7 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     case Qt::Key_R:
 	InteractionModeRotate ();
 	break;
-    case Qt::Key_S:
+    case Qt::Key_Z:
 	InteractionModeScale ();
 	break;
     case Qt::Key_T:

@@ -18,6 +18,7 @@ class Edge;
 class FoamAlongTime;
 class OrientedFace;
 class OrientedEdge;
+class OOBox;
 
 /**
  * Widget for displaying foam bubbles using OpenGL
@@ -54,13 +55,20 @@ public:
     {
 	return *m_foamAlongTime;
     }
+    FoamAlongTime& GetFoamAlongTime ()
+    {
+	return *m_foamAlongTime;
+    }
+
 
     const BodiesAlongTime& GetBodiesAlongTime () const;
     const BodyAlongTime& GetBodyAlongTime (size_t bodyId) const;
     /**
      * Gets the currently displayed data
      */
-    Foam& GetCurrentFoam () const;
+    const Foam& GetCurrentFoam () const;
+    Foam& GetCurrentFoam ();
+
     /**
      * Gets the index of the currently displayed data.
      */
@@ -191,6 +199,9 @@ public Q_SLOTS:
 
     void ToggledTorusOriginalDomainDisplay (bool checked);
     void ToggledTorusOriginalDomainClipped (bool checked);
+    void ToggledProjectionOrtographic (bool checked);
+    void ToggledProjectionPerspective (bool checked);
+    void ToggledBoundingBox (bool checked);
 
 public:
     const static  size_t DISPLAY_ALL;
@@ -246,6 +257,12 @@ private:
 	LIGHTING_COUNT
     };
 
+    enum Projection
+    {
+	ORTOGRAPHIC,
+	PERSPECTIVE
+    };
+
     typedef boost::unordered_map<G3D::Vector3int16, QColor,
 				 Vector3int16Hash> EndLocationColor;
     struct ViewTypeDisplay
@@ -267,7 +284,9 @@ private:
 
     void view (bool checked, ViewType view);
 
-    void project ();
+    void projectionTransformation () const;
+    void viewingTransformation () const;
+    void modelingTransformation () const;
     void calculateViewingVolume ();
     /**
      * Generates a display list for a certain kind of objects
@@ -320,6 +339,8 @@ private:
     GLuint displayListCenterPaths ();
     void displayOriginalDomain ();
     void displayAABox ();
+    void display (const G3D::AABox& aabox) const;
+    void display (const OOBox& oobox) const;
 
     /**
      * Rotates the foam around an axis with a certain angle
@@ -333,14 +354,16 @@ private:
      * continuous contours  for polygons.
      * @param bodies displays all the faces in these bodies
      */
-    void displayFacesContour (vector<boost::shared_ptr<Body> >& bodies);
+    void displayFacesContour (
+	const vector<boost::shared_ptr<Body> >& bodies) const;
     /**
      * Displays   the   content   of   faces.   Used   together   with
      * displayFacesContour  and  with  GL_POLYGON_OFFSET_FILL  to  get
      * continuous contours for polygons.
      * @param bodies displays all the faces in these bodies
      */
-    void displayFacesOffset (vector<boost::shared_ptr<Body> >& bodies);
+    void displayFacesOffset (
+	const vector<boost::shared_ptr<Body> >& bodies) const;
     /**
      * Setup lighting for shaded bodies
      */
@@ -425,10 +448,8 @@ private:
 
     QColor m_centerPathColor;
     G3D::AABox m_viewingVolume;
-    /**
-     * Rotations and translations
-     */
-    G3D::CoordinateFrame m_transform;
+    G3D::Matrix3 m_rotate;
+    
     G3D::Rect2D m_viewport;
     EndLocationColor m_endTranslationColor;
     GLUquadricObj* m_quadric;    
@@ -447,6 +468,8 @@ private:
     bool m_edgesBodyCenter;
     bool m_edgesTessellation;
     bool m_centerPathDisplayBody;
+    Projection m_projection;
+    bool m_boundingBox;
     boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> VIEW_TYPE_DISPLAY;
 };
 

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>974</width>
-    <height>724</height>
+    <height>720</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -38,9 +38,6 @@
       </size>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0">
-      <property name="spacing">
-       <number>6</number>
-      </property>
       <property name="sizeConstraint">
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
@@ -116,7 +113,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QwtScaleWidget" name="scaleWidgetColorBar"/>
+          <widget class="QwtScaleWidget" name="scaleWidgetColorBar" native="true"/>
          </item>
         </layout>
        </widget>
@@ -142,12 +139,12 @@
            </item>
            <item>
             <property name="text">
-             <string>Scale (s)</string>
+             <string>Scale (z)</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>Scale (s) Viewport</string>
+             <string>Scale (z) Viewport</string>
             </property>
            </item>
            <item>
@@ -162,6 +159,39 @@
            <property name="text">
             <string>Save movie</string>
            </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBoxBoundingBox">
+           <property name="text">
+            <string>Bounding Box</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBoxProjection">
+           <property name="title">
+            <string>Projection</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="QRadioButton" name="radioButtonOrtographic">
+              <property name="text">
+               <string>Ortographic</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="radioButtonPerspective">
+              <property name="text">
+               <string>Perspective</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
          <item>
@@ -561,6 +591,9 @@
     <slot>ToggledFacesTorusTubes(bool)</slot>
     <slot>ToggledTorusOriginalDomainDisplay(bool)</slot>
     <slot>ToggledTorusOriginalDomainClipped(bool)</slot>
+    <slot>ToggledProjectionOrtographic(bool)</slot>
+    <slot>ToggledProjectionPerspective(bool)</slot>
+    <slot>ToggledBoundingBox(bool)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -573,8 +606,8 @@
    <slot>ClickedPlay()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>82</x>
-     <y>699</y>
+     <x>96</x>
+     <y>695</y>
     </hint>
     <hint type="destinationlabel">
      <x>66</x>
@@ -589,8 +622,8 @@
    <slot>ClickedBegin()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>53</x>
-     <y>699</y>
+     <x>63</x>
+     <y>695</y>
     </hint>
     <hint type="destinationlabel">
      <x>38</x>
@@ -605,8 +638,8 @@
    <slot>ClickedEnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>122</x>
-     <y>699</y>
+     <x>143</x>
+     <y>695</y>
     </hint>
     <hint type="destinationlabel">
      <x>53</x>
@@ -637,8 +670,8 @@
    <slot>ToggledSaveMovie(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>657</x>
-     <y>63</y>
+     <x>958</x>
+     <y>70</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -653,8 +686,8 @@
    <slot>ToggledEdgesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>683</x>
-     <y>234</y>
+     <x>918</x>
+     <y>329</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -669,8 +702,8 @@
    <slot>ToggledEdgesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>695</x>
-     <y>282</y>
+     <x>918</x>
+     <y>348</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -685,8 +718,8 @@
    <slot>ToggledFacesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>695</x>
-     <y>282</y>
+     <x>918</x>
+     <y>348</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -701,8 +734,8 @@
    <slot>ToggledCenterPath(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>721</x>
-     <y>234</y>
+     <x>918</x>
+     <y>329</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -733,8 +766,8 @@
    <slot>ToggledCenterPathDisplayBody(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>654</x>
-     <y>293</y>
+     <x>775</x>
+     <y>384</y>
     </hint>
     <hint type="destinationlabel">
      <x>514</x>
@@ -749,8 +782,8 @@
    <slot>ToggledEdgesBodyCenter(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>618</x>
-     <y>320</y>
+     <x>778</x>
+     <y>403</y>
     </hint>
     <hint type="destinationlabel">
      <x>520</x>
@@ -765,8 +798,8 @@
    <slot>ToggledEdgesTessellation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>616</x>
-     <y>348</y>
+     <x>788</x>
+     <y>438</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -781,8 +814,8 @@
    <slot>ToggledEdgesTorusTubes(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>611</x>
-     <y>322</y>
+     <x>778</x>
+     <y>403</y>
     </hint>
     <hint type="destinationlabel">
      <x>519</x>
@@ -797,8 +830,8 @@
    <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>615</x>
-     <y>240</y>
+     <x>918</x>
+     <y>329</y>
     </hint>
     <hint type="destinationlabel">
      <x>458</x>
@@ -813,8 +846,8 @@
    <slot>ToggledFacesTorusTubes(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>600</x>
-     <y>317</y>
+     <x>775</x>
+     <y>403</y>
     </hint>
     <hint type="destinationlabel">
      <x>487</x>
@@ -829,8 +862,8 @@
    <slot>ToggledTorusOriginalDomainDisplay(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>613</x>
-     <y>114</y>
+     <x>943</x>
+     <y>207</y>
     </hint>
     <hint type="destinationlabel">
      <x>483</x>
@@ -845,12 +878,60 @@
    <slot>ToggledTorusOriginalDomainClipped(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>617</x>
-     <y>141</y>
+     <x>943</x>
+     <y>228</y>
     </hint>
     <hint type="destinationlabel">
      <x>494</x>
      <y>144</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonOrtographic</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledProjectionOrtographic(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>693</x>
+     <y>133</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>614</x>
+     <y>67</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonPerspective</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledProjectionPerspective(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>710</x>
+     <y>146</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>613</x>
+     <y>91</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxBoundingBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledBoundingBox(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>665</x>
+     <y>81</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>596</x>
+     <y>186</y>
     </hint>
    </hints>
   </connection>

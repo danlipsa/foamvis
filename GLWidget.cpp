@@ -159,12 +159,15 @@ GLWidget::GLWidget(QWidget *parent)
       m_facesTorusTubes (false),
       m_edgesBodyCenter (false),
       m_edgesTessellation (false),
-      m_centerPathDisplayBody (false)
+      m_centerPathDisplayBody (false),
+      m_projection (ORTOGRAPHIC),
+      m_boundingBox (false)
 {
     cdbg << "---------- GLWidget constructor ----------\n";
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
     const int POSSIBILITIES = 3; //domain increment can be *, - or +
     using G3D::Vector3int16;
+    m_rotate = G3D::Matrix3::identity ();
     for (int i = 0;
 	 i < POSSIBILITIES * POSSIBILITIES * POSSIBILITIES; i++)
     {
@@ -257,7 +260,7 @@ QSize GLWidget::sizeHint()
 
 void GLWidget::enableLighting ()
 {
-    const G3D::Vector3& max = m_foamAlongTime->GetAABox ().high ();
+    const G3D::Vector3& max = GetFoamAlongTime ().GetAABox ().high ();
     GLfloat lightPosition[] = { 2*max.x, 2*max.y, 2*max.z, 0.0 };
     GLfloat lightAmbient[] = {1.0, 1.0, 1.0, 1.0};
 
@@ -279,24 +282,43 @@ void GLWidget::enableLighting ()
 void GLWidget::calculateViewingVolume ()
 {
     using G3D::Vector3;
-    const Vector3& low = m_foamAlongTime->GetAABox ().low ();
-    const Vector3& high = m_foamAlongTime->GetAABox ().high ();
-    float border = ((high - low) / 8).max ();
-    float min = low.min () - border;
-    float max = high.max () + border;
-    m_viewingVolume.set (Vector3 (min, min, min),
-			 Vector3 (max, max, max));
+    const Vector3& low = GetFoamAlongTime ().GetAABox ().low ();
+    const Vector3& high = GetFoamAlongTime ().GetAABox ().high ();
+    m_viewingVolume.set (low, high);
     cdbg << "Viewing volume: " << m_viewingVolume << endl;
 }
 
-
-void GLWidget::project ()
+void GLWidget::viewingTransformation () const
 {
+    glLoadIdentity ();
+}
+
+void GLWidget::modelingTransformation () const
+{
+    glTranslate (GetFoamAlongTime ().GetAABox ().center ());
+    glMultMatrix (m_rotate);
+    glTranslate (-GetFoamAlongTime ().GetAABox ().center ());
+    glCallList (m_object);
+    cdbg << "Rotation: " << m_rotate.toString () << endl;
+}
+
+void GLWidget::projectionTransformation () const
+{
+    using G3D::Vector3;
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(m_viewingVolume.low ().x, m_viewingVolume.high ().x,
-	    m_viewingVolume.low ().y, m_viewingVolume.high ().y, 
-	    m_viewingVolume.low ().z, m_viewingVolume.high ().z);
+    if (GetCurrentFoam ().GetSpaceDimension () == 2)
+	gluOrtho2D(m_viewingVolume.low ().x, m_viewingVolume.high ().x,
+		   m_viewingVolume.low ().y, m_viewingVolume.high ().y);
+    else if (m_projection == ORTOGRAPHIC)
+	glOrtho (m_viewingVolume.low ().x, m_viewingVolume.high ().x,
+		 m_viewingVolume.low ().y, m_viewingVolume.high ().y, 
+		 -m_viewingVolume.high ().z, -m_viewingVolume.low ().z);
+    else
+	glFrustum (m_viewingVolume.low ().x, m_viewingVolume.high ().x,
+		   m_viewingVolume.low ().y, m_viewingVolume.high ().y, 
+		   -m_viewingVolume.high ().z, -m_viewingVolume.low ().z);
+    glMatrixMode (GL_MODELVIEW);
 }
 
 // Uses antialiased points and lines
@@ -316,15 +338,18 @@ void GLWidget::initializeGL()
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable (GL_LINE_SMOOTH);
     glEnable (GL_POINT_SMOOTH);
+    calculateViewingVolume ();
+    projectionTransformation ();
+
 }
 
 void GLWidget::paintGL()
 {
+    using G3D::Vector3;
+    cdbg << "paingGL" << endl;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glMatrixMode (GL_MODELVIEW);
-    glLoadMatrix (m_transform);
-
-    glCallList (m_object);
+    viewingTransformation ();
+    modelingTransformation ();
     detectOpenGLError ();
 }
 
@@ -334,7 +359,6 @@ void GLWidget::resizeGL(int width, int height)
 {
     using G3D::Rect2D;using G3D::Vector2;
     cdbg << "resizeGL" << endl;
-    calculateViewingVolume ();
     Vector2 viewportStart = m_viewport.x0y0 ();
     float ratio = (m_viewingVolume.high ().x - m_viewingVolume.low ().x) / 
 	(m_viewingVolume.high ().y - m_viewingVolume.low ().y);
@@ -352,7 +376,8 @@ void GLWidget::resizeGL(int width, int height)
     }
     glViewport (m_viewport.x0 (), m_viewport.y0 (), 
 		m_viewport.width (), m_viewport.height ());
-    project ();
+    calculateViewingVolume ();
+    projectionTransformation ();
 }
 
 void GLWidget::setRotation (int axis, float angleRadians)
@@ -361,9 +386,7 @@ void GLWidget::setRotation (int axis, float angleRadians)
     Vector3 axes[3] = {
 	Vector3::unitX (), Vector3::unitY (), Vector3::unitZ ()
     };
-    m_transform.rotation = 
-	Matrix3::fromAxisAngle (axes[axis], 
-				angleRadians) * m_transform.rotation;
+    m_rotate = Matrix3::fromAxisAngle (axes[axis], angleRadians) * m_rotate;
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
@@ -401,7 +424,6 @@ float GLWidget::ratioFromCenter (const QPoint& p)
     return ratio;
 }
 
-
 void GLWidget::rotate (const QPoint& position)
 {
     int dx = position.x() - m_lastPos.x();
@@ -432,7 +454,7 @@ void GLWidget::scale (const QPoint& position)
 {
     float ratio = 1 / ratioFromCenter (position);
     scaleAABox (&m_viewingVolume, ratio);
-    project ();
+    projectionTransformation ();
 }
 
 void GLWidget::scaleViewport (const QPoint& position)
@@ -468,27 +490,37 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 void GLWidget::displayOriginalDomain ()
 {
     if (m_torusOriginalDomainDisplay)
-    {
-	const OOBox& periods = GetCurrentFoam().GetOriginalDomain ();
-	glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
-	glLineWidth (1.0);
-	qglColor (QColor (Qt::black));
-	glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-
-	displayOpositeFaces (G3D::Vector3::zero (), 
-			     periods[0], periods[1], periods[2]);
-	displayOpositeFaces (G3D::Vector3::zero (),
-			     periods[1], periods[2], periods[0]);
-	displayOpositeFaces (G3D::Vector3::zero (), 
-			     periods[2], periods[0], periods[1]);
-	glPopAttrib ();
-    }
+	display (GetCurrentFoam().GetOriginalDomain ());
 }
+
+void GLWidget::display (const OOBox& oobox) const
+{
+    glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
+    glLineWidth (1.0);
+    qglColor (QColor (Qt::black));
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+
+    displayOpositeFaces (G3D::Vector3::zero (), 
+			 oobox[0], oobox[1], oobox[2]);
+    displayOpositeFaces (G3D::Vector3::zero (),
+			 oobox[1], oobox[2], oobox[0]);
+    displayOpositeFaces (G3D::Vector3::zero (), 
+			 oobox[2], oobox[0], oobox[1]);
+    glPopAttrib ();
+}
+
 
 void GLWidget::displayAABox ()
 {
+    if (m_boundingBox)
+	display (GetCurrentFoam ().GetAABox ());
+}
+
+
+void GLWidget::display (const G3D::AABox& aabb) const
+{
     using G3D::Vector3;
-    const G3D::AABox& aabb = GetCurrentFoam().GetAABox ();
+    cdbg << aabb << endl;
     glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
     glLineWidth (1.0);
     qglColor (QColor (Qt::black));
@@ -499,10 +531,9 @@ void GLWidget::displayAABox ()
     Vector3 third = diagonal.z * Vector3::unitZ ();
     
     displayOpositeFaces (aabb.low (), first, second, third);
-    //displayOpositeFaces (aabb.low (), second, third, first);
-    //displayOpositeFaces (aabb.low (), third, first, second);
+    displayOpositeFaces (aabb.low (), second, third, first);
+    displayOpositeFaces (aabb.low (), third, first, second);
     glPopAttrib ();
-    cdbg << "AABox: " << aabb << endl;
 }
 
 
@@ -592,7 +623,7 @@ void GLWidget::displayCenterOfBodies ()
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
 	glPointSize (4.0);
 	qglColor (QColor (Qt::red));
-	Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
+	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	for_each (bodies.begin (), bodies.end (), DisplayBodyCenter (*this));
 	glPopAttrib ();
     }
@@ -603,30 +634,29 @@ GLuint GLWidget::displayListFacesNormal ()
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
 
-    Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
+    const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
     displayFacesContour (bodies);
     displayFacesOffset (bodies);
 
     displayStandaloneEdges ();
     displayOriginalDomain ();
+    displayAABox ();
     glEndList();
     return list;
 }
 
-void GLWidget::displayFacesContour (vector<boost::shared_ptr<Body> >& bodies)
+void GLWidget::displayFacesContour (const Foam::Bodies& bodies) const
 {
     glColor (G3D::Color4 (Color::GetValue(Color::BLACK), 
 			  GetContextAlpha ()));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     for_each (bodies.begin (), bodies.end (),
-              DisplayBody<
-	      DisplayFace<
-	      DisplaySameEdges> > (*this));
+              DisplayBody< DisplayFace<DisplaySameEdges> > (*this));
 }
 
 // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
 // Antialiasing, Fog and Polygon Offset page 293
-void GLWidget::displayFacesOffset (vector<boost::shared_ptr<Body> >& bodies)
+void GLWidget::displayFacesOffset (const Foam::Bodies& bodies) const
 {
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glEnable (GL_POLYGON_OFFSET_FILL);
@@ -640,7 +670,7 @@ void GLWidget::displayFacesOffset (vector<boost::shared_ptr<Body> >& bodies)
 GLuint GLWidget::displayListFacesLighting ()
 {
     GLuint list = glGenLists(1);
-    Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
+    const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
     glNewList(list, GL_COMPILE);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     for_each (bodies.begin (), bodies.end (),
@@ -709,7 +739,7 @@ GLuint GLWidget::displayListCenterPaths ()
 
     if (IsCenterPathDisplayBody ())
     {
-	Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
+	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	for_each (bodies.begin (), bodies.end (),
 		  DisplayBody<DisplayFace<
 		  DisplayEdges<DisplayEdgeWithColor<
@@ -719,6 +749,7 @@ GLuint GLWidget::displayListCenterPaths ()
 
     displayCenterOfBodies ();
     displayOriginalDomain ();
+    displayAABox ();
     displayStandaloneEdges ();
 
     glEndList();
@@ -853,10 +884,16 @@ void GLWidget::DecrementDisplayedEdge ()
 
 
 
-Foam& GLWidget::GetCurrentFoam () const
+const Foam& GLWidget::GetCurrentFoam () const
 {
-    return *m_foamAlongTime->GetFoam (m_timeStep);
+    return *GetFoamAlongTime ().GetFoam (m_timeStep);
 }
+
+Foam& GLWidget::GetCurrentFoam ()
+{
+    return *GetFoamAlongTime ().GetFoam (m_timeStep);
+}
+
 
 const QColor& GLWidget::GetEndTranslationColor (
     const G3D::Vector3int16& di) const
@@ -868,9 +905,92 @@ const QColor& GLWidget::GetEndTranslationColor (
 }
 
 
+const BodiesAlongTime& GLWidget::GetBodiesAlongTime () const
+{
+    return GetFoamAlongTime ().GetBodiesAlongTime ();
+}
+
+const BodyAlongTime& GLWidget::GetBodyAlongTime (size_t id) const
+{
+    return GetBodiesAlongTime ().GetOneBody (id);
+}
+
+boost::shared_ptr<Body> GLWidget::GetDisplayedBody () const
+{
+    return GetBodyAlongTime (GetDisplayedBodyId ()).GetBody (GetTimeStep ());
+}
+
+size_t GLWidget::GetDisplayedBodyId () const
+{
+    return GetFoamAlongTime ().GetFoam (0)->GetBody (
+	m_displayedBodyIndex)->GetId ();
+}
+
+size_t GLWidget::GetDisplayedFaceId () const
+{
+    return GetDisplayedFace ()->GetId ();
+}
+
+boost::shared_ptr<Face> GLWidget::GetDisplayedFace () const
+{
+    size_t i = GetDisplayedFaceIndex ();
+    if (m_displayedBodyIndex != DISPLAY_ALL)
+    {
+	Body& body = *GetDisplayedBody ();
+	return body.GetFace (i);
+    }
+    RuntimeAssert (false, "There is no displayed face");
+    return boost::shared_ptr<Face>();
+}
+
+boost::shared_ptr<Edge> GLWidget::GetDisplayedEdge () const
+{
+    if (m_displayedBodyIndex != DISPLAY_ALL && 
+	m_displayedFaceIndex != DISPLAY_ALL)
+    {
+	boost::shared_ptr<Face> face = GetDisplayedFace ();
+	return face->GetEdge (m_displayedEdgeIndex);
+    }
+    RuntimeAssert (false, "There is no displayed edge");
+    return boost::shared_ptr<Edge>();
+}
+
+size_t GLWidget::GetDisplayedEdgeId () const
+{
+    return GetDisplayedEdge ()->GetId ();
+}
+
+
 
 // Slots and slot like methods
 // ======================================================================
+
+void GLWidget::ToggledBoundingBox (bool checked)
+{
+    m_boundingBox = checked;
+    UpdateDisplay ();
+}
+
+void GLWidget::ToggledProjectionOrtographic (bool checked)
+{
+    if (checked)
+    {
+	m_projection = ORTOGRAPHIC;
+	projectionTransformation ();
+	updateGL ();
+    }
+}
+
+void GLWidget::ToggledProjectionPerspective (bool checked)
+{
+    if (checked)
+    {
+	m_projection = PERSPECTIVE;
+	projectionTransformation ();
+	updateGL ();
+    }
+}
+
 
 
 void GLWidget::ToggledCenterPathDisplayBody (bool checked)
@@ -959,62 +1079,6 @@ void GLWidget::ValueChangedSliderData (int newIndex)
 }
 
 
-const BodiesAlongTime& GLWidget::GetBodiesAlongTime () const
-{
-    return GetFoamAlongTime ().GetBodiesAlongTime ();
-}
-
-const BodyAlongTime& GLWidget::GetBodyAlongTime (size_t id) const
-{
-    return GetBodiesAlongTime ().GetOneBody (id);
-}
-
-boost::shared_ptr<Body> GLWidget::GetDisplayedBody () const
-{
-    return GetBodyAlongTime (GetDisplayedBodyId ()).GetBody (GetTimeStep ());
-}
-
-size_t GLWidget::GetDisplayedBodyId () const
-{
-    return GetFoamAlongTime ().GetFoam (0)->GetBody (
-	m_displayedBodyIndex)->GetId ();
-}
-
-size_t GLWidget::GetDisplayedFaceId () const
-{
-    return GetDisplayedFace ()->GetId ();
-}
-
-boost::shared_ptr<Face> GLWidget::GetDisplayedFace () const
-{
-    size_t i = GetDisplayedFaceIndex ();
-    if (m_displayedBodyIndex != DISPLAY_ALL)
-    {
-	Body& body = *GetDisplayedBody ();
-	return body.GetFace (i);
-    }
-    RuntimeAssert (false, "There is no displayed face");
-    return boost::shared_ptr<Face>();
-}
-
-boost::shared_ptr<Edge> GLWidget::GetDisplayedEdge () const
-{
-    if (m_displayedBodyIndex != DISPLAY_ALL && 
-	m_displayedFaceIndex != DISPLAY_ALL)
-    {
-	boost::shared_ptr<Face> face = GetDisplayedFace ();
-	return face->GetEdge (m_displayedEdgeIndex);
-    }
-    RuntimeAssert (false, "There is no displayed edge");
-    return boost::shared_ptr<Edge>();
-}
-
-size_t GLWidget::GetDisplayedEdgeId () const
-{
-    return GetDisplayedEdge ()->GetId ();
-}
-
-
 // Static Methods
 //======================================================================
 void GLWidget::disableLighting ()
@@ -1035,21 +1099,21 @@ void GLWidget::displayOpositeFaces (G3D::Vector3 origin,
 				    G3D::Vector3 faceSecond,
 				    G3D::Vector3 translation)
 {
-    G3D::Vector3 sum = faceFirst + faceSecond;
-    faceFirst += origin;
-    faceSecond += origin;
-    translation += origin;
+    G3D::Vector3 faceOrigin;
+    G3D::Vector3 faceSum = faceFirst + faceSecond;
+    G3D::Vector3 translations[] = {origin, translation};
     for (int i = 0; i < 2; i++)
     {
+	faceOrigin += translations[i];
+	faceFirst += translations[i];
+	faceSecond += translations[i];
+	faceSum += translations[i];
+
 	glBegin (GL_POLYGON);
-	glVertex (origin);
+	glVertex (faceOrigin);
 	glVertex (faceFirst);
-	glVertex (sum);
+	glVertex (faceSum);
 	glVertex (faceSecond);
 	glEnd ();
-	origin += translation;
-	faceFirst += translation;
-	faceSecond += translation;
-	sum += translation;
     }
 }
