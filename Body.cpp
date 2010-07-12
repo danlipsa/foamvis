@@ -24,14 +24,14 @@
 /**
  * Functor that caches an edge and its vertices
  */
-class cacheEdge
+class cacheEdgeVertices
 {
 public:
     /**
      * Constructor
      * @param body where to cache the edge and vertices
      */
-    cacheEdge (set< boost::shared_ptr<Vertex> >* vertices) :
+    cacheEdgeVertices (set< boost::shared_ptr<Vertex> >* vertices) :
 	m_vertices (vertices)
     {
     }
@@ -55,14 +55,14 @@ private:
 /**
  * Functor that caches edges and vertices in vectors stored in the Body
  */
-class cacheEdges
+class cacheFaceVertices
 {
 public:
     /**
      * Constructor
      * @param body object we work on
      */
-    cacheEdges (set< boost::shared_ptr<Vertex> >* vertices) :
+    cacheFaceVertices (set< boost::shared_ptr<Vertex> >* vertices) :
 	m_vertices(vertices) 
     {
     }
@@ -73,7 +73,7 @@ public:
     void operator() (const boost::shared_ptr<OrientedFace>& of)
     {
 	Face::OrientedEdges& oev = of->GetFace ()->GetOrientedEdges ();
-	for_each (oev.begin (), oev.end (), cacheEdge (m_vertices));
+	for_each (oev.begin (), oev.end (), cacheEdgeVertices (m_vertices));
     }
 private:
     /**
@@ -150,34 +150,36 @@ Body::Body(
                indexToOrientedFace(faces));
 }
 
-void Body::cacheBodyEdges (size_t dimension, bool isQuadratic,
-			   vector< boost::shared_ptr<Vertex> >* physicalVertices)
+void Body::calculatePhysicalVertices (
+    size_t dimension, bool isQuadratic,
+    vector< boost::shared_ptr<Vertex> >* physicalVertices)
 {
     set< boost::shared_ptr<Vertex> > vertices;
     vector< boost::shared_ptr<Vertex> > tessellationVertices;
 
-    cacheEdges c(&vertices);
+    cacheFaceVertices c(&vertices);
     for_each (m_orientedFaces.begin (), m_orientedFaces.end(), c);
-    split (vertices, tessellationVertices, *physicalVertices, 
-	   dimension, isQuadratic);
+    splitTessellationPhysical (
+	vertices, &tessellationVertices, physicalVertices, 
+	dimension, isQuadratic);
 }
 
 template <typename T>
-void Body::split (
-    set< boost::shared_ptr<T> >& src,
-    vector< boost::shared_ptr<T> >& destTessellation,
-    vector< boost::shared_ptr<T> >& destPhysical,
+void Body::splitTessellationPhysical (
+    const set< boost::shared_ptr<T> >& src,
+    vector< boost::shared_ptr<T> >* destTessellation,
+    vector< boost::shared_ptr<T> >* destPhysical,
     size_t dimension, bool isQuadratic)
 {
-    destTessellation.resize (src.size ());
-    copy (src.begin (), src.end (), destTessellation.begin ());
+    destTessellation->resize (src.size ());
+    copy (src.begin (), src.end (), destTessellation->begin ());
     typename vector< boost::shared_ptr<T> >::iterator bp;
-    bp = partition (destTessellation.begin (), destTessellation.end (), 
+    bp = partition (destTessellation->begin (), destTessellation->end (), 
 		    !boost::bind(&T::IsPhysical, _1, 
-				dimension, isQuadratic));
-    destPhysical.resize (destTessellation.end () - bp);
-    copy (bp, destTessellation.end (), destPhysical.begin ());
-    destTessellation.resize (bp - destTessellation.begin ());
+				 dimension, isQuadratic));
+    destPhysical->resize (destTessellation->end () - bp);
+    copy (bp, destTessellation->end (), destPhysical->begin ());
+    destTessellation->resize (bp - destTessellation->begin ());
 }
 
 
@@ -185,7 +187,7 @@ void Body::CalculateCenter (size_t dimension, bool isQuadratic)
 {
     using G3D::Vector3;
     vector< boost::shared_ptr<Vertex> > physicalVertices;
-    cacheBodyEdges (dimension, isQuadratic, &physicalVertices);
+    calculatePhysicalVertices (dimension, isQuadratic, &physicalVertices);
     size_t size = physicalVertices.size ();
     RuntimeAssert (
 	size != 0, 

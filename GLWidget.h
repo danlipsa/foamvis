@@ -159,6 +159,7 @@ public:
     {
 	return m_centerPathDisplayBody;
     }
+    void ResetTransformations ();
     
 
     // Slot like methods
@@ -186,7 +187,7 @@ public:
     void ToggledCenterPath (bool checked);
 
 public Q_SLOTS:
-    void currentIndexChangedInteractionMode (int index);
+    void CurrentIndexChangedInteractionMode (int index);
     void ToggledBodies (bool checked);
     void ToggledCenterPathDisplayBody (bool checked);
 
@@ -199,9 +200,8 @@ public Q_SLOTS:
 
     void ToggledTorusOriginalDomainDisplay (bool checked);
     void ToggledTorusOriginalDomainClipped (bool checked);
-    void ToggledProjectionOrtographic (bool checked);
-    void ToggledProjectionPerspective (bool checked);
     void ToggledBoundingBox (bool checked);
+    void ValueChangedAngleOfView (int newIndex);
 
 public:
     const static  size_t DISPLAY_ALL;
@@ -257,12 +257,6 @@ private:
 	LIGHTING_COUNT
     };
 
-    enum Projection
-    {
-	ORTOGRAPHIC,
-	PERSPECTIVE
-    };
-
     typedef boost::unordered_map<G3D::Vector3int16, QColor,
 				 Vector3int16Hash> EndLocationColor;
     struct ViewTypeDisplay
@@ -287,7 +281,8 @@ private:
     void projectionTransformation () const;
     void viewingTransformation () const;
     void modelingTransformation () const;
-    void calculateViewingVolume ();
+    G3D::AABox calculateCenteredViewingVolume () const;
+    void calculateCameraDistance ();
     /**
      * Generates a display list for a certain kind of objects
      * @param type the type of object that we want displayed.
@@ -371,7 +366,6 @@ private:
     float ratioFromCenter (const QPoint& p);
     void rotate (const QPoint& position);
     void translateViewport (const QPoint& position);
-    void scale (const QPoint& position);
     void scaleViewport (const QPoint& position);
     void initViewTypeDisplay ();
 
@@ -442,15 +436,17 @@ private:
 
     int m_normalVertexSize;
     int m_normalEdgeWidth;
-
-
     float m_contextAlpha;
-
     QColor m_centerPathColor;
-    G3D::AABox m_viewingVolume;
-    G3D::Matrix3 m_rotate;
-    
+
+    G3D::Matrix3 m_rotate;    
     G3D::Rect2D m_viewport;
+    /**
+     * Distance from the camera to the center of the AABox for the foam.
+     */
+    float m_cameraDistance;
+    float m_angleOfView;
+
     EndLocationColor m_endTranslationColor;
     GLUquadricObj* m_quadric;    
     /**
@@ -468,7 +464,6 @@ private:
     bool m_edgesBodyCenter;
     bool m_edgesTessellation;
     bool m_centerPathDisplayBody;
-    Projection m_projection;
     bool m_boundingBox;
     boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> VIEW_TYPE_DISPLAY;
 };

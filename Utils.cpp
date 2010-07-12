@@ -52,3 +52,31 @@ void RainbowColor (double f, QColor* color)
     color->setGreenF (trapezoid (g, 2, 4));
     color->setBlueF (trapezoid (g, 1, 2));
 }
+
+void Scale (G3D::AABox* aabox, float change)
+{
+    using G3D::Vector3;
+    Vector3 center = aabox->center ();
+    Vector3 newLow = aabox->low () * change + center * (1 - change);
+    Vector3 newHigh = aabox->high () * change + center * (1 - change);
+    aabox->set (newLow, newHigh);
+}
+
+void Scale (G3D::Rect2D* aabox, float change)
+{
+    using G3D::Vector2;
+    Vector2 center = aabox->center ();
+    Vector2 newLow = aabox->x0y0 () * change + center * (1 - change);
+    Vector2 newHigh = aabox->x1y1 () * change + center * (1 - change);
+    *aabox = G3D::Rect2D::xyxy ( newLow, newHigh);
+}
+
+void EncloseRotation (G3D::AABox* aabox)
+{
+    using G3D::Vector3;
+    Vector3 center = aabox->center ();
+    float halfSideLength = (aabox->high () - center).length ();
+    Vector3 halfDiagonal = halfSideLength * 
+	(Vector3::unitX () + Vector3::unitY () + Vector3::unitZ ());
+    aabox->set (center - halfDiagonal, center + halfDiagonal);
+}

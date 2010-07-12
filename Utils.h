@@ -30,6 +30,10 @@ inline void glTranslate (const G3D::Vector3& translate)
     glTranslatef (translate.x, translate.y, translate.z);
 }
 
+void Scale (G3D::AABox* aabox, float change);
+void Scale (G3D::Rect2D* aabox, float change);
+void EncloseRotation (G3D::AABox* aabox);
+
 #endif //__ELEMENT_UTILS_H__
 
 // Local Variables:

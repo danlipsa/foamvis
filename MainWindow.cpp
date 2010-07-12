@@ -89,7 +89,6 @@ void MainWindow::setupScaleWidget ()
 	scaleEngine.transformation (),
 	scaleEngine.divideScale (
 	    interval.minValue (), interval.maxValue (), 3, 10));
-    scaleWidgetColorBar->setTitle ("Speed");
     scaleWidgetColorBar->setAlignment (QwtScaleDraw::RightScale);
     scaleWidgetColorBar->setBorderDist (5, 5);
     QwtLinearColorMap colorMap;
@@ -119,7 +118,7 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
     {
 	radioButtonEdgesNormal->toggle ();
 	tabWidget->setCurrentWidget (edges);
-	groupBoxProjection->setEnabled (false);
+	horizontalSliderAngleOfView->setEnabled (false);
     }
     else
     {
@@ -137,16 +136,12 @@ void MainWindow::InteractionModeRotate ()
 
 void MainWindow::InteractionModeScale ()
 {
-    int index = comboBoxInteractionMode->currentIndex ();
-    index = (index == InteractionMode::SCALE) ? 
-	InteractionMode::SCALE_VIEWPORT : InteractionMode::SCALE;
-    comboBoxInteractionMode->setCurrentIndex (index);
+    comboBoxInteractionMode->setCurrentIndex (InteractionMode::SCALE);
 }
 
 void MainWindow::InteractionModeTranslate ()
 {
-    comboBoxInteractionMode->setCurrentIndex (
-	InteractionMode::TRANSLATE_VIEWPORT);
+    comboBoxInteractionMode->setCurrentIndex (InteractionMode::TRANSLATE);
 }
 
 void MainWindow::updateButtons ()
@@ -292,8 +287,12 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     }
 
     case Qt::Key_R:
-	InteractionModeRotate ();
+	if (modifiers == Qt::ShiftModifier)
+	    widgetGl->ResetTransformations ();
+	else
+	    InteractionModeRotate ();
 	break;
+
     case Qt::Key_Z:
 	InteractionModeScale ();
 	break;

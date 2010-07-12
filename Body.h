@@ -89,6 +89,14 @@ public:
     
 private:
     /**
+     * Caches edges and vertices
+     */
+    void calculatePhysicalVertices (
+	size_t dimension, bool isQuadratic,
+	vector< boost::shared_ptr<Vertex> >* physicalVertices);
+
+private:
+    /**
      * Splits a  set of  objects (vertices or  edges) in  physical and
      * tesselation objects.
      * @param src source for the objects
@@ -96,16 +104,11 @@ private:
      * @param destPhysical where we store physical objects
      */
     template <typename T>
-    void split (
-	set< boost::shared_ptr<T> >& src,
-	vector< boost::shared_ptr<T> >& destTessellation,
-	vector< boost::shared_ptr<T> >& destPhysical,
+    static void splitTessellationPhysical (
+	const set< boost::shared_ptr<T> >& src,
+	vector< boost::shared_ptr<T> >* destTessellation,
+	vector< boost::shared_ptr<T> >* destPhysical,
 	size_t dimension, bool isQuadratic);
-    /**
-     * Caches edges and vertices
-     */
-    void cacheBodyEdges (size_t dimension, bool isQuadratic,
-			 vector< boost::shared_ptr<Vertex> >* physicalVertices);
 
 private:
     /**

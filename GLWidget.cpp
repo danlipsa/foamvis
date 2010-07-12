@@ -81,11 +81,12 @@ private:
  * Check the OpenGL  error code and prints a message  to cdbg if there
  * is an error
  */
-void detectOpenGLError ()
+void detectOpenGLError (string message = "")
 {
     GLenum errCode;
     if ((errCode = glGetError()) != GL_NO_ERROR)
-        cdbg << "OpenGL Error: " << gluErrorString(errCode) << endl;
+        cdbg << "OpenGL Error " << message << ": "
+	     << gluErrorString(errCode) << endl;
 }
 
 /**
@@ -118,7 +119,7 @@ void printOpenGLInfo ()
     }};
     glGetBooleanv (GL_STEREO, &stereoSupport);
     glGetBooleanv (GL_DOUBLEBUFFER, &doubleBufferSupport);
-    cdbg << "OpenGL" << endl
+    cdbg << "OpenGL Engine" << endl
          << "Vendor: " << glGetString (GL_VENDOR) << endl
          << "Renderer: " << glGetString (GL_RENDERER) << endl
          << "Version: " << glGetString (GL_VERSION) << endl
@@ -155,12 +156,12 @@ GLWidget::GLWidget(QWidget *parent)
       m_normalVertexSize (3), m_normalEdgeWidth (1),
       m_contextAlpha (0.03),
       m_centerPathColor (Qt::red),
+      m_angleOfView (0),
       m_edgesTorusTubes (false),
       m_facesTorusTubes (false),
       m_edgesBodyCenter (false),
       m_edgesTessellation (false),
       m_centerPathDisplayBody (false),
-      m_projection (ORTOGRAPHIC),
       m_boundingBox (false)
 {
     cdbg << "---------- GLWidget constructor ----------\n";
@@ -185,8 +186,6 @@ GLWidget::GLWidget(QWidget *parent)
 			reinterpret_cast<void (*)()>(&quadricErrorCallback));
     initViewTypeDisplay ();
 }
-
-
 
 
 
@@ -221,6 +220,7 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* dataAlongTime)
     m_edgeRadius = length / 20;
     m_arrowBaseRadius = 5 * m_edgeRadius;
     m_arrowHeight = 10 * m_edgeRadius;
+    calculateCameraDistance ();
 }
 
 
@@ -279,54 +279,83 @@ void GLWidget::enableLighting ()
     glColorMaterial (GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 }
 
-void GLWidget::calculateViewingVolume ()
+G3D::AABox GLWidget::calculateCenteredViewingVolume () const
 {
-    using G3D::Vector3;
-    const Vector3& low = GetFoamAlongTime ().GetAABox ().low ();
-    const Vector3& high = GetFoamAlongTime ().GetAABox ().high ();
-    m_viewingVolume.set (low, high);
-    cdbg << "Viewing volume: " << m_viewingVolume << endl;
+    G3D::AABox aaBox = GetFoamAlongTime ().GetAABox ();
+    EncloseRotation (&aaBox);
+    G3D::Vector3 center = aaBox.center ();
+    return G3D::AABox (aaBox.low () - center, aaBox.high () - center);
 }
 
 void GLWidget::viewingTransformation () const
 {
     glLoadIdentity ();
+    glTranslate (- m_cameraDistance * G3D::Vector3::unitZ ());    
 }
 
 void GLWidget::modelingTransformation () const
 {
-    glTranslate (GetFoamAlongTime ().GetAABox ().center ());
     glMultMatrix (m_rotate);
     glTranslate (-GetFoamAlongTime ().GetAABox ().center ());
     glCallList (m_object);
-    cdbg << "Rotation: " << m_rotate.toString () << endl;
 }
+
 
 void GLWidget::projectionTransformation () const
 {
     using G3D::Vector3;
+    G3D::AABox centeredViewingVolume = calculateCenteredViewingVolume ();
+    Vector3 translation (m_cameraDistance * G3D::Vector3::unitZ ());
+    G3D::AABox viewingVolume (
+	centeredViewingVolume.low () - translation,
+	centeredViewingVolume.high () - translation);
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
     if (GetCurrentFoam ().GetSpaceDimension () == 2)
-	gluOrtho2D(m_viewingVolume.low ().x, m_viewingVolume.high ().x,
-		   m_viewingVolume.low ().y, m_viewingVolume.high ().y);
-    else if (m_projection == ORTOGRAPHIC)
-	glOrtho (m_viewingVolume.low ().x, m_viewingVolume.high ().x,
-		 m_viewingVolume.low ().y, m_viewingVolume.high ().y, 
-		 -m_viewingVolume.high ().z, -m_viewingVolume.low ().z);
+	gluOrtho2D(viewingVolume.low ().x, viewingVolume.high ().x,
+		   viewingVolume.low ().y, viewingVolume.high ().y);
+    else if (m_angleOfView == 0)
+    {
+	glOrtho (viewingVolume.low ().x, viewingVolume.high ().x,
+		 viewingVolume.low ().y, viewingVolume.high ().y, 
+		 -viewingVolume.high ().z, -viewingVolume.low ().z);
+    }
     else
-	glFrustum (m_viewingVolume.low ().x, m_viewingVolume.high ().x,
-		   m_viewingVolume.low ().y, m_viewingVolume.high ().y, 
-		   -m_viewingVolume.high ().z, -m_viewingVolume.low ().z);
+    {
+	glFrustum (viewingVolume.low ().x, viewingVolume.high ().x,
+		   viewingVolume.low ().y, viewingVolume.high ().y, 
+		   -viewingVolume.high ().z, -viewingVolume.low ().z);
+    }
     glMatrixMode (GL_MODELVIEW);
 }
+
+
+void GLWidget::calculateCameraDistance ()
+{
+    G3D::AABox centeredViewingVolume = calculateCenteredViewingVolume ();
+    G3D::Vector3 diagonal = 
+	centeredViewingVolume.high () - centeredViewingVolume.low ();
+    if (m_angleOfView == 0)
+	m_cameraDistance = diagonal.z;
+    else
+	m_cameraDistance = diagonal.y / 2 / 
+	    tan (m_angleOfView * M_PI / 360) + diagonal.z / 2;
+}
+
+
+void GLWidget::ResetTransformations ()
+{
+    m_rotate = G3D::Matrix3::identity ();
+    resizeGL (width (), height ());
+    UpdateDisplay ();
+}
+
 
 // Uses antialiased points and lines
 // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
 // Antialiasing, Fog and Polygon Offset page 293
 void GLWidget::initializeGL()
 {
-    cdbg << "initializeGL" << endl;
     glClearColor (1., 1., 1., 0.);
     
     printOpenGLInfo ();
@@ -338,7 +367,6 @@ void GLWidget::initializeGL()
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable (GL_LINE_SMOOTH);
     glEnable (GL_POINT_SMOOTH);
-    calculateViewingVolume ();
     projectionTransformation ();
 
 }
@@ -346,9 +374,9 @@ void GLWidget::initializeGL()
 void GLWidget::paintGL()
 {
     using G3D::Vector3;
-    cdbg << "paingGL" << endl;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     viewingTransformation ();
+    detectOpenGLError ("viewingTransformation");
     modelingTransformation ();
     detectOpenGLError ();
 }
@@ -358,10 +386,8 @@ void GLWidget::paintGL()
 void GLWidget::resizeGL(int width, int height)
 {
     using G3D::Rect2D;using G3D::Vector2;
-    cdbg << "resizeGL" << endl;
     Vector2 viewportStart = m_viewport.x0y0 ();
-    float ratio = (m_viewingVolume.high ().x - m_viewingVolume.low ().x) / 
-	(m_viewingVolume.high ().y - m_viewingVolume.low ().y);
+    float ratio = 1;
     if ((static_cast<float>(width) / height) > ratio)
     {
 	int newWidth = ratio * height;
@@ -376,8 +402,6 @@ void GLWidget::resizeGL(int width, int height)
     }
     glViewport (m_viewport.x0 (), m_viewport.y0 (), 
 		m_viewport.width (), m_viewport.height ());
-    calculateViewingVolume ();
-    projectionTransformation ();
 }
 
 void GLWidget::setRotation (int axis, float angleRadians)
@@ -392,24 +416,6 @@ void GLWidget::setRotation (int axis, float angleRadians)
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
     m_lastPos = event->pos();
-}
-
-void scaleAABox (G3D::AABox* aabox, float change)
-{
-    using G3D::Vector3;
-    Vector3 center = aabox->center ();
-    Vector3 newLow = aabox->low () * change + center * (1 - change);
-    Vector3 newHigh = aabox->high () * change + center * (1 - change);
-    aabox->set (newLow, newHigh);
-}
-
-void scaleRect2D (G3D::Rect2D* aabox, float change)
-{
-    using G3D::Vector2;
-    Vector2 center = aabox->center ();
-    Vector2 newLow = aabox->x0y0 () * change + center * (1 - change);
-    Vector2 newHigh = aabox->x1y1 () * change + center * (1 - change);
-    *aabox = G3D::Rect2D::xyxy ( newLow, newHigh);
 }
 
 float GLWidget::ratioFromCenter (const QPoint& p)
@@ -449,18 +455,10 @@ void GLWidget::translateViewport (const QPoint& position)
 		m_viewport.width (), m_viewport.height ());
 }
 
-
-void GLWidget::scale (const QPoint& position)
-{
-    float ratio = 1 / ratioFromCenter (position);
-    scaleAABox (&m_viewingVolume, ratio);
-    projectionTransformation ();
-}
-
 void GLWidget::scaleViewport (const QPoint& position)
 {
     float ratio = ratioFromCenter (position);
-    scaleRect2D (&m_viewport, ratio);
+    Scale (&m_viewport, ratio);
     glViewport (m_viewport.x0 (), m_viewport.y0 (), 
 		m_viewport.width (), m_viewport.height ());
 }
@@ -472,13 +470,10 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     case InteractionMode::ROTATE:
 	rotate (event->pos ());
 	break;
-    case InteractionMode::TRANSLATE_VIEWPORT:
+    case InteractionMode::TRANSLATE:
 	translateViewport (event->pos ());
 	break;
     case InteractionMode::SCALE:
-	scale (event->pos ());
-	break;
-    case InteractionMode::SCALE_VIEWPORT:
 	scaleViewport (event->pos ());
     default:
 	break;
@@ -520,7 +515,6 @@ void GLWidget::displayAABox ()
 void GLWidget::display (const G3D::AABox& aabb) const
 {
     using G3D::Vector3;
-    cdbg << aabb << endl;
     glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
     glLineWidth (1.0);
     qglColor (QColor (Qt::black));
@@ -971,28 +965,6 @@ void GLWidget::ToggledBoundingBox (bool checked)
     UpdateDisplay ();
 }
 
-void GLWidget::ToggledProjectionOrtographic (bool checked)
-{
-    if (checked)
-    {
-	m_projection = ORTOGRAPHIC;
-	projectionTransformation ();
-	updateGL ();
-    }
-}
-
-void GLWidget::ToggledProjectionPerspective (bool checked)
-{
-    if (checked)
-    {
-	m_projection = PERSPECTIVE;
-	projectionTransformation ();
-	updateGL ();
-    }
-}
-
-
-
 void GLWidget::ToggledCenterPathDisplayBody (bool checked)
 {
     m_centerPathDisplayBody = checked;
@@ -1067,7 +1039,7 @@ void GLWidget::ToggledCenterPath (bool checked)
 }
 
 
-void GLWidget::currentIndexChangedInteractionMode (int index)
+void GLWidget::CurrentIndexChangedInteractionMode (int index)
 {
     m_interactionMode = static_cast<InteractionMode::Name>(index);
 }
@@ -1076,6 +1048,15 @@ void GLWidget::ValueChangedSliderData (int newIndex)
 {
     m_timeStep = newIndex;
     UpdateDisplay ();
+}
+
+void GLWidget::ValueChangedAngleOfView (int newIndex)
+{
+    makeCurrent ();
+    m_angleOfView = newIndex;
+    calculateCameraDistance ();
+    projectionTransformation ();
+    updateGL ();
 }
 
 

@@ -67,8 +67,6 @@ void FoamAlongTime::PostProcess ()
 
 void FoamAlongTime::CacheBodiesAlongTime ()
 {
-    if (m_foams.size () <= 1)
-	return;
     Foam::Bodies& bodies = m_foams[0]->GetBodies ();
     for_each (bodies.begin (), bodies.end (), 
 	      boost::bind (&BodiesAlongTime::Allocate,

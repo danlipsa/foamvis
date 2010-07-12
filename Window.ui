@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>974</width>
+    <width>890</width>
     <height>720</height>
    </rect>
   </property>
@@ -113,7 +113,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QwtScaleWidget" name="scaleWidgetColorBar" native="true"/>
+          <widget class="QwtScaleWidget" name="scaleWidgetColorBar"/>
          </item>
         </layout>
        </widget>
@@ -144,12 +144,7 @@
            </item>
            <item>
             <property name="text">
-             <string>Scale (z) Viewport</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Translate (t) Viewport</string>
+             <string>Translate (t)</string>
             </property>
            </item>
           </widget>
@@ -169,25 +164,28 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupBoxProjection">
-           <property name="title">
-            <string>Projection</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_4">
+          <widget class="QWidget" name="widgetAngleOfView" native="true">
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
             <item>
-             <widget class="QRadioButton" name="radioButtonOrtographic">
+             <widget class="QLabel" name="label">
               <property name="text">
-               <string>Ortographic</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
+               <string>Angle of View</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="radioButtonPerspective">
-              <property name="text">
-               <string>Perspective</string>
+             <widget class="QSlider" name="horizontalSliderAngleOfView">
+              <property name="maximum">
+               <number>120</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="tickPosition">
+               <enum>QSlider::TicksAbove</enum>
+              </property>
+              <property name="tickInterval">
+               <number>10</number>
               </property>
              </widget>
             </item>
@@ -581,7 +579,6 @@
    <header>GLWidget.h</header>
    <container>1</container>
    <slots>
-    <slot>currentIndexChangedInteractionMode(int)</slot>
     <slot>ToggledBodies(bool)</slot>
     <slot>ToggledCenterPathDisplayBody(bool)</slot>
     <slot>ToggledEdgesBodyCenter(bool)</slot>
@@ -591,9 +588,9 @@
     <slot>ToggledFacesTorusTubes(bool)</slot>
     <slot>ToggledTorusOriginalDomainDisplay(bool)</slot>
     <slot>ToggledTorusOriginalDomainClipped(bool)</slot>
-    <slot>ToggledProjectionOrtographic(bool)</slot>
-    <slot>ToggledProjectionPerspective(bool)</slot>
     <slot>ToggledBoundingBox(bool)</slot>
+    <slot>ValueChangedAngleOfView(int)</slot>
+    <slot>CurrentIndexChangedInteractionMode(int)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -606,8 +603,8 @@
    <slot>ClickedPlay()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>96</x>
-     <y>695</y>
+     <x>82</x>
+     <y>699</y>
     </hint>
     <hint type="destinationlabel">
      <x>66</x>
@@ -622,8 +619,8 @@
    <slot>ClickedBegin()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>63</x>
-     <y>695</y>
+     <x>53</x>
+     <y>699</y>
     </hint>
     <hint type="destinationlabel">
      <x>38</x>
@@ -638,8 +635,8 @@
    <slot>ClickedEnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>143</x>
-     <y>695</y>
+     <x>122</x>
+     <y>699</y>
     </hint>
     <hint type="destinationlabel">
      <x>53</x>
@@ -670,8 +667,8 @@
    <slot>ToggledSaveMovie(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>958</x>
-     <y>70</y>
+     <x>955</x>
+     <y>71</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -686,8 +683,8 @@
    <slot>ToggledEdgesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>918</x>
-     <y>329</y>
+     <x>841</x>
+     <y>326</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -702,8 +699,8 @@
    <slot>ToggledEdgesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>918</x>
-     <y>348</y>
+     <x>841</x>
+     <y>354</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -718,8 +715,8 @@
    <slot>ToggledFacesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>918</x>
-     <y>348</y>
+     <x>695</x>
+     <y>354</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -734,8 +731,8 @@
    <slot>ToggledCenterPath(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>918</x>
-     <y>329</y>
+     <x>695</x>
+     <y>326</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -747,7 +744,7 @@
    <sender>comboBoxInteractionMode</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>currentIndexChangedInteractionMode(int)</slot>
+   <slot>CurrentIndexChangedInteractionMode(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>706</x>
@@ -766,8 +763,8 @@
    <slot>ToggledCenterPathDisplayBody(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>775</x>
-     <y>384</y>
+     <x>692</x>
+     <y>375</y>
     </hint>
     <hint type="destinationlabel">
      <x>514</x>
@@ -782,7 +779,7 @@
    <slot>ToggledEdgesBodyCenter(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>778</x>
+     <x>692</x>
      <y>403</y>
     </hint>
     <hint type="destinationlabel">
@@ -798,8 +795,8 @@
    <slot>ToggledEdgesTessellation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>788</x>
-     <y>438</y>
+     <x>692</x>
+     <y>431</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -814,7 +811,7 @@
    <slot>ToggledEdgesTorusTubes(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>778</x>
+     <x>692</x>
      <y>403</y>
     </hint>
     <hint type="destinationlabel">
@@ -830,8 +827,8 @@
    <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>918</x>
-     <y>329</y>
+     <x>695</x>
+     <y>326</y>
     </hint>
     <hint type="destinationlabel">
      <x>458</x>
@@ -846,7 +843,7 @@
    <slot>ToggledFacesTorusTubes(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>775</x>
+     <x>692</x>
      <y>403</y>
     </hint>
     <hint type="destinationlabel">
@@ -862,8 +859,8 @@
    <slot>ToggledTorusOriginalDomainDisplay(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>943</x>
-     <y>207</y>
+     <x>853</x>
+     <y>198</y>
     </hint>
     <hint type="destinationlabel">
      <x>483</x>
@@ -878,44 +875,12 @@
    <slot>ToggledTorusOriginalDomainClipped(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>943</x>
-     <y>228</y>
+     <x>853</x>
+     <y>226</y>
     </hint>
     <hint type="destinationlabel">
      <x>494</x>
      <y>144</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonOrtographic</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledProjectionOrtographic(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>693</x>
-     <y>133</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>614</x>
-     <y>67</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonPerspective</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledProjectionPerspective(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>710</x>
-     <y>146</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>613</x>
-     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -930,8 +895,24 @@
      <y>81</y>
     </hint>
     <hint type="destinationlabel">
-     <x>596</x>
+     <x>529</x>
      <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderAngleOfView</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedAngleOfView(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>723</x>
+     <y>122</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>501</x>
+     <y>217</y>
     </hint>
    </hints>
   </connection>

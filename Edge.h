@@ -30,7 +30,8 @@ public:
     Edge (const boost::shared_ptr<Vertex>& begin,
 	  const boost::shared_ptr<Vertex>& end, 
 	  const G3D::Vector3int16& endLocation, 
-	  size_t id, ElementStatus::Duplicate duplicateStatus = ElementStatus::ORIGINAL);
+	  size_t id,
+	  ElementStatus::Duplicate duplicateStatus = ElementStatus::ORIGINAL);
     Edge (const boost::shared_ptr<Vertex>& begin, size_t id);
     Edge (const Edge& edge);
     /**
