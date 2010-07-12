@@ -97,17 +97,16 @@ private:
 
 private:
     /**
-     * Splits a  set of  objects (vertices or  edges) in  physical and
-     * tesselation objects.
+     * Splits a  set of  vertices in  physical and
+     * tesselation vertices
      * @param src source for the objects
      * @param destTessellation where we store tessellation objects
      * @param destPhysical where we store physical objects
      */
-    template <typename T>
     static void splitTessellationPhysical (
-	const set< boost::shared_ptr<T> >& src,
-	vector< boost::shared_ptr<T> >* destTessellation,
-	vector< boost::shared_ptr<T> >* destPhysical,
+	const VertexSet& src,
+	vector< boost::shared_ptr<Vertex> >* destTessellation,
+	vector< boost::shared_ptr<Vertex> >* destPhysical,
 	size_t dimension, bool isQuadratic);
 
 private:

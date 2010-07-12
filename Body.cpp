@@ -22,67 +22,6 @@
 // ======================================================================
 
 /**
- * Functor that caches an edge and its vertices
- */
-class cacheEdgeVertices
-{
-public:
-    /**
-     * Constructor
-     * @param body where to cache the edge and vertices
-     */
-    cacheEdgeVertices (set< boost::shared_ptr<Vertex> >* vertices) :
-	m_vertices (vertices)
-    {
-    }
-    /**
-     * Functor that caches an edge and its vertices
-     * @param oe the edge to cache
-     */
-    void operator () (const boost::shared_ptr<OrientedEdge>& oe)
-    {
-	boost::shared_ptr<Edge> e = oe->GetEdge ();
-	m_vertices->insert (e->GetBegin ());
-	m_vertices->insert (e->GetEnd ());
-    }
-private:
-    /**
-     * Where to cache the edge and vertices
-     */
-    set< boost::shared_ptr<Vertex> >* m_vertices;
-};
-
-/**
- * Functor that caches edges and vertices in vectors stored in the Body
- */
-class cacheFaceVertices
-{
-public:
-    /**
-     * Constructor
-     * @param body object we work on
-     */
-    cacheFaceVertices (set< boost::shared_ptr<Vertex> >* vertices) :
-	m_vertices(vertices) 
-    {
-    }
-    /**
-     * Functor that caches edges and vertices in vectors stored in the Body
-     * @param of cache all edges and vertices for this OrientedFace
-     */
-    void operator() (const boost::shared_ptr<OrientedFace>& of)
-    {
-	Face::OrientedEdges& oev = of->GetFace ()->GetOrientedEdges ();
-	for_each (oev.begin (), oev.end (), cacheEdgeVertices (m_vertices));
-    }
-private:
-    /**
-     * Where to we store edges and vertices
-     */
-    set< boost::shared_ptr<Vertex> >* m_vertices;
-};
-
-/**
  * STL unary  function that converts a  signed index into  a vector of
  * Face  objects into a  OrientedFace object.  A negative  index means
  * that the Face object is listed  in reverse order in the Body object
@@ -129,7 +68,7 @@ private:
  * @param v the vertex
  * @return result + the value of the vertex along the specified axis
  */
-G3D::Vector3 VertexAccumulate (G3D::Vector3 result,
+G3D::Vector3 vertexAccumulate (G3D::Vector3 result,
 			       const boost::shared_ptr<Vertex>& v)
 {
     return result + *v;
@@ -154,28 +93,26 @@ void Body::calculatePhysicalVertices (
     size_t dimension, bool isQuadratic,
     vector< boost::shared_ptr<Vertex> >* physicalVertices)
 {
-    set< boost::shared_ptr<Vertex> > vertices;
+    VertexSet vertices;
     vector< boost::shared_ptr<Vertex> > tessellationVertices;
 
-    cacheFaceVertices c(&vertices);
-    for_each (m_orientedFaces.begin (), m_orientedFaces.end(), c);
+    GetVertexSet (&vertices);
     splitTessellationPhysical (
 	vertices, &tessellationVertices, physicalVertices, 
 	dimension, isQuadratic);
 }
 
-template <typename T>
 void Body::splitTessellationPhysical (
-    const set< boost::shared_ptr<T> >& src,
-    vector< boost::shared_ptr<T> >* destTessellation,
-    vector< boost::shared_ptr<T> >* destPhysical,
+    const VertexSet& src,
+    vector< boost::shared_ptr<Vertex> >* destTessellation,
+    vector< boost::shared_ptr<Vertex> >* destPhysical,
     size_t dimension, bool isQuadratic)
 {
     destTessellation->resize (src.size ());
     copy (src.begin (), src.end (), destTessellation->begin ());
-    typename vector< boost::shared_ptr<T> >::iterator bp;
+    vector< boost::shared_ptr<Vertex> >::iterator bp;
     bp = partition (destTessellation->begin (), destTessellation->end (), 
-		    !boost::bind(&T::IsPhysical, _1, 
+		    !boost::bind(&Vertex::IsPhysical, _1, 
 				 dimension, isQuadratic));
     destPhysical->resize (destTessellation->end () - bp);
     copy (bp, destTessellation->end (), destPhysical->begin ());
@@ -186,6 +123,7 @@ void Body::splitTessellationPhysical (
 void Body::CalculateCenter (size_t dimension, bool isQuadratic)
 {
     using G3D::Vector3;
+    /*
     vector< boost::shared_ptr<Vertex> > physicalVertices;
     calculatePhysicalVertices (dimension, isQuadratic, &physicalVertices);
     size_t size = physicalVertices.size ();
@@ -195,7 +133,14 @@ void Body::CalculateCenter (size_t dimension, bool isQuadratic)
 	" Body::CacheEdgesVertices before calling this function");
     m_center = accumulate (
 	physicalVertices.begin (), physicalVertices.end (),
-	G3D::Vector3::zero (), &VertexAccumulate);
+	G3D::Vector3::zero (), &vertexAccumulate);
+    m_center /= Vector3(size, size, size);
+    */
+    VertexSet vertices;
+    GetVertexSet (&vertices);
+    size_t size = vertices.size ();
+    m_center = accumulate (vertices.begin (), vertices.end (),
+			   G3D::Vector3::zero (), &vertexAccumulate);
     m_center /= Vector3(size, size, size);
 }
 

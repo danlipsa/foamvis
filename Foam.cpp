@@ -404,7 +404,7 @@ void Foam::PostProcess ()
     if (IsTorus ())
 	unwrap (&vertexSet, &edgeSet, &faceSet);
     calculateAABox ();
-    //calculateBodiesCenters ();
+    calculateBodiesCenters ();
     if (IsTorus ())
     {
 	bodiesInsideOriginalDomain (&vertexSet, &edgeSet, &faceSet);
