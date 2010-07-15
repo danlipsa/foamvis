@@ -298,6 +298,7 @@ private:
 
 
     GLuint displayListEdgesNormal ();
+    template<typename displayEdge>
     void displayStandaloneEdges () const;
     GLuint displayListEdgesTorus ()
     {

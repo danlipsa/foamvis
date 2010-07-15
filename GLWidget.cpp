@@ -311,10 +311,7 @@ void GLWidget::projectionTransformation () const
 	centeredViewingVolume.high () - translation);
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
-    if (GetCurrentFoam ().GetSpaceDimension () == 2)
-	gluOrtho2D(viewingVolume.low ().x, viewingVolume.high ().x,
-		   viewingVolume.low ().y, viewingVolume.high ().y);
-    else if (m_angleOfView == 0)
+    if (m_angleOfView == 0)
     {
 	glOrtho (viewingVolume.low ().x, viewingVolume.high ().x,
 		 viewingVolume.low ().y, viewingVolume.high ().y, 
@@ -545,7 +542,7 @@ GLuint GLWidget::displayListEdges ()
 	      DisplayFace<
 	      DisplayEdges<
 	      displayEdge> > >(*this));
-    displayStandaloneEdges ();
+    displayStandaloneEdges<displayEdge> ();
 
     glPopAttrib ();
     displayOriginalDomain ();
@@ -555,11 +552,12 @@ GLuint GLWidget::displayListEdges ()
     return list;
 }
 
+template<typename displayEdge>
 void GLWidget::displayStandaloneEdges () const
 {
     const Foam::Edges& standaloneEdges = GetCurrentFoam ().GetStandaloneEdges ();
     BOOST_FOREACH (boost::shared_ptr<Edge> edge, standaloneEdges)
-	DisplayEdgeWithColor<> (*this, DisplayElement::FOCUS) (*edge);
+	displayEdge (*this, DisplayElement::FOCUS) (edge);
 }
 
 
@@ -632,7 +630,7 @@ GLuint GLWidget::displayListFacesNormal ()
     displayFacesContour (bodies);
     displayFacesOffset (bodies);
 
-    displayStandaloneEdges ();
+    displayStandaloneEdges< DisplayEdgeWithColor<> > ();
     displayOriginalDomain ();
     displayAABox ();
     glEndList();
@@ -744,7 +742,7 @@ GLuint GLWidget::displayListCenterPaths ()
     displayCenterOfBodies ();
     displayOriginalDomain ();
     displayAABox ();
-    displayStandaloneEdges ();
+    displayStandaloneEdges< DisplayEdgeWithColor<> > ();
 
     glEndList();
     return list;

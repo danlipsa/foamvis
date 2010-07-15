@@ -109,10 +109,11 @@ private:
     void setupSliderData (const FoamAlongTime& foamAlongTime);
     void configureInterface (const FoamAlongTime& foamAlongTime);
     void setupScaleWidget ();
-    void calculateStats (const Foam& foam);
+    void calculateStats (const Foam& foam, size_t timeSteps);
 
 private:
     static void setupRainbowColorMap (QwtLinearColorMap* colorMap);
+    static void setupBlueRedColorMap (QwtLinearColorMap* colorMap);
 
 private:
     Q_OBJECT

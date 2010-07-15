@@ -122,25 +122,25 @@ void Body::splitTessellationPhysical (
 
 void Body::CalculateCenter (size_t dimension, bool isQuadratic)
 {
-    using G3D::Vector3;
-    /*
+    using G3D::Vector3;    
     vector< boost::shared_ptr<Vertex> > physicalVertices;
     calculatePhysicalVertices (dimension, isQuadratic, &physicalVertices);
     size_t size = physicalVertices.size ();
-    RuntimeAssert (
-	size != 0, 
-	"There are no physical vertices in this body. Call"
-	" Body::CacheEdgesVertices before calling this function");
-    m_center = accumulate (
-	physicalVertices.begin (), physicalVertices.end (),
-	G3D::Vector3::zero (), &vertexAccumulate);
-    m_center /= Vector3(size, size, size);
-    */
-    VertexSet vertices;
-    GetVertexSet (&vertices);
-    size_t size = vertices.size ();
-    m_center = accumulate (vertices.begin (), vertices.end (),
-			   G3D::Vector3::zero (), &vertexAccumulate);
+    if (size >= 3)
+    {	
+	m_center = accumulate (
+	    physicalVertices.begin (), physicalVertices.end (),
+	    G3D::Vector3::zero (), &vertexAccumulate);
+
+    }
+    else
+    {
+	VertexSet vertices;
+	GetVertexSet (&vertices);
+	size = vertices.size ();
+	m_center = accumulate (vertices.begin (), vertices.end (),
+			       G3D::Vector3::zero (), &vertexAccumulate);
+    }
     m_center /= Vector3(size, size, size);
 }
 

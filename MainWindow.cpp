@@ -28,17 +28,21 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     setupSliderData (foamAlongTime);
     setupScaleWidget ();
     widgetGl->SetFoamAlongTime (&foamAlongTime);
-    calculateStats (*foamAlongTime.GetFoam (0));
+    calculateStats (*foamAlongTime.GetFoam (0), foamAlongTime.GetTimeSteps ());
     updateStatus ();
     m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
     configureInterface (foamAlongTime);
+
+    setWindowTitle (
+	QString (
+	    (string("Foam - ") + foamAlongTime.GetFilePattern ()).c_str ()));
     // 30 ms
     m_timer->setInterval (30);
     QObject::connect(m_timer.get (), SIGNAL(timeout()),
                      this, SLOT(TimeoutTimer ()));
 }
 
-void MainWindow::calculateStats (const Foam& foam)
+void MainWindow::calculateStats (const Foam& foam, size_t timeSteps)
 {
     VertexSet vertexSet;
     EdgeSet edgeSet;
@@ -50,7 +54,8 @@ void MainWindow::calculateStats (const Foam& foam)
     ostr << foam.GetBodies ().size () << ","
 	 << faceSet.size () << ","
 	 << edgeSet.size () << ","
-	 << vertexSet.size ();
+	 << vertexSet.size () << ","
+	 << timeSteps;
     m_stats = ostr.str ();
 }
 
@@ -58,25 +63,44 @@ void MainWindow::calculateStats (const Foam& foam)
 void MainWindow::setupSliderData (const FoamAlongTime& foamAlongTime)
 {
     sliderData->setMinimum (0);
-    sliderData->setMaximum (foamAlongTime.GetFoamsSize () - 1);
+    sliderData->setMaximum (foamAlongTime.GetTimeSteps () - 1);
     sliderData->setSingleStep (1);
     sliderData->setPageStep (10);
 }
 
+void testColorMap ()
+{
+    cdbg << "Test Color map:" << endl;
+    for (size_t i = 0; i <= 12; i++)
+    {
+	double value = static_cast<double>(i) / 2;
+	cdbg << setw (3) << value << " " << RainbowColor (value/6) << endl;
+    }
+}
+
+
 void MainWindow::setupRainbowColorMap (QwtLinearColorMap* colorMap)
 {
+    testColorMap ();
     const size_t COLORS = 256;
-    QColor begin, end;
-    RainbowColor (0, &begin);
-    RainbowColor (1, &end);
-    colorMap->setColorInterval (begin, end);
-    colorMap->setMode (QwtLinearColorMap::ScaledColors);
-    for (size_t i = 1; i <= COLORS - 1; ++i)
+    colorMap->setColorInterval (RainbowColor (0), RainbowColor (1));
+    colorMap->setMode (QwtLinearColorMap::FixedColors);
+    for (size_t i = 1; i < COLORS; ++i)
     {
-	QColor color;
 	double value = static_cast<double>(i)/COLORS;
-	RainbowColor (value, &color);
-	colorMap->addColorStop (value, color);
+	colorMap->addColorStop (value, 	RainbowColor (value));
+    }
+}
+
+void MainWindow::setupBlueRedColorMap (QwtLinearColorMap* colorMap)
+{
+    const size_t COLORS = 256;
+    colorMap->setColorInterval (BlueRedColor (0), BlueRedColor (COLORS));
+    colorMap->setMode (QwtLinearColorMap::FixedColors);
+    for (size_t i = 1; i < COLORS; ++i)
+    {
+	double value = static_cast<double>(i)/COLORS;
+	colorMap->addColorStop (value, 	BlueRedColor (i));
     }
 }
 
@@ -92,7 +116,7 @@ void MainWindow::setupScaleWidget ()
     scaleWidgetColorBar->setAlignment (QwtScaleDraw::RightScale);
     scaleWidgetColorBar->setBorderDist (5, 5);
     QwtLinearColorMap colorMap;
-    setupRainbowColorMap (&colorMap);
+    setupBlueRedColorMap (&colorMap);
     scaleWidgetColorBar->setColorMap (interval, colorMap);
     scaleWidgetColorBar->setColorBarEnabled (true);
 }
@@ -100,25 +124,17 @@ void MainWindow::setupScaleWidget ()
 
 void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 {
-    if (foamAlongTime.GetFoamsSize () == 1)
-    {
-        toolButtonBegin->setDisabled (true);
-	toolButtonEnd->setDisabled (true);
-	toolButtonPlay->setDisabled (true);
-    }
+    if (foamAlongTime.GetTimeSteps () == 1)
+	groupBoxTimeSteps->setDisabled (true);
 
     boost::shared_ptr<const Foam> foam = foamAlongTime.GetFoam (0);
     if (! foam->IsTorus ())
-    {
-	radioButtonEdgesTorus->setEnabled (false);
-	radioButtonFacesTorus->setEnabled (false);
-	groupBoxTorusOriginalDomain->setEnabled (false);
-    }
+	groupBoxTorusOriginalDomain->setDisabled (true);
     if (foam->GetSpaceDimension () == 2)
     {
 	radioButtonEdgesNormal->toggle ();
 	tabWidget->setCurrentWidget (edges);
-	horizontalSliderAngleOfView->setEnabled (false);
+	widgetAngleOfView->setEnabled (false);
     }
     else
     {
@@ -155,16 +171,15 @@ void MainWindow::updateStatus ()
 {
     QString oldString = labelStatus->text ();
     ostringstream ostr;
-    ostr << "(B,F,E,V)=" << "(" << m_stats << ")"
-	 << " Time: " 
-	 << (widgetGl->GetTimeStep () + 1)<< " of " 
-	 << widgetGl->GetFoamAlongTime ().GetFoamsSize ();
+    ostr << "(B,F,E,V,T)=" << "(" << m_stats << ")"
+	 << " T: " 
+	 << (widgetGl->GetTimeStep () + 1);
     if (! widgetGl->IsDisplayedAllBodies ())
-	ostr << ", Body: " << (widgetGl->GetDisplayedBodyId () + 1);
+	ostr << ", B: " << (widgetGl->GetDisplayedBodyId () + 1);
     if (widgetGl->GetDisplayedFaceIndex () != GLWidget::DISPLAY_ALL)
-	ostr << ", Face: " << (widgetGl->GetDisplayedFaceId () + 1);
+	ostr << ", F: " << (widgetGl->GetDisplayedFaceId () + 1);
     if (widgetGl->GetDisplayedEdgeIndex () != GLWidget::DISPLAY_ALL)
-	ostr << ", Edge: " << (widgetGl->GetDisplayedEdgeId () + 1);
+	ostr << ", E: " << (widgetGl->GetDisplayedEdgeId () + 1);
     ostr << ends;
     QString newString (ostr.str().c_str ());
     if (oldString != newString)

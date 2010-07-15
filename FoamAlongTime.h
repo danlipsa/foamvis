@@ -46,14 +46,14 @@ public:
     }
 
 
-    size_t GetFoamsSize () const
+    size_t GetTimeSteps () const
     {
 	return m_foams.size ();
     }
 
-    void SetFoamsSize (size_t size)
+    void SetTimeSteps (size_t timeSteps)
     {
-	m_foams.resize (size);
+	m_foams.resize (timeSteps);
     }
 
     Foams::iterator GetFoamsBegin ()
@@ -77,6 +77,14 @@ public:
     const BodiesAlongTime& GetBodiesAlongTime () const
     {
 	return m_bodiesAlongTime;
+    }
+    void SetFilePattern (const string& filePattern)
+    {
+	m_filePattern = filePattern;
+    }
+    const string& GetFilePattern () const
+    {
+	return m_filePattern;
     }
 
 
@@ -108,6 +116,7 @@ private:
      * The AABox for this vector of Foam objects
      */
     G3D::AABox m_AABox;
+    string m_filePattern;
 };
 
 #endif //__FOAM_ALONG_TIME_H__

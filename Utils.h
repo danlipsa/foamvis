@@ -14,6 +14,9 @@
  * @return where to print next
  */
 ostream& operator<< (ostream& ostr, const G3D::AABox& box);
+ostream& operator<< (ostream& ostr, const QColor& color);
+
+
 
 const G3D::Vector3int16& Vector3int16Unit (size_t direction);
 
@@ -22,8 +25,23 @@ extern const G3D::Vector3int16 Vector3int16Zero;
  * Implementation of the Rainbow Colormap from 
  * Data Visualization, Principles and Practice,
  * Alexandru C. Telea
+ * Section 5.2 Designing Effective Colormaps, page 132
+ * Returns the rainbow color coresponding o a value between 0 and 1, 
+ * blue=0, green=.5 red=1
+ *
  */
-void RainbowColor (double value, QColor* color);
+QColor RainbowColor (double value);
+
+/**
+ * Cool warm color map from
+ * Diverging Color Maps for Scientific Visualization
+ * Kenneth Moreland
+ * ISVC 2009
+ *
+ * Returns the coolwarm  color based on the index  value between 0 and
+ * 256 inclusive.
+ */
+QColor BlueRedColor (size_t index);
 
 inline void glTranslate (const G3D::Vector3& translate)
 {
@@ -33,6 +51,19 @@ inline void glTranslate (const G3D::Vector3& translate)
 void Scale (G3D::AABox* aabox, float change);
 void Scale (G3D::Rect2D* aabox, float change);
 void EncloseRotation (G3D::AABox* aabox);
+/**
+ * Returns the luminance of a color using a formula from 
+ * The Visualization Toolkit, 4th edition,
+ * An Object-Oriented Approach to 3D Graphics
+ * Will Schroeder, Ken Martin, Bill Lorensen
+ * Section 8.9 Scalars and Color, page 295
+ */
+inline float Luminance (const QColor& color)
+{
+    return color.alphaF () * 
+	(0.3 * color.redF () + 0.59 * color.greenF () + 0.11 * color.blueF ());
+}
+
 
 #endif //__ELEMENT_UTILS_H__
 

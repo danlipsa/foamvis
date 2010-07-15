@@ -181,6 +181,7 @@ void parseFiles (int argc, char *argv[],
 {
     QDir dir;
     QStringList files;
+    string filePattern;
     switch (argc - optind)
     {
     case 1:
@@ -188,11 +189,13 @@ void parseFiles (int argc, char *argv[],
 	QFileInfo fileInfo (argv[optind]);
 	dir = fileInfo.absoluteDir ();
 	files << fileInfo.fileName ();
+	filePattern = string (fileInfo.fileName ().toAscii ());
 	break;
     }
     case 2:
     {
 	dir = QDir(argv[optind], argv[optind + 1]);
+	filePattern = argv[optind + 1];
 	files = dir.entryList ();
 	break;
     }
@@ -201,7 +204,8 @@ void parseFiles (int argc, char *argv[],
 	exit (13);
     }
 
-    foamAlongTime->SetFoamsSize (files.size ());
+    foamAlongTime->SetTimeSteps (files.size ());
+    foamAlongTime->SetFilePattern (filePattern);
 
     QList< boost::shared_ptr<Foam> > foams = QtConcurrent::blockingMapped (
 	files,
@@ -245,7 +249,7 @@ int main(int argc, char *argv[])
 	readOptions (argc, argv,
 		     &debugParsing, &debugScanning, &textOutput);
 	parseFiles (argc, argv, &foamAlongTime, debugParsing, debugScanning);
-	size_t timeSteps = foamAlongTime.GetFoamsSize ();
+	size_t timeSteps = foamAlongTime.GetTimeSteps ();
         if (timeSteps != 0)
         {
 	    foamAlongTime.PostProcess ();

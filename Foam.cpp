@@ -324,7 +324,9 @@ void Foam::calculateBodiesCenters ()
 void Foam::calculateTorusClipped ()
 {
     const OOBox& periods = GetOriginalDomain ();
-    BOOST_FOREACH (boost::shared_ptr<Edge> e, GetParsingData ().GetEdges ())
+    EdgeSet edgeSet;
+    GetEdgeSet (&edgeSet);
+    BOOST_FOREACH (boost::shared_ptr<Edge> e, edgeSet)
     {
 	if (e->IsClipped ())
 	    e->CalculateTorusClipped (periods);
@@ -403,13 +405,13 @@ void Foam::PostProcess ()
     copyStandaloneElements ();
     if (IsTorus ())
 	unwrap (&vertexSet, &edgeSet, &faceSet);
-    calculateAABox ();
     calculateBodiesCenters ();
     if (IsTorus ())
     {
 	bodiesInsideOriginalDomain (&vertexSet, &edgeSet, &faceSet);
 	calculateTorusClipped ();
     }
+    calculateAABox ();
 }
 
 bool Foam::IsTorus () const
@@ -480,16 +482,22 @@ void Foam::bodyTranslate (
 
 void Foam::GetVertexSet (VertexSet* vertexSet) const
 {
-    const Bodies& bodies = GetBodies ();
-    for_each (bodies.begin (), bodies.end (),
+    for_each (GetBodies ().begin (), GetBodies ().end (),
 	      boost::bind (&Body::GetVertexSet, _1, vertexSet));
+    for_each (GetStandaloneEdges ().begin (), GetStandaloneEdges ().end (),
+	      boost::bind (&Edge::GetVertexSet, _1, vertexSet));
+    for_each (GetStandaloneFaces ().begin (), GetStandaloneFaces ().end (),
+	      boost::bind (&Face::GetVertexSet, _1, vertexSet));
 }
 
 void Foam::GetEdgeSet (EdgeSet* edgeSet) const
 {
-    const Bodies& bodies = GetBodies ();
-    for_each (bodies.begin (), bodies.end (),
+    for_each (GetBodies ().begin (), GetBodies ().end (),
 	      boost::bind (&Body::GetEdgeSet, _1, edgeSet));
+    BOOST_FOREACH (boost::shared_ptr<Edge> edge, GetStandaloneEdges ())
+	edgeSet->insert (edge);
+    for_each (GetStandaloneFaces ().begin (), GetStandaloneFaces ().end (),
+	      boost::bind (&Face::GetEdgeSet, _1, edgeSet));
 }
 
 void Foam::GetFaceSet (FaceSet* faceSet) const
@@ -497,6 +505,8 @@ void Foam::GetFaceSet (FaceSet* faceSet) const
     const Bodies& bodies = GetBodies ();
     for_each (bodies.begin (), bodies.end (),
 	      boost::bind (&Body::GetFaceSet, _1, faceSet));
+    BOOST_FOREACH (boost::shared_ptr<Face> face, GetStandaloneFaces ())
+	faceSet->insert (face);
 }
 
 const AttributesInfo& Foam::GetAttributesInfo (

@@ -178,6 +178,11 @@ public:
     {
 	return m_standaloneEdges;
     }
+    const Faces& GetStandaloneFaces () const
+    {
+	return m_standaloneFaces;
+    }
+
     boost::shared_ptr<Face>  GetFaceDuplicate (
 	const Face& original, const G3D::Vector3int16& translation,
 	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet) const;

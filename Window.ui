@@ -508,7 +508,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBoxMovie">
+    <widget class="QGroupBox" name="groupBoxTimeSteps">
      <property name="title">
       <string>Time Steps</string>
      </property>

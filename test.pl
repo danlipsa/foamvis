@@ -9,6 +9,7 @@ my @tests =
      "PERIODICSHEAR/shear_65_0001_2.dmp",
      "COARSE3D/summary_30_0001_sph_free.dmp",
      "shear_160/shear_160_0000_1.dmp",
+     "coarse_62/summary_62_0377_sph_free.dmp",
      "straight_5x2q_2per/straightq_2per_10_0001.dmp",
      "straight_6x2q_2/straightq_2_12_0001.dmp");
 
