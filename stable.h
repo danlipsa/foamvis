@@ -68,6 +68,7 @@
 #include <qwt_scale_widget.h>
 #include <qwt_color_map.h>
 #include <qwt_scale_engine.h>
+#include <qwt_scale_map.h>
 
 // G3D headers
 #include <G3D/AABox.h>

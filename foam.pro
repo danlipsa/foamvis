@@ -1,5 +1,5 @@
 HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h \
-	BodyAlongTime.h ColoredElement.h BodyIndex.h\
+	BodyAlongTime.h BodyIndex.h ColoredElement.h Comparisons.h \
 	Debug.h DebugStream.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h \
@@ -10,8 +10,8 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h \
 	OOBox.h OrientedElement.h\
 	OrientedEdge.h OrientedFace.h OrientedFaceIndex.h \
 	ParsingData.h ParsingDriver.h ProcessBodyTorus.h \
-	Utils.h stable.h SystemDifferences.h \
-	Comparisons.h Vertex.h
+	stable.h StripIterator.h SystemDifferences.h Utils.h \
+	Vertex.h
 SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	Body.cpp BodyAlongTime.cpp BodyIndex.cpp ColoredElement.cpp \
 	Comparisons.cpp Debug.cpp DebugStream.cpp Edge.cpp \
@@ -22,7 +22,7 @@ SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	OOBox.cpp OrientedElement.cpp\
 	OrientedEdge.cpp OrientedFace.cpp OrientedFaceIndex.cpp\
 	ParsingData.cpp ParsingDriver.cpp ProcessBodyTorus.cpp \
-	Utils.cpp Vertex.cpp 
+	StripIterator.cpp Utils.cpp Vertex.cpp 
 FORMS += Window.ui
 LEXSOURCES += EvolverData.l
 YACCSOURCES += EvolverData.y

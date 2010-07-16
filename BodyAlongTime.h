@@ -11,24 +11,14 @@
 
 class Body;
 class FoamAlongTime;
-
+#include "StripIterator.h"
+#include "Enums.h"
 
 class BodyAlongTime
 {
 public:
     typedef vector<boost::shared_ptr<Body> > Bodies;
-    /**
-     * List of times (indexes in Bodies vector) where a body wraps
-     * around the torus original domain. The wrap is 
-     * between index and index + 1. It includes the last index in the Bodies 
-     * vector.
-     */
     typedef vector<size_t> Wraps;
-    /**
-     * Translation between step index and step index + 1. It has one less
-     * elements than Wraps.
-     * @see Wraps
-     */
     typedef vector<G3D::Vector3int16> Translations;
 
 public:
@@ -58,6 +48,13 @@ public:
      * than 1/2 of min all sides of the original domain
      */
     void CalculateBodyWraps (const FoamAlongTime& foamAlongTime);
+    void CalculateSpeedRange (const FoamAlongTime& foamAlongTime);
+
+    StripIterator GetStripIterator (const FoamAlongTime& foamAlongTime) const
+    {
+	return StripIterator (*this, foamAlongTime);
+    }
+
     const Wraps& GetWraps () const
     {
 	return m_wraps;
@@ -68,6 +65,14 @@ public:
 	return m_translations[i];
     }
     string ToString () const;
+    float GetMinSpeed (VectorMeasure::Type i) const
+    {
+	return m_minSpeed[i];
+    }
+    float GetMaxSpeed (VectorMeasure::Type i) const
+    {
+	return m_maxSpeed[i];
+    }
 
 public:
     friend ostream& operator<< (
@@ -75,17 +80,32 @@ public:
 
 private:
     Bodies m_bodyAlongTime;
+    /**
+     * List of times (indexes in Bodies vector) where a body wraps
+     * around the torus original domain. The wrap is 
+     * between index and index + 1.
+     */
     Wraps m_wraps;
+    /**
+     * Translation between step index and step index + 1.
+     * @see Wraps
+     */
     Translations m_translations;
+    /**
+     * Min speed along X, Y, Z and total
+     */
+    boost::array<float, 4> m_minSpeed;
+    /**
+     * Max speed along X, Y, Z and total
+     */
+    boost::array<float, 4> m_maxSpeed;
 };
 
 
 class BodiesAlongTime
 {
 public:
-    typedef BodyAlongTime OneBody;
-    typedef boost::shared_ptr<OneBody> OneBodyPtr;
-    typedef map <size_t, OneBodyPtr> BodyMap;
+    typedef map <size_t, boost::shared_ptr<BodyAlongTime> > BodyMap;
 
     size_t GetBodyCount ()
     {
@@ -103,29 +123,43 @@ public:
 	return m_bodyMap;
     }
     void Resize (const boost::shared_ptr<Body>  body);
-    OneBody& GetOneBody (size_t id)
+    BodyAlongTime& GetBodyAlongTime (size_t id)
     {
-	return getOneBody (id);
+	return getBodyAlongTime (id);
     }
 
-    const OneBody& GetOneBody (size_t id) const
+    const BodyAlongTime& GetBodyAlongTime (size_t id) const
     {
-	return getOneBody (id);
+	return getBodyAlongTime (id);
     }
-
-public:
-    friend ostream& operator<< (
-	ostream& ostr, const BodiesAlongTime& bodiesAlongTime);
+    void CalculateSpeedRange (const FoamAlongTime& foamAlongTime);
+    float GetMinSpeed (VectorMeasure::Type i) const
+    {
+	return m_minSpeed[i];
+    }
+    float GetMaxSpeed (VectorMeasure::Type i) const
+    {
+	return m_maxSpeed[i];
+    }
+    string ToString () const;
 
 private:
     void resize (size_t bodyOriginalIndex, size_t timeSteps);
-    OneBody& getOneBody (size_t id) const;
+    BodyAlongTime& getBodyAlongTime (size_t id) const;
 
 private:
     /**
      * Map between the original index of the body and the body along time
      */
     BodyMap m_bodyMap;
+    /**
+     * Min speed along X, Y, Z and total
+     */
+    boost::array<float, 4> m_minSpeed;
+    /**
+     * Max speed along X, Y, Z and total
+     */
+    boost::array<float, 4> m_maxSpeed;
 };
 
 inline ostream& operator<< (ostream& ostr, const BodyAlongTime& bat)
@@ -133,6 +167,11 @@ inline ostream& operator<< (ostream& ostr, const BodyAlongTime& bat)
     return ostr << bat.ToString ();
 }
 
+inline ostream& operator<< (
+    ostream& ostr, const BodiesAlongTime& bodiesAlongTime)
+{
+    return ostr << bodiesAlongTime.ToString ();
+}
 
 
 #endif //__BODY_ALONG_TIME_H__

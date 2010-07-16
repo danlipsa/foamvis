@@ -360,6 +360,5 @@ QColor BlueRedColor (size_t i)
     color.setRedF (blueRedColors[i][1]);
     color.setGreenF (blueRedColors[i][2]);
     color.setBlueF (blueRedColors[i][3]);
-    cdbg << "BlueRedColor(" << i << ")=" << color;
     return color;
 }

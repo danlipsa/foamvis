@@ -737,9 +737,9 @@ GLuint GLWidget::displayListCenterPaths ()
 		  DisplayEdges<DisplayEdgeWithColor<
 		  DisplayElement::DONT_DISPLAY_TESSELLATION> > > > (
 		      *this, DisplayElement::INVISIBLE_CONTEXT));
+	displayCenterOfBodies ();
     }
 
-    displayCenterOfBodies ();
     displayOriginalDomain ();
     displayAABox ();
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
@@ -904,7 +904,7 @@ const BodiesAlongTime& GLWidget::GetBodiesAlongTime () const
 
 const BodyAlongTime& GLWidget::GetBodyAlongTime (size_t id) const
 {
-    return GetBodiesAlongTime ().GetOneBody (id);
+    return GetBodiesAlongTime ().GetBodyAlongTime (id);
 }
 
 boost::shared_ptr<Body> GLWidget::GetDisplayedBody () const

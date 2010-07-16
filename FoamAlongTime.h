@@ -86,6 +86,14 @@ public:
     {
 	return m_filePattern;
     }
+    float GetMinSpeed (VectorMeasure::Type i) const
+    {
+	return GetBodiesAlongTime ().GetMinSpeed (i);
+    }
+    float GetMaxSpeed (VectorMeasure::Type i) const
+    {
+	return GetBodiesAlongTime ().GetMaxSpeed (i);
+    }
 
 
 public:

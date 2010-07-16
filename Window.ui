@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>890</width>
-    <height>720</height>
+    <width>1016</width>
+    <height>824</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -37,7 +37,7 @@
        <height>0</height>
       </size>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0">
+     <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,0">
       <property name="sizeConstraint">
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
@@ -120,9 +120,15 @@
       </item>
       <item>
        <widget class="QWidget" name="widgetOptions" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
-          <width>310</width>
+          <width>300</width>
           <height>0</height>
          </size>
         </property>
@@ -230,7 +236,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>2</number>
            </property>
            <widget class="QWidget" name="edges">
             <attribute name="title">
@@ -468,7 +474,7 @@
              <item>
               <widget class="QStackedWidget" name="stackedWidgetComposite">
                <property name="currentIndex">
-                <number>0</number>
+                <number>1</number>
                </property>
                <widget class="QWidget" name="pageCompositeEmpty"/>
                <widget class="QWidget" name="pageCenterPath">
@@ -478,6 +484,48 @@
                    <property name="text">
                     <string>Current Body</string>
                    </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QWidget" name="widget" native="true">
+                   <layout class="QHBoxLayout" name="horizontalLayout_5">
+                    <item>
+                     <widget class="QLabel" name="label_2">
+                      <property name="text">
+                       <string>Colored By</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QComboBox" name="comboBox">
+                      <item>
+                       <property name="text">
+                        <string>None</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Speed Along X</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Speed Along Y</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Speed Along Z</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Speed Total</string>
+                       </property>
+                      </item>
+                     </widget>
+                    </item>
+                   </layout>
                   </widget>
                  </item>
                  <item>
@@ -604,7 +652,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>82</x>
-     <y>699</y>
+     <y>803</y>
     </hint>
     <hint type="destinationlabel">
      <x>66</x>
@@ -620,7 +668,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>53</x>
-     <y>699</y>
+     <y>803</y>
     </hint>
     <hint type="destinationlabel">
      <x>38</x>
@@ -636,7 +684,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>122</x>
-     <y>699</y>
+     <y>803</y>
     </hint>
     <hint type="destinationlabel">
      <x>53</x>
@@ -652,7 +700,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>701</x>
-     <y>698</y>
+     <y>802</y>
     </hint>
     <hint type="destinationlabel">
      <x>180</x>
@@ -715,7 +763,7 @@
    <slot>ToggledFacesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>695</x>
+     <x>838</x>
      <y>354</y>
     </hint>
     <hint type="destinationlabel">
@@ -731,7 +779,7 @@
    <slot>ToggledCenterPath(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>695</x>
+     <x>838</x>
      <y>326</y>
     </hint>
     <hint type="destinationlabel">
@@ -747,7 +795,7 @@
    <slot>CurrentIndexChangedInteractionMode(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>706</x>
+     <x>849</x>
      <y>31</y>
     </hint>
     <hint type="destinationlabel">
@@ -763,7 +811,7 @@
    <slot>ToggledCenterPathDisplayBody(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>692</x>
+     <x>835</x>
      <y>375</y>
     </hint>
     <hint type="destinationlabel">
@@ -779,7 +827,7 @@
    <slot>ToggledEdgesBodyCenter(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>692</x>
+     <x>835</x>
      <y>403</y>
     </hint>
     <hint type="destinationlabel">
@@ -795,7 +843,7 @@
    <slot>ToggledEdgesTessellation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>692</x>
+     <x>835</x>
      <y>431</y>
     </hint>
     <hint type="destinationlabel">
@@ -811,7 +859,7 @@
    <slot>ToggledEdgesTorusTubes(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>692</x>
+     <x>835</x>
      <y>403</y>
     </hint>
     <hint type="destinationlabel">
@@ -827,7 +875,7 @@
    <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>695</x>
+     <x>838</x>
      <y>326</y>
     </hint>
     <hint type="destinationlabel">
@@ -843,7 +891,7 @@
    <slot>ToggledFacesTorusTubes(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>692</x>
+     <x>835</x>
      <y>403</y>
     </hint>
     <hint type="destinationlabel">
@@ -891,7 +939,7 @@
    <slot>ToggledBoundingBox(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>665</x>
+     <x>808</x>
      <y>81</y>
     </hint>
     <hint type="destinationlabel">
@@ -907,12 +955,28 @@
    <slot>ValueChangedAngleOfView(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>723</x>
+     <x>866</x>
      <y>122</y>
     </hint>
     <hint type="destinationlabel">
      <x>501</x>
      <y>217</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>Window</receiver>
+   <slot>ValueChangedColoredBy(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>927</x>
+     <y>408</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1056</x>
+     <y>448</y>
     </hint>
    </hints>
   </connection>
@@ -927,6 +991,7 @@
   <slot>ToggledFacesTorus(bool)</slot>
   <slot>ToggledSaveMovie(bool)</slot>
   <slot>ValueChangedSliderData(int)</slot>
+  <slot>ValueChangedColoredBy(int)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroup"/>

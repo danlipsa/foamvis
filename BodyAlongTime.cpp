@@ -16,7 +16,7 @@
 
 // Private Functions
 // ======================================================================
-bool isNull (const boost::shared_ptr<Body>  body)
+bool isNull (const boost::shared_ptr<Body>& body)
 {
     return body == 0;
 }
@@ -24,7 +24,7 @@ bool isNull (const boost::shared_ptr<Body>  body)
 
 // BodiesAlongTime Methods
 // ======================================================================
-BodiesAlongTime::OneBody& BodiesAlongTime::getOneBody (size_t id) const
+BodyAlongTime& BodiesAlongTime::getBodyAlongTime (size_t id) const
 {
     BodyMap::const_iterator it = m_bodyMap.find (id);
     RuntimeAssert (it != m_bodyMap.end (),
@@ -36,7 +36,7 @@ void BodiesAlongTime::Allocate (
     const boost::shared_ptr<Body>  body, size_t timeSteps)
 {
     size_t id = body->GetId ();
-    OneBodyPtr oneBodyPtr (new OneBody (timeSteps));
+    boost::shared_ptr<BodyAlongTime> oneBodyPtr (new BodyAlongTime (timeSteps));
     m_bodyMap.insert (
 	BodyMap::value_type (id, oneBodyPtr));
 }
@@ -49,7 +49,7 @@ void BodiesAlongTime::Cache (boost::shared_ptr<Body>  body, size_t timeStep)
 
 void BodiesAlongTime::Resize (const boost::shared_ptr<Body>  body)
 {
-    GetOneBody (body->GetId ()).Resize ();
+    GetBodyAlongTime (body->GetId ()).Resize ();
 }
 
 void BodiesAlongTime::resize (size_t id, size_t timeSteps)
@@ -57,17 +57,34 @@ void BodiesAlongTime::resize (size_t id, size_t timeSteps)
     m_bodyMap[id]->Resize (timeSteps);
 }
 
-// Static and Friends BodiesAlongTime Methods
-// ======================================================================
-ostream& operator<< (
-    ostream& ostr, const BodiesAlongTime& bat)
+string BodiesAlongTime::ToString () const
 {
-    const BodiesAlongTime::BodyMap& bm = bat.m_bodyMap;
-    for (BodiesAlongTime::BodyMap::const_iterator it = bm.begin ();
-	 it != bm.end(); ++it)
+    ostringstream ostr;
+    for (BodiesAlongTime::BodyMap::const_iterator it = m_bodyMap.begin ();
+	 it != m_bodyMap.end(); ++it)
 	ostr << *(it->second) << endl;
-    return ostr;
+    return ostr.str ();
 }
+
+void BodiesAlongTime::CalculateSpeedRange (const FoamAlongTime& foamAlongTime)
+{
+    numeric_limits<float> floatLimits;
+    fill (m_minSpeed.begin (), m_minSpeed.end (), floatLimits.max ());
+    fill (m_maxSpeed.begin (), m_maxSpeed.end (), floatLimits.min ());
+    BOOST_FOREACH (BodyMap::value_type p, GetBodyMap ())
+    {
+	BodyAlongTime& bat = *p.second;
+	bat.CalculateSpeedRange (foamAlongTime);
+	for (size_t i = 0; i < VectorMeasure::COUNT; i++)
+	{
+	    VectorMeasure::Type vm = static_cast<VectorMeasure::Type>(i);
+	    m_minSpeed[i] = min (m_minSpeed[i], bat.GetMinSpeed (vm));
+	    m_maxSpeed[i] = max (m_maxSpeed[i], bat.GetMaxSpeed (vm));
+	}
+    }
+}
+
+
 
 
 // BodyAlongTime Methods
@@ -90,7 +107,6 @@ void BodyAlongTime::CalculateBodyWraps (const FoamAlongTime& foamAlongTime)
 	    }
 	}
     }
-    m_wraps.push_back (m_bodyAlongTime.size () - 1);
 }
 
 void BodyAlongTime::Resize ()
@@ -119,3 +135,29 @@ string BodyAlongTime::ToString () const
     return ostr.str ();
 }
 
+
+void BodyAlongTime::CalculateSpeedRange (const FoamAlongTime& foamAlongTime)
+{
+    StripIterator it = GetStripIterator (foamAlongTime);
+    StripIterator::StripPoint prev = it.Next ();
+    numeric_limits<float> floatLimits;
+    fill (m_minSpeed.begin (), m_minSpeed.end (), floatLimits.max ());
+    fill (m_maxSpeed.begin (), m_maxSpeed.end (), floatLimits.min ());
+    while (it.HasNext ())
+    {
+	StripIterator::StripPoint p = it.Next ();
+	if (! p.m_newStrip)
+	{
+	    G3D::Vector3 speed = p.m_point - prev.m_point;
+	    for (int i = 0; i < 3; ++i)
+	    {
+		m_minSpeed[i] = min (m_minSpeed[i], speed[i]);
+		m_maxSpeed[i] = max (m_maxSpeed[i], speed[i]);
+	    }
+	    float speedLength = speed.length ();
+	    m_minSpeed[3] = min (m_minSpeed[3], speedLength);
+	    m_maxSpeed[3] = max (m_maxSpeed[3], speedLength);
+	}
+	prev = p;
+    }
+}

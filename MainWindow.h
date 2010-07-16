@@ -81,7 +81,7 @@ public Q_SLOTS:
      * at the current position of the slider.
      */
     void ValueChangedSliderData (int value);
-
+    void ValueChangedColoredBy (int value);
 private:
     /**
      * Enables/Disables the Begin button
@@ -108,6 +108,9 @@ private:
     void updateStatus ();
     void setupSliderData (const FoamAlongTime& foamAlongTime);
     void configureInterface (const FoamAlongTime& foamAlongTime);
+    void changeScaleWidgetInterval (const QwtDoubleInterval& interval);
+    void changeScaleWidgetInterval (VectorMeasure::Type vectorMeasure);
+
     void setupScaleWidget ();
     void calculateStats (const Foam& foam, size_t timeSteps);
 

@@ -138,6 +138,35 @@ struct DefineAttribute
 };
 
 
+struct VectorMeasure
+{
+    enum Type
+    {
+	X,
+	Y,
+	Z,
+	LENGTH,
+	COUNT
+    };
+};
+
+class CenterPathColorBy
+{
+public:
+    enum Object
+    {
+	NONE,
+	SPEED_ALONG_X,
+	SPEED_ALONG_Y,
+	SPEED_ALONG_Z,
+	SPEED_TOTAL,
+	COUNT
+    };
+};
+
+
+
+VectorMeasure::Type convert (CenterPathColorBy::Object colorBy);
 
 #endif //__ENUMS_H__
 

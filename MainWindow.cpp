@@ -107,20 +107,10 @@ void MainWindow::setupBlueRedColorMap (QwtLinearColorMap* colorMap)
 
 void MainWindow::setupScaleWidget ()
 {
-    QwtDoubleInterval interval (0.0, 1.0);
-    QwtLinearScaleEngine scaleEngine;
-    scaleWidgetColorBar->setScaleDiv (
-	scaleEngine.transformation (),
-	scaleEngine.divideScale (
-	    interval.minValue (), interval.maxValue (), 3, 10));
     scaleWidgetColorBar->setAlignment (QwtScaleDraw::RightScale);
     scaleWidgetColorBar->setBorderDist (5, 5);
-    QwtLinearColorMap colorMap;
-    setupBlueRedColorMap (&colorMap);
-    scaleWidgetColorBar->setColorMap (interval, colorMap);
     scaleWidgetColorBar->setColorBarEnabled (true);
 }
-
 
 void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 {
@@ -428,13 +418,57 @@ void MainWindow::ToggledCenterPath (bool checked)
 {
     widgetGl->ToggledCenterPath (checked);
     if (checked)
-    {
 	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
-	scaleWidgetColorBar->setVisible (true);
-    }
+    else
+	stackedWidgetComposite->setCurrentWidget (pageCompositeEmpty);
+}
+
+
+void MainWindow::changeScaleWidgetInterval (VectorMeasure::Type vm)
+{
+    const FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
+    changeScaleWidgetInterval (
+	QwtDoubleInterval (
+	    foamAlongTime.GetMinSpeed(vm), foamAlongTime.GetMaxSpeed(vm)));
+}
+
+void MainWindow::changeScaleWidgetInterval (const QwtDoubleInterval& interval)
+{
+    cdbg << "changeScaleWidgetInterval: (" 
+	 << interval.minValue () << ", " << interval.maxValue () << ")" << endl;
+/*
+    QwtLinearScaleEngine scaleEngine;
+    scaleWidgetColorBar->setScaleDiv (
+	scaleEngine.transformation (),
+	scaleEngine.divideScale (
+	    interval.minValue (), interval.maxValue (), 3, 0, 
+	    interval.width () / 4));
+*/
+    QwtScaleDiv scaleDiv;
+    QwtValueList tickList;
+    tickList.append (interval.minValue ());
+
+    tickList.append (interval.maxValue ());
+    scaleDiv.setInterval (interval);
+    scaleDiv.setTicks (QwtScaleDiv::MajorTick, tickList);
+    scaleWidgetColorBar->setScaleDiv (
+	new QwtScaleTransformation (QwtScaleTransformation::Linear), scaleDiv);
+    QwtLinearColorMap colorMap;
+    setupBlueRedColorMap (&colorMap);
+    scaleWidgetColorBar->setColorMap (interval, colorMap);
+}
+
+
+void MainWindow::ValueChangedColoredBy (int value)
+{
+    CenterPathColorBy::Object colorBy = 
+	static_cast<CenterPathColorBy::Object>(value);
+    if (colorBy == CenterPathColorBy::NONE)
+	scaleWidgetColorBar->setVisible (false);
     else
     {
-	stackedWidgetComposite->setCurrentWidget (pageCompositeEmpty);
-	scaleWidgetColorBar->setVisible (false);
+	changeScaleWidgetInterval (convert (colorBy));
+	scaleWidgetColorBar->setVisible (true);
     }
 }
+

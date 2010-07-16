@@ -12,6 +12,7 @@
 #include "GLWidget.h"
 #include "DebugStream.h"
 #include "Foam.h"
+#include "StripIterator.h"
 
 
 /**
@@ -138,33 +139,22 @@ public:
     void operator () (size_t bodyId)
     {
 	const BodyAlongTime& bat = m_widget.GetBodyAlongTime (bodyId);
-	const BodyAlongTime::Bodies& bodies = bat.GetBodies ();
-	BodyAlongTime::Bodies::const_iterator begin = bodies.begin ();
-	const BodyAlongTime::Wraps& wraps = bat.GetWraps ();
-	for (size_t i = 0; i < wraps.size (); ++i)
+	StripIterator it = bat.GetStripIterator (m_widget.GetFoamAlongTime ());
+	glBegin(GL_LINE_STRIP);
+	while (it.HasNext ())
 	{
-	    size_t timeStep = wraps[i];
-	    BodyAlongTime::Bodies::const_iterator end = 
-		bodies.begin () + timeStep + 1;
-	    BodyAlongTime::Bodies::const_iterator it;
-	    glBegin(GL_LINE_STRIP);
-	    for (it = begin; it != end; ++it)
-		glVertex((*it)->GetCenter ());
-	    // add a segment for the wrap around the original domain
-	    if (end != bodies.end ())
+	    StripIterator::StripPoint p = it.Next ();
+	    if (p.m_newStrip)
 	    {
-		const OOBox& originalDomain = 
-		    m_widget.GetFoamAlongTime ().
-		    GetFoam (timeStep + 1)->GetOriginalDomain ();
-		glVertex(originalDomain.TorusTranslate (
-			     (*end)->GetCenter (),
-			     Vector3int16Zero - bat.GetTranslation (i)));
+		glEnd ();
+		glBegin(GL_LINE_STRIP);
 	    }
-
-	    glEnd ();
-	    begin = end;
+	    glVertex (p.m_point);
 	}
+	glEnd ();
     }
+
+
     /**
      * Helper function which calls operator () (size_t bodyId).
      * @param p a pair original index body pointer
