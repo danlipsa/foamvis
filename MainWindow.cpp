@@ -428,20 +428,23 @@ void MainWindow::ToggledCenterPath (bool checked)
 }
 
 
-void MainWindow::changeScaleWidgetInterval (CenterPathColorBy::Object colorBy)
+void MainWindow::changeScaleWidgetInterval (CenterPathColor::Type colorBy)
 {
     const FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     switch (colorBy)
     {
-    case CenterPathColorBy::SPEED_ALONG_X:
-    case CenterPathColorBy::SPEED_ALONG_Y:
-    case CenterPathColorBy::SPEED_ALONG_Z:
-    case CenterPathColorBy::SPEED_TOTAL:
+    case CenterPathColor::SPEED_ALONG_X:
+    case CenterPathColor::SPEED_ALONG_Y:
+    case CenterPathColor::SPEED_ALONG_Z:
+    case CenterPathColor::SPEED_TOTAL:
     {
 	VectorMeasure::Type vm = convert (colorBy);
-	changeScaleWidgetInterval (
-	    QwtDoubleInterval (
-		foamAlongTime.GetMinSpeed(vm), foamAlongTime.GetMaxSpeed(vm)));
+	QwtDoubleInterval interval(
+	    foamAlongTime.GetMinSpeed(vm), foamAlongTime.GetMaxSpeed(vm));
+	cdbg << "changeScaleWidgetInterval: " << vm << " ("
+	     << interval.minValue () << ", " 
+	     << interval.maxValue () << ")" << endl;
+	changeScaleWidgetInterval (interval);
 	break;
     }
     default:
@@ -451,8 +454,6 @@ void MainWindow::changeScaleWidgetInterval (CenterPathColorBy::Object colorBy)
 
 void MainWindow::changeScaleWidgetInterval (const QwtDoubleInterval& interval)
 {
-    cdbg << "changeScaleWidgetInterval: (" 
-	 << interval.minValue () << ", " << interval.maxValue () << ")" << endl;
     m_colorMapInterval = interval;
     QwtLinearScaleEngine scaleEngine;
     scaleEngine.setAttribute (QwtScaleEngine::IncludeReference);
@@ -475,21 +476,25 @@ void MainWindow::changeScaleWidgetInterval (const QwtDoubleInterval& interval)
 */
     setupBlueRedColorMap (&m_colorMap);
     scaleWidgetColorBar->setColorMap (interval, m_colorMap);
-    widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
 }
 
 
 void MainWindow::ValueChangedColoredBy (int value)
 {
-    CenterPathColorBy::Object colorBy = 
-	static_cast<CenterPathColorBy::Object>(value);
-    if (colorBy == CenterPathColorBy::NONE)
+    CenterPathColor::Type colorBy = 
+	static_cast<CenterPathColor::Type>(value);
+    if (colorBy == CenterPathColor::NONE)
+    {
+	widgetGl->SetColorMap (0, 0);
 	scaleWidgetColorBar->setVisible (false);
+    }
     else
     {
+	widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
 	changeScaleWidgetInterval (colorBy);
 	scaleWidgetColorBar->setVisible (true);
     }
+    widgetGl->ValueChangedCenterPathColor (value);
     widgetGl->UpdateDisplayList ();
 }
 

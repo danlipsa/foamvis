@@ -155,14 +155,14 @@ GLWidget::GLWidget(QWidget *parent)
       m_displayedEdgeIndex (DISPLAY_ALL),
       m_normalVertexSize (3), m_normalEdgeWidth (1),
       m_contextAlpha (0.03),
-      m_centerPathColor (Qt::red),
       m_angleOfView (0),
       m_edgesTorusTubes (false),
       m_facesTorusTubes (false),
       m_edgesBodyCenter (false),
       m_edgesTessellation (false),
       m_centerPathDisplayBody (false),
-      m_boundingBox (false)
+      m_boundingBox (false),
+      m_centerPathColor (CenterPathColor::NONE)
 {
     cdbg << "---------- GLWidget constructor ----------\n";
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
@@ -715,20 +715,15 @@ GLuint GLWidget::displayListFacesTorusLines ()
     return list;
 }
 
+
+
+
 GLuint GLWidget::displayListCenterPaths ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
     glLineWidth (1.0);
-    glPushAttrib (GL_CURRENT_BIT);
-    const BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
-    DisplayCenterPath displayCenterPath(*this);
-    if (IsDisplayedAllBodies ())
-	for_each (bats.begin (), bats.end (), displayCenterPath);
-    else
-	displayCenterPath (GetDisplayedBodyId ());
-    glPopAttrib ();
-
+    displayCenterPaths ();
     if (IsCenterPathDisplayBody ())
     {
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
@@ -739,14 +734,23 @@ GLuint GLWidget::displayListCenterPaths ()
 		      *this, DisplayElement::INVISIBLE_CONTEXT));
 	displayCenterOfBodies ();
     }
-
     displayOriginalDomain ();
     displayAABox ();
-
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
-
     glEndList();
     return list;
+}
+
+void GLWidget::displayCenterPaths ()
+{
+    glPushAttrib (GL_CURRENT_BIT);
+    const BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
+    DisplayCenterPath displayCenterPath(*this, m_centerPathColor);
+    if (IsDisplayedAllBodies ())
+	for_each (bats.begin (), bats.end (), displayCenterPath);
+    else
+	displayCenterPath (GetDisplayedBodyId ());
+    glPopAttrib ();
 }
 
 GLuint GLWidget::displayList (ViewType type)
@@ -1104,4 +1108,12 @@ void GLWidget::displayOpositeFaces (G3D::Vector3 origin,
 	glVertex (faceSecond);
 	glEnd ();
     }
+}
+
+void GLWidget::ValueChangedCenterPathColor (int value)
+{
+    RuntimeAssert (value > 0 && 
+		  value < CenterPathColor::COUNT,
+		  "Invalid CenterPathColor");
+    m_centerPathColor = static_cast<CenterPathColor::Type>(value);
 }

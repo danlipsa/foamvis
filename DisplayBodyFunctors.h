@@ -13,6 +13,7 @@
 #include "DebugStream.h"
 #include "Foam.h"
 #include "StripIterator.h"
+#include "Enums.h"
 
 
 /**
@@ -131,8 +132,10 @@ public:
      * Constructor
      * @param widget where to display the center path
      */
-    DisplayCenterPath (GLWidget& widget) : 
-	m_widget (widget) 
+    DisplayCenterPath (GLWidget& widget,
+		       CenterPathColor::Type centerPathColor) : 
+	m_widget (widget),
+	m_centerPathColor (centerPathColor)
     {
     }
     /**
@@ -143,8 +146,8 @@ public:
     {
 	const BodyAlongTime& bat = m_widget.GetBodyAlongTime (bodyId);
 	StripIterator it = bat.GetStripIterator (
-	    CenterPathColorBy::NONE, m_widget.GetFoamAlongTime ());
-	cdbg << "== bodyId: " << bodyId << " ==" << endl;
+	    m_centerPathColor, m_widget.GetFoamAlongTime ());
+	//cdbg << "== bodyId: " << bodyId << " ==" << endl;
 	glBegin(GL_LINES);
 	while (it.HasNext ())
 	{
@@ -155,25 +158,25 @@ public:
 	    case StripIterator::MIDDLE:
 		// end the previous segment
 		glVertex (p.m_point);
-		cdbg << p.m_point << endl;
+		//cdbg << p.m_point << endl;
 		// start a new segment
 		color = m_widget.MapScalar (p.m_colorByValue);
 		m_widget.qglColor (color);
 		glVertex (p.m_point);
-		cdbg << color << " " << p.m_point;
+		//cdbg << color << " " << p.m_colorByValue << " " << p.m_point;
 		break;
 	    case StripIterator::BEGIN:
 		// start a new segment
 		color = m_widget.MapScalar (p.m_colorByValue);
 		m_widget.qglColor (color);
 		glVertex (p.m_point);
-		cdbg << "-- NEW strip --" << endl;
-		cdbg << color << " " << p.m_point;
+		//cdbg << "-- NEW strip --" << endl;
+		//cdbg << color << " " << p.m_colorByValue << " " << p.m_point;
 		break;
 	    case StripIterator::END:
 		// end the previous segment
 		glVertex (p.m_point);
-		cdbg << p.m_point << endl;
+		//cdbg << p.m_point << endl;
 		break;
 	    default:
 		ThrowException ("Invalid location: ", p.m_location);
@@ -197,6 +200,7 @@ private:
      * Where to display the center path
      */
     GLWidget& m_widget;
+    CenterPathColor::Type m_centerPathColor;
 };
 
 

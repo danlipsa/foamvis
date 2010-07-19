@@ -140,9 +140,9 @@ ostream& operator<< (ostream& ostr, SemanticType::Name type)
     return ostr;
 }
 
-VectorMeasure::Type convert (CenterPathColorBy::Object colorBy)
+VectorMeasure::Type convert (CenterPathColor::Type colorBy)
 {
-    static const VectorMeasure::Type c[CenterPathColorBy::COUNT] = 
+    static const VectorMeasure::Type c[CenterPathColor::COUNT] = 
 	{VectorMeasure::X,
 	 VectorMeasure::X, VectorMeasure::Y, VectorMeasure::Z, 
 	 VectorMeasure::LENGTH};

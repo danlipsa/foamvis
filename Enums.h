@@ -150,10 +150,10 @@ struct VectorMeasure
     };
 };
 
-class CenterPathColorBy
+class CenterPathColor
 {
 public:
-    enum Object
+    enum Type
     {
 	NONE,
 	SPEED_ALONG_X,
@@ -166,7 +166,7 @@ public:
 
 
 
-VectorMeasure::Type convert (CenterPathColorBy::Object colorBy);
+VectorMeasure::Type convert (CenterPathColor::Type colorBy);
 
 #endif //__ENUMS_H__
 

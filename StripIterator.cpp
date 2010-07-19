@@ -37,7 +37,7 @@ StripIterator::StripPoint StripIterator::Next ()
 	    m_isNextBeginOfStrip = false;
 	}
 	else
-	{   // not at the end of a middle wrap
+	{   // not at the end of a middle wrap or last wrap
 	    colorByValue = getColorByValue ();
 	    location = m_isNextBeginOfStrip ? BEGIN : MIDDLE;
 	    m_isNextBeginOfStrip = false;
@@ -63,13 +63,13 @@ float StripIterator::getColorByValue () const
 {
     switch (m_colorBy)
     {
-    case CenterPathColorBy::SPEED_ALONG_X:
+    case CenterPathColor::SPEED_ALONG_X:
 	return getSpeedVector ().x;
-    case CenterPathColorBy::SPEED_ALONG_Y:
+    case CenterPathColor::SPEED_ALONG_Y:
 	return getSpeedVector ().y;
-    case CenterPathColorBy::SPEED_ALONG_Z:
+    case CenterPathColor::SPEED_ALONG_Z:
 	return getSpeedVector ().z;
-    case CenterPathColorBy::SPEED_TOTAL:
+    case CenterPathColor::SPEED_TOTAL:
 	return getSpeedVector ().length ();
     default:
 	return 0;

@@ -30,7 +30,8 @@ public:
     struct StripPoint
     {
 	StripPoint (G3D::Vector3 point, Location location, float colorByValue):
-	    m_point (point), m_location (location), m_colorByValue (colorByValue)
+	    m_point (point), m_location (location), 
+	    m_colorByValue (colorByValue)
 	{
 	}
 	
@@ -40,7 +41,7 @@ public:
     };
 
 public:
-    StripIterator (CenterPathColorBy::Object colorBy,
+    StripIterator (CenterPathColor::Type colorBy,
 		   const BodyAlongTime& bodyAlongTime,
 		   const FoamAlongTime& foamAlongTime) : 
 	m_timeStep (0), m_currentWrap (0), m_isNextBeginOfStrip (true),
@@ -64,7 +65,7 @@ private:
      */
     size_t m_currentWrap;
     bool m_isNextBeginOfStrip;
-    CenterPathColorBy::Object m_colorBy;
+    CenterPathColor::Type m_colorBy;
     const BodyAlongTime& m_bodyAlongTime;
     const FoamAlongTime& m_foamAlongTime;
 };

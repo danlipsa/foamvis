@@ -51,7 +51,7 @@ public:
     void CalculateSpeedRange (const FoamAlongTime& foamAlongTime);
 
     StripIterator GetStripIterator (
-	CenterPathColorBy::Object colorBy,
+	CenterPathColor::Type colorBy,
 	const FoamAlongTime& foamAlongTime) const
     {
 	return StripIterator (colorBy, *this, foamAlongTime);

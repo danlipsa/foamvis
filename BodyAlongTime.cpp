@@ -139,7 +139,7 @@ string BodyAlongTime::ToString () const
 void BodyAlongTime::CalculateSpeedRange (const FoamAlongTime& foamAlongTime)
 {
     StripIterator it = GetStripIterator (
-	CenterPathColorBy::NONE, foamAlongTime);
+	CenterPathColor::NONE, foamAlongTime);
     StripIterator::StripPoint prev = it.Next ();
     numeric_limits<float> floatLimits;
     fill (m_minSpeed.begin (), m_minSpeed.end (), floatLimits.max ());

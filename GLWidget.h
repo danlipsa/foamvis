@@ -193,6 +193,7 @@ public:
      * param checked true for showing the center paths false otherwise
      */
     void ToggledCenterPath (bool checked);
+    void ValueChangedCenterPathColor (int value);
 
 public Q_SLOTS:
     void CurrentIndexChangedInteractionMode (int index);
@@ -343,6 +344,7 @@ private:
     GLuint displayListCenterPaths ();
     void displayOriginalDomain ();
     void displayAABox ();
+    void displayCenterPaths ();
     void display (const G3D::AABox& aabox) const;
     void display (const OOBox& oobox) const;
 
@@ -432,7 +434,6 @@ private:
     int m_normalVertexSize;
     int m_normalEdgeWidth;
     float m_contextAlpha;
-    QColor m_centerPathColor;
 
     G3D::Matrix3 m_rotate;    
     G3D::Rect2D m_viewport;
@@ -463,6 +464,7 @@ private:
     boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> VIEW_TYPE_DISPLAY;
     QwtLinearColorMap* m_colorMap;
     QwtDoubleInterval* m_colorMapInterval;
+    CenterPathColor::Type m_centerPathColor;
 };
 
 #endif //__GLWIDGET_H__
