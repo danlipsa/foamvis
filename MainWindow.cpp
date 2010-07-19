@@ -421,7 +421,10 @@ void MainWindow::ToggledCenterPath (bool checked)
     if (checked)
 	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
     else
+    {
 	stackedWidgetComposite->setCurrentWidget (pageCompositeEmpty);
+	scaleWidgetColorBar->setVisible (false);
+    }
 }
 
 
@@ -464,9 +467,7 @@ void MainWindow::changeScaleWidgetInterval (const QwtDoubleInterval& interval)
 /*
     QwtScaleDiv scaleDiv;
     QwtValueList tickList;
-    tickList.append (interval.minValue ());
-
-    tickList.append (interval.maxValue ());
+    tickList.append ((interval.minValue () + interval.maxValue ()) / 2);
     scaleDiv.setInterval (interval);
     scaleDiv.setTicks (QwtScaleDiv::MajorTick, tickList);
     scaleWidgetColorBar->setScaleDiv (
