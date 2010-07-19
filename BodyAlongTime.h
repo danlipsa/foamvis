@@ -50,15 +50,22 @@ public:
     void CalculateBodyWraps (const FoamAlongTime& foamAlongTime);
     void CalculateSpeedRange (const FoamAlongTime& foamAlongTime);
 
-    StripIterator GetStripIterator (const FoamAlongTime& foamAlongTime) const
+    StripIterator GetStripIterator (
+	CenterPathColorBy::Object colorBy,
+	const FoamAlongTime& foamAlongTime) const
     {
-	return StripIterator (*this, foamAlongTime);
+	return StripIterator (colorBy, *this, foamAlongTime);
     }
 
-    const Wraps& GetWraps () const
+    size_t GetWrapSize () const
     {
-	return m_wraps;
+	return m_wraps.size ();
     }
+    size_t GetWrap (size_t i) const
+    {
+	return m_wraps[i];
+    }
+
     void Resize ();
     G3D::Vector3int16 GetTranslation (size_t i) const
     {

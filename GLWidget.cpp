@@ -243,7 +243,7 @@ void GLWidget::view (bool checked, ViewType view)
 	    enableLighting ();
 	else
 	    disableLighting ();
-	UpdateDisplay ();
+	UpdateDisplayList ();
     }
 }
 
@@ -344,7 +344,7 @@ void GLWidget::ResetTransformations ()
 {
     m_rotate = G3D::Matrix3::identity ();
     resizeGL (width (), height ());
-    UpdateDisplay ();
+    UpdateDisplayList ();
 }
 
 
@@ -719,15 +719,15 @@ GLuint GLWidget::displayListCenterPaths ()
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
-    qglColor (QColor (Qt::black));
     glLineWidth (1.0);
-
+    glPushAttrib (GL_CURRENT_BIT);
     const BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
     DisplayCenterPath displayCenterPath(*this);
     if (IsDisplayedAllBodies ())
 	for_each (bats.begin (), bats.end (), displayCenterPath);
     else
 	displayCenterPath (GetDisplayedBodyId ());
+    glPopAttrib ();
 
     if (IsCenterPathDisplayBody ())
     {
@@ -742,6 +742,7 @@ GLuint GLWidget::displayListCenterPaths ()
 
     displayOriginalDomain ();
     displayAABox ();
+
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
 
     glEndList();
@@ -778,20 +779,20 @@ bool GLWidget::IsDisplayedEdge (size_t oeI) const
 }
 
 
-bool GLWidget::DoesSelectBody () const
+bool GLWidget::doesSelectBody () const
 {
     return 
 	m_viewType != EDGES_TORUS &&
 	m_viewType != FACES_TORUS;
 }
 
-bool GLWidget::DoesSelectFace () const
+bool GLWidget::doesSelectFace () const
 {
     return 
 	m_displayedBodyIndex != DISPLAY_ALL;
 }
 
-bool GLWidget::DoesSelectEdge () const
+bool GLWidget::doesSelectEdge () const
 {
     return 
 	m_displayedFaceIndex != DISPLAY_ALL &&
@@ -801,76 +802,76 @@ bool GLWidget::DoesSelectEdge () const
 
 void GLWidget::IncrementDisplayedBody ()
 {
-    if (DoesSelectBody ())
+    if (doesSelectBody ())
     {
 	++m_displayedBodyIndex;
 	m_displayedFaceIndex = DISPLAY_ALL;
 	if (m_displayedBodyIndex == 
 	    GetFoamAlongTime ().GetFoam (0)->GetBodies ().size ())
 	    m_displayedBodyIndex = DISPLAY_ALL;
-	UpdateDisplay ();
+	UpdateDisplayList ();
     }
 }
 
 
 void GLWidget::IncrementDisplayedFace ()
 {
-    if (DoesSelectFace ())
+    if (doesSelectFace ())
     {
 	++m_displayedFaceIndex;
         Body& body = *GetCurrentFoam ().GetBodies ()[m_displayedBodyIndex];
         if (m_displayedFaceIndex == body.GetOrientedFaces ().size ())
             m_displayedFaceIndex = DISPLAY_ALL;
-	UpdateDisplay ();
+	UpdateDisplayList ();
     }
 }
 
 void GLWidget::IncrementDisplayedEdge ()
 {
-    if (DoesSelectEdge ())
+    if (doesSelectEdge ())
     {
 	++m_displayedEdgeIndex;
 	Face& face = *GetDisplayedFace ();
 	if (m_displayedEdgeIndex == face.GetOrientedEdges ().size ())
 	    m_displayedEdgeIndex = DISPLAY_ALL;
-	UpdateDisplay ();
+	UpdateDisplayList ();
     }
 }
 
 void GLWidget::DecrementDisplayedBody ()
 {
-    if (DoesSelectBody ())
+    if (doesSelectBody ())
     {
 	if (m_displayedBodyIndex == DISPLAY_ALL)
 	    m_displayedBodyIndex = 
 		GetFoamAlongTime ().GetFoam (0)->GetBodies ().size ();
 	--m_displayedBodyIndex;
 	m_displayedFaceIndex = DISPLAY_ALL;
-	UpdateDisplay ();
+	UpdateDisplayList ();
     }
 }
 
 void GLWidget::DecrementDisplayedFace ()
 {
-    if (DoesSelectFace ())
+    if (doesSelectFace ())
     {
         Body& body = *GetCurrentFoam ().GetBodies ()[m_displayedBodyIndex];
         if (m_displayedFaceIndex == DISPLAY_ALL)
             m_displayedFaceIndex = body.GetOrientedFaces ().size ();
 	--m_displayedFaceIndex;
-	UpdateDisplay ();
+	UpdateDisplayList ();
     }
 }
 
 void GLWidget::DecrementDisplayedEdge ()
 {
-    if (DoesSelectEdge ())
+    if (doesSelectEdge ())
     {
 	Face& face = *GetDisplayedFace ();
 	if (m_displayedEdgeIndex == DISPLAY_ALL)
 	    m_displayedEdgeIndex = face.GetOrientedEdges ().size ();
 	--m_displayedEdgeIndex;
-	UpdateDisplay ();
+	UpdateDisplayList ();
     }
 }
 
@@ -953,6 +954,14 @@ size_t GLWidget::GetDisplayedEdgeId () const
 }
 
 
+void GLWidget::UpdateDisplayList ()
+{
+    glDeleteLists(m_object, 1);
+    m_object = displayList (m_viewType);
+    updateGL ();
+}
+
+
 
 // Slots and slot like methods
 // ======================================================================
@@ -960,13 +969,13 @@ size_t GLWidget::GetDisplayedEdgeId () const
 void GLWidget::ToggledBoundingBox (bool checked)
 {
     m_boundingBox = checked;
-    UpdateDisplay ();
+    UpdateDisplayList ();
 }
 
 void GLWidget::ToggledCenterPathDisplayBody (bool checked)
 {
     m_centerPathDisplayBody = checked;
-    UpdateDisplay ();
+    UpdateDisplayList ();
 }
 
 void GLWidget::ToggledEdgesNormal (bool checked)
@@ -988,7 +997,7 @@ void GLWidget::ToggledEdgesTorusTubes (bool checked)
 void GLWidget::ToggledEdgesBodyCenter (bool checked)
 {
     m_edgesBodyCenter = checked;
-    UpdateDisplay ();
+    UpdateDisplayList ();
 }
 
 void GLWidget::ToggledFacesNormal (bool checked)
@@ -1010,20 +1019,20 @@ void GLWidget::ToggledFacesTorusTubes (bool checked)
 void GLWidget::ToggledEdgesTessellation (bool checked)
 {
     m_edgesTessellation = checked;
-    UpdateDisplay ();
+    UpdateDisplayList ();
 }
 
 
 void GLWidget::ToggledTorusOriginalDomainDisplay (bool checked)
 {
     m_torusOriginalDomainDisplay = checked;
-    UpdateDisplay ();
+    UpdateDisplayList ();
 }
 
 void GLWidget::ToggledTorusOriginalDomainClipped (bool checked)
 {
     m_torusOriginalDomainClipped = checked;
-    UpdateDisplay ();
+    UpdateDisplayList ();
 }
 
 void GLWidget::ToggledBodies (bool checked)
@@ -1045,7 +1054,7 @@ void GLWidget::CurrentIndexChangedInteractionMode (int index)
 void GLWidget::ValueChangedSliderData (int newIndex)
 {
     m_timeStep = newIndex;
-    UpdateDisplay ();
+    UpdateDisplayList ();
 }
 
 void GLWidget::ValueChangedAngleOfView (int newIndex)

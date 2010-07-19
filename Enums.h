@@ -45,7 +45,7 @@ public:
      * @param name color name
      * @return vector of RGBA components for the given color
      */
-    static const G3D::Color3& GetValue(Color::Name name);
+    static const G3D::Color3& GetValue(Color::Name name);    
     friend ostream& operator<< (ostream& ostr, Color::Name name);
 
 private:

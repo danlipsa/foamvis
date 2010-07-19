@@ -109,7 +109,7 @@ private:
     void setupSliderData (const FoamAlongTime& foamAlongTime);
     void configureInterface (const FoamAlongTime& foamAlongTime);
     void changeScaleWidgetInterval (const QwtDoubleInterval& interval);
-    void changeScaleWidgetInterval (VectorMeasure::Type vectorMeasure);
+    void changeScaleWidgetInterval (CenterPathColorBy::Object colorBy);
 
     void setupScaleWidget ();
     void calculateStats (const Foam& foam, size_t timeSteps);
@@ -150,6 +150,9 @@ private:
      */
     int m_currentFrame;
     string m_stats;
+
+    QwtLinearColorMap m_colorMap;
+    QwtDoubleInterval m_colorMapInterval;
 };
 
 #endif //__MAIN_WINDOW_H__

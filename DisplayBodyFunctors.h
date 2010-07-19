@@ -131,7 +131,10 @@ public:
      * Constructor
      * @param widget where to display the center path
      */
-    DisplayCenterPath (GLWidget& widget) : m_widget (widget) {}
+    DisplayCenterPath (GLWidget& widget) : 
+	m_widget (widget) 
+    {
+    }
     /**
      * Displays the center path for a certain body
      * @param bodyId what body to display the center path for
@@ -139,17 +142,42 @@ public:
     void operator () (size_t bodyId)
     {
 	const BodyAlongTime& bat = m_widget.GetBodyAlongTime (bodyId);
-	StripIterator it = bat.GetStripIterator (m_widget.GetFoamAlongTime ());
-	glBegin(GL_LINE_STRIP);
+	StripIterator it = bat.GetStripIterator (
+	    CenterPathColorBy::NONE, m_widget.GetFoamAlongTime ());
+	cdbg << "== bodyId: " << bodyId << " ==" << endl;
+	glBegin(GL_LINES);
 	while (it.HasNext ())
 	{
 	    StripIterator::StripPoint p = it.Next ();
-	    if (p.m_newStrip)
+	    QColor color;
+	    switch (p.m_location)
 	    {
-		glEnd ();
-		glBegin(GL_LINE_STRIP);
+	    case StripIterator::MIDDLE:
+		// end the previous segment
+		glVertex (p.m_point);
+		cdbg << p.m_point << endl;
+		// start a new segment
+		color = m_widget.MapScalar (p.m_colorByValue);
+		m_widget.qglColor (color);
+		glVertex (p.m_point);
+		cdbg << color << " " << p.m_point;
+		break;
+	    case StripIterator::BEGIN:
+		// start a new segment
+		color = m_widget.MapScalar (p.m_colorByValue);
+		m_widget.qglColor (color);
+		glVertex (p.m_point);
+		cdbg << "-- NEW strip --" << endl;
+		cdbg << color << " " << p.m_point;
+		break;
+	    case StripIterator::END:
+		// end the previous segment
+		glVertex (p.m_point);
+		cdbg << p.m_point << endl;
+		break;
+	    default:
+		ThrowException ("Invalid location: ", p.m_location);
 	    }
-	    glVertex (p.m_point);
 	}
 	glEnd ();
     }

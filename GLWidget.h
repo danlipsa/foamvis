@@ -137,12 +137,7 @@ public:
 	return m_quadric;
     }
 
-    void UpdateDisplay ()
-    {
-	setObject (&m_object, displayList (m_viewType));
-	updateGL ();
-    }
-
+    void UpdateDisplayList ();
     float GetArrowBaseRadius () const {return m_arrowBaseRadius;}
     float GetArrowHeight () const {return m_arrowHeight;}
     float GetEdgeRadius () const {return m_edgeRadius;}
@@ -160,6 +155,19 @@ public:
 	return m_centerPathDisplayBody;
     }
     void ResetTransformations ();
+    void SetColorMap (QwtLinearColorMap* colorMap,
+		      QwtDoubleInterval* colorMapInterval)
+    {
+	m_colorMap = colorMap;
+	m_colorMapInterval = colorMapInterval;
+    }
+    QColor MapScalar (float value)
+    {
+	if (m_colorMap == 0)
+	    return Qt::black;
+	else
+	    return m_colorMap->color (*m_colorMapInterval, value);
+    }
     
 
     // Slot like methods
@@ -370,24 +378,10 @@ private:
     void scaleViewport (const QPoint& position);
     void initViewTypeDisplay ();
 
-    bool DoesSelectBody () const;
-    bool DoesSelectFace () const;
-    bool DoesSelectEdge () const;
-
+    bool doesSelectBody () const;
+    bool doesSelectFace () const;
+    bool doesSelectEdge () const;
 private:
-    /**
-     * Dealocates the space occupied by  an old OpenGL object and stores a
-     * newObject
-     *
-     * @param object address where the  old object is stored and where the
-     * new object will be stored
-     * @param newObject the new object that will be stored
-     */
-    static void setObject (GLuint* object, GLuint newObject)
-    {
-	glDeleteLists(*object, 1);
-	*object = newObject;
-    }
     static void displayOpositeFaces (G3D::Vector3 origin,
 				     G3D::Vector3 faceFirst,
 				     G3D::Vector3 faceSecond,
@@ -467,6 +461,8 @@ private:
     bool m_centerPathDisplayBody;
     bool m_boundingBox;
     boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> VIEW_TYPE_DISPLAY;
+    QwtLinearColorMap* m_colorMap;
+    QwtDoubleInterval* m_colorMapInterval;
 };
 
 #endif //__GLWIDGET_H__

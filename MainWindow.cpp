@@ -28,6 +28,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     setupSliderData (foamAlongTime);
     setupScaleWidget ();
     widgetGl->SetFoamAlongTime (&foamAlongTime);
+    widgetGl->SetColorMap (0, 0);
     calculateStats (*foamAlongTime.GetFoam (0), foamAlongTime.GetTimeSteps ());
     updateStatus ();
     m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
@@ -250,7 +251,7 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 	{
 	    cdbg << "End body translation" << endl;
 	}
-	widgetGl->UpdateDisplay ();
+	widgetGl->UpdateDisplayList ();
 	break;
     }
 
@@ -282,7 +283,7 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 			widgetGl->GetCurrentFoam ().GetBodies ().size ();
 		}
 	    }
-	    widgetGl->UpdateDisplay ();
+	    widgetGl->UpdateDisplayList ();
 	}
 	catch (const exception& e)
 	{
@@ -359,7 +360,7 @@ void MainWindow::TimeoutTimer ()
 void MainWindow::ValueChangedSliderData (int value)
 {
     widgetGl->ValueChangedSliderData (value);
-    widgetGl->UpdateDisplay ();
+    widgetGl->UpdateDisplayList ();
     updateButtons ();
     updateStatus ();
     if (m_saveMovie)
@@ -424,26 +425,43 @@ void MainWindow::ToggledCenterPath (bool checked)
 }
 
 
-void MainWindow::changeScaleWidgetInterval (VectorMeasure::Type vm)
+void MainWindow::changeScaleWidgetInterval (CenterPathColorBy::Object colorBy)
 {
     const FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    changeScaleWidgetInterval (
-	QwtDoubleInterval (
-	    foamAlongTime.GetMinSpeed(vm), foamAlongTime.GetMaxSpeed(vm)));
+    switch (colorBy)
+    {
+    case CenterPathColorBy::SPEED_ALONG_X:
+    case CenterPathColorBy::SPEED_ALONG_Y:
+    case CenterPathColorBy::SPEED_ALONG_Z:
+    case CenterPathColorBy::SPEED_TOTAL:
+    {
+	VectorMeasure::Type vm = convert (colorBy);
+	changeScaleWidgetInterval (
+	    QwtDoubleInterval (
+		foamAlongTime.GetMinSpeed(vm), foamAlongTime.GetMaxSpeed(vm)));
+	break;
+    }
+    default:
+	break;
+    }
 }
 
 void MainWindow::changeScaleWidgetInterval (const QwtDoubleInterval& interval)
 {
     cdbg << "changeScaleWidgetInterval: (" 
 	 << interval.minValue () << ", " << interval.maxValue () << ")" << endl;
-/*
+    m_colorMapInterval = interval;
     QwtLinearScaleEngine scaleEngine;
+    scaleEngine.setAttribute (QwtScaleEngine::IncludeReference);
+    scaleEngine.setAttribute (QwtScaleEngine::Floating);
+    scaleEngine.setReference ((interval.minValue () + interval.maxValue ()) / 2);
+    scaleEngine.setMargins (0, 0);
     scaleWidgetColorBar->setScaleDiv (
 	scaleEngine.transformation (),
 	scaleEngine.divideScale (
-	    interval.minValue (), interval.maxValue (), 3, 0, 
-	    interval.width () / 4));
-*/
+	    interval.minValue (), interval.maxValue (), 3, 10));
+
+/*
     QwtScaleDiv scaleDiv;
     QwtValueList tickList;
     tickList.append (interval.minValue ());
@@ -453,9 +471,10 @@ void MainWindow::changeScaleWidgetInterval (const QwtDoubleInterval& interval)
     scaleDiv.setTicks (QwtScaleDiv::MajorTick, tickList);
     scaleWidgetColorBar->setScaleDiv (
 	new QwtScaleTransformation (QwtScaleTransformation::Linear), scaleDiv);
-    QwtLinearColorMap colorMap;
-    setupBlueRedColorMap (&colorMap);
-    scaleWidgetColorBar->setColorMap (interval, colorMap);
+*/
+    setupBlueRedColorMap (&m_colorMap);
+    scaleWidgetColorBar->setColorMap (interval, m_colorMap);
+    widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
 }
 
 
@@ -467,8 +486,9 @@ void MainWindow::ValueChangedColoredBy (int value)
 	scaleWidgetColorBar->setVisible (false);
     else
     {
-	changeScaleWidgetInterval (convert (colorBy));
+	changeScaleWidgetInterval (colorBy);
 	scaleWidgetColorBar->setVisible (true);
     }
+    widgetGl->UpdateDisplayList ();
 }
 

@@ -20,30 +20,41 @@ class FoamAlongTime;
 class StripIterator
 {
 public:
+    enum Location
+    {
+	BEGIN,
+	END,
+	MIDDLE,
+	COUNT
+    };
     struct StripPoint
     {
-	StripPoint (G3D::Vector3 point, bool newStrip):
-	    m_point (point), m_newStrip (newStrip)
+	StripPoint (G3D::Vector3 point, Location location, float colorByValue):
+	    m_point (point), m_location (location), m_colorByValue (colorByValue)
 	{
 	}
 	
 	G3D::Vector3 m_point;
-	/**
-	 * A strip ends and a new one begins. This variable is false for
-	 * the first vertex in the first strip.
-	 */
-	bool m_newStrip;
+	Location m_location;
+	float m_colorByValue;
     };
 
 public:
-    StripIterator (const BodyAlongTime& bodyAlongTime,
+    StripIterator (CenterPathColorBy::Object colorBy,
+		   const BodyAlongTime& bodyAlongTime,
 		   const FoamAlongTime& foamAlongTime) : 
-	m_timeStep (0), m_currentWrap (0), m_newStrip (false),
+	m_timeStep (0), m_currentWrap (0), m_isNextBeginOfStrip (true),
+	m_colorBy (colorBy),
 	m_bodyAlongTime (bodyAlongTime), m_foamAlongTime (foamAlongTime)
+	
     {
     }
     bool HasNext () const;
     StripPoint Next ();
+
+private:
+    float getColorByValue () const;
+    G3D::Vector3 getSpeedVector () const;
 
 private:
     size_t m_timeStep;
@@ -52,10 +63,8 @@ private:
      * to the end of the vector.
      */
     size_t m_currentWrap;
-    /**
-     * A strip ends and a new one begins.
-     */
-    bool m_newStrip;
+    bool m_isNextBeginOfStrip;
+    CenterPathColorBy::Object m_colorBy;
     const BodyAlongTime& m_bodyAlongTime;
     const FoamAlongTime& m_foamAlongTime;
 };
