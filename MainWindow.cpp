@@ -455,10 +455,13 @@ void MainWindow::changeScaleWidgetInterval (CenterPathColor::Type colorBy)
 void MainWindow::changeScaleWidgetInterval (const QwtDoubleInterval& interval)
 {
     m_colorMapInterval = interval;
+
+
     QwtLinearScaleEngine scaleEngine;
     scaleEngine.setAttribute (QwtScaleEngine::IncludeReference);
     scaleEngine.setAttribute (QwtScaleEngine::Floating);
-    scaleEngine.setReference ((interval.minValue () + interval.maxValue ()) / 2);
+    scaleEngine.setReference (
+	(interval.minValue () + interval.maxValue ()) / 2);
     scaleEngine.setMargins (0, 0);
     scaleWidgetColorBar->setScaleDiv (
 	scaleEngine.transformation (),
@@ -474,7 +477,8 @@ void MainWindow::changeScaleWidgetInterval (const QwtDoubleInterval& interval)
     scaleWidgetColorBar->setScaleDiv (
 	new QwtScaleTransformation (QwtScaleTransformation::Linear), scaleDiv);
 */
-    setupBlueRedColorMap (&m_colorMap);
+    //setupBlueRedColorMap (&m_colorMap);
+    setupRainbowColorMap (&m_colorMap);
     scaleWidgetColorBar->setColorMap (interval, m_colorMap);
 }
 
