@@ -29,15 +29,17 @@ public:
     };
     struct StripPoint
     {
-	StripPoint (G3D::Vector3 point, Location location, float colorByValue):
-	    m_point (point), m_location (location), 
-	    m_colorByValue (colorByValue)
+	StripPoint () :
+	    m_location (BEGIN) 
+	{
+	}
+	StripPoint (G3D::Vector3 point, Location location) :
+	    m_point (point), m_location (location)
 	{
 	}
 	
 	G3D::Vector3 m_point;
 	Location m_location;
-	float m_colorByValue;
     };
 
 public:
@@ -52,10 +54,7 @@ public:
     }
     bool HasNext () const;
     StripPoint Next ();
-
-private:
-    float getColorByValue () const;
-    G3D::Vector3 getSpeedVector () const;
+    float GetColorByValue (const StripPoint& p, const StripPoint& prev) const;
 
 private:
     size_t m_timeStep;

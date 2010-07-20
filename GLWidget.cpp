@@ -1113,7 +1113,7 @@ void GLWidget::displayOpositeFaces (G3D::Vector3 origin,
 void GLWidget::ValueChangedCenterPathColor (int value)
 {
     RuntimeAssert (value > 0 && 
-		  value < CenterPathColor::COUNT,
-		  "Invalid CenterPathColor");
+		   value < CenterPathColor::COUNT,
+		   "Invalid CenterPathColor: ", value);
     m_centerPathColor = static_cast<CenterPathColor::Type>(value);
 }

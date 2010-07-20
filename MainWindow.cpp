@@ -493,8 +493,8 @@ void MainWindow::ValueChangedColoredBy (int value)
 	widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
 	changeScaleWidgetInterval (colorBy);
 	scaleWidgetColorBar->setVisible (true);
+	widgetGl->ValueChangedCenterPathColor (value);
     }
-    widgetGl->ValueChangedCenterPathColor (value);
     widgetGl->UpdateDisplayList ();
 }
 

@@ -140,14 +140,15 @@ void BodyAlongTime::CalculateSpeedRange (const FoamAlongTime& foamAlongTime)
 {
     StripIterator it = GetStripIterator (
 	CenterPathColor::NONE, foamAlongTime);
-    StripIterator::StripPoint prev = it.Next ();
     numeric_limits<float> floatLimits;
     fill (m_minSpeed.begin (), m_minSpeed.end (), floatLimits.max ());
     fill (m_maxSpeed.begin (), m_maxSpeed.end (), floatLimits.min ());
+    StripIterator::StripPoint prev;
     while (it.HasNext ())
     {
 	StripIterator::StripPoint p = it.Next ();
-	if (p.m_location != StripIterator::BEGIN)
+	if (p.m_location != StripIterator::BEGIN &&
+	    prev.m_location != StripIterator::END)
 	{
 	    G3D::Vector3 speed = p.m_point - prev.m_point;
 	    for (int i = 0; i < 3; ++i)
@@ -161,4 +162,11 @@ void BodyAlongTime::CalculateSpeedRange (const FoamAlongTime& foamAlongTime)
 	}
 	prev = p;
     }
+    cdbg << "CalculateSpeedRange: " << GetBody (0)->GetId () << endl
+	 << "min: ";
+    ostream_iterator<float> out (cdbg, " ");
+    copy (m_minSpeed.begin (), m_minSpeed.end (), out);
+    cdbg << "max: ";
+    copy (m_maxSpeed.begin (), m_maxSpeed.end (), out);
+    cdbg << endl;
 }

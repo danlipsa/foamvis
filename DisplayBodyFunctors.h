@@ -147,40 +147,31 @@ public:
 	const BodyAlongTime& bat = m_widget.GetBodyAlongTime (bodyId);
 	StripIterator it = bat.GetStripIterator (
 	    m_centerPathColor, m_widget.GetFoamAlongTime ());
-	//cdbg << "== bodyId: " << bodyId << " ==" << endl;
 	glBegin(GL_LINES);
+	StripIterator::StripPoint prev;
 	while (it.HasNext ())
 	{
 	    StripIterator::StripPoint p = it.Next ();
-	    QColor color;
-	    switch (p.m_location)
+	    if (// middle or end of a segment
+		p.m_location != StripIterator::BEGIN &&
+		// the segment is not between two strips
+		prev.m_location != StripIterator::END)
 	    {
-	    case StripIterator::MIDDLE:
-		// end the previous segment
-		glVertex (p.m_point);
-		//cdbg << p.m_point << endl;
-		// start a new segment
-		color = m_widget.MapScalar (p.m_colorByValue);
+
+		float colorByValue = it.GetColorByValue (p, prev);
+		QColor color = m_widget.MapScalar (colorByValue);
 		m_widget.qglColor (color);
+		glVertex (prev.m_point);
 		glVertex (p.m_point);
-		//cdbg << color << " " << p.m_colorByValue << " " << p.m_point;
-		break;
-	    case StripIterator::BEGIN:
-		// start a new segment
-		color = m_widget.MapScalar (p.m_colorByValue);
-		m_widget.qglColor (color);
-		glVertex (p.m_point);
-		//cdbg << "-- NEW strip --" << endl;
-		//cdbg << color << " " << p.m_colorByValue << " " << p.m_point;
-		break;
-	    case StripIterator::END:
-		// end the previous segment
-		glVertex (p.m_point);
-		//cdbg << p.m_point << endl;
-		break;
-	    default:
-		ThrowException ("Invalid location: ", p.m_location);
+		/*
+		if (bodyId < 5)
+		    cdbg << "bodyId=" << bodyId << " "
+			 << prev.m_point << " " << p.m_point << " "
+			 << p.m_location << endl
+			 << "colorByValue=" << colorByValue << endl;
+		*/
 	    }
+	    prev = p;
 	}
 	glEnd ();
     }
