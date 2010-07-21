@@ -456,27 +456,16 @@ void MainWindow::changeScaleWidgetInterval (const QwtDoubleInterval& interval)
 {
     m_colorMapInterval = interval;
 
-
     QwtLinearScaleEngine scaleEngine;
-    scaleEngine.setAttribute (QwtScaleEngine::IncludeReference);
-    scaleEngine.setAttribute (QwtScaleEngine::Floating);
-    scaleEngine.setReference (
-	(interval.minValue () + interval.maxValue ()) / 2);
-    scaleEngine.setMargins (0, 0);
-    scaleWidgetColorBar->setScaleDiv (
-	scaleEngine.transformation (),
-	scaleEngine.divideScale (
-	    interval.minValue (), interval.maxValue (), 3, 10));
+    QwtScaleDiv scaleDiv = scaleEngine.divideScale (
+	interval.minValue (), interval.maxValue (), 0, 0);    
+    QwtValueList majorTicks;
+    majorTicks += (interval.minValue () + interval.maxValue()) / 2;
+    majorTicks += interval.minValue ();
+    majorTicks += interval.maxValue ();
+    scaleDiv.setTicks(QwtScaleDiv::MajorTick, majorTicks);    
+    scaleWidgetColorBar->setScaleDiv (scaleEngine.transformation (), scaleDiv);
 
-/*
-    QwtScaleDiv scaleDiv;
-    QwtValueList tickList;
-    tickList.append ((interval.minValue () + interval.maxValue ()) / 2);
-    scaleDiv.setInterval (interval);
-    scaleDiv.setTicks (QwtScaleDiv::MajorTick, tickList);
-    scaleWidgetColorBar->setScaleDiv (
-	new QwtScaleTransformation (QwtScaleTransformation::Linear), scaleDiv);
-*/
     //setupBlueRedColorMap (&m_colorMap);
     setupRainbowColorMap (&m_colorMap);
     scaleWidgetColorBar->setColorMap (interval, m_colorMap);
