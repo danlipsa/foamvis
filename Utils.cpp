@@ -9,6 +9,7 @@
 #include "DebugStream.h"
 
 const G3D::Vector3int16 Vector3int16Zero (0, 0, 0);
+const size_t HISTOGRAM_INTERVALS = 256;
 
 ostream& operator<< (ostream& ostr, const G3D::AABox& box)
 {

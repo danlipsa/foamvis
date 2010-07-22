@@ -64,6 +64,7 @@ inline float Luminance (const QColor& color)
 	(0.3 * color.redF () + 0.59 * color.greenF () + 0.11 * color.blueF ());
 }
 
+extern const size_t HISTOGRAM_INTERVALS;
 
 #endif //__ELEMENT_UTILS_H__
 

@@ -43,18 +43,33 @@ public:
     };
 
 public:
-    StripIterator (CenterPathColor::Type colorBy,
-		   const BodyAlongTime& bodyAlongTime,
+    StripIterator (const BodyAlongTime& bodyAlongTime,
 		   const FoamAlongTime& foamAlongTime) : 
 	m_timeStep (0), m_currentWrap (0), m_isNextBeginOfStrip (true),
-	m_colorBy (colorBy),
 	m_bodyAlongTime (bodyAlongTime), m_foamAlongTime (foamAlongTime)
 	
     {
     }
     bool HasNext () const;
     StripPoint Next ();
-    float GetColorByValue (const StripPoint& p, const StripPoint& prev) const;
+    static float GetColorByValue (CenterPathColor::Type colorBy,
+				  const StripPoint& p, const StripPoint& prev);
+
+    template <typename ProcessSegment> 
+    void ForEachSegment (ProcessSegment processSegment)
+    {
+	StripIterator::StripPoint prev;
+	while (HasNext ())
+	{
+	    StripIterator::StripPoint p = Next ();
+	    if (// middle or end of a segment
+		p.m_location != StripIterator::BEGIN &&
+		// the segment is not between two strips
+		prev.m_location != StripIterator::END)
+		processSegment (p, prev);
+	    prev = p;
+	}
+    }
 
 private:
     size_t m_timeStep;
@@ -64,7 +79,6 @@ private:
      */
     size_t m_currentWrap;
     bool m_isNextBeginOfStrip;
-    CenterPathColor::Type m_colorBy;
     const BodyAlongTime& m_bodyAlongTime;
     const FoamAlongTime& m_foamAlongTime;
 };

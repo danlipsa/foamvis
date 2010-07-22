@@ -29,6 +29,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     setupScaleWidget ();
     widgetGl->SetFoamAlongTime (&foamAlongTime);
     widgetGl->SetColorMap (0, 0);
+    widgetHistogram->setVisible (false);
     calculateStats (*foamAlongTime.GetFoam (0), foamAlongTime.GetTimeSteps ());
     updateStatus ();
     m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
@@ -82,7 +83,7 @@ void testColorMap ()
 
 void MainWindow::setupRainbowColorMap (QwtLinearColorMap* colorMap)
 {
-    testColorMap ();
+    //testColorMap ();
     const size_t COLORS = 256;
     colorMap->setColorInterval (RainbowColor (0), RainbowColor (1));
     colorMap->setMode (QwtLinearColorMap::FixedColors);
@@ -438,7 +439,7 @@ void MainWindow::changeScaleWidgetInterval (CenterPathColor::Type colorBy)
     case CenterPathColor::SPEED_ALONG_Z:
     case CenterPathColor::SPEED_TOTAL:
     {
-	VectorMeasure::Type vm = convert (colorBy);
+	VectorMeasure::Type vm = toVectorMeasure (colorBy);
 	QwtDoubleInterval interval(
 	    foamAlongTime.GetMinSpeed(vm), foamAlongTime.GetMaxSpeed(vm));
 	cdbg << "changeScaleWidgetInterval: " << vm << " ("
@@ -480,12 +481,17 @@ void MainWindow::ValueChangedColoredBy (int value)
     {
 	widgetGl->SetColorMap (0, 0);
 	scaleWidgetColorBar->setVisible (false);
+	widgetHistogram->setVisible (false);
     }
     else
     {
 	widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
 	changeScaleWidgetInterval (colorBy);
 	scaleWidgetColorBar->setVisible (true);
+	widgetHistogram->setVisible (true);
+	widgetHistogram->SetData (
+	    widgetGl->GetFoamAlongTime ().GetBodiesAlongTime ().
+	    GetSpeedValuesPerInterval (toVectorMeasure (colorBy)));
 	widgetGl->ValueChangedCenterPathColor (value);
     }
     widgetGl->UpdateDisplayList ();

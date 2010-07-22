@@ -97,6 +97,9 @@
              </widget>
             </item>
             <item>
+             <widget class="Histogram" name="widgetHistogram" native="true"/>
+            </item>
+            <item>
              <widget class="QLabel" name="labelStatus">
               <property name="minimumSize">
                <size>
@@ -236,7 +239,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>2</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="edges">
             <attribute name="title">
@@ -474,7 +477,7 @@
              <item>
               <widget class="QStackedWidget" name="stackedWidgetComposite">
                <property name="currentIndex">
-                <number>1</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="pageCompositeEmpty"/>
                <widget class="QWidget" name="pageCenterPath">
@@ -640,6 +643,12 @@
     <slot>ValueChangedAngleOfView(int)</slot>
     <slot>CurrentIndexChangedInteractionMode(int)</slot>
    </slots>
+  </customwidget>
+  <customwidget>
+   <class>Histogram</class>
+   <extends>QWidget</extends>
+   <header>Histogram.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

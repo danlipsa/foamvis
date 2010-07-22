@@ -166,7 +166,7 @@ public:
 
 
 
-VectorMeasure::Type convert (CenterPathColor::Type colorBy);
+VectorMeasure::Type toVectorMeasure (CenterPathColor::Type colorBy);
 
 #endif //__ENUMS_H__
 

@@ -8,10 +8,11 @@
 
 #include "Body.h"
 #include "BodyAlongTime.h"
-#include "FoamAlongTime.h"
-#include "Foam.h"
 #include "Debug.h"
 #include "DebugStream.h"
+#include "FoamAlongTime.h"
+#include "Foam.h"
+#include "Utils.h"
 
 
 // Private Functions
@@ -22,73 +23,27 @@ bool isNull (const boost::shared_ptr<Body>& body)
 }
 
 
-// BodiesAlongTime Methods
+// BodyAlongTimeStatistics Methods
 // ======================================================================
-BodyAlongTime& BodiesAlongTime::getBodyAlongTime (size_t id) const
+BodyAlongTimeStatistics::BodyAlongTimeStatistics () :
+    m_minSpeed (VectorMeasure::COUNT, numeric_limits<float> ().max ()),
+    m_maxSpeed (VectorMeasure::COUNT, numeric_limits<float> ().min ()),
+    m_speedValuesPerInterval (VectorMeasure::COUNT)
 {
-    BodyMap::const_iterator it = m_bodyMap.find (id);
-    RuntimeAssert (it != m_bodyMap.end (),
-		   "Body not found: ", id);
-    return *(it->second);
+    BOOST_FOREACH (vector<size_t>& v, m_speedValuesPerInterval)
+	v.resize (HISTOGRAM_INTERVALS, 0);
 }
-
-void BodiesAlongTime::Allocate (
-    const boost::shared_ptr<Body>  body, size_t timeSteps)
-{
-    size_t id = body->GetId ();
-    boost::shared_ptr<BodyAlongTime> oneBodyPtr (new BodyAlongTime (timeSteps));
-    m_bodyMap.insert (
-	BodyMap::value_type (id, oneBodyPtr));
-}
-
-void BodiesAlongTime::Cache (boost::shared_ptr<Body>  body, size_t timeStep)
-{
-    size_t id = body->GetId ();
-    m_bodyMap[id]->GetBody(timeStep) = body;
-}
-
-void BodiesAlongTime::Resize (const boost::shared_ptr<Body>  body)
-{
-    GetBodyAlongTime (body->GetId ()).Resize ();
-}
-
-void BodiesAlongTime::resize (size_t id, size_t timeSteps)
-{
-    m_bodyMap[id]->Resize (timeSteps);
-}
-
-string BodiesAlongTime::ToString () const
-{
-    ostringstream ostr;
-    for (BodiesAlongTime::BodyMap::const_iterator it = m_bodyMap.begin ();
-	 it != m_bodyMap.end(); ++it)
-	ostr << *(it->second) << endl;
-    return ostr.str ();
-}
-
-void BodiesAlongTime::CalculateSpeedRange (const FoamAlongTime& foamAlongTime)
-{
-    numeric_limits<float> floatLimits;
-    fill (m_minSpeed.begin (), m_minSpeed.end (), floatLimits.max ());
-    fill (m_maxSpeed.begin (), m_maxSpeed.end (), floatLimits.min ());
-    BOOST_FOREACH (BodyMap::value_type p, GetBodyMap ())
-    {
-	BodyAlongTime& bat = *p.second;
-	bat.CalculateSpeedRange (foamAlongTime);
-	for (size_t i = 0; i < VectorMeasure::COUNT; i++)
-	{
-	    VectorMeasure::Type vm = static_cast<VectorMeasure::Type>(i);
-	    m_minSpeed[i] = min (m_minSpeed[i], bat.GetMinSpeed (vm));
-	    m_maxSpeed[i] = max (m_maxSpeed[i], bat.GetMaxSpeed (vm));
-	}
-    }
-}
-
-
 
 
 // BodyAlongTime Methods
 // ======================================================================
+
+BodyAlongTime::BodyAlongTime (size_t timeSteps) :
+    BodyAlongTimeStatistics (),
+    m_bodyAlongTime (timeSteps)
+{
+}
+
 void BodyAlongTime::CalculateBodyWraps (const FoamAlongTime& foamAlongTime)
 {
     if (foamAlongTime.GetFoam (0)->IsTorus ())
@@ -135,38 +90,165 @@ string BodyAlongTime::ToString () const
     return ostr.str ();
 }
 
+void BodyAlongTime::speedRangeStep (
+    const StripIterator::StripPoint& p,
+    const StripIterator::StripPoint& prev)
+{
+    G3D::Vector3 speed = p.m_point - prev.m_point;
+    boost::array<float, 4> speedComponents = 
+	{{speed.x, speed.y, speed.z, speed.length ()}};
+    for (size_t i = 0; i < m_minSpeed.size (); ++i)
+    {
+	m_minSpeed[i] = min (m_minSpeed[i], speedComponents[i]);
+	m_maxSpeed[i] = max (m_maxSpeed[i], speedComponents[i]);
+    }
+}
+
+void BodyAlongTime::speedValuesPerIntervalStep (
+    const StripIterator::StripPoint& p,
+    const StripIterator::StripPoint& prev)
+{
+    G3D::Vector3 speed = p.m_point - prev.m_point;
+    boost::array<float, 4> speedComponents = 
+	{{speed.x, speed.y, speed.z, speed.length ()}};
+    for (size_t i = 0; i < speedComponents.size (); ++i)
+    {
+	float beginInterval = GetMinSpeed (i);
+	float endInterval = GetMaxSpeed (i);
+	float step = (endInterval - beginInterval) / HISTOGRAM_INTERVALS;
+	float value = speedComponents[i];
+	size_t bin = floor ((value - beginInterval) / step);
+	if (bin == HISTOGRAM_INTERVALS)
+	    bin = HISTOGRAM_INTERVALS - 1;
+	++m_speedValuesPerInterval[i][bin];
+    }
+}
+
 
 void BodyAlongTime::CalculateSpeedRange (const FoamAlongTime& foamAlongTime)
 {
-    StripIterator it = GetStripIterator (
-	CenterPathColor::NONE, foamAlongTime);
-    numeric_limits<float> floatLimits;
-    fill (m_minSpeed.begin (), m_minSpeed.end (), floatLimits.max ());
-    fill (m_maxSpeed.begin (), m_maxSpeed.end (), floatLimits.min ());
-    StripIterator::StripPoint prev;
-    while (it.HasNext ())
+    StripIterator it = GetStripIterator (foamAlongTime);
+    it.ForEachSegment (
+	boost::bind (&BodyAlongTime::speedRangeStep, this, _1, _2));
+}
+
+void BodyAlongTime::CalculateSpeedValuesPerInterval (
+    const FoamAlongTime& foamAlongTime)
+{
+    StripIterator it = GetStripIterator (foamAlongTime);
+    it.ForEachSegment (
+	boost::bind (&BodyAlongTime::speedValuesPerIntervalStep, this, _1, _2));
+}
+
+size_t BodyAlongTime::GetId () const
+{
+    return m_bodyAlongTime[0]->GetId ();
+}
+
+
+
+// BodiesAlongTime Methods
+// ======================================================================
+BodiesAlongTime::BodiesAlongTime () :
+    BodyAlongTimeStatistics ()
+{
+}
+
+BodyAlongTime& BodiesAlongTime::getBodyAlongTime (size_t id) const
+{
+    BodyMap::const_iterator it = m_bodyMap.find (id);
+    RuntimeAssert (it != m_bodyMap.end (),
+		   "Body not found: ", id);
+    return *(it->second);
+}
+
+void BodiesAlongTime::Allocate (
+    const boost::shared_ptr<Body>  body, size_t timeSteps)
+{
+    size_t id = body->GetId ();
+    boost::shared_ptr<BodyAlongTime> oneBodyPtr (new BodyAlongTime (timeSteps));
+    m_bodyMap.insert (
+	BodyMap::value_type (id, oneBodyPtr));
+}
+
+void BodiesAlongTime::Cache (boost::shared_ptr<Body>  body, size_t timeStep)
+{
+    size_t id = body->GetId ();
+    m_bodyMap[id]->GetBody(timeStep) = body;
+}
+
+void BodiesAlongTime::Resize (const boost::shared_ptr<Body>  body)
+{
+    GetBodyAlongTime (body->GetId ()).Resize ();
+}
+
+void BodiesAlongTime::resize (size_t id, size_t timeSteps)
+{
+    m_bodyMap[id]->Resize (timeSteps);
+}
+
+string BodiesAlongTime::ToString () const
+{
+    ostringstream ostr;
+    for (BodiesAlongTime::BodyMap::const_iterator it = m_bodyMap.begin ();
+	 it != m_bodyMap.end(); ++it)
+	ostr << *(it->second) << endl;
+    return ostr.str ();
+}
+
+void BodiesAlongTime::CalculateSpeedRange (const FoamAlongTime& foamAlongTime)
+{
+    BOOST_FOREACH (BodyMap::value_type p, GetBodyMap ())
     {
-	StripIterator::StripPoint p = it.Next ();
-	if (p.m_location != StripIterator::BEGIN &&
-	    prev.m_location != StripIterator::END)
+	BodyAlongTime& bat = *p.second;
+	bat.CalculateSpeedRange (foamAlongTime);
+	for (size_t i = 0; i < m_minSpeed.size (); i++)
 	{
-	    G3D::Vector3 speed = p.m_point - prev.m_point;
-	    for (int i = 0; i < 3; ++i)
-	    {
-		m_minSpeed[i] = min (m_minSpeed[i], speed[i]);
-		m_maxSpeed[i] = max (m_maxSpeed[i], speed[i]);
-	    }
-	    float speedLength = speed.length ();
-	    m_minSpeed[3] = min (m_minSpeed[3], speedLength);
-	    m_maxSpeed[3] = max (m_maxSpeed[3], speedLength);
+	    m_minSpeed[i] = min (m_minSpeed[i], bat.GetMinSpeed (i));
+	    m_maxSpeed[i] = max (m_maxSpeed[i], bat.GetMaxSpeed (i));
 	}
-	prev = p;
     }
-    cdbg << "CalculateSpeedRange: " << GetBody (0)->GetId () << endl
-	 << "min: ";
-    ostream_iterator<float> out (cdbg, " ");
-    copy (m_minSpeed.begin (), m_minSpeed.end (), out);
-    cdbg << "max: ";
-    copy (m_maxSpeed.begin (), m_maxSpeed.end (), out);
-    cdbg << endl;
+}
+
+void BodiesAlongTime::CalculateSpeedValuesPerInterval (
+    const FoamAlongTime& foamAlongTime)
+{
+    BOOST_FOREACH (BodyMap::value_type p, GetBodyMap ())
+    {
+	BodyAlongTime& bat = *p.second;
+	bat.CalculateSpeedValuesPerInterval (foamAlongTime);
+	for (size_t i = 0; i < m_minSpeed.size (); i++)
+	{
+
+	    for (size_t bin = 0; bin < HISTOGRAM_INTERVALS; ++bin)
+	    {
+		size_t valuesPerBin = bat.GetSpeedValuesPerInterval(i, bin);
+		m_speedValuesPerInterval[i][bin] += valuesPerBin;
+		if (valuesPerBin > 100)
+		    cdbg << "Values per body " << bat.GetId () << " per bin " 
+			 << bin << " per speed component " << i << " are " 
+			 << valuesPerBin << endl;
+	    }
+	}
+    }
+}
+
+QwtIntervalData BodiesAlongTime::GetSpeedValuesPerInterval (
+    size_t speedComponent) const
+{
+    QwtArray<QwtDoubleInterval> intervals (HISTOGRAM_INTERVALS);
+    QwtArray<double> values (HISTOGRAM_INTERVALS);
+    float beginInterval = GetMinSpeed (speedComponent);
+    float endInterval = GetMaxSpeed (speedComponent);
+    float step = (endInterval - beginInterval) / HISTOGRAM_INTERVALS;
+    float pos = beginInterval;
+    for (size_t bin = 0; bin < HISTOGRAM_INTERVALS; ++bin)
+    {
+	intervals[bin] = QwtDoubleInterval (pos, pos + step);
+	values[bin] = 
+	    BodyAlongTimeStatistics::GetSpeedValuesPerInterval (
+		speedComponent, bin);
+	pos += step;
+    }
+    return QwtIntervalData (intervals, values);
 }

@@ -5,7 +5,7 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h \
 	DisplayEdgeFunctors.h DisplayElement.h \
 	Edge.h Element.h ExpressionTree.h Enums.h\
 	Foam.h FoamAlongTime.h Face.h \
-	GLWidget.h Hashes.h \
+	GLWidget.h Hashes.h Histogram.h histogram_item.h\
 	MainWindow.h NameSemanticValue.h \
 	OOBox.h OrientedElement.h\
 	OrientedEdge.h OrientedFace.h OrientedFaceIndex.h \
@@ -17,7 +17,8 @@ SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	Comparisons.cpp Debug.cpp DebugStream.cpp Edge.cpp \
 	Element.cpp ExpressionTree.cpp Enums.cpp\
 	Foam.cpp FoamAlongTime.cpp Face.cpp \
-	GLWidget.cpp Hashes.cpp main.cpp MainWindow.cpp  \
+	GLWidget.cpp Hashes.cpp Histogram.cpp histogram_item.cpp\
+	main.cpp MainWindow.cpp  \
 	NameSemanticValue.cpp \
 	OOBox.cpp OrientedElement.cpp\
 	OrientedEdge.cpp OrientedFace.cpp OrientedFaceIndex.cpp\

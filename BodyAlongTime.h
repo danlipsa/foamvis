@@ -14,7 +14,57 @@ class FoamAlongTime;
 #include "StripIterator.h"
 #include "Enums.h"
 
-class BodyAlongTime
+class BodyAlongTimeStatistics
+{
+public:
+    BodyAlongTimeStatistics ();
+    float GetMinSpeed (VectorMeasure::Type i) const
+    {
+	return m_minSpeed[i];
+    }
+    float GetMinSpeed (size_t i) const
+    {
+	return m_minSpeed[i];
+    }
+    float GetMaxSpeed (VectorMeasure::Type i) const
+    {
+	return m_maxSpeed[i];
+    }
+    float GetMaxSpeed (size_t i) const
+    {
+	return m_maxSpeed[i];
+    }
+    size_t GetSpeedValuesPerInterval (size_t i, size_t bin) const
+    {
+	return m_speedValuesPerInterval[i][bin];
+    }
+    size_t GetSpeedValuesPerInterval (VectorMeasure::Type i, size_t bin) const
+    {
+	return m_speedValuesPerInterval[i][bin];
+    }
+
+    virtual void CalculateSpeedRange (const FoamAlongTime& foamAlongTime) = 0;
+    virtual void CalculateSpeedValuesPerInterval (
+	const FoamAlongTime& foamAlongTime) = 0;
+
+protected:
+    /**
+     * Min speed along X, Y, Z and total
+     */
+    vector<float> m_minSpeed;
+    /**
+     * Max speed along X, Y, Z and total
+     */
+    vector<float> m_maxSpeed;
+    /**
+     * Divide the speed range in HISTOGRAM_INTERVALS intervals.
+     * This array tells us how many speed values you have in each interval.
+     */
+    vector< vector <size_t> > m_speedValuesPerInterval;
+};
+
+
+class BodyAlongTime : public BodyAlongTimeStatistics
 {
 public:
     typedef vector<boost::shared_ptr<Body> > Bodies;
@@ -22,13 +72,13 @@ public:
     typedef vector<G3D::Vector3int16> Translations;
 
 public:
-    BodyAlongTime (size_t timeSteps) :
-	m_bodyAlongTime (timeSteps)
-    {}
+    BodyAlongTime (size_t timeSteps);
+
     boost::shared_ptr<Body>& GetBody (size_t timeStep)
     {
 	return m_bodyAlongTime[timeStep];
     }
+    size_t GetId () const;
     const boost::shared_ptr<Body>& GetBody (size_t timeStep) const
     {
 	return m_bodyAlongTime[timeStep];
@@ -48,13 +98,14 @@ public:
      * than 1/2 of min all sides of the original domain
      */
     void CalculateBodyWraps (const FoamAlongTime& foamAlongTime);
-    void CalculateSpeedRange (const FoamAlongTime& foamAlongTime);
+    virtual void CalculateSpeedRange (const FoamAlongTime& foamAlongTime);
+    virtual void CalculateSpeedValuesPerInterval (
+	const FoamAlongTime& foamAlongTime);
 
     StripIterator GetStripIterator (
-	CenterPathColor::Type colorBy,
 	const FoamAlongTime& foamAlongTime) const
     {
-	return StripIterator (colorBy, *this, foamAlongTime);
+	return StripIterator (*this, foamAlongTime);
     }
 
     size_t GetWrapSize () const
@@ -72,18 +123,17 @@ public:
 	return m_translations[i];
     }
     string ToString () const;
-    float GetMinSpeed (VectorMeasure::Type i) const
-    {
-	return m_minSpeed[i];
-    }
-    float GetMaxSpeed (VectorMeasure::Type i) const
-    {
-	return m_maxSpeed[i];
-    }
 
 public:
     friend ostream& operator<< (
 	ostream& ostr, const BodyAlongTime& bodyAlongTime);
+
+private:
+    void speedRangeStep (const StripIterator::StripPoint& p,
+			 const StripIterator::StripPoint& prev);
+    void speedValuesPerIntervalStep (const StripIterator::StripPoint& p,
+				     const StripIterator::StripPoint& prev);
+
 
 private:
     Bodies m_bodyAlongTime;
@@ -98,21 +148,15 @@ private:
      * @see Wraps
      */
     Translations m_translations;
-    /**
-     * Min speed along X, Y, Z and total
-     */
-    boost::array<float, 4> m_minSpeed;
-    /**
-     * Max speed along X, Y, Z and total
-     */
-    boost::array<float, 4> m_maxSpeed;
 };
 
-
-class BodiesAlongTime
+class BodiesAlongTime : public BodyAlongTimeStatistics
 {
 public:
     typedef map <size_t, boost::shared_ptr<BodyAlongTime> > BodyMap;
+
+public:
+    BodiesAlongTime ();
 
     size_t GetBodyCount ()
     {
@@ -139,16 +183,11 @@ public:
     {
 	return getBodyAlongTime (id);
     }
-    void CalculateSpeedRange (const FoamAlongTime& foamAlongTime);
-    float GetMinSpeed (VectorMeasure::Type i) const
-    {
-	return m_minSpeed[i];
-    }
-    float GetMaxSpeed (VectorMeasure::Type i) const
-    {
-	return m_maxSpeed[i];
-    }
+    virtual void CalculateSpeedRange (const FoamAlongTime& foamAlongTime);
+    virtual void CalculateSpeedValuesPerInterval (
+	const FoamAlongTime& foamAlongTime);
     string ToString () const;
+    QwtIntervalData GetSpeedValuesPerInterval (size_t speedComponent) const;
 
 private:
     void resize (size_t bodyOriginalIndex, size_t timeSteps);
@@ -159,14 +198,6 @@ private:
      * Map between the original index of the body and the body along time
      */
     BodyMap m_bodyMap;
-    /**
-     * Min speed along X, Y, Z and total
-     */
-    boost::array<float, 4> m_minSpeed;
-    /**
-     * Max speed along X, Y, Z and total
-     */
-    boost::array<float, 4> m_maxSpeed;
 };
 
 inline ostream& operator<< (ostream& ostr, const BodyAlongTime& bat)

@@ -56,12 +56,12 @@ StripIterator::StripPoint StripIterator::Next ()
     }
 }
 
-float StripIterator::GetColorByValue (
-    const StripPoint& p, const StripPoint& prev) const
+float StripIterator::GetColorByValue (CenterPathColor::Type colorBy,
+    const StripPoint& p, const StripPoint& prev)
 {
     RuntimeAssert (p.m_location != BEGIN, "Invalid strip piece");
     G3D::Vector3 speedVector = p.m_point - prev.m_point;
-    switch (m_colorBy)
+    switch (colorBy)
     {
     case CenterPathColor::SPEED_ALONG_X:
 	return speedVector.x;
@@ -75,4 +75,3 @@ float StripIterator::GetColorByValue (
 	return 0;
     }
 }
-

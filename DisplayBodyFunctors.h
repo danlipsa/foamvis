@@ -145,37 +145,12 @@ public:
     void operator () (size_t bodyId)
     {
 	const BodyAlongTime& bat = m_widget.GetBodyAlongTime (bodyId);
-	StripIterator it = bat.GetStripIterator (
-	    m_centerPathColor, m_widget.GetFoamAlongTime ());
+	StripIterator it = bat.GetStripIterator (m_widget.GetFoamAlongTime ());
 	glBegin(GL_LINES);
-	StripIterator::StripPoint prev;
-	while (it.HasNext ())
-	{
-	    StripIterator::StripPoint p = it.Next ();
-	    if (// middle or end of a segment
-		p.m_location != StripIterator::BEGIN &&
-		// the segment is not between two strips
-		prev.m_location != StripIterator::END)
-	    {
-
-		float colorByValue = it.GetColorByValue (p, prev);
-		QColor color = m_widget.MapScalar (colorByValue);
-		m_widget.qglColor (color);
-		glVertex (prev.m_point);
-		glVertex (p.m_point);
-		/*
-		if (bodyId < 5)
-		    cdbg << "bodyId=" << bodyId << " "
-			 << prev.m_point << " " << p.m_point << " "
-			 << p.m_location << endl
-			 << "colorByValue=" << colorByValue << endl;
-		*/
-	    }
-	    prev = p;
-	}
+	it.ForEachSegment (
+	    boost::bind (&DisplayCenterPath::speedRangeStep, this, _1, _2));
 	glEnd ();
     }
-
 
     /**
      * Helper function which calls operator () (size_t bodyId).
@@ -184,6 +159,19 @@ public:
     inline void operator () (const BodiesAlongTime::BodyMap::value_type& p)
     {
 	operator() (p.first);
+    }
+
+private:
+    void speedRangeStep (
+	const StripIterator::StripPoint& p,
+	const StripIterator::StripPoint& prev)
+    {
+	float colorByValue = StripIterator::GetColorByValue (
+	    m_centerPathColor, p, prev);
+	QColor color = m_widget.MapScalar (colorByValue);
+	m_widget.qglColor (color);
+	glVertex (prev.m_point);
+	glVertex (p.m_point);
     }
 
 private:
