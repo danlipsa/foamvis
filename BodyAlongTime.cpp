@@ -219,12 +219,11 @@ void BodiesAlongTime::CalculateSpeedValuesPerInterval (
 	bat.CalculateSpeedValuesPerInterval (foamAlongTime);
 	for (size_t i = 0; i < m_minSpeed.size (); i++)
 	{
-
 	    for (size_t bin = 0; bin < HISTOGRAM_INTERVALS; ++bin)
 	    {
 		size_t valuesPerBin = bat.GetSpeedValuesPerInterval(i, bin);
 		m_speedValuesPerInterval[i][bin] += valuesPerBin;
-		if (valuesPerBin > 100)
+		if (m_speedValuesPerInterval[i][bin] > 700 && i != 2)
 		    cdbg << "Values per body " << bat.GetId () << " per bin " 
 			 << bin << " per speed component " << i << " are " 
 			 << valuesPerBin << endl;
