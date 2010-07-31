@@ -57,19 +57,32 @@ AttributesInfo::AttributesInfo () :
 m_currentIndex(0), m_loadAll (false)
 {}
 
-void AttributesInfo::AddAttributeInfo (
+size_t AttributesInfo::AddAttributeInfo (
     const char* name, auto_ptr<AttributeCreator> creator)
 {
     if (m_loadAll || 
         m_loadAttribute.find (name) != m_loadAttribute.end ())
-        m_nameInfo[name] = new AttributeInfo (m_currentIndex++, creator);
+    {
+        m_nameInfo[name] = new AttributeInfo (m_currentIndex, creator);
+	return m_currentIndex++;
+    }
     else
     {
 	auto_ptr<AttributeCreator> nullPtr;
         m_nameInfo[name] = new AttributeInfo (
 	    AttributeInfo::INVALID_INDEX, nullPtr);
+	return AttributeInfo::INVALID_INDEX;
     }
 }
+
+size_t AttributesInfo::AddAttributeInfoLoad (
+    const char* name, auto_ptr<AttributeCreator> creator)
+{
+    m_loadAttribute.insert (name);
+    return AddAttributeInfo (name, creator);
+}
+
+
 
 const char* AttributesInfo::GetAttributeName (size_t index) const
 {

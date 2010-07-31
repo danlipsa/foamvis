@@ -420,11 +420,15 @@ void MainWindow::ToggledCenterPath (bool checked)
 {
     widgetGl->ToggledCenterPath (checked);
     if (checked)
+    {
 	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
+	ValueChangedColoredBy (CenterPathColor::NONE);
+    }
     else
     {
 	stackedWidgetComposite->setCurrentWidget (pageCompositeEmpty);
 	scaleWidgetColorBar->setVisible (false);
+	widgetHistogram->setVisible (false);	
     }
 }
 
@@ -439,10 +443,10 @@ void MainWindow::changeScaleWidgetInterval (CenterPathColor::Type colorBy)
     case CenterPathColor::SPEED_ALONG_Z:
     case CenterPathColor::SPEED_TOTAL:
     {
-	VectorMeasure::Type vm = toVectorMeasure (colorBy);
 	QwtDoubleInterval interval(
-	    foamAlongTime.GetMinSpeed(vm), foamAlongTime.GetMaxSpeed(vm));
-	cdbg << "changeScaleWidgetInterval: " << vm << " ("
+	    foamAlongTime.GetMin(colorBy), 
+	    foamAlongTime.GetMax(colorBy));
+	cdbg << "changeScaleWidgetInterval: " << colorBy << " ("
 	     << interval.minValue () << ", " 
 	     << interval.maxValue () << ")" << endl;
 	changeScaleWidgetInterval (interval);
@@ -475,6 +479,7 @@ void MainWindow::changeScaleWidgetInterval (const QwtDoubleInterval& interval)
 
 void MainWindow::ValueChangedColoredBy (int value)
 {
+    comboBoxColoredBy->setCurrentIndex (value);
     CenterPathColor::Type colorBy = 
 	static_cast<CenterPathColor::Type>(value);
     if (colorBy == CenterPathColor::NONE)
@@ -488,10 +493,15 @@ void MainWindow::ValueChangedColoredBy (int value)
 	widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
 	changeScaleWidgetInterval (colorBy);
 	scaleWidgetColorBar->setVisible (true);
+
 	widgetHistogram->setVisible (true);
 	widgetHistogram->SetData (
 	    widgetGl->GetFoamAlongTime ().GetBodiesAlongTime ().
-	    GetSpeedValuesPerInterval (toVectorMeasure (colorBy)));
+	    GetValuesPerInterval (colorBy));
+	widgetHistogram->setTitle (
+	    QString(CenterPathColor::ToString (colorBy).c_str()));
+	widgetHistogram->replot ();
+
 	widgetGl->ValueChangedCenterPathColor (value);
     }
     widgetGl->UpdateDisplayList ();

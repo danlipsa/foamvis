@@ -48,14 +48,6 @@ public:
     bool operator== (const Vertex& other) const;
     string ToString () const;
 
-public:
-    /**
-     * Specifies the default attributes for the Vertex object.
-     * These attributes don't appear as a DEFINE in the .DMP file
-     * @param info the object where the default attributes are stored.
-     */
-    static void StoreDefaultAttributes (AttributesInfo* info);
-
 private:
     class storeByDomain
     {

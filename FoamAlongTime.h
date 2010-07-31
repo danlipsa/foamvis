@@ -86,13 +86,13 @@ public:
     {
 	return m_filePattern;
     }
-    float GetMinSpeed (VectorMeasure::Type i) const
+    float GetMin (CenterPathColor::Type i) const
     {
-	return GetBodiesAlongTime ().GetMinSpeed (i);
+	return GetBodiesAlongTime ().GetMin (i);
     }
-    float GetMaxSpeed (VectorMeasure::Type i) const
+    float GetMax (CenterPathColor::Type i) const
     {
-	return GetBodiesAlongTime ().GetMaxSpeed (i);
+	return GetBodiesAlongTime ().GetMax (i);
     }
 
 

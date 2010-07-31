@@ -26,11 +26,11 @@ bool isNull (const boost::shared_ptr<Body>& body)
 // BodyAlongTimeStatistics Methods
 // ======================================================================
 BodyAlongTimeStatistics::BodyAlongTimeStatistics () :
-    m_minSpeed (VectorMeasure::COUNT, numeric_limits<float> ().max ()),
-    m_maxSpeed (VectorMeasure::COUNT, numeric_limits<float> ().min ()),
-    m_speedValuesPerInterval (VectorMeasure::COUNT)
+    m_min (CenterPathColor::COUNT, numeric_limits<float> ().max ()),
+    m_max (CenterPathColor::COUNT, numeric_limits<float> ().min ()),
+    m_valuesPerInterval (CenterPathColor::COUNT)
 {
-    BOOST_FOREACH (vector<size_t>& v, m_speedValuesPerInterval)
+    BOOST_FOREACH (vector<size_t>& v, m_valuesPerInterval)
 	v.resize (HISTOGRAM_INTERVALS, 0);
 }
 
@@ -97,12 +97,22 @@ void BodyAlongTime::speedRangeStep (
     G3D::Vector3 speed = p.m_point - prev.m_point;
     boost::array<float, 4> speedComponents = 
 	{{speed.x, speed.y, speed.z, speed.length ()}};
-    for (size_t i = 0; i < m_minSpeed.size (); ++i)
+    for (size_t i = 0; i < m_min.size (); ++i)
     {
-	m_minSpeed[i] = min (m_minSpeed[i], speedComponents[i]);
-	m_maxSpeed[i] = max (m_maxSpeed[i], speedComponents[i]);
+	m_min[i] = min (m_min[i], speedComponents[i]);
+	m_max[i] = max (m_max[i], speedComponents[i]);
     }
 }
+
+void BodyAlongTime::rangeStep (
+    const boost::shared_ptr<Body>& body)
+{
+    m_min[CenterPathColor::PRESSURE] = 
+	min (m_min[CenterPathColor::PRESSURE], body->GetPressure ());
+    m_max[CenterPathColor::PRESSURE] = 
+	max (m_max[CenterPathColor::PRESSURE], body->GetPressure ());
+}
+
 
 void BodyAlongTime::speedValuesPerIntervalStep (
     const StripIterator::StripPoint& p,
@@ -112,32 +122,48 @@ void BodyAlongTime::speedValuesPerIntervalStep (
     boost::array<float, 4> speedComponents = 
 	{{speed.x, speed.y, speed.z, speed.length ()}};
     for (size_t i = 0; i < speedComponents.size (); ++i)
-    {
-	float beginInterval = GetMinSpeed (i);
-	float endInterval = GetMaxSpeed (i);
-	float step = (endInterval - beginInterval) / HISTOGRAM_INTERVALS;
-	float value = speedComponents[i];
-	size_t bin = floor ((value - beginInterval) / step);
-	if (bin == HISTOGRAM_INTERVALS)
-	    bin = HISTOGRAM_INTERVALS - 1;
-	++m_speedValuesPerInterval[i][bin];
-    }
+	valuePerInterval (i, speedComponents[i]);
+}
+
+void BodyAlongTime::valuesPerIntervalStep (const boost::shared_ptr<Body>& body)
+{
+    valuePerInterval (CenterPathColor::PRESSURE, body->GetPressure ());
 }
 
 
-void BodyAlongTime::CalculateSpeedRange (const FoamAlongTime& foamAlongTime)
+void BodyAlongTime::valuePerInterval (size_t i, float value)
 {
+    float beginInterval = GetMin (i);
+    float endInterval = GetMax (i);
+    float step = (endInterval - beginInterval) / HISTOGRAM_INTERVALS;
+    size_t bin = floor ((value - beginInterval) / step);
+    if (bin == HISTOGRAM_INTERVALS)
+	bin = HISTOGRAM_INTERVALS - 1;
+    ++m_valuesPerInterval[i][bin];
+}
+
+
+void BodyAlongTime::CalculateValueRange (const FoamAlongTime& foamAlongTime)
+{
+    // per segment values (speeds)
     StripIterator it = GetStripIterator (foamAlongTime);
     it.ForEachSegment (
 	boost::bind (&BodyAlongTime::speedRangeStep, this, _1, _2));
+    // per time step values
+    for_each (m_bodyAlongTime.begin (), m_bodyAlongTime.end (),
+	      boost::bind (&BodyAlongTime::rangeStep, this, _1));
 }
 
-void BodyAlongTime::CalculateSpeedValuesPerInterval (
+void BodyAlongTime::CalculateValuesPerInterval (
     const FoamAlongTime& foamAlongTime)
 {
+    // per segment values (speeds)
     StripIterator it = GetStripIterator (foamAlongTime);
     it.ForEachSegment (
 	boost::bind (&BodyAlongTime::speedValuesPerIntervalStep, this, _1, _2));
+    // per time step values
+    for_each (m_bodyAlongTime.begin (), m_bodyAlongTime.end (),
+	      boost::bind (&BodyAlongTime::valuesPerIntervalStep, this, _1));
 }
 
 size_t BodyAlongTime::GetId () const
@@ -196,56 +222,52 @@ string BodiesAlongTime::ToString () const
     return ostr.str ();
 }
 
-void BodiesAlongTime::CalculateSpeedRange (const FoamAlongTime& foamAlongTime)
+void BodiesAlongTime::CalculateValueRange (const FoamAlongTime& foamAlongTime)
 {
     BOOST_FOREACH (BodyMap::value_type p, GetBodyMap ())
     {
 	BodyAlongTime& bat = *p.second;
-	bat.CalculateSpeedRange (foamAlongTime);
-	for (size_t i = 0; i < m_minSpeed.size (); i++)
+	bat.CalculateValueRange (foamAlongTime);
+	for (size_t i = 0; i < m_min.size (); i++)
 	{
-	    m_minSpeed[i] = min (m_minSpeed[i], bat.GetMinSpeed (i));
-	    m_maxSpeed[i] = max (m_maxSpeed[i], bat.GetMaxSpeed (i));
+	    m_min[i] = min (m_min[i], bat.GetMin (i));
+	    m_max[i] = max (m_max[i], bat.GetMax (i));
 	}
     }
 }
 
-void BodiesAlongTime::CalculateSpeedValuesPerInterval (
+void BodiesAlongTime::CalculateValuesPerInterval (
     const FoamAlongTime& foamAlongTime)
 {
     BOOST_FOREACH (BodyMap::value_type p, GetBodyMap ())
     {
 	BodyAlongTime& bat = *p.second;
-	bat.CalculateSpeedValuesPerInterval (foamAlongTime);
-	for (size_t i = 0; i < m_minSpeed.size (); i++)
+	bat.CalculateValuesPerInterval (foamAlongTime);
+	for (size_t i = 0; i < m_min.size (); i++)
 	{
 	    for (size_t bin = 0; bin < HISTOGRAM_INTERVALS; ++bin)
 	    {
-		size_t valuesPerBin = bat.GetSpeedValuesPerInterval(i, bin);
-		m_speedValuesPerInterval[i][bin] += valuesPerBin;
-		if (m_speedValuesPerInterval[i][bin] > 700 && i != 2)
-		    cdbg << "Values per body " << bat.GetId () << " per bin " 
-			 << bin << " per speed component " << i << " are " 
-			 << valuesPerBin << endl;
+		size_t valuesPerBin = bat.GetValuesPerInterval(i, bin);
+		m_valuesPerInterval[i][bin] += valuesPerBin;
 	    }
 	}
     }
 }
 
-QwtIntervalData BodiesAlongTime::GetSpeedValuesPerInterval (
+QwtIntervalData BodiesAlongTime::GetValuesPerInterval (
     size_t speedComponent) const
 {
     QwtArray<QwtDoubleInterval> intervals (HISTOGRAM_INTERVALS);
     QwtArray<double> values (HISTOGRAM_INTERVALS);
-    float beginInterval = GetMinSpeed (speedComponent);
-    float endInterval = GetMaxSpeed (speedComponent);
+    float beginInterval = GetMin (speedComponent);
+    float endInterval = GetMax (speedComponent);
     float step = (endInterval - beginInterval) / HISTOGRAM_INTERVALS;
     float pos = beginInterval;
     for (size_t bin = 0; bin < HISTOGRAM_INTERVALS; ++bin)
     {
 	intervals[bin] = QwtDoubleInterval (pos, pos + step);
 	values[bin] = 
-	    BodyAlongTimeStatistics::GetSpeedValuesPerInterval (
+	    BodyAlongTimeStatistics::GetValuesPerInterval (
 		speedComponent, bin);
 	pos += step;
     }

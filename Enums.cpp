@@ -140,11 +140,24 @@ ostream& operator<< (ostream& ostr, SemanticType::Name type)
     return ostr;
 }
 
-VectorMeasure::Type toVectorMeasure (CenterPathColor::Type colorBy)
+string CenterPathColor::ToString (CenterPathColor::Type colorBy)
 {
-    static const VectorMeasure::Type c[CenterPathColor::COUNT] = 
-	{VectorMeasure::X,
-	 VectorMeasure::X, VectorMeasure::Y, VectorMeasure::Z, 
-	 VectorMeasure::LENGTH};
-    return c[colorBy];
+    switch (colorBy)
+    {
+    case SPEED_ALONG_X:
+	return "Speed along X";
+    case SPEED_ALONG_Y:
+	return "Speed along Y";
+    case SPEED_ALONG_Z:
+	return "Speed along Z";
+    case SPEED_TOTAL:
+	return "Speed Total";
+    case PRESSURE:
+	return "Pressure";
+    case NONE:
+	return "None";
+    case COUNT:
+	return "Count";
+    }
+    return "Error";
 }

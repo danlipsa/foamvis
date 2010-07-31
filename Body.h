@@ -77,16 +77,10 @@ public:
     void GetVertexSet (VertexSet* vertexSet) const;
     void GetEdgeSet (EdgeSet* edgeSet) const;
     void GetFaceSet (FaceSet* faceSet) const;
-
-
+    float GetPressure () const;
 public:
-    /**
-     * Specifies the default attributes for the Body object.
-     * These attributes don't appear as a DEFINE in the .DMP file
-     * @param info the object where the default attributes are stored.
-     */
-    static void StoreDefaultAttributes (AttributesInfo* info);
-    
+    static const size_t PRESSURE_INDEX;    
+
 private:
     /**
      * Caches edges and vertices

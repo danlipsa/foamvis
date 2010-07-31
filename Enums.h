@@ -137,7 +137,7 @@ struct DefineAttribute
     };
 };
 
-
+/*
 struct VectorMeasure
 {
     enum Type
@@ -149,24 +149,28 @@ struct VectorMeasure
 	COUNT
     };
 };
+*/
 
 class CenterPathColor
 {
 public:
     enum Type
     {
-	NONE,
 	SPEED_ALONG_X,
 	SPEED_ALONG_Y,
 	SPEED_ALONG_Z,
 	SPEED_TOTAL,
+	PRESSURE,
+	NONE,
 	COUNT
     };
+public:
+    static string ToString (CenterPathColor::Type colorBy);
 };
 
 
 
-VectorMeasure::Type toVectorMeasure (CenterPathColor::Type colorBy);
+
 
 #endif //__ENUMS_H__
 

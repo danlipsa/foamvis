@@ -194,6 +194,30 @@ public:
     Bodies::iterator BodyInsideOriginalDomainStep (
 	Bodies::iterator begin,
 	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
+    /**
+     * Specifies the default attributes for the Vertex object.
+     * These attributes don't appear as a DEFINE in the .DMP file
+     * @param info the object where the default attributes are stored.
+     */
+    void AddDefaultVertexAttributes ();
+    /**
+     * Specifies the default attributes for an Edge object.
+     * These attributes don't appear as a DEFINE in the .DMP file
+     * @param info the object where the default attributes are stored.
+     */
+    void AddDefaultEdgeAttributes ();
+    /**
+     * Specifies the default attributes for an Face object.
+     * These attributes don't appear as a DEFINE in the .DMP file
+     * @param info the object where the default attributes are stored.
+     */
+    void AddDefaultFaceAttributes ();
+    /**
+     * Specifies the default attributes for the Body object.
+     * These attributes don't appear as a DEFINE in the .DMP file
+     * @param info the object where the default attributes are stored.
+     */
+    void AddDefaultBodyAttributes ();
 
 public:
     /**

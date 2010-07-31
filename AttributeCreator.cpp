@@ -10,6 +10,7 @@
 #include "Attribute.h"
 #include "Debug.h"
 
+
 Attribute* IntegerAttributeCreator::operator() (
     const EvolverData::parser::semantic_type& value, 
     SemanticType::Name type) const
@@ -20,6 +21,7 @@ Attribute* IntegerAttributeCreator::operator() (
     return new IntegerAttribute (value.m_int);
 }
 
+// ======================================================================
 Attribute* ColorAttributeCreator::operator() (
     const EvolverData::parser::semantic_type& value, 
     SemanticType::Name type) const
@@ -32,7 +34,7 @@ Attribute* ColorAttributeCreator::operator() (
 }
 
 
-
+// ======================================================================
 Attribute* RealAttributeCreator::operator() (
     const EvolverData::parser::semantic_type& value, 
     SemanticType::Name type) const
@@ -51,6 +53,7 @@ Attribute* RealAttributeCreator::operator() (
     }
 }
 
+// ======================================================================
 Attribute* IntegerArrayAttributeCreator::operator() (
     const EvolverData::parser::semantic_type& value, 
     SemanticType::Name type) const
@@ -67,6 +70,7 @@ Attribute* IntegerArrayAttributeCreator::operator() (
     return new IntegerArrayAttribute (value.m_intList);
 }
 
+// ======================================================================
 Attribute* IntegerVectorAttributeCreator::operator() (
     const EvolverData::parser::semantic_type& value, 
     SemanticType::Name type) const
@@ -78,6 +82,7 @@ Attribute* IntegerVectorAttributeCreator::operator() (
     return new IntegerArrayAttribute (value.m_intList);
 }
 
+// ======================================================================
 
 Attribute* RealArrayAttributeCreator::operator() (
     const EvolverData::parser::semantic_type& value, 

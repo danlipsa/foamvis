@@ -7,6 +7,7 @@
 #include "AttributeInfo.h"
 #include "AttributeCreator.h"
 #include "Body.h"
+#include "Debug.h"
 #include "DebugStream.h"
 #include "Foam.h"
 #include "Edge.h"
@@ -113,11 +114,74 @@ Foam::Foam () :
     m_quadratic (false)
 {
     fill (m_viewMatrix.begin (), m_viewMatrix.end (), 0);
-    Vertex::StoreDefaultAttributes (&m_attributesInfo[DefineAttribute::VERTEX]);
-    Edge::StoreDefaultAttributes (&m_attributesInfo[DefineAttribute::EDGE]);
-    Face::StoreDefaultAttributes (&m_attributesInfo[DefineAttribute::FACE]);
-    Body::StoreDefaultAttributes (&m_attributesInfo[DefineAttribute::BODY]);
+    AddDefaultVertexAttributes ();
+    AddDefaultEdgeAttributes ();
+    AddDefaultFaceAttributes ();
+    AddDefaultBodyAttributes ();
 }
+
+void Foam::AddDefaultBodyAttributes ()
+{
+    using EvolverData::parser;
+    AttributesInfo* infos = &m_attributesInfo[DefineAttribute::BODY];
+    auto_ptr<AttributeCreator> ac (new RealAttributeCreator ());
+    size_t pressureIndex = infos->AddAttributeInfoLoad (
+        ParsingDriver::GetKeywordString(
+	    parser::token::LAGRANGE_MULTIPLIER), ac);
+    RuntimeAssert (pressureIndex == Body::PRESSURE_INDEX,
+		   "Pressure attribute index is ", pressureIndex);
+    ac.reset (new IntegerAttributeCreator ());
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
+    ac.reset (new RealAttributeCreator());
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::VOLUME), ac);
+    ac.reset (new RealAttributeCreator());
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::VOLCONST), ac);
+}
+
+
+void Foam::AddDefaultFaceAttributes ()
+{
+    using EvolverData::parser;
+    AttributesInfo* infos = &m_attributesInfo[DefineAttribute::FACE];
+    ColoredElement::AddDefaultAttributes (infos);
+    auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
+}
+
+
+void Foam::AddDefaultEdgeAttributes ()
+{
+    using EvolverData::parser;
+    AttributesInfo* infos = &m_attributesInfo[DefineAttribute::EDGE];
+    ColoredElement::AddDefaultAttributes (infos);
+    auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
+    ac.reset (new IntegerVectorAttributeCreator());
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
+    ac.reset (new RealAttributeCreator());
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::DENSITY), ac);
+}
+
+
+void Foam::AddDefaultVertexAttributes ()
+{
+    using EvolverData::parser;
+    AttributesInfo* infos = &m_attributesInfo[DefineAttribute::VERTEX];
+    auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
+    ac.reset (new IntegerVectorAttributeCreator());
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
+}
+
 
 boost::shared_ptr<Vertex> Foam::getVertexDuplicate (
     const Vertex& original, const G3D::Vector3int16& translation,

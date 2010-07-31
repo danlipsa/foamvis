@@ -29,17 +29,16 @@ public:
     string GetStringId () const;
 public:
     /**
-     * Specifies the default attributes for an Face object.
+     * Index where the color attribute is stored
+     */
+    const static size_t COLOR_INDEX;
+public:
+    /**
+     * Specifies the default attributes for an ColoredElement object.
      * These attributes don't appear as a DEFINE in the .DMP file
      * @param info the object where the default attributes are stored.
      */
-    static void StoreDefaultAttributes (AttributesInfo* info);
-
-private:
-    /**
-     * Index where the color attribute is stored
-     */
-    const static size_t COLOR_INDEX = 0;
+    static void AddDefaultAttributes (AttributesInfo* info);
 };
 
 

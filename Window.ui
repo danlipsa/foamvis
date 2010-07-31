@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1016</width>
-    <height>824</height>
+    <height>720</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -116,7 +116,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QwtScaleWidget" name="scaleWidgetColorBar"/>
+          <widget class="QwtScaleWidget" name="scaleWidgetColorBar" native="true"/>
          </item>
         </layout>
        </widget>
@@ -239,7 +239,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>2</number>
            </property>
            <widget class="QWidget" name="edges">
             <attribute name="title">
@@ -500,12 +500,10 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QComboBox" name="comboBox">
-                      <item>
-                       <property name="text">
-                        <string>None</string>
-                       </property>
-                      </item>
+                     <widget class="QComboBox" name="comboBoxColoredBy">
+                      <property name="currentIndex">
+                       <number>5</number>
+                      </property>
                       <item>
                        <property name="text">
                         <string>Speed Along X</string>
@@ -524,6 +522,16 @@
                       <item>
                        <property name="text">
                         <string>Speed Total</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Pressure</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>None</string>
                        </property>
                       </item>
                      </widget>
@@ -974,7 +982,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>comboBox</sender>
+   <sender>comboBoxColoredBy</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>Window</receiver>
    <slot>ValueChangedColoredBy(int)</slot>

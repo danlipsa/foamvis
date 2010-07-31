@@ -36,7 +36,10 @@ public:
      * Gets the functor that knows how to create this attribute
      * @return functor that knows how to create this attribute
      */
-    AttributeCreator& GetCreator () {return *m_creator;}
+    AttributeCreator& GetCreator ()
+    {
+	return *m_creator;
+    }
     /**
      * Constant used to signal an attribute that will not be stored.
      */
@@ -63,20 +66,21 @@ public:
      */
     AttributesInfo ();
     /**
-     * Stores information about an attribute
+     * Stores information about an attribute. The attributte is loaded
+     * only if m_loadAll is set.
      * @param name name of the attribute
      * @param creator functor that creates the attribute
+     * @return the index where the attribute is stored or INVALID_INDEX if
+     *         the attribute is not stored
      */
-    void AddAttributeInfo (const char* name, auto_ptr<AttributeCreator> creator);
+    size_t AddAttributeInfo (
+	const char* name, auto_ptr<AttributeCreator> creator);
     /**
-     * Specify that a certain attribute should be loaded from the data file
-     * @param name the attribute that should be loaded from the data file
+     * The same as AddAttributeInfo but always load the attribute from the
+     * datafile
      */
-    void Load (const char* name) {m_loadAttribute.insert (name);}
-    /**
-     * All attributes should be loaded from the data file
-     */
-    void LoadAll () {m_loadAll = true;}
+    size_t AddAttributeInfoLoad (
+	const char* name, auto_ptr<AttributeCreator> creator);
     /**
      * Gets information about a certain attribute
      * @param name the name of the attribute we are interested in
@@ -90,6 +94,7 @@ public:
      * @return name of the attribute
      */
      const char* GetAttributeName (size_t index) const;
+
 private:
     /**
      * All the attributes values that should be loaded from the data file

@@ -216,17 +216,3 @@ void Face::GetEdgeSet (EdgeSet* edgeSet) const
     BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, orientedEdges)
 	edgeSet->insert (oe->GetEdge ());
 }
-
-
-
-// Static and Friends Methods
-// ======================================================================
-
-void Face::StoreDefaultAttributes (AttributesInfo* infos)
-{
-    using EvolverData::parser;
-    ColoredElement::StoreDefaultAttributes (infos);
-    auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
-}

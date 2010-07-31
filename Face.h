@@ -101,14 +101,6 @@ public:
 	return GetBodyPartOfSize () == 0;
     }
 
-
-public:
-    /**
-     * Specifies the default attributes for an Face object.
-     * These attributes don't appear as a DEFINE in the .DMP file
-     * @param info the object where the default attributes are stored.
-     */
-    static void StoreDefaultAttributes (AttributesInfo* info);
 private:
     /**
      * Edges that are part of this face

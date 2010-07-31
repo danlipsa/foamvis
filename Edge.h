@@ -143,12 +143,6 @@ public:
 public:
     static short LocationCharToNumber (char sign);
     static G3D::Vector3int16 IntToLocation (int i);
-    /**
-     * Specifies the default attributes for an Edge object.
-     * These attributes don't appear as a DEFINE in the .DMP file
-     * @param info the object where the default attributes are stored.
-     */
-    static void StoreDefaultAttributes (AttributesInfo* info);
 
 private:
     /**

@@ -248,21 +248,6 @@ G3D::Vector3int16 Edge::IntToLocation (int value)
     return result;
 }
 
-void Edge::StoreDefaultAttributes (AttributesInfo* infos)
-{
-    using EvolverData::parser;
-    ColoredElement::StoreDefaultAttributes (infos);
-    auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
-    ac.reset (new IntegerVectorAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
-    ac.reset (new RealAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::DENSITY), ac);
-}
-
 void Edge::GetVertexSet (VertexSet* vertexSet) const
 {
     vertexSet->insert (GetBegin ());

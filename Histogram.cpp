@@ -33,8 +33,8 @@ void Histogram::SetData (const QwtIntervalData& intervalData)
 	maxValue = max (maxValue, intervalData.value (i));
 
     setAxisScale(QwtPlot::yLeft, 0.0, double(maxValue));
-    setAxisScale(QwtPlot::xBottom,
-		 intervalData.interval (0).minValue (),
-		 intervalData.interval (intervalData.size () - 1).maxValue ());
-    replot();
+    setAxisScale(
+	QwtPlot::xBottom,
+	intervalData.interval (0).minValue (),
+	intervalData.interval (intervalData.size () - 1).maxValue ());
 }

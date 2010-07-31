@@ -20,6 +20,9 @@ class FoamAlongTime;
 class StripIterator
 {
 public:
+    /**
+     * Location of a point in a strip of segments.
+     */
     enum Location
     {
 	BEGIN,

@@ -1,9 +1,3 @@
-#include <qstring.h>
-#include <qpainter.h>
-#include <qwt_plot.h>
-#include <qwt_interval_data.h>
-#include <qwt_painter.h>
-#include <qwt_scale_map.h>
 #include "histogram_item.h"
 
 class HistogramItem::PrivateData

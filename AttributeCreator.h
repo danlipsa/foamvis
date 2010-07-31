@@ -21,10 +21,6 @@ class AttributeCreator
 {
 public:
     /**
-     * Virtual destructor for attribute creators
-     */
-    virtual ~AttributeCreator () {}
-    /**
      * Pure virtual function used to create an attribute
      * @param value value of the attribute
      * @param type type of the attribute
@@ -94,7 +90,13 @@ public:
      * Constructor for the functor
      * @param size the size of the array
      */
-    IntegerArrayAttributeCreator (int size) : m_size (size) {}
+    IntegerArrayAttributeCreator (int size) : 
+	m_size (size) 
+    {}
+    IntegerArrayAttributeCreator () : 
+	m_size (0) 
+    {}
+
     /**
      * Creates an attribute which stores an integer array
      * @param value an integer list stored in a m_intList
@@ -110,6 +112,7 @@ private:
      */
     size_t m_size;
 };
+
 
 /**
  * Functor that creates an attribute that stores an integer array.

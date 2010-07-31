@@ -18,49 +18,50 @@ class BodyAlongTimeStatistics
 {
 public:
     BodyAlongTimeStatistics ();
-    float GetMinSpeed (VectorMeasure::Type i) const
+    float GetMin (CenterPathColor::Type i) const
     {
-	return m_minSpeed[i];
+	return m_min[i];
     }
-    float GetMinSpeed (size_t i) const
+    float GetMin (size_t i) const
     {
-	return m_minSpeed[i];
+	return m_min[i];
     }
-    float GetMaxSpeed (VectorMeasure::Type i) const
+    float GetMax (CenterPathColor::Type i) const
     {
-	return m_maxSpeed[i];
+	return m_max[i];
     }
-    float GetMaxSpeed (size_t i) const
+    float GetMax (size_t i) const
     {
-	return m_maxSpeed[i];
+	return m_max[i];
     }
-    size_t GetSpeedValuesPerInterval (size_t i, size_t bin) const
+    size_t GetValuesPerInterval (size_t i, size_t bin) const
     {
-	return m_speedValuesPerInterval[i][bin];
+	return m_valuesPerInterval[i][bin];
     }
-    size_t GetSpeedValuesPerInterval (VectorMeasure::Type i, size_t bin) const
+    size_t GetValuesPerInterval (CenterPathColor::Type i, size_t bin) const
     {
-	return m_speedValuesPerInterval[i][bin];
+	return m_valuesPerInterval[i][bin];
     }
 
-    virtual void CalculateSpeedRange (const FoamAlongTime& foamAlongTime) = 0;
-    virtual void CalculateSpeedValuesPerInterval (
+    virtual void CalculateValueRange (const FoamAlongTime& foamAlongTime) = 0;
+    virtual void CalculateValuesPerInterval (
 	const FoamAlongTime& foamAlongTime) = 0;
 
 protected:
     /**
-     * Min speed along X, Y, Z and total
+     * Min speed along X, Y, Z, min total speed, min pressure
      */
-    vector<float> m_minSpeed;
+    vector<float> m_min;
     /**
-     * Max speed along X, Y, Z and total
+     * Max speed along X, Y, Z, max total speed, max pressure
      */
-    vector<float> m_maxSpeed;
+    vector<float> m_max;
     /**
-     * Divide the speed range in HISTOGRAM_INTERVALS intervals.
-     * This array tells us how many speed values you have in each interval.
+     * Divide the value range in HISTOGRAM_INTERVALS intervals.
+     * This array tells us how many values you have in each interval for
+     * speed along x, y, z, total speed and pressure
      */
-    vector< vector <size_t> > m_speedValuesPerInterval;
+    vector< vector <size_t> > m_valuesPerInterval;
 };
 
 
@@ -98,8 +99,8 @@ public:
      * than 1/2 of min all sides of the original domain
      */
     void CalculateBodyWraps (const FoamAlongTime& foamAlongTime);
-    virtual void CalculateSpeedRange (const FoamAlongTime& foamAlongTime);
-    virtual void CalculateSpeedValuesPerInterval (
+    virtual void CalculateValueRange (const FoamAlongTime& foamAlongTime);
+    virtual void CalculateValuesPerInterval (
 	const FoamAlongTime& foamAlongTime);
 
     StripIterator GetStripIterator (
@@ -131,8 +132,15 @@ public:
 private:
     void speedRangeStep (const StripIterator::StripPoint& p,
 			 const StripIterator::StripPoint& prev);
+    void rangeStep (const boost::shared_ptr<Body>& body);
     void speedValuesPerIntervalStep (const StripIterator::StripPoint& p,
 				     const StripIterator::StripPoint& prev);
+    void valuesPerIntervalStep (const boost::shared_ptr<Body>& body);
+    /**
+     * Increment the correct bin for 'index' (@see CenterPathColor::Type) and
+     * 'value'.
+     */
+    void valuePerInterval (size_t index, float value);
 
 
 private:
@@ -183,11 +191,11 @@ public:
     {
 	return getBodyAlongTime (id);
     }
-    virtual void CalculateSpeedRange (const FoamAlongTime& foamAlongTime);
-    virtual void CalculateSpeedValuesPerInterval (
+    virtual void CalculateValueRange (const FoamAlongTime& foamAlongTime);
+    virtual void CalculateValuesPerInterval (
 	const FoamAlongTime& foamAlongTime);
     string ToString () const;
-    QwtIntervalData GetSpeedValuesPerInterval (size_t speedComponent) const;
+    QwtIntervalData GetValuesPerInterval (size_t speedComponent) const;
 
 private:
     void resize (size_t bodyOriginalIndex, size_t timeSteps);

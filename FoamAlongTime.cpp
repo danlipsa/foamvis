@@ -63,8 +63,8 @@ void FoamAlongTime::PostProcess ()
     CalculateAABox ();
     CacheBodiesAlongTime ();
     CalculateBodyWraps ();
-    GetBodiesAlongTime ().CalculateSpeedRange (*this);
-    GetBodiesAlongTime ().CalculateSpeedValuesPerInterval (*this);
+    GetBodiesAlongTime ().CalculateValueRange (*this);
+    GetBodiesAlongTime ().CalculateValuesPerInterval (*this);
 }
 
 void FoamAlongTime::CacheBodiesAlongTime ()

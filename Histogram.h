@@ -9,6 +9,7 @@
 #ifndef __HISTOGRAM_H__
 #define __HISTOGRAM_H__
 
+#include "histogram_item.h"
 
 class Histogram : public QwtPlot
 {

@@ -10,7 +10,13 @@
 #include "AttributeInfo.h"
 #include "AttributeCreator.h"
 #include "ColoredElement.h"
+#include "Debug.h"
 #include "ParsingDriver.h"
+
+// Static fields
+// ======================================================================
+const size_t ColoredElement::COLOR_INDEX = 0;
+
 
 // Methods
 // ======================================================================
@@ -18,13 +24,12 @@
 Color::Name ColoredElement::GetColor (Color::Name defaultColor) const
 {
     if (m_attributes != 0)
-	return dynamic_cast<ColorAttribute*>(
-	    (*m_attributes)[COLOR_INDEX].get ())->GetColor ();
+	return *boost::static_pointer_cast<ColorAttribute> (
+	    (*m_attributes)[COLOR_INDEX]);
     else
     {
 	if (defaultColor == Color::COUNT)
-	    return static_cast<Color::Name>(
-		(GetId ()+1) % Color::COUNT);
+	    return static_cast<Color::Name>((GetId ()+1) % Color::COUNT);
 	else
 	    return defaultColor;
     }
@@ -44,12 +49,13 @@ string ColoredElement::GetStringId () const
 // Static and Friends methods
 // ======================================================================
 
-void ColoredElement::StoreDefaultAttributes (AttributesInfo* infos)
+void ColoredElement::AddDefaultAttributes (AttributesInfo* infos)
 {
     using EvolverData::parser;
     const char* colorString = 
         ParsingDriver::GetKeywordString(parser::token::COLOR);
-    infos->Load (colorString);
     auto_ptr<AttributeCreator> ac (new ColorAttributeCreator());
-    infos->AddAttributeInfo (colorString, ac);
+    size_t colorIndex = infos->AddAttributeInfoLoad (colorString, ac);
+    RuntimeAssert (colorIndex == COLOR_INDEX,
+		   "Color should be stored at index ", COLOR_INDEX);
 }

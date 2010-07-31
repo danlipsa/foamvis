@@ -84,17 +84,3 @@ string Vertex::ToString () const
     return ostr.str ();
 }
 
-
-// Static and Friend functions
-// ======================================================================
-
-void Vertex::StoreDefaultAttributes (AttributesInfo* infos)
-{
-    using EvolverData::parser;
-    auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
-    ac.reset (new IntegerVectorAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
-}

@@ -4,6 +4,7 @@
  *
  * Implementation of the Body class
  */
+#include "Attribute.h"
 #include "AttributeCreator.h"
 #include "AttributeInfo.h"
 #include "Body.h"
@@ -73,6 +74,11 @@ G3D::Vector3 vertexAccumulate (G3D::Vector3 result,
 {
     return result + *v;
 }
+
+// Static Fields
+// ======================================================================
+const size_t Body::PRESSURE_INDEX = 0;
+
 
 
 // Methods
@@ -203,26 +209,9 @@ void Body::GetFaceSet (FaceSet* faceSet) const
 	faceSet->insert (of->GetFace ());
 }
 
-
-
-
-// Static and Friends Methods
-// ======================================================================
-
-void Body::StoreDefaultAttributes (AttributesInfo* infos)
+float Body::GetPressure () const
 {
-    using EvolverData::parser;
-    auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
-    ac.reset (new RealAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::LAGRANGE_MULTIPLIER), ac);
-    ac.reset (new RealAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::VOLUME), ac);
-    ac.reset (new RealAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::VOLCONST), ac);
+    return *boost::static_pointer_cast<RealAttribute> (
+	(*m_attributes)[PRESSURE_INDEX]);
 }
 

@@ -48,6 +48,10 @@ public:
     {
         return ostr << m_value;
     }
+    operator int()
+    {
+	return m_value;
+    }
 private:
     /**
      * Value of the integer attribute
@@ -76,6 +80,10 @@ public:
      */
     virtual ostream& Print (ostream& ostr) const
     {return ostr << m_value;}
+    operator float ()
+    {
+	return m_value;
+    }
     
 private:
     /**
@@ -108,8 +116,10 @@ public:
      * Get the color of the attribute
      * @return color value of the attribute
      */
-    Color::Name GetColor () const
-    {return m_color;}
+    operator Color::Name ()
+    {
+	return m_color;
+    }
 private:
     /**
      * Color value of the attribute

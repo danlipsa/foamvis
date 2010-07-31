@@ -67,13 +67,13 @@
 // QWT headers
 #include <qwt_color_map.h>
 #include <qwt_interval_data.h>
+#include <qwt_painter.h>
 #include <qwt_plot.h>
 #include <qwt_plot_grid.h>
+#include <qwt_plot_item.h> 
 #include <qwt_scale_engine.h>
 #include <qwt_scale_map.h>
 #include <qwt_scale_widget.h>
-#include "histogram_item.h"
-
 
 // G3D headers
 #include <G3D/AABox.h>
