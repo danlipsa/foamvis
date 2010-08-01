@@ -23,7 +23,7 @@ public:
      * Constructor for the Element
      */
     Element(size_t id,
-	    ElementStatus::Duplicate duplicateStatus) : 
+	    ElementStatus::Enum duplicateStatus) : 
 	m_attributes(0),
 	m_id (id), 
 	m_duplicateStatus (duplicateStatus)
@@ -54,22 +54,21 @@ public:
     
     string GetStringId () const;
 
-    ElementStatus::Duplicate GetDuplicateStatus () const
+    ElementStatus::Enum GetDuplicateStatus () const
     {
 	return m_duplicateStatus;
     }
-    void SetDuplicateStatus (ElementStatus::Duplicate duplicateStatus) 
+    void SetDuplicateStatus (ElementStatus::Enum duplicateStatus) 
     {
 	m_duplicateStatus = duplicateStatus;
     }
-
-
     /**
      * Pretty print attributes of an element
      * @param ostr where to print
      * @param info information about attributes
      */
     ostream& PrintAttributes (ostream& ostr) const;
+    float GetRealAttribute (size_t i) const;
 
 protected:
     typedef vector< boost::shared_ptr<Attribute> > Attributes;
@@ -83,7 +82,7 @@ protected:
      * The original index for this element
      */
     size_t m_id;
-    ElementStatus::Duplicate m_duplicateStatus;
+    ElementStatus::Enum m_duplicateStatus;
 
 protected:
     const static size_t INVALID_INDEX;

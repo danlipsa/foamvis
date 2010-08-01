@@ -25,17 +25,17 @@ public:
     NameSemanticValue (const char* name, int i) : m_name(name)
     {
         m_semanticValue.m_int = i;
-        m_type = SemanticType::INT;
+        m_type = AttributeType::INT;
     }
     /**
      * Constructor for an attribute with type COLOR
      * @param name name of the attribute
      * @param color color of the attribute
      */
-    NameSemanticValue (const char* name, Color::Name color) : m_name(name)
+    NameSemanticValue (const char* name, Color::Enum color) : m_name(name)
     {
         m_semanticValue.m_color = color;
-        m_type = SemanticType::COLOR;
+        m_type = AttributeType::COLOR;
     }
     /**
      * Constructor for an attribute with type REAL
@@ -45,7 +45,7 @@ public:
     NameSemanticValue (const char* name, float r) : m_name(name)
     {
         m_semanticValue.m_real = r;
-        m_type = SemanticType::REAL;
+        m_type = AttributeType::REAL;
     }
     /**
      * Constructor for an attribute with type INT_ARRAY
@@ -56,7 +56,7 @@ public:
         m_name(name)
     {
         m_semanticValue.m_intList = intList;
-        m_type = SemanticType::INT_ARRAY;
+        m_type = AttributeType::INT_ARRAY;
     }
     /**
      * Constructor for an attribute with type REAL_ARRAY
@@ -67,7 +67,7 @@ public:
         m_name(name)
     {
         m_semanticValue.m_realList = realList;
-        m_type = SemanticType::REAL_ARRAY;
+        m_type = AttributeType::REAL_ARRAY;
     }
     /**
      * Gets the name of the attribute
@@ -89,7 +89,7 @@ public:
      * Gets the type of the attribute
      * @return the type of the attribute
      */
-    SemanticType::Name GetType () const
+    AttributeType::Enum GetType () const
     {
         return m_type;
     }
@@ -125,7 +125,7 @@ private:
     /**
      * The type of the attribute
      */
-    SemanticType::Name m_type;
+    AttributeType::Enum m_type;
     /**
      * The value of the attribute
      */

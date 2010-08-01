@@ -109,7 +109,7 @@ private:
     void setupSliderData (const FoamAlongTime& foamAlongTime);
     void configureInterface (const FoamAlongTime& foamAlongTime);
     void changeScaleWidgetInterval (const QwtDoubleInterval& interval);
-    void changeScaleWidgetInterval (CenterPathColor::Type colorBy);
+    void changeScaleWidgetInterval (CenterPathColor::Enum colorBy);
 
     void setupScaleWidget ();
     void calculateStats (const Foam& foam, size_t timeSteps);

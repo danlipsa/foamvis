@@ -133,7 +133,7 @@ public:
      * @param widget where to display the center path
      */
     DisplayCenterPath (GLWidget& widget,
-		       CenterPathColor::Type centerPathColor) : 
+		       CenterPathColor::Enum centerPathColor) : 
 	m_widget (widget),
 	m_centerPathColor (centerPathColor)
     {
@@ -179,7 +179,7 @@ private:
      * Where to display the center path
      */
     GLWidget& m_widget;
-    CenterPathColor::Type m_centerPathColor;
+    CenterPathColor::Enum m_centerPathColor;
 };
 
 

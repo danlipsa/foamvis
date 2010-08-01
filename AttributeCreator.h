@@ -28,7 +28,7 @@ public:
      */
     virtual Attribute* operator () (
 	const EvolverData::parser::semantic_type& value, 
-        SemanticType::Name type) const = 0;
+        AttributeType::Enum type) const = 0;
 };
 
 /**
@@ -45,7 +45,7 @@ public:
      */
     virtual Attribute* operator() (
 	const EvolverData::parser::semantic_type& value,
-        SemanticType::Name type) const;
+        AttributeType::Enum type) const;
 };
 
 /**
@@ -62,7 +62,7 @@ public:
      */
     virtual Attribute* operator() (
 	const EvolverData::parser::semantic_type& value,
-        SemanticType::Name type) const;
+        AttributeType::Enum type) const;
 };
 /**
  * Functor which creates a real attribute
@@ -78,7 +78,7 @@ public:
      */
     virtual Attribute* operator() (
 	const EvolverData::parser::semantic_type& value, 
-        SemanticType::Name type) const;
+        AttributeType::Enum type) const;
 };
 /**
  * Functor which creates an attribute which stores an integer array 
@@ -105,7 +105,7 @@ public:
      */
     virtual Attribute* operator() (
 	const EvolverData::parser::semantic_type& value,
-        SemanticType::Name type) const;
+        AttributeType::Enum type) const;
 private:
     /**
      * Size of the array of integers
@@ -130,7 +130,7 @@ public:
      */
     virtual Attribute* operator() (
 	const EvolverData::parser::semantic_type& value,
-        SemanticType::Name type) const;
+        AttributeType::Enum type) const;
 };
 /**
  * Functor that creates an attribute that stores an array of real values
@@ -151,7 +151,7 @@ public:
      */
     virtual Attribute* operator() (
 	const EvolverData::parser::semantic_type& value,
-        SemanticType::Name type) const;
+        AttributeType::Enum type) const;
 private:
     /**
      * Size of the array of reals

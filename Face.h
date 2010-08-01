@@ -35,7 +35,7 @@ public:
     Face (const vector<int>& edgeIndexes,
 	  const vector< boost::shared_ptr<Edge> >& edges, 
 	  size_t id,
-	  ElementStatus::Duplicate duplicateStatus = ElementStatus::ORIGINAL);
+	  ElementStatus::Enum duplicateStatus = ElementStatus::ORIGINAL);
     Face (const Face& original);
     Face (const boost::shared_ptr<Edge>& firstEdge, size_t id);
     /**

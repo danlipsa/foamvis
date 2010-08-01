@@ -195,7 +195,7 @@ public:
 	     m_focus == FOCUS))
 	{
 	    float alpha = m_focus == FOCUS ? 1.0 : m_widget.GetContextAlpha (); 
-	    Color::Name color = oe.GetColor (Color::BLACK);
+	    Color::Enum color = oe.GetColor (Color::BLACK);
 	    glColor (G3D::Color4 (Color::GetValue(color), alpha));
 	    G3D::Vector3* b = oe.GetBegin ().get ();
 	    G3D::Vector3* e = oe.GetEnd ().get ();
@@ -229,7 +229,7 @@ public:
 	const OOBox& periods = m_widget.GetCurrentFoam ().GetOriginalDomain ();
 	if (edge->IsClipped ())
 	{
-	    Color::Name color = edge->GetColor (Color::BLACK);
+	    Color::Enum color = edge->GetColor (Color::BLACK);
 	    glColor (Color::GetValue(color));
 	    glBegin(GL_LINES);
 	    for (size_t i = 0; i < edge->GetTorusClippedSize (periods); i++)

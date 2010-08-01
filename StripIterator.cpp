@@ -56,7 +56,7 @@ StripIterator::StripPoint StripIterator::Next ()
     }
 }
 
-float StripIterator::GetColorByValue (CenterPathColor::Type colorBy,
+float StripIterator::GetColorByValue (CenterPathColor::Enum colorBy,
     const StripPoint& p, const StripPoint& prev)
 {
     RuntimeAssert (p.m_location != BEGIN, "Invalid strip piece");

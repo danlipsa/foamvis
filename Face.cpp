@@ -83,7 +83,7 @@ Face::Face (const Face& original) :
 
 Face::Face (const vector<int>& edgeIndexes,
 	    const vector<boost::shared_ptr<Edge> >& edges, 
-	    size_t id, ElementStatus::Duplicate duplicateStatus) :
+	    size_t id, ElementStatus::Enum duplicateStatus) :
     ColoredElement (id, duplicateStatus)
 {
     m_bodiesPartOf.reserve (2);

@@ -21,7 +21,7 @@ const size_t ColoredElement::COLOR_INDEX = 0;
 // Methods
 // ======================================================================
 
-Color::Name ColoredElement::GetColor (Color::Name defaultColor) const
+Color::Enum ColoredElement::GetColor (Color::Enum defaultColor) const
 {
     if (m_attributes != 0)
 	return *boost::static_pointer_cast<ColorAttribute> (
@@ -29,7 +29,7 @@ Color::Name ColoredElement::GetColor (Color::Name defaultColor) const
     else
     {
 	if (defaultColor == Color::COUNT)
-	    return static_cast<Color::Name>((GetId ()+1) % Color::COUNT);
+	    return static_cast<Color::Enum>((GetId ()+1) % Color::COUNT);
 	else
 	    return defaultColor;
     }

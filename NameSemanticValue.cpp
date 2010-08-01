@@ -15,19 +15,19 @@ ostream& operator<< (ostream& ostr,
          << nameSemanticValue.m_type << ", ";
     switch (nameSemanticValue.m_type)
     {
-    case SemanticType::INT:
+    case AttributeType::INT:
         ostr << nameSemanticValue.m_semanticValue.m_int;
         break;
-    case SemanticType::REAL:
+    case AttributeType::REAL:
         ostr << nameSemanticValue.m_semanticValue.m_real;
         break;
-    case SemanticType::COLOR:
+    case AttributeType::COLOR:
         ostr << nameSemanticValue.m_semanticValue.m_color;
         break;
-    case SemanticType::INT_ARRAY:
+    case AttributeType::INT_ARRAY:
         ostr << nameSemanticValue.m_semanticValue.m_intList;
         break;
-    case SemanticType::REAL_ARRAY:
+    case AttributeType::REAL_ARRAY:
         ostr << nameSemanticValue.m_semanticValue.m_realList;
         break;
     default:

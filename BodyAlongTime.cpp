@@ -95,22 +95,29 @@ void BodyAlongTime::speedRangeStep (
     const StripIterator::StripPoint& prev)
 {
     G3D::Vector3 speed = p.m_point - prev.m_point;
+    // Warning: should have the same ordering as CenterPathColor::Enum
     boost::array<float, 4> speedComponents = 
 	{{speed.x, speed.y, speed.z, speed.length ()}};
-    for (size_t i = 0; i < m_min.size (); ++i)
+    for (size_t i = CenterPathColor::SPEED_BEGIN;
+	 i < CenterPathColor::SPEED_END; ++i)
     {
 	m_min[i] = min (m_min[i], speedComponents[i]);
 	m_max[i] = max (m_max[i], speedComponents[i]);
     }
 }
 
-void BodyAlongTime::rangeStep (
-    const boost::shared_ptr<Body>& body)
+void BodyAlongTime::rangeStep (const boost::shared_ptr<Body>& body)
 {
-    m_min[CenterPathColor::PRESSURE] = 
-	min (m_min[CenterPathColor::PRESSURE], body->GetPressure ());
-    m_max[CenterPathColor::PRESSURE] = 
-	max (m_max[CenterPathColor::PRESSURE], body->GetPressure ());
+    for (size_t i = CenterPathColor::PER_BODY_BEGIN;
+	 i < CenterPathColor::PER_BODY_END; ++i)
+    {
+	m_min[i] = min (
+	    m_min[i],
+	    body->GetRealAttribute (i - CenterPathColor::PER_BODY_BEGIN));
+	m_max[i] = max (
+	    m_max[i],
+	    body->GetRealAttribute (i - CenterPathColor::PER_BODY_BEGIN));
+    }
 }
 
 
@@ -121,13 +128,18 @@ void BodyAlongTime::speedValuesPerIntervalStep (
     G3D::Vector3 speed = p.m_point - prev.m_point;
     boost::array<float, 4> speedComponents = 
 	{{speed.x, speed.y, speed.z, speed.length ()}};
-    for (size_t i = 0; i < speedComponents.size (); ++i)
+    for (size_t i = CenterPathColor::SPEED_BEGIN;
+	 i < CenterPathColor::SPEED_END; ++i)
 	valuePerInterval (i, speedComponents[i]);
 }
 
 void BodyAlongTime::valuesPerIntervalStep (const boost::shared_ptr<Body>& body)
 {
-    valuePerInterval (CenterPathColor::PRESSURE, body->GetPressure ());
+    for (size_t i = CenterPathColor::PER_BODY_BEGIN;
+	 i < CenterPathColor::PER_BODY_END; ++i)
+	valuePerInterval (
+	    i,
+	    body->GetRealAttribute (i - CenterPathColor::PER_BODY_BEGIN));
 }
 
 

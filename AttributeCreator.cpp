@@ -13,9 +13,9 @@
 
 Attribute* IntegerAttributeCreator::operator() (
     const EvolverData::parser::semantic_type& value, 
-    SemanticType::Name type) const
+    AttributeType::Enum type) const
 {
-    RuntimeAssert (type == SemanticType::INT,
+    RuntimeAssert (type == AttributeType::INT,
 		   "Attribute declared with INTEGER type has value of type ",
 		   type);
     return new IntegerAttribute (value.m_int);
@@ -24,10 +24,10 @@ Attribute* IntegerAttributeCreator::operator() (
 // ======================================================================
 Attribute* ColorAttributeCreator::operator() (
     const EvolverData::parser::semantic_type& value, 
-    SemanticType::Name type) const
+    AttributeType::Enum type) const
 {
     
-    RuntimeAssert (type == SemanticType::COLOR,
+    RuntimeAssert (type == AttributeType::COLOR,
 		   "Attribute declared with INTEGER type has value of type ",
 		   type);
     return new ColorAttribute (value.m_color);
@@ -37,13 +37,13 @@ Attribute* ColorAttributeCreator::operator() (
 // ======================================================================
 Attribute* RealAttributeCreator::operator() (
     const EvolverData::parser::semantic_type& value, 
-    SemanticType::Name type) const
+    AttributeType::Enum type) const
 {
     switch (type)
     {
-    case SemanticType::REAL:
+    case AttributeType::REAL:
         return new RealAttribute (value.m_real);
-    case SemanticType::INT:
+    case AttributeType::INT:
         return new RealAttribute (value.m_int);
     default:
 	RuntimeAssert (false,
@@ -56,10 +56,10 @@ Attribute* RealAttributeCreator::operator() (
 // ======================================================================
 Attribute* IntegerArrayAttributeCreator::operator() (
     const EvolverData::parser::semantic_type& value, 
-    SemanticType::Name type) const
+    AttributeType::Enum type) const
 {
     RuntimeAssert (
-	type == SemanticType::INT_ARRAY,
+	type == AttributeType::INT_ARRAY,
 	"Attribute declared with INTEGER_ARRAY type has value of type ",
 	type);
     RuntimeAssert (
@@ -73,10 +73,10 @@ Attribute* IntegerArrayAttributeCreator::operator() (
 // ======================================================================
 Attribute* IntegerVectorAttributeCreator::operator() (
     const EvolverData::parser::semantic_type& value, 
-    SemanticType::Name type) const
+    AttributeType::Enum type) const
 {
     RuntimeAssert (
-	type == SemanticType::INT_ARRAY,
+	type == AttributeType::INT_ARRAY,
 	"Attribute declared with INTEGER_ARRAY type has value of type ",
 	type);
     return new IntegerArrayAttribute (value.m_intList);
@@ -86,10 +86,10 @@ Attribute* IntegerVectorAttributeCreator::operator() (
 
 Attribute* RealArrayAttributeCreator::operator() (
     const EvolverData::parser::semantic_type& value, 
-    SemanticType::Name type) const
+    AttributeType::Enum type) const
 {
     RuntimeAssert (
-	type == SemanticType::REAL_ARRAY,
+	type == AttributeType::REAL_ARRAY,
 	"Attribute declared with REAL_ARRAY type "
 	"has value of type ", type);
     RuntimeAssert (

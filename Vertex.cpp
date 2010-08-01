@@ -26,7 +26,7 @@ size_t hash_value (Vertex const& v)
 // Methods
 // ======================================================================
 Vertex::Vertex(float x, float y, float z, 
-	       size_t id, ElementStatus::Duplicate duplicateStatus) :
+	       size_t id, ElementStatus::Enum duplicateStatus) :
     G3D::Vector3 (x, y, z),
     Element(id, duplicateStatus)
 {}

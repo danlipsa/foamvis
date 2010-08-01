@@ -113,7 +113,7 @@ public:
      * @param creator knows to create the attribute (@see AttributeCreator)
      */
     void AddAttributeInfo (
-        DefineAttribute::Type type, const char* name,
+        DefineAttribute::Enum type, const char* name,
         auto_ptr<AttributeCreator> creator);
     /**
      * Gets a AABox of this Foam object
@@ -173,7 +173,7 @@ public:
 	m_quadratic = true;
     }
     const AttributesInfo& GetAttributesInfo (
-	DefineAttribute::Type attributeType) const;
+	DefineAttribute::Enum attributeType) const;
     const Edges& GetStandaloneEdges () const
     {
 	return m_standaloneEdges;

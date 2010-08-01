@@ -125,3 +125,8 @@ string Element::GetStringId () const
     ostr << setw(4) << GetId ();
     return ostr.str ();
 }
+
+float Element::GetRealAttribute (size_t i) const
+{
+    return *boost::static_pointer_cast<RealAttribute> ((*m_attributes)[i]);
+}

@@ -86,11 +86,11 @@ public:
     {
 	return m_filePattern;
     }
-    float GetMin (CenterPathColor::Type i) const
+    float GetMin (CenterPathColor::Enum i) const
     {
 	return GetBodiesAlongTime ().GetMin (i);
     }
-    float GetMax (CenterPathColor::Type i) const
+    float GetMax (CenterPathColor::Enum i) const
     {
 	return GetBodiesAlongTime ().GetMax (i);
     }

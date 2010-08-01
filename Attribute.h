@@ -102,7 +102,7 @@ public:
      * Constructor for the color attribute
      * @param color the value of the attribute
      */
-    ColorAttribute (Color::Name color) : m_color (color) {}
+    ColorAttribute (Color::Enum color) : m_color (color) {}
     /**
      * Pretty print
      * @param ostr where to print
@@ -116,7 +116,7 @@ public:
      * Get the color of the attribute
      * @return color value of the attribute
      */
-    operator Color::Name ()
+    operator Color::Enum ()
     {
 	return m_color;
     }
@@ -124,7 +124,7 @@ private:
     /**
      * Color value of the attribute
      */
-    Color::Name m_color;
+    Color::Enum m_color;
 };
 
 /**

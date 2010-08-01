@@ -35,7 +35,7 @@ public:
     Body(const vector<int>& faceIndexes,
 	 const vector< boost::shared_ptr<Face> >& faces,
 	 size_t id, 
-	 ElementStatus::Duplicate duplicateStatus = ElementStatus::ORIGINAL);
+	 ElementStatus::Enum duplicateStatus = ElementStatus::ORIGINAL);
 
     /**
      * Returns the  vector of oriented faces this body is made of
@@ -77,7 +77,10 @@ public:
     void GetVertexSet (VertexSet* vertexSet) const;
     void GetEdgeSet (EdgeSet* edgeSet) const;
     void GetFaceSet (FaceSet* faceSet) const;
-    float GetPressure () const;
+    float GetPressure () const
+    {
+	return GetRealAttribute (PRESSURE_INDEX);
+    }
 public:
     static const size_t PRESSURE_INDEX;    
 

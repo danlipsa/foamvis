@@ -18,7 +18,7 @@ class BodyAlongTimeStatistics
 {
 public:
     BodyAlongTimeStatistics ();
-    float GetMin (CenterPathColor::Type i) const
+    float GetMin (CenterPathColor::Enum i) const
     {
 	return m_min[i];
     }
@@ -26,7 +26,7 @@ public:
     {
 	return m_min[i];
     }
-    float GetMax (CenterPathColor::Type i) const
+    float GetMax (CenterPathColor::Enum i) const
     {
 	return m_max[i];
     }
@@ -38,7 +38,7 @@ public:
     {
 	return m_valuesPerInterval[i][bin];
     }
-    size_t GetValuesPerInterval (CenterPathColor::Type i, size_t bin) const
+    size_t GetValuesPerInterval (CenterPathColor::Enum i, size_t bin) const
     {
 	return m_valuesPerInterval[i][bin];
     }
@@ -137,7 +137,7 @@ private:
 				     const StripIterator::StripPoint& prev);
     void valuesPerIntervalStep (const boost::shared_ptr<Body>& body);
     /**
-     * Increment the correct bin for 'index' (@see CenterPathColor::Type) and
+     * Increment the correct bin for 'index' (@see CenterPathColor::Enum) and
      * 'value'.
      */
     void valuePerInterval (size_t index, float value);

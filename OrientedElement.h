@@ -48,7 +48,7 @@ public:
 	return m_reversed;
     }
 
-    Color::Name GetColor (Color::Name defaultColor = Color::CLEAR) const;
+    Color::Enum GetColor (Color::Enum defaultColor = Color::CLEAR) const;
 
 
     string GetStringId () const;

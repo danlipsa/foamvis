@@ -87,7 +87,7 @@ const size_t Body::PRESSURE_INDEX = 0;
 Body::Body(
     const vector<int>& faceIndexes,
     const vector<boost::shared_ptr<Face> >& faces,
-    size_t id, ElementStatus::Duplicate duplicateStatus) :
+    size_t id, ElementStatus::Enum duplicateStatus) :
     Element(id, duplicateStatus)
 {
     m_orientedFaces.resize (faceIndexes.size ());
@@ -207,11 +207,5 @@ void Body::GetFaceSet (FaceSet* faceSet) const
     const OrientedFaces& orientedFaces = GetOrientedFaces ();
     BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, orientedFaces)
 	faceSet->insert (of->GetFace ());
-}
-
-float Body::GetPressure () const
-{
-    return *boost::static_pointer_cast<RealAttribute> (
-	(*m_attributes)[PRESSURE_INDEX]);
 }
 

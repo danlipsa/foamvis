@@ -433,7 +433,7 @@ void MainWindow::ToggledCenterPath (bool checked)
 }
 
 
-void MainWindow::changeScaleWidgetInterval (CenterPathColor::Type colorBy)
+void MainWindow::changeScaleWidgetInterval (CenterPathColor::Enum colorBy)
 {
     const FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     switch (colorBy)
@@ -480,8 +480,8 @@ void MainWindow::changeScaleWidgetInterval (const QwtDoubleInterval& interval)
 void MainWindow::ValueChangedColoredBy (int value)
 {
     comboBoxColoredBy->setCurrentIndex (value);
-    CenterPathColor::Type colorBy = 
-	static_cast<CenterPathColor::Type>(value);
+    CenterPathColor::Enum colorBy = 
+	static_cast<CenterPathColor::Enum>(value);
     if (colorBy == CenterPathColor::NONE)
     {
 	widgetGl->SetColorMap (0, 0);

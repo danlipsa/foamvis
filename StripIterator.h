@@ -55,7 +55,7 @@ public:
     }
     bool HasNext () const;
     StripPoint Next ();
-    static float GetColorByValue (CenterPathColor::Type colorBy,
+    static float GetColorByValue (CenterPathColor::Enum colorBy,
 				  const StripPoint& p, const StripPoint& prev);
 
     template <typename ProcessSegment> 

@@ -23,7 +23,7 @@
 Edge::Edge (const boost::shared_ptr<Vertex>& begin,
 	    const boost::shared_ptr<Vertex>& end,
 	    const G3D::Vector3int16& endTranslation, 
-	    size_t id, ElementStatus::Duplicate duplicateStatus):
+	    size_t id, ElementStatus::Enum duplicateStatus):
     ColoredElement(id, duplicateStatus),
     m_begin (begin), m_end (end),
     m_endTranslation (endTranslation), 

@@ -31,7 +31,7 @@ const G3D::Color3 Color::COLORS[] =
     G3D::Color3(0.0, 0.0, 0.0)   // CLEAR
 };
 
-ostream& operator<< (ostream& ostr, Color::Name color)
+ostream& operator<< (ostream& ostr, Color::Enum color)
 {
     switch (color)
     {
@@ -93,13 +93,13 @@ ostream& operator<< (ostream& ostr, Color::Name color)
     return ostr;
 }
 
-const G3D::Color3& Color::GetValue(Color::Name color)
+const G3D::Color3& Color::GetValue(Color::Enum color)
 {
     return COLORS[color];
 }
 
 
-ostream& operator<< (ostream& ostr, ElementStatus::Duplicate duplicateStatus)
+ostream& operator<< (ostream& ostr, ElementStatus::Enum duplicateStatus)
 {
     switch (duplicateStatus)
     {
@@ -115,32 +115,32 @@ ostream& operator<< (ostream& ostr, ElementStatus::Duplicate duplicateStatus)
     return ostr;
 }
 
-ostream& operator<< (ostream& ostr, SemanticType::Name type)
+ostream& operator<< (ostream& ostr, AttributeType::Enum type)
 {
     switch (type)
     {
-    case SemanticType::INT:
+    case AttributeType::INT:
         ostr << "INT";
         break;
-    case SemanticType::REAL:
+    case AttributeType::REAL:
         ostr << "REAL";
         break;
-    case SemanticType::COLOR:
+    case AttributeType::COLOR:
         ostr << "COLOR";
         break;
-    case SemanticType::INT_ARRAY:
+    case AttributeType::INT_ARRAY:
         ostr << "INT_ARRAY";
         break;
-    case SemanticType::REAL_ARRAY:
+    case AttributeType::REAL_ARRAY:
         ostr << "REAL_ARRAY";
         break;
     default:
-	RuntimeAssert (false, "Invalid SemanticType: ", type);
+	RuntimeAssert (false, "Invalid AttributeType: ", type);
     }
     return ostr;
 }
 
-string CenterPathColor::ToString (CenterPathColor::Type colorBy)
+string CenterPathColor::ToString (CenterPathColor::Enum colorBy)
 {
     switch (colorBy)
     {

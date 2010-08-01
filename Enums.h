@@ -17,7 +17,7 @@ public:
     /**
      * Names of colors
      */
-    enum Name
+    enum Enum
     {
         BLACK,    /* dark colors */
         BLUE,
@@ -45,8 +45,8 @@ public:
      * @param name color name
      * @return vector of RGBA components for the given color
      */
-    static const G3D::Color3& GetValue(Color::Name name);    
-    friend ostream& operator<< (ostream& ostr, Color::Name name);
+    static const G3D::Color3& GetValue(Color::Enum name);    
+    friend ostream& operator<< (ostream& ostr, Color::Enum name);
 
 private:
     static const G3D::Color3 COLORS[];
@@ -60,7 +60,7 @@ private:
  */
 struct ElementStatus
 {
-    enum Duplicate
+    enum Enum
     {
 	/**
 	 * Is in the data file, no duplicate was made
@@ -72,7 +72,7 @@ struct ElementStatus
 	DUPLICATE
     };
     friend ostream& operator<< (ostream& ostr,
-				ElementStatus::Duplicate duplicateStatus);    
+				ElementStatus::Enum duplicateStatus);    
 };
 
 
@@ -85,7 +85,7 @@ public:
     /**
      * Names of colors
      */
-    enum Name
+    enum Enum
     {
 	ROTATE,
 	SCALE,
@@ -94,12 +94,12 @@ public:
     };
 };
 
-struct SemanticType
+struct AttributeType
 {
     /**
      * Types of attributes
      */
-    enum Name
+    enum Enum
     {
         INT,
         REAL,
@@ -116,7 +116,7 @@ struct SemanticType
      * @param type what to print
      * @return where to print next
      */
-    friend ostream& operator<< (ostream& ostr, SemanticType::Name type);
+    friend ostream& operator<< (ostream& ostr, AttributeType::Enum type);
 };
 
 /**
@@ -128,7 +128,7 @@ struct DefineAttribute
     /**
      * Types of attributes defined in a Surface Evolver DMP file
      */
-    enum Type {
+    enum Enum {
         VERTEX,
         EDGE,
         FACE,
@@ -137,35 +137,21 @@ struct DefineAttribute
     };
 };
 
-/*
-struct VectorMeasure
-{
-    enum Type
-    {
-	X,
-	Y,
-	Z,
-	LENGTH,
-	COUNT
-    };
-};
-*/
-
 class CenterPathColor
 {
 public:
-    enum Type
+    enum Enum
     {
-	SPEED_ALONG_X,
+	SPEED_ALONG_X, SPEED_BEGIN = SPEED_ALONG_X,
 	SPEED_ALONG_Y,
 	SPEED_ALONG_Z,
 	SPEED_TOTAL,
-	PRESSURE,
-	NONE,
+	PRESSURE, SPEED_END = PRESSURE, PER_BODY_BEGIN = PRESSURE,
+	NONE, PER_BODY_END = NONE,
 	COUNT
     };
 public:
-    static string ToString (CenterPathColor::Type colorBy);
+    static string ToString (CenterPathColor::Enum colorBy);
 };
 
 

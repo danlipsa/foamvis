@@ -485,7 +485,7 @@ bool Foam::IsTorus () const
 
 
 void Foam::AddAttributeInfo (
-    DefineAttribute::Type type, const char* name,
+    DefineAttribute::Enum type, const char* name,
     auto_ptr<AttributeCreator> creator)
 {
     m_attributesInfo[type].AddAttributeInfo (name, creator);
@@ -574,7 +574,7 @@ void Foam::GetFaceSet (FaceSet* faceSet) const
 }
 
 const AttributesInfo& Foam::GetAttributesInfo (
-    DefineAttribute::Type attributeType) const
+    DefineAttribute::Enum attributeType) const
 {
     return m_attributesInfo[attributeType];
 }

@@ -30,7 +30,7 @@ public:
      */
     Vertex(float x, float y, float z,
 	   size_t id, 
-	   ElementStatus::Duplicate duplicateStatus = ElementStatus::ORIGINAL);
+	   ElementStatus::Enum duplicateStatus = ElementStatus::ORIGINAL);
     Vertex (const G3D::Vector3& position);
 
     /**

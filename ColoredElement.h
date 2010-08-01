@@ -14,7 +14,7 @@
 class ColoredElement : public Element
 {
 public:
-    ColoredElement(size_t id, ElementStatus::Duplicate duplicateStatus) :
+    ColoredElement(size_t id, ElementStatus::Enum duplicateStatus) :
     Element (id, duplicateStatus) 
     {}
 
@@ -25,7 +25,7 @@ public:
      * element doesn't have any  color. If the default is Color::COUNT
      * the color returned is based on the index of the element
      */
-    Color::Name GetColor (Color::Name defaultColor = Color::CLEAR) const;
+    Color::Enum GetColor (Color::Enum defaultColor = Color::CLEAR) const;
     string GetStringId () const;
 public:
     /**

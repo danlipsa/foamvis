@@ -21,7 +21,7 @@ size_t OrientedElement::GetId () const
     return GetColoredElement ()->GetId ();
 }
 
-Color::Name OrientedElement::GetColor (Color::Name defaultColor) const
+Color::Enum OrientedElement::GetColor (Color::Enum defaultColor) const
 {
     return GetColoredElement ()->GetColor (defaultColor);
 }

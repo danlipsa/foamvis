@@ -1052,7 +1052,7 @@ void GLWidget::ToggledCenterPath (bool checked)
 
 void GLWidget::CurrentIndexChangedInteractionMode (int index)
 {
-    m_interactionMode = static_cast<InteractionMode::Name>(index);
+    m_interactionMode = static_cast<InteractionMode::Enum>(index);
 }
 
 void GLWidget::ValueChangedSliderData (int newIndex)
@@ -1115,5 +1115,5 @@ void GLWidget::ValueChangedCenterPathColor (int value)
     RuntimeAssert (value > 0 && 
 		   value < CenterPathColor::COUNT,
 		   "Invalid CenterPathColor: ", value);
-    m_centerPathColor = static_cast<CenterPathColor::Type>(value);
+    m_centerPathColor = static_cast<CenterPathColor::Enum>(value);
 }

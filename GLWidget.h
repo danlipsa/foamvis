@@ -404,7 +404,7 @@ private:
     ViewType m_viewType;
     bool m_torusOriginalDomainDisplay;
     bool m_torusOriginalDomainClipped;
-    InteractionMode::Name m_interactionMode;
+    InteractionMode::Enum m_interactionMode;
     /**
      * The current DMP file as a OpenGL display list.
      */
@@ -464,7 +464,7 @@ private:
     boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> VIEW_TYPE_DISPLAY;
     QwtLinearColorMap* m_colorMap;
     QwtDoubleInterval* m_colorMapInterval;
-    CenterPathColor::Type m_centerPathColor;
+    CenterPathColor::Enum m_centerPathColor;
 };
 
 #endif //__GLWIDGET_H__

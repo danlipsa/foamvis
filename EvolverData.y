@@ -67,11 +67,11 @@ class AttributeCreator;
      * Knows how to create an attribute
      */
     AttributeCreator* m_attributeCreator;
-    DefineAttribute::Type m_attributeType;
+    DefineAttribute::Enum m_attributeType;
     std::vector<NameSemanticValue*>* m_nameSemanticValueList;
     NameSemanticValue* m_nameSemanticValue;
     G3D::Vector3int16* m_vector3int16;
-    Color::Name m_color;
+    Color::Enum m_color;
 }
 
 
