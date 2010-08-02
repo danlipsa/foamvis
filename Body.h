@@ -82,7 +82,8 @@ public:
 	return GetRealAttribute (PRESSURE_INDEX);
     }
 public:
-    static const size_t PRESSURE_INDEX;    
+    static const size_t PRESSURE_INDEX = 0;
+    static const size_t VOLUME_INDEX = 1;
 
 private:
     /**

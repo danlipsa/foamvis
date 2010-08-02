@@ -75,11 +75,6 @@ G3D::Vector3 vertexAccumulate (G3D::Vector3 result,
     return result + *v;
 }
 
-// Static Fields
-// ======================================================================
-const size_t Body::PRESSURE_INDEX = 0;
-
-
 
 // Methods
 // ======================================================================
@@ -180,7 +175,7 @@ string Body::ToString () const
     ostringstream ostr;
     ostr << "Body " << GetId () << ":" << endl;
     ostr << m_orientedFaces.size () << " faces part of the body\n";
-    ostream_iterator<boost::shared_ptr<OrientedFace> > ofOutput (ostr, "\n");
+    ostream_iterator< boost::shared_ptr<OrientedFace> > ofOutput (ostr, "\n");
     copy (m_orientedFaces.begin (), m_orientedFaces.end (), ofOutput);
     ostr << "Body attributes: ";
     PrintAttributes (ostr);

@@ -22,13 +22,7 @@ public:
     /**
      * Constructor for the Element
      */
-    Element(size_t id,
-	    ElementStatus::Enum duplicateStatus) : 
-	m_attributes(0),
-	m_id (id), 
-	m_duplicateStatus (duplicateStatus)
-    {
-    }
+    Element(size_t id, ElementStatus::Enum duplicateStatus);
     Element (const Element& other);
 
     /**
@@ -69,6 +63,7 @@ public:
      */
     ostream& PrintAttributes (ostream& ostr) const;
     float GetRealAttribute (size_t i) const;
+    bool ExistsAttribute (size_t i) const;
 
 protected:
     typedef vector< boost::shared_ptr<Attribute> > Attributes;

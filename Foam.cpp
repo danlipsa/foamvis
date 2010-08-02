@@ -124,18 +124,27 @@ void Foam::AddDefaultBodyAttributes ()
 {
     using EvolverData::parser;
     AttributesInfo* infos = &m_attributesInfo[DefineAttribute::BODY];
+
+    // the order of the attributes should match the order in
+    // CenterPathColor
     auto_ptr<AttributeCreator> ac (new RealAttributeCreator ());
-    size_t pressureIndex = infos->AddAttributeInfoLoad (
+    size_t index = infos->AddAttributeInfoLoad (
         ParsingDriver::GetKeywordString(
 	    parser::token::LAGRANGE_MULTIPLIER), ac);
-    RuntimeAssert (pressureIndex == Body::PRESSURE_INDEX,
-		   "Pressure attribute index is ", pressureIndex);
+    RuntimeAssert (index == Body::PRESSURE_INDEX,
+		   "Pressure attribute index is ", index);
+
+    ac.reset (new RealAttributeCreator());
+    index = infos->AddAttributeInfoLoad (
+        ParsingDriver::GetKeywordString(parser::token::VOLUME), ac);
+    RuntimeAssert (index == Body::VOLUME_INDEX,
+		   "Volume attribute index is ", index);
+
     ac.reset (new IntegerAttributeCreator ());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
-    ac.reset (new RealAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::VOLUME), ac);
+
+
     ac.reset (new RealAttributeCreator());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::VOLCONST), ac);

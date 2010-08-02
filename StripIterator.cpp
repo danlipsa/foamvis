@@ -40,23 +40,29 @@ StripIterator::StripPoint StripIterator::Next ()
 	    location = m_isNextBeginOfStrip ? BEGIN : MIDDLE;
 	    m_isNextBeginOfStrip = false;
 	}
-	return StripPoint (
-	    m_bodyAlongTime.GetBody (m_timeStep++)->GetCenter (), location);
+	const boost::shared_ptr<Body>& body = 
+	    m_bodyAlongTime.GetBody (m_timeStep);
+	++m_timeStep;
+	return StripPoint (body->GetCenter (), location, body);
     }
     else
     { // at the end of a middle wrap
 	m_isNextBeginOfStrip = true;
 	const OOBox& originalDomain = 
 	    m_foamAlongTime.GetFoam (m_timeStep)->GetOriginalDomain ();
+	const boost::shared_ptr<Body>& body = 
+	    m_bodyAlongTime.GetBody (m_timeStep);
 	return StripPoint (
 	    originalDomain.TorusTranslate (
-		m_bodyAlongTime.GetBody (m_timeStep)->GetCenter (),
+		body->GetCenter (),
 		Vector3int16Zero - 
-		m_bodyAlongTime.GetTranslation (m_currentWrap++)), END);
+		m_bodyAlongTime.GetTranslation (m_currentWrap++)), END,
+	    body);
     }
 }
 
-float StripIterator::GetColorByValue (CenterPathColor::Enum colorBy,
+float StripIterator::GetColorByValue (
+    CenterPathColor::Enum colorBy,
     const StripPoint& p, const StripPoint& prev)
 {
     RuntimeAssert (p.m_location != BEGIN, "Invalid strip piece");
@@ -71,7 +77,24 @@ float StripIterator::GetColorByValue (CenterPathColor::Enum colorBy,
 	return speedVector.z;
     case CenterPathColor::SPEED_TOTAL:
 	return speedVector.length ();
-    default:
+    case CenterPathColor::NONE:
 	return 0;
+    default:
+	ThrowException ("Invalid speed: ", colorBy);
     }
+    return 0;
+}
+
+float StripIterator::GetColorByValue (CenterPathColor::Enum colorBy,
+				      const StripPoint& p)
+{
+    return p.m_body->GetRealAttribute (
+	colorBy - CenterPathColor::PER_BODY_BEGIN);
+}
+
+bool StripIterator::ExistsColorByValue (CenterPathColor::Enum colorBy,
+					const StripPoint& p)
+{
+    return p.m_body->ExistsAttribute (
+	colorBy - CenterPathColor::PER_BODY_BEGIN);
 }

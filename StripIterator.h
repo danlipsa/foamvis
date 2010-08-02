@@ -33,16 +33,19 @@ public:
     struct StripPoint
     {
 	StripPoint () :
-	    m_location (BEGIN) 
+	    m_location (COUNT)
 	{
 	}
-	StripPoint (G3D::Vector3 point, Location location) :
-	    m_point (point), m_location (location)
+
+	StripPoint (G3D::Vector3 point, Location location,
+		    const boost::shared_ptr<Body>& body) :
+	    m_point (point), m_location (location), m_body (body)
 	{
 	}
 	
 	G3D::Vector3 m_point;
 	Location m_location;
+	boost::shared_ptr<Body> m_body;
     };
 
 public:
@@ -54,10 +57,7 @@ public:
     {
     }
     bool HasNext () const;
-    StripPoint Next ();
-    static float GetColorByValue (CenterPathColor::Enum colorBy,
-				  const StripPoint& p, const StripPoint& prev);
-
+    StripPoint Next ();    
     template <typename ProcessSegment> 
     void ForEachSegment (ProcessSegment processSegment)
     {
@@ -73,6 +73,13 @@ public:
 	    prev = p;
 	}
     }
+public:
+    static float GetColorByValue (CenterPathColor::Enum colorBy,
+				  const StripPoint& p, const StripPoint& prev);
+    static float GetColorByValue (CenterPathColor::Enum colorBy,
+				  const StripPoint& p);
+    static bool ExistsColorByValue (CenterPathColor::Enum colorBy,
+				    const StripPoint& p);
 
 private:
     size_t m_timeStep;

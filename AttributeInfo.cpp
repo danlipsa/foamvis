@@ -42,7 +42,7 @@ private:
 };
 
 
-// Methods
+// AttributeInfo Methods
 // ======================================================================
 
 AttributeInfo::AttributeInfo (
@@ -51,6 +51,17 @@ AttributeInfo::AttributeInfo (
     m_creator (creator)
 {
 }
+
+string AttributeInfo::ToString () const
+{
+    ostringstream ostr;
+    ostr << "index: " << m_index;
+    return ostr.str ();
+}
+
+
+// AttributesInfo Methods
+// ======================================================================
 
 
 AttributesInfo::AttributesInfo () : 
@@ -99,4 +110,23 @@ AttributeInfo* AttributesInfo::GetAttributeInfo (const char* name) const
         return 0;
     else
         return it->second;
+}
+
+string AttributesInfo::ToString () const
+{
+    ostringstream ostr;
+    ostream_iterator<const char*> out(ostr, " ");
+    ostr << "Load attributes: ";
+    copy (m_loadAttribute.begin (), m_loadAttribute.end (), out);
+    ostr << endl;
+    
+    ostr << "Attributes info: ";
+    BOOST_FOREACH (NameInfoMap::value_type p, m_nameInfo)
+    {
+	ostr << p.first << ": " << *p.second << endl;
+    }
+    
+    ostr << "Next index: " << m_currentIndex << endl;
+    ostr << "Load all: " << m_loadAll << endl;
+    return ostr.str ();
 }

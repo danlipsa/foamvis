@@ -28,11 +28,55 @@ bool isNull (const boost::shared_ptr<Body>& body)
 BodyAlongTimeStatistics::BodyAlongTimeStatistics () :
     m_min (CenterPathColor::COUNT, numeric_limits<float> ().max ()),
     m_max (CenterPathColor::COUNT, numeric_limits<float> ().min ()),
-    m_valuesPerInterval (CenterPathColor::COUNT)
+    m_histogram (CenterPathColor::COUNT)
 {
-    BOOST_FOREACH (vector<size_t>& v, m_valuesPerInterval)
+    BOOST_FOREACH (vector<size_t>& v, m_histogram)
 	v.resize (HISTOGRAM_INTERVALS, 0);
 }
+
+
+void BodyAlongTimeStatistics::speedValuesPerInterval (
+    const StripIterator::StripPoint& p,
+    const StripIterator::StripPoint& prev)
+{
+    G3D::Vector3 speed = p.m_point - prev.m_point;
+    boost::array<float, 4> speedComponents = 
+	{{speed.x, speed.y, speed.z, speed.length ()}};
+    for (size_t i = CenterPathColor::SPEED_BEGIN;
+	 i < CenterPathColor::SPEED_END; ++i)
+	valuePerInterval (i, speedComponents[i]);
+}
+
+void BodyAlongTimeStatistics::valuesPerInterval (
+    const boost::shared_ptr<Body>& body)
+{
+    for (size_t i = CenterPathColor::PER_BODY_BEGIN;
+	 i < CenterPathColor::PER_BODY_END; ++i)
+    {
+	size_t index = i - CenterPathColor::PER_BODY_BEGIN;
+	if (body->ExistsAttribute (index))
+	    valuePerInterval (i, body->GetRealAttribute (index));	
+    }
+}
+
+
+void BodyAlongTimeStatistics::valuePerInterval (size_t i, float value)
+{
+    float beginInterval = GetMin (i);
+    float endInterval = GetMax (i);
+    size_t bin;
+    if (beginInterval == endInterval)
+	bin = 0;
+    else
+    {
+	float step = (endInterval - beginInterval) / HISTOGRAM_INTERVALS;
+	bin = floor ((value - beginInterval) / step);
+	if (bin == HISTOGRAM_INTERVALS)
+	    bin = HISTOGRAM_INTERVALS - 1;
+    }
+    ++m_histogram[i][bin];
+}
+
 
 
 // BodyAlongTime Methods
@@ -111,47 +155,14 @@ void BodyAlongTime::rangeStep (const boost::shared_ptr<Body>& body)
     for (size_t i = CenterPathColor::PER_BODY_BEGIN;
 	 i < CenterPathColor::PER_BODY_END; ++i)
     {
-	m_min[i] = min (
-	    m_min[i],
-	    body->GetRealAttribute (i - CenterPathColor::PER_BODY_BEGIN));
-	m_max[i] = max (
-	    m_max[i],
-	    body->GetRealAttribute (i - CenterPathColor::PER_BODY_BEGIN));
+	size_t index = i - CenterPathColor::PER_BODY_BEGIN;
+	if (body->ExistsAttribute (index))
+	{
+	    float value = body->GetRealAttribute (index);
+	    m_min[i] = min (m_min[i], value);
+	    m_max[i] = max (m_max[i], value);
+	}
     }
-}
-
-
-void BodyAlongTime::speedValuesPerIntervalStep (
-    const StripIterator::StripPoint& p,
-    const StripIterator::StripPoint& prev)
-{
-    G3D::Vector3 speed = p.m_point - prev.m_point;
-    boost::array<float, 4> speedComponents = 
-	{{speed.x, speed.y, speed.z, speed.length ()}};
-    for (size_t i = CenterPathColor::SPEED_BEGIN;
-	 i < CenterPathColor::SPEED_END; ++i)
-	valuePerInterval (i, speedComponents[i]);
-}
-
-void BodyAlongTime::valuesPerIntervalStep (const boost::shared_ptr<Body>& body)
-{
-    for (size_t i = CenterPathColor::PER_BODY_BEGIN;
-	 i < CenterPathColor::PER_BODY_END; ++i)
-	valuePerInterval (
-	    i,
-	    body->GetRealAttribute (i - CenterPathColor::PER_BODY_BEGIN));
-}
-
-
-void BodyAlongTime::valuePerInterval (size_t i, float value)
-{
-    float beginInterval = GetMin (i);
-    float endInterval = GetMax (i);
-    float step = (endInterval - beginInterval) / HISTOGRAM_INTERVALS;
-    size_t bin = floor ((value - beginInterval) / step);
-    if (bin == HISTOGRAM_INTERVALS)
-	bin = HISTOGRAM_INTERVALS - 1;
-    ++m_valuesPerInterval[i][bin];
 }
 
 
@@ -166,16 +177,18 @@ void BodyAlongTime::CalculateValueRange (const FoamAlongTime& foamAlongTime)
 	      boost::bind (&BodyAlongTime::rangeStep, this, _1));
 }
 
-void BodyAlongTime::CalculateValuesPerInterval (
-    const FoamAlongTime& foamAlongTime)
+void BodyAlongTime::CalculateHistogram (
+    const FoamAlongTime& foamAlongTime, BodyAlongTimeStatistics* destination)
 {
     // per segment values (speeds)
     StripIterator it = GetStripIterator (foamAlongTime);
     it.ForEachSegment (
-	boost::bind (&BodyAlongTime::speedValuesPerIntervalStep, this, _1, _2));
+	boost::bind (&BodyAlongTime::speedValuesPerInterval, 
+		     destination, _1, _2));
     // per time step values
-    for_each (m_bodyAlongTime.begin (), m_bodyAlongTime.end (),
-	      boost::bind (&BodyAlongTime::valuesPerIntervalStep, this, _1));
+    for_each (GetBodies ().begin (), GetBodies ().end (),
+	      boost::bind (&BodyAlongTime::valuesPerInterval, 
+			   destination, _1));
 }
 
 size_t BodyAlongTime::GetId () const
@@ -248,39 +261,26 @@ void BodiesAlongTime::CalculateValueRange (const FoamAlongTime& foamAlongTime)
     }
 }
 
-void BodiesAlongTime::CalculateValuesPerInterval (
+void BodiesAlongTime::CalculateHistogram (
     const FoamAlongTime& foamAlongTime)
 {
     BOOST_FOREACH (BodyMap::value_type p, GetBodyMap ())
-    {
-	BodyAlongTime& bat = *p.second;
-	bat.CalculateValuesPerInterval (foamAlongTime);
-	for (size_t i = 0; i < m_min.size (); i++)
-	{
-	    for (size_t bin = 0; bin < HISTOGRAM_INTERVALS; ++bin)
-	    {
-		size_t valuesPerBin = bat.GetValuesPerInterval(i, bin);
-		m_valuesPerInterval[i][bin] += valuesPerBin;
-	    }
-	}
-    }
+	p.second->CalculateHistogram (foamAlongTime, this);
 }
 
-QwtIntervalData BodiesAlongTime::GetValuesPerInterval (
-    size_t speedComponent) const
+QwtIntervalData BodiesAlongTime::GetHistogram (size_t i) const
 {
     QwtArray<QwtDoubleInterval> intervals (HISTOGRAM_INTERVALS);
     QwtArray<double> values (HISTOGRAM_INTERVALS);
-    float beginInterval = GetMin (speedComponent);
-    float endInterval = GetMax (speedComponent);
+    float beginInterval = GetMin (i);
+    float endInterval = GetMax (i);
     float step = (endInterval - beginInterval) / HISTOGRAM_INTERVALS;
     float pos = beginInterval;
     for (size_t bin = 0; bin < HISTOGRAM_INTERVALS; ++bin)
     {
 	intervals[bin] = QwtDoubleInterval (pos, pos + step);
 	values[bin] = 
-	    BodyAlongTimeStatistics::GetValuesPerInterval (
-		speedComponent, bin);
+	    BodyAlongTimeStatistics::GetValuesPerBin (i, bin);
 	pos += step;
     }
     return QwtIntervalData (intervals, values);

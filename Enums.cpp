@@ -154,6 +154,8 @@ string CenterPathColor::ToString (CenterPathColor::Enum colorBy)
 	return "Speed Total";
     case PRESSURE:
 	return "Pressure";
+    case VOLUME:
+	return "Volume";
     case NONE:
 	return "None";
     case COUNT:

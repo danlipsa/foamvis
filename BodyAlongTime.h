@@ -18,34 +18,30 @@ class BodyAlongTimeStatistics
 {
 public:
     BodyAlongTimeStatistics ();
-    float GetMin (CenterPathColor::Enum i) const
-    {
-	return m_min[i];
-    }
     float GetMin (size_t i) const
     {
 	return m_min[i];
-    }
-    float GetMax (CenterPathColor::Enum i) const
-    {
-	return m_max[i];
     }
     float GetMax (size_t i) const
     {
 	return m_max[i];
     }
-    size_t GetValuesPerInterval (size_t i, size_t bin) const
+    size_t GetValuesPerBin (size_t component, size_t bin) const
     {
-	return m_valuesPerInterval[i][bin];
-    }
-    size_t GetValuesPerInterval (CenterPathColor::Enum i, size_t bin) const
-    {
-	return m_valuesPerInterval[i][bin];
+	return m_histogram[component][bin];
     }
 
-    virtual void CalculateValueRange (const FoamAlongTime& foamAlongTime) = 0;
-    virtual void CalculateValuesPerInterval (
-	const FoamAlongTime& foamAlongTime) = 0;
+protected:
+    void speedValuesPerInterval (const StripIterator::StripPoint& p,
+				     const StripIterator::StripPoint& prev);
+    void valuesPerInterval (const boost::shared_ptr<Body>& body);
+    /**
+     * Increment the correct bin for 'index' (@see CenterPathColor::Enum) and
+     * 'value'.
+     */
+    void valuePerInterval (size_t index, float value);
+
+
 
 protected:
     /**
@@ -61,7 +57,7 @@ protected:
      * This array tells us how many values you have in each interval for
      * speed along x, y, z, total speed and pressure
      */
-    vector< vector <size_t> > m_valuesPerInterval;
+    vector< vector <size_t> > m_histogram;
 };
 
 
@@ -99,9 +95,10 @@ public:
      * than 1/2 of min all sides of the original domain
      */
     void CalculateBodyWraps (const FoamAlongTime& foamAlongTime);
-    virtual void CalculateValueRange (const FoamAlongTime& foamAlongTime);
-    virtual void CalculateValuesPerInterval (
-	const FoamAlongTime& foamAlongTime);
+    void CalculateValueRange (const FoamAlongTime& foamAlongTime);
+    void CalculateHistogram (
+	const FoamAlongTime& foamAlongTime,
+	BodyAlongTimeStatistics* destination);
 
     StripIterator GetStripIterator (
 	const FoamAlongTime& foamAlongTime) const
@@ -133,15 +130,6 @@ private:
     void speedRangeStep (const StripIterator::StripPoint& p,
 			 const StripIterator::StripPoint& prev);
     void rangeStep (const boost::shared_ptr<Body>& body);
-    void speedValuesPerIntervalStep (const StripIterator::StripPoint& p,
-				     const StripIterator::StripPoint& prev);
-    void valuesPerIntervalStep (const boost::shared_ptr<Body>& body);
-    /**
-     * Increment the correct bin for 'index' (@see CenterPathColor::Enum) and
-     * 'value'.
-     */
-    void valuePerInterval (size_t index, float value);
-
 
 private:
     Bodies m_bodyAlongTime;
@@ -191,11 +179,11 @@ public:
     {
 	return getBodyAlongTime (id);
     }
-    virtual void CalculateValueRange (const FoamAlongTime& foamAlongTime);
-    virtual void CalculateValuesPerInterval (
+    void CalculateValueRange (const FoamAlongTime& foamAlongTime);
+    void CalculateHistogram (
 	const FoamAlongTime& foamAlongTime);
     string ToString () const;
-    QwtIntervalData GetValuesPerInterval (size_t speedComponent) const;
+    QwtIntervalData GetHistogram (size_t i) const;
 
 private:
     void resize (size_t bodyOriginalIndex, size_t timeSteps);

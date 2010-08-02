@@ -80,6 +80,13 @@ const size_t Element::INVALID_INDEX = numeric_limits<size_t>::max ();
 // Methods
 // ======================================================================
 
+Element::Element(size_t id, ElementStatus::Enum duplicateStatus) : 
+    m_attributes(0),
+    m_id (id), 
+    m_duplicateStatus (duplicateStatus)
+{
+}
+
 Element::Element (const Element& other) :
     m_id (other.m_id),
     m_duplicateStatus (other.m_duplicateStatus)
@@ -128,5 +135,13 @@ string Element::GetStringId () const
 
 float Element::GetRealAttribute (size_t i) const
 {
+    RuntimeAssert (m_attributes != 0 && i < m_attributes->size (),
+		   "Attribute does not exist at index ", i, 
+		   " for element ", GetId ());
     return *boost::static_pointer_cast<RealAttribute> ((*m_attributes)[i]);
+}
+
+bool Element::ExistsAttribute (size_t i) const
+{
+    return m_attributes != 0 && i < m_attributes->size ();
 }

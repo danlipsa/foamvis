@@ -162,7 +162,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_edgesTessellation (false),
       m_centerPathDisplayBody (false),
       m_boundingBox (false),
-      m_centerPathColor (CenterPathColor::NONE)
+      m_centerPathColor (CenterPathColor::NONE),
+      m_notAvailableColor (Qt::black)
 {
     cdbg << "---------- GLWidget constructor ----------\n";
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
@@ -1112,8 +1113,7 @@ void GLWidget::displayOpositeFaces (G3D::Vector3 origin,
 
 void GLWidget::ValueChangedCenterPathColor (int value)
 {
-    RuntimeAssert (value > 0 && 
-		   value < CenterPathColor::COUNT,
+    RuntimeAssert (value < CenterPathColor::COUNT,
 		   "Invalid CenterPathColor: ", value);
     m_centerPathColor = static_cast<CenterPathColor::Enum>(value);
 }

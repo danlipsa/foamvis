@@ -116,7 +116,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QwtScaleWidget" name="scaleWidgetColorBar" native="true"/>
+          <widget class="QwtScaleWidget" name="scaleWidgetColorBar"/>
          </item>
         </layout>
        </widget>
@@ -501,9 +501,6 @@
                     </item>
                     <item>
                      <widget class="QComboBox" name="comboBoxColoredBy">
-                      <property name="currentIndex">
-                       <number>5</number>
-                      </property>
                       <item>
                        <property name="text">
                         <string>Speed Along X</string>
@@ -531,12 +528,24 @@
                       </item>
                       <item>
                        <property name="text">
+                        <string>Volume</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
                         <string>None</string>
                        </property>
                       </item>
                      </widget>
                     </item>
                    </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="checkBoxCenterPathHistogram">
+                   <property name="text">
+                    <string>Histogram</string>
+                   </property>
                   </widget>
                  </item>
                  <item>
@@ -669,7 +678,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>82</x>
-     <y>803</y>
+     <y>699</y>
     </hint>
     <hint type="destinationlabel">
      <x>66</x>
@@ -685,7 +694,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>53</x>
-     <y>803</y>
+     <y>699</y>
     </hint>
     <hint type="destinationlabel">
      <x>38</x>
@@ -701,7 +710,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>122</x>
-     <y>803</y>
+     <y>699</y>
     </hint>
     <hint type="destinationlabel">
      <x>53</x>
@@ -716,8 +725,8 @@
    <slot>ValueChangedSliderData(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>701</x>
-     <y>802</y>
+     <x>830</x>
+     <y>698</y>
     </hint>
     <hint type="destinationlabel">
      <x>180</x>
@@ -844,8 +853,8 @@
    <slot>ToggledEdgesBodyCenter(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>835</x>
-     <y>403</y>
+     <x>826</x>
+     <y>402</y>
     </hint>
     <hint type="destinationlabel">
      <x>520</x>
@@ -860,8 +869,8 @@
    <slot>ToggledEdgesTessellation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>835</x>
-     <y>431</y>
+     <x>826</x>
+     <y>402</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -876,8 +885,8 @@
    <slot>ToggledEdgesTorusTubes(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>835</x>
-     <y>403</y>
+     <x>826</x>
+     <y>402</y>
     </hint>
     <hint type="destinationlabel">
      <x>519</x>
@@ -908,8 +917,8 @@
    <slot>ToggledFacesTorusTubes(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>835</x>
-     <y>403</y>
+     <x>826</x>
+     <y>402</y>
     </hint>
     <hint type="destinationlabel">
      <x>487</x>
@@ -997,6 +1006,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>checkBoxCenterPathHistogram</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>Window</receiver>
+   <slot>ToggledCenterPathHistogram(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>828</x>
+     <y>443</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1036</x>
+     <y>494</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>ClickedBegin()</slot>
@@ -1009,6 +1034,7 @@
   <slot>ToggledSaveMovie(bool)</slot>
   <slot>ValueChangedSliderData(int)</slot>
   <slot>ValueChangedColoredBy(int)</slot>
+  <slot>ToggledCenterPathHistogram(bool)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroup"/>

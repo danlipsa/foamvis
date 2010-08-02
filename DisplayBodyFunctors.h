@@ -147,8 +147,18 @@ public:
 	const BodyAlongTime& bat = m_widget.GetBodyAlongTime (bodyId);
 	StripIterator it = bat.GetStripIterator (m_widget.GetFoamAlongTime ());
 	glBegin(GL_LINES);
-	it.ForEachSegment (
-	    boost::bind (&DisplayCenterPath::speedRangeStep, this, _1, _2));
+	if ( (m_centerPathColor >= CenterPathColor::SPEED_BEGIN &&
+	      m_centerPathColor < CenterPathColor::SPEED_END) ||
+	     m_centerPathColor == CenterPathColor::NONE)
+	    it.ForEachSegment (
+		boost::bind (&DisplayCenterPath::speedStep,
+			     this, _1, _2));
+	else
+	{
+	    it.ForEachSegment (
+		boost::bind (&DisplayCenterPath::valueStep,
+			     this, _1, _2));
+	}
 	glEnd ();
     }
 
@@ -162,16 +172,42 @@ public:
     }
 
 private:
-    void speedRangeStep (
+    void speedStep (
 	const StripIterator::StripPoint& p,
 	const StripIterator::StripPoint& prev)
     {
-	float colorByValue = StripIterator::GetColorByValue (
-	    m_centerPathColor, p, prev);
-	QColor color = m_widget.MapScalar (colorByValue);
+	segment (StripIterator::GetColorByValue (
+		     m_centerPathColor, p, prev),
+		 prev.m_point, p.m_point);
+    }
+
+    void valueStep (
+	const StripIterator::StripPoint& p,
+	const StripIterator::StripPoint& prev)
+    {
+	G3D::Vector3 middle = (prev.m_point + p.m_point) / 2;
+	if (StripIterator::ExistsColorByValue (m_centerPathColor, prev))
+	    segment (StripIterator::GetColorByValue (
+			 m_centerPathColor, prev), prev.m_point, middle);
+	else
+	    segment (m_widget.GetNotAvailableColor (), prev.m_point, middle);
+
+	if (StripIterator::ExistsColorByValue (m_centerPathColor, p))
+	    segment (StripIterator::GetColorByValue (
+			 m_centerPathColor, p), middle, p.m_point);
+	else
+	    segment (m_widget.GetNotAvailableColor (), middle, p.m_point);
+    }
+
+    void segment (float value, G3D::Vector3 begin, G3D::Vector3 end)
+    {
+	segment (m_widget.MapScalar (value), begin, end);
+    }
+    void segment (const QColor& color, G3D::Vector3 begin, G3D::Vector3 end)
+    {
 	m_widget.qglColor (color);
-	glVertex (prev.m_point);
-	glVertex (p.m_point);
+	glVertex (begin);
+	glVertex (end);
     }
 
 private:

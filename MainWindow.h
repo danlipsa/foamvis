@@ -40,6 +40,7 @@ public:
     void InteractionModeRotate ();
     void InteractionModeScale ();
     void InteractionModeTranslate ();
+    void SetAndDisplayHistogram ();
 
 public Q_SLOTS:
     /**
@@ -63,6 +64,7 @@ public Q_SLOTS:
     void TimeoutTimer ();
 
     void ToggledCenterPath (bool checked);
+    void ToggledCenterPathHistogram (bool checked);
     /**
      * Shows edges
      * @param checked true for showing edges false otherwise
@@ -108,7 +110,6 @@ private:
     void updateStatus ();
     void setupSliderData (const FoamAlongTime& foamAlongTime);
     void configureInterface (const FoamAlongTime& foamAlongTime);
-    void changeScaleWidgetInterval (const QwtDoubleInterval& interval);
     void changeScaleWidgetInterval (CenterPathColor::Enum colorBy);
 
     void setupScaleWidget ();
@@ -153,6 +154,7 @@ private:
 
     QwtLinearColorMap m_colorMap;
     QwtDoubleInterval m_colorMapInterval;
+    bool m_centerPathHistogram;
 };
 
 #endif //__MAIN_WINDOW_H__

@@ -124,7 +124,11 @@ public:
 	return m_contextAlpha;
     }
 
-    const QColor& GetEndTranslationColor (const G3D::Vector3int16& di) const;    
+    const QColor& GetEndTranslationColor (const G3D::Vector3int16& di) const;
+    const QColor& GetNotAvailableColor () const
+    {
+	return m_notAvailableColor;
+    }
 
     /**
      * Displays the center of the bodies
@@ -465,6 +469,7 @@ private:
     QwtLinearColorMap* m_colorMap;
     QwtDoubleInterval* m_colorMapInterval;
     CenterPathColor::Enum m_centerPathColor;
+    QColor m_notAvailableColor;
 };
 
 #endif //__GLWIDGET_H__

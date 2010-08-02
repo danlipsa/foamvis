@@ -40,6 +40,8 @@ public:
     {
 	return *m_creator;
     }
+    string ToString () const;
+
     /**
      * Constant used to signal an attribute that will not be stored.
      */
@@ -55,11 +57,20 @@ private:
     auto_ptr<AttributeCreator> m_creator;
 };
 
+inline ostream& operator<< (ostream& ostr, const AttributeInfo& ai)
+{
+    return ostr << ai.ToString ();
+}
+
+
 /**
  * Information about all attributes
  */
 class AttributesInfo
 {
+public:
+    typedef map<const char*, AttributeInfo*, LessThanNoCase> NameInfoMap;
+
 public:
     /**
      * Constructor
@@ -93,7 +104,8 @@ public:
      * @param index where the attribute is stored
      * @return name of the attribute
      */
-     const char* GetAttributeName (size_t index) const;
+    const char* GetAttributeName (size_t index) const;
+    string ToString () const;
 
 private:
     /**
@@ -103,7 +115,7 @@ private:
     /**
      * Map between an attribute name and an attribute info
      */
-    map<const char*, AttributeInfo*, LessThanNoCase> m_nameInfo;
+    NameInfoMap m_nameInfo;
     /**
      * Index where a  newly added attribute will be  store in an array
      * of attributes attached to an element.
@@ -114,6 +126,13 @@ private:
      */
     bool m_loadAll;
 };
+
+inline ostream& operator<< (ostream& ostr, const AttributesInfo& ai)
+{
+    return ostr << ai.ToString ();
+}
+
+
 
 #endif //__ATTRIBUTE_INFO_H__
 

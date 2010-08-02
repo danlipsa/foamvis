@@ -17,7 +17,8 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_play (false), PLAY_TEXT (">"), PAUSE_TEXT("||"),
     m_timer (new QTimer(this)), m_processBodyTorus (0), 
     m_currentBody (0),
-    m_saveMovie(false), m_currentFrame(0)
+    m_saveMovie(false), m_currentFrame(0),
+    m_centerPathHistogram (false)
 {
     // for anti-aliased lines
     QGLFormat fmt;
@@ -118,7 +119,6 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 {
     if (foamAlongTime.GetTimeSteps () == 1)
 	groupBoxTimeSteps->setDisabled (true);
-
     boost::shared_ptr<const Foam> foam = foamAlongTime.GetFoam (0);
     if (! foam->IsTorus ())
 	groupBoxTorusOriginalDomain->setDisabled (true);
@@ -134,6 +134,7 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 	tabWidget->setCurrentWidget (faces);
     }
     scaleWidgetColorBar->setVisible (false);
+    comboBoxColoredBy->setCurrentIndex (CenterPathColor::NONE);
 }
 
 
@@ -422,7 +423,7 @@ void MainWindow::ToggledCenterPath (bool checked)
     if (checked)
     {
 	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
-	ValueChangedColoredBy (CenterPathColor::NONE);
+	comboBoxColoredBy->setCurrentIndex (CenterPathColor::NONE);
     }
     else
     {
@@ -436,74 +437,75 @@ void MainWindow::ToggledCenterPath (bool checked)
 void MainWindow::changeScaleWidgetInterval (CenterPathColor::Enum colorBy)
 {
     const FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    switch (colorBy)
-    {
-    case CenterPathColor::SPEED_ALONG_X:
-    case CenterPathColor::SPEED_ALONG_Y:
-    case CenterPathColor::SPEED_ALONG_Z:
-    case CenterPathColor::SPEED_TOTAL:
-    {
-	QwtDoubleInterval interval(
-	    foamAlongTime.GetMin(colorBy), 
-	    foamAlongTime.GetMax(colorBy));
-	cdbg << "changeScaleWidgetInterval: " << colorBy << " ("
-	     << interval.minValue () << ", " 
-	     << interval.maxValue () << ")" << endl;
-	changeScaleWidgetInterval (interval);
-	break;
-    }
-    default:
-	break;
-    }
-}
-
-void MainWindow::changeScaleWidgetInterval (const QwtDoubleInterval& interval)
-{
-    m_colorMapInterval = interval;
+    m_colorMapInterval = QwtDoubleInterval(
+	foamAlongTime.GetMin(colorBy), 
+	foamAlongTime.GetMax(colorBy));
+    cdbg << "changeScaleWidgetInterval: " << colorBy << " ("
+	 << m_colorMapInterval.minValue () << ", " 
+	 << m_colorMapInterval.maxValue () << ")" << endl;
 
     QwtLinearScaleEngine scaleEngine;
     QwtScaleDiv scaleDiv = scaleEngine.divideScale (
-	interval.minValue (), interval.maxValue (), 0, 0);    
+	m_colorMapInterval.minValue (), m_colorMapInterval.maxValue (), 0, 0);
     QwtValueList majorTicks;
-    majorTicks += (interval.minValue () + interval.maxValue()) / 2;
-    majorTicks += interval.minValue ();
-    majorTicks += interval.maxValue ();
+    majorTicks += 
+	(m_colorMapInterval.minValue () + m_colorMapInterval.maxValue()) / 2;
+    majorTicks += m_colorMapInterval.minValue ();
+    majorTicks += m_colorMapInterval.maxValue ();
     scaleDiv.setTicks(QwtScaleDiv::MajorTick, majorTicks);    
     scaleWidgetColorBar->setScaleDiv (scaleEngine.transformation (), scaleDiv);
 
     //setupBlueRedColorMap (&m_colorMap);
     setupRainbowColorMap (&m_colorMap);
-    scaleWidgetColorBar->setColorMap (interval, m_colorMap);
+    scaleWidgetColorBar->setColorMap (m_colorMapInterval, m_colorMap);
 }
 
 
 void MainWindow::ValueChangedColoredBy (int value)
 {
-    comboBoxColoredBy->setCurrentIndex (value);
     CenterPathColor::Enum colorBy = 
 	static_cast<CenterPathColor::Enum>(value);
     if (colorBy == CenterPathColor::NONE)
     {
 	widgetGl->SetColorMap (0, 0);
 	scaleWidgetColorBar->setVisible (false);
+	checkBoxCenterPathHistogram->setVisible (false);
 	widgetHistogram->setVisible (false);
     }
     else
     {
+	checkBoxCenterPathHistogram->setVisible (true);
 	widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
 	changeScaleWidgetInterval (colorBy);
 	scaleWidgetColorBar->setVisible (true);
-
-	widgetHistogram->setVisible (true);
-	widgetHistogram->SetData (
-	    widgetGl->GetFoamAlongTime ().GetBodiesAlongTime ().
-	    GetValuesPerInterval (colorBy));
-	widgetHistogram->setTitle (
-	    QString(CenterPathColor::ToString (colorBy).c_str()));
-	widgetHistogram->replot ();
-
-	widgetGl->ValueChangedCenterPathColor (value);
+	widgetGl->ValueChangedCenterPathColor (colorBy);
+	SetAndDisplayHistogram ();
     }
     widgetGl->UpdateDisplayList ();
 }
 
+
+void MainWindow::ToggledCenterPathHistogram (bool checked)
+{
+    m_centerPathHistogram = checked;
+    SetAndDisplayHistogram ();
+}
+
+void MainWindow::SetAndDisplayHistogram ()
+{
+    if (m_centerPathHistogram)
+    {
+	size_t value = comboBoxColoredBy->currentIndex ();
+	CenterPathColor::Enum colorBy = 
+	    static_cast<CenterPathColor::Enum>(value);
+	widgetHistogram->setVisible (true);
+	widgetHistogram->SetData (
+	    widgetGl->GetFoamAlongTime ().GetBodiesAlongTime ().
+	    GetHistogram (colorBy));
+	widgetHistogram->setTitle (
+	    QString(CenterPathColor::ToString (colorBy).c_str()));
+	widgetHistogram->replot ();
+    }
+    else
+	widgetHistogram->setVisible (false);
+}
