@@ -17,7 +17,6 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_play (false), PLAY_TEXT (">"), PAUSE_TEXT("||"),
     m_timer (new QTimer(this)), m_processBodyTorus (0), 
     m_currentBody (0),
-    m_saveMovie(false), m_currentFrame(0),
     m_centerPathHistogram (false)
 {
     // for anti-aliased lines
@@ -365,20 +364,6 @@ void MainWindow::ValueChangedSliderData (int value)
     widgetGl->UpdateDisplayList ();
     updateButtons ();
     updateStatus ();
-    if (m_saveMovie)
-    {
-        ostringstream file;
-        file << "movie/frame" << setfill ('0') << setw (4) <<
-	    m_currentFrame << ".jpg" << ends;
-	cdbg << "Taking snapshot ...";
-        QImage snapshot = 
-	    QPixmap::grabWindow (widgetDisplay->winId ()).toImage ();
-	string f = file.str ();
-	cdbg << "Saving " << f << " ..." << endl;
-	if (! snapshot.save (f.c_str ()))
-	    cdbg << "Error saving " << f << endl;
-	m_currentFrame++;
-    }
 }
 
 void MainWindow::ToggledEdgesNormal (bool checked)
@@ -407,14 +392,6 @@ void MainWindow::ToggledFacesTorus (bool checked)
 	stackedWidgetFaces->setCurrentWidget (pageFacesTorus);
     else
 	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
-}
-
-void MainWindow::ToggledSaveMovie (bool checked)
-{
-    m_saveMovie = checked;
-    if (checked)
-	m_currentFrame = 0;
-    ValueChangedSliderData (sliderData->value ());
 }
 
 void MainWindow::ToggledCenterPath (bool checked)

@@ -45,7 +45,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QWidget" name="widgetDisplay" native="true">
+       <widget class="DisplayWidget" name="widgetDisplay" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
           <horstretch>0</horstretch>
@@ -116,7 +116,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QwtScaleWidget" name="scaleWidgetColorBar"/>
+          <widget class="QwtScaleWidget" name="scaleWidgetColorBar" native="true"/>
          </item>
         </layout>
        </widget>
@@ -667,6 +667,15 @@
    <header>Histogram.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>DisplayWidget</class>
+   <extends>QWidget</extends>
+   <header>DisplayWidget.h</header>
+   <container>1</container>
+   <slots>
+    <slot>ToggledSaveMovie(bool)</slot>
+   </slots>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections>
@@ -737,7 +746,7 @@
   <connection>
    <sender>checkBoxSaveMovie</sender>
    <signal>toggled(bool)</signal>
-   <receiver>Window</receiver>
+   <receiver>widgetDisplay</receiver>
    <slot>ToggledSaveMovie(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -745,8 +754,8 @@
      <y>71</y>
     </hint>
     <hint type="destinationlabel">
-     <x>460</x>
-     <y>375</y>
+     <x>343</x>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -1031,7 +1040,6 @@
   <slot>ToggledEdgesNormal(bool)</slot>
   <slot>ToggledEdgesTorus(bool)</slot>
   <slot>ToggledFacesTorus(bool)</slot>
-  <slot>ToggledSaveMovie(bool)</slot>
   <slot>ValueChangedSliderData(int)</slot>
   <slot>ValueChangedColoredBy(int)</slot>
   <slot>ToggledCenterPathHistogram(bool)</slot>

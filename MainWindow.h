@@ -72,12 +72,6 @@ public Q_SLOTS:
     void ToggledEdgesNormal (bool checked);
     void ToggledEdgesTorus (bool checked);
     void ToggledFacesTorus (bool checked);
-
-    /**
-     * Save JPG images of the widgetDisplay
-     * @param checked true for saving images, false otherwise
-     */
-    void ToggledSaveMovie (bool checked);
     /**
      * Invoqued by the UI when  the slider changes to display the data
      * at the current position of the slider.
@@ -142,14 +136,6 @@ private:
     ProcessBodyTorus* m_processBodyTorus;
     Foam::Bodies::iterator m_currentTranslatedBody;
     size_t m_currentBody;
-    /**
-     * Save a jpeg of the current image.
-     */
-    bool m_saveMovie;
-    /**
-     * Keeps track of the current frame saved in a file.
-     */
-    int m_currentFrame;
     string m_stats;
 
     QwtLinearColorMap m_colorMap;
