@@ -30,6 +30,7 @@ private:
     void saveFrame ();
 
 private:
+    Q_OBJECT
     /**
      * Save a jpeg of the current image.
      */

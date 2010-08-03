@@ -417,9 +417,6 @@ void MainWindow::changeScaleWidgetInterval (CenterPathColor::Enum colorBy)
     m_colorMapInterval = QwtDoubleInterval(
 	foamAlongTime.GetMin(colorBy), 
 	foamAlongTime.GetMax(colorBy));
-    cdbg << "changeScaleWidgetInterval: " << colorBy << " ("
-	 << m_colorMapInterval.minValue () << ", " 
-	 << m_colorMapInterval.maxValue () << ")" << endl;
 
     QwtLinearScaleEngine scaleEngine;
     QwtScaleDiv scaleDiv = scaleEngine.divideScale (

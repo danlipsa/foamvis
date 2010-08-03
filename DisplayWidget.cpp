@@ -41,6 +41,7 @@ void DisplayWidget::saveFrame ()
 
 void DisplayWidget::ToggledSaveMovie (bool checked)
 {
+    cdbg << "Toggle save movie" << endl;
     m_saveMovie = checked;
     if (checked)
 	m_currentFrame = 0;
