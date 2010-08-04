@@ -66,6 +66,24 @@ inline float Luminance (const QColor& color)
 
 extern const size_t HISTOGRAM_INTERVALS;
 
+template <typename Container, 
+	  typename ContainerIterator,
+	  typename ContainerKeyType>
+ContainerIterator fuzzyFind (const Container& s, const ContainerKeyType& x)
+{
+    ContainerIterator it = s.lower_bound (x);
+    if (it != s.end () && (*it)->fuzzyEq (*x))
+	return it;
+    if (it != s.begin ())
+    {
+	--it;
+	if ((*(it))->fuzzyEq (*x))
+	    return it;
+    }
+    return s.end ();
+}
+
+
 #endif //__ELEMENT_UTILS_H__
 
 // Local Variables:

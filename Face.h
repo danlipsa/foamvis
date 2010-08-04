@@ -16,6 +16,7 @@ class Body;
 class Foam;
 class Edge;
 class OrientedEdge;
+class OOBox;
 
 /**
  * A Face is a oriented list of edges.
@@ -100,6 +101,15 @@ public:
     {
 	return GetBodyPartOfSize () == 0;
     }
+    boost::shared_ptr<Face> GetDuplicate (
+	const OOBox& periods, const G3D::Vector3int16& translation,
+	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet) const;
+
+private:
+    boost::shared_ptr<Face> createDuplicate (
+	const OOBox& periods, const G3D::Vector3& newBegin,
+	VertexSet* vertexSet, EdgeSet* edgeSet) const;
+
 
 private:
     /**

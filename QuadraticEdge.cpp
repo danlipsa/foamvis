@@ -5,6 +5,7 @@
  * Implementation of the Edge class
  */
 
+#include "OOBox.h"
 #include "QuadraticEdge.h"
 #include "Vertex.h"
 
@@ -43,8 +44,23 @@ void QuadraticEdge::Display (Color::Enum defaultColor, float alpha) const
     const Vertex& m = *GetMiddle ();
     glBegin(GL_LINE_STRIP);
     glVertex (b);
-    //glVertex (m);
+    glVertex (m);
     glVertex (e);
     glEnd ();
 }
 
+
+boost::shared_ptr<Edge> QuadraticEdge::createDuplicate (
+    const OOBox& periods,
+    const G3D::Vector3& newBegin, VertexSet* vertexSet) const
+{
+    G3D::Vector3int16 translation = periods.GetTranslation (
+	*GetBegin (), newBegin);
+    boost::shared_ptr<QuadraticEdge> duplicate = 
+	boost::static_pointer_cast<QuadraticEdge> (
+	    Edge::createDuplicate (periods, newBegin, vertexSet));
+    boost::shared_ptr<Vertex> middleDuplicate = GetMiddle ()->GetDuplicate (
+	periods, translation, vertexSet);
+    duplicate->SetMiddle (middleDuplicate);
+    return duplicate;
+}

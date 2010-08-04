@@ -143,6 +143,10 @@ public:
     void GetVertexSet (VertexSet* vertexSet) const;
 
     virtual boost::shared_ptr<Edge> Clone () const;
+    boost::shared_ptr<Edge> GetDuplicate (
+	const OOBox& periods,
+	const G3D::Vector3& newBegin,
+	VertexSet* vertexSet, EdgeSet* edgeSet) const;
     virtual void Display (Color::Enum defaultColor, float alpha) const;
 
 public:
@@ -151,6 +155,11 @@ public:
 
 protected:
     Edge (const Edge& edge);
+
+protected:
+    virtual boost::shared_ptr<Edge> createDuplicate (
+	const OOBox& periods,
+	const G3D::Vector3& newBegin, VertexSet* vertexSet) const;
 
 private:
     /**

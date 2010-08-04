@@ -10,9 +10,10 @@
 #include "Element.h"
 #include "Comparisons.h"
 
+class Body;
 class AttributesInfo;
 class Edge;
-class Body;
+class OOBox;
 
 /**
  * Vertex represented in a DMP file. Is part of edges, faces and bodies.
@@ -47,6 +48,11 @@ public:
     bool operator< (const Vertex& other) const;
     bool operator== (const Vertex& other) const;
     string ToString () const;
+    boost::shared_ptr<Vertex> GetDuplicate (
+	const OOBox& periods,
+	const G3D::Vector3int16& translation,
+	VertexSet* vertexSet) const;
+
 
 private:
     class storeByDomain
@@ -96,6 +102,13 @@ private:
     private:
 	ostream& m_ostr;
     };
+
+private:
+    void torusTranslate (
+	const OOBox& periods,
+	const G3D::Vector3int16& translation);
+    boost::shared_ptr<Vertex> createDuplicate (
+	const OOBox& periods, const G3D::Vector3int16& translation) const;
 
 private:
     /**

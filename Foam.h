@@ -183,9 +183,6 @@ public:
 	return m_standaloneFaces;
     }
 
-    boost::shared_ptr<Face>  GetFaceDuplicate (
-	const Face& original, const G3D::Vector3int16& translation,
-	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet) const;
     /**
      * Insures a body's center is inside the original domain.
      * @return true if the body is already inside the original domain,
@@ -252,14 +249,6 @@ private:
     void bodiesInsideOriginalDomain (
 	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
 
-    boost::shared_ptr<Vertex> createVertexDuplicate (
-	const Vertex& original, G3D::Vector3int16 const& translation) const;
-    boost::shared_ptr<Edge>  createEdgeDuplicate (
-	const Edge& original, const G3D::Vector3& newBegin, 
-	VertexSet* vertexSet) const;
-    boost::shared_ptr<Face>  createFaceDuplicate (
-	const Face& original, const G3D::Vector3& newBegin,
-	VertexSet* vertexSet, EdgeSet* edgeSet) const;
     /**
      * Calculates the AABOX for the the foam and the 8 corners of the 
      * original domain.
@@ -267,20 +256,13 @@ private:
      * @params high high point of the aabox for the foam (input/output)
      */
     void calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high);
-    void torusTranslate (
-      Vertex* vertex, const G3D::Vector3int16& domainIncrement) const;
     void unwrap (VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
     void unwrap (boost::shared_ptr<Edge> edge, VertexSet* vertexSet) const;
     void unwrap (boost::shared_ptr<Face> face, 
 		 VertexSet* vertexSet, EdgeSet* edgeSet) const;
     void unwrap (boost::shared_ptr<Body> body,
-		 VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet) const;
-    boost::shared_ptr<Vertex> getVertexDuplicate (
-	const Vertex& original, const G3D::Vector3int16& translation,
-	VertexSet* vertexSet) const;
-    boost::shared_ptr<Edge>  getEdgeDuplicate (
-	const Edge& original, const G3D::Vector3& edgeBegin,
-	VertexSet* vertexSet, EdgeSet* edgeSet) const;
+		 VertexSet* vertexSet, EdgeSet* edgeSet, 
+		 FaceSet* faceSet) const;
     void bodyTranslate (
 	const boost::shared_ptr<Body>& body,
 	const G3D::Vector3int16& translate,

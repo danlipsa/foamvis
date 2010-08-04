@@ -12,6 +12,7 @@
 #include "DebugStream.h"
 #include "Debug.h"
 #include "Hashes.h"
+#include "OOBox.h"
 #include "ParsingDriver.h"
 #include "Utils.h"
 #include "Vertex.h"
@@ -84,3 +85,39 @@ string Vertex::ToString () const
     return ostr.str ();
 }
 
+void Vertex::torusTranslate (
+    const OOBox& periods,
+    const G3D::Vector3int16& translation)
+{
+    *static_cast<G3D::Vector3*>(this) = 
+	periods.TorusTranslate (*this, translation);
+}
+
+boost::shared_ptr<Vertex> Vertex::createDuplicate (
+    const OOBox& periods,
+    const G3D::Vector3int16& translation) const
+{
+    boost::shared_ptr<Vertex> duplicate = boost::make_shared<Vertex> (
+	*this);
+    duplicate->SetDuplicateStatus (ElementStatus::DUPLICATE);
+    duplicate->torusTranslate (periods, translation);
+    return duplicate;
+}
+
+boost::shared_ptr<Vertex> Vertex::GetDuplicate (
+    const OOBox& periods,
+    const G3D::Vector3int16& translation,
+    VertexSet* vertexSet) const
+{
+    boost::shared_ptr<Vertex> searchDummy = boost::make_shared<Vertex>(
+	periods.TorusTranslate (*this, translation));
+    VertexSet::iterator it = fuzzyFind 
+	<VertexSet, VertexSet::iterator, VertexSet::key_type> (
+	    *vertexSet, searchDummy);
+    if (it != vertexSet->end ())
+	return *it;
+    boost::shared_ptr<Vertex> duplicate = this->createDuplicate (
+	periods, translation);
+    vertexSet->insert (duplicate);
+    return duplicate;
+}

@@ -53,8 +53,9 @@ bool ProcessBodyTorus::Step (
     if (translation != Vector3int16Zero)
     {
 	boost::shared_ptr<Face>  translatedNextFace = 
-	    m_foam.GetFaceDuplicate (*nextOfi.GetFace (), translation,
-				     vertexSet, edgeSet, faceSet);
+	    nextOfi.GetFace ()->GetDuplicate (
+		m_foam.GetOriginalDomain (), translation,
+		vertexSet, edgeSet, faceSet);
 	boost::shared_ptr<OrientedFace>  nextOf = nextOfi.GetOrientedFace ();
 	nextOf->SetFace (translatedNextFace);
 	//cdbg << "    Face " << nextOf->GetStringId ()

@@ -23,12 +23,20 @@ public:
     {
 	return m_middle;
     }
+    void SetMiddle (boost::shared_ptr<Vertex> middle)
+    {
+	m_middle = middle;
+    }
+
 
     virtual boost::shared_ptr<Edge> Clone () const;
     virtual void Display (Color::Enum defaultColor, float alpha) const;
 
 protected:
     QuadraticEdge (const QuadraticEdge& quadraticEdge);
+    virtual boost::shared_ptr<Edge> createDuplicate (
+	const OOBox& periods,
+	const G3D::Vector3& newBegin, VertexSet* vertexSet) const;
     
 private:
     boost::shared_ptr<Vertex> m_middle;

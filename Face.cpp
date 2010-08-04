@@ -216,3 +216,50 @@ void Face::GetEdgeSet (EdgeSet* edgeSet) const
     BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, orientedEdges)
 	edgeSet->insert (oe->GetEdge ());
 }
+
+boost::shared_ptr<Face> Face::GetDuplicate (
+    const OOBox& periods, const G3D::Vector3int16& translation,
+    VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet) const
+{
+    const G3D::Vector3* begin = 
+	GetOrientedEdge (0)->GetBegin ().get ();
+    const G3D::Vector3& newBegin = 
+	periods.TorusTranslate (*begin, translation);
+    boost::shared_ptr<Face> searchDummy =
+	boost::make_shared<Face> (
+	    boost::make_shared<Edge> (
+		boost::make_shared<Vertex> (newBegin), 0), GetId ());
+    FaceSet::iterator it = 
+	fuzzyFind <FaceSet, FaceSet::iterator, FaceSet::key_type> (
+	    *faceSet, searchDummy);
+    if (it != faceSet->end ())
+	return *it;
+    boost::shared_ptr<Face> duplicate = this->createDuplicate (
+	periods, newBegin, vertexSet, edgeSet);
+    faceSet->insert (duplicate);
+    return duplicate;
+}
+
+boost::shared_ptr<Face> Face::createDuplicate (
+    const OOBox& periods, const G3D::Vector3& newBegin,
+    VertexSet* vertexSet, EdgeSet* edgeSet) const
+{
+    boost::shared_ptr<Face> faceDuplicate = boost::make_shared<Face> (*this);
+    faceDuplicate->SetDuplicateStatus (ElementStatus::DUPLICATE);
+    G3D::Vector3 begin = newBegin;
+    BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe,
+		   faceDuplicate->GetOrientedEdges ())
+    {
+	G3D::Vector3 edgeBegin;
+	if (oe->IsReversed ())
+	    edgeBegin = oe->GetEdge ()->GetTranslatedBegin (begin);
+	else
+	    edgeBegin = begin;
+	boost::shared_ptr<Edge> edgeDuplicate = 
+	    oe->GetEdge ()->GetDuplicate (
+		periods, edgeBegin, vertexSet, edgeSet);
+	oe->SetEdge (edgeDuplicate);
+	begin = *oe->GetEnd ();
+    }
+    return faceDuplicate;
+}

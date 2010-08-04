@@ -15,24 +15,24 @@
  * \mainpage The Foam Project
  * \section intro_sec Introduction
  *
- * This project visualizes and helps understand foam modeling data produced
- * by Surface Evolver.
+ * This project visualizes and helps gaining insights into foam
+ * simulation data produced by Surface Evolver.
  *
  * \section torus_sec Processing done for the Torus model
  * \subsection onedge_sec Executed when creating an edge (may create
  * duplicate vertices)
  *
  <pre>
-The first vertex of an edge is always defined in the data file (it's not a 
-duplicate).
+The begin vertex (and the middle vertex in quadratic mode) of an edge is 
+always defined in the data file (it's not a duplicate).
   if (edge is marked with a *)
-    the second vertex is defined in the data file (no DUPLICATE needed)
+    the end vertex is defined in the data file (no DUPLICATE needed)
   else if (edge is marked with a + or -) {
-    create a DUPLICATE of the second vertex by translating it
+    create a DUPLICATE of the end vertex by translating it
       one domain up for a + and one domain down for a - along each of 
       the three axes. The translation is done relative to the domain where the 
-      ORIGINAL second vertex is defined in the data file. This means that
-      (* * *) is the domain where the second vertex is defined in the data file
+      ORIGINAL end vertex is defined in the data file. This means that
+      (* * *) is the domain where the end vertex is defined in the data file
       NOT the original domain.
   }
  </pre>

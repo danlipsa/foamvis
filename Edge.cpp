@@ -231,6 +231,48 @@ void Edge::Display (Color::Enum defaultColor, float alpha) const
     glEnd ();
 }
 
+boost::shared_ptr<Edge> Edge::GetDuplicate (
+    const OOBox& periods,
+    const G3D::Vector3& newBegin,
+    VertexSet* vertexSet, EdgeSet* edgeSet) const
+{
+    boost::shared_ptr<Edge> searchDummy = 
+	boost::make_shared<Edge>(
+	    boost::make_shared<Vertex> (newBegin), GetId ());
+    EdgeSet::iterator it = 
+	fuzzyFind <EdgeSet, EdgeSet::iterator, EdgeSet::key_type> (
+	    *edgeSet, searchDummy);
+    if (it != edgeSet->end ())
+	return *it;
+    boost::shared_ptr<Edge> duplicate = createDuplicate (
+	periods, newBegin, vertexSet);
+    edgeSet->insert (duplicate);
+    return duplicate;
+}
+
+boost::shared_ptr<Edge> Edge::createDuplicate (
+    const OOBox& periods,
+    const G3D::Vector3& newBegin, VertexSet* vertexSet) const
+{
+    G3D::Vector3int16 translation = periods.GetTranslation (
+	*GetBegin (), newBegin);
+    boost::shared_ptr<Vertex> beginDuplicate = GetBegin ()->GetDuplicate (
+	periods, translation, vertexSet);
+    boost::shared_ptr<Vertex> endDuplicate = GetEnd ()->GetDuplicate (
+	periods, translation, vertexSet);
+    boost::shared_ptr<Edge> duplicate = Clone ();
+    duplicate->SetBegin (beginDuplicate);
+    duplicate->SetEnd (endDuplicate);
+    duplicate->SetDuplicateStatus (ElementStatus::DUPLICATE);
+    return duplicate;
+}
+
+void Edge::GetVertexSet (VertexSet* vertexSet) const
+{
+    vertexSet->insert (GetBegin ());
+    vertexSet->insert (GetEnd ());
+}
+
 
 // Static and Friends Methods
 // ======================================================================
@@ -264,8 +306,3 @@ G3D::Vector3int16 Edge::IntToLocation (int value)
     return result;
 }
 
-void Edge::GetVertexSet (VertexSet* vertexSet) const
-{
-    vertexSet->insert (GetBegin ());
-    vertexSet->insert (GetEnd ());
-}
