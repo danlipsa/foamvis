@@ -53,8 +53,8 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
 "//".*       /* eat comments */
 
 [+-]?{D}+ { /* decimal integers */
-	yylval->m_int = yyextra->ReadInteger (yytext, 10);
-	yylloc->begin.line = yylineno;
+    yylval->m_int = yyextra->ReadInteger (yytext, 10);
+    yylloc->begin.line = yylineno;
     return parser::token::INTEGER_VALUE;
 	}
 

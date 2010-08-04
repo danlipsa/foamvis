@@ -278,7 +278,7 @@ boost::shared_ptr<Edge> Foam::createEdgeDuplicate (
 	*original.GetBegin (), translation, vertexSet);
     boost::shared_ptr<Vertex> endDuplicate = getVertexDuplicate (
 	*original.GetEnd (), translation, vertexSet);
-    boost::shared_ptr<Edge> duplicate = boost::make_shared<Edge> (original);
+    boost::shared_ptr<Edge> duplicate = original.Clone ();
     duplicate->SetBegin (beginDuplicate);
     duplicate->SetEnd (endDuplicate);
     duplicate->SetDuplicateStatus (ElementStatus::DUPLICATE);

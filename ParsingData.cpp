@@ -10,6 +10,7 @@
 #include "Edge.h"
 #include "Face.h"
 #include "ParsingData.h"
+#include "QuadraticEdge.h"
 #include "Vertex.h"
 
 /**
@@ -161,15 +162,23 @@ void ParsingData::SetVertex (size_t i, float x, float y, float z,
     m_vertices[i] = vertex;
 }
 
-void ParsingData::SetEdge (size_t i, size_t begin, size_t end,
+void ParsingData::SetEdge (size_t i,
+			   size_t begin, size_t end, size_t middle,
 			   G3D::Vector3int16& endTranslation,
 			   vector<NameSemanticValue*>& attributes,
-			   const AttributesInfo& attributesInfo) 
+			   const AttributesInfo& attributesInfo,
+			   bool isQuadratic)
 {
     if (i >= m_edges.size ())
-        m_edges.resize (i + 1); 
-    boost::shared_ptr<Edge> edge = boost::make_shared<Edge> (
-	GetVertex(begin), GetVertex(end), endTranslation, i);
+        m_edges.resize (i + 1);
+    boost::shared_ptr<Edge> edge;
+    if (isQuadratic)
+	edge = boost::make_shared<QuadraticEdge> (
+	    GetVertex(begin), GetVertex(end), GetVertex (middle), 
+	    endTranslation, i);
+    else
+	edge = boost::make_shared<Edge> (
+	    GetVertex(begin), GetVertex(end), endTranslation, i);
     if (&attributes != 0)
         edge->StoreAttributes (attributes, attributesInfo);
     m_edges[i] = edge;

@@ -59,10 +59,13 @@ struct DisplayEdgeTube
 struct DisplayEdge
 {
     void operator() (
-	GLUquadricObj*,
-	float,
+	GLUquadricObj* quadric,
+	float edgeRadius,
 	const G3D::Vector3& begin, const G3D::Vector3& end)
     {
+	(void)quadric;
+	(void)edgeRadius;
+
 	glLineWidth (1.0);
 	glBegin(GL_LINES);
 	glVertex(begin);
@@ -184,25 +187,19 @@ public:
     {
 	operator () (*edge);
     }
-    void operator () (const Edge& oe) const
+
+    void operator () (const Edge& edge) const
     {
 	const Foam& foam = m_widget.GetCurrentFoam ();
-	bool isPhysical = oe.IsPhysical (foam.GetSpaceDimension (),
-					 foam.IsQuadratic ());
+	bool isPhysical = edge.IsPhysical (foam.GetSpaceDimension (),
+					   foam.IsQuadratic ());
 	if (isPhysical || 
 	    (tesselationEdgesDisplay == TEST_DISPLAY_TESSELLATION &&
 	     m_widget.IsEdgesTessellation () && 
 	     m_focus == FOCUS))
 	{
 	    float alpha = m_focus == FOCUS ? 1.0 : m_widget.GetContextAlpha (); 
-	    Color::Enum color = oe.GetColor (Color::BLACK);
-	    glColor (G3D::Color4 (Color::GetValue(color), alpha));
-	    G3D::Vector3* b = oe.GetBegin ().get ();
-	    G3D::Vector3* e = oe.GetEnd ().get ();
-	    glBegin(GL_LINES);
-	    glVertex(*b);
-	    glVertex (*e);
-	    glEnd ();
+	    edge.Display (Color::BLACK, alpha);
 	}
     }
 

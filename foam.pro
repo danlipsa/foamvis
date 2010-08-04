@@ -10,6 +10,7 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h \
 	OOBox.h OrientedElement.h\
 	OrientedEdge.h OrientedFace.h OrientedFaceIndex.h \
 	ParsingData.h ParsingDriver.h ProcessBodyTorus.h \
+	QuadraticEdge.h \
 	stable.h StripIterator.h SystemDifferences.h Utils.h \
 	Vertex.h
 SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
@@ -23,6 +24,7 @@ SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	OOBox.cpp OrientedElement.cpp\
 	OrientedEdge.cpp OrientedFace.cpp OrientedFaceIndex.cpp\
 	ParsingData.cpp ParsingDriver.cpp ProcessBodyTorus.cpp \
+	QuadraticEdge.cpp \
 	StripIterator.cpp Utils.cpp Vertex.cpp 
 FORMS += Window.ui
 LEXSOURCES += EvolverData.l

@@ -27,7 +27,7 @@ bool isNull (const boost::shared_ptr<Body>& body)
 // ======================================================================
 BodyAlongTimeStatistics::BodyAlongTimeStatistics () :
     m_min (CenterPathColor::COUNT, numeric_limits<float> ().max ()),
-    m_max (CenterPathColor::COUNT, numeric_limits<float> ().min ()),
+    m_max (CenterPathColor::COUNT, -numeric_limits<float> ().max ()),
     m_histogram (CenterPathColor::COUNT)
 {
     BOOST_FOREACH (vector<size_t>& v, m_histogram)
@@ -42,8 +42,8 @@ void BodyAlongTimeStatistics::speedValuesPerInterval (
     G3D::Vector3 speed = p.m_point - prev.m_point;
     boost::array<float, 4> speedComponents = 
 	{{speed.x, speed.y, speed.z, speed.length ()}};
-    for (size_t i = CenterPathColor::SPEED_BEGIN;
-	 i < CenterPathColor::SPEED_END; ++i)
+    for (size_t i = CenterPathColor::VELOCITY_BEGIN;
+	 i < CenterPathColor::VELOCITY_END; ++i)
 	valuePerInterval (i, speedComponents[i]);
 }
 
@@ -142,8 +142,8 @@ void BodyAlongTime::speedRangeStep (
     // Warning: should have the same ordering as CenterPathColor::Enum
     boost::array<float, 4> speedComponents = 
 	{{speed.x, speed.y, speed.z, speed.length ()}};
-    for (size_t i = CenterPathColor::SPEED_BEGIN;
-	 i < CenterPathColor::SPEED_END; ++i)
+    for (size_t i = CenterPathColor::VELOCITY_BEGIN;
+	 i < CenterPathColor::VELOCITY_END; ++i)
     {
 	m_min[i] = min (m_min[i], speedComponents[i]);
 	m_max[i] = max (m_max[i], speedComponents[i]);

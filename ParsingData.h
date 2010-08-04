@@ -161,10 +161,11 @@ public:
      * @param end index of the last Point that determines the edge
      * @param attributes the list of attributes for this edge
      */
-    void SetEdge (size_t i, size_t begin, size_t end,
+    void SetEdge (size_t i, size_t begin, size_t end, size_t middle,
 		  G3D::Vector3int16& endTranslation,
                   vector<NameSemanticValue*>& attributes,
-		  const AttributesInfo& attributesInfo);
+		  const AttributesInfo& attributesInfo,
+		  bool isQuadratic);
     /**
      * Gets all faces from this Foam
      */

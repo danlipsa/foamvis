@@ -144,14 +144,14 @@ string CenterPathColor::ToString (CenterPathColor::Enum colorBy)
 {
     switch (colorBy)
     {
-    case SPEED_ALONG_X:
-	return "Speed along X";
-    case SPEED_ALONG_Y:
-	return "Speed along Y";
-    case SPEED_ALONG_Z:
-	return "Speed along Z";
-    case SPEED_TOTAL:
-	return "Speed Total";
+    case VELOCITY_ALONG_X:
+	return "Velocity Along X";
+    case VELOCITY_ALONG_Y:
+	return "Velocity Along Y";
+    case VELOCITY_ALONG_Z:
+	return "Velocity Along Z";
+    case VELOCITY_MAGNITUDE:
+	return "Velocity Magnitude";
     case PRESSURE:
 	return "Pressure";
     case VOLUME:

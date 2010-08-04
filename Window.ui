@@ -503,22 +503,22 @@
                      <widget class="QComboBox" name="comboBoxColoredBy">
                       <item>
                        <property name="text">
-                        <string>Speed Along X</string>
+                        <string>Velocity Along X</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string>Speed Along Y</string>
+                        <string>Velocity Along Y</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string>Speed Along Z</string>
+                        <string>Velocity Along Z</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string>Speed Total</string>
+                        <string>Velocity Magnitute</string>
                        </property>
                       </item>
                       <item>

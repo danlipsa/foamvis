@@ -147,8 +147,8 @@ public:
 	const BodyAlongTime& bat = m_widget.GetBodyAlongTime (bodyId);
 	StripIterator it = bat.GetStripIterator (m_widget.GetFoamAlongTime ());
 	glBegin(GL_LINES);
-	if ( (m_centerPathColor >= CenterPathColor::SPEED_BEGIN &&
-	      m_centerPathColor < CenterPathColor::SPEED_END) ||
+	if ( (m_centerPathColor >= CenterPathColor::VELOCITY_BEGIN &&
+	      m_centerPathColor < CenterPathColor::VELOCITY_END) ||
 	     m_centerPathColor == CenterPathColor::NONE)
 	    it.ForEachSegment (
 		boost::bind (&DisplayCenterPath::speedStep,

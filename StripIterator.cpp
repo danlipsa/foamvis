@@ -69,13 +69,13 @@ float StripIterator::GetColorByValue (
     G3D::Vector3 speedVector = p.m_point - prev.m_point;
     switch (colorBy)
     {
-    case CenterPathColor::SPEED_ALONG_X:
+    case CenterPathColor::VELOCITY_ALONG_X:
 	return speedVector.x;
-    case CenterPathColor::SPEED_ALONG_Y:
+    case CenterPathColor::VELOCITY_ALONG_Y:
 	return speedVector.y;
-    case CenterPathColor::SPEED_ALONG_Z:
+    case CenterPathColor::VELOCITY_ALONG_Z:
 	return speedVector.z;
-    case CenterPathColor::SPEED_TOTAL:
+    case CenterPathColor::VELOCITY_MAGNITUDE:
 	return speedVector.length ();
     case CenterPathColor::NONE:
 	return 0;

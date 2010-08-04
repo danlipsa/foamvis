@@ -229,6 +229,7 @@ class AttributeCreator;
 %type <m_short> opt_sign_torus_model
 %type <m_int> quantity_rest
 %type <m_int> method_instance_rest
+%type <m_int> edge_midpoint
 
 %{
 #include "Foam.h"
@@ -904,16 +905,24 @@ edge_list
 	intToUnsigned($2 - 1, "Semantic error: edge index less than 0: "),
 	intToUnsigned($3 - 1, "Semantic error: edge begin less than 0: "),
 	intToUnsigned($4 - 1, "Semantic error: edge end less than 0: "),
+	intToUnsigned($5 - 1, "Semantic error: edge midpoint less than 0: "),
 	*$6,
 	*$7,
-	foam.GetAttributesInfo (DefineAttribute::EDGE));
+	foam.GetAttributesInfo (DefineAttribute::EDGE),
+	foam.IsQuadratic ());
     delete $6;
     NameSemanticValue::DeleteVector($7);
 }
 
 edge_midpoint
 : /* empty */
+{
+    $$ = numeric_limits<int> ().max ();
+}
 | INTEGER_VALUE
+{
+    $$ = $1;
+}
 
 edge_attribute_list
 : /* empty */

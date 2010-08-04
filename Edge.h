@@ -23,9 +23,12 @@ class Edge : public ColoredElement
 public:
     /**
      * Creates an Edge object
-     * @param id what is the original index for this edge
      * @param begin the first point of the endge
      * @param end the last point of the edge
+     * @param endLocation used in torus model to mark a translation relative to
+     *        the domain where the second vertex is defined in the data file.
+     * @param id what is the original index for this edge
+     * @param duplicateStatus is this an original edge or a duplicate
      */
     Edge (const boost::shared_ptr<Vertex>& begin,
 	  const boost::shared_ptr<Vertex>& end, 
@@ -33,7 +36,6 @@ public:
 	  size_t id,
 	  ElementStatus::Enum duplicateStatus = ElementStatus::ORIGINAL);
     Edge (const boost::shared_ptr<Vertex>& begin, size_t id);
-    Edge (const Edge& edge);
     /**
      * @return the first vertex of the edge
      */
@@ -140,9 +142,15 @@ public:
     string ToString () const;
     void GetVertexSet (VertexSet* vertexSet) const;
 
+    virtual boost::shared_ptr<Edge> Clone () const;
+    virtual void Display (Color::Enum defaultColor, float alpha) const;
+
 public:
     static short LocationCharToNumber (char sign);
     static G3D::Vector3int16 IntToLocation (int i);
+
+protected:
+    Edge (const Edge& edge);
 
 private:
     /**

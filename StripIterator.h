@@ -61,7 +61,7 @@ public:
     template <typename ProcessSegment> 
     void ForEachSegment (ProcessSegment processSegment)
     {
-	StripIterator::StripPoint prev;
+	StripIterator::StripPoint prev = Next ();
 	while (HasNext ())
 	{
 	    StripIterator::StripPoint p = Next ();

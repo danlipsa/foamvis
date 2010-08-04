@@ -47,6 +47,11 @@ Edge::Edge (const Edge& o) :
 {
 }
 
+boost::shared_ptr<Edge> Edge::Clone () const
+{
+    return boost::shared_ptr<Edge> (new Edge(*this));
+}
+
 G3D::Vector3 Edge::GetTranslatedBegin (const G3D::Vector3& newEnd) const
 {
     return newEnd + (*GetBegin () - *GetEnd ());
@@ -214,6 +219,17 @@ string Edge::ToString () const
     return ostr.str ();
 }
 
+void Edge::Display (Color::Enum defaultColor, float alpha) const
+{
+    Color::Enum color = GetColor (defaultColor);
+    glColor (G3D::Color4 (Color::GetValue(color), alpha));
+    const Vertex& b = *GetBegin ();
+    const Vertex& e = *GetEnd ();
+    glBegin(GL_LINES);
+    glVertex(b);
+    glVertex (e);
+    glEnd ();
+}
 
 
 // Static and Friends Methods
