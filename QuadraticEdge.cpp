@@ -5,6 +5,7 @@
  * Implementation of the Edge class
  */
 
+#include "Debug.h"
 #include "OOBox.h"
 #include "QuadraticEdge.h"
 #include "Vertex.h"
@@ -29,26 +30,10 @@ QuadraticEdge::QuadraticEdge (const QuadraticEdge& quadraticEdge) :
     
 }
 
-
 boost::shared_ptr<Edge> QuadraticEdge::Clone () const
 {
     return boost::shared_ptr<Edge> (new QuadraticEdge(*this));
 }
-
-void QuadraticEdge::Display (Color::Enum defaultColor, float alpha) const
-{
-    Color::Enum color = GetColor (defaultColor);
-    glColor (G3D::Color4 (Color::GetValue(color), alpha));
-    const Vertex& b = *GetBegin ();
-    const Vertex& e = *GetEnd ();
-    const Vertex& m = *GetMiddle ();
-    glBegin(GL_LINE_STRIP);
-    glVertex (b);
-    glVertex (m);
-    glVertex (e);
-    glEnd ();
-}
-
 
 boost::shared_ptr<Edge> QuadraticEdge::createDuplicate (
     const OOBox& periods,
@@ -63,4 +48,31 @@ boost::shared_ptr<Edge> QuadraticEdge::createDuplicate (
 	periods, translation, vertexSet);
     duplicate->SetMiddle (middleDuplicate);
     return duplicate;
+}
+
+float QuadraticEdge::quadratic (float t, size_t i) const
+{
+    return
+	(*GetBegin ())[i] * (1 - t) * (2 - t) / 2 +
+	(*GetMiddle ())[i] * t * (2 - t) +
+	(*GetEnd ())[i] * t * (t - 1) / 2;
+}
+
+G3D::Vector3 QuadraticEdge::quadratic (float t) const
+{
+    G3D::Vector3 result;
+    for (size_t i = 0; i < 3; i++)
+	result[i] = quadratic (t, i);
+    return result;
+}
+
+size_t QuadraticEdge::PointCount () const
+{
+    return POINT_COUNT;
+}
+
+G3D::Vector3 QuadraticEdge::GetPoint (size_t i) const
+{
+    RuntimeAssert (i < POINT_COUNT, "Invalid point index: ", i);
+    return quadratic ( static_cast<float>(i) * 2 / (POINT_COUNT - 1));
 }

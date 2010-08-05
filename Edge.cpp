@@ -223,11 +223,9 @@ void Edge::Display (Color::Enum defaultColor, float alpha) const
 {
     Color::Enum color = GetColor (defaultColor);
     glColor (G3D::Color4 (Color::GetValue(color), alpha));
-    const Vertex& b = *GetBegin ();
-    const Vertex& e = *GetEnd ();
-    glBegin(GL_LINES);
-    glVertex(b);
-    glVertex (e);
+    glBegin(GL_LINE_STRIP);
+    for (size_t i = 0; i < PointCount (); i++)
+	glVertex (GetPoint (i));
     glEnd ();
 }
 
@@ -304,5 +302,18 @@ G3D::Vector3int16 Edge::IntToLocation (int value)
 	value /= POSSIBILITIES;
     }
     return result;
+}
+
+size_t Edge::PointCount () const
+{
+    return 2;
+}
+
+G3D::Vector3 Edge::GetPoint (size_t i) const
+{
+    if (i == 0)
+	return *GetBegin ();
+    else
+	return *GetEnd ();
 }
 

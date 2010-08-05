@@ -37,12 +37,13 @@ public:
      * Shows center paths
      * param checked true for showing center paths false otherwise
      */
-    void InteractionModeRotate ();
-    void InteractionModeScale ();
-    void InteractionModeTranslate ();
     void SetAndDisplayHistogram ();
 
 public Q_SLOTS:
+    void InteractionModeRotate ();
+    void InteractionModeScale ();
+    void InteractionModeTranslate ();
+
     /**
      * Called when the Begin Slider button is pressed. Shows the first
      * data in the vector.
@@ -65,6 +66,8 @@ public Q_SLOTS:
 
     void ToggledCenterPath (bool checked);
     void ToggledCenterPathHistogram (bool checked);
+    void ToggledFacesHistogram (bool checked);
+
     /**
      * Shows edges
      * @param checked true for showing edges false otherwise
@@ -77,7 +80,9 @@ public Q_SLOTS:
      * at the current position of the slider.
      */
     void ValueChangedSliderData (int value);
-    void ValueChangedColoredBy (int value);
+    void CurrentIndexChangedCenterPathColor (int value);
+    void CurrentIndexChangedFacesColor (int value);
+
 private:
     /**
      * Enables/Disables the Begin button
@@ -112,6 +117,7 @@ private:
 private:
     static void setupRainbowColorMap (QwtLinearColorMap* colorMap);
     static void setupBlueRedColorMap (QwtLinearColorMap* colorMap);
+    void createActions ();
 
 private:
     Q_OBJECT
@@ -141,6 +147,10 @@ private:
     QwtLinearColorMap m_colorMap;
     QwtDoubleInterval m_colorMapInterval;
     bool m_centerPathHistogram;
+
+    QAction* m_actionRotate;
+    QAction* m_actionTranslate;
+    QAction* m_actionScale;
 };
 
 #endif //__MAIN_WINDOW_H__

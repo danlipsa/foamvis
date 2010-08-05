@@ -10,6 +10,7 @@
 #define __DISPLAY_VERTEX_FUNCTORS_H__
 
 #include "DisplayElement.h"
+#include "Edge.h"
 #include "Face.h"
 #include "Foam.h"
 #include "GLWidget.h"
@@ -38,8 +39,11 @@ struct DisplayBeginVertex
     DisplayBeginVertex (const GLWidget&) {}
     void operator() (const boost::shared_ptr<OrientedEdge> e)
     {
-	const Vertex& b = *e->GetBegin ();
-	glVertex(b);
+	glVertex (*e->GetBegin ());
+	/*
+	for (size_t i = 0; i < e->PointCount () - 1; ++i)
+	    glVertex(e->GetPoint (i));
+	*/
     }
 };
 

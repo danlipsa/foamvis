@@ -146,8 +146,11 @@ public:
     boost::shared_ptr<Edge> GetDuplicate (
 	const OOBox& periods,
 	const G3D::Vector3& newBegin,
-	VertexSet* vertexSet, EdgeSet* edgeSet) const;
-    virtual void Display (Color::Enum defaultColor, float alpha) const;
+	VertexSet* vertexSet, EdgeSet* edgeSet) const;    
+    void Display (Color::Enum defaultColor, float alpha) const;
+
+    virtual size_t PointCount () const;
+    virtual G3D::Vector3 GetPoint (size_t i) const;
 
 public:
     static short LocationCharToNumber (char sign);

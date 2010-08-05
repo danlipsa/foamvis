@@ -163,9 +163,9 @@ GLWidget::GLWidget(QWidget *parent)
       m_centerPathDisplayBody (false),
       m_boundingBox (false),
       m_centerPathColor (CenterPathColor::NONE),
+      m_facesColor (CenterPathColor::NONE),
       m_notAvailableColor (Qt::black)
 {
-    cdbg << "---------- GLWidget constructor ----------\n";
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
     const int POSSIBILITIES = 3; //domain increment can be *, - or +
     using G3D::Vector3int16;
@@ -185,8 +185,28 @@ GLWidget::GLWidget(QWidget *parent)
     m_quadric = gluNewQuadric ();
     gluQuadricCallback (m_quadric, GLU_ERROR,
 			reinterpret_cast<void (*)()>(&quadricErrorCallback));
-    initViewTypeDisplay ();
+    initViewTypeDisplay ();    
+    createActions ();
 }
+
+
+void GLWidget::createActions ()
+{
+    m_actionResetTransformation = new QAction(tr("&Reset Transformation"), this);
+    m_actionResetTransformation->setShortcut(
+	QKeySequence (tr ("Shift+R")));
+    m_actionResetTransformation->setStatusTip(tr("Reset Transformation"));
+    connect(m_actionResetTransformation, SIGNAL(triggered()),
+	    this, SLOT(ResetTransformation ()));    
+
+    m_actionResetSelection = new QAction(tr("Reset &Selection"), this);
+    m_actionResetSelection->setShortcut(
+	QKeySequence (tr ("Shift+S")));
+    m_actionResetSelection->setStatusTip(tr("Reset selection"));
+    connect(m_actionResetSelection, SIGNAL(triggered()),
+	    this, SLOT(ResetSelection ()));    
+}
+
 
 
 
@@ -341,10 +361,18 @@ void GLWidget::calculateCameraDistance ()
 }
 
 
-void GLWidget::ResetTransformations ()
+void GLWidget::ResetTransformation ()
 {
     m_rotate = G3D::Matrix3::identity ();
     resizeGL (width (), height ());
+    UpdateDisplayList ();
+}
+
+void GLWidget::ResetSelection ()
+{
+    m_displayedBodyIndex = DISPLAY_ALL;
+    m_displayedFaceIndex = DISPLAY_ALL;
+    m_displayedEdgeIndex = DISPLAY_ALL;
     UpdateDisplayList ();
 }
 
@@ -805,6 +833,8 @@ bool GLWidget::doesSelectEdge () const
 }
 
 
+
+
 void GLWidget::IncrementDisplayedBody ()
 {
     if (doesSelectBody ())
@@ -1111,9 +1141,26 @@ void GLWidget::displayOpositeFaces (G3D::Vector3 origin,
     }
 }
 
-void GLWidget::ValueChangedCenterPathColor (int value)
+void GLWidget::CurrentIndexChangedCenterPathColor (int value)
 {
     RuntimeAssert (value < CenterPathColor::COUNT,
 		   "Invalid CenterPathColor: ", value);
     m_centerPathColor = static_cast<CenterPathColor::Enum>(value);
+}
+
+void GLWidget::CurrentIndexChangedFacesColor (int value)
+{
+    RuntimeAssert (value < CenterPathColor::COUNT,
+		   "Invalid CenterPathColor: ", value);
+    m_facesColor = static_cast<CenterPathColor::Enum>(value);
+}
+
+
+
+void GLWidget::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu menu (this);
+    menu.addAction (m_actionResetTransformation);
+    menu.addAction (m_actionResetSelection);
+    menu.exec (event->globalPos());
 }

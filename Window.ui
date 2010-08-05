@@ -116,7 +116,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QwtScaleWidget" name="scaleWidgetColorBar" native="true"/>
+          <widget class="QwtScaleWidget" name="scaleWidgetColorBar"/>
          </item>
         </layout>
        </widget>
@@ -143,17 +143,17 @@
           <widget class="QComboBox" name="comboBoxInteractionMode">
            <item>
             <property name="text">
-             <string>Rotate (r)</string>
+             <string>Rotate           R</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>Scale (z)</string>
+             <string>Scale            Z</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>Translate (t)</string>
+             <string>Translate       T</string>
             </property>
            </item>
           </widget>
@@ -239,7 +239,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>2</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="edges">
             <attribute name="title">
@@ -436,6 +436,82 @@
                  </item>
                 </layout>
                </widget>
+               <widget class="QWidget" name="pageFacesNormal">
+                <layout class="QVBoxLayout" name="verticalLayout_4">
+                 <item>
+                  <widget class="QWidget" name="widget_2" native="true">
+                   <layout class="QHBoxLayout" name="horizontalLayout_6">
+                    <item>
+                     <widget class="QLabel" name="labelFacesColor">
+                      <property name="text">
+                       <string>Colored By</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QComboBox" name="comboBoxFacesColor">
+                      <item>
+                       <property name="text">
+                        <string>Velocity along x</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Velocity along y</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Velocity along z</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Velocity magnitute</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Pressure</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Volume</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>None</string>
+                       </property>
+                      </item>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="checkBoxFacesHistogram">
+                   <property name="text">
+                    <string>Histogram</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="verticalSpacer_3">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </widget>
               </widget>
              </item>
             </layout>
@@ -500,25 +576,25 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QComboBox" name="comboBoxColoredBy">
+                     <widget class="QComboBox" name="comboBoxCenterPathColor">
                       <item>
                        <property name="text">
-                        <string>Velocity Along X</string>
+                        <string>Velocity along x</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string>Velocity Along Y</string>
+                        <string>Velocity along y</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string>Velocity Along Z</string>
+                        <string>Velocity along z</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string>Velocity Magnitute</string>
+                        <string>Velocity magnitute</string>
                        </property>
                       </item>
                       <item>
@@ -1000,10 +1076,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>comboBoxColoredBy</sender>
+   <sender>comboBoxCenterPathColor</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>Window</receiver>
-   <slot>ValueChangedColoredBy(int)</slot>
+   <slot>CurrentIndexChangedCenterPathColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>927</x>
@@ -1031,6 +1107,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>comboBoxFacesColor</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>Window</receiver>
+   <slot>CurrentIndexChangedFacesColor(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>941</x>
+     <y>408</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1040</x>
+     <y>471</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxFacesHistogram</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>Window</receiver>
+   <slot>ToggledFacesHistogram(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>790</x>
+     <y>438</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1018</x>
+     <y>508</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>ClickedBegin()</slot>
@@ -1041,8 +1149,10 @@
   <slot>ToggledEdgesTorus(bool)</slot>
   <slot>ToggledFacesTorus(bool)</slot>
   <slot>ValueChangedSliderData(int)</slot>
-  <slot>ValueChangedColoredBy(int)</slot>
+  <slot>CurrentIndexChangedCenterPathColor(int)</slot>
   <slot>ToggledCenterPathHistogram(bool)</slot>
+  <slot>CurrentIndexChangedFacesColor(int)</slot>
+  <slot>ToggledFacesHistogram(bool)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroup"/>

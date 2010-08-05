@@ -42,6 +42,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_timer->setInterval (30);
     QObject::connect(m_timer.get (), SIGNAL(timeout()),
                      this, SLOT(TimeoutTimer ()));
+    createActions ();
 }
 
 void MainWindow::calculateStats (const Foam& foam, size_t timeSteps)
@@ -133,7 +134,7 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 	tabWidget->setCurrentWidget (faces);
     }
     scaleWidgetColorBar->setVisible (false);
-    comboBoxColoredBy->setCurrentIndex (CenterPathColor::NONE);
+    comboBoxCenterPathColor->setCurrentIndex (CenterPathColor::NONE);
 }
 
 
@@ -293,19 +294,6 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 	break;
     }
 
-    case Qt::Key_R:
-	if (modifiers == Qt::ShiftModifier)
-	    widgetGl->ResetTransformations ();
-	else
-	    InteractionModeRotate ();
-	break;
-
-    case Qt::Key_Z:
-	InteractionModeScale ();
-	break;
-    case Qt::Key_T:
-	InteractionModeTranslate ();
-	break;
     case Qt::Key_P:
 	cdbg << "OpenGL State:" << endl;
 	cdbg << G3D::getOpenGLState (false) << endl;
@@ -400,13 +388,15 @@ void MainWindow::ToggledCenterPath (bool checked)
     if (checked)
     {
 	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
-	comboBoxColoredBy->setCurrentIndex (CenterPathColor::NONE);
+	comboBoxCenterPathColor->setCurrentIndex (
+	    comboBoxCenterPathColor->currentIndex ());
+	widgetHistogram->setVisible (m_centerPathHistogram);
     }
     else
     {
 	stackedWidgetComposite->setCurrentWidget (pageCompositeEmpty);
 	scaleWidgetColorBar->setVisible (false);
-	widgetHistogram->setVisible (false);	
+	widgetHistogram->setVisible (false);
     }
 }
 
@@ -434,25 +424,29 @@ void MainWindow::changeScaleWidgetInterval (CenterPathColor::Enum colorBy)
     scaleWidgetColorBar->setColorMap (m_colorMapInterval, m_colorMap);
 }
 
+void MainWindow::CurrentIndexChangedFacesColor (int value)
+{
+}
 
-void MainWindow::ValueChangedColoredBy (int value)
+void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 {
     CenterPathColor::Enum colorBy = 
 	static_cast<CenterPathColor::Enum>(value);
     if (colorBy == CenterPathColor::NONE)
     {
 	widgetGl->SetColorMap (0, 0);
-	scaleWidgetColorBar->setVisible (false);
 	checkBoxCenterPathHistogram->setVisible (false);
+	scaleWidgetColorBar->setVisible (false);
 	widgetHistogram->setVisible (false);
     }
     else
     {
 	checkBoxCenterPathHistogram->setVisible (true);
+	scaleWidgetColorBar->setVisible (true);
+
 	widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
 	changeScaleWidgetInterval (colorBy);
-	scaleWidgetColorBar->setVisible (true);
-	widgetGl->ValueChangedCenterPathColor (colorBy);
+	widgetGl->CurrentIndexChangedCenterPathColor (colorBy);
 	SetAndDisplayHistogram ();
     }
     widgetGl->UpdateDisplayList ();
@@ -465,21 +459,58 @@ void MainWindow::ToggledCenterPathHistogram (bool checked)
     SetAndDisplayHistogram ();
 }
 
+void MainWindow::ToggledFacesHistogram (bool checked)
+{
+}
+
+
 void MainWindow::SetAndDisplayHistogram ()
 {
     if (m_centerPathHistogram)
     {
-	size_t value = comboBoxColoredBy->currentIndex ();
+	size_t value = comboBoxCenterPathColor->currentIndex ();
 	CenterPathColor::Enum colorBy = 
 	    static_cast<CenterPathColor::Enum>(value);
 	widgetHistogram->setVisible (true);
 	widgetHistogram->SetData (
 	    widgetGl->GetFoamAlongTime ().GetBodiesAlongTime ().
 	    GetHistogram (colorBy));
-	widgetHistogram->setTitle (
-	    QString(CenterPathColor::ToString (colorBy).c_str()));
+	widgetHistogram->setAxisTitle (
+	    QwtPlot::xBottom, 
+	    QString(
+		(CenterPathColor::ToString (colorBy) + 
+		 " (all time steps)").c_str ()));
+	widgetHistogram->setAxisTitle (
+	    QwtPlot::yLeft, tr("Number of values per bin"));
 	widgetHistogram->replot ();
     }
     else
 	widgetHistogram->setVisible (false);
+}
+
+void MainWindow::createActions ()
+{
+    m_actionRotate = new QAction(tr("&Rotate"), this);
+    m_actionRotate->setShortcut(QKeySequence (tr ("R")));
+    m_actionRotate->setStatusTip(tr("Rotate"));
+    connect(m_actionRotate, SIGNAL(triggered()),
+	    this, SLOT(InteractionModeRotate ()));
+
+    m_actionScale = new QAction(tr("&Scale"), this);
+    m_actionScale->setShortcut(QKeySequence (tr ("Z")));
+    m_actionScale->setStatusTip(tr("Scale"));
+    connect(m_actionScale, SIGNAL(triggered()),
+	    this, SLOT(InteractionModeScale ()));
+
+    m_actionTranslate = new QAction(tr("&Translate"), this);
+    m_actionTranslate->setShortcut(QKeySequence (tr ("T")));
+    m_actionTranslate->setStatusTip(tr("Translate"));
+    connect(m_actionTranslate, SIGNAL(triggered()),
+	    this, SLOT(InteractionModeTranslate ()));
+
+    addAction (widgetGl->GetActionResetTransformation ());
+    addAction (widgetGl->GetActionResetSelection ());
+    addAction (m_actionRotate);
+    addAction (m_actionTranslate);
+    addAction (m_actionScale);
 }

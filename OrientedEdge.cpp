@@ -97,3 +97,15 @@ bool OrientedEdge::IsPhysical (size_t dimension, bool isQuadratic) const
 {
     return GetEdge ()->IsPhysical (dimension, isQuadratic);
 }
+
+size_t OrientedEdge::PointCount () const
+{
+    return GetEdge ()->PointCount ();
+}
+
+G3D::Vector3 OrientedEdge::GetPoint (size_t i) const
+{
+    if (IsReversed ())
+	i = PointCount () - 1 - i;
+    return GetEdge ()->GetPoint (i);
+}

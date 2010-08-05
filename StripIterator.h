@@ -9,14 +9,15 @@
 #ifndef __STRIP_ITERATOR_H__
 #define __STRIP_ITERATOR_H__
 
-/**
- * Iterates over line segments for centers of bubbles along time
- * @see BodyAlongTime
- */
 
 class BodyAlongTime;
 class FoamAlongTime;
 
+/**
+ * Iterates over line segments for centers of bubbles along time
+ * @todo Consider using a Boost.Iterator Library
+ * @see BodyAlongTime
+ */
 class StripIterator
 {
 public:

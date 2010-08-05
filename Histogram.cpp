@@ -12,7 +12,6 @@ Histogram::Histogram (QWidget* parent) :
     QwtPlot (parent)
 {
     setCanvasBackground(QColor(Qt::white));
-    setTitle("Histogram");
 
     m_grid.enableXMin(true);
     m_grid.enableYMin(true);

@@ -158,7 +158,6 @@ public:
     {
 	return m_centerPathDisplayBody;
     }
-    void ResetTransformations ();
     void SetColorMap (QwtLinearColorMap* colorMap,
 		      QwtDoubleInterval* colorMapInterval)
     {
@@ -172,6 +171,16 @@ public:
 	else
 	    return m_colorMap->color (*m_colorMapInterval, value);
     }
+    QAction* GetActionResetTransformation ()
+    {
+	return m_actionResetTransformation;
+    }
+
+    QAction* GetActionResetSelection ()
+    {
+	return m_actionResetSelection;
+    }
+    
     
 
     // Slot like methods
@@ -197,9 +206,12 @@ public:
      * param checked true for showing the center paths false otherwise
      */
     void ToggledCenterPath (bool checked);
-    void ValueChangedCenterPathColor (int value);
+    void CurrentIndexChangedCenterPathColor (int value);
+    void CurrentIndexChangedFacesColor (int value);
 
 public Q_SLOTS:
+    void ResetTransformation ();
+    void ResetSelection ();
     void CurrentIndexChangedInteractionMode (int index);
     void ToggledBodies (bool checked);
     void ToggledCenterPathDisplayBody (bool checked);
@@ -246,7 +258,7 @@ protected:
      * @param event specifies how much did the mouse move
      */
     void mouseMoveEvent(QMouseEvent *event);
-
+    void contextMenuEvent(QContextMenuEvent *event);
 private:
     /**
      * WHAT kind of objects do we display
@@ -387,6 +399,8 @@ private:
     bool doesSelectBody () const;
     bool doesSelectFace () const;
     bool doesSelectEdge () const;
+    void createActions ();
+
 private:
     static void displayOpositeFaces (G3D::Vector3 origin,
 				     G3D::Vector3 faceFirst,
@@ -469,7 +483,11 @@ private:
     QwtLinearColorMap* m_colorMap;
     QwtDoubleInterval* m_colorMapInterval;
     CenterPathColor::Enum m_centerPathColor;
+    CenterPathColor::Enum m_facesColor;
     QColor m_notAvailableColor;
+
+    QAction* m_actionResetTransformation;
+    QAction* m_actionResetSelection;
 };
 
 #endif //__GLWIDGET_H__
