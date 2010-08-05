@@ -39,11 +39,11 @@ struct DisplayBeginVertex
     DisplayBeginVertex (const GLWidget&) {}
     void operator() (const boost::shared_ptr<OrientedEdge> e)
     {
-	glVertex (*e->GetBegin ());
-	/*
-	for (size_t i = 0; i < e->PointCount () - 1; ++i)
+	//glVertex (*e->GetBegin ());
+	
+	for (size_t i = 0; i < e->PointCount (); ++i)
 	    glVertex(e->GetPoint (i));
-	*/
+	
     }
 };
 

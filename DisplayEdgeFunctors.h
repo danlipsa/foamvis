@@ -262,7 +262,7 @@ public:
 	operator() (f->GetFace ());
     }
     
-    void operator() (const boost::shared_ptr<Face>  f)
+    void operator() (const boost::shared_ptr<Face>& f)
     {
 	glBegin (GL_POLYGON);
 	const vector<boost::shared_ptr<OrientedEdge> >& v = 
