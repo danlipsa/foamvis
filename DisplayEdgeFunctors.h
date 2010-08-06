@@ -269,7 +269,7 @@ public:
 	    f->GetOrientedEdges ();
 	for_each (v.begin (), v.end (), DisplayBeginVertex());
 	if (! f->IsClosed ())
-	    DisplayEdgeVertices () (v[v.size () - 1]);
+	    glVertex (*v[v.size () - 1]->GetEnd ());
 	glEnd ();
     }
 };

@@ -140,9 +140,9 @@ ostream& operator<< (ostream& ostr, AttributeType::Enum type)
     return ostr;
 }
 
-string CenterPathColor::ToString (CenterPathColor::Enum colorBy)
+string BodyProperty::ToString (BodyProperty::Enum property)
 {
-    switch (colorBy)
+    switch (property)
     {
     case VELOCITY_ALONG_X:
 	return "Velocity along x";

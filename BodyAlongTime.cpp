@@ -26,9 +26,9 @@ bool isNull (const boost::shared_ptr<Body>& body)
 // BodyAlongTimeStatistics Methods
 // ======================================================================
 BodyAlongTimeStatistics::BodyAlongTimeStatistics () :
-    m_min (CenterPathColor::COUNT, numeric_limits<float> ().max ()),
-    m_max (CenterPathColor::COUNT, -numeric_limits<float> ().max ()),
-    m_histogram (CenterPathColor::COUNT)
+    m_min (BodyProperty::COUNT, numeric_limits<float> ().max ()),
+    m_max (BodyProperty::COUNT, -numeric_limits<float> ().max ()),
+    m_histogram (BodyProperty::COUNT)
 {
     BOOST_FOREACH (vector<size_t>& v, m_histogram)
 	v.resize (HISTOGRAM_INTERVALS, 0);
@@ -36,24 +36,24 @@ BodyAlongTimeStatistics::BodyAlongTimeStatistics () :
 
 
 void BodyAlongTimeStatistics::speedValuesPerInterval (
-    const StripIterator::StripPoint& p,
-    const StripIterator::StripPoint& prev)
+    const StripIterator::Point& p,
+    const StripIterator::Point& prev)
 {
     G3D::Vector3 speed = p.m_point - prev.m_point;
     boost::array<float, 4> speedComponents = 
 	{{speed.x, speed.y, speed.z, speed.length ()}};
-    for (size_t i = CenterPathColor::VELOCITY_BEGIN;
-	 i < CenterPathColor::VELOCITY_END; ++i)
+    for (size_t i = BodyProperty::VELOCITY_BEGIN;
+	 i < BodyProperty::VELOCITY_END; ++i)
 	valuePerInterval (i, speedComponents[i]);
 }
 
 void BodyAlongTimeStatistics::valuesPerInterval (
     const boost::shared_ptr<Body>& body)
 {
-    for (size_t i = CenterPathColor::PER_BODY_BEGIN;
-	 i < CenterPathColor::PER_BODY_END; ++i)
+    for (size_t i = BodyProperty::PER_BODY_BEGIN;
+	 i < BodyProperty::PER_BODY_END; ++i)
     {
-	size_t index = i - CenterPathColor::PER_BODY_BEGIN;
+	size_t index = i - BodyProperty::PER_BODY_BEGIN;
 	if (body->ExistsAttribute (index))
 	    valuePerInterval (i, body->GetRealAttribute (index));	
     }
@@ -135,15 +135,15 @@ string BodyAlongTime::ToString () const
 }
 
 void BodyAlongTime::speedRangeStep (
-    const StripIterator::StripPoint& p,
-    const StripIterator::StripPoint& prev)
+    const StripIterator::Point& p,
+    const StripIterator::Point& prev)
 {
     G3D::Vector3 speed = p.m_point - prev.m_point;
-    // Warning: should have the same ordering as CenterPathColor::Enum
+    // Warning: should have the same ordering as BodyProperty::Enum
     boost::array<float, 4> speedComponents = 
 	{{speed.x, speed.y, speed.z, speed.length ()}};
-    for (size_t i = CenterPathColor::VELOCITY_BEGIN;
-	 i < CenterPathColor::VELOCITY_END; ++i)
+    for (size_t i = BodyProperty::VELOCITY_BEGIN;
+	 i < BodyProperty::VELOCITY_END; ++i)
     {
 	m_min[i] = min (m_min[i], speedComponents[i]);
 	m_max[i] = max (m_max[i], speedComponents[i]);
@@ -152,10 +152,10 @@ void BodyAlongTime::speedRangeStep (
 
 void BodyAlongTime::rangeStep (const boost::shared_ptr<Body>& body)
 {
-    for (size_t i = CenterPathColor::PER_BODY_BEGIN;
-	 i < CenterPathColor::PER_BODY_END; ++i)
+    for (size_t i = BodyProperty::PER_BODY_BEGIN;
+	 i < BodyProperty::PER_BODY_END; ++i)
     {
-	size_t index = i - CenterPathColor::PER_BODY_BEGIN;
+	size_t index = i - BodyProperty::PER_BODY_BEGIN;
 	if (body->ExistsAttribute (index))
 	{
 	    float value = body->GetRealAttribute (index);

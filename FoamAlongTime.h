@@ -86,15 +86,20 @@ public:
     {
 	return m_filePattern;
     }
-    float GetMin (CenterPathColor::Enum i) const
+    float GetMin (BodyProperty::Enum i) const
     {
 	return GetBodiesAlongTime ().GetMin (i);
     }
-    float GetMax (CenterPathColor::Enum i) const
+    float GetMax (BodyProperty::Enum i) const
     {
 	return GetBodiesAlongTime ().GetMax (i);
     }
-
+    float GetBodyProperty (
+	BodyProperty::Enum property,
+	size_t bodyId, size_t timeStep) const;
+    bool ExistsBodyProperty (
+	BodyProperty::Enum property,
+	size_t bodyId, size_t timeStep) const;
 
 public:
     /**

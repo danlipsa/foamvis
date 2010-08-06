@@ -10,6 +10,7 @@
 #define __DISPLAY_ELEMENT_H__
 
 class GLWidget;
+
 class DisplayElement
 {
 public:
@@ -47,6 +48,22 @@ public:
     
 protected:
     FocusContext m_focus;
+};
+
+
+class DisplayElementProperties : public DisplayElementFocus
+{
+public:
+    DisplayElementProperties (
+	const GLWidget& widget,
+	FocusContext focus = FOCUS,
+	BodyProperty::Enum bodyProperty = BodyProperty::NONE) :
+	DisplayElementFocus (widget, focus),
+	m_bodyProperty (bodyProperty)
+    {
+    }
+protected:
+    BodyProperty::Enum m_bodyProperty;
 };
 
 

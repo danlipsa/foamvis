@@ -125,10 +125,15 @@ public:
     }
 
     const QColor& GetEndTranslationColor (const G3D::Vector3int16& di) const;
-    const QColor& GetNotAvailableColor () const
+    const QColor& GetNotAvailableCenterPathColor () const
     {
-	return m_notAvailableColor;
+	return m_notAvailableCenterPathColor;
     }
+    const QColor& GetNotAvailableFaceColor () const
+    {
+	return m_notAvailableFaceColor;
+    }
+
 
     /**
      * Displays the center of the bodies
@@ -164,7 +169,7 @@ public:
 	m_colorMap = colorMap;
 	m_colorMapInterval = colorMapInterval;
     }
-    QColor MapScalar (float value)
+    QColor MapScalar (float value) const
     {
 	if (m_colorMap == 0)
 	    return Qt::black;
@@ -200,6 +205,7 @@ public:
      * Shows faces
      * @param checked true for showing faces false otherwise
      */
+    void ToggledFacesNormal (bool checked);
     void ToggledFacesTorus (bool checked);
     /**
      * Shows center paths
@@ -208,6 +214,7 @@ public:
     void ToggledCenterPath (bool checked);
     void CurrentIndexChangedCenterPathColor (int value);
     void CurrentIndexChangedFacesColor (int value);
+
 
 public Q_SLOTS:
     void ResetTransformation ();
@@ -220,7 +227,6 @@ public Q_SLOTS:
     void ToggledEdgesTessellation (bool checked);
     void ToggledEdgesTorusTubes (bool checked);
 
-    void ToggledFacesNormal (bool checked);
     void ToggledFacesTorusTubes (bool checked);
 
     void ToggledTorusOriginalDomainDisplay (bool checked);
@@ -384,7 +390,7 @@ private:
      * continuous contours for polygons.
      * @param bodies displays all the faces in these bodies
      */
-    void displayFacesOffset (
+    void displayFacesInterior (
 	const vector<boost::shared_ptr<Body> >& bodies) const;
     /**
      * Setup lighting for shaded bodies
@@ -482,9 +488,10 @@ private:
     boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> VIEW_TYPE_DISPLAY;
     QwtLinearColorMap* m_colorMap;
     QwtDoubleInterval* m_colorMapInterval;
-    CenterPathColor::Enum m_centerPathColor;
-    CenterPathColor::Enum m_facesColor;
-    QColor m_notAvailableColor;
+    BodyProperty::Enum m_centerPathColor;
+    BodyProperty::Enum m_facesColor;
+    QColor m_notAvailableCenterPathColor;
+    QColor m_notAvailableFaceColor;
 
     QAction* m_actionResetTransformation;
     QAction* m_actionResetSelection;

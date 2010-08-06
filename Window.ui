@@ -239,7 +239,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>2</number>
            </property>
            <widget class="QWidget" name="edges">
             <attribute name="title">
@@ -439,10 +439,10 @@
                <widget class="QWidget" name="pageFacesNormal">
                 <layout class="QVBoxLayout" name="verticalLayout_4">
                  <item>
-                  <widget class="QWidget" name="widget_2" native="true">
+                  <widget class="QWidget" name="widgetCenterPathColor_2" native="true">
                    <layout class="QHBoxLayout" name="horizontalLayout_6">
                     <item>
-                     <widget class="QLabel" name="labelFacesColor">
+                     <widget class="QLabel" name="label_3">
                       <property name="text">
                        <string>Colored By</string>
                       </property>
@@ -505,7 +505,7 @@
                    <property name="sizeHint" stdset="0">
                     <size>
                      <width>20</width>
-                     <height>40</height>
+                     <height>153</height>
                     </size>
                    </property>
                   </spacer>
@@ -566,7 +566,7 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QWidget" name="widget" native="true">
+                  <widget class="QWidget" name="widgetCenterPathColor" native="true">
                    <layout class="QHBoxLayout" name="horizontalLayout_5">
                     <item>
                      <widget class="QLabel" name="label_2">
@@ -938,8 +938,8 @@
    <slot>ToggledEdgesBodyCenter(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>826</x>
-     <y>402</y>
+     <x>817</x>
+     <y>381</y>
     </hint>
     <hint type="destinationlabel">
      <x>520</x>
@@ -954,8 +954,8 @@
    <slot>ToggledEdgesTessellation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>826</x>
-     <y>402</y>
+     <x>817</x>
+     <y>387</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -970,8 +970,8 @@
    <slot>ToggledEdgesTorusTubes(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>826</x>
-     <y>402</y>
+     <x>817</x>
+     <y>387</y>
     </hint>
     <hint type="destinationlabel">
      <x>519</x>
@@ -982,7 +982,7 @@
   <connection>
    <sender>radioButtonFacesNormal</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>Window</receiver>
    <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -990,8 +990,8 @@
      <y>326</y>
     </hint>
     <hint type="destinationlabel">
-     <x>458</x>
-     <y>241</y>
+     <x>507</x>
+     <y>359</y>
     </hint>
    </hints>
   </connection>
@@ -1114,12 +1114,12 @@
    <slot>CurrentIndexChangedFacesColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>941</x>
-     <y>408</y>
+     <x>926</x>
+     <y>404</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1040</x>
-     <y>471</y>
+     <x>1012</x>
+     <y>483</y>
     </hint>
    </hints>
   </connection>
@@ -1130,12 +1130,12 @@
    <slot>ToggledFacesHistogram(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>790</x>
-     <y>438</y>
+     <x>823</x>
+     <y>443</y>
     </hint>
     <hint type="destinationlabel">
      <x>1018</x>
-     <y>508</y>
+     <y>547</y>
     </hint>
    </hints>
   </connection>
@@ -1153,6 +1153,7 @@
   <slot>ToggledCenterPathHistogram(bool)</slot>
   <slot>CurrentIndexChangedFacesColor(int)</slot>
   <slot>ToggledFacesHistogram(bool)</slot>
+  <slot>ToggledFacesNormal(bool)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroup"/>

@@ -31,14 +31,14 @@ public:
 	MIDDLE,
 	COUNT
     };
-    struct StripPoint
+    struct Point
     {
-	StripPoint () :
+	Point () :
 	    m_location (COUNT)
 	{
 	}
 
-	StripPoint (G3D::Vector3 point, Location location,
+	Point (G3D::Vector3 point, Location location,
 		    const boost::shared_ptr<Body>& body) :
 	    m_point (point), m_location (location), m_body (body)
 	{
@@ -51,21 +51,16 @@ public:
 
 public:
     StripIterator (const BodyAlongTime& bodyAlongTime,
-		   const FoamAlongTime& foamAlongTime) : 
-	m_timeStep (0), m_currentWrap (0), m_isNextBeginOfStrip (true),
-	m_bodyAlongTime (bodyAlongTime), m_foamAlongTime (foamAlongTime)
-	
-    {
-    }
+		   const FoamAlongTime& foamAlongTime, size_t timeStep = 0);
     bool HasNext () const;
-    StripPoint Next ();    
+    Point Next ();    
     template <typename ProcessSegment> 
     void ForEachSegment (ProcessSegment processSegment)
     {
-	StripIterator::StripPoint prev = Next ();
+	StripIterator::Point prev = Next ();
 	while (HasNext ())
 	{
-	    StripIterator::StripPoint p = Next ();
+	    StripIterator::Point p = Next ();
 	    if (// middle or end of a segment
 		p.m_location != StripIterator::BEGIN &&
 		// the segment is not between two strips
@@ -75,12 +70,12 @@ public:
 	}
     }
 public:
-    static float GetColorByValue (CenterPathColor::Enum colorBy,
-				  const StripPoint& p, const StripPoint& prev);
-    static float GetColorByValue (CenterPathColor::Enum colorBy,
-				  const StripPoint& p);
-    static bool ExistsColorByValue (CenterPathColor::Enum colorBy,
-				    const StripPoint& p);
+    static float GetPropertyValue (BodyProperty::Enum colorBy,
+				   const Point& p, const Point& prev);
+    static float GetPropertyValue (BodyProperty::Enum colorBy,
+				   const Point& p);
+    static bool ExistsPropertyValue (BodyProperty::Enum colorBy,
+				     const Point& p);
 
 private:
     size_t m_timeStep;

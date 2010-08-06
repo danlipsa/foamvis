@@ -15,15 +15,18 @@
  * Functor that displays a face
  */
 template <typename displayEdges>
-class DisplayFace : public DisplayElementFocus
+class DisplayFace : public DisplayElementProperties
 {
 public:
     /**
      * Constructor
      * @param widget Where should be the face displayed
      */
-    DisplayFace (const GLWidget& widget, FocusContext focus = FOCUS) : 
-	DisplayElementFocus (widget, focus), m_count(0) {}
+    DisplayFace (const GLWidget& widget, FocusContext focus = FOCUS, 
+		 BodyProperty::Enum bodyProperty = BodyProperty::NONE) : 
+	DisplayElementProperties (widget, focus, bodyProperty), m_count(0) 
+    {
+    }
     /**
      * Functor that displays a face
      * @param f the face to be displayed
@@ -48,7 +51,7 @@ public:
 
 
 protected:
-    virtual void display (const boost::shared_ptr<OrientedFace>  of)
+    virtual void display (const boost::shared_ptr<OrientedFace>& of)
     {
 	if (m_focus == FOCUS)
 	{
@@ -77,14 +80,37 @@ public:
      * Constructor
      * @param widget where is the face displayed
      */
-    DisplayFaceWithColor (const GLWidget& widget, FocusContext focus) : 
-	DisplayFace<DisplaySameEdges> (widget, focus) {}
+    DisplayFaceWithColor (
+	const GLWidget& widget,
+	FocusContext focus = FOCUS,
+	BodyProperty::Enum bodyProperty = BodyProperty::NONE) : 
+	DisplayFace<DisplaySameEdges> (widget, focus, bodyProperty) 
+    {
+    }
 
 protected:
-    virtual void display (const boost::shared_ptr<OrientedFace>  of)
+    virtual void display (const boost::shared_ptr<OrientedFace>& of)
     {
 	if (m_focus == FOCUS)
-	    glColor (G3D::Color4 (Color::GetValue(of->GetColor ()), 1.));
+	{
+	    if (m_bodyProperty == BodyProperty::NONE)
+		glColor (Color::GetValue(of->GetColor ()));
+	    else
+	    {
+		size_t bodyId = of->GetBodyPartOf ().GetBodyId ();
+		QColor color;
+		if (m_widget.GetFoamAlongTime ().ExistsBodyProperty (
+			m_bodyProperty, bodyId, m_widget.GetTimeStep ()))
+		{
+		    float value = m_widget.GetFoamAlongTime ().GetBodyProperty (
+			m_bodyProperty, bodyId, m_widget.GetTimeStep ());
+		    color = m_widget.MapScalar (value);
+		}
+		else
+		    color = m_widget.GetNotAvailableFaceColor ();
+		m_widget.qglColor (color);
+	    }
+	}
 	else
 	    glColor (G3D::Color4 (Color::GetValue(Color::BLACK),
 				  m_widget.GetContextAlpha ()));
@@ -102,8 +128,11 @@ public:
      * Constructor
      * @param widget where to display the face
      */
-    DisplayFaceWithNormal (const GLWidget& widget, FocusContext focus) : 
-	DisplayFace<DisplaySameEdges> (widget, focus)
+    DisplayFaceWithNormal (
+	const GLWidget& widget, 
+	FocusContext focus = FOCUS,
+	BodyProperty::Enum bodyProperty = BodyProperty::NONE) : 
+	DisplayFace<DisplaySameEdges> (widget, focus, bodyProperty)
     {
     }
 
@@ -112,7 +141,7 @@ protected:
      * Functor used to display a face together to the normal
      * @param f face to be displayed
      */
-    virtual void display (const boost::shared_ptr<OrientedFace>  f)
+    virtual void display (const boost::shared_ptr<OrientedFace>& f)
     {
 	using G3D::Vector3;
 	Vector3 normal = f->GetNormal ();

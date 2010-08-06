@@ -108,7 +108,7 @@ void Foam::AddDefaultBodyAttributes ()
     AttributesInfo* infos = &m_attributesInfo[DefineAttribute::BODY];
 
     // the order of the attributes should match the order in
-    // CenterPathColor
+    // BodyProperty
     auto_ptr<AttributeCreator> ac (new RealAttributeCreator ());
     size_t index = infos->AddAttributeInfoLoad (
         ParsingDriver::GetKeywordString(

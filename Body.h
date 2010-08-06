@@ -81,6 +81,10 @@ public:
     {
 	return GetRealAttribute (PRESSURE_INDEX);
     }
+    float GetPropertyValue (BodyProperty::Enum property) const;
+    bool ExistsPropertyValue (BodyProperty::Enum property) const;
+
+    
 public:
     static const size_t PRESSURE_INDEX = 0;
     static const size_t VOLUME_INDEX = 1;

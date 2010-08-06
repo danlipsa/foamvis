@@ -6,6 +6,7 @@
  */
 
 #include "Body.h"
+#include "Debug.h"
 #include "Foam.h"
 #include "FoamAlongTime.h"
 #include "Utils.h"
@@ -83,6 +84,47 @@ void FoamAlongTime::CacheBodiesAlongTime ()
 	      boost::bind (&BodiesAlongTime::Resize, &m_bodiesAlongTime, _1));
 }
 
+float FoamAlongTime::GetBodyProperty (
+    BodyProperty::Enum property,
+    size_t bodyId, size_t timeStep) const
+{
+    const BodyAlongTime& bat = GetBodiesAlongTime ().GetBodyAlongTime (bodyId);
+    if (property >= BodyProperty::VELOCITY_BEGIN &&
+	property < BodyProperty::VELOCITY_END)
+    {
+	if (timeStep == m_foams.size () - 1)
+	    --timeStep;
+	StripIterator it (bat, *this, timeStep);
+	RuntimeAssert (it.HasNext (),
+		       "Cannot find velocity. First point not available");
+	StripIterator::Point p = it.Next ();
+	RuntimeAssert (it.HasNext (), 
+		       "Cannot find velocity. Second point not available");
+	StripIterator::Point next = it.Next ();
+	return StripIterator::GetPropertyValue (property, next, p);
+    }
+    else
+	return bat.GetBody (timeStep)->GetPropertyValue (property);
+}
+
+
+bool FoamAlongTime::ExistsBodyProperty (
+    BodyProperty::Enum property,
+    size_t bodyId, size_t timeStep) const
+{
+    if (property >= BodyProperty::VELOCITY_BEGIN &&
+	property < BodyProperty::VELOCITY_END)
+    {
+	if (GetTimeSteps () < 2)
+	    return false;
+	else
+	    return true;
+    }
+    const BodyAlongTime& bat = GetBodiesAlongTime ().GetBodyAlongTime (bodyId);
+    return bat.GetBody (timeStep)->ExistsPropertyValue (property);
+}
+
+
 // Static and Friend Members
 //======================================================================
 
@@ -95,3 +137,4 @@ ostream& operator<< (ostream& ostr, const FoamAlongTime& dataAlongTime)
     ostr << dataAlongTime.m_bodiesAlongTime;
     return ostr;
 }
+

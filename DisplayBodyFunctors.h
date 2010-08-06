@@ -102,8 +102,11 @@ public:
      * @param widget where to display the body
      */
     DisplayBody (const GLWidget& widget,
-		 ContextDisplay contextDisplay = TRANSPARENT_CONTEXT) : 
-	DisplayBodyBase (widget), m_contextDisplay (contextDisplay)
+		 ContextDisplay contextDisplay = TRANSPARENT_CONTEXT,
+		 BodyProperty::Enum bodyProperty = BodyProperty::NONE) : 
+	DisplayBodyBase (widget),
+	m_contextDisplay (contextDisplay),
+	m_bodyProperty (bodyProperty)
     {}
 protected:
     /**
@@ -112,13 +115,16 @@ protected:
      */
     virtual void display (boost::shared_ptr<Body> b, FocusContext bodyFc)
     {
-	if (bodyFc == CONTEXT && m_contextDisplay == INVISIBLE_CONTEXT)
+	if (bodyFc == CONTEXT &&
+	    m_contextDisplay == INVISIBLE_CONTEXT)
 	    return;
 	vector<boost::shared_ptr<OrientedFace> > v = b->GetOrientedFaces ();
-	for_each (v.begin (), v.end (), displayFace(m_widget, bodyFc));
+	for_each (v.begin (), v.end (),
+		  displayFace(m_widget, bodyFc, m_bodyProperty));
     }
 private:
     ContextDisplay m_contextDisplay;
+    BodyProperty::Enum m_bodyProperty;
 };
 
 
@@ -133,7 +139,7 @@ public:
      * @param widget where to display the center path
      */
     DisplayCenterPath (GLWidget& widget,
-		       CenterPathColor::Enum centerPathColor) : 
+		       BodyProperty::Enum centerPathColor) : 
 	m_widget (widget),
 	m_centerPathColor (centerPathColor)
     {
@@ -147,9 +153,9 @@ public:
 	const BodyAlongTime& bat = m_widget.GetBodyAlongTime (bodyId);
 	StripIterator it = bat.GetStripIterator (m_widget.GetFoamAlongTime ());
 	glBegin(GL_LINES);
-	if ( (m_centerPathColor >= CenterPathColor::VELOCITY_BEGIN &&
-	      m_centerPathColor < CenterPathColor::VELOCITY_END) ||
-	     m_centerPathColor == CenterPathColor::NONE)
+	if ( (m_centerPathColor >= BodyProperty::VELOCITY_BEGIN &&
+	      m_centerPathColor < BodyProperty::VELOCITY_END) ||
+	     m_centerPathColor == BodyProperty::NONE)
 	    it.ForEachSegment (
 		boost::bind (&DisplayCenterPath::speedStep,
 			     this, _1, _2));
@@ -173,30 +179,29 @@ public:
 
 private:
     void speedStep (
-	const StripIterator::StripPoint& p,
-	const StripIterator::StripPoint& prev)
+	const StripIterator::Point& p,
+	const StripIterator::Point& prev)
     {
-	segment (StripIterator::GetColorByValue (
-		     m_centerPathColor, p, prev),
+	segment (StripIterator::GetPropertyValue (m_centerPathColor, p, prev),
 		 prev.m_point, p.m_point);
     }
 
     void valueStep (
-	const StripIterator::StripPoint& p,
-	const StripIterator::StripPoint& prev)
+	const StripIterator::Point& p,
+	const StripIterator::Point& prev)
     {
 	G3D::Vector3 middle = (prev.m_point + p.m_point) / 2;
-	if (StripIterator::ExistsColorByValue (m_centerPathColor, prev))
-	    segment (StripIterator::GetColorByValue (
+	if (StripIterator::ExistsPropertyValue (m_centerPathColor, prev))
+	    segment (StripIterator::GetPropertyValue (
 			 m_centerPathColor, prev), prev.m_point, middle);
 	else
-	    segment (m_widget.GetNotAvailableColor (), prev.m_point, middle);
+	    segment (m_widget.GetNotAvailableCenterPathColor (), prev.m_point, middle);
 
-	if (StripIterator::ExistsColorByValue (m_centerPathColor, p))
-	    segment (StripIterator::GetColorByValue (
+	if (StripIterator::ExistsPropertyValue (m_centerPathColor, p))
+	    segment (StripIterator::GetPropertyValue (
 			 m_centerPathColor, p), middle, p.m_point);
 	else
-	    segment (m_widget.GetNotAvailableColor (), middle, p.m_point);
+	    segment (m_widget.GetNotAvailableCenterPathColor (), middle, p.m_point);
     }
 
     void segment (float value, G3D::Vector3 begin, G3D::Vector3 end)
@@ -215,7 +220,7 @@ private:
      * Where to display the center path
      */
     GLWidget& m_widget;
-    CenterPathColor::Enum m_centerPathColor;
+    BodyProperty::Enum m_centerPathColor;
 };
 
 

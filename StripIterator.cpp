@@ -15,13 +15,38 @@
 #include "StripIterator.h"
 #include "Utils.h"
 
+StripIterator::StripIterator (
+    const BodyAlongTime& bodyAlongTime,
+    const FoamAlongTime& foamAlongTime, size_t timeStep) : 
+
+    m_timeStep (timeStep),
+    m_bodyAlongTime (bodyAlongTime),
+    m_foamAlongTime (foamAlongTime)
+{
+    m_currentWrap = 0;
+    if (m_bodyAlongTime.GetWrapSize () == 0)
+	m_isNextBeginOfStrip = (m_timeStep == 0);
+    else
+    {
+	while (m_timeStep > m_bodyAlongTime.GetWrap (m_currentWrap))
+	    ++m_currentWrap;
+	if (m_timeStep == 0 ||
+	    m_timeStep == m_bodyAlongTime.GetWrap (m_currentWrap) + 1)
+	    m_isNextBeginOfStrip = true;
+	else
+	    m_isNextBeginOfStrip = false;
+    }
+}
+
+
+
 bool StripIterator::HasNext () const
 {
     return m_timeStep < m_bodyAlongTime.GetBodies ().size ();
 }
 
 
-StripIterator::StripPoint StripIterator::Next ()
+StripIterator::Point StripIterator::Next ()
 {
     if (// last wrap
 	m_currentWrap == m_bodyAlongTime.GetWrapSize () ||
@@ -43,7 +68,7 @@ StripIterator::StripPoint StripIterator::Next ()
 	const boost::shared_ptr<Body>& body = 
 	    m_bodyAlongTime.GetBody (m_timeStep);
 	++m_timeStep;
-	return StripPoint (body->GetCenter (), location, body);
+	return Point (body->GetCenter (), location, body);
     }
     else
     { // at the end of a middle wrap
@@ -52,7 +77,7 @@ StripIterator::StripPoint StripIterator::Next ()
 	    m_foamAlongTime.GetFoam (m_timeStep)->GetOriginalDomain ();
 	const boost::shared_ptr<Body>& body = 
 	    m_bodyAlongTime.GetBody (m_timeStep);
-	return StripPoint (
+	return Point (
 	    originalDomain.TorusTranslate (
 		body->GetCenter (),
 		Vector3int16Zero - 
@@ -61,40 +86,38 @@ StripIterator::StripPoint StripIterator::Next ()
     }
 }
 
-float StripIterator::GetColorByValue (
-    CenterPathColor::Enum colorBy,
-    const StripPoint& p, const StripPoint& prev)
+float StripIterator::GetPropertyValue (
+    BodyProperty::Enum property,
+    const Point& p, const Point& prev)
 {
     RuntimeAssert (p.m_location != BEGIN, "Invalid strip piece");
     G3D::Vector3 speedVector = p.m_point - prev.m_point;
-    switch (colorBy)
+    switch (property)
     {
-    case CenterPathColor::VELOCITY_ALONG_X:
+    case BodyProperty::VELOCITY_ALONG_X:
 	return speedVector.x;
-    case CenterPathColor::VELOCITY_ALONG_Y:
+    case BodyProperty::VELOCITY_ALONG_Y:
 	return speedVector.y;
-    case CenterPathColor::VELOCITY_ALONG_Z:
+    case BodyProperty::VELOCITY_ALONG_Z:
 	return speedVector.z;
-    case CenterPathColor::VELOCITY_MAGNITUDE:
+    case BodyProperty::VELOCITY_MAGNITUDE:
 	return speedVector.length ();
-    case CenterPathColor::NONE:
+    case BodyProperty::NONE:
 	return 0;
     default:
-	ThrowException ("Invalid speed: ", colorBy);
+	ThrowException ("Invalid speed: ", property);
     }
     return 0;
 }
 
-float StripIterator::GetColorByValue (CenterPathColor::Enum colorBy,
-				      const StripPoint& p)
+float StripIterator::GetPropertyValue (BodyProperty::Enum property,
+				       const Point& p)
 {
-    return p.m_body->GetRealAttribute (
-	colorBy - CenterPathColor::PER_BODY_BEGIN);
+    return p.m_body->GetPropertyValue (property);
 }
 
-bool StripIterator::ExistsColorByValue (CenterPathColor::Enum colorBy,
-					const StripPoint& p)
+bool StripIterator::ExistsPropertyValue (BodyProperty::Enum property,
+					const Point& p)
 {
-    return p.m_body->ExistsAttribute (
-	colorBy - CenterPathColor::PER_BODY_BEGIN);
+    return p.m_body->ExistsPropertyValue (property);
 }

@@ -32,11 +32,11 @@ public:
     }
 
 protected:
-    void speedValuesPerInterval (const StripIterator::StripPoint& p,
-				     const StripIterator::StripPoint& prev);
+    void speedValuesPerInterval (const StripIterator::Point& p,
+				     const StripIterator::Point& prev);
     void valuesPerInterval (const boost::shared_ptr<Body>& body);
     /**
-     * Increment the correct bin for 'index' (@see CenterPathColor::Enum) and
+     * Increment the correct bin for 'index' (@see BodyProperty::Enum) and
      * 'value'.
      */
     void valuePerInterval (size_t index, float value);
@@ -120,23 +120,23 @@ public:
     {
 	return m_translations[i];
     }
-    string ToString () const;
+    string ToString () const;    
 
 public:
     friend ostream& operator<< (
 	ostream& ostr, const BodyAlongTime& bodyAlongTime);
 
 private:
-    void speedRangeStep (const StripIterator::StripPoint& p,
-			 const StripIterator::StripPoint& prev);
+    void speedRangeStep (const StripIterator::Point& p,
+			 const StripIterator::Point& prev);
     void rangeStep (const boost::shared_ptr<Body>& body);
 
 private:
     Bodies m_bodyAlongTime;
     /**
      * List of times (indexes in Bodies vector) where a body wraps
-     * around the torus original domain. The wrap is 
-     * between index and index + 1.
+     * around the torus original domain. The wrap is between index and
+     * index + 1. If there are no wraps this vector has 0 length.
      */
     Wraps m_wraps;
     /**

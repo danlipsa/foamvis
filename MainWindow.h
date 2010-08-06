@@ -66,7 +66,10 @@ public Q_SLOTS:
 
     void ToggledCenterPath (bool checked);
     void ToggledCenterPathHistogram (bool checked);
+
+    void ToggledFacesNormal (bool checked);
     void ToggledFacesHistogram (bool checked);
+    void ToggledFacesTorus (bool checked);
 
     /**
      * Shows edges
@@ -74,7 +77,6 @@ public Q_SLOTS:
      */
     void ToggledEdgesNormal (bool checked);
     void ToggledEdgesTorus (bool checked);
-    void ToggledFacesTorus (bool checked);
     /**
      * Invoqued by the UI when  the slider changes to display the data
      * at the current position of the slider.
@@ -109,7 +111,7 @@ private:
     void updateStatus ();
     void setupSliderData (const FoamAlongTime& foamAlongTime);
     void configureInterface (const FoamAlongTime& foamAlongTime);
-    void changeScaleWidgetInterval (CenterPathColor::Enum colorBy);
+    void changeScaleWidgetInterval (BodyProperty::Enum colorBy);
 
     void setupScaleWidget ();
     void calculateStats (const Foam& foam, size_t timeSteps);

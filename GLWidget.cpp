@@ -162,9 +162,10 @@ GLWidget::GLWidget(QWidget *parent)
       m_edgesTessellation (false),
       m_centerPathDisplayBody (false),
       m_boundingBox (false),
-      m_centerPathColor (CenterPathColor::NONE),
-      m_facesColor (CenterPathColor::NONE),
-      m_notAvailableColor (Qt::black)
+      m_centerPathColor (BodyProperty::NONE),
+      m_facesColor (BodyProperty::NONE),
+      m_notAvailableCenterPathColor (Qt::black),
+      m_notAvailableFaceColor (Qt::white)
 {
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
     const int POSSIBILITIES = 3; //domain increment can be *, - or +
@@ -657,7 +658,7 @@ GLuint GLWidget::displayListFacesNormal ()
 
     const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
     displayFacesContour (bodies);
-    displayFacesOffset (bodies);
+    displayFacesInterior (bodies);
 
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
     displayOriginalDomain ();
@@ -677,14 +678,15 @@ void GLWidget::displayFacesContour (const Foam::Bodies& bodies) const
 
 // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
 // Antialiasing, Fog and Polygon Offset page 293
-void GLWidget::displayFacesOffset (const Foam::Bodies& bodies) const
+void GLWidget::displayFacesInterior (const Foam::Bodies& bodies) const
 {
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
-    for_each (bodies.begin (), bodies.end (),
-              DisplayBody<
-	      DisplayFaceWithColor> (*this));
+    for_each (
+	bodies.begin (), bodies.end (),
+	DisplayBody<DisplayFaceWithColor> (
+	    *this, DisplayElement::TRANSPARENT_CONTEXT, m_facesColor));
     glDisable (GL_POLYGON_OFFSET_FILL);
 }
 
@@ -743,9 +745,6 @@ GLuint GLWidget::displayListFacesTorusLines ()
     glEndList();
     return list;
 }
-
-
-
 
 GLuint GLWidget::displayListCenterPaths ()
 {
@@ -1143,18 +1142,17 @@ void GLWidget::displayOpositeFaces (G3D::Vector3 origin,
 
 void GLWidget::CurrentIndexChangedCenterPathColor (int value)
 {
-    RuntimeAssert (value < CenterPathColor::COUNT,
-		   "Invalid CenterPathColor: ", value);
-    m_centerPathColor = static_cast<CenterPathColor::Enum>(value);
+    RuntimeAssert (value < BodyProperty::COUNT,
+		   "Invalid BodyProperty: ", value);
+    m_centerPathColor = static_cast<BodyProperty::Enum>(value);
 }
 
 void GLWidget::CurrentIndexChangedFacesColor (int value)
 {
-    RuntimeAssert (value < CenterPathColor::COUNT,
-		   "Invalid CenterPathColor: ", value);
-    m_facesColor = static_cast<CenterPathColor::Enum>(value);
+    RuntimeAssert (value < BodyProperty::COUNT,
+		   "Invalid BodyProperty: ", value);
+    m_facesColor = static_cast<BodyProperty::Enum>(value);
 }
-
 
 
 void GLWidget::contextMenuEvent(QContextMenuEvent *event)

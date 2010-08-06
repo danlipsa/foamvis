@@ -134,7 +134,8 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 	tabWidget->setCurrentWidget (faces);
     }
     scaleWidgetColorBar->setVisible (false);
-    comboBoxCenterPathColor->setCurrentIndex (CenterPathColor::NONE);
+    comboBoxCenterPathColor->setCurrentIndex (BodyProperty::NONE);
+    comboBoxFacesColor->setCurrentIndex (BodyProperty::NONE);
 }
 
 
@@ -388,9 +389,12 @@ void MainWindow::ToggledCenterPath (bool checked)
     if (checked)
     {
 	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
-	comboBoxCenterPathColor->setCurrentIndex (
-	    comboBoxCenterPathColor->currentIndex ());
-	widgetHistogram->setVisible (m_centerPathHistogram);
+	BodyProperty::Enum property = 
+	    static_cast<BodyProperty::Enum>(
+		comboBoxCenterPathColor->currentIndex ());
+        widgetHistogram->setVisible (
+	    property != BodyProperty::NONE && m_centerPathHistogram);
+	scaleWidgetColorBar->setVisible (property != BodyProperty::NONE);
     }
     else
     {
@@ -400,13 +404,27 @@ void MainWindow::ToggledCenterPath (bool checked)
     }
 }
 
+void MainWindow::ToggledFacesNormal (bool checked)
+{
+    if (checked)
+    {
+	stackedWidgetFaces->setCurrentWidget (pageFacesNormal);
+    }
+    else
+    {
+	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
+    }
+    widgetGl->ToggledFacesNormal (checked);
+}
 
-void MainWindow::changeScaleWidgetInterval (CenterPathColor::Enum colorBy)
+
+
+void MainWindow::changeScaleWidgetInterval (BodyProperty::Enum property)
 {
     const FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     m_colorMapInterval = QwtDoubleInterval(
-	foamAlongTime.GetMin(colorBy), 
-	foamAlongTime.GetMax(colorBy));
+	foamAlongTime.GetMin(property), 
+	foamAlongTime.GetMax(property));
 
     QwtLinearScaleEngine scaleEngine;
     QwtScaleDiv scaleDiv = scaleEngine.divideScale (
@@ -418,7 +436,7 @@ void MainWindow::changeScaleWidgetInterval (CenterPathColor::Enum colorBy)
     majorTicks += m_colorMapInterval.maxValue ();
     scaleDiv.setTicks(QwtScaleDiv::MajorTick, majorTicks);    
     scaleWidgetColorBar->setScaleDiv (scaleEngine.transformation (), scaleDiv);
-
+    
     //setupBlueRedColorMap (&m_colorMap);
     setupRainbowColorMap (&m_colorMap);
     scaleWidgetColorBar->setColorMap (m_colorMapInterval, m_colorMap);
@@ -426,13 +444,32 @@ void MainWindow::changeScaleWidgetInterval (CenterPathColor::Enum colorBy)
 
 void MainWindow::CurrentIndexChangedFacesColor (int value)
 {
+    BodyProperty::Enum property = static_cast<BodyProperty::Enum> (value);
+    if (property == BodyProperty::NONE)
+    {
+	widgetGl->SetColorMap (0, 0);
+	checkBoxFacesHistogram->setVisible (false);
+	scaleWidgetColorBar->setVisible (false);
+	widgetHistogram->setVisible (false);
+    }
+    else
+    {
+	checkBoxFacesHistogram->setVisible (true);
+	scaleWidgetColorBar->setVisible (true);
+
+	widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
+	changeScaleWidgetInterval (property);
+	widgetGl->CurrentIndexChangedFacesColor (property);
+    }
+    widgetGl->UpdateDisplayList ();
 }
 
 void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 {
-    CenterPathColor::Enum colorBy = 
-	static_cast<CenterPathColor::Enum>(value);
-    if (colorBy == CenterPathColor::NONE)
+
+    BodyProperty::Enum property = 
+	static_cast<BodyProperty::Enum>(value);
+    if (property == BodyProperty::NONE)
     {
 	widgetGl->SetColorMap (0, 0);
 	checkBoxCenterPathHistogram->setVisible (false);
@@ -445,8 +482,8 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	scaleWidgetColorBar->setVisible (true);
 
 	widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
-	changeScaleWidgetInterval (colorBy);
-	widgetGl->CurrentIndexChangedCenterPathColor (colorBy);
+	changeScaleWidgetInterval (property);
+	widgetGl->CurrentIndexChangedCenterPathColor (property);
 	SetAndDisplayHistogram ();
     }
     widgetGl->UpdateDisplayList ();
@@ -469,16 +506,16 @@ void MainWindow::SetAndDisplayHistogram ()
     if (m_centerPathHistogram)
     {
 	size_t value = comboBoxCenterPathColor->currentIndex ();
-	CenterPathColor::Enum colorBy = 
-	    static_cast<CenterPathColor::Enum>(value);
+	BodyProperty::Enum property = 
+	    static_cast<BodyProperty::Enum>(value);
 	widgetHistogram->setVisible (true);
 	widgetHistogram->SetData (
 	    widgetGl->GetFoamAlongTime ().GetBodiesAlongTime ().
-	    GetHistogram (colorBy));
+	    GetHistogram (property));
 	widgetHistogram->setAxisTitle (
 	    QwtPlot::xBottom, 
 	    QString(
-		(CenterPathColor::ToString (colorBy) + 
+		(BodyProperty::ToString (property) + 
 		 " (all time steps)").c_str ()));
 	widgetHistogram->setAxisTitle (
 	    QwtPlot::yLeft, tr("Number of values per bin"));

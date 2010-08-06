@@ -137,7 +137,7 @@ struct DefineAttribute
     };
 };
 
-class CenterPathColor
+class BodyProperty
 {
 public:
     enum Enum
@@ -152,7 +152,7 @@ public:
 	COUNT
     };
 public:
-    static string ToString (CenterPathColor::Enum colorBy);
+    static string ToString (BodyProperty::Enum property);
 };
 
 
