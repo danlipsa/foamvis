@@ -17,7 +17,8 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_play (false), PLAY_TEXT (">"), PAUSE_TEXT("||"),
     m_timer (new QTimer(this)), m_processBodyTorus (0), 
     m_currentBody (0),
-    m_centerPathHistogram (false)
+    m_centerPathHistogram (false),
+    m_facesHistogram (false)
 {
     // for anti-aliased lines
     QGLFormat fmt;
@@ -484,7 +485,8 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
 	changeScaleWidgetInterval (property);
 	widgetGl->CurrentIndexChangedCenterPathColor (property);
-	SetAndDisplayHistogram ();
+	SetAndDisplayHistogram (
+	    widgetGl->GetFoamAlongTime ().GetHistogram (getBodyProperty ()));
     }
     widgetGl->UpdateDisplayList ();
 }
@@ -493,25 +495,33 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 void MainWindow::ToggledCenterPathHistogram (bool checked)
 {
     m_centerPathHistogram = checked;
-    SetAndDisplayHistogram ();
+    if (checked)
+	SetAndDisplayHistogram (
+	    widgetGl->GetFoamAlongTime ().GetHistogram (getBodyProperty ()));
 }
 
 void MainWindow::ToggledFacesHistogram (bool checked)
 {
+    m_facesHistogram = checked;
+    if (checked)
+	SetAndDisplayHistogram (
+	    widgetGl->GetFoamAlongTime ().GetHistogram (getBodyProperty ()));
+}
+
+BodyProperty::Enum MainWindow::getBodyProperty () const
+{
+    size_t value = comboBoxCenterPathColor->currentIndex ();
+    return static_cast<BodyProperty::Enum>(value);
 }
 
 
-void MainWindow::SetAndDisplayHistogram ()
+void MainWindow::SetAndDisplayHistogram (const QwtIntervalData& intervalData)
 {
     if (m_centerPathHistogram)
     {
-	size_t value = comboBoxCenterPathColor->currentIndex ();
-	BodyProperty::Enum property = 
-	    static_cast<BodyProperty::Enum>(value);
+	BodyProperty::Enum property = getBodyProperty ();
 	widgetHistogram->setVisible (true);
-	widgetHistogram->SetData (
-	    widgetGl->GetFoamAlongTime ().GetBodiesAlongTime ().
-	    GetHistogram (property));
+	widgetHistogram->SetData (intervalData);
 	widgetHistogram->setAxisTitle (
 	    QwtPlot::xBottom, 
 	    QString(

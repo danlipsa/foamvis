@@ -22,7 +22,7 @@ void calculateBodyWraps (BodiesAlongTime::BodyMap::value_type& v,
 
 // Members
 // ======================================================================
-void FoamAlongTime::Calculate (
+void FoamAlongTime::calculate (
     Aggregate aggregate, FoamLessThanAlong::Corner corner, G3D::Vector3& v)
 {
     using G3D::Vector3;
@@ -44,18 +44,18 @@ void FoamAlongTime::CalculateAABox ()
 {
     using G3D::Vector3;
     Vector3 low, high;
-    Calculate (min_element, &Foam::GetAABoxLow, low);
-    Calculate (max_element, &Foam::GetAABoxHigh, high);
+    calculate (min_element, &Foam::GetAABoxLow, low);
+    calculate (max_element, &Foam::GetAABoxHigh, high);
     m_AABox.set (low, high);
 }
 
-void FoamAlongTime::CalculateBodyWraps ()
+void FoamAlongTime::calculateBodyWraps ()
 {
     if (m_foams.size () > 1)
     {
 	BodiesAlongTime::BodyMap bodyMap = GetBodiesAlongTime ().GetBodyMap ();
 	for_each (bodyMap.begin (), bodyMap.end (),
-		  boost::bind(calculateBodyWraps, _1, *this));
+		  boost::bind(::calculateBodyWraps, _1, *this));
     }
 }
 
@@ -63,8 +63,8 @@ void FoamAlongTime::PostProcess ()
 {
     CalculateAABox ();
     CacheBodiesAlongTime ();
-    CalculateBodyWraps ();
-    GetBodiesAlongTime ().CalculateValueRange (*this);
+    calculateBodyWraps ();
+    GetBodiesAlongTime ().CalculateRange (*this);
     GetBodiesAlongTime ().CalculateHistogram (*this);
 }
 
@@ -120,8 +120,49 @@ bool FoamAlongTime::ExistsBodyProperty (
 	else
 	    return true;
     }
+    return GetBody (bodyId, timeStep).ExistsPropertyValue (property);
+}
+
+
+void FoamAlongTime::calculateHistogram ()
+{
+    for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
+	calculateHistogram (timeStep);
+}
+
+void FoamAlongTime::calculateHistogram (size_t timeStep)
+{
+    boost::shared_ptr<const Foam> foam = GetFoam (timeStep);
+}
+
+void FoamAlongTime::calculateRange ()
+{
+    for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
+	calculateRange (timeStep);
+}
+
+void FoamAlongTime::calculateRange (size_t timeStep)
+{
+    boost::shared_ptr<const Foam> foam = GetFoam (timeStep);
+    BOOST_FOREACH (boost::shared_ptr<const Body> body, foam->GetBodies ())
+    {
+	size_t bodyId = body->GetId ();
+	for (size_t i = BodyProperty::BEGIN; i < BodyProperty::COUNT; ++i)
+	{
+	    BodyProperty::Enum bodyProperty = 
+		static_cast<BodyProperty::Enum>(i);
+	    if (ExistsBodyProperty (bodyProperty, bodyId, timeStep))
+		m_foamsStatistics[timeStep].RangeStep (
+		    bodyProperty,
+		    GetBodyProperty (bodyProperty, bodyId, timeStep));
+	}
+    }
+}
+
+const Body& FoamAlongTime::GetBody (size_t bodyId, size_t timeStep) const
+{
     const BodyAlongTime& bat = GetBodiesAlongTime ().GetBodyAlongTime (bodyId);
-    return bat.GetBody (timeStep)->ExistsPropertyValue (property);
+    return *bat.GetBody (timeStep);
 }
 
 

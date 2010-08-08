@@ -13,55 +13,9 @@ class Body;
 class FoamAlongTime;
 #include "StripIterator.h"
 #include "Enums.h"
+#include "BodySetStatistics.h"
 
-class BodyAlongTimeStatistics
-{
-public:
-    BodyAlongTimeStatistics ();
-    float GetMin (size_t i) const
-    {
-	return m_min[i];
-    }
-    float GetMax (size_t i) const
-    {
-	return m_max[i];
-    }
-    size_t GetValuesPerBin (size_t component, size_t bin) const
-    {
-	return m_histogram[component][bin];
-    }
-
-protected:
-    void speedValuesPerInterval (const StripIterator::Point& p,
-				     const StripIterator::Point& prev);
-    void valuesPerInterval (const boost::shared_ptr<Body>& body);
-    /**
-     * Increment the correct bin for 'index' (@see BodyProperty::Enum) and
-     * 'value'.
-     */
-    void valuePerInterval (size_t index, float value);
-
-
-
-protected:
-    /**
-     * Min speed along X, Y, Z, min total speed, min pressure
-     */
-    vector<float> m_min;
-    /**
-     * Max speed along X, Y, Z, max total speed, max pressure
-     */
-    vector<float> m_max;
-    /**
-     * Divide the value range in HISTOGRAM_INTERVALS intervals.
-     * This array tells us how many values you have in each interval for
-     * speed along x, y, z, total speed and pressure
-     */
-    vector< vector <size_t> > m_histogram;
-};
-
-
-class BodyAlongTime : public BodyAlongTimeStatistics
+class BodyAlongTime : public BodySetStatistics
 {
 public:
     typedef vector<boost::shared_ptr<Body> > Bodies;
@@ -95,10 +49,10 @@ public:
      * than 1/2 of min all sides of the original domain
      */
     void CalculateBodyWraps (const FoamAlongTime& foamAlongTime);
-    void CalculateValueRange (const FoamAlongTime& foamAlongTime);
+    void CalculateRange (const FoamAlongTime& foamAlongTime);
     void CalculateHistogram (
 	const FoamAlongTime& foamAlongTime,
-	BodyAlongTimeStatistics* destination);
+	BodySetStatistics* destination);
 
     StripIterator GetStripIterator (
 	const FoamAlongTime& foamAlongTime) const
@@ -146,7 +100,7 @@ private:
     Translations m_translations;
 };
 
-class BodiesAlongTime : public BodyAlongTimeStatistics
+class BodiesAlongTime : public BodySetStatistics
 {
 public:
     typedef map <size_t, boost::shared_ptr<BodyAlongTime> > BodyMap;
@@ -179,7 +133,7 @@ public:
     {
 	return getBodyAlongTime (id);
     }
-    void CalculateValueRange (const FoamAlongTime& foamAlongTime);
+    void CalculateRange (const FoamAlongTime& foamAlongTime);
     void CalculateHistogram (
 	const FoamAlongTime& foamAlongTime);
     string ToString () const;

@@ -37,7 +37,7 @@ public:
      * Shows center paths
      * param checked true for showing center paths false otherwise
      */
-    void SetAndDisplayHistogram ();
+    void SetAndDisplayHistogram (const QwtIntervalData& intervalData);
 
 public Q_SLOTS:
     void InteractionModeRotate ();
@@ -115,6 +115,7 @@ private:
 
     void setupScaleWidget ();
     void calculateStats (const Foam& foam, size_t timeSteps);
+    BodyProperty::Enum getBodyProperty () const;
 
 private:
     static void setupRainbowColorMap (QwtLinearColorMap* colorMap);
@@ -149,6 +150,7 @@ private:
     QwtLinearColorMap m_colorMap;
     QwtDoubleInterval m_colorMapInterval;
     bool m_centerPathHistogram;
+    bool m_facesHistogram;
 
     QAction* m_actionRotate;
     QAction* m_actionTranslate;

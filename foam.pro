@@ -1,5 +1,6 @@
 HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h \
-	BodyAlongTime.h BodyIndex.h ColoredElement.h Comparisons.h \
+	BodyAlongTime.h BodyIndex.h BodySetStatistics.h \
+	ColoredElement.h Comparisons.h \
 	Debug.h DebugStream.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h DisplayWidget.h\
@@ -14,8 +15,9 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h \
 	stable.h StripIterator.h SystemDifferences.h Utils.h \
 	Vertex.h
 SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
-	Body.cpp BodyAlongTime.cpp BodyIndex.cpp ColoredElement.cpp \
-	Comparisons.cpp Debug.cpp DebugStream.cpp DisplayWidget.cpp Edge.cpp \
+	Body.cpp BodyAlongTime.cpp BodyIndex.cpp BodySetStatistics.cpp \
+	ColoredElement.cpp Comparisons.cpp \
+	Debug.cpp DebugStream.cpp DisplayWidget.cpp Edge.cpp \
 	Element.cpp ExpressionTree.cpp Enums.cpp\
 	Foam.cpp FoamAlongTime.cpp Face.cpp \
 	GLWidget.cpp Hashes.cpp Histogram.cpp histogram_item.cpp\

@@ -9,7 +9,7 @@
 #ifndef __STRIP_ITERATOR_H__
 #define __STRIP_ITERATOR_H__
 
-
+#include "Enums.h"
 class BodyAlongTime;
 class FoamAlongTime;
 

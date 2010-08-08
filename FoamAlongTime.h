@@ -9,6 +9,7 @@
 
 #include "Comparisons.h"
 #include "BodyAlongTime.h"
+#include "BodySetStatistics.h"
 
 class Foam;
 
@@ -19,6 +20,7 @@ class FoamAlongTime
 {
 public:
     typedef vector< boost::shared_ptr<Foam> > Foams;
+    typedef vector<BodySetStatistics> FoamsStatistics;
     /**
      * Functor applied to a collection of Foam objects
      */
@@ -35,14 +37,14 @@ public:
      * Gets the vector of Foam objects
      * @return vector of data objects
      */
-    boost::shared_ptr<Foam> GetFoam (size_t time)
+    boost::shared_ptr<Foam> GetFoam (size_t timeStep)
     {
-	return m_foams[time];
+	return m_foams[timeStep];
     }
 
-    boost::shared_ptr<const Foam> GetFoam (size_t time) const
+    boost::shared_ptr<const Foam> GetFoam (size_t timeStep) const
     {
-	return m_foams[time];
+	return m_foams[timeStep];
     }
 
 
@@ -97,9 +99,14 @@ public:
     float GetBodyProperty (
 	BodyProperty::Enum property,
 	size_t bodyId, size_t timeStep) const;
+    const Body& GetBody (size_t bodyId, size_t timeStep) const;
     bool ExistsBodyProperty (
 	BodyProperty::Enum property,
 	size_t bodyId, size_t timeStep) const;
+    QwtIntervalData GetHistogram (size_t bodyProperty) const
+    {
+	return GetBodiesAlongTime ().GetHistogram (bodyProperty);
+    }
 
 public:
     /**
@@ -109,6 +116,11 @@ public:
 	ostream& ostr, const FoamAlongTime& dataAlongTime);
 
 private:
+    void calculateHistogram ();
+    void calculateHistogram (size_t timeStep);
+    void calculateRange ();
+    void calculateRange (size_t timeStep);
+
     /**
      * Calculates the low/high point for the AABox of this list of Foam objects
      * @param aggregate functor to be applied to the list of data objects
@@ -116,14 +128,15 @@ private:
      * the low or high corner of AABox of the data object
      * @param v where to store the low/high point
      */
-    void Calculate (Aggregate aggregate, 
+    void calculate (Aggregate aggregate, 
 		    FoamLessThanAlong::Corner corner, G3D::Vector3& v);
-    void CalculateBodyWraps ();
+    void calculateBodyWraps ();
 private:
     /**
      * Vector of Foam objects
      */
     Foams m_foams;
+    FoamsStatistics m_foamsStatistics;
     BodiesAlongTime m_bodiesAlongTime;
     /**
      * The AABox for this vector of Foam objects
