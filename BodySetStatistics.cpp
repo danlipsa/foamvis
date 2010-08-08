@@ -8,7 +8,9 @@
 
 #include "Body.h"
 #include "BodySetStatistics.h"
+#include "FoamAlongTime.h"
 #include "Utils.h"
+
 
 BodySetStatistics::BodySetStatistics () :
     m_min (BodyProperty::COUNT, numeric_limits<float> ().max ()),
@@ -32,15 +34,27 @@ void BodySetStatistics::SpeedHistogramStep (
 	valuePerInterval (i, speedComponents[i]);
 }
 
-void BodySetStatistics::HistogramStep (
-    const boost::shared_ptr<Body>& body)
+void BodySetStatistics::HistogramStep (const boost::shared_ptr<Body>& body)
 {
     for (size_t i = BodyProperty::PER_BODY_BEGIN;
 	 i < BodyProperty::PER_BODY_END; ++i)
     {
 	size_t index = i - BodyProperty::PER_BODY_BEGIN;
 	if (body->ExistsAttribute (index))
-	    valuePerInterval (i, body->GetRealAttribute (index));	
+	    valuePerInterval (i, body->GetRealAttribute (index));
+    }
+}
+
+void BodySetStatistics::HistogramStep (
+    const FoamAlongTime& foamAlongTime, size_t bodyId, size_t timeStep)
+{
+    for (size_t i = BodyProperty::BEGIN; i < BodyProperty::COUNT; ++i)
+    {
+	BodyProperty::Enum bodyProperty = static_cast<BodyProperty::Enum>(i);
+	if (foamAlongTime.ExistsBodyProperty (bodyProperty, bodyId, timeStep))
+	    valuePerInterval (
+		i, foamAlongTime.GetBodyProperty (
+		    bodyProperty, bodyId, timeStep));
     }
 }
 

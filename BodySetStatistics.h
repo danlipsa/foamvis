@@ -36,6 +36,9 @@ public:
     void SpeedHistogramStep (const StripIterator::Point& p,
 			     const StripIterator::Point& prev);
     void HistogramStep (const boost::shared_ptr<Body>& body);
+    void HistogramStep (
+	const FoamAlongTime& foamAlongTime, size_t bodyId, size_t timeStep);
+
     void RangeStep (size_t bodyProperty, float newValue);
     void MinStep (size_t bodyProperty, float newValue)
     {

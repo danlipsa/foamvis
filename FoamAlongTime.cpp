@@ -66,6 +66,8 @@ void FoamAlongTime::PostProcess ()
     calculateBodyWraps ();
     GetBodiesAlongTime ().CalculateRange (*this);
     GetBodiesAlongTime ().CalculateHistogram (*this);
+    calculateRange ();
+    calculateHistogram ();
 }
 
 void FoamAlongTime::CacheBodiesAlongTime ()
@@ -133,6 +135,12 @@ void FoamAlongTime::calculateHistogram ()
 void FoamAlongTime::calculateHistogram (size_t timeStep)
 {
     boost::shared_ptr<const Foam> foam = GetFoam (timeStep);
+    BOOST_FOREACH (boost::shared_ptr<const Body> body, foam->GetBodies ())
+    {
+	size_t bodyId = body->GetId ();
+	m_foamsStatistics[timeStep].HistogramStep
+	    (*this, bodyId, timeStep);
+    }
 }
 
 void FoamAlongTime::calculateRange ()

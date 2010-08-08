@@ -99,10 +99,12 @@ protected:
 	    {
 		size_t bodyId = of->GetBodyPartOf ().GetBodyId ();
 		QColor color;
-		if (m_widget.GetFoamAlongTime ().ExistsBodyProperty (
+		const FoamAlongTime& foamAlongTime = 
+		    m_widget.GetFoamAlongTime ();
+		if (foamAlongTime.ExistsBodyProperty (
 			m_bodyProperty, bodyId, m_widget.GetTimeStep ()))
 		{
-		    float value = m_widget.GetFoamAlongTime ().GetBodyProperty (
+		    float value = foamAlongTime.GetBodyProperty (
 			m_bodyProperty, bodyId, m_widget.GetTimeStep ());
 		    color = m_widget.MapScalar (value);
 		}
