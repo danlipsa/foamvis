@@ -79,7 +79,7 @@ LIBS += "-ljpeg"
 LIBS += "-lavformat"
 LIBS += "-lavcodec"
 LIBS += "-lavutil"
-LIBS += "-lqwt"
+LIBS += "-lqwtd"
 }
 
 # Local Variables:

@@ -155,10 +155,10 @@ void FoamAlongTime::calculateRange (size_t timeStep)
     BOOST_FOREACH (boost::shared_ptr<const Body> body, foam->GetBodies ())
     {
 	size_t bodyId = body->GetId ();
-	for (size_t i = BodyProperty::BEGIN; i < BodyProperty::COUNT; ++i)
+	for (size_t i = BodyProperty::ENUM_BEGIN; i < BodyProperty::COUNT; ++i)
 	{
 	    BodyProperty::Enum bodyProperty = 
-		static_cast<BodyProperty::Enum>(i);
+		BodyProperty::FromSizeT(i);
 	    if (ExistsBodyProperty (bodyProperty, bodyId, timeStep))
 		m_foamsStatistics[timeStep].RangeStep (
 		    bodyProperty,
@@ -173,17 +173,13 @@ const Body& FoamAlongTime::GetBody (size_t bodyId, size_t timeStep) const
     return *bat.GetBody (timeStep);
 }
 
-
-// Static and Friend Members
-//======================================================================
-
-ostream& operator<< (ostream& ostr, const FoamAlongTime& dataAlongTime)
+string FoamAlongTime::ToString () const
 {
+    ostringstream ostr;
     ostr << "FoamAlongTime: " << endl;
-    ostr << dataAlongTime.m_AABox << endl;
+    ostr << m_AABox << endl;
     ostream_iterator< boost::shared_ptr<const Foam> > output (ostr, "\n");
-    copy (dataAlongTime.m_foams.begin (), dataAlongTime.m_foams.end (), output);
-    ostr << dataAlongTime.m_bodiesAlongTime;
-    return ostr;
+    copy (m_foams.begin (), m_foams.end (), output);
+    ostr << m_bodiesAlongTime;
+    return ostr.str ();
 }
-

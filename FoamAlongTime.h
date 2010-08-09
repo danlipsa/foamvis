@@ -28,11 +28,38 @@ public:
 					 Foams::iterator last,
 					 FoamLessThanAlong lessThanAlong);
 public:
+    void CacheBodiesAlongTime ();
     /**
      * Calculate the  axially aligned bounding box for  this vector of
      * Foam objects
      */
     void CalculateAABox ();
+
+
+    /**
+     * Gets the AABox for this vector of Foam objects
+     */
+    const G3D::AABox& GetAABox () const
+    {
+	return m_AABox;
+    }
+    BodiesAlongTime& GetBodiesAlongTime ()
+    {
+	return m_bodiesAlongTime;
+    }
+    const BodiesAlongTime& GetBodiesAlongTime () const
+    {
+	return m_bodiesAlongTime;
+    }
+    const Body& GetBody (size_t bodyId, size_t timeStep) const;
+    float GetBodyProperty (
+	BodyProperty::Enum property,
+	size_t bodyId, size_t timeStep) const;
+
+    const string& GetFilePattern () const
+    {
+	return m_filePattern;
+    }
     /**
      * Gets the vector of Foam objects
      * @return vector of data objects
@@ -47,80 +74,69 @@ public:
 	return m_foams[timeStep];
     }
 
-
-    size_t GetTimeSteps () const
-    {
-	return m_foams.size ();
-    }
-
-    void SetTimeSteps (size_t timeSteps)
-    {
-	m_foams.resize (timeSteps);
-    }
-
     Foams::iterator GetFoamsBegin ()
     {
 	return m_foams.begin ();
     }
-
-    /**
-     * Gets the AABox for this vector of Foam objects
-     */
-    const G3D::AABox& GetAABox () const
-    {
-	return m_AABox;
-    }
-    void CacheBodiesAlongTime ();
-    void PostProcess ();
-    BodiesAlongTime& GetBodiesAlongTime ()
-    {
-	return m_bodiesAlongTime;
-    }
-    const BodiesAlongTime& GetBodiesAlongTime () const
-    {
-	return m_bodiesAlongTime;
-    }
-    void SetFilePattern (const string& filePattern)
-    {
-	m_filePattern = filePattern;
-    }
-    const string& GetFilePattern () const
-    {
-	return m_filePattern;
-    }
-    float GetMin (BodyProperty::Enum i) const
-    {
-	return GetBodiesAlongTime ().GetMin (i);
-    }
-    float GetMax (BodyProperty::Enum i) const
-    {
-	return GetBodiesAlongTime ().GetMax (i);
-    }
-    float GetBodyProperty (
-	BodyProperty::Enum property,
-	size_t bodyId, size_t timeStep) const;
-    const Body& GetBody (size_t bodyId, size_t timeStep) const;
-    bool ExistsBodyProperty (
-	BodyProperty::Enum property,
-	size_t bodyId, size_t timeStep) const;
     QwtIntervalData GetHistogram (size_t bodyProperty) const
     {
 	return GetBodiesAlongTime ().GetHistogram (bodyProperty);
     }
 
-public:
-    /**
-     * Pretty print the FoamFile object
-     */
-    friend ostream& operator<< (
-	ostream& ostr, const FoamAlongTime& dataAlongTime);
+    QwtIntervalData GetHistogram (size_t bodyProperty, size_t timeStep) const
+    {
+	return m_foamsStatistics[timeStep].GetHistogram (bodyProperty);
+    }
+    float GetMax (BodyProperty::Enum bodyProperty) const
+    {
+	return GetBodiesAlongTime ().GetMax (bodyProperty);
+    }
+    float GetMax (BodyProperty::Enum bodyProperty, size_t timeStep) const
+    {
+	return m_foamsStatistics[timeStep].GetMax (bodyProperty);
+    }
+
+    float GetMin (BodyProperty::Enum bodyProperty) const
+    {
+	return GetBodiesAlongTime ().GetMin (bodyProperty);
+    }
+    float GetMin (BodyProperty::Enum bodyProperty, size_t timeStep) const
+    {
+	return m_foamsStatistics[timeStep].GetMin (bodyProperty);
+    }
+    QwtDoubleInterval GetRange (BodyProperty::Enum bodyProperty) const
+    {
+	return QwtDoubleInterval (GetMin (bodyProperty), GetMax (bodyProperty));
+    }
+    QwtDoubleInterval GetRange (
+	BodyProperty::Enum bodyProperty, size_t timeStep) const
+    {
+	return QwtDoubleInterval (
+	    GetMin (bodyProperty, timeStep), GetMax (bodyProperty, timeStep));
+    }
+    size_t GetTimeSteps () const
+    {
+	return m_foams.size ();
+    }
+
+    bool ExistsBodyProperty (
+	BodyProperty::Enum property,
+	size_t bodyId, size_t timeStep) const;
+
+    void PostProcess ();
+
+    void SetFilePattern (const string& filePattern)
+    {
+	m_filePattern = filePattern;
+    }
+    void SetTimeSteps (size_t timeSteps)
+    {
+	m_foams.resize (timeSteps);
+	m_foamsStatistics.resize (timeSteps);
+    }
+    string ToString () const;
 
 private:
-    void calculateHistogram ();
-    void calculateHistogram (size_t timeStep);
-    void calculateRange ();
-    void calculateRange (size_t timeStep);
-
     /**
      * Calculates the low/high point for the AABox of this list of Foam objects
      * @param aggregate functor to be applied to the list of data objects
@@ -131,6 +147,11 @@ private:
     void calculate (Aggregate aggregate, 
 		    FoamLessThanAlong::Corner corner, G3D::Vector3& v);
     void calculateBodyWraps ();
+    void calculateHistogram ();
+    void calculateHistogram (size_t timeStep);
+    void calculateRange ();
+    void calculateRange (size_t timeStep);
+
 private:
     /**
      * Vector of Foam objects
@@ -144,6 +165,17 @@ private:
     G3D::AABox m_AABox;
     string m_filePattern;
 };
+
+
+/**
+ * Pretty print a FoamAlongTime
+ */
+inline ostream& operator<< (ostream& ostr, const FoamAlongTime& foamAlongTime)
+{
+    return ostr << foamAlongTime.ToString () << endl;
+}
+
+
 
 #endif //__FOAM_ALONG_TIME_H__
 

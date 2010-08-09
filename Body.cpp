@@ -204,12 +204,12 @@ void Body::GetFaceSet (FaceSet* faceSet) const
 	faceSet->insert (of->GetFace ());
 }
 
-float Body::GetPropertyValue (BodyProperty::Enum property) const
+float Body::GetPropertyValue (BodyProperty::Enum bodyProperty) const
 {
-    return GetRealAttribute (property - BodyProperty::PER_BODY_BEGIN);
+    return GetRealAttribute (bodyProperty - BodyProperty::PER_BODY_BEGIN);
 }
 
-bool Body::ExistsPropertyValue (BodyProperty::Enum property) const
+bool Body::ExistsPropertyValue (BodyProperty::Enum bodyProperty) const
 {
-    return ExistsAttribute (property - BodyProperty::PER_BODY_BEGIN);
+    return ExistsAttribute (bodyProperty - BodyProperty::PER_BODY_BEGIN);
 }

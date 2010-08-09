@@ -137,7 +137,6 @@ public:
     void CalculateHistogram (
 	const FoamAlongTime& foamAlongTime);
     string ToString () const;
-    QwtIntervalData GetHistogram (size_t i) const;
 
 private:
     void resize (size_t bodyOriginalIndex, size_t timeSteps);

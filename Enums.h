@@ -142,7 +142,8 @@ class BodyProperty
 public:
     enum Enum
     {
-	VELOCITY_ALONG_X, VELOCITY_BEGIN = VELOCITY_ALONG_X, BEGIN = VELOCITY_BEGIN,
+	VELOCITY_ALONG_X, 
+	    VELOCITY_BEGIN = VELOCITY_ALONG_X, ENUM_BEGIN = VELOCITY_ALONG_X,
 	VELOCITY_ALONG_Y,
 	VELOCITY_ALONG_Z,
 	VELOCITY_MAGNITUDE,
@@ -153,6 +154,7 @@ public:
     };
 public:
     static string ToString (BodyProperty::Enum property);
+    static Enum FromSizeT (size_t i);
 };
 
 

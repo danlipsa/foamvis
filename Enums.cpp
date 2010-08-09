@@ -163,3 +163,9 @@ string BodyProperty::ToString (BodyProperty::Enum property)
     }
     return "Error";
 }
+
+BodyProperty::Enum BodyProperty::FromSizeT (size_t i)
+{
+    RuntimeAssert (i < COUNT, "Value outside of BodyProperty::Enum", i);
+    return static_cast<BodyProperty::Enum>(i);
+}

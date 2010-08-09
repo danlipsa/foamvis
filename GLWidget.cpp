@@ -1085,9 +1085,9 @@ void GLWidget::CurrentIndexChangedInteractionMode (int index)
     m_interactionMode = static_cast<InteractionMode::Enum>(index);
 }
 
-void GLWidget::ValueChangedSliderData (int newIndex)
+void GLWidget::ValueChangedSliderData (int timeStep)
 {
-    m_timeStep = newIndex;
+    m_timeStep = timeStep;
     UpdateDisplayList ();
 }
 
@@ -1144,14 +1144,14 @@ void GLWidget::CurrentIndexChangedCenterPathColor (int value)
 {
     RuntimeAssert (value < BodyProperty::COUNT,
 		   "Invalid BodyProperty: ", value);
-    m_centerPathColor = static_cast<BodyProperty::Enum>(value);
+    m_centerPathColor = BodyProperty::FromSizeT(value);
 }
 
 void GLWidget::CurrentIndexChangedFacesColor (int value)
 {
     RuntimeAssert (value < BodyProperty::COUNT,
 		   "Invalid BodyProperty: ", value);
-    m_facesColor = static_cast<BodyProperty::Enum>(value);
+    m_facesColor = BodyProperty::FromSizeT(value);
 }
 
 

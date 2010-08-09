@@ -48,9 +48,9 @@ void BodySetStatistics::HistogramStep (const boost::shared_ptr<Body>& body)
 void BodySetStatistics::HistogramStep (
     const FoamAlongTime& foamAlongTime, size_t bodyId, size_t timeStep)
 {
-    for (size_t i = BodyProperty::BEGIN; i < BodyProperty::COUNT; ++i)
+    for (size_t i = BodyProperty::ENUM_BEGIN; i < BodyProperty::COUNT; ++i)
     {
-	BodyProperty::Enum bodyProperty = static_cast<BodyProperty::Enum>(i);
+	BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT(i);
 	if (foamAlongTime.ExistsBodyProperty (bodyProperty, bodyId, timeStep))
 	    valuePerInterval (
 		i, foamAlongTime.GetBodyProperty (
@@ -80,4 +80,21 @@ void BodySetStatistics::RangeStep (size_t bodyProperty, float newValue)
 {
     MinStep (bodyProperty, newValue);
     MaxStep (bodyProperty, newValue);
+}
+
+QwtIntervalData BodySetStatistics::GetHistogram (size_t i) const
+{
+    QwtArray<QwtDoubleInterval> intervals (HISTOGRAM_INTERVALS);
+    QwtArray<double> values (HISTOGRAM_INTERVALS);
+    float beginInterval = GetMin (i);
+    float endInterval = GetMax (i);
+    float step = (endInterval - beginInterval) / HISTOGRAM_INTERVALS;
+    float pos = beginInterval;
+    for (size_t bin = 0; bin < HISTOGRAM_INTERVALS; ++bin)
+    {
+	intervals[bin] = QwtDoubleInterval (pos, pos + step);
+	values[bin] = GetValuesPerBin (i, bin);
+	pos += step;
+    }
+    return QwtIntervalData (intervals, values);
 }

@@ -16,9 +16,7 @@
 MainWindow::MainWindow (FoamAlongTime& foamAlongTime) : 
     m_play (false), PLAY_TEXT (">"), PAUSE_TEXT("||"),
     m_timer (new QTimer(this)), m_processBodyTorus (0), 
-    m_currentBody (0),
-    m_centerPathHistogram (false),
-    m_facesHistogram (false)
+    m_currentBody (0)
 {
     // for anti-aliased lines
     QGLFormat fmt;
@@ -112,7 +110,9 @@ void MainWindow::setupBlueRedColorMap (QwtLinearColorMap* colorMap)
 void MainWindow::setupScaleWidget ()
 {
     scaleWidgetColorBar->setAlignment (QwtScaleDraw::RightScale);
-    scaleWidgetColorBar->setBorderDist (5, 5);
+    scaleWidgetColorBar->setLabelRotation (-90);
+    scaleWidgetColorBar->setLabelAlignment (Qt::AlignHCenter);
+    scaleWidgetColorBar->setBorderDist (50, 50);
     scaleWidgetColorBar->setColorBarEnabled (true);
 }
 
@@ -348,10 +348,19 @@ void MainWindow::TimeoutTimer ()
         ClickedPlay ();
 }
 
-void MainWindow::ValueChangedSliderData (int value)
+void MainWindow::ValueChangedSliderData (int timeStep)
 {
-    widgetGl->ValueChangedSliderData (value);
-    widgetGl->UpdateDisplayList ();
+    BodyProperty::Enum bodyProperty = 
+	BodyProperty::FromSizeT (comboBoxFacesColor->currentIndex ());
+    if (scaleWidgetColorBar->isVisible ())
+	changedColorBarInterval (
+	    widgetGl->GetFoamAlongTime ().GetRange (bodyProperty, timeStep));
+    if (widgetHistogram->isVisible ())
+	SetAndDisplayHistogram (
+	    checkBoxFacesHistogram->isChecked (),
+	    bodyProperty,
+	    widgetGl->GetFoamAlongTime ().GetHistogram (bodyProperty, timeStep));
+    widgetGl->ValueChangedSliderData (timeStep);
     updateButtons ();
     updateStatus ();
 }
@@ -390,12 +399,13 @@ void MainWindow::ToggledCenterPath (bool checked)
     if (checked)
     {
 	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
-	BodyProperty::Enum property = 
-	    static_cast<BodyProperty::Enum>(
+	BodyProperty::Enum bodyProperty = 
+	    BodyProperty::FromSizeT(
 		comboBoxCenterPathColor->currentIndex ());
         widgetHistogram->setVisible (
-	    property != BodyProperty::NONE && m_centerPathHistogram);
-	scaleWidgetColorBar->setVisible (property != BodyProperty::NONE);
+	    bodyProperty != BodyProperty::NONE && 
+	    checkBoxCenterPathHistogram->isChecked ());
+	scaleWidgetColorBar->setVisible (bodyProperty != BodyProperty::NONE);
     }
     else
     {
@@ -419,14 +429,9 @@ void MainWindow::ToggledFacesNormal (bool checked)
 }
 
 
-
-void MainWindow::changeScaleWidgetInterval (BodyProperty::Enum property)
+void MainWindow::changedColorBarInterval (const QwtDoubleInterval& interval)
 {
-    const FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    m_colorMapInterval = QwtDoubleInterval(
-	foamAlongTime.GetMin(property), 
-	foamAlongTime.GetMax(property));
-
+    m_colorMapInterval = interval;
     QwtLinearScaleEngine scaleEngine;
     QwtScaleDiv scaleDiv = scaleEngine.divideScale (
 	m_colorMapInterval.minValue (), m_colorMapInterval.maxValue (), 0, 0);
@@ -445,8 +450,8 @@ void MainWindow::changeScaleWidgetInterval (BodyProperty::Enum property)
 
 void MainWindow::CurrentIndexChangedFacesColor (int value)
 {
-    BodyProperty::Enum property = static_cast<BodyProperty::Enum> (value);
-    if (property == BodyProperty::NONE)
+    BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT (value);
+    if (bodyProperty == BodyProperty::NONE)
     {
 	widgetGl->SetColorMap (0, 0);
 	checkBoxFacesHistogram->setVisible (false);
@@ -455,12 +460,18 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
     }
     else
     {
+	size_t timeStep = widgetGl->GetTimeStep ();
 	checkBoxFacesHistogram->setVisible (true);
 	scaleWidgetColorBar->setVisible (true);
 
 	widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
-	changeScaleWidgetInterval (property);
-	widgetGl->CurrentIndexChangedFacesColor (property);
+	changedColorBarInterval (
+	    widgetGl->GetFoamAlongTime ().GetRange (bodyProperty, timeStep));
+	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
+	SetAndDisplayHistogram (
+	    checkBoxFacesHistogram->isChecked (),
+	    bodyProperty,
+	    widgetGl->GetFoamAlongTime ().GetHistogram (bodyProperty, timeStep));
     }
     widgetGl->UpdateDisplayList ();
 }
@@ -468,9 +479,9 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 {
 
-    BodyProperty::Enum property = 
-	static_cast<BodyProperty::Enum>(value);
-    if (property == BodyProperty::NONE)
+    BodyProperty::Enum bodyProperty = 
+	BodyProperty::FromSizeT(value);
+    if (bodyProperty == BodyProperty::NONE)
     {
 	widgetGl->SetColorMap (0, 0);
 	checkBoxCenterPathHistogram->setVisible (false);
@@ -479,14 +490,19 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
     }
     else
     {
+	BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT (
+	    comboBoxCenterPathColor->currentIndex ());
 	checkBoxCenterPathHistogram->setVisible (true);
 	scaleWidgetColorBar->setVisible (true);
 
 	widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
-	changeScaleWidgetInterval (property);
-	widgetGl->CurrentIndexChangedCenterPathColor (property);
+	changedColorBarInterval (
+	    widgetGl->GetFoamAlongTime ().GetRange (bodyProperty));
+	widgetGl->CurrentIndexChangedCenterPathColor (bodyProperty);
 	SetAndDisplayHistogram (
-	    widgetGl->GetFoamAlongTime ().GetHistogram (getBodyProperty ()));
+	    checkBoxCenterPathHistogram->isChecked (),
+	    bodyProperty,
+	    widgetGl->GetFoamAlongTime ().GetHistogram (bodyProperty));
     }
     widgetGl->UpdateDisplayList ();
 }
@@ -494,41 +510,37 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 
 void MainWindow::ToggledCenterPathHistogram (bool checked)
 {
-    m_centerPathHistogram = checked;
-    if (checked)
-	SetAndDisplayHistogram (
-	    widgetGl->GetFoamAlongTime ().GetHistogram (getBodyProperty ()));
+    BodyProperty::Enum bodyProperty = 
+	BodyProperty::FromSizeT (comboBoxCenterPathColor->currentIndex ());
+    SetAndDisplayHistogram (
+	checked, bodyProperty,
+	widgetGl->GetFoamAlongTime ().GetHistogram (bodyProperty));
 }
 
 void MainWindow::ToggledFacesHistogram (bool checked)
 {
-    m_facesHistogram = checked;
+    BodyProperty::Enum bodyProperty = 
+	BodyProperty::FromSizeT (comboBoxFacesColor->currentIndex ());
+    SetAndDisplayHistogram (
+	checked, bodyProperty,
+	widgetGl->GetFoamAlongTime ().GetHistogram (
+	    bodyProperty, widgetGl->GetTimeStep ()));
+}
+
+void MainWindow::SetAndDisplayHistogram (
+    bool checked,
+    BodyProperty::Enum bodyProperty,
+    const QwtIntervalData& intervalData)
+{
     if (checked)
-	SetAndDisplayHistogram (
-	    widgetGl->GetFoamAlongTime ().GetHistogram (getBodyProperty ()));
-}
-
-BodyProperty::Enum MainWindow::getBodyProperty () const
-{
-    size_t value = comboBoxCenterPathColor->currentIndex ();
-    return static_cast<BodyProperty::Enum>(value);
-}
-
-
-void MainWindow::SetAndDisplayHistogram (const QwtIntervalData& intervalData)
-{
-    if (m_centerPathHistogram)
     {
-	BodyProperty::Enum property = getBodyProperty ();
 	widgetHistogram->setVisible (true);
 	widgetHistogram->SetData (intervalData);
 	widgetHistogram->setAxisTitle (
 	    QwtPlot::xBottom, 
-	    QString(
-		(BodyProperty::ToString (property) + 
-		 " (all time steps)").c_str ()));
+	    QString(BodyProperty::ToString (bodyProperty).c_str ()));
 	widgetHistogram->setAxisTitle (
-	    QwtPlot::yLeft, tr("Number of values per bin"));
+	    QwtPlot::yLeft, QString("Number of values per bin"));
 	widgetHistogram->replot ();
     }
     else

@@ -34,10 +34,15 @@ public:
     void keyPressEvent (QKeyEvent* event);
 
     /**
-     * Shows center paths
-     * param checked true for showing center paths false otherwise
+     * Shows a histogram of the current display
+     * @param checked true for showing the histogram, false otherwise
+     * @param intervalData data for the histogram
      */
-    void SetAndDisplayHistogram (const QwtIntervalData& intervalData);
+    void SetAndDisplayHistogram (
+	bool checked,
+	BodyProperty::Enum bodyProperty,
+	const QwtIntervalData& intervalData);
+
 
 public Q_SLOTS:
     void InteractionModeRotate ();
@@ -111,11 +116,10 @@ private:
     void updateStatus ();
     void setupSliderData (const FoamAlongTime& foamAlongTime);
     void configureInterface (const FoamAlongTime& foamAlongTime);
-    void changeScaleWidgetInterval (BodyProperty::Enum colorBy);
+    void changedColorBarInterval (const QwtDoubleInterval& interval);
 
     void setupScaleWidget ();
     void calculateStats (const Foam& foam, size_t timeSteps);
-    BodyProperty::Enum getBodyProperty () const;
 
 private:
     static void setupRainbowColorMap (QwtLinearColorMap* colorMap);
@@ -149,8 +153,6 @@ private:
 
     QwtLinearColorMap m_colorMap;
     QwtDoubleInterval m_colorMapInterval;
-    bool m_centerPathHistogram;
-    bool m_facesHistogram;
 
     QAction* m_actionRotate;
     QAction* m_actionTranslate;

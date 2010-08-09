@@ -204,21 +204,3 @@ void BodiesAlongTime::CalculateHistogram (
     BOOST_FOREACH (BodyMap::value_type p, GetBodyMap ())
 	p.second->CalculateHistogram (foamAlongTime, this);
 }
-
-QwtIntervalData BodiesAlongTime::GetHistogram (size_t i) const
-{
-    QwtArray<QwtDoubleInterval> intervals (HISTOGRAM_INTERVALS);
-    QwtArray<double> values (HISTOGRAM_INTERVALS);
-    float beginInterval = GetMin (i);
-    float endInterval = GetMax (i);
-    float step = (endInterval - beginInterval) / HISTOGRAM_INTERVALS;
-    float pos = beginInterval;
-    for (size_t bin = 0; bin < HISTOGRAM_INTERVALS; ++bin)
-    {
-	intervals[bin] = QwtDoubleInterval (pos, pos + step);
-	values[bin] = 
-	    BodySetStatistics::GetValuesPerBin (i, bin);
-	pos += step;
-    }
-    return QwtIntervalData (intervals, values);
-}

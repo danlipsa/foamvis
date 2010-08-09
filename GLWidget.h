@@ -192,9 +192,9 @@ public:
     // ======================================================================
     /**
      * Signals a change in data displayed
-     * @param newIndex the new index for the data object to be displayed
+     * @param timeStep the new index for the Foam to be displayed
      */
-    void ValueChangedSliderData (int newIndex);
+    void ValueChangedSliderData (int timeStep);
     /**
      * Shows edges
      * @param checked true for showing edges false otherwise
