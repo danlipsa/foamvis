@@ -150,7 +150,9 @@ private:
     void calculateHistogram ();
     void calculateHistogram (size_t timeStep);
     void calculateRange ();
+    void copyRange ();
     void calculateRange (size_t timeStep);
+
 
 private:
     /**

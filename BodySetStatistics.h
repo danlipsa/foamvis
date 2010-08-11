@@ -20,9 +20,25 @@ public:
     {
 	return m_min[bodyProperty];
     }
+    const vector<float>& GetMin() const
+    {
+	return m_min;
+    }
+    vector<float>& GetMin()
+    {
+	return m_min;
+    }
     float GetMax (size_t bodyProperty) const
     {
 	return m_max[bodyProperty];
+    }
+    const vector<float>& GetMax () const
+    {
+	return m_max;
+    }
+    vector<float>& GetMax ()
+    {
+	return m_max;
     }
     size_t Size () const
     {
