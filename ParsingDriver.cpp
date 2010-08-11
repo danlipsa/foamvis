@@ -132,7 +132,9 @@ const char* ParsingDriver::KEYWORD_TABLE[] = {
     "LAGRANGE_MULTIPLIER",
     "CONSTRAINTS",
     "DENSITY",
-    "CLIP_COEFF"
+    "CLIP_COEFF",
+    "AREA_NORMALIZATION",
+    "MODULUS"
 };
 
 int ParsingDriver::GetKeywordId (char* keyword)

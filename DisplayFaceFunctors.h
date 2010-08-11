@@ -15,7 +15,7 @@
  * Functor that displays a face
  */
 template <typename displayEdges>
-class DisplayFace : public DisplayElementProperties
+class DisplayFace : public DisplayElementProperty
 {
 public:
     /**
@@ -24,7 +24,7 @@ public:
      */
     DisplayFace (const GLWidget& widget, FocusContext focus = FOCUS, 
 		 BodyProperty::Enum bodyProperty = BodyProperty::NONE) : 
-	DisplayElementProperties (widget, focus, bodyProperty), m_count(0) 
+	DisplayElementProperty (widget, focus, bodyProperty), m_count(0) 
     {
     }
     /**
@@ -94,7 +94,10 @@ protected:
 	if (m_focus == FOCUS)
 	{
 	    if (m_bodyProperty == BodyProperty::NONE)
-		glColor (Color::GetValue(of->GetColor ()));
+	    {
+		Color::Enum color = of->GetColor ();
+		glColor (Color::GetValue(color));
+	    }
 	    else
 	    {
 		size_t bodyId = of->GetBodyPartOf ().GetBodyId ();

@@ -168,6 +168,8 @@ class AttributeCreator;
 %token <m_id> CONSTRAINTS "CONSTRAINTS"
 %token <m_id> DENSITY "DENSITY"
 %token CLIP_COEFF "CLIP_COEFF"
+%token AREA_NORMALIZATION "AREA_NORMALIZATION"
+%token MODULUS "MODULUS"
 
  // terminal symbols
 %token <m_int> INTEGER_VALUE
@@ -292,11 +294,12 @@ header
 | header torus_domain nlplus
 | header length_method_name nlplus
 | header area_method_name nlplus
-| header quantity
+| header quantity nlstar
 | header method_instance
 | header function_declaration nlplus
 | header view_transform_generators
 | header integral_order_1d nlplus
+| header toggle nlplus
 ;
 
 nl: '\n'
@@ -311,6 +314,10 @@ nlplus
 : nlplus nl 
 | nl
 ;
+
+toggle
+: AREA_NORMALIZATION
+
 
 integral_order_1d
 : INTEGRAL_ORDER_1D colon_assignment INTEGER_VALUE
@@ -364,11 +371,12 @@ quantity
 }
 
 quantity_rest
-: ';' nlplus 
+: ';'
 {
     $$ = 0;
 }
-| quantity_type quantity_lagrange_multiplier quantity_method_list nlplus
+| quantity_type quantity_lagrange_multiplier quantity_modulus
+  quantity_method_list
 {
     $$ = 1;
 }
@@ -386,22 +394,15 @@ quantity_lagrange_multiplier
 | LAGRANGE_MULTIPLIER number
 ;
 
+quantity_modulus
+: /* empty */
+| MODULUS const_expr
 
 
 quantity_method_list
-: quantity_method_list quantity_method 
-| quantity_method
+: quantity_method_list method 
+| method
 ;
-
-quantity_method
-: METHOD quantity_method_rest
-;
-
-quantity_method_rest
-: METHOD_OR_QUANTITY_ID
-| method_definition
-;
-
 
 method_instance: 
 METHOD_INSTANCE IDENTIFIER method_instance_rest
@@ -415,23 +416,23 @@ method_instance_rest
 {
     $$ = 0;
 }
-| nlstar METHOD method_definition nlstar
+| nlstar method nlstar
 {
     $$ = 1;
 }
 
-method_definition
-: IDENTIFIER method_instance_global nlstar method_instance_parameters
+method
+: METHOD METHOD_OR_QUANTITY_ID method_global nlstar method_parameters
 ;
 
 
-method_instance_global
+method_global
 : /* empty */
 | GLOBAL
 ;
 
 
-method_instance_parameters
+method_parameters
 : /* empty */
 | SCALAR_INTEGRAND colon_assignment expr
 ;
@@ -526,10 +527,15 @@ representation
 colon_assignment
 : /* empty */
 | ':'
-
+;
 
 scale_factor
-: SCALE colon_assignment const_expr
+: SCALE colon_assignment const_expr scale_factor_rest
+;
+
+scale_factor_rest
+: /* empty */
+| FIXED
 ;
 
 total_time

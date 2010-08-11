@@ -257,6 +257,8 @@ private:
      * Used for profiling. Stores the previous time checkpoint
      */
     clock_t m_previousTime;
+private:
+    static const char* IMPLEMENTED_METHODS[];
 };
 
 /**

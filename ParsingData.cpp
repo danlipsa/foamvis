@@ -13,15 +13,9 @@
 #include "QuadraticEdge.h"
 #include "Vertex.h"
 
-/**
- * Throws  an  exception  because  we  should  not  have
- * assignments in constant expressions.
- * @return it throws an exception before returning.
- */
-static float assignmentFunction (float, float)
-{
-    throw logic_error ("Assignment operation in constant expression");
-}
+// Private Classes
+// ======================================================================
+
 /**
  * Pretty prints a variable. Used by a for_each algorithm.
  */
@@ -47,6 +41,20 @@ private:
     ostream& m_ostr;
 };
 
+
+// Private functions
+// ======================================================================
+
+/**
+ * Throws  an  exception  because  we  should  not  have
+ * assignments in constant expressions.
+ * @return it throws an exception before returning.
+ */
+static float assignmentFunction (float, float)
+{
+    throw logic_error ("Assignment operation in constant expression");
+}
+
 /**
  * Deletes an identifier
  * @param  pair  this  is  how  an identifier  is  stored  in  the
@@ -66,7 +74,16 @@ ostream& operator<< (ostream& ostr, ParsingData& pd)
     return ostr;
 }
 
+const char* ParsingData::IMPLEMENTED_METHODS[] = 
+{
+    "edge_area",
+    "vertex_scalar_integral",
+    "facet_general_integral"
+};
 
+
+// Methods
+// ======================================================================
 ParsingData::ParsingData ()
 {
     BinaryFunctionInformation BINARY_FUNCTION_INFORMATION[] = 
@@ -95,6 +112,9 @@ ParsingData::ParsingData ()
 	m_unaryFunctions[ufi.m_name] = ufi.m_function;
 
     m_previousTime = clock ();
+
+    BOOST_FOREACH (const char* method, IMPLEMENTED_METHODS)
+	AddMethodOrQuantity (method);
 }
 
 ParsingData::~ParsingData ()

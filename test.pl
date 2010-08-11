@@ -5,13 +5,14 @@ use warnings;
 
 my $location = "/home/dlipsa/Documents/swansea-phd/foam/";
 my @tests = 
-    ("CTRCTN/dump_0.1520_0.2400_8.0000_0001.dmp",
-     "PERIODICSHEAR/shear_65_0001_2.dmp",
-     "COARSE3D/summary_30_0001_sph_free.dmp",
+    ("ctrctn/dump_0.1520_0.2400_8.0000_0001.dmp",
+     "periodicshear/shear_65_0001_2.dmp",
+     "coarse3d/summary_30_0001_sph_free.dmp",
      "shear_160/shear_160_0000_1.dmp",
      "coarse_62/summary_62_0377_sph_free.dmp",
      "straight_5x2q_2per/straightq_2per_10_0001.dmp",
-     "straight_6x2q_2/straightq_2_12_0001.dmp");
+     "straight_6x2q_2/straightq_2_12_0001.dmp",
+     "sphereall/sphere_0.711204_144_0001.dmp");
 
 sub main ()
 {

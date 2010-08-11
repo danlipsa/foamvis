@@ -453,6 +453,7 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
     BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT (value);
     if (bodyProperty == BodyProperty::NONE)
     {
+	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
 	widgetGl->SetColorMap (0, 0);
 	checkBoxFacesHistogram->setVisible (false);
 	scaleWidgetColorBar->setVisible (false);
@@ -463,11 +464,10 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	size_t timeStep = widgetGl->GetTimeStep ();
 	checkBoxFacesHistogram->setVisible (true);
 	scaleWidgetColorBar->setVisible (true);
-
+	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
 	widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
 	changedColorBarInterval (
 	    widgetGl->GetFoamAlongTime ().GetRange (bodyProperty, timeStep));
-	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
 	SetAndDisplayHistogram (
 	    checkBoxFacesHistogram->isChecked (),
 	    bodyProperty,

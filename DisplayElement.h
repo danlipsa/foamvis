@@ -51,10 +51,10 @@ protected:
 };
 
 
-class DisplayElementProperties : public DisplayElementFocus
+class DisplayElementProperty : public DisplayElementFocus
 {
 public:
-    DisplayElementProperties (
+    DisplayElementProperty (
 	const GLWidget& widget,
 	FocusContext focus = FOCUS,
 	BodyProperty::Enum bodyProperty = BodyProperty::NONE) :

@@ -385,7 +385,7 @@ void GLWidget::initializeGL()
 {
     glClearColor (1., 1., 1., 0.);
     
-    printOpenGLInfo ();
+    //printOpenGLInfo ();
     GLWidget::disableLighting ();
     m_object = displayList (m_viewType);
     glEnable(GL_DEPTH_TEST);
