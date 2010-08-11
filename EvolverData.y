@@ -167,7 +167,7 @@ class AttributeCreator;
 %token <m_id> LAGRANGE_MULTIPLIER "LAGRANGE_MULTIPLIER"
 %token <m_id> CONSTRAINTS "CONSTRAINTS"
 %token <m_id> DENSITY "DENSITY"
-
+%token CLIP_COEFF "CLIP_COEFF"
 
  // terminal symbols
 %token <m_int> INTEGER_VALUE
@@ -287,6 +287,7 @@ header
 | header SYMMETRIC_CONTENT nlplus
 | header KEEP_ORIGINALS nlplus
 | header view_matrix nlplus   
+| header clip_coefficients nlplus
 | header constraint
 | header torus_domain nlplus
 | header length_method_name nlplus
@@ -595,6 +596,18 @@ view_matrix
     foam.SetViewMatrixElement (9, $12);
     foam.SetViewMatrixElement (10, $13);
 }
+
+clip_coefficients
+: CLIP_COEFF '=' '{' clip_coefficient clip_coefficient_list '}'
+
+
+clip_coefficient
+: '{' number ',' number ',' number ',' number '}';
+
+clip_coefficient_list
+: /* empty */
+| clip_coefficient_list ',' clip_coefficient
+
 
 constraint
 : CONSTRAINT INTEGER_VALUE constraint_params nlplus
@@ -1041,10 +1054,23 @@ predefined_face_attribute
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
+| CONSTRAINTS integer_list
+{
+    $$ = new NameSemanticValue ($1->c_str (), $2);
+}
 | ORIGINAL INTEGER_VALUE
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
+| DENSITY const_expr
+{
+    $$ = new NameSemanticValue ($1->c_str (), $2);
+}
+| FIXED
+{
+    $$ = 0;
+}
+
 
 color_name
 : BLACK

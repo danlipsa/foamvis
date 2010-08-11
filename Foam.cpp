@@ -138,9 +138,18 @@ void Foam::AddDefaultFaceAttributes ()
     using EvolverData::parser;
     AttributesInfo* infos = &m_attributesInfo[DefineAttribute::FACE];
     ColoredElement::AddDefaultAttributes (infos);
+
     auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
+
+    ac.reset (new IntegerVectorAttributeCreator());
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
+
+    ac.reset (new RealAttributeCreator());
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::DENSITY), ac);
 }
 
 
@@ -152,9 +161,11 @@ void Foam::AddDefaultEdgeAttributes ()
     auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
+
     ac.reset (new IntegerVectorAttributeCreator());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
+
     ac.reset (new RealAttributeCreator());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::DENSITY), ac);
