@@ -61,20 +61,26 @@ void BodySetStatistics::HistogramStep (
 
 void BodySetStatistics::valuePerInterval (size_t i, float value)
 {
-    float beginInterval = GetMin (i);
-    float endInterval = GetMax (i);
+    size_t bin = GetBin (value, HISTOGRAM_INTERVALS, GetMin (i), GetMax (i));
+    ++m_histogram[i][bin];
+}
+
+size_t BodySetStatistics::GetBin (
+    float value, size_t binCount, float beginInterval, float endInterval)
+{
     size_t bin;
     if (beginInterval == endInterval)
 	bin = 0;
     else
     {
-	float step = (endInterval - beginInterval) / HISTOGRAM_INTERVALS;
+	float step = (endInterval - beginInterval) / binCount;
 	bin = floor ((value - beginInterval) / step);
-	if (bin == HISTOGRAM_INTERVALS)
-	    bin = HISTOGRAM_INTERVALS - 1;
+	if (bin == binCount)
+	    bin = binCount - 1;
     }
-    ++m_histogram[i][bin];
+    return bin;
 }
+
 
 void BodySetStatistics::RangeStep (size_t bodyProperty, float newValue)
 {

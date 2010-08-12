@@ -16,11 +16,16 @@ class Histogram : public QwtPlot
 public:
     Histogram (QWidget* parent = 0);
     void SetData (const QwtIntervalData& intervalData);
+    void SetSelected (bool selected);
+    size_t GetBin (float value);
 
 public Q_SLOTS:
     void Moved (const QPoint& pos);
     void Appended (const QPoint& pos);
     void Selected (const QwtPolygon& pos);
+
+private:
+    
 
 private:
     Q_OBJECT
@@ -29,6 +34,8 @@ private:
     HistogramItem m_histogramItem;
     QwtPlotPicker m_plotPicker;
     QPoint m_lastPos;
+    QVector<bool> m_selected;
+    size_t m_beginSelection;
 };
 
 

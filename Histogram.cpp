@@ -8,6 +8,7 @@
 
 #include "Histogram.h"
 #include "DebugStream.h"
+#include "BodySetStatistics.h"
 
 Histogram::Histogram (QWidget* parent) :
     QwtPlot (parent), 
@@ -50,13 +51,21 @@ void Histogram::Moved (const QPoint &pos)
     qDebug () << info;
 }
 
+size_t Histogram::GetBin (float value)
+{
+    const QwtIntervalData& data = m_histogramItem.data ();
+    size_t binCount = data.size ();
+    return BodySetStatistics::GetBin (
+	value, binCount,
+	data.interval (0).minValue (), 
+	data.interval (binCount - 1).maxValue ());
+}
+
+
 void Histogram::Appended (const QPoint &pos)
 {
-    QString info;
-    info.sprintf("Appended: x=%g, y=%g",
-		 invTransform(QwtPlot::xBottom, pos.x()),
-		 invTransform(QwtPlot::yLeft, pos.y()));
-    qDebug () << info;
+    double value = invTransform(QwtPlot::xBottom, pos.x());
+    m_beginSelection = GetBin (value);
 }
 
 void Histogram::Selected (const QwtPolygon& poly)
@@ -84,5 +93,11 @@ void Histogram::SetData (const QwtIntervalData& intervalData)
 	QwtPlot::xBottom,
 	intervalData.interval (0).minValue (),
 	intervalData.interval (intervalData.size () - 1).maxValue ());
+    m_selected.resize (intervalData.size ());
+    fill (m_selected.begin (), m_selected.end (), true);
 }
 
+void Histogram::SetSelected (bool selected)
+{
+    fill (m_selected.begin (), m_selected.end (), selected);
+}

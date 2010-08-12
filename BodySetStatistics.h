@@ -65,6 +65,8 @@ public:
 	m_max[bodyProperty] = max (m_max[bodyProperty], newValue);
     }
     QwtIntervalData GetHistogram (size_t i) const;
+    static size_t GetBin (float value, size_t binCount,
+			  float beginInterval, float endInterval);
     
 private:
     /**
