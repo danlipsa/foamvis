@@ -16,7 +16,9 @@
 MainWindow::MainWindow (FoamAlongTime& foamAlongTime) : 
     m_play (false), PLAY_TEXT (">"), PAUSE_TEXT("||"),
     m_timer (new QTimer(this)), m_processBodyTorus (0), 
-    m_currentBody (0)
+    m_currentBody (0),
+    m_bodyProperty (BodyProperty::NONE),
+    m_histogram (false)
 {
     // for anti-aliased lines
     QGLFormat fmt;
@@ -393,38 +395,51 @@ void MainWindow::ToggledFacesTorus (bool checked)
 	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
 }
 
+void MainWindow::fieldsToControls (QComboBox* comboBox, QCheckBox* checkBox)
+{
+    BodyProperty::Enum bodyProperty = 
+	BodyProperty::FromSizeT(comboBox->currentIndex ());
+    if (bodyProperty != m_bodyProperty)
+	comboBox->setCurrentIndex (m_bodyProperty);
+    bool histogram = checkBox->isChecked ();
+    if (histogram != m_histogram)
+	checkBox->setChecked (m_histogram);    
+}
+
+void MainWindow::displayHistogramColorBar (bool checked)
+{
+    widgetHistogram->setVisible (
+	checked && m_bodyProperty != BodyProperty::NONE && m_histogram);
+    scaleWidgetColorBar->setVisible (
+	checked && m_bodyProperty != BodyProperty::NONE);
+}
+
+
 void MainWindow::ToggledCenterPath (bool checked)
 {
-    widgetGl->ToggledCenterPath (checked);
     if (checked)
     {
+	fieldsToControls (comboBoxCenterPathColor, checkBoxCenterPathHistogram);
+	ToggledCenterPathHistogram (m_histogram);
 	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
-	BodyProperty::Enum bodyProperty = 
-	    BodyProperty::FromSizeT(
-		comboBoxCenterPathColor->currentIndex ());
-        widgetHistogram->setVisible (
-	    bodyProperty != BodyProperty::NONE && 
-	    checkBoxCenterPathHistogram->isChecked ());
-	scaleWidgetColorBar->setVisible (bodyProperty != BodyProperty::NONE);
     }
     else
-    {
 	stackedWidgetComposite->setCurrentWidget (pageCompositeEmpty);
-	scaleWidgetColorBar->setVisible (false);
-	widgetHistogram->setVisible (false);
-    }
+    displayHistogramColorBar (checked);
+    widgetGl->ToggledCenterPath (checked);
 }
 
 void MainWindow::ToggledFacesNormal (bool checked)
 {
     if (checked)
     {
+	fieldsToControls (comboBoxFacesColor, checkBoxFacesHistogram);
+	ToggledFacesHistogram (m_histogram);
 	stackedWidgetFaces->setCurrentWidget (pageFacesNormal);
     }
     else
-    {
 	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
-    }
+    displayHistogramColorBar (checked);
     widgetGl->ToggledFacesNormal (checked);
 }
 
@@ -451,6 +466,7 @@ void MainWindow::changedColorBarInterval (const QwtDoubleInterval& interval)
 void MainWindow::CurrentIndexChangedFacesColor (int value)
 {
     BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT (value);
+    m_bodyProperty = bodyProperty;
     if (bodyProperty == BodyProperty::NONE)
     {
 	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
@@ -478,9 +494,8 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 
 void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 {
-
-    BodyProperty::Enum bodyProperty = 
-	BodyProperty::FromSizeT(value);
+    BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT(value);
+    m_bodyProperty = bodyProperty;
     if (bodyProperty == BodyProperty::NONE)
     {
 	widgetGl->SetColorMap (0, 0);
@@ -510,21 +525,19 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 
 void MainWindow::ToggledCenterPathHistogram (bool checked)
 {
-    BodyProperty::Enum bodyProperty = 
-	BodyProperty::FromSizeT (comboBoxCenterPathColor->currentIndex ());
+    m_histogram = checked;
     SetAndDisplayHistogram (
-	checked, bodyProperty,
-	widgetGl->GetFoamAlongTime ().GetHistogram (bodyProperty));
+	checked, m_bodyProperty,
+	widgetGl->GetFoamAlongTime ().GetHistogram (m_bodyProperty));
 }
 
 void MainWindow::ToggledFacesHistogram (bool checked)
 {
-    BodyProperty::Enum bodyProperty = 
-	BodyProperty::FromSizeT (comboBoxFacesColor->currentIndex ());
+    m_histogram = checked;
     SetAndDisplayHistogram (
-	checked, bodyProperty,
+	checked, m_bodyProperty,
 	widgetGl->GetFoamAlongTime ().GetHistogram (
-	    bodyProperty, widgetGl->GetTimeStep ()));
+	    m_bodyProperty, widgetGl->GetTimeStep ()));
 }
 
 void MainWindow::SetAndDisplayHistogram (

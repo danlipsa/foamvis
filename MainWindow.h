@@ -125,6 +125,8 @@ private:
     static void setupRainbowColorMap (QwtLinearColorMap* colorMap);
     static void setupBlueRedColorMap (QwtLinearColorMap* colorMap);
     void createActions ();
+    void fieldsToControls (QComboBox* comboBox, QCheckBox* checkBox);
+    void displayHistogramColorBar (bool checked);
 
 private:
     Q_OBJECT
@@ -157,6 +159,8 @@ private:
     QAction* m_actionRotate;
     QAction* m_actionTranslate;
     QAction* m_actionScale;
+    BodyProperty::Enum m_bodyProperty;
+    bool m_histogram;
 };
 
 #endif //__MAIN_WINDOW_H__
