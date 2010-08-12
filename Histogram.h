@@ -17,9 +17,18 @@ public:
     Histogram (QWidget* parent = 0);
     void SetData (const QwtIntervalData& intervalData);
 
+public Q_SLOTS:
+    void Moved (const QPoint& pos);
+    void Appended (const QPoint& pos);
+    void Selected (const QwtPolygon& pos);
+
 private:
+    Q_OBJECT
+
     QwtPlotGrid m_grid;
     HistogramItem m_histogramItem;
+    QwtPlotPicker m_plotPicker;
+    QPoint m_lastPos;
 };
 
 

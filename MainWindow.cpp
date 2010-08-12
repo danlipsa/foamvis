@@ -28,6 +28,8 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     setupUi (this);
     setupSliderData (foamAlongTime);
     setupScaleWidget ();
+    setupHistogram ();
+
     widgetGl->SetFoamAlongTime (&foamAlongTime);
     widgetGl->SetColorMap (0, 0);
     widgetHistogram->setVisible (false);
@@ -116,6 +118,13 @@ void MainWindow::setupScaleWidget ()
     scaleWidgetColorBar->setLabelAlignment (Qt::AlignHCenter);
     scaleWidgetColorBar->setBorderDist (50, 50);
     scaleWidgetColorBar->setColorBarEnabled (true);
+}
+
+void MainWindow::setupHistogram ()
+{
+    // does not work
+    QwtScaleWidget* yLeftAxis = widgetHistogram->axisWidget (QwtPlot::yLeft);
+    yLeftAxis->setBorderDist (100, 100);
 }
 
 void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)

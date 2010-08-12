@@ -119,6 +119,7 @@ private:
     void changedColorBarInterval (const QwtDoubleInterval& interval);
 
     void setupScaleWidget ();
+    void setupHistogram ();
     void calculateStats (const Foam& foam, size_t timeSteps);
 
 private:

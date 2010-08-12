@@ -440,11 +440,6 @@ void GLWidget::setRotation (int axis, float angleRadians)
     m_rotate = Matrix3::fromAxisAngle (axes[axis], angleRadians) * m_rotate;
 }
 
-void GLWidget::mousePressEvent(QMouseEvent *event)
-{
-    m_lastPos = event->pos();
-}
-
 float GLWidget::ratioFromCenter (const QPoint& p)
 {
     using G3D::Vector2;
@@ -508,6 +503,12 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     updateGL ();
     m_lastPos = event->pos();
 }
+
+void GLWidget::mousePressEvent(QMouseEvent *event)
+{
+    m_lastPos = event->pos();
+}
+
 
 void GLWidget::displayOriginalDomain ()
 {
