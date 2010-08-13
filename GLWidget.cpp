@@ -10,7 +10,6 @@
 #include "BodyAlongTime.h"
 #include "FoamAlongTime.h"
 #include "Debug.h"
-#include "DebugStream.h"
 #include "DisplayVertexFunctors.h"
 #include "DisplayEdgeFunctors.h"
 #include "DisplayFaceFunctors.h"
@@ -40,7 +39,7 @@ struct OpenGLParam
      */
     void print ()
     {
-	cdbg << m_name << ": " << *m_where << endl;
+	qDebug () << m_name << ":" << *m_where;
     }
     /**
      * What OpenGL characteristic
@@ -85,8 +84,8 @@ void detectOpenGLError (string message = "")
 {
     GLenum errCode;
     if ((errCode = glGetError()) != GL_NO_ERROR)
-        cdbg << "OpenGL Error " << message << ": "
-	     << gluErrorString(errCode) << endl;
+        qWarning () << "OpenGL Error" << message.c_str () << ":"
+		    << gluErrorString(errCode);
 }
 
 /**
@@ -119,14 +118,13 @@ void printOpenGLInfo ()
     }};
     glGetBooleanv (GL_STEREO, &stereoSupport);
     glGetBooleanv (GL_DOUBLEBUFFER, &doubleBufferSupport);
-    cdbg << "OpenGL Engine" << endl
-         << "Vendor: " << glGetString (GL_VENDOR) << endl
-         << "Renderer: " << glGetString (GL_RENDERER) << endl
-         << "Version: " << glGetString (GL_VERSION) << endl
-	//<< "Extensions: " << glGetString (GL_EXTENSIONS) << endl
-         << "Stereo support: " << static_cast<bool>(stereoSupport) << endl
-         << "Double buffer support: " 
-	 << static_cast<bool>(doubleBufferSupport) << endl;
+    qDebug () << "OpenGL Engine" << endl
+	      << "Vendor:" << glGetString (GL_VENDOR) << endl
+	      << "Renderer:" << glGetString (GL_RENDERER) << endl
+	      << "Version:" << glGetString (GL_VERSION) << endl
+	      << "Stereo support:" << static_cast<bool>(stereoSupport) << endl
+	      << "Double buffer support:" 
+	      << static_cast<bool>(doubleBufferSupport) << endl;
     for_each (info.begin (), info.end (), mem_fun_ref(&OpenGLParam::get));
     for_each (info.begin (), info.end (), mem_fun_ref(&OpenGLParam::print));
 }
@@ -193,19 +191,13 @@ GLWidget::GLWidget(QWidget *parent)
 
 void GLWidget::createActions ()
 {
-    m_actionResetTransformation = new QAction(tr("&Reset Transformation"), this);
+    m_actionResetTransformation = boost::make_shared<QAction> (
+	tr("&Reset Transformation"), this);
     m_actionResetTransformation->setShortcut(
 	QKeySequence (tr ("Shift+R")));
     m_actionResetTransformation->setStatusTip(tr("Reset Transformation"));
-    connect(m_actionResetTransformation, SIGNAL(triggered()),
+    connect(m_actionResetTransformation.get (), SIGNAL(triggered()),
 	    this, SLOT(ResetTransformation ()));    
-
-    m_actionResetSelection = new QAction(tr("Reset &Selection"), this);
-    m_actionResetSelection->setShortcut(
-	QKeySequence (tr ("Shift+S")));
-    m_actionResetSelection->setStatusTip(tr("Reset selection"));
-    connect(m_actionResetSelection, SIGNAL(triggered()),
-	    this, SLOT(ResetSelection ()));    
 }
 
 
@@ -369,12 +361,40 @@ void GLWidget::ResetTransformation ()
     UpdateDisplayList ();
 }
 
-void GLWidget::ResetSelection ()
+void GLWidget::SelectAll ()
 {
     m_displayedBodyIndex = DISPLAY_ALL;
     m_displayedFaceIndex = DISPLAY_ALL;
     m_displayedEdgeIndex = DISPLAY_ALL;
     UpdateDisplayList ();
+}
+
+void GLWidget::Info ()
+{
+
+    const Foam& foam = *GetFoamAlongTime ().GetFoam (0);
+    size_t timeSteps = GetFoamAlongTime ().GetTimeSteps ();
+
+    VertexSet vertexSet;
+    EdgeSet edgeSet;
+    FaceSet faceSet;
+    foam.GetVertexSet (&vertexSet);
+    foam.GetEdgeSet (&edgeSet);
+    foam.GetFaceSet (&faceSet);
+
+    ostringstream ostr;
+    ostr << 
+	"<table border>"
+	"<tr><th>Bodies</th><td>" << foam.GetBodies ().size () << "</td></tr>"
+	"<tr><th>Faces</th><td>" << faceSet.size () << "</td></tr>"
+	"<tr><th>Edges</th><td>" << edgeSet.size () << "</td></tr>"
+	"<tr><th>Vertices</th><td>" << vertexSet.size () << "</td></tr>"
+	"<tr><th>Time steps</th><td>" << timeSteps << "</td></tr>"
+	"</table>" << endl;
+
+    QMessageBox msgBox (this);
+    msgBox.setText(ostr.str().c_str ());
+    msgBox.exec();
 }
 
 
@@ -1114,7 +1134,7 @@ void GLWidget::disableLighting ()
 void GLWidget::quadricErrorCallback (GLenum errorCode)
 {
     const GLubyte* message = gluErrorString (errorCode);
-    cdbg << "Quadric error: " << message << endl;
+    qWarning () << "Quadric error:" << message;
 }
 
 void GLWidget::displayOpositeFaces (G3D::Vector3 origin,
@@ -1159,7 +1179,34 @@ void GLWidget::CurrentIndexChangedFacesColor (int value)
 void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu (this);
-    menu.addAction (m_actionResetTransformation);
-    menu.addAction (m_actionResetSelection);
+    menu.addAction (m_actionResetTransformation.get ());
+    menu.addAction (m_actionSelectAll.get ());
+    menu.addAction (m_actionDeselectAll.get ());
+    menu.addAction (m_actionInfo.get ());
     menu.exec (event->globalPos());
+}
+
+
+void GLWidget::SetActionSelectAll (
+    boost::shared_ptr<QAction> actionSelectAll)
+{
+    m_actionSelectAll = actionSelectAll;
+    connect(m_actionSelectAll.get (), SIGNAL(triggered()),
+	    this, SLOT(SelectAll ()));    
+}
+
+void GLWidget::SetActionInfo (boost::shared_ptr<QAction> actionInfo)
+{
+    m_actionInfo = actionInfo;
+    connect(m_actionInfo.get (), SIGNAL(triggered()),
+	    this, SLOT(Info ()));    
+}
+
+
+void GLWidget::SetActionDeselectAll (
+    boost::shared_ptr<QAction> actionDeselectAll)
+{
+    m_actionDeselectAll = actionDeselectAll;
+    connect(m_actionDeselectAll.get (), SIGNAL(triggered()),
+	    this, SLOT(DeselectAll ()));
 }

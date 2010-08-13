@@ -68,17 +68,15 @@ void BodySetStatistics::valuePerInterval (size_t i, float value)
 size_t BodySetStatistics::GetBin (
     float value, size_t binCount, float beginInterval, float endInterval)
 {
-    size_t bin;
-    if (beginInterval == endInterval)
-	bin = 0;
+    if (beginInterval == endInterval || value < beginInterval)
+	return 0;
+    else if (value >= endInterval)
+	return binCount - 1;
     else
     {
 	float step = (endInterval - beginInterval) / binCount;
-	bin = floor ((value - beginInterval) / step);
-	if (bin == binCount)
-	    bin = binCount - 1;
+	return floor ((value - beginInterval) / step);
     }
-    return bin;
 }
 
 

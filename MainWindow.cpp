@@ -33,7 +33,6 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     widgetGl->SetFoamAlongTime (&foamAlongTime);
     widgetGl->SetColorMap (0, 0);
     widgetHistogram->setVisible (false);
-    calculateStats (*foamAlongTime.GetFoam (0), foamAlongTime.GetTimeSteps ());
     updateStatus ();
     m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
     configureInterface (foamAlongTime);
@@ -48,30 +47,9 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     createActions ();
 }
 
-void MainWindow::calculateStats (const Foam& foam, size_t timeSteps)
-{
-    VertexSet vertexSet;
-    EdgeSet edgeSet;
-    FaceSet faceSet;
-    foam.GetVertexSet (&vertexSet);
-    foam.GetEdgeSet (&edgeSet);
-    foam.GetFaceSet (&faceSet);
-    ostringstream ostr;
-    ostr << foam.GetBodies ().size () << ","
-	 << faceSet.size () << ","
-	 << edgeSet.size () << ","
-	 << vertexSet.size () << ","
-	 << timeSteps;
-    m_stats = ostr.str ();
-}
-
-
 void MainWindow::setupSliderData (const FoamAlongTime& foamAlongTime)
 {
-    sliderData->setMinimum (0);
-    sliderData->setMaximum (foamAlongTime.GetTimeSteps () - 1);
-    sliderData->setSingleStep (1);
-    sliderData->setPageStep (10);
+    sliderData->setRange (0, foamAlongTime.GetTimeSteps () - 1, 1, 10);
 }
 
 void testColorMap ()
@@ -156,6 +134,17 @@ void MainWindow::InteractionModeRotate ()
     comboBoxInteractionMode->setCurrentIndex (InteractionMode::ROTATE);
 }
 
+void MainWindow::InteractionModeSelectBrush ()
+{
+    comboBoxInteractionMode->setCurrentIndex (InteractionMode::SELECT_BRUSH);
+}
+
+void MainWindow::InteractionModeSelectEraser ()
+{
+    comboBoxInteractionMode->setCurrentIndex (InteractionMode::SELECT_ERASER);
+}
+
+
 void MainWindow::InteractionModeScale ()
 {
     comboBoxInteractionMode->setCurrentIndex (InteractionMode::SCALE);
@@ -177,9 +166,7 @@ void MainWindow::updateStatus ()
 {
     QString oldString = labelStatus->text ();
     ostringstream ostr;
-    ostr << "(B,F,E,V,T)=" << "(" << m_stats << ")"
-	 << " T: " 
-	 << (widgetGl->GetTimeStep () + 1);
+    ostr << "Time step " << widgetGl->GetTimeStep ();
     if (! widgetGl->IsDisplayedAllBodies ())
 	ostr << ", B: " << (widgetGl->GetDisplayedBodyId () + 1);
     if (widgetGl->GetDisplayedFaceIndex () != GLWidget::DISPLAY_ALL)
@@ -195,19 +182,19 @@ void MainWindow::updateStatus ()
 
 void MainWindow::enableBegin ()
 {
-    if (sliderData->value () > sliderData->minimum ())
+    if (sliderData->value () > sliderData->minValue ())
         toolButtonBegin->setDisabled (false);
 }
 
 void MainWindow::enableEnd ()
 {
-    if (sliderData->value () < sliderData->maximum ())
+    if (sliderData->value () < sliderData->maxValue ())
         toolButtonEnd->setDisabled (false);
 }
 
 void MainWindow::enablePlay ()
 {
-    if (sliderData->value () < sliderData->maximum ())
+    if (sliderData->value () < sliderData->maxValue ())
         toolButtonPlay->setDisabled (false);
 }
 
@@ -252,65 +239,71 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 	}
 	break;
     case Qt::Key_Space:
-    {
-	Foam& currentFoam = widgetGl->GetCurrentFoam ();
-	VertexSet vertexSet;
-	EdgeSet edgeSet;
-	FaceSet faceSet;
-	currentFoam.GetVertexSet (&vertexSet);
-	currentFoam.GetEdgeSet (&edgeSet);
-	currentFoam.GetFaceSet (&faceSet);
-	m_currentTranslatedBody = currentFoam.BodyInsideOriginalDomainStep (
-	    m_currentTranslatedBody, &vertexSet, &edgeSet, &faceSet);
-	if (m_currentTranslatedBody == currentFoam.GetBodies ().end ())
-	{
-	    cdbg << "End body translation" << endl;
-	}
-	widgetGl->UpdateDisplayList ();
+	translateBodyStep ();
 	break;
-    }
 
     case Qt::Key_A:
-    {
-	try
-	{
-	    const Foam& currentFoam = widgetGl->GetCurrentFoam ();
-	    boost::shared_ptr<Body>  b = currentFoam.GetBody (m_currentBody);
-	    if (m_processBodyTorus == 0)
-	    {
-		m_processBodyTorus = new ProcessBodyTorus (
-		    currentFoam, b);
-		m_processBodyTorus->Initialize ();
-	    }
-	    else
-	    {
-		VertexSet vertexSet;
-		EdgeSet edgeSet;
-		FaceSet faceSet;
-		currentFoam.GetVertexSet (&vertexSet);
-		currentFoam.GetEdgeSet (&edgeSet);
-		currentFoam.GetFaceSet (&faceSet);
-		if (! m_processBodyTorus->Step (&vertexSet, &edgeSet, &faceSet))
-		{
-		    m_processBodyTorus = 0;
-		    cdbg << "End process torus" << endl;
-		    m_currentBody = (m_currentBody + 1) % 
-			widgetGl->GetCurrentFoam ().GetBodies ().size ();
-		}
-	    }
-	    widgetGl->UpdateDisplayList ();
-	}
-	catch (const exception& e)
-	{
-	    cdbg << "Exception: " << e.what () << endl;
-	}
+	processBodyTorusStep ();
 	break;
-    }
 
     case Qt::Key_P:
 	cdbg << "OpenGL State:" << endl;
 	cdbg << G3D::getOpenGLState (false) << endl;
 	break;
+    }
+}
+
+void MainWindow::translateBodyStep ()
+{
+    Foam& currentFoam = widgetGl->GetCurrentFoam ();
+    VertexSet vertexSet;
+    EdgeSet edgeSet;
+    FaceSet faceSet;
+    currentFoam.GetVertexSet (&vertexSet);
+    currentFoam.GetEdgeSet (&edgeSet);
+    currentFoam.GetFaceSet (&faceSet);
+    m_currentTranslatedBody = currentFoam.BodyInsideOriginalDomainStep (
+	m_currentTranslatedBody, &vertexSet, &edgeSet, &faceSet);
+    if (m_currentTranslatedBody == currentFoam.GetBodies ().end ())
+    {
+	cdbg << "End body translation" << endl;
+    }
+    widgetGl->UpdateDisplayList ();
+}
+
+void MainWindow::processBodyTorusStep ()
+{
+    try
+    {
+	const Foam& currentFoam = widgetGl->GetCurrentFoam ();
+	boost::shared_ptr<Body>  b = currentFoam.GetBody (m_currentBody);
+	if (m_processBodyTorus == 0)
+	{
+	    m_processBodyTorus = new ProcessBodyTorus (
+		currentFoam, b);
+	    m_processBodyTorus->Initialize ();
+	}
+	else
+	{
+	    VertexSet vertexSet;
+	    EdgeSet edgeSet;
+	    FaceSet faceSet;
+	    currentFoam.GetVertexSet (&vertexSet);
+	    currentFoam.GetEdgeSet (&edgeSet);
+	    currentFoam.GetFaceSet (&faceSet);
+	    if (! m_processBodyTorus->Step (&vertexSet, &edgeSet, &faceSet))
+	    {
+		m_processBodyTorus = 0;
+		cdbg << "End process torus" << endl;
+		m_currentBody = (m_currentBody + 1) % 
+		    widgetGl->GetCurrentFoam ().GetBodies ().size ();
+	    }
+	}
+	widgetGl->UpdateDisplayList ();
+    }
+    catch (const exception& e)
+    {
+	cdbg << "Exception: " << e.what () << endl;
     }
 }
 
@@ -338,14 +331,14 @@ void MainWindow::ClickedPlay ()
 
 void MainWindow::ClickedBegin ()
 {
-    sliderData->setValue (sliderData->minimum ());
+    sliderData->setValue (sliderData->minValue ());
     updateButtons ();
     updateStatus ();
 }
 
 void MainWindow::ClickedEnd ()
 {
-    sliderData->setValue (sliderData->maximum ());
+    sliderData->setValue (sliderData->maxValue ());
     updateButtons ();
     updateStatus ();
 }
@@ -353,10 +346,15 @@ void MainWindow::ClickedEnd ()
 void MainWindow::TimeoutTimer ()
 {
     int value = sliderData->value ();
-    if (value < sliderData->maximum ())
+    if (value < sliderData->maxValue ())
         sliderData->setValue (value + 1);
     else
         ClickedPlay ();
+}
+
+void MainWindow::ValueChangedSliderData (double timeStep)
+{
+    ValueChangedSliderData (static_cast<int>(timeStep));
 }
 
 void MainWindow::ValueChangedSliderData (int timeStep)
@@ -571,27 +569,67 @@ void MainWindow::SetAndDisplayHistogram (
 
 void MainWindow::createActions ()
 {
-    m_actionRotate = new QAction(tr("&Rotate"), this);
+    m_actionRotate = boost::make_shared<QAction> (tr("&Rotate"), this);
     m_actionRotate->setShortcut(QKeySequence (tr ("R")));
     m_actionRotate->setStatusTip(tr("Rotate"));
-    connect(m_actionRotate, SIGNAL(triggered()),
+    connect(m_actionRotate.get (), SIGNAL(triggered()),
 	    this, SLOT(InteractionModeRotate ()));
 
-    m_actionScale = new QAction(tr("&Scale"), this);
+    m_actionScale = boost::make_shared<QAction> (tr("&Scale"), this);
     m_actionScale->setShortcut(QKeySequence (tr ("Z")));
     m_actionScale->setStatusTip(tr("Scale"));
-    connect(m_actionScale, SIGNAL(triggered()),
+    connect(m_actionScale.get (), SIGNAL(triggered()),
 	    this, SLOT(InteractionModeScale ()));
 
-    m_actionTranslate = new QAction(tr("&Translate"), this);
+    m_actionTranslate = boost::make_shared<QAction> (tr("&Translate"), this);
     m_actionTranslate->setShortcut(QKeySequence (tr ("T")));
     m_actionTranslate->setStatusTip(tr("Translate"));
-    connect(m_actionTranslate, SIGNAL(triggered()),
+    connect(m_actionTranslate.get (), SIGNAL(triggered()),
 	    this, SLOT(InteractionModeTranslate ()));
 
-    addAction (widgetGl->GetActionResetTransformation ());
-    addAction (widgetGl->GetActionResetSelection ());
-    addAction (m_actionRotate);
-    addAction (m_actionTranslate);
-    addAction (m_actionScale);
+    m_actionSelectBrush = boost::make_shared<QAction> (
+	tr("&Select Brush"), this);
+    m_actionSelectBrush->setShortcut(QKeySequence (tr ("B")));
+    m_actionSelectBrush->setStatusTip(tr("Select Brush"));
+    connect(m_actionSelectBrush.get (), SIGNAL(triggered()),
+	    this, SLOT(InteractionModeSelectBrush ()));
+
+    m_actionSelectEraser = boost::make_shared<QAction> (
+	tr("&Select Eraser"), this);
+    m_actionSelectEraser->setShortcut (QKeySequence (tr ("E")));
+    m_actionSelectEraser->setStatusTip (tr("Select Eraser"));
+    connect(m_actionSelectEraser.get (), SIGNAL(triggered()),
+	    this, SLOT(InteractionModeSelectEraser ()));
+
+    m_actionSelectAll = boost::make_shared<QAction> (tr("&Select All"), this);
+    m_actionSelectAll->setShortcut(
+	QKeySequence (tr ("Shift+S")));
+    m_actionSelectAll->setStatusTip(tr("Select All"));
+    widgetHistogram->SetActionSelectAll (m_actionSelectAll);
+    widgetGl->SetActionSelectAll (m_actionSelectAll);
+
+    m_actionDeselectAll = boost::make_shared<QAction> (
+	tr("&Deselect All"), this);
+    m_actionDeselectAll->setShortcut(
+	QKeySequence (tr ("Shift+D")));
+    m_actionDeselectAll->setStatusTip(tr("Deselect All"));
+    widgetHistogram->SetActionDeselectAll (m_actionDeselectAll);
+    widgetGl->SetActionDeselectAll (m_actionDeselectAll);
+
+    m_actionInfo = boost::make_shared<QAction> (
+	tr("&Info"), this);
+    m_actionInfo->setShortcut(
+	QKeySequence (tr ("Shift+I")));
+    m_actionInfo->setStatusTip(tr("Info"));
+    widgetGl->SetActionInfo (m_actionInfo);
+
+    addAction (widgetGl->GetActionResetTransformation ().get ());
+    addAction (m_actionRotate.get ());
+    addAction (m_actionTranslate.get ());
+    addAction (m_actionScale.get ());
+    addAction (m_actionSelectBrush.get ());
+    addAction (m_actionSelectEraser.get ());
+    addAction (m_actionSelectAll.get ());
+    addAction (m_actionDeselectAll.get ());
+    addAction (m_actionInfo.get ());
 }

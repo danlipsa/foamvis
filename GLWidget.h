@@ -176,15 +176,13 @@ public:
 	else
 	    return m_colorMap->color (*m_colorMapInterval, value);
     }
-    QAction* GetActionResetTransformation ()
+    boost::shared_ptr<QAction> GetActionResetTransformation ()
     {
 	return m_actionResetTransformation;
     }
-
-    QAction* GetActionResetSelection ()
-    {
-	return m_actionResetSelection;
-    }
+    void SetActionSelectAll (boost::shared_ptr<QAction> actionSelectAll);
+    void SetActionDeselectAll (boost::shared_ptr<QAction> actionDeselectAll);
+    void SetActionInfo (boost::shared_ptr<QAction> actionInfo);
     
     
 
@@ -218,7 +216,8 @@ public:
 
 public Q_SLOTS:
     void ResetTransformation ();
-    void ResetSelection ();
+    void SelectAll ();
+    void Info ();
     void CurrentIndexChangedInteractionMode (int index);
     void ToggledBodies (bool checked);
     void ToggledCenterPathDisplayBody (bool checked);
@@ -493,8 +492,12 @@ private:
     QColor m_notAvailableCenterPathColor;
     QColor m_notAvailableFaceColor;
 
-    QAction* m_actionResetTransformation;
-    QAction* m_actionResetSelection;
+    // owned by MainWindows
+    boost::shared_ptr<QAction> m_actionSelectAll;
+    boost::shared_ptr<QAction> m_actionDeselectAll;
+    boost::shared_ptr<QAction> m_actionInfo;
+    // owned by GLWidget
+    boost::shared_ptr<QAction> m_actionResetTransformation;
 };
 
 #endif //__GLWIDGET_H__

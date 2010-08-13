@@ -1,4 +1,5 @@
-HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h \
+HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h \
+	AttributeHistogram.h Body.h \
 	BodyAlongTime.h BodyIndex.h BodySetStatistics.h \
 	ColoredElement.h Comparisons.h \
 	Debug.h DebugStream.h \
@@ -15,7 +16,8 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h Body.h \
 	stable.h StripIterator.h SystemDifferences.h Utils.h \
 	Vertex.h
 SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
-	Body.cpp BodyAlongTime.cpp BodyIndex.cpp BodySetStatistics.cpp \
+	AttributeHistogram.cpp Body.cpp BodyAlongTime.cpp BodyIndex.cpp \
+	BodySetStatistics.cpp \
 	ColoredElement.cpp Comparisons.cpp \
 	Debug.cpp DebugStream.cpp DisplayWidget.cpp Edge.cpp \
 	Element.cpp ExpressionTree.cpp Enums.cpp\

@@ -10,6 +10,7 @@
 #define __DISPLAY_EDGE_FUNCTORS_H__
 
 #include "DisplayElement.h"
+#include "DebugStream.h"
 #include "Edge.h"
 #include "GLWidget.h"
 #include "Foam.h"
@@ -301,7 +302,7 @@ public:
 	    {
 		display (oe);
 		if (i == displayedEdgeIndex)
-		    cdbg << "edge " << i << ": " << *oe << endl;
+		    cdbg << "edge " << i << ": " << *oe;
 	    }
 	}
     }

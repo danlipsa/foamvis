@@ -14,11 +14,13 @@ Histogram::Histogram (QWidget* parent) :
     QwtPlot (parent), 
     m_plotPicker (QwtPlot::xBottom, QwtPlot::yLeft,
 		  QwtPicker::RectSelection | QwtPicker::DragSelection, 
-		  QwtPlotPicker::RectRubberBand,
-		  QwtPicker::ActiveOnly,
-		  canvas())
+		  QwtPlotPicker::NoRubberBand,
+		  QwtPicker::AlwaysOff,
+		  canvas()),
+    m_selectionTool (ERASER)
 {
     setCanvasBackground(QColor(Qt::white));
+    setAutoReplot ();
 
     m_grid.enableXMin(true);
     m_grid.enableYMin(true);
@@ -26,60 +28,53 @@ Histogram::Histogram (QWidget* parent) :
     m_grid.setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
     m_grid.attach(this);
 
-    m_histogramItem.setColor(Qt::darkCyan);
+    m_histogramItem.setFocusColor(Qt::darkCyan);
+    m_histogramItem.setContextColor(Qt::lightGray);
+
     m_histogramItem.attach(this);
 
     m_plotPicker.setRubberBandPen(QColor(Qt::green));
-
-    connect(&m_plotPicker, SIGNAL(moved(const QPoint&)),
-	    this, SLOT(Moved(const QPoint&)));
+    m_plotPicker.setEnabled (false);
 
     connect(&m_plotPicker, SIGNAL(appended(const QPoint&)),
-	    this, SLOT(Appended(const QPoint&)));
-
+	    this, SLOT(SelectionPointAppended(const QPoint&)));
+    connect(&m_plotPicker, SIGNAL(moved(const QPoint&)),
+	    this, SLOT(SelectionPointMoved(const QPoint&)));
     connect(&m_plotPicker, SIGNAL(selected(const QwtPolygon&)),
-	    this, SLOT(Selected(const QwtPolygon&)));
+	    this, SLOT(PolygonSelected (const QwtPolygon&)));
 }
 
-
-void Histogram::Moved (const QPoint &pos)
-{
-    QString info;
-    info.sprintf("Moved: x=%g, y=%g",
-		 invTransform(QwtPlot::xBottom, pos.x()),
-		 invTransform(QwtPlot::yLeft, pos.y()));
-    qDebug () << info;
-}
-
-size_t Histogram::GetBin (float value)
+size_t Histogram::getBin (float value)
 {
     const QwtIntervalData& data = m_histogramItem.data ();
     size_t binCount = data.size ();
     return BodySetStatistics::GetBin (
 	value, binCount,
-	data.interval (0).minValue (), 
-	data.interval (binCount - 1).maxValue ());
+	data.interval (0).minValue (), data.interval (binCount - 1).maxValue ());
 }
 
-
-void Histogram::Appended (const QPoint &pos)
+void Histogram::SelectionPointAppended (const QPoint &pos)
 {
     double value = invTransform(QwtPlot::xBottom, pos.x());
-    m_beginSelection = GetBin (value);
+    m_beginBinSelection = getBin (value);
+    SetSelected (m_selectionTool == BRUSH,
+		 m_beginBinSelection, m_beginBinSelection + 1);
 }
 
-void Histogram::Selected (const QwtPolygon& poly)
+void Histogram::SelectionPointMoved (const QPoint &pos)
 {
-    qDebug () << "Selected";
-    BOOST_FOREACH (const QPoint& pos, poly)
-    {
-	QString info;
-	info.sprintf("x=%g, y=%g",
-		     invTransform(QwtPlot::xBottom, pos.x()),
-		     invTransform(QwtPlot::yLeft, pos.y()));
-	qDebug () << info;
-    }
+    double value = invTransform(QwtPlot::xBottom, pos.x());
+    size_t begin = m_beginBinSelection;
+    size_t end = getBin (value);
+    if (begin > end)
+	swap (begin, end);
+    SetSelected (m_selectionTool == BRUSH, begin, end + 1);
 }
+
+void Histogram::PolygonSelected (const QwtPolygon& poly)
+{
+}
+
 
 void Histogram::SetData (const QwtIntervalData& intervalData)
 {
@@ -93,11 +88,9 @@ void Histogram::SetData (const QwtIntervalData& intervalData)
 	QwtPlot::xBottom,
 	intervalData.interval (0).minValue (),
 	intervalData.interval (intervalData.size () - 1).maxValue ());
-    m_selected.resize (intervalData.size ());
-    fill (m_selected.begin (), m_selected.end (), true);
 }
 
-void Histogram::SetSelected (bool selected)
+void Histogram::EnableSelection (bool enable)
 {
-    fill (m_selected.begin (), m_selected.end (), selected);
+    m_plotPicker.setEnabled (enable);
 }

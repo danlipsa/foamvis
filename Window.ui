@@ -97,7 +97,7 @@
              </widget>
             </item>
             <item>
-             <widget class="Histogram" name="widgetHistogram" native="true"/>
+             <widget class="AttributeHistogram" name="widgetHistogram" native="true"/>
             </item>
             <item>
              <widget class="QLabel" name="labelStatus">
@@ -143,17 +143,27 @@
           <widget class="QComboBox" name="comboBoxInteractionMode">
            <item>
             <property name="text">
-             <string>Rotate           R</string>
+             <string>Rotate              R</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>Scale            Z</string>
+             <string>Scale               Z</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>Translate       T</string>
+             <string>Translate          T</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Select Brush    B</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Select Eraser   E</string>
             </property>
            </item>
           </widget>
@@ -239,7 +249,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>2</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="edges">
             <attribute name="title">
@@ -694,15 +704,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QSlider" name="sliderData">
-        <property name="tracking">
-         <bool>true</bool>
+       <widget class="QwtSlider" name="sliderData">
+        <property name="scalePosition">
+         <enum>QwtSlider::TopScale</enum>
         </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="tickPosition">
-         <enum>QSlider::TicksAbove</enum>
+        <property name="bgStyle">
+         <enum>QwtSlider::BgSlot</enum>
         </property>
        </widget>
       </item>
@@ -716,6 +723,11 @@
    <class>QwtScaleWidget</class>
    <extends>QWidget</extends>
    <header>qwt_scale_widget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwtSlider</class>
+   <extends>QWidget</extends>
+   <header>qwt_slider.h</header>
   </customwidget>
   <customwidget>
    <class>GLWidget</class>
@@ -738,18 +750,21 @@
    </slots>
   </customwidget>
   <customwidget>
-   <class>Histogram</class>
-   <extends>QWidget</extends>
-   <header>Histogram.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>DisplayWidget</class>
    <extends>QWidget</extends>
    <header>DisplayWidget.h</header>
    <container>1</container>
    <slots>
     <slot>ToggledSaveMovie(bool)</slot>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>AttributeHistogram</class>
+   <extends>QWidget</extends>
+   <header>AttributeHistogram.h</header>
+   <container>1</container>
+   <slots>
+    <slot>CurrentIndexChangedInteractionMode(int)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -800,22 +815,6 @@
     <hint type="destinationlabel">
      <x>53</x>
      <y>558</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>sliderData</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>Window</receiver>
-   <slot>ValueChangedSliderData(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>830</x>
-     <y>698</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>180</x>
-     <y>555</y>
     </hint>
    </hints>
   </connection>
@@ -922,8 +921,8 @@
    <slot>ToggledCenterPathDisplayBody(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>835</x>
-     <y>375</y>
+     <x>817</x>
+     <y>352</y>
     </hint>
     <hint type="destinationlabel">
      <x>514</x>
@@ -1002,8 +1001,8 @@
    <slot>ToggledFacesTorusTubes(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>826</x>
-     <y>402</y>
+     <x>817</x>
+     <y>387</y>
     </hint>
     <hint type="destinationlabel">
      <x>487</x>
@@ -1082,8 +1081,8 @@
    <slot>CurrentIndexChangedCenterPathColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>927</x>
-     <y>408</y>
+     <x>808</x>
+     <y>348</y>
     </hint>
     <hint type="destinationlabel">
      <x>1056</x>
@@ -1098,8 +1097,8 @@
    <slot>ToggledCenterPathHistogram(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>828</x>
-     <y>443</y>
+     <x>817</x>
+     <y>362</y>
     </hint>
     <hint type="destinationlabel">
      <x>1036</x>
@@ -1114,8 +1113,8 @@
    <slot>CurrentIndexChangedFacesColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>926</x>
-     <y>404</y>
+     <x>808</x>
+     <y>372</y>
     </hint>
     <hint type="destinationlabel">
      <x>1012</x>
@@ -1130,12 +1129,44 @@
    <slot>ToggledFacesHistogram(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>823</x>
-     <y>443</y>
+     <x>817</x>
+     <y>387</y>
     </hint>
     <hint type="destinationlabel">
      <x>1018</x>
      <y>547</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxInteractionMode</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>widgetHistogram</receiver>
+   <slot>CurrentIndexChangedInteractionMode(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>722</x>
+     <y>28</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>644</x>
+     <y>618</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderData</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>Window</receiver>
+   <slot>ValueChangedSliderData(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>459</x>
+     <y>690</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1037</x>
+     <y>650</y>
     </hint>
    </hints>
   </connection>
@@ -1154,6 +1185,7 @@
   <slot>CurrentIndexChangedFacesColor(int)</slot>
   <slot>ToggledFacesHistogram(bool)</slot>
   <slot>ToggledFacesNormal(bool)</slot>
+  <slot>ValueChangedSliderData(double)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroup"/>

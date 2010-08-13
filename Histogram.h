@@ -14,18 +14,38 @@
 class Histogram : public QwtPlot
 {
 public:
+    enum SelectionTool
+    {
+	BRUSH,
+	ERASER,
+	COUNT
+    };
+
+public:
     Histogram (QWidget* parent = 0);
     void SetData (const QwtIntervalData& intervalData);
-    void SetSelected (bool selected);
-    size_t GetBin (float value);
+    void SetSelected (bool selected)
+    {
+	m_histogramItem.setSelected (selected);
+    }
+    void SetSelected (bool selected, size_t begin, size_t end)
+    {
+	m_histogramItem.setSelected (selected, begin, end);
+    }
+    void SetSelectionTool (SelectionTool selectionTool)
+    {
+	m_selectionTool = selectionTool;
+    }
+    void EnableSelection (bool enable = true);
+    void GetSelection(vector<QwtDoubleInterval>* selection);
 
 public Q_SLOTS:
-    void Moved (const QPoint& pos);
-    void Appended (const QPoint& pos);
-    void Selected (const QwtPolygon& pos);
+    void SelectionPointMoved (const QPoint& pos);
+    void SelectionPointAppended (const QPoint& pos);
+    void PolygonSelected (const QwtPolygon& poly);
 
 private:
-    
+    size_t getBin (float value);    
 
 private:
     Q_OBJECT
@@ -33,9 +53,8 @@ private:
     QwtPlotGrid m_grid;
     HistogramItem m_histogramItem;
     QwtPlotPicker m_plotPicker;
-    QPoint m_lastPos;
-    QVector<bool> m_selected;
-    size_t m_beginSelection;
+    size_t m_beginBinSelection;
+    SelectionTool m_selectionTool;
 };
 
 

@@ -20,6 +20,7 @@ class FoamAlongTime
 {
 public:
     typedef vector< boost::shared_ptr<Foam> > Foams;
+    typedef vector<bool> TimeStepSelection;
     typedef vector<BodySetStatistics> FoamsStatistics;
     /**
      * Functor applied to a collection of Foam objects
@@ -129,12 +130,9 @@ public:
     {
 	m_filePattern = filePattern;
     }
-    void SetTimeSteps (size_t timeSteps)
-    {
-	m_foams.resize (timeSteps);
-	m_foamsStatistics.resize (timeSteps);
-    }
+    void SetTimeSteps (size_t timeSteps);
     string ToString () const;
+    void SetSelected (bool selected, size_t begin, size_t end);
 
 private:
     /**
@@ -166,6 +164,7 @@ private:
      */
     G3D::AABox m_AABox;
     string m_filePattern;
+    TimeStepSelection m_timeStepSelection;
 };
 
 

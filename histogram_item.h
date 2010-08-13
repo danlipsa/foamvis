@@ -23,8 +23,10 @@ public:
     void setData(const QwtIntervalData &data);
     const QwtIntervalData &data() const;
 
-    void setColor(const QColor &);
-    QColor color() const;
+    void setFocusColor(const QColor& color);
+    void setContextColor (const QColor& color);
+    QColor focusColor () const;
+    QColor contextColor () const;
 
     virtual QwtDoubleRect boundingRect() const;
 
@@ -44,6 +46,8 @@ public:
 
     void setHistogramAttribute(HistogramAttribute, bool on = true);
     bool testHistogramAttribute(HistogramAttribute) const;
+    void setSelected (bool selected);
+    void setSelected (bool selected, size_t begin, size_t end);
 
 protected:
     virtual void drawBar(QPainter *,
@@ -51,6 +55,23 @@ protected:
 
 private:
     void init();
+    void drawHistogramBars (
+	QPainter *painter, const QwtScaleMap &xMap, 
+	const QwtScaleMap &yMap) const;
+    void drawSelectionRegions (
+	QPainter *painter, const QwtScaleMap &xMap, 
+	const QwtScaleMap &yMap) const;
+    void drawYx (size_t i, QPainter *painter, const QwtScaleMap &xMap, 
+		  const QwtScaleMap &yMap) const;
+    void drawXy (
+	size_t i, QPainter *painter, const QwtScaleMap &xMap, 
+	const QwtScaleMap &yMap) const;
+    void drawRegion (
+	bool regionSelection, size_t beginRegion, size_t endRegion,
+	QPainter *painter, 
+	const QwtScaleMap &xMap, const QwtScaleMap &yMap) const;
+
+
 
     class PrivateData;
     PrivateData *d_data;

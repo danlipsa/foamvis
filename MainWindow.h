@@ -46,6 +46,8 @@ public:
 
 public Q_SLOTS:
     void InteractionModeRotate ();
+    void InteractionModeSelectBrush ();
+    void InteractionModeSelectEraser ();
     void InteractionModeScale ();
     void InteractionModeTranslate ();
 
@@ -87,6 +89,7 @@ public Q_SLOTS:
      * at the current position of the slider.
      */
     void ValueChangedSliderData (int value);
+    void ValueChangedSliderData (double value);
     void CurrentIndexChangedCenterPathColor (int value);
     void CurrentIndexChangedFacesColor (int value);
 
@@ -120,14 +123,16 @@ private:
 
     void setupScaleWidget ();
     void setupHistogram ();
-    void calculateStats (const Foam& foam, size_t timeSteps);
+    void processBodyTorusStep ();
+    void translateBodyStep ();
+    void createActions ();
+    void fieldsToControls (QComboBox* comboBox, QCheckBox* checkBox);
+    void displayHistogramColorBar (bool checked);
+
 
 private:
     static void setupRainbowColorMap (QwtLinearColorMap* colorMap);
     static void setupBlueRedColorMap (QwtLinearColorMap* colorMap);
-    void createActions ();
-    void fieldsToControls (QComboBox* comboBox, QCheckBox* checkBox);
-    void displayHistogramColorBar (bool checked);
 
 private:
     Q_OBJECT
@@ -152,14 +157,19 @@ private:
     ProcessBodyTorus* m_processBodyTorus;
     Foam::Bodies::iterator m_currentTranslatedBody;
     size_t m_currentBody;
-    string m_stats;
 
     QwtLinearColorMap m_colorMap;
     QwtDoubleInterval m_colorMapInterval;
 
-    QAction* m_actionRotate;
-    QAction* m_actionTranslate;
-    QAction* m_actionScale;
+    boost::shared_ptr<QAction> m_actionRotate;
+    boost::shared_ptr<QAction> m_actionTranslate;
+    boost::shared_ptr<QAction> m_actionScale;
+    boost::shared_ptr<QAction> m_actionSelectBrush;
+    boost::shared_ptr<QAction> m_actionSelectEraser;
+    boost::shared_ptr<QAction> m_actionSelectAll;
+    boost::shared_ptr<QAction> m_actionDeselectAll;
+    boost::shared_ptr<QAction> m_actionInfo;
+
     BodyProperty::Enum m_bodyProperty;
     bool m_histogram;
 };

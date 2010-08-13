@@ -63,6 +63,7 @@
 #include <QApplication>
 #include <QtOpenGL>
 #include <QtConcurrentMap>
+#include <QtDebug>
 
 // QWT headers
 #include <qwt_color_map.h>

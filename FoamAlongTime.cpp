@@ -192,3 +192,16 @@ string FoamAlongTime::ToString () const
     ostr << m_bodiesAlongTime;
     return ostr.str ();
 }
+
+void FoamAlongTime::SetTimeSteps (size_t timeSteps)
+{
+    m_foams.resize (timeSteps);
+    m_foamsStatistics.resize (timeSteps);
+    m_timeStepSelection.resize (timeSteps, true);
+}
+
+void FoamAlongTime::SetSelected (bool selected, size_t begin, size_t end)
+{
+    for (size_t i = begin; i < end; ++i)
+	m_timeStepSelection[i] = selected;
+}
