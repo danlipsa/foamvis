@@ -97,7 +97,7 @@ void Histogram::EnableSelection (bool enable)
     m_plotPicker.setEnabled (enable);
 }
 
-void Histogram::GetSelection(vector<QwtDoubleInterval>* selection)
+void Histogram::GetSelectedIntervals (vector<QwtDoubleInterval>* intervals)
 {
-    m_histogramItem.getSelected (selection);
+    m_histogramItem.getSelectedIntervals (intervals);
 }

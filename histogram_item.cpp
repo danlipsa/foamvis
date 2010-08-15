@@ -1,11 +1,23 @@
 #include "histogram_item.h"
 
-void binToInterval (const pair<size_t, size_t>& bins,
-		    QwtDoubleInterval& interval)
+class binToInterval
 {
-    
-}
+public:
+    binToInterval (const QwtIntervalData& intervalData)
+	: m_intervalData (intervalData)
+    {
+    }
 
+    QwtDoubleInterval operator () (const pair<size_t, size_t>& bins)
+    {
+	return QwtDoubleInterval (
+	    m_intervalData.interval (bins.first).minValue (),
+	    m_intervalData.interval (bins.second).maxValue ());
+    }
+
+private:
+    const QwtIntervalData& m_intervalData;
+};
 
 class HistogramItem::PrivateData
 {
@@ -270,31 +282,17 @@ void HistogramItem::drawSelectionRegions (
     QPainter *painter, const QwtScaleMap &xMap, 
     const QwtScaleMap &yMap) const
 {
-    const QwtIntervalData &iData = d_data->data;
-    size_t beginRegion = 0;
-    bool regionSelection = d_data->selected.testBit (0);
-    for ( size_t i = 1; i < iData.size(); i++ )
-    {
-	bool currentSelection = d_data->selected.testBit (i);
-	if ( currentSelection != regionSelection)
-	{
-	    drawRegion (regionSelection, beginRegion, i,
-			painter, xMap, yMap);
-	    beginRegion = i;
-	    regionSelection = currentSelection;
-	}
-    }
-    drawRegion (regionSelection, beginRegion, iData.size (),
-		painter, xMap, yMap);    
+    vector< pair<size_t, size_t> > intervals;
+    getSelectedIntervals (&intervals, false);
+    pair<size_t, size_t> interval;
+    BOOST_FOREACH (interval, intervals)
+	drawRegion (interval.first, interval.second, painter, xMap, yMap);
 }
 
 void HistogramItem::drawRegion (
-    bool regionSelection, size_t beginRegion, size_t endRegion,
+    size_t beginRegion, size_t endRegion,
     QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap) const
 {
-    if (regionSelection)
-	return;
-
     const int factor = 100;
     QColor color(d_data->contextColor.lighter (factor));
     const int transparency = 100;
@@ -355,7 +353,7 @@ void HistogramItem::drawBar(QPainter *painter,
 }
 
 void HistogramItem::getSelectedIntervals (
-    vector< pair<size_t, size_t> >* intervals, bool selected)
+    vector< pair<size_t, size_t> >* intervals, bool selected) const
 {
     const QwtIntervalData &iData = d_data->data;
     size_t beginRegion = 0;
@@ -376,10 +374,12 @@ void HistogramItem::getSelectedIntervals (
 	    pair<size_t, size_t> (beginRegion, iData.size ()));
 }
 
-void HistogramItem::getSelectedIntervals (vector<QwtDoubleInterval>* intervals)
+void HistogramItem::getSelectedIntervals (
+    vector<QwtDoubleInterval>* intervals) const
 {
+    const QwtIntervalData &iData = d_data->data;
     vector< pair<size_t, size_t> > bins;
-    getSelectedIntervals (bins);
-    transform (bins.begin (), bins.end (), intervals->begin (),
-	       binToInterval);
+    getSelectedIntervals (&bins);
+    std::transform (bins.begin (), bins.end (), intervals->begin (),
+		    binToInterval (iData));
 }

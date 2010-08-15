@@ -37,7 +37,7 @@ public:
 	m_selectionTool = selectionTool;
     }
     void EnableSelection (bool enable = true);
-    void GetSelection(vector<QwtDoubleInterval>* selection);
+    void GetSelectedIntervals(vector<QwtDoubleInterval>* intervals);
 
 public Q_SLOTS:
     void SelectionPointMoved (const QPoint& pos);
