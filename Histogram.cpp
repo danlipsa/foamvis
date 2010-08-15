@@ -73,6 +73,8 @@ void Histogram::SelectionPointMoved (const QPoint &pos)
 
 void Histogram::PolygonSelected (const QwtPolygon& poly)
 {
+    (void) poly;
+    Q_EMIT selectionChanged ();
 }
 
 
@@ -93,4 +95,9 @@ void Histogram::SetData (const QwtIntervalData& intervalData)
 void Histogram::EnableSelection (bool enable)
 {
     m_plotPicker.setEnabled (enable);
+}
+
+void Histogram::GetSelection(vector<QwtDoubleInterval>* selection)
+{
+    m_histogramItem.getSelected (selection);
 }

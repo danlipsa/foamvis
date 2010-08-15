@@ -1,5 +1,12 @@
 #include "histogram_item.h"
 
+void binToInterval (const pair<size_t, size_t>& bins,
+		    QwtDoubleInterval& interval)
+{
+    
+}
+
+
 class HistogramItem::PrivateData
 {
 public:
@@ -347,3 +354,32 @@ void HistogramItem::drawBar(QPainter *painter,
     painter->restore();
 }
 
+void HistogramItem::getSelectedIntervals (
+    vector< pair<size_t, size_t> >* intervals, bool selected)
+{
+    const QwtIntervalData &iData = d_data->data;
+    size_t beginRegion = 0;
+    bool regionSelection = d_data->selected.testBit (0);
+    for ( size_t i = 1; i < iData.size(); i++ )
+    {
+	bool currentSelection = d_data->selected.testBit (i);
+	if ( currentSelection != regionSelection)
+	{
+	    if (regionSelection == selected)
+		intervals->push_back (pair<size_t, size_t> (beginRegion, i));
+	    beginRegion = i;
+	    regionSelection = currentSelection;
+	}
+    }
+    if (regionSelection == selected)
+	intervals->push_back (
+	    pair<size_t, size_t> (beginRegion, iData.size ()));
+}
+
+void HistogramItem::getSelectedIntervals (vector<QwtDoubleInterval>* intervals)
+{
+    vector< pair<size_t, size_t> > bins;
+    getSelectedIntervals (bins);
+    transform (bins.begin (), bins.end (), intervals->begin (),
+	       binToInterval);
+}

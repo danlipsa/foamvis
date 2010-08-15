@@ -48,6 +48,8 @@ public:
     bool testHistogramAttribute(HistogramAttribute) const;
     void setSelected (bool selected);
     void setSelected (bool selected, size_t begin, size_t end);
+    void getSelectedIntervals (vector<QwtDoubleInterval>* intervals);
+
 
 protected:
     virtual void drawBar(QPainter *,
@@ -70,6 +72,8 @@ private:
 	bool regionSelection, size_t beginRegion, size_t endRegion,
 	QPainter *painter, 
 	const QwtScaleMap &xMap, const QwtScaleMap &yMap) const;
+    void getSelectedBins (
+	vector< pair<size_t, size_t> >* intervals, bool selected = true);
 
 
 

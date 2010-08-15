@@ -43,6 +43,9 @@ public Q_SLOTS:
     void SelectionPointMoved (const QPoint& pos);
     void SelectionPointAppended (const QPoint& pos);
     void PolygonSelected (const QwtPolygon& poly);
+Q_SIGNALS:
+    void selectionChanged ();
+
 
 private:
     size_t getBin (float value);    
