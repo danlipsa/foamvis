@@ -76,6 +76,7 @@
 #include <qwt_scale_engine.h>
 #include <qwt_scale_map.h>
 #include <qwt_scale_widget.h>
+#include <qwt_slider.h>
 
 
 // G3D headers

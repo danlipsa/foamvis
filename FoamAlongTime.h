@@ -86,7 +86,8 @@ public:
 
     QwtIntervalData GetHistogram (size_t bodyProperty, size_t timeStep) const
     {
-	return m_foamsStatistics[timeStep].GetHistogram (bodyProperty);
+	return m_foamsStatistics[timeStep].GetHistogram (
+	    bodyProperty, &GetBodiesAlongTime ());
     }
     float GetMax (BodyProperty::Enum bodyProperty) const
     {
@@ -119,6 +120,19 @@ public:
     {
 	return m_foams.size ();
     }
+    /**
+     * Returns the time steps for which the range of values is in one of the 
+     * valueIntervals.
+     */
+    void GetTimeStepIntervals (
+	BodyProperty::Enum bodyProperty,
+	const vector<QwtDoubleInterval>& valueIntervals,
+	vector< pair<size_t, size_t> >* timeStepIntervals) const;
+    void GetTimeStepIntervals (
+	BodyProperty::Enum bodyProperty,
+	const QwtDoubleInterval& valueInterval,
+	vector< pair<size_t, size_t> >* timeStepIntervals) const;
+
 
     bool ExistsBodyProperty (
 	BodyProperty::Enum property,
@@ -134,6 +148,7 @@ public:
     string ToString () const;
     void SetSelected (bool selected, size_t begin, size_t end);
 
+
 private:
     /**
      * Calculates the low/high point for the AABox of this list of Foam objects
@@ -148,7 +163,6 @@ private:
     void calculateHistogram ();
     void calculateHistogram (size_t timeStep);
     void calculateRange ();
-    void copyRange ();
     void calculateRange (size_t timeStep);
 
 

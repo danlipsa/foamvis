@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1016</width>
-    <height>720</height>
+    <height>742</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -704,12 +704,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QwtSlider" name="sliderData">
-        <property name="scalePosition">
-         <enum>QwtSlider::TopScale</enum>
+       <widget class="RestrictedRangeSlider" name="sliderData">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
-        <property name="bgStyle">
-         <enum>QwtSlider::BgSlot</enum>
+        <property name="tickPosition">
+         <enum>QSlider::TicksAbove</enum>
         </property>
        </widget>
       </item>
@@ -723,11 +723,6 @@
    <class>QwtScaleWidget</class>
    <extends>QWidget</extends>
    <header>qwt_scale_widget.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QwtSlider</class>
-   <extends>QWidget</extends>
-   <header>qwt_slider.h</header>
   </customwidget>
   <customwidget>
    <class>GLWidget</class>
@@ -767,6 +762,14 @@
     <slot>CurrentIndexChangedInteractionMode(int)</slot>
    </slots>
   </customwidget>
+  <customwidget>
+   <class>RestrictedRangeSlider</class>
+   <extends>QSlider</extends>
+   <header>RestrictedRangeSlider.h</header>
+   <slots>
+    <signal>valueChangedOriginalRange(int)</signal>
+   </slots>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections>
@@ -778,7 +781,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>82</x>
-     <y>699</y>
+     <y>721</y>
     </hint>
     <hint type="destinationlabel">
      <x>66</x>
@@ -794,7 +797,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>53</x>
-     <y>699</y>
+     <y>721</y>
     </hint>
     <hint type="destinationlabel">
      <x>38</x>
@@ -810,7 +813,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>122</x>
-     <y>699</y>
+     <y>721</y>
     </hint>
     <hint type="destinationlabel">
      <x>53</x>
@@ -873,8 +876,8 @@
    <slot>ToggledFacesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>838</x>
-     <y>354</y>
+     <x>826</x>
+     <y>306</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -889,8 +892,8 @@
    <slot>ToggledCenterPath(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>838</x>
-     <y>326</y>
+     <x>826</x>
+     <y>306</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -985,8 +988,8 @@
    <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>838</x>
-     <y>326</y>
+     <x>826</x>
+     <y>306</y>
     </hint>
     <hint type="destinationlabel">
      <x>507</x>
@@ -1085,7 +1088,7 @@
      <y>348</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1056</x>
+     <x>1015</x>
      <y>448</y>
     </hint>
    </hints>
@@ -1101,7 +1104,7 @@
      <y>362</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1036</x>
+     <x>1015</x>
      <y>494</y>
     </hint>
    </hints>
@@ -1113,8 +1116,8 @@
    <slot>CurrentIndexChangedFacesColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>808</x>
-     <y>372</y>
+     <x>826</x>
+     <y>402</y>
     </hint>
     <hint type="destinationlabel">
      <x>1012</x>
@@ -1133,7 +1136,7 @@
      <y>387</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1018</x>
+     <x>1015</x>
      <y>547</y>
     </hint>
    </hints>
@@ -1149,24 +1152,24 @@
      <y>28</y>
     </hint>
     <hint type="destinationlabel">
-     <x>644</x>
-     <y>618</y>
+     <x>662</x>
+     <y>641</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>sliderData</sender>
-   <signal>valueChanged(double)</signal>
+   <signal>valueChangedOriginalRange(int)</signal>
    <receiver>Window</receiver>
-   <slot>ValueChangedSliderData(double)</slot>
+   <slot>ValueChangedSliderData(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>459</x>
-     <y>690</y>
+     <x>561</x>
+     <y>710</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1037</x>
-     <y>650</y>
+     <x>587</x>
+     <y>752</y>
     </hint>
    </hints>
   </connection>

@@ -31,7 +31,7 @@ void BodySetStatistics::SpeedHistogramStep (
 	{{speed.x, speed.y, speed.z, speed.length ()}};
     for (size_t i = BodyProperty::VELOCITY_BEGIN;
 	 i < BodyProperty::VELOCITY_END; ++i)
-	valuePerInterval (i, speedComponents[i]);
+	valuePerInterval (i, speedComponents[i], GetMin (i), GetMax (i));
 }
 
 void BodySetStatistics::HistogramStep (const boost::shared_ptr<Body>& body)
@@ -41,12 +41,14 @@ void BodySetStatistics::HistogramStep (const boost::shared_ptr<Body>& body)
     {
 	size_t index = i - BodyProperty::PER_BODY_BEGIN;
 	if (body->ExistsAttribute (index))
-	    valuePerInterval (i, body->GetRealAttribute (index));
+	    valuePerInterval (i, body->GetRealAttribute (index), 
+			      GetMin (i), GetMax (i));
     }
 }
 
 void BodySetStatistics::HistogramStep (
-    const FoamAlongTime& foamAlongTime, size_t bodyId, size_t timeStep)
+    const FoamAlongTime& foamAlongTime, 
+    size_t bodyId, size_t timeStep, const BodySetStatistics& rangeStatistics)
 {
     for (size_t i = BodyProperty::ENUM_BEGIN; i < BodyProperty::COUNT; ++i)
     {
@@ -54,14 +56,16 @@ void BodySetStatistics::HistogramStep (
 	if (foamAlongTime.ExistsBodyProperty (bodyProperty, bodyId, timeStep))
 	    valuePerInterval (
 		i, foamAlongTime.GetBodyProperty (
-		    bodyProperty, bodyId, timeStep));
+		    bodyProperty, bodyId, timeStep),
+		rangeStatistics.GetMin (i), rangeStatistics.GetMax (i));
     }
 }
 
 
-void BodySetStatistics::valuePerInterval (size_t i, float value)
+void BodySetStatistics::valuePerInterval (size_t i, float value, 
+					  float beginInterval, float endInterval)
 {
-    size_t bin = GetBin (value, HISTOGRAM_INTERVALS, GetMin (i), GetMax (i));
+    size_t bin = GetBin (value, HISTOGRAM_INTERVALS, beginInterval, endInterval);
     ++m_histogram[i][bin];
 }
 
@@ -86,12 +90,15 @@ void BodySetStatistics::RangeStep (size_t bodyProperty, float newValue)
     MaxStep (bodyProperty, newValue);
 }
 
-QwtIntervalData BodySetStatistics::GetHistogram (size_t i) const
+QwtIntervalData BodySetStatistics::GetHistogram (
+    size_t i, const BodySetStatistics* rangeStatistics) const
 {
+    if (rangeStatistics == 0)
+	rangeStatistics = this;
     QwtArray<QwtDoubleInterval> intervals (HISTOGRAM_INTERVALS);
     QwtArray<double> values (HISTOGRAM_INTERVALS);
-    float beginInterval = GetMin (i);
-    float endInterval = GetMax (i);
+    float beginInterval = rangeStatistics->GetMin (i);
+    float endInterval = rangeStatistics->GetMax (i);
     float step = (endInterval - beginInterval) / HISTOGRAM_INTERVALS;
     float pos = beginInterval;
     for (size_t bin = 0; bin < HISTOGRAM_INTERVALS; ++bin)

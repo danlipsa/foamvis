@@ -66,7 +66,7 @@ void FoamAlongTime::PostProcess ()
     calculateBodyWraps ();
     GetBodiesAlongTime ().CalculateRange (*this);
     GetBodiesAlongTime ().CalculateHistogram (*this);
-    copyRange ();
+    calculateRange ();
     calculateHistogram ();
 }
 
@@ -138,19 +138,10 @@ void FoamAlongTime::calculateHistogram (size_t timeStep)
     BOOST_FOREACH (boost::shared_ptr<const Body> body, foam->GetBodies ())
     {
 	size_t bodyId = body->GetId ();
-	m_foamsStatistics[timeStep].HistogramStep (*this, bodyId, timeStep);
+	m_foamsStatistics[timeStep].HistogramStep (
+	    *this, bodyId, timeStep, GetBodiesAlongTime ());
     }
 }
-
-void FoamAlongTime::copyRange ()
-{
-    for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
-    {
-	m_foamsStatistics[timeStep].GetMin () = GetBodiesAlongTime ().GetMin ();
-	m_foamsStatistics[timeStep].GetMax () = GetBodiesAlongTime ().GetMax ();
-    }
-}
-
 
 void FoamAlongTime::calculateRange ()
 {
@@ -204,4 +195,58 @@ void FoamAlongTime::SetSelected (bool selected, size_t begin, size_t end)
 {
     for (size_t i = begin; i < end; ++i)
 	m_timeStepSelection[i] = selected;
+}
+
+void FoamAlongTime::GetTimeStepIntervals (
+    BodyProperty::Enum bodyProperty,
+    const vector<QwtDoubleInterval>& valueIntervals,
+    vector< pair<size_t, size_t> >* timeStepIntervals) const
+{
+    BOOST_FOREACH (QwtDoubleInterval valueInterval, valueIntervals)
+	GetTimeStepIntervals (bodyProperty, valueInterval, timeStepIntervals);
+}
+
+inline bool isInside (double value, double min, double max)
+{
+    return value >= min && value <= max;
+}
+
+inline bool isIntersection (double firstMin, double firstMax,
+			    double secondMin, double secondMax)
+{
+    return 
+	isInside (firstMin, secondMin, secondMax) || 
+	isInside (firstMax, secondMin, secondMax);
+}
+
+
+
+void FoamAlongTime::GetTimeStepIntervals (
+    BodyProperty::Enum bodyProperty,
+    const QwtDoubleInterval& valueInterval,
+    vector< pair<size_t, size_t> >* timeStepIntervals) const
+{
+    const size_t INVALID = numeric_limits<size_t> ().max ();
+    size_t beginRange = INVALID;
+    for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
+	if (isIntersection (
+		valueInterval.minValue (), valueInterval.maxValue (),
+		GetMin (bodyProperty, timeStep), 
+		GetMax (bodyProperty, timeStep)))
+	{
+	    if (beginRange == INVALID)
+		beginRange = timeStep;
+	}
+	else
+	{
+	    if (beginRange != INVALID)
+	    {
+		timeStepIntervals->push_back (
+		    pair<size_t, size_t> (beginRange, timeStep));
+		beginRange = INVALID;				  
+	    }
+	}
+    if (beginRange != INVALID)
+	timeStepIntervals->push_back (
+	    pair<size_t, size_t> (beginRange, GetTimeSteps ()));
 }

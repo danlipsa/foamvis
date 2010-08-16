@@ -53,7 +53,8 @@ public:
 			     const StripIterator::Point& prev);
     void HistogramStep (const boost::shared_ptr<Body>& body);
     void HistogramStep (
-	const FoamAlongTime& foamAlongTime, size_t bodyId, size_t timeStep);
+	const FoamAlongTime& foamAlongTime, size_t bodyId, size_t timeStep,
+	const BodySetStatistics& rangeStatistics);
 
     void RangeStep (size_t bodyProperty, float newValue);
     void MinStep (size_t bodyProperty, float newValue)
@@ -64,7 +65,8 @@ public:
     {
 	m_max[bodyProperty] = max (m_max[bodyProperty], newValue);
     }
-    QwtIntervalData GetHistogram (size_t i) const;
+    QwtIntervalData GetHistogram (
+	size_t i, const BodySetStatistics* rangeStatistics = 0) const;
     static size_t GetBin (float value, size_t binCount,
 			  float beginInterval, float endInterval);
     
@@ -73,7 +75,8 @@ private:
      * Increment the correct bin for 'bodyProperty' (@see
      * BodyProperty::Enum) and 'value'.
      */
-    void valuePerInterval (size_t bodyProperty, float value);
+    void valuePerInterval (size_t bodyProperty, float value,
+			   float beginInterval, float endInterval);
 
 private:
     /**

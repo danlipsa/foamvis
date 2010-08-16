@@ -45,12 +45,6 @@ public:
 
 
 public Q_SLOTS:
-    void InteractionModeRotate ();
-    void InteractionModeSelectBrush ();
-    void InteractionModeSelectEraser ();
-    void InteractionModeScale ();
-    void InteractionModeTranslate ();
-
     /**
      * Called when the Begin Slider button is pressed. Shows the first
      * data in the vector.
@@ -66,6 +60,19 @@ public Q_SLOTS:
      * showing the time steps of the Surface Evolver data.
      */
     void ClickedPlay ();
+
+    void CurrentIndexChangedCenterPathColor (int value);
+    void CurrentIndexChangedFacesColor (int value);
+
+
+    void InteractionModeRotate ();
+    void InteractionModeSelectBrush ();
+    void InteractionModeSelectEraser ();
+    void InteractionModeScale ();
+    void InteractionModeTranslate ();
+    
+    void SelectionChangedHistogram ();
+
     /**
      * Invoqued by the timer to show the next data in the vector
      */
@@ -89,10 +96,6 @@ public Q_SLOTS:
      * at the current position of the slider.
      */
     void ValueChangedSliderData (int value);
-    void ValueChangedSliderData (double value);
-    void CurrentIndexChangedCenterPathColor (int value);
-    void CurrentIndexChangedFacesColor (int value);
-
 private:
     /**
      * Enables/Disables the Begin button

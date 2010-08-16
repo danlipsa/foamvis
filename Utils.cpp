@@ -363,3 +363,10 @@ QColor BlueRedColor (size_t i)
     color.setBlueF (blueRedColors[i][3]);
     return color;
 }
+
+
+ostream& operator<< (ostream& ostr, const QwtDoubleInterval& interval)
+{
+    return ostr << "QwtDoubleInterval (" << interval.minValue () << ", "
+		<< interval.maxValue () << ")";
+}

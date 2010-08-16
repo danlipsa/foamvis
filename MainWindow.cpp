@@ -42,14 +42,21 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
 	    (string("Foam - ") + foamAlongTime.GetFilePattern ()).c_str ()));
     // 30 ms
     m_timer->setInterval (30);
-    QObject::connect(m_timer.get (), SIGNAL(timeout()),
-                     this, SLOT(TimeoutTimer ()));
     createActions ();
+
+
+    connect (m_timer.get (), SIGNAL (timeout()),
+	     this, SLOT (TimeoutTimer ()));
+    connect (widgetHistogram, SIGNAL(selectionChanged ()),
+	     this, SLOT (SelectionChangedHistogram ()));
 }
 
 void MainWindow::setupSliderData (const FoamAlongTime& foamAlongTime)
 {
-    sliderData->setRange (0, foamAlongTime.GetTimeSteps () - 1, 1, 10);
+    sliderData->setMinimum (0);
+    sliderData->setMaximum (foamAlongTime.GetTimeSteps () - 1);
+    sliderData->setSingleStep (1);
+    sliderData->setPageStep (10);
 }
 
 void testColorMap ()
@@ -182,19 +189,19 @@ void MainWindow::updateStatus ()
 
 void MainWindow::enableBegin ()
 {
-    if (sliderData->value () > sliderData->minValue ())
+    if (sliderData->value () > sliderData->minimum ())
         toolButtonBegin->setDisabled (false);
 }
 
 void MainWindow::enableEnd ()
 {
-    if (sliderData->value () < sliderData->maxValue ())
+    if (sliderData->value () < sliderData->maximum ())
         toolButtonEnd->setDisabled (false);
 }
 
 void MainWindow::enablePlay ()
 {
-    if (sliderData->value () < sliderData->maxValue ())
+    if (sliderData->value () < sliderData->maximum ())
         toolButtonPlay->setDisabled (false);
 }
 
@@ -331,14 +338,14 @@ void MainWindow::ClickedPlay ()
 
 void MainWindow::ClickedBegin ()
 {
-    sliderData->setValue (sliderData->minValue ());
+    sliderData->setValue (sliderData->minimum ());
     updateButtons ();
     updateStatus ();
 }
 
 void MainWindow::ClickedEnd ()
 {
-    sliderData->setValue (sliderData->maxValue ());
+    sliderData->setValue (sliderData->maximum ());
     updateButtons ();
     updateStatus ();
 }
@@ -346,15 +353,10 @@ void MainWindow::ClickedEnd ()
 void MainWindow::TimeoutTimer ()
 {
     int value = sliderData->value ();
-    if (value < sliderData->maxValue ())
+    if (value < sliderData->maximum ())
         sliderData->setValue (value + 1);
     else
         ClickedPlay ();
-}
-
-void MainWindow::ValueChangedSliderData (double timeStep)
-{
-    ValueChangedSliderData (static_cast<int>(timeStep));
 }
 
 void MainWindow::ValueChangedSliderData (int timeStep)
@@ -363,7 +365,7 @@ void MainWindow::ValueChangedSliderData (int timeStep)
 	BodyProperty::FromSizeT (comboBoxFacesColor->currentIndex ());
     if (scaleWidgetColorBar->isVisible ())
 	changedColorBarInterval (
-	    widgetGl->GetFoamAlongTime ().GetRange (bodyProperty, timeStep));
+	    widgetGl->GetFoamAlongTime ().GetRange (bodyProperty));
     if (widgetHistogram->isVisible ())
 	SetAndDisplayHistogram (
 	    checkBoxFacesHistogram->isChecked (),
@@ -490,7 +492,7 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
 	widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
 	changedColorBarInterval (
-	    widgetGl->GetFoamAlongTime ().GetRange (bodyProperty, timeStep));
+	    widgetGl->GetFoamAlongTime ().GetRange (bodyProperty));
 	SetAndDisplayHistogram (
 	    checkBoxFacesHistogram->isChecked (),
 	    bodyProperty,
@@ -632,4 +634,30 @@ void MainWindow::createActions ()
     addAction (m_actionSelectAll.get ());
     addAction (m_actionDeselectAll.get ());
     addAction (m_actionInfo.get ());
+}
+
+
+void MainWindow::SelectionChangedHistogram ()
+{
+    BodyProperty::Enum bodyProperty = 
+	BodyProperty::FromSizeT (comboBoxFacesColor->currentIndex ());
+    vector<QwtDoubleInterval> valueIntervals;
+    widgetHistogram->GetSelectedIntervals (&valueIntervals);
+    
+    /*
+    ostream_iterator<QwtDoubleInterval> out(cdbg, "\n");
+    cdbg << "valueIntervals" << endl;
+    copy (valueIntervals.begin (), valueIntervals.end (), out);
+    */
+
+    vector< pair<size_t, size_t> > timeStepIntervals;
+    widgetGl->GetFoamAlongTime ().GetTimeStepIntervals (
+	bodyProperty, valueIntervals, &timeStepIntervals);
+    /*
+    cdbg << "timeStepIntervals" << endl;
+    pair<size_t, size_t> pair;
+    BOOST_FOREACH (pair, timeStepIntervals)
+	cdbg << pair << endl;
+    */
+    sliderData->SetRestrictedTo (timeStepIntervals);
 }

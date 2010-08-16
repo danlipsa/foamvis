@@ -48,8 +48,6 @@ public:
     bool testHistogramAttribute(HistogramAttribute) const;
     void setSelected (bool selected);
     void setSelected (bool selected, size_t begin, size_t end);
-    void getSelectedIntervals (
-	vector< pair<size_t, size_t> >* intervals, bool selected = true) const;
     void getSelectedIntervals (vector<QwtDoubleInterval>* intervals) const;
 
 
@@ -74,7 +72,7 @@ private:
 		     QPainter *painter, 
 		     const QwtScaleMap &xMap, const QwtScaleMap &yMap) const;
     void getSelectedBins (
-	vector< pair<size_t, size_t> >* intervals, bool selected = true);
+	vector< pair<size_t, size_t> >* intervals, bool selected = true) const;
 
 
 

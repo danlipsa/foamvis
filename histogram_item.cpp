@@ -8,11 +8,11 @@ public:
     {
     }
 
-    QwtDoubleInterval operator () (const pair<size_t, size_t>& bins)
+    QwtDoubleInterval operator () (const pair<size_t, size_t>& binRange)
     {
 	return QwtDoubleInterval (
-	    m_intervalData.interval (bins.first).minValue (),
-	    m_intervalData.interval (bins.second).maxValue ());
+	    m_intervalData.interval (binRange.first).minValue (),
+	    m_intervalData.interval (binRange.second - 1).maxValue ());
     }
 
 private:
@@ -283,7 +283,7 @@ void HistogramItem::drawSelectionRegions (
     const QwtScaleMap &yMap) const
 {
     vector< pair<size_t, size_t> > intervals;
-    getSelectedIntervals (&intervals, false);
+    getSelectedBins (&intervals, false);
     pair<size_t, size_t> interval;
     BOOST_FOREACH (interval, intervals)
 	drawRegion (interval.first, interval.second, painter, xMap, yMap);
@@ -352,8 +352,8 @@ void HistogramItem::drawBar(QPainter *painter,
     painter->restore();
 }
 
-void HistogramItem::getSelectedIntervals (
-    vector< pair<size_t, size_t> >* intervals, bool selected) const
+void HistogramItem::getSelectedBins (
+    vector< pair<size_t, size_t> >* bins, bool selected) const
 {
     const QwtIntervalData &iData = d_data->data;
     size_t beginRegion = 0;
@@ -364,13 +364,13 @@ void HistogramItem::getSelectedIntervals (
 	if ( currentSelection != regionSelection)
 	{
 	    if (regionSelection == selected)
-		intervals->push_back (pair<size_t, size_t> (beginRegion, i));
+		bins->push_back (pair<size_t, size_t> (beginRegion, i));
 	    beginRegion = i;
 	    regionSelection = currentSelection;
 	}
     }
     if (regionSelection == selected)
-	intervals->push_back (
+	bins->push_back (
 	    pair<size_t, size_t> (beginRegion, iData.size ()));
 }
 
@@ -379,7 +379,8 @@ void HistogramItem::getSelectedIntervals (
 {
     const QwtIntervalData &iData = d_data->data;
     vector< pair<size_t, size_t> > bins;
-    getSelectedIntervals (&bins);
+    getSelectedBins (&bins);
+    intervals->resize (bins.size ());
     std::transform (bins.begin (), bins.end (), intervals->begin (),
 		    binToInterval (iData));
 }

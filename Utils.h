@@ -15,7 +15,12 @@
  */
 ostream& operator<< (ostream& ostr, const G3D::AABox& box);
 ostream& operator<< (ostream& ostr, const QColor& color);
-
+ostream& operator<< (ostream& ostr, const QwtDoubleInterval& interval);
+template<typename U, typename V>
+ostream& operator<< (ostream& ostr, const pair<U, V>& p)
+{
+    return ostr << "pair(" << p.first << ", " << p.second << ")";
+}
 
 
 const G3D::Vector3int16& Vector3int16Unit (size_t direction);
