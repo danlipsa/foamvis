@@ -369,8 +369,8 @@ void MainWindow::ValueChangedSliderData (int timeStep)
     if (widgetHistogram->isVisible ())
 	SetAndDisplayHistogram (
 	    checkBoxFacesHistogram->isChecked (),
-	    bodyProperty,
-	    widgetGl->GetFoamAlongTime ().GetHistogram (bodyProperty, timeStep));
+	    bodyProperty, widgetGl->GetFoamAlongTime ().GetHistogram (
+		bodyProperty, timeStep), KEEP);
     widgetGl->ValueChangedSliderData (timeStep);
     updateButtons ();
     updateStatus ();
@@ -552,12 +552,20 @@ void MainWindow::ToggledFacesHistogram (bool checked)
 void MainWindow::SetAndDisplayHistogram (
     bool checked,
     BodyProperty::Enum bodyProperty,
-    const QwtIntervalData& intervalData)
+    const QwtIntervalData& intervalData,
+    HistogramSelection histogramSelection)
 {
     if (checked)
     {
 	widgetHistogram->setVisible (true);
-	widgetHistogram->SetData (intervalData);
+	if (histogramSelection == KEEP)
+	{
+	    vector< pair<size_t, size_t> > selectedBins;
+	    widgetHistogram->GetSelectedBins (&selectedBins);
+	    widgetHistogram->SetData (intervalData, &selectedBins);
+	}
+	else
+	    widgetHistogram->SetData (intervalData);
 	widgetHistogram->setAxisTitle (
 	    QwtPlot::xBottom, 
 	    QString(BodyProperty::ToString (bodyProperty).c_str ()));

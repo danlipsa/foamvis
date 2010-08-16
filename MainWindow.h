@@ -22,6 +22,15 @@ class ProcessBodyTorus;
 class MainWindow : public QWidget, private Ui::Window
 {
 public:
+    enum HistogramSelection
+    {
+	KEEP,
+	DISCARD,
+	COUNT
+    };
+
+
+public:
     /**
      * Constructor
      * @param foamAlongTime data to be displayed read from Surface Evolver files
@@ -41,7 +50,8 @@ public:
     void SetAndDisplayHistogram (
 	bool checked,
 	BodyProperty::Enum bodyProperty,
-	const QwtIntervalData& intervalData);
+	const QwtIntervalData& intervalData,
+	HistogramSelection histogramSelection = DISCARD);
 
 
 public Q_SLOTS:

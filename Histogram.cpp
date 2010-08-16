@@ -78,7 +78,9 @@ void Histogram::PolygonSelected (const QwtPolygon& poly)
 }
 
 
-void Histogram::SetData (const QwtIntervalData& intervalData)
+void Histogram::SetData (
+    const QwtIntervalData& intervalData,
+    const vector< pair<size_t, size_t> >* selectedBins)
 {
     m_histogramItem.setData(intervalData);
     double maxValue = numeric_limits<double>().min ();
@@ -90,6 +92,8 @@ void Histogram::SetData (const QwtIntervalData& intervalData)
 	QwtPlot::xBottom,
 	intervalData.interval (0).minValue (),
 	intervalData.interval (intervalData.size () - 1).maxValue ());
+    if (selectedBins != 0)
+	m_histogramItem.setSelectedBins (*selectedBins);
 }
 
 void Histogram::EnableSelection (bool enable)
@@ -97,7 +101,8 @@ void Histogram::EnableSelection (bool enable)
     m_plotPicker.setEnabled (enable);
 }
 
-void Histogram::GetSelectedIntervals (vector<QwtDoubleInterval>* intervals)
+void Histogram::GetSelectedIntervals (
+    vector<QwtDoubleInterval>* intervals) const
 {
     m_histogramItem.getSelectedIntervals (intervals);
 }

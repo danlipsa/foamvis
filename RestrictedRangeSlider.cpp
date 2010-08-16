@@ -45,6 +45,7 @@ bool RestrictedRangeSlider::IsRestricted ()
 
 void RestrictedRangeSlider::ToOriginalRange (int value)
 {
-    int valueOriginalRange = IsRestricted () ? m_toOriginalRange [value] : value;
+    int valueOriginalRange = 
+	IsRestricted () ? m_toOriginalRange [value] : value;
     Q_EMIT valueChangedOriginalRange (valueOriginalRange);
 }

@@ -49,7 +49,10 @@ public:
     void setSelected (bool selected);
     void setSelected (bool selected, size_t begin, size_t end);
     void getSelectedIntervals (vector<QwtDoubleInterval>* intervals) const;
-
+    void getSelectedBins (
+	vector< pair<size_t, size_t> >* intervals, bool selected = true) const;
+    void setSelectedBins (
+	const vector< pair<size_t, size_t> >& intervals);
 
 protected:
     virtual void drawBar(QPainter *,
@@ -71,8 +74,6 @@ private:
     void drawRegion (size_t beginRegion, size_t endRegion,
 		     QPainter *painter, 
 		     const QwtScaleMap &xMap, const QwtScaleMap &yMap) const;
-    void getSelectedBins (
-	vector< pair<size_t, size_t> >* intervals, bool selected = true) const;
 
 
 

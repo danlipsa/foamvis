@@ -23,7 +23,8 @@ public:
 
 public:
     Histogram (QWidget* parent = 0);
-    void SetData (const QwtIntervalData& intervalData);
+    void SetData (const QwtIntervalData& intervalData,
+		  const vector< pair<size_t, size_t> >* selectedBins = 0);
     void SetSelected (bool selected)
     {
 	m_histogramItem.setSelected (selected);
@@ -37,7 +38,12 @@ public:
 	m_selectionTool = selectionTool;
     }
     void EnableSelection (bool enable = true);
-    void GetSelectedIntervals(vector<QwtDoubleInterval>* intervals);
+    void GetSelectedIntervals(vector<QwtDoubleInterval>* intervals) const;
+    void GetSelectedBins (
+	vector< pair<size_t, size_t> >* intervals, bool selected = true) const
+    {
+	m_histogramItem.getSelectedBins (intervals, selected);
+    }
 
 public Q_SLOTS:
     void SelectionPointMoved (const QPoint& pos);

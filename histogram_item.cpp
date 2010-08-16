@@ -384,3 +384,11 @@ void HistogramItem::getSelectedIntervals (
     std::transform (bins.begin (), bins.end (), intervals->begin (),
 		    binToInterval (iData));
 }
+
+void HistogramItem::setSelectedBins (
+    const vector< pair<size_t, size_t> >& intervals)
+{
+    pair<size_t, size_t> interval;
+    BOOST_FOREACH (interval, intervals)
+	setSelected (true, interval.first, interval.second);
+}
