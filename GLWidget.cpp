@@ -369,6 +369,10 @@ void GLWidget::SelectAll ()
     UpdateDisplayList ();
 }
 
+void GLWidget::DeselectAll ()
+{
+}
+
 void GLWidget::Info ()
 {
 

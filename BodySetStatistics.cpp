@@ -15,7 +15,8 @@
 BodySetStatistics::BodySetStatistics () :
     m_min (BodyProperty::COUNT, numeric_limits<float> ().max ()),
     m_max (BodyProperty::COUNT, -numeric_limits<float> ().max ()),
-    m_histogram (BodyProperty::COUNT)
+    m_histogram (BodyProperty::COUNT),
+    m_maxCountPerBin (BodyProperty::COUNT)
 {
     BOOST_FOREACH (vector<size_t>& v, m_histogram)
 	v.resize (HISTOGRAM_INTERVALS, 0);
@@ -108,4 +109,16 @@ QwtIntervalData BodySetStatistics::GetHistogram (
 	pos += step;
     }
     return QwtIntervalData (intervals, values);
+}
+
+void BodySetStatistics::CalculateMaxCountPerBin ()
+{
+    for (size_t bodyProperty = BodyProperty::ENUM_BEGIN;
+	 bodyProperty < BodyProperty::COUNT; ++bodyProperty)
+    {
+	size_t maxCount = 0;
+	for (size_t bin = 0; bin < HISTOGRAM_INTERVALS; ++bin)
+	    maxCount = max (maxCount, GetValuesPerBin (bodyProperty, bin));
+	m_maxCountPerBin[bodyProperty] = maxCount;
+    }
 }

@@ -23,16 +23,9 @@ public:
 
 public:
     Histogram (QWidget* parent = 0);
-    void SetData (const QwtIntervalData& intervalData,
+    void SetData (const QwtIntervalData& intervalData, double maxYValue,
 		  const vector< pair<size_t, size_t> >* selectedBins = 0);
-    void SetSelected (bool selected)
-    {
-	m_histogramItem.setSelected (selected);
-    }
-    void SetSelected (bool selected, size_t begin, size_t end)
-    {
-	m_histogramItem.setSelected (selected, begin, end);
-    }
+    void SetSelected (bool selected);
     void SetSelectionTool (SelectionTool selectionTool)
     {
 	m_selectionTool = selectionTool;

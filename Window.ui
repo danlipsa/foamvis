@@ -768,6 +768,7 @@
    <header>RestrictedRangeSlider.h</header>
    <slots>
     <signal>valueChangedOriginalRange(int)</signal>
+    <signal>valueChangedNone()</signal>
    </slots>
   </customwidget>
  </customwidgets>
@@ -876,8 +877,8 @@
    <slot>ToggledFacesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>826</x>
-     <y>306</y>
+     <x>974</x>
+     <y>354</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -1173,6 +1174,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>sliderData</sender>
+   <signal>valueChangedNone()</signal>
+   <receiver>Window</receiver>
+   <slot>ValueChangedNone()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>694</x>
+     <y>708</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>732</x>
+     <y>737</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>ClickedBegin()</slot>
@@ -1188,7 +1205,7 @@
   <slot>CurrentIndexChangedFacesColor(int)</slot>
   <slot>ToggledFacesHistogram(bool)</slot>
   <slot>ToggledFacesNormal(bool)</slot>
-  <slot>ValueChangedSliderData(double)</slot>
+  <slot>ValueChangedNone()</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroup"/>

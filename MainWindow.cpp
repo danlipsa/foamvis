@@ -359,18 +359,26 @@ void MainWindow::TimeoutTimer ()
         ClickedPlay ();
 }
 
+void MainWindow::ValueChangedNone ()
+{
+    cdbg << "ValueChangedNone: " << endl;
+}
+
+
 void MainWindow::ValueChangedSliderData (int timeStep)
 {
     BodyProperty::Enum bodyProperty = 
 	BodyProperty::FromSizeT (comboBoxFacesColor->currentIndex ());
-    if (scaleWidgetColorBar->isVisible ())
-	changedColorBarInterval (
-	    widgetGl->GetFoamAlongTime ().GetRange (bodyProperty));
     if (widgetHistogram->isVisible ())
+    {
+	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	SetAndDisplayHistogram (
 	    checkBoxFacesHistogram->isChecked (),
-	    bodyProperty, widgetGl->GetFoamAlongTime ().GetHistogram (
-		bodyProperty, timeStep), KEEP);
+	    bodyProperty,
+	    foamAlongTime.GetHistogram (bodyProperty, timeStep), 
+	    foamAlongTime.GetMaxCountPerBinIndividual (bodyProperty),
+	    KEEP_SELECTION);
+    }
     widgetGl->ValueChangedSliderData (timeStep);
     updateButtons ();
     updateStatus ();
@@ -486,17 +494,19 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
     }
     else
     {
+	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	size_t timeStep = widgetGl->GetTimeStep ();
 	checkBoxFacesHistogram->setVisible (true);
 	scaleWidgetColorBar->setVisible (true);
 	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
 	widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
 	changedColorBarInterval (
-	    widgetGl->GetFoamAlongTime ().GetRange (bodyProperty));
+	    foamAlongTime.GetRange (bodyProperty));
 	SetAndDisplayHistogram (
 	    checkBoxFacesHistogram->isChecked (),
 	    bodyProperty,
-	    widgetGl->GetFoamAlongTime ().GetHistogram (bodyProperty, timeStep));
+	    foamAlongTime.GetHistogram (bodyProperty, timeStep),
+	    foamAlongTime.GetMaxCountPerBinIndividual (bodyProperty));
     }
     widgetGl->UpdateDisplayList ();
 }
@@ -514,6 +524,7 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
     }
     else
     {
+	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT (
 	    comboBoxCenterPathColor->currentIndex ());
 	checkBoxCenterPathHistogram->setVisible (true);
@@ -521,12 +532,13 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 
 	widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
 	changedColorBarInterval (
-	    widgetGl->GetFoamAlongTime ().GetRange (bodyProperty));
+	    foamAlongTime.GetRange (bodyProperty));
 	widgetGl->CurrentIndexChangedCenterPathColor (bodyProperty);
 	SetAndDisplayHistogram (
 	    checkBoxCenterPathHistogram->isChecked (),
 	    bodyProperty,
-	    widgetGl->GetFoamAlongTime ().GetHistogram (bodyProperty));
+	    foamAlongTime.GetHistogram (bodyProperty),
+	    foamAlongTime.GetMaxCountPerBinIndividual (bodyProperty));
     }
     widgetGl->UpdateDisplayList ();
 }
@@ -534,47 +546,53 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 
 void MainWindow::ToggledCenterPathHistogram (bool checked)
 {
+    FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     m_histogram = checked;
     SetAndDisplayHistogram (
 	checked, m_bodyProperty,
-	widgetGl->GetFoamAlongTime ().GetHistogram (m_bodyProperty));
+	foamAlongTime.GetHistogram (m_bodyProperty),
+	foamAlongTime.GetMaxCountPerBinIndividual (m_bodyProperty));
 }
 
 void MainWindow::ToggledFacesHistogram (bool checked)
 {
+    FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     m_histogram = checked;
     SetAndDisplayHistogram (
 	checked, m_bodyProperty,
-	widgetGl->GetFoamAlongTime ().GetHistogram (
-	    m_bodyProperty, widgetGl->GetTimeStep ()));
+	foamAlongTime.GetHistogram (
+	    m_bodyProperty, widgetGl->GetTimeStep ()),
+	foamAlongTime.GetMaxCountPerBinIndividual (m_bodyProperty));
 }
 
 void MainWindow::SetAndDisplayHistogram (
     bool checked,
     BodyProperty::Enum bodyProperty,
     const QwtIntervalData& intervalData,
+    double maxYValue,
     HistogramSelection histogramSelection)
 {
-    if (checked)
+    if (! checked)
     {
-	widgetHistogram->setVisible (true);
-	if (histogramSelection == KEEP)
-	{
-	    vector< pair<size_t, size_t> > selectedBins;
-	    widgetHistogram->GetSelectedBins (&selectedBins);
-	    widgetHistogram->SetData (intervalData, &selectedBins);
-	}
-	else
-	    widgetHistogram->SetData (intervalData);
-	widgetHistogram->setAxisTitle (
-	    QwtPlot::xBottom, 
-	    QString(BodyProperty::ToString (bodyProperty).c_str ()));
-	widgetHistogram->setAxisTitle (
-	    QwtPlot::yLeft, QString("Number of values per bin"));
-	widgetHistogram->replot ();
+	widgetHistogram->setVisible (false);
+	return;
+    }
+
+    widgetHistogram->setVisible (true);
+    if (histogramSelection == KEEP_SELECTION)
+    {
+	vector< pair<size_t, size_t> > selectedBins;
+	widgetHistogram->GetSelectedBins (&selectedBins);
+	widgetHistogram->SetData (intervalData, maxYValue, &selectedBins);
     }
     else
-	widgetHistogram->setVisible (false);
+	widgetHistogram->SetData (intervalData, maxYValue);
+    widgetHistogram->setAxisTitle (
+	QwtPlot::xBottom, 
+	QString(BodyProperty::ToString (bodyProperty).c_str ()));
+    widgetHistogram->setAxisTitle (
+	QwtPlot::yLeft, QString("Number of values per bin"));
+    widgetHistogram->replot ();
 }
 
 void MainWindow::createActions ()
@@ -651,21 +669,31 @@ void MainWindow::SelectionChangedHistogram ()
 	BodyProperty::FromSizeT (comboBoxFacesColor->currentIndex ());
     vector<QwtDoubleInterval> valueIntervals;
     widgetHistogram->GetSelectedIntervals (&valueIntervals);
-    
-    /*
+/*        
     ostream_iterator<QwtDoubleInterval> out(cdbg, "\n");
     cdbg << "valueIntervals" << endl;
-    copy (valueIntervals.begin (), valueIntervals.end (), out);
-    */
-
-    vector< pair<size_t, size_t> > timeStepIntervals;
-    widgetGl->GetFoamAlongTime ().GetTimeStepIntervals (
-	bodyProperty, valueIntervals, &timeStepIntervals);
-    /*
-    cdbg << "timeStepIntervals" << endl;
-    pair<size_t, size_t> pair;
-    BOOST_FOREACH (pair, timeStepIntervals)
-	cdbg << pair << endl;
-    */
-    sliderData->SetRestrictedTo (timeStepIntervals);
+    copy (valueIntervals.begin (), valueIntervals.end (), out);    
+*/
+    vector<bool> timeStepSelection;
+    widgetGl->GetFoamAlongTime ().GetTimeStepSelection (
+	bodyProperty, valueIntervals, &timeStepSelection);
+/*
+    cdbg << "timeStepSelection" << endl
+	 << timeStepSelection << endl;
+*/
+    sliderData->SetRestrictedTo (timeStepSelection);
+    if (sliderData->GetState () != RestrictedRangeSlider::FULL_RANGE)
+    {
+	ostringstream ostr;
+	size_t range = 
+	    (sliderData->GetState () == RestrictedRangeSlider::EMPTY_RANGE) ? 
+	    0 : (sliderData->maximum () - sliderData->minimum () + 1);
+	ostr << "Selected Time Steps: " 
+	     << range << " of "
+	     << (sliderData->GetOriginalMaximum () - 
+		 sliderData->GetOriginalMinimum () + 1);
+	groupBoxTimeSteps->setTitle (ostr.str ().c_str ());
+    }
+    else
+	groupBoxTimeSteps->setTitle ("Time Steps");
 }

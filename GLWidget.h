@@ -217,6 +217,7 @@ public:
 public Q_SLOTS:
     void ResetTransformation ();
     void SelectAll ();
+    void DeselectAll ();
     void Info ();
     void CurrentIndexChangedInteractionMode (int index);
     void ToggledBodies (bool checked);

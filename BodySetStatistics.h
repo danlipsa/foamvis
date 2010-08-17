@@ -66,7 +66,14 @@ public:
 	m_max[bodyProperty] = max (m_max[bodyProperty], newValue);
     }
     QwtIntervalData GetHistogram (
-	size_t i, const BodySetStatistics* rangeStatistics = 0) const;
+	size_t bodyProperty, const BodySetStatistics* rangeStatistics = 0) const;
+    void CalculateMaxCountPerBin ();
+    size_t GetMaxCountPerBin (size_t bodyProperty)
+    {
+	return m_maxCountPerBin[bodyProperty];
+    }
+
+public:
     static size_t GetBin (float value, size_t binCount,
 			  float beginInterval, float endInterval);
     
@@ -93,6 +100,11 @@ private:
      * speed along x, y, z, total speed and pressure
      */
     vector< vector <size_t> > m_histogram;
+    /**
+     * Each element of the array corresponds to a histogram for a property.
+     * It tells us, the maximum number of values we have in a single bin.
+     */
+    vector<size_t> m_maxCountPerBin;
 };
 
 

@@ -24,6 +24,7 @@ class HistogramItem::PrivateData
 public:
     int attributes;
     QwtIntervalData data;
+    double maxValue;
     QColor focusColor;
     QColor contextColor;
     double reference;
@@ -73,11 +74,22 @@ double HistogramItem::baseline() const
     return d_data->reference;
 }
 
-void HistogramItem::setData(const QwtIntervalData &data)
+void HistogramItem::setData(
+    const QwtIntervalData &data,
+    double maxValue,
+    const vector< pair<size_t, size_t> >* selectedBins)
 {
     d_data->data = data;
+    d_data->maxValue = maxValue;
     d_data->selected.resize (data.size ());
-    d_data->selected.fill (true);
+
+    if (selectedBins != 0)
+    {
+	d_data->selected.fill (false);
+	setSelectedBins (*selectedBins);
+    }
+    else
+	d_data->selected.fill (true);	
     itemChanged();
 }
 
@@ -303,7 +315,7 @@ void HistogramItem::drawRegion (
     const QwtIntervalData &iData = d_data->data;
     QwtDoubleRect rect = boundingRect();
     const int y1 = yMap.transform(baseline ());
-    const int y2 = yMap.transform(rect.y () + rect.height ());
+    const int y2 = yMap.transform(d_data->maxValue);
     int x1 = xMap.transform(iData.interval(beginRegion).minValue());
     int x2 = xMap.transform(iData.interval(endRegion - 1).maxValue());
     QRect paintRect (x1, y1, x2 - x1, y2 - y1);

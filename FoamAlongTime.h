@@ -20,7 +20,6 @@ class FoamAlongTime
 {
 public:
     typedef vector< boost::shared_ptr<Foam> > Foams;
-    typedef vector<bool> TimeStepSelection;
     typedef vector<BodySetStatistics> FoamsStatistics;
     /**
      * Functor applied to a collection of Foam objects
@@ -29,6 +28,7 @@ public:
 					 Foams::iterator last,
 					 FoamLessThanAlong lessThanAlong);
 public:
+    FoamAlongTime ();
     void CacheBodiesAlongTime ();
     /**
      * Calculate the  axially aligned bounding box for  this vector of
@@ -97,6 +97,10 @@ public:
     {
 	return m_foamsStatistics[timeStep].GetMax (bodyProperty);
     }
+    size_t GetMaxCountPerBinIndividual (size_t bodyProperty) const
+    {
+	return m_maxCountPerBinIndividual[bodyProperty];
+    }
 
     float GetMin (BodyProperty::Enum bodyProperty) const
     {
@@ -124,14 +128,14 @@ public:
      * Returns the time steps for which the range of values is in one of the 
      * valueIntervals.
      */
-    void GetTimeStepIntervals (
+    void GetTimeStepSelection (
 	BodyProperty::Enum bodyProperty,
 	const vector<QwtDoubleInterval>& valueIntervals,
-	vector< pair<size_t, size_t> >* timeStepIntervals) const;
-    void GetTimeStepIntervals (
+	vector<bool>* timeStepSelection) const;
+    void GetTimeStepSelection (
 	BodyProperty::Enum bodyProperty,
 	const QwtDoubleInterval& valueInterval,
-	vector< pair<size_t, size_t> >* timeStepIntervals) const;
+	vector<bool>* timeStepSelection) const;
 
 
     bool ExistsBodyProperty (
@@ -146,8 +150,6 @@ public:
     }
     void SetTimeSteps (size_t timeSteps);
     string ToString () const;
-    void SetSelected (bool selected, size_t begin, size_t end);
-
 
 private:
     /**
@@ -164,7 +166,7 @@ private:
     void calculateHistogram (size_t timeStep);
     void calculateRange ();
     void calculateRange (size_t timeStep);
-
+    void calculateMaxCountPerBin ();
 
 private:
     /**
@@ -172,13 +174,17 @@ private:
      */
     Foams m_foams;
     FoamsStatistics m_foamsStatistics;
+    /**
+     * Each element of the array corresponds to a histogram for a property.
+     * It tells us, the maximum number of values we have in a single bin.
+     */
+    vector<size_t> m_maxCountPerBinIndividual;    
     BodiesAlongTime m_bodiesAlongTime;
     /**
      * The AABox for this vector of Foam objects
      */
     G3D::AABox m_AABox;
     string m_filePattern;
-    TimeStepSelection m_timeStepSelection;
 };
 
 

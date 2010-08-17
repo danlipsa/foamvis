@@ -20,7 +20,10 @@ public:
     explicit HistogramItem(const QwtText &title);
     virtual ~HistogramItem();
 
-    void setData(const QwtIntervalData &data);
+    void setData(
+	const QwtIntervalData &data,
+	double maxValue,
+	const vector< pair<size_t, size_t> >* selectedBins);
     const QwtIntervalData &data() const;
 
     void setFocusColor(const QColor& color);

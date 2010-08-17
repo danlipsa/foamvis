@@ -7,21 +7,46 @@
 
 #include "Body.h"
 #include "Debug.h"
+#include "DebugStream.h"
 #include "Foam.h"
 #include "FoamAlongTime.h"
 #include "Utils.h"
 
 // Private Functions
 // ======================================================================
-void calculateBodyWraps (BodiesAlongTime::BodyMap::value_type& v,
-    const FoamAlongTime& foamAlongTime)
+inline void calculateBodyWraps (BodiesAlongTime::BodyMap::value_type& v,
+				const FoamAlongTime& foamAlongTime)
 {
     v.second->CalculateBodyWraps (foamAlongTime);
+}
+
+inline bool isInside (double value, double min, double max)
+{
+    return value >= min && value <= max;
+}
+
+inline bool isIntersection (double firstMin, double firstMax,
+			    double secondMin, double secondMax)
+{
+    if ((firstMax - firstMin) > (secondMax - secondMin))
+    {
+	swap (firstMin, secondMin);
+	swap (firstMax, secondMax);
+    }
+    // first interval less than or equal with the second interval
+    return 
+	isInside (firstMin, secondMin, secondMax) || 
+	isInside (firstMax, secondMin, secondMax);
 }
 
 
 // Members
 // ======================================================================
+FoamAlongTime::FoamAlongTime () :
+    m_maxCountPerBinIndividual (BodyProperty::COUNT)
+{
+}
+
 void FoamAlongTime::calculate (
     Aggregate aggregate, FoamLessThanAlong::Corner corner, G3D::Vector3& v)
 {
@@ -68,6 +93,7 @@ void FoamAlongTime::PostProcess ()
     GetBodiesAlongTime ().CalculateHistogram (*this);
     calculateRange ();
     calculateHistogram ();
+    calculateMaxCountPerBin ();
 }
 
 void FoamAlongTime::CacheBodiesAlongTime ()
@@ -188,43 +214,24 @@ void FoamAlongTime::SetTimeSteps (size_t timeSteps)
 {
     m_foams.resize (timeSteps);
     m_foamsStatistics.resize (timeSteps);
-    m_timeStepSelection.resize (timeSteps, true);
 }
 
-void FoamAlongTime::SetSelected (bool selected, size_t begin, size_t end)
-{
-    for (size_t i = begin; i < end; ++i)
-	m_timeStepSelection[i] = selected;
-}
 
-void FoamAlongTime::GetTimeStepIntervals (
+void FoamAlongTime::GetTimeStepSelection (
     BodyProperty::Enum bodyProperty,
     const vector<QwtDoubleInterval>& valueIntervals,
-    vector< pair<size_t, size_t> >* timeStepIntervals) const
+    vector<bool>* timeStepSelection) const
 {
+    timeStepSelection->resize (GetTimeSteps ());
+    fill (timeStepSelection->begin (), timeStepSelection->end (), false);
     BOOST_FOREACH (QwtDoubleInterval valueInterval, valueIntervals)
-	GetTimeStepIntervals (bodyProperty, valueInterval, timeStepIntervals);
+	GetTimeStepSelection (bodyProperty, valueInterval, timeStepSelection);
 }
 
-inline bool isInside (double value, double min, double max)
-{
-    return value >= min && value <= max;
-}
-
-inline bool isIntersection (double firstMin, double firstMax,
-			    double secondMin, double secondMax)
-{
-    return 
-	isInside (firstMin, secondMin, secondMax) || 
-	isInside (firstMax, secondMin, secondMax);
-}
-
-
-
-void FoamAlongTime::GetTimeStepIntervals (
+void FoamAlongTime::GetTimeStepSelection (
     BodyProperty::Enum bodyProperty,
     const QwtDoubleInterval& valueInterval,
-    vector< pair<size_t, size_t> >* timeStepIntervals) const
+    vector<bool>* timeStepSelection) const
 {
     const size_t INVALID = numeric_limits<size_t> ().max ();
     size_t beginRange = INVALID;
@@ -241,12 +248,32 @@ void FoamAlongTime::GetTimeStepIntervals (
 	{
 	    if (beginRange != INVALID)
 	    {
-		timeStepIntervals->push_back (
-		    pair<size_t, size_t> (beginRange, timeStep));
+		fill (timeStepSelection->begin () + beginRange, 
+		      timeStepSelection->begin () + timeStep, true);
 		beginRange = INVALID;				  
 	    }
 	}
     if (beginRange != INVALID)
-	timeStepIntervals->push_back (
-	    pair<size_t, size_t> (beginRange, GetTimeSteps ()));
+	fill (timeStepSelection->begin () + beginRange, 
+	      timeStepSelection->begin () + GetTimeSteps (), true);
+}
+
+void FoamAlongTime::calculateMaxCountPerBin ()
+{
+    for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
+	m_foamsStatistics[timeStep].CalculateMaxCountPerBin ();
+
+
+    for (size_t bodyProperty = BodyProperty::ENUM_BEGIN;
+	 bodyProperty < BodyProperty::COUNT; ++bodyProperty)
+    {
+	size_t maxCount = 0;
+	for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
+	{
+	    maxCount = max (
+		maxCount, 
+		m_foamsStatistics[timeStep].GetMaxCountPerBin (bodyProperty));
+	}
+	m_maxCountPerBinIndividual[bodyProperty] = maxCount;
+    }
 }

@@ -24,8 +24,8 @@ class MainWindow : public QWidget, private Ui::Window
 public:
     enum HistogramSelection
     {
-	KEEP,
-	DISCARD,
+	KEEP_SELECTION,
+	DISCARD_SELECTION,
 	COUNT
     };
 
@@ -51,7 +51,8 @@ public:
 	bool checked,
 	BodyProperty::Enum bodyProperty,
 	const QwtIntervalData& intervalData,
-	HistogramSelection histogramSelection = DISCARD);
+	double maxYValue,
+	HistogramSelection histogramSelection = DISCARD_SELECTION);
 
 
 public Q_SLOTS:
@@ -106,6 +107,7 @@ public Q_SLOTS:
      * at the current position of the slider.
      */
     void ValueChangedSliderData (int value);
+    void ValueChangedNone ();
 private:
     /**
      * Enables/Disables the Begin button
