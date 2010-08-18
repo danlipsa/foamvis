@@ -171,8 +171,8 @@ void printHelp ()
      * - 'svn commmit/update everyting in the current directory
      * - ./release.pl
      */
-    const size_t version = 1425;
-    cdbg << "foam version 0." << version << endl;
+    const char* version = "0.1.1425";
+    cdbg << "foam version " << version << endl;
     cdbg << "foam [OPTIONS] <dir> <filter>\n";
     cdbg << "foam [OPTIONS] <file> ...\n";
     cdbg << "where: <dir> is the folder where the data files reside\n"

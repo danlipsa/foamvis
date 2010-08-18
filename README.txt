@@ -20,9 +20,9 @@ qmake
 make
 make install
 
-Copy http://csgalati.swansea.ac.uk/foam/libs/foam-0.1422.tgz to ~
+Copy http://csgalati.swansea.ac.uk/foam/libs/foam-0.1.1422.tgz to ~
 cd ~
-tar xzf foam-0.1422.tgz
+tar xzf foam-0.1.1422.tgz
 cd foam
 qmake
 make
@@ -64,3 +64,20 @@ qt-4.6.2, bison-2.3, flex-2.5.35, boost-1.39, gcc-4.2.1
 ----------------------------------------------------------------------
 - comment out 
 - "qmake -spec macx-g++";make
+
+
+Release log
+===========
+0.1
+	- parsing 2D and 3D dmp files
+	- support for torus model
+	- support for quadratic model
+	- display edges, faces and center paths
+	- body attributes supported: volume, pressure, 
+	       velocity (magnitude, x,y,z)
+	- color faces based on values of attributes
+	- color center paths based on values of attributes
+	- histogram of values of attributes
+	- histogram selection resulting in selection of time steps in the 
+	  face view
+
