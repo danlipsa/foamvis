@@ -169,7 +169,7 @@ void printHelp ()
      * - 'svn commmit/update everyting in the current directory
      * - ./release.pl
      */
-    const size_t version = 1419;
+    const size_t version = 1422;
     cdbg << "foam version 0." << version << endl;
     cdbg << "foam [OPTIONS] <dir> <filter>\n";
     cdbg << "foam [OPTIONS] <file> ...\n";
