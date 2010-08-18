@@ -120,7 +120,8 @@ float FoamAlongTime::GetBodyProperty (
     if (property >= BodyProperty::VELOCITY_BEGIN &&
 	property < BodyProperty::VELOCITY_END)
     {
-	if (timeStep == m_foams.size () - 1)
+	if (timeStep == GetBodiesAlongTime ().GetBodyAlongTime (bodyId).
+	    GetBodies ().size () - 1)
 	    --timeStep;
 	StripIterator it (bat, *this, timeStep);
 	RuntimeAssert (it.HasNext (),
@@ -143,7 +144,9 @@ bool FoamAlongTime::ExistsBodyProperty (
     if (property >= BodyProperty::VELOCITY_BEGIN &&
 	property < BodyProperty::VELOCITY_END)
     {
-	if (GetTimeSteps () < 2)
+	if (timeStep == 0 && 
+	    GetBodiesAlongTime ().GetBodyAlongTime (bodyId).
+	    GetBodies ().size () == 1)
 	    return false;
 	else
 	    return true;

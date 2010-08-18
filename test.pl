@@ -12,7 +12,8 @@ my @tests =
      "coarse_62/summary_62_0377_sph_free.dmp",
      "straight_5x2q_2per/straightq_2per_10_0001.dmp",
      "straight_6x2q_2/straightq_2_12_0001.dmp",
-     "sphereall/sphere_0.711204_144_0001.dmp");
+     "sphereall/sphere_0.711204_144_0001.dmp",
+     "cststress_vfm/cststress_16_0001.dmp");
 
 sub main ()
 {

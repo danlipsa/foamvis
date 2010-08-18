@@ -32,7 +32,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
 
     widgetGl->SetFoamAlongTime (&foamAlongTime);
     widgetGl->SetColorMap (0, 0);
-    widgetHistogram->setVisible (false);
+    widgetHistogram->setHidden (true);
     updateStatus ();
     m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
     configureInterface (foamAlongTime);
@@ -123,14 +123,14 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
     {
 	radioButtonEdgesNormal->toggle ();
 	tabWidget->setCurrentWidget (edges);
-	widgetAngleOfView->setEnabled (false);
+	widgetAngleOfView->setDisabled (true);
     }
     else
     {
 	radioButtonFacesNormal->toggle ();
 	tabWidget->setCurrentWidget (faces);
     }
-    scaleWidgetColorBar->setVisible (false);
+    scaleWidgetColorBar->setHidden (true);
     comboBoxCenterPathColor->setCurrentIndex (BodyProperty::NONE);
     comboBoxFacesColor->setCurrentIndex (BodyProperty::NONE);
 }
@@ -190,19 +190,19 @@ void MainWindow::updateStatus ()
 void MainWindow::enableBegin ()
 {
     if (sliderData->value () > sliderData->minimum ())
-        toolButtonBegin->setDisabled (false);
+        toolButtonBegin->setEnabled (true);
 }
 
 void MainWindow::enableEnd ()
 {
     if (sliderData->value () < sliderData->maximum ())
-        toolButtonEnd->setDisabled (false);
+        toolButtonEnd->setEnabled (true);
 }
 
 void MainWindow::enablePlay ()
 {
     if (sliderData->value () < sliderData->maximum ())
-        toolButtonPlay->setDisabled (false);
+        toolButtonPlay->setEnabled (true);
 }
 
 
@@ -434,6 +434,7 @@ void MainWindow::displayHistogramColorBar (bool checked)
 
 void MainWindow::ToggledCenterPath (bool checked)
 {
+    widgetGl->ToggledCenterPath (checked);
     if (checked)
     {
 	fieldsToControls (comboBoxCenterPathColor, checkBoxCenterPathHistogram);
@@ -443,11 +444,11 @@ void MainWindow::ToggledCenterPath (bool checked)
     else
 	stackedWidgetComposite->setCurrentWidget (pageCompositeEmpty);
     displayHistogramColorBar (checked);
-    widgetGl->ToggledCenterPath (checked);
 }
 
 void MainWindow::ToggledFacesNormal (bool checked)
 {
+    widgetGl->ToggledFacesNormal (checked);
     if (checked)
     {
 	fieldsToControls (comboBoxFacesColor, checkBoxFacesHistogram);
@@ -457,7 +458,6 @@ void MainWindow::ToggledFacesNormal (bool checked)
     else
 	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
     displayHistogramColorBar (checked);
-    widgetGl->ToggledFacesNormal (checked);
 }
 
 
@@ -488,9 +488,9 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
     {
 	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
 	widgetGl->SetColorMap (0, 0);
-	checkBoxFacesHistogram->setVisible (false);
-	scaleWidgetColorBar->setVisible (false);
-	widgetHistogram->setVisible (false);
+	checkBoxFacesHistogram->setHidden (true);
+	scaleWidgetColorBar->setHidden (true);
+	widgetHistogram->setHidden (true);
     }
     else
     {
@@ -518,9 +518,9 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
     if (bodyProperty == BodyProperty::NONE)
     {
 	widgetGl->SetColorMap (0, 0);
-	checkBoxCenterPathHistogram->setVisible (false);
-	scaleWidgetColorBar->setVisible (false);
-	widgetHistogram->setVisible (false);
+	checkBoxCenterPathHistogram->setHidden (true);
+	scaleWidgetColorBar->setHidden (true);
+	widgetHistogram->setHidden (true);
     }
     else
     {
@@ -574,7 +574,7 @@ void MainWindow::SetAndDisplayHistogram (
 {
     if (! checked)
     {
-	widgetHistogram->setVisible (false);
+	widgetHistogram->setHidden (true);
 	return;
     }
 

@@ -164,7 +164,7 @@ void readOptions (
 void printHelp ()
 {
     cdbg << "foam [OPTIONS] <dir> <filter>\n";
-    cdbg << "foam [OPTIONS] <file>\n";
+    cdbg << "foam [OPTIONS] <file> ...\n";
     cdbg << "where: <dir> is the folder where the data files reside\n"
 	 << "       <filter> is filter for the name of "
 	"the data files\n"
@@ -182,26 +182,27 @@ void parseFiles (int argc, char *argv[],
     QDir dir;
     QStringList files;
     string filePattern;
-    switch (argc - optind)
+    QFileInfo fileInfo (argv[optind]);
+    if (fileInfo.isDir ())
     {
-    case 1:
+	if (argc - optind == 2)
+	{
+	    dir = QDir(argv[optind], argv[optind + 1]);
+	    filePattern = argv[optind + 1];
+	    files = dir.entryList ();
+	}
+	else
+	{
+	    printHelp ();
+	    exit (13);
+	}
+    }
+    else
     {
-	QFileInfo fileInfo (argv[optind]);
 	dir = fileInfo.absoluteDir ();
-	files << fileInfo.fileName ();
-	filePattern = string (fileInfo.fileName ().toAscii ());
-	break;
-    }
-    case 2:
-    {
-	dir = QDir(argv[optind], argv[optind + 1]);
-	filePattern = argv[optind + 1];
-	files = dir.entryList ();
-	break;
-    }
-    default:
-	printHelp ();
-	exit (13);
+	for (int i = optind; i < argc; ++i)
+	    files << QFileInfo(argv[i]).fileName ();
+	filePattern = string(dir.canonicalPath ().toAscii ());
     }
 
     foamAlongTime->SetTimeSteps (files.size ());

@@ -307,7 +307,7 @@
              <item>
               <widget class="QStackedWidget" name="stackedWidgetEdges">
                <property name="currentIndex">
-                <number>0</number>
+                <number>1</number>
                </property>
                <widget class="QWidget" name="pageEdgesEmpty"/>
                <widget class="QWidget" name="pageEdgesNormal">
@@ -323,6 +323,9 @@
                   <widget class="QCheckBox" name="checkBoxEdgesTessellation">
                    <property name="text">
                     <string>Tessellation Edges</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>

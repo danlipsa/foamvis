@@ -157,7 +157,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_edgesTorusTubes (false),
       m_facesTorusTubes (false),
       m_edgesBodyCenter (false),
-      m_edgesTessellation (false),
+      m_edgesTessellation (true),
       m_centerPathDisplayBody (false),
       m_boundingBox (false),
       m_centerPathColor (BodyProperty::NONE),
