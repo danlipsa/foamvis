@@ -163,6 +163,8 @@ void readOptions (
 
 void printHelp ()
 {
+    
+    cdbg << "foam version " << version << endl;
     cdbg << "foam [OPTIONS] <dir> <filter>\n";
     cdbg << "foam [OPTIONS] <file> ...\n";
     cdbg << "where: <dir> is the folder where the data files reside\n"
@@ -191,6 +193,11 @@ void parseFiles (int argc, char *argv[],
     QStringList files;
     string filePattern;
     QFileInfo fileInfo (argv[optind]);
+    if (argc - optind == 0)
+    {
+	    printHelp ();
+	    exit (13);
+    }
     if (fileInfo.isDir ())
     {
 	if (argc - optind == 2)
