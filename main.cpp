@@ -171,7 +171,7 @@ void printHelp ()
      * - 'svn commmit/update everyting in the current directory
      * - ./release.pl
      */
-    const char* version = "0.1.1425";
+    const char* version = "0.1.1427";
     cdbg << "foam version " << version << endl;
     cdbg << "foam [OPTIONS] <dir> <filter>\n";
     cdbg << "foam [OPTIONS] <file> ...\n";

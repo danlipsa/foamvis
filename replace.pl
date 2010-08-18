@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 use File::Copy;
+use strict;
+use warnings;
+
 
 sub replace
 {
