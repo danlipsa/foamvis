@@ -175,6 +175,14 @@ void printHelp ()
 	 << "       -t : outputs a text representation of the data\n";
 }
 
+QString lastName (const QString& path)
+{
+    int slashPos = path.lastIndexOf ('/');
+    QString ret = path;
+    return ret.remove (0, slashPos + 1);
+}
+
+
 void parseFiles (int argc, char *argv[],
 		 FoamAlongTime* foamAlongTime,
 		 bool debugParsing, bool debugScanning)
@@ -188,7 +196,9 @@ void parseFiles (int argc, char *argv[],
 	if (argc - optind == 2)
 	{
 	    dir = QDir(argv[optind], argv[optind + 1]);
-	    filePattern = argv[optind + 1];
+	    filePattern = string(
+		(lastName (dir.absolutePath ()) + '/' + 
+		 argv[optind + 1]).toAscii ());
 	    files = dir.entryList ();
 	}
 	else
@@ -202,7 +212,9 @@ void parseFiles (int argc, char *argv[],
 	dir = fileInfo.absoluteDir ();
 	for (int i = optind; i < argc; ++i)
 	    files << QFileInfo(argv[i]).fileName ();
-	filePattern = string(dir.canonicalPath ().toAscii ());
+	filePattern = string (
+	    (lastName (dir.absolutePath ()) + 
+	     '/' + fileInfo.fileName ()).toAscii ());
     }
 
     foamAlongTime->SetTimeSteps (files.size ());

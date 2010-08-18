@@ -170,6 +170,7 @@ class AttributeCreator;
 %token CLIP_COEFF "CLIP_COEFF"
 %token AREA_NORMALIZATION "AREA_NORMALIZATION"
 %token MODULUS "MODULUS"
+%token SUPPRESS_WARNING "SUPPRESS_WARNING"
 
  // terminal symbols
 %token <m_int> INTEGER_VALUE
@@ -300,6 +301,8 @@ header
 | header view_transform_generators
 | header integral_order_1d nlplus
 | header toggle nlplus
+| header suppress_warning nlplus
+| header array nlplus
 ;
 
 nl: '\n'
@@ -313,6 +316,38 @@ nlstar
 nlplus
 : nlplus nl 
 | nl
+;
+
+suppress_warning
+: SUPPRESS_WARNING INTEGER_VALUE
+;
+
+array
+: DEFINE IDENTIFIER number_type array_dimensions array_rest
+;
+
+array_dimensions
+: array_dimension 
+| array_dimensions array_dimension
+;
+
+array_dimension
+: '[' INTEGER_VALUE ']'
+;
+
+array_rest
+: /* empty */
+| '=' nlstar array_initializer
+;
+
+array_initializer
+: number
+| '{' array_initializer array_initializer_rest '}'
+;
+
+array_initializer_rest
+: /* empty */
+| ',' array_initializer
 ;
 
 toggle
@@ -778,6 +813,11 @@ number
 {
     $$ = $1;
 }
+
+number_type
+: INTEGER_TYPE
+| REAL_TYPE
+;
 
 torus_domain
 : torus_type nlplus torus_periods

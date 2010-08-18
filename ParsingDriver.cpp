@@ -134,7 +134,8 @@ const char* ParsingDriver::KEYWORD_TABLE[] = {
     "DENSITY",
     "CLIP_COEFF",
     "AREA_NORMALIZATION",
-    "MODULUS"
+    "MODULUS",
+    "SUPPRESS_WARNING"
 };
 
 int ParsingDriver::GetKeywordId (char* keyword)
