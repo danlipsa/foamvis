@@ -1,9 +1,10 @@
-Prerequisites
-=============
+Compiling
+=========
 Linux
 -----
-Install using your system utility (yum, yast, ...): 
-	libqt4-devel, boost-devel, bison, flex
+Install using your system installation utility (yum, yast2, ...)
+libqt4-devel, boost-devel, bison, flex 
+
 Copy
 http://csgalati.swansea.ac.uk/foam/libs/G3D-20100524.tgz to /usr/local
 cd /usr/local
@@ -19,13 +20,23 @@ qmake
 make
 make install
 
-
-
+Copy http://csgalati.swansea.ac.uk/foam/libs/foam-0.1422.tgz to ~
+cd ~
+tar xzf foam-0.1422.tgz
+cd foam
+qmake
+make
 
 Running
 =======
 ./foam ~/Documents/swansea-phd/foam/ctrctn dump_0.1520_0.2400_8.0000_0*.dmp
+
+Generating a movie
+==================
+Check 'Save movie' check box.
+Interact with the program
 ./movie.sh
+This will generate a file called 'foamMovie.mp4'
 
 
 Prerequisites
