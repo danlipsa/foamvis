@@ -1,4 +1,7 @@
 #!/usr/bin/perl
+use strict;
+use warnings;
+
 use File::Copy;
 print 'replacing _(';
 open (my $in, "<", "foam.vcproj")

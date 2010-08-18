@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+use strict;
+use warnings;
 
 do "replace.pl";
 my @args = ("flex", @ARGV);
