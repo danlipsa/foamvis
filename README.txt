@@ -1,5 +1,5 @@
-Getting prerequisites
-=====================
+Prerequisites
+=============
 Linux
 -----
 Install using your system utility (yum, yast, ...): 
@@ -18,6 +18,7 @@ cd ~
 qmake
 make
 make install
+
 
 
 
