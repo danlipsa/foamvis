@@ -18,6 +18,8 @@
  * This project visualizes and helps gaining insights into foam
  * simulation data produced by Surface Evolver.
  *
+ * \verbinclude README.txt
+ *
  * \section torus_sec Processing done for the Torus model
  * \subsection onedge_sec Executed when creating an edge (may create
  * duplicate vertices)
@@ -169,7 +171,7 @@ void printHelp ()
      * - 'svn commmit/update everyting in the current directory
      * - ./release.pl
      */
-    const size_t version = 1424;
+    const size_t version = 1425;
     cdbg << "foam version 0." << version << endl;
     cdbg << "foam [OPTIONS] <dir> <filter>\n";
     cdbg << "foam [OPTIONS] <file> ...\n";
