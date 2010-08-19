@@ -1,5 +1,5 @@
 HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h \
-	AttributeHistogram.h Body.h \
+	AttributeHistogram.h AttributeHistogramHeight.h Body.h \
 	BodyAlongTime.h BodyIndex.h BodySetStatistics.h \
 	ColoredElement.h Comparisons.h \
 	Debug.h DebugStream.h \
@@ -30,7 +30,7 @@ SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	ParsingData.cpp ParsingDriver.cpp ProcessBodyTorus.cpp \
 	QuadraticEdge.cpp RestrictedRangeSlider.cpp\
 	StripIterator.cpp Utils.cpp Vertex.cpp 
-FORMS += Window.ui
+FORMS += Window.ui AttributeHistogramHeight.ui
 LEXSOURCES += EvolverData.l
 YACCSOURCES += EvolverData.y
 QMAKE_YACC = .\/bison.pl -y --report=state --debug

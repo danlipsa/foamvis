@@ -261,6 +261,7 @@ void HistogramItem::drawXy (
 	    }
 	}
     }
+
     drawBar(painter, Qt::Vertical,
 	    QRect(x1, y0, x2 - x1, y2 - y0) );    
 }

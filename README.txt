@@ -68,7 +68,7 @@ qt-4.6.2, bison-2.3, flex-2.5.35, boost-1.39, gcc-4.2.1
 
 Release log
 ===========
-0.1
+0.1.1427
 	- parsing 2D and 3D dmp files
 	- support for torus model
 	- support for quadratic model

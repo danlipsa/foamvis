@@ -7,11 +7,15 @@
  */
 
 #include "AttributeHistogram.h"
+#include "AttributeHistogramHeight.h"
 #include "Enums.h"
 
 AttributeHistogram::AttributeHistogram (QWidget* parent) :
     Histogram (parent)
 {
+    createActions ();
+    m_attributeHistogramHeight = 
+	boost::make_shared<AttributeHistogramHeight> (this);
 }
 
 void AttributeHistogram::SetActionSelectAll (
@@ -35,6 +39,7 @@ void AttributeHistogram::contextMenuEvent(QContextMenuEvent *event)
     QMenu menu (this);
     menu.addAction (m_actionSelectAll.get ());
     menu.addAction (m_actionDeselectAll.get ());
+    menu.addAction (m_actionAdjustHeight.get ());
     menu.exec (event->globalPos());
 }
 
@@ -47,6 +52,15 @@ void AttributeHistogram::DeselectAll ()
 {
     SetSelected (false);
 }
+
+void AttributeHistogram::AdjustHeight ()
+{
+    if (m_attributeHistogramHeight->exec () == QDialog::Accepted)
+    {
+	
+    }
+}
+
 
 void AttributeHistogram::CurrentIndexChangedInteractionMode (int index)
 {
@@ -64,4 +78,13 @@ void AttributeHistogram::CurrentIndexChangedInteractionMode (int index)
     }
     else
 	EnableSelection (false);
+}
+
+void AttributeHistogram::createActions ()
+{
+    m_actionAdjustHeight = boost::make_shared<QAction> (
+	tr("&Adjust Height"), this);
+    m_actionAdjustHeight->setStatusTip(tr("Adjust Height"));
+    connect(m_actionAdjustHeight.get (), SIGNAL(triggered()),
+	    this, SLOT(AdjustHeight ()));
 }
