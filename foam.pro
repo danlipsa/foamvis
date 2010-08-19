@@ -16,7 +16,8 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h \
 	stable.h StripIterator.h SystemDifferences.h Utils.h \
 	Vertex.h
 SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
-	AttributeHistogram.cpp Body.cpp BodyAlongTime.cpp BodyIndex.cpp \
+	AttributeHistogram.cpp AttributeHistogramHeight.cpp \
+	Body.cpp BodyAlongTime.cpp BodyIndex.cpp \
 	BodySetStatistics.cpp \
 	ColoredElement.cpp Comparisons.cpp \
 	Debug.cpp DebugStream.cpp DisplayWidget.cpp Edge.cpp \

@@ -15,11 +15,36 @@ class AttributeHistogramHeight :
     public QDialog, private Ui::AttributeHistogramHeight
 {
 public:
-    AttributeHistogramHeight (QWidget* parent) :
-	QDialog (parent)
+    enum Height
     {
-	setupUi (this);
+	MAXIMUM_TIME_STEPS,
+	CURRENT_TIME_STEP,
+	OTHER_VALUE
+    };
+
+public:
+    AttributeHistogramHeight (QWidget* parent);
+
+    Height GetHeight () const
+    {
+	return m_height;
     }
+
+    double GetOtherValue () const
+    {
+	return m_otherValue;
+    }
+
+public Q_SLOTS:
+    void ToggledMaximumTimeSteps (bool checked);
+    void ToggledCurrentTimeStep (bool checked);
+    void ToggleOtherValue (bool checked);
+    void EditingFinishedOtherValue ();
+
+private:
+    Q_OBJECT
+    Height m_height;
+    double m_otherValue;
 };
 
 #endif //__ATTRIBUTE_HISTOGRAM_HEIGHT_H__
