@@ -1,5 +1,5 @@
-Compiling
-=========
+Compile
+=======
 Linux
 -----
 Install using your system installation utility (yum, yast2, ...)
@@ -20,23 +20,28 @@ qmake
 make
 make install
 
-Copy http://csgalati.swansea.ac.uk/foam/build/foam-0.1.1422.tgz to ~
+Copy http://csgalati.swansea.ac.uk/foam/build/foam-<version>.tgz to ~
 cd ~
-tar xzf foam-0.1.1422.tgz
+tar xzf foam-<version>.tgz
 cd foam
 qmake
 make
 
-Running
-=======
+Run
+===
 ./foam ~/Documents/swansea-phd/foam/ctrctn dump_0.1520_0.2400_8.0000_0*.dmp
 
-Generating a movie
-==================
+Generate a movie
+================
 Check 'Save movie' check box.
 Interact with the program
 ./movie.sh
 This will generate a file called 'foamMovie.mp4'
+
+Release
+=======
+Commit everything. Make sure ./svnversion reports one version
+release.pl; make distclean;cd ..;tar czf foam-<version>.tgz foam
 
 
 Prerequisites
@@ -81,3 +86,6 @@ Release log
 	- histogram selection resulting in selection of time steps in the 
 	  face view
 
+0.1.1432
+	- Added user option to adjust the height of a histogram.
+	- Fixed histogram for center path
