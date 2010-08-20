@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>251</width>
-    <height>246</height>
+    <height>188</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,22 +21,9 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QRadioButton" name="radioButtonMaximumTimeSteps">
+       <widget class="QRadioButton" name="radioButtonMaximumValue">
         <property name="text">
-         <string>Maximum for all time steps</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-        <attribute name="buttonGroup">
-         <string>buttonGroup</string>
-        </attribute>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="radioButtonCurrentTimeStep">
-        <property name="text">
-         <string>Value for current time step</string>
+         <string>Maximum Value</string>
         </property>
         <attribute name="buttonGroup">
          <string>buttonGroup</string>
@@ -53,9 +40,12 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QRadioButton" name="radioButtonOtherValues">
+          <widget class="QRadioButton" name="radioButtonValue">
            <property name="text">
-            <string>Other Value</string>
+            <string>Value</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
            <attribute name="buttonGroup">
             <string>buttonGroup</string>
@@ -63,7 +53,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEditOtherValue"/>
+          <widget class="LineEditFocus" name="lineEditValue"/>
          </item>
         </layout>
        </widget>
@@ -96,6 +86,22 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LineEditFocus</class>
+   <extends>QLineEdit</extends>
+   <header>LineEditFocus.h</header>
+   <slots>
+    <signal>focusIn()</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>radioButtonMaximumValue</tabstop>
+  <tabstop>radioButtonValue</tabstop>
+  <tabstop>lineEditValue</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -105,8 +111,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>244</x>
-     <y>241</y>
+     <x>241</x>
+     <y>236</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -121,8 +127,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>244</x>
-     <y>241</y>
+     <x>241</x>
+     <y>236</y>
     </hint>
     <hint type="destinationlabel">
      <x>250</x>
@@ -131,30 +137,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioButtonMaximumTimeSteps</sender>
+   <sender>radioButtonMaximumValue</sender>
    <signal>toggled(bool)</signal>
    <receiver>AttributeHistogramHeight</receiver>
-   <slot>ToggledMaximumTimeSteps(bool)</slot>
+   <slot>ToggledMaximumValue(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>126</x>
-     <y>41</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>5</x>
-     <y>49</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonCurrentTimeStep</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>AttributeHistogramHeight</receiver>
-   <slot>ToggledCurrentTimeStep(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>71</x>
-     <y>62</y>
+     <x>91</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
      <x>5</x>
@@ -163,14 +153,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioButtonOtherValues</sender>
+   <sender>radioButtonValue</sender>
    <signal>toggled(bool)</signal>
    <receiver>AttributeHistogramHeight</receiver>
-   <slot>ToggledOtherValue(bool)</slot>
+   <slot>ToggledValue(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>80</x>
-     <y>88</y>
+     <x>100</x>
+     <y>115</y>
     </hint>
     <hint type="destinationlabel">
      <x>6</x>
@@ -179,10 +169,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>lineEditOtherValue</sender>
+   <sender>lineEditValue</sender>
    <signal>editingFinished()</signal>
    <receiver>AttributeHistogramHeight</receiver>
-   <slot>EditingFinishedOtherValue()</slot>
+   <slot>EditingFinishedValue()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>147</x>
@@ -194,12 +184,45 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>lineEditValue</sender>
+   <signal>focusIn()</signal>
+   <receiver>AttributeHistogramHeight</receiver>
+   <slot>FocusInValue()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>196</x>
+     <y>103</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1</x>
+     <y>172</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEditValue</sender>
+   <signal>focusIn()</signal>
+   <receiver>lineEditValue</receiver>
+   <slot>selectAll()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>211</x>
+     <y>106</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>203</x>
+     <y>112</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>ToggledMaximumTimeSteps(bool)</slot>
-  <slot>ToggledCurrentTimeStep(bool)</slot>
-  <slot>ToggledOtherValue(bool)</slot>
-  <slot>EditingFinishedOtherValue()</slot>
+  <slot>ToggledMaximumValue(bool)</slot>
+  <slot>ToggledValue(bool)</slot>
+  <slot>EditingFinishedValue()</slot>
+  <slot>FocusInValue()</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroup"/>

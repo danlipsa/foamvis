@@ -55,10 +55,10 @@ void AttributeHistogram::DeselectAll ()
 
 void AttributeHistogram::AdjustHeight ()
 {
+    m_attributeHistogramHeight->SetValue (GetAxisMaxValue ());
+    m_attributeHistogramHeight->SetMaximumValue (GetDataMaxValue ());
     if (m_attributeHistogramHeight->exec () == QDialog::Accepted)
-    {
-	
-    }
+	SetAxisMaxValue (m_attributeHistogramHeight->GetValue ());
 }
 
 

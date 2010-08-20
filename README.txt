@@ -6,7 +6,7 @@ Install using your system installation utility (yum, yast2, ...)
 libqt4-devel, boost-devel, bison, flex 
 
 Copy
-http://csgalati.swansea.ac.uk/foam/libs/G3D-20100524.tgz to /usr/local
+http://csgalati.swansea.ac.uk/foam/build/G3D-20100524.tgz to /usr/local
 cd /usr/local
 tar xzf G3D-20100524.tgz
 mv G3D G3D-20100524
@@ -14,13 +14,13 @@ cd G3D-20100524
 ./buildg3d
 
 
-Copy http://csgalati.swansea.ac.uk/foam/libs/qwt-5.2.1.tgz to ~
+Copy http://csgalati.swansea.ac.uk/foam/build/qwt-5.2.1.tgz to ~
 cd ~
 qmake
 make
 make install
 
-Copy http://csgalati.swansea.ac.uk/foam/libs/foam-0.1.1422.tgz to ~
+Copy http://csgalati.swansea.ac.uk/foam/build/foam-0.1.1422.tgz to ~
 cd ~
 tar xzf foam-0.1.1422.tgz
 cd foam

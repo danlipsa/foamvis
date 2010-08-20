@@ -86,12 +86,20 @@ void Histogram::SetData (
     const QwtIntervalData& intervalData, double maxValue,
     const vector< pair<size_t, size_t> >* selectedBins)
 {
+    m_axisMaxValue = maxValue;
     m_histogramItem.setData(intervalData, maxValue, selectedBins);
-    setAxisScale(QwtPlot::yLeft, 0.0, double(maxValue));
+    setAxisScale(QwtPlot::yLeft, 0.0, maxValue);
     setAxisScale(
 	QwtPlot::xBottom,
 	intervalData.interval (0).minValue (),
 	intervalData.interval (intervalData.size () - 1).maxValue ());
+}
+
+void Histogram::SetAxisMaxValue (size_t axisMaxValue)
+{
+    m_axisMaxValue = axisMaxValue;
+    m_histogramItem.setMaxValue (axisMaxValue);
+    setAxisScale(QwtPlot::yLeft, 0.0, axisMaxValue);
 }
 
 void Histogram::EnableSelection (bool enable)
@@ -105,3 +113,8 @@ void Histogram::GetSelectedIntervals (
     m_histogramItem.getSelectedIntervals (intervals);
 }
 
+size_t Histogram::GetDataMaxValue () const
+{
+    QwtDoubleRect rect = m_histogramItem.boundingRect ();
+    return rect.y () + rect.height ();
+}

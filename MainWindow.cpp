@@ -369,15 +369,18 @@ void MainWindow::ValueChangedSliderData (int timeStep)
 {
     BodyProperty::Enum bodyProperty = 
 	BodyProperty::FromSizeT (comboBoxFacesColor->currentIndex ());
-    if (widgetHistogram->isVisible ())
+    if (widgetHistogram->isVisible () && 
+	radioButtonFacesNormal->isChecked ())
     {
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
+	
 	SetAndDisplayHistogram (
 	    checkBoxFacesHistogram->isChecked (),
 	    bodyProperty,
 	    foamAlongTime.GetHistogram (bodyProperty, timeStep), 
-	    foamAlongTime.GetMaxCountPerBinIndividual (bodyProperty),
-	    KEEP_SELECTION);
+	    0,
+	    KEEP_SELECTION,
+	    KEEP_MAX_VALUE);
     }
     widgetGl->ValueChangedSliderData (timeStep);
     updateButtons ();
@@ -551,7 +554,7 @@ void MainWindow::ToggledCenterPathHistogram (bool checked)
     SetAndDisplayHistogram (
 	checked, m_bodyProperty,
 	foamAlongTime.GetHistogram (m_bodyProperty),
-	foamAlongTime.GetMaxCountPerBinIndividual (m_bodyProperty));
+	foamAlongTime.GetMaxCountPerBin (m_bodyProperty));
 }
 
 void MainWindow::ToggledFacesHistogram (bool checked)
@@ -570,7 +573,8 @@ void MainWindow::SetAndDisplayHistogram (
     BodyProperty::Enum bodyProperty,
     const QwtIntervalData& intervalData,
     double maxYValue,
-    HistogramSelection histogramSelection)
+    HistogramSelection histogramSelection,
+    MaxValueOperation maxValueOperation)
 {
     if (! checked)
     {
@@ -579,6 +583,8 @@ void MainWindow::SetAndDisplayHistogram (
     }
 
     widgetHistogram->setVisible (true);
+    if (maxValueOperation == KEEP_MAX_VALUE)
+	maxYValue = widgetHistogram->GetAxisMaxValue ();
     if (histogramSelection == KEEP_SELECTION)
     {
 	vector< pair<size_t, size_t> > selectedBins;

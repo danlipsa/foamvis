@@ -91,6 +91,7 @@ void FoamAlongTime::PostProcess ()
     calculateBodyWraps ();
     GetBodiesAlongTime ().CalculateRange (*this);
     GetBodiesAlongTime ().CalculateHistogram (*this);
+    GetBodiesAlongTime ().CalculateMaxCountPerBin ();
     calculateRange ();
     calculateHistogram ();
     calculateMaxCountPerBin ();

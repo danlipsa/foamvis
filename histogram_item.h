@@ -24,6 +24,7 @@ public:
 	const QwtIntervalData &data,
 	double maxValue,
 	const vector< pair<size_t, size_t> >* selectedBins);
+    void setMaxValue (double maxValue);
     const QwtIntervalData &data() const;
 
     void setFocusColor(const QColor& color);

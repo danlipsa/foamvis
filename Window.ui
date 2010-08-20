@@ -249,7 +249,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="edges">
             <attribute name="title">
@@ -307,7 +307,7 @@
              <item>
               <widget class="QStackedWidget" name="stackedWidgetEdges">
                <property name="currentIndex">
-                <number>1</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="pageEdgesEmpty"/>
                <widget class="QWidget" name="pageEdgesNormal">
@@ -422,7 +422,7 @@
              <item>
               <widget class="QStackedWidget" name="stackedWidgetFaces">
                <property name="currentIndex">
-                <number>0</number>
+                <number>2</number>
                </property>
                <widget class="QWidget" name="pageFacesEmpty"/>
                <widget class="QWidget" name="pageFacesTorus">

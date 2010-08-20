@@ -23,7 +23,7 @@ public:
 
 public:
     Histogram (QWidget* parent = 0);
-    void SetData (const QwtIntervalData& intervalData, double maxYValue,
+    void SetData (const QwtIntervalData& intervalData, double maxValue,
 		  const vector< pair<size_t, size_t> >* selectedBins = 0);
     void SetSelected (bool selected);
     void SetSelectionTool (SelectionTool selectionTool)
@@ -37,6 +37,12 @@ public:
     {
 	m_histogramItem.getSelectedBins (intervals, selected);
     }
+    size_t GetAxisMaxValue () const
+    {
+	return m_axisMaxValue;
+    }
+    void SetAxisMaxValue (size_t axisMaxValue);
+    size_t GetDataMaxValue () const;
 
 public Q_SLOTS:
     void SelectionPointMoved (const QPoint& pos);
@@ -58,6 +64,7 @@ private:
     QwtPlotPicker m_plotPicker;
     size_t m_beginBinSelection;
     SelectionTool m_selectionTool;
+    size_t m_axisMaxValue;
 };
 
 

@@ -8,7 +8,7 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h \
 	Edge.h Element.h ExpressionTree.h Enums.h\
 	Foam.h FoamAlongTime.h Face.h \
 	GLWidget.h Hashes.h Histogram.h histogram_item.h\
-	MainWindow.h NameSemanticValue.h \
+	LineEditFocus.h MainWindow.h NameSemanticValue.h \
 	OOBox.h OrientedElement.h\
 	OrientedEdge.h OrientedFace.h OrientedFaceIndex.h \
 	ParsingData.h ParsingDriver.h ProcessBodyTorus.h \

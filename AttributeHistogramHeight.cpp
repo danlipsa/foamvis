@@ -8,30 +8,49 @@
 
 #include "AttributeHistogramHeight.h"
 
-AttributeHistogramHeight::AttributeHistogramHeight (QWidget* parent) :
-    QDialog (parent)
+AttributeHistogramHeight::AttributeHistogramHeight (QWidget* parent) :    
+    QDialog (parent), 
+    m_validator (0, numeric_limits<int> ().max (), this),
+    m_maximumValue (0)
 {
     setupUi (this);
+    lineEditValue->setValidator (&m_validator);
+    setValue (0);
+    
 }
 
-void AttributeHistogramHeight::ToggledMaximumTimeSteps (bool checked)
+void AttributeHistogramHeight::ToggledMaximumValue (bool checked)
 {
     if (checked)
-	m_height = MAXIMUM_TIME_STEPS;
+	setValue (m_maximumValue);
 }
 
-void AttributeHistogramHeight::ToggledCurrentTimeStep (bool checked)
+void AttributeHistogramHeight::ToggledValue (bool checked)
 {
     if (checked)
-	m_height = CURRENT_TIME_STEP;
+	lineEditValue->setFocus ();
 }
 
-void AttributeHistogramHeight::ToggleOtherValue (bool checked)
+void AttributeHistogramHeight::EditingFinishedValue ()
 {
-    if (checked)
-	m_height = OTHER_VALUE;
+    m_value = lineEditValue->text ().toInt();
 }
 
-void AttributeHistogramHeight::EditingFinishedOtherValue ()
+void AttributeHistogramHeight::FocusInValue ()
 {
+    radioButtonValue->setChecked (true);
+}
+
+void AttributeHistogramHeight::setValue (size_t value)
+{
+    m_value = value;
+    QString s;
+    s.setNum (value);
+    lineEditValue->setText (s);
+}
+
+void AttributeHistogramHeight::SetValue (size_t value)
+{
+    setValue (value);
+    radioButtonValue->setChecked (true);
 }

@@ -101,6 +101,10 @@ public:
     {
 	return m_maxCountPerBinIndividual[bodyProperty];
     }
+    size_t GetMaxCountPerBin (size_t bodyProperty) const
+    {
+	return GetBodiesAlongTime ().GetMaxCountPerBin (bodyProperty);
+    }
 
     float GetMin (BodyProperty::Enum bodyProperty) const
     {

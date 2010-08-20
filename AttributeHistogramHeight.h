@@ -15,37 +15,38 @@ class AttributeHistogramHeight :
     public QDialog, private Ui::AttributeHistogramHeight
 {
 public:
-    enum Height
-    {
-	MAXIMUM_TIME_STEPS,
-	CURRENT_TIME_STEP,
-	OTHER_VALUE
-    };
-
-public:
     AttributeHistogramHeight (QWidget* parent);
 
-    Height GetHeight () const
+    size_t GetValue () const
     {
-	return m_height;
+	return m_value;
     }
-
-    double GetOtherValue () const
+    void SetValue (size_t value);
+    void SetMaximumValue (size_t currentTimeStepValue)
     {
-	return m_otherValue;
+	m_maximumValue = currentTimeStepValue;
+    }
+    size_t GetMaximumValue () const
+    {
+	return m_maximumValue;
     }
 
 public Q_SLOTS:
-    void ToggledMaximumTimeSteps (bool checked);
-    void ToggledCurrentTimeStep (bool checked);
-    void ToggleOtherValue (bool checked);
-    void EditingFinishedOtherValue ();
+    void ToggledMaximumValue (bool checked);
+    void ToggledValue (bool checked);
+    void EditingFinishedValue ();
+    void FocusInValue ();
+
+private:
+    void setValue (size_t value);
 
 private:
     Q_OBJECT
-    Height m_height;
-    double m_otherValue;
+    QIntValidator m_validator;
+    size_t m_value;
+    size_t m_maximumValue;
 };
+
 
 #endif //__ATTRIBUTE_HISTOGRAM_HEIGHT_H__
 

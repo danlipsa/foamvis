@@ -68,7 +68,7 @@ public:
     QwtIntervalData GetHistogram (
 	size_t bodyProperty, const BodySetStatistics* rangeStatistics = 0) const;
     void CalculateMaxCountPerBin ();
-    size_t GetMaxCountPerBin (size_t bodyProperty)
+    size_t GetMaxCountPerBin (size_t bodyProperty) const
     {
 	return m_maxCountPerBin[bodyProperty];
     }

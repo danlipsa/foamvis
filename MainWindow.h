@@ -25,9 +25,15 @@ public:
     enum HistogramSelection
     {
 	KEEP_SELECTION,
-	DISCARD_SELECTION,
-	COUNT
+	DISCARD_SELECTION
     };
+
+    enum MaxValueOperation
+    {
+	KEEP_MAX_VALUE,
+	REPLACE_MAX_VALUE,
+    };
+
 
 
 public:
@@ -51,8 +57,9 @@ public:
 	bool checked,
 	BodyProperty::Enum bodyProperty,
 	const QwtIntervalData& intervalData,
-	double maxYValue,
-	HistogramSelection histogramSelection = DISCARD_SELECTION);
+	double maxValue,
+	HistogramSelection histogramSelection = DISCARD_SELECTION,
+	MaxValueOperation maxValueOperation = REPLACE_MAX_VALUE);
 
 
 public Q_SLOTS:

@@ -93,6 +93,11 @@ void HistogramItem::setData(
     itemChanged();
 }
 
+void HistogramItem::setMaxValue (double maxValue)
+{
+    d_data->maxValue = maxValue;
+}
+
 void HistogramItem::setSelected (bool selected)
 {
     d_data->selected.fill (selected);
@@ -312,9 +317,8 @@ void HistogramItem::drawRegion (
     color.setAlpha (transparency);
     painter->setBrush (color);
     painter->setPen(Qt::NoPen);
-    
+
     const QwtIntervalData &iData = d_data->data;
-    QwtDoubleRect rect = boundingRect();
     const int y1 = yMap.transform(baseline ());
     const int y2 = yMap.transform(d_data->maxValue);
     int x1 = xMap.transform(iData.interval(beginRegion).minValue());
