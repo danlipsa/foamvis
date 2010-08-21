@@ -11,6 +11,10 @@
 
 #include "histogram_item.h"
 
+/**
+ * Histogram that allows selection of bins.
+ * @todo add logarithmic scale for values of the histogram.
+ */
 class Histogram : public QwtPlot
 {
 public:
