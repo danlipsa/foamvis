@@ -5,7 +5,7 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h \
 	Debug.h DebugStream.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h DisplayWidget.h\
-	Edge.h Element.h ExpressionTree.h Enums.h\
+	EditTransferFunction.h Edge.h Element.h ExpressionTree.h Enums.h\
 	Foam.h FoamAlongTime.h Face.h \
 	GLWidget.h Hashes.h Histogram.h histogram_item.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
@@ -31,7 +31,7 @@ SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	ParsingData.cpp ParsingDriver.cpp ProcessBodyTorus.cpp \
 	QuadraticEdge.cpp RestrictedRangeSlider.cpp\
 	StripIterator.cpp Utils.cpp Vertex.cpp 
-FORMS += Window.ui AttributeHistogramHeight.ui
+FORMS += Window.ui AttributeHistogramHeight.ui EditTransferFunction.ui
 LEXSOURCES += EvolverData.l
 YACCSOURCES += EvolverData.y
 QMAKE_YACC = .\/bison.pl -y --report=state --debug
@@ -83,6 +83,9 @@ LIBS += "-lavformat"
 LIBS += "-lavcodec"
 LIBS += "-lavutil"
 LIBS += "-lqwt"
+LIBS += "-lz"
+LIBS += "-lpng12"
+LIBS += "-lX11"
 }
 
 # Local Variables:

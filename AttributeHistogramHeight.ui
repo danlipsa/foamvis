@@ -7,23 +7,39 @@
     <x>0</x>
     <y>0</y>
     <width>251</width>
-    <height>188</height>
+    <height>138</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Histogram Height</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Histogram Height</string>
+    <widget class="QRadioButton" name="radioButtonMaximumValue">
+     <property name="text">
+      <string>Maximum Value</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <attribute name="buttonGroup">
+      <string>buttonGroup</string>
+     </attribute>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="widget" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
       <item>
-       <widget class="QRadioButton" name="radioButtonMaximumValue">
+       <widget class="QRadioButton" name="radioButtonValue">
         <property name="text">
-         <string>Maximum Value</string>
+         <string>Value</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
         <attribute name="buttonGroup">
          <string>buttonGroup</string>
@@ -31,48 +47,23 @@
        </widget>
       </item>
       <item>
-       <widget class="QWidget" name="widget" native="true">
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="QRadioButton" name="radioButtonValue">
-           <property name="text">
-            <string>Value</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-           <attribute name="buttonGroup">
-            <string>buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item>
-          <widget class="LineEditFocus" name="lineEditValue"/>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
+       <widget class="LineEditFocus" name="lineEditValue"/>
       </item>
      </layout>
     </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
@@ -97,7 +88,6 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>radioButtonMaximumValue</tabstop>
   <tabstop>radioButtonValue</tabstop>
   <tabstop>lineEditValue</tabstop>
   <tabstop>buttonBox</tabstop>

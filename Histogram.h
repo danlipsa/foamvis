@@ -41,11 +41,11 @@ public:
     {
 	m_histogramItem.getSelectedBins (intervals, selected);
     }
-    size_t GetAxisMaxValue () const
+    double GetAxisMaxValue () const
     {
 	return m_axisMaxValue;
     }
-    void SetAxisMaxValue (size_t axisMaxValue);
+    void SetAxisMaxValue (double axisMaxValue);
     size_t GetDataMaxValue () const;
 
 public Q_SLOTS:
@@ -68,7 +68,7 @@ private:
     QwtPlotPicker m_plotPicker;
     size_t m_beginBinSelection;
     SelectionTool m_selectionTool;
-    size_t m_axisMaxValue;
+    double m_axisMaxValue;
 };
 
 

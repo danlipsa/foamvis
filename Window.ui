@@ -45,7 +45,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="DisplayWidget" name="widgetDisplay" native="true">
+       <widget class="DisplayWidget" name="widgetDisplayHistogram" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
           <horstretch>0</horstretch>
@@ -58,9 +58,9 @@
           <height>512</height>
          </size>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
-          <widget class="QWidget" name="widgetDisplayStatus" native="true">
+          <widget class="QWidget" name="widgetDisplay" native="true">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
              <horstretch>0</horstretch>
@@ -73,13 +73,13 @@
              <height>0</height>
             </size>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_14">
-            <property name="spacing">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="rightMargin">
              <number>0</number>
             </property>
-            <property name="margin">
-             <number>0</number>
-            </property>
+            <item>
+             <widget class="QwtScaleWidget" name="scaleWidgetColorBar"/>
+            </item>
             <item>
              <widget class="GLWidget" name="widgetGl" native="true">
               <property name="sizePolicy">
@@ -96,27 +96,24 @@
               </property>
              </widget>
             </item>
-            <item>
-             <widget class="AttributeHistogram" name="widgetHistogram" native="true"/>
-            </item>
-            <item>
-             <widget class="QLabel" name="labelStatus">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>Ready</string>
-              </property>
-             </widget>
-            </item>
            </layout>
           </widget>
          </item>
          <item>
-          <widget class="QwtScaleWidget" name="scaleWidgetColorBar"/>
+          <widget class="AttributeHistogram" name="widgetHistogram" native="true"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="labelStatus">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Ready</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -828,7 +825,7 @@
   <connection>
    <sender>checkBoxSaveMovie</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetDisplay</receiver>
+   <receiver>widgetDisplayHistogram</receiver>
    <slot>ToggledSaveMovie(bool)</slot>
    <hints>
     <hint type="sourcelabel">

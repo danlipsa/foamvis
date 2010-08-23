@@ -30,6 +30,7 @@ Histogram::Histogram (QWidget* parent) :
 
     m_histogramItem.setFocusColor(Qt::darkCyan);
     m_histogramItem.setContextColor(Qt::lightGray);
+    m_histogramItem.setOutOfBoundsColor(Qt::red);
     m_histogramItem.attach(this);
 
     m_plotPicker.setEnabled (false);
@@ -95,7 +96,7 @@ void Histogram::SetData (
 	intervalData.interval (intervalData.size () - 1).maxValue ());
 }
 
-void Histogram::SetAxisMaxValue (size_t axisMaxValue)
+void Histogram::SetAxisMaxValue (double axisMaxValue)
 {
     m_axisMaxValue = axisMaxValue;
     m_histogramItem.setMaxValue (axisMaxValue);

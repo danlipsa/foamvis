@@ -15,6 +15,7 @@ class BodyAlongTime;
 class BodiesAlongTime;
 class Foam;
 class Edge;
+class EditTransferFunction;
 class FoamAlongTime;
 class OrientedFace;
 class OrientedEdge;
@@ -216,6 +217,7 @@ public:
 
 public Q_SLOTS:
     void ResetTransformation ();
+    void ChangeTransferFunction ();
     void SelectAll ();
     void DeselectAll ();
     void Info ();
@@ -492,6 +494,7 @@ private:
     BodyProperty::Enum m_facesColor;
     QColor m_notAvailableCenterPathColor;
     QColor m_notAvailableFaceColor;
+    boost::shared_ptr<EditTransferFunction> m_editTranferFunction;
 
     // owned by MainWindows
     boost::shared_ptr<QAction> m_actionSelectAll;
@@ -499,6 +502,7 @@ private:
     boost::shared_ptr<QAction> m_actionInfo;
     // owned by GLWidget
     boost::shared_ptr<QAction> m_actionResetTransformation;
+    boost::shared_ptr<QAction> m_actionEditTransferFunction;
 };
 
 #endif //__GLWIDGET_H__

@@ -198,6 +198,14 @@ void GLWidget::createActions ()
     m_actionResetTransformation->setStatusTip(tr("Reset Transformation"));
     connect(m_actionResetTransformation.get (), SIGNAL(triggered()),
 	    this, SLOT(ResetTransformation ()));    
+
+    m_actionEditTransferFunction = boost::make_shared<QAction> (
+	tr("&Edit Transfer Function"), this);
+    m_actionEditTransferFunction->setShortcut(
+	QKeySequence (tr ("Shift+E")));
+    m_actionEditTransferFunction->setStatusTip(tr("Edit Transfer Function"));
+    connect(m_actionEditTransferFunction.get (), SIGNAL(triggered()),
+	    this, SLOT(EditTransferFunction ()));    
 }
 
 
@@ -359,6 +367,11 @@ void GLWidget::ResetTransformation ()
     m_rotate = G3D::Matrix3::identity ();
     resizeGL (width (), height ());
     UpdateDisplayList ();
+}
+
+void GLWidget::ChangeTransferFunction ()
+{
+    
 }
 
 void GLWidget::SelectAll ()

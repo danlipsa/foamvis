@@ -29,6 +29,7 @@ public:
 
     void setFocusColor(const QColor& color);
     void setContextColor (const QColor& color);
+    void setOutOfBoundsColor (const QColor& color);
     QColor focusColor () const;
     QColor contextColor () const;
 
@@ -59,8 +60,9 @@ public:
 	const vector< pair<size_t, size_t> >& intervals);
 
 protected:
-    virtual void drawBar(QPainter *,
-        Qt::Orientation o, const QRect &) const;
+    virtual void drawBar(
+	QPainter *painter,
+	Qt::Orientation o, const QRect &r, bool outOfBounds = false) const;
 
 private:
     void init();

@@ -27,7 +27,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
 
     setupUi (this);
     setupSliderData (foamAlongTime);
-    setupScaleWidget ();
+    setupColorBar ();
     setupHistogram ();
 
     widgetGl->SetFoamAlongTime (&foamAlongTime);
@@ -96,9 +96,9 @@ void MainWindow::setupBlueRedColorMap (QwtLinearColorMap* colorMap)
 }
 
 
-void MainWindow::setupScaleWidget ()
+void MainWindow::setupColorBar ()
 {
-    scaleWidgetColorBar->setAlignment (QwtScaleDraw::RightScale);
+    scaleWidgetColorBar->setAlignment (QwtScaleDraw::LeftScale);
     scaleWidgetColorBar->setLabelRotation (-90);
     scaleWidgetColorBar->setLabelAlignment (Qt::AlignHCenter);
     scaleWidgetColorBar->setBorderDist (50, 50);
@@ -463,6 +463,13 @@ void MainWindow::ToggledFacesNormal (bool checked)
     displayHistogramColorBar (checked);
 }
 
+void MainWindow::changedColorBarInterval (BodyProperty::Enum bodyProperty)
+{
+    FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
+    scaleWidgetColorBar->setTitle (
+	BodyProperty::ToString (bodyProperty).c_str ());
+    changedColorBarInterval (foamAlongTime.GetRange (bodyProperty));
+}
 
 void MainWindow::changedColorBarInterval (const QwtDoubleInterval& interval)
 {
@@ -503,8 +510,7 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	scaleWidgetColorBar->setVisible (true);
 	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
 	widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
-	changedColorBarInterval (
-	    foamAlongTime.GetRange (bodyProperty));
+	changedColorBarInterval (bodyProperty);
 	SetAndDisplayHistogram (
 	    checkBoxFacesHistogram->isChecked (),
 	    bodyProperty,
@@ -534,8 +540,7 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	scaleWidgetColorBar->setVisible (true);
 
 	widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
-	changedColorBarInterval (
-	    foamAlongTime.GetRange (bodyProperty));
+	changedColorBarInterval (bodyProperty);
 	widgetGl->CurrentIndexChangedCenterPathColor (bodyProperty);
 	SetAndDisplayHistogram (
 	    checkBoxCenterPathHistogram->isChecked (),

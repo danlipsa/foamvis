@@ -142,8 +142,9 @@ private:
     void setupSliderData (const FoamAlongTime& foamAlongTime);
     void configureInterface (const FoamAlongTime& foamAlongTime);
     void changedColorBarInterval (const QwtDoubleInterval& interval);
+    void changedColorBarInterval (BodyProperty::Enum bodyProperty);
 
-    void setupScaleWidget ();
+    void setupColorBar ();
     void setupHistogram ();
     void processBodyTorusStep ();
     void translateBodyStep ();

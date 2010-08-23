@@ -27,6 +27,7 @@ public:
     double maxValue;
     QColor focusColor;
     QColor contextColor;
+    QColor outOfBoundsColor;
     double reference;
     QBitArray selected;
 };
@@ -238,12 +239,18 @@ void HistogramItem::drawXy (
     size_t i, QPainter *painter, const QwtScaleMap &xMap, 
     const QwtScaleMap &yMap) const
 {
+    bool outside = false;
     const QwtIntervalData &iData = d_data->data;
     const int y0 = yMap.transform(baseline());
 
-    const int y2 = yMap.transform(iData.value(i));
+    int y2 = yMap.transform(iData.value(i));
     if ( y2 == y0 )
 	return;
+    if (iData.value(i) > d_data->maxValue)
+    {
+	y2 = yMap.transform (d_data->maxValue);
+	outside = true;
+    }
 
     int x1 = xMap.transform(iData.interval(i).minValue());
     int x2 = xMap.transform(iData.interval(i).maxValue());
@@ -268,7 +275,7 @@ void HistogramItem::drawXy (
     }
 
     drawBar(painter, Qt::Vertical,
-	    QRect(x1, y0, x2 - x1, y2 - y0) );    
+	    QRect(x1, y0, x2 - x1, y2 - y0), outside);    
 }
 
 void HistogramItem::drawHistogramBars (
@@ -328,8 +335,9 @@ void HistogramItem::drawRegion (
 }
 
 
-void HistogramItem::drawBar(QPainter *painter,
-   Qt::Orientation, const QRect& rect) const
+void HistogramItem::drawBar(
+    QPainter *painter,
+    Qt::Orientation, const QRect& rect, bool outOfBounds) const
 {
     painter->save();
 
@@ -340,10 +348,11 @@ void HistogramItem::drawBar(QPainter *painter,
     const QColor light(color.light(factor));
     const QColor dark(color.dark(factor));
     
-    painter->setBrush(color);
+    painter->setBrush(color);    
     painter->setPen(Qt::NoPen);
     QwtPainter::drawRect(painter, r.x() + 1, r.y() + 1,
 			 r.width() - 2, r.height() - 2);
+
 
     painter->setBrush(Qt::NoBrush);    
     painter->setPen(QPen(light, 2));
@@ -366,6 +375,14 @@ void HistogramItem::drawBar(QPainter *painter,
 			 r.right() + 1, r.top() + 1, r.right() + 1, r.bottom());
     QwtPainter::drawLine(painter, 
 			 r.right(), r.top() + 2, r.right(), r.bottom() - 1);
+
+    if (outOfBounds)
+    {
+	painter->setBrush(d_data->outOfBoundsColor);    
+	painter->setPen(Qt::NoPen);
+	QwtPainter::drawRect(painter, r.x(), r.y(),
+			     r.width()+1, 5);
+    }
     painter->restore();
 }
 
@@ -408,4 +425,9 @@ void HistogramItem::setSelectedBins (
     pair<size_t, size_t> interval;
     BOOST_FOREACH (interval, intervals)
 	setSelected (true, interval.first, interval.second);
+}
+
+void HistogramItem::setOutOfBoundsColor (const QColor& color)
+{
+    d_data->outOfBoundsColor = color;
 }

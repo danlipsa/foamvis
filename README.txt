@@ -3,7 +3,7 @@ Compile
 Linux
 -----
 Install using your system installation utility (yum, yast2, ...)
-libqt4-devel, boost-devel, bison, flex 
+libqt4-devel, boost-devel, bison, flex, libzip-devel
 
 Copy
 http://csgalati.swansea.ac.uk/foam/build/G3D-20100524.tgz to /usr/local
