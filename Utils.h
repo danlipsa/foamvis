@@ -34,27 +34,6 @@ inline ostream& operator<< (ostream& ostr, const vector<bool>& v)
 const G3D::Vector3int16& Vector3int16Unit (size_t direction);
 
 extern const G3D::Vector3int16 Vector3int16Zero;
-/**
- * Implementation of the Rainbow Colormap from 
- * Data Visualization, Principles and Practice,
- * Alexandru C. Telea
- * Section 5.2 Designing Effective Colormaps, page 132
- * Returns the rainbow color coresponding o a value between 0 and 1, 
- * blue=0, green=.5 red=1
- *
- */
-QColor RainbowColor (double value);
-
-/**
- * Cool warm color map from
- * Diverging Color Maps for Scientific Visualization
- * Kenneth Moreland
- * ISVC 2009
- *
- * Returns the coolwarm  color based on the index  value between 0 and
- * 256 inclusive.
- */
-QColor BlueRedColor (size_t index);
 
 inline void glTranslate (const G3D::Vector3& translate)
 {

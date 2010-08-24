@@ -8,6 +8,8 @@
 
 #include "Body.h"
 #include "BodyAlongTime.h"
+#include "ColorBarModel.h"
+#include "EditTransferFunction.h"
 #include "FoamAlongTime.h"
 #include "Debug.h"
 #include "DisplayVertexFunctors.h"
@@ -186,6 +188,7 @@ GLWidget::GLWidget(QWidget *parent)
 			reinterpret_cast<void (*)()>(&quadricErrorCallback));
     initViewTypeDisplay ();    
     createActions ();
+    m_editTransferFunction = boost::make_shared<EditTransferFunction> (this);
 }
 
 
@@ -198,14 +201,6 @@ void GLWidget::createActions ()
     m_actionResetTransformation->setStatusTip(tr("Reset Transformation"));
     connect(m_actionResetTransformation.get (), SIGNAL(triggered()),
 	    this, SLOT(ResetTransformation ()));    
-
-    m_actionEditTransferFunction = boost::make_shared<QAction> (
-	tr("&Edit Transfer Function"), this);
-    m_actionEditTransferFunction->setShortcut(
-	QKeySequence (tr ("Shift+E")));
-    m_actionEditTransferFunction->setStatusTip(tr("Edit Transfer Function"));
-    connect(m_actionEditTransferFunction.get (), SIGNAL(triggered()),
-	    this, SLOT(EditTransferFunction ()));    
 }
 
 
@@ -1226,4 +1221,12 @@ void GLWidget::SetActionDeselectAll (
     m_actionDeselectAll = actionDeselectAll;
     connect(m_actionDeselectAll.get (), SIGNAL(triggered()),
 	    this, SLOT(DeselectAll ()));
+}
+
+QColor GLWidget::MapScalar (float value) const
+{
+    if (m_colorBarModel == 0)
+	return Qt::black;
+    else
+	return m_colorBarModel->MapScalar (value);
 }

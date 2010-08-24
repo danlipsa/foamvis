@@ -14,7 +14,8 @@
 class EditTransferFunction : 
     public QDialog, private Ui::EditTransferFunction
 {
-
+public:
+    EditTransferFunction (QWidget* parent);
 };
 
 #endif //__EDIT_TRANSFER_FUNCTION_H__

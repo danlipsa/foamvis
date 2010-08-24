@@ -141,7 +141,6 @@ private:
     void updateStatus ();
     void setupSliderData (const FoamAlongTime& foamAlongTime);
     void configureInterface (const FoamAlongTime& foamAlongTime);
-    void changedColorBarInterval (const QwtDoubleInterval& interval);
     void changedColorBarInterval (BodyProperty::Enum bodyProperty);
 
     void setupColorBar ();
@@ -151,11 +150,6 @@ private:
     void createActions ();
     void fieldsToControls (QComboBox* comboBox, QCheckBox* checkBox);
     void displayHistogramColorBar (bool checked);
-
-
-private:
-    static void setupRainbowColorMap (QwtLinearColorMap* colorMap);
-    static void setupBlueRedColorMap (QwtLinearColorMap* colorMap);
 
 private:
     Q_OBJECT
@@ -180,9 +174,7 @@ private:
     ProcessBodyTorus* m_processBodyTorus;
     Foam::Bodies::iterator m_currentTranslatedBody;
     size_t m_currentBody;
-
-    QwtLinearColorMap m_colorMap;
-    QwtDoubleInterval m_colorMapInterval;
+    boost::shared_ptr<ColorBarModel> m_colorBarModel;
 
     boost::shared_ptr<QAction> m_actionRotate;
     boost::shared_ptr<QAction> m_actionTranslate;

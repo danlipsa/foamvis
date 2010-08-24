@@ -13,6 +13,7 @@
 class Body;
 class BodyAlongTime;
 class BodiesAlongTime;
+class ColorBarModel;
 class Foam;
 class Edge;
 class EditTransferFunction;
@@ -164,19 +165,11 @@ public:
     {
 	return m_centerPathDisplayBody;
     }
-    void SetColorMap (QwtLinearColorMap* colorMap,
-		      QwtDoubleInterval* colorMapInterval)
+    void SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel)
     {
-	m_colorMap = colorMap;
-	m_colorMapInterval = colorMapInterval;
+	m_colorBarModel = colorBarModel;
     }
-    QColor MapScalar (float value) const
-    {
-	if (m_colorMap == 0)
-	    return Qt::black;
-	else
-	    return m_colorMap->color (*m_colorMapInterval, value);
-    }
+    QColor MapScalar (float value) const;
     boost::shared_ptr<QAction> GetActionResetTransformation ()
     {
 	return m_actionResetTransformation;
@@ -488,13 +481,12 @@ private:
     bool m_centerPathDisplayBody;
     bool m_boundingBox;
     boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> VIEW_TYPE_DISPLAY;
-    QwtLinearColorMap* m_colorMap;
-    QwtDoubleInterval* m_colorMapInterval;
+    boost::shared_ptr<ColorBarModel> m_colorBarModel;
     BodyProperty::Enum m_centerPathColor;
     BodyProperty::Enum m_facesColor;
     QColor m_notAvailableCenterPathColor;
     QColor m_notAvailableFaceColor;
-    boost::shared_ptr<EditTransferFunction> m_editTranferFunction;
+    boost::shared_ptr<EditTransferFunction> m_editTransferFunction;
 
     // owned by MainWindows
     boost::shared_ptr<QAction> m_actionSelectAll;
@@ -502,7 +494,6 @@ private:
     boost::shared_ptr<QAction> m_actionInfo;
     // owned by GLWidget
     boost::shared_ptr<QAction> m_actionResetTransformation;
-    boost::shared_ptr<QAction> m_actionEditTransferFunction;
 };
 
 #endif //__GLWIDGET_H__

@@ -78,7 +78,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QwtScaleWidget" name="scaleWidgetColorBar"/>
+             <widget class="ColorBar" name="colorBar"/>
             </item>
             <item>
              <widget class="GLWidget" name="widgetGl" native="true">
@@ -770,6 +770,11 @@
     <signal>valueChangedOriginalRange(int)</signal>
     <signal>valueChangedNone()</signal>
    </slots>
+  </customwidget>
+  <customwidget>
+   <class>ColorBar</class>
+   <extends>QwtScaleWidget</extends>
+   <header>ColorBar.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

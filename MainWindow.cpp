@@ -4,6 +4,7 @@
  *
  * Contains definitions for the UI class
  */
+#include "ColorBarModel.h"
 #include "Foam.h"
 #include "FoamAlongTime.h"
 #include "DebugStream.h"
@@ -31,7 +32,8 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     setupHistogram ();
 
     widgetGl->SetFoamAlongTime (&foamAlongTime);
-    widgetGl->SetColorMap (0, 0);
+    boost::shared_ptr<ColorBarModel> colorBarModel;
+    widgetGl->SetColorBarModel (colorBarModel);
     widgetHistogram->setHidden (true);
     updateStatus ();
     m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
@@ -42,6 +44,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
 	    (string("Foam - ") + foamAlongTime.GetFilePattern ()).c_str ()));
     // 30 ms
     m_timer->setInterval (30);
+    m_colorBarModel = boost::make_shared<ColorBarModel> ();
     createActions ();
 
 
@@ -59,50 +62,12 @@ void MainWindow::setupSliderData (const FoamAlongTime& foamAlongTime)
     sliderData->setPageStep (10);
 }
 
-void testColorMap ()
-{
-    cdbg << "Test Color map:" << endl;
-    for (size_t i = 0; i <= 12; i++)
-    {
-	double value = static_cast<double>(i) / 2;
-	cdbg << setw (3) << value << " " << RainbowColor (value/6) << endl;
-    }
-}
-
-
-void MainWindow::setupRainbowColorMap (QwtLinearColorMap* colorMap)
-{
-    //testColorMap ();
-    const size_t COLORS = 256;
-    colorMap->setColorInterval (RainbowColor (0), RainbowColor (1));
-    colorMap->setMode (QwtLinearColorMap::FixedColors);
-    for (size_t i = 1; i < COLORS; ++i)
-    {
-	double value = static_cast<double>(i)/COLORS;
-	colorMap->addColorStop (value, 	RainbowColor (value));
-    }
-}
-
-void MainWindow::setupBlueRedColorMap (QwtLinearColorMap* colorMap)
-{
-    const size_t COLORS = 256;
-    colorMap->setColorInterval (BlueRedColor (0), BlueRedColor (COLORS));
-    colorMap->setMode (QwtLinearColorMap::FixedColors);
-    for (size_t i = 1; i < COLORS; ++i)
-    {
-	double value = static_cast<double>(i)/COLORS;
-	colorMap->addColorStop (value, 	BlueRedColor (i));
-    }
-}
-
-
 void MainWindow::setupColorBar ()
 {
-    scaleWidgetColorBar->setAlignment (QwtScaleDraw::LeftScale);
-    scaleWidgetColorBar->setLabelRotation (-90);
-    scaleWidgetColorBar->setLabelAlignment (Qt::AlignHCenter);
-    scaleWidgetColorBar->setBorderDist (50, 50);
-    scaleWidgetColorBar->setColorBarEnabled (true);
+    colorBar->setAlignment (QwtScaleDraw::LeftScale);
+    colorBar->setLabelRotation (-90);
+    colorBar->setLabelAlignment (Qt::AlignHCenter);
+    colorBar->setBorderDist (50, 50);
 }
 
 void MainWindow::setupHistogram ()
@@ -130,7 +95,7 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 	radioButtonFacesNormal->toggle ();
 	tabWidget->setCurrentWidget (faces);
     }
-    scaleWidgetColorBar->setHidden (true);
+    colorBar->setHidden (true);
     comboBoxCenterPathColor->setCurrentIndex (BodyProperty::NONE);
     comboBoxFacesColor->setCurrentIndex (BodyProperty::NONE);
 }
@@ -430,7 +395,7 @@ void MainWindow::displayHistogramColorBar (bool checked)
 {
     widgetHistogram->setVisible (
 	checked && m_bodyProperty != BodyProperty::NONE && m_histogram);
-    scaleWidgetColorBar->setVisible (
+    colorBar->setVisible (
 	checked && m_bodyProperty != BodyProperty::NONE);
 }
 
@@ -466,28 +431,11 @@ void MainWindow::ToggledFacesNormal (bool checked)
 void MainWindow::changedColorBarInterval (BodyProperty::Enum bodyProperty)
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    scaleWidgetColorBar->setTitle (
+    colorBar->setTitle (
 	BodyProperty::ToString (bodyProperty).c_str ());
-    changedColorBarInterval (foamAlongTime.GetRange (bodyProperty));
-}
-
-void MainWindow::changedColorBarInterval (const QwtDoubleInterval& interval)
-{
-    m_colorMapInterval = interval;
-    QwtLinearScaleEngine scaleEngine;
-    QwtScaleDiv scaleDiv = scaleEngine.divideScale (
-	m_colorMapInterval.minValue (), m_colorMapInterval.maxValue (), 0, 0);
-    QwtValueList majorTicks;
-    majorTicks += 
-	(m_colorMapInterval.minValue () + m_colorMapInterval.maxValue()) / 2;
-    majorTicks += m_colorMapInterval.minValue ();
-    majorTicks += m_colorMapInterval.maxValue ();
-    scaleDiv.setTicks(QwtScaleDiv::MajorTick, majorTicks);    
-    scaleWidgetColorBar->setScaleDiv (scaleEngine.transformation (), scaleDiv);
-    
-    //setupBlueRedColorMap (&m_colorMap);
-    setupRainbowColorMap (&m_colorMap);
-    scaleWidgetColorBar->setColorMap (m_colorMapInterval, m_colorMap);
+    m_colorBarModel->SetInterval (foamAlongTime.GetRange (bodyProperty));
+    m_colorBarModel->SetupRainbowColorMap ();
+    colorBar->SetModel (m_colorBarModel);
 }
 
 void MainWindow::CurrentIndexChangedFacesColor (int value)
@@ -497,9 +445,10 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
     if (bodyProperty == BodyProperty::NONE)
     {
 	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
-	widgetGl->SetColorMap (0, 0);
+	boost::shared_ptr<ColorBarModel> colorBarModel;
+	widgetGl->SetColorBarModel (colorBarModel);
 	checkBoxFacesHistogram->setHidden (true);
-	scaleWidgetColorBar->setHidden (true);
+	colorBar->setHidden (true);
 	widgetHistogram->setHidden (true);
     }
     else
@@ -507,9 +456,9 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	size_t timeStep = widgetGl->GetTimeStep ();
 	checkBoxFacesHistogram->setVisible (true);
-	scaleWidgetColorBar->setVisible (true);
+	colorBar->setVisible (true);
 	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
-	widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
+	widgetGl->SetColorBarModel (m_colorBarModel);
 	changedColorBarInterval (bodyProperty);
 	SetAndDisplayHistogram (
 	    checkBoxFacesHistogram->isChecked (),
@@ -526,9 +475,10 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
     m_bodyProperty = bodyProperty;
     if (bodyProperty == BodyProperty::NONE)
     {
-	widgetGl->SetColorMap (0, 0);
+	boost::shared_ptr<ColorBarModel> colorBarModel;
+	widgetGl->SetColorBarModel (colorBarModel);
 	checkBoxCenterPathHistogram->setHidden (true);
-	scaleWidgetColorBar->setHidden (true);
+	colorBar->setHidden (true);
 	widgetHistogram->setHidden (true);
     }
     else
@@ -537,9 +487,9 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT (
 	    comboBoxCenterPathColor->currentIndex ());
 	checkBoxCenterPathHistogram->setVisible (true);
-	scaleWidgetColorBar->setVisible (true);
+	colorBar->setVisible (true);
 
-	widgetGl->SetColorMap (&m_colorMap, &m_colorMapInterval);
+	widgetGl->SetColorBarModel (m_colorBarModel);
 	changedColorBarInterval (bodyProperty);
 	widgetGl->CurrentIndexChangedCenterPathColor (bodyProperty);
 	SetAndDisplayHistogram (

@@ -89,3 +89,8 @@ Release log
 0.1.1432
 	- Added user option to adjust the height of a histogram.
 	- Fixed histogram for center path
+
+0.1.
+	- Added UI feedback for histogram bars that are longer than the height of
+	  the histogram. (a red margin)
+	
