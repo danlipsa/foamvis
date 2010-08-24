@@ -56,5 +56,5 @@ void ColorBar::contextMenuEvent (QContextMenuEvent *event)
 
 void ColorBar::Settings ()
 {
-    
+    m_editTransferFunction->show ();
 }
