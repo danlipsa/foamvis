@@ -12,10 +12,6 @@
 class ColorBarModel
 {
 public:
-    void SetInterval (QwtDoubleInterval interval)
-    {
-	m_interval = interval;
-    }
     const QwtDoubleInterval& GetInterval () const
     {
 	return m_interval;
@@ -25,6 +21,19 @@ public:
 	return m_colorMap;
     }
 
+    void SetInterval (QwtDoubleInterval interval)
+    {
+	m_interval = interval;
+    }
+
+    void SetTitle (const char* title)
+    {
+	m_title = title;
+    }
+    const QString& GetTitle () const
+    {
+	return m_title;
+    }
     void SetupRainbowColorMap ();
     void SetupBlueRedColorMap ();
 
@@ -35,7 +44,8 @@ public:
 
 private:
     QwtLinearColorMap m_colorMap;
-    QwtDoubleInterval m_interval;    
+    QwtDoubleInterval m_interval;
+    QString m_title;
 };
 
 

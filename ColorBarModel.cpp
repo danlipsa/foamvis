@@ -54,7 +54,7 @@ void ColorBarModel::SetupRainbowColorMap ()
     for (size_t i = 1; i < COLORS; ++i)
     {
 	double value = static_cast<double>(i)/COLORS;
-	m_colorMap.addColorStop (value, 	RainbowColor (value));
+	m_colorMap.addColorStop (value, RainbowColor (value));
     }
 }
 
@@ -66,7 +66,7 @@ void ColorBarModel::SetupBlueRedColorMap ()
     for (size_t i = 1; i < COLORS; ++i)
     {
 	double value = static_cast<double>(i)/COLORS;
-	m_colorMap.addColorStop (value, 	BlueRedColor (i));
+	m_colorMap.addColorStop (value, BlueRedColor (i));
     }
 }
 

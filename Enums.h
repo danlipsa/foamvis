@@ -155,7 +155,7 @@ public:
 	COUNT
     };
 public:
-    static string ToString (BodyProperty::Enum property);
+    static const char* ToString (BodyProperty::Enum property);
     static Enum FromSizeT (size_t i);
 };
 

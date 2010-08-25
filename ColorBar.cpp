@@ -30,17 +30,31 @@ void ColorBar::createActions ()
 void ColorBar::SetModel (boost::shared_ptr<ColorBarModel> model)
 {
     m_model = model;
-    QwtLinearScaleEngine scaleEngine;
     const QwtDoubleInterval& interval = model->GetInterval ();
-    QwtScaleDiv scaleDiv = scaleEngine.divideScale (
-	interval.minValue (), interval.maxValue (), 0, 0);
+    QwtLinearScaleEngine scaleEngine;
+    QwtScaleDiv scaleDiv;
+    const int maxMajorTicks = 8;
+    const int maxMinorTicks = 5;
+    const int fontSize = 12;
+/*
+    scaleDiv = scaleEngine.divideScale (interval.minValue (), 
+    interval.maxValue (), 0, 0);
     QwtValueList majorTicks;
     majorTicks += (interval.minValue () + interval.maxValue()) / 2;
     majorTicks += interval.minValue ();
     majorTicks += interval.maxValue ();
     scaleDiv.setTicks(QwtScaleDiv::MajorTick, majorTicks);    
+*/
+
+    scaleDiv = scaleEngine.divideScale (
+	interval.minValue (), interval.maxValue (), 
+	maxMajorTicks, maxMinorTicks);
     setScaleDiv (scaleEngine.transformation (), scaleDiv);    
     setColorMap (interval, model->GetColorMap ());
+    QwtText title (model->GetTitle ());
+    QFont fttl(fontInfo().family(), fontSize, QFont::Bold);
+    title.setFont (fttl);
+    setTitle (title);
 }
 
 

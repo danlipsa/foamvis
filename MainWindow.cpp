@@ -56,10 +56,10 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
 
 void MainWindow::setupSliderData (const FoamAlongTime& foamAlongTime)
 {
-    sliderData->setMinimum (0);
-    sliderData->setMaximum (foamAlongTime.GetTimeSteps () - 1);
-    sliderData->setSingleStep (1);
-    sliderData->setPageStep (10);
+    sliderTimeSteps->setMinimum (0);
+    sliderTimeSteps->setMaximum (foamAlongTime.GetTimeSteps () - 1);
+    sliderTimeSteps->setSingleStep (1);
+    sliderTimeSteps->setPageStep (10);
 }
 
 void MainWindow::setupColorBar ()
@@ -80,7 +80,7 @@ void MainWindow::setupHistogram ()
 void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 {
     if (foamAlongTime.GetTimeSteps () == 1)
-	groupBoxTimeSteps->setDisabled (true);
+	sliderTimeSteps->setDisabled (true);
     boost::shared_ptr<const Foam> foam = foamAlongTime.GetFoam (0);
     if (! foam->IsTorus ())
 	groupBoxTorusOriginalDomain->setDisabled (true);
@@ -154,19 +154,19 @@ void MainWindow::updateStatus ()
 
 void MainWindow::enableBegin ()
 {
-    if (sliderData->value () > sliderData->minimum ())
+    if (sliderTimeSteps->value () > sliderTimeSteps->minimum ())
         toolButtonBegin->setEnabled (true);
 }
 
 void MainWindow::enableEnd ()
 {
-    if (sliderData->value () < sliderData->maximum ())
+    if (sliderTimeSteps->value () < sliderTimeSteps->maximum ())
         toolButtonEnd->setEnabled (true);
 }
 
 void MainWindow::enablePlay ()
 {
-    if (sliderData->value () < sliderData->maximum ())
+    if (sliderTimeSteps->value () < sliderTimeSteps->maximum ())
         toolButtonPlay->setEnabled (true);
 }
 
@@ -303,23 +303,23 @@ void MainWindow::ClickedPlay ()
 
 void MainWindow::ClickedBegin ()
 {
-    sliderData->setValue (sliderData->minimum ());
+    sliderTimeSteps->setValue (sliderTimeSteps->minimum ());
     updateButtons ();
     updateStatus ();
 }
 
 void MainWindow::ClickedEnd ()
 {
-    sliderData->setValue (sliderData->maximum ());
+    sliderTimeSteps->setValue (sliderTimeSteps->maximum ());
     updateButtons ();
     updateStatus ();
 }
 
 void MainWindow::TimeoutTimer ()
 {
-    int value = sliderData->value ();
-    if (value < sliderData->maximum ())
-        sliderData->setValue (value + 1);
+    int value = sliderTimeSteps->value ();
+    if (value < sliderTimeSteps->maximum ())
+        sliderTimeSteps->setValue (value + 1);
     else
         ClickedPlay ();
 }
@@ -330,7 +330,7 @@ void MainWindow::ValueChangedNone ()
 }
 
 
-void MainWindow::ValueChangedSliderData (int timeStep)
+void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
     BodyProperty::Enum bodyProperty = 
 	BodyProperty::FromSizeT (comboBoxFacesColor->currentIndex ());
@@ -347,7 +347,7 @@ void MainWindow::ValueChangedSliderData (int timeStep)
 	    KEEP_SELECTION,
 	    KEEP_MAX_VALUE);
     }
-    widgetGl->ValueChangedSliderData (timeStep);
+    widgetGl->ValueChangedSliderTimeSteps (timeStep);
     updateButtons ();
     updateStatus ();
 }
@@ -431,8 +431,7 @@ void MainWindow::ToggledFacesNormal (bool checked)
 void MainWindow::changedColorBarInterval (BodyProperty::Enum bodyProperty)
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    colorBar->setTitle (
-	BodyProperty::ToString (bodyProperty).c_str ());
+    m_colorBarModel->SetTitle (BodyProperty::ToString (bodyProperty));
     m_colorBarModel->SetInterval (foamAlongTime.GetRange (bodyProperty));
     m_colorBarModel->SetupRainbowColorMap ();
     colorBar->SetModel (m_colorBarModel);
@@ -549,8 +548,7 @@ void MainWindow::SetAndDisplayHistogram (
     else
 	widgetHistogram->SetData (intervalData, maxYValue);
     widgetHistogram->setAxisTitle (
-	QwtPlot::xBottom, 
-	QString(BodyProperty::ToString (bodyProperty).c_str ()));
+	QwtPlot::xBottom, QString(BodyProperty::ToString (bodyProperty)));
     widgetHistogram->setAxisTitle (
 	QwtPlot::yLeft, QString("Number of values per bin"));
     widgetHistogram->replot ();
@@ -642,19 +640,5 @@ void MainWindow::SelectionChangedHistogram ()
     cdbg << "timeStepSelection" << endl
 	 << timeStepSelection << endl;
 */
-    sliderData->SetRestrictedTo (timeStepSelection);
-    if (sliderData->GetState () != RestrictedRangeSlider::FULL_RANGE)
-    {
-	ostringstream ostr;
-	size_t range = 
-	    (sliderData->GetState () == RestrictedRangeSlider::EMPTY_RANGE) ? 
-	    0 : (sliderData->maximum () - sliderData->minimum () + 1);
-	ostr << "Selected Time Steps: " 
-	     << range << " of "
-	     << (sliderData->GetOriginalMaximum () - 
-		 sliderData->GetOriginalMinimum () + 1);
-	groupBoxTimeSteps->setTitle (ostr.str ().c_str ());
-    }
-    else
-	groupBoxTimeSteps->setTitle ("Time Steps");
+    sliderTimeSteps->SetRestrictedTo (timeStepSelection);
 }

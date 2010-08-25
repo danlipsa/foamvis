@@ -45,7 +45,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="DisplayWidget" name="widgetDisplayHistogram" native="true">
+       <widget class="DisplayWidget" name="widgetDisplay" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
           <horstretch>0</horstretch>
@@ -60,7 +60,7 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
-          <widget class="QWidget" name="widgetDisplay" native="true">
+          <widget class="QWidget" name="widgetDisplayColorBar" native="true">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
              <horstretch>0</horstretch>
@@ -115,6 +115,13 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="RestrictedRangeSlider" name="sliderTimeSteps">
+           <property name="title">
+            <string>Time Steps</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
@@ -166,10 +173,49 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBoxSaveMovie">
-           <property name="text">
-            <string>Save movie</string>
+          <widget class="QGroupBox" name="groupBoxMovie">
+           <property name="title">
+            <string>Movie</string>
            </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <widget class="QCheckBox" name="checkBoxSaveMovie">
+              <property name="text">
+               <string>Save</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="toolButtonBegin">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>|&lt;&lt;</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="toolButtonPlay">
+              <property name="text">
+               <string>&gt;</string>
+              </property>
+              <property name="arrowType">
+               <enum>Qt::NoArrow</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="toolButtonEnd">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="text">
+               <string>&gt;&gt;|</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
          <item>
@@ -661,61 +707,6 @@
      </layout>
     </widget>
    </item>
-   <item>
-    <widget class="QGroupBox" name="groupBoxTimeSteps">
-     <property name="title">
-      <string>Time Steps</string>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <property name="spacing">
-       <number>6</number>
-      </property>
-      <property name="sizeConstraint">
-       <enum>QLayout::SetDefaultConstraint</enum>
-      </property>
-      <item>
-       <widget class="QToolButton" name="toolButtonBegin">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>|&lt;&lt;</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="toolButtonPlay">
-        <property name="text">
-         <string>&gt;</string>
-        </property>
-        <property name="arrowType">
-         <enum>Qt::NoArrow</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="toolButtonEnd">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="text">
-         <string>&gt;&gt;|</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="RestrictedRangeSlider" name="sliderData">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="tickPosition">
-         <enum>QSlider::TicksAbove</enum>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -763,18 +754,15 @@
    </slots>
   </customwidget>
   <customwidget>
-   <class>RestrictedRangeSlider</class>
-   <extends>QSlider</extends>
-   <header>RestrictedRangeSlider.h</header>
-   <slots>
-    <signal>valueChangedOriginalRange(int)</signal>
-    <signal>valueChangedNone()</signal>
-   </slots>
-  </customwidget>
-  <customwidget>
    <class>ColorBar</class>
    <extends>QwtScaleWidget</extends>
    <header>ColorBar.h</header>
+  </customwidget>
+  <customwidget>
+   <class>RestrictedRangeSlider</class>
+   <extends>QGroupBox</extends>
+   <header>RestrictedRangeSlider.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -830,7 +818,7 @@
   <connection>
    <sender>checkBoxSaveMovie</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetDisplayHistogram</receiver>
+   <receiver>widgetDisplay</receiver>
    <slot>ToggledSaveMovie(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1164,10 +1152,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>sliderData</sender>
+   <sender>sliderTimeSteps</sender>
    <signal>valueChangedOriginalRange(int)</signal>
    <receiver>Window</receiver>
-   <slot>ValueChangedSliderData(int)</slot>
+   <slot>ValueChangedSliderTimeSteps(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>561</x>
@@ -1180,7 +1168,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>sliderData</sender>
+   <sender>sliderTimeSteps</sender>
    <signal>valueChangedNone()</signal>
    <receiver>Window</receiver>
    <slot>ValueChangedNone()</slot>
@@ -1204,7 +1192,7 @@
   <slot>ToggledEdgesNormal(bool)</slot>
   <slot>ToggledEdgesTorus(bool)</slot>
   <slot>ToggledFacesTorus(bool)</slot>
-  <slot>ValueChangedSliderData(int)</slot>
+  <slot>ValueChangedSliderTimeSteps(int)</slot>
   <slot>CurrentIndexChangedCenterPathColor(int)</slot>
   <slot>ToggledCenterPathHistogram(bool)</slot>
   <slot>CurrentIndexChangedFacesColor(int)</slot>

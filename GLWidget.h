@@ -141,7 +141,7 @@ public:
      * Displays the center of the bodies
      */
     void displayCenterOfBodies ();
-    void DataChanged () {ValueChangedSliderData (m_timeStep);}
+    void DataChanged () {ValueChangedSliderTimeSteps (m_timeStep);}
 
     GLUquadricObj* GetQuadricObject () const 
     {
@@ -186,7 +186,7 @@ public:
      * Signals a change in data displayed
      * @param timeStep the new index for the Foam to be displayed
      */
-    void ValueChangedSliderData (int timeStep);
+    void ValueChangedSliderTimeSteps (int timeStep);
     /**
      * Shows edges
      * @param checked true for showing edges false otherwise

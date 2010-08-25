@@ -140,7 +140,7 @@ ostream& operator<< (ostream& ostr, AttributeType::Enum type)
     return ostr;
 }
 
-string BodyProperty::ToString (BodyProperty::Enum property)
+const char* BodyProperty::ToString (BodyProperty::Enum property)
 {
     switch (property)
     {

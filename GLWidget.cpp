@@ -1118,7 +1118,7 @@ void GLWidget::CurrentIndexChangedInteractionMode (int index)
     m_interactionMode = static_cast<InteractionMode::Enum>(index);
 }
 
-void GLWidget::ValueChangedSliderData (int timeStep)
+void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 {
     m_timeStep = timeStep;
     UpdateDisplayList ();
