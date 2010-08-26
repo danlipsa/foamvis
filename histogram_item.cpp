@@ -356,6 +356,11 @@ void HistogramItem::setLogValueAxis (bool logValueAxis)
     d_data->logValueAxis = logValueAxis;
     setBaseline (logValueAxis ? logScaleZero : 0);
 
+    const QwtIntervalData &iData = d_data->data;
+    for ( size_t i = 1; i < iData.size(); i++ )
+    {
+	iData.value (i);
+    }
 }
 
 bool HistogramItem::isLogValueAxis () const
