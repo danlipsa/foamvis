@@ -11,7 +11,8 @@
 AttributeHistogramHeight::AttributeHistogramHeight (QWidget* parent) :    
     QDialog (parent), 
     m_validator (0, numeric_limits<int> ().max (), this),
-    m_maximumValue (0)
+    m_maxValue (0),
+    m_state (VALUE)
 {
     setupUi (this);
     lineEditValue->setValidator (&m_validator);
@@ -19,17 +20,30 @@ AttributeHistogramHeight::AttributeHistogramHeight (QWidget* parent) :
     
 }
 
-void AttributeHistogramHeight::ToggledMaximumValue (bool checked)
+void AttributeHistogramHeight::ToggledMaxValue (bool checked)
 {
     if (checked)
-	setValue (m_maximumValue);
+    {
+	m_state = MAX_VALUE;
+	setValue (m_maxValue);
+    }
 }
 
 void AttributeHistogramHeight::ToggledValue (bool checked)
 {
     if (checked)
+    {
+	m_state = VALUE;
 	lineEditValue->setFocus ();
+    }
 }
+
+
+void AttributeHistogramHeight::ToggledLogScale (bool checked)
+{
+    m_logScale = checked;
+}
+
 
 void AttributeHistogramHeight::EditingFinishedValue ()
 {
@@ -53,4 +67,10 @@ void AttributeHistogramHeight::SetValue (size_t value)
 {
     setValue (value);
     radioButtonValue->setChecked (true);
+}
+
+void AttributeHistogramHeight::SetLogScale (bool logScale)
+{
+    m_logScale = logScale;
+    checkBoxLogScale->setChecked (logScale);
 }

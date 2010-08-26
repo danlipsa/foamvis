@@ -24,12 +24,13 @@ class HistogramItem::PrivateData
 public:
     int attributes;
     QwtIntervalData data;
-    double maxValue;
+    double maxValueAxis;
     QColor focusColor;
     QColor contextColor;
     QColor outOfBoundsColor;
     double reference;
     QBitArray selected;
+    bool logValueAxis;
 };
 
 HistogramItem::HistogramItem(const QwtText &title):
@@ -81,7 +82,7 @@ void HistogramItem::setData(
     const vector< pair<size_t, size_t> >* selectedBins)
 {
     d_data->data = data;
-    d_data->maxValue = maxValue;
+    d_data->maxValueAxis = maxValue;
     d_data->selected.resize (data.size ());
 
     if (selectedBins != 0)
@@ -94,10 +95,16 @@ void HistogramItem::setData(
     itemChanged();
 }
 
-void HistogramItem::setMaxValue (double maxValue)
+void HistogramItem::setMaxValueAxis (double maxValue)
 {
-    d_data->maxValue = maxValue;
+    d_data->maxValueAxis = maxValue;
 }
+
+double HistogramItem::getMaxValueAxis () const
+{
+    return d_data->maxValueAxis;
+}
+
 
 void HistogramItem::setSelected (bool selected)
 {
@@ -151,24 +158,13 @@ QwtDoubleRect HistogramItem::boundingRect() const
     QwtDoubleRect rect = d_data->data.boundingRect();
     if ( !rect.isValid() ) 
         return rect;
+    if (d_data->logValueAxis)
+	rect.setBottom (logScaleZero);
 
-    if ( d_data->attributes & Xfy ) 
-    {
-        rect = QwtDoubleRect( rect.y(), rect.x(), 
-            rect.height(), rect.width() );
-
-        if ( rect.left() > d_data->reference ) 
-            rect.setLeft( d_data->reference );
-        else if ( rect.right() < d_data->reference ) 
-            rect.setRight( d_data->reference );
-    } 
-    else 
-    {
-        if ( rect.bottom() < d_data->reference ) 
-            rect.setBottom( d_data->reference );
-        else if ( rect.top() > d_data->reference ) 
-            rect.setTop( d_data->reference );
-    }
+    if ( rect.bottom() < d_data->reference ) 
+	rect.setBottom( d_data->reference );
+    else if ( rect.top() > d_data->reference ) 
+	rect.setTop( d_data->reference );
 
     return rect;
 }
@@ -197,44 +193,6 @@ bool HistogramItem::testHistogramAttribute(HistogramAttribute attribute) const
     return d_data->attributes & attribute;
 }
 
-void HistogramItem::drawYx (
-    size_t i, QPainter *painter, const QwtScaleMap &xMap, 
-    const QwtScaleMap &yMap) const
-{
-    const QwtIntervalData &iData = d_data->data;
-    const int x0 = xMap.transform(baseline());
-
-    const int x2 = xMap.transform(iData.value(i));
-    if ( x2 == x0 )
-	return;
-
-    int y1 = yMap.transform( iData.interval(i).minValue());
-    int y2 = yMap.transform( iData.interval(i).maxValue());
-    if ( y1 > y2 )
-	qSwap(y1, y2);
-
-    if ( i < iData.size() - 2 )
-    {
-	const int yy1 = yMap.transform(iData.interval(i+1).minValue());
-	const int yy2 = yMap.transform(iData.interval(i+1).maxValue());
-
-	if ( y2 == qwtMin(yy1, yy2) )
-	{
-	    const int xx2 = xMap.transform(
-		iData.interval(i+1).minValue());
-	    if ( xx2 != x0 && ( (xx2 < x0 && x2 < x0) ||
-				(xx2 > x0 && x2 > x0) ) )
-	    {
-		// One pixel distance between neighboured bars
-		y2++;
-	    }
-	}
-    }
-
-    drawBar(painter, Qt::Horizontal,
-	    QRect(x0, y1, x2 - x0, y2 - y1));    
-}
-
 void HistogramItem::drawXy (
     size_t i, QPainter *painter, const QwtScaleMap &xMap, 
     const QwtScaleMap &yMap) const
@@ -242,13 +200,17 @@ void HistogramItem::drawXy (
     bool outside = false;
     const QwtIntervalData &iData = d_data->data;
     const int y0 = yMap.transform(baseline());
+    
+    double value = iData.value (i);
+    if (d_data->logValueAxis && value == 0)
+	value = logScaleZero;
 
-    int y2 = yMap.transform(iData.value(i));
+    int y2 = yMap.transform(value);
     if ( y2 == y0 )
 	return;
-    if (iData.value(i) > d_data->maxValue)
+    if (value > d_data->maxValueAxis)
     {
-	y2 = yMap.transform (d_data->maxValue);
+	y2 = yMap.transform (d_data->maxValueAxis);
 	outside = true;
     }
 
@@ -256,23 +218,6 @@ void HistogramItem::drawXy (
     int x2 = xMap.transform(iData.interval(i).maxValue());
     if ( x1 > x2 )
 	qSwap(x1, x2);
-
-    if ( i < iData.size() - 2 )
-    {
-	const int xx1 = xMap.transform(iData.interval(i+1).minValue());
-	const int xx2 = xMap.transform(iData.interval(i+1).maxValue());
-
-	if ( x2 == qwtMin(xx1, xx2) )
-	{
-	    const int yy2 = yMap.transform(iData.value(i+1));
-	    if ( yy2 != y0 && ( (yy2 < y0 && y2 < y0) ||
-				(yy2 > y0 && y2 > y0) ) )
-	    {
-		// One pixel distance between neighboured bars
-		x2--;
-	    }
-	}
-    }
 
     drawBar(painter, Qt::Vertical,
 	    QRect(x1, y0, x2 - x1, y2 - y0), outside);    
@@ -288,10 +233,7 @@ void HistogramItem::drawHistogramBars (
 	painter->setPen(
 	    QPen((d_data->selected.testBit (i)) ?
 		 d_data->focusColor : d_data->contextColor));
-        if ( d_data->attributes & HistogramItem::Xfy )
-	    drawYx (i, painter, xMap, yMap);
-        else
-	    drawXy (i, painter, xMap, yMap);
+	drawXy (i, painter, xMap, yMap);
     }    
 }
 
@@ -327,7 +269,7 @@ void HistogramItem::drawRegion (
 
     const QwtIntervalData &iData = d_data->data;
     const int y1 = yMap.transform(baseline ());
-    const int y2 = yMap.transform(d_data->maxValue);
+    const int y2 = yMap.transform(d_data->maxValueAxis);
     int x1 = xMap.transform(iData.interval(beginRegion).minValue());
     int x2 = xMap.transform(iData.interval(endRegion - 1).maxValue());
     QRect paintRect (x1, y1, x2 - x1, y2 - y1);
@@ -339,6 +281,7 @@ void HistogramItem::drawBar(
     QPainter *painter,
     Qt::Orientation, const QRect& rect, bool outOfBounds) const
 {
+    const size_t outOfBoundsTop = 5;
     painter->save();
 
     const QColor color(painter->pen().color());
@@ -350,38 +293,14 @@ void HistogramItem::drawBar(
     
     painter->setBrush(color);    
     painter->setPen(Qt::NoPen);
-    QwtPainter::drawRect(painter, r.x() + 1, r.y() + 1,
-			 r.width() - 2, r.height() - 2);
-
-
-    painter->setBrush(Qt::NoBrush);    
-    painter->setPen(QPen(light, 2));
-    QwtPainter::drawLine(painter,
-			 r.left() + 1, r.top() + 2, r.right() + 1, r.top() + 2);
-    
-    painter->setPen(QPen(dark, 2));
-    QwtPainter::drawLine(painter, 
-			 r.left() + 1, r.bottom(), r.right() + 1, r.bottom());
-    
-    painter->setPen(QPen(light, 1));    
-    QwtPainter::drawLine(
-	painter, r.left(), r.top() + 1, r.left(), r.bottom());
-    QwtPainter::drawLine(
-	painter, r.left() + 1, r.top() + 2, r.left() + 1, r.bottom() - 1);
-    
- 
-    painter->setPen(QPen(dark, 1));
-    QwtPainter::drawLine(painter, 
-			 r.right() + 1, r.top() + 1, r.right() + 1, r.bottom());
-    QwtPainter::drawLine(painter, 
-			 r.right(), r.top() + 2, r.right(), r.bottom() - 1);
+    QwtPainter::drawRect(painter, r.x(), r.y(), r.width(), r.height());
 
     if (outOfBounds)
     {
 	painter->setBrush(d_data->outOfBoundsColor);    
 	painter->setPen(Qt::NoPen);
 	QwtPainter::drawRect(painter, r.x(), r.y(),
-			     r.width()+1, 5);
+			     r.width(), outOfBoundsTop);
     }
     painter->restore();
 }
@@ -430,4 +349,16 @@ void HistogramItem::setSelectedBins (
 void HistogramItem::setOutOfBoundsColor (const QColor& color)
 {
     d_data->outOfBoundsColor = color;
+}
+
+void HistogramItem::setLogValueAxis (bool logValueAxis)
+{
+    d_data->logValueAxis = logValueAxis;
+    setBaseline (logValueAxis ? logScaleZero : 0);
+
+}
+
+bool HistogramItem::isLogValueAxis () const
+{
+    return d_data->logValueAxis;
 }

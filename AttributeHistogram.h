@@ -23,7 +23,7 @@ public:
 public Q_SLOTS:
     void SelectAll ();
     void DeselectAll ();
-    void AdjustHeight ();
+    void HeightSettings ();
     void CurrentIndexChangedInteractionMode (int index);
 
 protected:
@@ -37,7 +37,7 @@ private:
 
     boost::shared_ptr<QAction> m_actionSelectAll;
     boost::shared_ptr<QAction> m_actionDeselectAll;
-    boost::shared_ptr<QAction> m_actionAdjustHeight;
+    boost::shared_ptr<QAction> m_actionHeightSettings;
     boost::shared_ptr<AttributeHistogramHeight> m_attributeHistogramHeight;
 };
 

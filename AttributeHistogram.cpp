@@ -39,7 +39,7 @@ void AttributeHistogram::contextMenuEvent(QContextMenuEvent *event)
     QMenu menu (this);
     menu.addAction (m_actionSelectAll.get ());
     menu.addAction (m_actionDeselectAll.get ());
-    menu.addAction (m_actionAdjustHeight.get ());
+    menu.addAction (m_actionHeightSettings.get ());
     menu.exec (event->globalPos());
 }
 
@@ -53,12 +53,17 @@ void AttributeHistogram::DeselectAll ()
     SetSelected (false);
 }
 
-void AttributeHistogram::AdjustHeight ()
+void AttributeHistogram::HeightSettings ()
 {
-    m_attributeHistogramHeight->SetValue (GetAxisMaxValue ());
-    m_attributeHistogramHeight->SetMaximumValue (GetDataMaxValue ());
+    m_attributeHistogramHeight->SetValue (GetMaxValueAxis ());
+    m_attributeHistogramHeight->SetMaximumValue (GetMaxValueData ());
+    m_attributeHistogramHeight->SetLogScale (IsLogValueAxis ());
     if (m_attributeHistogramHeight->exec () == QDialog::Accepted)
-	SetAxisMaxValue (m_attributeHistogramHeight->GetValue ());
+    {
+	SetLogValueAxis (
+	    m_attributeHistogramHeight->IsLogScale () ? true : false);
+	SetMaxValueAxis (m_attributeHistogramHeight->GetValue ());
+    }
 }
 
 
@@ -82,9 +87,9 @@ void AttributeHistogram::CurrentIndexChangedInteractionMode (int index)
 
 void AttributeHistogram::createActions ()
 {
-    m_actionAdjustHeight = boost::make_shared<QAction> (
-	tr("&Adjust Height"), this);
-    m_actionAdjustHeight->setStatusTip(tr("Adjust Height"));
-    connect(m_actionAdjustHeight.get (), SIGNAL(triggered()),
-	    this, SLOT(AdjustHeight ()));
+    m_actionHeightSettings = boost::make_shared<QAction> (
+	tr("&Height Settings"), this);
+    m_actionHeightSettings->setStatusTip(tr("Height Settings"));
+    connect(m_actionHeightSettings.get (), SIGNAL(triggered()),
+	    this, SLOT(HeightSettings ()));
 }

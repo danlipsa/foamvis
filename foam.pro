@@ -31,7 +31,8 @@ SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	ParsingData.cpp ParsingDriver.cpp ProcessBodyTorus.cpp \
 	QuadraticEdge.cpp RestrictedRangeSlider.cpp\
 	StripIterator.cpp Utils.cpp Vertex.cpp 
-FORMS += Window.ui AttributeHistogramHeight.ui EditTransferFunction.ui
+FORMS += AttributeHistogramHeight.ui EditTransferFunction.ui \
+	 RestrictedRangeSlider.ui Window.ui
 LEXSOURCES += EvolverData.l
 YACCSOURCES += EvolverData.y
 QMAKE_YACC = .\/bison.pl -y --report=state --debug

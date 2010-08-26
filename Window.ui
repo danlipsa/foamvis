@@ -58,7 +58,7 @@
           <height>512</height>
          </size>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_5">
+        <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,1,0">
          <item>
           <widget class="QWidget" name="widgetDisplayColorBar" native="true">
            <property name="sizePolicy">
@@ -103,22 +103,12 @@
           <widget class="AttributeHistogram" name="widgetHistogram" native="true"/>
          </item>
          <item>
-          <widget class="QLabel" name="labelStatus">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Ready</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="RestrictedRangeSlider" name="sliderTimeSteps">
-           <property name="title">
-            <string>Time Steps</string>
+          <widget class="RestrictedRangeSlider" name="sliderTimeSteps" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
           </widget>
          </item>
@@ -292,7 +282,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>2</number>
            </property>
            <widget class="QWidget" name="edges">
             <attribute name="title">
@@ -465,7 +455,7 @@
              <item>
               <widget class="QStackedWidget" name="stackedWidgetFaces">
                <property name="currentIndex">
-                <number>2</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="pageFacesEmpty"/>
                <widget class="QWidget" name="pageFacesTorus">
@@ -750,6 +740,7 @@
    <header>AttributeHistogram.h</header>
    <container>1</container>
    <slots>
+    <signal>selectionChanged()</signal>
     <slot>CurrentIndexChangedInteractionMode(int)</slot>
    </slots>
   </customwidget>
@@ -760,7 +751,7 @@
   </customwidget>
   <customwidget>
    <class>RestrictedRangeSlider</class>
-   <extends>QGroupBox</extends>
+   <extends>QWidget</extends>
    <header>RestrictedRangeSlider.h</header>
    <container>1</container>
   </customwidget>
@@ -774,8 +765,8 @@
    <slot>ClickedPlay()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>82</x>
-     <y>721</y>
+     <x>946</x>
+     <y>98</y>
     </hint>
     <hint type="destinationlabel">
      <x>66</x>
@@ -790,8 +781,8 @@
    <slot>ClickedBegin()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>53</x>
-     <y>721</y>
+     <x>917</x>
+     <y>98</y>
     </hint>
     <hint type="destinationlabel">
      <x>38</x>
@@ -806,8 +797,8 @@
    <slot>ClickedEnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>122</x>
-     <y>721</y>
+     <x>986</x>
+     <y>98</y>
     </hint>
     <hint type="destinationlabel">
      <x>53</x>
@@ -822,8 +813,8 @@
    <slot>ToggledSaveMovie(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>955</x>
-     <y>71</y>
+     <x>877</x>
+     <y>98</y>
     </hint>
     <hint type="destinationlabel">
      <x>343</x>
@@ -838,8 +829,8 @@
    <slot>ToggledEdgesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>841</x>
-     <y>326</y>
+     <x>974</x>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -854,8 +845,8 @@
    <slot>ToggledEdgesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>841</x>
-     <y>354</y>
+     <x>974</x>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -871,7 +862,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>974</x>
-     <y>354</y>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -886,8 +877,8 @@
    <slot>ToggledCenterPath(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>826</x>
-     <y>306</y>
+     <x>974</x>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -918,8 +909,8 @@
    <slot>ToggledCenterPathDisplayBody(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>817</x>
-     <y>352</y>
+     <x>826</x>
+     <y>412</y>
     </hint>
     <hint type="destinationlabel">
      <x>514</x>
@@ -934,8 +925,8 @@
    <slot>ToggledEdgesBodyCenter(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>817</x>
-     <y>381</y>
+     <x>826</x>
+     <y>440</y>
     </hint>
     <hint type="destinationlabel">
      <x>520</x>
@@ -950,8 +941,8 @@
    <slot>ToggledEdgesTessellation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>817</x>
-     <y>387</y>
+     <x>826</x>
+     <y>440</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -966,8 +957,8 @@
    <slot>ToggledEdgesTorusTubes(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>817</x>
-     <y>387</y>
+     <x>826</x>
+     <y>440</y>
     </hint>
     <hint type="destinationlabel">
      <x>519</x>
@@ -982,8 +973,8 @@
    <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>826</x>
-     <y>306</y>
+     <x>974</x>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>507</x>
@@ -998,8 +989,8 @@
    <slot>ToggledFacesTorusTubes(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>817</x>
-     <y>387</y>
+     <x>826</x>
+     <y>440</y>
     </hint>
     <hint type="destinationlabel">
      <x>487</x>
@@ -1014,8 +1005,8 @@
    <slot>ToggledTorusOriginalDomainDisplay(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>853</x>
-     <y>198</y>
+     <x>986</x>
+     <y>236</y>
     </hint>
     <hint type="destinationlabel">
      <x>483</x>
@@ -1030,8 +1021,8 @@
    <slot>ToggledTorusOriginalDomainClipped(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>853</x>
-     <y>226</y>
+     <x>986</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
      <x>494</x>
@@ -1046,8 +1037,8 @@
    <slot>ToggledBoundingBox(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>808</x>
-     <y>81</y>
+     <x>997</x>
+     <y>137</y>
     </hint>
     <hint type="destinationlabel">
      <x>529</x>
@@ -1062,8 +1053,8 @@
    <slot>ValueChangedAngleOfView(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>866</x>
-     <y>122</y>
+     <x>988</x>
+     <y>172</y>
     </hint>
     <hint type="destinationlabel">
      <x>501</x>
@@ -1078,8 +1069,8 @@
    <slot>CurrentIndexChangedCenterPathColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>808</x>
-     <y>348</y>
+     <x>826</x>
+     <y>412</y>
     </hint>
     <hint type="destinationlabel">
      <x>1015</x>
@@ -1094,8 +1085,8 @@
    <slot>ToggledCenterPathHistogram(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>817</x>
-     <y>362</y>
+     <x>826</x>
+     <y>412</y>
     </hint>
     <hint type="destinationlabel">
      <x>1015</x>
@@ -1111,7 +1102,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>826</x>
-     <y>402</y>
+     <y>440</y>
     </hint>
     <hint type="destinationlabel">
      <x>1012</x>
@@ -1126,8 +1117,8 @@
    <slot>ToggledFacesHistogram(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>817</x>
-     <y>387</y>
+     <x>826</x>
+     <y>440</y>
     </hint>
     <hint type="destinationlabel">
      <x>1015</x>
@@ -1153,13 +1144,13 @@
   </connection>
   <connection>
    <sender>sliderTimeSteps</sender>
-   <signal>valueChangedOriginalRange(int)</signal>
+   <signal>valueChanged(int)</signal>
    <receiver>Window</receiver>
    <slot>ValueChangedSliderTimeSteps(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>561</x>
-     <y>710</y>
+     <x>579</x>
+     <y>723</y>
     </hint>
     <hint type="destinationlabel">
      <x>587</x>
@@ -1168,18 +1159,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>sliderTimeSteps</sender>
-   <signal>valueChangedNone()</signal>
+   <sender>widgetHistogram</sender>
+   <signal>selectionChanged()</signal>
    <receiver>Window</receiver>
-   <slot>ValueChangedNone()</slot>
+   <slot>SelectionChangedHistogram()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>694</x>
-     <y>708</y>
+     <x>311</x>
+     <y>643</y>
     </hint>
     <hint type="destinationlabel">
-     <x>732</x>
-     <y>737</y>
+     <x>336</x>
+     <y>738</y>
     </hint>
    </hints>
   </connection>
@@ -1199,6 +1190,7 @@
   <slot>ToggledFacesHistogram(bool)</slot>
   <slot>ToggledFacesNormal(bool)</slot>
   <slot>ValueChangedNone()</slot>
+  <slot>SelectionChangedHistogram()</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroup"/>

@@ -41,12 +41,18 @@ public:
     {
 	m_histogramItem.getSelectedBins (intervals, selected);
     }
-    double GetAxisMaxValue () const
+    double GetMaxValueAxis () const
     {
-	return m_axisMaxValue;
+	return m_histogramItem.getMaxValueAxis ();
     }
-    void SetAxisMaxValue (double axisMaxValue);
-    size_t GetDataMaxValue () const;
+    size_t GetMaxValueData () const;
+
+    void SetMaxValueAxis (double axisMaxValue);
+    void SetLogValueAxis (bool logValueAxis);
+    bool IsLogValueAxis () const
+    {
+	return m_histogramItem.isLogValueAxis ();
+    }
 
 public Q_SLOTS:
     void SelectionPointMoved (const QPoint& pos);
@@ -68,7 +74,6 @@ private:
     QwtPlotPicker m_plotPicker;
     size_t m_beginBinSelection;
     SelectionTool m_selectionTool;
-    double m_axisMaxValue;
 };
 
 

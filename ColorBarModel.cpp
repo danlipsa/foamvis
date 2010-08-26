@@ -51,9 +51,9 @@ void ColorBarModel::SetupRainbowColorMap ()
     const size_t COLORS = 256;
     m_colorMap.setColorInterval (RainbowColor (0), RainbowColor (1));
     m_colorMap.setMode (QwtLinearColorMap::FixedColors);
-    for (size_t i = 1; i < COLORS; ++i)
+    for (size_t i = 1; i < COLORS - 1; ++i)
     {
-	double value = static_cast<double>(i)/COLORS;
+	double value = static_cast<double>(i)/ (COLORS - 1);
 	m_colorMap.addColorStop (value, RainbowColor (value));
     }
 }
@@ -63,9 +63,9 @@ void ColorBarModel::SetupBlueRedColorMap ()
     const size_t COLORS = 256;
     m_colorMap.setColorInterval (BlueRedColor (0), BlueRedColor (COLORS));
     m_colorMap.setMode (QwtLinearColorMap::FixedColors);
-    for (size_t i = 1; i < COLORS; ++i)
+    for (size_t i = 1; i < COLORS - 1; ++i)
     {
-	double value = static_cast<double>(i)/COLORS;
+	double value = static_cast<double>(i)/ (COLORS - 1);
 	m_colorMap.addColorStop (value, BlueRedColor (i));
     }
 }

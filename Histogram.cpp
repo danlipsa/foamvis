@@ -87,7 +87,6 @@ void Histogram::SetData (
     const QwtIntervalData& intervalData, double maxValue,
     const vector< pair<size_t, size_t> >* selectedBins)
 {
-    m_axisMaxValue = maxValue;
     m_histogramItem.setData(intervalData, maxValue, selectedBins);
     setAxisScale(QwtPlot::yLeft, 0.0, maxValue);
     setAxisScale(
@@ -96,11 +95,10 @@ void Histogram::SetData (
 	intervalData.interval (intervalData.size () - 1).maxValue ());
 }
 
-void Histogram::SetAxisMaxValue (double axisMaxValue)
+void Histogram::SetMaxValueAxis (double maxValueAxis)
 {
-    m_axisMaxValue = axisMaxValue;
-    m_histogramItem.setMaxValue (axisMaxValue);
-    setAxisScale(QwtPlot::yLeft, 0.0, axisMaxValue);
+    m_histogramItem.setMaxValueAxis (maxValueAxis);
+    setAxisScale(QwtPlot::yLeft, 0.0, maxValueAxis);
 }
 
 void Histogram::EnableSelection (bool enable)
@@ -114,8 +112,24 @@ void Histogram::GetSelectedIntervals (
     m_histogramItem.getSelectedIntervals (intervals);
 }
 
-size_t Histogram::GetDataMaxValue () const
+size_t Histogram::GetMaxValueData () const
 {
     QwtDoubleRect rect = m_histogramItem.boundingRect ();
     return rect.y () + rect.height ();
+}
+
+void Histogram::SetLogValueAxis (bool logValueAxis)
+{
+    m_histogramItem.setLogValueAxis (logValueAxis);
+    if (logValueAxis)
+    {
+	setAxisScale(QwtPlot::yLeft, HistogramItem::logScaleZero,
+		     GetMaxValueAxis ());
+	setAxisScaleEngine (QwtPlot::yLeft, new QwtLog10ScaleEngine);
+    }
+    else
+    {
+	setAxisScale(QwtPlot::yLeft, 0.0, GetMaxValueAxis ());
+	setAxisScaleEngine (QwtPlot::yLeft, new QwtLinearScaleEngine);
+    }
 }

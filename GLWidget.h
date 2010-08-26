@@ -136,12 +136,10 @@ public:
 	return m_notAvailableFaceColor;
     }
 
-
-    /**
-     * Displays the center of the bodies
-     */
-    void displayCenterOfBodies ();
-    void DataChanged () {ValueChangedSliderTimeSteps (m_timeStep);}
+    void DataChanged () 
+    {
+	ValueChangedSliderTimeSteps (m_timeStep);
+    }
 
     GLUquadricObj* GetQuadricObject () const 
     {
@@ -292,6 +290,10 @@ private:
     };
 
 private:
+    /**
+     * Displays the center of the bodies
+     */
+    void displayCenterOfBodies ();
     bool edgesTorusTubes ()
     {
 	return m_edgesTorusTubes;

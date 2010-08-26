@@ -36,15 +36,6 @@ void ColorBar::SetModel (boost::shared_ptr<ColorBarModel> model)
     const int maxMajorTicks = 8;
     const int maxMinorTicks = 5;
     const int fontSize = 12;
-/*
-    scaleDiv = scaleEngine.divideScale (interval.minValue (), 
-    interval.maxValue (), 0, 0);
-    QwtValueList majorTicks;
-    majorTicks += (interval.minValue () + interval.maxValue()) / 2;
-    majorTicks += interval.minValue ();
-    majorTicks += interval.maxValue ();
-    scaleDiv.setTicks(QwtScaleDiv::MajorTick, majorTicks);    
-*/
 
     scaleDiv = scaleEngine.divideScale (
 	interval.minValue (), interval.maxValue (), 

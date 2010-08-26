@@ -35,7 +35,6 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     boost::shared_ptr<ColorBarModel> colorBarModel;
     widgetGl->SetColorBarModel (colorBarModel);
     widgetHistogram->setHidden (true);
-    updateStatus ();
     m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
     configureInterface (foamAlongTime);
 
@@ -50,8 +49,6 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
 
     connect (m_timer.get (), SIGNAL (timeout()),
 	     this, SLOT (TimeoutTimer ()));
-    connect (widgetHistogram, SIGNAL(selectionChanged ()),
-	     this, SLOT (SelectionChangedHistogram ()));
 }
 
 void MainWindow::setupSliderData (const FoamAlongTime& foamAlongTime)
@@ -134,24 +131,6 @@ void MainWindow::updateButtons ()
     enablePlay ();
 }
 
-void MainWindow::updateStatus ()
-{
-    QString oldString = labelStatus->text ();
-    ostringstream ostr;
-    ostr << "Time step " << widgetGl->GetTimeStep ();
-    if (! widgetGl->IsDisplayedAllBodies ())
-	ostr << ", B: " << (widgetGl->GetDisplayedBodyId () + 1);
-    if (widgetGl->GetDisplayedFaceIndex () != GLWidget::DISPLAY_ALL)
-	ostr << ", F: " << (widgetGl->GetDisplayedFaceId () + 1);
-    if (widgetGl->GetDisplayedEdgeIndex () != GLWidget::DISPLAY_ALL)
-	ostr << ", E: " << (widgetGl->GetDisplayedEdgeId () + 1);
-    ostr << ends;
-    QString newString (ostr.str().c_str ());
-    if (oldString != newString)
-	labelStatus->setText (newString);
-}
-
-
 void MainWindow::enableBegin ()
 {
     if (sliderTimeSteps->value () > sliderTimeSteps->minimum ())
@@ -178,22 +157,18 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     {
     case Qt::Key_Up:
 	widgetGl->IncrementDisplayedEdge ();
-	updateStatus ();
 	break;
     case Qt::Key_Down:
 	widgetGl->DecrementDisplayedEdge ();
-	updateStatus ();
 	break;
     case Qt::Key_PageUp:
 	switch (modifiers)
 	{
 	case Qt::NoModifier:
             widgetGl->IncrementDisplayedBody ();
-	    updateStatus ();
 	    break;
 	case Qt::ShiftModifier:
 	    widgetGl->IncrementDisplayedFace ();
-	    updateStatus ();
 	    break;
 	}
         break;
@@ -202,11 +177,9 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 	{
 	case Qt::NoModifier:
             widgetGl->DecrementDisplayedBody ();
-	    updateStatus ();
 	    break;
 	case Qt::ShiftModifier:
 	    widgetGl->DecrementDisplayedFace ();
-	    updateStatus ();
 	    break;
 	}
 	break;
@@ -305,14 +278,12 @@ void MainWindow::ClickedBegin ()
 {
     sliderTimeSteps->setValue (sliderTimeSteps->minimum ());
     updateButtons ();
-    updateStatus ();
 }
 
 void MainWindow::ClickedEnd ()
 {
     sliderTimeSteps->setValue (sliderTimeSteps->maximum ());
     updateButtons ();
-    updateStatus ();
 }
 
 void MainWindow::TimeoutTimer ()
@@ -322,11 +293,6 @@ void MainWindow::TimeoutTimer ()
         sliderTimeSteps->setValue (value + 1);
     else
         ClickedPlay ();
-}
-
-void MainWindow::ValueChangedNone ()
-{
-    cdbg << "ValueChangedNone: " << endl;
 }
 
 
@@ -349,7 +315,6 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
     }
     widgetGl->ValueChangedSliderTimeSteps (timeStep);
     updateButtons ();
-    updateStatus ();
 }
 
 void MainWindow::ToggledEdgesNormal (bool checked)
@@ -538,7 +503,7 @@ void MainWindow::SetAndDisplayHistogram (
 
     widgetHistogram->setVisible (true);
     if (maxValueOperation == KEEP_MAX_VALUE)
-	maxYValue = widgetHistogram->GetAxisMaxValue ();
+	maxYValue = widgetHistogram->GetMaxValueAxis ();
     if (histogramSelection == KEEP_SELECTION)
     {
 	vector< pair<size_t, size_t> > selectedBins;
@@ -628,17 +593,9 @@ void MainWindow::SelectionChangedHistogram ()
 	BodyProperty::FromSizeT (comboBoxFacesColor->currentIndex ());
     vector<QwtDoubleInterval> valueIntervals;
     widgetHistogram->GetSelectedIntervals (&valueIntervals);
-/*        
-    ostream_iterator<QwtDoubleInterval> out(cdbg, "\n");
-    cdbg << "valueIntervals" << endl;
-    copy (valueIntervals.begin (), valueIntervals.end (), out);    
-*/
+
     vector<bool> timeStepSelection;
     widgetGl->GetFoamAlongTime ().GetTimeStepSelection (
 	bodyProperty, valueIntervals, &timeStepSelection);
-/*
-    cdbg << "timeStepSelection" << endl
-	 << timeStepSelection << endl;
-*/
     sliderTimeSteps->SetRestrictedTo (timeStepSelection);
 }

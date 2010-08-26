@@ -24,7 +24,7 @@ public:
 	const QwtIntervalData &data,
 	double maxValue,
 	const vector< pair<size_t, size_t> >* selectedBins);
-    void setMaxValue (double maxValue);
+    void setMaxValueAxis (double maxValue);
     const QwtIntervalData &data() const;
 
     void setFocusColor(const QColor& color);
@@ -56,8 +56,12 @@ public:
     void getSelectedIntervals (vector<QwtDoubleInterval>* intervals) const;
     void getSelectedBins (
 	vector< pair<size_t, size_t> >* intervals, bool selected = true) const;
+    double getMaxValueAxis () const;
     void setSelectedBins (
 	const vector< pair<size_t, size_t> >& intervals);
+    void setLogValueAxis (bool logValueAxis);
+    bool isLogValueAxis () const;
+    static const double logScaleZero = 0.9;
 
 protected:
     virtual void drawBar(
@@ -72,16 +76,12 @@ private:
     void drawSelectionRegions (
 	QPainter *painter, const QwtScaleMap &xMap, 
 	const QwtScaleMap &yMap) const;
-    void drawYx (size_t i, QPainter *painter, const QwtScaleMap &xMap, 
-		  const QwtScaleMap &yMap) const;
     void drawXy (
 	size_t i, QPainter *painter, const QwtScaleMap &xMap, 
 	const QwtScaleMap &yMap) const;
     void drawRegion (size_t beginRegion, size_t endRegion,
 		     QPainter *painter, 
 		     const QwtScaleMap &xMap, const QwtScaleMap &yMap) const;
-
-
 
     class PrivateData;
     PrivateData *d_data;

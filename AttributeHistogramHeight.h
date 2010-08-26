@@ -15,6 +15,13 @@ class AttributeHistogramHeight :
     public QDialog, private Ui::AttributeHistogramHeight
 {
 public:
+    enum State
+    {
+	MAX_VALUE,
+	VALUE
+    };
+
+public:
     AttributeHistogramHeight (QWidget* parent);
 
     size_t GetValue () const
@@ -22,17 +29,27 @@ public:
 	return m_value;
     }
     void SetValue (size_t value);
-    void SetMaximumValue (size_t currentTimeStepValue)
+    void SetMaximumValue (size_t maxValue)
     {
-	m_maximumValue = currentTimeStepValue;
+	m_maxValue = maxValue;
     }
     size_t GetMaximumValue () const
     {
-	return m_maximumValue;
+	return m_maxValue;
     }
+    State GetState () const
+    {
+	return m_state;
+    }
+    bool IsLogScale () const
+    {
+	return m_logScale;
+    }
+    void SetLogScale (bool logScale);
 
 public Q_SLOTS:
-    void ToggledMaximumValue (bool checked);
+    void ToggledLogScale (bool checked);
+    void ToggledMaxValue (bool checked);
     void ToggledValue (bool checked);
     void EditingFinishedValue ();
     void FocusInValue ();
@@ -44,7 +61,9 @@ private:
     Q_OBJECT
     QIntValidator m_validator;
     size_t m_value;
-    size_t m_maximumValue;
+    size_t m_maxValue;
+    State m_state;
+    bool m_logScale;
 };
 
 

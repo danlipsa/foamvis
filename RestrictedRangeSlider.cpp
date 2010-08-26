@@ -9,22 +9,13 @@
 #include "RestrictedRangeSlider.h"
 
 RestrictedRangeSlider::RestrictedRangeSlider (QWidget *parent) :
-    QGroupBox (parent),
-    m_scale (QwtScaleDraw::TopScale, this),
-    m_slider (Qt::Horizontal, this),
+    QWidget (parent),
     m_state (FULL_RANGE)
 {
-    setupUi ();
-    connect (&m_slider, SIGNAL(valueChanged (int)),
-	     this, SLOT(ToOriginalRange (int)));
-}
-
-void RestrictedRangeSlider::setupUi ()
-{
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->addWidget (&m_scale);
-    layout->addWidget (&m_slider);
-    setLayout (layout);
+    setupUi (this);
+    scale->setAlignment (QwtScaleDraw::TopScale);
+    updateTitle ();
+    updateLabelValue (minimum ());
 }
 
 void RestrictedRangeSlider::setupScale (int minimum, int maximum)
@@ -38,9 +29,9 @@ void RestrictedRangeSlider::setupScale (int minimum, int maximum)
     scaleDiv = scaleEngine.divideScale (
 	interval.minValue (), interval.maxValue (), 
 	maxMajorTicks, maxMinorTicks);
-    m_scale.setScaleDiv (scaleEngine.transformation (), scaleDiv);
+    scale->setScaleDiv (scaleEngine.transformation (), scaleDiv);
     setupColorMap ();
-    m_scale.setBorderDist (15, 15);
+    scale->setBorderDist (15, 15);
 }
 
 void RestrictedRangeSlider::setupColorMap (const vector<bool>* selected)
@@ -57,15 +48,15 @@ void RestrictedRangeSlider::setupColorMap (const vector<bool>* selected)
     else
 	v = selected;
     m_colorMap->setColorInterval (toColor ((*v)[0]),
-				 toColor ((*v)[(*v).size () - 1]));
+				  toColor ((*v)[(*v).size () - 1]));
     m_colorMap->setMode (QwtLinearColorMap::FixedColors);
     for (size_t i = 1; i < (*v).size () - 1; ++i)
     {
-	double value = static_cast<double>(i) / (*v).size ();
+	double value = static_cast<double>(i) / ((*v).size () - 1);
 	m_colorMap->addColorStop (value, toColor ((*v)[i]));
     }
-    m_scale.setColorMap (interval, *m_colorMap);
-    m_scale.setColorBarEnabled (true);
+    scale->setColorMap (interval, *m_colorMap);
+    scale->setColorBarEnabled (true);
 }
 
 
@@ -105,21 +96,30 @@ void RestrictedRangeSlider::SetFullRange ()
 
 void RestrictedRangeSlider::updateTitle ()
 {
+    ostringstream ostr;
     if (GetState () != RestrictedRangeSlider::FULL_RANGE)
     {
-	ostringstream ostr;
 	size_t range = 
 	    (GetState () == RestrictedRangeSlider::EMPTY_RANGE) ? 
 	    0 : m_toOriginalRange.size ();
 	ostr << "Selected Time Steps: " 
 	     << range << " of " << (maximum () - minimum () + 1);
-	setTitle (ostr.str ().c_str ());
     }
     else
-	setTitle ("Time Steps");    
+	ostr << "Time Steps: " << (maximum () - minimum () + 1);
+    groupBoxRestrictedRange->setTitle (ostr.str ().c_str ());
 }
 
-void RestrictedRangeSlider::ToOriginalRange (int value)
+void RestrictedRangeSlider::updateLabelValue (int value)
 {
-    Q_EMIT valueChangedOriginalRange (value);
+    ostringstream ostr;
+    ostr << value;
+    labelValue->setText (ostr.str ().c_str ());
+}
+
+
+void RestrictedRangeSlider::ValueChangedSlider (int value)
+{
+    updateLabelValue (value);
+    Q_EMIT valueChanged (value);
 }

@@ -114,7 +114,6 @@ public Q_SLOTS:
      * at the current position of the slider.
      */
     void ValueChangedSliderTimeSteps (int value);
-    void ValueChangedNone ();
 private:
     /**
      * Enables/Disables the Begin button
@@ -138,7 +137,6 @@ private:
     /**
      * Updates the status bar based on the postion of the slider.
      */
-    void updateStatus ();
     void setupSliderData (const FoamAlongTime& foamAlongTime);
     void configureInterface (const FoamAlongTime& foamAlongTime);
     void changedColorBarInterval (BodyProperty::Enum bodyProperty);
