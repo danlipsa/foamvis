@@ -284,10 +284,6 @@ void HistogramItem::drawBar(
 
     const QColor color(painter->pen().color());
     const QRect r = rect.normalized();
-
-    const int factor = 125;
-    const QColor light(color.light(factor));
-    const QColor dark(color.dark(factor));
     
     painter->setBrush(color);    
     painter->setPen(Qt::NoPen);

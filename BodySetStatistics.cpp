@@ -12,6 +12,8 @@
 #include "Utils.h"
 
 
+const size_t HISTOGRAM_INTERVALS = 256;
+
 BodySetStatistics::BodySetStatistics () :
     m_min (BodyProperty::COUNT, numeric_limits<float> ().max ()),
     m_max (BodyProperty::COUNT, -numeric_limits<float> ().max ()),
@@ -66,7 +68,8 @@ void BodySetStatistics::HistogramStep (
 void BodySetStatistics::valuePerInterval (size_t i, float value, 
 					  float beginInterval, float endInterval)
 {
-    size_t bin = GetBin (value, HISTOGRAM_INTERVALS, beginInterval, endInterval);
+    size_t bin = GetBin (
+	value, HistogramIntervals (), beginInterval, endInterval);
     ++m_histogram[i][bin];
 }
 
@@ -96,13 +99,14 @@ QwtIntervalData BodySetStatistics::GetHistogram (
 {
     if (rangeStatistics == 0)
 	rangeStatistics = this;
-    QwtArray<QwtDoubleInterval> intervals (HISTOGRAM_INTERVALS);
-    QwtArray<double> values (HISTOGRAM_INTERVALS);
+    size_t histogramIntervals = HistogramIntervals ();
+    QwtArray<QwtDoubleInterval> intervals (histogramIntervals);
+    QwtArray<double> values (histogramIntervals);
     float beginInterval = rangeStatistics->GetMin (i);
     float endInterval = rangeStatistics->GetMax (i);
-    float step = (endInterval - beginInterval) / HISTOGRAM_INTERVALS;
+    float step = (endInterval - beginInterval) / histogramIntervals;
     float pos = beginInterval;
-    for (size_t bin = 0; bin < HISTOGRAM_INTERVALS; ++bin)
+    for (size_t bin = 0; bin < histogramIntervals; ++bin)
     {
 	intervals[bin] = QwtDoubleInterval (pos, pos + step);
 	values[bin] = GetValuesPerBin (i, bin);
@@ -117,7 +121,8 @@ void BodySetStatistics::CalculateMaxCountPerBin ()
 	 bodyProperty < BodyProperty::COUNT; ++bodyProperty)
     {
 	size_t maxCount = 0;
-	for (size_t bin = 0; bin < HISTOGRAM_INTERVALS; ++bin)
+	size_t histogramIntervals = HistogramIntervals ();
+	for (size_t bin = 0; bin < histogramIntervals; ++bin)
 	    maxCount = max (maxCount, GetValuesPerBin (bodyProperty, bin));
 	m_maxCountPerBin[bodyProperty] = maxCount;
     }

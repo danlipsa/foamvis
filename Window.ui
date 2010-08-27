@@ -318,7 +318,7 @@
                      <bool>false</bool>
                     </property>
                     <attribute name="buttonGroup">
-                     <string>buttonGroup</string>
+                     <string>buttonGroupDisplay</string>
                     </attribute>
                    </widget>
                   </item>
@@ -328,7 +328,7 @@
                      <string>Torus Model</string>
                     </property>
                     <attribute name="buttonGroup">
-                     <string>buttonGroup</string>
+                     <string>buttonGroupDisplay</string>
                     </attribute>
                    </widget>
                   </item>
@@ -433,7 +433,7 @@
                      <bool>false</bool>
                     </property>
                     <attribute name="buttonGroup">
-                     <string>buttonGroup</string>
+                     <string>buttonGroupDisplay</string>
                     </attribute>
                    </widget>
                   </item>
@@ -443,7 +443,7 @@
                      <string>Torus Model</string>
                     </property>
                     <attribute name="buttonGroup">
-                     <string>buttonGroup</string>
+                     <string>buttonGroupDisplay</string>
                     </attribute>
                    </widget>
                   </item>
@@ -537,10 +537,42 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QCheckBox" name="checkBoxFacesHistogram">
-                   <property name="text">
+                  <widget class="QGroupBox" name="groupBox">
+                   <property name="title">
                     <string>Histogram</string>
                    </property>
+                   <layout class="QVBoxLayout" name="verticalLayout_6">
+                    <item>
+                     <widget class="QRadioButton" name="radioButtonFacesHistogramNone">
+                      <property name="text">
+                       <string>None</string>
+                      </property>
+                      <attribute name="buttonGroup">
+                       <string>buttonGroupFacesHistogram</string>
+                      </attribute>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QRadioButton" name="radioButtonFacesHistogramUnicolor">
+                      <property name="text">
+                       <string>Unicolor</string>
+                      </property>
+                      <attribute name="buttonGroup">
+                       <string>buttonGroupFacesHistogram</string>
+                      </attribute>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QRadioButton" name="radioButtonFacesHistogramColorCoded">
+                      <property name="text">
+                       <string>Color Coded</string>
+                      </property>
+                      <attribute name="buttonGroup">
+                       <string>buttonGroupFacesHistogram</string>
+                      </attribute>
+                     </widget>
+                    </item>
+                   </layout>
                   </widget>
                  </item>
                  <item>
@@ -587,7 +619,7 @@
                      <string>Center Path</string>
                     </property>
                     <attribute name="buttonGroup">
-                     <string>buttonGroup</string>
+                     <string>buttonGroupDisplay</string>
                     </attribute>
                    </widget>
                   </item>
@@ -599,18 +631,11 @@
              <item>
               <widget class="QStackedWidget" name="stackedWidgetComposite">
                <property name="currentIndex">
-                <number>0</number>
+                <number>1</number>
                </property>
                <widget class="QWidget" name="pageCompositeEmpty"/>
                <widget class="QWidget" name="pageCenterPath">
                 <layout class="QVBoxLayout" name="verticalLayout_3">
-                 <item>
-                  <widget class="QCheckBox" name="checkBoxCenterPathCurrentBody">
-                   <property name="text">
-                    <string>Current Body</string>
-                   </property>
-                  </widget>
-                 </item>
                  <item>
                   <widget class="QWidget" name="widgetCenterPathColor" native="true">
                    <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -664,10 +689,49 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QCheckBox" name="checkBoxCenterPathHistogram">
+                  <widget class="QCheckBox" name="checkBoxCenterPathCurrentBody">
                    <property name="text">
+                    <string>Current Body</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_5">
+                   <property name="title">
                     <string>Histogram</string>
                    </property>
+                   <layout class="QVBoxLayout" name="verticalLayout_9">
+                    <item>
+                     <widget class="QRadioButton" name="radioButtonCenterPathHistogramNone">
+                      <property name="text">
+                       <string>None</string>
+                      </property>
+                      <attribute name="buttonGroup">
+                       <string>buttonGroupCenterPathHistogram</string>
+                      </attribute>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QRadioButton" name="radioButtonCenterPathHistogramUnicolor">
+                      <property name="text">
+                       <string>Unicolor</string>
+                      </property>
+                      <attribute name="buttonGroup">
+                       <string>buttonGroupCenterPathHistogram</string>
+                      </attribute>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QRadioButton" name="radioButtonCenterPathHistogramColorCoded">
+                      <property name="text">
+                       <string>Color Coded</string>
+                      </property>
+                      <attribute name="buttonGroup">
+                       <string>buttonGroupCenterPathHistogram</string>
+                      </attribute>
+                     </widget>
+                    </item>
+                   </layout>
                   </widget>
                  </item>
                  <item>
@@ -909,8 +973,8 @@
    <slot>ToggledCenterPathDisplayBody(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>826</x>
-     <y>412</y>
+     <x>977</x>
+     <y>463</y>
     </hint>
     <hint type="destinationlabel">
      <x>514</x>
@@ -925,8 +989,8 @@
    <slot>ToggledEdgesBodyCenter(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>826</x>
-     <y>440</y>
+     <x>817</x>
+     <y>419</y>
     </hint>
     <hint type="destinationlabel">
      <x>520</x>
@@ -941,8 +1005,8 @@
    <slot>ToggledEdgesTessellation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>826</x>
-     <y>440</y>
+     <x>817</x>
+     <y>425</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -957,8 +1021,8 @@
    <slot>ToggledEdgesTorusTubes(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>826</x>
-     <y>440</y>
+     <x>817</x>
+     <y>425</y>
     </hint>
     <hint type="destinationlabel">
      <x>519</x>
@@ -1069,28 +1133,12 @@
    <slot>CurrentIndexChangedCenterPathColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>826</x>
-     <y>412</y>
+     <x>968</x>
+     <y>426</y>
     </hint>
     <hint type="destinationlabel">
      <x>1015</x>
      <y>448</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxCenterPathHistogram</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>Window</receiver>
-   <slot>ToggledCenterPathHistogram(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>826</x>
-     <y>412</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1015</x>
-     <y>494</y>
     </hint>
    </hints>
   </connection>
@@ -1101,28 +1149,12 @@
    <slot>CurrentIndexChangedFacesColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>826</x>
-     <y>440</y>
+     <x>968</x>
+     <y>454</y>
     </hint>
     <hint type="destinationlabel">
      <x>1012</x>
      <y>483</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxFacesHistogram</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>Window</receiver>
-   <slot>ToggledFacesHistogram(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>826</x>
-     <y>440</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1015</x>
-     <y>547</y>
     </hint>
    </hints>
   </connection>
@@ -1174,6 +1206,102 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>radioButtonFacesHistogramNone</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>Window</receiver>
+   <slot>ToggledHistogramNone(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>870</x>
+     <y>512</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1013</x>
+     <y>564</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonFacesHistogramUnicolor</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>Window</receiver>
+   <slot>ToggledFacesHistogramUnicolor(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>934</x>
+     <y>530</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1013</x>
+     <y>592</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonFacesHistogramColorCoded</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>Window</receiver>
+   <slot>ToggledFacesHistogramColorCoded(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>843</x>
+     <y>565</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1017</x>
+     <y>623</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonCenterPathHistogramNone</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>Window</receiver>
+   <slot>ToggledHistogramNone(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>858</x>
+     <y>509</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1015</x>
+     <y>514</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonCenterPathHistogramUnicolor</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>Window</receiver>
+   <slot>ToggledCenterPathHistogramUnicolor(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>910</x>
+     <y>538</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1012</x>
+     <y>544</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonCenterPathHistogramColorCoded</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>Window</receiver>
+   <slot>ToggledCenterPathHistogramColorCoded(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>846</x>
+     <y>565</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>997</x>
+     <y>734</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>ClickedBegin()</slot>
@@ -1185,14 +1313,19 @@
   <slot>ToggledFacesTorus(bool)</slot>
   <slot>ValueChangedSliderTimeSteps(int)</slot>
   <slot>CurrentIndexChangedCenterPathColor(int)</slot>
-  <slot>ToggledCenterPathHistogram(bool)</slot>
   <slot>CurrentIndexChangedFacesColor(int)</slot>
-  <slot>ToggledFacesHistogram(bool)</slot>
   <slot>ToggledFacesNormal(bool)</slot>
   <slot>ValueChangedNone()</slot>
   <slot>SelectionChangedHistogram()</slot>
+  <slot>ToggledFacesHistogramUnicolor(bool)</slot>
+  <slot>ToggledFacesHistogramColorCoded(bool)</slot>
+  <slot>ToggledCenterPathHistogramUnicolor(bool)</slot>
+  <slot>ToggledCenterPathHistogramColorCoded(bool)</slot>
+  <slot>ToggledHistogramNone(bool)</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroupDisplay"/>
+  <buttongroup name="buttonGroupFacesHistogram"/>
+  <buttongroup name="buttonGroupCenterPathHistogram"/>
  </buttongroups>
 </ui>

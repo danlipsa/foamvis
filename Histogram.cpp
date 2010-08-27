@@ -82,9 +82,24 @@ void Histogram::SetSelected (bool selected)
     Q_EMIT selectionChanged ();
 }
 
+void Histogram::SetDataAllBinsSelected (
+    const QwtIntervalData& intervalData, double maxValue)
+{
+    setData (intervalData, maxValue);
+    Q_EMIT selectionChanged ();
+}
 
 
-void Histogram::SetData (
+void Histogram::SetDataKeepBinSelection (
+    const QwtIntervalData& intervalData, double maxValue)
+{
+    vector< pair<size_t, size_t> > selectedBins;
+    GetSelectedBins (&selectedBins);
+    setData (intervalData, maxValue, &selectedBins);
+}
+
+
+void Histogram::setData (
     const QwtIntervalData& intervalData, double maxValue,
     const vector< pair<size_t, size_t> >* selectedBins)
 {

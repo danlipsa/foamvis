@@ -19,7 +19,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_timer (new QTimer(this)), m_processBodyTorus (0), 
     m_currentBody (0),
     m_bodyProperty (BodyProperty::NONE),
-    m_histogram (false)
+    m_histogramDisplay (NONE)
 {
     // for anti-aliased lines
     QGLFormat fmt;
@@ -352,14 +352,14 @@ void MainWindow::fieldsToControls (QComboBox* comboBox, QCheckBox* checkBox)
     if (bodyProperty != m_bodyProperty)
 	comboBox->setCurrentIndex (m_bodyProperty);
     bool histogram = checkBox->isChecked ();
-    if (histogram != m_histogram)
-	checkBox->setChecked (m_histogram);    
+    if (histogram != m_histogramDisplay)
+	checkBox->setChecked (m_histogramDisplay);    
 }
 
 void MainWindow::displayHistogramColorBar (bool checked)
 {
     widgetHistogram->setVisible (
-	checked && m_bodyProperty != BodyProperty::NONE && m_histogram);
+	checked && m_bodyProperty != BodyProperty::NONE && m_histogramDisplay);
     colorBar->setVisible (
 	checked && m_bodyProperty != BodyProperty::NONE);
 }
@@ -371,7 +371,7 @@ void MainWindow::ToggledCenterPath (bool checked)
     if (checked)
     {
 	fieldsToControls (comboBoxCenterPathColor, checkBoxCenterPathHistogram);
-	ToggledCenterPathHistogram (m_histogram);
+	ToggledCenterPathHistogram (m_histogramDisplay);
 	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
     }
     else
@@ -385,7 +385,7 @@ void MainWindow::ToggledFacesNormal (bool checked)
     if (checked)
     {
 	fieldsToControls (comboBoxFacesColor, checkBoxFacesHistogram);
-	ToggledFacesHistogram (m_histogram);
+	ToggledFacesHistogram (m_histogramDisplay);
 	stackedWidgetFaces->setCurrentWidget (pageFacesNormal);
     }
     else
@@ -469,7 +469,7 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 void MainWindow::ToggledCenterPathHistogram (bool checked)
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    m_histogram = checked;
+    m_histogramDisplay = checked;
     SetAndDisplayHistogram (
 	checked, m_bodyProperty,
 	foamAlongTime.GetHistogram (m_bodyProperty),
@@ -479,13 +479,21 @@ void MainWindow::ToggledCenterPathHistogram (bool checked)
 void MainWindow::ToggledFacesHistogram (bool checked)
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    m_histogram = checked;
+    m_histogramDisplay = checked;
     SetAndDisplayHistogram (
 	checked, m_bodyProperty,
 	foamAlongTime.GetHistogram (
 	    m_bodyProperty, widgetGl->GetTimeStep ()),
 	foamAlongTime.GetMaxCountPerBinIndividual (m_bodyProperty));
 }
+
+void MainWindow::ToggledHistogramNone (bool checked)
+{
+    if (checked)
+	widgetHistogram->setHidden (true);	
+}
+
+
 
 void MainWindow::SetAndDisplayHistogram (
     bool checked,
@@ -505,13 +513,9 @@ void MainWindow::SetAndDisplayHistogram (
     if (maxValueOperation == KEEP_MAX_VALUE)
 	maxYValue = widgetHistogram->GetMaxValueAxis ();
     if (histogramSelection == KEEP_SELECTION)
-    {
-	vector< pair<size_t, size_t> > selectedBins;
-	widgetHistogram->GetSelectedBins (&selectedBins);
-	widgetHistogram->SetData (intervalData, maxYValue, &selectedBins);
-    }
+	widgetHistogram->SetDataKeepBinSelection (intervalData, maxYValue);
     else
-	widgetHistogram->SetData (intervalData, maxYValue);
+	widgetHistogram->SetDataAllBinsSelected (intervalData, maxYValue);
     widgetHistogram->setAxisTitle (
 	QwtPlot::xBottom, QString(BodyProperty::ToString (bodyProperty)));
     widgetHistogram->setAxisTitle (
@@ -598,5 +602,4 @@ void MainWindow::SelectionChangedHistogram ()
     widgetGl->GetFoamAlongTime ().GetTimeStepSelection (
 	bodyProperty, valueIntervals, &timeStepSelection);
     sliderTimeSteps->SetRestrictedTo (timeStepSelection);
-    cdbg << "SelectionChangedHistogram" << endl;
 }

@@ -72,6 +72,10 @@ public:
     {
 	return m_maxCountPerBin[bodyProperty];
     }
+    size_t HistogramIntervals () const
+    {
+	return m_histogram[0].size ();
+    }
 
 public:
     static size_t GetBin (float value, size_t binCount,

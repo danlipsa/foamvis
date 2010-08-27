@@ -34,6 +34,12 @@ public:
 	REPLACE_MAX_VALUE,
     };
 
+    enum HistogramDisplay
+    {
+	NONE,
+	UNICOLOR,
+	COLOR_CODED
+    };
 
 
 public:
@@ -97,10 +103,15 @@ public Q_SLOTS:
     void TimeoutTimer ();
 
     void ToggledCenterPath (bool checked);
-    void ToggledCenterPathHistogram (bool checked);
+
+    void ToggledHistogramNone (bool checked);
+    void ToggledCenterPathHistogramUnicolor (bool checked);
+    void ToggledCenterPathHistogramColorCoded (bool checked);
 
     void ToggledFacesNormal (bool checked);
-    void ToggledFacesHistogram (bool checked);
+    void ToggledFacesHistogramUnicolor (bool checked);
+    void ToggledFacesHistogramColorCoded (bool checked);
+
     void ToggledFacesTorus (bool checked);
 
     /**
@@ -184,7 +195,7 @@ private:
     boost::shared_ptr<QAction> m_actionInfo;
 
     BodyProperty::Enum m_bodyProperty;
-    bool m_histogram;
+    HistogramDisplay m_histogramDisplay;
 };
 
 #endif //__MAIN_WINDOW_H__

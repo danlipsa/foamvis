@@ -91,6 +91,8 @@ Release log
 	- Fixed histogram for center path
 
 0.1.
-	- Added UI feedback for histogram bars that are longer than the height of
-	  the histogram. (a red margin)
-	
+	- Added UI feedback for histogram bars that are taller than the height of
+	  the histogram. (a red cap)
+	- Added feedback for selected time steps, scrolling is done through
+	  all time steps not only through selected time steps (context)
+	- Added logarithmic scale for histogram
