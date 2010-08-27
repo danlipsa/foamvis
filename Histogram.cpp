@@ -10,8 +10,6 @@
 #include "DebugStream.h"
 #include "BodySetStatistics.h"
 
-const double Histogram::logScaleZero = 0.9;
-
 Histogram::Histogram (QWidget* parent) :
     QwtPlot (parent), 
     m_plotPicker (QwtPlot::xBottom, QwtPlot::yLeft,
@@ -123,15 +121,10 @@ size_t Histogram::GetMaxValueData () const
 
 void Histogram::SetLogValueAxis (bool logValueAxis)
 {
-    m_logValueAxis = logValueAxis;
+    m_histogramItem.setLogValueAxis (logValueAxis);
     SetMaxValueAxis (GetMaxValueAxis ());
     if (logValueAxis)
 	setAxisScaleEngine (QwtPlot::yLeft, new QwtLog10ScaleEngine);
     else
 	setAxisScaleEngine (QwtPlot::yLeft, new QwtLinearScaleEngine);
-}
-
-double Histogram::GetMinValueAxis () const
-{
-    return (m_logValueAxis ? logScaleZero : 0);
 }

@@ -45,14 +45,17 @@ public:
     {
 	return m_histogramItem.getMaxValueAxis ();
     }
-    double GetMinValueAxis () const;
+    double GetMinValueAxis () const
+    {
+	return m_histogramItem.getMinValueAxis ();
+    }
     size_t GetMaxValueData () const;
 
     void SetMaxValueAxis (double axisMaxValue);
     void SetLogValueAxis (bool logValueAxis);
     bool IsLogValueAxis () const
     {
-	return m_logValueAxis;
+	return m_histogramItem.isLogValueAxis ();
     }
 
 public Q_SLOTS:
@@ -67,8 +70,6 @@ Q_SIGNALS:
 private:
     size_t getBin (float value);    
 
-private:
-    static const double logScaleZero;
 
 private:
     Q_OBJECT
@@ -78,7 +79,6 @@ private:
     QwtPlotPicker m_plotPicker;
     size_t m_beginBinSelection;
     SelectionTool m_selectionTool;
-    bool m_logValueAxis;
 };
 
 

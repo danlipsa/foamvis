@@ -1,4 +1,4 @@
-HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h \
+HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
 	AttributeHistogram.h AttributeHistogramHeight.h Body.h \
 	BodyAlongTime.h BodyIndex.h BodySetStatistics.h \
 	ColorBar.h ColorBarModel.h ColoredElement.h Comparisons.h \
@@ -15,7 +15,7 @@ HEADERS += Attribute.h AttributeCreator.h AttributeInfo.h \
 	QuadraticEdge.h RestrictedRangeSlider.h \
 	stable.h StripIterator.h SystemDifferences.h Utils.h \
 	Vertex.h
-SOURCES += Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
+SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	AttributeHistogram.cpp AttributeHistogramHeight.cpp \
 	Body.cpp BodyAlongTime.cpp BodyIndex.cpp \
 	BodySetStatistics.cpp \

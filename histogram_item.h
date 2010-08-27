@@ -57,8 +57,11 @@ public:
     void getSelectedBins (
 	vector< pair<size_t, size_t> >* intervals, bool selected = true) const;
     double getMaxValueAxis () const;
+    double getMinValueAxis () const;
     void setSelectedBins (
 	const vector< pair<size_t, size_t> >& intervals);
+    bool isLogValueAxis () const;
+    void setLogValueAxis (bool logValueAxis);
 
 protected:
     virtual void drawBar(
@@ -79,6 +82,7 @@ private:
     void drawRegion (size_t beginRegion, size_t endRegion,
 		     QPainter *painter, 
 		     const QwtScaleMap &xMap, const QwtScaleMap &yMap) const;
+    static const double logScaleZero;
     class PrivateData;
     PrivateData *d_data;
 };

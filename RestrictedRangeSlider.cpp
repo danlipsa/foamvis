@@ -7,6 +7,35 @@
  */
 
 #include "RestrictedRangeSlider.h"
+#include "Application.h"
+
+// Private Classes
+// ======================================================================
+
+class SliderQuery : public QSlider
+{
+public:
+    SliderQuery (QApplication* app) :
+	QSlider (Qt::Horizontal), m_app (app)
+    {
+    }
+
+    QRect GetHandleRect ()
+    {
+	QStyle* s = m_app->style ();
+	QStyleOptionSlider styleOptionSlider;
+	initStyleOption (&styleOptionSlider);
+	return s->subControlRect (
+	    QStyle::CC_Slider, &styleOptionSlider, QStyle::SC_SliderHandle,
+	    this);
+    }
+
+private:
+    QApplication* m_app;
+};
+
+// Methods
+// ======================================================================
 
 RestrictedRangeSlider::RestrictedRangeSlider (QWidget *parent) :
     QWidget (parent),
@@ -31,7 +60,9 @@ void RestrictedRangeSlider::setupScale (int minimum, int maximum)
 	maxMajorTicks, maxMinorTicks);
     scale->setScaleDiv (scaleEngine.transformation (), scaleDiv);
     setupColorMap ();
-    scale->setBorderDist (15, 15);
+    SliderQuery sliderQuery (Application::Get ().get ());
+    QRect r = sliderQuery.GetHandleRect ();
+    scale->setBorderDist (r.width () / 2, r.width () / 2);
 }
 
 void RestrictedRangeSlider::setupColorMap (const vector<bool>* selected)

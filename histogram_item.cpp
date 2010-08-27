@@ -19,6 +19,8 @@ private:
     const QwtIntervalData& m_intervalData;
 };
 
+const double HistogramItem::logScaleZero = 0.9;
+
 class HistogramItem::PrivateData
 {
 public:
@@ -30,6 +32,7 @@ public:
     QColor outOfBoundsColor;
     double reference;
     QBitArray selected;
+    bool logValueAxis;
 };
 
 
@@ -195,13 +198,14 @@ void HistogramItem::drawXy (
 {
     bool outside = false;
     const QwtIntervalData &iData = d_data->data;
-    const int y0 = yMap.transform(baseline());
+    int y0 = yMap.transform(baseline ());
     
     double value = iData.value (i);
 
     int y2 = yMap.transform(value);
     if ( y2 == y0 )
 	return;
+    y0 = yMap.transform (getMinValueAxis ());
     if (value > d_data->maxValueAxis)
     {
 	y2 = yMap.transform (d_data->maxValueAxis);
@@ -262,12 +266,11 @@ void HistogramItem::drawRegion (
     painter->setPen(Qt::NoPen);
 
     const QwtIntervalData &iData = d_data->data;
-    const int y1 = yMap.transform(baseline ());
-    const int y2 = yMap.transform(d_data->maxValueAxis);
+    const int y1 = yMap.transform(getMinValueAxis ());
+    const int y2 = yMap.transform(getMaxValueAxis ());
     int x1 = xMap.transform(iData.interval(beginRegion).minValue());
     int x2 = xMap.transform(iData.interval(endRegion - 1).maxValue());
     QRect paintRect (x1, y1, x2 - x1, y2 - y1);
-    qDebug () << paintRect;
     QwtPainter::drawRect (painter, paintRect);
 }
 
@@ -344,4 +347,19 @@ void HistogramItem::setSelectedBins (
 void HistogramItem::setOutOfBoundsColor (const QColor& color)
 {
     d_data->outOfBoundsColor = color;
+}
+
+double HistogramItem::getMinValueAxis () const
+{
+    return (d_data->logValueAxis ? logScaleZero : 0);
+}
+
+bool HistogramItem::isLogValueAxis () const
+{
+    return d_data->logValueAxis;
+}
+
+void HistogramItem::setLogValueAxis (bool logValueAxis)
+{
+    d_data->logValueAxis = logValueAxis;
 }

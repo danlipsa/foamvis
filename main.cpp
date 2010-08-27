@@ -4,6 +4,7 @@
  *
  * Parses an Evolver DMP file and displays the data from the file.
  */
+#include "Application.h"
 #include "Debug.h"
 #include "Foam.h"
 #include "FoamAlongTime.h"
@@ -246,24 +247,6 @@ void parseFiles (int argc, char *argv[],
 }
 
 
-class Application: public QApplication
-{
-public:
-    Application(int &c, char **v): QApplication(c, v) {}
-    virtual bool notify(QObject *rec, QEvent *ev)
-    {
-	try
-	{
-	    return QApplication::notify(rec, ev);
-	}
-	catch (const exception& e)
-	{
-	    cdbg << "Exception: " << e.what () << endl;
-	    return false;
-	}
-    }
-};
-
 /**
  * Parses the data file, reads in vertices, edges, etc and displays them.
  * @return 0 for success, different than 0 otherwise
@@ -285,10 +268,11 @@ int main(int argc, char *argv[])
 		cdbg << foamAlongTime;
 	    else
 	    {
-		Application app(argc, argv);
+		boost::shared_ptr<Application> app = 
+		    Application::Get (argc, argv);
 		MainWindow window (foamAlongTime);
 		window.show();
-		return app.exec();
+		return app->exec();
 	    }
             return 0;
         }
