@@ -10,6 +10,8 @@
 #include "DebugStream.h"
 #include "BodySetStatistics.h"
 
+const double Histogram::logScaleZero = 0.9;
+
 Histogram::Histogram (QWidget* parent) :
     QwtPlot (parent), 
     m_plotPicker (QwtPlot::xBottom, QwtPlot::yLeft,
@@ -83,12 +85,13 @@ void Histogram::SetSelected (bool selected)
 }
 
 
+
 void Histogram::SetData (
     const QwtIntervalData& intervalData, double maxValue,
     const vector< pair<size_t, size_t> >* selectedBins)
 {
     m_histogramItem.setData(intervalData, maxValue, selectedBins);
-    setAxisScale(QwtPlot::yLeft, 0.0, maxValue);
+    setAxisScale(QwtPlot::yLeft, GetMinValueAxis (), maxValue);
     setAxisScale(
 	QwtPlot::xBottom,
 	intervalData.interval (0).minValue (),
@@ -98,7 +101,7 @@ void Histogram::SetData (
 void Histogram::SetMaxValueAxis (double maxValueAxis)
 {
     m_histogramItem.setMaxValueAxis (maxValueAxis);
-    setAxisScale(QwtPlot::yLeft, 0.0, maxValueAxis);
+    setAxisScale(QwtPlot::yLeft, GetMinValueAxis (), maxValueAxis);
 }
 
 void Histogram::EnableSelection (bool enable)
@@ -120,16 +123,15 @@ size_t Histogram::GetMaxValueData () const
 
 void Histogram::SetLogValueAxis (bool logValueAxis)
 {
-    m_histogramItem.setLogValueAxis (logValueAxis);
+    m_logValueAxis = logValueAxis;
+    SetMaxValueAxis (GetMaxValueAxis ());
     if (logValueAxis)
-    {
-	setAxisScale(QwtPlot::yLeft, HistogramItem::logScaleZero,
-		     GetMaxValueAxis ());
 	setAxisScaleEngine (QwtPlot::yLeft, new QwtLog10ScaleEngine);
-    }
     else
-    {
-	setAxisScale(QwtPlot::yLeft, 0.0, GetMaxValueAxis ());
 	setAxisScaleEngine (QwtPlot::yLeft, new QwtLinearScaleEngine);
-    }
+}
+
+double Histogram::GetMinValueAxis () const
+{
+    return (m_logValueAxis ? logScaleZero : 0);
 }

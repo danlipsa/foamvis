@@ -62,8 +62,8 @@ void MainWindow::setupSliderData (const FoamAlongTime& foamAlongTime)
 void MainWindow::setupColorBar ()
 {
     colorBar->setAlignment (QwtScaleDraw::LeftScale);
-    colorBar->setLabelRotation (-90);
-    colorBar->setLabelAlignment (Qt::AlignHCenter);
+    //colorBar->setLabelRotation (-90);
+    //colorBar->setLabelAlignment (Qt::AlignHCenter);
     colorBar->setBorderDist (50, 50);
 }
 

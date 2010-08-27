@@ -30,8 +30,8 @@ public:
     QColor outOfBoundsColor;
     double reference;
     QBitArray selected;
-    bool logValueAxis;
 };
+
 
 HistogramItem::HistogramItem(const QwtText &title):
     QwtPlotItem(title)
@@ -105,7 +105,6 @@ double HistogramItem::getMaxValueAxis () const
     return d_data->maxValueAxis;
 }
 
-
 void HistogramItem::setSelected (bool selected)
 {
     d_data->selected.fill (selected);
@@ -158,9 +157,6 @@ QwtDoubleRect HistogramItem::boundingRect() const
     QwtDoubleRect rect = d_data->data.boundingRect();
     if ( !rect.isValid() ) 
         return rect;
-    if (d_data->logValueAxis)
-	rect.setBottom (logScaleZero);
-
     if ( rect.bottom() < d_data->reference ) 
 	rect.setBottom( d_data->reference );
     else if ( rect.top() > d_data->reference ) 
@@ -202,8 +198,6 @@ void HistogramItem::drawXy (
     const int y0 = yMap.transform(baseline());
     
     double value = iData.value (i);
-    if (d_data->logValueAxis && value == 0)
-	value = logScaleZero;
 
     int y2 = yMap.transform(value);
     if ( y2 == y0 )
@@ -261,8 +255,8 @@ void HistogramItem::drawRegion (
     QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap) const
 {
     const int factor = 100;
-    QColor color(d_data->contextColor.lighter (factor));
     const int transparency = 100;
+    QColor color(d_data->contextColor.lighter (factor));
     color.setAlpha (transparency);
     painter->setBrush (color);
     painter->setPen(Qt::NoPen);
@@ -273,6 +267,7 @@ void HistogramItem::drawRegion (
     int x1 = xMap.transform(iData.interval(beginRegion).minValue());
     int x2 = xMap.transform(iData.interval(endRegion - 1).maxValue());
     QRect paintRect (x1, y1, x2 - x1, y2 - y1);
+    qDebug () << paintRect;
     QwtPainter::drawRect (painter, paintRect);
 }
 
@@ -349,21 +344,4 @@ void HistogramItem::setSelectedBins (
 void HistogramItem::setOutOfBoundsColor (const QColor& color)
 {
     d_data->outOfBoundsColor = color;
-}
-
-void HistogramItem::setLogValueAxis (bool logValueAxis)
-{
-    d_data->logValueAxis = logValueAxis;
-    setBaseline (logValueAxis ? logScaleZero : 0);
-
-    const QwtIntervalData &iData = d_data->data;
-    for ( size_t i = 1; i < iData.size(); i++ )
-    {
-	iData.value (i);
-    }
-}
-
-bool HistogramItem::isLogValueAxis () const
-{
-    return d_data->logValueAxis;
 }

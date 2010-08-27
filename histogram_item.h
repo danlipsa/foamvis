@@ -23,7 +23,7 @@ public:
     void setData(
 	const QwtIntervalData &data,
 	double maxValue,
-	const vector< pair<size_t, size_t> >* selectedBins);
+	const vector< pair<size_t, size_t> >* selectedBins = 0);
     void setMaxValueAxis (double maxValue);
     const QwtIntervalData &data() const;
 
@@ -59,9 +59,6 @@ public:
     double getMaxValueAxis () const;
     void setSelectedBins (
 	const vector< pair<size_t, size_t> >& intervals);
-    void setLogValueAxis (bool logValueAxis);
-    bool isLogValueAxis () const;
-    static const double logScaleZero = 0.9;
 
 protected:
     virtual void drawBar(
@@ -82,7 +79,6 @@ private:
     void drawRegion (size_t beginRegion, size_t endRegion,
 		     QPainter *painter, 
 		     const QwtScaleMap &xMap, const QwtScaleMap &yMap) const;
-
     class PrivateData;
     PrivateData *d_data;
 };
