@@ -598,4 +598,5 @@ void MainWindow::SelectionChangedHistogram ()
     widgetGl->GetFoamAlongTime ().GetTimeStepSelection (
 	bodyProperty, valueIntervals, &timeStepSelection);
     sliderTimeSteps->SetRestrictedTo (timeStepSelection);
+    cdbg << "SelectionChangedHistogram" << endl;
 }
