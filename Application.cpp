@@ -27,6 +27,11 @@ boost::shared_ptr<Application> Application::Get ()
     return m_application;
 }
 
+void Application::release ()
+{
+    m_application.reset ();
+}
+
 bool Application::notify(QObject *rec, QEvent *ev)
 {
     try

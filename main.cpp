@@ -268,11 +268,14 @@ int main(int argc, char *argv[])
 		cdbg << foamAlongTime;
 	    else
 	    {
+		int result;
 		boost::shared_ptr<Application> app = 
 		    Application::Get (argc, argv);
 		MainWindow window (foamAlongTime);
 		window.show();
-		return app->exec();
+		result = app->exec();
+		app->release ();
+		return result;
 	    }
             return 0;
         }

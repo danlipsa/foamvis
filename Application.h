@@ -21,6 +21,7 @@ public:
 public:
     static boost::shared_ptr<Application> Get (int& c, char** v);
     static boost::shared_ptr<Application> Get ();
+    static void release ();
 
 private:
     static boost::shared_ptr<Application> m_application;
