@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1016</width>
-    <height>742</height>
+    <height>794</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -78,7 +78,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="ColorBar" name="colorBar"/>
+             <widget class="ColorBar" name="colorBar" native="true"/>
             </item>
             <item>
              <widget class="GLWidget" name="widgetGl" native="true">
@@ -282,7 +282,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>2</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="edges">
             <attribute name="title">
@@ -537,7 +537,7 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QGroupBox" name="groupBox">
+                  <widget class="QGroupBox" name="groupBoxFacesHistogram">
                    <property name="title">
                     <string>Histogram</string>
                    </property>
@@ -546,6 +546,9 @@
                      <widget class="QRadioButton" name="radioButtonFacesHistogramNone">
                       <property name="text">
                        <string>None</string>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
                       </property>
                       <attribute name="buttonGroup">
                        <string>buttonGroupFacesHistogram</string>
@@ -631,7 +634,7 @@
              <item>
               <widget class="QStackedWidget" name="stackedWidgetComposite">
                <property name="currentIndex">
-                <number>1</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="pageCompositeEmpty"/>
                <widget class="QWidget" name="pageCenterPath">
@@ -696,7 +699,7 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QGroupBox" name="groupBox_5">
+                  <widget class="QGroupBox" name="groupBoxCenterPathHistogram">
                    <property name="title">
                     <string>Histogram</string>
                    </property>
@@ -705,6 +708,9 @@
                      <widget class="QRadioButton" name="radioButtonCenterPathHistogramNone">
                       <property name="text">
                        <string>None</string>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
                       </property>
                       <attribute name="buttonGroup">
                        <string>buttonGroupCenterPathHistogram</string>
@@ -1207,98 +1213,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioButtonFacesHistogramNone</sender>
-   <signal>toggled(bool)</signal>
+   <sender>buttonGroupCenterPathHistogram</sender>
+   <signal>buttonClicked(int)</signal>
    <receiver>Window</receiver>
-   <slot>ToggledHistogramNone(bool)</slot>
+   <slot>ButtonClickedHistogram(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>870</x>
-     <y>512</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1013</x>
-     <y>564</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonFacesHistogramUnicolor</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>Window</receiver>
-   <slot>ToggledFacesHistogramUnicolor(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>934</x>
-     <y>530</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1013</x>
-     <y>592</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonFacesHistogramColorCoded</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>Window</receiver>
-   <slot>ToggledFacesHistogramColorCoded(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>843</x>
-     <y>565</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1017</x>
-     <y>623</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonCenterPathHistogramNone</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>Window</receiver>
-   <slot>ToggledHistogramNone(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>858</x>
-     <y>509</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1015</x>
-     <y>514</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonCenterPathHistogramUnicolor</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>Window</receiver>
-   <slot>ToggledCenterPathHistogramUnicolor(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>910</x>
-     <y>538</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1012</x>
-     <y>544</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonCenterPathHistogramColorCoded</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>Window</receiver>
-   <slot>ToggledCenterPathHistogramColorCoded(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>846</x>
-     <y>565</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>997</x>
-     <y>734</y>
+     <x>507</x>
+     <y>396</y>
     </hint>
    </hints>
   </connection>
@@ -1317,15 +1243,11 @@
   <slot>ToggledFacesNormal(bool)</slot>
   <slot>ValueChangedNone()</slot>
   <slot>SelectionChangedHistogram()</slot>
-  <slot>ToggledFacesHistogramUnicolor(bool)</slot>
-  <slot>ToggledFacesHistogramColorCoded(bool)</slot>
-  <slot>ToggledCenterPathHistogramUnicolor(bool)</slot>
-  <slot>ToggledCenterPathHistogramColorCoded(bool)</slot>
-  <slot>ToggledHistogramNone(bool)</slot>
+  <slot>ButtonClickedHistogram(int)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroupDisplay"/>
-  <buttongroup name="buttonGroupFacesHistogram"/>
   <buttongroup name="buttonGroupCenterPathHistogram"/>
+  <buttongroup name="buttonGroupFacesHistogram"/>
  </buttongroups>
 </ui>

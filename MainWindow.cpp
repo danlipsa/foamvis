@@ -14,12 +14,22 @@
 #include "SystemDifferences.h"
 #include "Utils.h"
 
+int checkedId (const QButtonGroup* group)
+{
+    return group->id (group->checkedButton ());
+}
+
+HistogramType::Enum histogramType (const QButtonGroup* group)
+{
+    return static_cast<HistogramType::Enum> (checkedId (group));
+}
+
 MainWindow::MainWindow (FoamAlongTime& foamAlongTime) : 
     m_play (false), PLAY_TEXT (">"), PAUSE_TEXT("||"),
     m_timer (new QTimer(this)), m_processBodyTorus (0), 
     m_currentBody (0),
     m_bodyProperty (BodyProperty::NONE),
-    m_histogramDisplay (NONE)
+    m_histogramType (HistogramType::NONE)
 {
     // for anti-aliased lines
     QGLFormat fmt;
@@ -45,10 +55,27 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_timer->setInterval (30);
     m_colorBarModel = boost::make_shared<ColorBarModel> ();
     createActions ();
-
+    setupButtonGroups ();
 
     connect (m_timer.get (), SIGNAL (timeout()),
 	     this, SLOT (TimeoutTimer ()));
+}
+
+void MainWindow::setupButtonGroups ()
+{
+    buttonGroupFacesHistogram->setId (
+	radioButtonFacesHistogramNone, HistogramType::NONE);
+    buttonGroupFacesHistogram->setId (
+	radioButtonFacesHistogramUnicolor, HistogramType::UNICOLOR);
+    buttonGroupFacesHistogram->setId (
+	radioButtonFacesHistogramColorCoded, HistogramType::COLOR_CODED);
+
+    buttonGroupCenterPathHistogram->setId (
+	radioButtonCenterPathHistogramNone, HistogramType::NONE);
+    buttonGroupCenterPathHistogram->setId (
+	radioButtonCenterPathHistogramUnicolor, HistogramType::UNICOLOR);
+    buttonGroupCenterPathHistogram->setId (
+	radioButtonCenterPathHistogramColorCoded, HistogramType::COLOR_CODED);
 }
 
 void MainWindow::setupSliderData (const FoamAlongTime& foamAlongTime)
@@ -296,6 +323,8 @@ void MainWindow::TimeoutTimer ()
 }
 
 
+
+
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
     BodyProperty::Enum bodyProperty = 
@@ -305,8 +334,7 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
     {
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	
-	SetAndDisplayHistogram (
-	    checkBoxFacesHistogram->isChecked (),
+	SetAndDisplayHistogram (histogramType (buttonGroupFacesHistogram),
 	    bodyProperty,
 	    foamAlongTime.GetHistogram (bodyProperty, timeStep), 
 	    0,
@@ -345,21 +373,22 @@ void MainWindow::ToggledFacesTorus (bool checked)
 	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
 }
 
-void MainWindow::fieldsToControls (QComboBox* comboBox, QCheckBox* checkBox)
+void MainWindow::fieldsToControls (QComboBox* comboBox,
+				   QButtonGroup* buttonGroup)
 {
     BodyProperty::Enum bodyProperty = 
 	BodyProperty::FromSizeT(comboBox->currentIndex ());
     if (bodyProperty != m_bodyProperty)
 	comboBox->setCurrentIndex (m_bodyProperty);
-    bool histogram = checkBox->isChecked ();
-    if (histogram != m_histogramDisplay)
-	checkBox->setChecked (m_histogramDisplay);    
+    int type = histogramType(buttonGroup);
+    if (type != m_histogramType)
+	buttonGroup->button (m_histogramType)->setChecked (true);
 }
 
 void MainWindow::displayHistogramColorBar (bool checked)
 {
     widgetHistogram->setVisible (
-	checked && m_bodyProperty != BodyProperty::NONE && m_histogramDisplay);
+	checked && m_bodyProperty != BodyProperty::NONE && m_histogramType);
     colorBar->setVisible (
 	checked && m_bodyProperty != BodyProperty::NONE);
 }
@@ -370,8 +399,9 @@ void MainWindow::ToggledCenterPath (bool checked)
     widgetGl->ToggledCenterPath (checked);
     if (checked)
     {
-	fieldsToControls (comboBoxCenterPathColor, checkBoxCenterPathHistogram);
-	ToggledCenterPathHistogram (m_histogramDisplay);
+	fieldsToControls (comboBoxCenterPathColor,
+			  buttonGroupCenterPathHistogram);
+	ButtonClickedHistogram (m_histogramType);
 	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
     }
     else
@@ -384,8 +414,8 @@ void MainWindow::ToggledFacesNormal (bool checked)
     widgetGl->ToggledFacesNormal (checked);
     if (checked)
     {
-	fieldsToControls (comboBoxFacesColor, checkBoxFacesHistogram);
-	ToggledFacesHistogram (m_histogramDisplay);
+	fieldsToControls (comboBoxFacesColor, buttonGroupFacesHistogram);
+	ButtonClickedHistogram (m_histogramType);
 	stackedWidgetFaces->setCurrentWidget (pageFacesNormal);
     }
     else
@@ -411,7 +441,7 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
 	boost::shared_ptr<ColorBarModel> colorBarModel;
 	widgetGl->SetColorBarModel (colorBarModel);
-	checkBoxFacesHistogram->setHidden (true);
+	groupBoxFacesHistogram->setHidden (true);
 	colorBar->setHidden (true);
 	widgetHistogram->setHidden (true);
     }
@@ -419,13 +449,13 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
     {
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	size_t timeStep = widgetGl->GetTimeStep ();
-	checkBoxFacesHistogram->setVisible (true);
+	groupBoxFacesHistogram->setVisible (true);
 	colorBar->setVisible (true);
 	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
 	widgetGl->SetColorBarModel (m_colorBarModel);
 	changedColorBarInterval (bodyProperty);
 	SetAndDisplayHistogram (
-	    checkBoxFacesHistogram->isChecked (),
+	    histogramType (buttonGroupFacesHistogram),
 	    bodyProperty,
 	    foamAlongTime.GetHistogram (bodyProperty, timeStep),
 	    foamAlongTime.GetMaxCountPerBinIndividual (bodyProperty));
@@ -441,7 +471,7 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
     {
 	boost::shared_ptr<ColorBarModel> colorBarModel;
 	widgetGl->SetColorBarModel (colorBarModel);
-	checkBoxCenterPathHistogram->setHidden (true);
+	groupBoxCenterPathHistogram->setHidden (true);
 	colorBar->setHidden (true);
 	widgetHistogram->setHidden (true);
     }
@@ -450,14 +480,14 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT (
 	    comboBoxCenterPathColor->currentIndex ());
-	checkBoxCenterPathHistogram->setVisible (true);
+	groupBoxCenterPathHistogram->setVisible (true);
 	colorBar->setVisible (true);
 
 	widgetGl->SetColorBarModel (m_colorBarModel);
 	changedColorBarInterval (bodyProperty);
 	widgetGl->CurrentIndexChangedCenterPathColor (bodyProperty);
 	SetAndDisplayHistogram (
-	    checkBoxCenterPathHistogram->isChecked (),
+	    histogramType (buttonGroupCenterPathHistogram),
 	    bodyProperty,
 	    foamAlongTime.GetHistogram (bodyProperty),
 	    foamAlongTime.GetMaxCountPerBinIndividual (bodyProperty));
@@ -466,44 +496,37 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 }
 
 
-void MainWindow::ToggledCenterPathHistogram (bool checked)
+void MainWindow::ButtonClickedHistogram (int histogramType)
 {
-    FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    m_histogramDisplay = checked;
-    SetAndDisplayHistogram (
-	checked, m_bodyProperty,
-	foamAlongTime.GetHistogram (m_bodyProperty),
-	foamAlongTime.GetMaxCountPerBin (m_bodyProperty));
+    qDebug () << "ButtonClickedHistogram" << histogramType;
+    if (histogramType != HistogramType::NONE)
+    {
+	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
+	m_histogramType = static_cast<HistogramType::Enum> (histogramType);
+	if (radioButtonFacesNormal->isChecked ())
+	    SetAndDisplayHistogram (
+		m_histogramType, m_bodyProperty,
+		foamAlongTime.GetHistogram (
+		    m_bodyProperty, widgetGl->GetTimeStep ()),
+		foamAlongTime.GetMaxCountPerBinIndividual (m_bodyProperty));
+	else
+	    SetAndDisplayHistogram (
+		m_histogramType, m_bodyProperty,
+		foamAlongTime.GetHistogram (m_bodyProperty),
+		foamAlongTime.GetMaxCountPerBin (m_bodyProperty));
+    }
 }
-
-void MainWindow::ToggledFacesHistogram (bool checked)
-{
-    FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    m_histogramDisplay = checked;
-    SetAndDisplayHistogram (
-	checked, m_bodyProperty,
-	foamAlongTime.GetHistogram (
-	    m_bodyProperty, widgetGl->GetTimeStep ()),
-	foamAlongTime.GetMaxCountPerBinIndividual (m_bodyProperty));
-}
-
-void MainWindow::ToggledHistogramNone (bool checked)
-{
-    if (checked)
-	widgetHistogram->setHidden (true);	
-}
-
 
 
 void MainWindow::SetAndDisplayHistogram (
-    bool checked,
+    HistogramType::Enum histogramType,
     BodyProperty::Enum bodyProperty,
     const QwtIntervalData& intervalData,
     double maxYValue,
     HistogramSelection histogramSelection,
     MaxValueOperation maxValueOperation)
 {
-    if (! checked)
+    if (! histogramType == HistogramType::NONE)
     {
 	widgetHistogram->setHidden (true);
 	return;

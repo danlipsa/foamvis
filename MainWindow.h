@@ -34,13 +34,6 @@ public:
 	REPLACE_MAX_VALUE,
     };
 
-    enum HistogramDisplay
-    {
-	NONE,
-	UNICOLOR,
-	COLOR_CODED
-    };
-
 
 public:
     /**
@@ -60,7 +53,7 @@ public:
      * @param intervalData data for the histogram
      */
     void SetAndDisplayHistogram (
-	bool checked,
+	HistogramType::Enum histogramType,
 	BodyProperty::Enum bodyProperty,
 	const QwtIntervalData& intervalData,
 	double maxValue,
@@ -103,15 +96,8 @@ public Q_SLOTS:
     void TimeoutTimer ();
 
     void ToggledCenterPath (bool checked);
-
-    void ToggledHistogramNone (bool checked);
-    void ToggledCenterPathHistogramUnicolor (bool checked);
-    void ToggledCenterPathHistogramColorCoded (bool checked);
-
+    void ButtonClickedHistogram (int id);
     void ToggledFacesNormal (bool checked);
-    void ToggledFacesHistogramUnicolor (bool checked);
-    void ToggledFacesHistogramColorCoded (bool checked);
-
     void ToggledFacesTorus (bool checked);
 
     /**
@@ -149,6 +135,7 @@ private:
      * Updates the status bar based on the postion of the slider.
      */
     void setupSliderData (const FoamAlongTime& foamAlongTime);
+    void setupButtonGroups ();
     void configureInterface (const FoamAlongTime& foamAlongTime);
     void changedColorBarInterval (BodyProperty::Enum bodyProperty);
 
@@ -157,7 +144,7 @@ private:
     void processBodyTorusStep ();
     void translateBodyStep ();
     void createActions ();
-    void fieldsToControls (QComboBox* comboBox, QCheckBox* checkBox);
+    void fieldsToControls (QComboBox* comboBox, QButtonGroup* buttonGroup);
     void displayHistogramColorBar (bool checked);
 
 private:
@@ -195,7 +182,7 @@ private:
     boost::shared_ptr<QAction> m_actionInfo;
 
     BodyProperty::Enum m_bodyProperty;
-    HistogramDisplay m_histogramDisplay;
+    HistogramType::Enum m_histogramType;
 };
 
 #endif //__MAIN_WINDOW_H__

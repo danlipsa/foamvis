@@ -159,6 +159,16 @@ public:
     static Enum FromSizeT (size_t i);
 };
 
+class HistogramType
+{
+public:
+    enum Enum
+    {
+	NONE,
+	UNICOLOR,
+	COLOR_CODED
+    };
+};
 
 
 
