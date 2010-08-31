@@ -24,6 +24,13 @@ const double HistogramItem::logScaleZero = 0.9;
 class HistogramItem::PrivateData
 {
 public:
+    PrivateData ()
+    {
+	reference = 0.0;
+	attributes = HistogramItem::Auto;
+	logValueAxis = false;
+	colorCoded = false;
+    }
     int attributes;
     QwtIntervalData data;
     double maxValueAxis;
@@ -33,6 +40,8 @@ public:
     double reference;
     QBitArray selected;
     bool logValueAxis;
+    bool colorCoded;
+    QwtLinearColorMap colorMap;
 };
 
 
@@ -55,13 +64,9 @@ HistogramItem::~HistogramItem()
 
 void HistogramItem::init()
 {
-    d_data = new PrivateData();
-    d_data->reference = 0.0;
-    d_data->attributes = HistogramItem::Auto;
-
+    d_data = new PrivateData();    
     setItemAttribute(QwtPlotItem::AutoScale, true);
     setItemAttribute(QwtPlotItem::Legend, true);
-
     setZ(20.0);
 }
 
@@ -108,7 +113,7 @@ double HistogramItem::getMaxValueAxis () const
     return d_data->maxValueAxis;
 }
 
-void HistogramItem::setSelected (bool selected)
+void HistogramItem::setAllItemsSelection (bool selected)
 {
     d_data->selected.fill (selected);
     itemChanged ();
@@ -119,7 +124,6 @@ void HistogramItem::setSelected (bool selected, size_t begin, size_t end)
     d_data->selected.fill (selected, begin, end);
     itemChanged ();
 }
-
 
 const QwtIntervalData &HistogramItem::data() const
 {
@@ -192,9 +196,18 @@ bool HistogramItem::testHistogramAttribute(HistogramAttribute attribute) const
     return d_data->attributes & attribute;
 }
 
-void HistogramItem::drawXy (
-    size_t i, QPainter *painter, const QwtScaleMap &xMap, 
+void HistogramItem::drawBars (
+    QPainter *painter, const QwtScaleMap &xMap, 
     const QwtScaleMap &yMap) const
+{
+    const QwtIntervalData &iData = d_data->data;
+    for ( size_t i = 0; i < iData.size(); i++ )
+	drawBar (i, painter, xMap, yMap);
+}
+
+void HistogramItem::drawBar (
+    size_t i, QPainter *painter, 
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap) const
 {
     bool outside = false;
     const QwtIntervalData &iData = d_data->data;
@@ -217,33 +230,40 @@ void HistogramItem::drawXy (
     if ( x1 > x2 )
 	qSwap(x1, x2);
 
-    drawBar(painter, Qt::Vertical,
-	    QRect(x1, y0, x2 - x1, y2 - y0), outside);    
+    drawBar(painter, getBarColor (i), 
+	    QRect(x1, y0, x2 - x1, y2 - y0), outside);
 }
 
-void HistogramItem::drawHistogramBars (
-    QPainter *painter, const QwtScaleMap &xMap, 
-    const QwtScaleMap &yMap) const
+QColor HistogramItem::getBarColor (size_t i) const
 {
-    const QwtIntervalData &iData = d_data->data;
-    for ( size_t i = 0; i < iData.size(); i++ )
-    {	
-	painter->setPen(
-	    QPen((d_data->selected.testBit (i)) ?
-		 d_data->focusColor : d_data->contextColor));
-	drawXy (i, painter, xMap, yMap);
-    }    
+    if (d_data->colorCoded)
+    {
+	if (d_data->selected.testBit (i))
+	{
+	    const QwtIntervalData &iData = d_data->data;
+	    size_t bars = iData.size ();
+	    double value = static_cast<double> (i) / (bars - 1);
+	    return d_data->colorMap.color (QwtDoubleInterval (0, 1), value);
+	}
+	else
+	    return d_data->contextColor;
+    }
+    else
+	return (d_data->selected.testBit (i)) ? 
+	    d_data->focusColor : 
+	    d_data->contextColor;
 }
+
 
 
 void HistogramItem::draw (QPainter *painter, const QwtScaleMap &xMap, 
 			  const QwtScaleMap &yMap, const QRect&) const
 {
-    drawHistogramBars (painter, xMap, yMap);
-    drawSelectionRegions (painter, xMap, yMap);
+    drawBars (painter, xMap, yMap);
+    drawDeselectedRegions (painter, xMap, yMap);
 }
 
-void HistogramItem::drawSelectionRegions (
+void HistogramItem::drawDeselectedRegions (
     QPainter *painter, const QwtScaleMap &xMap, 
     const QwtScaleMap &yMap) const
 {
@@ -251,10 +271,11 @@ void HistogramItem::drawSelectionRegions (
     getSelectedBins (&intervals, false);
     pair<size_t, size_t> interval;
     BOOST_FOREACH (interval, intervals)
-	drawRegion (interval.first, interval.second, painter, xMap, yMap);
+	drawDeselectedRegion (
+	    interval.first, interval.second, painter, xMap, yMap);
 }
 
-void HistogramItem::drawRegion (
+void HistogramItem::drawDeselectedRegion (
     size_t beginRegion, size_t endRegion,
     QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap) const
 {
@@ -276,27 +297,21 @@ void HistogramItem::drawRegion (
 
 
 void HistogramItem::drawBar(
-    QPainter *painter,
-    Qt::Orientation, const QRect& rect, bool outOfBounds) const
+    QPainter *painter, const QColor& color, 
+    const QRect& rect, bool outOfBounds) const
 {
     const size_t outOfBoundsTop = 5;
-    painter->save();
-
-    const QColor color(painter->pen().color());
     const QRect r = rect.normalized();
-    
     painter->setBrush(color);    
     painter->setPen(Qt::NoPen);
     QwtPainter::drawRect(painter, r.x(), r.y(), r.width(), r.height());
-
     if (outOfBounds)
     {
 	painter->setBrush(d_data->outOfBoundsColor);    
-	painter->setPen(Qt::NoPen);
+	painter->setPen(QPen(Qt::black));
 	QwtPainter::drawRect(painter, r.x(), r.y(),
 			     r.width(), outOfBoundsTop);
     }
-    painter->restore();
 }
 
 void HistogramItem::getSelectedBins (
@@ -358,4 +373,14 @@ bool HistogramItem::isLogValueAxis () const
 void HistogramItem::setLogValueAxis (bool logValueAxis)
 {
     d_data->logValueAxis = logValueAxis;
+}
+
+void HistogramItem::setColorCoded (bool colorCoded)
+{
+    d_data->colorCoded = colorCoded;
+}
+
+void HistogramItem::setColorMap (const QwtLinearColorMap& colorMap)
+{
+    d_data->colorMap = colorMap;
 }

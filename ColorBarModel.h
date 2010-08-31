@@ -43,6 +43,9 @@ public:
     }
 
 private:
+    static const size_t COLORS;
+
+private:
     QwtLinearColorMap m_colorMap;
     QwtDoubleInterval m_interval;
     QString m_title;

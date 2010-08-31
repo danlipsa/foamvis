@@ -78,7 +78,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="ColorBar" name="colorBar" native="true"/>
+             <widget class="ColorBar" name="colorBar"/>
             </item>
             <item>
              <widget class="GLWidget" name="widgetGl" native="true">
@@ -1214,6 +1214,22 @@
   </connection>
   <connection>
    <sender>buttonGroupCenterPathHistogram</sender>
+   <signal>buttonClicked(int)</signal>
+   <receiver>Window</receiver>
+   <slot>ButtonClickedHistogram(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>507</x>
+     <y>396</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonGroupFacesHistogram</sender>
    <signal>buttonClicked(int)</signal>
    <receiver>Window</receiver>
    <slot>ButtonClickedHistogram(int)</slot>

@@ -45,12 +45,12 @@ void AttributeHistogram::contextMenuEvent(QContextMenuEvent *event)
 
 void AttributeHistogram::SelectAll ()
 {
-    SetSelected (true);
+    SetAllItemsSelection (true);
 }
 
 void AttributeHistogram::DeselectAll ()
 {
-    SetSelected (false);
+    SetAllItemsSelection (false);
 }
 
 void AttributeHistogram::HeightSettings ()
@@ -72,17 +72,11 @@ void AttributeHistogram::CurrentIndexChangedInteractionMode (int index)
     InteractionMode::Enum interactionMode = 
 	static_cast<InteractionMode::Enum>(index);
     if (interactionMode == InteractionMode::SELECT_BRUSH)
-    {
-	EnableSelection ();
 	SetSelectionTool (BRUSH);
-    }
     else if (interactionMode == InteractionMode::SELECT_ERASER)
-    {
-	EnableSelection ();
 	SetSelectionTool (ERASER);
-    }
     else
-	EnableSelection (false);
+	SetSelectionTool (NONE);
 }
 
 void AttributeHistogram::createActions ()

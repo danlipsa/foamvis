@@ -76,11 +76,18 @@ void Histogram::PolygonSelected (const QwtPolygon& poly)
     Q_EMIT selectionChanged ();
 }
 
-void Histogram::SetSelected (bool selected)
+void Histogram::SetAllItemsSelection (bool selected)
 {
-    m_histogramItem.setSelected (selected);
+    m_histogramItem.setAllItemsSelection (selected);
     Q_EMIT selectionChanged ();
 }
+
+void Histogram::SetSelectionTool (SelectionTool selectionTool)
+{
+    m_selectionTool = selectionTool;    
+    m_plotPicker.setEnabled (selectionTool == NONE ? false : true);
+}
+
 
 void Histogram::SetDataAllBinsSelected (
     const QwtIntervalData& intervalData, double maxValue)
@@ -115,11 +122,6 @@ void Histogram::SetMaxValueAxis (double maxValueAxis)
 {
     m_histogramItem.setMaxValueAxis (maxValueAxis);
     setAxisScale(QwtPlot::yLeft, GetMinValueAxis (), maxValueAxis);
-}
-
-void Histogram::EnableSelection (bool enable)
-{
-    m_plotPicker.setEnabled (enable);
 }
 
 void Histogram::GetSelectedIntervals (

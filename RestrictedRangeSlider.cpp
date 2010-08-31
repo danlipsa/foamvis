@@ -81,9 +81,10 @@ void RestrictedRangeSlider::setupColorMap (const vector<bool>* selected)
     m_colorMap->setColorInterval (toColor ((*v)[0]),
 				  toColor ((*v)[(*v).size () - 1]));
     m_colorMap->setMode (QwtLinearColorMap::FixedColors);
-    for (size_t i = 1; i < (*v).size () - 1; ++i)
+    size_t colors = (*v).size () - 1;
+    for (size_t i = 1; i < colors; ++i)
     {
-	double value = static_cast<double>(i) / ((*v).size () - 1);
+	double value = static_cast<double>(i) / colors;
 	m_colorMap->addColorStop (value, toColor ((*v)[i]));
     }
     scale->setColorMap (interval, *m_colorMap);

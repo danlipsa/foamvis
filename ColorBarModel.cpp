@@ -32,8 +32,6 @@ QColor RainbowColor (double value);
  */
 QColor BlueRedColor (size_t index);
 
-
-
 void testColorMap ()
 {
     cdbg << "Test Color map:" << endl;
@@ -45,27 +43,29 @@ void testColorMap ()
 }
 
 
+const size_t ColorBarModel::COLORS = 256;
+
 void ColorBarModel::SetupRainbowColorMap ()
 {
     //testColorMap ();
-    const size_t COLORS = 256;
     m_colorMap.setColorInterval (RainbowColor (0), RainbowColor (1));
     m_colorMap.setMode (QwtLinearColorMap::FixedColors);
-    for (size_t i = 1; i < COLORS - 1; ++i)
+    size_t colors = COLORS - 1;
+    for (size_t i = 1; i < colors; ++i)
     {
-	double value = static_cast<double>(i)/ (COLORS - 1);
+	double value = static_cast<double>(i) / colors;
 	m_colorMap.addColorStop (value, RainbowColor (value));
     }
 }
 
 void ColorBarModel::SetupBlueRedColorMap ()
 {
-    const size_t COLORS = 256;
     m_colorMap.setColorInterval (BlueRedColor (0), BlueRedColor (COLORS));
     m_colorMap.setMode (QwtLinearColorMap::FixedColors);
-    for (size_t i = 1; i < COLORS - 1; ++i)
+    size_t colors = COLORS - 1;
+    for (size_t i = 1; i < colors; ++i)
     {
-	double value = static_cast<double>(i)/ (COLORS - 1);
+	double value = static_cast<double>(i) / colors;
 	m_colorMap.addColorStop (value, BlueRedColor (i));
     }
 }

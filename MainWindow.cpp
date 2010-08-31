@@ -430,6 +430,7 @@ void MainWindow::changedColorBarInterval (BodyProperty::Enum bodyProperty)
     m_colorBarModel->SetInterval (foamAlongTime.GetRange (bodyProperty));
     m_colorBarModel->SetupRainbowColorMap ();
     colorBar->SetModel (m_colorBarModel);
+    widgetHistogram->SetColorMap (m_colorBarModel->GetColorMap ());
 }
 
 void MainWindow::CurrentIndexChangedFacesColor (int value)
@@ -498,23 +499,19 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 
 void MainWindow::ButtonClickedHistogram (int histogramType)
 {
-    qDebug () << "ButtonClickedHistogram" << histogramType;
-    if (histogramType != HistogramType::NONE)
-    {
-	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-	m_histogramType = static_cast<HistogramType::Enum> (histogramType);
-	if (radioButtonFacesNormal->isChecked ())
-	    SetAndDisplayHistogram (
-		m_histogramType, m_bodyProperty,
-		foamAlongTime.GetHistogram (
-		    m_bodyProperty, widgetGl->GetTimeStep ()),
-		foamAlongTime.GetMaxCountPerBinIndividual (m_bodyProperty));
-	else
-	    SetAndDisplayHistogram (
-		m_histogramType, m_bodyProperty,
-		foamAlongTime.GetHistogram (m_bodyProperty),
-		foamAlongTime.GetMaxCountPerBin (m_bodyProperty));
-    }
+    FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
+    m_histogramType = static_cast<HistogramType::Enum> (histogramType);
+    if (radioButtonFacesNormal->isChecked ())
+	SetAndDisplayHistogram (
+	    m_histogramType, m_bodyProperty,
+	    foamAlongTime.GetHistogram (
+		m_bodyProperty, widgetGl->GetTimeStep ()),
+	    foamAlongTime.GetMaxCountPerBinIndividual (m_bodyProperty));
+    else
+	SetAndDisplayHistogram (
+	    m_histogramType, m_bodyProperty,
+	    foamAlongTime.GetHistogram (m_bodyProperty),
+	    foamAlongTime.GetMaxCountPerBin (m_bodyProperty));
 }
 
 
@@ -526,10 +523,17 @@ void MainWindow::SetAndDisplayHistogram (
     HistogramSelection histogramSelection,
     MaxValueOperation maxValueOperation)
 {
-    if (! histogramType == HistogramType::NONE)
+    switch (histogramType)
     {
+    case HistogramType::NONE:
 	widgetHistogram->setHidden (true);
 	return;
+    case HistogramType::UNICOLOR:
+	widgetHistogram->SetColorCoded (false);
+	break;
+    case HistogramType::COLOR_CODED:
+	widgetHistogram->SetColorCoded (true);
+	break;
     }
 
     widgetHistogram->setVisible (true);
