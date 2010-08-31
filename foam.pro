@@ -1,6 +1,6 @@
 HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
 	AttributeHistogram.h AttributeHistogramHeight.h Body.h \
-	BodyAlongTime.h BodyIndex.h BodySetStatistics.h \
+	BodyAlongTime.h BodyIndex.h BodySelector.h BodySetStatistics.h \
 	ColorBar.h ColorBarModel.h ColoredElement.h Comparisons.h \
 	Debug.h DebugStream.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
@@ -18,7 +18,7 @@ HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
 SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	AttributeHistogram.cpp AttributeHistogramHeight.cpp \
 	Body.cpp BodyAlongTime.cpp BodyIndex.cpp \
-	BodySetStatistics.cpp \
+	BodySetStatistics.cpp BodySelector.cpp\
 	ColorBar.cpp ColorBarModel.cpp ColoredElement.cpp Comparisons.cpp \
 	Debug.cpp DebugStream.cpp DisplayWidget.cpp Edge.cpp \
 	EditTransferFunction.cpp Element.cpp ExpressionTree.cpp Enums.cpp\

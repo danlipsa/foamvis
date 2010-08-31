@@ -37,7 +37,7 @@ public:
     void SetupRainbowColorMap ();
     void SetupBlueRedColorMap ();
 
-    QColor MapScalar (float value) const
+    QColor MapScalar (double value) const
     {
 	return m_colorMap.color (m_interval, value);
     }

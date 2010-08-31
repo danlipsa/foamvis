@@ -98,7 +98,7 @@ QColor RainbowColor (double f)
     return color;
 }
 
-static const float blueRedColors[][4] =
+static const double blueRedColors[][4] =
 {
     {0, 0.2298057, 0.298717966, 0.753683153},
     {0.00390625,0.234299935,0.305559204,0.759874796},

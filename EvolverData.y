@@ -44,9 +44,9 @@ class AttributeCreator;
      */
     int m_int;
     /**
-     * Value for a floating point
+     * Value for a doubleing point
      */
-    float m_real;
+    double m_real;
     /**
      * Value for a list of integers
      */
@@ -54,7 +54,7 @@ class AttributeCreator;
     /**
      * Value for a list of real numbers
      */
-    std::vector<float>* m_realList;
+    std::vector<double>* m_realList;
     /**
      * An identifier
      */
@@ -498,7 +498,7 @@ function_parameter_type
 
 parameter: PARAMETER IDENTIFIER '=' const_expr
 {
-    float v = $4;
+    double v = $4;
     foam.GetParsingData ().SetVariable($2->c_str(), v);
 }
 
@@ -707,7 +707,7 @@ non_const_expr
 const_expr
 : expr
 {
-    float v = $1->Value ();
+    double v = $1->Value ();
     $$ = v;
     ExpressionTree::Delete ($1);
 }
@@ -838,7 +838,7 @@ torus_periods
     Vector3 first = Vector3 ($3, $4, 0);
     Vector3 second = Vector3 ($6, $7, 0);
     Vector3 third = first.cross (second).unit ();
-    float thirdLength = min (first.length (), second.length ()) / 10;
+    double thirdLength = min (first.length (), second.length ()) / 10;
     foam.SetPeriods (first, second, thirdLength * third);
 }
 | PERIODS nl
@@ -1231,13 +1231,13 @@ comma_integer_list
 comma_real_list
 : comma_real_list ',' REAL_VALUE
 {
-    vector<float>* realList = $1;
+    vector<double>* realList = $1;
     realList->push_back ($3);
     $$ = realList;
 }
 | REAL_VALUE
 {
-    $$ = new vector<float>(1, $1);
+    $$ = new vector<double>(1, $1);
 }
 
 

@@ -20,25 +20,6 @@ inline void calculateBodyWraps (BodiesAlongTime::BodyMap::value_type& v,
     v.second->CalculateBodyWraps (foamAlongTime);
 }
 
-inline bool isInside (double value, double min, double max)
-{
-    return value >= min && value <= max;
-}
-
-inline bool isIntersection (double firstMin, double firstMax,
-			    double secondMin, double secondMax)
-{
-    if ((firstMax - firstMin) > (secondMax - secondMin))
-    {
-	swap (firstMin, secondMin);
-	swap (firstMax, secondMax);
-    }
-    // first interval less than or equal with the second interval
-    return 
-	isInside (firstMin, secondMin, secondMax) || 
-	isInside (firstMax, secondMin, secondMax);
-}
-
 
 // Members
 // ======================================================================
@@ -113,7 +94,7 @@ void FoamAlongTime::CacheBodiesAlongTime ()
 	      boost::bind (&BodiesAlongTime::Resize, &m_bodiesAlongTime, _1));
 }
 
-float FoamAlongTime::GetBodyProperty (
+double FoamAlongTime::GetBodyProperty (
     BodyProperty::Enum property,
     size_t bodyId, size_t timeStep) const
 {
@@ -240,10 +221,7 @@ void FoamAlongTime::GetTimeStepSelection (
     const size_t INVALID = numeric_limits<size_t> ().max ();
     size_t beginRange = INVALID;
     for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
-	if (isIntersection (
-		valueInterval.minValue (), valueInterval.maxValue (),
-		GetMin (bodyProperty, timeStep), 
-		GetMax (bodyProperty, timeStep)))
+	if (valueInterval.intersects (GetRange (bodyProperty, timeStep)))
 	{
 	    if (beginRange == INVALID)
 		beginRange = timeStep;

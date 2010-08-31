@@ -68,7 +68,7 @@ public:
      * Constructor for the attribute with a real value
      * @param value the value of the attribute
      */
-    RealAttribute (float value) : m_value (value) {}
+    RealAttribute (double value) : m_value (value) {}
     /**
      * Destructor for the real attribute
      */
@@ -80,7 +80,7 @@ public:
      */
     virtual ostream& Print (ostream& ostr) const
     {return ostr << m_value;}
-    operator float ()
+    operator double ()
     {
 	return m_value;
     }
@@ -89,7 +89,7 @@ private:
     /**
      * The value of the attribute
      */
-    float m_value;
+    double m_value;
 };
 
 /**
@@ -169,7 +169,7 @@ public:
      * @param values pointer to an array of reals.
      * WARNING: Takes ownership of values vector
      */
-    RealArrayAttribute (vector<float>* values)
+    RealArrayAttribute (vector<double>* values)
     {
         m_values = values;
     }
@@ -187,7 +187,7 @@ private:
     /**
      * Pointer to a vector of reals
      */
-    vector<float>* m_values;
+    vector<double>* m_values;
 };
 /**
  * Knows how to print an Attribute

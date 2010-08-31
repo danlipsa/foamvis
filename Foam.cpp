@@ -475,7 +475,7 @@ ostream& operator<< (ostream& ostr, const Foam& d)
     ostr << d.m_AABox << endl;
     {
 	ostr << "view matrix:\n";
-	ostream_iterator<float> o (ostr, " ");
+	ostream_iterator<double> o (ostr, " ");
 	copy (d.m_viewMatrix.begin (), d.m_viewMatrix.end (), o);
 	ostr << endl;
     }

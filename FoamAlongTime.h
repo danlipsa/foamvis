@@ -53,7 +53,7 @@ public:
 	return m_bodiesAlongTime;
     }
     const Body& GetBody (size_t bodyId, size_t timeStep) const;
-    float GetBodyProperty (
+    double GetBodyProperty (
 	BodyProperty::Enum property,
 	size_t bodyId, size_t timeStep) const;
 
@@ -89,11 +89,11 @@ public:
 	return m_foamsStatistics[timeStep].GetHistogram (
 	    bodyProperty, &GetBodiesAlongTime ());
     }
-    float GetMax (BodyProperty::Enum bodyProperty) const
+    double GetMax (BodyProperty::Enum bodyProperty) const
     {
 	return GetBodiesAlongTime ().GetMax (bodyProperty);
     }
-    float GetMax (BodyProperty::Enum bodyProperty, size_t timeStep) const
+    double GetMax (BodyProperty::Enum bodyProperty, size_t timeStep) const
     {
 	return m_foamsStatistics[timeStep].GetMax (bodyProperty);
     }
@@ -106,11 +106,11 @@ public:
 	return GetBodiesAlongTime ().GetMaxCountPerBin (bodyProperty);
     }
 
-    float GetMin (BodyProperty::Enum bodyProperty) const
+    double GetMin (BodyProperty::Enum bodyProperty) const
     {
 	return GetBodiesAlongTime ().GetMin (bodyProperty);
     }
-    float GetMin (BodyProperty::Enum bodyProperty, size_t timeStep) const
+    double GetMin (BodyProperty::Enum bodyProperty, size_t timeStep) const
     {
 	return m_foamsStatistics[timeStep].GetMin (bodyProperty);
     }

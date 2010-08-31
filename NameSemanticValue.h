@@ -42,7 +42,7 @@ public:
      * @param name name of the attribute
      * @param r value of the attribute
      */
-    NameSemanticValue (const char* name, float r) : m_name(name)
+    NameSemanticValue (const char* name, double r) : m_name(name)
     {
         m_semanticValue.m_real = r;
         m_type = AttributeType::REAL;
@@ -63,7 +63,7 @@ public:
      * @param name name of the attribute
      * @param realList value of the attribute
      */
-    NameSemanticValue (const char* name, vector<float>* realList) : 
+    NameSemanticValue (const char* name, vector<double>* realList) : 
         m_name(name)
     {
         m_semanticValue.m_realList = realList;

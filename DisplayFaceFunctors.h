@@ -33,10 +33,10 @@ public:
      */
     void operator() (const boost::shared_ptr<OrientedFace>& of)
     {
-        if (m_widget.IsDisplayedFace (m_count))
+        if (m_glWidget.IsDisplayedFace (m_count))
         {
 	    display (of);
-	    if (m_count == m_widget.GetDisplayedFaceIndex ())
+	    if (m_count == m_glWidget.GetDisplayedFaceIndex ())
 		cdbg << "face " << m_count << ": " << *of << endl;
         }
         m_count++;
@@ -58,8 +58,8 @@ protected:
 	    glColor (G3D::Color4 (Color::BLACK, 1.));
 	}
 	else
-	    glColor (G3D::Color4 (Color::BLACK, m_widget.GetContextAlpha ()));
-	(displayEdges (m_widget, m_focus)) (of);
+	    glColor (G3D::Color4 (Color::BLACK, m_glWidget.GetContextAlpha ()));
+	(displayEdges (m_glWidget, m_focus)) (of);
     }
 
 private:
@@ -103,23 +103,23 @@ protected:
 		size_t bodyId = of->GetBodyPartOf ().GetBodyId ();
 		QColor color;
 		const FoamAlongTime& foamAlongTime = 
-		    m_widget.GetFoamAlongTime ();
+		    m_glWidget.GetFoamAlongTime ();
 		if (foamAlongTime.ExistsBodyProperty (
-			m_bodyProperty, bodyId, m_widget.GetTimeStep ()))
+			m_bodyProperty, bodyId, m_glWidget.GetTimeStep ()))
 		{
-		    float value = foamAlongTime.GetBodyProperty (
-			m_bodyProperty, bodyId, m_widget.GetTimeStep ());
-		    color = m_widget.MapScalar (value);
+		    double value = foamAlongTime.GetBodyProperty (
+			m_bodyProperty, bodyId, m_glWidget.GetTimeStep ());
+		    color = m_glWidget.MapScalar (value);
 		}
 		else
-		    color = m_widget.GetNotAvailableFaceColor ();
-		m_widget.qglColor (color);
+		    color = m_glWidget.GetNotAvailableFaceColor ();
+		m_glWidget.qglColor (color);
 	    }
 	}
 	else
 	    glColor (G3D::Color4 (Color::GetValue(Color::BLACK),
-				  m_widget.GetContextAlpha ()));
-	(DisplaySameEdges (m_widget)) (of);
+				  m_glWidget.GetContextAlpha ()));
+	(DisplaySameEdges (m_glWidget)) (of);
     }
 };
 
@@ -153,7 +153,7 @@ protected:
 	glNormal (normal);
 
 	// specify the vertices
-	(DisplaySameEdges (m_widget)) (f);
+	(DisplaySameEdges (m_glWidget)) (f);
     }
 };
 

@@ -86,7 +86,7 @@ StripIterator::Point StripIterator::Next ()
     }
 }
 
-float StripIterator::GetPropertyValue (
+double StripIterator::GetPropertyValue (
     BodyProperty::Enum property,
     const Point& p, const Point& prev)
 {
@@ -110,7 +110,7 @@ float StripIterator::GetPropertyValue (
     return 0;
 }
 
-float StripIterator::GetPropertyValue (BodyProperty::Enum property,
+double StripIterator::GetPropertyValue (BodyProperty::Enum property,
 				       const Point& p)
 {
     return p.m_body->GetPropertyValue (property);

@@ -50,7 +50,7 @@ boost::shared_ptr<Edge> QuadraticEdge::createDuplicate (
     return duplicate;
 }
 
-float QuadraticEdge::quadratic (float t, size_t i) const
+double QuadraticEdge::quadratic (double t, size_t i) const
 {
     return
 	(*GetBegin ())[i] * (1 - t) * (2 - t) / 2 +
@@ -58,7 +58,7 @@ float QuadraticEdge::quadratic (float t, size_t i) const
 	(*GetEnd ())[i] * t * (t - 1) / 2;
 }
 
-G3D::Vector3 QuadraticEdge::quadratic (float t) const
+G3D::Vector3 QuadraticEdge::quadratic (double t) const
 {
     G3D::Vector3 result;
     for (size_t i = 0; i < 3; i++)
@@ -74,5 +74,5 @@ size_t QuadraticEdge::PointCount () const
 G3D::Vector3 QuadraticEdge::GetPoint (size_t i) const
 {
     RuntimeAssert (i < POINT_COUNT, "Invalid point index: ", i);
-    return quadratic ( static_cast<float>(i) * 2 / (POINT_COUNT - 1));
+    return quadratic ( static_cast<double>(i) * 2 / (POINT_COUNT - 1));
 }

@@ -16,7 +16,7 @@ ostream& IntegerArrayAttribute::Print (ostream& ostr) const
 
 ostream& RealArrayAttribute::Print (ostream& ostr) const
 {
-    ostream_iterator<float> o (ostr, " ");
+    ostream_iterator<double> o (ostr, " ");
     copy (m_values->begin (), m_values->end (), o);
     return ostr;
 }

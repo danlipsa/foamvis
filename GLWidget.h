@@ -13,6 +13,7 @@
 class Body;
 class BodyAlongTime;
 class BodiesAlongTime;
+class BodySelector;
 class ColorBarModel;
 class Foam;
 class Edge;
@@ -61,7 +62,11 @@ public:
     {
 	return *m_foamAlongTime;
     }
-
+    void SetBodySelector (boost::shared_ptr<BodySelector> bodySelector)
+    {
+	m_bodySelector = bodySelector;
+	UpdateDisplayList ();
+    }
 
     const BodiesAlongTime& GetBodiesAlongTime () const;
     const BodyAlongTime& GetBodyAlongTime (size_t bodyId) const;
@@ -121,7 +126,7 @@ public:
      */
     void DecrementDisplayedFace ();
     void DecrementDisplayedEdge ();
-    float GetContextAlpha () const
+    double GetContextAlpha () const
     {
 	return m_contextAlpha;
     }
@@ -147,9 +152,9 @@ public:
     }
 
     void UpdateDisplayList ();
-    float GetArrowBaseRadius () const {return m_arrowBaseRadius;}
-    float GetArrowHeight () const {return m_arrowHeight;}
-    float GetEdgeRadius () const {return m_edgeRadius;}
+    double GetArrowBaseRadius () const {return m_arrowBaseRadius;}
+    double GetArrowHeight () const {return m_arrowHeight;}
+    double GetEdgeRadius () const {return m_edgeRadius;}
 
     bool IsDisplayedBody (const boost::shared_ptr<Body>  body) const;
     bool IsDisplayedBody (size_t bodyId) const;
@@ -167,7 +172,7 @@ public:
     {
 	m_colorBarModel = colorBarModel;
     }
-    QColor MapScalar (float value) const;
+    QColor MapScalar (double value) const;
     boost::shared_ptr<QAction> GetActionResetTransformation ()
     {
 	return m_actionResetTransformation;
@@ -372,7 +377,7 @@ private:
      * @param axis can be 0, 1 or 2 for X, Y or Z
      * @param angle angle we rotate the foam with
      */
-    void setRotation (int axis, float angle);
+    void setRotation (int axis, double angle);
     /**
      * Displays   the   contour   of   faces.   Used   together   with
      * displayFacesOffet   and  with  GL_POLYGON_OFFSET_FILL   to  get
@@ -393,7 +398,7 @@ private:
      * Setup lighting for shaded bodies
      */
     void enableLighting ();
-    float ratioFromCenter (const QPoint& p);
+    double ratioFromCenter (const QPoint& p);
     void rotate (const QPoint& position);
     void translateViewport (const QPoint& position);
     void scaleViewport (const QPoint& position);
@@ -454,27 +459,27 @@ private:
 
     int m_normalVertexSize;
     int m_normalEdgeWidth;
-    float m_contextAlpha;
+    double m_contextAlpha;
 
     G3D::Matrix3 m_rotate;    
     G3D::Rect2D m_viewport;
     /**
      * Distance from the camera to the center of the AABox for the foam.
      */
-    float m_cameraDistance;
-    float m_angleOfView;
+    double m_cameraDistance;
+    double m_angleOfView;
 
     EndLocationColor m_endTranslationColor;
     GLUquadricObj* m_quadric;    
     /**
      * For displaying Torus Model edges as cylinders
      */
-    float m_edgeRadius;
+    double m_edgeRadius;
     /**
      * For displaying arrows in the Torus Model edges
      */
-    float m_arrowBaseRadius;
-    float m_arrowHeight;
+    double m_arrowBaseRadius;
+    double m_arrowHeight;
 
     bool m_edgesTorusTubes;
     bool m_facesTorusTubes;
@@ -489,6 +494,7 @@ private:
     QColor m_notAvailableCenterPathColor;
     QColor m_notAvailableFaceColor;
     boost::shared_ptr<EditTransferFunction> m_editTransferFunction;
+    boost::shared_ptr<const BodySelector> m_bodySelector;
 
     // owned by MainWindows
     boost::shared_ptr<QAction> m_actionSelectAll;
@@ -496,6 +502,7 @@ private:
     boost::shared_ptr<QAction> m_actionInfo;
     // owned by GLWidget
     boost::shared_ptr<QAction> m_actionResetTransformation;
+    
 };
 
 #endif //__GLWIDGET_H__

@@ -17,35 +17,35 @@ void ExpressionTree::Delete (ExpressionTree* node)
     delete node;
 }
 
-float ExpressionTreeNumber::Value (void)
+double ExpressionTreeNumber::Value (void)
 {
     return m_value;
 }
 
 
-float ExpressionTreeVariable::Value (void)
+double ExpressionTreeVariable::Value (void)
 {
     return m_parsingData.GetVariableValue (m_name);
 }
 
-float ExpressionTreeUnaryFunction::Value (void)
+double ExpressionTreeUnaryFunction::Value (void)
 {
-    float value = m_first->Value ();
+    double value = m_first->Value ();
     ParsingData::UnaryFunction f = m_parsingData.GetUnaryFunction (m_name);
     return f (value);
 }
 
-float ExpressionTreeBinaryFunction::Value (void)
+double ExpressionTreeBinaryFunction::Value (void)
 {
-    float second = m_second->Value ();
-    float first = m_first->Value ();
+    double second = m_second->Value ();
+    double first = m_first->Value ();
     ParsingData::BinaryFunction f = m_parsingData.GetBinaryFunction (m_name);
     return f (first, second);
 }
 
-float ExpressionTreeConditional::Value (void)
+double ExpressionTreeConditional::Value (void)
 {
-    float first = m_first->Value ();
+    double first = m_first->Value ();
     return first ? m_second->Value () : m_third->Value ();
 }
 

@@ -219,7 +219,7 @@ string Edge::ToString () const
     return ostr.str ();
 }
 
-void Edge::Display (Color::Enum defaultColor, float alpha) const
+void Edge::Display (Color::Enum defaultColor, double alpha) const
 {
     Color::Enum color = GetColor (defaultColor);
     glColor (G3D::Color4 (Color::GetValue(color), alpha));

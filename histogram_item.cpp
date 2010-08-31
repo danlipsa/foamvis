@@ -10,9 +10,13 @@ public:
 
     QwtDoubleInterval operator () (const pair<size_t, size_t>& binRange)
     {
-	return QwtDoubleInterval (
+	QwtDoubleInterval interval (
 	    m_intervalData.interval (binRange.first).minValue (),
-	    m_intervalData.interval (binRange.second - 1).maxValue ());
+	    m_intervalData.interval (binRange.second - 1).maxValue (),
+	    (m_intervalData.size () == binRange.second) ?
+	    QwtDoubleInterval::IncludeBorders : 
+	    QwtDoubleInterval::ExcludeMaximum);
+	return interval;
     }
 
 private:

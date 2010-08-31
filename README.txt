@@ -96,3 +96,7 @@ Release log
 	- Added feedback for selected time steps, scrolling is done through
 	  all time steps not only through selected time steps (context)
 	- Added logarithmic scale for histogram
+	- Added color coded histograms
+	- Added feedback for selected bodies. Deselected bodies are 
+	  displayed transparent in both Face and Center Path views
+

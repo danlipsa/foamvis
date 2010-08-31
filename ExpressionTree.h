@@ -40,7 +40,7 @@ public:
      * by the tree
      * @return the value of the tree
      */
-    virtual float Value (void) = 0;
+    virtual double Value (void) = 0;
 protected:
     /**
      * First child of this node
@@ -62,17 +62,17 @@ public:
     /**
      * Constructs a number node
      */
-    ExpressionTreeNumber (float value) : m_value (value) {}
+    ExpressionTreeNumber (double value) : m_value (value) {}
     /**
      * Value of the number
      * @return value of the number
      */
-    virtual float Value (void);
+    virtual double Value (void);
 private:
     /**
      * Value of the nubmber node
      */
-    float m_value;
+    double m_value;
 };
 
 /**
@@ -92,7 +92,7 @@ public:
      * Value of the variable
      * @return the value of the variable
      */
-    virtual float Value (void);
+    virtual double Value (void);
 private:
     /**
      * Variable name
@@ -125,7 +125,7 @@ public:
      * Value of the function applied to the parameter.
      * @return the value of the function applied to the parameter.
      */
-    virtual float Value (void);
+    virtual double Value (void);
 private:
     /**
      * Name of the function
@@ -160,7 +160,7 @@ public:
      * Value of the function applied to the parameters
      * @return the value of the function applied to the parameters.
      */
-    virtual float Value (void);
+    virtual double Value (void);
 private:
     /**
      * Function name
@@ -196,7 +196,7 @@ public:
      * Value of the function applied to the parameters
      * @return the value of the function applied to the parameters.
      */
-    virtual float Value (void);
+    virtual double Value (void);
 private:
     /**
      * Function name

@@ -70,9 +70,9 @@ public:
 	}
     }
 public:
-    static float GetPropertyValue (BodyProperty::Enum colorBy,
+    static double GetPropertyValue (BodyProperty::Enum colorBy,
 				   const Point& p, const Point& prev);
-    static float GetPropertyValue (BodyProperty::Enum colorBy,
+    static double GetPropertyValue (BodyProperty::Enum colorBy,
 				   const Point& p);
     static bool ExistsPropertyValue (BodyProperty::Enum colorBy,
 				     const Point& p);

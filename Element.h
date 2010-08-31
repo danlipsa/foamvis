@@ -62,7 +62,7 @@ public:
      * @param info information about attributes
      */
     ostream& PrintAttributes (ostream& ostr) const;
-    float GetRealAttribute (size_t i) const;
+    double GetRealAttribute (size_t i) const;
     bool ExistsAttribute (size_t i) const;
 
 protected:

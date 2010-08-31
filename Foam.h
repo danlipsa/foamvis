@@ -82,7 +82,7 @@ public:
      * @param i index where to store the elment
      * @param f the value to be stored
      */
-    void SetViewMatrixElement (size_t i, float f)
+    void SetViewMatrixElement (size_t i, double f)
     {
 	m_viewMatrix[i] = f;
     }
@@ -90,7 +90,7 @@ public:
      * Gets the view matrix
      * @return the 4x4 view matrix
      */
-    const boost::array<float,16>& GetViewMatrix () const 
+    const boost::array<double,16>& GetViewMatrix () const 
     {
 	return m_viewMatrix;
     }
@@ -280,7 +280,7 @@ private:
     /**
      * View matrix for displaying vertices, edges, faces and bodies.
      */
-    boost::array<float, 16> m_viewMatrix;
+    boost::array<double, 16> m_viewMatrix;
     OOBox m_originalDomain;
     /**
      * Vector of maps between the name of an attribute and information about it.

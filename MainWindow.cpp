@@ -4,6 +4,7 @@
  *
  * Contains definitions for the UI class
  */
+#include "BodySelector.h"
 #include "ColorBarModel.h"
 #include "Foam.h"
 #include "FoamAlongTime.h"
@@ -506,12 +507,14 @@ void MainWindow::ButtonClickedHistogram (int histogramType)
 	    m_histogramType, m_bodyProperty,
 	    foamAlongTime.GetHistogram (
 		m_bodyProperty, widgetGl->GetTimeStep ()),
-	    foamAlongTime.GetMaxCountPerBinIndividual (m_bodyProperty));
+	    foamAlongTime.GetMaxCountPerBinIndividual (m_bodyProperty), 
+	    KEEP_SELECTION);
     else
 	SetAndDisplayHistogram (
 	    m_histogramType, m_bodyProperty,
 	    foamAlongTime.GetHistogram (m_bodyProperty),
-	    foamAlongTime.GetMaxCountPerBin (m_bodyProperty));
+	    foamAlongTime.GetMaxCountPerBin (m_bodyProperty),
+	    KEEP_SELECTION);
 }
 
 
@@ -626,7 +629,18 @@ void MainWindow::SelectionChangedHistogram ()
     widgetHistogram->GetSelectedIntervals (&valueIntervals);
 
     vector<bool> timeStepSelection;
-    widgetGl->GetFoamAlongTime ().GetTimeStepSelection (
+    const FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
+    foamAlongTime.GetTimeStepSelection (
 	bodyProperty, valueIntervals, &timeStepSelection);
     sliderTimeSteps->SetRestrictedTo (timeStepSelection);
+
+    boost::shared_ptr<BodySelector> bodySelector;
+    if (widgetHistogram->AreAllItemsSelected ())
+	bodySelector = boost::shared_ptr<BodySelector> (
+	    new CycleSelector (*widgetGl));
+    else
+	bodySelector = boost::shared_ptr<BodySelector> (
+	    new PropertyValueSelector (
+		bodyProperty, valueIntervals, foamAlongTime));
+    widgetGl->SetBodySelector (bodySelector);
 }

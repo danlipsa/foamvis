@@ -204,7 +204,7 @@ void Body::GetFaceSet (FaceSet* faceSet) const
 	faceSet->insert (of->GetFace ());
 }
 
-float Body::GetPropertyValue (BodyProperty::Enum bodyProperty) const
+double Body::GetPropertyValue (BodyProperty::Enum bodyProperty) const
 {
     return GetRealAttribute (bodyProperty - BodyProperty::PER_BODY_BEGIN);
 }

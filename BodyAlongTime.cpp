@@ -84,7 +84,7 @@ void BodyAlongTime::speedRangeStep (
 {
     G3D::Vector3 speed = p.m_point - prev.m_point;
     // Warning: should have the same ordering as BodyProperty::Enum
-    boost::array<float, 4> speedComponents = 
+    boost::array<double, 4> speedComponents = 
 	{{speed.x, speed.y, speed.z, speed.length ()}};
     for (size_t i = BodyProperty::VELOCITY_BEGIN;
 	 i < BodyProperty::VELOCITY_END; ++i)

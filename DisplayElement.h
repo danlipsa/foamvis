@@ -32,10 +32,11 @@ public:
     };
 
 public:
-    DisplayElement (const GLWidget& widget) : m_widget (widget) {}
+    DisplayElement (const GLWidget& widget) : m_glWidget (widget) {}
 protected:
-    const GLWidget& m_widget;
+    const GLWidget& m_glWidget;
 };
+
 
 class DisplayElementFocus : public DisplayElement
 {

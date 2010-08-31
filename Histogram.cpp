@@ -43,7 +43,7 @@ Histogram::Histogram (QWidget* parent) :
 	    this, SLOT(PolygonSelected (const QwtPolygon&)));
 }
 
-size_t Histogram::getBin (float value)
+size_t Histogram::getBin (double value)
 {
     const QwtIntervalData& data = m_histogramItem.data ();
     size_t binCount = data.size ();
@@ -72,7 +72,7 @@ void Histogram::SelectionPointMoved (const QPoint& pos)
 
 void Histogram::PolygonSelected (const QwtPolygon& poly)
 {
-    (void) poly;
+    static_cast<void> (poly);
     Q_EMIT selectionChanged ();
 }
 
@@ -80,6 +80,15 @@ void Histogram::SetAllItemsSelection (bool selected)
 {
     m_histogramItem.setAllItemsSelection (selected);
     Q_EMIT selectionChanged ();
+}
+
+bool Histogram::AreAllItemsSelected () const
+{
+    vector< pair<size_t, size_t> > selectedBins;
+    GetSelectedBins (&selectedBins);
+    return selectedBins.size () == 1 &&
+	selectedBins[0].first == 0 && 
+	selectedBins[0].second == m_histogramItem.data ().size ();
 }
 
 void Histogram::SetSelectionTool (SelectionTool selectionTool)
@@ -100,9 +109,14 @@ void Histogram::SetDataAllBinsSelected (
 void Histogram::SetDataKeepBinSelection (
     const QwtIntervalData& intervalData, double maxValue)
 {
-    vector< pair<size_t, size_t> > selectedBins;
-    GetSelectedBins (&selectedBins);
-    setData (intervalData, maxValue, &selectedBins);
+    if (m_histogramItem.data ().size () == 0)
+	SetDataAllBinsSelected (intervalData, maxValue);
+    else
+    {
+	vector< pair<size_t, size_t> > selectedBins;
+	GetSelectedBins (&selectedBins);
+	setData (intervalData, maxValue, &selectedBins);
+    }
 }
 
 

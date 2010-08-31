@@ -29,7 +29,7 @@ public:
      * @param y the Y coordinate
      * @param z the Z coordinate
      */
-    Vertex(float x, float y, float z,
+    Vertex(double x, double y, double z,
 	   size_t id, 
 	   ElementStatus::Enum duplicateStatus = ElementStatus::ORIGINAL);
     Vertex (const G3D::Vector3& position);

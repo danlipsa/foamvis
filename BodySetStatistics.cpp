@@ -15,8 +15,8 @@
 const size_t HISTOGRAM_INTERVALS = 256;
 
 BodySetStatistics::BodySetStatistics () :
-    m_min (BodyProperty::COUNT, numeric_limits<float> ().max ()),
-    m_max (BodyProperty::COUNT, -numeric_limits<float> ().max ()),
+    m_min (BodyProperty::COUNT, numeric_limits<double> ().max ()),
+    m_max (BodyProperty::COUNT, -numeric_limits<double> ().max ()),
     m_histogram (BodyProperty::COUNT),
     m_maxCountPerBin (BodyProperty::COUNT)
 {
@@ -30,7 +30,7 @@ void BodySetStatistics::SpeedHistogramStep (
     const StripIterator::Point& prev)
 {
     G3D::Vector3 speed = p.m_point - prev.m_point;
-    boost::array<float, 4> speedComponents = 
+    boost::array<double, 4> speedComponents = 
 	{{speed.x, speed.y, speed.z, speed.length ()}};
     for (size_t i = BodyProperty::VELOCITY_BEGIN;
 	 i < BodyProperty::VELOCITY_END; ++i)
@@ -65,8 +65,8 @@ void BodySetStatistics::HistogramStep (
 }
 
 
-void BodySetStatistics::valuePerInterval (size_t i, float value, 
-					  float beginInterval, float endInterval)
+void BodySetStatistics::valuePerInterval (size_t i, double value, 
+					  double beginInterval, double endInterval)
 {
     size_t bin = GetBin (
 	value, HistogramIntervals (), beginInterval, endInterval);
@@ -74,7 +74,7 @@ void BodySetStatistics::valuePerInterval (size_t i, float value,
 }
 
 size_t BodySetStatistics::GetBin (
-    float value, size_t binCount, float beginInterval, float endInterval)
+    double value, size_t binCount, double beginInterval, double endInterval)
 {
     if (beginInterval == endInterval || value < beginInterval)
 	return 0;
@@ -82,34 +82,38 @@ size_t BodySetStatistics::GetBin (
 	return binCount - 1;
     else
     {
-	float step = (endInterval - beginInterval) / binCount;
+	double step = (endInterval - beginInterval) / binCount;
 	return floor ((value - beginInterval) / step);
     }
 }
 
 
-void BodySetStatistics::RangeStep (size_t bodyProperty, float newValue)
+void BodySetStatistics::RangeStep (size_t bodyProperty, double newValue)
 {
     MinStep (bodyProperty, newValue);
     MaxStep (bodyProperty, newValue);
 }
 
 QwtIntervalData BodySetStatistics::GetHistogram (
-    size_t i, const BodySetStatistics* rangeStatistics) const
+    size_t bodyProperty, const BodySetStatistics* rangeStatistics) const
 {
     if (rangeStatistics == 0)
 	rangeStatistics = this;
     size_t histogramIntervals = HistogramIntervals ();
     QwtArray<QwtDoubleInterval> intervals (histogramIntervals);
     QwtArray<double> values (histogramIntervals);
-    float beginInterval = rangeStatistics->GetMin (i);
-    float endInterval = rangeStatistics->GetMax (i);
-    float step = (endInterval - beginInterval) / histogramIntervals;
-    float pos = beginInterval;
+    double beginInterval = rangeStatistics->GetMin (bodyProperty);
+    double endInterval = rangeStatistics->GetMax (bodyProperty);
+    double step = (endInterval - beginInterval) / histogramIntervals;
+    double pos = beginInterval;
     for (size_t bin = 0; bin < histogramIntervals; ++bin)
     {
-	intervals[bin] = QwtDoubleInterval (pos, pos + step);
-	values[bin] = GetValuesPerBin (i, bin);
+	intervals[bin] = QwtDoubleInterval (
+	    pos, pos + step, 
+	    bin == (histogramIntervals - 1) ? 
+	    QwtDoubleInterval::IncludeBorders : 
+	    QwtDoubleInterval::ExcludeMaximum);
+	values[bin] = GetValuesPerBin (bodyProperty, bin);
 	pos += step;
     }
     return QwtIntervalData (intervals, values);

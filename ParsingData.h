@@ -22,16 +22,16 @@ public:
     /**
      * How are variables stored
      */
-    typedef map<const char*, float, LessThanNoCase> Variables;
+    typedef map<const char*, double, LessThanNoCase> Variables;
     /**
      * A unary function
      */
-    //typedef float (*UnaryFunction)(float);
-    typedef boost::function<float (float)> UnaryFunction;
+    //typedef double (*UnaryFunction)(double);
+    typedef boost::function<double (double)> UnaryFunction;
     /**
      * A binary function
      */
-    typedef boost::function<float (float, float)> BinaryFunction;
+    typedef boost::function<double (double, double)> BinaryFunction;
     /**
      * How are unary functions stored.
      */
@@ -65,13 +65,13 @@ public:
      *         CreateIdentifier and it is dealocated by the ParsingData object
      * @param value variable value
      */
-    void SetVariable (const char* id, float value) {m_variables[id] = value;}
+    void SetVariable (const char* id, double value) {m_variables[id] = value;}
     /**
      * Retrieves a variable value
      * @param name variable name
      * @return variable value
      */
-    float GetVariableValue (const char* name);
+    double GetVariableValue (const char* name);
     /**
      * Stores a string from the lexer for later use in the parser
      * @param id string from the lexer
@@ -134,7 +134,7 @@ public:
      * @param z coordinate Z of the Vertex object
      * @param attributes the list of attributes for the vertex
      */
-    void SetVertex (size_t i, float x, float y, float z,
+    void SetVertex (size_t i, double x, double y, double z,
 		    vector<NameSemanticValue*>& attributes,
 		    const AttributesInfo& attributesInfo);
     /**

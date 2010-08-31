@@ -9,11 +9,13 @@
 #ifndef __DISPLAY_BODY_FUNCTORS_H__
 #define __DISPLAY_BODY_FUNCTORS_H__
 
-#include "GLWidget.h"
+#include "BodySelector.h"
 #include "DebugStream.h"
-#include "Foam.h"
-#include "StripIterator.h"
 #include "Enums.h"
+#include "Foam.h"
+#include "GLWidget.h"
+#include "StripIterator.h"
+
 
 
 /**
@@ -26,7 +28,8 @@ public:
      * Constructor
      * @param widget where to display the body
      */
-    DisplayBodyBase (const GLWidget& widget) : DisplayElement (widget)
+    DisplayBodyBase (const GLWidget& widget, const BodySelector& bodySelector) : 
+	DisplayElement (widget), m_bodySelector (bodySelector)
     {}
     /**
      * Functor used  to display a body. Uses  transparencey to display
@@ -39,7 +42,7 @@ public:
      */
     void operator () (boost::shared_ptr<Body> b)
     {
-        if (m_widget.IsDisplayedBody (b))
+        if (m_bodySelector (b->GetId (), m_glWidget.GetTimeStep ()))
 	{
 	    glDisable (GL_BLEND);
 	    display (b, FOCUS);
@@ -59,6 +62,8 @@ protected:
      * @param b the body
      */
     virtual void display (boost::shared_ptr<Body> b, FocusContext fc) = 0;
+private:
+    const BodySelector& m_bodySelector;
 };
 
 /**
@@ -71,7 +76,9 @@ public:
      * Constructor
      * @param widget where to display the center of the bubble
      */
-    DisplayBodyCenter (GLWidget& widget) : DisplayBodyBase (widget) {}
+    DisplayBodyCenter (GLWidget& widget, const BodySelector& bodySelector):
+	DisplayBodyBase (widget, bodySelector) 
+    {}
 protected:
     /**
      * Displays the center of a body (bubble)
@@ -101,10 +108,10 @@ public:
      * Constructor
      * @param widget where to display the body
      */
-    DisplayBody (const GLWidget& widget,
+    DisplayBody (const GLWidget& widget, const BodySelector& bodySelector,
 		 ContextDisplay contextDisplay = TRANSPARENT_CONTEXT,
 		 BodyProperty::Enum bodyProperty = BodyProperty::NONE) : 
-	DisplayBodyBase (widget),
+	DisplayBodyBase (widget, bodySelector),
 	m_contextDisplay (contextDisplay),
 	m_bodyProperty (bodyProperty)
     {}
@@ -120,7 +127,7 @@ protected:
 	    return;
 	vector<boost::shared_ptr<OrientedFace> > v = b->GetOrientedFaces ();
 	for_each (v.begin (), v.end (),
-		  displayFace(m_widget, bodyFc, m_bodyProperty));
+		  displayFace(m_glWidget, bodyFc, m_bodyProperty));
     }
 private:
     ContextDisplay m_contextDisplay;
@@ -139,9 +146,9 @@ public:
      * @param widget where to display the center path
      */
     DisplayCenterPath (GLWidget& widget,
-		       BodyProperty::Enum centerPathColor) : 
-	m_widget (widget),
-	m_centerPathColor (centerPathColor)
+		       BodyProperty::Enum bodyProperty) : 
+	m_glWidget (widget),
+	m_bodyProperty (bodyProperty)
     {
     }
     /**
@@ -150,12 +157,12 @@ public:
      */
     void operator () (size_t bodyId)
     {
-	const BodyAlongTime& bat = m_widget.GetBodyAlongTime (bodyId);
-	StripIterator it = bat.GetStripIterator (m_widget.GetFoamAlongTime ());
+	const BodyAlongTime& bat = m_glWidget.GetBodyAlongTime (bodyId);
+	StripIterator it = bat.GetStripIterator (m_glWidget.GetFoamAlongTime ());
 	glBegin(GL_LINES);
-	if ( (m_centerPathColor >= BodyProperty::VELOCITY_BEGIN &&
-	      m_centerPathColor < BodyProperty::VELOCITY_END) ||
-	     m_centerPathColor == BodyProperty::NONE)
+	if ( (m_bodyProperty >= BodyProperty::VELOCITY_BEGIN &&
+	      m_bodyProperty < BodyProperty::VELOCITY_END) ||
+	     m_bodyProperty == BodyProperty::NONE)
 	    it.ForEachSegment (
 		boost::bind (&DisplayCenterPath::speedStep,
 			     this, _1, _2));
@@ -182,7 +189,7 @@ private:
 	const StripIterator::Point& p,
 	const StripIterator::Point& prev)
     {
-	segment (StripIterator::GetPropertyValue (m_centerPathColor, p, prev),
+	segment (StripIterator::GetPropertyValue (m_bodyProperty, p, prev),
 		 prev.m_point, p.m_point);
     }
 
@@ -191,26 +198,28 @@ private:
 	const StripIterator::Point& prev)
     {
 	G3D::Vector3 middle = (prev.m_point + p.m_point) / 2;
-	if (StripIterator::ExistsPropertyValue (m_centerPathColor, prev))
+	if (StripIterator::ExistsPropertyValue (m_bodyProperty, prev))
 	    segment (StripIterator::GetPropertyValue (
-			 m_centerPathColor, prev), prev.m_point, middle);
+			 m_bodyProperty, prev), prev.m_point, middle);
 	else
-	    segment (m_widget.GetNotAvailableCenterPathColor (), prev.m_point, middle);
+	    segment (m_glWidget.GetNotAvailableCenterPathColor (), 
+		     prev.m_point, middle);
 
-	if (StripIterator::ExistsPropertyValue (m_centerPathColor, p))
+	if (StripIterator::ExistsPropertyValue (m_bodyProperty, p))
 	    segment (StripIterator::GetPropertyValue (
-			 m_centerPathColor, p), middle, p.m_point);
+			 m_bodyProperty, p), middle, p.m_point);
 	else
-	    segment (m_widget.GetNotAvailableCenterPathColor (), middle, p.m_point);
+	    segment (m_glWidget.GetNotAvailableCenterPathColor (), 
+		     middle, p.m_point);
     }
 
-    void segment (float value, G3D::Vector3 begin, G3D::Vector3 end)
+    void segment (double value, G3D::Vector3 begin, G3D::Vector3 end)
     {
-	segment (m_widget.MapScalar (value), begin, end);
+	segment (m_glWidget.MapScalar (value), begin, end);
     }
     void segment (const QColor& color, G3D::Vector3 begin, G3D::Vector3 end)
     {
-	m_widget.qglColor (color);
+	m_glWidget.qglColor (color);
 	glVertex (begin);
 	glVertex (end);
     }
@@ -219,8 +228,8 @@ private:
     /**
      * Where to display the center path
      */
-    GLWidget& m_widget;
-    BodyProperty::Enum m_centerPathColor;
+    GLWidget& m_glWidget;
+    BodyProperty::Enum m_bodyProperty;
 };
 
 

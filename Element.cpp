@@ -133,7 +133,7 @@ string Element::GetStringId () const
     return ostr.str ();
 }
 
-float Element::GetRealAttribute (size_t i) const
+double Element::GetRealAttribute (size_t i) const
 {
     RuntimeAssert (m_attributes != 0 && i < m_attributes->size (),
 		   "Attribute does not exist at index ", i, 

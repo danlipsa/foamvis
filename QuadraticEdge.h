@@ -41,8 +41,8 @@ private:
     /**
      * Quadratic function applied do parameter t in [0, 2]
      */
-    float quadratic (float t, size_t i) const;
-    G3D::Vector3 quadratic (float t) const;
+    double quadratic (double t, size_t i) const;
+    G3D::Vector3 quadratic (double t) const;
     
 private:
     boost::shared_ptr<Vertex> m_middle;

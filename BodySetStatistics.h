@@ -16,27 +16,27 @@ class BodySetStatistics
 {
 public:
     BodySetStatistics ();
-    float GetMin (size_t bodyProperty) const
+    double GetMin (size_t bodyProperty) const
     {
 	return m_min[bodyProperty];
     }
-    const vector<float>& GetMin() const
+    const vector<double>& GetMin() const
     {
 	return m_min;
     }
-    vector<float>& GetMin()
+    vector<double>& GetMin()
     {
 	return m_min;
     }
-    float GetMax (size_t bodyProperty) const
+    double GetMax (size_t bodyProperty) const
     {
 	return m_max[bodyProperty];
     }
-    const vector<float>& GetMax () const
+    const vector<double>& GetMax () const
     {
 	return m_max;
     }
-    vector<float>& GetMax ()
+    vector<double>& GetMax ()
     {
 	return m_max;
     }
@@ -56,12 +56,12 @@ public:
 	const FoamAlongTime& foamAlongTime, size_t bodyId, size_t timeStep,
 	const BodySetStatistics& rangeStatistics);
 
-    void RangeStep (size_t bodyProperty, float newValue);
-    void MinStep (size_t bodyProperty, float newValue)
+    void RangeStep (size_t bodyProperty, double newValue);
+    void MinStep (size_t bodyProperty, double newValue)
     {
 	m_min[bodyProperty] = min (m_min[bodyProperty], newValue);
     }
-    void MaxStep (size_t bodyProperty, float newValue)
+    void MaxStep (size_t bodyProperty, double newValue)
     {
 	m_max[bodyProperty] = max (m_max[bodyProperty], newValue);
     }
@@ -78,26 +78,26 @@ public:
     }
 
 public:
-    static size_t GetBin (float value, size_t binCount,
-			  float beginInterval, float endInterval);
+    static size_t GetBin (double value, size_t binCount,
+			  double beginInterval, double endInterval);
     
 private:
     /**
      * Increment the correct bin for 'bodyProperty' (@see
      * BodyProperty::Enum) and 'value'.
      */
-    void valuePerInterval (size_t bodyProperty, float value,
-			   float beginInterval, float endInterval);
+    void valuePerInterval (size_t bodyProperty, double value,
+			   double beginInterval, double endInterval);
 
 private:
     /**
      * Min speed along X, Y, Z, min total speed, min pressure
      */
-    vector<float> m_min;
+    vector<double> m_min;
     /**
      * Max speed along X, Y, Z, max total speed, max pressure
      */
-    vector<float> m_max;
+    vector<double> m_max;
     /**
      * Divide the value range in HISTOGRAM_INTERVALS intervals.
      * This array tells us how many values you have in each interval for

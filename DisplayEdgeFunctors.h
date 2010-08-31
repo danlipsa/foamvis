@@ -37,7 +37,7 @@ struct DisplayEdgeTube
 {
     void operator() (
 	GLUquadricObj* quadric,
-	float edgeRadius,
+	double edgeRadius,
 	const G3D::Vector3& begin, const G3D::Vector3& end)
     {
 	G3D::Matrix3 rotation;
@@ -61,11 +61,11 @@ struct DisplayEdge
 {
     void operator() (
 	GLUquadricObj* quadric,
-	float edgeRadius,
+	double edgeRadius,
 	const G3D::Vector3& begin, const G3D::Vector3& end)
     {
-	(void)quadric;
-	(void)edgeRadius;
+	static_cast<void> (quadric);
+	static_cast<void> (edgeRadius);
 
 	glLineWidth (1.0);
 	glBegin(GL_LINES);
@@ -79,7 +79,7 @@ struct DisplayArrowTube
 {
     void operator () (
 	GLUquadricObj* quadric,
-	float baseRadius, float topRadius, float height,
+	double baseRadius, double topRadius, double height,
 	const G3D::Vector3& begin, const G3D::Vector3& end)
     {
 	G3D::Matrix3 rotation;
@@ -102,7 +102,7 @@ struct DisplayArrow
 {
     void operator () (
 	GLUquadricObj*,
-	float, float, float,
+	double, double, double,
 	const G3D::Vector3& begin, const G3D::Vector3& end)
     {
 	glLineWidth (2.0);
@@ -156,15 +156,15 @@ protected:
 	const Vertex* begin = e->GetBegin ().get ();
 	const Vertex* end = e->GetEnd ().get ();
 	G3D::Vector3int16 endLocation = e->GetEndTranslation ();
-	m_widget.qglColor (m_widget.GetEndTranslationColor (endLocation));
+	m_glWidget.qglColor (m_glWidget.GetEndTranslationColor (endLocation));
 	if (endLocation != Vector3int16Zero)
 	    displayArrow() (
-		m_widget.GetQuadricObject (), 
-		m_widget.GetArrowBaseRadius (), m_widget.GetEdgeRadius (),
-		m_widget.GetArrowHeight (),
+		m_glWidget.GetQuadricObject (), 
+		m_glWidget.GetArrowBaseRadius (), m_glWidget.GetEdgeRadius (),
+		m_glWidget.GetArrowHeight (),
 		*begin, *end);
-	displayEdge() (m_widget.GetQuadricObject (),
-		       m_widget.GetEdgeRadius (), *begin, *end);
+	displayEdge() (m_glWidget.GetQuadricObject (),
+		       m_glWidget.GetEdgeRadius (), *begin, *end);
 	glPopAttrib ();
     }
 };
@@ -191,15 +191,15 @@ public:
 
     void operator () (const Edge& edge) const
     {
-	const Foam& foam = m_widget.GetCurrentFoam ();
+	const Foam& foam = m_glWidget.GetCurrentFoam ();
 	bool isPhysical = edge.IsPhysical (foam.GetSpaceDimension (),
 					   foam.IsQuadratic ());
 	if (isPhysical || 
 	    (tesselationEdgesDisplay == TEST_DISPLAY_TESSELLATION &&
-	     m_widget.IsEdgesTessellation () && 
+	     m_glWidget.IsEdgesTessellation () && 
 	     m_focus == FOCUS))
 	{
-	    float alpha = m_focus == FOCUS ? 1.0 : m_widget.GetContextAlpha (); 
+	    double alpha = m_focus == FOCUS ? 1.0 : m_glWidget.GetContextAlpha (); 
 	    edge.Display (Color::BLACK, alpha);
 	}
     }
@@ -224,7 +224,7 @@ public:
 
     void operator () (const boost::shared_ptr<Edge>  edge) const
     {
-	const OOBox& periods = m_widget.GetCurrentFoam ().GetOriginalDomain ();
+	const OOBox& periods = m_glWidget.GetCurrentFoam ().GetOriginalDomain ();
 	if (edge->IsClipped ())
 	{
 	    Color::Enum color = edge->GetColor (Color::BLACK);
@@ -293,12 +293,12 @@ public:
     {
 	const vector< boost::shared_ptr<OrientedEdge> >& v = 
 	    f->GetOrientedEdges ();
-	displayEdge display(m_widget, m_focus);
+	displayEdge display(m_glWidget, m_focus);
 	for (size_t i = 0; i < v.size (); i++)
 	{
 	    boost::shared_ptr<OrientedEdge> oe = v[i];
-	    size_t displayedEdgeIndex = m_widget.GetDisplayedEdgeIndex ();
-	    if (m_widget.IsDisplayedEdge (i))
+	    size_t displayedEdgeIndex = m_glWidget.GetDisplayedEdgeIndex ();
+	    if (m_glWidget.IsDisplayedEdge (i))
 	    {
 		display (oe);
 		if (i == displayedEdgeIndex)

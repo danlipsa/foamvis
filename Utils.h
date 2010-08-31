@@ -40,8 +40,8 @@ inline void glTranslate (const G3D::Vector3& translate)
     glTranslatef (translate.x, translate.y, translate.z);
 }
 
-void Scale (G3D::AABox* aabox, float change);
-void Scale (G3D::Rect2D* aabox, float change);
+void Scale (G3D::AABox* aabox, double change);
+void Scale (G3D::Rect2D* aabox, double change);
 void EncloseRotation (G3D::AABox* aabox);
 /**
  * Returns the luminance of a color using a formula from 
@@ -50,7 +50,7 @@ void EncloseRotation (G3D::AABox* aabox);
  * Will Schroeder, Ken Martin, Bill Lorensen
  * Section 8.9 Scalars and Color, page 295
  */
-inline float Luminance (const QColor& color)
+inline double Luminance (const QColor& color)
 {
     return color.alphaF () * 
 	(0.3 * color.redF () + 0.59 * color.greenF () + 0.11 * color.blueF ());

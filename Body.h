@@ -77,11 +77,11 @@ public:
     void GetVertexSet (VertexSet* vertexSet) const;
     void GetEdgeSet (EdgeSet* edgeSet) const;
     void GetFaceSet (FaceSet* faceSet) const;
-    float GetPressure () const
+    double GetPressure () const
     {
 	return GetRealAttribute (PRESSURE_INDEX);
     }
-    float GetPropertyValue (BodyProperty::Enum property) const;
+    double GetPropertyValue (BodyProperty::Enum property) const;
     bool ExistsPropertyValue (BodyProperty::Enum property) const;
 
     

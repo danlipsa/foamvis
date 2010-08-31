@@ -8,6 +8,7 @@
 
 #include "Body.h"
 #include "BodyAlongTime.h"
+#include "BodySelector.h"
 #include "ColorBarModel.h"
 #include "EditTransferFunction.h"
 #include "FoamAlongTime.h"
@@ -165,7 +166,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_centerPathColor (BodyProperty::NONE),
       m_facesColor (BodyProperty::NONE),
       m_notAvailableCenterPathColor (Qt::black),
-      m_notAvailableFaceColor (Qt::white)
+      m_notAvailableFaceColor (Qt::white),
+      m_bodySelector (new CycleSelector (*this))
 {
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
     const int POSSIBILITIES = 3; //domain increment can be *, - or +
@@ -232,7 +234,7 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* dataAlongTime)
     boost::shared_ptr<Face> f = 
 	GetCurrentFoam ().GetBody (0)->GetFace (0);
     boost::shared_ptr<Edge> e = f->GetEdge (0);
-    float length = (*e->GetEnd () - *e->GetBegin ()).length ();
+    double length = (*e->GetEnd () - *e->GetBegin ()).length ();
 
     m_edgeRadius = length / 20;
     m_arrowBaseRadius = 5 * m_edgeRadius;
@@ -446,8 +448,8 @@ void GLWidget::resizeGL(int width, int height)
 {
     using G3D::Rect2D;using G3D::Vector2;
     Vector2 viewportStart = m_viewport.x0y0 ();
-    float ratio = 1;
-    if ((static_cast<float>(width) / height) > ratio)
+    double ratio = 1;
+    if ((static_cast<double>(width) / height) > ratio)
     {
 	int newWidth = ratio * height;
 	m_viewport = Rect2D::xywh ((width - newWidth) / 2, 0,
@@ -463,7 +465,7 @@ void GLWidget::resizeGL(int width, int height)
 		m_viewport.width (), m_viewport.height ());
 }
 
-void GLWidget::setRotation (int axis, float angleRadians)
+void GLWidget::setRotation (int axis, double angleRadians)
 {
     using G3D::Matrix3;using G3D::Vector3;
     Vector3 axes[3] = {
@@ -472,13 +474,13 @@ void GLWidget::setRotation (int axis, float angleRadians)
     m_rotate = Matrix3::fromAxisAngle (axes[axis], angleRadians) * m_rotate;
 }
 
-float GLWidget::ratioFromCenter (const QPoint& p)
+double GLWidget::ratioFromCenter (const QPoint& p)
 {
     using G3D::Vector2;
     Vector2 center = m_viewport.center ();
     Vector2 lastPos (m_lastPos.x (), m_lastPos.y());
     Vector2 currentPos (p.x (), p.y ());
-    float ratio = 
+    double ratio = 
 	(currentPos - center).length () / 
 	(lastPos - center).length ();
     return ratio;
@@ -491,8 +493,8 @@ void GLWidget::rotate (const QPoint& position)
 
     // scale this with the size of the window
     int side = std::min (m_viewport.width (), m_viewport.height ());
-    float dxRadians = static_cast<float>(dx) * (M_PI / 2) / side;
-    float dyRadians = static_cast<float>(dy) * (M_PI / 2) / side;
+    double dxRadians = static_cast<double>(dx) * (M_PI / 2) / side;
+    double dyRadians = static_cast<double>(dy) * (M_PI / 2) / side;
     setRotation (0, dyRadians);
     setRotation (1, dxRadians);
 }
@@ -511,7 +513,7 @@ void GLWidget::translateViewport (const QPoint& position)
 
 void GLWidget::scaleViewport (const QPoint& position)
 {
-    float ratio = ratioFromCenter (position);
+    double ratio = ratioFromCenter (position);
     Scale (&m_viewport, ratio);
     glViewport (m_viewport.x0 (), m_viewport.y0 (), 
 		m_viewport.width (), m_viewport.height ());
@@ -604,7 +606,7 @@ GLuint GLWidget::displayListEdges ()
 	      DisplayBody<
 	      DisplayFace<
 	      DisplayEdges<
-	      displayEdge> > >(*this));
+	      displayEdge> > > (*this, *m_bodySelector));
     displayStandaloneEdges<displayEdge> ();
 
     glPopAttrib ();
@@ -679,7 +681,8 @@ void GLWidget::displayCenterOfBodies ()
 	glPointSize (4.0);
 	qglColor (QColor (Qt::red));
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
-	for_each (bodies.begin (), bodies.end (), DisplayBodyCenter (*this));
+	for_each (bodies.begin (), bodies.end (), 
+		  DisplayBodyCenter (*this, *m_bodySelector));
 	glPopAttrib ();
     }
 }
@@ -706,7 +709,8 @@ void GLWidget::displayFacesContour (const Foam::Bodies& bodies) const
 			  GetContextAlpha ()));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     for_each (bodies.begin (), bodies.end (),
-              DisplayBody< DisplayFace<DisplaySameEdges> > (*this));
+              DisplayBody< DisplayFace<DisplaySameEdges> > (
+		  *this, *m_bodySelector));
 }
 
 // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
@@ -719,7 +723,8 @@ void GLWidget::displayFacesInterior (const Foam::Bodies& bodies) const
     for_each (
 	bodies.begin (), bodies.end (),
 	DisplayBody<DisplayFaceWithColor> (
-	    *this, DisplayElement::TRANSPARENT_CONTEXT, m_facesColor));
+	    *this, *m_bodySelector, 
+	    DisplayElement::TRANSPARENT_CONTEXT, m_facesColor));
     glDisable (GL_POLYGON_OFFSET_FILL);
 }
 
@@ -730,7 +735,7 @@ GLuint GLWidget::displayListFacesLighting ()
     glNewList(list, GL_COMPILE);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     for_each (bodies.begin (), bodies.end (),
-              DisplayBody<DisplayFaceWithNormal>(*this));
+              DisplayBody<DisplayFaceWithNormal>(*this, *m_bodySelector));
     glEndList();
     return list;
 }
@@ -792,7 +797,8 @@ GLuint GLWidget::displayListCenterPaths ()
 		  DisplayBody<DisplayFace<
 		  DisplayEdges<DisplayEdgeWithColor<
 		  DisplayElement::DONT_DISPLAY_TESSELLATION> > > > (
-		      *this, DisplayElement::INVISIBLE_CONTEXT));
+		      *this, *m_bodySelector, 
+		      DisplayElement::INVISIBLE_CONTEXT));
 	displayCenterOfBodies ();
     }
     displayOriginalDomain ();
@@ -1223,7 +1229,7 @@ void GLWidget::SetActionDeselectAll (
 	    this, SLOT(DeselectAll ()));
 }
 
-QColor GLWidget::MapScalar (float value) const
+QColor GLWidget::MapScalar (double value) const
 {
     if (m_colorBarModel == 0)
 	return Qt::black;

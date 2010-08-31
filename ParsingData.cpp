@@ -19,7 +19,7 @@
 /**
  * Pretty prints a variable. Used by a for_each algorithm.
  */
-struct printVariable : public unary_function<pair<const char*, float>, void>
+struct printVariable : public unary_function<pair<const char*, double>, void>
 {
     /**
      * Constructs a printVariable object
@@ -30,7 +30,7 @@ struct printVariable : public unary_function<pair<const char*, float>, void>
      * Pretty prints a variable
      * @param nameValue a name-value pair
      */
-    void operator() (pair<const char*, float> nameValue)
+    void operator() (pair<const char*, double> nameValue)
     {
         m_ostr << nameValue.first << ": " << nameValue.second << endl;
     }
@@ -50,7 +50,7 @@ private:
  * assignments in constant expressions.
  * @return it throws an exception before returning.
  */
-static float assignmentFunction (float, float)
+static double assignmentFunction (double, double)
 {
     throw logic_error ("Assignment operation in constant expression");
 }
@@ -88,21 +88,21 @@ ParsingData::ParsingData ()
 {
     BinaryFunctionInformation BINARY_FUNCTION_INFORMATION[] = 
     {
-	{"+", plus<float> ()},
-	{"-", minus<float> ()},
-	{"*", multiplies<float> ()},
-	{"/", divides<float> ()},
+	{"+", plus<double> ()},
+	{"-", minus<double> ()},
+	{"*", multiplies<double> ()},
+	{"/", divides<double> ()},
 	{"^", powf},
 	{"=", assignmentFunction},
 	{"atan2", atan2f},
-	{">", greater<float> ()},
-	{">=", greater_equal<float> ()},
-	{"<", less<float> ()},
-	{"<=", less_equal<float> ()}
+	{">", greater<double> ()},
+	{">=", greater_equal<double> ()},
+	{"<", less<double> ()},
+	{"<=", less_equal<double> ()}
     };
     UnaryFunctionInformation UNARY_FUNCTION_INFORMATION[] =
     {
-	{"-", negate<float> ()},
+	{"-", negate<double> ()},
 	{"sqrt", sqrtf}
     };
 
@@ -122,7 +122,7 @@ ParsingData::~ParsingData ()
     for_each(m_identifiers.begin (), m_identifiers.end (), deleteIdentifier);
 }
 
-float ParsingData::GetVariableValue (const char* id) 
+double ParsingData::GetVariableValue (const char* id) 
 {
     Variables::iterator it = m_variables.find (id);
     RuntimeAssert (it != m_variables.end (), "Undeclared variable: ", id);
@@ -165,12 +165,12 @@ void ParsingData::PrintTimeCheckpoint (string& description)
 {
     clock_t time = clock ();
 	cdbg << description << ": " 
-		<< static_cast<float>(time - m_previousTime) / CLOCKS_PER_SEC
+		<< static_cast<double>(time - m_previousTime) / CLOCKS_PER_SEC
 		<< " sec" << endl;
 	m_previousTime = time;
 }
 
-void ParsingData::SetVertex (size_t i, float x, float y, float z,
+void ParsingData::SetVertex (size_t i, double x, double y, double z,
 			     vector<NameSemanticValue*>& attributes,
 			     const AttributesInfo& attributesInfo) 
 {

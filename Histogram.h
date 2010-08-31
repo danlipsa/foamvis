@@ -27,6 +27,7 @@ public:
 
 public:
     Histogram (QWidget* parent = 0);
+    bool AreAllItemsSelected () const;
     double GetMaxValueAxis () const
     {
 	return m_histogramItem.getMaxValueAxis ();
@@ -73,7 +74,7 @@ Q_SIGNALS:
 
 
 private:
-    size_t getBin (float value);    
+    size_t getBin (double value);    
     void setData (const QwtIntervalData& intervalData, double maxValue,
 		  const vector< pair<size_t, size_t> >* selectedBins = 0);
 

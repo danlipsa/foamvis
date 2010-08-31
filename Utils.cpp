@@ -28,7 +28,7 @@ const G3D::Vector3int16& Vector3int16Unit (size_t direction)
 }
 
 
-void Scale (G3D::AABox* aabox, float change)
+void Scale (G3D::AABox* aabox, double change)
 {
     using G3D::Vector3;
     Vector3 center = aabox->center ();
@@ -37,7 +37,7 @@ void Scale (G3D::AABox* aabox, float change)
     aabox->set (newLow, newHigh);
 }
 
-void Scale (G3D::Rect2D* aabox, float change)
+void Scale (G3D::Rect2D* aabox, double change)
 {
     using G3D::Vector2;
     Vector2 center = aabox->center ();
@@ -50,7 +50,7 @@ void EncloseRotation (G3D::AABox* aabox)
 {
     using G3D::Vector3;
     Vector3 center = aabox->center ();
-    float halfSideLength = (aabox->high () - center).length ();
+    double halfSideLength = (aabox->high () - center).length ();
     Vector3 halfDiagonal = halfSideLength * 
 	(Vector3::unitX () + Vector3::unitY () + Vector3::unitZ ());
     aabox->set (center - halfDiagonal, center + halfDiagonal);
@@ -64,6 +64,12 @@ ostream& operator<< (ostream& ostr, const QColor& color)
 
 ostream& operator<< (ostream& ostr, const QwtDoubleInterval& interval)
 {
-    return ostr << "QwtDoubleInterval (" << interval.minValue () << ", "
-		<< interval.maxValue () << ")";
+    return ostr 
+	<< "QwtDoubleInterval: "
+	<< ((interval.borderFlags () & QwtDoubleInterval::ExcludeMinimum) ?
+	    "(" : "[")
+	<< interval.minValue () << ", "
+	<< interval.maxValue ()
+	<< ((interval.borderFlags () & QwtDoubleInterval::ExcludeMaximum) ?
+	    ")" : "]");
 }

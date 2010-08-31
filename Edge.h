@@ -147,7 +147,7 @@ public:
 	const OOBox& periods,
 	const G3D::Vector3& newBegin,
 	VertexSet* vertexSet, EdgeSet* edgeSet) const;    
-    void Display (Color::Enum defaultColor, float alpha) const;
+    void Display (Color::Enum defaultColor, double alpha) const;
 
     virtual size_t PointCount () const;
     virtual G3D::Vector3 GetPoint (size_t i) const;
