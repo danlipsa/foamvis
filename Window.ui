@@ -58,7 +58,7 @@
           <height>512</height>
          </size>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,1,0">
+        <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,0,0">
          <item>
           <widget class="QWidget" name="widgetDisplayColorBar" native="true">
            <property name="sizePolicy">
@@ -100,10 +100,17 @@
           </widget>
          </item>
          <item>
-          <widget class="AttributeHistogram" name="widgetHistogram" native="true"/>
+          <widget class="AttributeHistogram" name="widgetHistogram" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
          </item>
          <item>
-          <widget class="RestrictedRangeSlider" name="sliderTimeSteps" native="true">
+          <widget class="TimeStepsSlider" name="sliderTimeSteps" native="true">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
              <horstretch>0</horstretch>
@@ -282,7 +289,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>2</number>
            </property>
            <widget class="QWidget" name="edges">
             <attribute name="title">
@@ -820,12 +827,42 @@
    <header>ColorBar.h</header>
   </customwidget>
   <customwidget>
-   <class>RestrictedRangeSlider</class>
+   <class>TimeStepsSlider</class>
    <extends>QWidget</extends>
-   <header>RestrictedRangeSlider.h</header>
+   <header>TimeStepsSlider.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>comboBoxInteractionMode</tabstop>
+  <tabstop>checkBoxSaveMovie</tabstop>
+  <tabstop>toolButtonBegin</tabstop>
+  <tabstop>toolButtonPlay</tabstop>
+  <tabstop>toolButtonEnd</tabstop>
+  <tabstop>checkBoxBoundingBox</tabstop>
+  <tabstop>horizontalSliderAngleOfView</tabstop>
+  <tabstop>checkBoxTorusOriginalDomainDisplay</tabstop>
+  <tabstop>checkBoxTorusOriginalDomainWrapInside</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>radioButtonEdgesNormal</tabstop>
+  <tabstop>radioButtonEdgesTorus</tabstop>
+  <tabstop>radioButtonFacesNormal</tabstop>
+  <tabstop>radioButtonFacesTorus</tabstop>
+  <tabstop>radioButtonCenterPath</tabstop>
+  <tabstop>checkBoxEdgesTessellation</tabstop>
+  <tabstop>checkBoxFacesTorusTubes</tabstop>
+  <tabstop>checkBoxEdgesBodyCenter</tabstop>
+  <tabstop>comboBoxFacesColor</tabstop>
+  <tabstop>radioButtonFacesHistogramNone</tabstop>
+  <tabstop>radioButtonFacesHistogramUnicolor</tabstop>
+  <tabstop>radioButtonFacesHistogramColorCoded</tabstop>
+  <tabstop>checkBoxEdgesTorusTubes</tabstop>
+  <tabstop>comboBoxCenterPathColor</tabstop>
+  <tabstop>checkBoxCenterPathCurrentBody</tabstop>
+  <tabstop>radioButtonCenterPathHistogramNone</tabstop>
+  <tabstop>radioButtonCenterPathHistogramUnicolor</tabstop>
+  <tabstop>radioButtonCenterPathHistogramColorCoded</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

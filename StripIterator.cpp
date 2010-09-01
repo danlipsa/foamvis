@@ -67,8 +67,7 @@ StripIterator::Point StripIterator::Next ()
 	}
 	const boost::shared_ptr<Body>& body = 
 	    m_bodyAlongTime.GetBody (m_timeStep);
-	++m_timeStep;
-	return Point (body->GetCenter (), location, body);
+	return Point (body->GetCenter (), location, m_timeStep++, body);
     }
     else
     { // at the end of a middle wrap
@@ -80,9 +79,8 @@ StripIterator::Point StripIterator::Next ()
 	return Point (
 	    originalDomain.TorusTranslate (
 		body->GetCenter (),
-		Vector3int16Zero - 
-		m_bodyAlongTime.GetTranslation (m_currentWrap++)), END,
-	    body);
+		Vector3int16Zero - m_bodyAlongTime.GetTranslation (
+		    m_currentWrap++)), END, m_timeStep, body);
     }
 }
 

@@ -73,3 +73,10 @@ ostream& operator<< (ostream& ostr, const QwtDoubleInterval& interval)
 	<< ((interval.borderFlags () & QwtDoubleInterval::ExcludeMaximum) ?
 	    ")" : "]");
 }
+
+ostream& operator<< (ostream& ostr, const vector<bool>& v)
+{
+    BOOST_FOREACH (bool b, v)
+	ostr << (b ? "1" : "0");
+    return ostr;
+}

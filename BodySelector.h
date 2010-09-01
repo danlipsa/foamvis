@@ -1,18 +1,21 @@
 /**
- * @file   CycleSelector.h
+ * @file   BodySelector.h
  * @author Dan R. Lipsa
  * @date  31 Aug. 2010
  *
  * Functors used to select a body
  */
-#ifndef __CYCLE_SELECTOR_H__
-#define __CYCLE_SELECTOR_H__
+#ifndef __BODY_SELECTOR_H__
+#define __BODY_SELECTOR_H__
 
 #include "Enums.h"
 
 class BodySelector
 {
 public:
+    /**
+     * Returns true if this body is selected.
+     */
     virtual bool operator () (size_t bodyId, size_t timeStep) const = 0;
 };
 
@@ -24,6 +27,7 @@ public:
 	m_glWidget (glWidget)
     {
     }
+    
     virtual bool operator () (size_t bodyId, size_t timeStep) const;
     
 private:
@@ -43,6 +47,7 @@ public:
 	m_foamAlongTime (foamAlongTime)
     {
     }
+
     virtual bool operator () (size_t bodyId, size_t timeStep) const;
 
 private:
@@ -51,7 +56,7 @@ private:
     const FoamAlongTime& m_foamAlongTime;
 };
 
-#endif //__CYCLE_SELECTOR_H__
+#endif //__BODY_SELECTOR_H__
 // Local Variables:
 // mode: c++
 // End:

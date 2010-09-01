@@ -13,7 +13,7 @@ HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
 	OrientedEdge.h OrientedFace.h OrientedFaceIndex.h \
 	ParsingData.h ParsingDriver.h ProcessBodyTorus.h \
 	QuadraticEdge.h RestrictedRangeSlider.h \
-	stable.h StripIterator.h SystemDifferences.h Utils.h \
+	stable.h StripIterator.h SystemDifferences.h TimeStepsSlider.h Utils.h \
 	Vertex.h
 SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	AttributeHistogram.cpp AttributeHistogramHeight.cpp \
@@ -30,7 +30,7 @@ SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp 
 	OrientedEdge.cpp OrientedFace.cpp OrientedFaceIndex.cpp\
 	ParsingData.cpp ParsingDriver.cpp ProcessBodyTorus.cpp \
 	QuadraticEdge.cpp RestrictedRangeSlider.cpp\
-	StripIterator.cpp Utils.cpp Vertex.cpp 
+	StripIterator.cpp TimeStepsSlider.cpp Utils.cpp Vertex.cpp 
 FORMS += AttributeHistogramHeight.ui EditTransferFunction.ui \
 	 RestrictedRangeSlider.ui Window.ui
 LEXSOURCES += EvolverData.l

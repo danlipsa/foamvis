@@ -87,7 +87,7 @@ void detectOpenGLError (string message = "")
 {
     GLenum errCode;
     if ((errCode = glGetError()) != GL_NO_ERROR)
-        qWarning () << "OpenGL Error" << message.c_str () << ":"
+        cdbg << "OpenGL Error " << message.c_str () << ":"
 		    << gluErrorString(errCode);
 }
 
@@ -155,7 +155,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_displayedBodyIndex (DISPLAY_ALL), m_displayedFaceIndex (DISPLAY_ALL),
       m_displayedEdgeIndex (DISPLAY_ALL),
       m_normalVertexSize (3), m_normalEdgeWidth (1),
-      m_contextAlpha (0.03),
+      m_contextAlpha (0.1),
       m_angleOfView (0),
       m_edgesTorusTubes (false),
       m_facesTorusTubes (false),
@@ -437,7 +437,6 @@ void GLWidget::paintGL()
     using G3D::Vector3;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     viewingTransformation ();
-    detectOpenGLError ("viewingTransformation");
     modelingTransformation ();
     detectOpenGLError ();
 }
@@ -812,11 +811,8 @@ void GLWidget::displayCenterPaths ()
 {
     glPushAttrib (GL_CURRENT_BIT);
     const BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
-    DisplayCenterPath displayCenterPath(*this, m_centerPathColor);
-    if (IsDisplayedAllBodies ())
-	for_each (bats.begin (), bats.end (), displayCenterPath);
-    else
-	displayCenterPath (GetDisplayedBodyId ());
+    for_each (bats.begin (), bats.end (),
+	      DisplayCenterPath (*this, m_centerPathColor, *m_bodySelector));
     glPopAttrib ();
 }
 

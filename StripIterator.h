@@ -34,18 +34,20 @@ public:
     struct Point
     {
 	Point () :
-	    m_location (COUNT)
+	    m_location (COUNT), m_timeStep (0)
 	{
 	}
 
-	Point (G3D::Vector3 point, Location location,
+	Point (G3D::Vector3 point, Location location, size_t timeStep,
 		    const boost::shared_ptr<Body>& body) :
-	    m_point (point), m_location (location), m_body (body)
+	    m_point (point), m_location (location), m_timeStep (timeStep),
+	    m_body (body)
 	{
 	}
 	
 	G3D::Vector3 m_point;
 	Location m_location;
+	size_t m_timeStep;
 	boost::shared_ptr<Body> m_body;
     };
 
@@ -71,9 +73,9 @@ public:
     }
 public:
     static double GetPropertyValue (BodyProperty::Enum colorBy,
-				   const Point& p, const Point& prev);
+				    const Point& p, const Point& prev);
     static double GetPropertyValue (BodyProperty::Enum colorBy,
-				   const Point& p);
+				    const Point& p);
     static bool ExistsPropertyValue (BodyProperty::Enum colorBy,
 				     const Point& p);
 

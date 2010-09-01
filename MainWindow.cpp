@@ -58,6 +58,8 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     createActions ();
     setupButtonGroups ();
 
+    setTabOrder (radioButtonCenterPath, sliderTimeSteps);
+
     connect (m_timer.get (), SIGNAL (timeout()),
 	     this, SLOT (TimeoutTimer ()));
 }
@@ -484,15 +486,14 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	    comboBoxCenterPathColor->currentIndex ());
 	groupBoxCenterPathHistogram->setVisible (true);
 	colorBar->setVisible (true);
-
 	widgetGl->SetColorBarModel (m_colorBarModel);
-	changedColorBarInterval (bodyProperty);
 	widgetGl->CurrentIndexChangedCenterPathColor (bodyProperty);
+	changedColorBarInterval (bodyProperty);
 	SetAndDisplayHistogram (
 	    histogramType (buttonGroupCenterPathHistogram),
 	    bodyProperty,
 	    foamAlongTime.GetHistogram (bodyProperty),
-	    foamAlongTime.GetMaxCountPerBinIndividual (bodyProperty));
+	    foamAlongTime.GetMaxCountPerBin (bodyProperty));
     }
     widgetGl->UpdateDisplayList ();
 }
@@ -610,6 +611,8 @@ void MainWindow::createActions ()
     widgetGl->SetActionInfo (m_actionInfo);
 
     addAction (widgetGl->GetActionResetTransformation ().get ());
+    addAction (sliderTimeSteps->GetActionNextSelectedTimeStep ().get ());
+    addAction (sliderTimeSteps->GetActionPreviousSelectedTimeStep ().get ());
     addAction (m_actionRotate.get ());
     addAction (m_actionTranslate.get ());
     addAction (m_actionScale.get ());
@@ -623,15 +626,13 @@ void MainWindow::createActions ()
 
 void MainWindow::SelectionChangedHistogram ()
 {
-    BodyProperty::Enum bodyProperty = 
-	BodyProperty::FromSizeT (comboBoxFacesColor->currentIndex ());
     vector<QwtDoubleInterval> valueIntervals;
     widgetHistogram->GetSelectedIntervals (&valueIntervals);
 
     vector<bool> timeStepSelection;
     const FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     foamAlongTime.GetTimeStepSelection (
-	bodyProperty, valueIntervals, &timeStepSelection);
+	m_bodyProperty, valueIntervals, &timeStepSelection);
     sliderTimeSteps->SetRestrictedTo (timeStepSelection);
 
     boost::shared_ptr<BodySelector> bodySelector;
@@ -641,6 +642,6 @@ void MainWindow::SelectionChangedHistogram ()
     else
 	bodySelector = boost::shared_ptr<BodySelector> (
 	    new PropertyValueSelector (
-		bodyProperty, valueIntervals, foamAlongTime));
+		m_bodyProperty, valueIntervals, foamAlongTime));
     widgetGl->SetBodySelector (bodySelector);
 }

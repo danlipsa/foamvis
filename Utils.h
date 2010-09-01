@@ -16,20 +16,13 @@
 ostream& operator<< (ostream& ostr, const G3D::AABox& box);
 ostream& operator<< (ostream& ostr, const QColor& color);
 ostream& operator<< (ostream& ostr, const QwtDoubleInterval& interval);
+ostream& operator<< (ostream& ostr, const vector<bool>& v);
 
 template<typename U, typename V>
 ostream& operator<< (ostream& ostr, const pair<U, V>& p)
 {
     return ostr << "pair(" << p.first << ", " << p.second << ")";
 }
-
-inline ostream& operator<< (ostream& ostr, const vector<bool>& v)
-{
-    BOOST_FOREACH (bool b, v)
-	ostr << (b ? "1" : "0");
-    return ostr;
-}
-
 
 const G3D::Vector3int16& Vector3int16Unit (size_t direction);
 

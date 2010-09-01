@@ -16,8 +16,6 @@
 #include "GLWidget.h"
 #include "StripIterator.h"
 
-
-
 /**
  * Functor used to display a body
  */
@@ -42,18 +40,10 @@ public:
      */
     void operator () (boost::shared_ptr<Body> b)
     {
-        if (m_bodySelector (b->GetId (), m_glWidget.GetTimeStep ()))
-	{
-	    glDisable (GL_BLEND);
-	    display (b, FOCUS);
-	    glEnable (GL_BLEND);
-	}
-	else
-	{
-	    glDepthMask (GL_FALSE);
-	    display (b, CONTEXT);
-	    glDepthMask (GL_TRUE);
-	}
+        bool focus = m_bodySelector (b->GetId (), m_glWidget.GetTimeStep ());
+	beginFocusContext (focus);
+	display (b, focus ? FOCUS : CONTEXT);
+	endFocusContext (focus);
     }
 
 protected:
@@ -61,8 +51,25 @@ protected:
      * Displays the body
      * @param b the body
      */
-    virtual void display (boost::shared_ptr<Body> b, FocusContext fc) = 0;
-private:
+    virtual void display (boost::shared_ptr<Body> b, FocusContext fc)
+    {
+	static_cast<void> (b);
+	static_cast<void> (fc);
+    }
+    void beginFocusContext (bool focus)
+    {
+	if (focus)
+	    glDisable (GL_BLEND);
+	else
+	    glDepthMask (GL_FALSE);
+    }
+    void endFocusContext (bool focus)
+    {
+	if (focus)
+	    glEnable (GL_BLEND);
+	else
+	    glDepthMask (GL_TRUE);
+    }
     const BodySelector& m_bodySelector;
 };
 
@@ -138,7 +145,7 @@ private:
 /**
  * Displays the center path for a certain body
  */
-class DisplayCenterPath
+class DisplayCenterPath : public DisplayBodyBase
 {
 public:
     /**
@@ -146,7 +153,9 @@ public:
      * @param widget where to display the center path
      */
     DisplayCenterPath (GLWidget& widget,
-		       BodyProperty::Enum bodyProperty) : 
+		       BodyProperty::Enum bodyProperty, 
+		       const BodySelector& bodySelector) : 
+	DisplayBodyBase (widget, bodySelector),
 	m_glWidget (widget),
 	m_bodyProperty (bodyProperty)
     {
@@ -159,7 +168,6 @@ public:
     {
 	const BodyAlongTime& bat = m_glWidget.GetBodyAlongTime (bodyId);
 	StripIterator it = bat.GetStripIterator (m_glWidget.GetFoamAlongTime ());
-	glBegin(GL_LINES);
 	if ( (m_bodyProperty >= BodyProperty::VELOCITY_BEGIN &&
 	      m_bodyProperty < BodyProperty::VELOCITY_END) ||
 	     m_bodyProperty == BodyProperty::NONE)
@@ -172,7 +180,6 @@ public:
 		boost::bind (&DisplayCenterPath::valueStep,
 			     this, _1, _2));
 	}
-	glEnd ();
     }
 
     /**
@@ -189,8 +196,15 @@ private:
 	const StripIterator::Point& p,
 	const StripIterator::Point& prev)
     {
-	segment (StripIterator::GetPropertyValue (m_bodyProperty, p, prev),
-		 prev.m_point, p.m_point);
+	bool focus = m_bodySelector (prev.m_body->GetId (), prev.m_timeStep);
+	beginFocusContext (focus);
+	segment (
+	    focusContextColor (
+		focus,
+		m_glWidget.MapScalar (
+		    StripIterator::GetPropertyValue (m_bodyProperty, p, prev))),
+	    prev.m_point, p.m_point);
+	endFocusContext (focus);
     }
 
     void valueStep (
@@ -198,24 +212,52 @@ private:
 	const StripIterator::Point& prev)
     {
 	G3D::Vector3 middle = (prev.m_point + p.m_point) / 2;
-	if (StripIterator::ExistsPropertyValue (m_bodyProperty, prev))
-	    segment (StripIterator::GetPropertyValue (
-			 m_bodyProperty, prev), prev.m_point, middle);
-	else
-	    segment (m_glWidget.GetNotAvailableCenterPathColor (), 
-		     prev.m_point, middle);
+	bool focus = m_bodySelector (prev.m_body->GetId (), prev.m_timeStep);
+	beginFocusContext (focus);
+	segment (
+	    focusContextColor (
+		focus,
+		StripIterator::ExistsPropertyValue (m_bodyProperty, prev) ? 
+		m_glWidget.MapScalar (
+		    StripIterator::GetPropertyValue (m_bodyProperty, prev)) : 
+		m_glWidget.GetNotAvailableCenterPathColor ()), 
+	    prev.m_point, middle);
+	endFocusContext (focus);
 
-	if (StripIterator::ExistsPropertyValue (m_bodyProperty, p))
-	    segment (StripIterator::GetPropertyValue (
-			 m_bodyProperty, p), middle, p.m_point);
-	else
-	    segment (m_glWidget.GetNotAvailableCenterPathColor (), 
-		     middle, p.m_point);
+	focus = m_bodySelector (p.m_body->GetId (), p.m_timeStep);
+	beginFocusContext (focus);
+	segment (
+	    focusContextColor (
+		focus,
+		StripIterator::ExistsPropertyValue (m_bodyProperty, p) ? 
+		m_glWidget.MapScalar (
+		    StripIterator::GetPropertyValue (m_bodyProperty, p)) : 
+		m_glWidget.GetNotAvailableCenterPathColor ()), 
+	    middle, p.m_point);
+	endFocusContext (focus);
     }
 
-    void segment (double value, G3D::Vector3 begin, G3D::Vector3 end)
+    void beginFocusContext (bool focus)
     {
-	segment (m_glWidget.MapScalar (value), begin, end);
+	DisplayBodyBase::beginFocusContext (focus);
+	glBegin(GL_LINES);
+    }
+    void endFocusContext (bool focus)
+    {
+	glEnd ();
+	DisplayBodyBase::endFocusContext (focus);
+    }
+
+    QColor focusContextColor (bool focus, const QColor& color)
+    {
+	if (focus)
+	    return color;
+	else
+	{
+	    QColor returnColor (Qt::black);
+	    returnColor.setAlphaF (m_glWidget.GetContextAlpha ());
+	    return returnColor;
+	}
     }
     void segment (const QColor& color, G3D::Vector3 begin, G3D::Vector3 end)
     {

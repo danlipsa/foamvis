@@ -64,7 +64,16 @@ public:
     {
 	return slider->maximum ();
     }
-
+    void SetTitle (const string& title)
+    {
+	m_title = title;
+    }
+    string GetTitle () const
+    {
+	return m_title;
+    }
+    void NextSelected ();
+    void PreviousSelected ();
 
 public Q_SLOTS:
     void ValueChangedSlider (int value);
@@ -88,6 +97,7 @@ private:
     vector<int> m_toOriginalRange;
     State m_state;
     boost::shared_ptr<QwtLinearColorMap> m_colorMap;
+    string m_title;
 };
 
 

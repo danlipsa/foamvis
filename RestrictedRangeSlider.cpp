@@ -12,10 +12,10 @@
 // Private Classes
 // ======================================================================
 
-class SliderQuery : public QSlider
+class SliderDimensionsQuery : public QSlider
 {
 public:
-    SliderQuery (QApplication* app) :
+    SliderDimensionsQuery (QApplication* app) :
 	QSlider (Qt::Horizontal), m_app (app)
     {
     }
@@ -60,9 +60,10 @@ void RestrictedRangeSlider::setupScale (int minimum, int maximum)
 	maxMajorTicks, maxMinorTicks);
     scale->setScaleDiv (scaleEngine.transformation (), scaleDiv);
     setupColorMap ();
-    SliderQuery sliderQuery (Application::Get ().get ());
+    SliderDimensionsQuery sliderQuery (Application::Get ().get ());
     QRect r = sliderQuery.GetHandleRect ();
     scale->setBorderDist (r.width () / 2, r.width () / 2);
+    updateTitle ();
 }
 
 void RestrictedRangeSlider::setupColorMap (const vector<bool>* selected)
@@ -134,11 +135,11 @@ void RestrictedRangeSlider::updateTitle ()
 	size_t range = 
 	    (GetState () == RestrictedRangeSlider::EMPTY_RANGE) ? 
 	    0 : m_toOriginalRange.size ();
-	ostr << "Selected Time Steps: " 
+	ostr << "Selected " + GetTitle () + ":"
 	     << range << " of " << (maximum () - minimum () + 1);
     }
     else
-	ostr << "Time Steps: " << (maximum () - minimum () + 1);
+	ostr << GetTitle () << ": " << (maximum () - minimum () + 1);
     groupBoxRestrictedRange->setTitle (ostr.str ().c_str ());
 }
 
@@ -154,4 +155,31 @@ void RestrictedRangeSlider::ValueChangedSlider (int value)
 {
     updateLabelValue (value);
     Q_EMIT valueChanged (value);
+}
+
+void RestrictedRangeSlider::NextSelected ()
+{
+    if (m_state == RESTRICTED_RANGE)
+    {
+	vector<int>::iterator it = upper_bound (
+	    m_toOriginalRange.begin (), m_toOriginalRange.end (), value ());
+	if (it != m_toOriginalRange.end ())
+	    setValue (*it);
+    }
+    else
+	slider->triggerAction (QSlider::SliderSingleStepAdd);
+}
+
+void RestrictedRangeSlider::PreviousSelected ()
+{
+    if (m_state == RESTRICTED_RANGE)
+    {
+	vector<int>::iterator it = lower_bound (
+	    m_toOriginalRange.begin (), m_toOriginalRange.end (), value ());
+	if (it != m_toOriginalRange.begin ())
+	    setValue (*(it - 1));
+	
+    }
+    else
+	slider->triggerAction (QSlider::SliderSingleStepSub);
 }
