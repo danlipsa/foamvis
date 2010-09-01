@@ -31,11 +31,6 @@ Windows
 -------
 Install cygwin, making sure you select openssh, subversion, perl, bison, flex
 
-
-
-
-
-
 Run
 ===
 ./foam ~/Documents/swansea-phd/foam/ctrctn dump_0.1520_0.2400_8.0000_0*.dmp
