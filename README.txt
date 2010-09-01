@@ -44,9 +44,8 @@ This will generate a file called 'foamMovie.mp4'
 
 Release
 =======
-Commit everything. Make sure ./svnversion reports one version
+Commit everything. Make sure svnversion reports one version
 release.pl; make distclean;cd ..;tar czf foam-<version>.tgz foam
-
 
 Prerequisites
 =============
