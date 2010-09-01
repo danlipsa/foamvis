@@ -27,6 +27,15 @@ cd foam
 qmake
 make
 
+Windows
+-------
+Install cygwin, making sure you select openssh, subversion, perl, bison, flex
+
+
+
+
+
+
 Run
 ===
 ./foam ~/Documents/swansea-phd/foam/ctrctn dump_0.1520_0.2400_8.0000_0*.dmp
@@ -93,10 +102,12 @@ Release log
 0.1.
 	- Added UI feedback for histogram bars that are taller than the height of
 	  the histogram. (a red cap)
-	- Added feedback for selected time steps, scrolling is done through
-	  all time steps not only through selected time steps (context)
+	- Histogram selection is reflected in time step selection,
+	  scrolling is done through all time steps not only through
+	  selected time steps (context)
 	- Added logarithmic scale for histogram
 	- Added color coded histograms
-	- Added feedback for selected bodies. Deselected bodies are 
-	  displayed transparent in both Face and Center Path views
+	- Histogram selection is reflected in body selection and
+	  center path selection. Deselected bodies are displayed
+	  transparent in both Face and Center Path views
 

@@ -155,7 +155,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_displayedBodyIndex (DISPLAY_ALL), m_displayedFaceIndex (DISPLAY_ALL),
       m_displayedEdgeIndex (DISPLAY_ALL),
       m_normalVertexSize (3), m_normalEdgeWidth (1),
-      m_contextAlpha (0.1),
+      m_contextAlpha (0.05),
       m_angleOfView (0),
       m_edgesTorusTubes (false),
       m_facesTorusTubes (false),
