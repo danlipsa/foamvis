@@ -18,7 +18,7 @@ $version = "PROJECT_NUMBER = " . $majorVersion . "." . $svnVersion;
 @substitution = (["PROJECT_NUMBER\ += [\\d.]+", $version]);
 replace ("Doxyfile", \@substitution);
 
-my @bisonFlexFiles = ("EvolverData_lex.cpp", "EvolverData_lex.h"
+my @bisonFlexFiles = ("EvolverData_lex.cpp", "EvolverData_lex.h",
 		      "EvolverData_yacc.cpp", "EvolverData_yacc.h");
 foreach (@bisonFlexFiles)
 {
