@@ -143,7 +143,9 @@ private:
 
 
 /**
- * Displays the center path for a certain body
+ * Displays the center path for a certain body id
+ * @todo Display the center path only if there is at least a segment in 
+ * focus in it.
  */
 class DisplayCenterPath : public DisplayBodyBase
 {

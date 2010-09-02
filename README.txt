@@ -93,7 +93,7 @@ Release log
 	- Added user option to adjust the height of a histogram.
 	- Fixed histogram for center path
 
-0.1.
+0.1.1462
 	- Added UI feedback for histogram bars that are taller than the height of
 	  the histogram. (a red cap)
 	- Histogram selection is reflected in time step selection,

@@ -1,7 +1,7 @@
 /**
  * @file   ColoredElement.cpp
  * @author Dan R. Lipsa
- * @data 19 April 2010
+ * @date 19 April 2010
  *
  * Implementation of the ColoredElement class
  */
