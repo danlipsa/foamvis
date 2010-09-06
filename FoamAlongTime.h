@@ -163,7 +163,7 @@ private:
      * the low or high corner of AABox of the data object
      * @param v where to store the low/high point
      */
-    void calculate (Aggregate aggregate, 
+    void calculateAggregate (Aggregate aggregate, 
 		    FoamLessThanAlong::Corner corner, G3D::Vector3& v);
     void calculateBodyWraps ();
     void calculateHistogram ();

@@ -42,10 +42,33 @@ Interact with the program
 ./movie.sh
 This will generate a file called 'foamMovie.mp4'
 
+
 Release
 =======
 Commit everything. Make sure svnversion reports one version
 release.pl; make distclean;cd ..;tar czf foam-<version>.tgz foam
+
+Profile
+=======
+Install: gprof, gprof2dot, graphviz
+
+Add the following options to foam.pro:
+QMAKE_CXXFLAGS += -pg
+QMAKE_LFLAGS += -pg
+
+Recompile the program:
+make distclean;qmake;make -j 4;
+
+Run the program:
+./foam ~/Documents/swansea-phd/foam/ctrctn dump_0.1520_0.2400_8.0000_00*.dmp
+
+Run gprof on the generated file (gmon.out), eventually selecting some
+files of interest (to profile only functions from those files):
+gprof -pFoamAlongTime.cpp -qFoamAlongTime.cpp ./foam > gprof.txt
+
+Generate a call graph image
+cat gprof.txt | gprof2dot.py | dot -Tpng -o gprof.png
+
 
 Prerequisites
 =============

@@ -28,7 +28,7 @@ FoamAlongTime::FoamAlongTime () :
 {
 }
 
-void FoamAlongTime::calculate (
+void FoamAlongTime::calculateAggregate (
     Aggregate aggregate, FoamLessThanAlong::Corner corner, G3D::Vector3& v)
 {
     using G3D::Vector3;
@@ -50,8 +50,8 @@ void FoamAlongTime::CalculateAABox ()
 {
     using G3D::Vector3;
     Vector3 low, high;
-    calculate (min_element, &Foam::GetAABoxLow, low);
-    calculate (max_element, &Foam::GetAABoxHigh, high);
+    calculateAggregate (min_element, &Foam::GetAABoxLow, low);
+    calculateAggregate (max_element, &Foam::GetAABoxHigh, high);
     m_AABox.set (low, high);
 }
 
