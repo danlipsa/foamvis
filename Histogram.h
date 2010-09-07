@@ -9,7 +9,8 @@
 #ifndef __HISTOGRAM_H__
 #define __HISTOGRAM_H__
 
-#include "histogram_item.h"
+#include "HistogramItem.h"
+class HistogramHeight;
 
 /**
  * Histogram that allows selection of bins.
@@ -47,20 +48,21 @@ public:
     {
 	return m_histogramItem.isLogValueAxis ();
     }
-    void SetColorCoded (bool enable = true)
+    void SetColorCoded (bool colorCoded = true)
     {
-	m_histogramItem.setColorCoded (enable);
+	m_histogramItem.setColorCoded (colorCoded);
     }
-    void SetColorMap (const QwtLinearColorMap& colorMap)
-    {
-	m_histogramItem.setColorMap (colorMap);
-    }
+    void SetColorMap (const QwtDoubleInterval& interval, 
+		      const QwtLinearColorMap& colorMap);
+    void SetDisplayColorBar (bool displayColorBar = true);
     void SetMaxValueAxis (double axisMaxValue);
     void SetLogValueAxis (bool logValueAxis);
     void SetDataKeepBinSelection (
-	const QwtIntervalData& intervalData, double maxValue);
+	const QwtIntervalData& intervalData, double maxValue,
+	const char* axisTitle);
     void SetDataAllBinsSelected (
-	const QwtIntervalData& intervalData, double maxValue);
+	const QwtIntervalData& intervalData, double maxValue, 
+	const char* axisTitle);
     void SetAllItemsSelection (bool selected);
     void SetSelectionTool (SelectionTool selectionTool);    
 
@@ -68,6 +70,7 @@ public Q_SLOTS:
     void SelectionPointMoved (const QPoint& pos);
     void SelectionPointAppended (const QPoint& pos);
     void PolygonSelected (const QwtPolygon& poly);
+    void HistogramHeightDialog ();
 
 Q_SIGNALS:
     void selectionChanged ();
@@ -87,6 +90,8 @@ private:
     QwtPlotPicker m_plotPicker;
     size_t m_beginBinSelection;
     SelectionTool m_selectionTool;
+    bool m_displayColorBar;
+    boost::shared_ptr<HistogramHeight> m_histogramHeight;
 };
 
 

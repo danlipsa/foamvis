@@ -7,15 +7,12 @@
  */
 
 #include "AttributeHistogram.h"
-#include "AttributeHistogramHeight.h"
 #include "Enums.h"
 
 AttributeHistogram::AttributeHistogram (QWidget* parent) :
     Histogram (parent)
 {
     createActions ();
-    m_attributeHistogramHeight = 
-	boost::make_shared<AttributeHistogramHeight> (this);
 }
 
 void AttributeHistogram::SetActionSelectAll (
@@ -53,20 +50,6 @@ void AttributeHistogram::DeselectAll ()
     SetAllItemsSelection (false);
 }
 
-void AttributeHistogram::HeightSettings ()
-{
-    m_attributeHistogramHeight->SetValue (GetMaxValueAxis ());
-    m_attributeHistogramHeight->SetMaximumValue (GetMaxValueData ());
-    m_attributeHistogramHeight->SetLogScale (IsLogValueAxis ());
-    if (m_attributeHistogramHeight->exec () == QDialog::Accepted)
-    {
-	SetLogValueAxis (
-	    m_attributeHistogramHeight->IsLogScale () ? true : false);
-	SetMaxValueAxis (m_attributeHistogramHeight->GetValue ());
-    }
-}
-
-
 void AttributeHistogram::CurrentIndexChangedInteractionMode (int index)
 {
     InteractionMode::Enum interactionMode = 
@@ -85,5 +68,5 @@ void AttributeHistogram::createActions ()
 	tr("&Height Settings"), this);
     m_actionHeightSettings->setStatusTip(tr("Height Settings"));
     connect(m_actionHeightSettings.get (), SIGNAL(triggered()),
-	    this, SLOT(HeightSettings ()));
+	    this, SLOT(HistogramHeightDialog ()));
 }

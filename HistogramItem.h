@@ -23,17 +23,19 @@ public:
     };
 
 public:
-    explicit HistogramItem(const QString &title = QString::null);
-    explicit HistogramItem(const QwtText &title);
-    virtual ~HistogramItem();
+    explicit HistogramItem (const QString &title = QString::null);
+    explicit HistogramItem (const QwtText &title);
+    virtual ~HistogramItem ();
 
-    double baseline() const;
-    virtual QwtDoubleRect boundingRect() const;
+    double baseline () const;
+    virtual QwtDoubleRect boundingRect () const;
     QColor contextColor () const;
-    const QwtIntervalData &data() const;
-    virtual void draw(QPainter *, const QwtScaleMap &xMap, 
+    const QwtIntervalData& data () const;
+    const QwtDoubleInterval GetDataInterval () const;
+    virtual void draw (QPainter *, const QwtScaleMap &xMap, 
         const QwtScaleMap &yMap, const QRect &) const;
     QColor focusColor () const;
+    const QwtLinearColorMap& getColorMap () const;
     void getSelectedIntervals (vector<QwtDoubleInterval>* intervals) const;
     void getSelectedBins (
 	vector< pair<size_t, size_t> >* intervals, bool selected = true) const;
@@ -42,17 +44,17 @@ public:
     bool isLogValueAxis () const;
 
 
-    virtual int rtti() const;
-    void setFocusColor(const QColor& color);
+    virtual int rtti () const;
+    void setFocusColor (const QColor& color);
     void setContextColor (const QColor& color);
     void setOutOfBoundsColor (const QColor& color);
-    void setBaseline(double reference);
-    void setData(
+    void setBaseline (double reference);
+    void setData (
 	const QwtIntervalData &data,
 	double maxValue,
 	const vector< pair<size_t, size_t> >* selectedBins = 0);
     void setMaxValueAxis (double maxValue);
-    void setHistogramAttribute(HistogramAttribute, bool on = true);
+    void setHistogramAttribute (HistogramAttribute, bool on = true);
     void setColorCoded (bool enable);
     void setColorMap (const QwtLinearColorMap& colorMap);
     void setAllItemsSelection (bool selected);
@@ -60,7 +62,7 @@ public:
     void setSelectedBins (
 	const vector< pair<size_t, size_t> >& intervals);
     void setLogValueAxis (bool logValueAxis);
-    bool testHistogramAttribute(HistogramAttribute) const;
+    bool testHistogramAttribute (HistogramAttribute) const;
 
 
 
@@ -69,7 +71,7 @@ private:
     void drawBars (
 	QPainter *painter, const QwtScaleMap &xMap, 
 	const QwtScaleMap &yMap) const;
-    void drawBar(
+    void drawBar (
 	QPainter *painter, const QColor& color,
 	const QRect &r, bool outOfBounds = false) const;
     void drawBar (
@@ -82,7 +84,7 @@ private:
     void drawDeselectedRegions (
 	QPainter *painter, 
 	const QwtScaleMap &xMap, const QwtScaleMap &yMap) const;
-    void init();
+    void init ();
 
 private:
     static const double logScaleZero;

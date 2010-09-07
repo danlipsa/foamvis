@@ -6,6 +6,7 @@
  */
 #include "BodySelector.h"
 #include "ColorBarModel.h"
+#include "EditTransferFunction.h"
 #include "Foam.h"
 #include "FoamAlongTime.h"
 #include "DebugStream.h"
@@ -30,7 +31,8 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_timer (new QTimer(this)), m_processBodyTorus (0), 
     m_currentBody (0),
     m_bodyProperty (BodyProperty::NONE),
-    m_histogramType (HistogramType::NONE)
+    m_histogramType (HistogramType::NONE),
+    m_editTransferFunction (new EditTransferFunction (this))
 {
     // for anti-aliased lines
     QGLFormat fmt;
@@ -433,7 +435,8 @@ void MainWindow::changedColorBarInterval (BodyProperty::Enum bodyProperty)
     m_colorBarModel->SetInterval (foamAlongTime.GetRange (bodyProperty));
     m_colorBarModel->SetupRainbowColorMap ();
     colorBar->SetModel (m_colorBarModel);
-    widgetHistogram->SetColorMap (m_colorBarModel->GetColorMap ());
+    widgetHistogram->SetColorMap (m_colorBarModel->GetInterval (),
+				  m_colorBarModel->GetColorMap ());
 }
 
 void MainWindow::CurrentIndexChangedFacesColor (int value)
@@ -457,12 +460,12 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	colorBar->setVisible (true);
 	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
 	widgetGl->SetColorBarModel (m_colorBarModel);
-	changedColorBarInterval (bodyProperty);
 	SetAndDisplayHistogram (
 	    histogramType (buttonGroupFacesHistogram),
 	    bodyProperty,
 	    foamAlongTime.GetHistogram (bodyProperty, timeStep),
 	    foamAlongTime.GetMaxCountPerBinIndividual (bodyProperty));
+	changedColorBarInterval (bodyProperty);
     }
     widgetGl->UpdateDisplayList ();
 }
@@ -482,8 +485,6 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
     else
     {
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-	BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT (
-	    comboBoxCenterPathColor->currentIndex ());
 	groupBoxCenterPathHistogram->setVisible (true);
 	colorBar->setVisible (true);
 	widgetGl->SetColorBarModel (m_colorBarModel);
@@ -531,27 +532,26 @@ void MainWindow::SetAndDisplayHistogram (
     {
     case HistogramType::NONE:
 	widgetHistogram->setHidden (true);
+	widgetHistogram->SetColorCoded (false);
 	return;
     case HistogramType::UNICOLOR:
+	widgetHistogram->setVisible (true);
 	widgetHistogram->SetColorCoded (false);
 	break;
     case HistogramType::COLOR_CODED:
+	widgetHistogram->setVisible (true);
 	widgetHistogram->SetColorCoded (true);
 	break;
     }
 
-    widgetHistogram->setVisible (true);
     if (maxValueOperation == KEEP_MAX_VALUE)
 	maxYValue = widgetHistogram->GetMaxValueAxis ();
     if (histogramSelection == KEEP_SELECTION)
-	widgetHistogram->SetDataKeepBinSelection (intervalData, maxYValue);
+	widgetHistogram->SetDataKeepBinSelection (
+	    intervalData, maxYValue, BodyProperty::ToString (bodyProperty));
     else
-	widgetHistogram->SetDataAllBinsSelected (intervalData, maxYValue);
-    widgetHistogram->setAxisTitle (
-	QwtPlot::xBottom, QString(BodyProperty::ToString (bodyProperty)));
-    widgetHistogram->setAxisTitle (
-	QwtPlot::yLeft, QString("Number of values per bin"));
-    widgetHistogram->replot ();
+	widgetHistogram->SetDataAllBinsSelected (
+	    intervalData, maxYValue, BodyProperty::ToString (bodyProperty));
 }
 
 void MainWindow::createActions ()
@@ -644,4 +644,15 @@ void MainWindow::SelectionChangedHistogram ()
 	    new PropertyValueSelector (
 		m_bodyProperty, valueIntervals, foamAlongTime));
     widgetGl->SetBodySelector (bodySelector);
+}
+
+void MainWindow::ShowEditTransferFunction ()
+{
+    FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();    
+    m_editTransferFunction->SetData (
+	foamAlongTime.GetHistogram (m_bodyProperty),
+	foamAlongTime.GetMaxCountPerBin (m_bodyProperty),
+	BodyProperty::ToString (m_bodyProperty), 
+	m_colorBarModel->GetColorMap ());
+    m_editTransferFunction->show ();
 }

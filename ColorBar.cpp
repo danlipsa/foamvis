@@ -8,23 +8,21 @@
 
 #include "ColorBar.h"
 #include "ColorBarModel.h"
-#include "EditTransferFunction.h"
 
 ColorBar::ColorBar (QWidget* parent) : 
     QwtScaleWidget (parent)
 {
     setColorBarEnabled (true);
     createActions ();
-    m_editTransferFunction = boost::make_shared<EditTransferFunction> (parent);
 }
 
 void ColorBar::createActions ()
 {
-    m_actionSettings = boost::make_shared<QAction> (
-	tr("&Settings"), this);
-    m_actionSettings->setStatusTip(tr("Settings"));
-    connect(m_actionSettings.get (), SIGNAL(triggered()),
-	    this, SLOT(Settings ()));
+    m_actionEditTransferFunction = boost::make_shared<QAction> (
+	tr("&Edit Transfer Function"), this);
+    m_actionEditTransferFunction->setStatusTip(tr("Edit Transfer Function"));
+    connect(m_actionEditTransferFunction.get (), SIGNAL(triggered()),
+	    this, SLOT(ShowEditTransferFunction ()));
 }
 
 void ColorBar::SetModel (boost::shared_ptr<ColorBarModel> model)
@@ -52,14 +50,14 @@ void ColorBar::SetModel (boost::shared_ptr<ColorBarModel> model)
 void ColorBar::contextMenuEvent (QContextMenuEvent *event)
 {
     QMenu menu (this);
-    menu.addAction (m_actionSettings.get ());
+    menu.addAction (m_actionEditTransferFunction.get ());
     menu.exec (event->globalPos());    
 }
 
 // Slots and slot like methods
 // ======================================================================
 
-void ColorBar::Settings ()
+void ColorBar::ShowEditTransferFunction ()
 {
-    m_editTransferFunction->show ();
+    Q_EMIT EditTransferFunction ();
 }

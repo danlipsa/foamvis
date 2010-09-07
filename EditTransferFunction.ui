@@ -15,15 +15,23 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QwtPlot" name="qwtPlot"/>
+    <widget class="TransferFunctionHistogram" name="widgetHistogram" native="true"/>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QwtPlot</class>
-   <extends>QFrame</extends>
-   <header>qwt_plot.h</header>
+   <class>TransferFunctionHistogram</class>
+   <extends>QWidget</extends>
+   <header>TransferFunctionHistogram.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -1,5 +1,5 @@
 HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
-	AttributeHistogram.h AttributeHistogramHeight.h Body.h \
+	AttributeHistogram.h HistogramHeight.h Body.h \
 	BodyAlongTime.h BodyIndex.h BodySelector.h BodySetStatistics.h \
 	ColorBar.h ColorBarModel.h ColoredElement.h Comparisons.h \
 	Debug.h DebugStream.h \
@@ -7,31 +7,33 @@ HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
 	DisplayEdgeFunctors.h DisplayElement.h DisplayWidget.h\
 	EditTransferFunction.h Edge.h Element.h ExpressionTree.h Enums.h\
 	Foam.h FoamAlongTime.h Face.h \
-	GLWidget.h Hashes.h Histogram.h histogram_item.h\
+	GLWidget.h Hashes.h Histogram.h HistogramItem.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
 	OOBox.h OrientedElement.h\
 	OrientedEdge.h OrientedFace.h OrientedFaceIndex.h \
 	ParsingData.h ParsingDriver.h ProcessBodyTorus.h \
 	QuadraticEdge.h RestrictedRangeSlider.h \
-	stable.h StripIterator.h SystemDifferences.h TimeStepsSlider.h Utils.h \
+	stable.h StripIterator.h SystemDifferences.h \
+	TransferFunctionHistogram.h TimeStepsSlider.h Utils.h \
 	Vertex.h
 SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
-	AttributeHistogram.cpp AttributeHistogramHeight.cpp \
+	AttributeHistogram.cpp HistogramHeight.cpp \
 	Body.cpp BodyAlongTime.cpp BodyIndex.cpp \
 	BodySetStatistics.cpp BodySelector.cpp\
 	ColorBar.cpp ColorBarModel.cpp ColoredElement.cpp Comparisons.cpp \
 	Debug.cpp DebugStream.cpp DisplayWidget.cpp Edge.cpp \
 	EditTransferFunction.cpp Element.cpp ExpressionTree.cpp Enums.cpp\
 	Foam.cpp FoamAlongTime.cpp Face.cpp \
-	GLWidget.cpp Hashes.cpp Histogram.cpp histogram_item.cpp\
+	GLWidget.cpp Hashes.cpp Histogram.cpp HistogramItem.cpp\
 	main.cpp MainWindow.cpp  \
 	NameSemanticValue.cpp \
 	OOBox.cpp OrientedElement.cpp\
 	OrientedEdge.cpp OrientedFace.cpp OrientedFaceIndex.cpp\
 	ParsingData.cpp ParsingDriver.cpp ProcessBodyTorus.cpp \
 	QuadraticEdge.cpp RestrictedRangeSlider.cpp\
-	StripIterator.cpp TimeStepsSlider.cpp Utils.cpp Vertex.cpp 
-FORMS += AttributeHistogramHeight.ui EditTransferFunction.ui \
+	StripIterator.cpp TimeStepsSlider.cpp \
+	TransferFunctionHistogram.cpp Utils.cpp Vertex.cpp
+FORMS += HistogramHeight.ui EditTransferFunction.ui \
 	 RestrictedRangeSlider.ui Window.ui
 LEXSOURCES += EvolverData.l
 YACCSOURCES += EvolverData.y

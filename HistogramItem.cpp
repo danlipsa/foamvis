@@ -1,4 +1,4 @@
-#include "histogram_item.h"
+#include "HistogramItem.h"
 
 class binToInterval
 {
@@ -387,4 +387,18 @@ void HistogramItem::setColorCoded (bool colorCoded)
 void HistogramItem::setColorMap (const QwtLinearColorMap& colorMap)
 {
     d_data->colorMap = colorMap;
+}
+
+const QwtLinearColorMap& HistogramItem::getColorMap () const
+{
+    return d_data->colorMap;
+}
+
+
+const QwtDoubleInterval HistogramItem::GetDataInterval () const
+{
+    const QwtIntervalData data = d_data->data;
+    return QwtDoubleInterval (
+	data.interval(0).minValue (), 
+	data.interval (data.size () - 1).maxValue ());
 }

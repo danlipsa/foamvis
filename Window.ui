@@ -825,6 +825,9 @@
    <class>ColorBar</class>
    <extends>QwtScaleWidget</extends>
    <header>ColorBar.h</header>
+   <slots>
+    <signal>EditTransferFunction()</signal>
+   </slots>
   </customwidget>
   <customwidget>
    <class>TimeStepsSlider</class>
@@ -1016,8 +1019,8 @@
    <slot>ToggledCenterPathDisplayBody(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>977</x>
-     <y>463</y>
+     <x>826</x>
+     <y>412</y>
     </hint>
     <hint type="destinationlabel">
      <x>514</x>
@@ -1176,8 +1179,8 @@
    <slot>CurrentIndexChangedCenterPathColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>968</x>
-     <y>426</y>
+     <x>826</x>
+     <y>412</y>
     </hint>
     <hint type="destinationlabel">
      <x>1015</x>
@@ -1192,8 +1195,8 @@
    <slot>CurrentIndexChangedFacesColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>968</x>
-     <y>454</y>
+     <x>826</x>
+     <y>440</y>
     </hint>
     <hint type="destinationlabel">
      <x>1012</x>
@@ -1212,8 +1215,8 @@
      <y>28</y>
     </hint>
     <hint type="destinationlabel">
-     <x>662</x>
-     <y>641</y>
+     <x>680</x>
+     <y>759</y>
     </hint>
    </hints>
   </connection>
@@ -1224,8 +1227,8 @@
    <slot>ValueChangedSliderTimeSteps(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>579</x>
-     <y>723</y>
+     <x>597</x>
+     <y>775</y>
     </hint>
     <hint type="destinationlabel">
      <x>587</x>
@@ -1240,8 +1243,8 @@
    <slot>SelectionChangedHistogram()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>311</x>
-     <y>643</y>
+     <x>329</x>
+     <y>759</y>
     </hint>
     <hint type="destinationlabel">
      <x>336</x>
@@ -1281,6 +1284,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>colorBar</sender>
+   <signal>EditTransferFunction()</signal>
+   <receiver>Window</receiver>
+   <slot>ShowEditTransferFunction()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>36</x>
+     <y>231</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>234</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>ClickedBegin()</slot>
@@ -1297,6 +1316,7 @@
   <slot>ValueChangedNone()</slot>
   <slot>SelectionChangedHistogram()</slot>
   <slot>ButtonClickedHistogram(int)</slot>
+  <slot>ShowEditTransferFunction()</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroupDisplay"/>

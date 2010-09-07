@@ -7,6 +7,7 @@
  */
 
 #include "Histogram.h"
+#include "HistogramHeight.h"
 #include "DebugStream.h"
 #include "BodySetStatistics.h"
 
@@ -21,6 +22,10 @@ Histogram::Histogram (QWidget* parent) :
 {
     setCanvasBackground(QColor(Qt::white));
     setAutoReplot ();
+    setAxisTitle (QwtPlot::yLeft, QString("Number of values per bin"));
+
+    m_histogramHeight = 
+	boost::make_shared<HistogramHeight> (this);
 
     m_grid.enableXMin(true);
     m_grid.enableYMin(true);
@@ -99,23 +104,27 @@ void Histogram::SetSelectionTool (SelectionTool selectionTool)
 
 
 void Histogram::SetDataAllBinsSelected (
-    const QwtIntervalData& intervalData, double maxValue)
+    const QwtIntervalData& intervalData, double maxValue, const char* axisTitle)
 {
     setData (intervalData, maxValue);
+    setAxisTitle (QwtPlot::xBottom, QString(axisTitle));
+    replot ();
     Q_EMIT selectionChanged ();
 }
 
 
 void Histogram::SetDataKeepBinSelection (
-    const QwtIntervalData& intervalData, double maxValue)
+    const QwtIntervalData& intervalData, double maxValue, const char* axisTitle)
 {
     if (m_histogramItem.data ().size () == 0)
-	SetDataAllBinsSelected (intervalData, maxValue);
+	SetDataAllBinsSelected (intervalData, maxValue, axisTitle);
     else
     {
 	vector< pair<size_t, size_t> > selectedBins;
 	GetSelectedBins (&selectedBins);
 	setData (intervalData, maxValue, &selectedBins);
+	setAxisTitle (QwtPlot::xBottom, QString(axisTitle));
+	replot ();
     }
 }
 
@@ -158,4 +167,32 @@ void Histogram::SetLogValueAxis (bool logValueAxis)
 	setAxisScaleEngine (QwtPlot::yLeft, new QwtLog10ScaleEngine);
     else
 	setAxisScaleEngine (QwtPlot::yLeft, new QwtLinearScaleEngine);
+}
+
+void Histogram::SetDisplayColorBar (bool displayColorBar)
+{    
+    m_displayColorBar = displayColorBar;
+    QwtScaleWidget* scaleWidget = axisWidget (QwtPlot::xBottom);
+    scaleWidget->setColorBarEnabled (displayColorBar);
+}
+
+void Histogram::SetColorMap (const QwtDoubleInterval& interval, 
+			     const QwtLinearColorMap& colorMap)
+{
+    m_histogramItem.setColorMap (colorMap);    
+    QwtScaleWidget* scaleWidget = axisWidget (QwtPlot::xBottom);
+    scaleWidget->setColorMap (interval, m_histogramItem.getColorMap ());
+}
+
+void Histogram::HistogramHeightDialog ()
+{
+    m_histogramHeight->SetValue (GetMaxValueAxis ());
+    m_histogramHeight->SetMaximumValue (GetMaxValueData ());
+    m_histogramHeight->SetLogScale (IsLogValueAxis ());
+    if (m_histogramHeight->exec () == QDialog::Accepted)
+    {
+	SetLogValueAxis (
+	    m_histogramHeight->IsLogScale () ? true : false);
+	SetMaxValueAxis (m_histogramHeight->GetValue ());
+    }
 }

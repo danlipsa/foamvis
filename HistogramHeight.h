@@ -1,18 +1,18 @@
 /**
- * @file   AttributeHistogramHeight.h
+ * @file   HistogramHeight.h
  * @author Dan R. Lipsa
  * @date 19 August 2010
  *
- * Declaration of the AttributeHistogramHeight class
+ * Declaration of the HistogramHeight class
  */
 
 #ifndef __ATTRIBUTE_HISTOGRAM_HEIGHT_H__
 #define __ATTRIBUTE_HISTOGRAM_HEIGHT_H__
 
-#include "ui_AttributeHistogramHeight.h"
+#include "ui_HistogramHeight.h"
 
-class AttributeHistogramHeight : 
-    public QDialog, private Ui::AttributeHistogramHeight
+class HistogramHeight : 
+    public QDialog, private Ui::HistogramHeight
 {
 public:
     enum State
@@ -22,7 +22,7 @@ public:
     };
 
 public:
-    AttributeHistogramHeight (QWidget* parent);
+    HistogramHeight (QWidget* parent);
 
     size_t GetValue () const
     {

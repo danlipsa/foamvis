@@ -81,6 +81,8 @@ public Q_SLOTS:
     void CurrentIndexChangedCenterPathColor (int value);
     void CurrentIndexChangedFacesColor (int value);
 
+    void ShowEditTransferFunction ();
+
 
     void InteractionModeRotate ();
     void InteractionModeSelectBrush ();
@@ -183,6 +185,7 @@ private:
 
     BodyProperty::Enum m_bodyProperty;
     HistogramType::Enum m_histogramType;
+    boost::shared_ptr<EditTransferFunction> m_editTransferFunction;
 };
 
 #endif //__MAIN_WINDOW_H__

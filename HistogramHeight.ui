@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AttributeHistogramHeight</class>
- <widget class="QDialog" name="AttributeHistogramHeight">
+ <class>HistogramHeight</class>
+ <widget class="QDialog" name="HistogramHeight">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -100,7 +100,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>AttributeHistogramHeight</receiver>
+   <receiver>HistogramHeight</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -116,7 +116,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>AttributeHistogramHeight</receiver>
+   <receiver>HistogramHeight</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -132,7 +132,7 @@
   <connection>
    <sender>radioButtonMaxValue</sender>
    <signal>toggled(bool)</signal>
-   <receiver>AttributeHistogramHeight</receiver>
+   <receiver>HistogramHeight</receiver>
    <slot>ToggledMaxValue(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -148,7 +148,7 @@
   <connection>
    <sender>radioButtonValue</sender>
    <signal>toggled(bool)</signal>
-   <receiver>AttributeHistogramHeight</receiver>
+   <receiver>HistogramHeight</receiver>
    <slot>ToggledValue(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -164,7 +164,7 @@
   <connection>
    <sender>lineEditValue</sender>
    <signal>editingFinished()</signal>
-   <receiver>AttributeHistogramHeight</receiver>
+   <receiver>HistogramHeight</receiver>
    <slot>EditingFinishedValue()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -180,7 +180,7 @@
   <connection>
    <sender>lineEditValue</sender>
    <signal>focusIn()</signal>
-   <receiver>AttributeHistogramHeight</receiver>
+   <receiver>HistogramHeight</receiver>
    <slot>FocusInValue()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -212,7 +212,7 @@
   <connection>
    <sender>checkBoxLogScale</sender>
    <signal>toggled(bool)</signal>
-   <receiver>AttributeHistogramHeight</receiver>
+   <receiver>HistogramHeight</receiver>
    <slot>ToggledLogScale(bool)</slot>
    <hints>
     <hint type="sourcelabel">

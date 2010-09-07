@@ -1,14 +1,14 @@
 /**
- * @file   AttributeHistogramHeight.cpp
+ * @file   HistogramHeight.cpp
  * @author Dan R. Lipsa
  * @date 19 August 2010
  *
- * Definition of the AttributeHistogramHeight class
+ * Definition of the HistogramHeight class
  */
 
-#include "AttributeHistogramHeight.h"
+#include "HistogramHeight.h"
 
-AttributeHistogramHeight::AttributeHistogramHeight (QWidget* parent) :    
+HistogramHeight::HistogramHeight (QWidget* parent) :    
     QDialog (parent), 
     m_validator (0, numeric_limits<int> ().max (), this),
     m_maxValue (0),
@@ -20,7 +20,7 @@ AttributeHistogramHeight::AttributeHistogramHeight (QWidget* parent) :
     
 }
 
-void AttributeHistogramHeight::ToggledMaxValue (bool checked)
+void HistogramHeight::ToggledMaxValue (bool checked)
 {
     if (checked)
     {
@@ -29,7 +29,7 @@ void AttributeHistogramHeight::ToggledMaxValue (bool checked)
     }
 }
 
-void AttributeHistogramHeight::ToggledValue (bool checked)
+void HistogramHeight::ToggledValue (bool checked)
 {
     if (checked)
     {
@@ -39,23 +39,23 @@ void AttributeHistogramHeight::ToggledValue (bool checked)
 }
 
 
-void AttributeHistogramHeight::ToggledLogScale (bool checked)
+void HistogramHeight::ToggledLogScale (bool checked)
 {
     m_logScale = checked;
 }
 
 
-void AttributeHistogramHeight::EditingFinishedValue ()
+void HistogramHeight::EditingFinishedValue ()
 {
     m_value = lineEditValue->text ().toInt();
 }
 
-void AttributeHistogramHeight::FocusInValue ()
+void HistogramHeight::FocusInValue ()
 {
     radioButtonValue->setChecked (true);
 }
 
-void AttributeHistogramHeight::setValue (size_t value)
+void HistogramHeight::setValue (size_t value)
 {
     m_value = value;
     QString s;
@@ -63,13 +63,13 @@ void AttributeHistogramHeight::setValue (size_t value)
     lineEditValue->setText (s);
 }
 
-void AttributeHistogramHeight::SetValue (size_t value)
+void HistogramHeight::SetValue (size_t value)
 {
     setValue (value);
     radioButtonValue->setChecked (true);
 }
 
-void AttributeHistogramHeight::SetLogScale (bool logScale)
+void HistogramHeight::SetLogScale (bool logScale)
 {
     m_logScale = logScale;
     checkBoxLogScale->setChecked (logScale);

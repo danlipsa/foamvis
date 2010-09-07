@@ -10,7 +10,6 @@
 #define __COLOR_BAR_H__
 
 class ColorBarModel;
-class EditTransferFunction;
 
 class ColorBar : public QwtScaleWidget
 {
@@ -19,7 +18,10 @@ public:
     void SetModel (boost::shared_ptr<ColorBarModel> model);
 
 public Q_SLOTS:
-    void Settings ();
+    void ShowEditTransferFunction ();
+
+Q_SIGNALS:
+    void EditTransferFunction ();
 
 protected:
     virtual void contextMenuEvent (QContextMenuEvent *event);
@@ -31,8 +33,7 @@ private:
     Q_OBJECT
 
     boost::shared_ptr<ColorBarModel> m_model;
-    boost::shared_ptr<QAction> m_actionSettings;
-    boost::shared_ptr<EditTransferFunction> m_editTransferFunction;
+    boost::shared_ptr<QAction> m_actionEditTransferFunction;
 };
 
 #endif //__COLOR_BAR_H__

@@ -1,5 +1,5 @@
 /**
- * @file   AttributeHistogramHeight.h
+ * @file   HistogramHeight.h
  * @author Dan R. Lipsa
  * @date 23 August 2010
  *
@@ -16,6 +16,8 @@ class EditTransferFunction :
 {
 public:
     EditTransferFunction (QWidget* parent);
+    void SetData (const QwtIntervalData& intervalData, double maxValue, 
+		  const char* axisTitle, const QwtLinearColorMap& colorMap);
 };
 
 #endif //__EDIT_TRANSFER_FUNCTION_H__
