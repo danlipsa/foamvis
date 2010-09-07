@@ -467,6 +467,16 @@ const AttributesInfo& Foam::GetAttributesInfo (
     return m_attributesInfo[attributeType];
 }
 
+boost::shared_ptr<Edge> Foam::GetStandardEdge () const
+{
+    boost::shared_ptr<Face> f;
+    if (m_bodies.size () == 0)
+	f = m_standaloneFaces[0];
+    else
+	f = GetBody (0)->GetFace (0);
+    return f->GetEdge (0);
+}
+
 // Static and Friends Methods
 // ======================================================================
 ostream& operator<< (ostream& ostr, const Foam& d)

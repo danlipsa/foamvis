@@ -10,7 +10,7 @@
 %defines
 %token-table 
 %error-verbose
-%expect 11 // state 55, 64, 69, 213, 231
+%expect 3 // state 84, 89, 297
 %locations
 %{
 class Foam;
@@ -261,19 +261,19 @@ size_t intToUnsigned (int i, const char* message);
 
 %%
 datafile
-: nlstar header vertices nlstar
+: nlstar header vertices 
 {
     //foam.GetParsingData ().PrintTimeCheckpoint ("After vertices:");
 }
-edges nlstar
+edges
 {
     //foam.GetParsingData ().PrintTimeCheckpoint ("After edges:");
 }
-faces nlstar
+faces
 {
     //foam.GetParsingData ().PrintTimeCheckpoint ("After faces:");
 }
-bodies nlstar
+bodies
 {
     //foam.GetParsingData ().PrintTimeCheckpoint ("After bodies:");
     foam.PostProcess ();
@@ -1214,7 +1214,8 @@ color_name
 
 
 bodies
-: BODIES nlplus body_list
+: /* empty */
+| BODIES nlplus body_list
 ;
 
 body_list

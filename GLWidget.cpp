@@ -231,9 +231,7 @@ void GLWidget::initViewTypeDisplay ()
 void GLWidget::SetFoamAlongTime (FoamAlongTime* dataAlongTime) 
 {
     m_foamAlongTime = dataAlongTime;
-    boost::shared_ptr<Face> f = 
-	GetCurrentFoam ().GetBody (0)->GetFace (0);
-    boost::shared_ptr<Edge> e = f->GetEdge (0);
+    boost::shared_ptr<Edge> e = GetCurrentFoam ().GetStandardEdge ();
     double length = (*e->GetEnd () - *e->GetBegin ()).length ();
 
     m_edgeRadius = length / 20;

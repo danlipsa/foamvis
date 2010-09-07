@@ -182,6 +182,7 @@ public:
     {
 	return m_standaloneFaces;
     }
+    boost::shared_ptr<Edge> GetStandardEdge () const;
 
     /**
      * Insures a body's center is inside the original domain.
