@@ -13,7 +13,20 @@ my @tests =
      "straight_6x2q_2/straightq_2_12_0001.dmp",
      "sphereall/sphere_0.711204_144_0001.dmp",
      "cststress_vfm/cststress_16_0001.dmp",
-     "wetfoam/dump_050.dmp");
+     "wetfoam/dump_050.dmp",
+
+     "all_outside.fe",
+     "dry_cross_4.fe",
+     "ell0.900000_135v_4.000000_1.dmp",
+     "flowerc_10_001c.dmp",
+     "flower.fe",
+     "hex.fe",
+     "outside.fe",
+     "outside_first.fe",
+     "outside_original.dmp",
+     "tor2d.fe",
+     "twointor.fe"
+    );
 
 sub main ()
 {
@@ -32,7 +45,7 @@ sub main ()
 	my $test = $_;
 	my @args = ($foam, $location . $test);
 	system(@args) == 0
-	    or die "system @args failed: $?"
+	    or warn "system @args failed: $?"
     }
 }
 

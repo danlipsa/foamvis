@@ -130,8 +130,14 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
     return parser::token::OR;
 }
 
+"^"|"**" {/*exponentiation*/
+    yylval->m_id = yyextra->CreateIdentifier ("^");
+    yylloc->begin.line = yylineno;
+    return *yytext;
+}
 
-"+"|"-"|"*"|"/"|"^"|">"|"<"|"!"  {/*operators*/
+
+"+"|"-"|"*"|"/"|">"|"<"|"!"  {/*operators*/
     yylval->m_id = yyextra->CreateIdentifier (yytext);
     yylloc->begin.line = yylineno;
     return *yytext;

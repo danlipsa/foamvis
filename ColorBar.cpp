@@ -28,7 +28,7 @@ void ColorBar::createActions ()
 void ColorBar::SetModel (boost::shared_ptr<ColorBarModel> model)
 {
     m_model = model;
-    const QwtDoubleInterval& interval = model->GetInterval ();
+    QwtDoubleInterval interval = model->GetInterval ();
     QwtLinearScaleEngine scaleEngine;
     QwtScaleDiv scaleDiv;
     const int maxMajorTicks = 8;

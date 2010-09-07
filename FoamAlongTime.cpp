@@ -176,6 +176,7 @@ void FoamAlongTime::calculateRange (size_t timeStep)
 		    GetBodyProperty (bodyProperty, bodyId, timeStep));
 	}
     }
+    m_foamsStatistics[timeStep].NormalizeEmptyRange ();
 }
 
 const Body& FoamAlongTime::GetBody (size_t bodyId, size_t timeStep) const

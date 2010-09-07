@@ -143,5 +143,6 @@ double Element::GetRealAttribute (size_t i) const
 
 bool Element::ExistsAttribute (size_t i) const
 {
-    return m_attributes != 0 && i < m_attributes->size ();
+    return m_attributes != 0 && i < m_attributes->size () &&
+	(*m_attributes)[i] != 0;
 }

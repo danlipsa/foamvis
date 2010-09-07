@@ -132,6 +132,7 @@ const char* ParsingDriver::KEYWORD_TABLE[] = {
     "LAGRANGE_MULTIPLIER",
     "CONSTRAINTS",
     "DENSITY",
+    "TENSION",
     "CLIP_COEFF",
     "AREA_NORMALIZATION",
     "MODULUS",

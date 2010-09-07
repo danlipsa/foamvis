@@ -43,6 +43,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     setupSliderData (foamAlongTime);
     setupColorBar ();
     setupHistogram ();
+    setupButtonGroups ();
 
     widgetGl->SetFoamAlongTime (&foamAlongTime);
     boost::shared_ptr<ColorBarModel> colorBarModel;
@@ -58,7 +59,6 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_timer->setInterval (30);
     m_colorBarModel = boost::make_shared<ColorBarModel> ();
     createActions ();
-    setupButtonGroups ();
 
     setTabOrder (radioButtonCenterPath, sliderTimeSteps);
 

@@ -76,6 +76,7 @@ public:
     {
 	return m_histogram[0].size ();
     }
+    void NormalizeEmptyRange ();
 
 public:
     static size_t GetBin (double value, size_t binCount,
@@ -88,6 +89,7 @@ private:
      */
     void valuePerInterval (size_t bodyProperty, double value,
 			   double beginInterval, double endInterval);
+    void normalizeEmptyRange (size_t bodyProperty);
 
 private:
     /**

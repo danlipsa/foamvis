@@ -65,7 +65,10 @@ public:
      *         CreateIdentifier and it is dealocated by the ParsingData object
      * @param value variable value
      */
-    void SetVariable (const char* id, double value) {m_variables[id] = value;}
+    void SetVariable (const char* id, double value) 
+    {
+	m_variables[id] = value;
+    }
     /**
      * Retrieves a variable value
      * @param name variable name
@@ -77,7 +80,7 @@ public:
      * @param id string from the lexer
      * @return a string pointer which is stored in ParsingData object
      */
-    string* CreateIdentifier(char* id);
+    string* CreateIdentifier(const char* id);
     /**
      * Returns the unary function with the name supplied by the parameter
      * @param name name of the function to be retrieved

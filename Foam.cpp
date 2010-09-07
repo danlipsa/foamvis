@@ -95,6 +95,7 @@ Foam::Foam () :
     m_spaceDimension (3),
     m_quadratic (false)
 {
+    m_parsingData->SetVariable ("pi", M_PI);
     fill (m_viewMatrix.begin (), m_viewMatrix.end (), 0);
     AddDefaultVertexAttributes ();
     AddDefaultEdgeAttributes ();

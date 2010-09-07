@@ -94,6 +94,18 @@ void BodySetStatistics::RangeStep (size_t bodyProperty, double newValue)
     MaxStep (bodyProperty, newValue);
 }
 
+void BodySetStatistics::normalizeEmptyRange (size_t bodyProperty)
+{
+    if (GetMin (bodyProperty) > GetMax (bodyProperty))
+	m_min[bodyProperty] = m_max[bodyProperty] = 0;
+}
+
+void BodySetStatistics::NormalizeEmptyRange ()
+{
+    for (size_t i = 0; i < BodyProperty::COUNT; ++i)
+	normalizeEmptyRange (i);
+}
+
 QwtIntervalData BodySetStatistics::GetHistogram (
     size_t bodyProperty, const BodySetStatistics* rangeStatistics) const
 {

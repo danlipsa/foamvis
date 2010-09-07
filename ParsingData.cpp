@@ -103,7 +103,9 @@ ParsingData::ParsingData ()
     UnaryFunctionInformation UNARY_FUNCTION_INFORMATION[] =
     {
 	{"-", negate<double> ()},
-	{"sqrt", sqrtf}
+	{"sqrt", sqrtf},
+	{"cos", cosf},
+	{"sin", sinf}
     };
 
     BOOST_FOREACH (BinaryFunctionInformation bfi, BINARY_FUNCTION_INFORMATION)
@@ -147,7 +149,7 @@ ParsingData::BinaryFunction ParsingData::GetBinaryFunction (const char* name)
 
 
 
-string* ParsingData::CreateIdentifier(char* id)
+string* ParsingData::CreateIdentifier(const char* id)
 {
     Identifiers::iterator it = m_identifiers.find (id);
     if (it == m_identifiers.end ())

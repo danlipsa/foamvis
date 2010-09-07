@@ -10,7 +10,7 @@
 %defines
 %token-table 
 %error-verbose
-%expect 5 // state 55, 64, 69, 213, 231
+%expect 11 // state 55, 64, 69, 213, 231
 %locations
 %{
 class Foam;
@@ -145,7 +145,7 @@ class AttributeCreator;
 %token NONNEGATIVE "NONNEGATIVE"
 %token NONPOSITIVE "NONPOSITIVE"
 %token FORMULA "FORMULA"
-%token CONSTRAINT "CONSTRAINT"
+%token <m_id> CONSTRAINT "CONSTRAINT"
 %token EQUATION "EQUATION"
 %token TORUS_FILLED "TORUS_FILLED"
 %token TORUS "TORUS"
@@ -167,6 +167,7 @@ class AttributeCreator;
 %token <m_id> LAGRANGE_MULTIPLIER "LAGRANGE_MULTIPLIER"
 %token <m_id> CONSTRAINTS "CONSTRAINTS"
 %token <m_id> DENSITY "DENSITY"
+%token <m_id> TENSION "TENSION"
 %token CLIP_COEFF "CLIP_COEFF"
 %token AREA_NORMALIZATION "AREA_NORMALIZATION"
 %token MODULUS "MODULUS"
@@ -233,6 +234,8 @@ class AttributeCreator;
 %type <m_int> quantity_rest
 %type <m_int> method_instance_rest
 %type <m_int> edge_midpoint
+%type <m_id> constraints
+%type <m_id> tension_or_density
 
 %{
 #include "Foam.h"
@@ -860,7 +863,7 @@ vertices
 vertex_list
 : /* empty */
 | vertex_list INTEGER_VALUE const_expr const_expr vertex_list_rest 
-  vertex_attribute_list nl
+  vertex_attribute_list nlplus
 {
     vector<NameSemanticValue*>* nameSemanticValueList = 
 	$6;
@@ -925,10 +928,21 @@ predefined_vertex_attribute
 {
     $$ = 0;
 }
-| CONSTRAINTS integer_list
+| constraints integer_list
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
+
+constraints
+: CONSTRAINT
+{
+    $$ = foam.GetParsingData ().CreateIdentifier ("CONSTRAINTS");
+}
+| CONSTRAINTS
+{
+    $$ = $1;
+}
+
 
 user_attribute
 : ATTRIBUTE_ID INTEGER_VALUE
@@ -958,7 +972,7 @@ edges
 edge_list
 : /* empty */
 | edge_list INTEGER_VALUE INTEGER_VALUE INTEGER_VALUE edge_midpoint 
-  signs_torus_model edge_attribute_list nl
+  signs_torus_model edge_attribute_list nlplus
 {
     foam.GetParsingData ().SetEdge (
 	intToUnsigned($2 - 1, "Semantic error: edge index less than 0: "),
@@ -1011,11 +1025,11 @@ predefined_edge_attribute
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
-| CONSTRAINTS integer_list
+| constraints integer_list
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
-| DENSITY const_expr
+| tension_or_density const_expr
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
@@ -1026,6 +1040,16 @@ predefined_edge_attribute
 | NO_REFINE
 {
     $$ = 0;
+}
+
+tension_or_density
+: TENSION
+{
+    $$ = foam.GetParsingData ().CreateIdentifier ("DENSITY");
+}
+| DENSITY
+{
+    $$ = $1;
 }
 
 signs_torus_model
@@ -1065,12 +1089,12 @@ sign_torus_model
 ;
 
 faces
-: FACES nl face_list
+: FACES nlplus face_list
 ;
 
 face_list
 : /* empty */
-| face_list INTEGER_VALUE integer_list face_attribute_list nl
+| face_list INTEGER_VALUE integer_list face_attribute_list nlplus
 {
     vector<int>* intList = $3;
     foam.GetParsingData ().SetFace (
@@ -1100,7 +1124,7 @@ predefined_face_attribute
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
-| CONSTRAINTS integer_list
+| constraints integer_list
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
@@ -1108,7 +1132,7 @@ predefined_face_attribute
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
-| DENSITY const_expr
+| tension_or_density const_expr
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
@@ -1190,12 +1214,12 @@ color_name
 
 
 bodies
-: BODIES nl body_list
+: BODIES nlplus body_list
 ;
 
 body_list
 : /* empty */
-| body_list INTEGER_VALUE integer_list body_attribute_list nl
+| body_list INTEGER_VALUE integer_list body_attribute_list nlplus
 {
     vector<int>* intList = $3;
     foam.SetBody (

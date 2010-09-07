@@ -37,14 +37,14 @@ void TransferFunctionHistogram::createActions ()
 	    this, SLOT(HistogramHeightDialog ()));
 
     m_actionClampHigh = boost::make_shared<QAction> (
-	tr("&Clamp Color Bar High"), this);
-    m_actionClampHigh->setStatusTip(tr("Clamp Color Bar High"));
+	tr("&Clamp Pallete High"), this);
+    m_actionClampHigh->setStatusTip(tr("Clamp Pallete High"));
     connect(m_actionClampHigh.get (), SIGNAL(triggered()),
 	    this, SLOT(ClampHigh ()));
 
     m_actionClampLow = boost::make_shared<QAction> (
-	tr("&Clamp Color Bar Low"), this);
-    m_actionClampLow->setStatusTip(tr("Clamp Color Bar Low"));
+	tr("&Clamp Pallete Low"), this);
+    m_actionClampLow->setStatusTip(tr("Clamp Pallete Low"));
     connect(m_actionClampLow.get (), SIGNAL(triggered()),
 	    this, SLOT(ClampLow ()));
 }

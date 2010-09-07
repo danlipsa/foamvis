@@ -112,6 +112,7 @@ void BodyAlongTime::CalculateRange (const FoamAlongTime& foamAlongTime)
     // per time step values
     for_each (m_bodyAlongTime.begin (), m_bodyAlongTime.end (),
 	      boost::bind (&BodyAlongTime::rangeStep, this, _1));
+    NormalizeEmptyRange ();
 }
 
 void BodyAlongTime::CalculateHistogram (
@@ -196,6 +197,7 @@ void BodiesAlongTime::CalculateRange (const FoamAlongTime& foamAlongTime)
 	    MaxStep (i, bat.GetMax (i));
 	}
     }
+    NormalizeEmptyRange ();
 }
 
 void BodiesAlongTime::CalculateHistogram (
