@@ -39,32 +39,23 @@ public:
 	  ElementStatus::Enum duplicateStatus = ElementStatus::ORIGINAL);
     Face (const Face& original);
     Face (const boost::shared_ptr<Edge>& firstEdge, size_t id);
-    /**
-     * Gets the list of oriented edges
-     * @return vector of oriented edges
-     */
-    const OrientedEdges& GetOrientedEdges () const
-    {
-	return m_orientedEdges;
-    }
-    OrientedEdges& GetOrientedEdges ()
-    {
-	return m_orientedEdges;
-    }
-    size_t GetEdgeCount () const
-    {
-	return m_orientedEdges.size ();
-    }
-    boost::shared_ptr<OrientedEdge> GetOrientedEdge (size_t i) const
-    {
-	return m_orientedEdges[i];
-    }
-    boost::shared_ptr<Edge>  GetEdge (size_t i) const;
+
 
     void AddBodyPartOf (boost::shared_ptr<Body>  body, size_t orientedFaceIndex)
     {
 	m_bodiesPartOf.push_back (BodyIndex (body, orientedFaceIndex));
     }
+    void CalculateNormal ();
+    const G3D::Vector3& GetCenter () const
+    {
+	return m_center;
+    }
+    size_t GetEdgeCount () const
+    {
+	return m_orientedEdges.size ();
+    }
+    boost::shared_ptr<Edge>  GetEdge (size_t i) const;
+
     const BodyIndex& GetBodyPartOf (bool faceReversed) const;
     const BodyIndex& GetBodyPartOf (size_t i) const
     {
@@ -74,7 +65,9 @@ public:
     {
 	return m_bodiesPartOf.size ();
     }
-    void PrintBodyPartOfInformation (ostream& ostr) const;
+    void GetVertexSet (VertexSet* vertexSet) const;
+    void GetEdgeSet (EdgeSet* edgeSet) const;
+
 
     size_t GetNextValidIndex (size_t index) const;
     size_t GetPreviousValidIndex (size_t index) const;
@@ -87,37 +80,63 @@ public:
     {
 	return m_normal;
     }
-    void CalculateNormal ();
+    boost::shared_ptr<Face> GetDuplicate (
+	const OOBox& periods, const G3D::Vector3int16& translation,
+	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet) const;
+    boost::shared_ptr<OrientedEdge> GetOrientedEdge (size_t i) const
+    {
+	return m_orientedEdges[i];
+    }
+    /**
+     * Gets the list of oriented edges
+     * @return vector of oriented edges
+     */
+    const OrientedEdges& GetOrientedEdges () const
+    {
+	return m_orientedEdges;
+    }
+    OrientedEdges& GetOrientedEdges ()
+    {
+	return m_orientedEdges;
+    }
+
     bool IsClosed () const;
+    bool IsTriangle () const;
     bool HasWrap () const;
     size_t size () const
     {
 	return m_orientedEdges.size ();
     }
     string ToString () const;
-    void GetVertexSet (VertexSet* vertexSet) const;
-    void GetEdgeSet (EdgeSet* edgeSet) const;
     bool IsStandalone () const
     {
 	return GetBodyPartOfSize () == 0;
     }
-    boost::shared_ptr<Face> GetDuplicate (
-	const OOBox& periods, const G3D::Vector3int16& translation,
-	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet) const;
+    void PrintBodyPartOfInformation (ostream& ostr) const;
+    void UpdateStandaloneFacePartOf (boost::shared_ptr<Face> face);
 
 private:
     boost::shared_ptr<Face> createDuplicate (
 	const OOBox& periods, const G3D::Vector3& newBegin,
 	VertexSet* vertexSet, EdgeSet* edgeSet) const;
-
+    void calculateCenter ();
 
 private:
     /**
      * Edges that are part of this face
      */
     OrientedEdges m_orientedEdges;
+    /**
+     * Bodies this face is part of.
+     */
     vector<BodyIndex> m_bodiesPartOf;
     G3D::Vector3 m_normal;
+    G3D::Vector3 m_center;
+    /**
+     * Standalone faces need a place to store an OrientedFace
+     * for the list of faces part of each edge.
+     */
+    boost::shared_ptr<OrientedFace> m_orientedFace;
 };
 /**
  * Pretty prints this Face by printing the edges in DIRECT order

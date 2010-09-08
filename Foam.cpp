@@ -216,9 +216,13 @@ void Foam::ReleaseParsingData ()
 
 void Foam::updatePartOf ()
 {
-    using boost::mem_fn;
     for_each (m_bodies.begin (), m_bodies.end (), 
 	      boost::bind(&Body::UpdatePartOf, _1, _1));
+
+    ParsingData::Faces faces = GetParsingData ().GetFaces ();
+    for_each (faces.begin (), faces.end (), 
+	      boost::bind (&Face::UpdateStandaloneFacePartOf, _1, _1));
+    
     ParsingData::Edges edges = GetParsingData ().GetEdges ();
     for_each (edges.begin (), edges.end (), 
 	      boost::bind (&Edge::UpdateEdgePartOf, _1, _1));

@@ -290,7 +290,7 @@ private:
 				 Vector3int16Hash> EndLocationColor;
     struct ViewTypeDisplay
     {
-	GLuint (GLWidget::* m_displayList) ();
+	GLuint (GLWidget::* m_displayList) () const;
 	boost::function<Lighting ()> m_lighting;
     };
 
@@ -298,7 +298,7 @@ private:
     /**
      * Displays the center of the bodies
      */
-    void displayCenterOfBodies ();
+    void displayCenterOfBodies () const;
     bool edgesTorusTubes ()
     {
 	return m_edgesTorusTubes;
@@ -327,48 +327,50 @@ private:
      * @return the display list
      */
     template<typename displayEdge>
-    GLuint displayListEdges ();
+    GLuint displayListEdges () const;
 
 
-    GLuint displayListEdgesNormal ();
+    GLuint displayListEdgesNormal () const;
     template<typename displayEdge>
     void displayStandaloneEdges () const;
-    GLuint displayListEdgesTorus ()
+    template<typename displaySameEdges>
+    void displayStandaloneFaces () const;
+    GLuint displayListEdgesTorus () const
     {
 	if (m_edgesTorusTubes)
 	    return displayListEdgesTorusTubes ();
 	else
 	    return displayListEdgesTorusLines ();
     }
-    GLuint displayListEdgesTorusTubes ();
-    GLuint displayListEdgesTorusLines ();
+    GLuint displayListEdgesTorusTubes () const;
+    GLuint displayListEdgesTorusLines () const;
 
     /**
      * Generates a display list for faces
      * @return the display list
      */
-    GLuint displayListFacesNormal ();
-    GLuint displayListFacesTorus ()
+    GLuint displayListFacesNormal () const;
+    GLuint displayListFacesTorus () const
     {
 	if (m_facesTorusTubes)
 	    return displayListFacesTorusTubes ();
 	else
 	    return displayListFacesTorusLines ();
     }
-    GLuint displayListFacesTorusTubes ();
-    GLuint displayListFacesTorusLines ();
+    GLuint displayListFacesTorusTubes () const;
+    GLuint displayListFacesTorusLines () const;
     /**
      * Generates a display list for bodies
      * @return the display list
      */
-    GLuint displayListFacesLighting ();
+    GLuint displayListFacesLighting () const;
     /**
      * Generates a display list for center paths
      */
-    GLuint displayListCenterPaths ();
-    void displayOriginalDomain ();
-    void displayAABox ();
-    void displayCenterPaths ();
+    GLuint displayListCenterPaths () const;
+    void displayOriginalDomain () const;
+    void displayAABox () const;
+    void displayCenterPaths () const;
     void display (const G3D::AABox& aabox) const;
     void display (const OOBox& oobox) const;
 
@@ -384,16 +386,24 @@ private:
      * continuous contours  for polygons.
      * @param bodies displays all the faces in these bodies
      */
+    template<typename displaySameEdges>
     void displayFacesContour (
-	const vector<boost::shared_ptr<Body> >& bodies) const;
+	const vector< boost::shared_ptr<Body> >& bodies) const;
+    template<typename displaySameEdges>
+    void displayFacesContour (
+	const vector< boost::shared_ptr<Face> >& faces) const;
     /**
      * Displays   the   content   of   faces.   Used   together   with
      * displayFacesContour  and  with  GL_POLYGON_OFFSET_FILL  to  get
      * continuous contours for polygons.
      * @param bodies displays all the faces in these bodies
      */
+    template<typename displaySameEdges>
     void displayFacesInterior (
 	const vector<boost::shared_ptr<Body> >& bodies) const;
+    template<typename displaySameEdges>
+    void displayFacesInterior (
+	const vector<boost::shared_ptr<Face> >& faces) const;
     /**
      * Setup lighting for shaded bodies
      */

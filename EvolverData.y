@@ -2,7 +2,7 @@
  * @file   foam.y
  * @author Dan R. Lipsa
  *
- * Grammar  description for  the parser  used to  read in  a  DMP file
+ * Grammar  description for  the parser  used to  read in  a  DMP or a FE file
  * produced by the Surface Evolver software.
  */
 %skeleton "lalr1.cc"                          /*  -*- C++ -*- */
@@ -177,6 +177,7 @@ class AttributeCreator;
 %token <m_int> INTEGER_VALUE
 %token <m_real> REAL_VALUE
 %token <m_id> IDENTIFIER
+%token <m_id> UMINUS_IDENTIFIER
 %token <m_id> ATTRIBUTE_ID
 %token <m_id> METHOD_OR_QUANTITY_ID
 %token <m_id> '='
@@ -379,18 +380,13 @@ view_transform_generators_matrices
 
 /* 2D or 3D */
 view_transform_generators_matrix
-: const_expr const_expr opt_const_expr nlplus
-  const_expr const_expr opt_const_expr nlplus
-  const_expr const_expr opt_const_expr
+: const_expr const_expr const_expr nlplus
+  const_expr const_expr const_expr nlplus
+  const_expr const_expr const_expr
 | const_expr const_expr const_expr const_expr nlplus
   const_expr const_expr const_expr const_expr nlplus
   const_expr const_expr const_expr const_expr nlplus
   const_expr const_expr const_expr const_expr
-;
-
-opt_const_expr
-: /* empty */
-| const_expr 
 ;
 
 length_method_name
@@ -723,6 +719,13 @@ expr
 | IDENTIFIER
 {
     $$ = new ExpressionTreeVariable ($1, foam.GetParsingData ());
+}
+| UMINUS_IDENTIFIER
+{
+    ParsingData& parsingData = foam.GetParsingData ();
+    ExpressionTree* id =  new ExpressionTreeVariable ($1, parsingData);
+    string* uminusId = parsingData.CreateIdentifier ("-");
+    $$ = new ExpressionTreeUnaryFunction (uminusId, id, parsingData);
 }
 
 /* Function calls */

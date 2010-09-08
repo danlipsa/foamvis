@@ -83,7 +83,8 @@ public:
      * Constructor
      * @param widget where to display the center of the bubble
      */
-    DisplayBodyCenter (GLWidget& widget, const BodySelector& bodySelector):
+    DisplayBodyCenter (
+	const GLWidget& widget, const BodySelector& bodySelector):
 	DisplayBodyBase (widget, bodySelector) 
     {}
 protected:
@@ -154,7 +155,7 @@ public:
      * Constructor
      * @param widget where to display the center path
      */
-    DisplayCenterPath (GLWidget& widget,
+    DisplayCenterPath (const GLWidget& widget,
 		       BodyProperty::Enum bodyProperty, 
 		       const BodySelector& bodySelector) : 
 	DisplayBodyBase (widget, bodySelector),
@@ -272,7 +273,7 @@ private:
     /**
      * Where to display the center path
      */
-    GLWidget& m_glWidget;
+    const GLWidget& m_glWidget;
     BodyProperty::Enum m_bodyProperty;
 };
 

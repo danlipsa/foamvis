@@ -15,6 +15,7 @@
 #include "ParsingData.h"
 #include "EvolverData_yacc.h"
 #include "DebugStream.h"
+#include "Debug.h"
 using EvolverData::parser;
 #define YY_EXTRA_TYPE ParsingData*
 %}
@@ -84,7 +85,7 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
     return parser::token::REAL_VALUE;
 	}
 
-{ID} { /*identifiers*/
+[-]?{ID} { /*identifiers*/
     int id = ParsingDriver::GetKeywordId (yytext);
     yylloc->begin.line = yylineno;
     if (id)
@@ -100,15 +101,32 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
     }
     else
     {
+	bool uminus = false;
+	if (yytext[0] == '-')
+	{
+	    ++yytext;
+	    uminus = true;
+	}
 	string* s = yyextra->CreateIdentifier (yytext);
 	yylval->m_id = s;
 	const char* id = s->c_str ();
 	if (yyextra->IsAttribute (id))
+	{
+	    if (uminus)
+		ThrowException ("Invalid construct: negated ATTRIBUTE_ID");
 	    return parser::token::ATTRIBUTE_ID;
+	}
 	else if (yyextra->IsMethodOrQuantity (id))
+	{
+	    if (uminus)
+		ThrowException (
+		    "Invalid construct: negated METHOD_OR_QUANTITY_ID");
 	    return parser::token::METHOD_OR_QUANTITY_ID;
+	}
 	else
-	    return parser::token::IDENTIFIER;
+	    return uminus ? 
+		parser::token::UMINUS_IDENTIFIER : 
+		parser::token::IDENTIFIER;
     }
 }
 

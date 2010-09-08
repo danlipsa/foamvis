@@ -75,7 +75,8 @@ Face::Face (const boost::shared_ptr<Edge>& edge, size_t id) :
 Face::Face (const Face& original) :
     ColoredElement (original),
     m_bodiesPartOf (original.m_bodiesPartOf),
-    m_normal (original.m_normal)
+    m_normal (original.m_normal),
+    m_center (original.m_center)
 {
     BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, original.m_orientedEdges)
 	m_orientedEdges.push_back (boost::make_shared<OrientedEdge> (*oe));
@@ -90,6 +91,26 @@ Face::Face (const vector<int>& edgeIndexes,
     m_orientedEdges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_orientedEdges.begin(), 
                indexToOrientedEdge(edges));
+    calculateCenter ();
+}
+
+void Face::calculateCenter ()
+{
+    if (! IsTriangle ())
+    {
+	size_t count = 0;
+	BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, m_orientedEdges)
+	{
+	    m_center += *oe->GetBegin ();
+	    ++count;
+	}
+	if (! IsClosed ())
+	{
+	    m_center += *m_orientedEdges[m_orientedEdges.size () - 1]->GetEnd ();
+	    ++count;
+	}
+	m_center /= count;
+    }
 }
 
 size_t Face::GetNextValidIndex (size_t index) const
@@ -145,6 +166,12 @@ void Face::CalculateNormal ()
     m_normal = plane.normal ();
 }
 
+bool Face::IsTriangle () const
+{
+    return IsClosed () && m_orientedEdges.size () == 3;
+}
+
+
 bool Face::IsClosed () const
 {
     return 
@@ -190,6 +217,7 @@ string Face::ToString () const
     ostringstream ostr;
     ostr << "Face " << GetStringId () << " "
 	 << GetDuplicateStatus () << ":\n";
+    ostr << "center: " << m_center << endl;
     ostr << "edges:\n";
     ostream_iterator< boost::shared_ptr<OrientedEdge> > output (ostr, "\n");
     copy (m_orientedEdges.begin (), m_orientedEdges.end (), output);
@@ -262,4 +290,17 @@ boost::shared_ptr<Face> Face::createDuplicate (
 	begin = *oe->GetEnd ();
     }
     return faceDuplicate;
+}
+
+void Face::UpdateStandaloneFacePartOf (boost::shared_ptr<Face> face)
+{
+    if (IsStandalone ())
+    {
+	m_orientedFace.reset (new OrientedFace (face, false));
+	for (size_t i = 0; i < size (); i++)
+	{
+	    boost::shared_ptr<OrientedEdge> oe = GetOrientedEdge (i);
+	    oe->AddFacePartOf (m_orientedFace, i);
+	}
+    }
 }

@@ -73,6 +73,7 @@ private:
 /**
  * Functor that displays a face using the color specified in the DMP file
  */
+template<typename displaySameEdges = DisplaySameEdges>
 class DisplayFaceWithColor : public DisplayFace<DisplaySameEdges>
 {
 public:
@@ -119,7 +120,7 @@ protected:
 	else
 	    glColor (G3D::Color4 (Color::GetValue(Color::BLACK),
 				  m_glWidget.GetContextAlpha ()));
-	(DisplaySameEdges (m_glWidget)) (of);
+	(displaySameEdges (m_glWidget)) (of);
     }
 };
 

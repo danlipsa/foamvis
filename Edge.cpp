@@ -163,7 +163,8 @@ size_t Edge::GetTorusClippedSize (const OOBox& periods) const
 }
 
 
-void Edge::AddFacePartOf (boost::shared_ptr<OrientedFace>  orientedFace, size_t edgeIndex)
+void Edge::AddFacePartOf (
+    boost::shared_ptr<OrientedFace> orientedFace, size_t edgeIndex)
 {
     m_facesPartOf.insert (OrientedFaceIndex (orientedFace, edgeIndex));
 }
@@ -217,16 +218,6 @@ string Edge::ToString () const
 	 << " Edge attributes: ";
     PrintAttributes (ostr);
     return ostr.str ();
-}
-
-void Edge::Display (Color::Enum defaultColor, double alpha) const
-{
-    Color::Enum color = GetColor (defaultColor);
-    glColor (G3D::Color4 (Color::GetValue(color), alpha));
-    glBegin(GL_LINE_STRIP);
-    for (size_t i = 0; i < PointCount (); i++)
-	glVertex (GetPoint (i));
-    glEnd ();
 }
 
 boost::shared_ptr<Edge> Edge::GetDuplicate (

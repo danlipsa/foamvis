@@ -200,7 +200,7 @@ public:
 	     m_focus == FOCUS))
 	{
 	    double alpha = m_focus == FOCUS ? 1.0 : m_glWidget.GetContextAlpha (); 
-	    edge.Display (Color::BLACK, alpha);
+	    DisplayAllVertices (edge, Color::BLACK, alpha);
 	}
     }
 
@@ -248,29 +248,63 @@ public:
 // Display all edges of a face
 // ======================================================================
 
-/**
- * Functor that displays an edge
- */
 class DisplaySameEdges : public DisplayElementFocus
 {
 public:
-    DisplaySameEdges (const GLWidget& widget, FocusContext focus = FOCUS) : 
-	DisplayElementFocus (widget, focus) 
+    DisplaySameEdges (const GLWidget& widget, FocusContext focus = FOCUS) :
+       DisplayElementFocus (widget, focus)
     {
     }
     inline void operator() (const boost::shared_ptr<OrientedFace>  f)
+    {
+       operator() (f->GetFace ());
+    }
+
+    void operator() (const boost::shared_ptr<Face>& f)
+    {
+       glBegin (GL_POLYGON);
+       const vector<boost::shared_ptr<OrientedEdge> >& v =
+           f->GetOrientedEdges ();
+       for_each (v.begin (), v.end (), DisplayAllButLastVertices ());
+       if (! f->IsClosed ())
+           glVertex (*v[v.size () - 1]->GetEnd ());
+       glEnd ();
+    }
+};
+
+
+/**
+ * Functor that displays an edge
+ */
+class DisplaySameTriangles : public DisplayElementFocus
+{
+public:
+    DisplaySameTriangles (const GLWidget& widget, FocusContext focus = FOCUS) : 
+	DisplayElementFocus (widget, focus) 
+    {
+    }
+    void operator() (const boost::shared_ptr<OrientedFace>  f)
     {
 	operator() (f->GetFace ());
     }
     
     void operator() (const boost::shared_ptr<Face>& f)
     {
-	glBegin (GL_POLYGON);
-	const vector<boost::shared_ptr<OrientedEdge> >& v = 
+	const vector<boost::shared_ptr<OrientedEdge> >& orientedEdges = 
 	    f->GetOrientedEdges ();
-	for_each (v.begin (), v.end (), DisplayBeginVertex());
-	if (! f->IsClosed ())
-	    glVertex (*v[v.size () - 1]->GetEnd ());
+	glBegin (GL_TRIANGLES);
+	if (f->IsTriangle ())
+	    for_each (orientedEdges.begin (), orientedEdges.end (),
+		      DisplayBeginVertex());
+	else
+	{
+	    DisplayTriangle dt (f->GetCenter ());
+	    for_each (orientedEdges.begin (), orientedEdges.end (),
+		      boost::bind (dt, _1));
+	    if (! f->IsClosed ())
+		dt(*orientedEdges[orientedEdges.size () - 1]->GetEnd (),
+		   *orientedEdges[0]->GetBegin ());
+	}
 	glEnd ();
     }
 };

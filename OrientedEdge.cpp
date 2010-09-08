@@ -76,9 +76,10 @@ OrientedFaceIndexList::const_iterator OrientedEdge::GetFacePartOfEnd () const
     return GetEdge ()->GetFacePartOfEnd ();
 }
 
-void OrientedEdge::AddFacePartOf (boost::shared_ptr<OrientedFace>  face, size_t edgeIndex) const
+void OrientedEdge::AddFacePartOf (
+    boost::shared_ptr<OrientedFace> of, size_t edgeIndex) const
 {
-    GetEdge ()->AddFacePartOf (face, edgeIndex);
+    GetEdge ()->AddFacePartOf (of, edgeIndex);
 }
 
 string OrientedEdge::ToString () const

@@ -39,13 +39,62 @@ struct DisplayBeginVertex
     DisplayBeginVertex (const GLWidget&) {}
     void operator() (const boost::shared_ptr<OrientedEdge> e)
     {
-	//glVertex (*e->GetBegin ());
-	
-	for (size_t i = 0; i < e->PointCount (); ++i)
-	    glVertex(e->GetPoint (i));
+	glVertex (*e->GetBegin ());
+	//for (size_t i = 0; i < e->PointCount (); ++i)
+	//glVertex(e->GetPoint (i));
 	
     }
 };
+
+struct DisplayAllButLastVertices
+{
+    DisplayAllButLastVertices () 
+    {}
+    DisplayAllButLastVertices (const GLWidget&) 
+    {}
+    void operator() (const boost::shared_ptr<OrientedEdge> e)
+    {
+	for (size_t i = 0; i < e->PointCount () - 1; ++i)
+	    glVertex(e->GetPoint (i));
+    }
+};
+
+
+void DisplayAllVertices (const Edge& edge, 
+			 Color::Enum defaultColor, double alpha)
+{
+    Color::Enum color = edge.GetColor (defaultColor);
+    glColor (G3D::Color4 (Color::GetValue(color), alpha));
+    glBegin(GL_LINE_STRIP);
+    for (size_t i = 0; i < edge.PointCount (); i++)
+	glVertex (edge.GetPoint (i));
+    glEnd ();
+}
+
+
+
+class DisplayTriangle : 
+    public unary_function <const boost::shared_ptr<OrientedEdge>, void>
+{
+public:
+    DisplayTriangle (const G3D::Vector3& center) :
+	m_center (center)
+    {
+    }
+    void operator() (const boost::shared_ptr<OrientedEdge> e) const
+    {
+	operator () (*e->GetBegin (), *e->GetEnd ());
+    }
+    void operator() (const G3D::Vector3& begin, const G3D::Vector3& end) const
+    {
+	glVertex (m_center);
+	glVertex (begin);
+	glVertex (end);
+    }
+private:
+    const G3D::Vector3& m_center;
+};
+
 
 struct DisplayEdgeVertices
 {

@@ -99,6 +99,7 @@ bool VertexLessThanAlong::operator() (
 bool OrientedFaceIndexLessThan::operator () (
     const OrientedFaceIndex& first, const OrientedFaceIndex& second) const
 {
-    return first.GetOrientedFace ()->GetId () <
-	second.GetOrientedFace ()->GetId ();
+    boost::shared_ptr<OrientedFace> firstOf = first.GetOrientedFace ();
+    boost::shared_ptr<OrientedFace> secondOf = second.GetOrientedFace ();
+    return firstOf->GetId () <	secondOf->GetId ();
 }

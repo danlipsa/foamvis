@@ -541,7 +541,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 }
 
 
-void GLWidget::displayOriginalDomain ()
+void GLWidget::displayOriginalDomain () const
 {
     if (m_torusOriginalDomainDisplay)
 	display (GetCurrentFoam().GetOriginalDomain ());
@@ -564,7 +564,7 @@ void GLWidget::display (const OOBox& oobox) const
 }
 
 
-void GLWidget::displayAABox ()
+void GLWidget::displayAABox () const
 {
     if (m_boundingBox)
 	display (GetCurrentFoam ().GetAABox ());
@@ -591,7 +591,7 @@ void GLWidget::display (const G3D::AABox& aabb) const
 
 
 template<typename displayEdge>
-GLuint GLWidget::displayListEdges ()
+GLuint GLWidget::displayListEdges () const
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
@@ -623,14 +623,14 @@ void GLWidget::displayStandaloneEdges () const
 }
 
 
-GLuint GLWidget::displayListEdgesNormal ()
+GLuint GLWidget::displayListEdgesNormal () const
 {
     return m_torusOriginalDomainClipped ?
 	displayListEdges <DisplayEdgeTorusClipped> () :
 	displayListEdges <DisplayEdgeWithColor<> >();
 }
 
-GLuint GLWidget::displayListEdgesTorusTubes ()
+GLuint GLWidget::displayListEdgesTorusTubes () const
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
@@ -651,7 +651,7 @@ GLuint GLWidget::displayListEdgesTorusTubes ()
     return list;
 }
 
-GLuint GLWidget::displayListEdgesTorusLines ()
+GLuint GLWidget::displayListEdgesTorusLines () const
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
@@ -669,7 +669,7 @@ GLuint GLWidget::displayListEdgesTorusLines ()
 }
 
 
-void GLWidget::displayCenterOfBodies ()
+void GLWidget::displayCenterOfBodies () const
 {
     if ((m_viewType == EDGES && m_edgesBodyCenter) ||
 	m_viewType == CENTER_PATHS)
@@ -684,14 +684,25 @@ void GLWidget::displayCenterOfBodies ()
     }
 }
 
-GLuint GLWidget::displayListFacesNormal ()
+GLuint GLWidget::displayListFacesNormal () const
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
 
-    const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
-    displayFacesContour (bodies);
-    displayFacesInterior (bodies);
+    const Foam& foam = GetCurrentFoam ();
+    const Foam::Bodies& bodies = foam.GetBodies ();
+    if (foam.IsQuadratic ())
+    {
+	displayFacesContour<DisplaySameEdges> (bodies);
+	displayFacesInterior<DisplaySameEdges> (bodies);
+	displayStandaloneFaces<DisplaySameEdges> ();
+    }
+    else
+    {
+	displayFacesContour<DisplaySameTriangles> (bodies);
+	displayFacesInterior<DisplaySameTriangles> (bodies);
+	displayStandaloneFaces<DisplaySameTriangles> ();
+    }
 
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
     displayOriginalDomain ();
@@ -700,32 +711,64 @@ GLuint GLWidget::displayListFacesNormal ()
     return list;
 }
 
+
+template<typename displaySameEdges>
+void GLWidget::displayStandaloneFaces () const
+{
+    const Foam::Faces& faces = GetCurrentFoam ().GetStandaloneFaces ();
+    displayFacesContour<displaySameEdges> (faces);
+    displayFacesInterior<displaySameEdges> (faces);
+}
+
+template<typename displaySameEdges>
+void GLWidget::displayFacesContour (const Foam::Faces& faces) const
+{
+    glColor (G3D::Color4 (Color::GetValue(Color::BLACK), 
+			  GetContextAlpha ()));
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    for_each (faces.begin (), faces.end (),
+	      DisplayFace<displaySameEdges> (*this));
+}
+
+template<typename displaySameEdges>
 void GLWidget::displayFacesContour (const Foam::Bodies& bodies) const
 {
     glColor (G3D::Color4 (Color::GetValue(Color::BLACK), 
 			  GetContextAlpha ()));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     for_each (bodies.begin (), bodies.end (),
-              DisplayBody< DisplayFace<DisplaySameEdges> > (
+	      DisplayBody< DisplayFace<displaySameEdges> > (
 		  *this, *m_bodySelector));
 }
 
 // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
 // Antialiasing, Fog and Polygon Offset page 293
+template<typename displaySameEdges>
 void GLWidget::displayFacesInterior (const Foam::Bodies& bodies) const
 {
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
-    for_each (
-	bodies.begin (), bodies.end (),
-	DisplayBody<DisplayFaceWithColor> (
-	    *this, *m_bodySelector, 
-	    DisplayElement::TRANSPARENT_CONTEXT, m_facesColor));
+    for_each (bodies.begin (), bodies.end (),
+	      DisplayBody<DisplayFaceWithColor<displaySameEdges> > (
+		  *this, *m_bodySelector, 
+		  DisplayElement::TRANSPARENT_CONTEXT, m_facesColor));
     glDisable (GL_POLYGON_OFFSET_FILL);
 }
 
-GLuint GLWidget::displayListFacesLighting ()
+template<typename displaySameEdges>
+void GLWidget::displayFacesInterior (const Foam::Faces& faces) const
+{
+    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+    glEnable (GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset (1, 1);
+    for_each (faces.begin (), faces.end (), 
+	      DisplayFaceWithColor<displaySameEdges> (*this));
+    glDisable (GL_POLYGON_OFFSET_FILL);
+}
+
+
+GLuint GLWidget::displayListFacesLighting () const
 {
     GLuint list = glGenLists(1);
     const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
@@ -737,7 +780,7 @@ GLuint GLWidget::displayListFacesLighting ()
     return list;
 }
 
-GLuint GLWidget::displayListFacesTorusTubes ()
+GLuint GLWidget::displayListFacesTorusTubes () const
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
@@ -761,7 +804,7 @@ GLuint GLWidget::displayListFacesTorusTubes ()
 }
 
 
-GLuint GLWidget::displayListFacesTorusLines ()
+GLuint GLWidget::displayListFacesTorusLines () const
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
@@ -781,7 +824,7 @@ GLuint GLWidget::displayListFacesTorusLines ()
     return list;
 }
 
-GLuint GLWidget::displayListCenterPaths ()
+GLuint GLWidget::displayListCenterPaths () const
 {
     GLuint list = glGenLists(1);
     glNewList(list, GL_COMPILE);
@@ -805,7 +848,7 @@ GLuint GLWidget::displayListCenterPaths ()
     return list;
 }
 
-void GLWidget::displayCenterPaths ()
+void GLWidget::displayCenterPaths () const
 {
     glPushAttrib (GL_CURRENT_BIT);
     const BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
