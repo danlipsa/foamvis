@@ -199,8 +199,13 @@ public:
 	     m_glWidget.IsEdgesTessellation () && 
 	     m_focus == FOCUS))
 	{
-	    double alpha = m_focus == FOCUS ? 1.0 : m_glWidget.GetContextAlpha (); 
-	    DisplayAllVertices (edge, Color::BLACK, alpha);
+	    double alpha = 
+		(m_focus == FOCUS ? 1.0 : m_glWidget.GetContextAlpha ());
+	    Color::Enum color = edge.GetColor (Color::BLACK);
+	    glColor (G3D::Color4 (Color::GetValue(color), alpha));
+	    glBegin(GL_LINE_STRIP);
+	    DisplayAllVertices (edge);
+	    glEnd ();
 	}
     }
 

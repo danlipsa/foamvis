@@ -91,13 +91,14 @@ Face::Face (const vector<int>& edgeIndexes,
     m_orientedEdges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_orientedEdges.begin(), 
                indexToOrientedEdge(edges));
-    calculateCenter ();
+    CalculateCenter ();
 }
 
-void Face::calculateCenter ()
+void Face::CalculateCenter ()
 {
     if (! IsTriangle ())
     {
+	m_center = G3D::Vector3::zero ();
 	size_t count = 0;
 	BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, m_orientedEdges)
 	{
@@ -289,6 +290,7 @@ boost::shared_ptr<Face> Face::createDuplicate (
 	oe->SetEdge (edgeDuplicate);
 	begin = *oe->GetEnd ();
     }
+    faceDuplicate->CalculateCenter ();
     return faceDuplicate;
 }
 

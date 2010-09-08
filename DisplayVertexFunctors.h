@@ -60,15 +60,10 @@ struct DisplayAllButLastVertices
 };
 
 
-void DisplayAllVertices (const Edge& edge, 
-			 Color::Enum defaultColor, double alpha)
+void DisplayAllVertices (const Edge& edge)
 {
-    Color::Enum color = edge.GetColor (defaultColor);
-    glColor (G3D::Color4 (Color::GetValue(color), alpha));
-    glBegin(GL_LINE_STRIP);
     for (size_t i = 0; i < edge.PointCount (); i++)
 	glVertex (edge.GetPoint (i));
-    glEnd ();
 }
 
 

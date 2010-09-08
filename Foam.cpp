@@ -333,6 +333,7 @@ void Foam::unwrap (boost::shared_ptr<Face> face,
 		GetOriginalDomain (), edgeBegin, vertexSet, edgeSet));
 	begin = oe->GetEnd ().get ();
     }
+    face->CalculateCenter ();
 }
 
 void Foam::unwrap (

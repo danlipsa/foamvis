@@ -114,12 +114,12 @@ public:
     }
     void PrintBodyPartOfInformation (ostream& ostr) const;
     void UpdateStandaloneFacePartOf (boost::shared_ptr<Face> face);
+    void CalculateCenter ();
 
 private:
     boost::shared_ptr<Face> createDuplicate (
 	const OOBox& periods, const G3D::Vector3& newBegin,
 	VertexSet* vertexSet, EdgeSet* edgeSet) const;
-    void calculateCenter ();
 
 private:
     /**
