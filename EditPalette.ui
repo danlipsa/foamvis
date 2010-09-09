@@ -13,7 +13,71 @@
   <property name="windowTitle">
    <string>Edit Palette</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0">
+   <item>
+    <widget class="QWidget" name="widget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QComboBox" name="comboBoxPalettes">
+        <item>
+         <property name="text">
+          <string>Rainbow</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Black body radiator</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Blue to red diverging</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Blue to tan diverging</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Purple to orange diverging</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Green to purple diverging</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Green to red diverging</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
    <item>
     <widget class="TransferFunctionHistogram" name="widgetHistogram" native="true"/>
    </item>
@@ -35,5 +99,25 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>comboBoxPalettes</sender>
+   <signal>highlighted(int)</signal>
+   <receiver>EditPalette</receiver>
+   <slot>HighlightedPalette(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>84</x>
+     <y>30</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>534</x>
+     <y>193</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>HighlightedPalette(int)</slot>
+ </slots>
 </ui>

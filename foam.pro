@@ -75,8 +75,12 @@ LIBS += "-lqwt"
 else:unix {
 INCLUDEPATH += /usr/local/G3D-20100524/build/linux-x86_64-g++4.4/include
 INCLUDEPATH += /usr/local/qwt-5.2.1/include
+INCLUDEPATH += /usr/local/include/vtk-5.6
+
 LIBS += -L/usr/local/G3D-20100524/build/linux-x86_64-g++4.4/lib
 LIBS += -L/usr/local/qwt-5.2.1/lib
+LIBS += -L/usr/local/lib/vtk-5.6
+
 LIBS += "-lGLG3D"
 LIBS += "-lG3D"
 LIBS += "-lzip"
@@ -89,6 +93,9 @@ LIBS += "-lqwt"
 LIBS += "-lz"
 LIBS += "-lpng12"
 LIBS += "-lX11"
+LIBS += "-lvtkFiltering"
+LIBS += "-lvtkCommon"
+LIBS += "-lvtksys"
 }
 
 # Local Variables:

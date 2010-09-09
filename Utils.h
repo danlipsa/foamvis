@@ -68,6 +68,9 @@ ContainerIterator fuzzyFind (const Container& s, const ContainerKeyType& x)
     return s.end ();
 }
 
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+
 
 #endif //__ELEMENT_UTILS_H__
 
