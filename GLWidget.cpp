@@ -617,7 +617,8 @@ GLuint GLWidget::displayListEdges () const
 template<typename displayEdge>
 void GLWidget::displayStandaloneEdges () const
 {
-    const Foam::Edges& standaloneEdges = GetCurrentFoam ().GetStandaloneEdges ();
+    const Foam::Edges& standaloneEdges = 
+	GetCurrentFoam ().GetStandaloneEdges ();
     BOOST_FOREACH (boost::shared_ptr<Edge> edge, standaloneEdges)
 	displayEdge (*this, DisplayElement::FOCUS) (edge);
 }

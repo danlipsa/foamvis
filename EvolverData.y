@@ -10,7 +10,7 @@
 %defines
 %token-table 
 %error-verbose
-%expect 3 // state 84, 89, 297
+%expect 20 // state 84, 89, 297
 %locations
 %{
 class Foam;
@@ -214,6 +214,7 @@ class AttributeCreator;
 %type <m_attributeType> element_type
 %type <m_attributeCreator> attribute_value_type
 %type <m_node> expr
+%type <m_node> uminus_expr
 %type <m_real> number
 %type <m_nameSemanticValueList> vertex_attribute_list
 %type <m_nameSemanticValueList> edge_attribute_list
@@ -257,6 +258,7 @@ void yyerror (char const *);
  * @return the unsigned integer.
  */
 size_t intToUnsigned (int i, const char* message);
+ExpressionTree* uminusTree (ParsingData& parsingData, ExpressionTree* expr);
 
 %}
 
@@ -711,6 +713,30 @@ const_expr
     ExpressionTree::Delete ($1);
 }
 
+
+uminus_expr
+: UMINUS_IDENTIFIER
+{
+    ParsingData& parsingData = foam.GetParsingData ();
+    ExpressionTree* id =  new ExpressionTreeVariable ($1, parsingData);
+    $$ = uminusTree (parsingData, id);
+}
+| UMINUS_IDENTIFIER '(' expr ')'
+{
+    ParsingData& parsingData = foam.GetParsingData ();
+    ExpressionTree* func = new ExpressionTreeUnaryFunction (
+	$1, $3, foam.GetParsingData ());
+    $$ = uminusTree (parsingData, func);
+}
+| UMINUS_IDENTIFIER '(' expr ',' expr ')'
+{
+    ParsingData& parsingData = foam.GetParsingData ();
+    ExpressionTree* func = new ExpressionTreeBinaryFunction (
+	$1, $3, $5, foam.GetParsingData ());
+    $$ = uminusTree (parsingData, func);
+}
+
+
 expr
 : number
 {
@@ -720,14 +746,6 @@ expr
 {
     $$ = new ExpressionTreeVariable ($1, foam.GetParsingData ());
 }
-| UMINUS_IDENTIFIER
-{
-    ParsingData& parsingData = foam.GetParsingData ();
-    ExpressionTree* id =  new ExpressionTreeVariable ($1, parsingData);
-    string* uminusId = parsingData.CreateIdentifier ("-");
-    $$ = new ExpressionTreeUnaryFunction (uminusId, id, parsingData);
-}
-
 /* Function calls */
 | IDENTIFIER '(' expr ')'
 {
@@ -736,6 +754,11 @@ expr
 | IDENTIFIER '(' expr ',' expr ')'
 {
     $$ = new ExpressionTreeBinaryFunction ($1, $3, $5, foam.GetParsingData ());
+}
+
+| uminus_expr
+{
+    $$ = $1;
 }
 
 /* Arithmetic operations */
@@ -751,6 +774,15 @@ expr
 {
     $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam.GetParsingData ());
 }
+
+| expr uminus_expr
+{
+    ParsingData& parsingData = foam.GetParsingData ();
+    string* plusId = parsingData.CreateIdentifier ("+");
+    $$ = new ExpressionTreeBinaryFunction (
+	plusId, $1, $2, foam.GetParsingData ());
+}
+
 | expr '*' expr
 {
     $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam.GetParsingData ());
@@ -1318,6 +1350,12 @@ size_t intToUnsigned (int i, const char* message)
 {
     RuntimeAssert (i >= 0, message, i);
     return static_cast<size_t>(i);
+}
+
+ExpressionTree* uminusTree (ParsingData& parsingData, ExpressionTree* expr)
+{
+    const string* uminusId = parsingData.CreateIdentifier ("-");
+    return new ExpressionTreeUnaryFunction (uminusId, expr, parsingData);
 }
 
 // Local Variables:
