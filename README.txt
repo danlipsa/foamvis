@@ -130,3 +130,9 @@ Release log
 	  center path selection. Deselected bodies are displayed
 	  transparent in both Face and Center Path views
 
+0.1.
+	- Handle significant space between expressions correctly
+	- Apply the VIEW_MATRIX rotation, so that foam and evolver produce
+	  the same view
+        - added a few test files to test.pl
+

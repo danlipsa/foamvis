@@ -23,6 +23,6 @@ my @bisonFlexFiles = ("EvolverData_lex.cpp", "EvolverData_lex.h",
 foreach (@bisonFlexFiles)
 {
     my $file = $_;
-    copy($file,"/tmp/$file")
+    copy("${file}.save", $file)
 	or die "Copy failed: $!";
 }
