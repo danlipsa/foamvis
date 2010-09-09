@@ -82,17 +82,18 @@ public:
      * @param i index where to store the elment
      * @param f the value to be stored
      */
-    void SetViewMatrixElement (size_t i, double f)
-    {
-	m_viewMatrix[i] = f;
-    }
+    void SetViewMatrix (
+	double r1c1, double r1c2, double r1c3, double r1c4, 
+	double r2c1, double r2c2, double r2c3, double r2c4, 
+	double r3c1, double r3c2, double r3c3, double r3c4, 
+	double r4c1, double r4c2, double r4c3, double r4c4);
     /**
      * Gets the view matrix
      * @return the 4x4 view matrix
      */
-    const boost::array<double,16>& GetViewMatrix () const 
+    const G3D::Matrix4& GetViewMatrix () const 
     {
-	return m_viewMatrix;
+	return *m_viewMatrix;
     }
     /**
      * Make the parsing data accessible
@@ -281,7 +282,7 @@ private:
     /**
      * View matrix for displaying vertices, edges, faces and bodies.
      */
-    boost::array<double, 16> m_viewMatrix;
+    boost::shared_ptr<G3D::Matrix4> m_viewMatrix;
     OOBox m_originalDomain;
     /**
      * Vector of maps between the name of an attribute and information about it.

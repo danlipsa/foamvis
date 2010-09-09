@@ -91,12 +91,12 @@ void compact (vector< boost::shared_ptr<E> >& v)
 // ======================================================================
 
 Foam::Foam () : 
+    m_viewMatrix (new G3D::Matrix4 (G3D::Matrix4::identity ())),
     m_parsingData (new ParsingData ()),
     m_spaceDimension (3),
     m_quadratic (false)
 {
     m_parsingData->SetVariable ("pi", M_PI);
-    fill (m_viewMatrix.begin (), m_viewMatrix.end (), 0);
     AddDefaultVertexAttributes ();
     AddDefaultEdgeAttributes ();
     AddDefaultFaceAttributes ();
@@ -482,6 +482,20 @@ boost::shared_ptr<Edge> Foam::GetStandardEdge () const
     return f->GetEdge (0);
 }
 
+void Foam::SetViewMatrix (
+    double r1c1, double r1c2, double r1c3, double r1c4, 
+    double r2c1, double r2c2, double r2c3, double r2c4, 
+    double r3c1, double r3c2, double r3c3, double r3c4, 
+    double r4c1, double r4c2, double r4c3, double r4c4)
+{
+    m_viewMatrix.reset (new G3D::Matrix4 (
+	r1c1, r1c2, r1c3, r1c4,
+	r2c1, r2c2, r2c3, r2c4,
+	r3c1, r3c2, r3c3, r3c4,
+	r4c1, r4c2, r4c3, r4c4));
+}
+
+
 // Static and Friends Methods
 // ======================================================================
 ostream& operator<< (ostream& ostr, const Foam& d)
@@ -491,9 +505,7 @@ ostream& operator<< (ostream& ostr, const Foam& d)
     ostr << d.m_AABox << endl;
     {
 	ostr << "view matrix:\n";
-	ostream_iterator<double> o (ostr, " ");
-	copy (d.m_viewMatrix.begin (), d.m_viewMatrix.end (), o);
-	ostr << endl;
+	ostr << d.m_viewMatrix;
     }
     if (d.IsTorus ())
     {

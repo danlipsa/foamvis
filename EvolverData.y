@@ -612,42 +612,20 @@ view_matrix
   const_expr const_expr const_expr const_expr nlplus
   const_expr const_expr const_expr const_expr
 {
-    foam.SetViewMatrixElement (0, $3);
-    foam.SetViewMatrixElement (1, $4);
-    foam.SetViewMatrixElement (2, $5);
-    foam.SetViewMatrixElement (3, $6);
-
-    foam.SetViewMatrixElement (4, $8);
-    foam.SetViewMatrixElement (5, $9);
-    foam.SetViewMatrixElement (6, $10);
-    foam.SetViewMatrixElement (7, $11);
-
-    foam.SetViewMatrixElement (8, $13);
-    foam.SetViewMatrixElement (9, $14);
-    foam.SetViewMatrixElement (10, $15);
-    foam.SetViewMatrixElement (11, $16);
-
-    foam.SetViewMatrixElement (12, $18);
-    foam.SetViewMatrixElement (13, $19);
-    foam.SetViewMatrixElement (14, $20);
-    foam.SetViewMatrixElement (15, $21);
+    foam.SetViewMatrix ( $3,  $4,  $5,  $6,
+			 $8,  $9, $10, $11,
+			$13, $14, $15, $16,
+			$18, $19, $20, $21);
 }
 | VIEW_MATRIX nlplus
   const_expr const_expr const_expr nlplus
   const_expr const_expr const_expr nlplus
   const_expr const_expr const_expr
 {
-    foam.SetViewMatrixElement (0, $3);
-    foam.SetViewMatrixElement (1, $4);
-    foam.SetViewMatrixElement (2, $5);
-
-    foam.SetViewMatrixElement (4, $7);
-    foam.SetViewMatrixElement (5, $8);
-    foam.SetViewMatrixElement (6, $9);
-
-    foam.SetViewMatrixElement (8, $11);
-    foam.SetViewMatrixElement (9, $12);
-    foam.SetViewMatrixElement (10, $13);
+    foam.SetViewMatrix ( $3,  $4,  $5, 0,
+			 $7,  $8,  $9, 0,
+			$11, $12, $13, 0,
+			  0,   0,   0, 0);
 }
 
 clip_coefficients

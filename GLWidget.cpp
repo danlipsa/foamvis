@@ -312,7 +312,18 @@ void GLWidget::viewingTransformation () const
 
 void GLWidget::modelingTransformation () const
 {
+    /**
+     *  y        z
+     *    x ->     y
+     * z        x
+     */
+    const static G3D::Matrix3 evolverAxes (0, 1, 0,  0, 0, 1,  1, 0, 0); 
     glMultMatrix (m_rotate);
+    if (GetCurrentFoam ().GetSpaceDimension () == 3)
+    {
+	glMultMatrix (evolverAxes);
+	glMultMatrix (GetCurrentFoam ().GetViewMatrix ().upper3x3 ());
+    }
     glTranslate (-GetFoamAlongTime ().GetAABox ().center ());
     glCallList (m_object);
 }
@@ -544,10 +555,10 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 void GLWidget::displayOriginalDomain () const
 {
     if (m_torusOriginalDomainDisplay)
-	display (GetCurrentFoam().GetOriginalDomain ());
+	displayBox (GetCurrentFoam().GetOriginalDomain ());
 }
 
-void GLWidget::display (const OOBox& oobox) const
+void GLWidget::displayBox (const OOBox& oobox) const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
     glLineWidth (1.0);
@@ -567,11 +578,36 @@ void GLWidget::display (const OOBox& oobox) const
 void GLWidget::displayAABox () const
 {
     if (m_boundingBox)
-	display (GetCurrentFoam ().GetAABox ());
+	displayBox (GetCurrentFoam ().GetAABox ());
+}
+
+void GLWidget::displayAxes () const
+{
+    using G3D::Vector3;
+    const G3D::AABox& aabb = GetCurrentFoam ().GetAABox ();
+    Vector3 origin = aabb.low ();
+    Vector3 diagonal = aabb.high () - origin;
+    Vector3 first = origin + diagonal.x * Vector3::unitX ();
+    Vector3 second = origin + diagonal.y * Vector3::unitY ();
+    Vector3 third = origin + diagonal.z * Vector3::unitZ ();
+    glBegin (GL_LINES);
+
+    qglColor (QColor (Qt::red));
+    glVertex (origin);
+    glVertex (first);
+
+    qglColor (QColor (Qt::green));
+    glVertex (origin);
+    glVertex (second);
+
+    qglColor (QColor (Qt::blue));
+    glVertex (origin);
+    glVertex (third);
+    glEnd ();
 }
 
 
-void GLWidget::display (const G3D::AABox& aabb) const
+void GLWidget::displayBox (const G3D::AABox& aabb) const
 {
     using G3D::Vector3;
     glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
@@ -708,6 +744,7 @@ GLuint GLWidget::displayListFacesNormal () const
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
     displayOriginalDomain ();
     displayAABox ();
+    displayAxes ();
     glEndList();
     return list;
 }

@@ -80,3 +80,18 @@ ostream& operator<< (ostream& ostr, const vector<bool>& v)
 	ostr << (b ? "1" : "0");
     return ostr;
 }
+
+ostream& operator<< (ostream& ostr, const G3D::Matrix4& m)
+{
+    return ostr
+	<< "G3D::Matrix4 (" << endl
+	<< m.row (0) << endl
+	<< m.row (1) << endl
+	<< m.row (2) << endl
+	<< m.row (3) << ")" << endl;
+}
+
+ostream& operator<< (ostream& ostr, const G3D::Vector4& v)
+{
+    return ostr << v[0] << ", " << v[1] << ", " << v[2] << ", " << v[3];
+}

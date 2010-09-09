@@ -371,8 +371,9 @@ private:
     void displayOriginalDomain () const;
     void displayAABox () const;
     void displayCenterPaths () const;
-    void display (const G3D::AABox& aabox) const;
-    void display (const OOBox& oobox) const;
+    void displayBox (const G3D::AABox& aabox) const;
+    void displayBox (const OOBox& oobox) const;
+    void displayAxes () const;
 
     /**
      * Rotates the foam around an axis with a certain angle
