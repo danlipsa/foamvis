@@ -5,7 +5,7 @@ HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
 	Debug.h DebugStream.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h DisplayWidget.h\
-	EditTransferFunction.h Edge.h Element.h ExpressionTree.h Enums.h\
+	EditPalette.h Edge.h Element.h ExpressionTree.h Enums.h\
 	Foam.h FoamAlongTime.h Face.h \
 	GLWidget.h Hashes.h Histogram.h HistogramItem.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
@@ -22,7 +22,7 @@ SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp 
 	BodySetStatistics.cpp BodySelector.cpp\
 	ColorBar.cpp ColorBarModel.cpp ColoredElement.cpp Comparisons.cpp \
 	Debug.cpp DebugStream.cpp DisplayWidget.cpp Edge.cpp \
-	EditTransferFunction.cpp Element.cpp ExpressionTree.cpp Enums.cpp\
+	EditPalette.cpp Element.cpp ExpressionTree.cpp Enums.cpp\
 	Foam.cpp FoamAlongTime.cpp Face.cpp \
 	GLWidget.cpp Hashes.cpp Histogram.cpp HistogramItem.cpp\
 	main.cpp MainWindow.cpp  \

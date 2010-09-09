@@ -17,7 +17,7 @@ class BodySelector;
 class ColorBarModel;
 class Foam;
 class Edge;
-class EditTransferFunction;
+class EditPalette;
 class FoamAlongTime;
 class OrientedFace;
 class OrientedEdge;
@@ -213,7 +213,7 @@ public:
 
 public Q_SLOTS:
     void ResetTransformation ();
-    void ChangeTransferFunction ();
+    void ChangePalette ();
     void SelectAll ();
     void DeselectAll ();
     void Info ();
@@ -504,7 +504,7 @@ private:
     BodyProperty::Enum m_facesColor;
     QColor m_notAvailableCenterPathColor;
     QColor m_notAvailableFaceColor;
-    boost::shared_ptr<EditTransferFunction> m_editTransferFunction;
+    boost::shared_ptr<EditPalette> m_editPalette;
     boost::shared_ptr<const BodySelector> m_bodySelector;
 
     // owned by MainWindows

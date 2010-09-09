@@ -826,7 +826,7 @@
    <extends>QwtScaleWidget</extends>
    <header>ColorBar.h</header>
    <slots>
-    <signal>EditTransferFunction()</signal>
+    <signal>EditPalette()</signal>
    </slots>
   </customwidget>
   <customwidget>
@@ -1286,7 +1286,7 @@
   </connection>
   <connection>
    <sender>colorBar</sender>
-   <signal>EditTransferFunction()</signal>
+   <signal>EditPalette()</signal>
    <receiver>Window</receiver>
    <slot>ShowEditPalette()</slot>
    <hints>

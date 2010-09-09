@@ -6,7 +6,7 @@
  */
 #include "BodySelector.h"
 #include "ColorBarModel.h"
-#include "EditTransferFunction.h"
+#include "EditPalette.h"
 #include "Foam.h"
 #include "FoamAlongTime.h"
 #include "DebugStream.h"
@@ -32,7 +32,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_currentBody (0),
     m_bodyProperty (BodyProperty::NONE),
     m_histogramType (HistogramType::NONE),
-    m_editTransferFunction (new EditTransferFunction (this))
+    m_editPalette (new EditPalette (this))
 {
     // for anti-aliased lines
     QGLFormat fmt;
@@ -649,10 +649,10 @@ void MainWindow::SelectionChangedHistogram ()
 void MainWindow::ShowEditPalette ()
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();    
-    m_editTransferFunction->SetData (
+    m_editPalette->SetData (
 	foamAlongTime.GetHistogram (m_bodyProperty),
 	foamAlongTime.GetMaxCountPerBin (m_bodyProperty),
 	BodyProperty::ToString (m_bodyProperty), 
 	m_colorBarModel->GetColorMap ());
-    m_editTransferFunction->show ();
+    m_editPalette->show ();
 }

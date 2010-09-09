@@ -11,7 +11,7 @@ my @substitutionsC = (
     ["lex\\.EvolverData\\.c", "EvolverData_lex.cpp"]
     );
 replace ("lex.EvolverData.c", \@substitutionsC);
-copy ("EvolverData_lex.cpp", "EvolverData_lex.cpp.save")
+copy ("lex.EvolverData.c", "EvolverData_lex.cpp.save")
     or die "Copy failed: $!";
 copy ("EvolverData_lex.h", "EvolverData_lex.h.save")
     or die "Copy failed: $!";

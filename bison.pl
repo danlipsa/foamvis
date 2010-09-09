@@ -17,7 +17,7 @@ my @substitutionsH = (
     ["EvolverData\\.tab\\.h", "EvolverData_yacc.h"]
     );
 replace ("EvolverData.tab.h", \@substitutionsH);
-copy ("EvolverData_yacc.cpp", "EvolverData_yacc.cpp.save")
+copy ("EvolverData.tab.c", "EvolverData_yacc.cpp.save")
     or die "Copy failed: $!";;
-copy ("EvolverData_yacc.h", "EvolverData_yacc.h.save")
+copy ("EvolverData.tab.h", "EvolverData_yacc.h.save")
     or die "Copy failed: $!";;

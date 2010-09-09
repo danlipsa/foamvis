@@ -1,20 +1,20 @@
 /**
- * @file   EditTransferFunction.cpp
+ * @file   EditPalette.cpp
  * @author Dan R. Lipsa
  * @date 19 August 2010
  *
- * Definition of the EditTransferFunction class
+ * Definition of the EditPalette class
  */
 
-#include "EditTransferFunction.h"
+#include "EditPalette.h"
 
-EditTransferFunction::EditTransferFunction (QWidget* parent) :    
+EditPalette::EditPalette (QWidget* parent) :    
     QDialog (parent)
 {
     setupUi (this);
 }
 
-void EditTransferFunction::SetData (
+void EditPalette::SetData (
     const QwtIntervalData& intervalData, double maxValue, const char* axisTitle,
     const QwtLinearColorMap& colorMap)
 {
