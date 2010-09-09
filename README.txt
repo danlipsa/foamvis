@@ -48,7 +48,7 @@ Release
 ./test.pl
 Commit everything. 
 Make sure 'svnversion' reports one version
-release.pl; make distclean;cd ..;tar czf foam-<version>.tgz foam
+make distclean;release.pl;cd ..;tar czf foam-<version>.tgz foam
 
 Profile
 =======
@@ -130,9 +130,11 @@ Release log
 	  center path selection. Deselected bodies are displayed
 	  transparent in both Face and Center Path views
 
-0.1.
+0.1.1476
 	- Handle significant space between expressions correctly
 	- Apply the VIEW_MATRIX rotation, so that foam and evolver produce
 	  the same view
         - added a few test files to test.pl
+0.1.
+	
 

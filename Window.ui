@@ -1288,7 +1288,7 @@
    <sender>colorBar</sender>
    <signal>EditTransferFunction()</signal>
    <receiver>Window</receiver>
-   <slot>ShowEditTransferFunction()</slot>
+   <slot>ShowEditPalette()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>36</x>
@@ -1316,7 +1316,7 @@
   <slot>ValueChangedNone()</slot>
   <slot>SelectionChangedHistogram()</slot>
   <slot>ButtonClickedHistogram(int)</slot>
-  <slot>ShowEditTransferFunction()</slot>
+  <slot>ShowEditPalette()</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroupDisplay"/>

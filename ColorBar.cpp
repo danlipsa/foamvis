@@ -19,10 +19,10 @@ ColorBar::ColorBar (QWidget* parent) :
 void ColorBar::createActions ()
 {
     m_actionEditTransferFunction = boost::make_shared<QAction> (
-	tr("&Edit Transfer Function"), this);
-    m_actionEditTransferFunction->setStatusTip(tr("Edit Transfer Function"));
+	tr("&Edit Pallete"), this);
+    m_actionEditTransferFunction->setStatusTip(tr("Edit Pallete"));
     connect(m_actionEditTransferFunction.get (), SIGNAL(triggered()),
-	    this, SLOT(ShowEditTransferFunction ()));
+	    this, SLOT(ShowEditPalette ()));
 }
 
 void ColorBar::SetModel (boost::shared_ptr<ColorBarModel> model)
@@ -57,7 +57,7 @@ void ColorBar::contextMenuEvent (QContextMenuEvent *event)
 // Slots and slot like methods
 // ======================================================================
 
-void ColorBar::ShowEditTransferFunction ()
+void ColorBar::ShowEditPalette ()
 {
     Q_EMIT EditTransferFunction ();
 }

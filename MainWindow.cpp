@@ -646,7 +646,7 @@ void MainWindow::SelectionChangedHistogram ()
     widgetGl->SetBodySelector (bodySelector);
 }
 
-void MainWindow::ShowEditTransferFunction ()
+void MainWindow::ShowEditPalette ()
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();    
     m_editTransferFunction->SetData (

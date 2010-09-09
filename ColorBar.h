@@ -18,7 +18,7 @@ public:
     void SetModel (boost::shared_ptr<ColorBarModel> model);
 
 public Q_SLOTS:
-    void ShowEditTransferFunction ();
+    void ShowEditPalette ();
 
 Q_SIGNALS:
     void EditTransferFunction ();

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>EditTransferFunction</class>
- <widget class="QDialog" name="EditTransferFunction">
+ <class>EditPalette</class>
+ <widget class="QDialog" name="EditPalette">
   <property name="geometry">
    <rect>
     <x>0</x>

@@ -745,7 +745,7 @@ GLuint GLWidget::displayListFacesNormal () const
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
     displayOriginalDomain ();
     displayAABox ();
-    displayAxes ();
+    //displayAxes ();
     glEndList();
     return list;
 }

@@ -9,10 +9,10 @@
 #ifndef __EDIT_TRANSFER_FUNCTION_H__
 #define __EDIT_TRANSFER_FUNCTION_H__
 
-#include "ui_EditTransferFunction.h"
+#include "ui_EditPalette.h"
 
 class EditTransferFunction : 
-    public QDialog, private Ui::EditTransferFunction
+    public QDialog, private Ui::EditPalette
 {
 public:
     EditTransferFunction (QWidget* parent);
