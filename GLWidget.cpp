@@ -322,7 +322,8 @@ void GLWidget::modelingTransformation () const
     if (GetCurrentFoam ().GetSpaceDimension () == 3)
     {
 	glMultMatrix (evolverAxes);
-	glMultMatrix (GetCurrentFoam ().GetViewMatrix ().upper3x3 ());
+	glMultMatrix (GetCurrentFoam ().GetViewMatrix ().
+		      approxCoordinateFrame ().rotation);
     }
     glTranslate (-GetFoamAlongTime ().GetAABox ().center ());
     glCallList (m_object);
