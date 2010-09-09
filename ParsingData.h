@@ -98,7 +98,6 @@ public:
      * and the time since the last checkpoint.  
      * @param description what should be printed together with the time
      */
-    void PrintTimeCheckpoint (string& description);
     bool IsAttribute (const char* s)
     {
 	return m_attributes.find (s) != m_attributes.end ();
@@ -199,7 +198,22 @@ public:
     void SetFace (size_t i,  vector<int>& edges,
                   vector<NameSemanticValue*>& attributes,
 		  const AttributesInfo& attributesInfo);
-
+    void SetSpaceSignificant (bool spaceSignificant)
+    {
+	m_spaceSignificant = spaceSignificant;
+    }
+    bool IsSpaceSignificant () const
+    {
+	return m_spaceSignificant && m_parenthesisCount == 0;
+    }
+    void OpenParenthesis ()
+    {
+	++m_parenthesisCount;
+    }
+    void CloseParenthesis ()
+    {
+	--m_parenthesisCount;
+    }
 
 public:
     /**
@@ -256,10 +270,9 @@ private:
     Identifiers m_identifiers;
     set<const char*, LessThanNoCase> m_attributes;
     set<const char*, LessThanNoCase> m_methodOrQuantity;
-    /**
-     * Used for profiling. Stores the previous time checkpoint
-     */
-    clock_t m_previousTime;
+    bool m_spaceSignificant;
+    size_t m_parenthesisCount;
+
 private:
     static const char* IMPLEMENTED_METHODS[];
 };

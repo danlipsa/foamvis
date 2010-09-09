@@ -84,7 +84,9 @@ const char* ParsingData::IMPLEMENTED_METHODS[] =
 
 // Methods
 // ======================================================================
-ParsingData::ParsingData ()
+ParsingData::ParsingData () :
+    m_spaceSignificant (false),
+    m_parenthesisCount (0)
 {
     BinaryFunctionInformation BINARY_FUNCTION_INFORMATION[] = 
     {
@@ -112,8 +114,6 @@ ParsingData::ParsingData ()
 	m_binaryFunctions[bfi.m_name] = bfi.m_function;
     BOOST_FOREACH (UnaryFunctionInformation ufi, UNARY_FUNCTION_INFORMATION)
 	m_unaryFunctions[ufi.m_name] = ufi.m_function;
-
-    m_previousTime = clock ();
 
     BOOST_FOREACH (const char* method, IMPLEMENTED_METHODS)
 	AddMethodOrQuantity (method);
@@ -161,15 +161,6 @@ string* ParsingData::CreateIdentifier(const char* id)
     }
     else
         return it->second;
-}
-
-void ParsingData::PrintTimeCheckpoint (string& description)
-{
-    clock_t time = clock ();
-	cdbg << description << ": " 
-		<< static_cast<double>(time - m_previousTime) / CLOCKS_PER_SEC
-		<< " sec" << endl;
-	m_previousTime = time;
 }
 
 void ParsingData::SetVertex (size_t i, double x, double y, double z,

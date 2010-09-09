@@ -44,10 +44,7 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
 	    if ( c == '/' ) break;    /* found the end */ 
 	}
 	if ( c == 0 && yywrap(yyscanner) )
-	{
-            yyextra->PrintError (string("Scanner: end-of-file in comment\n"));
-            break;
-        }
+            ThrowException ("Scanner: end-of-file in comment\n");
     }
 		  }
 
@@ -78,14 +75,11 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
     yylval->m_real = strtod (yytext, &tail);
     yylloc->begin.line = yylineno;
     if (errno)
-    {
-	yyextra->PrintError(string("Scanner: overflow ") + yytext);
-	exit(13);
-    }
+	ThrowException (string() + "Scanner: overflow " + yytext);
     return parser::token::REAL_VALUE;
 	}
 
-[-]?{ID} { /*identifiers*/
+{ID} { /*identifiers*/
     int id = ParsingDriver::GetKeywordId (yytext);
     yylloc->begin.line = yylineno;
     if (id)
@@ -101,32 +95,15 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
     }
     else
     {
-	bool uminus = false;
-	if (yytext[0] == '-')
-	{
-	    ++yytext;
-	    uminus = true;
-	}
 	string* s = yyextra->CreateIdentifier (yytext);
 	yylval->m_id = s;
 	const char* id = s->c_str ();
 	if (yyextra->IsAttribute (id))
-	{
-	    if (uminus)
-		ThrowException ("Invalid construct: negated ATTRIBUTE_ID");
 	    return parser::token::ATTRIBUTE_ID;
-	}
 	else if (yyextra->IsMethodOrQuantity (id))
-	{
-	    if (uminus)
-		ThrowException (
-		    "Invalid construct: negated METHOD_OR_QUANTITY_ID");
 	    return parser::token::METHOD_OR_QUANTITY_ID;
-	}
 	else
-	    return uminus ? 
-		parser::token::UMINUS_IDENTIFIER : 
-		parser::token::IDENTIFIER;
+	    return parser::token::IDENTIFIER;
     }
 }
 
@@ -173,10 +150,18 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
 }
 
 
-"("|")"  {/*paranthesis: expressions*/
+"("  {/*open paranthesis: expressions*/
+    yyextra->OpenParenthesis ();
     yylloc->begin.line = yylineno;
     return *yytext;
 }
+
+")"  {/*close paranthesis: expressions*/
+    yyextra->CloseParenthesis ();
+    yylloc->begin.line = yylineno;
+    return *yytext;
+}
+
 
 "["|"]"  {/*brakets: size of arrays*/
     yylloc->begin.line = yylineno;
@@ -196,19 +181,20 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
 
 "\\\n"  /*ignore escaping of new lines*/
 
+
+
 {SPACENONEWLINE}*{NEWLINE}{SPACENONEWLINE}* {
     yylloc->begin.line = yylineno;
     return '\n';
 }
 
-
-
-{SPACENONEWLINE}+ /* ignore  white spaces, for  some reason  this eats
-		   * the end  of the line too  so that is  why we need
-		   * the rule above */
-
-
-
+{SPACENONEWLINE}+ {
+/* ignore  white spaces, for  some reason  this eats
+ * the end  of the line too  so that is  why we need
+ * the rule above */
+    if (yyextra->IsSpaceSignificant ())
+	return parser::token::SPACE;
+}
 
 %%
 
@@ -219,7 +205,7 @@ void ParsingDriver::ScanBegin ()
     EvolverDataset_debug(m_debugScanning, m_scanner);
     FILE* dataFile = fopen (m_file.c_str (), "r");
     if (! dataFile)
-        PrintError (string ("Scanner: cannot open ") + m_file);
+        ThrowException (string () + "Scanner: cannot open " + m_file);
     EvolverDataset_in (dataFile, m_scanner);
 }
 

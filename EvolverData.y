@@ -10,7 +10,7 @@
 %defines
 %token-table 
 %error-verbose
-%expect 20 // state 84, 89, 297
+%expect 3 // state 84, 89, 297
 %locations
 %{
 class Foam;
@@ -174,10 +174,10 @@ class AttributeCreator;
 %token SUPPRESS_WARNING "SUPPRESS_WARNING"
 
  // terminal symbols
+%token SPACE   /* Only transmited if ParsingData::IsSpaceSignificant */
 %token <m_int> INTEGER_VALUE
 %token <m_real> REAL_VALUE
 %token <m_id> IDENTIFIER
-%token <m_id> UMINUS_IDENTIFIER
 %token <m_id> ATTRIBUTE_ID
 %token <m_id> METHOD_OR_QUANTITY_ID
 %token <m_id> '='
@@ -214,7 +214,6 @@ class AttributeCreator;
 %type <m_attributeType> element_type
 %type <m_attributeCreator> attribute_value_type
 %type <m_node> expr
-%type <m_node> uminus_expr
 %type <m_real> number
 %type <m_nameSemanticValueList> vertex_attribute_list
 %type <m_nameSemanticValueList> edge_attribute_list
@@ -324,6 +323,11 @@ nlplus
 | nl
 ;
 
+space_star
+: /* empty */
+| SPACE
+;
+
 suppress_warning
 : SUPPRESS_WARNING INTEGER_VALUE
 ;
@@ -376,19 +380,26 @@ swap_colors
 ;
 
 view_transform_generators_matrices
-: view_transform_generators_matrices view_transform_generators_matrix nlplus 
-| view_transform_generators_matrix nlplus
+: view_transform_generators_matrices 
+  {foam.GetParsingData ().SetSpaceSignificant (true);}
+  view_transform_generators_matrix 
+  {foam.GetParsingData ().SetSpaceSignificant (false);}
+  nlplus 
+| {foam.GetParsingData ().SetSpaceSignificant (true);}
+  view_transform_generators_matrix 
+  {foam.GetParsingData ().SetSpaceSignificant (false);} 
+  nlplus
 ;
 
 /* 2D or 3D */
 view_transform_generators_matrix
-: const_expr const_expr const_expr nlplus
-  const_expr const_expr const_expr nlplus
-  const_expr const_expr const_expr
-| const_expr const_expr const_expr const_expr nlplus
-  const_expr const_expr const_expr const_expr nlplus
-  const_expr const_expr const_expr const_expr nlplus
-  const_expr const_expr const_expr const_expr
+: const_expr SPACE const_expr SPACE const_expr space_star nlplus
+  const_expr SPACE const_expr SPACE const_expr space_star nlplus
+  const_expr SPACE const_expr SPACE const_expr space_star
+| const_expr SPACE const_expr SPACE const_expr SPACE const_expr space_star nlplus
+  const_expr SPACE const_expr SPACE const_expr SPACE const_expr space_star nlplus
+  const_expr SPACE const_expr SPACE const_expr SPACE const_expr space_star nlplus
+  const_expr SPACE const_expr SPACE const_expr SPACE const_expr space_star
 ;
 
 length_method_name
@@ -714,29 +725,6 @@ const_expr
 }
 
 
-uminus_expr
-: UMINUS_IDENTIFIER
-{
-    ParsingData& parsingData = foam.GetParsingData ();
-    ExpressionTree* id =  new ExpressionTreeVariable ($1, parsingData);
-    $$ = uminusTree (parsingData, id);
-}
-| UMINUS_IDENTIFIER '(' expr ')'
-{
-    ParsingData& parsingData = foam.GetParsingData ();
-    ExpressionTree* func = new ExpressionTreeUnaryFunction (
-	$1, $3, foam.GetParsingData ());
-    $$ = uminusTree (parsingData, func);
-}
-| UMINUS_IDENTIFIER '(' expr ',' expr ')'
-{
-    ParsingData& parsingData = foam.GetParsingData ();
-    ExpressionTree* func = new ExpressionTreeBinaryFunction (
-	$1, $3, $5, foam.GetParsingData ());
-    $$ = uminusTree (parsingData, func);
-}
-
-
 expr
 : number
 {
@@ -756,11 +744,6 @@ expr
     $$ = new ExpressionTreeBinaryFunction ($1, $3, $5, foam.GetParsingData ());
 }
 
-| uminus_expr
-{
-    $$ = $1;
-}
-
 /* Arithmetic operations */
 | '-' expr  %prec UMINUS
 {
@@ -773,14 +756,6 @@ expr
 | expr '-' expr
 {
     $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam.GetParsingData ());
-}
-
-| expr uminus_expr
-{
-    ParsingData& parsingData = foam.GetParsingData ();
-    string* plusId = parsingData.CreateIdentifier ("+");
-    $$ = new ExpressionTreeBinaryFunction (
-	plusId, $1, $2, foam.GetParsingData ());
 }
 
 | expr '*' expr
@@ -897,15 +872,18 @@ vertices
 /* 2D or 3D */
 vertex_list
 : /* empty */
-| vertex_list INTEGER_VALUE const_expr const_expr vertex_list_rest 
+| vertex_list INTEGER_VALUE 
+  {foam.GetParsingData ().SetSpaceSignificant (true);}
+  SPACE const_expr SPACE const_expr space_star vertex_list_rest
+  {foam.GetParsingData ().SetSpaceSignificant (false);}
   vertex_attribute_list nlplus
 {
     vector<NameSemanticValue*>* nameSemanticValueList = 
-	$6;
+	$11;
     foam.GetParsingData ().SetVertex (
 	intToUnsigned($2- 1,
 		      "Semantic error: vertex index less than 0: "),
-	$3, $4, $5, *nameSemanticValueList, 
+	$5, $7, $9, *nameSemanticValueList, 
 	foam.GetAttributesInfo (DefineAttribute::VERTEX));
     if (nameSemanticValueList != 0)
 	NameSemanticValue::DeleteVector(nameSemanticValueList);
@@ -918,7 +896,7 @@ vertex_list_rest
     $$ = 0;
 }
 |
-const_expr
+const_expr space_star
 {
     $$ = $1;    
 }
@@ -1342,7 +1320,7 @@ void
 EvolverData::parser::error (const EvolverData::parser::location_type& l,
                             const std::string& m)
 {
-    foam.GetParsingData ().PrintError (l, m);
+    foam.GetParsingData ().PrintError (l, m.c_str ());
 }
 
 

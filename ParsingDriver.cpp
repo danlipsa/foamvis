@@ -7,6 +7,7 @@
 #include "SystemDifferences.h"
 #include "ParsingDriver.h"
 #include "DebugStream.h"
+#include "Debug.h"
 
 
 ParsingDriver::ParsingDriver ()
@@ -19,14 +20,9 @@ ParsingDriver::~ParsingDriver ()
 }
 
 void ParsingDriver::PrintError (
-    const EvolverData::location& l, const string& m)
+    const EvolverData::location& l, const char* message)
 {
-	cdbg << l << ": " << m << endl;
-}
-
-void ParsingDriver::PrintError (const string& m)
-{
-  cdbg << m << endl;
+	cdbg << l << ": " << message << endl;
 }
 
 long ParsingDriver::ReadInteger (char* str, int base)
@@ -35,10 +31,7 @@ long ParsingDriver::ReadInteger (char* str, int base)
     errno = 0;
     long i = strtol (str, &tail, base);
     if (errno)
-    {
-	PrintError (string("Scanner: long overflow ") + str);
-	exit(13);
-    }
+	ThrowException (string() + "Scanner: long overflow " + str);
     return i;
 }
 

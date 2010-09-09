@@ -78,12 +78,7 @@ public:
      * @param l line and column where error occurend in the parsed file
      * @param m message describing the error
      */
-    void PrintError (const EvolverData::location& l, const string& m);
-    /**
-     * Called by the parser in case of errors
-     * @param m message describing the error
-     */
-    void PrintError (const string& m);
+    void PrintError (const EvolverData::location& l, const char* m);
     /**
      * Converts a  string in a given  base to an integer.  Prints an error
      * and exits if the conversion fails.
