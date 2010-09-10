@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Edit Palette</string>
+   <string>Edit Color Map</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0,0">
    <item>
@@ -31,10 +31,15 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBoxPalettes">
+       <widget class="QComboBox" name="comboBoxPalette">
         <item>
          <property name="text">
-          <string>Rainbow</string>
+          <string>Rainbow Telea</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Rainbow HSV</string>
          </property>
         </item>
         <item>
@@ -98,7 +103,7 @@
    <item>
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Right click on the histogram to set clamping points for the color map.</string>
+      <string>Right click on the histogram to set clamping points.</string>
      </property>
     </widget>
    </item>
@@ -110,12 +115,17 @@
    <extends>QWidget</extends>
    <header>TransferFunctionHistogram.h</header>
    <container>1</container>
+   <slots>
+    <signal>ClampHigh(double)</signal>
+    <signal>ClampLow(double)</signal>
+    <signal>ClampClear()</signal>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
  <connections>
   <connection>
-   <sender>comboBoxPalettes</sender>
+   <sender>comboBoxPalette</sender>
    <signal>highlighted(int)</signal>
    <receiver>EditColorMap</receiver>
    <slot>HighlightedPalette(int)</slot>
@@ -130,8 +140,91 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>EditColorMap</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>263</x>
+     <y>420</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>532</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>EditColorMap</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>284</x>
+     <y>407</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>531</x>
+     <y>398</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>widgetHistogram</sender>
+   <signal>ClampHigh(double)</signal>
+   <receiver>EditColorMap</receiver>
+   <slot>ClampHigh(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>487</x>
+     <y>132</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>531</x>
+     <y>136</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>widgetHistogram</sender>
+   <signal>ClampLow(double)</signal>
+   <receiver>EditColorMap</receiver>
+   <slot>ClampLow(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>464</x>
+     <y>90</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>528</x>
+     <y>81</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>widgetHistogram</sender>
+   <signal>ClampClear()</signal>
+   <receiver>EditColorMap</receiver>
+   <slot>ClampClear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>454</x>
+     <y>283</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>534</x>
+     <y>279</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>HighlightedPalette(int)</slot>
+  <slot>ClampHigh(double)</slot>
+  <slot>ClampLow(double)</slot>
+  <slot>ClampClear()</slot>
  </slots>
 </ui>

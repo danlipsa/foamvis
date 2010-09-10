@@ -60,6 +60,8 @@ public:
 	HistogramSelection histogramSelection = DISCARD_SELECTION,
 	MaxValueOperation maxValueOperation = REPLACE_MAX_VALUE);
 
+Q_SIGNALS:
+    void ColorBarModelChanged (ColorBarModel* colorBarModel);
 
 public Q_SLOTS:
     /**
@@ -172,7 +174,6 @@ private:
     ProcessBodyTorus* m_processBodyTorus;
     Foam::Bodies::iterator m_currentTranslatedBody;
     size_t m_currentBody;
-    boost::shared_ptr<ColorBarModel> m_colorBarModel;
 
     boost::shared_ptr<QAction> m_actionRotate;
     boost::shared_ptr<QAction> m_actionTranslate;
@@ -185,7 +186,8 @@ private:
 
     BodyProperty::Enum m_bodyProperty;
     HistogramType::Enum m_histogramType;
-    boost::shared_ptr<EditColorMap> m_editPalette;
+    boost::shared_ptr<ColorBarModel> m_colorBarModel;
+    boost::shared_ptr<EditColorMap> m_editColorMap;
 };
 
 #endif //__MAIN_WINDOW_H__

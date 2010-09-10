@@ -168,9 +168,9 @@ public:
     {
 	return m_centerPathDisplayBody;
     }
-    void SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel)
+    void SetUseColorMap (bool useColorMap)
     {
-	m_colorBarModel = colorBarModel;
+	m_useColorMap = useColorMap;
     }
     QColor MapScalar (double value) const;
     boost::shared_ptr<QAction> GetActionResetTransformation ()
@@ -212,6 +212,7 @@ public:
 
 
 public Q_SLOTS:
+    void ColorBarModelChanged(ColorBarModel* colorBarModel);
     void ResetTransformation ();
     void ChangePalette ();
     void SelectAll ();
@@ -499,12 +500,10 @@ private:
     bool m_centerPathDisplayBody;
     bool m_boundingBox;
     boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> VIEW_TYPE_DISPLAY;
-    boost::shared_ptr<ColorBarModel> m_colorBarModel;
     BodyProperty::Enum m_centerPathColor;
     BodyProperty::Enum m_facesColor;
     QColor m_notAvailableCenterPathColor;
     QColor m_notAvailableFaceColor;
-    boost::shared_ptr<EditColorMap> m_editPalette;
     boost::shared_ptr<const BodySelector> m_bodySelector;
 
     // owned by MainWindows
@@ -513,7 +512,8 @@ private:
     boost::shared_ptr<QAction> m_actionInfo;
     // owned by GLWidget
     boost::shared_ptr<QAction> m_actionResetTransformation;
-    
+    bool m_useColorMap;
+    boost::scoped_ptr<ColorBarModel> m_colorBarModel;
 };
 
 #endif //__GLWIDGET_H__

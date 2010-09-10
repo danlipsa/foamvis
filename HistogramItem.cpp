@@ -260,8 +260,9 @@ QColor HistogramItem::getBarColor (size_t i) const
 
 
 
-void HistogramItem::draw (QPainter *painter, const QwtScaleMap &xMap, 
-			  const QwtScaleMap &yMap, const QRect&) const
+void HistogramItem::draw (QPainter *painter,
+			  const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
+			  const QRect&) const
 {
     drawBars (painter, xMap, yMap);
     drawDeselectedRegions (painter, xMap, yMap);

@@ -6,39 +6,39 @@
  * Declaration of the EditColorMap class
  */
 
-#ifndef __EDIT_PALETTE_H__
-#define __EDIT_PALETTE_H__
+#ifndef __EDIT_COLOR_MAP_H__
+#define __EDIT_COLOR_MAP_H__
 
 #include "ui_EditColorMap.h"
+#include "ColorBarModel.h"
 
 class EditColorMap : 
     public QDialog, private Ui::EditColorMap
 {
 public:
-    enum Palettes
-    {
-	RAINBOW,
-	BLACK_BODY,
-	BLUE_TO_RED,
-	BLUE_TO_TAN,
-	PURPLE_TO_ORANGE,
-	GREEN_TO_PURPLE,
-	GREEN_TO_RED
-    };
-public:
     EditColorMap (QWidget* parent);
-    void SetData (const QwtIntervalData& intervalData, double maxValue, 
-		  const char* axisTitle, const QwtLinearColorMap& colorMap);
+    void SetData (const QwtIntervalData& histogram, double maxValue,
+		  const ColorBarModel& colorBarModel);
+
+    const ColorBarModel& GetColorBarModel () const
+    {
+	return m_colorBarModel;
+    }
+
 public Q_SLOTS:
     void HighlightedPalette (int index);
+    void ClampHigh (double value);
+    void ClampLow (double value);
+    void ClampClear ();
 
 private:
 
 private:
     Q_OBJECT
+    ColorBarModel m_colorBarModel;
 };
 
-#endif //__EDIT_PALETTE_H__
+#endif //__EDIT_COLOR_MAP_H__
 
 // Local Variables:
 // mode: c++

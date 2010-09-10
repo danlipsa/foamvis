@@ -10,7 +10,8 @@
 #include "ColorBarModel.h"
 
 ColorBar::ColorBar (QWidget* parent) : 
-    QwtScaleWidget (parent)
+    QwtScaleWidget (parent),
+    m_model (new ColorBarModel())
 {
     setColorBarEnabled (true);
     createActions ();
@@ -18,16 +19,16 @@ ColorBar::ColorBar (QWidget* parent) :
 
 void ColorBar::createActions ()
 {
-    m_actionEditColorMap = boost::make_shared<QAction> (
-	tr("&Edit Palette"), this);
+    m_actionEditColorMap.reset (new QAction (
+				    tr("&Edit Color Map"), this));
     m_actionEditColorMap->setStatusTip(tr("Edit Color Map"));
     connect(m_actionEditColorMap.get (), SIGNAL(triggered()),
 	    this, SLOT(ShowEditColorMap ()));
 }
 
-void ColorBar::SetModel (boost::shared_ptr<ColorBarModel> model)
+void ColorBar::ColorBarModelChanged (ColorBarModel* model)
 {
-    m_model = model;
+    *m_model = *model;
     QwtDoubleInterval interval = model->GetInterval ();
     QwtLinearScaleEngine scaleEngine;
     QwtScaleDiv scaleDiv;

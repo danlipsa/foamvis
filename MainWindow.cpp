@@ -32,8 +32,11 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_currentBody (0),
     m_bodyProperty (BodyProperty::NONE),
     m_histogramType (HistogramType::NONE),
-    m_editPalette (new EditColorMap (this))
+    m_colorBarModel (new ColorBarModel ()),
+    m_editColorMap (new EditColorMap (this))
 {
+    m_colorBarModel->SetupPalette (Palette::RAINBOW_TELEA);
+
     // for anti-aliased lines
     QGLFormat fmt;
     fmt.setAlpha(true);
@@ -46,8 +49,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     setupButtonGroups ();
 
     widgetGl->SetFoamAlongTime (&foamAlongTime);
-    boost::shared_ptr<ColorBarModel> colorBarModel;
-    widgetGl->SetColorBarModel (colorBarModel);
+    widgetGl->SetUseColorMap (false);
     widgetHistogram->setHidden (true);
     m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
     configureInterface (foamAlongTime);
@@ -57,7 +59,6 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
 	    (string("Foam - ") + foamAlongTime.GetFilePattern ()).c_str ()));
     // 30 ms
     m_timer->setInterval (30);
-    m_colorBarModel = boost::make_shared<ColorBarModel> ();
     createActions ();
 
     setTabOrder (radioButtonCenterPath, sliderTimeSteps);
@@ -433,10 +434,6 @@ void MainWindow::changedColorBarInterval (BodyProperty::Enum bodyProperty)
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     m_colorBarModel->SetTitle (BodyProperty::ToString (bodyProperty));
     m_colorBarModel->SetInterval (foamAlongTime.GetRange (bodyProperty));
-    m_colorBarModel->SetupRainbowColorMap ();
-    colorBar->SetModel (m_colorBarModel);
-    widgetHistogram->SetColorMap (m_colorBarModel->GetInterval (),
-				  m_colorBarModel->GetColorMap ());
 }
 
 void MainWindow::CurrentIndexChangedFacesColor (int value)
@@ -446,8 +443,7 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
     if (bodyProperty == BodyProperty::NONE)
     {
 	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
-	boost::shared_ptr<ColorBarModel> colorBarModel;
-	widgetGl->SetColorBarModel (colorBarModel);
+	widgetGl->SetUseColorMap (false);
 	groupBoxFacesHistogram->setHidden (true);
 	colorBar->setHidden (true);
 	widgetHistogram->setHidden (true);
@@ -459,13 +455,14 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	groupBoxFacesHistogram->setVisible (true);
 	colorBar->setVisible (true);
 	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
-	widgetGl->SetColorBarModel (m_colorBarModel);
+	widgetGl->SetUseColorMap (true);
 	SetAndDisplayHistogram (
 	    histogramType (buttonGroupFacesHistogram),
 	    bodyProperty,
 	    foamAlongTime.GetHistogram (bodyProperty, timeStep),
 	    foamAlongTime.GetMaxCountPerBinIndividual (bodyProperty));
 	changedColorBarInterval (bodyProperty);
+	Q_EMIT ColorBarModelChanged (m_colorBarModel.get ());
     }
     widgetGl->UpdateDisplayList ();
 }
@@ -476,8 +473,7 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
     m_bodyProperty = bodyProperty;
     if (bodyProperty == BodyProperty::NONE)
     {
-	boost::shared_ptr<ColorBarModel> colorBarModel;
-	widgetGl->SetColorBarModel (colorBarModel);
+	widgetGl->SetUseColorMap (false);
 	groupBoxCenterPathHistogram->setHidden (true);
 	colorBar->setHidden (true);
 	widgetHistogram->setHidden (true);
@@ -487,7 +483,7 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	groupBoxCenterPathHistogram->setVisible (true);
 	colorBar->setVisible (true);
-	widgetGl->SetColorBarModel (m_colorBarModel);
+	widgetGl->SetUseColorMap (true);
 	widgetGl->CurrentIndexChangedCenterPathColor (bodyProperty);
 	changedColorBarInterval (bodyProperty);
 	SetAndDisplayHistogram (
@@ -495,6 +491,7 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	    bodyProperty,
 	    foamAlongTime.GetHistogram (bodyProperty),
 	    foamAlongTime.GetMaxCountPerBin (bodyProperty));
+	Q_EMIT ColorBarModelChanged (m_colorBarModel.get ());
     }
     widgetGl->UpdateDisplayList ();
 }
@@ -649,10 +646,13 @@ void MainWindow::SelectionChangedHistogram ()
 void MainWindow::ShowEditColorMap ()
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();    
-    m_editPalette->SetData (
+    m_editColorMap->SetData (
 	foamAlongTime.GetHistogram (m_bodyProperty),
 	foamAlongTime.GetMaxCountPerBin (m_bodyProperty),
-	BodyProperty::ToString (m_bodyProperty), 
-	m_colorBarModel->GetColorMap ());
-    m_editPalette->show ();
+	*m_colorBarModel);
+    if (m_editColorMap->exec () == QDialog::Accepted)
+    {
+	*m_colorBarModel = m_editColorMap->GetColorBarModel ();
+	Q_EMIT ColorBarModelChanged (m_colorBarModel.get ());
+    }
 }

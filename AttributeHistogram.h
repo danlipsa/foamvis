@@ -10,6 +10,7 @@
 #define __ATTRIBUTE_HISTOGRAM_H__
 
 #include "Histogram.h"
+class ColorBarModel;
 
 class AttributeHistogram : public Histogram
 {
@@ -22,6 +23,7 @@ public Q_SLOTS:
     void SelectAll ();
     void DeselectAll ();
     void CurrentIndexChangedInteractionMode (int index);
+    void ColorBarModelChanged (ColorBarModel* colorBarModel);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event);

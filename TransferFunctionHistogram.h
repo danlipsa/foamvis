@@ -16,9 +16,15 @@ class TransferFunctionHistogram : public Histogram
 public:
     TransferFunctionHistogram (QWidget* parent = 0);
 
+Q_SIGNALS:
+    void ClampHigh (double value);
+    void ClampLow (double value);
+    void ClampClear ();
+
 public Q_SLOTS:
     void ClampHigh ();
     void ClampLow ();
+    void ClampClearSlot ();
 
 
 protected:
@@ -33,7 +39,8 @@ private:
     boost::shared_ptr<QAction> m_actionHeightSettings;
     boost::shared_ptr<QAction> m_actionClampHigh;
     boost::shared_ptr<QAction> m_actionClampLow;
-    QPoint m_pos;
+    boost::shared_ptr<QAction> m_actionClampClear;
+    QwtDoublePoint m_pos;
 };
 
 #endif //__TRANSFER_FUNCTION_HISTOGRAM_H__

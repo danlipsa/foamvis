@@ -10,7 +10,6 @@
 #include "BodyAlongTime.h"
 #include "BodySelector.h"
 #include "ColorBarModel.h"
-#include "EditColorMap.h"
 #include "FoamAlongTime.h"
 #include "Debug.h"
 #include "DisplayVertexFunctors.h"
@@ -167,7 +166,9 @@ GLWidget::GLWidget(QWidget *parent)
       m_facesColor (BodyProperty::NONE),
       m_notAvailableCenterPathColor (Qt::black),
       m_notAvailableFaceColor (Qt::white),
-      m_bodySelector (new CycleSelector (*this))
+      m_bodySelector (new CycleSelector (*this)),
+      m_useColorMap (false),
+      m_colorBarModel (new ColorBarModel ())
 {
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
     const int POSSIBILITIES = 3; //domain increment can be *, - or +
@@ -190,7 +191,6 @@ GLWidget::GLWidget(QWidget *parent)
 			reinterpret_cast<void (*)()>(&quadricErrorCallback));
     initViewTypeDisplay ();    
     createActions ();
-    m_editPalette = boost::make_shared<EditColorMap> (this);
 }
 
 
@@ -1307,8 +1307,14 @@ void GLWidget::SetActionDeselectAll (
 
 QColor GLWidget::MapScalar (double value) const
 {
-    if (m_colorBarModel == 0)
-	return Qt::black;
-    else
+    if (m_useColorMap)
 	return m_colorBarModel->MapScalar (value);
+    else
+	return Qt::black;
+}
+
+void GLWidget::ColorBarModelChanged (ColorBarModel* colorBarModel)
+{
+    *m_colorBarModel = *colorBarModel;
+    UpdateDisplayList ();
 }

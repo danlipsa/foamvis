@@ -12,6 +12,23 @@
 #include "HistogramItem.h"
 class HistogramHeight;
 
+class MyPicker : public QwtPlotPicker
+{
+public:
+    MyPicker (int xAxis, int yAxis, 
+	      int selectionFlags, RubberBand rubberBand, 
+	      DisplayMode trackerMode, QwtPlotCanvas * canvas) :
+	QwtPlotPicker (xAxis, yAxis, 
+		       selectionFlags, rubberBand, trackerMode,
+		       canvas)
+    {
+    }
+    QwtDoublePoint invTransform (const QPoint& point) const
+    {
+	return QwtPlotPicker::invTransform (point);
+    }
+};
+
 /**
  * Histogram that allows selection of bins.
  * @todo add logarithmic scale for values of the histogram.
@@ -64,16 +81,21 @@ public:
 	const QwtIntervalData& intervalData, double maxValue, 
 	const char* axisTitle);
     void SetAllItemsSelection (bool selected);
+    void SetItemsSelectionHigh (bool selected, double value);
+    void SetItemsSelectionLow (bool selected, double value);
     void SetSelectionTool (SelectionTool selectionTool);    
-
-public Q_SLOTS:
-    void SelectionPointMoved (const QPoint& pos);
-    void SelectionPointAppended (const QPoint& pos);
-    void PolygonSelected (const QwtPolygon& poly);
-    void HistogramHeightDialog ();
+    QwtDoublePoint ToCanvas (const QPoint& point);
 
 Q_SIGNALS:
     void selectionChanged ();
+
+
+public Q_SLOTS:
+    void SelectionPointMoved (const QwtDoublePoint& pos);
+    void SelectionPointAppended (const QwtDoublePoint& pos);
+    void PolygonSelected (const QwtPolygon& poly);
+    void HistogramHeightDialog ();
+
 
 
 private:
@@ -87,7 +109,7 @@ private:
 
     QwtPlotGrid m_grid;
     HistogramItem m_histogramItem;
-    QwtPlotPicker m_plotPicker;
+    MyPicker m_plotPicker;
     size_t m_beginBinSelection;
     SelectionTool m_selectionTool;
     bool m_displayColorBar;

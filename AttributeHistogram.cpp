@@ -7,6 +7,7 @@
  */
 
 #include "AttributeHistogram.h"
+#include "ColorBarModel.h"
 #include "Enums.h"
 
 AttributeHistogram::AttributeHistogram (QWidget* parent) :
@@ -69,4 +70,10 @@ void AttributeHistogram::createActions ()
     m_actionHeightSettings->setStatusTip(tr("Height Settings"));
     connect(m_actionHeightSettings.get (), SIGNAL(triggered()),
 	    this, SLOT(HistogramHeightDialog ()));
+}
+
+void AttributeHistogram::ColorBarModelChanged (ColorBarModel* colorBarModel)
+{
+    SetColorMap (colorBarModel->GetInterval (), colorBarModel->GetColorMap ());
+    replot ();
 }

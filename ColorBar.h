@@ -15,10 +15,10 @@ class ColorBar : public QwtScaleWidget
 {
 public:
     ColorBar (QWidget* parent = 0);
-    void SetModel (boost::shared_ptr<ColorBarModel> model);
 
 public Q_SLOTS:
     void ShowEditColorMap ();
+    void ColorBarModelChanged (ColorBarModel* colorBarModel);
 
 Q_SIGNALS:
     void EditColorMap ();
@@ -32,8 +32,8 @@ private:
 private:
     Q_OBJECT
 
-    boost::shared_ptr<ColorBarModel> m_model;
-    boost::shared_ptr<QAction> m_actionEditColorMap;
+    boost::scoped_ptr<ColorBarModel> m_model;
+    boost::scoped_ptr<QAction> m_actionEditColorMap;
 };
 
 #endif //__COLOR_BAR_H__
