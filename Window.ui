@@ -1288,7 +1288,7 @@
    <sender>colorBar</sender>
    <signal>EditPalette()</signal>
    <receiver>Window</receiver>
-   <slot>ShowEditPalette()</slot>
+   <slot>ShowEditColorMap()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>36</x>
@@ -1316,7 +1316,7 @@
   <slot>ValueChangedNone()</slot>
   <slot>SelectionChangedHistogram()</slot>
   <slot>ButtonClickedHistogram(int)</slot>
-  <slot>ShowEditPalette()</slot>
+  <slot>ShowEditColorMap()</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroupDisplay"/>

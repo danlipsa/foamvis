@@ -81,7 +81,7 @@ public Q_SLOTS:
     void CurrentIndexChangedCenterPathColor (int value);
     void CurrentIndexChangedFacesColor (int value);
 
-    void ShowEditPalette ();
+    void ShowEditColorMap ();
 
 
     void InteractionModeRotate ();

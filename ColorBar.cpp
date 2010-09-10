@@ -20,9 +20,9 @@ void ColorBar::createActions ()
 {
     m_actionEditPalette = boost::make_shared<QAction> (
 	tr("&Edit Palette"), this);
-    m_actionEditPalette->setStatusTip(tr("Edit Palette"));
+    m_actionEditPalette->setStatusTip(tr("Edit Color Map"));
     connect(m_actionEditPalette.get (), SIGNAL(triggered()),
-	    this, SLOT(ShowEditPalette ()));
+	    this, SLOT(ShowEditColorMap ()));
 }
 
 void ColorBar::SetModel (boost::shared_ptr<ColorBarModel> model)
@@ -57,7 +57,7 @@ void ColorBar::contextMenuEvent (QContextMenuEvent *event)
 // Slots and slot like methods
 // ======================================================================
 
-void ColorBar::ShowEditPalette ()
+void ColorBar::ShowEditColorMap ()
 {
     Q_EMIT EditPalette ();
 }

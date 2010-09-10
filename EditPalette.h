@@ -33,6 +33,8 @@ public Q_SLOTS:
     void HighlightedPalette (int index);
 
 private:
+
+private:
     Q_OBJECT
 };
 
