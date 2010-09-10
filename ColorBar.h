@@ -21,7 +21,7 @@ public Q_SLOTS:
     void ShowEditColorMap ();
 
 Q_SIGNALS:
-    void EditPalette ();
+    void EditColorMap ();
 
 protected:
     virtual void contextMenuEvent (QContextMenuEvent *event);
@@ -33,7 +33,7 @@ private:
     Q_OBJECT
 
     boost::shared_ptr<ColorBarModel> m_model;
-    boost::shared_ptr<QAction> m_actionEditPalette;
+    boost::shared_ptr<QAction> m_actionEditColorMap;
 };
 
 #endif //__COLOR_BAR_H__

@@ -17,7 +17,7 @@ class BodySelector;
 class ColorBarModel;
 class Foam;
 class Edge;
-class EditPalette;
+class EditColorMap;
 class FoamAlongTime;
 class OrientedFace;
 class OrientedEdge;
@@ -504,7 +504,7 @@ private:
     BodyProperty::Enum m_facesColor;
     QColor m_notAvailableCenterPathColor;
     QColor m_notAvailableFaceColor;
-    boost::shared_ptr<EditPalette> m_editPalette;
+    boost::shared_ptr<EditColorMap> m_editPalette;
     boost::shared_ptr<const BodySelector> m_bodySelector;
 
     // owned by MainWindows

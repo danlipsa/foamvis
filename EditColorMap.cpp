@@ -1,21 +1,21 @@
 /**
- * @file   EditPalette.cpp
+ * @file   EditColorMap.cpp
  * @author Dan R. Lipsa
  * @date 19 August 2010
  *
- * Definition of the EditPalette class
+ * Definition of the EditColorMap class
  */
 
-#include "EditPalette.h"
+#include "EditColorMap.h"
 #include "Utils.h"
 
-EditPalette::EditPalette (QWidget* parent) :    
+EditColorMap::EditColorMap (QWidget* parent) :    
     QDialog (parent)
 {
     setupUi (this);
 }
 
-void EditPalette::SetData (
+void EditColorMap::SetData (
     const QwtIntervalData& intervalData, double maxValue, const char* axisTitle,
     const QwtLinearColorMap& colorMap)
 {
@@ -26,7 +26,7 @@ void EditPalette::SetData (
     widgetHistogram->SetColorMap (interval, colorMap);
 }
 
-void EditPalette::HighlightedPalette (int index)
+void EditColorMap::HighlightedPalette (int index)
 {
     VTK_CREATE(vtkColorTransferFunction, rainbow);
     rainbow->SetColorSpaceToHSV();

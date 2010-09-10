@@ -10,7 +10,7 @@
 #include "BodyAlongTime.h"
 #include "BodySelector.h"
 #include "ColorBarModel.h"
-#include "EditPalette.h"
+#include "EditColorMap.h"
 #include "FoamAlongTime.h"
 #include "Debug.h"
 #include "DisplayVertexFunctors.h"
@@ -190,7 +190,7 @@ GLWidget::GLWidget(QWidget *parent)
 			reinterpret_cast<void (*)()>(&quadricErrorCallback));
     initViewTypeDisplay ();    
     createActions ();
-    m_editPalette = boost::make_shared<EditPalette> (this);
+    m_editPalette = boost::make_shared<EditColorMap> (this);
 }
 
 

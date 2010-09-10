@@ -185,7 +185,7 @@ private:
 
     BodyProperty::Enum m_bodyProperty;
     HistogramType::Enum m_histogramType;
-    boost::shared_ptr<EditPalette> m_editPalette;
+    boost::shared_ptr<EditColorMap> m_editPalette;
 };
 
 #endif //__MAIN_WINDOW_H__

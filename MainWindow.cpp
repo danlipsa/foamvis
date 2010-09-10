@@ -6,7 +6,7 @@
  */
 #include "BodySelector.h"
 #include "ColorBarModel.h"
-#include "EditPalette.h"
+#include "EditColorMap.h"
 #include "Foam.h"
 #include "FoamAlongTime.h"
 #include "DebugStream.h"
@@ -32,7 +32,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_currentBody (0),
     m_bodyProperty (BodyProperty::NONE),
     m_histogramType (HistogramType::NONE),
-    m_editPalette (new EditPalette (this))
+    m_editPalette (new EditColorMap (this))
 {
     // for anti-aliased lines
     QGLFormat fmt;

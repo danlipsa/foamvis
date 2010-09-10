@@ -18,10 +18,10 @@ ColorBar::ColorBar (QWidget* parent) :
 
 void ColorBar::createActions ()
 {
-    m_actionEditPalette = boost::make_shared<QAction> (
+    m_actionEditColorMap = boost::make_shared<QAction> (
 	tr("&Edit Palette"), this);
-    m_actionEditPalette->setStatusTip(tr("Edit Color Map"));
-    connect(m_actionEditPalette.get (), SIGNAL(triggered()),
+    m_actionEditColorMap->setStatusTip(tr("Edit Color Map"));
+    connect(m_actionEditColorMap.get (), SIGNAL(triggered()),
 	    this, SLOT(ShowEditColorMap ()));
 }
 
@@ -50,7 +50,7 @@ void ColorBar::SetModel (boost::shared_ptr<ColorBarModel> model)
 void ColorBar::contextMenuEvent (QContextMenuEvent *event)
 {
     QMenu menu (this);
-    menu.addAction (m_actionEditPalette.get ());
+    menu.addAction (m_actionEditColorMap.get ());
     menu.exec (event->globalPos());    
 }
 
@@ -59,5 +59,5 @@ void ColorBar::contextMenuEvent (QContextMenuEvent *event)
 
 void ColorBar::ShowEditColorMap ()
 {
-    Q_EMIT EditPalette ();
+    Q_EMIT EditColorMap ();
 }

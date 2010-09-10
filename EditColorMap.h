@@ -3,7 +3,7 @@
  * @author Dan R. Lipsa
  * @date 23 August 2010
  *
- * Declaration of the EditPalette class
+ * Declaration of the EditColorMap class
  */
 
 #ifndef __EDIT_PALETTE_H__
@@ -11,7 +11,7 @@
 
 #include "ui_EditColorMap.h"
 
-class EditPalette : 
+class EditColorMap : 
     public QDialog, private Ui::EditColorMap
 {
 public:
@@ -26,7 +26,7 @@ public:
 	GREEN_TO_RED
     };
 public:
-    EditPalette (QWidget* parent);
+    EditColorMap (QWidget* parent);
     void SetData (const QwtIntervalData& intervalData, double maxValue, 
 		  const char* axisTitle, const QwtLinearColorMap& colorMap);
 public Q_SLOTS:
