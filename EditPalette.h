@@ -9,10 +9,10 @@
 #ifndef __EDIT_PALETTE_H__
 #define __EDIT_PALETTE_H__
 
-#include "ui_EditPalette.h"
+#include "ui_EditColorMap.h"
 
 class EditPalette : 
-    public QDialog, private Ui::EditPalette
+    public QDialog, private Ui::EditColorMap
 {
 public:
     enum Palettes
