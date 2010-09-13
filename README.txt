@@ -3,7 +3,7 @@ Compile
 Linux
 -----
 Install using your system installation utility (yum, yast2, ...)
-libqt4-devel, boost-devel, bison, flex, libzip-devel
+libqt4-devel, boost-devel, bison, flex, libzip-devel, cmake
 
 Copy
 http://csgalati.swansea.ac.uk/foam/build/G3D-20100524.tgz to /usr/local
@@ -19,6 +19,16 @@ cd ~
 qmake
 make
 make install
+
+Copy http://csgalati.swansea.ac.uk/foam/build/VTK-5.6.0.tgz to /usr/local
+tar xzf VTK-5.6.0.tgz
+mkdir VTK-5.6.0-build
+cd VTK-5.6.0-build
+ccmake ../VTK-5.6.0
+press c twice to configure the build and then g to generate the makefile and exit
+make -j <number_of_processors> (or just make if you have one processor)
+make install
+
 
 Copy http://csgalati.swansea.ac.uk/foam/build/foam-<version>.tgz to ~
 cd ~
