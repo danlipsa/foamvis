@@ -46,6 +46,7 @@ This will generate a file called 'foamMovie.mp4'
 Release
 =======
 ./test.pl
+Set the major version in release.pl
 Commit everything. 
 Make sure 'svnversion' reports one version
 make distclean;release.pl;cd ..;tar czf foam-<version>.tgz foam
@@ -135,7 +136,7 @@ Release log
 	- Apply the VIEW_MATRIX rotation, so that foam and evolver produce
 	  the same view
         - added a few test files to test.pl
-0.1.
+0.2.
 	- Per property color map with clamping
 	- Added several color maps: rainbow, black body radiator, 
 	  blue-red diverging
