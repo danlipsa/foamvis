@@ -19,6 +19,9 @@
  * This project visualizes and helps gaining insights into foam
  * simulation data produced by Surface Evolver.
  *
+ * Source files and libraries:
+ * http://csgalati.swansea.ac.uk/foam/build
+ *
  * \verbinclude README.txt
  *
  * \section torus_sec Processing done for the Torus model
@@ -172,7 +175,7 @@ void printHelp ()
      * - 'svn commmit/update everyting in the current directory
      * - ./release.pl
      */
-    const char* version = "0.1.1476";
+    const char* version = "0.2.1487";
     cdbg << "foam version " << version << endl;
     cdbg << "foam [OPTIONS] <dir> <filter>\n";
     cdbg << "foam [OPTIONS] <file> ...\n";

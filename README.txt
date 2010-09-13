@@ -112,6 +112,33 @@ qt-4.6.2, bison-2.3, flex-2.5.35, boost-1.39, gcc-4.2.1
 
 Release log
 ===========
+0.2.1486
+	- Per property color map with clamping
+	- Added several color maps: rainbow, black body radiator, 
+	  blue-red diverging
+
+0.1.1476
+	- Handle significant space between expressions correctly
+	- Apply the VIEW_MATRIX rotation, so that foam and evolver produce
+	  the same view
+        - added a few test files to test.pl
+
+0.1.1462
+	- Added UI feedback for histogram bars that are taller than the 
+          height of the histogram. (a red cap)
+	- Histogram selection is reflected in time step selection,
+	  scrolling is done through all time steps not only through
+	  selected time steps (context)
+	- Added logarithmic scale for histogram
+	- Added color coded histograms
+	- Histogram selection is reflected in body selection and
+	  center path selection. Deselected bodies are displayed
+	  transparent in both Face and Center Path views
+
+0.1.1432
+	- Added user option to adjust the height of a histogram.
+	- Fixed histogram for center path
+
 0.1.1427
 	- parsing 2D and 3D dmp files
 	- support for torus model
@@ -124,30 +151,3 @@ Release log
 	- histogram of values of attributes
 	- histogram selection resulting in selection of time steps in the 
 	  face view
-
-0.1.1432
-	- Added user option to adjust the height of a histogram.
-	- Fixed histogram for center path
-
-0.1.1462
-	- Added UI feedback for histogram bars that are taller than the height of
-	  the histogram. (a red cap)
-	- Histogram selection is reflected in time step selection,
-	  scrolling is done through all time steps not only through
-	  selected time steps (context)
-	- Added logarithmic scale for histogram
-	- Added color coded histograms
-	- Histogram selection is reflected in body selection and
-	  center path selection. Deselected bodies are displayed
-	  transparent in both Face and Center Path views
-
-0.1.1476
-	- Handle significant space between expressions correctly
-	- Apply the VIEW_MATRIX rotation, so that foam and evolver produce
-	  the same view
-        - added a few test files to test.pl
-0.2.
-	- Per property color map with clamping
-	- Added several color maps: rainbow, black body radiator, 
-	  blue-red diverging
-
