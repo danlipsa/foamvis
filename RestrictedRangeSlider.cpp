@@ -70,6 +70,7 @@ void RestrictedRangeSlider::setupColorMap (const vector<bool>* selected)
 {
     vector<bool> all;
     const vector<bool>* v;
+    const size_t COLOR_BAR_WIDTH = 3;
     const QwtDoubleInterval interval (minimum (), maximum ());
     m_colorMap = boost::make_shared<QwtLinearColorMap> ();
     if (selected == 0)
@@ -89,7 +90,8 @@ void RestrictedRangeSlider::setupColorMap (const vector<bool>* selected)
 	m_colorMap->addColorStop (value, toColor ((*v)[i]));
     }
     scale->setColorMap (interval, *m_colorMap);
-    scale->setColorBarEnabled (true);
+    scale->setColorBarEnabled (false);
+    scale->setColorBarWidth (COLOR_BAR_WIDTH);
 }
 
 
@@ -117,6 +119,7 @@ void RestrictedRangeSlider::SetRestrictedTo (
     {
 	m_state = RESTRICTED_RANGE;
     }
+    scale->setColorBarEnabled (true);
     updateTitle ();
 }
 
@@ -125,6 +128,7 @@ void RestrictedRangeSlider::SetFullRange ()
     m_state = FULL_RANGE;
     m_toOriginalRange.resize (0);
     updateTitle ();
+    scale->setColorBarEnabled (false);
 }
 
 void RestrictedRangeSlider::updateTitle ()

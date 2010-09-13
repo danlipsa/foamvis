@@ -18,14 +18,12 @@ Histogram::Histogram (QWidget* parent) :
 		  QwtPlotPicker::NoRubberBand,
 		  QwtPicker::AlwaysOff,
 		  canvas()),
-    m_selectionTool (ERASER)
+    m_selectionTool (ERASER),
+    m_histogramHeight (new HistogramHeight (this))
 {
     setCanvasBackground(QColor(Qt::white));
     setAutoReplot ();
     setAxisTitle (QwtPlot::yLeft, QString("Number of values per bin"));
-
-    m_histogramHeight = 
-	boost::make_shared<HistogramHeight> (this);
 
     m_grid.enableXMin(true);
     m_grid.enableYMin(true);
@@ -40,10 +38,10 @@ Histogram::Histogram (QWidget* parent) :
 
     m_plotPicker.setEnabled (false);
 
-    connect(&m_plotPicker, SIGNAL(appended(const QwtDoublePoint&)),
-	    this, SLOT(SelectionPointAppended(const QwtDoublePoint&)));
-    connect(&m_plotPicker, SIGNAL(moved(const QwtDoublePoint&)),
-	    this, SLOT(SelectionPointMoved(const QwtDoublePoint&)));
+    connect(&m_plotPicker, SIGNAL(appended(const QPoint&)),
+	    this, SLOT(SelectionPointAppended(const QPoint&)));
+    connect(&m_plotPicker, SIGNAL(moved(const QPoint&)),
+	    this, SLOT(SelectionPointMoved(const QPoint&)));
     connect(&m_plotPicker, SIGNAL(selected(const QwtPolygon&)),
 	    this, SLOT(PolygonSelected (const QwtPolygon&)));
 }
@@ -57,7 +55,7 @@ size_t Histogram::getBin (double value)
 	data.interval (0).minValue (), data.interval (binCount - 1).maxValue ());
 }
 
-void Histogram::SelectionPointAppended (const QwtDoublePoint &canvasPos)
+void Histogram::SelectionPointAppended (const QPoint &canvasPos)
 {
     double value = invTransform(QwtPlot::xBottom, canvasPos.x());
     m_beginBinSelection = getBin (value);
@@ -65,7 +63,7 @@ void Histogram::SelectionPointAppended (const QwtDoublePoint &canvasPos)
 				 m_beginBinSelection, m_beginBinSelection + 1);
 }
 
-void Histogram::SelectionPointMoved (const QwtDoublePoint& canvasPos)
+void Histogram::SelectionPointMoved (const QPoint& canvasPos)
 {
     double value = invTransform(QwtPlot::xBottom, canvasPos.x());
     size_t begin = m_beginBinSelection;
@@ -208,9 +206,4 @@ void Histogram::SetItemsSelectionLow (bool selected, double value)
 {
     size_t end = getBin (value);
     m_histogramItem.setSelected (selected, 0, end + 1);
-}
-
-QwtDoublePoint Histogram::ToCanvas (const QPoint& point)
-{
-    return m_plotPicker.invTransform (point);
 }

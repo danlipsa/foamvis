@@ -64,6 +64,7 @@ Q_SIGNALS:
     void ColorBarModelChanged (ColorBarModel* colorBarModel);
 
 public Q_SLOTS:
+    void ColorBarModelChangedColorBar (ColorBarModel* colorBarModel);
     /**
      * Called when the Begin Slider button is pressed. Shows the first
      * data in the vector.
@@ -186,7 +187,7 @@ private:
 
     BodyProperty::Enum m_bodyProperty;
     HistogramType::Enum m_histogramType;
-    boost::shared_ptr<ColorBarModel> m_colorBarModel;
+    vector< boost::shared_ptr<ColorBarModel> > m_colorBarModel;
     boost::shared_ptr<EditColorMap> m_editColorMap;
 };
 

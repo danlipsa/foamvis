@@ -36,10 +36,10 @@ private:
 private:
     Q_OBJECT
 
-    boost::shared_ptr<QAction> m_actionHeightSettings;
-    boost::shared_ptr<QAction> m_actionClampHigh;
-    boost::shared_ptr<QAction> m_actionClampLow;
-    boost::shared_ptr<QAction> m_actionClampClear;
+    boost::scoped_ptr<QAction> m_actionHeightSettings;
+    boost::scoped_ptr<QAction> m_actionClampHigh;
+    boost::scoped_ptr<QAction> m_actionClampLow;
+    boost::scoped_ptr<QAction> m_actionClampClear;
     QwtDoublePoint m_pos;
 };
 

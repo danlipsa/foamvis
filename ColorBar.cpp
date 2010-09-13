@@ -19,14 +19,20 @@ ColorBar::ColorBar (QWidget* parent) :
 
 void ColorBar::createActions ()
 {
-    m_actionEditColorMap.reset (new QAction (
-				    tr("&Edit Color Map"), this));
+    m_actionEditColorMap.reset (
+	new QAction (tr("&Edit Color Map"), this));
     m_actionEditColorMap->setStatusTip(tr("Edit Color Map"));
     connect(m_actionEditColorMap.get (), SIGNAL(triggered()),
 	    this, SLOT(ShowEditColorMap ()));
+
+    m_actionClampClear.reset (
+	new QAction (tr("&Clamp Clear"), this));
+    m_actionClampClear->setStatusTip(tr("Clamp Clear"));
+    connect(m_actionClampClear.get (), SIGNAL(triggered()),
+	    this, SLOT(ClampClear ()));
 }
 
-void ColorBar::ColorBarModelChanged (ColorBarModel* model)
+void ColorBar::ColorBarModelChangedMainWindow (ColorBarModel* model)
 {
     *m_model = *model;
     QwtDoubleInterval interval = model->GetInterval ();
@@ -52,6 +58,7 @@ void ColorBar::contextMenuEvent (QContextMenuEvent *event)
 {
     QMenu menu (this);
     menu.addAction (m_actionEditColorMap.get ());
+    menu.addAction (m_actionClampClear.get ());
     menu.exec (event->globalPos());    
 }
 
@@ -61,4 +68,12 @@ void ColorBar::contextMenuEvent (QContextMenuEvent *event)
 void ColorBar::ShowEditColorMap ()
 {
     Q_EMIT EditColorMap ();
+}
+
+void ColorBar::ClampClear ()
+{
+    m_model->SetClampClear ();
+    m_model->SetupPalette (m_model->GetPalette ());
+    setColorMap (m_model->GetInterval (), m_model->GetColorMap ());
+    Q_EMIT ColorBarModelChanged (m_model.get ());
 }

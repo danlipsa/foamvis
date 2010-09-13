@@ -28,6 +28,12 @@ void EditColorMap::SetData (
 	intervalData, maxValue, m_colorBarModel.GetTitle ().toAscii ());
     widgetHistogram->SetColorMap (
 	m_colorBarModel.GetInterval (), m_colorBarModel.GetColorMap ());
+    QwtDoubleInterval interval = m_colorBarModel.GetInterval ();
+    QwtDoubleInterval clampValues = m_colorBarModel.GetClampValues ();
+    if (clampValues.minValue () > interval.minValue ())
+	widgetHistogram->SetItemsSelectionLow (false, clampValues.minValue ());
+    if (clampValues.maxValue () < interval.maxValue ())
+	widgetHistogram->SetItemsSelectionHigh (false, clampValues.maxValue ());
 }
 
 void EditColorMap::HighlightedPalette (int index)
@@ -46,6 +52,7 @@ void EditColorMap::ClampHigh (double value)
     m_colorBarModel.SetupPalette (m_colorBarModel.GetPalette ());
     widgetHistogram->SetColorMap (
 	m_colorBarModel.GetInterval (), m_colorBarModel.GetColorMap ());
+    widgetHistogram->SetItemsSelectionHigh (false, value);
 }
 
 void EditColorMap::ClampLow (double value)
@@ -54,6 +61,7 @@ void EditColorMap::ClampLow (double value)
     m_colorBarModel.SetupPalette (m_colorBarModel.GetPalette ());
     widgetHistogram->SetColorMap (
 	m_colorBarModel.GetInterval (), m_colorBarModel.GetColorMap ());
+    widgetHistogram->SetItemsSelectionLow (false, value);
 }
 
 void EditColorMap::ClampClear ()

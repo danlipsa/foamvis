@@ -136,5 +136,7 @@ Release log
 	  the same view
         - added a few test files to test.pl
 0.1.
-	
+	- Per property color map with clamping
+	- Added several color maps: rainbow, black body radiator, 
+	  blue-red diverging
 

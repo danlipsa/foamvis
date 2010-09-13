@@ -32,10 +32,15 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_currentBody (0),
     m_bodyProperty (BodyProperty::NONE),
     m_histogramType (HistogramType::NONE),
-    m_colorBarModel (new ColorBarModel ()),
+    m_colorBarModel (BodyProperty::COUNT),
     m_editColorMap (new EditColorMap (this))
 {
-    m_colorBarModel->SetupPalette (Palette::RAINBOW_TELEA);
+    BOOST_FOREACH (boost::shared_ptr<ColorBarModel>& colorBarModel,
+		   m_colorBarModel)
+    {
+	colorBarModel.reset (new ColorBarModel ());
+	colorBarModel->SetupPalette (Palette::RAINBOW);
+    }
 
     // for anti-aliased lines
     QGLFormat fmt;
@@ -432,8 +437,10 @@ void MainWindow::ToggledFacesNormal (bool checked)
 void MainWindow::changedColorBarInterval (BodyProperty::Enum bodyProperty)
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    m_colorBarModel->SetTitle (BodyProperty::ToString (bodyProperty));
-    m_colorBarModel->SetInterval (foamAlongTime.GetRange (bodyProperty));
+    m_colorBarModel[bodyProperty]->SetTitle (
+	BodyProperty::ToString (bodyProperty));
+    m_colorBarModel[bodyProperty]->SetInterval (
+	foamAlongTime.GetRange (bodyProperty));
 }
 
 void MainWindow::CurrentIndexChangedFacesColor (int value)
@@ -462,7 +469,7 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	    foamAlongTime.GetHistogram (bodyProperty, timeStep),
 	    foamAlongTime.GetMaxCountPerBinIndividual (bodyProperty));
 	changedColorBarInterval (bodyProperty);
-	Q_EMIT ColorBarModelChanged (m_colorBarModel.get ());
+	Q_EMIT ColorBarModelChanged (m_colorBarModel[bodyProperty].get ());
     }
     widgetGl->UpdateDisplayList ();
 }
@@ -491,7 +498,7 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	    bodyProperty,
 	    foamAlongTime.GetHistogram (bodyProperty),
 	    foamAlongTime.GetMaxCountPerBin (bodyProperty));
-	Q_EMIT ColorBarModelChanged (m_colorBarModel.get ());
+	Q_EMIT ColorBarModelChanged (m_colorBarModel[bodyProperty].get ());
     }
     widgetGl->UpdateDisplayList ();
 }
@@ -649,10 +656,15 @@ void MainWindow::ShowEditColorMap ()
     m_editColorMap->SetData (
 	foamAlongTime.GetHistogram (m_bodyProperty),
 	foamAlongTime.GetMaxCountPerBin (m_bodyProperty),
-	*m_colorBarModel);
+	*m_colorBarModel[m_bodyProperty]);
     if (m_editColorMap->exec () == QDialog::Accepted)
     {
-	*m_colorBarModel = m_editColorMap->GetColorBarModel ();
-	Q_EMIT ColorBarModelChanged (m_colorBarModel.get ());
+	*m_colorBarModel[m_bodyProperty] = m_editColorMap->GetColorBarModel ();
+	Q_EMIT ColorBarModelChanged (m_colorBarModel[m_bodyProperty].get ());
     }
+}
+
+void MainWindow::ColorBarModelChangedColorBar (ColorBarModel* colorBarModel)
+{
+    *m_colorBarModel[m_bodyProperty] = *colorBarModel;
 }

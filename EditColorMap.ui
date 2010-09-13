@@ -34,12 +34,7 @@
        <widget class="QComboBox" name="comboBoxPalette">
         <item>
          <property name="text">
-          <string>Rainbow Telea</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Rainbow HSV</string>
+          <string>Rainbow</string>
          </property>
         </item>
         <item>

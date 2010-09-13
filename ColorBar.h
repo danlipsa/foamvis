@@ -18,10 +18,12 @@ public:
 
 public Q_SLOTS:
     void ShowEditColorMap ();
-    void ColorBarModelChanged (ColorBarModel* colorBarModel);
+    void ClampClear ();
+    void ColorBarModelChangedMainWindow (ColorBarModel* colorBarModel);
 
 Q_SIGNALS:
     void EditColorMap ();
+    void ColorBarModelChanged (ColorBarModel* colorBarModel);
 
 protected:
     virtual void contextMenuEvent (QContextMenuEvent *event);
@@ -33,7 +35,9 @@ private:
     Q_OBJECT
 
     boost::scoped_ptr<ColorBarModel> m_model;
+
     boost::scoped_ptr<QAction> m_actionEditColorMap;
+    boost::scoped_ptr<QAction> m_actionClampClear;
 };
 
 #endif //__COLOR_BAR_H__

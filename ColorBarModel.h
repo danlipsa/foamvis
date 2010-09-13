@@ -15,14 +15,27 @@ class ColorBarModel
 {
 public:
     ColorBarModel ();
-    const QwtDoubleInterval& GetInterval () const
-    {
-	return m_interval;
-    }
     const QwtLinearColorMap& GetColorMap () const
     {
 	return m_colorMap;
     }
+    const QwtDoubleInterval& GetClampValues () const
+    {
+	return m_clampValues;
+    }
+    const QwtDoubleInterval& GetInterval () const
+    {
+	return m_interval;
+    }
+    const QString& GetTitle () const
+    {
+	return m_title;
+    }
+    Palette::Enum GetPalette () const
+    {
+	return m_palette;
+    }
+
 
     void SetInterval (QwtDoubleInterval interval)
     {
@@ -50,17 +63,8 @@ public:
     {
 	m_title = title;
     }
-    const QString& GetTitle () const
-    {
-	return m_title;
-    }
     
     void SetupPalette (Palette::Enum palette);
-    Palette::Enum GetPalette () const
-    {
-	return m_palette;
-    }
-
     QColor MapScalar (double value) const
     {
 	return m_colorMap.color (m_interval, value);
@@ -68,8 +72,10 @@ public:
 
 private:
     void setupPaletteRainbowTelea ();
-    void setupPaletteBlackBody ();
     void setupPaletteRainbowHSV ();
+    void setupPaletteRainbowLab ();
+
+    void setupPaletteBlackBody ();
     void setupPaletteDiverging (size_t c);
 
     template<typename ColorMapper>

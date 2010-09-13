@@ -70,6 +70,19 @@ ColorBarModel::ColorBarModel () :
 }
 
 
+void ColorBarModel::setupPaletteRainbowLab ()
+{
+    VTK_CREATE(vtkColorTransferFunction, rainbow);
+    rainbow->SetColorSpaceToLab();
+    rainbow->AddRGBPoint(0.0, 0, 0, 1);   // blue
+    rainbow->AddRGBPoint(0.25, 0, 1, 1);   // cyan
+    rainbow->AddRGBPoint(0.50, 0, 1, 0);   // green
+    rainbow->AddRGBPoint(0.75, 1, 1, 0);   // yellow
+    rainbow->AddRGBPoint(1.0, 1, 0, 0);   // red
+    setupColorMap (ColorTransferFunctionMapper (rainbow));    
+}
+
+
 void ColorBarModel::setupPaletteRainbowTelea ()
 {
     setupColorMap (RainbowTeleaMapper ());
@@ -80,11 +93,8 @@ void ColorBarModel::SetupPalette (Palette::Enum palette)
     m_palette = palette;
     switch (palette)
     {
-    case Palette::RAINBOW_TELEA:
-	setupPaletteRainbowTelea ();
-	break;
-    case Palette::RAINBOW_HSV:
-	setupPaletteRainbowHSV ();
+    case Palette::RAINBOW:
+	setupPaletteRainbowLab ();
 	break;
     case Palette::BLACK_BODY:
 	setupPaletteBlackBody ();
@@ -102,11 +112,11 @@ void ColorBarModel::SetupPalette (Palette::Enum palette)
 void ColorBarModel::setupPaletteBlackBody ()
 {
   VTK_CREATE(vtkColorTransferFunction, blackbody);
-  blackbody->SetColorSpaceToRGB();
-  blackbody->AddRGBPoint(0.0, 0.0, 0.0, 0.0);   // black
-  blackbody->AddRGBPoint(0.4, 0.9, 0.0, 0.0);   // red
-  blackbody->AddRGBPoint(0.8, 0.9, 0.9, 0.0);   // yellow
-  blackbody->AddRGBPoint(1.0, 1.0, 1.0, 1.0);   // white
+  blackbody->SetColorSpaceToLab();
+  blackbody->AddRGBPoint(0.0, 0, 0, 0);   // black
+  blackbody->AddRGBPoint(0.33, 1, 0, 0);   // red
+  blackbody->AddRGBPoint(0.66, 1, 1, 0);   // yellow
+  blackbody->AddRGBPoint(1.0, 1, 1, 1);   // white
   setupColorMap (ColorTransferFunctionMapper (blackbody));
 }
 
@@ -176,17 +186,22 @@ void ColorBarModel::setupColorMap (ColorMapper colorMapper)
 
 
 /*
- * @return 1 if value is between begin and end,
- *         0 if value is less than begin - 1 or greater than end + 1
- *         value linearly scaled between [0, 1] if value is in [begin - 1, begin]
- *         or [end, end+1]
+ * @return 1 if value is between heigh1 and heigh2
+ *         0 if value is less than low1 or greater than heigh2
+ *         value linearly scaled between [0, 1] if value is in [low1, heigh1]
+ *         or [heigh2, low2]
  */
-double trapezoid (double value, double begin, double end)
+double trapezoid (
+    double value,
+    double low1, double heigh1, double heigh2, double low2)
 {
-    double color = max (
-	0.0,
-	((end - begin + 2) - (abs (value - begin) + abs (value - end))) / 2);
-    return color;
+    if (value <= low1 || value >= low2)
+	return 0;
+    if (value > low1 && value < heigh1)
+	return (value - low1) / (heigh1 - low1);
+    if (value > heigh2 && value < low2)
+	return (low2 - value) / (low2 - heigh2);
+    return 1;
 }
 
 QColor RainbowTeleaMapper::operator() (double f)
@@ -197,8 +212,8 @@ QColor RainbowTeleaMapper::operator() (double f)
     f = (f < 0) ? 0 : (f > 1) ? 1 : f; // clamp f in [0, 1]
     double g = (6 - 2*dx) * f + dx;    // scale f to [dx, 6 - dx]
 
-    color.setRedF (trapezoid (g, 4, 5));
-    color.setGreenF (trapezoid (g, 2, 4));
-    color.setBlueF (trapezoid (g, 1, 2));
+    color.setRedF (trapezoid (g, 3, 3.8, 5, 6));
+    color.setGreenF (trapezoid (g, 1, 2.2, 3.8, 5));
+    color.setBlueF (trapezoid (g, 0, 1, 2.2, 3));
     return color;
 }
