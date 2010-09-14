@@ -59,15 +59,47 @@ public:
      * Destructs this object
      */
     ~ParsingData ();
-    /**
-     * Stores a variable name and value in the ParsingData object
-     * @param id  variable name. It  is allocated by the  lexer using
-     *         CreateIdentifier and it is dealocated by the ParsingData object
-     * @param value variable value
-     */
-    void SetVariable (const char* id, double value) 
+
+    void AddAttribute (const char* s)
     {
-	m_variables[id] = value;
+	m_attributes.insert (s);
+    }
+    void AddMethodOrQuantity (const char* s)
+    {
+	m_methodOrQuantity.insert (s);
+    }
+
+    void CloseParenthesis ()
+    {
+	--m_parenthesisCount;
+    }
+    /**
+     * Stores a string from the lexer for later use in the parser
+     * @param id string from the lexer
+     * @return a string pointer which is stored in ParsingData object
+     */
+    string* CreateIdentifier(const char* id);
+    /**
+     * Returns the binary function with the name supplied by the parameter
+     * @param name name of the function to be retrieved
+     * @return a binary function
+     */
+    BinaryFunction GetBinaryFunction (const char* name);
+    /**
+     * Gets all faces from this Foam
+     */
+    Faces& GetFaces () 
+    {
+	return m_faces;
+    }
+    const Faces& GetFaces () const
+    {
+	return m_faces;
+    }
+
+    boost::shared_ptr<Face>  GetFace (size_t i)
+    {
+	return m_faces[i];
     }
     /**
      * Retrieves a variable value
@@ -76,46 +108,11 @@ public:
      */
     double GetVariableValue (const char* name);
     /**
-     * Stores a string from the lexer for later use in the parser
-     * @param id string from the lexer
-     * @return a string pointer which is stored in ParsingData object
-     */
-    string* CreateIdentifier(const char* id);
-    /**
      * Returns the unary function with the name supplied by the parameter
      * @param name name of the function to be retrieved
      * @return a unary function
      */
     UnaryFunction GetUnaryFunction (const char* name);
-    /**
-     * Returns the binary function with the name supplied by the parameter
-     * @param name name of the function to be retrieved
-     * @return a binary function
-     */
-    BinaryFunction GetBinaryFunction (const char* name);
-    /**
-     * Used for  profiling. Prints to  the debug stream  a description
-     * and the time since the last checkpoint.  
-     * @param description what should be printed together with the time
-     */
-    bool IsAttribute (const char* s)
-    {
-	return m_attributes.find (s) != m_attributes.end ();
-    }
-    void AddAttribute (const char* s)
-    {
-	m_attributes.insert (s);
-    }
-    bool IsMethodOrQuantity (const char* s)
-    {
-	bool result = m_methodOrQuantity.find (s) != m_methodOrQuantity.end ();
-	return result;
-    }
-    void AddMethodOrQuantity (const char* s)
-    {
-	m_methodOrQuantity.insert (s);
-    }
-
     /**
      * Gets the vector of vertices
      * @return the vector of vertices
@@ -124,21 +121,6 @@ public:
     {
 	return m_vertices;
     }
-    Vertices& GetVertices ()
-    {
-	return m_vertices;
-    }
-    /**
-     * Stores a Vertex object a certain index in the Foam object
-     * @param i where to store the Vertex object
-     * @param x coordinate X of the Vertex object
-     * @param y coordinate Y of the Vertex object
-     * @param z coordinate Z of the Vertex object
-     * @param attributes the list of attributes for the vertex
-     */
-    void SetVertex (size_t i, double x, double y, double z,
-		    vector<NameSemanticValue*>& attributes,
-		    const AttributesInfo& attributesInfo);
     /**
      * Gets a Vertex from the Foam object
      * @param i index where the Vertex object is stored
@@ -156,6 +138,57 @@ public:
     {
 	return m_edges;
     }
+    Vertices& GetVertices ()
+    {
+	return m_vertices;
+    }
+    /**
+     * Used for  profiling. Prints to  the debug stream  a description
+     * and the time since the last checkpoint.  
+     * @param description what should be printed together with the time
+     */
+    bool IsAttribute (const char* s)
+    {
+	return m_attributes.find (s) != m_attributes.end ();
+    }
+    bool IsSpaceSignificant () const
+    {
+	return m_spaceSignificant && m_parenthesisCount == 0;
+    }
+    bool IsNewLineSignificant () const
+    {
+	return m_newLineSignificant;
+    }
+    bool IsMethodOrQuantity (const char* s)
+    {
+	bool result = m_methodOrQuantity.find (s) != m_methodOrQuantity.end ();
+	return result;
+    }
+    void OpenParenthesis ()
+    {
+	++m_parenthesisCount;
+    }
+    /**
+     * Stores a Vertex object a certain index in the Foam object
+     * @param i where to store the Vertex object
+     * @param x coordinate X of the Vertex object
+     * @param y coordinate Y of the Vertex object
+     * @param z coordinate Z of the Vertex object
+     * @param attributes the list of attributes for the vertex
+     */
+    void SetVertex (size_t i, double x, double y, double z,
+		    vector<NameSemanticValue*>& attributes,
+		    const AttributesInfo& attributesInfo);
+    /**
+     * Stores a variable name and value in the ParsingData object
+     * @param id  variable name. It  is allocated by the  lexer using
+     *         CreateIdentifier and it is dealocated by the ParsingData object
+     * @param value variable value
+     */
+    void SetVariable (const char* id, double value) 
+    {
+	m_variables[id] = value;
+    }
     /**
      * Stores an Edge object in the Foam object at a certain index
      * @param i index where to store the Edge object
@@ -168,22 +201,6 @@ public:
                   vector<NameSemanticValue*>& attributes,
 		  const AttributesInfo& attributesInfo,
 		  bool isQuadratic);
-    /**
-     * Gets all faces from this Foam
-     */
-    Faces& GetFaces () 
-    {
-	return m_faces;
-    }
-    const Faces& GetFaces () const
-    {
-	return m_faces;
-    }
-
-    boost::shared_ptr<Face>  GetFace (size_t i)
-    {
-	return m_faces[i];
-    }
     /**
      * Stores a Face object in the Foam object 
      * 
@@ -202,18 +219,10 @@ public:
     {
 	m_spaceSignificant = spaceSignificant;
     }
-    bool IsSpaceSignificant () const
+    void SetNewLineSignificant (bool newLineSignificant)
     {
-	return m_spaceSignificant && m_parenthesisCount == 0;
-    }
-    void OpenParenthesis ()
-    {
-	++m_parenthesisCount;
-    }
-    void CloseParenthesis ()
-    {
-	--m_parenthesisCount;
-    }
+	m_newLineSignificant = newLineSignificant;
+    }    
 
 public:
     /**
@@ -272,6 +281,7 @@ private:
     set<const char*, LessThanNoCase> m_methodOrQuantity;
     bool m_spaceSignificant;
     size_t m_parenthesisCount;
+    bool m_newLineSignificant;
 
 private:
     static const char* IMPLEMENTED_METHODS[];

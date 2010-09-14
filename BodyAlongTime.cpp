@@ -163,6 +163,9 @@ void BodiesAlongTime::Allocate (
 void BodiesAlongTime::Cache (boost::shared_ptr<Body>  body, size_t timeStep)
 {
     size_t id = body->GetId ();
+    RuntimeAssert (m_bodyMap[id] != 0, 
+		   "Body with id: ", id, 
+		   " (0 based) not defined in the first DMP file");
     m_bodyMap[id]->GetBody(timeStep) = body;
 }
 

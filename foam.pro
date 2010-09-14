@@ -96,6 +96,7 @@ LIBS += "-lX11"
 LIBS += "-lvtkFiltering"
 LIBS += "-lvtkCommon"
 LIBS += "-lvtksys"
+LIBS += "-ldl"
 }
 
 # Local Variables:

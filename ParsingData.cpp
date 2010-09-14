@@ -86,7 +86,8 @@ const char* ParsingData::IMPLEMENTED_METHODS[] =
 // ======================================================================
 ParsingData::ParsingData () :
     m_spaceSignificant (false),
-    m_parenthesisCount (0)
+    m_parenthesisCount (0),
+    m_newLineSignificant (false)
 {
     BinaryFunctionInformation BINARY_FUNCTION_INFORMATION[] = 
     {

@@ -82,6 +82,8 @@ class AttributeCreator;
 //    - add the correct rule in EvolverData.y
 %token PARAMETER "PARAMETER"
 %token PERIODS "PERIODS"
+%token DISPLAY_PERIODS "DISPLAY_PERIODS"
+%token DISPLAY_ORIGIN "DISPLAY_ORIGIN"
 %token VIEW_MATRIX "VIEW_MATRIX"
 %token VERTICES "VERTICES"
 %token EDGES "EDGES"
@@ -142,6 +144,7 @@ class AttributeCreator;
 %token E2 "E2"
 %token E3 "E3"
 %token FUNCTION "FUNCTION"
+%token PROCEDURE "PROCEDURE"
 %token NONNEGATIVE "NONNEGATIVE"
 %token NONPOSITIVE "NONPOSITIVE"
 %token FORMULA "FORMULA"
@@ -165,6 +168,7 @@ class AttributeCreator;
 %token <m_id> VOLUME "VOLUME"
 %token <m_id> VOLCONST "VOLCONST"
 %token <m_id> LAGRANGE_MULTIPLIER "LAGRANGE_MULTIPLIER"
+%token <m_id> PRESSURE "PRESSURE"
 %token <m_id> CONSTRAINTS "CONSTRAINTS"
 %token <m_id> DENSITY "DENSITY"
 %token <m_id> TENSION "TENSION"
@@ -237,6 +241,7 @@ class AttributeCreator;
 %type <m_int> edge_midpoint
 %type <m_id> constraints
 %type <m_id> tension_or_density
+%type <m_id> pressure_or_lagrange_multiplier
 
 %{
 #include "Foam.h"
@@ -263,7 +268,8 @@ ExpressionTree* uminusTree (ParsingData& parsingData, ExpressionTree* expr);
 
 %%
 datafile
-: nlstar header vertices 
+: nlstar header 
+vertices 
 {
     //foam.GetParsingData ().PrintTimeCheckpoint ("After vertices:");
 }
@@ -298,11 +304,14 @@ header
 | header clip_coefficients nlplus
 | header constraint
 | header torus_domain nlplus
+| header torus_display_periods nlplus 
+| header torus_display_origin nlstar
 | header length_method_name nlplus
 | header area_method_name nlplus
 | header quantity nlstar
 | header method_instance
 | header function_declaration nlplus
+| header procedure_declaration nlplus
 | header view_transform_generators
 | header integral_order_1d nlplus
 | header toggle nlplus
@@ -352,12 +361,12 @@ array_rest
 
 array_initializer
 : number
-| '{' array_initializer array_initializer_rest '}'
+| '{' array_initializer_list '}'
 ;
 
-array_initializer_rest
-: /* empty */
-| ',' array_initializer
+array_initializer_list
+: array_initializer
+| array_initializer_list ',' array_initializer
 ;
 
 toggle
@@ -488,6 +497,11 @@ function_declaration
 : FUNCTION function_return_type IDENTIFIER '(' 
   function_parameters ')' ';'
 ;
+
+procedure_declaration
+: PROCEDURE IDENTIFIER '(' function_parameters ')' ';'
+;
+
 
 function_return_type
 : INTEGER_TYPE 
@@ -842,6 +856,25 @@ torus_periods
 		     Vector3 ($7, $8, $9),
 		     Vector3 ($11, $12, $13));
 }
+
+torus_display_periods
+: DISPLAY_PERIODS nl
+  const_expr const_expr nl
+  const_expr const_expr
+| DISPLAY_PERIODS nl
+  const_expr const_expr const_expr nl
+  const_expr const_expr const_expr nl
+  const_expr const_expr const_expr
+;
+
+torus_display_origin
+: DISPLAY_ORIGIN nl number nl number nl torus_display_origin_rest
+;
+
+torus_display_origin_rest
+: /* empty */
+| number
+;
 
 vertices
 : VERTICES nlplus vertex_list
@@ -1276,7 +1309,7 @@ predefined_body_attribute
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
-| LAGRANGE_MULTIPLIER number 
+| pressure_or_lagrange_multiplier number 
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
@@ -1289,6 +1322,16 @@ predefined_body_attribute
 {
     $$ = 
 	new NameSemanticValue ($1->c_str (), $2);
+}
+
+pressure_or_lagrange_multiplier
+: LAGRANGE_MULTIPLIER
+{
+    $$ = $1;
+}
+| PRESSURE
+{
+    $$ = foam.GetParsingData ().CreateIdentifier ("LAGRANGE_MULTIPLIER");
 }
 
 

@@ -17,15 +17,21 @@ my @tests =
 
      "all_outside.fe",
      "dry_cross_4.fe",
+     "dump_0.1520_0.2400_8.0000_0600.dmp",
+     "dump_0.1520_0.2400_8.0000_0039.dmp",
      "ell0.900000_135v_4.000000_1.dmp",
      "flowerc_10_001c.dmp",
      "flower.fe",
      "hex.fe",
+     "hex_0016_9.643703.dmp",
      "outside.fe",
      "outside_first.fe",
      "outside_original.dmp",
+     "per_1_400v_0.0050_0.0005.dmp",
+     "saus_4h_703v_0.130000_0.065000_0.680678_0197.dmp",
      "tor2d.fe",
-     "twointor.fe"
+     "twointor.fe",
+     "wet_surface_vert.fe.dmp"
     );
 
 sub main ()

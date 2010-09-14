@@ -96,6 +96,12 @@ void ColorBarModel::SetupPalette (Palette::Enum palette)
     case Palette::RAINBOW:
 	setupPaletteRainbowLab ();
 	break;
+    case Palette::RAINBOW_HSV:
+	setupPaletteRainbowHSV ();
+	break;
+    case Palette::RAINBOW_TELEA:
+	setupPaletteRainbowTelea ();
+	break;
     case Palette::BLACK_BODY:
 	setupPaletteBlackBody ();
 	break;
@@ -206,14 +212,14 @@ double trapezoid (
 
 QColor RainbowTeleaMapper::operator() (double f)
 {
-    const double dx = .8;
+    const double dx = 1;
     QColor color;
 
     f = (f < 0) ? 0 : (f > 1) ? 1 : f; // clamp f in [0, 1]
     double g = (6 - 2*dx) * f + dx;    // scale f to [dx, 6 - dx]
 
-    color.setRedF (trapezoid (g, 3, 3.8, 5, 6));
-    color.setGreenF (trapezoid (g, 1, 2.2, 3.8, 5));
     color.setBlueF (trapezoid (g, 0, 1, 2.2, 3));
+    color.setGreenF (trapezoid (g, 1, 2.2, 3.8, 5));
+    color.setRedF (trapezoid (g, 3, 3.8, 5, 6));
     return color;
 }

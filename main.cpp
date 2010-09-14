@@ -67,6 +67,17 @@ always defined in the data file (it's not a duplicate).
  * An vertex is physical if it has 4 physical edges adjacent to it.
  *
  *
+ * \section Significant space
+ * Space is significant for matrices of expressions and for vertex components
+ * x, y, z.
+ *
+ * \section Significant new line
+ * @todo set new line significant only for list of vertices, edges, faces, bodies
+ * and for arrays (2d versus 3d)
+ *
+ *
+ *
+ *
  */
 
 

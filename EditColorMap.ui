@@ -39,6 +39,16 @@
         </item>
         <item>
          <property name="text">
+          <string>Rainbow HSV</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Rainbow Telea</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>Black body radiator</string>
          </property>
         </item>
