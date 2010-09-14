@@ -112,6 +112,9 @@ qt-4.6.2, bison-2.3, flex-2.5.35, boost-1.39, gcc-4.2.1
 
 Release log
 ===========
+0.2.1489
+	- Fixes in the parser and new tests added to test.pl
+
 0.2.1486
 	- Per property color map with clamping
 	- Added several color maps: rainbow, black body radiator, 
