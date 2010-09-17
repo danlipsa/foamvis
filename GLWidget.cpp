@@ -26,35 +26,88 @@
 /**
  * Stores information about various OpenGL characteristics of the graphic card
  */
-struct OpenGLParam
+class OpenGLFeature
 {
-    /**
-     * Reads an OpenGLParam from OpenGL
-     */
-    void get ()
+public:
+    enum Type
     {
-	glGetIntegerv (m_what, m_where);
+	BOOLEAN,
+	INTEGER,
+	STRING,
+	SEPARATOR
+    };
+
+    OpenGLFeature (GLenum what, Type type, const char* name) :
+	m_what (what), m_type (type), m_name (name)
+    {
     }
 
-    /**
-     * Prints an OpenGLParam
-     */
-    void print ()
+    OpenGLFeature (const char* name) :
+	m_what (0), m_type (SEPARATOR), m_name (name)
     {
-	qDebug () << m_name << ":" << *m_where;
     }
+
+
+    /**
+     * Reads an OpenGLFeature from OpenGL
+     */
+    string get () const
+    {
+	ostringstream ostr;
+	switch (m_type)
+	{
+	case INTEGER:
+	{
+	    GLint where;
+	    glGetIntegerv (m_what, &where);
+	    ostr << where;
+	    return ostr.str ();
+	}
+	
+	case BOOLEAN:
+	{
+	    GLboolean where;
+	    glGetBooleanv (m_what, &where);
+	    ostr << (where ? "true" : "false");
+	    return ostr.str ();
+	}
+	
+	case STRING:
+	    ostr << glGetString (m_what);
+	    return ostr.str ();
+	
+	case SEPARATOR:
+	    return "";
+	
+	default:
+	{
+	    ThrowException ("Invalid storage type for OpenGLFeature");
+	    return 0;
+	}
+	}
+    }
+
+    void print () const
+    {
+	cdbg << m_name;
+	if (m_what != 0)
+	    cdbg << ": " << get ();
+	cdbg << endl;
+    }
+
+private:
     /**
      * What OpenGL characteristic
      */
     GLenum m_what;
     /**
-     * Where to store information about that characteristic
+     * Data type of the required information
      */
-    GLint* m_where;
+    Type m_type;
     /**
      * Name of the OpenGL characteristic
      */
-    const char* m_name;
+    string m_name;
 };
 
 template<typename T>
@@ -96,39 +149,44 @@ void detectOpenGLError (string message = "")
  */
 void printOpenGLInfo ()
 {
-    GLboolean stereoSupport;
-    GLboolean doubleBufferSupport;
-    GLint auxBuffers;
-    GLint redBits, greenBits, blueBits, alphaBits;
-    GLint redBitsAccum, greenBitsAccum, blueBitsAccum, alphaBitsAccum;
-    GLint indexBits;
-    GLint depthBits;
-    GLint stencilBits;
-    boost::array<OpenGLParam, 12> info = {{
-        {GL_AUX_BUFFERS, &auxBuffers, "AUX_BUFFERS"},
-        {GL_RED_BITS, &redBits, "RED_BITS"},
-        {GL_GREEN_BITS, &greenBits, "GREEN_BITS"},
-        {GL_BLUE_BITS, &blueBits, "BLUE_BITS"},
-        {GL_ALPHA_BITS, &alphaBits, "ALPHA_BITS"},
-        {GL_ACCUM_RED_BITS, &redBitsAccum, "ACCUM_RED_BITS"},
-        {GL_ACCUM_GREEN_BITS, &greenBitsAccum, "ACCUM_GREEN_BITS"},
-        {GL_ACCUM_BLUE_BITS, &blueBitsAccum, "ACCUM_BLUE_BITS"},
-        {GL_ACCUM_ALPHA_BITS, &alphaBitsAccum, "ACCUM_ALPHA_BITS"},
-        {GL_INDEX_BITS, &indexBits, "INDEX_BITS"},
-        {GL_DEPTH_BITS, &depthBits, "DEPTH_BITS"},
-        {GL_STENCIL_BITS, &stencilBits, "STENCIL_BITS"},
-    }};
-    glGetBooleanv (GL_STEREO, &stereoSupport);
-    glGetBooleanv (GL_DOUBLEBUFFER, &doubleBufferSupport);
-    qDebug () << "OpenGL Engine" << endl
-	      << "Vendor:" << glGetString (GL_VENDOR) << endl
-	      << "Renderer:" << glGetString (GL_RENDERER) << endl
-	      << "Version:" << glGetString (GL_VERSION) << endl
-	      << "Stereo support:" << static_cast<bool>(stereoSupport) << endl
-	      << "Double buffer support:" 
-	      << static_cast<bool>(doubleBufferSupport) << endl;
-    for_each (info.begin (), info.end (), mem_fun_ref(&OpenGLParam::get));
-    for_each (info.begin (), info.end (), mem_fun_ref(&OpenGLParam::print));
+    boost::array<OpenGLFeature, 22> info = {{
+	OpenGLFeature (GL_VENDOR, OpenGLFeature::STRING, "GL_VENDOR"),
+	OpenGLFeature (GL_RENDERER, OpenGLFeature::STRING, "GL_RENDERER"),
+	OpenGLFeature (GL_VERSION, OpenGLFeature::STRING, "GL_VERSION"),
+	
+	OpenGLFeature ("--- Texture ---"),
+	OpenGLFeature (GL_MAX_TEXTURE_SIZE, OpenGLFeature::INTEGER,
+		       "GL_MAX_TEXTURE_SIZE"),
+	OpenGLFeature (GL_MAX_COLOR_ATTACHMENTS_EXT, OpenGLFeature::INTEGER,
+		       "GL_MAX_COLOR_ATTACHMENTS_EXT"),
+	OpenGLFeature ("--- Vertex Shader ---"),
+	OpenGLFeature (GL_MAX_VERTEX_ATTRIBS, OpenGLFeature::INTEGER,
+		       "GL_MAX_VERTEX_ATTRIBS"),
+
+	
+	OpenGLFeature (GL_AUX_BUFFERS, OpenGLFeature::INTEGER, "AUX_BUFFERS"),
+        OpenGLFeature (GL_RED_BITS, OpenGLFeature::INTEGER, "RED_BITS"),
+        OpenGLFeature (GL_GREEN_BITS, OpenGLFeature::INTEGER, "GREEN_BITS"),
+        OpenGLFeature (GL_BLUE_BITS, OpenGLFeature::INTEGER, "BLUE_BITS"),
+        OpenGLFeature (GL_ALPHA_BITS, OpenGLFeature::INTEGER, "ALPHA_BITS"),
+        OpenGLFeature (GL_ACCUM_RED_BITS, OpenGLFeature::INTEGER, 
+		       "ACCUM_RED_BITS"),
+        OpenGLFeature (GL_ACCUM_GREEN_BITS, OpenGLFeature::INTEGER, 
+		       "ACCUM_GREEN_BITS"),
+        OpenGLFeature (GL_ACCUM_BLUE_BITS, OpenGLFeature::INTEGER, 
+		       "ACCUM_BLUE_BITS"),
+        OpenGLFeature (GL_ACCUM_ALPHA_BITS, OpenGLFeature::INTEGER, 
+		       "ACCUM_ALPHA_BITS"),
+        OpenGLFeature (GL_INDEX_BITS, OpenGLFeature::INTEGER, "INDEX_BITS"),
+        OpenGLFeature (GL_DEPTH_BITS, OpenGLFeature::INTEGER, "DEPTH_BITS"),
+        OpenGLFeature (GL_STENCIL_BITS, OpenGLFeature::INTEGER, "STENCIL_BITS"),
+	
+	OpenGLFeature (GL_STEREO, OpenGLFeature::BOOLEAN, "GL_STEREO"),
+	OpenGLFeature (GL_DOUBLEBUFFER, OpenGLFeature::BOOLEAN,
+		       "GL_DOUBLEBUFFER")
+	}};
+    for_each (info.begin (), info.end (),
+	      boost::bind (&OpenGLFeature::print, _1));
 }
 
 
@@ -429,7 +487,7 @@ void GLWidget::initializeGL()
 {
     glClearColor (1., 1., 1., 0.);
     
-    //printOpenGLInfo ();
+    printOpenGLInfo ();
     GLWidget::disableLighting ();
     m_object = displayList (m_viewType);
     glEnable(GL_DEPTH_TEST);
