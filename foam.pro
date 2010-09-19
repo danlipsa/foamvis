@@ -54,13 +54,18 @@ LIBS += "C:\G3D-7.00-vc8\lib\G3Dd.lib"
 LIBS += "C:\G3D-7.00-vc8\lib\GLG3Dd.lib" 
  }
 else:macx {
-QMAKE_CXXFLAGS += -arch i686 -msse3 -mfpmath=sse
-QMAKE_LFLAGS += -arch i686
+#QMAKE_CXXFLAGS += -arch i686 -msse3 -mfpmath=sse
+#QMAKE_LFLAGS += -arch i686
+
 INCLUDEPATH += /usr/local/G3D-20100524/build/osx-i386-g++4.2/include
 INCLUDEPATH += /usr/local/boost_1_39_0
 INCLUDEPATH += /usr/local/qwt-5.2.1/include
+INCLUDEPATH += /usr/local/include/vtk-5.6
+LIBS += -L/usr/local/lib/vtk-5.6
+
 LIBS += -L/usr/local/G3D-20100524/build/osx-i386-g++4.2/lib
 LIBS += -L/usr/local/qwt-5.2.1/lib
+
 LIBS += "-lGLG3D" 
 LIBS += "-lG3D" 
 LIBS += "-ljpeg"
@@ -71,6 +76,9 @@ LIBS += "-lavcodec"
 LIBS += "-lavutil"
 LIBS += "-framework Carbon"
 LIBS += "-lqwt"
+LIBS += "-lvtkFiltering"
+LIBS += "-lvtkCommon"
+LIBS += "-lvtksys"
 }
 else:unix {
 INCLUDEPATH += /usr/local/G3D-20100524/build/linux-x86_64-g++4.4/include
