@@ -294,6 +294,12 @@ void MainWindow::processBodyTorusStep ()
 // Slots
 // ======================================================================
 
+void MainWindow::ToggledShowTimeSteps (bool checked)
+{
+    sliderTimeSteps->setVisible (checked);
+}
+
+
 void MainWindow::ClickedPlay ()
 {
     if (m_play)

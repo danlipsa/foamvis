@@ -30,6 +30,7 @@ public Q_SLOTS:
     void ClampHigh (double value);
     void ClampLow (double value);
     void ClampClear ();
+    void ToggledColorCodedHistogram(bool checked);
 
 private:
 

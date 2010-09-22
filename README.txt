@@ -6,12 +6,12 @@ Install using your system installation utility (yum, yast2, ...)
 libqt4-devel, boost-devel, bison, flex, libzip-devel, cmake
 
 Copy
-http://csgalati.swansea.ac.uk/foam/build/G3D-20100524.tgz to /usr/local
-cd /usr/local
-tar xzf G3D-20100524.tgz
-mv G3D G3D-20100524
-cd G3D-20100524
-./buildg3d
+http://csgalati.swansea.ac.uk/foam/build/G3D-8.00-src.zip to ~
+cd ~
+unzip /G3D-8.00-src.zip
+cd source
+./buildg3d --install all
+rm -rf source
 
 
 Copy http://csgalati.swansea.ac.uk/foam/build/qwt-5.2.1.tgz to ~

@@ -230,7 +230,7 @@ public Q_SLOTS:
 
     void ToggledTorusOriginalDomainDisplay (bool checked);
     void ToggledTorusOriginalDomainClipped (bool checked);
-    void ToggledBoundingBox (bool checked);
+    void ToggledShowBoundingBox (bool checked);
     void ValueChangedAngleOfView (int newIndex);
 
 public:

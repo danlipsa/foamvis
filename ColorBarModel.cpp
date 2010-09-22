@@ -70,7 +70,7 @@ ColorBarModel::ColorBarModel () :
 }
 
 
-void ColorBarModel::setupPaletteRainbowLab ()
+void ColorBarModel::setupPaletteRainbow ()
 {
     VTK_CREATE(vtkColorTransferFunction, rainbow);
     rainbow->SetColorSpaceToLab();
@@ -81,6 +81,20 @@ void ColorBarModel::setupPaletteRainbowLab ()
     rainbow->AddRGBPoint(1.0, 1, 0, 0);   // red
     setupColorMap (ColorTransferFunctionMapper (rainbow));    
 }
+
+void ColorBarModel::setupPaletteRainbowExtended ()
+{
+    VTK_CREATE(vtkColorTransferFunction, rainbow);
+    rainbow->SetColorSpaceToLab();
+    rainbow->AddRGBPoint(0.0, 1, 0, 1);   // magenta
+    rainbow->AddRGBPoint(0.2, 0, 0, 1);   // blue
+    rainbow->AddRGBPoint(0.4, 0, 1, 1);   // cyan
+    rainbow->AddRGBPoint(0.6, 0, 1, 0);   // green
+    rainbow->AddRGBPoint(0.8, 1, 1, 0);   // yellow
+    rainbow->AddRGBPoint(1.0, 1, 0, 0);   // red
+    setupColorMap (ColorTransferFunctionMapper (rainbow));    
+}
+
 
 
 void ColorBarModel::setupPaletteRainbowTelea ()
@@ -94,13 +108,10 @@ void ColorBarModel::SetupPalette (Palette::Enum palette)
     switch (palette)
     {
     case Palette::RAINBOW:
-	setupPaletteRainbowLab ();
+	setupPaletteRainbow ();
 	break;
-    case Palette::RAINBOW_HSV:
-	setupPaletteRainbowHSV ();
-	break;
-    case Palette::RAINBOW_TELEA:
-	setupPaletteRainbowTelea ();
+    case Palette::RAINBOW_EXTENDED:
+	setupPaletteRainbowExtended ();
 	break;
     case Palette::BLACK_BODY:
 	setupPaletteBlackBody ();

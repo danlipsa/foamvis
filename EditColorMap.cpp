@@ -44,6 +44,7 @@ void EditColorMap::HighlightedPalette (int index)
 	static_cast<Palette::Enum> (index));
     widgetHistogram->SetColorMap (
 	m_colorBarModel.GetInterval (), m_colorBarModel.GetColorMap ());
+    widgetHistogram->replot ();
 }
 
 void EditColorMap::ClampHigh (double value)
@@ -70,4 +71,10 @@ void EditColorMap::ClampClear ()
     m_colorBarModel.SetupPalette (m_colorBarModel.GetPalette ());
     widgetHistogram->SetColorMap (
 	m_colorBarModel.GetInterval (), m_colorBarModel.GetColorMap ());
+}
+
+void EditColorMap::ToggledColorCodedHistogram(bool checked)
+{
+    widgetHistogram->SetColorCoded (checked);
+    widgetHistogram->replot ();
 }

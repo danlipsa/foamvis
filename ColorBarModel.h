@@ -73,7 +73,8 @@ public:
 private:
     void setupPaletteRainbowTelea ();
     void setupPaletteRainbowHSV ();
-    void setupPaletteRainbowLab ();
+    void setupPaletteRainbow ();
+    void setupPaletteRainbowExtended ();
 
     void setupPaletteBlackBody ();
     void setupPaletteDiverging (size_t c);

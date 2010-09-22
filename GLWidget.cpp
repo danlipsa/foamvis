@@ -1173,7 +1173,7 @@ void GLWidget::UpdateDisplayList ()
 // Slots and slot like methods
 // ======================================================================
 
-void GLWidget::ToggledBoundingBox (bool checked)
+void GLWidget::ToggledShowBoundingBox (bool checked)
 {
     m_boundingBox = checked;
     UpdateDisplayList ();

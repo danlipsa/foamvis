@@ -81,11 +81,11 @@ LIBS += "-lvtkCommon"
 LIBS += "-lvtksys"
 }
 else:unix {
-INCLUDEPATH += /usr/local/G3D-20100524/build/linux-x86_64-g++4.4/include
+INCLUDEPATH += /usr/local/include
 INCLUDEPATH += /usr/local/qwt-5.2.1/include
 INCLUDEPATH += /usr/local/include/vtk-5.6
 
-LIBS += -L/usr/local/G3D-20100524/build/linux-x86_64-g++4.4/lib
+LIBS += -L/usr/local/lib
 LIBS += -L/usr/local/qwt-5.2.1/lib
 LIBS += -L/usr/local/lib/vtk-5.6
 

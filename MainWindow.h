@@ -64,6 +64,7 @@ Q_SIGNALS:
     void ColorBarModelChanged (ColorBarModel* colorBarModel);
 
 public Q_SLOTS:
+    void ToggledShowTimeSteps (bool checked);
     void ColorBarModelChangedColorBar (ColorBarModel* colorBarModel);
     /**
      * Called when the Begin Slider button is pressed. Shows the first

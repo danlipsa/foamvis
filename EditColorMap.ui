@@ -13,7 +13,10 @@
   <property name="windowTitle">
    <string>Edit Color Map</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0,0">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0,0,0,0">
+   <item>
+    <widget class="TransferFunctionHistogram" name="widgetHistogram" native="true"/>
+   </item>
    <item>
     <widget class="QWidget" name="widget" native="true">
      <property name="sizePolicy">
@@ -39,12 +42,7 @@
         </item>
         <item>
          <property name="text">
-          <string>Rainbow HSV</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Rainbow Telea</string>
+          <string>Rainbow extended</string>
          </property>
         </item>
         <item>
@@ -96,7 +94,11 @@
     </widget>
    </item>
    <item>
-    <widget class="TransferFunctionHistogram" name="widgetHistogram" native="true"/>
+    <widget class="QCheckBox" name="checkBox">
+     <property name="text">
+      <string>Color Coded Histogram</string>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
@@ -225,11 +227,28 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>EditColorMap</receiver>
+   <slot>ToggledColorCodedHistogram(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>179</x>
+     <y>67</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>533</x>
+     <y>45</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>HighlightedPalette(int)</slot>
   <slot>ClampHigh(double)</slot>
   <slot>ClampLow(double)</slot>
   <slot>ClampClear()</slot>
+  <slot>ToggledColorCodedHistogram(bool)</slot>
  </slots>
 </ui>
