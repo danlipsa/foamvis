@@ -3,7 +3,17 @@ Compile
 Linux
 -----
 Install using your system installation utility (yum, yast2, ...)
-libqt4-devel, boost-devel, bison, flex, libzip-devel, cmake
+boost-devel, bison, flex, libzip-devel, cmake
+
+Copy http://csgalati.swansea.ac.uk/foam/build/qt-everywhere-opensource-src-4.7.0.tar.gz to ~
+cd ~
+tar xzf qt-everywhere-opensource-src-4.7.0.tar.gz
+cd qt-everywhere-opensource-src-4.7.0
+./configure
+make
+su <password>
+make install
+
 
 Copy
 http://csgalati.swansea.ac.uk/foam/build/G3D-8.00-src.zip to ~
@@ -36,6 +46,9 @@ tar xzf foam-<version>.tgz
 cd foam
 qmake
 make
+
+PATH=/usr/local/Trolltech/Qt-4.7.0/bin:$PATH; export PATH
+LD_LIBRARY_PATH=/usr/local/qwt-5.2.1/lib:$LD_LIBRARY_PATH; export LD_LIBRARY_PATH
 
 Windows
 -------

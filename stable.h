@@ -59,7 +59,6 @@
 #include <GLG3D/GL/glew.h>
 
 // Qt headers
-#include <Qt>
 #include <QApplication>
 #include <QtOpenGL>
 #include <QtConcurrentMap>

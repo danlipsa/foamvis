@@ -81,6 +81,8 @@ private:
 
     template<typename ColorMapper>
     void setupColorMap (ColorMapper colorMapper);
+    template<typename ColorMapper>
+    void setupImage (ColorMapper colorMapper);
 
 
 private:
@@ -89,6 +91,7 @@ private:
 private:
     Palette::Enum m_palette;
     QwtLinearColorMap m_colorMap;
+    boost::scoped_ptr<QImage> m_image;
     QwtDoubleInterval m_interval;
     QwtDoubleInterval m_clampValues;
     QString m_title;

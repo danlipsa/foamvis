@@ -20,16 +20,16 @@
  *
  */
 
-class RainbowTeleaMapper
+class ColorMapperRainbowTelea
 {
 public:
     QColor operator() (double value);
 };
 
-class ColorTransferFunctionMapper
+class ColorMapperVtkColorTransferFunction
 {
 public:
-    ColorTransferFunctionMapper (
+    ColorMapperVtkColorTransferFunction (
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction) :
 	m_colorTransferFunction (colorTransferFunction)
     {
@@ -51,7 +51,7 @@ private:
 void testColorMap ()
 {
     cdbg << "Test Color map:" << endl;
-    RainbowTeleaMapper rainbowTeleaMapper;
+    ColorMapperRainbowTelea rainbowTeleaMapper;
     for (size_t i = 0; i <= 12; i++)
     {
 	double value = static_cast<double>(i) / 2;
@@ -79,7 +79,7 @@ void ColorBarModel::setupPaletteRainbow ()
     rainbow->AddRGBPoint(0.50, 0, 1, 0);   // green
     rainbow->AddRGBPoint(0.75, 1, 1, 0);   // yellow
     rainbow->AddRGBPoint(1.0, 1, 0, 0);   // red
-    setupColorMap (ColorTransferFunctionMapper (rainbow));    
+    setupColorMap (ColorMapperVtkColorTransferFunction (rainbow));    
 }
 
 void ColorBarModel::setupPaletteRainbowExtended ()
@@ -92,14 +92,14 @@ void ColorBarModel::setupPaletteRainbowExtended ()
     rainbow->AddRGBPoint(0.6, 0, 1, 0);   // green
     rainbow->AddRGBPoint(0.8, 1, 1, 0);   // yellow
     rainbow->AddRGBPoint(1.0, 1, 0, 0);   // red
-    setupColorMap (ColorTransferFunctionMapper (rainbow));    
+    setupColorMap (ColorMapperVtkColorTransferFunction (rainbow));    
 }
 
 
 
 void ColorBarModel::setupPaletteRainbowTelea ()
 {
-    setupColorMap (RainbowTeleaMapper ());
+    setupColorMap (ColorMapperRainbowTelea ());
 }
 
 void ColorBarModel::SetupPalette (Palette::Enum palette)
@@ -134,7 +134,7 @@ void ColorBarModel::setupPaletteBlackBody ()
   blackbody->AddRGBPoint(0.33, 1, 0, 0);   // red
   blackbody->AddRGBPoint(0.66, 1, 1, 0);   // yellow
   blackbody->AddRGBPoint(1.0, 1, 1, 1);   // white
-  setupColorMap (ColorTransferFunctionMapper (blackbody));
+  setupColorMap (ColorMapperVtkColorTransferFunction (blackbody));
 }
 
 void ColorBarModel::setupPaletteRainbowHSV ()
@@ -144,11 +144,16 @@ void ColorBarModel::setupPaletteRainbowHSV ()
   rainbow->HSVWrapOff();
   rainbow->AddHSVPoint(0.0, 0.66667, 1.0, 1.0); // blue
   rainbow->AddHSVPoint(1.0, 0.0, 1.0, 1.0);     // red
-  setupColorMap (ColorTransferFunctionMapper (rainbow));
+  setupColorMap (ColorMapperVtkColorTransferFunction (rainbow));
 }
 
 
-
+/**
+ * Kenneth Moreland. "Diverging Color Maps for Scientific Visualization." 
+ * In Proceedings of the 5th International Symposium on Visual Computing, 
+ * December 2009.
+ * http://www.cs.unm.edu/~kmorel/documents/ColorMaps/index.html
+ */
 void ColorBarModel::setupPaletteDiverging (size_t c)
 {
     const static double colors[][2][3] = 
@@ -176,7 +181,7 @@ void ColorBarModel::setupPaletteDiverging (size_t c)
 	0.0, colors[c][0][0], colors[c][0][1], colors[c][0][2]);
     colorTransferFunction->AddRGBPoint(
 	1.0, colors[c][1][0], colors[c][1][1], colors[c][1][2]);
-    setupColorMap (ColorTransferFunctionMapper (colorTransferFunction));
+    setupColorMap (ColorMapperVtkColorTransferFunction (colorTransferFunction));
 }
 
 template<typename ColorMapper>
@@ -201,6 +206,26 @@ void ColorBarModel::setupColorMap (ColorMapper colorMapper)
 }
 
 
+template<typename ColorMapper>
+void ColorBarModel::setupImage (ColorMapper colorMapper)
+{
+    m_image.reset (new QImage (COLORS, 1, QImage::Format_RGB32));
+    m_colorMap.setColorInterval (colorMapper (0), colorMapper (1));
+    double width = m_interval.width ();
+    double low = (m_clampValues.minValue () -  m_interval.minValue ()) / width;
+    double high = (m_clampValues.maxValue () -  m_interval.minValue ()) / width;
+    size_t colors = COLORS - 1;
+    for (size_t i = 0; i <= colors; i++)
+    {
+	double value = static_cast<double>(i) / colors;
+	if (value <= low)
+	    m_image->setPixel (i, colorMapper (0).rgb ());
+	else if (value >= high)
+	    m_image->setPixel (i, colorMapper (1).rgb ());
+    }
+}
+
+
 
 /*
  * @return 1 if value is between heigh1 and heigh2
@@ -221,7 +246,7 @@ double trapezoid (
     return 1;
 }
 
-QColor RainbowTeleaMapper::operator() (double f)
+QColor ColorMapperRainbowTelea::operator() (double f)
 {
     const double dx = 1;
     QColor color;
