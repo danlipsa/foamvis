@@ -23,7 +23,8 @@ public Q_SLOTS:
     void SelectAll ();
     void DeselectAll ();
     void CurrentIndexChangedInteractionMode (int index);
-    void ColorBarModelChanged (ColorBarModel* colorBarModel);
+    void ColorBarModelChanged (
+	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event);

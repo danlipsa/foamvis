@@ -72,7 +72,8 @@ void AttributeHistogram::createActions ()
 	    this, SLOT(HistogramHeightDialog ()));
 }
 
-void AttributeHistogram::ColorBarModelChanged (ColorBarModel* colorBarModel)
+void AttributeHistogram::ColorBarModelChanged (
+    boost::shared_ptr<ColorBarModel> colorBarModel)
 {
     SetColorMap (colorBarModel->GetInterval (), colorBarModel->GetColorMap ());
     replot ();

@@ -114,7 +114,7 @@ protected:
 		}
 		else
 		    color = m_glWidget.GetNotAvailableFaceColor ();
-		m_glWidget.qglColor (color);
+		glColor (color);
 	    }
 	}
 	else

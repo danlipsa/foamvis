@@ -4,8 +4,8 @@
  * 
  * Template function definitions that apply to Vertex, Edge, Face and Body.
  */
-#ifndef __ELEMENT_UTILS_H__
-#define __ELEMENT_UTILS_H__
+#ifndef __UTILS_H__
+#define __UTILS_H__
 
 /**
  * Pretty prints a G3D::AABox
@@ -19,6 +19,8 @@ ostream& operator<< (ostream& ostr, const QwtDoubleInterval& interval);
 ostream& operator<< (ostream& ostr, const vector<bool>& v);
 ostream& operator<< (ostream& ostr, const G3D::Matrix4& m);
 ostream& operator<< (ostream& ostr, const G3D::Vector4& v);
+
+void glColor (const QColor& color);
 
 template<typename U, typename V>
 ostream& operator<< (ostream& ostr, const pair<U, V>& p)
@@ -38,18 +40,6 @@ inline void glTranslate (const G3D::Vector3& translate)
 void Scale (G3D::AABox* aabox, double change);
 void Scale (G3D::Rect2D* aabox, double change);
 void EncloseRotation (G3D::AABox* aabox);
-/**
- * Returns the luminance of a color using a formula from 
- * The Visualization Toolkit, 4th edition,
- * An Object-Oriented Approach to 3D Graphics
- * Will Schroeder, Ken Martin, Bill Lorensen
- * Section 8.9 Scalars and Color, page 295
- */
-inline double Luminance (const QColor& color)
-{
-    return color.alphaF () * 
-	(0.3 * color.redF () + 0.59 * color.greenF () + 0.11 * color.blueF ());
-}
 
 template <typename Container, 
 	  typename ContainerIterator,
@@ -72,7 +62,7 @@ ContainerIterator fuzzyFind (const Container& s, const ContainerKeyType& x)
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 
-#endif //__ELEMENT_UTILS_H__
+#endif //__UTILS_H__
 
 // Local Variables:
 // mode: c++

@@ -156,7 +156,7 @@ protected:
 	const Vertex* begin = e->GetBegin ().get ();
 	const Vertex* end = e->GetEnd ().get ();
 	G3D::Vector3int16 endLocation = e->GetEndTranslation ();
-	m_glWidget.qglColor (m_glWidget.GetEndTranslationColor (endLocation));
+	glColor (m_glWidget.GetEndTranslationColor (endLocation));
 	if (endLocation != Vector3int16Zero)
 	    displayArrow() (
 		m_glWidget.GetQuadricObject (), 

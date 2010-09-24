@@ -226,7 +226,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_notAvailableFaceColor (Qt::white),
       m_bodySelector (new CycleSelector (*this)),
       m_useColorMap (false),
-      m_colorBarModel (new ColorBarModel ())
+      m_colorBarModel (new ColorBarModel ()),
+      m_colorBarTexture (0)
 {
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
     const int POSSIBILITIES = 3; //domain increment can be *, - or +
@@ -487,7 +488,7 @@ void GLWidget::initializeGL()
 {
     glClearColor (1., 1., 1., 0.);
     
-    printOpenGLInfo ();
+    //printOpenGLInfo ();
     GLWidget::disableLighting ();
     m_object = displayList (m_viewType);
     glEnable(GL_DEPTH_TEST);
@@ -497,7 +498,7 @@ void GLWidget::initializeGL()
     glEnable (GL_LINE_SMOOTH);
     glEnable (GL_POINT_SMOOTH);
     projectionTransformation ();
-
+    initializeTextures ();
 }
 
 void GLWidget::paintGL()
@@ -621,7 +622,7 @@ void GLWidget::displayBox (const OOBox& oobox) const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
     glLineWidth (1.0);
-    qglColor (QColor (Qt::black));
+    glColor (QColor (Qt::black));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 
     displayOpositeFaces (G3D::Vector3::zero (), 
@@ -651,15 +652,15 @@ void GLWidget::displayAxes () const
     Vector3 third = origin + diagonal.z * Vector3::unitZ ();
     glBegin (GL_LINES);
 
-    qglColor (QColor (Qt::red));
+    glColor (QColor (Qt::red));
     glVertex (origin);
     glVertex (first);
 
-    qglColor (QColor (Qt::green));
+    glColor (QColor (Qt::green));
     glVertex (origin);
     glVertex (second);
 
-    qglColor (QColor (Qt::blue));
+    glColor (QColor (Qt::blue));
     glVertex (origin);
     glVertex (third);
     glEnd ();
@@ -671,7 +672,7 @@ void GLWidget::displayBox (const G3D::AABox& aabb) const
     using G3D::Vector3;
     glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
     glLineWidth (1.0);
-    qglColor (QColor (Qt::black));
+    glColor (QColor (Qt::black));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     Vector3 diagonal = aabb.high () - aabb.low ();
     Vector3 first = diagonal.x * Vector3::unitX ();
@@ -772,7 +773,7 @@ void GLWidget::displayCenterOfBodies () const
     {
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
 	glPointSize (4.0);
-	qglColor (QColor (Qt::red));
+	glColor (QColor (Qt::red));
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	for_each (bodies.begin (), bodies.end (), 
 		  DisplayBodyCenter (*this, *m_bodySelector));
@@ -1163,6 +1164,7 @@ size_t GLWidget::GetDisplayedEdgeId () const
 
 void GLWidget::UpdateDisplayList ()
 {
+    makeCurrent ();
     glDeleteLists(m_object, 1);
     m_object = displayList (m_viewType);
     updateGL ();
@@ -1371,8 +1373,31 @@ QColor GLWidget::MapScalar (double value) const
 	return Qt::black;
 }
 
-void GLWidget::ColorBarModelChanged (ColorBarModel* colorBarModel)
+void GLWidget::ColorBarModelChanged (
+    boost::shared_ptr<ColorBarModel> colorBarModel)
 {
-    *m_colorBarModel = *colorBarModel;
+    m_colorBarModel = colorBarModel;    
+    const QImage image = colorBarModel->GetImage ();
+    makeCurrent ();
     UpdateDisplayList ();
+
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, image.width (), 
+		 0, GL_RGBA, GL_UNSIGNED_INT, image.scanLine (0));
+}
+
+void GLWidget::initializeTextures ()
+{
+    // image data is 4 bytes alligned?
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+    // we store images 1 byte per component.
+    glPixelTransferf (GL_RED_SCALE, 1.0 / 255.0);
+    glPixelTransferf (GL_GREEN_SCALE, 1.0 / 255.0);
+    glPixelTransferf (GL_BLUE_SCALE, 1.0 / 255.0);
+
+    glGenTextures(1, &m_colorBarTexture);
+    glBindTexture(GL_TEXTURE_1D, m_colorBarTexture);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);    
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 }

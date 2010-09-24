@@ -32,9 +32,10 @@ void ColorBar::createActions ()
 	    this, SLOT(ClampClear ()));
 }
 
-void ColorBar::ColorBarModelChangedMainWindow (ColorBarModel* model)
+void ColorBar::ColorBarModelChangedMainWindow (
+    boost::shared_ptr<ColorBarModel> model)
 {
-    *m_model = *model;
+    m_model = model;
     QwtDoubleInterval interval = model->GetInterval ();
     QwtLinearScaleEngine scaleEngine;
     QwtScaleDiv scaleDiv;
@@ -75,5 +76,5 @@ void ColorBar::ClampClear ()
     m_model->SetClampClear ();
     m_model->SetupPalette (m_model->GetPalette ());
     setColorMap (m_model->GetInterval (), m_model->GetColorMap ());
-    Q_EMIT ColorBarModelChanged (m_model.get ());
+    Q_EMIT ColorBarModelChanged (m_model);
 }

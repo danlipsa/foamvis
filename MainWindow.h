@@ -61,11 +61,10 @@ public:
 	MaxValueOperation maxValueOperation = REPLACE_MAX_VALUE);
 
 Q_SIGNALS:
-    void ColorBarModelChanged (ColorBarModel* colorBarModel);
+    void ColorBarModelChanged (boost::shared_ptr<ColorBarModel> colorBarModel);
 
 public Q_SLOTS:
     void ToggledShowTimeSteps (bool checked);
-    void ColorBarModelChangedColorBar (ColorBarModel* colorBarModel);
     /**
      * Called when the Begin Slider button is pressed. Shows the first
      * data in the vector.
@@ -118,6 +117,7 @@ public Q_SLOTS:
      */
     void ValueChangedSliderTimeSteps (int value);
 private:
+    void connectColorBarModelChanged ();
     /**
      * Enables/Disables the Begin button
      * @param enable true to enable and false to disable the button

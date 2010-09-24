@@ -209,10 +209,15 @@ public:
     void ToggledCenterPath (bool checked);
     void CurrentIndexChangedCenterPathColor (int value);
     void CurrentIndexChangedFacesColor (int value);
+    GLuint GetColorBarTexture () const
+    {
+	return m_colorBarTexture;
+    }
 
 
 public Q_SLOTS:
-    void ColorBarModelChanged(ColorBarModel* colorBarModel);
+    void ColorBarModelChanged(
+	boost::shared_ptr<ColorBarModel> colorBarModel);
     void ResetTransformation ();
     void ChangePalette ();
     void SelectAll ();
@@ -316,6 +321,7 @@ private:
     void viewingTransformation () const;
     void modelingTransformation () const;
     G3D::AABox calculateCenteredViewingVolume () const;
+    void initializeTextures ();
     void calculateCameraDistance ();
     /**
      * Generates a display list for a certain kind of objects
@@ -513,7 +519,8 @@ private:
     // owned by GLWidget
     boost::shared_ptr<QAction> m_actionResetTransformation;
     bool m_useColorMap;
-    boost::scoped_ptr<ColorBarModel> m_colorBarModel;
+    boost::shared_ptr<ColorBarModel> m_colorBarModel;
+    GLuint m_colorBarTexture;
 };
 
 #endif //__GLWIDGET_H__

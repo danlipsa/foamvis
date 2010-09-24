@@ -78,7 +78,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="ColorBar" name="colorBar"/>
+             <widget class="ColorBar" name="colorBar" native="true"/>
             </item>
             <item>
              <widget class="GLWidget" name="widgetGl" native="true">
@@ -819,7 +819,6 @@
     <slot>ToggledBoundingBox(bool)</slot>
     <slot>ValueChangedAngleOfView(int)</slot>
     <slot>CurrentIndexChangedInteractionMode(int)</slot>
-    <slot>ColorBarModelChanged(ColorBarModel*)</slot>
     <slot>ToggledShowBoundingBox(bool)</slot>
    </slots>
   </customwidget>
@@ -840,7 +839,6 @@
    <slots>
     <signal>selectionChanged()</signal>
     <slot>CurrentIndexChangedInteractionMode(int)</slot>
-    <slot>ColorBarModelChanged(ColorBarModel*)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -849,8 +847,6 @@
    <header>ColorBar.h</header>
    <slots>
     <signal>EditColorMap()</signal>
-    <signal>ColorBarModelChanged(ColorBarModel*)</signal>
-    <slot>ColorBarModelChangedMainWindow(ColorBarModel*)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1324,102 +1320,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>Window</sender>
-   <signal>ColorBarModelChanged(ColorBarModel*)</signal>
-   <receiver>colorBar</receiver>
-   <slot>ColorBarModelChangedMainWindow(ColorBarModel*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>179</x>
-     <y>7</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>32</x>
-     <y>148</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Window</sender>
-   <signal>ColorBarModelChanged(ColorBarModel*)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ColorBarModelChanged(ColorBarModel*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>290</x>
-     <y>8</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>281</x>
-     <y>244</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Window</sender>
-   <signal>ColorBarModelChanged(ColorBarModel*)</signal>
-   <receiver>widgetHistogram</receiver>
-   <slot>ColorBarModelChanged(ColorBarModel*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>381</x>
-     <y>7</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>285</x>
-     <y>816</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>colorBar</sender>
-   <signal>ColorBarModelChanged(ColorBarModel*)</signal>
-   <receiver>Window</receiver>
-   <slot>ColorBarModelChangedColorBar(ColorBarModel*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>38</x>
-     <y>482</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>77</x>
-     <y>790</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>colorBar</sender>
-   <signal>ColorBarModelChanged(ColorBarModel*)</signal>
-   <receiver>widgetHistogram</receiver>
-   <slot>ColorBarModelChanged(ColorBarModel*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>37</x>
-     <y>376</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>87</x>
-     <y>816</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>colorBar</sender>
-   <signal>ColorBarModelChanged(ColorBarModel*)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ColorBarModelChanged(ColorBarModel*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>38</x>
-     <y>462</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>134</x>
-     <y>470</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkBoxTimeSteps</sender>
    <signal>toggled(bool)</signal>
    <receiver>Window</receiver>
@@ -1437,7 +1337,6 @@
   </connection>
  </connections>
  <slots>
-  <signal>ColorBarModelChanged(ColorBarModel*)</signal>
   <slot>ClickedBegin()</slot>
   <slot>ClickedEnd()</slot>
   <slot>ClickedPlay()</slot>
@@ -1453,7 +1352,6 @@
   <slot>SelectionChangedHistogram()</slot>
   <slot>ButtonClickedHistogram(int)</slot>
   <slot>ShowEditColorMap()</slot>
-  <slot>ColorBarModelChangedColorBar(ColorBarModel*)</slot>
   <slot>ToggledShowTimeSteps(bool)</slot>
  </slots>
  <buttongroups>

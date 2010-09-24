@@ -64,6 +64,7 @@ const size_t ColorBarModel::COLORS = 256;
 
 ColorBarModel::ColorBarModel () :
     m_palette (Palette::FIRST),
+    m_image (COLORS, 1, QImage::Format_RGB32),
     m_interval (0, 1),
     m_clampValues (0, 1)
 {
@@ -79,7 +80,7 @@ void ColorBarModel::setupPaletteRainbow ()
     rainbow->AddRGBPoint(0.50, 0, 1, 0);   // green
     rainbow->AddRGBPoint(0.75, 1, 1, 0);   // yellow
     rainbow->AddRGBPoint(1.0, 1, 0, 0);   // red
-    setupColorMap (ColorMapperVtkColorTransferFunction (rainbow));    
+    setup (ColorMapperVtkColorTransferFunction (rainbow));
 }
 
 void ColorBarModel::setupPaletteRainbowExtended ()
@@ -92,14 +93,14 @@ void ColorBarModel::setupPaletteRainbowExtended ()
     rainbow->AddRGBPoint(0.6, 0, 1, 0);   // green
     rainbow->AddRGBPoint(0.8, 1, 1, 0);   // yellow
     rainbow->AddRGBPoint(1.0, 1, 0, 0);   // red
-    setupColorMap (ColorMapperVtkColorTransferFunction (rainbow));    
+    setup (ColorMapperVtkColorTransferFunction (rainbow));    
 }
 
 
 
 void ColorBarModel::setupPaletteRainbowTelea ()
 {
-    setupColorMap (ColorMapperRainbowTelea ());
+    setup (ColorMapperRainbowTelea ());
 }
 
 void ColorBarModel::SetupPalette (Palette::Enum palette)
@@ -134,7 +135,7 @@ void ColorBarModel::setupPaletteBlackBody ()
   blackbody->AddRGBPoint(0.33, 1, 0, 0);   // red
   blackbody->AddRGBPoint(0.66, 1, 1, 0);   // yellow
   blackbody->AddRGBPoint(1.0, 1, 1, 1);   // white
-  setupColorMap (ColorMapperVtkColorTransferFunction (blackbody));
+  setup (ColorMapperVtkColorTransferFunction (blackbody));
 }
 
 void ColorBarModel::setupPaletteRainbowHSV ()
@@ -144,7 +145,7 @@ void ColorBarModel::setupPaletteRainbowHSV ()
   rainbow->HSVWrapOff();
   rainbow->AddHSVPoint(0.0, 0.66667, 1.0, 1.0); // blue
   rainbow->AddHSVPoint(1.0, 0.0, 1.0, 1.0);     // red
-  setupColorMap (ColorMapperVtkColorTransferFunction (rainbow));
+  setup (ColorMapperVtkColorTransferFunction (rainbow));
 }
 
 
@@ -181,8 +182,16 @@ void ColorBarModel::setupPaletteDiverging (size_t c)
 	0.0, colors[c][0][0], colors[c][0][1], colors[c][0][2]);
     colorTransferFunction->AddRGBPoint(
 	1.0, colors[c][1][0], colors[c][1][1], colors[c][1][2]);
-    setupColorMap (ColorMapperVtkColorTransferFunction (colorTransferFunction));
+    setup (ColorMapperVtkColorTransferFunction (colorTransferFunction));
 }
+
+template<typename ColorMapper>
+void ColorBarModel::setup (ColorMapper colorMapper)
+{
+    setupColorMap (colorMapper);
+    setupImage (colorMapper);
+}
+
 
 template<typename ColorMapper>
 void ColorBarModel::setupColorMap (ColorMapper colorMapper)
@@ -209,8 +218,6 @@ void ColorBarModel::setupColorMap (ColorMapper colorMapper)
 template<typename ColorMapper>
 void ColorBarModel::setupImage (ColorMapper colorMapper)
 {
-    m_image.reset (new QImage (COLORS, 1, QImage::Format_RGB32));
-    m_colorMap.setColorInterval (colorMapper (0), colorMapper (1));
     double width = m_interval.width ();
     double low = (m_clampValues.minValue () -  m_interval.minValue ()) / width;
     double high = (m_clampValues.maxValue () -  m_interval.minValue ()) / width;
@@ -218,10 +225,20 @@ void ColorBarModel::setupImage (ColorMapper colorMapper)
     for (size_t i = 0; i <= colors; i++)
     {
 	double value = static_cast<double>(i) / colors;
+	uint rgb;
 	if (value <= low)
-	    m_image->setPixel (i, colorMapper (0).rgb ());
+	    rgb = static_cast<uint> (
+		colorMapper (0).rgb ());
 	else if (value >= high)
-	    m_image->setPixel (i, colorMapper (1).rgb ());
+	    rgb = static_cast<uint> (
+		colorMapper (1).rgb ());
+	else
+	{
+	    double inside01 = (value - low) / (high - low);
+	    rgb = static_cast<uint> (
+		colorMapper (inside01).rgb ());
+	}
+	m_image.setPixel (i, 0, rgb);
     }
 }
 

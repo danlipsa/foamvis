@@ -70,7 +70,48 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
 
     connect (m_timer.get (), SIGNAL (timeout()),
 	     this, SLOT (TimeoutTimer ()));
+
+    connectColorBarModelChanged ();
 }
+
+
+void MainWindow::connectColorBarModelChanged ()
+{
+    // from MainWindow to ColorBar, GLWidget and AttributeHistogram
+    connect (
+	this, 
+	SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
+	colorBar, 
+	SLOT (ColorBarModelChangedMainWindow (
+		  boost::shared_ptr<ColorBarModel>)));
+    connect (
+	this, 
+	SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
+	widgetGl, 
+	SLOT (ColorBarModelChanged (
+		  boost::shared_ptr<ColorBarModel>)));
+    connect (
+	this, 
+	SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
+	widgetHistogram, 
+	SLOT (ColorBarModelChanged (
+		  boost::shared_ptr<ColorBarModel>)));
+
+    // from ColorBar to GLWidget and AttributeHistogram
+    connect (
+	colorBar, 
+	SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
+	widgetGl, 
+	SLOT (ColorBarModelChanged (
+		  boost::shared_ptr<ColorBarModel>)));
+    connect (
+	colorBar, 
+	SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
+	widgetHistogram, 
+	SLOT (ColorBarModelChanged (
+		  boost::shared_ptr<ColorBarModel>)));
+}
+
 
 void MainWindow::setupButtonGroups ()
 {
@@ -475,7 +516,7 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	    foamAlongTime.GetHistogram (bodyProperty, timeStep),
 	    foamAlongTime.GetMaxCountPerBinIndividual (bodyProperty));
 	changedColorBarInterval (bodyProperty);
-	Q_EMIT ColorBarModelChanged (m_colorBarModel[bodyProperty].get ());
+	Q_EMIT ColorBarModelChanged (m_colorBarModel[bodyProperty]);
     }
     widgetGl->UpdateDisplayList ();
 }
@@ -504,7 +545,7 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	    bodyProperty,
 	    foamAlongTime.GetHistogram (bodyProperty),
 	    foamAlongTime.GetMaxCountPerBin (bodyProperty));
-	Q_EMIT ColorBarModelChanged (m_colorBarModel[bodyProperty].get ());
+	Q_EMIT ColorBarModelChanged (m_colorBarModel[bodyProperty]);
     }
     widgetGl->UpdateDisplayList ();
 }
@@ -666,11 +707,6 @@ void MainWindow::ShowEditColorMap ()
     if (m_editColorMap->exec () == QDialog::Accepted)
     {
 	*m_colorBarModel[m_bodyProperty] = m_editColorMap->GetColorBarModel ();
-	Q_EMIT ColorBarModelChanged (m_colorBarModel[m_bodyProperty].get ());
+	Q_EMIT ColorBarModelChanged (m_colorBarModel[m_bodyProperty]);
     }
-}
-
-void MainWindow::ColorBarModelChangedColorBar (ColorBarModel* colorBarModel)
-{
-    *m_colorBarModel[m_bodyProperty] = *colorBarModel;
 }

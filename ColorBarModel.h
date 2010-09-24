@@ -19,6 +19,10 @@ public:
     {
 	return m_colorMap;
     }
+    const QImage& GetImage () const
+    {
+	return m_image;
+    }
     const QwtDoubleInterval& GetClampValues () const
     {
 	return m_clampValues;
@@ -80,6 +84,8 @@ private:
     void setupPaletteDiverging (size_t c);
 
     template<typename ColorMapper>
+    void setup (ColorMapper colorMapper);
+    template<typename ColorMapper>
     void setupColorMap (ColorMapper colorMapper);
     template<typename ColorMapper>
     void setupImage (ColorMapper colorMapper);
@@ -91,7 +97,7 @@ private:
 private:
     Palette::Enum m_palette;
     QwtLinearColorMap m_colorMap;
-    boost::scoped_ptr<QImage> m_image;
+    QImage m_image;
     QwtDoubleInterval m_interval;
     QwtDoubleInterval m_clampValues;
     QString m_title;

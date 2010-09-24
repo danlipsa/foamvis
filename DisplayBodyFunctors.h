@@ -169,6 +169,7 @@ public:
      */
     void operator () (size_t bodyId)
     {
+	
 	const BodyAlongTime& bat = m_glWidget.GetBodyAlongTime (bodyId);
 	StripIterator it = bat.GetStripIterator (m_glWidget.GetFoamAlongTime ());
 	if ( (m_bodyProperty >= BodyProperty::VELOCITY_BEGIN &&
@@ -264,7 +265,7 @@ private:
     }
     void segment (const QColor& color, G3D::Vector3 begin, G3D::Vector3 end)
     {
-	m_glWidget.qglColor (color);
+	glColor (color);
 	glVertex (begin);
 	glVertex (end);
     }
