@@ -17,6 +17,7 @@ make install
 
 Copy
 http://csgalati.swansea.ac.uk/foam/build/G3D-8.00-src.zip to ~
+G3DDATA=~/source/data-files
 cd ~
 unzip /G3D-8.00-src.zip
 cd source
@@ -119,7 +120,9 @@ OSX Leopard, G3D-7.01, qt-4.5.2, bison-2.3, flex-2.5.33, gcc-4.2.1
 OSX Snow Leopard: G3D-8.00 (cvs version 20100524), 
 qt-4.6.2, bison-2.3, flex-2.5.35, boost-1.39, gcc-4.2.1
 ----------------------------------------------------------------------
-- comment out 
+- in G3D/GLG3D.lib/source add an underscore after the names of VideoInput.cpp VideoOutput.cpp CarbonWindow.cpp
+- in G3D/bin/icompile uncomment the second found line for x86_64 search string
+- in G3D/buildg3d replace the two i686 with x86_64
 - "qmake -spec macx-g++";make
 
 
