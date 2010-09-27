@@ -168,11 +168,11 @@ public:
     {
 	return m_centerPathDisplayBody;
     }
-    void SetUseColorMap (bool useColorMap)
-    {
-	m_useColorMap = useColorMap;
-    }
+    void SetUseColorMap (bool useColorMap);
+
     QColor MapScalar (double value) const;
+    double TexCoord (double value) const;
+
     boost::shared_ptr<QAction> GetActionResetTransformation ()
     {
 	return m_actionResetTransformation;

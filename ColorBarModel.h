@@ -22,7 +22,7 @@ public:
     const QImage& GetImage () const
     {
 	return m_image;
-    }
+    }    
     const QwtDoubleInterval& GetClampValues () const
     {
 	return m_clampValues;
@@ -73,6 +73,13 @@ public:
     {
 	return m_colorMap.color (m_interval, value);
     }
+    double TexCoord (double value) const;
+
+public:
+    static const QImage& GetBlackImage ()
+    {
+	return m_blackImage;
+    }
 
 private:
     void setupPaletteRainbowTelea ();
@@ -92,7 +99,11 @@ private:
 
 
 private:
+    static QImage blackImage ();
+
+private:
     static const size_t COLORS;
+    static const QImage m_blackImage;
 
 private:
     Palette::Enum m_palette;

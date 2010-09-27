@@ -7,6 +7,7 @@
  */
 
 #include "ColorBarModel.h"
+#include "Debug.h"
 #include "DebugStream.h"
 #include "Utils.h"
 
@@ -61,6 +62,7 @@ void testColorMap ()
 
 
 const size_t ColorBarModel::COLORS = 256;
+const QImage ColorBarModel::m_blackImage = ColorBarModel::blackImage ();
 
 ColorBarModel::ColorBarModel () :
     m_palette (Palette::FIRST),
@@ -243,6 +245,15 @@ void ColorBarModel::setupImage (ColorMapper colorMapper)
 }
 
 
+QImage ColorBarModel::blackImage ()
+{
+    QImage image (COLORS, 1, QImage::Format_RGB32);
+    for (size_t i = 0; i < COLORS; i++)
+	image.setPixel (i, 0, 0xff000000);
+    return image;
+}
+
+
 
 /*
  * @return 1 if value is between heigh1 and heigh2
@@ -275,4 +286,12 @@ QColor ColorMapperRainbowTelea::operator() (double f)
     color.setGreenF (trapezoid (g, 1, 2.2, 3.8, 5));
     color.setRedF (trapezoid (g, 3, 3.8, 5, 6));
     return color;
+}
+
+double ColorBarModel::TexCoord (double value) const
+{
+    if (! m_interval.contains (value))
+	ThrowException ("Value: ", value, " outside interval: ", m_interval);
+    return (value - m_interval.minValue ()) / 
+	(m_interval.maxValue () - m_interval.minValue ());
 }

@@ -70,6 +70,13 @@ void ThrowException (const string& message, const T1& t1, const T2& t2)
     RuntimeAssert (false, message, t1, t2);
 }
 
+template<typename T1, typename T2, typename T3>
+void ThrowException (const string& message, const T1& t1, const T2& t2,
+		     const T3& t3)
+{
+    RuntimeAssert (false, message, t1, t2, t3);
+}
+
 
 #endif  //__DEBUG_H__
 

@@ -489,7 +489,6 @@ void GLWidget::initializeGL()
     
     //printOpenGLInfo ();
     GLWidget::disableLighting ();
-    m_object = displayList (m_viewType);
     glEnable(GL_DEPTH_TEST);
 
     // for anti-aliased lines and points
@@ -498,6 +497,7 @@ void GLWidget::initializeGL()
     glEnable (GL_POINT_SMOOTH);
     projectionTransformation ();
     initializeTextures ();
+    m_object = displayList (m_viewType);
 }
 
 void GLWidget::paintGL()
@@ -532,30 +532,6 @@ void GLWidget::resizeGL(int width, int height)
     glViewport (m_viewport.x0 (), m_viewport.y0 (), 
 		m_viewport.width (), m_viewport.height ());
 }
-
-void GLWidget::displayTextureColorMap () const
-{
-    glPushMatrix ();
-    {
-	glLoadIdentity ();
-	glMatrixMode (GL_PROJECTION);
-	glPushMatrix ();
-	{
-	    glLoadIdentity ();
-	    glOrtho (0, width (), 0, height (), -1, 1);
-	    glBegin (GL_QUADS);
-	    glVertex2s (0, 0);
-	    glVertex2s (50, 0);
-	    glVertex2s (50, 15);
-	    glVertex2s (0, 15);
-	    glEnd ();
-	}
-	glPopMatrix ();
-	glMatrixMode (GL_MODELVIEW);
-    }
-    glPopMatrix ();    
-}
-
 
 void GLWidget::setRotation (int axis, double angleRadians)
 {
@@ -1389,12 +1365,31 @@ void GLWidget::SetActionDeselectAll (
 	    this, SLOT(DeselectAll ()));
 }
 
+void GLWidget::SetUseColorMap (bool useColorMap)
+{
+    m_useColorMap = useColorMap;
+    if (! m_useColorMap)
+    {
+	const QImage image = m_colorBarModel->GetBlackImage ();
+	glTexImage1D (GL_TEXTURE_1D, 0, GL_RGBA, image.width (), 
+		      0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
+    }
+}
+
 QColor GLWidget::MapScalar (double value) const
 {
     if (m_useColorMap)
 	return m_colorBarModel->MapScalar (value);
     else
 	return Qt::black;
+}
+
+double GLWidget::TexCoord (double value) const
+{
+    if (m_useColorMap)
+	return m_colorBarModel->TexCoord (value);
+    else
+	return 0;
 }
 
 void GLWidget::ColorBarModelChanged (
@@ -1405,23 +1400,47 @@ void GLWidget::ColorBarModelChanged (
     makeCurrent ();
     UpdateDisplayList ();
 
-    glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, image.width (), 
-		 0, GL_RGBA, GL_UNSIGNED_INT, image.scanLine (0));
+    glTexImage1D (GL_TEXTURE_1D, 0, GL_RGBA, image.width (), 
+		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
 }
 
 void GLWidget::initializeTextures ()
 {
-    // image data is 4 bytes alligned?
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    glGenTextures (1, &m_colorBarTexture);
+    glBindTexture (GL_TEXTURE_1D, m_colorBarTexture);
+    
+    glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    SetUseColorMap (false);
+}
 
-    // we store images 1 byte per component.
-    glPixelTransferf (GL_RED_SCALE, 1.0 / 255.0);
-    glPixelTransferf (GL_GREEN_SCALE, 1.0 / 255.0);
-    glPixelTransferf (GL_BLUE_SCALE, 1.0 / 255.0);
+void GLWidget::displayTextureColorMap () const
+{
+    glPushMatrix ();
+    {
+	glLoadIdentity ();
+	glMatrixMode (GL_PROJECTION);
+	glPushMatrix ();
+	{
+	    glLoadIdentity ();
+	    glOrtho (0, width (), 0, height (), -1, 1);
+	    glColor (Qt::blue);
 
-    glGenTextures(1, &m_colorBarTexture);
-    glBindTexture(GL_TEXTURE_1D, m_colorBarTexture);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);    
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	    glEnable(GL_TEXTURE_1D);
+	    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	    glBindTexture (GL_TEXTURE_1D, m_colorBarTexture);
+
+	    glBegin (GL_QUADS);
+	    glTexCoord1f(0);glVertex2s (0, 0);
+	    glTexCoord1f(1);glVertex2s (256, 0);
+	    glTexCoord1f(1);glVertex2s (256, 16);
+	    glTexCoord1f(0);glVertex2s (0, 16);
+	    glEnd ();
+	    glDisable (GL_TEXTURE_1D);
+	}
+	glPopMatrix ();
+	glMatrixMode (GL_MODELVIEW);
+    }
+    glPopMatrix ();    
 }

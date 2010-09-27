@@ -454,7 +454,6 @@ void MainWindow::displayHistogramColorBar (bool checked)
 
 void MainWindow::ToggledCenterPath (bool checked)
 {
-    widgetGl->ToggledCenterPath (checked);
     if (checked)
     {
 	fieldsToControls (comboBoxCenterPathColor,
@@ -465,6 +464,7 @@ void MainWindow::ToggledCenterPath (bool checked)
     else
 	stackedWidgetComposite->setCurrentWidget (pageCompositeEmpty);
     displayHistogramColorBar (checked);
+    widgetGl->ToggledCenterPath (checked);
 }
 
 void MainWindow::ToggledFacesNormal (bool checked)

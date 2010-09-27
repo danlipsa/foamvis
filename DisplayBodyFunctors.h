@@ -202,12 +202,13 @@ private:
     {
 	bool focus = m_bodySelector (prev.m_body->GetId (), prev.m_timeStep);
 	beginFocusContext (focus);
-	segment (
-	    focusContextColor (
-		focus,
-		m_glWidget.MapScalar (
-		    StripIterator::GetPropertyValue (m_bodyProperty, p, prev))),
-	    prev.m_point, p.m_point);
+	QColor segmentColor = m_glWidget.MapScalar (
+	    StripIterator::GetPropertyValue (m_bodyProperty, p, prev));
+	QColor fcSegmentColor = focusContextColor (focus, segmentColor);
+	double segmentTexCoord = m_glWidget.TexCoord (
+	    StripIterator::GetPropertyValue (m_bodyProperty, p, prev));
+	//segment (fcSegmentColor, prev.m_point, p.m_point);
+	segment (segmentTexCoord, prev.m_point, segmentTexCoord, p.m_point);
 	endFocusContext (focus);
     }
 
@@ -269,6 +270,16 @@ private:
 	glVertex (begin);
 	glVertex (end);
     }
+
+    void segment (float beginTexCoord, G3D::Vector3 begin, 
+		  float endTexCoord, G3D::Vector3 end)
+    {
+	glTexCoord1f (beginTexCoord);
+	glVertex (begin);
+	glTexCoord1f (endTexCoord);
+	glVertex (end);
+    }
+
 
 private:
     /**
