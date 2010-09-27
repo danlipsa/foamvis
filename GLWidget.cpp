@@ -385,7 +385,6 @@ void GLWidget::modelingTransformation () const
 		      approxCoordinateFrame ().rotation);
     }
     glTranslate (-GetFoamAlongTime ().GetAABox ().center ());
-    glCallList (m_object);
 }
 
 
@@ -507,9 +506,10 @@ void GLWidget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     viewingTransformation ();
     modelingTransformation ();
+    glCallList (m_object);
+    displayTextureColorMap ();
     detectOpenGLError ();
 }
-
 
 
 void GLWidget::resizeGL(int width, int height)
@@ -532,6 +532,30 @@ void GLWidget::resizeGL(int width, int height)
     glViewport (m_viewport.x0 (), m_viewport.y0 (), 
 		m_viewport.width (), m_viewport.height ());
 }
+
+void GLWidget::displayTextureColorMap () const
+{
+    glPushMatrix ();
+    {
+	glLoadIdentity ();
+	glMatrixMode (GL_PROJECTION);
+	glPushMatrix ();
+	{
+	    glLoadIdentity ();
+	    glOrtho (0, width (), 0, height (), -1, 1);
+	    glBegin (GL_QUADS);
+	    glVertex2s (0, 0);
+	    glVertex2s (50, 0);
+	    glVertex2s (50, 15);
+	    glVertex2s (0, 15);
+	    glEnd ();
+	}
+	glPopMatrix ();
+	glMatrixMode (GL_MODELVIEW);
+    }
+    glPopMatrix ();    
+}
+
 
 void GLWidget::setRotation (int axis, double angleRadians)
 {

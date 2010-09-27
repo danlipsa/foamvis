@@ -305,6 +305,7 @@ private:
      * Displays the center of the bodies
      */
     void displayCenterOfBodies () const;
+    void displayTextureColorMap () const;
     bool edgesTorusTubes ()
     {
 	return m_edgesTorusTubes;
