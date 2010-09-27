@@ -274,6 +274,7 @@ private:
     void segment (float beginTexCoord, G3D::Vector3 begin, 
 		  float endTexCoord, G3D::Vector3 end)
     {
+	cdbg << "1: " << begin << "2: " << end << endl;
 	glTexCoord1f (beginTexCoord);
 	glVertex (begin);
 	glTexCoord1f (endTexCoord);
