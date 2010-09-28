@@ -140,6 +140,7 @@ public:
     {
 	return m_notAvailableFaceColor;
     }
+    QColor GetCenterPathContextColor () const;
 
     void DataChanged () 
     {

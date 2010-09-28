@@ -1444,3 +1444,10 @@ void GLWidget::displayTextureColorMap () const
     }
     glPopMatrix ();    
 }
+
+QColor GLWidget::GetCenterPathContextColor () const
+{
+    QColor returnColor (Qt::black);
+    returnColor.setAlphaF (GetContextAlpha ());
+    return returnColor;
+}
