@@ -528,6 +528,7 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
     if (bodyProperty == BodyProperty::NONE)
     {
 	widgetGl->SetUseColorMap (false);
+	widgetGl->CurrentIndexChangedCenterPathColor (bodyProperty);
 	groupBoxCenterPathHistogram->setHidden (true);
 	colorBar->setHidden (true);
 	widgetHistogram->setHidden (true);

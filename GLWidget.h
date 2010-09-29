@@ -132,7 +132,7 @@ public:
     }
 
     const QColor& GetEndTranslationColor (const G3D::Vector3int16& di) const;
-    const QColor& GetNotAvailableCenterPathColor () const
+    const QColor& GetCenterPathNotAvailableColor () const
     {
 	return m_notAvailableCenterPathColor;
     }
@@ -141,6 +141,10 @@ public:
 	return m_notAvailableFaceColor;
     }
     QColor GetCenterPathContextColor () const;
+    QColor GetCenterPathDefaultColor () const
+    {
+	return Qt::black;
+    }
 
     void DataChanged () 
     {
@@ -152,6 +156,9 @@ public:
 	return m_quadric;
     }
 
+    /**
+     * Updates the display lists
+     */
     void UpdateDisplayList ();
     double GetArrowBaseRadius () const {return m_arrowBaseRadius;}
     double GetArrowHeight () const {return m_arrowHeight;}

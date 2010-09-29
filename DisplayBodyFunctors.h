@@ -172,17 +172,16 @@ public:
 	
 	const BodyAlongTime& bat = m_glWidget.GetBodyAlongTime (bodyId);
 	StripIterator it = bat.GetStripIterator (m_glWidget.GetFoamAlongTime ());
+	glEnable(GL_TEXTURE_1D);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glBindTexture (GL_TEXTURE_1D, m_glWidget.GetColorBarTexture ());
 	if ( (m_bodyProperty >= BodyProperty::VELOCITY_BEGIN &&
 	      m_bodyProperty < BodyProperty::VELOCITY_END) ||
 	     m_bodyProperty == BodyProperty::NONE)
 	{
-	    glEnable(GL_TEXTURE_1D);
-	    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-	    glBindTexture (GL_TEXTURE_1D, m_glWidget.GetColorBarTexture ());
 	    it.ForEachSegment (
 		boost::bind (&DisplayCenterPath::speedStep,
 			     this, _1, _2));
-	    glDisable (GL_TEXTURE_1D);
 	}
 	else
 	{
@@ -190,6 +189,7 @@ public:
 		boost::bind (&DisplayCenterPath::valueStep,
 			     this, _1, _2));
 	}
+	glDisable (GL_TEXTURE_1D);
     }
 
     /**
@@ -207,22 +207,16 @@ private:
 	const StripIterator::Point& prev)
     {
 	bool focus = m_bodySelector (prev.m_body->GetId (), prev.m_timeStep);
-	if (focus)
-	{
-	    double segmentTexCoord = m_glWidget.TexCoord (
-		StripIterator::GetPropertyValue (m_bodyProperty, p, prev));
-	    beginFocusContext (focus);
-	    segment (segmentTexCoord, prev.m_point, p.m_point);
-	    endFocusContext (focus);
-	}
+	if (focus && m_bodyProperty != BodyProperty::NONE)
+	    texturedSegment (
+		StripIterator::GetPropertyValue (m_bodyProperty, p, prev),
+		prev.m_point, p.m_point);
 	else
 	{
-	    glDisable (GL_TEXTURE_1D);
-	    beginFocusContext (focus);
-	    segment (m_glWidget.GetCenterPathContextColor (), 
-		     prev.m_point, p.m_point);
-	    endFocusContext (focus);
-	    glEnable (GL_TEXTURE_1D);
+	    QColor color = (m_bodyProperty == BodyProperty::NONE) ? 
+		m_glWidget.GetCenterPathNotAvailableColor () :
+		m_glWidget.GetCenterPathContextColor ();
+	    coloredSegment (color, false, prev.m_point, p.m_point);
 	}
     }
 
@@ -231,26 +225,28 @@ private:
 	const StripIterator::Point& prev)
     {
 	G3D::Vector3 middle = (prev.m_point + p.m_point) / 2;
-	bool focus = m_bodySelector (prev.m_body->GetId (), prev.m_timeStep);
-	QColor segmentColor = 
-	    StripIterator::ExistsPropertyValue (m_bodyProperty, prev) ? 
-	    m_glWidget.MapScalar (
-		StripIterator::GetPropertyValue (m_bodyProperty, prev)) : 
-	    m_glWidget.GetNotAvailableCenterPathColor ();
-	QColor fcSegmentColor = focusContextColor (focus, segmentColor);
-	beginFocusContext (focus);
-	segment (fcSegmentColor, prev.m_point, middle);
-	endFocusContext (focus);
+	halfValueStep (prev, middle, false);
+	halfValueStep (p, middle, true);
+    }
 
-	focus = m_bodySelector (p.m_body->GetId (), p.m_timeStep);
-	segmentColor = StripIterator::ExistsPropertyValue (m_bodyProperty, p) ? 
-	    m_glWidget.MapScalar (
-		StripIterator::GetPropertyValue (m_bodyProperty, p)) : 
-	    m_glWidget.GetNotAvailableCenterPathColor ();
-	fcSegmentColor = focusContextColor (focus, segmentColor);
-	beginFocusContext (focus);
-	segment (fcSegmentColor, middle, p.m_point);
-	endFocusContext (focus);
+    void halfValueStep (const StripIterator::Point& p, G3D::Vector3 middle,
+			bool swapPoints)
+    {
+	G3D::Vector3 point = p.m_point;
+	if (swapPoints)
+	    swap (point, middle);
+	bool focus = m_bodySelector (p.m_body->GetId (), p.m_timeStep);
+	if (focus && StripIterator::ExistsPropertyValue (m_bodyProperty, p))
+	    texturedSegment (
+		StripIterator::GetPropertyValue (m_bodyProperty, p),
+		point, middle);
+	else
+	{
+	    QColor color = (focus) ? 
+		m_glWidget.GetCenterPathNotAvailableColor () :
+		m_glWidget.GetCenterPathContextColor ();		
+	    coloredSegment (color, focus, point, middle);
+	}
     }
 
     void beginFocusContext (bool focus)
@@ -278,19 +274,29 @@ private:
 	glVertex (end);
     }
 
-    void segment (float beginTexCoord, G3D::Vector3 begin, 
-		  float endTexCoord, G3D::Vector3 end)
-    {
-	glTexCoord1f (beginTexCoord);glVertex (begin);
-	glTexCoord1f (endTexCoord);glVertex (end);
-    }
-
     void segment (float texCoord, G3D::Vector3 begin, G3D::Vector3 end)
     {
 	glTexCoord1f (texCoord);
 	glVertex (begin);glVertex (end);
     }
+    
+    void texturedSegment (double value, G3D::Vector3 begin, G3D::Vector3 end)
+    {
+	double segmentTexCoord = m_glWidget.TexCoord (value);
+	beginFocusContext (true);
+	segment (segmentTexCoord, begin, end);
+	endFocusContext (true);
+    }
 
+    void coloredSegment (const QColor& color, bool focus,
+			 G3D::Vector3 begin, G3D::Vector3 end)
+    {
+	glDisable (GL_TEXTURE_1D);
+	beginFocusContext (focus);
+	segment (color, begin, end);
+	endFocusContext (focus);
+	glEnable (GL_TEXTURE_1D);
+    }
 
 private:
     /**

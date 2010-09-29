@@ -1368,12 +1368,6 @@ void GLWidget::SetActionDeselectAll (
 void GLWidget::SetUseColorMap (bool useColorMap)
 {
     m_useColorMap = useColorMap;
-    if (! m_useColorMap)
-    {
-	const QImage image = m_colorBarModel->GetBlackImage ();
-	glTexImage1D (GL_TEXTURE_1D, 0, GL_RGBA, image.width (), 
-		      0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
-    }
 }
 
 QColor GLWidget::MapScalar (double value) const

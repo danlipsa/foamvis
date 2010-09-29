@@ -75,11 +75,6 @@ public:
     }
     double TexCoord (double value) const;
 
-public:
-    static const QImage& GetBlackImage ()
-    {
-	return m_blackImage;
-    }
 
 private:
     void setupPaletteRainbowTelea ();
@@ -97,13 +92,8 @@ private:
     template<typename ColorMapper>
     void setupImage (ColorMapper colorMapper);
 
-
-private:
-    static QImage blackImage ();
-
 private:
     static const size_t COLORS;
-    static const QImage m_blackImage;
 
 private:
     Palette::Enum m_palette;
