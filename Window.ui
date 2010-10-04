@@ -202,22 +202,22 @@
                 </widget>
                </item>
                <item>
-                <widget class="QToolButton" name="toolButtonEnd">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="text">
-                  <string>&gt;&gt;|</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
                 <widget class="QToolButton" name="toolButtonPlay">
                  <property name="text">
                   <string>&gt;</string>
                  </property>
                  <property name="arrowType">
                   <enum>Qt::NoArrow</enum>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QToolButton" name="toolButtonEnd">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="text">
+                  <string>&gt;&gt;|</string>
                  </property>
                 </widget>
                </item>

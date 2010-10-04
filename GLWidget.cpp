@@ -149,7 +149,7 @@ void detectOpenGLError (string message = "")
  */
 void printOpenGLInfo ()
 {
-    boost::array<OpenGLFeature, 22> info = {{
+    boost::array<OpenGLFeature, 24> info = {{
 	OpenGLFeature (GL_VENDOR, OpenGLFeature::STRING, "GL_VENDOR"),
 	OpenGLFeature (GL_RENDERER, OpenGLFeature::STRING, "GL_RENDERER"),
 	OpenGLFeature (GL_VERSION, OpenGLFeature::STRING, "GL_VERSION"),
@@ -164,6 +164,10 @@ void printOpenGLInfo ()
 		       "GL_MAX_VERTEX_ATTRIBS"),
 
 	
+	OpenGLFeature (GL_SAMPLE_BUFFERS, OpenGLFeature::INTEGER, 
+		       "GL_SAMPLE_BUFFERS"),
+	OpenGLFeature (GL_SAMPLES, OpenGLFeature::INTEGER, "GL_SAMPLES"),
+
 	OpenGLFeature (GL_AUX_BUFFERS, OpenGLFeature::INTEGER, "AUX_BUFFERS"),
         OpenGLFeature (GL_RED_BITS, OpenGLFeature::INTEGER, "RED_BITS"),
         OpenGLFeature (GL_GREEN_BITS, OpenGLFeature::INTEGER, "GREEN_BITS"),
@@ -229,7 +233,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_useColorMap (false),
       m_colorBarModel (new ColorBarModel ()),
       m_colorBarTexture (0),
-      m_prevImageAlpha (0)
+      m_prevImageAlpha (0),
+      m_playMovie (false)
 {
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
     const int POSSIBILITIES = 3; //domain increment can be *, - or +
@@ -254,7 +259,6 @@ GLWidget::GLWidget(QWidget *parent)
     createActions ();
 }
 
-
 void GLWidget::createActions ()
 {
     m_actionResetTransformation = boost::make_shared<QAction> (
@@ -265,9 +269,6 @@ void GLWidget::createActions ()
     connect(m_actionResetTransformation.get (), SIGNAL(triggered()),
 	    this, SLOT(ResetTransformation ()));    
 }
-
-
-
 
 void GLWidget::initViewTypeDisplay ()
 {
@@ -487,30 +488,35 @@ void GLWidget::Info ()
 // Antialiasing, Fog and Polygon Offset page 293
 void GLWidget::initializeGL()
 {
-    glClearColor (1., 1., 1., 0.);
-    
-    //printOpenGLInfo ();
+    glClearColor (1., 1., 1., 0.);    
+    printOpenGLInfo ();
     GLWidget::disableLighting ();
     glEnable(GL_DEPTH_TEST);
-
-    // for anti-aliased lines and points
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable (GL_LINE_SMOOTH);
     glEnable (GL_POINT_SMOOTH);
+    glEnable (GL_LINE_SMOOTH);
+    glEnable (GL_BLEND);
+    // for anti-aliased lines and points
+    //glEnable (GL_MULTISAMPLE);
     projectionTransformation ();
     initializeTextures ();
     m_object = displayList (m_viewType);
+    cdbg << "sample buffers " << format ().sampleBuffers () << endl;
 }
 
 void GLWidget::paintGL()
 {
-    using G3D::Vector3;
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    viewingTransformation ();
-    modelingTransformation ();
-    glCallList (m_object);
-    //displayTextureColorMap ();
-    detectOpenGLError ();
+    if (IsPlayMovie ())
+    {
+    }
+    else
+    {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	viewingTransformation ();
+	modelingTransformation ();
+	glCallList (m_object);
+	detectOpenGLError ();
+    }
 }
 
 

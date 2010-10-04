@@ -27,7 +27,7 @@ HistogramType::Enum histogramType (const QButtonGroup* group)
 }
 
 MainWindow::MainWindow (FoamAlongTime& foamAlongTime) : 
-    m_play (false), PLAY_TEXT (">"), PAUSE_TEXT("||"),
+    PLAY_TEXT (">"), PAUSE_TEXT("||"),
     m_timer (new QTimer(this)), m_processBodyTorus (0), 
     m_currentBody (0),
     m_bodyProperty (BodyProperty::NONE),
@@ -343,7 +343,8 @@ void MainWindow::ToggledShowTimeSteps (bool checked)
 
 void MainWindow::ClickedPlay ()
 {
-    if (m_play)
+    bool playMovie = widgetGl->IsPlayMovie ();
+    if (playMovie)
     {
 	m_timer->stop ();
         toolButtonPlay->setText (PLAY_TEXT);
@@ -356,7 +357,7 @@ void MainWindow::ClickedPlay ()
 	toolButtonBegin->setDisabled (true);
 	toolButtonEnd->setDisabled (true);
     }
-    m_play = ! m_play;
+    widgetGl->SetPlayMovie (! playMovie);
 }
 
 void MainWindow::ClickedBegin ()

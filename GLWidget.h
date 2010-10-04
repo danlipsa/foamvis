@@ -221,6 +221,14 @@ public:
     {
 	return m_colorBarTexture;
     }
+    bool IsPlayMovie () const
+    {
+	return m_playMovie;
+    }
+    void SetPlayMovie (bool playMovie)
+    {
+	m_playMovie = playMovie;
+    }
 
 
 public Q_SLOTS:
@@ -534,6 +542,11 @@ private:
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
     GLuint m_colorBarTexture;
     double m_prevImageAlpha;
+    /**
+     * True if the program displays data in a loop, false
+     * otherwise
+     */
+    bool m_playMovie;
 };
 
 #endif //__GLWIDGET_H__

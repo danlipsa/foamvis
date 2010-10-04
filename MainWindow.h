@@ -156,11 +156,6 @@ private:
 private:
     Q_OBJECT
     /**
-     * True if the programs displays the data files iteratively, false
-     * otherwise
-     */
-    bool m_play;
-    /**
      * Character used on the play button, when we can start the play
      */
     const char* PLAY_TEXT;
