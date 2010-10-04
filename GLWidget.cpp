@@ -216,6 +216,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_angleOfView (0),
       m_edgesTorusTubes (false),
       m_facesTorusTubes (false),
+      m_facesShowEdges (true),
       m_edgesBodyCenter (false),
       m_edgesTessellation (true),
       m_centerPathDisplayBody (false),
@@ -227,7 +228,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_bodySelector (new CycleSelector (*this)),
       m_useColorMap (false),
       m_colorBarModel (new ColorBarModel ()),
-      m_colorBarTexture (0)
+      m_colorBarTexture (0),
+      m_prevImageAlpha (0)
 {
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
     const int POSSIBILITIES = 3; //domain increment can be *, - or +
@@ -507,7 +509,7 @@ void GLWidget::paintGL()
     viewingTransformation ();
     modelingTransformation ();
     glCallList (m_object);
-    displayTextureColorMap ();
+    //displayTextureColorMap ();
     detectOpenGLError ();
 }
 
@@ -790,13 +792,15 @@ GLuint GLWidget::displayListFacesNormal () const
     const Foam::Bodies& bodies = foam.GetBodies ();
     if (foam.IsQuadratic ())
     {
-	displayFacesContour<DisplaySameEdges> (bodies);
+	if (m_facesShowEdges)
+	    displayFacesContour<DisplaySameEdges> (bodies);
 	displayFacesInterior<DisplaySameEdges> (bodies);
 	displayStandaloneFaces<DisplaySameEdges> ();
     }
     else
     {
-	displayFacesContour<DisplaySameTriangles> (bodies);
+	if (m_facesShowEdges)
+	    displayFacesContour<DisplaySameTriangles> (bodies);
 	displayFacesInterior<DisplaySameTriangles> (bodies);
 	displayStandaloneFaces<DisplaySameTriangles> ();
     }
@@ -1214,6 +1218,12 @@ void GLWidget::ToggledFacesNormal (bool checked)
     view (checked, FACES);
 }
 
+void GLWidget::ToggledFacesShowEdges (bool checked)
+{
+    m_facesShowEdges = checked;
+    UpdateDisplayList ();
+}
+
 void GLWidget::ToggledFacesTorus (bool checked)
 {
     view (checked, FACES_TORUS);
@@ -1265,6 +1275,14 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
     m_timeStep = timeStep;
     UpdateDisplayList ();
 }
+
+void GLWidget::ValueChangedBlend (int index)
+{
+    QSlider* slider = static_cast<QSlider*> (sender ());
+    size_t maximum = slider->maximum ();
+    m_prevImageAlpha = static_cast<double>(index) / (maximum + 1);
+}
+
 
 void GLWidget::ValueChangedAngleOfView (int newIndex)
 {

@@ -240,11 +240,13 @@ public Q_SLOTS:
     void ToggledEdgesTorusTubes (bool checked);
 
     void ToggledFacesTorusTubes (bool checked);
+    void ToggledFacesShowEdges (bool checked);
 
     void ToggledTorusOriginalDomainDisplay (bool checked);
     void ToggledTorusOriginalDomainClipped (bool checked);
     void ToggledShowBoundingBox (bool checked);
     void ValueChangedAngleOfView (int newIndex);
+    void ValueChangedBlend (int index);
 
 public:
     const static  size_t DISPLAY_ALL;
@@ -510,6 +512,7 @@ private:
 
     bool m_edgesTorusTubes;
     bool m_facesTorusTubes;
+    bool m_facesShowEdges;
     bool m_edgesBodyCenter;
     bool m_edgesTessellation;
     bool m_centerPathDisplayBody;
@@ -530,6 +533,7 @@ private:
     bool m_useColorMap;
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
     GLuint m_colorBarTexture;
+    double m_prevImageAlpha;
 };
 
 #endif //__GLWIDGET_H__
