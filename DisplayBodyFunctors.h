@@ -58,17 +58,19 @@ protected:
     }
     void beginFocusContext (bool focus)
     {
-	if (focus)
-	    glDisable (GL_BLEND);
-	else
+	if (! focus)
+	{
+	    glEnable (GL_BLEND);
 	    glDepthMask (GL_FALSE);
+	}
     }
     void endFocusContext (bool focus)
     {
-	if (focus)
-	    glEnable (GL_BLEND);
-	else
+	if (! focus)
+	{
 	    glDepthMask (GL_TRUE);
+	    glDisable (GL_BLEND);
+	}
     }
     const BodySelector& m_bodySelector;
 };

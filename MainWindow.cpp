@@ -43,9 +43,10 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     }
 
     // for anti-aliased lines
-    QGLFormat fmt;
-    fmt.setAlpha(true);
-    QGLFormat::setDefaultFormat(fmt);    
+    QGLFormat format = QGLFormat::defaultFormat ();
+    format.setSampleBuffers (true);
+    format.setAlpha (true);
+    QGLFormat::setDefaultFormat(format);
 
     setupUi (this);
     setupSliderData (foamAlongTime);

@@ -149,11 +149,12 @@ void detectOpenGLError (string message = "")
  */
 void printOpenGLInfo ()
 {
-    boost::array<OpenGLFeature, 24> info = {{
+    boost::array<OpenGLFeature, 25> info = {{
 	OpenGLFeature (GL_VENDOR, OpenGLFeature::STRING, "GL_VENDOR"),
 	OpenGLFeature (GL_RENDERER, OpenGLFeature::STRING, "GL_RENDERER"),
 	OpenGLFeature (GL_VERSION, OpenGLFeature::STRING, "GL_VERSION"),
-	
+	OpenGLFeature (GL_EXTENSIONS, OpenGLFeature::STRING, "GL_EXTENSIONS"),
+
 	OpenGLFeature ("--- Texture ---"),
 	OpenGLFeature (GL_MAX_TEXTURE_SIZE, OpenGLFeature::INTEGER,
 		       "GL_MAX_TEXTURE_SIZE"),
@@ -233,7 +234,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_useColorMap (false),
       m_colorBarModel (new ColorBarModel ()),
       m_colorBarTexture (0),
-      m_prevImageAlpha (0),
+      m_imageAlphaMovieBlend (0),
       m_playMovie (false)
 {
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
@@ -483,6 +484,8 @@ void GLWidget::Info ()
 }
 
 
+typedef void (*_glBlendColor) (GLclampf, GLclampf, GLclampf, GLclampf);
+
 // Uses antialiased points and lines
 // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
 // Antialiasing, Fog and Polygon Offset page 293
@@ -492,22 +495,29 @@ void GLWidget::initializeGL()
     printOpenGLInfo ();
     GLWidget::disableLighting ();
     glEnable(GL_DEPTH_TEST);
-    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable (GL_POINT_SMOOTH);
-    glEnable (GL_LINE_SMOOTH);
-    glEnable (GL_BLEND);
-    // for anti-aliased lines and points
-    //glEnable (GL_MULTISAMPLE);
+    glBlendFunc (GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+    _glBlendColor p;
+    if ((p = reinterpret_cast<_glBlendColor>(context ()->getProcAddress ("glBlendColor"))) == 0)
+	cdbg << "no glBlendColor" << endl;
+    else
+    {
+	p (0, 0, 0, 0.3);
+    }
+
+
     projectionTransformation ();
     initializeTextures ();
     m_object = displayList (m_viewType);
-    cdbg << "sample buffers " << format ().sampleBuffers () << endl;
 }
 
 void GLWidget::paintGL()
 {
     if (IsPlayMovie ())
     {
+	viewingTransformation ();
+	modelingTransformation ();
+	glCallList (m_object);
+	detectOpenGLError ();
     }
     else
     {
@@ -905,7 +915,6 @@ GLuint GLWidget::displayListFacesTorusTubes () const
 	      DisplayEdgeTorus<DisplayEdgeTube, DisplayArrowTube, true> > > (
 		  *this));
     glPopAttrib ();
-
     displayOriginalDomain ();
     glEndList();
     return list;
@@ -1286,7 +1295,8 @@ void GLWidget::ValueChangedBlend (int index)
 {
     QSlider* slider = static_cast<QSlider*> (sender ());
     size_t maximum = slider->maximum ();
-    m_prevImageAlpha = static_cast<double>(index) / (maximum + 1);
+    m_imageAlphaMovieBlend = static_cast<double>(
+	maximum + 1 - index) / (maximum + 1);
 }
 
 
@@ -1469,3 +1479,21 @@ QColor GLWidget::GetCenterPathContextColor () const
     returnColor.setAlphaF (GetContextAlpha ());
     return returnColor;
 }
+
+void GLWidget::SetPlayMovie (bool playMovie)
+{
+    m_playMovie = playMovie;
+    makeCurrent ();
+    if (IsPlayMovie ())
+    {
+	glEnable (GL_BLEND);
+	//glBlendFunc (GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+	//glBlendColor (0, 0, 0, 0.3);
+    }
+    else
+    {
+	glDisable (GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+}
+

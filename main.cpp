@@ -283,11 +283,8 @@ int main(int argc, char *argv[])
 	    else
 	    {
 		int result;
-		boost::shared_ptr<Application> app = 
-		    Application::Get (argc, argv);
-		QGLFormat format;
-		format.setSampleBuffers (true);
-		QGLFormat::setDefaultFormat(format);
+		boost::shared_ptr<Application> app = Application::Get (
+		    argc, argv);
 		MainWindow window (foamAlongTime);
 		window.show();
 		result = app->exec();

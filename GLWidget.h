@@ -130,6 +130,10 @@ public:
     {
 	return m_contextAlpha;
     }
+    double GetImageAlphaMovieBlend () const
+    {
+	return m_imageAlphaMovieBlend;
+    }
 
     const QColor& GetEndTranslationColor (const G3D::Vector3int16& di) const;
     const QColor& GetCenterPathNotAvailableColor () const
@@ -225,11 +229,7 @@ public:
     {
 	return m_playMovie;
     }
-    void SetPlayMovie (bool playMovie)
-    {
-	m_playMovie = playMovie;
-    }
-
+    void SetPlayMovie (bool playMovie);
 
 public Q_SLOTS:
     void ColorBarModelChanged(
@@ -541,7 +541,7 @@ private:
     bool m_useColorMap;
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
     GLuint m_colorBarTexture;
-    double m_prevImageAlpha;
+    double m_imageAlphaMovieBlend;
     /**
      * True if the program displays data in a loop, false
      * otherwise
