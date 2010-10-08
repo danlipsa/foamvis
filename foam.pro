@@ -107,6 +107,7 @@ LIBS += "-lvtkFiltering"
 LIBS += "-lvtkCommon"
 LIBS += "-lvtksys"
 LIBS += "-ldl"
+LIBS += "-lQt3D"
 }
 
 # Local Variables:

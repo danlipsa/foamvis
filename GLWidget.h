@@ -26,7 +26,7 @@ class OOBox;
 /**
  * Widget for displaying foam bubbles using OpenGL
  */
-class GLWidget : public QGLWidget
+class GLWidget : public QGLWidget, protected QGLFunctions
 {    
 public:
     /**

@@ -484,27 +484,17 @@ void GLWidget::Info ()
 }
 
 
-typedef void (*_glBlendColor) (GLclampf, GLclampf, GLclampf, GLclampf);
-
 // Uses antialiased points and lines
 // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
 // Antialiasing, Fog and Polygon Offset page 293
 void GLWidget::initializeGL()
 {
+    initializeGLFunctions ();
     glClearColor (1., 1., 1., 0.);    
     printOpenGLInfo ();
     GLWidget::disableLighting ();
     glEnable(GL_DEPTH_TEST);
     glBlendFunc (GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
-    _glBlendColor p;
-    if ((p = reinterpret_cast<_glBlendColor>(context ()->getProcAddress ("glBlendColor"))) == 0)
-	cdbg << "no glBlendColor" << endl;
-    else
-    {
-	p (0, 0, 0, 0.3);
-    }
-
-
     projectionTransformation ();
     initializeTextures ();
     m_object = displayList (m_viewType);
@@ -1487,8 +1477,8 @@ void GLWidget::SetPlayMovie (bool playMovie)
     if (IsPlayMovie ())
     {
 	glEnable (GL_BLEND);
-	//glBlendFunc (GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
-	//glBlendColor (0, 0, 0, 0.3);
+	glBlendFunc (GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+	glBlendColor (0, 0, 0, 0.3);
     }
     else
     {
