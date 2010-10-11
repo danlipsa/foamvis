@@ -522,19 +522,17 @@ void GLWidget::paintGL()
 
 void GLWidget::resizeGL(int width, int height)
 {
-    using G3D::Rect2D;using G3D::Vector2;
-    Vector2 viewportStart = m_viewport.x0y0 ();
-    double ratio = 1;
-    if ((static_cast<double>(width) / height) > ratio)
+    const double RATIO = 1;
+    if ((static_cast<double>(width) / height) > RATIO)
     {
-	int newWidth = ratio * height;
-	m_viewport = Rect2D::xywh ((width - newWidth) / 2, 0,
+	int newWidth = RATIO * height;
+	m_viewport = G3D::Rect2D::xywh ((width - newWidth) / 2, 0,
 				   newWidth, height);
     }
     else
     {
-	int newHeight = 1 / ratio * width;
-	m_viewport = Rect2D::xywh (0, (height - newHeight) / 2,
+	int newHeight = 1 / RATIO * width;
+	m_viewport = G3D::Rect2D::xywh (0, (height - newHeight) / 2,
 				   width, newHeight);
     }
     glViewport (m_viewport.x0 (), m_viewport.y0 (), 

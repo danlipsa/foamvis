@@ -13,7 +13,15 @@ cd qt-everywhere-opensource-src-4.7.0
 make
 su <password>
 make install
+cp -r include /usr/local/Trolltech/Qt-4.7.0/include (important for qt3d)
 
+Copy http://csgalati.swansea.ac.uk/foam/build/qt3d-20101008.tgz to ~
+cd ~
+tar xzf qt3d-20101008.tgz
+cd qt3d
+qmake
+make -j <number_of_processors)
+make install
 
 Copy
 http://csgalati.swansea.ac.uk/foam/build/G3D-8.00-src.zip to ~
@@ -39,7 +47,6 @@ ccmake ../VTK-5.6.0
 press c twice to configure the build and then g to generate the makefile and exit
 make -j <number_of_processors> (or just make if you have one processor)
 make install
-
 
 Copy http://csgalati.swansea.ac.uk/foam/build/foam-<version>.tgz to ~
 cd ~
