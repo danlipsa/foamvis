@@ -394,9 +394,8 @@ void GLWidget::modelingTransformation () const
 
 void GLWidget::projectionTransformation () const
 {
-    using G3D::Vector3;
     G3D::AABox centeredViewingVolume = calculateCenteredViewingVolume ();
-    Vector3 translation (m_cameraDistance * G3D::Vector3::unitZ ());
+    G3D::Vector3 translation (m_cameraDistance * G3D::Vector3::unitZ ());
     G3D::AABox viewingVolume (
 	centeredViewingVolume.low () - translation,
 	centeredViewingVolume.high () - translation);
@@ -416,6 +415,38 @@ void GLWidget::projectionTransformation () const
     }
     glMatrixMode (GL_MODELVIEW);
 }
+
+void GLWidget::printProjectionInfo () const
+{
+    cdbg << "angle of view: " << m_angleOfView << endl;
+    cdbg << "centered viewing volume: " 
+	 << calculateCenteredViewingVolume () << endl;
+    cdbg << "viewport: " << m_viewport << endl;
+
+    glColor (Qt::black);
+    glMatrixMode (GL_MODELVIEW);
+    {
+	glPushMatrix ();
+	glLoadIdentity ();
+	glMatrixMode (GL_PROJECTION);
+	{
+	    glPushMatrix ();
+	    glLoadIdentity ();
+	    gluOrtho2D (0, m_viewport.x1 (), 0, m_viewport.y1 ());
+	    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+	    glBegin (GL_QUADS);
+	    glVertex (m_viewport.x0y0 () + G3D::Vector2(3, 3));
+	    glVertex (m_viewport.x1y0 () + G3D::Vector2(-3, 3));
+	    glVertex (m_viewport.x1y1 () + G3D::Vector2(-3, -3));
+	    glVertex (m_viewport.x0y1 () + G3D::Vector2(3, -3));
+	    glEnd ();
+	    glPopMatrix ();
+	}
+	glMatrixMode (GL_MODELVIEW);
+	glPopMatrix ();
+    }
+}
+
 
 
 void GLWidget::calculateCameraDistance ()
@@ -491,7 +522,7 @@ void GLWidget::initializeGL()
 {
     initializeGLFunctions ();
     glClearColor (1., 1., 1., 0.);    
-    printOpenGLInfo ();
+    //printOpenGLInfo ();
     GLWidget::disableLighting ();
     glEnable(GL_DEPTH_TEST);
     glBlendFunc (GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
@@ -506,7 +537,9 @@ void GLWidget::paintGL()
     {
 	viewingTransformation ();
 	modelingTransformation ();
+	displayBox (GetFoamAlongTime ().GetAABox (), Qt::white, GL_FILL);
 	glCallList (m_object);
+	cdbg << m_timeStep << endl;
 	detectOpenGLError ();
     }
     else
@@ -517,6 +550,7 @@ void GLWidget::paintGL()
 	glCallList (m_object);
 	detectOpenGLError ();
     }
+
 }
 
 
@@ -641,10 +675,10 @@ void GLWidget::displayBox (const OOBox& oobox) const
 }
 
 
-void GLWidget::displayAABox () const
+void GLWidget::displayBoundingBox () const
 {
     if (m_boundingBox)
-	displayBox (GetCurrentFoam ().GetAABox ());
+	displayBox (GetFoamAlongTime ().GetAABox (), Qt::black, GL_LINE);
 }
 
 void GLWidget::displayAxes () const
@@ -672,19 +706,18 @@ void GLWidget::displayAxes () const
     glEnd ();
 }
 
-
-void GLWidget::displayBox (const G3D::AABox& aabb) const
+void GLWidget::displayBox (const G3D::AABox& aabb, 
+			   const QColor& color, GLenum polygonMode) const
 {
     using G3D::Vector3;
     glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
     glLineWidth (1.0);
-    glColor (QColor (Qt::black));
-    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    glColor (color);
+    glPolygonMode (GL_FRONT_AND_BACK, polygonMode);
     Vector3 diagonal = aabb.high () - aabb.low ();
     Vector3 first = diagonal.x * Vector3::unitX ();
     Vector3 second = diagonal.y * Vector3::unitY ();
-    Vector3 third = diagonal.z * Vector3::unitZ ();
-    
+    Vector3 third = diagonal.z * Vector3::unitZ ();    
     displayOpositeFaces (aabb.low (), first, second, third);
     displayOpositeFaces (aabb.low (), second, third, first);
     displayOpositeFaces (aabb.low (), third, first, second);
@@ -711,7 +744,7 @@ GLuint GLWidget::displayListEdges () const
     glPopAttrib ();
     displayOriginalDomain ();
     displayCenterOfBodies ();
-    displayAABox ();
+    displayBoundingBox ();
     glEndList();
     return list;
 }
@@ -811,7 +844,7 @@ GLuint GLWidget::displayListFacesNormal () const
 
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
     displayOriginalDomain ();
-    displayAABox ();
+    displayBoundingBox ();
     //displayAxes ();
     glEndList();
     return list;
@@ -947,7 +980,7 @@ GLuint GLWidget::displayListCenterPaths () const
 	displayCenterOfBodies ();
     }
     displayOriginalDomain ();
-    displayAABox ();
+    displayBoundingBox ();
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
     glEndList();
     return list;
@@ -1285,13 +1318,14 @@ void GLWidget::ValueChangedBlend (int index)
     size_t maximum = slider->maximum ();
     m_imageAlphaMovieBlend = static_cast<double>(
 	maximum + 1 - index) / (maximum + 1);
+    cdbg << "image alpha: " << m_imageAlphaMovieBlend << endl;
 }
 
 
-void GLWidget::ValueChangedAngleOfView (int newIndex)
+void GLWidget::ValueChangedAngleOfView (int angleOfView)
 {
     makeCurrent ();
-    m_angleOfView = newIndex;
+    m_angleOfView = angleOfView;
     calculateCameraDistance ();
     projectionTransformation ();
     updateGL ();
@@ -1476,7 +1510,7 @@ void GLWidget::SetPlayMovie (bool playMovie)
     {
 	glEnable (GL_BLEND);
 	glBlendFunc (GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
-	glBlendColor (0, 0, 0, 0.3);
+	glBlendColor (0, 0, 0, m_imageAlphaMovieBlend);
     }
     else
     {

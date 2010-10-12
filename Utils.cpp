@@ -17,6 +17,14 @@ ostream& operator<< (ostream& ostr, const G3D::AABox& box)
 }
 
 
+ostream& operator<< (ostream& ostr, const G3D::Rect2D& box)
+{
+    cdbg << "Rect2D (" << box.x0y0 () << ", " << box.x1y1 () << ")";
+    return ostr;
+}
+
+
+
 const G3D::Vector3int16& Vector3int16Unit (size_t direction)
 {
     static const G3D::Vector3int16 unitVector3int16[3] = {
@@ -95,6 +103,12 @@ ostream& operator<< (ostream& ostr, const G3D::Vector4& v)
 {
     return ostr << v[0] << ", " << v[1] << ", " << v[2] << ", " << v[3];
 }
+
+ostream& operator<< (ostream& ostr, const G3D::Vector2& v)
+{
+    return ostr << v[0] << ", " << v[1];
+}
+
 
 void glColor (const QColor& color)
 {

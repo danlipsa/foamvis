@@ -14,11 +14,14 @@
  * @return where to print next
  */
 ostream& operator<< (ostream& ostr, const G3D::AABox& box);
+ostream& operator<< (ostream& ostr, const G3D::Rect2D& rect);
 ostream& operator<< (ostream& ostr, const QColor& color);
 ostream& operator<< (ostream& ostr, const QwtDoubleInterval& interval);
 ostream& operator<< (ostream& ostr, const vector<bool>& v);
 ostream& operator<< (ostream& ostr, const G3D::Matrix4& m);
 ostream& operator<< (ostream& ostr, const G3D::Vector4& v);
+ostream& operator<< (ostream& ostr, const G3D::Vector2& v);
+
 
 void glColor (const QColor& color);
 

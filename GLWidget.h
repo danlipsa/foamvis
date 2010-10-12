@@ -395,9 +395,10 @@ private:
      */
     GLuint displayListCenterPaths () const;
     void displayOriginalDomain () const;
-    void displayAABox () const;
+    void displayBoundingBox () const;
     void displayCenterPaths () const;
-    void displayBox (const G3D::AABox& aabox) const;
+    void displayBox (const G3D::AABox& aabb, const QColor& color, 
+		     GLenum polygonMode) const;
     void displayBox (const OOBox& oobox) const;
     void displayAxes () const;
 
@@ -445,6 +446,7 @@ private:
     bool doesSelectFace () const;
     bool doesSelectEdge () const;
     void createActions ();
+    void printProjectionInfo () const;
 
 private:
     static void displayOpositeFaces (G3D::Vector3 origin,
