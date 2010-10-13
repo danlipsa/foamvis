@@ -40,7 +40,7 @@ public:
     /**
      * Gets the AABox for this vector of Foam objects
      */
-    const G3D::AABox& GetAABox () const
+    const G3D::AABox& GetBoundingBox () const
     {
 	return m_AABox;
     }

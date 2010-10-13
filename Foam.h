@@ -120,21 +120,21 @@ public:
      * Gets a AABox of this Foam object
      * @return an AABox of this Foam object
      */
-    const G3D::AABox& GetAABox () const
+    const G3D::AABox& GetBoundingBox () const
     {
 	return m_AABox;
     }
     /**
      * Gets the low point of the AABox of this Foam object
      */
-    const G3D::Vector3& GetAABoxLow () const
+    const G3D::Vector3& GetBoundingBoxLow () const
     {
 	return m_AABox.low ();
     }
     /**
      * Gets the high point of the AABox of this Foam object
      */
-    const G3D::Vector3& GetAABoxHigh () const
+    const G3D::Vector3& GetBoundingBoxHigh () const
     {
 	return m_AABox.high ();
     }

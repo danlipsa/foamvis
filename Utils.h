@@ -43,6 +43,7 @@ inline void glTranslate (const G3D::Vector3& translate)
 void Scale (G3D::AABox* aabox, double change);
 void Scale (G3D::Rect2D* aabox, double change);
 void EncloseRotation (G3D::AABox* aabox);
+void AddBorder (G3D::AABox* aabox);
 
 template <typename Container, 
 	  typename ContainerIterator,

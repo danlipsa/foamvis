@@ -234,7 +234,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_useColorMap (false),
       m_colorBarModel (new ColorBarModel ()),
       m_colorBarTexture (0),
-      m_imageAlphaMovieBlend (0),
+      m_srcAlphaMovieBlend (1),
       m_playMovie (false)
 {
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
@@ -340,7 +340,7 @@ QSize GLWidget::sizeHint()
 
 void GLWidget::enableLighting ()
 {
-    const G3D::Vector3& max = GetFoamAlongTime ().GetAABox ().high ();
+    const G3D::Vector3& max = GetFoamAlongTime ().GetBoundingBox ().high ();
     GLfloat lightPosition[] = { 2*max.x, 2*max.y, 2*max.z, 0.0 };
     GLfloat lightAmbient[] = {1.0, 1.0, 1.0, 1.0};
 
@@ -361,19 +361,26 @@ void GLWidget::enableLighting ()
 
 G3D::AABox GLWidget::calculateCenteredViewingVolume () const
 {
-    G3D::AABox aaBox = GetFoamAlongTime ().GetAABox ();
-    EncloseRotation (&aaBox);
-    G3D::Vector3 center = aaBox.center ();
-    return G3D::AABox (aaBox.low () - center, aaBox.high () - center);
+    using G3D::Vector3;
+    G3D::AABox boundingBox = GetFoamAlongTime ().GetBoundingBox ();
+    EncloseRotation (&boundingBox);
+    //AddBorder (&boundingBox);
+    Vector3 center = boundingBox.center ();
+    return G3D::AABox (boundingBox.low () - center, 
+		       boundingBox.high () - center);
 }
 
-void GLWidget::viewingTransformation () const
+void GLWidget::modelViewTransform () const
 {
     glLoadIdentity ();
     glTranslate (- m_cameraDistance * G3D::Vector3::unitZ ());    
+    glMultMatrix (m_rotate);
+    if (GetCurrentFoam ().GetSpaceDimension () == 3)
+	rotateSurfaceEvolverCompatible ();
+    glTranslate (-GetFoamAlongTime ().GetBoundingBox ().center ());
 }
 
-void GLWidget::modelingTransformation () const
+void GLWidget::rotateSurfaceEvolverCompatible () const
 {
     /**
      *  y        z
@@ -381,14 +388,9 @@ void GLWidget::modelingTransformation () const
      * z        x
      */
     const static G3D::Matrix3 evolverAxes (0, 1, 0,  0, 0, 1,  1, 0, 0); 
-    glMultMatrix (m_rotate);
-    if (GetCurrentFoam ().GetSpaceDimension () == 3)
-    {
-	glMultMatrix (evolverAxes);
-	glMultMatrix (GetCurrentFoam ().GetViewMatrix ().
-		      approxCoordinateFrame ().rotation);
-    }
-    glTranslate (-GetFoamAlongTime ().GetAABox ().center ());
+    glMultMatrix (evolverAxes);
+    glMultMatrix (GetCurrentFoam ().GetViewMatrix ().
+		  approxCoordinateFrame ().rotation);
 }
 
 
@@ -415,39 +417,6 @@ void GLWidget::projectionTransformation () const
     }
     glMatrixMode (GL_MODELVIEW);
 }
-
-void GLWidget::printProjectionInfo () const
-{
-    cdbg << "angle of view: " << m_angleOfView << endl;
-    cdbg << "centered viewing volume: " 
-	 << calculateCenteredViewingVolume () << endl;
-    cdbg << "viewport: " << m_viewport << endl;
-
-    glColor (Qt::black);
-    glMatrixMode (GL_MODELVIEW);
-    {
-	glPushMatrix ();
-	glLoadIdentity ();
-	glMatrixMode (GL_PROJECTION);
-	{
-	    glPushMatrix ();
-	    glLoadIdentity ();
-	    gluOrtho2D (0, m_viewport.x1 (), 0, m_viewport.y1 ());
-	    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-	    glBegin (GL_QUADS);
-	    glVertex (m_viewport.x0y0 () + G3D::Vector2(3, 3));
-	    glVertex (m_viewport.x1y0 () + G3D::Vector2(-3, 3));
-	    glVertex (m_viewport.x1y1 () + G3D::Vector2(-3, -3));
-	    glVertex (m_viewport.x0y1 () + G3D::Vector2(3, -3));
-	    glEnd ();
-	    glPopMatrix ();
-	}
-	glMatrixMode (GL_MODELVIEW);
-	glPopMatrix ();
-    }
-}
-
-
 
 void GLWidget::calculateCameraDistance ()
 {
@@ -525,32 +494,41 @@ void GLWidget::initializeGL()
     //printOpenGLInfo ();
     GLWidget::disableLighting ();
     glEnable(GL_DEPTH_TEST);
-    glBlendFunc (GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
     projectionTransformation ();
     initializeTextures ();
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     m_object = displayList (m_viewType);
+    if (GetCurrentFoam ().GetSpaceDimension () == 2)
+    {
+	G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
+	double ratio = (bb.high ().x - bb.low ().x) / 
+	    (bb.high ().y - bb.low ().y);
+	QSize size;
+	size_t RESOLUTION = 1024;
+	if (ratio >= 1)
+	    size = QSize (RESOLUTION, RESOLUTION / ratio);
+	else
+	    size = QSize (RESOLUTION * ratio, RESOLUTION);
+	m_current.reset (new QGLFramebufferObject (size));
+	m_previous.reset (new QGLFramebufferObject (size));
+    }
 }
 
-void GLWidget::paintGL()
+void GLWidget::paintGL ()
 {
-    if (IsPlayMovie ())
-    {
-	viewingTransformation ();
-	modelingTransformation ();
-	displayBox (GetFoamAlongTime ().GetAABox (), Qt::white, GL_FILL);
-	glCallList (m_object);
-	cdbg << m_timeStep << endl;
-	detectOpenGLError ();
-    }
-    else
-    {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	viewingTransformation ();
-	modelingTransformation ();
-	glCallList (m_object);
-	detectOpenGLError ();
-    }
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    modelViewTransform ();
+    glCallList (m_object);
 
+    glEnable (GL_BLEND);
+	
+    QColor color (Qt::green);
+    color.setAlphaF (m_srcAlphaMovieBlend);
+    displayBox (GetFoamAlongTime ().GetBoundingBox (), color, GL_FILL);
+
+    glDisable (GL_BLEND);
+
+    detectOpenGLError ();
 }
 
 
@@ -678,13 +656,13 @@ void GLWidget::displayBox (const OOBox& oobox) const
 void GLWidget::displayBoundingBox () const
 {
     if (m_boundingBox)
-	displayBox (GetFoamAlongTime ().GetAABox (), Qt::black, GL_LINE);
+	displayBox (GetFoamAlongTime ().GetBoundingBox (), Qt::black, GL_LINE);
 }
 
 void GLWidget::displayAxes () const
 {
     using G3D::Vector3;
-    const G3D::AABox& aabb = GetCurrentFoam ().GetAABox ();
+    const G3D::AABox& aabb = GetCurrentFoam ().GetBoundingBox ();
     Vector3 origin = aabb.low ();
     Vector3 diagonal = aabb.high () - origin;
     Vector3 first = origin + diagonal.x * Vector3::unitX ();
@@ -1309,16 +1287,20 @@ void GLWidget::CurrentIndexChangedInteractionMode (int index)
 void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 {
     m_timeStep = timeStep;
+    makeCurrent ();
+    // render into the current framebuffer
+    
     UpdateDisplayList ();
+    cdbg << m_timeStep << endl;
 }
 
 void GLWidget::ValueChangedBlend (int index)
 {
     QSlider* slider = static_cast<QSlider*> (sender ());
     size_t maximum = slider->maximum ();
-    m_imageAlphaMovieBlend = static_cast<double>(
+    m_srcAlphaMovieBlend = static_cast<double>(
 	maximum + 1 - index) / (maximum + 1);
-    cdbg << "image alpha: " << m_imageAlphaMovieBlend << endl;
+    updateGL ();
 }
 
 
@@ -1505,17 +1487,5 @@ QColor GLWidget::GetCenterPathContextColor () const
 void GLWidget::SetPlayMovie (bool playMovie)
 {
     m_playMovie = playMovie;
-    makeCurrent ();
-    if (IsPlayMovie ())
-    {
-	glEnable (GL_BLEND);
-	glBlendFunc (GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
-	glBlendColor (0, 0, 0, m_imageAlphaMovieBlend);
-    }
-    else
-    {
-	glDisable (GL_BLEND);
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    }
 }
 

@@ -130,9 +130,9 @@ public:
     {
 	return m_contextAlpha;
     }
-    double GetImageAlphaMovieBlend () const
+    double GetSrcAlpahMovieBlend () const
     {
-	return m_imageAlphaMovieBlend;
+	return m_srcAlphaMovieBlend;
     }
 
     const QColor& GetEndTranslationColor (const G3D::Vector3int16& di) const;
@@ -337,8 +337,7 @@ private:
     void view (bool checked, ViewType view);
 
     void projectionTransformation () const;
-    void viewingTransformation () const;
-    void modelingTransformation () const;
+    void modelViewTransform () const;
     G3D::AABox calculateCenteredViewingVolume () const;
     void initializeTextures ();
     void calculateCameraDistance ();
@@ -446,7 +445,8 @@ private:
     bool doesSelectFace () const;
     bool doesSelectEdge () const;
     void createActions ();
-    void printProjectionInfo () const;
+    void allocateFramebufferObject ();
+    void rotateSurfaceEvolverCompatible () const;
 
 private:
     static void displayOpositeFaces (G3D::Vector3 origin,
@@ -503,7 +503,7 @@ private:
     G3D::Matrix3 m_rotate;    
     G3D::Rect2D m_viewport;
     /**
-     * Distance from the camera to the center of the AABox for the foam.
+     * Distance from the camera to the center of the bounding box for the foam.
      */
     double m_cameraDistance;
     double m_angleOfView;
@@ -543,12 +543,14 @@ private:
     bool m_useColorMap;
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
     GLuint m_colorBarTexture;
-    double m_imageAlphaMovieBlend;
+    double m_srcAlphaMovieBlend;
     /**
      * True if the program displays data in a loop, false
      * otherwise
      */
     bool m_playMovie;
+    boost::scoped_ptr<QGLFramebufferObject> m_current;
+    boost::scoped_ptr<QGLFramebufferObject> m_previous;
 };
 
 #endif //__GLWIDGET_H__
