@@ -21,8 +21,9 @@ class NameSemanticValue;
 class ParsingData;
 
 /**
- * Stores information  read from  a DMP file  produced by  the Surface
- * Evolver software.
+ * Stores information about a foam. A foam is composed of bodies,
+ * faces, edges and vertices and is read from a DMP file produced by
+ * the Surface Evolver software.
  */
 class Foam
 {

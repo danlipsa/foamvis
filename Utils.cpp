@@ -69,7 +69,7 @@ void AddBorder (G3D::AABox* aabox)
     using G3D::Vector3;
     Vector3 low = aabox->low ();
     Vector3 high = aabox->high ();
-    Vector3 value = (high - low) / 20;
+    Vector3 value = (high - low) / 1000;
     aabox->set (low - value, high + value);
 }
 

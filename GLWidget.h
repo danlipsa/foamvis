@@ -335,9 +335,21 @@ private:
     }
 
     void view (bool checked, ViewType view);
-
-    void projectionTransformation () const;
+    /**
+     * Setup the viewing volume first centered around origin and then translated
+     * toward negative Z with m_cameraDistance. 
+     * It is only done on initializeGL ();
+     */
+    void projectionTransform () const;
+    /**
+     * First translate the data to be centered around origin, then
+     * rotate and then translate toward negative Z with
+     * m_cameraDistance
+     */
     void modelViewTransform () const;
+    void modelViewTransformNoRotation () const;
+    void viewportTransform (int width, int height, 
+			    G3D::Rect2D* viewport = 0) const;
     G3D::AABox calculateCenteredViewingVolume () const;
     void initializeTextures ();
     void calculateCameraDistance ();
@@ -447,6 +459,9 @@ private:
     void createActions ();
     void allocateFramebufferObject ();
     void rotateSurfaceEvolverCompatible () const;
+    void allocateFramebufferObjects ();
+    void initializeFramebufferObjects ();
+    void renderFramebufferObjects ();
 
 private:
     static void displayOpositeFaces (G3D::Vector3 origin,

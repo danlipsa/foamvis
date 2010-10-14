@@ -441,10 +441,10 @@ void Foam::GetVertexSet (VertexSet* vertexSet) const
 {
     for_each (GetBodies ().begin (), GetBodies ().end (),
 	      boost::bind (&Body::GetVertexSet, _1, vertexSet));
-    for_each (GetStandaloneEdges ().begin (), GetStandaloneEdges ().end (),
-	      boost::bind (&Edge::GetVertexSet, _1, vertexSet));
     for_each (GetStandaloneFaces ().begin (), GetStandaloneFaces ().end (),
 	      boost::bind (&Face::GetVertexSet, _1, vertexSet));
+    for_each (GetStandaloneEdges ().begin (), GetStandaloneEdges ().end (),
+	      boost::bind (&Edge::GetVertexSet, _1, vertexSet));
 }
 
 void Foam::GetEdgeSet (EdgeSet* edgeSet) const
