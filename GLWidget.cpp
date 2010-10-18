@@ -535,7 +535,6 @@ void GLWidget::initializeGL()
     initializeTextures ();
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     m_object = displayList (m_viewType);
-    allocateFramebufferObjects ();
 }
 
 void GLWidget::paintGL ()
@@ -544,21 +543,7 @@ void GLWidget::paintGL ()
     {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	modelViewTransform ();
-
-	using G3D::Vector3;
-	G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
-	Vector3 low = bb.low ();
-	Vector3 high = bb.high ();
-	glEnable (GL_TEXTURE_2D);
-	glBindTexture (GL_TEXTURE_2D, m_current->texture ());
-	glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-	glBegin (GL_QUADS);
-	glTexCoord2i (0, 0);glVertex (low);
-	glTexCoord2i (1, 0);glVertex (Vector3 (high.x, low.y, low.z));
-	glTexCoord2i (1, 1);glVertex (Vector3 (high.x, high.y, low.z));
-	glTexCoord2i (0, 1);glVertex (Vector3 (low.x, high.y, low.z));
-	glEnd ();	    
-	glDisable (GL_TEXTURE_2D);
+	renderFromFramebufferObject (m_current);
     }
     else
     {
@@ -569,24 +554,50 @@ void GLWidget::paintGL ()
     detectOpenGLError ();
 }
 
+
+
+
 void GLWidget::resizeGL(int width, int height)
 {
     viewportTransform (width, height, &m_viewport);
+    if (m_srcAlphaMovieBlend < 1)
+	allocateAndInitializeFramebufferObjects ();
 }
 
 
-void GLWidget::allocateFramebufferObjects ()
+void GLWidget::renderFromFramebufferObject (
+    const boost::scoped_ptr<QGLFramebufferObject>& current) const
 {
+    using G3D::Vector3;
     G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
-    double ratio = (bb.high ().x - bb.low ().x) / 
-	(bb.high ().y - bb.low ().y);
-    QSize size;
-    size_t RESOLUTION = 1024;
-    if (ratio >= 1)
-	size = QSize (RESOLUTION, RESOLUTION / ratio);
-    else
-	size = QSize (RESOLUTION * ratio, RESOLUTION);
-    m_current.reset (new QGLFramebufferObject (size));
+    Vector3 low = bb.low ();
+    Vector3 high = bb.high ();
+    glEnable (GL_TEXTURE_2D);
+    glBindTexture (GL_TEXTURE_2D, current->texture ());
+    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+    glBegin (GL_QUADS);
+    glTexCoord2i (0, 0);glVertex (low);
+    glTexCoord2i (1, 0);glVertex (Vector3 (high.x, low.y, low.z));
+    glTexCoord2i (1, 1);glVertex (Vector3 (high.x, high.y, low.z));
+    glTexCoord2i (0, 1);glVertex (Vector3 (low.x, high.y, low.z));
+    glEnd ();	    
+    glDisable (GL_TEXTURE_2D);
+}
+
+
+void GLWidget::allocateAndInitializeFramebufferObjects ()
+{
+    G3D::Rect2D viewportFromZero = m_viewport - m_viewport.x0y0 ();
+    allocateFramebufferObjects (
+	QSize (viewportFromZero.width (), viewportFromZero.height ()));
+    initializeFramebufferObjects ();
+}
+
+
+void GLWidget::allocateFramebufferObjects (const QSize& size)
+{
+    m_current.reset (new QGLFramebufferObject (
+			 size));
     m_previous.reset (new QGLFramebufferObject (size));
 }
 
@@ -616,7 +627,7 @@ void GLWidget::initializeFramebufferObjects ()
     detectOpenGLError ();
 }
 
-void GLWidget::renderFramebufferObjects ()
+void GLWidget::renderToFramebufferObjects ()
 {
     makeCurrent ();
     QSize size = m_current->size ();
@@ -631,8 +642,12 @@ void GLWidget::renderFramebufferObjects ()
 	    glClear(GL_COLOR_BUFFER_BIT);
 	    glCallList (m_object);
 	    
-	    // blend the previous buffer
-	    
+	    // blend the previous buffer	    
+	    glEnable (GL_BLEND);	
+	    glBlendFunc (GL_ONE_MINUS_CONSTANT_ALPHA, GL_CONSTANT_ALPHA);
+	    glBlendColor (0, 0, 0, m_srcAlphaMovieBlend);
+	    renderFromFramebufferObject (m_previous);
+	    glDisable (GL_BLEND);
 	    m_current->release ();
 	}
         // copy current to previous buffer
@@ -1383,7 +1398,14 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
     m_timeStep = timeStep;
     makeCurrent ();
     UpdateDisplayList ();
-    renderFramebufferObjects ();
+    if (m_srcAlphaMovieBlend < 1)
+    {
+	if (m_timeStep == 0)
+	    initializeFramebufferObjects ();
+	else
+	    renderToFramebufferObjects ();
+    }
+    updateGL ();
 }
 
 void GLWidget::ValueChangedBlend (int index)
@@ -1391,9 +1413,10 @@ void GLWidget::ValueChangedBlend (int index)
     QSlider* slider = static_cast<QSlider*> (sender ());
     size_t maximum = slider->maximum ();
     if (m_srcAlphaMovieBlend == 1 && index != 0)
-	initializeFramebufferObjects ();
-    m_srcAlphaMovieBlend = static_cast<double>(
-	maximum + 1 - index) / (maximum + 1);
+	allocateAndInitializeFramebufferObjects ();
+    // m_srcAlphaMovieBlend is between 1 and 0.5
+    m_srcAlphaMovieBlend = 1 - static_cast<double>(index) / (2 * maximum);
+    cdbg << m_srcAlphaMovieBlend << endl;
     updateGL ();
 }
 

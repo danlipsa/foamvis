@@ -1,847 +1,845 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Window</class>
- <widget class="QWidget" name="Window">
+ <widget class="QMainWindow" name="Window">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>851</width>
-    <height>747</height>
+    <width>900</width>
+    <height>798</height>
    </rect>
   </property>
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
-  </property>
-  <property name="focusPolicy">
-   <enum>Qt::StrongFocus</enum>
-  </property>
   <property name="windowTitle">
-   <string>Foam</string>
+   <string>MainWindow</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_8">
-   <item>
-    <widget class="QWidget" name="widgetDisplayOptions" native="true">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,0">
-      <property name="sizeConstraint">
-       <enum>QLayout::SetDefaultConstraint</enum>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,0">
+    <item>
+     <widget class="DisplayWidget" name="widgetDisplay" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
-      <property name="margin">
-       <number>0</number>
-      </property>
-      <item>
-       <widget class="DisplayWidget" name="widgetDisplay" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,0,0">
-         <item>
-          <widget class="QWidget" name="widgetDisplayColorBar" native="true">
-           <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
-            <property name="rightMargin">
-             <number>0</number>
+      <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,0,0">
+       <item>
+        <widget class="QWidget" name="widgetDisplayColorBar" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="ColorBar" name="colorBar" native="true"/>
+          </item>
+          <item>
+           <widget class="GLWidget" name="widgetGl" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-            <item>
-             <widget class="ColorBar" name="colorBar" native="true"/>
-            </item>
-            <item>
-             <widget class="GLWidget" name="widgetGl" native="true">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>512</width>
-                <height>512</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="AttributeHistogram" name="widgetHistogram" native="true">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="TimeStepsSlider" name="sliderTimeSteps" native="true">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QWidget" name="widgetOptions" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_20">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetDefaultConstraint</enum>
+            <property name="minimumSize">
+             <size>
+              <width>512</width>
+              <height>512</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="AttributeHistogram" name="widgetHistogram" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="TimeStepsSlider" name="sliderTimeSteps" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="widgetOptions" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_20">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
+       <item>
+        <widget class="QComboBox" name="comboBoxInteractionMode">
          <item>
-          <widget class="QComboBox" name="comboBoxInteractionMode">
-           <item>
-            <property name="text">
-             <string>Rotate              R</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Scale               Z</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Translate          T</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Select Brush    B</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Select Eraser   E</string>
-            </property>
-           </item>
-          </widget>
+          <property name="text">
+           <string>Rotate              R</string>
+          </property>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupBoxMovie">
-           <property name="title">
-            <string>Movie</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_16">
-            <item>
-             <widget class="QWidget" name="widget" native="true">
-              <layout class="QHBoxLayout" name="horizontalLayout">
-               <property name="spacing">
-                <number>6</number>
+          <property name="text">
+           <string>Scale               Z</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Translate          T</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Select Brush    B</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Select Eraser   E</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBoxMovie">
+         <property name="title">
+          <string>Movie</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_16">
+          <item>
+           <widget class="QWidget" name="widget" native="true">
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <property name="spacing">
+              <number>6</number>
+             </property>
+             <property name="margin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QCheckBox" name="checkBoxSaveMovie">
+               <property name="text">
+                <string>Save</string>
                </property>
-               <property name="margin">
-                <number>0</number>
+              </widget>
+             </item>
+             <item>
+              <widget class="QToolButton" name="toolButtonBegin">
+               <property name="enabled">
+                <bool>false</bool>
                </property>
+               <property name="text">
+                <string>|&lt;&lt;</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QToolButton" name="toolButtonPlay">
+               <property name="text">
+                <string>&gt;</string>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::NoArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QToolButton" name="toolButtonEnd">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="text">
+                <string>&gt;&gt;|</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="widgetBlend" native="true">
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>9</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_4">
+               <property name="text">
+                <string>Blend</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSlider" name="horizontalSliderBlend">
+               <property name="maximum">
+                <number>99</number>
+               </property>
+               <property name="pageStep">
+                <number>10</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="tickPosition">
+                <enum>QSlider::TicksAbove</enum>
+               </property>
+               <property name="tickInterval">
+                <number>10</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Show</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_14">
+          <item>
+           <widget class="QCheckBox" name="checkBoxBoundingBox">
+            <property name="text">
+             <string>Bounding Box</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="checkBoxTimeSteps">
+            <property name="text">
+             <string>Time Steps</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="widgetAngleOfView" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>9</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Angle of View</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSlider" name="horizontalSliderAngleOfView">
+            <property name="maximum">
+             <number>120</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::TicksAbove</enum>
+            </property>
+            <property name="tickInterval">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBoxTorusOriginalDomain">
+         <property name="title">
+          <string>Torus Original Domain</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_22">
+          <item>
+           <widget class="QCheckBox" name="checkBoxTorusOriginalDomainDisplay">
+            <property name="text">
+             <string>Display</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="checkBoxTorusOriginalDomainWrapInside">
+            <property name="text">
+             <string>Clipped</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTabWidget" name="tabWidget">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="currentIndex">
+          <number>1</number>
+         </property>
+         <widget class="QWidget" name="edges">
+          <attribute name="title">
+           <string>Edges</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_8">
+           <item>
+            <widget class="QGroupBox" name="groupBox_2">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="title">
+              <string>Display</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_2">
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_7">
+                <item>
+                 <widget class="QRadioButton" name="radioButtonEdgesNormal">
+                  <property name="text">
+                   <string>Normal</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
+                  </property>
+                  <property name="autoRepeat">
+                   <bool>false</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string>buttonGroupDisplay</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="radioButtonEdgesTorus">
+                  <property name="text">
+                   <string>Torus Model</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string>buttonGroupDisplay</string>
+                  </attribute>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QStackedWidget" name="stackedWidgetEdges">
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <widget class="QWidget" name="pageEdgesEmpty"/>
+             <widget class="QWidget" name="pageEdgesNormal">
+              <layout class="QVBoxLayout" name="verticalLayout_23">
                <item>
-                <widget class="QCheckBox" name="checkBoxSaveMovie">
+                <widget class="QCheckBox" name="checkBoxEdgesBodyCenter">
                  <property name="text">
-                  <string>Save</string>
+                  <string>Body Center</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QToolButton" name="toolButtonBegin">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
+                <widget class="QCheckBox" name="checkBoxEdgesTessellation">
                  <property name="text">
-                  <string>|&lt;&lt;</string>
+                  <string>Tessellation Edges</string>
                  </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QToolButton" name="toolButtonPlay">
-                 <property name="text">
-                  <string>&gt;</string>
-                 </property>
-                 <property name="arrowType">
-                  <enum>Qt::NoArrow</enum>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QToolButton" name="toolButtonEnd">
-                 <property name="enabled">
+                 <property name="checked">
                   <bool>true</bool>
                  </property>
-                 <property name="text">
-                  <string>&gt;&gt;|</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QWidget" name="widgetBlend" native="true">
-              <layout class="QHBoxLayout" name="horizontalLayout_7">
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="topMargin">
-                <number>9</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
-                <number>0</number>
-               </property>
-               <item>
-                <widget class="QLabel" name="label_4">
-                 <property name="text">
-                  <string>Blend</string>
-                 </property>
                 </widget>
                </item>
                <item>
-                <widget class="QSlider" name="horizontalSliderBlend">
-                 <property name="maximum">
-                  <number>99</number>
-                 </property>
-                 <property name="pageStep">
-                  <number>10</number>
-                 </property>
+                <spacer name="verticalSpacer_4">
                  <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
+                  <enum>Qt::Vertical</enum>
                  </property>
-                 <property name="tickPosition">
-                  <enum>QSlider::TicksAbove</enum>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>0</height>
+                  </size>
                  </property>
-                 <property name="tickInterval">
-                  <number>10</number>
-                 </property>
-                </widget>
+                </spacer>
                </item>
               </layout>
              </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox">
-           <property name="title">
-            <string>Show</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_14">
-            <item>
-             <widget class="QCheckBox" name="checkBoxBoundingBox">
-              <property name="text">
-               <string>Bounding Box</string>
-              </property>
+             <widget class="QWidget" name="pageEdgesTorus">
+              <layout class="QVBoxLayout" name="verticalLayout_17">
+               <item>
+                <widget class="QCheckBox" name="checkBoxEdgesTorusTubes">
+                 <property name="text">
+                  <string>Tubes</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_2">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
              </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="checkBoxTimeSteps">
-              <property name="text">
-               <string>Time Steps</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QWidget" name="widgetAngleOfView" native="true">
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>9</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QLabel" name="label">
-              <property name="text">
-               <string>Angle of View</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSlider" name="horizontalSliderAngleOfView">
-              <property name="maximum">
-               <number>120</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="tickPosition">
-               <enum>QSlider::TicksAbove</enum>
-              </property>
-              <property name="tickInterval">
-               <number>10</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBoxTorusOriginalDomain">
-           <property name="title">
-            <string>Torus Original Domain</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_22">
-            <item>
-             <widget class="QCheckBox" name="checkBoxTorusOriginalDomainDisplay">
-              <property name="text">
-               <string>Display</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="checkBoxTorusOriginalDomainWrapInside">
-              <property name="text">
-               <string>Clipped</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QTabWidget" name="tabWidget">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="currentIndex">
-            <number>0</number>
-           </property>
-           <widget class="QWidget" name="edges">
-            <attribute name="title">
-             <string>Edges</string>
-            </attribute>
-            <layout class="QVBoxLayout" name="verticalLayout_8">
-             <item>
-              <widget class="QGroupBox" name="groupBox_2">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="title">
-                <string>Display</string>
-               </property>
-               <layout class="QVBoxLayout" name="verticalLayout_2">
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="faces">
+          <attribute name="title">
+           <string>Faces</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_13">
+           <item>
+            <widget class="QGroupBox" name="groupBox_4">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="title">
+              <string>Display</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_18">
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_12">
                 <item>
-                 <layout class="QVBoxLayout" name="verticalLayout_7">
+                 <widget class="QRadioButton" name="radioButtonFacesNormal">
+                  <property name="text">
+                   <string>Normal</string>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string>buttonGroupDisplay</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="radioButtonFacesTorus">
+                  <property name="text">
+                   <string>Torus Model</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string>buttonGroupDisplay</string>
+                  </attribute>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QStackedWidget" name="stackedWidgetFaces">
+             <property name="currentIndex">
+              <number>2</number>
+             </property>
+             <widget class="QWidget" name="pageFacesEmpty"/>
+             <widget class="QWidget" name="pageFacesTorus">
+              <layout class="QVBoxLayout" name="verticalLayout_21">
+               <item>
+                <widget class="QCheckBox" name="checkBoxFacesTorusTubes">
+                 <property name="text">
+                  <string>Tubes</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_6">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="pageFacesNormal">
+              <layout class="QVBoxLayout" name="verticalLayout_4">
+               <item>
+                <widget class="QCheckBox" name="checkBoxShowEdges">
+                 <property name="text">
+                  <string>Show edges</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QWidget" name="widgetCenterPathColor_2" native="true">
+                 <layout class="QHBoxLayout" name="horizontalLayout_6">
                   <item>
-                   <widget class="QRadioButton" name="radioButtonEdgesNormal">
+                   <widget class="QLabel" name="label_3">
                     <property name="text">
-                     <string>Normal</string>
+                     <string>Colored By</string>
                     </property>
-                    <property name="checkable">
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="comboBoxFacesColor">
+                    <item>
+                     <property name="text">
+                      <string>Velocity along x</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Velocity along y</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Velocity along z</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Velocity magnitute</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Pressure</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Volume</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>None</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="groupBoxFacesHistogram">
+                 <property name="title">
+                  <string>Histogram</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_6">
+                  <item>
+                   <widget class="QRadioButton" name="radioButtonFacesHistogramNone">
+                    <property name="text">
+                     <string>None</string>
+                    </property>
+                    <property name="checked">
                      <bool>true</bool>
                     </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                    <property name="autoRepeat">
-                     <bool>false</bool>
-                    </property>
                     <attribute name="buttonGroup">
-                     <string>buttonGroupDisplay</string>
+                     <string>buttonGroupFacesHistogram</string>
                     </attribute>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QRadioButton" name="radioButtonEdgesTorus">
+                   <widget class="QRadioButton" name="radioButtonFacesHistogramUnicolor">
                     <property name="text">
-                     <string>Torus Model</string>
+                     <string>Unicolor</string>
                     </property>
                     <attribute name="buttonGroup">
-                     <string>buttonGroupDisplay</string>
+                     <string>buttonGroupFacesHistogram</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QRadioButton" name="radioButtonFacesHistogramColorCoded">
+                    <property name="text">
+                     <string>Color Coded</string>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string>buttonGroupFacesHistogram</string>
                     </attribute>
                    </widget>
                   </item>
                  </layout>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item>
-              <widget class="QStackedWidget" name="stackedWidgetEdges">
-               <property name="currentIndex">
-                <number>0</number>
-               </property>
-               <widget class="QWidget" name="pageEdgesEmpty"/>
-               <widget class="QWidget" name="pageEdgesNormal">
-                <layout class="QVBoxLayout" name="verticalLayout_23">
-                 <item>
-                  <widget class="QCheckBox" name="checkBoxEdgesBodyCenter">
-                   <property name="text">
-                    <string>Body Center</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QCheckBox" name="checkBoxEdgesTessellation">
-                   <property name="text">
-                    <string>Tessellation Edges</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="verticalSpacer_4">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>20</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </widget>
-               <widget class="QWidget" name="pageEdgesTorus">
-                <layout class="QVBoxLayout" name="verticalLayout_17">
-                 <item>
-                  <widget class="QCheckBox" name="checkBoxEdgesTorusTubes">
-                   <property name="text">
-                    <string>Tubes</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="verticalSpacer_2">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>20</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </widget>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QWidget" name="faces">
-            <attribute name="title">
-             <string>Faces</string>
-            </attribute>
-            <layout class="QVBoxLayout" name="verticalLayout_13">
-             <item>
-              <widget class="QGroupBox" name="groupBox_4">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="title">
-                <string>Display</string>
-               </property>
-               <layout class="QVBoxLayout" name="verticalLayout_18">
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_3">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="composite">
+          <attribute name="title">
+           <string>Composite</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_11">
+           <item>
+            <widget class="QGroupBox" name="groupBox_3">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="title">
+              <string>Display</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout">
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_10">
                 <item>
-                 <layout class="QVBoxLayout" name="verticalLayout_12">
+                 <widget class="QRadioButton" name="radioButtonCenterPath">
+                  <property name="text">
+                   <string>Center Path</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string>buttonGroupDisplay</string>
+                  </attribute>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QStackedWidget" name="stackedWidgetComposite">
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <widget class="QWidget" name="pageCompositeEmpty"/>
+             <widget class="QWidget" name="pageCenterPath">
+              <layout class="QVBoxLayout" name="verticalLayout_3">
+               <item>
+                <widget class="QWidget" name="widgetCenterPathColor" native="true">
+                 <layout class="QHBoxLayout" name="horizontalLayout_5">
                   <item>
-                   <widget class="QRadioButton" name="radioButtonFacesNormal">
+                   <widget class="QLabel" name="label_2">
                     <property name="text">
-                     <string>Normal</string>
+                     <string>Colored By</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="comboBoxCenterPathColor">
+                    <item>
+                     <property name="text">
+                      <string>Velocity along x</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Velocity along y</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Velocity along z</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Velocity magnitute</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Pressure</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Volume</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>None</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkBoxCenterPathCurrentBody">
+                 <property name="text">
+                  <string>Current Body</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="groupBoxCenterPathHistogram">
+                 <property name="title">
+                  <string>Histogram</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_9">
+                  <item>
+                   <widget class="QRadioButton" name="radioButtonCenterPathHistogramNone">
+                    <property name="text">
+                     <string>None</string>
                     </property>
                     <property name="checked">
-                     <bool>false</bool>
+                     <bool>true</bool>
                     </property>
                     <attribute name="buttonGroup">
-                     <string>buttonGroupDisplay</string>
+                     <string>buttonGroupCenterPathHistogram</string>
                     </attribute>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QRadioButton" name="radioButtonFacesTorus">
+                   <widget class="QRadioButton" name="radioButtonCenterPathHistogramUnicolor">
                     <property name="text">
-                     <string>Torus Model</string>
+                     <string>Unicolor</string>
                     </property>
                     <attribute name="buttonGroup">
-                     <string>buttonGroupDisplay</string>
+                     <string>buttonGroupCenterPathHistogram</string>
                     </attribute>
                    </widget>
                   </item>
-                 </layout>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item>
-              <widget class="QStackedWidget" name="stackedWidgetFaces">
-               <property name="currentIndex">
-                <number>0</number>
-               </property>
-               <widget class="QWidget" name="pageFacesEmpty"/>
-               <widget class="QWidget" name="pageFacesTorus">
-                <layout class="QVBoxLayout" name="verticalLayout_21">
-                 <item>
-                  <widget class="QCheckBox" name="checkBoxFacesTorusTubes">
-                   <property name="text">
-                    <string>Tubes</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="verticalSpacer_6">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>20</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </widget>
-               <widget class="QWidget" name="pageFacesNormal">
-                <layout class="QVBoxLayout" name="verticalLayout_4">
-                 <item>
-                  <widget class="QCheckBox" name="checkBoxShowEdges">
-                   <property name="text">
-                    <string>Show edges</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QWidget" name="widgetCenterPathColor_2" native="true">
-                   <layout class="QHBoxLayout" name="horizontalLayout_6">
-                    <item>
-                     <widget class="QLabel" name="label_3">
-                      <property name="text">
-                       <string>Colored By</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QComboBox" name="comboBoxFacesColor">
-                      <item>
-                       <property name="text">
-                        <string>Velocity along x</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>Velocity along y</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>Velocity along z</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>Velocity magnitute</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>Pressure</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>Volume</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>None</string>
-                       </property>
-                      </item>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QGroupBox" name="groupBoxFacesHistogram">
-                   <property name="title">
-                    <string>Histogram</string>
-                   </property>
-                   <layout class="QVBoxLayout" name="verticalLayout_6">
-                    <item>
-                     <widget class="QRadioButton" name="radioButtonFacesHistogramNone">
-                      <property name="text">
-                       <string>None</string>
-                      </property>
-                      <property name="checked">
-                       <bool>true</bool>
-                      </property>
-                      <attribute name="buttonGroup">
-                       <string>buttonGroupFacesHistogram</string>
-                      </attribute>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QRadioButton" name="radioButtonFacesHistogramUnicolor">
-                      <property name="text">
-                       <string>Unicolor</string>
-                      </property>
-                      <attribute name="buttonGroup">
-                       <string>buttonGroupFacesHistogram</string>
-                      </attribute>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QRadioButton" name="radioButtonFacesHistogramColorCoded">
-                      <property name="text">
-                       <string>Color Coded</string>
-                      </property>
-                      <attribute name="buttonGroup">
-                       <string>buttonGroupFacesHistogram</string>
-                      </attribute>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="verticalSpacer_3">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>20</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </widget>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QWidget" name="composite">
-            <attribute name="title">
-             <string>Composite</string>
-            </attribute>
-            <layout class="QVBoxLayout" name="verticalLayout_11">
-             <item>
-              <widget class="QGroupBox" name="groupBox_3">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="title">
-                <string>Display</string>
-               </property>
-               <layout class="QVBoxLayout" name="verticalLayout">
-                <item>
-                 <layout class="QVBoxLayout" name="verticalLayout_10">
                   <item>
-                   <widget class="QRadioButton" name="radioButtonCenterPath">
+                   <widget class="QRadioButton" name="radioButtonCenterPathHistogramColorCoded">
                     <property name="text">
-                     <string>Center Path</string>
+                     <string>Color Coded</string>
                     </property>
                     <attribute name="buttonGroup">
-                     <string>buttonGroupDisplay</string>
+                     <string>buttonGroupCenterPathHistogram</string>
                     </attribute>
                    </widget>
                   </item>
                  </layout>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item>
-              <widget class="QStackedWidget" name="stackedWidgetComposite">
-               <property name="currentIndex">
-                <number>0</number>
-               </property>
-               <widget class="QWidget" name="pageCompositeEmpty"/>
-               <widget class="QWidget" name="pageCenterPath">
-                <layout class="QVBoxLayout" name="verticalLayout_3">
-                 <item>
-                  <widget class="QWidget" name="widgetCenterPathColor" native="true">
-                   <layout class="QHBoxLayout" name="horizontalLayout_5">
-                    <item>
-                     <widget class="QLabel" name="label_2">
-                      <property name="text">
-                       <string>Colored By</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QComboBox" name="comboBoxCenterPathColor">
-                      <item>
-                       <property name="text">
-                        <string>Velocity along x</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>Velocity along y</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>Velocity along z</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>Velocity magnitute</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>Pressure</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>Volume</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>None</string>
-                       </property>
-                      </item>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QCheckBox" name="checkBoxCenterPathCurrentBody">
-                   <property name="text">
-                    <string>Current Body</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QGroupBox" name="groupBoxCenterPathHistogram">
-                   <property name="title">
-                    <string>Histogram</string>
-                   </property>
-                   <layout class="QVBoxLayout" name="verticalLayout_9">
-                    <item>
-                     <widget class="QRadioButton" name="radioButtonCenterPathHistogramNone">
-                      <property name="text">
-                       <string>None</string>
-                      </property>
-                      <property name="checked">
-                       <bool>true</bool>
-                      </property>
-                      <attribute name="buttonGroup">
-                       <string>buttonGroupCenterPathHistogram</string>
-                      </attribute>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QRadioButton" name="radioButtonCenterPathHistogramUnicolor">
-                      <property name="text">
-                       <string>Unicolor</string>
-                      </property>
-                      <attribute name="buttonGroup">
-                       <string>buttonGroupCenterPathHistogram</string>
-                      </attribute>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QRadioButton" name="radioButtonCenterPathHistogramColorCoded">
-                      <property name="text">
-                       <string>Color Coded</string>
-                      </property>
-                      <attribute name="buttonGroup">
-                       <string>buttonGroupCenterPathHistogram</string>
-                      </attribute>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="verticalSpacer">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>20</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </widget>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-  </layout>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>900</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionOpenGL_Info"/>
+   </widget>
+   <addaction name="menuView"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionOpenGL_Info">
+   <property name="text">
+    <string>OpenGL Info</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -906,31 +904,6 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <tabstops>
-  <tabstop>comboBoxInteractionMode</tabstop>
-  <tabstop>horizontalSliderAngleOfView</tabstop>
-  <tabstop>checkBoxTorusOriginalDomainDisplay</tabstop>
-  <tabstop>checkBoxTorusOriginalDomainWrapInside</tabstop>
-  <tabstop>tabWidget</tabstop>
-  <tabstop>radioButtonEdgesNormal</tabstop>
-  <tabstop>radioButtonEdgesTorus</tabstop>
-  <tabstop>radioButtonFacesNormal</tabstop>
-  <tabstop>radioButtonFacesTorus</tabstop>
-  <tabstop>radioButtonCenterPath</tabstop>
-  <tabstop>checkBoxEdgesTessellation</tabstop>
-  <tabstop>checkBoxFacesTorusTubes</tabstop>
-  <tabstop>checkBoxEdgesBodyCenter</tabstop>
-  <tabstop>comboBoxFacesColor</tabstop>
-  <tabstop>radioButtonFacesHistogramNone</tabstop>
-  <tabstop>radioButtonFacesHistogramUnicolor</tabstop>
-  <tabstop>radioButtonFacesHistogramColorCoded</tabstop>
-  <tabstop>checkBoxEdgesTorusTubes</tabstop>
-  <tabstop>comboBoxCenterPathColor</tabstop>
-  <tabstop>checkBoxCenterPathCurrentBody</tabstop>
-  <tabstop>radioButtonCenterPathHistogramNone</tabstop>
-  <tabstop>radioButtonCenterPathHistogramUnicolor</tabstop>
-  <tabstop>radioButtonCenterPathHistogramColorCoded</tabstop>
- </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -1414,24 +1387,6 @@
    </hints>
   </connection>
  </connections>
- <slots>
-  <slot>ClickedBegin()</slot>
-  <slot>ClickedEnd()</slot>
-  <slot>ClickedPlay()</slot>
-  <slot>ToggledCenterPath(bool)</slot>
-  <slot>ToggledEdgesNormal(bool)</slot>
-  <slot>ToggledEdgesTorus(bool)</slot>
-  <slot>ToggledFacesTorus(bool)</slot>
-  <slot>ValueChangedSliderTimeSteps(int)</slot>
-  <slot>CurrentIndexChangedCenterPathColor(int)</slot>
-  <slot>CurrentIndexChangedFacesColor(int)</slot>
-  <slot>ToggledFacesNormal(bool)</slot>
-  <slot>ValueChangedNone()</slot>
-  <slot>SelectionChangedHistogram()</slot>
-  <slot>ButtonClickedHistogram(int)</slot>
-  <slot>ShowEditColorMap()</slot>
-  <slot>ToggledShowTimeSteps(bool)</slot>
- </slots>
  <buttongroups>
   <buttongroup name="buttonGroupDisplay"/>
   <buttongroup name="buttonGroupCenterPathHistogram"/>

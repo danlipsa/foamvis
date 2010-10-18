@@ -19,7 +19,7 @@ class ProcessBodyTorus;
 /**
  * Class that contains the OpenGL widget and all other UI.
  */
-class MainWindow : public QWidget, private Ui::Window
+class MainWindow : public QMainWindow, private Ui::Window
 {
 public:
     enum HistogramSelection

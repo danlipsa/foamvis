@@ -457,11 +457,14 @@ private:
     bool doesSelectFace () const;
     bool doesSelectEdge () const;
     void createActions ();
-    void allocateFramebufferObject ();
     void rotateSurfaceEvolverCompatible () const;
-    void allocateFramebufferObjects ();
+
+    void allocateFramebufferObjects (const QSize& size);
     void initializeFramebufferObjects ();
-    void renderFramebufferObjects ();
+    void allocateAndInitializeFramebufferObjects ();
+    void renderToFramebufferObjects ();
+    void renderFromFramebufferObject (
+	const boost::scoped_ptr<QGLFramebufferObject>& current) const;
 
 private:
     static void displayOpositeFaces (G3D::Vector3 origin,
