@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Window</class>
- <widget class="QMainWindow" name="Window">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -828,7 +828,7 @@
    </property>
    <widget class="QMenu" name="menuView">
     <property name="title">
-     <string>View</string>
+     <string>&amp;View</string>
     </property>
     <addaction name="actionOpenGL_Info"/>
    </widget>
@@ -837,7 +837,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpenGL_Info">
    <property name="text">
-    <string>OpenGL Info</string>
+    <string>&amp;OpenGL Info</string>
    </property>
   </action>
  </widget>
@@ -909,7 +909,7 @@
   <connection>
    <sender>toolButtonPlay</sender>
    <signal>clicked()</signal>
-   <receiver>Window</receiver>
+   <receiver>MainWindow</receiver>
    <slot>ClickedPlay()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -925,7 +925,7 @@
   <connection>
    <sender>toolButtonBegin</sender>
    <signal>clicked()</signal>
-   <receiver>Window</receiver>
+   <receiver>MainWindow</receiver>
    <slot>ClickedBegin()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -941,7 +941,7 @@
   <connection>
    <sender>toolButtonEnd</sender>
    <signal>clicked()</signal>
-   <receiver>Window</receiver>
+   <receiver>MainWindow</receiver>
    <slot>ClickedEnd()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -973,7 +973,7 @@
   <connection>
    <sender>radioButtonEdgesNormal</sender>
    <signal>toggled(bool)</signal>
-   <receiver>Window</receiver>
+   <receiver>MainWindow</receiver>
    <slot>ToggledEdgesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -989,7 +989,7 @@
   <connection>
    <sender>radioButtonEdgesTorus</sender>
    <signal>toggled(bool)</signal>
-   <receiver>Window</receiver>
+   <receiver>MainWindow</receiver>
    <slot>ToggledEdgesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1005,7 +1005,7 @@
   <connection>
    <sender>radioButtonFacesTorus</sender>
    <signal>toggled(bool)</signal>
-   <receiver>Window</receiver>
+   <receiver>MainWindow</receiver>
    <slot>ToggledFacesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1021,7 +1021,7 @@
   <connection>
    <sender>radioButtonCenterPath</sender>
    <signal>toggled(bool)</signal>
-   <receiver>Window</receiver>
+   <receiver>MainWindow</receiver>
    <slot>ToggledCenterPath(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1117,7 +1117,7 @@
   <connection>
    <sender>radioButtonFacesNormal</sender>
    <signal>toggled(bool)</signal>
-   <receiver>Window</receiver>
+   <receiver>MainWindow</receiver>
    <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1213,7 +1213,7 @@
   <connection>
    <sender>comboBoxCenterPathColor</sender>
    <signal>currentIndexChanged(int)</signal>
-   <receiver>Window</receiver>
+   <receiver>MainWindow</receiver>
    <slot>CurrentIndexChangedCenterPathColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1229,7 +1229,7 @@
   <connection>
    <sender>comboBoxFacesColor</sender>
    <signal>currentIndexChanged(int)</signal>
-   <receiver>Window</receiver>
+   <receiver>MainWindow</receiver>
    <slot>CurrentIndexChangedFacesColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1261,7 +1261,7 @@
   <connection>
    <sender>sliderTimeSteps</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>Window</receiver>
+   <receiver>MainWindow</receiver>
    <slot>ValueChangedSliderTimeSteps(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1277,7 +1277,7 @@
   <connection>
    <sender>widgetHistogram</sender>
    <signal>selectionChanged()</signal>
-   <receiver>Window</receiver>
+   <receiver>MainWindow</receiver>
    <slot>SelectionChangedHistogram()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1293,7 +1293,7 @@
   <connection>
    <sender>buttonGroupCenterPathHistogram</sender>
    <signal>buttonClicked(int)</signal>
-   <receiver>Window</receiver>
+   <receiver>MainWindow</receiver>
    <slot>ButtonClickedHistogram(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1309,7 +1309,7 @@
   <connection>
    <sender>buttonGroupFacesHistogram</sender>
    <signal>buttonClicked(int)</signal>
-   <receiver>Window</receiver>
+   <receiver>MainWindow</receiver>
    <slot>ButtonClickedHistogram(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1325,7 +1325,7 @@
   <connection>
    <sender>colorBar</sender>
    <signal>EditColorMap()</signal>
-   <receiver>Window</receiver>
+   <receiver>MainWindow</receiver>
    <slot>ShowEditColorMap()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1341,7 +1341,7 @@
   <connection>
    <sender>checkBoxTimeSteps</sender>
    <signal>toggled(bool)</signal>
-   <receiver>Window</receiver>
+   <receiver>MainWindow</receiver>
    <slot>ToggledShowTimeSteps(bool)</slot>
    <hints>
     <hint type="sourcelabel">

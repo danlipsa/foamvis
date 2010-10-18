@@ -16,6 +16,7 @@
 #include "DisplayEdgeFunctors.h"
 #include "DisplayFaceFunctors.h"
 #include "DisplayBodyFunctors.h"
+#include "OpenGLInfo.h"
 #include "Utils.h"
 #include "GLWidget.h"
 
@@ -87,12 +88,12 @@ public:
 	}
     }
 
-    void print () const
+    void print (ostream* ostr) const
     {
-	cdbg << m_name;
+	(*ostr) << m_name;
 	if (m_what != 0)
-	    cdbg << ": " << get ();
-	cdbg << endl;
+	    (*ostr) << ": " << get ();
+	(*ostr) << endl;
     }
 
 private:
@@ -130,7 +131,6 @@ private:
 // Private Functions
 // ======================================================================
 
-
 /**
  * Check the OpenGL  error code and prints a message  to cdbg if there
  * is an error
@@ -143,32 +143,29 @@ void detectOpenGLError (string message = "")
 		    << gluErrorString(errCode);
 }
 
-/**
- * Prints information  about the OpenGL  implementation (hardware) the
- * program runs on.
- */
-void printOpenGLInfo ()
+void printOpenGLInfo (ostream& ostr)
 {
-    boost::array<OpenGLFeature, 25> info = {{
+    boost::array<OpenGLFeature, 27> info = {{
 	OpenGLFeature (GL_VENDOR, OpenGLFeature::STRING, "GL_VENDOR"),
 	OpenGLFeature (GL_RENDERER, OpenGLFeature::STRING, "GL_RENDERER"),
 	OpenGLFeature (GL_VERSION, OpenGLFeature::STRING, "GL_VERSION"),
-	OpenGLFeature (GL_EXTENSIONS, OpenGLFeature::STRING, "GL_EXTENSIONS"),
 
 	OpenGLFeature ("--- Texture ---"),
 	OpenGLFeature (GL_MAX_TEXTURE_SIZE, OpenGLFeature::INTEGER,
 		       "GL_MAX_TEXTURE_SIZE"),
+	// how many framebuffer objects can we get?
 	OpenGLFeature (GL_MAX_COLOR_ATTACHMENTS_EXT, OpenGLFeature::INTEGER,
 		       "GL_MAX_COLOR_ATTACHMENTS_EXT"),
 	OpenGLFeature ("--- Vertex Shader ---"),
 	OpenGLFeature (GL_MAX_VERTEX_ATTRIBS, OpenGLFeature::INTEGER,
 		       "GL_MAX_VERTEX_ATTRIBS"),
 
-	
+	OpenGLFeature ("--- Multisampling ---"),	
 	OpenGLFeature (GL_SAMPLE_BUFFERS, OpenGLFeature::INTEGER, 
 		       "GL_SAMPLE_BUFFERS"),
 	OpenGLFeature (GL_SAMPLES, OpenGLFeature::INTEGER, "GL_SAMPLES"),
-
+	
+	OpenGLFeature ("--- Other ---"),	
 	OpenGLFeature (GL_AUX_BUFFERS, OpenGLFeature::INTEGER, "AUX_BUFFERS"),
         OpenGLFeature (GL_RED_BITS, OpenGLFeature::INTEGER, "RED_BITS"),
         OpenGLFeature (GL_GREEN_BITS, OpenGLFeature::INTEGER, "GREEN_BITS"),
@@ -188,11 +185,13 @@ void printOpenGLInfo ()
 	
 	OpenGLFeature (GL_STEREO, OpenGLFeature::BOOLEAN, "GL_STEREO"),
 	OpenGLFeature (GL_DOUBLEBUFFER, OpenGLFeature::BOOLEAN,
-		       "GL_DOUBLEBUFFER")
+		       "GL_DOUBLEBUFFER"),
+	OpenGLFeature (GL_EXTENSIONS, OpenGLFeature::STRING, "GL_EXTENSIONS"),
 	}};
     for_each (info.begin (), info.end (),
-	      boost::bind (&OpenGLFeature::print, _1));
+	      boost::bind (&OpenGLFeature::print, _1, &ostr));
 }
+
 
 
 // Static Fields
@@ -528,7 +527,6 @@ void GLWidget::initializeGL()
 {
     initializeGLFunctions ();
     glClearColor (1., 1., 1., 0.);    
-    //printOpenGLInfo ();
     GLWidget::disableLighting ();
     glEnable(GL_DEPTH_TEST);
     projectionTransform ();
@@ -543,6 +541,7 @@ void GLWidget::paintGL ()
     {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	modelViewTransform ();
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	renderFromFramebufferObject (m_current);
     }
     else
@@ -596,9 +595,8 @@ void GLWidget::allocateAndInitializeFramebufferObjects ()
 
 void GLWidget::allocateFramebufferObjects (const QSize& size)
 {
-    m_current.reset (new QGLFramebufferObject (
-			 size));
-    m_previous.reset (new QGLFramebufferObject (size));
+    m_current.reset (new QGLFramebufferObject (size));
+    m_previous.reset (new QGLFramebufferObject (size));    
 }
 
 void GLWidget::initializeFramebufferObjects ()
@@ -607,21 +605,29 @@ void GLWidget::initializeFramebufferObjects ()
     QSize size = m_current->size ();
     {
 	glPushMatrix ();
+	glPushAttrib (GL_CURRENT_BIT);
 	viewportTransform (size.width (), size.height ());
 	modelViewTransformNoRotation ();
 	// render to the current buffer
-	m_current->bind ();
-	glClear(GL_COLOR_BUFFER_BIT);
-	glCallList (m_object);
-	m_current->release ();
+	{
+	    m_current->bind ();
+	    glClear(GL_COLOR_BUFFER_BIT);
+	    glCallList (m_object);
+	    m_current->release ();
+	}
+	m_current->toImage ().save ("current.jpg");
 	
         // clear the previous buffer
-	glColor (Qt::white);
-	m_previous->bind ();
-	glClear(GL_COLOR_BUFFER_BIT);
-	m_previous->release ();
+	glColor (Qt::black);
+	{
+	    m_previous->bind ();
+	    glClear(GL_COLOR_BUFFER_BIT);
+	    m_previous->release ();
+	}
+	m_previous->toImage ().save ("previous.jpg");
 	glViewport (m_viewport.x0 (), m_viewport.y0 (), 
 		    m_viewport.width (), m_viewport.height ());
+	glPopAttrib ();
 	glPopMatrix ();
     }
     detectOpenGLError ();
@@ -631,30 +637,36 @@ void GLWidget::renderToFramebufferObjects ()
 {
     makeCurrent ();
     QSize size = m_current->size ();
-    QRect rect (QPoint (0, 0), size);
     {
 	glPushMatrix ();
+	glPushAttrib (GL_CURRENT_BIT);
 	viewportTransform (size.width (), size.height ());
 	modelViewTransformNoRotation ();
+	// render to the current buffer
 	{
 	    m_current->bind ();
-	    // render to the current buffer
 	    glClear(GL_COLOR_BUFFER_BIT);
-	    glCallList (m_object);
-	    
-	    // blend the previous buffer	    
+	    glCallList (m_object);	    
+
+	    // blend from the previous buffer	    
 	    glEnable (GL_BLEND);	
 	    glBlendFunc (GL_ONE_MINUS_CONSTANT_ALPHA, GL_CONSTANT_ALPHA);
 	    glBlendColor (0, 0, 0, m_srcAlphaMovieBlend);
+	    //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
 	    renderFromFramebufferObject (m_previous);
 	    glDisable (GL_BLEND);
 	    m_current->release ();
 	}
-        // copy current to previous buffer
+	m_current->toImage ().save ("current1.jpg");
+        // copy current --> previous buffer
+	QRect rect (QPoint (0, 0), size);
 	QGLFramebufferObject::blitFramebuffer (
 	    m_previous.get (), rect, m_current.get (), rect);
+	m_previous->toImage ().save ("previous1.jpg");
+
 	glViewport (m_viewport.x0 (), m_viewport.y0 (), 
 		    m_viewport.width (), m_viewport.height ());
+	glPopAttrib ();
 	glPopMatrix ();
     }
     detectOpenGLError ();
@@ -1431,6 +1443,15 @@ void GLWidget::ValueChangedAngleOfView (int angleOfView)
 }
 
 
+void GLWidget::ShowOpenGLInfo ()
+{
+    ostringstream ostr;
+    printOpenGLInfo (ostr);
+    boost::scoped_ptr<OpenGLInfo> openGLInfo (
+	new OpenGLInfo (this, ostr.str ()));
+    openGLInfo->exec ();
+}
+
 // Static Methods
 //======================================================================
 void GLWidget::disableLighting ()
@@ -1580,7 +1601,7 @@ void GLWidget::displayTextureColorMap () const
 	    glColor (Qt::blue);
 
 	    glEnable(GL_TEXTURE_1D);
-	    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	    glBindTexture (GL_TEXTURE_1D, m_colorBarTexture);
 
 	    glBegin (GL_QUADS);

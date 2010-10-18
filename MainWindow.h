@@ -7,7 +7,7 @@
 #ifndef __MAIN_WINDOW_H__
 #define __MAIN_WINDOW_H__
 
-#include "ui_Window.h"
+#include "ui_MainWindow.h"
 #include "Enums.h"
 #include "Foam.h"
 
@@ -19,7 +19,7 @@ class ProcessBodyTorus;
 /**
  * Class that contains the OpenGL widget and all other UI.
  */
-class MainWindow : public QMainWindow, private Ui::Window
+class MainWindow : public QMainWindow, private Ui::MainWindow
 {
 public:
     enum HistogramSelection

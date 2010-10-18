@@ -255,6 +255,7 @@ public Q_SLOTS:
     void ToggledShowBoundingBox (bool checked);
     void ValueChangedAngleOfView (int newIndex);
     void ValueChangedBlend (int index);
+    void ShowOpenGLInfo ();
 
 public:
     const static  size_t DISPLAY_ALL;

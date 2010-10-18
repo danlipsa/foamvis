@@ -642,6 +642,10 @@ void MainWindow::createActions ()
     connect(m_actionSelectEraser.get (), SIGNAL(triggered()),
 	    this, SLOT(InteractionModeSelectEraser ()));
 
+    connect (actionOpenGL_Info, SIGNAL (triggered ()),
+	     widgetGl, SLOT (ShowOpenGLInfo ()));
+
+
     m_actionSelectAll = boost::make_shared<QAction> (tr("&Select All"), this);
     m_actionSelectAll->setShortcut(
 	QKeySequence (tr ("Shift+S")));

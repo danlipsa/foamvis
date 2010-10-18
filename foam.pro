@@ -9,7 +9,7 @@ HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
 	Foam.h FoamAlongTime.h Face.h \
 	GLWidget.h Hashes.h Histogram.h HistogramItem.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
-	OOBox.h OrientedElement.h\
+	OOBox.h OpenGLInfo.h OrientedElement.h\
 	OrientedEdge.h OrientedFace.h OrientedFaceIndex.h \
 	ParsingData.h ParsingDriver.h ProcessBodyTorus.h \
 	QuadraticEdge.h RestrictedRangeSlider.h \
@@ -34,7 +34,7 @@ SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp 
 	StripIterator.cpp TimeStepsSlider.cpp \
 	TransferFunctionHistogram.cpp Utils.cpp Vertex.cpp
 FORMS += HistogramHeight.ui EditColorMap.ui \
-	 RestrictedRangeSlider.ui Window.ui
+	 RestrictedRangeSlider.ui MainWindow.ui OpenGLInfo.ui
 LEXSOURCES += EvolverData.l
 YACCSOURCES += EvolverData.y
 QMAKE_YACC = .\\/bison.pl -y --report=state --debug
