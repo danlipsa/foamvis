@@ -145,7 +145,7 @@ void detectOpenGLError (string message = "")
 
 void printOpenGLInfo (ostream& ostr)
 {
-    boost::array<OpenGLFeature, 27> info = {{
+    boost::array<OpenGLFeature, 28> info = {{
 	OpenGLFeature (GL_VENDOR, OpenGLFeature::STRING, "GL_VENDOR"),
 	OpenGLFeature (GL_RENDERER, OpenGLFeature::STRING, "GL_RENDERER"),
 	OpenGLFeature (GL_VERSION, OpenGLFeature::STRING, "GL_VERSION"),
@@ -153,9 +153,11 @@ void printOpenGLInfo (ostream& ostr)
 	OpenGLFeature ("--- Texture ---"),
 	OpenGLFeature (GL_MAX_TEXTURE_SIZE, OpenGLFeature::INTEGER,
 		       "GL_MAX_TEXTURE_SIZE"),
-	// how many framebuffer objects can we get?
+
+	OpenGLFeature ("--- Framebuffer Objects ---"),
 	OpenGLFeature (GL_MAX_COLOR_ATTACHMENTS_EXT, OpenGLFeature::INTEGER,
 		       "GL_MAX_COLOR_ATTACHMENTS_EXT"),
+
 	OpenGLFeature ("--- Vertex Shader ---"),
 	OpenGLFeature (GL_MAX_VERTEX_ATTRIBS, OpenGLFeature::INTEGER,
 		       "GL_MAX_VERTEX_ATTRIBS"),
@@ -217,6 +219,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_displayedEdgeIndex (DISPLAY_ALL),
       m_normalVertexSize (3), m_normalEdgeWidth (1),
       m_contextAlpha (0.05),
+      m_scale (1),
       m_angleOfView (0),
       m_edgesTorusTubes (false),
       m_facesTorusTubes (false),
@@ -362,10 +365,10 @@ G3D::AABox GLWidget::calculateCenteredViewingVolume () const
 {
     using G3D::Vector3;
     G3D::AABox boundingBox = GetFoamAlongTime ().GetBoundingBox ();
-    if (GetCurrentFoam ().GetSpaceDimension () == 3)
+    // if (GetCurrentFoam ().GetSpaceDimension () == 3)
 	EncloseRotation (&boundingBox);
-    else
-	AddBorder (&boundingBox);
+    // else
+    // AddBorder (&boundingBox);
     Vector3 center = boundingBox.center ();
     return G3D::AABox (boundingBox.low () - center, 
 		       boundingBox.high () - center);
@@ -414,30 +417,62 @@ void GLWidget::projectionTransform () const
     glMatrixMode (GL_MODELVIEW);
 }
 
-void GLWidget::viewportTransform (
-    int width, int height, G3D::Rect2D* viewport) const
+G3D::Rect2D GLWidget::viewportTransform (
+    int width, int height, double scale,
+    G3D::Rect2D* viewport) const
 {
-    G3D::AABox viewingVolume = calculateCenteredViewingVolume ();
-    G3D::Vector3 low = viewingVolume.low ();
-    G3D::Vector3 high = viewingVolume.high ();
+    using G3D::Vector3;
+    G3D::AABox vv = calculateCenteredViewingVolume ();
+    G3D::Rect2D vv2d = G3D::Rect2D::xyxy (vv.low ().xy (), vv.high ().xy ());
     double windowRatio = static_cast<double>(width) / height;
-    const double ratio = (high.x - low.x) / (high.y - low.y);
-    G3D::Rect2D rect;
-    if (windowRatio > ratio)
+    double vvratio = vv2d.width () / vv2d.height ();
+    G3D::Rect2D vv2dScreen;
+    G3D::Rect2D windowWorld;
+    if (windowRatio > vvratio)
     {
-	int newWidth = ratio * height;
-	rect = G3D::Rect2D::xywh ((width - newWidth) / 2, 0,
-				   newWidth, height);
+	double newWidth = vvratio * height;
+	vv2dScreen = G3D::Rect2D::xywh ((width - newWidth) / 2, 0,
+					     newWidth, height);
+	windowWorld = G3D::Rect2D::xywh (0, 0,
+	    vv2d.height () * windowRatio, vv2d.height ());
     }
     else
     {
-	int newHeight = 1 / ratio * width;
-	rect = G3D::Rect2D::xywh (0, (height - newHeight) / 2,
+	double newHeight = width / vvratio;
+	vv2dScreen = G3D::Rect2D::xywh (0, (height - newHeight) / 2,
 				   width, newHeight);
+	windowWorld = G3D::Rect2D::xywh (0, 0,
+	    vv2d.width (), vv2d.width () / windowRatio);
     }
-    glViewport (rect.x0 (), rect.y0 (), rect.width (), rect.height ());
+
+    G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
+    G3D::Rect2D bb2d = G3D::Rect2D::xyxy (bb.low ().xy (), bb.high ().xy ());
+    double bbratio = bb2d.width () / bb2d.height ();
+    double change;
+    G3D::Rect2D bb2dScreen;
+    if (windowRatio > bbratio)
+    {
+	change = windowWorld.height () / bb2d.height ();
+	double newWidth = bbratio * height;
+	bb2dScreen = G3D::Rect2D::xywh ((width - newWidth) / 2, 0,
+					newWidth, height);
+    }
+    else
+    {
+	change = windowWorld.width () / bb2d.width ();
+	double newHeight = width / bbratio;
+	bb2dScreen = G3D::Rect2D::xywh (
+	    0, (height - newHeight) / 2, width, newHeight);
+    }
+    Scale (&vv2dScreen, change * scale);
     if (viewport != 0)
-	*viewport = rect;
+	*viewport = vv2dScreen;
+    glViewport (ceil (vv2dScreen.x0 ()), ceil (vv2dScreen.y0 ()), 
+		vv2dScreen.width (), vv2dScreen.height ());
+    cdbg << "width = " << width << " height = " << height << endl
+	 << bb2dScreen << endl
+	 << vv2dScreen << endl;
+    return bb2dScreen;
 }
 
 void GLWidget::rotateSurfaceEvolverCompatible () const
@@ -470,6 +505,7 @@ void GLWidget::calculateCameraDistance ()
 void GLWidget::ResetTransformation ()
 {
     m_rotate = G3D::Matrix3::identity ();
+    m_scale = 1;
     resizeGL (width (), height ());
     UpdateDisplayList ();
 }
@@ -558,11 +594,97 @@ void GLWidget::paintGL ()
 
 void GLWidget::resizeGL(int width, int height)
 {
-    viewportTransform (width, height, &m_viewport);
+    G3D::Rect2D boundingBoxViewport = viewportTransform (
+	width, height, m_scale, &m_viewport);
     if (m_srcAlphaMovieBlend < 1)
-	allocateAndInitializeFramebufferObjects ();
+	allocateAndInitializeFramebufferObjects (
+	    QSize (boundingBoxViewport.width (), boundingBoxViewport.height ()));
 }
 
+void GLWidget::allocateFramebufferObjects (const QSize& size)
+{
+    m_current.reset (new QGLFramebufferObject (size));
+    m_previous.reset (new QGLFramebufferObject (size));    
+}
+
+void GLWidget::initializeFramebufferObjects ()
+{
+    makeCurrent ();
+    QSize size = m_current->size ();
+    {
+	glPushMatrix ();
+	glPushAttrib (GL_CURRENT_BIT);
+	viewportTransform (size.width (), size.height (), 1);
+	modelViewTransformNoRotation ();
+	// render to the current buffer
+	{
+	    m_current->bind ();
+	    glClear(GL_COLOR_BUFFER_BIT);
+	    glCallList (m_object);
+	    m_current->release ();
+	}
+	//m_current->toImage ().save ("current.jpg");
+	
+        // clear the previous buffer
+	glColor (Qt::black);
+	{
+	    m_previous->bind ();
+	    glClear(GL_COLOR_BUFFER_BIT);
+	    m_previous->release ();
+	}
+	//m_previous->toImage ().save ("previous.jpg");
+	glViewport (m_viewport.x0 (), m_viewport.y0 (), 
+		    m_viewport.width (), m_viewport.height ());
+	glPopAttrib ();
+	glPopMatrix ();
+    }
+    detectOpenGLError ();
+}
+
+void GLWidget::allocateAndInitializeFramebufferObjects (const QSize& size)
+{
+    allocateFramebufferObjects (size);
+    initializeFramebufferObjects ();
+}
+
+void GLWidget::renderToFramebufferObjects ()
+{
+    makeCurrent ();
+    QSize size = m_current->size ();
+    {
+	glPushMatrix ();
+	glPushAttrib (GL_CURRENT_BIT);
+	viewportTransform (size.width (), size.height (), 1);
+	modelViewTransformNoRotation ();
+	// render to the current buffer
+	{
+	    m_current->bind ();
+	    glClear(GL_COLOR_BUFFER_BIT);
+	    glCallList (m_object);	    
+
+	    // blend from the previous buffer	    
+	    glEnable (GL_BLEND);	
+	    glBlendFunc (GL_ONE_MINUS_CONSTANT_ALPHA, GL_CONSTANT_ALPHA);
+	    glBlendColor (0, 0, 0, m_srcAlphaMovieBlend);
+	    //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
+	    renderFromFramebufferObject (m_previous);
+	    glDisable (GL_BLEND);
+	    m_current->release ();
+	}
+	//m_current->toImage ().save ("current1.jpg");
+        // copy current --> previous buffer
+	QRect rect (QPoint (0, 0), size);
+	QGLFramebufferObject::blitFramebuffer (
+	    m_previous.get (), rect, m_current.get (), rect);
+	//m_previous->toImage ().save ("previous1.jpg");
+
+	glViewport (m_viewport.x0 (), m_viewport.y0 (), 
+		    m_viewport.width (), m_viewport.height ());
+	glPopAttrib ();
+	glPopMatrix ();
+    }
+    detectOpenGLError ();
+}
 
 void GLWidget::renderFromFramebufferObject (
     const boost::scoped_ptr<QGLFramebufferObject>& current) const
@@ -581,95 +703,6 @@ void GLWidget::renderFromFramebufferObject (
     glTexCoord2i (0, 1);glVertex (Vector3 (low.x, high.y, low.z));
     glEnd ();	    
     glDisable (GL_TEXTURE_2D);
-}
-
-
-void GLWidget::allocateAndInitializeFramebufferObjects ()
-{
-    G3D::Rect2D viewportFromZero = m_viewport - m_viewport.x0y0 ();
-    allocateFramebufferObjects (
-	QSize (viewportFromZero.width (), viewportFromZero.height ()));
-    initializeFramebufferObjects ();
-}
-
-
-void GLWidget::allocateFramebufferObjects (const QSize& size)
-{
-    m_current.reset (new QGLFramebufferObject (size));
-    m_previous.reset (new QGLFramebufferObject (size));    
-}
-
-void GLWidget::initializeFramebufferObjects ()
-{
-    makeCurrent ();
-    QSize size = m_current->size ();
-    {
-	glPushMatrix ();
-	glPushAttrib (GL_CURRENT_BIT);
-	viewportTransform (size.width (), size.height ());
-	modelViewTransformNoRotation ();
-	// render to the current buffer
-	{
-	    m_current->bind ();
-	    glClear(GL_COLOR_BUFFER_BIT);
-	    glCallList (m_object);
-	    m_current->release ();
-	}
-	m_current->toImage ().save ("current.jpg");
-	
-        // clear the previous buffer
-	glColor (Qt::black);
-	{
-	    m_previous->bind ();
-	    glClear(GL_COLOR_BUFFER_BIT);
-	    m_previous->release ();
-	}
-	m_previous->toImage ().save ("previous.jpg");
-	glViewport (m_viewport.x0 (), m_viewport.y0 (), 
-		    m_viewport.width (), m_viewport.height ());
-	glPopAttrib ();
-	glPopMatrix ();
-    }
-    detectOpenGLError ();
-}
-
-void GLWidget::renderToFramebufferObjects ()
-{
-    makeCurrent ();
-    QSize size = m_current->size ();
-    {
-	glPushMatrix ();
-	glPushAttrib (GL_CURRENT_BIT);
-	viewportTransform (size.width (), size.height ());
-	modelViewTransformNoRotation ();
-	// render to the current buffer
-	{
-	    m_current->bind ();
-	    glClear(GL_COLOR_BUFFER_BIT);
-	    glCallList (m_object);	    
-
-	    // blend from the previous buffer	    
-	    glEnable (GL_BLEND);	
-	    glBlendFunc (GL_ONE_MINUS_CONSTANT_ALPHA, GL_CONSTANT_ALPHA);
-	    glBlendColor (0, 0, 0, m_srcAlphaMovieBlend);
-	    //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
-	    renderFromFramebufferObject (m_previous);
-	    glDisable (GL_BLEND);
-	    m_current->release ();
-	}
-	m_current->toImage ().save ("current1.jpg");
-        // copy current --> previous buffer
-	QRect rect (QPoint (0, 0), size);
-	QGLFramebufferObject::blitFramebuffer (
-	    m_previous.get (), rect, m_current.get (), rect);
-	m_previous->toImage ().save ("previous1.jpg");
-
-	glViewport (m_viewport.x0 (), m_viewport.y0 (), 
-		    m_viewport.width (), m_viewport.height ());
-	glPopAttrib ();
-	glPopMatrix ();
-    }
-    detectOpenGLError ();
 }
 
 void GLWidget::setRotation (int axis, double angleRadians)
@@ -724,6 +757,8 @@ void GLWidget::scaleViewport (const QPoint& position)
     Scale (&m_viewport, ratio);
     glViewport (m_viewport.x0 (), m_viewport.y0 (), 
 		m_viewport.width (), m_viewport.height ());
+    m_scale = m_scale * ratio;
+    cdbg << "scale = " << m_scale << endl;
 }
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
@@ -1425,7 +1460,12 @@ void GLWidget::ValueChangedBlend (int index)
     QSlider* slider = static_cast<QSlider*> (sender ());
     size_t maximum = slider->maximum ();
     if (m_srcAlphaMovieBlend == 1 && index != 0)
-	allocateAndInitializeFramebufferObjects ();
+    {
+	G3D::Rect2D boundingBoxViewport = viewportTransform (
+	    width (), height ());
+	allocateAndInitializeFramebufferObjects (
+	    QSize (boundingBoxViewport.width (), boundingBoxViewport.height ()));
+    }
     // m_srcAlphaMovieBlend is between 1 and 0.5
     m_srcAlphaMovieBlend = 1 - static_cast<double>(index) / (2 * maximum);
     cdbg << m_srcAlphaMovieBlend << endl;

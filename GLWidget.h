@@ -349,8 +349,14 @@ private:
      */
     void modelViewTransform () const;
     void modelViewTransformNoRotation () const;
-    void viewportTransform (int width, int height, 
-			    G3D::Rect2D* viewport = 0) const;
+    /**
+     * Calculates and does the viewport transform.
+     * @param viewport stores the viewport. If it is != 0 the function does the
+     * viewport transform as well.
+     * @return the foam bounding box in screen coordinates.
+     */
+    G3D::Rect2D viewportTransform (int width, int height, double scale = 1,
+				   G3D::Rect2D* viewport = 0) const;
     G3D::AABox calculateCenteredViewingVolume () const;
     void initializeTextures ();
     void calculateCameraDistance ();
@@ -462,7 +468,7 @@ private:
 
     void allocateFramebufferObjects (const QSize& size);
     void initializeFramebufferObjects ();
-    void allocateAndInitializeFramebufferObjects ();
+    void allocateAndInitializeFramebufferObjects (const QSize& size);
     void renderToFramebufferObjects ();
     void renderFromFramebufferObject (
 	const boost::scoped_ptr<QGLFramebufferObject>& current) const;
@@ -521,6 +527,7 @@ private:
 
     G3D::Matrix3 m_rotate;    
     G3D::Rect2D m_viewport;
+    double m_scale;
     /**
      * Distance from the camera to the center of the bounding box for the foam.
      */
