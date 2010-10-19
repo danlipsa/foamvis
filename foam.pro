@@ -57,14 +57,16 @@ else:macx {
 #QMAKE_CXXFLAGS += -arch i686 -msse3 -mfpmath=sse
 #QMAKE_LFLAGS += -arch i686
 
-INCLUDEPATH += /usr/local/G3D-20100524/build/osx-i386-g++4.2/include
-INCLUDEPATH += /usr/local/boost_1_39_0
+INCLUDEPATH += /usr/local/include
 INCLUDEPATH += /usr/local/qwt-5.2.1/include
 INCLUDEPATH += /usr/local/include/vtk-5.6
-LIBS += -L/usr/local/lib/vtk-5.6
+INCLUDEPATH += /usr/local/Trolltech/Qt-4.7.0/include
+INCLUDEPATH += /usr/local/boost_1_39_0
 
-LIBS += -L/usr/local/G3D-20100524/build/osx-i386-g++4.2/lib
+LIBS += -L/usr/local/lib
 LIBS += -L/usr/local/qwt-5.2.1/lib
+LIBS += -L/usr/local/lib/vtk-5.6
+LIBS += -L/usr/local/Trolltech/Qt-4.7.0/lib
 
 LIBS += "-lGLG3D" 
 LIBS += "-lG3D" 
@@ -79,6 +81,7 @@ LIBS += "-lqwtd"
 LIBS += "-lvtkFiltering"
 LIBS += "-lvtkCommon"
 LIBS += "-lvtksys"
+LIBS += "-lQt3D"
 }
 else:unix {
 INCLUDEPATH += /usr/local/include

@@ -3,35 +3,36 @@ Compile
 Linux
 -----
 Install using your system installation utility (yum, yast2, ...)
-boost-devel, bison, flex, libzip-devel, cmake
+boost-devel, libzip-devel, cmake (flex, bison)
 
 Copy http://csgalati.swansea.ac.uk/foam/build/qt-everywhere-opensource-src-4.7.0.tar.gz to ~
 cd ~
 tar xzf qt-everywhere-opensource-src-4.7.0.tar.gz
 cd qt-everywhere-opensource-src-4.7.0
 ./configure
-make
+make -j <number_of_processors>
 su <password>
 make install
-cp -r include /usr/local/Trolltech/Qt-4.7.0/include (important for qt3d)
+# this is needed for qt3d
+cd /usr/local/Trolltech/Qt-4.7.0; mv include include_
+ln -s ~/qt-everywhere-opensource-src-4.7.0/include include
 
 Copy http://csgalati.swansea.ac.uk/foam/build/qt3d-20101008.tgz to ~
 cd ~
 tar xzf qt3d-20101008.tgz
 cd qt3d
 qmake
-make -j <number_of_processors)
+make -j <number_of_processors>
+su <password>
 make install
 
 Copy
 http://csgalati.swansea.ac.uk/foam/build/G3D-8.00-src.zip to ~
-G3DDATA=~/source/data-files
 cd ~
 unzip /G3D-8.00-src.zip
 cd source
-./buildg3d --install all
+./buildg3d --install lib
 rm -rf source
-
 
 Copy http://csgalati.swansea.ac.uk/foam/build/qwt-5.2.1.tgz to ~
 cd ~
@@ -127,8 +128,10 @@ OSX Leopard, G3D-7.01, qt-4.5.2, bison-2.3, flex-2.5.33, gcc-4.2.1
 OSX Snow Leopard: G3D-8.00 (cvs version 20100524), 
 qt-4.6.2, bison-2.3, flex-2.5.35, boost-1.39, gcc-4.2.1
 ----------------------------------------------------------------------
-- in G3D/GLG3D.lib/source add an underscore after the names of VideoInput.cpp VideoOutput.cpp CarbonWindow.cpp
+- in G3D/GLG3D.lib/source/CarbonWindow.cpp include mycarbon.h
+- in G3D/G3D.lib/source/prompt.cpp include mycarbon.h
 - in G3D/bin/icompile uncomment the second found line for x86_64 search string
+  and comment 
 - in G3D/buildg3d replace the two i686 with x86_64
 - "qmake -spec macx-g++";make
 
