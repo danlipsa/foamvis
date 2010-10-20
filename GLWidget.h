@@ -180,7 +180,6 @@ public:
     {
 	return m_centerPathDisplayBody;
     }
-    void SetUseColorMap (bool useColorMap);
 
     QColor MapScalar (double value) const;
     double TexCoord (double value) const;

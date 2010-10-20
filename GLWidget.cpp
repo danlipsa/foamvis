@@ -1534,6 +1534,7 @@ void GLWidget::CurrentIndexChangedCenterPathColor (int value)
     RuntimeAssert (value < BodyProperty::COUNT,
 		   "Invalid BodyProperty: ", value);
     m_centerPathColor = BodyProperty::FromSizeT(value);
+    m_useColorMap = (m_centerPathColor != BodyProperty::NONE);
 }
 
 void GLWidget::CurrentIndexChangedFacesColor (int value)
@@ -1541,8 +1542,8 @@ void GLWidget::CurrentIndexChangedFacesColor (int value)
     RuntimeAssert (value < BodyProperty::COUNT,
 		   "Invalid BodyProperty: ", value);
     m_facesColor = BodyProperty::FromSizeT(value);
+    m_useColorMap = (m_facesColor != BodyProperty::NONE);
 }
-
 
 void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 {
@@ -1579,11 +1580,6 @@ void GLWidget::SetActionDeselectAll (
 	    this, SLOT(DeselectAll ()));
 }
 
-void GLWidget::SetUseColorMap (bool useColorMap)
-{
-    m_useColorMap = useColorMap;
-}
-
 QColor GLWidget::MapScalar (double value) const
 {
     if (m_useColorMap)
@@ -1609,7 +1605,6 @@ void GLWidget::ColorBarModelChanged (
     glTexImage1D (GL_TEXTURE_1D, 0, GL_RGBA, image.width (), 
 		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
     UpdateDisplayList ();
-    cdbg << "GLWidget::ColorBarModelChanged" << endl;    
 }
 
 void GLWidget::initializeTextures ()
@@ -1623,7 +1618,7 @@ void GLWidget::initializeTextures ()
 
     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    SetUseColorMap (false);
+    m_useColorMap = false;
 }
 
 void GLWidget::displayTextureColorMap () const

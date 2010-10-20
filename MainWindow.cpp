@@ -48,7 +48,6 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     setupButtonGroups ();
 
     widgetGl->SetFoamAlongTime (&foamAlongTime);
-    widgetGl->SetUseColorMap (false);
     setColorBarModels ();
     widgetHistogram->setHidden (true);
     m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
@@ -510,10 +509,10 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
     if (bodyProperty == BodyProperty::NONE)
     {
 	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
-	widgetGl->SetUseColorMap (false);
 	groupBoxFacesHistogram->setHidden (true);
 	colorBar->setHidden (true);
 	widgetHistogram->setHidden (true);
+	widgetGl->UpdateDisplayList ();
     }
     else
     {
@@ -522,15 +521,13 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	groupBoxFacesHistogram->setVisible (true);
 	colorBar->setVisible (true);
 	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
-	widgetGl->SetUseColorMap (true);
+	Q_EMIT ColorBarModelChanged (m_colorBarModel[bodyProperty]);
 	SetAndDisplayHistogram (
 	    histogramType (buttonGroupFacesHistogram),
 	    bodyProperty,
 	    foamAlongTime.GetHistogram (bodyProperty, timeStep),
 	    foamAlongTime.GetMaxCountPerBinIndividual (bodyProperty));
-	Q_EMIT ColorBarModelChanged (m_colorBarModel[bodyProperty]);
     }
-    widgetGl->UpdateDisplayList ();
 }
 
 void MainWindow::CurrentIndexChangedCenterPathColor (int value)
@@ -539,8 +536,8 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
     m_bodyProperty = bodyProperty;
     if (bodyProperty == BodyProperty::NONE)
     {
-	widgetGl->SetUseColorMap (false);
 	widgetGl->CurrentIndexChangedCenterPathColor (bodyProperty);
+	widgetGl->UpdateDisplayList ();
 	groupBoxCenterPathHistogram->setHidden (true);
 	colorBar->setHidden (true);
 	widgetHistogram->setHidden (true);
@@ -550,16 +547,14 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	groupBoxCenterPathHistogram->setVisible (true);
 	colorBar->setVisible (true);
-	widgetGl->SetUseColorMap (true);
 	widgetGl->CurrentIndexChangedCenterPathColor (bodyProperty);
+	Q_EMIT ColorBarModelChanged (m_colorBarModel[bodyProperty]);
 	SetAndDisplayHistogram (
 	    histogramType (buttonGroupCenterPathHistogram),
 	    bodyProperty,
 	    foamAlongTime.GetHistogram (bodyProperty),
 	    foamAlongTime.GetMaxCountPerBin (bodyProperty));
-	Q_EMIT ColorBarModelChanged (m_colorBarModel[bodyProperty]);
     }
-    widgetGl->UpdateDisplayList ();
 }
 
 

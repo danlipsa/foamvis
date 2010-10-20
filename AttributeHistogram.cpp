@@ -78,5 +78,4 @@ void AttributeHistogram::ColorBarModelChanged (
 {
     SetColorMap (colorBarModel->GetInterval (), colorBarModel->GetColorMap ());
     replot ();
-    cdbg << "AttributeHistogram::ColorBarModelChangedMainWindow" << endl;
 }

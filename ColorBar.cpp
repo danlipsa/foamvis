@@ -53,8 +53,6 @@ void ColorBar::ColorBarModelChangedMainWindow (
     QFont fttl(fontInfo().family(), fontSize, QFont::Bold);
     title.setFont (fttl);
     setTitle (title);
-    cdbg << "ColorBar::ColorBarModelChangedMainWindow" << endl 
-	 << *model << endl;
 }
 
 
