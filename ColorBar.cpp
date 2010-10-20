@@ -8,6 +8,7 @@
 
 #include "ColorBar.h"
 #include "ColorBarModel.h"
+#include "DebugStream.h"
 
 ColorBar::ColorBar (QWidget* parent) : 
     QwtScaleWidget (parent),
@@ -52,6 +53,8 @@ void ColorBar::ColorBarModelChangedMainWindow (
     QFont fttl(fontInfo().family(), fontSize, QFont::Bold);
     title.setFont (fttl);
     setTitle (title);
+    cdbg << "ColorBar::ColorBarModelChangedMainWindow" << endl 
+	 << *model << endl;
 }
 
 

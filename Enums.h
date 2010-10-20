@@ -184,6 +184,7 @@ public:
 	GREEN_PURPLE_DIVERGING,
 	GREEN_RED_DIVERGING, LAST = GREEN_RED_DIVERGING
     };
+    static const char* ToString (Palette::Enum name);
 };
 
 #endif //__ENUMS_H__

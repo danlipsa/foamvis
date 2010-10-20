@@ -143,7 +143,8 @@ private:
     void setupSliderData (const FoamAlongTime& foamAlongTime);
     void setupButtonGroups ();
     void configureInterface (const FoamAlongTime& foamAlongTime);
-    void changedColorBarInterval (BodyProperty::Enum bodyProperty);
+    void setColorBarModel (BodyProperty::Enum bodyProperty);
+    void setColorBarModels ();
 
     void setupColorBar ();
     void setupHistogram ();

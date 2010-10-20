@@ -169,3 +169,26 @@ BodyProperty::Enum BodyProperty::FromSizeT (size_t i)
     RuntimeAssert (i < COUNT, "Value outside of BodyProperty::Enum", i);
     return static_cast<BodyProperty::Enum>(i);
 }
+
+const char* Palette::ToString (Palette::Enum type)
+{
+    switch (type)
+    {
+    case RAINBOW:
+	return "Rainbow";
+    case RAINBOW_EXTENDED:
+	return "Rainbow extended";
+    case BLACK_BODY:
+	return "Black body radiator";
+    case BLUE_RED_DIVERGING:
+	return "Blue-Red Diverging";
+    case BLUE_TAN_DIVERGING:
+	return "Blue-Tan Diverging";
+    case PURPLE_ORANGE_DIVERGING:
+	return "Purple-Orange Diverging";
+    case GREEN_PURPLE_DIVERGING:
+	return "Green-Purple Diverging";
+    case GREEN_RED_DIVERGING:
+	return "Green-Red Diverging";
+    }
+}

@@ -9,6 +9,7 @@
 #include "AttributeHistogram.h"
 #include "ColorBarModel.h"
 #include "Enums.h"
+#include "DebugStream.h"
 
 AttributeHistogram::AttributeHistogram (QWidget* parent) :
     Histogram (parent)
@@ -77,4 +78,5 @@ void AttributeHistogram::ColorBarModelChanged (
 {
     SetColorMap (colorBarModel->GetInterval (), colorBarModel->GetColorMap ());
     replot ();
+    cdbg << "AttributeHistogram::ColorBarModelChangedMainWindow" << endl;
 }

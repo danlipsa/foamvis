@@ -35,13 +35,6 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_colorBarModel (BodyProperty::COUNT),
     m_editColorMap (new EditColorMap (this))
 {
-    BOOST_FOREACH (boost::shared_ptr<ColorBarModel>& colorBarModel,
-		   m_colorBarModel)
-    {
-	colorBarModel.reset (new ColorBarModel ());
-	colorBarModel->SetupPalette (Palette::RAINBOW);
-    }
-
     // for anti-aliased lines
     QGLFormat format = QGLFormat::defaultFormat ();
     format.setSampleBuffers (true);
@@ -56,6 +49,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
 
     widgetGl->SetFoamAlongTime (&foamAlongTime);
     widgetGl->SetUseColorMap (false);
+    setColorBarModels ();
     widgetHistogram->setHidden (true);
     m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
     configureInterface (foamAlongTime);
@@ -484,14 +478,30 @@ void MainWindow::ToggledFacesNormal (bool checked)
     displayHistogramColorBar (checked);
 }
 
-void MainWindow::changedColorBarInterval (BodyProperty::Enum bodyProperty)
+void MainWindow::setColorBarModels ()
+{
+    size_t i = 0;
+    BOOST_FOREACH (boost::shared_ptr<ColorBarModel>& colorBarModel,
+		   m_colorBarModel)
+    {
+	BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT (i);
+	colorBarModel.reset (new ColorBarModel ());
+	setColorBarModel (bodyProperty);
+	++i;
+    }
+}
+
+void MainWindow::setColorBarModel (BodyProperty::Enum bodyProperty)
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     m_colorBarModel[bodyProperty]->SetTitle (
 	BodyProperty::ToString (bodyProperty));
     m_colorBarModel[bodyProperty]->SetInterval (
 	foamAlongTime.GetRange (bodyProperty));
+    m_colorBarModel[bodyProperty]->SetupPalette (Palette::RAINBOW);
 }
+
+
 
 void MainWindow::CurrentIndexChangedFacesColor (int value)
 {
@@ -518,7 +528,6 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	    bodyProperty,
 	    foamAlongTime.GetHistogram (bodyProperty, timeStep),
 	    foamAlongTime.GetMaxCountPerBinIndividual (bodyProperty));
-	changedColorBarInterval (bodyProperty);
 	Q_EMIT ColorBarModelChanged (m_colorBarModel[bodyProperty]);
     }
     widgetGl->UpdateDisplayList ();
@@ -543,7 +552,6 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	colorBar->setVisible (true);
 	widgetGl->SetUseColorMap (true);
 	widgetGl->CurrentIndexChangedCenterPathColor (bodyProperty);
-	changedColorBarInterval (bodyProperty);
 	SetAndDisplayHistogram (
 	    histogramType (buttonGroupCenterPathHistogram),
 	    bodyProperty,

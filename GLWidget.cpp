@@ -305,8 +305,6 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* dataAlongTime)
     calculateCameraDistance ();
 }
 
-
-
 GLWidget::~GLWidget()
 {
     makeCurrent();
@@ -328,7 +326,6 @@ void GLWidget::view (bool checked, ViewType view)
 	UpdateDisplayList ();
     }
 }
-
 
 QSize GLWidget::minimumSizeHint() 
 {
@@ -381,7 +378,6 @@ void GLWidget::modelViewTransformNoRotation () const
 		 GetFoamAlongTime ().GetBoundingBox ().center ());
 }
 
-
 void GLWidget::modelViewTransform () const
 {
     glLoadIdentity ();
@@ -391,7 +387,6 @@ void GLWidget::modelViewTransform () const
 	rotateSurfaceEvolverCompatible ();
     glTranslate (-GetFoamAlongTime ().GetBoundingBox ().center ());
 }
-
 
 void GLWidget::projectionTransform () const
 {
@@ -421,7 +416,6 @@ G3D::Rect2D GLWidget::viewportTransform (
     int width, int height, double scale,
     G3D::Rect2D* viewport) const
 {
-    using G3D::Vector3;
     G3D::Rect2D vv2dScreen;
     G3D::Rect2D windowWorld;
     viewingVolumeCalculations (width, height, &vv2dScreen, &windowWorld);
@@ -432,9 +426,6 @@ G3D::Rect2D GLWidget::viewportTransform (
     if (viewport != 0)
 	*viewport = vv2dScreen;
     glViewport (vv2dScreen);
-    cdbg << "width = " << width << " height = " << height << endl
-	 << bb2dScreen << endl
-	 << vv2dScreen << endl;
     return bb2dScreen;
 }
 
@@ -489,7 +480,6 @@ void GLWidget::boundingBoxCalculations (
     }    
 }
 
-
 void GLWidget::rotateSurfaceEvolverCompatible () const
 {
     /**
@@ -502,7 +492,6 @@ void GLWidget::rotateSurfaceEvolverCompatible () const
     glMultMatrix (GetCurrentFoam ().GetViewMatrix ().
 		  approxCoordinateFrame ().rotation);
 }
-
 
 void GLWidget::calculateCameraDistance ()
 {
@@ -670,9 +659,9 @@ void GLWidget::renderToFramebufferObjects ()
 	glPushAttrib (GL_CURRENT_BIT);
 	viewportTransform (size.width (), size.height (), 1);
 	modelViewTransformNoRotation ();
-	// render to the current buffer
 	{
 	    m_current->bind ();
+	    // render to the current buffer
 	    glClear(GL_COLOR_BUFFER_BIT);
 	    glCallList (m_object);	    
 
@@ -769,7 +758,6 @@ void GLWidget::scaleViewport (const QPoint& position)
     Scale (&m_viewport, ratio);
     glViewport (m_viewport);
     m_scale = m_scale * ratio;
-    cdbg << "scale = " << m_scale << endl;
 }
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
@@ -1479,7 +1467,6 @@ void GLWidget::ValueChangedBlend (int index)
     }
     // m_srcAlphaMovieBlend is between 1 and 0.5
     m_srcAlphaMovieBlend = 1 - static_cast<double>(index) / (2 * maximum);
-    cdbg << m_srcAlphaMovieBlend << endl;
     updateGL ();
 }
 
@@ -1619,10 +1606,10 @@ void GLWidget::ColorBarModelChanged (
     m_colorBarModel = colorBarModel;    
     const QImage image = colorBarModel->GetImage ();
     makeCurrent ();
-    UpdateDisplayList ();
-
     glTexImage1D (GL_TEXTURE_1D, 0, GL_RGBA, image.width (), 
 		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
+    UpdateDisplayList ();
+    cdbg << "GLWidget::ColorBarModelChanged" << endl;    
 }
 
 void GLWidget::initializeTextures ()

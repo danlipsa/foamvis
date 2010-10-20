@@ -74,7 +74,7 @@ public:
 	return m_colorMap.color (m_interval, value);
     }
     double TexCoord (double value) const;
-
+    string ToString () const;
 
 private:
     void setupPaletteRainbowTelea ();
@@ -103,6 +103,11 @@ private:
     QwtDoubleInterval m_clampValues;
     QString m_title;
 };
+
+inline ostream& operator<< (ostream& ostr, const ColorBarModel& b)
+{
+    return ostr << b.ToString ();
+}
 
 
 #endif //__COLOR_BAR_MODEL_H__

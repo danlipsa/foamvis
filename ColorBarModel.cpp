@@ -283,3 +283,10 @@ double ColorBarModel::TexCoord (double value) const
     return (value - m_interval.minValue ()) / 
 	(m_interval.maxValue () - m_interval.minValue ());
 }
+
+string ColorBarModel::ToString () const
+{
+    ostringstream ostr;
+    ostr << "ColorBarModel: " << m_interval;
+    return ostr.str ();
+}
