@@ -171,6 +171,7 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
     {
 	radioButtonFacesNormal->toggle ();
 	tabWidget->setCurrentWidget (faces);
+	widgetBlend->setDisabled (true);
     }
     colorBar->setHidden (true);
     comboBoxCenterPathColor->setCurrentIndex (BodyProperty::NONE);

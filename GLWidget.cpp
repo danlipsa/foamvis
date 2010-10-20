@@ -422,58 +422,73 @@ G3D::Rect2D GLWidget::viewportTransform (
     G3D::Rect2D* viewport) const
 {
     using G3D::Vector3;
-    G3D::AABox vv = calculateCenteredViewingVolume ();
-    G3D::Rect2D vv2d = G3D::Rect2D::xyxy (vv.low ().xy (), vv.high ().xy ());
-    double windowRatio = static_cast<double>(width) / height;
-    double vvratio = vv2d.width () / vv2d.height ();
     G3D::Rect2D vv2dScreen;
     G3D::Rect2D windowWorld;
-    if (windowRatio > vvratio)
-    {
-	double newWidth = vvratio * height;
-	vv2dScreen = G3D::Rect2D::xywh ((width - newWidth) / 2, 0,
-					     newWidth, height);
-	windowWorld = G3D::Rect2D::xywh (0, 0,
-	    vv2d.height () * windowRatio, vv2d.height ());
-    }
-    else
-    {
-	double newHeight = width / vvratio;
-	vv2dScreen = G3D::Rect2D::xywh (0, (height - newHeight) / 2,
-				   width, newHeight);
-	windowWorld = G3D::Rect2D::xywh (0, 0,
-	    vv2d.width (), vv2d.width () / windowRatio);
-    }
-
-    G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
-    G3D::Rect2D bb2d = G3D::Rect2D::xyxy (bb.low ().xy (), bb.high ().xy ());
-    double bbratio = bb2d.width () / bb2d.height ();
-    double change;
+    viewingVolumeCalculations (width, height, &vv2dScreen, &windowWorld);
     G3D::Rect2D bb2dScreen;
-    if (windowRatio > bbratio)
-    {
-	change = windowWorld.height () / bb2d.height ();
-	double newWidth = bbratio * height;
-	bb2dScreen = G3D::Rect2D::xywh ((width - newWidth) / 2, 0,
-					newWidth, height);
-    }
-    else
-    {
-	change = windowWorld.width () / bb2d.width ();
-	double newHeight = width / bbratio;
-	bb2dScreen = G3D::Rect2D::xywh (
-	    0, (height - newHeight) / 2, width, newHeight);
-    }
+    double change;
+    boundingBoxCalculations (width, height, windowWorld, &bb2dScreen, &change);
     Scale (&vv2dScreen, change * scale);
     if (viewport != 0)
 	*viewport = vv2dScreen;
-    glViewport (ceil (vv2dScreen.x0 ()), ceil (vv2dScreen.y0 ()), 
-		vv2dScreen.width (), vv2dScreen.height ());
+    glViewport (vv2dScreen);
     cdbg << "width = " << width << " height = " << height << endl
 	 << bb2dScreen << endl
 	 << vv2dScreen << endl;
     return bb2dScreen;
 }
+
+void GLWidget::viewingVolumeCalculations (
+    int width, int height,
+    G3D::Rect2D* vv2dScreen, G3D::Rect2D* windowWorld) const
+{
+    G3D::AABox vv = calculateCenteredViewingVolume ();
+    G3D::Rect2D vv2d = G3D::Rect2D::xyxy (vv.low ().xy (), vv.high ().xy ());
+    double windowRatio = static_cast<double>(width) / height;
+    double vvratio = vv2d.width () / vv2d.height ();
+    if (windowRatio > vvratio)
+    {
+	double newWidth = vvratio * height;
+	*vv2dScreen = G3D::Rect2D::xywh ((width - newWidth) / 2, 0,
+					     newWidth, height);
+	*windowWorld = G3D::Rect2D::xywh (0, 0,
+	    vv2d.height () * windowRatio, vv2d.height ());
+    }
+    else
+    {
+	double newHeight = width / vvratio;
+	*vv2dScreen = G3D::Rect2D::xywh (0, (height - newHeight) / 2,
+				   width, newHeight);
+	*windowWorld = G3D::Rect2D::xywh (0, 0,
+	    vv2d.width (), vv2d.width () / windowRatio);
+    }
+}
+
+void GLWidget::boundingBoxCalculations (
+    int width, int height, 
+    const G3D::Rect2D& windowWorld, G3D::Rect2D* bb2dScreen,
+    double* change) const
+{
+    G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
+    G3D::Rect2D bb2d = G3D::Rect2D::xyxy (bb.low ().xy (), bb.high ().xy ());
+    double bbratio = bb2d.width () / bb2d.height ();
+    double windowRatio = static_cast<double>(width) / height;
+    if (windowRatio > bbratio)
+    {
+	*change = windowWorld.height () / bb2d.height ();
+	double newWidth = bbratio * height;
+	*bb2dScreen = G3D::Rect2D::xywh ((width - newWidth) / 2, 0,
+					newWidth, height);
+    }
+    else
+    {
+	*change = windowWorld.width () / bb2d.width ();
+	double newHeight = width / bbratio;
+	*bb2dScreen = G3D::Rect2D::xywh (
+	    0, (height - newHeight) / 2, width, newHeight);
+    }    
+}
+
 
 void GLWidget::rotateSurfaceEvolverCompatible () const
 {
@@ -633,8 +648,7 @@ void GLWidget::initializeFramebufferObjects ()
 	    m_previous->release ();
 	}
 	//m_previous->toImage ().save ("previous.jpg");
-	glViewport (m_viewport.x0 (), m_viewport.y0 (), 
-		    m_viewport.width (), m_viewport.height ());
+	glViewport (m_viewport);
 	glPopAttrib ();
 	glPopMatrix ();
     }
@@ -678,8 +692,7 @@ void GLWidget::renderToFramebufferObjects ()
 	    m_previous.get (), rect, m_current.get (), rect);
 	//m_previous->toImage ().save ("previous1.jpg");
 
-	glViewport (m_viewport.x0 (), m_viewport.y0 (), 
-		    m_viewport.width (), m_viewport.height ());
+ 	glViewport (m_viewport);
 	glPopAttrib ();
 	glPopMatrix ();
     }
@@ -747,16 +760,14 @@ void GLWidget::translateViewport (const QPoint& position)
 				    m_viewport.y0 () - dy,
 				    m_viewport.width (),
 				    m_viewport.height ());
-    glViewport (m_viewport.x0 (), m_viewport.y0 (), 
-		m_viewport.width (), m_viewport.height ());
+    glViewport (m_viewport);
 }
 
 void GLWidget::scaleViewport (const QPoint& position)
 {
     double ratio = ratioFromCenter (position);
     Scale (&m_viewport, ratio);
-    glViewport (m_viewport.x0 (), m_viewport.y0 (), 
-		m_viewport.width (), m_viewport.height ());
+    glViewport (m_viewport);
     m_scale = m_scale * ratio;
     cdbg << "scale = " << m_scale << endl;
 }

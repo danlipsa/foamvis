@@ -357,6 +357,13 @@ private:
      */
     G3D::Rect2D viewportTransform (int width, int height, double scale = 1,
 				   G3D::Rect2D* viewport = 0) const;
+    void viewingVolumeCalculations (
+	int width, int height,
+	G3D::Rect2D* vv2dScreen, G3D::Rect2D* windowWorld) const;
+    void boundingBoxCalculations (
+	int width, int height, 
+	const G3D::Rect2D& windowWorld, G3D::Rect2D* bb2dScreen, 
+	double* change) const;
     G3D::AABox calculateCenteredViewingVolume () const;
     void initializeTextures ();
     void calculateCameraDistance ();

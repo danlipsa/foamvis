@@ -40,6 +40,12 @@ inline void glTranslate (const G3D::Vector3& translate)
     glTranslatef (translate.x, translate.y, translate.z);
 }
 
+inline void glViewport (const G3D::Rect2D& viewport)
+{
+    glViewport (ceil (viewport.x0 ()), ceil (viewport.y0 ()), 
+		viewport.width (), viewport.height ());
+}
+
 void Scale (G3D::AABox* aabox, double change);
 void Scale (G3D::Rect2D* aabox, double change);
 void EncloseRotation (G3D::AABox* aabox);
