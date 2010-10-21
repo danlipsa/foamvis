@@ -9,7 +9,7 @@ HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
 	Foam.h FoamAlongTime.h Face.h \
 	GLWidget.h Hashes.h Histogram.h HistogramItem.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
-	OOBox.h OpenGLInfo.h OrientedElement.h\
+	OOBox.h OpenGLInfo.h OpenGLUtils.h OrientedElement.h\
 	OrientedEdge.h OrientedFace.h OrientedFaceIndex.h \
 	ParsingData.h ParsingDriver.h ProcessBodyTorus.h \
 	QuadraticEdge.h RestrictedRangeSlider.h \
@@ -27,7 +27,7 @@ SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp 
 	GLWidget.cpp Hashes.cpp Histogram.cpp HistogramItem.cpp\
 	main.cpp MainWindow.cpp  \
 	NameSemanticValue.cpp \
-	OOBox.cpp OrientedElement.cpp\
+	OOBox.cpp OpenGLUtils.cpp OrientedElement.cpp\
 	OrientedEdge.cpp OrientedFace.cpp OrientedFaceIndex.cpp\
 	ParsingData.cpp ParsingDriver.cpp ProcessBodyTorus.cpp \
 	QuadraticEdge.cpp RestrictedRangeSlider.cpp\

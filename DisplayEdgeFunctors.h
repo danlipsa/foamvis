@@ -15,6 +15,7 @@
 #include "GLWidget.h"
 #include "Foam.h"
 #include "Utils.h"
+#include "OpenGLUtils.h"
 
 
 void edgeRotation (

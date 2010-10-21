@@ -22,9 +22,6 @@ ostream& operator<< (ostream& ostr, const G3D::Matrix4& m);
 ostream& operator<< (ostream& ostr, const G3D::Vector4& v);
 ostream& operator<< (ostream& ostr, const G3D::Vector2& v);
 
-
-void glColor (const QColor& color);
-
 template<typename U, typename V>
 ostream& operator<< (ostream& ostr, const pair<U, V>& p)
 {
@@ -34,17 +31,6 @@ ostream& operator<< (ostream& ostr, const pair<U, V>& p)
 const G3D::Vector3int16& Vector3int16Unit (size_t direction);
 
 extern const G3D::Vector3int16 Vector3int16Zero;
-
-inline void glTranslate (const G3D::Vector3& translate)
-{
-    glTranslatef (translate.x, translate.y, translate.z);
-}
-
-inline void glViewport (const G3D::Rect2D& viewport)
-{
-    glViewport (ceil (viewport.x0 ()), ceil (viewport.y0 ()), 
-		viewport.width (), viewport.height ());
-}
 
 void Scale (G3D::AABox* aabox, double change);
 void Scale (G3D::Rect2D* aabox, double change);

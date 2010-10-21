@@ -18,6 +18,7 @@
 #include "DisplayBodyFunctors.h"
 #include "OpenGLInfo.h"
 #include "Utils.h"
+#include "OpenGLUtils.h"
 #include "GLWidget.h"
 
 
@@ -145,7 +146,7 @@ void detectOpenGLError (string message = "")
 
 void printOpenGLInfo (ostream& ostr)
 {
-    boost::array<OpenGLFeature, 28> info = {{
+    boost::array<OpenGLFeature, 29> info = {{
 	OpenGLFeature (GL_VENDOR, OpenGLFeature::STRING, "GL_VENDOR"),
 	OpenGLFeature (GL_RENDERER, OpenGLFeature::STRING, "GL_RENDERER"),
 	OpenGLFeature (GL_VERSION, OpenGLFeature::STRING, "GL_VERSION"),
@@ -153,6 +154,8 @@ void printOpenGLInfo (ostream& ostr)
 	OpenGLFeature ("--- Texture ---"),
 	OpenGLFeature (GL_MAX_TEXTURE_SIZE, OpenGLFeature::INTEGER,
 		       "GL_MAX_TEXTURE_SIZE"),
+	OpenGLFeature (GL_MAX_TEXTURE_UNITS, OpenGLFeature::INTEGER,
+		       "GL_MAX_TEXTURE_UNITS"),
 
 	OpenGLFeature ("--- Framebuffer Objects ---"),
 	OpenGLFeature (GL_MAX_COLOR_ATTACHMENTS_EXT, OpenGLFeature::INTEGER,
@@ -426,8 +429,21 @@ G3D::Rect2D GLWidget::viewportTransform (
     if (viewport != 0)
 	*viewport = vv2dScreen;
     glViewport (vv2dScreen);
+
+/*
+    G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
+    G3D::Vector3 low = bb.low ();
+    G3D::Vector3 high = bb.high ();
+    // second method to calculate bb2dScreen2 which seems more precise.
+    G3D::Rect2D bb2dScreen2 = G3D::Rect2D::xyxy (
+	gluProject (low).xy (),
+	gluProject (G3D::Vector3 (high.x, high.y, low.z)).xy ());
+    cdbg << "gluProject = " << bb2dScreen2 << endl
+	 << "bb2dScreen = " << bb2dScreen << endl << endl;
+*/
     return bb2dScreen;
 }
+
 
 void GLWidget::viewingVolumeCalculations (
     int width, int height,
@@ -477,7 +493,7 @@ void GLWidget::boundingBoxCalculations (
 	double newHeight = width / bbratio;
 	*bb2dScreen = G3D::Rect2D::xywh (
 	    0, (height - newHeight) / 2, width, newHeight);
-    }    
+    }
 }
 
 void GLWidget::rotateSurfaceEvolverCompatible () const
@@ -1615,9 +1631,6 @@ void GLWidget::initializeTextures ()
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     m_useColorMap = false;
 }
 

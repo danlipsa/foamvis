@@ -118,8 +118,3 @@ ostream& operator<< (ostream& ostr, const G3D::Vector2& v)
     return ostr << v[0] << ", " << v[1];
 }
 
-
-void glColor (const QColor& color)
-{
-    glColor4f (color.redF (), color.greenF (), color.blueF (), color.alphaF ());
-}

@@ -581,7 +581,13 @@ private:
      * otherwise
      */
     bool m_playMovie;
+    /**
+     * FBO used in blending
+     */
     boost::scoped_ptr<QGLFramebufferObject> m_current;
+    /**
+     * FBO used in blending
+     */
     boost::scoped_ptr<QGLFramebufferObject> m_previous;
 };
 
