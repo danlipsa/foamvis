@@ -582,7 +582,7 @@ void GLWidget::Info ()
 void GLWidget::initializeGL()
 {
     initializeGLFunctions ();
-    glClearColor (1., 1., 1., 0.);    
+    glClearColor (Qt::white);    
     GLWidget::disableLighting ();
     glEnable(GL_DEPTH_TEST);
     projectionTransform ();
@@ -614,11 +614,13 @@ void GLWidget::paintGL ()
 
 void GLWidget::resizeGL(int width, int height)
 {
+    cdbg << "resizeGL" << endl;
     G3D::Rect2D boundingBoxViewport = viewportTransform (
 	width, height, m_scale, &m_viewport);
     if (m_srcAlphaMovieBlend < 1)
 	allocateAndInitializeFramebufferObjects (
-	    QSize (boundingBoxViewport.width (), boundingBoxViewport.height ()));
+	    QSize (boundingBoxViewport.width (), 
+		   boundingBoxViewport.height ()));
 }
 
 void GLWidget::allocateFramebufferObjects (const QSize& size)
@@ -627,46 +629,14 @@ void GLWidget::allocateFramebufferObjects (const QSize& size)
     m_previous.reset (new QGLFramebufferObject (size));    
 }
 
-void GLWidget::initializeFramebufferObjects ()
-{
-    makeCurrent ();
-    QSize size = m_current->size ();
-    {
-	glPushMatrix ();
-	glPushAttrib (GL_CURRENT_BIT);
-	viewportTransform (size.width (), size.height (), 1);
-	modelViewTransformNoRotation ();
-	// render to the current buffer
-	{
-	    m_current->bind ();
-	    glClear(GL_COLOR_BUFFER_BIT);
-	    glCallList (m_object);
-	    m_current->release ();
-	}
-	//m_current->toImage ().save ("current.jpg");
-	
-        // clear the previous buffer
-	glColor (Qt::black);
-	{
-	    m_previous->bind ();
-	    glClear(GL_COLOR_BUFFER_BIT);
-	    m_previous->release ();
-	}
-	//m_previous->toImage ().save ("previous.jpg");
-	glViewport (m_viewport);
-	glPopAttrib ();
-	glPopMatrix ();
-    }
-    detectOpenGLError ();
-}
 
 void GLWidget::allocateAndInitializeFramebufferObjects (const QSize& size)
 {
     allocateFramebufferObjects (size);
-    initializeFramebufferObjects ();
+    renderToFramebufferObjects (false);
 }
 
-void GLWidget::renderToFramebufferObjects ()
+void GLWidget::renderToFramebufferObjects (bool blend)
 {
     makeCurrent ();
     QSize size = m_current->size ();
@@ -681,21 +651,24 @@ void GLWidget::renderToFramebufferObjects ()
 	    glClear(GL_COLOR_BUFFER_BIT);
 	    glCallList (m_object);	    
 
-	    // blend from the previous buffer	    
-	    glEnable (GL_BLEND);	
-	    glBlendFunc (GL_ONE_MINUS_CONSTANT_ALPHA, GL_CONSTANT_ALPHA);
-	    glBlendColor (0, 0, 0, m_srcAlphaMovieBlend);
-	    //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
-	    renderFromFramebufferObject (m_previous);
-	    glDisable (GL_BLEND);
+	    if (blend)
+	    {
+		// blend from the previous buffer	    
+		glEnable (GL_BLEND);	
+		glBlendFunc (GL_ONE_MINUS_CONSTANT_ALPHA, GL_CONSTANT_ALPHA);
+		glBlendColor (0, 0, 0, m_srcAlphaMovieBlend);
+		//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
+		renderFromFramebufferObject (m_previous);
+		glDisable (GL_BLEND);
+	    }
 	    m_current->release ();
 	}
-	//m_current->toImage ().save ("current1.jpg");
+	m_current->toImage ().save ("current1.jpg");
         // copy current --> previous buffer
 	QRect rect (QPoint (0, 0), size);
 	QGLFramebufferObject::blitFramebuffer (
 	    m_previous.get (), rect, m_current.get (), rect);
-	//m_previous->toImage ().save ("previous1.jpg");
+	m_previous->toImage ().save ("previous1.jpg");
 
  	glViewport (m_viewport);
 	glPopAttrib ();
@@ -1461,12 +1434,7 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
     makeCurrent ();
     UpdateDisplayList ();
     if (m_srcAlphaMovieBlend < 1)
-    {
-	if (m_timeStep == 0)
-	    initializeFramebufferObjects ();
-	else
-	    renderToFramebufferObjects ();
-    }
+	renderToFramebufferObjects (m_timeStep != 0);
     updateGL ();
 }
 

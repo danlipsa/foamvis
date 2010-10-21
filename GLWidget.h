@@ -471,11 +471,9 @@ private:
     bool doesSelectEdge () const;
     void createActions ();
     void rotateSurfaceEvolverCompatible () const;
-
     void allocateFramebufferObjects (const QSize& size);
-    void initializeFramebufferObjects ();
     void allocateAndInitializeFramebufferObjects (const QSize& size);
-    void renderToFramebufferObjects ();
+    void renderToFramebufferObjects (bool blend = true);
     void renderFromFramebufferObject (
 	const boost::scoped_ptr<QGLFramebufferObject>& current) const;
 

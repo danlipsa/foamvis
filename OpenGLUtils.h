@@ -14,6 +14,12 @@ inline void glColor (const QColor& color)
     glColor4f (color.redF (), color.greenF (), color.blueF (), color.alphaF ());
 }
 
+inline void glClearColor (const QColor& color)
+{
+    glClearColor (color.redF (), color.greenF (), 
+		  color.blueF (), color.alphaF ());
+}
+
 inline void glTranslate (const G3D::Vector3& translate)
 {
     glTranslatef (translate.x, translate.y, translate.z);
