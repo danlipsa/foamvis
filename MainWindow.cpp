@@ -48,7 +48,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     setupButtonGroups ();
 
     widgetGl->SetFoamAlongTime (&foamAlongTime);
-    setColorBarModels ();
+    setupColorBarModels ();
     widgetHistogram->setHidden (true);
     m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
     configureInterface (foamAlongTime);
@@ -287,7 +287,7 @@ void MainWindow::translateBodyStep ()
     {
 	cdbg << "End body translation" << endl;
     }
-    widgetGl->UpdateDisplayList ();
+    widgetGl->updateGL ();
 }
 
 void MainWindow::processBodyTorusStep ()
@@ -318,7 +318,7 @@ void MainWindow::processBodyTorusStep ()
 		    widgetGl->GetCurrentFoam ().GetBodies ().size ();
 	    }
 	}
-	widgetGl->UpdateDisplayList ();
+	widgetGl->updateGL ();
     }
     catch (const exception& e)
     {
@@ -395,13 +395,11 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 	    KEEP_SELECTION,
 	    KEEP_MAX_VALUE);
     }
-    widgetGl->ValueChangedSliderTimeSteps (timeStep);
     updateButtons ();
 }
 
 void MainWindow::ToggledEdgesNormal (bool checked)
 {
-    widgetGl->ToggledEdgesNormal (checked);
     if (checked)
 	stackedWidgetEdges->setCurrentWidget (pageEdgesNormal);
     else
@@ -411,21 +409,47 @@ void MainWindow::ToggledEdgesNormal (bool checked)
 
 void MainWindow::ToggledEdgesTorus (bool checked)
 {
-    widgetGl->ToggledEdgesTorus (checked);
     if (checked)
 	stackedWidgetEdges->setCurrentWidget (pageEdgesTorus);
     else
 	stackedWidgetEdges->setCurrentWidget (pageEdgesEmpty);
 }
 
+void MainWindow::ToggledFacesNormal (bool checked)
+{
+    if (checked)
+    {
+	fieldsToControls (comboBoxFacesColor, buttonGroupFacesHistogram);
+	ButtonClickedHistogram (m_histogramType);
+	stackedWidgetFaces->setCurrentWidget (pageFacesNormal);
+    }
+    else
+	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
+    displayHistogramColorBar (checked);
+}
+
 void MainWindow::ToggledFacesTorus (bool checked)
 {
-    widgetGl->ToggledFacesTorus (checked);
     if (checked)
 	stackedWidgetFaces->setCurrentWidget (pageFacesTorus);
     else
 	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
 }
+
+void MainWindow::ToggledCenterPath (bool checked)
+{
+    if (checked)
+    {
+	fieldsToControls (comboBoxCenterPathColor,
+			  buttonGroupCenterPathHistogram);
+	ButtonClickedHistogram (m_histogramType);
+	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
+    }
+    else
+	stackedWidgetComposite->setCurrentWidget (pageCompositeEmpty);
+    displayHistogramColorBar (checked);
+}
+
 
 void MainWindow::fieldsToControls (QComboBox* comboBox,
 				   QButtonGroup* buttonGroup)
@@ -447,37 +471,7 @@ void MainWindow::displayHistogramColorBar (bool checked)
 	checked && m_bodyProperty != BodyProperty::NONE);
 }
 
-
-void MainWindow::ToggledCenterPath (bool checked)
-{
-    if (checked)
-    {
-	fieldsToControls (comboBoxCenterPathColor,
-			  buttonGroupCenterPathHistogram);
-	ButtonClickedHistogram (m_histogramType);
-	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
-    }
-    else
-	stackedWidgetComposite->setCurrentWidget (pageCompositeEmpty);
-    displayHistogramColorBar (checked);
-    widgetGl->ToggledCenterPath (checked);
-}
-
-void MainWindow::ToggledFacesNormal (bool checked)
-{
-    widgetGl->ToggledFacesNormal (checked);
-    if (checked)
-    {
-	fieldsToControls (comboBoxFacesColor, buttonGroupFacesHistogram);
-	ButtonClickedHistogram (m_histogramType);
-	stackedWidgetFaces->setCurrentWidget (pageFacesNormal);
-    }
-    else
-	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
-    displayHistogramColorBar (checked);
-}
-
-void MainWindow::setColorBarModels ()
+void MainWindow::setupColorBarModels ()
 {
     size_t i = 0;
     BOOST_FOREACH (boost::shared_ptr<ColorBarModel>& colorBarModel,
@@ -485,12 +479,12 @@ void MainWindow::setColorBarModels ()
     {
 	BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT (i);
 	colorBarModel.reset (new ColorBarModel ());
-	setColorBarModel (bodyProperty);
+	setupColorBarModel (bodyProperty);
 	++i;
     }
 }
 
-void MainWindow::setColorBarModel (BodyProperty::Enum bodyProperty)
+void MainWindow::setupColorBarModel (BodyProperty::Enum bodyProperty)
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     m_colorBarModel[bodyProperty]->SetTitle (
@@ -508,11 +502,9 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
     m_bodyProperty = bodyProperty;
     if (bodyProperty == BodyProperty::NONE)
     {
-	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
 	groupBoxFacesHistogram->setHidden (true);
 	colorBar->setHidden (true);
 	widgetHistogram->setHidden (true);
-	widgetGl->UpdateDisplayList ();
     }
     else
     {
@@ -520,7 +512,6 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	size_t timeStep = widgetGl->GetTimeStep ();
 	groupBoxFacesHistogram->setVisible (true);
 	colorBar->setVisible (true);
-	widgetGl->CurrentIndexChangedFacesColor (bodyProperty);
 	Q_EMIT ColorBarModelChanged (m_colorBarModel[bodyProperty]);
 	SetAndDisplayHistogram (
 	    histogramType (buttonGroupFacesHistogram),
@@ -536,8 +527,6 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
     m_bodyProperty = bodyProperty;
     if (bodyProperty == BodyProperty::NONE)
     {
-	widgetGl->CurrentIndexChangedCenterPathColor (bodyProperty);
-	widgetGl->UpdateDisplayList ();
 	groupBoxCenterPathHistogram->setHidden (true);
 	colorBar->setHidden (true);
 	widgetHistogram->setHidden (true);
@@ -547,7 +536,6 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	groupBoxCenterPathHistogram->setVisible (true);
 	colorBar->setVisible (true);
-	widgetGl->CurrentIndexChangedCenterPathColor (bodyProperty);
 	Q_EMIT ColorBarModelChanged (m_colorBarModel[bodyProperty]);
 	SetAndDisplayHistogram (
 	    histogramType (buttonGroupCenterPathHistogram),

@@ -65,7 +65,7 @@ public:
     void SetBodySelector (boost::shared_ptr<BodySelector> bodySelector)
     {
 	m_bodySelector = bodySelector;
-	UpdateDisplayList ();
+	updateGL ();
     }
 
     const BodiesAlongTime& GetBodiesAlongTime () const;
@@ -130,10 +130,6 @@ public:
     {
 	return m_contextAlpha;
     }
-    double GetSrcAlpahMovieBlend () const
-    {
-	return m_srcAlphaMovieBlend;
-    }
 
     const QColor& GetEndTranslationColor (const G3D::Vector3int16& di) const;
     const QColor& GetCenterPathNotAvailableColor () const
@@ -160,10 +156,6 @@ public:
 	return m_quadric;
     }
 
-    /**
-     * Updates the display lists
-     */
-    void UpdateDisplayList ();
     double GetArrowBaseRadius () const {return m_arrowBaseRadius;}
     double GetArrowHeight () const {return m_arrowHeight;}
     double GetEdgeRadius () const {return m_edgeRadius;}
@@ -191,16 +183,17 @@ public:
     void SetActionSelectAll (boost::shared_ptr<QAction> actionSelectAll);
     void SetActionDeselectAll (boost::shared_ptr<QAction> actionDeselectAll);
     void SetActionInfo (boost::shared_ptr<QAction> actionInfo);
+    GLuint GetColorBarTexture () const
+    {
+	return m_colorBarTexture;
+    }
+    bool IsPlayMovie () const
+    {
+	return m_playMovie;
+    }
+    void SetPlayMovie (bool playMovie);
     
-    
-
-    // Slot like methods
-    // ======================================================================
-    /**
-     * Signals a change in data displayed
-     * @param timeStep the new index for the Foam to be displayed
-     */
-    void ValueChangedSliderTimeSteps (int timeStep);
+public Q_SLOTS:
     /**
      * Shows edges
      * @param checked true for showing edges false otherwise
@@ -218,19 +211,9 @@ public:
      * param checked true for showing the center paths false otherwise
      */
     void ToggledCenterPath (bool checked);
-    void CurrentIndexChangedCenterPathColor (int value);
-    void CurrentIndexChangedFacesColor (int value);
-    GLuint GetColorBarTexture () const
-    {
-	return m_colorBarTexture;
-    }
-    bool IsPlayMovie () const
-    {
-	return m_playMovie;
-    }
-    void SetPlayMovie (bool playMovie);
+    void ToggledAverage (bool checked);
 
-public Q_SLOTS:
+
     void ColorBarModelChanged(
 	boost::shared_ptr<ColorBarModel> colorBarModel);
     void ResetTransformation ();
@@ -255,6 +238,13 @@ public Q_SLOTS:
     void ValueChangedAngleOfView (int newIndex);
     void ValueChangedBlend (int index);
     void ShowOpenGLInfo ();
+    /**
+     * Signals a change in data displayed
+     * @param timeStep the new index for the Foam to be displayed
+     */
+    void ValueChangedSliderTimeSteps (int timeStep);
+    void CurrentIndexChangedCenterPathColor (int value);
+    void CurrentIndexChangedFacesColor (int value);
 
 public:
     const static  size_t DISPLAY_ALL;
@@ -300,6 +290,7 @@ private:
 	FACES_TORUS,
 
 	CENTER_PATHS,
+	AVERAGE,
         VIEW_TYPE_COUNT
     };
 
@@ -314,7 +305,7 @@ private:
 				 Vector3int16Hash> EndLocationColor;
     struct ViewTypeDisplay
     {
-	GLuint (GLWidget::* m_displayList) () const;
+	void (GLWidget::* m_display) () const;
 	boost::function<Lighting ()> m_lighting;
     };
 
@@ -352,10 +343,10 @@ private:
      * Calculates and does the viewport transform.
      * @param viewport stores the viewport. If it is != 0 the function does the
      * viewport transform as well.
-     * @return the foam bounding box in screen coordinates.
+     * @return the foam size in screen coordinates.
      */
-    G3D::Rect2D viewportTransform (int width, int height, double scale = 1,
-				   G3D::Rect2D* viewport = 0) const;
+    QSize viewportTransform (int width, int height, double scale = 1,
+			     G3D::Rect2D* viewport = 0) const;
     void viewingVolumeCalculations (
 	int width, int height,
 	G3D::Rect2D* vv2dScreen, G3D::Rect2D* windowWorld) const;
@@ -367,57 +358,58 @@ private:
     void initializeTextures ();
     void calculateCameraDistance ();
     /**
-     * Generates a display list for a certain kind of objects
+     * Displays the foam in various way
      * @param type the type of object that we want displayed.
-     * @return the display list
      */
-    GLuint displayList (ViewType type);
+    void display (ViewType type);
     /**
      * Generates a display list for edges
      * @return the display list
      */
     template<typename displayEdge>
-    GLuint displayListEdges () const;
+    void displayEdges () const;
 
 
-    GLuint displayListEdgesNormal () const;
+    void displayBlend () const;
+    void displayEdgesNormal () const;
     template<typename displayEdge>
     void displayStandaloneEdges () const;
     template<typename displaySameEdges>
     void displayStandaloneFaces () const;
-    GLuint displayListEdgesTorus () const
+    void displayEdgesTorus () const
     {
 	if (m_edgesTorusTubes)
-	    return displayListEdgesTorusTubes ();
+	    displayEdgesTorusTubes ();
 	else
-	    return displayListEdgesTorusLines ();
+	    displayEdgesTorusLines ();
     }
-    GLuint displayListEdgesTorusTubes () const;
-    GLuint displayListEdgesTorusLines () const;
+    void displayEdgesTorusTubes () const;
+    void displayEdgesTorusLines () const;
 
     /**
      * Generates a display list for faces
      * @return the display list
      */
-    GLuint displayListFacesNormal () const;
-    GLuint displayListFacesTorus () const
+    void displayFacesNormal () const;
+    void displayFacesTorus () const
     {
 	if (m_facesTorusTubes)
-	    return displayListFacesTorusTubes ();
+	    displayFacesTorusTubes ();
 	else
-	    return displayListFacesTorusLines ();
+	    displayFacesTorusLines ();
     }
-    GLuint displayListFacesTorusTubes () const;
-    GLuint displayListFacesTorusLines () const;
+    void displayFacesTorusTubes () const;
+    void displayFacesTorusLines () const;
     /**
      * Generates a display list for bodies
      * @return the display list
      */
-    GLuint displayListFacesLighting () const;
+    void displayFacesLighting () const;
     /**
      * Generates a display list for center paths
      */
-    GLuint displayListCenterPaths () const;
+    void displayCenterPathsWithBodies () const;
+    void displayAverage () const;
     void displayOriginalDomain () const;
     void displayBoundingBox () const;
     void displayCenterPaths () const;
@@ -471,10 +463,14 @@ private:
     bool doesSelectEdge () const;
     void createActions ();
     void rotateSurfaceEvolverCompatible () const;
-    void allocateFramebufferObjects (const QSize& size);
-    void allocateAndInitializeFramebufferObjects (const QSize& size);
-    void renderToFramebufferObjects (bool blend = true);
-    void renderFromFramebufferObject (
+    void freeFbosBlend ();
+    void initFbosBlend (const QSize& size);
+    void blendStep (bool blend = true);
+
+    void allocateFbosAverage (const QSize& size);
+    void freeFbosAverage ();
+
+    void renderFromFbo (
 	const boost::scoped_ptr<QGLFramebufferObject>& current) const;
 
 private:
@@ -499,10 +495,6 @@ private:
     bool m_torusOriginalDomainDisplay;
     bool m_torusOriginalDomainClipped;
     InteractionMode::Enum m_interactionMode;
-    /**
-     * The current DMP file as a OpenGL display list.
-     */
-    GLuint m_object;
     /**
      * Foam to be displayd. Each element coresponds to a DMP file
      */
@@ -557,7 +549,7 @@ private:
     bool m_edgesTessellation;
     bool m_centerPathDisplayBody;
     bool m_boundingBox;
-    boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> VIEW_TYPE_DISPLAY;
+    boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> m_viewTypeDisplay;
     BodyProperty::Enum m_centerPathColor;
     BodyProperty::Enum m_facesColor;
     QColor m_notAvailableCenterPathColor;
@@ -573,20 +565,28 @@ private:
     bool m_useColorMap;
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
     GLuint m_colorBarTexture;
-    double m_srcAlphaMovieBlend;
+    double m_srcAlphaBlend;
     /**
      * True if the program displays data in a loop, false
      * otherwise
      */
     bool m_playMovie;
     /**
-     * FBO used in blending
+     * FBO used in blending. This is what is displayed on the screen.
      */
     boost::scoped_ptr<QGLFramebufferObject> m_current;
     /**
-     * FBO used in blending
+     * FBO used in blending. This is the blended images of previous steps.
      */
     boost::scoped_ptr<QGLFramebufferObject> m_previous;
+    /**
+     * FBO used in averaging.
+     */
+    boost::scoped_ptr<QGLFramebufferObject> m_new;
+    /**
+     * FBO used in averaging.
+     */
+    boost::scoped_ptr<QGLFramebufferObject> m_old;
 };
 
 #endif //__GLWIDGET_H__

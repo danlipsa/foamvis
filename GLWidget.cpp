@@ -25,93 +25,6 @@
 // Private Classes
 // ======================================================================
 
-/**
- * Stores information about various OpenGL characteristics of the graphic card
- */
-class OpenGLFeature
-{
-public:
-    enum Type
-    {
-	BOOLEAN,
-	INTEGER,
-	STRING,
-	SEPARATOR
-    };
-
-    OpenGLFeature (GLenum what, Type type, const char* name) :
-	m_what (what), m_type (type), m_name (name)
-    {
-    }
-
-    OpenGLFeature (const char* name) :
-	m_what (0), m_type (SEPARATOR), m_name (name)
-    {
-    }
-
-
-    /**
-     * Reads an OpenGLFeature from OpenGL
-     */
-    string get () const
-    {
-	ostringstream ostr;
-	switch (m_type)
-	{
-	case INTEGER:
-	{
-	    GLint where;
-	    glGetIntegerv (m_what, &where);
-	    ostr << where;
-	    return ostr.str ();
-	}
-	
-	case BOOLEAN:
-	{
-	    GLboolean where;
-	    glGetBooleanv (m_what, &where);
-	    ostr << (where ? "true" : "false");
-	    return ostr.str ();
-	}
-	
-	case STRING:
-	    ostr << glGetString (m_what);
-	    return ostr.str ();
-	
-	case SEPARATOR:
-	    return "";
-	
-	default:
-	{
-	    ThrowException ("Invalid storage type for OpenGLFeature");
-	    return 0;
-	}
-	}
-    }
-
-    void print (ostream* ostr) const
-    {
-	(*ostr) << m_name;
-	if (m_what != 0)
-	    (*ostr) << ": " << get ();
-	(*ostr) << endl;
-    }
-
-private:
-    /**
-     * What OpenGL characteristic
-     */
-    GLenum m_what;
-    /**
-     * Data type of the required information
-     */
-    Type m_type;
-    /**
-     * Name of the OpenGL characteristic
-     */
-    string m_name;
-};
-
 template<typename T>
 class identity 
 {
@@ -127,76 +40,6 @@ public:
 private:
     T m_value;
 };
-
-
-// Private Functions
-// ======================================================================
-
-/**
- * Check the OpenGL  error code and prints a message  to cdbg if there
- * is an error
- */
-void detectOpenGLError (string message = "")
-{
-    GLenum errCode;
-    if ((errCode = glGetError()) != GL_NO_ERROR)
-        cdbg << "OpenGL Error " << message.c_str () << ":"
-		    << gluErrorString(errCode);
-}
-
-void printOpenGLInfo (ostream& ostr)
-{
-    boost::array<OpenGLFeature, 29> info = {{
-	OpenGLFeature (GL_VENDOR, OpenGLFeature::STRING, "GL_VENDOR"),
-	OpenGLFeature (GL_RENDERER, OpenGLFeature::STRING, "GL_RENDERER"),
-	OpenGLFeature (GL_VERSION, OpenGLFeature::STRING, "GL_VERSION"),
-
-	OpenGLFeature ("--- Texture ---"),
-	OpenGLFeature (GL_MAX_TEXTURE_SIZE, OpenGLFeature::INTEGER,
-		       "GL_MAX_TEXTURE_SIZE"),
-	OpenGLFeature (GL_MAX_TEXTURE_UNITS, OpenGLFeature::INTEGER,
-		       "GL_MAX_TEXTURE_UNITS"),
-
-	OpenGLFeature ("--- Framebuffer Objects ---"),
-	OpenGLFeature (GL_MAX_COLOR_ATTACHMENTS_EXT, OpenGLFeature::INTEGER,
-		       "GL_MAX_COLOR_ATTACHMENTS_EXT"),
-
-	OpenGLFeature ("--- Vertex Shader ---"),
-	OpenGLFeature (GL_MAX_VERTEX_ATTRIBS, OpenGLFeature::INTEGER,
-		       "GL_MAX_VERTEX_ATTRIBS"),
-
-	OpenGLFeature ("--- Multisampling ---"),	
-	OpenGLFeature (GL_SAMPLE_BUFFERS, OpenGLFeature::INTEGER, 
-		       "GL_SAMPLE_BUFFERS"),
-	OpenGLFeature (GL_SAMPLES, OpenGLFeature::INTEGER, "GL_SAMPLES"),
-	
-	OpenGLFeature ("--- Other ---"),	
-	OpenGLFeature (GL_AUX_BUFFERS, OpenGLFeature::INTEGER, "AUX_BUFFERS"),
-        OpenGLFeature (GL_RED_BITS, OpenGLFeature::INTEGER, "RED_BITS"),
-        OpenGLFeature (GL_GREEN_BITS, OpenGLFeature::INTEGER, "GREEN_BITS"),
-        OpenGLFeature (GL_BLUE_BITS, OpenGLFeature::INTEGER, "BLUE_BITS"),
-        OpenGLFeature (GL_ALPHA_BITS, OpenGLFeature::INTEGER, "ALPHA_BITS"),
-        OpenGLFeature (GL_ACCUM_RED_BITS, OpenGLFeature::INTEGER, 
-		       "ACCUM_RED_BITS"),
-        OpenGLFeature (GL_ACCUM_GREEN_BITS, OpenGLFeature::INTEGER, 
-		       "ACCUM_GREEN_BITS"),
-        OpenGLFeature (GL_ACCUM_BLUE_BITS, OpenGLFeature::INTEGER, 
-		       "ACCUM_BLUE_BITS"),
-        OpenGLFeature (GL_ACCUM_ALPHA_BITS, OpenGLFeature::INTEGER, 
-		       "ACCUM_ALPHA_BITS"),
-        OpenGLFeature (GL_INDEX_BITS, OpenGLFeature::INTEGER, "INDEX_BITS"),
-        OpenGLFeature (GL_DEPTH_BITS, OpenGLFeature::INTEGER, "DEPTH_BITS"),
-        OpenGLFeature (GL_STENCIL_BITS, OpenGLFeature::INTEGER, "STENCIL_BITS"),
-	
-	OpenGLFeature (GL_STEREO, OpenGLFeature::BOOLEAN, "GL_STEREO"),
-	OpenGLFeature (GL_DOUBLEBUFFER, OpenGLFeature::BOOLEAN,
-		       "GL_DOUBLEBUFFER"),
-	OpenGLFeature (GL_EXTENSIONS, OpenGLFeature::STRING, "GL_EXTENSIONS"),
-	}};
-    for_each (info.begin (), info.end (),
-	      boost::bind (&OpenGLFeature::print, _1, &ostr));
-}
-
 
 
 // Static Fields
@@ -216,7 +59,6 @@ GLWidget::GLWidget(QWidget *parent)
       m_torusOriginalDomainDisplay (false),
       m_torusOriginalDomainClipped (false),
       m_interactionMode (InteractionMode::ROTATE),
-      m_object (0),
       m_foamAlongTime (0), m_timeStep (0),
       m_displayedBodyIndex (DISPLAY_ALL), m_displayedFaceIndex (DISPLAY_ALL),
       m_displayedEdgeIndex (DISPLAY_ALL),
@@ -239,7 +81,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_useColorMap (false),
       m_colorBarModel (new ColorBarModel ()),
       m_colorBarTexture (0),
-      m_srcAlphaMovieBlend (1),
+      m_srcAlphaBlend (1),
       m_playMovie (false)
 {
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
@@ -280,20 +122,22 @@ void GLWidget::initViewTypeDisplay ()
 {
     boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> vtd = 
 	{{	
-	{&GLWidget::displayListEdgesNormal, identity<Lighting> (NO_LIGHTING)},
-	{&GLWidget::displayListEdgesTorus, 
+	{&GLWidget::displayEdgesNormal, identity<Lighting> (NO_LIGHTING)},
+	{&GLWidget::displayEdgesTorus, 
 	 bl::if_then_else_return (bl::bind (&GLWidget::edgesTorusTubes, this), 
 				  LIGHTING, NO_LIGHTING)},
 	
-	{&GLWidget::displayListFacesNormal, identity<Lighting> (NO_LIGHTING)},
-	{&GLWidget::displayListFacesLighting, identity<Lighting> (LIGHTING)},
-	{&GLWidget::displayListFacesTorus, 
+	{&GLWidget::displayFacesNormal, identity<Lighting> (NO_LIGHTING)},
+	{&GLWidget::displayFacesLighting, identity<Lighting> (LIGHTING)},
+	{&GLWidget::displayFacesTorus, 
 	 bl::if_then_else_return (bl::bind (&GLWidget::facesTorusTubes, this),
 				  LIGHTING, NO_LIGHTING)},
 	
-	{&GLWidget::displayListCenterPaths, identity<Lighting> (LIGHTING)},
+	{&GLWidget::displayCenterPathsWithBodies, identity<Lighting> (LIGHTING)},
+	{&GLWidget::displayAverage, 
+	 identity<Lighting> (NO_LIGHTING)}
 	}};
-    copy (vtd.begin (), vtd.end (), VIEW_TYPE_DISPLAY.begin ());
+    copy (vtd.begin (), vtd.end (), m_viewTypeDisplay.begin ());
 }
 
 void GLWidget::SetFoamAlongTime (FoamAlongTime* dataAlongTime) 
@@ -311,8 +155,6 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* dataAlongTime)
 GLWidget::~GLWidget()
 {
     makeCurrent();
-    glDeleteLists(m_object, 1);
-    m_object = 0;
     gluDeleteQuadric (m_quadric);
     m_quadric = 0;
 }
@@ -322,11 +164,11 @@ void GLWidget::view (bool checked, ViewType view)
     if (checked)
     {
         m_viewType = view;
-	if ((VIEW_TYPE_DISPLAY[view].m_lighting) () == LIGHTING)
+	if ((m_viewTypeDisplay[view].m_lighting) () == LIGHTING)
 	    enableLighting ();
 	else
 	    disableLighting ();
-	UpdateDisplayList ();
+	updateGL ();
     }
 }
 
@@ -415,7 +257,7 @@ void GLWidget::projectionTransform () const
     glMatrixMode (GL_MODELVIEW);
 }
 
-G3D::Rect2D GLWidget::viewportTransform (
+QSize GLWidget::viewportTransform (
     int width, int height, double scale,
     G3D::Rect2D* viewport) const
 {
@@ -441,7 +283,7 @@ G3D::Rect2D GLWidget::viewportTransform (
     cdbg << "gluProject = " << bb2dScreen2 << endl
 	 << "bb2dScreen = " << bb2dScreen << endl << endl;
 */
-    return bb2dScreen;
+    return QSize (bb2dScreen.width (), bb2dScreen.height ());
 }
 
 
@@ -527,7 +369,7 @@ void GLWidget::ResetTransformation ()
     m_rotate = G3D::Matrix3::identity ();
     m_scale = 1;
     resizeGL (width (), height ());
-    UpdateDisplayList ();
+    updateGL ();
 }
 
 void GLWidget::ChangePalette ()
@@ -540,7 +382,7 @@ void GLWidget::SelectAll ()
     m_displayedBodyIndex = DISPLAY_ALL;
     m_displayedFaceIndex = DISPLAY_ALL;
     m_displayedEdgeIndex = DISPLAY_ALL;
-    UpdateDisplayList ();
+    updateGL ();
 }
 
 void GLWidget::DeselectAll ()
@@ -588,77 +430,78 @@ void GLWidget::initializeGL()
     projectionTransform ();
     initializeTextures ();
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    m_object = displayList (m_viewType);
 }
 
 void GLWidget::paintGL ()
 {
-    if (m_srcAlphaMovieBlend < 1)
-    {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	modelViewTransform ();
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-	renderFromFramebufferObject (m_current);
-    }
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    modelViewTransform ();
+    if (m_srcAlphaBlend < 1)
+	displayBlend ();
     else
-    {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	modelViewTransform ();
-	glCallList (m_object);
-    }
+	display (m_viewType);
     detectOpenGLError ();
 }
 
-
-
-
 void GLWidget::resizeGL(int width, int height)
 {
-    cdbg << "resizeGL" << endl;
-    G3D::Rect2D boundingBoxViewport = viewportTransform (
-	width, height, m_scale, &m_viewport);
-    if (m_srcAlphaMovieBlend < 1)
-	allocateAndInitializeFramebufferObjects (
-	    QSize (boundingBoxViewport.width (), 
-		   boundingBoxViewport.height ()));
+    QSize size = viewportTransform (width, height, m_scale, &m_viewport);
+    if (m_srcAlphaBlend < 1)
+	initFbosBlend (size);
 }
 
-void GLWidget::allocateFramebufferObjects (const QSize& size)
+void GLWidget::allocateFbosAverage (const QSize& size)
+{
+    m_new.reset (
+	new QGLFramebufferObject (
+	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RG32F));
+    m_old.reset (
+	new QGLFramebufferObject (
+	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RG32F));
+}
+
+void GLWidget::freeFbosAverage ()
+{
+    m_new.reset ();
+    m_old.reset ();
+}
+
+void GLWidget::freeFbosBlend ()
+{
+    m_current.reset ();
+    m_previous.reset ();
+}
+
+void GLWidget::initFbosBlend (const QSize& size)
 {
     m_current.reset (new QGLFramebufferObject (size));
-    m_previous.reset (new QGLFramebufferObject (size));    
+    m_previous.reset (new QGLFramebufferObject (size));
+    blendStep (false);
 }
 
-
-void GLWidget::allocateAndInitializeFramebufferObjects (const QSize& size)
-{
-    allocateFramebufferObjects (size);
-    renderToFramebufferObjects (false);
-}
-
-void GLWidget::renderToFramebufferObjects (bool blend)
+void GLWidget::blendStep (bool blend)
 {
     makeCurrent ();
     QSize size = m_current->size ();
     {
 	glPushMatrix ();
 	glPushAttrib (GL_CURRENT_BIT);
-	viewportTransform (size.width (), size.height (), 1);
+	viewportTransform (size.width (), size.height ());
 	modelViewTransformNoRotation ();
 	{
 	    m_current->bind ();
 	    // render to the current buffer
 	    glClear(GL_COLOR_BUFFER_BIT);
-	    glCallList (m_object);	    
+	    display (m_viewType);
 
 	    if (blend)
 	    {
 		// blend from the previous buffer	    
 		glEnable (GL_BLEND);	
 		glBlendFunc (GL_ONE_MINUS_CONSTANT_ALPHA, GL_CONSTANT_ALPHA);
-		glBlendColor (0, 0, 0, m_srcAlphaMovieBlend);
+		glBlendColor (0, 0, 0, m_srcAlphaBlend);
 		//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
-		renderFromFramebufferObject (m_previous);
+		renderFromFbo (m_previous);
 		glDisable (GL_BLEND);
 	    }
 	    m_current->release ();
@@ -677,15 +520,15 @@ void GLWidget::renderToFramebufferObjects (bool blend)
     detectOpenGLError ();
 }
 
-void GLWidget::renderFromFramebufferObject (
-    const boost::scoped_ptr<QGLFramebufferObject>& current) const
+void GLWidget::renderFromFbo (
+    const boost::scoped_ptr<QGLFramebufferObject>& fbo) const
 {
     using G3D::Vector3;
     G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
     Vector3 low = bb.low ();
     Vector3 high = bb.high ();
     glEnable (GL_TEXTURE_2D);
-    glBindTexture (GL_TEXTURE_2D, current->texture ());
+    glBindTexture (GL_TEXTURE_2D, fbo->texture ());
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glBegin (GL_QUADS);
     glTexCoord2i (0, 0);glVertex (low);
@@ -695,6 +538,8 @@ void GLWidget::renderFromFramebufferObject (
     glEnd ();	    
     glDisable (GL_TEXTURE_2D);
 }
+
+
 
 void GLWidget::setRotation (int axis, double angleRadians)
 {
@@ -848,10 +693,8 @@ void GLWidget::displayBox (const G3D::AABox& aabb,
 
 
 template<typename displayEdge>
-GLuint GLWidget::displayListEdges () const
+void GLWidget::displayEdges () const
 {
-    GLuint list = glGenLists(1);
-    glNewList(list, GL_COMPILE);
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
     glLineWidth (m_normalEdgeWidth);
 
@@ -867,8 +710,6 @@ GLuint GLWidget::displayListEdges () const
     displayOriginalDomain ();
     displayCenterOfBodies ();
     displayBoundingBox ();
-    glEndList();
-    return list;
 }
 
 template<typename displayEdge>
@@ -880,18 +721,22 @@ void GLWidget::displayStandaloneEdges () const
 	displayEdge (*this, DisplayElement::FOCUS) (edge);
 }
 
-
-GLuint GLWidget::displayListEdgesNormal () const
+void GLWidget::displayBlend () const
 {
-    return m_torusOriginalDomainClipped ?
-	displayListEdges <DisplayEdgeTorusClipped> () :
-	displayListEdges <DisplayEdgeWithColor<> >();
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    renderFromFbo (m_current);    
 }
 
-GLuint GLWidget::displayListEdgesTorusTubes () const
+
+void GLWidget::displayEdgesNormal () const
 {
-    GLuint list = glGenLists(1);
-    glNewList(list, GL_COMPILE);
+    m_torusOriginalDomainClipped ?
+	displayEdges <DisplayEdgeTorusClipped> () :
+	displayEdges <DisplayEdgeWithColor<> >();
+}
+
+void GLWidget::displayEdgesTorusTubes () const
+{
     glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     gluQuadricDrawStyle (m_quadric, GLU_FILL);
@@ -905,14 +750,10 @@ GLuint GLWidget::displayListEdgesTorusTubes () const
     glPopAttrib ();
 
     displayOriginalDomain ();
-    glEndList();
-    return list;
 }
 
-GLuint GLWidget::displayListEdgesTorusLines () const
+void GLWidget::displayEdgesTorusLines () const
 {
-    GLuint list = glGenLists(1);
-    glNewList(list, GL_COMPILE);
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
 
     EdgeSet edgeSet;
@@ -922,8 +763,6 @@ GLuint GLWidget::displayListEdgesTorusLines () const
     glPopAttrib ();
 
     displayOriginalDomain ();
-    glEndList();
-    return list;
 }
 
 
@@ -942,11 +781,8 @@ void GLWidget::displayCenterOfBodies () const
     }
 }
 
-GLuint GLWidget::displayListFacesNormal () const
+void GLWidget::displayFacesNormal () const
 {
-    GLuint list = glGenLists(1);
-    glNewList(list, GL_COMPILE);
-
     const Foam& foam = GetCurrentFoam ();
     const Foam::Bodies& bodies = foam.GetBodies ();
     if (foam.IsQuadratic ())
@@ -968,8 +804,10 @@ GLuint GLWidget::displayListFacesNormal () const
     displayOriginalDomain ();
     displayBoundingBox ();
     //displayAxes ();
-    glEndList();
-    return list;
+}
+
+void GLWidget::displayAverage () const
+{
 }
 
 
@@ -1029,22 +867,16 @@ void GLWidget::displayFacesInterior (const Foam::Faces& faces) const
 }
 
 
-GLuint GLWidget::displayListFacesLighting () const
+void GLWidget::displayFacesLighting () const
 {
-    GLuint list = glGenLists(1);
     const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
-    glNewList(list, GL_COMPILE);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     for_each (bodies.begin (), bodies.end (),
               DisplayBody<DisplayFaceWithNormal>(*this, *m_bodySelector));
-    glEndList();
-    return list;
 }
 
-GLuint GLWidget::displayListFacesTorusTubes () const
+void GLWidget::displayFacesTorusTubes () const
 {
-    GLuint list = glGenLists(1);
-    glNewList(list, GL_COMPILE);
     glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glLineWidth (3.0);
@@ -1059,15 +891,11 @@ GLuint GLWidget::displayListFacesTorusTubes () const
 		  *this));
     glPopAttrib ();
     displayOriginalDomain ();
-    glEndList();
-    return list;
 }
 
 
-GLuint GLWidget::displayListFacesTorusLines () const
+void GLWidget::displayFacesTorusLines () const
 {
-    GLuint list = glGenLists(1);
-    glNewList(list, GL_COMPILE);
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
 
     FaceSet faceSet;
@@ -1080,14 +908,10 @@ GLuint GLWidget::displayListFacesTorusLines () const
     glPopAttrib ();
 
     displayOriginalDomain ();
-    glEndList();
-    return list;
 }
 
-GLuint GLWidget::displayListCenterPaths () const
+void GLWidget::displayCenterPathsWithBodies () const
 {
-    GLuint list = glGenLists(1);
-    glNewList(list, GL_COMPILE);
     glLineWidth (1.0);
     displayCenterPaths ();
     if (IsCenterPathDisplayBody ())
@@ -1104,8 +928,6 @@ GLuint GLWidget::displayListCenterPaths () const
     displayOriginalDomain ();
     displayBoundingBox ();
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
-    glEndList();
-    return list;
 }
 
 void GLWidget::displayCenterPaths () const
@@ -1117,11 +939,11 @@ void GLWidget::displayCenterPaths () const
     glPopAttrib ();
 }
 
-GLuint GLWidget::displayList (ViewType type)
+void GLWidget::display (ViewType type)
 {
     RuntimeAssert (type < VIEW_TYPE_COUNT, 
 		   "ViewType enum has an invalid value: ", m_viewType);
-    return (this->*(VIEW_TYPE_DISPLAY[type].m_displayList)) ();
+    (this->*(m_viewTypeDisplay[type].m_display)) ();
 }
 
 bool GLWidget::IsDisplayedBody (size_t bodyId) const
@@ -1179,7 +1001,7 @@ void GLWidget::IncrementDisplayedBody ()
 	if (m_displayedBodyIndex == 
 	    GetFoamAlongTime ().GetFoam (0)->GetBodies ().size ())
 	    m_displayedBodyIndex = DISPLAY_ALL;
-	UpdateDisplayList ();
+	updateGL ();
     }
 }
 
@@ -1192,7 +1014,7 @@ void GLWidget::IncrementDisplayedFace ()
         Body& body = *GetCurrentFoam ().GetBodies ()[m_displayedBodyIndex];
         if (m_displayedFaceIndex == body.GetOrientedFaces ().size ())
             m_displayedFaceIndex = DISPLAY_ALL;
-	UpdateDisplayList ();
+	updateGL ();
     }
 }
 
@@ -1204,7 +1026,7 @@ void GLWidget::IncrementDisplayedEdge ()
 	Face& face = *GetDisplayedFace ();
 	if (m_displayedEdgeIndex == face.GetOrientedEdges ().size ())
 	    m_displayedEdgeIndex = DISPLAY_ALL;
-	UpdateDisplayList ();
+	updateGL ();
     }
 }
 
@@ -1217,7 +1039,7 @@ void GLWidget::DecrementDisplayedBody ()
 		GetFoamAlongTime ().GetFoam (0)->GetBodies ().size ();
 	--m_displayedBodyIndex;
 	m_displayedFaceIndex = DISPLAY_ALL;
-	UpdateDisplayList ();
+	updateGL ();
     }
 }
 
@@ -1229,7 +1051,7 @@ void GLWidget::DecrementDisplayedFace ()
         if (m_displayedFaceIndex == DISPLAY_ALL)
             m_displayedFaceIndex = body.GetOrientedFaces ().size ();
 	--m_displayedFaceIndex;
-	UpdateDisplayList ();
+	updateGL ();
     }
 }
 
@@ -1241,7 +1063,7 @@ void GLWidget::DecrementDisplayedEdge ()
 	if (m_displayedEdgeIndex == DISPLAY_ALL)
 	    m_displayedEdgeIndex = face.GetOrientedEdges ().size ();
 	--m_displayedEdgeIndex;
-	UpdateDisplayList ();
+	updateGL ();
     }
 }
 
@@ -1324,29 +1146,20 @@ size_t GLWidget::GetDisplayedEdgeId () const
 }
 
 
-void GLWidget::UpdateDisplayList ()
-{
-    makeCurrent ();
-    glDeleteLists(m_object, 1);
-    m_object = displayList (m_viewType);
-    updateGL ();
-}
 
-
-
-// Slots and slot like methods
+// Slots
 // ======================================================================
 
 void GLWidget::ToggledShowBoundingBox (bool checked)
 {
     m_boundingBox = checked;
-    UpdateDisplayList ();
+    updateGL ();
 }
 
 void GLWidget::ToggledCenterPathDisplayBody (bool checked)
 {
     m_centerPathDisplayBody = checked;
-    UpdateDisplayList ();
+    updateGL ();
 }
 
 void GLWidget::ToggledEdgesNormal (bool checked)
@@ -1368,18 +1181,18 @@ void GLWidget::ToggledEdgesTorusTubes (bool checked)
 void GLWidget::ToggledEdgesBodyCenter (bool checked)
 {
     m_edgesBodyCenter = checked;
-    UpdateDisplayList ();
-}
-
-void GLWidget::ToggledFacesNormal (bool checked)
-{
-    view (checked, FACES);
+    updateGL ();
 }
 
 void GLWidget::ToggledFacesShowEdges (bool checked)
 {
     m_facesShowEdges = checked;
-    UpdateDisplayList ();
+    updateGL ();
+}
+
+void GLWidget::ToggledFacesNormal (bool checked)
+{
+    view (checked, FACES);
 }
 
 void GLWidget::ToggledFacesTorus (bool checked)
@@ -1396,20 +1209,20 @@ void GLWidget::ToggledFacesTorusTubes (bool checked)
 void GLWidget::ToggledEdgesTessellation (bool checked)
 {
     m_edgesTessellation = checked;
-    UpdateDisplayList ();
+    updateGL ();
 }
 
 
 void GLWidget::ToggledTorusOriginalDomainDisplay (bool checked)
 {
     m_torusOriginalDomainDisplay = checked;
-    UpdateDisplayList ();
+    updateGL ();
 }
 
 void GLWidget::ToggledTorusOriginalDomainClipped (bool checked)
 {
     m_torusOriginalDomainClipped = checked;
-    UpdateDisplayList ();
+    updateGL ();
 }
 
 void GLWidget::ToggledBodies (bool checked)
@@ -1422,6 +1235,11 @@ void GLWidget::ToggledCenterPath (bool checked)
     view (checked, CENTER_PATHS);
 }
 
+void GLWidget::ToggledAverage (bool checked)
+{
+    view (checked, AVERAGE);
+}
+
 
 void GLWidget::CurrentIndexChangedInteractionMode (int index)
 {
@@ -1432,9 +1250,9 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 {
     m_timeStep = timeStep;
     makeCurrent ();
-    UpdateDisplayList ();
-    if (m_srcAlphaMovieBlend < 1)
-	renderToFramebufferObjects (m_timeStep != 0);
+    updateGL ();
+    if (m_srcAlphaBlend < 1)
+	blendStep (m_timeStep != 0);
     updateGL ();
 }
 
@@ -1442,15 +1260,12 @@ void GLWidget::ValueChangedBlend (int index)
 {
     QSlider* slider = static_cast<QSlider*> (sender ());
     size_t maximum = slider->maximum ();
-    if (m_srcAlphaMovieBlend == 1 && index != 0)
-    {
-	G3D::Rect2D boundingBoxViewport = viewportTransform (
-	    width (), height ());
-	allocateAndInitializeFramebufferObjects (
-	    QSize (boundingBoxViewport.width (), boundingBoxViewport.height ()));
-    }
-    // m_srcAlphaMovieBlend is between 1 and 0.5
-    m_srcAlphaMovieBlend = 1 - static_cast<double>(index) / (2 * maximum);
+    if (m_srcAlphaBlend == 1 && index != 0)
+	initFbosBlend (viewportTransform (width (), height ()));
+    else if (m_srcAlphaBlend < 1 && index == 0)
+	freeFbosBlend ();
+    // m_srcAlphaBlend is between 1 and 0.5
+    m_srcAlphaBlend = 1 - static_cast<double>(index) / (2 * maximum);
     updateGL ();
 }
 
@@ -1519,6 +1334,7 @@ void GLWidget::CurrentIndexChangedCenterPathColor (int value)
 		   "Invalid BodyProperty: ", value);
     m_centerPathColor = BodyProperty::FromSizeT(value);
     m_useColorMap = (m_centerPathColor != BodyProperty::NONE);
+    updateGL ();
 }
 
 void GLWidget::CurrentIndexChangedFacesColor (int value)
@@ -1527,7 +1343,20 @@ void GLWidget::CurrentIndexChangedFacesColor (int value)
 		   "Invalid BodyProperty: ", value);
     m_facesColor = BodyProperty::FromSizeT(value);
     m_useColorMap = (m_facesColor != BodyProperty::NONE);
+    updateGL ();
 }
+
+void GLWidget::ColorBarModelChanged (
+    boost::shared_ptr<ColorBarModel> colorBarModel)
+{
+    m_colorBarModel = colorBarModel;    
+    const QImage image = colorBarModel->GetImage ();
+    makeCurrent ();
+    glTexImage1D (GL_TEXTURE_1D, 0, GL_RGBA, image.width (), 
+		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
+    updateGL ();
+}
+
 
 void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 {
@@ -1578,17 +1407,6 @@ double GLWidget::TexCoord (double value) const
 	return m_colorBarModel->TexCoord (value);
     else
 	return 0;
-}
-
-void GLWidget::ColorBarModelChanged (
-    boost::shared_ptr<ColorBarModel> colorBarModel)
-{
-    m_colorBarModel = colorBarModel;    
-    const QImage image = colorBarModel->GetImage ();
-    makeCurrent ();
-    glTexImage1D (GL_TEXTURE_1D, 0, GL_RGBA, image.width (), 
-		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
-    UpdateDisplayList ();
 }
 
 void GLWidget::initializeTextures ()

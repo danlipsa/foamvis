@@ -59,6 +59,11 @@ public:
 	double maxValue,
 	HistogramSelection histogramSelection = DISCARD_SELECTION,
 	MaxValueOperation maxValueOperation = REPLACE_MAX_VALUE);
+    boost::shared_ptr<ColorBarModel> GetColorBarModel (
+	BodyProperty::Enum bodyProperty)
+    {
+	return m_colorBarModel[bodyProperty];
+    }
 
 Q_SIGNALS:
     void ColorBarModelChanged (boost::shared_ptr<ColorBarModel> colorBarModel);
@@ -143,8 +148,8 @@ private:
     void setupSliderData (const FoamAlongTime& foamAlongTime);
     void setupButtonGroups ();
     void configureInterface (const FoamAlongTime& foamAlongTime);
-    void setColorBarModel (BodyProperty::Enum bodyProperty);
-    void setColorBarModels ();
+    void setupColorBarModel (BodyProperty::Enum bodyProperty);
+    void setupColorBarModels ();
 
     void setupColorBar ();
     void setupHistogram ();
