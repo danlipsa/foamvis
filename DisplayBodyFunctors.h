@@ -11,9 +11,11 @@
 
 #include "BodySelector.h"
 #include "DebugStream.h"
+#include "DisplayElement.h"
 #include "Enums.h"
 #include "Foam.h"
 #include "GLWidget.h"
+#include "OpenGLUtils.h"
 #include "StripIterator.h"
 
 /**

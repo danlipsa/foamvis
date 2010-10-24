@@ -11,16 +11,16 @@
 #include "BodySelector.h"
 #include "ColorBarModel.h"
 #include "FoamAlongTime.h"
+#include "GLWidget.h"
 #include "Debug.h"
-#include "DisplayVertexFunctors.h"
+#include "DisplayBlend.h"
+#include "DisplayBodyFunctors.h"
 #include "DisplayEdgeFunctors.h"
 #include "DisplayFaceFunctors.h"
-#include "DisplayBodyFunctors.h"
+#include "DisplayVertexFunctors.h"
 #include "OpenGLInfo.h"
-#include "Utils.h"
 #include "OpenGLUtils.h"
-#include "GLWidget.h"
-
+#include "Utils.h"
 
 // Private Classes
 // ======================================================================
@@ -84,6 +84,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_srcAlphaBlend (1),
       m_playMovie (false)
 {
+    m_displayBlend.reset (new DisplayBlend (*this));
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
     const int POSSIBILITIES = 3; //domain increment can be *, - or +
     using G3D::Vector3int16;
@@ -123,17 +124,22 @@ void GLWidget::initViewTypeDisplay ()
     boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> vtd = 
 	{{	
 	{&GLWidget::displayEdgesNormal, identity<Lighting> (NO_LIGHTING)},
+	
 	{&GLWidget::displayEdgesTorus, 
 	 bl::if_then_else_return (bl::bind (&GLWidget::edgesTorusTubes, this), 
 				  LIGHTING, NO_LIGHTING)},
 	
 	{&GLWidget::displayFacesNormal, identity<Lighting> (NO_LIGHTING)},
+	
 	{&GLWidget::displayFacesLighting, identity<Lighting> (LIGHTING)},
+	
 	{&GLWidget::displayFacesTorus, 
 	 bl::if_then_else_return (bl::bind (&GLWidget::facesTorusTubes, this),
 				  LIGHTING, NO_LIGHTING)},
 	
-	{&GLWidget::displayCenterPathsWithBodies, identity<Lighting> (LIGHTING)},
+	{&GLWidget::displayCenterPathsWithBodies, 
+	 identity<Lighting> (LIGHTING)},
+	
 	{&GLWidget::displayAverage, 
 	 identity<Lighting> (NO_LIGHTING)}
 	}};
@@ -439,7 +445,7 @@ void GLWidget::paintGL ()
     if (m_srcAlphaBlend < 1)
 	displayBlend ();
     else
-	display (m_viewType);
+	display ();
     detectOpenGLError ();
 }
 
@@ -447,7 +453,7 @@ void GLWidget::resizeGL(int width, int height)
 {
     QSize size = viewportTransform (width, height, m_scale, &m_viewport);
     if (m_srcAlphaBlend < 1)
-	initFbosBlend (size);
+	m_displayBlend->Init (size);
 }
 
 void GLWidget::allocateFbosAverage (const QSize& size)
@@ -466,69 +472,14 @@ void GLWidget::freeFbosAverage ()
     m_old.reset ();
 }
 
-void GLWidget::freeFbosBlend ()
-{
-    m_current.reset ();
-    m_previous.reset ();
-}
-
-void GLWidget::initFbosBlend (const QSize& size)
-{
-    m_current.reset (new QGLFramebufferObject (size));
-    m_previous.reset (new QGLFramebufferObject (size));
-    blendStep (false);
-}
-
-void GLWidget::blendStep (bool blend)
-{
-    makeCurrent ();
-    QSize size = m_current->size ();
-    {
-	glPushMatrix ();
-	glPushAttrib (GL_CURRENT_BIT);
-	viewportTransform (size.width (), size.height ());
-	modelViewTransformNoRotation ();
-	{
-	    m_current->bind ();
-	    // render to the current buffer
-	    glClear(GL_COLOR_BUFFER_BIT);
-	    display (m_viewType);
-
-	    if (blend)
-	    {
-		// blend from the previous buffer	    
-		glEnable (GL_BLEND);	
-		glBlendFunc (GL_ONE_MINUS_CONSTANT_ALPHA, GL_CONSTANT_ALPHA);
-		glBlendColor (0, 0, 0, m_srcAlphaBlend);
-		//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
-		renderFromFbo (m_previous);
-		glDisable (GL_BLEND);
-	    }
-	    m_current->release ();
-	}
-	m_current->toImage ().save ("current1.jpg");
-        // copy current --> previous buffer
-	QRect rect (QPoint (0, 0), size);
-	QGLFramebufferObject::blitFramebuffer (
-	    m_previous.get (), rect, m_current.get (), rect);
-	m_previous->toImage ().save ("previous1.jpg");
-
- 	glViewport (m_viewport);
-	glPopAttrib ();
-	glPopMatrix ();
-    }
-    detectOpenGLError ();
-}
-
-void GLWidget::renderFromFbo (
-    const boost::scoped_ptr<QGLFramebufferObject>& fbo) const
+void GLWidget::renderFromFbo (QGLFramebufferObject& fbo) const
 {
     using G3D::Vector3;
     G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
     Vector3 low = bb.low ();
     Vector3 high = bb.high ();
     glEnable (GL_TEXTURE_2D);
-    glBindTexture (GL_TEXTURE_2D, fbo->texture ());
+    glBindTexture (GL_TEXTURE_2D, fbo.texture ());
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glBegin (GL_QUADS);
     glTexCoord2i (0, 0);glVertex (low);
@@ -538,8 +489,6 @@ void GLWidget::renderFromFbo (
     glEnd ();	    
     glDisable (GL_TEXTURE_2D);
 }
-
-
 
 void GLWidget::setRotation (int axis, double angleRadians)
 {
@@ -724,7 +673,7 @@ void GLWidget::displayStandaloneEdges () const
 void GLWidget::displayBlend () const
 {
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    renderFromFbo (m_current);    
+    renderFromFbo (m_displayBlend->GetCurrent ());    
 }
 
 
@@ -939,11 +888,9 @@ void GLWidget::displayCenterPaths () const
     glPopAttrib ();
 }
 
-void GLWidget::display (ViewType type)
+void GLWidget::display ()
 {
-    RuntimeAssert (type < VIEW_TYPE_COUNT, 
-		   "ViewType enum has an invalid value: ", m_viewType);
-    (this->*(m_viewTypeDisplay[type].m_display)) ();
+    (this->*(m_viewTypeDisplay[m_viewType].m_display)) ();
 }
 
 bool GLWidget::IsDisplayedBody (size_t bodyId) const
@@ -1252,7 +1199,7 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
     makeCurrent ();
     updateGL ();
     if (m_srcAlphaBlend < 1)
-	blendStep (m_timeStep != 0);
+	m_displayBlend->Step (m_timeStep != 0);
     updateGL ();
 }
 
@@ -1261,9 +1208,9 @@ void GLWidget::ValueChangedBlend (int index)
     QSlider* slider = static_cast<QSlider*> (sender ());
     size_t maximum = slider->maximum ();
     if (m_srcAlphaBlend == 1 && index != 0)
-	initFbosBlend (viewportTransform (width (), height ()));
+	m_displayBlend->Init (viewportTransform (width (), height ()));
     else if (m_srcAlphaBlend < 1 && index == 0)
-	freeFbosBlend ();
+	m_displayBlend->End ();
     // m_srcAlphaBlend is between 1 and 0.5
     m_srcAlphaBlend = 1 - static_cast<double>(index) / (2 * maximum);
     updateGL ();

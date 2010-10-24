@@ -15,6 +15,7 @@ class BodyAlongTime;
 class BodiesAlongTime;
 class BodySelector;
 class ColorBarModel;
+class DisplayBlend;
 class Foam;
 class Edge;
 class EditColorMap;
@@ -26,7 +27,7 @@ class OOBox;
 /**
  * Widget for displaying foam bubbles using OpenGL
  */
-class GLWidget : public QGLWidget, protected QGLFunctions
+class GLWidget : public QGLWidget, public QGLFunctions
 {    
 public:
     /**
@@ -245,6 +246,26 @@ public Q_SLOTS:
     void ValueChangedSliderTimeSteps (int timeStep);
     void CurrentIndexChangedCenterPathColor (int value);
     void CurrentIndexChangedFacesColor (int value);
+    /**
+     * Calculates and does the viewport transform.
+     * @param viewport stores the viewport. If it is != 0 the function does the
+     * viewport transform as well.
+     * @return the foam size in screen coordinates.
+     */
+    QSize viewportTransform (int width, int height, double scale = 1,
+			     G3D::Rect2D* viewport = 0) const;
+    void modelViewTransformNoRotation () const;
+    void renderFromFbo (QGLFramebufferObject& fbo) const;
+    /**
+     * Displays the foam in various way
+     * @param type the type of object that we want displayed.
+     */
+    void display ();
+    double GetSrcAlphaBlend () const
+    {
+	return m_srcAlphaBlend;
+    }
+
 
 public:
     const static  size_t DISPLAY_ALL;
@@ -338,15 +359,6 @@ private:
      * m_cameraDistance
      */
     void modelViewTransform () const;
-    void modelViewTransformNoRotation () const;
-    /**
-     * Calculates and does the viewport transform.
-     * @param viewport stores the viewport. If it is != 0 the function does the
-     * viewport transform as well.
-     * @return the foam size in screen coordinates.
-     */
-    QSize viewportTransform (int width, int height, double scale = 1,
-			     G3D::Rect2D* viewport = 0) const;
     void viewingVolumeCalculations (
 	int width, int height,
 	G3D::Rect2D* vv2dScreen, G3D::Rect2D* windowWorld) const;
@@ -357,11 +369,6 @@ private:
     G3D::AABox calculateCenteredViewingVolume () const;
     void initializeTextures ();
     void calculateCameraDistance ();
-    /**
-     * Displays the foam in various way
-     * @param type the type of object that we want displayed.
-     */
-    void display (ViewType type);
     /**
      * Generates a display list for edges
      * @return the display list
@@ -463,16 +470,9 @@ private:
     bool doesSelectEdge () const;
     void createActions ();
     void rotateSurfaceEvolverCompatible () const;
-    void freeFbosBlend ();
-    void initFbosBlend (const QSize& size);
-    void blendStep (bool blend = true);
 
     void allocateFbosAverage (const QSize& size);
     void freeFbosAverage ();
-
-    void renderFromFbo (
-	const boost::scoped_ptr<QGLFramebufferObject>& current) const;
-
 private:
     static void displayOpositeFaces (G3D::Vector3 origin,
 				     G3D::Vector3 faceFirst,
@@ -571,14 +571,7 @@ private:
      * otherwise
      */
     bool m_playMovie;
-    /**
-     * FBO used in blending. This is what is displayed on the screen.
-     */
-    boost::scoped_ptr<QGLFramebufferObject> m_current;
-    /**
-     * FBO used in blending. This is the blended images of previous steps.
-     */
-    boost::scoped_ptr<QGLFramebufferObject> m_previous;
+    boost::scoped_ptr<DisplayBlend> m_displayBlend;
     /**
      * FBO used in averaging.
      */

@@ -11,11 +11,13 @@
 
 #include "DisplayElement.h"
 #include "DebugStream.h"
+#include "DisplayVertexFunctors.h"
 #include "Edge.h"
 #include "GLWidget.h"
 #include "Foam.h"
 #include "Utils.h"
 #include "OpenGLUtils.h"
+#include "OrientedEdge.h"
 
 
 void edgeRotation (
