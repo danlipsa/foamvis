@@ -190,5 +190,8 @@ const char* Palette::ToString (Palette::Enum type)
 	return "Green-Purple Diverging";
     case GREEN_RED_DIVERGING:
 	return "Green-Red Diverging";
+    default:
+	RuntimeAssert (false, "Invalid Palette: ", type);
+	return 0;
     }
 }

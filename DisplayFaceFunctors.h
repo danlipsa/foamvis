@@ -110,6 +110,12 @@ protected:
 		    double value = foamAlongTime.GetBodyProperty (
 			m_bodyProperty, bodyId, m_glWidget.GetTimeStep ());
 		    double texCoord = m_glWidget.TexCoord (value);
+		    if (value > 0.0011 &&
+			m_bodyProperty == BodyProperty::VOLUME)
+		    {
+			cdbg << bodyId << " " << value << " " 
+			     << texCoord << endl;
+		    }
 		    glTexCoord1f (texCoord); 
 		    useColor = false;
 		}
