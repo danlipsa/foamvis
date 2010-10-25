@@ -19,6 +19,17 @@ public:
     virtual bool operator () (size_t bodyId, size_t timeStep) const = 0;
 };
 
+class AllBodiesSelected : public BodySelector
+{
+    virtual bool operator () (size_t bodyId, size_t timeStep) const
+    {
+	(void) bodyId;
+	(void) timeStep;
+	return true;
+    }
+};
+
+
 class GLWidget;
 class CycleSelector : public BodySelector
 {

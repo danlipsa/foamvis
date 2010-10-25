@@ -11,7 +11,10 @@
 
 #include "DisplayElement.h"
 
+class Body;
+class Foam;
 class GLWidget;
+
 
 class DisplayAverage : public DisplayElement
 {
@@ -23,7 +26,15 @@ public:
 
     void Init (const QSize& size);
     void Release ();
-    void Step (bool blend);
+    void Step (const Foam& foam);
+    void Display ();
+
+private:
+    template<typename displaySameEdges>
+    void displayFacesValues (
+	const vector<boost::shared_ptr<Body> >& bodies) const;
+
+
 private:
     /**
      * Stores the sum and count of values

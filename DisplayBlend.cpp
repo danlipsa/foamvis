@@ -57,10 +57,14 @@ void DisplayBlend::Step (bool blend)
 	QGLFramebufferObject::blitFramebuffer (
 	    m_previous.get (), rect, m_current.get (), rect);
 	//m_previous->toImage ().save ("previous1.jpg");
-
- 	//glViewport (m_viewport);
 	glPopAttrib ();
 	glPopMatrix ();
     }
     detectOpenGLError ();
+}
+
+void DisplayBlend::Display () const
+{
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    m_glWidget.RenderFromFbo (*m_current);    
 }

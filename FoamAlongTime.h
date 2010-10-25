@@ -75,10 +75,16 @@ public:
 	return m_foams[timeStep];
     }
 
-    Foams::iterator GetFoamsBegin ()
+    Foams& GetFoams ()
     {
-	return m_foams.begin ();
+	return m_foams;
     }
+    const Foams& GetFoams () const
+    {
+	return m_foams;
+    }
+    bool IsQuadratic () const;
+
     QwtIntervalData GetHistogram (size_t bodyProperty) const
     {
 	return GetBodiesAlongTime ().GetHistogram (bodyProperty);

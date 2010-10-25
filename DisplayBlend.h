@@ -20,14 +20,12 @@ public:
 	DisplayElement (glWidget)
     {
     }
-    QGLFramebufferObject& GetCurrent ()
-    {
-	return *m_current;
-    }
 
     void Init (const QSize& size);
     void Release ();
-    void Step (bool blend);
+    void Step (bool blendPrevious);
+    void Display () const;
+
 private:
     /**
      * FBO displayed on the screen.

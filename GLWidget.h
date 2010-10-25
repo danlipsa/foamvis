@@ -85,7 +85,7 @@ public:
 	return m_timeStep;
     }
     
-    bool IsDisplayedAllBodies () const
+    bool AreAllBodiesDisplayed () const
     {
 	return m_displayedBodyIndex == DISPLAY_ALL;
     }
@@ -193,6 +193,30 @@ public:
     }
     void SetPlayMovie (bool playMovie);
     
+    /**
+     * Calculates and does the viewport transform.
+     * @param viewport stores the viewport. If it is != 0 the function does the
+     * viewport transform as well.
+     * @return the foam size in screen coordinates.
+     */
+    QSize ViewportTransform (int width, int height, double scale = 1,
+			     G3D::Rect2D* viewport = 0) const;
+    void ModelViewTransformNoRotation () const;
+    void RenderFromFbo (QGLFramebufferObject& fbo) const;
+    /**
+     * Displays the foam in various way
+     * @param type the type of object that we want displayed.
+     */
+    void Display () const;
+    double GetSrcAlphaBlend () const
+    {
+	return m_srcAlphaBlend;
+    }
+    BodyProperty::Enum GetFacesColor () const
+    {
+	return m_facesColor;
+    }
+
 public Q_SLOTS:
     /**
      * Shows edges
@@ -246,26 +270,6 @@ public Q_SLOTS:
      * @param timeStep the new index for the Foam to be displayed
      */
     void ValueChangedSliderTimeSteps (int timeStep);
-    /**
-     * Calculates and does the viewport transform.
-     * @param viewport stores the viewport. If it is != 0 the function does the
-     * viewport transform as well.
-     * @return the foam size in screen coordinates.
-     */
-    QSize ViewportTransform (int width, int height, double scale = 1,
-			     G3D::Rect2D* viewport = 0) const;
-    void ModelViewTransformNoRotation () const;
-    void RenderFromFbo (QGLFramebufferObject& fbo) const;
-    /**
-     * Displays the foam in various way
-     * @param type the type of object that we want displayed.
-     */
-    void Display () const;
-    double GetSrcAlphaBlend () const
-    {
-	return m_srcAlphaBlend;
-    }
-
 
 public:
     const static  size_t DISPLAY_ALL;
@@ -316,6 +320,8 @@ private:
     };
 
 private:
+    string getFoamsInfo () const;
+
     /**
      * Displays the center of the bodies
      */
@@ -362,7 +368,6 @@ private:
     void displayEdges () const;
 
 
-    void displayBlend () const;
     void displayEdgesNormal () const;
     template<typename displayEdge>
     void displayStandaloneEdges () const;
@@ -440,6 +445,7 @@ private:
     template<typename displaySameEdges>
     void displayFacesInterior (
 	const vector<boost::shared_ptr<Face> >& faces) const;
+
     /**
      * Setup lighting for shaded bodies
      */

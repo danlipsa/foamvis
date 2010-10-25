@@ -259,3 +259,8 @@ void FoamAlongTime::calculateMaxCountPerBin ()
 	m_maxCountPerBinIndividual[bodyProperty] = maxCount;
     }
 }
+
+bool FoamAlongTime::IsQuadratic () const
+{
+    return m_foams[0]->IsQuadratic ();
+}

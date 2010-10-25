@@ -60,12 +60,7 @@ struct DisplayAllButLastVertices
 };
 
 
-void DisplayAllVertices (const Edge& edge)
-{
-    for (size_t i = 0; i < edge.PointCount (); i++)
-	glVertex (edge.GetPoint (i));
-}
-
+void DisplayAllVertices (const Edge& edge);
 
 
 class DisplayTriangle : 

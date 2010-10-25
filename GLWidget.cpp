@@ -398,7 +398,17 @@ void GLWidget::DeselectAll ()
 
 void GLWidget::Info ()
 {
+    string message = (AreAllBodiesDisplayed ()) ? 
+	getFoamsInfo () : 
+	GetDisplayedBody ()->ToString ();
+    QMessageBox msgBox (this);
+    msgBox.setText(message.c_str ());
+    msgBox.exec();
+}
 
+
+string GLWidget::getFoamsInfo () const
+{
     const Foam& foam = *GetFoamAlongTime ().GetFoam (0);
     size_t timeSteps = GetFoamAlongTime ().GetTimeSteps ();
 
@@ -418,10 +428,7 @@ void GLWidget::Info ()
 	"<tr><th>Vertices</th><td>" << vertexSet.size () << "</td></tr>"
 	"<tr><th>Time steps</th><td>" << timeSteps << "</td></tr>"
 	"</table>" << endl;
-
-    QMessageBox msgBox (this);
-    msgBox.setText(ostr.str().c_str ());
-    msgBox.exec();
+    return ostr.str ();
 }
 
 
@@ -443,10 +450,7 @@ void GLWidget::paintGL ()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     modelViewTransform ();
-    if (m_srcAlphaBlend < 1)
-	displayBlend ();
-    else
-	Display ();
+    Display ();
     displayTextureColorMap ();
     detectOpenGLError ();
 }
@@ -656,13 +660,6 @@ void GLWidget::displayStandaloneEdges () const
 	displayEdge (*this, DisplayElement::FOCUS) (edge);
 }
 
-void GLWidget::displayBlend () const
-{
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    RenderFromFbo (m_displayBlend->GetCurrent ());    
-}
-
-
 void GLWidget::displayEdgesNormal () const
 {
     m_torusOriginalDomainClipped ?
@@ -745,6 +742,14 @@ void GLWidget::displayAverage () const
 {
     DisplayAverage displayAverage (*this);
     displayAverage.Init (ViewportTransform (width (), height ()));
+    const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
+/*
+    BOOST_FOREACH (const boost::shared_ptr<const Foam>& foam, 
+		   foamAlongTime.GetFoams ())
+	displayAverage.Step (*foam);
+*/
+    displayAverage.Step (GetCurrentFoam ());
+    //displayAverage.Display ();
 }
 
 
@@ -885,12 +890,15 @@ void GLWidget::displayCenterPaths () const
 
 void GLWidget::Display () const
 {
-    (this->*(m_viewTypeDisplay[m_viewType].m_display)) ();
+    if (m_srcAlphaBlend < 1)
+	m_displayBlend->Display ();
+    else
+	(this->*(m_viewTypeDisplay[m_viewType].m_display)) ();
 }
 
 bool GLWidget::IsDisplayedBody (size_t bodyId) const
 {
-    return (IsDisplayedAllBodies () || GetDisplayedBodyId () == bodyId);
+    return (AreAllBodiesDisplayed () || GetDisplayedBodyId () == bodyId);
 }
 
 bool GLWidget::IsDisplayedBody (const boost::shared_ptr<Body> body) const
@@ -1274,6 +1282,7 @@ void GLWidget::BodyPropertyChanged (
     boost::shared_ptr<ColorBarModel> colorBarModel,
     BodyProperty::Enum bodyProperty, ViewType::Enum viewType)
 {
+    cdbg << bodyProperty << endl;
     RuntimeAssert (
 	viewType == ViewType::FACES || viewType == ViewType::CENTER_PATHS,
 	"Invalid view type: ", viewType);
@@ -1282,13 +1291,10 @@ void GLWidget::BodyPropertyChanged (
     else
 	m_centerPathColor = bodyProperty;
     m_useColorMap = (m_facesColor != BodyProperty::NONE);
-
-    m_colorBarModel = colorBarModel;    
-    const QImage image = colorBarModel->GetImage ();
-    makeCurrent ();
-    glTexImage1D (GL_TEXTURE_1D, 0, GL_RGBA, image.width (), 
-		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
-    updateGL ();
+    if (m_useColorMap)
+	ColorBarModelChanged (colorBarModel);
+    else
+	updateGL ();
 }
 
 

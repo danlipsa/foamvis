@@ -536,6 +536,8 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	groupBoxFacesHistogram->setHidden (true);
 	colorBar->setHidden (true);
 	widgetHistogram->setHidden (true);
+	Q_EMIT BodyPropertyChanged (
+	    m_colorBarModel[0], bodyProperty, ViewType::FACES);
     }
     else
     {
@@ -562,6 +564,8 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	groupBoxCenterPathHistogram->setHidden (true);
 	colorBar->setHidden (true);
 	widgetHistogram->setHidden (true);
+	Q_EMIT BodyPropertyChanged (
+	    m_colorBarModel[0], bodyProperty, ViewType::CENTER_PATHS);
     }
     else
     {

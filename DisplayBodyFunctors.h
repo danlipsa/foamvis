@@ -9,6 +9,8 @@
 #ifndef __DISPLAY_BODY_FUNCTORS_H__
 #define __DISPLAY_BODY_FUNCTORS_H__
 
+#include "Body.h"
+#include "BodyAlongTime.h"
 #include "BodySelector.h"
 #include "DebugStream.h"
 #include "DisplayElement.h"

@@ -9,6 +9,7 @@
 #ifndef __DISPLAY_FACE_FUNCTORS_H__
 #define __DISPLAY_FACE_FUNCTORS_H__
 
+#include "FoamAlongTime.h"
 #include "DisplayEdgeFunctors.h"
 
 /**

@@ -22,7 +22,8 @@ SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp 
 	BodySetStatistics.cpp BodySelector.cpp\
 	ColorBar.cpp ColorBarModel.cpp ColoredElement.cpp Comparisons.cpp \
 	Debug.cpp DebugStream.cpp DisplayAverage.cpp DisplayBlend.cpp\
-	DisplayWidget.cpp Edge.cpp \
+	DisplayEdgeFunctors.cpp	DisplayWidget.cpp DisplayVertexFunctors.cpp \
+	Edge.cpp \
 	EditColorMap.cpp Element.cpp ExpressionTree.cpp Enums.cpp\
 	Foam.cpp FoamAlongTime.cpp Face.cpp \
 	GLWidget.cpp Hashes.cpp Histogram.cpp HistogramItem.cpp\

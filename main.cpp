@@ -257,7 +257,7 @@ void parseFiles (int argc, char *argv[],
 		  bl::_1 != boost::shared_ptr<Foam>()) != foams.size ())
 	ThrowException ("Could not process all files\n");
     copy (foams.constBegin (), foams.constEnd (),
-	  foamAlongTime->GetFoamsBegin ());
+	  foamAlongTime->GetFoams ().begin ());
 }
 
 
