@@ -13,6 +13,7 @@
 #include "FoamAlongTime.h"
 #include "GLWidget.h"
 #include "Debug.h"
+#include "DisplayAverage.h"
 #include "DisplayBlend.h"
 #include "DisplayBodyFunctors.h"
 #include "DisplayEdgeFunctors.h"
@@ -55,7 +56,7 @@ const size_t GLWidget::QUADRIC_STACKS (20);
 
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent), 
-      m_viewType (VIEW_TYPE_COUNT),
+      m_viewType (ViewType::COUNT),
       m_torusOriginalDomainDisplay (false),
       m_torusOriginalDomainClipped (false),
       m_interactionMode (InteractionMode::ROTATE),
@@ -121,7 +122,7 @@ void GLWidget::createActions ()
 
 void GLWidget::initViewTypeDisplay ()
 {
-    boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> vtd = 
+    boost::array<ViewTypeDisplay, ViewType::COUNT> vtd = 
 	{{	
 	{&GLWidget::displayEdgesNormal, identity<Lighting> (NO_LIGHTING)},
 	
@@ -165,7 +166,7 @@ GLWidget::~GLWidget()
     m_quadric = 0;
 }
 
-void GLWidget::view (bool checked, ViewType view)
+void GLWidget::view (bool checked, ViewType::Enum view)
 {
     if (checked)
     {
@@ -222,7 +223,7 @@ G3D::AABox GLWidget::calculateCenteredViewingVolume () const
 		       boundingBox.high () - center);
 }
 
-void GLWidget::modelViewTransformNoRotation () const
+void GLWidget::ModelViewTransformNoRotation () const
 {
     glLoadIdentity ();
     glTranslate (- m_cameraDistance * G3D::Vector3::unitZ () - 
@@ -263,7 +264,7 @@ void GLWidget::projectionTransform () const
     glMatrixMode (GL_MODELVIEW);
 }
 
-QSize GLWidget::viewportTransform (
+QSize GLWidget::ViewportTransform (
     int width, int height, double scale,
     G3D::Rect2D* viewport) const
 {
@@ -445,34 +446,19 @@ void GLWidget::paintGL ()
     if (m_srcAlphaBlend < 1)
 	displayBlend ();
     else
-	display ();
+	Display ();
+    displayTextureColorMap ();
     detectOpenGLError ();
 }
 
 void GLWidget::resizeGL(int width, int height)
 {
-    QSize size = viewportTransform (width, height, m_scale, &m_viewport);
+    QSize size = ViewportTransform (width, height, m_scale, &m_viewport);
     if (m_srcAlphaBlend < 1)
 	m_displayBlend->Init (size);
 }
 
-void GLWidget::allocateFbosAverage (const QSize& size)
-{
-    m_new.reset (
-	new QGLFramebufferObject (
-	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RG32F));
-    m_old.reset (
-	new QGLFramebufferObject (
-	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RG32F));
-}
-
-void GLWidget::freeFbosAverage ()
-{
-    m_new.reset ();
-    m_old.reset ();
-}
-
-void GLWidget::renderFromFbo (QGLFramebufferObject& fbo) const
+void GLWidget::RenderFromFbo (QGLFramebufferObject& fbo) const
 {
     using G3D::Vector3;
     G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
@@ -673,7 +659,7 @@ void GLWidget::displayStandaloneEdges () const
 void GLWidget::displayBlend () const
 {
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    renderFromFbo (m_displayBlend->GetCurrent ());    
+    RenderFromFbo (m_displayBlend->GetCurrent ());    
 }
 
 
@@ -717,8 +703,8 @@ void GLWidget::displayEdgesTorusLines () const
 
 void GLWidget::displayCenterOfBodies () const
 {
-    if ((m_viewType == EDGES && m_edgesBodyCenter) ||
-	m_viewType == CENTER_PATHS)
+    if ((m_viewType == ViewType::EDGES && m_edgesBodyCenter) ||
+	m_viewType == ViewType::CENTER_PATHS)
     {
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
 	glPointSize (4.0);
@@ -757,6 +743,8 @@ void GLWidget::displayFacesNormal () const
 
 void GLWidget::displayAverage () const
 {
+    DisplayAverage displayAverage (*this);
+    displayAverage.Init (ViewportTransform (width (), height ()));
 }
 
 
@@ -794,14 +782,18 @@ void GLWidget::displayFacesContour (const Foam::Bodies& bodies) const
 template<typename displaySameEdges>
 void GLWidget::displayFacesInterior (const Foam::Bodies& bodies) const
 {
+    glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
+    glEnable(GL_TEXTURE_1D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<DisplayFaceWithColor<displaySameEdges> > (
 		  *this, *m_bodySelector, 
 		  DisplayElement::TRANSPARENT_CONTEXT, m_facesColor));
-    glDisable (GL_POLYGON_OFFSET_FILL);
+    glPopAttrib ();
 }
 
 template<typename displaySameEdges>
@@ -881,14 +873,17 @@ void GLWidget::displayCenterPathsWithBodies () const
 
 void GLWidget::displayCenterPaths () const
 {
-    glPushAttrib (GL_CURRENT_BIT);
+    glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
     const BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
+    glEnable(GL_TEXTURE_1D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
     for_each (bats.begin (), bats.end (),
 	      DisplayCenterPath (*this, m_centerPathColor, *m_bodySelector));
     glPopAttrib ();
 }
 
-void GLWidget::display ()
+void GLWidget::Display () const
 {
     (this->*(m_viewTypeDisplay[m_viewType].m_display)) ();
 }
@@ -919,8 +914,8 @@ bool GLWidget::IsDisplayedEdge (size_t oeI) const
 bool GLWidget::doesSelectBody () const
 {
     return 
-	m_viewType != EDGES_TORUS &&
-	m_viewType != FACES_TORUS;
+	m_viewType != ViewType::EDGES_TORUS &&
+	m_viewType != ViewType::FACES_TORUS;
 }
 
 bool GLWidget::doesSelectFace () const
@@ -933,7 +928,7 @@ bool GLWidget::doesSelectEdge () const
 {
     return 
 	m_displayedFaceIndex != DISPLAY_ALL &&
-	m_viewType != FACES;
+	m_viewType != ViewType::FACES;
 }
 
 
@@ -1111,12 +1106,12 @@ void GLWidget::ToggledCenterPathDisplayBody (bool checked)
 
 void GLWidget::ToggledEdgesNormal (bool checked)
 {
-    view (checked, EDGES);
+    view (checked, ViewType::EDGES);
 }
 
 void GLWidget::ToggledEdgesTorus (bool checked)
 {
-    view (checked, EDGES_TORUS);
+    view (checked, ViewType::EDGES_TORUS);
 }
 
 void GLWidget::ToggledEdgesTorusTubes (bool checked)
@@ -1139,12 +1134,12 @@ void GLWidget::ToggledFacesShowEdges (bool checked)
 
 void GLWidget::ToggledFacesNormal (bool checked)
 {
-    view (checked, FACES);
+    view (checked, ViewType::FACES);
 }
 
 void GLWidget::ToggledFacesTorus (bool checked)
 {
-    view (checked, FACES_TORUS);
+    view (checked, ViewType::FACES_TORUS);
 }
 
 void GLWidget::ToggledFacesTorusTubes (bool checked)
@@ -1174,17 +1169,17 @@ void GLWidget::ToggledTorusOriginalDomainClipped (bool checked)
 
 void GLWidget::ToggledBodies (bool checked)
 {
-    view (checked, FACES_LIGHTING);
+    view (checked, ViewType::FACES_LIGHTING);
 }
 
 void GLWidget::ToggledCenterPath (bool checked)
 {
-    view (checked, CENTER_PATHS);
+    view (checked, ViewType::CENTER_PATHS);
 }
 
 void GLWidget::ToggledAverage (bool checked)
 {
-    view (checked, AVERAGE);
+    view (checked, ViewType::AVERAGE);
 }
 
 
@@ -1208,9 +1203,9 @@ void GLWidget::ValueChangedBlend (int index)
     QSlider* slider = static_cast<QSlider*> (sender ());
     size_t maximum = slider->maximum ();
     if (m_srcAlphaBlend == 1 && index != 0)
-	m_displayBlend->Init (viewportTransform (width (), height ()));
+	m_displayBlend->Init (ViewportTransform (width (), height ()));
     else if (m_srcAlphaBlend < 1 && index == 0)
-	m_displayBlend->End ();
+	m_displayBlend->Release ();
     // m_srcAlphaBlend is between 1 and 0.5
     m_srcAlphaBlend = 1 - static_cast<double>(index) / (2 * maximum);
     updateGL ();
@@ -1275,23 +1270,27 @@ void GLWidget::displayOpositeFaces (G3D::Vector3 origin,
     }
 }
 
-void GLWidget::CurrentIndexChangedCenterPathColor (int value)
+void GLWidget::BodyPropertyChanged (
+    boost::shared_ptr<ColorBarModel> colorBarModel,
+    BodyProperty::Enum bodyProperty, ViewType::Enum viewType)
 {
-    RuntimeAssert (value < BodyProperty::COUNT,
-		   "Invalid BodyProperty: ", value);
-    m_centerPathColor = BodyProperty::FromSizeT(value);
-    m_useColorMap = (m_centerPathColor != BodyProperty::NONE);
+    RuntimeAssert (
+	viewType == ViewType::FACES || viewType == ViewType::CENTER_PATHS,
+	"Invalid view type: ", viewType);
+    if (viewType == ViewType::FACES)
+	m_facesColor = bodyProperty;
+    else
+	m_centerPathColor = bodyProperty;
+    m_useColorMap = (m_facesColor != BodyProperty::NONE);
+
+    m_colorBarModel = colorBarModel;    
+    const QImage image = colorBarModel->GetImage ();
+    makeCurrent ();
+    glTexImage1D (GL_TEXTURE_1D, 0, GL_RGBA, image.width (), 
+		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
     updateGL ();
 }
 
-void GLWidget::CurrentIndexChangedFacesColor (int value)
-{
-    RuntimeAssert (value < BodyProperty::COUNT,
-		   "Invalid BodyProperty: ", value);
-    m_facesColor = BodyProperty::FromSizeT(value);
-    m_useColorMap = (m_facesColor != BodyProperty::NONE);
-    updateGL ();
-}
 
 void GLWidget::ColorBarModelChanged (
     boost::shared_ptr<ColorBarModel> colorBarModel)
@@ -1303,6 +1302,7 @@ void GLWidget::ColorBarModelChanged (
 		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
     updateGL ();
 }
+
 
 
 void GLWidget::contextMenuEvent(QContextMenuEvent *event)
@@ -1340,14 +1340,6 @@ void GLWidget::SetActionDeselectAll (
 	    this, SLOT(DeselectAll ()));
 }
 
-QColor GLWidget::MapScalar (double value) const
-{
-    if (m_useColorMap)
-	return m_colorBarModel->MapScalar (value);
-    else
-	return Qt::black;
-}
-
 double GLWidget::TexCoord (double value) const
 {
     if (m_useColorMap)
@@ -1369,16 +1361,19 @@ void GLWidget::initializeTextures ()
 
 void GLWidget::displayTextureColorMap () const
 {
+    glPushAttrib (GL_CURRENT_BIT | GL_VIEWPORT_BIT);
     glPushMatrix ();
     {
+	// modelview
 	glLoadIdentity ();
 	glMatrixMode (GL_PROJECTION);
 	glPushMatrix ();
 	{
 	    glLoadIdentity ();
 	    glOrtho (0, width (), 0, height (), -1, 1);
-	    glColor (Qt::blue);
 
+	    glViewport (0, 0, width (), height ());
+	    
 	    glEnable(GL_TEXTURE_1D);
 	    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	    glBindTexture (GL_TEXTURE_1D, m_colorBarTexture);
@@ -1395,6 +1390,7 @@ void GLWidget::displayTextureColorMap () const
 	glMatrixMode (GL_MODELVIEW);
     }
     glPopMatrix ();    
+    glPopAttrib ();
 }
 
 QColor GLWidget::GetCenterPathContextColor () const

@@ -174,7 +174,6 @@ public:
 	return m_centerPathDisplayBody;
     }
 
-    QColor MapScalar (double value) const;
     double TexCoord (double value) const;
 
     boost::shared_ptr<QAction> GetActionResetTransformation ()
@@ -215,7 +214,10 @@ public Q_SLOTS:
     void ToggledAverage (bool checked);
 
 
-    void ColorBarModelChanged(
+    void BodyPropertyChanged (
+	boost::shared_ptr<ColorBarModel> colorBarModel,
+	BodyProperty::Enum bodyProperty, ViewType::Enum viewType);
+    void ColorBarModelChanged (
 	boost::shared_ptr<ColorBarModel> colorBarModel);
     void ResetTransformation ();
     void ChangePalette ();
@@ -244,23 +246,21 @@ public Q_SLOTS:
      * @param timeStep the new index for the Foam to be displayed
      */
     void ValueChangedSliderTimeSteps (int timeStep);
-    void CurrentIndexChangedCenterPathColor (int value);
-    void CurrentIndexChangedFacesColor (int value);
     /**
      * Calculates and does the viewport transform.
      * @param viewport stores the viewport. If it is != 0 the function does the
      * viewport transform as well.
      * @return the foam size in screen coordinates.
      */
-    QSize viewportTransform (int width, int height, double scale = 1,
+    QSize ViewportTransform (int width, int height, double scale = 1,
 			     G3D::Rect2D* viewport = 0) const;
-    void modelViewTransformNoRotation () const;
-    void renderFromFbo (QGLFramebufferObject& fbo) const;
+    void ModelViewTransformNoRotation () const;
+    void RenderFromFbo (QGLFramebufferObject& fbo) const;
     /**
      * Displays the foam in various way
      * @param type the type of object that we want displayed.
      */
-    void display ();
+    void Display () const;
     double GetSrcAlphaBlend () const
     {
 	return m_srcAlphaBlend;
@@ -299,21 +299,6 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
 private:
-    /**
-     * WHAT kind of objects do we display
-     */
-    enum ViewType {
-        EDGES,
-	EDGES_TORUS,
-
-        FACES,
-        FACES_LIGHTING,
-	FACES_TORUS,
-
-	CENTER_PATHS,
-	AVERAGE,
-        VIEW_TYPE_COUNT
-    };
 
     enum Lighting
     {
@@ -346,7 +331,7 @@ private:
 	return m_facesTorusTubes;
     }
 
-    void view (bool checked, ViewType view);
+    void view (bool checked, ViewType::Enum view);
     /**
      * Setup the viewing volume first centered around origin and then translated
      * toward negative Z with m_cameraDistance. 
@@ -471,8 +456,6 @@ private:
     void createActions ();
     void rotateSurfaceEvolverCompatible () const;
 
-    void allocateFbosAverage (const QSize& size);
-    void freeFbosAverage ();
 private:
     static void displayOpositeFaces (G3D::Vector3 origin,
 				     G3D::Vector3 faceFirst,
@@ -491,7 +474,7 @@ private:
     /**
      * The elements displayed from a DMP file: vertices, edges, faces or bodies.
      */
-    ViewType m_viewType;
+    ViewType::Enum m_viewType;
     bool m_torusOriginalDomainDisplay;
     bool m_torusOriginalDomainClipped;
     InteractionMode::Enum m_interactionMode;
@@ -549,7 +532,7 @@ private:
     bool m_edgesTessellation;
     bool m_centerPathDisplayBody;
     bool m_boundingBox;
-    boost::array<ViewTypeDisplay, VIEW_TYPE_COUNT> m_viewTypeDisplay;
+    boost::array<ViewTypeDisplay, ViewType::COUNT> m_viewTypeDisplay;
     BodyProperty::Enum m_centerPathColor;
     BodyProperty::Enum m_facesColor;
     QColor m_notAvailableCenterPathColor;

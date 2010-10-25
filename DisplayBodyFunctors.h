@@ -176,24 +176,16 @@ public:
 	
 	const BodyAlongTime& bat = m_glWidget.GetBodyAlongTime (bodyId);
 	StripIterator it = bat.GetStripIterator (m_glWidget.GetFoamAlongTime ());
-	glEnable(GL_TEXTURE_1D);
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-	glBindTexture (GL_TEXTURE_1D, m_glWidget.GetColorBarTexture ());
 	if ( (m_bodyProperty >= BodyProperty::VELOCITY_BEGIN &&
 	      m_bodyProperty < BodyProperty::VELOCITY_END) ||
 	     m_bodyProperty == BodyProperty::NONE)
-	{
 	    it.ForEachSegment (
 		boost::bind (&DisplayCenterPath::speedStep,
 			     this, _1, _2));
-	}
 	else
-	{
 	    it.ForEachSegment (
 		boost::bind (&DisplayCenterPath::valueStep,
 			     this, _1, _2));
-	}
-	glDisable (GL_TEXTURE_1D);
     }
 
     /**

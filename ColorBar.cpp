@@ -33,7 +33,7 @@ void ColorBar::createActions ()
 	    this, SLOT(ClampClear ()));
 }
 
-void ColorBar::ColorBarModelChangedMainWindow (
+void ColorBar::ColorBarModelChangedSlot (
     boost::shared_ptr<ColorBarModel> model)
 {
     m_model = model;

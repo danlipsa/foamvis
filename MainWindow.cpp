@@ -74,22 +74,53 @@ void MainWindow::connectColorBarModelChanged ()
     // from MainWindow to ColorBar, GLWidget and AttributeHistogram
     connect (
 	this, 
-	SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
+	SIGNAL (BodyPropertyChanged (
+		    boost::shared_ptr<ColorBarModel>,
+		    BodyProperty::Enum, ViewType::Enum)),
 	colorBar, 
-	SLOT (ColorBarModelChangedMainWindow (
+	SLOT (ColorBarModelChangedSlot (
 		  boost::shared_ptr<ColorBarModel>)));
     connect (
 	this, 
-	SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
+	SIGNAL (BodyPropertyChanged (
+		    boost::shared_ptr<ColorBarModel>,
+		    BodyProperty::Enum, ViewType::Enum)),
+	widgetGl, 
+	SLOT (BodyPropertyChanged (
+		  boost::shared_ptr<ColorBarModel>,
+		  BodyProperty::Enum, ViewType::Enum)));
+    connect (
+	this, 
+	SIGNAL (BodyPropertyChanged (
+		    boost::shared_ptr<ColorBarModel>,
+		    BodyProperty::Enum, ViewType::Enum)),
+	widgetHistogram, 
+	SLOT (ColorBarModelChanged (
+		  boost::shared_ptr<ColorBarModel>)));
+
+    // from MainWindow to ColorBar, GLWidget and AttributeHistogram
+    connect (
+	this, 
+	SIGNAL (ColorBarModelChanged (
+		    boost::shared_ptr<ColorBarModel>)),
+	colorBar, 
+	SLOT (ColorBarModelChangedSlot (
+		  boost::shared_ptr<ColorBarModel>)));
+    connect (
+	this, 
+	SIGNAL (ColorBarModelChanged (
+		    boost::shared_ptr<ColorBarModel>)),
 	widgetGl, 
 	SLOT (ColorBarModelChanged (
 		  boost::shared_ptr<ColorBarModel>)));
     connect (
 	this, 
-	SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
+	SIGNAL (ColorBarModelChanged (
+		    boost::shared_ptr<ColorBarModel>)),
 	widgetHistogram, 
 	SLOT (ColorBarModelChanged (
 		  boost::shared_ptr<ColorBarModel>)));
+
 
     // from ColorBar to GLWidget and AttributeHistogram
     connect (
@@ -512,7 +543,8 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	size_t timeStep = widgetGl->GetTimeStep ();
 	groupBoxFacesHistogram->setVisible (true);
 	colorBar->setVisible (true);
-	Q_EMIT ColorBarModelChanged (m_colorBarModel[bodyProperty]);
+	Q_EMIT BodyPropertyChanged (
+	    m_colorBarModel[bodyProperty], bodyProperty, ViewType::FACES);
 	SetAndDisplayHistogram (
 	    histogramType (buttonGroupFacesHistogram),
 	    bodyProperty,
@@ -536,7 +568,8 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	groupBoxCenterPathHistogram->setVisible (true);
 	colorBar->setVisible (true);
-	Q_EMIT ColorBarModelChanged (m_colorBarModel[bodyProperty]);
+	Q_EMIT BodyPropertyChanged (
+	    m_colorBarModel[bodyProperty], bodyProperty, ViewType::CENTER_PATHS);
 	SetAndDisplayHistogram (
 	    histogramType (buttonGroupCenterPathHistogram),
 	    bodyProperty,

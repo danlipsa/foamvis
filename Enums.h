@@ -10,6 +10,7 @@
 
 /**
  * Colors of faces or edges
+ * @todo Get rid of G3D::Color3 and replace it with QColor
  */
 class Color
 {
@@ -186,6 +187,28 @@ public:
     };
     static const char* ToString (Palette::Enum name);
 };
+
+class ViewType
+{
+public:
+    /**
+     * WHAT kind of objects do we display
+     */
+    enum Enum {
+        EDGES,
+	EDGES_TORUS,
+
+        FACES,
+        FACES_LIGHTING,
+	FACES_TORUS,
+
+	CENTER_PATHS,
+	AVERAGE,
+        COUNT
+    };
+};
+
+
 
 #endif //__ENUMS_H__
 

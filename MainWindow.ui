@@ -1247,22 +1247,6 @@
   <connection>
    <sender>comboBoxCenterPathColor</sender>
    <signal>currentIndexChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>CurrentIndexChangedCenterPathColor(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>704</x>
-     <y>337</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>550</x>
-     <y>382</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBoxCenterPathColor</sender>
-   <signal>currentIndexChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>CurrentIndexChangedCenterPathColor(int)</slot>
    <hints>
@@ -1273,22 +1257,6 @@
     <hint type="destinationlabel">
      <x>780</x>
      <y>448</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBoxFacesColor</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>CurrentIndexChangedFacesColor(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>704</x>
-     <y>339</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>549</x>
-     <y>389</y>
     </hint>
    </hints>
   </connection>

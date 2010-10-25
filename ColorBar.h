@@ -19,7 +19,7 @@ public:
 public Q_SLOTS:
     void ShowEditColorMap ();
     void ClampClear ();
-    void ColorBarModelChangedMainWindow (
+    void ColorBarModelChangedSlot (
 	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 Q_SIGNALS:

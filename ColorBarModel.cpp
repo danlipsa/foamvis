@@ -278,8 +278,8 @@ QColor ColorMapperRainbowTelea::operator() (double f)
 
 double ColorBarModel::TexCoord (double value) const
 {
-    if (! m_interval.contains (value))
-	ThrowException ("Value: ", value, " outside interval: ", m_interval);
+    RuntimeAssert (m_interval.contains (value),
+		   "Value: ", value, " outside interval: ", m_interval);
     return (value - m_interval.minValue ()) / 
 	(m_interval.maxValue () - m_interval.minValue ());
 }

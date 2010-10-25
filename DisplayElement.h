@@ -9,6 +9,7 @@
 #ifndef __DISPLAY_ELEMENT_H__
 #define __DISPLAY_ELEMENT_H__
 
+#include "Enums.h"
 class GLWidget;
 
 class DisplayElement

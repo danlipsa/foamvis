@@ -66,7 +66,11 @@ public:
     }
 
 Q_SIGNALS:
-    void ColorBarModelChanged (boost::shared_ptr<ColorBarModel> colorBarModel);
+    void BodyPropertyChanged (
+	boost::shared_ptr<ColorBarModel> colorBarModel,
+	BodyProperty::Enum bodyProperty, ViewType::Enum viewType);
+    void ColorBarModelChanged (
+	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 public Q_SLOTS:
     void ToggledShowTimeSteps (bool checked);

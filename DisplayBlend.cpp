@@ -11,17 +11,17 @@
 #include "OpenGLUtils.h"
 
 
-void DisplayBlend::End ()
-{
-    m_current.reset ();
-    m_previous.reset ();
-}
-
 void DisplayBlend::Init (const QSize& size)
 {
     m_current.reset (new QGLFramebufferObject (size));
     m_previous.reset (new QGLFramebufferObject (size));
     Step (false);
+}
+
+void DisplayBlend::Release ()
+{
+    m_current.reset ();
+    m_previous.reset ();
 }
 
 void DisplayBlend::Step (bool blend)
@@ -30,23 +30,23 @@ void DisplayBlend::Step (bool blend)
     {
 	glPushMatrix ();
 	glPushAttrib (GL_CURRENT_BIT | GL_VIEWPORT_BIT);
-	m_glWidget.viewportTransform (size.width (), size.height ());
-	m_glWidget.modelViewTransformNoRotation ();
+	m_glWidget.ViewportTransform (size.width (), size.height ());
+	m_glWidget.ModelViewTransformNoRotation ();
 	{
 	    m_current->bind ();
 	    // render to the current buffer
 	    glClear(GL_COLOR_BUFFER_BIT);
-	    m_glWidget.display ();
+	    m_glWidget.Display ();
 
 	    if (blend)
 	    {
 		// blend from the previous buffer	    
 		glEnable (GL_BLEND);	
 		glBlendFunc (GL_ONE_MINUS_CONSTANT_ALPHA, GL_CONSTANT_ALPHA);
-		m_glWidget.glBlendColor (
+		const_cast<GLWidget&>(m_glWidget).glBlendColor (
 		    0, 0, 0, m_glWidget.GetSrcAlphaBlend ());
 		//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
-		m_glWidget.renderFromFbo (*m_previous);
+		m_glWidget.RenderFromFbo (*m_previous);
 		glDisable (GL_BLEND);
 	    }
 	    m_current->release ();

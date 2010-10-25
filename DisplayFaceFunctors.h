@@ -92,13 +92,11 @@ public:
 protected:
     virtual void display (const boost::shared_ptr<OrientedFace>& of)
     {
+	bool useColor = true;
 	if (m_focus == FOCUS)
 	{
 	    if (m_bodyProperty == BodyProperty::NONE)
-	    {
-		Color::Enum color = of->GetColor ();
-		glColor (Color::GetValue(color));
-	    }
+		glColor (Color::GetValue(of->GetColor ()));
 	    else
 	    {
 		size_t bodyId = of->GetBodyPartOf ().GetBodyId ();
@@ -110,17 +108,22 @@ protected:
 		{
 		    double value = foamAlongTime.GetBodyProperty (
 			m_bodyProperty, bodyId, m_glWidget.GetTimeStep ());
-		    color = m_glWidget.MapScalar (value);
+		    double texCoord = m_glWidget.TexCoord (value);
+		    glTexCoord1f (texCoord); 
+		    useColor = false;
 		}
 		else
-		    color = m_glWidget.GetNotAvailableFaceColor ();
-		glColor (color);
+		    glColor (m_glWidget.GetNotAvailableFaceColor ());
 	    }
 	}
 	else
 	    glColor (G3D::Color4 (Color::GetValue(Color::BLACK),
 				  m_glWidget.GetContextAlpha ()));
+	if (useColor)
+	    glDisable (GL_TEXTURE_1D);
 	(displaySameEdges (m_glWidget)) (of);
+	if (useColor)
+	    glEnable (GL_TEXTURE_1D);
     }
 };
 

@@ -69,10 +69,6 @@ public:
     }
     
     void SetupPalette (Palette::Enum palette);
-    QColor MapScalar (double value) const
-    {
-	return m_colorMap.color (m_interval, value);
-    }
     double TexCoord (double value) const;
     string ToString () const;
 
