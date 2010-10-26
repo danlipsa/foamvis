@@ -24,7 +24,7 @@
  * Functor used to display a body
  */
 <typename PropertySetter>
-class DisplayBodyBase : public DisplayElementProperty<TexCoordSetter>
+class DisplayBodyBase : public DisplayElementProperty<PropertySetter>
 {
 public:
     /**
@@ -118,7 +118,7 @@ public:
      * @param widget where to display the body
      */
     DisplayBody (const GLWidget& widget, const BodySelector& bodySelector,
-		 PropertySetter propertySetter,
+		 PropertySetter setter,
 		 ContextDisplay contextDisplay = TRANSPARENT_CONTEXT,
 		 BodyProperty::Enum bodyProperty = BodyProperty::NONE) : 
 	DisplayBodyBase (widget, bodySelector),
