@@ -14,3 +14,14 @@ DisplayBodyCenter::DisplayBodyCenter (
 		     BodyProperty::NONE, bodySelector)
 {}
 
+
+void DisplayBodyCenter::display (boost::shared_ptr<Body> b, FocusContext fc)
+{
+    if (fc == FOCUS)
+    {
+	glBegin(GL_POINTS);
+	G3D::Vector3 v = b->GetCenter ();
+	glVertex(v);
+	glEnd ();
+    }
+}

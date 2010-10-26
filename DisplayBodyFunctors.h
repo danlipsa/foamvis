@@ -95,25 +95,14 @@ public:
      * @param widget where to display the center of the bubble
      */
     DisplayBodyCenter (
-	const GLWidget& widget, const BodySelector& bodySelector):
-	DisplayBodyBase (widget, TexCoordSetter(widget), 
-			 BodyProperty::NONE, bodySelector)
-    {}
+	const GLWidget& widget, const BodySelector& bodySelector);
+
 protected:
     /**
      * Displays the center of a body (bubble)
      * @param b body to display the center of
      */
-    virtual void display (boost::shared_ptr<Body> b, FocusContext fc)
-    {
-	if (fc == FOCUS)
-	{
-	    glBegin(GL_POINTS);
-	    G3D::Vector3 v = b->GetCenter ();
-	    glVertex(v);
-	    glEnd ();
-	}
-    }
+    virtual void display (boost::shared_ptr<Body> b, FocusContext fc);
 };
 
 
