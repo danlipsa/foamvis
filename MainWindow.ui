@@ -230,7 +230,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -479,33 +479,39 @@
              <property name="title">
               <string>Display</string>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_18">
+             <layout class="QVBoxLayout" name="verticalLayout_12">
               <item>
-               <layout class="QVBoxLayout" name="verticalLayout_12">
-                <item>
-                 <widget class="QRadioButton" name="radioButtonFacesNormal">
-                  <property name="text">
-                   <string>Normal</string>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string>buttonGroupDisplay</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QRadioButton" name="radioButtonFacesTorus">
-                  <property name="text">
-                   <string>Torus Model</string>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string>buttonGroupDisplay</string>
-                  </attribute>
-                 </widget>
-                </item>
-               </layout>
+               <widget class="QRadioButton" name="radioButtonFacesNormal">
+                <property name="text">
+                 <string>Normal</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+                <attribute name="buttonGroup">
+                 <string>buttonGroupDisplay</string>
+                </attribute>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButtonFacesTorus">
+                <property name="text">
+                 <string>Torus Model</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string>buttonGroupDisplay</string>
+                </attribute>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButtonFacesAverage">
+                <property name="text">
+                 <string>Average</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string>buttonGroupDisplay</string>
+                </attribute>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -686,16 +692,6 @@
                <widget class="QRadioButton" name="radioButtonCenterPath">
                 <property name="text">
                  <string>Center Path</string>
-                </property>
-                <attribute name="buttonGroup">
-                 <string>buttonGroupDisplay</string>
-                </attribute>
-               </widget>
-              </item>
-              <item>
-               <widget class="QRadioButton" name="radioButtonAverage">
-                <property name="text">
-                 <string>Average</string>
                 </property>
                 <attribute name="buttonGroup">
                  <string>buttonGroupDisplay</string>
@@ -941,6 +937,86 @@
  <resources/>
  <connections>
   <connection>
+   <sender>radioButtonFacesNormal</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledFacesNormal(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>837</x>
+     <y>263</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>507</x>
+     <y>359</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonFacesNormal</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledFacesNormal(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>729</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>533</x>
+     <y>285</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonFacesTorus</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledFacesTorus(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>837</x>
+     <y>290</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>460</x>
+     <y>359</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonFacesTorus</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledFacesTorus(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>729</x>
+     <y>281</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>558</x>
+     <y>262</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonFacesAverage</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledAverage(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>837</x>
+     <y>317</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>513</x>
+     <y>414</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>toolButtonPlay</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -1037,22 +1113,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioButtonFacesTorus</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledFacesTorus(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>741</x>
-     <y>291</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>460</x>
-     <y>359</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>radioButtonCenterPath</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -1092,7 +1152,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>704</x>
-     <y>337</y>
+     <y>310</y>
     </hint>
     <hint type="destinationlabel">
      <x>474</x>
@@ -1149,30 +1209,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioButtonFacesNormal</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledFacesNormal(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>741</x>
-     <y>264</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>507</x>
-     <y>359</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkBoxFacesTorusTubes</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
    <slot>ToggledFacesTorusTubes(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>630</x>
-     <y>324</y>
+     <x>837</x>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>474</x>
@@ -1252,7 +1296,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>704</x>
-     <y>337</y>
+     <y>310</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1267,8 +1311,8 @@
    <slot>CurrentIndexChangedFacesColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>704</x>
-     <y>339</y>
+     <x>828</x>
+     <y>405</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1364,7 +1408,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>26</x>
-     <y>360</y>
+     <y>411</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1395,8 +1439,8 @@
    <slot>ToggledFacesShowEdges(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>695</x>
-     <y>319</y>
+     <x>837</x>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>474</x>
@@ -1453,38 +1497,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioButtonFacesNormal</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledFacesNormal(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>729</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>533</x>
-     <y>285</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonFacesTorus</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledFacesTorus(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>729</x>
-     <y>281</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>558</x>
-     <y>262</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>radioButtonCenterPath</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
@@ -1517,22 +1529,25 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioButtonAverage</sender>
+   <sender>radioButtonFacesAverage</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledAverage(bool)</slot>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>670</x>
-     <y>282</y>
+     <x>829</x>
+     <y>305</y>
     </hint>
     <hint type="destinationlabel">
-     <x>513</x>
-     <y>414</y>
+     <x>873</x>
+     <y>307</y>
     </hint>
    </hints>
   </connection>
  </connections>
+ <slots>
+  <slot>ToggledFacesNormal(bool)</slot>
+ </slots>
  <buttongroups>
   <buttongroup name="buttonGroupDisplay"/>
   <buttongroup name="buttonGroupCenterPathHistogram"/>

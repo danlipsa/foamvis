@@ -44,6 +44,8 @@ private:
      * Stores the sum and count of the previous step.
      */
     boost::scoped_ptr<QGLFramebufferObject> m_old;
+    QGLShaderProgram m_addShader;
+    QGLShaderProgram m_textureShader;
 };
 
 #endif //__DISPLAY_AVERAGE_H__

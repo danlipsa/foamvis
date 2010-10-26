@@ -561,6 +561,7 @@ void MainWindow::ToggledFacesNormal (bool checked)
 	fieldsToControls (comboBoxFacesColor, buttonGroupFacesHistogram);
 	ButtonClickedHistogram (m_histogramType);
 	stackedWidgetFaces->setCurrentWidget (pageFacesNormal);
+	checkBoxShowEdges->setHidden (radioButtonFacesAverage->isChecked ());
     }
     else
 	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
@@ -714,10 +715,6 @@ void MainWindow::SelectionChangedHistogram ()
 {
     vector<QwtDoubleInterval> valueIntervals;
     widgetHistogram->GetSelectedIntervals (&valueIntervals);
-    ostream_iterator<QwtDoubleInterval> oi (cdbg, " ");
-    copy (valueIntervals.begin (), valueIntervals.end (), oi);
-
-
     vector<bool> timeStepSelection;
     const FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     foamAlongTime.GetTimeStepSelection (

@@ -749,6 +749,7 @@ void GLWidget::displayAverage () const
 	displayAverage.Step (*foam);
 */
     displayAverage.Step (GetCurrentFoam ());
+    displayStandaloneEdges< DisplayEdgeWithColor<> > ();
     //displayAverage.Display ();
 }
 
