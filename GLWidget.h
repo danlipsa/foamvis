@@ -16,6 +16,7 @@ class BodiesAlongTime;
 class BodySelector;
 class ColorBarModel;
 class DisplayBlend;
+class DisplayFaceAverage;
 class Foam;
 class Edge;
 class EditColorMap;
@@ -561,14 +562,7 @@ private:
      */
     bool m_playMovie;
     boost::scoped_ptr<DisplayBlend> m_displayBlend;
-    /**
-     * FBO used in averaging.
-     */
-    boost::scoped_ptr<QGLFramebufferObject> m_new;
-    /**
-     * FBO used in averaging.
-     */
-    boost::scoped_ptr<QGLFramebufferObject> m_old;
+    boost::scoped_ptr<DisplayFaceAverage> m_displayFaceAverage;
 };
 
 #endif //__GLWIDGET_H__

@@ -52,20 +52,56 @@ protected:
     FocusContext m_focus;
 };
 
+class TexCoordSetter
+{
+public:
+    TexCoordSetter (GLWidget& glWidget) :
+	m_glWidget (glWidget)
+    {
+    }
 
-class DisplayElementProperty : public DisplayElementFocus
+    void operator () (double value);
+
+private:
+    const GLWidget& m_glWidget;
+};
+
+
+template<typename PropertySetter = TexCoordSetter>
+class DisplayElementProperty : public DisplayElement
 {
 public:
     DisplayElementProperty (
 	const GLWidget& widget,
-	FocusContext focus = FOCUS,
+	PropertySetter setter,
 	BodyProperty::Enum bodyProperty = BodyProperty::NONE) :
-	DisplayElementFocus (widget, focus),
+	DisplayElement (widget),
+	m_setter (setter),
 	m_bodyProperty (bodyProperty)
     {
     }
 protected:
+    PropertySetter m_propertySetter;
     BodyProperty::Enum m_bodyProperty;
+};
+
+
+
+template<typename PropertySetter = TexCoordSetter>
+class DisplayElementFocusProperty : public DisplayElementProperty
+{
+public:
+    DisplayElementFocusProperty (
+	const GLWidget& widget,
+	PropertySetter setter,
+	BodyProperty::Enum bodyProperty = BodyProperty::NONE,
+	FocusContext focus = FOCUS) :
+	DisplayElementProperty (widget, setter, bodyProperty),
+	m_focus (focus)
+    {
+    }
+protected:
+    FocusContext m_focus;
 };
 
 

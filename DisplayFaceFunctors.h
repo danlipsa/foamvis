@@ -15,8 +15,8 @@
 /**
  * Functor that displays a face
  */
-template <typename displayEdges>
-class DisplayFace : public DisplayElementProperty
+template <typename displayEdges, typename PropertySetter = TexCoordSetter>
+class DisplayFace : public DisplayElementFocusProperty
 {
 public:
     /**
@@ -24,8 +24,11 @@ public:
      * @param widget Where should be the face displayed
      */
     DisplayFace (const GLWidget& widget, FocusContext focus = FOCUS, 
-		 BodyProperty::Enum bodyProperty = BodyProperty::NONE) : 
-	DisplayElementProperty (widget, focus, bodyProperty), m_count(0) 
+		 BodyProperty::Enum bodyProperty = BodyProperty::NONE,
+		 PropertySetter propertySetter = TexCoordSetter (widget)) : 
+	DisplayElementFocusProperty (widget, focus, bodyProperty, 
+				     propertySetter), 
+	m_count(0) 
     {
     }
     /**

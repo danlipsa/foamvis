@@ -23,15 +23,20 @@
 /**
  * Functor used to display a body
  */
-class DisplayBodyBase : public DisplayElement
+<typename PropertySetter>
+class DisplayBodyBase : public DisplayElementProperty<TexCoordSetter>
 {
 public:
     /**
      * Constructor
      * @param widget where to display the body
      */
-    DisplayBodyBase (const GLWidget& widget, const BodySelector& bodySelector) : 
-	DisplayElement (widget), m_bodySelector (bodySelector)
+    DisplayBodyBase (const GLWidget& widget, 
+		     const BodySelector& bodySelector, 
+		     PropertySetter setter,
+		     BodyProperty::Enum bodyProperty = BodyProperty::NONE) : 
+	DisplayElementProperty (widget, setter, bodyProperty), 
+	m_bodySelector (bodySelector)
     {}
     /**
      * Functor used  to display a body. Uses  transparencey to display
@@ -82,7 +87,7 @@ protected:
 /**
  * Functor that displays the center of a bubble
  */
-class DisplayBodyCenter : public DisplayBodyBase
+class DisplayBodyCenter : public DisplayBodyBase<TexCoordSetter>
 {
 public:
     /**
@@ -91,7 +96,8 @@ public:
      */
     DisplayBodyCenter (
 	const GLWidget& widget, const BodySelector& bodySelector):
-	DisplayBodyBase (widget, bodySelector) 
+	DisplayBodyBase (widget, TexCoordSetter(widget), 
+			 BodyProperty::NONE, bodySelector)
     {}
 protected:
     /**
@@ -114,7 +120,7 @@ protected:
 /**
  * Displays a body going through all its faces
  */
-template<typename displayFace>
+template<typename displayFace, typename PropertySetter = TexCoordSetter>
 class DisplayBody : public DisplayBodyBase
 {
 public:
@@ -123,6 +129,7 @@ public:
      * @param widget where to display the body
      */
     DisplayBody (const GLWidget& widget, const BodySelector& bodySelector,
+		 PropertySetter propertySetter,
 		 ContextDisplay contextDisplay = TRANSPARENT_CONTEXT,
 		 BodyProperty::Enum bodyProperty = BodyProperty::NONE) : 
 	DisplayBodyBase (widget, bodySelector),
@@ -140,8 +147,9 @@ protected:
 	    m_contextDisplay == INVISIBLE_CONTEXT)
 	    return;
 	vector<boost::shared_ptr<OrientedFace> > v = b->GetOrientedFaces ();
-	for_each (v.begin (), v.end (),
-		  displayFace(m_glWidget, bodyFc, m_bodyProperty));
+	for_each (
+	    v.begin (), v.end (),
+	    displayFace(m_glWidget, propertySetter, bodyFc, m_bodyProperty));
     }
 private:
     ContextDisplay m_contextDisplay;

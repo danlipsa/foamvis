@@ -13,7 +13,7 @@
 #include "FoamAlongTime.h"
 #include "GLWidget.h"
 #include "Debug.h"
-#include "DisplayAverage.h"
+#include "DisplayFaceAverage.h"
 #include "DisplayBlend.h"
 #include "DisplayBodyFunctors.h"
 #include "DisplayEdgeFunctors.h"
@@ -86,6 +86,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_playMovie (false)
 {
     m_displayBlend.reset (new DisplayBlend (*this));
+    m_displayFaceAverage.reset (new DisplayFaceAverage (*this));
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
     const int POSSIBILITIES = 3; //domain increment can be *, - or +
     using G3D::Vector3int16;
@@ -444,6 +445,7 @@ void GLWidget::initializeGL()
     projectionTransform ();
     initializeTextures ();
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    m_displayFaceAverage->InitShaders ();
 }
 
 void GLWidget::paintGL ()
@@ -460,6 +462,7 @@ void GLWidget::resizeGL(int width, int height)
     QSize size = ViewportTransform (width, height, m_scale, &m_viewport);
     if (m_srcAlphaBlend < 1)
 	m_displayBlend->Init (size);
+    m_displayFaceAverage->Init (size);
 }
 
 void GLWidget::RenderFromFbo (QGLFramebufferObject& fbo) const
@@ -740,15 +743,13 @@ void GLWidget::displayFacesNormal () const
 
 void GLWidget::displayAverage () const
 {
-    DisplayAverage displayAverage (*this);
-    displayAverage.Init (ViewportTransform (width (), height ()));
     const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
 /*
     BOOST_FOREACH (const boost::shared_ptr<const Foam>& foam, 
 		   foamAlongTime.GetFoams ())
 	displayAverage.Step (*foam);
 */
-    displayAverage.Step (GetCurrentFoam ());
+    m_displayFaceAverage->Step (GetCurrentFoam ());
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
     //displayAverage.Display ();
 }

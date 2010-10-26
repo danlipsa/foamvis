@@ -130,10 +130,12 @@ void detectOpenGLError (string message)
 
 void printOpenGLInfo (ostream& ostr)
 {
-    boost::array<OpenGLFeature, 29> info = {{
+    boost::array<OpenGLFeature, 30> info = {{
 	OpenGLFeature (GL_VENDOR, OpenGLFeature::STRING, "GL_VENDOR"),
 	OpenGLFeature (GL_RENDERER, OpenGLFeature::STRING, "GL_RENDERER"),
 	OpenGLFeature (GL_VERSION, OpenGLFeature::STRING, "GL_VERSION"),
+	OpenGLFeature (GL_SHADING_LANGUAGE_VERSION, 
+		       OpenGLFeature::STRING, "GL_SHADING_LANGUAGE_VERSION"),
 
 	OpenGLFeature ("--- Texture ---"),
 	OpenGLFeature (GL_MAX_TEXTURE_SIZE, OpenGLFeature::INTEGER,
