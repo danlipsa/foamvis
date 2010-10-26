@@ -25,7 +25,7 @@ bool PropertyValueSelector::operator () (size_t bodyId, size_t timeStep) const
     if (m_foamAlongTime.ExistsBodyProperty (
 	    m_bodyProperty, bodyId, timeStep))
     {
-	float value = m_foamAlongTime.GetBodyProperty (
+	double value = m_foamAlongTime.GetBodyProperty (
 	    m_bodyProperty, bodyId, timeStep);
 	ValueIntervals::const_iterator it = find_if (
 	    m_valueIntervals.begin (), m_valueIntervals.end (),

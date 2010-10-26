@@ -89,31 +89,23 @@ public Q_SLOTS:
      * showing the time steps of the Surface Evolver data.
      */
     void ClickedPlay ();
-
     void CurrentIndexChangedCenterPathColor (int value);
     void CurrentIndexChangedFacesColor (int value);
-
     void ShowEditColorMap ();
-
-
     void InteractionModeRotate ();
     void InteractionModeSelectBrush ();
     void InteractionModeSelectEraser ();
     void InteractionModeScale ();
-    void InteractionModeTranslate ();
-    
+    void InteractionModeTranslate ();    
     void SelectionChangedHistogram ();
-
     /**
      * Invoqued by the timer to show the next data in the vector
      */
     void TimeoutTimer ();
-
     void ToggledCenterPath (bool checked);
     void ButtonClickedHistogram (int id);
     void ToggledFacesNormal (bool checked);
     void ToggledFacesTorus (bool checked);
-
     /**
      * Shows edges
      * @param checked true for showing edges false otherwise

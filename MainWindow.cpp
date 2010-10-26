@@ -358,6 +358,114 @@ void MainWindow::processBodyTorusStep ()
 }
 
 
+void MainWindow::SetAndDisplayHistogram (
+    HistogramType::Enum histogramType,
+    BodyProperty::Enum bodyProperty,
+    const QwtIntervalData& intervalData,
+    double maxYValue,
+    HistogramSelection histogramSelection,
+    MaxValueOperation maxValueOperation)
+{
+    switch (histogramType)
+    {
+    case HistogramType::NONE:
+	widgetHistogram->setHidden (true);
+	widgetHistogram->SetColorCoded (false);
+	return;
+    case HistogramType::UNICOLOR:
+	widgetHistogram->setVisible (true);
+	widgetHistogram->SetColorCoded (false);
+	break;
+    case HistogramType::COLOR_CODED:
+	widgetHistogram->setVisible (true);
+	widgetHistogram->SetColorCoded (true);
+	break;
+    }
+
+    if (maxValueOperation == KEEP_MAX_VALUE)
+	maxYValue = widgetHistogram->GetMaxValueAxis ();
+    if (histogramSelection == KEEP_SELECTION)
+	widgetHistogram->SetDataKeepBinSelection (
+	    intervalData, maxYValue, BodyProperty::ToString (bodyProperty));
+    else
+	widgetHistogram->SetDataAllBinsSelected (
+	    intervalData, maxYValue, BodyProperty::ToString (bodyProperty));
+}
+
+void MainWindow::createActions ()
+{
+    m_actionRotate = boost::make_shared<QAction> (tr("&Rotate"), this);
+    m_actionRotate->setShortcut(QKeySequence (tr ("R")));
+    m_actionRotate->setStatusTip(tr("Rotate"));
+    connect(m_actionRotate.get (), SIGNAL(triggered()),
+	    this, SLOT(InteractionModeRotate ()));
+
+    m_actionScale = boost::make_shared<QAction> (tr("&Scale"), this);
+    m_actionScale->setShortcut(QKeySequence (tr ("Z")));
+    m_actionScale->setStatusTip(tr("Scale"));
+    connect(m_actionScale.get (), SIGNAL(triggered()),
+	    this, SLOT(InteractionModeScale ()));
+
+    m_actionTranslate = boost::make_shared<QAction> (tr("&Translate"), this);
+    m_actionTranslate->setShortcut(QKeySequence (tr ("T")));
+    m_actionTranslate->setStatusTip(tr("Translate"));
+    connect(m_actionTranslate.get (), SIGNAL(triggered()),
+	    this, SLOT(InteractionModeTranslate ()));
+
+    m_actionSelectBrush = boost::make_shared<QAction> (
+	tr("&Select Brush"), this);
+    m_actionSelectBrush->setShortcut(QKeySequence (tr ("B")));
+    m_actionSelectBrush->setStatusTip(tr("Select Brush"));
+    connect(m_actionSelectBrush.get (), SIGNAL(triggered()),
+	    this, SLOT(InteractionModeSelectBrush ()));
+
+    m_actionSelectEraser = boost::make_shared<QAction> (
+	tr("&Select Eraser"), this);
+    m_actionSelectEraser->setShortcut (QKeySequence (tr ("E")));
+    m_actionSelectEraser->setStatusTip (tr("Select Eraser"));
+    connect(m_actionSelectEraser.get (), SIGNAL(triggered()),
+	    this, SLOT(InteractionModeSelectEraser ()));
+
+    connect (actionOpenGL_Info, SIGNAL (triggered ()),
+	     widgetGl, SLOT (ShowOpenGLInfo ()));
+
+
+    m_actionSelectAll = boost::make_shared<QAction> (tr("&Select All"), this);
+    m_actionSelectAll->setShortcut(
+	QKeySequence (tr ("Shift+S")));
+    m_actionSelectAll->setStatusTip(tr("Select All"));
+    widgetHistogram->SetActionSelectAll (m_actionSelectAll);
+    widgetGl->SetActionSelectAll (m_actionSelectAll);
+
+    m_actionDeselectAll = boost::make_shared<QAction> (
+	tr("&Deselect All"), this);
+    m_actionDeselectAll->setShortcut(
+	QKeySequence (tr ("Shift+D")));
+    m_actionDeselectAll->setStatusTip(tr("Deselect All"));
+    widgetHistogram->SetActionDeselectAll (m_actionDeselectAll);
+    widgetGl->SetActionDeselectAll (m_actionDeselectAll);
+
+    m_actionInfo = boost::make_shared<QAction> (
+	tr("&Info"), this);
+    m_actionInfo->setShortcut(
+	QKeySequence (tr ("Shift+I")));
+    m_actionInfo->setStatusTip(tr("Info"));
+    widgetGl->SetActionInfo (m_actionInfo);
+
+    addAction (widgetGl->GetActionResetTransformation ().get ());
+    addAction (sliderTimeSteps->GetActionNextSelectedTimeStep ().get ());
+    addAction (sliderTimeSteps->GetActionPreviousSelectedTimeStep ().get ());
+    addAction (m_actionRotate.get ());
+    addAction (m_actionTranslate.get ());
+    addAction (m_actionScale.get ());
+    addAction (m_actionSelectBrush.get ());
+    addAction (m_actionSelectEraser.get ());
+    addAction (m_actionSelectAll.get ());
+    addAction (m_actionDeselectAll.get ());
+    addAction (m_actionInfo.get ());
+}
+
+
 // Slots
 // ======================================================================
 
@@ -602,119 +710,13 @@ void MainWindow::ButtonClickedHistogram (int histogramType)
 	    KEEP_SELECTION);
 }
 
-
-void MainWindow::SetAndDisplayHistogram (
-    HistogramType::Enum histogramType,
-    BodyProperty::Enum bodyProperty,
-    const QwtIntervalData& intervalData,
-    double maxYValue,
-    HistogramSelection histogramSelection,
-    MaxValueOperation maxValueOperation)
-{
-    switch (histogramType)
-    {
-    case HistogramType::NONE:
-	widgetHistogram->setHidden (true);
-	widgetHistogram->SetColorCoded (false);
-	return;
-    case HistogramType::UNICOLOR:
-	widgetHistogram->setVisible (true);
-	widgetHistogram->SetColorCoded (false);
-	break;
-    case HistogramType::COLOR_CODED:
-	widgetHistogram->setVisible (true);
-	widgetHistogram->SetColorCoded (true);
-	break;
-    }
-
-    if (maxValueOperation == KEEP_MAX_VALUE)
-	maxYValue = widgetHistogram->GetMaxValueAxis ();
-    if (histogramSelection == KEEP_SELECTION)
-	widgetHistogram->SetDataKeepBinSelection (
-	    intervalData, maxYValue, BodyProperty::ToString (bodyProperty));
-    else
-	widgetHistogram->SetDataAllBinsSelected (
-	    intervalData, maxYValue, BodyProperty::ToString (bodyProperty));
-}
-
-void MainWindow::createActions ()
-{
-    m_actionRotate = boost::make_shared<QAction> (tr("&Rotate"), this);
-    m_actionRotate->setShortcut(QKeySequence (tr ("R")));
-    m_actionRotate->setStatusTip(tr("Rotate"));
-    connect(m_actionRotate.get (), SIGNAL(triggered()),
-	    this, SLOT(InteractionModeRotate ()));
-
-    m_actionScale = boost::make_shared<QAction> (tr("&Scale"), this);
-    m_actionScale->setShortcut(QKeySequence (tr ("Z")));
-    m_actionScale->setStatusTip(tr("Scale"));
-    connect(m_actionScale.get (), SIGNAL(triggered()),
-	    this, SLOT(InteractionModeScale ()));
-
-    m_actionTranslate = boost::make_shared<QAction> (tr("&Translate"), this);
-    m_actionTranslate->setShortcut(QKeySequence (tr ("T")));
-    m_actionTranslate->setStatusTip(tr("Translate"));
-    connect(m_actionTranslate.get (), SIGNAL(triggered()),
-	    this, SLOT(InteractionModeTranslate ()));
-
-    m_actionSelectBrush = boost::make_shared<QAction> (
-	tr("&Select Brush"), this);
-    m_actionSelectBrush->setShortcut(QKeySequence (tr ("B")));
-    m_actionSelectBrush->setStatusTip(tr("Select Brush"));
-    connect(m_actionSelectBrush.get (), SIGNAL(triggered()),
-	    this, SLOT(InteractionModeSelectBrush ()));
-
-    m_actionSelectEraser = boost::make_shared<QAction> (
-	tr("&Select Eraser"), this);
-    m_actionSelectEraser->setShortcut (QKeySequence (tr ("E")));
-    m_actionSelectEraser->setStatusTip (tr("Select Eraser"));
-    connect(m_actionSelectEraser.get (), SIGNAL(triggered()),
-	    this, SLOT(InteractionModeSelectEraser ()));
-
-    connect (actionOpenGL_Info, SIGNAL (triggered ()),
-	     widgetGl, SLOT (ShowOpenGLInfo ()));
-
-
-    m_actionSelectAll = boost::make_shared<QAction> (tr("&Select All"), this);
-    m_actionSelectAll->setShortcut(
-	QKeySequence (tr ("Shift+S")));
-    m_actionSelectAll->setStatusTip(tr("Select All"));
-    widgetHistogram->SetActionSelectAll (m_actionSelectAll);
-    widgetGl->SetActionSelectAll (m_actionSelectAll);
-
-    m_actionDeselectAll = boost::make_shared<QAction> (
-	tr("&Deselect All"), this);
-    m_actionDeselectAll->setShortcut(
-	QKeySequence (tr ("Shift+D")));
-    m_actionDeselectAll->setStatusTip(tr("Deselect All"));
-    widgetHistogram->SetActionDeselectAll (m_actionDeselectAll);
-    widgetGl->SetActionDeselectAll (m_actionDeselectAll);
-
-    m_actionInfo = boost::make_shared<QAction> (
-	tr("&Info"), this);
-    m_actionInfo->setShortcut(
-	QKeySequence (tr ("Shift+I")));
-    m_actionInfo->setStatusTip(tr("Info"));
-    widgetGl->SetActionInfo (m_actionInfo);
-
-    addAction (widgetGl->GetActionResetTransformation ().get ());
-    addAction (sliderTimeSteps->GetActionNextSelectedTimeStep ().get ());
-    addAction (sliderTimeSteps->GetActionPreviousSelectedTimeStep ().get ());
-    addAction (m_actionRotate.get ());
-    addAction (m_actionTranslate.get ());
-    addAction (m_actionScale.get ());
-    addAction (m_actionSelectBrush.get ());
-    addAction (m_actionSelectEraser.get ());
-    addAction (m_actionSelectAll.get ());
-    addAction (m_actionDeselectAll.get ());
-    addAction (m_actionInfo.get ());
-}
-
-
 void MainWindow::SelectionChangedHistogram ()
 {
     vector<QwtDoubleInterval> valueIntervals;
     widgetHistogram->GetSelectedIntervals (&valueIntervals);
+    ostream_iterator<QwtDoubleInterval> oi (cdbg, " ");
+    copy (valueIntervals.begin (), valueIntervals.end (), oi);
+
 
     vector<bool> timeStepSelection;
     const FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();

@@ -881,7 +881,7 @@ void GLWidget::displayCenterPaths () const
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
     const BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
     glEnable(GL_TEXTURE_1D);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
     for_each (bats.begin (), bats.end (),
 	      DisplayCenterPath (*this, m_centerPathColor, *m_bodySelector));
@@ -1282,7 +1282,6 @@ void GLWidget::BodyPropertyChanged (
     boost::shared_ptr<ColorBarModel> colorBarModel,
     BodyProperty::Enum bodyProperty, ViewType::Enum viewType)
 {
-    cdbg << bodyProperty << endl;
     RuntimeAssert (
 	viewType == ViewType::FACES || viewType == ViewType::CENTER_PATHS,
 	"Invalid view type: ", viewType);
@@ -1303,6 +1302,7 @@ void GLWidget::ColorBarModelChanged (
 {
     m_colorBarModel = colorBarModel;    
     const QImage image = colorBarModel->GetImage ();
+    image.save ("colorbar.jpg");
     makeCurrent ();
     glTexImage1D (GL_TEXTURE_1D, 0, GL_RGBA, image.width (), 
 		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
@@ -1360,8 +1360,8 @@ void GLWidget::initializeTextures ()
     glBindTexture (GL_TEXTURE_1D, m_colorBarTexture);
     
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     m_useColorMap = false;
 }
 
