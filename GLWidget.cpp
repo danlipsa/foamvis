@@ -745,8 +745,8 @@ void GLWidget::displayAverage () const
 {
     m_displayFaceAverage->Calculate (m_facesColor);
     const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
-    m_displayFaceAverage->Display (foamAlongTime.GetMin (m_facesColor),
-				   foamAlongTime.GetMax (m_facesColor), 0);
+    m_displayFaceAverage->Display (foamAlongTime.GetMin (GetFacesColor ()),
+				   foamAlongTime.GetMax (GetFacesColor ()), 0);
 }
 
 template<typename displaySameEdges>

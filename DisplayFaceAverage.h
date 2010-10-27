@@ -32,10 +32,10 @@ public:
     void Calculate (BodyProperty::Enum bodyProperty);
 
 private:
-    void step (const Foam* foam = 0, 
+    void step (const Foam* foam = 0, size_t timeStep = 0,
 	       BodyProperty::Enum bodyProperty = BodyProperty::NONE);
     template<typename displaySameEdges>
-    void displayFacesValues (
+    void writeFacesValues (
 	const vector<boost::shared_ptr<Body> >& bodies, 
 	BodyProperty::Enum bodyProperty);
     void initAddShader ();
@@ -50,6 +50,7 @@ private:
      * Stores the sum and count of the previous step.
      */
     boost::scoped_ptr<QGLFramebufferObject> m_old;
+    boost::scoped_ptr<QGLFramebufferObject> m_debug;
     struct
     {
 	QGLShaderProgram shader;

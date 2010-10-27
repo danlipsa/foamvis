@@ -42,6 +42,9 @@ void DisplayFaceAverage::Init (const QSize& size)
     m_old.reset (
 	new QGLFramebufferObject (
 	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RG32F));
+    m_debug.reset (
+	new QGLFramebufferObject (
+	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D));
     step ();
 }
 
@@ -94,21 +97,18 @@ void DisplayFaceAverage::Calculate (BodyProperty::Enum bodyProperty)
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE1);
     glBindTexture (GL_TEXTURE_2D, m_old->texture ());
 
-    size_t i = 0;
-    BOOST_FOREACH (const boost::shared_ptr<const Foam>& foam, 
-		   foamAlongTime.GetFoams ())
+    size_t count = foamAlongTime.GetTimeSteps ();
+    for (size_t i = 0; i < count; ++i)
     {
-	step (foam.get (), bodyProperty);
-	if (i >= 2)
-	    break;
-	++i;
+	const boost::shared_ptr<const Foam>& foam = foamAlongTime.GetFoam (i);
+	step (foam.get (), i, bodyProperty);
     }
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
     m_add.shader.release ();
 }
 
 void DisplayFaceAverage::step (
-    const Foam* foam, BodyProperty::Enum bodyProperty)
+    const Foam* foam, size_t timeStep, BodyProperty::Enum bodyProperty)
 {
     QSize size = m_new->size ();
     {
@@ -125,19 +125,18 @@ void DisplayFaceAverage::step (
 	    {
 		const Foam::Bodies& bodies = foam->GetBodies ();
 		if (foam->IsQuadratic ())
-		    displayFacesValues<DisplaySameEdges> (bodies, bodyProperty);
+		    writeFacesValues<DisplaySameEdges> (bodies, bodyProperty);
 		else
-		    displayFacesValues<DisplaySameTriangles> (
+		    writeFacesValues<DisplaySameTriangles> (
 			bodies, bodyProperty);
 	    }
 	    m_new->release ();
 	}
-	m_new->toImage ().save ("new.jpg");
-        // copy current --> previous buffer
+
+        // copy new --> old buffer
 	QRect rect (QPoint (0, 0), size);
 	QGLFramebufferObject::blitFramebuffer (
 	    m_old.get (), rect, m_new.get (), rect);
-	m_old->toImage ().save ("old.jpg");
 	glPopAttrib ();
 	glPopMatrix ();
     }
@@ -205,7 +204,7 @@ void DisplayFaceAverage::Release ()
 
 
 template<typename displaySameEdges>
-void DisplayFaceAverage::displayFacesValues (
+void DisplayFaceAverage::writeFacesValues (
     const Foam::Bodies& bodies, BodyProperty::Enum bodyProperty)
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
