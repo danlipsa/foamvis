@@ -27,33 +27,19 @@ public:
     void Init (const QSize& size);
     void InitShaders ();
     void Release ();
-    void Step (const Foam& foam);
-    void Display ();
-
-    void SetValue (GLfloat value)
-    {
-	m_addShader.setAttributeValue (m_valueAttr, value);
-    }
-    void SetMinValue (GLfloat minValue)
-    {
-	m_addShader.setUniformValue (m_minValueAttr, minValue);
-    }
-    void SetMaxValue (GLfloat maxValue)
-    {
-	m_addShader.setUniformValue (m_maxValueAttr, maxValue);
-    }
-    void SetColorBarTexture (GLfloat textureUnit)
-    {
-	m_addShader.setUniformValue (m_colorBarTextureAttr, textureUnit);
-    }
-
+    void Display (GLfloat minValue, GLfloat maxValue,
+		  GLint colorBarTexUnit);
+    void Calculate (BodyProperty::Enum bodyProperty);
 
 private:
+    void step (const Foam* foam = 0, 
+	       BodyProperty::Enum bodyProperty = BodyProperty::NONE);
     template<typename displaySameEdges>
     void displayFacesValues (
-	const vector<boost::shared_ptr<Body> >& bodies) const;
+	const vector<boost::shared_ptr<Body> >& bodies, 
+	BodyProperty::Enum bodyProperty);
     void initAddShader ();
-    void initTextureShader ();
+    void initDisplayShader ();
 
 private:
     /**
@@ -64,13 +50,21 @@ private:
      * Stores the sum and count of the previous step.
      */
     boost::scoped_ptr<QGLFramebufferObject> m_old;
-    QGLShaderProgram m_addShader;
-    int m_valueAttr;
-    int m_minValueAttr;
-    int m_maxValueAttr;
-    int m_colorBarTextureAttr;
+    struct
+    {
+	QGLShaderProgram shader;
+	int vValueIndex;
+	int oldTexUnitIndex;
+    } m_add;
 
-    QGLShaderProgram m_textureShader;
+    struct
+    {
+	QGLShaderProgram shader;
+	int minValueIndex;
+	int maxValueIndex;
+	int colorBarTexUnitIndex;
+	int averageTexUnitIndex;
+    } m_display;
 };
 
 #endif //__DISPLAY_FACE_AVERAGE_H__

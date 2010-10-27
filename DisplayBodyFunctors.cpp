@@ -10,8 +10,8 @@
 
 DisplayBodyCenter::DisplayBodyCenter (
     const GLWidget& widget, const BodySelector& bodySelector):
-    DisplayBodyBase (widget, TexCoordSetter(widget), 
-		     BodyProperty::NONE, bodySelector)
+    DisplayBodyBase<> (widget, bodySelector, TexCoordSetter(widget), 
+		     BodyProperty::NONE)
 {}
 
 

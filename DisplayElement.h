@@ -59,7 +59,7 @@ protected:
 class TexCoordSetter
 {
 public:
-    TexCoordSetter (GLWidget& glWidget) :
+    TexCoordSetter (const GLWidget& glWidget) :
 	m_glWidget (glWidget)
     {
     }

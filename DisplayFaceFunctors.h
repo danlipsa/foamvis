@@ -16,31 +16,44 @@
  * Functor that displays a face
  */
 template <typename displayEdges, typename PropertySetter = TexCoordSetter>
-class DisplayFace : public DisplayElementPropertyFocus
+class DisplayFace : public DisplayElementPropertyFocus<PropertySetter>
 {
 public:
     /**
      * Constructor
      * @param widget Where should be the face displayed
      */
-    DisplayFace (const GLWidget& widget, FocusContext focus = FOCUS, 
-		 BodyProperty::Enum bodyProperty = BodyProperty::NONE,
-		 PropertySetter propertySetter = TexCoordSetter (widget)) : 
-	DisplayElementPropertyFocus (widget, focus, bodyProperty, 
-				     propertySetter), 
-	m_count(0) 
+    DisplayFace (const GLWidget& widget,
+		 PropertySetter propertySetter,
+		 typename DisplayElement::FocusContext focus = 
+		 DisplayElement::FOCUS,
+		 BodyProperty::Enum bodyProperty = BodyProperty::NONE) : 
+	DisplayElementPropertyFocus<PropertySetter> (
+	    widget, propertySetter, bodyProperty, focus), 
+	m_count(0)
     {
     }
+
+    DisplayFace (const GLWidget& widget,
+		 typename DisplayElement::FocusContext focus = 
+		 DisplayElement::FOCUS,
+		 BodyProperty::Enum bodyProperty = BodyProperty::NONE) : 
+	DisplayElementPropertyFocus<PropertySetter> (
+	    widget, PropertySetter (widget), bodyProperty, focus), 
+	m_count(0)
+    {
+    }
+
     /**
      * Functor that displays a face
      * @param f the face to be displayed
      */
     void operator() (const boost::shared_ptr<OrientedFace>& of)
     {
-        if (m_glWidget.IsDisplayedFace (m_count))
+        if (this->m_glWidget.IsDisplayedFace (m_count))
         {
 	    display (of);
-	    if (m_count == m_glWidget.GetDisplayedFaceIndex ())
+	    if (m_count == this->m_glWidget.GetDisplayedFaceIndex ())
 		cdbg << "face " << m_count << ": " << *of << endl;
         }
         m_count++;
@@ -57,13 +70,14 @@ public:
 protected:
     virtual void display (const boost::shared_ptr<OrientedFace>& of)
     {
-	if (m_focus == FOCUS)
+	if (this->m_focus == DisplayElement::FOCUS)
 	{
 	    glColor (G3D::Color4 (Color::BLACK, 1.));
 	}
 	else
-	    glColor (G3D::Color4 (Color::BLACK, m_glWidget.GetContextAlpha ()));
-	(displayEdges (m_glWidget, m_focus)) (of);
+	    glColor (
+		G3D::Color4 (Color::BLACK, this->m_glWidget.GetContextAlpha ()));
+	(displayEdges (this->m_glWidget, this->m_focus)) (of);
     }
 
 private:
@@ -77,8 +91,9 @@ private:
 /**
  * Functor that displays a face using the color specified in the DMP file
  */
-template<typename displaySameEdges = DisplaySameEdges>
-class DisplayFaceWithColor : public DisplayFace<DisplaySameEdges>
+template<typename displaySameEdges = DisplaySameEdges, 
+	 typename PropertySetter = TexCoordSetter>
+class DisplayFaceWithColor : public DisplayFace<displaySameEdges, PropertySetter>
 {
 public:
     /**
@@ -87,45 +102,62 @@ public:
      */
     DisplayFaceWithColor (
 	const GLWidget& widget,
-	FocusContext focus = FOCUS,
+	PropertySetter propertySetter,
+	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	BodyProperty::Enum bodyProperty = BodyProperty::NONE) : 
-	DisplayFace<DisplaySameEdges> (widget, focus, bodyProperty) 
+	DisplayFace<displaySameEdges, PropertySetter> (
+	    widget, propertySetter, focus, bodyProperty) 
     {
     }
+
+    /**
+     * Constructor
+     * @param widget where is the face displayed
+     */
+    DisplayFaceWithColor (
+	const GLWidget& widget,
+	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
+	BodyProperty::Enum bodyProperty = BodyProperty::NONE) : 
+	DisplayFace<displaySameEdges, PropertySetter> (
+	    widget, PropertySetter (widget), focus, bodyProperty)
+    {
+    }
+
 
 protected:
     virtual void display (const boost::shared_ptr<OrientedFace>& of)
     {
 	bool useColor = true;
-	if (m_focus == FOCUS)
+	if (this->m_focus == DisplayElement::FOCUS)
 	{
-	    if (m_bodyProperty == BodyProperty::NONE)
+	    if (this->m_bodyProperty == BodyProperty::NONE)
 		glColor (Color::GetValue(of->GetColor ()));
 	    else
 	    {
 		size_t bodyId = of->GetBodyPartOf ().GetBodyId ();
 		QColor color;
 		const FoamAlongTime& foamAlongTime = 
-		    m_glWidget.GetFoamAlongTime ();
+		    this->m_glWidget.GetFoamAlongTime ();
 		if (foamAlongTime.ExistsBodyProperty (
-			m_bodyProperty, bodyId, m_glWidget.GetTimeStep ()))
+			this->m_bodyProperty, bodyId, 
+			this->m_glWidget.GetTimeStep ()))
 		{
 		    double value = foamAlongTime.GetBodyProperty (
-			m_bodyProperty, bodyId, m_glWidget.GetTimeStep ());
-		    double texCoord = m_glWidget.TexCoord (value);
-		    glTexCoord1f (texCoord); 
+			this->m_bodyProperty, bodyId, 
+			this->m_glWidget.GetTimeStep ());
+		    this->m_propertySetter (value);
 		    useColor = false;
 		}
 		else
-		    glColor (m_glWidget.GetNotAvailableFaceColor ());
+		    glColor (this->m_glWidget.GetNotAvailableFaceColor ());
 	    }
 	}
 	else
 	    glColor (G3D::Color4 (Color::GetValue(Color::BLACK),
-				  m_glWidget.GetContextAlpha ()));
+				  this->m_glWidget.GetContextAlpha ()));
 	if (useColor)
 	    glDisable (GL_TEXTURE_1D);
-	(displaySameEdges (m_glWidget)) (of);
+	(displaySameEdges (this->m_glWidget)) (of);
 	if (useColor)
 	    glEnable (GL_TEXTURE_1D);
     }
@@ -134,7 +166,8 @@ protected:
 /**
  * Displays a face and specifies the normal to the face. Used for lighting.
  */
-class DisplayFaceWithNormal : public DisplayFace<DisplaySameEdges>
+class DisplayFaceWithNormal : 
+    public DisplayFace<DisplaySameEdges>
 {
 public:
     /**
@@ -143,9 +176,24 @@ public:
      */
     DisplayFaceWithNormal (
 	const GLWidget& widget, 
+	TexCoordSetter texCoordSetter,
 	FocusContext focus = FOCUS,
 	BodyProperty::Enum bodyProperty = BodyProperty::NONE) : 
-	DisplayFace<DisplaySameEdges> (widget, focus, bodyProperty)
+
+	DisplayFace<DisplaySameEdges> (
+	    widget, texCoordSetter, focus, bodyProperty)
+    {
+    }
+
+
+
+    DisplayFaceWithNormal (
+	const GLWidget& widget, 
+	FocusContext focus = FOCUS,
+	BodyProperty::Enum bodyProperty = BodyProperty::NONE) : 
+	
+	DisplayFace<DisplaySameEdges> (
+	    widget, TexCoordSetter (widget), focus, bodyProperty)
     {
     }
 

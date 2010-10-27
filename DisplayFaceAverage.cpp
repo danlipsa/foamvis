@@ -13,20 +13,42 @@
 #include "Foam.h"
 #include "GLWidget.h"
 
+
+class VertexAttributeSetter
+{
+public:
+    VertexAttributeSetter (QGLShaderProgram& program, int attr) :
+	m_program (program), m_attr (attr)
+    {
+    }
+
+    void operator () (double value)
+    {
+	m_program.setAttributeValue (m_attr, value);
+    }
+
+private:
+    QGLShaderProgram& m_program;
+    int m_attr;
+};
+
+
+
 void DisplayFaceAverage::Init (const QSize& size)
 {
     m_new.reset (
 	new QGLFramebufferObject (
-	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RGB32F));
+	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RG32F));
     m_old.reset (
 	new QGLFramebufferObject (
-	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RGB32F));
+	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RG32F));
+    step ();
 }
 
 void DisplayFaceAverage::InitShaders ()
 {
     initAddShader ();
-    initTextureShader ();    
+    initDisplayShader ();    
 }
 
 void DisplayFaceAverage::initAddShader ()
@@ -34,84 +56,61 @@ void DisplayFaceAverage::initAddShader ()
     QGLShader *vshaderAdd = new QGLShader(QGLShader::Vertex, 
 					  const_cast<GLWidget*>(&m_glWidget));
     const char *vsrcAdd =
-        "uniform float minValue;\n"
-	"uniform float maxValue;\n"
-        "attribute float value;\n"
+        "attribute float vValue;\n"
+        "varying float fValue;\n"
         "void main(void)\n"
         "{\n"
         "    gl_Position = ftransform();\n"	
-        "    gl_TexCoord[0].s = (value - minValue) / (maxValue - minValue);\n"
+        "    fValue = vValue;\n"
         "}\n";
     vshaderAdd->compileSourceCode(vsrcAdd);
 
     QGLShader *fshaderAdd = new QGLShader(QGLShader::Fragment, 
 					  const_cast<GLWidget*>(&m_glWidget));
     const char *fsrcAdd =
-	"uniform sampler1D colorBarTexture;\n"
+	"varying float fValue;\n"
+	"uniform sampler2D oldTexUnit;\n"
         "void main(void)\n"
         "{\n"
-        "    gl_FragColor = texture1D (colorBarTexture, gl_TexCoord[0].s);\n"
+        "    vec2 old = texture2D (oldTexUnit, gl_FragCoord.st).xy;\n"
+        "    vec2 new = vec2 (old.x + fValue, old.y + 1);\n"
+        "    gl_FragColor.rg = new;\n"
         "}\n";
     fshaderAdd->compileSourceCode(fsrcAdd);
 
-    m_addShader.addShader(vshaderAdd);
-    m_addShader.addShader(fshaderAdd);
-    m_addShader.link();
+    m_add.shader.addShader(vshaderAdd);
+    m_add.shader.addShader(fshaderAdd);
+    m_add.shader.link();
 
-    m_minValueAttr = m_addShader.uniformLocation("minValue");
-    m_maxValueAttr = m_addShader.uniformLocation("maxValue");
-    m_valueAttr = m_addShader.attributeLocation("value");
-    m_colorBarTextureAttr = m_addShader.uniformLocation("colorBarTexture");
+    m_add.vValueIndex = m_add.shader.attributeLocation("vValue");
+    m_add.oldTexUnitIndex = m_add.shader.uniformLocation("oldTexUnit");
 }
 
-void DisplayFaceAverage::initTextureShader ()
+void DisplayFaceAverage::Calculate (BodyProperty::Enum bodyProperty)
 {
-    QGLShader *vshaderTexture = new QGLShader(QGLShader::Vertex);
-    const char *vsrcTexture =
-        "attribute vec4 vertex;\n"
-        "attribute vec4 texCoord;\n"
-        "attribute vec3 normal;\n"
-        "uniform mat4 matrix;\n"
-        "varying vec4 texc;\n"
-        "varying float angle;\n"
-        "void main(void)\n"
-        "{\n"
-        "    vec3 toLight = normalize(vec3(0.0, 0.3, 1.0));\n"
-        "    angle = max(dot(normal, toLight), 0.0);\n"
-        "    gl_Position = matrix * vertex;\n"
-        "    texc = texCoord;\n"
-        "}\n";
-    vshaderTexture->compileSourceCode(vsrcTexture);
+    const FoamAlongTime& foamAlongTime = m_glWidget.GetFoamAlongTime ();
+    m_add.shader.bind ();
+    m_add.shader.setUniformValue (m_add.oldTexUnitIndex, 1);
+    const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE1);
+    glBindTexture (GL_TEXTURE_2D, m_old->texture ());
 
-    QGLShader *fshaderTexture = new QGLShader(QGLShader::Fragment);
-    const char *fsrcTexture =
-        "varying vec4 texc;\n"
-        "uniform sampler2D tex;\n"
-        "varying float angle;\n"
-        "void main(void)\n"
-        "{\n"
-        "    highp vec3 color = texture2D(tex, texc.st).rgb;\n"
-        "    color = color * 0.2 + color * 0.8 * angle;\n"
-        "    gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);\n"
-        "}\n";
-    fshaderTexture->compileSourceCode(fsrcTexture);
-
-    m_textureShader.addShader(vshaderTexture);
-    m_textureShader.addShader(fshaderTexture);
-    m_textureShader.link();
+    size_t i = 0;
+    BOOST_FOREACH (const boost::shared_ptr<const Foam>& foam, 
+		   foamAlongTime.GetFoams ())
+    {
+	step (foam.get (), bodyProperty);
+	if (i >= 2)
+	    break;
+	++i;
+    }
+    const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
+    m_add.shader.release ();
 }
 
-
-void DisplayFaceAverage::Release ()
-{
-    m_new.reset ();
-    m_old.reset ();
-}
-
-void DisplayFaceAverage::Step (const Foam& foam)
+void DisplayFaceAverage::step (
+    const Foam* foam, BodyProperty::Enum bodyProperty)
 {
     QSize size = m_new->size ();
-    const Foam::Bodies& bodies = foam.GetBodies ();
     {
 	glPushMatrix ();
 	glPushAttrib (GL_CURRENT_BIT | GL_VIEWPORT_BIT | GL_COLOR_BUFFER_BIT);
@@ -119,13 +118,18 @@ void DisplayFaceAverage::Step (const Foam& foam)
 	m_glWidget.ModelViewTransformNoRotation ();
 	{
 	    m_new->bind ();
-	    glClearColor (Qt::white);
+	    glClearColor (Qt::black);
 	    // render to the new buffer
 	    glClear(GL_COLOR_BUFFER_BIT);
-	    if (foam.IsQuadratic ())
-		displayFacesValues<DisplaySameEdges> (bodies);
-	    else
-		displayFacesValues<DisplaySameTriangles> (bodies);
+	    if (foam != 0)
+	    {
+		const Foam::Bodies& bodies = foam->GetBodies ();
+		if (foam->IsQuadratic ())
+		    displayFacesValues<DisplaySameEdges> (bodies, bodyProperty);
+		else
+		    displayFacesValues<DisplaySameTriangles> (
+			bodies, bodyProperty);
+	    }
 	    m_new->release ();
 	}
 	m_new->toImage ().save ("new.jpg");
@@ -140,14 +144,69 @@ void DisplayFaceAverage::Step (const Foam& foam)
     detectOpenGLError ();
 }
 
-void DisplayFaceAverage::Display ()
+
+void DisplayFaceAverage::initDisplayShader ()
 {
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    m_glWidget.RenderFromFbo (*m_new);
+    QGLShader *fshaderDisplay = new QGLShader(QGLShader::Fragment);
+    const char *fsrcDisplay =
+	"uniform float minValue;\n"
+	"uniform float maxValue;\n"
+	"uniform sampler1D colorBarTexUnit;\n"
+	"uniform sampler2D averageTexUnit;\n"
+        "void main(void)\n"
+        "{\n"
+	"    vec2 averageCount = texture2D (averageTexUnit, gl_TexCoord[0].st).xy;\n"
+	"    if (averageCount.y == 0)\n"
+	"        gl_FragColor = vec4 (1.0, 1.0, 1.0, 1.0);\n"
+	"    else\n"
+	"    {\n"
+	"        float average = averageCount.x / averageCount.y;\n"
+	"        float colorBarTexIndex = (average - minValue) / (maxValue - minValue);\n"
+        "        gl_FragColor = texture1D (colorBarTexUnit, colorBarTexIndex);\n"
+	"    }\n"
+        "}\n";
+    fshaderDisplay->compileSourceCode(fsrcDisplay);
+
+    m_display.shader.addShader(fshaderDisplay);
+    m_display.shader.link();
+
+    m_display.minValueIndex = 
+	m_display.shader.uniformLocation("minValue");
+    m_display.maxValueIndex = 
+	m_display.shader.uniformLocation("maxValue");
+    m_display.colorBarTexUnitIndex = 
+	m_display.shader.uniformLocation("colorBarTexUnit");
+    m_display.averageTexUnitIndex = 
+	m_display.shader.uniformLocation("averageTexUnit");
 }
 
+void DisplayFaceAverage::Display (GLfloat minValue, GLfloat maxValue,
+				  GLint colorBarTexUnit)
+{
+    m_display.shader.bind ();
+    m_display.shader.setUniformValue (m_display.minValueIndex, minValue);
+    m_display.shader.setUniformValue (m_display.maxValueIndex, maxValue);
+    m_display.shader.setUniformValue (
+	m_display.colorBarTexUnitIndex, colorBarTexUnit);
+    m_display.shader.setUniformValue (m_display.averageTexUnitIndex, 1);
+    const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE1);
+    m_glWidget.RenderFromFbo (*m_new);
+    const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
+    m_display.shader.release ();
+}
+
+
+
+void DisplayFaceAverage::Release ()
+{
+    m_new.reset ();
+    m_old.reset ();
+}
+
+
 template<typename displaySameEdges>
-void DisplayFaceAverage::displayFacesValues (const Foam::Bodies& bodies) const
+void DisplayFaceAverage::displayFacesValues (
+    const Foam::Bodies& bodies, BodyProperty::Enum bodyProperty)
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
@@ -155,9 +214,12 @@ void DisplayFaceAverage::displayFacesValues (const Foam::Bodies& bodies) const
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glBindTexture (GL_TEXTURE_1D, m_glWidget.GetColorBarTexture ());
     for_each (bodies.begin (), bodies.end (),
-	      DisplayBody<DisplayFaceWithColor<displaySameEdges> > (
+	      DisplayBody<
+	      DisplayFaceWithColor<displaySameEdges, VertexAttributeSetter>,
+	      VertexAttributeSetter> (
 		  m_glWidget, AllBodiesSelected (), 
-		  DisplayElement::INVISIBLE_CONTEXT, 
-		  m_glWidget.GetFacesColor ()));
+		  VertexAttributeSetter (m_add.shader, m_add.vValueIndex),
+		  bodyProperty,
+		  DisplayElement::INVISIBLE_CONTEXT));
     glPopAttrib ();
 }

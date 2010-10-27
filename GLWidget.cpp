@@ -743,17 +743,11 @@ void GLWidget::displayFacesNormal () const
 
 void GLWidget::displayAverage () const
 {
+    m_displayFaceAverage->Calculate (m_facesColor);
     const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
-/*
-    BOOST_FOREACH (const boost::shared_ptr<const Foam>& foam, 
-		   foamAlongTime.GetFoams ())
-	displayAverage.Step (*foam);
-*/
-    m_displayFaceAverage->Step (GetCurrentFoam ());
-    displayStandaloneEdges< DisplayEdgeWithColor<> > ();
-    //displayAverage.Display ();
+    m_displayFaceAverage->Display (foamAlongTime.GetMin (m_facesColor),
+				   foamAlongTime.GetMax (m_facesColor), 0);
 }
-
 
 template<typename displaySameEdges>
 void GLWidget::displayStandaloneFaces () const
@@ -886,7 +880,7 @@ void GLWidget::displayCenterPaths () const
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
     for_each (bats.begin (), bats.end (),
-	      DisplayCenterPath (*this, m_centerPathColor, *m_bodySelector));
+	      DisplayCenterPath<> (*this, m_centerPathColor, *m_bodySelector));
     glPopAttrib ();
 }
 
