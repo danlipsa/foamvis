@@ -8,6 +8,7 @@
  */
 
 #include "DisplayElement.h"
+#include "GLWidget.h"
 
 void TexCoordSetter::operator () (double value)
 {

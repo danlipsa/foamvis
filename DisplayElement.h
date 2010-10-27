@@ -33,7 +33,11 @@ public:
     };
 
 public:
-    DisplayElement (const GLWidget& widget) : m_glWidget (widget) {}
+    DisplayElement (const GLWidget& widget) : 
+	m_glWidget (widget) 
+    {
+    }
+
 protected:
     const GLWidget& m_glWidget;
 };
@@ -72,11 +76,11 @@ class DisplayElementProperty : public DisplayElement
 {
 public:
     DisplayElementProperty (
-	const GLWidget& widget,
-	PropertySetter setter,
+	const GLWidget& glWidget,
+	PropertySetter propertySetter,
 	BodyProperty::Enum bodyProperty = BodyProperty::NONE) :
-	DisplayElement (widget),
-	m_setter (setter),
+	DisplayElement (glWidget),
+	m_propertySetter (propertySetter),
 	m_bodyProperty (bodyProperty)
     {
     }
@@ -88,20 +92,21 @@ protected:
 
 
 template<typename PropertySetter = TexCoordSetter>
-class DisplayElementFocusProperty : public DisplayElementProperty
+class DisplayElementPropertyFocus : 
+    public DisplayElementProperty<PropertySetter>
 {
 public:
-    DisplayElementFocusProperty (
+    DisplayElementPropertyFocus (
 	const GLWidget& widget,
 	PropertySetter setter,
 	BodyProperty::Enum bodyProperty = BodyProperty::NONE,
-	FocusContext focus = FOCUS) :
-	DisplayElementProperty (widget, setter, bodyProperty),
+	DisplayElement::FocusContext focus = DisplayElement::FOCUS) :
+	DisplayElementProperty<PropertySetter> (widget, setter, bodyProperty),
 	m_focus (focus)
     {
     }
 protected:
-    FocusContext m_focus;
+    DisplayElement::FocusContext m_focus;
 };
 
 

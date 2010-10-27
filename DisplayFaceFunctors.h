@@ -16,7 +16,7 @@
  * Functor that displays a face
  */
 template <typename displayEdges, typename PropertySetter = TexCoordSetter>
-class DisplayFace : public DisplayElementFocusProperty
+class DisplayFace : public DisplayElementPropertyFocus
 {
 public:
     /**
@@ -26,7 +26,7 @@ public:
     DisplayFace (const GLWidget& widget, FocusContext focus = FOCUS, 
 		 BodyProperty::Enum bodyProperty = BodyProperty::NONE,
 		 PropertySetter propertySetter = TexCoordSetter (widget)) : 
-	DisplayElementFocusProperty (widget, focus, bodyProperty, 
+	DisplayElementPropertyFocus (widget, focus, bodyProperty, 
 				     propertySetter), 
 	m_count(0) 
     {

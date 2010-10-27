@@ -23,7 +23,7 @@
 /**
  * Functor used to display a body
  */
-<typename PropertySetter>
+template <typename PropertySetter>
 class DisplayBodyBase : public DisplayElementProperty<PropertySetter>
 {
 public:
@@ -35,7 +35,7 @@ public:
 		     const BodySelector& bodySelector, 
 		     PropertySetter setter,
 		     BodyProperty::Enum bodyProperty = BodyProperty::NONE) : 
-	DisplayElementProperty (widget, setter, bodyProperty), 
+	DisplayElementProperty<PropertySetter> (widget, setter, bodyProperty), 
 	m_bodySelector (bodySelector)
     {}
     /**
@@ -60,7 +60,8 @@ protected:
      * Displays the body
      * @param b the body
      */
-    virtual void display (boost::shared_ptr<Body> b, FocusContext fc)
+    virtual void display (boost::shared_ptr<Body> b,
+			  DisplayElement::FocusContext fc)
     {
 	static_cast<void> (b);
 	static_cast<void> (fc);
