@@ -6,6 +6,7 @@
  * Implementation for the DisplayFaceAverage class
  */
 
+#include "Debug.h"
 #include "DisplayFaceAverage.h"
 #include "DisplayBodyFunctors.h"
 #include "DisplayFaceFunctors.h"
@@ -13,6 +14,9 @@
 #include "Foam.h"
 #include "GLWidget.h"
 
+
+// Private Classes
+// ======================================================================
 
 class VertexAttributeSetter
 {
@@ -32,33 +36,44 @@ private:
     int m_attr;
 };
 
-
-
-void DisplayFaceAverage::Init (const QSize& size)
+// AddShaderProgram Methods
+// ======================================================================
+void AddShaderProgram::Init ()
 {
-    m_new.reset (
-	new QGLFramebufferObject (
-	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RG32F));
-    m_old.reset (
-	new QGLFramebufferObject (
-	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RG32F));
-    m_debug.reset (
-	new QGLFramebufferObject (
-	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D));
-    step ();
+    QGLShader *fshader = new QGLShader(QGLShader::Fragment);
+    const char *fsrc =
+	"uniform sampler2D oldTexUnit;\n"
+	"uniform sampler2D stepTexUnit;\n"
+        "void main(void)\n"
+        "{\n"
+	"    vec2 old = texture2D (oldTexUnit, gl_TexCoord[0].st).rg;\n"
+	"    vec2 step = texture2D (stepTexUnit, gl_TexCoord[0].st).rg;\n"
+        "    gl_FragColor.rg = old + step;\n"
+        "}\n";
+    fshader->compileSourceCode(fsrc);
+    addShader(fshader);
+    link();
+
+    m_oldTexUnitIndex = uniformLocation("oldTexUnit");
+    m_stepTexUnitIndex = uniformLocation("stepTexUnit");
 }
 
-void DisplayFaceAverage::InitShaders ()
+void AddShaderProgram::Bind ()
 {
-    initAddShader ();
-    initDisplayShader ();    
+    bool bindSuccessful = bind ();
+    RuntimeAssert (bindSuccessful, "Bind failed for DisplayShaderProgram");
+    setUniformValue (m_oldTexUnitIndex, GetOldTexUnit ().first);
+    setUniformValue (m_stepTexUnitIndex, GetStepTexUnit ().first);
 }
 
-void DisplayFaceAverage::initAddShader ()
+
+
+// StoreShaderProgram Methods
+// ======================================================================
+void StoreShaderProgram::Init ()
 {
-    QGLShader *vshaderAdd = new QGLShader(QGLShader::Vertex, 
-					  const_cast<GLWidget*>(&m_glWidget));
-    const char *vsrcAdd =
+    QGLShader *vshader = new QGLShader(QGLShader::Vertex);
+    const char *vsrc =
         "attribute float vValue;\n"
         "varying float fValue;\n"
         "void main(void)\n"
@@ -66,88 +81,37 @@ void DisplayFaceAverage::initAddShader ()
         "    gl_Position = ftransform();\n"	
         "    fValue = vValue;\n"
         "}\n";
-    vshaderAdd->compileSourceCode(vsrcAdd);
+    vshader->compileSourceCode(vsrc);
 
-    QGLShader *fshaderAdd = new QGLShader(QGLShader::Fragment, 
-					  const_cast<GLWidget*>(&m_glWidget));
-    const char *fsrcAdd =
+    QGLShader *fshader = new QGLShader(QGLShader::Fragment);
+    const char *fsrc =
 	"varying float fValue;\n"
-	"uniform sampler2D oldTexUnit;\n"
         "void main(void)\n"
         "{\n"
-        "    vec2 old = texture2D (oldTexUnit, gl_FragCoord.st).xy;\n"
-        "    vec2 new = vec2 (old.x + fValue, old.y + 1);\n"
-        "    gl_FragColor.rg = new;\n"
+        "    gl_FragColor.rg = vec2 (fValue, 1);\n"
         "}\n";
-    fshaderAdd->compileSourceCode(fsrcAdd);
+    fshader->compileSourceCode(fsrc);
 
-    m_add.shader.addShader(vshaderAdd);
-    m_add.shader.addShader(fshaderAdd);
-    m_add.shader.link();
+    addShader(vshader);
+    addShader(fshader);
+    link();
 
-    m_add.vValueIndex = m_add.shader.attributeLocation("vValue");
-    m_add.oldTexUnitIndex = m_add.shader.uniformLocation("oldTexUnit");
+    m_vValueIndex = attributeLocation("vValue");
 }
 
-void DisplayFaceAverage::Calculate (BodyProperty::Enum bodyProperty)
+void StoreShaderProgram::Bind ()
 {
-    const FoamAlongTime& foamAlongTime = m_glWidget.GetFoamAlongTime ();
-    m_add.shader.bind ();
-    m_add.shader.setUniformValue (m_add.oldTexUnitIndex, 1);
-    const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE1);
-    glBindTexture (GL_TEXTURE_2D, m_old->texture ());
-
-    size_t count = foamAlongTime.GetTimeSteps ();
-    for (size_t i = 0; i < count; ++i)
-    {
-	const boost::shared_ptr<const Foam>& foam = foamAlongTime.GetFoam (i);
-	step (foam.get (), i, bodyProperty);
-    }
-    const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
-    m_add.shader.release ();
+    bool bindSuccessful = bind ();
+    RuntimeAssert (bindSuccessful, "Bind failed for StoreShaderProgram");
 }
 
-void DisplayFaceAverage::step (
-    const Foam* foam, size_t timeStep, BodyProperty::Enum bodyProperty)
+// DisplayShaderProgram Methods
+// ======================================================================
+
+void DisplayShaderProgram::Init ()
 {
-    QSize size = m_new->size ();
-    {
-	glPushMatrix ();
-	glPushAttrib (GL_CURRENT_BIT | GL_VIEWPORT_BIT | GL_COLOR_BUFFER_BIT);
-	m_glWidget.ViewportTransform (size.width (), size.height ());
-	m_glWidget.ModelViewTransformNoRotation ();
-	{
-	    m_new->bind ();
-	    glClearColor (Qt::black);
-	    // render to the new buffer
-	    glClear(GL_COLOR_BUFFER_BIT);
-	    if (foam != 0)
-	    {
-		const Foam::Bodies& bodies = foam->GetBodies ();
-		if (foam->IsQuadratic ())
-		    writeFacesValues<DisplaySameEdges> (bodies, bodyProperty);
-		else
-		    writeFacesValues<DisplaySameTriangles> (
-			bodies, bodyProperty);
-	    }
-	    m_new->release ();
-	}
-
-        // copy new --> old buffer
-	QRect rect (QPoint (0, 0), size);
-	QGLFramebufferObject::blitFramebuffer (
-	    m_old.get (), rect, m_new.get (), rect);
-	glPopAttrib ();
-	glPopMatrix ();
-    }
-    detectOpenGLError ();
-}
-
-
-void DisplayFaceAverage::initDisplayShader ()
-{
-    QGLShader *fshaderDisplay = new QGLShader(QGLShader::Fragment);
-    const char *fsrcDisplay =
+    QGLShader *fshader = new QGLShader(QGLShader::Fragment);
+    const char *fsrc =
 	"uniform float minValue;\n"
 	"uniform float maxValue;\n"
 	"uniform sampler1D colorBarTexUnit;\n"
@@ -164,34 +128,82 @@ void DisplayFaceAverage::initDisplayShader ()
         "        gl_FragColor = texture1D (colorBarTexUnit, colorBarTexIndex);\n"
 	"    }\n"
         "}\n";
-    fshaderDisplay->compileSourceCode(fsrcDisplay);
+    fshader->compileSourceCode(fsrc);
 
-    m_display.shader.addShader(fshaderDisplay);
-    m_display.shader.link();
+    addShader(fshader);
+    link();
 
-    m_display.minValueIndex = 
-	m_display.shader.uniformLocation("minValue");
-    m_display.maxValueIndex = 
-	m_display.shader.uniformLocation("maxValue");
-    m_display.colorBarTexUnitIndex = 
-	m_display.shader.uniformLocation("colorBarTexUnit");
-    m_display.averageTexUnitIndex = 
-	m_display.shader.uniformLocation("averageTexUnit");
+    m_minValueIndex = uniformLocation("minValue");
+    m_maxValueIndex = uniformLocation("maxValue");
+    m_colorBarTexUnitIndex = uniformLocation("colorBarTexUnit");
+    m_averageTexUnitIndex = uniformLocation("averageTexUnit");
 }
 
-void DisplayFaceAverage::Display (GLfloat minValue, GLfloat maxValue,
-				  GLint colorBarTexUnit)
+void DisplayShaderProgram::Bind (GLfloat minValue, GLfloat maxValue)
 {
-    m_display.shader.bind ();
-    m_display.shader.setUniformValue (m_display.minValueIndex, minValue);
-    m_display.shader.setUniformValue (m_display.maxValueIndex, maxValue);
-    m_display.shader.setUniformValue (
-	m_display.colorBarTexUnitIndex, colorBarTexUnit);
-    m_display.shader.setUniformValue (m_display.averageTexUnitIndex, 1);
-    const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE1);
-    m_glWidget.RenderFromFbo (*m_new);
+    bool bindSuccessful = bind ();
+    RuntimeAssert (bindSuccessful, "Bind failed for DisplayShaderProgram");
+    setUniformValue (m_minValueIndex, minValue);
+    setUniformValue (m_maxValueIndex, maxValue);
+    setUniformValue (m_colorBarTexUnitIndex, GetColorBarTexUnit ().first);
+    setUniformValue (m_averageTexUnitIndex, GetAverageTexUnit ().first);
+}
+
+// DisplayFaceAverage Methods
+// ======================================================================
+
+void DisplayFaceAverage::Init (const QSize& size)
+{
+    glPushAttrib (GL_COLOR_BUFFER_BIT);
+    m_step.reset (
+	new QGLFramebufferObject (
+	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RG32F));
+    clear (*m_step);
+    m_new.reset (
+	new QGLFramebufferObject (
+	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RG32F));
+    clear (*m_new);
+    m_old.reset (
+	new QGLFramebufferObject (
+	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RG32F));
+    clear (*m_old);
+    m_debug.reset (
+	new QGLFramebufferObject (
+	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D));
+    glPopAttrib ();
+}
+
+void DisplayFaceAverage::InitShaders ()
+{
+    m_addShaderProgram.Init ();
+    m_storeShaderProgram.Init ();
+    m_displayShaderProgram.Init ();
+}
+
+void DisplayFaceAverage::Calculate (BodyProperty::Enum bodyProperty)
+{
+    const FoamAlongTime& foamAlongTime = m_glWidget.GetFoamAlongTime ();
+    size_t count = foamAlongTime.GetTimeSteps ();
+    for (size_t i = 0; i < count; ++i)
+    {
+	const boost::shared_ptr<const Foam>& foam = foamAlongTime.GetFoam (i);
+	step (*foam, i, bodyProperty);
+    }
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
-    m_display.shader.release ();
+}
+
+void DisplayFaceAverage::display (
+    GLfloat minValue, GLfloat maxValue,
+    QGLFramebufferObject& fbo)
+{
+    m_displayShaderProgram.Bind (minValue, maxValue);
+    // bind fbo.texture () to texture 1
+    const_cast<GLWidget&>(m_glWidget).glActiveTexture (
+	m_displayShaderProgram.GetAverageTexUnit ().second);
+    m_glWidget.RenderFromFbo (fbo);
+
+    const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
+    m_displayShaderProgram.release ();
 }
 
 
@@ -202,6 +214,95 @@ void DisplayFaceAverage::Release ()
     m_old.reset ();
 }
 
+void DisplayFaceAverage::renderToStep (
+    const Foam& foam, BodyProperty::Enum bodyProperty)
+{
+    m_step->bind (); 
+    glClearColor (Qt::black);
+    glClear(GL_COLOR_BUFFER_BIT);
+    m_storeShaderProgram.Bind ();
+    const Foam::Bodies& bodies = foam.GetBodies ();
+    if (foam.IsQuadratic ())
+	writeFacesValues<DisplaySameEdges> (bodies, bodyProperty);
+    else
+	writeFacesValues<DisplaySameTriangles> (
+	    bodies, bodyProperty);
+    m_storeShaderProgram.release ();
+    m_step->release ();
+}
+
+
+void DisplayFaceAverage::addToNew ()
+{
+    m_new->bind ();
+    m_addShaderProgram.Bind ();
+
+    // bind old texture
+    const_cast<GLWidget&>(m_glWidget).glActiveTexture (
+	m_addShaderProgram.GetOldTexUnit ().second);
+    glBindTexture (GL_TEXTURE_2D, m_old->texture ());
+
+    // bind step texture
+    const_cast<GLWidget&>(m_glWidget).glActiveTexture (
+	m_addShaderProgram.GetStepTexUnit ().second);
+    glBindTexture (GL_TEXTURE_2D, m_step->texture ());
+    // set the active texture to texture 0
+    const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
+
+    m_glWidget.RenderFromFbo (*m_step);
+    m_addShaderProgram.release ();
+    m_new->release ();
+}
+
+void DisplayFaceAverage::copyToOld ()
+{
+    QSize size = m_new->size ();
+    QRect rect (QPoint (0, 0), size);
+    QGLFramebufferObject::blitFramebuffer (
+	m_old.get (), rect, m_new.get (), rect);
+}
+
+void DisplayFaceAverage::clear (QGLFramebufferObject& fbo)
+{
+    fbo.bind (); 
+    glClearColor (Qt::black);
+    glClear(GL_COLOR_BUFFER_BIT);
+    fbo.release ();    
+}
+
+void DisplayFaceAverage::step (
+    const Foam& foam, size_t timeStep, BodyProperty::Enum bodyProperty)
+{
+    QSize size = m_new->size ();
+    glPushMatrix ();
+    glPushAttrib (GL_CURRENT_BIT | GL_VIEWPORT_BIT);
+    m_glWidget.ViewportTransform (size.width (), size.height ());
+    m_glWidget.ModelViewTransformNoRotation ();	
+    renderToStep (foam, bodyProperty);
+    save (*m_step, "step", timeStep);
+    addToNew ();
+    save (*m_new, "new", timeStep);
+    copyToOld ();
+    save (*m_old, "old", timeStep);    
+    glPopAttrib ();
+    glPopMatrix ();
+    detectOpenGLError ();
+}
+
+void DisplayFaceAverage::save (
+    QGLFramebufferObject& fbo, string fileName, size_t timeStep)
+{
+    // render to the debug buffer
+    const FoamAlongTime& foamAlongTime = m_glWidget.GetFoamAlongTime ();
+    m_debug->bind ();
+    BodyProperty::Enum facesColor = m_glWidget.GetFacesColor ();
+    display (foamAlongTime.GetMin (facesColor),
+	     foamAlongTime.GetMax (facesColor), fbo);
+    m_debug->release ();
+    ostringstream ostr;
+    ostr << setfill ('0') << setw (4) << timeStep << fileName << ".jpg";
+    m_debug->toImage ().save (ostr.str ().c_str ());    
+}
 
 template<typename displaySameEdges>
 void DisplayFaceAverage::writeFacesValues (
@@ -217,7 +318,9 @@ void DisplayFaceAverage::writeFacesValues (
 	      DisplayFaceWithColor<displaySameEdges, VertexAttributeSetter>,
 	      VertexAttributeSetter> (
 		  m_glWidget, AllBodiesSelected (), 
-		  VertexAttributeSetter (m_add.shader, m_add.vValueIndex),
+		  VertexAttributeSetter (
+		      m_storeShaderProgram, 
+		      m_storeShaderProgram.GetVValueIndex ()),
 		  bodyProperty,
 		  DisplayElement::INVISIBLE_CONTEXT));
     glPopAttrib ();

@@ -18,6 +18,7 @@ void DisplayBlend::Init (const QSize& size)
     Step (false);
 }
 
+
 void DisplayBlend::Release ()
 {
     m_current.reset ();
@@ -30,7 +31,7 @@ void DisplayBlend::Step (bool blend)
     {
 	glPushMatrix ();
 	glPushAttrib (GL_CURRENT_BIT | GL_VIEWPORT_BIT);
-	m_glWidget.ViewportTransform (size.width (), size.height ());
+	//m_glWidget.ViewportTransform (size.width (), size.height ());
 	m_glWidget.ModelViewTransformNoRotation ();
 	{
 	    m_current->bind ();
@@ -51,12 +52,13 @@ void DisplayBlend::Step (bool blend)
 	    }
 	    m_current->release ();
 	}
-	//m_current->toImage ().save ("current1.jpg");
+	m_current->toImage ().save ("current.jpg");
+
         // copy current --> previous buffer
 	QRect rect (QPoint (0, 0), size);
 	QGLFramebufferObject::blitFramebuffer (
 	    m_previous.get (), rect, m_current.get (), rect);
-	//m_previous->toImage ().save ("previous1.jpg");
+	m_previous->toImage ().save ("previous.jpg");
 	glPopAttrib ();
 	glPopMatrix ();
     }

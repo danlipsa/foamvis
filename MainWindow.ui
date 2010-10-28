@@ -894,7 +894,7 @@
     <slot>ValueChangedSliderTimeSteps(int)</slot>
     <slot>CurrentIndexChangedCenterPathColor(int)</slot>
     <slot>CurrentIndexChangedFacesColor(int)</slot>
-    <slot>ToggledAverage(bool)</slot>
+    <slot>ToggledFacesAverage(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1004,7 +1004,7 @@
    <sender>radioButtonFacesAverage</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledAverage(bool)</slot>
+   <slot>ToggledFacesAverage(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>837</x>

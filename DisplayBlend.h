@@ -23,7 +23,7 @@ public:
 
     void Init (const QSize& size);
     void Release ();
-    void Step (bool blendPrevious);
+    void Step (bool blend);
     void Display () const;
 
 private:

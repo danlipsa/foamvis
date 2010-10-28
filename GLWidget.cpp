@@ -265,10 +265,11 @@ void GLWidget::projectionTransform () const
     glMatrixMode (GL_MODELVIEW);
 }
 
-QSize GLWidget::ViewportTransform (
+void GLWidget::ViewportTransform (
     int width, int height, double scale,
     G3D::Rect2D* viewport) const
 {
+    const double ADJUST = 99.0/100.0;
     G3D::Rect2D vv2dScreen;
     G3D::Rect2D windowWorld;
     viewingVolumeCalculations (width, height, &vv2dScreen, &windowWorld);
@@ -291,7 +292,7 @@ QSize GLWidget::ViewportTransform (
     cdbg << "gluProject = " << bb2dScreen2 << endl
 	 << "bb2dScreen = " << bb2dScreen << endl << endl;
 */
-    return QSize (bb2dScreen.width (), bb2dScreen.height ());
+    //return QSize (bb2dScreen.width (), bb2dScreen.height ());
 }
 
 
@@ -376,13 +377,7 @@ void GLWidget::ResetTransformation ()
 {
     m_rotate = G3D::Matrix3::identity ();
     m_scale = 1;
-    resizeGL (width (), height ());
     updateGL ();
-}
-
-void GLWidget::ChangePalette ()
-{
-    
 }
 
 void GLWidget::SelectAll ()
@@ -459,7 +454,8 @@ void GLWidget::paintGL ()
 
 void GLWidget::resizeGL(int width, int height)
 {
-    QSize size = ViewportTransform (width, height, m_scale, &m_viewport);
+    QSize size (width, height);
+    ViewportTransform (width, height, m_scale, &m_viewport);
     if (m_srcAlphaBlend < 1)
 	m_displayBlend->Init (size);
     m_displayFaceAverage->Init (size);
@@ -467,6 +463,31 @@ void GLWidget::resizeGL(int width, int height)
 
 void GLWidget::RenderFromFbo (QGLFramebufferObject& fbo) const
 {
+
+    glEnable (GL_TEXTURE_2D);
+    glBindTexture (GL_TEXTURE_2D, fbo.texture ());
+
+    glMatrixMode (GL_MODELVIEW);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glMatrixMode (GL_PROJECTION);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glBegin (GL_QUADS);
+    glTexCoord2i (0, 0);glVertex3i (-1, -1, -1);
+    glTexCoord2i (1, 0);glVertex3i (1, -1, -1);
+    glTexCoord2i (1, 1);glVertex3i (1, 1, -1);
+    glTexCoord2i (0, 1);glVertex3i (-1, 1, -1);
+    glEnd ();
+    glPopMatrix ();
+    glMatrixMode (GL_MODELVIEW);
+    glPopMatrix ();
+
+    glDisable (GL_TEXTURE_2D);
+
+
+
+/*
     using G3D::Vector3;
     G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
     Vector3 low = bb.low ();
@@ -481,6 +502,7 @@ void GLWidget::RenderFromFbo (QGLFramebufferObject& fbo) const
     glTexCoord2i (0, 1);glVertex (Vector3 (low.x, high.y, low.z));
     glEnd ();	    
     glDisable (GL_TEXTURE_2D);
+*/
 }
 
 void GLWidget::setRotation (int axis, double angleRadians)
@@ -743,10 +765,9 @@ void GLWidget::displayFacesNormal () const
 
 void GLWidget::displayAverage () const
 {
-    m_displayFaceAverage->Calculate (m_facesColor);
     const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
     m_displayFaceAverage->Display (foamAlongTime.GetMin (GetFacesColor ()),
-				   foamAlongTime.GetMax (GetFacesColor ()), 0);
+				   foamAlongTime.GetMax (GetFacesColor ()));
 }
 
 template<typename displaySameEdges>
@@ -1181,8 +1202,10 @@ void GLWidget::ToggledCenterPath (bool checked)
     view (checked, ViewType::CENTER_PATHS);
 }
 
-void GLWidget::ToggledAverage (bool checked)
+void GLWidget::ToggledFacesAverage (bool checked)
 {
+    makeCurrent ();
+    m_displayFaceAverage->Calculate (m_facesColor);
     view (checked, ViewType::AVERAGE);
 }
 
@@ -1198,7 +1221,7 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
     makeCurrent ();
     updateGL ();
     if (m_srcAlphaBlend < 1)
-	m_displayBlend->Step (m_timeStep != 0);
+	m_displayBlend->Step ( m_timeStep != 0);
     updateGL ();
 }
 
@@ -1207,7 +1230,7 @@ void GLWidget::ValueChangedBlend (int index)
     QSlider* slider = static_cast<QSlider*> (sender ());
     size_t maximum = slider->maximum ();
     if (m_srcAlphaBlend == 1 && index != 0)
-	m_displayBlend->Init (ViewportTransform (width (), height ()));
+	m_displayBlend->Init (QSize (width (), height ()));
     else if (m_srcAlphaBlend < 1 && index == 0)
 	m_displayBlend->Release ();
     // m_srcAlphaBlend is between 1 and 0.5

@@ -196,12 +196,10 @@ public:
     
     /**
      * Calculates and does the viewport transform.
-     * @param viewport stores the viewport. If it is != 0 the function does the
-     * viewport transform as well.
-     * @return the foam size in screen coordinates.
+     * @param viewport stores the viewport.
      */
-    QSize ViewportTransform (int width, int height, double scale = 1,
-			     G3D::Rect2D* viewport = 0) const;
+    void ViewportTransform (int width, int height, double scale = 1,
+			    G3D::Rect2D* viewport = 0) const;
     void ModelViewTransformNoRotation () const;
     void RenderFromFbo (QGLFramebufferObject& fbo) const;
     /**
@@ -236,7 +234,7 @@ public Q_SLOTS:
      * param checked true for showing the center paths false otherwise
      */
     void ToggledCenterPath (bool checked);
-    void ToggledAverage (bool checked);
+    void ToggledFacesAverage (bool checked);
 
 
     void BodyPropertyChanged (
@@ -245,7 +243,6 @@ public Q_SLOTS:
     void ColorBarModelChanged (
 	boost::shared_ptr<ColorBarModel> colorBarModel);
     void ResetTransformation ();
-    void ChangePalette ();
     void SelectAll ();
     void DeselectAll ();
     void Info ();
