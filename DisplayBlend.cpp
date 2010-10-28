@@ -25,7 +25,7 @@ void DisplayBlend::Release ()
     m_previous.reset ();
 }
 
-void DisplayBlend::Step (bool blend)
+void DisplayBlend::Step (bool blend, size_t timeStep)
 {
     QSize size = m_current->size ();
     {
@@ -37,7 +37,7 @@ void DisplayBlend::Step (bool blend)
 	    m_current->bind ();
 	    // render to the current buffer
 	    glClear(GL_COLOR_BUFFER_BIT);
-	    m_glWidget.Display ();
+	    m_glWidget.DisplayViewType ();
 
 	    if (blend)
 	    {
@@ -52,13 +52,13 @@ void DisplayBlend::Step (bool blend)
 	    }
 	    m_current->release ();
 	}
-	m_current->toImage ().save ("current.jpg");
+	save (*m_current, "current", timeStep);
 
         // copy current --> previous buffer
 	QRect rect (QPoint (0, 0), size);
 	QGLFramebufferObject::blitFramebuffer (
 	    m_previous.get (), rect, m_current.get (), rect);
-	m_previous->toImage ().save ("previous.jpg");
+	save (*m_previous, "previous", timeStep);
 	glPopAttrib ();
 	glPopMatrix ();
     }
@@ -69,4 +69,12 @@ void DisplayBlend::Display () const
 {
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     m_glWidget.RenderFromFbo (*m_current);    
+}
+
+void DisplayBlend::save (QGLFramebufferObject& fbo, 
+			 string name, size_t timeStep)
+{
+    ostringstream ostr;
+    ostr << setfill ('0') << setw (4) << timeStep << name << ".jpg";
+    fbo.toImage ().save (ostr.str ().c_str ());
 }

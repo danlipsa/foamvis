@@ -23,8 +23,11 @@ public:
 
     void Init (const QSize& size);
     void Release ();
-    void Step (bool blend);
+    void Step (bool blend, size_t timeStep = 0);
     void Display () const;
+
+private:
+    void save (QGLFramebufferObject& fbo, string name, size_t timeStep);
 
 private:
     /**

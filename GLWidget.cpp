@@ -265,7 +265,7 @@ void GLWidget::projectionTransform () const
     glMatrixMode (GL_MODELVIEW);
 }
 
-void GLWidget::ViewportTransform (
+QSize GLWidget::ViewportTransform (
     int width, int height, double scale,
     G3D::Rect2D* viewport) const
 {
@@ -292,7 +292,7 @@ void GLWidget::ViewportTransform (
     cdbg << "gluProject = " << bb2dScreen2 << endl
 	 << "bb2dScreen = " << bb2dScreen << endl << endl;
 */
-    //return QSize (bb2dScreen.width (), bb2dScreen.height ());
+    return QSize (bb2dScreen.width (), bb2dScreen.height ());
 }
 
 
@@ -447,15 +447,16 @@ void GLWidget::paintGL ()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     modelViewTransform ();
-    Display ();
+    display ();
     displayTextureColorMap ();
     detectOpenGLError ();
 }
 
 void GLWidget::resizeGL(int width, int height)
 {
-    QSize size (width, height);
-    ViewportTransform (width, height, m_scale, &m_viewport);
+    cdbg << "resizeGL" << endl;
+    QSize size = ViewportTransform (width, height, m_scale, &m_viewport);
+    size = QSize (width, height);
     if (m_srcAlphaBlend < 1)
 	m_displayBlend->Init (size);
     m_displayFaceAverage->Init (size);
@@ -466,6 +467,8 @@ void GLWidget::RenderFromFbo (QGLFramebufferObject& fbo) const
 
     glEnable (GL_TEXTURE_2D);
     glBindTexture (GL_TEXTURE_2D, fbo.texture ());
+    glPushAttrib (GL_VIEWPORT_BIT);
+    glViewport (0, 0, width (), height ());
 
     glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
@@ -483,8 +486,8 @@ void GLWidget::RenderFromFbo (QGLFramebufferObject& fbo) const
     glMatrixMode (GL_MODELVIEW);
     glPopMatrix ();
 
+    glPopAttrib ();
     glDisable (GL_TEXTURE_2D);
-
 
 
 /*
@@ -905,12 +908,17 @@ void GLWidget::displayCenterPaths () const
     glPopAttrib ();
 }
 
-void GLWidget::Display () const
+void GLWidget::display () const
 {
     if (m_srcAlphaBlend < 1)
 	m_displayBlend->Display ();
     else
-	(this->*(m_viewTypeDisplay[m_viewType].m_display)) ();
+	DisplayViewType ();
+}
+
+void GLWidget::DisplayViewType () const
+{
+    (this->*(m_viewTypeDisplay[m_viewType].m_display)) ();
 }
 
 bool GLWidget::IsDisplayedBody (size_t bodyId) const
@@ -1221,7 +1229,7 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
     makeCurrent ();
     updateGL ();
     if (m_srcAlphaBlend < 1)
-	m_displayBlend->Step ( m_timeStep != 0);
+	m_displayBlend->Step ( m_timeStep != 0, timeStep);
     updateGL ();
 }
 
@@ -1230,7 +1238,11 @@ void GLWidget::ValueChangedBlend (int index)
     QSlider* slider = static_cast<QSlider*> (sender ());
     size_t maximum = slider->maximum ();
     if (m_srcAlphaBlend == 1 && index != 0)
-	m_displayBlend->Init (QSize (width (), height ()));
+    {
+	//QSize size = ViewportTransform (width (), height ());
+	QSize size (width (), height ());
+	m_displayBlend->Init (size);
+    }
     else if (m_srcAlphaBlend < 1 && index == 0)
 	m_displayBlend->Release ();
     // m_srcAlphaBlend is between 1 and 0.5

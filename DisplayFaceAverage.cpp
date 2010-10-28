@@ -119,7 +119,7 @@ void DisplayShaderProgram::Init ()
         "void main(void)\n"
         "{\n"
 	"    vec2 averageCount = texture2D (averageTexUnit, gl_TexCoord[0].st).xy;\n"
-	"    if (averageCount.y == 0)\n"
+	"    if (averageCount.y == 0.0)\n"
 	"        gl_FragColor = vec4 (1.0, 1.0, 1.0, 1.0);\n"
 	"    else\n"
 	"    {\n"
@@ -167,9 +167,7 @@ void DisplayFaceAverage::Init (const QSize& size)
 	new QGLFramebufferObject (
 	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RG32F));
     clear (*m_old);
-    m_debug.reset (
-	new QGLFramebufferObject (
-	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D));
+    m_debug.reset (new QGLFramebufferObject (size));
     glPopAttrib ();
 }
 
@@ -276,14 +274,14 @@ void DisplayFaceAverage::step (
     QSize size = m_new->size ();
     glPushMatrix ();
     glPushAttrib (GL_CURRENT_BIT | GL_VIEWPORT_BIT);
-    m_glWidget.ViewportTransform (size.width (), size.height ());
+    //m_glWidget.ViewportTransform (size.width (), size.height ());
     m_glWidget.ModelViewTransformNoRotation ();	
     renderToStep (foam, bodyProperty);
-    save (*m_step, "step", timeStep);
+    //save (*m_step, "step", timeStep);
     addToNew ();
     save (*m_new, "new", timeStep);
     copyToOld ();
-    save (*m_old, "old", timeStep);    
+    //save (*m_old, "old", timeStep);    
     glPopAttrib ();
     glPopMatrix ();
     detectOpenGLError ();

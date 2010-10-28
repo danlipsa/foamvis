@@ -198,7 +198,7 @@ public:
      * Calculates and does the viewport transform.
      * @param viewport stores the viewport.
      */
-    void ViewportTransform (int width, int height, double scale = 1,
+    QSize ViewportTransform (int width, int height, double scale = 1,
 			    G3D::Rect2D* viewport = 0) const;
     void ModelViewTransformNoRotation () const;
     void RenderFromFbo (QGLFramebufferObject& fbo) const;
@@ -206,7 +206,7 @@ public:
      * Displays the foam in various way
      * @param type the type of object that we want displayed.
      */
-    void Display () const;
+    void DisplayViewType () const;
     double GetSrcAlphaBlend () const
     {
 	return m_srcAlphaBlend;
@@ -318,6 +318,7 @@ private:
     };
 
 private:
+    void display () const;
     string getFoamsInfo () const;
 
     /**
