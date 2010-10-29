@@ -123,6 +123,7 @@ void GLWidget::createActions ()
 
 void GLWidget::initViewTypeDisplay ()
 {
+    // WARNING: This has to be in the same order as ViewType::Enum
     boost::array<ViewTypeDisplay, ViewType::COUNT> vtd = 
 	{{	
 	{&GLWidget::displayEdgesNormal, identity<Lighting> (NO_LIGHTING)},
@@ -133,17 +134,18 @@ void GLWidget::initViewTypeDisplay ()
 	
 	{&GLWidget::displayFacesNormal, identity<Lighting> (NO_LIGHTING)},
 	
-	{&GLWidget::displayFacesLighting, identity<Lighting> (LIGHTING)},
-	
 	{&GLWidget::displayFacesTorus, 
 	 bl::if_then_else_return (bl::bind (&GLWidget::facesTorusTubes, this),
 				  LIGHTING, NO_LIGHTING)},
+
+	{&GLWidget::displayFacesAverage, 
+	 identity<Lighting> (NO_LIGHTING)},
+
+	{&GLWidget::displayFacesLighting, identity<Lighting> (LIGHTING)},
+	
 	
 	{&GLWidget::displayCenterPathsWithBodies, 
-	 identity<Lighting> (LIGHTING)},
-	
-	{&GLWidget::displayAverage, 
-	 identity<Lighting> (NO_LIGHTING)}
+	 identity<Lighting> (LIGHTING)},	
 	}};
     copy (vtd.begin (), vtd.end (), m_viewTypeDisplay.begin ());
 }
@@ -276,7 +278,7 @@ QSize GLWidget::ViewportTransform (
     G3D::Rect2D bb2dScreen;
     double change;
     boundingBoxCalculations (width, height, windowWorld, &bb2dScreen, &change);
-    Scale (&vv2dScreen, change * scale);
+    Scale (&vv2dScreen, change * scale * ADJUST);
     if (viewport != 0)
 	*viewport = vv2dScreen;
     glViewport (vv2dScreen);
@@ -448,18 +450,18 @@ void GLWidget::paintGL ()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     modelViewTransform ();
     display ();
-    displayTextureColorMap ();
+    //displayTextureColorMap ();
     detectOpenGLError ();
 }
 
 void GLWidget::resizeGL(int width, int height)
 {
-    cdbg << "resizeGL" << endl;
     QSize size = ViewportTransform (width, height, m_scale, &m_viewport);
     size = QSize (width, height);
     if (m_srcAlphaBlend < 1)
 	m_displayBlend->Init (size);
-    m_displayFaceAverage->Init (size);
+    if (m_viewType == ViewType::FACES_AVERAGE)
+	calculateFacesAverage ();
 }
 
 void GLWidget::RenderFromFbo (QGLFramebufferObject& fbo) const
@@ -766,7 +768,7 @@ void GLWidget::displayFacesNormal () const
     //displayAxes ();
 }
 
-void GLWidget::displayAverage () const
+void GLWidget::displayFacesAverage () const
 {
     const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
     m_displayFaceAverage->Display (foamAlongTime.GetMin (GetFacesColor ()),
@@ -1175,6 +1177,24 @@ void GLWidget::ToggledFacesTorus (bool checked)
     view (checked, ViewType::FACES_TORUS);
 }
 
+
+void GLWidget::calculateFacesAverage ()
+{
+    makeCurrent ();
+    const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
+    m_displayFaceAverage->Init (QSize (width (), height ()));
+    m_displayFaceAverage->Calculate (
+	GetFacesColor (), foamAlongTime.GetMin (GetFacesColor ()),
+	foamAlongTime.GetMax (GetFacesColor ()));
+}
+
+void GLWidget::ToggledFacesAverage (bool checked)
+{
+    if (checked)
+	calculateFacesAverage ();
+    view (checked, ViewType::FACES_AVERAGE);
+}
+
 void GLWidget::ToggledFacesTorusTubes (bool checked)
 {
     m_facesTorusTubes = checked;
@@ -1210,18 +1230,56 @@ void GLWidget::ToggledCenterPath (bool checked)
     view (checked, ViewType::CENTER_PATHS);
 }
 
-void GLWidget::ToggledFacesAverage (bool checked)
-{
-    makeCurrent ();
-    m_displayFaceAverage->Calculate (m_facesColor);
-    view (checked, ViewType::AVERAGE);
-}
-
 
 void GLWidget::CurrentIndexChangedInteractionMode (int index)
 {
     m_interactionMode = static_cast<InteractionMode::Enum>(index);
 }
+
+void GLWidget::BodyPropertyChanged (
+    boost::shared_ptr<ColorBarModel> colorBarModel,
+    BodyProperty::Enum bodyProperty, ViewType::Enum viewType)
+{
+    RuntimeAssert (
+	viewType == ViewType::FACES || 
+	viewType == ViewType::CENTER_PATHS ||
+	viewType == ViewType::FACES_AVERAGE,
+	"Invalid view type: ", viewType);
+    switch (viewType)
+    {
+    case ViewType::FACES:
+	m_facesColor = bodyProperty;
+	break;
+    case ViewType::FACES_AVERAGE:
+	m_facesColor = bodyProperty;
+	calculateFacesAverage ();
+	break;
+    case ViewType::CENTER_PATHS:
+	m_centerPathColor = bodyProperty;
+	break;
+    default:
+	RuntimeAssert (false, "Invalid value in switch: ", viewType);
+    }
+    m_useColorMap = (m_facesColor != BodyProperty::NONE);
+    if (m_useColorMap)
+	ColorBarModelChanged (colorBarModel);
+    else
+	updateGL ();
+}
+
+
+void GLWidget::ColorBarModelChanged (
+    boost::shared_ptr<ColorBarModel> colorBarModel)
+{
+    m_colorBarModel = colorBarModel;    
+    const QImage image = colorBarModel->GetImage ();
+    image.save ("colorbar.jpg");
+    makeCurrent ();
+    glTexImage1D (GL_TEXTURE_1D, 0, GL_RGBA, image.width (), 
+		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
+    updateGL ();
+}
+
 
 void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 {
@@ -1308,38 +1366,6 @@ void GLWidget::displayOpositeFaces (G3D::Vector3 origin,
 	glEnd ();
     }
 }
-
-void GLWidget::BodyPropertyChanged (
-    boost::shared_ptr<ColorBarModel> colorBarModel,
-    BodyProperty::Enum bodyProperty, ViewType::Enum viewType)
-{
-    RuntimeAssert (
-	viewType == ViewType::FACES || viewType == ViewType::CENTER_PATHS,
-	"Invalid view type: ", viewType);
-    if (viewType == ViewType::FACES)
-	m_facesColor = bodyProperty;
-    else
-	m_centerPathColor = bodyProperty;
-    m_useColorMap = (m_facesColor != BodyProperty::NONE);
-    if (m_useColorMap)
-	ColorBarModelChanged (colorBarModel);
-    else
-	updateGL ();
-}
-
-
-void GLWidget::ColorBarModelChanged (
-    boost::shared_ptr<ColorBarModel> colorBarModel)
-{
-    m_colorBarModel = colorBarModel;    
-    const QImage image = colorBarModel->GetImage ();
-    image.save ("colorbar.jpg");
-    makeCurrent ();
-    glTexImage1D (GL_TEXTURE_1D, 0, GL_RGBA, image.width (), 
-		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
-    updateGL ();
-}
-
 
 
 void GLWidget::contextMenuEvent(QContextMenuEvent *event)

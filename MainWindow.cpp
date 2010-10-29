@@ -153,6 +153,13 @@ void MainWindow::setupButtonGroups ()
 	radioButtonCenterPathHistogramUnicolor, HistogramType::UNICOLOR);
     buttonGroupCenterPathHistogram->setId (
 	radioButtonCenterPathHistogramColorCoded, HistogramType::COLOR_CODED);
+
+    buttonGroupDisplay->setId (radioButtonEdgesNormal, ViewType::EDGES);
+    buttonGroupDisplay->setId (radioButtonEdgesTorus, ViewType::EDGES_TORUS);
+    buttonGroupDisplay->setId (radioButtonFacesNormal, ViewType::FACES);
+    buttonGroupDisplay->setId (radioButtonFacesTorus, ViewType::FACES_TORUS);
+    buttonGroupDisplay->setId (radioButtonFacesAverage, ViewType::FACES_AVERAGE);
+    buttonGroupDisplay->setId (radioButtonCenterPath, ViewType::CENTER_PATHS);
 }
 
 void MainWindow::setupSliderData (const FoamAlongTime& foamAlongTime)
@@ -654,7 +661,8 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	colorBar->setHidden (true);
 	widgetHistogram->setHidden (true);
 	Q_EMIT BodyPropertyChanged (
-	    m_colorBarModel[0], bodyProperty, ViewType::FACES);
+	    m_colorBarModel[0], bodyProperty, 
+	    ViewType::FromInt (buttonGroupDisplay->checkedId ()));
     }
     else
     {
@@ -663,7 +671,8 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	groupBoxFacesHistogram->setVisible (true);
 	colorBar->setVisible (true);
 	Q_EMIT BodyPropertyChanged (
-	    m_colorBarModel[bodyProperty], bodyProperty, ViewType::FACES);
+	    m_colorBarModel[bodyProperty], bodyProperty, 
+	    ViewType::FromInt (buttonGroupDisplay->checkedId ()));
 	SetAndDisplayHistogram (
 	    histogramType (buttonGroupFacesHistogram),
 	    bodyProperty,

@@ -199,13 +199,14 @@ public:
 	EDGES_TORUS,
 
         FACES,
-        FACES_LIGHTING,
 	FACES_TORUS,
+	FACES_AVERAGE,
+        FACES_LIGHTING,
 
 	CENTER_PATHS,
-	AVERAGE,
         COUNT
     };
+    static Enum FromInt (int i);
 };
 
 

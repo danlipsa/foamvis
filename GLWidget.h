@@ -318,6 +318,7 @@ private:
     };
 
 private:
+    void calculateFacesAverage ();
     void display () const;
     string getFoamsInfo () const;
 
@@ -394,6 +395,7 @@ private:
 	else
 	    displayFacesTorusLines ();
     }
+    void displayFacesAverage () const;
     void displayFacesTorusTubes () const;
     void displayFacesTorusLines () const;
     /**
@@ -405,7 +407,6 @@ private:
      * Generates a display list for center paths
      */
     void displayCenterPathsWithBodies () const;
-    void displayAverage () const;
     void displayOriginalDomain () const;
     void displayBoundingBox () const;
     void displayCenterPaths () const;

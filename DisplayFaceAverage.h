@@ -85,17 +85,20 @@ public:
     {
 	display (minValue, maxValue, *m_new);
     }
-    void Calculate (BodyProperty::Enum bodyProperty);
+    void Calculate (BodyProperty::Enum bodyProperty,
+		    GLfloat minValue, GLfloat maxValue);
 
 private:
     void step (const Foam& foam, size_t timeStep,
-	       BodyProperty::Enum bodyProperty);
+	       BodyProperty::Enum bodyProperty,
+	       GLfloat minValue, GLfloat maxValue);
     template<typename displaySameEdges>
     void writeFacesValues (
 	const vector<boost::shared_ptr<Body> >& bodies, 
 	BodyProperty::Enum bodyProperty);
     void display (GLfloat minValue, GLfloat maxValue, QGLFramebufferObject& fbo);
-    void save (QGLFramebufferObject& fbo, string fileName, size_t timeStep);
+    void save (QGLFramebufferObject& fbo, string fileName, size_t timeStep,
+	       GLfloat minValue, GLfloat maxValue);
     void renderToStep (const Foam& foam, BodyProperty::Enum bodyProperty);
     void addToNew ();
     void copyToOld ();

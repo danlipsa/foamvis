@@ -178,27 +178,29 @@ void DisplayFaceAverage::InitShaders ()
     m_displayShaderProgram.Init ();
 }
 
-void DisplayFaceAverage::Calculate (BodyProperty::Enum bodyProperty)
+void DisplayFaceAverage::Calculate (BodyProperty::Enum bodyProperty,
+				    GLfloat minValue, GLfloat maxValue)
 {
     const FoamAlongTime& foamAlongTime = m_glWidget.GetFoamAlongTime ();
     size_t count = foamAlongTime.GetTimeSteps ();
     for (size_t i = 0; i < count; ++i)
     {
 	const boost::shared_ptr<const Foam>& foam = foamAlongTime.GetFoam (i);
-	step (*foam, i, bodyProperty);
+	step (*foam, i, bodyProperty, minValue, maxValue);
+	if (i % 10 == 0)
+	    display (minValue, maxValue, *m_new);
     }
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
 }
 
 void DisplayFaceAverage::display (
-    GLfloat minValue, GLfloat maxValue,
-    QGLFramebufferObject& fbo)
+    GLfloat minValue, GLfloat maxValue, QGLFramebufferObject& srcFbo)
 {
     m_displayShaderProgram.Bind (minValue, maxValue);
-    // bind fbo.texture () to texture 1
+    // bind srcFbo.texture () to texture 1
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (
 	m_displayShaderProgram.GetAverageTexUnit ().second);
-    m_glWidget.RenderFromFbo (fbo);
+    m_glWidget.RenderFromFbo (srcFbo);
 
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
     m_displayShaderProgram.release ();
@@ -269,17 +271,19 @@ void DisplayFaceAverage::clear (QGLFramebufferObject& fbo)
 }
 
 void DisplayFaceAverage::step (
-    const Foam& foam, size_t timeStep, BodyProperty::Enum bodyProperty)
+    const Foam& foam, size_t timeStep, BodyProperty::Enum bodyProperty,
+    GLfloat minValue, GLfloat maxValue)
 {
+    (void)timeStep;(void)minValue;(void)maxValue;
     QSize size = m_new->size ();
     glPushMatrix ();
-    glPushAttrib (GL_CURRENT_BIT | GL_VIEWPORT_BIT);
+    glPushAttrib (GL_CURRENT_BIT | GL_VIEWPORT_BIT | GL_COLOR_BUFFER_BIT);
     //m_glWidget.ViewportTransform (size.width (), size.height ());
     m_glWidget.ModelViewTransformNoRotation ();	
     renderToStep (foam, bodyProperty);
     //save (*m_step, "step", timeStep);
     addToNew ();
-    save (*m_new, "new", timeStep);
+    //save (*m_new, "new", timeStep);
     copyToOld ();
     //save (*m_old, "old", timeStep);    
     glPopAttrib ();
@@ -288,14 +292,12 @@ void DisplayFaceAverage::step (
 }
 
 void DisplayFaceAverage::save (
-    QGLFramebufferObject& fbo, string fileName, size_t timeStep)
+    QGLFramebufferObject& fbo, string fileName, size_t timeStep,
+    GLfloat minValue, GLfloat maxValue)
 {
     // render to the debug buffer
-    const FoamAlongTime& foamAlongTime = m_glWidget.GetFoamAlongTime ();
     m_debug->bind ();
-    BodyProperty::Enum facesColor = m_glWidget.GetFacesColor ();
-    display (foamAlongTime.GetMin (facesColor),
-	     foamAlongTime.GetMax (facesColor), fbo);
+    display (minValue, maxValue, fbo);
     m_debug->release ();
     ostringstream ostr;
     ostr << setfill ('0') << setw (4) << timeStep << fileName << ".jpg";

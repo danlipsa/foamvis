@@ -170,6 +170,13 @@ BodyProperty::Enum BodyProperty::FromSizeT (size_t i)
     return static_cast<BodyProperty::Enum>(i);
 }
 
+ViewType::Enum ViewType::FromInt (int i)
+{
+    RuntimeAssert (i < COUNT && i >= 0, "Value outside of ViewType::Enum", i);
+    return static_cast<ViewType::Enum>(i);
+}
+
+
 const char* Palette::ToString (Palette::Enum type)
 {
     switch (type)
