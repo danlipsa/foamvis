@@ -64,15 +64,6 @@ void EncloseRotation (G3D::AABox* aabox)
     aabox->set (center - halfDiagonal, center + halfDiagonal);
 }
 
-void AddBorder (G3D::AABox* aabox)
-{
-    using G3D::Vector3;
-    Vector3 low = aabox->low ();
-    Vector3 high = aabox->high ();
-    Vector3 value = (high - low) / 1000;
-    aabox->set (low - value, high + value);
-}
-
 ostream& operator<< (ostream& ostr, const QColor& color)
 {
     return ostr << "QColor(" << color.red () << ", " << color.green () << ", "

@@ -198,7 +198,7 @@ public:
      * Calculates and does the viewport transform.
      * @param viewport stores the viewport.
      */
-    QSize ViewportTransform (int width, int height, double scale = 1,
+    void ViewportTransform (int width, int height, double scale = 1,
 			    G3D::Rect2D* viewport = 0) const;
     void ModelViewTransformNoRotation () const;
     void RenderFromFbo (QGLFramebufferObject& fbo) const;

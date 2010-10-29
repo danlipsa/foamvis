@@ -217,10 +217,7 @@ G3D::AABox GLWidget::calculateCenteredViewingVolume () const
 {
     using G3D::Vector3;
     G3D::AABox boundingBox = GetFoamAlongTime ().GetBoundingBox ();
-    // if (GetCurrentFoam ().GetSpaceDimension () == 3)
-	EncloseRotation (&boundingBox);
-    // else
-    // AddBorder (&boundingBox);
+    EncloseRotation (&boundingBox);
     Vector3 center = boundingBox.center ();
     return G3D::AABox (boundingBox.low () - center, 
 		       boundingBox.high () - center);
@@ -267,18 +264,23 @@ void GLWidget::projectionTransform () const
     glMatrixMode (GL_MODELVIEW);
 }
 
-QSize GLWidget::ViewportTransform (
+void GLWidget::ViewportTransform (
     int width, int height, double scale,
     G3D::Rect2D* viewport) const
 {
-    const double ADJUST = 99.0/100.0;
     G3D::Rect2D vv2dScreen;
     G3D::Rect2D windowWorld;
     viewingVolumeCalculations (width, height, &vv2dScreen, &windowWorld);
-    G3D::Rect2D bb2dScreen;
-    double change;
-    boundingBoxCalculations (width, height, windowWorld, &bb2dScreen, &change);
-    Scale (&vv2dScreen, change * scale * ADJUST);
+    if (GetCurrentFoam ().GetSpaceDimension () == 2)
+    {
+	const double ADJUST = 99.0/100.0;
+	G3D::Rect2D bb2dScreen;
+	double change;
+	boundingBoxCalculations (
+	    width, height, windowWorld, &bb2dScreen, &change);
+	scale *= (change * ADJUST);
+    }
+    Scale (&vv2dScreen, scale);
     if (viewport != 0)
 	*viewport = vv2dScreen;
     glViewport (vv2dScreen);
@@ -294,7 +296,7 @@ QSize GLWidget::ViewportTransform (
     cdbg << "gluProject = " << bb2dScreen2 << endl
 	 << "bb2dScreen = " << bb2dScreen << endl << endl;
 */
-    return QSize (bb2dScreen.width (), bb2dScreen.height ());
+    //return QSize (bb2dScreen.width (), bb2dScreen.height ());
 }
 
 
@@ -322,6 +324,7 @@ void GLWidget::viewingVolumeCalculations (
 	*windowWorld = G3D::Rect2D::xywh (0, 0,
 	    vv2d.width (), vv2d.width () / windowRatio);
     }
+    //cdbg << "vv2d=" << vv2d << "windowWorld=" << *windowWorld << endl;
 }
 
 void GLWidget::boundingBoxCalculations (
@@ -330,6 +333,7 @@ void GLWidget::boundingBoxCalculations (
     double* change) const
 {
     G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
+    //cdbg << "bb=" << bb << endl;
     G3D::Rect2D bb2d = G3D::Rect2D::xyxy (bb.low ().xy (), bb.high ().xy ());
     double bbratio = bb2d.width () / bb2d.height ();
     double windowRatio = static_cast<double>(width) / height;
@@ -456,8 +460,8 @@ void GLWidget::paintGL ()
 
 void GLWidget::resizeGL(int width, int height)
 {
-    QSize size = ViewportTransform (width, height, m_scale, &m_viewport);
-    size = QSize (width, height);
+    ViewportTransform (width, height, m_scale, &m_viewport);
+    QSize size = QSize (width, height);
     if (m_srcAlphaBlend < 1)
 	m_displayBlend->Init (size);
     if (m_viewType == ViewType::FACES_AVERAGE)
@@ -1297,7 +1301,6 @@ void GLWidget::ValueChangedBlend (int index)
     size_t maximum = slider->maximum ();
     if (m_srcAlphaBlend == 1 && index != 0)
     {
-	//QSize size = ViewportTransform (width (), height ());
 	QSize size (width (), height ());
 	m_displayBlend->Init (size);
     }
