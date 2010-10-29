@@ -1001,22 +1001,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioButtonFacesAverage</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledFacesAverage(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>837</x>
-     <y>317</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>513</x>
-     <y>414</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>toolButtonPlay</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -1541,6 +1525,22 @@
     <hint type="destinationlabel">
      <x>873</x>
      <y>307</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonFacesAverage</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledFacesAverage(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>837</x>
+     <y>317</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>513</x>
+     <y>414</y>
     </hint>
    </hints>
   </connection>
