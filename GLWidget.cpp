@@ -454,7 +454,7 @@ void GLWidget::paintGL ()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     modelViewTransform ();
     display ();
-    //displayTextureColorMap ();
+    displayTextureColorMap ();
     detectOpenGLError ();
 }
 
@@ -1253,18 +1253,20 @@ void GLWidget::BodyPropertyChanged (
     {
     case ViewType::FACES:
 	m_facesColor = bodyProperty;
+	m_useColorMap = (m_facesColor != BodyProperty::NONE);
 	break;
     case ViewType::FACES_AVERAGE:
 	m_facesColor = bodyProperty;
+	m_useColorMap = (m_facesColor != BodyProperty::NONE);
 	calculateFacesAverage ();
 	break;
     case ViewType::CENTER_PATHS:
 	m_centerPathColor = bodyProperty;
+	m_useColorMap = (m_centerPathColor != BodyProperty::NONE);
 	break;
     default:
 	RuntimeAssert (false, "Invalid value in switch: ", viewType);
     }
-    m_useColorMap = (m_facesColor != BodyProperty::NONE);
     if (m_useColorMap)
 	ColorBarModelChanged (colorBarModel);
     else
