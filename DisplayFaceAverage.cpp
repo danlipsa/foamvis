@@ -21,19 +21,19 @@
 class VertexAttributeSetter
 {
 public:
-    VertexAttributeSetter (QGLShaderProgram& program, int attr) :
-	m_program (program), m_attr (attr)
+    VertexAttributeSetter (QGLShaderProgram& program, int attributeIndex) :
+	m_program (program), m_attributeIndex (attributeIndex)
     {
     }
 
     void operator () (double value)
     {
-	m_program.setAttributeValue (m_attr, value);
+	m_program.setAttributeValue (m_attributeIndex, value);
     }
 
 private:
     QGLShaderProgram& m_program;
-    int m_attr;
+    int m_attributeIndex;
 };
 
 // AddShaderProgram Methods

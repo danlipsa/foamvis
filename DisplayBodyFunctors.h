@@ -307,7 +307,8 @@ private:
     void segment (float texCoord, G3D::Vector3 begin, G3D::Vector3 end)
     {
 	glTexCoord1f (texCoord);
-	glVertex (begin);glVertex (end);
+	glVertex (begin);
+	glVertex (end);
     }
     
     void texturedSegment (double value, G3D::Vector3 begin, G3D::Vector3 end)
