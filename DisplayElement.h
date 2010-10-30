@@ -56,20 +56,7 @@ protected:
     FocusContext m_focus;
 };
 
-class TexCoordSetter
-{
-public:
-    TexCoordSetter (const GLWidget& glWidget) :
-	m_glWidget (glWidget)
-    {
-    }
-
-    void operator () (double value);
-
-private:
-    const GLWidget& m_glWidget;
-};
-
+class TexCoordSetter;
 
 template<typename PropertySetter = TexCoordSetter>
 class DisplayElementProperty : public DisplayElement

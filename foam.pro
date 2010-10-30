@@ -11,7 +11,7 @@ HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
 	OOBox.h OpenGLInfo.h OpenGLUtils.h OrientedElement.h\
 	OrientedEdge.h OrientedFace.h OrientedFaceIndex.h \
-	ParsingData.h ParsingDriver.h ProcessBodyTorus.h \
+	ParsingData.h ParsingDriver.h ProcessBodyTorus.h PropertySetter.h \
 	QuadraticEdge.h RestrictedRangeSlider.h \
 	stable.h StripIterator.h SystemDifferences.h \
 	TransferFunctionHistogram.h TimeStepsSlider.h Utils.h \
@@ -22,7 +22,7 @@ SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp 
 	BodySetStatistics.cpp BodySelector.cpp\
 	ColorBar.cpp ColorBarModel.cpp ColoredElement.cpp Comparisons.cpp \
 	Debug.cpp DebugStream.cpp DisplayBlend.cpp DisplayBodyFunctors.cpp\
-	DisplayElement.cpp DisplayFaceAverage.cpp \
+	DisplayFaceAverage.cpp \
 	DisplayEdgeFunctors.cpp	DisplayWidget.cpp DisplayVertexFunctors.cpp \
 	Edge.cpp \
 	EditColorMap.cpp Element.cpp ExpressionTree.cpp Enums.cpp\

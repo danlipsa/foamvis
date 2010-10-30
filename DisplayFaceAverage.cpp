@@ -13,28 +13,8 @@
 #include "DisplayEdgeFunctors.h"
 #include "Foam.h"
 #include "GLWidget.h"
+#include "PropertySetter.h"
 
-
-// Private Classes
-// ======================================================================
-
-class VertexAttributeSetter
-{
-public:
-    VertexAttributeSetter (QGLShaderProgram& program, int attributeIndex) :
-	m_program (program), m_attributeIndex (attributeIndex)
-    {
-    }
-
-    void operator () (double value)
-    {
-	m_program.setAttributeValue (m_attributeIndex, value);
-    }
-
-private:
-    QGLShaderProgram& m_program;
-    int m_attributeIndex;
-};
 
 // AddShaderProgram Methods
 // ======================================================================

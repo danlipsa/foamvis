@@ -19,6 +19,7 @@
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
 #include "StripIterator.h"
+#include "PropertySetter.h"
 
 /**
  * Functor used to display a body
