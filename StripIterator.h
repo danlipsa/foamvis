@@ -40,15 +40,27 @@ public:
 
 	Point (G3D::Vector3 point, Location location, size_t timeStep,
 		    const boost::shared_ptr<Body>& body) :
-	    m_point (point), m_location (location), m_timeStep (timeStep),
-	    m_body (body)
+	    m_location (location), m_timeStep (timeStep),
+	    m_body (body), m_point (point)
 	{
 	}
 	
-	G3D::Vector3 m_point;
+	G3D::Vector3 GetPoint () const
+	{
+	    return m_point;
+	}
+	G3D::Vector3 GetPoint (double timeDisplacement) const
+	{
+	    G3D::Vector3 v = m_point;
+	    v.z = m_timeStep * timeDisplacement;
+	    return v;
+	}
+
 	Location m_location;
 	size_t m_timeStep;
 	boost::shared_ptr<Body> m_body;
+    private:
+	G3D::Vector3 m_point;	
     };
 
 public:

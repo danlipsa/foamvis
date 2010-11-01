@@ -242,13 +242,16 @@ private:
 	if (focus && this->m_bodyProperty != BodyProperty::NONE)
 	    texturedSegment (
 		StripIterator::GetPropertyValue (this->m_bodyProperty, p, prev),
-		prev.m_point, p.m_point);
+		prev.GetPoint (m_timeDisplacement), 
+		p.GetPoint (m_timeDisplacement));
 	else
 	{
 	    QColor color = (this->m_bodyProperty == BodyProperty::NONE) ? 
 		this->m_glWidget.GetCenterPathNotAvailableColor () :
 		this->m_glWidget.GetCenterPathContextColor ();
-	    coloredSegment (color, false, prev.m_point, p.m_point);
+	    coloredSegment (color, false, 
+			    prev.GetPoint (m_timeDisplacement), 
+			    p.GetPoint (m_timeDisplacement));
 	}
     }
 
@@ -256,7 +259,8 @@ private:
 	const StripIterator::Point& p,
 	const StripIterator::Point& prev)
     {
-	G3D::Vector3 middle = (prev.m_point + p.m_point) / 2;
+	G3D::Vector3 middle = (prev.GetPoint (m_timeDisplacement) + 
+			       p.GetPoint (m_timeDisplacement)) / 2;
 	halfValueStep (prev, middle, false);
 	halfValueStep (p, middle, true);
     }
@@ -264,7 +268,7 @@ private:
     void halfValueStep (const StripIterator::Point& p, G3D::Vector3 middle,
 			bool swapPoints)
     {
-	G3D::Vector3 point = p.m_point;
+	G3D::Vector3 point = p.GetPoint (m_timeDisplacement);
 	if (swapPoints)
 	    swap (point, middle);
 	bool focus = this->m_bodySelector (p.m_body->GetId (), p.m_timeStep);
