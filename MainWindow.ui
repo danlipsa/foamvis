@@ -230,7 +230,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -704,7 +704,7 @@
            <item>
             <widget class="QStackedWidget" name="stackedWidgetComposite">
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="pageCompositeEmpty"/>
              <widget class="QWidget" name="pageCenterPath">
@@ -762,10 +762,54 @@
                 </widget>
                </item>
                <item>
-                <widget class="QCheckBox" name="checkBoxCenterPathCurrentBody">
+                <widget class="QCheckBox" name="checkBoxCenterPathBody">
                  <property name="text">
-                  <string>Current Body</string>
+                  <string>Body</string>
                  </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QWidget" name="widgetTimeDisplacement" native="true">
+                 <layout class="QHBoxLayout" name="horizontalLayout_8">
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>9</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="label_5">
+                    <property name="text">
+                     <string>Time Displacement</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSlider" name="horizontalSliderTimeDisplacement">
+                    <property name="maximum">
+                     <number>99</number>
+                    </property>
+                    <property name="pageStep">
+                     <number>10</number>
+                    </property>
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="tickPosition">
+                     <enum>QSlider::TicksAbove</enum>
+                    </property>
+                    <property name="tickInterval">
+                     <number>10</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </widget>
                </item>
                <item>
@@ -895,6 +939,11 @@
     <slot>CurrentIndexChangedCenterPathColor(int)</slot>
     <slot>CurrentIndexChangedFacesColor(int)</slot>
     <slot>ToggledFacesAverage(bool)</slot>
+    <slot>ToggledCenterPathUnselected(bool)</slot>
+    <slot>ToggledCenterPathDisplayUnselectedPaths(bool)</slot>
+    <slot>ToggledCenterPathDisplayContextPaths(bool)</slot>
+    <slot>ToggledCenterPathDisplayContextOnlyPaths(bool)</slot>
+    <slot>ValueChangedTimeDisplacement(int)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1129,14 +1178,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxCenterPathCurrentBody</sender>
+   <sender>checkBoxCenterPathBody</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
    <slot>ToggledCenterPathDisplayBody(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>704</x>
-     <y>310</y>
+     <x>837</x>
+     <y>360</y>
     </hint>
     <hint type="destinationlabel">
      <x>474</x>
@@ -1199,8 +1248,8 @@
    <slot>ToggledFacesTorusTubes(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>364</y>
+     <x>695</x>
+     <y>349</y>
     </hint>
     <hint type="destinationlabel">
      <x>474</x>
@@ -1295,8 +1344,8 @@
    <slot>CurrentIndexChangedFacesColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>828</x>
-     <y>405</y>
+     <x>686</x>
+     <y>357</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1392,7 +1441,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>26</x>
-     <y>411</y>
+     <y>513</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1423,8 +1472,8 @@
    <slot>ToggledFacesShowEdges(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>364</y>
+     <x>695</x>
+     <y>343</y>
     </hint>
     <hint type="destinationlabel">
      <x>474</x>
@@ -1541,6 +1590,22 @@
     <hint type="destinationlabel">
      <x>513</x>
      <y>414</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderTimeDisplacement</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedTimeDisplacement(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>738</x>
+     <y>391</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>555</x>
+     <y>390</y>
     </hint>
    </hints>
   </connection>

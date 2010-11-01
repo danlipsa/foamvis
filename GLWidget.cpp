@@ -72,7 +72,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_facesShowEdges (true),
       m_edgesBodyCenter (false),
       m_edgesTessellation (true),
-      m_centerPathDisplayBody (false),
+      m_centerPathBody (false),
       m_boundingBox (false),
       m_centerPathColor (BodyProperty::NONE),
       m_facesColor (BodyProperty::NONE),
@@ -383,6 +383,8 @@ void GLWidget::ResetTransformation ()
 {
     m_rotate = G3D::Matrix3::identity ();
     m_scale = 1;
+    makeCurrent ();
+    ViewportTransform (width (), height (), m_scale, &m_viewport);
     updateGL ();
 }
 
@@ -454,7 +456,8 @@ void GLWidget::paintGL ()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     modelViewTransform ();
     display ();
-    displayTextureColorMap ();
+    //displayTextureColorMap ();
+    displayAxes ();
     detectOpenGLError ();
 }
 
@@ -464,8 +467,6 @@ void GLWidget::resizeGL(int width, int height)
     QSize size = QSize (width, height);
     if (m_srcAlphaBlend < 1)
 	m_displayBlend->Init (size);
-    if (m_viewType == ViewType::FACES_AVERAGE)
-	calculateFacesAverage ();
 }
 
 void GLWidget::RenderFromFbo (QGLFramebufferObject& fbo) const
@@ -624,7 +625,7 @@ void GLWidget::displayBoundingBox () const
 void GLWidget::displayAxes () const
 {
     using G3D::Vector3;
-    const G3D::AABox& aabb = GetCurrentFoam ().GetBoundingBox ();
+    const G3D::AABox& aabb = GetFoamAlongTime ().GetBoundingBox ();
     Vector3 origin = aabb.low ();
     Vector3 diagonal = aabb.high () - origin;
     Vector3 first = origin + diagonal.x * Vector3::unitX ();
@@ -769,7 +770,6 @@ void GLWidget::displayFacesNormal () const
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
     displayOriginalDomain ();
     displayBoundingBox ();
-    //displayAxes ();
 }
 
 void GLWidget::displayFacesAverage () const
@@ -886,7 +886,7 @@ void GLWidget::displayCenterPathsWithBodies () const
 {
     glLineWidth (1.0);
     displayCenterPaths ();
-    if (IsCenterPathDisplayBody ())
+    if (IsCenterPathBody ())
     {
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	for_each (bodies.begin (), bodies.end (),
@@ -905,12 +905,13 @@ void GLWidget::displayCenterPathsWithBodies () const
 void GLWidget::displayCenterPaths () const
 {
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
-    const BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
     glEnable(GL_TEXTURE_1D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
+    const BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
     for_each (bats.begin (), bats.end (),
-	      DisplayCenterPath<> (*this, m_centerPathColor, *m_bodySelector));
+	      DisplayCenterPath<> (*this, m_centerPathColor, *m_bodySelector, 
+				   m_timeDisplacement));
     glPopAttrib ();
 }
 
@@ -1139,7 +1140,7 @@ void GLWidget::ToggledShowBoundingBox (bool checked)
 
 void GLWidget::ToggledCenterPathDisplayBody (bool checked)
 {
-    m_centerPathDisplayBody = checked;
+    m_centerPathBody = checked;
     updateGL ();
 }
 
@@ -1311,6 +1312,17 @@ void GLWidget::ValueChangedBlend (int index)
     // m_srcAlphaBlend is between 1 and 0.5
     m_srcAlphaBlend = 1 - static_cast<double>(index) / (2 * maximum);
     updateGL ();
+}
+
+void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
+{
+    QSlider* slider = static_cast<QSlider*> (sender ());
+    size_t maximum = slider->maximum ();
+    G3D::AABox vv = calculateCenteredViewingVolume ();
+    m_timeDisplacement = 
+	(vv.high () - vv.low ()).x * timeDisplacement / 
+	GetFoamAlongTime ().GetTimeSteps () / maximum;
+    cdbg << "vv: " << vv << "timeDisplacement: " << m_timeDisplacement << endl;
 }
 
 

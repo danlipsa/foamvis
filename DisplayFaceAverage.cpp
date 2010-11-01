@@ -297,7 +297,7 @@ void DisplayFaceAverage::writeFacesValues (
 	      DisplayBody<
 	      DisplayFaceWithColor<displaySameEdges, VertexAttributeSetter>,
 	      VertexAttributeSetter> (
-		  m_glWidget, AllBodiesSelected (), 
+		  m_glWidget, m_glWidget.GetBodySelector (), 
 		  VertexAttributeSetter (
 		      m_storeShaderProgram, 
 		      m_storeShaderProgram.GetVValueIndex ()),

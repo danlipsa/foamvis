@@ -183,19 +183,21 @@ public:
      * @param widget where to display the center path
      */
     DisplayCenterPath (const GLWidget& widget,
+		       BodyProperty::Enum bodyProperty, 
+		       const BodySelector& bodySelector,
+		       double timeDisplacement) : 
+	DisplayBodyBase<PropertySetter> (
+	    widget, bodySelector, PropertySetter (widget), bodyProperty),
+	m_timeDisplacement (timeDisplacement)
+    {
+    }
+
+    DisplayCenterPath (const GLWidget& widget,
 		       PropertySetter propertySetter,
 		       BodyProperty::Enum bodyProperty, 
 		       const BodySelector& bodySelector) : 
 	DisplayBodyBase<PropertySetter> (
 	    widget, bodySelector, propertySetter, bodyProperty)
-    {
-    }
-
-    DisplayCenterPath (const GLWidget& widget,
-		       BodyProperty::Enum bodyProperty, 
-		       const BodySelector& bodySelector) : 
-	DisplayBodyBase<PropertySetter> (
-	    widget, bodySelector, PropertySetter (widget), bodyProperty)
     {
     }
 
@@ -329,6 +331,8 @@ private:
 	endFocusContext (focus);
 	glEnable (GL_TEXTURE_1D);
     }
+private:
+    double m_timeDisplacement;
 };
 
 

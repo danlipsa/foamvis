@@ -69,6 +69,10 @@ public:
 	m_bodySelector = bodySelector;
 	updateGL ();
     }
+    const BodySelector& GetBodySelector () const
+    {
+	return *m_bodySelector;
+    }
 
     const BodiesAlongTime& GetBodiesAlongTime () const;
     const BodyAlongTime& GetBodyAlongTime (size_t bodyId) const;
@@ -148,11 +152,6 @@ public:
 	return Qt::black;
     }
 
-    void DataChanged () 
-    {
-	ValueChangedSliderTimeSteps (m_timeStep);
-    }
-
     GLUquadricObj* GetQuadricObject () const 
     {
 	return m_quadric;
@@ -170,9 +169,9 @@ public:
     {
 	return m_edgesTessellation;
     }
-    bool IsCenterPathDisplayBody () const
+    bool IsCenterPathBody () const
     {
-	return m_centerPathDisplayBody;
+	return m_centerPathBody;
     }
 
     double TexCoord (double value) const;
@@ -229,13 +228,14 @@ public Q_SLOTS:
      */
     void ToggledFacesNormal (bool checked);
     void ToggledFacesTorus (bool checked);
+    void ToggledFacesAverage (bool checked);
+
     /**
      * Shows center paths
      * param checked true for showing the center paths false otherwise
      */
     void ToggledCenterPath (bool checked);
-    void ToggledFacesAverage (bool checked);
-
+    void ToggledCenterPathDisplayBody (bool checked);
 
     void BodyPropertyChanged (
 	boost::shared_ptr<ColorBarModel> colorBarModel,
@@ -248,7 +248,6 @@ public Q_SLOTS:
     void Info ();
     void CurrentIndexChangedInteractionMode (int index);
     void ToggledBodies (bool checked);
-    void ToggledCenterPathDisplayBody (bool checked);
 
     void ToggledEdgesBodyCenter (bool checked);
     void ToggledEdgesTessellation (bool checked);
@@ -262,6 +261,7 @@ public Q_SLOTS:
     void ToggledShowBoundingBox (bool checked);
     void ValueChangedAngleOfView (int newIndex);
     void ValueChangedBlend (int index);
+    void ValueChangedTimeDisplacement (int timeDisplacement);
     void ShowOpenGLInfo ();
     /**
      * Signals a change in data displayed
@@ -536,7 +536,7 @@ private:
     bool m_facesShowEdges;
     bool m_edgesBodyCenter;
     bool m_edgesTessellation;
-    bool m_centerPathDisplayBody;
+    bool m_centerPathBody;
     bool m_boundingBox;
     boost::array<ViewTypeDisplay, ViewType::COUNT> m_viewTypeDisplay;
     BodyProperty::Enum m_centerPathColor;
@@ -555,6 +555,7 @@ private:
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
     GLuint m_colorBarTexture;
     double m_srcAlphaBlend;
+    double m_timeDisplacement;
     /**
      * True if the program displays data in a loop, false
      * otherwise
