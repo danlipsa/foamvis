@@ -495,6 +495,15 @@ void Foam::SetViewMatrix (
 	r4c1, r4c2, r4c3, r4c4));
 }
 
+void Foam::SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y)
+{
+    using G3D::Vector3;
+    Vector3 third = x.cross (y).unit ();
+    double thirdLength = min (x.length (), y.length ());
+    SetPeriods (x, y, thirdLength * third);
+}
+
+
 
 // Static and Friends Methods
 // ======================================================================

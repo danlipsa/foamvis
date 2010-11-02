@@ -115,8 +115,10 @@ public:
      * Constructor
      * @param widget Where should be the edge displayed
      */
-    DisplayEdgeTorus (const GLWidget& widget, FocusContext focus = FOCUS) : 
-	DisplayElementFocus (widget, focus)
+    DisplayEdgeTorus (const GLWidget& widget, FocusContext focus = FOCUS, 
+		      double zPos = 0) : 
+	DisplayElementFocus (widget, focus),
+	m_zPos (zPos)
     {
     }
 
@@ -157,6 +159,8 @@ protected:
 		       m_glWidget.GetEdgeRadius (), *begin, *end);
 	glPopAttrib ();
     }
+private:
+    double m_zPos;
 };
 
 
@@ -170,8 +174,9 @@ public:
      * @param widget Where should be the edge displayed
      */
     DisplayEdgeWithColor (const GLWidget& widget, 
-			  FocusContext focus) : 
-	DisplayElementFocus (widget, focus)
+			  FocusContext focus, double zPos = 0) : 
+	DisplayElementFocus (widget, focus),
+	m_zPos (zPos)
     {
     }
     void operator () (const boost::shared_ptr<Edge> edge) const
@@ -194,7 +199,7 @@ public:
 	    Color::Enum color = edge.GetColor (Color::BLACK);
 	    glColor (G3D::Color4 (Color::GetValue(color), alpha));
 	    glBegin(GL_LINE_STRIP);
-	    DisplayAllVertices (edge);
+	    DisplayAllVertices (edge, m_zPos);
 	    glEnd ();
 	}
     }
@@ -207,13 +212,17 @@ public:
     {
 	operator () (oe->GetEdge ());
     }
+private:
+    double m_zPos;
 };
 
 class DisplayEdgeTorusClipped : public DisplayElementFocus
 {
 public:
-    DisplayEdgeTorusClipped (const GLWidget& widget, FocusContext focus) : 
-	DisplayElementFocus (widget, focus) 
+    DisplayEdgeTorusClipped (const GLWidget& widget, FocusContext focus, 
+			     double zPos = 0) : 
+	DisplayElementFocus (widget, focus),
+	m_zPos (zPos)
     {
     }
 
@@ -237,6 +246,8 @@ public:
     {
 	operator () (oe->GetEdge ());
     }
+private:
+    double m_zPos;
 };
 
 
@@ -246,8 +257,10 @@ public:
 class DisplaySameEdges : public DisplayElementFocus
 {
 public:
-    DisplaySameEdges (const GLWidget& widget, FocusContext focus = FOCUS) :
-       DisplayElementFocus (widget, focus)
+    DisplaySameEdges (const GLWidget& widget, FocusContext focus = FOCUS,
+		      double zPos = 0) :
+	DisplayElementFocus (widget, focus),
+	m_zPos (zPos)
     {
     }
     inline void operator() (const boost::shared_ptr<OrientedFace>  f)
@@ -265,6 +278,8 @@ public:
            glVertex (*v[v.size () - 1]->GetEnd ());
        glEnd ();
     }
+private:
+    double m_zPos;
 };
 
 
@@ -274,8 +289,10 @@ public:
 class DisplaySameTriangles : public DisplayElementFocus
 {
 public:
-    DisplaySameTriangles (const GLWidget& widget, FocusContext focus = FOCUS) : 
-	DisplayElementFocus (widget, focus) 
+    DisplaySameTriangles (const GLWidget& widget, FocusContext focus = FOCUS,
+			  double zPos = 0) : 
+	DisplayElementFocus (widget, focus),
+	m_zPos (zPos)
     {
     }
     void operator() (const boost::shared_ptr<OrientedFace>  f)
@@ -302,6 +319,8 @@ public:
 	}
 	glEnd ();
     }
+private:
+    double m_zPos;
 };
 
 
@@ -309,8 +328,9 @@ template<typename displayEdge>
 class DisplayEdges : public DisplayElementFocus
 {
 public:
-    DisplayEdges (const GLWidget& widget, FocusContext focus) : 
-	DisplayElementFocus (widget, focus)
+    DisplayEdges (const GLWidget& widget, FocusContext focus, double zPos) : 
+	DisplayElementFocus (widget, focus),
+	m_zPos (zPos)
     {
     }
 
@@ -322,7 +342,7 @@ public:
     {
 	const vector< boost::shared_ptr<OrientedEdge> >& v = 
 	    f->GetOrientedEdges ();
-	displayEdge display(m_glWidget, m_focus);
+	displayEdge display(m_glWidget, m_focus, m_zPos);
 	for (size_t i = 0; i < v.size (); i++)
 	{
 	    boost::shared_ptr<OrientedEdge> oe = v[i];
@@ -335,6 +355,8 @@ public:
 	    }
 	}
     }
+private:
+    double m_zPos;
 };
 
 #endif //__DISPLAY_EDGE_FUNCTORS_H__

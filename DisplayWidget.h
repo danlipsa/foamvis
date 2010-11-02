@@ -22,12 +22,8 @@ public Q_SLOTS:
      * @param checked true for saving images, false otherwise
      */
     void ToggledSaveMovie (bool checked);
+    void SaveFrame ();
 
-protected:
-    virtual void paintEvent (QPaintEvent * event );
-
-private:
-    void saveFrame ();
 
 private:
     Q_OBJECT
@@ -39,6 +35,7 @@ private:
      * Keeps track of the current frame saved in a file.
      */
     int m_currentFrame;
+    boost::scoped_ptr<QTimer> m_saveTimer;
 };
 
 #endif //__DISPLAY_WIDGET_H__

@@ -60,7 +60,7 @@ struct DisplayAllButLastVertices
 };
 
 
-void DisplayAllVertices (const Edge& edge);
+void DisplayAllVertices (const Edge& edge, double zPos = 0);
 
 
 class DisplayTriangle : 

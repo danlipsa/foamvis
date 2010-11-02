@@ -9,9 +9,11 @@
 #include "DisplayBodyFunctors.h"
 
 DisplayBodyCenter::DisplayBodyCenter (
-    const GLWidget& widget, const BodySelector& bodySelector):
+    const GLWidget& widget, const BodySelector& bodySelector, double zPos):
+    
     DisplayBodyBase<> (widget, bodySelector, TexCoordSetter(widget), 
-		     BodyProperty::NONE)
+		       BodyProperty::NONE),
+    m_zPos (zPos)
 {}
 
 
@@ -21,7 +23,7 @@ void DisplayBodyCenter::display (boost::shared_ptr<Body> b, FocusContext fc)
     {
 	glBegin(GL_POINTS);
 	G3D::Vector3 v = b->GetCenter ();
-	glVertex(v);
+	glVertex(G3D::Vector3 (v.xy (), m_zPos));
 	glEnd ();
     }
 }

@@ -156,6 +156,8 @@ public:
 	m_originalDomain.Set (x, y, z);
     }
 
+    void SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y);
+
     bool IsTorus () const;
     
     void SetSpaceDimension (size_t spaceDimension) 

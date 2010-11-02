@@ -100,7 +100,8 @@ public:
      * @param widget where to display the center of the bubble
      */
     DisplayBodyCenter (
-	const GLWidget& widget, const BodySelector& bodySelector);
+	const GLWidget& widget, const BodySelector& bodySelector,
+	double zPos = 0);
 
 protected:
     /**
@@ -108,6 +109,8 @@ protected:
      * @param b body to display the center of
      */
     virtual void display (boost::shared_ptr<Body> b, FocusContext fc);
+private:
+    double m_zPos;
 };
 
 
@@ -124,24 +127,26 @@ public:
      */
     DisplayBody (
 	const GLWidget& widget, const BodySelector& bodySelector,
-	PropertySetter setter,
+	typename DisplayElement::ContextType 
+	contextDisplay = DisplayElement::TRANSPARENT_CONTEXT,
 	BodyProperty::Enum bodyProperty = BodyProperty::NONE,
-	typename DisplayElement::ContextDisplay 
-	contextDisplay = DisplayElement::TRANSPARENT_CONTEXT) : 
+	double zPos = 0) : 
 
 	DisplayBodyBase<PropertySetter> (
-	    widget, bodySelector, setter, bodyProperty),
-	m_contextDisplay (contextDisplay)
+	    widget, bodySelector, PropertySetter (widget), bodyProperty),
+	m_contextDisplay (contextDisplay),
+	m_zPos (zPos)
     {}
 
     DisplayBody (
 	const GLWidget& widget, const BodySelector& bodySelector,
-	typename DisplayElement::ContextDisplay 
-	contextDisplay = DisplayElement::TRANSPARENT_CONTEXT,
-	BodyProperty::Enum bodyProperty = BodyProperty::NONE) : 
+	PropertySetter setter,
+	BodyProperty::Enum bodyProperty = BodyProperty::NONE,
+	typename DisplayElement::ContextType 
+	contextDisplay = DisplayElement::TRANSPARENT_CONTEXT) : 
 
 	DisplayBodyBase<PropertySetter> (
-	    widget, bodySelector, PropertySetter (widget), bodyProperty),
+	    widget, bodySelector, setter, bodyProperty),
 	m_contextDisplay (contextDisplay)
     {}
 
@@ -162,10 +167,11 @@ protected:
 	    v.begin (), v.end (),
 	    displayFace(
 		this->m_glWidget, 
-		this->m_propertySetter, bodyFc, this->m_bodyProperty));
+		this->m_propertySetter, bodyFc, this->m_bodyProperty, m_zPos));
     }
 private:
-    typename DisplayElement::ContextDisplay m_contextDisplay;
+    typename DisplayElement::ContextType m_contextDisplay;
+    double m_zPos;
 };
 
 

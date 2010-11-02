@@ -8,8 +8,11 @@
 
 #include "DisplayVertexFunctors.h"
 
-void DisplayAllVertices (const Edge& edge)
+void DisplayAllVertices (const Edge& edge, double zPos)
 {
     for (size_t i = 0; i < edge.PointCount (); i++)
-	glVertex (edge.GetPoint (i));
+    {
+	G3D::Vector3 p = edge.GetPoint (i);
+	glVertex (G3D::Vector3 (p.xy (), zPos));
+    }
 }

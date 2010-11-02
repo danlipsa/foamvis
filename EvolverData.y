@@ -840,11 +840,7 @@ torus_periods
   const_expr const_expr
 {
     using G3D::Vector3;
-    Vector3 first = Vector3 ($3, $4, 0);
-    Vector3 second = Vector3 ($6, $7, 0);
-    Vector3 third = first.cross (second).unit ();
-    double thirdLength = min (first.length (), second.length ()) / 10;
-    foam.SetPeriods (first, second, thirdLength * third);
+    foam.SetPeriods (Vector3 ($3, $4, 0), Vector3 ($6, $7, 0));
 }
 | PERIODS nl
   const_expr const_expr const_expr nl

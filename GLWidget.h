@@ -89,6 +89,10 @@ public:
     {
 	return m_timeStep;
     }
+    double GetTimeDisplacement () const
+    {
+	return m_timeDisplacement;
+    }
     
     bool AreAllBodiesDisplayed () const
     {
@@ -370,7 +374,7 @@ private:
 
     void displayEdgesNormal () const;
     template<typename displayEdge>
-    void displayStandaloneEdges () const;
+    void displayStandaloneEdges (double zPos = 0) const;
     template<typename displaySameEdges>
     void displayStandaloneFaces () const;
     void displayEdgesTorus () const

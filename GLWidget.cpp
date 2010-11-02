@@ -687,12 +687,12 @@ void GLWidget::displayEdges () const
 }
 
 template<typename displayEdge>
-void GLWidget::displayStandaloneEdges () const
+void GLWidget::displayStandaloneEdges (double zPos) const
 {
     const Foam::Edges& standaloneEdges = 
 	GetCurrentFoam ().GetStandaloneEdges ();
     BOOST_FOREACH (boost::shared_ptr<Edge> edge, standaloneEdges)
-	displayEdge (*this, DisplayElement::FOCUS) (edge);
+	displayEdge (*this, DisplayElement::FOCUS, zPos) (edge);
 }
 
 void GLWidget::displayEdgesNormal () const
@@ -738,12 +738,14 @@ void GLWidget::displayCenterOfBodies () const
     if ((m_viewType == ViewType::EDGES && m_edgesBodyCenter) ||
 	m_viewType == ViewType::CENTER_PATHS)
     {
+	double zPos = (m_viewType == ViewType::CENTER_PATHS) ? 
+	    GetTimeStep () * GetTimeDisplacement () : 0;
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
 	glPointSize (4.0);
 	glColor (Qt::red);
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	for_each (bodies.begin (), bodies.end (), 
-		  DisplayBodyCenter (*this, *m_bodySelector));
+		  DisplayBodyCenter (*this, *m_bodySelector, zPos));
 	glPopAttrib ();
     }
 }
@@ -889,17 +891,26 @@ void GLWidget::displayCenterPathsWithBodies () const
     if (IsCenterPathBody ())
     {
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
+	double zPos = GetTimeStep () * GetTimeDisplacement ();
 	for_each (bodies.begin (), bodies.end (),
 		  DisplayBody<DisplayFace<
 		  DisplayEdges<DisplayEdgeWithColor<
 		  DisplayElement::DONT_DISPLAY_TESSELLATION> > > > (
 		      *this, *m_bodySelector, 
-		      DisplayElement::INVISIBLE_CONTEXT));
+		      DisplayElement::INVISIBLE_CONTEXT, 
+		      BodyProperty::NONE, zPos));
 	displayCenterOfBodies ();
     }
     displayOriginalDomain ();
     displayBoundingBox ();
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
+    if (GetTimeDisplacement () != 0)
+    {
+	
+	displayStandaloneEdges< DisplayEdgeWithColor<> > (
+	    (GetFoamAlongTime ().GetTimeSteps () - 1) * 
+	    GetTimeDisplacement ());	
+    }
 }
 
 void GLWidget::displayCenterPaths () const
@@ -1318,11 +1329,11 @@ void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
 {
     QSlider* slider = static_cast<QSlider*> (sender ());
     size_t maximum = slider->maximum ();
-    G3D::AABox vv = calculateCenteredViewingVolume ();
+    G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
     m_timeDisplacement = 
-	(vv.high () - vv.low ()).x * timeDisplacement / 
+	(bb.high () - bb.low ()).z * timeDisplacement / 
 	GetFoamAlongTime ().GetTimeSteps () / maximum;
-    cdbg << "vv: " << vv << "timeDisplacement: " << m_timeDisplacement << endl;
+    updateGL ();
 }
 
 

@@ -20,7 +20,7 @@ public:
 	FOCUS,
 	CONTEXT
     };
-    enum ContextDisplay
+    enum ContextType
     {
 	TRANSPARENT_CONTEXT,
 	INVISIBLE_CONTEXT
