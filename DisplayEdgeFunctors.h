@@ -20,49 +20,20 @@
 #include "OrientedEdge.h"
 
 
-void edgeRotation (G3D::Matrix3* rotation,
-		   const G3D::Vector3& begin, const G3D::Vector3& end);
+G3D::Matrix3 edgeRotation (const G3D::Vector3& begin, const G3D::Vector3& end);
 
 struct DisplayEdgeTube
 {
     void operator() (
 	GLUquadricObj* quadric,
-	double edgeRadius,
-	const G3D::Vector3& begin, const G3D::Vector3& end)
-    {
-	G3D::Matrix3 rotation;
-	edgeRotation (&rotation, begin, end);
-	G3D::CoordinateFrame frame (rotation, begin);
-	gluQuadricOrientation (quadric, GLU_OUTSIDE);
-	glMatrixMode (GL_MODELVIEW);
-	glPushMatrix ();
-	glMultMatrix (frame);
-	gluCylinder (quadric, edgeRadius, edgeRadius, (end - begin).length (),
-		     GLWidget::QUADRIC_SLICES, GLWidget::QUADRIC_STACKS);
-	gluQuadricOrientation (quadric, GLU_INSIDE);
-	gluDisk (quadric, 0, edgeRadius, GLWidget::QUADRIC_SLICES,
-		 GLWidget::QUADRIC_STACKS);
-	glTranslatef (end.x, end.y, end.z);
-	glPopMatrix ();
-    }
+	double edgeRadius, const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
 struct DisplayEdge
 {
     void operator() (
 	GLUquadricObj* quadric,
-	double edgeRadius,
-	const G3D::Vector3& begin, const G3D::Vector3& end)
-    {
-	static_cast<void> (quadric);
-	static_cast<void> (edgeRadius);
-
-	glLineWidth (1.0);
-	glBegin(GL_LINES);
-	glVertex(begin);
-	glVertex(end);
-	glEnd();
-    }
+	double edgeRadius, const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
 struct DisplayArrowTube
@@ -70,22 +41,7 @@ struct DisplayArrowTube
     void operator () (
 	GLUquadricObj* quadric,
 	double baseRadius, double topRadius, double height,
-	const G3D::Vector3& begin, const G3D::Vector3& end)
-    {
-	G3D::Matrix3 rotation;
-	edgeRotation (&rotation, begin, end);
-	G3D::CoordinateFrame frame (rotation, (begin + end)/2);
-	gluQuadricOrientation (quadric, GLU_OUTSIDE);
-	glMatrixMode (GL_MODELVIEW);
-	glPushMatrix ();
-	glMultMatrix (frame);
-	gluCylinder (quadric, baseRadius, topRadius, height,
-		     GLWidget::QUADRIC_SLICES, GLWidget::QUADRIC_STACKS);
-	gluQuadricOrientation (quadric, GLU_INSIDE);
-	gluDisk (quadric, 0, baseRadius, GLWidget::QUADRIC_SLICES,
-		 GLWidget::QUADRIC_STACKS);
-	glPopMatrix ();
-    }
+	const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
 struct DisplayArrow
@@ -93,14 +49,7 @@ struct DisplayArrow
     void operator () (
 	GLUquadricObj*,
 	double, double, double,
-	const G3D::Vector3& begin, const G3D::Vector3& end)
-    {
-	glLineWidth (2.0);
-	glBegin(GL_LINES);
-	glVertex(begin);
-	glVertex((begin + end) / 2);
-	glEnd();
-    }
+	const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
 
@@ -149,12 +98,14 @@ protected:
 	const Vertex* end = e->GetEnd ().get ();
 	G3D::Vector3int16 endLocation = e->GetEndTranslation ();
 	glColor (m_glWidget.GetEndTranslationColor (endLocation));
+
 	if (endLocation != Vector3int16Zero)
 	    displayArrow() (
 		m_glWidget.GetQuadricObject (), 
 		m_glWidget.GetArrowBaseRadius (), m_glWidget.GetEdgeRadius (),
 		m_glWidget.GetArrowHeight (),
 		*begin, *end);
+	
 	displayEdge() (m_glWidget.GetQuadricObject (),
 		       m_glWidget.GetEdgeRadius (), *begin, *end);
 	glPopAttrib ();

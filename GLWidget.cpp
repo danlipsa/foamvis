@@ -85,6 +85,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_srcAlphaBlend (1),
       m_playMovie (false)
 {
+    makeCurrent ();
     m_displayBlend.reset (new DisplayBlend (*this));
     m_displayFaceAverage.reset (new DisplayFaceAverage (*this));
     const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
@@ -103,12 +104,20 @@ GLWidget::GLWidget(QWidget *parent)
     }
     m_endTranslationColor[Vector3int16(0,0,0)] = QColor(0,0,0);
     m_endTranslationColor[Vector3int16(0,0,0)] = QColor(0,0,0);
-    m_quadric = gluNewQuadric ();
-    gluQuadricCallback (m_quadric, GLU_ERROR,
-			reinterpret_cast<void (*)()>(&quadricErrorCallback));
+    initQuadrics ();
     initViewTypeDisplay ();    
     createActions ();
 }
+
+void GLWidget::initQuadrics ()
+{
+    m_quadric = gluNewQuadric ();
+    gluQuadricCallback (m_quadric, GLU_ERROR,
+			reinterpret_cast<void (*)()>(&quadricErrorCallback));
+    gluQuadricDrawStyle (m_quadric, GLU_FILL);
+    gluQuadricNormals (m_quadric, GLU_SMOOTH);
+}
+
 
 void GLWidget::createActions ()
 {
@@ -711,13 +720,18 @@ void GLWidget::displayEdgesNormal () const
 	displayEdges <DisplayEdgeWithColor<> >();
 }
 
+void GLWidget::displayEdgesTorus () const
+{
+    if (m_edgesTorusTubes)
+	displayEdgesTorusTubes ();
+    else
+	displayEdgesTorusLines ();
+}
+
 void GLWidget::displayEdgesTorusTubes () const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-    gluQuadricDrawStyle (m_quadric, GLU_FILL);
-    gluQuadricNormals (m_quadric, GLU_SMOOTH);
-
     EdgeSet edgeSet;
     GetCurrentFoam ().GetEdgeSet (&edgeSet);
     for_each (
@@ -862,9 +876,6 @@ void GLWidget::displayFacesTorusTubes () const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-    glLineWidth (3.0);
-    gluQuadricDrawStyle (m_quadric, GLU_FILL);
-    gluQuadricNormals (m_quadric, GLU_SMOOTH);
     FaceSet faceSet;
     GetCurrentFoam ().GetFaceSet (&faceSet);
     for_each (faceSet.begin (), faceSet.end (),

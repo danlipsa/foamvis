@@ -365,6 +365,7 @@ private:
 	double* change) const;
     G3D::AABox calculateCenteredViewingVolume () const;
     void initializeTextures ();
+    void initQuadrics ();
     void calculateCameraDistance ();
     /**
      * Generates a display list for edges
@@ -379,13 +380,7 @@ private:
     void displayStandaloneEdges (double zPos = 0) const;
     template<typename displaySameEdges>
     void displayStandaloneFaces () const;
-    void displayEdgesTorus () const
-    {
-	if (m_edgesTorusTubes)
-	    displayEdgesTorusTubes ();
-	else
-	    displayEdgesTorusLines ();
-    }
+    void displayEdgesTorus () const;
     void displayEdgesTorusTubes () const;
     void displayEdgesTorusLines () const;
 
