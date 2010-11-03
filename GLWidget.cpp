@@ -153,13 +153,22 @@ void GLWidget::initViewTypeDisplay ()
 void GLWidget::SetFoamAlongTime (FoamAlongTime* dataAlongTime) 
 {
     m_foamAlongTime = dataAlongTime;
+    setEdgeRadius (0);
+
+    calculateCameraDistance ();
+}
+
+void GLWidget::setEdgeRadius (int sliderValue, int maxValue)
+{
     boost::shared_ptr<Edge> e = GetCurrentFoam ().GetStandardEdge ();
     double length = (*e->GetEnd () - *e->GetBegin ()).length ();
 
-    m_edgeRadius = length / 20;
+    double r = length / 20;
+    double R = 4 * r;
+
+    m_edgeRadius = (R - r) * sliderValue / maxValue + r;
     m_arrowBaseRadius = 5 * m_edgeRadius;
-    m_arrowHeight = 10 * m_edgeRadius;
-    calculateCameraDistance ();
+    m_arrowHeight = 10 * m_edgeRadius;    
 }
 
 GLWidget::~GLWidget()
@@ -711,9 +720,9 @@ void GLWidget::displayEdgesTorusTubes () const
 
     EdgeSet edgeSet;
     GetCurrentFoam ().GetEdgeSet (&edgeSet);
-    for_each (edgeSet.begin (), edgeSet.end (),
-	      DisplayEdgeTorus<DisplayEdgeTube, 
-	      DisplayArrowTube, false>(*this));
+    for_each (
+	edgeSet.begin (), edgeSet.end (),
+	DisplayEdgeTorus<DisplayEdgeTube, DisplayArrowTube, false>(*this));
     glPopAttrib ();
 
     displayOriginalDomain ();
@@ -1336,6 +1345,13 @@ void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
     updateGL ();
 }
 
+void GLWidget::ValueChangedEdgesRadius (int sliderValue)
+{
+    QSlider* slider = static_cast<QSlider*> (sender ());
+    size_t maximum = slider->maximum ();
+    setEdgeRadius (sliderValue, maximum);
+    updateGL ();
+}
 
 void GLWidget::ValueChangedAngleOfView (int angleOfView)
 {

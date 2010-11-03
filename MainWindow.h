@@ -74,6 +74,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void ToggledShowTimeSteps (bool checked);
+    void ToggledShowColorBar (bool checked);
     /**
      * Called when the Begin Slider button is pressed. Shows the first
      * data in the vector.

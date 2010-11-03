@@ -230,7 +230,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -238,11 +238,11 @@
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_15">
            <item>
-            <widget class="QGroupBox" name="groupBox">
+            <widget class="QGroupBox" name="groupBoxShow">
              <property name="title">
               <string>Show</string>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_14">
+             <layout class="QVBoxLayout" name="verticalLayout_10">
               <item>
                <widget class="QCheckBox" name="checkBoxBoundingBox">
                 <property name="text">
@@ -258,6 +258,60 @@
                 <property name="checked">
                  <bool>true</bool>
                 </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBoxColorBar">
+                <property name="text">
+                 <string>Color Bar</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QWidget" name="widgetTubesRadius" native="true">
+                <layout class="QHBoxLayout" name="horizontalLayout_9">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>9</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="label_6">
+                   <property name="text">
+                    <string>Edges radius</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSlider" name="horizontalSliderEdgesRadius">
+                   <property name="maximum">
+                    <number>99</number>
+                   </property>
+                   <property name="pageStep">
+                    <number>10</number>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="tickPosition">
+                    <enum>QSlider::TicksAbove</enum>
+                   </property>
+                   <property name="tickInterval">
+                    <number>10</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
                </widget>
               </item>
              </layout>
@@ -897,7 +951,6 @@
    </widget>
    <addaction name="menuView"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpenGL_Info">
    <property name="text">
     <string>&amp;OpenGL Info</string>
@@ -944,6 +997,7 @@
     <slot>ToggledCenterPathDisplayContextPaths(bool)</slot>
     <slot>ToggledCenterPathDisplayContextOnlyPaths(bool)</slot>
     <slot>ValueChangedTimeDisplacement(int)</slot>
+    <slot>ValueChangedEdgesRadius(int)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1264,8 +1318,8 @@
    <slot>ToggledTorusOriginalDomainDisplay(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>742</x>
-     <y>353</y>
+     <x>837</x>
+     <y>419</y>
     </hint>
     <hint type="destinationlabel">
      <x>474</x>
@@ -1280,8 +1334,8 @@
    <slot>ToggledTorusOriginalDomainClipped(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>742</x>
-     <y>380</y>
+     <x>837</x>
+     <y>446</y>
     </hint>
     <hint type="destinationlabel">
      <x>474</x>
@@ -1312,8 +1366,8 @@
    <slot>ValueChangedAngleOfView(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>751</x>
-     <y>430</y>
+     <x>846</x>
+     <y>496</y>
     </hint>
     <hint type="destinationlabel">
      <x>474</x>
@@ -1365,7 +1419,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>474</x>
-     <y>665</y>
+     <y>687</y>
     </hint>
    </hints>
   </connection>
@@ -1377,7 +1431,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>474</x>
-     <y>681</y>
+     <y>703</y>
     </hint>
     <hint type="destinationlabel">
      <x>587</x>
@@ -1393,7 +1447,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>365</x>
-     <y>665</y>
+     <y>687</y>
     </hint>
     <hint type="destinationlabel">
      <x>336</x>
@@ -1440,8 +1494,8 @@
    <slot>ShowEditColorMap()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>26</x>
-     <y>513</y>
+     <x>27</x>
+     <y>564</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1553,7 +1607,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>293</x>
-     <y>683</y>
+     <y>705</y>
     </hint>
     <hint type="destinationlabel">
      <x>301</x>
@@ -1609,9 +1663,42 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>checkBoxColorBar</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledShowColorBar(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>730</x>
+     <y>306</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>872</x>
+     <y>303</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderEdgesRadius</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedEdgesRadius(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>706</x>
+     <y>344</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>503</x>
+     <y>362</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>ToggledFacesNormal(bool)</slot>
+  <slot>ToggledShowColorBar(bool)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroupDisplay"/>

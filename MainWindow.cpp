@@ -481,6 +481,10 @@ void MainWindow::ToggledShowTimeSteps (bool checked)
     sliderTimeSteps->setVisible (checked);
 }
 
+void MainWindow::ToggledShowColorBar (bool checked)
+{
+    colorBar->setVisible (checked);
+}
 
 void MainWindow::ClickedPlay ()
 {
@@ -521,9 +525,6 @@ void MainWindow::TimeoutTimer ()
     else
         ClickedPlay ();
 }
-
-
-
 
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {

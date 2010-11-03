@@ -266,6 +266,7 @@ public Q_SLOTS:
     void ValueChangedAngleOfView (int newIndex);
     void ValueChangedBlend (int index);
     void ValueChangedTimeDisplacement (int timeDisplacement);
+    void ValueChangedEdgesRadius (int sliderValue);
     void ShowOpenGLInfo ();
     /**
      * Signals a change in data displayed
@@ -322,6 +323,7 @@ private:
     };
 
 private:
+    void setEdgeRadius (int sliderValue, int maxValue = 99);
     void calculateFacesAverage ();
     void display () const;
     string getFoamsInfo () const;
@@ -526,7 +528,7 @@ private:
     EndLocationColor m_endTranslationColor;
     GLUquadricObj* m_quadric;    
     /**
-     * For displaying Torus Model edges as cylinders
+     * For displaying edges as tubes
      */
     double m_edgeRadius;
     /**

@@ -216,6 +216,11 @@ private:
     double m_zPos;
 };
 
+
+
+/**
+ * Used for displaying edges clipped at the torus original domain boudary.
+ */
 class DisplayEdgeTorusClipped : public DisplayElementFocus
 {
 public:
