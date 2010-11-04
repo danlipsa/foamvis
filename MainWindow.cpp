@@ -192,7 +192,7 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
     boost::shared_ptr<const Foam> foam = foamAlongTime.GetFoam (0);
     if (! foam->IsTorus ())
 	groupBoxTorusOriginalDomain->setDisabled (true);
-    if (foam->GetSpaceDimension () == 2)
+    if (foam->GetDimension () == 2)
     {
 	radioButtonEdgesNormal->toggle ();
 	tabWidget->setCurrentWidget (edges);
@@ -210,9 +210,14 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 }
 
 
-void MainWindow::InteractionModeRotate ()
+void MainWindow::InteractionModeRotateModel ()
 {
-    comboBoxInteractionMode->setCurrentIndex (InteractionMode::ROTATE);
+    comboBoxInteractionMode->setCurrentIndex (InteractionMode::ROTATE_MODEL);
+}
+
+void MainWindow::InteractionModeRotateLight ()
+{
+    comboBoxInteractionMode->setCurrentIndex (InteractionMode::ROTATE_LIGHT);
 }
 
 void MainWindow::InteractionModeSelectBrush ()
@@ -401,11 +406,17 @@ void MainWindow::SetAndDisplayHistogram (
 
 void MainWindow::createActions ()
 {
-    m_actionRotate = boost::make_shared<QAction> (tr("&Rotate"), this);
+    m_actionRotate = boost::make_shared<QAction> (tr("&Rotate Model"), this);
     m_actionRotate->setShortcut(QKeySequence (tr ("R")));
-    m_actionRotate->setStatusTip(tr("Rotate"));
+    m_actionRotate->setStatusTip(tr("Rotate Model"));
     connect(m_actionRotate.get (), SIGNAL(triggered()),
-	    this, SLOT(InteractionModeRotate ()));
+	    this, SLOT(InteractionModeRotateModel ()));
+
+    m_actionRotate = boost::make_shared<QAction> (tr("Rotate &Light"), this);
+    m_actionRotate->setShortcut(QKeySequence (tr ("L")));
+    m_actionRotate->setStatusTip(tr("Rotate Light"));
+    connect(m_actionRotate.get (), SIGNAL(triggered()),
+	    this, SLOT(InteractionModeRotateLight ()));
 
     m_actionScale = boost::make_shared<QAction> (tr("&Scale"), this);
     m_actionScale->setShortcut(QKeySequence (tr ("Z")));
@@ -554,13 +565,6 @@ void MainWindow::ToggledEdgesNormal (bool checked)
 }
 
 
-void MainWindow::ToggledEdgesTorus (bool checked)
-{
-    if (checked)
-	stackedWidgetEdges->setCurrentWidget (pageEdgesTorus);
-    else
-	stackedWidgetEdges->setCurrentWidget (pageEdgesEmpty);
-}
 
 void MainWindow::ToggledFacesNormal (bool checked)
 {
@@ -580,14 +584,6 @@ void MainWindow::ToggledFacesNormal (bool checked)
 	sliderTimeSteps->setHidden (!checkBoxTimeSteps->isChecked ());
     }
     displayHistogramColorBar (checked);
-}
-
-void MainWindow::ToggledFacesTorus (bool checked)
-{
-    if (checked)
-	stackedWidgetFaces->setCurrentWidget (pageFacesTorus);
-    else
-	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
 }
 
 void MainWindow::ToggledCenterPath (bool checked)

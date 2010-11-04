@@ -91,7 +91,12 @@
         <widget class="QComboBox" name="comboBoxInteractionMode">
          <item>
           <property name="text">
-           <string>Rotate              R</string>
+           <string>Rotate Model   R</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Rotate Light      L</string>
           </property>
          </item>
          <item>
@@ -271,6 +276,13 @@
                </widget>
               </item>
               <item>
+               <widget class="QCheckBox" name="checkBoxLighting">
+                <property name="text">
+                 <string>Lighting</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QWidget" name="widgetTubesRadius" native="true">
                 <layout class="QHBoxLayout" name="horizontalLayout_9">
                  <property name="leftMargin">
@@ -414,37 +426,43 @@
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_2">
               <item>
-               <layout class="QVBoxLayout" name="verticalLayout_7">
-                <item>
-                 <widget class="QRadioButton" name="radioButtonEdgesNormal">
-                  <property name="text">
-                   <string>Normal</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                  <property name="autoRepeat">
-                   <bool>false</bool>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string>buttonGroupDisplay</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QRadioButton" name="radioButtonEdgesTorus">
-                  <property name="text">
-                   <string>Torus Model</string>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string>buttonGroupDisplay</string>
-                  </attribute>
-                 </widget>
-                </item>
-               </layout>
+               <widget class="QRadioButton" name="radioButtonEdgesNormal">
+                <property name="text">
+                 <string>Normal</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+                <property name="autoRepeat">
+                 <bool>false</bool>
+                </property>
+                <attribute name="buttonGroup">
+                 <string>buttonGroupDisplay</string>
+                </attribute>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButtonEdgesTorus">
+                <property name="text">
+                 <string>Torus model edges</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string>buttonGroupDisplay</string>
+                </attribute>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButtonFacesTorus">
+                <property name="text">
+                 <string>Torus model faces</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string>buttonGroupDisplay</string>
+                </attribute>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -476,30 +494,6 @@
                </item>
                <item>
                 <spacer name="verticalSpacer_4">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </widget>
-             <widget class="QWidget" name="pageEdgesTorus">
-              <layout class="QVBoxLayout" name="verticalLayout_17">
-               <item>
-                <widget class="QCheckBox" name="checkBoxEdgesTorusTubes">
-                 <property name="text">
-                  <string>Tubes</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="verticalSpacer_2">
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
                  </property>
@@ -548,16 +542,6 @@
                </widget>
               </item>
               <item>
-               <widget class="QRadioButton" name="radioButtonFacesTorus">
-                <property name="text">
-                 <string>Torus Model</string>
-                </property>
-                <attribute name="buttonGroup">
-                 <string>buttonGroupDisplay</string>
-                </attribute>
-               </widget>
-              </item>
-              <item>
                <widget class="QRadioButton" name="radioButtonFacesAverage">
                 <property name="text">
                  <string>Average</string>
@@ -576,30 +560,6 @@
               <number>0</number>
              </property>
              <widget class="QWidget" name="pageFacesEmpty"/>
-             <widget class="QWidget" name="pageFacesTorus">
-              <layout class="QVBoxLayout" name="verticalLayout_21">
-               <item>
-                <widget class="QCheckBox" name="checkBoxFacesTorusTubes">
-                 <property name="text">
-                  <string>Tubes</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="verticalSpacer_6">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </widget>
              <widget class="QWidget" name="pageFacesNormal">
               <layout class="QVBoxLayout" name="verticalLayout_4">
                <item>
@@ -758,7 +718,7 @@
            <item>
             <widget class="QStackedWidget" name="stackedWidgetComposite">
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="pageCompositeEmpty"/>
              <widget class="QWidget" name="pageCenterPath">
@@ -998,6 +958,7 @@
     <slot>ToggledCenterPathDisplayContextOnlyPaths(bool)</slot>
     <slot>ValueChangedTimeDisplacement(int)</slot>
     <slot>ValueChangedEdgesRadius(int)</slot>
+    <slot>ToggledLighting(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1046,8 +1007,8 @@
    <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>263</y>
+     <x>704</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>507</x>
@@ -1062,44 +1023,12 @@
    <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>729</x>
-     <y>254</y>
+     <x>704</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>533</x>
      <y>285</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonFacesTorus</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledFacesTorus(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>837</x>
-     <y>290</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>460</x>
-     <y>359</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonFacesTorus</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledFacesTorus(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>729</x>
-     <y>281</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>558</x>
-     <y>262</y>
     </hint>
    </hints>
   </connection>
@@ -1174,28 +1103,12 @@
    <slot>ToggledEdgesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>741</x>
-     <y>264</y>
+     <x>837</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
      <y>162</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonEdgesTorus</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledEdgesTorus(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>741</x>
-     <y>291</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>460</x>
-     <y>359</y>
     </hint>
    </hints>
   </connection>
@@ -1206,8 +1119,8 @@
    <slot>ToggledCenterPath(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>742</x>
-     <y>263</y>
+     <x>704</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -1238,8 +1151,8 @@
    <slot>ToggledCenterPathDisplayBody(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>360</y>
+     <x>704</x>
+     <y>256</y>
     </hint>
     <hint type="destinationlabel">
      <x>474</x>
@@ -1254,8 +1167,8 @@
    <slot>ToggledEdgesBodyCenter(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>695</x>
-     <y>318</y>
+     <x>704</x>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>474</x>
@@ -1270,44 +1183,12 @@
    <slot>ToggledEdgesTessellation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>695</x>
-     <y>324</y>
+     <x>704</x>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>474</x>
      <y>394</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxEdgesTorusTubes</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledEdgesTorusTubes(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>630</x>
-     <y>324</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>474</x>
-     <y>370</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxFacesTorusTubes</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledFacesTorusTubes(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>695</x>
-     <y>349</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>474</x>
-     <y>376</y>
     </hint>
    </hints>
   </connection>
@@ -1319,7 +1200,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>837</x>
-     <y>419</y>
+     <y>446</y>
     </hint>
     <hint type="destinationlabel">
      <x>474</x>
@@ -1335,7 +1216,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>837</x>
-     <y>446</y>
+     <y>473</y>
     </hint>
     <hint type="destinationlabel">
      <x>474</x>
@@ -1350,8 +1231,8 @@
    <slot>ToggledShowBoundingBox(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>742</x>
-     <y>263</y>
+     <x>704</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>474</x>
@@ -1367,7 +1248,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>846</x>
-     <y>496</y>
+     <y>523</y>
     </hint>
     <hint type="destinationlabel">
      <x>474</x>
@@ -1383,7 +1264,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>704</x>
-     <y>310</y>
+     <y>256</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1398,8 +1279,8 @@
    <slot>CurrentIndexChangedFacesColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>686</x>
-     <y>357</y>
+     <x>704</x>
+     <y>256</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1494,8 +1375,8 @@
    <slot>ShowEditColorMap()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>27</x>
-     <y>564</y>
+     <x>26</x>
+     <y>666</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1510,7 +1391,7 @@
    <slot>ToggledShowTimeSteps(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>742</x>
+     <x>837</x>
      <y>290</y>
     </hint>
     <hint type="destinationlabel">
@@ -1526,8 +1407,8 @@
    <slot>ToggledFacesShowEdges(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>695</x>
-     <y>343</y>
+     <x>704</x>
+     <y>256</y>
     </hint>
     <hint type="destinationlabel">
      <x>474</x>
@@ -1590,8 +1471,8 @@
    <slot>ToggledCenterPath(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>633</x>
-     <y>254</y>
+     <x>704</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>541</x>
@@ -1622,8 +1503,8 @@
    <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>829</x>
-     <y>305</y>
+     <x>704</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>873</x>
@@ -1638,8 +1519,8 @@
    <slot>ToggledFacesAverage(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>317</y>
+     <x>704</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>513</x>
@@ -1654,8 +1535,8 @@
    <slot>ValueChangedTimeDisplacement(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>738</x>
-     <y>391</y>
+     <x>704</x>
+     <y>256</y>
     </hint>
     <hint type="destinationlabel">
      <x>555</x>
@@ -1670,8 +1551,8 @@
    <slot>ToggledShowColorBar(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>730</x>
-     <y>306</y>
+     <x>837</x>
+     <y>317</y>
     </hint>
     <hint type="destinationlabel">
      <x>872</x>
@@ -1686,12 +1567,44 @@
    <slot>ValueChangedEdgesRadius(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>706</x>
-     <y>344</y>
+     <x>837</x>
+     <y>383</y>
     </hint>
     <hint type="destinationlabel">
      <x>503</x>
      <y>362</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonFacesTorus</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledFacesTorus(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>680</x>
+     <y>307</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>549</x>
+     <y>348</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxLighting</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledLighting(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>625</x>
+     <y>339</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>536</x>
+     <y>387</y>
     </hint>
    </hints>
   </connection>

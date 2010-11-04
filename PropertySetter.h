@@ -9,6 +9,7 @@
 #ifndef __PROPERTY_SETTER_H__
 #define __PROPERTY_SETTER_H__
 
+class GLWidget;
 class TexCoordSetter
 {
 public:
@@ -17,12 +18,7 @@ public:
     {
     }
 
-    void operator () (double value)
-    {
-	double texCoord = m_glWidget.TexCoord (value);
-	glTexCoord1f (texCoord); 
-    }
-
+    void operator () (double value);
 
 private:
     const GLWidget& m_glWidget;

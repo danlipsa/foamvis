@@ -10,6 +10,7 @@
 #define __DISPLAY_ELEMENT_H__
 
 #include "Enums.h"
+#include "PropertySetter.h"
 class GLWidget;
 
 class DisplayElement
@@ -33,22 +34,30 @@ public:
     };
 
 public:
-    DisplayElement (const GLWidget& widget) : 
-	m_glWidget (widget) 
+    DisplayElement (const GLWidget& widget,
+		    bool useZPos = false, double zPos = 0) : 
+	m_glWidget (widget),
+	m_useZPos (useZPos),
+	m_zPos (zPos)
     {
     }
 
 protected:
     const GLWidget& m_glWidget;
+    bool m_useZPos;
+    double m_zPos;
 };
 
 
 class DisplayElementFocus : public DisplayElement
 {
 public:
-    DisplayElementFocus (const GLWidget& widget,
-			 FocusContext focus = FOCUS) :
-	DisplayElement (widget), m_focus (focus)
+    DisplayElementFocus (
+	const GLWidget& widget,
+	FocusContext focus = FOCUS, bool useZPos = false, double zPos = 0) :
+	
+	DisplayElement (widget, useZPos, zPos),
+	m_focus (focus)
     {
     }
     
@@ -65,8 +74,10 @@ public:
     DisplayElementProperty (
 	const GLWidget& glWidget,
 	PropertySetter propertySetter,
-	BodyProperty::Enum bodyProperty = BodyProperty::NONE) :
-	DisplayElement (glWidget),
+	BodyProperty::Enum bodyProperty = BodyProperty::NONE,
+	bool useZPos = false, double zPos = 0) :
+
+	DisplayElement (glWidget, useZPos, zPos),
 	m_propertySetter (propertySetter),
 	m_bodyProperty (bodyProperty)
     {
@@ -87,8 +98,11 @@ public:
 	const GLWidget& widget,
 	PropertySetter setter,
 	BodyProperty::Enum bodyProperty = BodyProperty::NONE,
-	DisplayElement::FocusContext focus = DisplayElement::FOCUS) :
-	DisplayElementProperty<PropertySetter> (widget, setter, bodyProperty),
+	DisplayElement::FocusContext focus = DisplayElement::FOCUS,
+	bool useZPos = false, double zPos = 0) :
+	
+	DisplayElementProperty<PropertySetter> (
+	    widget, setter, bodyProperty, useZPos, zPos),
 	m_focus (focus)
     {
     }

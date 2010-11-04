@@ -88,7 +88,8 @@ public:
      */
     enum Enum
     {
-	ROTATE,
+	ROTATE_MODEL,
+	ROTATE_LIGHT,
 	SCALE,
 	TRANSLATE,
 	SELECT_BRUSH,
@@ -197,11 +198,10 @@ public:
     enum Enum {
         EDGES,
 	EDGES_TORUS,
+	FACES_TORUS,
 
         FACES,
-	FACES_TORUS,
 	FACES_AVERAGE,
-        FACES_LIGHTING,
 
 	CENTER_PATHS,
         COUNT

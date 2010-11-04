@@ -220,6 +220,8 @@ public:
     }
 
 public Q_SLOTS:
+    void ToggledLighting (bool checked);
+
     /**
      * Shows edges
      * @param checked true for showing edges false otherwise
@@ -251,13 +253,9 @@ public Q_SLOTS:
     void DeselectAll ();
     void Info ();
     void CurrentIndexChangedInteractionMode (int index);
-    void ToggledBodies (bool checked);
 
     void ToggledEdgesBodyCenter (bool checked);
     void ToggledEdgesTessellation (bool checked);
-    void ToggledEdgesTorusTubes (bool checked);
-
-    void ToggledFacesTorusTubes (bool checked);
     void ToggledFacesShowEdges (bool checked);
 
     void ToggledTorusOriginalDomainDisplay (bool checked);
@@ -333,14 +331,14 @@ private:
      */
     void displayCenterOfBodies () const;
     void displayTextureColorMap () const;
-    bool edgesTorusTubes ()
+    bool areEdgesTubes () const
     {
-	return m_edgesTorusTubes;
+	return m_edgesTubes;
     }
-
-    bool facesTorusTubes ()
+    bool haveEdgesLighting () const;
+    bool hasLighting () const
     {
-	return m_facesTorusTubes;
+	return m_lighting;
     }
 
     void view (bool checked, ViewType::Enum view);
@@ -356,6 +354,7 @@ private:
      * m_cameraDistance
      */
     void modelViewTransform () const;
+    void setLightPosition ();
     void viewingVolumeCalculations (
 	int width, int height,
 	G3D::Rect2D* vv2dScreen, G3D::Rect2D* windowWorld) const;
@@ -384,26 +383,14 @@ private:
     void displayEdgesTorusTubes () const;
     void displayEdgesTorusLines () const;
 
-    /**
-     * Generates a display list for faces
-     * @return the display list
-     */
     void displayFacesNormal () const;
-    void displayFacesTorus () const
-    {
-	if (m_facesTorusTubes)
-	    displayFacesTorusTubes ();
-	else
-	    displayFacesTorusLines ();
-    }
+    void displayFacesTorus () const;
     void displayFacesAverage () const;
     void displayFacesTorusTubes () const;
     void displayFacesTorusLines () const;
-    /**
-     * Generates a display list for bodies
-     * @return the display list
-     */
+
     void displayFacesLighting () const;
+    void displayFacesFlat () const;
     /**
      * Generates a display list for center paths
      */
@@ -417,11 +404,11 @@ private:
     void displayAxes () const;
 
     /**
-     * Rotates the foam around an axis with a certain angle
+     * Rotates the foam or the light around an axis with a certain angle
      * @param axis can be 0, 1 or 2 for X, Y or Z
      * @param angle angle we rotate the foam with
      */
-    void setRotation (int axis, double angle);
+    static void setRotation (int axis, double angle, G3D::Matrix3* rotate);
     /**
      * Displays   the   contour   of   faces.   Used   together   with
      * displayFacesOffet   and  with  GL_POLYGON_OFFSET_FILL   to  get
@@ -450,9 +437,9 @@ private:
     /**
      * Setup lighting for shaded bodies
      */
-    void enableLighting ();
+    void initLighting ();
     double ratioFromCenter (const QPoint& p);
-    void rotate (const QPoint& position);
+    void rotate (const QPoint& position, G3D::Matrix3* rotate);
     void translateViewport (const QPoint& position);
     void scaleViewport (const QPoint& position);
     void initViewTypeDisplay ();
@@ -472,7 +459,6 @@ private:
     /**
      * Setup lighting for displaying faces edges and vertices
      */
-    static void disableLighting ();
     static void quadricErrorCallback (GLenum errorCode);
     
 private:
@@ -507,11 +493,10 @@ private:
     size_t m_displayedFaceIndex;
     size_t m_displayedEdgeIndex;
 
-    int m_normalVertexSize;
-    int m_normalEdgeWidth;
     double m_contextAlpha;
 
-    G3D::Matrix3 m_rotate;    
+    G3D::Matrix3 m_rotateModel;
+    G3D::Matrix3 m_rotateLight;
     G3D::Rect2D m_viewport;
     double m_scale;
     /**
@@ -532,8 +517,7 @@ private:
     double m_arrowBaseRadius;
     double m_arrowHeight;
 
-    bool m_edgesTorusTubes;
-    bool m_facesTorusTubes;
+    bool m_edgesTubes;
     bool m_facesShowEdges;
     bool m_edgesBodyCenter;
     bool m_edgesTessellation;
@@ -564,6 +548,7 @@ private:
     bool m_playMovie;
     boost::scoped_ptr<DisplayBlend> m_displayBlend;
     boost::scoped_ptr<DisplayFaceAverage> m_displayFaceAverage;
+    bool m_lighting;
 };
 
 #endif //__GLWIDGET_H__

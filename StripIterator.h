@@ -45,21 +45,9 @@ public:
 	{
 	}
 	
-	G3D::Vector3 GetPoint () const
-	{
-	    return m_point;
-	}
-	G3D::Vector3 GetPoint (double timeDisplacement) const
-	{
-	    G3D::Vector3 v = m_point;
-	    v.z = m_timeStep * timeDisplacement;
-	    return v;
-	}
-
 	Location m_location;
 	size_t m_timeStep;
 	boost::shared_ptr<Body> m_body;
-    private:
 	G3D::Vector3 m_point;	
     };
 

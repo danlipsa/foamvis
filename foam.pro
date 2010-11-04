@@ -23,7 +23,8 @@ SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp 
 	ColorBar.cpp ColorBarModel.cpp ColoredElement.cpp Comparisons.cpp \
 	Debug.cpp DebugStream.cpp DisplayBlend.cpp DisplayBodyFunctors.cpp\
 	DisplayFaceAverage.cpp \
-	DisplayEdgeFunctors.cpp	DisplayWidget.cpp DisplayVertexFunctors.cpp \
+	DisplayEdgeFunctors.cpp	DisplayFaceFunctors.cpp \
+	DisplayWidget.cpp DisplayVertexFunctors.cpp \
 	Edge.cpp \
 	EditColorMap.cpp Element.cpp ExpressionTree.cpp Enums.cpp\
 	Foam.cpp FoamAlongTime.cpp Face.cpp \
@@ -33,6 +34,7 @@ SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp 
 	OOBox.cpp OpenGLUtils.cpp OrientedElement.cpp\
 	OrientedEdge.cpp OrientedFace.cpp OrientedFaceIndex.cpp\
 	ParsingData.cpp ParsingDriver.cpp ProcessBodyTorus.cpp \
+	PropertySetter.cpp \
 	QuadraticEdge.cpp RestrictedRangeSlider.cpp\
 	StripIterator.cpp TimeStepsSlider.cpp \
 	TransferFunctionHistogram.cpp Utils.cpp Vertex.cpp

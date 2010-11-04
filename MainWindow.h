@@ -93,7 +93,8 @@ public Q_SLOTS:
     void CurrentIndexChangedCenterPathColor (int value);
     void CurrentIndexChangedFacesColor (int value);
     void ShowEditColorMap ();
-    void InteractionModeRotate ();
+    void InteractionModeRotateModel ();
+    void InteractionModeRotateLight ();
     void InteractionModeSelectBrush ();
     void InteractionModeSelectEraser ();
     void InteractionModeScale ();
@@ -106,13 +107,11 @@ public Q_SLOTS:
     void ToggledCenterPath (bool checked);
     void ButtonClickedHistogram (int id);
     void ToggledFacesNormal (bool checked);
-    void ToggledFacesTorus (bool checked);
     /**
      * Shows edges
      * @param checked true for showing edges false otherwise
      */
     void ToggledEdgesNormal (bool checked);
-    void ToggledEdgesTorus (bool checked);
     /**
      * Invoqued by the UI when  the slider changes to display the data
      * at the current position of the slider.

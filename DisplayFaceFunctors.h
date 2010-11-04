@@ -27,11 +27,12 @@ public:
 		 typename DisplayElement::FocusContext focus = 
 		 DisplayElement::FOCUS,
 		 BodyProperty::Enum bodyProperty = BodyProperty::NONE,
-		 double zPos = 0) : 
+		 bool useZPos = false, double zPos = 0) : 
+
 	DisplayElementPropertyFocus<PropertySetter> (
-	    widget, PropertySetter (widget), bodyProperty, focus), 
-	m_count(0),
-	m_zPos (zPos)
+	    widget, PropertySetter (widget), bodyProperty, focus, 
+	    useZPos, zPos), 
+	m_count(0)
     {
     }
 
@@ -42,11 +43,10 @@ public:
 		 typename DisplayElement::FocusContext focus = 
 		 DisplayElement::FOCUS,
 		 BodyProperty::Enum bodyProperty = BodyProperty::NONE, 
-		 double zPos = 0) : 
+		 bool useZPos = false, double zPos = 0) : 
 	DisplayElementPropertyFocus<PropertySetter> (
-	    widget, propertySetter, bodyProperty, focus), 
-	m_count(0),
-	m_zPos (zPos)
+	    widget, propertySetter, bodyProperty, focus, useZPos, zPos), 
+	m_count(0)
     {
     }
 
@@ -83,7 +83,8 @@ protected:
 	else
 	    glColor (
 		G3D::Color4 (Color::BLACK, this->m_glWidget.GetContextAlpha ()));
-	(displayEdges (this->m_glWidget, this->m_focus, m_zPos)) (of);
+	(displayEdges (this->m_glWidget, this->m_focus, 
+		       this->m_useZPos, this->m_zPos)) (of);
     }
 
 private:
@@ -91,7 +92,6 @@ private:
      * Used to display fewer faces (for DEBUG purposes)
      */
     size_t m_count;
-    double m_zPos;
 };
 
 
@@ -110,9 +110,11 @@ public:
     DisplayFaceWithColor (
 	const GLWidget& widget,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
-	BodyProperty::Enum bodyProperty = BodyProperty::NONE, double zPos = 0) : 
+	BodyProperty::Enum bodyProperty = BodyProperty::NONE, 
+	bool useZPos = false, double zPos = 0) : 
+
 	DisplayFace<displaySameEdges, PropertySetter> (
-	    widget, PropertySetter (widget), focus, bodyProperty, zPos)
+	    widget, PropertySetter (widget), focus, bodyProperty, useZPos, zPos)
     {
     }
 
@@ -121,11 +123,12 @@ public:
 	const GLWidget& widget,
 	PropertySetter propertySetter,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
-	BodyProperty::Enum bodyProperty = BodyProperty::NONE, double zPos = 0) : 
+	BodyProperty::Enum bodyProperty = BodyProperty::NONE, 
+	bool useZPos = false, double zPos = 0) : 
+
 	DisplayFace<displaySameEdges, PropertySetter> (
-	    widget, propertySetter, focus, bodyProperty, zPos) 
-    {
-    }
+	    widget, propertySetter, focus, bodyProperty, useZPos, zPos) 
+    {}
 
 
 
@@ -183,10 +186,11 @@ public:
 	const GLWidget& widget, 
 	TexCoordSetter texCoordSetter,
 	FocusContext focus = FOCUS,
-	BodyProperty::Enum bodyProperty = BodyProperty::NONE, double zPos = 0) : 
+	BodyProperty::Enum bodyProperty = BodyProperty::NONE, 
+	bool useZPos = false, double zPos = 0) : 
 
 	DisplayFace<DisplaySameEdges> (
-	    widget, texCoordSetter, focus, bodyProperty, zPos)
+	    widget, texCoordSetter, focus, bodyProperty, useZPos, zPos)
     {
     }
 
@@ -195,10 +199,11 @@ public:
     DisplayFaceWithNormal (
 	const GLWidget& widget, 
 	FocusContext focus = FOCUS,
-	BodyProperty::Enum bodyProperty = BodyProperty::NONE, double zPos = 0) : 
+	BodyProperty::Enum bodyProperty = BodyProperty::NONE, 
+	bool useZPos = false, double zPos = 0) : 
 	
 	DisplayFace<DisplaySameEdges> (
-	    widget, TexCoordSetter (widget), focus, bodyProperty, zPos)
+	    widget, TexCoordSetter (widget), focus, bodyProperty, useZPos, zPos)
     {
     }
 
@@ -207,15 +212,7 @@ protected:
      * Functor used to display a face together to the normal
      * @param f face to be displayed
      */
-    virtual void display (const boost::shared_ptr<OrientedFace>& f)
-    {
-	using G3D::Vector3;
-	Vector3 normal = f->GetNormal ();
-	glNormal (normal);
-
-	// specify the vertices
-	(DisplaySameEdges (m_glWidget)) (f);
-    }
+    virtual void display (const boost::shared_ptr<OrientedFace>& of);
 };
 
 

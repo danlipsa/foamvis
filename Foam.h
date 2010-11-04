@@ -160,11 +160,11 @@ public:
 
     bool IsTorus () const;
     
-    void SetSpaceDimension (size_t spaceDimension) 
+    void SetDimension (size_t spaceDimension) 
     {
 	m_spaceDimension = spaceDimension;
     }
-    size_t GetSpaceDimension () const 
+    size_t GetDimension () const 
     {
 	return m_spaceDimension;
     }

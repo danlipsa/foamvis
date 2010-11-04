@@ -9,11 +9,11 @@
 #include "DisplayBodyFunctors.h"
 
 DisplayBodyCenter::DisplayBodyCenter (
-    const GLWidget& widget, const BodySelector& bodySelector, double zPos):
+    const GLWidget& widget, const BodySelector& bodySelector, 
+    bool useZPos, double zPos):
     
     DisplayBodyBase<> (widget, bodySelector, TexCoordSetter(widget), 
-		       BodyProperty::NONE),
-    m_zPos (zPos)
+		       BodyProperty::NONE, useZPos, zPos)
 {}
 
 

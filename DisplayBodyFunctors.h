@@ -35,9 +35,10 @@ public:
     DisplayBodyBase (const GLWidget& widget, 
 		     const BodySelector& bodySelector, 
 		     PropertySetter propertySetter,
-		     BodyProperty::Enum bodyProperty = BodyProperty::NONE) : 
+		     BodyProperty::Enum bodyProperty = BodyProperty::NONE,
+		     bool useZPos = false, double zPos = 0) : 
 	DisplayElementProperty<PropertySetter> (
-	    widget, propertySetter, bodyProperty), 
+	    widget, propertySetter, bodyProperty, useZPos, zPos), 
 	m_bodySelector (bodySelector)
     {}
 
@@ -101,7 +102,7 @@ public:
      */
     DisplayBodyCenter (
 	const GLWidget& widget, const BodySelector& bodySelector,
-	double zPos = 0);
+	bool useZPos = false, double zPos = 0);
 
 protected:
     /**
@@ -109,8 +110,6 @@ protected:
      * @param b body to display the center of
      */
     virtual void display (boost::shared_ptr<Body> b, FocusContext fc);
-private:
-    double m_zPos;
 };
 
 
@@ -130,12 +129,12 @@ public:
 	typename DisplayElement::ContextType 
 	contextDisplay = DisplayElement::TRANSPARENT_CONTEXT,
 	BodyProperty::Enum bodyProperty = BodyProperty::NONE,
-	double zPos = 0) : 
+	bool useZPos = false, double zPos = 0) : 
 
 	DisplayBodyBase<PropertySetter> (
-	    widget, bodySelector, PropertySetter (widget), bodyProperty),
-	m_contextDisplay (contextDisplay),
-	m_zPos (zPos)
+	    widget, bodySelector, PropertySetter (widget), bodyProperty, 
+	    useZPos, zPos),
+	m_contextDisplay (contextDisplay)
     {}
 
     DisplayBody (
@@ -143,10 +142,11 @@ public:
 	PropertySetter setter,
 	BodyProperty::Enum bodyProperty = BodyProperty::NONE,
 	typename DisplayElement::ContextType 
-	contextDisplay = DisplayElement::TRANSPARENT_CONTEXT) : 
+	contextDisplay = DisplayElement::TRANSPARENT_CONTEXT,
+	bool useZPos = false, double zPos = 0) : 
 
 	DisplayBodyBase<PropertySetter> (
-	    widget, bodySelector, setter, bodyProperty),
+	    widget, bodySelector, setter, bodyProperty, useZPos, zPos),
 	m_contextDisplay (contextDisplay)
     {}
 
@@ -167,11 +167,11 @@ protected:
 	    v.begin (), v.end (),
 	    displayFace(
 		this->m_glWidget, 
-		this->m_propertySetter, bodyFc, this->m_bodyProperty, m_zPos));
+		this->m_propertySetter, bodyFc, this->m_bodyProperty, 
+		this->m_useZPos, this->m_zPos));
     }
 private:
     typename DisplayElement::ContextType m_contextDisplay;
-    double m_zPos;
 };
 
 
@@ -191,10 +191,11 @@ public:
     DisplayCenterPath (const GLWidget& widget,
 		       BodyProperty::Enum bodyProperty, 
 		       const BodySelector& bodySelector,
-		       double timeDisplacement) : 
+		       bool useTimeDisplacement = false, 
+		       double timeDisplacement = 0) : 
 	DisplayBodyBase<PropertySetter> (
-	    widget, bodySelector, PropertySetter (widget), bodyProperty),
-	m_timeDisplacement (timeDisplacement)
+	    widget, bodySelector, PropertySetter (widget), bodyProperty,
+	    useTimeDisplacement, timeDisplacement)
     {
     }
 
@@ -203,7 +204,7 @@ public:
 		       BodyProperty::Enum bodyProperty, 
 		       const BodySelector& bodySelector) : 
 	DisplayBodyBase<PropertySetter> (
-	    widget, bodySelector, propertySetter, bodyProperty)
+	    widget, bodySelector, propertySetter, bodyProperty, false, 0)
     {
     }
 
@@ -239,6 +240,20 @@ public:
     }
 
 private:
+
+    G3D::Vector3 getPoint (StripIterator::Point p, bool useTimeDisplacement,
+			   double timeDisplacement)
+    {
+	if (useTimeDisplacement)
+	{
+	    G3D::Vector3 v = p.m_point;
+	    v.z = p.m_timeStep * timeDisplacement;
+	    return v;
+	}
+	else
+	    return p.m_point;
+    }
+
     void speedStep (
 	const StripIterator::Point& p,
 	const StripIterator::Point& prev)
@@ -248,16 +263,16 @@ private:
 	if (focus && this->m_bodyProperty != BodyProperty::NONE)
 	    texturedSegment (
 		StripIterator::GetPropertyValue (this->m_bodyProperty, p, prev),
-		prev.GetPoint (m_timeDisplacement), 
-		p.GetPoint (m_timeDisplacement));
+		getPoint (prev, this->m_useZPos, this->m_zPos), 
+		getPoint (p, this->m_useZPos, this->m_zPos));
 	else
 	{
 	    QColor color = (this->m_bodyProperty == BodyProperty::NONE) ? 
 		this->m_glWidget.GetCenterPathNotAvailableColor () :
 		this->m_glWidget.GetCenterPathContextColor ();
 	    coloredSegment (color, false, 
-			    prev.GetPoint (m_timeDisplacement), 
-			    p.GetPoint (m_timeDisplacement));
+			    getPoint (prev, this->m_useZPos, this->m_zPos), 
+			    getPoint (p, this->m_useZPos, this->m_zPos));
 	}
     }
 
@@ -265,8 +280,8 @@ private:
 	const StripIterator::Point& p,
 	const StripIterator::Point& prev)
     {
-	G3D::Vector3 middle = (prev.GetPoint (m_timeDisplacement) + 
-			       p.GetPoint (m_timeDisplacement)) / 2;
+	G3D::Vector3 middle = (getPoint (prev, this->m_useZPos, this->m_zPos) + 
+			       getPoint (p, this->m_useZPos, this->m_zPos)) / 2;
 	halfValueStep (prev, middle, false);
 	halfValueStep (p, middle, true);
     }
@@ -274,7 +289,7 @@ private:
     void halfValueStep (const StripIterator::Point& p, G3D::Vector3 middle,
 			bool swapPoints)
     {
-	G3D::Vector3 point = p.GetPoint (m_timeDisplacement);
+	G3D::Vector3 point = getPoint (p, this->m_useZPos, this->m_zPos);
 	if (swapPoints)
 	    swap (point, middle);
 	bool focus = this->m_bodySelector (p.m_body->GetId (), p.m_timeStep);
@@ -341,8 +356,6 @@ private:
 	endFocusContext (focus);
 	glEnable (GL_TEXTURE_1D);
     }
-private:
-    double m_timeDisplacement;
 };
 
 

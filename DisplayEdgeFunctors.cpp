@@ -46,11 +46,8 @@ void DisplayEdgeTube::operator() (
 }
 
 void DisplayEdge::operator() (
-    GLUquadricObj* quadric,
-    double edgeRadius, const G3D::Vector3& begin, const G3D::Vector3& end)
+    const G3D::Vector3& begin, const G3D::Vector3& end)
 {
-    static_cast<void> (quadric);
-    static_cast<void> (edgeRadius);
     glBegin(GL_LINES);
     glVertex(begin);
     glVertex(end);
@@ -77,9 +74,28 @@ void DisplayArrowTube::operator () (
     glPopMatrix ();
 }
 
+void DisplayEdgeTorusClipped::operator () (
+    const boost::shared_ptr<Edge>& edge) const
+{
+    const OOBox& periods = m_glWidget.GetCurrentFoam ().GetOriginalDomain ();
+    if (edge->IsClipped ())
+    {
+	Color::Enum color = edge->GetColor (Color::BLACK);
+	glColor (Color::GetValue(color));
+	glBegin(GL_LINES);
+	for (size_t i = 0; i < edge->GetTorusClippedSize (periods); i++)
+	{
+	    glVertex(edge->GetTorusClippedBegin (i));
+	    glVertex (edge->GetTorusClippedEnd (i));
+	}
+	glEnd ();
+    }
+}
+
+
+
 void DisplayArrow::operator () (
-    GLUquadricObj*,
-    double, double, double, const G3D::Vector3& begin, const G3D::Vector3& end)
+    const G3D::Vector3& begin, const G3D::Vector3& end)
 {
     glPushAttrib (GL_LINE_BIT);
     glLineWidth (2.0);
@@ -88,4 +104,57 @@ void DisplayArrow::operator () (
     glVertex((begin + end) / 2);
     glEnd();
     glPopAttrib ();
+}
+
+void DisplayOrientedEdge::operator () (
+    const G3D::Vector3& begin, const G3D::Vector3& end)
+{
+    G3D::Vector3 middle = (begin + end) / 2.0;
+    glPushAttrib (GL_LINE_BIT);
+    // first half
+    glLineWidth (2.0);
+    glBegin(GL_LINES);
+    glVertex(begin);
+    glVertex(middle);
+    glEnd();
+    // second half
+    glLineWidth (1.0);
+    glBegin(GL_LINES);
+    glVertex(middle);
+    glVertex(end);
+    glEnd();
+    glPopAttrib ();
+}
+
+
+void DisplaySameEdges::operator() (const boost::shared_ptr<Face>& f)
+{
+    glBegin (GL_POLYGON);
+    const vector<boost::shared_ptr<OrientedEdge> >& v =
+	f->GetOrientedEdges ();
+    for_each (v.begin (), v.end (), DisplayAllButLastVertices ());
+    if (! f->IsClosed ())
+	glVertex (*v[v.size () - 1]->GetEnd ());
+    glEnd ();
+}
+
+
+void DisplaySameTriangles::operator() (const boost::shared_ptr<Face>& f)
+{
+    const vector<boost::shared_ptr<OrientedEdge> >& orientedEdges = 
+	f->GetOrientedEdges ();
+    glBegin (GL_TRIANGLES);
+    if (f->IsTriangle ())
+	for_each (orientedEdges.begin (), orientedEdges.end (),
+		  DisplayBeginVertex());
+    else
+    {
+	DisplayTriangle dt (f->GetCenter ());
+	for_each (orientedEdges.begin (), orientedEdges.end (),
+		  boost::bind (dt, _1));
+	if (! f->IsClosed ())
+	    dt(*orientedEdges[orientedEdges.size () - 1]->GetEnd (),
+	       *orientedEdges[0]->GetBegin ());
+    }
+    glEnd ();
 }

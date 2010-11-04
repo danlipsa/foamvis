@@ -89,7 +89,7 @@ double StripIterator::GetPropertyValue (
     const Point& p, const Point& prev)
 {
     RuntimeAssert (p.m_location != BEGIN, "Invalid strip piece");
-    G3D::Vector3 speedVector = p.GetPoint () - prev.GetPoint ();
+    G3D::Vector3 speedVector = p.m_point - prev.m_point;
     switch (property)
     {
     case BodyProperty::VELOCITY_ALONG_X:

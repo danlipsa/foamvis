@@ -82,7 +82,7 @@ void BodyAlongTime::speedRangeStep (
     const StripIterator::Point& p,
     const StripIterator::Point& prev)
 {
-    G3D::Vector3 speed = p.GetPoint () - prev.GetPoint ();
+    G3D::Vector3 speed = p.m_point - prev.m_point;
     // Warning: should have the same ordering as BodyProperty::Enum
     boost::array<double, 4> speedComponents = 
 	{{speed.x, speed.y, speed.z, speed.length ()}};
