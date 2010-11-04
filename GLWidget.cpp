@@ -263,6 +263,7 @@ void GLWidget::initLighting ()
     glMaterialfv (GL_FRONT, GL_SHININESS, materialShininess);
     glMaterialfv (GL_FRONT, GL_EMISSION, materialEmission);
 
+    glLightModeli (GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
     glShadeModel (GL_SMOOTH);
     glEnable(GL_LIGHT0);
 }
@@ -315,6 +316,7 @@ void GLWidget::projectionTransform () const
 		   viewingVolume.low ().y, viewingVolume.high ().y, 
 		   -viewingVolume.high ().z, -viewingVolume.low ().z);
     }
+    cdbg << "viewingVolume: " << viewingVolume << endl;
     glMatrixMode (GL_MODELVIEW);
 }
 
@@ -519,7 +521,11 @@ void GLWidget::paintGL ()
 
 void GLWidget::resizeGL(int width, int height)
 {
+    if (width == 0 && height == 0)
+	return;
     ViewportTransform (width, height, m_scale, &m_viewport);
+    cdbg << "resizeGL: " << width << ", " << height << endl
+	 << "viewport: " << m_viewport << endl;
     QSize size = QSize (width, height);
     if (m_srcAlphaBlend < 1)
 	m_displayBlend->Init (size);
@@ -826,15 +832,6 @@ void GLWidget::displayCenterOfBodies () const
 
 void GLWidget::displayFacesNormal () const
 {
-    if (m_lighting)
-	displayFacesLighting ();
-    else 
-	displayFacesFlat ();
-}
-
-
-void GLWidget::displayFacesFlat () const
-{
     const Foam& foam = GetCurrentFoam ();
     const Foam::Bodies& bodies = foam.GetBodies ();
     if (foam.IsQuadratic ())
@@ -856,15 +853,6 @@ void GLWidget::displayFacesFlat () const
     displayOriginalDomain ();
     displayBoundingBox ();
 }
-
-void GLWidget::displayFacesLighting () const
-{
-    const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
-    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-    for_each (bodies.begin (), bodies.end (),
-              DisplayBody<DisplayFaceWithNormal>(*this, *m_bodySelector));
-}
-
 
 void GLWidget::displayFacesAverage () const
 {

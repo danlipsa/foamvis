@@ -389,8 +389,6 @@ private:
     void displayFacesTorusTubes () const;
     void displayFacesTorusLines () const;
 
-    void displayFacesLighting () const;
-    void displayFacesFlat () const;
     /**
      * Generates a display list for center paths
      */

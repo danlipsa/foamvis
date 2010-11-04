@@ -191,7 +191,10 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 	sliderTimeSteps->setDisabled (true);
     boost::shared_ptr<const Foam> foam = foamAlongTime.GetFoam (0);
     if (! foam->IsTorus ())
-	groupBoxTorusOriginalDomain->setDisabled (true);
+    {
+	checkBoxTorusOriginalDomainDisplay->setDisabled (true);
+	checkBoxTorusOriginalDomainWrapInside->setDisabled (true);
+    }
     if (foam->GetDimension () == 2)
     {
 	radioButtonEdgesNormal->toggle ();

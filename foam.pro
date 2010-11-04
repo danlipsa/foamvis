@@ -23,7 +23,7 @@ SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp 
 	ColorBar.cpp ColorBarModel.cpp ColoredElement.cpp Comparisons.cpp \
 	Debug.cpp DebugStream.cpp DisplayBlend.cpp DisplayBodyFunctors.cpp\
 	DisplayFaceAverage.cpp \
-	DisplayEdgeFunctors.cpp	DisplayFaceFunctors.cpp \
+	DisplayEdgeFunctors.cpp	\
 	DisplayWidget.cpp DisplayVertexFunctors.cpp \
 	Edge.cpp \
 	EditColorMap.cpp Element.cpp ExpressionTree.cpp Enums.cpp\

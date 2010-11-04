@@ -100,7 +100,8 @@ private:
  */
 template<typename displaySameEdges = DisplaySameEdges, 
 	 typename PropertySetter = TexCoordSetter>
-class DisplayFaceWithColor : public DisplayFace<displaySameEdges, PropertySetter>
+class DisplayFaceWithColor : 
+    public DisplayFace<displaySameEdges, PropertySetter>
 {
 public:
     /**
@@ -135,6 +136,14 @@ public:
 protected:
     virtual void display (const boost::shared_ptr<OrientedFace>& of)
     {
+	/*
+	  glColor (Qt::black);
+	  G3D::Vector3 first = *of->GetOrientedEdge (0).GetBegin ();
+	  DisplayOrientedEdge displayOrientedEdge;
+	  displayOrientedEdge(first, first + normal);
+	*/
+
+	glNormal (of->GetNormal ());
 	bool useColor = true;
 	if (this->m_focus == DisplayElement::FOCUS)
 	{
@@ -170,51 +179,6 @@ protected:
 	    glEnable (GL_TEXTURE_1D);
     }
 };
-
-/**
- * Displays a face and specifies the normal to the face. Used for lighting.
- */
-class DisplayFaceWithNormal : 
-    public DisplayFace<DisplaySameEdges>
-{
-public:
-    /**
-     * Constructor
-     * @param widget where to display the face
-     */
-    DisplayFaceWithNormal (
-	const GLWidget& widget, 
-	TexCoordSetter texCoordSetter,
-	FocusContext focus = FOCUS,
-	BodyProperty::Enum bodyProperty = BodyProperty::NONE, 
-	bool useZPos = false, double zPos = 0) : 
-
-	DisplayFace<DisplaySameEdges> (
-	    widget, texCoordSetter, focus, bodyProperty, useZPos, zPos)
-    {
-    }
-
-
-
-    DisplayFaceWithNormal (
-	const GLWidget& widget, 
-	FocusContext focus = FOCUS,
-	BodyProperty::Enum bodyProperty = BodyProperty::NONE, 
-	bool useZPos = false, double zPos = 0) : 
-	
-	DisplayFace<DisplaySameEdges> (
-	    widget, TexCoordSetter (widget), focus, bodyProperty, useZPos, zPos)
-    {
-    }
-
-protected:
-    /**
-     * Functor used to display a face together to the normal
-     * @param f face to be displayed
-     */
-    virtual void display (const boost::shared_ptr<OrientedFace>& of);
-};
-
 
 #endif //__DISPLAY_FACE_FUNCTORS_H__
 
