@@ -169,7 +169,7 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* dataAlongTime)
     setEdgeRadius (0);
 
     calculateCameraDistance ();
-    initialLightPosition ();
+    setInitialLightPosition ();
 }
 
 bool GLWidget::edgeLighting () const
@@ -223,13 +223,15 @@ QSize GLWidget::sizeHint()
     return QSize(512, 512);
 }
 
-void GLWidget::initialLightPosition ()
+void GLWidget::setInitialLightPosition ()
 {
-    m_lightPosition =  GetFoamAlongTime ().GetBoundingBox ().high ();
+    G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
+    G3D::Vector3 center = bb.center ();
+    m_lightPosition =  bb.high () - center;
     m_directionalLight = true;
 }
 
-void GLWidget::setLightPosition ()
+void GLWidget::positionLight ()
 {
     if (! m_lighting)
 	return;
@@ -255,7 +257,7 @@ void GLWidget::setLightPosition ()
 }
 
 
-void GLWidget::initLighting ()
+void GLWidget::initializeLighting ()
 {    
     // light colors
     GLfloat lightAmbient[] = {0, 0, 0, 1.0};     // default (0, 0, 0, 1)
@@ -458,7 +460,7 @@ void GLWidget::ResetTransformation ()
     m_rotationMatrixModel = G3D::Matrix3::identity ();
     m_rotationMatrixLight = G3D::Matrix3::identity ();
     m_scalingFactorModel = 1;
-    initialLightPosition ();
+    setInitialLightPosition ();
     makeCurrent ();
     ViewportTransform (width (), height (), m_scalingFactorModel, &m_viewport);
     updateGL ();
@@ -524,13 +526,13 @@ void GLWidget::initializeGL()
     initializeTextures ();
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     m_displayFaceAverage->InitShaders ();
-    initLighting ();
+    initializeLighting ();
 }
 
 void GLWidget::paintGL ()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    setLightPosition ();
+    positionLight ();
     modelViewTransform ();
     display ();
     //displayTextureColorMap ();
@@ -1270,7 +1272,6 @@ void GLWidget::ToggledEnableLighting (bool checked)
     }
     else
     {
-	cdbg << "enableLighting" << endl;
 	glDisable (GL_LIGHTING);
     }
     updateGL ();

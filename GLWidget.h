@@ -362,7 +362,7 @@ private:
      * m_cameraDistance
      */
     void modelViewTransform () const;
-    void setLightPosition ();
+    void positionLight ();
     void viewingVolumeCalculations (
 	int width, int height,
 	G3D::Rect2D* vv2dScreen, G3D::Rect2D* windowWorld) const;
@@ -408,7 +408,7 @@ private:
 		     GLenum polygonMode) const;
     void displayBox (const OOBox& oobox) const;
     void displayAxes () const;
-    void initialLightPosition ();
+    void setInitialLightPosition ();
 
     /**
      * Rotates the foam or the light around an axis with a certain angle
@@ -450,7 +450,7 @@ private:
      * but why don't I see specular highlighting? (use
      * glLightModel (GL_LIGHT_MODEL_COLOR_CONTROL,GL_SEPARATE_SPECULAR_COLOR))
      */
-    void initLighting ();
+    void initializeLighting ();
     double ratioFromCenter (const QPoint& p);
     void rotate (const QPoint& position, G3D::Matrix3* rotate);
     void translateViewport (const QPoint& position);
