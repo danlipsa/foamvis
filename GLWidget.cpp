@@ -184,7 +184,7 @@ void GLWidget::setEdgeRadius (int sliderValue, int maxValue)
     double length = (*e->GetEnd () - *e->GetBegin ()).length ();
 
     double r = length / 20;
-    double R = 4 * r;
+    double R = 10 * r;
 
     m_edgesTubes = (sliderValue != 0);
     m_edgeRadius = (R - r) * sliderValue / maxValue + r;
@@ -344,7 +344,8 @@ void GLWidget::ViewportTransform (
     G3D::Rect2D vv2dScreen;
     G3D::Rect2D windowWorld;
     viewingVolumeCalculations (width, height, &vv2dScreen, &windowWorld);
-    if (GetCurrentFoam ().GetDimension () == 2)
+    if (GetCurrentFoam ().GetDimension () == 2
+	&& m_timeDisplacement > 0.0)
     {
 	const double ADJUST = 99.0/100.0;
 	G3D::Rect2D bb2dScreen;
@@ -1026,11 +1027,18 @@ void GLWidget::displayCenterPaths () const
     glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
     const BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
     
-    for_each (bats.begin (), bats.end (),
-	      DisplayCenterPath<> (
-		  *this, m_centerPathColor, *m_bodySelector, 
-		  GetCurrentFoam ().GetDimension () == 2 ? true : false,
-		  m_timeDisplacement));
+    if (m_edgesTubes)
+	for_each (bats.begin (), bats.end (),
+		  DisplayCenterPath<TexCoordSetter, DisplayEdgeTube> (
+		      *this, m_centerPathColor, *m_bodySelector, 
+		      GetCurrentFoam ().GetDimension () == 2 ? true : false,
+		      m_timeDisplacement));
+    else
+	for_each (bats.begin (), bats.end (),
+		  DisplayCenterPath<TexCoordSetter, DisplayEdge> (
+		      *this, m_centerPathColor, *m_bodySelector, 
+		      GetCurrentFoam ().GetDimension () == 2 ? true : false,
+		      m_timeDisplacement));
     glPopAttrib ();
 }
 
@@ -1252,15 +1260,17 @@ size_t GLWidget::GetDisplayedEdgeId () const
 // ======================================================================
 void GLWidget::ToggledEnableLighting (bool checked)
 {
-    makeCurrent ();
+    if (m_lighting == checked)
+	return;
     m_lighting = checked;
+    makeCurrent ();
     if ((m_viewTypeDisplay[m_viewType].m_lighting) () == LIGHTING)
     {
-	
 	glEnable (GL_LIGHTING);
     }
     else
     {
+	cdbg << "enableLighting" << endl;
 	glDisable (GL_LIGHTING);
     }
     updateGL ();

@@ -24,27 +24,6 @@ G3D::Matrix3 edgeRotation (const G3D::Vector3& begin, const G3D::Vector3& end)
     return rotation;
 }
 
-void DisplayEdgeTube::operator() (
-    GLUquadricObj* quadric,
-    double edgeRadius, const G3D::Vector3& begin, const G3D::Vector3& end)
-{
-    G3D::Matrix3 rotation = edgeRotation (begin, end);
-    G3D::CoordinateFrame frame (rotation, begin);
-    gluQuadricOrientation (quadric, GLU_OUTSIDE);
-    glPushMatrix ();
-    {
-	glMultMatrix (frame);
-	gluCylinder (
-	    quadric, edgeRadius, edgeRadius, (end - begin).length (),
-	    GLWidget::QUADRIC_SLICES, GLWidget::QUADRIC_STACKS);
-	gluQuadricOrientation (quadric, GLU_INSIDE);
-	gluDisk (quadric, 0, edgeRadius, GLWidget::QUADRIC_SLICES,
-		 GLWidget::QUADRIC_STACKS);
-	glTranslatef (end.x, end.y, end.z);
-    }
-    glPopMatrix ();
-}
-
 void DisplayEdge::operator() (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
@@ -54,21 +33,53 @@ void DisplayEdge::operator() (
     glEnd();
 }
 
+void DisplayEdgeTube::operator() (
+    const G3D::Vector3& begin, const G3D::Vector3& end)
+{
+    G3D::Matrix3 rotation = edgeRotation (begin, end);
+    G3D::CoordinateFrame frame (rotation, begin);
+    gluQuadricOrientation (m_quadric, GLU_OUTSIDE);
+    glPushMatrix ();
+    {
+	glMultMatrix (frame);
+	gluCylinder (
+	    m_quadric, m_edgeRadius, m_edgeRadius, (end - begin).length (),
+	    GLWidget::QUADRIC_SLICES, GLWidget::QUADRIC_STACKS);
+	gluQuadricOrientation (m_quadric, GLU_INSIDE);
+	/*
+	gluDisk (m_quadric, 0, m_edgeRadius, GLWidget::QUADRIC_SLICES,
+		 GLWidget::QUADRIC_STACKS);
+	*/
+	glTranslatef (end.x, end.y, end.z);
+    }
+    glPopMatrix ();
+}
+
+void DisplayArrow::operator () (
+    const G3D::Vector3& begin, const G3D::Vector3& end)
+{
+    glPushAttrib (GL_LINE_BIT);
+    glLineWidth (2.0);
+    glBegin(GL_LINES);
+    glVertex(begin);
+    glVertex((begin + end) / 2);
+    glEnd();
+    glPopAttrib ();
+}
+
 void DisplayArrowTube::operator () (
-    GLUquadricObj* quadric,
-    double baseRadius, double topRadius, double height,
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
     G3D::Matrix3 rotation = edgeRotation (begin, end);
     G3D::CoordinateFrame frame (rotation, (begin + end)/2);
-    gluQuadricOrientation (quadric, GLU_OUTSIDE);
+    gluQuadricOrientation (m_quadric, GLU_OUTSIDE);
     glPushMatrix ();
     {
 	glMultMatrix (frame);
-	gluCylinder (quadric, baseRadius, topRadius, height,
+	gluCylinder (m_quadric, m_baseRadius, m_topRadius, m_height,
 		     GLWidget::QUADRIC_SLICES, GLWidget::QUADRIC_STACKS);
-	gluQuadricOrientation (quadric, GLU_INSIDE);
-	gluDisk (quadric, 0, baseRadius, GLWidget::QUADRIC_SLICES,
+	gluQuadricOrientation (m_quadric, GLU_INSIDE);
+	gluDisk (m_quadric, 0, m_baseRadius, GLWidget::QUADRIC_SLICES,
 		 GLWidget::QUADRIC_STACKS);
     }
     glPopMatrix ();
@@ -90,20 +101,6 @@ void DisplayEdgeTorusClipped::operator () (
 	}
 	glEnd ();
     }
-}
-
-
-
-void DisplayArrow::operator () (
-    const G3D::Vector3& begin, const G3D::Vector3& end)
-{
-    glPushAttrib (GL_LINE_BIT);
-    glLineWidth (2.0);
-    glBegin(GL_LINES);
-    glVertex(begin);
-    glVertex((begin + end) / 2);
-    glEnd();
-    glPopAttrib ();
 }
 
 void DisplayOrientedEdge::operator () (

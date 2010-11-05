@@ -22,22 +22,29 @@
 
 G3D::Matrix3 edgeRotation (const G3D::Vector3& begin, const G3D::Vector3& end);
 
-struct DisplayEdgeTube
+class DisplayEdge
 {
-    void operator() (
-	GLUquadricObj* quadric,
-	double edgeRadius, const G3D::Vector3& begin, const G3D::Vector3& end);
+public:
+    DisplayEdge (GLUquadricObj* quadric = 0, double edgeRadius = 0) :
+	m_quadric (quadric), m_edgeRadius (edgeRadius)
+    {
+    }
+
+    void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
+
+protected:
+    GLUquadricObj* m_quadric;
+    double m_edgeRadius;
 };
 
-struct DisplayEdge
+class DisplayEdgeTube : public DisplayEdge
 {
-    void operator() (
-	GLUquadricObj* quadric,	double edgeRadius,
-	const G3D::Vector3& begin, const G3D::Vector3& end)
+public:
+    DisplayEdgeTube (GLUquadricObj* quadric, double edgeRadius) :
+	DisplayEdge (quadric, edgeRadius)
     {
-	(void)quadric;(void)edgeRadius;
-	operator() (begin, end);
     }
+    
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
@@ -47,33 +54,44 @@ struct DisplayOrientedEdge
 };
 
 
-
-struct DisplayArrowTube
-{
-    void operator () (
-	GLUquadricObj* quadric,
-	double baseRadius, double topRadius, double height,
-	const G3D::Vector3& begin, const G3D::Vector3& end);
-};
-
 struct DisplayArrow
 {
-    void operator () (const G3D::Vector3& begin, const G3D::Vector3& end);
-    void operator () (
-	GLUquadricObj* quadric,
-	double baseRadius, double topRadius, double height,
-	const G3D::Vector3& begin, const G3D::Vector3& end)
+public:
+    DisplayArrow (
+	GLUquadricObj* quadric = 0,
+	double baseRadius = 0, double topRadius = 0, double height = 0) :
+	m_quadric (quadric), m_baseRadius (baseRadius), m_topRadius(topRadius),
+	m_height (height)
     {
-	(void)quadric;(void)baseRadius;(void)topRadius;(void)height;
-	operator () (begin, end);
     }
+
+    void operator () (const G3D::Vector3& begin, const G3D::Vector3& end);
+protected:
+    GLUquadricObj* m_quadric;
+    double m_baseRadius;
+    double m_topRadius;
+    double m_height;
+};
+
+
+class DisplayArrowTube : public DisplayArrow
+{
+public:
+    DisplayArrowTube (
+	GLUquadricObj* quadric,
+	double baseRadius, double topRadius, double height) :
+	DisplayArrow (quadric, baseRadius, topRadius, height)
+    {
+    }
+
+    void operator () (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
 
 // Display one edge
 // ======================================================================
 
-template <typename displayEdge, typename displayArrow, bool showDuplicates>
+template <typename DisplayEdge, typename DisplayArrow, bool showDuplicates>
 class DisplayEdgeTorus : public DisplayElementFocus
 {
 public:
@@ -83,7 +101,12 @@ public:
      */
     DisplayEdgeTorus (const GLWidget& widget, FocusContext focus = FOCUS, 
 		      bool useZPos = false, double zPos = 0) : 
-	DisplayElementFocus (widget, focus, useZPos, zPos)
+	DisplayElementFocus (widget, focus, useZPos, zPos),
+	m_displayEdge (m_glWidget.GetQuadricObject (), 
+		       m_glWidget.GetEdgeRadius ()),
+	m_displayArrow (
+	    m_glWidget.GetQuadricObject (), m_glWidget.GetArrowBaseRadius (),
+	    m_glWidget.GetEdgeRadius (), m_glWidget.GetArrowHeight ())
     {
     }
 
@@ -116,16 +139,13 @@ protected:
 	glColor (m_glWidget.GetEndTranslationColor (endLocation));
 
 	if (endLocation != Vector3int16Zero)
-	    displayArrow() (
-		m_glWidget.GetQuadricObject (), 
-		m_glWidget.GetArrowBaseRadius (), m_glWidget.GetEdgeRadius (),
-		m_glWidget.GetArrowHeight (),
-		*begin, *end);
-	
-	displayEdge() (m_glWidget.GetQuadricObject (),
-		       m_glWidget.GetEdgeRadius (), *begin, *end);
+	    m_displayArrow(*begin, *end);
+	m_displayEdge(*begin, *end);
 	glPopAttrib ();
     }
+private:
+    DisplayEdge m_displayEdge;
+    DisplayArrow m_displayArrow;
 };
 
 

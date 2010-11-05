@@ -20,6 +20,7 @@
 #include "OpenGLUtils.h"
 #include "StripIterator.h"
 #include "PropertySetter.h"
+#include "DisplayEdgeFunctors.h"
 
 /**
  * Functor used to display a body
@@ -180,7 +181,8 @@ private:
  * @todo Display the center path only if there is at least a segment in 
  * focus in it.
  */
-template<typename PropertySetter = TexCoordSetter>
+template<typename PropertySetter = TexCoordSetter,
+	 typename DisplayEdgeType = DisplayEdge>
 class DisplayCenterPath : public DisplayBodyBase<PropertySetter>
 {
 public:
@@ -195,7 +197,10 @@ public:
 		       double timeDisplacement = 0) : 
 	DisplayBodyBase<PropertySetter> (
 	    widget, bodySelector, PropertySetter (widget), bodyProperty,
-	    useTimeDisplacement, timeDisplacement)
+	    useTimeDisplacement, timeDisplacement),
+	m_displayEdge (this->m_glWidget.GetQuadricObject (), 
+		       this->m_glWidget.GetEdgeRadius ())
+
     {
     }
 
@@ -307,16 +312,6 @@ private:
 	}
     }
 
-    void beginFocusContext (bool focus)
-    {
-	DisplayBodyBase<PropertySetter>::beginFocusContext (focus);
-	glBegin(GL_LINES);
-    }
-    void endFocusContext (bool focus)
-    {
-	glEnd ();
-	DisplayBodyBase<PropertySetter>::endFocusContext (focus);
-    }
 
     QColor focusContextColor (bool focus, const QColor& color)
     {
@@ -328,34 +323,34 @@ private:
     void segment (const QColor& color, G3D::Vector3 begin, G3D::Vector3 end)
     {
 	glColor (color);
-	glVertex (begin);
-	glVertex (end);
+	m_displayEdge (begin, end);
     }
 
     void segment (float texCoord, G3D::Vector3 begin, G3D::Vector3 end)
     {
 	glTexCoord1f (texCoord);
-	glVertex (begin);
-	glVertex (end);
+	m_displayEdge (begin, end);
     }
     
     void texturedSegment (double value, G3D::Vector3 begin, G3D::Vector3 end)
     {
 	double segmentTexCoord = this->m_glWidget.TexCoord (value);
-	beginFocusContext (true);
+	DisplayBodyBase<PropertySetter>::beginFocusContext (true);
 	segment (segmentTexCoord, begin, end);
-	endFocusContext (true);
+	DisplayBodyBase<PropertySetter>::endFocusContext (true);
     }
 
     void coloredSegment (const QColor& color, bool focus,
 			 G3D::Vector3 begin, G3D::Vector3 end)
     {
 	glDisable (GL_TEXTURE_1D);
-	beginFocusContext (focus);
+	DisplayBodyBase<PropertySetter>::beginFocusContext (focus);
 	segment (color, begin, end);
-	endFocusContext (focus);
+	DisplayBodyBase<PropertySetter>::endFocusContext (focus);
 	glEnable (GL_TEXTURE_1D);
     }
+private:
+    DisplayEdgeType m_displayEdge;
 };
 
 
