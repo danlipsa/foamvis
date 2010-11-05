@@ -173,9 +173,9 @@ public:
     {
 	return m_edgesTessellation;
     }
-    bool IsCenterPathBody () const
+    bool CenterPathBodyShown () const
     {
-	return m_centerPathBody;
+	return m_centerPathBodyShown;
     }
 
     double TexCoord (double value) const;
@@ -220,7 +220,15 @@ public:
     }
 
 public Q_SLOTS:
-    void ToggledLighting (bool checked);
+    /*
+     * Global options
+     */
+    void ToggledShowBoundingBox (bool checked);
+    void ToggledShowTorusOriginalDomain (bool checked);
+    void ToggledShowLightPosition (bool checked);
+    void ToggledEnableLighting (bool checked);
+    void ToggledEnableDirectionalLight (bool checked);
+
 
     /**
      * Shows edges
@@ -233,7 +241,7 @@ public Q_SLOTS:
      * @param checked true for showing faces false otherwise
      */
     void ToggledFacesNormal (bool checked);
-    void ToggledFacesTorus (bool checked);
+    void ToggledFaceEdgesTorus (bool checked);
     void ToggledFacesAverage (bool checked);
 
     /**
@@ -241,7 +249,7 @@ public Q_SLOTS:
      * param checked true for showing the center paths false otherwise
      */
     void ToggledCenterPath (bool checked);
-    void ToggledCenterPathDisplayBody (bool checked);
+    void ToggledCenterPathShowBody (bool checked);
 
     void BodyPropertyChanged (
 	boost::shared_ptr<ColorBarModel> colorBarModel,
@@ -258,9 +266,9 @@ public Q_SLOTS:
     void ToggledEdgesTessellation (bool checked);
     void ToggledFacesShowEdges (bool checked);
 
-    void ToggledTorusOriginalDomainDisplay (bool checked);
+
     void ToggledTorusOriginalDomainClipped (bool checked);
-    void ToggledShowBoundingBox (bool checked);
+
     void ValueChangedAngleOfView (int newIndex);
     void ValueChangedBlend (int index);
     void ValueChangedTimeDisplacement (int timeDisplacement);
@@ -329,13 +337,13 @@ private:
     /**
      * Displays the center of the bodies
      */
-    void displayCenterOfBodies () const;
+    void displayCenterOfBodies (bool useZPos = false) const;
     void displayTextureColorMap () const;
     bool areEdgesTubes () const
     {
 	return m_edgesTubes;
     }
-    bool haveEdgesLighting () const;
+    bool edgeLighting () const;
     bool hasLighting () const
     {
 	return m_lighting;
@@ -376,7 +384,7 @@ private:
 
     void displayEdgesNormal () const;
     template<typename displayEdge>
-    void displayStandaloneEdges (double zPos = 0) const;
+    void displayStandaloneEdges (bool useZPos = false, double zPos = 0) const;
     template<typename displaySameEdges>
     void displayStandaloneFaces () const;
     void displayEdgesTorus () const;
@@ -400,6 +408,7 @@ private:
 		     GLenum polygonMode) const;
     void displayBox (const OOBox& oobox) const;
     void displayAxes () const;
+    void initialLightPosition ();
 
     /**
      * Rotates the foam or the light around an axis with a certain angle
@@ -434,11 +443,18 @@ private:
 
     /**
      * Setup lighting for shaded bodies
+     * See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
+     * texture mapping? (use GL_MODULATE instead of GL_DECAL or GL_REPLACE for
+     * glTexEnv)
+     * See OpenGL FAQ 21.040 Lighting and texture mapping work pretty well, 
+     * but why don't I see specular highlighting? (use
+     * glLightModel (GL_LIGHT_MODEL_COLOR_CONTROL,GL_SEPARATE_SPECULAR_COLOR))
      */
     void initLighting ();
     double ratioFromCenter (const QPoint& p);
     void rotate (const QPoint& position, G3D::Matrix3* rotate);
     void translateViewport (const QPoint& position);
+    void translateLight (const QPoint& position);
     void scaleViewport (const QPoint& position);
     void initViewTypeDisplay ();
 
@@ -493,14 +509,19 @@ private:
 
     double m_contextAlpha;
 
-    G3D::Matrix3 m_rotateModel;
-    G3D::Matrix3 m_rotateLight;
+    G3D::Matrix3 m_rotationMatrixModel;
     G3D::Rect2D m_viewport;
-    double m_scale;
+    double m_scalingFactorModel;
     /**
      * Distance from the camera to the center of the bounding box for the foam.
      */
     double m_cameraDistance;
+
+    bool m_lighting;
+    G3D::Matrix3 m_rotationMatrixLight;
+    G3D::Vector3 m_lightPosition;
+    bool m_directionalLight;
+    bool m_showLightPosition;
     double m_angleOfView;
 
     EndLocationColor m_endTranslationColor;
@@ -519,7 +540,7 @@ private:
     bool m_facesShowEdges;
     bool m_edgesBodyCenter;
     bool m_edgesTessellation;
-    bool m_centerPathBody;
+    bool m_centerPathBodyShown;
     bool m_boundingBox;
     boost::array<ViewTypeDisplay, ViewType::COUNT> m_viewTypeDisplay;
     BodyProperty::Enum m_centerPathColor;
@@ -546,7 +567,6 @@ private:
     bool m_playMovie;
     boost::scoped_ptr<DisplayBlend> m_displayBlend;
     boost::scoped_ptr<DisplayFaceAverage> m_displayFaceAverage;
-    bool m_lighting;
 };
 
 #endif //__GLWIDGET_H__

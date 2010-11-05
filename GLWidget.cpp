@@ -59,20 +59,22 @@ GLWidget::GLWidget(QWidget *parent)
       m_viewType (ViewType::COUNT),
       m_torusOriginalDomainDisplay (false),
       m_torusOriginalDomainClipped (false),
-      m_interactionMode (InteractionMode::ROTATE_MODEL),
+      m_interactionMode (InteractionMode::ROTATE),
       m_foamAlongTime (0), m_timeStep (0),
       m_displayedBodyIndex (DISPLAY_ALL), m_displayedFaceIndex (DISPLAY_ALL),
       m_displayedEdgeIndex (DISPLAY_ALL),
       m_contextAlpha (0.05),
-      m_rotateModel (G3D::Matrix3::identity ()),
-      m_rotateLight (G3D::Matrix3::identity ()),
-      m_scale (1),
+      m_rotationMatrixModel (G3D::Matrix3::identity ()),
+      m_scalingFactorModel (1),
+      m_lighting (false),
+      m_rotationMatrixLight (G3D::Matrix3::identity ()),
+      m_showLightPosition (false),
       m_angleOfView (0),
       m_edgesTubes (false),
       m_facesShowEdges (true),
       m_edgesBodyCenter (false),
       m_edgesTessellation (true),
-      m_centerPathBody (false),
+      m_centerPathBodyShown (false),
       m_boundingBox (false),
       m_centerPathColor (BodyProperty::NONE),
       m_facesColor (BodyProperty::NONE),
@@ -83,8 +85,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_colorBarModel (new ColorBarModel ()),
       m_colorBarTexture (0),
       m_srcAlphaBlend (1),
-      m_playMovie (false),
-      m_lighting (false)
+      m_playMovie (false)
 {
     makeCurrent ();
     m_displayBlend.reset (new DisplayBlend (*this));
@@ -139,11 +140,11 @@ void GLWidget::initViewTypeDisplay ()
 	
 	{&GLWidget::displayEdgesTorus, 
 	 bl::if_then_else_return (
-	     bl::bind (&GLWidget::haveEdgesLighting, this), 
+	     bl::bind (&GLWidget::edgeLighting, this), 
 	     LIGHTING, NO_LIGHTING)},
 
 	{&GLWidget::displayFacesTorus, 
-	 bl::if_then_else_return (bl::bind (&GLWidget::haveEdgesLighting, this),
+	 bl::if_then_else_return (bl::bind (&GLWidget::edgeLighting, this),
 				  LIGHTING, NO_LIGHTING)},
 	
 
@@ -155,7 +156,9 @@ void GLWidget::initViewTypeDisplay ()
 	
 	
 	{&GLWidget::displayCenterPathsWithBodies, 
-	 identity<Lighting> (LIGHTING)},	
+	 bl::if_then_else_return (bl::bind (&GLWidget::edgeLighting, this),
+				  LIGHTING, NO_LIGHTING)},
+
 	}};
     copy (vtd.begin (), vtd.end (), m_viewTypeDisplay.begin ());
 }
@@ -166,9 +169,10 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* dataAlongTime)
     setEdgeRadius (0);
 
     calculateCameraDistance ();
+    initialLightPosition ();
 }
 
-bool GLWidget::haveEdgesLighting () const
+bool GLWidget::edgeLighting () const
 {
     return m_edgesTubes && m_lighting;
 }
@@ -219,6 +223,11 @@ QSize GLWidget::sizeHint()
     return QSize(512, 512);
 }
 
+void GLWidget::initialLightPosition ()
+{
+    m_lightPosition =  GetFoamAlongTime ().GetBoundingBox ().high ();
+    m_directionalLight = true;
+}
 
 void GLWidget::setLightPosition ()
 {
@@ -228,10 +237,19 @@ void GLWidget::setLightPosition ()
     // light position
     glPushMatrix ();
     {
-	glLoadMatrix (G3D::CoordinateFrame (m_rotateLight));
-	const G3D::Vector3& max = GetFoamAlongTime ().GetBoundingBox ().high ();
-	GLfloat lightPosition[] = { 2*max.x, 2*max.y, 2*max.z, 1.0 };
+	glLoadIdentity ();
+	glTranslate (- m_cameraDistance * G3D::Vector3::unitZ ());
+	glMultMatrix (m_rotationMatrixLight);
+	GLfloat lightPosition[] = {m_lightPosition.x, m_lightPosition.y,
+				   m_lightPosition.z, ! m_directionalLight};
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+	if (m_showLightPosition)
+	{
+	    glPointSize (4);
+	    glBegin (GL_POINTS);
+	    glVertex (m_lightPosition);
+	    glEnd ();
+	}
     }
     glPopMatrix ();
 }
@@ -289,7 +307,7 @@ void GLWidget::modelViewTransform () const
 {
     glLoadIdentity ();
     glTranslate (- m_cameraDistance * G3D::Vector3::unitZ ());    
-    glMultMatrix (m_rotateModel);
+    glMultMatrix (m_rotationMatrixModel);
     if (GetCurrentFoam ().GetDimension () == 3)
 	rotateSurfaceEvolverCompatible ();
     glTranslate (-GetFoamAlongTime ().GetBoundingBox ().center ());
@@ -316,7 +334,6 @@ void GLWidget::projectionTransform () const
 		   viewingVolume.low ().y, viewingVolume.high ().y, 
 		   -viewingVolume.high ().z, -viewingVolume.low ().z);
     }
-    cdbg << "viewingVolume: " << viewingVolume << endl;
     glMatrixMode (GL_MODELVIEW);
 }
 
@@ -437,11 +454,12 @@ void GLWidget::calculateCameraDistance ()
 
 void GLWidget::ResetTransformation ()
 {
-    m_rotateModel = G3D::Matrix3::identity ();
-    m_rotateLight = G3D::Matrix3::identity ();
-    m_scale = 1;
+    m_rotationMatrixModel = G3D::Matrix3::identity ();
+    m_rotationMatrixLight = G3D::Matrix3::identity ();
+    m_scalingFactorModel = 1;
+    initialLightPosition ();
     makeCurrent ();
-    ViewportTransform (width (), height (), m_scale, &m_viewport);
+    ViewportTransform (width (), height (), m_scalingFactorModel, &m_viewport);
     updateGL ();
 }
 
@@ -523,9 +541,7 @@ void GLWidget::resizeGL(int width, int height)
 {
     if (width == 0 && height == 0)
 	return;
-    ViewportTransform (width, height, m_scale, &m_viewport);
-    cdbg << "resizeGL: " << width << ", " << height << endl
-	 << "viewport: " << m_viewport << endl;
+    ViewportTransform (width, height, m_scalingFactorModel, &m_viewport);
     QSize size = QSize (width, height);
     if (m_srcAlphaBlend < 1)
 	m_displayBlend->Init (size);
@@ -568,7 +584,7 @@ void GLWidget::RenderFromFbo (QGLFramebufferObject& fbo) const
     Vector3 high = bb.high ();
     glEnable (GL_TEXTURE_2D);
     glBindTexture (GL_TEXTURE_2D, fbo.texture ());
-    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+    glPolygonMode (GL_FRONT, GL_FILL);
     glBegin (GL_QUADS);
     glTexCoord2i (0, 0);glVertex (low);
     glTexCoord2i (1, 0);glVertex (Vector3 (high.x, low.y, low.z));
@@ -624,29 +640,50 @@ void GLWidget::translateViewport (const QPoint& position)
     glViewport (m_viewport);
 }
 
+void GLWidget::translateLight (const QPoint& position)
+{
+    G3D::AABox vv = calculateCenteredViewingVolume ();
+    G3D::Vector2 oldPosition = G3D::Vector2 (m_lastPos.x (), m_lastPos.y ());
+    G3D::Vector2 newPosition = G3D::Vector2 (position.x (), position.y ());
+    G3D::Vector2 viewportCenter = 
+	(m_viewport.x1y1 () + m_viewport.x0y0 ()) / 2;
+    float screenChange = 
+	((newPosition - viewportCenter).length () - 
+	 (oldPosition - viewportCenter).length ());
+    float ratio = screenChange / 
+	(m_viewport.x1y1 () - m_viewport.x0y0 ()).length ();
+
+    m_lightPosition += (ratio * m_lightPosition);
+}
+
+
 void GLWidget::scaleViewport (const QPoint& position)
 {
     double ratio = ratioFromCenter (position);
     Scale (&m_viewport, ratio);
     glViewport (m_viewport);
-    m_scale = m_scale * ratio;
+    m_scalingFactorModel = m_scalingFactorModel * ratio;
 }
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     switch (m_interactionMode)
     {
-    case InteractionMode::ROTATE_MODEL:
-	rotate (event->pos (), &m_rotateModel);
-	break;
-    case InteractionMode::ROTATE_LIGHT:
-	rotate (event->pos (), &m_rotateLight);
+    case InteractionMode::ROTATE:
+	rotate (event->pos (), &m_rotationMatrixModel);
 	break;
     case InteractionMode::TRANSLATE:
 	translateViewport (event->pos ());
 	break;
     case InteractionMode::SCALE:
 	scaleViewport (event->pos ());
+    case InteractionMode::ROTATE_LIGHT:
+	rotate (event->pos (), &m_rotationMatrixLight);
+	break;
+    case InteractionMode::TRANSLATE_LIGHT:
+	translateLight (event->pos ());
+	break;
+
     default:
 	break;
     }
@@ -753,12 +790,12 @@ void GLWidget::displayEdges () const
 }
 
 template<typename displayEdge>
-void GLWidget::displayStandaloneEdges (double zPos) const
+void GLWidget::displayStandaloneEdges (bool useZPos, double zPos) const
 {
     const Foam::Edges& standaloneEdges = 
 	GetCurrentFoam ().GetStandaloneEdges ();
     BOOST_FOREACH (boost::shared_ptr<Edge> edge, standaloneEdges)
-	displayEdge (*this, DisplayElement::FOCUS, zPos) (edge);
+	displayEdge (*this, DisplayElement::FOCUS, useZPos, zPos) (edge);
 }
 
 void GLWidget::displayEdgesNormal () const
@@ -813,7 +850,7 @@ void GLWidget::displayEdgesTorusLines () const
 }
 
 
-void GLWidget::displayCenterOfBodies () const
+void GLWidget::displayCenterOfBodies (bool useZPos) const
 {
     if ((m_viewType == ViewType::EDGES && m_edgesBodyCenter) ||
 	m_viewType == ViewType::CENTER_PATHS)
@@ -825,7 +862,7 @@ void GLWidget::displayCenterOfBodies () const
 	glColor (Qt::red);
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	for_each (bodies.begin (), bodies.end (), 
-		  DisplayBodyCenter (*this, *m_bodySelector, zPos));
+		  DisplayBodyCenter (*this, *m_bodySelector, useZPos, zPos));
 	glPopAttrib ();
     }
 }
@@ -956,7 +993,7 @@ void GLWidget::displayCenterPathsWithBodies () const
 {
     glLineWidth (1.0);
     displayCenterPaths ();
-    if (IsCenterPathBody ())
+    if (CenterPathBodyShown ())
     {
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	double zPos = GetTimeStep () * GetTimeDisplacement ();
@@ -966,18 +1003,18 @@ void GLWidget::displayCenterPathsWithBodies () const
 		  DisplayElement::DONT_DISPLAY_TESSELLATION> > > > (
 		      *this, *m_bodySelector, 
 		      DisplayElement::INVISIBLE_CONTEXT, 
-		      BodyProperty::NONE, zPos));
-	displayCenterOfBodies ();
+		      BodyProperty::NONE, true, zPos));
+	displayCenterOfBodies (true);
     }
     displayOriginalDomain ();
     displayBoundingBox ();
-    displayStandaloneEdges< DisplayEdgeWithColor<> > ();
+    displayStandaloneEdges< DisplayEdgeWithColor<> > (true, 0);
     if (GetTimeDisplacement () != 0)
     {
 	
 	displayStandaloneEdges< DisplayEdgeWithColor<> > (
-	    (GetFoamAlongTime ().GetTimeSteps () - 1) * 
-	    GetTimeDisplacement ());	
+	    true,
+	    (GetFoamAlongTime ().GetTimeSteps () - 1)*GetTimeDisplacement ());	
     }
 }
 
@@ -1213,7 +1250,7 @@ size_t GLWidget::GetDisplayedEdgeId () const
 
 // Slots
 // ======================================================================
-void GLWidget::ToggledLighting (bool checked)
+void GLWidget::ToggledEnableLighting (bool checked)
 {
     makeCurrent ();
     m_lighting = checked;
@@ -1229,15 +1266,28 @@ void GLWidget::ToggledLighting (bool checked)
     updateGL ();
 }
 
+void GLWidget::ToggledEnableDirectionalLight (bool checked)
+{
+    m_directionalLight = checked;
+    updateGL ();
+}
+
+void GLWidget::ToggledShowLightPosition (bool checked)
+{
+    m_showLightPosition = checked;
+    updateGL ();
+}
+
+
 void GLWidget::ToggledShowBoundingBox (bool checked)
 {
     m_boundingBox = checked;
     updateGL ();
 }
 
-void GLWidget::ToggledCenterPathDisplayBody (bool checked)
+void GLWidget::ToggledCenterPathShowBody (bool checked)
 {
-    m_centerPathBody = checked;
+    m_centerPathBodyShown = checked;
     updateGL ();
 }
 
@@ -1268,7 +1318,7 @@ void GLWidget::ToggledFacesNormal (bool checked)
     view (checked, ViewType::FACES);
 }
 
-void GLWidget::ToggledFacesTorus (bool checked)
+void GLWidget::ToggledFaceEdgesTorus (bool checked)
 {
     view (checked, ViewType::FACES_TORUS);
 }
@@ -1299,7 +1349,7 @@ void GLWidget::ToggledEdgesTessellation (bool checked)
 }
 
 
-void GLWidget::ToggledTorusOriginalDomainDisplay (bool checked)
+void GLWidget::ToggledShowTorusOriginalDomain (bool checked)
 {
     m_torusOriginalDomainDisplay = checked;
     updateGL ();
@@ -1412,7 +1462,7 @@ void GLWidget::ValueChangedEdgesRadius (int sliderValue)
     QSlider* slider = static_cast<QSlider*> (sender ());
     size_t maximum = slider->maximum ();
     setEdgeRadius (sliderValue, maximum);
-    ToggledLighting (m_lighting);
+    ToggledEnableLighting (m_lighting);
     updateGL ();
 }
 

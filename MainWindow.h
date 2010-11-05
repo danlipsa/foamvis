@@ -93,12 +93,13 @@ public Q_SLOTS:
     void CurrentIndexChangedCenterPathColor (int value);
     void CurrentIndexChangedFacesColor (int value);
     void ShowEditColorMap ();
-    void InteractionModeRotateModel ();
-    void InteractionModeRotateLight ();
-    void InteractionModeSelectBrush ();
-    void InteractionModeSelectEraser ();
+    void InteractionModeRotate ();
     void InteractionModeScale ();
     void InteractionModeTranslate ();    
+    void InteractionModeSelectBrush ();
+    void InteractionModeSelectEraser ();
+    void InteractionModeRotateLight ();
+    void InteractionModeTranslateLight ();
     void SelectionChangedHistogram ();
     /**
      * Invoqued by the timer to show the next data in the vector
@@ -174,9 +175,11 @@ private:
     Foam::Bodies::iterator m_currentTranslatedBody;
     size_t m_currentBody;
 
-    boost::shared_ptr<QAction> m_actionRotate;
+    boost::shared_ptr<QAction> m_actionRotateModel;
     boost::shared_ptr<QAction> m_actionTranslate;
     boost::shared_ptr<QAction> m_actionScale;
+    boost::shared_ptr<QAction> m_actionRotateLight;
+    boost::shared_ptr<QAction> m_actionTranslateLight;
     boost::shared_ptr<QAction> m_actionSelectBrush;
     boost::shared_ptr<QAction> m_actionSelectEraser;
     boost::shared_ptr<QAction> m_actionSelectAll;

@@ -157,7 +157,7 @@ void MainWindow::setupButtonGroups ()
     buttonGroupDisplay->setId (radioButtonEdgesNormal, ViewType::EDGES);
     buttonGroupDisplay->setId (radioButtonEdgesTorus, ViewType::EDGES_TORUS);
     buttonGroupDisplay->setId (radioButtonFacesNormal, ViewType::FACES);
-    buttonGroupDisplay->setId (radioButtonFacesTorus, ViewType::FACES_TORUS);
+    buttonGroupDisplay->setId (radioButtonFaceEdgesTorus, ViewType::FACES_TORUS);
     buttonGroupDisplay->setId (radioButtonFacesAverage, ViewType::FACES_AVERAGE);
     buttonGroupDisplay->setId (radioButtonCenterPath, ViewType::CENTER_PATHS);
 }
@@ -192,8 +192,10 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
     boost::shared_ptr<const Foam> foam = foamAlongTime.GetFoam (0);
     if (! foam->IsTorus ())
     {
-	checkBoxTorusOriginalDomainDisplay->setDisabled (true);
+	checkBoxTorusOriginalDomain->setDisabled (true);
 	checkBoxTorusOriginalDomainWrapInside->setDisabled (true);
+	radioButtonEdgesTorus->setDisabled (true);
+	radioButtonFaceEdgesTorus->setDisabled (true);
     }
     if (foam->GetDimension () == 2)
     {
@@ -213,14 +215,19 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 }
 
 
-void MainWindow::InteractionModeRotateModel ()
+void MainWindow::InteractionModeRotate ()
 {
-    comboBoxInteractionMode->setCurrentIndex (InteractionMode::ROTATE_MODEL);
+    comboBoxInteractionMode->setCurrentIndex (InteractionMode::ROTATE);
 }
 
-void MainWindow::InteractionModeRotateLight ()
+void MainWindow::InteractionModeScale ()
 {
-    comboBoxInteractionMode->setCurrentIndex (InteractionMode::ROTATE_LIGHT);
+    comboBoxInteractionMode->setCurrentIndex (InteractionMode::SCALE);
+}
+
+void MainWindow::InteractionModeTranslate ()
+{
+    comboBoxInteractionMode->setCurrentIndex (InteractionMode::TRANSLATE);
 }
 
 void MainWindow::InteractionModeSelectBrush ()
@@ -233,16 +240,16 @@ void MainWindow::InteractionModeSelectEraser ()
     comboBoxInteractionMode->setCurrentIndex (InteractionMode::SELECT_ERASER);
 }
 
-
-void MainWindow::InteractionModeScale ()
+void MainWindow::InteractionModeRotateLight ()
 {
-    comboBoxInteractionMode->setCurrentIndex (InteractionMode::SCALE);
+    comboBoxInteractionMode->setCurrentIndex (InteractionMode::ROTATE_LIGHT);
 }
 
-void MainWindow::InteractionModeTranslate ()
+void MainWindow::InteractionModeTranslateLight ()
 {
-    comboBoxInteractionMode->setCurrentIndex (InteractionMode::TRANSLATE);
+    comboBoxInteractionMode->setCurrentIndex (InteractionMode::TRANSLATE_LIGHT);
 }
+
 
 void MainWindow::updateButtons ()
 {
@@ -409,17 +416,12 @@ void MainWindow::SetAndDisplayHistogram (
 
 void MainWindow::createActions ()
 {
-    m_actionRotate = boost::make_shared<QAction> (tr("&Rotate Model"), this);
-    m_actionRotate->setShortcut(QKeySequence (tr ("R")));
-    m_actionRotate->setStatusTip(tr("Rotate Model"));
-    connect(m_actionRotate.get (), SIGNAL(triggered()),
-	    this, SLOT(InteractionModeRotateModel ()));
-
-    m_actionRotate = boost::make_shared<QAction> (tr("Rotate &Light"), this);
-    m_actionRotate->setShortcut(QKeySequence (tr ("L")));
-    m_actionRotate->setStatusTip(tr("Rotate Light"));
-    connect(m_actionRotate.get (), SIGNAL(triggered()),
-	    this, SLOT(InteractionModeRotateLight ()));
+    m_actionRotateModel = boost::make_shared<QAction> (
+	tr("&Rotate Model"), this);
+    m_actionRotateModel->setShortcut(QKeySequence (tr ("R")));
+    m_actionRotateModel->setStatusTip(tr("Rotate Model"));
+    connect(m_actionRotateModel.get (), SIGNAL(triggered()),
+	    this, SLOT(InteractionModeRotate ()));
 
     m_actionScale = boost::make_shared<QAction> (tr("&Scale"), this);
     m_actionScale->setShortcut(QKeySequence (tr ("Z")));
@@ -432,6 +434,22 @@ void MainWindow::createActions ()
     m_actionTranslate->setStatusTip(tr("Translate"));
     connect(m_actionTranslate.get (), SIGNAL(triggered()),
 	    this, SLOT(InteractionModeTranslate ()));
+
+
+    m_actionRotateLight = boost::make_shared<QAction> (
+	tr("Rotate &Light"), this);
+    m_actionRotateLight->setShortcut(QKeySequence (tr ("L")));
+    m_actionRotateLight->setStatusTip(tr("Rotate Light"));
+    connect(m_actionRotateLight.get (), SIGNAL(triggered()),
+	    this, SLOT(InteractionModeRotateLight ()));
+
+    m_actionTranslateLight = boost::make_shared<QAction> (
+	tr("Translate L&ight"), this);
+    m_actionTranslateLight->setShortcut(QKeySequence (tr ("I")));
+    m_actionTranslateLight->setStatusTip(tr("Translate Light"));
+    connect(m_actionTranslateLight.get (), SIGNAL(triggered()),
+	    this, SLOT(InteractionModeTranslateLight ()));
+
 
     m_actionSelectBrush = boost::make_shared<QAction> (
 	tr("&Select Brush"), this);
@@ -476,9 +494,11 @@ void MainWindow::createActions ()
     addAction (widgetGl->GetActionResetTransformation ().get ());
     addAction (sliderTimeSteps->GetActionNextSelectedTimeStep ().get ());
     addAction (sliderTimeSteps->GetActionPreviousSelectedTimeStep ().get ());
-    addAction (m_actionRotate.get ());
+    addAction (m_actionRotateModel.get ());
     addAction (m_actionTranslate.get ());
     addAction (m_actionScale.get ());
+    addAction (m_actionRotateLight.get ());
+    addAction (m_actionTranslateLight.get ());
     addAction (m_actionSelectBrush.get ());
     addAction (m_actionSelectEraser.get ());
     addAction (m_actionSelectAll.get ());

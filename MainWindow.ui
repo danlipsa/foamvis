@@ -91,12 +91,7 @@
         <widget class="QComboBox" name="comboBoxInteractionMode">
          <item>
           <property name="text">
-           <string>Rotate Model   R</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Rotate Light      L</string>
+           <string>Rotate             R</string>
           </property>
          </item>
          <item>
@@ -107,6 +102,16 @@
          <item>
           <property name="text">
            <string>Translate          T</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Rotate Light      L</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Translate Light  I</string>
           </property>
          </item>
          <item>
@@ -235,7 +240,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="general">
           <attribute name="title">
@@ -256,7 +261,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QCheckBox" name="checkBoxTorusOriginalDomainDisplay">
+               <widget class="QCheckBox" name="checkBoxTorusOriginalDomain">
                 <property name="text">
                  <string>Torus original domain</string>
                 </property>
@@ -279,6 +284,13 @@
                 </property>
                 <property name="checked">
                  <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBoxLightPosition">
+                <property name="text">
+                 <string>Light position</string>
                 </property>
                </widget>
               </item>
@@ -339,6 +351,16 @@
                <widget class="QCheckBox" name="checkBoxLighting">
                 <property name="text">
                  <string>Lighting</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBoxDirectionalLight">
+                <property name="text">
+                 <string>Directional light</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -448,9 +470,9 @@
                </widget>
               </item>
               <item>
-               <widget class="QRadioButton" name="radioButtonFacesTorus">
+               <widget class="QRadioButton" name="radioButtonFaceEdgesTorus">
                 <property name="text">
-                 <string>Torus model faces</string>
+                 <string>Torus model face edges</string>
                 </property>
                 <attribute name="buttonGroup">
                  <string>buttonGroupDisplay</string>
@@ -463,7 +485,7 @@
            <item>
             <widget class="QStackedWidget" name="stackedWidgetEdges">
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="pageEdgesEmpty"/>
              <widget class="QWidget" name="pageEdgesNormal">
@@ -900,7 +922,7 @@
      <x>0</x>
      <y>0</y>
      <width>876</width>
-     <height>22</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuView">
@@ -959,6 +981,12 @@
     <slot>ValueChangedTimeDisplacement(int)</slot>
     <slot>ValueChangedEdgesRadius(int)</slot>
     <slot>ToggledLighting(bool)</slot>
+    <slot>ToggledFaceEdgesTorus(bool)</slot>
+    <slot>ToggledShowLightPosition(bool)</slot>
+    <slot>ToggledCenterPathShowBody(bool)</slot>
+    <slot>ToggledShowTorusOriginalDomain(bool)</slot>
+    <slot>ToggledEnableLighting(bool)</slot>
+    <slot>ToggledEnableDirectionalLight(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1007,8 +1035,8 @@
    <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>821</x>
-     <y>277</y>
+     <x>676</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>507</x>
@@ -1023,8 +1051,8 @@
    <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>821</x>
-     <y>277</y>
+     <x>676</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1039,8 +1067,8 @@
    <slot>ClickedPlay()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>790</x>
-     <y>125</y>
+     <x>809</x>
+     <y>122</y>
     </hint>
     <hint type="destinationlabel">
      <x>66</x>
@@ -1055,8 +1083,8 @@
    <slot>ClickedBegin()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>757</x>
-     <y>125</y>
+     <x>781</x>
+     <y>122</y>
     </hint>
     <hint type="destinationlabel">
      <x>38</x>
@@ -1103,8 +1131,8 @@
    <slot>ToggledEdgesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>821</x>
-     <y>277</y>
+     <x>837</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1119,8 +1147,8 @@
    <slot>ToggledCenterPath(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>821</x>
-     <y>277</y>
+     <x>676</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>460</x>
@@ -1148,10 +1176,10 @@
    <sender>checkBoxCenterPathBody</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledCenterPathDisplayBody(bool)</slot>
+   <slot>ToggledCenterPathShowBody(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>566</x>
+     <x>676</x>
      <y>310</y>
     </hint>
     <hint type="destinationlabel">
@@ -1167,8 +1195,8 @@
    <slot>ToggledEdgesBodyCenter(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>833</x>
-     <y>386</y>
+     <x>676</x>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1183,8 +1211,8 @@
    <slot>ToggledEdgesTessellation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>833</x>
-     <y>407</y>
+     <x>676</x>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1193,14 +1221,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxTorusOriginalDomainDisplay</sender>
+   <sender>checkBoxTorusOriginalDomain</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledTorusOriginalDomainDisplay(bool)</slot>
+   <slot>ToggledShowTorusOriginalDomain(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>822</x>
-     <y>297</y>
+     <x>837</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1215,8 +1243,8 @@
    <slot>ToggledShowBoundingBox(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>822</x>
-     <y>276</y>
+     <x>837</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1231,8 +1259,8 @@
    <slot>ValueChangedAngleOfView(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>828</x>
-     <y>510</y>
+     <x>846</x>
+     <y>550</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1247,8 +1275,8 @@
    <slot>CurrentIndexChangedCenterPathColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>548</x>
-     <y>320</y>
+     <x>676</x>
+     <y>310</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1263,8 +1291,8 @@
    <slot>CurrentIndexChangedFacesColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>548</x>
-     <y>342</y>
+     <x>676</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1283,8 +1311,8 @@
      <y>67</y>
     </hint>
     <hint type="destinationlabel">
-     <x>420</x>
-     <y>707</y>
+     <x>438</x>
+     <y>717</y>
     </hint>
    </hints>
   </connection>
@@ -1311,8 +1339,8 @@
    <slot>SelectionChangedHistogram()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>389</x>
-     <y>707</y>
+     <x>407</x>
+     <y>717</y>
     </hint>
     <hint type="destinationlabel">
      <x>336</x>
@@ -1359,8 +1387,8 @@
    <slot>ShowEditColorMap()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>23</x>
-     <y>663</y>
+     <x>26</x>
+     <y>692</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1375,8 +1403,8 @@
    <slot>ToggledShowTimeSteps(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>822</x>
-     <y>318</y>
+     <x>837</x>
+     <y>317</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1391,8 +1419,8 @@
    <slot>ToggledFacesShowEdges(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>566</x>
-     <y>326</y>
+     <x>676</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1455,8 +1483,8 @@
    <slot>ToggledCenterPath(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>821</x>
-     <y>277</y>
+     <x>676</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1487,8 +1515,8 @@
    <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>821</x>
-     <y>296</y>
+     <x>693</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
      <x>873</x>
@@ -1503,8 +1531,8 @@
    <slot>ToggledFacesAverage(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>821</x>
-     <y>296</y>
+     <x>693</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1519,8 +1547,8 @@
    <slot>ValueChangedTimeDisplacement(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>557</x>
-     <y>324</y>
+     <x>676</x>
+     <y>310</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1551,8 +1579,8 @@
    <slot>ValueChangedEdgesRadius(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>813</x>
-     <y>381</y>
+     <x>837</x>
+     <y>410</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1561,10 +1589,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioButtonFacesTorus</sender>
+   <sender>radioButtonFaceEdgesTorus</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledFacesTorus(bool)</slot>
+   <slot>ToggledFaceEdgesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>680</x>
@@ -1580,11 +1608,11 @@
    <sender>checkBoxLighting</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledLighting(bool)</slot>
+   <slot>ToggledEnableLighting(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>822</x>
-     <y>447</y>
+     <x>837</x>
+     <y>473</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1599,12 +1627,44 @@
    <slot>ToggledTorusOriginalDomainClipped(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>515</x>
-     <y>346</y>
+     <x>676</x>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>414</x>
      <y>380</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxLightPosition</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledShowLightPosition(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>664</x>
+     <y>360</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>501</x>
+     <y>378</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxDirectionalLight</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledEnableDirectionalLight(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>627</x>
+     <y>488</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>501</x>
+     <y>488</y>
     </hint>
    </hints>
   </connection>
