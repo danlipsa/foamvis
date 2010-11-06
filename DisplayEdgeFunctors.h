@@ -48,10 +48,19 @@ public:
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
-struct DisplayOrientedEdge
+class DisplayOrientedEdge
 {
+public:
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
+
+class DisplayOrientedEdgeTube
+{
+    
+public:
+    void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
+};
+
 
 
 struct DisplayArrow
