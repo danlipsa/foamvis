@@ -204,8 +204,8 @@ void GLWidget::calculateEdgeRadius (
     if (edgesTubes != 0)
 	*edgesTubes = (edgeRadiusMultiplier != 0.0);
     *edgeRadius = (R - r) * edgeRadiusMultiplier + r;
-    *arrowBaseRadius = 5 * (*edgeRadius);
-    *arrowHeight = 10 * (*edgeRadius);    
+    *arrowBaseRadius = 4 * (*edgeRadius);
+    *arrowHeight = 11 * (*edgeRadius);    
 }
 
 GLWidget::~GLWidget()
@@ -766,7 +766,8 @@ void GLWidget::displayAxes () const
 	calculateEdgeRadius (0, &edgeRadius,
 			     &arrowBaseRadius, &arrowHeight);
 	DisplayOrientedEdgeTube displayOrientedEdge (
-	    GetQuadricObject (), arrowBaseRadius, edgeRadius, arrowHeight);
+	    GetQuadricObject (), arrowBaseRadius, edgeRadius, arrowHeight,
+	    DisplayArrow::TOP_END);
 	
 	glColor (Qt::red);
 	displayOrientedEdge (origin, first);
@@ -1628,11 +1629,13 @@ void GLWidget::displayTextureColorBar () const
 	    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	    glBindTexture (GL_TEXTURE_1D, m_colorBarTexture);
 
+	    const int BAR_WIDTH = 16;
+	    const int BAR_HEIGHT = height () / 4;
 	    glBegin (GL_QUADS);
 	    glTexCoord1f(0);glVertex2s (0, 0);
-	    glTexCoord1f(1);glVertex2s (256, 0);
-	    glTexCoord1f(1);glVertex2s (256, 16);
-	    glTexCoord1f(0);glVertex2s (0, 16);
+	    glTexCoord1f(1);glVertex2s (0, BAR_HEIGHT);
+	    glTexCoord1f(1);glVertex2s (BAR_WIDTH, BAR_HEIGHT);
+	    glTexCoord1f(0);glVertex2s (BAR_WIDTH, 0);
 	    glEnd ();
 	    glDisable (GL_TEXTURE_1D);
 	}

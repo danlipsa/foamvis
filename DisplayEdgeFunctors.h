@@ -45,14 +45,22 @@ public:
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
-struct DisplayArrow
+class DisplayArrow
 {
+public:
+    enum Position
+    {
+	BASE_MIDDLE,
+	TOP_END
+    };
+
 public:
     DisplayArrow (
 	GLUquadricObj* quadric = 0,
-	double baseRadius = 0, double topRadius = 0, double height = 0) :
+	double baseRadius = 0, double topRadius = 0, double height = 0,
+	Position position = BASE_MIDDLE) :
 	m_quadric (quadric), m_baseRadius (baseRadius), m_topRadius(topRadius),
-	m_height (height)
+	m_height (height), m_position (position)
     {
     }
 
@@ -62,6 +70,7 @@ protected:
     double m_baseRadius;
     double m_topRadius;
     double m_height;
+    Position m_position;
 };
 
 class DisplayArrowTube : public DisplayArrow
@@ -69,8 +78,9 @@ class DisplayArrowTube : public DisplayArrow
 public:
     DisplayArrowTube (
 	GLUquadricObj* quadric,
-	double baseRadius, double topRadius, double height) :
-	DisplayArrow (quadric, baseRadius, topRadius, height)
+	double baseRadius, double topRadius, double height, 
+	Position position = BASE_MIDDLE) :
+	DisplayArrow (quadric, baseRadius, topRadius, height, position)
     {
     }
 
@@ -82,8 +92,9 @@ class DisplayOrientedEdge : public DisplayArrow
 public:
     DisplayOrientedEdge (
 	GLUquadricObj* quadric = 0,
-	double baseRadius = 0, double topRadius = 0, double height = 0) :
-	DisplayArrow (quadric, baseRadius, topRadius, height)
+	double baseRadius = 0, double topRadius = 0, double height = 0,
+	Position position = BASE_MIDDLE) :
+	DisplayArrow (quadric, baseRadius, topRadius, height, position)
     {
     }
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
@@ -94,8 +105,9 @@ class DisplayOrientedEdgeTube : public DisplayArrow
 public:
     DisplayOrientedEdgeTube (
 	GLUquadricObj* quadric = 0,
-	double baseRadius = 0, double topRadius = 0, double height = 0) :
-	DisplayArrow (quadric, baseRadius, topRadius, height)
+	double baseRadius = 0, double topRadius = 0, double height = 0,
+	Position position = BASE_MIDDLE) :
+	DisplayArrow (quadric, baseRadius, topRadius, height, position)
     {
     }
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);

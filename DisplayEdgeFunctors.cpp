@@ -70,12 +70,20 @@ void DisplayArrow::operator () (
 void DisplayArrowTube::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
+    G3D::Vector3 translation;
+    translation = ((m_position == BASE_MIDDLE) ?
+		   (begin + end) / 2 :
+		   (end - (end - begin).direction () * m_height));
+    cdbg << "begin: " << begin << endl
+	 << "end: " << end << endl
+	 << "translation: " << translation << endl
+	 << "position: " << m_position << endl << endl;
     G3D::Matrix3 rotation = edgeRotation (begin, end);
-    G3D::CoordinateFrame frame (rotation, (begin + end)/2);
+    G3D::CoordinateFrame objectToWorld (rotation, translation);
     gluQuadricOrientation (m_quadric, GLU_OUTSIDE);
     glPushMatrix ();
     {
-	glMultMatrix (frame);
+	glMultMatrix (objectToWorld);
 	gluCylinder (m_quadric, m_baseRadius, m_topRadius, m_height,
 		     GLWidget::QUADRIC_SLICES, GLWidget::QUADRIC_STACKS);
 	gluQuadricOrientation (m_quadric, GLU_INSIDE);
@@ -107,7 +115,8 @@ void DisplayOrientedEdge::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
     DisplayEdge displayEdge (m_quadric, m_topRadius);
-    DisplayArrow displayArrow (m_quadric, m_baseRadius, m_topRadius, m_height);
+    DisplayArrow displayArrow (
+	m_quadric, m_baseRadius, m_topRadius, m_height, m_position);
     displayEdge (begin, end);
     displayArrow (begin, end);
 }
@@ -118,7 +127,7 @@ void DisplayOrientedEdgeTube::operator () (
 {
     DisplayEdgeTube displayEdge (m_quadric, m_topRadius);
     DisplayArrowTube displayArrow (
-	m_quadric, m_baseRadius, m_topRadius, m_height);
+	m_quadric, m_baseRadius, m_topRadius, m_height, m_position);
     displayEdge (begin, end);
     displayArrow (begin, end);
 }
