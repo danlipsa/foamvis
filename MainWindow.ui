@@ -261,6 +261,13 @@
                </widget>
               </item>
               <item>
+               <widget class="QCheckBox" name="checkBoxAxes">
+                <property name="text">
+                 <string>Axes</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QCheckBox" name="checkBoxTorusOriginalDomain">
                 <property name="text">
                  <string>Torus original domain</string>
@@ -278,9 +285,9 @@
                </widget>
               </item>
               <item>
-               <widget class="QCheckBox" name="checkBoxColorBar">
+               <widget class="QCheckBox" name="checkBoxFullColorBar">
                 <property name="text">
-                 <string>Color Bar</string>
+                 <string>Full Color Bar</string>
                 </property>
                 <property name="checked">
                  <bool>true</bool>
@@ -987,6 +994,13 @@
     <slot>ToggledShowTorusOriginalDomain(bool)</slot>
     <slot>ToggledEnableLighting(bool)</slot>
     <slot>ToggledEnableDirectionalLight(bool)</slot>
+    <slot>ToggledBoundingBoxShown(bool)</slot>
+    <slot>ToggledLightPositionShown(bool)</slot>
+    <slot>ToggledTorusOriginalDomainShown(bool)</slot>
+    <slot>ToggledLightingEnabled(bool)</slot>
+    <slot>ToggledDirectionalLightEnabled(bool)</slot>
+    <slot>ToggledAxesShown(bool)</slot>
+    <slot>ToggledFullColorBarShown(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1131,8 +1145,8 @@
    <slot>ToggledEdgesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>263</y>
+     <x>676</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1180,7 +1194,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>676</x>
-     <y>310</y>
+     <y>256</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1196,7 +1210,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>676</x>
-     <y>364</y>
+     <y>256</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1212,7 +1226,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>676</x>
-     <y>364</y>
+     <y>256</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1224,11 +1238,11 @@
    <sender>checkBoxTorusOriginalDomain</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledShowTorusOriginalDomain(bool)</slot>
+   <slot>ToggledTorusOriginalDomainShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>837</x>
-     <y>290</y>
+     <y>317</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1240,7 +1254,7 @@
    <sender>checkBoxBoundingBox</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledShowBoundingBox(bool)</slot>
+   <slot>ToggledBoundingBoxShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>837</x>
@@ -1260,7 +1274,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>846</x>
-     <y>550</y>
+     <y>577</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1276,7 +1290,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>676</x>
-     <y>310</y>
+     <y>256</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1292,7 +1306,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>676</x>
-     <y>337</y>
+     <y>256</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1404,7 +1418,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>837</x>
-     <y>317</y>
+     <y>344</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1420,7 +1434,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>676</x>
-     <y>337</y>
+     <y>256</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1451,8 +1465,8 @@
    <slot>ToggledEdgesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>641</x>
-     <y>258</y>
+     <x>676</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1467,8 +1481,8 @@
    <slot>ToggledEdgesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>652</x>
-     <y>277</y>
+     <x>676</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1515,8 +1529,8 @@
    <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>693</x>
-     <y>290</y>
+     <x>676</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>873</x>
@@ -1531,8 +1545,8 @@
    <slot>ToggledFacesAverage(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>693</x>
-     <y>290</y>
+     <x>676</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1548,7 +1562,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>676</x>
-     <y>310</y>
+     <y>256</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1557,14 +1571,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxColorBar</sender>
+   <sender>checkBoxFullColorBar</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>ToggledShowColorBar(bool)</slot>
+   <slot>ToggledFullColorBarShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>822</x>
-     <y>339</y>
+     <x>837</x>
+     <y>371</y>
     </hint>
     <hint type="destinationlabel">
      <x>872</x>
@@ -1580,7 +1594,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>837</x>
-     <y>410</y>
+     <y>437</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1595,8 +1609,8 @@
    <slot>ToggledFaceEdgesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>680</x>
-     <y>307</y>
+     <x>676</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1608,11 +1622,11 @@
    <sender>checkBoxLighting</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledEnableLighting(bool)</slot>
+   <slot>ToggledLightingEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>837</x>
-     <y>473</y>
+     <y>500</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1628,7 +1642,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>676</x>
-     <y>364</y>
+     <y>256</y>
     </hint>
     <hint type="destinationlabel">
      <x>414</x>
@@ -1640,11 +1654,11 @@
    <sender>checkBoxLightPosition</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledShowLightPosition(bool)</slot>
+   <slot>ToggledLightPositionShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>664</x>
-     <y>360</y>
+     <x>837</x>
+     <y>398</y>
     </hint>
     <hint type="destinationlabel">
      <x>501</x>
@@ -1656,11 +1670,11 @@
    <sender>checkBoxDirectionalLight</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledEnableDirectionalLight(bool)</slot>
+   <slot>ToggledDirectionalLightEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>627</x>
-     <y>488</y>
+     <x>837</x>
+     <y>527</y>
     </hint>
     <hint type="destinationlabel">
      <x>501</x>
@@ -1668,10 +1682,42 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>checkBoxAxes</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledAxesShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>715</x>
+     <y>280</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>532</x>
+     <y>509</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxFullColorBar</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledFullColorBarShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>625</x>
+     <y>364</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>534</x>
+     <y>533</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>ToggledFacesNormal(bool)</slot>
-  <slot>ToggledShowColorBar(bool)</slot>
+  <slot>ToggledFullColorBarShown(bool)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroupDisplay"/>

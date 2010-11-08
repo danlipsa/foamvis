@@ -201,7 +201,6 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
     {
 	radioButtonEdgesNormal->toggle ();
 	tabWidget->setCurrentWidget (edges);
-	widgetAngleOfView->setDisabled (true);
     }
     else
     {
@@ -515,7 +514,7 @@ void MainWindow::ToggledShowTimeSteps (bool checked)
     sliderTimeSteps->setVisible (checked);
 }
 
-void MainWindow::ToggledShowColorBar (bool checked)
+void MainWindow::ToggledFullColorBarShown (bool checked)
 {
     colorBar->setVisible (checked);
 }

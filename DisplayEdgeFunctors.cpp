@@ -106,22 +106,24 @@ void DisplayEdgeTorusClipped::operator () (
 void DisplayOrientedEdge::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
-    G3D::Vector3 middle = (begin + end) / 2.0;
-    glPushAttrib (GL_LINE_BIT);
-    // first half
-    glLineWidth (2.0);
-    glBegin(GL_LINES);
-    glVertex(begin);
-    glVertex(middle);
-    glEnd();
-    // second half
-    glLineWidth (1.0);
-    glBegin(GL_LINES);
-    glVertex(middle);
-    glVertex(end);
-    glEnd();
-    glPopAttrib ();
+    DisplayEdge displayEdge (m_quadric, m_topRadius);
+    DisplayArrow displayArrow (m_quadric, m_baseRadius, m_topRadius, m_height);
+    displayEdge (begin, end);
+    displayArrow (begin, end);
 }
+
+
+void DisplayOrientedEdgeTube::operator () (
+    const G3D::Vector3& begin, const G3D::Vector3& end)
+{
+    DisplayEdgeTube displayEdge (m_quadric, m_topRadius);
+    DisplayArrowTube displayArrow (
+	m_quadric, m_baseRadius, m_topRadius, m_height);
+    displayEdge (begin, end);
+    displayArrow (begin, end);
+}
+
+
 
 
 void DisplaySameEdges::operator() (const boost::shared_ptr<Face>& f)

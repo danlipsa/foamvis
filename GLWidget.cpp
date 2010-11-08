@@ -66,16 +66,18 @@ GLWidget::GLWidget(QWidget *parent)
       m_contextAlpha (0.05),
       m_rotationMatrixModel (G3D::Matrix3::identity ()),
       m_scalingFactorModel (1),
-      m_lighting (false),
+      m_lightingEnabled (false),
       m_rotationMatrixLight (G3D::Matrix3::identity ()),
       m_showLightPosition (false),
       m_angleOfView (0),
+      m_edgeRadiusMultiplier (0),
       m_edgesTubes (false),
       m_facesShowEdges (true),
       m_edgesBodyCenter (false),
       m_edgesTessellation (true),
       m_centerPathBodyShown (false),
-      m_boundingBox (false),
+      m_boundingBoxShown (false),
+      m_axesShown (false),
       m_centerPathColor (BodyProperty::NONE),
       m_facesColor (BodyProperty::NONE),
       m_notAvailableCenterPathColor (Qt::black),
@@ -166,30 +168,44 @@ void GLWidget::initViewTypeDisplay ()
 void GLWidget::SetFoamAlongTime (FoamAlongTime* dataAlongTime) 
 {
     m_foamAlongTime = dataAlongTime;
-    setEdgeRadius (0);
-
     calculateCameraDistance ();
     setInitialLightPosition ();
 }
 
 bool GLWidget::edgeLighting () const
 {
-    return m_edgesTubes && m_lighting;
+    return m_edgesTubes && m_lightingEnabled;
 }
 
 
-void GLWidget::setEdgeRadius (int sliderValue, int maxValue)
+double GLWidget::getMinimumEdgeRadius ()
 {
-    boost::shared_ptr<Edge> e = GetCurrentFoam ().GetStandardEdge ();
-    double length = (*e->GetEnd () - *e->GetBegin ()).length ();
+    G3D::Vector3 origin (0, 0, 0);
+    G3D::Vector3 one (1, 0, 0);
+    G3D::Vector3 objectOrigin = gluUnProject (origin);
+    G3D::Vector3 objectOne = gluUnProject (one);
+    return (objectOne - objectOrigin).length ();
+}
 
-    double r = length / 20;
+void GLWidget::setEdgeRadius ()
+{
+    calculateEdgeRadius (m_edgeRadiusMultiplier,
+			 &m_edgeRadius, &m_arrowBaseRadius,
+			 &m_arrowHeight, &m_edgesTubes);
+}
+
+void GLWidget::calculateEdgeRadius (
+    double edgeRadiusMultiplier, double* edgeRadius,
+    double* arrowBaseRadius, double* arrowHeight, bool* edgesTubes)
+{
+    double r = getMinimumEdgeRadius ();
     double R = 10 * r;
 
-    m_edgesTubes = (sliderValue != 0);
-    m_edgeRadius = (R - r) * sliderValue / maxValue + r;
-    m_arrowBaseRadius = 5 * m_edgeRadius;
-    m_arrowHeight = 10 * m_edgeRadius;    
+    if (edgesTubes != 0)
+	*edgesTubes = (edgeRadiusMultiplier != 0.0);
+    *edgeRadius = (R - r) * edgeRadiusMultiplier + r;
+    *arrowBaseRadius = 5 * (*edgeRadius);
+    *arrowHeight = 10 * (*edgeRadius);    
 }
 
 GLWidget::~GLWidget()
@@ -205,7 +221,7 @@ void GLWidget::view (bool checked, ViewType::Enum view)
     {
 	makeCurrent ();
         m_viewType = view;
-	if ((m_viewTypeDisplay[view].m_lighting) () == LIGHTING)
+	if ((m_viewTypeDisplay[view].m_lightingEnabled) () == LIGHTING)
 	    glEnable (GL_LIGHTING);
 	else
 	    glDisable (GL_LIGHTING);
@@ -228,14 +244,11 @@ void GLWidget::setInitialLightPosition ()
     G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
     G3D::Vector3 center = bb.center ();
     m_lightPosition =  bb.high () - center;
-    m_directionalLight = true;
+    m_directionalLightEnabled = true;
 }
 
 void GLWidget::positionLight ()
 {
-    if (! m_lighting)
-	return;
-
     // light position
     glPushMatrix ();
     {
@@ -243,14 +256,17 @@ void GLWidget::positionLight ()
 	glTranslate (- m_cameraDistance * G3D::Vector3::unitZ ());
 	glMultMatrix (m_rotationMatrixLight);
 	GLfloat lightPosition[] = {m_lightPosition.x, m_lightPosition.y,
-				   m_lightPosition.z, ! m_directionalLight};
+				   m_lightPosition.z, ! m_directionalLightEnabled};
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 	if (m_showLightPosition)
 	{
+	    glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT);
 	    glPointSize (4);
+	    glColor (Qt::black);
 	    glBegin (GL_POINTS);
 	    glVertex (m_lightPosition);
 	    glEnd ();
+	    glPopAttrib ();
 	}
     }
     glPopMatrix ();
@@ -527,16 +543,19 @@ void GLWidget::initializeGL()
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     m_displayFaceAverage->InitShaders ();
     initializeLighting ();
+    setEdgeRadius ();
 }
 
 void GLWidget::paintGL ()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    positionLight ();
     modelViewTransform ();
     display ();
-    //displayTextureColorMap ();
+    displayTextureColorBar ();
+    positionLight ();
     displayAxes ();
+    displayBoundingBox ();
+    displayOriginalDomain ();
     detectOpenGLError ();
 }
 
@@ -548,6 +567,7 @@ void GLWidget::resizeGL(int width, int height)
     QSize size = QSize (width, height);
     if (m_srcAlphaBlend < 1)
 	m_displayBlend->Init (size);
+    setEdgeRadius ();
 }
 
 void GLWidget::RenderFromFbo (QGLFramebufferObject& fbo) const
@@ -680,13 +700,13 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	break;
     case InteractionMode::SCALE:
 	scaleViewport (event->pos ());
+	break;
     case InteractionMode::ROTATE_LIGHT:
 	rotate (event->pos (), &m_rotationMatrixLight);
 	break;
     case InteractionMode::TRANSLATE_LIGHT:
 	translateLight (event->pos ());
 	break;
-
     default:
 	break;
     }
@@ -725,33 +745,39 @@ void GLWidget::displayBox (const OOBox& oobox) const
 
 void GLWidget::displayBoundingBox () const
 {
-    if (m_boundingBox)
+    if (m_boundingBoxShown)
 	displayBox (GetFoamAlongTime ().GetBoundingBox (), Qt::black, GL_LINE);
 }
 
 void GLWidget::displayAxes () const
 {
-    using G3D::Vector3;
-    const G3D::AABox& aabb = GetFoamAlongTime ().GetBoundingBox ();
-    Vector3 origin = aabb.low ();
-    Vector3 diagonal = aabb.high () - origin;
-    Vector3 first = origin + diagonal.x * Vector3::unitX ();
-    Vector3 second = origin + diagonal.y * Vector3::unitY ();
-    Vector3 third = origin + diagonal.z * Vector3::unitZ ();
-    glBegin (GL_LINES);
+    if (m_axesShown)
+    {
+	glPushAttrib (GL_CURRENT_BIT);
+	using G3D::Vector3;
+	const G3D::AABox& aabb = GetFoamAlongTime ().GetBoundingBox ();
+	Vector3 origin = aabb.low ();
+	Vector3 diagonal = aabb.high () - origin;
+	Vector3 first = origin + diagonal.x * Vector3::unitX ();
+	Vector3 second = origin + diagonal.y * Vector3::unitY ();
+	Vector3 third = origin + diagonal.z * Vector3::unitZ ();
+	double edgeRadius, arrowBaseRadius, arrowHeight;
 
-    glColor (Qt::red);
-    glVertex (origin);
-    glVertex (first);
+	calculateEdgeRadius (0, &edgeRadius,
+			     &arrowBaseRadius, &arrowHeight);
+	DisplayOrientedEdgeTube displayOrientedEdge (
+	    GetQuadricObject (), arrowBaseRadius, edgeRadius, arrowHeight);
+	
+	glColor (Qt::red);
+	displayOrientedEdge (origin, first);
 
-    glColor (Qt::green);
-    glVertex (origin);
-    glVertex (second);
+	glColor (Qt::green);
+	displayOrientedEdge (origin, second);
 
-    glColor (Qt::blue);
-    glVertex (origin);
-    glVertex (third);
-    glEnd ();
+	glColor (Qt::blue);
+	displayOrientedEdge (origin, third);
+	glPopAttrib ();
+    }
 }
 
 void GLWidget::displayBox (const G3D::AABox& aabb, 
@@ -787,9 +813,7 @@ void GLWidget::displayEdges () const
     displayStandaloneEdges<displayEdge> ();
 
     glPopAttrib ();
-    displayOriginalDomain ();
     displayCenterOfBodies ();
-    displayBoundingBox ();
 }
 
 template<typename displayEdge>
@@ -835,8 +859,6 @@ void GLWidget::displayEdgesTorusTubes () const
 	edgeSet.begin (), edgeSet.end (),
 	DisplayEdgeTorus<DisplayEdgeTube, DisplayArrowTube, false>(*this));
     glPopAttrib ();
-
-    displayOriginalDomain ();
 }
 
 void GLWidget::displayEdgesTorusLines () const
@@ -848,8 +870,6 @@ void GLWidget::displayEdgesTorusLines () const
     for_each (edgeSet.begin (), edgeSet.end (),
 	      DisplayEdgeTorus<DisplayEdge, DisplayArrow, false> (*this));
     glPopAttrib ();
-
-    displayOriginalDomain ();
 }
 
 
@@ -890,8 +910,6 @@ void GLWidget::displayFacesNormal () const
     }
 
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
-    displayOriginalDomain ();
-    displayBoundingBox ();
 }
 
 void GLWidget::displayFacesAverage () const
@@ -972,7 +990,6 @@ void GLWidget::displayFacesTorusTubes () const
 	      DisplayEdgeTorus<DisplayEdgeTube, DisplayArrowTube, true> > > (
 		  *this));
     glPopAttrib ();
-    displayOriginalDomain ();
 }
 
 
@@ -988,8 +1005,6 @@ void GLWidget::displayFacesTorusLines () const
 	      DisplayEdgeTorus<DisplayEdge, DisplayArrow, true> > > (
 		  *this, DisplayElement::FOCUS) );
     glPopAttrib ();
-
-    displayOriginalDomain ();
 }
 
 void GLWidget::displayCenterPathsWithBodies () const
@@ -1009,8 +1024,6 @@ void GLWidget::displayCenterPathsWithBodies () const
 		      BodyProperty::NONE, true, zPos));
 	displayCenterOfBodies (true);
     }
-    displayOriginalDomain ();
-    displayBoundingBox ();
     displayStandaloneEdges< DisplayEdgeWithColor<> > (true, 0);
     if (GetTimeDisplacement () != 0)
     {
@@ -1260,13 +1273,13 @@ size_t GLWidget::GetDisplayedEdgeId () const
 
 // Slots
 // ======================================================================
-void GLWidget::ToggledEnableLighting (bool checked)
+void GLWidget::ToggledLightingEnabled (bool checked)
 {
-    if (m_lighting == checked)
+    if (m_lightingEnabled == checked)
 	return;
-    m_lighting = checked;
+    m_lightingEnabled = checked;
     makeCurrent ();
-    if ((m_viewTypeDisplay[m_viewType].m_lighting) () == LIGHTING)
+    if ((m_viewTypeDisplay[m_viewType].m_lightingEnabled) () == LIGHTING)
     {
 	glEnable (GL_LIGHTING);
     }
@@ -1277,24 +1290,37 @@ void GLWidget::ToggledEnableLighting (bool checked)
     updateGL ();
 }
 
-void GLWidget::ToggledEnableDirectionalLight (bool checked)
+void GLWidget::ToggledDirectionalLightEnabled (bool checked)
 {
-    m_directionalLight = checked;
+    m_directionalLightEnabled = checked;
     updateGL ();
 }
 
-void GLWidget::ToggledShowLightPosition (bool checked)
+void GLWidget::ToggledLightPositionShown (bool checked)
 {
     m_showLightPosition = checked;
     updateGL ();
 }
 
 
-void GLWidget::ToggledShowBoundingBox (bool checked)
+void GLWidget::ToggledBoundingBoxShown (bool checked)
 {
-    m_boundingBox = checked;
+    m_boundingBoxShown = checked;
     updateGL ();
 }
+
+void GLWidget::ToggledFullColorBarShown (bool checked)
+{
+    m_textureColorBarShown = ! checked;
+    updateGL ();
+}
+
+void GLWidget::ToggledAxesShown (bool checked)
+{
+    m_axesShown = checked;
+    updateGL ();
+}
+
 
 void GLWidget::ToggledCenterPathShowBody (bool checked)
 {
@@ -1360,7 +1386,7 @@ void GLWidget::ToggledEdgesTessellation (bool checked)
 }
 
 
-void GLWidget::ToggledShowTorusOriginalDomain (bool checked)
+void GLWidget::ToggledTorusOriginalDomainShown (bool checked)
 {
     m_torusOriginalDomainDisplay = checked;
     updateGL ();
@@ -1470,10 +1496,10 @@ void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
 void GLWidget::ValueChangedEdgesRadius (int sliderValue)
 {
     makeCurrent ();
-    QSlider* slider = static_cast<QSlider*> (sender ());
-    size_t maximum = slider->maximum ();
-    setEdgeRadius (sliderValue, maximum);
-    ToggledEnableLighting (m_lighting);
+    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
+    m_edgeRadiusMultiplier = static_cast<double>(sliderValue) / maximum;
+    setEdgeRadius ();
+    ToggledLightingEnabled (m_lightingEnabled);
     updateGL ();
 }
 
@@ -1581,8 +1607,10 @@ void GLWidget::initializeTextures ()
     m_useColorMap = false;
 }
 
-void GLWidget::displayTextureColorMap () const
+void GLWidget::displayTextureColorBar () const
 {
+    if (! m_textureColorBarShown)
+	return;
     glPushAttrib (GL_CURRENT_BIT | GL_VIEWPORT_BIT);
     glPushMatrix ();
     {

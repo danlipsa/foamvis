@@ -223,11 +223,13 @@ public Q_SLOTS:
     /*
      * Global options
      */
-    void ToggledShowBoundingBox (bool checked);
-    void ToggledShowTorusOriginalDomain (bool checked);
-    void ToggledShowLightPosition (bool checked);
-    void ToggledEnableLighting (bool checked);
-    void ToggledEnableDirectionalLight (bool checked);
+    void ToggledBoundingBoxShown (bool checked);
+    void ToggledAxesShown (bool checked);
+    void ToggledTorusOriginalDomainShown (bool checked);
+    void ToggledLightPositionShown (bool checked);
+    void ToggledLightingEnabled (bool checked);
+    void ToggledDirectionalLightEnabled (bool checked);
+    void ToggledFullColorBarShown (bool checked);
 
 
     /**
@@ -325,11 +327,15 @@ private:
     struct ViewTypeDisplay
     {
 	void (GLWidget::* m_display) () const;
-	boost::function<Lighting ()> m_lighting;
+	boost::function<Lighting ()> m_lightingEnabled;
     };
 
 private:
-    void setEdgeRadius (int sliderValue, int maxValue = 99);
+    static double getMinimumEdgeRadius ();
+    void setEdgeRadius ();
+    static void calculateEdgeRadius (
+	double edgeRadiusMultiplier, double* edgeRadius,
+	double* arrowBaseRadius, double* arrowHeight, bool* edgeTubes = 0);
     void calculateFacesAverage ();
     void display () const;
     string getFoamsInfo () const;
@@ -338,7 +344,7 @@ private:
      * Displays the center of the bodies
      */
     void displayCenterOfBodies (bool useZPos = false) const;
-    void displayTextureColorMap () const;
+    void displayTextureColorBar () const;
     bool areEdgesTubes () const
     {
 	return m_edgesTubes;
@@ -346,7 +352,7 @@ private:
     bool edgeLighting () const;
     bool hasLighting () const
     {
-	return m_lighting;
+	return m_lightingEnabled;
     }
 
     void view (bool checked, ViewType::Enum view);
@@ -517,10 +523,10 @@ private:
      */
     double m_cameraDistance;
 
-    bool m_lighting;
+    bool m_lightingEnabled;
+    bool m_directionalLightEnabled;
     G3D::Matrix3 m_rotationMatrixLight;
     G3D::Vector3 m_lightPosition;
-    bool m_directionalLight;
     bool m_showLightPosition;
     double m_angleOfView;
 
@@ -535,13 +541,16 @@ private:
      */
     double m_arrowBaseRadius;
     double m_arrowHeight;
+    double m_edgeRadiusMultiplier;
 
     bool m_edgesTubes;
     bool m_facesShowEdges;
     bool m_edgesBodyCenter;
     bool m_edgesTessellation;
     bool m_centerPathBodyShown;
-    bool m_boundingBox;
+    bool m_boundingBoxShown;
+    bool m_axesShown;
+    bool m_textureColorBarShown;
     boost::array<ViewTypeDisplay, ViewType::COUNT> m_viewTypeDisplay;
     BodyProperty::Enum m_centerPathColor;
     BodyProperty::Enum m_facesColor;

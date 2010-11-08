@@ -19,9 +19,6 @@
 #include "OpenGLUtils.h"
 #include "OrientedEdge.h"
 
-
-G3D::Matrix3 edgeRotation (const G3D::Vector3& begin, const G3D::Vector3& end);
-
 class DisplayEdge
 {
 public:
@@ -48,21 +45,6 @@ public:
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
-class DisplayOrientedEdge
-{
-public:
-    void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
-};
-
-class DisplayOrientedEdgeTube
-{
-    
-public:
-    void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
-};
-
-
-
 struct DisplayArrow
 {
 public:
@@ -82,7 +64,6 @@ protected:
     double m_height;
 };
 
-
 class DisplayArrowTube : public DisplayArrow
 {
 public:
@@ -96,6 +77,29 @@ public:
     void operator () (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
+class DisplayOrientedEdge : public DisplayArrow
+{
+public:
+    DisplayOrientedEdge (
+	GLUquadricObj* quadric = 0,
+	double baseRadius = 0, double topRadius = 0, double height = 0) :
+	DisplayArrow (quadric, baseRadius, topRadius, height)
+    {
+    }
+    void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
+};
+
+class DisplayOrientedEdgeTube : public DisplayArrow
+{
+public:
+    DisplayOrientedEdgeTube (
+	GLUquadricObj* quadric = 0,
+	double baseRadius = 0, double topRadius = 0, double height = 0) :
+	DisplayArrow (quadric, baseRadius, topRadius, height)
+    {
+    }
+    void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
+};
 
 // Display one edge
 // ======================================================================
@@ -141,7 +145,7 @@ public:
 protected:
     void display (const boost::shared_ptr<Edge>  e)
     {
-	glPushAttrib (GL_LIGHTING_BIT);
+	glPushAttrib (GL_CURRENT_BIT);
 	const Vertex* begin = e->GetBegin ().get ();
 	const Vertex* end = e->GetEnd ().get ();
 	G3D::Vector3int16 endLocation = e->GetEndTranslation ();
@@ -156,7 +160,6 @@ private:
     DisplayEdge m_displayEdge;
     DisplayArrow m_displayArrow;
 };
-
 
 template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay = 
 	  DisplayElement::TEST_DISPLAY_TESSELLATION>
@@ -207,7 +210,6 @@ public:
 	operator () (oe->GetEdge ());
     }
 };
-
 
 
 /**

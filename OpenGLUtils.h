@@ -32,6 +32,7 @@ inline void glViewport (const G3D::Rect2D& viewport)
 }
 
 G3D::Vector3 gluProject (const G3D::Vector3& object);
+G3D::Vector3 gluUnProject (const G3D::Vector3& window);
 
 /**
  * Check the OpenGL  error code and prints a message  to cdbg if there

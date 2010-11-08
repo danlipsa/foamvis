@@ -116,6 +116,21 @@ G3D::Vector3 gluProject (const G3D::Vector3& object)
     return G3D::Vector3 (x, y, z);
 }
 
+G3D::Vector3 gluUnProject (const G3D::Vector3& window)
+{
+    GLdouble model[16];
+    glGetDoublev (GL_MODELVIEW_MATRIX, model);
+    GLdouble proj[16];
+    glGetDoublev (GL_PROJECTION_MATRIX, proj);
+    GLint view[4];
+    glGetIntegerv (GL_VIEWPORT, view);
+    GLdouble x, y, z;
+    gluUnProject (window.x, window.y, window.z, model, proj, view, 
+		  &x, &y, &z);
+    return G3D::Vector3 (x, y, z);
+}
+
+
 /**
  * Check the OpenGL  error code and prints a message  to cdbg if there
  * is an error
