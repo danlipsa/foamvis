@@ -21,13 +21,13 @@ class AddShaderProgram : public QGLShaderProgram
 public:
     void Init ();
     void Bind ();
-    pair<GLint,GLenum> GetOldTexUnit ()
+    GLint GetOldTexUnit ()
     {
-	return pair<GLint,GLenum> (1, GL_TEXTURE1);
+	return 1;
     }
-    pair<GLint,GLenum> GetStepTexUnit ()
+    GLint GetStepTexUnit ()
     {
-	return pair<GLint,GLenum>(2, GL_TEXTURE2);
+	return 2;
     }
 private:
     int m_oldTexUnitIndex;
@@ -54,13 +54,13 @@ public:
     void Bind (GLfloat minValue, GLfloat maxValue);
 
     // assume the colorbar is alreay bound on texture unit 0
-    pair<GLint,GLenum> GetColorBarTexUnit ()
+    GLint GetColorBarTexUnit ()
     {
-	return pair<GLint,GLenum>(0,GL_TEXTURE0);
+	return 0;
     }
-    pair<GLint,GLenum> GetAverageTexUnit ()
+    GLint GetAverageTexUnit ()
     {
-	return pair<GLint,GLenum>(1,GL_TEXTURE1);
+	return 1;
     }
 
 private:

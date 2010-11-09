@@ -127,24 +127,24 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBoxMovie">
-         <property name="title">
-          <string>Movie</string>
+        <widget class="QCheckBox" name="checkBoxSaveMovie">
+         <property name="text">
+          <string>Save movie</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_16">
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBoxAnimation">
+         <property name="title">
+          <string>Animation</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_17">
           <item>
            <widget class="QWidget" name="widget" native="true">
             <layout class="QHBoxLayout" name="horizontalLayout">
              <property name="margin">
               <number>0</number>
              </property>
-             <item>
-              <widget class="QCheckBox" name="checkBoxSaveMovie">
-               <property name="text">
-                <string>Save</string>
-               </property>
-              </widget>
-             </item>
              <item>
               <widget class="QToolButton" name="toolButtonBegin">
                <property name="enabled">
@@ -174,6 +174,19 @@
                 <string>&gt;&gt;|</string>
                </property>
               </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
              </item>
             </layout>
            </widget>
@@ -812,6 +825,13 @@
                 </widget>
                </item>
                <item>
+                <widget class="QCheckBox" name="checkBoxOnlyPathsWithSelection">
+                 <property name="text">
+                  <string>Only paths with selection</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <widget class="QWidget" name="widgetTimeDisplacement" native="true">
                  <layout class="QHBoxLayout" name="horizontalLayout_8">
                   <property name="leftMargin">
@@ -1001,6 +1021,8 @@
     <slot>ToggledDirectionalLightEnabled(bool)</slot>
     <slot>ToggledAxesShown(bool)</slot>
     <slot>ToggledFullColorBarShown(bool)</slot>
+    <slot>ToggledOnlyPathsWithSelectionShown(bool)</slot>
+    <slot>ToggledCenterPathBodyShown(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1190,11 +1212,11 @@
    <sender>checkBoxCenterPathBody</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledCenterPathShowBody(bool)</slot>
+   <slot>ToggledCenterPathBodyShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>676</x>
-     <y>256</y>
+     <x>837</x>
+     <y>360</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1210,7 +1232,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>676</x>
-     <y>256</y>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1226,7 +1248,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>676</x>
-     <y>256</y>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1289,8 +1311,8 @@
    <slot>CurrentIndexChangedCenterPathColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>676</x>
-     <y>256</y>
+     <x>828</x>
+     <y>324</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1306,7 +1328,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>676</x>
-     <y>256</y>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1434,7 +1456,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>676</x>
-     <y>256</y>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1481,8 +1503,8 @@
    <slot>ToggledEdgesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>676</x>
-     <y>247</y>
+     <x>837</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1529,8 +1551,8 @@
    <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>676</x>
-     <y>247</y>
+     <x>837</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
      <x>873</x>
@@ -1545,8 +1567,8 @@
    <slot>ToggledFacesAverage(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>676</x>
-     <y>247</y>
+     <x>837</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1561,8 +1583,8 @@
    <slot>ValueChangedTimeDisplacement(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>676</x>
-     <y>256</y>
+     <x>837</x>
+     <y>426</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1609,8 +1631,8 @@
    <slot>ToggledFaceEdgesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>676</x>
-     <y>247</y>
+     <x>837</x>
+     <y>317</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1642,7 +1664,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>676</x>
-     <y>256</y>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>414</x>
@@ -1711,6 +1733,22 @@
     <hint type="destinationlabel">
      <x>534</x>
      <y>533</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxOnlyPathsWithSelection</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledOnlyPathsWithSelectionShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>633</x>
+     <y>372</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>520</x>
+     <y>474</y>
     </hint>
    </hints>
   </connection>

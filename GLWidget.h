@@ -173,9 +173,13 @@ public:
     {
 	return m_edgesTessellation;
     }
-    bool CenterPathBodyShown () const
+    bool IsCenterPathBodyShown () const
     {
 	return m_centerPathBodyShown;
+    }
+    bool OnlyPathsWithSelectionShown () const
+    {
+	return m_onlyPathsWithSelectionShown;
     }
 
     double TexCoord (double value) const;
@@ -251,8 +255,8 @@ public Q_SLOTS:
      * param checked true for showing the center paths false otherwise
      */
     void ToggledCenterPath (bool checked);
-    void ToggledCenterPathShowBody (bool checked);
-
+    void ToggledCenterPathBodyShown (bool checked);
+    void ToggledOnlyPathsWithSelectionShown (bool checked);
     void BodyPropertyChanged (
 	boost::shared_ptr<ColorBarModel> colorBarModel,
 	BodyProperty::Enum bodyProperty, ViewType::Enum viewType);
@@ -548,6 +552,7 @@ private:
     bool m_edgesBodyCenter;
     bool m_edgesTessellation;
     bool m_centerPathBodyShown;
+    bool m_onlyPathsWithSelectionShown;
     bool m_boundingBoxShown;
     bool m_axesShown;
     bool m_textureColorBarShown;

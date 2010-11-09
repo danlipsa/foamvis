@@ -42,6 +42,11 @@ void detectOpenGLError (string message = "");
 
 void printOpenGLInfo (ostream& ostr);
 
+inline GLenum TextureEnum (GLint texture)
+{
+    return GL_TEXTURE0 + texture;
+}
+
 
 #endif //__OPENGL_UTIL_H__
 

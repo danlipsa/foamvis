@@ -182,7 +182,7 @@ private:
  * focus in it.
  */
 template<typename PropertySetter = TexCoordSetter,
-	 typename DisplayEdgeType = DisplayEdge>
+	 typename DisplaySegment = DisplayEdge>
 class DisplayCenterPath : public DisplayBodyBase<PropertySetter>
 {
 public:
@@ -198,7 +198,7 @@ public:
 	DisplayBodyBase<PropertySetter> (
 	    widget, bodySelector, PropertySetter (widget), bodyProperty,
 	    useTimeDisplacement, timeDisplacement),
-	m_displayEdge (this->m_glWidget.GetQuadricObject (), 
+	m_displaySegment (this->m_glWidget.GetQuadricObject (), 
 		       this->m_glWidget.GetEdgeRadius ())
 
     {
@@ -211,6 +211,9 @@ public:
 	DisplayBodyBase<PropertySetter> (
 	    widget, bodySelector, propertySetter, bodyProperty, false, 0)
     {
+	size_t timeSteps = this->m_glWidget.GetFoamAlongTime ().GetTimeSteps ();
+	m_texturedSegments.reserve (timeSteps - 1);
+	m_coloredSegments.reserve (timeSteps - 1);
     }
 
     /**
@@ -219,7 +222,8 @@ public:
      */
     void operator () (size_t bodyId)
     {
-	
+	m_texturedSegments.resize (0);
+	m_coloredSegments.resize (0);
 	const BodyAlongTime& bat = this->m_glWidget.GetBodyAlongTime (bodyId);
 	StripIterator it = bat.GetStripIterator (
 	    this->m_glWidget.GetFoamAlongTime ());
@@ -233,6 +237,18 @@ public:
 	    it.ForEachSegment (
 		boost::bind (&DisplayCenterPath::valueStep,
 			     this, _1, _2));
+	for_each (m_texturedSegments.begin (),
+		  m_texturedSegments.end (),
+		  boost::bind (
+		      &DisplayCenterPath<PropertySetter, 
+		      DisplaySegment>::displayTexturedSegment, this, _1));
+	if (! this->m_glWidget.OnlyPathsWithSelectionShown () ||
+	    m_texturedSegments.size () != 0)
+	    for_each (m_coloredSegments.begin (),
+		      m_coloredSegments.end (),
+		      boost::bind (
+			  &DisplayCenterPath<PropertySetter, 
+			  DisplaySegment>::displayColoredSegment, this, _1));
     }
 
     /**
@@ -244,8 +260,43 @@ public:
 	operator() (p.first);
     }
 
-private:
 
+private:
+    struct ColoredSegment
+    {
+	ColoredSegment () :
+	    m_focus (false)
+	{
+	}
+	ColoredSegment (const QColor& color, bool focus, 
+			const G3D::Vector3& begin,
+			const G3D::Vector3& end) :
+	    m_color (color), m_focus (focus), m_begin (begin), m_end (end)
+	{
+	}
+	QColor m_color;
+	bool m_focus;
+	G3D::Vector3 m_begin;
+	G3D::Vector3 m_end;
+    };
+
+    struct TexturedSegment
+    {
+	TexturedSegment () :
+	    m_textureCoordinate (0)
+	{
+	}
+	TexturedSegment (GLfloat textureCoordinate, const G3D::Vector3& begin,
+			 const G3D::Vector3& end) :
+	    m_textureCoordinate (textureCoordinate), m_begin (begin), m_end (end)
+	{
+	}
+	GLfloat m_textureCoordinate;
+	G3D::Vector3 m_begin;
+	G3D::Vector3 m_end;	
+    };
+
+private:
     G3D::Vector3 getPoint (StripIterator::Point p, bool useTimeDisplacement,
 			   double timeDisplacement)
     {
@@ -266,7 +317,7 @@ private:
 	bool focus = this->m_bodySelector (
 	    prev.m_body->GetId (), prev.m_timeStep);
 	if (focus && this->m_bodyProperty != BodyProperty::NONE)
-	    texturedSegment (
+	    storeTexturedSegment (
 		StripIterator::GetPropertyValue (this->m_bodyProperty, p, prev),
 		getPoint (prev, this->m_useZPos, this->m_zPos), 
 		getPoint (p, this->m_useZPos, this->m_zPos));
@@ -275,7 +326,7 @@ private:
 	    QColor color = (this->m_bodyProperty == BodyProperty::NONE) ? 
 		this->m_glWidget.GetCenterPathNotAvailableColor () :
 		this->m_glWidget.GetCenterPathContextColor ();
-	    coloredSegment (color, false, 
+	    storeColoredSegment (color, false, 
 			    getPoint (prev, this->m_useZPos, this->m_zPos), 
 			    getPoint (p, this->m_useZPos, this->m_zPos));
 	}
@@ -300,7 +351,7 @@ private:
 	bool focus = this->m_bodySelector (p.m_body->GetId (), p.m_timeStep);
 	if (focus && StripIterator::ExistsPropertyValue (
 		this->m_bodyProperty, p))
-	    texturedSegment (
+	    storeTexturedSegment (
 		StripIterator::GetPropertyValue (
 		    this->m_bodyProperty, p), point, middle);
 	else
@@ -308,7 +359,7 @@ private:
 	    QColor color = (focus) ? 
 		this->m_glWidget.GetCenterPathNotAvailableColor () :
 		this->m_glWidget.GetCenterPathContextColor ();		
-	    coloredSegment (color, focus, point, middle);
+	    storeColoredSegment (color, focus, point, middle);
 	}
     }
 
@@ -320,37 +371,47 @@ private:
 	else
 	    return this->m_glWidget.GetCenterPathContextColor ();
     }
-    void segment (const QColor& color, G3D::Vector3 begin, G3D::Vector3 end)
+    void displayColoredSegment (const ColoredSegment& coloredSegment)
     {
-	glColor (color);
-	m_displayEdge (begin, end);
+	glDisable (GL_TEXTURE_1D);
+	DisplayBodyBase<PropertySetter>::beginFocusContext (
+	    coloredSegment.m_focus);
+	glColor (coloredSegment.m_color);
+	m_displaySegment (coloredSegment.m_begin, coloredSegment.m_end);
+	DisplayBodyBase<PropertySetter>::endFocusContext (
+	    coloredSegment.m_focus);
+	glEnable (GL_TEXTURE_1D);
     }
 
-    void segment (float texCoord, G3D::Vector3 begin, G3D::Vector3 end)
+    void displayTexturedSegment (const TexturedSegment& texturedSegment)
     {
-	glTexCoord1f (texCoord);
-	m_displayEdge (begin, end);
-    }
-    
-    void texturedSegment (double value, G3D::Vector3 begin, G3D::Vector3 end)
-    {
-	double segmentTexCoord = this->m_glWidget.TexCoord (value);
 	DisplayBodyBase<PropertySetter>::beginFocusContext (true);
-	segment (segmentTexCoord, begin, end);
+	glTexCoord1f (texturedSegment.m_textureCoordinate);
+	m_displaySegment (texturedSegment.m_begin, texturedSegment.m_end);
 	DisplayBodyBase<PropertySetter>::endFocusContext (true);
     }
 
-    void coloredSegment (const QColor& color, bool focus,
-			 G3D::Vector3 begin, G3D::Vector3 end)
+    void storeTexturedSegment (
+	double value, G3D::Vector3 begin, G3D::Vector3 end)
     {
-	glDisable (GL_TEXTURE_1D);
-	DisplayBodyBase<PropertySetter>::beginFocusContext (focus);
-	segment (color, begin, end);
-	DisplayBodyBase<PropertySetter>::endFocusContext (focus);
-	glEnable (GL_TEXTURE_1D);
+	double textureCoordinate = this->m_glWidget.TexCoord (value);
+	m_texturedSegments.push_back (
+	    TexturedSegment (textureCoordinate, begin, end));
     }
+
+    void storeColoredSegment (const QColor& color, bool focus,
+			      G3D::Vector3 begin, G3D::Vector3 end)
+    {
+	m_coloredSegments.push_back (
+	    ColoredSegment (color, focus, begin, end));
+    }
+
+
+
 private:
-    DisplayEdgeType m_displayEdge;
+    DisplaySegment m_displaySegment;
+    vector<TexturedSegment> m_texturedSegments;
+    vector<ColoredSegment> m_coloredSegments;
 };
 
 

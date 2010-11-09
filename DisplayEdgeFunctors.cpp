@@ -74,10 +74,6 @@ void DisplayArrowTube::operator () (
     translation = ((m_position == BASE_MIDDLE) ?
 		   (begin + end) / 2 :
 		   (end - (end - begin).direction () * m_height));
-    cdbg << "begin: " << begin << endl
-	 << "end: " << end << endl
-	 << "translation: " << translation << endl
-	 << "position: " << m_position << endl << endl;
     G3D::Matrix3 rotation = edgeRotation (begin, end);
     G3D::CoordinateFrame objectToWorld (rotation, translation);
     gluQuadricOrientation (m_quadric, GLU_OUTSIDE);

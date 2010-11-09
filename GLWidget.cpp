@@ -76,8 +76,10 @@ GLWidget::GLWidget(QWidget *parent)
       m_edgesBodyCenter (false),
       m_edgesTessellation (true),
       m_centerPathBodyShown (false),
+      m_onlyPathsWithSelectionShown (false),
       m_boundingBoxShown (false),
       m_axesShown (false),
+      m_textureColorBarShown (false),
       m_centerPathColor (BodyProperty::NONE),
       m_facesColor (BodyProperty::NONE),
       m_notAvailableCenterPathColor (Qt::black),
@@ -87,6 +89,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_colorBarModel (new ColorBarModel ()),
       m_colorBarTexture (0),
       m_srcAlphaBlend (1),
+      m_timeDisplacement (0.0),
       m_playMovie (false)
 {
     makeCurrent ();
@@ -362,8 +365,7 @@ void GLWidget::ViewportTransform (
     G3D::Rect2D vv2dScreen;
     G3D::Rect2D windowWorld;
     viewingVolumeCalculations (width, height, &vv2dScreen, &windowWorld);
-    if (GetCurrentFoam ().GetDimension () == 2
-	&& m_timeDisplacement > 0.0)
+    if (GetCurrentFoam ().GetDimension () == 2 && m_timeDisplacement == 0.0)
     {
 	const double ADJUST = 99.0/100.0;
 	G3D::Rect2D bb2dScreen;
@@ -1012,7 +1014,7 @@ void GLWidget::displayCenterPathsWithBodies () const
 {
     glLineWidth (1.0);
     displayCenterPaths ();
-    if (CenterPathBodyShown ())
+    if (IsCenterPathBodyShown ())
     {
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	double zPos = GetTimeStep () * GetTimeDisplacement ();
@@ -1323,11 +1325,18 @@ void GLWidget::ToggledAxesShown (bool checked)
 }
 
 
-void GLWidget::ToggledCenterPathShowBody (bool checked)
+void GLWidget::ToggledCenterPathBodyShown (bool checked)
 {
     m_centerPathBodyShown = checked;
     updateGL ();
 }
+
+void GLWidget::ToggledOnlyPathsWithSelectionShown (bool checked)
+{
+    m_onlyPathsWithSelectionShown = checked;
+    updateGL ();
+}
+
 
 void GLWidget::ToggledEdgesNormal (bool checked)
 {
@@ -1375,8 +1384,18 @@ void GLWidget::calculateFacesAverage ()
 void GLWidget::ToggledFacesAverage (bool checked)
 {
     if (checked)
-	calculateFacesAverage ();
+    {
+	makeCurrent ();
+	m_displayFaceAverage->Init (QSize (width (), height ()));
+    }
     view (checked, ViewType::FACES_AVERAGE);
+    if (checked)
+    {
+	const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
+	m_displayFaceAverage->Calculate (
+	    GetFacesColor (), foamAlongTime.GetMin (GetFacesColor ()),
+	    foamAlongTime.GetMax (GetFacesColor ()));
+    }
 }
 
 

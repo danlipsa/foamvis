@@ -42,8 +42,8 @@ void AddShaderProgram::Bind ()
 {
     bool bindSuccessful = bind ();
     RuntimeAssert (bindSuccessful, "Bind failed for DisplayShaderProgram");
-    setUniformValue (m_oldTexUnitIndex, GetOldTexUnit ().first);
-    setUniformValue (m_stepTexUnitIndex, GetStepTexUnit ().first);
+    setUniformValue (m_oldTexUnitIndex, GetOldTexUnit ());
+    setUniformValue (m_stepTexUnitIndex, GetStepTexUnit ());
 }
 
 
@@ -125,8 +125,8 @@ void DisplayShaderProgram::Bind (GLfloat minValue, GLfloat maxValue)
     RuntimeAssert (bindSuccessful, "Bind failed for DisplayShaderProgram");
     setUniformValue (m_minValueIndex, minValue);
     setUniformValue (m_maxValueIndex, maxValue);
-    setUniformValue (m_colorBarTexUnitIndex, GetColorBarTexUnit ().first);
-    setUniformValue (m_averageTexUnitIndex, GetAverageTexUnit ().first);
+    setUniformValue (m_colorBarTexUnitIndex, GetColorBarTexUnit ());
+    setUniformValue (m_averageTexUnitIndex, GetAverageTexUnit ());
 }
 
 // DisplayFaceAverage Methods
@@ -167,10 +167,13 @@ void DisplayFaceAverage::Calculate (BodyProperty::Enum bodyProperty,
     {
 	const boost::shared_ptr<const Foam>& foam = foamAlongTime.GetFoam (i);
 	step (*foam, i, bodyProperty, minValue, maxValue);
-	if (i % 10 == 0)
-	    display (minValue, maxValue, *m_new);
+	if (true /*i % 10 == 0*/)
+	{
+	    Display (minValue, maxValue);
+	    const_cast<GLWidget&>(m_glWidget).updateGL ();
+	    QCoreApplication::processEvents ();
+	}
     }
-    const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
 }
 
 void DisplayFaceAverage::display (
@@ -179,13 +182,33 @@ void DisplayFaceAverage::display (
     m_displayShaderProgram.Bind (minValue, maxValue);
     // bind srcFbo.texture () to texture 1
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (
-	m_displayShaderProgram.GetAverageTexUnit ().second);
+	TextureEnum (m_displayShaderProgram.GetAverageTexUnit ()));
     m_glWidget.RenderFromFbo (srcFbo);
 
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
     m_displayShaderProgram.release ();
 }
 
+void DisplayFaceAverage::step (
+    const Foam& foam, size_t timeStep, BodyProperty::Enum bodyProperty,
+    GLfloat minValue, GLfloat maxValue)
+{
+    (void)timeStep;(void)minValue;(void)maxValue;
+    QSize size = m_new->size ();
+    glPushMatrix ();
+    glPushAttrib (GL_CURRENT_BIT | GL_VIEWPORT_BIT | GL_COLOR_BUFFER_BIT);
+    //m_glWidget.ViewportTransform (size.width (), size.height ());
+    m_glWidget.ModelViewTransformNoRotation ();	
+    renderToStep (foam, bodyProperty);
+    //save (*m_step, "step", timeStep);
+    addToNew ();
+    //save (*m_new, "new", timeStep);
+    copyToOld ();
+    //save (*m_old, "old", timeStep);    
+    glPopAttrib ();
+    glPopMatrix ();
+    detectOpenGLError ();
+}
 
 
 void DisplayFaceAverage::Release ()
@@ -219,12 +242,12 @@ void DisplayFaceAverage::addToNew ()
 
     // bind old texture
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (
-	m_addShaderProgram.GetOldTexUnit ().second);
+	TextureEnum (m_addShaderProgram.GetOldTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, m_old->texture ());
 
     // bind step texture
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (
-	m_addShaderProgram.GetStepTexUnit ().second);
+	TextureEnum (m_addShaderProgram.GetStepTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, m_step->texture ());
     // set the active texture to texture 0
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
@@ -248,27 +271,6 @@ void DisplayFaceAverage::clear (QGLFramebufferObject& fbo)
     glClearColor (Qt::black);
     glClear(GL_COLOR_BUFFER_BIT);
     fbo.release ();    
-}
-
-void DisplayFaceAverage::step (
-    const Foam& foam, size_t timeStep, BodyProperty::Enum bodyProperty,
-    GLfloat minValue, GLfloat maxValue)
-{
-    (void)timeStep;(void)minValue;(void)maxValue;
-    QSize size = m_new->size ();
-    glPushMatrix ();
-    glPushAttrib (GL_CURRENT_BIT | GL_VIEWPORT_BIT | GL_COLOR_BUFFER_BIT);
-    //m_glWidget.ViewportTransform (size.width (), size.height ());
-    m_glWidget.ModelViewTransformNoRotation ();	
-    renderToStep (foam, bodyProperty);
-    //save (*m_step, "step", timeStep);
-    addToNew ();
-    //save (*m_new, "new", timeStep);
-    copyToOld ();
-    //save (*m_old, "old", timeStep);    
-    glPopAttrib ();
-    glPopMatrix ();
-    detectOpenGLError ();
 }
 
 void DisplayFaceAverage::save (
