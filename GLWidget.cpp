@@ -1374,11 +1374,8 @@ void GLWidget::ToggledFaceEdgesTorus (bool checked)
 void GLWidget::calculateFacesAverage ()
 {
     makeCurrent ();
-    const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
     m_displayFaceAverage->Init (QSize (width (), height ()));
-    m_displayFaceAverage->Calculate (
-	GetFacesColor (), foamAlongTime.GetMin (GetFacesColor ()),
-	foamAlongTime.GetMax (GetFacesColor ()));
+    m_displayFaceAverage->StepDisplay ();
 }
 
 void GLWidget::ToggledFacesAverage (bool checked)
@@ -1390,12 +1387,8 @@ void GLWidget::ToggledFacesAverage (bool checked)
     }
     view (checked, ViewType::FACES_AVERAGE);
     if (checked)
-    {
-	const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
-	m_displayFaceAverage->Calculate (
-	    GetFacesColor (), foamAlongTime.GetMin (GetFacesColor ()),
-	    foamAlongTime.GetMax (GetFacesColor ()));
-    }
+	m_displayFaceAverage->StepDisplay ();
+    updateGL ();
 }
 
 
@@ -1482,7 +1475,9 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
     makeCurrent ();
     updateGL ();
     if (m_srcAlphaBlend < 1)
-	m_displayBlend->Step ( m_timeStep != 0, timeStep);
+	m_displayBlend->Step (m_timeStep != 0, timeStep);
+    if (m_viewType == ViewType::FACES_AVERAGE)
+	m_displayFaceAverage->StepDisplay ();
     updateGL ();
 }
 

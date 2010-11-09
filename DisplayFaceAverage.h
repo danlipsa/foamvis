@@ -87,11 +87,12 @@ public:
     }
     void Calculate (BodyProperty::Enum bodyProperty,
 		    GLfloat minValue, GLfloat maxValue);
-
-private:
-    void step (const Foam& foam, size_t timeStep,
+    void StepDisplay ();
+    void Step (size_t timeStep,
 	       BodyProperty::Enum bodyProperty,
 	       GLfloat minValue, GLfloat maxValue);
+
+private:
     template<typename displaySameEdges>
     void writeFacesValues (
 	const vector<boost::shared_ptr<Body> >& bodies, 

@@ -165,8 +165,7 @@ void DisplayFaceAverage::Calculate (BodyProperty::Enum bodyProperty,
     size_t count = foamAlongTime.GetTimeSteps ();
     for (size_t i = 0; i < count; ++i)
     {
-	const boost::shared_ptr<const Foam>& foam = foamAlongTime.GetFoam (i);
-	step (*foam, i, bodyProperty, minValue, maxValue);
+	Step (i, bodyProperty, minValue, maxValue);
 	if (true /*i % 10 == 0*/)
 	{
 	    Display (minValue, maxValue);
@@ -189,10 +188,24 @@ void DisplayFaceAverage::display (
     m_displayShaderProgram.release ();
 }
 
-void DisplayFaceAverage::step (
-    const Foam& foam, size_t timeStep, BodyProperty::Enum bodyProperty,
+
+void DisplayFaceAverage::StepDisplay ()
+{
+    const FoamAlongTime& foamAlongTime = m_glWidget.GetFoamAlongTime ();
+    BodyProperty::Enum facesColor = m_glWidget.GetFacesColor ();
+    GLfloat minValue = foamAlongTime.GetMin (facesColor);
+    GLfloat maxValue = foamAlongTime.GetMax (facesColor);
+    size_t timeStep = m_glWidget.GetTimeStep ();
+    Step (timeStep, facesColor, minValue, maxValue);
+    Display (minValue, maxValue);
+}
+
+void DisplayFaceAverage::Step (
+    size_t timeStep, BodyProperty::Enum bodyProperty,
     GLfloat minValue, GLfloat maxValue)
 {
+    const Foam& foam = *m_glWidget.GetFoamAlongTime ().GetFoam (timeStep);
+
     (void)timeStep;(void)minValue;(void)maxValue;
     QSize size = m_new->size ();
     glPushMatrix ();
