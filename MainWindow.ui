@@ -31,7 +31,14 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="ColorBar" name="colorBar" native="true"/>
+           <widget class="ColorBar" name="colorBar" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>50</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="GLWidget" name="widgetGl" native="true">

@@ -79,6 +79,7 @@ public:
     }
 
     void Init (const QSize& size);
+    void Clear ();
     void InitShaders ();
     void Release ();
     void Display (GLfloat minValue, GLfloat maxValue)

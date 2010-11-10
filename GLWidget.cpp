@@ -569,6 +569,8 @@ void GLWidget::resizeGL(int width, int height)
     QSize size = QSize (width, height);
     if (m_srcAlphaBlend < 1)
 	m_displayBlend->Init (size);
+    if (m_viewType == ViewType::FACES_AVERAGE)
+	initStepDisplayAverage ();
     setEdgeRadius ();
 }
 
@@ -1371,7 +1373,7 @@ void GLWidget::ToggledFaceEdgesTorus (bool checked)
 }
 
 
-void GLWidget::calculateFacesAverage ()
+void GLWidget::initStepDisplayAverage ()
 {
     makeCurrent ();
     m_displayFaceAverage->Init (QSize (width (), height ()));
@@ -1380,15 +1382,19 @@ void GLWidget::calculateFacesAverage ()
 
 void GLWidget::ToggledFacesAverage (bool checked)
 {
+    makeCurrent ();
     if (checked)
     {
-	makeCurrent ();
 	m_displayFaceAverage->Init (QSize (width (), height ()));
     }
+    else
+	m_displayFaceAverage->Release ();
     view (checked, ViewType::FACES_AVERAGE);
     if (checked)
+    {
 	m_displayFaceAverage->StepDisplay ();
-    updateGL ();
+	updateGL ();
+    }
 }
 
 
@@ -1440,7 +1446,7 @@ void GLWidget::BodyPropertyChanged (
     case ViewType::FACES_AVERAGE:
 	m_facesColor = bodyProperty;
 	m_useColorMap = (m_facesColor != BodyProperty::NONE);
-	calculateFacesAverage ();
+	initStepDisplayAverage ();
 	break;
     case ViewType::CENTER_PATHS:
 	m_centerPathColor = bodyProperty;

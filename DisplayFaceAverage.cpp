@@ -138,17 +138,29 @@ void DisplayFaceAverage::Init (const QSize& size)
     m_step.reset (
 	new QGLFramebufferObject (
 	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RG32F));
-    clear (*m_step);
     m_new.reset (
 	new QGLFramebufferObject (
 	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RG32F));
-    clear (*m_new);
     m_old.reset (
 	new QGLFramebufferObject (
 	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RG32F));
-    clear (*m_old);
     m_debug.reset (new QGLFramebufferObject (size));
     glPopAttrib ();
+    Clear ();
+}
+
+void DisplayFaceAverage::Clear ()
+{
+    clear (*m_step);
+    clear (*m_new);
+    clear (*m_old);
+}
+
+void DisplayFaceAverage::Release ()
+{
+    m_step.reset ();
+    m_new.reset ();
+    m_old.reset ();
 }
 
 void DisplayFaceAverage::InitShaders ()
@@ -223,17 +235,11 @@ void DisplayFaceAverage::Step (
     detectOpenGLError ();
 }
 
-
-void DisplayFaceAverage::Release ()
-{
-    m_new.reset ();
-    m_old.reset ();
-}
-
 void DisplayFaceAverage::renderToStep (
     const Foam& foam, BodyProperty::Enum bodyProperty)
 {
-    m_step->bind (); 
+    m_step->bind ();
+    glPushAttrib (GL_COLOR_BUFFER_BIT);
     glClearColor (Qt::black);
     glClear(GL_COLOR_BUFFER_BIT);
     m_storeShaderProgram.Bind ();
@@ -244,6 +250,7 @@ void DisplayFaceAverage::renderToStep (
 	writeFacesValues<DisplaySameTriangles> (
 	    bodies, bodyProperty);
     m_storeShaderProgram.release ();
+    glPopAttrib ();
     m_step->release ();
 }
 
@@ -280,9 +287,11 @@ void DisplayFaceAverage::copyToOld ()
 
 void DisplayFaceAverage::clear (QGLFramebufferObject& fbo)
 {
-    fbo.bind (); 
+    fbo.bind ();
+    glPushAttrib (GL_COLOR_BUFFER_BIT); 
     glClearColor (Qt::black);
     glClear(GL_COLOR_BUFFER_BIT);
+    glPopAttrib ();
     fbo.release ();    
 }
 

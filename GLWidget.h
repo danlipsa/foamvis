@@ -340,7 +340,7 @@ private:
     static void calculateEdgeRadius (
 	double edgeRadiusMultiplier, double* edgeRadius,
 	double* arrowBaseRadius, double* arrowHeight, bool* edgeTubes = 0);
-    void calculateFacesAverage ();
+    void initStepDisplayAverage ();
     void display () const;
     string getFoamsInfo () const;
 
