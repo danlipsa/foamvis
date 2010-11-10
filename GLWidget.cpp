@@ -365,7 +365,7 @@ void GLWidget::ViewportTransform (
     G3D::Rect2D vv2dScreen;
     G3D::Rect2D windowWorld;
     viewingVolumeCalculations (width, height, &vv2dScreen, &windowWorld);
-    if (GetCurrentFoam ().GetDimension () == 2 && m_timeDisplacement == 0.0)
+    if (GetCurrentFoam ().GetDimension () == 2)
     {
 	const double ADJUST = 99.0/100.0;
 	G3D::Rect2D bb2dScreen;

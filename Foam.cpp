@@ -131,6 +131,10 @@ void Foam::AddDefaultBodyAttributes ()
     ac.reset (new RealAttributeCreator());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::VOLCONST), ac);
+
+    ac.reset (new RealAttributeCreator());
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::ACTUAL_VOLUME), ac);
 }
 
 

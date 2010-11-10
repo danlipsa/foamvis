@@ -80,6 +80,7 @@ class AttributeCreator;
 //    - add the keyword in the table in ParsingDriver.cpp
 //    - add the keyword  in the list of  tokens in EvolverData.y
 //    - add the correct rule in EvolverData.y
+//    - add the attribute in AddDefault...Attribute in Foam.cpp
 %token PARAMETER "PARAMETER"
 %token PERIODS "PERIODS"
 %token DISPLAY_PERIODS "DISPLAY_PERIODS"
@@ -167,6 +168,7 @@ class AttributeCreator;
 %token <m_id> ORIGINAL "ORIGINAL"
 %token <m_id> VOLUME "VOLUME"
 %token <m_id> VOLCONST "VOLCONST"
+%token <m_id> ACTUAL_VOLUME "ACTUAL_VOLUME"
 %token <m_id> LAGRANGE_MULTIPLIER "LAGRANGE_MULTIPLIER"
 %token <m_id> PRESSURE "PRESSURE"
 %token <m_id> CONSTRAINTS "CONSTRAINTS"
@@ -1319,6 +1321,12 @@ predefined_body_attribute
     $$ = 
 	new NameSemanticValue ($1->c_str (), $2);
 }
+| ACTUAL_VOLUME number
+{
+    $$ = 
+	new NameSemanticValue ($1->c_str (), $2);
+}
+
 
 pressure_or_lagrange_multiplier
 : LAGRANGE_MULTIPLIER
