@@ -16,6 +16,10 @@ make install
 # this is needed for qt3d
 cd /usr/local/Trolltech/Qt-4.7.0; mv include include_
 ln -s ~/qt-everywhere-opensource-src-4.7.0/include include
+PATH=/usr/local/Trolltech/Qt-4.7.0/bin:$PATH
+
+Everytime you call qmake, make sure that the newly compiled qmake is
+called by using 'which qmake' to see the path qmake is called from.
 
 Copy http://csgalati.swansea.ac.uk/foam/build/qt3d-20101008.tgz to ~
 cd ~
@@ -56,6 +60,12 @@ cd foam
 qmake
 make
 
+Make sure you don't run 'make clean' or 'make distclean' as this will
+delete bison/flex files and require additional dependencies on the
+correct version of bison/flex. If you did that, you have to copy
+'*.save' to the corresponding files without '.save' extension or untar
+the archive and start again.
+
 PATH=/usr/local/Trolltech/Qt-4.7.0/bin:$PATH; export PATH
 LD_LIBRARY_PATH=/usr/local/qwt-5.2.1/lib:$LD_LIBRARY_PATH; export LD_LIBRARY_PATH
 
@@ -79,9 +89,11 @@ Release
 =======
 ./test.pl
 Set the major version in release.pl
+Write an entry in the release log to describe the new features.
 Commit everything. 
 Make sure 'svnversion' reports one version
 make distclean;release.pl;cd ..;tar czf foam-<version>.tgz foam
+
 
 Profile
 =======
@@ -138,6 +150,14 @@ qt-4.6.2, bison-2.3, flex-2.5.35, boost-1.39, gcc-4.2.1
 
 Release log
 ===========
+0.3.1596 - bug fixes to the average calculation (fixes for pressure and 
+	   velocity).
+	 - two new datasets tested ellipse_in_flow and sedimenting_discs
+	 - display the center path only if there is at least one segment in focus
+
+0.3.1569 
+	- per pixel average for bubble attributes values (2D)
+
 0.2.1489
 	- Fixes in the parser and new tests added to test.pl
 

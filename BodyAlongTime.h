@@ -70,9 +70,9 @@ public:
     }
 
     void Resize ();
-    G3D::Vector3int16 GetTranslation (size_t i) const
+    G3D::Vector3int16 GetTranslation (size_t currentWrap) const
     {
-	return m_translations[i];
+	return m_translations[currentWrap];
     }
     string ToString () const;    
 

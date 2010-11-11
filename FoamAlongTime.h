@@ -35,6 +35,7 @@ public:
      * Foam objects
      */
     void CalculateAABox ();
+    size_t GetDimension () const;
 
 
     /**

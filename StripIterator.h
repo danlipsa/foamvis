@@ -86,6 +86,9 @@ private:
      * to the end of the vector.
      */
     size_t m_currentWrap;
+    /*
+     * Next () will return the first point from a strip
+     */
     bool m_isNextBeginOfStrip;
     const BodyAlongTime& m_bodyAlongTime;
     const FoamAlongTime& m_foamAlongTime;

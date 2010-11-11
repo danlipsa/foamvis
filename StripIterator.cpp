@@ -24,14 +24,16 @@ StripIterator::StripIterator (
     m_foamAlongTime (foamAlongTime)
 {
     m_currentWrap = 0;
-    if (m_bodyAlongTime.GetWrapSize () == 0)
+    size_t wrapSize = m_bodyAlongTime.GetWrapSize ();
+    if (wrapSize == 0)
 	m_isNextBeginOfStrip = (m_timeStep == 0);
     else
     {
-	while (m_timeStep > m_bodyAlongTime.GetWrap (m_currentWrap))
+	while (m_timeStep > m_bodyAlongTime.GetWrap (m_currentWrap) &&
+	       m_currentWrap < wrapSize)
 	    ++m_currentWrap;
 	if (m_timeStep == 0 ||
-	    m_timeStep == m_bodyAlongTime.GetWrap (m_currentWrap) + 1)
+	    m_timeStep == m_bodyAlongTime.GetWrap (m_currentWrap - 1) + 1)
 	    m_isNextBeginOfStrip = true;
 	else
 	    m_isNextBeginOfStrip = false;
@@ -48,6 +50,8 @@ bool StripIterator::HasNext () const
 
 StripIterator::Point StripIterator::Next ()
 {
+    Point point;
+    boost::shared_ptr<Body> body;
     if (// last wrap
 	m_currentWrap == m_bodyAlongTime.GetWrapSize () ||
 	// not at the end of a middle wrap
@@ -65,23 +69,26 @@ StripIterator::Point StripIterator::Next ()
 	    location = m_isNextBeginOfStrip ? BEGIN : MIDDLE;
 	    m_isNextBeginOfStrip = false;
 	}
-	const boost::shared_ptr<Body>& body = 
-	    m_bodyAlongTime.GetBody (m_timeStep);
-	return Point (body->GetCenter (), location, m_timeStep++, body);
+	body = m_bodyAlongTime.GetBody (m_timeStep);
+	point = Point (body->GetCenter (), location, m_timeStep++, body);
     }
     else
     { // at the end of a middle wrap
 	m_isNextBeginOfStrip = true;
 	const OOBox& originalDomain = 
 	    m_foamAlongTime.GetFoam (m_timeStep)->GetOriginalDomain ();
-	const boost::shared_ptr<Body>& body = 
-	    m_bodyAlongTime.GetBody (m_timeStep);
-	return Point (
+	body = m_bodyAlongTime.GetBody (m_timeStep);
+	point = Point (
 	    originalDomain.TorusTranslate (
 		body->GetCenter (),
 		Vector3int16Zero - m_bodyAlongTime.GetTranslation (
 		    m_currentWrap++)), END, m_timeStep, body);
     }
+    RuntimeAssert (
+	m_foamAlongTime.GetDimension () == 3 || point.m_point.z == 0,
+	"StripIterator::Next: z != 0: bodyId: ", body->GetId (), 
+	"timeStep: ", point.m_timeStep);
+    return point;
 }
 
 double StripIterator::GetPropertyValue (

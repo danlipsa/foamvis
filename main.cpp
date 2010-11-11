@@ -24,6 +24,8 @@
  *
  * \verbinclude README.txt
  *
+ *  * @todo Use google-breakpad for reporting crashes.
+ *
  * \section torus_sec Processing done for the Torus model
  * \subsection onedge_sec Executed when creating an edge (may create
  * duplicate vertices)
@@ -74,6 +76,7 @@ always defined in the data file (it's not a duplicate).
  * \section Significant new line
  * @todo set new line significant only for list of vertices, edges, faces, bodies
  * and for arrays (2d versus 3d)
+ *
  *
  *
  *
@@ -186,7 +189,7 @@ void printHelp ()
      * - 'svn commmit/update everyting in the current directory
      * - ./release.pl
      */
-    const char* version = "0.3.1569";
+    const char* version = "0.3.1596";
     cdbg << "foam version " << version << endl;
     cdbg << "foam [OPTIONS] <dir> <filter>\n";
     cdbg << "foam [OPTIONS] <file> ...\n";

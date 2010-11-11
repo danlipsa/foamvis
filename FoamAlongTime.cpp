@@ -98,6 +98,7 @@ double FoamAlongTime::GetBodyProperty (
     size_t bodyId, size_t timeStep) const
 {
     const BodyAlongTime& bat = GetBodiesAlongTime ().GetBodyAlongTime (bodyId);
+    double value;
     if (property >= BodyProperty::VELOCITY_BEGIN &&
 	property < BodyProperty::VELOCITY_END)
     {
@@ -111,10 +112,21 @@ double FoamAlongTime::GetBodyProperty (
 	RuntimeAssert (it.HasNext (), 
 		       "Cannot find velocity. Second point not available");
 	StripIterator::Point next = it.Next ();
-	return StripIterator::GetPropertyValue (property, next, p);
+	value = StripIterator::GetPropertyValue (property, next, p);
     }
     else
-	return bat.GetBody (timeStep)->GetPropertyValue (property);
+	value = bat.GetBody (timeStep)->GetPropertyValue (property);
+    RuntimeAssert (
+	value >= GetMin (property) && value <= GetMax (property),
+	"Value outside range of permited values for bodyId: ", bodyId, 
+	" timeStep: ", timeStep);
+    return value;
+}
+
+
+size_t FoamAlongTime::GetDimension () const
+{
+    return GetFoam (0)->GetDimension ();
 }
 
 
