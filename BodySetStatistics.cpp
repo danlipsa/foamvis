@@ -65,8 +65,9 @@ void BodySetStatistics::HistogramStep (
 }
 
 
-void BodySetStatistics::valuePerInterval (size_t i, double value, 
-					  double beginInterval, double endInterval)
+void BodySetStatistics::valuePerInterval (
+    size_t i, double value, 
+    double beginInterval, double endInterval)
 {
     size_t bin = GetBin (
 	value, HistogramIntervals (), beginInterval, endInterval);

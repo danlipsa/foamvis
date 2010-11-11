@@ -173,11 +173,11 @@ private:
     void calculateAggregate (Aggregate aggregate, 
 		    FoamLessThanAlong::Corner corner, G3D::Vector3& v);
     void calculateBodyWraps ();
-    void calculateHistogram ();
-    void calculateHistogram (size_t timeStep);
-    void calculateRange ();
-    void calculateRange (size_t timeStep);
-    void calculateMaxCountPerBin ();
+    void calculatePerTimeStepHistograms ();
+    void calculatePerTimeStepHistogram (size_t timeStep);
+    void calculatePerTimeStepRanges ();
+    void calculatePerTimeStepRange (size_t timeStep);
+    void calculatePerTimeStepMaxCountPerBin ();
 
 private:
     /**

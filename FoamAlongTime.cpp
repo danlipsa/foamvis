@@ -69,12 +69,15 @@ void FoamAlongTime::PostProcess ()
     CalculateAABox ();
     CacheBodiesAlongTime ();
     calculateBodyWraps ();
-    GetBodiesAlongTime ().CalculateRange (*this);
-    GetBodiesAlongTime ().CalculateHistogram (*this);
+    cdbg << "Calculating overall statistics..." << endl;
+    GetBodiesAlongTime ().CalculateOverallRange (*this);
+    GetBodiesAlongTime ().CalculateOverallHistogram (*this);
     GetBodiesAlongTime ().CalculateMaxCountPerBin ();
-    calculateRange ();
-    calculateHistogram ();
-    calculateMaxCountPerBin ();
+    cdbg << "Calculating per time step statistics..." << endl;
+    calculatePerTimeStepRanges ();
+    calculatePerTimeStepHistograms ();
+    calculatePerTimeStepMaxCountPerBin ();
+    cdbg << "Adjusting pressure..." << endl;
 }
 
 void FoamAlongTime::CacheBodiesAlongTime ()
@@ -148,13 +151,13 @@ bool FoamAlongTime::ExistsBodyProperty (
 }
 
 
-void FoamAlongTime::calculateHistogram ()
+void FoamAlongTime::calculatePerTimeStepHistograms ()
 {
     for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
-	calculateHistogram (timeStep);
+	calculatePerTimeStepHistogram (timeStep);
 }
 
-void FoamAlongTime::calculateHistogram (size_t timeStep)
+void FoamAlongTime::calculatePerTimeStepHistogram (size_t timeStep)
 {
     boost::shared_ptr<const Foam> foam = GetFoam (timeStep);
     BOOST_FOREACH (boost::shared_ptr<const Body> body, foam->GetBodies ())
@@ -165,13 +168,13 @@ void FoamAlongTime::calculateHistogram (size_t timeStep)
     }
 }
 
-void FoamAlongTime::calculateRange ()
+void FoamAlongTime::calculatePerTimeStepRanges ()
 {
     for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
-	calculateRange (timeStep);
+	calculatePerTimeStepRange (timeStep);
 }
 
-void FoamAlongTime::calculateRange (size_t timeStep)
+void FoamAlongTime::calculatePerTimeStepRange (size_t timeStep)
 {
     boost::shared_ptr<const Foam> foam = GetFoam (timeStep);
     BOOST_FOREACH (boost::shared_ptr<const Body> body, foam->GetBodies ())
@@ -252,7 +255,7 @@ void FoamAlongTime::GetTimeStepSelection (
 	      timeStepSelection->begin () + GetTimeSteps (), true);
 }
 
-void FoamAlongTime::calculateMaxCountPerBin ()
+void FoamAlongTime::calculatePerTimeStepMaxCountPerBin ()
 {
     for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
 	m_foamsStatistics[timeStep].CalculateMaxCountPerBin ();

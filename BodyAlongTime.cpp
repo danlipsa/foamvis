@@ -188,7 +188,7 @@ string BodiesAlongTime::ToString () const
     return ostr.str ();
 }
 
-void BodiesAlongTime::CalculateRange (const FoamAlongTime& foamAlongTime)
+void BodiesAlongTime::CalculateOverallRange (const FoamAlongTime& foamAlongTime)
 {
     BOOST_FOREACH (BodyMap::value_type p, GetBodyMap ())
     {
@@ -203,7 +203,7 @@ void BodiesAlongTime::CalculateRange (const FoamAlongTime& foamAlongTime)
     NormalizeEmptyRange ();
 }
 
-void BodiesAlongTime::CalculateHistogram (
+void BodiesAlongTime::CalculateOverallHistogram (
     const FoamAlongTime& foamAlongTime)
 {
     BOOST_FOREACH (BodyMap::value_type p, GetBodyMap ())

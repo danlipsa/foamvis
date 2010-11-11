@@ -695,13 +695,17 @@ constraint_energy_rest
 constraint_content
 : /* empty */
 | CONTENT nl
-  C1 ':' non_const_expr nlplus constraint_content_rest
+  C1 ':' non_const_expr nlplus constraint_content_c2c3
 ;
 
-constraint_content_rest
+constraint_content_c2c3
 : /* empty */
-| C2 ':' non_const_expr nlplus
-  C3 ':' non_const_expr nlplus
+| C2 ':' non_const_expr nlplus constraint_content_c3
+;
+
+constraint_content_c3
+: /* empty */
+| C3 ':' non_const_expr nlplus
 ;
 
 non_const_expr

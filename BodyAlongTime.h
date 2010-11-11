@@ -133,8 +133,8 @@ public:
     {
 	return getBodyAlongTime (id);
     }
-    void CalculateRange (const FoamAlongTime& foamAlongTime);
-    void CalculateHistogram (
+    void CalculateOverallRange (const FoamAlongTime& foamAlongTime);
+    void CalculateOverallHistogram (
 	const FoamAlongTime& foamAlongTime);
     string ToString () const;
 

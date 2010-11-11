@@ -102,7 +102,7 @@ private:
     vector<double> m_max;
     /**
      * Divide the value range in HISTOGRAM_INTERVALS intervals.
-     * This array tells us how many values you have in each interval for
+     * This array tells us how many values we have in each interval for
      * speed along x, y, z, total speed and pressure
      */
     vector< vector <size_t> > m_histogram;
