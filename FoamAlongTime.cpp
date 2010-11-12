@@ -73,11 +73,15 @@ void FoamAlongTime::PostProcess ()
     GetBodiesAlongTime ().CalculateOverallRange (*this);
     GetBodiesAlongTime ().CalculateOverallHistogram (*this);
     GetBodiesAlongTime ().CalculateMaxCountPerBin ();
+
     cdbg << "Calculating per time step statistics..." << endl;
     calculatePerTimeStepRanges ();
     calculatePerTimeStepHistograms ();
     calculatePerTimeStepMaxCountPerBin ();
-    cdbg << "Adjusting pressure..." << endl;
+    // adjusting pressure
+    // calculatePerTimeStepMedians();
+    // recalculate overall stuff for pressure and per step stuff for pressure
+    // GetBodiesAlongTime ().RecalculateOverallRangePressure ();
 }
 
 void FoamAlongTime::CacheBodiesAlongTime ()
@@ -97,6 +101,18 @@ void FoamAlongTime::CacheBodiesAlongTime ()
 }
 
 double FoamAlongTime::GetBodyProperty (
+    BodyProperty::Enum property,
+    size_t bodyId, size_t timeStep) const
+{
+    double value = getBodyPropertyNoAdjustment (property, bodyId, timeStep);
+    if (property == BodyProperty::PRESSURE)
+	value -= m_foamsStatistics[property].GetMedian (property);
+    return value;
+}
+
+
+
+double FoamAlongTime::getBodyPropertyNoAdjustment (
     BodyProperty::Enum property,
     size_t bodyId, size_t timeStep) const
 {
@@ -167,6 +183,14 @@ void FoamAlongTime::calculatePerTimeStepHistogram (size_t timeStep)
 	    *this, bodyId, timeStep, GetBodiesAlongTime ());
     }
 }
+
+void FoamAlongTime::calculatePerTimeStepMedians ()
+{
+    for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
+	m_foamsStatistics[timeStep].ApproximateMedian ();
+}
+
+
 
 void FoamAlongTime::calculatePerTimeStepRanges ()
 {

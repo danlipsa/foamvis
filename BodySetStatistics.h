@@ -12,6 +12,9 @@
 class Body;
 #include "StripIterator.h"
 
+/**
+ * @todo Consider using Boost.Accumulators
+ */
 class BodySetStatistics
 {
 public:
@@ -57,6 +60,7 @@ public:
 	const BodySetStatistics& rangeStatistics);
 
     void RangeStep (size_t bodyProperty, double newValue);
+    void InitializeMinMax (BodyProperty::Enum bodyProperty);
     void MinStep (size_t bodyProperty, double newValue)
     {
 	m_min[bodyProperty] = min (m_min[bodyProperty], newValue);
@@ -77,6 +81,15 @@ public:
 	return m_histogram[0].size ();
     }
     void NormalizeEmptyRange ();
+    void ApproximateMedian ();
+    double GetMedian (BodyProperty::Enum bodyProperty) const
+    {
+	return m_median[bodyProperty];
+    }
+    size_t GetTotalCount (BodyProperty::Enum bodyProperty) const
+    {
+	return m_totalCount[bodyProperty];
+    }
 
 public:
     static size_t GetBin (double value, size_t binCount,
@@ -101,6 +114,10 @@ private:
      */
     vector<double> m_max;
     /**
+     * Median approximated from the histogram bins.
+     */
+    vector<double> m_median;
+    /**
      * Divide the value range in HISTOGRAM_INTERVALS intervals.
      * This array tells us how many values we have in each interval for
      * speed along x, y, z, total speed and pressure
@@ -111,6 +128,10 @@ private:
      * It tells us, the maximum number of values we have in a single bin.
      */
     vector<size_t> m_maxCountPerBin;
+    /**
+     * The total number of values processed
+     */
+    vector<size_t> m_totalCount;
 };
 
 

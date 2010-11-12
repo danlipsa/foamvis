@@ -172,12 +172,16 @@ private:
      */
     void calculateAggregate (Aggregate aggregate, 
 		    FoamLessThanAlong::Corner corner, G3D::Vector3& v);
+    double getBodyPropertyNoAdjustment (
+	BodyProperty::Enum property,
+	size_t bodyId, size_t timeStep) const;
     void calculateBodyWraps ();
     void calculatePerTimeStepHistograms ();
     void calculatePerTimeStepHistogram (size_t timeStep);
     void calculatePerTimeStepRanges ();
     void calculatePerTimeStepRange (size_t timeStep);
     void calculatePerTimeStepMaxCountPerBin ();
+    void calculatePerTimeStepMedians ();
 
 private:
     /**

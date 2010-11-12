@@ -17,11 +17,19 @@ const size_t HISTOGRAM_INTERVALS = 256;
 BodySetStatistics::BodySetStatistics () :
     m_min (BodyProperty::COUNT, numeric_limits<double> ().max ()),
     m_max (BodyProperty::COUNT, -numeric_limits<double> ().max ()),
+    m_median (BodyProperty::COUNT),
     m_histogram (BodyProperty::COUNT),
-    m_maxCountPerBin (BodyProperty::COUNT)
+    m_maxCountPerBin (BodyProperty::COUNT),
+    m_totalCount (BodyProperty::COUNT, 0)
 {
     BOOST_FOREACH (vector<size_t>& v, m_histogram)
 	v.resize (HISTOGRAM_INTERVALS, 0);
+}
+
+void BodySetStatistics::InitializeMinMax (BodyProperty::Enum bodyProperty)
+{
+    m_min[bodyProperty] = numeric_limits<double> ().max ();
+    m_max[bodyProperty] = -numeric_limits<double> ().max ();
 }
 
 
@@ -93,6 +101,7 @@ void BodySetStatistics::RangeStep (size_t bodyProperty, double newValue)
 {
     MinStep (bodyProperty, newValue);
     MaxStep (bodyProperty, newValue);
+    ++m_totalCount [bodyProperty];
 }
 
 void BodySetStatistics::normalizeEmptyRange (size_t bodyProperty)
@@ -142,5 +151,33 @@ void BodySetStatistics::CalculateMaxCountPerBin ()
 	for (size_t bin = 0; bin < histogramIntervals; ++bin)
 	    maxCount = max (maxCount, GetValuesPerBin (bodyProperty, bin));
 	m_maxCountPerBin[bodyProperty] = maxCount;
+    }
+}
+
+void BodySetStatistics::ApproximateMedian ()
+{
+    for (size_t bodyProperty = BodyProperty::ENUM_BEGIN;
+	 bodyProperty < BodyProperty::COUNT; ++bodyProperty)
+    {
+	size_t histogramIntervals = HistogramIntervals ();
+	size_t countSoFar = 0;
+	size_t currentCount;
+	double limit = GetTotalCount (
+	    BodyProperty::FromSizeT (bodyProperty)) / 2.0;
+	size_t bin = 0;
+	while (bin < histogramIntervals)
+	{
+	    currentCount = GetValuesPerBin (bodyProperty, bin);
+	    if (countSoFar + currentCount > limit)
+		break;
+	    countSoFar += currentCount;
+	    ++bin;
+	}
+	double ratio = (limit - countSoFar) / currentCount;
+	double intervalSize = 
+	    (GetMax (bodyProperty)  - GetMin (bodyProperty)) / 
+	    histogramIntervals;
+	double lowerValue = GetMin (bodyProperty) + bin * intervalSize;
+	m_median[bodyProperty] = lowerValue + intervalSize * ratio;
     }
 }

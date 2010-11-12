@@ -95,13 +95,17 @@ void BodyAlongTime::rangeStep (const boost::shared_ptr<Body>& body)
 {
     for (size_t i = BodyProperty::PER_BODY_BEGIN;
 	 i < BodyProperty::PER_BODY_END; ++i)
-    {
-	size_t index = i - BodyProperty::PER_BODY_BEGIN;
-	if (body->ExistsAttribute (index))
-	    RangeStep (i, body->GetRealAttribute (index));
-    }
+	rangeStep (body, BodyProperty::FromSizeT (i));
 }
 
+
+void BodyAlongTime::rangeStep (const boost::shared_ptr<Body>& body,
+			       BodyProperty::Enum property)
+{
+    size_t index = property - BodyProperty::PER_BODY_BEGIN;
+    if (body->ExistsAttribute (index))
+	RangeStep (property, body->GetRealAttribute (index));
+}
 
 void BodyAlongTime::CalculateRange (const FoamAlongTime& foamAlongTime)
 {
@@ -114,6 +118,17 @@ void BodyAlongTime::CalculateRange (const FoamAlongTime& foamAlongTime)
 	      boost::bind (&BodyAlongTime::rangeStep, this, _1));
     NormalizeEmptyRange ();
 }
+
+void BodyAlongTime::CalculateRange (BodyProperty::Enum bodyProperty)
+{
+    // per time step values
+    for_each (m_bodyAlongTime.begin (), m_bodyAlongTime.end (),
+	      boost::bind (
+		  &BodyAlongTime::rangeStep, this, _1, bodyProperty));
+    NormalizeEmptyRange ();
+}
+
+
 
 void BodyAlongTime::CalculateHistogram (
     const FoamAlongTime& foamAlongTime, BodySetStatistics* destination)
@@ -194,14 +209,30 @@ void BodiesAlongTime::CalculateOverallRange (const FoamAlongTime& foamAlongTime)
     {
 	BodyAlongTime& bat = *p.second;
 	bat.CalculateRange (foamAlongTime);
-	for (size_t i = 0; i < Size (); i++)
+	for (size_t bodyProperty = 0; bodyProperty < Size (); ++bodyProperty)
 	{
-	    MinStep (i, bat.GetMin (i));
-	    MaxStep (i, bat.GetMax (i));
+	    MinStep (bodyProperty, bat.GetMin (bodyProperty));
+	    MaxStep (bodyProperty, bat.GetMax (bodyProperty));
 	}
     }
     NormalizeEmptyRange ();
 }
+
+void BodiesAlongTime::RecalculateOverallRangePressure ()
+{
+    BOOST_FOREACH (BodyMap::value_type p, GetBodyMap ())
+    {
+	BodyAlongTime& bat = *p.second;
+	BodyProperty::Enum bodyProperty = BodyProperty::PRESSURE;
+	bat.InitializeMinMax (bodyProperty);
+	bat.CalculateRange (bodyProperty);
+	MinStep (bodyProperty, bat.GetMin (bodyProperty));
+	MaxStep (bodyProperty, bat.GetMax (bodyProperty));
+    }
+    NormalizeEmptyRange ();
+}
+
+
 
 void BodiesAlongTime::CalculateOverallHistogram (
     const FoamAlongTime& foamAlongTime)

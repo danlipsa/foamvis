@@ -50,6 +50,8 @@ public:
      */
     void CalculateBodyWraps (const FoamAlongTime& foamAlongTime);
     void CalculateRange (const FoamAlongTime& foamAlongTime);
+    void CalculateRange (BodyProperty::Enum property);
+
     void CalculateHistogram (
 	const FoamAlongTime& foamAlongTime,
 	BodySetStatistics* destination);
@@ -84,6 +86,9 @@ private:
     void speedRangeStep (const StripIterator::Point& p,
 			 const StripIterator::Point& prev);
     void rangeStep (const boost::shared_ptr<Body>& body);
+    void rangeStep (const boost::shared_ptr<Body>& body,
+		    BodyProperty::Enum bodyProperty);
+
 
 private:
     Bodies m_bodyAlongTime;
@@ -134,6 +139,11 @@ public:
 	return getBodyAlongTime (id);
     }
     void CalculateOverallRange (const FoamAlongTime& foamAlongTime);
+    /**
+     * Very similar with CalculateOverallRange. Consider merging.
+     */
+    void RecalculateOverallRangePressure ();
+
     void CalculateOverallHistogram (
 	const FoamAlongTime& foamAlongTime);
     string ToString () const;
