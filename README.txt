@@ -85,16 +85,6 @@ Interact with the program
 This will generate a file called 'foamMovie.mp4'
 
 
-Release
-=======
-./test.pl
-Set the major version in release.pl
-Write an entry in the release log to describe the new features.
-Commit everything. 
-Make sure 'svnversion' reports one version
-make distclean;release.pl;cd ..;tar czf foam-<version>.tgz foam
-
-
 Profile
 =======
 Install: gprof, gprof2dot, graphviz
@@ -148,8 +138,23 @@ qt-4.6.2, bison-2.3, flex-2.5.35, boost-1.39, gcc-4.2.1
 - "qmake -spec macx-g++";make
 
 
+Release
+=======
+./test.pl
+Set the major version in release.pl
+Write an entry in the release log to describe the new features.
+doxygen
+Commit everything. 
+Make sure 'svnversion' reports one version
+make distclean;release.pl;cd ..;tar czf foam-<version>.tgz foam
+
+
+
 Release log
 ===========
+0.3.1598 - bug fix for pull2_bi_204_00099.dmp, updated test.pl
+	 - bug fix assert failure for ctnctr timesteps [89]??
+
 0.3.1596 - bug fixes to the average calculation (fixes for pressure and 
 	   velocity).
 	 - two new datasets tested ellipse_in_flow and sedimenting_discs
