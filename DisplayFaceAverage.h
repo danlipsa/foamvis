@@ -10,6 +10,7 @@
 #define __DISPLAY_FACE_AVERAGE_H__
 
 #include "DisplayElement.h"
+#include "Enums.h"
 
 class Body;
 class Foam;
@@ -68,23 +69,25 @@ class DisplayShaderProgram : public QGLShaderProgram
 {
 public:
     void Init ();
-    void Bind (GLfloat minValue, GLfloat maxValue);
+    void Bind (GLfloat minValue, GLfloat maxValue,
+	       StatisticsType::Enum displayType);
 
     // assume the colorbar is alreay bound on texture unit 0
     GLint GetColorBarTexUnit ()
     {
 	return 0;
     }
-    GLint GetAverageTexUnit ()
+    GLint GetResultTexUnit ()
     {
 	return 1;
     }
 
 private:
+    int m_displayTypeIndex;
     int m_minValueIndex;
     int m_maxValueIndex;
     int m_colorBarTexUnitIndex;
-    int m_averageTexUnitIndex;    
+    int m_resultTexUnitIndex;    
 };
 
 
@@ -101,9 +104,11 @@ public:
     void Clear ();
     void InitShaders ();
     void Release ();
-    void Display (GLfloat minValue, GLfloat maxValue)
+    void Display (
+	GLfloat minValue, GLfloat maxValue,
+	StatisticsType::Enum displayType = StatisticsType::AVERAGE)
     {
-	display (minValue, maxValue, *m_new);
+	display (minValue, maxValue, displayType, *m_new);
     }
     void Calculate (BodyProperty::Enum bodyProperty,
 		    GLfloat minValue, GLfloat maxValue);
@@ -117,13 +122,16 @@ private:
     void writeFacesValues (
 	const vector<boost::shared_ptr<Body> >& bodies, 
 	BodyProperty::Enum bodyProperty);
-    void display (GLfloat minValue, GLfloat maxValue, QGLFramebufferObject& fbo);
+    void display (GLfloat minValue, GLfloat maxValue,
+		  StatisticsType::Enum displayType, QGLFramebufferObject& fbo);
     void save (QGLFramebufferObject& fbo, string fileName, size_t timeStep,
-	       GLfloat minValue, GLfloat maxValue);
+	       GLfloat minValue, GLfloat maxValue,
+	       StatisticsType::Enum displayType);
     void renderToStep (const Foam& foam, BodyProperty::Enum bodyProperty);
     void addToNew ();
     void copyToOld ();
-    static void clear (QGLFramebufferObject& fbo);
+    static void clearZero (QGLFramebufferObject& fbo);
+    void clearMinMax (QGLFramebufferObject& fbo);
 
 
 private:
@@ -144,6 +152,7 @@ private:
     ComposeShaderProgram m_addShaderProgram;
     StoreShaderProgram m_storeShaderProgram;
     DisplayShaderProgram m_displayShaderProgram;
+    InitShaderProgram m_initShaderProgram;
 };
 
 #endif //__DISPLAY_FACE_AVERAGE_H__

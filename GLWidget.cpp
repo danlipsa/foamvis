@@ -60,6 +60,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_torusOriginalDomainDisplay (false),
       m_torusOriginalDomainClipped (false),
       m_interactionMode (InteractionMode::ROTATE),
+      m_statisticsType (StatisticsType::AVERAGE),
       m_foamAlongTime (0), m_timeStep (0),
       m_displayedBodyIndex (DISPLAY_ALL), m_displayedFaceIndex (DISPLAY_ALL),
       m_displayedEdgeIndex (DISPLAY_ALL),
@@ -920,8 +921,9 @@ void GLWidget::displayFacesNormal () const
 void GLWidget::displayFacesAverage () const
 {
     const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
-    m_displayFaceAverage->Display (foamAlongTime.GetMin (GetFacesColor ()),
-				   foamAlongTime.GetMax (GetFacesColor ()));
+    m_displayFaceAverage->Display (
+	foamAlongTime.GetMin (GetFacesColor ()),
+	foamAlongTime.GetMax (GetFacesColor ()), GetStatisticsType ());
 }
 
 template<typename displaySameEdges>
@@ -1426,6 +1428,11 @@ void GLWidget::ToggledCenterPath (bool checked)
 void GLWidget::CurrentIndexChangedInteractionMode (int index)
 {
     m_interactionMode = static_cast<InteractionMode::Enum>(index);
+}
+
+void GLWidget::CurrentIndexChangedStatisticsType (int index)
+{
+    m_statisticsType = static_cast<StatisticsType::Enum>(index);
 }
 
 void GLWidget::BodyPropertyChanged (

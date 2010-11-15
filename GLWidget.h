@@ -74,6 +74,11 @@ public:
 	return *m_bodySelector;
     }
 
+    StatisticsType::Enum GetStatisticsType () const
+    {
+	return m_statisticsType;
+    }
+
     const BodiesAlongTime& GetBodiesAlongTime () const;
     const BodyAlongTime& GetBodyAlongTime (size_t bodyId) const;
     /**
@@ -267,6 +272,7 @@ public Q_SLOTS:
     void DeselectAll ();
     void Info ();
     void CurrentIndexChangedInteractionMode (int index);
+    void CurrentIndexChangedStatisticsType (int index);
 
     void ToggledEdgesBodyCenter (bool checked);
     void ToggledEdgesTessellation (bool checked);
@@ -495,6 +501,7 @@ private:
     bool m_torusOriginalDomainDisplay;
     bool m_torusOriginalDomainClipped;
     InteractionMode::Enum m_interactionMode;
+    StatisticsType::Enum m_statisticsType;
     /**
      * Foam to be displayd. Each element coresponds to a DMP file
      */

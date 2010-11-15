@@ -211,7 +211,16 @@ public:
     static Enum FromInt (int i);
 };
 
-
+class StatisticsType
+{
+public:
+    enum Enum
+    {
+	AVERAGE,
+	MIN,
+	MAX
+    };
+};
 
 #endif //__ENUMS_H__
 

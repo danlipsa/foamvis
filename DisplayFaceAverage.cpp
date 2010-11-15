@@ -26,9 +26,12 @@ void ComposeShaderProgram::Init ()
 	"uniform sampler2D stepTexUnit;\n"
         "void main(void)\n"
         "{\n"
-	"    vec2 old = texture2D (oldTexUnit, gl_TexCoord[0].st).rg;\n"
-	"    vec2 step = texture2D (stepTexUnit, gl_TexCoord[0].st).rg;\n"
-        "    gl_FragColor.rg = old + step;\n"
+	"    vec4 old = texture2D (oldTexUnit, gl_TexCoord[0].st);\n"
+	"    vec4 step = texture2D (stepTexUnit, gl_TexCoord[0].st);\n"
+	"    vec2 newSumCount = old.rg + step.rg;\n"
+	"    float min = min (old.b, step.b);"
+	"    float max = max (old.a, step.a);"
+        "    gl_FragColor = vec4 (newSumCount, min, max);\n"
         "}\n";
     fshader->compileSourceCode(fsrc);
     addShader(fshader);
@@ -41,7 +44,7 @@ void ComposeShaderProgram::Init ()
 void ComposeShaderProgram::Bind ()
 {
     bool bindSuccessful = bind ();
-    RuntimeAssert (bindSuccessful, "Bind failed for DisplayShaderProgram");
+    RuntimeAssert (bindSuccessful, "Bind failed for ComposeShaderProgram");
     setUniformValue (m_oldTexUnitIndex, GetOldTexUnit ());
     setUniformValue (m_stepTexUnitIndex, GetStepTexUnit ());
 }
@@ -93,7 +96,7 @@ void InitShaderProgram::Init ()
     const char *fsrc =
         "void main(void)\n"
         "{\n"
-        "    float max = "
+        "    float max = 3.40282e+38;"
         "    gl_FragColor = vec4 (0, 0, max, -max);\n"
         "}\n";
     fshader->compileSourceCode(fsrc);
@@ -114,20 +117,29 @@ void InitShaderProgram::Bind ()
 void DisplayShaderProgram::Init ()
 {
     QGLShader *fshader = new QGLShader(QGLShader::Fragment);
+    // this should match StatisticsType::Enum order
     const char *fsrc =
+	"// 0: average, 1: min, 2: max\n"
+	"uniform int displayType;\n"
 	"uniform float minValue;\n"
 	"uniform float maxValue;\n"
 	"uniform sampler1D colorBarTexUnit;\n"
-	"uniform sampler2D averageTexUnit;\n"
+	"uniform sampler2D resultTexUnit;\n"
         "void main(void)\n"
         "{\n"
-	"    vec2 averageCount = texture2D (averageTexUnit, gl_TexCoord[0].st).xy;\n"
-	"    if (averageCount.y == 0.0)\n"
+	"    vec4 result = texture2D (resultTexUnit, gl_TexCoord[0].st);\n"
+	"    if (result.g == 0.0)\n"
 	"        gl_FragColor = vec4 (1.0, 1.0, 1.0, 1.0);\n"
 	"    else\n"
 	"    {\n"
-	"        float average = averageCount.x / averageCount.y;\n"
-	"        float colorBarTexIndex = (average - minValue) / (maxValue - minValue);\n"
+	"        float value;\n"
+	"        if (displayType == 0)\n"
+	"           value = result.r / result.g;\n"
+	"        else if (displayType == 1)\n"
+	"           value = result.b;\n"
+	"        else\n"
+	"           value = result.a;\n"
+	"        float colorBarTexIndex = (value - minValue) / (maxValue - minValue);\n"
         "        gl_FragColor = texture1D (colorBarTexUnit, colorBarTexIndex);\n"
 	"    }\n"
         "}\n";
@@ -136,20 +148,23 @@ void DisplayShaderProgram::Init ()
     addShader(fshader);
     link();
 
+    m_displayTypeIndex = uniformLocation ("displayType");
     m_minValueIndex = uniformLocation("minValue");
     m_maxValueIndex = uniformLocation("maxValue");
     m_colorBarTexUnitIndex = uniformLocation("colorBarTexUnit");
-    m_averageTexUnitIndex = uniformLocation("averageTexUnit");
+    m_resultTexUnitIndex = uniformLocation("resultTexUnit");
 }
 
-void DisplayShaderProgram::Bind (GLfloat minValue, GLfloat maxValue)
+void DisplayShaderProgram::Bind (GLfloat minValue, GLfloat maxValue,
+				 StatisticsType::Enum displayType)
 {
     bool bindSuccessful = bind ();
     RuntimeAssert (bindSuccessful, "Bind failed for DisplayShaderProgram");
+    setUniformValue (m_displayTypeIndex, displayType);
     setUniformValue (m_minValueIndex, minValue);
     setUniformValue (m_maxValueIndex, maxValue);
     setUniformValue (m_colorBarTexUnitIndex, GetColorBarTexUnit ());
-    setUniformValue (m_averageTexUnitIndex, GetAverageTexUnit ());
+    setUniformValue (m_resultTexUnitIndex, GetResultTexUnit ());
 }
 
 // DisplayFaceAverage Methods
@@ -177,9 +192,9 @@ void DisplayFaceAverage::Init (const QSize& size)
 
 void DisplayFaceAverage::Clear ()
 {
-    clear (*m_step);
-    clear (*m_new);
-    clear (*m_old);
+    clearZero (*m_step);
+    clearZero (*m_new);
+    clearMinMax (*m_old);
 }
 
 void DisplayFaceAverage::Release ()
@@ -194,6 +209,7 @@ void DisplayFaceAverage::InitShaders ()
     m_addShaderProgram.Init ();
     m_storeShaderProgram.Init ();
     m_displayShaderProgram.Init ();
+    m_initShaderProgram.Init ();
 }
 
 void DisplayFaceAverage::Calculate (BodyProperty::Enum bodyProperty,
@@ -214,14 +230,13 @@ void DisplayFaceAverage::Calculate (BodyProperty::Enum bodyProperty,
 }
 
 void DisplayFaceAverage::display (
-    GLfloat minValue, GLfloat maxValue, QGLFramebufferObject& srcFbo)
+    GLfloat minValue, GLfloat maxValue,
+    StatisticsType::Enum displayType, QGLFramebufferObject& srcFbo)
 {
-    m_displayShaderProgram.Bind (minValue, maxValue);
-    // bind srcFbo.texture () to texture 1
+    m_displayShaderProgram.Bind (minValue, maxValue, displayType);
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (
-	TextureEnum (m_displayShaderProgram.GetAverageTexUnit ()));
+	TextureEnum (m_displayShaderProgram.GetResultTexUnit ()));
     m_glWidget.RenderFromFbo (srcFbo);
-
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
     m_displayShaderProgram.release ();
 }
@@ -235,7 +250,7 @@ void DisplayFaceAverage::StepDisplay ()
     GLfloat maxValue = foamAlongTime.GetMax (facesColor);
     size_t timeStep = m_glWidget.GetTimeStep ();
     Step (timeStep, facesColor, minValue, maxValue);
-    Display (minValue, maxValue);
+    Display (minValue, maxValue, m_glWidget.GetStatisticsType ());
 }
 
 void DisplayFaceAverage::Step (
@@ -247,16 +262,17 @@ void DisplayFaceAverage::Step (
     (void)timeStep;(void)minValue;(void)maxValue;
     QSize size = m_new->size ();
     glPushMatrix ();
-    glPushAttrib (GL_CURRENT_BIT | GL_VIEWPORT_BIT | GL_COLOR_BUFFER_BIT);
-    //m_glWidget.ViewportTransform (size.width (), size.height ());
-    m_glWidget.ModelViewTransformNoRotation ();	
-    renderToStep (foam, bodyProperty);
-    //save (*m_step, "step", timeStep);
-    addToNew ();
-    //save (*m_new, "new", timeStep);
-    copyToOld ();
-    //save (*m_old, "old", timeStep);    
-    glPopAttrib ();
+    {
+	glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
+	m_glWidget.ModelViewTransformNoRotation ();	
+	renderToStep (foam, bodyProperty);
+	//save (*m_step, "step", timeStep);
+	addToNew ();
+	//save (*m_new, "new", timeStep);
+	copyToOld ();
+	//save (*m_old, "old", timeStep);    
+	glPopAttrib ();
+    }
     glPopMatrix ();
     detectOpenGLError ();
 }
@@ -264,10 +280,8 @@ void DisplayFaceAverage::Step (
 void DisplayFaceAverage::renderToStep (
     const Foam& foam, BodyProperty::Enum bodyProperty)
 {
+    clearMinMax (*m_step);
     m_step->bind ();
-    glPushAttrib (GL_COLOR_BUFFER_BIT);
-    glClearColor (Qt::black);
-    glClear(GL_COLOR_BUFFER_BIT);
     m_storeShaderProgram.Bind ();
     const Foam::Bodies& bodies = foam.GetBodies ();
     if (foam.IsQuadratic ())
@@ -276,10 +290,8 @@ void DisplayFaceAverage::renderToStep (
 	writeFacesValues<DisplaySameTriangles> (
 	    bodies, bodyProperty);
     m_storeShaderProgram.release ();
-    glPopAttrib ();
     m_step->release ();
 }
-
 
 void DisplayFaceAverage::addToNew ()
 {
@@ -311,7 +323,7 @@ void DisplayFaceAverage::copyToOld ()
 	m_old.get (), rect, m_new.get (), rect);
 }
 
-void DisplayFaceAverage::clear (QGLFramebufferObject& fbo)
+void DisplayFaceAverage::clearZero (QGLFramebufferObject& fbo)
 {
     fbo.bind ();
     glPushAttrib (GL_COLOR_BUFFER_BIT); 
@@ -321,13 +333,45 @@ void DisplayFaceAverage::clear (QGLFramebufferObject& fbo)
     fbo.release ();    
 }
 
+void DisplayFaceAverage::clearMinMax (QGLFramebufferObject& fbo)
+{
+    fbo.bind ();
+    m_initShaderProgram.Bind ();
+    glPushAttrib (GL_VIEWPORT_BIT);
+    glViewport (0, 0, m_glWidget.width (), m_glWidget.height ());
+    // Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
+    glPushMatrix ();
+    {
+	glLoadIdentity ();
+	glMatrixMode (GL_PROJECTION);
+	glPushMatrix ();
+	{
+	    glLoadIdentity ();
+	    glBegin (GL_QUADS);
+	    glVertex3i (-1, -1, -1);
+	    glVertex3i (1, -1, -1);
+	    glVertex3i (1, 1, -1);
+	    glVertex3i (-1, 1, -1);
+	    glEnd ();
+	}
+	glPopMatrix ();
+	glMatrixMode (GL_MODELVIEW);
+    }
+    glPopAttrib ();
+    glPopMatrix ();
+    m_initShaderProgram.release ();
+    fbo.release ();
+}
+
+
+
 void DisplayFaceAverage::save (
     QGLFramebufferObject& fbo, string fileName, size_t timeStep,
-    GLfloat minValue, GLfloat maxValue)
+    GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
 {
     // render to the debug buffer
     m_debug->bind ();
-    display (minValue, maxValue, fbo);
+    display (minValue, maxValue, displayType, fbo);
     m_debug->release ();
     ostringstream ostr;
     ostr << setfill ('0') << setw (4) << timeStep << fileName << ".jpg";

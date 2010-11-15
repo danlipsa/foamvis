@@ -596,6 +596,8 @@ void MainWindow::ToggledFacesNormal (bool checked)
 	ButtonClickedHistogram (m_histogramType);
 	stackedWidgetFaces->setCurrentWidget (pageFacesNormal);
 	checkBoxShowEdges->setHidden (radioButtonFacesAverage->isChecked ());
+	widgetStatisticsType->setVisible (
+	    radioButtonFacesAverage->isChecked ());
 	/*sliderTimeSteps->setHidden (
 	    radioButtonFacesAverage->isChecked () || 
 	    ! checkBoxTimeSteps->isChecked ());*/
@@ -603,6 +605,7 @@ void MainWindow::ToggledFacesNormal (bool checked)
     else
     {
 	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
+
 	//sliderTimeSteps->setHidden (!checkBoxTimeSteps->isChecked ());
     }
     displayHistogramColorBar (checked);
