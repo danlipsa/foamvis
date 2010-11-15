@@ -192,7 +192,6 @@ void DisplayFaceAverage::Init (const QSize& size)
 
 void DisplayFaceAverage::Clear ()
 {
-    clearZero (*m_step);
     clearZero (*m_new);
     clearMinMax (*m_old);
 }
