@@ -60,7 +60,7 @@ public:
 	const BodySetStatistics& rangeStatistics);
 
     void RangeStep (size_t bodyProperty, double newValue);
-    void InitializeMinMax (BodyProperty::Enum bodyProperty);
+    void Initialize ();
     void MinStep (size_t bodyProperty, double newValue)
     {
 	m_min[bodyProperty] = min (m_min[bodyProperty], newValue);

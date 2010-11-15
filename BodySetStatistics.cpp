@@ -17,7 +17,7 @@ const size_t HISTOGRAM_INTERVALS = 256;
 BodySetStatistics::BodySetStatistics () :
     m_min (BodyProperty::COUNT, numeric_limits<double> ().max ()),
     m_max (BodyProperty::COUNT, -numeric_limits<double> ().max ()),
-    m_median (BodyProperty::COUNT),
+    m_median (BodyProperty::COUNT, 0),
     m_histogram (BodyProperty::COUNT),
     m_maxCountPerBin (BodyProperty::COUNT),
     m_totalCount (BodyProperty::COUNT, 0)
@@ -26,10 +26,11 @@ BodySetStatistics::BodySetStatistics () :
 	v.resize (HISTOGRAM_INTERVALS, 0);
 }
 
-void BodySetStatistics::InitializeMinMax (BodyProperty::Enum bodyProperty)
+void BodySetStatistics::Initialize ()
 {
-    m_min[bodyProperty] = numeric_limits<double> ().max ();
-    m_max[bodyProperty] = -numeric_limits<double> ().max ();
+    fill (m_min.begin (), m_min.end (), numeric_limits<double> ().max ());
+    fill (m_max.begin (), m_max.end (), -numeric_limits<double> ().max ());
+    fill (m_totalCount.begin (), m_totalCount.end (), 0);
 }
 
 

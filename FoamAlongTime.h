@@ -176,6 +176,8 @@ private:
 	BodyProperty::Enum property,
 	size_t bodyId, size_t timeStep) const;
     void calculateBodyWraps ();
+    void calculateStatistics ();
+    void initializeStatistics ();
     void calculatePerTimeStepHistograms ();
     void calculatePerTimeStepHistogram (size_t timeStep);
     void calculatePerTimeStepRanges ();

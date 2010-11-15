@@ -16,9 +16,9 @@
 #include "PropertySetter.h"
 
 
-// AddShaderProgram Methods
+// ComposeShaderProgram Methods
 // ======================================================================
-void AddShaderProgram::Init ()
+void ComposeShaderProgram::Init ()
 {
     QGLShader *fshader = new QGLShader(QGLShader::Fragment);
     const char *fsrc =
@@ -38,7 +38,7 @@ void AddShaderProgram::Init ()
     m_stepTexUnitIndex = uniformLocation("stepTexUnit");
 }
 
-void AddShaderProgram::Bind ()
+void ComposeShaderProgram::Bind ()
 {
     bool bindSuccessful = bind ();
     RuntimeAssert (bindSuccessful, "Bind failed for DisplayShaderProgram");
@@ -68,7 +68,7 @@ void StoreShaderProgram::Init ()
 	"varying float fValue;\n"
         "void main(void)\n"
         "{\n"
-        "    gl_FragColor.rg = vec2 (fValue, 1);\n"
+        "    gl_FragColor = vec4 (fValue, 1, fValue, fValue);\n"
         "}\n";
     fshader->compileSourceCode(fsrc);
 
@@ -84,6 +84,29 @@ void StoreShaderProgram::Bind ()
     bool bindSuccessful = bind ();
     RuntimeAssert (bindSuccessful, "Bind failed for StoreShaderProgram");
 }
+
+// InitShaderProgram Methods
+// ======================================================================
+void InitShaderProgram::Init ()
+{
+    QGLShader *fshader = new QGLShader(QGLShader::Fragment);
+    const char *fsrc =
+        "void main(void)\n"
+        "{\n"
+        "    float max = "
+        "    gl_FragColor = vec4 (0, 0, max, -max);\n"
+        "}\n";
+    fshader->compileSourceCode(fsrc);
+    addShader(fshader);
+    link();
+}
+
+void InitShaderProgram::Bind ()
+{
+    bool bindSuccessful = bind ();
+    RuntimeAssert (bindSuccessful, "Bind failed for InitShaderProgram");
+}
+
 
 // DisplayShaderProgram Methods
 // ======================================================================
@@ -137,13 +160,16 @@ void DisplayFaceAverage::Init (const QSize& size)
     glPushAttrib (GL_COLOR_BUFFER_BIT);
     m_step.reset (
 	new QGLFramebufferObject (
-	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RG32F));
+	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, 
+	    GL_RGBA32F));
     m_new.reset (
 	new QGLFramebufferObject (
-	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RG32F));
+	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D,
+	    GL_RGBA32F));
     m_old.reset (
 	new QGLFramebufferObject (
-	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RG32F));
+	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D,
+	    GL_RGBA32F));
     m_debug.reset (new QGLFramebufferObject (size));
     glPopAttrib ();
     Clear ();

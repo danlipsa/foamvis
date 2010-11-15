@@ -151,6 +151,7 @@ size_t BodyAlongTime::GetId () const
 
 
 
+
 // BodiesAlongTime Methods
 // ======================================================================
 BodiesAlongTime::BodiesAlongTime () :
@@ -217,22 +218,6 @@ void BodiesAlongTime::CalculateOverallRange (const FoamAlongTime& foamAlongTime)
     }
     NormalizeEmptyRange ();
 }
-
-void BodiesAlongTime::RecalculateOverallRangePressure ()
-{
-    BOOST_FOREACH (BodyMap::value_type p, GetBodyMap ())
-    {
-	BodyAlongTime& bat = *p.second;
-	BodyProperty::Enum bodyProperty = BodyProperty::PRESSURE;
-	bat.InitializeMinMax (bodyProperty);
-	bat.CalculateRange (bodyProperty);
-	MinStep (bodyProperty, bat.GetMin (bodyProperty));
-	MaxStep (bodyProperty, bat.GetMax (bodyProperty));
-    }
-    NormalizeEmptyRange ();
-}
-
-
 
 void BodiesAlongTime::CalculateOverallHistogram (
     const FoamAlongTime& foamAlongTime)

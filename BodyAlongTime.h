@@ -139,10 +139,6 @@ public:
 	return getBodyAlongTime (id);
     }
     void CalculateOverallRange (const FoamAlongTime& foamAlongTime);
-    /**
-     * Very similar with CalculateOverallRange. Consider merging.
-     */
-    void RecalculateOverallRangePressure ();
 
     void CalculateOverallHistogram (
 	const FoamAlongTime& foamAlongTime);

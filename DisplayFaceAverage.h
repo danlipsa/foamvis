@@ -15,8 +15,12 @@ class Body;
 class Foam;
 class GLWidget;
 
-
-class AddShaderProgram : public QGLShaderProgram
+/**
+ * Shader that performs the following operation: new = old + step
+ * where new, old and step are floating point textures
+ * RGBA : sum, count, min, max
+ */
+class ComposeShaderProgram : public QGLShaderProgram
 {
 public:
     void Init ();
@@ -34,6 +38,11 @@ private:
     int m_stepTexUnitIndex;    
 };
 
+/**
+ * Shader that stores a floating point value in a floating point texture:
+ * RGBA: value, 1, value, value
+ * 
+ */
 class StoreShaderProgram : public QGLShaderProgram
 {
 public:
@@ -46,6 +55,14 @@ public:
 private:
     int m_vValueIndex;
 };
+
+class InitShaderProgram : public QGLShaderProgram
+{
+public:
+    void Init ();
+    void Bind ();
+};
+
 
 class DisplayShaderProgram : public QGLShaderProgram
 {
@@ -69,6 +86,8 @@ private:
     int m_colorBarTexUnitIndex;
     int m_averageTexUnitIndex;    
 };
+
+
 
 class DisplayFaceAverage : public DisplayElement
 {
@@ -122,7 +141,7 @@ private:
      */
     boost::scoped_ptr<QGLFramebufferObject> m_step;
     boost::scoped_ptr<QGLFramebufferObject> m_debug;
-    AddShaderProgram m_addShaderProgram;
+    ComposeShaderProgram m_addShaderProgram;
     StoreShaderProgram m_storeShaderProgram;
     DisplayShaderProgram m_displayShaderProgram;
 };

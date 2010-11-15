@@ -63,12 +63,27 @@ void FoamAlongTime::calculateBodyWraps ()
 		  boost::bind(::calculateBodyWraps, _1, *this));
     }
 }
-
+/**
+ * @todo Adjust pressures so that the median of each time step is 0.
+ */
 void FoamAlongTime::PostProcess ()
 {
     CalculateAABox ();
     CacheBodiesAlongTime ();
     calculateBodyWraps ();
+    calculateStatistics ();
+    /*
+    // adjusting pressure
+    calculatePerTimeStepMedians();
+    // recalculate overall stuff for pressure and per step stuff for pressure
+    initializeStatistics ();
+    calculateStatistics ();
+    */
+}
+
+
+void FoamAlongTime::calculateStatistics ()
+{
     cdbg << "Calculating overall statistics..." << endl;
     GetBodiesAlongTime ().CalculateOverallRange (*this);
     GetBodiesAlongTime ().CalculateOverallHistogram (*this);
@@ -78,11 +93,8 @@ void FoamAlongTime::PostProcess ()
     calculatePerTimeStepRanges ();
     calculatePerTimeStepHistograms ();
     calculatePerTimeStepMaxCountPerBin ();
-    // adjusting pressure
-    // calculatePerTimeStepMedians();
-    // recalculate overall stuff for pressure and per step stuff for pressure
-    // GetBodiesAlongTime ().RecalculateOverallRangePressure ();
 }
+
 
 void FoamAlongTime::CacheBodiesAlongTime ()
 {
@@ -106,7 +118,7 @@ double FoamAlongTime::GetBodyProperty (
 {
     double value = getBodyPropertyNoAdjustment (property, bodyId, timeStep);
     if (property == BodyProperty::PRESSURE)
-	value -= m_foamsStatistics[property].GetMedian (property);
+	value -= m_foamsStatistics[timeStep].GetMedian (property);
     return value;
 }
 
@@ -121,8 +133,7 @@ double FoamAlongTime::getBodyPropertyNoAdjustment (
     if (property >= BodyProperty::VELOCITY_BEGIN &&
 	property < BodyProperty::VELOCITY_END)
     {
-	if (timeStep == GetBodiesAlongTime ().GetBodyAlongTime (bodyId).
-	    GetBodies ().size () - 1)
+	if (timeStep == bat.GetBodies ().size () - 1)
 	    --timeStep;
 	StripIterator it (bat, *this, timeStep);
 	RuntimeAssert (it.HasNext (),
@@ -166,6 +177,17 @@ bool FoamAlongTime::ExistsBodyProperty (
     return GetBody (bodyId, timeStep).ExistsPropertyValue (property);
 }
 
+void FoamAlongTime::initializeStatistics ()
+{
+    for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
+	m_foamsStatistics[timeStep].Initialize ();
+    GetBodiesAlongTime ().Initialize ();
+    BodiesAlongTime::BodyMap bodyMap = GetBodiesAlongTime ().GetBodyMap ();
+    pair <size_t, boost::shared_ptr<BodyAlongTime> > idBody;
+    BOOST_FOREACH (idBody, bodyMap)
+	idBody.second->Initialize ();
+}
+
 
 void FoamAlongTime::calculatePerTimeStepHistograms ()
 {
@@ -187,7 +209,12 @@ void FoamAlongTime::calculatePerTimeStepHistogram (size_t timeStep)
 void FoamAlongTime::calculatePerTimeStepMedians ()
 {
     for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
+    {
 	m_foamsStatistics[timeStep].ApproximateMedian ();
+	cdbg << "median pressure timestep : " << timeStep << ": "
+	     << m_foamsStatistics[timeStep].
+	    GetMedian (BodyProperty::PRESSURE) << endl;
+    }
 }
 
 
