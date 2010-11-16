@@ -79,10 +79,14 @@ string BodyAlongTime::ToString () const
 }
 
 void BodyAlongTime::speedRangeStep (
-    const StripIterator::Point& p,
-    const StripIterator::Point& prev)
+    const StripIterator::Point& beforeBegin,
+    const StripIterator::Point& begin,
+    const StripIterator::Point& end,
+    const StripIterator::Point& afterEnd)
 {
-    G3D::Vector3 speed = p.m_point - prev.m_point;
+    static_cast<void>(beforeBegin);
+    static_cast<void>(afterEnd);
+    G3D::Vector3 speed = end.m_point - begin.m_point;
     // Warning: should have the same ordering as BodyProperty::Enum
     boost::array<double, 4> speedComponents = 
 	{{speed.x, speed.y, speed.z, speed.length ()}};
@@ -112,7 +116,7 @@ void BodyAlongTime::CalculateRange (const FoamAlongTime& foamAlongTime)
     // per segment values (speeds)
     StripIterator it = GetStripIterator (foamAlongTime);
     it.ForEachSegment (
-	boost::bind (&BodyAlongTime::speedRangeStep, this, _1, _2));
+	boost::bind (&BodyAlongTime::speedRangeStep, this, _1, _2, _3, _4));
     // per time step values
     for_each (m_bodyAlongTime.begin (), m_bodyAlongTime.end (),
 	      boost::bind (&BodyAlongTime::rangeStep, this, _1));
@@ -137,7 +141,7 @@ void BodyAlongTime::CalculateHistogram (
     StripIterator it = GetStripIterator (foamAlongTime);
     it.ForEachSegment (
 	boost::bind (&BodyAlongTime::SpeedHistogramStep, 
-		     destination, _1, _2));
+		     destination, _1, _2, _3, _4));
     // per time step values
     for_each (GetBodies ().begin (), GetBodies ().end (),
 	      boost::bind (&BodyAlongTime::HistogramStep, 

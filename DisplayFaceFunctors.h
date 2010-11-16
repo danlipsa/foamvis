@@ -97,6 +97,7 @@ private:
 
 /**
  * Functor that displays a face using the color specified in the DMP file
+ * @todo Fix the back front facing for faces.
  */
 template<typename displaySameEdges = DisplaySameEdges, 
 	 typename PropertySetter = TexCoordSetter>

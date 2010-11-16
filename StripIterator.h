@@ -56,23 +56,29 @@ public:
 		   const FoamAlongTime& foamAlongTime, size_t timeStep = 0);
     bool HasNext () const;
     Point Next ();    
+
     template <typename ProcessSegment> 
     void ForEachSegment (ProcessSegment processSegment)
     {
-	StripIterator::Point prev = Next ();
-	while (HasNext ())
+	StripIterator::Point beforeBegin;
+	StripIterator::Point begin = Next ();
+	StripIterator::Point end = HasNext () ? Next () : Point ();
+	while (end.m_location != COUNT)
 	{
-	    StripIterator::Point p = Next ();
+	    StripIterator::Point afterEnd = HasNext () ? Next () : Point ();
 	    if (// middle or end of a segment
-		p.m_location != StripIterator::BEGIN &&
+		end.m_location != StripIterator::BEGIN &&
 		// the segment is not between two strips
-		prev.m_location != StripIterator::END)
-		processSegment (p, prev);
-	    prev = p;
+		begin.m_location != StripIterator::END)
+		processSegment (beforeBegin, begin, end, afterEnd);
+	    beforeBegin = begin;
+	    begin = end;
+	    end = afterEnd;
 	}
     }
+
 public:
-    static double GetPropertyValue (BodyProperty::Enum colorBy,
+    static double GetVelocityValue (BodyProperty::Enum colorBy,
 				    const Point& p, const Point& prev);
     static double GetPropertyValue (BodyProperty::Enum colorBy,
 				    const Point& p);

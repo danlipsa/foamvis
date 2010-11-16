@@ -287,6 +287,7 @@ void GLWidget::initializeLighting ()
     glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
     glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
+    glEnable(GL_LIGHT0);
 
     // material colors: ambient and diffuse colors are set using glColor
     GLfloat materialSpecular[] = {1.0, 1.0, 1.0, 1.0}; //(0, 0, 0, 1)
@@ -305,7 +306,6 @@ void GLWidget::initializeLighting ()
 
     glLightModeli (GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
     glShadeModel (GL_SMOOTH);
-    glEnable(GL_LIGHT0);
 }
 
 G3D::AABox GLWidget::calculateCenteredViewingVolume () const

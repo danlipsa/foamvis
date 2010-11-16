@@ -52,8 +52,11 @@ public:
 	return m_histogram[bodyProperty][bin];
     }
 
-    void SpeedHistogramStep (const StripIterator::Point& p,
-			     const StripIterator::Point& prev);
+    void SpeedHistogramStep (
+	const StripIterator::Point& beforeBegin,
+	const StripIterator::Point& begin,
+	const StripIterator::Point& end,
+	const StripIterator::Point& afterEnd);
     void HistogramStep (const boost::shared_ptr<Body>& body);
     void HistogramStep (
 	const FoamAlongTime& foamAlongTime, size_t bodyId, size_t timeStep,

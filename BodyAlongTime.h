@@ -83,8 +83,11 @@ public:
 	ostream& ostr, const BodyAlongTime& bodyAlongTime);
 
 private:
-    void speedRangeStep (const StripIterator::Point& p,
-			 const StripIterator::Point& prev);
+    void speedRangeStep (
+	const StripIterator::Point& beforeBegin,
+	const StripIterator::Point& begin,
+	const StripIterator::Point& end,
+	const StripIterator::Point& afterEnd);
     void rangeStep (const boost::shared_ptr<Body>& body);
     void rangeStep (const boost::shared_ptr<Body>& body,
 		    BodyProperty::Enum bodyProperty);

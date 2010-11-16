@@ -84,14 +84,10 @@ StripIterator::Point StripIterator::Next ()
 		Vector3int16Zero - m_bodyAlongTime.GetTranslation (
 		    m_currentWrap++)), END, m_timeStep, body);
     }
-    RuntimeAssert (
-	m_foamAlongTime.GetDimension () == 3 || point.m_point.z == 0,
-	"StripIterator::Next: z != 0: bodyId: ", body->GetId (), 
-	"timeStep: ", point.m_timeStep);
     return point;
 }
 
-double StripIterator::GetPropertyValue (
+double StripIterator::GetVelocityValue (
     BodyProperty::Enum property,
     const Point& p, const Point& prev)
 {

@@ -226,6 +226,7 @@ public:
 
 /**
  * Used for displaying edges clipped at the torus original domain boudary.
+ * @todo Use circular arcs in this view as well.
  */
 class DisplayEdgeTorusClipped : public DisplayElementFocus
 {

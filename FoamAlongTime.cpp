@@ -142,7 +142,7 @@ double FoamAlongTime::getBodyPropertyNoAdjustment (
 	RuntimeAssert (it.HasNext (), 
 		       "Cannot find velocity. Second point not available");
 	StripIterator::Point next = it.Next ();
-	value = StripIterator::GetPropertyValue (property, next, p);
+	value = StripIterator::GetVelocityValue (property, next, p);
     }
     else
 	value = bat.GetBody (timeStep)->GetPropertyValue (property);

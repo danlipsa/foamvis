@@ -35,10 +35,14 @@ void BodySetStatistics::Initialize ()
 
 
 void BodySetStatistics::SpeedHistogramStep (
-    const StripIterator::Point& p,
-    const StripIterator::Point& prev)
+    const StripIterator::Point& beforeBegin,
+    const StripIterator::Point& begin,
+    const StripIterator::Point& end,
+    const StripIterator::Point& afterEnd)
 {
-    G3D::Vector3 speed = p.m_point - prev.m_point;
+    static_cast<void>(beforeBegin);
+    static_cast<void>(afterEnd);
+    G3D::Vector3 speed = end.m_point - begin.m_point;
     boost::array<double, 4> speedComponents = 
 	{{speed.x, speed.y, speed.z, speed.length ()}};
     for (size_t i = BodyProperty::VELOCITY_BEGIN;
