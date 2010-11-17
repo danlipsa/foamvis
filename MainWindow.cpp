@@ -211,6 +211,12 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
     colorBar->setHidden (true);
     comboBoxCenterPathColor->setCurrentIndex (BodyProperty::NONE);
     comboBoxFacesColor->setCurrentIndex (BodyProperty::NONE);
+    comboBoxViewportTransform->setCurrentIndex (
+	foam->GetDimension () == 2 ? ViewportTransformType::FILL_SCREEN : 
+	ViewportTransformType::ALLOW_ROTATION);
+    comboBoxAxesOrder->setCurrentIndex (
+	foam->GetDimension () == 2 ? AxesOrder::TWO_D : 
+	AxesOrder::THREE_D);
 }
 
 

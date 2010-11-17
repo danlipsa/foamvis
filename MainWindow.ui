@@ -260,7 +260,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="general">
           <attribute name="title">
@@ -273,6 +273,9 @@
               <string>Show</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_10">
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
               <item>
                <widget class="QCheckBox" name="checkBoxBoundingBox">
                 <property name="text">
@@ -324,16 +327,7 @@
               <item>
                <widget class="QWidget" name="widgetTubesRadius" native="true">
                 <layout class="QHBoxLayout" name="horizontalLayout_9">
-                 <property name="leftMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>9</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="bottomMargin">
+                 <property name="margin">
                   <number>0</number>
                  </property>
                  <item>
@@ -374,6 +368,9 @@
               <string>Enable</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_7">
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
               <item>
                <widget class="QCheckBox" name="checkBoxLighting">
                 <property name="text">
@@ -395,41 +392,93 @@
             </widget>
            </item>
            <item>
-            <widget class="QWidget" name="widgetAngleOfView" native="true">
-             <layout class="QHBoxLayout" name="horizontalLayout_4">
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>9</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
+            <widget class="QGroupBox" name="groupBox_5">
+             <property name="title">
+              <string>Screen transform</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_16">
               <item>
-               <widget class="QLabel" name="label">
-                <property name="text">
-                 <string>Angle of View</string>
-                </property>
+               <widget class="QWidget" name="widgetAngleOfView" native="true">
+                <layout class="QHBoxLayout" name="horizontalLayout_4">
+                 <property name="margin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="label">
+                   <property name="text">
+                    <string>Angle of View</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSlider" name="horizontalSliderAngleOfView">
+                   <property name="maximum">
+                    <number>120</number>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="tickPosition">
+                    <enum>QSlider::TicksAbove</enum>
+                   </property>
+                   <property name="tickInterval">
+                    <number>10</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
                </widget>
               </item>
               <item>
-               <widget class="QSlider" name="horizontalSliderAngleOfView">
-                <property name="maximum">
-                 <number>120</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="tickPosition">
-                 <enum>QSlider::TicksAbove</enum>
-                </property>
-                <property name="tickInterval">
-                 <number>10</number>
-                </property>
+               <widget class="QComboBox" name="comboBoxViewportTransform">
+                <item>
+                 <property name="text">
+                  <string>Fill screen</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Allow rotation</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <widget class="QWidget" name="widget_2" native="true">
+                <layout class="QHBoxLayout" name="horizontalLayout_11">
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="label_8">
+                   <property name="text">
+                    <string>Axes Order</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="comboBoxAxesOrder">
+                   <item>
+                    <property name="text">
+                     <string>2D</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>2D time displacement</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>3D</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                </layout>
                </widget>
               </item>
              </layout>
@@ -1004,6 +1053,21 @@
     <string>&amp;OpenGL Info</string>
    </property>
   </action>
+  <action name="actionAxes_X_Y_Z">
+   <property name="text">
+    <string>Axes X, Y, Z</string>
+   </property>
+  </action>
+  <action name="actionAxes_X_Z_mY">
+   <property name="text">
+    <string>Axes X, Z, -Y</string>
+   </property>
+  </action>
+  <action name="actionAxes_Y_Z_X">
+   <property name="text">
+    <string>Axes Y, Z, X</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -1063,6 +1127,10 @@
     <slot>ToggledOnlyPathsWithSelectionShown(bool)</slot>
     <slot>ToggledCenterPathBodyShown(bool)</slot>
     <slot>CurrentIndexChangedStatisticsType(int)</slot>
+    <slot>CurrentIndexChangedProjectionTransformation(int)</slot>
+    <slot>CurrentIndexChangedViewportTransformationType(int)</slot>
+    <slot>CurrentIndexChangedViewportTransformType(int)</slot>
+    <slot>CurrentIndexChangedAxesOrder(int)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1255,8 +1323,8 @@
    <slot>ToggledCenterPathBodyShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>667</x>
-     <y>320</y>
+     <x>837</x>
+     <y>387</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1335,8 +1403,8 @@
    <slot>ValueChangedAngleOfView(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>846</x>
-     <y>604</y>
+     <x>837</x>
+     <y>593</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1351,8 +1419,8 @@
    <slot>CurrentIndexChangedCenterPathColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>658</x>
-     <y>325</y>
+     <x>828</x>
+     <y>351</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1367,8 +1435,8 @@
    <slot>CurrentIndexChangedFacesColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>828</x>
-     <y>405</y>
+     <x>658</x>
+     <y>356</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1495,8 +1563,8 @@
    <slot>ToggledFacesShowEdges(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>364</y>
+     <x>667</x>
+     <y>343</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1623,8 +1691,8 @@
    <slot>ValueChangedTimeDisplacement(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>667</x>
-     <y>336</y>
+     <x>837</x>
+     <y>453</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1656,7 +1724,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>837</x>
-     <y>464</y>
+     <y>455</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1688,7 +1756,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>837</x>
-     <y>527</y>
+     <y>509</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1736,7 +1804,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>837</x>
-     <y>554</y>
+     <y>536</y>
     </hint>
     <hint type="destinationlabel">
      <x>501</x>
@@ -1783,8 +1851,8 @@
    <slot>ToggledOnlyPathsWithSelectionShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>667</x>
-     <y>323</y>
+     <x>837</x>
+     <y>414</y>
     </hint>
     <hint type="destinationlabel">
      <x>520</x>
@@ -1799,12 +1867,44 @@
    <slot>CurrentIndexChangedStatisticsType(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>697</x>
-     <y>450</y>
+     <x>658</x>
+     <y>360</y>
     </hint>
     <hint type="destinationlabel">
      <x>530</x>
      <y>500</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxViewportTransform</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>CurrentIndexChangedViewportTransformType(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>609</x>
+     <y>616</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>531</x>
+     <y>612</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxAxesOrder</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>CurrentIndexChangedAxesOrder(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>727</x>
+     <y>648</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>531</x>
+     <y>643</y>
     </hint>
    </hints>
   </connection>

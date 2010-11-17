@@ -169,11 +169,19 @@ void GLWidget::initViewTypeDisplay ()
     copy (vtd.begin (), vtd.end (), m_viewTypeDisplay.begin ());
 }
 
-void GLWidget::SetFoamAlongTime (FoamAlongTime* dataAlongTime) 
+void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime) 
 {
-    m_foamAlongTime = dataAlongTime;
+    m_foamAlongTime = foamAlongTime;
     calculateCameraDistance ();
     setInitialLightPosition ();
+    m_viewportTransformType = 
+	(foamAlongTime->GetDimension () == 2) ? 
+	ViewportTransformType::FILL_SCREEN : 
+	ViewportTransformType::ALLOW_ROTATION;
+    m_axesOrder = 
+	(foamAlongTime->GetDimension () == 2) ? 
+	AxesOrder::TWO_D : 
+	AxesOrder::THREE_D;
 }
 
 bool GLWidget::edgeLighting () const
@@ -366,7 +374,7 @@ void GLWidget::ViewportTransform (
     G3D::Rect2D vv2dScreen;
     G3D::Rect2D windowWorld;
     viewingVolumeCalculations (width, height, &vv2dScreen, &windowWorld);
-    if (GetCurrentFoam ().GetDimension () == 2)
+    if (m_viewportTransformType == ViewportTransformType::FILL_SCREEN)
     {
 	const double ADJUST = 99.0/100.0;
 	G3D::Rect2D bb2dScreen;
@@ -1433,6 +1441,17 @@ void GLWidget::CurrentIndexChangedInteractionMode (int index)
 void GLWidget::CurrentIndexChangedStatisticsType (int index)
 {
     m_statisticsType = static_cast<StatisticsType::Enum>(index);
+}
+
+void GLWidget::CurrentIndexChangedViewportTransformType (int index)
+{
+    m_viewportTransformType = 
+	static_cast<ViewportTransformType::Enum>(index);
+}
+
+void GLWidget::CurrentIndexChangedAxesOrder (int index)
+{
+    m_axesOrder = static_cast<AxesOrder::Enum>(index);
 }
 
 void GLWidget::BodyPropertyChanged (

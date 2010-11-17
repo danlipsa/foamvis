@@ -222,6 +222,27 @@ public:
     };
 };
 
+struct ViewportTransformType
+{
+    enum Enum
+    {
+	FILL_SCREEN,
+	ALLOW_ROTATION,
+	COUNT
+    };
+};
+
+struct AxesOrder
+{
+    enum Enum
+    {
+	TWO_D,                   /* XYZ */
+	TWO_D_TIME_DISPLACEMENT, /* XZmY */
+	THREE_D,                 /* YZX */
+	COUNT
+    };
+};
+
 #endif //__ENUMS_H__
 
 // Local Variables:

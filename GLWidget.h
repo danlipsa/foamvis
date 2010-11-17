@@ -29,7 +29,7 @@ class OOBox;
  * Widget for displaying foam bubbles using OpenGL
  */
 class GLWidget : public QGLWidget, public QGLFunctions
-{    
+{
 public:
     /**
      * Constructor
@@ -273,6 +273,8 @@ public Q_SLOTS:
     void Info ();
     void CurrentIndexChangedInteractionMode (int index);
     void CurrentIndexChangedStatisticsType (int index);
+    void CurrentIndexChangedViewportTransformType (int index);
+    void CurrentIndexChangedAxesOrder (int index);
 
     void ToggledEdgesBodyCenter (bool checked);
     void ToggledEdgesTessellation (bool checked);
@@ -502,6 +504,9 @@ private:
     bool m_torusOriginalDomainClipped;
     InteractionMode::Enum m_interactionMode;
     StatisticsType::Enum m_statisticsType;
+    ViewportTransformType::Enum m_viewportTransformType;
+    AxesOrder::Enum m_axesOrder;
+
     /**
      * Foam to be displayd. Each element coresponds to a DMP file
      */
