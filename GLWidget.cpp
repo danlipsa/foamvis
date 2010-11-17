@@ -338,8 +338,17 @@ void GLWidget::modelViewTransform () const
     glLoadIdentity ();
     glTranslate (- m_cameraDistance * G3D::Vector3::unitZ ());    
     glMultMatrix (m_rotationMatrixModel);
-    if (GetCurrentFoam ().GetDimension () == 3)
+    switch (m_axesOrder)
+    {
+    case AxesOrder::TWO_D_TIME_DISPLACEMENT:
+	rotate2DTimeDisplacement ();
+	break;
+    case AxesOrder::THREE_D:
 	rotateSurfaceEvolverCompatible ();
+	break;
+    default:
+	break;
+    }
     glTranslate (-GetFoamAlongTime ().GetBoundingBox ().center ());
 }
 
@@ -454,6 +463,17 @@ void GLWidget::boundingBoxCalculations (
 	*bb2dScreen = G3D::Rect2D::xywh (
 	    0, (height - newHeight) / 2, width, newHeight);
     }
+}
+
+void GLWidget::rotate2DTimeDisplacement () const
+{
+    /**
+     *  y        z
+     *    x ->     x
+     * z        -y
+     */
+    const static G3D::Matrix3 axes (0, 0, 1,  0, 0, 1,  0, -1, 0); 
+    glMultMatrix (axes);
 }
 
 void GLWidget::rotateSurfaceEvolverCompatible () const

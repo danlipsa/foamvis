@@ -481,6 +481,7 @@ private:
     bool doesSelectEdge () const;
     void createActions ();
     void rotateSurfaceEvolverCompatible () const;
+    void rotate2DTimeDisplacement () const;
 
 private:
     static void displayOpositeFaces (G3D::Vector3 origin,
