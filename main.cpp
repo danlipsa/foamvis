@@ -270,14 +270,6 @@ void parseFiles (int argc, char *argv[],
  */
 int main(int argc, char *argv[])
 {
-    numeric_limits<float> limits;
-    cdbg << "max: " << limits.max () << " min: " << limits.min () << endl
-	 << "digits: " << limits.digits << endl
-	 << "min_exp: " << limits.min_exponent << endl
-	 << "max_exp: " << limits.max_exponent << endl
-	 << "sizeof: " << sizeof (float) << endl;
-    
-
     try
     {
 	bool debugParsing, debugScanning, textOutput;
