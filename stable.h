@@ -33,6 +33,7 @@
 #include <vector>
 #include <queue>
 #include <iomanip>
+#include <bitset>
 
 // boost TR1 headers
 #include <boost/shared_ptr.hpp>

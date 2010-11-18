@@ -47,8 +47,9 @@ private:
 // ======================================================================
 
 const size_t GLWidget::DISPLAY_ALL(numeric_limits<size_t>::max());
-const size_t GLWidget::QUADRIC_SLICES (20);
-const size_t GLWidget::QUADRIC_STACKS (20);
+const size_t GLWidget::QUADRIC_SLICES;
+const size_t GLWidget::QUADRIC_STACKS;
+const size_t GLWidget::LIGHTS_COUNT;
 
 
 // Methods
@@ -91,7 +92,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_colorBarTexture (0),
       m_srcAlphaBlend (1),
       m_timeDisplacement (0.0),
-      m_playMovie (false)
+      m_playMovie (false),
+      m_lightEnabled (0)
 {
     makeCurrent ();
     m_displayBlend.reset (new DisplayBlend (*this));
@@ -113,7 +115,7 @@ GLWidget::GLWidget(QWidget *parent)
     m_endTranslationColor[Vector3int16(0,0,0)] = QColor(0,0,0);
     initQuadrics ();
     initViewTypeDisplay ();    
-    createActions ();
+    createActions ();    
 }
 
 void GLWidget::initQuadrics ()
@@ -253,10 +255,21 @@ QSize GLWidget::sizeHint()
 
 void GLWidget::setInitialLightPosition ()
 {
-    G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
-    G3D::Vector3 center = bb.center ();
-    m_lightPosition =  bb.high () - center;
+    m_lightPositionRatio = 1;
     m_directionalLightEnabled = true;
+}
+
+G3D::Vector3 GLWidget::getInitialLightPosition (size_t i) const
+{
+    G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
+    G3D::Vector3 high = bb.high (), low = bb.low ();
+    G3D::Vector3 v[] = {
+	high,
+	G3D::Vector3 (low.x, high.y, high.z), 
+	G3D::Vector3 (low.x, low.y, high.z), 
+	G3D::Vector3 (high.x, low.y, high.z), 
+    };
+    return v[i] - bb.center ();
 }
 
 void GLWidget::positionLight ()
@@ -267,36 +280,50 @@ void GLWidget::positionLight ()
 	glLoadIdentity ();
 	glTranslate (- m_cameraDistance * G3D::Vector3::unitZ ());
 	glMultMatrix (m_rotationMatrixLight);
-	GLfloat lightPosition[] = {m_lightPosition.x, m_lightPosition.y,
-				   m_lightPosition.z, ! m_directionalLightEnabled};
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-	if (m_showLightPosition)
+	glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT);
+	glPointSize (4);
+	glColor (Qt::black);
+	for (size_t i = 0; i < LIGHTS_COUNT; ++i)
 	{
-	    glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT);
-	    glPointSize (4);
-	    glColor (Qt::black);
-	    glBegin (GL_POINTS);
-	    glVertex (m_lightPosition);
-	    glEnd ();
-	    glPopAttrib ();
+	    if (m_lightEnabled[i])
+	    {
+		G3D::Vector3 lp = 
+		    getInitialLightPosition (i) * m_lightPositionRatio;
+		GLfloat lightPosition[] = {
+		    lp.x, lp.y, lp.z, ! m_directionalLightEnabled};
+		glLightfv(GL_LIGHT0 + i, GL_POSITION, lightPosition);
+		if (m_showLightPosition)
+		{
+		    glBegin (GL_POINTS);
+		    glVertex (lp);
+		    glEnd ();
+		}
+	    }
 	}
+	glPopAttrib ();
     }
     glPopMatrix ();
+}
+
+void GLWidget::translateLight (const QPoint& position)
+{
+    G3D::AABox vv = calculateCenteredViewingVolume ();
+    G3D::Vector2 oldPosition = G3D::Vector2 (m_lastPos.x (), m_lastPos.y ());
+    G3D::Vector2 newPosition = G3D::Vector2 (position.x (), position.y ());
+    G3D::Vector2 viewportCenter = 
+	(m_viewport.x1y1 () + m_viewport.x0y0 ()) / 2;
+    float screenChange = 
+	((newPosition - viewportCenter).length () - 
+	 (oldPosition - viewportCenter).length ());
+    float ratio = screenChange / 
+	(m_viewport.x1y1 () - m_viewport.x0y0 ()).length ();
+
+    m_lightPositionRatio = (1 + ratio) * m_lightPositionRatio;
 }
 
 
 void GLWidget::initializeLighting ()
 {    
-    // light colors
-    GLfloat lightAmbient[] = {0, 0, 0, 1.0};     // default (0, 0, 0, 1)
-    GLfloat lightDiffuse[] = {1.0, 1.0, 1.0, 1.0};  // default (1, 1, 1, 1)
-    GLfloat lightSpecular[] = {1.0, 1.0, 1.0, 1.0}; // default (1, 1, 1, 1)
-
-    glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
-    glEnable(GL_LIGHT0);
-
     // material colors: ambient and diffuse colors are set using glColor
     GLfloat materialSpecular[] = {1.0, 1.0, 1.0, 1.0}; //(0, 0, 0, 1)
     GLfloat materialShininess[] = {50.0};              // 0
@@ -344,7 +371,7 @@ void GLWidget::modelViewTransform () const
 	rotate2DTimeDisplacement ();
 	break;
     case AxesOrder::THREE_D:
-	rotateSurfaceEvolverCompatible ();
+	rotate3D ();
 	break;
     default:
 	break;
@@ -472,11 +499,11 @@ void GLWidget::rotate2DTimeDisplacement () const
      *    x ->     x
      * z        -y
      */
-    const static G3D::Matrix3 axes (0, 0, 1,  0, 0, 1,  0, -1, 0); 
+    const static G3D::Matrix3 axes (1, 0, 0,  0, 0, 1,  0, -1, 0); 
     glMultMatrix (axes);
 }
 
-void GLWidget::rotateSurfaceEvolverCompatible () const
+void GLWidget::rotate3D () const
 {
     /**
      *  y        z
@@ -485,8 +512,8 @@ void GLWidget::rotateSurfaceEvolverCompatible () const
      */
     const static G3D::Matrix3 evolverAxes (0, 1, 0,  0, 0, 1,  1, 0, 0); 
     glMultMatrix (evolverAxes);
-    glMultMatrix (GetCurrentFoam ().GetViewMatrix ().
-		  approxCoordinateFrame ().rotation);
+    const Foam& foam = *GetFoamAlongTime ().GetFoam (0);
+    glMultMatrix (foam.GetViewMatrix ().approxCoordinateFrame ().rotation);
 }
 
 void GLWidget::calculateCameraDistance ()
@@ -580,10 +607,10 @@ void GLWidget::initializeGL()
 void GLWidget::paintGL ()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    positionLight ();
     modelViewTransform ();
     display ();
     displayTextureColorBar ();
-    positionLight ();
     displayAxes ();
     displayBoundingBox ();
     displayOriginalDomain ();
@@ -694,22 +721,6 @@ void GLWidget::translateViewport (const QPoint& position)
 				    m_viewport.width (),
 				    m_viewport.height ());
     glViewport (m_viewport);
-}
-
-void GLWidget::translateLight (const QPoint& position)
-{
-    G3D::AABox vv = calculateCenteredViewingVolume ();
-    G3D::Vector2 oldPosition = G3D::Vector2 (m_lastPos.x (), m_lastPos.y ());
-    G3D::Vector2 newPosition = G3D::Vector2 (position.x (), position.y ());
-    G3D::Vector2 viewportCenter = 
-	(m_viewport.x1y1 () + m_viewport.x0y0 ()) / 2;
-    float screenChange = 
-	((newPosition - viewportCenter).length () - 
-	 (oldPosition - viewportCenter).length ());
-    float ratio = screenChange / 
-	(m_viewport.x1y1 () - m_viewport.x0y0 ()).length ();
-
-    m_lightPosition += (ratio * m_lightPosition);
 }
 
 
@@ -891,7 +902,7 @@ void GLWidget::displayEdgesTorusTubes () const
     GetCurrentFoam ().GetEdgeSet (&edgeSet);
     for_each (
 	edgeSet.begin (), edgeSet.end (),
-	DisplayEdgeTorus<DisplayEdgeTube, DisplayArrowTube, false>(*this));
+	DisplayEdgeTorus<DisplayEdgeCylinder, DisplayArrowTube, false>(*this));
     glPopAttrib ();
 }
 
@@ -1022,7 +1033,7 @@ void GLWidget::displayFacesTorusTubes () const
     for_each (faceSet.begin (), faceSet.end (),
 	      DisplayFace<
 	      DisplayEdges<
-	      DisplayEdgeTorus<DisplayEdgeTube, DisplayArrowTube, true> > > (
+	      DisplayEdgeTorus<DisplayEdgeCylinder, DisplayArrowTube, true> > > (
 		  *this));
     glPopAttrib ();
 }
@@ -1079,7 +1090,7 @@ void GLWidget::displayCenterPaths () const
     
     if (m_edgesTubes)
 	for_each (bats.begin (), bats.end (),
-		  DisplayCenterPath<TexCoordSetter, DisplayEdgeTube> (
+		  DisplayCenterPath<TexCoordSetter, DisplayEdgeCylinder> (
 		      *this, m_centerPathColor, *m_bodySelector, 
 		      GetCurrentFoam ().GetDimension () == 2 ? true : false,
 		      m_timeDisplacement));
@@ -1304,11 +1315,28 @@ size_t GLWidget::GetDisplayedEdgeId () const
     return GetDisplayedEdge ()->GetId ();
 }
 
+void GLWidget::toggledLights ()
+{
+    // light colors
+    GLfloat lightAmbient[] = {0, 0, 0, 1.0};     // default (0, 0, 0, 1)
+    GLfloat lightDiffuse[] = {1.0, 1.0, 1.0, 1.0};  // default (1, 1, 1, 1)
+    GLfloat lightSpecular[] = {1.0, 1.0, 1.0, 1.0}; // default (1, 1, 1, 1)
 
+    for (size_t i = 0; i < LIGHTS_COUNT; ++i)
+    {
+	if (m_lightEnabled[i])
+	{
+	    glLightfv(GL_LIGHT0 + i, GL_AMBIENT, lightAmbient);
+	    glLightfv(GL_LIGHT0 + i, GL_DIFFUSE, lightDiffuse);
+	    glLightfv(GL_LIGHT0 + i, GL_SPECULAR, lightSpecular);
+	    glEnable(GL_LIGHT0 + i);
+	}
+	else
+	    glDisable (GL_LIGHT0 + i);
+    }
+}
 
-// Slots
-// ======================================================================
-void GLWidget::ToggledLightingEnabled (bool checked)
+void GLWidget::toggledLightingEnabled (bool checked)
 {
     if (m_lightingEnabled == checked)
 	return;
@@ -1324,6 +1352,11 @@ void GLWidget::ToggledLightingEnabled (bool checked)
     }
     updateGL ();
 }
+
+
+
+// Slots
+// ======================================================================
 
 void GLWidget::ToggledDirectionalLightEnabled (bool checked)
 {
@@ -1521,6 +1554,14 @@ void GLWidget::ColorBarModelChanged (
 }
 
 
+void GLWidget::ButtonClickedLightPosition (int lightPosition)
+{
+    m_lightEnabled[lightPosition].flip ();
+    toggledLights ();
+    toggledLightingEnabled (m_lightEnabled.any ());
+    updateGL ();
+}
+
 void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 {
     m_timeStep = timeStep;
@@ -1566,7 +1607,7 @@ void GLWidget::ValueChangedEdgesRadius (int sliderValue)
     size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
     m_edgeRadiusMultiplier = static_cast<double>(sliderValue) / maximum;
     setEdgeRadius ();
-    ToggledLightingEnabled (m_lightingEnabled);
+    toggledLightingEnabled (m_lightingEnabled);
     updateGL ();
 }
 

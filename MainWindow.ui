@@ -268,234 +268,297 @@
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_14">
            <item>
-            <widget class="QGroupBox" name="groupBoxShow">
-             <property name="title">
-              <string>Show</string>
+            <widget class="QTabWidget" name="tabWidgetGeneralOptions">
+             <property name="currentIndex">
+              <number>0</number>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_10">
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QCheckBox" name="checkBoxBoundingBox">
-                <property name="text">
-                 <string>Bounding Box</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="checkBoxAxes">
-                <property name="text">
-                 <string>Axes</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="checkBoxTorusOriginalDomain">
-                <property name="text">
-                 <string>Torus original domain</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="checkBoxTimeSteps">
-                <property name="text">
-                 <string>Time Steps</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="checkBoxFullColorBar">
-                <property name="text">
-                 <string>Full Color Bar</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="checkBoxLightPosition">
-                <property name="text">
-                 <string>Light position</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QWidget" name="widgetTubesRadius" native="true">
-                <layout class="QHBoxLayout" name="horizontalLayout_9">
-                 <property name="margin">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="label_6">
-                   <property name="text">
-                    <string>Edges radius</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QSlider" name="horizontalSliderEdgesRadius">
-                   <property name="maximum">
-                    <number>99</number>
-                   </property>
-                   <property name="pageStep">
-                    <number>10</number>
-                   </property>
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="tickPosition">
-                    <enum>QSlider::TicksAbove</enum>
-                   </property>
-                   <property name="tickInterval">
-                    <number>10</number>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="groupBox">
-             <property name="title">
-              <string>Enable</string>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_7">
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QCheckBox" name="checkBoxLighting">
-                <property name="text">
-                 <string>Lighting</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="checkBoxDirectionalLight">
-                <property name="text">
-                 <string>Directional light</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="groupBox_5">
-             <property name="title">
-              <string>Screen transform</string>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_16">
-              <item>
-               <widget class="QWidget" name="widgetAngleOfView" native="true">
-                <layout class="QHBoxLayout" name="horizontalLayout_4">
-                 <property name="margin">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="label">
-                   <property name="text">
-                    <string>Angle of View</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QSlider" name="horizontalSliderAngleOfView">
-                   <property name="maximum">
-                    <number>120</number>
-                   </property>
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="tickPosition">
-                    <enum>QSlider::TicksAbove</enum>
-                   </property>
-                   <property name="tickInterval">
-                    <number>10</number>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="comboBoxViewportTransform">
-                <item>
+             <widget class="QWidget" name="tabShow">
+              <attribute name="title">
+               <string>Show</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_18">
+               <item>
+                <widget class="QCheckBox" name="checkBoxAxes">
                  <property name="text">
-                  <string>Fill screen</string>
+                  <string>Axes</string>
                  </property>
-                </item>
-                <item>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkBoxBoundingBox">
                  <property name="text">
-                  <string>Allow rotation</string>
+                  <string>Bounding Box</string>
                  </property>
-                </item>
-               </widget>
-              </item>
-              <item>
-               <widget class="QWidget" name="widget_2" native="true">
-                <layout class="QHBoxLayout" name="horizontalLayout_11">
-                 <property name="topMargin">
-                  <number>0</number>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkBoxFullColorBar">
+                 <property name="text">
+                  <string>Full Color Bar</string>
                  </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
+                 <property name="checked">
+                  <bool>true</bool>
                  </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkBoxTimeSteps">
+                 <property name="text">
+                  <string>Time Steps</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkBoxTorusOriginalDomain">
+                 <property name="text">
+                  <string>Torus original domain</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QWidget" name="widgetTubesRadius" native="true">
+                 <layout class="QHBoxLayout" name="horizontalLayout_9">
+                  <property name="margin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="label_6">
+                    <property name="text">
+                     <string>Edges radius</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSlider" name="horizontalSliderEdgesRadius">
+                    <property name="maximum">
+                     <number>99</number>
+                    </property>
+                    <property name="pageStep">
+                     <number>10</number>
+                    </property>
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="tickPosition">
+                     <enum>QSlider::TicksAbove</enum>
+                    </property>
+                    <property name="tickInterval">
+                     <number>10</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_5">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tabLight">
+              <attribute name="title">
+               <string>Light</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_19">
+               <item>
+                <widget class="QGroupBox" name="groupBox">
+                 <property name="title">
+                  <string>Enable light</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_10">
+                  <item>
+                   <widget class="QCheckBox" name="checkBoxTopRight">
+                    <property name="text">
+                     <string>Top right</string>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string>buttonGroupLightPosition</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="checkBoxTopLeft">
+                    <property name="text">
+                     <string>Top left</string>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string>buttonGroupLightPosition</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="checkBoxBottomLeft">
+                    <property name="text">
+                     <string>Bottom left</string>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string>buttonGroupLightPosition</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="checkBoxBottomRight">
+                    <property name="text">
+                     <string>Bottom right</string>
+                    </property>
+                    <attribute name="buttonGroup">
+                     <string>buttonGroupLightPosition</string>
+                    </attribute>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkBoxLightPosition">
+                 <property name="text">
+                  <string>Show light position</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkBoxDirectionalLight">
+                 <property name="text">
+                  <string>Light far away, no atenuation</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_2">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tabTransform">
+              <attribute name="title">
+               <string>Transform</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_7">
+               <item>
+                <widget class="QWidget" name="widgetAngleOfView" native="true">
+                 <layout class="QHBoxLayout" name="horizontalLayout_4">
+                  <property name="margin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="label">
+                    <property name="text">
+                     <string>Angle of View</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSlider" name="horizontalSliderAngleOfView">
+                    <property name="maximum">
+                     <number>120</number>
+                    </property>
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="tickPosition">
+                     <enum>QSlider::TicksAbove</enum>
+                    </property>
+                    <property name="tickInterval">
+                     <number>10</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="comboBoxViewportTransform">
                  <item>
-                  <widget class="QLabel" name="label_8">
-                   <property name="text">
-                    <string>Axes Order</string>
-                   </property>
-                  </widget>
+                  <property name="text">
+                   <string>Fill screen</string>
+                  </property>
                  </item>
                  <item>
-                  <widget class="QComboBox" name="comboBoxAxesOrder">
-                   <item>
-                    <property name="text">
-                     <string>2D</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>2D time displacement</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>3D</string>
-                    </property>
-                   </item>
-                  </widget>
+                  <property name="text">
+                   <string>Allow rotation</string>
+                  </property>
                  </item>
-                </layout>
-               </widget>
-              </item>
-             </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QWidget" name="widget_2" native="true">
+                 <layout class="QHBoxLayout" name="horizontalLayout_11">
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="label_8">
+                    <property name="text">
+                     <string>Axes Order</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="comboBoxAxesOrder">
+                    <item>
+                     <property name="text">
+                      <string>2D</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>2D time displacement</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>3D</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_6">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>331</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
             </widget>
-           </item>
-           <item>
-            <spacer name="verticalSpacer_5">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
            </item>
           </layout>
          </widget>
@@ -1131,6 +1194,7 @@
     <slot>CurrentIndexChangedViewportTransformationType(int)</slot>
     <slot>CurrentIndexChangedViewportTransformType(int)</slot>
     <slot>CurrentIndexChangedAxesOrder(int)</slot>
+    <slot>ButtonClickedLightPosition(int)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1323,8 +1387,8 @@
    <slot>ToggledCenterPathBodyShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>387</y>
+     <x>667</x>
+     <y>320</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1371,8 +1435,8 @@
    <slot>ToggledTorusOriginalDomainShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>344</y>
+     <x>835</x>
+     <y>412</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1387,8 +1451,8 @@
    <slot>ToggledBoundingBoxShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>290</y>
+     <x>835</x>
+     <y>331</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1403,8 +1467,8 @@
    <slot>ValueChangedAngleOfView(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>593</y>
+     <x>835</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1419,8 +1483,8 @@
    <slot>CurrentIndexChangedCenterPathColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>828</x>
-     <y>351</y>
+     <x>658</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1547,8 +1611,8 @@
    <slot>ToggledShowTimeSteps(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>371</y>
+     <x>835</x>
+     <y>385</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1691,8 +1755,8 @@
    <slot>ValueChangedTimeDisplacement(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>453</y>
+     <x>667</x>
+     <y>336</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1707,8 +1771,8 @@
    <slot>ToggledFullColorBarShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>398</y>
+     <x>835</x>
+     <y>358</y>
     </hint>
     <hint type="destinationlabel">
      <x>872</x>
@@ -1723,8 +1787,8 @@
    <slot>ValueChangedEdgesRadius(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>455</y>
+     <x>835</x>
+     <y>442</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1745,22 +1809,6 @@
     <hint type="destinationlabel">
      <x>420</x>
      <y>406</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxLighting</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledLightingEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>837</x>
-     <y>509</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>420</x>
-     <y>445</y>
     </hint>
    </hints>
   </connection>
@@ -1787,8 +1835,8 @@
    <slot>ToggledLightPositionShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>425</y>
+     <x>835</x>
+     <y>448</y>
     </hint>
     <hint type="destinationlabel">
      <x>501</x>
@@ -1803,8 +1851,8 @@
    <slot>ToggledDirectionalLightEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>536</y>
+     <x>835</x>
+     <y>475</y>
     </hint>
     <hint type="destinationlabel">
      <x>501</x>
@@ -1819,8 +1867,8 @@
    <slot>ToggledAxesShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>317</y>
+     <x>835</x>
+     <y>304</y>
     </hint>
     <hint type="destinationlabel">
      <x>532</x>
@@ -1835,8 +1883,8 @@
    <slot>ToggledFullColorBarShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>398</y>
+     <x>835</x>
+     <y>358</y>
     </hint>
     <hint type="destinationlabel">
      <x>534</x>
@@ -1851,8 +1899,8 @@
    <slot>ToggledOnlyPathsWithSelectionShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>414</y>
+     <x>667</x>
+     <y>323</y>
     </hint>
     <hint type="destinationlabel">
      <x>520</x>
@@ -1883,8 +1931,8 @@
    <slot>CurrentIndexChangedViewportTransformType(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>609</x>
-     <y>616</y>
+     <x>835</x>
+     <y>339</y>
     </hint>
     <hint type="destinationlabel">
      <x>531</x>
@@ -1899,12 +1947,28 @@
    <slot>CurrentIndexChangedAxesOrder(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>727</x>
-     <y>648</y>
+     <x>826</x>
+     <y>371</y>
     </hint>
     <hint type="destinationlabel">
      <x>531</x>
      <y>643</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonGroupLightPosition</sender>
+   <signal>buttonClicked(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ButtonClickedLightPosition(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>287</x>
+     <y>371</y>
     </hint>
    </hints>
   </connection>
@@ -1917,5 +1981,10 @@
   <buttongroup name="buttonGroupDisplay"/>
   <buttongroup name="buttonGroupCenterPathHistogram"/>
   <buttongroup name="buttonGroupFacesHistogram"/>
+  <buttongroup name="buttonGroupLightPosition">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
  </buttongroups>
 </ui>

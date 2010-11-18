@@ -258,6 +258,18 @@ struct AxesOrder
     };
 };
 
+struct LightPosition
+{
+    enum Enum
+    {
+	TOP_RIGHT,
+	TOP_LEFT,
+	BOTTOM_LEFT,
+	BOTTOM_RIGHT
+    };
+};
+
+
 #endif //__ENUMS_H__
 
 // Local Variables:

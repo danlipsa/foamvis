@@ -227,6 +227,7 @@ public:
     {
 	return m_facesColor;
     }
+    void toggledLightingEnabled (bool checked);
 
 public Q_SLOTS:
     /*
@@ -236,7 +237,6 @@ public Q_SLOTS:
     void ToggledAxesShown (bool checked);
     void ToggledTorusOriginalDomainShown (bool checked);
     void ToggledLightPositionShown (bool checked);
-    void ToggledLightingEnabled (bool checked);
     void ToggledDirectionalLightEnabled (bool checked);
     void ToggledFullColorBarShown (bool checked);
 
@@ -293,11 +293,13 @@ public Q_SLOTS:
      * @param timeStep the new index for the Foam to be displayed
      */
     void ValueChangedSliderTimeSteps (int timeStep);
+    void ButtonClickedLightPosition (int lightPosition);
 
 public:
     const static  size_t DISPLAY_ALL;
-    const static size_t QUADRIC_SLICES;
-    const static size_t QUADRIC_STACKS;;
+    const static size_t QUADRIC_SLICES = 5;
+    const static size_t QUADRIC_STACKS = 1;
+    const static size_t LIGHTS_COUNT = 4;
 
 protected:
     /**
@@ -427,6 +429,7 @@ private:
     void displayBox (const OOBox& oobox) const;
     void displayAxes () const;
     void setInitialLightPosition ();
+    G3D::Vector3 getInitialLightPosition (size_t i) const;
 
     /**
      * Rotates the foam or the light around an axis with a certain angle
@@ -480,8 +483,12 @@ private:
     bool doesSelectFace () const;
     bool doesSelectEdge () const;
     void createActions ();
-    void rotateSurfaceEvolverCompatible () const;
+    /**
+     * Rotates the view so that we get the same image as in Surface Evolver
+     */
+    void rotate3D () const;
     void rotate2DTimeDisplacement () const;
+    void toggledLights ();
 
 private:
     static void displayOpositeFaces (G3D::Vector3 origin,
@@ -543,7 +550,7 @@ private:
     bool m_lightingEnabled;
     bool m_directionalLightEnabled;
     G3D::Matrix3 m_rotationMatrixLight;
-    G3D::Vector3 m_lightPosition;
+    double m_lightPositionRatio;
     bool m_showLightPosition;
     double m_angleOfView;
 
@@ -594,6 +601,7 @@ private:
     bool m_playMovie;
     boost::scoped_ptr<DisplayBlend> m_displayBlend;
     boost::scoped_ptr<DisplayFaceAverage> m_displayFaceAverage;
+    bitset<LIGHTS_COUNT> m_lightEnabled;
 };
 
 #endif //__GLWIDGET_H__

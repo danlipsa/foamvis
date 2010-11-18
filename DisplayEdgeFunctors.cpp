@@ -33,7 +33,7 @@ void DisplayEdge::operator() (
     glEnd();
 }
 
-void DisplayEdgeTube::operator() (
+void DisplayEdgeCylinder::operator() (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
     G3D::Matrix3 rotation = edgeRotation (begin, end);
@@ -45,12 +45,12 @@ void DisplayEdgeTube::operator() (
 	gluCylinder (
 	    m_quadric, m_edgeRadius, m_edgeRadius, (end - begin).length (),
 	    GLWidget::QUADRIC_SLICES, GLWidget::QUADRIC_STACKS);
-	gluQuadricOrientation (m_quadric, GLU_INSIDE);
 	/*
+	gluQuadricOrientation (m_quadric, GLU_INSIDE);	
 	gluDisk (m_quadric, 0, m_edgeRadius, GLWidget::QUADRIC_SLICES,
 		 GLWidget::QUADRIC_STACKS);
-	*/
 	glTranslatef (end.x, end.y, end.z);
+	*/
     }
     glPopMatrix ();
 }
@@ -76,7 +76,6 @@ void DisplayArrowTube::operator () (
 		   (end - (end - begin).direction () * m_height));
     G3D::Matrix3 rotation = edgeRotation (begin, end);
     G3D::CoordinateFrame objectToWorld (rotation, translation);
-    gluQuadricOrientation (m_quadric, GLU_OUTSIDE);
     glPushMatrix ();
     {
 	glMultMatrix (objectToWorld);
@@ -86,6 +85,7 @@ void DisplayArrowTube::operator () (
 	gluDisk (m_quadric, 0, m_baseRadius, GLWidget::QUADRIC_SLICES,
 		 GLWidget::QUADRIC_STACKS);
     }
+    gluQuadricOrientation (m_quadric, GLU_OUTSIDE);
     glPopMatrix ();
 }
 
@@ -121,7 +121,7 @@ void DisplayOrientedEdge::operator () (
 void DisplayOrientedEdgeTube::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
-    DisplayEdgeTube displayEdge (m_quadric, m_topRadius);
+    DisplayEdgeCylinder displayEdge (m_quadric, m_topRadius);
     DisplayArrowTube displayArrow (
 	m_quadric, m_baseRadius, m_topRadius, m_height, m_position);
     displayEdge (begin, end);

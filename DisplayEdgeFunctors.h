@@ -34,16 +34,24 @@ protected:
     double m_edgeRadius;
 };
 
-class DisplayEdgeTube : public DisplayEdge
+class DisplayEdgeCylinder : public DisplayEdge
 {
 public:
-    DisplayEdgeTube (GLUquadricObj* quadric, double edgeRadius) :
+    DisplayEdgeCylinder (GLUquadricObj* quadric, double edgeRadius) :
 	DisplayEdge (quadric, edgeRadius)
     {
     }
     
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
+
+/**
+ * Similar with gluCylinder but accepts angled ends.
+ */
+void DisplayTubeAngledEnd (
+    double baseRadius, double baseAngle, 
+    double topRadius, double topAngle,
+    double height, int slices, int stacks);
 
 class DisplayArrow
 {

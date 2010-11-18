@@ -140,6 +140,13 @@ void MainWindow::connectColorBarModelChanged ()
 
 void MainWindow::setupButtonGroups ()
 {
+    buttonGroupLightPosition->setId (checkBoxTopRight, LightPosition::TOP_RIGHT);
+    buttonGroupLightPosition->setId (checkBoxTopLeft, LightPosition::TOP_LEFT);
+    buttonGroupLightPosition->setId (checkBoxBottomLeft,
+				     LightPosition::BOTTOM_LEFT);
+    buttonGroupLightPosition->setId (checkBoxBottomRight,
+				     LightPosition::BOTTOM_RIGHT);
+
     buttonGroupFacesHistogram->setId (
 	radioButtonFacesHistogramNone, HistogramType::NONE);
     buttonGroupFacesHistogram->setId (
