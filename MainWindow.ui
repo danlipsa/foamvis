@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>876</width>
-    <height>752</height>
+    <height>591</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -361,7 +361,7 @@
                  <property name="sizeHint" stdset="0">
                   <size>
                    <width>20</width>
-                   <height>40</height>
+                   <height>0</height>
                   </size>
                  </property>
                 </spacer>
@@ -447,7 +447,7 @@
                  <property name="sizeHint" stdset="0">
                   <size>
                    <width>20</width>
-                   <height>40</height>
+                   <height>0</height>
                   </size>
                  </property>
                 </spacer>
@@ -492,52 +492,61 @@
                 </widget>
                </item>
                <item>
-                <widget class="QComboBox" name="comboBoxViewportTransform">
-                 <item>
-                  <property name="text">
-                   <string>Fill screen</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Allow rotation</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item>
-                <widget class="QWidget" name="widget_2" native="true">
-                 <layout class="QHBoxLayout" name="horizontalLayout_11">
-                  <property name="topMargin">
-                   <number>0</number>
-                  </property>
-                  <property name="bottomMargin">
-                   <number>0</number>
-                  </property>
+                <widget class="QGroupBox" name="groupBox_5">
+                 <property name="title">
+                  <string>Reset transformation behavior</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_16">
                   <item>
-                   <widget class="QLabel" name="label_8">
-                    <property name="text">
-                     <string>Axes Order</string>
-                    </property>
+                   <widget class="QComboBox" name="comboBoxViewportTransform">
+                    <item>
+                     <property name="text">
+                      <string>Fill screen</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Allow rotation</string>
+                     </property>
+                    </item>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QComboBox" name="comboBoxAxesOrder">
-                    <item>
-                     <property name="text">
-                      <string>2D</string>
+                   <widget class="QWidget" name="widget_2" native="true">
+                    <layout class="QHBoxLayout" name="horizontalLayout_11">
+                     <property name="topMargin">
+                      <number>0</number>
                      </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>2D time displacement</string>
+                     <property name="bottomMargin">
+                      <number>0</number>
                      </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>3D</string>
-                     </property>
-                    </item>
+                     <item>
+                      <widget class="QLabel" name="label_8">
+                       <property name="text">
+                        <string>Axes Order</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QComboBox" name="comboBoxAxesOrder">
+                       <item>
+                        <property name="text">
+                         <string>2D</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>2D time displacement</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>3D</string>
+                        </property>
+                       </item>
+                      </widget>
+                     </item>
+                    </layout>
                    </widget>
                   </item>
                  </layout>
@@ -551,7 +560,7 @@
                  <property name="sizeHint" stdset="0">
                   <size>
                    <width>20</width>
-                   <height>331</height>
+                   <height>0</height>
                   </size>
                  </property>
                 </spacer>
@@ -579,6 +588,9 @@
               <string>Display</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_2">
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
               <item>
                <widget class="QRadioButton" name="radioButtonEdgesNormal">
                 <property name="text">
@@ -689,6 +701,9 @@
               <string>Display</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_12">
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
               <item>
                <widget class="QRadioButton" name="radioButtonFacesNormal">
                 <property name="text">
@@ -736,6 +751,12 @@
                <item>
                 <widget class="QWidget" name="widgetFaceColor" native="true">
                  <layout class="QHBoxLayout" name="horizontalLayout_6">
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
                   <item>
                    <widget class="QLabel" name="label_3">
                     <property name="text">
@@ -788,6 +809,12 @@
                <item>
                 <widget class="QWidget" name="widgetStatisticsType" native="true">
                  <layout class="QHBoxLayout" name="horizontalLayout_10">
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
                   <item>
                    <widget class="QLabel" name="label_7">
                     <property name="text">
@@ -895,6 +922,9 @@
               <string>Display</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout">
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
               <item>
                <widget class="QRadioButton" name="radioButtonCenterPath">
                 <property name="text">
@@ -919,6 +949,12 @@
                <item>
                 <widget class="QWidget" name="widgetCenterPathColor" native="true">
                  <layout class="QHBoxLayout" name="horizontalLayout_5">
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
                   <item>
                    <widget class="QLabel" name="label_2">
                     <property name="text">
@@ -985,16 +1021,7 @@
                <item>
                 <widget class="QWidget" name="widgetTimeDisplacement" native="true">
                  <layout class="QHBoxLayout" name="horizontalLayout_8">
-                  <property name="leftMargin">
-                   <number>0</number>
-                  </property>
-                  <property name="topMargin">
-                   <number>9</number>
-                  </property>
-                  <property name="rightMargin">
-                   <number>0</number>
-                  </property>
-                  <property name="bottomMargin">
+                  <property name="margin">
                    <number>0</number>
                   </property>
                   <item>
@@ -1979,12 +2006,12 @@
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroupDisplay"/>
-  <buttongroup name="buttonGroupCenterPathHistogram"/>
-  <buttongroup name="buttonGroupFacesHistogram"/>
   <buttongroup name="buttonGroupLightPosition">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="buttonGroupCenterPathHistogram"/>
+  <buttongroup name="buttonGroupFacesHistogram"/>
  </buttongroups>
 </ui>

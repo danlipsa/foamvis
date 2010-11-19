@@ -155,31 +155,6 @@ G3D::Vector3 Disk::GetVertexNormal(int vertexNumber) const
     return normalVector.unit ();
 }
 
-void Disk::setDiskCoord(DISK_VERTEX vertexNumber, 
-			const G3D::Vector3& newCoord) 
-{
-
-    bool debug = true;
-    if (debug) cdbg << "Disk::setDiskCoord() newCoord: " << newCoord << endl;
-   
-    switch(vertexNumber) {
-
-    case VERTEX0:  /* m_Vertex0 = newCoord; */  return;
-    case VERTEX1:  /* m_Vertex1 = newCoord; */  return;
-    case VERTEX2:  /* m_Vertex2 = newCoord; */  return;
-    case VERTEX3:  /* m_Vertex3 = newCoord; */  return;
-    case VERTEX4:  /* m_Vertex4 = newCoord; */  return;
-    case VERTEX5:  /* m_Vertex5 = newCoord; */  return;
-    case VERTEX6:  /* m_Vertex6 = newCoord; */  return;
-    case VERTEX7:  /* m_Vertex7 = newCoord; */  return;
-
-    default:
-	cdbg << "*** Error, Disk::setDiskCoord(): " 
-	     << (int)vertexNumber << endl;
-	return;
-    }
-}
-
 G3D::Vector3 Disk::GetDiskCenter() const 
 {
 

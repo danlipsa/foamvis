@@ -170,13 +170,6 @@ private:
     G3D::Vector3 m_VerticalComponent;
     /** the horizontal component (from the center) of the disk to the outer rim */
     G3D::Vector3 m_HorizontalComponent;
-   
-    /**
-     * @param  vertexNumber an identifier for the vertex either VERTEX0, VERTEX1, or
-     *         VERTEX2
-     * @param  newCoord the new x,y,z coordinate for the given triangle vertex
-     */
-    void setDiskCoord(DISK_VERTEX vertexNumber, const G3D::Vector3& newCoord);
 };
 
 /**

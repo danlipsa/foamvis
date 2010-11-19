@@ -216,7 +216,7 @@ public:
 	    Color::Enum color = edge.GetColor (Color::BLACK);
 	    glColor (G3D::Color4 (Color::GetValue(color), alpha));
 	    glBegin(GL_LINE_STRIP);
-	    DisplayAllVertices (edge, m_useZPos, m_zPos);
+	    DisplayEdgeVertices (edge, m_useZPos, m_zPos);
 	    glEnd ();
 	}
     }

@@ -411,6 +411,10 @@ private:
     void displayEdgesTorusTubes () const;
     void displayEdgesTorusLines () const;
 
+    /**
+     * @todo display concave filled polygons using the stencil buffer.
+     * @see Chapter 14, OpenGL Programming Guide, version 1.1
+     */
     void displayFacesNormal () const;
     void displayFacesTorus () const;
     void displayFacesAverage () const;
