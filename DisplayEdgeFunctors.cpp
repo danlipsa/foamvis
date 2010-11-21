@@ -128,20 +128,16 @@ void DisplayOrientedEdgeTube::operator () (
     displayArrow (begin, end);
 }
 
-
-
-
 void DisplaySameEdges::operator() (const boost::shared_ptr<Face>& f)
 {
-    glBegin (GL_POLYGON);
+    glBegin (m_primitive);
     const vector<boost::shared_ptr<OrientedEdge> >& v =
 	f->GetOrientedEdges ();
-    for_each (v.begin (), v.end (), DisplayAllButLastVertices ());
+    for_each (v.begin (), v.end (), DisplayAllButLastVertices);
     if (! f->IsClosed ())
 	glVertex (*v[v.size () - 1]->GetEnd ());
     glEnd ();
 }
-
 
 void DisplaySameTriangles::operator() (const boost::shared_ptr<Face>& f)
 {

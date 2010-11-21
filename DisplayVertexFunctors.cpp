@@ -17,8 +17,8 @@ void DisplayEdgeVertices (const Edge& edge, bool useZPos, double zPos)
     }
 }
 
-void DisplayEdgeVertices (const OrientedEdge& edge)
+void  DisplayAllButLastVertices (const boost::shared_ptr<OrientedEdge> e)
 {
-    for (size_t i = 0; i < edge.PointCount (); i++)
-	glVertex (edge.GetPoint (i));
+    for (size_t i = 0; i < e->PointCount () - 1; ++i)
+	glVertex(e->GetPoint (i));
 }

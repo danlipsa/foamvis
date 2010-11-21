@@ -137,15 +137,46 @@ public:
 protected:
     virtual void display (const boost::shared_ptr<OrientedFace>& of)
     {
-	/*
-	  glColor (Qt::black);
-	  G3D::Vector3 first = *of->GetOrientedEdge (0).GetBegin ();
-	  DisplayOrientedEdge displayOrientedEdge;
-	  displayOrientedEdge(first, first + normal);
-	*/
 
 	glNormal (of->GetNormal ());
-	bool useColor = true;
+	bool useColor;
+	setColorOrTexture (of, &useColor);
+	if (useColor)
+	    glDisable (GL_TEXTURE_1D);
+	(displaySameEdges (this->m_glWidget)) (of);
+	if (useColor)
+	    glEnable (GL_TEXTURE_1D);
+
+/*
+	// prepare the stencil
+	glClear (GL_STENCIL_BUFFER_BIT);
+	glDrawBuffer (GL_NONE);
+	glEnable (GL_STENCIL_TEST);
+	glStencilOp (GL_KEEP, GL_KEEP, GL_INVERT);
+	(displaySameEdges (this->m_glWidget)) (of);
+	
+
+	// draw the concave polygon
+	glDrawBuffer (GL_FRONT);
+	glStencilFunc (GL_GREATER, 0, 0xff);
+
+	glNormal (of->GetNormal ());
+	bool useColor;
+	setColorOrTexture (of, &useColor);
+	if (useColor)
+	    glDisable (GL_TEXTURE_1D);
+	(displaySameEdges (this->m_glWidget)) (of);
+	if (useColor)
+	    glEnable (GL_TEXTURE_1D);
+	
+	glDisable (GL_STENCIL_TEST);
+*/
+    }
+private:
+    void setColorOrTexture (const boost::shared_ptr<OrientedFace>& of, 
+			    bool* useColor)
+    {
+	*useColor = true;
 	if (this->m_focus == DisplayElement::FOCUS)
 	{
 	    if (this->m_bodyProperty == BodyProperty::NONE)
@@ -164,7 +195,7 @@ protected:
 			this->m_bodyProperty, bodyId, 
 			this->m_glWidget.GetTimeStep ());
 		    this->m_propertySetter (value);
-		    useColor = false;
+		    *useColor = false;
 		}
 		else
 		    glColor (this->m_glWidget.GetNotAvailableFaceColor ());
@@ -173,11 +204,6 @@ protected:
 	else
 	    glColor (G3D::Color4 (Color::GetValue(Color::BLACK),
 				  this->m_glWidget.GetContextAlpha ()));
-	if (useColor)
-	    glDisable (GL_TEXTURE_1D);
-	(displaySameEdges (this->m_glWidget)) (of);
-	if (useColor)
-	    glEnable (GL_TEXTURE_1D);
     }
 };
 

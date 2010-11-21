@@ -145,7 +145,7 @@ void detectOpenGLError (string message)
 
 void printOpenGLInfo (ostream& ostr)
 {
-    boost::array<OpenGLFeature, 30> info = {{
+    boost::array<OpenGLFeature, 26> info = {{
 	OpenGLFeature (GL_VENDOR, OpenGLFeature::STRING, "GL_VENDOR"),
 	OpenGLFeature (GL_RENDERER, OpenGLFeature::STRING, "GL_RENDERER"),
 	OpenGLFeature (GL_VERSION, OpenGLFeature::STRING, "GL_VERSION"),
@@ -177,14 +177,7 @@ void printOpenGLInfo (ostream& ostr)
         OpenGLFeature (GL_GREEN_BITS, OpenGLFeature::INTEGER, "GREEN_BITS"),
         OpenGLFeature (GL_BLUE_BITS, OpenGLFeature::INTEGER, "BLUE_BITS"),
         OpenGLFeature (GL_ALPHA_BITS, OpenGLFeature::INTEGER, "ALPHA_BITS"),
-        OpenGLFeature (GL_ACCUM_RED_BITS, OpenGLFeature::INTEGER, 
-		       "ACCUM_RED_BITS"),
-        OpenGLFeature (GL_ACCUM_GREEN_BITS, OpenGLFeature::INTEGER, 
-		       "ACCUM_GREEN_BITS"),
-        OpenGLFeature (GL_ACCUM_BLUE_BITS, OpenGLFeature::INTEGER, 
-		       "ACCUM_BLUE_BITS"),
-        OpenGLFeature (GL_ACCUM_ALPHA_BITS, OpenGLFeature::INTEGER, 
-		       "ACCUM_ALPHA_BITS"),
+
         OpenGLFeature (GL_INDEX_BITS, OpenGLFeature::INTEGER, "INDEX_BITS"),
         OpenGLFeature (GL_DEPTH_BITS, OpenGLFeature::INTEGER, "DEPTH_BITS"),
         OpenGLFeature (GL_STENCIL_BITS, OpenGLFeature::INTEGER, "STENCIL_BITS"),

@@ -260,8 +260,10 @@ class DisplaySameEdges : public DisplayElementFocus
 {
 public:
     DisplaySameEdges (const GLWidget& widget, FocusContext focus = FOCUS,
-		      bool useZPos = false, double zPos = 0) :
-	DisplayElementFocus (widget, focus, useZPos, zPos)
+		      bool useZPos = false, double zPos = 0,
+		      GLenum primitive = GL_POLYGON) :
+	DisplayElementFocus (widget, focus, useZPos, zPos),
+	m_primitive (primitive)
     {
     }
     inline void operator() (const boost::shared_ptr<OrientedFace>&  of)
@@ -270,6 +272,27 @@ public:
     }
 
     void operator() (const boost::shared_ptr<Face>& f);
+private:
+    GLenum m_primitive;
+};
+
+
+class DisplayTriangleFan : public DisplaySameEdges
+{
+public:
+    DisplayTriangleFan (const GLWidget& widget, FocusContext focus = FOCUS,
+			bool useZPos = false, double zPos = 0) :
+	DisplaySameEdges (widget, focus, useZPos, zPos, GL_TRIANGLE_FAN)
+    {
+    }
+    inline void operator() (const boost::shared_ptr<OrientedFace>&  of)
+    {
+	operator() (of->GetFace ());
+    }
+    inline void operator() (const boost::shared_ptr<Face>& f)
+    {
+	DisplaySameEdges::operator () (f);
+    }
 };
 
 

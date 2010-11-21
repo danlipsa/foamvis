@@ -18,11 +18,9 @@
 #include "OrientedFace.h"
 #include "Vertex.h"
 
-void DisplayEdgeVertices (const OrientedEdge& edge);
-
 void DisplayEdgeVertices (const Edge& edge,
 			  bool useZPos = false, double zPos = 0);
-
+void  DisplayAllButLastVertices (const boost::shared_ptr<OrientedEdge> oe);
 
 struct DisplayOriginalVertex
 {
@@ -51,20 +49,6 @@ struct DisplayBeginVertex
 	
     }
 };
-
-struct DisplayAllButLastVertices
-{
-    DisplayAllButLastVertices () 
-    {}
-    DisplayAllButLastVertices (const GLWidget&) 
-    {}
-    void operator() (const boost::shared_ptr<OrientedEdge> e)
-    {
-	for (size_t i = 0; i < e->PointCount () - 1; ++i)
-	    glVertex(e->GetPoint (i));
-    }
-};
-
 
 class DisplayTriangle : 
     public unary_function <const boost::shared_ptr<OrientedEdge>, void>
