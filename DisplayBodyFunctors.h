@@ -226,28 +226,8 @@ public:
 	const BodyAlongTime& bat = this->m_glWidget.GetBodyAlongTime (bodyId);
 	StripIterator it = bat.GetStripIterator (
 	    this->m_glWidget.GetFoamAlongTime ());
-	if ( (this->m_bodyProperty >= BodyProperty::VELOCITY_BEGIN &&
-	      this->m_bodyProperty < BodyProperty::VELOCITY_END) ||
-	     this->m_bodyProperty == BodyProperty::NONE)
-	    it.ForEachSegment (
-		boost::bind (&DisplayCenterPath::speedStep,
-			     this, _1, _2, _3, _4));
-	else
-	    it.ForEachSegment (
-		boost::bind (&DisplayCenterPath::valueStep,
-			     this, _1, _2, _3, _4));
-	for_each (m_focusSegments.begin (),
-		  m_focusSegments.end (),
-		  boost::bind (
-		      &DisplayCenterPath<PropertySetter, 
-		      DisplaySegment>::displayFocusSegment, this, _1));
-	if (! this->m_glWidget.OnlyPathsWithSelectionShown () ||
-	    m_focusSegments.size () != 0)
-	    for_each (m_contextSegments.begin (),
-		      m_contextSegments.end (),
-		      boost::bind (
-			  &DisplayCenterPath<PropertySetter, 
-			  DisplaySegment>::displayContextSegment, this, _1));
+	copySegments (it);
+	displaySegments ();
     }
 
     /**
@@ -258,7 +238,6 @@ public:
     {
 	operator() (p.first);
     }
-
 
 private:
     struct ContextSegment
@@ -296,6 +275,37 @@ private:
     };
 
 private:
+
+    void copySegments (StripIterator& it)
+    {
+	if ( (this->m_bodyProperty >= BodyProperty::VELOCITY_BEGIN &&
+	      this->m_bodyProperty < BodyProperty::VELOCITY_END) ||
+	     this->m_bodyProperty == BodyProperty::NONE)
+	    it.ForEachSegment (
+		boost::bind (&DisplayCenterPath::speedStep,
+			     this, _1, _2, _3, _4));
+	else
+	    it.ForEachSegment (
+		boost::bind (&DisplayCenterPath::valueStep,
+			     this, _1, _2, _3, _4));
+    }
+
+    void displaySegments ()
+    {
+	for_each (m_focusSegments.begin (),
+		  m_focusSegments.end (),
+		  boost::bind (
+		      &DisplayCenterPath<PropertySetter, 
+		      DisplaySegment>::displayFocusSegment, this, _1));
+	if (! this->m_glWidget.OnlyPathsWithSelectionShown () ||
+	    m_focusSegments.size () != 0)
+	    for_each (m_contextSegments.begin (),
+		      m_contextSegments.end (),
+		      boost::bind (
+			  &DisplayCenterPath<PropertySetter, 
+			  DisplaySegment>::displayContextSegment, this, _1));
+    }
+
     G3D::Vector3 getPoint (StripIterator::Point p, bool useTimeDisplacement,
 			   double timeDisplacement)
     {

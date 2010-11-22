@@ -571,6 +571,119 @@
            </item>
           </layout>
          </widget>
+         <widget class="QWidget" name="edges">
+          <attribute name="title">
+           <string>Edges</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_8">
+           <item>
+            <widget class="QGroupBox" name="groupBox_2">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="title">
+              <string>Display</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_2">
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QRadioButton" name="radioButtonEdgesNormal">
+                <property name="text">
+                 <string>Normal</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+                <property name="autoRepeat">
+                 <bool>false</bool>
+                </property>
+                <attribute name="buttonGroup">
+                 <string>buttonGroupDisplay</string>
+                </attribute>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButtonEdgesTorus">
+                <property name="text">
+                 <string>Torus model edges</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string>buttonGroupDisplay</string>
+                </attribute>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButtonFaceEdgesTorus">
+                <property name="text">
+                 <string>Torus model face edges</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string>buttonGroupDisplay</string>
+                </attribute>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QStackedWidget" name="stackedWidgetEdges">
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <widget class="QWidget" name="pageEdgesEmpty"/>
+             <widget class="QWidget" name="pageEdgesNormal">
+              <layout class="QVBoxLayout" name="verticalLayout_15">
+               <item>
+                <widget class="QCheckBox" name="checkBoxTorusOriginalDomainWrapInside">
+                 <property name="text">
+                  <string>Edges clipped by torus original domain</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkBoxEdgesBodyCenter">
+                 <property name="text">
+                  <string>Body Center</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkBoxEdgesTessellation">
+                 <property name="text">
+                  <string>Tessellation Edges</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_4">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
          <widget class="QWidget" name="faces">
           <attribute name="title">
            <string>Faces</string>
@@ -775,119 +888,6 @@
                </item>
                <item>
                 <spacer name="verticalSpacer_3">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </widget>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="edges">
-          <attribute name="title">
-           <string>Edges</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_8">
-           <item>
-            <widget class="QGroupBox" name="groupBox_2">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="title">
-              <string>Display</string>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_2">
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QRadioButton" name="radioButtonEdgesNormal">
-                <property name="text">
-                 <string>Normal</string>
-                </property>
-                <property name="checkable">
-                 <bool>true</bool>
-                </property>
-                <property name="checked">
-                 <bool>false</bool>
-                </property>
-                <property name="autoRepeat">
-                 <bool>false</bool>
-                </property>
-                <attribute name="buttonGroup">
-                 <string>buttonGroupDisplay</string>
-                </attribute>
-               </widget>
-              </item>
-              <item>
-               <widget class="QRadioButton" name="radioButtonEdgesTorus">
-                <property name="text">
-                 <string>Torus model edges</string>
-                </property>
-                <attribute name="buttonGroup">
-                 <string>buttonGroupDisplay</string>
-                </attribute>
-               </widget>
-              </item>
-              <item>
-               <widget class="QRadioButton" name="radioButtonFaceEdgesTorus">
-                <property name="text">
-                 <string>Torus model face edges</string>
-                </property>
-                <attribute name="buttonGroup">
-                 <string>buttonGroupDisplay</string>
-                </attribute>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QStackedWidget" name="stackedWidgetEdges">
-             <property name="currentIndex">
-              <number>0</number>
-             </property>
-             <widget class="QWidget" name="pageEdgesEmpty"/>
-             <widget class="QWidget" name="pageEdgesNormal">
-              <layout class="QVBoxLayout" name="verticalLayout_15">
-               <item>
-                <widget class="QCheckBox" name="checkBoxTorusOriginalDomainWrapInside">
-                 <property name="text">
-                  <string>Edges clipped by torus original domain</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="checkBoxEdgesBodyCenter">
-                 <property name="text">
-                  <string>Body Center</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="checkBoxEdgesTessellation">
-                 <property name="text">
-                  <string>Tessellation Edges</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="verticalSpacer_4">
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
                  </property>

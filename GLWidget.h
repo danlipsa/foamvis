@@ -229,6 +229,9 @@ public:
     }
     void toggledLightingEnabled (bool checked);
 
+Q_SIGNALS:
+    void PaintedGL ();
+
 public Q_SLOTS:
     /*
      * Global options

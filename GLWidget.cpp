@@ -615,6 +615,7 @@ void GLWidget::paintGL ()
     displayBoundingBox ();
     displayOriginalDomain ();
     detectOpenGLError ();
+    Q_EMIT PaintedGL ();
 }
 
 void GLWidget::resizeGL(int width, int height)
@@ -1171,6 +1172,7 @@ void GLWidget::IncrementDisplayedBody ()
 	if (m_displayedBodyIndex == 
 	    GetFoamAlongTime ().GetFoam (0)->GetBodies ().size ())
 	    m_displayedBodyIndex = DISPLAY_ALL;
+	cdbg << "IncrementDisplayedBody: " << m_displayedBodyIndex << endl;
 	updateGL ();
     }
 }
@@ -1209,6 +1211,7 @@ void GLWidget::DecrementDisplayedBody ()
 		GetFoamAlongTime ().GetFoam (0)->GetBodies ().size ();
 	--m_displayedBodyIndex;
 	m_displayedFaceIndex = DISPLAY_ALL;
+	cdbg << "IncrementDisplayedBody: " << m_displayedBodyIndex << endl;
 	updateGL ();
     }
 }
@@ -1494,6 +1497,7 @@ void GLWidget::CurrentIndexChangedInteractionMode (int index)
 void GLWidget::CurrentIndexChangedStatisticsType (int index)
 {
     m_statisticsType = static_cast<StatisticsType::Enum>(index);
+    updateGL ();
 }
 
 void GLWidget::CurrentIndexChangedViewportTransformType (int index)

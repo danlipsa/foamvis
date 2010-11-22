@@ -65,6 +65,9 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     connect (m_timer.get (), SIGNAL (timeout()),
 	     this, SLOT (TimeoutTimer ()));
 
+    connect (widgetGl, SIGNAL (PaintedGL ()),
+	     widgetDisplay, SLOT (SaveFrame ()));
+
     connectColorBarModelChanged ();
 }
 

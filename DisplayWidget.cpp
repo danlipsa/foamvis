@@ -12,13 +12,14 @@
 DisplayWidget::DisplayWidget (QWidget * parent) : 
     QWidget (parent), 
     m_saveMovie(false), 
-    m_currentFrame(0),
-    m_saveTimer (new QTimer(this))
+    m_currentFrame(0)
 {
-    m_saveTimer->setInterval (10);
-    connect (m_saveTimer.get (), SIGNAL (timeout()),
-	     this, SLOT (SaveFrame ()));
+}
 
+void DisplayWidget::paintEvent ( QPaintEvent * event )
+{
+    static_cast<void> (event);
+    SaveFrame ();
 }
 
 void DisplayWidget::SaveFrame ()
@@ -41,16 +42,10 @@ void DisplayWidget::SaveFrame ()
 
 void DisplayWidget::ToggledSaveMovie (bool checked)
 {
-    cdbg << "Toggle save movie" << endl;
     m_saveMovie = checked;
     if (checked)
     {
 	m_currentFrame = 0;
-	m_saveTimer->start ();
-    }
-    else
-    {
-	m_saveTimer->stop ();
     }
     update ();
 }

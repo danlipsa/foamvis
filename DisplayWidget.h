@@ -25,6 +25,9 @@ public Q_SLOTS:
     void SaveFrame ();
 
 
+protected:
+    void paintEvent ( QPaintEvent * event );
+
 private:
     Q_OBJECT
     /**
@@ -35,7 +38,6 @@ private:
      * Keeps track of the current frame saved in a file.
      */
     int m_currentFrame;
-    boost::scoped_ptr<QTimer> m_saveTimer;
 };
 
 #endif //__DISPLAY_WIDGET_H__
