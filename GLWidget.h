@@ -495,6 +495,7 @@ private:
      */
     void rotate3D () const;
     void rotate2DTimeDisplacement () const;
+    void rotate2DRight90 () const;
     void toggledLights ();
 
 private:

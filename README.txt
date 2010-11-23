@@ -16,7 +16,11 @@ make install
 # this is needed for qt3d
 cd /usr/local/Trolltech/Qt-4.7.0; mv include include_
 ln -s ~/qt-everywhere-opensource-src-4.7.0/include include
-PATH=/usr/local/Trolltech/Qt-4.7.0/bin:$PATH
+
+Add the following line at the end of ~/.bash_profile
+PATH=/usr/local/Trolltech/Qt-4.7.0/bin:$PATH;export PATH
+Then execute '. .bash_profile'. Make sure the path is set correctly: 'echo $PATH'
+
 
 Everytime you call qmake, make sure that the newly compiled qmake is
 called by using 'which qmake' to see the path qmake is called from.

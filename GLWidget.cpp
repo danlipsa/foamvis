@@ -356,8 +356,16 @@ G3D::AABox GLWidget::calculateCenteredViewingVolume () const
 void GLWidget::ModelViewTransformNoRotation () const
 {
     glLoadIdentity ();
-    glTranslate (- m_cameraDistance * G3D::Vector3::unitZ () - 
-		 GetFoamAlongTime ().GetBoundingBox ().center ());
+    glTranslate (- m_cameraDistance * G3D::Vector3::unitZ ());
+    switch (m_axesOrder)
+    {
+    case AxesOrder::TWO_D_ROTATE_RIGHT90:
+	rotate2DRight90 ();
+	break;
+    default:
+	break;
+    }
+    glTranslate (-GetFoamAlongTime ().GetBoundingBox ().center ());
 }
 
 void GLWidget::modelViewTransform () const
@@ -369,6 +377,9 @@ void GLWidget::modelViewTransform () const
     {
     case AxesOrder::TWO_D_TIME_DISPLACEMENT:
 	rotate2DTimeDisplacement ();
+	break;
+    case AxesOrder::TWO_D_ROTATE_RIGHT90:
+	rotate2DRight90 ();
 	break;
     case AxesOrder::THREE_D:
 	rotate3D ();
@@ -502,6 +513,19 @@ void GLWidget::rotate2DTimeDisplacement () const
     const static G3D::Matrix3 axes (1, 0, 0,  0, 0, 1,  0, -1, 0); 
     glMultMatrix (axes);
 }
+
+void GLWidget::rotate2DRight90 () const
+{
+    /**
+     *  y       -x
+     *    x ->     y
+     * z        z
+     */
+    const static G3D::Matrix3 axes (0, 1, 0,  -1, 0, 0,  0, -1, 0); 
+    glMultMatrix (axes);
+}
+
+
 
 void GLWidget::rotate3D () const
 {

@@ -253,6 +253,12 @@ struct AxesOrder
 	 *    y
 	 * x
 	 */
+	TWO_D_ROTATE_RIGHT90,
+	/**
+	 *  z
+	 *    y
+	 * x
+	 */
 	THREE_D,
 	COUNT
     };
