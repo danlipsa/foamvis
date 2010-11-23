@@ -70,8 +70,11 @@ correct version of bison/flex. If you did that, you have to copy
 '*.save' to the corresponding files without '.save' extension or untar
 the archive and start again.
 
-PATH=/usr/local/Trolltech/Qt-4.7.0/bin:$PATH; export PATH
+Add the following line at the end of ~/.bash_profile
 LD_LIBRARY_PATH=/usr/local/qwt-5.2.1/lib:$LD_LIBRARY_PATH; export LD_LIBRARY_PATH
+Then execute '. .bash_profile'. Make sure the path is set correctly: 
+'echo $LD_LIBRARY_PATH'
+
 
 Windows
 -------
