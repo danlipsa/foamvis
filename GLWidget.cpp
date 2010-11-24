@@ -47,9 +47,6 @@ private:
 // ======================================================================
 
 const size_t GLWidget::DISPLAY_ALL(numeric_limits<size_t>::max());
-const size_t GLWidget::QUADRIC_SLICES;
-const size_t GLWidget::QUADRIC_STACKS;
-const size_t GLWidget::LIGHTS_COUNT;
 
 
 // Methods
@@ -65,7 +62,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_foamAlongTime (0), m_timeStep (0),
       m_displayedBodyIndex (DISPLAY_ALL), m_displayedFaceIndex (DISPLAY_ALL),
       m_displayedEdgeIndex (DISPLAY_ALL),
-      m_contextAlpha (0.05),
+      m_contextAlpha (MIN_CONTEXT_ALPHA),
       m_rotationMatrixModel (G3D::Matrix3::identity ()),
       m_scalingFactorModel (1),
       m_lightingEnabled (false),
@@ -1638,6 +1635,16 @@ void GLWidget::ValueChangedEdgesRadius (int sliderValue)
     toggledLightingEnabled (m_lightingEnabled);
     updateGL ();
 }
+
+void GLWidget::ValueChangedContextAlpha (int sliderValue)
+{
+    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
+    m_contextAlpha = MIN_CONTEXT_ALPHA + 
+	(MAX_CONTEXT_ALPHA - MIN_CONTEXT_ALPHA) * sliderValue / maximum;
+    updateGL ();
+}
+
+
 
 void GLWidget::ValueChangedAngleOfView (int angleOfView)
 {

@@ -290,6 +290,7 @@ public Q_SLOTS:
     void ValueChangedBlend (int index);
     void ValueChangedTimeDisplacement (int timeDisplacement);
     void ValueChangedEdgesRadius (int sliderValue);
+    void ValueChangedContextAlpha (int sliderValue);
     void ShowOpenGLInfo ();
     /**
      * Signals a change in data displayed
@@ -303,6 +304,8 @@ public:
     const static size_t QUADRIC_SLICES = 5;
     const static size_t QUADRIC_STACKS = 1;
     const static size_t LIGHTS_COUNT = 4;
+    const static double MIN_CONTEXT_ALPHA = 0.05;
+    const static double MAX_CONTEXT_ALPHA = 0.5;
 
 protected:
     /**

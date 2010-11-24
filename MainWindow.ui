@@ -270,7 +270,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="currentIndex">
-              <number>2</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="tabShow">
               <attribute name="title">
@@ -333,6 +333,41 @@
                   </item>
                   <item>
                    <widget class="QSlider" name="horizontalSliderEdgesRadius">
+                    <property name="maximum">
+                     <number>99</number>
+                    </property>
+                    <property name="pageStep">
+                     <number>10</number>
+                    </property>
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="tickPosition">
+                     <enum>QSlider::TicksAbove</enum>
+                    </property>
+                    <property name="tickInterval">
+                     <number>10</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QWidget" name="widgetTubesRadius_2" native="true">
+                 <layout class="QHBoxLayout" name="horizontalLayout_12">
+                  <property name="margin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="label_9">
+                    <property name="text">
+                     <string>Context alpha</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSlider" name="horizontalSliderContextAlpha">
                     <property name="maximum">
                      <number>99</number>
                     </property>
@@ -1227,6 +1262,7 @@
     <slot>CurrentIndexChangedViewportTransformType(int)</slot>
     <slot>CurrentIndexChangedAxesOrder(int)</slot>
     <slot>ButtonClickedLightPosition(int)</slot>
+    <slot>ValueChangedContextAlpha(int)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1307,7 +1343,7 @@
    <slot>ClickedPlay()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>643</x>
+     <x>621</x>
      <y>149</y>
     </hint>
     <hint type="destinationlabel">
@@ -1323,7 +1359,7 @@
    <slot>ClickedBegin()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>615</x>
+     <x>593</x>
      <y>149</y>
     </hint>
     <hint type="destinationlabel">
@@ -1339,7 +1375,7 @@
    <slot>ClickedEnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>682</x>
+     <x>660</x>
      <y>149</y>
     </hint>
     <hint type="destinationlabel">
@@ -1419,8 +1455,8 @@
    <slot>ToggledCenterPathBodyShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>667</x>
-     <y>320</y>
+     <x>645</x>
+     <y>311</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1435,8 +1471,8 @@
    <slot>ToggledEdgesBodyCenter(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>667</x>
-     <y>375</y>
+     <x>645</x>
+     <y>366</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1451,8 +1487,8 @@
    <slot>ToggledEdgesTessellation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>667</x>
-     <y>380</y>
+     <x>645</x>
+     <y>371</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1515,8 +1551,8 @@
    <slot>CurrentIndexChangedCenterPathColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>658</x>
-     <y>325</y>
+     <x>636</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1531,8 +1567,8 @@
    <slot>CurrentIndexChangedFacesColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>658</x>
-     <y>356</y>
+     <x>636</x>
+     <y>338</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1551,8 +1587,8 @@
      <y>67</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>717</y>
+     <x>456</x>
+     <y>556</y>
     </hint>
    </hints>
   </connection>
@@ -1563,8 +1599,8 @@
    <slot>ValueChangedSliderTimeSteps(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>420</x>
-     <y>727</y>
+     <x>438</x>
+     <y>572</y>
     </hint>
     <hint type="destinationlabel">
      <x>587</x>
@@ -1579,8 +1615,8 @@
    <slot>SelectionChangedHistogram()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>407</x>
-     <y>717</y>
+     <x>425</x>
+     <y>556</y>
     </hint>
     <hint type="destinationlabel">
      <x>336</x>
@@ -1628,7 +1664,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>26</x>
-     <y>692</y>
+     <y>531</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1659,12 +1695,12 @@
    <slot>ToggledFacesShowEdges(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>667</x>
-     <y>343</y>
+     <x>645</x>
+     <y>334</y>
     </hint>
     <hint type="destinationlabel">
-     <x>420</x>
-     <y>550</y>
+     <x>453</x>
+     <y>531</y>
     </hint>
    </hints>
   </connection>
@@ -1739,8 +1775,8 @@
    <slot>ValueChangedSliderTimeSteps(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>317</x>
-     <y>727</y>
+     <x>335</x>
+     <y>572</y>
     </hint>
     <hint type="destinationlabel">
      <x>301</x>
@@ -1787,8 +1823,8 @@
    <slot>ValueChangedTimeDisplacement(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>667</x>
-     <y>336</y>
+     <x>645</x>
+     <y>318</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1851,8 +1887,8 @@
    <slot>ToggledTorusOriginalDomainClipped(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>667</x>
-     <y>370</y>
+     <x>645</x>
+     <y>361</y>
     </hint>
     <hint type="destinationlabel">
      <x>414</x>
@@ -1903,8 +1939,8 @@
      <y>304</y>
     </hint>
     <hint type="destinationlabel">
-     <x>532</x>
-     <y>509</y>
+     <x>519</x>
+     <y>531</y>
     </hint>
    </hints>
   </connection>
@@ -1919,8 +1955,8 @@
      <y>358</y>
     </hint>
     <hint type="destinationlabel">
-     <x>534</x>
-     <y>533</y>
+     <x>519</x>
+     <y>531</y>
     </hint>
    </hints>
   </connection>
@@ -1931,12 +1967,12 @@
    <slot>ToggledOnlyPathsWithSelectionShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>667</x>
-     <y>323</y>
+     <x>645</x>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
-     <x>520</x>
-     <y>474</y>
+     <x>519</x>
+     <y>525</y>
     </hint>
    </hints>
   </connection>
@@ -1947,12 +1983,12 @@
    <slot>CurrentIndexChangedStatisticsType(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>658</x>
-     <y>360</y>
+     <x>636</x>
+     <y>342</y>
     </hint>
     <hint type="destinationlabel">
-     <x>530</x>
-     <y>500</y>
+     <x>519</x>
+     <y>531</y>
     </hint>
    </hints>
   </connection>
@@ -1963,12 +1999,12 @@
    <slot>CurrentIndexChangedViewportTransformType(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>835</x>
-     <y>339</y>
+     <x>826</x>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
-     <x>531</x>
-     <y>612</y>
+     <x>519</x>
+     <y>531</y>
     </hint>
    </hints>
   </connection>
@@ -1979,12 +2015,12 @@
    <slot>CurrentIndexChangedAxesOrder(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>826</x>
-     <y>371</y>
+     <x>817</x>
+     <y>396</y>
     </hint>
     <hint type="destinationlabel">
-     <x>531</x>
-     <y>643</y>
+     <x>519</x>
+     <y>531</y>
     </hint>
    </hints>
   </connection>
@@ -2001,6 +2037,22 @@
     <hint type="destinationlabel">
      <x>287</x>
      <y>371</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderContextAlpha</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedContextAlpha(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>684</x>
+     <y>462</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>502</x>
+     <y>445</y>
     </hint>
    </hints>
   </connection>
