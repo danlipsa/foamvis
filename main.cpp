@@ -24,7 +24,10 @@
  *
  * \verbinclude README.txt
  *
- *  * @todo Use google-breakpad for reporting crashes.
+ * @todo Use google-breakpad for reporting crashes.  
+
+ * @todo Add an  option to load a dmp file and  skip a variable number
+ * of files to save memory.
  *
  * \section torus_sec Processing done for the Torus model
  * \subsection onedge_sec Executed when creating an edge (may create

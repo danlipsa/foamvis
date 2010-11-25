@@ -82,7 +82,14 @@ Install cygwin, making sure you select openssh, subversion, perl, bison, flex
 
 Run
 ===
-./foam ~/Documents/swansea-phd/foam/ctrctn dump_0.1520_0.2400_8.0000_0*.dmp
+./foam ~/Documents/swansea-phd/foam/ctrctn/dump_0.1520_0.2400_8.0000_0*.dmp
+
+To skip some files in the simulation (to save memory) use:
+~/Documents/swansea-phd/foam/ctrctn/dump_0.1520_0.2400_8.0000_0??[012345678].dmp
+
+loads files 0, 1, ..., 8 and skips 9. You can skip more files by
+removing more digits between the square brackets.
+
 
 Generate a movie
 ================
