@@ -24,11 +24,6 @@
  *
  * \verbinclude README.txt
  *
- * @todo Use google-breakpad for reporting crashes.  
-
- * @todo Add an  option to load a dmp file and  skip a variable number
- * of files to save memory.
- *
  * \section torus_sec Processing done for the Torus model
  * \subsection onedge_sec Executed when creating an edge (may create
  * duplicate vertices)
@@ -43,7 +38,7 @@ always defined in the data file (it's not a duplicate).
       one domain up for a + and one domain down for a - along each of 
       the three axes. The translation is done relative to the domain where the 
       ORIGINAL end vertex is defined in the data file. This means that
-      (* * *) is the domain where the end vertex is defined in the data file
+      (* * *) is the domain where the begin vertex is defined in the data file
       NOT the original domain.
   }
  </pre>
@@ -56,10 +51,10 @@ always defined in the data file (it's not a duplicate).
   set beginVertex to be the first vertex of the face
   foreach (currentEdge, edges in the face) {
     if (the beginVertex does not match the begin vertex of the currentEdge) {
-      create a DUPLICATE edge
-      set beginVertex  to be the end vertex of the potential DUPLICATE of
-        currentEdge
+      create a DUPLICATE of currentEdge starting at beginVertex
+      set currentEdge to point to the DUPLICATE
     }
+    set beginVertex  to be the end vertex of currentEdge
   }
 </pre>
  *
@@ -77,11 +72,17 @@ always defined in the data file (it's not a duplicate).
  * x, y, z.
  *
  * \section Significant new line
- * @todo set new line significant only for list of vertices, edges, faces, bodies
+
  * and for arrays (2d versus 3d)
  *
  *
+ * @todo Use google-breakpad for reporting crashes.  
+
+ * @todo Add an  option to load a dmp file and  skip a variable number
+ * of files to save memory.
  *
+ * @todo set new line significant only for list of vertices, edges,
+ * faces, bodies
  *
  *
  */
