@@ -152,8 +152,13 @@ public:
     virtual G3D::Vector3 GetPoint (size_t i) const;
 
 public:
-    static short LocationCharToNumber (char sign);
+    static short LocationCharToNumber (char sign);    
     static G3D::Vector3int16 IntToLocation (int i);
+    /**
+     * Domain increment can be *, - or +
+     */
+    static const size_t DOMAIN_INCREMENT_POSSIBILITIES = 3;
+
 
 protected:
     Edge (const Edge& edge);

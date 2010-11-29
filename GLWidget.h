@@ -399,6 +399,7 @@ private:
     G3D::AABox calculateCenteredViewingVolume () const;
     void initializeTextures ();
     void initQuadrics ();
+    void initEndTranslationColor ();
     void calculateCameraDistance ();
     /**
      * Generates a display list for edges

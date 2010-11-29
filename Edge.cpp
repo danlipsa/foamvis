@@ -286,11 +286,11 @@ G3D::Vector3int16 Edge::IntToLocation (int value)
 {
     G3D::Vector3int16 result;
     const int DIMENSIONS = 3;
-    const int POSSIBILITIES = 3; // *, -, +
     for (int i = 0; i < DIMENSIONS; i++)
     {
-	result[i] = (value % POSSIBILITIES) - 1; // we store -1, 0 or 1
-	value /= POSSIBILITIES;
+        // we store -1, 0 or 1
+	result[i] = (value % DOMAIN_INCREMENT_POSSIBILITIES) - 1; 
+	value /= DOMAIN_INCREMENT_POSSIBILITIES;
     }
     return result;
 }

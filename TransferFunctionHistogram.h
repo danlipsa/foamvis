@@ -37,6 +37,7 @@ private:
     Q_OBJECT
 
     boost::scoped_ptr<QAction> m_actionHeightSettings;
+    boost::shared_ptr<QAction> m_actionGridEnabled;
     boost::scoped_ptr<QAction> m_actionClampHigh;
     boost::scoped_ptr<QAction> m_actionClampLow;
     boost::scoped_ptr<QAction> m_actionClampClear;

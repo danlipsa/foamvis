@@ -95,11 +95,19 @@ GLWidget::GLWidget(QWidget *parent)
     makeCurrent ();
     m_displayBlend.reset (new DisplayBlend (*this));
     m_displayFaceAverage.reset (new DisplayFaceAverage (*this));
-    const int DOMAIN_INCREMENT_COLOR[] = {100, 0, 200};
-    const int POSSIBILITIES = 3; //domain increment can be *, - or +
-    using G3D::Vector3int16;
-    for (int i = 0;
-	 i < POSSIBILITIES * POSSIBILITIES * POSSIBILITIES; i++)
+    initEndTranslationColor ();
+    initQuadrics ();
+    initViewTypeDisplay ();    
+    createActions ();    
+}
+
+void GLWidget::initEndTranslationColor ()
+{
+    const int DOMAIN_INCREMENT_COLOR[] = {255, 0, 255};
+    for (size_t i = 0;
+	 i < Edge::DOMAIN_INCREMENT_POSSIBILITIES * 
+	     Edge::DOMAIN_INCREMENT_POSSIBILITIES * 
+	     Edge::DOMAIN_INCREMENT_POSSIBILITIES; i++)
     {
 	G3D::Vector3int16 di = Edge::IntToLocation (i);
 	QColor color (
@@ -108,12 +116,9 @@ GLWidget::GLWidget(QWidget *parent)
 	    DOMAIN_INCREMENT_COLOR[di.z + 1]);
 	m_endTranslationColor[di] = color;
     }
-    m_endTranslationColor[Vector3int16(0,0,0)] = QColor(0,0,0);
-    m_endTranslationColor[Vector3int16(0,0,0)] = QColor(0,0,0);
-    initQuadrics ();
-    initViewTypeDisplay ();    
-    createActions ();    
+    m_endTranslationColor[G3D::Vector3int16(0,0,0)] = QColor(0,0,0);
 }
+
 
 void GLWidget::initQuadrics ()
 {

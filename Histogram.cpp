@@ -22,14 +22,14 @@ Histogram::Histogram (QWidget* parent) :
     m_histogramHeight (new HistogramHeight (this))
 {
     setCanvasBackground(QColor(Qt::white));
+    alignScales ();
     setAutoReplot ();
     setAxisTitle (QwtPlot::yLeft, QString("No. of values per bin"));
 
-    m_grid.enableXMin(true);
-    m_grid.enableYMin(true);
     m_grid.setMajPen(QPen(Qt::black, 0, Qt::DotLine));
     m_grid.setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
     m_grid.attach(this);
+    SetGridEnabled (true);
 
     m_histogramItem.setFocusColor(Qt::darkCyan);
     m_histogramItem.setContextColor(Qt::lightGray);
@@ -45,6 +45,29 @@ Histogram::Histogram (QWidget* parent) :
     connect(&m_plotPicker, SIGNAL(selected(const QwtPolygon&)),
 	    this, SLOT(PolygonSelected (const QwtPolygon&)));
 }
+
+void Histogram::alignScales()
+{
+    // The code below shows how to align the scales to
+    // the canvas frame, but is also a good example demonstrating
+    // why the spreaded API needs polishing.
+
+    canvas()->setFrameStyle(QFrame::Box | QFrame::Plain );
+    canvas()->setLineWidth(1);
+
+    for ( int i = 0; i < QwtPlot::axisCnt; i++ )
+    {
+        QwtScaleWidget *scaleWidget = (QwtScaleWidget *)axisWidget(i);
+        if ( scaleWidget )
+            scaleWidget->setMargin(0);
+
+        QwtScaleDraw *scaleDraw = (QwtScaleDraw *)axisScaleDraw(i);
+        if ( scaleDraw )
+            scaleDraw->enableComponent(QwtAbstractScaleDraw::Backbone, false);
+    }
+}
+
+
 
 size_t Histogram::getBin (double value)
 {
@@ -143,6 +166,19 @@ void Histogram::SetMaxValueAxis (double maxValueAxis)
 {
     m_histogramItem.setMaxValueAxis (maxValueAxis);
     setAxisScale(QwtPlot::yLeft, GetMinValueAxis (), maxValueAxis);
+}
+
+void Histogram::SetGridEnabled (bool enabled)
+{
+    m_grid.enableX (enabled);
+    m_grid.enableY (enabled);
+    m_grid.enableXMin (enabled);
+    m_grid.enableYMin (enabled);
+}
+
+bool Histogram::IsGridEnabled () const
+{
+    return m_grid.xEnabled ();
 }
 
 void Histogram::GetSelectedIntervals (

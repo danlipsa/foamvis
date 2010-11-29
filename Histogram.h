@@ -66,6 +66,7 @@ public:
     void SetItemsSelectionHigh (bool selected, double value);
     void SetItemsSelectionLow (bool selected, double value);
     void SetSelectionTool (SelectionTool selectionTool);    
+    bool IsGridEnabled () const;
 
 Q_SIGNALS:
     void selectionChanged ();
@@ -75,6 +76,7 @@ public Q_SLOTS:
     void SelectionPointAppended (const QPoint& pos);
     void PolygonSelected (const QwtPolygon& poly);
     void HistogramHeightDialog ();
+    void SetGridEnabled (bool enabled);
 
 
 
@@ -82,7 +84,7 @@ private:
     size_t getBin (double value);    
     void setData (const QwtIntervalData& intervalData, double maxValue,
 		  const vector< pair<size_t, size_t> >* selectedBins = 0);
-
+    void alignScales();
 
 private:
     Q_OBJECT

@@ -39,6 +39,7 @@ void AttributeHistogram::contextMenuEvent(QContextMenuEvent *event)
     menu.addAction (m_actionSelectAll.get ());
     menu.addAction (m_actionDeselectAll.get ());
     menu.addAction (m_actionHeightSettings.get ());
+    menu.addAction (m_actionGridEnabled.get ());
     menu.exec (event->globalPos());
 }
 
@@ -71,6 +72,14 @@ void AttributeHistogram::createActions ()
     m_actionHeightSettings->setStatusTip(tr("Height Settings"));
     connect(m_actionHeightSettings.get (), SIGNAL(triggered()),
 	    this, SLOT(HistogramHeightDialog ()));
+
+    m_actionGridEnabled = boost::make_shared<QAction> (
+	tr("&Grid Enabled"), this);
+    m_actionGridEnabled->setStatusTip(tr("Grid Enabled"));
+    m_actionGridEnabled->setCheckable (true);
+    m_actionGridEnabled->setChecked (IsGridEnabled ());
+    connect(m_actionGridEnabled.get (), SIGNAL(toggled(bool)),
+	    this, SLOT(SetGridEnabled(bool)));
 }
 
 void AttributeHistogram::ColorBarModelChanged (
