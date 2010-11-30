@@ -82,6 +82,18 @@ Q_SIGNALS:
     void valueChanged (int value);
 
 private:
+    /**
+     * Ensures that for one index selected in the source we have at least
+     * 2*w + 1 elements selected in the destination. Used for the color bar,
+     * otherwise for many elements just one element selected won't be visible.
+     */
+    void ensureMinimumWidth (
+	const vector<bool> source, vector<bool>* destination, size_t w);
+    /**
+     * Returns the minimum width of an selected element for size elements in the
+     * range.
+     */
+    size_t getMinimumWidth (size_t size);
     void updateTitle ();
     void updateLabelValue (int value);
     void setupScale (int min, int max);

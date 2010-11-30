@@ -68,33 +68,60 @@ void RestrictedRangeSlider::setupScale (int minimum, int maximum)
 
 void RestrictedRangeSlider::setupColorMap (const vector<bool>* selected)
 {
-    vector<bool> all;
-    const vector<bool>* v;
+    vector<bool> v;
     const size_t COLOR_BAR_WIDTH = 3;
     const QwtDoubleInterval interval (minimum (), maximum ());
     m_colorMap = boost::make_shared<QwtLinearColorMap> ();
     if (selected == 0)
     {
-	v = &all;
-	all.resize (maximum () - minimum () + 1, true);
+	v.resize (maximum () - minimum () + 1, true);
     }
     else
-	v = selected;
-    m_colorMap->setColorInterval (toColor ((*v)[0]),
-				  toColor ((*v)[(*v).size () - 1]));
-    m_colorMap->setMode (QwtLinearColorMap::FixedColors);
-    size_t colors = (*v).size () - 1;
+	ensureMinimumWidth (*selected, &v, getMinimumWidth (selected->size ()));
+    m_colorMap->setColorInterval (toColor (v[0]),
+				  toColor (v[v.size () - 1]));
+    m_colorMap->setMode (QwtLinearColorMap::ScaledColors);
+    size_t colors = v.size () - 1;
     for (size_t i = 1; i < colors; ++i)
     {
 	double value = static_cast<double>(i) / colors;
-	m_colorMap->addColorStop (value, toColor ((*v)[i]));
+	QColor color = toColor (v[i]);
+	m_colorMap->addColorStop (value, color);
     }
     scale->setColorMap (interval, *m_colorMap);
     scale->setColorBarEnabled (false);
     scale->setColorBarWidth (COLOR_BAR_WIDTH);
 }
 
+void RestrictedRangeSlider::ensureMinimumWidth (
+    const vector<bool> source, vector<bool>* destination, size_t w)
+{
+    vector<bool>& v = *destination;
+    v.resize (source.size (), false);
+    for (size_t i = 0; i < v.size (); ++i)
+    {
+	if (source[i])
+	{
+	    for (size_t j = 0; j < w; ++j)
+	    {
+		if (i >= j)
+		    v[i-j] = true;
+		if ((i+j) < v.size ())
+		    v[i+j] = true;
+	    }
+	}
+    }
+}
 
+size_t RestrictedRangeSlider::getMinimumWidth (size_t size)
+{
+    if (size < 300)
+	return 1;
+    else if (size < 900)
+	return 2;
+    else 
+	return 3;
+}
 
 void RestrictedRangeSlider::SetRestrictedTo (
     const vector<bool>& selectedIntervals)
