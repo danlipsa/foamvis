@@ -151,7 +151,7 @@ const char* BodyProperty::ToString (BodyProperty::Enum property)
     case VELOCITY_ALONG_Z:
 	return "Velocity along z";
     case VELOCITY_MAGNITUDE:
-	return "Velocity magnitude";
+	return "Velocity magn.";
     case PRESSURE:
 	return "Pressure";
     case VOLUME:

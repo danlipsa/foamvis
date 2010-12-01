@@ -24,7 +24,7 @@ Histogram::Histogram (QWidget* parent) :
     setCanvasBackground(QColor(Qt::white));
     alignScales ();
     setAutoReplot ();
-    setAxisTitle (QwtPlot::yLeft, QString("No. of values per bin"));
+    setAxisTitle (QwtPlot::yLeft, QString("Values per bin"));
 
     m_grid.setMajPen(QPen(Qt::black, 0, Qt::DotLine));
     m_grid.setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));

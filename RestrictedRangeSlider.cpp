@@ -115,12 +115,14 @@ void RestrictedRangeSlider::ensureMinimumWidth (
 
 size_t RestrictedRangeSlider::getMinimumWidth (size_t size)
 {
-    if (size < 300)
+    if (size < 100)
 	return 1;
-    else if (size < 900)
+    else if (size < 300)
 	return 2;
-    else 
+    else if (size < 500)
 	return 3;
+    else
+	return 4;
 }
 
 void RestrictedRangeSlider::SetRestrictedTo (
