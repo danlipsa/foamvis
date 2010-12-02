@@ -26,7 +26,7 @@ void TimeStepsSlider::contextMenuEvent (QContextMenuEvent *event)
 void TimeStepsSlider::createActions ()
 {
     m_actionNextSelectedTimeStep = boost::make_shared<QAction> (
-	tr("&Next selected time step"), this);
+	tr("&Next selected"), this);
     m_actionNextSelectedTimeStep->setShortcut(
 	QKeySequence (tr ("Ctrl+M")));
     m_actionNextSelectedTimeStep->setStatusTip(tr("&Next selected time step"));
@@ -34,7 +34,7 @@ void TimeStepsSlider::createActions ()
 	    this, SLOT(NextSelectedTimeStep ()));
     
     m_actionPreviousSelectedTimeStep = boost::make_shared<QAction> (
-	tr("&Previous selected time step"), this);
+	tr("&Previous selected"), this);
     m_actionPreviousSelectedTimeStep->setShortcut(
 	QKeySequence (tr ("Ctrl+N")));
     m_actionPreviousSelectedTimeStep->setStatusTip(

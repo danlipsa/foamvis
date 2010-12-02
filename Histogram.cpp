@@ -10,6 +10,7 @@
 #include "HistogramHeight.h"
 #include "DebugStream.h"
 #include "BodySetStatistics.h"
+#include "Application.h"
 
 Histogram::Histogram (QWidget* parent) :
     QwtPlot (parent), 
@@ -24,7 +25,9 @@ Histogram::Histogram (QWidget* parent) :
     setCanvasBackground(QColor(Qt::white));
     alignScales ();
     setAutoReplot ();
-    setAxisTitle (QwtPlot::yLeft, QString("Values per bin"));
+    setAxisTitleDefaultFont (QwtPlot::yLeft, "Values per bin");
+    setAxisDefaultFont (QwtPlot::yLeft);
+    setAxisDefaultFont (QwtPlot::xBottom);
 
     m_grid.setMajPen(QPen(Qt::black, 0, Qt::DotLine));
     m_grid.setMinPen(QPen(Qt::gray, 0 , Qt::DotLine));
@@ -123,12 +126,28 @@ void Histogram::SetSelectionTool (SelectionTool selectionTool)
     m_plotPicker.setEnabled (selectionTool == NONE ? false : true);
 }
 
+void Histogram::setAxisTitleDefaultFont (int axisId, const char* s)
+{
+    QFont defaultFont = Application::Get ()->font ();
+    defaultFont.setBold (true);
+    QwtText axisTitle (s);
+    axisTitle.setFont (defaultFont);
+    setAxisTitle (axisId, axisTitle);
+}
+
+void Histogram::setAxisDefaultFont (int axisId)
+{
+    QFont defaultFont = Application::Get ()->font ();
+    setAxisFont (axisId, defaultFont);
+}
+
+
 
 void Histogram::SetDataAllBinsSelected (
     const QwtIntervalData& intervalData, double maxValue, const char* axisTitle)
 {
     setData (intervalData, maxValue);
-    setAxisTitle (QwtPlot::xBottom, QString(axisTitle));
+    setAxisTitleDefaultFont (QwtPlot::xBottom, axisTitle);
     replot ();
     Q_EMIT selectionChanged ();
 }
@@ -144,7 +163,7 @@ void Histogram::SetDataKeepBinSelection (
 	vector< pair<size_t, size_t> > selectedBins;
 	GetSelectedBins (&selectedBins);
 	setData (intervalData, maxValue, &selectedBins);
-	setAxisTitle (QwtPlot::xBottom, QString(axisTitle));
+	setAxisTitleDefaultFont (QwtPlot::xBottom, axisTitle);
 	replot ();
     }
 }

@@ -32,6 +32,7 @@ protected:
 
 private:
     void createActions ();
+    void setTitleDefaultFont (const char* s);
 
 private:
     Q_OBJECT

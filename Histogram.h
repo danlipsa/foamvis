@@ -85,6 +85,8 @@ private:
     void setData (const QwtIntervalData& intervalData, double maxValue,
 		  const vector< pair<size_t, size_t> >* selectedBins = 0);
     void alignScales();
+    void setAxisTitleDefaultFont (int axisId, const char* s);
+    void setAxisDefaultFont (int axisId);
 
 private:
     Q_OBJECT

@@ -168,7 +168,7 @@ void RestrictedRangeSlider::updateTitle ()
 	size_t range = 
 	    (GetState () == RestrictedRangeSlider::EMPTY_RANGE) ? 
 	    0 : m_toOriginalRange.size ();
-	ostr << "Selected " + GetTitle () + ": "
+	ostr << string ("Selected ") + ": "
 	     << range << " of " << (maximum () - minimum () + 1);
     }
     else

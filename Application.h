@@ -12,10 +12,7 @@
 class Application: public QApplication
 {
 public:
-    Application(int& c, char** v) :
-	QApplication(c, v) 
-    {
-    }
+    Application(int& c, char** v);
     virtual bool notify(QObject *rec, QEvent *ev);    
 
 public:

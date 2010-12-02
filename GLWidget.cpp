@@ -1776,8 +1776,8 @@ void GLWidget::displayTextureColorBar () const
 	    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	    glBindTexture (GL_TEXTURE_1D, m_colorBarTexture);
 
-	    const int BAR_WIDTH = 16;
-	    const int BAR_HEIGHT = height () / 4;
+	    const int BAR_WIDTH = 8;
+	    const int BAR_HEIGHT = max (height () / 4, 50);
 	    glBegin (GL_QUADS);
 	    glTexCoord1f(0);glVertex2s (0, 0);
 	    glTexCoord1f(1);glVertex2s (0, BAR_HEIGHT);

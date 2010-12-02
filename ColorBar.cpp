@@ -9,6 +9,7 @@
 #include "ColorBar.h"
 #include "ColorBarModel.h"
 #include "DebugStream.h"
+#include "Application.h"
 
 ColorBar::ColorBar (QWidget* parent) : 
     QwtScaleWidget (parent),
@@ -42,19 +43,23 @@ void ColorBar::ColorBarModelChangedSlot (
     QwtScaleDiv scaleDiv;
     const int maxMajorTicks = 8;
     const int maxMinorTicks = 5;
-    const int fontSize = 12;
 
     scaleDiv = scaleEngine.divideScale (
 	interval.minValue (), interval.maxValue (), 
 	maxMajorTicks, maxMinorTicks);
     setScaleDiv (scaleEngine.transformation (), scaleDiv);    
     setColorMap (interval, model->GetColorMap ());
-    QwtText title (model->GetTitle ());
-    QFont fttl(fontInfo().family(), fontSize, QFont::Bold);
-    title.setFont (fttl);
-    setTitle (title);
+    setTitleDefaultFont (model->GetTitle ().toAscii ());
 }
 
+void ColorBar::setTitleDefaultFont (const char* s)
+{
+    QFont defaultFont = Application::Get ()->font ();
+    defaultFont.setBold (true);
+    QwtText title (s);
+    title.setFont (defaultFont);
+    setTitle (title);
+}
 
 void ColorBar::contextMenuEvent (QContextMenuEvent *event)
 {
