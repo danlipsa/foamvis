@@ -20,7 +20,7 @@ EditColorMap::EditColorMap (
 
 void EditColorMap::SetData (
     const QwtIntervalData& intervalData, double maxValue,
-    const ColorBarModel& colorBarModel)
+    const ColorBarModel& colorBarModel, bool gridEnabled)
 {
     m_colorBarModel = colorBarModel;
     comboBoxPalette->setCurrentIndex (m_colorBarModel.GetPalette ());
@@ -28,6 +28,7 @@ void EditColorMap::SetData (
 	intervalData, maxValue, m_colorBarModel.GetTitle ().toAscii ());
     widgetHistogram->SetColorMap (
 	m_colorBarModel.GetInterval (), m_colorBarModel.GetColorMap ());
+    widgetHistogram->SetGridEnabled (gridEnabled);
     QwtDoubleInterval interval = m_colorBarModel.GetInterval ();
     QwtDoubleInterval clampValues = m_colorBarModel.GetClampValues ();
     if (clampValues.minValue () > interval.minValue ())

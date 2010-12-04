@@ -38,7 +38,6 @@ private:
     boost::shared_ptr<QAction> m_actionSelectAll;
     boost::shared_ptr<QAction> m_actionDeselectAll;
     boost::shared_ptr<QAction> m_actionHeightSettings;
-    boost::shared_ptr<QAction> m_actionGridEnabled;
 };
 
 #endif //__ATTRIBUTE_HISTOGRAM_H__

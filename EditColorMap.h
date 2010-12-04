@@ -18,8 +18,8 @@ class EditColorMap :
 public:
     EditColorMap (QWidget* parent);
     void SetData (const QwtIntervalData& histogram, double maxValue,
-		  const ColorBarModel& colorBarModel);
-
+		  const ColorBarModel& colorBarModel, bool gridEnabled = true);
+    
     const ColorBarModel& GetColorBarModel () const
     {
 	return m_colorBarModel;

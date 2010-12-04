@@ -67,6 +67,7 @@ public:
     void SetItemsSelectionLow (bool selected, double value);
     void SetSelectionTool (SelectionTool selectionTool);    
     bool IsGridEnabled () const;
+    void SetDefaultFont ();
 
 Q_SIGNALS:
     void selectionChanged ();
@@ -85,7 +86,7 @@ private:
     void setData (const QwtIntervalData& intervalData, double maxValue,
 		  const vector< pair<size_t, size_t> >* selectedBins = 0);
     void alignScales();
-    void setAxisTitleDefaultFont (int axisId, const char* s);
+    void setAxisTitleDefaultFont (int axisId, const char* s = 0);
     void setAxisDefaultFont (int axisId);
 
 private:

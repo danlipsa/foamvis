@@ -4,6 +4,7 @@
  *
  * Contains definitions for the UI class
  */
+#include "Application.h"
 #include "BodySelector.h"
 #include "ColorBarModel.h"
 #include "EditColorMap.h"
@@ -47,11 +48,16 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     setupHistogram ();
     setupButtonGroups ();
 
+    boost::shared_ptr<Application> app = Application::Get ();
+    QFont defaultFont = app->font ();
+    spinBoxFontSize->setValue (defaultFont.pointSize ());
+
     widgetGl->SetFoamAlongTime (&foamAlongTime);
     setupColorBarModels ();
     widgetHistogram->setHidden (true);
     m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
     configureInterface (foamAlongTime);
+    
 
     setWindowTitle (
 	QString (
@@ -517,8 +523,6 @@ void MainWindow::createActions ()
     addAction (m_actionTranslateLight.get ());
     addAction (m_actionSelectBrush.get ());
     addAction (m_actionSelectEraser.get ());
-    addAction (m_actionSelectAll.get ());
-    addAction (m_actionDeselectAll.get ());
     addAction (m_actionInfo.get ());
 }
 
@@ -529,6 +533,11 @@ void MainWindow::createActions ()
 void MainWindow::ToggledShowTimeSteps (bool checked)
 {
     sliderTimeSteps->setVisible (checked);
+}
+
+void MainWindow::ToggledHistogramGrid (bool checked)
+{
+    widgetHistogram->SetGridEnabled (checked);
 }
 
 void MainWindow::ToggledFullColorBarShown (bool checked)
@@ -574,6 +583,16 @@ void MainWindow::TimeoutTimer ()
         sliderTimeSteps->setValue (value + 1);
     else
         ClickedPlay ();
+}
+
+void MainWindow::ValueChangedFontSize (int fontSize)
+{
+    boost::shared_ptr<Application> app = Application::Get ();
+    QFont defaultFont = app->font ();
+    defaultFont.setPointSize (fontSize);
+    app->setFont (defaultFont);
+    widgetHistogram->SetDefaultFont ();
+    colorBar->SetDefaultFont ();    
 }
 
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
@@ -792,7 +811,8 @@ void MainWindow::ShowEditColorMap ()
     m_editColorMap->SetData (
 	foamAlongTime.GetHistogram (m_bodyProperty),
 	foamAlongTime.GetMaxCountPerBin (m_bodyProperty),
-	*m_colorBarModel[m_bodyProperty]);
+	*m_colorBarModel[m_bodyProperty],
+	checkBoxGridEnabled->isChecked ());
     if (m_editColorMap->exec () == QDialog::Accepted)
     {
 	*m_colorBarModel[m_bodyProperty] = m_editColorMap->GetColorBarModel ();

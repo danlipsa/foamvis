@@ -52,13 +52,22 @@ void ColorBar::ColorBarModelChangedSlot (
     setTitleDefaultFont (model->GetTitle ().toAscii ());
 }
 
+void ColorBar::SetDefaultFont ()
+{
+    setTitleDefaultFont ();
+}
+
 void ColorBar::setTitleDefaultFont (const char* s)
 {
     QFont defaultFont = Application::Get ()->font ();
     defaultFont.setBold (true);
-    QwtText title (s);
-    title.setFont (defaultFont);
-    setTitle (title);
+    QwtText t;
+    if (s != 0)
+	t.setText (s);
+    else
+	t = title ();
+    t.setFont (defaultFont);
+    setTitle (t);
 }
 
 void ColorBar::contextMenuEvent (QContextMenuEvent *event)

@@ -22,11 +22,10 @@ void TransferFunctionHistogram::contextMenuEvent(QContextMenuEvent *event)
 {
     m_pos = event->pos () -  canvas ()->geometry ().topLeft ();
     QMenu menu (this);
-    menu.addAction (m_actionHeightSettings.get ());
-    menu.addAction (m_actionGridEnabled.get ());
     menu.addAction (m_actionClampHigh.get ());
     menu.addAction (m_actionClampLow.get ());
     menu.addAction (m_actionClampClear.get ());
+    menu.addAction (m_actionHeightSettings.get ());
     menu.exec (event->globalPos());
 }
 
@@ -39,15 +38,6 @@ void TransferFunctionHistogram::createActions ()
     connect(m_actionHeightSettings.get (), SIGNAL(triggered()),
 	    this, SLOT(HistogramHeightDialog ()));
     
-    m_actionGridEnabled = boost::make_shared<QAction> (
-	tr("&Grid Enabled"), this);
-    m_actionGridEnabled->setStatusTip(tr("Grid Enabled"));
-    m_actionGridEnabled->setCheckable (true);
-    m_actionGridEnabled->setChecked (IsGridEnabled ());
-    connect(m_actionGridEnabled.get (), SIGNAL(toggled(bool)),
-	    this, SLOT(SetGridEnabled(bool)));
-
-
     m_actionClampHigh.reset (
 	new QAction (tr("&Clamp High"), this));
     m_actionClampHigh->setStatusTip(tr("Clamp High"));

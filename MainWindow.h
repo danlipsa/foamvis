@@ -75,6 +75,7 @@ Q_SIGNALS:
 public Q_SLOTS:
     void ToggledShowTimeSteps (bool checked);
     void ToggledFullColorBarShown (bool checked);
+    void ToggledHistogramGrid (bool checked);
     /**
      * Called when the Begin Slider button is pressed. Shows the first
      * data in the vector.
@@ -118,6 +119,7 @@ public Q_SLOTS:
      * at the current position of the slider.
      */
     void ValueChangedSliderTimeSteps (int value);
+    void ValueChangedFontSize (int value);
 private:
     void connectColorBarModelChanged ();
     /**

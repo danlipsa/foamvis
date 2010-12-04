@@ -21,6 +21,7 @@ public Q_SLOTS:
     void ClampClear ();
     void ColorBarModelChangedSlot (
 	boost::shared_ptr<ColorBarModel> colorBarModel);
+    void SetDefaultFont ();
 
 Q_SIGNALS:
     void EditColorMap ();
@@ -32,7 +33,7 @@ protected:
 
 private:
     void createActions ();
-    void setTitleDefaultFont (const char* s);
+    void setTitleDefaultFont (const char* s = 0);
 
 private:
     Q_OBJECT

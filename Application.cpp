@@ -16,9 +16,11 @@ boost::shared_ptr<Application> Application::m_application;
 Application::Application(int& c, char** v) :
     QApplication(c, v) 
 {
+/*
     QFont defaultFont = font ();
     defaultFont.setPointSize (8);
     setFont (defaultFont);
+*/
 }
 
 

@@ -130,9 +130,13 @@ void Histogram::setAxisTitleDefaultFont (int axisId, const char* s)
 {
     QFont defaultFont = Application::Get ()->font ();
     defaultFont.setBold (true);
-    QwtText axisTitle (s);
-    axisTitle.setFont (defaultFont);
-    setAxisTitle (axisId, axisTitle);
+    QwtText at;
+    if (s != 0)
+	at.setText (s);
+    else
+	at = axisTitle (axisId);
+    at.setFont (defaultFont);
+    setAxisTitle (axisId, at);
 }
 
 void Histogram::setAxisDefaultFont (int axisId)
@@ -141,6 +145,13 @@ void Histogram::setAxisDefaultFont (int axisId)
     setAxisFont (axisId, defaultFont);
 }
 
+void Histogram::SetDefaultFont ()
+{
+    setAxisTitleDefaultFont (QwtPlot::xBottom);
+    setAxisTitleDefaultFont (QwtPlot::yLeft);
+    setAxisDefaultFont (QwtPlot::xBottom);
+    setAxisDefaultFont (QwtPlot::yLeft);
+}
 
 
 void Histogram::SetDataAllBinsSelected (
