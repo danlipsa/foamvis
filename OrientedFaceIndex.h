@@ -14,7 +14,9 @@ class Face;
 class OrientedEdge;
 class OrientedFace;
 
-
+/**
+ * Keeps track of all faces an edge is part of.
+ */
 class OrientedFaceIndex
 {
 public:

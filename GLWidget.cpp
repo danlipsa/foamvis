@@ -21,6 +21,7 @@
 #include "DisplayVertexFunctors.h"
 #include "OpenGLInfo.h"
 #include "OpenGLUtils.h"
+#include "SelectBodiesById.h"
 #include "Utils.h"
 
 // Private Classes
@@ -90,7 +91,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_srcAlphaBlend (1),
       m_timeDisplacement (0.0),
       m_playMovie (false),
-      m_lightEnabled (0)
+      m_lightEnabled (0),
+      m_selectBodiesById (new SelectBodiesById (this))
 {
     makeCurrent ();
     m_displayBlend.reset (new DisplayBlend (*this));
@@ -139,6 +141,12 @@ void GLWidget::createActions ()
     m_actionResetTransformation->setStatusTip(tr("Reset Transformation"));
     connect(m_actionResetTransformation.get (), SIGNAL(triggered()),
 	    this, SLOT(ResetTransformation ()));    
+
+    m_actionSelectBodiesById = boost::make_shared<QAction> (
+	tr("&Select Bodies by Id"), this);
+    m_actionSelectBodiesById->setStatusTip(tr("Select Bodies by Id"));
+    connect(m_actionSelectBodiesById.get (), SIGNAL(triggered()),
+	    this, SLOT(SelectBodiesByIdList ()));
 }
 
 void GLWidget::initViewTypeDisplay ()
@@ -564,6 +572,13 @@ void GLWidget::ResetTransformation ()
     makeCurrent ();
     ViewportTransform (width (), height (), m_scalingFactorModel, &m_viewport);
     updateGL ();
+}
+
+void GLWidget::SelectBodiesByIdList ()
+{
+    if (m_selectBodiesById->exec () == QDialog::Accepted)
+    {
+    }
 }
 
 void GLWidget::SelectAll ()
@@ -1535,6 +1550,7 @@ void GLWidget::CurrentIndexChangedViewportTransformType (int index)
 void GLWidget::CurrentIndexChangedAxesOrder (int index)
 {
     m_axesOrder = static_cast<AxesOrder::Enum>(index);
+    ResetTransformation ();
 }
 
 void GLWidget::BodyPropertyChanged (
@@ -1707,6 +1723,7 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
     menu.addAction (m_actionResetTransformation.get ());
     menu.addAction (m_actionSelectAll.get ());
     menu.addAction (m_actionDeselectAll.get ());
+    menu.addAction (m_actionSelectBodiesById.get ());
     menu.addAction (m_actionInfo.get ());
     menu.exec (event->globalPos());
 }

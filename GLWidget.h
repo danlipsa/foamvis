@@ -24,6 +24,7 @@ class FoamAlongTime;
 class OrientedFace;
 class OrientedEdge;
 class OOBox;
+class SelectBodiesById;
 
 /**
  * Widget for displaying foam bubbles using OpenGL
@@ -271,6 +272,7 @@ public Q_SLOTS:
     void ColorBarModelChanged (
 	boost::shared_ptr<ColorBarModel> colorBarModel);
     void ResetTransformation ();
+    void SelectBodiesByIdList ();
     void SelectAll ();
     void DeselectAll ();
     void Info ();
@@ -601,6 +603,7 @@ private:
     boost::shared_ptr<QAction> m_actionInfo;
     // owned by GLWidget
     boost::shared_ptr<QAction> m_actionResetTransformation;
+    boost::shared_ptr<QAction> m_actionSelectBodiesById;
     
     bool m_useColorMap;
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
@@ -615,6 +618,7 @@ private:
     boost::scoped_ptr<DisplayBlend> m_displayBlend;
     boost::scoped_ptr<DisplayFaceAverage> m_displayFaceAverage;
     bitset<LIGHTS_COUNT> m_lightEnabled;
+    boost::shared_ptr<SelectBodiesById> m_selectBodiesById;
 };
 
 #endif //__GLWIDGET_H__

@@ -11,6 +11,9 @@
 class Body;
 class OrientedFace;
 
+/**
+ * Keeps track of what bodies a face is part of.
+ */
 class BodyIndex
 {
 public:

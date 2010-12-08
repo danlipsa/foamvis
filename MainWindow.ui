@@ -270,7 +270,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="currentIndex">
-              <number>3</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="tabShow">
               <attribute name="title">
@@ -292,100 +292,10 @@
                 </widget>
                </item>
                <item>
-                <widget class="QCheckBox" name="checkBoxFullColorBar">
-                 <property name="text">
-                  <string>Full Color Bar</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="checkBoxTimeSteps">
-                 <property name="text">
-                  <string>Time Steps</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
                 <widget class="QCheckBox" name="checkBoxTorusOriginalDomain">
                  <property name="text">
                   <string>Torus original domain</string>
                  </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QWidget" name="widgetTubesRadius" native="true">
-                 <layout class="QHBoxLayout" name="horizontalLayout_9">
-                  <property name="margin">
-                   <number>0</number>
-                  </property>
-                  <item>
-                   <widget class="QLabel" name="label_6">
-                    <property name="text">
-                     <string>Edges radius</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSlider" name="horizontalSliderEdgesRadius">
-                    <property name="maximum">
-                     <number>99</number>
-                    </property>
-                    <property name="pageStep">
-                     <number>10</number>
-                    </property>
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="tickPosition">
-                     <enum>QSlider::TicksAbove</enum>
-                    </property>
-                    <property name="tickInterval">
-                     <number>10</number>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
-               <item>
-                <widget class="QWidget" name="widgetTubesRadius_2" native="true">
-                 <layout class="QHBoxLayout" name="horizontalLayout_12">
-                  <property name="margin">
-                   <number>0</number>
-                  </property>
-                  <item>
-                   <widget class="QLabel" name="label_9">
-                    <property name="text">
-                     <string>Context alpha</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSlider" name="horizontalSliderContextAlpha">
-                    <property name="maximum">
-                     <number>99</number>
-                    </property>
-                    <property name="pageStep">
-                     <number>10</number>
-                    </property>
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="tickPosition">
-                     <enum>QSlider::TicksAbove</enum>
-                    </property>
-                    <property name="tickInterval">
-                     <number>10</number>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
                 </widget>
                </item>
                <item>
@@ -649,6 +559,96 @@
                  <property name="checked">
                   <bool>true</bool>
                  </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkBoxFullColorBar">
+                 <property name="text">
+                  <string>Full Color Bar</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkBoxTimeSteps">
+                 <property name="text">
+                  <string>Time Steps</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QWidget" name="widgetTubesRadius" native="true">
+                 <layout class="QHBoxLayout" name="horizontalLayout_9">
+                  <property name="margin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="label_6">
+                    <property name="text">
+                     <string>Edges radius</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSlider" name="horizontalSliderEdgesRadius">
+                    <property name="maximum">
+                     <number>99</number>
+                    </property>
+                    <property name="pageStep">
+                     <number>10</number>
+                    </property>
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="tickPosition">
+                     <enum>QSlider::TicksAbove</enum>
+                    </property>
+                    <property name="tickInterval">
+                     <number>10</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QWidget" name="widgetTubesRadius_2" native="true">
+                 <layout class="QHBoxLayout" name="horizontalLayout_12">
+                  <property name="margin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="label_9">
+                    <property name="text">
+                     <string>Context alpha</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSlider" name="horizontalSliderContextAlpha">
+                    <property name="maximum">
+                     <number>99</number>
+                    </property>
+                    <property name="pageStep">
+                     <number>10</number>
+                    </property>
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="tickPosition">
+                     <enum>QSlider::TicksAbove</enum>
+                    </property>
+                    <property name="tickInterval">
+                     <number>10</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </widget>
                </item>
                <item>
@@ -1226,7 +1226,7 @@
      <x>0</x>
      <y>0</y>
      <width>876</width>
-     <height>22</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuView">
@@ -1363,6 +1363,86 @@
  </customwidgets>
  <resources/>
  <connections>
+  <connection>
+   <sender>horizontalSliderContextAlpha</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedContextAlpha(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>813</x>
+     <y>457</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>424</x>
+     <y>503</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSliderEdgesRadius</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedEdgesRadius(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>813</x>
+     <y>420</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>420</x>
+     <y>420</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxTimeSteps</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledShowTimeSteps(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>822</x>
+     <y>366</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>780</x>
+     <y>189</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxFullColorBar</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledFullColorBarShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>822</x>
+     <y>345</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>872</x>
+     <y>303</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxFullColorBar</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledFullColorBarShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>822</x>
+     <y>345</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>424</x>
+     <y>514</y>
+    </hint>
+   </hints>
+  </connection>
   <connection>
    <sender>radioButtonFacesNormal</sender>
    <signal>toggled(bool)</signal>
@@ -1732,22 +1812,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxTimeSteps</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledShowTimeSteps(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>822</x>
-     <y>366</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>780</x>
-     <y>189</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkBoxShowEdges</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
@@ -1892,38 +1956,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxFullColorBar</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledFullColorBarShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>822</x>
-     <y>345</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>872</x>
-     <y>303</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSliderEdgesRadius</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedEdgesRadius(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>813</x>
-     <y>420</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>420</x>
-     <y>420</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>radioButtonFaceEdgesTorus</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
@@ -1996,22 +2028,6 @@
     <hint type="sourcelabel">
      <x>822</x>
      <y>303</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>424</x>
-     <y>514</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxFullColorBar</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledFullColorBarShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>822</x>
-     <y>345</y>
     </hint>
     <hint type="destinationlabel">
      <x>424</x>
@@ -2096,22 +2112,6 @@
     <hint type="destinationlabel">
      <x>287</x>
      <y>371</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSliderContextAlpha</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedContextAlpha(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>813</x>
-     <y>457</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>424</x>
-     <y>503</y>
     </hint>
    </hints>
   </connection>

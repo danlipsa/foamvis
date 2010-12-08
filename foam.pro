@@ -5,7 +5,7 @@ HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
 	Debug.h DebugStream.h Disk.h DisplayFaceAverage.h DisplayBlend.h\
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h DisplayWidget.h\
-	SelectBodyIDs.h EditColorMap.h Edge.h Element.h ExpressionTree.h Enums.h\
+	SelectBodiesById.h EditColorMap.h Edge.h Element.h ExpressionTree.h Enums.h\
 	Foam.h FoamAlongTime.h Face.h \
 	GLWidget.h Hashes.h Histogram.h HistogramItem.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
@@ -25,7 +25,7 @@ SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp 
 	DisplayBlend.cpp DisplayBodyFunctors.cpp DisplayFaceAverage.cpp \
 	DisplayEdgeFunctors.cpp	\
 	DisplayWidget.cpp DisplayVertexFunctors.cpp Edge.cpp \
-	SelectBodyIDs.cpp EditColorMap.cpp Element.cpp ExpressionTree.cpp \
+	SelectBodiesById.cpp EditColorMap.cpp Element.cpp ExpressionTree.cpp \
 	Enums.cpp Foam.cpp FoamAlongTime.cpp Face.cpp \
 	GLWidget.cpp Hashes.cpp Histogram.cpp HistogramItem.cpp\
 	main.cpp MainWindow.cpp  \
@@ -37,7 +37,7 @@ SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp 
 	QuadraticEdge.cpp RestrictedRangeSlider.cpp\
 	StripIterator.cpp TimeStepsSlider.cpp \
 	TransferFunctionHistogram.cpp Utils.cpp Vertex.cpp
-FORMS += SelectBodyIDs.ui EditColorMap.ui HistogramHeight.ui\
+FORMS += SelectBodiesById.ui EditColorMap.ui HistogramHeight.ui\
 	 RestrictedRangeSlider.ui MainWindow.ui OpenGLInfo.ui
 LEXSOURCES += EvolverData.l
 YACCSOURCES += EvolverData.y

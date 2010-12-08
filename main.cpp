@@ -77,9 +77,6 @@ always defined in the data file (it's not a duplicate).
  *
  *
  * @todo Use google-breakpad for reporting crashes.  
-
- * @todo Add an  option to load a dmp file and  skip a variable number
- * of files to save memory.
  *
  * @todo set new line significant only for list of vertices, edges,
  * faces, bodies

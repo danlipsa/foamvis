@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SelectBodyIDs</class>
- <widget class="QDialog" name="SelectBodyIDs">
+ <class>SelectBodiesById</class>
+ <widget class="QDialog" name="SelectBodiesById">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Select Body IDs</string>
+   <string>Select Bodies by Id</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -28,7 +28,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit"/>
+       <widget class="QLineEdit" name="lineEditIds"/>
       </item>
      </layout>
     </widget>
@@ -70,7 +70,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>SelectBodyIDs</receiver>
+   <receiver>SelectBodiesById</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -86,7 +86,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>SelectBodyIDs</receiver>
+   <receiver>SelectBodiesById</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
