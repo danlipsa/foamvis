@@ -20,5 +20,11 @@ SelectBodiesById::SelectBodiesById (QWidget* parent) :
 void SelectBodiesById::accept ()
 {
     QRegExp rx ("\\d");
+    QString text = lineEditIds->text ();
+    int pos = 0;
+    while ((pos = rx.indexIn (text, pos)) != -1)
+    {
+	pos += rx.matchedLength ();
+    }
     QDialog::accept ();
 }
