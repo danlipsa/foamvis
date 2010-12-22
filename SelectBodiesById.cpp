@@ -7,24 +7,32 @@
  */
 
 #include "SelectBodiesById.h"
+#include "DebugStream.h"
 
 SelectBodiesById::SelectBodiesById (QWidget* parent) :
     QDialog (parent)
 {
     setupUi (this);
-    QRegExp rx("(\\d *, *)*\\d");
+    QRegExp rx("(\\d+ +)*\\d+");
     QValidator *validator = new QRegExpValidator(rx, this);
     lineEditIds->setValidator(validator);
 }
 
 void SelectBodiesById::accept ()
 {
-    QRegExp rx ("\\d");
     QString text = lineEditIds->text ();
-    int pos = 0;
-    while ((pos = rx.indexIn (text, pos)) != -1)
+    QStringList bodyIds = text.split (' ', QString::SkipEmptyParts);
+    BOOST_FOREACH (QString bodyId, bodyIds)
     {
-	pos += rx.matchedLength ();
+	size_t value = bodyId.toUInt ();
+	m_ids.push_back (value);
+	cdbg << value << endl;
     }
     QDialog::accept ();
+}
+
+int SelectBodiesById::exec ()
+{
+    lineEditIds->selectAll ();
+    return QDialog::exec ();
 }

@@ -23,6 +23,7 @@ public:
 
 public Q_SLOTS:
     virtual void accept ();
+    int exec ();
 
 private:
     Q_OBJECT
