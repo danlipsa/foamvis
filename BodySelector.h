@@ -10,6 +10,9 @@
 
 #include "Enums.h"
 
+/**
+ * Abstract class. Selects a list of bodies based on a property.
+ */
 class BodySelector
 {
 public:
@@ -31,10 +34,13 @@ class AllBodiesSelected : public BodySelector
 
 
 class GLWidget;
-class CycleSelector : public BodySelector
+/**
+ * Selects a body specified by GLWidget. (which cycles through all bodies)
+ */
+class CycleBodySelector : public BodySelector
 {
 public:
-    CycleSelector (const GLWidget& glWidget) :
+    CycleBodySelector (const GLWidget& glWidget) :
 	m_glWidget (glWidget)
     {
     }
@@ -46,12 +52,16 @@ private:
 };
 
 class FoamAlongTime;
-class PropertyValueSelector : public BodySelector
+/**
+ * Selects bodies with a propriety value in an interval from an
+ * interval list.
+ */
+class PropertyValueBodySelector : public BodySelector
 {
 public:
     typedef vector<QwtDoubleInterval> ValueIntervals;
 public:
-    PropertyValueSelector (BodyProperty::Enum bodyProperty,
+    PropertyValueBodySelector (BodyProperty::Enum bodyProperty,
 			   vector<QwtDoubleInterval> valueIntervals,
 			   const FoamAlongTime& foamAlongTime) :
 	m_bodyProperty (bodyProperty), m_valueIntervals (valueIntervals),
@@ -66,6 +76,21 @@ private:
     ValueIntervals m_valueIntervals;
     const FoamAlongTime& m_foamAlongTime;
 };
+
+
+/**
+ * Selects bodies with specified ids.
+ */
+class IdBodySelector : public BodySelector
+{
+public:
+    IdBodySelector (vector<size_t> ids);
+    virtual bool operator () (size_t bodyId, size_t timeStep) const;
+
+private:
+    vector<size_t> m_ids;
+};
+
 
 #endif //__BODY_SELECTOR_H__
 // Local Variables:

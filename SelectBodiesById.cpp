@@ -18,15 +18,33 @@ SelectBodiesById::SelectBodiesById (QWidget* parent) :
     lineEditIds->setValidator(validator);
 }
 
+void SelectBodiesById::setBodyCount (size_t bodyCount)
+{
+    m_bodyCount = bodyCount;
+    ostringstream instructions;
+    instructions << labelInstructions->text ().toAscii ().data ()
+		 << (bodyCount - 1) << ".";
+    labelInstructions->setText (instructions.str ().c_str ());    
+}
+
 void SelectBodiesById::accept ()
 {
     QString text = lineEditIds->text ();
     QStringList bodyIds = text.split (' ', QString::SkipEmptyParts);
+    m_ids.clear ();
     BOOST_FOREACH (QString bodyId, bodyIds)
     {
 	size_t value = bodyId.toUInt ();
+	if (value >= m_bodyCount)
+	{
+	    ostringstream ostr;
+	    ostr << "Body ID: " << value << " greater than the number of bodies";
+	    QMessageBox messageBox;
+	    messageBox.setText (ostr.str ().c_str ());
+	    messageBox.exec ();
+	    return;
+	}
 	m_ids.push_back (value);
-	cdbg << value << endl;
     }
     QDialog::accept ();
 }

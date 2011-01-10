@@ -5,8 +5,8 @@ HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
 	Debug.h DebugStream.h Disk.h DisplayFaceAverage.h DisplayBlend.h\
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h DisplayWidget.h\
-	SelectBodiesById.h EditColorMap.h Edge.h Element.h ExpressionTree.h Enums.h\
-	Foam.h FoamAlongTime.h Face.h \
+	SelectBodiesById.h EditColorMap.h Edge.h Element.h ExpressionTree.h \
+	Enums.h Foam.h FoamAlongTime.h Face.h \
 	GLWidget.h Hashes.h Histogram.h HistogramItem.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
 	OOBox.h OpenGLInfo.h OpenGLUtils.h OrientedElement.h\

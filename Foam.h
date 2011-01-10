@@ -28,7 +28,6 @@ class ParsingData;
 class Foam
 {
 public:
-    typedef vector< boost::shared_ptr<Vertex> > Vertices;
     typedef vector< boost::shared_ptr<Edge> > Edges;
     typedef vector< boost::shared_ptr<Face> > Faces;
     typedef vector< boost::shared_ptr<Body> > Bodies;

@@ -183,6 +183,15 @@ string Body::ToString () const
     return ostr.str ();
 }
 
+bool Body::operator< (const Body& other) const
+{
+    return GetId () < other.GetId () ||
+	(GetId () == other.GetId () &&
+	 *GetOrientedFace (0)->GetFace () < 
+	 *other.GetOrientedFace (0)->GetFace ());
+}
+
+
 void Body::GetVertexSet (VertexSet* vertexSet) const
 {
     const OrientedFaces& orientedFaces = GetOrientedFaces ();

@@ -20,6 +20,7 @@ public:
     {
 	return m_ids;
     }
+    void setBodyCount (size_t bodyCount);
 
 public Q_SLOTS:
     virtual void accept ();
@@ -28,6 +29,7 @@ public Q_SLOTS:
 private:
     Q_OBJECT
     vector<size_t> m_ids;
+    size_t m_bodyCount;
 };
 
 #endif //__SELECT_BODIES_BY_ID_H__

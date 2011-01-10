@@ -797,10 +797,10 @@ void MainWindow::SelectionChangedHistogram ()
     boost::shared_ptr<BodySelector> bodySelector;
     if (widgetHistogram->AreAllItemsSelected ())
 	bodySelector = boost::shared_ptr<BodySelector> (
-	    new CycleSelector (*widgetGl));
+	    new CycleBodySelector (*widgetGl));
     else
 	bodySelector = boost::shared_ptr<BodySelector> (
-	    new PropertyValueSelector (
+	    new PropertyValueBodySelector (
 		m_bodyProperty, valueIntervals, foamAlongTime));
     widgetGl->SetBodySelector (bodySelector);
 }

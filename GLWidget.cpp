@@ -84,7 +84,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_facesColor (BodyProperty::NONE),
       m_notAvailableCenterPathColor (Qt::black),
       m_notAvailableFaceColor (Qt::white),
-      m_bodySelector (new CycleSelector (*this)),
+      CYCLE_BODY_SELECTOR (new CycleBodySelector (*this)),
+      m_bodySelector (CYCLE_BODY_SELECTOR),
       m_useColorMap (false),
       m_colorBarModel (new ColorBarModel ()),
       m_colorBarTexture (0),
@@ -194,6 +195,8 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 	(foamAlongTime->GetDimension () == 2) ? 
 	AxesOrder::TWO_D : 
 	AxesOrder::THREE_D;
+    m_selectBodiesById->setBodyCount (
+	foamAlongTime->GetFoam (0)->GetBodies ().size ());
 }
 
 bool GLWidget::edgeLighting () const
@@ -578,6 +581,9 @@ void GLWidget::SelectBodiesByIdList ()
 {
     if (m_selectBodiesById->exec () == QDialog::Accepted)
     {
+	m_bodySelector = 
+	    boost::shared_ptr<const BodySelector> (
+		new IdBodySelector (m_selectBodiesById->GetIds ()));
     }
 }
 
@@ -1206,6 +1212,7 @@ bool GLWidget::doesSelectEdge () const
 
 void GLWidget::IncrementDisplayedBody ()
 {
+    m_bodySelector = CYCLE_BODY_SELECTOR;
     if (doesSelectBody ())
     {
 	++m_displayedBodyIndex;
@@ -1213,7 +1220,14 @@ void GLWidget::IncrementDisplayedBody ()
 	if (m_displayedBodyIndex == 
 	    GetFoamAlongTime ().GetFoam (0)->GetBodies ().size ())
 	    m_displayedBodyIndex = DISPLAY_ALL;
-	cdbg << "IncrementDisplayedBody: " << m_displayedBodyIndex << endl;
+	else
+	{
+	    cdbg << "IncrementDisplayedBody index: " << m_displayedBodyIndex 
+		 << " id: " 
+		 << GetCurrentFoam ().GetBodies ()[
+		     m_displayedBodyIndex]->GetId () 
+		 << endl;
+	}
 	updateGL ();
     }
 }
@@ -1245,6 +1259,7 @@ void GLWidget::IncrementDisplayedEdge ()
 
 void GLWidget::DecrementDisplayedBody ()
 {
+    m_bodySelector = CYCLE_BODY_SELECTOR;
     if (doesSelectBody ())
     {
 	if (m_displayedBodyIndex == DISPLAY_ALL)
@@ -1252,7 +1267,12 @@ void GLWidget::DecrementDisplayedBody ()
 		GetFoamAlongTime ().GetFoam (0)->GetBodies ().size ();
 	--m_displayedBodyIndex;
 	m_displayedFaceIndex = DISPLAY_ALL;
-	cdbg << "IncrementDisplayedBody: " << m_displayedBodyIndex << endl;
+	if (m_displayedBodyIndex != DISPLAY_ALL)
+	    cdbg << "IncrementDisplayedBody index: " << m_displayedBodyIndex 
+		 << " id: " 
+		 << GetCurrentFoam ().GetBodies ()[
+		     m_displayedBodyIndex]->GetId () 
+		 << endl;
 	updateGL ();
     }
 }

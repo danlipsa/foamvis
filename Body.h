@@ -83,7 +83,7 @@ public:
     }
     double GetPropertyValue (BodyProperty::Enum property) const;
     bool ExistsPropertyValue (BodyProperty::Enum property) const;
-
+    bool operator< (const Body& other) const;
     
 public:
     static const size_t PRESSURE_INDEX = 0;

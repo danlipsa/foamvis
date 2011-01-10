@@ -595,6 +595,7 @@ private:
     BodyProperty::Enum m_facesColor;
     QColor m_notAvailableCenterPathColor;
     QColor m_notAvailableFaceColor;
+    boost::shared_ptr<const BodySelector> CYCLE_BODY_SELECTOR;
     boost::shared_ptr<const BodySelector> m_bodySelector;
 
     // owned by MainWindows
