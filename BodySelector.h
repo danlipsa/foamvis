@@ -84,7 +84,7 @@ private:
 class IdBodySelector : public BodySelector
 {
 public:
-    IdBodySelector (vector<size_t> ids);
+    IdBodySelector (const vector<size_t>& ids);
     virtual bool operator () (size_t bodyId, size_t timeStep) const;
 
 private:

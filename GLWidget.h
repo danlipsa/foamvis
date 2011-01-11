@@ -194,8 +194,6 @@ public:
     {
 	return m_actionResetTransformation;
     }
-    void SetActionSelectAll (boost::shared_ptr<QAction> actionSelectAll);
-    void SetActionDeselectAll (boost::shared_ptr<QAction> actionDeselectAll);
     void SetActionInfo (boost::shared_ptr<QAction> actionInfo);
     GLuint GetColorBarTexture () const
     {

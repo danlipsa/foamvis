@@ -16,8 +16,6 @@ class AttributeHistogram : public Histogram
 {
 public:
     AttributeHistogram (QWidget* parent = 0);
-    void SetActionSelectAll (boost::shared_ptr<QAction> actionSelectAll);
-    void SetActionDeselectAll (boost::shared_ptr<QAction> actionDeselectAll);
 
 public Q_SLOTS:
     void SelectAll ();

@@ -490,22 +490,6 @@ void MainWindow::createActions ()
     connect (actionOpenGL_Info, SIGNAL (triggered ()),
 	     widgetGl, SLOT (ShowOpenGLInfo ()));
 
-
-    m_actionSelectAll = boost::make_shared<QAction> (tr("&Select All"), this);
-    m_actionSelectAll->setShortcut(
-	QKeySequence (tr ("Shift+S")));
-    m_actionSelectAll->setStatusTip(tr("Select All"));
-    widgetHistogram->SetActionSelectAll (m_actionSelectAll);
-    widgetGl->SetActionSelectAll (m_actionSelectAll);
-
-    m_actionDeselectAll = boost::make_shared<QAction> (
-	tr("&Deselect All"), this);
-    m_actionDeselectAll->setShortcut(
-	QKeySequence (tr ("Shift+D")));
-    m_actionDeselectAll->setStatusTip(tr("Deselect All"));
-    widgetHistogram->SetActionDeselectAll (m_actionDeselectAll);
-    widgetGl->SetActionDeselectAll (m_actionDeselectAll);
-
     m_actionInfo = boost::make_shared<QAction> (
 	tr("&Info"), this);
     m_actionInfo->setShortcut(

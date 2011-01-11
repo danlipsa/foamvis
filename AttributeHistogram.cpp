@@ -17,22 +17,6 @@ AttributeHistogram::AttributeHistogram (QWidget* parent) :
     createActions ();
 }
 
-void AttributeHistogram::SetActionSelectAll (
-    boost::shared_ptr<QAction> actionSelectAll)
-{
-    m_actionSelectAll = actionSelectAll;
-    connect(m_actionSelectAll.get (), SIGNAL(triggered()),
-	    this, SLOT(SelectAll ()));    
-}
-
-void AttributeHistogram::SetActionDeselectAll (
-    boost::shared_ptr<QAction> actionDeselectAll)
-{
-    m_actionDeselectAll = actionDeselectAll;
-    connect(m_actionDeselectAll.get (), SIGNAL(triggered()),
-	    this, SLOT(DeselectAll ()));
-}
-
 void AttributeHistogram::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu (this);
@@ -66,6 +50,21 @@ void AttributeHistogram::CurrentIndexChangedInteractionMode (int index)
 
 void AttributeHistogram::createActions ()
 {
+    m_actionSelectAll = boost::make_shared<QAction> (tr("&Select All"), this);
+    m_actionSelectAll->setShortcut(
+	QKeySequence (tr ("Shift+S")));
+    m_actionSelectAll->setStatusTip(tr("Select All"));
+    connect(m_actionSelectAll.get (), SIGNAL(triggered()),
+	    this, SLOT(SelectAll ()));    
+
+    m_actionDeselectAll = boost::make_shared<QAction> (
+	tr("&Deselect All"), this);
+    m_actionDeselectAll->setShortcut(
+	QKeySequence (tr ("Shift+D")));
+    m_actionDeselectAll->setStatusTip(tr("Deselect All"));
+    connect(m_actionDeselectAll.get (), SIGNAL(triggered()),
+	    this, SLOT(DeselectAll ()));
+
     m_actionHeightSettings = boost::make_shared<QAction> (
 	tr("&Height Settings"), this);
     m_actionHeightSettings->setStatusTip(tr("Height Settings"));

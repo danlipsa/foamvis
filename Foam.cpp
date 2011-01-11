@@ -379,7 +379,7 @@ void Foam::PostProcess ()
 	calculateTorusClipped ();
     }
     calculateAABox ();
-    sort (m_bodies.begin (), m_bodies.end ());
+    sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);
 }
 
 bool Foam::IsTorus () const

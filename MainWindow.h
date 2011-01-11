@@ -184,8 +184,6 @@ private:
     boost::shared_ptr<QAction> m_actionTranslateLight;
     boost::shared_ptr<QAction> m_actionSelectBrush;
     boost::shared_ptr<QAction> m_actionSelectEraser;
-    boost::shared_ptr<QAction> m_actionSelectAll;
-    boost::shared_ptr<QAction> m_actionDeselectAll;
     boost::shared_ptr<QAction> m_actionInfo;
 
     BodyProperty::Enum m_bodyProperty;

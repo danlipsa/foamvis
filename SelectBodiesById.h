@@ -20,7 +20,15 @@ public:
     {
 	return m_ids;
     }
-    void setBodyCount (size_t bodyCount);
+    void SetMaxBodyId (size_t maxBodyId)
+    {
+	m_maxBodyId = maxBodyId;
+    }
+    void SetMinBodyId (size_t minBodyId)
+    {
+	m_minBodyId = minBodyId;
+    }
+    void UpdateLabelMinMax ();
 
 public Q_SLOTS:
     virtual void accept ();
@@ -29,7 +37,8 @@ public Q_SLOTS:
 private:
     Q_OBJECT
     vector<size_t> m_ids;
-    size_t m_bodyCount;
+    size_t m_maxBodyId;
+    size_t m_minBodyId;
 };
 
 #endif //__SELECT_BODIES_BY_ID_H__

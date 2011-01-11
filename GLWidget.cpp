@@ -135,6 +135,21 @@ void GLWidget::initQuadrics ()
 
 void GLWidget::createActions ()
 {
+    m_actionSelectAll = boost::make_shared<QAction> (tr("&Select All"), this);
+    m_actionSelectAll->setShortcut(
+	QKeySequence (tr ("Shift+S")));
+    m_actionSelectAll->setStatusTip(tr("Select All"));
+    connect(m_actionSelectAll.get (), SIGNAL(triggered()),
+	    this, SLOT(SelectAll ()));
+
+    m_actionDeselectAll = boost::make_shared<QAction> (
+	tr("&Deselect All"), this);
+    m_actionDeselectAll->setShortcut(
+	QKeySequence (tr ("Shift+D")));
+    m_actionDeselectAll->setStatusTip(tr("Deselect All"));
+    connect(m_actionDeselectAll.get (), SIGNAL(triggered()),
+	    this, SLOT(DeselectAll ()));
+
     m_actionResetTransformation = boost::make_shared<QAction> (
 	tr("&Reset Transformation"), this);
     m_actionResetTransformation->setShortcut(
@@ -195,8 +210,11 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 	(foamAlongTime->GetDimension () == 2) ? 
 	AxesOrder::TWO_D : 
 	AxesOrder::THREE_D;
-    m_selectBodiesById->setBodyCount (
-	foamAlongTime->GetFoam (0)->GetBodies ().size ());
+    Foam::Bodies bodies = foamAlongTime->GetFoam (0)->GetBodies ();
+    size_t maxIndex = bodies.size () - 1;
+    m_selectBodiesById->SetMinBodyId (bodies[0]->GetId ());
+    m_selectBodiesById->SetMaxBodyId (bodies[maxIndex]->GetId ());
+    m_selectBodiesById->UpdateLabelMinMax ();
 }
 
 bool GLWidget::edgeLighting () const
@@ -589,6 +607,7 @@ void GLWidget::SelectBodiesByIdList ()
 
 void GLWidget::SelectAll ()
 {
+    m_bodySelector = CYCLE_BODY_SELECTOR;
     m_displayedBodyIndex = DISPLAY_ALL;
     m_displayedFaceIndex = DISPLAY_ALL;
     m_displayedEdgeIndex = DISPLAY_ALL;
@@ -597,6 +616,10 @@ void GLWidget::SelectAll ()
 
 void GLWidget::DeselectAll ()
 {
+    vector<size_t> empty;
+    m_bodySelector = 
+	boost::shared_ptr<const BodySelector> (
+	    new IdBodySelector (empty));
 }
 
 void GLWidget::Info ()
@@ -1208,8 +1231,6 @@ bool GLWidget::doesSelectEdge () const
 }
 
 
-
-
 void GLWidget::IncrementDisplayedBody ()
 {
     m_bodySelector = CYCLE_BODY_SELECTOR;
@@ -1748,29 +1769,11 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
     menu.exec (event->globalPos());
 }
 
-
-void GLWidget::SetActionSelectAll (
-    boost::shared_ptr<QAction> actionSelectAll)
-{
-    m_actionSelectAll = actionSelectAll;
-    connect(m_actionSelectAll.get (), SIGNAL(triggered()),
-	    this, SLOT(SelectAll ()));    
-}
-
 void GLWidget::SetActionInfo (boost::shared_ptr<QAction> actionInfo)
 {
     m_actionInfo = actionInfo;
     connect(m_actionInfo.get (), SIGNAL(triggered()),
 	    this, SLOT(Info ()));    
-}
-
-
-void GLWidget::SetActionDeselectAll (
-    boost::shared_ptr<QAction> actionDeselectAll)
-{
-    m_actionDeselectAll = actionDeselectAll;
-    connect(m_actionDeselectAll.get (), SIGNAL(triggered()),
-	    this, SLOT(DeselectAll ()));
 }
 
 double GLWidget::TexCoord (double value) const

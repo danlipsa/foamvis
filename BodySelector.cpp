@@ -39,7 +39,7 @@ bool PropertyValueBodySelector::operator () (
 	return false;
 }
 
-IdBodySelector::IdBodySelector (vector<size_t> ids) :
+IdBodySelector::IdBodySelector (const vector<size_t>& ids) :
     m_ids (ids)
 {
     cdbg << "IdBodySelector: ";

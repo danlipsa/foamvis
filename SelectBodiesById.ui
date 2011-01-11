@@ -36,7 +36,7 @@
    <item>
     <widget class="QLabel" name="labelInstructions">
      <property name="text">
-      <string>Enter body IDs separated by space. Body range 0 to </string>
+      <string>Enter body ids separated by space. Body id range </string>
      </property>
     </widget>
    </item>

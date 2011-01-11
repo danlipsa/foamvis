@@ -177,5 +177,8 @@ private:
 typedef set<boost::shared_ptr<Vertex>, VertexLessThan> VertexSet;
 typedef set<boost::shared_ptr<Edge>, EdgeLessThan> EdgeSet;
 typedef set<boost::shared_ptr<Face>, FaceLessThan> FaceSet;
+class Body;
+bool BodyLessThan (const boost::shared_ptr<Body>& first,
+		   const boost::shared_ptr<Body>& second);
 
 #endif //__COMPARISONS_H__

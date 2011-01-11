@@ -5,7 +5,7 @@
  *
  * Implementation comparison functors
  */
-
+#include "Body.h"
 #include "Comparisons.h"
 #include "Vertex.h"
 #include "Edge.h"
@@ -102,4 +102,10 @@ bool OrientedFaceIndexLessThan::operator () (
     boost::shared_ptr<OrientedFace> firstOf = first.GetOrientedFace ();
     boost::shared_ptr<OrientedFace> secondOf = second.GetOrientedFace ();
     return firstOf->GetId () <	secondOf->GetId ();
+}
+
+bool BodyLessThan (const boost::shared_ptr<Body>& first,
+		   const boost::shared_ptr<Body>& second)
+{
+    return *first < *second;
 }
