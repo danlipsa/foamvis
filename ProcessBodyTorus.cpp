@@ -96,6 +96,8 @@ void ProcessBodyTorus::restrictFacesAroundAnEdge (
 	 it != nextOe.GetFacePartOfEnd (); it++)
     {
 	const OrientedFaceIndex& nextOfi = *it;
+	if (nextOfi.IsStandalone ())
+	    continue;
 	//cdbg << " nextOfi: " << nextOfi << endl;
 
 	if (bodyId != nextOfi.GetBodyId ())

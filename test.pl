@@ -5,6 +5,7 @@ use warnings;
 my $location = "/home/dlipsa/Documents/swansea-phd/foam/";
 my @tests = 
     ("321_foam/sphere321_0.400000_1.100000_37_0001.dmp",
+     "coarse100/coarse_01_0100_0407.dmp",
      "coarse3d/summary_30_0001_sph_free.dmp",
      "coarse_62/summary_62_0377_sph_free.dmp",
      "cststress_vfm/cststress_16_0001.dmp",
@@ -20,7 +21,6 @@ my @tests =
 
      "all_outside.fe",
      "dry_cross_4.fe",
-     "coarse_01_0100_0407.dmp",
      "dump_0.1520_0.2400_8.0000_0600.dmp",
      "dump_0.1520_0.2400_8.0000_0039.dmp",
      "flowerc_10_001c.dmp",

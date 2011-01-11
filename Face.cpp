@@ -195,6 +195,8 @@ boost::shared_ptr<Edge>  Face::GetEdge (size_t i) const
 
 const BodyIndex& Face::GetBodyPartOf (bool faceReversed) const
 {
+    RuntimeAssert (! IsStandalone (), "GetBodyPartOf for standalone face: ",
+		   GetId ());
     size_t index = faceReversed ^ m_bodiesPartOf[0].IsOrientedFaceReversed ();
     return m_bodiesPartOf[index];
 }

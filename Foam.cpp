@@ -310,7 +310,7 @@ void Foam::unwrap (VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
     }
     BOOST_FOREACH (boost::shared_ptr<Body> b, GetBodies ())
     {
-	//unwrap (b, vertexSet, edgeSet, faceSet);
+	unwrap (b, vertexSet, edgeSet, faceSet);
     }
 }
 

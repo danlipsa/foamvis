@@ -84,6 +84,7 @@ public:
     void GetVertexSet (VertexSet* vertexSet) const;
     void GetEdgeSet (EdgeSet* edgeSet) const;
 
+    bool IsStandalone () const;
 
 public:
     static pair< G3D::Vector3, boost::shared_ptr<OrientedFace> > 

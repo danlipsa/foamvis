@@ -43,6 +43,7 @@ public:
 	return m_orientedEdgeIndex;
     }
     bool IsOrientedEdgeReversed () const;
+    bool IsStandalone () const;
 
     const BodyIndex& GetBodyIndex () const;
     size_t GetBodyId () const;

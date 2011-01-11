@@ -75,7 +75,6 @@ void OrientedFace::UpdateFacePartOf (const boost::shared_ptr<OrientedFace>& of)
     }
 }
 
-
 size_t OrientedFace::GetNextValidIndex (size_t index) const
 {
     return GetFace ()->GetNextValidIndex (index);
@@ -131,4 +130,9 @@ void OrientedFace::GetVertexSet (VertexSet* vertexSet) const
 void OrientedFace::GetEdgeSet (EdgeSet* edgeSet) const
 {
     GetFace ()->GetEdgeSet (edgeSet);
+}
+
+bool OrientedFace::IsStandalone () const
+{
+    return GetFace ()->IsStandalone ();
 }

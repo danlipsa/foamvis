@@ -57,6 +57,10 @@ string OrientedFaceIndex::ToString () const
     return ostr.str ();
 }
 
+bool OrientedFaceIndex::IsStandalone () const
+{
+    return GetOrientedFace ()->IsStandalone ();
+}
 
 // Static and friends methods
 // ======================================================================
