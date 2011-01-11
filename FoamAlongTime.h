@@ -153,7 +153,7 @@ public:
 	BodyProperty::Enum property,
 	size_t bodyId, size_t timeStep) const;
 
-    void PostProcess ();
+    void Preprocess ();
 
     void SetFilePattern (const string& filePattern)
     {
@@ -172,10 +172,8 @@ private:
      */
     void calculateAggregate (Aggregate aggregate, 
 		    FoamLessThanAlong::Corner corner, G3D::Vector3& v);
-    double getBodyPropertyNoAdjustment (
-	BodyProperty::Enum property,
-	size_t bodyId, size_t timeStep) const;
     void calculateBodyWraps ();
+    void calculateVelocity ();
     void calculateStatistics ();
     void initializeStatistics ();
     void calculatePerTimeStepHistograms ();
@@ -184,6 +182,11 @@ private:
     void calculatePerTimeStepRange (size_t timeStep);
     void calculatePerTimeStepMaxCountPerBin ();
     void calculatePerTimeStepMedians ();
+    void storeVelocity (
+	const StripIterator::Point& beforeBegin,
+	const StripIterator::Point& begin,
+	const StripIterator::Point& end,
+	const StripIterator::Point& afterEnd);
 
 private:
     /**

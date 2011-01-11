@@ -109,7 +109,7 @@ void Foam::AddDefaultBodyAttributes ()
     AttributesInfo* infos = &m_attributesInfo[DefineAttribute::BODY];
 
     // the order of the attributes should match the order in
-    // BodyProperty
+    // BodyProperty::Enum
     auto_ptr<AttributeCreator> ac (new RealAttributeCreator ());
     size_t index = infos->AddAttributeInfoLoad (
         ParsingDriver::GetKeywordString(
@@ -356,7 +356,7 @@ void Foam::copyStandaloneElements ()
     copyStandalone (GetParsingData ().GetFaces (), &m_standaloneFaces);
 }
 
-void Foam::PostProcess ()
+void Foam::Preprocess ()
 {
     VertexSet vertexSet;
     EdgeSet edgeSet;

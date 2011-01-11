@@ -281,7 +281,7 @@ int main(int argc, char *argv[])
 	size_t timeSteps = foamAlongTime.GetTimeSteps ();
         if (timeSteps != 0)
         {
-	    foamAlongTime.PostProcess ();
+	    foamAlongTime.Preprocess ();
 	    if (textOutput)
 		cdbg << foamAlongTime;
 	    else

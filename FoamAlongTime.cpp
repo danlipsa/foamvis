@@ -66,11 +66,12 @@ void FoamAlongTime::calculateBodyWraps ()
 /**
  * @todo Adjust pressures so that the median of each time step is 0.
  */
-void FoamAlongTime::PostProcess ()
+void FoamAlongTime::Preprocess ()
 {
     CalculateAABox ();
     CacheBodiesAlongTime ();
     calculateBodyWraps ();
+    calculateVelocity ();
     calculateStatistics ();
     /*
     // adjusting pressure
@@ -81,6 +82,32 @@ void FoamAlongTime::PostProcess ()
     */
 }
 
+void FoamAlongTime::calculateVelocity ()
+{
+    BodiesAlongTime::BodyMap& map = GetBodiesAlongTime ().GetBodyMap ();
+    BodiesAlongTime::BodyMap::iterator it;
+    for (it = map.begin (); it != map.end (); ++it)
+    {
+	const BodyAlongTime& bat = *(*it).second;
+	StripIterator stripIt = bat.GetStripIterator (*this);
+	stripIt.ForEachSegment (boost::bind (&FoamAlongTime::storeVelocity,
+					     this, _1, _2, _3, _4));
+    }
+}
+
+void FoamAlongTime::storeVelocity (
+    const StripIterator::Point& beforeBegin,
+    const StripIterator::Point& begin,
+    const StripIterator::Point& end,
+    const StripIterator::Point& afterEnd)
+{
+    (void)beforeBegin;
+    (void)afterEnd;
+    G3D::Vector3 velocity = end.m_point - begin.m_point;
+    begin.m_body->SetVelocity (velocity);
+    if (end.m_location == StripIterator::END)
+	begin.m_body->SetVelocity (velocity);
+}
 
 void FoamAlongTime::calculateStatistics ()
 {
@@ -116,43 +143,9 @@ double FoamAlongTime::GetBodyProperty (
     BodyProperty::Enum property,
     size_t bodyId, size_t timeStep) const
 {
-    double value = getBodyPropertyNoAdjustment (property, bodyId, timeStep);
-    if (property == BodyProperty::PRESSURE)
-	value -= m_foamsStatistics[timeStep].GetMedian (property);
-    return value;
-}
-
-
-
-double FoamAlongTime::getBodyPropertyNoAdjustment (
-    BodyProperty::Enum property,
-    size_t bodyId, size_t timeStep) const
-{
     const BodyAlongTime& bat = GetBodiesAlongTime ().GetBodyAlongTime (bodyId);
-    double value;
-    if (property >= BodyProperty::VELOCITY_BEGIN &&
-	property < BodyProperty::VELOCITY_END)
-    {
-	if (timeStep == bat.GetBodies ().size () - 1)
-	    --timeStep;
-	StripIterator it (bat, *this, timeStep);
-	RuntimeAssert (it.HasNext (),
-		       "Cannot find velocity. First point not available");
-	StripIterator::Point p = it.Next ();
-	RuntimeAssert (it.HasNext (), 
-		       "Cannot find velocity. Second point not available");
-	StripIterator::Point next = it.Next ();
-	value = StripIterator::GetVelocityValue (property, next, p);
-    }
-    else
-	value = bat.GetBody (timeStep)->GetPropertyValue (property);
-    RuntimeAssert (
-	value >= GetMin (property) && value <= GetMax (property),
-	"Value outside range of permited values for bodyId: ", bodyId, 
-	" timeStep: ", timeStep);
-    return value;
+    return bat.GetBody (timeStep)->GetPropertyValue (property);
 }
-
 
 size_t FoamAlongTime::GetDimension () const
 {

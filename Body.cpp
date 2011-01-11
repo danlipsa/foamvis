@@ -213,12 +213,31 @@ void Body::GetFaceSet (FaceSet* faceSet) const
 	faceSet->insert (of->GetFace ());
 }
 
-double Body::GetPropertyValue (BodyProperty::Enum bodyProperty) const
-{
-    return GetRealAttribute (bodyProperty - BodyProperty::PER_BODY_BEGIN);
-}
-
 bool Body::ExistsPropertyValue (BodyProperty::Enum bodyProperty) const
 {
-    return ExistsAttribute (bodyProperty - BodyProperty::PER_BODY_BEGIN);
+    if (bodyProperty >= BodyProperty::PER_BODY_BEGIN && 
+	bodyProperty <= BodyProperty::PER_BODY_END)
+	return ExistsAttribute (bodyProperty - BodyProperty::PER_BODY_BEGIN);
+    else
+	return true;
+}
+
+double Body::GetPropertyValue (BodyProperty::Enum property) const
+{
+    switch (property)
+    {
+    case BodyProperty::VELOCITY_ALONG_X:
+	return GetVelocity ().x;
+    case BodyProperty::VELOCITY_ALONG_Y:
+	return GetVelocity ().y;
+    case BodyProperty::VELOCITY_ALONG_Z:
+	return GetVelocity ().z;
+    case BodyProperty::VELOCITY_MAGNITUDE:
+	return GetVelocity ().length ();
+    case BodyProperty::NONE:
+	return 0;
+    default:
+	return GetRealAttribute (property - BodyProperty::PER_BODY_BEGIN);
+    }
+    return 0;
 }

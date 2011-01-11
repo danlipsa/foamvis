@@ -290,35 +290,6 @@ private:
 			     this, _1, _2, _3, _4));
     }
 
-    void displaySegments ()
-    {
-	for_each (m_focusSegments.begin (),
-		  m_focusSegments.end (),
-		  boost::bind (
-		      &DisplayCenterPath<PropertySetter, 
-		      DisplaySegment>::displayFocusSegment, this, _1));
-	if (! this->m_glWidget.OnlyPathsWithSelectionShown () ||
-	    m_focusSegments.size () != 0)
-	    for_each (m_contextSegments.begin (),
-		      m_contextSegments.end (),
-		      boost::bind (
-			  &DisplayCenterPath<PropertySetter, 
-			  DisplaySegment>::displayContextSegment, this, _1));
-    }
-
-    G3D::Vector3 getPoint (StripIterator::Point p, bool useTimeDisplacement,
-			   double timeDisplacement)
-    {
-	if (useTimeDisplacement)
-	{
-	    G3D::Vector3 v = p.m_point;
-	    v.z = p.m_timeStep * timeDisplacement;
-	    return v;
-	}
-	else
-	    return p.m_point;
-    }
-
     void speedStep (
 	const StripIterator::Point& beforeBegin,
 	const StripIterator::Point& begin,
@@ -382,6 +353,34 @@ private:
 	}
     }
 
+    void displaySegments ()
+    {
+	for_each (m_focusSegments.begin (),
+		  m_focusSegments.end (),
+		  boost::bind (
+		      &DisplayCenterPath<PropertySetter, 
+		      DisplaySegment>::displayFocusSegment, this, _1));
+	if (! this->m_glWidget.OnlyPathsWithSelectionShown () ||
+	    m_focusSegments.size () != 0)
+	    for_each (m_contextSegments.begin (),
+		      m_contextSegments.end (),
+		      boost::bind (
+			  &DisplayCenterPath<PropertySetter, 
+			  DisplaySegment>::displayContextSegment, this, _1));
+    }
+
+    G3D::Vector3 getPoint (StripIterator::Point p, bool useTimeDisplacement,
+			   double timeDisplacement)
+    {
+	if (useTimeDisplacement)
+	{
+	    G3D::Vector3 v = p.m_point;
+	    v.z = p.m_timeStep * timeDisplacement;
+	    return v;
+	}
+	else
+	    return p.m_point;
+    }
 
     QColor focusContextColor (bool focus, const QColor& color)
     {

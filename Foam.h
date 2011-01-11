@@ -143,7 +143,7 @@ public:
      * @return  true if  the  first  object is  less  than the  second
      * object, false otherwise.
      */
-    void PostProcess ();
+    void Preprocess ();
 
     const OOBox& GetOriginalDomain () const 
     {

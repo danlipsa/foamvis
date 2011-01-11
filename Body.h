@@ -84,6 +84,14 @@ public:
     double GetPropertyValue (BodyProperty::Enum property) const;
     bool ExistsPropertyValue (BodyProperty::Enum property) const;
     bool operator< (const Body& other) const;
+    G3D::Vector3 GetVelocity () const
+    {
+	return m_velocity;
+    }
+    void SetVelocity (const G3D::Vector3& velocity)
+    {
+	m_velocity = velocity;
+    }
     
 public:
     static const size_t PRESSURE_INDEX = 0;
@@ -121,6 +129,7 @@ private:
      */
     G3D::Vector3 m_center;
     G3D::AABox m_AABox;
+    G3D::Vector3 m_velocity;
 };
 
 /**
