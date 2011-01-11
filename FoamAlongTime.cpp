@@ -139,12 +139,11 @@ void FoamAlongTime::CacheBodiesAlongTime ()
 	      boost::bind (&BodiesAlongTime::Resize, &m_bodiesAlongTime, _1));
 }
 
-double FoamAlongTime::GetBodyProperty (
+double FoamAlongTime::GetBodyPropertyValue (
     BodyProperty::Enum property,
     size_t bodyId, size_t timeStep) const
 {
-    const BodyAlongTime& bat = GetBodiesAlongTime ().GetBodyAlongTime (bodyId);
-    return bat.GetBody (timeStep)->GetPropertyValue (property);
+    return GetBody (bodyId, timeStep).GetPropertyValue (property);
 }
 
 size_t FoamAlongTime::GetDimension () const
@@ -231,7 +230,7 @@ void FoamAlongTime::calculatePerTimeStepRange (size_t timeStep)
 	    if (ExistsBodyProperty (bodyProperty, bodyId, timeStep))
 		m_foamsStatistics[timeStep].RangeStep (
 		    bodyProperty,
-		    GetBodyProperty (bodyProperty, bodyId, timeStep));
+		    GetBodyPropertyValue (bodyProperty, bodyId, timeStep));
 	}
     }
     m_foamsStatistics[timeStep].NormalizeEmptyRange ();

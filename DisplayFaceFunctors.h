@@ -191,7 +191,7 @@ private:
 			this->m_bodyProperty, bodyId, 
 			this->m_glWidget.GetTimeStep ()))
 		{
-		    double value = foamAlongTime.GetBodyProperty (
+		    double value = foamAlongTime.GetBodyPropertyValue (
 			this->m_bodyProperty, bodyId, 
 			this->m_glWidget.GetTimeStep ());
 		    this->m_propertySetter (value);

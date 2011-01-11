@@ -178,7 +178,7 @@ private:
 
 /**
  * Displays the center path for a certain body id
- * @todo Use FoamAlongTime::GetBodyProperty instead of StripIterator functions
+ * @todo Use FoamAlongTime::GetBodyPropertyValue instead of StripIterator functions
  */
 template<typename PropertySetter = TexCoordSetter,
 	 typename DisplaySegment = DisplayEdge>

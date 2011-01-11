@@ -54,7 +54,7 @@ public:
 	return m_bodiesAlongTime;
     }
     const Body& GetBody (size_t bodyId, size_t timeStep) const;
-    double GetBodyProperty (
+    double GetBodyPropertyValue (
 	BodyProperty::Enum property,
 	size_t bodyId, size_t timeStep) const;
 

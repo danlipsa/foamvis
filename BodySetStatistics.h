@@ -109,11 +109,11 @@ private:
 
 private:
     /**
-     * Min speed along X, Y, Z, min total speed, min pressure
+     * Min velocity along X, Y, Z, min velocity magnitude, min pressure, volume
      */
     vector<double> m_min;
     /**
-     * Max speed along X, Y, Z, max total speed, max pressure
+     * Max velocity along X, Y, Z, max velocity magnitude, max pressure, volume
      */
     vector<double> m_max;
     /**

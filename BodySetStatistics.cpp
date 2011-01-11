@@ -71,7 +71,7 @@ void BodySetStatistics::HistogramStep (
 	BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT(i);
 	if (foamAlongTime.ExistsBodyProperty (bodyProperty, bodyId, timeStep))
 	    valuePerInterval (
-		i, foamAlongTime.GetBodyProperty (
+		i, foamAlongTime.GetBodyPropertyValue (
 		    bodyProperty, bodyId, timeStep),
 		rangeStatistics.GetMin (i), rangeStatistics.GetMax (i));
     }

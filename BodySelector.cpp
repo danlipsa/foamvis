@@ -28,8 +28,8 @@ bool PropertyValueBodySelector::operator () (
     if (m_foamAlongTime.ExistsBodyProperty (
 	    m_bodyProperty, bodyId, timeStep))
     {
-	double value = m_foamAlongTime.GetBodyProperty (m_bodyProperty, 
-							bodyId, timeStep);
+	double value = m_foamAlongTime.GetBodyPropertyValue (
+	    m_bodyProperty, bodyId, timeStep);
 	ValueIntervals::const_iterator it = find_if (
 	    m_valueIntervals.begin (), m_valueIntervals.end (),
 	    boost::bind (&QwtDoubleInterval::contains, _1, value));
