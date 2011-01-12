@@ -94,7 +94,11 @@ Foam::Foam () :
     m_viewMatrix (new G3D::Matrix4 (G3D::Matrix4::identity ())),
     m_parsingData (new ParsingData ()),
     m_spaceDimension (3),
-    m_quadratic (false)
+    m_quadratic (false),
+    m_statistics (
+	BodyProperty::PROPERTY_END,
+	Statistics (acc::tag::density::cache_size = 2,
+		    acc::tag::density::num_bins = HISTOGRAM_INTERVALS))
 {
     m_parsingData->SetVariable ("pi", M_PI);
     AddDefaultVertexAttributes ();
@@ -379,7 +383,7 @@ void Foam::Preprocess ()
 	calculateTorusClipped ();
     }
     calculateAABox ();
-    sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);
+    sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);    
 }
 
 bool Foam::IsTorus () const
@@ -514,7 +518,22 @@ void Foam::SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y)
     SetPeriods (x, y, thirdLength * third);
 }
 
-
+void Foam::CalculateStatistics (BodyProperty::Enum property,
+				double min, double max)
+{
+    m_statistics[property](min);
+    m_statistics[property](max);
+    BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
+    {
+	if (body->ExistsPropertyValue (property))
+	    m_statistics[property] (body->GetPropertyValue (property));
+    }
+    /*
+  cdbg << "Property=" << property << endl;
+  cdbg << "min=" << acc::min(m_statistics[property]) << endl;
+  cdbg << "max=" << acc::max(m_statistics[property]) << endl;
+    */
+}
 
 // Static and Friends Methods
 // ======================================================================

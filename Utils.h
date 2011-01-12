@@ -57,6 +57,7 @@ ContainerIterator fuzzyFind (const Container& s, const ContainerKeyType& x)
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+const size_t HISTOGRAM_INTERVALS = 256;
 
 #endif //__UTILS_H__
 

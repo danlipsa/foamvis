@@ -9,12 +9,12 @@
 #ifndef __BODY_ALONG_TIME_H__
 #define __BODY_ALONG_TIME_H__
 
-class Body;
-class FoamAlongTime;
 #include "StripIterator.h"
 #include "Enums.h"
 #include "BodySetStatistics.h"
 
+class Body;
+class FoamAlongTime;
 class BodyAlongTime : public BodySetStatistics
 {
 public:

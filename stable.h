@@ -54,6 +54,8 @@
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/if.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/density.hpp>
 
 
 // required by GLG3D
@@ -104,6 +106,6 @@
 
 using namespace std;
 namespace bl = boost::lambda;
-
+namespace acc = boost::accumulators;
 
 #endif //__cplusplus

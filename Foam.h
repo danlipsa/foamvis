@@ -219,6 +219,8 @@ public:
      * @param info the object where the default attributes are stored.
      */
     void AddDefaultBodyAttributes ();
+    void CalculateStatistics (BodyProperty::Enum property,
+			      double min, double max);
 
 public:
     /**
@@ -301,6 +303,10 @@ private:
     G3D::AABox m_AABox;
     size_t m_spaceDimension;
     bool m_quadratic;
+
+    typedef acc::accumulator_set<double, 
+	acc::features<acc::tag::density> > Statistics;
+    vector<Statistics> m_statistics;
 };
 
 /**

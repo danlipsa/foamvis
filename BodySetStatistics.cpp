@@ -12,15 +12,13 @@
 #include "Utils.h"
 
 
-const size_t HISTOGRAM_INTERVALS = 256;
-
 BodySetStatistics::BodySetStatistics () :
-    m_min (BodyProperty::COUNT, numeric_limits<double> ().max ()),
-    m_max (BodyProperty::COUNT, -numeric_limits<double> ().max ()),
-    m_median (BodyProperty::COUNT, 0),
-    m_histogram (BodyProperty::COUNT),
-    m_maxCountPerBin (BodyProperty::COUNT),
-    m_totalCount (BodyProperty::COUNT, 0)
+    m_min (BodyProperty::PROPERTY_END, numeric_limits<double> ().max ()),
+    m_max (BodyProperty::PROPERTY_END, -numeric_limits<double> ().max ()),
+    m_median (BodyProperty::PROPERTY_END, 0),
+    m_histogram (BodyProperty::PROPERTY_END),
+    m_maxCountPerBin (BodyProperty::PROPERTY_END),
+    m_totalCount (BodyProperty::PROPERTY_END, 0)
 {
     BOOST_FOREACH (vector<size_t>& v, m_histogram)
 	v.resize (HISTOGRAM_INTERVALS, 0);
@@ -66,7 +64,8 @@ void BodySetStatistics::HistogramStep (
     const FoamAlongTime& foamAlongTime, 
     size_t bodyId, size_t timeStep, const BodySetStatistics& rangeStatistics)
 {
-    for (size_t i = BodyProperty::ENUM_BEGIN; i < BodyProperty::COUNT; ++i)
+    for (size_t i = BodyProperty::PROPERTY_BEGIN; 
+	 i < BodyProperty::PROPERTY_END; ++i)
     {
 	BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT(i);
 	if (foamAlongTime.ExistsBodyProperty (bodyProperty, bodyId, timeStep))
@@ -117,7 +116,8 @@ void BodySetStatistics::normalizeEmptyRange (size_t bodyProperty)
 
 void BodySetStatistics::NormalizeEmptyRange ()
 {
-    for (size_t i = 0; i < BodyProperty::COUNT; ++i)
+    for (size_t i = BodyProperty::PROPERTY_BEGIN; 
+	 i < BodyProperty::PROPERTY_END; ++i)
 	normalizeEmptyRange (i);
 }
 
@@ -148,8 +148,8 @@ QwtIntervalData BodySetStatistics::GetHistogram (
 
 void BodySetStatistics::CalculateMaxCountPerBin ()
 {
-    for (size_t bodyProperty = BodyProperty::ENUM_BEGIN;
-	 bodyProperty < BodyProperty::COUNT; ++bodyProperty)
+    for (size_t bodyProperty = BodyProperty::PROPERTY_BEGIN;
+	 bodyProperty < BodyProperty::PROPERTY_END; ++bodyProperty)
     {
 	size_t maxCount = 0;
 	size_t histogramIntervals = HistogramIntervals ();
@@ -161,8 +161,8 @@ void BodySetStatistics::CalculateMaxCountPerBin ()
 
 void BodySetStatistics::ApproximateMedian ()
 {
-    for (size_t bodyProperty = BodyProperty::ENUM_BEGIN;
-	 bodyProperty < BodyProperty::COUNT; ++bodyProperty)
+    for (size_t bodyProperty = BodyProperty::PROPERTY_BEGIN;
+	 bodyProperty < BodyProperty::PROPERTY_END; ++bodyProperty)
     {
 	size_t histogramIntervals = HistogramIntervals ();
 	size_t countSoFar = 0;

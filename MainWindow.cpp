@@ -7,6 +7,7 @@
 #include "Application.h"
 #include "BodySelector.h"
 #include "ColorBarModel.h"
+#include "Debug.h"
 #include "EditColorMap.h"
 #include "Foam.h"
 #include "FoamAlongTime.h"
@@ -33,7 +34,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_currentBody (0),
     m_bodyProperty (BodyProperty::NONE),
     m_histogramType (HistogramType::NONE),
-    m_colorBarModel (BodyProperty::COUNT),
+    m_colorBarModel (BodyProperty::PROPERTY_END),
     m_editColorMap (new EditColorMap (this))
 {
     // for anti-aliased lines
@@ -412,10 +413,6 @@ void MainWindow::SetAndDisplayHistogram (
 {
     switch (histogramType)
     {
-    case HistogramType::NONE:
-	widgetHistogram->setHidden (true);
-	widgetHistogram->SetColorCoded (false);
-	return;
     case HistogramType::UNICOLOR:
 	widgetHistogram->setVisible (true);
 	widgetHistogram->SetColorCoded (false);
@@ -424,6 +421,9 @@ void MainWindow::SetAndDisplayHistogram (
 	widgetHistogram->setVisible (true);
 	widgetHistogram->SetColorCoded (true);
 	break;
+    default:
+	RuntimeAssert (false, "Invalid histogram type");
+	return;
     }
 
     if (maxValueOperation == KEEP_MAX_VALUE)
@@ -588,7 +588,7 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
     {
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	
-	SetAndDisplayHistogram (histogramType (buttonGroupFacesHistogram),
+	SetAndDisplayHistogram (m_histogramType,
 	    bodyProperty,
 	    foamAlongTime.GetHistogram (bodyProperty, timeStep), 
 	    0,
@@ -713,11 +713,12 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	Q_EMIT BodyPropertyChanged (
 	    m_colorBarModel[bodyProperty], bodyProperty, 
 	    ViewType::FromInt (buttonGroupDisplay->checkedId ()));
-	SetAndDisplayHistogram (
-	    histogramType (buttonGroupFacesHistogram),
-	    bodyProperty,
-	    foamAlongTime.GetHistogram (bodyProperty, timeStep),
-	    foamAlongTime.GetMaxCountPerBinIndividual (bodyProperty));
+	if (m_histogramType != HistogramType::NONE)
+	    SetAndDisplayHistogram (
+		m_histogramType,
+		bodyProperty,
+		foamAlongTime.GetHistogram (bodyProperty, timeStep),
+		foamAlongTime.GetMaxCountPerBinIndividual (bodyProperty));
     }
 }
 
@@ -740,11 +741,12 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	colorBar->setVisible (true);
 	Q_EMIT BodyPropertyChanged (
 	    m_colorBarModel[bodyProperty], bodyProperty, ViewType::CENTER_PATHS);
-	SetAndDisplayHistogram (
-	    histogramType (buttonGroupCenterPathHistogram),
-	    bodyProperty,
-	    foamAlongTime.GetHistogram (bodyProperty),
-	    foamAlongTime.GetMaxCountPerBin (bodyProperty));
+	if (m_histogramType != HistogramType::NONE)
+	    SetAndDisplayHistogram (
+		m_histogramType,
+		bodyProperty,
+		foamAlongTime.GetHistogram (bodyProperty),
+		foamAlongTime.GetMaxCountPerBin (bodyProperty));
     }
 }
 
@@ -753,6 +755,13 @@ void MainWindow::ButtonClickedHistogram (int histogramType)
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     m_histogramType = static_cast<HistogramType::Enum> (histogramType);
+    if (m_histogramType == HistogramType::NONE ||
+	m_bodyProperty == BodyProperty::NONE)
+    {
+	widgetHistogram->setHidden (true);
+	widgetHistogram->SetColorCoded (false);
+	return;
+    }
     if (radioButtonFacesNormal->isChecked ())
 	SetAndDisplayHistogram (
 	    m_histogramType, m_bodyProperty,

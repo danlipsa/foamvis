@@ -21,6 +21,7 @@ class FoamAlongTime
 public:
     typedef vector< boost::shared_ptr<Foam> > Foams;
     typedef vector<BodySetStatistics> FoamsStatistics;
+
     /**
      * Functor applied to a collection of Foam objects
      */
@@ -86,6 +87,7 @@ public:
     }
     bool IsQuadratic () const;
 
+
     QwtIntervalData GetHistogram (size_t bodyProperty) const
     {
 	return GetBodiesAlongTime ().GetHistogram (bodyProperty);
@@ -131,6 +133,8 @@ public:
 	return QwtDoubleInterval (
 	    GetMin (bodyProperty, timeStep), GetMax (bodyProperty, timeStep));
     }
+
+
     size_t GetTimeSteps () const
     {
 	return m_foams.size ();
@@ -174,6 +178,7 @@ private:
 		    FoamLessThanAlong::Corner corner, G3D::Vector3& v);
     void calculateBodyWraps ();
     void calculateVelocity ();
+    void calculateStatisticsOld ();
     void calculateStatistics ();
     void initializeStatistics ();
     void calculatePerTimeStepHistograms ();
@@ -187,12 +192,18 @@ private:
 	const StripIterator::Point& begin,
 	const StripIterator::Point& end,
 	const StripIterator::Point& afterEnd);
+    
+    template <typename Accumulator>
+    void forAllBodiesAccumulate (Accumulator acc);
 
 private:
     /**
      * Vector of Foam objects
      */
     Foams m_foams;
+    /**
+     * Per time step statistics.
+     */
     FoamsStatistics m_foamsStatistics;
     /**
      * Each element of the array corresponds to a histogram for a property.
@@ -205,6 +216,9 @@ private:
      */
     G3D::AABox m_AABox;
     string m_filePattern;
+    typedef acc::accumulator_set<double, 
+	acc::features<acc::tag::density> > Statistics;
+    vector<Statistics> m_statistics;
 };
 
 
