@@ -12,6 +12,7 @@
 #include "Enums.h"
 #include "Hashes.h"
 #include "OOBox.h"
+#include "Statistics.h"
 
 class AttributeCreator;
 class Body;
@@ -31,6 +32,7 @@ public:
     typedef vector< boost::shared_ptr<Edge> > Edges;
     typedef vector< boost::shared_ptr<Face> > Faces;
     typedef vector< boost::shared_ptr<Body> > Bodies;
+
 
 public:
     /**
@@ -221,7 +223,14 @@ public:
     void AddDefaultBodyAttributes ();
     void CalculateStatistics (BodyProperty::Enum property,
 			      double min, double max);
-
+    HistogramStatistics GetHistogram (BodyProperty::Enum property)
+    {
+	return m_histogram[property];
+    }
+    MinMaxStatistics GetMinMax (BodyProperty::Enum property)
+    {
+	return m_minMax[property];
+    }
 public:
     /**
      * Pretty print the Foam object
@@ -303,10 +312,8 @@ private:
     G3D::AABox m_AABox;
     size_t m_spaceDimension;
     bool m_quadratic;
-
-    typedef acc::accumulator_set<double, 
-	acc::features<acc::tag::density> > Statistics;
-    vector<Statistics> m_statistics;
+    vector<MinMaxStatistics> m_minMax;
+    vector<HistogramStatistics> m_histogram;
 };
 
 /**

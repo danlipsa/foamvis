@@ -25,10 +25,10 @@ inline void calculateBodyWraps (BodiesAlongTime::BodyMap::value_type& v,
 // ======================================================================
 FoamAlongTime::FoamAlongTime () :
     m_maxCountPerBinIndividual (BodyProperty::PROPERTY_END),
-    m_statistics (
+    m_histogram (
 	BodyProperty::PROPERTY_END,
-	Statistics (acc::tag::density::cache_size = 2,
-		    acc::tag::density::num_bins = HISTOGRAM_INTERVALS))
+	HistogramStatistics (acc::tag::density::cache_size = 2,
+			     acc::tag::density::num_bins = HISTOGRAM_INTERVALS))
 {
 }
 
@@ -77,51 +77,118 @@ void FoamAlongTime::Preprocess ()
     calculateBodyWraps ();
     calculateVelocity ();
     calculateStatistics ();
-    calculateStatisticsOld ();    
-}
-
-template <typename Accumulator>
-void FoamAlongTime::forAllBodiesAccumulate (Accumulator acc)
-{
-    BOOST_FOREACH (const boost::shared_ptr<Foam>& foam, m_foams)
-    {
-	for (size_t i = BodyProperty::PROPERTY_BEGIN; 
-	     i < BodyProperty::PROPERTY_END; ++i)
-	{
-	    BodyProperty::Enum property = BodyProperty::FromSizeT (i);
-	    BOOST_FOREACH (
-		const boost::shared_ptr<Body>& body, foam->GetBodies ())
-	    {
-		if (body->ExistsPropertyValue (property))
-		    acc (body->GetPropertyValue (property));
-	    }
-	}
-    }
-}
-
-void FoamAlongTime::calculateStatistics ()
-{
-    vector<Statistics> minMaxStat
-	(BodyProperty::PROPERTY_END,
-	 Statistics (acc::tag::density::cache_size = 2,
-		     acc::tag::density::num_bins = HISTOGRAM_INTERVALS));
+    calculateStatisticsOld ();
+/*
+    // compare the two statistics methods
+    const size_t timeStep = 9;
+    const size_t bin = 255;
     for (size_t i = BodyProperty::PROPERTY_BEGIN; 
 	 i < BodyProperty::PROPERTY_END; ++i)
     {
 	BodyProperty::Enum property = BodyProperty::FromSizeT (i);
-	forAllBodiesAccumulate (minMaxStat[property]);
-	m_statistics[property] (acc::min (minMaxStat[property]));
-	m_statistics[property] (acc::max (minMaxStat[property]));
-	forAllBodiesAccumulate (m_statistics[property]);
+	
+	cdbg << "Property: " << BodyProperty::ToString (property) << endl
+	     << "MinMax global" << endl	     
+	     << "Accumulators" << " "
+	     << acc::min (m_histogram[property]) << ", "
+	     << acc::max (m_histogram[property]) << endl
+	     << "By hand" << " "
+	     << GetMin (property) << ", " << GetMax (property) << endl;
+	cdbg << "========================================" << endl;
+	const MinMaxStatistics& minMax = 
+	    GetFoam (timeStep)->GetMinMax (property);
+	cdbg << "MinMax timestep: " << timeStep << endl
+	     << "Accumulators" << " "
+	     << acc::min (minMax) << ", "
+	     << acc::max (minMax) << endl
+	     << "By hand" << " "
+	     << GetMin (property, timeStep) << ", " 
+	     << GetMax (property, timeStep) << endl;
+	cdbg << "========================================" << endl;
+	HistogramStatistics statistics = m_histogram[property];
+	HistogramStatisticsResult histogram = 
+	    acc::density (statistics);
+	HistogramStatisticsResult::iterator it = (histogram.begin () + bin + 1);
+	QwtIntervalData byHand = GetHistogram (property);
+	cdbg << "Histogram global, bin: " << bin << endl
+	     << "Accumulators" << " "
+	     << (*it).first << ", "
+	     << BinCount (statistics, bin) << endl
+	     << "By hand" << " "
+	     << byHand.interval (bin).minValue () << ", " 
+	     << byHand.value (bin) << endl;
+	cdbg << "========================================" << endl;
+	statistics = GetFoam (timeStep)->GetHistogram (property);
+	histogram = acc::density (statistics);
+	it = (histogram.begin () + bin + 1);
+	byHand = GetHistogram (property, timeStep);
+	cdbg << "Histogram timestep: " << timeStep << ", bin: " << bin << endl
+	     << "Accumulators" << " "
+	     << (*it).first << ", "
+	     << BinCount (statistics, bin) << endl
+	     << "By hand" << " "
+	     << byHand.interval (bin).minValue () << ", " 
+	     << byHand.value (bin) << endl << endl;
+    }
+*/
+}
+
+void FoamAlongTime::calculateStatistics ()
+{
+    vector<MinMaxStatistics> minMaxStat(BodyProperty::PROPERTY_END);
+    for (size_t i = BodyProperty::PROPERTY_BEGIN; 
+	 i < BodyProperty::PROPERTY_END; ++i)
+    {
+	// statistics for all time-steps
+	BodyProperty::Enum property = BodyProperty::FromSizeT (i);
+	forAllBodiesAccumulate (&minMaxStat[property], property);
+	m_histogram[property] (acc::min (minMaxStat[property]));
+	m_histogram[property] (acc::max (minMaxStat[property]));
+	forAllBodiesAccumulate (&m_histogram[property], property);
+
+	// statistics per time-step
 	BOOST_FOREACH (const boost::shared_ptr<Foam>& foam, m_foams)
 	{
 	    BodyProperty::Enum property = BodyProperty::FromSizeT (i);
-	    double min = acc::min(m_statistics[property]);
-	    double max = acc::max(m_statistics[property]);
+	    double min = acc::min(m_histogram[property]);
+	    double max = acc::max(m_histogram[property]);
 	    foam->CalculateStatistics (property, min, max);
 	}
     }
 }
+
+
+void FoamAlongTime::calculateStatisticsOld ()
+{
+    cdbg << "Calculating overall statistics..." << endl;
+    GetBodiesAlongTime ().CalculateOverallRange (*this);
+    GetBodiesAlongTime ().CalculateOverallHistogram (*this);
+    GetBodiesAlongTime ().CalculateMaxCountPerBin ();
+
+    cdbg << "Calculating per time step statistics..." << endl;
+    calculatePerTimeStepRanges ();
+    calculatePerTimeStepHistograms ();
+    calculatePerTimeStepMaxCountPerBin ();
+}
+
+
+
+template <typename Accumulator>
+void FoamAlongTime::forAllBodiesAccumulate (
+    Accumulator* acc, BodyProperty::Enum property)
+{
+    BOOST_FOREACH (const boost::shared_ptr<Foam>& foam, m_foams)
+    {
+	BOOST_FOREACH (
+	    const boost::shared_ptr<Body>& body, foam->GetBodies ())
+	{
+	    if (body->ExistsPropertyValue (property))
+		(*acc) (body->GetPropertyValue (property));
+	}
+    }
+}
+
+
 
 void FoamAlongTime::calculateVelocity ()
 {
@@ -147,22 +214,8 @@ void FoamAlongTime::storeVelocity (
     G3D::Vector3 velocity = end.m_point - begin.m_point;
     begin.m_body->SetVelocity (velocity);
     if (end.m_location == StripIterator::END)
-	begin.m_body->SetVelocity (velocity);
+	end.m_body->SetVelocity (velocity);
 }
-
-void FoamAlongTime::calculateStatisticsOld ()
-{
-    cdbg << "Calculating overall statistics..." << endl;
-    GetBodiesAlongTime ().CalculateOverallRange (*this);
-    GetBodiesAlongTime ().CalculateOverallHistogram (*this);
-    GetBodiesAlongTime ().CalculateMaxCountPerBin ();
-
-    cdbg << "Calculating per time step statistics..." << endl;
-    calculatePerTimeStepRanges ();
-    calculatePerTimeStepHistograms ();
-    calculatePerTimeStepMaxCountPerBin ();
-}
-
 
 void FoamAlongTime::CacheBodiesAlongTime ()
 {

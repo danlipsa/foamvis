@@ -10,6 +10,7 @@
 #define __STRIP_ITERATOR_H__
 
 #include "Enums.h"
+class Body;
 class BodyAlongTime;
 class FoamAlongTime;
 

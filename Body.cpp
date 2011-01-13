@@ -235,7 +235,8 @@ double Body::GetPropertyValue (BodyProperty::Enum property) const
     case BodyProperty::VELOCITY_MAGNITUDE:
 	return GetVelocity ().length ();
     case BodyProperty::NONE:
-	return 0;
+    case BodyProperty::COUNT:
+	RuntimeAssert (false, "Invalid BodyProperty: ", property);
     default:
 	return GetRealAttribute (property - BodyProperty::PER_BODY_BEGIN);
     }

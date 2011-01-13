@@ -95,10 +95,11 @@ Foam::Foam () :
     m_parsingData (new ParsingData ()),
     m_spaceDimension (3),
     m_quadratic (false),
-    m_statistics (
+    m_minMax (BodyProperty::PROPERTY_END),
+    m_histogram (
 	BodyProperty::PROPERTY_END,
-	Statistics (acc::tag::density::cache_size = 2,
-		    acc::tag::density::num_bins = HISTOGRAM_INTERVALS))
+	HistogramStatistics (acc::tag::density::cache_size = 2,
+		   acc::tag::density::num_bins = HISTOGRAM_INTERVALS))
 {
     m_parsingData->SetVariable ("pi", M_PI);
     AddDefaultVertexAttributes ();
@@ -521,18 +522,16 @@ void Foam::SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y)
 void Foam::CalculateStatistics (BodyProperty::Enum property,
 				double min, double max)
 {
-    m_statistics[property](min);
-    m_statistics[property](max);
+    m_histogram[property](min);
+    m_histogram[property](max);
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
 	if (body->ExistsPropertyValue (property))
-	    m_statistics[property] (body->GetPropertyValue (property));
+	{
+	    m_minMax[property] (body->GetPropertyValue (property));
+	    m_histogram[property] (body->GetPropertyValue (property));
+	}
     }
-    /*
-  cdbg << "Property=" << property << endl;
-  cdbg << "min=" << acc::min(m_statistics[property]) << endl;
-  cdbg << "max=" << acc::max(m_statistics[property]) << endl;
-    */
 }
 
 // Static and Friends Methods

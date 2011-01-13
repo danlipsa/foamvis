@@ -1,6 +1,6 @@
 HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
 	AttributeHistogram.h HistogramHeight.h Body.h \
-	BodyAlongTime.h BodyIndex.h BodySelector.h BodySetStatistics.h \
+	BodyAlongTime.h BodyIndex.h BodySelector.h \
 	ColorBar.h ColorBarModel.h ColoredElement.h Comparisons.h \
 	Debug.h DebugStream.h Disk.h DisplayFaceAverage.h DisplayBlend.h\
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
@@ -13,13 +13,12 @@ HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
 	OrientedEdge.h OrientedFace.h OrientedFaceIndex.h \
 	ParsingData.h ParsingDriver.h ProcessBodyTorus.h PropertySetter.h \
 	QuadraticEdge.h RestrictedRangeSlider.h \
-	stable.h StripIterator.h SystemDifferences.h \
+	stable.h Statistics.h StripIterator.h SystemDifferences.h \
 	TransferFunctionHistogram.h TimeStepsSlider.h Utils.h \
 	Vertex.h
 SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	AttributeHistogram.cpp HistogramHeight.cpp \
-	Body.cpp BodyAlongTime.cpp BodyIndex.cpp \
-	BodySetStatistics.cpp BodySelector.cpp\
+	Body.cpp BodyAlongTime.cpp BodyIndex.cpp BodySelector.cpp\
 	ColorBar.cpp ColorBarModel.cpp ColoredElement.cpp Comparisons.cpp \
 	Debug.cpp DebugStream.cpp Disk.cpp \
 	DisplayBlend.cpp DisplayBodyFunctors.cpp DisplayFaceAverage.cpp \
@@ -35,7 +34,7 @@ SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp 
 	ParsingData.cpp ParsingDriver.cpp ProcessBodyTorus.cpp \
 	PropertySetter.cpp \
 	QuadraticEdge.cpp RestrictedRangeSlider.cpp\
-	StripIterator.cpp TimeStepsSlider.cpp \
+	Statistics.cpp StripIterator.cpp TimeStepsSlider.cpp \
 	TransferFunctionHistogram.cpp Utils.cpp Vertex.cpp
 FORMS += SelectBodiesById.ui EditColorMap.ui HistogramHeight.ui\
 	 RestrictedRangeSlider.ui MainWindow.ui OpenGLInfo.ui

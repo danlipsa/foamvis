@@ -7,9 +7,9 @@
 #ifndef __FOAM_ALONG_TIME_H__
 #define __FOAM_ALONG_TIME_H__
 
-#include "Comparisons.h"
 #include "BodyAlongTime.h"
-#include "BodySetStatistics.h"
+#include "Comparisons.h"
+#include "Statistics.h"
 
 class Foam;
 
@@ -20,7 +20,6 @@ class FoamAlongTime
 {
 public:
     typedef vector< boost::shared_ptr<Foam> > Foams;
-    typedef vector<BodySetStatistics> FoamsStatistics;
 
     /**
      * Functor applied to a collection of Foam objects
@@ -194,7 +193,7 @@ private:
 	const StripIterator::Point& afterEnd);
     
     template <typename Accumulator>
-    void forAllBodiesAccumulate (Accumulator acc);
+    void forAllBodiesAccumulate (Accumulator* acc, BodyProperty::Enum property);
 
 private:
     /**
@@ -216,9 +215,7 @@ private:
      */
     G3D::AABox m_AABox;
     string m_filePattern;
-    typedef acc::accumulator_set<double, 
-	acc::features<acc::tag::density> > Statistics;
-    vector<Statistics> m_statistics;
+    vector<HistogramStatistics> m_histogram;
 };
 
 
