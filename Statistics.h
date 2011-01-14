@@ -9,12 +9,34 @@
 #ifndef __STATISTICS_H__
 #define __STATISTICS_H__
 
+
 typedef acc::accumulator_set<
-    double, acc::features<acc::tag::density> > HistogramStatistics;
-typedef acc::impl::density_impl<double>::result_type HistogramStatisticsResult;
-size_t BinCount (const HistogramStatistics& histogram, size_t i);
-QwtDoubleInterval BinInterval (const HistogramStatistics& histogram, size_t i);
-QwtIntervalData ToQwtIntervalData (const HistogramStatistics& histogram);
+    double, acc::features<acc::tag::density> > HistogramStatisticsBase;
+
+
+/**
+ * Calculates a histogram using boost::accumulators::density.
+ *
+ * It uses cache_size of 2 and it adds min and max values before it
+ * adds all other values.
+ */
+class HistogramStatistics : public HistogramStatisticsBase
+{
+public:
+    typedef acc::impl::density_impl<double>::result_type Result;
+
+public:
+    HistogramStatistics (size_t numBins) :
+	HistogramStatisticsBase (
+	    acc::tag::density::cache_size = 2,
+	    acc::tag::density::num_bins = numBins)
+    {
+    }
+    size_t GetValuesPerBin (size_t bin) const;
+    QwtDoubleInterval GetBinInterval (size_t bin) const;
+    size_t size () const;
+    QwtIntervalData ToQwtIntervalData () const;
+};
 
 
 typedef acc::accumulator_set<

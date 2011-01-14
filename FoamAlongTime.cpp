@@ -12,6 +12,8 @@
 #include "FoamAlongTime.h"
 #include "Utils.h"
 
+// version 1668 reverts to by hand calculation of statistics
+
 // Private Functions
 // ======================================================================
 inline void calculateBodyWraps (BodiesAlongTime::BodyMap::value_type& v,
@@ -26,9 +28,7 @@ inline void calculateBodyWraps (BodiesAlongTime::BodyMap::value_type& v,
 FoamAlongTime::FoamAlongTime () :
     m_maxCountPerBinIndividual (BodyProperty::PROPERTY_END),
     m_histogram (
-	BodyProperty::PROPERTY_END,
-	HistogramStatistics (acc::tag::density::cache_size = 2,
-			     acc::tag::density::num_bins = HISTOGRAM_INTERVALS))
+	BodyProperty::PROPERTY_END, HistogramStatistics (HISTOGRAM_INTERVALS))
 {
 }
 
@@ -106,14 +106,14 @@ void FoamAlongTime::Preprocess ()
 	     << GetMax (property, timeStep) << endl;
 	cdbg << "========================================" << endl;
 	HistogramStatistics statistics = m_histogram[property];
-	HistogramStatisticsResult histogram = 
+	HistogramStatistics::Result histogram = 
 	    acc::density (statistics);
-	HistogramStatisticsResult::iterator it = (histogram.begin () + bin + 1);
+	HistogramStatistics::Result::iterator it = (histogram.begin () + bin + 1);
 	QwtIntervalData byHand = GetHistogram (property);
 	cdbg << "Histogram global, bin: " << bin << endl
 	     << "Accumulators" << " "
 	     << (*it).first << ", "
-	     << BinCount (statistics, bin) << endl
+	     << statistics.GetValuesPerBin (bin) << endl
 	     << "By hand" << " "
 	     << byHand.interval (bin).minValue () << ", " 
 	     << byHand.value (bin) << endl;
@@ -125,7 +125,7 @@ void FoamAlongTime::Preprocess ()
 	cdbg << "Histogram timestep: " << timeStep << ", bin: " << bin << endl
 	     << "Accumulators" << " "
 	     << (*it).first << ", "
-	     << BinCount (statistics, bin) << endl
+	     << statistics.GetValuesPerBin (bin) << endl
 	     << "By hand" << " "
 	     << byHand.interval (bin).minValue () << ", " 
 	     << byHand.value (bin) << endl << endl;
@@ -420,4 +420,5 @@ bool FoamAlongTime::IsQuadratic () const
 QwtIntervalData FoamAlongTime::GetHistogram (size_t bodyProperty) const
 {
     return GetBodiesAlongTime ().GetHistogram (bodyProperty);
+    //return m_histogram[bodyProperty].ToQwtIntervalData ();
 }

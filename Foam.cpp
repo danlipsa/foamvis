@@ -97,9 +97,7 @@ Foam::Foam () :
     m_quadratic (false),
     m_minMax (BodyProperty::PROPERTY_END),
     m_histogram (
-	BodyProperty::PROPERTY_END,
-	HistogramStatistics (acc::tag::density::cache_size = 2,
-		   acc::tag::density::num_bins = HISTOGRAM_INTERVALS))
+	BodyProperty::PROPERTY_END, HistogramStatistics (HISTOGRAM_INTERVALS))
 {
     m_parsingData->SetVariable ("pi", M_PI);
     AddDefaultVertexAttributes ();
