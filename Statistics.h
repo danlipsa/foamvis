@@ -13,6 +13,9 @@ typedef acc::accumulator_set<
     double, acc::features<acc::tag::density> > HistogramStatistics;
 typedef acc::impl::density_impl<double>::result_type HistogramStatisticsResult;
 size_t BinCount (const HistogramStatistics& histogram, size_t i);
+QwtDoubleInterval BinInterval (const HistogramStatistics& histogram, size_t i);
+QwtIntervalData ToQwtIntervalData (const HistogramStatistics& histogram);
+
 
 typedef acc::accumulator_set<
     double, 

@@ -78,7 +78,7 @@ void FoamAlongTime::Preprocess ()
     calculateVelocity ();
     calculateStatistics ();
     calculateStatisticsOld ();
-/*
+
     // compare the two statistics methods
     const size_t timeStep = 9;
     const size_t bin = 255;
@@ -130,7 +130,6 @@ void FoamAlongTime::Preprocess ()
 	     << byHand.interval (bin).minValue () << ", " 
 	     << byHand.value (bin) << endl << endl;
     }
-*/
 }
 
 void FoamAlongTime::calculateStatistics ()
@@ -416,4 +415,9 @@ void FoamAlongTime::calculatePerTimeStepMaxCountPerBin ()
 bool FoamAlongTime::IsQuadratic () const
 {
     return m_foams[0]->IsQuadratic ();
+}
+
+QwtIntervalData FoamAlongTime::GetHistogram (size_t bodyProperty) const
+{
+    return GetBodiesAlongTime ().GetHistogram (bodyProperty);
 }

@@ -11,10 +11,11 @@
 
 #include "StripIterator.h"
 #include "Enums.h"
+#include "BodySetStatistics.h"
 
 class Body;
 class FoamAlongTime;
-class BodyAlongTime
+class BodyAlongTime : public BodySetStatistics
 {
 public:
     typedef vector<boost::shared_ptr<Body> > Bodies;
@@ -50,6 +51,10 @@ public:
     void CalculateBodyWraps (const FoamAlongTime& foamAlongTime);
     void CalculateRange (const FoamAlongTime& foamAlongTime);
     void CalculateRange (BodyProperty::Enum property);
+
+    void CalculateHistogram (
+	const FoamAlongTime& foamAlongTime,
+	BodySetStatistics* destination);
 
     StripIterator GetStripIterator (
 	const FoamAlongTime& foamAlongTime) const
@@ -103,7 +108,7 @@ private:
     Translations m_translations;
 };
 
-class BodiesAlongTime
+class BodiesAlongTime : public BodySetStatistics
 {
 public:
     typedef map <size_t, boost::shared_ptr<BodyAlongTime> > BodyMap;

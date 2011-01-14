@@ -8,6 +8,7 @@
 #define __FOAM_ALONG_TIME_H__
 
 #include "BodyAlongTime.h"
+#include "BodySetStatistics.h"
 #include "Comparisons.h"
 #include "Statistics.h"
 
@@ -20,6 +21,7 @@ class FoamAlongTime
 {
 public:
     typedef vector< boost::shared_ptr<Foam> > Foams;
+    typedef vector<BodySetStatistics> FoamsStatistics;
 
     /**
      * Functor applied to a collection of Foam objects
@@ -87,10 +89,7 @@ public:
     bool IsQuadratic () const;
 
 
-    QwtIntervalData GetHistogram (size_t bodyProperty) const
-    {
-	return GetBodiesAlongTime ().GetHistogram (bodyProperty);
-    }
+    QwtIntervalData GetHistogram (size_t bodyProperty) const;
 
     QwtIntervalData GetHistogram (size_t bodyProperty, size_t timeStep) const
     {
