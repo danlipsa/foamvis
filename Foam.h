@@ -242,6 +242,9 @@ public:
     {
 	return QwtDoubleInterval (GetMin (property), GetMax (property));
     }
+    
+    template <typename Accumulator>
+    void Accumulate (Accumulator* acc, BodyProperty::Enum property) const;
 
 public:
     /**

@@ -106,6 +106,23 @@ Foam::Foam () :
     AddDefaultBodyAttributes ();
 }
 
+template <typename Accumulator>
+void Foam::Accumulate (Accumulator* acc, BodyProperty::Enum property) const
+{
+    BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
+    {
+	if (body->ExistsPropertyValue (property))
+	    (*acc) (body->GetPropertyValue (property));
+    }	
+}
+
+// define instantiations used
+template void Foam::Accumulate<HistogramStatistics> (
+    HistogramStatistics* acc, BodyProperty::Enum property) const;
+template void Foam::Accumulate<MinMaxStatistics> (
+    MinMaxStatistics* acc, BodyProperty::Enum property) const;
+
+
 void Foam::AddDefaultBodyAttributes ()
 {
     using EvolverData::parser;

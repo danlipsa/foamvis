@@ -71,64 +71,12 @@ void FoamAlongTime::calculateBodyWraps ()
  */
 void FoamAlongTime::Preprocess ()
 {
+    cdbg << "Preprocess data ..." << endl;
     CalculateAABox ();
     CacheBodiesAlongTime ();
     calculateBodyWraps ();
     calculateVelocity ();
     calculateStatistics ();
-
-/*
-    // compare the two statistics methods
-    const size_t timeStep = 9;
-    const size_t bin = 255;
-    for (size_t i = BodyProperty::PROPERTY_BEGIN; 
-	 i < BodyProperty::PROPERTY_END; ++i)
-    {
-	BodyProperty::Enum property = BodyProperty::FromSizeT (i);
-	
-	cdbg << "Property: " << BodyProperty::ToString (property) << endl
-	     << "MinMax global" << endl	     
-	     << "Accumulators" << " "
-	     << acc::min (m_histogram[property]) << ", "
-	     << acc::max (m_histogram[property]) << endl
-	     << "By hand" << " "
-	     << GetMin (property) << ", " << GetMax (property) << endl;
-	cdbg << "========================================" << endl;
-	const Foam& foam = *GetFoam (timeStep);
-	cdbg << "MinMax timestep: " << timeStep << endl
-	     << "Accumulators" << " "
-	     << foam.GetMin (property) << ", "
-	     << foam.GetMax (property) << endl
-	     << "By hand" << " "
-	     << GetMin (property, timeStep) << ", " 
-	     << GetMax (property, timeStep) << endl;
-	cdbg << "========================================" << endl;
-	HistogramStatistics statistics = m_histogram[property];
-	HistogramStatistics::Result histogram = 
-	    acc::density (statistics);
-	HistogramStatistics::Result::iterator it = (histogram.begin () + bin + 1);
-	QwtIntervalData byHand = GetHistogram (property);
-	cdbg << "Histogram global, bin: " << bin << endl
-	     << "Accumulators" << " "
-	     << (*it).first << ", "
-	     << statistics.GetCountPerBin (bin) << endl
-	     << "By hand" << " "
-	     << byHand.interval (bin).minValue () << ", " 
-	     << byHand.value (bin) << endl;
-	cdbg << "========================================" << endl;
-	statistics = GetFoam (timeStep)->GetHistogram (property);
-	histogram = acc::density (statistics);
-	it = (histogram.begin () + bin + 1);
-	byHand = GetHistogram (property, timeStep);
-	cdbg << "Histogram timestep: " << timeStep << ", bin: " << bin << endl
-	     << "Accumulators" << " "
-	     << (*it).first << ", "
-	     << statistics.GetCountPerBin (bin) << endl
-	     << "By hand" << " "
-	     << byHand.interval (bin).minValue () << ", " 
-	     << byHand.value (bin) << endl << endl;
-    }
-*/
 }
 
 void FoamAlongTime::calculateStatistics ()
@@ -144,14 +92,14 @@ void FoamAlongTime::calculateStatistics ()
 	m_histogram[property] (acc::max (minMaxStat[property]));
 	forAllBodiesAccumulate (&m_histogram[property], property);
 
+
 	// statistics per time-step
-	BOOST_FOREACH (const boost::shared_ptr<Foam>& foam, m_foams)
-	{
-	    BodyProperty::Enum property = BodyProperty::FromSizeT (i);
-	    double min = acc::min(m_histogram[property]);
-	    double max = acc::max(m_histogram[property]);
-	    foam->CalculateStatistics (property, min, max);
-	}
+	double min = acc::min(m_histogram[property]);
+	double max = acc::max(m_histogram[property]);
+	QtConcurrent::blockingMap (
+	    m_foams.begin (), m_foams.end (),
+	    boost::bind (&Foam::CalculateStatistics, _1,
+			 BodyProperty::FromSizeT (i), min, max));
     }
 }
 
@@ -159,30 +107,27 @@ template <typename Accumulator>
 void FoamAlongTime::forAllBodiesAccumulate (
     Accumulator* acc, BodyProperty::Enum property)
 {
-    BOOST_FOREACH (const boost::shared_ptr<Foam>& foam, m_foams)
-    {
-	BOOST_FOREACH (
-	    const boost::shared_ptr<Body>& body, foam->GetBodies ())
-	{
-	    if (body->ExistsPropertyValue (property))
-		(*acc) (body->GetPropertyValue (property));
-	}
-    }
+    QtConcurrent::blockingMap (
+	m_foams.begin (), m_foams.end (),
+	boost::bind (&Foam::Accumulate<Accumulator>, _1, acc, property));
 }
 
 
+void FoamAlongTime::calculateVelocityBody (
+    pair< size_t, boost::shared_ptr<BodyAlongTime> > p)
+{
+    const BodyAlongTime& bat = *p.second;
+    StripIterator stripIt = bat.GetStripIterator (*this);
+    stripIt.ForEachSegment (boost::bind (&FoamAlongTime::storeVelocity,
+					 this, _1, _2, _3, _4));    
+}
 
 void FoamAlongTime::calculateVelocity ()
 {
     BodiesAlongTime::BodyMap& map = GetBodiesAlongTime ().GetBodyMap ();
-    BodiesAlongTime::BodyMap::iterator it;
-    for (it = map.begin (); it != map.end (); ++it)
-    {
-	const BodyAlongTime& bat = *(*it).second;
-	StripIterator stripIt = bat.GetStripIterator (*this);
-	stripIt.ForEachSegment (boost::bind (&FoamAlongTime::storeVelocity,
-					     this, _1, _2, _3, _4));
-    }
+    QtConcurrent::blockingMap (
+	map.begin (), map.end (), 
+	boost::bind (&FoamAlongTime::calculateVelocityBody, this, _1));
 }
 
 void FoamAlongTime::storeVelocity (

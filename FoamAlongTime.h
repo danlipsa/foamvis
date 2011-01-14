@@ -157,6 +157,8 @@ private:
 		    FoamLessThanAlong::Corner corner, G3D::Vector3& v);
     void calculateBodyWraps ();
     void calculateVelocity ();
+    void calculateVelocityBody (
+	pair< size_t, boost::shared_ptr<BodyAlongTime> > p);
     void calculateStatistics ();
     void storeVelocity (
 	const StripIterator::Point& beforeBegin,
