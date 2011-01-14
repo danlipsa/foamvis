@@ -36,10 +36,10 @@ public:
     DisplayBodyBase (const GLWidget& widget, 
 		     const BodySelector& bodySelector, 
 		     PropertySetter propertySetter,
-		     BodyProperty::Enum bodyProperty = BodyProperty::NONE,
+		     BodyProperty::Enum property = BodyProperty::NONE,
 		     bool useZPos = false, double zPos = 0) : 
 	DisplayElementProperty<PropertySetter> (
-	    widget, propertySetter, bodyProperty, useZPos, zPos), 
+	    widget, propertySetter, property, useZPos, zPos), 
 	m_bodySelector (bodySelector)
     {}
 
@@ -129,11 +129,11 @@ public:
 	const GLWidget& widget, const BodySelector& bodySelector,
 	typename DisplayElement::ContextType 
 	contextDisplay = DisplayElement::TRANSPARENT_CONTEXT,
-	BodyProperty::Enum bodyProperty = BodyProperty::NONE,
+	BodyProperty::Enum property = BodyProperty::NONE,
 	bool useZPos = false, double zPos = 0) : 
 
 	DisplayBodyBase<PropertySetter> (
-	    widget, bodySelector, PropertySetter (widget), bodyProperty, 
+	    widget, bodySelector, PropertySetter (widget), property, 
 	    useZPos, zPos),
 	m_contextDisplay (contextDisplay)
     {}
@@ -141,13 +141,13 @@ public:
     DisplayBody (
 	const GLWidget& widget, const BodySelector& bodySelector,
 	PropertySetter setter,
-	BodyProperty::Enum bodyProperty = BodyProperty::NONE,
+	BodyProperty::Enum property = BodyProperty::NONE,
 	typename DisplayElement::ContextType 
 	contextDisplay = DisplayElement::TRANSPARENT_CONTEXT,
 	bool useZPos = false, double zPos = 0) : 
 
 	DisplayBodyBase<PropertySetter> (
-	    widget, bodySelector, setter, bodyProperty, useZPos, zPos),
+	    widget, bodySelector, setter, property, useZPos, zPos),
 	m_contextDisplay (contextDisplay)
     {}
 
@@ -168,7 +168,7 @@ protected:
 	    v.begin (), v.end (),
 	    displayFace(
 		this->m_glWidget, 
-		this->m_propertySetter, bodyFc, this->m_bodyProperty, 
+		this->m_propertySetter, bodyFc, this->m_property, 
 		this->m_useZPos, this->m_zPos));
     }
 private:
@@ -190,12 +190,12 @@ public:
      * @param widget where to display the center path
      */
     DisplayCenterPath (const GLWidget& widget,
-		       BodyProperty::Enum bodyProperty, 
+		       BodyProperty::Enum property, 
 		       const BodySelector& bodySelector,
 		       bool useTimeDisplacement = false, 
 		       double timeDisplacement = 0) : 
 	DisplayBodyBase<PropertySetter> (
-	    widget, bodySelector, PropertySetter (widget), bodyProperty,
+	    widget, bodySelector, PropertySetter (widget), property,
 	    useTimeDisplacement, timeDisplacement),
 	m_displaySegment (this->m_glWidget.GetQuadricObject (), 
 		       this->m_glWidget.GetEdgeRadius ())
@@ -205,10 +205,10 @@ public:
 
     DisplayCenterPath (const GLWidget& widget,
 		       PropertySetter propertySetter,
-		       BodyProperty::Enum bodyProperty, 
+		       BodyProperty::Enum property, 
 		       const BodySelector& bodySelector) : 
 	DisplayBodyBase<PropertySetter> (
-	    widget, bodySelector, propertySetter, bodyProperty, false, 0)
+	    widget, bodySelector, propertySetter, property, false, 0)
     {
 	size_t timeSteps = this->m_glWidget.GetFoamAlongTime ().GetTimeSteps ();
 	m_focusSegments.reserve (timeSteps - 1);
@@ -278,9 +278,9 @@ private:
 
     void copySegments (StripIterator& it)
     {
-	if ( (this->m_bodyProperty >= BodyProperty::VELOCITY_BEGIN &&
-	      this->m_bodyProperty < BodyProperty::VELOCITY_END) ||
-	     this->m_bodyProperty == BodyProperty::NONE)
+	if ( (this->m_property >= BodyProperty::VELOCITY_BEGIN &&
+	      this->m_property < BodyProperty::VELOCITY_END) ||
+	     this->m_property == BodyProperty::NONE)
 	    it.ForEachSegment (
 		boost::bind (&DisplayCenterPath::speedStep,
 			     this, _1, _2, _3, _4));
@@ -300,15 +300,15 @@ private:
 	static_cast<void>(afterEnd);
 	bool focus = this->m_bodySelector (
 	    begin.m_body->GetId (), begin.m_timeStep);
-	if (focus && this->m_bodyProperty != BodyProperty::NONE)
+	if (focus && this->m_property != BodyProperty::NONE)
 	    storeFocusSegment (
 		StripIterator::GetVelocityValue (
-		    this->m_bodyProperty, end, begin),
+		    this->m_property, end, begin),
 		getPoint (begin, this->m_useZPos, this->m_zPos), 
 		getPoint (end, this->m_useZPos, this->m_zPos));
 	else
 	{
-	    QColor color = (this->m_bodyProperty == BodyProperty::NONE) ? 
+	    QColor color = (this->m_property == BodyProperty::NONE) ? 
 		this->m_glWidget.GetCenterPathNotAvailableColor () :
 		this->m_glWidget.GetCenterPathContextColor ();
 	    storeContextSegment (color, false, 
@@ -340,10 +340,10 @@ private:
 	    swap (point, middle);
 	bool focus = this->m_bodySelector (p.m_body->GetId (), p.m_timeStep);
 	if (focus && StripIterator::ExistsPropertyValue (
-		this->m_bodyProperty, p))
+		this->m_property, p))
 	    storeFocusSegment (
 		StripIterator::GetPropertyValue (
-		    this->m_bodyProperty, p), point, middle);
+		    this->m_property, p), point, middle);
 	else
 	{
 	    QColor color = (focus) ? 

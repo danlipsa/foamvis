@@ -1596,7 +1596,7 @@ void GLWidget::CurrentIndexChangedAxesOrder (int index)
 
 void GLWidget::BodyPropertyChanged (
     boost::shared_ptr<ColorBarModel> colorBarModel,
-    BodyProperty::Enum bodyProperty, ViewType::Enum viewType)
+    BodyProperty::Enum property, ViewType::Enum viewType)
 {
     RuntimeAssert (
 	viewType == ViewType::FACES || 
@@ -1606,16 +1606,16 @@ void GLWidget::BodyPropertyChanged (
     switch (viewType)
     {
     case ViewType::FACES:
-	m_facesColor = bodyProperty;
+	m_facesColor = property;
 	m_useColorMap = (m_facesColor != BodyProperty::NONE);
 	break;
     case ViewType::FACES_AVERAGE:
-	m_facesColor = bodyProperty;
+	m_facesColor = property;
 	m_useColorMap = (m_facesColor != BodyProperty::NONE);
 	initStepDisplayAverage ();
 	break;
     case ViewType::CENTER_PATHS:
-	m_centerPathColor = bodyProperty;
+	m_centerPathColor = property;
 	m_useColorMap = (m_centerPathColor != BodyProperty::NONE);
 	break;
     default:

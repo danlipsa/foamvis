@@ -12,7 +12,7 @@
 #include "FoamAlongTime.h"
 #include "Utils.h"
 
-// version 1668 reverts to by hand calculation of statistics
+// version 1669 reverts to by hand calculation of statistics
 
 // Private Functions
 // ======================================================================
@@ -26,7 +26,6 @@ inline void calculateBodyWraps (BodiesAlongTime::BodyMap::value_type& v,
 // Members
 // ======================================================================
 FoamAlongTime::FoamAlongTime () :
-    m_maxCountPerBinIndividual (BodyProperty::PROPERTY_END),
     m_histogram (
 	BodyProperty::PROPERTY_END, HistogramStatistics (HISTOGRAM_INTERVALS))
 {
@@ -77,8 +76,8 @@ void FoamAlongTime::Preprocess ()
     calculateBodyWraps ();
     calculateVelocity ();
     calculateStatistics ();
-    calculateStatisticsOld ();
 
+/*
     // compare the two statistics methods
     const size_t timeStep = 9;
     const size_t bin = 255;
@@ -95,12 +94,11 @@ void FoamAlongTime::Preprocess ()
 	     << "By hand" << " "
 	     << GetMin (property) << ", " << GetMax (property) << endl;
 	cdbg << "========================================" << endl;
-	const MinMaxStatistics& minMax = 
-	    GetFoam (timeStep)->GetMinMax (property);
+	const Foam& foam = *GetFoam (timeStep);
 	cdbg << "MinMax timestep: " << timeStep << endl
 	     << "Accumulators" << " "
-	     << acc::min (minMax) << ", "
-	     << acc::max (minMax) << endl
+	     << foam.GetMin (property) << ", "
+	     << foam.GetMax (property) << endl
 	     << "By hand" << " "
 	     << GetMin (property, timeStep) << ", " 
 	     << GetMax (property, timeStep) << endl;
@@ -113,7 +111,7 @@ void FoamAlongTime::Preprocess ()
 	cdbg << "Histogram global, bin: " << bin << endl
 	     << "Accumulators" << " "
 	     << (*it).first << ", "
-	     << statistics.GetValuesPerBin (bin) << endl
+	     << statistics.GetCountPerBin (bin) << endl
 	     << "By hand" << " "
 	     << byHand.interval (bin).minValue () << ", " 
 	     << byHand.value (bin) << endl;
@@ -125,11 +123,12 @@ void FoamAlongTime::Preprocess ()
 	cdbg << "Histogram timestep: " << timeStep << ", bin: " << bin << endl
 	     << "Accumulators" << " "
 	     << (*it).first << ", "
-	     << statistics.GetValuesPerBin (bin) << endl
+	     << statistics.GetCountPerBin (bin) << endl
 	     << "By hand" << " "
 	     << byHand.interval (bin).minValue () << ", " 
 	     << byHand.value (bin) << endl << endl;
     }
+*/
 }
 
 void FoamAlongTime::calculateStatistics ()
@@ -155,22 +154,6 @@ void FoamAlongTime::calculateStatistics ()
 	}
     }
 }
-
-
-void FoamAlongTime::calculateStatisticsOld ()
-{
-    cdbg << "Calculating overall statistics..." << endl;
-    GetBodiesAlongTime ().CalculateOverallRange (*this);
-    GetBodiesAlongTime ().CalculateOverallHistogram (*this);
-    GetBodiesAlongTime ().CalculateMaxCountPerBin ();
-
-    cdbg << "Calculating per time step statistics..." << endl;
-    calculatePerTimeStepRanges ();
-    calculatePerTimeStepHistograms ();
-    calculatePerTimeStepMaxCountPerBin ();
-}
-
-
 
 template <typename Accumulator>
 void FoamAlongTime::forAllBodiesAccumulate (
@@ -262,74 +245,6 @@ bool FoamAlongTime::ExistsBodyProperty (
     return GetBody (bodyId, timeStep).ExistsPropertyValue (property);
 }
 
-void FoamAlongTime::initializeStatistics ()
-{
-    for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
-	m_foamsStatistics[timeStep].Initialize ();
-    GetBodiesAlongTime ().Initialize ();
-    BodiesAlongTime::BodyMap bodyMap = GetBodiesAlongTime ().GetBodyMap ();
-    pair <size_t, boost::shared_ptr<BodyAlongTime> > idBody;
-    BOOST_FOREACH (idBody, bodyMap)
-	idBody.second->Initialize ();
-}
-
-
-void FoamAlongTime::calculatePerTimeStepHistograms ()
-{
-    for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
-	calculatePerTimeStepHistogram (timeStep);
-}
-
-void FoamAlongTime::calculatePerTimeStepHistogram (size_t timeStep)
-{
-    boost::shared_ptr<const Foam> foam = GetFoam (timeStep);
-    BOOST_FOREACH (boost::shared_ptr<const Body> body, foam->GetBodies ())
-    {
-	size_t bodyId = body->GetId ();
-	m_foamsStatistics[timeStep].HistogramStep (
-	    *this, bodyId, timeStep, GetBodiesAlongTime ());
-    }
-}
-
-void FoamAlongTime::calculatePerTimeStepMedians ()
-{
-    for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
-    {
-	m_foamsStatistics[timeStep].ApproximateMedian ();
-	cdbg << "median pressure timestep : " << timeStep << ": "
-	     << m_foamsStatistics[timeStep].
-	    GetMedian (BodyProperty::PRESSURE) << endl;
-    }
-}
-
-
-
-void FoamAlongTime::calculatePerTimeStepRanges ()
-{
-    for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
-	calculatePerTimeStepRange (timeStep);
-}
-
-void FoamAlongTime::calculatePerTimeStepRange (size_t timeStep)
-{
-    boost::shared_ptr<const Foam> foam = GetFoam (timeStep);
-    BOOST_FOREACH (boost::shared_ptr<const Body> body, foam->GetBodies ())
-    {
-	size_t bodyId = body->GetId ();
-	for (size_t i = BodyProperty::PROPERTY_BEGIN; 
-	     i < BodyProperty::PROPERTY_END; ++i)
-	{
-	    BodyProperty::Enum bodyProperty = 
-		BodyProperty::FromSizeT(i);
-	    if (ExistsBodyProperty (bodyProperty, bodyId, timeStep))
-		m_foamsStatistics[timeStep].RangeStep (
-		    bodyProperty,
-		    GetBodyPropertyValue (bodyProperty, bodyId, timeStep));
-	}
-    }
-    m_foamsStatistics[timeStep].NormalizeEmptyRange ();
-}
-
 const Body& FoamAlongTime::GetBody (size_t bodyId, size_t timeStep) const
 {
     const BodyAlongTime& bat = GetBodiesAlongTime ().GetBodyAlongTime (bodyId);
@@ -350,30 +265,30 @@ string FoamAlongTime::ToString () const
 void FoamAlongTime::SetTimeSteps (size_t timeSteps)
 {
     m_foams.resize (timeSteps);
-    m_foamsStatistics.resize (timeSteps);
 }
 
 
 void FoamAlongTime::GetTimeStepSelection (
-    BodyProperty::Enum bodyProperty,
+    BodyProperty::Enum property,
     const vector<QwtDoubleInterval>& valueIntervals,
     vector<bool>* timeStepSelection) const
 {
     timeStepSelection->resize (GetTimeSteps ());
     fill (timeStepSelection->begin (), timeStepSelection->end (), false);
     BOOST_FOREACH (QwtDoubleInterval valueInterval, valueIntervals)
-	GetTimeStepSelection (bodyProperty, valueInterval, timeStepSelection);
+	GetTimeStepSelection (property, valueInterval, timeStepSelection);
 }
 
 void FoamAlongTime::GetTimeStepSelection (
-    BodyProperty::Enum bodyProperty,
+    BodyProperty::Enum property,
     const QwtDoubleInterval& valueInterval,
     vector<bool>* timeStepSelection) const
 {
     const size_t INVALID = numeric_limits<size_t> ().max ();
     size_t beginRange = INVALID;
     for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
-	if (valueInterval.intersects (GetRange (bodyProperty, timeStep)))
+	if (valueInterval.intersects (
+		GetFoam (timeStep)->GetRange (property)))
 	{
 	    if (beginRange == INVALID)
 		beginRange = timeStep;
@@ -392,33 +307,18 @@ void FoamAlongTime::GetTimeStepSelection (
 	      timeStepSelection->begin () + GetTimeSteps (), true);
 }
 
-void FoamAlongTime::calculatePerTimeStepMaxCountPerBin ()
-{
-    for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
-	m_foamsStatistics[timeStep].CalculateMaxCountPerBin ();
-
-
-    for (size_t bodyProperty = BodyProperty::PROPERTY_BEGIN;
-	 bodyProperty < BodyProperty::PROPERTY_END; ++bodyProperty)
-    {
-	size_t maxCount = 0;
-	for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
-	{
-	    maxCount = max (
-		maxCount, 
-		m_foamsStatistics[timeStep].GetMaxCountPerBin (bodyProperty));
-	}
-	m_maxCountPerBinIndividual[bodyProperty] = maxCount;
-    }
-}
-
 bool FoamAlongTime::IsQuadratic () const
 {
     return m_foams[0]->IsQuadratic ();
 }
 
-QwtIntervalData FoamAlongTime::GetHistogram (size_t bodyProperty) const
+size_t FoamAlongTime::GetMaxCountPerBinIndividual (
+    BodyProperty::Enum property) const
 {
-    return GetBodiesAlongTime ().GetHistogram (bodyProperty);
-    //return m_histogram[bodyProperty].ToQwtIntervalData ();
+    size_t size = GetTimeSteps ();
+    size_t max = 0;
+    for (size_t i = 0; i < size; ++i)
+	max = std::max (
+	    max, GetFoam (i)->GetHistogram (property).GetMaxCountPerBin ());
+    return max;
 }

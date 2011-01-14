@@ -8,7 +8,6 @@
 #define __FOAM_ALONG_TIME_H__
 
 #include "BodyAlongTime.h"
-#include "BodySetStatistics.h"
 #include "Comparisons.h"
 #include "Statistics.h"
 
@@ -21,7 +20,6 @@ class FoamAlongTime
 {
 public:
     typedef vector< boost::shared_ptr<Foam> > Foams;
-    typedef vector<BodySetStatistics> FoamsStatistics;
 
     /**
      * Functor applied to a collection of Foam objects
@@ -89,49 +87,32 @@ public:
     bool IsQuadratic () const;
 
 
-    QwtIntervalData GetHistogram (size_t bodyProperty) const;
-
-    QwtIntervalData GetHistogram (size_t bodyProperty, size_t timeStep) const
+    const HistogramStatistics& GetHistogram (size_t property) const
     {
-	return m_foamsStatistics[timeStep].GetHistogram (
-	    bodyProperty, &GetBodiesAlongTime ());
-    }
-    double GetMax (BodyProperty::Enum bodyProperty) const
-    {
-	return GetBodiesAlongTime ().GetMax (bodyProperty);
-    }
-    double GetMax (BodyProperty::Enum bodyProperty, size_t timeStep) const
-    {
-	return m_foamsStatistics[timeStep].GetMax (bodyProperty);
-    }
-    size_t GetMaxCountPerBinIndividual (size_t bodyProperty) const
-    {
-	return m_maxCountPerBinIndividual[bodyProperty];
-    }
-    size_t GetMaxCountPerBin (size_t bodyProperty) const
-    {
-	return GetBodiesAlongTime ().GetMaxCountPerBin (bodyProperty);
+	return m_histogram[property];
     }
 
-    double GetMin (BodyProperty::Enum bodyProperty) const
+    double GetMin (BodyProperty::Enum property) const
     {
-	return GetBodiesAlongTime ().GetMin (bodyProperty);
-    }
-    double GetMin (BodyProperty::Enum bodyProperty, size_t timeStep) const
-    {
-	return m_foamsStatistics[timeStep].GetMin (bodyProperty);
-    }
-    QwtDoubleInterval GetRange (BodyProperty::Enum bodyProperty) const
-    {
-	return QwtDoubleInterval (GetMin (bodyProperty), GetMax (bodyProperty));
-    }
-    QwtDoubleInterval GetRange (
-	BodyProperty::Enum bodyProperty, size_t timeStep) const
-    {
-	return QwtDoubleInterval (
-	    GetMin (bodyProperty, timeStep), GetMax (bodyProperty, timeStep));
+	return acc::min (GetHistogram (property));
     }
 
+    double GetMax (BodyProperty::Enum property) const
+    {
+	return acc::max (GetHistogram (property));
+    }
+
+    QwtDoubleInterval GetRange (BodyProperty::Enum property) const
+    {
+	return QwtDoubleInterval (GetMin (property), GetMax (property));
+    }
+
+
+    /**
+     * For the histogram associated with each foam this is the maximum of 
+     * GetMaxCountPerBin for all foams.
+     */
+    size_t GetMaxCountPerBinIndividual (BodyProperty::Enum property) const;
 
     size_t GetTimeSteps () const
     {
@@ -142,11 +123,11 @@ public:
      * valueIntervals.
      */
     void GetTimeStepSelection (
-	BodyProperty::Enum bodyProperty,
+	BodyProperty::Enum property,
 	const vector<QwtDoubleInterval>& valueIntervals,
 	vector<bool>* timeStepSelection) const;
     void GetTimeStepSelection (
-	BodyProperty::Enum bodyProperty,
+	BodyProperty::Enum property,
 	const QwtDoubleInterval& valueInterval,
 	vector<bool>* timeStepSelection) const;
 
@@ -176,15 +157,7 @@ private:
 		    FoamLessThanAlong::Corner corner, G3D::Vector3& v);
     void calculateBodyWraps ();
     void calculateVelocity ();
-    void calculateStatisticsOld ();
     void calculateStatistics ();
-    void initializeStatistics ();
-    void calculatePerTimeStepHistograms ();
-    void calculatePerTimeStepHistogram (size_t timeStep);
-    void calculatePerTimeStepRanges ();
-    void calculatePerTimeStepRange (size_t timeStep);
-    void calculatePerTimeStepMaxCountPerBin ();
-    void calculatePerTimeStepMedians ();
     void storeVelocity (
 	const StripIterator::Point& beforeBegin,
 	const StripIterator::Point& begin,
@@ -199,15 +172,6 @@ private:
      * Vector of Foam objects
      */
     Foams m_foams;
-    /**
-     * Per time step statistics.
-     */
-    FoamsStatistics m_foamsStatistics;
-    /**
-     * Each element of the array corresponds to a histogram for a property.
-     * It tells us, the maximum number of values we have in a single bin.
-     */
-    vector<size_t> m_maxCountPerBinIndividual;    
     BodiesAlongTime m_bodiesAlongTime;
     /**
      * The AABox for this vector of Foam objects

@@ -74,17 +74,17 @@ public:
     DisplayElementProperty (
 	const GLWidget& glWidget,
 	PropertySetter propertySetter,
-	BodyProperty::Enum bodyProperty = BodyProperty::NONE,
+	BodyProperty::Enum property = BodyProperty::NONE,
 	bool useZPos = false, double zPos = 0) :
 
 	DisplayElement (glWidget, useZPos, zPos),
 	m_propertySetter (propertySetter),
-	m_bodyProperty (bodyProperty)
+	m_property (property)
     {
     }
 protected:
     PropertySetter m_propertySetter;
-    BodyProperty::Enum m_bodyProperty;
+    BodyProperty::Enum m_property;
 };
 
 
@@ -97,12 +97,12 @@ public:
     DisplayElementPropertyFocus (
 	const GLWidget& widget,
 	PropertySetter setter,
-	BodyProperty::Enum bodyProperty = BodyProperty::NONE,
+	BodyProperty::Enum property = BodyProperty::NONE,
 	DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	bool useZPos = false, double zPos = 0) :
 	
 	DisplayElementProperty<PropertySetter> (
-	    widget, setter, bodyProperty, useZPos, zPos),
+	    widget, setter, property, useZPos, zPos),
 	m_focus (focus)
     {
     }

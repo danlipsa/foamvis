@@ -213,11 +213,11 @@ void Body::GetFaceSet (FaceSet* faceSet) const
 	faceSet->insert (of->GetFace ());
 }
 
-bool Body::ExistsPropertyValue (BodyProperty::Enum bodyProperty) const
+bool Body::ExistsPropertyValue (BodyProperty::Enum property) const
 {
-    if (bodyProperty >= BodyProperty::PER_BODY_BEGIN && 
-	bodyProperty <= BodyProperty::PER_BODY_END)
-	return ExistsAttribute (bodyProperty - BodyProperty::PER_BODY_BEGIN);
+    if (property >= BodyProperty::PER_BODY_BEGIN && 
+	property <= BodyProperty::PER_BODY_END)
+	return ExistsAttribute (property - BodyProperty::PER_BODY_BEGIN);
     else
 	return true;
 }

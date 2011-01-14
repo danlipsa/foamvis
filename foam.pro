@@ -1,6 +1,6 @@
 HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
 	AttributeHistogram.h HistogramHeight.h Body.h \
-	BodyAlongTime.h BodyIndex.h BodySelector.h BodySetStatistics.h\
+	BodyAlongTime.h BodyIndex.h BodySelector.h \
 	ColorBar.h ColorBarModel.h ColoredElement.h Comparisons.h \
 	Debug.h DebugStream.h Disk.h DisplayFaceAverage.h DisplayBlend.h\
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
@@ -19,7 +19,6 @@ HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
 SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	AttributeHistogram.cpp HistogramHeight.cpp \
 	Body.cpp BodyAlongTime.cpp BodyIndex.cpp BodySelector.cpp\
-	BodySetStatistics.cpp \
 	ColorBar.cpp ColorBarModel.cpp ColoredElement.cpp Comparisons.cpp \
 	Debug.cpp DebugStream.cpp Disk.cpp \
 	DisplayBlend.cpp DisplayBodyFunctors.cpp DisplayFaceAverage.cpp \

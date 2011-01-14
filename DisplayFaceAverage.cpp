@@ -211,14 +211,14 @@ void DisplayFaceAverage::InitShaders ()
     m_initShaderProgram.Init ();
 }
 
-void DisplayFaceAverage::Calculate (BodyProperty::Enum bodyProperty,
+void DisplayFaceAverage::Calculate (BodyProperty::Enum property,
 				    GLfloat minValue, GLfloat maxValue)
 {
     const FoamAlongTime& foamAlongTime = m_glWidget.GetFoamAlongTime ();
     size_t count = foamAlongTime.GetTimeSteps ();
     for (size_t i = 0; i < count; ++i)
     {
-	Step (i, bodyProperty, minValue, maxValue);
+	Step (i, property, minValue, maxValue);
 	if (true /*i % 10 == 0*/)
 	{
 	    Display (minValue, maxValue);
@@ -253,7 +253,7 @@ void DisplayFaceAverage::StepDisplay ()
 }
 
 void DisplayFaceAverage::Step (
-    size_t timeStep, BodyProperty::Enum bodyProperty,
+    size_t timeStep, BodyProperty::Enum property,
     GLfloat minValue, GLfloat maxValue)
 {
     const Foam& foam = *m_glWidget.GetFoamAlongTime ().GetFoam (timeStep);
@@ -264,7 +264,7 @@ void DisplayFaceAverage::Step (
     {
 	glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
 	m_glWidget.ModelViewTransformNoRotation ();	
-	renderToStep (foam, bodyProperty);
+	renderToStep (foam, property);
 	//save (*m_step, "step", timeStep);
 	addToNew ();
 	//save (*m_new, "new", timeStep);
@@ -277,17 +277,17 @@ void DisplayFaceAverage::Step (
 }
 
 void DisplayFaceAverage::renderToStep (
-    const Foam& foam, BodyProperty::Enum bodyProperty)
+    const Foam& foam, BodyProperty::Enum property)
 {
     clearMinMax (*m_step);
     m_step->bind ();
     m_storeShaderProgram.Bind ();
     const Foam::Bodies& bodies = foam.GetBodies ();
     if (foam.IsQuadratic ())
-	writeFacesValues<DisplaySameEdges> (bodies, bodyProperty);
+	writeFacesValues<DisplaySameEdges> (bodies, property);
     else
 	writeFacesValues<DisplaySameTriangles> (
-	    bodies, bodyProperty);
+	    bodies, property);
     m_storeShaderProgram.release ();
     m_step->release ();
 }
@@ -379,7 +379,7 @@ void DisplayFaceAverage::save (
 
 template<typename displaySameEdges>
 void DisplayFaceAverage::writeFacesValues (
-    const Foam::Bodies& bodies, BodyProperty::Enum bodyProperty)
+    const Foam::Bodies& bodies, BodyProperty::Enum property)
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
@@ -394,7 +394,7 @@ void DisplayFaceAverage::writeFacesValues (
 		  VertexAttributeSetter (
 		      m_storeShaderProgram, 
 		      m_storeShaderProgram.GetVValueIndex ()),
-		  bodyProperty,
+		  property,
 		  DisplayElement::INVISIBLE_CONTEXT));
     glPopAttrib ();
 }

@@ -32,10 +32,14 @@ public:
 	    acc::tag::density::num_bins = numBins)
     {
     }
-    size_t GetValuesPerBin (size_t bin) const;
+    size_t GetCountPerBin (size_t bin) const;
     QwtDoubleInterval GetBinInterval (size_t bin) const;
     size_t size () const;
     QwtIntervalData ToQwtIntervalData () const;
+    size_t GetMaxCountPerBin () const;
+    static size_t GetBin (double value, size_t binCount,
+                          double beginInterval, double endInterval);
+
 };
 
 

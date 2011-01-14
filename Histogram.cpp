@@ -6,11 +6,12 @@
  * Definition of the Histogram class
  */
 
+#include "Application.h"
+#include "DebugStream.h"
 #include "Histogram.h"
 #include "HistogramHeight.h"
-#include "DebugStream.h"
-#include "BodySetStatistics.h"
-#include "Application.h"
+#include "Statistics.h"
+
 
 Histogram::Histogram (QWidget* parent) :
     QwtPlot (parent), 
@@ -76,7 +77,7 @@ size_t Histogram::getBin (double value)
 {
     const QwtIntervalData& data = m_histogramItem.data ();
     size_t binCount = data.size ();
-    return BodySetStatistics::GetBin (
+    return HistogramStatistics::GetBin (
 	value, binCount,
 	data.interval (0).minValue (), data.interval (binCount - 1).maxValue ());
 }

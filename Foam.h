@@ -223,14 +223,26 @@ public:
     void AddDefaultBodyAttributes ();
     void CalculateStatistics (BodyProperty::Enum property,
 			      double min, double max);
-    HistogramStatistics GetHistogram (BodyProperty::Enum property)
+    const HistogramStatistics& GetHistogram (BodyProperty::Enum property) const
     {
 	return m_histogram[property];
     }
-    MinMaxStatistics GetMinMax (BodyProperty::Enum property)
+
+    double GetMin (BodyProperty::Enum property) const
     {
-	return m_minMax[property];
+	return acc::min (m_minMax[property]);
     }
+
+    double GetMax (BodyProperty::Enum property) const
+    {
+	return acc::max (m_minMax[property]);
+    }
+
+    QwtDoubleInterval GetRange (BodyProperty::Enum property) const
+    {
+	return QwtDoubleInterval (GetMin (property), GetMax (property));
+    }
+
 public:
     /**
      * Pretty print the Foam object

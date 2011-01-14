@@ -266,7 +266,7 @@ public Q_SLOTS:
     void ToggledOnlyPathsWithSelectionShown (bool checked);
     void BodyPropertyChanged (
 	boost::shared_ptr<ColorBarModel> colorBarModel,
-	BodyProperty::Enum bodyProperty, ViewType::Enum viewType);
+	BodyProperty::Enum property, ViewType::Enum viewType);
     void ColorBarModelChanged (
 	boost::shared_ptr<ColorBarModel> colorBarModel);
     void ResetTransformation ();

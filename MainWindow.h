@@ -54,21 +54,21 @@ public:
      */
     void SetAndDisplayHistogram (
 	HistogramType::Enum histogramType,
-	BodyProperty::Enum bodyProperty,
+	BodyProperty::Enum property,
 	const QwtIntervalData& intervalData,
 	double maxValue,
 	HistogramSelection histogramSelection = DISCARD_SELECTION,
 	MaxValueOperation maxValueOperation = REPLACE_MAX_VALUE);
     boost::shared_ptr<ColorBarModel> GetColorBarModel (
-	BodyProperty::Enum bodyProperty)
+	BodyProperty::Enum property)
     {
-	return m_colorBarModel[bodyProperty];
+	return m_colorBarModel[property];
     }
 
 Q_SIGNALS:
     void BodyPropertyChanged (
 	boost::shared_ptr<ColorBarModel> colorBarModel,
-	BodyProperty::Enum bodyProperty, ViewType::Enum viewType);
+	BodyProperty::Enum property, ViewType::Enum viewType);
     void ColorBarModelChanged (
 	boost::shared_ptr<ColorBarModel> colorBarModel);
 
@@ -147,7 +147,7 @@ private:
     void setupSliderData (const FoamAlongTime& foamAlongTime);
     void setupButtonGroups ();
     void configureInterface (const FoamAlongTime& foamAlongTime);
-    void setupColorBarModel (BodyProperty::Enum bodyProperty);
+    void setupColorBarModel (BodyProperty::Enum property);
     void setupColorBarModels ();
 
     void setupColorBar ();
@@ -186,7 +186,7 @@ private:
     boost::shared_ptr<QAction> m_actionSelectEraser;
     boost::shared_ptr<QAction> m_actionInfo;
 
-    BodyProperty::Enum m_bodyProperty;
+    BodyProperty::Enum m_property;
     HistogramType::Enum m_histogramType;
     vector< boost::shared_ptr<ColorBarModel> > m_colorBarModel;
     boost::shared_ptr<EditColorMap> m_editColorMap;

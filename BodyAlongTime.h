@@ -11,11 +11,10 @@
 
 #include "StripIterator.h"
 #include "Enums.h"
-#include "BodySetStatistics.h"
 
 class Body;
 class FoamAlongTime;
-class BodyAlongTime : public BodySetStatistics
+class BodyAlongTime
 {
 public:
     typedef vector<boost::shared_ptr<Body> > Bodies;
@@ -49,12 +48,6 @@ public:
      * than 1/2 of min all sides of the original domain
      */
     void CalculateBodyWraps (const FoamAlongTime& foamAlongTime);
-    void CalculateRange (const FoamAlongTime& foamAlongTime);
-    void CalculateRange (BodyProperty::Enum property);
-
-    void CalculateHistogram (
-	const FoamAlongTime& foamAlongTime,
-	BodySetStatistics* destination);
 
     StripIterator GetStripIterator (
 	const FoamAlongTime& foamAlongTime) const
@@ -83,17 +76,6 @@ public:
 	ostream& ostr, const BodyAlongTime& bodyAlongTime);
 
 private:
-    void speedRangeStep (
-	const StripIterator::Point& beforeBegin,
-	const StripIterator::Point& begin,
-	const StripIterator::Point& end,
-	const StripIterator::Point& afterEnd);
-    void rangeStep (const boost::shared_ptr<Body>& body);
-    void rangeStep (const boost::shared_ptr<Body>& body,
-		    BodyProperty::Enum bodyProperty);
-
-
-private:
     Bodies m_bodyAlongTime;
     /**
      * List of times (indexes in Bodies vector) where a body wraps
@@ -108,7 +90,7 @@ private:
     Translations m_translations;
 };
 
-class BodiesAlongTime : public BodySetStatistics
+class BodiesAlongTime
 {
 public:
     typedef map <size_t, boost::shared_ptr<BodyAlongTime> > BodyMap;
@@ -141,10 +123,7 @@ public:
     {
 	return getBodyAlongTime (id);
     }
-    void CalculateOverallRange (const FoamAlongTime& foamAlongTime);
 
-    void CalculateOverallHistogram (
-	const FoamAlongTime& foamAlongTime);
     string ToString () const;
 
 private:

@@ -27,7 +27,6 @@ bool isNull (const boost::shared_ptr<Body>& body)
 // ======================================================================
 
 BodyAlongTime::BodyAlongTime (size_t timeSteps) :
-    BodySetStatistics (),
     m_bodyAlongTime (timeSteps)
 {
 }
@@ -78,75 +77,6 @@ string BodyAlongTime::ToString () const
     return ostr.str ();
 }
 
-void BodyAlongTime::speedRangeStep (
-    const StripIterator::Point& beforeBegin,
-    const StripIterator::Point& begin,
-    const StripIterator::Point& end,
-    const StripIterator::Point& afterEnd)
-{
-    static_cast<void>(beforeBegin);
-    static_cast<void>(afterEnd);
-    G3D::Vector3 speed = end.m_point - begin.m_point;
-    // Warning: should have the same ordering as BodyProperty::Enum
-    boost::array<double, 4> speedComponents = 
-	{{speed.x, speed.y, speed.z, speed.length ()}};
-    for (size_t i = BodyProperty::VELOCITY_BEGIN;
-	 i < BodyProperty::VELOCITY_END; ++i)
-	RangeStep (i, speedComponents[i]);
-}
-
-void BodyAlongTime::rangeStep (const boost::shared_ptr<Body>& body)
-{
-    for (size_t i = BodyProperty::PER_BODY_BEGIN;
-	 i < BodyProperty::PER_BODY_END; ++i)
-	rangeStep (body, BodyProperty::FromSizeT (i));
-}
-
-
-void BodyAlongTime::rangeStep (const boost::shared_ptr<Body>& body,
-			       BodyProperty::Enum property)
-{
-    size_t index = property - BodyProperty::PER_BODY_BEGIN;
-    if (body->ExistsAttribute (index))
-	RangeStep (property, body->GetRealAttribute (index));
-}
-
-void BodyAlongTime::CalculateRange (const FoamAlongTime& foamAlongTime)
-{
-    // per segment values (speeds)
-    StripIterator it = GetStripIterator (foamAlongTime);
-    it.ForEachSegment (
-	boost::bind (&BodyAlongTime::speedRangeStep, this, _1, _2, _3, _4));
-    // per time step values
-    for_each (m_bodyAlongTime.begin (), m_bodyAlongTime.end (),
-	      boost::bind (&BodyAlongTime::rangeStep, this, _1));
-    NormalizeEmptyRange ();
-}
-
-void BodyAlongTime::CalculateRange (BodyProperty::Enum bodyProperty)
-{
-    // per time step values
-    for_each (m_bodyAlongTime.begin (), m_bodyAlongTime.end (),
-	      boost::bind (
-		  &BodyAlongTime::rangeStep, this, _1, bodyProperty));
-    NormalizeEmptyRange ();
-}
-
-
-
-void BodyAlongTime::CalculateHistogram (
-    const FoamAlongTime& foamAlongTime, BodySetStatistics* destination)
-{
-    // per segment values (speeds)
-    StripIterator it = GetStripIterator (foamAlongTime);
-    it.ForEachSegment (
-	boost::bind (&BodyAlongTime::SpeedHistogramStep, 
-		     destination, _1, _2, _3, _4));
-    // per time step values
-    for_each (GetBodies ().begin (), GetBodies ().end (),
-	      boost::bind (&BodyAlongTime::HistogramStep, 
-			   destination, _1));
-}
 
 size_t BodyAlongTime::GetId () const
 {
@@ -158,8 +88,7 @@ size_t BodyAlongTime::GetId () const
 
 // BodiesAlongTime Methods
 // ======================================================================
-BodiesAlongTime::BodiesAlongTime () :
-    BodySetStatistics ()
+BodiesAlongTime::BodiesAlongTime ()
 {
 }
 
@@ -206,26 +135,4 @@ string BodiesAlongTime::ToString () const
 	 it != m_bodyMap.end(); ++it)
 	ostr << *(it->second) << endl;
     return ostr.str ();
-}
-
-void BodiesAlongTime::CalculateOverallRange (const FoamAlongTime& foamAlongTime)
-{
-    BOOST_FOREACH (BodyMap::value_type p, GetBodyMap ())
-    {
-	BodyAlongTime& bat = *p.second;
-	bat.CalculateRange (foamAlongTime);
-	for (size_t bodyProperty = 0; bodyProperty < Size (); ++bodyProperty)
-	{
-	    MinStep (bodyProperty, bat.GetMin (bodyProperty));
-	    MaxStep (bodyProperty, bat.GetMax (bodyProperty));
-	}
-    }
-    NormalizeEmptyRange ();
-}
-
-void BodiesAlongTime::CalculateOverallHistogram (
-    const FoamAlongTime& foamAlongTime)
-{
-    BOOST_FOREACH (BodyMap::value_type p, GetBodyMap ())
-	p.second->CalculateHistogram (foamAlongTime, this);
 }

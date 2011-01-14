@@ -61,10 +61,10 @@ class PropertyValueBodySelector : public BodySelector
 public:
     typedef vector<QwtDoubleInterval> ValueIntervals;
 public:
-    PropertyValueBodySelector (BodyProperty::Enum bodyProperty,
+    PropertyValueBodySelector (BodyProperty::Enum property,
 			   vector<QwtDoubleInterval> valueIntervals,
 			   const FoamAlongTime& foamAlongTime) :
-	m_bodyProperty (bodyProperty), m_valueIntervals (valueIntervals),
+	m_property (property), m_valueIntervals (valueIntervals),
 	m_foamAlongTime (foamAlongTime)
     {
     }
@@ -72,7 +72,7 @@ public:
     virtual bool operator () (size_t bodyId, size_t timeStep) const;
 
 private:
-    BodyProperty::Enum m_bodyProperty;
+    BodyProperty::Enum m_property;
     ValueIntervals m_valueIntervals;
     const FoamAlongTime& m_foamAlongTime;
 };

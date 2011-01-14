@@ -26,11 +26,11 @@ public:
     DisplayFace (const GLWidget& widget,
 		 typename DisplayElement::FocusContext focus = 
 		 DisplayElement::FOCUS,
-		 BodyProperty::Enum bodyProperty = BodyProperty::NONE,
+		 BodyProperty::Enum property = BodyProperty::NONE,
 		 bool useZPos = false, double zPos = 0) : 
 
 	DisplayElementPropertyFocus<PropertySetter> (
-	    widget, PropertySetter (widget), bodyProperty, focus, 
+	    widget, PropertySetter (widget), property, focus, 
 	    useZPos, zPos), 
 	m_count(0)
     {
@@ -42,10 +42,10 @@ public:
 		 PropertySetter propertySetter,
 		 typename DisplayElement::FocusContext focus = 
 		 DisplayElement::FOCUS,
-		 BodyProperty::Enum bodyProperty = BodyProperty::NONE, 
+		 BodyProperty::Enum property = BodyProperty::NONE, 
 		 bool useZPos = false, double zPos = 0) : 
 	DisplayElementPropertyFocus<PropertySetter> (
-	    widget, propertySetter, bodyProperty, focus, useZPos, zPos), 
+	    widget, propertySetter, property, focus, useZPos, zPos), 
 	m_count(0)
     {
     }
@@ -112,11 +112,11 @@ public:
     DisplayFaceWithColor (
 	const GLWidget& widget,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
-	BodyProperty::Enum bodyProperty = BodyProperty::NONE, 
+	BodyProperty::Enum property = BodyProperty::NONE, 
 	bool useZPos = false, double zPos = 0) : 
 
 	DisplayFace<displaySameEdges, PropertySetter> (
-	    widget, PropertySetter (widget), focus, bodyProperty, useZPos, zPos)
+	    widget, PropertySetter (widget), focus, property, useZPos, zPos)
     {
     }
 
@@ -125,11 +125,11 @@ public:
 	const GLWidget& widget,
 	PropertySetter propertySetter,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
-	BodyProperty::Enum bodyProperty = BodyProperty::NONE, 
+	BodyProperty::Enum property = BodyProperty::NONE, 
 	bool useZPos = false, double zPos = 0) : 
 
 	DisplayFace<displaySameEdges, PropertySetter> (
-	    widget, propertySetter, focus, bodyProperty, useZPos, zPos) 
+	    widget, propertySetter, focus, property, useZPos, zPos) 
     {}
 
 
@@ -179,7 +179,7 @@ private:
 	*useColor = true;
 	if (this->m_focus == DisplayElement::FOCUS)
 	{
-	    if (this->m_bodyProperty == BodyProperty::NONE)
+	    if (this->m_property == BodyProperty::NONE)
 		glColor (Color::GetValue(of->GetColor ()));
 	    else
 	    {
@@ -188,11 +188,11 @@ private:
 		const FoamAlongTime& foamAlongTime = 
 		    this->m_glWidget.GetFoamAlongTime ();
 		if (foamAlongTime.ExistsBodyProperty (
-			this->m_bodyProperty, bodyId, 
+			this->m_property, bodyId, 
 			this->m_glWidget.GetTimeStep ()))
 		{
 		    double value = foamAlongTime.GetBodyPropertyValue (
-			this->m_bodyProperty, bodyId, 
+			this->m_property, bodyId, 
 			this->m_glWidget.GetTimeStep ());
 		    this->m_propertySetter (value);
 		    *useColor = false;

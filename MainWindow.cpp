@@ -32,7 +32,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     PLAY_TEXT (">"), PAUSE_TEXT("||"),
     m_timer (new QTimer(this)), m_processBodyTorus (0), 
     m_currentBody (0),
-    m_bodyProperty (BodyProperty::NONE),
+    m_property (BodyProperty::NONE),
     m_histogramType (HistogramType::NONE),
     m_colorBarModel (BodyProperty::PROPERTY_END),
     m_editColorMap (new EditColorMap (this))
@@ -405,7 +405,7 @@ void MainWindow::processBodyTorusStep ()
 
 void MainWindow::SetAndDisplayHistogram (
     HistogramType::Enum histogramType,
-    BodyProperty::Enum bodyProperty,
+    BodyProperty::Enum property,
     const QwtIntervalData& intervalData,
     double maxYValue,
     HistogramSelection histogramSelection,
@@ -430,10 +430,10 @@ void MainWindow::SetAndDisplayHistogram (
 	maxYValue = widgetHistogram->GetMaxValueAxis ();
     if (histogramSelection == KEEP_SELECTION)
 	widgetHistogram->SetDataKeepBinSelection (
-	    intervalData, maxYValue, BodyProperty::ToString (bodyProperty));
+	    intervalData, maxYValue, BodyProperty::ToString (property));
     else
 	widgetHistogram->SetDataAllBinsSelected (
-	    intervalData, maxYValue, BodyProperty::ToString (bodyProperty));
+	    intervalData, maxYValue, BodyProperty::ToString (property));
 }
 
 void MainWindow::createActions ()
@@ -581,16 +581,18 @@ void MainWindow::ValueChangedFontSize (int fontSize)
 
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
-    BodyProperty::Enum bodyProperty = 
+    BodyProperty::Enum property = 
 	BodyProperty::FromSizeT (comboBoxFacesColor->currentIndex ());
     if (widgetHistogram->isVisible () && 
 	radioButtonFacesNormal->isChecked ())
     {
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	
-	SetAndDisplayHistogram (m_histogramType,
-	    bodyProperty,
-	    foamAlongTime.GetHistogram (bodyProperty, timeStep), 
+	SetAndDisplayHistogram (
+	    m_histogramType,
+	    property,
+	    foamAlongTime.GetFoam (timeStep)->
+	    GetHistogram (property).ToQwtIntervalData (), 
 	    0,
 	    KEEP_SELECTION,
 	    KEEP_MAX_VALUE);
@@ -649,10 +651,10 @@ void MainWindow::ToggledCenterPath (bool checked)
 void MainWindow::fieldsToControls (QComboBox* comboBox,
 				   QButtonGroup* buttonGroup)
 {
-    BodyProperty::Enum bodyProperty = 
+    BodyProperty::Enum property = 
 	BodyProperty::FromSizeT(comboBox->currentIndex ());
-    if (bodyProperty != m_bodyProperty)
-	comboBox->setCurrentIndex (m_bodyProperty);
+    if (property != m_property)
+	comboBox->setCurrentIndex (m_property);
     int type = histogramType(buttonGroup);
     if (type != m_histogramType)
 	buttonGroup->button (m_histogramType)->setChecked (true);
@@ -661,9 +663,9 @@ void MainWindow::fieldsToControls (QComboBox* comboBox,
 void MainWindow::displayHistogramColorBar (bool checked)
 {
     widgetHistogram->setVisible (
-	checked && m_bodyProperty != BodyProperty::NONE && m_histogramType);
+	checked && m_property != BodyProperty::NONE && m_histogramType);
     colorBar->setVisible (
-	checked && m_bodyProperty != BodyProperty::NONE);
+	checked && m_property != BodyProperty::NONE);
 }
 
 void MainWindow::setupColorBarModels ()
@@ -672,36 +674,36 @@ void MainWindow::setupColorBarModels ()
     BOOST_FOREACH (boost::shared_ptr<ColorBarModel>& colorBarModel,
 		   m_colorBarModel)
     {
-	BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT (i);
+	BodyProperty::Enum property = BodyProperty::FromSizeT (i);
 	colorBarModel.reset (new ColorBarModel ());
-	setupColorBarModel (bodyProperty);
+	setupColorBarModel (property);
 	++i;
     }
 }
 
-void MainWindow::setupColorBarModel (BodyProperty::Enum bodyProperty)
+void MainWindow::setupColorBarModel (BodyProperty::Enum property)
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    m_colorBarModel[bodyProperty]->SetTitle (
-	BodyProperty::ToString (bodyProperty));
-    m_colorBarModel[bodyProperty]->SetInterval (
-	foamAlongTime.GetRange (bodyProperty));
-    m_colorBarModel[bodyProperty]->SetupPalette (Palette::RAINBOW);
+    m_colorBarModel[property]->SetTitle (
+	BodyProperty::ToString (property));
+    m_colorBarModel[property]->SetInterval (
+	foamAlongTime.GetRange (property));
+    m_colorBarModel[property]->SetupPalette (Palette::RAINBOW);
 }
 
 
 
 void MainWindow::CurrentIndexChangedFacesColor (int value)
 {
-    BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT (value);
-    m_bodyProperty = bodyProperty;
-    if (bodyProperty == BodyProperty::NONE)
+    BodyProperty::Enum property = BodyProperty::FromSizeT (value);
+    m_property = property;
+    if (property == BodyProperty::NONE)
     {
 	groupBoxFacesHistogram->setHidden (true);
 	colorBar->setHidden (true);
 	widgetHistogram->setHidden (true);
 	Q_EMIT BodyPropertyChanged (
-	    m_colorBarModel[0], bodyProperty, 
+	    m_colorBarModel[0], property, 
 	    ViewType::FromInt (buttonGroupDisplay->checkedId ()));
     }
     else
@@ -711,28 +713,29 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	groupBoxFacesHistogram->setVisible (true);
 	colorBar->setVisible (true);
 	Q_EMIT BodyPropertyChanged (
-	    m_colorBarModel[bodyProperty], bodyProperty, 
+	    m_colorBarModel[property], property, 
 	    ViewType::FromInt (buttonGroupDisplay->checkedId ()));
 	if (m_histogramType != HistogramType::NONE)
 	    SetAndDisplayHistogram (
 		m_histogramType,
-		bodyProperty,
-		foamAlongTime.GetHistogram (bodyProperty, timeStep),
-		foamAlongTime.GetMaxCountPerBinIndividual (bodyProperty));
+		property,
+		foamAlongTime.GetFoam (timeStep)->
+		GetHistogram (property).ToQwtIntervalData (),
+		foamAlongTime.GetMaxCountPerBinIndividual (property));
     }
 }
 
 void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 {
-    BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT(value);
-    m_bodyProperty = bodyProperty;
-    if (bodyProperty == BodyProperty::NONE)
+    BodyProperty::Enum property = BodyProperty::FromSizeT(value);
+    m_property = property;
+    if (property == BodyProperty::NONE)
     {
 	groupBoxCenterPathHistogram->setHidden (true);
 	colorBar->setHidden (true);
 	widgetHistogram->setHidden (true);
 	Q_EMIT BodyPropertyChanged (
-	    m_colorBarModel[0], bodyProperty, ViewType::CENTER_PATHS);
+	    m_colorBarModel[0], property, ViewType::CENTER_PATHS);
     }
     else
     {
@@ -740,13 +743,13 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	groupBoxCenterPathHistogram->setVisible (true);
 	colorBar->setVisible (true);
 	Q_EMIT BodyPropertyChanged (
-	    m_colorBarModel[bodyProperty], bodyProperty, ViewType::CENTER_PATHS);
+	    m_colorBarModel[property], property, ViewType::CENTER_PATHS);
 	if (m_histogramType != HistogramType::NONE)
 	    SetAndDisplayHistogram (
 		m_histogramType,
-		bodyProperty,
-		foamAlongTime.GetHistogram (bodyProperty),
-		foamAlongTime.GetMaxCountPerBin (bodyProperty));
+		property,
+		foamAlongTime.GetHistogram (property).ToQwtIntervalData (),
+		foamAlongTime.GetHistogram (property).GetMaxCountPerBin ());
     }
 }
 
@@ -756,7 +759,7 @@ void MainWindow::ButtonClickedHistogram (int histogramType)
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     m_histogramType = static_cast<HistogramType::Enum> (histogramType);
     if (m_histogramType == HistogramType::NONE ||
-	m_bodyProperty == BodyProperty::NONE)
+	m_property == BodyProperty::NONE)
     {
 	widgetHistogram->setHidden (true);
 	widgetHistogram->SetColorCoded (false);
@@ -764,17 +767,21 @@ void MainWindow::ButtonClickedHistogram (int histogramType)
     }
     if (radioButtonFacesNormal->isChecked ())
 	SetAndDisplayHistogram (
-	    m_histogramType, m_bodyProperty,
-	    foamAlongTime.GetHistogram (
-		m_bodyProperty, widgetGl->GetTimeStep ()),
-	    foamAlongTime.GetMaxCountPerBinIndividual (m_bodyProperty), 
+	    m_histogramType, m_property,
+	    foamAlongTime.GetFoam (widgetGl->GetTimeStep ())->GetHistogram (
+		m_property).ToQwtIntervalData (),
+	    foamAlongTime.GetMaxCountPerBinIndividual (m_property), 
 	    KEEP_SELECTION);
     else
+    {
+	const HistogramStatistics& histogramStatistics = 
+	    foamAlongTime.GetHistogram (m_property);
 	SetAndDisplayHistogram (
-	    m_histogramType, m_bodyProperty,
-	    foamAlongTime.GetHistogram (m_bodyProperty),
-	    foamAlongTime.GetMaxCountPerBin (m_bodyProperty),
+	    m_histogramType, m_property,
+	    histogramStatistics.ToQwtIntervalData (),
+	    histogramStatistics.GetMaxCountPerBin (),
 	    KEEP_SELECTION);
+    }
 }
 
 void MainWindow::SelectionChangedHistogram ()
@@ -784,7 +791,7 @@ void MainWindow::SelectionChangedHistogram ()
     vector<bool> timeStepSelection;
     const FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     foamAlongTime.GetTimeStepSelection (
-	m_bodyProperty, valueIntervals, &timeStepSelection);
+	m_property, valueIntervals, &timeStepSelection);
     sliderTimeSteps->SetRestrictedTo (timeStepSelection);
 
     boost::shared_ptr<BodySelector> bodySelector;
@@ -794,21 +801,23 @@ void MainWindow::SelectionChangedHistogram ()
     else
 	bodySelector = boost::shared_ptr<BodySelector> (
 	    new PropertyValueBodySelector (
-		m_bodyProperty, valueIntervals, foamAlongTime));
+		m_property, valueIntervals, foamAlongTime));
     widgetGl->SetBodySelector (bodySelector);
 }
 
 void MainWindow::ShowEditColorMap ()
 {
-    FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();    
+    FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
+    const HistogramStatistics& histogramStatistics = 
+	foamAlongTime.GetHistogram (m_property);
     m_editColorMap->SetData (
-	foamAlongTime.GetHistogram (m_bodyProperty),
-	foamAlongTime.GetMaxCountPerBin (m_bodyProperty),
-	*m_colorBarModel[m_bodyProperty],
+	histogramStatistics.ToQwtIntervalData (),
+	histogramStatistics.GetMaxCountPerBin (),
+	*m_colorBarModel[m_property],
 	checkBoxGridEnabled->isChecked ());
     if (m_editColorMap->exec () == QDialog::Accepted)
     {
-	*m_colorBarModel[m_bodyProperty] = m_editColorMap->GetColorBarModel ();
-	Q_EMIT ColorBarModelChanged (m_colorBarModel[m_bodyProperty]);
+	*m_colorBarModel[m_property] = m_editColorMap->GetColorBarModel ();
+	Q_EMIT ColorBarModelChanged (m_colorBarModel[m_property]);
     }
 }
