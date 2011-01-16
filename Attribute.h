@@ -84,6 +84,10 @@ public:
     {
 	return m_value;
     }
+    void set (double value)
+    {
+	m_value = value;
+    }
     
 private:
     /**

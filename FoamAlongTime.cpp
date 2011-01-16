@@ -98,7 +98,7 @@ void FoamAlongTime::calculateStatistics ()
 	double max = acc::max(m_histogram[property]);
 	QtConcurrent::blockingMap (
 	    m_foams.begin (), m_foams.end (),
-	    boost::bind (&Foam::CalculateStatistics, _1,
+	    boost::bind (&Foam::CalculateHistogramStatistics, _1,
 			 BodyProperty::FromSizeT (i), min, max));
     }
 }

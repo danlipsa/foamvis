@@ -63,6 +63,7 @@ public:
      */
     ostream& PrintAttributes (ostream& ostr) const;
     double GetRealAttribute (size_t i) const;
+    void SetRealAttribute (size_t i, double value);
     bool ExistsAttribute (size_t i) const;
 
 protected:

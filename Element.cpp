@@ -141,6 +141,16 @@ double Element::GetRealAttribute (size_t i) const
     return *boost::static_pointer_cast<RealAttribute> ((*m_attributes)[i]);
 }
 
+void Element::SetRealAttribute (size_t i, double value)
+{
+    RuntimeAssert (m_attributes != 0 && i < m_attributes->size (),
+		   "Attribute does not exist at index ", i, 
+		   " for element ", GetId ());
+    RealAttribute& attribute = *boost::static_pointer_cast<RealAttribute> (
+	(*m_attributes)[i]);
+    attribute.set (value);
+}
+
 bool Element::ExistsAttribute (size_t i) const
 {
     return m_attributes != 0 && i < m_attributes->size () &&

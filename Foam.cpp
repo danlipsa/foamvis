@@ -95,7 +95,6 @@ Foam::Foam () :
     m_parsingData (new ParsingData ()),
     m_spaceDimension (3),
     m_quadratic (false),
-    m_minMax (BodyProperty::PROPERTY_END),
     m_histogram (
 	BodyProperty::PROPERTY_END, HistogramStatistics (HISTOGRAM_INTERVALS))
 {
@@ -400,6 +399,24 @@ void Foam::Preprocess ()
     }
     calculateAABox ();
     sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);    
+    calculateMinMaxStatistics ();
+    adjustPressure ();
+}
+
+void Foam::adjustPressure ()
+{
+    double minPressure = GetMin (BodyProperty::PRESSURE);
+    BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
+    {
+	if (body->ExistsPropertyValue (BodyProperty::PRESSURE))
+	{
+	    double newPressure = 
+		body->GetPropertyValue (BodyProperty::PRESSURE) - minPressure;
+	    body->SetPropertyValue (BodyProperty::PRESSURE, newPressure);
+	}
+    }
+    m_min[BodyProperty::PRESSURE] -= minPressure;
+    m_max[BodyProperty::PRESSURE] -= minPressure;
 }
 
 bool Foam::IsTorus () const
@@ -534,18 +551,38 @@ void Foam::SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y)
     SetPeriods (x, y, thirdLength * third);
 }
 
-void Foam::CalculateStatistics (BodyProperty::Enum property,
-				double min, double max)
+void Foam::calculateMinMaxStatistics ()
+{
+    for (size_t i = BodyProperty::PROPERTY_BEGIN; 
+	 i < BodyProperty::PROPERTY_END; ++i)
+    {
+	// statistics for all time-steps
+	BodyProperty::Enum property = BodyProperty::FromSizeT (i);
+	calculateMinMaxStatistics (property);
+    }
+}
+
+void Foam::calculateMinMaxStatistics (BodyProperty::Enum property)
+{
+    MinMaxStatistics minMax;
+    BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
+    {
+	if (body->ExistsPropertyValue (property))
+	    minMax (body->GetPropertyValue (property));
+    }
+    m_min[property] = acc::min (minMax);
+    m_max[property] = acc::max (minMax);
+}
+
+void Foam::CalculateHistogramStatistics (BodyProperty::Enum property,
+					 double min, double max)
 {
     m_histogram[property](min);
     m_histogram[property](max);
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
 	if (body->ExistsPropertyValue (property))
-	{
-	    m_minMax[property] (body->GetPropertyValue (property));
 	    m_histogram[property] (body->GetPropertyValue (property));
-	}
     }
 }
 

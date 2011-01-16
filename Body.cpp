@@ -240,5 +240,13 @@ double Body::GetPropertyValue (BodyProperty::Enum property) const
     default:
 	return GetRealAttribute (property - BodyProperty::PER_BODY_BEGIN);
     }
-    return 0;
+}
+
+void Body::SetPropertyValue (BodyProperty::Enum property, double value)
+{
+    if (property >= BodyProperty::PER_BODY_BEGIN &&
+	property < BodyProperty::PER_BODY_END)
+	SetRealAttribute (property - BodyProperty::PER_BODY_BEGIN, value);
+    else
+	ThrowException ("Cannot set BodyProperty: ", property);
 }

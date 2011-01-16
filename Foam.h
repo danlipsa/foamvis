@@ -221,8 +221,9 @@ public:
      * @param info the object where the default attributes are stored.
      */
     void AddDefaultBodyAttributes ();
-    void CalculateStatistics (BodyProperty::Enum property,
-			      double min, double max);
+    void CalculateHistogramStatistics (BodyProperty::Enum property,
+				       double min, double max);
+
     const HistogramStatistics& GetHistogram (BodyProperty::Enum property) const
     {
 	return m_histogram[property];
@@ -230,12 +231,12 @@ public:
 
     double GetMin (BodyProperty::Enum property) const
     {
-	return acc::min (m_minMax[property]);
+	return m_min[property];
     }
 
     double GetMax (BodyProperty::Enum property) const
     {
-	return acc::max (m_minMax[property]);
+	return m_max[property];
     }
 
     QwtDoubleInterval GetRange (BodyProperty::Enum property) const
@@ -253,6 +254,7 @@ public:
     friend ostream& operator<< (ostream& ostr, const Foam& d);
 
 private:
+    void adjustPressure ();
     void copyStandaloneElements ();
     /**
      * The vectors of vertices, edges, faces and bodies may have holes.
@@ -286,6 +288,9 @@ private:
      * @params high high point of the aabox for the foam (input/output)
      */
     void calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high);
+    void calculateMinMaxStatistics ();
+    void calculateMinMaxStatistics (BodyProperty::Enum property);
+
     void unwrap (VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
     void unwrap (boost::shared_ptr<Edge> edge, VertexSet* vertexSet) const;
     void unwrap (boost::shared_ptr<Face> face, 
@@ -327,7 +332,8 @@ private:
     G3D::AABox m_AABox;
     size_t m_spaceDimension;
     bool m_quadratic;
-    vector<MinMaxStatistics> m_minMax;
+    double m_min[BodyProperty::PROPERTY_END];
+    double m_max[BodyProperty::PROPERTY_END];
     vector<HistogramStatistics> m_histogram;
 };
 
