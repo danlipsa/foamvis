@@ -146,6 +146,7 @@ public:
     string ToString () const;
 
 private:
+    void adjustPressure ();
     /**
      * Calculates the low/high point for the AABox of this list of Foam objects
      * @param aggregate functor to be applied to the list of data objects

@@ -178,7 +178,9 @@ private:
 
 /**
  * Displays the center path for a certain body id
- * @todo Use FoamAlongTime::GetBodyPropertyValue instead of StripIterator functions
+ *
+ * @todo Use FoamAlongTime::GetBodyPropertyValue instead of
+ * StripIterator functions
  */
 template<typename PropertySetter = TexCoordSetter,
 	 typename DisplaySegment = DisplayEdge>
@@ -389,6 +391,22 @@ private:
 	else
 	    return this->m_glWidget.GetCenterPathContextColor ();
     }
+
+    void storeFocusSegment (
+	double value, G3D::Vector3 begin, G3D::Vector3 end)
+    {
+	double textureCoordinate = this->m_glWidget.TexCoord (value);
+	m_focusSegments.push_back (
+	    FocusSegment (textureCoordinate, begin, end));
+    }
+
+    void storeContextSegment (const QColor& color, bool focus,
+			      G3D::Vector3 begin, G3D::Vector3 end)
+    {
+	m_contextSegments.push_back (
+	    ContextSegment (color, focus, begin, end));
+    }
+
     void displayContextSegment (const ContextSegment& coloredSegment)
     {
 	glDisable (GL_TEXTURE_1D);
@@ -408,23 +426,6 @@ private:
 	m_displaySegment (texturedSegment.m_begin, texturedSegment.m_end);
 	DisplayBodyBase<PropertySetter>::endFocusContext (true);
     }
-
-    void storeFocusSegment (
-	double value, G3D::Vector3 begin, G3D::Vector3 end)
-    {
-	double textureCoordinate = this->m_glWidget.TexCoord (value);
-	m_focusSegments.push_back (
-	    FocusSegment (textureCoordinate, begin, end));
-    }
-
-    void storeContextSegment (const QColor& color, bool focus,
-			      G3D::Vector3 begin, G3D::Vector3 end)
-    {
-	m_contextSegments.push_back (
-	    ContextSegment (color, focus, begin, end));
-    }
-
-
 
 private:
     DisplaySegment m_displaySegment;

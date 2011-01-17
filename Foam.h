@@ -221,8 +221,13 @@ public:
      * @param info the object where the default attributes are stored.
      */
     void AddDefaultBodyAttributes ();
+    template <typename Accumulator>
+    void Accumulate (Accumulator* acc, BodyProperty::Enum property) const;
+    void AdjustPressure (double adjustment);
+
     void CalculateHistogramStatistics (BodyProperty::Enum property,
 				       double min, double max);
+    double CalculateMedian (BodyProperty::Enum property);
 
     const HistogramStatistics& GetHistogram (BodyProperty::Enum property) const
     {
@@ -244,8 +249,6 @@ public:
 	return QwtDoubleInterval (GetMin (property), GetMax (property));
     }
     
-    template <typename Accumulator>
-    void Accumulate (Accumulator* acc, BodyProperty::Enum property) const;
 
 public:
     /**
@@ -254,7 +257,6 @@ public:
     friend ostream& operator<< (ostream& ostr, const Foam& d);
 
 private:
-    void adjustPressure ();
     void copyStandaloneElements ();
     /**
      * The vectors of vertices, edges, faces and bodies may have holes.

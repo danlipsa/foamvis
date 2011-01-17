@@ -45,12 +45,6 @@ void DisplayEdgeCylinder::operator() (
 	gluCylinder (
 	    m_quadric, m_edgeRadius, m_edgeRadius, (end - begin).length (),
 	    GLWidget::QUADRIC_SLICES, GLWidget::QUADRIC_STACKS);
-	/*
-	gluQuadricOrientation (m_quadric, GLU_INSIDE);	
-	gluDisk (m_quadric, 0, m_edgeRadius, GLWidget::QUADRIC_SLICES,
-		 GLWidget::QUADRIC_STACKS);
-	glTranslatef (end.x, end.y, end.z);
-	*/
     }
     glPopMatrix ();
 }

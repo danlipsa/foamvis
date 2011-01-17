@@ -56,6 +56,7 @@
 #include <boost/make_shared.hpp>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/density.hpp>
+#include <boost/accumulators/statistics/median.hpp>
 
 
 // required by GLG3D

@@ -400,23 +400,32 @@ void Foam::Preprocess ()
     calculateAABox ();
     sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);    
     calculateMinMaxStatistics ();
-    adjustPressure ();
 }
 
-void Foam::adjustPressure ()
+void Foam::AdjustPressure (double adjustment)
 {
-    double minPressure = GetMin (BodyProperty::PRESSURE);
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
 	if (body->ExistsPropertyValue (BodyProperty::PRESSURE))
 	{
 	    double newPressure = 
-		body->GetPropertyValue (BodyProperty::PRESSURE) - minPressure;
+		body->GetPropertyValue (BodyProperty::PRESSURE) - adjustment;
 	    body->SetPropertyValue (BodyProperty::PRESSURE, newPressure);
 	}
     }
-    m_min[BodyProperty::PRESSURE] -= minPressure;
-    m_max[BodyProperty::PRESSURE] -= minPressure;
+    m_min[BodyProperty::PRESSURE] -= adjustment;
+    m_max[BodyProperty::PRESSURE] -= adjustment;
+}
+
+double Foam::CalculateMedian (BodyProperty::Enum property)
+{
+    MedianStatistics median;
+    BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
+    {
+	if (body->ExistsPropertyValue (property))
+	    median (body->GetPropertyValue (property));
+    }
+    return acc::median (median);
 }
 
 bool Foam::IsTorus () const

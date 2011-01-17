@@ -76,7 +76,38 @@ void FoamAlongTime::Preprocess ()
     CacheBodiesAlongTime ();
     calculateBodyWraps ();
     calculateVelocity ();
+    adjustPressure ();
     calculateStatistics ();
+}
+
+
+
+
+size_t foamsIndex (
+    FoamAlongTime::Foams::iterator current, FoamAlongTime::Foams::iterator begin)
+{
+    return (current - begin) / sizeof *begin;
+}
+
+void FoamAlongTime::adjustPressure ()
+{
+    // adjust pressure by substracting the minimum pressure of a foam
+    // this makes every pressure greater than 0.
+    QtConcurrent::blockingMap (
+	m_foams.begin (), m_foams.end (),
+	boost::bind (&Foam::AdjustPressure, _1, 
+		     boost::bind (&Foam::GetMin, _1, BodyProperty::PRESSURE)));
+
+    // adjust the pressure by aligning the medians with the max median
+    vector<double> medians = 
+	QtConcurrent::blockingMapped< vector<double> > (
+	    m_foams.begin (), m_foams.end (),
+	    boost::bind (&Foam::CalculateMedian, _1, BodyProperty::PRESSURE));
+    double maxMedian = *max_element (medians.begin (), medians.end ());
+    for (size_t i = 0; i < m_foams.size (); ++i)
+    {
+	m_foams[i]->AdjustPressure (medians[i] - maxMedian);
+    }
 }
 
 void FoamAlongTime::calculateStatistics ()

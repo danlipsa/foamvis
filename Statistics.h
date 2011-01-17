@@ -48,6 +48,10 @@ typedef acc::accumulator_set<
     acc::features<acc::tag::min, 
 		  acc::tag::max, acc::tag::count> > MinMaxStatistics;
 
+typedef acc::accumulator_set<
+    double, acc::features<acc::tag::median> > MedianStatistics;
+
+
 #endif //__STATISTICS_H__
 
 // Local Variables:
