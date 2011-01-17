@@ -211,10 +211,13 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 	AxesOrder::TWO_D : 
 	AxesOrder::THREE_D;
     Foam::Bodies bodies = foamAlongTime->GetFoam (0)->GetBodies ();
-    size_t maxIndex = bodies.size () - 1;
-    m_selectBodiesById->SetMinBodyId (bodies[0]->GetId ());
-    m_selectBodiesById->SetMaxBodyId (bodies[maxIndex]->GetId ());
-    m_selectBodiesById->UpdateLabelMinMax ();
+    if (bodies.size () != 0)
+    {
+	size_t maxIndex = bodies.size () - 1;
+	m_selectBodiesById->SetMinBodyId (bodies[0]->GetId ());
+	m_selectBodiesById->SetMaxBodyId (bodies[maxIndex]->GetId ());
+	m_selectBodiesById->UpdateLabelMinMax ();
+    }
 }
 
 bool GLWidget::edgeLighting () const
