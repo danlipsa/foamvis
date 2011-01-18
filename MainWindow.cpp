@@ -54,6 +54,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     spinBoxFontSize->setValue (defaultFont.pointSize ());
 
     widgetGl->SetFoamAlongTime (&foamAlongTime);
+    widgetGl->SetStatus (labelStatus);
     setupColorBarModels ();
     widgetHistogram->setHidden (true);
     m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
@@ -794,15 +795,14 @@ void MainWindow::SelectionChangedHistogram ()
 	m_property, valueIntervals, &timeStepSelection);
     sliderTimeSteps->SetRestrictedTo (timeStepSelection);
 
-    boost::shared_ptr<BodySelector> bodySelector;
     if (widgetHistogram->AreAllItemsSelected ())
-	bodySelector = boost::shared_ptr<BodySelector> (
-	    new CycleBodySelector (*widgetGl));
+	widgetGl->SetBodySelector (
+	    AllBodySelector::Get (), BodySelectorType::PROPERTY_VALUE);
     else
-	bodySelector = boost::shared_ptr<BodySelector> (
-	    new PropertyValueBodySelector (
-		m_property, valueIntervals, foamAlongTime));
-    widgetGl->SetBodySelector (bodySelector);
+	widgetGl->SetBodySelector (
+	    boost::shared_ptr<PropertyValueBodySelector> (
+		new PropertyValueBodySelector (
+		    m_property, valueIntervals, foamAlongTime)));
 }
 
 void MainWindow::ShowEditColorMap ()

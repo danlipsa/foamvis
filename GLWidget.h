@@ -25,6 +25,9 @@ class OrientedFace;
 class OrientedEdge;
 class OOBox;
 class SelectBodiesById;
+class PropertyValueBodySelector;
+class IdBodySelector;
+class AllBodySelector;
 
 /**
  * Widget for displaying foam bubbles using OpenGL
@@ -65,11 +68,11 @@ public:
     {
 	return *m_foamAlongTime;
     }
-    void SetBodySelector (boost::shared_ptr<BodySelector> bodySelector)
-    {
-	m_bodySelector = bodySelector;
-	updateGL ();
-    }
+    void SetBodySelector (boost::shared_ptr<PropertyValueBodySelector> selector);
+    void SetBodySelector (boost::shared_ptr<IdBodySelector> bodySelector);
+    void SetBodySelector (boost::shared_ptr<AllBodySelector> selector, 
+			  BodySelectorType::Enum type);
+
     const BodySelector& GetBodySelector () const
     {
 	return *m_bodySelector;
@@ -298,6 +301,10 @@ public Q_SLOTS:
      */
     void ValueChangedSliderTimeSteps (int timeStep);
     void ButtonClickedLightPosition (int lightPosition);
+    void SetStatus (QLabel* labelStatus)
+    {
+	m_labelStatus = labelStatus;
+    }
 
 public:
     const static  size_t DISPLAY_ALL;
@@ -333,6 +340,8 @@ protected:
      */
     void mouseMoveEvent(QMouseEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
+
+
 private:
 
     enum Lighting
@@ -501,6 +510,7 @@ private:
     void rotate2DTimeDisplacement () const;
     void rotate2DRight90 () const;
     void toggledLights ();
+    void setBodySelectorLabel (BodySelectorType::Enum type);
 
 private:
     static void displayOpositeFaces (G3D::Vector3 origin,
@@ -593,8 +603,7 @@ private:
     BodyProperty::Enum m_facesColor;
     QColor m_notAvailableCenterPathColor;
     QColor m_notAvailableFaceColor;
-    boost::shared_ptr<const BodySelector> CYCLE_BODY_SELECTOR;
-    boost::shared_ptr<const BodySelector> m_bodySelector;
+    boost::shared_ptr<BodySelector> m_bodySelector;
 
     // owned by MainWindows
     boost::shared_ptr<QAction> m_actionSelectAll;
@@ -618,6 +627,7 @@ private:
     boost::scoped_ptr<DisplayFaceAverage> m_displayFaceAverage;
     bitset<LIGHTS_COUNT> m_lightEnabled;
     boost::shared_ptr<SelectBodiesById> m_selectBodiesById;
+    QLabel *m_labelStatus;
 };
 
 #endif //__GLWIDGET_H__

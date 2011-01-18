@@ -26,6 +26,11 @@ void SelectBodiesById::UpdateLabelMinMax ()
     labelInstructions->setText (instructions.str ().c_str ());    
 }
 
+void SelectBodiesById::ClearEditIds ()
+{
+    lineEditIds->setText ("");
+}
+
 void SelectBodiesById::accept ()
 {
     QString text = lineEditIds->text ();

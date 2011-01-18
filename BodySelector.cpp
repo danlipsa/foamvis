@@ -7,20 +7,21 @@
  */
 
 #include "BodySelector.h"
+#include "Debug.h"
+#include "DebugStream.h"
 #include "FoamAlongTime.h"
 #include "GLWidget.h"
-#include "DebugStream.h"
 
 
 
-// Members
+// AllBodySelector
 // ======================================================================
-bool CycleBodySelector::operator () (size_t bodyId, size_t timeStep) const
-{
-    (void)timeStep;
-    return m_glWidget.IsDisplayedBody (bodyId);
-}
 
+boost::shared_ptr<AllBodySelector> AllBodySelector::SELECTOR = 
+    boost::shared_ptr<AllBodySelector> (new AllBodySelector ());
+
+// PropertyValueBodySelector
+// ======================================================================
 
 bool PropertyValueBodySelector::operator () (
     size_t bodyId, size_t timeStep) const
@@ -37,6 +38,18 @@ bool PropertyValueBodySelector::operator () (
     }
     else
 	return false;
+}
+
+// IdBodySelector
+// ======================================================================
+
+IdBodySelector::IdBodySelector ()
+{
+}
+
+IdBodySelector::IdBodySelector (size_t id)
+{
+    m_ids.push_back (id);
 }
 
 IdBodySelector::IdBodySelector (const vector<size_t>& ids) :
@@ -57,3 +70,14 @@ bool IdBodySelector::operator () (
 	m_ids.begin (), m_ids.end (), bodyId);
     return it != m_ids.end ();
 }
+
+// CompositeBodySelector
+// ======================================================================
+
+bool CompositeBodySelector::operator () (
+    size_t bodyId, size_t timeStep) const
+{
+    return (*m_idSelector) (bodyId, timeStep) && 
+	(*m_propertyValueSelector) (bodyId, timeStep);
+}
+

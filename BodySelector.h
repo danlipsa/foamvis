@@ -11,44 +11,42 @@
 #include "Enums.h"
 
 /**
- * Abstract class. Selects a list of bodies based on a property.
+ * Abstract class. Selects a list of bodies based on a criteria.
  */
 class BodySelector
 {
 public:
+    virtual ~BodySelector ()
+    {
+    }
     /**
      * Returns true if this body is selected.
      */
     virtual bool operator () (size_t bodyId, size_t timeStep) const = 0;
+    virtual BodySelectorType::Enum GetType () const = 0;
 };
 
-class AllBodiesSelected : public BodySelector
+class AllBodySelector : public BodySelector
 {
+public:
     virtual bool operator () (size_t bodyId, size_t timeStep) const
     {
 	(void) bodyId;
 	(void) timeStep;
 	return true;
     }
-};
-
-
-class GLWidget;
-/**
- * Selects a body specified by GLWidget. (which cycles through all bodies)
- */
-class CycleBodySelector : public BodySelector
-{
-public:
-    CycleBodySelector (const GLWidget& glWidget) :
-	m_glWidget (glWidget)
+    BodySelectorType::Enum GetType () const
     {
+	return BodySelectorType::ALL;
     }
-    
-    virtual bool operator () (size_t bodyId, size_t timeStep) const;
-    
+
+public:
+    static boost::shared_ptr<AllBodySelector> Get ()
+    {
+	return SELECTOR;
+    }
 private:
-    const GLWidget& m_glWidget;
+    static boost::shared_ptr<AllBodySelector> SELECTOR;
 };
 
 class FoamAlongTime;
@@ -62,14 +60,21 @@ public:
     typedef vector<QwtDoubleInterval> ValueIntervals;
 public:
     PropertyValueBodySelector (BodyProperty::Enum property,
-			   vector<QwtDoubleInterval> valueIntervals,
-			   const FoamAlongTime& foamAlongTime) :
+			       vector<QwtDoubleInterval> valueIntervals,
+			       const FoamAlongTime& foamAlongTime) :
 	m_property (property), m_valueIntervals (valueIntervals),
 	m_foamAlongTime (foamAlongTime)
     {
     }
+    virtual ~PropertyValueBodySelector ()
+    {
+    }
 
     virtual bool operator () (size_t bodyId, size_t timeStep) const;
+    BodySelectorType::Enum GetType () const
+    {
+	return BodySelectorType::PROPERTY_VALUE;
+    }
 
 private:
     BodyProperty::Enum m_property;
@@ -84,15 +89,75 @@ private:
 class IdBodySelector : public BodySelector
 {
 public:
+    IdBodySelector ();
+    IdBodySelector (size_t id);
     IdBodySelector (const vector<size_t>& ids);
+    virtual ~IdBodySelector ()
+    {
+    }
+
     virtual bool operator () (size_t bodyId, size_t timeStep) const;
+    BodySelectorType::Enum GetType () const
+    {
+	return BodySelectorType::ID;
+    }
 
 private:
     vector<size_t> m_ids;
 };
 
+/**
+ * Selects a body based on Id and PropertyValue.
+ */
+class CompositeBodySelector : public BodySelector
+{
+public:
+    CompositeBodySelector (
+	boost::shared_ptr<IdBodySelector> idSelector,
+	boost::shared_ptr<PropertyValueBodySelector> propertyValueSelector) :
+	m_idSelector (idSelector),
+	m_propertyValueSelector (propertyValueSelector)
+    {
+    }
+    virtual ~CompositeBodySelector ()
+    {
+    }
+
+    boost::shared_ptr<PropertyValueBodySelector> 
+    GetPropertyValueSelector () const
+    {
+	return m_propertyValueSelector;
+    }
+    boost::shared_ptr<IdBodySelector> GetIdSelector () const
+    {
+	return m_idSelector;
+    }
+
+    void SetSelector (
+	boost::shared_ptr<PropertyValueBodySelector> propertyValueSelector)
+    {
+	m_propertyValueSelector = propertyValueSelector;
+    }
+
+    void SetSelector (boost::shared_ptr<IdBodySelector> idSelector)
+    {
+	m_idSelector = idSelector;
+    }
+
+    virtual bool operator () (size_t bodyId, size_t timeStep) const;
+    BodySelectorType::Enum GetType () const
+    {
+	return BodySelectorType::COMPOSITE;
+    }
+
+private:
+    boost::shared_ptr<IdBodySelector> m_idSelector;
+    boost::shared_ptr<PropertyValueBodySelector> m_propertyValueSelector;
+};
+
 
 #endif //__BODY_SELECTOR_H__
+
 // Local Variables:
 // mode: c++
 // End:

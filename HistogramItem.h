@@ -2,6 +2,7 @@
  * Qwt Widget Library
  * Copyright (C) 1997   Josef Wilgen
  * Copyright (C) 2002   Uwe Rathmann
+ * Changed by Dan Lipsa
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the Qwt License, Version 1.0
@@ -37,6 +38,9 @@ public:
     QColor focusColor () const;
     const QwtLinearColorMap& getColorMap () const;
     void getSelectedIntervals (vector<QwtDoubleInterval>* intervals) const;
+    /**
+     * Gets the bins that have selection 'selected'.
+     */
     void getSelectedBins (
 	vector< pair<size_t, size_t> >* intervals, bool selected = true) const;
     double getMaxValueAxis () const;

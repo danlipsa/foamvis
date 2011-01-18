@@ -282,6 +282,18 @@ struct LightPosition
     };
 };
 
+class BodySelectorType
+{
+public:
+    enum Enum
+    {
+	ALL,
+	ID,
+	PROPERTY_VALUE,
+	COMPOSITE
+    };
+};
+
 
 #endif //__ENUMS_H__
 

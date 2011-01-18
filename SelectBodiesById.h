@@ -29,6 +29,7 @@ public:
 	m_minBodyId = minBodyId;
     }
     void UpdateLabelMinMax ();
+    void ClearEditIds ();
 
 public Q_SLOTS:
     virtual void accept ();
