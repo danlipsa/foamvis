@@ -166,6 +166,9 @@ make distclean;release.pl;cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
+0.3.1680 - bug fix for coarse100/coarse_01_0100_0407.dmp
+	 - pressures made > 0 and aligned medians between time steps
+	 - added combination brushing: by id and by property value
 0.3.1598 - bug fix for pull2_bi_204_00099.dmp, updated test.pl
 	 - bug fix assert failure for ctnctr timesteps [89]??
 
