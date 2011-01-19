@@ -6,7 +6,18 @@
  * Implementation for functors that display an edge
  */
 
+#include "DebugStream.h"
 #include "DisplayEdgeFunctors.h"
+#include "DisplayVertexFunctors.h"
+#include "Edge.h"
+#include "Face.h"
+#include "Foam.h"
+#include "GLWidget.h"
+#include "OrientedEdge.h"
+#include "OrientedFace.h"
+#include "OpenGLUtils.h"
+#include "Utils.h"
+#include "Vertex.h"
 
 G3D::Matrix3 edgeRotation (const G3D::Vector3& begin, const G3D::Vector3& end)
 {
@@ -24,6 +35,9 @@ G3D::Matrix3 edgeRotation (const G3D::Vector3& begin, const G3D::Vector3& end)
     return rotation;
 }
 
+// DisplayEdge
+// ======================================================================
+
 void DisplayEdge::operator() (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
@@ -32,6 +46,9 @@ void DisplayEdge::operator() (
     glVertex(end);
     glEnd();
 }
+
+// DisplayEdgeCylinder
+// ======================================================================
 
 void DisplayEdgeCylinder::operator() (
     const G3D::Vector3& begin, const G3D::Vector3& end)
@@ -49,6 +66,9 @@ void DisplayEdgeCylinder::operator() (
     glPopMatrix ();
 }
 
+// DisplayArrow
+// ======================================================================
+
 void DisplayArrow::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
@@ -60,6 +80,9 @@ void DisplayArrow::operator () (
     glEnd();
     glPopAttrib ();
 }
+
+// DisplayArrowTube
+// ======================================================================
 
 void DisplayArrowTube::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
@@ -83,6 +106,16 @@ void DisplayArrowTube::operator () (
     glPopMatrix ();
 }
 
+// DisplayEdgeTorusClipped
+// ======================================================================
+
+void DisplayEdgeTorusClipped::operator() (
+    const boost::shared_ptr<OrientedEdge>& oe) const
+{
+    operator () (oe->GetEdge ());
+}
+
+
 void DisplayEdgeTorusClipped::operator () (
     const boost::shared_ptr<Edge>& edge) const
 {
@@ -101,6 +134,9 @@ void DisplayEdgeTorusClipped::operator () (
     }
 }
 
+// DisplayOrientedEdge
+// ======================================================================
+
 void DisplayOrientedEdge::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
@@ -111,6 +147,8 @@ void DisplayOrientedEdge::operator () (
     displayArrow (begin, end);
 }
 
+// DisplayOrientedEdgeTube
+// ======================================================================
 
 void DisplayOrientedEdgeTube::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
@@ -120,6 +158,117 @@ void DisplayOrientedEdgeTube::operator () (
 	m_quadric, m_baseRadius, m_topRadius, m_height, m_position);
     displayEdge (begin, end);
     displayArrow (begin, end);
+}
+
+// DisplayEdgeTorus
+// ======================================================================
+template <typename DisplayEdge, typename DisplayArrow, bool showDuplicates>
+DisplayEdgeTorus<DisplayEdge, DisplayArrow, showDuplicates>::DisplayEdgeTorus (
+    const GLWidget& widget, FocusContext focus, bool useZPos, double zPos) : 
+    
+    DisplayElementFocus (widget, focus, useZPos, zPos),
+    m_displayEdge (m_glWidget.GetQuadricObject (), m_glWidget.GetEdgeRadius ()),
+    m_displayArrow (m_glWidget.GetQuadricObject (),
+		    m_glWidget.GetArrowBaseRadius (),
+		    m_glWidget.GetEdgeRadius (),
+		    m_glWidget.GetArrowHeight ())
+    {
+    }
+
+template <typename DisplayEdge, typename DisplayArrow, bool showDuplicates>
+void DisplayEdgeTorus<DisplayEdge, DisplayArrow, showDuplicates>::
+operator () (const OrientedEdge& oe)
+{
+    operator () (oe.GetEdge ());
+}
+
+template <typename DisplayEdge, typename DisplayArrow, bool showDuplicates>
+void DisplayEdgeTorus<DisplayEdge, DisplayArrow, showDuplicates>::
+operator() (const boost::shared_ptr<OrientedEdge> oe) 
+{
+    operator() (oe->GetEdge());
+}
+
+template <typename DisplayEdge, typename DisplayArrow, bool showDuplicates>
+void DisplayEdgeTorus<DisplayEdge, DisplayArrow, showDuplicates>::
+operator() (const boost::shared_ptr<Edge>  e)
+{
+    if (showDuplicates 
+	|| e->GetDuplicateStatus () != ElementStatus::DUPLICATE)
+	display (e);
+}
+
+template <typename DisplayEdge, typename DisplayArrow, bool showDuplicates>
+void DisplayEdgeTorus<DisplayEdge, DisplayArrow, showDuplicates>::
+display (const boost::shared_ptr<Edge>  e)
+{
+    glPushAttrib (GL_CURRENT_BIT);
+    const Vertex* begin = e->GetBegin ().get ();
+    const Vertex* end = e->GetEnd ().get ();
+    G3D::Vector3int16 endLocation = e->GetEndTranslation ();
+    glColor (m_glWidget.GetEndTranslationColor (endLocation));
+
+    if (endLocation != Vector3int16Zero)
+	m_displayArrow(*begin, *end);
+    m_displayEdge(*begin, *end);
+    glPopAttrib ();
+}
+
+
+// DisplayEdgeWithColor
+// ======================================================================
+
+template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
+DisplayEdgeWithColor<tesselationEdgesDisplay>::
+DisplayEdgeWithColor (const GLWidget& widget, FocusContext focus,
+		      bool useZPos, double zPos) : 
+    
+    DisplayElementFocus (widget, focus, useZPos, zPos)
+{
+}
+
+template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
+void DisplayEdgeWithColor<tesselationEdgesDisplay>::
+operator () (const boost::shared_ptr<Edge> edge) const
+{
+    operator () (*edge);
+}
+
+template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
+void DisplayEdgeWithColor<tesselationEdgesDisplay>::
+operator () (const Edge& edge) const
+{
+    const Foam& foam = m_glWidget.GetCurrentFoam ();
+    bool isPhysical = edge.IsPhysical (foam.GetDimension (),
+				       foam.IsQuadratic ());
+    if (isPhysical || 
+	(tesselationEdgesDisplay == TEST_DISPLAY_TESSELLATION &&
+	 m_glWidget.IsEdgesTessellation () && 
+	 m_focus == FOCUS))
+    {
+	double alpha = 
+	    (m_focus == FOCUS ? 1.0 : m_glWidget.GetContextAlpha ());
+	Color::Enum color = edge.GetColor (Color::BLACK);
+	glColor (G3D::Color4 (Color::GetValue(color), alpha));
+	glBegin(GL_LINE_STRIP);
+	DisplayEdgeVertices (edge, m_useZPos, m_zPos);
+	glEnd ();
+    }
+}
+
+template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
+void DisplayEdgeWithColor<tesselationEdgesDisplay>::
+operator() (const boost::shared_ptr<OrientedEdge> oe) const
+    {
+	operator () (oe->GetEdge ());
+    }
+
+
+// DisplaySameEdges
+// ======================================================================
+void DisplaySameEdges::operator() (const boost::shared_ptr<OrientedFace>&  of)
+{
+    operator() (of->GetFace ());
 }
 
 void DisplaySameEdges::operator() (const boost::shared_ptr<Face>& f)
@@ -132,6 +281,18 @@ void DisplaySameEdges::operator() (const boost::shared_ptr<Face>& f)
 	glVertex (*v[v.size () - 1]->GetEnd ());
     glEnd ();
 }
+
+// DisplayTriangleFan
+// ======================================================================
+
+void DisplayTriangleFan::operator() (const boost::shared_ptr<OrientedFace>&  of)
+{
+    operator() (of->GetFace ());
+}
+
+
+// DisplaySameTriangle
+// ======================================================================
 
 void DisplaySameTriangles::operator() (const boost::shared_ptr<Face>& f)
 {
@@ -151,4 +312,48 @@ void DisplaySameTriangles::operator() (const boost::shared_ptr<Face>& f)
 	       *orientedEdges[0]->GetBegin ());
     }
     glEnd ();
+}
+
+void DisplaySameTriangles::operator() (const boost::shared_ptr<OrientedFace>& of)
+{
+    operator() (of->GetFace ());
+}
+
+// DisplayEdges
+// ======================================================================
+
+template<typename displayEdge>
+DisplayEdges<displayEdge>::
+DisplayEdges (const GLWidget& widget, FocusContext focus, bool useZPos, 
+	      double zPos) :
+ 
+    DisplayElementFocus (widget, focus, useZPos, zPos)
+{
+}
+
+template<typename displayEdge>
+void DisplayEdges<displayEdge>::
+operator() (const boost::shared_ptr<OrientedFace>  f)
+{
+    operator() (f->GetFace ());
+}
+
+template<typename displayEdge>
+void DisplayEdges<displayEdge>::
+operator () (const boost::shared_ptr<Face>  f)
+{
+    const vector< boost::shared_ptr<OrientedEdge> >& v = 
+	f->GetOrientedEdges ();
+    displayEdge display(m_glWidget, m_focus, m_useZPos, m_zPos);
+    for (size_t i = 0; i < v.size (); i++)
+    {
+	boost::shared_ptr<OrientedEdge> oe = v[i];
+	size_t displayedEdgeIndex = m_glWidget.GetDisplayedEdgeIndex ();
+	if (m_glWidget.IsDisplayedEdge (i))
+	{
+	    display (oe);
+	    if (i == displayedEdgeIndex)
+		cdbg << "edge " << i << ": " << *oe;
+	}
+    }
 }

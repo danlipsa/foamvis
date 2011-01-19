@@ -12,7 +12,9 @@
 #include "DisplayFaceFunctors.h"
 #include "DisplayEdgeFunctors.h"
 #include "Foam.h"
+#include "FoamAlongTime.h"
 #include "GLWidget.h"
+#include "OpenGLUtils.h"
 #include "PropertySetter.h"
 
 

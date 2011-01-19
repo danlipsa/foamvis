@@ -31,6 +31,11 @@ public:
 	m_program (program), m_attributeIndex (attributeIndex)
     {
     }
+    VertexAttributeSetter (const GLWidget& glWidget) :
+	m_program (*(QGLShaderProgram*)0), m_attributeIndex (0)
+    {
+	(void)glWidget;
+    }
 
     void operator () (double value)
     {

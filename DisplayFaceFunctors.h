@@ -9,8 +9,11 @@
 #ifndef __DISPLAY_FACE_FUNCTORS_H__
 #define __DISPLAY_FACE_FUNCTORS_H__
 
-#include "FoamAlongTime.h"
 #include "DisplayEdgeFunctors.h"
+#include "DisplayElement.h"
+
+class Face;
+class OrientedFace;
 
 /**
  * Functor that displays a face
@@ -27,65 +30,25 @@ public:
 		 typename DisplayElement::FocusContext focus = 
 		 DisplayElement::FOCUS,
 		 BodyProperty::Enum property = BodyProperty::NONE,
-		 bool useZPos = false, double zPos = 0) : 
-
-	DisplayElementPropertyFocus<PropertySetter> (
-	    widget, PropertySetter (widget), property, focus, 
-	    useZPos, zPos), 
-	m_count(0)
-    {
-    }
-
-
+		 bool useZPos = false, double zPos = 0);
 
     DisplayFace (const GLWidget& widget,
 		 PropertySetter propertySetter,
 		 typename DisplayElement::FocusContext focus = 
 		 DisplayElement::FOCUS,
 		 BodyProperty::Enum property = BodyProperty::NONE, 
-		 bool useZPos = false, double zPos = 0) : 
-	DisplayElementPropertyFocus<PropertySetter> (
-	    widget, propertySetter, property, focus, useZPos, zPos), 
-	m_count(0)
-    {
-    }
+		 bool useZPos = false, double zPos = 0);
 
     /**
      * Functor that displays a face
      * @param f the face to be displayed
      */
-    void operator() (const boost::shared_ptr<OrientedFace>& of)
-    {
-        if (this->m_glWidget.IsDisplayedFace (m_count))
-        {
-	    display (of);
-	    if (m_count == this->m_glWidget.GetDisplayedFaceIndex ())
-		cdbg << "face " << m_count << ": " << *of << endl;
-        }
-        m_count++;
-    }
+    void operator() (const boost::shared_ptr<OrientedFace>& of);
 
-    void operator () (const boost::shared_ptr<Face>& f)
-    {
-	boost::shared_ptr<OrientedFace> of = 
-	    boost::make_shared<OrientedFace>(f, false);
-	operator() (of);
-    }
-
+    void operator () (const boost::shared_ptr<Face>& f);
 
 protected:
-    virtual void display (const boost::shared_ptr<OrientedFace>& of)
-    {
-	if (this->m_focus == DisplayElement::FOCUS)
-	{
-	    glColor (G3D::Color4 (Color::BLACK, 1.));
-	}
-	else
-	    glColor (
-		G3D::Color4 (Color::BLACK, this->m_glWidget.GetContextAlpha ()));
-	(displayEdges (this->m_glWidget, this->m_focus, 
-		       this->m_useZPos, this->m_zPos)) (of);
-    }
+    virtual void display (const boost::shared_ptr<OrientedFace>& of);
 
 private:
     /**
@@ -113,98 +76,21 @@ public:
 	const GLWidget& widget,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	BodyProperty::Enum property = BodyProperty::NONE, 
-	bool useZPos = false, double zPos = 0) : 
-
-	DisplayFace<displaySameEdges, PropertySetter> (
-	    widget, PropertySetter (widget), focus, property, useZPos, zPos)
-    {
-    }
-
+	bool useZPos = false, double zPos = 0);
 
     DisplayFaceWithColor (
 	const GLWidget& widget,
 	PropertySetter propertySetter,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	BodyProperty::Enum property = BodyProperty::NONE, 
-	bool useZPos = false, double zPos = 0) : 
-
-	DisplayFace<displaySameEdges, PropertySetter> (
-	    widget, propertySetter, focus, property, useZPos, zPos) 
-    {}
-
-
+	bool useZPos = false, double zPos = 0);
 
 protected:
-    virtual void display (const boost::shared_ptr<OrientedFace>& of)
-    {
+    virtual void display (const boost::shared_ptr<OrientedFace>& of);
 
-	glNormal (of->GetNormal ());
-	bool useColor;
-	setColorOrTexture (of, &useColor);
-	if (useColor)
-	    glDisable (GL_TEXTURE_1D);
-	(displaySameEdges (this->m_glWidget)) (of);
-	if (useColor)
-	    glEnable (GL_TEXTURE_1D);
-
-/*
-	// prepare the stencil
-	glClear (GL_STENCIL_BUFFER_BIT);
-	glDrawBuffer (GL_NONE);
-	glEnable (GL_STENCIL_TEST);
-	glStencilOp (GL_KEEP, GL_KEEP, GL_INVERT);
-	(displaySameEdges (this->m_glWidget)) (of);
-	
-
-	// draw the concave polygon
-	glDrawBuffer (GL_FRONT);
-	glStencilFunc (GL_GREATER, 0, 0xff);
-
-	glNormal (of->GetNormal ());
-	bool useColor;
-	setColorOrTexture (of, &useColor);
-	if (useColor)
-	    glDisable (GL_TEXTURE_1D);
-	(displaySameEdges (this->m_glWidget)) (of);
-	if (useColor)
-	    glEnable (GL_TEXTURE_1D);
-	
-	glDisable (GL_STENCIL_TEST);
-*/
-    }
 private:
     void setColorOrTexture (const boost::shared_ptr<OrientedFace>& of, 
-			    bool* useColor)
-    {
-	*useColor = true;
-	if (this->m_focus == DisplayElement::FOCUS)
-	{
-	    if (this->m_property == BodyProperty::NONE)
-		glColor (Color::GetValue(of->GetColor ()));
-	    else
-	    {
-		size_t bodyId = of->GetBodyPartOf ().GetBodyId ();
-		QColor color;
-		const FoamAlongTime& foamAlongTime = 
-		    this->m_glWidget.GetFoamAlongTime ();
-		if (foamAlongTime.ExistsBodyProperty (
-			this->m_property, bodyId, 
-			this->m_glWidget.GetTimeStep ()))
-		{
-		    double value = foamAlongTime.GetBodyPropertyValue (
-			this->m_property, bodyId, 
-			this->m_glWidget.GetTimeStep ());
-		    this->m_propertySetter (value);
-		    *useColor = false;
-		}
-		else
-		    glColor (this->m_glWidget.GetNotAvailableFaceColor ());
-	    }
-	}
-	else
-	    glColor (G3D::Color4 (Color::GetValue(Color::BLACK),
-				  this->m_glWidget.GetContextAlpha ()));
-    }
+			    bool* useColor);
 };
 
 #endif //__DISPLAY_FACE_FUNCTORS_H__

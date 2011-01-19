@@ -10,19 +10,24 @@
 #include "BodyAlongTime.h"
 #include "BodySelector.h"
 #include "ColorBarModel.h"
-#include "FoamAlongTime.h"
-#include "GLWidget.h"
 #include "Debug.h"
+#include "DebugStream.h"
 #include "DisplayFaceAverage.h"
 #include "DisplayBlend.h"
 #include "DisplayBodyFunctors.h"
 #include "DisplayEdgeFunctors.h"
 #include "DisplayFaceFunctors.h"
 #include "DisplayVertexFunctors.h"
+#include "Edge.h"
+#include "Face.h"
+#include "Foam.h"
+#include "FoamAlongTime.h"
+#include "GLWidget.h"
 #include "OpenGLInfo.h"
 #include "OpenGLUtils.h"
 #include "SelectBodiesById.h"
 #include "Utils.h"
+#include "Vertex.h"
 
 // Private Classes
 // ======================================================================
@@ -1151,6 +1156,8 @@ void GLWidget::displayCenterPathsWithBodies () const
 	    (GetFoamAlongTime ().GetTimeSteps () - 1)*GetTimeDisplacement ());	
     }
 }
+
+
 
 void GLWidget::displayCenterPaths () const
 {

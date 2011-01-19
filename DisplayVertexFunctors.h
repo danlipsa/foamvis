@@ -10,13 +10,9 @@
 #define __DISPLAY_VERTEX_FUNCTORS_H__
 
 #include "DisplayElement.h"
-#include "Edge.h"
-#include "Face.h"
-#include "Foam.h"
-#include "GLWidget.h"
-#include "OrientedEdge.h"
-#include "OrientedFace.h"
-#include "Vertex.h"
+class Edge;
+class OrientedEdge;
+class Vertex;
 
 void DisplayEdgeVertices (const Edge& edge,
 			  bool useZPos = false, double zPos = 0);
@@ -24,13 +20,7 @@ void  DisplayAllButLastVertices (const boost::shared_ptr<OrientedEdge> oe);
 
 struct DisplayOriginalVertex
 {
-    void operator() (const boost::shared_ptr<Vertex>& v)
-    {
-	if (v->GetDuplicateStatus () != ElementStatus::DUPLICATE)
-	{
-	    glVertex (*v);	
-	}
-    }
+    void operator() (const boost::shared_ptr<Vertex>& v);
 };
 
 /**
@@ -39,15 +29,15 @@ struct DisplayOriginalVertex
  */
 struct DisplayBeginVertex
 {
-    DisplayBeginVertex () {}
-    DisplayBeginVertex (const GLWidget&) {}
-    void operator() (const boost::shared_ptr<OrientedEdge> e)
+    DisplayBeginVertex () 
     {
-	glVertex (*e->GetBegin ());
-	//for (size_t i = 0; i < e->PointCount (); ++i)
-	//glVertex(e->GetPoint (i));
-	
     }
+    
+    DisplayBeginVertex (const GLWidget&) 
+    {
+    }
+    
+    void operator() (const boost::shared_ptr<OrientedEdge> e);
 };
 
 class DisplayTriangle : 
@@ -58,16 +48,9 @@ public:
 	m_center (center)
     {
     }
-    void operator() (const boost::shared_ptr<OrientedEdge> e) const
-    {
-	operator () (*e->GetBegin (), *e->GetEnd ());
-    }
-    void operator() (const G3D::Vector3& begin, const G3D::Vector3& end) const
-    {
-	glVertex (m_center);
-	glVertex (begin);
-	glVertex (end);
-    }
+
+    void operator() (const boost::shared_ptr<OrientedEdge> e) const;
+    void operator() (const G3D::Vector3& begin, const G3D::Vector3& end) const;
 private:
     const G3D::Vector3& m_center;
 };

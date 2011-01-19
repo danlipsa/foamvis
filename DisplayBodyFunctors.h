@@ -9,18 +9,13 @@
 #ifndef __DISPLAY_BODY_FUNCTORS_H__
 #define __DISPLAY_BODY_FUNCTORS_H__
 
-#include "Body.h"
-#include "BodyAlongTime.h"
-#include "BodySelector.h"
-#include "DebugStream.h"
 #include "DisplayElement.h"
-#include "Enums.h"
-#include "Foam.h"
-#include "GLWidget.h"
-#include "OpenGLUtils.h"
 #include "StripIterator.h"
-#include "PropertySetter.h"
-#include "DisplayEdgeFunctors.h"
+class DisplayEdge;
+class Body;
+class BodyAlongTime;
+class BodySelector;
+class StripIterator;
 
 /**
  * Functor used to display a body
@@ -37,11 +32,7 @@ public:
 		     const BodySelector& bodySelector, 
 		     PropertySetter propertySetter,
 		     BodyProperty::Enum property = BodyProperty::NONE,
-		     bool useZPos = false, double zPos = 0) : 
-	DisplayElementProperty<PropertySetter> (
-	    widget, propertySetter, property, useZPos, zPos), 
-	m_bodySelector (bodySelector)
-    {}
+		     bool useZPos = false, double zPos = 0);
 
     /**
      * Functor used  to display a body. Uses  transparencey to display
@@ -52,14 +43,7 @@ public:
      *
      * @param b the body to be displayed
      */
-    void operator () (boost::shared_ptr<Body> b)
-    {
-        bool focus = m_bodySelector (b->GetId (), 
-				     this->m_glWidget.GetTimeStep ());
-	beginFocusContext (focus);
-	display (b, focus ? DisplayElement::FOCUS : DisplayElement::CONTEXT);
-	endFocusContext (focus);
-    }
+    void operator () (boost::shared_ptr<Body> b);
 
 protected:
     /**
@@ -130,13 +114,7 @@ public:
 	typename DisplayElement::ContextType 
 	contextDisplay = DisplayElement::TRANSPARENT_CONTEXT,
 	BodyProperty::Enum property = BodyProperty::NONE,
-	bool useZPos = false, double zPos = 0) : 
-
-	DisplayBodyBase<PropertySetter> (
-	    widget, bodySelector, PropertySetter (widget), property, 
-	    useZPos, zPos),
-	m_contextDisplay (contextDisplay)
-    {}
+	bool useZPos = false, double zPos = 0);
 
     DisplayBody (
 	const GLWidget& widget, const BodySelector& bodySelector,
@@ -144,13 +122,7 @@ public:
 	BodyProperty::Enum property = BodyProperty::NONE,
 	typename DisplayElement::ContextType 
 	contextDisplay = DisplayElement::TRANSPARENT_CONTEXT,
-	bool useZPos = false, double zPos = 0) : 
-
-	DisplayBodyBase<PropertySetter> (
-	    widget, bodySelector, setter, property, useZPos, zPos),
-	m_contextDisplay (contextDisplay)
-    {}
-
+	bool useZPos = false, double zPos = 0);
 
 protected:
     /**
@@ -158,19 +130,8 @@ protected:
      * @param b the body to be displayed
      */
     virtual void display (
-	boost::shared_ptr<Body> b, typename DisplayElement::FocusContext bodyFc)
-    {
-	if (bodyFc == DisplayElement::CONTEXT &&
-	    m_contextDisplay == DisplayElement::INVISIBLE_CONTEXT)
-	    return;
-	vector<boost::shared_ptr<OrientedFace> > v = b->GetOrientedFaces ();
-	for_each (
-	    v.begin (), v.end (),
-	    displayFace(
-		this->m_glWidget, 
-		this->m_propertySetter, bodyFc, this->m_property, 
-		this->m_useZPos, this->m_zPos));
-    }
+	boost::shared_ptr<Body> b, typename DisplayElement::FocusContext bodyFc);
+
 private:
     typename DisplayElement::ContextType m_contextDisplay;
 };
@@ -195,51 +156,30 @@ public:
 		       BodyProperty::Enum property, 
 		       const BodySelector& bodySelector,
 		       bool useTimeDisplacement = false, 
-		       double timeDisplacement = 0) : 
-	DisplayBodyBase<PropertySetter> (
-	    widget, bodySelector, PropertySetter (widget), property,
-	    useTimeDisplacement, timeDisplacement),
-	m_displaySegment (this->m_glWidget.GetQuadricObject (), 
-		       this->m_glWidget.GetEdgeRadius ())
-
-    {
-    }
+		       double timeDisplacement = 0);
 
     DisplayCenterPath (const GLWidget& widget,
 		       PropertySetter propertySetter,
 		       BodyProperty::Enum property, 
-		       const BodySelector& bodySelector) : 
-	DisplayBodyBase<PropertySetter> (
-	    widget, bodySelector, propertySetter, property, false, 0)
-    {
-	size_t timeSteps = this->m_glWidget.GetFoamAlongTime ().GetTimeSteps ();
-	m_focusSegments.reserve (timeSteps - 1);
-	m_contextSegments.reserve (timeSteps - 1);
-    }
+		       const BodySelector& bodySelector);
 
     /**
      * Displays the center path for a certain body
      * @param bodyId what body to display the center path for
      */
-    void operator () (size_t bodyId)
-    {
-	m_focusSegments.resize (0);
-	m_contextSegments.resize (0);
-	const BodyAlongTime& bat = this->m_glWidget.GetBodyAlongTime (bodyId);
-	StripIterator it = bat.GetStripIterator (
-	    this->m_glWidget.GetFoamAlongTime ());
-	copySegments (it);
-	displaySegments ();
-    }
+    void operator () (size_t bodyId);
 
     /**
      * Helper function which calls operator () (size_t bodyId).
      * @param p a pair original index body pointer
      */
-    inline void operator () (const BodiesAlongTime::BodyMap::value_type& p)
+    
+    inline void operator () (const map <size_t, 
+			     boost::shared_ptr<BodyAlongTime> >::value_type& p)
     {
 	operator() (p.first);
     }
+    
 
 private:
     struct ContextSegment
@@ -278,154 +218,39 @@ private:
 
 private:
 
-    void copySegments (StripIterator& it)
-    {
-	if ( (this->m_property >= BodyProperty::VELOCITY_BEGIN &&
-	      this->m_property < BodyProperty::VELOCITY_END) ||
-	     this->m_property == BodyProperty::NONE)
-	    it.ForEachSegment (
-		boost::bind (&DisplayCenterPath::speedStep,
-			     this, _1, _2, _3, _4));
-	else
-	    it.ForEachSegment (
-		boost::bind (&DisplayCenterPath::valueStep,
-			     this, _1, _2, _3, _4));
-    }
+    void copySegments (StripIterator& it);
 
     void speedStep (
 	const StripIterator::Point& beforeBegin,
 	const StripIterator::Point& begin,
 	const StripIterator::Point& end,
-	const StripIterator::Point& afterEnd)
-    {
-	static_cast<void>(beforeBegin);
-	static_cast<void>(afterEnd);
-	bool focus = this->m_bodySelector (
-	    begin.m_body->GetId (), begin.m_timeStep);
-	if (focus && this->m_property != BodyProperty::NONE)
-	    storeFocusSegment (
-		StripIterator::GetVelocityValue (
-		    this->m_property, end, begin),
-		getPoint (begin, this->m_useZPos, this->m_zPos), 
-		getPoint (end, this->m_useZPos, this->m_zPos));
-	else
-	{
-	    QColor color = (this->m_property == BodyProperty::NONE) ? 
-		this->m_glWidget.GetCenterPathNotAvailableColor () :
-		this->m_glWidget.GetCenterPathContextColor ();
-	    storeContextSegment (color, false, 
-			    getPoint (begin, this->m_useZPos, this->m_zPos), 
-			    getPoint (end, this->m_useZPos, this->m_zPos));
-	}
-    }
+	const StripIterator::Point& afterEnd);
 
     void valueStep (
 	const StripIterator::Point& beforeBegin,
 	const StripIterator::Point& begin,
 	const StripIterator::Point& end,
-	const StripIterator::Point& afterEnd)
-    {
-	static_cast<void>(beforeBegin);
-	static_cast<void>(afterEnd);
-	G3D::Vector3 middle = (
-	    getPoint (begin, this->m_useZPos, this->m_zPos) + 
-	    getPoint (end, this->m_useZPos, this->m_zPos)) / 2;
-	halfValueStep (begin, middle, false);
-	halfValueStep (end, middle, true);
-    }
+	const StripIterator::Point& afterEnd);
 
     void halfValueStep (const StripIterator::Point& p, G3D::Vector3 middle,
-			bool swapPoints)
-    {
-	G3D::Vector3 point = getPoint (p, this->m_useZPos, this->m_zPos);
-	if (swapPoints)
-	    swap (point, middle);
-	bool focus = this->m_bodySelector (p.m_body->GetId (), p.m_timeStep);
-	if (focus && StripIterator::ExistsPropertyValue (
-		this->m_property, p))
-	    storeFocusSegment (
-		StripIterator::GetPropertyValue (
-		    this->m_property, p), point, middle);
-	else
-	{
-	    QColor color = (focus) ? 
-		this->m_glWidget.GetCenterPathNotAvailableColor () :
-		this->m_glWidget.GetCenterPathContextColor ();		
-	    storeContextSegment (color, focus, point, middle);
-	}
-    }
+			bool swapPoints);
 
-    void displaySegments ()
-    {
-	for_each (m_focusSegments.begin (),
-		  m_focusSegments.end (),
-		  boost::bind (
-		      &DisplayCenterPath<PropertySetter, 
-		      DisplaySegment>::displayFocusSegment, this, _1));
-	if (! this->m_glWidget.OnlyPathsWithSelectionShown () ||
-	    m_focusSegments.size () != 0)
-	    for_each (m_contextSegments.begin (),
-		      m_contextSegments.end (),
-		      boost::bind (
-			  &DisplayCenterPath<PropertySetter, 
-			  DisplaySegment>::displayContextSegment, this, _1));
-    }
+    void displaySegments ();
 
     G3D::Vector3 getPoint (StripIterator::Point p, bool useTimeDisplacement,
-			   double timeDisplacement)
-    {
-	if (useTimeDisplacement)
-	{
-	    G3D::Vector3 v = p.m_point;
-	    v.z = p.m_timeStep * timeDisplacement;
-	    return v;
-	}
-	else
-	    return p.m_point;
-    }
+			   double timeDisplacement);
 
-    QColor focusContextColor (bool focus, const QColor& color)
-    {
-	if (focus)
-	    return color;
-	else
-	    return this->m_glWidget.GetCenterPathContextColor ();
-    }
+    QColor focusContextColor (bool focus, const QColor& color);
 
     void storeFocusSegment (
-	double value, G3D::Vector3 begin, G3D::Vector3 end)
-    {
-	double textureCoordinate = this->m_glWidget.TexCoord (value);
-	m_focusSegments.push_back (
-	    FocusSegment (textureCoordinate, begin, end));
-    }
+	double value, G3D::Vector3 begin, G3D::Vector3 end);
 
     void storeContextSegment (const QColor& color, bool focus,
-			      G3D::Vector3 begin, G3D::Vector3 end)
-    {
-	m_contextSegments.push_back (
-	    ContextSegment (color, focus, begin, end));
-    }
+			      G3D::Vector3 begin, G3D::Vector3 end);
 
-    void displayContextSegment (const ContextSegment& coloredSegment)
-    {
-	glDisable (GL_TEXTURE_1D);
-	DisplayBodyBase<PropertySetter>::beginFocusContext (
-	    coloredSegment.m_focus);
-	glColor (coloredSegment.m_color);
-	m_displaySegment (coloredSegment.m_begin, coloredSegment.m_end);
-	DisplayBodyBase<PropertySetter>::endFocusContext (
-	    coloredSegment.m_focus);
-	glEnable (GL_TEXTURE_1D);
-    }
+    void displayContextSegment (const ContextSegment& coloredSegment);
 
-    void displayFocusSegment (const FocusSegment& texturedSegment)
-    {
-	DisplayBodyBase<PropertySetter>::beginFocusContext (true);
-	glTexCoord1f (texturedSegment.m_textureCoordinate);
-	m_displaySegment (texturedSegment.m_begin, texturedSegment.m_end);
-	DisplayBodyBase<PropertySetter>::endFocusContext (true);
-    }
+    void displayFocusSegment (const FocusSegment& texturedSegment);
 
 private:
     DisplaySegment m_displaySegment;
