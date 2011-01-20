@@ -109,3 +109,7 @@ ostream& operator<< (ostream& ostr, const G3D::Vector2& v)
     return ostr << v[0] << ", " << v[1];
 }
 
+bool isFuzzyZero (const G3D::Vector3& v)
+{
+    return v.squaredMagnitude () < fuzzyEpsilon * fuzzyEpsilon;
+}

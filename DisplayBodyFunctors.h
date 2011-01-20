@@ -173,9 +173,8 @@ public:
      * Helper function which calls operator () (size_t bodyId).
      * @param p a pair original index body pointer
      */
-    
-    inline void operator () (const map <size_t, 
-			     boost::shared_ptr<BodyAlongTime> >::value_type& p)
+    inline void operator () (
+	const map <size_t, boost::shared_ptr<BodyAlongTime> >::value_type& p)
     {
 	operator() (p.first);
     }
@@ -245,12 +244,12 @@ private:
     void storeFocusSegment (
 	double value, G3D::Vector3 begin, G3D::Vector3 end);
 
-    void storeContextSegment (const QColor& color, bool focus,
-			      G3D::Vector3 begin, G3D::Vector3 end);
+    void storeContextSegment (
+	const QColor& color, bool focus, G3D::Vector3 begin, G3D::Vector3 end);
 
-    void displayContextSegment (const ContextSegment& coloredSegment);
+    void displayContextSegment (const ContextSegment& contextSegment);
 
-    void displayFocusSegment (const FocusSegment& texturedSegment);
+    void displayFocusSegment (const FocusSegment& focusSegment);
 
 private:
     DisplaySegment m_displaySegment;

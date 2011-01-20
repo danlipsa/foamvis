@@ -190,7 +190,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 
 template class DisplayFace<
     DisplayEdges<
-	DisplayEdgeTorus<DisplayEdgeCylinder, DisplayArrowTube, true> >, 
+	DisplayEdgeTorus<DisplayEdgeQuadric, DisplayArrowQuadric, true> >, 
     TexCoordSetter>;
 template class DisplayFace<
     DisplayEdges<

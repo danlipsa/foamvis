@@ -30,6 +30,9 @@ ostream& operator<< (ostream& ostr, const pair<U, V>& p)
 
 const G3D::Vector3int16& Vector3int16Unit (size_t direction);
 
+bool isFuzzyZero (const G3D::Vector3& v);
+
+
 extern const G3D::Vector3int16 Vector3int16Zero;
 
 void Scale (G3D::AABox* aabox, double change);

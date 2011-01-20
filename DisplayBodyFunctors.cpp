@@ -255,18 +255,16 @@ template<typename PropertySetter, typename DisplaySegment>
 void DisplayCenterPath<PropertySetter, DisplaySegment>::
 displaySegments ()
 {
-    for_each (m_focusSegments.begin (),
-	      m_focusSegments.end (),
-	      boost::bind (
-		  &DisplayCenterPath<PropertySetter, 
-		  DisplaySegment>::displayFocusSegment, this, _1));
+    for_each (
+	m_focusSegments.begin (), m_focusSegments.end (),
+	boost::bind (&DisplayCenterPath<PropertySetter, DisplaySegment>::
+		     displayFocusSegment, this, _1));
     if (! this->m_glWidget.OnlyPathsWithSelectionShown () ||
 	m_focusSegments.size () != 0)
-	for_each (m_contextSegments.begin (),
-		  m_contextSegments.end (),
-		  boost::bind (
-		      &DisplayCenterPath<PropertySetter, 
-		      DisplaySegment>::displayContextSegment, this, _1));
+	for_each (
+	    m_contextSegments.begin (), m_contextSegments.end (),
+	    boost::bind (&DisplayCenterPath<PropertySetter, DisplaySegment>::
+			 displayContextSegment, this, _1));
 }
 
 template<typename PropertySetter, typename DisplaySegment>
@@ -315,25 +313,23 @@ storeContextSegment (const QColor& color, bool focus,
 
 template<typename PropertySetter, typename DisplaySegment>
 void DisplayCenterPath<PropertySetter, DisplaySegment>::
-displayContextSegment (const ContextSegment& coloredSegment)
+displayContextSegment (const ContextSegment& contextSegment)
 {
     glDisable (GL_TEXTURE_1D);
-    DisplayBodyBase<PropertySetter>::beginFocusContext (
-	coloredSegment.m_focus);
-    glColor (coloredSegment.m_color);
-    m_displaySegment (coloredSegment.m_begin, coloredSegment.m_end);
-    DisplayBodyBase<PropertySetter>::endFocusContext (
-	coloredSegment.m_focus);
+    DisplayBodyBase<PropertySetter>::beginFocusContext (contextSegment.m_focus);
+    glColor (contextSegment.m_color);
+    m_displaySegment (contextSegment.m_begin, contextSegment.m_end);
+    DisplayBodyBase<PropertySetter>::endFocusContext (contextSegment.m_focus);
     glEnable (GL_TEXTURE_1D);
 }
 
 template<typename PropertySetter, typename DisplaySegment>
 void DisplayCenterPath<PropertySetter, DisplaySegment>::
-displayFocusSegment (const FocusSegment& texturedSegment)
+displayFocusSegment (const FocusSegment& focusSegment)
 {
     DisplayBodyBase<PropertySetter>::beginFocusContext (true);
-    glTexCoord1f (texturedSegment.m_textureCoordinate);
-    m_displaySegment (texturedSegment.m_begin, texturedSegment.m_end);
+    glTexCoord1f (focusSegment.m_textureCoordinate);
+    m_displaySegment (focusSegment.m_begin, focusSegment.m_end);
     DisplayBodyBase<PropertySetter>::endFocusContext (true);
 }
 
@@ -385,5 +381,5 @@ template class DisplayBody<
 // DisplayCenterPath
 // ======================================================================
 
-template class DisplayCenterPath<TexCoordSetter, DisplayEdgeCylinder>;
+template class DisplayCenterPath<TexCoordSetter, DisplayEdgeQuadric>;
 template class DisplayCenterPath<TexCoordSetter, DisplayEdge>;

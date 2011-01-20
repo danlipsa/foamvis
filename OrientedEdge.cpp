@@ -9,6 +9,7 @@
 #include "Face.h"
 #include "OrientedEdge.h"
 #include "OrientedFace.h"
+#include "Utils.h"
 #include "Vertex.h"
 
 OrientedEdge::OrientedEdge (

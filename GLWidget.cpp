@@ -886,7 +886,7 @@ void GLWidget::displayAxes () const
 
 	calculateEdgeRadius (0, &edgeRadius,
 			     &arrowBaseRadius, &arrowHeight);
-	DisplayOrientedEdgeTube displayOrientedEdge (
+	DisplayOrientedEdgeQuadric displayOrientedEdge (
 	    GetQuadricObject (), arrowBaseRadius, edgeRadius, arrowHeight,
 	    DisplayArrow::TOP_END);
 	
@@ -979,7 +979,7 @@ void GLWidget::displayEdgesTorusTubes () const
     GetCurrentFoam ().GetEdgeSet (&edgeSet);
     for_each (
 	edgeSet.begin (), edgeSet.end (),
-	DisplayEdgeTorus<DisplayEdgeCylinder, DisplayArrowTube, false>(*this));
+	DisplayEdgeTorus<DisplayEdgeQuadric, DisplayArrowQuadric, false>(*this));
     glPopAttrib ();
 }
 
@@ -1110,7 +1110,7 @@ void GLWidget::displayFacesTorusTubes () const
     for_each (faceSet.begin (), faceSet.end (),
 	      DisplayFace<
 	      DisplayEdges<
-	      DisplayEdgeTorus<DisplayEdgeCylinder, DisplayArrowTube, true> > > (
+	      DisplayEdgeTorus<DisplayEdgeQuadric, DisplayArrowQuadric, true> > > (
 		  *this));
     glPopAttrib ();
 }
@@ -1169,7 +1169,7 @@ void GLWidget::displayCenterPaths () const
     
     if (m_edgesTubes)
 	for_each (bats.begin (), bats.end (),
-		  DisplayCenterPath<TexCoordSetter, DisplayEdgeCylinder> (
+		  DisplayCenterPath<TexCoordSetter, DisplayEdgeQuadric> (
 		      *this, m_centerPathColor, *m_bodySelector, 
 		      GetCurrentFoam ().GetDimension () == 2 ? true : false,
 		      m_timeDisplacement));

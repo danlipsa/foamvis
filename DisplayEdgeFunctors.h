@@ -31,15 +31,29 @@ protected:
     double m_edgeRadius;
 };
 
-class DisplayEdgeCylinder : public DisplayEdge
+class DisplayEdgeQuadric : public DisplayEdge
 {
 public:
-    DisplayEdgeCylinder () :
-	DisplayEdge (0, 0)
+    DisplayEdgeQuadric () : DisplayEdge ()
     {
     }
 
-    DisplayEdgeCylinder (GLUquadricObj* quadric, double edgeRadius) :
+    DisplayEdgeQuadric (GLUquadricObj* quadric, double edgeRadius) :
+	DisplayEdge (quadric, edgeRadius)
+    {
+    }
+    
+    void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
+};
+
+class DisplayEdgeTube : public DisplayEdge
+{
+public:
+    DisplayEdgeTube () : DisplayEdge ()
+    {
+    }
+
+    DisplayEdgeTube (GLUquadricObj* quadric, double edgeRadius) :
 	DisplayEdge (quadric, edgeRadius)
     {
     }
@@ -78,10 +92,10 @@ protected:
     Position m_position;
 };
 
-class DisplayArrowTube : public DisplayArrow
+class DisplayArrowQuadric : public DisplayArrow
 {
 public:
-    DisplayArrowTube (
+    DisplayArrowQuadric (
 	GLUquadricObj* quadric,
 	double baseRadius, double topRadius, double height, 
 	Position position = BASE_MIDDLE) :
@@ -105,10 +119,10 @@ public:
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
-class DisplayOrientedEdgeTube : public DisplayArrow
+class DisplayOrientedEdgeQuadric : public DisplayArrow
 {
 public:
-    DisplayOrientedEdgeTube (
+    DisplayOrientedEdgeQuadric (
 	GLUquadricObj* quadric = 0,
 	double baseRadius = 0, double topRadius = 0, double height = 0,
 	Position position = BASE_MIDDLE) :

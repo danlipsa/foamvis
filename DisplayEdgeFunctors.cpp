@@ -21,12 +21,11 @@
 
 G3D::Matrix3 edgeRotation (const G3D::Vector3& begin, const G3D::Vector3& end)
 {
-    using G3D::Vector3;
-    Vector3 newZ = end - begin;
-    if (newZ.isZero ())
+    G3D::Vector3 newZ = end - begin;
+    if (isFuzzyZero (newZ))
 	return G3D::Matrix3::identity ();
     newZ = newZ.unit ();
-    Vector3 newX, newY;
+    G3D::Vector3 newX, newY;
     newZ.getTangents (newX, newY);
     G3D::Matrix3 rotation;
     rotation.setColumn (0, newX);
@@ -47,10 +46,10 @@ void DisplayEdge::operator() (
     glEnd();
 }
 
-// DisplayEdgeCylinder
+// DisplayEdgeQuadric
 // ======================================================================
 
-void DisplayEdgeCylinder::operator() (
+void DisplayEdgeQuadric::operator() (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
     G3D::Matrix3 rotation = edgeRotation (begin, end);
@@ -65,6 +64,9 @@ void DisplayEdgeCylinder::operator() (
     }
     glPopMatrix ();
 }
+
+
+
 
 // DisplayArrow
 // ======================================================================
@@ -81,10 +83,10 @@ void DisplayArrow::operator () (
     glPopAttrib ();
 }
 
-// DisplayArrowTube
+// DisplayArrowQuadric
 // ======================================================================
 
-void DisplayArrowTube::operator () (
+void DisplayArrowQuadric::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
     G3D::Vector3 translation;
@@ -147,14 +149,14 @@ void DisplayOrientedEdge::operator () (
     displayArrow (begin, end);
 }
 
-// DisplayOrientedEdgeTube
+// DisplayOrientedEdgeQuadric
 // ======================================================================
 
-void DisplayOrientedEdgeTube::operator () (
+void DisplayOrientedEdgeQuadric::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
-    DisplayEdgeCylinder displayEdge (m_quadric, m_topRadius);
-    DisplayArrowTube displayArrow (
+    DisplayEdgeQuadric displayEdge (m_quadric, m_topRadius);
+    DisplayArrowQuadric displayArrow (
 	m_quadric, m_baseRadius, m_topRadius, m_height, m_position);
     displayEdge (begin, end);
     displayArrow (begin, end);
@@ -364,8 +366,8 @@ operator () (const boost::shared_ptr<Face>  f)
 // DisplayEdgeTorus
 // ======================================================================
 
-template class DisplayEdgeTorus<DisplayEdgeCylinder, DisplayArrowTube, false>;
-template class DisplayEdgeTorus<DisplayEdgeCylinder, DisplayArrowTube, true>;
+template class DisplayEdgeTorus<DisplayEdgeQuadric, DisplayArrowQuadric, false>;
+template class DisplayEdgeTorus<DisplayEdgeQuadric, DisplayArrowQuadric, true>;
 template class DisplayEdgeTorus<DisplayEdge, DisplayArrow, false>;
 template class DisplayEdgeTorus<DisplayEdge, DisplayArrow, true>;
 
@@ -383,7 +385,7 @@ template class DisplayEdgeWithColor <DisplayElement::DONT_DISPLAY_TESSELLATION>;
 template class DisplayEdges<
     DisplayEdgeTorus <DisplayEdge, DisplayArrow, true> >;
 template class DisplayEdges<
-    DisplayEdgeTorus<DisplayEdgeCylinder, DisplayArrowTube, true> >;
+    DisplayEdgeTorus<DisplayEdgeQuadric, DisplayArrowQuadric, true> >;
 template class DisplayEdges<
     DisplayEdgeWithColor<DisplayElement::TEST_DISPLAY_TESSELLATION> >;
 template class DisplayEdges<

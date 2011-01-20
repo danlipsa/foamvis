@@ -84,7 +84,7 @@ bool Edge::fuzzyEq (const Edge& other) const
 
 bool Edge::IsZero () const
 {
-    return (*GetEnd () - *GetBegin ()).isZero ();
+    return isFuzzyZero (*GetEnd () - *GetBegin ());
 }
 
 
