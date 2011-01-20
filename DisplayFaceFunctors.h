@@ -9,11 +9,11 @@
 #ifndef __DISPLAY_FACE_FUNCTORS_H__
 #define __DISPLAY_FACE_FUNCTORS_H__
 
-#include "DisplayEdgeFunctors.h"
 #include "DisplayElement.h"
 
 class Face;
 class OrientedFace;
+class DisplaySameEdges;
 
 /**
  * Functor that displays a face

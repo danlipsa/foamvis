@@ -162,10 +162,10 @@ private:
 	pair< size_t, boost::shared_ptr<BodyAlongTime> > p);
     void calculateStatistics ();
     void storeVelocity (
-	const StripIterator::Point& beforeBegin,
-	const StripIterator::Point& begin,
-	const StripIterator::Point& end,
-	const StripIterator::Point& afterEnd);
+	const StripIteratorPoint& beforeBegin,
+	const StripIteratorPoint& begin,
+	const StripIteratorPoint& end,
+	const StripIteratorPoint& afterEnd);
     
     template <typename Accumulator>
     void forAllBodiesAccumulate (Accumulator* acc, BodyProperty::Enum property);

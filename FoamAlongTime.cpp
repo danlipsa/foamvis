@@ -162,16 +162,16 @@ void FoamAlongTime::calculateVelocity ()
 }
 
 void FoamAlongTime::storeVelocity (
-    const StripIterator::Point& beforeBegin,
-    const StripIterator::Point& begin,
-    const StripIterator::Point& end,
-    const StripIterator::Point& afterEnd)
+    const StripIteratorPoint& beforeBegin,
+    const StripIteratorPoint& begin,
+    const StripIteratorPoint& end,
+    const StripIteratorPoint& afterEnd)
 {
     (void)beforeBegin;
     (void)afterEnd;
     G3D::Vector3 velocity = end.m_point - begin.m_point;
     begin.m_body->SetVelocity (velocity);
-    if (end.m_location == StripIterator::END)
+    if (end.m_location == StripIteratorLocation::END)
 	end.m_body->SetVelocity (velocity);
 }
 

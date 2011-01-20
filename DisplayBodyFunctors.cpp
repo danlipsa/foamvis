@@ -15,6 +15,7 @@
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
 
+
 // DisplayBodyBase
 // ======================================================================
 
@@ -182,10 +183,10 @@ copySegments (StripIterator& it)
 template<typename PropertySetter, typename DisplaySegment>
 void DisplayCenterPath<PropertySetter, DisplaySegment>::
 speedStep (
-    const StripIterator::Point& beforeBegin,
-    const StripIterator::Point& begin,
-    const StripIterator::Point& end,
-    const StripIterator::Point& afterEnd)
+    const StripIteratorPoint& beforeBegin,
+    const StripIteratorPoint& begin,
+    const StripIteratorPoint& end,
+    const StripIteratorPoint& afterEnd)
 {
     static_cast<void>(beforeBegin);
     static_cast<void>(afterEnd);
@@ -211,10 +212,10 @@ speedStep (
 template<typename PropertySetter, typename DisplaySegment>
 void DisplayCenterPath<PropertySetter, DisplaySegment>::
 valueStep (
-    const StripIterator::Point& beforeBegin,
-    const StripIterator::Point& begin,
-    const StripIterator::Point& end,
-    const StripIterator::Point& afterEnd)
+    const StripIteratorPoint& beforeBegin,
+    const StripIteratorPoint& begin,
+    const StripIteratorPoint& end,
+    const StripIteratorPoint& afterEnd)
 {
     static_cast<void>(beforeBegin);
     static_cast<void>(afterEnd);
@@ -228,7 +229,7 @@ valueStep (
 
 template<typename PropertySetter, typename DisplaySegment>
 void DisplayCenterPath<PropertySetter, DisplaySegment>::
-halfValueStep (const StripIterator::Point& p, G3D::Vector3 middle,
+halfValueStep (const StripIteratorPoint& p, G3D::Vector3 middle,
 	       bool swapPoints)
 {
     G3D::Vector3 point = getPoint (p, this->m_useZPos, this->m_zPos);
@@ -270,7 +271,7 @@ displaySegments ()
 
 template<typename PropertySetter, typename DisplaySegment>
 G3D::Vector3 DisplayCenterPath<PropertySetter, DisplaySegment>::
-getPoint (StripIterator::Point p, bool useTimeDisplacement,
+getPoint (StripIteratorPoint p, bool useTimeDisplacement,
 	  double timeDisplacement)
 {
     if (useTimeDisplacement)
@@ -335,3 +336,54 @@ displayFocusSegment (const FocusSegment& texturedSegment)
     m_displaySegment (texturedSegment.m_begin, texturedSegment.m_end);
     DisplayBodyBase<PropertySetter>::endFocusContext (true);
 }
+
+// Template instantiations
+// ======================================================================
+
+// DisplayBodyBase
+// ======================================================================
+
+template class DisplayBodyBase<VertexAttributeSetter>;
+template class DisplayBodyBase<TexCoordSetter>;
+
+// DisplayBody
+// ======================================================================
+
+template class DisplayBody<
+    DisplayFace<
+	DisplayEdges<
+	    DisplayEdgeWithColor<DisplayElement::DONT_DISPLAY_TESSELLATION> >, 
+	TexCoordSetter>, TexCoordSetter>;
+template class DisplayBody<
+    DisplayFace<
+	DisplayEdges<
+	    DisplayEdgeWithColor<DisplayElement::TEST_DISPLAY_TESSELLATION> >, 
+	TexCoordSetter>, TexCoordSetter>;
+
+template class DisplayBody<
+    DisplayFace<
+	DisplayEdges<DisplayEdgeTorusClipped>, 
+	TexCoordSetter>, 
+    TexCoordSetter>;
+template class DisplayBody<
+    DisplayFace<DisplaySameEdges, TexCoordSetter>, TexCoordSetter>;
+template class DisplayBody<
+    DisplayFace<DisplaySameTriangles, TexCoordSetter>, TexCoordSetter>;
+
+template class DisplayBody<
+    DisplayFaceWithColor<DisplaySameEdges, TexCoordSetter>, TexCoordSetter>;
+template class DisplayBody<
+    DisplayFaceWithColor<DisplaySameTriangles, TexCoordSetter>, TexCoordSetter>;
+template class DisplayBody<
+    DisplayFaceWithColor<DisplaySameEdges, VertexAttributeSetter>, 
+    VertexAttributeSetter>;
+template class DisplayBody<
+    DisplayFaceWithColor<DisplaySameTriangles, VertexAttributeSetter>, 
+    VertexAttributeSetter>;
+
+
+// DisplayCenterPath
+// ======================================================================
+
+template class DisplayCenterPath<TexCoordSetter, DisplayEdgeCylinder>;
+template class DisplayCenterPath<TexCoordSetter, DisplayEdge>;

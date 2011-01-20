@@ -14,6 +14,46 @@ class Body;
 class BodyAlongTime;
 class FoamAlongTime;
 
+
+/**
+ * Location of a point in a strip of segments.
+ */
+struct StripIteratorLocation
+{
+    enum Enum
+    {
+	BEGIN,
+	END,
+	MIDDLE,
+	COUNT
+    };
+};
+
+struct StripIteratorPoint
+{
+    StripIteratorPoint () :
+	m_location (StripIteratorLocation::COUNT), m_timeStep (0)
+    {
+    }
+
+    StripIteratorPoint (
+	G3D::Vector3 point, 
+	StripIteratorLocation::Enum location, size_t timeStep,
+	const boost::shared_ptr<Body>& body) :
+	m_location (location), m_timeStep (timeStep),
+	m_body (body), m_point (point)
+    {
+    }
+	
+    StripIteratorLocation::Enum m_location;
+    size_t m_timeStep;
+    boost::shared_ptr<Body> m_body;
+    G3D::Vector3 m_point;	
+};
+
+
+
+
 /**
  * Iterates over line segments for centers of bubbles along time
  * @todo Consider using a Boost.Iterator Library
@@ -22,55 +62,27 @@ class FoamAlongTime;
 class StripIterator
 {
 public:
-    /**
-     * Location of a point in a strip of segments.
-     */
-    enum Location
-    {
-	BEGIN,
-	END,
-	MIDDLE,
-	COUNT
-    };
-    struct Point
-    {
-	Point () :
-	    m_location (COUNT), m_timeStep (0)
-	{
-	}
-
-	Point (G3D::Vector3 point, Location location, size_t timeStep,
-		    const boost::shared_ptr<Body>& body) :
-	    m_location (location), m_timeStep (timeStep),
-	    m_body (body), m_point (point)
-	{
-	}
-	
-	Location m_location;
-	size_t m_timeStep;
-	boost::shared_ptr<Body> m_body;
-	G3D::Vector3 m_point;	
-    };
 
 public:
     StripIterator (const BodyAlongTime& bodyAlongTime,
 		   const FoamAlongTime& foamAlongTime, size_t timeStep = 0);
     bool HasNext () const;
-    Point Next ();    
+    StripIteratorPoint Next ();    
 
     template <typename ProcessSegment> 
     void ForEachSegment (ProcessSegment processSegment)
     {
-	StripIterator::Point beforeBegin;
-	StripIterator::Point begin = Next ();
-	StripIterator::Point end = HasNext () ? Next () : Point ();
-	while (end.m_location != COUNT)
+	StripIteratorPoint beforeBegin;
+	StripIteratorPoint begin = Next ();
+	StripIteratorPoint end = HasNext () ? Next () : StripIteratorPoint ();
+	while (end.m_location != StripIteratorLocation::COUNT)
 	{
-	    StripIterator::Point afterEnd = HasNext () ? Next () : Point ();
+	    StripIteratorPoint afterEnd = 
+		HasNext () ? Next () : StripIteratorPoint ();
 	    if (// middle or end of a segment
-		end.m_location != StripIterator::BEGIN &&
+		end.m_location != StripIteratorLocation::BEGIN &&
 		// the segment is not between two strips
-		begin.m_location != StripIterator::END)
+		begin.m_location != StripIteratorLocation::END)
 		processSegment (beforeBegin, begin, end, afterEnd);
 	    beforeBegin = begin;
 	    begin = end;
@@ -79,12 +91,13 @@ public:
     }
 
 public:
-    static double GetVelocityValue (BodyProperty::Enum colorBy,
-				    const Point& p, const Point& prev);
+    static double GetVelocityValue (
+	BodyProperty::Enum colorBy,
+	const StripIteratorPoint& p, const StripIteratorPoint& prev);
     static double GetPropertyValue (BodyProperty::Enum colorBy,
-				    const Point& p);
+				    const StripIteratorPoint& p);
     static bool ExistsPropertyValue (BodyProperty::Enum colorBy,
-				     const Point& p);
+				     const StripIteratorPoint& p);
 
 private:
     size_t m_timeStep;

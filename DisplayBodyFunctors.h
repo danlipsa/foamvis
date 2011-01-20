@@ -10,12 +10,12 @@
 #define __DISPLAY_BODY_FUNCTORS_H__
 
 #include "DisplayElement.h"
-#include "StripIterator.h"
 class DisplayEdge;
 class Body;
 class BodyAlongTime;
 class BodySelector;
 class StripIterator;
+class StripIteratorPoint;
 
 /**
  * Functor used to display a body
@@ -221,23 +221,23 @@ private:
     void copySegments (StripIterator& it);
 
     void speedStep (
-	const StripIterator::Point& beforeBegin,
-	const StripIterator::Point& begin,
-	const StripIterator::Point& end,
-	const StripIterator::Point& afterEnd);
+	const StripIteratorPoint& beforeBegin,
+	const StripIteratorPoint& begin,
+	const StripIteratorPoint& end,
+	const StripIteratorPoint& afterEnd);
 
     void valueStep (
-	const StripIterator::Point& beforeBegin,
-	const StripIterator::Point& begin,
-	const StripIterator::Point& end,
-	const StripIterator::Point& afterEnd);
+	const StripIteratorPoint& beforeBegin,
+	const StripIteratorPoint& begin,
+	const StripIteratorPoint& end,
+	const StripIteratorPoint& afterEnd);
 
-    void halfValueStep (const StripIterator::Point& p, G3D::Vector3 middle,
+    void halfValueStep (const StripIteratorPoint& p, G3D::Vector3 middle,
 			bool swapPoints);
 
     void displaySegments ();
 
-    G3D::Vector3 getPoint (StripIterator::Point p, bool useTimeDisplacement,
+    G3D::Vector3 getPoint (StripIteratorPoint p, bool useTimeDisplacement,
 			   double timeDisplacement);
 
     QColor focusContextColor (bool focus, const QColor& color);

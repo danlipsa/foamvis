@@ -21,9 +21,9 @@ SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp 
 	Body.cpp BodyAlongTime.cpp BodyIndex.cpp BodySelector.cpp\
 	ColorBar.cpp ColorBarModel.cpp ColoredElement.cpp Comparisons.cpp \
 	Debug.cpp DebugStream.cpp Disk.cpp \
-	DisplayBlend.cpp DisplayBodyFunctors-impl.cpp \
-	DisplayFaceAverage.cpp DisplayFaceFunctors-impl.cpp \
-	DisplayEdgeFunctors-impl.cpp	\
+	DisplayBlend.cpp DisplayBodyFunctors.cpp \
+	DisplayFaceAverage.cpp DisplayFaceFunctors.cpp \
+	DisplayEdgeFunctors.cpp	\
 	DisplayWidget.cpp DisplayVertexFunctors.cpp Edge.cpp \
 	SelectBodiesById.cpp EditColorMap.cpp Element.cpp ExpressionTree.cpp \
 	Enums.cpp Foam.cpp FoamAlongTime.cpp Face.cpp \

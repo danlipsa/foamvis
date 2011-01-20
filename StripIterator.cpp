@@ -48,29 +48,30 @@ bool StripIterator::HasNext () const
 }
 
 
-StripIterator::Point StripIterator::Next ()
+StripIteratorPoint StripIterator::Next ()
 {
-    Point point;
+    StripIteratorPoint point;
     boost::shared_ptr<Body> body;
     if (// last wrap
 	m_currentWrap == m_bodyAlongTime.GetWrapSize () ||
 	// not at the end of a middle wrap
 	m_timeStep < m_bodyAlongTime.GetWrap (m_currentWrap) + 1)
     {
-	Location location;
+	StripIteratorLocation::Enum location;
 	if (// at the end of last wrap
 	    m_timeStep == m_bodyAlongTime.GetBodies ().size () - 1)
 	{
-	    location = END;
+	    location = StripIteratorLocation::END;
 	    m_isNextBeginOfStrip = false;
 	}
 	else
 	{   // not at the end of a middle wrap or last wrap
-	    location = m_isNextBeginOfStrip ? BEGIN : MIDDLE;
+	    location = m_isNextBeginOfStrip ? 
+		StripIteratorLocation::BEGIN : StripIteratorLocation::MIDDLE;
 	    m_isNextBeginOfStrip = false;
 	}
 	body = m_bodyAlongTime.GetBody (m_timeStep);
-	point = Point (body->GetCenter (), location, m_timeStep++, body);
+	point = StripIteratorPoint (body->GetCenter (), location, m_timeStep++, body);
     }
     else
     { // at the end of a middle wrap
@@ -78,20 +79,22 @@ StripIterator::Point StripIterator::Next ()
 	const OOBox& originalDomain = 
 	    m_foamAlongTime.GetFoam (m_timeStep)->GetOriginalDomain ();
 	body = m_bodyAlongTime.GetBody (m_timeStep);
-	point = Point (
+	point = StripIteratorPoint (
 	    originalDomain.TorusTranslate (
 		body->GetCenter (),
 		Vector3int16Zero - m_bodyAlongTime.GetTranslation (
-		    m_currentWrap++)), END, m_timeStep, body);
+		    m_currentWrap++)), 
+	    StripIteratorLocation::END, m_timeStep, body);
     }
     return point;
 }
 
 double StripIterator::GetVelocityValue (
     BodyProperty::Enum property,
-    const Point& p, const Point& prev)
+    const StripIteratorPoint& p, const StripIteratorPoint& prev)
 {
-    RuntimeAssert (p.m_location != BEGIN, "Invalid strip piece");
+    RuntimeAssert (p.m_location != StripIteratorLocation::BEGIN, 
+		   "Invalid strip piece");
     G3D::Vector3 speedVector = p.m_point - prev.m_point;
     switch (property)
     {
@@ -112,13 +115,13 @@ double StripIterator::GetVelocityValue (
 }
 
 double StripIterator::GetPropertyValue (BodyProperty::Enum property,
-				       const Point& p)
+				       const StripIteratorPoint& p)
 {
     return p.m_body->GetPropertyValue (property);
 }
 
 bool StripIterator::ExistsPropertyValue (BodyProperty::Enum property,
-					const Point& p)
+					const StripIteratorPoint& p)
 {
     return p.m_body->ExistsPropertyValue (property);
 }

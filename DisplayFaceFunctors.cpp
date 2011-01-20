@@ -8,6 +8,7 @@
 
 #include "DebugStream.h"
 #include "DisplayFaceFunctors.h"
+#include "DisplayEdgeFunctors.h"
 #include "FoamAlongTime.h"
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
@@ -180,3 +181,40 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	glColor (G3D::Color4 (Color::GetValue(Color::BLACK),
 			      this->m_glWidget.GetContextAlpha ()));
 }
+
+// Template instantiations
+// ======================================================================
+
+// DisplayFace
+// ======================================================================
+
+template class DisplayFace<
+    DisplayEdges<
+	DisplayEdgeTorus<DisplayEdgeCylinder, DisplayArrowTube, true> >, 
+    TexCoordSetter>;
+template class DisplayFace<
+    DisplayEdges<
+	DisplayEdgeTorus<DisplayEdge, DisplayArrow, true> >, TexCoordSetter>;
+template class DisplayFace<
+    DisplayEdges<
+	DisplayEdgeTorusClipped>, TexCoordSetter>;
+template class DisplayFace<
+    DisplayEdges<
+	DisplayEdgeWithColor<DisplayElement::TEST_DISPLAY_TESSELLATION> >, 
+    TexCoordSetter>;
+template class DisplayFace<
+    DisplayEdges<
+	DisplayEdgeWithColor<DisplayElement::DONT_DISPLAY_TESSELLATION> >, 
+    TexCoordSetter>;
+template class DisplayFace<DisplaySameEdges, TexCoordSetter>;
+template class DisplayFace<DisplaySameTriangles, TexCoordSetter>;
+template class DisplayFace<DisplaySameTriangles, VertexAttributeSetter>;
+template class DisplayFace<DisplaySameEdges, VertexAttributeSetter>;
+
+// DisplayFaceWithColor
+// ======================================================================
+
+template class DisplayFaceWithColor<DisplaySameEdges, TexCoordSetter>;
+template class DisplayFaceWithColor<DisplaySameTriangles, TexCoordSetter>;
+template class DisplayFaceWithColor<DisplaySameTriangles, VertexAttributeSetter>;
+template class DisplayFaceWithColor<DisplaySameEdges, VertexAttributeSetter>;
