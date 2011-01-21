@@ -14,38 +14,29 @@ class Body;
 class BodyAlongTime;
 class FoamAlongTime;
 
-
-/**
- * Location of a point in a strip of segments.
- */
-struct StripIteratorLocation
-{
-    enum Enum
-    {
-	BEGIN,
-	END,
-	MIDDLE,
-	COUNT
-    };
-};
-
 struct StripIteratorPoint
 {
     StripIteratorPoint () :
-	m_location (StripIteratorLocation::COUNT), m_timeStep (0)
+	m_location (StripPointLocation::COUNT), m_timeStep (0)
     {
     }
 
     StripIteratorPoint (
-	G3D::Vector3 point, 
-	StripIteratorLocation::Enum location, size_t timeStep,
+	const G3D::Vector3& point, 
+	StripPointLocation::Enum location, size_t timeStep,
 	const boost::shared_ptr<Body>& body) :
+
 	m_location (location), m_timeStep (timeStep),
 	m_body (body), m_point (point)
     {
     }
-	
-    StripIteratorLocation::Enum m_location;
+
+    bool IsEmpty () const
+    {
+	return m_location == StripPointLocation::COUNT;
+    }
+
+    StripPointLocation::Enum m_location;
     size_t m_timeStep;
     boost::shared_ptr<Body> m_body;
     G3D::Vector3 m_point;	
@@ -70,34 +61,11 @@ public:
     StripIteratorPoint Next ();    
 
     template <typename ProcessSegment> 
-    void ForEachSegment (ProcessSegment processSegment)
-    {
-	StripIteratorPoint beforeBegin;
-	StripIteratorPoint begin = Next ();
-	StripIteratorPoint end = HasNext () ? Next () : StripIteratorPoint ();
-	while (end.m_location != StripIteratorLocation::COUNT)
-	{
-	    StripIteratorPoint afterEnd = 
-		HasNext () ? Next () : StripIteratorPoint ();
-	    if (// middle or end of a segment
-		end.m_location != StripIteratorLocation::BEGIN &&
-		// the segment is not between two strips
-		begin.m_location != StripIteratorLocation::END)
-		processSegment (beforeBegin, begin, end, afterEnd);
-	    beforeBegin = begin;
-	    begin = end;
-	    end = afterEnd;
-	}
-    }
+    void ForEachSegment (ProcessSegment processSegment);
 
 public:
-    static double GetVelocityValue (
-	BodyProperty::Enum colorBy,
-	const StripIteratorPoint& p, const StripIteratorPoint& prev);
-    static double GetPropertyValue (BodyProperty::Enum colorBy,
-				    const StripIteratorPoint& p);
-    static bool ExistsPropertyValue (BodyProperty::Enum colorBy,
-				     const StripIteratorPoint& p);
+    static SegmentPerpendicularEnd::Enum GetSegmentPerpendicularEnd (
+	const StripIteratorPoint& begin, const StripIteratorPoint& end);
 
 private:
     size_t m_timeStep;

@@ -171,7 +171,7 @@ void FoamAlongTime::storeVelocity (
     (void)afterEnd;
     G3D::Vector3 velocity = end.m_point - begin.m_point;
     begin.m_body->SetVelocity (velocity);
-    if (end.m_location == StripIteratorLocation::END)
+    if (end.m_location == StripPointLocation::END)
 	end.m_body->SetVelocity (velocity);
 }
 

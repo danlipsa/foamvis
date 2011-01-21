@@ -10,10 +10,41 @@
 #define __DISPLAY_EDGE_FUNCTORS_H__
 
 #include "DisplayElement.h"
+class Disk;
 class Edge;
 class Face;
 class OrientedEdge;
 class OrientedFace;
+
+
+struct Segment
+{
+    Segment () :
+	m_perpendicularEnd (SegmentPerpendicularEnd::COUNT)
+    {
+    }
+
+    Segment (SegmentPerpendicularEnd::Enum perpendicularEnd, 
+	     const G3D::Vector3& beforeBegin,
+	     const G3D::Vector3& begin,
+	     const G3D::Vector3& end,
+	     const G3D::Vector3& afterEnd) :
+
+	m_perpendicularEnd (perpendicularEnd),
+	m_beforeBegin (beforeBegin),
+	m_begin (begin),
+	m_end (end),
+	m_afterEnd (afterEnd)
+    {
+    }
+
+    SegmentPerpendicularEnd::Enum m_perpendicularEnd;
+    G3D::Vector3 m_beforeBegin;
+    G3D::Vector3 m_begin;
+    G3D::Vector3 m_end;
+    G3D::Vector3 m_afterEnd;
+};
+
 
 class DisplayEdge
 {
@@ -24,7 +55,11 @@ public:
     {
     }
 
-    void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
+    void operator () (const G3D::Vector3& begin, const G3D::Vector3& end);
+    void operator () (const Segment& segment)
+    {
+	operator () (segment.m_begin, segment.m_end);
+    }
 
 protected:
     GLUquadricObj* m_quadric;
@@ -44,6 +79,10 @@ public:
     }
     
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
+    void operator () (const Segment& segment)
+    {
+	operator () (segment.m_begin, segment.m_end);
+    }
 };
 
 class DisplayEdgeTube : public DisplayEdge
@@ -58,7 +97,9 @@ public:
     {
     }
     
-    void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
+    void operator() (const Segment& segment);
+private:
+    void displayTube (const Disk& begin, const Disk& end);
 };
 
 class DisplayArrow

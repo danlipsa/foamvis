@@ -8,7 +8,7 @@
 #ifndef __ORIENTED_ELEMENT_H__
 #define __ORIENTED_ELEMENT_H__
 
-#include "Enums.h"
+#include "ParsingEnums.h"
 class ColoredElement;
 
 /**

@@ -1169,7 +1169,7 @@ void GLWidget::displayCenterPaths () const
     
     if (m_edgesTubes)
 	for_each (bats.begin (), bats.end (),
-		  DisplayCenterPath<TexCoordSetter, DisplayEdgeQuadric> (
+		  DisplayCenterPath<TexCoordSetter, DisplayEdgeTube> (
 		      *this, m_centerPathColor, *m_bodySelector, 
 		      GetCurrentFoam ().GetDimension () == 2 ? true : false,
 		      m_timeDisplacement));

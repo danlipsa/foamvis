@@ -26,7 +26,7 @@ class ParsingDriver;
 }
 
 %{
-#include "Enums.h"
+#include "ParsingEnums.h"
 class ExpressionTree;
 class NameSemanticValue;
 class AttributeCreator;

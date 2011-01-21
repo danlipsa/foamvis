@@ -9,53 +9,6 @@
 #define __ENUMS_H__
 
 /**
- * Colors of faces or edges
- * @todo Get rid of G3D::Color3 and replace it with QColor
- */
-class Color
-{
-public:
-    /**
-     * Names of colors
-     */
-    enum Enum
-    {
-        BLACK,    /* dark colors */
-        BLUE,
-        GREEN,
-        CYAN,
-        RED,
-        MAGENTA,
-        BROWN,
-        LIGHTGRAY,
-        DARKGRAY, /* light colors */
-        LIGHTBLUE,
-        LIGHTGREEN,
-        LIGHTCYAN,
-        LIGHTRED,
-        LIGHTMAGENTA,
-        YELLOW,
-        WHITE,
-        CLEAR,
-        COUNT
-    };
-
-public:
-    /**
-     * Gets a vector of RGBA components for the given color
-     * @param name color name
-     * @return vector of RGBA components for the given color
-     */
-    static const G3D::Color3& GetValue(Color::Enum name);    
-    friend ostream& operator<< (ostream& ostr, Color::Enum name);
-
-private:
-    static const G3D::Color3 COLORS[];
-};
-
-
-
-/**
  * Status of vertices, edges, faces and bodies.
  * 
  */
@@ -123,24 +76,6 @@ struct AttributeType
      * @return where to print next
      */
     friend ostream& operator<< (ostream& ostr, AttributeType::Enum type);
-};
-
-/**
- * Types of  attributes defined in a  Surface Evolver DMP  file. Use a
- * struct to enclose the enum.
- */
-struct DefineAttribute
-{
-    /**
-     * Types of attributes defined in a Surface Evolver DMP file
-     */
-    enum Enum {
-        VERTEX,
-        EDGE,
-        FACE,
-        BODY,
-        COUNT
-    };
 };
 
 
@@ -293,6 +228,36 @@ public:
 	COMPOSITE
     };
 };
+
+/**
+ * Location of a point in a strip of segments.
+ */
+struct StripPointLocation
+{
+    enum Enum
+    {
+	BEGIN,
+	MIDDLE,
+	END,
+	COUNT
+    };
+};
+
+/**
+ * Specifies which ends of a tube segment are perpendicular on it.
+ */
+struct SegmentPerpendicularEnd
+{
+    enum Enum
+    {
+	BEGIN,
+	END,
+	BEGIN_END,
+	NONE,
+	COUNT
+    };
+};
+
 
 
 #endif //__ENUMS_H__

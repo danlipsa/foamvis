@@ -47,9 +47,19 @@ public:
      * The parameters that used to be here have been removed so we can
      * create an ListArray of Disk e.g. stream tubes
      *
-     * @see Disk::SetVertices()
+     * @see Disk::Initialize()
      */
     Disk();
+
+    Disk (const G3D::Vector3& centerCoord, 
+	  const G3D::Vector3& twelveOclockCoord, 
+	  const G3D::Vector3& threeOclockCoord)
+    {
+	Initialize (centerCoord, twelveOclockCoord, threeOclockCoord);
+    }
+
+
+    
     /** 
      * destructor 
      */
@@ -67,23 +77,7 @@ public:
 	VERTEX5 = 5,
 	VERTEX6 = 6,
 	VERTEX7 = 7,
-	NUMVERTICES = 8,
-	CENTER,
-	THREEOCLOCK,
-	TWELVEOCLOCK
-    };
-
-    /** each disk vertex has an optional normal */
-    enum DISK_NORMAL {
-
-	NORMAL0 = 0,
-	NORMAL1 = 1,
-	NORMAL2 = 2,
-	NORMAL3 = 3,
-	NORMAL4 = 4,
-	NORMAL5 = 5,
-	NORMAL6 = 6,
-	NORMAL7 = 7
+	COUNT = 8,
     };
 
     /**
@@ -97,7 +91,7 @@ public:
      * @param  threeOclockCoord   -the right coordinate of the disk (VERTEX2)   
      * @return TRUE if the disk was initialized properly.
      */
-    bool SetVertices(const G3D::Vector3& centerCoord, 
+    bool Initialize (const G3D::Vector3& centerCoord, 
 		     const G3D::Vector3& twelveOclockCoord, 
 		     const G3D::Vector3& threeOclockCoord);
     /**
@@ -105,7 +99,7 @@ public:
      *         VERTEX2, VERTEX3, etc.
      * @return one of this disks's vertex coordinates
      */
-    G3D::Vector3 GetDiskCoord(int vertexNumber) const;
+    G3D::Vector3 GetVertex(int vertexNumber) const;
 
     /**
      * This method returns the next disk vertex index defined in the
@@ -130,7 +124,7 @@ public:
      *
      * @return the normalized normal vector to the disk.
      */
-    G3D::Vector3 GetDiskNormal() const;
+    G3D::Vector3 GetNormal() const;
 
     /**
      * Note: unless otherwise specified, the normals at the vertices
@@ -148,7 +142,15 @@ public:
      * @see    www.kitware.com, vtkDiskSource.h
      * @return the disk center as an x,y,z coordinate
      */
-    G3D::Vector3 GetDiskCenter() const;
+    G3D::Vector3 GetCenter() const;
+    G3D::Vector3 GetTwelveOclock () const
+    {
+	return m_twelveOclock;
+    }
+    G3D::Vector3 GetThreeOclock () const
+    {
+	return m_threeOclock;
+    }
 
     /**
      * @return the length of the line around this disk
@@ -161,35 +163,31 @@ public:
      */
     void Print() const;
 
+    size_t size () const
+    {
+	return COUNT;
+    }
+
 
 private:
 
     /** the center disk coordinate */
-    G3D::Vector3 m_CenterCoord;
+    G3D::Vector3 m_center;
     /** the vertical component (from the center) of the disk to the outer rim */
-    G3D::Vector3 m_VerticalComponent;
+    G3D::Vector3 m_twelveOclock;
     /** the horizontal component (from the center) of the disk to the outer rim */
-    G3D::Vector3 m_HorizontalComponent;
+    G3D::Vector3 m_threeOclock;
 };
 
 /**
  *
  */
-inline int operator==(const Disk& diskA, const Disk& diskB) { 
+inline bool operator==(const Disk& diskA, const Disk& diskB) { 
 
-   if ( (diskA.GetDiskCoord(Disk::CENTER) == 
-         diskB.GetDiskCoord(Disk::CENTER)) &&
-        (diskA.GetDiskCoord(Disk::TWELVEOCLOCK) == 
-         diskB.GetDiskCoord(Disk::TWELVEOCLOCK)) &&
-        (diskA.GetDiskCoord(Disk::THREEOCLOCK) == 
-         diskB.GetDiskCoord(Disk::THREEOCLOCK)) ) {
-
-      return 1;
-
-    } else {
-   
-      return 0;
-   }
+    return 
+    (diskA.GetCenter () == diskB.GetCenter ()) &&
+    (diskA.GetTwelveOclock() == diskB.GetTwelveOclock ()) &&
+    (diskA.GetThreeOclock () == diskB.GetThreeOclock ());
 }
 
 #endif /* DISK */

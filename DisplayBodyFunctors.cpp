@@ -16,6 +16,46 @@
 #include "OpenGLUtils.h"
 
 
+struct ContextSegment : public Segment
+{
+    ContextSegment () : Segment (), m_focus (false)
+    {
+    }
+
+    ContextSegment (const QColor& color, bool focus, 
+		    SegmentPerpendicularEnd::Enum location,
+		    const G3D::Vector3& beforeBegin,
+		    const G3D::Vector3& begin,
+		    const G3D::Vector3& end,
+		    const G3D::Vector3& afterEnd) :
+	Segment (location, beforeBegin, begin, end, afterEnd),
+	m_color (color), m_focus (focus)
+    {
+    }
+    QColor m_color;
+    bool m_focus;
+};
+
+struct FocusSegment : public Segment
+{
+    FocusSegment () : Segment (), m_textureCoordinate (0)
+    {
+    }
+
+    FocusSegment (GLfloat textureCoordinate,
+		  SegmentPerpendicularEnd::Enum location,
+		  const G3D::Vector3& beforeBegin,
+		  const G3D::Vector3& begin,
+		  const G3D::Vector3& end,
+		  const G3D::Vector3& afterEnd) :
+	Segment (location, beforeBegin, begin, end, afterEnd),
+	m_textureCoordinate (textureCoordinate)
+    {
+    }
+    GLfloat m_textureCoordinate;
+};
+
+
 // DisplayBodyBase
 // ======================================================================
 
@@ -194,18 +234,24 @@ speedStep (
 	begin.m_body->GetId (), begin.m_timeStep);
     if (focus && this->m_property != BodyProperty::NONE)
 	storeFocusSegment (
-	    StripIterator::GetVelocityValue (
-		this->m_property, end, begin),
-	    getPoint (begin, this->m_useZPos, this->m_zPos), 
-	    getPoint (end, this->m_useZPos, this->m_zPos));
+	    begin.m_body->GetPropertyValue (this->m_property),
+	    StripIterator::GetSegmentPerpendicularEnd (begin, end),
+	    getPoint (beforeBegin), 
+	    getPoint (begin), 
+	    getPoint (end),
+	    getPoint (afterEnd));
     else
     {
 	QColor color = (this->m_property == BodyProperty::NONE) ? 
 	    this->m_glWidget.GetCenterPathNotAvailableColor () :
 	    this->m_glWidget.GetCenterPathContextColor ();
-	storeContextSegment (color, false, 
-			     getPoint (begin, this->m_useZPos, this->m_zPos), 
-			     getPoint (end, this->m_useZPos, this->m_zPos));
+	storeContextSegment (
+	    color, false, 
+	    StripIterator::GetSegmentPerpendicularEnd (begin, end),
+	    getPoint (beforeBegin), 
+	    getPoint (begin), 
+	    getPoint (end),
+	    getPoint (afterEnd));
     }
 }
 
@@ -220,33 +266,41 @@ valueStep (
     static_cast<void>(beforeBegin);
     static_cast<void>(afterEnd);
     G3D::Vector3 middle = (
-	getPoint (begin, this->m_useZPos, this->m_zPos) + 
-	getPoint (end, this->m_useZPos, this->m_zPos)) / 2;
-    halfValueStep (begin, middle, false);
-    halfValueStep (end, middle, true);
+	getPoint (begin) + 
+	getPoint (end)) / 2;
+    halfValueStep (beforeBegin, begin, middle);
+    halfValueStep (afterEnd, end, middle);
 }
 
 
 template<typename PropertySetter, typename DisplaySegment>
 void DisplayCenterPath<PropertySetter, DisplaySegment>::
-halfValueStep (const StripIteratorPoint& p, G3D::Vector3 middle,
-	       bool swapPoints)
+halfValueStep (
+    const StripIteratorPoint& beforeP,
+    const StripIteratorPoint& p, G3D::Vector3 middle)
 {
-    G3D::Vector3 point = getPoint (p, this->m_useZPos, this->m_zPos);
-    if (swapPoints)
-	swap (point, middle);
+    SegmentPerpendicularEnd::Enum location = beforeP.IsEmpty () ? 
+	SegmentPerpendicularEnd::BEGIN_END : SegmentPerpendicularEnd::END;
+    G3D::Vector3 point = getPoint (p);
     bool focus = this->m_bodySelector (p.m_body->GetId (), p.m_timeStep);
-    if (focus && StripIterator::ExistsPropertyValue (
-	    this->m_property, p))
+    if (focus && p.m_body->ExistsPropertyValue (this->m_property))
 	storeFocusSegment (
-	    StripIterator::GetPropertyValue (
-		this->m_property, p), point, middle);
+	    p.m_body->GetPropertyValue (this->m_property), 
+	    location,
+	    getPoint (beforeP),
+	    point, 
+	    middle, G3D::Vector3 ());
     else
     {
 	QColor color = (focus) ? 
 	    this->m_glWidget.GetCenterPathNotAvailableColor () :
 	    this->m_glWidget.GetCenterPathContextColor ();		
-	storeContextSegment (color, focus, point, middle);
+	storeContextSegment (
+	    color, focus,
+	    location,
+	    getPoint (beforeP),
+	    point, 
+	    middle, G3D::Vector3 ());
     }
 }
 
@@ -269,13 +323,12 @@ displaySegments ()
 
 template<typename PropertySetter, typename DisplaySegment>
 G3D::Vector3 DisplayCenterPath<PropertySetter, DisplaySegment>::
-getPoint (StripIteratorPoint p, bool useTimeDisplacement,
-	  double timeDisplacement)
+getPoint (StripIteratorPoint p) const
 {
-    if (useTimeDisplacement)
+    if (this->m_useZPos)
     {
 	G3D::Vector3 v = p.m_point;
-	v.z = p.m_timeStep * timeDisplacement;
+	v.z = p.m_timeStep * this->m_zPos;
 	return v;
     }
     else
@@ -295,41 +348,54 @@ focusContextColor (bool focus, const QColor& color)
 template<typename PropertySetter, typename DisplaySegment>
 void DisplayCenterPath<PropertySetter, DisplaySegment>::
 storeFocusSegment (
-    double value, G3D::Vector3 begin, G3D::Vector3 end)
+    double value, 
+    SegmentPerpendicularEnd::Enum location,
+    const G3D::Vector3& beforeBegin,
+    const G3D::Vector3& begin, 
+    const G3D::Vector3& end,
+    const G3D::Vector3& afterEnd)
 {
     double textureCoordinate = this->m_glWidget.TexCoord (value);
-    m_focusSegments.push_back (
-	FocusSegment (textureCoordinate, begin, end));
+    boost::shared_ptr<FocusSegment> fs = boost::make_shared<FocusSegment> (
+	textureCoordinate, location, beforeBegin, begin, end, afterEnd);
+    m_focusSegments.push_back (fs);
 }
 
 template<typename PropertySetter, typename DisplaySegment>
 void DisplayCenterPath<PropertySetter, DisplaySegment>::
-storeContextSegment (const QColor& color, bool focus,
-		     G3D::Vector3 begin, G3D::Vector3 end)
+storeContextSegment (
+    const QColor& color, bool focus,
+    SegmentPerpendicularEnd::Enum location,
+    const G3D::Vector3& beforeBegin,
+    const G3D::Vector3& begin, 
+    const G3D::Vector3& end,
+    const G3D::Vector3& afterEnd)
 {
-    m_contextSegments.push_back (
-	ContextSegment (color, focus, begin, end));
+    boost::shared_ptr<ContextSegment> cs = boost::make_shared<ContextSegment> (
+	color, focus, location, beforeBegin, begin, end, afterEnd);
+    m_contextSegments.push_back (cs);
 }
 
 template<typename PropertySetter, typename DisplaySegment>
 void DisplayCenterPath<PropertySetter, DisplaySegment>::
-displayContextSegment (const ContextSegment& contextSegment)
+displayContextSegment (
+    const boost::shared_ptr<ContextSegment>& contextSegment)
 {
     glDisable (GL_TEXTURE_1D);
-    DisplayBodyBase<PropertySetter>::beginFocusContext (contextSegment.m_focus);
-    glColor (contextSegment.m_color);
-    m_displaySegment (contextSegment.m_begin, contextSegment.m_end);
-    DisplayBodyBase<PropertySetter>::endFocusContext (contextSegment.m_focus);
+    DisplayBodyBase<PropertySetter>::beginFocusContext (contextSegment->m_focus);
+    glColor (contextSegment->m_color);
+    m_displaySegment (*contextSegment);
+    DisplayBodyBase<PropertySetter>::endFocusContext (contextSegment->m_focus);
     glEnable (GL_TEXTURE_1D);
 }
 
 template<typename PropertySetter, typename DisplaySegment>
 void DisplayCenterPath<PropertySetter, DisplaySegment>::
-displayFocusSegment (const FocusSegment& focusSegment)
+displayFocusSegment (const boost::shared_ptr<FocusSegment>& focusSegment)
 {
     DisplayBodyBase<PropertySetter>::beginFocusContext (true);
-    glTexCoord1f (focusSegment.m_textureCoordinate);
-    m_displaySegment (focusSegment.m_begin, focusSegment.m_end);
+    glTexCoord1f (focusSegment->m_textureCoordinate);
+    m_displaySegment (*focusSegment);
     DisplayBodyBase<PropertySetter>::endFocusContext (true);
 }
 
@@ -381,5 +447,5 @@ template class DisplayBody<
 // DisplayCenterPath
 // ======================================================================
 
-template class DisplayCenterPath<TexCoordSetter, DisplayEdgeQuadric>;
+template class DisplayCenterPath<TexCoordSetter, DisplayEdgeTube>;
 template class DisplayCenterPath<TexCoordSetter, DisplayEdge>;

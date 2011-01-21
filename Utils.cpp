@@ -5,8 +5,12 @@
  * Implementation of various utility functions
  */
 
-#include "Utils.h"
+#include "Edge.h"
+#include "Face.h"
 #include "DebugStream.h"
+#include "Utils.h"
+#include "Vertex.h"
+
 
 const G3D::Vector3int16 Vector3int16Zero (0, 0, 0);
 
@@ -113,3 +117,37 @@ bool isFuzzyZero (const G3D::Vector3& v)
 {
     return v.squaredMagnitude () < fuzzyEpsilon * fuzzyEpsilon;
 }
+
+template<typename U, typename V>
+ostream& operator<< (ostream& ostr, const pair<U, V>& p)
+{
+    return ostr << "pair(" << p.first << ", " << p.second << ")";
+}
+
+template <typename Container, 
+	  typename ContainerIterator,
+	  typename ContainerKeyType>
+ContainerIterator fuzzyFind (const Container& s, const ContainerKeyType& x)
+{
+    ContainerIterator it = s.lower_bound (x);
+    if (it != s.end () && (*it)->fuzzyEq (*x))
+	return it;
+    if (it != s.begin ())
+    {
+	--it;
+	if ((*(it))->fuzzyEq (*x))
+	    return it;
+    }
+    return s.end ();
+}
+
+
+
+// Template instantiations
+//======================================================================
+
+template std::_Rb_tree_const_iterator<boost::shared_ptr<Edge> > fuzzyFind<std::set<boost::shared_ptr<Edge>, EdgeLessThan, std::allocator<boost::shared_ptr<Edge> > >, std::_Rb_tree_const_iterator<boost::shared_ptr<Edge> >, boost::shared_ptr<Edge> >(std::set<boost::shared_ptr<Edge>, EdgeLessThan, std::allocator<boost::shared_ptr<Edge> > > const&, boost::shared_ptr<Edge> const&);
+
+template std::_Rb_tree_const_iterator<boost::shared_ptr<Face> > fuzzyFind<std::set<boost::shared_ptr<Face>, FaceLessThan, std::allocator<boost::shared_ptr<Face> > >, std::_Rb_tree_const_iterator<boost::shared_ptr<Face> >, boost::shared_ptr<Face> >(std::set<boost::shared_ptr<Face>, FaceLessThan, std::allocator<boost::shared_ptr<Face> > > const&, boost::shared_ptr<Face> const&);
+
+template std::_Rb_tree_const_iterator<boost::shared_ptr<Vertex> > fuzzyFind<std::set<boost::shared_ptr<Vertex>, VertexLessThan, std::allocator<boost::shared_ptr<Vertex> > >, std::_Rb_tree_const_iterator<boost::shared_ptr<Vertex> >, boost::shared_ptr<Vertex> >(std::set<boost::shared_ptr<Vertex>, VertexLessThan, std::allocator<boost::shared_ptr<Vertex> > > const&, boost::shared_ptr<Vertex> const&);

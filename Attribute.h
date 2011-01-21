@@ -7,7 +7,7 @@
 #ifndef __ATTRIBUTE_H__
 #define __ATTRIBUTE_H__
 
-#include "Enums.h"
+#include "ParsingEnums.h"
 
 /**
  * Base class for all attributes

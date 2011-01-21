@@ -9,6 +9,7 @@
 
 #include "AttributeInfo.h"
 #include "Comparisons.h"
+#include "ParsingEnums.h"
 #include "Enums.h"
 #include "Hashes.h"
 #include "OOBox.h"

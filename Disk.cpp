@@ -10,9 +10,9 @@
 
 Disk::Disk()
                /* explicit initialization */
-    :m_CenterCoord(),
-     m_VerticalComponent(),
-     m_HorizontalComponent() 
+    :m_center(),
+     m_twelveOclock(),
+     m_threeOclock() 
 {
     
     if (false)
@@ -23,160 +23,95 @@ Disk::~Disk()
 {
 }
 
-bool Disk::SetVertices(const G3D::Vector3& centerCoord,
+bool Disk::Initialize(const G3D::Vector3& centerCoord,
 		       const G3D::Vector3& twelveOclockCoord, 
 		       const G3D::Vector3& threeOclockCoord) 
 {
 
     if (false) 
-	cdbg << "Disk::SetVertices()" << endl;
+	cdbg << "Disk::Initialize()" << endl;
 
-    m_CenterCoord         = centerCoord;
-    m_VerticalComponent   = twelveOclockCoord - centerCoord;
-    m_HorizontalComponent = threeOclockCoord  - centerCoord;
+    m_center         = centerCoord;
+    m_twelveOclock   = twelveOclockCoord;
+    m_threeOclock = threeOclockCoord;
 
     return true;
 }
 
-G3D::Vector3 Disk::GetDiskCoord(int vertexNumber) const 
+G3D::Vector3 Disk::GetVertex(int vertexNumber) const 
 {
     switch(vertexNumber)
     {
 	
-    case VERTEX0:  return (m_CenterCoord + m_VerticalComponent);
+    case VERTEX0:  return (m_center + m_twelveOclock);
 
-    case VERTEX1:  return (m_CenterCoord + 
-			   (0.75f * m_VerticalComponent) +
-			   (0.75f * m_HorizontalComponent));
+    case VERTEX1:  return (m_center + 
+			   (0.75f * m_twelveOclock) +
+			   (0.75f * m_threeOclock));
 
-    case VERTEX2:  return (m_CenterCoord + m_HorizontalComponent);
+    case VERTEX2:  return (m_center + m_threeOclock);
 
-    case VERTEX3:  return (m_CenterCoord -
-			   (0.75f * m_VerticalComponent) +
-			   (0.75f * m_HorizontalComponent));
+    case VERTEX3:  return (m_center -
+			   (0.75f * m_twelveOclock) +
+			   (0.75f * m_threeOclock));
 
-    case VERTEX4:  return (m_CenterCoord - m_VerticalComponent);
+    case VERTEX4:  return (m_center - m_twelveOclock);
 
-    case VERTEX5:  return (m_CenterCoord -
-			   (0.75f * m_VerticalComponent) -
-			   (0.75f * m_HorizontalComponent));
+    case VERTEX5:  return (m_center -
+			   (0.75f * m_twelveOclock) -
+			   (0.75f * m_threeOclock));
 
-    case VERTEX6:  return (m_CenterCoord - m_HorizontalComponent);
+    case VERTEX6:  return (m_center - m_threeOclock);
 
-    case VERTEX7:  return (m_CenterCoord +
-			   (0.75f * m_VerticalComponent) -
-			   (0.75f * m_HorizontalComponent));
-
-    case CENTER:        return m_CenterCoord;
-    case TWELVEOCLOCK:  return (m_CenterCoord + m_VerticalComponent);
-    case THREEOCLOCK:   return (m_CenterCoord + m_HorizontalComponent);
+    case VERTEX7:  return (m_center +
+			   (0.75f * m_twelveOclock) -
+			   (0.75f * m_threeOclock));
 
     default:
-	cdbg << "*** Error, Disk::GetDiskCoord() unrecognized vertex number"  
+	cdbg << "*** Error, Disk::GetVertex() unrecognized vertex number"  
 	     << endl;
-	return m_CenterCoord;
+	return m_center;
 
     } /* end switch */
 }
 
 Disk::DISK_VERTEX Disk::GetNextVertexIndex(int thisVertexIndex) 
 {
-
-    switch(thisVertexIndex) 
-    {
-
-    case VERTEX0:  return VERTEX1;
-    case VERTEX1:  return VERTEX2;
-    case VERTEX2:  return VERTEX3;
-    case VERTEX3:  return VERTEX4;
-    case VERTEX4:  return VERTEX5;
-    case VERTEX5:  return VERTEX6;
-    case VERTEX6:  return VERTEX7;
-    case VERTEX7:  return VERTEX0;
-
-    default:
-	cdbg << 
-	    "*** Error, Disk::GetNextVertexIndex() unrecognized vertex number"
-	     << endl;
-	return VERTEX0;
-    } /* end switch */
+    return static_cast<Disk::DISK_VERTEX> ((thisVertexIndex + 1) % COUNT);
 }
 
-G3D::Vector3 Disk::GetDiskNormal() const 
+G3D::Vector3 Disk::GetNormal() const 
 {
-    return m_HorizontalComponent.cross (m_VerticalComponent).unit ();
+    return m_threeOclock.cross (m_twelveOclock).unit ();
 }
 
 G3D::Vector3 Disk::GetVertexNormal(int vertexNumber) const 
 {
-
-    G3D::Vector3 normalVector;
-    switch(vertexNumber)
-    {
-    case VERTEX0:
-	normalVector = this->GetDiskCoord(VERTEX0) - this->GetDiskCenter();
-	break;
-         
-    case VERTEX1:
-	normalVector = this->GetDiskCoord(VERTEX1) - this->GetDiskCenter();
-	break;
-
-    case VERTEX2:
-	normalVector = this->GetDiskCoord(VERTEX2) - this->GetDiskCenter();
-	break;
-
-    case VERTEX3:
-	normalVector = this->GetDiskCoord(VERTEX3) - this->GetDiskCenter();
-	break;
-         
-    case VERTEX4:
-	normalVector = this->GetDiskCoord(VERTEX4) - this->GetDiskCenter();
-	break;
-
-    case VERTEX5:
-	normalVector = this->GetDiskCoord(VERTEX5) - this->GetDiskCenter();
-	break;
-
-    case VERTEX6:
-	normalVector = this->GetDiskCoord(VERTEX6) - this->GetDiskCenter();
-	break;
-
-    case VERTEX7:
-	normalVector = this->GetDiskCoord(VERTEX7) - this->GetDiskCenter();
-	break;
-
-    default:
-	cdbg << "*** Error, Disk::GetDiskNormal() unrecognized vertex number"  
-	     << endl;
-	normalVector = this->GetDiskCoord(VERTEX0) - this->GetDiskCenter();
-	break;
-    } /* end switch */
-
-    return normalVector.unit ();
+    return (GetVertex (vertexNumber) - GetCenter ()).unit ();
 }
 
-G3D::Vector3 Disk::GetDiskCenter() const 
+G3D::Vector3 Disk::GetCenter() const 
 {
 
     bool debug = false;   
-    if (debug) cdbg << "Disk::GetDiskCenter()" << endl;
+    if (debug) cdbg << "Disk::GetCenter()" << endl;
 
-    return  ( (this->GetDiskCoord(VERTEX0) + 
-	       this->GetDiskCoord(VERTEX4) ) / 2.0f);
+    return  ( (this->GetVertex(VERTEX0) + 
+	       this->GetVertex(VERTEX4) ) / 2.0f);
 }
 
 float Disk::GetDiskCircumference() const 
 {
     /* Distance() method in Coord3D.h */
     float circumference = 
-	(GetDiskCoord(VERTEX0) -  GetDiskCoord(VERTEX1)).length () +
-	(GetDiskCoord(VERTEX1) - GetDiskCoord(VERTEX2)).length () +
-	(GetDiskCoord(VERTEX2) - this->GetDiskCoord(VERTEX3)).length () +
-	(GetDiskCoord(VERTEX3) - GetDiskCoord(VERTEX4)).length () +
-	(GetDiskCoord(VERTEX4) - GetDiskCoord(VERTEX5)).length () +
-	(GetDiskCoord(VERTEX5) - GetDiskCoord(VERTEX6)).length () +
-	(GetDiskCoord(VERTEX6) - this->GetDiskCoord(VERTEX7)).length () +
-	(GetDiskCoord(VERTEX7) - this->GetDiskCoord(VERTEX0)).length ();
+	(GetVertex(VERTEX0) -  GetVertex(VERTEX1)).length () +
+	(GetVertex(VERTEX1) - GetVertex(VERTEX2)).length () +
+	(GetVertex(VERTEX2) - this->GetVertex(VERTEX3)).length () +
+	(GetVertex(VERTEX3) - GetVertex(VERTEX4)).length () +
+	(GetVertex(VERTEX4) - GetVertex(VERTEX5)).length () +
+	(GetVertex(VERTEX5) - GetVertex(VERTEX6)).length () +
+	(GetVertex(VERTEX6) - this->GetVertex(VERTEX7)).length () +
+	(GetVertex(VERTEX7) - this->GetVertex(VERTEX0)).length ();
 
     RuntimeAssert (
 	circumference > 0, 
@@ -190,8 +125,8 @@ float Disk::GetDiskCircumference() const
 void Disk::Print() const {
 
    cdbg << "this disk: " << endl;
-   cdbg << " vertex0: " << this->GetDiskCoord(VERTEX0) << endl;
-   cdbg << " vertex1: " << this->GetDiskCoord(VERTEX1) << endl;
-   cdbg << " vertex2: " << this->GetDiskCoord(VERTEX2) << endl;
+   cdbg << " vertex0: " << this->GetVertex(VERTEX0) << endl;
+   cdbg << " vertex1: " << this->GetVertex(VERTEX1) << endl;
+   cdbg << " vertex2: " << this->GetVertex(VERTEX2) << endl;
 }
 

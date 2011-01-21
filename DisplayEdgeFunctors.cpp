@@ -7,6 +7,7 @@
  */
 
 #include "DebugStream.h"
+#include "Disk.h"
 #include "DisplayEdgeFunctors.h"
 #include "DisplayVertexFunctors.h"
 #include "Edge.h"
@@ -65,7 +66,64 @@ void DisplayEdgeQuadric::operator() (
     glPopMatrix ();
 }
 
+// DisplayEdgeTube
+// ======================================================================
 
+void DisplayEdgeTube::operator() (const Segment& segment)
+{
+    Disk beginDisk;
+    Disk endDisk;
+    if (segment.m_perpendicularEnd == SegmentPerpendicularEnd::BEGIN_END)
+    {
+	G3D::Vector3 normal = (segment.m_end - segment.m_begin).unit ();
+	G3D::Plane plane (normal, G3D::Vector3::zero ());
+	G3D::Vector3 twelveOclock = 
+	    plane.closestPoint (G3D::Vector3::unitX ()).unit ();
+	G3D::Vector3 threeOclock = twelveOclock.cross (normal);
+	twelveOclock *= m_edgeRadius;
+	threeOclock *= m_edgeRadius;
+	beginDisk.Initialize (segment.m_begin, twelveOclock, threeOclock);
+	endDisk.Initialize (segment.m_end, twelveOclock, threeOclock);
+	displayTube (beginDisk, endDisk);
+    }
+}
+
+void DisplayEdgeTube::displayTube (const Disk& begin, const Disk& end)
+{
+/*
+    cdbg << "Begin: center=" << begin.GetCenter ()
+	 << " twelve=" << begin.GetTwelveOclock ()
+	 << " three=" << begin.GetThreeOclock () << endl;
+
+    cdbg << "End: center=" << end.GetCenter ()
+	 << " twelve=" << end.GetTwelveOclock ()
+	 << " three=" << end.GetThreeOclock () << endl;
+
+
+    glBegin (GL_LINES);
+    glVertex (begin.GetCenter ());
+    glVertex (begin.GetCenter () + begin.GetTwelveOclock ());
+    glEnd ();
+*/
+
+    glBegin (GL_QUAD_STRIP);
+    glVertex (begin.GetVertex (0));
+    glNormal (begin.GetVertexNormal (0));
+    glVertex (end.GetVertex (0));
+    glNormal (end.GetVertexNormal (0));
+    for (size_t i = 1; i < begin.size (); ++i)
+    {
+	glVertex (begin.GetVertex (i));
+	glNormal (begin.GetVertexNormal (i));
+	glVertex (end.GetVertex (i));
+	glNormal (end.GetVertexNormal (i));
+    }
+    glVertex (begin.GetVertex (0));
+    glNormal (begin.GetVertexNormal (0));
+    glVertex (end.GetVertex (0));
+    glNormal (end.GetVertexNormal (0));
+    glEnd ();    
+}
 
 
 // DisplayArrow

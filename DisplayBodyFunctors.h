@@ -10,12 +10,16 @@
 #define __DISPLAY_BODY_FUNCTORS_H__
 
 #include "DisplayElement.h"
+#include "Enums.h"
+
 class DisplayEdge;
 class Body;
 class BodyAlongTime;
 class BodySelector;
 class StripIterator;
 class StripIteratorPoint;
+class ContextSegment;
+class FocusSegment;
 
 /**
  * Functor used to display a body
@@ -181,41 +185,6 @@ public:
     
 
 private:
-    struct ContextSegment
-    {
-	ContextSegment () :
-	    m_focus (false)
-	{
-	}
-	ContextSegment (const QColor& color, bool focus, 
-			const G3D::Vector3& begin,
-			const G3D::Vector3& end) :
-	    m_color (color), m_focus (focus), m_begin (begin), m_end (end)
-	{
-	}
-	QColor m_color;
-	bool m_focus;
-	G3D::Vector3 m_begin;
-	G3D::Vector3 m_end;
-    };
-
-    struct FocusSegment
-    {
-	FocusSegment () :
-	    m_textureCoordinate (0)
-	{
-	}
-	FocusSegment (GLfloat textureCoordinate, const G3D::Vector3& begin,
-			 const G3D::Vector3& end) :
-	    m_textureCoordinate (textureCoordinate), m_begin (begin), m_end (end)
-	{
-	}
-	GLfloat m_textureCoordinate;
-	G3D::Vector3 m_begin;
-	G3D::Vector3 m_end;	
-    };
-
-private:
 
     void copySegments (StripIterator& it);
 
@@ -231,30 +200,42 @@ private:
 	const StripIteratorPoint& end,
 	const StripIteratorPoint& afterEnd);
 
-    void halfValueStep (const StripIteratorPoint& p, G3D::Vector3 middle,
-			bool swapPoints);
+    void halfValueStep (
+	const StripIteratorPoint& beforeP,
+	const StripIteratorPoint& p, G3D::Vector3 middle);
 
     void displaySegments ();
 
-    G3D::Vector3 getPoint (StripIteratorPoint p, bool useTimeDisplacement,
-			   double timeDisplacement);
+    G3D::Vector3 getPoint (StripIteratorPoint p) const;
 
     QColor focusContextColor (bool focus, const QColor& color);
 
     void storeFocusSegment (
-	double value, G3D::Vector3 begin, G3D::Vector3 end);
+	double value, 
+	SegmentPerpendicularEnd::Enum location,
+	const G3D::Vector3& beforeBegin,
+	const G3D::Vector3& begin, 
+	const G3D::Vector3& end,
+	const G3D::Vector3& afterEnd);
 
     void storeContextSegment (
-	const QColor& color, bool focus, G3D::Vector3 begin, G3D::Vector3 end);
+	const QColor& color, bool focus,
+	SegmentPerpendicularEnd::Enum location,
+	const G3D::Vector3& beforeBegin,
+	const G3D::Vector3& begin, 
+	const G3D::Vector3& end,
+	const G3D::Vector3& afterEnd);
 
-    void displayContextSegment (const ContextSegment& contextSegment);
+    void displayContextSegment (
+	const boost::shared_ptr<ContextSegment>& contextSegment);
 
-    void displayFocusSegment (const FocusSegment& focusSegment);
+    void displayFocusSegment (
+	const boost::shared_ptr<FocusSegment>& focusSegment);
 
 private:
     DisplaySegment m_displaySegment;
-    vector<FocusSegment> m_focusSegments;
-    vector<ContextSegment> m_contextSegments;
+    vector< boost::shared_ptr<FocusSegment> > m_focusSegments;
+    vector< boost::shared_ptr<ContextSegment> > m_contextSegments;
 };
 
 
