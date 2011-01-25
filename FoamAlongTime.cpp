@@ -80,7 +80,7 @@ void FoamAlongTime::Preprocess ()
 	adjustPressureAlignMedians ();
     else
     {
-	cdbg << "Show original pressure values.";
+	cdbg << "Show ORIGINAL pressure values." << endl;
     }
     calculateStatistics ();
 }
