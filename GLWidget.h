@@ -98,6 +98,9 @@ public:
     {
 	return m_timeStep;
     }
+
+    bool IsTimeDisplacementUsed () const;
+
     double GetTimeDisplacement () const
     {
 	return m_timeDisplacement;
@@ -308,7 +311,7 @@ public Q_SLOTS:
 
 public:
     const static  size_t DISPLAY_ALL;
-    const static size_t QUADRIC_SLICES = 5;
+    const static size_t QUADRIC_SLICES = 8;
     const static size_t QUADRIC_STACKS = 1;
     const static size_t LIGHTS_COUNT = 4;
     const static double MIN_CONTEXT_ALPHA = 0.05;

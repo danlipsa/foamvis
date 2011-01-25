@@ -53,9 +53,10 @@ public:
 
     Disk (const G3D::Vector3& centerCoord, 
 	  const G3D::Vector3& twelveOclockCoord, 
-	  const G3D::Vector3& threeOclockCoord)
+	  const G3D::Vector3& threeOclockCoord,
+	  double radius)
     {
-	Initialize (centerCoord, twelveOclockCoord, threeOclockCoord);
+	Initialize (centerCoord, twelveOclockCoord, threeOclockCoord, radius);
     }
 
 
@@ -89,11 +90,12 @@ public:
      * @param  centerCoord        -the center coordinate of the disk
      * @param  twelveOclockCoord  -the top coordinate of the disk (VERTEX0)
      * @param  threeOclockCoord   -the right coordinate of the disk (VERTEX2)   
-     * @return TRUE if the disk was initialized properly.
+     * @param  radius             -radius of the disk
      */
-    bool Initialize (const G3D::Vector3& centerCoord, 
+    void Initialize (const G3D::Vector3& centerCoord, 
 		     const G3D::Vector3& twelveOclockCoord, 
-		     const G3D::Vector3& threeOclockCoord);
+		     const G3D::Vector3& threeOclockCoord, 
+		     double radius);
     /**
      * @param  vertexNumber an identifier for the vertex either VERTEX0, VERTEX1,
      *         VERTEX2, VERTEX3, etc.
@@ -168,8 +170,14 @@ public:
 	return COUNT;
     }
 
+    float GetRadius () const
+    {
+	return m_radius;
+    }
+
 
 private:
+    double m_radius;
 
     /** the center disk coordinate */
     G3D::Vector3 m_center;

@@ -149,8 +149,10 @@ private:
 
 void readOptions (
     int argc, char *argv[],
-    bool* debugParsing, bool* debugScanning, bool* textOutput)
+    bool* debugParsing, bool* debugScanning, bool* textOutput, 
+    bool* adjustPressure)
 {
+    *adjustPressure = true;
     *textOutput = false;
     *debugParsing = false;
     *debugScanning =false;
@@ -158,9 +160,12 @@ void readOptions (
 
     opterr = 0;
 
-    while ((c = getopt (argc, argv, "pst")) != -1)
+    while ((c = getopt (argc, argv, "opst")) != -1)
 	switch (c)
 	{
+	case 'o':
+	    *adjustPressure = false;
+	    break;
 	case 'p':
 	    *debugParsing = true;
 	    break;
@@ -199,6 +204,7 @@ void printHelp ()
 	"the data files\n"
 	 << "       <file> is the name of a data file\n"
 	 << "OPTIONS:\n"
+	 << "       -o : show original pressure values\n"
 	 << "       -p : debug parsing\n"
 	 << "       -s : debug scanning\n"
 	 << "       -t : outputs a text representation of the data\n";
@@ -273,14 +279,16 @@ int main(int argc, char *argv[])
 {
     try
     {
-	bool debugParsing, debugScanning, textOutput;
+	bool debugParsing, debugScanning, textOutput, adjustPressure;
 	FoamAlongTime foamAlongTime;
 	readOptions (argc, argv,
-		     &debugParsing, &debugScanning, &textOutput);
+		     &debugParsing, &debugScanning, &textOutput, 
+		     &adjustPressure);
 	parseFiles (argc, argv, &foamAlongTime, debugParsing, debugScanning);
 	size_t timeSteps = foamAlongTime.GetTimeSteps ();
         if (timeSteps != 0)
         {
+	    foamAlongTime.SetAdjustPressure (adjustPressure);
 	    foamAlongTime.Preprocess ();
 	    if (textOutput)
 		cdbg << foamAlongTime;

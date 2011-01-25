@@ -51,7 +51,7 @@ class DisplayEdge
 public:
     DisplayEdge (GLUquadricObj* quadric = 0, double edgeRadius = 0) :
 	m_quadric (quadric),
-	m_edgeRadius (edgeRadius)
+	m_radius (edgeRadius)
     {
     }
 
@@ -63,7 +63,7 @@ public:
 
 protected:
     GLUquadricObj* m_quadric;
-    double m_edgeRadius;
+    double m_radius;
 };
 
 class DisplayEdgeQuadric : public DisplayEdge
@@ -99,7 +99,13 @@ public:
     
     void operator() (const Segment& segment);
 private:
-    void displayTube (const Disk& begin, const Disk& end);
+    void displayTube (const Disk& begin, const Disk& end) const;
+    Disk perpendicularDisk (
+	const G3D::Vector3& beginEdge, const G3D::Vector3& endEdge, 
+	const G3D::Vector3& origin) const;
+    Disk angledDisk (
+	const G3D::Vector3& beforeP, const G3D::Vector3& p, 
+	const G3D::Vector3& afterP, const G3D::Vector3& origin) const;
 };
 
 class DisplayArrow

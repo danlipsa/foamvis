@@ -6,6 +6,7 @@
  * Implementation for functors that display an edge
  */
 
+#include "Debug.h"
 #include "DebugStream.h"
 #include "Disk.h"
 #include "DisplayEdgeFunctors.h"
@@ -35,6 +36,33 @@ G3D::Matrix3 edgeRotation (const G3D::Vector3& begin, const G3D::Vector3& end)
     return rotation;
 }
 
+void perpendicularEnd (const G3D::Vector3& normal,
+		       G3D::Vector3* twelveOclock, G3D::Vector3* threeOclock)
+{
+    G3D::Plane plane (normal, G3D::Vector3::zero ());
+    *twelveOclock = plane.closestPoint (G3D::Vector3::unitX ()).unit ();
+    *threeOclock = twelveOclock->cross (normal);
+}
+
+
+void perpendicularEnd (const G3D::Vector3& begin, const G3D::Vector3& end,
+		       G3D::Vector3* twelveOclock, G3D::Vector3* threeOclock)
+{
+    G3D::Vector3 normal = (end - begin).unit ();
+    perpendicularEnd (normal, twelveOclock, threeOclock);
+}
+
+void angledEnd (const G3D::Vector3& before, 
+		const G3D::Vector3& p,
+		const G3D::Vector3& after,
+		G3D::Vector3* twelveOclock, G3D::Vector3* threeOclock)
+{
+    G3D::Vector3 firstNormal = (p - before).unit ();
+    G3D::Vector3 secondNormal = (after - p).unit ();
+    G3D::Vector3 normal = (firstNormal + secondNormal).unit ();
+    perpendicularEnd (normal, twelveOclock, threeOclock);
+}
+
 // DisplayEdge
 // ======================================================================
 
@@ -60,68 +88,122 @@ void DisplayEdgeQuadric::operator() (
     {
 	glMultMatrix (frame);
 	gluCylinder (
-	    m_quadric, m_edgeRadius, m_edgeRadius, (end - begin).length (),
+	    m_quadric, m_radius, m_radius, (end - begin).length (),
 	    GLWidget::QUADRIC_SLICES, GLWidget::QUADRIC_STACKS);
     }
     glPopMatrix ();
 }
 
+
+
+
+
+
 // DisplayEdgeTube
 // ======================================================================
 
-void DisplayEdgeTube::operator() (const Segment& segment)
+
+Disk DisplayEdgeTube::perpendicularDisk (
+    const G3D::Vector3& beginEdge, const G3D::Vector3& endEdge, 
+    const G3D::Vector3& origin) const
 {
-    Disk beginDisk;
-    Disk endDisk;
-    if (segment.m_perpendicularEnd == SegmentPerpendicularEnd::BEGIN_END)
-    {
-	G3D::Vector3 normal = (segment.m_end - segment.m_begin).unit ();
-	G3D::Plane plane (normal, G3D::Vector3::zero ());
-	G3D::Vector3 twelveOclock = 
-	    plane.closestPoint (G3D::Vector3::unitX ()).unit ();
-	G3D::Vector3 threeOclock = twelveOclock.cross (normal);
-	twelveOclock *= m_edgeRadius;
-	threeOclock *= m_edgeRadius;
-	beginDisk.Initialize (segment.m_begin, twelveOclock, threeOclock);
-	endDisk.Initialize (segment.m_end, twelveOclock, threeOclock);
-	displayTube (beginDisk, endDisk);
-    }
+    G3D::Vector3 twelveOclock, threeOclock;
+    perpendicularEnd (beginEdge, endEdge, &twelveOclock, &threeOclock);
+    return Disk (origin, twelveOclock, threeOclock, m_radius);
 }
 
-void DisplayEdgeTube::displayTube (const Disk& begin, const Disk& end)
+Disk DisplayEdgeTube::angledDisk (
+    const G3D::Vector3& beforeP, const G3D::Vector3& p, 
+    const G3D::Vector3& afterP,
+    const G3D::Vector3& origin) const
 {
-/*
-    cdbg << "Begin: center=" << begin.GetCenter ()
-	 << " twelve=" << begin.GetTwelveOclock ()
-	 << " three=" << begin.GetThreeOclock () << endl;
-
-    cdbg << "End: center=" << end.GetCenter ()
-	 << " twelve=" << end.GetTwelveOclock ()
-	 << " three=" << end.GetThreeOclock () << endl;
+    G3D::Vector3 twelveOclock, threeOclock;
+    angledEnd (beforeP, p, afterP, &twelveOclock, &threeOclock);
+    return Disk (origin, twelveOclock, threeOclock, m_radius);
+}
 
 
-    glBegin (GL_LINES);
-    glVertex (begin.GetCenter ());
-    glVertex (begin.GetCenter () + begin.GetTwelveOclock ());
-    glEnd ();
-*/
+void DisplayEdgeTube::operator() (const Segment& segment)
+{
+    Disk beginDisk, endDisk;
+    switch (segment.m_perpendicularEnd)
+    {
+    case SegmentPerpendicularEnd::BEGIN:
+    {
+	beginDisk = perpendicularDisk (segment.m_begin, segment.m_end,
+				       segment.m_begin);
+	endDisk = angledDisk (segment.m_begin, segment.m_end, segment.m_afterEnd,
+			      segment.m_end);
+	break;
+    }
+    case SegmentPerpendicularEnd::END:
+    {
+	beginDisk = angledDisk (segment.m_beforeBegin, segment.m_begin, 
+				segment.m_end, segment.m_begin);
+	endDisk = perpendicularDisk (segment.m_begin, segment.m_end,
+				     segment.m_end);
+	break;
+    }
+    case SegmentPerpendicularEnd::BEGIN_END:
+    {
+	beginDisk = perpendicularDisk (segment.m_begin, segment.m_end,
+				       segment.m_begin);
+	endDisk = perpendicularDisk (segment.m_begin, segment.m_end,
+				     segment.m_end);
+	break;
+    }
+    case SegmentPerpendicularEnd::NONE:
+    {
+	beginDisk = angledDisk (
+	    segment.m_beforeBegin, segment.m_begin, segment.m_end, 
+	    segment.m_begin);
+	endDisk = angledDisk (
+	    segment.m_begin, segment.m_end, segment.m_afterEnd, segment.m_end);
+	break;
+    }
+
+    default:
+	ThrowException ("Invalid SegmentPerpendicularEnd::Enum: ", 
+			segment.m_perpendicularEnd);
+    }
+    displayTube (beginDisk, endDisk);
+}
+
+void displayNormal (const Disk& disk, size_t i)
+{
+    DisplayOrientedEdge () (
+	disk.GetCenter (),
+	disk.GetCenter () + disk.GetVertexNormal (i) * disk.GetRadius () *
+	(1 + 2*static_cast<double>((i + 1)) / disk.size ()));    
+}
+
+
+void DisplayEdgeTube::displayTube (const Disk& begin, const Disk& end) const
+{
+    /*
+    for (size_t i = 0; i < begin.size (); ++i)
+    {
+	displayNormal (begin, i);
+	displayNormal (end, i);
+    }
+    */
 
     glBegin (GL_QUAD_STRIP);
-    glVertex (begin.GetVertex (0));
     glNormal (begin.GetVertexNormal (0));
-    glVertex (end.GetVertex (0));
+    glVertex (begin.GetVertex (0));
     glNormal (end.GetVertexNormal (0));
+    glVertex (end.GetVertex (0));
     for (size_t i = 1; i < begin.size (); ++i)
     {
-	glVertex (begin.GetVertex (i));
 	glNormal (begin.GetVertexNormal (i));
-	glVertex (end.GetVertex (i));
+	glVertex (begin.GetVertex (i));
 	glNormal (end.GetVertexNormal (i));
+	glVertex (end.GetVertex (i));
     }
-    glVertex (begin.GetVertex (0));
     glNormal (begin.GetVertexNormal (0));
-    glVertex (end.GetVertex (0));
+    glVertex (begin.GetVertex (0));
     glNormal (end.GetVertexNormal (0));
+    glVertex (end.GetVertex (0));
     glEnd ();    
 }
 
@@ -133,7 +215,7 @@ void DisplayArrow::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
     glPushAttrib (GL_LINE_BIT);
-    glLineWidth (2.0);
+    glLineWidth (3.0);
     glBegin(GL_LINES);
     glVertex(begin);
     glVertex((begin + end) / 2);

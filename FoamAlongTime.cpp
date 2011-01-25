@@ -76,7 +76,12 @@ void FoamAlongTime::Preprocess ()
     CacheBodiesAlongTime ();
     calculateBodyWraps ();
     calculateVelocity ();
-    adjustPressure ();
+    if (IsPressureAdjusted ())
+	adjustPressureAlignMedians ();
+    else
+    {
+	cdbg << "Show original pressure values.";
+    }
     calculateStatistics ();
 }
 
@@ -89,25 +94,39 @@ size_t foamsIndex (
     return (current - begin) / sizeof *begin;
 }
 
-void FoamAlongTime::adjustPressure ()
+
+double GetPressureBody0 (const boost::shared_ptr<Foam>& foam)
 {
-    // adjust pressure by substracting the minimum pressure of a foam
+    return foam->GetBody (0)->GetPropertyValue (BodyProperty::PRESSURE);
+}
+
+void FoamAlongTime::adjustPressureSubtractReference ()
+{
+    QtConcurrent::blockingMap (
+	m_foams.begin (), m_foams.end (),
+	boost::bind (&Foam::AdjustPressure, _1, 
+		     boost::bind (GetPressureBody0, _1)));
+}
+
+void FoamAlongTime::adjustPressureAlignMedians ()
+{
+    // adjust pressure in every time step,
+    // by substracting the minimum pressure of a bubble in that time step.
     // this makes every pressure greater than 0.
     QtConcurrent::blockingMap (
 	m_foams.begin (), m_foams.end (),
 	boost::bind (&Foam::AdjustPressure, _1, 
 		     boost::bind (&Foam::GetMin, _1, BodyProperty::PRESSURE)));
 
-    // adjust the pressure by aligning the medians with the max median
+    // adjust the pressure by aligning the medians in every time step,
+    // with the max median for all time steps
     vector<double> medians = 
 	QtConcurrent::blockingMapped< vector<double> > (
 	    m_foams.begin (), m_foams.end (),
 	    boost::bind (&Foam::CalculateMedian, _1, BodyProperty::PRESSURE));
     double maxMedian = *max_element (medians.begin (), medians.end ());
     for (size_t i = 0; i < m_foams.size (); ++i)
-    {
 	m_foams[i]->AdjustPressure (medians[i] - maxMedian);
-    }
 }
 
 void FoamAlongTime::calculateStatistics ()

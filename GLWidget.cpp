@@ -1138,21 +1138,20 @@ void GLWidget::displayCenterPathsWithBodies () const
     {
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	double zPos = GetTimeStep () * GetTimeDisplacement ();
-	for_each (bodies.begin (), bodies.end (),
-		  DisplayBody<DisplayFace<
-		  DisplayEdges<DisplayEdgeWithColor<
-		  DisplayElement::DONT_DISPLAY_TESSELLATION> > > > (
-		      *this, *m_bodySelector, 
-		      DisplayElement::INVISIBLE_CONTEXT, 
-		      BodyProperty::NONE, true, zPos));
-	displayCenterOfBodies (true);
+	for_each (
+	    bodies.begin (), bodies.end (),
+	    DisplayBody<DisplayFace<DisplayEdges<DisplayEdgeWithColor<
+	    DisplayElement::DONT_DISPLAY_TESSELLATION> > > > (
+		*this, *m_bodySelector, DisplayElement::INVISIBLE_CONTEXT, 
+		BodyProperty::NONE, IsTimeDisplacementUsed (), zPos));
+	displayCenterOfBodies (IsTimeDisplacementUsed ());
     }
     displayStandaloneEdges< DisplayEdgeWithColor<> > (true, 0);
     if (GetTimeDisplacement () != 0)
     {
 	
 	displayStandaloneEdges< DisplayEdgeWithColor<> > (
-	    true,
+	    IsTimeDisplacementUsed (),
 	    (GetFoamAlongTime ().GetTimeSteps () - 1)*GetTimeDisplacement ());	
     }
 }
@@ -1171,14 +1170,12 @@ void GLWidget::displayCenterPaths () const
 	for_each (bats.begin (), bats.end (),
 		  DisplayCenterPath<TexCoordSetter, DisplayEdgeTube> (
 		      *this, m_centerPathColor, *m_bodySelector, 
-		      GetCurrentFoam ().GetDimension () == 2 ? true : false,
-		      m_timeDisplacement));
+		      IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     else
 	for_each (bats.begin (), bats.end (),
 		  DisplayCenterPath<TexCoordSetter, DisplayEdge> (
 		      *this, m_centerPathColor, *m_bodySelector, 
-		      GetCurrentFoam ().GetDimension () == 2 ? true : false,
-		      m_timeDisplacement));
+		      IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     glPopAttrib ();
 }
 
@@ -1603,6 +1600,7 @@ void GLWidget::CurrentIndexChangedViewportTransformType (int index)
 {
     m_viewportTransformType = 
 	static_cast<ViewportTransformType::Enum>(index);
+    ResetTransformation ();
 }
 
 void GLWidget::CurrentIndexChangedAxesOrder (int index)
@@ -1969,4 +1967,9 @@ void GLWidget::SetBodySelector (
 	break;
     }
     updateGL ();    
+}
+
+bool GLWidget::IsTimeDisplacementUsed () const
+{
+    return GetFoamAlongTime ().GetDimension () == 2 ? true : false;
 }

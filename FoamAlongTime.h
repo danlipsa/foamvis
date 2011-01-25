@@ -144,9 +144,19 @@ public:
     }
     void SetTimeSteps (size_t timeSteps);
     string ToString () const;
+    bool IsPressureAdjusted () const
+    {
+	return m_adjustPressure;
+    }
+    void SetAdjustPressure (bool adjustPressure)
+    {
+	m_adjustPressure = adjustPressure;
+    }
 
 private:
-    void adjustPressure ();
+    void adjustPressureAlignMedians ();
+    void adjustPressureSubtractReference ();
+
     /**
      * Calculates the low/high point for the AABox of this list of Foam objects
      * @param aggregate functor to be applied to the list of data objects
@@ -182,6 +192,7 @@ private:
     G3D::AABox m_AABox;
     string m_filePattern;
     vector<HistogramStatistics> m_histogram;
+    bool m_adjustPressure;
 };
 
 

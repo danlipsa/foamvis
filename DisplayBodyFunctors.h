@@ -20,6 +20,7 @@ class StripIterator;
 class StripIteratorPoint;
 class ContextSegment;
 class FocusSegment;
+class Segment;
 
 /**
  * Functor used to display a body
@@ -201,8 +202,7 @@ private:
 	const StripIteratorPoint& afterEnd);
 
     void halfValueStep (
-	const StripIteratorPoint& beforeP,
-	const StripIteratorPoint& p, G3D::Vector3 middle);
+	const StripIteratorPoint& p, const Segment& segment);
 
     void displaySegments ();
 
@@ -211,20 +211,10 @@ private:
     QColor focusContextColor (bool focus, const QColor& color);
 
     void storeFocusSegment (
-	double value, 
-	SegmentPerpendicularEnd::Enum location,
-	const G3D::Vector3& beforeBegin,
-	const G3D::Vector3& begin, 
-	const G3D::Vector3& end,
-	const G3D::Vector3& afterEnd);
+	double value, const Segment& segment);
 
     void storeContextSegment (
-	const QColor& color, bool focus,
-	SegmentPerpendicularEnd::Enum location,
-	const G3D::Vector3& beforeBegin,
-	const G3D::Vector3& begin, 
-	const G3D::Vector3& end,
-	const G3D::Vector3& afterEnd);
+	const QColor& color, bool focus, const Segment& segment);
 
     void displayContextSegment (
 	const boost::shared_ptr<ContextSegment>& contextSegment);

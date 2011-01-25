@@ -10,9 +10,10 @@
 
 Disk::Disk()
                /* explicit initialization */
-    :m_center(),
-     m_twelveOclock(),
-     m_threeOclock() 
+    :m_radius (0),
+     m_center (),
+     m_twelveOclock (),
+     m_threeOclock () 
 {
     
     if (false)
@@ -23,49 +24,46 @@ Disk::~Disk()
 {
 }
 
-bool Disk::Initialize(const G3D::Vector3& centerCoord,
-		       const G3D::Vector3& twelveOclockCoord, 
-		       const G3D::Vector3& threeOclockCoord) 
+void Disk::Initialize(const G3D::Vector3& centerCoord,
+		      const G3D::Vector3& twelveOclockCoord, 
+		      const G3D::Vector3& threeOclockCoord,
+		      double radius)
 {
-
-    if (false) 
-	cdbg << "Disk::Initialize()" << endl;
-
+    m_radius         = radius;
     m_center         = centerCoord;
-    m_twelveOclock   = twelveOclockCoord;
-    m_threeOclock = threeOclockCoord;
-
-    return true;
+    m_twelveOclock   = twelveOclockCoord * radius;
+    m_threeOclock = threeOclockCoord * radius;
 }
 
 G3D::Vector3 Disk::GetVertex(int vertexNumber) const 
 {
+    const float cos45 = 0.707106781;
     switch(vertexNumber)
     {
 	
     case VERTEX0:  return (m_center + m_twelveOclock);
 
     case VERTEX1:  return (m_center + 
-			   (0.75f * m_twelveOclock) +
-			   (0.75f * m_threeOclock));
+			   (cos45 * m_twelveOclock) +
+			   (cos45 * m_threeOclock));
 
     case VERTEX2:  return (m_center + m_threeOclock);
 
     case VERTEX3:  return (m_center -
-			   (0.75f * m_twelveOclock) +
-			   (0.75f * m_threeOclock));
+			   (cos45 * m_twelveOclock) +
+			   (cos45 * m_threeOclock));
 
     case VERTEX4:  return (m_center - m_twelveOclock);
 
     case VERTEX5:  return (m_center -
-			   (0.75f * m_twelveOclock) -
-			   (0.75f * m_threeOclock));
+			   (cos45 * m_twelveOclock) -
+			   (cos45 * m_threeOclock));
 
     case VERTEX6:  return (m_center - m_threeOclock);
 
     case VERTEX7:  return (m_center +
-			   (0.75f * m_twelveOclock) -
-			   (0.75f * m_threeOclock));
+			   (cos45 * m_twelveOclock) -
+			   (cos45 * m_threeOclock));
 
     default:
 	cdbg << "*** Error, Disk::GetVertex() unrecognized vertex number"  
