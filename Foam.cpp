@@ -19,34 +19,6 @@
 #include "ProcessBodyTorus.h"
 #include "Vertex.h"
 
-// Private Classes
-// ======================================================================
-
-template<typename Container, typename ContainerIterator>
-struct calculateAggregate
-{
-    typedef ContainerIterator (*AggregateOnContainer) (
-	ContainerIterator first, ContainerIterator second, 
-	VertexLessThanAlong lessThan);
-
-    void operator() (AggregateOnContainer aggregate,
-		     G3D::Vector3* v, Container& vertices)
-    {
-	using G3D::Vector3;
-	ContainerIterator it;
-	it = aggregate (vertices.begin (), vertices.end (), 
-			VertexLessThanAlong(Vector3::X_AXIS));;
-	v->x = (*it)->x;
-	it = aggregate (vertices.begin (), vertices.end (), 
-			VertexLessThanAlong(Vector3::Y_AXIS));
-	v->y = (*it)->y;
-	it = aggregate (vertices.begin (), vertices.end (), 
-			VertexLessThanAlong(Vector3::Z_AXIS));
-	v->z = (*it)->z;
-    }
-};
-
-
 // Private Functions
 // ======================================================================
 
@@ -251,22 +223,24 @@ void Foam::updatePartOf ()
 	      boost::bind (&Edge::UpdateEdgePartOf, _1, _1));
 }
 
-void Foam::calculateAABox ()
+void Foam::calculateBoundingBox ()
 {
-    using G3D::Vector3;
-    Vector3 low, high;
-    VertexSet vertexSet;
-    GetVertexSet (&vertexSet);
-    calculateAggregate <VertexSet, VertexSet::iterator>() (
-	min_element, &low, vertexSet);
-    calculateAggregate <VertexSet, VertexSet::iterator>()(
-	max_element, &high, vertexSet);
+    // calculate the BB for each body
+    for_each (m_bodies.begin (), m_bodies.end (),
+	      boost::bind (&Body::CalculateBoundingBox, _1));
+
+    // calculate the BB for the foam using BB for bodies
+    G3D::Vector3 low, high;
+    CalculateAggregate <Bodies, Bodies::iterator, 
+	BBObjectLessThanAlongLow<Body> >() (min_element, m_bodies, &low);
+    CalculateAggregate <Bodies, Bodies::iterator, 
+	BBObjectLessThanAlongHigh<Body> >()(max_element, m_bodies, &high);
     if (IsTorus ())
-	calculateAABoxForTorus (&low, &high);
-    m_AABox.set(low, high);
+	calculateBoundingBoxForTorus (&low, &high);
+    m_boundingBox.set(low, high);
 }
 
-void Foam::calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high)
+void Foam::calculateBoundingBoxForTorus (G3D::Vector3* low, G3D::Vector3* high)
 {
     using boost::array;
     using G3D::Vector3;
@@ -285,10 +259,10 @@ void Foam::calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high)
     vector<Vector3*> v(additionalVertices.size ());
     transform (additionalVertices.begin (), additionalVertices.end (),
 	       v.begin (), Vector3Address);
-    calculateAggregate<vector<Vector3*>, vector<Vector3*>::iterator>() (
-	min_element, low, v);
-    calculateAggregate<vector<Vector3*>, vector<Vector3*>::iterator>() (
-	max_element, high, v);
+    CalculateAggregate<vector<Vector3*>, vector<Vector3*>::iterator,
+	VertexLessThanAlong>() (min_element, v, low);
+    CalculateAggregate<vector<Vector3*>, vector<Vector3*>::iterator, 
+	VertexLessThanAlong>() (max_element, v, high);
 }
 
 void Foam::calculateBodiesCenters ()
@@ -397,7 +371,7 @@ void Foam::Preprocess ()
 	bodiesInsideOriginalDomain (&vertexSet, &edgeSet, &faceSet);
 	calculateTorusClipped ();
     }
-    calculateAABox ();
+    calculateBoundingBox ();
     sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);    
     calculateMinMaxStatistics ();
 }
@@ -601,7 +575,7 @@ ostream& operator<< (ostream& ostr, const Foam& d)
 {
     ostr << "Foam:\n";
     ostr << "AABox:\n";
-    ostr << d.m_AABox << endl;
+    ostr << d.m_boundingBox << endl;
     {
 	ostr << "view matrix:\n";
 	ostr << d.m_viewMatrix;

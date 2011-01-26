@@ -66,9 +66,27 @@ bool IdBodySelector::operator () (
     size_t bodyId, size_t timeStep) const
 {
     (void)timeStep;
-    vector<size_t>::const_iterator it = find (
-	m_ids.begin (), m_ids.end (), bodyId);
-    return it != m_ids.end ();
+    return binary_search (m_ids.begin (), m_ids.end (), bodyId);
+}
+
+void IdBodySelector::SetUnion (const vector<size_t>& idsToAdd)
+{
+    vector<size_t> result (m_ids.size () + idsToAdd.size ());
+    vector<size_t>::iterator resultEnd = set_union (
+	m_ids.begin (), m_ids.end (), idsToAdd.begin (), idsToAdd.end (),
+	result.begin ());
+    result.resize (resultEnd - result.begin ());
+    m_ids = result;
+}
+
+void IdBodySelector::SetDifference (const vector<size_t>& idsToRemove)
+{
+    vector<size_t> result (m_ids.size ());
+    vector<size_t>::iterator resultEnd = set_difference (
+	m_ids.begin (), m_ids.end (), idsToRemove.begin (), idsToRemove.end (),
+	result.begin ());
+    result.resize (resultEnd - result.begin ());
+    m_ids = result;
 }
 
 // CompositeBodySelector

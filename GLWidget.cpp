@@ -29,6 +29,24 @@
 #include "Utils.h"
 #include "Vertex.h"
 
+// Private Functions
+// ======================================================================
+
+boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
+    const Foam& foam, const vector<size_t> bodyIds)
+{
+    Foam::Bodies bodies = foam.GetBodies ();
+    vector<size_t> allBodyIds (bodies.size ());
+    transform (bodies.begin (), bodies.end (), allBodyIds.begin (),
+	       boost::bind (&Body::GetId, _1));
+    boost::shared_ptr<IdBodySelector> idBodySelector = 
+	boost::make_shared<IdBodySelector> (allBodyIds);
+    idBodySelector->SetDifference (bodyIds);
+    return idBodySelector;
+}
+
+
+
 // Private Classes
 // ======================================================================
 
@@ -232,10 +250,8 @@ bool GLWidget::edgeLighting () const
 
 double GLWidget::getMinimumEdgeRadius ()
 {
-    G3D::Vector3 origin (0, 0, 0);
-    G3D::Vector3 one (1, 0, 0);
-    G3D::Vector3 objectOrigin = gluUnProject (origin);
-    G3D::Vector3 objectOne = gluUnProject (one);
+    G3D::Vector3 objectOrigin = gluUnProject (G3D::Vector2::zero (), false);
+    G3D::Vector3 objectOne = gluUnProject (G3D::Vector2::unitX (), false);
     return (objectOne - objectOrigin).length ();
 }
 
@@ -678,6 +694,7 @@ void GLWidget::initializeGL()
     m_displayFaceAverage->InitShaders ();
     initializeLighting ();
     setEdgeRadius ();
+    detectOpenGLError ();
 }
 
 void GLWidget::paintGL ()
@@ -809,6 +826,96 @@ void GLWidget::scaleViewport (const QPoint& position)
     m_scalingFactorModel = m_scalingFactorModel * ratio;
 }
 
+
+void GLWidget::brushedBodies (
+    const QPoint& position, vector<size_t>* bodies) const
+{
+    QVector3D begin = ToQt (gluUnProject (ToG3D (QVector2D (m_lastPos))));
+    QVector3D end = ToQt (gluUnProject (ToG3D (QVector2D (position))));
+    const Foam& foam = GetCurrentFoam ();
+    BOOST_FOREACH (boost::shared_ptr<Body> body, foam.GetBodies ())
+    {
+	QBox3D box = ToQt (body->GetBoundingBox ());
+	if (intersection (box, begin, end))
+	    bodies->push_back (body->GetId ());
+    }
+}
+
+
+void GLWidget::select (const QPoint& position)
+{
+    vector<size_t> bodyIds;
+    brushedBodies (position, &bodyIds);
+
+    switch (m_bodySelector->GetType ())
+    {
+    case BodySelectorType::ALL:
+	m_bodySelector = boost::make_shared<IdBodySelector> (bodyIds);
+	break;
+
+    case BodySelectorType::ID:
+	boost::static_pointer_cast<IdBodySelector> (
+	    m_bodySelector)->SetUnion (bodyIds);
+	break;
+
+    case BodySelectorType::PROPERTY_VALUE:
+    {
+	boost::shared_ptr<IdBodySelector> idSelector = 
+	    boost::make_shared<IdBodySelector> (bodyIds);
+	m_bodySelector = boost::make_shared<CompositeBodySelector> (
+	    idSelector,
+	    boost::static_pointer_cast<PropertyValueBodySelector> (
+		m_bodySelector));
+	break;
+    }
+
+    case BodySelectorType::COMPOSITE:
+	boost::static_pointer_cast<CompositeBodySelector> (
+	    m_bodySelector)->GetIdSelector ()->SetUnion (bodyIds);
+	break;
+    }
+    setBodySelectorLabel (m_bodySelector->GetType ());
+    updateGL ();
+}
+
+void GLWidget::deselect (const QPoint& position)
+{
+    vector<size_t> bodyIds;
+    brushedBodies (position, &bodyIds);
+
+    switch (m_bodySelector->GetType ())
+    {
+    case BodySelectorType::ALL:
+    {
+	m_bodySelector = idBodySelectorComplement (GetCurrentFoam (), bodyIds);
+	break;
+    }
+    case BodySelectorType::ID:
+	boost::static_pointer_cast<IdBodySelector> (
+	    m_bodySelector)->SetDifference (bodyIds);
+	break;
+
+    case BodySelectorType::PROPERTY_VALUE:
+    {
+	boost::shared_ptr<IdBodySelector> idSelector = 
+	    idBodySelectorComplement (GetCurrentFoam (), bodyIds);
+	m_bodySelector = boost::make_shared<CompositeBodySelector> (
+	    idSelector,
+	    boost::static_pointer_cast<PropertyValueBodySelector> (
+		m_bodySelector));
+	break;
+    }
+
+    case BodySelectorType::COMPOSITE:
+	boost::static_pointer_cast<CompositeBodySelector> (
+	    m_bodySelector)->GetIdSelector ()->SetDifference (bodyIds);
+	break;
+    }
+    setBodySelectorLabel (m_bodySelector->GetType ());
+    updateGL ();
+}
+
+
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     switch (m_interactionMode)
@@ -822,12 +929,21 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     case InteractionMode::SCALE:
 	scaleViewport (event->pos ());
 	break;
+
     case InteractionMode::ROTATE_LIGHT:
 	rotate (event->pos (), &m_rotationMatrixLight);
 	break;
     case InteractionMode::TRANSLATE_LIGHT:
 	translateLight (event->pos ());
 	break;
+
+    case InteractionMode::SELECT_BRUSH:
+	select (event->pos ());
+	break;
+    case InteractionMode::SELECT_ERASER:
+	deselect (event->pos ());
+	break;
+
     default:
 	break;
     }
@@ -1025,6 +1141,7 @@ void GLWidget::displayFacesNormal () const
     }
     else
     {
+	
 	if (m_facesShowEdges)
 	    displayFacesContour<DisplaySameTriangles> (bodies);
 	displayFacesInterior<DisplaySameTriangles> (bodies);
@@ -1053,9 +1170,11 @@ void GLWidget::displayStandaloneFaces () const
 template<typename displaySameEdges>
 void GLWidget::displayFacesContour (const Foam::Faces& faces) const
 {
+    
     glColor (G3D::Color4 (Color::GetValue(Color::BLACK), 
 			  GetContextAlpha ()));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    
     for_each (faces.begin (), faces.end (),
 	      DisplayFace<displaySameEdges> (*this));
 }
@@ -1063,6 +1182,7 @@ void GLWidget::displayFacesContour (const Foam::Faces& faces) const
 template<typename displaySameEdges>
 void GLWidget::displayFacesContour (const Foam::Bodies& bodies) const
 {
+
     glColor (G3D::Color4 (Color::GetValue(Color::BLACK), 
 			  GetContextAlpha ()));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
@@ -1886,14 +2006,12 @@ void GLWidget::SetBodySelector (
     {
     case BodySelectorType::ALL:
 	m_bodySelector = selector;
-	setBodySelectorLabel (BodySelectorType::PROPERTY_VALUE);
 	break;
     case BodySelectorType::ID:
 	m_bodySelector = boost::shared_ptr<BodySelector> (
 	    new CompositeBodySelector (
 		boost::static_pointer_cast<IdBodySelector> (m_bodySelector), 
 		selector));
-	setBodySelectorLabel (BodySelectorType::COMPOSITE);
 	break;
     case BodySelectorType::PROPERTY_VALUE:
 	m_bodySelector = selector;
@@ -1903,6 +2021,7 @@ void GLWidget::SetBodySelector (
 	    m_bodySelector)->SetSelector (selector);
 	break;
     }
+    setBodySelectorLabel (m_bodySelector->GetType ());
     updateGL ();
 }
 
@@ -1912,7 +2031,6 @@ void GLWidget::SetBodySelector (boost::shared_ptr<IdBodySelector> selector)
     {
     case BodySelectorType::ALL:
 	m_bodySelector = selector;
-	setBodySelectorLabel (BodySelectorType::ID);
 	break;
     case BodySelectorType::PROPERTY_VALUE:
 	m_bodySelector = boost::shared_ptr<BodySelector> (
@@ -1920,17 +2038,16 @@ void GLWidget::SetBodySelector (boost::shared_ptr<IdBodySelector> selector)
 		selector, 
 		boost::static_pointer_cast<PropertyValueBodySelector> (
 		    m_bodySelector)));
-	
-	setBodySelectorLabel (BodySelectorType::COMPOSITE);
 	break;
     case BodySelectorType::ID:
-	    m_bodySelector = selector;
+	m_bodySelector = selector;
 	break;
     case BodySelectorType::COMPOSITE:
 	boost::static_pointer_cast<CompositeBodySelector> (
 	    m_bodySelector)->SetSelector (selector);
 	break;
     }
+    setBodySelectorLabel (m_bodySelector->GetType ());
     updateGL ();    
 }
 
@@ -1941,31 +2058,22 @@ void GLWidget::SetBodySelector (
     switch (m_bodySelector->GetType ())
     {
     case BodySelectorType::ALL:
-	setBodySelectorLabel (BodySelectorType::ALL);
 	break;
     case BodySelectorType::PROPERTY_VALUE:
     case BodySelectorType::ID:
 	if (type == m_bodySelector->GetType ())
-	{
-	    setBodySelectorLabel (BodySelectorType::ALL);
 	    m_bodySelector = selector;
-	}
     	break;
     case BodySelectorType::COMPOSITE:
 	if (type == BodySelectorType::ID)
-	{
 	    m_bodySelector = boost::static_pointer_cast<CompositeBodySelector> (
 		m_bodySelector)->GetPropertyValueSelector ();
-	    setBodySelectorLabel (BodySelectorType::PROPERTY_VALUE);
-	}
 	else
-	{
 	    m_bodySelector = boost::static_pointer_cast<CompositeBodySelector> (
 		m_bodySelector)->GetIdSelector ();
-	    setBodySelectorLabel (BodySelectorType::ID);
-	}
 	break;
     }
+    setBodySelectorLabel (m_bodySelector->GetType ());
     updateGL ();    
 }
 

@@ -250,3 +250,15 @@ void Body::SetPropertyValue (BodyProperty::Enum property, double value)
     else
 	ThrowException ("Cannot set BodyProperty: ", property);
 }
+
+void Body::CalculateBoundingBox ()
+{
+    G3D::Vector3 low, high;
+    VertexSet vertexSet;
+    GetVertexSet (&vertexSet);
+    CalculateAggregate <VertexSet, VertexSet::iterator, VertexLessThanAlong>() (
+	min_element, vertexSet, &low);
+    CalculateAggregate <VertexSet, VertexSet::iterator, VertexLessThanAlong>()(
+	max_element, vertexSet, &high);
+    m_boundingBox.set(low, high);
+}

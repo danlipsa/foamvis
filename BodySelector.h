@@ -101,10 +101,16 @@ public:
     {
 	return BodySelectorType::ID;
     }
+    void SetUnion (const vector<size_t>& idsToAdd);
+    void SetDifference (const vector<size_t>& idsToRemove);
 
 private:
+    /**
+     * Selected body ids ordered ascending.
+     */
     vector<size_t> m_ids;
 };
+
 
 /**
  * Selects a body based on Id and PropertyValue.

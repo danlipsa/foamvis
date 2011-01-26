@@ -31,30 +31,14 @@ FoamAlongTime::FoamAlongTime () :
 {
 }
 
-void FoamAlongTime::calculateAggregate (
-    Aggregate aggregate, FoamLessThanAlong::Corner corner, G3D::Vector3& v)
-{
-    using G3D::Vector3;
-    Foams::iterator it;
-    it = aggregate (m_foams.begin (), m_foams.end (), 
-		    FoamLessThanAlong(Vector3::X_AXIS, corner));
-    v.x = ((*it).get()->*corner) ().x;
-
-    it = aggregate (m_foams.begin (), m_foams.end (), 
-	    FoamLessThanAlong(Vector3::Y_AXIS, corner));    
-    v.y = ((*it).get()->*corner) ().y;
-
-    it = aggregate (m_foams.begin (), m_foams.end (), 
-	    FoamLessThanAlong(Vector3::Z_AXIS, corner));
-    v.z = ((*it).get()->*corner) ().z;
-}
-
-void FoamAlongTime::CalculateAABox ()
+void FoamAlongTime::CalculateBoundingBox ()
 {
     G3D::Vector3 low, high;
-    calculateAggregate (min_element, &Foam::GetBoundingBoxLow, low);
-    calculateAggregate (max_element, &Foam::GetBoundingBoxHigh, high);
-    m_AABox.set (low, high);
+    CalculateAggregate<Foams, Foams::iterator, 
+	BBObjectLessThanAlongLow<Foam> > () (min_element, m_foams, &low);
+    CalculateAggregate<Foams, Foams::iterator, 
+	BBObjectLessThanAlongHigh<Foam> > () (max_element, m_foams, &high);
+    m_boundingBox.set (low, high);
 }
 
 void FoamAlongTime::calculateBodyWraps ()
@@ -72,7 +56,7 @@ void FoamAlongTime::calculateBodyWraps ()
 void FoamAlongTime::Preprocess ()
 {
     cdbg << "Preprocess data ..." << endl;
-    CalculateAABox ();
+    CalculateBoundingBox ();
     CacheBodiesAlongTime ();
     calculateBodyWraps ();
     calculateVelocity ();
@@ -250,7 +234,7 @@ string FoamAlongTime::ToString () const
 {
     ostringstream ostr;
     ostr << "FoamAlongTime: " << endl;
-    ostr << m_AABox << endl;
+    ostr << m_boundingBox << endl;
     ostream_iterator< boost::shared_ptr<const Foam> > output (ostr, "\n");
     copy (m_foams.begin (), m_foams.end (), output);
     ostr << m_bodiesAlongTime;

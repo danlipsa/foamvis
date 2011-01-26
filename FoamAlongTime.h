@@ -21,12 +21,6 @@ class FoamAlongTime
 public:
     typedef vector< boost::shared_ptr<Foam> > Foams;
 
-    /**
-     * Functor applied to a collection of Foam objects
-     */
-    typedef Foams::iterator (*Aggregate)(Foams::iterator first,
-					 Foams::iterator last,
-					 FoamLessThanAlong lessThanAlong);
 public:
     FoamAlongTime ();
     void CacheBodiesAlongTime ();
@@ -34,7 +28,7 @@ public:
      * Calculate the  axially aligned bounding box for  this vector of
      * Foam objects
      */
-    void CalculateAABox ();
+    void CalculateBoundingBox ();
     size_t GetDimension () const;
 
 
@@ -43,7 +37,7 @@ public:
      */
     const G3D::AABox& GetBoundingBox () const
     {
-	return m_AABox;
+	return m_boundingBox;
     }
     BodiesAlongTime& GetBodiesAlongTime ()
     {
@@ -157,15 +151,6 @@ private:
     void adjustPressureAlignMedians ();
     void adjustPressureSubtractReference ();
 
-    /**
-     * Calculates the low/high point for the AABox of this list of Foam objects
-     * @param aggregate functor to be applied to the list of data objects
-     * @param corner pointer to a function member of Foam that returns
-     * the low or high corner of AABox of the data object
-     * @param v where to store the low/high point
-     */
-    void calculateAggregate (Aggregate aggregate, 
-		    FoamLessThanAlong::Corner corner, G3D::Vector3& v);
     void calculateBodyWraps ();
     void calculateVelocity ();
     void calculateVelocityBody (
@@ -189,7 +174,7 @@ private:
     /**
      * The AABox for this vector of Foam objects
      */
-    G3D::AABox m_AABox;
+    G3D::AABox m_boundingBox;
     string m_filePattern;
     vector<HistogramStatistics> m_histogram;
     bool m_adjustPressure;

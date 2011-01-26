@@ -56,12 +56,13 @@ public:
     }
     /**
      * Gets all bodies from the Foam
-     * @return a vector of Body pointers
+     * @return a vector of Bodys sorted by ID
      */
     Bodies& GetBodies ()
     {
 	return m_bodies;
     }
+
     const Bodies& GetBodies () const
     {
 	return m_bodies;
@@ -125,21 +126,7 @@ public:
      */
     const G3D::AABox& GetBoundingBox () const
     {
-	return m_AABox;
-    }
-    /**
-     * Gets the low point of the AABox of this Foam object
-     */
-    const G3D::Vector3& GetBoundingBoxLow () const
-    {
-	return m_AABox.low ();
-    }
-    /**
-     * Gets the high point of the AABox of this Foam object
-     */
-    const G3D::Vector3& GetBoundingBoxHigh () const
-    {
-	return m_AABox.high ();
+	return m_boundingBox;
     }
     /**
      * Compares the low element of two data objects on the X,Y or Z axes
@@ -268,7 +255,7 @@ private:
     /**
      * Calculate the bounding box for all vertices in this Foam
      */
-    void calculateAABox ();
+    void calculateBoundingBox ();
     /**
      * Calculate centers for all bodies.
      */
@@ -290,7 +277,7 @@ private:
      * @params low low point of the aabox for the Foam (input/output)
      * @params high high point of the aabox for the foam (input/output)
      */
-    void calculateAABoxForTorus (G3D::Vector3* low, G3D::Vector3* high);
+    void calculateBoundingBoxForTorus (G3D::Vector3* low, G3D::Vector3* high);
     void calculateMinMaxStatistics ();
     void calculateMinMaxStatistics (BodyProperty::Enum property);
 
@@ -312,7 +299,7 @@ private:
     Faces m_standaloneFaces;
 
     /**
-     * A vector of bodies.
+     * A vector of bodies sorted by ID.
      */
     Bodies m_bodies;
     /**
@@ -332,7 +319,7 @@ private:
     /**
      * The axially aligned bounding box for all vertices.
      */
-    G3D::AABox m_AABox;
+    G3D::AABox m_boundingBox;
     size_t m_spaceDimension;
     bool m_quadratic;
     double m_min[BodyProperty::PROPERTY_END];

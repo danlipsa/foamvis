@@ -5,8 +5,10 @@
  * Implementation of various utility functions
  */
 
+#include "Comparisons.h"
 #include "Edge.h"
 #include "Face.h"
+#include "Foam.h"
 #include "DebugStream.h"
 #include "Utils.h"
 #include "Vertex.h"
@@ -141,13 +143,100 @@ ContainerIterator fuzzyFind (const Container& s, const ContainerKeyType& x)
     return s.end ();
 }
 
+QVector2D ToQt (const G3D::Vector2& v)
+{
+    return QVector2D (v.x, v.y);
+}
+
+QVector3D ToQt (const G3D::Vector3& v)
+{
+    return QVector3D (v.x, v.y, v.z);
+}
+
+QBox3D ToQt (const G3D::AABox& box)
+{
+    return QBox3D (ToQt (box.low ()), ToQt (box.high ()));
+}
+
+G3D::Vector2 ToG3D (const QVector2D& v)
+{
+    return G3D::Vector2 (v.x (), v.y ());
+}
+
+G3D::Vector3 ToG3D (const QVector3D& v)
+{
+    return G3D::Vector3 (v.x (), v.y (), v.z ());
+}
+
+G3D::AABox ToG3D (const QBox3D& box)
+{
+    return G3D::AABox (ToG3D (box.minimum ()), ToG3D (box.maximum ()));
+}
+
+
+bool intersection (
+    const QBox3D& box, const QVector3D& begin, const QVector3D& end)
+{
+    QRay3D ray (begin, end - begin);
+    qreal minimum_t, maximum_t;
+    if (box.intersection (ray, &minimum_t, &maximum_t))
+    {
+	qreal end_t = ray.fromPoint (end);
+	return end_t >= minimum_t;
+    }
+    else
+	return false;
+}
+
+
+// CalculateAggregate
+// ======================================================================
+
+template<typename Container, 
+	 typename ContainerIterator, 
+	 typename ElementComparatorAlong>
+void CalculateAggregate<Container, ContainerIterator, ElementComparatorAlong>::
+operator() (Aggregate aggregate, Container& container, G3D::Vector3* v)
+{
+    using G3D::Vector3;
+    ContainerIterator it;
+    ElementComparatorAlong comparator (Vector3::X_AXIS);
+    it = aggregate (container.begin (), container.end (), comparator);
+    v->x = comparator (*it);
+    comparator = ElementComparatorAlong (Vector3::Y_AXIS);
+    it = aggregate (container.begin (), container.end (), comparator);
+    v->y = comparator (*it);
+    comparator = ElementComparatorAlong (Vector3::Z_AXIS);
+    it = aggregate (container.begin (), container.end (), comparator);
+    v->z = comparator (*it);
+}
 
 
 // Template instantiations
 //======================================================================
+
+// fuzzyFind
+// ======================================================================
 
 template std::_Rb_tree_const_iterator<boost::shared_ptr<Edge> > fuzzyFind<std::set<boost::shared_ptr<Edge>, EdgeLessThan, std::allocator<boost::shared_ptr<Edge> > >, std::_Rb_tree_const_iterator<boost::shared_ptr<Edge> >, boost::shared_ptr<Edge> >(std::set<boost::shared_ptr<Edge>, EdgeLessThan, std::allocator<boost::shared_ptr<Edge> > > const&, boost::shared_ptr<Edge> const&);
 
 template std::_Rb_tree_const_iterator<boost::shared_ptr<Face> > fuzzyFind<std::set<boost::shared_ptr<Face>, FaceLessThan, std::allocator<boost::shared_ptr<Face> > >, std::_Rb_tree_const_iterator<boost::shared_ptr<Face> >, boost::shared_ptr<Face> >(std::set<boost::shared_ptr<Face>, FaceLessThan, std::allocator<boost::shared_ptr<Face> > > const&, boost::shared_ptr<Face> const&);
 
 template std::_Rb_tree_const_iterator<boost::shared_ptr<Vertex> > fuzzyFind<std::set<boost::shared_ptr<Vertex>, VertexLessThan, std::allocator<boost::shared_ptr<Vertex> > >, std::_Rb_tree_const_iterator<boost::shared_ptr<Vertex> >, boost::shared_ptr<Vertex> >(std::set<boost::shared_ptr<Vertex>, VertexLessThan, std::allocator<boost::shared_ptr<Vertex> > > const&, boost::shared_ptr<Vertex> const&);
+
+// CalculateAggregate
+// ======================================================================
+
+template void CalculateAggregate<std::set<boost::shared_ptr<Vertex>, VertexLessThan, std::allocator<boost::shared_ptr<Vertex> > >, std::_Rb_tree_const_iterator<boost::shared_ptr<Vertex> >, VertexLessThanAlong>::operator()(std::_Rb_tree_const_iterator<boost::shared_ptr<Vertex> > (*)(std::_Rb_tree_const_iterator<boost::shared_ptr<Vertex> >, std::_Rb_tree_const_iterator<boost::shared_ptr<Vertex> >, VertexLessThanAlong), std::set<boost::shared_ptr<Vertex>, VertexLessThan, std::allocator<boost::shared_ptr<Vertex> > >&, G3D::Vector3*);
+
+template void CalculateAggregate<std::vector<G3D::Vector3*, std::allocator<G3D::Vector3*> >, __gnu_cxx::__normal_iterator<G3D::Vector3**, std::vector<G3D::Vector3*, std::allocator<G3D::Vector3*> > >, VertexLessThanAlong>::operator()(__gnu_cxx::__normal_iterator<G3D::Vector3**, std::vector<G3D::Vector3*, std::allocator<G3D::Vector3*> > > (*)(__gnu_cxx::__normal_iterator<G3D::Vector3**, std::vector<G3D::Vector3*, std::allocator<G3D::Vector3*> > >, __gnu_cxx::__normal_iterator<G3D::Vector3**, std::vector<G3D::Vector3*, std::allocator<G3D::Vector3*> > >, VertexLessThanAlong), std::vector<G3D::Vector3*, std::allocator<G3D::Vector3*> >&, G3D::Vector3*);
+
+template void CalculateAggregate<std::vector<boost::shared_ptr<Body>, std::allocator<boost::shared_ptr<Body> > >, __gnu_cxx::__normal_iterator<boost::shared_ptr<Body>*, std::vector<boost::shared_ptr<Body>, std::allocator<boost::shared_ptr<Body> > > >, BBObjectLessThanAlongLow<Body> >::operator()(__gnu_cxx::__normal_iterator<boost::shared_ptr<Body>*, std::vector<boost::shared_ptr<Body>, std::allocator<boost::shared_ptr<Body> > > > (*)(__gnu_cxx::__normal_iterator<boost::shared_ptr<Body>*, std::vector<boost::shared_ptr<Body>, std::allocator<boost::shared_ptr<Body> > > >, __gnu_cxx::__normal_iterator<boost::shared_ptr<Body>*, std::vector<boost::shared_ptr<Body>, std::allocator<boost::shared_ptr<Body> > > >, BBObjectLessThanAlongLow<Body>), std::vector<boost::shared_ptr<Body>, std::allocator<boost::shared_ptr<Body> > >&, G3D::Vector3*);
+
+template void CalculateAggregate<std::vector<boost::shared_ptr<Body>, std::allocator<boost::shared_ptr<Body> > >, __gnu_cxx::__normal_iterator<boost::shared_ptr<Body>*, std::vector<boost::shared_ptr<Body>, std::allocator<boost::shared_ptr<Body> > > >, BBObjectLessThanAlongHigh<Body> >::operator()(__gnu_cxx::__normal_iterator<boost::shared_ptr<Body>*, std::vector<boost::shared_ptr<Body>, std::allocator<boost::shared_ptr<Body> > > > (*)(__gnu_cxx::__normal_iterator<boost::shared_ptr<Body>*, std::vector<boost::shared_ptr<Body>, std::allocator<boost::shared_ptr<Body> > > >, __gnu_cxx::__normal_iterator<boost::shared_ptr<Body>*, std::vector<boost::shared_ptr<Body>, std::allocator<boost::shared_ptr<Body> > > >, BBObjectLessThanAlongHigh<Body>), std::vector<boost::shared_ptr<Body>, std::allocator<boost::shared_ptr<Body> > >&, G3D::Vector3*);
+
+template void CalculateAggregate<std::vector<boost::shared_ptr<Foam>, std::allocator<boost::shared_ptr<Foam> > >, __gnu_cxx::__normal_iterator<boost::shared_ptr<Foam>*, std::vector<boost::shared_ptr<Foam>, std::allocator<boost::shared_ptr<Foam> > > >, BBObjectLessThanAlongLow<Foam> >::operator()(__gnu_cxx::__normal_iterator<boost::shared_ptr<Foam>*, std::vector<boost::shared_ptr<Foam>, std::allocator<boost::shared_ptr<Foam> > > > (*)(__gnu_cxx::__normal_iterator<boost::shared_ptr<Foam>*, std::vector<boost::shared_ptr<Foam>, std::allocator<boost::shared_ptr<Foam> > > >, __gnu_cxx::__normal_iterator<boost::shared_ptr<Foam>*, std::vector<boost::shared_ptr<Foam>, std::allocator<boost::shared_ptr<Foam> > > >, BBObjectLessThanAlongLow<Foam>), std::vector<boost::shared_ptr<Foam>, std::allocator<boost::shared_ptr<Foam> > >&, G3D::Vector3*);
+
+template void CalculateAggregate<std::vector<boost::shared_ptr<Foam>, std::allocator<boost::shared_ptr<Foam> > >, __gnu_cxx::__normal_iterator<boost::shared_ptr<Foam>*, std::vector<boost::shared_ptr<Foam>, std::allocator<boost::shared_ptr<Foam> > > >, BBObjectLessThanAlongHigh<Foam> >::operator()(__gnu_cxx::__normal_iterator<boost::shared_ptr<Foam>*, std::vector<boost::shared_ptr<Foam>, std::allocator<boost::shared_ptr<Foam> > > > (*)(__gnu_cxx::__normal_iterator<boost::shared_ptr<Foam>*, std::vector<boost::shared_ptr<Foam>, std::allocator<boost::shared_ptr<Foam> > > >, __gnu_cxx::__normal_iterator<boost::shared_ptr<Foam>*, std::vector<boost::shared_ptr<Foam>, std::allocator<boost::shared_ptr<Foam> > > >, BBObjectLessThanAlongHigh<Foam>), std::vector<boost::shared_ptr<Foam>, std::allocator<boost::shared_ptr<Foam> > >&, G3D::Vector3*);
+
+

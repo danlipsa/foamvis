@@ -10,6 +10,7 @@
 #include "Vertex.h"
 #include "Edge.h"
 #include "Face.h"
+#include "Foam.h"
 #include "OrientedFace.h"
 #include "OrientedFaceIndex.h"
 
@@ -83,15 +84,21 @@ bool FaceLessThan::operator () (
 
 
 // ======================================================================
-// VectorLessThanAlong
+// VertexLessThanAlong
 
 bool VertexLessThanAlong::operator() (
-    const boost::shared_ptr<const Vertex>& first,
-    const boost::shared_ptr<const Vertex>& second) const
+    const boost::shared_ptr<Vertex>& first,
+    const boost::shared_ptr<Vertex>& second) const
 {
-    return operator() (static_cast<const G3D::Vector3*>(first.get ()),
-		       static_cast<const G3D::Vector3*>(second.get ()));
+    return operator() (*first, *second);
 }
+
+double VertexLessThanAlong::operator() (
+    const boost::shared_ptr<Vertex>& x) const
+{
+    return operator() (*x);
+}
+
 
 // ======================================================================
 // OrientedFaceIndexLessThan
@@ -109,3 +116,31 @@ bool BodyLessThan (const boost::shared_ptr<Body>& first,
 {
     return *first < *second;
 }
+
+// ======================================================================
+// BBObjectLessThanAlong
+
+template <typename BBObject>
+bool BBObjectLessThanAlong<BBObject>::operator() (
+    const BBObject& first, const BBObject& second)
+{
+    return 
+	(first.GetBoundingBox ().*m_corner) ()[m_axis] < 
+	(second.GetBoundingBox ().*m_corner) ()[m_axis];
+}
+
+template <typename BBObject>
+double BBObjectLessThanAlong<BBObject>::operator() (
+    const BBObject& x)
+{
+    return (x.GetBoundingBox ().*m_corner) ()[m_axis];
+}
+
+
+//======================================================================
+// Template instantiations
+
+// =====================================================================
+// BBObjectLessThanAlong
+template class BBObjectLessThanAlong<Body>;
+template class BBObjectLessThanAlong<Foam>;

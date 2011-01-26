@@ -116,7 +116,7 @@ G3D::Vector3 gluProject (const G3D::Vector3& object)
     return G3D::Vector3 (x, y, z);
 }
 
-G3D::Vector3 gluUnProject (const G3D::Vector3& window)
+G3D::Vector3 gluUnProject (const G3D::Vector2& screenCoord, bool readZ)
 {
     GLdouble model[16];
     glGetDoublev (GL_MODELVIEW_MATRIX, model);
@@ -125,7 +125,11 @@ G3D::Vector3 gluUnProject (const G3D::Vector3& window)
     GLint view[4];
     glGetIntegerv (GL_VIEWPORT, view);
     GLdouble x, y, z;
-    gluUnProject (window.x, window.y, window.z, model, proj, view, 
+    GLdouble zScreenCoord = 0;
+    if (readZ)
+	glReadPixels (x, y, 1, 1, GL_DEPTH_COMPONENT, GL_DOUBLE, &zScreenCoord);
+    gluUnProject (screenCoord.x, screenCoord.y, zScreenCoord, 
+		  model, proj, view, 
 		  &x, &y, &z);
     return G3D::Vector3 (x, y, z);
 }

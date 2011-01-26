@@ -32,7 +32,14 @@ inline void glViewport (const G3D::Rect2D& viewport)
 }
 
 G3D::Vector3 gluProject (const G3D::Vector3& object);
-G3D::Vector3 gluUnProject (const G3D::Vector3& window);
+
+/**
+ * Returns the world coordinate associated with a screen coordinate.
+ * Uses the depth buffer to find out the Z screen coordinate if readZ = true
+ * otherwise it uses a Z coordinate equal with 0.
+ * see OpenGL FAQ, 9.110
+ */
+G3D::Vector3 gluUnProject (const G3D::Vector2& screenCoord, bool readZ = true);
 
 /**
  * Check the OpenGL  error code and prints a message  to cdbg if there

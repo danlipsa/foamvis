@@ -92,13 +92,30 @@ VertexLessThanAlong(G3D::Vector3::Axis axis) :
      * @param second the second vertex
      * @return true if first is less than second false otherwise
      */
-    bool operator() (const boost::shared_ptr<const Vertex>& first,
-		     const boost::shared_ptr<const Vertex>& second) const;
+    bool operator() (const boost::shared_ptr<Vertex>& first,
+		     const boost::shared_ptr<Vertex>& second) const;
+    bool operator() (
+	const G3D::Vector3& first, const G3D::Vector3& second) const
+    {
+	return first[m_axis] < second[m_axis];
+    }
+
     bool operator() (
 	const G3D::Vector3* first, const G3D::Vector3* second) const
     {
-	return (*first)[m_axis] < (*second)[m_axis];	    
+	return operator () (*first, *second);
     }
+
+    double operator () (const G3D::Vector3& x) const
+    {
+	return x[m_axis];
+    }
+    double operator () (const G3D::Vector3* x) const
+    {
+	return operator () (*x);
+    }
+    double operator () (const boost::shared_ptr<Vertex>& x) const;
+
 private:
     /**
      * Axis along which we make the comparison
@@ -130,37 +147,44 @@ public:
 };
 
 
-class FoamLessThanAlong
+typedef const G3D::Vector3& (G3D::AABox::*BoxCorner) () const;
+
+
+template <typename BBObject>
+class BBObjectLessThanAlong
 {
 public:
-    typedef const G3D::Vector3& (Foam::*Corner) () const;
     /**
      * Constructor
      * @param axis along which axis to compare
      * @param corner which corner of the AABox to compare
      */
-    FoamLessThanAlong (G3D::Vector3::Axis axis, Corner corner) : 
+    BBObjectLessThanAlong (G3D::Vector3::Axis axis, BoxCorner corner) : 
     m_axis (axis), m_corner(corner) {}
     /**
      * Functor that compares two data objects
      * @param first first data object
      * @param second second data object
      */
-    bool operator () (const Foam* first, const Foam* second)
+    bool operator () (
+	const BBObject* first, const BBObject* second)
     {
 	return operator () (*first, *second);
     }
 
     bool operator () (
-	boost::shared_ptr<Foam> first, boost::shared_ptr<Foam> second)
+	boost::shared_ptr<BBObject> first, 
+	boost::shared_ptr<BBObject> second)
     {
 	return operator () (*first, *second);
     }
 
-    bool operator() (const Foam& first, const Foam& second)
+    bool operator() (const BBObject& first, 
+		     const BBObject& second);
+    double operator () (const BBObject& x);
+    double operator () (const boost::shared_ptr<BBObject>& x)
     {
-	return 
-	    (first.*m_corner) ()[m_axis] < (second.*m_corner) ()[m_axis];
+	return operator () (*x);
     }
 	
 private:
@@ -171,8 +195,31 @@ private:
     /**
      * What corner of the AABox to compare
      */
-    Corner m_corner;
+    BoxCorner m_corner;
 };
+
+template<typename BBObject>
+class BBObjectLessThanAlongLow : 
+    public BBObjectLessThanAlong<BBObject>
+{
+public:
+    BBObjectLessThanAlongLow (G3D::Vector3::Axis axis) :
+	BBObjectLessThanAlong<BBObject> (axis, &G3D::AABox::low)
+    {
+    }
+};
+
+template<typename BBObject>
+class BBObjectLessThanAlongHigh : 
+    public BBObjectLessThanAlong<BBObject>
+{
+public:
+    BBObjectLessThanAlongHigh (G3D::Vector3::Axis axis) :
+	BBObjectLessThanAlong<BBObject> (axis, &G3D::AABox::high)
+    {
+    }
+};
+
 
 typedef set<boost::shared_ptr<Vertex>, VertexLessThan> VertexSet;
 typedef set<boost::shared_ptr<Edge>, EdgeLessThan> EdgeSet;
@@ -181,4 +228,10 @@ class Body;
 bool BodyLessThan (const boost::shared_ptr<Body>& first,
 		   const boost::shared_ptr<Body>& second);
 
+
+
 #endif //__COMPARISONS_H__
+
+// Local Variables:
+// mode: c++
+// End:

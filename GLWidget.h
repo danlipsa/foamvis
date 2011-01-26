@@ -500,8 +500,11 @@ private:
     void translateViewport (const QPoint& position);
     void translateLight (const QPoint& position);
     void scaleViewport (const QPoint& position);
+    void select (const QPoint& position);
+    void deselect (const QPoint& position);
+    void brushedBodies (const QPoint& position, vector<size_t>* bodies) const;
+    
     void initViewTypeDisplay ();
-
     bool doesSelectBody () const;
     bool doesSelectFace () const;
     bool doesSelectEdge () const;

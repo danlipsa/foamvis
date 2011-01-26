@@ -63,6 +63,7 @@ public:
      * Calculates the center
      */
     void CalculateCenter (size_t dimension, bool isQuadratic);
+    void CalculateBoundingBox ();
     /**
      * Gets the center
      * @return the center of the body
@@ -92,6 +93,10 @@ public:
     void SetVelocity (const G3D::Vector3& velocity)
     {
 	m_velocity = velocity;
+    }
+    const G3D::AABox& GetBoundingBox () const
+    {
+	return m_boundingBox;
     }
     
 public:
@@ -129,7 +134,7 @@ private:
      * Center of the body
      */
     G3D::Vector3 m_center;
-    G3D::AABox m_AABox;
+    G3D::AABox m_boundingBox;
     G3D::Vector3 m_velocity;
 };
 

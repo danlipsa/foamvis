@@ -67,7 +67,11 @@
 #include <QtOpenGL>
 #include <QtConcurrentMap>
 #include <QtDebug>
+
+// Qt3D headers
 #include <Qt3D/qglfunctions.h>
+#include <Qt3D/qbox3d.h>
+#include <Qt3D/qray3d.h>
 
 // QWT headers
 #include <qwt_color_map.h>
