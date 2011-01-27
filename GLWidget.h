@@ -311,11 +311,11 @@ public Q_SLOTS:
 
 public:
     const static  size_t DISPLAY_ALL;
-    const static size_t QUADRIC_SLICES = 8;
-    const static size_t QUADRIC_STACKS = 1;
+    const static size_t QUADRIC_SLICES;
+    const static size_t QUADRIC_STACKS;
     const static size_t LIGHTS_COUNT = 4;
-    const static double MIN_CONTEXT_ALPHA = 0.05;
-    const static double MAX_CONTEXT_ALPHA = 0.5;
+    const static double MIN_CONTEXT_ALPHA;
+    const static double MAX_CONTEXT_ALPHA;
 
 protected:
     /**

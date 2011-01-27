@@ -103,6 +103,7 @@ public:
     }
     void SetUnion (const vector<size_t>& idsToAdd);
     void SetDifference (const vector<size_t>& idsToRemove);
+    string ToString () const;
 
 private:
     /**
@@ -160,6 +161,12 @@ private:
     boost::shared_ptr<IdBodySelector> m_idSelector;
     boost::shared_ptr<PropertyValueBodySelector> m_propertyValueSelector;
 };
+
+inline ostream& operator<< (ostream& ostr, const IdBodySelector& selector)
+{
+    return ostr << selector.ToString ();
+}
+
 
 
 #endif //__BODY_SELECTOR_H__

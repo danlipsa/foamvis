@@ -21,6 +21,8 @@ ostream& operator<< (ostream& ostr, const vector<bool>& v);
 ostream& operator<< (ostream& ostr, const G3D::Matrix4& m);
 ostream& operator<< (ostream& ostr, const G3D::Vector4& v);
 ostream& operator<< (ostream& ostr, const G3D::Vector2& v);
+ostream& operator<< (ostream& ostr, const QVector3D& v);
+ostream& operator<< (ostream& ostr, const QPoint& p);
 
 template<typename U, typename V>
 ostream& operator<< (ostream& ostr, const pair<U, V>& p);
@@ -58,6 +60,8 @@ QBox3D ToQt (const G3D::AABox& box);
 G3D::Vector2 ToG3D (const QVector2D& v);
 G3D::Vector3 ToG3D (const QVector3D& v);
 G3D::AABox ToG3D (const QBox3D& box);
+QVector2D MapToOpenGl (const QPoint& point, int windowHeight = 0);
+
 
 
 template<typename Container, typename ContainerIterator, 

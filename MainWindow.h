@@ -97,8 +97,8 @@ public Q_SLOTS:
     void InteractionModeRotate ();
     void InteractionModeScale ();
     void InteractionModeTranslate ();    
-    void InteractionModeSelectBrush ();
-    void InteractionModeSelectEraser ();
+    void InteractionModeSelect ();
+    void InteractionModeDeselect ();
     void InteractionModeRotateLight ();
     void InteractionModeTranslateLight ();
     void SelectionChangedHistogram ();
@@ -182,8 +182,8 @@ private:
     boost::shared_ptr<QAction> m_actionScale;
     boost::shared_ptr<QAction> m_actionRotateLight;
     boost::shared_ptr<QAction> m_actionTranslateLight;
-    boost::shared_ptr<QAction> m_actionSelectBrush;
-    boost::shared_ptr<QAction> m_actionSelectEraser;
+    boost::shared_ptr<QAction> m_actionSelect;
+    boost::shared_ptr<QAction> m_actionDeselect;
     boost::shared_ptr<QAction> m_actionInfo;
 
     BodyProperty::Enum m_property;

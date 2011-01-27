@@ -71,6 +71,13 @@ private:
 // ======================================================================
 
 const size_t GLWidget::DISPLAY_ALL(numeric_limits<size_t>::max());
+// quadrics
+const size_t GLWidget::QUADRIC_SLICES = 8;
+const size_t GLWidget::QUADRIC_STACKS = 1;
+// alpha
+const double GLWidget::MIN_CONTEXT_ALPHA = 0.01;
+const double GLWidget::MAX_CONTEXT_ALPHA = 0.5;
+
 
 
 // Methods
@@ -250,8 +257,10 @@ bool GLWidget::edgeLighting () const
 
 double GLWidget::getMinimumEdgeRadius ()
 {
-    G3D::Vector3 objectOrigin = gluUnProject (G3D::Vector2::zero (), false);
-    G3D::Vector3 objectOne = gluUnProject (G3D::Vector2::unitX (), false);
+    G3D::Vector3 objectOrigin = gluUnProject (G3D::Vector2::zero (), 
+					      GluUnProjectZOperation::SET0);
+    G3D::Vector3 objectOne = gluUnProject (G3D::Vector2::unitX (),
+					   GluUnProjectZOperation::SET0);
     return (objectOne - objectOrigin).length ();
 }
 
@@ -657,24 +666,39 @@ void GLWidget::Info ()
 
 string GLWidget::getFoamsInfo () const
 {
-    const Foam& foam = *GetFoamAlongTime ().GetFoam (0);
+    const Foam& firstFoam = *GetFoamAlongTime ().GetFoam (0);
     size_t timeSteps = GetFoamAlongTime ().GetTimeSteps ();
-
-    VertexSet vertexSet;
-    EdgeSet edgeSet;
-    FaceSet faceSet;
-    foam.GetVertexSet (&vertexSet);
-    foam.GetEdgeSet (&edgeSet);
-    foam.GetFaceSet (&faceSet);
+    const Foam& lastFoam = *GetFoamAlongTime ().GetFoam (timeSteps - 1);
+    size_t bodies[2] = 
+	{
+	    firstFoam.GetBodies ().size (), lastFoam.GetBodies ().size ()
+	};
+    size_t faces[2] = 
+	{
+	    firstFoam.GetFaceSet ().size (), lastFoam.GetFaceSet ().size ()
+	};
+    size_t edges[2] =
+	{
+	    firstFoam.GetEdgeSet ().size (), lastFoam.GetEdgeSet ().size ()
+	};
+    size_t vertices[2] = 
+	{
+	    firstFoam.GetVertexSet ().size (), lastFoam.GetVertexSet ().size ()
+	};
 
     ostringstream ostr;
     ostr << 
 	"<table border>"
-	"<tr><th>Bodies</th><td>" << foam.GetBodies ().size () << "</td></tr>"
-	"<tr><th>Faces</th><td>" << faceSet.size () << "</td></tr>"
-	"<tr><th>Edges</th><td>" << edgeSet.size () << "</td></tr>"
-	"<tr><th>Vertices</th><td>" << vertexSet.size () << "</td></tr>"
-	"<tr><th>Time steps</th><td>" << timeSteps << "</td></tr>"
+	"<tr><th>Bodies</th><td>" 
+	 << bodies[0] << "</td><td>" << bodies[1] << "</td></tr>"
+	"<tr><th>Faces</th><td>" 
+	 << faces[0] << "</td><td>" << faces[1] << "</td></tr>"
+	"<tr><th>Edges</th><td>" 
+	 << edges[0] << "</td><td>" << edges[1] << "</td></tr>"
+	"<tr><th>Vertices</th><td>" 
+	 << vertices[0] << "</td><td>" << vertices[1] << "</td></tr>"
+	"<tr><th>Time step</th><td>" 
+	 << 0 << "</td><td>" << (timeSteps - 1) << "</td></tr>"
 	"</table>" << endl;
     return ostr.str ();
 }
@@ -839,6 +863,11 @@ void GLWidget::brushedBodies (
 	if (intersection (box, begin, end))
 	    bodies->push_back (body->GetId ());
     }
+
+    cdbg << "brushedBodies: ";
+    ostream_iterator<size_t> ido (cdbg, " ");
+    copy (bodies->begin (), bodies->end (), ido);
+    cdbg << endl;
 }
 
 
@@ -854,9 +883,13 @@ void GLWidget::select (const QPoint& position)
 	break;
 
     case BodySelectorType::ID:
-	boost::static_pointer_cast<IdBodySelector> (
-	    m_bodySelector)->SetUnion (bodyIds);
+    {
+	IdBodySelector& selector = 
+	    *boost::static_pointer_cast<IdBodySelector> (m_bodySelector);
+	selector.SetUnion (bodyIds);
+	cdbg << selector;
 	break;
+    }
 
     case BodySelectorType::PROPERTY_VALUE:
     {
@@ -937,10 +970,10 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	translateLight (event->pos ());
 	break;
 
-    case InteractionMode::SELECT_BRUSH:
+    case InteractionMode::SELECT:
 	select (event->pos ());
 	break;
-    case InteractionMode::SELECT_ERASER:
+    case InteractionMode::DESELECT:
 	deselect (event->pos ());
 	break;
 

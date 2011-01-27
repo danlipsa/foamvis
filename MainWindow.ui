@@ -130,12 +130,12 @@
          </item>
          <item>
           <property name="text">
-           <string>Select Brush    B</string>
+           <string>Select             S</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Select Eraser   E</string>
+           <string>Deselect          D</string>
           </property>
          </item>
         </widget>

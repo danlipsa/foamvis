@@ -40,9 +40,9 @@ void AttributeHistogram::CurrentIndexChangedInteractionMode (int index)
 {
     InteractionMode::Enum interactionMode = 
 	static_cast<InteractionMode::Enum>(index);
-    if (interactionMode == InteractionMode::SELECT_BRUSH)
+    if (interactionMode == InteractionMode::SELECT)
 	SetSelectionTool (BRUSH);
-    else if (interactionMode == InteractionMode::SELECT_ERASER)
+    else if (interactionMode == InteractionMode::DESELECT)
 	SetSelectionTool (ERASER);
     else
 	SetSelectionTool (NONE);

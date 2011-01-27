@@ -115,6 +115,17 @@ ostream& operator<< (ostream& ostr, const G3D::Vector2& v)
     return ostr << v[0] << ", " << v[1];
 }
 
+ostream& operator<< (ostream& ostr, const QVector3D& v)
+{
+    return ostr << v.x () << ", " << v.y () << ", " << v.z ();
+}
+
+ostream& operator<< (ostream& ostr, const QPoint& p)
+{
+    return ostr << p.x () << ", " << p.y ();
+}
+
+
 bool isFuzzyZero (const G3D::Vector3& v)
 {
     return v.squaredMagnitude () < fuzzyEpsilon * fuzzyEpsilon;
@@ -173,6 +184,11 @@ G3D::AABox ToG3D (const QBox3D& box)
     return G3D::AABox (ToG3D (box.minimum ()), ToG3D (box.maximum ()));
 }
 
+
+QVector2D MapToOpenGl (const QPoint& point, int windowHeight)
+{
+    return QVector2D (point.x (), point.y ());
+}
 
 bool intersection (
     const QBox3D& box, const QVector3D& begin, const QVector3D& end)

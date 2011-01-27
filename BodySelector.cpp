@@ -55,10 +55,6 @@ IdBodySelector::IdBodySelector (size_t id)
 IdBodySelector::IdBodySelector (const vector<size_t>& ids) :
     m_ids (ids)
 {
-    cdbg << "IdBodySelector: ";
-    ostream_iterator<size_t> ido (cdbg, " ");
-    copy (m_ids.begin (), m_ids.end (), ido);
-    cdbg << endl;
 }
 
 
@@ -88,6 +84,17 @@ void IdBodySelector::SetDifference (const vector<size_t>& idsToRemove)
     result.resize (resultEnd - result.begin ());
     m_ids = result;
 }
+
+string IdBodySelector::ToString () const
+{
+    ostringstream ostr;
+    ostr << "IdBodySelector: ";
+    ostream_iterator<size_t> ido (ostr, " ");
+    copy (m_ids.begin (), m_ids.end (), ido);
+    ostr << endl;
+    return ostr.str ();
+}
+
 
 // CompositeBodySelector
 // ======================================================================

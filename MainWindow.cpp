@@ -254,14 +254,14 @@ void MainWindow::InteractionModeTranslate ()
     comboBoxInteractionMode->setCurrentIndex (InteractionMode::TRANSLATE);
 }
 
-void MainWindow::InteractionModeSelectBrush ()
+void MainWindow::InteractionModeSelect ()
 {
-    comboBoxInteractionMode->setCurrentIndex (InteractionMode::SELECT_BRUSH);
+    comboBoxInteractionMode->setCurrentIndex (InteractionMode::SELECT);
 }
 
-void MainWindow::InteractionModeSelectEraser ()
+void MainWindow::InteractionModeDeselect ()
 {
-    comboBoxInteractionMode->setCurrentIndex (InteractionMode::SELECT_ERASER);
+    comboBoxInteractionMode->setCurrentIndex (InteractionMode::DESELECT);
 }
 
 void MainWindow::InteractionModeRotateLight ()
@@ -474,19 +474,19 @@ void MainWindow::createActions ()
 	    this, SLOT(InteractionModeTranslateLight ()));
 
 
-    m_actionSelectBrush = boost::make_shared<QAction> (
-	tr("&Select Brush"), this);
-    m_actionSelectBrush->setShortcut(QKeySequence (tr ("B")));
-    m_actionSelectBrush->setStatusTip(tr("Select Brush"));
-    connect(m_actionSelectBrush.get (), SIGNAL(triggered()),
-	    this, SLOT(InteractionModeSelectBrush ()));
+    m_actionSelect = boost::make_shared<QAction> (
+	tr("&Select"), this);
+    m_actionSelect->setShortcut(QKeySequence (tr ("S")));
+    m_actionSelect->setStatusTip(tr("Select"));
+    connect(m_actionSelect.get (), SIGNAL(triggered()),
+	    this, SLOT(InteractionModeSelect ()));
 
-    m_actionSelectEraser = boost::make_shared<QAction> (
-	tr("&Select Eraser"), this);
-    m_actionSelectEraser->setShortcut (QKeySequence (tr ("E")));
-    m_actionSelectEraser->setStatusTip (tr("Select Eraser"));
-    connect(m_actionSelectEraser.get (), SIGNAL(triggered()),
-	    this, SLOT(InteractionModeSelectEraser ()));
+    m_actionDeselect = boost::make_shared<QAction> (
+	tr("&Deselect"), this);
+    m_actionDeselect->setShortcut (QKeySequence (tr ("D")));
+    m_actionDeselect->setStatusTip (tr("Deselect"));
+    connect(m_actionDeselect.get (), SIGNAL(triggered()),
+	    this, SLOT(InteractionModeDeselect ()));
 
     connect (actionOpenGL_Info, SIGNAL (triggered ()),
 	     widgetGl, SLOT (ShowOpenGLInfo ()));
@@ -506,8 +506,8 @@ void MainWindow::createActions ()
     addAction (m_actionScale.get ());
     addAction (m_actionRotateLight.get ());
     addAction (m_actionTranslateLight.get ());
-    addAction (m_actionSelectBrush.get ());
-    addAction (m_actionSelectEraser.get ());
+    addAction (m_actionSelect.get ());
+    addAction (m_actionDeselect.get ());
     addAction (m_actionInfo.get ());
 }
 

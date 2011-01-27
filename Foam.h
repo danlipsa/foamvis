@@ -42,8 +42,26 @@ public:
     Foam ();
 
     void GetVertexSet (VertexSet* vertexSet) const;
+    VertexSet GetVertexSet () const
+    {
+	VertexSet vertexSet;
+	GetVertexSet (&vertexSet);
+	return vertexSet;
+    }
     void GetEdgeSet (EdgeSet* edgeSet) const;
+    EdgeSet GetEdgeSet () const
+    {
+	EdgeSet edgeSet;
+	GetEdgeSet (&edgeSet);
+	return edgeSet;
+    }
     void GetFaceSet (FaceSet* faceSet) const;
+    FaceSet GetFaceSet () const
+    {
+	FaceSet faceSet;
+	GetFaceSet (&faceSet);
+	return faceSet;
+    }
 
     /**
      * Gets ith body
