@@ -8,7 +8,7 @@
 %skeleton "lalr1.cc"                          /*  -*- C++ -*- */
 %require "2.1a"
 %defines
-%token-table 
+%token-table
 %error-verbose
 %expect 3 // state 84, 89, 297
 %locations
@@ -270,8 +270,8 @@ ExpressionTree* uminusTree (ParsingData& parsingData, ExpressionTree* expr);
 
 %%
 datafile
-: nlstar header 
-vertices 
+: nlstar header
+vertices
 {
     //foam.GetParsingData ().PrintTimeCheckpoint ("After vertices:");
 }
@@ -292,21 +292,21 @@ bodies
 header
 : /* empty */
 | header dimensionality nlplus
-| header space_dimension  nlplus      
+| header space_dimension  nlplus
 | header parameter nlplus
-| header attribute nlplus              
+| header attribute nlplus
 | header representation nlplus
-| header scale_factor nlplus   
+| header scale_factor nlplus
 | header total_time nlplus
 | header temperature nlplus
 | header constraint_tolerance nlplus
 | header SYMMETRIC_CONTENT nlplus
 | header KEEP_ORIGINALS nlplus
-| header view_matrix nlplus   
+| header view_matrix nlplus
 | header clip_coefficients nlplus
 | header constraint
 | header torus_domain nlplus
-| header torus_display_periods nlplus 
+| header torus_display_periods nlplus
 | header torus_display_origin nlstar
 | header length_method_name nlplus
 | header area_method_name nlplus
@@ -326,11 +326,11 @@ nl: '\n'
 
 nlstar
 : /* empty */
-| nlstar nl 
+| nlstar nl
 ;
 
 nlplus
-: nlplus nl 
+: nlplus nl
 | nl
 ;
 
@@ -348,7 +348,7 @@ array
 ;
 
 array_dimensions
-: array_dimension 
+: array_dimension
 | array_dimensions array_dimension
 ;
 
@@ -387,18 +387,18 @@ view_transform_generators
 
 swap_colors
 : /* empty */
-| SWAP_COLORS nlplus 
+| SWAP_COLORS nlplus
 ;
 
 view_transform_generators_matrices
-: view_transform_generators_matrices 
+: view_transform_generators_matrices
   {foam.GetParsingData ().SetSpaceSignificant (true);}
-  view_transform_generators_matrix 
+  view_transform_generators_matrix
   {foam.GetParsingData ().SetSpaceSignificant (false);}
-  nlplus 
+  nlplus
 | {foam.GetParsingData ().SetSpaceSignificant (true);}
-  view_transform_generators_matrix 
-  {foam.GetParsingData ().SetSpaceSignificant (false);} 
+  view_transform_generators_matrix
+  {foam.GetParsingData ().SetSpaceSignificant (false);}
   nlplus
 ;
 
@@ -458,11 +458,11 @@ quantity_modulus
 
 
 quantity_method_list
-: quantity_method_list method 
+: quantity_method_list method
 | method
 ;
 
-method_instance: 
+method_instance:
 METHOD_INSTANCE IDENTIFIER method_instance_rest
 {
     if ($3 != 0)
@@ -496,7 +496,7 @@ method_parameters
 ;
 
 function_declaration
-: FUNCTION function_return_type IDENTIFIER '(' 
+: FUNCTION function_return_type IDENTIFIER '('
   function_parameters ')' ';'
 ;
 
@@ -506,12 +506,12 @@ procedure_declaration
 
 
 function_return_type
-: INTEGER_TYPE 
+: INTEGER_TYPE
 | REAL_TYPE
 ;
 
 function_parameters
-: function_parameters ',' function_parameter 
+: function_parameters ',' function_parameter
 | function_parameter
 ;
 
@@ -520,7 +520,7 @@ function_parameter
 ;
 
 function_parameter_type
-: INTEGER_TYPE 
+: INTEGER_TYPE
 | REAL_TYPE
 ;
 
@@ -542,11 +542,11 @@ element_type: VERTEX
 {
     $$ = DefineAttribute::VERTEX;
 }
-| EDGE 
+| EDGE
 {
     $$ = DefineAttribute::EDGE;
 }
-| FACET 
+| FACET
 {
     $$ = DefineAttribute::FACE;
 }
@@ -560,7 +560,7 @@ attribute_value_type
 {
     $$ = new IntegerAttributeCreator ();
 }
-| REAL_TYPE 
+| REAL_TYPE
 {
     $$ = new RealAttributeCreator ();
 }
@@ -574,13 +574,13 @@ attribute_value_type
 }
 
 dimensionality
-: STRING 
+: STRING
 | SOAPFILM
 ;
 
 representation
-: LINEAR 
-| QUADRATIC 
+: LINEAR
+| QUADRATIC
 {
     foam.SetQuadratic ();
 }
@@ -673,8 +673,8 @@ constraint_params
 ;
 
 constraint_type
-: EQUATION 
-| FORMULA 
+: EQUATION
+| FORMULA
 | FUNCTION
 ;
 
@@ -816,7 +816,7 @@ expr
 }
 
 number
-: INTEGER_VALUE 
+: INTEGER_VALUE
 {
     $$ = $1;
 }
@@ -835,11 +835,11 @@ torus_domain
 ;
 
 torus_type
-: TORUS 
+: TORUS
 | TORUS_FILLED
 ;
 
-/* 2D or 3D */
+/* 2D */
 torus_periods
 : PERIODS nl
   const_expr const_expr nl
@@ -848,6 +848,7 @@ torus_periods
     using G3D::Vector3;
     foam.SetPeriods (Vector3 ($3, $4, 0), Vector3 ($6, $7, 0));
 }
+/* 3D */
 | PERIODS nl
   const_expr const_expr const_expr nl
   const_expr const_expr const_expr nl
@@ -885,18 +886,18 @@ vertices
 /* 2D or 3D */
 vertex_list
 : /* empty */
-| vertex_list INTEGER_VALUE 
+| vertex_list INTEGER_VALUE
   {foam.GetParsingData ().SetSpaceSignificant (true);}
   SPACE const_expr SPACE const_expr space_star vertex_list_rest
   {foam.GetParsingData ().SetSpaceSignificant (false);}
   vertex_attribute_list nlplus
 {
-    vector<NameSemanticValue*>* nameSemanticValueList = 
+    vector<NameSemanticValue*>* nameSemanticValueList =
 	$11;
     foam.GetParsingData ().SetVertex (
 	intToUnsigned($2- 1,
 		      "Semantic error: vertex index less than 0: "),
-	$5, $7, $9, *nameSemanticValueList, 
+	$5, $7, $9, *nameSemanticValueList,
 	foam.GetAttributesInfo (DefineAttribute::VERTEX));
     if (nameSemanticValueList != 0)
 	NameSemanticValue::DeleteVector(nameSemanticValueList);
@@ -905,13 +906,15 @@ vertex_list
 
 vertex_list_rest
 : /* empty */
+/* 2D Z value */
 {
     $$ = 0;
 }
 |
+/* 3D Z value */
 const_expr space_star
 {
-    $$ = $1;    
+    $$ = $1;
 }
 
 vertex_attribute_list
@@ -939,9 +942,9 @@ method_or_quantity
     $$ = 0;
 }
 
-method_or_quantity_sign 
+method_or_quantity_sign
 : /* empty */
-| '-' 
+| '-'
 ;
 
 
@@ -977,17 +980,17 @@ user_attribute
 }
 | ATTRIBUTE_ID REAL_VALUE
 {
-    $$ = 
+    $$ =
 	new NameSemanticValue ($1->c_str(), $2);
 }
 | ATTRIBUTE_ID '{' comma_integer_list '}'
 {
-    $$ = 
+    $$ =
 	new NameSemanticValue ($1->c_str(), $3);
 }
 | ATTRIBUTE_ID '{' comma_real_list '}'
 {
-    $$ = 
+    $$ =
 	new NameSemanticValue ($1->c_str(), $3);
 }
 
@@ -997,7 +1000,7 @@ edges
 
 edge_list
 : /* empty */
-| edge_list INTEGER_VALUE INTEGER_VALUE INTEGER_VALUE edge_midpoint 
+| edge_list INTEGER_VALUE INTEGER_VALUE INTEGER_VALUE edge_midpoint
   signs_torus_model edge_attribute_list nlplus
 {
     foam.GetParsingData ().SetEdge (
@@ -1047,7 +1050,7 @@ predefined_edge_attribute
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
-| COLOR color_name 
+| COLOR color_name
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
@@ -1100,11 +1103,11 @@ opt_sign_torus_model
 
 
 sign_torus_model
-: '+' 
+: '+'
 {
     $$ = Edge::LocationCharToNumber((*$1)[0]);
 }
-| '*' 
+| '*'
 {
     $$ = Edge::LocationCharToNumber((*$1)[0]);
 }
@@ -1124,7 +1127,7 @@ face_list
 {
     vector<int>* intList = $3;
     foam.GetParsingData ().SetFace (
-	intToUnsigned($2- 1, "Semantic error: face index less than 0"), 
+	intToUnsigned($2- 1, "Semantic error: face index less than 0"),
 	*intList, *$4,
 	foam.GetAttributesInfo (DefineAttribute::FACE));
     delete intList;
@@ -1146,7 +1149,7 @@ face_attribute_list
 }
 
 predefined_face_attribute
-: COLOR color_name 
+: COLOR color_name
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
@@ -1293,7 +1296,7 @@ comma_real_list
 
 
 body_attribute_list
-: /* empty */ 
+: /* empty */
 {
     $$ = 0;
 }
@@ -1311,23 +1314,23 @@ predefined_body_attribute
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
-| pressure_or_lagrange_multiplier number 
+| pressure_or_lagrange_multiplier number
 {
     $$ = new NameSemanticValue ($1->c_str (), $2);
 }
 | ORIGINAL INTEGER_VALUE
 {
-    $$ = 
+    $$ =
 	new NameSemanticValue ($1->c_str (), $2);
 }
 | VOLCONST number
 {
-    $$ = 
+    $$ =
 	new NameSemanticValue ($1->c_str (), $2);
 }
 | ACTUAL_VOLUME number
 {
-    $$ = 
+    $$ =
 	new NameSemanticValue ($1->c_str (), $2);
 }
 

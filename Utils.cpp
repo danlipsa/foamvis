@@ -22,6 +22,12 @@ ostream& operator<< (ostream& ostr, const G3D::AABox& box)
     return ostr;
 }
 
+ostream& operator<< (ostream& ostr, const QBox3D& box)
+{
+    cdbg << "QBox3D(" << box.minimum () << ", " << box.maximum () << ")";
+    return ostr;
+}
+
 
 ostream& operator<< (ostream& ostr, const G3D::Rect2D& box)
 {
@@ -117,12 +123,13 @@ ostream& operator<< (ostream& ostr, const G3D::Vector2& v)
 
 ostream& operator<< (ostream& ostr, const QVector3D& v)
 {
-    return ostr << v.x () << ", " << v.y () << ", " << v.z ();
+    return ostr << "QVector3D(" << v.x () << ", " << v.y () << ", " << v.z () 
+		<< ")";
 }
 
 ostream& operator<< (ostream& ostr, const QPoint& p)
 {
-    return ostr << p.x () << ", " << p.y ();
+    return ostr << "QPoint (" << p.x () << ", " << p.y () << ")";
 }
 
 
@@ -187,7 +194,7 @@ G3D::AABox ToG3D (const QBox3D& box)
 
 QVector2D MapToOpenGl (const QPoint& point, int windowHeight)
 {
-    return QVector2D (point.x (), point.y ());
+    return QVector2D (point.x (), windowHeight - point.y ());
 }
 
 bool intersection (
@@ -198,7 +205,7 @@ bool intersection (
     if (box.intersection (ray, &minimum_t, &maximum_t))
     {
 	qreal end_t = ray.fromPoint (end);
-	return end_t >= minimum_t;
+	return (end_t >=  minimum_t);
     }
     else
 	return false;

@@ -23,6 +23,7 @@ ostream& operator<< (ostream& ostr, const G3D::Vector4& v);
 ostream& operator<< (ostream& ostr, const G3D::Vector2& v);
 ostream& operator<< (ostream& ostr, const QVector3D& v);
 ostream& operator<< (ostream& ostr, const QPoint& p);
+ostream& operator<< (ostream& ostr, const QBox3D& p);
 
 template<typename U, typename V>
 ostream& operator<< (ostream& ostr, const pair<U, V>& p);

@@ -854,20 +854,32 @@ void GLWidget::scaleViewport (const QPoint& position)
 void GLWidget::brushedBodies (
     const QPoint& position, vector<size_t>* bodies) const
 {
-    QVector3D begin = ToQt (gluUnProject (ToG3D (QVector2D (m_lastPos))));
-    QVector3D end = ToQt (gluUnProject (ToG3D (QVector2D (position))));
+    QVector3D begin = ToQt (
+	gluUnProject (ToG3D (MapToOpenGl (m_lastPos, height ()))));
+    QVector3D end = ToQt (
+	gluUnProject (ToG3D (MapToOpenGl (position, height ()))));
     const Foam& foam = GetCurrentFoam ();
     BOOST_FOREACH (boost::shared_ptr<Body> body, foam.GetBodies ())
     {
 	QBox3D box = ToQt (body->GetBoundingBox ());
 	if (intersection (box, begin, end))
+	{
 	    bodies->push_back (body->GetId ());
+	    cdbg << "begin: gluUnProject(" << m_lastPos << " results in " <<
+		begin << ")" << endl;
+	    cdbg << "end: gluUnProject(" << position << " results in " <<
+		end << ")" << endl;
+	    cdbg << "box: " << box << endl;
+	}
     }
 
-    cdbg << "brushedBodies: ";
-    ostream_iterator<size_t> ido (cdbg, " ");
-    copy (bodies->begin (), bodies->end (), ido);
-    cdbg << endl;
+    if (bodies->size () > 0)
+    {
+	cdbg << "brushedBodies: ";
+	ostream_iterator<size_t> ido (cdbg, " ");
+	copy (bodies->begin (), bodies->end (), ido);
+	cdbg << endl;
+    }
 }
 
 
