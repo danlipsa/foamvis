@@ -79,12 +79,12 @@ bool Edge::operator== (const Edge& other) const
 bool Edge::fuzzyEq (const Edge& other) const
 {
     return GetId () == other.GetId () &&
-	GetBegin ()->fuzzyEq(*other.GetBegin ());
+	IsFuzzyZero (*GetBegin () - *other.GetBegin ());
 }
 
 bool Edge::IsZero () const
 {
-    return isFuzzyZero (*GetEnd () - *GetBegin ());
+    return IsFuzzyZero (*GetEnd () - *GetBegin ());
 }
 
 

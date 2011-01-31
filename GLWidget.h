@@ -242,6 +242,7 @@ public Q_SLOTS:
      * Global options
      */
     void ToggledBoundingBoxShown (bool checked);
+    void ToggledBodiesBoundingBoxesShown (bool checked);
     void ToggledAxesShown (bool checked);
     void ToggledTorusOriginalDomainShown (bool checked);
     void ToggledLightPositionShown (bool checked);
@@ -445,11 +446,8 @@ private:
      */
     void displayCenterPathsWithBodies () const;
     void displayOriginalDomain () const;
-    void displayBoundingBox () const;
     void displayCenterPaths () const;
-    void displayBox (const G3D::AABox& aabb, const QColor& color, 
-		     GLenum polygonMode) const;
-    void displayBox (const OOBox& oobox) const;
+    void displayBoundingBox () const;
     void displayAxes () const;
     void setInitialLightPosition ();
     G3D::Vector3 getInitialLightPosition (size_t i) const;
@@ -519,11 +517,6 @@ private:
     void setBodySelectorLabel (BodySelectorType::Enum type);
 
 private:
-    static void displayOpositeFaces (G3D::Vector3 origin,
-				     G3D::Vector3 faceFirst,
-				     G3D::Vector3 faceSecond,
-				     G3D::Vector3 translation);
-
     /**
      * Setup lighting for displaying faces edges and vertices
      */
@@ -602,6 +595,7 @@ private:
     bool m_centerPathBodyShown;
     bool m_onlyPathsWithSelectionShown;
     bool m_boundingBoxShown;
+    bool m_bodiesBoundingBoxesShown;
     bool m_axesShown;
     bool m_textureColorBarShown;
     boost::array<ViewTypeDisplay, ViewType::COUNT> m_viewTypeDisplay;

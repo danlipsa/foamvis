@@ -146,7 +146,8 @@ bool Face::operator== (const Face& other) const
 bool Face::fuzzyEq (const Face& other) const
 {
     return GetId () == other.GetId () &&
-	GetOrientedEdge (0)->GetBegin ()->fuzzyEq (
+	IsFuzzyZero (
+	    *GetOrientedEdge (0)->GetBegin () -
 	    *other.GetOrientedEdge (0)->GetBegin ());
 }
 

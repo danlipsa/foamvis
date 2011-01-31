@@ -24,7 +24,7 @@
 G3D::Matrix3 edgeRotation (const G3D::Vector3& begin, const G3D::Vector3& end)
 {
     G3D::Vector3 newZ = end - begin;
-    if (isFuzzyZero (newZ))
+    if (IsFuzzyZero (newZ))
 	return G3D::Matrix3::identity ();
     newZ = newZ.unit ();
     G3D::Vector3 newX, newY;

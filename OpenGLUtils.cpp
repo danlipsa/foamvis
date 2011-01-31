@@ -9,6 +9,7 @@
 #include "OpenGLUtils.h"
 #include "DebugStream.h"
 #include "Debug.h"
+#include "OOBox.h"
 
 // Private Classes
 // ======================================================================
@@ -128,9 +129,8 @@ G3D::Vector3 gluUnProject (
     glGetIntegerv (GL_VIEWPORT, view);
     GLfloat zScreenCoord = 0;
     if (zOperation == GluUnProjectZOperation::READ)
-	glReadPixels (
-	    screenCoord.x, screenCoord.y, 1, 1, 
-	    GL_DEPTH_COMPONENT, GL_FLOAT, &zScreenCoord);
+	glReadPixels (screenCoord.x, screenCoord.y, 1, 1, 
+		      GL_DEPTH_COMPONENT, GL_FLOAT, &zScreenCoord);
     double x, y, z;
     gluUnProject (screenCoord.x, screenCoord.y, zScreenCoord, 
 		  model, proj, view, 
@@ -197,4 +197,63 @@ void printOpenGLInfo (ostream& ostr)
 	}};
     for_each (info.begin (), info.end (),
 	      boost::bind (&OpenGLFeature::print, _1, &ostr));
+}
+
+
+void DisplayOpositeFaces (G3D::Vector3 origin,
+			  G3D::Vector3 faceFirst,
+			  G3D::Vector3 faceSecond,
+			  G3D::Vector3 translation)
+{
+    G3D::Vector3 faceOrigin;
+    G3D::Vector3 faceSum = faceFirst + faceSecond;
+    G3D::Vector3 translations[] = {origin, translation};
+    for (int i = 0; i < 2; i++)
+    {
+	faceOrigin += translations[i];
+	faceFirst += translations[i];
+	faceSecond += translations[i];
+	faceSum += translations[i];
+
+	glBegin (GL_POLYGON);
+	glVertex (faceOrigin);
+	glVertex (faceFirst);
+	glVertex (faceSum);
+	glVertex (faceSecond);
+	glEnd ();
+    }
+}
+
+void DisplayBox (const OOBox& oobox)
+{
+    glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
+    glLineWidth (1.0);
+    glColor (Qt::black);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+
+    DisplayOpositeFaces (G3D::Vector3::zero (), 
+			 oobox[0], oobox[1], oobox[2]);
+    DisplayOpositeFaces (G3D::Vector3::zero (),
+			 oobox[1], oobox[2], oobox[0]);
+    DisplayOpositeFaces (G3D::Vector3::zero (), 
+			 oobox[2], oobox[0], oobox[1]);
+    glPopAttrib ();
+}
+
+void DisplayBox (const G3D::AABox& aabb, 
+		 const QColor& color, GLenum polygonMode)
+{
+    using G3D::Vector3;
+    glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
+    glLineWidth (1.0);
+    glColor (color);
+    glPolygonMode (GL_FRONT_AND_BACK, polygonMode);
+    Vector3 diagonal = aabb.high () - aabb.low ();
+    Vector3 first = diagonal.x * Vector3::unitX ();
+    Vector3 second = diagonal.y * Vector3::unitY ();
+    Vector3 third = diagonal.z * Vector3::unitZ ();    
+    DisplayOpositeFaces (aabb.low (), first, second, third);
+    DisplayOpositeFaces (aabb.low (), second, third, first);
+    DisplayOpositeFaces (aabb.low (), third, first, second);
+    glPopAttrib ();
 }

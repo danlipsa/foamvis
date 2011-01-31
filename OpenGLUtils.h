@@ -9,6 +9,8 @@
 #ifndef __OPENGL_UTILS_H__
 #define __OPENGL_UTILS_H__
 
+class OOBox;
+
 inline void glColor (const QColor& color)
 {
     glColor4f (color.redF (), color.greenF (), color.blueF (), color.alphaF ());
@@ -44,8 +46,9 @@ struct GluUnProjectZOperation
 
 /**
  * Returns the world coordinate associated with a screen coordinate.
- * Uses the depth buffer to find out the Z screen coordinate if readZ = true
- * otherwise it uses a Z coordinate equal with 0.
+ * Uses the depth buffer to find out the Z screen coordinate (and then
+ * the z coordinate) if zOperation == READ otherwise it uses a Z screen 
+ * coordinate equal with 0.
  * see OpenGL FAQ, 9.110
  */
 G3D::Vector3 gluUnProject (
@@ -63,6 +66,17 @@ void printOpenGLInfo (ostream& ostr);
 inline GLenum TextureEnum (GLint texture)
 {
     return GL_TEXTURE0 + texture;
+}
+
+void DisplayBox (const OOBox& oobox);
+void DisplayBox (const G3D::AABox& aabb, const QColor& color, 
+		 GLenum polygonMode);
+
+template<typename GraphicsObjectPtr>
+void DisplayBox (const GraphicsObjectPtr& o, const QColor& color,
+		 GLenum polygonMode)
+{
+    DisplayBox (o->GetBoundingBox (), color, polygonMode);
 }
 
 

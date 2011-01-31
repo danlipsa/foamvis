@@ -14,7 +14,33 @@
 #include "Vertex.h"
 
 
-const G3D::Vector3int16 Vector3int16Zero (0, 0, 0);
+// Fuzzy equality functionality
+// ======================================================================
+
+bool IsFuzzyZero (const G3D::Vector3& v)
+{
+    return v.squaredMagnitude () < fuzzyEpsilon * fuzzyEpsilon;
+}
+
+template <typename Container, 
+	  typename ContainerIterator,
+	  typename ContainerKeyType>
+ContainerIterator fuzzyFind (const Container& s, const ContainerKeyType& x)
+{
+    ContainerIterator it = s.lower_bound (x);
+    if (it != s.end () && (*it)->fuzzyEq (*x))
+	return it;
+    if (it != s.begin ())
+    {
+	--it;
+	if ((*(it))->fuzzyEq (*x))
+	    return it;
+    }
+    return s.end ();
+}
+
+// ToString functionality
+// ======================================================================
 
 ostream& operator<< (ostream& ostr, const G3D::AABox& box)
 {
@@ -35,46 +61,6 @@ ostream& operator<< (ostream& ostr, const G3D::Rect2D& box)
     return ostr;
 }
 
-
-
-const G3D::Vector3int16& Vector3int16Unit (size_t direction)
-{
-    static const G3D::Vector3int16 unitVector3int16[3] = {
-	G3D::Vector3int16 (1, 0, 0),
-	G3D::Vector3int16 (0, 1, 0),
-	G3D::Vector3int16 (0, 0, 1)
-    };
-    return unitVector3int16[direction];
-}
-
-
-void Scale (G3D::AABox* aabox, double change)
-{
-    using G3D::Vector3;
-    Vector3 center = aabox->center ();
-    Vector3 newLow = aabox->low () * change + center * (1 - change);
-    Vector3 newHigh = aabox->high () * change + center * (1 - change);
-    aabox->set (newLow, newHigh);
-}
-
-void Scale (G3D::Rect2D* aabox, double change)
-{
-    using G3D::Vector2;
-    Vector2 center = aabox->center ();
-    Vector2 newLow = aabox->x0y0 () * change + center * (1 - change);
-    Vector2 newHigh = aabox->x1y1 () * change + center * (1 - change);
-    *aabox = G3D::Rect2D::xyxy ( newLow, newHigh);
-}
-
-void EncloseRotation (G3D::AABox* aabox)
-{
-    using G3D::Vector3;
-    Vector3 center = aabox->center ();
-    double halfSideLength = (aabox->high () - center).length ();
-    Vector3 halfDiagonal = halfSideLength * 
-	(Vector3::unitX () + Vector3::unitY () + Vector3::unitZ ());
-    aabox->set (center - halfDiagonal, center + halfDiagonal);
-}
 
 ostream& operator<< (ostream& ostr, const QColor& color)
 {
@@ -133,33 +119,94 @@ ostream& operator<< (ostream& ostr, const QPoint& p)
 }
 
 
-bool isFuzzyZero (const G3D::Vector3& v)
-{
-    return v.squaredMagnitude () < fuzzyEpsilon * fuzzyEpsilon;
-}
-
 template<typename U, typename V>
 ostream& operator<< (ostream& ostr, const pair<U, V>& p)
 {
     return ostr << "pair(" << p.first << ", " << p.second << ")";
 }
 
-template <typename Container, 
-	  typename ContainerIterator,
-	  typename ContainerKeyType>
-ContainerIterator fuzzyFind (const Container& s, const ContainerKeyType& x)
+
+// Unit vectors
+// ======================================================================
+
+const G3D::Vector3int16 Vector3int16Zero (0, 0, 0);
+
+const G3D::Vector3int16& Vector3int16Unit (size_t direction)
 {
-    ContainerIterator it = s.lower_bound (x);
-    if (it != s.end () && (*it)->fuzzyEq (*x))
-	return it;
-    if (it != s.begin ())
-    {
-	--it;
-	if ((*(it))->fuzzyEq (*x))
-	    return it;
-    }
-    return s.end ();
+    static const G3D::Vector3int16 unitVector3int16[3] = {
+	G3D::Vector3int16 (1, 0, 0),
+	G3D::Vector3int16 (0, 1, 0),
+	G3D::Vector3int16 (0, 0, 1)
+    };
+    return unitVector3int16[direction];
 }
+
+// 3D Math functionality
+// ======================================================================
+
+void Scale (G3D::AABox* aabox, double change)
+{
+    using G3D::Vector3;
+    Vector3 center = aabox->center ();
+    Vector3 newLow = aabox->low () * change + center * (1 - change);
+    Vector3 newHigh = aabox->high () * change + center * (1 - change);
+    aabox->set (newLow, newHigh);
+}
+
+void Scale (G3D::Rect2D* aabox, double change)
+{
+    using G3D::Vector2;
+    Vector2 center = aabox->center ();
+    Vector2 newLow = aabox->x0y0 () * change + center * (1 - change);
+    Vector2 newHigh = aabox->x1y1 () * change + center * (1 - change);
+    *aabox = G3D::Rect2D::xyxy ( newLow, newHigh);
+}
+
+void EncloseRotation (G3D::AABox* aabox)
+{
+    using G3D::Vector3;
+    Vector3 center = aabox->center ();
+    double halfSideLength = (aabox->high () - center).length ();
+    Vector3 halfDiagonal = halfSideLength * 
+	(Vector3::unitX () + Vector3::unitY () + Vector3::unitZ ());
+    aabox->set (center - halfDiagonal, center + halfDiagonal);
+}
+
+bool Intersection (
+    const QBox3D& box, const QVector3D& _begin, const QVector3D& _end)
+{
+    QVector3D begin (_begin);
+    QVector3D end (_end);
+    // 2D case
+    if (box.minimum ().z () == 0 && box.maximum ().z () == 0)
+    {
+	if (qFuzzyCompare (begin.z () + 1, 1))
+	    begin.setZ (0);
+	if (qFuzzyCompare (end.z () + 1, 1))
+	    end.setZ (0);
+    }
+    QRay3D ray (QVector3D (begin.x (), begin.y (), 0),  end - begin);
+    qreal minimum_t, maximum_t;
+    if (box.intersection (ray, &minimum_t, &maximum_t))
+    {
+	const qreal begin_t = 0;
+	const qreal end_t = 1;
+	bool intersection = ! (maximum_t < begin_t || minimum_t > end_t);
+	if (intersection)
+	{
+	    cdbg << "min_t: " << minimum_t << " max_t: " << maximum_t << endl;
+	    cdbg << "begin: " << begin << " end: " << end << endl;
+	    cdbg << "box: " << box << endl;
+	}
+	return intersection;
+    }
+    else
+	return false;
+}
+
+
+// Conversions Qt - G3D
+// ======================================================================
 
 QVector2D ToQt (const G3D::Vector2& v)
 {
@@ -192,27 +239,12 @@ G3D::AABox ToG3D (const QBox3D& box)
 }
 
 
-QVector2D MapToOpenGl (const QPoint& point, int windowHeight)
+G3D::Vector2 MapToOpenGl (const QPoint& point, int windowHeight)
 {
-    return QVector2D (point.x (), windowHeight - point.y ());
+    return G3D::Vector2 (point.x (), windowHeight - point.y ());
 }
 
-bool intersection (
-    const QBox3D& box, const QVector3D& begin, const QVector3D& end)
-{
-    QRay3D ray (begin, end - begin);
-    qreal minimum_t, maximum_t;
-    if (box.intersection (ray, &minimum_t, &maximum_t))
-    {
-	qreal end_t = ray.fromPoint (end);
-	return (end_t >=  minimum_t);
-    }
-    else
-	return false;
-}
-
-
-// CalculateAggregate
+// Container algorithms
 // ======================================================================
 
 template<typename Container, 

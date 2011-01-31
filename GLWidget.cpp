@@ -75,7 +75,7 @@ const size_t GLWidget::DISPLAY_ALL(numeric_limits<size_t>::max());
 const size_t GLWidget::QUADRIC_SLICES = 8;
 const size_t GLWidget::QUADRIC_STACKS = 1;
 // alpha
-const double GLWidget::MIN_CONTEXT_ALPHA = 0.01;
+const double GLWidget::MIN_CONTEXT_ALPHA = 0.05;
 const double GLWidget::MAX_CONTEXT_ALPHA = 0.5;
 
 
@@ -854,31 +854,18 @@ void GLWidget::scaleViewport (const QPoint& position)
 void GLWidget::brushedBodies (
     const QPoint& position, vector<size_t>* bodies) const
 {
-    QVector3D begin = ToQt (
-	gluUnProject (ToG3D (MapToOpenGl (m_lastPos, height ()))));
-    QVector3D end = ToQt (
-	gluUnProject (ToG3D (MapToOpenGl (position, height ()))));
+    G3D::Vector3 end = gluUnProject (MapToOpenGl (position, height ()));
+    if (GetFoamAlongTime ().GetDimension () == 2)
+	end.z = 0;
     const Foam& foam = GetCurrentFoam ();
     BOOST_FOREACH (boost::shared_ptr<Body> body, foam.GetBodies ())
     {
-	QBox3D box = ToQt (body->GetBoundingBox ());
-	if (intersection (box, begin, end))
+	G3D::AABox box = body->GetBoundingBox ();
+	if (box.contains (end))
 	{
 	    bodies->push_back (body->GetId ());
-	    cdbg << "begin: gluUnProject(" << m_lastPos << " results in " <<
-		begin << ")" << endl;
-	    cdbg << "end: gluUnProject(" << position << " results in " <<
-		end << ")" << endl;
-	    cdbg << "box: " << box << endl;
+	    cdbg << "box: " << box << "end: " << end << endl;
 	}
-    }
-
-    if (bodies->size () > 0)
-    {
-	cdbg << "brushedBodies: ";
-	ostream_iterator<size_t> ido (cdbg, " ");
-	copy (bodies->begin (), bodies->end (), ido);
-	cdbg << endl;
     }
 }
 
@@ -899,7 +886,6 @@ void GLWidget::select (const QPoint& position)
 	IdBodySelector& selector = 
 	    *boost::static_pointer_cast<IdBodySelector> (m_bodySelector);
 	selector.SetUnion (bodyIds);
-	cdbg << selector;
 	break;
     }
 
@@ -960,7 +946,6 @@ void GLWidget::deselect (const QPoint& position)
     updateGL ();
 }
 
-
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     switch (m_interactionMode)
@@ -998,6 +983,18 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
+    switch (m_interactionMode)
+    {
+    case InteractionMode::SELECT:
+	select (event->pos ());
+	break;
+    case InteractionMode::DESELECT:
+	deselect (event->pos ());
+	break;
+    default:
+	break;
+    }   
+    updateGL ();
     m_lastPos = event->pos();
 }
 
@@ -1005,30 +1002,22 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 void GLWidget::displayOriginalDomain () const
 {
     if (m_torusOriginalDomainDisplay)
-	displayBox (GetCurrentFoam().GetOriginalDomain ());
+	DisplayBox (GetCurrentFoam().GetOriginalDomain ());
 }
-
-void GLWidget::displayBox (const OOBox& oobox) const
-{
-    glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
-    glLineWidth (1.0);
-    glColor (Qt::black);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-
-    displayOpositeFaces (G3D::Vector3::zero (), 
-			 oobox[0], oobox[1], oobox[2]);
-    displayOpositeFaces (G3D::Vector3::zero (),
-			 oobox[1], oobox[2], oobox[0]);
-    displayOpositeFaces (G3D::Vector3::zero (), 
-			 oobox[2], oobox[0], oobox[1]);
-    glPopAttrib ();
-}
-
 
 void GLWidget::displayBoundingBox () const
 {
     if (m_boundingBoxShown)
-	displayBox (GetFoamAlongTime ().GetBoundingBox (), Qt::black, GL_LINE);
+	DisplayBox (GetFoamAlongTime ().GetBoundingBox (), Qt::black, GL_LINE);
+    if (m_bodiesBoundingBoxesShown)
+    {
+	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
+	for_each (
+	    bodies.begin (), bodies.end (),
+	    boost::bind (
+		DisplayBox< boost::shared_ptr<Body> >,
+		_1, Qt::black, GL_LINE));
+    }
 }
 
 void GLWidget::displayAxes () const
@@ -1061,24 +1050,6 @@ void GLWidget::displayAxes () const
 	displayOrientedEdge (origin, third);
 	glPopAttrib ();
     }
-}
-
-void GLWidget::displayBox (const G3D::AABox& aabb, 
-			   const QColor& color, GLenum polygonMode) const
-{
-    using G3D::Vector3;
-    glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
-    glLineWidth (1.0);
-    glColor (color);
-    glPolygonMode (GL_FRONT_AND_BACK, polygonMode);
-    Vector3 diagonal = aabb.high () - aabb.low ();
-    Vector3 first = diagonal.x * Vector3::unitX ();
-    Vector3 second = diagonal.y * Vector3::unitY ();
-    Vector3 third = diagonal.z * Vector3::unitZ ();    
-    displayOpositeFaces (aabb.low (), first, second, third);
-    displayOpositeFaces (aabb.low (), second, third, first);
-    displayOpositeFaces (aabb.low (), third, first, second);
-    glPopAttrib ();
 }
 
 
@@ -1641,6 +1612,13 @@ void GLWidget::ToggledBoundingBoxShown (bool checked)
     updateGL ();
 }
 
+void GLWidget::ToggledBodiesBoundingBoxesShown (bool checked)
+{
+    m_bodiesBoundingBoxesShown = checked;
+    updateGL ();
+}
+
+
 void GLWidget::ToggledFullColorBarShown (bool checked)
 {
     m_textureColorBarShown = ! checked;
@@ -1886,8 +1864,6 @@ void GLWidget::ValueChangedContextAlpha (int sliderValue)
     updateGL ();
 }
 
-
-
 void GLWidget::ValueChangedAngleOfView (int angleOfView)
 {
     makeCurrent ();
@@ -1911,30 +1887,6 @@ void GLWidget::quadricErrorCallback (GLenum errorCode)
 {
     const GLubyte* message = gluErrorString (errorCode);
     qWarning () << "Quadric error:" << message;
-}
-
-void GLWidget::displayOpositeFaces (G3D::Vector3 origin,
-				    G3D::Vector3 faceFirst,
-				    G3D::Vector3 faceSecond,
-				    G3D::Vector3 translation)
-{
-    G3D::Vector3 faceOrigin;
-    G3D::Vector3 faceSum = faceFirst + faceSecond;
-    G3D::Vector3 translations[] = {origin, translation};
-    for (int i = 0; i < 2; i++)
-    {
-	faceOrigin += translations[i];
-	faceFirst += translations[i];
-	faceSecond += translations[i];
-	faceSum += translations[i];
-
-	glBegin (GL_POLYGON);
-	glVertex (faceOrigin);
-	glVertex (faceFirst);
-	glVertex (faceSum);
-	glVertex (faceSecond);
-	glEnd ();
-    }
 }
 
 

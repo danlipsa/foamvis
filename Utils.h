@@ -7,6 +7,26 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
+// Fuzzy equality functionality
+// ======================================================================
+
+/**
+ * Fix of G3D version 8.0, 
+ * Vector3::isZero () which tests against fuzzyEpsilon instead of 
+ * fuzzyEpsilon squared.
+ */
+bool IsFuzzyZero (const G3D::Vector3& v);
+/**
+ * Finds an item in a container using fuzzy comparison
+ */
+template <typename Container, 
+	  typename ContainerIterator,
+	  typename ContainerKeyType>
+ContainerIterator fuzzyFind (const Container& s, const ContainerKeyType& x);
+
+// ToString functionality
+// ======================================================================
+
 /**
  * Pretty prints a G3D::AABox
  * @param ostr where to print
@@ -28,32 +48,25 @@ ostream& operator<< (ostream& ostr, const QBox3D& p);
 template<typename U, typename V>
 ostream& operator<< (ostream& ostr, const pair<U, V>& p);
 
+
+// Unit vectors
+// ======================================================================
+
 const G3D::Vector3int16& Vector3int16Unit (size_t direction);
-
-/**
- * Fix of G3D version 8.0, 
- * Vector3::isZero () which tests against fuzzyEpsilon instead of 
- * fuzzyEpsilon squared.
- */
-bool isFuzzyZero (const G3D::Vector3& v);
-
-
 extern const G3D::Vector3int16 Vector3int16Zero;
+
+// 3D Math functionality
+// ======================================================================
 
 void Scale (G3D::AABox* aabox, double change);
 void Scale (G3D::Rect2D* aabox, double change);
 void EncloseRotation (G3D::AABox* aabox);
 void AddBorder (G3D::AABox* aabox);
+bool Intersection (
+    const QBox3D& box, const QVector3D& begin, const QVector3D& end);
 
-template <typename Container, 
-	  typename ContainerIterator,
-	  typename ContainerKeyType>
-ContainerIterator fuzzyFind (const Container& s, const ContainerKeyType& x);
-
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
-const size_t HISTOGRAM_INTERVALS = 256;
+// Conversions Qt - G3D
+// ======================================================================
 
 QVector2D ToQt (const G3D::Vector2& v);
 QVector3D ToQt (const G3D::Vector3& v);
@@ -61,9 +74,10 @@ QBox3D ToQt (const G3D::AABox& box);
 G3D::Vector2 ToG3D (const QVector2D& v);
 G3D::Vector3 ToG3D (const QVector3D& v);
 G3D::AABox ToG3D (const QBox3D& box);
-QVector2D MapToOpenGl (const QPoint& point, int windowHeight = 0);
+G3D::Vector2 MapToOpenGl (const QPoint& point, int windowHeight);
 
-
+// Container algorithms
+// ======================================================================
 
 template<typename Container, typename ContainerIterator, 
 	 typename ElementComparatorAlong>
@@ -77,8 +91,13 @@ struct CalculateAggregate
 		     G3D::Vector3* result);
 };
 
-bool intersection (
-    const QBox3D& box, const QVector3D& begin, const QVector3D& end);
+// Other
+// ======================================================================
+
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+
+const size_t HISTOGRAM_INTERVALS = 256;
 
 
 #endif //__UTILS_H__
