@@ -17,7 +17,7 @@
 // Private Functions
 // ======================================================================
 inline void calculateBodyWraps (BodiesAlongTime::BodyMap::value_type& v,
-				const FoamAlongTime& foamAlongTime)
+                                const FoamAlongTime& foamAlongTime)
 {
     v.second->CalculateBodyWraps (foamAlongTime);
 }
@@ -27,7 +27,7 @@ inline void calculateBodyWraps (BodiesAlongTime::BodyMap::value_type& v,
 // ======================================================================
 FoamAlongTime::FoamAlongTime () :
     m_histogram (
-	BodyProperty::PROPERTY_END, HistogramStatistics (HISTOGRAM_INTERVALS))
+        BodyProperty::PROPERTY_END, HistogramStatistics (HISTOGRAM_INTERVALS))
 {
 }
 
@@ -35,9 +35,9 @@ void FoamAlongTime::CalculateBoundingBox ()
 {
     G3D::Vector3 low, high;
     CalculateAggregate<Foams, Foams::iterator, 
-	BBObjectLessThanAlongLow<Foam> > () (min_element, m_foams, &low);
+        BBObjectLessThanAlongLow<Foam> > () (min_element, m_foams, &low);
     CalculateAggregate<Foams, Foams::iterator, 
-	BBObjectLessThanAlongHigh<Foam> > () (max_element, m_foams, &high);
+        BBObjectLessThanAlongHigh<Foam> > () (max_element, m_foams, &high);
     m_boundingBox.set (low, high);
 }
 
@@ -45,9 +45,9 @@ void FoamAlongTime::calculateBodyWraps ()
 {
     if (m_foams.size () > 1)
     {
-	BodiesAlongTime::BodyMap bodyMap = GetBodiesAlongTime ().GetBodyMap ();
-	for_each (bodyMap.begin (), bodyMap.end (),
-		  boost::bind(::calculateBodyWraps, _1, *this));
+        BodiesAlongTime::BodyMap bodyMap = GetBodiesAlongTime ().GetBodyMap ();
+        for_each (bodyMap.begin (), bodyMap.end (),
+                  boost::bind(::calculateBodyWraps, _1, *this));
     }
 }
 /**
@@ -61,7 +61,7 @@ void FoamAlongTime::Preprocess ()
     calculateBodyWraps ();
     calculateVelocity ();
     if (IsPressureAdjusted ())
-	adjustPressureAlignMedians ();
+        adjustPressureAlignMedians ();
     else
     {
 	cdbg << "Show ORIGINAL pressure values." << endl;
@@ -130,7 +130,7 @@ void FoamAlongTime::calculateStatistics ()
 	// statistics per time-step
 	double min = acc::min(m_histogram[property]);
 	double max = acc::max(m_histogram[property]);
-	QtConcurrent::blockingMap (
+	for_each (
 	    m_foams.begin (), m_foams.end (),
 	    boost::bind (&Foam::CalculateHistogramStatistics, _1,
 			 BodyProperty::FromSizeT (i), min, max));

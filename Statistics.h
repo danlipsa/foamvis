@@ -37,6 +37,8 @@ public:
     size_t size () const;
     QwtIntervalData ToQwtIntervalData () const;
     size_t GetMaxCountPerBin () const;
+    string ToString () const;
+    string RawToString () const;
     static size_t GetBin (double value, size_t binCount,
                           double beginInterval, double endInterval);
 

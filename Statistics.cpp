@@ -7,6 +7,7 @@
  */
 
 #include "Statistics.h"
+#include "DebugStream.h"
 
 size_t HistogramStatistics::GetCountPerBin (size_t bin) const
 {
@@ -15,17 +16,16 @@ size_t HistogramStatistics::GetCountPerBin (size_t bin) const
     ++bin;
     Result histogramResult = acc::density (*this);
     Result::iterator it = histogramResult.begin () + bin;
-    size_t count = (*it).second * acc::count (*this);
-    if (bin == 1)
-	return count - 1;
-    else if (bin == static_cast<size_t>(histogramResult.size () - 2))
+    size_t count = floor(it->second * acc::count (*this) + 0.5);
+    if (bin == 1 && acc::min (*this) != acc::max(*this))
+	--count;
+    else if (bin == size ())
     {
 	it = (histogramResult.end () - 1);
-	size_t overflowCount = (*it).second * acc::count (*this);
-	return count + overflowCount - 1;
+	size_t overflowCount = floor (it->second * acc::count (*this) + 0.5);
+	count += (overflowCount - 1);
     }
-    else
-	return count;
+    return count;
 }
 
 size_t HistogramStatistics::GetMaxCountPerBin () const
@@ -85,4 +85,22 @@ size_t HistogramStatistics::GetBin (
         double step = (endInterval - beginInterval) / binCount;
         return floor ((value - beginInterval) / step);
     }
+}
+
+string HistogramStatistics::ToString () const
+{
+    ostringstream ostr;
+    for (size_t i = 0; i < size (); ++i)
+	ostr << GetCountPerBin (i) << " ";
+    return ostr.str ();
+}
+
+string HistogramStatistics::RawToString () const
+{
+    ostringstream ostr;
+    Result histogramResult = acc::density (*this);
+    for (Result::iterator it = histogramResult.begin ();
+	 it != histogramResult.end (); ++it)
+	ostr << (it->second * acc::count(*this)) << " ";
+    return ostr.str ();
 }
