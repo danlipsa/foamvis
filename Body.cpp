@@ -191,7 +191,6 @@ bool Body::operator< (const Body& other) const
 	 *other.GetOrientedFace (0)->GetFace ());
 }
 
-
 void Body::GetVertexSet (VertexSet* vertexSet) const
 {
     const OrientedFaces& orientedFaces = GetOrientedFaces ();

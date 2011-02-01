@@ -85,6 +85,7 @@ public:
     double GetPropertyValue (BodyProperty::Enum property) const;
     void SetPropertyValue (BodyProperty::Enum property, double value);
     bool ExistsPropertyValue (BodyProperty::Enum property) const;
+
     bool operator< (const Body& other) const;
     G3D::Vector3 GetVelocity () const
     {

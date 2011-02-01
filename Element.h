@@ -38,6 +38,9 @@ public:
      */
     void StoreAttributes (
         vector<NameSemanticValue*>& list, const AttributesInfo& info);
+    void StoreAttribute (
+        const char* name, double r, const AttributesInfo& info);
+
     /**
      * Gets the original index of this element
      */
@@ -65,6 +68,10 @@ public:
     double GetRealAttribute (size_t i) const;
     void SetRealAttribute (size_t i, double value);
     bool ExistsAttribute (size_t i) const;
+
+private:
+    void storeAttribute (
+	const NameSemanticValue& nv, const AttributesInfo& infos);
 
 protected:
     typedef vector< boost::shared_ptr<Attribute> > Attributes;

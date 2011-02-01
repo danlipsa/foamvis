@@ -130,7 +130,7 @@ void FoamAlongTime::calculateStatistics ()
 	// statistics per time-step
 	double min = acc::min(m_histogram[property]);
 	double max = acc::max(m_histogram[property]);
-	for_each (
+	QtConcurrent::blockingMap (
 	    m_foams.begin (), m_foams.end (),
 	    boost::bind (&Foam::CalculateHistogramStatistics, _1,
 			 BodyProperty::FromSizeT (i), min, max));

@@ -40,7 +40,7 @@ G3D::Vector3* Vector3Address (G3D::Vector3& v)
 }
 
 /**
- * Move elements in a vector toward the begining of the vector so that we 
+ * Move elements in a vector toward the begining of the vector so that we
  * eliminate holes.
  * @param v vector of elements
  */
@@ -62,7 +62,7 @@ void compact (vector< boost::shared_ptr<E> >& v)
 // Methods
 // ======================================================================
 
-Foam::Foam () : 
+Foam::Foam () :
     m_viewMatrix (new G3D::Matrix4 (G3D::Matrix4::identity ())),
     m_parsingData (new ParsingData ()),
     m_spaceDimension (3),
@@ -84,7 +84,7 @@ void Foam::Accumulate (Accumulator* acc, BodyProperty::Enum property) const
     {
 	if (body->ExistsPropertyValue (property))
 	    (*acc) (body->GetPropertyValue (property));
-    }	
+    }
 }
 
 // define instantiations used
@@ -189,11 +189,9 @@ void Foam::SetBody (size_t i, vector<int>& faces,
 	faces, GetParsingData ().GetFaces (), i);
     if (&attributes != 0)
         body->StoreAttributes (attributes,
-			       m_attributesInfo[DefineAttribute::BODY]);    
+			       m_attributesInfo[DefineAttribute::BODY]);
     m_bodies[i] = body;
 }
-
-
 
 void Foam::compact (void)
 {
@@ -211,15 +209,15 @@ void Foam::ReleaseParsingData ()
 
 void Foam::updatePartOf ()
 {
-    for_each (m_bodies.begin (), m_bodies.end (), 
+    for_each (m_bodies.begin (), m_bodies.end (),
 	      boost::bind(&Body::UpdatePartOf, _1, _1));
 
     ParsingData::Faces faces = GetParsingData ().GetFaces ();
-    for_each (faces.begin (), faces.end (), 
+    for_each (faces.begin (), faces.end (),
 	      boost::bind (&Face::UpdateStandaloneFacePartOf, _1, _1));
-    
+
     ParsingData::Edges edges = GetParsingData ().GetEdges ();
-    for_each (edges.begin (), edges.end (), 
+    for_each (edges.begin (), edges.end (),
 	      boost::bind (&Edge::UpdateEdgePartOf, _1, _1));
 }
 
@@ -231,9 +229,9 @@ void Foam::calculateBoundingBox ()
 
     // calculate the BB for the foam using BB for bodies
     G3D::Vector3 low, high;
-    CalculateAggregate <Bodies, Bodies::iterator, 
+    CalculateAggregate <Bodies, Bodies::iterator,
 	BBObjectLessThanAlongLow<Body> >() (min_element, m_bodies, &low);
-    CalculateAggregate <Bodies, Bodies::iterator, 
+    CalculateAggregate <Bodies, Bodies::iterator,
 	BBObjectLessThanAlongHigh<Body> >()(max_element, m_bodies, &high);
     if (IsTorus ())
 	calculateBoundingBoxForTorus (&low, &high);
@@ -249,11 +247,11 @@ void Foam::calculateBoundingBoxForTorus (G3D::Vector3* low, G3D::Vector3* high)
     Vector3 second = m_originalDomain[1];
     Vector3 sum = first + second;
     Vector3 third = m_originalDomain[2];
-    array<Vector3, 10> additionalVertices = 
+    array<Vector3, 10> additionalVertices =
     {{
-	    *low, 
+	    *low,
 	    origin, first, sum, second,
-	    origin + third, first + third, sum + third, second + third, 
+	    origin + third, first + third, sum + third, second + third,
 	    *high
     }};
     vector<Vector3*> v(additionalVertices.size ());
@@ -261,7 +259,7 @@ void Foam::calculateBoundingBoxForTorus (G3D::Vector3* low, G3D::Vector3* high)
 	       v.begin (), Vector3Address);
     CalculateAggregate<vector<Vector3*>, vector<Vector3*>::iterator,
 	VertexLessThanAlong>() (min_element, v, low);
-    CalculateAggregate<vector<Vector3*>, vector<Vector3*>::iterator, 
+    CalculateAggregate<vector<Vector3*>, vector<Vector3*>::iterator,
 	VertexLessThanAlong>() (max_element, v, high);
 }
 
@@ -315,7 +313,7 @@ void Foam::unwrap (boost::shared_ptr<Edge> edge, VertexSet* vertexSet) const
 		GetOriginalDomain (), edge->GetEndTranslation (), vertexSet));
 }
 
-void Foam::unwrap (boost::shared_ptr<Face> face, 
+void Foam::unwrap (boost::shared_ptr<Face> face,
 		   VertexSet* vertexSet, EdgeSet* edgeSet) const
 {
     Face::OrientedEdges& orientedEdges = face->GetOrientedEdges ();
@@ -323,7 +321,7 @@ void Foam::unwrap (boost::shared_ptr<Face> face,
     BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, orientedEdges)
     {
 	boost::shared_ptr<Edge>  edge = oe->GetEdge ();
-	G3D::Vector3 edgeBegin = 
+	G3D::Vector3 edgeBegin =
 	    (oe->IsReversed ()) ? edge->GetTranslatedBegin (*begin) : *begin;
 	oe->SetEdge (
 	    edge->GetDuplicate (
@@ -372,8 +370,22 @@ void Foam::Preprocess ()
 	calculateTorusClipped ();
     }
     calculateBoundingBox ();
-    sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);    
+    sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);
+    setMissingPressureZero ();
     calculateMinMaxStatistics ();
+}
+
+void Foam::setMissingPressureZero ()
+{
+    using EvolverData::parser;
+    BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
+    {
+	if (! body->ExistsPropertyValue (BodyProperty::PRESSURE))
+	    body->StoreAttribute (
+		ParsingDriver::GetKeywordString(
+		    parser::token::LAGRANGE_MULTIPLIER), 0,
+		m_attributesInfo[DefineAttribute::BODY]);
+    }
 }
 
 void Foam::AdjustPressure (double adjustment)
@@ -382,7 +394,7 @@ void Foam::AdjustPressure (double adjustment)
     {
 	if (body->ExistsPropertyValue (BodyProperty::PRESSURE))
 	{
-	    double newPressure = 
+	    double newPressure =
 		body->GetPropertyValue (BodyProperty::PRESSURE) - adjustment;
 	    body->SetPropertyValue (BodyProperty::PRESSURE, newPressure);
 	}
@@ -430,7 +442,7 @@ Foam::Bodies::iterator Foam::BodyInsideOriginalDomainStep (
 {
     cdbg << "BodyInsideOriginalDomainStep" << endl;
     Bodies::iterator it = begin;
-    while (it != m_bodies.end () && 
+    while (it != m_bodies.end () &&
 	   bodyInsideOriginalDomain (*it, vertexSet, edgeSet, faceSet))
 	++it;
     if (it == m_bodies.end ())
@@ -445,7 +457,7 @@ bool Foam::bodyInsideOriginalDomain (
     VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
 {
     using G3D::Vector3int16;
-    Vector3int16 centerLocation = 
+    Vector3int16 centerLocation =
 	GetOriginalDomain ().GetLocation (body->GetCenter ());
     if (centerLocation == Vector3int16Zero)
 	return true;
@@ -514,9 +526,9 @@ boost::shared_ptr<Edge> Foam::GetStandardEdge () const
 }
 
 void Foam::SetViewMatrix (
-    double r1c1, double r1c2, double r1c3, double r1c4, 
-    double r2c1, double r2c2, double r2c3, double r2c4, 
-    double r3c1, double r3c2, double r3c3, double r3c4, 
+    double r1c1, double r1c2, double r1c3, double r1c4,
+    double r2c1, double r2c2, double r2c3, double r2c4,
+    double r3c1, double r3c2, double r3c3, double r3c4,
     double r4c1, double r4c2, double r4c3, double r4c4)
 {
     m_viewMatrix.reset (new G3D::Matrix4 (
@@ -536,7 +548,7 @@ void Foam::SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y)
 
 void Foam::calculateMinMaxStatistics ()
 {
-    for (size_t i = BodyProperty::PROPERTY_BEGIN; 
+    for (size_t i = BodyProperty::PROPERTY_BEGIN;
 	 i < BodyProperty::PROPERTY_END; ++i)
     {
 	// statistics for all time-steps

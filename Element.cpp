@@ -34,14 +34,19 @@ public:
      * Stores an attribute
      * @param nameSemanticValue Name and value of the attribute
      */
-    void operator() (NameSemanticValue* nameSemanticValue)
+    void operator() (const NameSemanticValue* nv)
+    {
+	operator () (*nv);
+    }
+
+    void operator() (const NameSemanticValue& nv)
     {
         try
         {
             AttributeInfo* info = 
-                m_infos.GetAttributeInfo (nameSemanticValue->GetName ());
+                m_infos.GetAttributeInfo (nv.GetName ());
             RuntimeAssert (info != 0, 
-			   "Attribute \"", nameSemanticValue->GetName (),
+			   "Attribute \"", nv.GetName (),
 			   "\" was not defined");
             size_t index = info->GetIndex ();
             if (index == AttributeInfo::INVALID_INDEX)
@@ -50,14 +55,12 @@ public:
             {
                 AttributeCreator& creator = info->GetCreator ();
                 m_where.SetAttribute (
-                    index, 
-		    creator(nameSemanticValue->GetSemanticValue (), 
-			    nameSemanticValue->GetType ()));
+                    index, creator(nv.GetSemanticValue (), nv.GetType ()));
             }
         }
         catch (exception& e)
         {
-            throw logic_error (string(nameSemanticValue->GetName ()) + ": "
+            throw logic_error (string(nv.GetName ()) + ": "
 			       + e.what ());
         }
     }
@@ -112,10 +115,25 @@ void Element::SetAttribute (size_t i, Attribute* attribute)
     (*m_attributes)[i] = p;
 }
 
+void Element::storeAttribute (
+    const NameSemanticValue& nv, const AttributesInfo& infos)
+{
+    ::storeAttribute (*this, infos) (nv);
+}
+
+void Element::StoreAttribute (
+    const char* name, double r, const AttributesInfo& infos)
+{
+    NameSemanticValue nv (name, r);
+    storeAttribute (nv, infos);
+}
+
+
+
 void Element::StoreAttributes (
     vector<NameSemanticValue*>& list, const AttributesInfo& infos)
 {
-    for_each (list.begin (), list.end (), storeAttribute(*this, infos));
+    for_each (list.begin (), list.end (), ::storeAttribute(*this, infos));
 }
 
 ostream& Element::PrintAttributes (ostream& ostr) const

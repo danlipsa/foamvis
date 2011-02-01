@@ -310,6 +310,7 @@ private:
 	const boost::shared_ptr<Body>& body,
 	const G3D::Vector3int16& translate,
 	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
+    void setMissingPressureZero ();
 
 
 private:
