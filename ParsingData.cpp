@@ -170,7 +170,7 @@ void ParsingData::SetVertex (size_t i, double x, double y, double z,
 {
     if (i >= m_vertices.size ())
         m_vertices.resize (i + 1);
-    boost::shared_ptr<Vertex> vertex = boost::make_shared<Vertex> (x, y ,z, i);
+    boost::shared_ptr<Vertex> vertex (new Vertex (x, y ,z, i));
     if (&attributes != 0)
         vertex->StoreAttributes (attributes, attributesInfo);
     m_vertices[i] = vertex;
