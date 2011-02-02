@@ -72,7 +72,7 @@ private:
 G3D::Vector3 vertexAccumulate (G3D::Vector3 result,
 			       const boost::shared_ptr<Vertex>& v)
 {
-    return result + *v;
+    return result + v->GetVector ();
 }
 
 

@@ -10,20 +10,23 @@
 #include "Edge.h"
 #include "OrientedEdge.h"
 #include "Vertex.h"
+#include "OpenGLUtils.h"
 
 void DisplayEdgeVertices (const Edge& edge, bool useZPos, double zPos)
 {
     for (size_t i = 0; i < edge.PointCount (); i++)
     {
 	G3D::Vector3 p = edge.GetPoint (i);
-	glVertex (useZPos ? G3D::Vector3 (p.xy (), zPos) : p);
+	if (useZPos)
+	    p = G3D::Vector3 (p.xy (), zPos);
+	::glVertex (p);
     }
 }
 
 void  DisplayAllButLastVertices (const boost::shared_ptr<OrientedEdge> e)
 {
     for (size_t i = 0; i < e->PointCount () - 1; ++i)
-	glVertex(e->GetPoint (i));
+	::glVertex(e->GetPoint (i));
 }
 
 // DisplayOriginalVertex
@@ -33,7 +36,7 @@ void DisplayOriginalVertex::operator() (const boost::shared_ptr<Vertex>& v)
 {
     if (v->GetDuplicateStatus () != ElementStatus::DUPLICATE)
     {
-	glVertex (*v);	
+	::glVertex (v->GetVector ());	
     }
 }
 
@@ -42,7 +45,7 @@ void DisplayOriginalVertex::operator() (const boost::shared_ptr<Vertex>& v)
 
 void DisplayBeginVertex::operator() (const boost::shared_ptr<OrientedEdge> e)
 {
-    glVertex (*e->GetBegin ());
+    ::glVertex (e->GetBegin ()->GetVector ());
     //for (size_t i = 0; i < e->PointCount (); ++i)
     //glVertex(e->GetPoint (i));
 	
@@ -53,13 +56,13 @@ void DisplayBeginVertex::operator() (const boost::shared_ptr<OrientedEdge> e)
 
 void DisplayTriangle::operator() (const boost::shared_ptr<OrientedEdge> e) const
 {
-    operator () (*e->GetBegin (), *e->GetEnd ());
+    operator () (e->GetBegin ()->GetVector (), e->GetEnd ()->GetVector ());
 }
 
 void DisplayTriangle::operator() (
     const G3D::Vector3& begin, const G3D::Vector3& end) const
 {
-    glVertex (m_center);
-    glVertex (begin);
-    glVertex (end);
+    ::glVertex (m_center);
+    ::glVertex (begin);
+    ::glVertex (end);
 }

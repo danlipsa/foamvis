@@ -120,11 +120,10 @@ public:
 	    ostr << "Parsing " << file << " ..." << endl;
 	    cdbg << ostr.str ();
 	    foam.reset (new Foam ());
-	    ParsingData& parsingData = foam->GetParsingData ();
-	    parsingData.SetDebugParsing (m_debugParsing);
-	    parsingData.SetDebugScanning (m_debugScanning);
+	    foam->GetParsingData ().SetDebugParsing (m_debugParsing);
+	    foam->GetParsingData ().SetDebugScanning (m_debugScanning);
 	    string fullPath = m_dir + '/' + file;
-	    result = parsingData.Parse (fullPath, *foam);
+	    result = foam->GetParsingData ().Parse (fullPath, foam.get ());
 	    foam->ReleaseParsingData ();
 	    if (result != 0)
 		ThrowException ("Error parsing ", fullPath);

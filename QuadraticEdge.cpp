@@ -40,7 +40,7 @@ boost::shared_ptr<Edge> QuadraticEdge::createDuplicate (
     const G3D::Vector3& newBegin, VertexSet* vertexSet) const
 {
     G3D::Vector3int16 translation = periods.GetTranslation (
-	*GetBegin (), newBegin);
+	GetBegin ()->GetVector (), newBegin);
     boost::shared_ptr<QuadraticEdge> duplicate = 
 	boost::static_pointer_cast<QuadraticEdge> (
 	    Edge::createDuplicate (periods, newBegin, vertexSet));
@@ -53,9 +53,9 @@ boost::shared_ptr<Edge> QuadraticEdge::createDuplicate (
 double QuadraticEdge::quadratic (double t, size_t i) const
 {
     return
-	(*GetBegin ())[i] * (1 - t) * (2 - t) / 2 +
-	(*GetMiddle ())[i] * t * (2 - t) +
-	(*GetEnd ())[i] * t * (t - 1) / 2;
+	GetBegin ()->GetVector ()[i] * (1 - t) * (2 - t) / 2 +
+	GetMiddle ()->GetVector ()[i] * t * (2 - t) +
+	GetEnd ()->GetVector ()[i] * t * (t - 1) / 2;
 }
 
 G3D::Vector3 QuadraticEdge::quadratic (double t) const

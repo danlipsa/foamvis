@@ -216,10 +216,10 @@ void DisplayOpositeFaces (G3D::Vector3 origin,
 	faceSum += translations[i];
 
 	glBegin (GL_POLYGON);
-	glVertex (faceOrigin);
-	glVertex (faceFirst);
-	glVertex (faceSum);
-	glVertex (faceSecond);
+	::glVertex (faceOrigin);
+	::glVertex (faceFirst);
+	::glVertex (faceSum);
+	::glVertex (faceSecond);
 	glEnd ();
     }
 }

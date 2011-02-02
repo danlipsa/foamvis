@@ -1,0 +1,149 @@
+{
+   fglrx-memcheck-param
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   ...
+   obj:/usr/lib64/dri/fglrx_dri.so
+   ...
+}
+{
+   fglrx-memcheck-cond
+   Memcheck:Cond
+   obj:/usr/lib64/dri/fglrx_dri.so
+   ...
+}
+{
+   fglrx-memcheck-addr1
+   Memcheck:Addr1
+   fun:*
+   obj:/usr/lib64/dri/fglrx_dri.so
+   ...
+}
+{
+   fglrx-memcheck-addr4
+   Memcheck:Addr4
+   ...
+   obj:/usr/lib64/dri/fglrx_dri.so
+   ...
+}
+{
+   fglrx-memcheck-overlap
+   Memcheck:Overlap
+   fun:strcpy
+   obj:/usr/lib64/dri/fglrx_dri.so
+}
+{
+   gtk-leak
+   Memcheck:Leak
+   ...
+   obj:/usr/lib64/libgtk-x11-2.0.so.0.1800.6
+   ...
+}
+{
+   glib-leak
+   Memcheck:Leak
+   fun:*
+   ...
+   obj:/usr/lib64/libglib-2.0.so.0.2200.4
+   ...
+}
+{
+   pango-leak
+   Memcheck:Leak
+   fun:*
+   ...
+   obj:/usr/lib64/libpango-1.0.so.0.2600.2
+   ...
+}
+{
+   pangoft2-leak
+   Memcheck:Leak
+   fun:*
+   ...
+   obj:/usr/lib64/libpangoft2-1.0.so.0.2600.2
+   ...
+}
+{
+   freetype-leak
+   Memcheck:Leak
+   fun:*
+   ...
+   obj:/usr/lib64/libfreetype.so.6.3.20
+   ...
+}
+{
+   fontconfig-leak
+   Memcheck:Leak
+   fun:*
+   ...
+   obj:/usr/lib64/libfontconfig.so.1.3.0
+   ...
+}
+{
+   QwtPlot-leak
+   Memcheck:Leak
+   fun:*
+   ...
+   fun:_ZN7QwtPlotC2EP7QWidget
+   ...
+}
+{
+   dlopen-leak
+   Memcheck:Leak
+   fun:*
+   ...
+   fun:dlopen@@GLIBC_2.2.5
+   ...
+}
+{
+   QwtPlotItem-leak
+   Memcheck:Leak
+   ...
+   fun:_ZN11QwtPlotItem6attachEP7QwtPlot
+   ...
+}
+{
+   libgdk-leak
+   Memcheck:Leak
+   ...
+   obj:/usr/lib64/libgdk-x11-2.0.so.0.1800.6
+}
+
+
+{
+   dll-leak1
+   Memcheck:Leak
+   fun:malloc
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+}
+{
+   dll-leak2
+   Memcheck:Leak
+   fun:malloc
+   obj:*
+}
+{
+   dll-leak3
+   Memcheck:Leak
+   fun:malloc
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+   obj:*
+}

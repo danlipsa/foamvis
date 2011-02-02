@@ -25,7 +25,7 @@ public:
      * element where this attribute is stored.
      * @param creator functor that knows how to create this attribute.
      */
-    AttributeInfo (size_t index, auto_ptr<AttributeCreator>& creator);
+    AttributeInfo (size_t index, boost::shared_ptr<AttributeCreator> creator);
     /**
      * Gets the index where this attribute is stored
      * @return  index in  the  array of  attributes  attached to  each
@@ -45,7 +45,7 @@ public:
     /**
      * Constant used to signal an attribute that will not be stored.
      */
-     static const size_t INVALID_INDEX = UINT_MAX; 
+    static const size_t INVALID_INDEX; 
 private:
     /**
      * The index where this attribute is going to be stored
@@ -54,7 +54,7 @@ private:
     /**
      * Knows how to create a kind of attribute.
      */
-    auto_ptr<AttributeCreator> m_creator;
+    boost::shared_ptr<AttributeCreator> m_creator;
 };
 
 inline ostream& operator<< (ostream& ostr, const AttributeInfo& ai)
@@ -69,7 +69,8 @@ inline ostream& operator<< (ostream& ostr, const AttributeInfo& ai)
 class AttributesInfo
 {
 public:
-    typedef map<const char*, AttributeInfo*, LessThanNoCase> NameInfoMap;
+    typedef map<string, 
+		boost::shared_ptr<AttributeInfo>, LessThanNoCase> NameInfoMap;
 
 public:
     /**
@@ -85,19 +86,19 @@ public:
      *         the attribute is not stored
      */
     size_t AddAttributeInfo (
-	const char* name, auto_ptr<AttributeCreator> creator);
+	const char* name, boost::shared_ptr<AttributeCreator> creator);
     /**
      * The same as AddAttributeInfo but always load the attribute from the
      * datafile
      */
     size_t AddAttributeInfoLoad (
-	const char* name, auto_ptr<AttributeCreator> creator);
+	const char* name, boost::shared_ptr<AttributeCreator> creator);
     /**
      * Gets information about a certain attribute
      * @param name the name of the attribute we are interested in
      * @return information about the attribute
      */
-    AttributeInfo* GetAttributeInfo (const char* name) const;
+    boost::shared_ptr<AttributeInfo> GetAttributeInfo (const char* name) const;
     /**
      * Gets the name of an attribute stored at a certain index in the array of
      * attributes attached to a certain element (vertex, edge, ...)
@@ -111,7 +112,7 @@ private:
     /**
      * All the attributes values that should be loaded from the data file
      */
-    set<const char*, LessThanNoCase> m_loadAttribute;
+    set<string, LessThanNoCase> m_loadAttribute;
     /**
      * Map between an attribute name and an attribute info
      */

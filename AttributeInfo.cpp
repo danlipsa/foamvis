@@ -9,14 +9,15 @@
 #include "AttributeInfo.h"
 #include "AttributeCreator.h"
 #include "Comparisons.h"
+#include "Debug.h"
 
 /**
  * Functor that checks if (name, AttributeInfo*) pair contains a given index
  */
-class indexEqual : unary_function<
-    pair<const char*,  AttributeInfo*>, bool >
+class indexEqual
 {
 public:
+    typedef pair<string, boost::shared_ptr<AttributeInfo> > NameInfo;
     /**
      * Constructor
      * @param index the index value that will be checked.
@@ -26,10 +27,10 @@ public:
      * Functor that checks if a (name, AttributeInfo*) pair contains a
      * given index
      */
-    bool operator() (pair<const char*, AttributeInfo*> p)
+    bool operator() (NameInfo p)
     {
-        if (p.second->GetIndex () == m_index)
-            return true;
+	if (p.second->GetIndex () == m_index)
+	    return true;
         else
             return false;
     }
@@ -45,8 +46,10 @@ private:
 // AttributeInfo Methods
 // ======================================================================
 
+const size_t AttributeInfo::INVALID_INDEX = numeric_limits<size_t>::max (); 
+
 AttributeInfo::AttributeInfo (
-    size_t index, auto_ptr<AttributeCreator>& creator) :
+    size_t index, boost::shared_ptr<AttributeCreator> creator) :
     m_index (index),
     m_creator (creator)
 {
@@ -65,29 +68,30 @@ string AttributeInfo::ToString () const
 
 
 AttributesInfo::AttributesInfo () : 
-m_currentIndex(0), m_loadAll (false)
+    m_currentIndex(0), m_loadAll (false)
 {}
 
 size_t AttributesInfo::AddAttributeInfo (
-    const char* name, auto_ptr<AttributeCreator> creator)
+    const char* name, boost::shared_ptr<AttributeCreator> creator)
 {
     if (m_loadAll || 
         m_loadAttribute.find (name) != m_loadAttribute.end ())
     {
-        m_nameInfo[name] = new AttributeInfo (m_currentIndex, creator);
+        m_nameInfo[name] = boost::make_shared<AttributeInfo> (
+	    m_currentIndex, creator);
 	return m_currentIndex++;
     }
     else
     {
-	auto_ptr<AttributeCreator> nullPtr;
-        m_nameInfo[name] = new AttributeInfo (
+	boost::shared_ptr<AttributeCreator> nullPtr;
+        m_nameInfo[name] = boost::make_shared<AttributeInfo> (
 	    AttributeInfo::INVALID_INDEX, nullPtr);
 	return AttributeInfo::INVALID_INDEX;
     }
 }
 
 size_t AttributesInfo::AddAttributeInfoLoad (
-    const char* name, auto_ptr<AttributeCreator> creator)
+    const char* name, boost::shared_ptr<AttributeCreator> creator)
 {
     m_loadAttribute.insert (name);
     return AddAttributeInfo (name, creator);
@@ -97,25 +101,24 @@ size_t AttributesInfo::AddAttributeInfoLoad (
 
 const char* AttributesInfo::GetAttributeName (size_t index) const
 {
-    map<const char*, AttributeInfo*, LessThanNoCase>::const_iterator it = 
+    NameInfoMap::const_iterator it = 
         find_if (m_nameInfo.begin (), m_nameInfo.end (), indexEqual (index));
-    return it->first;
+    return it->first.c_str ();
 }
 
-AttributeInfo* AttributesInfo::GetAttributeInfo (const char* name) const
+boost::shared_ptr<AttributeInfo> AttributesInfo::GetAttributeInfo (
+    const char* name) const
 {
-    map<const char*, AttributeInfo*, LessThanNoCase>::const_iterator it = 
-        m_nameInfo.find (name);
-    if (it == m_nameInfo.end ())
-        return 0;
-    else
-        return it->second;
+    NameInfoMap::const_iterator it = m_nameInfo.find (name);
+    RuntimeAssert (it != m_nameInfo.end (), 
+		   "Attribute \"", name, "\" was not defined");
+    return it->second;
 }
 
 string AttributesInfo::ToString () const
 {
     ostringstream ostr;
-    ostream_iterator<const char*> out(ostr, " ");
+    ostream_iterator<const string&> out(ostr, " ");
     ostr << "Load attributes: ";
     copy (m_loadAttribute.begin (), m_loadAttribute.end (), out);
     ostr << endl;

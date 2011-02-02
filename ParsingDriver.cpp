@@ -154,7 +154,7 @@ const char* ParsingDriver::GetKeywordString (int id)
     return KEYWORD_TABLE[id - FIRST_TOKEN];
 }
 
-int ParsingDriver::Parse (string &f, Foam& data)
+int ParsingDriver::Parse (const string& f, Foam* data)
 {
     m_file = f;
     ScanBegin ();

@@ -34,8 +34,8 @@ ostream& OrientedEdge::print (ostream& ostr, bool reversed) const
     ostr << "Oriented Edge " << GetStringId () << " "
 	 << GetEdge ()->GetDuplicateStatus ()
 	 << ": ";
-    const Vector3* begin = GetBegin ().get ();
-    const Vector3* end = GetEnd ().get ();;
+    const Vector3* begin = &GetBegin ()->GetVector ();
+    const Vector3* end = &GetEnd ()->GetVector ();;
     if (reversed)
 	swap (begin, end);
     ostr << *begin << ", " << *end;
@@ -44,7 +44,7 @@ ostream& OrientedEdge::print (ostream& ostr, bool reversed) const
 
 G3D::Vector3 OrientedEdge::GetEdgeVector () const
 {
-    return *GetEnd () - *GetBegin ();
+    return GetEnd ()->GetVector () - GetBegin ()->GetVector ();
 }
 
 boost::shared_ptr<Vertex> OrientedEdge::GetBegin (void) const

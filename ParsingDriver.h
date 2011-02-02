@@ -48,7 +48,7 @@ public:
      * @param data object where data is to be stored
      * @return 0 for success, <> than 0 otherwise
      */
-    int Parse (string& f, Foam& data);
+    int Parse (const string& f, Foam* data);
     /**
      * Turns on or off debugging for parsing
      * @param debugParsing true if you want debugging, false otherwise

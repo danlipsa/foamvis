@@ -102,12 +102,13 @@ void Face::CalculateCenter ()
 	size_t count = 0;
 	BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, m_orientedEdges)
 	{
-	    m_center += *oe->GetBegin ();
+	    m_center += oe->GetBegin ()->GetVector ();
 	    ++count;
 	}
 	if (! IsClosed ())
 	{
-	    m_center += *m_orientedEdges[m_orientedEdges.size () - 1]->GetEnd ();
+	    m_center += m_orientedEdges[
+		m_orientedEdges.size () - 1]->GetEnd ()->GetVector ();
 	    ++count;
 	}
 	m_center /= count;
@@ -147,8 +148,8 @@ bool Face::fuzzyEq (const Face& other) const
 {
     return GetId () == other.GetId () &&
 	IsFuzzyZero (
-	    *GetOrientedEdge (0)->GetBegin () -
-	    *other.GetOrientedEdge (0)->GetBegin ());
+	    GetOrientedEdge (0)->GetBegin ()->GetVector () -
+	    other.GetOrientedEdge (0)->GetBegin ()->GetVector ());
 }
 
 bool Face::operator< (const Face& other) const
@@ -164,7 +165,9 @@ void Face::CalculateNormal ()
     using G3D::Vector3; using G3D::Plane;
     boost::shared_ptr<OrientedEdge> one = GetOrientedEdge (0);
     boost::shared_ptr<OrientedEdge> two = GetOrientedEdge (1);
-    G3D::Plane plane (*one->GetBegin (), *two->GetBegin (), *two->GetEnd ());
+    G3D::Plane plane (
+	one->GetBegin ()->GetVector (), two->GetBegin ()->GetVector (), 
+	two->GetEnd ()->GetVector ());
     m_normal = plane.normal ();
 }
 
@@ -253,10 +256,10 @@ boost::shared_ptr<Face> Face::GetDuplicate (
     const OOBox& periods, const G3D::Vector3int16& translation,
     VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet) const
 {
-    const G3D::Vector3* begin = 
-	GetOrientedEdge (0)->GetBegin ().get ();
+    const G3D::Vector3& begin = 
+	GetOrientedEdge (0)->GetBegin ()->GetVector ();
     const G3D::Vector3& newBegin = 
-	periods.TorusTranslate (*begin, translation);
+	periods.TorusTranslate (begin, translation);
     boost::shared_ptr<Face> searchDummy =
 	boost::make_shared<Face> (
 	    boost::make_shared<Edge> (
@@ -291,7 +294,7 @@ boost::shared_ptr<Face> Face::createDuplicate (
 	    oe->GetEdge ()->GetDuplicate (
 		periods, edgeBegin, vertexSet, edgeSet);
 	oe->SetEdge (edgeDuplicate);
-	begin = *oe->GetEnd ();
+	begin = oe->GetEnd ()->GetVector ();
     }
     faceDuplicate->CalculateCenter ();
     return faceDuplicate;

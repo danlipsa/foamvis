@@ -54,7 +54,7 @@ boost::shared_ptr<Edge> Edge::Clone () const
 
 G3D::Vector3 Edge::GetTranslatedBegin (const G3D::Vector3& newEnd) const
 {
-    return newEnd + (*GetBegin () - *GetEnd ());
+    return newEnd + (GetBegin ()->GetVector () - GetEnd ()->GetVector ());
 }
 
 void Edge::UpdateEdgePartOf (const boost::shared_ptr<Edge>& edge)
@@ -79,12 +79,13 @@ bool Edge::operator== (const Edge& other) const
 bool Edge::fuzzyEq (const Edge& other) const
 {
     return GetId () == other.GetId () &&
-	IsFuzzyZero (*GetBegin () - *other.GetBegin ());
+	IsFuzzyZero (
+	    GetBegin ()->GetVector () - other.GetBegin ()->GetVector ());
 }
 
 bool Edge::IsZero () const
 {
-    return IsFuzzyZero (*GetEnd () - *GetBegin ());
+    return IsFuzzyZero (GetEnd ()->GetVector () - GetBegin ()->GetVector ());
 }
 
 
@@ -94,7 +95,7 @@ G3D::Vector3 Edge::GetTorusClippedBegin (size_t index) const
     {
 	RuntimeAssert (index == 0, "index should be 0 and is ",
 		       index);
-	return *m_begin;
+	return m_begin->GetVector ();
     }
     else
     {
@@ -110,7 +111,7 @@ G3D::Vector3 Edge::GetTorusClippedEnd (size_t index) const
     if (m_torusClipped == 0)
     {
 	RuntimeAssert (index == 0, "index should be 0 and is ", index);
-	return *m_end;
+	return m_end->GetVector ();
     }
     else
     {
@@ -125,8 +126,8 @@ G3D::Vector3 Edge::GetTorusClippedEnd (size_t index) const
 void Edge::CalculateTorusClipped (const OOBox& periods)
 {
     using G3D::Vector3int16;using G3D::Vector3;using G3D::LineSegment;
-    Vector3int16 beginLocation = periods.GetLocation (*m_begin);
-    Vector3int16 endLocation = periods.GetLocation (*m_end);
+    Vector3int16 beginLocation = periods.GetLocation (m_begin->GetVector ());
+    Vector3int16 endLocation = periods.GetLocation (m_end->GetVector ());
     Vector3int16 translation = endLocation - beginLocation;
     size_t intersectionCount = OOBox::CountIntersections (translation);
     vector<Vector3> intersections(2);
@@ -134,12 +135,13 @@ void Edge::CalculateTorusClipped (const OOBox& periods)
     {
 	if (beginLocation == Vector3int16Zero)
 	    return;
-	intersections[0] = *m_begin;
-	intersections[1] = *m_end;
+	intersections[0] = m_begin->GetVector ();
+	intersections[1] = m_end->GetVector ();
     }
     else
 	intersections = periods.Intersect (
-	    *m_begin, *m_end, beginLocation, endLocation);
+	    m_begin->GetVector (), m_end->GetVector (), 
+	    beginLocation, endLocation);
 
     m_torusClipped.reset (new vector<LineSegment> (intersectionCount + 1));
     for (size_t i = 0; i < intersections.size () - 1; i++)
@@ -155,8 +157,8 @@ void Edge::CalculateTorusClipped (const OOBox& periods)
 size_t Edge::GetTorusClippedSize (const OOBox& periods) const
 {
     using G3D::Vector3int16;
-    Vector3int16 beginLocation = periods.GetLocation (*m_begin);
-    Vector3int16 endLocation = periods.GetLocation (*m_end);
+    Vector3int16 beginLocation = periods.GetLocation (m_begin->GetVector ());
+    Vector3int16 endLocation = periods.GetLocation (m_end->GetVector ());
     Vector3int16 translation = endLocation - beginLocation;
     size_t intersectionCount = OOBox::CountIntersections (translation);
     return intersectionCount + 1;
@@ -211,8 +213,8 @@ string Edge::ToString () const
 {
     ostringstream ostr;
     ostr << "Edge " << GetStringId () << " "
-	 << static_cast<G3D::Vector3>(*m_begin) << ", " 
-	 << static_cast<G3D::Vector3>(*m_end) << " "
+	 << m_begin->GetVector () << ", " 
+	 << m_end->GetVector () << " "
 	 << GetDuplicateStatus () << " "
 	 << " Adjacent faces(" << m_facesPartOf.size () << ")"
 	 << " Edge attributes: ";
@@ -244,7 +246,7 @@ boost::shared_ptr<Edge> Edge::createDuplicate (
     const G3D::Vector3& newBegin, VertexSet* vertexSet) const
 {
     G3D::Vector3int16 translation = periods.GetTranslation (
-	*GetBegin (), newBegin);
+	GetBegin ()->GetVector (), newBegin);
     boost::shared_ptr<Vertex> beginDuplicate = GetBegin ()->GetDuplicate (
 	periods, translation, vertexSet);
     boost::shared_ptr<Vertex> endDuplicate = GetEnd ()->GetDuplicate (
@@ -303,8 +305,8 @@ size_t Edge::PointCount () const
 G3D::Vector3 Edge::GetPoint (size_t i) const
 {
     if (i == 0)
-	return *GetBegin ();
+	return GetBegin ()->GetVector ();
     else
-	return *GetEnd ();
+	return GetEnd ()->GetVector ();
 }
 

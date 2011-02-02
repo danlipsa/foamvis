@@ -8,6 +8,7 @@
 
 #include "Body.h"
 #include "BodySelector.h"
+#include "DebugStream.h"
 #include "DisplayBodyFunctors.h"
 #include "DisplayFaceFunctors.h"
 #include "DisplayEdgeFunctors.h"
@@ -91,7 +92,7 @@ void DisplayBodyCenter::display (boost::shared_ptr<Body> b, FocusContext fc)
     {
 	glBegin(GL_POINTS);
 	G3D::Vector3 v = b->GetCenter ();
-	glVertex(G3D::Vector3 (v.xy (), m_zPos));
+	::glVertex(G3D::Vector3 (v.xy (), m_zPos));
 	glEnd ();
     }
 }
@@ -152,34 +153,24 @@ display (
 
 template<typename PropertySetter, typename DisplaySegment>
 DisplayCenterPath<PropertySetter, DisplaySegment>::
-DisplayCenterPath (const GLWidget& widget,
-		   BodyProperty::Enum property, 
-		   const BodySelector& bodySelector,
-		   bool useTimeDisplacement, 
-		   double timeDisplacement) : 
+DisplayCenterPath (
+    const GLWidget& widget,
+    BodyProperty::Enum property, 
+    const BodySelector& bodySelector,    
+    bool useTimeDisplacement, 
+    double timeDisplacement,
+    boost::shared_ptr<ofstream> output) : 
 
     DisplayBodyBase<PropertySetter> (
 	widget, bodySelector, PropertySetter (widget), property,
 	useTimeDisplacement, timeDisplacement),
     m_displaySegment (this->m_glWidget.GetQuadricObject (), 
-		      this->m_glWidget.GetEdgeRadius ())
-    
+		      this->m_glWidget.GetEdgeRadius ()),
+    m_output (output),
+    m_index (0)
 {
 }
 
-template<typename PropertySetter, typename DisplaySegment>
-DisplayCenterPath<PropertySetter, DisplaySegment>::
-DisplayCenterPath (const GLWidget& widget,
-		   PropertySetter propertySetter,
-		   BodyProperty::Enum property, 
-		   const BodySelector& bodySelector) : 
-    DisplayBodyBase<PropertySetter> (
-	widget, bodySelector, propertySetter, property, false, 0)
-{
-    size_t timeSteps = this->m_glWidget.GetFoamAlongTime ().GetTimeSteps ();
-    m_focusSegments.reserve (timeSteps - 1);
-    m_contextSegments.reserve (timeSteps - 1);
-}
 
 template<typename PropertySetter, typename DisplaySegment>
 void DisplayCenterPath<PropertySetter, DisplaySegment>::
@@ -192,6 +183,7 @@ operator () (size_t bodyId)
 	this->m_glWidget.GetFoamAlongTime ());
     copySegments (it);
     displaySegments ();
+    ++m_index;
 }
 
 template<typename PropertySetter, typename DisplaySegment>
@@ -297,6 +289,12 @@ template<typename PropertySetter, typename DisplaySegment>
 void DisplayCenterPath<PropertySetter, DisplaySegment>::
 displaySegments ()
 {
+    if (m_focusSegments.size () > 0 && m_output.get () != 0)
+    {
+	G3D::Vector3 begin = m_focusSegments[0]->m_begin;
+	(*m_output) << m_index << " " 
+		    << begin.x << " " << begin.y << " " << begin.z << endl;
+    }
     for_each (
 	m_focusSegments.begin (), m_focusSegments.end (),
 	boost::bind (&DisplayCenterPath<PropertySetter, DisplaySegment>::
@@ -368,12 +366,16 @@ displayContextSegment (
 
 template<typename PropertySetter, typename DisplaySegment>
 void DisplayCenterPath<PropertySetter, DisplaySegment>::
-displayFocusSegment (const boost::shared_ptr<FocusSegment>& focusSegment)
+displayFocusSegment (const boost::shared_ptr<FocusSegment>& segment)
 {
     DisplayBodyBase<PropertySetter>::beginFocusContext (true);
-    glTexCoord1f (focusSegment->m_textureCoordinate);
-    m_displaySegment (*focusSegment);
+    glTexCoord1f (segment->m_textureCoordinate);
+    m_displaySegment (*segment);
     DisplayBodyBase<PropertySetter>::endFocusContext (true);
+    G3D::Vector3 end = segment->m_end;
+    if (m_output.get () != 0)
+	(*m_output) << m_index << " " 
+		    << end.x << " " << end.y << " " << end.z << endl;
 }
 
 // Template instantiations

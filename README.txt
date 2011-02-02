@@ -120,6 +120,15 @@ gprof -pFoamAlongTime.cpp -qFoamAlongTime.cpp ./foam > gprof.txt
 Generate a call graph image
 cat gprof.txt | gprof2dot.py | dot -Tpng -o gprof.png
 
+Cleanup memory leaks, ... (valgrind)
+====================================
+valgrind --suppressions=valgrind-supressions.txt --leak-check=yes
+./foam ~/Documents/swansea-phd/foam/coarse100/coarse_01_0100_4309.dmp
+
+You can use the option '--gen-suppressions=yes' to print suppressions
+to be added to 'valgrind-suppressions.txt'.
+
+
 
 Prerequisites
 =============

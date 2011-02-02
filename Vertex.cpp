@@ -21,20 +21,20 @@
 // ======================================================================
 size_t hash_value (Vertex const& v)
 {
-    return Vector3Hash () (v);
+    return Vector3Hash () (v.GetVector ());
 }
 
 // Methods
 // ======================================================================
 Vertex::Vertex(double x, double y, double z, 
 	       size_t id, ElementStatus::Enum duplicateStatus) :
-    G3D::Vector3 (x, y, z),
-    Element(id, duplicateStatus)
+    Element(id, duplicateStatus),
+    m_vector (x, y, z)
 {}
 
 Vertex::Vertex (const G3D::Vector3& position) : 
-    G3D::Vector3 (position),
-    Element (Element::INVALID_INDEX, ElementStatus::ORIGINAL)
+    Element (Element::INVALID_INDEX, ElementStatus::ORIGINAL),
+    m_vector (position)
 {}
 
 
@@ -50,15 +50,17 @@ G3D::Vector3int16 Vertex::GetDomain () const
 
 bool Vertex::operator< (const Vertex& other) const
 {
-    return x < other.x ||
-	(x == other.x && y < other.y) ||
-	(x == other.x && y == other.y && z < other.z);
+    return GetVector ().x < other.GetVector ().x ||
+	(GetVector ().x == other.GetVector ().x && 
+	 GetVector ().y < other.GetVector ().y) ||
+	(GetVector ().x == other.GetVector ().x && 
+	 GetVector ().y == other.GetVector ().y && 
+	 GetVector ().z < other.GetVector ().z);
 }
 
 bool Vertex::operator== (const Vertex& other) const
 {
-    return static_cast<const G3D::Vector3&>(*this) ==
-	static_cast<const G3D::Vector3&>(other);
+    return GetVector () == other.GetVector ();
 }
 
 bool Vertex::IsPhysical (size_t dimension, bool isQuadratic) const 
@@ -78,7 +80,7 @@ string Vertex::ToString () const
 {
     ostringstream ostr;
     ostr << "Vertex " << GetStringId () << " "
-	 << static_cast<const G3D::Vector3&>(*this) << " "
+	 << GetVector () << " "
 	 << GetDuplicateStatus ()
 	 << " Vertex attributes: ";
     PrintAttributes (ostr);
@@ -89,8 +91,7 @@ void Vertex::torusTranslate (
     const OOBox& periods,
     const G3D::Vector3int16& translation)
 {
-    *static_cast<G3D::Vector3*>(this) = 
-	periods.TorusTranslate (*this, translation);
+    m_vector = periods.TorusTranslate (GetVector (), translation);
 }
 
 boost::shared_ptr<Vertex> Vertex::createDuplicate (
@@ -110,7 +111,7 @@ boost::shared_ptr<Vertex> Vertex::GetDuplicate (
     VertexSet* vertexSet) const
 {
     boost::shared_ptr<Vertex> searchDummy = boost::make_shared<Vertex>(
-	periods.TorusTranslate (*this, translation));
+	periods.TorusTranslate (GetVector (), translation));
     VertexSet::iterator it = fuzzyFind 
 	<VertexSet, VertexSet::iterator, VertexSet::key_type> (
 	    *vertexSet, searchDummy);
@@ -120,4 +121,9 @@ boost::shared_ptr<Vertex> Vertex::GetDuplicate (
 	periods, translation);
     vertexSet->insert (duplicate);
     return duplicate;
+}
+
+bool Vertex::fuzzyEq (const Vertex& other) const
+{
+    return IsFuzzyZero (GetVector () - other.GetVector ());
 }

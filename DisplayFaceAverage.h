@@ -36,13 +36,14 @@ public:
     }
 private:
     int m_oldTexUnitIndex;
-    int m_stepTexUnitIndex;    
+    int m_stepTexUnitIndex;
+    boost::shared_ptr<QGLShader> m_fshader;
 };
 
 /**
  * Shader that stores a floating point value in a floating point texture:
  * RGBA: value, 1, value, value
- * 
+ *
  */
 class StoreShaderProgram : public QGLShaderProgram
 {
@@ -55,6 +56,8 @@ public:
     }
 private:
     int m_vValueIndex;
+    boost::shared_ptr<QGLShader> m_fshader;
+    boost::shared_ptr<QGLShader> m_vshader;
 };
 
 class InitShaderProgram : public QGLShaderProgram
@@ -62,6 +65,8 @@ class InitShaderProgram : public QGLShaderProgram
 public:
     void Init ();
     void Bind ();
+private:
+    boost::shared_ptr<QGLShader> m_fshader;
 };
 
 
@@ -87,7 +92,8 @@ private:
     int m_minValueIndex;
     int m_maxValueIndex;
     int m_colorBarTexUnitIndex;
-    int m_resultTexUnitIndex;    
+    int m_resultTexUnitIndex;
+    boost::shared_ptr<QGLShader> m_fshader;
 };
 
 
@@ -123,7 +129,7 @@ public:
 private:
     template<typename displaySameEdges>
     void writeFacesValues (
-	const vector<boost::shared_ptr<Body> >& bodies, 
+	const vector<boost::shared_ptr<Body> >& bodies,
 	BodyProperty::Enum property);
     void display (GLfloat minValue, GLfloat maxValue,
 		  StatisticsType::Enum displayType, QGLFramebufferObject& fbo);
@@ -147,7 +153,7 @@ private:
      */
     boost::scoped_ptr<QGLFramebufferObject> m_old;
     /**
-     * Stores the value for one step and 1 for the count 
+     * Stores the value for one step and 1 for the count
      * (or [0, 0] for no value)
      */
     boost::scoped_ptr<QGLFramebufferObject> m_step;

@@ -108,6 +108,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_centerPathBodyShown (false),
       m_onlyPathsWithSelectionShown (false),
       m_boundingBoxShown (false),
+      m_bodiesBoundingBoxesShown (false),
       m_axesShown (false),
       m_textureColorBarShown (false),
       m_centerPathColor (BodyProperty::NONE),
@@ -358,7 +359,7 @@ void GLWidget::positionLight ()
 		if (m_showLightPosition)
 		{
 		    glBegin (GL_POINTS);
-		    glVertex (lp);
+		    ::glVertex (lp);
 		    glEnd ();
 		}
 	    }
@@ -1301,12 +1302,18 @@ void GLWidget::displayCenterPaths () const
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
     const BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
-    
+    boost::shared_ptr<ofstream> outputFile (
+	new ofstream ("center-path.txt", ios_base::out));
     if (m_edgesTubes)
+    {
+	(*outputFile) << GetFoamAlongTime ().GetBoundingBox () << endl;
 	for_each (bats.begin (), bats.end (),
 		  DisplayCenterPath<TexCoordSetter, DisplayEdgeTube> (
 		      *this, m_centerPathColor, *m_bodySelector, 
-		      IsTimeDisplacementUsed (), GetTimeDisplacement ()));
+		      IsTimeDisplacementUsed (), GetTimeDisplacement (), 
+		      outputFile));
+	outputFile->close ();
+    }
     else
 	for_each (bats.begin (), bats.end (),
 		  DisplayCenterPath<TexCoordSetter, DisplayEdge> (

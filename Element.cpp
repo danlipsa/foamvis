@@ -43,11 +43,8 @@ public:
     {
         try
         {
-            AttributeInfo* info = 
+	    boost::shared_ptr<AttributeInfo> info = 
                 m_infos.GetAttributeInfo (nv.GetName ());
-            RuntimeAssert (info != 0, 
-			   "Attribute \"", nv.GetName (),
-			   "\" was not defined");
             size_t index = info->GetIndex ();
             if (index == AttributeInfo::INVALID_INDEX)
                 return;

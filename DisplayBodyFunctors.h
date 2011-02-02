@@ -157,16 +157,13 @@ public:
      * Constructor
      * @param widget where to display the center path
      */
-    DisplayCenterPath (const GLWidget& widget,
-		       BodyProperty::Enum property, 
-		       const BodySelector& bodySelector,
-		       bool useTimeDisplacement = false, 
-		       double timeDisplacement = 0);
-
-    DisplayCenterPath (const GLWidget& widget,
-		       PropertySetter propertySetter,
-		       BodyProperty::Enum property, 
-		       const BodySelector& bodySelector);
+    DisplayCenterPath (
+	const GLWidget& widget,
+	BodyProperty::Enum property, 
+	const BodySelector& bodySelector,	
+	bool useTimeDisplacement = false, 
+	double timeDisplacement = 0,
+	boost::shared_ptr<ofstream> output = boost::shared_ptr<ofstream>());
 
     /**
      * Displays the center path for a certain body
@@ -226,6 +223,8 @@ private:
     DisplaySegment m_displaySegment;
     vector< boost::shared_ptr<FocusSegment> > m_focusSegments;
     vector< boost::shared_ptr<ContextSegment> > m_contextSegments;
+    boost::shared_ptr<ofstream> m_output;
+    size_t m_index;
 };
 
 

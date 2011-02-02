@@ -44,7 +44,7 @@ ContainerIterator fuzzyFind (const Container& s, const ContainerKeyType& x)
 
 ostream& operator<< (ostream& ostr, const G3D::AABox& box)
 {
-    cdbg << "AABox(" << box.low () << ", " << box.high () << ")";
+    ostr << "AABox(" << box.low () << ", " << box.high () << ")";
     return ostr;
 }
 

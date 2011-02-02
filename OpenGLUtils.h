@@ -16,6 +16,11 @@ inline void glColor (const QColor& color)
     glColor4f (color.redF (), color.greenF (), color.blueF (), color.alphaF ());
 }
 
+inline void glVertex (const G3D::Vector3& p)
+{
+    glVertex3f (p.x, p.y, p.z);
+}
+
 inline void glClearColor (const QColor& color)
 {
     glClearColor (color.redF (), color.greenF (), 

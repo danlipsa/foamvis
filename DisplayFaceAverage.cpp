@@ -22,7 +22,7 @@
 // ======================================================================
 void ComposeShaderProgram::Init ()
 {
-    QGLShader *fshader = new QGLShader(QGLShader::Fragment);
+    m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
     const char *fsrc =
 	"uniform sampler2D oldTexUnit;\n"
 	"uniform sampler2D stepTexUnit;\n"
@@ -35,8 +35,8 @@ void ComposeShaderProgram::Init ()
 	"    float max = max (old.a, step.a);"
         "    gl_FragColor = vec4 (newSumCount, min, max);\n"
         "}\n";
-    fshader->compileSourceCode(fsrc);
-    addShader(fshader);
+    m_fshader->compileSourceCode(fsrc);
+    addShader(m_fshader.get ());
     link();
 
     m_oldTexUnitIndex = uniformLocation("oldTexUnit");
@@ -57,7 +57,7 @@ void ComposeShaderProgram::Bind ()
 // ======================================================================
 void StoreShaderProgram::Init ()
 {
-    QGLShader *vshader = new QGLShader(QGLShader::Vertex);
+    m_vshader = boost::make_shared<QGLShader> (QGLShader::Vertex);
     const char *vsrc =
         "attribute float vValue;\n"
         "varying float fValue;\n"
@@ -66,19 +66,19 @@ void StoreShaderProgram::Init ()
         "    gl_Position = ftransform();\n"	
         "    fValue = vValue;\n"
         "}\n";
-    vshader->compileSourceCode(vsrc);
+    m_vshader->compileSourceCode(vsrc);
 
-    QGLShader *fshader = new QGLShader(QGLShader::Fragment);
+    m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
     const char *fsrc =
 	"varying float fValue;\n"
         "void main(void)\n"
         "{\n"
         "    gl_FragColor = vec4 (fValue, 1, fValue, fValue);\n"
         "}\n";
-    fshader->compileSourceCode(fsrc);
+    m_fshader->compileSourceCode(fsrc);
 
-    addShader(vshader);
-    addShader(fshader);
+    addShader(m_vshader.get ());
+    addShader(m_fshader.get ());
     link();
 
     m_vValueIndex = attributeLocation("vValue");
@@ -94,15 +94,15 @@ void StoreShaderProgram::Bind ()
 // ======================================================================
 void InitShaderProgram::Init ()
 {
-    QGLShader *fshader = new QGLShader(QGLShader::Fragment);
+    m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
     const char *fsrc =
         "void main(void)\n"
         "{\n"
         "    float max = 3.40282e+38;"
         "    gl_FragColor = vec4 (0, 0, max, -max);\n"
         "}\n";
-    fshader->compileSourceCode(fsrc);
-    addShader(fshader);
+    m_fshader->compileSourceCode(fsrc);
+    addShader(m_fshader.get ());
     link();
 }
 
@@ -118,7 +118,7 @@ void InitShaderProgram::Bind ()
 
 void DisplayShaderProgram::Init ()
 {
-    QGLShader *fshader = new QGLShader(QGLShader::Fragment);
+    m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
     // this should match StatisticsType::Enum order
     const char *fsrc =
 	"// 0: average, 1: min, 2: max\n"
@@ -145,9 +145,9 @@ void DisplayShaderProgram::Init ()
         "        gl_FragColor = texture1D (colorBarTexUnit, colorBarTexIndex);\n"
 	"    }\n"
         "}\n";
-    fshader->compileSourceCode(fsrc);
+    m_fshader->compileSourceCode(fsrc);
 
-    addShader(fshader);
+    addShader(m_fshader.get ());
     link();
 
     m_displayTypeIndex = uniformLocation ("displayType");

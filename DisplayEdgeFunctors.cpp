@@ -70,8 +70,8 @@ void DisplayEdge::operator() (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
     glBegin(GL_LINES);
-    glVertex(begin);
-    glVertex(end);
+    ::glVertex(begin);
+    ::glVertex(end);
     glEnd();
 }
 
@@ -190,20 +190,20 @@ void DisplayEdgeTube::displayTube (const Disk& begin, const Disk& end) const
 
     glBegin (GL_QUAD_STRIP);
     glNormal (begin.GetVertexNormal (0));
-    glVertex (begin.GetVertex (0));
+    ::glVertex (begin.GetVertex (0));
     glNormal (end.GetVertexNormal (0));
-    glVertex (end.GetVertex (0));
+    ::glVertex (end.GetVertex (0));
     for (size_t i = 1; i < begin.size (); ++i)
     {
 	glNormal (begin.GetVertexNormal (i));
-	glVertex (begin.GetVertex (i));
+	::glVertex (begin.GetVertex (i));
 	glNormal (end.GetVertexNormal (i));
-	glVertex (end.GetVertex (i));
+	::glVertex (end.GetVertex (i));
     }
     glNormal (begin.GetVertexNormal (0));
-    glVertex (begin.GetVertex (0));
+    ::glVertex (begin.GetVertex (0));
     glNormal (end.GetVertexNormal (0));
-    glVertex (end.GetVertex (0));
+    ::glVertex (end.GetVertex (0));
     glEnd ();    
 }
 
@@ -217,8 +217,8 @@ void DisplayArrow::operator () (
     glPushAttrib (GL_LINE_BIT);
     glLineWidth (3.0);
     glBegin(GL_LINES);
-    glVertex(begin);
-    glVertex((begin + end) / 2);
+    ::glVertex(begin);
+    ::glVertex((begin + end) / 2);
     glEnd();
     glPopAttrib ();
 }
@@ -269,8 +269,8 @@ void DisplayEdgeTorusClipped::operator () (
 	glBegin(GL_LINES);
 	for (size_t i = 0; i < edge->GetTorusClippedSize (periods); i++)
 	{
-	    glVertex(edge->GetTorusClippedBegin (i));
-	    glVertex (edge->GetTorusClippedEnd (i));
+	    ::glVertex(edge->GetTorusClippedBegin (i));
+	    ::glVertex (edge->GetTorusClippedEnd (i));
 	}
 	glEnd ();
     }
@@ -351,8 +351,8 @@ display (const boost::shared_ptr<Edge>  e)
     glColor (m_glWidget.GetEndTranslationColor (endLocation));
 
     if (endLocation != Vector3int16Zero)
-	m_displayArrow(*begin, *end);
-    m_displayEdge(*begin, *end);
+	m_displayArrow(begin->GetVector (), end->GetVector ());
+    m_displayEdge(begin->GetVector (), end->GetVector ());
     glPopAttrib ();
 }
 
@@ -420,7 +420,7 @@ void DisplaySameEdges::operator() (const boost::shared_ptr<Face>& f)
 	f->GetOrientedEdges ();
     for_each (v.begin (), v.end (), DisplayAllButLastVertices);
     if (! f->IsClosed ())
-	glVertex (*v[v.size () - 1]->GetEnd ());
+	::glVertex (v[v.size () - 1]->GetEnd ()->GetVector ());
     glEnd ();
 }
 
@@ -450,8 +450,8 @@ void DisplaySameTriangles::operator() (const boost::shared_ptr<Face>& f)
 	for_each (orientedEdges.begin (), orientedEdges.end (),
 		  boost::bind (dt, _1));
 	if (! f->IsClosed ())
-	    dt(*orientedEdges[orientedEdges.size () - 1]->GetEnd (),
-	       *orientedEdges[0]->GetBegin ());
+	    dt(orientedEdges[orientedEdges.size () - 1]->GetEnd ()->GetVector (),
+	       orientedEdges[0]->GetBegin ()->GetVector ());
     }
     glEnd ();
 }

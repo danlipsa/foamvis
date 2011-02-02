@@ -137,7 +137,7 @@ public:
      */
     void AddAttributeInfo (
         DefineAttribute::Enum type, const char* name,
-        auto_ptr<AttributeCreator> creator);
+        boost::shared_ptr<AttributeCreator> creator);
     /**
      * Gets a AABox of this Foam object
      * @return an AABox of this Foam object

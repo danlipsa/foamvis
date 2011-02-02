@@ -18,7 +18,7 @@ class OOBox;
 /**
  * Vertex represented in a DMP file. Is part of edges, faces and bodies.
  */
-class Vertex : public G3D::Vector3, public Element
+class Vertex : public Element
 {
 public:
     /**
@@ -47,12 +47,17 @@ public:
     G3D::Vector3int16 GetDomain () const;
     bool operator< (const Vertex& other) const;
     bool operator== (const Vertex& other) const;
+    const G3D::Vector3& GetVector () const 
+    {
+	return m_vector;
+    }
+
     string ToString () const;
     boost::shared_ptr<Vertex> GetDuplicate (
 	const OOBox& periods,
 	const G3D::Vector3int16& translation,
 	VertexSet* vertexSet) const;
-
+    bool fuzzyEq (const Vertex& other) const;
 
 private:
     class storeByDomain
@@ -115,6 +120,7 @@ private:
      * Edges this vertex is part of
      */
     vector<boost::shared_ptr<Edge> > m_edgesPartOf;
+    G3D::Vector3 m_vector;
 };
 /**
  * Pretty print for a Vertex object

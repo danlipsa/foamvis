@@ -31,6 +31,10 @@ struct LessThanNoCase : binary_function<const char*, const char*, bool>
     {
         return strcasecmp(s1, s2) < 0;
     }
+    bool operator () (const string& s1, const string& s2) const
+    {
+	return operator () (s1.c_str (), s2.c_str ());
+    }
 };
 
 

@@ -90,13 +90,13 @@ bool VertexLessThanAlong::operator() (
     const boost::shared_ptr<Vertex>& first,
     const boost::shared_ptr<Vertex>& second) const
 {
-    return operator() (*first, *second);
+    return operator() (first->GetVector (), second->GetVector ());
 }
 
 double VertexLessThanAlong::operator() (
     const boost::shared_ptr<Vertex>& x) const
 {
-    return operator() (*x);
+    return operator() (x->GetVector ());
 }
 
 

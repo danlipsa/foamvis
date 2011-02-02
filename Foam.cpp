@@ -101,7 +101,7 @@ void Foam::AddDefaultBodyAttributes ()
 
     // the order of the attributes should match the order in
     // BodyProperty::Enum
-    auto_ptr<AttributeCreator> ac (new RealAttributeCreator ());
+    boost::shared_ptr<AttributeCreator> ac (new RealAttributeCreator ());
     size_t index = infos->AddAttributeInfoLoad (
         ParsingDriver::GetKeywordString(
 	    parser::token::LAGRANGE_MULTIPLIER), ac);
@@ -135,7 +135,7 @@ void Foam::AddDefaultFaceAttributes ()
     AttributesInfo* infos = &m_attributesInfo[DefineAttribute::FACE];
     ColoredElement::AddDefaultAttributes (infos);
 
-    auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
+    boost::shared_ptr<AttributeCreator> ac (new IntegerAttributeCreator ());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
 
@@ -154,7 +154,7 @@ void Foam::AddDefaultEdgeAttributes ()
     using EvolverData::parser;
     AttributesInfo* infos = &m_attributesInfo[DefineAttribute::EDGE];
     ColoredElement::AddDefaultAttributes (infos);
-    auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
+    boost::shared_ptr<AttributeCreator> ac (new IntegerAttributeCreator ());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
 
@@ -172,7 +172,7 @@ void Foam::AddDefaultVertexAttributes ()
 {
     using EvolverData::parser;
     AttributesInfo* infos = &m_attributesInfo[DefineAttribute::VERTEX];
-    auto_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
+    boost::shared_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
     ac.reset (new IntegerVectorAttributeCreator());
@@ -317,7 +317,8 @@ void Foam::unwrap (boost::shared_ptr<Face> face,
 		   VertexSet* vertexSet, EdgeSet* edgeSet) const
 {
     Face::OrientedEdges& orientedEdges = face->GetOrientedEdges ();
-    G3D::Vector3* begin = (*orientedEdges.begin())->GetBegin ().get ();
+    const G3D::Vector3* begin = 
+	&(*orientedEdges.begin())->GetBegin ()->GetVector ();
     BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, orientedEdges)
     {
 	boost::shared_ptr<Edge>  edge = oe->GetEdge ();
@@ -326,7 +327,7 @@ void Foam::unwrap (boost::shared_ptr<Face> face,
 	oe->SetEdge (
 	    edge->GetDuplicate (
 		GetOriginalDomain (), edgeBegin, vertexSet, edgeSet));
-	begin = oe->GetEnd ().get ();
+	begin = &oe->GetEnd ()->GetVector ();
     }
     face->CalculateCenter ();
 }
@@ -422,7 +423,7 @@ bool Foam::IsTorus () const
 
 void Foam::AddAttributeInfo (
     DefineAttribute::Enum type, const char* name,
-    auto_ptr<AttributeCreator> creator)
+    boost::shared_ptr<AttributeCreator> creator)
 {
     m_attributesInfo[type].AddAttributeInfo (name, creator);
     m_parsingData->AddAttribute (name);
