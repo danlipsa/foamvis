@@ -122,6 +122,7 @@ ParsingData::ParsingData () :
 
 ParsingData::~ParsingData ()
 {
+    cdbg << "ParsingData::~ParsingData" << endl;
     for_each(m_identifiers.begin (), m_identifiers.end (), deleteIdentifier);
 }
 
