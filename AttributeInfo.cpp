@@ -118,7 +118,7 @@ boost::shared_ptr<AttributeInfo> AttributesInfo::GetAttributeInfo (
 string AttributesInfo::ToString () const
 {
     ostringstream ostr;
-    ostream_iterator<const string&> out(ostr, " ");
+    ostream_iterator<string> out(ostr, " ");
     ostr << "Load attributes: ";
     copy (m_loadAttribute.begin (), m_loadAttribute.end (), out);
     ostr << endl;
