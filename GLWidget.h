@@ -215,8 +215,7 @@ public:
      * Calculates and does the viewport transform.
      * @param viewport stores the viewport.
      */
-    void ViewportTransform (int width, int height, double scale = 1,
-			    G3D::Rect2D* viewport = 0) const;
+    void ViewportTransform (int width, int height);
     void ModelViewTransformNoRotation () const;
     void RenderFromFbo (QGLFramebufferObject& fbo) const;
     /**
@@ -247,7 +246,7 @@ public Q_SLOTS:
     void ToggledTorusOriginalDomainShown (bool checked);
     void ToggledLightPositionShown (bool checked);
     void ToggledDirectionalLightEnabled (bool checked);
-    void ToggledFullColorBarShown (bool checked);
+    void ToggledColorBarShown (bool checked);
 
 
     /**
@@ -298,16 +297,16 @@ public Q_SLOTS:
     void ValueChangedTimeDisplacement (int timeDisplacement);
     void ValueChangedEdgesRadius (int sliderValue);
     void ValueChangedContextAlpha (int sliderValue);
-    void ShowOpenGLInfo ();
+    void ShowOpenGlInfo ();
     /**
      * Signals a change in data displayed
      * @param timeStep the new index for the Foam to be displayed
      */
     void ValueChangedSliderTimeSteps (int timeStep);
     void ButtonClickedLightPosition (int lightPosition);
-    void SetStatus (QLabel* labelStatus)
+    void SetStatus (QLabel* labelStatusBar)
     {
-	m_labelStatus = labelStatus;
+	m_labelStatusBar = labelStatusBar;
     }
 
 public:
@@ -392,7 +391,6 @@ private:
     /**
      * Setup the viewing volume first centered around origin and then translated
      * toward negative Z with m_cameraDistance. 
-     * It is only done on initializeGL ();
      */
     void projectionTransform () const;
     /**
@@ -495,9 +493,12 @@ private:
     void initializeLighting ();
     double ratioFromCenter (const QPoint& p);
     void rotate (const QPoint& position, G3D::Matrix3* rotate);
-    void translateViewport (const QPoint& position);
+    void translate (
+	const QPoint& position,
+	G3D::Vector3::Axis screenXTranslation,
+	G3D::Vector3::Axis screenYTranslation);
     void translateLight (const QPoint& position);
-    void scaleViewport (const QPoint& position);
+    void scale (const QPoint& position);
     void select (const QPoint& position);
     void deselect (const QPoint& position);
     void brushedBodies (const QPoint& position, vector<size_t>* bodies) const;
@@ -562,7 +563,8 @@ private:
 
     G3D::Matrix3 m_rotationMatrixModel;
     G3D::Rect2D m_viewport;
-    double m_scalingFactorModel;
+    double m_scaleRatio;
+    G3D::Vector3 m_translationRatio;
     /**
      * Distance from the camera to the center of the bounding box for the foam.
      */
@@ -612,6 +614,7 @@ private:
     // owned by GLWidget
     boost::shared_ptr<QAction> m_actionResetTransformation;
     boost::shared_ptr<QAction> m_actionSelectBodiesById;
+    boost::shared_ptr<QAction> m_actionOpenGlInfo;
     
     bool m_useColorMap;
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
@@ -627,7 +630,7 @@ private:
     boost::scoped_ptr<DisplayFaceAverage> m_displayFaceAverage;
     bitset<LIGHTS_COUNT> m_lightEnabled;
     boost::shared_ptr<SelectBodiesById> m_selectBodiesById;
-    QLabel *m_labelStatus;
+    QLabel *m_labelStatusBar;
 };
 
 #endif //__GLWIDGET_H__

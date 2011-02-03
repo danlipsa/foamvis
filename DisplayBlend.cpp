@@ -31,7 +31,6 @@ void DisplayBlend::Step (bool blend, size_t timeStep)
     {
 	glPushMatrix ();
 	glPushAttrib (GL_CURRENT_BIT | GL_VIEWPORT_BIT);
-	//m_glWidget.ViewportTransform (size.width (), size.height ());
 	m_glWidget.ModelViewTransformNoRotation ();
 	{
 	    m_current->bind ();

@@ -24,6 +24,7 @@ public:
     {
 	BOOLEAN,
 	INTEGER,
+	INTEGER2,
 	STRING,
 	SEPARATOR
     };
@@ -54,6 +55,14 @@ public:
 	    ostr << where;
 	    return ostr.str ();
 	}
+	case INTEGER2:
+	{
+	    GLint where[2];
+	    glGetIntegerv (m_what, where);
+	    ostr << where[0] << " " << where[1];
+	    return ostr.str ();
+	}
+
 	
 	case BOOLEAN:
 	{
@@ -153,18 +162,21 @@ void detectOpenGLError (string message)
 
 void printOpenGLInfo (ostream& ostr)
 {
-    boost::array<OpenGLFeature, 26> info = {{
+    boost::array<OpenGLFeature, 27> info = {{
 	OpenGLFeature (GL_VENDOR, OpenGLFeature::STRING, "GL_VENDOR"),
 	OpenGLFeature (GL_RENDERER, OpenGLFeature::STRING, "GL_RENDERER"),
 	OpenGLFeature (GL_VERSION, OpenGLFeature::STRING, "GL_VERSION"),
 	OpenGLFeature (GL_SHADING_LANGUAGE_VERSION, 
 		       OpenGLFeature::STRING, "GL_SHADING_LANGUAGE_VERSION"),
 
-	OpenGLFeature ("--- Texture ---"),
+	OpenGLFeature ("--- Texture / Viewport ---"),
+	OpenGLFeature (GL_MAX_VIEWPORT_DIMS, OpenGLFeature::INTEGER2,
+		       "GL_MAX_VIEWPORT_DIMS"),
 	OpenGLFeature (GL_MAX_TEXTURE_SIZE, OpenGLFeature::INTEGER,
 		       "GL_MAX_TEXTURE_SIZE"),
 	OpenGLFeature (GL_MAX_TEXTURE_UNITS, OpenGLFeature::INTEGER,
 		       "GL_MAX_TEXTURE_UNITS"),
+
 
 	OpenGLFeature ("--- Framebuffer Objects ---"),
 	OpenGLFeature (GL_MAX_COLOR_ATTACHMENTS_EXT, OpenGLFeature::INTEGER,

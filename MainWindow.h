@@ -73,9 +73,11 @@ Q_SIGNALS:
 	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 public Q_SLOTS:
-    void ToggledShowTimeSteps (bool checked);
-    void ToggledFullColorBarShown (bool checked);
-    void ToggledHistogramGrid (bool checked);
+    void ToggledTimeStepsShown (bool checked);
+    void ToggledColorBarShown (bool checked);
+    void ToggledHistogramGridShown (bool checked);
+    void ToggledStatusBarShown (bool checked);
+
     /**
      * Called when the Begin Slider button is pressed. Shows the first
      * data in the vector.

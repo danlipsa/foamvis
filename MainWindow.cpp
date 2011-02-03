@@ -54,7 +54,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     spinBoxFontSize->setValue (defaultFont.pointSize ());
 
     widgetGl->SetFoamAlongTime (&foamAlongTime);
-    widgetGl->SetStatus (labelStatus);
+    widgetGl->SetStatus (labelStatusBar);
     setupColorBarModels ();
     widgetHistogram->setHidden (true);
     m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
@@ -488,9 +488,6 @@ void MainWindow::createActions ()
     connect(m_actionDeselect.get (), SIGNAL(triggered()),
 	    this, SLOT(InteractionModeDeselect ()));
 
-    connect (actionOpenGL_Info, SIGNAL (triggered ()),
-	     widgetGl, SLOT (ShowOpenGLInfo ()));
-
     m_actionInfo = boost::make_shared<QAction> (
 	tr("&Info"), this);
     m_actionInfo->setShortcut(
@@ -515,19 +512,24 @@ void MainWindow::createActions ()
 // Slots
 // ======================================================================
 
-void MainWindow::ToggledShowTimeSteps (bool checked)
+void MainWindow::ToggledTimeStepsShown (bool checked)
 {
     sliderTimeSteps->setVisible (checked);
 }
 
-void MainWindow::ToggledHistogramGrid (bool checked)
+void MainWindow::ToggledHistogramGridShown (bool checked)
 {
     widgetHistogram->SetGridEnabled (checked);
 }
 
-void MainWindow::ToggledFullColorBarShown (bool checked)
+void MainWindow::ToggledColorBarShown (bool checked)
 {
     colorBar->setVisible (checked);
+}
+
+void MainWindow::ToggledStatusBarShown (bool checked)
+{
+    labelStatusBar->setVisible (checked);
 }
 
 void MainWindow::ClickedPlay ()
@@ -623,13 +625,13 @@ void MainWindow::ToggledFacesNormal (bool checked)
 	    radioButtonFacesAverage->isChecked ());
 	/*sliderTimeSteps->setHidden (
 	    radioButtonFacesAverage->isChecked () || 
-	    ! checkBoxTimeSteps->isChecked ());*/
+	    ! checkBoxTimeStepsShown->isChecked ());*/
     }
     else
     {
 	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
 
-	//sliderTimeSteps->setHidden (!checkBoxTimeSteps->isChecked ());
+	//sliderTimeSteps->setHidden (!checkBoxTimeStepsShown->isChecked ());
     }
     displayHistogramColorBar (checked);
 }
@@ -814,7 +816,7 @@ void MainWindow::ShowEditColorMap ()
 	histogramStatistics.ToQwtIntervalData (),
 	histogramStatistics.GetMaxCountPerBin (),
 	*m_colorBarModel[m_property],
-	checkBoxGridEnabled->isChecked ());
+	checkBoxHistogramGridShown->isChecked ());
     if (m_editColorMap->exec () == QDialog::Accepted)
     {
 	*m_colorBarModel[m_property] = m_editColorMap->GetColorBarModel ();

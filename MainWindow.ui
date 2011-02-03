@@ -15,6 +15,18 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,0">
+    <property name="spacing">
+     <number>6</number>
+    </property>
+    <property name="leftMargin">
+     <number>9</number>
+    </property>
+    <property name="topMargin">
+     <number>9</number>
+    </property>
+    <property name="bottomMargin">
+     <number>9</number>
+    </property>
     <item>
      <widget class="DisplayWidget" name="widgetDisplay" native="true">
       <property name="sizePolicy">
@@ -24,10 +36,16 @@
        </sizepolicy>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,0,0,0">
+       <property name="spacing">
+        <number>6</number>
+       </property>
+       <property name="margin">
+        <number>0</number>
+       </property>
        <item>
         <widget class="QWidget" name="widgetDisplayColorBar" native="true">
          <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
-          <property name="rightMargin">
+          <property name="margin">
            <number>0</number>
           </property>
           <item>
@@ -80,7 +98,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="labelStatus">
+        <widget class="QLabel" name="labelStatusBar">
          <property name="text">
           <string/>
          </property>
@@ -98,8 +116,14 @@
        </sizepolicy>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_20">
+       <property name="spacing">
+        <number>6</number>
+       </property>
        <property name="sizeConstraint">
         <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
+       <property name="margin">
+        <number>0</number>
        </property>
        <item>
         <widget class="QComboBox" name="comboBoxInteractionMode">
@@ -277,7 +301,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="currentIndex">
-              <number>0</number>
+              <number>3</number>
              </property>
              <widget class="QWidget" name="tabShow">
               <attribute name="title">
@@ -419,18 +443,11 @@
               </attribute>
               <layout class="QVBoxLayout" name="verticalLayout_7">
                <item>
-                <widget class="QWidget" name="widgetAngleOfView" native="true">
-                 <layout class="QHBoxLayout" name="horizontalLayout_4">
-                  <property name="margin">
-                   <number>0</number>
-                  </property>
-                  <item>
-                   <widget class="QLabel" name="label">
-                    <property name="text">
-                     <string>Angle of View</string>
-                    </property>
-                   </widget>
-                  </item>
+                <widget class="QGroupBox" name="groupBox_6">
+                 <property name="title">
+                  <string>Angle of view</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_22">
                   <item>
                    <widget class="QSlider" name="horizontalSliderAngleOfView">
                     <property name="maximum">
@@ -539,6 +556,9 @@
                <item>
                 <widget class="QWidget" name="widget_3" native="true">
                  <layout class="QHBoxLayout" name="horizontalLayout_13">
+                  <property name="margin">
+                   <number>0</number>
+                  </property>
                   <item>
                    <widget class="QLabel" name="label_10">
                     <property name="text">
@@ -566,7 +586,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QCheckBox" name="checkBoxGridEnabled">
+                <widget class="QCheckBox" name="checkBoxHistogramGridShown">
                  <property name="text">
                   <string>Histogram grid</string>
                  </property>
@@ -576,9 +596,9 @@
                 </widget>
                </item>
                <item>
-                <widget class="QCheckBox" name="checkBoxFullColorBar">
+                <widget class="QCheckBox" name="checkBoxColorBarShown">
                  <property name="text">
-                  <string>Full Color Bar</string>
+                  <string>Color bar</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
@@ -586,9 +606,9 @@
                 </widget>
                </item>
                <item>
-                <widget class="QCheckBox" name="checkBoxTimeSteps">
+                <widget class="QCheckBox" name="checkBoxTimeStepsShown">
                  <property name="text">
-                  <string>Time Steps</string>
+                  <string>Time steps</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
@@ -596,18 +616,33 @@
                 </widget>
                </item>
                <item>
-                <widget class="QWidget" name="widgetTubesRadius" native="true">
-                 <layout class="QHBoxLayout" name="horizontalLayout_9">
-                  <property name="margin">
+                <widget class="QCheckBox" name="checkBoxStatusBarShown">
+                 <property name="text">
+                  <string>Status bar</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="groupBox_7">
+                 <property name="title">
+                  <string>Edge radius</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_23">
+                  <property name="leftMargin">
                    <number>0</number>
                   </property>
-                  <item>
-                   <widget class="QLabel" name="label_6">
-                    <property name="text">
-                     <string>Edges radius</string>
-                    </property>
-                   </widget>
-                  </item>
+                  <property name="topMargin">
+                   <number>9</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
                   <item>
                    <widget class="QSlider" name="horizontalSliderEdgesRadius">
                     <property name="maximum">
@@ -631,18 +666,23 @@
                 </widget>
                </item>
                <item>
-                <widget class="QWidget" name="widgetTubesRadius_2" native="true">
-                 <layout class="QHBoxLayout" name="horizontalLayout_12">
-                  <property name="margin">
+                <widget class="QGroupBox" name="groupBox_8">
+                 <property name="title">
+                  <string>Context alpha</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_24">
+                  <property name="leftMargin">
                    <number>0</number>
                   </property>
-                  <item>
-                   <widget class="QLabel" name="label_9">
-                    <property name="text">
-                     <string>Context alpha</string>
-                    </property>
-                   </widget>
-                  </item>
+                  <property name="topMargin">
+                   <number>9</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
                   <item>
                    <widget class="QSlider" name="horizontalSliderContextAlpha">
                     <property name="maximum">
@@ -1234,28 +1274,6 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>876</width>
-     <height>24</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuView">
-    <property name="title">
-     <string>&amp;View</string>
-    </property>
-    <addaction name="actionOpenGL_Info"/>
-   </widget>
-   <addaction name="menuView"/>
-  </widget>
-  <action name="actionOpenGL_Info">
-   <property name="text">
-    <string>&amp;OpenGL Info</string>
-   </property>
-  </action>
   <action name="actionAxes_X_Y_Z">
    <property name="text">
     <string>Axes X, Y, Z</string>
@@ -1337,6 +1355,7 @@
     <slot>ButtonClickedLightPosition(int)</slot>
     <slot>ValueChangedContextAlpha(int)</slot>
     <slot>ToggledBodiesBoundingBoxesShown(bool)</slot>
+    <slot>ToggledColorBarShown(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1385,8 +1404,8 @@
    <slot>ValueChangedContextAlpha(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>813</x>
-     <y>457</y>
+     <x>835</x>
+     <y>495</y>
     </hint>
     <hint type="destinationlabel">
      <x>424</x>
@@ -1401,8 +1420,8 @@
    <slot>ValueChangedEdgesRadius(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>813</x>
-     <y>420</y>
+     <x>835</x>
+     <y>465</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1411,10 +1430,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxTimeSteps</sender>
+   <sender>checkBoxTimeStepsShown</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>ToggledShowTimeSteps(bool)</slot>
+   <slot>ToggledTimeStepsShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>835</x>
@@ -1427,10 +1446,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxFullColorBar</sender>
+   <sender>checkBoxColorBarShown</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>ToggledFullColorBarShown(bool)</slot>
+   <slot>ToggledColorBarShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>835</x>
@@ -1443,10 +1462,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxFullColorBar</sender>
+   <sender>checkBoxColorBarShown</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledFullColorBarShown(bool)</slot>
+   <slot>ToggledColorBarShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>835</x>
@@ -1657,8 +1676,8 @@
    <slot>ToggledTorusOriginalDomainShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>835</x>
-     <y>385</y>
+     <x>647</x>
+     <y>295</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1673,8 +1692,8 @@
    <slot>ToggledBoundingBoxShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>822</x>
-     <y>324</y>
+     <x>647</x>
+     <y>287</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2009,8 +2028,8 @@
    <slot>ToggledLightPositionShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>822</x>
-     <y>431</y>
+     <x>647</x>
+     <y>288</y>
     </hint>
     <hint type="destinationlabel">
      <x>424</x>
@@ -2025,8 +2044,8 @@
    <slot>ToggledDirectionalLightEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>835</x>
-     <y>475</y>
+     <x>647</x>
+     <y>293</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2041,8 +2060,8 @@
    <slot>ToggledAxesShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>822</x>
-     <y>303</y>
+     <x>647</x>
+     <y>283</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2147,10 +2166,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxGridEnabled</sender>
+   <sender>checkBoxHistogramGridShown</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>ToggledHistogramGrid(bool)</slot>
+   <slot>ToggledHistogramGridShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>835</x>
@@ -2169,8 +2188,8 @@
    <slot>ToggledBodiesBoundingBoxesShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>599</x>
-     <y>342</y>
+     <x>647</x>
+     <y>291</y>
     </hint>
     <hint type="destinationlabel">
      <x>506</x>
@@ -2178,12 +2197,29 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>checkBoxStatusBarShown</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledStatusBarShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>644</x>
+     <y>423</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>871</x>
+     <y>464</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>ToggledFacesNormal(bool)</slot>
-  <slot>ToggledFullColorBarShown(bool)</slot>
+  <slot>ToggledColorBarShown(bool)</slot>
   <slot>ValueChangedFontSize(int)</slot>
-  <slot>ToggledHistogramGrid(bool)</slot>
+  <slot>ToggledHistogramGridShown(bool)</slot>
+  <slot>ToggledStatusBarShown(bool)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroupDisplay"/>

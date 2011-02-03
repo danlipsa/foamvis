@@ -153,6 +153,12 @@ void Scale (G3D::AABox* aabox, double change)
     aabox->set (newLow, newHigh);
 }
 
+void Translate (G3D::AABox* aabox, const G3D::Vector3& translationRatio)
+{
+    G3D::Vector3 translation (translationRatio * aabox->extent ());
+    *aabox = (*aabox + translation);
+}
+
 void Scale (G3D::Rect2D* aabox, double change)
 {
     using G3D::Vector2;

@@ -81,14 +81,6 @@
    ...
 }
 {
-   QwtPlot-leak
-   Memcheck:Leak
-   fun:*
-   ...
-   fun:_ZN7QwtPlotC2EP7QWidget
-   ...
-}
-{
    dlopen-leak
    Memcheck:Leak
    fun:*
@@ -97,17 +89,25 @@
    ...
 }
 {
+   libgdk-leak
+   Memcheck:Leak
+   ...
+   obj:/usr/lib64/libgdk-x11-2.0.so.0.1800.6
+}
+{
+   QwtPlot-leak
+   Memcheck:Leak
+   fun:*
+   ...
+   fun:_ZN7QwtPlotC2EP7QWidget
+   ...
+}
+{
    QwtPlotItem-leak
    Memcheck:Leak
    ...
    fun:_ZN11QwtPlotItem6attachEP7QwtPlot
    ...
-}
-{
-   libgdk-leak
-   Memcheck:Leak
-   ...
-   obj:/usr/lib64/libgdk-x11-2.0.so.0.1800.6
 }
 
 

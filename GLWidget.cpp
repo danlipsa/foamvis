@@ -95,7 +95,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_displayedEdgeIndex (DISPLAY_ALL),
       m_contextAlpha (MIN_CONTEXT_ALPHA),
       m_rotationMatrixModel (G3D::Matrix3::identity ()),
-      m_scalingFactorModel (1),
+      m_scaleRatio (1),
+      m_translationRatio (G3D::Vector3::zero ()),
       m_lightingEnabled (false),
       m_rotationMatrixLight (G3D::Matrix3::identity ()),
       m_showLightPosition (false),
@@ -193,6 +194,12 @@ void GLWidget::createActions ()
     m_actionSelectBodiesById->setStatusTip(tr("Select Bodies by Id"));
     connect(m_actionSelectBodiesById.get (), SIGNAL(triggered()),
 	    this, SLOT(SelectBodiesByIdList ()));
+
+    m_actionOpenGlInfo = boost::make_shared<QAction> (
+	tr("&OpenGl Info"), this);
+    m_actionOpenGlInfo->setStatusTip(tr("OpenGl Info"));
+    connect(m_actionOpenGlInfo.get (), SIGNAL(triggered()),
+	    this, SLOT(ShowOpenGlInfo ()));
 }
 
 void GLWidget::initViewTypeDisplay ()
@@ -456,7 +463,10 @@ void GLWidget::modelViewTransform () const
 
 void GLWidget::projectionTransform () const
 {
-    G3D::AABox centeredViewingVolume = calculateCenteredViewingVolume ();
+    G3D::AABox centeredViewingVolume = 
+	calculateCenteredViewingVolume ();
+    Scale (&centeredViewingVolume, 1/m_scaleRatio);
+    Translate (&centeredViewingVolume, m_translationRatio);
     G3D::Vector3 translation (m_cameraDistance * G3D::Vector3::unitZ ());
     G3D::AABox viewingVolume (
 	centeredViewingVolume.low () - translation,
@@ -479,12 +489,11 @@ void GLWidget::projectionTransform () const
 }
 
 void GLWidget::ViewportTransform (
-    int width, int height, double scale,
-    G3D::Rect2D* viewport) const
+    int width, int height)
 {
-    G3D::Rect2D vv2dScreen;
     G3D::Rect2D windowWorld;
-    viewingVolumeCalculations (width, height, &vv2dScreen, &windowWorld);
+    double scalingFactor = 1;
+    viewingVolumeCalculations (width, height, &m_viewport, &windowWorld);
     if (m_viewportTransformType == ViewportTransformType::FILL_SCREEN)
     {
 	const double ADJUST = 99.0/100.0;
@@ -492,25 +501,10 @@ void GLWidget::ViewportTransform (
 	double change;
 	boundingBoxCalculations (
 	    width, height, windowWorld, &bb2dScreen, &change);
-	scale *= (change * ADJUST);
+	scalingFactor *= (change * ADJUST);
     }
-    Scale (&vv2dScreen, scale);
-    if (viewport != 0)
-	*viewport = vv2dScreen;
-    glViewport (vv2dScreen);
-
-/*
-    G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
-    G3D::Vector3 low = bb.low ();
-    G3D::Vector3 high = bb.high ();
-    // second method to calculate bb2dScreen2 which seems more precise.
-    G3D::Rect2D bb2dScreen2 = G3D::Rect2D::xyxy (
-	gluProject (low).xy (),
-	gluProject (G3D::Vector3 (high.x, high.y, low.z)).xy ());
-    cdbg << "gluProject = " << bb2dScreen2 << endl
-	 << "bb2dScreen = " << bb2dScreen << endl << endl;
-*/
-    //return QSize (bb2dScreen.width (), bb2dScreen.height ());
+    Scale (&m_viewport, scalingFactor);
+    glViewport (m_viewport);
 }
 
 
@@ -619,12 +613,13 @@ void GLWidget::calculateCameraDistance ()
 
 void GLWidget::ResetTransformation ()
 {
+    makeCurrent ();
     m_rotationMatrixModel = G3D::Matrix3::identity ();
     m_rotationMatrixLight = G3D::Matrix3::identity ();
-    m_scalingFactorModel = 1;
+    m_scaleRatio = 1;
+    m_translationRatio = G3D::Vector3::zero ();
     setInitialLightPosition ();
-    makeCurrent ();
-    ViewportTransform (width (), height (), m_scalingFactorModel, &m_viewport);
+    projectionTransform ();
     updateGL ();
 }
 
@@ -740,7 +735,7 @@ void GLWidget::resizeGL(int width, int height)
 {
     if (width == 0 && height == 0)
 	return;
-    ViewportTransform (width, height, m_scalingFactorModel, &m_viewport);
+    ViewportTransform (width, height);
     QSize size = QSize (width, height);
     if (m_srcAlphaBlend < 1)
 	m_displayBlend->Init (size);
@@ -809,12 +804,11 @@ void GLWidget::setRotation (int axis, double angleRadians, G3D::Matrix3* rotate)
 double GLWidget::ratioFromCenter (const QPoint& p)
 {
     using G3D::Vector2;
-    Vector2 center = m_viewport.center ();
+    Vector2 center (width () / 2, height () / 2);
     Vector2 lastPos (m_lastPos.x (), m_lastPos.y());
     Vector2 currentPos (p.x (), p.y ());
     double ratio = 
-	(currentPos - center).length () / 
-	(lastPos - center).length ();
+	(currentPos - center).length () / (lastPos - center).length ();
     return ratio;
 }
 
@@ -831,24 +825,27 @@ void GLWidget::rotate (const QPoint& position, G3D::Matrix3* rotate)
     setRotation (1, dxRadians, rotate);
 }
 
-void GLWidget::translateViewport (const QPoint& position)
+void GLWidget::translate (const QPoint& position,
+			  G3D::Vector3::Axis screenXTranslation,
+			  G3D::Vector3::Axis screenYTranslation)
 {
-    int dx = position.x() - m_lastPos.x();
-    int dy = position.y() - m_lastPos.y();
-    m_viewport = G3D::Rect2D::xywh (m_viewport.x0 () + dx,
-				    m_viewport.y0 () - dy,
-				    m_viewport.width (),
-				    m_viewport.height ());
-    glViewport (m_viewport);
+    makeCurrent ();
+    m_translationRatio[screenXTranslation] -= 
+	static_cast<double>(position.x() - m_lastPos.x()) / 
+	m_viewport.width ();
+    m_translationRatio[screenYTranslation] += 
+	static_cast<double> (position.y() - m_lastPos.y()) /
+	m_viewport.height ();
+    projectionTransform ();
 }
 
 
-void GLWidget::scaleViewport (const QPoint& position)
+void GLWidget::scale (const QPoint& position)
 {
+    makeCurrent ();
     double ratio = ratioFromCenter (position);
-    Scale (&m_viewport, ratio);
-    glViewport (m_viewport);
-    m_scalingFactorModel = m_scalingFactorModel * ratio;
+    m_scaleRatio = m_scaleRatio * ratio;
+    projectionTransform ();
 }
 
 
@@ -954,11 +951,14 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     case InteractionMode::ROTATE:
 	rotate (event->pos (), &m_rotationMatrixModel);
 	break;
-    case InteractionMode::TRANSLATE:
-	translateViewport (event->pos ());
+
+    case InteractionMode::TRANSLATE:		    
+	translate (event->pos (), G3D::Vector3::X_AXIS, 
+		   (event->modifiers () & Qt::ControlModifier) ?
+		   G3D::Vector3::Z_AXIS : G3D::Vector3::Y_AXIS);
 	break;
     case InteractionMode::SCALE:
-	scaleViewport (event->pos ());
+	scale (event->pos ());
 	break;
 
     case InteractionMode::ROTATE_LIGHT:
@@ -1626,7 +1626,7 @@ void GLWidget::ToggledBodiesBoundingBoxesShown (bool checked)
 }
 
 
-void GLWidget::ToggledFullColorBarShown (bool checked)
+void GLWidget::ToggledColorBarShown (bool checked)
 {
     m_textureColorBarShown = ! checked;
     updateGL ();
@@ -1881,7 +1881,7 @@ void GLWidget::ValueChangedAngleOfView (int angleOfView)
 }
 
 
-void GLWidget::ShowOpenGLInfo ()
+void GLWidget::ShowOpenGlInfo ()
 {
     ostringstream ostr;
     printOpenGLInfo (ostr);
@@ -1905,6 +1905,7 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
     menu.addAction (m_actionDeselectAll.get ());
     menu.addAction (m_actionSelectBodiesById.get ());
     menu.addAction (m_actionInfo.get ());
+    menu.addAction (m_actionOpenGlInfo.get ());
     menu.exec (event->globalPos());
 }
 
@@ -1990,16 +1991,16 @@ void GLWidget::setBodySelectorLabel (BodySelectorType::Enum type)
     switch (type)
     {
     case BodySelectorType::PROPERTY_VALUE:
-	m_labelStatus->setText ("Selection: by property");
+	m_labelStatusBar->setText ("Selection: by property");
 	break;
     case BodySelectorType::ID:
-	m_labelStatus->setText ("Selection: by id");
+	m_labelStatusBar->setText ("Selection: by id");
 	break;
     case BodySelectorType::COMPOSITE:
-	m_labelStatus->setText ("Selection: by id and property");
+	m_labelStatusBar->setText ("Selection: by id and property");
 	break;
     default:
-	return m_labelStatus->setText ("");
+	return m_labelStatusBar->setText ("");
     }
 }
 
