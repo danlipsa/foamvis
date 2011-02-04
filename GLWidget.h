@@ -399,7 +399,7 @@ private:
 	const G3D::Rect2D& windowWorld, G3D::Rect2D* bb2dScreen, 
 	double* change) const;
     G3D::AABox calculateCenteredViewingVolume () const;
-    G3D::AABox calculateViewingVolume (bool contextView) const;
+    G3D::AABox calculateViewingVolume () const;
 
     void initializeTextures ();
     void initQuadrics ();
