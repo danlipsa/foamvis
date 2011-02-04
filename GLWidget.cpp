@@ -13,7 +13,6 @@
 #include "Debug.h"
 #include "DebugStream.h"
 #include "DisplayFaceAverage.h"
-#include "DisplayBlend.h"
 #include "DisplayBodyFunctors.h"
 #include "DisplayEdgeFunctors.h"
 #include "DisplayFaceFunctors.h"
@@ -91,8 +90,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_interactionMode (InteractionMode::ROTATE),
       m_statisticsType (StatisticsType::AVERAGE),
       m_foamAlongTime (0), m_timeStep (0),
-      m_displayedBodyIndex (DISPLAY_ALL), m_displayedFaceIndex (DISPLAY_ALL),
-      m_displayedEdgeIndex (DISPLAY_ALL),
+      m_selectedBodyIndex (DISPLAY_ALL), m_selectedFaceIndex (DISPLAY_ALL),
+      m_selectedEdgeIndex (DISPLAY_ALL),
       m_contextAlpha (MIN_CONTEXT_ALPHA),
       m_rotationMatrixModel (G3D::Matrix3::identity ()),
       m_scaleRatio (1),
@@ -120,14 +119,13 @@ GLWidget::GLWidget(QWidget *parent)
       m_useColorMap (false),
       m_colorBarModel (new ColorBarModel ()),
       m_colorBarTexture (0),
-      m_srcAlphaBlend (1),
       m_timeDisplacement (0.0),
       m_playMovie (false),
       m_lightEnabled (0),
-      m_selectBodiesById (new SelectBodiesById (this))
+      m_selectBodiesById (new SelectBodiesById (this)),
+      m_contextView (false)
 {
     makeCurrent ();
-    m_displayBlend.reset (new DisplayBlend (*this));
     m_displayFaceAverage.reset (new DisplayFaceAverage (*this));
     initEndTranslationColor ();
     initQuadrics ();
@@ -416,12 +414,10 @@ void GLWidget::initializeLighting ()
 
 G3D::AABox GLWidget::calculateCenteredViewingVolume () const
 {
-    using G3D::Vector3;
     G3D::AABox boundingBox = GetFoamAlongTime ().GetBoundingBox ();
     EncloseRotation (&boundingBox);
-    Vector3 center = boundingBox.center ();
-    return G3D::AABox (boundingBox.low () - center, 
-		       boundingBox.high () - center);
+    G3D::Vector3 center = boundingBox.center ();
+    return boundingBox - center;
 }
 
 void GLWidget::ModelViewTransformNoRotation () const
@@ -459,18 +455,25 @@ void GLWidget::modelViewTransform () const
 	break;
     }
     glTranslate (-GetFoamAlongTime ().GetBoundingBox ().center ());
+    
 }
+
+G3D::AABox GLWidget::calculateViewingVolume (bool contextView) const
+{
+    G3D::AABox centeredViewingVolume = calculateCenteredViewingVolume ();
+    if (! contextView)
+    {
+	Scale (&centeredViewingVolume, 1/m_scaleRatio);
+	Translate (&centeredViewingVolume, - m_translationRatio);
+    }
+    G3D::Vector3 translation (m_cameraDistance * G3D::Vector3::unitZ ());
+    return centeredViewingVolume - translation;
+}
+
 
 void GLWidget::projectionTransform () const
 {
-    G3D::AABox centeredViewingVolume = 
-	calculateCenteredViewingVolume ();
-    Scale (&centeredViewingVolume, 1/m_scaleRatio);
-    Translate (&centeredViewingVolume, m_translationRatio);
-    G3D::Vector3 translation (m_cameraDistance * G3D::Vector3::unitZ ());
-    G3D::AABox viewingVolume (
-	centeredViewingVolume.low () - translation,
-	centeredViewingVolume.high () - translation);
+    G3D::AABox viewingVolume = calculateViewingVolume (m_contextView);
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
     if (m_angleOfView == 0)
@@ -637,9 +640,9 @@ void GLWidget::SelectAll ()
 {
     SetBodySelector (AllBodySelector::Get (), BodySelectorType::ID);
     m_selectBodiesById->ClearEditIds ();
-    m_displayedBodyIndex = DISPLAY_ALL;
-    m_displayedFaceIndex = DISPLAY_ALL;
-    m_displayedEdgeIndex = DISPLAY_ALL;
+    m_selectedBodyIndex = DISPLAY_ALL;
+    m_selectedFaceIndex = DISPLAY_ALL;
+    m_selectedEdgeIndex = DISPLAY_ALL;
     updateGL ();
 }
 
@@ -651,52 +654,11 @@ void GLWidget::DeselectAll ()
 
 void GLWidget::Info ()
 {
-    string message = (AreAllBodiesDisplayed ()) ? 
-	getFoamsInfo () : 
-	GetDisplayedBody ()->ToString ();
+    string message = (AllBodiesSelected ()) ? 
+	GetFoamAlongTime ().ToHtml () : GetSelectedBody ()->ToString ();
     QMessageBox msgBox (this);
     msgBox.setText(message.c_str ());
     msgBox.exec();
-}
-
-
-string GLWidget::getFoamsInfo () const
-{
-    const Foam& firstFoam = *GetFoamAlongTime ().GetFoam (0);
-    size_t timeSteps = GetFoamAlongTime ().GetTimeSteps ();
-    const Foam& lastFoam = *GetFoamAlongTime ().GetFoam (timeSteps - 1);
-    size_t bodies[2] = 
-	{
-	    firstFoam.GetBodies ().size (), lastFoam.GetBodies ().size ()
-	};
-    size_t faces[2] = 
-	{
-	    firstFoam.GetFaceSet ().size (), lastFoam.GetFaceSet ().size ()
-	};
-    size_t edges[2] =
-	{
-	    firstFoam.GetEdgeSet ().size (), lastFoam.GetEdgeSet ().size ()
-	};
-    size_t vertices[2] = 
-	{
-	    firstFoam.GetVertexSet ().size (), lastFoam.GetVertexSet ().size ()
-	};
-
-    ostringstream ostr;
-    ostr << 
-	"<table border>"
-	"<tr><th>Bodies</th><td>" 
-	 << bodies[0] << "</td><td>" << bodies[1] << "</td></tr>"
-	"<tr><th>Faces</th><td>" 
-	 << faces[0] << "</td><td>" << faces[1] << "</td></tr>"
-	"<tr><th>Edges</th><td>" 
-	 << edges[0] << "</td><td>" << edges[1] << "</td></tr>"
-	"<tr><th>Vertices</th><td>" 
-	 << vertices[0] << "</td><td>" << vertices[1] << "</td></tr>"
-	"<tr><th>Time step</th><td>" 
-	 << 0 << "</td><td>" << (timeSteps - 1) << "</td></tr>"
-	"</table>" << endl;
-    return ostr.str ();
 }
 
 
@@ -721,6 +683,8 @@ void GLWidget::paintGL ()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     positionLight ();
+    glLoadIdentity ();
+    displayFocusBox ();
     modelViewTransform ();
     display ();
     displayTextureColorBar ();
@@ -737,8 +701,6 @@ void GLWidget::resizeGL(int width, int height)
 	return;
     ViewportTransform (width, height);
     QSize size = QSize (width, height);
-    if (m_srcAlphaBlend < 1)
-	m_displayBlend->Init (size);
     if (m_viewType == ViewType::FACES_AVERAGE)
 	initStepDisplayAverage ();
     setEdgeRadius ();
@@ -830,12 +792,13 @@ void GLWidget::translate (const QPoint& position,
 			  G3D::Vector3::Axis screenYTranslation)
 {
     makeCurrent ();
-    m_translationRatio[screenXTranslation] -= 
+    m_translationRatio[screenXTranslation] += 
 	static_cast<double>(position.x() - m_lastPos.x()) / 
 	m_viewport.width ();
-    m_translationRatio[screenYTranslation] += 
+    m_translationRatio[screenYTranslation] -= 
 	static_cast<double> (position.y() - m_lastPos.y()) /
 	m_viewport.height ();
+    cdbg << "translationRatio: " << m_translationRatio << endl;
     projectionTransform ();
 }
 
@@ -845,6 +808,7 @@ void GLWidget::scale (const QPoint& position)
     makeCurrent ();
     double ratio = ratioFromCenter (position);
     m_scaleRatio = m_scaleRatio * ratio;
+    cdbg << "scaleRatio: " << m_scaleRatio << endl;
     projectionTransform ();
 }
 
@@ -1004,6 +968,15 @@ void GLWidget::displayOriginalDomain () const
 {
     if (m_torusOriginalDomainDisplay)
 	DisplayBox (GetCurrentFoam().GetOriginalDomain ());
+}
+
+void GLWidget::displayFocusBox () const
+{
+    if (m_contextView)
+    {
+	G3D::AABox focusBox = calculateViewingVolume (false);
+	DisplayBox (focusBox, Qt::black, GL_LINE);
+    }
 }
 
 void GLWidget::displayBoundingBox () const
@@ -1324,10 +1297,7 @@ void GLWidget::displayCenterPaths () const
 
 void GLWidget::display () const
 {
-    if (m_srcAlphaBlend < 1)
-	m_displayBlend->Display ();
-    else
-	DisplayViewType ();
+    DisplayViewType ();
 }
 
 void GLWidget::DisplayViewType () const
@@ -1337,7 +1307,7 @@ void GLWidget::DisplayViewType () const
 
 bool GLWidget::IsDisplayedBody (size_t bodyId) const
 {
-    return (AreAllBodiesDisplayed () || GetDisplayedBodyId () == bodyId);
+    return (AllBodiesSelected () || GetSelectedBodyId () == bodyId);
 }
 
 bool GLWidget::IsDisplayedBody (const boost::shared_ptr<Body> body) const
@@ -1347,13 +1317,13 @@ bool GLWidget::IsDisplayedBody (const boost::shared_ptr<Body> body) const
 
 bool GLWidget::IsDisplayedFace (size_t faceI) const
 {
-    size_t faceIndex = GetDisplayedFaceIndex ();
+    size_t faceIndex = GetSelectedFaceIndex ();
     return (faceIndex == DISPLAY_ALL || faceIndex == faceI);
 }
 
 bool GLWidget::IsDisplayedEdge (size_t oeI) const
 {
-    size_t edgeIndex = GetDisplayedEdgeIndex ();
+    size_t edgeIndex = GetSelectedEdgeIndex ();
     return edgeIndex == DISPLAY_ALL || edgeIndex == oeI;
 }
 
@@ -1368,34 +1338,34 @@ bool GLWidget::doesSelectBody () const
 bool GLWidget::doesSelectFace () const
 {
     return 
-	m_displayedBodyIndex != DISPLAY_ALL;
+	m_selectedBodyIndex != DISPLAY_ALL;
 }
 
 bool GLWidget::doesSelectEdge () const
 {
     return 
-	m_displayedFaceIndex != DISPLAY_ALL &&
+	m_selectedFaceIndex != DISPLAY_ALL &&
 	m_viewType != ViewType::FACES;
 }
 
 
-void GLWidget::IncrementDisplayedBody ()
+void GLWidget::IncrementSelectedBodyIndex ()
 {
     if (doesSelectBody ())
     {
-	++m_displayedBodyIndex;
-	m_displayedFaceIndex = DISPLAY_ALL;
-	if (m_displayedBodyIndex == 
+	++m_selectedBodyIndex;
+	m_selectedFaceIndex = DISPLAY_ALL;
+	if (m_selectedBodyIndex == 
 	    GetFoamAlongTime ().GetFoam (0)->GetBodies ().size ())
 	{
-	    m_displayedBodyIndex = DISPLAY_ALL;
+	    m_selectedBodyIndex = DISPLAY_ALL;
 	    SetBodySelector (AllBodySelector::Get (), BodySelectorType::ID);
 	}
 	else
 	{
 	    size_t id = GetCurrentFoam ().GetBodies ()[
-		m_displayedBodyIndex]->GetId ();
-	    cdbg << "IncrementDisplayedBody index: " << m_displayedBodyIndex 
+		m_selectedBodyIndex]->GetId ();
+	    cdbg << "IncrementSelectedBodyIndex index: " << m_selectedBodyIndex 
 		 << " id: " << id << endl;
 	    SetBodySelector (
 		boost::shared_ptr<IdBodySelector> (new IdBodySelector (id)));
@@ -1405,45 +1375,45 @@ void GLWidget::IncrementDisplayedBody ()
 }
 
 
-void GLWidget::IncrementDisplayedFace ()
+void GLWidget::IncrementSelectedFaceIndex ()
 {
     if (doesSelectFace ())
     {
-	++m_displayedFaceIndex;
-        Body& body = *GetCurrentFoam ().GetBodies ()[m_displayedBodyIndex];
-        if (m_displayedFaceIndex == body.GetOrientedFaces ().size ())
-            m_displayedFaceIndex = DISPLAY_ALL;
+	++m_selectedFaceIndex;
+        Body& body = *GetCurrentFoam ().GetBodies ()[m_selectedBodyIndex];
+        if (m_selectedFaceIndex == body.GetOrientedFaces ().size ())
+            m_selectedFaceIndex = DISPLAY_ALL;
 	updateGL ();
     }
 }
 
-void GLWidget::IncrementDisplayedEdge ()
+void GLWidget::IncrementSelectedEdgeIndex ()
 {
     if (doesSelectEdge ())
     {
-	++m_displayedEdgeIndex;
-	Face& face = *GetDisplayedFace ();
-	if (m_displayedEdgeIndex == face.GetOrientedEdges ().size ())
-	    m_displayedEdgeIndex = DISPLAY_ALL;
+	++m_selectedEdgeIndex;
+	Face& face = *GetSelectedFace ();
+	if (m_selectedEdgeIndex == face.GetOrientedEdges ().size ())
+	    m_selectedEdgeIndex = DISPLAY_ALL;
 	updateGL ();
     }
 }
 
-void GLWidget::DecrementDisplayedBody ()
+void GLWidget::DecrementSelectedBodyIndex ()
 {
     if (doesSelectBody ())
     {
-	if (m_displayedBodyIndex == DISPLAY_ALL)
-	    m_displayedBodyIndex = 
+	if (m_selectedBodyIndex == DISPLAY_ALL)
+	    m_selectedBodyIndex = 
 		GetFoamAlongTime ().GetFoam (0)->GetBodies ().size ();
-	--m_displayedBodyIndex;
-	m_displayedFaceIndex = DISPLAY_ALL;
-	if (m_displayedBodyIndex != DISPLAY_ALL)
+	--m_selectedBodyIndex;
+	m_selectedFaceIndex = DISPLAY_ALL;
+	if (m_selectedBodyIndex != DISPLAY_ALL)
 	{
 	    size_t id = GetCurrentFoam ().GetBodies ()[
-		m_displayedBodyIndex]->GetId ();
-	    cdbg << "IncrementDisplayedBody index: " 
-		 << m_displayedBodyIndex << " id: " << id << endl;
+		m_selectedBodyIndex]->GetId ();
+	    cdbg << "IncrementSelectedBodyIndex index: " 
+		 << m_selectedBodyIndex << " id: " << id << endl;
 	    SetBodySelector (
 		boost::shared_ptr<IdBodySelector> (new IdBodySelector (id)));
 	}
@@ -1455,26 +1425,26 @@ void GLWidget::DecrementDisplayedBody ()
     }
 }
 
-void GLWidget::DecrementDisplayedFace ()
+void GLWidget::DecrementSelectedFaceIndex ()
 {
     if (doesSelectFace ())
     {
-        Body& body = *GetCurrentFoam ().GetBodies ()[m_displayedBodyIndex];
-        if (m_displayedFaceIndex == DISPLAY_ALL)
-            m_displayedFaceIndex = body.GetOrientedFaces ().size ();
-	--m_displayedFaceIndex;
+        Body& body = *GetCurrentFoam ().GetBodies ()[m_selectedBodyIndex];
+        if (m_selectedFaceIndex == DISPLAY_ALL)
+            m_selectedFaceIndex = body.GetOrientedFaces ().size ();
+	--m_selectedFaceIndex;
 	updateGL ();
     }
 }
 
-void GLWidget::DecrementDisplayedEdge ()
+void GLWidget::DecrementSelectedEdgeIndex ()
 {
     if (doesSelectEdge ())
     {
-	Face& face = *GetDisplayedFace ();
-	if (m_displayedEdgeIndex == DISPLAY_ALL)
-	    m_displayedEdgeIndex = face.GetOrientedEdges ().size ();
-	--m_displayedEdgeIndex;
+	Face& face = *GetSelectedFace ();
+	if (m_selectedEdgeIndex == DISPLAY_ALL)
+	    m_selectedEdgeIndex = face.GetOrientedEdges ().size ();
+	--m_selectedEdgeIndex;
 	updateGL ();
     }
 }
@@ -1512,49 +1482,49 @@ const BodyAlongTime& GLWidget::GetBodyAlongTime (size_t id) const
     return GetBodiesAlongTime ().GetBodyAlongTime (id);
 }
 
-boost::shared_ptr<Body> GLWidget::GetDisplayedBody () const
+boost::shared_ptr<Body> GLWidget::GetSelectedBody () const
 {
-    return GetBodyAlongTime (GetDisplayedBodyId ()).GetBody (GetTimeStep ());
+    return GetBodyAlongTime (GetSelectedBodyId ()).GetBody (GetTimeStep ());
 }
 
-size_t GLWidget::GetDisplayedBodyId () const
+size_t GLWidget::GetSelectedBodyId () const
 {
     return GetFoamAlongTime ().GetFoam (0)->GetBody (
-	m_displayedBodyIndex)->GetId ();
+	m_selectedBodyIndex)->GetId ();
 }
 
-size_t GLWidget::GetDisplayedFaceId () const
+size_t GLWidget::GetSelectedFaceId () const
 {
-    return GetDisplayedFace ()->GetId ();
+    return GetSelectedFace ()->GetId ();
 }
 
-boost::shared_ptr<Face> GLWidget::GetDisplayedFace () const
+boost::shared_ptr<Face> GLWidget::GetSelectedFace () const
 {
-    size_t i = GetDisplayedFaceIndex ();
-    if (m_displayedBodyIndex != DISPLAY_ALL)
+    size_t i = GetSelectedFaceIndex ();
+    if (m_selectedBodyIndex != DISPLAY_ALL)
     {
-	Body& body = *GetDisplayedBody ();
+	Body& body = *GetSelectedBody ();
 	return body.GetFace (i);
     }
     RuntimeAssert (false, "There is no displayed face");
     return boost::shared_ptr<Face>();
 }
 
-boost::shared_ptr<Edge> GLWidget::GetDisplayedEdge () const
+boost::shared_ptr<Edge> GLWidget::GetSelectedEdge () const
 {
-    if (m_displayedBodyIndex != DISPLAY_ALL && 
-	m_displayedFaceIndex != DISPLAY_ALL)
+    if (m_selectedBodyIndex != DISPLAY_ALL && 
+	m_selectedFaceIndex != DISPLAY_ALL)
     {
-	boost::shared_ptr<Face> face = GetDisplayedFace ();
-	return face->GetEdge (m_displayedEdgeIndex);
+	boost::shared_ptr<Face> face = GetSelectedFace ();
+	return face->GetEdge (m_selectedEdgeIndex);
     }
     RuntimeAssert (false, "There is no displayed edge");
     return boost::shared_ptr<Edge>();
 }
 
-size_t GLWidget::GetDisplayedEdgeId () const
+size_t GLWidget::GetSelectedEdgeId () const
 {
-    return GetDisplayedEdge ()->GetId ();
+    return GetSelectedEdge ()->GetId ();
 }
 
 void GLWidget::toggledLights ()
@@ -1631,6 +1601,14 @@ void GLWidget::ToggledColorBarShown (bool checked)
     m_textureColorBarShown = ! checked;
     updateGL ();
 }
+
+void GLWidget::ToggledContextView (bool checked)
+{
+    m_contextView = checked;
+    projectionTransform ();
+    updateGL ();
+}
+
 
 void GLWidget::ToggledAxesShown (bool checked)
 {
@@ -1819,26 +1797,8 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
     m_timeStep = timeStep;
     makeCurrent ();
     updateGL ();
-    if (m_srcAlphaBlend < 1)
-	m_displayBlend->Step (m_timeStep != 0, timeStep);
     if (m_viewType == ViewType::FACES_AVERAGE)
 	m_displayFaceAverage->StepDisplay ();
-    updateGL ();
-}
-
-void GLWidget::ValueChangedBlend (int index)
-{
-    QSlider* slider = static_cast<QSlider*> (sender ());
-    size_t maximum = slider->maximum ();
-    if (m_srcAlphaBlend == 1 && index != 0)
-    {
-	QSize size (width (), height ());
-	m_displayBlend->Init (size);
-    }
-    else if (m_srcAlphaBlend < 1 && index == 0)
-	m_displayBlend->Release ();
-    // m_srcAlphaBlend is between 1 and 0.5
-    m_srcAlphaBlend = 1 - static_cast<double>(index) / (2 * maximum);
     updateGL ();
 }
 

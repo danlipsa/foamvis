@@ -241,6 +241,46 @@ string FoamAlongTime::ToString () const
     return ostr.str ();
 }
 
+string FoamAlongTime::ToHtml () const
+{
+    const Foam& firstFoam = *GetFoam (0);
+    size_t timeSteps = GetTimeSteps ();
+    const Foam& lastFoam = *GetFoam (timeSteps - 1);
+    size_t bodies[2] = 
+	{
+	    firstFoam.GetBodies ().size (), lastFoam.GetBodies ().size ()
+	};
+    size_t faces[2] = 
+	{
+	    firstFoam.GetFaceSet ().size (), lastFoam.GetFaceSet ().size ()
+	};
+    size_t edges[2] =
+	{
+	    firstFoam.GetEdgeSet ().size (), lastFoam.GetEdgeSet ().size ()
+	};
+    size_t vertices[2] = 
+	{
+	    firstFoam.GetVertexSet ().size (), lastFoam.GetVertexSet ().size ()
+	};
+
+    ostringstream ostr;
+    ostr << 
+	"<table border>"
+	"<tr><th>Bodies</th><td>" 
+	 << bodies[0] << "</td><td>" << bodies[1] << "</td></tr>"
+	"<tr><th>Faces</th><td>" 
+	 << faces[0] << "</td><td>" << faces[1] << "</td></tr>"
+	"<tr><th>Edges</th><td>" 
+	 << edges[0] << "</td><td>" << edges[1] << "</td></tr>"
+	"<tr><th>Vertices</th><td>" 
+	 << vertices[0] << "</td><td>" << vertices[1] << "</td></tr>"
+	"<tr><th>Time step</th><td>" 
+	 << 0 << "</td><td>" << (timeSteps - 1) << "</td></tr>"
+	"</table>" << endl;
+    return ostr.str ();
+}
+
+
 void FoamAlongTime::SetTimeSteps (size_t timeSteps)
 {
     m_foams.resize (timeSteps);

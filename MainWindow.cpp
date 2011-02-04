@@ -228,7 +228,6 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
     {
 	radioButtonFacesNormal->toggle ();
 	tabWidget->setCurrentWidget (faces);
-	widgetBlend->setDisabled (true);
 	comboBoxViewportTransform->setCurrentIndex (
 	    ViewportTransformType::ALLOW_ROTATION);
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::THREE_D);
@@ -307,19 +306,19 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     switch (event->key ())
     {
     case Qt::Key_Up:
-	widgetGl->IncrementDisplayedEdge ();
+	widgetGl->IncrementSelectedEdgeIndex ();
 	break;
     case Qt::Key_Down:
-	widgetGl->DecrementDisplayedEdge ();
+	widgetGl->DecrementSelectedEdgeIndex ();
 	break;
     case Qt::Key_PageUp:
 	switch (modifiers)
 	{
 	case Qt::NoModifier:
-            widgetGl->IncrementDisplayedBody ();
+            widgetGl->IncrementSelectedBodyIndex ();
 	    break;
 	case Qt::ShiftModifier:
-	    widgetGl->IncrementDisplayedFace ();
+	    widgetGl->IncrementSelectedFaceIndex ();
 	    break;
 	}
         break;
@@ -327,10 +326,10 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 	switch (modifiers)
 	{
 	case Qt::NoModifier:
-            widgetGl->DecrementDisplayedBody ();
+            widgetGl->DecrementSelectedBodyIndex ();
 	    break;
 	case Qt::ShiftModifier:
-	    widgetGl->DecrementDisplayedFace ();
+	    widgetGl->DecrementSelectedFaceIndex ();
 	    break;
 	}
 	break;

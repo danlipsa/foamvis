@@ -138,6 +138,7 @@ public:
     }
     void SetTimeSteps (size_t timeSteps);
     string ToString () const;
+    string ToHtml () const;
     bool IsPressureAdjusted () const
     {
 	return m_adjustPressure;

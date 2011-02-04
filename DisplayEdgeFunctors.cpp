@@ -490,7 +490,7 @@ operator () (const boost::shared_ptr<Face>  f)
     for (size_t i = 0; i < v.size (); i++)
     {
 	boost::shared_ptr<OrientedEdge> oe = v[i];
-	size_t displayedEdgeIndex = m_glWidget.GetDisplayedEdgeIndex ();
+	size_t displayedEdgeIndex = m_glWidget.GetSelectedEdgeIndex ();
 	if (m_glWidget.IsDisplayedEdge (i))
 	{
 	    display (oe);

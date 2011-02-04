@@ -2,7 +2,7 @@ HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
 	AttributeHistogram.h HistogramHeight.h Body.h \
 	BodyAlongTime.h BodyIndex.h BodySelector.h \
 	ColorBar.h ColorBarModel.h ColoredElement.h Comparisons.h \
-	Debug.h DebugStream.h Disk.h DisplayFaceAverage.h DisplayBlend.h\
+	Debug.h DebugStream.h Disk.h DisplayFaceAverage.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h DisplayWidget.h\
 	SelectBodiesById.h EditColorMap.h Edge.h Element.h ExpressionTree.h \
@@ -21,8 +21,7 @@ SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp 
 	AttributeHistogram.cpp HistogramHeight.cpp \
 	Body.cpp BodyAlongTime.cpp BodyIndex.cpp BodySelector.cpp\
 	ColorBar.cpp ColorBarModel.cpp ColoredElement.cpp Comparisons.cpp \
-	Debug.cpp DebugStream.cpp Disk.cpp \
-	DisplayBlend.cpp DisplayBodyFunctors.cpp \
+	Debug.cpp DebugStream.cpp Disk.cpp DisplayBodyFunctors.cpp \
 	DisplayFaceAverage.cpp DisplayFaceFunctors.cpp \
 	DisplayEdgeFunctors.cpp	\
 	DisplayWidget.cpp DisplayVertexFunctors.cpp Edge.cpp \

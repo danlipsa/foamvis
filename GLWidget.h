@@ -15,7 +15,6 @@ class BodyAlongTime;
 class BodiesAlongTime;
 class BodySelector;
 class ColorBarModel;
-class DisplayBlend;
 class DisplayFaceAverage;
 class Foam;
 class Edge;
@@ -106,48 +105,48 @@ public:
 	return m_timeDisplacement;
     }
     
-    bool AreAllBodiesDisplayed () const
+    bool AllBodiesSelected () const
     {
-	return m_displayedBodyIndex == DISPLAY_ALL;
+	return m_selectedBodyIndex == DISPLAY_ALL;
     }
-    size_t GetDisplayedBodyId () const;
-    boost::shared_ptr<Body>  GetDisplayedBody () const;
+    size_t GetSelectedBodyId () const;
+    boost::shared_ptr<Body>  GetSelectedBody () const;
     /**
      * Gets the face number up to which faces are displayed
      * @return face number up to which faces are displayed or UINT_MAX for all
      */
-    size_t GetDisplayedFaceIndex () const
+    size_t GetSelectedFaceIndex () const
     {
-	return m_displayedFaceIndex;
+	return m_selectedFaceIndex;
     }
-    size_t GetDisplayedFaceId () const;
-    boost::shared_ptr<Face>  GetDisplayedFace () const;
+    size_t GetSelectedFaceId () const;
+    boost::shared_ptr<Face>  GetSelectedFace () const;
 
-    size_t GetDisplayedEdgeIndex () const
+    size_t GetSelectedEdgeIndex () const
     {
-	return m_displayedEdgeIndex;
+	return m_selectedEdgeIndex;
     }
-    size_t GetDisplayedEdgeId () const;
-    boost::shared_ptr<Edge>  GetDisplayedEdge () const;
+    size_t GetSelectedEdgeId () const;
+    boost::shared_ptr<Edge>  GetSelectedEdge () const;
     /**
      * Increment displayed body
      */
-    void IncrementDisplayedBody ();
+    void IncrementSelectedBodyIndex ();
     /**
      * Increment displayed face
      */
-    void IncrementDisplayedFace ();
-    void IncrementDisplayedEdge ();
+    void IncrementSelectedFaceIndex ();
+    void IncrementSelectedEdgeIndex ();
 
     /**
      * Decrement displayed body
      */
-    void DecrementDisplayedBody ();
+    void DecrementSelectedBodyIndex ();
     /**
      * Decrement displayed face
      */
-    void DecrementDisplayedFace ();
-    void DecrementDisplayedEdge ();
+    void DecrementSelectedFaceIndex ();
+    void DecrementSelectedEdgeIndex ();
     double GetContextAlpha () const
     {
 	return m_contextAlpha;
@@ -223,16 +222,11 @@ public:
      * @param type the type of object that we want displayed.
      */
     void DisplayViewType () const;
-    double GetSrcAlphaBlend () const
-    {
-	return m_srcAlphaBlend;
-    }
     BodyProperty::Enum GetFacesColor () const
     {
 	return m_facesColor;
     }
     void toggledLightingEnabled (bool checked);
-
 Q_SIGNALS:
     void PaintedGL ();
 
@@ -240,63 +234,61 @@ public Q_SLOTS:
     /*
      * Global options
      */
+    void ToggledAxesShown (bool checked);
     void ToggledBoundingBoxShown (bool checked);
     void ToggledBodiesBoundingBoxesShown (bool checked);
-    void ToggledAxesShown (bool checked);
-    void ToggledTorusOriginalDomainShown (bool checked);
-    void ToggledLightPositionShown (bool checked);
-    void ToggledDirectionalLightEnabled (bool checked);
     void ToggledColorBarShown (bool checked);
-
-
-    /**
-     * Shows edges
-     * @param checked true for showing edges false otherwise
-     */
-    void ToggledEdgesNormal (bool checked);
-    void ToggledEdgesTorus (bool checked);
-    /**
-     * Shows faces
-     * @param checked true for showing faces false otherwise
-     */
-    void ToggledFacesNormal (bool checked);
-    void ToggledFaceEdgesTorus (bool checked);
-    void ToggledFacesAverage (bool checked);
-
     /**
      * Shows center paths
      * param checked true for showing the center paths false otherwise
      */
     void ToggledCenterPath (bool checked);
     void ToggledCenterPathBodyShown (bool checked);
+    void ToggledContextView (bool checked);
+    void ToggledDirectionalLightEnabled (bool checked);
+    /**
+     * Shows edges
+     * @param checked true for showing edges false otherwise
+     */
+    void ToggledEdgesNormal (bool checked);
+    void ToggledEdgesTorus (bool checked);
+    void ToggledEdgesBodyCenter (bool checked);
+    void ToggledEdgesTessellation (bool checked);
+    /**
+     * Shows faces
+     * @param checked true for showing faces false otherwise
+     */
+    void ToggledFacesAverage (bool checked);
+    void ToggledFaceEdgesTorus (bool checked);
+    void ToggledFacesNormal (bool checked);
+    void ToggledFacesShowEdges (bool checked);
+
+    void ToggledLightPositionShown (bool checked);
     void ToggledOnlyPathsWithSelectionShown (bool checked);
+    void ToggledTorusOriginalDomainShown (bool checked);
+    void ToggledTorusOriginalDomainClipped (bool checked);
+
     void BodyPropertyChanged (
 	boost::shared_ptr<ColorBarModel> colorBarModel,
 	BodyProperty::Enum property, ViewType::Enum viewType);
     void ColorBarModelChanged (
 	boost::shared_ptr<ColorBarModel> colorBarModel);
-    void ResetTransformation ();
-    void SelectBodiesByIdList ();
-    void SelectAll ();
-    void DeselectAll ();
-    void Info ();
+
     void CurrentIndexChangedInteractionMode (int index);
     void CurrentIndexChangedStatisticsType (int index);
     void CurrentIndexChangedViewportTransformType (int index);
     void CurrentIndexChangedAxesOrder (int index);
 
-    void ToggledEdgesBodyCenter (bool checked);
-    void ToggledEdgesTessellation (bool checked);
-    void ToggledFacesShowEdges (bool checked);
-
-
-    void ToggledTorusOriginalDomainClipped (bool checked);
-
     void ValueChangedAngleOfView (int newIndex);
-    void ValueChangedBlend (int index);
     void ValueChangedTimeDisplacement (int timeDisplacement);
     void ValueChangedEdgesRadius (int sliderValue);
     void ValueChangedContextAlpha (int sliderValue);
+    // Actions
+    void ResetTransformation ();
+    void SelectBodiesByIdList ();
+    void SelectAll ();
+    void DeselectAll ();
+    void Info ();
     void ShowOpenGlInfo ();
     /**
      * Signals a change in data displayed
@@ -370,7 +362,6 @@ private:
 	double* arrowBaseRadius, double* arrowHeight, bool* edgeTubes = 0);
     void initStepDisplayAverage ();
     void display () const;
-    string getFoamsInfo () const;
 
     /**
      * Displays the center of the bodies
@@ -408,6 +399,8 @@ private:
 	const G3D::Rect2D& windowWorld, G3D::Rect2D* bb2dScreen, 
 	double* change) const;
     G3D::AABox calculateCenteredViewingVolume () const;
+    G3D::AABox calculateViewingVolume (bool contextView) const;
+
     void initializeTextures ();
     void initQuadrics ();
     void initEndTranslationColor ();
@@ -446,6 +439,7 @@ private:
     void displayOriginalDomain () const;
     void displayCenterPaths () const;
     void displayBoundingBox () const;
+    void displayFocusBox () const;
     void displayAxes () const;
     void setInitialLightPosition ();
     G3D::Vector3 getInitialLightPosition (size_t i) const;
@@ -546,18 +540,18 @@ private:
      */
     size_t m_timeStep;
     /**
-     * Used for rotating the view
+     * Used for rotation, translation and scale
      */
     QPoint m_lastPos;
     /**
      * Used to display one body at a time
      */
-    size_t m_displayedBodyIndex;
+    size_t m_selectedBodyIndex;
     /**
-     * Used to display one face at a time from the m_displayedBodyIndex.
+     * Used to display one face at a time from the m_selectedBodyIndex.
      */
-    size_t m_displayedFaceIndex;
-    size_t m_displayedEdgeIndex;
+    size_t m_selectedFaceIndex;
+    size_t m_selectedEdgeIndex;
 
     double m_contextAlpha;
 
@@ -619,18 +613,17 @@ private:
     bool m_useColorMap;
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
     GLuint m_colorBarTexture;
-    double m_srcAlphaBlend;
     double m_timeDisplacement;
     /**
      * True if the program displays data in a loop, false
      * otherwise
      */
     bool m_playMovie;
-    boost::scoped_ptr<DisplayBlend> m_displayBlend;
     boost::scoped_ptr<DisplayFaceAverage> m_displayFaceAverage;
     bitset<LIGHTS_COUNT> m_lightEnabled;
     boost::shared_ptr<SelectBodiesById> m_selectBodiesById;
     QLabel *m_labelStatusBar;
+    bool m_contextView;
 };
 
 #endif //__GLWIDGET_H__
