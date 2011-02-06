@@ -66,7 +66,7 @@ INCLUDEPATH += /usr/local/include
 INCLUDEPATH += /usr/local/qwt-5.2.1/include
 INCLUDEPATH += /usr/local/include/vtk-5.6
 INCLUDEPATH += /usr/local/Trolltech/Qt-4.7.0/include
-INCLUDEPATH += /usr/local/boost_1_39_0
+INCLUDEPATH += /usr/local/boost_1_45_0
 
 LIBS += -L/usr/local/lib
 LIBS += -L/usr/local/qwt-5.2.1/lib

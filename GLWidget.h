@@ -383,7 +383,7 @@ private:
      * Setup the viewing volume first centered around origin and then translated
      * toward negative Z with m_cameraDistance. 
      */
-    void projectionTransform () const;
+    void projectionTransform (double xOverY) const;
     /**
      * First translate the data to be centered around origin, then
      * rotate and then translate toward negative Z with
@@ -398,8 +398,8 @@ private:
 	int width, int height, 
 	const G3D::Rect2D& windowWorld, G3D::Rect2D* bb2dScreen, 
 	double* change) const;
-    G3D::AABox calculateCenteredViewingVolume () const;
-    G3D::AABox calculateViewingVolume () const;
+    G3D::AABox calculateCenteredViewingVolume (double xOverY) const;
+    G3D::AABox calculateViewingVolume (double xOverY) const;
 
     void initializeTextures ();
     void initQuadrics ();

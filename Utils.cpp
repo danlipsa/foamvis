@@ -168,14 +168,14 @@ void Scale (G3D::Rect2D* aabox, double change)
     *aabox = G3D::Rect2D::xyxy ( newLow, newHigh);
 }
 
-void EncloseRotation (G3D::AABox* aabox)
+G3D::AABox EncloseRotation (const G3D::AABox& aabox)
 {
     using G3D::Vector3;
-    Vector3 center = aabox->center ();
-    double halfSideLength = (aabox->high () - center).length ();
+    Vector3 center = aabox.center ();
+    double halfSideLength = (aabox.high () - center).length ();
     Vector3 halfDiagonal = halfSideLength * 
 	(Vector3::unitX () + Vector3::unitY () + Vector3::unitZ ());
-    aabox->set (center - halfDiagonal, center + halfDiagonal);
+    return G3D::AABox (center - halfDiagonal, center + halfDiagonal);
 }
 
 bool Intersection (

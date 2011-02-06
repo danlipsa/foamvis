@@ -31,6 +31,30 @@
 // Private Functions
 // ======================================================================
 
+G3D::AABox AdjustXOverYRatio (const G3D::AABox& box, double xOverY)
+{
+    G3D::Vector3 center = box.center ();
+    G3D::Vector3 low, high;
+    if (xOverY >= 1)
+    {
+	double extentX = xOverY * box.extent ().y;
+	low = box.low ();
+	low.x = center.x - extentX / 2;
+	high = box.high ();
+	high.x = center.x + extentX / 2;
+    }
+    else
+    {
+	double extentY = box.extent ().x / xOverY;
+	low = box.low ();
+	low.y = center.y - extentY / 2;
+	high = box.high ();
+	high.y = center.y + extentY / 2;
+    }
+    G3D::AABox result = G3D::AABox (low, high);
+    return result;
+}
+
 boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
     const Foam& foam, const vector<size_t> bodyIds)
 {
@@ -376,7 +400,8 @@ void GLWidget::positionLight ()
 
 void GLWidget::translateLight (const QPoint& position)
 {
-    G3D::AABox vv = calculateCenteredViewingVolume ();
+    G3D::AABox vv = calculateCenteredViewingVolume (
+	static_cast<double> (width ()) / height ());
     G3D::Vector2 oldPosition = G3D::Vector2 (m_lastPos.x (), m_lastPos.y ());
     G3D::Vector2 newPosition = G3D::Vector2 (position.x (), position.y ());
     G3D::Vector2 viewportCenter =
@@ -412,10 +437,11 @@ void GLWidget::initializeLighting ()
     glShadeModel (GL_SMOOTH);
 }
 
-G3D::AABox GLWidget::calculateCenteredViewingVolume () const
+G3D::AABox GLWidget::calculateCenteredViewingVolume (
+    double xOverY) const
 {
-    G3D::AABox boundingBox = GetFoamAlongTime ().GetBoundingBox ();
-    EncloseRotation (&boundingBox);
+    G3D::AABox boundingBox = AdjustXOverYRatio (
+	EncloseRotation (GetFoamAlongTime ().GetBoundingBox ()), xOverY);
     G3D::Vector3 center = boundingBox.center ();
     return boundingBox - center;
 }
@@ -437,7 +463,6 @@ void GLWidget::ModelViewTransformNoRotation () const
 
 void GLWidget::modelViewTransform () const
 {
-    G3D::AABox boundingBox = GetFoamAlongTime ().GetBoundingBox ();
     glLoadIdentity ();
     glTranslate (- m_cameraDistance * G3D::Vector3::unitZ ());
     glMultMatrix (m_rotationMatrixModel);
@@ -457,23 +482,29 @@ void GLWidget::modelViewTransform () const
     }
     if (! m_contextView)
     {
-	glTranslate (m_translationRatio * boundingBox.extent ());
+	G3D::AABox vv = calculateCenteredViewingVolume (
+	    static_cast<double> (width ()) / height ());
+	glTranslate (m_translationRatio * vv.extent ());
 	glScaled (m_scaleRatio, m_scaleRatio, m_scaleRatio);
     }
-    glTranslate (-boundingBox.center ());
+    glTranslate (-GetFoamAlongTime ().GetBoundingBox ().center ());
 }
 
-G3D::AABox GLWidget::calculateViewingVolume () const
+G3D::AABox GLWidget::calculateViewingVolume (double xOverY) const
 {
-    G3D::AABox centeredViewingVolume = calculateCenteredViewingVolume ();
+    G3D::AABox centeredViewingVolume = 
+	calculateCenteredViewingVolume (xOverY);
     G3D::Vector3 translation (m_cameraDistance * G3D::Vector3::unitZ ());
-    return centeredViewingVolume - translation;
+    G3D::AABox result = centeredViewingVolume - translation;
+    cdbg << "xOverY: " << xOverY 
+	 << " result: " << result.extent ().x / result.extent ().y << endl;
+    return result;
 }
 
 
-void GLWidget::projectionTransform () const
+void GLWidget::projectionTransform (double xOverY) const
 {
-    G3D::AABox viewingVolume = calculateViewingVolume ();
+    G3D::AABox viewingVolume = calculateViewingVolume (xOverY);
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
     if (m_angleOfView == 0)
@@ -514,7 +545,6 @@ void GLWidget::ViewportTransform (
     }
     */
     glViewport (m_viewport);
-    cdbg << "viewport: " << m_viewport << endl;
 }
 
 
@@ -522,10 +552,12 @@ void GLWidget::viewingVolumeCalculations (
     int width, int height,
     G3D::Rect2D* vv2dScreen, G3D::Rect2D* screenWorld) const
 {
-    G3D::AABox vv = calculateCenteredViewingVolume ();
+    G3D::AABox vv = calculateCenteredViewingVolume (
+	static_cast<double> (width) / height);
     G3D::Rect2D vv2d = G3D::Rect2D::xyxy (vv.low ().xy (), vv.high ().xy ());
     double windowRatio = static_cast<double>(width) / height;
     double vvratio = vv2d.width () / vv2d.height ();
+    cdbg << "vvration: " << vvratio << " windowRation: " << windowRatio << endl;
     if (windowRatio > vvratio)
     {
 	double newWidth = vvratio * height;
@@ -610,7 +642,9 @@ void GLWidget::rotate3D () const
 
 void GLWidget::calculateCameraDistance ()
 {
-    G3D::AABox centeredViewingVolume = calculateCenteredViewingVolume ();
+    G3D::AABox centeredViewingVolume = 
+	calculateCenteredViewingVolume (
+	    static_cast<double> (width ()) / height ());
     G3D::Vector3 diagonal =
 	centeredViewingVolume.high () - centeredViewingVolume.low ();
     if (m_angleOfView == 0)
@@ -629,7 +663,7 @@ void GLWidget::ResetTransformation ()
     m_scaleRatio = 1;
     m_translationRatio = G3D::Vector3::zero ();
     setInitialLightPosition ();
-    projectionTransform ();
+    projectionTransform (static_cast<double> (width ()) / height ());
     ViewportTransform (width (), height ());
     updateGL ();
 }
@@ -678,7 +712,7 @@ void GLWidget::initializeGL()
     initializeGLFunctions ();
     glClearColor (Qt::white);
     glEnable(GL_DEPTH_TEST);
-    projectionTransform ();
+    projectionTransform (static_cast<double> (width ()) / height ());
     initializeTextures ();
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     m_displayFaceAverage->InitShaders ();
@@ -706,6 +740,7 @@ void GLWidget::resizeGL(int width, int height)
 {
     if (width == 0 && height == 0)
 	return;
+    projectionTransform (static_cast<double> (width) / height);
     ViewportTransform (width, height);
     QSize size = QSize (width, height);
     if (m_viewType == ViewType::FACES_AVERAGE)
@@ -814,7 +849,6 @@ void GLWidget::scale (const QPoint& position)
     makeCurrent ();
     double ratio = ratioFromCenter (position);
     m_scaleRatio = m_scaleRatio * ratio;
-    cdbg << "scaleRatio: " << m_scaleRatio << endl;
 }
 
 
@@ -979,8 +1013,9 @@ void GLWidget::displayFocusBox () const
 {
     if (m_contextView)
     {
-	G3D::AABox focusBox = GetFoamAlongTime ().GetBoundingBox ();
-	EncloseRotation (&focusBox);
+	G3D::AABox focusBox = AdjustXOverYRatio (
+	    EncloseRotation (GetFoamAlongTime ().GetBoundingBox ()), 
+	    static_cast<double> (width ()) / height ());
 	Scale (&focusBox, 1/m_scaleRatio);
 	Translate (&focusBox, - m_translationRatio);
 	DisplayBox (focusBox, Qt::black, GL_LINE);
@@ -1613,7 +1648,7 @@ void GLWidget::ToggledColorBarShown (bool checked)
 void GLWidget::ToggledContextView (bool checked)
 {
     m_contextView = checked;
-    projectionTransform ();
+    projectionTransform (static_cast<double> (width ()) / height ());
     updateGL ();
 }
 
@@ -1844,7 +1879,7 @@ void GLWidget::ValueChangedAngleOfView (int angleOfView)
     makeCurrent ();
     m_angleOfView = angleOfView;
     calculateCameraDistance ();
-    projectionTransform ();
+    projectionTransform (static_cast<double> (width ()) / height ());
     updateGL ();
 }
 
