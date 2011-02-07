@@ -95,6 +95,11 @@ public Q_SLOTS:
     void ClickedPlay ();
     void CurrentIndexChangedCenterPathColor (int value);
     void CurrentIndexChangedFacesColor (int value);
+    /**
+     * Copy status from GLWidget to the UI controls
+     */
+    void CurrentIndexChangedSelectedLight (int i);
+
     void ShowEditColorMap ();
     void InteractionModeRotate ();
     void InteractionModeScale ();

@@ -180,6 +180,20 @@ public:
     bool IsDisplayedBody (size_t bodyId) const;
     bool IsDisplayedFace (size_t faceI) const;
     bool IsDisplayedEdge (size_t edgeI) const;
+    bool IsLightEnabled (LightPosition::Enum i)
+    {
+	return m_lightEnabled[i];
+    }
+    bool IsDirectionalLightEnabled (LightPosition::Enum i)
+    {
+	return m_directionalLightEnabled [i];
+    }
+    bool IsLightPositionShown (LightPosition::Enum i)
+    {
+	return m_lightPositionShown[i];
+    }
+    
+
     bool IsEdgesTessellation () const
     {
 	return m_edgesTessellation;
@@ -226,7 +240,7 @@ public:
     {
 	return m_facesColor;
     }
-    void toggledLightingEnabled (bool checked);
+
 Q_SIGNALS:
     void PaintedGL ();
 
@@ -277,6 +291,7 @@ public Q_SLOTS:
     void CurrentIndexChangedInteractionMode (int index);
     void CurrentIndexChangedStatisticsType (int index);
     void CurrentIndexChangedAxesOrder (int index);
+    void CurrentIndexChangedSelectedLight (int selectedLight);
 
     void ValueChangedAngleOfView (int newIndex);
     void ValueChangedTimeDisplacement (int timeDisplacement);
@@ -351,6 +366,7 @@ private:
     };
 
 private:
+    void toggledLightingEnabled (bool checked);
     static double getMinimumEdgeRadius ();
     void setEdgeRadius ();
     static void calculateEdgeRadius (
@@ -369,7 +385,7 @@ private:
 	return m_edgesTubes;
     }
     bool edgeLighting () const;
-    bool hasLighting () const
+    bool isLightingEnabled () const
     {
 	return m_lightingEnabled;
     }
@@ -438,7 +454,8 @@ private:
     void displayFocusBox () const;
     void displayAxes () const;
     void setInitialLightPosition ();
-    G3D::Vector3 getInitialLightPosition (size_t i) const;
+    G3D::Vector3 getInitialLightPosition (
+	LightPosition::Enum lightPosition) const;
 
     /**
      * Rotates the foam or the light around an axis with a certain angle
@@ -517,7 +534,6 @@ private:
     static void quadricErrorCallback (GLenum errorCode);
     
 private:
-    const static size_t LIGHTS_COUNT = 4;
     const static double MIN_CONTEXT_ALPHA;
     const static double MAX_CONTEXT_ALPHA;
     const static double ENCLOSE_ROTATION_RATIO;
@@ -570,10 +586,14 @@ private:
     double m_cameraDistance;
 
     bool m_lightingEnabled;
-    bool m_directionalLightEnabled;
-    G3D::Matrix3 m_rotationMatrixLight;
-    double m_lightPositionRatio;
-    bool m_showLightPosition;
+    LightPosition::Enum m_selectedLight;
+
+    bitset<LightPosition::COUNT> m_lightEnabled;
+    bitset<LightPosition::COUNT> m_directionalLightEnabled;
+    bitset<LightPosition::COUNT> m_lightPositionShown;    
+
+    boost::array<G3D::Matrix3, LightPosition::COUNT> m_rotationMatrixLight;
+    boost::array<double, LightPosition::COUNT> m_lightPositionRatio;
     double m_angleOfView;
 
     EndLocationColor m_endTranslationColor;
@@ -625,7 +645,6 @@ private:
      */
     bool m_playMovie;
     boost::scoped_ptr<DisplayFaceAverage> m_displayFaceAverage;
-    bitset<LIGHTS_COUNT> m_lightEnabled;
     boost::shared_ptr<SelectBodiesById> m_selectBodiesById;
     QLabel *m_labelStatusBar;
     bool m_contextView;

@@ -122,8 +122,9 @@ GLWidget::GLWidget(QWidget *parent)
       m_scaleRatio (1),
       m_translation (G3D::Vector3::zero ()),
       m_lightingEnabled (false),
-      m_rotationMatrixLight (G3D::Matrix3::identity ()),
-      m_showLightPosition (false),
+      m_selectedLight (LightPosition::TOP_LEFT),
+      m_lightEnabled (0),
+      m_lightPositionShown (0x0f),
       m_angleOfView (0),
       m_edgeRadiusMultiplier (0),
       m_edgesTubes (false),
@@ -146,7 +147,6 @@ GLWidget::GLWidget(QWidget *parent)
       m_colorBarTexture (0),
       m_timeDisplacement (0.0),
       m_playMovie (false),
-      m_lightEnabled (0),
       m_selectBodiesById (new SelectBodiesById (this)),
       m_contextView (false)
 {
@@ -156,6 +156,8 @@ GLWidget::GLWidget(QWidget *parent)
     initQuadrics ();
     initViewTypeDisplay ();
     createActions ();
+    fill (m_rotationMatrixLight.begin (), m_rotationMatrixLight.end (),
+	  G3D::Matrix3::identity ());
 }
 
 void GLWidget::initEndTranslationColor ()
@@ -243,7 +245,7 @@ void GLWidget::initViewTypeDisplay ()
 
 
 	{&GLWidget::displayFacesNormal,
-	 bl::if_then_else_return (bl::bind (&GLWidget::hasLighting, this),
+	 bl::if_then_else_return (bl::bind (&GLWidget::isLightingEnabled, this),
 				  LIGHTING, NO_LIGHTING)},
 
 	{&GLWidget::displayFacesAverage, identity<Lighting> (NO_LIGHTING)},
@@ -345,11 +347,12 @@ QSize GLWidget::sizeHint()
 
 void GLWidget::setInitialLightPosition ()
 {
-    m_lightPositionRatio = 1;
-    m_directionalLightEnabled = true;
+    fill (m_lightPositionRatio.begin (), m_lightPositionRatio.end (), 1);
+    m_directionalLightEnabled = 0x0f;
 }
 
-G3D::Vector3 GLWidget::getInitialLightPosition (size_t i) const
+G3D::Vector3 GLWidget::getInitialLightPosition (
+    LightPosition::Enum lightPosition) const
 {
     G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
     G3D::Vector3 high = bb.high (), low = bb.low ();
@@ -359,40 +362,41 @@ G3D::Vector3 GLWidget::getInitialLightPosition (size_t i) const
 	G3D::Vector3 (low.x, low.y, high.z),
 	G3D::Vector3 (high.x, low.y, high.z),
     };
-    return v[i] - bb.center ();
+    return (v[lightPosition] - bb.center ());
 }
 
 void GLWidget::positionLight ()
 {
     // light position
-    glPushMatrix ();
+    glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT);
+    glPointSize (4);
+    glColor (Qt::black);
+
+    for (size_t i = 0; i < LightPosition::COUNT; ++i)
     {
+	glPushMatrix ();
 	glLoadIdentity ();
 	glTranslate (- m_cameraDistance * G3D::Vector3::unitZ ());
-	glMultMatrix (m_rotationMatrixLight);
-	glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT);
-	glPointSize (4);
-	glColor (Qt::black);
-	for (size_t i = 0; i < LIGHTS_COUNT; ++i)
+	glMultMatrix (m_rotationMatrixLight[i]);
+	if (m_lightEnabled[i])
 	{
-	    if (m_lightEnabled[i])
+	    G3D::Vector3 lp =
+		getInitialLightPosition (
+		    static_cast<LightPosition::Enum> (i)) * 
+		m_lightPositionRatio[i];
+	    GLfloat lightPosition[] = {
+		lp.x, lp.y, lp.z, ! m_directionalLightEnabled[i]};
+	    glLightfv(GL_LIGHT0 + i, GL_POSITION, lightPosition);
+	    if (m_lightPositionShown[i])
 	    {
-		G3D::Vector3 lp =
-		    getInitialLightPosition (i) * m_lightPositionRatio;
-		GLfloat lightPosition[] = {
-		    lp.x, lp.y, lp.z, ! m_directionalLightEnabled};
-		glLightfv(GL_LIGHT0 + i, GL_POSITION, lightPosition);
-		if (m_showLightPosition)
-		{
-		    glBegin (GL_POINTS);
-		    ::glVertex (lp);
-		    glEnd ();
-		}
+		glBegin (GL_POINTS);
+		::glVertex (lp);
+		glEnd ();
 	    }
 	}
-	glPopAttrib ();
+	glPopMatrix ();
     }
-    glPopMatrix ();
+    glPopAttrib ();
 }
 
 void GLWidget::translateLight (const QPoint& position)
@@ -409,7 +413,8 @@ void GLWidget::translateLight (const QPoint& position)
     float ratio = screenChange /
 	(m_viewport.x1y1 () - m_viewport.x0y0 ()).length ();
 
-    m_lightPositionRatio = (1 + ratio) * m_lightPositionRatio;
+    m_lightPositionRatio[m_selectedLight] = 
+	(1 + ratio) * m_lightPositionRatio[m_selectedLight];
 }
 
 
@@ -654,7 +659,8 @@ void GLWidget::ResetTransformation ()
 {
     makeCurrent ();
     m_rotationMatrixModel = G3D::Matrix3::identity ();
-    m_rotationMatrixLight = G3D::Matrix3::identity ();
+    fill (m_rotationMatrixLight.begin (), m_rotationMatrixLight.end (),
+	  G3D::Matrix3::identity ());
     m_scaleRatio = 1;
     m_translation = G3D::Vector3::zero ();
     setInitialLightPosition ();
@@ -970,7 +976,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	break;
 
     case InteractionMode::ROTATE_LIGHT:
-	rotate (event->pos (), &m_rotationMatrixLight);
+	rotate (event->pos (), &m_rotationMatrixLight[m_selectedLight]);
 	break;
     case InteractionMode::TRANSLATE_LIGHT:
 	translateLight (event->pos ());
@@ -1014,6 +1020,9 @@ void GLWidget::displayOriginalDomain () const
 	DisplayBox (GetCurrentFoam().GetOriginalDomain ());
 }
 
+/**
+ * @todo display a pyramid frustum for angle of view > 0.
+ */
 void GLWidget::displayFocusBox () const
 {
     if (m_contextView)
@@ -1590,7 +1599,7 @@ void GLWidget::toggledLights ()
     GLfloat lightDiffuse[] = {1.0, 1.0, 1.0, 1.0};  // default (1, 1, 1, 1)
     GLfloat lightSpecular[] = {1.0, 1.0, 1.0, 1.0}; // default (1, 1, 1, 1)
 
-    for (size_t i = 0; i < LIGHTS_COUNT; ++i)
+    for (size_t i = 0; i < LightPosition::COUNT; ++i)
     {
 	if (m_lightEnabled[i])
 	{
@@ -1628,13 +1637,13 @@ void GLWidget::toggledLightingEnabled (bool checked)
 
 void GLWidget::ToggledDirectionalLightEnabled (bool checked)
 {
-    m_directionalLightEnabled = checked;
+    m_directionalLightEnabled[m_selectedLight] = checked;
     updateGL ();
 }
 
 void GLWidget::ToggledLightPositionShown (bool checked)
 {
-    m_showLightPosition = checked;
+    m_lightPositionShown[m_selectedLight] = checked;
     updateGL ();
 }
 
@@ -1768,6 +1777,11 @@ void GLWidget::ToggledCenterPath (bool checked)
     view (checked, ViewType::CENTER_PATHS);
 }
 
+
+void GLWidget::CurrentIndexChangedSelectedLight (int selectedLight)
+{
+    m_selectedLight = static_cast<LightPosition::Enum> (selectedLight);
+}
 
 void GLWidget::CurrentIndexChangedInteractionMode (int index)
 {

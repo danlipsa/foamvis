@@ -205,7 +205,8 @@ struct LightPosition
 	TOP_RIGHT,
 	TOP_LEFT,
 	BOTTOM_LEFT,
-	BOTTOM_RIGHT
+	BOTTOM_RIGHT,
+	COUNT
     };
 };
 
@@ -249,7 +250,6 @@ struct SegmentPerpendicularEnd
 	COUNT
     };
 };
-
 
 
 #endif //__ENUMS_H__

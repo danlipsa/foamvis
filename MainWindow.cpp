@@ -151,13 +151,6 @@ void MainWindow::connectColorBarModelChanged ()
 
 void MainWindow::setupButtonGroups ()
 {
-    buttonGroupLightPosition->setId (checkBoxTopRight, LightPosition::TOP_RIGHT);
-    buttonGroupLightPosition->setId (checkBoxTopLeft, LightPosition::TOP_LEFT);
-    buttonGroupLightPosition->setId (checkBoxBottomLeft,
-				     LightPosition::BOTTOM_LEFT);
-    buttonGroupLightPosition->setId (checkBoxBottomRight,
-				     LightPosition::BOTTOM_RIGHT);
-
     buttonGroupFacesHistogram->setId (
 	radioButtonFacesHistogramNone, HistogramType::NONE);
     buttonGroupFacesHistogram->setId (
@@ -689,6 +682,16 @@ void MainWindow::setupColorBarModel (BodyProperty::Enum property)
     m_colorBarModel[property]->SetupPalette (Palette::RAINBOW);
 }
 
+void MainWindow::CurrentIndexChangedSelectedLight (int i)
+{
+    checkBoxLightEnabled->setChecked (
+	widgetGl->IsLightEnabled (static_cast<LightPosition::Enum>(i)));
+    checkBoxLightPositionShown->setChecked (
+	widgetGl->IsLightPositionShown (static_cast<LightPosition::Enum>(i)));
+    checkBoxDirectionalLightEnabled->setChecked (
+	widgetGl->IsDirectionalLightEnabled (
+	    static_cast<LightPosition::Enum>(i)));
+}
 
 
 void MainWindow::CurrentIndexChangedFacesColor (int value)
