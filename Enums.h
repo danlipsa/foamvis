@@ -166,16 +166,6 @@ public:
     };
 };
 
-struct ViewportTransformType
-{
-    enum Enum
-    {
-	FILL_SCREEN,
-	ALLOW_ROTATION,
-	COUNT
-    };
-};
-
 struct AxesOrder
 {
     enum Enum

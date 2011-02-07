@@ -264,7 +264,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="currentIndex">
-              <number>0</number>
+              <number>3</number>
              </property>
              <widget class="QWidget" name="tabShow">
               <attribute name="title">
@@ -433,19 +433,29 @@
                <item>
                 <widget class="QGroupBox" name="groupBox_5">
                  <property name="title">
-                  <string>Reset transformation</string>
+                  <string>Axes Order</string>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_16">
                   <item>
-                   <widget class="QComboBox" name="comboBoxViewportTransform">
+                   <widget class="QComboBox" name="comboBoxAxesOrder">
                     <item>
                      <property name="text">
-                      <string>Fill screen</string>
+                      <string>2D</string>
                      </property>
                     </item>
                     <item>
                      <property name="text">
-                      <string>Allow rotation</string>
+                      <string>2D time displacement</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>2D rotate right 90</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>3D</string>
                      </property>
                     </item>
                    </widget>
@@ -459,37 +469,6 @@
                      <property name="bottomMargin">
                       <number>0</number>
                      </property>
-                     <item>
-                      <widget class="QLabel" name="label_8">
-                       <property name="text">
-                        <string>Axes Order</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QComboBox" name="comboBoxAxesOrder">
-                       <item>
-                        <property name="text">
-                         <string>2D</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>2D time displacement</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>2D rotate right 90</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>3D</string>
-                        </property>
-                       </item>
-                      </widget>
-                     </item>
                     </layout>
                    </widget>
                   </item>
@@ -2042,22 +2021,6 @@
     <hint type="sourcelabel">
      <x>645</x>
      <y>270</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>457</x>
-     <y>510</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBoxViewportTransform</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>CurrentIndexChangedViewportTransformType(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>665</x>
-     <y>319</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>

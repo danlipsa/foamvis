@@ -219,8 +219,6 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
     {
 	radioButtonEdgesNormal->toggle ();
 	tabWidget->setCurrentWidget (edges);
-	comboBoxViewportTransform->setCurrentIndex (
-	    ViewportTransformType::FILL_SCREEN);
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::TWO_D);
 	
     }
@@ -228,8 +226,6 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
     {
 	radioButtonFacesNormal->toggle ();
 	tabWidget->setCurrentWidget (faces);
-	comboBoxViewportTransform->setCurrentIndex (
-	    ViewportTransformType::ALLOW_ROTATION);
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::THREE_D);
     }
     colorBar->setHidden (true);

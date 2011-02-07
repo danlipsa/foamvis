@@ -276,7 +276,6 @@ public Q_SLOTS:
 
     void CurrentIndexChangedInteractionMode (int index);
     void CurrentIndexChangedStatisticsType (int index);
-    void CurrentIndexChangedViewportTransformType (int index);
     void CurrentIndexChangedAxesOrder (int index);
 
     void ValueChangedAngleOfView (int newIndex);
@@ -305,9 +304,6 @@ public:
     const static  size_t DISPLAY_ALL;
     const static size_t QUADRIC_SLICES;
     const static size_t QUADRIC_STACKS;
-    const static size_t LIGHTS_COUNT = 4;
-    const static double MIN_CONTEXT_ALPHA;
-    const static double MAX_CONTEXT_ALPHA;
 
 protected:
     /**
@@ -493,6 +489,9 @@ private:
 	G3D::Vector3::Axis screenYTranslation);
     void translateLight (const QPoint& position);
     void scale (const QPoint& position);
+    void scaleTranslation (
+	double scaleRatio,
+	const G3D::Vector3& translation, bool contextView) const;
     void select (const QPoint& position);
     void deselect (const QPoint& position);
     void brushedBodies (const QPoint& position, vector<size_t>* bodies) const;
@@ -518,6 +517,13 @@ private:
     static void quadricErrorCallback (GLenum errorCode);
     
 private:
+    const static size_t LIGHTS_COUNT = 4;
+    const static double MIN_CONTEXT_ALPHA;
+    const static double MAX_CONTEXT_ALPHA;
+    const static double ENCLOSE_ROTATION_RATIO;
+
+
+private:
     Q_OBJECT
 
     /**
@@ -528,7 +534,6 @@ private:
     bool m_torusOriginalDomainClipped;
     InteractionMode::Enum m_interactionMode;
     StatisticsType::Enum m_statisticsType;
-    ViewportTransformType::Enum m_viewportTransformType;
     AxesOrder::Enum m_axesOrder;
 
     /**
@@ -558,7 +563,7 @@ private:
     G3D::Matrix3 m_rotationMatrixModel;
     G3D::Rect2D m_viewport;
     double m_scaleRatio;
-    G3D::Vector3 m_translationRatio;
+    G3D::Vector3 m_translation;
     /**
      * Distance from the camera to the center of the bounding box for the foam.
      */
