@@ -122,9 +122,9 @@ GLWidget::GLWidget(QWidget *parent)
       m_scaleRatio (1),
       m_translation (G3D::Vector3::zero ()),
       m_lightingEnabled (false),
-      m_selectedLight (LightPosition::TOP_LEFT),
+      m_selectedLight (LightPosition::TOP_RIGHT),
       m_lightEnabled (0),
-      m_lightPositionShown (0x0f),
+      m_lightPositionShown (0),
       m_angleOfView (0),
       m_edgeRadiusMultiplier (0),
       m_edgesTubes (false),
@@ -370,7 +370,6 @@ void GLWidget::positionLight ()
     // light position
     glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT);
     glPointSize (4);
-    glColor (Qt::black);
 
     for (size_t i = 0; i < LightPosition::COUNT; ++i)
     {
@@ -380,19 +379,22 @@ void GLWidget::positionLight ()
 	glMultMatrix (m_rotationMatrixLight[i]);
 	if (m_lightEnabled[i])
 	{
-	    G3D::Vector3 lp =
-		getInitialLightPosition (
-		    static_cast<LightPosition::Enum> (i)) * 
-		m_lightPositionRatio[i];
+	    glColor (Qt::red);
+	    G3D::Vector3 lp = getInitialLightPosition (
+		static_cast<LightPosition::Enum> (i)) * m_lightPositionRatio[i];
 	    GLfloat lightPosition[] = {
 		lp.x, lp.y, lp.z, ! m_directionalLightEnabled[i]};
 	    glLightfv(GL_LIGHT0 + i, GL_POSITION, lightPosition);
-	    if (m_lightPositionShown[i])
-	    {
-		glBegin (GL_POINTS);
-		::glVertex (lp);
-		glEnd ();
-	    }
+	}
+	else
+	    glColor (Qt::gray);
+	if (m_lightPositionShown[i])
+	{
+	    G3D::Vector3 lp = getInitialLightPosition (
+		static_cast<LightPosition::Enum> (i)) * m_lightPositionRatio[i];
+	    glBegin (GL_POINTS);
+	    ::glVertex (lp);
+	    glEnd ();
 	}
 	glPopMatrix ();
     }
@@ -1647,6 +1649,16 @@ void GLWidget::ToggledLightPositionShown (bool checked)
     updateGL ();
 }
 
+void GLWidget::ToggledLightEnabled (bool checked)
+{
+    m_lightEnabled[m_selectedLight] = checked;
+    toggledLights ();
+    toggledLightingEnabled (m_lightEnabled.any ());
+    cdbg << "lightingEnabled: " << m_lightingEnabled 
+	 << " lightEnabled: " << m_lightEnabled << endl;
+    updateGL ();
+}
+
 
 void GLWidget::ToggledBoundingBoxShown (bool checked)
 {
@@ -1843,15 +1855,6 @@ void GLWidget::ColorBarModelChanged (
     makeCurrent ();
     glTexImage1D (GL_TEXTURE_1D, 0, GL_RGBA, image.width (),
 		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
-    updateGL ();
-}
-
-
-void GLWidget::ButtonClickedLightPosition (int lightPosition)
-{
-    m_lightEnabled[lightPosition].flip ();
-    toggledLights ();
-    toggledLightingEnabled (m_lightEnabled.any ());
     updateGL ();
 }
 

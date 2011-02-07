@@ -278,6 +278,7 @@ public Q_SLOTS:
     void ToggledFacesShowEdges (bool checked);
 
     void ToggledLightPositionShown (bool checked);
+    void ToggledLightEnabled (bool checked);
     void ToggledOnlyPathsWithSelectionShown (bool checked);
     void ToggledTorusOriginalDomainShown (bool checked);
     void ToggledTorusOriginalDomainClipped (bool checked);
@@ -309,7 +310,6 @@ public Q_SLOTS:
      * @param timeStep the new index for the Foam to be displayed
      */
     void ValueChangedSliderTimeSteps (int timeStep);
-    void ButtonClickedLightPosition (int lightPosition);
     void SetStatus (QLabel* labelStatusBar)
     {
 	m_labelStatusBar = labelStatusBar;
