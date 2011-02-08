@@ -192,7 +192,18 @@ public:
     {
 	return m_lightPositionShown[i];
     }
-    
+    const boost::array<GLfloat, 4> GetLightAmbient (LightPosition::Enum i)
+    {
+	return m_lightAmbient[i];
+    }
+    const boost::array<GLfloat, 4> GetLightDiffuse (LightPosition::Enum i)
+    {
+	return m_lightDiffuse[i];
+    }
+    const boost::array<GLfloat, 4> GetLightSpecular (LightPosition::Enum i)
+    {
+	return m_lightSpecular[i];
+    }
 
     bool IsEdgesTessellation () const
     {
@@ -277,6 +288,7 @@ public Q_SLOTS:
     void ToggledFacesNormal (bool checked);
     void ToggledFacesShowEdges (bool checked);
 
+    void ToggledHideContent (bool checked);
     void ToggledLightPositionShown (bool checked);
     void ToggledLightEnabled (bool checked);
     void ToggledOnlyPathsWithSelectionShown (bool checked);
@@ -295,9 +307,24 @@ public Q_SLOTS:
     void CurrentIndexChangedSelectedLight (int selectedLight);
 
     void ValueChangedAngleOfView (int newIndex);
-    void ValueChangedTimeDisplacement (int timeDisplacement);
-    void ValueChangedEdgesRadius (int sliderValue);
     void ValueChangedContextAlpha (int sliderValue);
+    void ValueChangedEdgesRadius (int sliderValue);
+
+    void ValueChangedLightAmbientRed (int sliderValue);
+    void ValueChangedLightAmbientGreen (int sliderValue);
+    void ValueChangedLightAmbientBlue (int sliderValue);
+
+    void ValueChangedLightDiffuseRed (int sliderValue);
+    void ValueChangedLightDiffuseGreen (int sliderValue);
+    void ValueChangedLightDiffuseBlue (int sliderValue);
+
+    void ValueChangedLightSpecularRed (int sliderValue);
+    void ValueChangedLightSpecularGreen (int sliderValue);
+    void ValueChangedLightSpecularBlue (int sliderValue);
+
+
+    void ValueChangedSliderTimeSteps (int timeStep);
+    void ValueChangedTimeDisplacement (int timeDisplacement);
     // Actions
     void ResetTransformation ();
     void SelectBodiesByIdList ();
@@ -309,7 +336,6 @@ public Q_SLOTS:
      * Signals a change in data displayed
      * @param timeStep the new index for the Foam to be displayed
      */
-    void ValueChangedSliderTimeSteps (int timeStep);
     void SetStatus (QLabel* labelStatusBar)
     {
 	m_labelStatusBar = labelStatusBar;
@@ -402,7 +428,7 @@ private:
      * m_cameraDistance
      */
     void modelViewTransform () const;
-    void positionLight ();
+    void positionLights ();
     void viewingVolumeCalculations (
 	int width, int height,
 	G3D::Rect2D* vv2dScreen, G3D::Rect2D* windowWorld) const;
@@ -587,15 +613,16 @@ private:
 
     bool m_lightingEnabled;
     LightPosition::Enum m_selectedLight;
-
     bitset<LightPosition::COUNT> m_lightEnabled;
     bitset<LightPosition::COUNT> m_directionalLightEnabled;
     bitset<LightPosition::COUNT> m_lightPositionShown;    
-
     boost::array<G3D::Matrix3, LightPosition::COUNT> m_rotationMatrixLight;
     boost::array<double, LightPosition::COUNT> m_lightPositionRatio;
-    double m_angleOfView;
+    boost::array<boost::array<GLfloat, 4>, LightPosition::COUNT> m_lightAmbient;
+    boost::array<boost::array<GLfloat, 4>, LightPosition::COUNT> m_lightDiffuse;
+    boost::array<boost::array<GLfloat, 4>, LightPosition::COUNT> m_lightSpecular;
 
+    double m_angleOfView;
     EndLocationColor m_endTranslationColor;
     GLUquadricObj* m_quadric;    
     /**
@@ -648,6 +675,7 @@ private:
     boost::shared_ptr<SelectBodiesById> m_selectBodiesById;
     QLabel *m_labelStatusBar;
     bool m_contextView;
+    bool m_hideContent;
 };
 
 #endif //__GLWIDGET_H__

@@ -691,6 +691,46 @@ void MainWindow::CurrentIndexChangedSelectedLight (int i)
     checkBoxDirectionalLightEnabled->setChecked (
 	widgetGl->IsDirectionalLightEnabled (
 	    static_cast<LightPosition::Enum>(i)));
+    
+    horizontalSliderLightAmbientRed->setValue (
+	floor (
+	    widgetGl->GetLightAmbient (static_cast<LightPosition::Enum>(i))[0] * 
+	    horizontalSliderLightAmbientRed->maximum () + 0.5));
+    horizontalSliderLightAmbientGreen->setValue (
+	floor (
+	    widgetGl->GetLightAmbient (static_cast<LightPosition::Enum>(i))[1] * 
+	    horizontalSliderLightAmbientGreen->maximum () + 0.5));
+    horizontalSliderLightAmbientBlue->setValue (
+	floor (
+	    widgetGl->GetLightAmbient (static_cast<LightPosition::Enum>(i))[2] * 
+	    horizontalSliderLightAmbientBlue->maximum () + 0.5));
+    horizontalSliderLightDiffuseRed->setValue (
+	floor (
+	    widgetGl->GetLightDiffuse (static_cast<LightPosition::Enum>(i))[0] * 
+	    horizontalSliderLightDiffuseRed->maximum () + 0.5));
+    horizontalSliderLightDiffuseGreen->setValue (
+	floor (
+	    widgetGl->GetLightDiffuse (static_cast<LightPosition::Enum>(i))[1] * 
+	    horizontalSliderLightDiffuseGreen->maximum () + 0.5));
+    horizontalSliderLightDiffuseBlue->setValue (
+	floor (
+	    widgetGl->GetLightDiffuse (static_cast<LightPosition::Enum>(i))[2] * 
+	    horizontalSliderLightDiffuseBlue->maximum () + 0.5));
+    horizontalSliderLightSpecularRed->setValue (
+	floor (
+	    widgetGl->GetLightSpecular (
+		static_cast<LightPosition::Enum>(i))[0] * 
+	    horizontalSliderLightSpecularRed->maximum () + 0.5));
+    horizontalSliderLightSpecularGreen->setValue (
+	floor (
+	    widgetGl->GetLightSpecular (
+		static_cast<LightPosition::Enum>(i))[1] * 
+	    horizontalSliderLightSpecularGreen->maximum () + 0.5));
+    horizontalSliderLightSpecularBlue->setValue (
+	floor (
+	    widgetGl->GetLightSpecular (
+		static_cast<LightPosition::Enum>(i))[2] * 
+	    horizontalSliderLightSpecularBlue->maximum () + 0.5));
 }
 
 

@@ -68,6 +68,19 @@ boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
     return idBodySelector;
 }
 
+void initialize (boost::array<GLfloat, 4>& colors,
+		 const boost::array<GLfloat, 4>& values)
+{
+    copy (values.begin (), values.end (), colors.begin ());
+}
+
+void display (const char* name, const boost::array<GLfloat, 4>& what)
+{
+    ostream_iterator<GLfloat> out (cdbg, " ");
+    cdbg << name;
+    copy (what.begin (), what.end (), out);
+    cdbg << endl;
+}
 
 
 // Private Classes
@@ -148,7 +161,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_timeDisplacement (0.0),
       m_playMovie (false),
       m_selectBodiesById (new SelectBodiesById (this)),
-      m_contextView (false)
+      m_contextView (false),
+      m_hideContent(false)
 {
     makeCurrent ();
     m_displayFaceAverage.reset (new DisplayFaceAverage (*this));
@@ -158,6 +172,18 @@ GLWidget::GLWidget(QWidget *parent)
     createActions ();
     fill (m_rotationMatrixLight.begin (), m_rotationMatrixLight.end (),
 	  G3D::Matrix3::identity ());
+    // default (0, 0, 0, 1)
+    boost::array<GLfloat,4> lightAmbient = {{0, 0, 0, 1.0}};
+    // default (1, 1, 1, 1)
+    boost::array<GLfloat,4> lightDiffuse = {{1.0, 1.0, 1.0, 1.0}};
+    // default (1, 1, 1, 1)
+    boost::array<GLfloat,4> lightSpecular = {{1.0, 1.0, 1.0, 1.0}};
+    for_each (m_lightAmbient.begin (), m_lightAmbient.end (),
+	      boost::bind (initialize, _1, lightAmbient));
+    for_each (m_lightDiffuse.begin (), m_lightDiffuse.end (),
+	      boost::bind (initialize, _1, lightDiffuse));
+    for_each (m_lightSpecular.begin (), m_lightSpecular.end (),
+	      boost::bind (initialize, _1, lightSpecular));
 }
 
 void GLWidget::initEndTranslationColor ()
@@ -354,7 +380,8 @@ void GLWidget::setInitialLightPosition ()
 G3D::Vector3 GLWidget::getInitialLightPosition (
     LightPosition::Enum lightPosition) const
 {
-    G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
+    G3D::AABox bb = calculateCenteredViewingVolume (
+	static_cast<double> (width ()) / height ());
     G3D::Vector3 high = bb.high (), low = bb.low ();
     G3D::Vector3 v[] = {
 	high,
@@ -362,21 +389,20 @@ G3D::Vector3 GLWidget::getInitialLightPosition (
 	G3D::Vector3 (low.x, low.y, high.z),
 	G3D::Vector3 (high.x, low.y, high.z),
     };
-    return (v[lightPosition] - bb.center ());
+    return v[lightPosition];
 }
 
-void GLWidget::positionLight ()
+void GLWidget::positionLights ()
 {
     // light position
-    glPushAttrib (GL_CURRENT_BIT | GL_POINT_BIT);
-    glPointSize (4);
-
+    glPushAttrib (GL_CURRENT_BIT);
     for (size_t i = 0; i < LightPosition::COUNT; ++i)
     {
 	glPushMatrix ();
 	glLoadIdentity ();
-	glTranslate (- m_cameraDistance * G3D::Vector3::unitZ ());
+	glTranslatef (0, 0, - m_cameraDistance);
 	glMultMatrix (m_rotationMatrixLight[i]);
+
 	if (m_lightEnabled[i])
 	{
 	    glColor (Qt::red);
@@ -392,8 +418,9 @@ void GLWidget::positionLight ()
 	{
 	    G3D::Vector3 lp = getInitialLightPosition (
 		static_cast<LightPosition::Enum> (i)) * m_lightPositionRatio[i];
-	    glBegin (GL_POINTS);
+	    glBegin (GL_LINES);
 	    ::glVertex (lp);
+	    ::glVertex (G3D::Vector3::zero ());
 	    glEnd ();
 	}
 	glPopMatrix ();
@@ -472,7 +499,8 @@ void GLWidget::scaleTranslation (
     const G3D::Vector3& translation, bool contextView) const
 {
     // if 2D, the back plane stays in the same place
-    if (GetFoamAlongTime ().GetDimension () == 2)
+    if (GetFoamAlongTime ().GetDimension () == 2 && 
+	! IsTimeDisplacementUsed ())
     {
 	G3D::AABox boundingBox = GetFoamAlongTime ().GetBoundingBox ();
 	float zCoordinate = boundingBox.low ().z - boundingBox.center ().z;
@@ -727,14 +755,17 @@ void GLWidget::initializeGL()
 void GLWidget::paintGL ()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    positionLight ();
     modelViewTransform ();
-    display ();
-    displayTextureColorBar ();
+    if (! m_hideContent)
+    {
+	display ();
+	displayTextureColorBar ();
+    }
     displayAxes ();
     displayBoundingBox ();
     displayOriginalDomain ();
     displayFocusBox ();
+    positionLights ();
     detectOpenGLError ();
     Q_EMIT PaintedGL ();
 }
@@ -969,9 +1000,14 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	break;
 
     case InteractionMode::TRANSLATE:
-	translate (event->pos (), G3D::Vector3::X_AXIS,
-		   (event->modifiers () & Qt::ControlModifier) ?
-		   G3D::Vector3::Z_AXIS : G3D::Vector3::Y_AXIS);
+	if (event->modifiers () & Qt::ControlModifier)
+	{
+	    QPoint point (m_lastPos.x (), event->pos ().y ());
+	    translate (point, G3D::Vector3::X_AXIS, G3D::Vector3::Z_AXIS);
+	}
+	else
+	    translate (event->pos (), G3D::Vector3::X_AXIS,
+		       G3D::Vector3::Y_AXIS);
 	break;
     case InteractionMode::SCALE:
 	scale (event->pos ());
@@ -1596,18 +1632,13 @@ size_t GLWidget::GetSelectedEdgeId () const
 
 void GLWidget::toggledLights ()
 {
-    // light colors
-    GLfloat lightAmbient[] = {0, 0, 0, 1.0};     // default (0, 0, 0, 1)
-    GLfloat lightDiffuse[] = {1.0, 1.0, 1.0, 1.0};  // default (1, 1, 1, 1)
-    GLfloat lightSpecular[] = {1.0, 1.0, 1.0, 1.0}; // default (1, 1, 1, 1)
-
     for (size_t i = 0; i < LightPosition::COUNT; ++i)
     {
 	if (m_lightEnabled[i])
 	{
-	    glLightfv(GL_LIGHT0 + i, GL_AMBIENT, lightAmbient);
-	    glLightfv(GL_LIGHT0 + i, GL_DIFFUSE, lightDiffuse);
-	    glLightfv(GL_LIGHT0 + i, GL_SPECULAR, lightSpecular);
+	    glLightfv(GL_LIGHT0 + i, GL_AMBIENT, &m_lightAmbient[i][0]);
+	    glLightfv(GL_LIGHT0 + i, GL_DIFFUSE, &m_lightDiffuse[i][0]);
+	    glLightfv(GL_LIGHT0 + i, GL_SPECULAR, &m_lightSpecular[i][0]);
 	    glEnable(GL_LIGHT0 + i);
 	}
 	else
@@ -1654,8 +1685,6 @@ void GLWidget::ToggledLightEnabled (bool checked)
     m_lightEnabled[m_selectedLight] = checked;
     toggledLights ();
     toggledLightingEnabled (m_lightEnabled.any ());
-    cdbg << "lightingEnabled: " << m_lightingEnabled 
-	 << " lightEnabled: " << m_lightEnabled << endl;
     updateGL ();
 }
 
@@ -1686,6 +1715,12 @@ void GLWidget::ToggledContextView (bool checked)
     updateGL ();
 }
 
+
+void GLWidget::ToggledHideContent (bool checked)
+{
+    m_hideContent = checked;
+    updateGL ();
+}
 
 void GLWidget::ToggledAxesShown (bool checked)
 {
@@ -1894,6 +1929,105 @@ void GLWidget::ValueChangedContextAlpha (int sliderValue)
     size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
     m_contextAlpha = MIN_CONTEXT_ALPHA +
 	(MAX_CONTEXT_ALPHA - MIN_CONTEXT_ALPHA) * sliderValue / maximum;
+    updateGL ();
+}
+
+void GLWidget::ValueChangedLightAmbientRed (int sliderValue)
+{
+    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
+    m_lightAmbient[m_selectedLight][0] = 
+	static_cast<double>(sliderValue) / maximum;
+    glLightfv(GL_LIGHT0 + m_selectedLight, GL_AMBIENT, 
+	      &m_lightAmbient[m_selectedLight][0]);
+    ::display ("ambient: ", m_lightAmbient[m_selectedLight]);
+    updateGL ();
+}
+
+void GLWidget::ValueChangedLightAmbientGreen (int sliderValue)
+{
+    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
+    m_lightAmbient[m_selectedLight][1] = 
+	static_cast<double>(sliderValue) / maximum;
+    glLightfv(GL_LIGHT0 + m_selectedLight, GL_AMBIENT, 
+	      &m_lightAmbient[m_selectedLight][0]);
+    ::display ("ambient: ", m_lightAmbient[m_selectedLight]);
+    updateGL ();
+}
+
+void GLWidget::ValueChangedLightAmbientBlue (int sliderValue)
+{
+    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
+    m_lightAmbient[m_selectedLight][2] = 
+	static_cast<double>(sliderValue) / maximum;
+    glLightfv(GL_LIGHT0 + m_selectedLight, GL_AMBIENT, 
+	      &m_lightAmbient[m_selectedLight][0]);
+    ::display ("ambient: ", m_lightAmbient[m_selectedLight]);
+    updateGL ();
+}
+
+void GLWidget::ValueChangedLightDiffuseRed (int sliderValue)
+{
+    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
+    m_lightDiffuse[m_selectedLight][0] = 
+	static_cast<double>(sliderValue) / maximum;
+    glLightfv(GL_LIGHT0 + m_selectedLight, GL_DIFFUSE, 
+	      &m_lightDiffuse[m_selectedLight][0]);
+    ::display ("diffuse: ", m_lightDiffuse[m_selectedLight]);
+    updateGL ();
+}
+
+void GLWidget::ValueChangedLightDiffuseGreen (int sliderValue)
+{
+    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
+    m_lightDiffuse[m_selectedLight][1] = 
+	static_cast<double>(sliderValue) / maximum;
+    glLightfv(GL_LIGHT0 + m_selectedLight, GL_DIFFUSE, 
+	      &m_lightDiffuse[m_selectedLight][0]);
+    ::display ("diffuse: ", m_lightDiffuse[m_selectedLight]);
+    updateGL ();
+}
+
+void GLWidget::ValueChangedLightDiffuseBlue (int sliderValue)
+{
+    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
+    m_lightDiffuse[m_selectedLight][2] = 
+	static_cast<double>(sliderValue) / maximum;
+    glLightfv(GL_LIGHT0 + m_selectedLight, GL_DIFFUSE, 
+	      &m_lightDiffuse[m_selectedLight][0]);
+    ::display ("diffuse: ", m_lightDiffuse[m_selectedLight]);
+    updateGL ();
+}
+
+void GLWidget::ValueChangedLightSpecularRed (int sliderValue)
+{
+    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
+    m_lightSpecular[m_selectedLight][0] = 
+	static_cast<double>(sliderValue) / maximum;
+    glLightfv(GL_LIGHT0 + m_selectedLight, GL_SPECULAR, 
+	      &m_lightSpecular[m_selectedLight][0]);
+    ::display ("specular: ", m_lightSpecular[m_selectedLight]);
+    updateGL ();
+}
+
+void GLWidget::ValueChangedLightSpecularGreen (int sliderValue)
+{
+    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
+    m_lightSpecular[m_selectedLight][1] = 
+	static_cast<double>(sliderValue) / maximum;
+    glLightfv(GL_LIGHT0 + m_selectedLight, GL_SPECULAR, 
+	      &m_lightSpecular[m_selectedLight][0]);
+    ::display ("specular: ", m_lightSpecular[m_selectedLight]);
+    updateGL ();
+}
+
+void GLWidget::ValueChangedLightSpecularBlue (int sliderValue)
+{
+    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
+    m_lightSpecular[m_selectedLight][2] = 
+	static_cast<double>(sliderValue) / maximum;
+    glLightfv(GL_LIGHT0 + m_selectedLight, GL_SPECULAR, 
+	      &m_lightSpecular[m_selectedLight][0]);
+    ::display ("specular: ", m_lightSpecular[m_selectedLight]);
     updateGL ();
 }
 
@@ -2110,5 +2244,10 @@ void GLWidget::SetBodySelector (
 
 bool GLWidget::IsTimeDisplacementUsed () const
 {
-    return GetFoamAlongTime ().GetDimension () == 2 ? true : false;
+    if (GetFoamAlongTime ().GetDimension () == 2)
+    {
+	return GetTimeDisplacement () > 0;
+    }
+    else
+	return false;
 }
