@@ -277,7 +277,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="currentIndex">
-              <number>1</number>
+              <number>3</number>
              </property>
              <widget class="QWidget" name="tabShow">
               <attribute name="title">
@@ -366,7 +366,7 @@
                <item>
                 <widget class="QCheckBox" name="checkBoxLightPositionShown">
                  <property name="text">
-                  <string>Show light position</string>
+                  <string>Show light direction</string>
                  </property>
                 </widget>
                </item>
