@@ -101,7 +101,6 @@
 #include <G3D/Vector3.h>
 #include <G3D/Vector3int16.h>
 
-// VTK headers
 #include <vtkColorTransferFunction.h>
 #include <vtkSmartPointer.h>
 
@@ -112,5 +111,4 @@
 using namespace std;
 namespace bl = boost::lambda;
 namespace acc = boost::accumulators;
-
 #endif //__cplusplus

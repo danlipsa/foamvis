@@ -74,7 +74,8 @@ void initialize (boost::array<GLfloat, 4>& colors,
     copy (values.begin (), values.end (), colors.begin ());
 }
 
-void display (const char* name, const boost::array<GLfloat, 4>& what)
+template <typename T>
+void display (const char* name, const T& what)
 {
     ostream_iterator<GLfloat> out (cdbg, " ");
     cdbg << name;
@@ -114,7 +115,7 @@ const size_t GLWidget::QUADRIC_STACKS = 1;
 const double GLWidget::MIN_CONTEXT_ALPHA = 0.05;
 const double GLWidget::MAX_CONTEXT_ALPHA = 0.5;
 
-const double GLWidget::ENCLOSE_ROTATION_RATIO = 0.5;
+const double GLWidget::ENCLOSE_ROTATION_RATIO = 1;
 
 
 // Methods
@@ -170,8 +171,7 @@ GLWidget::GLWidget(QWidget *parent)
     initQuadrics ();
     initViewTypeDisplay ();
     createActions ();
-    fill (m_rotationMatrixLight.begin (), m_rotationMatrixLight.end (),
-	  G3D::Matrix3::identity ());
+    setInitialLightParameters ();
     // default (0, 0, 0, 1)
     boost::array<GLfloat,4> lightAmbient = {{0, 0, 0, 1.0}};
     // default (1, 1, 1, 1)
@@ -217,38 +217,47 @@ void GLWidget::initQuadrics ()
 
 void GLWidget::createActions ()
 {
-    m_actionSelectAll = boost::make_shared<QAction> (tr("&Select All"), this);
+    m_actionSelectAll = boost::make_shared<QAction> (tr("&Select all"), this);
     m_actionSelectAll->setShortcut(
 	QKeySequence (tr ("Shift+S")));
-    m_actionSelectAll->setStatusTip(tr("Select All"));
+    m_actionSelectAll->setStatusTip(tr("Select all"));
     connect(m_actionSelectAll.get (), SIGNAL(triggered()),
 	    this, SLOT(SelectAll ()));
 
     m_actionDeselectAll = boost::make_shared<QAction> (
-	tr("&Deselect All"), this);
+	tr("&Deselect all"), this);
     m_actionDeselectAll->setShortcut(
 	QKeySequence (tr ("Shift+D")));
-    m_actionDeselectAll->setStatusTip(tr("Deselect All"));
+    m_actionDeselectAll->setStatusTip(tr("Deselect all"));
     connect(m_actionDeselectAll.get (), SIGNAL(triggered()),
 	    this, SLOT(DeselectAll ()));
 
     m_actionResetTransformation = boost::make_shared<QAction> (
-	tr("&Reset Transformation"), this);
+	tr("&Reset transformation"), this);
     m_actionResetTransformation->setShortcut(
 	QKeySequence (tr ("Shift+R")));
-    m_actionResetTransformation->setStatusTip(tr("Reset Transformation"));
+    m_actionResetTransformation->setStatusTip(tr("Reset transformation"));
     connect(m_actionResetTransformation.get (), SIGNAL(triggered()),
 	    this, SLOT(ResetTransformation ()));
 
+
+    m_actionResetSelectedLightPosition = boost::make_shared<QAction> (
+	tr("&Reset selected light"), this);
+    m_actionResetSelectedLightPosition->setStatusTip(
+	tr("Reset selected light"));
+    connect(m_actionResetSelectedLightPosition.get (), SIGNAL(triggered()),
+	    this, SLOT(ResetSelectedLightPosition ()));
+
+
     m_actionSelectBodiesById = boost::make_shared<QAction> (
-	tr("&Select Bodies by Id"), this);
-    m_actionSelectBodiesById->setStatusTip(tr("Select Bodies by Id"));
+	tr("&Select bodies by id"), this);
+    m_actionSelectBodiesById->setStatusTip(tr("Select bodies by id"));
     connect(m_actionSelectBodiesById.get (), SIGNAL(triggered()),
 	    this, SLOT(SelectBodiesByIdList ()));
 
     m_actionOpenGlInfo = boost::make_shared<QAction> (
-	tr("&OpenGl Info"), this);
-    m_actionOpenGlInfo->setStatusTip(tr("OpenGl Info"));
+	tr("&OpenGl info"), this);
+    m_actionOpenGlInfo->setStatusTip(tr("OpenGl info"));
     connect(m_actionOpenGlInfo.get (), SIGNAL(triggered()),
 	    this, SLOT(ShowOpenGlInfo ()));
 }
@@ -257,31 +266,13 @@ void GLWidget::initViewTypeDisplay ()
 {
     // WARNING: This has to be in the same order as ViewType::Enum
     boost::array<ViewTypeDisplay, ViewType::COUNT> vtd =
-	{{
-	{&GLWidget::displayEdgesNormal, identity<Lighting> (NO_LIGHTING)},
-
-	{&GLWidget::displayEdgesTorus,
-	 bl::if_then_else_return (
-	     bl::bind (&GLWidget::edgeLighting, this),
-	     LIGHTING, NO_LIGHTING)},
-
-	{&GLWidget::displayFacesTorus,
-	 bl::if_then_else_return (bl::bind (&GLWidget::edgeLighting, this),
-				  LIGHTING, NO_LIGHTING)},
-
-
-	{&GLWidget::displayFacesNormal,
-	 bl::if_then_else_return (bl::bind (&GLWidget::isLightingEnabled, this),
-				  LIGHTING, NO_LIGHTING)},
-
-	{&GLWidget::displayFacesAverage, identity<Lighting> (NO_LIGHTING)},
-
-
-	{&GLWidget::displayCenterPathsWithBodies,
-	 bl::if_then_else_return (bl::bind (&GLWidget::edgeLighting, this),
-				  LIGHTING, NO_LIGHTING)},
-
-	}};
+	{{&GLWidget::displayEdgesNormal,
+	  &GLWidget::displayEdgesTorus,
+	  &GLWidget::displayFacesTorus,
+	  &GLWidget::displayFacesNormal,
+	  &GLWidget::displayFacesAverage,
+	  &GLWidget::displayCenterPathsWithBodies,
+	 }};
     copy (vtd.begin (), vtd.end (), m_viewTypeDisplay.begin ());
 }
 
@@ -289,7 +280,6 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 {
     m_foamAlongTime = foamAlongTime;
     calculateCameraDistance ();
-    setInitialLightPosition ();
     m_axesOrder =
 	(foamAlongTime->GetDimension () == 2) ?
 	AxesOrder::TWO_D :
@@ -302,11 +292,6 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 	m_selectBodiesById->SetMaxBodyId (bodies[maxIndex]->GetId ());
 	m_selectBodiesById->UpdateLabelMinMax ();
     }
-}
-
-bool GLWidget::edgeLighting () const
-{
-    return m_edgesTubes && m_lightingEnabled;
 }
 
 
@@ -347,16 +332,11 @@ GLWidget::~GLWidget()
     m_quadric = 0;
 }
 
-void GLWidget::view (bool checked, ViewType::Enum view)
+void GLWidget::changeView (bool checked, ViewType::Enum view)
 {
     if (checked)
     {
-	makeCurrent ();
         m_viewType = view;
-	if ((m_viewTypeDisplay[view].m_lightingEnabled) () == LIGHTING)
-	    glEnable (GL_LIGHTING);
-	else
-	    glDisable (GL_LIGHTING);
 	updateGL ();
     }
 }
@@ -371,10 +351,19 @@ QSize GLWidget::sizeHint()
     return QSize(512, 512);
 }
 
-void GLWidget::setInitialLightPosition ()
+void GLWidget::setInitialLightParameters ()
 {
-    fill (m_lightPositionRatio.begin (), m_lightPositionRatio.end (), 1);
-    m_directionalLightEnabled = 0x0f;
+    for (size_t i = 0; i < LightPosition::COUNT; ++i)
+    {
+	setInitialLightPosition (static_cast<LightPosition::Enum>(i));
+	m_directionalLightEnabled[i] = true;
+    }
+}
+
+void GLWidget::setInitialLightPosition (LightPosition::Enum i)
+{
+    m_lightPositionRatio[i] = 1;
+    m_rotationMatrixLight[i] = G3D::Matrix3::identity ();
 }
 
 G3D::Vector3 GLWidget::getInitialLightPosition (
@@ -383,49 +372,78 @@ G3D::Vector3 GLWidget::getInitialLightPosition (
     G3D::AABox bb = calculateCenteredViewingVolume (
 	static_cast<double> (width ()) / height ());
     G3D::Vector3 high = bb.high (), low = bb.low ();
-    G3D::Vector3 v[] = {
-	high,
+    G3D::Vector3 farRectangleCenter = 
+	(G3D::Vector3 (low.x, low.y, low.z) +
+	 G3D::Vector3 (low.x, high.y, low.z) +
+	 G3D::Vector3 (high.x, high.y, low.z) +
+	 G3D::Vector3 (high.x, low.y, low.z));
+    G3D::Vector3 nearRectangle[] = {
+	G3D::Vector3 (high.x, high.y, high.z),
 	G3D::Vector3 (low.x, high.y, high.z),
 	G3D::Vector3 (low.x, low.y, high.z),
 	G3D::Vector3 (high.x, low.y, high.z),
     };
-    return v[lightPosition];
+    return 2*nearRectangle[lightPosition];
 }
 
-void GLWidget::positionLights ()
+void GLWidget::positionLight (LightPosition::Enum i)
 {
-    // light position
-    glPushAttrib (GL_CURRENT_BIT);
-    for (size_t i = 0; i < LightPosition::COUNT; ++i)
+    if (m_lightEnabled[i])
     {
+	glPushMatrix ();
+	glLoadIdentity ();
+	glMultMatrix (m_rotationMatrixLight[i]);
+	G3D::Vector3 lp = getInitialLightPosition (
+	    static_cast<LightPosition::Enum> (i)) * m_lightPositionRatio[i];
+
+	if (m_directionalLightEnabled[i])
+	{
+	    boost::array<GLfloat, 4> lightDirection = {{lp.x, lp.y, lp.z, 0}};
+	    glLightfv(GL_LIGHT0 + i, GL_POSITION, &lightDirection[0]);
+	}
+	else
+	{
+	    boost::array<GLfloat, 3> lightDirection = {{-lp.x, -lp.y, -lp.z}};
+	    glLightfv(GL_LIGHT0 + i, GL_SPOT_DIRECTION, &lightDirection[0]);
+	    glPushMatrix ();
+	    glLoadIdentity ();
+	    glTranslatef (0, 0, - m_cameraDistance);
+	    glMultMatrix (m_rotationMatrixLight[i]);
+	    GLfloat lightPosition[] = {lp.x, lp.y, lp.z, 1};
+	    glLightfv(GL_LIGHT0 + i, GL_POSITION, lightPosition);
+	    glPopMatrix ();
+	}
+	glPopMatrix ();
+    }
+}
+
+void GLWidget::showLightPositions ()
+{
+    for (size_t i = 0; i < LightPosition::COUNT; ++i)
+	showLightPosition (
+	    static_cast<LightPosition::Enum> (i));
+}
+
+void GLWidget::showLightPosition (LightPosition::Enum i)
+{
+    if (m_lightPositionShown[i])
+    {
+	glPushAttrib (GL_CURRENT_BIT);    
 	glPushMatrix ();
 	glLoadIdentity ();
 	glTranslatef (0, 0, - m_cameraDistance);
 	glMultMatrix (m_rotationMatrixLight[i]);
-
-	if (m_lightEnabled[i])
-	{
-	    glColor (Qt::red);
-	    G3D::Vector3 lp = getInitialLightPosition (
-		static_cast<LightPosition::Enum> (i)) * m_lightPositionRatio[i];
-	    GLfloat lightPosition[] = {
-		lp.x, lp.y, lp.z, ! m_directionalLightEnabled[i]};
-	    glLightfv(GL_LIGHT0 + i, GL_POSITION, lightPosition);
-	}
-	else
-	    glColor (Qt::gray);
-	if (m_lightPositionShown[i])
-	{
-	    G3D::Vector3 lp = getInitialLightPosition (
-		static_cast<LightPosition::Enum> (i)) * m_lightPositionRatio[i];
-	    glBegin (GL_LINES);
-	    ::glVertex (lp);
-	    ::glVertex (G3D::Vector3::zero ());
-	    glEnd ();
-	}
+	G3D::Vector3 lp = getInitialLightPosition (
+	    static_cast<LightPosition::Enum> (i)) * m_lightPositionRatio[i];
+	glColor (m_lightEnabled[i] ? Qt::red : Qt::gray);
+	if (isLightingEnabled ())
+	    glDisable (GL_LIGHTING);
+	DisplayOrientedEdge () (lp, G3D::Vector3::zero ());
+	if (isLightingEnabled ())
+	    glEnable (GL_LIGHTING);
 	glPopMatrix ();
+	glPopAttrib ();
     }
-    glPopAttrib ();
 }
 
 void GLWidget::translateLight (const QPoint& position)
@@ -463,9 +481,16 @@ void GLWidget::initializeLighting ()
     glMaterialfv (GL_FRONT, GL_SPECULAR, materialSpecular);
     glMaterialfv (GL_FRONT, GL_SHININESS, materialShininess);
     glMaterialfv (GL_FRONT, GL_EMISSION, materialEmission);
-
+    // See OpenGL FAQ 21.040 
+    //Lighting and texture mapping work pretty well, but why don't I see 
+    // specular highlighting?
     glLightModeli (GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
+    // See OpenGL FAQ 18.090 
+    // Why is the lighting incorrect after I scale my scene to change its size?
+    glEnable(GL_RESCALE_NORMAL);
     glShadeModel (GL_SMOOTH);
+    for (size_t i = 0; i < LightPosition::COUNT; ++i)
+	glLightf(GL_LIGHT0 + i, GL_SPOT_CUTOFF, 15);
 }
 
 G3D::AABox GLWidget::calculateCenteredViewingVolume (
@@ -516,11 +541,16 @@ void GLWidget::scaleTranslation (
 
 void GLWidget::modelViewTransform () const
 {
-    G3D::AABox boundingBox = GetFoamAlongTime ().GetBoundingBox ();
-    G3D::Vector3 center = boundingBox.center ();
     glLoadIdentity ();
+    // viewing transform
     glTranslatef (0, 0, - m_cameraDistance);
+    
+    // modeling transform - build the model around origin
+    if (m_contextView)
+	glTranslate (-m_translation);
     glMultMatrix (m_rotationMatrixModel);
+    if (m_contextView)
+	glTranslate (m_translation);
     switch (m_axesOrder)
     {
     case AxesOrder::TWO_D_TIME_DISPLACEMENT:
@@ -536,8 +566,8 @@ void GLWidget::modelViewTransform () const
 	break;
     }
     if (! m_contextView)
-	scaleTranslation (m_scaleRatio, m_translation, m_contextView);
-    glTranslate (-center);
+	scaleTranslation (m_scaleRatio, m_translation, false);
+    glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
 }
 
 G3D::AABox GLWidget::calculateViewingVolume (double xOverY) const
@@ -568,6 +598,7 @@ void GLWidget::projectionTransform (double xOverY) const
 		   -viewingVolume.high ().z, -viewingVolume.low ().z);
     }
     glMatrixMode (GL_MODELVIEW);
+    glLoadIdentity ();
 }
 
 void GLWidget::ViewportTransform (
@@ -689,15 +720,18 @@ void GLWidget::ResetTransformation ()
 {
     makeCurrent ();
     m_rotationMatrixModel = G3D::Matrix3::identity ();
-    fill (m_rotationMatrixLight.begin (), m_rotationMatrixLight.end (),
-	  G3D::Matrix3::identity ());
     m_scaleRatio = 1;
     m_translation = G3D::Vector3::zero ();
-    setInitialLightPosition ();
-    projectionTransform (static_cast<double> (width ()) / height ());
-    ViewportTransform (width (), height ());
     updateGL ();
 }
+
+void GLWidget::ResetSelectedLightPosition ()
+{
+    setInitialLightPosition (m_selectedLight);
+    positionLight (m_selectedLight);
+    updateGL ();
+}
+
 
 void GLWidget::SelectBodiesByIdList ()
 {
@@ -755,6 +789,7 @@ void GLWidget::initializeGL()
 void GLWidget::paintGL ()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glPushMatrix ();
     modelViewTransform ();
     if (! m_hideContent)
     {
@@ -765,7 +800,8 @@ void GLWidget::paintGL ()
     displayBoundingBox ();
     displayOriginalDomain ();
     displayFocusBox ();
-    positionLights ();
+    showLightPositions ();
+    glPopMatrix ();
     detectOpenGLError ();
     Q_EMIT PaintedGL ();
 }
@@ -1015,9 +1051,11 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 
     case InteractionMode::ROTATE_LIGHT:
 	rotate (event->pos (), &m_rotationMatrixLight[m_selectedLight]);
+	positionLight (m_selectedLight);
 	break;
     case InteractionMode::TRANSLATE_LIGHT:
 	translateLight (event->pos ());
+	positionLight (m_selectedLight);
 	break;
 
     case InteractionMode::SELECT:
@@ -1074,8 +1112,7 @@ void GLWidget::displayFocusBox () const
 	G3D::AABox focusBox = AdjustXOverYRatio (
 	    EncloseRotation (boundingBox, ENCLOSE_ROTATION_RATIO), 
 	    static_cast<double> (width ()) / height ());
-	scaleTranslation (
-	    1 / m_scaleRatio, - m_translation, m_contextView);
+	scaleTranslation (1 / m_scaleRatio, - m_translation, true);
 	glTranslate (-center);
 	DisplayBox (focusBox, Qt::black, GL_LINE);
 	glPopMatrix ();
@@ -1084,6 +1121,8 @@ void GLWidget::displayFocusBox () const
 
 void GLWidget::displayBoundingBox () const
 {
+    if (isLightingEnabled ())
+	glDisable (GL_LIGHTING);
     if (m_boundingBoxShown)
 	DisplayBox (GetFoamAlongTime ().GetBoundingBox (), Qt::black, GL_LINE);
     if (m_bodiesBoundingBoxesShown)
@@ -1095,6 +1134,8 @@ void GLWidget::displayBoundingBox () const
 		DisplayBox< boost::shared_ptr<Body> >,
 		_1, Qt::black, GL_LINE));
     }
+    if (isLightingEnabled ())
+	glEnable (GL_LIGHTING);
 }
 
 void GLWidget::displayAxes () const
@@ -1405,7 +1446,7 @@ void GLWidget::display () const
 
 void GLWidget::DisplayViewType () const
 {
-    (this->*(m_viewTypeDisplay[m_viewType].m_display)) ();
+    (this->*(m_viewTypeDisplay[m_viewType])) ();
 }
 
 bool GLWidget::IsDisplayedBody (size_t bodyId) const
@@ -1630,36 +1671,13 @@ size_t GLWidget::GetSelectedEdgeId () const
     return GetSelectedEdge ()->GetId ();
 }
 
-void GLWidget::toggledLights ()
+void GLWidget::enableLighting (bool checked)
 {
-    for (size_t i = 0; i < LightPosition::COUNT; ++i)
-    {
-	if (m_lightEnabled[i])
-	{
-	    glLightfv(GL_LIGHT0 + i, GL_AMBIENT, &m_lightAmbient[i][0]);
-	    glLightfv(GL_LIGHT0 + i, GL_DIFFUSE, &m_lightDiffuse[i][0]);
-	    glLightfv(GL_LIGHT0 + i, GL_SPECULAR, &m_lightSpecular[i][0]);
-	    glEnable(GL_LIGHT0 + i);
-	}
-	else
-	    glDisable (GL_LIGHT0 + i);
-    }
-}
-
-void GLWidget::toggledLightingEnabled (bool checked)
-{
-    if (m_lightingEnabled == checked)
-	return;
     m_lightingEnabled = checked;
-    makeCurrent ();
-    if ((m_viewTypeDisplay[m_viewType].m_lightingEnabled) () == LIGHTING)
-    {
+    if (checked)
 	glEnable (GL_LIGHTING);
-    }
     else
-    {
 	glDisable (GL_LIGHTING);
-    }
     updateGL ();
 }
 
@@ -1670,12 +1688,15 @@ void GLWidget::toggledLightingEnabled (bool checked)
 
 void GLWidget::ToggledDirectionalLightEnabled (bool checked)
 {
+    makeCurrent ();
     m_directionalLightEnabled[m_selectedLight] = checked;
+    positionLight (m_selectedLight);
     updateGL ();
 }
 
 void GLWidget::ToggledLightPositionShown (bool checked)
 {
+    makeCurrent ();
     m_lightPositionShown[m_selectedLight] = checked;
     updateGL ();
 }
@@ -1683,8 +1704,12 @@ void GLWidget::ToggledLightPositionShown (bool checked)
 void GLWidget::ToggledLightEnabled (bool checked)
 {
     m_lightEnabled[m_selectedLight] = checked;
-    toggledLights ();
-    toggledLightingEnabled (m_lightEnabled.any ());
+    positionLight (m_selectedLight);
+    if (checked)
+	glEnable(GL_LIGHT0 + m_selectedLight);
+    else
+	glDisable (GL_LIGHT0 + m_selectedLight);
+    enableLighting (m_lightEnabled.any ());
     updateGL ();
 }
 
@@ -1744,12 +1769,12 @@ void GLWidget::ToggledOnlyPathsWithSelectionShown (bool checked)
 
 void GLWidget::ToggledEdgesNormal (bool checked)
 {
-    view (checked, ViewType::EDGES);
+    changeView (checked, ViewType::EDGES);
 }
 
 void GLWidget::ToggledEdgesTorus (bool checked)
 {
-    view (checked, ViewType::EDGES_TORUS);
+    changeView (checked, ViewType::EDGES_TORUS);
 }
 
 void GLWidget::ToggledEdgesBodyCenter (bool checked)
@@ -1766,12 +1791,12 @@ void GLWidget::ToggledFacesShowEdges (bool checked)
 
 void GLWidget::ToggledFacesNormal (bool checked)
 {
-    view (checked, ViewType::FACES);
+    changeView (checked, ViewType::FACES);
 }
 
 void GLWidget::ToggledFaceEdgesTorus (bool checked)
 {
-    view (checked, ViewType::FACES_TORUS);
+    changeView (checked, ViewType::FACES_TORUS);
 }
 
 
@@ -1791,7 +1816,7 @@ void GLWidget::ToggledFacesAverage (bool checked)
     }
     else
 	m_displayFaceAverage->Release ();
-    view (checked, ViewType::FACES_AVERAGE);
+    changeView (checked, ViewType::FACES_AVERAGE);
     if (checked)
     {
 	m_displayFaceAverage->StepDisplay ();
@@ -1821,7 +1846,7 @@ void GLWidget::ToggledTorusOriginalDomainClipped (bool checked)
 
 void GLWidget::ToggledCenterPath (bool checked)
 {
-    view (checked, ViewType::CENTER_PATHS);
+    changeView (checked, ViewType::CENTER_PATHS);
 }
 
 
@@ -1920,7 +1945,7 @@ void GLWidget::ValueChangedEdgesRadius (int sliderValue)
     size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
     m_edgeRadiusMultiplier = static_cast<double>(sliderValue) / maximum;
     setEdgeRadius ();
-    toggledLightingEnabled (m_lightingEnabled);
+    enableLighting (m_lightEnabled.any ());
     updateGL ();
 }
 
@@ -2061,6 +2086,7 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu (this);
     menu.addAction (m_actionResetTransformation.get ());
+    menu.addAction (m_actionResetSelectedLightPosition.get ());
     menu.addAction (m_actionSelectAll.get ());
     menu.addAction (m_actionDeselectAll.get ());
     menu.addAction (m_actionSelectBodiesById.get ());

@@ -277,7 +277,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="tabShow">
               <attribute name="title">
@@ -373,7 +373,7 @@
                <item>
                 <widget class="QCheckBox" name="checkBoxDirectionalLightEnabled">
                  <property name="text">
-                  <string>Light far away, no atenuation</string>
+                  <string>Directional light</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>

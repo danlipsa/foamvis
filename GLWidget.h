@@ -327,6 +327,7 @@ public Q_SLOTS:
     void ValueChangedTimeDisplacement (int timeDisplacement);
     // Actions
     void ResetTransformation ();
+    void ResetSelectedLightPosition ();
     void SelectBodiesByIdList ();
     void SelectAll ();
     void DeselectAll ();
@@ -385,14 +386,11 @@ private:
 
     typedef boost::unordered_map<G3D::Vector3int16, QColor,
 				 Vector3int16Hash> EndLocationColor;
-    struct ViewTypeDisplay
-    {
-	void (GLWidget::* m_display) () const;
-	boost::function<Lighting ()> m_lightingEnabled;
-    };
+
+    typedef void (GLWidget::* ViewTypeDisplay) () const;
 
 private:
-    void toggledLightingEnabled (bool checked);
+    void enableLighting (bool checked);
     static double getMinimumEdgeRadius ();
     void setEdgeRadius ();
     static void calculateEdgeRadius (
@@ -410,13 +408,12 @@ private:
     {
 	return m_edgesTubes;
     }
-    bool edgeLighting () const;
     bool isLightingEnabled () const
     {
 	return m_lightingEnabled;
     }
 
-    void view (bool checked, ViewType::Enum view);
+    void changeView (bool checked, ViewType::Enum view);
     /**
      * Setup the viewing volume first centered around origin and then translated
      * toward negative Z with m_cameraDistance. 
@@ -428,7 +425,9 @@ private:
      * m_cameraDistance
      */
     void modelViewTransform () const;
-    void positionLights ();
+    void positionLight (LightPosition::Enum light);
+    void showLightPosition (LightPosition::Enum light);
+    void showLightPositions ();
     void viewingVolumeCalculations (
 	int width, int height,
 	G3D::Rect2D* vv2dScreen, G3D::Rect2D* windowWorld) const;
@@ -479,7 +478,8 @@ private:
     void displayBoundingBox () const;
     void displayFocusBox () const;
     void displayAxes () const;
-    void setInitialLightPosition ();
+    void setInitialLightPosition (LightPosition::Enum i);
+    void setInitialLightParameters ();
     G3D::Vector3 getInitialLightPosition (
 	LightPosition::Enum lightPosition) const;
 
@@ -550,7 +550,6 @@ private:
     void rotate3D () const;
     void rotate2DTimeDisplacement () const;
     void rotate2DRight90 () const;
-    void toggledLights ();
     void setBodySelectorLabel (BodySelectorType::Enum type);
 
 private:
@@ -659,6 +658,7 @@ private:
     boost::shared_ptr<QAction> m_actionInfo;
     // owned by GLWidget
     boost::shared_ptr<QAction> m_actionResetTransformation;
+    boost::shared_ptr<QAction> m_actionResetSelectedLightPosition;
     boost::shared_ptr<QAction> m_actionSelectBodiesById;
     boost::shared_ptr<QAction> m_actionOpenGlInfo;
     
