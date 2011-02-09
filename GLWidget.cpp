@@ -383,8 +383,16 @@ G3D::Vector3 GLWidget::getInitialLightPosition (
 	G3D::Vector3 (low.x, low.y, high.z),
 	G3D::Vector3 (high.x, low.y, high.z),
     };
-    return 2*nearRectangle[lightPosition];
+    return G3D::Vector3 (0, 0, bb.extent ().z / 2);
 }
+
+
+void GLWidget::positionLights ()
+{
+    for (size_t i = 0; i < LightPosition::COUNT; ++i)
+	positionLight (LightPosition::Enum (i));
+}
+
 
 void GLWidget::positionLight (LightPosition::Enum i)
 {
@@ -800,6 +808,7 @@ void GLWidget::paintGL ()
     displayOriginalDomain ();
     displayFocusBox ();
     showLightPositions ();
+    positionLights ();
     detectOpenGLError ();
     Q_EMIT PaintedGL ();
 }
@@ -1687,7 +1696,6 @@ void GLWidget::enableLighting (bool checked)
 
 void GLWidget::ToggledDirectionalLightEnabled (bool checked)
 {
-    makeCurrent ();
     m_directionalLightEnabled[m_selectedLight] = checked;
     positionLight (m_selectedLight);
     updateGL ();
@@ -1695,13 +1703,13 @@ void GLWidget::ToggledDirectionalLightEnabled (bool checked)
 
 void GLWidget::ToggledLightPositionShown (bool checked)
 {
-    makeCurrent ();
     m_lightPositionShown[m_selectedLight] = checked;
     updateGL ();
 }
 
 void GLWidget::ToggledLightEnabled (bool checked)
 {
+    makeCurrent ();
     m_lightEnabled[m_selectedLight] = checked;
     positionLight (m_selectedLight);
     if (checked)

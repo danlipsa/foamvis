@@ -426,6 +426,7 @@ private:
      */
     void modelViewTransform () const;
     void positionLight (LightPosition::Enum light);
+    void positionLights ();
     void showLightPosition (LightPosition::Enum light);
     void showLightPositions ();
     void viewingVolumeCalculations (

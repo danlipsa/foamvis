@@ -216,7 +216,8 @@ speedStep (
     if (m_output.get () != 0)
     {
 	G3D::Vector3 p = getPoint (begin);
-	(*m_output) << m_index << " " << p.x << " " << p.y << " " << p.z << endl;
+	(*m_output) << m_index << " " 
+		    << p.x << " " << p.y << " " << p.z << endl;
 	if (begin.m_location == StripPointLocation::END)
 	{
 	    p = getPoint (end);
