@@ -789,7 +789,6 @@ void GLWidget::initializeGL()
 void GLWidget::paintGL ()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glPushMatrix ();
     modelViewTransform ();
     if (! m_hideContent)
     {
@@ -801,7 +800,6 @@ void GLWidget::paintGL ()
     displayOriginalDomain ();
     displayFocusBox ();
     showLightPositions ();
-    glPopMatrix ();
     detectOpenGLError ();
     Q_EMIT PaintedGL ();
 }
@@ -943,10 +941,7 @@ void GLWidget::brushedBodies (
     {
 	G3D::AABox box = body->GetBoundingBox ();
 	if (box.contains (end))
-	{
 	    bodies->push_back (body->GetId ());
-	    cdbg << "box: " << box << "end: " << end << endl;
-	}
     }
 }
 
@@ -1199,9 +1194,13 @@ void GLWidget::displayStandaloneEdges (bool useZPos, double zPos) const
 
 void GLWidget::displayEdgesNormal () const
 {
+    if (isLightingEnabled ())
+	glDisable (GL_LIGHTING);
     m_torusOriginalDomainClipped ?
 	displayEdges <DisplayEdgeTorusClipped> () :
 	displayEdges <DisplayEdgeWithColor<> >();
+    if (isLightingEnabled ())
+	glEnable (GL_LIGHTING);
 }
 
 void GLWidget::displayEdgesTorus () const
@@ -1964,7 +1963,6 @@ void GLWidget::ValueChangedLightAmbientRed (int sliderValue)
 	static_cast<double>(sliderValue) / maximum;
     glLightfv(GL_LIGHT0 + m_selectedLight, GL_AMBIENT, 
 	      &m_lightAmbient[m_selectedLight][0]);
-    ::display ("ambient: ", m_lightAmbient[m_selectedLight]);
     updateGL ();
 }
 
@@ -1975,7 +1973,6 @@ void GLWidget::ValueChangedLightAmbientGreen (int sliderValue)
 	static_cast<double>(sliderValue) / maximum;
     glLightfv(GL_LIGHT0 + m_selectedLight, GL_AMBIENT, 
 	      &m_lightAmbient[m_selectedLight][0]);
-    ::display ("ambient: ", m_lightAmbient[m_selectedLight]);
     updateGL ();
 }
 
@@ -1986,7 +1983,6 @@ void GLWidget::ValueChangedLightAmbientBlue (int sliderValue)
 	static_cast<double>(sliderValue) / maximum;
     glLightfv(GL_LIGHT0 + m_selectedLight, GL_AMBIENT, 
 	      &m_lightAmbient[m_selectedLight][0]);
-    ::display ("ambient: ", m_lightAmbient[m_selectedLight]);
     updateGL ();
 }
 
@@ -1997,7 +1993,6 @@ void GLWidget::ValueChangedLightDiffuseRed (int sliderValue)
 	static_cast<double>(sliderValue) / maximum;
     glLightfv(GL_LIGHT0 + m_selectedLight, GL_DIFFUSE, 
 	      &m_lightDiffuse[m_selectedLight][0]);
-    ::display ("diffuse: ", m_lightDiffuse[m_selectedLight]);
     updateGL ();
 }
 
@@ -2008,7 +2003,6 @@ void GLWidget::ValueChangedLightDiffuseGreen (int sliderValue)
 	static_cast<double>(sliderValue) / maximum;
     glLightfv(GL_LIGHT0 + m_selectedLight, GL_DIFFUSE, 
 	      &m_lightDiffuse[m_selectedLight][0]);
-    ::display ("diffuse: ", m_lightDiffuse[m_selectedLight]);
     updateGL ();
 }
 
@@ -2019,7 +2013,6 @@ void GLWidget::ValueChangedLightDiffuseBlue (int sliderValue)
 	static_cast<double>(sliderValue) / maximum;
     glLightfv(GL_LIGHT0 + m_selectedLight, GL_DIFFUSE, 
 	      &m_lightDiffuse[m_selectedLight][0]);
-    ::display ("diffuse: ", m_lightDiffuse[m_selectedLight]);
     updateGL ();
 }
 
@@ -2030,7 +2023,6 @@ void GLWidget::ValueChangedLightSpecularRed (int sliderValue)
 	static_cast<double>(sliderValue) / maximum;
     glLightfv(GL_LIGHT0 + m_selectedLight, GL_SPECULAR, 
 	      &m_lightSpecular[m_selectedLight][0]);
-    ::display ("specular: ", m_lightSpecular[m_selectedLight]);
     updateGL ();
 }
 
@@ -2041,7 +2033,6 @@ void GLWidget::ValueChangedLightSpecularGreen (int sliderValue)
 	static_cast<double>(sliderValue) / maximum;
     glLightfv(GL_LIGHT0 + m_selectedLight, GL_SPECULAR, 
 	      &m_lightSpecular[m_selectedLight][0]);
-    ::display ("specular: ", m_lightSpecular[m_selectedLight]);
     updateGL ();
 }
 
@@ -2052,7 +2043,6 @@ void GLWidget::ValueChangedLightSpecularBlue (int sliderValue)
 	static_cast<double>(sliderValue) / maximum;
     glLightfv(GL_LIGHT0 + m_selectedLight, GL_SPECULAR, 
 	      &m_lightSpecular[m_selectedLight][0]);
-    ::display ("specular: ", m_lightSpecular[m_selectedLight]);
     updateGL ();
 }
 

@@ -212,6 +212,20 @@ speedStep (
 {
     static_cast<void>(beforeBegin);
     static_cast<void>(afterEnd);
+
+    if (m_output.get () != 0)
+    {
+	G3D::Vector3 p = getPoint (begin);
+	(*m_output) << m_index << " " << p.x << " " << p.y << " " << p.z << endl;
+	if (begin.m_location == StripPointLocation::END)
+	{
+	    p = getPoint (end);
+	    (*m_output) << m_index << " " 
+			<< p.x << " " << p.y << " " << p.z << endl;
+	    ++m_index;
+	}
+    }
+
     bool focus = this->m_bodySelector (
 	begin.m_body->GetId (), begin.m_timeStep);
     if (focus && this->m_property != BodyProperty::NONE)
@@ -289,12 +303,6 @@ template<typename PropertySetter, typename DisplaySegment>
 void DisplayCenterPath<PropertySetter, DisplaySegment>::
 displaySegments ()
 {
-    if (m_focusSegments.size () > 0 && m_output.get () != 0)
-    {
-	G3D::Vector3 begin = m_focusSegments[0]->m_begin;
-	(*m_output) << m_index << " " 
-		    << begin.x << " " << begin.y << " " << begin.z << endl;
-    }
     for_each (
 	m_focusSegments.begin (), m_focusSegments.end (),
 	boost::bind (&DisplayCenterPath<PropertySetter, DisplaySegment>::
@@ -373,9 +381,6 @@ displayFocusSegment (const boost::shared_ptr<FocusSegment>& segment)
     m_displaySegment (*segment);
     DisplayBodyBase<PropertySetter>::endFocusContext (true);
     G3D::Vector3 end = segment->m_end;
-    if (m_output.get () != 0)
-	(*m_output) << m_index << " " 
-		    << end.x << " " << end.y << " " << end.z << endl;
 }
 
 // Template instantiations
