@@ -301,7 +301,7 @@ double GLWidget::getMinimumEdgeRadius () const
 					      GluUnProjectZOperation::SET0);
     G3D::Vector3 objectOne = gluUnProject (G3D::Vector2::unitX (),
 					   GluUnProjectZOperation::SET0);
-    return (objectOne - objectOrigin).length () / m_scaleRatio;
+    return (objectOne - objectOrigin).length () * m_scaleRatio;
 }
 
 void GLWidget::setEdgeRadius ()
@@ -317,7 +317,7 @@ void GLWidget::calculateEdgeRadius (
     double* arrowHeight, bool* edgesTubes) const
 {
     double r = getMinimumEdgeRadius ();
-    double R = 5 * r;
+    double R = 3 * r;
 
     if (edgesTubes != 0)
 	*edgesTubes = (edgeRadiusMultiplier != 0.0);
