@@ -355,7 +355,7 @@ void GLWidget::setInitialLightParameters ()
 {
     for (size_t i = 0; i < LightPosition::COUNT; ++i)
     {
-	setInitialLightPosition (static_cast<LightPosition::Enum>(i));
+	setInitialLightPosition (LightPosition::Enum(i));
 	m_directionalLightEnabled[i] = true;
     }
 }
@@ -372,20 +372,14 @@ G3D::Vector3 GLWidget::getInitialLightPosition (
     G3D::AABox bb = calculateCenteredViewingVolume (
 	static_cast<double> (width ()) / height ());
     G3D::Vector3 high = bb.high (), low = bb.low ();
-    G3D::Vector3 farRectangleCenter = 
-	(G3D::Vector3 (low.x, low.y, low.z) +
-	 G3D::Vector3 (low.x, high.y, low.z) +
-	 G3D::Vector3 (high.x, high.y, low.z) +
-	 G3D::Vector3 (high.x, low.y, low.z));
     G3D::Vector3 nearRectangle[] = {
 	G3D::Vector3 (high.x, high.y, high.z),
 	G3D::Vector3 (low.x, high.y, high.z),
 	G3D::Vector3 (low.x, low.y, high.z),
 	G3D::Vector3 (high.x, low.y, high.z),
     };
-    return G3D::Vector3 (0, 0, bb.extent ().z / 2);
+    return nearRectangle[lightPosition];
 }
-
 
 void GLWidget::positionLights ()
 {
@@ -393,24 +387,24 @@ void GLWidget::positionLights ()
 	positionLight (LightPosition::Enum (i));
 }
 
-
 void GLWidget::positionLight (LightPosition::Enum i)
 {
     if (m_lightEnabled[i])
     {
-	glPushMatrix ();
-	glLoadIdentity ();
-	glMultMatrix (m_rotationMatrixLight[i]);
+	makeCurrent ();
 	G3D::Vector3 lp = getInitialLightPosition (
-	    static_cast<LightPosition::Enum> (i)) * m_lightPositionRatio[i];
-
+	    LightPosition::Enum (i)) * m_lightPositionRatio[i];
+	glPushMatrix ();
+	glLoadMatrix (G3D::CoordinateFrame (m_rotationMatrixLight[i]));
 	if (m_directionalLightEnabled[i])
 	{
+	    glLightf(GL_LIGHT0 + i, GL_SPOT_CUTOFF, 180);
 	    boost::array<GLfloat, 4> lightDirection = {{lp.x, lp.y, lp.z, 0}};
 	    glLightfv(GL_LIGHT0 + i, GL_POSITION, &lightDirection[0]);
 	}
 	else
 	{
+	    glLightf(GL_LIGHT0 + i, GL_SPOT_CUTOFF, 15);
 	    boost::array<GLfloat, 3> lightDirection = {{-lp.x, -lp.y, -lp.z}};
 	    glLightfv(GL_LIGHT0 + i, GL_SPOT_DIRECTION, &lightDirection[0]);
 	    glPushMatrix ();
@@ -425,14 +419,14 @@ void GLWidget::positionLight (LightPosition::Enum i)
     }
 }
 
-void GLWidget::showLightPositions ()
+void GLWidget::showLightPositions () const
 {
     for (size_t i = 0; i < LightPosition::COUNT; ++i)
 	showLightPosition (
-	    static_cast<LightPosition::Enum> (i));
+	    LightPosition::Enum (i));
 }
 
-void GLWidget::showLightPosition (LightPosition::Enum i)
+void GLWidget::showLightPosition (LightPosition::Enum i) const
 {
     if (m_lightPositionShown[i])
     {
@@ -442,7 +436,7 @@ void GLWidget::showLightPosition (LightPosition::Enum i)
 	glTranslatef (0, 0, - m_cameraDistance);
 	glMultMatrix (m_rotationMatrixLight[i]);
 	G3D::Vector3 lp = getInitialLightPosition (
-	    static_cast<LightPosition::Enum> (i)) * m_lightPositionRatio[i];
+	    LightPosition::Enum (i)) * m_lightPositionRatio[i];
 	glColor (m_lightEnabled[i] ? Qt::red : Qt::gray);
 	if (isLightingEnabled ())
 	    glDisable (GL_LIGHTING);
@@ -497,8 +491,6 @@ void GLWidget::initializeLighting ()
     // Why is the lighting incorrect after I scale my scene to change its size?
     glEnable(GL_RESCALE_NORMAL);
     glShadeModel (GL_SMOOTH);
-    for (size_t i = 0; i < LightPosition::COUNT; ++i)
-	glLightf(GL_LIGHT0 + i, GL_SPOT_CUTOFF, 15);
 }
 
 G3D::AABox GLWidget::calculateCenteredViewingVolume (
@@ -736,7 +728,6 @@ void GLWidget::ResetTransformation ()
 void GLWidget::ResetSelectedLightPosition ()
 {
     setInitialLightPosition (m_selectedLight);
-    positionLight (m_selectedLight);
     updateGL ();
 }
 
@@ -808,7 +799,6 @@ void GLWidget::paintGL ()
     displayOriginalDomain ();
     displayFocusBox ();
     showLightPositions ();
-    positionLights ();
     detectOpenGLError ();
     Q_EMIT PaintedGL ();
 }
@@ -853,24 +843,6 @@ void GLWidget::RenderFromFbo (QGLFramebufferObject& fbo) const
     glPopMatrix ();
     glPopAttrib ();
     glDisable (GL_TEXTURE_2D);
-
-
-/*
-    using G3D::Vector3;
-    G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
-    Vector3 low = bb.low ();
-    Vector3 high = bb.high ();
-    glEnable (GL_TEXTURE_2D);
-    glBindTexture (GL_TEXTURE_2D, fbo.texture ());
-    glPolygonMode (GL_FRONT, GL_FILL);
-    glBegin (GL_QUADS);
-    glTexCoord2i (0, 0);glVertex (low);
-    glTexCoord2i (1, 0);glVertex (Vector3 (high.x, low.y, low.z));
-    glTexCoord2i (1, 1);glVertex (Vector3 (high.x, high.y, low.z));
-    glTexCoord2i (0, 1);glVertex (Vector3 (low.x, high.y, low.z));
-    glEnd ();
-    glDisable (GL_TEXTURE_2D);
-*/
 }
 
 void GLWidget::setRotation (int axis, double angleRadians, G3D::Matrix3* rotate)
@@ -1058,8 +1030,8 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	positionLight (m_selectedLight);
 	break;
     case InteractionMode::TRANSLATE_LIGHT:
-	translateLight (event->pos ());
 	positionLight (m_selectedLight);
+	translateLight (event->pos ());
 	break;
 
     case InteractionMode::SELECT:
@@ -1072,8 +1044,8 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     default:
 	break;
     }
-    updateGL ();
     m_lastPos = event->pos();
+    updateGL ();
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
@@ -1711,9 +1683,11 @@ void GLWidget::ToggledLightEnabled (bool checked)
 {
     makeCurrent ();
     m_lightEnabled[m_selectedLight] = checked;
-    positionLight (m_selectedLight);
     if (checked)
+    {
 	glEnable(GL_LIGHT0 + m_selectedLight);
+	positionLight (m_selectedLight);
+    }
     else
 	glDisable (GL_LIGHT0 + m_selectedLight);
     enableLighting (m_lightEnabled.any ());
@@ -1859,23 +1833,23 @@ void GLWidget::ToggledCenterPath (bool checked)
 
 void GLWidget::CurrentIndexChangedSelectedLight (int selectedLight)
 {
-    m_selectedLight = static_cast<LightPosition::Enum> (selectedLight);
+    m_selectedLight = LightPosition::Enum (selectedLight);
 }
 
 void GLWidget::CurrentIndexChangedInteractionMode (int index)
 {
-    m_interactionMode = static_cast<InteractionMode::Enum>(index);
+    m_interactionMode = InteractionMode::Enum(index);
 }
 
 void GLWidget::CurrentIndexChangedStatisticsType (int index)
 {
-    m_statisticsType = static_cast<StatisticsType::Enum>(index);
+    m_statisticsType = StatisticsType::Enum(index);
     updateGL ();
 }
 
 void GLWidget::CurrentIndexChangedAxesOrder (int index)
 {
-    m_axesOrder = static_cast<AxesOrder::Enum>(index);
+    m_axesOrder = AxesOrder::Enum(index);
     ResetTransformation ();
 }
 

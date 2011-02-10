@@ -41,8 +41,7 @@ void EditColorMap::HighlightedPalette (int index)
 {
     RuntimeAssert ( index >= 0 && index <= Palette::LAST,
 		    "Invalid palette index: ", index);
-    m_colorBarModel.SetupPalette (
-	static_cast<Palette::Enum> (index));
+    m_colorBarModel.SetupPalette (Palette::Enum (index));
     widgetHistogram->SetColorMap (
 	m_colorBarModel.GetInterval (), m_colorBarModel.GetColorMap ());
     widgetHistogram->replot ();

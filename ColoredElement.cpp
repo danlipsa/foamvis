@@ -29,7 +29,7 @@ Color::Enum ColoredElement::GetColor (Color::Enum defaultColor) const
     else
     {
 	if (defaultColor == Color::COUNT)
-	    return static_cast<Color::Enum>((GetId ()+1) % Color::COUNT);
+	    return Color::Enum ((GetId ()+1) % Color::COUNT);
 	else
 	    return defaultColor;
     }

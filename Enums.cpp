@@ -77,13 +77,13 @@ const char* BodyProperty::ToString (BodyProperty::Enum property)
 BodyProperty::Enum BodyProperty::FromSizeT (size_t i)
 {
     RuntimeAssert (i < COUNT, "Value outside of BodyProperty::Enum", i);
-    return static_cast<BodyProperty::Enum>(i);
+    return BodyProperty::Enum (i);
 }
 
 ViewType::Enum ViewType::FromInt (int i)
 {
     RuntimeAssert (i < COUNT && i >= 0, "Value outside of ViewType::Enum", i);
-    return static_cast<ViewType::Enum>(i);
+    return ViewType::Enum (i);
 }
 
 

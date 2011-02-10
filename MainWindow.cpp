@@ -25,7 +25,7 @@ int checkedId (const QButtonGroup* group)
 
 HistogramType::Enum histogramType (const QButtonGroup* group)
 {
-    return static_cast<HistogramType::Enum> (checkedId (group));
+    return HistogramType::Enum (checkedId (group));
 }
 
 MainWindow::MainWindow (FoamAlongTime& foamAlongTime) : 
@@ -685,51 +685,51 @@ void MainWindow::setupColorBarModel (BodyProperty::Enum property)
 void MainWindow::CurrentIndexChangedSelectedLight (int i)
 {
     checkBoxLightEnabled->setChecked (
-	widgetGl->IsLightEnabled (static_cast<LightPosition::Enum>(i)));
+	widgetGl->IsLightEnabled (LightPosition::Enum(i)));
     checkBoxLightPositionShown->setChecked (
-	widgetGl->IsLightPositionShown (static_cast<LightPosition::Enum>(i)));
+	widgetGl->IsLightPositionShown (LightPosition::Enum(i)));
     checkBoxDirectionalLightEnabled->setChecked (
 	widgetGl->IsDirectionalLightEnabled (
-	    static_cast<LightPosition::Enum>(i)));
+	    LightPosition::Enum(i)));
     
     horizontalSliderLightAmbientRed->setValue (
 	floor (
-	    widgetGl->GetLightAmbient (static_cast<LightPosition::Enum>(i))[0] * 
+	    widgetGl->GetLightAmbient (LightPosition::Enum(i))[0] * 
 	    horizontalSliderLightAmbientRed->maximum () + 0.5));
     horizontalSliderLightAmbientGreen->setValue (
 	floor (
-	    widgetGl->GetLightAmbient (static_cast<LightPosition::Enum>(i))[1] * 
+	    widgetGl->GetLightAmbient (LightPosition::Enum(i))[1] * 
 	    horizontalSliderLightAmbientGreen->maximum () + 0.5));
     horizontalSliderLightAmbientBlue->setValue (
 	floor (
-	    widgetGl->GetLightAmbient (static_cast<LightPosition::Enum>(i))[2] * 
+	    widgetGl->GetLightAmbient (LightPosition::Enum(i))[2] * 
 	    horizontalSliderLightAmbientBlue->maximum () + 0.5));
     horizontalSliderLightDiffuseRed->setValue (
 	floor (
-	    widgetGl->GetLightDiffuse (static_cast<LightPosition::Enum>(i))[0] * 
+	    widgetGl->GetLightDiffuse (LightPosition::Enum(i))[0] * 
 	    horizontalSliderLightDiffuseRed->maximum () + 0.5));
     horizontalSliderLightDiffuseGreen->setValue (
 	floor (
-	    widgetGl->GetLightDiffuse (static_cast<LightPosition::Enum>(i))[1] * 
+	    widgetGl->GetLightDiffuse (LightPosition::Enum(i))[1] * 
 	    horizontalSliderLightDiffuseGreen->maximum () + 0.5));
     horizontalSliderLightDiffuseBlue->setValue (
 	floor (
-	    widgetGl->GetLightDiffuse (static_cast<LightPosition::Enum>(i))[2] * 
+	    widgetGl->GetLightDiffuse (LightPosition::Enum(i))[2] * 
 	    horizontalSliderLightDiffuseBlue->maximum () + 0.5));
     horizontalSliderLightSpecularRed->setValue (
 	floor (
 	    widgetGl->GetLightSpecular (
-		static_cast<LightPosition::Enum>(i))[0] * 
+		LightPosition::Enum(i))[0] * 
 	    horizontalSliderLightSpecularRed->maximum () + 0.5));
     horizontalSliderLightSpecularGreen->setValue (
 	floor (
 	    widgetGl->GetLightSpecular (
-		static_cast<LightPosition::Enum>(i))[1] * 
+		LightPosition::Enum(i))[1] * 
 	    horizontalSliderLightSpecularGreen->maximum () + 0.5));
     horizontalSliderLightSpecularBlue->setValue (
 	floor (
 	    widgetGl->GetLightSpecular (
-		static_cast<LightPosition::Enum>(i))[2] * 
+		LightPosition::Enum(i))[2] * 
 	    horizontalSliderLightSpecularBlue->maximum () + 0.5));
 }
 
@@ -798,7 +798,7 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 void MainWindow::ButtonClickedHistogram (int histogramType)
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    m_histogramType = static_cast<HistogramType::Enum> (histogramType);
+    m_histogramType = HistogramType::Enum (histogramType);
     if (m_histogramType == HistogramType::NONE ||
 	m_property == BodyProperty::NONE)
     {

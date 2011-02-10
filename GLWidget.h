@@ -427,8 +427,8 @@ private:
     void modelViewTransform () const;
     void positionLight (LightPosition::Enum light);
     void positionLights ();
-    void showLightPosition (LightPosition::Enum light);
-    void showLightPositions ();
+    void showLightPosition (LightPosition::Enum light) const;
+    void showLightPositions () const;
     void viewingVolumeCalculations (
 	int width, int height,
 	G3D::Rect2D* vv2dScreen, G3D::Rect2D* windowWorld) const;

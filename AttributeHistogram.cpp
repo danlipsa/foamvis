@@ -38,8 +38,7 @@ void AttributeHistogram::DeselectAll ()
 
 void AttributeHistogram::CurrentIndexChangedInteractionMode (int index)
 {
-    InteractionMode::Enum interactionMode = 
-	static_cast<InteractionMode::Enum>(index);
+    InteractionMode::Enum interactionMode = InteractionMode::Enum(index);
     if (interactionMode == InteractionMode::SELECT)
 	SetSelectionTool (BRUSH);
     else if (interactionMode == InteractionMode::DESELECT)
