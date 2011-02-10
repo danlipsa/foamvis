@@ -72,6 +72,8 @@ public:
     double TexCoord (double value) const;
     string ToString () const;
 
+    static const size_t COLORS;
+
 private:
     void setupPaletteRainbowTelea ();
     void setupPaletteRainbowHSV ();
@@ -87,9 +89,6 @@ private:
     void setupColorMap (ColorMapper colorMapper);
     template<typename ColorMapper>
     void setupImage (ColorMapper colorMapper);
-
-private:
-    static const size_t COLORS;
 
 private:
     Palette::Enum m_palette;

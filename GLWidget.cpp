@@ -151,12 +151,10 @@ GLWidget::GLWidget(QWidget *parent)
       m_bodiesBoundingBoxesShown (false),
       m_axesShown (false),
       m_textureColorBarShown (false),
-      m_centerPathColor (BodyProperty::NONE),
-      m_facesColor (BodyProperty::NONE),
+      m_coloredBy (BodyProperty::NONE),
       m_notAvailableCenterPathColor (Qt::black),
       m_notAvailableFaceColor (Qt::white),
       m_bodySelector (AllBodySelector::Get ()),
-      m_useColorMap (false),
       m_colorBarModel (new ColorBarModel ()),
       m_colorBarTexture (0),
       m_timeDisplacement (0.0),
@@ -212,6 +210,7 @@ void GLWidget::initQuadrics ()
 			reinterpret_cast<void (*)()>(&quadricErrorCallback));
     gluQuadricDrawStyle (m_quadric, GLU_FILL);
     gluQuadricNormals (m_quadric, GLU_SMOOTH);
+    gluQuadricOrientation (m_quadric, GLU_OUTSIDE);
 }
 
 
@@ -728,6 +727,7 @@ void GLWidget::ResetTransformation ()
 void GLWidget::ResetSelectedLightPosition ()
 {
     setInitialLightPosition (m_selectedLight);
+    positionLight (m_selectedLight);
     updateGL ();
 }
 
@@ -1269,8 +1269,8 @@ void GLWidget::displayFacesAverage () const
 {
     const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
     m_displayFaceAverage->Display (
-	foamAlongTime.GetMin (GetFacesColor ()),
-	foamAlongTime.GetMax (GetFacesColor ()), GetStatisticsType ());
+	foamAlongTime.GetMin (GetColoredBy ()),
+	foamAlongTime.GetMax (GetColoredBy ()), GetStatisticsType ());
 }
 
 template<typename displaySameEdges>
@@ -1320,7 +1320,7 @@ void GLWidget::displayFacesInterior (const Foam::Bodies& bodies) const
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<DisplayFaceWithColor<displaySameEdges> > (
 		  *this, *m_bodySelector,
-		  DisplayElement::TRANSPARENT_CONTEXT, m_facesColor));
+		  DisplayElement::TRANSPARENT_CONTEXT, m_coloredBy));
     glPopAttrib ();
 }
 
@@ -1380,6 +1380,9 @@ void GLWidget::displayCenterPathsWithBodies () const
 		BodyProperty::NONE, IsTimeDisplacementUsed (), zPos));
 	displayCenterOfBodies (IsTimeDisplacementUsed ());
     }
+    
+    if (isLightingEnabled ())
+	glDisable (GL_LIGHTING);
     displayStandaloneEdges< DisplayEdgeWithColor<> > (true, 0);
     if (GetTimeDisplacement () != 0)
     {
@@ -1388,6 +1391,8 @@ void GLWidget::displayCenterPathsWithBodies () const
 	    IsTimeDisplacementUsed (),
 	    (GetFoamAlongTime ().GetTimeSteps () - 1)*GetTimeDisplacement ());
     }
+    if (isLightingEnabled ())
+	glEnable (GL_LIGHTING);
 }
 
 
@@ -1399,22 +1404,21 @@ void GLWidget::displayCenterPaths () const
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
     const BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
-    boost::shared_ptr<ofstream> outputFile (
-	new ofstream ("center-path.txt", ios_base::out));
     if (m_edgesTubes)
     {
+	boost::shared_ptr<ofstream> outputFile (
+	    new ofstream ("center-path.txt", ios_base::out));
 	(*outputFile) << GetFoamAlongTime ().GetBoundingBox () << endl;
 	for_each (bats.begin (), bats.end (),
-		  DisplayCenterPath<TexCoordSetter, DisplayEdgeTube> (
-		      *this, m_centerPathColor, *m_bodySelector,
-		      IsTimeDisplacementUsed (), GetTimeDisplacement (),
-		      outputFile));
-	outputFile->close ();
+		  DisplayCenterPath<TexCoordSetter, DisplayEdgeQuadric> (
+		      *this, m_coloredBy, *m_bodySelector,
+		      IsTimeDisplacementUsed (), GetTimeDisplacement ()
+		      /*, outputFile*/));
     }
     else
 	for_each (bats.begin (), bats.end (),
 		  DisplayCenterPath<TexCoordSetter, DisplayEdge> (
-		      *this, m_centerPathColor, *m_bodySelector,
+		      *this, m_coloredBy, *m_bodySelector,
 		      IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     glPopAttrib ();
 }
@@ -1865,35 +1869,40 @@ void GLWidget::BodyPropertyChanged (
     switch (viewType)
     {
     case ViewType::FACES:
-	m_facesColor = property;
-	m_useColorMap = (m_facesColor != BodyProperty::NONE);
+	m_coloredBy = property;
 	break;
     case ViewType::FACES_AVERAGE:
-	m_facesColor = property;
-	m_useColorMap = (m_facesColor != BodyProperty::NONE);
+	m_coloredBy = property;
 	initStepDisplayAverage ();
 	break;
     case ViewType::CENTER_PATHS:
-	m_centerPathColor = property;
-	m_useColorMap = (m_centerPathColor != BodyProperty::NONE);
+	m_coloredBy = property;
 	break;
     default:
 	RuntimeAssert (false, "Invalid value in switch: ", viewType);
     }
-    if (m_useColorMap)
+    if (m_coloredBy != BodyProperty::NONE)
 	ColorBarModelChanged (colorBarModel);
     else
-	updateGL ();
+	setNoneColorTexture ();
+    updateGL ();
+}
+
+void GLWidget::setNoneColorTexture ()
+{
+    QImage image (ColorBarModel::COLORS, 1, QImage::Format_RGB32);
+    image.fill (0);
+    glTexImage1D (GL_TEXTURE_1D, 0, GL_RGBA, image.width (),
+		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
 }
 
 
 void GLWidget::ColorBarModelChanged (
     boost::shared_ptr<ColorBarModel> colorBarModel)
 {
+    makeCurrent ();
     m_colorBarModel = colorBarModel;
     const QImage image = colorBarModel->GetImage ();
-    image.save ("colorbar.jpg");
-    makeCurrent ();
     glTexImage1D (GL_TEXTURE_1D, 0, GL_RGBA, image.width (),
 		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
     updateGL ();
@@ -2076,10 +2085,8 @@ void GLWidget::SetActionInfo (boost::shared_ptr<QAction> actionInfo)
 
 double GLWidget::TexCoord (double value) const
 {
-    if (m_useColorMap)
-	return m_colorBarModel->TexCoord (value);
-    else
-	return 0;
+    return (m_coloredBy == BodyProperty::NONE) ? 0 : 
+	m_colorBarModel->TexCoord (value);
 }
 
 void GLWidget::initializeTextures ()
@@ -2090,7 +2097,7 @@ void GLWidget::initializeTextures ()
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    m_useColorMap = false;
+    setNoneColorTexture ();
 }
 
 void GLWidget::displayTextureColorBar () const
@@ -2099,34 +2106,30 @@ void GLWidget::displayTextureColorBar () const
 	return;
     glPushAttrib (GL_CURRENT_BIT | GL_VIEWPORT_BIT);
     glPushMatrix ();
-    {
-	// modelview
-	glLoadIdentity ();
-	glMatrixMode (GL_PROJECTION);
-	glPushMatrix ();
-	{
-	    glLoadIdentity ();
-	    glOrtho (0, width (), 0, height (), -1, 1);
+    // modelview
+    glLoadIdentity ();
+    glMatrixMode (GL_PROJECTION);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glOrtho (0, width (), 0, height (), -1, 1);
 
-	    glViewport (0, 0, width (), height ());
+    glViewport (0, 0, width (), height ());
 
-	    glEnable(GL_TEXTURE_1D);
-	    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-	    glBindTexture (GL_TEXTURE_1D, m_colorBarTexture);
+    glEnable(GL_TEXTURE_1D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glBindTexture (GL_TEXTURE_1D, m_colorBarTexture);
 
-	    const int BAR_WIDTH = 8;
-	    const int BAR_HEIGHT = max (height () / 4, 50);
-	    glBegin (GL_QUADS);
-	    glTexCoord1f(0);glVertex2s (0, 0);
-	    glTexCoord1f(1);glVertex2s (0, BAR_HEIGHT);
-	    glTexCoord1f(1);glVertex2s (BAR_WIDTH, BAR_HEIGHT);
-	    glTexCoord1f(0);glVertex2s (BAR_WIDTH, 0);
-	    glEnd ();
-	    glDisable (GL_TEXTURE_1D);
-	}
-	glPopMatrix ();
-	glMatrixMode (GL_MODELVIEW);
-    }
+    const int BAR_WIDTH = 8;
+    const int BAR_HEIGHT = max (height () / 4, 50);
+    glBegin (GL_QUADS);
+    glTexCoord1f(0);glVertex2s (0, 0);
+    glTexCoord1f(1);glVertex2s (0, BAR_HEIGHT);
+    glTexCoord1f(1);glVertex2s (BAR_WIDTH, BAR_HEIGHT);
+    glTexCoord1f(0);glVertex2s (BAR_WIDTH, 0);
+    glEnd ();
+    glDisable (GL_TEXTURE_1D);
+    glPopMatrix ();
+    glMatrixMode (GL_MODELVIEW);
     glPopMatrix ();
     glPopAttrib ();
 }

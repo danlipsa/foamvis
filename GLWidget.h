@@ -247,9 +247,9 @@ public:
      * @param type the type of object that we want displayed.
      */
     void DisplayViewType () const;
-    BodyProperty::Enum GetFacesColor () const
+    BodyProperty::Enum GetColoredBy () const
     {
-	return m_facesColor;
+	return m_coloredBy;
     }
 
 Q_SIGNALS:
@@ -440,6 +440,7 @@ private:
     G3D::AABox calculateViewingVolume (double xOverY) const;
 
     void initializeTextures ();
+    void setNoneColorTexture ();
     void initQuadrics ();
     void initEndTranslationColor ();
     void calculateCameraDistance ();
@@ -647,8 +648,7 @@ private:
     bool m_axesShown;
     bool m_textureColorBarShown;
     boost::array<ViewTypeDisplay, ViewType::COUNT> m_viewTypeDisplay;
-    BodyProperty::Enum m_centerPathColor;
-    BodyProperty::Enum m_facesColor;
+    BodyProperty::Enum m_coloredBy;
     QColor m_notAvailableCenterPathColor;
     QColor m_notAvailableFaceColor;
     boost::shared_ptr<BodySelector> m_bodySelector;
@@ -663,7 +663,6 @@ private:
     boost::shared_ptr<QAction> m_actionSelectBodiesById;
     boost::shared_ptr<QAction> m_actionOpenGlInfo;
     
-    bool m_useColorMap;
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
     GLuint m_colorBarTexture;
     double m_timeDisplacement;

@@ -246,7 +246,7 @@ void DisplayFaceAverage::display (
 void DisplayFaceAverage::StepDisplay ()
 {
     const FoamAlongTime& foamAlongTime = m_glWidget.GetFoamAlongTime ();
-    BodyProperty::Enum facesColor = m_glWidget.GetFacesColor ();
+    BodyProperty::Enum facesColor = m_glWidget.GetColoredBy ();
     GLfloat minValue = foamAlongTime.GetMin (facesColor);
     GLfloat maxValue = foamAlongTime.GetMax (facesColor);
     size_t timeStep = m_glWidget.GetTimeStep ();

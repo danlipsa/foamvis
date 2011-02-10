@@ -183,7 +183,6 @@ operator () (size_t bodyId)
 	this->m_glWidget.GetFoamAlongTime ());
     copySegments (it);
     displaySegments ();
-    ++m_index;
 }
 
 template<typename PropertySetter, typename DisplaySegment>
@@ -218,7 +217,7 @@ speedStep (
 	G3D::Vector3 p = getPoint (begin);
 	(*m_output) << m_index << " " 
 		    << p.x << " " << p.y << " " << p.z << endl;
-	if (begin.m_location == StripPointLocation::END)
+	if (end.m_location == StripPointLocation::END)
 	{
 	    p = getPoint (end);
 	    (*m_output) << m_index << " " 
@@ -229,8 +228,9 @@ speedStep (
 
     bool focus = this->m_bodySelector (
 	begin.m_body->GetId (), begin.m_timeStep);
-    if (focus && this->m_property != BodyProperty::NONE)
+    if (focus)
 	storeFocusSegment (
+	    this->m_property == BodyProperty::NONE ? 0 :
 	    begin.m_body->GetPropertyValue (this->m_property),
 	    Segment (
 		StripIterator::GetSegmentPerpendicularEnd (begin, end),
@@ -240,9 +240,7 @@ speedStep (
 		getPoint (afterEnd)));
     else
     {
-	QColor color = (this->m_property == BodyProperty::NONE) ? 
-	    this->m_glWidget.GetCenterPathNotAvailableColor () :
-	    this->m_glWidget.GetCenterPathContextColor ();
+	QColor color = this->m_glWidget.GetCenterPathContextColor ();
 	storeContextSegment (
 	    color, false, 
 	    Segment (
@@ -433,4 +431,5 @@ template class DisplayBody<
 // ======================================================================
 
 template class DisplayCenterPath<TexCoordSetter, DisplayEdgeTube>;
+template class DisplayCenterPath<TexCoordSetter, DisplayEdgeQuadric>;
 template class DisplayCenterPath<TexCoordSetter, DisplayEdge>;
