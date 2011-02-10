@@ -392,11 +392,12 @@ private:
 
 private:
     void enableLighting (bool checked);
-    static double getMinimumEdgeRadius ();
+    double getMinimumEdgeRadius () const;
     void setEdgeRadius ();
-    static void calculateEdgeRadius (
-	double edgeRadiusMultiplier, double* edgeRadius,
-	double* arrowBaseRadius, double* arrowHeight, bool* edgeTubes = 0);
+    void calculateEdgeRadius (
+	double edgeRadiusMultiplier,
+	double* edgeRadius, double* arrowBaseRadius, 
+	double* arrowHeight, bool* edgeTubes = 0) const;
     void initStepDisplayAverage ();
     void display () const;
 

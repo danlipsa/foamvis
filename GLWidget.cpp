@@ -295,28 +295,29 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 }
 
 
-double GLWidget::getMinimumEdgeRadius ()
+double GLWidget::getMinimumEdgeRadius () const
 {
     G3D::Vector3 objectOrigin = gluUnProject (G3D::Vector2::zero (),
 					      GluUnProjectZOperation::SET0);
     G3D::Vector3 objectOne = gluUnProject (G3D::Vector2::unitX (),
 					   GluUnProjectZOperation::SET0);
-    return (objectOne - objectOrigin).length ();
+    return (objectOne - objectOrigin).length () / m_scaleRatio;
 }
 
 void GLWidget::setEdgeRadius ()
 {
     calculateEdgeRadius (m_edgeRadiusMultiplier,
-			 &m_edgeRadius, &m_arrowBaseRadius,
+	&m_edgeRadius, &m_arrowBaseRadius,
 			 &m_arrowHeight, &m_edgesTubes);
 }
 
 void GLWidget::calculateEdgeRadius (
-    double edgeRadiusMultiplier, double* edgeRadius,
-    double* arrowBaseRadius, double* arrowHeight, bool* edgesTubes)
+    double edgeRadiusMultiplier,
+    double* edgeRadius, double* arrowBaseRadius, 
+    double* arrowHeight, bool* edgesTubes) const
 {
     double r = getMinimumEdgeRadius ();
-    double R = 10 * r;
+    double R = 5 * r;
 
     if (edgesTubes != 0)
 	*edgesTubes = (edgeRadiusMultiplier != 0.0);
@@ -471,8 +472,8 @@ void GLWidget::initializeLighting ()
     GLfloat materialSpecular[] = {1.0, 1.0, 1.0, 1.0}; //(0, 0, 0, 1)
     GLfloat materialShininess[] = {50.0};              // 0
     GLfloat materialEmission[] = {0.0, 0.0, 0.0, 1.0}; //(0, 0, 0, 1)
-    glEnable (GL_COLOR_MATERIAL);
     glColorMaterial (GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+
     //GLfloat materialAmbient[] = {.2, .2, .2, 1.0};     //(.2, .2, .2, 1.0)
     //GLfloat materialDiffuse[] = {.8, .8, .8, 1.0};     //(.8, .8, .8, 1.0)
     //glMaterialfv (GL_FRONT, GL_AMBIENT, materialAmbient);
@@ -489,6 +490,7 @@ void GLWidget::initializeLighting ()
     // Why is the lighting incorrect after I scale my scene to change its size?
     glEnable(GL_RESCALE_NORMAL);
     glShadeModel (GL_SMOOTH);
+    glEnable (GL_COLOR_MATERIAL);
 }
 
 G3D::AABox GLWidget::calculateCenteredViewingVolume (
@@ -1403,7 +1405,7 @@ void GLWidget::displayCenterPaths () const
     glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
     //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
     //texture mapping?
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     const BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
     if (m_edgesTubes)
     {

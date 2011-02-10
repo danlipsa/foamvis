@@ -2454,6 +2454,38 @@
    </hints>
   </connection>
   <connection>
+   <sender>checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledHideContent(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>752</x>
+     <y>52</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>519</x>
+     <y>74</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxTubeCenterPathUsed</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledTubeCenterPathUsed(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>585</x>
+     <y>357</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>539</x>
+     <y>356</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>horizontalSliderLightAmbientRed</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
@@ -2594,38 +2626,6 @@
     <hint type="destinationlabel">
      <x>551</x>
      <y>415</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledHideContent(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>752</x>
-     <y>52</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>519</x>
-     <y>74</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxTubeCenterPathUsed</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledTubeCenterPathUsed(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>585</x>
-     <y>357</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>539</x>
-     <y>356</y>
     </hint>
    </hints>
   </connection>
