@@ -383,7 +383,8 @@ template<typename displaySameEdges>
 void DisplayFaceAverage::writeFacesValues (
     const Foam::Bodies& bodies, BodyProperty::Enum property)
 {
-    glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
+    glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | 
+		  GL_ENABLE_BIT | GL_TEXTURE_BIT);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_TEXTURE_1D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);

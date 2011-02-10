@@ -294,6 +294,7 @@ public Q_SLOTS:
     void ToggledOnlyPathsWithSelectionShown (bool checked);
     void ToggledTorusOriginalDomainShown (bool checked);
     void ToggledTorusOriginalDomainClipped (bool checked);
+    void ToggledTubeCenterPathUsed (bool checked);
 
     void BodyPropertyChanged (
 	boost::shared_ptr<ColorBarModel> colorBarModel,
@@ -518,12 +519,6 @@ private:
 
     /**
      * Setup lighting for shaded bodies
-     * See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
-     * texture mapping? (use GL_MODULATE instead of GL_DECAL or GL_REPLACE for
-     * glTexEnv)
-     * See OpenGL FAQ 21.040 Lighting and texture mapping work pretty well, 
-     * but why don't I see specular highlighting? (use
-     * glLightModel (GL_LIGHT_MODEL_COLOR_CONTROL,GL_SEPARATE_SPECULAR_COLOR))
      */
     void initializeLighting ();
     double ratioFromCenter (const QPoint& p);
@@ -676,6 +671,7 @@ private:
     QLabel *m_labelStatusBar;
     bool m_contextView;
     bool m_hideContent;
+    bool m_tubeCenterPathUsed;
 };
 
 #endif //__GLWIDGET_H__

@@ -782,6 +782,16 @@
                 </widget>
                </item>
                <item>
+                <widget class="QCheckBox" name="checkBoxColorBarShown">
+                 <property name="text">
+                  <string>Color bar</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <widget class="QCheckBox" name="checkBoxHistogramGridShown">
                  <property name="text">
                   <string>Histogram grid</string>
@@ -792,9 +802,9 @@
                 </widget>
                </item>
                <item>
-                <widget class="QCheckBox" name="checkBoxColorBarShown">
+                <widget class="QCheckBox" name="checkBoxStatusBarShown">
                  <property name="text">
-                  <string>Color bar</string>
+                  <string>Status bar</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
@@ -812,9 +822,9 @@
                 </widget>
                </item>
                <item>
-                <widget class="QCheckBox" name="checkBoxStatusBarShown">
+                <widget class="QCheckBox" name="checkBoxTubeCenterPathUsed">
                  <property name="text">
-                  <string>Status bar</string>
+                  <string>Tube center path</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
@@ -1569,6 +1579,7 @@
     <slot>ValueChangedLightSpecularGreen(int)</slot>
     <slot>ValueChangedLightSpecularBlue(int)</slot>
     <slot>ToggledHideContent(bool)</slot>
+    <slot>ToggledTubeCenterPathUsed(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1618,7 +1629,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>853</x>
-     <y>448</y>
+     <y>475</y>
     </hint>
     <hint type="destinationlabel">
      <x>424</x>
@@ -1634,7 +1645,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>853</x>
-     <y>391</y>
+     <y>418</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1650,7 +1661,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>853</x>
-     <y>309</y>
+     <y>336</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1666,7 +1677,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>853</x>
-     <y>282</y>
+     <y>255</y>
     </hint>
     <hint type="destinationlabel">
      <x>872</x>
@@ -1682,7 +1693,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>853</x>
-     <y>282</y>
+     <y>255</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2338,7 +2349,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>853</x>
-     <y>255</y>
+     <y>282</y>
     </hint>
     <hint type="destinationlabel">
      <x>869</x>
@@ -2370,7 +2381,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>853</x>
-     <y>336</y>
+     <y>309</y>
     </hint>
     <hint type="destinationlabel">
      <x>871</x>
@@ -2599,6 +2610,22 @@
     <hint type="destinationlabel">
      <x>519</x>
      <y>74</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxTubeCenterPathUsed</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledTubeCenterPathUsed(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>585</x>
+     <y>357</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>539</x>
+     <y>356</y>
     </hint>
    </hints>
   </connection>

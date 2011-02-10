@@ -161,7 +161,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_playMovie (false),
       m_selectBodiesById (new SelectBodiesById (this)),
       m_contextView (false),
-      m_hideContent(false)
+      m_hideContent(false),
+      m_tubeCenterPathUsed (true)
 {
     makeCurrent ();
     m_displayFaceAverage.reset (new DisplayFaceAverage (*this));
@@ -429,7 +430,7 @@ void GLWidget::showLightPosition (LightPosition::Enum i) const
 {
     if (m_lightPositionShown[i])
     {
-	glPushAttrib (GL_CURRENT_BIT);    
+	glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);    
 	glPushMatrix ();
 	glLoadIdentity ();
 	glTranslatef (0, 0, - m_cameraDistance);
@@ -440,8 +441,6 @@ void GLWidget::showLightPosition (LightPosition::Enum i) const
 	if (isLightingEnabled ())
 	    glDisable (GL_LIGHTING);
 	DisplayOrientedEdge () (lp, G3D::Vector3::zero ());
-	if (isLightingEnabled ())
-	    glEnable (GL_LIGHTING);
 	glPopMatrix ();
 	glPopAttrib ();
     }
@@ -817,7 +816,6 @@ void GLWidget::resizeGL(int width, int height)
 
 void GLWidget::RenderFromFbo (QGLFramebufferObject& fbo) const
 {
-
     glEnable (GL_TEXTURE_2D);
     glBindTexture (GL_TEXTURE_2D, fbo.texture ());
     glPushAttrib (GL_VIEWPORT_BIT);
@@ -1097,6 +1095,7 @@ void GLWidget::displayFocusBox () const
 
 void GLWidget::displayBoundingBox () const
 {
+    glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
     if (isLightingEnabled ())
 	glDisable (GL_LIGHTING);
     if (m_boundingBoxShown)
@@ -1110,8 +1109,7 @@ void GLWidget::displayBoundingBox () const
 		DisplayBox< boost::shared_ptr<Body> >,
 		_1, Qt::black, GL_LINE));
     }
-    if (isLightingEnabled ())
-	glEnable (GL_LIGHTING);
+    glPopAttrib ();
 }
 
 void GLWidget::displayAxes () const
@@ -1175,13 +1173,13 @@ void GLWidget::displayStandaloneEdges (bool useZPos, double zPos) const
 
 void GLWidget::displayEdgesNormal () const
 {
+    glPushAttrib (GL_ENABLE_BIT);
     if (isLightingEnabled ())
 	glDisable (GL_LIGHTING);
     m_torusOriginalDomainClipped ?
 	displayEdges <DisplayEdgeTorusClipped> () :
 	displayEdges <DisplayEdgeWithColor<> >();
-    if (isLightingEnabled ())
-	glEnable (GL_LIGHTING);
+    glPopAttrib ();
 }
 
 void GLWidget::displayEdgesTorus () const
@@ -1310,7 +1308,8 @@ void GLWidget::displayFacesContour (const Foam::Bodies& bodies) const
 template<typename displaySameEdges>
 void GLWidget::displayFacesInterior (const Foam::Bodies& bodies) const
 {
-    glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
+    glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT | 
+		  GL_TEXTURE_BIT);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
@@ -1381,6 +1380,7 @@ void GLWidget::displayCenterPathsWithBodies () const
 	displayCenterOfBodies (IsTimeDisplacementUsed ());
     }
     
+    glPushAttrib (GL_ENABLE_BIT);
     if (isLightingEnabled ())
 	glDisable (GL_LIGHTING);
     displayStandaloneEdges< DisplayEdgeWithColor<> > (true, 0);
@@ -1391,29 +1391,32 @@ void GLWidget::displayCenterPathsWithBodies () const
 	    IsTimeDisplacementUsed (),
 	    (GetFoamAlongTime ().GetTimeSteps () - 1)*GetTimeDisplacement ());
     }
-    if (isLightingEnabled ())
-	glEnable (GL_LIGHTING);
+    glPopAttrib ();
 }
 
 
 
 void GLWidget::displayCenterPaths () const
 {
-    glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
+    glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT);
     glEnable(GL_TEXTURE_1D);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
+    //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
+    //texture mapping?
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     const BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
     if (m_edgesTubes)
     {
-	boost::shared_ptr<ofstream> outputFile (
-	    new ofstream ("center-path.txt", ios_base::out));
-	(*outputFile) << GetFoamAlongTime ().GetBoundingBox () << endl;
-	for_each (bats.begin (), bats.end (),
-		  DisplayCenterPath<TexCoordSetter, DisplayEdgeQuadric> (
-		      *this, m_coloredBy, *m_bodySelector,
-		      IsTimeDisplacementUsed (), GetTimeDisplacement ()
-		      /*, outputFile*/));
+	if (m_tubeCenterPathUsed)
+	    for_each (bats.begin (), bats.end (),
+		      DisplayCenterPath<TexCoordSetter, DisplayEdgeTube> (
+			  *this, m_coloredBy, *m_bodySelector,
+			  IsTimeDisplacementUsed (), GetTimeDisplacement ()));
+	else
+	    for_each (bats.begin (), bats.end (),
+		      DisplayCenterPath<TexCoordSetter, DisplayEdgeQuadric> (
+			  *this, m_coloredBy, *m_bodySelector,
+			  IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     }
     else
 	for_each (bats.begin (), bats.end (),
@@ -1823,6 +1826,13 @@ void GLWidget::ToggledTorusOriginalDomainShown (bool checked)
     updateGL ();
 }
 
+void GLWidget::ToggledTubeCenterPathUsed (bool checked)
+{
+    m_tubeCenterPathUsed = checked;
+    updateGL ();
+}
+
+
 void GLWidget::ToggledTorusOriginalDomainClipped (bool checked)
 {
     m_torusOriginalDomainClipped = checked;
@@ -1892,7 +1902,7 @@ void GLWidget::setNoneColorTexture ()
 {
     QImage image (ColorBarModel::COLORS, 1, QImage::Format_RGB32);
     image.fill (0);
-    glTexImage1D (GL_TEXTURE_1D, 0, GL_RGBA, image.width (),
+    glTexImage1D (GL_TEXTURE_1D, 0, GL_RGB, image.width (),
 		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
 }
 
@@ -1903,7 +1913,7 @@ void GLWidget::ColorBarModelChanged (
     makeCurrent ();
     m_colorBarModel = colorBarModel;
     const QImage image = colorBarModel->GetImage ();
-    glTexImage1D (GL_TEXTURE_1D, 0, GL_RGBA, image.width (),
+    glTexImage1D (GL_TEXTURE_1D, 0, GL_RGB, image.width (),
 		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
     updateGL ();
 }
@@ -2104,7 +2114,10 @@ void GLWidget::displayTextureColorBar () const
 {
     if (! m_textureColorBarShown)
 	return;
-    glPushAttrib (GL_CURRENT_BIT | GL_VIEWPORT_BIT);
+    glPushAttrib (
+	GL_CURRENT_BIT | GL_VIEWPORT_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT);
+    if (isLightingEnabled ())
+	glDisable (GL_LIGHTING);
     glPushMatrix ();
     // modelview
     glLoadIdentity ();
