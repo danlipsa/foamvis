@@ -47,7 +47,7 @@ QMAKE_LEX          = .\\/flex.pl
 TARGET             = foam
 QT                += opengl
 PRECOMPILED_HEADER = stable.h
-CONFIG            += qt precompile_header no_keywords debug
+CONFIG            += qt precompile_header no_keywords
 
 
 win32 {

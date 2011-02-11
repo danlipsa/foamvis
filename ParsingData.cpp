@@ -187,9 +187,9 @@ void ParsingData::SetEdge (size_t i,
         m_edges.resize (i + 1);
     boost::shared_ptr<Edge> edge;
     if (isQuadratic)
-	edge = boost::make_shared<QuadraticEdge> (
-	    GetVertex(begin), GetVertex(end), GetVertex (middle), 
-	    endTranslation, i);
+	edge.reset (new QuadraticEdge (
+			GetVertex(begin), GetVertex(end), GetVertex (middle), 
+			endTranslation, i));
     else
 	edge = boost::make_shared<Edge> (
 	    GetVertex(begin), GetVertex(end), endTranslation, i);

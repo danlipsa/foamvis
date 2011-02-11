@@ -174,7 +174,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 		*useColor = false;
 	    }
 	    else
-		glColor (this->m_glWidget.GetNotAvailableFaceColor ());
+		glColor (this->m_glWidget.NOT_AVAILABLE_FACE_COLOR);
 	}
     }
     else

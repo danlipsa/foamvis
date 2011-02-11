@@ -116,7 +116,8 @@ const double GLWidget::MIN_CONTEXT_ALPHA = 0.05;
 const double GLWidget::MAX_CONTEXT_ALPHA = 0.5;
 
 const double GLWidget::ENCLOSE_ROTATION_RATIO = 1;
-
+const QColor GLWidget::NOT_AVAILABLE_CENTER_PATH_COLOR (Qt::black);
+const QColor GLWidget::NOT_AVAILABLE_FACE_COLOR (Qt::white);
 
 // Methods
 // ======================================================================
@@ -146,14 +147,12 @@ GLWidget::GLWidget(QWidget *parent)
       m_edgesBodyCenter (false),
       m_edgesTessellation (true),
       m_centerPathBodyShown (false),
-      m_onlyPathsWithSelectionShown (false),
+      m_contextHidden (false),
       m_boundingBoxShown (false),
       m_bodiesBoundingBoxesShown (false),
       m_axesShown (false),
       m_textureColorBarShown (false),
       m_coloredBy (BodyProperty::NONE),
-      m_notAvailableCenterPathColor (Qt::black),
-      m_notAvailableFaceColor (Qt::white),
       m_bodySelector (AllBodySelector::Get ()),
       m_colorBarModel (new ColorBarModel ()),
       m_colorBarTexture (0),
@@ -1752,9 +1751,9 @@ void GLWidget::ToggledCenterPathBodyShown (bool checked)
     updateGL ();
 }
 
-void GLWidget::ToggledOnlyPathsWithSelectionShown (bool checked)
+void GLWidget::ToggledIsContextHidden (bool checked)
 {
-    m_onlyPathsWithSelectionShown = checked;
+    m_contextHidden = checked;
     updateGL ();
 }
 
@@ -1897,19 +1896,8 @@ void GLWidget::BodyPropertyChanged (
     }
     if (m_coloredBy != BodyProperty::NONE)
 	ColorBarModelChanged (colorBarModel);
-    else
-	setNoneColorTexture ();
     updateGL ();
 }
-
-void GLWidget::setNoneColorTexture ()
-{
-    QImage image (ColorBarModel::COLORS, 1, QImage::Format_RGB32);
-    image.fill (0);
-    glTexImage1D (GL_TEXTURE_1D, 0, GL_RGB, image.width (),
-		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
-}
-
 
 void GLWidget::ColorBarModelChanged (
     boost::shared_ptr<ColorBarModel> colorBarModel)
@@ -2099,8 +2087,7 @@ void GLWidget::SetActionInfo (boost::shared_ptr<QAction> actionInfo)
 
 double GLWidget::TexCoord (double value) const
 {
-    return (m_coloredBy == BodyProperty::NONE) ? 0 : 
-	m_colorBarModel->TexCoord (value);
+    return m_colorBarModel->TexCoord (value);
 }
 
 void GLWidget::initializeTextures ()
@@ -2111,7 +2098,6 @@ void GLWidget::initializeTextures ()
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    setNoneColorTexture ();
 }
 
 void GLWidget::displayTextureColorBar () const

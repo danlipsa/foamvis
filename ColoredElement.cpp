@@ -54,8 +54,7 @@ void ColoredElement::AddDefaultAttributes (AttributesInfo* infos)
     using EvolverData::parser;
     const char* colorString = 
         ParsingDriver::GetKeywordString(parser::token::COLOR);
-    boost::shared_ptr<AttributeCreator> ac = 
-	boost::make_shared <ColorAttributeCreator> ();
+    boost::shared_ptr<AttributeCreator> ac (new ColorAttributeCreator ());
     size_t colorIndex = infos->AddAttributeInfoLoad (colorString, ac);
     RuntimeAssert (colorIndex == COLOR_INDEX,
 		   "Color should be stored at index ", COLOR_INDEX);

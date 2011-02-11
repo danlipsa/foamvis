@@ -180,20 +180,8 @@ void displayNormal (const Disk& disk, size_t i)
 
 void DisplayEdgeTube::displayTube (const Disk& begin, const Disk& end) const
 {
-    /*
-    for (size_t i = 0; i < begin.size (); ++i)
-    {
-	displayNormal (begin, i);
-	displayNormal (end, i);
-    }
-    */
-
     glBegin (GL_QUAD_STRIP);
-    glNormal (begin.GetVertexNormal (0));
-    ::glVertex (begin.GetVertex (0));
-    glNormal (end.GetVertexNormal (0));
-    ::glVertex (end.GetVertex (0));
-    for (size_t i = 1; i < begin.size (); ++i)
+    for (size_t i = 0; i < begin.size (); ++i)
     {
 	glNormal (begin.GetVertexNormal (i));
 	::glVertex (begin.GetVertex (i));

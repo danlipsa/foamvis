@@ -214,7 +214,7 @@ void Body::GetFaceSet (FaceSet* faceSet) const
 
 bool Body::ExistsPropertyValue (BodyProperty::Enum property) const
 {
-    if (property >= BodyProperty::PER_BODY_BEGIN && 
+    if (property >= BodyProperty::PER_BODY_BEGIN &&
 	property <= BodyProperty::PER_BODY_END)
 	return ExistsAttribute (property - BodyProperty::PER_BODY_BEGIN);
     else

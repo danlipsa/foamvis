@@ -153,19 +153,7 @@ public:
     }
 
     const QColor& GetEndTranslationColor (const G3D::Vector3int16& di) const;
-    const QColor& GetCenterPathNotAvailableColor () const
-    {
-	return m_notAvailableCenterPathColor;
-    }
-    const QColor& GetNotAvailableFaceColor () const
-    {
-	return m_notAvailableFaceColor;
-    }
     QColor GetCenterPathContextColor () const;
-    QColor GetCenterPathDefaultColor () const
-    {
-	return Qt::black;
-    }
 
     GLUquadricObj* GetQuadricObject () const 
     {
@@ -213,9 +201,9 @@ public:
     {
 	return m_centerPathBodyShown;
     }
-    bool OnlyPathsWithSelectionShown () const
+    bool IsContextHidden () const
     {
-	return m_onlyPathsWithSelectionShown;
+	return m_contextHidden;
     }
 
     double TexCoord (double value) const;
@@ -291,7 +279,7 @@ public Q_SLOTS:
     void ToggledHideContent (bool checked);
     void ToggledLightPositionShown (bool checked);
     void ToggledLightEnabled (bool checked);
-    void ToggledOnlyPathsWithSelectionShown (bool checked);
+    void ToggledIsContextHidden (bool checked);
     void ToggledTorusOriginalDomainShown (bool checked);
     void ToggledTorusOriginalDomainClipped (bool checked);
     void ToggledTubeCenterPathUsed (bool checked);
@@ -347,6 +335,8 @@ public:
     const static  size_t DISPLAY_ALL;
     const static size_t QUADRIC_SLICES;
     const static size_t QUADRIC_STACKS;
+    const static QColor NOT_AVAILABLE_CENTER_PATH_COLOR;
+    const static QColor NOT_AVAILABLE_FACE_COLOR;
 
 protected:
     /**
@@ -442,7 +432,6 @@ private:
     G3D::AABox calculateViewingVolume (double xOverY) const;
 
     void initializeTextures ();
-    void setNoneColorTexture ();
     void initQuadrics ();
     void initEndTranslationColor ();
     void calculateCameraDistance ();
@@ -561,7 +550,6 @@ private:
     const static double MAX_CONTEXT_ALPHA;
     const static double ENCLOSE_ROTATION_RATIO;
 
-
 private:
     Q_OBJECT
 
@@ -638,15 +626,13 @@ private:
     bool m_edgesBodyCenter;
     bool m_edgesTessellation;
     bool m_centerPathBodyShown;
-    bool m_onlyPathsWithSelectionShown;
+    bool m_contextHidden;
     bool m_boundingBoxShown;
     bool m_bodiesBoundingBoxesShown;
     bool m_axesShown;
     bool m_textureColorBarShown;
     boost::array<ViewTypeDisplay, ViewType::COUNT> m_viewTypeDisplay;
     BodyProperty::Enum m_coloredBy;
-    QColor m_notAvailableCenterPathColor;
-    QColor m_notAvailableFaceColor;
     boost::shared_ptr<BodySelector> m_bodySelector;
 
     // owned by MainWindows

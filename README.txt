@@ -61,9 +61,8 @@ Copy http://csgalati.swansea.ac.uk/foam/build/foam-<version>.tgz to ~
 cd ~
 tar xzf foam-<version>.tgz
 cd foam
-optional step: edit foam.pro and change the CONFIG variable by replacing
-	 'debug' with 'release'. This will make the program much faster!
 qmake
+(you can do 'qmake CONFIG+=debug' for a debug build)
 make
 
 Make sure you don't run 'make clean' or 'make distclean' as this will

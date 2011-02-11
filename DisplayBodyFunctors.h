@@ -19,7 +19,8 @@ class BodySelector;
 class StripIterator;
 class StripIteratorPoint;
 class ContextSegment;
-class FocusSegment;
+class FocusTextureSegment;
+class FocusColorSegment;
 class Segment;
 
 /**
@@ -61,21 +62,15 @@ protected:
 	static_cast<void> (b);
 	static_cast<void> (fc);
     }
-    void beginFocusContext (bool focus)
+    void beginContext ()
     {
-	if (! focus)
-	{
-	    glEnable (GL_BLEND);
-	    glDepthMask (GL_FALSE);
-	}
+	glEnable (GL_BLEND);
+	glDepthMask (GL_FALSE);
     }
-    void endFocusContext (bool focus)
+    void endContext ()
     {
-	if (! focus)
-	{
-	    glDepthMask (GL_TRUE);
-	    glDisable (GL_BLEND);
-	}
+	glDepthMask (GL_TRUE);
+	glDisable (GL_BLEND);
     }
     const BodySelector& m_bodySelector;
 };
@@ -183,15 +178,6 @@ public:
     
 
 private:
-
-    void copySegments (StripIterator& it);
-
-    void speedStep (
-	const StripIteratorPoint& beforeBegin,
-	const StripIteratorPoint& begin,
-	const StripIteratorPoint& end,
-	const StripIteratorPoint& afterEnd);
-
     void valueStep (
 	const StripIteratorPoint& beforeBegin,
 	const StripIteratorPoint& begin,
@@ -205,23 +191,23 @@ private:
 
     G3D::Vector3 getPoint (StripIteratorPoint p) const;
 
-    QColor focusContextColor (bool focus, const QColor& color);
+    void storeFocusSegment (double value, const Segment& segment);
+    void storeFocusSegment (const QColor& color, const Segment& segment);
 
-    void storeFocusSegment (
-	double value, const Segment& segment);
-
-    void storeContextSegment (
-	const QColor& color, bool focus, const Segment& segment);
+    void storeContextSegment (const QColor& color, const Segment& segment);
 
     void displayContextSegment (
 	const boost::shared_ptr<ContextSegment>& contextSegment);
 
-    void displayFocusSegment (
-	const boost::shared_ptr<FocusSegment>& focusSegment);
+    void displayFocusTextureSegment (
+	const boost::shared_ptr<FocusTextureSegment>& segment);
+    void displayFocusColorSegment (
+	const boost::shared_ptr<FocusColorSegment>& segment);
 
 private:
     DisplaySegment m_displaySegment;
-    vector< boost::shared_ptr<FocusSegment> > m_focusSegments;
+    vector< boost::shared_ptr<FocusTextureSegment> > m_focusTextureSegments;
+    vector< boost::shared_ptr<FocusColorSegment> > m_focusColorSegments;
     vector< boost::shared_ptr<ContextSegment> > m_contextSegments;
     boost::shared_ptr<ofstream> m_output;
     size_t m_index;
