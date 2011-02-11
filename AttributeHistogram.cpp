@@ -50,16 +50,12 @@ void AttributeHistogram::CurrentIndexChangedInteractionMode (int index)
 void AttributeHistogram::createActions ()
 {
     m_actionSelectAll = boost::make_shared<QAction> (tr("&Select All"), this);
-    m_actionSelectAll->setShortcut(
-	QKeySequence (tr ("Shift+S")));
     m_actionSelectAll->setStatusTip(tr("Select All"));
     connect(m_actionSelectAll.get (), SIGNAL(triggered()),
 	    this, SLOT(SelectAll ()));    
 
     m_actionDeselectAll = boost::make_shared<QAction> (
 	tr("&Deselect All"), this);
-    m_actionDeselectAll->setShortcut(
-	QKeySequence (tr ("Shift+D")));
     m_actionDeselectAll->setStatusTip(tr("Deselect All"));
     connect(m_actionDeselectAll.get (), SIGNAL(triggered()),
 	    this, SLOT(DeselectAll ()));

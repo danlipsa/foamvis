@@ -191,7 +191,6 @@ private:
     boost::shared_ptr<QAction> m_actionTranslateLight;
     boost::shared_ptr<QAction> m_actionSelect;
     boost::shared_ptr<QAction> m_actionDeselect;
-    boost::shared_ptr<QAction> m_actionInfo;
 
     BodyProperty::Enum m_property;
     HistogramType::Enum m_histogramType;

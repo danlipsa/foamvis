@@ -476,14 +476,9 @@ void MainWindow::createActions ()
     connect(m_actionDeselect.get (), SIGNAL(triggered()),
 	    this, SLOT(InteractionModeDeselect ()));
 
-    m_actionInfo = boost::make_shared<QAction> (
-	tr("&Info"), this);
-    m_actionInfo->setShortcut(
-	QKeySequence (tr ("Shift+I")));
-    m_actionInfo->setStatusTip(tr("Info"));
-    widgetGl->SetActionInfo (m_actionInfo);
-
     addAction (widgetGl->GetActionResetTransformation ().get ());
+    addAction (widgetGl->GetActionResetSelectedLightPosition ().get ());
+
     addAction (sliderTimeSteps->GetActionNextSelectedTimeStep ().get ());
     addAction (sliderTimeSteps->GetActionPreviousSelectedTimeStep ().get ());
     addAction (m_actionRotateModel.get ());
@@ -493,7 +488,6 @@ void MainWindow::createActions ()
     addAction (m_actionTranslateLight.get ());
     addAction (m_actionSelect.get ());
     addAction (m_actionDeselect.get ());
-    addAction (m_actionInfo.get ());
 }
 
 

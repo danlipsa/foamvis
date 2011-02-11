@@ -217,16 +217,12 @@ void GLWidget::initQuadrics ()
 void GLWidget::createActions ()
 {
     m_actionSelectAll = boost::make_shared<QAction> (tr("&Select all"), this);
-    m_actionSelectAll->setShortcut(
-	QKeySequence (tr ("Shift+S")));
     m_actionSelectAll->setStatusTip(tr("Select all"));
     connect(m_actionSelectAll.get (), SIGNAL(triggered()),
 	    this, SLOT(SelectAll ()));
 
     m_actionDeselectAll = boost::make_shared<QAction> (
 	tr("&Deselect all"), this);
-    m_actionDeselectAll->setShortcut(
-	QKeySequence (tr ("Shift+D")));
     m_actionDeselectAll->setStatusTip(tr("Deselect all"));
     connect(m_actionDeselectAll.get (), SIGNAL(triggered()),
 	    this, SLOT(DeselectAll ()));
@@ -234,7 +230,7 @@ void GLWidget::createActions ()
     m_actionResetTransformation = boost::make_shared<QAction> (
 	tr("&Reset transformation"), this);
     m_actionResetTransformation->setShortcut(
-	QKeySequence (tr ("Shift+R")));
+	QKeySequence (tr ("Ctrl+R")));
     m_actionResetTransformation->setStatusTip(tr("Reset transformation"));
     connect(m_actionResetTransformation.get (), SIGNAL(triggered()),
 	    this, SLOT(ResetTransformation ()));
@@ -242,6 +238,8 @@ void GLWidget::createActions ()
 
     m_actionResetSelectedLightPosition = boost::make_shared<QAction> (
 	tr("&Reset selected light"), this);
+    m_actionResetSelectedLightPosition->setShortcut(
+	QKeySequence (tr ("Ctrl+L")));
     m_actionResetSelectedLightPosition->setStatusTip(
 	tr("Reset selected light"));
     connect(m_actionResetSelectedLightPosition.get (), SIGNAL(triggered()),
@@ -253,6 +251,10 @@ void GLWidget::createActions ()
     m_actionSelectBodiesById->setStatusTip(tr("Select bodies by id"));
     connect(m_actionSelectBodiesById.get (), SIGNAL(triggered()),
 	    this, SLOT(SelectBodiesByIdList ()));
+
+    m_actionInfo = boost::make_shared<QAction> (tr("&Info"), this);
+    m_actionInfo->setStatusTip(tr("Info"));
+    connect(m_actionInfo.get (), SIGNAL(triggered()), this, SLOT(Info ()));
 
     m_actionOpenGlInfo = boost::make_shared<QAction> (
 	tr("&OpenGl info"), this);
@@ -422,21 +424,21 @@ void GLWidget::positionLight (LightPosition::Enum i)
 void GLWidget::showLightPositions () const
 {
     for (size_t i = 0; i < LightPosition::COUNT; ++i)
-	showLightPosition (
-	    LightPosition::Enum (i));
+	showLightPosition (LightPosition::Enum (i));
 }
 
 void GLWidget::showLightPosition (LightPosition::Enum i) const
 {
     if (m_lightPositionShown[i])
     {
+	const double sqrt3 = 1.7321;
 	glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);    
 	glPushMatrix ();
 	glLoadIdentity ();
 	glTranslatef (0, 0, - m_cameraDistance);
 	glMultMatrix (m_rotationMatrixLight[i]);
 	G3D::Vector3 lp = getInitialLightPosition (
-	    LightPosition::Enum (i)) * m_lightPositionRatio[i];
+	    LightPosition::Enum (i)) / sqrt3;
 	glColor (m_lightEnabled[i] ? Qt::red : Qt::gray);
 	if (isLightingEnabled ())
 	    glDisable (GL_LIGHTING);
@@ -2076,13 +2078,6 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
     menu.addAction (m_actionInfo.get ());
     menu.addAction (m_actionOpenGlInfo.get ());
     menu.exec (event->globalPos());
-}
-
-void GLWidget::SetActionInfo (boost::shared_ptr<QAction> actionInfo)
-{
-    m_actionInfo = actionInfo;
-    connect(m_actionInfo.get (), SIGNAL(triggered()),
-	    this, SLOT(Info ()));
 }
 
 double GLWidget::TexCoord (double value) const

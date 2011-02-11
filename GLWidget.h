@@ -212,7 +212,11 @@ public:
     {
 	return m_actionResetTransformation;
     }
-    void SetActionInfo (boost::shared_ptr<QAction> actionInfo);
+    boost::shared_ptr<QAction> GetActionResetSelectedLightPosition ()
+    {
+	return m_actionResetSelectedLightPosition;
+    }
+
     GLuint GetColorBarTexture () const
     {
 	return m_colorBarTexture;
@@ -635,11 +639,9 @@ private:
     BodyProperty::Enum m_coloredBy;
     boost::shared_ptr<BodySelector> m_bodySelector;
 
-    // owned by MainWindows
     boost::shared_ptr<QAction> m_actionSelectAll;
     boost::shared_ptr<QAction> m_actionDeselectAll;
     boost::shared_ptr<QAction> m_actionInfo;
-    // owned by GLWidget
     boost::shared_ptr<QAction> m_actionResetTransformation;
     boost::shared_ptr<QAction> m_actionResetSelectedLightPosition;
     boost::shared_ptr<QAction> m_actionSelectBodiesById;
