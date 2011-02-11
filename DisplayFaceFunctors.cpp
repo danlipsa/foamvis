@@ -44,7 +44,7 @@ DisplayFace (const GLWidget& widget,
 
 template <typename displayEdges, typename PropertySetter>
 void DisplayFace<displayEdges, PropertySetter>::
-operator() (const boost::shared_ptr<OrientedFace>& of)
+operator () (const boost::shared_ptr<OrientedFace>& of)
 {
     if (this->m_glWidget.IsDisplayedFace (m_count))
     {
@@ -61,7 +61,7 @@ operator () (const boost::shared_ptr<Face>& f)
 {
     boost::shared_ptr<OrientedFace> of = 
 	boost::make_shared<OrientedFace>(f, false);
-    operator() (of);
+    operator () (of);
 }
 
 template <typename displayEdges, typename PropertySetter>

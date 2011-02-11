@@ -1316,7 +1316,9 @@ void GLWidget::displayFacesInterior (const Foam::Bodies& bodies) const
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
     glEnable(GL_TEXTURE_1D);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
+    //texture mapping?
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<DisplayFaceWithColor<displaySameEdges> > (
@@ -2120,9 +2122,11 @@ void GLWidget::displayTextureColorBar () const
 	GL_CURRENT_BIT | GL_VIEWPORT_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT);
     if (isLightingEnabled ())
 	glDisable (GL_LIGHTING);
-    glPushMatrix ();
     // modelview
+    glPushMatrix ();
     glLoadIdentity ();
+    
+    // projection
     glMatrixMode (GL_PROJECTION);
     glPushMatrix ();
     glLoadIdentity ();
@@ -2142,7 +2146,6 @@ void GLWidget::displayTextureColorBar () const
     glTexCoord1f(1);glVertex2s (BAR_WIDTH, BAR_HEIGHT);
     glTexCoord1f(0);glVertex2s (BAR_WIDTH, 0);
     glEnd ();
-    glDisable (GL_TEXTURE_1D);
     glPopMatrix ();
     glMatrixMode (GL_MODELVIEW);
     glPopMatrix ();

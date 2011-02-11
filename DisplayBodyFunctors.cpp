@@ -376,6 +376,7 @@ void DisplayCenterPath<PropertySetter, DisplaySegment>::
 displayFocusSegment (const boost::shared_ptr<FocusSegment>& segment)
 {
     DisplayBodyBase<PropertySetter>::beginFocusContext (true);
+    glColor (Qt::white);
     glTexCoord1f (segment->m_textureCoordinate);
     m_displaySegment (*segment);
     DisplayBodyBase<PropertySetter>::endFocusContext (true);

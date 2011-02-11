@@ -6,11 +6,14 @@
  * Sends a property value to the graphics card
  */
 
-#include "PropertySetter.h"
+
 #include "GLWidget.h"
+#include "PropertySetter.h"
+#include "OpenGLUtils.h"
 
 void TexCoordSetter::operator () (double value)
 {
+    glColor (Qt::white);
     double texCoord = m_glWidget.TexCoord (value);
     glTexCoord1f (texCoord); 
 }
