@@ -373,7 +373,6 @@ void Foam::Preprocess ()
     calculateBoundingBox ();
     sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);
     setMissingPressureZero ();
-    calculateMinMaxStatistics ();
 }
 
 void Foam::setMissingPressureZero ()
@@ -547,7 +546,7 @@ void Foam::SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y)
     SetPeriods (x, y, thirdLength * third);
 }
 
-void Foam::calculateMinMaxStatistics ()
+void Foam::CalculateMinMaxStatistics ()
 {
     for (size_t i = BodyProperty::PROPERTY_BEGIN;
 	 i < BodyProperty::PROPERTY_END; ++i)

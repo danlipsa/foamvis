@@ -523,7 +523,7 @@ private:
 	G3D::Vector3::Axis screenYTranslation);
     void translateLight (const QPoint& position);
     void scale (const QPoint& position);
-    void scaleTranslation (
+    void scaleAndTranslation (
 	double scaleRatio,
 	const G3D::Vector3& translation, bool contextView) const;
     void select (const QPoint& position);

@@ -255,6 +255,7 @@ public:
 	return QwtDoubleInterval (GetMin (property), GetMax (property));
     }
     
+    void CalculateMinMaxStatistics ();
 
 public:
     /**
@@ -296,7 +297,6 @@ private:
      * @params high high point of the aabox for the foam (input/output)
      */
     void calculateBoundingBoxForTorus (G3D::Vector3* low, G3D::Vector3* high);
-    void calculateMinMaxStatistics ();
     void calculateMinMaxStatistics (BodyProperty::Enum property);
 
     void unwrap (VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);

@@ -4,7 +4,7 @@ use warnings;
 use File::Copy;
 
 do "replace.pl";
-my $majorVersion = "0.3";
+my $majorVersion = "0.4";
 my $svnVersion = `svnversion`;
 $svnVersion = $svnVersion + 1;
 

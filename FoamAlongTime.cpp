@@ -60,6 +60,7 @@ void FoamAlongTime::Preprocess ()
     CacheBodiesAlongTime ();
     calculateBodyWraps ();
     calculateVelocity ();
+    CalculateMinMaxStatistics ();
     if (IsPressureAdjusted ())
         adjustPressureAlignMedians ();
     else
@@ -69,8 +70,12 @@ void FoamAlongTime::Preprocess ()
     calculateStatistics ();
 }
 
-
-
+void FoamAlongTime::CalculateMinMaxStatistics ()
+{
+    QtConcurrent::blockingMap (
+	m_foams.begin (), m_foams.end (),
+	boost::bind (&Foam::CalculateMinMaxStatistics, _1));
+}
 
 size_t foamsIndex (
     FoamAlongTime::Foams::iterator current, FoamAlongTime::Foams::iterator begin)

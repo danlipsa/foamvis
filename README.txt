@@ -176,6 +176,10 @@ make distclean;release.pl;cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
+0.4.1773 - set missing pressure of last body of constrained foam to 0
+         - added context view
+         - fixed lighting for time displacement view
+         - compile with optimizations by default
 0.3.1689 - added time displacement view for 2D data
 	 - added command line option: -o : show original pressure values
 0.3.1682 - bug fix for coarse100/coarse_01_0100_0407.dmp

@@ -520,7 +520,10 @@ void GLWidget::ModelViewTransformNoRotation () const
     glTranslate (-GetFoamAlongTime ().GetBoundingBox ().center ());
 }
 
-void GLWidget::scaleTranslation (
+/**
+ * @todo: make sure context view works for 3D
+ */
+void GLWidget::scaleAndTranslation (
     double scaleRatio,
     const G3D::Vector3& translation, bool contextView) const
 {
@@ -529,10 +532,9 @@ void GLWidget::scaleTranslation (
 	! IsTimeDisplacementUsed ())
     {
 	G3D::AABox boundingBox = GetFoamAlongTime ().GetBoundingBox ();
-	float zCoordinate = boundingBox.low ().z - boundingBox.center ().z;
-	double translationSign = contextView ? -1 : 1;
-	double zTranslation = zCoordinate - zCoordinate * scaleRatio;
-	glTranslatef (0, 0, translationSign * zTranslation);
+	float zTranslation = boundingBox.low ().z - boundingBox.center ().z;
+	zTranslation = zTranslation - zTranslation * scaleRatio;
+	glTranslatef (0, 0, zTranslation);
     }
 
     // scale around the center of the screen
@@ -566,8 +568,10 @@ void GLWidget::modelViewTransform () const
     default:
 	break;
     }
+
+    // center around focus point
     if (! m_contextView)
-	scaleTranslation (m_scaleRatio, m_translation, false);
+	scaleAndTranslation (m_scaleRatio, m_translation, false);
     glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
 }
 
@@ -683,7 +687,7 @@ void GLWidget::rotate2DRight90 () const
      *    x ->     y
      * z        z
      */
-    const static G3D::Matrix3 axes (0, 1, 0,  -1, 0, 0,  0, -1, 0);
+    const static G3D::Matrix3 axes (0, 1, 0,  -1, 0, 0,  0, 0, 1);
     glMultMatrix (axes);
 }
 
@@ -712,8 +716,11 @@ void GLWidget::calculateCameraDistance ()
     if (m_angleOfView == 0)
 	m_cameraDistance = diagonal.z;
     else
+    {
+	// distance from the camera to the middle of the bounding box
 	m_cameraDistance = diagonal.y / 2 /
 	    tan (m_angleOfView * M_PI / 360) + diagonal.z / 2;
+    }
 }
 
 
@@ -1081,16 +1088,12 @@ void GLWidget::displayFocusBox () const
     if (m_contextView)
     {
 	glPushMatrix ();
-	G3D::AABox boundingBox = GetFoamAlongTime ().GetBoundingBox ();
-	G3D::Vector3 center = boundingBox.center ();
 	glLoadIdentity ();
 	glTranslatef (0, 0, - m_cameraDistance);
 
-	G3D::AABox focusBox = AdjustXOverYRatio (
-	    EncloseRotation (boundingBox, ENCLOSE_ROTATION_RATIO), 
+	G3D::AABox focusBox = calculateCenteredViewingVolume (
 	    static_cast<double> (width ()) / height ());
-	scaleTranslation (1 / m_scaleRatio, - m_translation, true);
-	glTranslate (-center);
+	scaleAndTranslation (1 / m_scaleRatio, - m_translation, true);
 	DisplayBox (focusBox, Qt::black, GL_LINE);
 	glPopMatrix ();
     }

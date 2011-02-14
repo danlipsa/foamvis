@@ -96,6 +96,8 @@ public:
 	return acc::max (GetHistogram (property));
     }
 
+    void CalculateMinMaxStatistics ();
+
     QwtDoubleInterval GetRange (BodyProperty::Enum property) const
     {
 	return QwtDoubleInterval (GetMin (property), GetMax (property));

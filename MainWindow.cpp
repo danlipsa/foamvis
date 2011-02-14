@@ -227,37 +227,37 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 }
 
 
-void MainWindow::InteractionModeRotate ()
+void MainWindow::RotateShown ()
 {
     comboBoxInteractionMode->setCurrentIndex (InteractionMode::ROTATE);
 }
 
-void MainWindow::InteractionModeScale ()
+void MainWindow::ScaleShown ()
 {
     comboBoxInteractionMode->setCurrentIndex (InteractionMode::SCALE);
 }
 
-void MainWindow::InteractionModeTranslate ()
+void MainWindow::TranslateShown ()
 {
     comboBoxInteractionMode->setCurrentIndex (InteractionMode::TRANSLATE);
 }
 
-void MainWindow::InteractionModeSelect ()
+void MainWindow::SelectShown ()
 {
     comboBoxInteractionMode->setCurrentIndex (InteractionMode::SELECT);
 }
 
-void MainWindow::InteractionModeDeselect ()
+void MainWindow::DeselectShown ()
 {
     comboBoxInteractionMode->setCurrentIndex (InteractionMode::DESELECT);
 }
 
-void MainWindow::InteractionModeRotateLight ()
+void MainWindow::RotateLightShown ()
 {
     comboBoxInteractionMode->setCurrentIndex (InteractionMode::ROTATE_LIGHT);
 }
 
-void MainWindow::InteractionModeTranslateLight ()
+void MainWindow::TranslateLightShown ()
 {
     comboBoxInteractionMode->setCurrentIndex (InteractionMode::TRANSLATE_LIGHT);
 }
@@ -427,67 +427,67 @@ void MainWindow::SetAndDisplayHistogram (
 
 void MainWindow::createActions ()
 {
-    m_actionRotateModel = boost::make_shared<QAction> (
+    m_actionRotateShown = boost::make_shared<QAction> (
 	tr("&Rotate Model"), this);
-    m_actionRotateModel->setShortcut(QKeySequence (tr ("R")));
-    m_actionRotateModel->setStatusTip(tr("Rotate Model"));
-    connect(m_actionRotateModel.get (), SIGNAL(triggered()),
-	    this, SLOT(InteractionModeRotate ()));
+    m_actionRotateShown->setShortcut(QKeySequence (tr ("R")));
+    m_actionRotateShown->setStatusTip(tr("Rotate Model"));
+    connect(m_actionRotateShown.get (), SIGNAL(triggered()),
+	    this, SLOT(RotateShown ()));
 
-    m_actionScale = boost::make_shared<QAction> (tr("&Scale"), this);
-    m_actionScale->setShortcut(QKeySequence (tr ("Z")));
-    m_actionScale->setStatusTip(tr("Scale"));
-    connect(m_actionScale.get (), SIGNAL(triggered()),
-	    this, SLOT(InteractionModeScale ()));
+    m_actionScaleShown = boost::make_shared<QAction> (tr("&Scale"), this);
+    m_actionScaleShown->setShortcut(QKeySequence (tr ("Z")));
+    m_actionScaleShown->setStatusTip(tr("Scale"));
+    connect(m_actionScaleShown.get (), SIGNAL(triggered()),
+	    this, SLOT(ScaleShown ()));
 
-    m_actionTranslate = boost::make_shared<QAction> (tr("&Translate"), this);
-    m_actionTranslate->setShortcut(QKeySequence (tr ("T")));
-    m_actionTranslate->setStatusTip(tr("Translate"));
-    connect(m_actionTranslate.get (), SIGNAL(triggered()),
-	    this, SLOT(InteractionModeTranslate ()));
+    m_actionTranslateShown = boost::make_shared<QAction> (tr("&Translate"), this);
+    m_actionTranslateShown->setShortcut(QKeySequence (tr ("T")));
+    m_actionTranslateShown->setStatusTip(tr("Translate"));
+    connect(m_actionTranslateShown.get (), SIGNAL(triggered()),
+	    this, SLOT(TranslateShown ()));
 
 
-    m_actionRotateLight = boost::make_shared<QAction> (
+    m_actionRotateLightShown = boost::make_shared<QAction> (
 	tr("Rotate &Light"), this);
-    m_actionRotateLight->setShortcut(QKeySequence (tr ("L")));
-    m_actionRotateLight->setStatusTip(tr("Rotate Light"));
-    connect(m_actionRotateLight.get (), SIGNAL(triggered()),
-	    this, SLOT(InteractionModeRotateLight ()));
+    m_actionRotateLightShown->setShortcut(QKeySequence (tr ("L")));
+    m_actionRotateLightShown->setStatusTip(tr("Rotate Light"));
+    connect(m_actionRotateLightShown.get (), SIGNAL(triggered()),
+	    this, SLOT(RotateLightShown ()));
 
-    m_actionTranslateLight = boost::make_shared<QAction> (
+    m_actionTranslateLightShown = boost::make_shared<QAction> (
 	tr("Translate L&ight"), this);
-    m_actionTranslateLight->setShortcut(QKeySequence (tr ("I")));
-    m_actionTranslateLight->setStatusTip(tr("Translate Light"));
-    connect(m_actionTranslateLight.get (), SIGNAL(triggered()),
-	    this, SLOT(InteractionModeTranslateLight ()));
+    m_actionTranslateLightShown->setShortcut(QKeySequence (tr ("I")));
+    m_actionTranslateLightShown->setStatusTip(tr("Translate Light"));
+    connect(m_actionTranslateLightShown.get (), SIGNAL(triggered()),
+	    this, SLOT(TranslateLightShown ()));
 
 
-    m_actionSelect = boost::make_shared<QAction> (
+    m_actionSelectShown = boost::make_shared<QAction> (
 	tr("&Select"), this);
-    m_actionSelect->setShortcut(QKeySequence (tr ("S")));
-    m_actionSelect->setStatusTip(tr("Select"));
-    connect(m_actionSelect.get (), SIGNAL(triggered()),
-	    this, SLOT(InteractionModeSelect ()));
+    m_actionSelectShown->setShortcut(QKeySequence (tr ("S")));
+    m_actionSelectShown->setStatusTip(tr("Select"));
+    connect(m_actionSelectShown.get (), SIGNAL(triggered()),
+	    this, SLOT(SelectShown ()));
 
-    m_actionDeselect = boost::make_shared<QAction> (
+    m_actionDeselectShown = boost::make_shared<QAction> (
 	tr("&Deselect"), this);
-    m_actionDeselect->setShortcut (QKeySequence (tr ("D")));
-    m_actionDeselect->setStatusTip (tr("Deselect"));
-    connect(m_actionDeselect.get (), SIGNAL(triggered()),
-	    this, SLOT(InteractionModeDeselect ()));
+    m_actionDeselectShown->setShortcut (QKeySequence (tr ("D")));
+    m_actionDeselectShown->setStatusTip (tr("Deselect"));
+    connect(m_actionDeselectShown.get (), SIGNAL(triggered()),
+	    this, SLOT(DeselectShown ()));
 
     addAction (widgetGl->GetActionResetTransformation ().get ());
     addAction (widgetGl->GetActionResetSelectedLightPosition ().get ());
 
     addAction (sliderTimeSteps->GetActionNextSelectedTimeStep ().get ());
     addAction (sliderTimeSteps->GetActionPreviousSelectedTimeStep ().get ());
-    addAction (m_actionRotateModel.get ());
-    addAction (m_actionTranslate.get ());
-    addAction (m_actionScale.get ());
-    addAction (m_actionRotateLight.get ());
-    addAction (m_actionTranslateLight.get ());
-    addAction (m_actionSelect.get ());
-    addAction (m_actionDeselect.get ());
+    addAction (m_actionRotateShown.get ());
+    addAction (m_actionTranslateShown.get ());
+    addAction (m_actionScaleShown.get ());
+    addAction (m_actionRotateLightShown.get ());
+    addAction (m_actionTranslateLightShown.get ());
+    addAction (m_actionSelectShown.get ());
+    addAction (m_actionDeselectShown.get ());
 }
 
 
@@ -821,6 +821,7 @@ void MainWindow::ButtonClickedHistogram (int histogramType)
 
 void MainWindow::SelectionChangedHistogram ()
 {
+    cdbg << "selection changed" << endl;
     vector<QwtDoubleInterval> valueIntervals;
     widgetHistogram->GetSelectedIntervals (&valueIntervals);
     vector<bool> timeStepSelection;

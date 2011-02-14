@@ -101,13 +101,14 @@ public Q_SLOTS:
     void CurrentIndexChangedSelectedLight (int i);
 
     void ShowEditColorMap ();
-    void InteractionModeRotate ();
-    void InteractionModeScale ();
-    void InteractionModeTranslate ();    
-    void InteractionModeSelect ();
-    void InteractionModeDeselect ();
-    void InteractionModeRotateLight ();
-    void InteractionModeTranslateLight ();
+    void RotateShown ();
+    void ScaleShown ();
+    void TranslateShown ();    
+    void SelectShown ();
+    void DeselectShown ();
+    void RotateLightShown ();
+    void TranslateLightShown ();
+
     void SelectionChangedHistogram ();
     /**
      * Invoqued by the timer to show the next data in the vector
@@ -184,13 +185,13 @@ private:
     Foam::Bodies::iterator m_currentTranslatedBody;
     size_t m_currentBody;
 
-    boost::shared_ptr<QAction> m_actionRotateModel;
-    boost::shared_ptr<QAction> m_actionTranslate;
-    boost::shared_ptr<QAction> m_actionScale;
-    boost::shared_ptr<QAction> m_actionRotateLight;
-    boost::shared_ptr<QAction> m_actionTranslateLight;
-    boost::shared_ptr<QAction> m_actionSelect;
-    boost::shared_ptr<QAction> m_actionDeselect;
+    boost::shared_ptr<QAction> m_actionRotateShown;
+    boost::shared_ptr<QAction> m_actionTranslateShown;
+    boost::shared_ptr<QAction> m_actionScaleShown;
+    boost::shared_ptr<QAction> m_actionRotateLightShown;
+    boost::shared_ptr<QAction> m_actionTranslateLightShown;
+    boost::shared_ptr<QAction> m_actionSelectShown;
+    boost::shared_ptr<QAction> m_actionDeselectShown;
 
     BodyProperty::Enum m_property;
     HistogramType::Enum m_histogramType;
