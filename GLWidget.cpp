@@ -492,6 +492,7 @@ void GLWidget::initializeLighting ()
     glEnable(GL_RESCALE_NORMAL);
     glShadeModel (GL_SMOOTH);
     glEnable (GL_COLOR_MATERIAL);
+    glEnable (GL_CULL_FACE);
 }
 
 G3D::AABox GLWidget::calculateCenteredViewingVolume (
@@ -1402,13 +1403,14 @@ void GLWidget::displayCenterPathsWithBodies () const
     glPopAttrib ();
 }
 
-
-
 void GLWidget::displayCenterPaths () const
 {
-    glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT);
+    glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT | 
+		  GL_POLYGON_BIT);
     glEnable(GL_TEXTURE_1D);
     glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
+    glPolygonMode (GL_FRONT, GL_FILL);
+
     //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
     //texture mapping?
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);

@@ -821,7 +821,6 @@ void MainWindow::ButtonClickedHistogram (int histogramType)
 
 void MainWindow::SelectionChangedHistogram ()
 {
-    cdbg << "selection changed" << endl;
     vector<QwtDoubleInterval> valueIntervals;
     widgetHistogram->GetSelectedIntervals (&valueIntervals);
     vector<bool> timeStepSelection;
