@@ -536,11 +536,6 @@ void GLWidget::ModelViewTransformNoRotation () const
     default:
 	break;
     }
-    if (! m_contextView)
-    {
-	translate (m_scaleRatio, m_translation, m_contextView);
-	glScale (m_scaleRatio);
-    }
     glTranslate (-GetFoamAlongTime ().GetBoundingBox ().center ());
 }
 
@@ -569,12 +564,6 @@ void GLWidget::modelViewTransform () const
     default:
 	break;
     }
-
-    if (! m_contextView)
-    {
-	glScale (m_scaleRatio);
-	translate (m_scaleRatio, m_translation, m_contextView);
-    }
     glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
 }
 
@@ -587,9 +576,23 @@ G3D::AABox GLWidget::calculateViewingVolume (double xOverY) const
 }
 
 
-void GLWidget::projectionTransform (double xOverY) const
+void GLWidget::projectionTransform () const
 {
+    double xOverY = double (width ()) / height ();
     G3D::AABox viewingVolume = calculateViewingVolume (xOverY);
+    if (! m_contextView)
+    {
+	double oldZ = viewingVolume.low ().z;
+	Scale (&viewingVolume, 1 / m_scaleRatio);
+	Translate (&viewingVolume, - m_translation);
+	if (GetFoamAlongTime ().GetDimension () == 2 && 
+	    ! IsTimeDisplacementUsed ())
+	{
+	    double newZ = viewingVolume.low ().z;
+	    Translate (&viewingVolume, G3D::Vector3 (0, 0, oldZ - newZ));
+	}
+    }
+
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
     if (m_angleOfView == 0)
@@ -606,13 +609,13 @@ void GLWidget::projectionTransform (double xOverY) const
     }
     glMatrixMode (GL_MODELVIEW);
     glLoadIdentity ();
+    
 }
 
-void GLWidget::ViewportTransform (
-    int width, int height)
+void GLWidget::ViewportTransform ()
 {
     G3D::Rect2D screenWorld;
-    viewingVolumeCalculations (width, height, &m_viewport, &screenWorld);
+    viewingVolumeCalculations (width (), height (), &m_viewport, &screenWorld);
     glViewport (m_viewport);
 }
 
@@ -732,6 +735,7 @@ void GLWidget::ResetTransformation ()
     m_rotationModel = G3D::Matrix3::identity ();
     m_scaleRatio = 1;
     m_translation = G3D::Vector3::zero ();
+    projectionTransform ();
     updateGL ();
 }
 
@@ -787,13 +791,12 @@ void GLWidget::initializeGL()
     initializeGLFunctions ();
     glClearColor (Qt::white);
     glEnable(GL_DEPTH_TEST);
-    projectionTransform (static_cast<double> (width ()) / height ());
     initializeTextures ();
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     m_displayFaceAverage->InitShaders ();
     initializeLighting ();
     setEdgeRadius ();
-    detectOpenGLError ();
+    detectOpenGLError ("initializeGl");
 }
 
 void GLWidget::paintGL ()
@@ -810,20 +813,19 @@ void GLWidget::paintGL ()
     displayOriginalDomain ();
     displayFocusBox ();
     showLightPositions ();
-    detectOpenGLError ();
+    detectOpenGLError ("paintGl");
     Q_EMIT PaintedGL ();
 }
 
-void GLWidget::resizeGL(int width, int height)
+void GLWidget::resizeGL(int w, int h)
 {
-    if (width == 0 && height == 0)
-	return;
-    projectionTransform (static_cast<double> (width) / height);
-    ViewportTransform (width, height);
-    QSize size = QSize (width, height);
+    projectionTransform ();
+    ViewportTransform ();
+    QSize size = QSize (w, h);
     if (m_viewType == ViewType::FACES_AVERAGE)
 	initStepDisplayAverage ();
     setEdgeRadius ();
+    detectOpenGLError ("resizeGl");
 }
 
 void GLWidget::RenderFromFbo (QGLFramebufferObject& fbo) const
@@ -1023,6 +1025,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	break;
 
     case InteractionMode::TRANSLATE:
+	makeCurrent ();
 	if (event->modifiers () & Qt::ControlModifier)
 	{
 	    QPoint point (m_lastPos.x (), event->pos ().y ());
@@ -1031,9 +1034,12 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	else
 	    translate (event->pos (), G3D::Vector3::X_AXIS,
 		       G3D::Vector3::Y_AXIS);
+	projectionTransform ();
 	break;
     case InteractionMode::SCALE:
+	makeCurrent ();
 	scale (event->pos ());
+	projectionTransform ();
 	break;
 
     case InteractionMode::ROTATE_LIGHT:
@@ -1738,7 +1744,7 @@ void GLWidget::ToggledColorBarShown (bool checked)
 void GLWidget::ToggledContextView (bool checked)
 {
     m_contextView = checked;
-    projectionTransform (static_cast<double> (width ()) / height ());
+    projectionTransform ();
     updateGL ();
 }
 
@@ -2055,7 +2061,7 @@ void GLWidget::ValueChangedAngleOfView (int angleOfView)
     makeCurrent ();
     m_angleOfView = angleOfView;
     calculateCameraDistance ();
-    projectionTransform (static_cast<double> (width ()) / height ());
+    projectionTransform ();
     updateGL ();
 }
 

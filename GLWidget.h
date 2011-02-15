@@ -231,7 +231,7 @@ public:
      * Calculates and does the viewport transform.
      * @param viewport stores the viewport.
      */
-    void ViewportTransform (int width, int height);
+    void ViewportTransform ();
     void ModelViewTransformNoRotation () const;
     void RenderFromFbo (QGLFramebufferObject& fbo) const;
     /**
@@ -414,7 +414,7 @@ private:
      * Setup the viewing volume first centered around origin and then translated
      * toward negative Z with m_cameraDistance. 
      */
-    void projectionTransform (double xOverY) const;
+    void projectionTransform () const;
     /**
      * First translate the data to be centered around origin, then
      * rotate and then translate toward negative Z with
