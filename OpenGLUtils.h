@@ -21,6 +21,11 @@ inline void glVertex (const G3D::Vector3& p)
     glVertex3f (p.x, p.y, p.z);
 }
 
+inline void glScale (double ratio)
+{
+    glScaled (ratio, ratio, ratio);
+}
+
 inline void glClearColor (const QColor& color)
 {
     glClearColor (color.redF (), color.greenF (), 

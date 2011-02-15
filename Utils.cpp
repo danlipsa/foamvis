@@ -173,7 +173,7 @@ G3D::AABox EncloseRotation (const G3D::AABox& aabox, double t)
     using G3D::Vector3;
     Vector3 center = aabox.center ();
     double maxHalfSideLength = (aabox.high () - center).length ();
-    double minHalfSideLength = aabox.extent ().max () / 2;
+    double minHalfSideLength = aabox.extent ().min () / 2;
     double halfSideLength = minHalfSideLength + 
 	t * (maxHalfSideLength - minHalfSideLength);
     Vector3 halfDiagonal = halfSideLength * 

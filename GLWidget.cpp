@@ -133,7 +133,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_selectedBodyIndex (DISPLAY_ALL), m_selectedFaceIndex (DISPLAY_ALL),
       m_selectedEdgeIndex (DISPLAY_ALL),
       m_contextAlpha (MIN_CONTEXT_ALPHA),
-      m_rotationMatrixModel (G3D::Matrix3::identity ()),
+      m_rotationModel (G3D::Matrix3::identity ()),
       m_scaleRatio (1),
       m_translation (G3D::Vector3::zero ()),
       m_lightingEnabled (false),
@@ -365,7 +365,7 @@ void GLWidget::setInitialLightParameters ()
 void GLWidget::setInitialLightPosition (LightPosition::Enum i)
 {
     m_lightPositionRatio[i] = 1;
-    m_rotationMatrixLight[i] = G3D::Matrix3::identity ();
+    m_rotationLight[i] = G3D::Matrix3::identity ();
 }
 
 G3D::Vector3 GLWidget::getInitialLightPosition (
@@ -397,7 +397,7 @@ void GLWidget::positionLight (LightPosition::Enum i)
 	G3D::Vector3 lp = getInitialLightPosition (
 	    LightPosition::Enum (i)) * m_lightPositionRatio[i];
 	glPushMatrix ();
-	glLoadMatrix (G3D::CoordinateFrame (m_rotationMatrixLight[i]));
+	glLoadMatrix (G3D::CoordinateFrame (m_rotationLight[i]));
 	if (m_directionalLightEnabled[i])
 	{
 	    glLightf(GL_LIGHT0 + i, GL_SPOT_CUTOFF, 180);
@@ -412,7 +412,7 @@ void GLWidget::positionLight (LightPosition::Enum i)
 	    glPushMatrix ();
 	    glLoadIdentity ();
 	    glTranslatef (0, 0, - m_cameraDistance);
-	    glMultMatrix (m_rotationMatrixLight[i]);
+	    glMultMatrix (m_rotationLight[i]);
 	    GLfloat lightPosition[] = {lp.x, lp.y, lp.z, 1};
 	    glLightfv(GL_LIGHT0 + i, GL_POSITION, lightPosition);
 	    glPopMatrix ();
@@ -436,7 +436,7 @@ void GLWidget::showLightPosition (LightPosition::Enum i) const
 	glPushMatrix ();
 	glLoadIdentity ();
 	glTranslatef (0, 0, - m_cameraDistance);
-	glMultMatrix (m_rotationMatrixLight[i]);
+	glMultMatrix (m_rotationLight[i]);
 	G3D::Vector3 lp = getInitialLightPosition (
 	    LightPosition::Enum (i)) / sqrt3;
 	glColor (m_lightEnabled[i] ? Qt::red : Qt::gray);
@@ -499,10 +499,29 @@ G3D::AABox GLWidget::calculateCenteredViewingVolume (
 {
     G3D::AABox boundingBox = AdjustXOverYRatio (
 	EncloseRotation (GetFoamAlongTime ().GetBoundingBox (), 
-			 ENCLOSE_ROTATION_RATIO), 
-	xOverY);
+			 ENCLOSE_ROTATION_RATIO), xOverY);
     G3D::Vector3 center = boundingBox.center ();
     return boundingBox - center;
+}
+
+/**
+ * @todo: make sure context view works for 3D
+ */
+void GLWidget::translate (
+    double scaleRatio,
+    const G3D::Vector3& translation, bool contextView) const
+{
+    // if 2D, the back plane stays in the same place
+    if (GetFoamAlongTime ().GetDimension () == 2 && 
+	! IsTimeDisplacementUsed ())
+    {
+	G3D::AABox boundingBox = GetFoamAlongTime ().GetBoundingBox ();
+	float zTranslation = boundingBox.low ().z - boundingBox.center ().z;
+	zTranslation = zTranslation - zTranslation * scaleRatio;
+	glTranslatef (0, 0, zTranslation);
+    }
+
+    glTranslate (contextView ? (translation * scaleRatio) : translation);
 }
 
 void GLWidget::ModelViewTransformNoRotation () const
@@ -517,30 +536,15 @@ void GLWidget::ModelViewTransformNoRotation () const
     default:
 	break;
     }
+    if (! m_contextView)
+    {
+	translate (m_scaleRatio, m_translation, m_contextView);
+	glScale (m_scaleRatio);
+    }
     glTranslate (-GetFoamAlongTime ().GetBoundingBox ().center ());
 }
 
-/**
- * @todo: make sure context view works for 3D
- */
-void GLWidget::scaleAndTranslation (
-    double scaleRatio,
-    const G3D::Vector3& translation, bool contextView) const
-{
-    // if 2D, the back plane stays in the same place
-    if (GetFoamAlongTime ().GetDimension () == 2 && 
-	! IsTimeDisplacementUsed ())
-    {
-	G3D::AABox boundingBox = GetFoamAlongTime ().GetBoundingBox ();
-	float zTranslation = boundingBox.low ().z - boundingBox.center ().z;
-	zTranslation = zTranslation - zTranslation * scaleRatio;
-	glTranslatef (0, 0, zTranslation);
-    }
 
-    // scale around the center of the screen
-    glScaled (scaleRatio, scaleRatio, scaleRatio);
-    glTranslate (contextView ? (translation / scaleRatio) : translation);
-}
 
 void GLWidget::modelViewTransform () const
 {
@@ -549,11 +553,12 @@ void GLWidget::modelViewTransform () const
     glTranslatef (0, 0, - m_cameraDistance);
     
     // modeling transform - build the model around origin
-    if (m_contextView)
-	glTranslate (-m_translation);
-    glMultMatrix (m_rotationMatrixModel);
-    if (m_contextView)
-	glTranslate (m_translation);
+
+    // center around focus point
+    if (! m_contextView)
+	translate (m_scaleRatio, m_translation, m_contextView);
+
+    glMultMatrix (m_rotationModel);
     switch (m_axesOrder)
     {
     case AxesOrder::TWO_D_TIME_DISPLACEMENT:
@@ -569,16 +574,14 @@ void GLWidget::modelViewTransform () const
 	break;
     }
 
-    // center around focus point
     if (! m_contextView)
-	scaleAndTranslation (m_scaleRatio, m_translation, false);
+	glScale (m_scaleRatio);
     glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
 }
 
 G3D::AABox GLWidget::calculateViewingVolume (double xOverY) const
 {
-    G3D::AABox centeredViewingVolume = 
-	calculateCenteredViewingVolume (xOverY);
+    G3D::AABox centeredViewingVolume = calculateCenteredViewingVolume (xOverY);
     G3D::Vector3 translation (m_cameraDistance * G3D::Vector3::unitZ ());
     G3D::AABox result = centeredViewingVolume - translation;
     return result;
@@ -727,7 +730,7 @@ void GLWidget::calculateCameraDistance ()
 void GLWidget::ResetTransformation ()
 {
     makeCurrent ();
-    m_rotationMatrixModel = G3D::Matrix3::identity ();
+    m_rotationModel = G3D::Matrix3::identity ();
     m_scaleRatio = 1;
     m_translation = G3D::Vector3::zero ();
     updateGL ();
@@ -916,6 +919,7 @@ void GLWidget::scale (const QPoint& position)
 	m_scaleRatio = m_scaleRatio / ratio;
     else
 	m_scaleRatio = m_scaleRatio * ratio;
+    cdbg << "scale ratio=" << m_scaleRatio << endl;
 }
 
 
@@ -1016,7 +1020,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     switch (m_interactionMode)
     {
     case InteractionMode::ROTATE:
-	rotate (event->pos (), &m_rotationMatrixModel);
+	rotate (event->pos (), &m_rotationModel);
 	break;
 
     case InteractionMode::TRANSLATE:
@@ -1034,7 +1038,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	break;
 
     case InteractionMode::ROTATE_LIGHT:
-	rotate (event->pos (), &m_rotationMatrixLight[m_selectedLight]);
+	rotate (event->pos (), &m_rotationLight[m_selectedLight]);
 	positionLight (m_selectedLight);
 	break;
     case InteractionMode::TRANSLATE_LIGHT:
@@ -1093,7 +1097,8 @@ void GLWidget::displayFocusBox () const
 
 	G3D::AABox focusBox = calculateCenteredViewingVolume (
 	    static_cast<double> (width ()) / height ());
-	scaleAndTranslation (1 / m_scaleRatio, - m_translation, true);
+	translate (1 / m_scaleRatio, - m_translation, m_contextView);
+	glScale (1 / m_scaleRatio);
 	DisplayBox (focusBox, Qt::black, GL_LINE);
 	glPopMatrix ();
     }

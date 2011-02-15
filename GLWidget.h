@@ -523,9 +523,8 @@ private:
 	G3D::Vector3::Axis screenYTranslation);
     void translateLight (const QPoint& position);
     void scale (const QPoint& position);
-    void scaleAndTranslation (
-	double scaleRatio,
-	const G3D::Vector3& translation, bool contextView) const;
+    void translate (double m_scaleRatio, const G3D::Vector3& translation,
+		    bool contextView) const;
     void select (const QPoint& position);
     void deselect (const QPoint& position);
     void brushedBodies (const QPoint& position, vector<size_t>* bodies) const;
@@ -591,7 +590,7 @@ private:
 
     double m_contextAlpha;
 
-    G3D::Matrix3 m_rotationMatrixModel;
+    G3D::Matrix3 m_rotationModel;
     G3D::Rect2D m_viewport;
     double m_scaleRatio;
     G3D::Vector3 m_translation;
@@ -605,7 +604,7 @@ private:
     bitset<LightPosition::COUNT> m_lightEnabled;
     bitset<LightPosition::COUNT> m_directionalLightEnabled;
     bitset<LightPosition::COUNT> m_lightPositionShown;    
-    boost::array<G3D::Matrix3, LightPosition::COUNT> m_rotationMatrixLight;
+    boost::array<G3D::Matrix3, LightPosition::COUNT> m_rotationLight;
     boost::array<double, LightPosition::COUNT> m_lightPositionRatio;
     boost::array<boost::array<GLfloat, 4>, LightPosition::COUNT> m_lightAmbient;
     boost::array<boost::array<GLfloat, 4>, LightPosition::COUNT> m_lightDiffuse;
