@@ -38,7 +38,7 @@ SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp 
 	QuadraticEdge.cpp RestrictedRangeSlider.cpp\
 	Statistics.cpp StripIterator.cpp TimeStepsSlider.cpp \
 	TransferFunctionHistogram.cpp Utils.cpp Vertex.cpp
-FORMS += SelectBodiesById.ui EditColorMap.ui HistogramHeight.ui\
+FORMS += SelectBodiesById.ui EditColorMap.ui HistogramHeight.ui \
 	 RestrictedRangeSlider.ui MainWindow.ui OpenGLInfo.ui
 LEXSOURCES        += EvolverData.l
 YACCSOURCES       += EvolverData.y
