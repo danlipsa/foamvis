@@ -97,10 +97,6 @@ private:
 };
 
 
-/**
- * @todo Fix maximum pressure over time which shows some
- * maximum values for the bubble that has no pressure.
- */
 class DisplayFaceAverage : public DisplayElement
 {
 public:

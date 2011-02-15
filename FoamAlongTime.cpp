@@ -50,9 +50,7 @@ void FoamAlongTime::calculateBodyWraps ()
                   boost::bind(::calculateBodyWraps, _1, *this));
     }
 }
-/**
- * @todo Adjust pressures so that the median of each time step is 0.
- */
+
 void FoamAlongTime::Preprocess ()
 {
     cdbg << "Preprocess data ..." << endl;
