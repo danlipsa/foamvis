@@ -516,12 +516,12 @@ void GLWidget::translate (
 	! IsTimeDisplacementUsed ())
     {
 	G3D::AABox boundingBox = GetFoamAlongTime ().GetBoundingBox ();
-	float zTranslation = boundingBox.low ().z - boundingBox.center ().z;
-	zTranslation = zTranslation - zTranslation * scaleRatio;
+	float zTranslation = boundingBox.center ().z - boundingBox.low ().z;
+	zTranslation = zTranslation * scaleRatio - zTranslation;
 	glTranslatef (0, 0, zTranslation);
     }
 
-    glTranslate (contextView ? (translation * scaleRatio) : translation);
+    glTranslate (contextView ? (translation / scaleRatio) : translation);
 }
 
 void GLWidget::ModelViewTransformNoRotation () const
@@ -554,10 +554,6 @@ void GLWidget::modelViewTransform () const
     
     // modeling transform - build the model around origin
 
-    // center around focus point
-    if (! m_contextView)
-	translate (m_scaleRatio, m_translation, m_contextView);
-
     glMultMatrix (m_rotationModel);
     switch (m_axesOrder)
     {
@@ -575,7 +571,10 @@ void GLWidget::modelViewTransform () const
     }
 
     if (! m_contextView)
+    {
 	glScale (m_scaleRatio);
+	translate (m_scaleRatio, m_translation, m_contextView);
+    }
     glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
 }
 
@@ -1097,8 +1096,8 @@ void GLWidget::displayFocusBox () const
 
 	G3D::AABox focusBox = calculateCenteredViewingVolume (
 	    static_cast<double> (width ()) / height ());
-	translate (1 / m_scaleRatio, - m_translation, m_contextView);
 	glScale (1 / m_scaleRatio);
+	translate (1 / m_scaleRatio, - m_translation, m_contextView);
 	DisplayBox (focusBox, Qt::black, GL_LINE);
 	glPopMatrix ();
     }
