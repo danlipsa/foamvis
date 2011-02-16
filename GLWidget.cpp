@@ -87,6 +87,24 @@ void display (const char* name, const T& what)
 // Private Classes
 // ======================================================================
 
+class IsStationaryBodyOrContext
+{
+public:
+    IsStationaryBodyOrContext (const GLWidget& widget) :
+	m_widget (widget)
+    {
+    }
+    bool operator () (const boost::shared_ptr<Body>& body)
+    {
+	size_t bodyId = body->GetId ();
+	return bodyId != m_widget.GetStationaryBodyId () &&
+	    ! m_widget.IsStationaryBodyContext (bodyId);
+    }
+private:
+    const GLWidget& m_widget;
+};
+
+
 template<typename T>
 class identity
 {
@@ -984,28 +1002,16 @@ void GLWidget::brushedBodies (
     }
 }
 
-class IsStationaryOrContext
-{
-    bool operator () (const boost::shared_ptr<Body>& body)
-    {
-	
-    }
-};
-
 void GLWidget::displayStationaryBodyAndContext () const
 {
     const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
     Foam::Bodies selectedBodies (bodies.size ());
-    transform (bodies.begin (), bodies.end (), selectedBodies, 
-	       isSelected);
-    if (foam.IsQuadratic ())
-    {
+    remove_copy_if (bodies.begin (), bodies.end (), selectedBodies.begin (), 
+		    IsStationaryBodyOrContext(*this));
+    if (GetCurrentFoam ().IsQuadratic ())
 	displayFacesContour<DisplaySameEdges> (bodies);
-    }
     else
-    {
 	displayFacesContour<DisplaySameTriangles> (bodies);
-    }
 }
 
 
@@ -1032,6 +1038,7 @@ void GLWidget::StationarySet ()
     m_stationaryBodyId = bodies[0];
     m_stationaryBodyTimeStep = m_timeStep;
     setStationaryBodyLabel ();
+    updateGL ();
 }
 
 void GLWidget::StationaryReset ()
@@ -1040,6 +1047,7 @@ void GLWidget::StationaryReset ()
     m_stationaryBodyTimeStep = 0;
     m_stationaryBodyContext.clear ();
     setStationaryBodyLabel ();
+    updateGL ();
 }
 
 void GLWidget::StationaryContextAdd ()
@@ -1048,6 +1056,7 @@ void GLWidget::StationaryContextAdd ()
     brushedBodies (m_contextMenuPos, &bodies);
     m_stationaryBodyContext.insert (bodies[0]);
     setStationaryBodyLabel ();
+    updateGL ();
 }
 
 
@@ -1400,8 +1409,11 @@ void GLWidget::displayFacesAverage () const
     m_displayFaceAverage->Display (
 	foamAlongTime.GetMin (GetColoredBy ()),
 	foamAlongTime.GetMax (GetColoredBy ()), GetStatisticsType ());
+    glPushAttrib (GL_ENABLE_BIT);    
+    glDisable (GL_DEPTH_TEST);
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
     displayStationaryBodyAndContext ();
+    glPopAttrib ();
 }
 
 
@@ -1419,7 +1431,6 @@ void GLWidget::displayFacesContour (const Foam::Faces& faces) const
 
     glColor (QColor::fromRgbF (0, 0, 0, GetContextAlpha ()));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-
     for_each (faces.begin (), faces.end (),
 	      DisplayFace<displaySameEdges> (*this));
 }
@@ -1427,12 +1438,13 @@ void GLWidget::displayFacesContour (const Foam::Faces& faces) const
 template<typename displaySameEdges>
 void GLWidget::displayFacesContour (const Foam::Bodies& bodies) const
 {
-
+    glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT);
     glColor (QColor::fromRgbF (0, 0, 0, GetContextAlpha ()));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody< DisplayFace<displaySameEdges> > (
 		  *this, *m_bodySelector));
+    glPopAttrib ();
 }
 
 // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
