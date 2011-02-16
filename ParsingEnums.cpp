@@ -8,25 +8,25 @@
 
 #include "ParsingEnums.h"
 
-const G3D::Color3 Color::COLORS[] = 
+const QColor Color::COLORS[] = 
 {
-    G3D::Color3(0.0, 0.0, 0.0),  // BLACK
-    G3D::Color3(0.0, 0.0, 1.0),  // BLUE
-    G3D::Color3(0.0, 1.0, 0.0),  // GREEN
-    G3D::Color3(0.0, 1.0, 1.0),  // CYAN
-    G3D::Color3(1.0, 0.0, 0.0),  // RED
-    G3D::Color3(1.0, 0.0, 1.0),  // MAGENTA
-    G3D::Color3(1.0, 0.5, 0.0),  // BROWN
-    G3D::Color3(.6f, .6f, .6f),  // LIGHTGRAY
-    G3D::Color3(.3f, .3f, .3f),  // DARKGRAY
-    G3D::Color3(.3f, .8f, 1.0),  // LIGHTBLUE
-    G3D::Color3(0.5, 1.0, 0.5),  // LIGHTGREEN
-    G3D::Color3(0.5, 1.0, 1.0),  // LIGHTCYAN
-    G3D::Color3(1.0, 0.5, 0.5),  // LIGHTRED
-    G3D::Color3(1.0, 0.5, 1.0),  // LIGHTMAGENTA
-    G3D::Color3(1.0, 1.0, 0.0),  // YELLOW
-    G3D::Color3(1.0, 1.0, 1.0),  // WHITE
-    G3D::Color3(0.0, 0.0, 0.0)   // CLEAR
+    QColor::fromRgbF (0.0, 0.0, 0.0),  // BLACK
+    QColor::fromRgbF (0.0, 0.0, 1.0),  // BLUE
+    QColor::fromRgbF (0.0, 1.0, 0.0),  // GREEN
+    QColor::fromRgbF (0.0, 1.0, 1.0),  // CYAN
+    QColor::fromRgbF (1.0, 0.0, 0.0),  // RED
+    QColor::fromRgbF (1.0, 0.0, 1.0),  // MAGENTA
+    QColor::fromRgbF (1.0, 0.5, 0.0),  // BROWN
+    QColor::fromRgbF (.6f, .6f, .6f),  // LIGHTGRAY
+    QColor::fromRgbF (.3f, .3f, .3f),  // DARKGRAY
+    QColor::fromRgbF (.3f, .8f, 1.0),  // LIGHTBLUE
+    QColor::fromRgbF (0.5, 1.0, 0.5),  // LIGHTGREEN
+    QColor::fromRgbF (0.5, 1.0, 1.0),  // LIGHTCYAN
+    QColor::fromRgbF (1.0, 0.5, 0.5),  // LIGHTRED
+    QColor::fromRgbF (1.0, 0.5, 1.0),  // LIGHTMAGENTA
+    QColor::fromRgbF (1.0, 1.0, 0.0),  // YELLOW
+    QColor::fromRgbF (1.0, 1.0, 1.0),  // WHITE
+    QColor::fromRgbF (0.0, 0.0, 0.0)   // CLEAR
 };
 
 ostream& operator<< (ostream& ostr, Color::Enum color)
@@ -91,7 +91,7 @@ ostream& operator<< (ostream& ostr, Color::Enum color)
     return ostr;
 }
 
-const G3D::Color3& Color::GetValue(Color::Enum color)
+const QColor& Color::GetValue(Color::Enum color)
 {
     return COLORS[color];
 }

@@ -156,11 +156,13 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
     if (this->m_focus == DisplayElement::FOCUS)
     {
 	if (this->m_property == BodyProperty::NONE)
-	    glColor (Color::GetValue(of->GetColor ()));
+	{
+	    glColor (of->GetColor (GLWidget::NOT_AVAILABLE_FACE_COLOR));
+	    this->m_propertySetter ();
+	}
 	else
 	{
 	    size_t bodyId = of->GetBodyPartOf ().GetBodyId ();
-	    QColor color;
 	    const FoamAlongTime& foamAlongTime = 
 		this->m_glWidget.GetFoamAlongTime ();
 	    if (foamAlongTime.ExistsBodyProperty (
@@ -170,16 +172,28 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 		double value = foamAlongTime.GetBodyPropertyValue (
 		    this->m_property, bodyId, 
 		    this->m_glWidget.GetTimeStep ());
+
+		if (bodyId == this->m_glWidget.GetStationaryBodyId ())
+		    glColor (GLWidget::STATIONARY_BODY_FACE_COLOR);
+		else if (this->m_glWidget.IsStationaryBodyContext (bodyId))
+		    glColor (GLWidget::STATIONARY_CONTEXT_FACE_COLOR);
+		else
+		{
+		    glColor (Qt::white);
+		    *useColor = false;
+		}
 		this->m_propertySetter (value);
-		*useColor = false;
+
 	    }
 	    else
-		glColor (this->m_glWidget.NOT_AVAILABLE_FACE_COLOR);
+	    {
+		glColor (GLWidget::NOT_AVAILABLE_FACE_COLOR);
+		this->m_propertySetter ();
+	    }
 	}
     }
     else
-	glColor (G3D::Color4 (Color::GetValue(Color::BLACK),
-			      this->m_glWidget.GetContextAlpha ()));
+	glColor (QColor::fromRgbF(0, 0, 0, this->m_glWidget.GetContextAlpha ()));
 }
 
 // Template instantiations
@@ -207,14 +221,16 @@ template class DisplayFace<
 	DisplayEdgeWithColor<DisplayElement::DONT_DISPLAY_TESSELLATION> >, 
     TexCoordSetter>;
 template class DisplayFace<DisplaySameEdges, TexCoordSetter>;
+template class DisplayFace<DisplaySameEdges, VertexAttributeSetter>;
+
 template class DisplayFace<DisplaySameTriangles, TexCoordSetter>;
 template class DisplayFace<DisplaySameTriangles, VertexAttributeSetter>;
-template class DisplayFace<DisplaySameEdges, VertexAttributeSetter>;
+
 
 // DisplayFaceWithColor
 // ======================================================================
 
 template class DisplayFaceWithColor<DisplaySameEdges, TexCoordSetter>;
+template class DisplayFaceWithColor<DisplaySameEdges, VertexAttributeSetter>;
 template class DisplayFaceWithColor<DisplaySameTriangles, TexCoordSetter>;
 template class DisplayFaceWithColor<DisplaySameTriangles, VertexAttributeSetter>;
-template class DisplayFaceWithColor<DisplaySameEdges, VertexAttributeSetter>;

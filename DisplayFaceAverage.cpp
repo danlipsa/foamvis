@@ -288,8 +288,7 @@ void DisplayFaceAverage::renderToStep (
     if (foam.IsQuadratic ())
 	writeFacesValues<DisplaySameEdges> (bodies, property);
     else
-	writeFacesValues<DisplaySameTriangles> (
-	    bodies, property);
+	writeFacesValues<DisplaySameTriangles> (bodies, property);
     m_storeShaderProgram.release ();
     m_step->release ();
 }
@@ -396,7 +395,7 @@ void DisplayFaceAverage::writeFacesValues (
 		  m_glWidget, m_glWidget.GetBodySelector (), 
 		  VertexAttributeSetter (
 		      m_storeShaderProgram, 
-		      m_storeShaderProgram.GetVValueIndex ()),
+		      m_storeShaderProgram.GetVValueIndex (), m_glWidget),
 		  property,
 		  DisplayElement::INVISIBLE_CONTEXT));
     glPopAttrib ();

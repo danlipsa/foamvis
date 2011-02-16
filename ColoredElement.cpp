@@ -12,6 +12,7 @@
 #include "ColoredElement.h"
 #include "Debug.h"
 #include "ParsingDriver.h"
+#include "Utils.h"
 
 // Static fields
 // ======================================================================
@@ -21,25 +22,19 @@ const size_t ColoredElement::COLOR_INDEX = 0;
 // Methods
 // ======================================================================
 
-Color::Enum ColoredElement::GetColor (Color::Enum defaultColor) const
+QColor ColoredElement::GetColor (const QColor& defaultColor) const
 {
     if (m_attributes != 0)
-	return *boost::static_pointer_cast<ColorAttribute> (
-	    (*m_attributes)[COLOR_INDEX]);
+	return Color::GetValue (*boost::static_pointer_cast<ColorAttribute> (
+				    (*m_attributes)[COLOR_INDEX]));
     else
-    {
-	if (defaultColor == Color::COUNT)
-	    return Color::Enum ((GetId ()+1) % Color::COUNT);
-	else
-	    return defaultColor;
-    }
+	return defaultColor;
 }
 
 string ColoredElement::GetStringId () const
 {
     ostringstream id, ostr;
-    id << Element::GetStringId () << " "
-       << GetColor ();
+    id << Element::GetStringId () << " " << GetColor (Qt::black);
     ostr << setw (15) << id.str ();
     return ostr.str ();
 }

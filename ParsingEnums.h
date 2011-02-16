@@ -46,11 +46,11 @@ public:
      * @param name color name
      * @return vector of RGBA components for the given color
      */
-    static const G3D::Color3& GetValue(Color::Enum name);    
+    static const QColor& GetValue(Color::Enum name);    
     friend ostream& operator<< (ostream& ostr, Color::Enum name);
 
 private:
-    static const G3D::Color3 COLORS[];
+    static const QColor COLORS[];
 };
 
 /**

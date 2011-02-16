@@ -19,6 +19,7 @@ public:
     }
 
     void operator () (double value);
+    void operator () ();
 
 private:
     const GLWidget& m_glWidget;
@@ -27,12 +28,16 @@ private:
 class VertexAttributeSetter
 {
 public:
-    VertexAttributeSetter (QGLShaderProgram& program, int attributeIndex) :
-	m_program (program), m_attributeIndex (attributeIndex)
+    VertexAttributeSetter (QGLShaderProgram& program, int attributeIndex, 
+			   const GLWidget& glWidget) :
+	m_program (program), m_attributeIndex (attributeIndex), 
+	m_glWidget(glWidget)
     {
     }
+
     VertexAttributeSetter (const GLWidget& glWidget) :
-	m_program (*(QGLShaderProgram*)0), m_attributeIndex (0)
+	m_program (*(QGLShaderProgram*)0), m_attributeIndex (0),
+	m_glWidget (glWidget)
     {
 	(void)glWidget;
     }
@@ -41,10 +46,12 @@ public:
     {
 	m_program.setAttributeValue (m_attributeIndex, value);
     }
+    void operator () ();
 
 private:
     QGLShaderProgram& m_program;
     int m_attributeIndex;
+    const GLWidget& m_glWidget;
 };
 
 #endif //__PROPERTY_SETTER_H__

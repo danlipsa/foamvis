@@ -97,6 +97,15 @@ public:
     {
 	return m_timeStep;
     }
+    size_t GetStationaryBodyId () const
+    {
+	return m_stationaryBodyId;
+    }
+    bool IsStationaryBodyContext (size_t bodyId) const
+    {
+	return m_stationaryBodyContext.find (bodyId) != 
+	    m_stationaryBodyContext.end ();
+    }
 
     bool IsTimeDisplacementUsed () const;
 
@@ -206,8 +215,6 @@ public:
 	return m_contextHidden;
     }
 
-    double TexCoord (double value) const;
-
     boost::shared_ptr<QAction> GetActionResetTransformation ()
     {
 	return m_actionResetTransformation;
@@ -221,6 +228,12 @@ public:
     {
 	return m_colorBarTexture;
     }
+
+    const ColorBarModel& GetColorBarModel () const
+    {
+	return *m_colorBarModel;
+    }
+
     bool IsPlayMovie () const
     {
 	return m_playMovie;
@@ -324,6 +337,9 @@ public Q_SLOTS:
     void SelectBodiesByIdList ();
     void SelectAll ();
     void DeselectAll ();
+    void StationarySet ();
+    void StationaryReset ();
+    void StationaryContextAdd ();
     void Info ();
     void ShowOpenGlInfo ();
     /**
@@ -337,10 +353,13 @@ public Q_SLOTS:
 
 public:
     const static  size_t DISPLAY_ALL;
+    const static size_t NONE;
     const static size_t QUADRIC_SLICES;
     const static size_t QUADRIC_STACKS;
     const static QColor NOT_AVAILABLE_CENTER_PATH_COLOR;
     const static QColor NOT_AVAILABLE_FACE_COLOR;
+    const static QColor STATIONARY_BODY_FACE_COLOR;
+    const static QColor STATIONARY_CONTEXT_FACE_COLOR;
 
 protected:
     /**
@@ -393,7 +412,6 @@ private:
 	double* edgeRadius, double* arrowBaseRadius, 
 	double* arrowHeight, bool* edgeTubes = 0) const;
     void initStepDisplayAverage ();
-    void display () const;
 
     /**
      * Displays the center of the bodies
@@ -445,7 +463,7 @@ private:
      */
     template<typename displayEdge>
     void displayEdges () const;
-
+    void displayStationaryBodyAndContext () const;
 
     void displayEdgesNormal () const;
     template<typename displayEdge>
@@ -523,8 +541,9 @@ private:
 	G3D::Vector3::Axis screenYTranslation);
     void translateLight (const QPoint& position);
     void scale (const QPoint& position);
-    void translate (double m_scaleRatio, const G3D::Vector3& translation,
-		    bool contextView) const;
+    void translateAndScale (
+	double m_scaleRatio, const G3D::Vector3& translation,
+	bool contextView) const;
     void select (const QPoint& position);
     void deselect (const QPoint& position);
     void brushedBodies (const QPoint& position, vector<size_t>* bodies) const;
@@ -541,6 +560,8 @@ private:
     void rotate2DTimeDisplacement () const;
     void rotate2DRight90 () const;
     void setBodySelectorLabel (BodySelectorType::Enum type);
+    void setStationaryBodyLabel ();
+    void translateFoamStationaryBody () const;
 
 private:
     /**
@@ -579,6 +600,10 @@ private:
      */
     QPoint m_lastPos;
     /**
+     * Used to select a stationary body
+     */
+    QPoint m_contextMenuPos;
+    /**
      * Used to display one body at a time
      */
     size_t m_selectedBodyIndex;
@@ -587,6 +612,12 @@ private:
      */
     size_t m_selectedFaceIndex;
     size_t m_selectedEdgeIndex;
+    /**
+     * Keep this body stationary during the evolution of the foam
+     */
+    size_t m_stationaryBodyId;
+    size_t m_stationaryBodyTimeStep;
+    set<size_t> m_stationaryBodyContext;
 
     double m_contextAlpha;
 
@@ -644,6 +675,9 @@ private:
     boost::shared_ptr<QAction> m_actionResetTransformation;
     boost::shared_ptr<QAction> m_actionResetSelectedLightPosition;
     boost::shared_ptr<QAction> m_actionSelectBodiesById;
+    boost::shared_ptr<QAction> m_actionStationarySet;
+    boost::shared_ptr<QAction> m_actionStationaryReset;
+    boost::shared_ptr<QAction> m_actionStationaryContextAdd;
     boost::shared_ptr<QAction> m_actionOpenGlInfo;
     
     boost::shared_ptr<ColorBarModel> m_colorBarModel;

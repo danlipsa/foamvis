@@ -257,7 +257,6 @@ public:
 
 // Display all edges of a face
 // ======================================================================
-
 class DisplaySameEdges : public DisplayElementFocus
 {
 public:
@@ -276,6 +275,23 @@ private:
 };
 
 
+/**
+ * Functor that displays an edge
+ */
+class DisplaySameTriangles : public DisplayElementFocus
+{
+public:
+    DisplaySameTriangles (const GLWidget& widget, FocusContext focus = FOCUS,
+			  bool useZPos = false, double zPos = 0) : 
+	DisplayElementFocus (widget, focus, useZPos, zPos)
+    {
+    }
+
+    void operator() (const boost::shared_ptr<Face>& f);
+    void operator() (const boost::shared_ptr<OrientedFace>& of);
+};
+
+
 class DisplayTriangleFan : public DisplaySameEdges
 {
 public:
@@ -291,24 +307,6 @@ public:
     {
 	DisplaySameEdges::operator () (f);
     }
-};
-
-
-/**
- * Functor that displays an edge
- */
-class DisplaySameTriangles : public DisplayElementFocus
-{
-public:
-    DisplaySameTriangles (const GLWidget& widget, FocusContext focus = FOCUS,
-			  bool useZPos = false, double zPos = 0) : 
-	DisplayElementFocus (widget, focus, useZPos, zPos)
-    {
-    }
-
-    void operator() (const boost::shared_ptr<OrientedFace>& of);
-
-    void operator() (const boost::shared_ptr<Face>& f);
 };
 
 

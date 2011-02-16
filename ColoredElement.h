@@ -22,10 +22,9 @@ public:
      * Returns  the  element color.   
      *
      * @param defaultColor  the color that  should be returned  if the
-     * element doesn't have any  color. If the default is Color::COUNT
-     * the color returned is based on the index of the element
+     * element doesn't have any  color.
      */
-    Color::Enum GetColor (Color::Enum defaultColor = Color::CLEAR) const;
+    QColor GetColor (const QColor& defaultColor) const;
     string GetStringId () const;
 public:
     /**

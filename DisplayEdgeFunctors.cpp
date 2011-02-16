@@ -252,8 +252,7 @@ void DisplayEdgeTorusClipped::operator () (
     const OOBox& periods = m_glWidget.GetCurrentFoam ().GetOriginalDomain ();
     if (edge->IsClipped ())
     {
-	Color::Enum color = edge->GetColor (Color::BLACK);
-	glColor (Color::GetValue(color));
+	glColor (edge->GetColor (Color::BLACK));
 	glBegin(GL_LINES);
 	for (size_t i = 0; i < edge->GetTorusClippedSize (periods); i++)
 	{
@@ -378,8 +377,10 @@ operator () (const Edge& edge) const
     {
 	double alpha = 
 	    (m_focus == FOCUS ? 1.0 : m_glWidget.GetContextAlpha ());
-	Color::Enum color = edge.GetColor (Color::BLACK);
-	glColor (G3D::Color4 (Color::GetValue(color), alpha));
+	QColor color = edge.GetColor (Qt::black);
+	glColor (
+	    QColor::fromRgbF(
+		color.redF (), color.greenF (), color.blueF (), alpha));
 	glBegin(GL_LINE_STRIP);
 	DisplayEdgeVertices (edge, m_useZPos, m_zPos);
 	glEnd ();
@@ -421,7 +422,7 @@ void DisplayTriangleFan::operator() (const boost::shared_ptr<OrientedFace>&  of)
 }
 
 
-// DisplaySameTriangle
+// DisplaySameTriangles
 // ======================================================================
 
 void DisplaySameTriangles::operator() (const boost::shared_ptr<Face>& f)
@@ -444,10 +445,12 @@ void DisplaySameTriangles::operator() (const boost::shared_ptr<Face>& f)
     glEnd ();
 }
 
-void DisplaySameTriangles::operator() (const boost::shared_ptr<OrientedFace>& of)
+void DisplaySameTriangles::operator() (
+    const boost::shared_ptr<OrientedFace>&  of)
 {
     operator() (of->GetFace ());
 }
+
 
 // DisplayEdges
 // ======================================================================

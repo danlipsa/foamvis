@@ -8,6 +8,7 @@
 
 #include "Body.h"
 #include "BodySelector.h"
+#include "ColorBarModel.h"
 #include "DebugStream.h"
 #include "DisplayBodyFunctors.h"
 #include "DisplayFaceFunctors.h"
@@ -301,7 +302,8 @@ template<typename PropertySetter, typename DisplaySegment>
 void DisplayCenterPath<PropertySetter, DisplaySegment>::
 storeFocusSegment (double value, const Segment& segment)
 {
-    double textureCoordinate = this->m_glWidget.TexCoord (value);
+    double textureCoordinate = 
+	this->m_glWidget.GetColorBarModel ().TexCoord (value);
     boost::shared_ptr<FocusTextureSegment> fs = 
 	boost::make_shared<FocusTextureSegment> (textureCoordinate, segment);
     m_focusTextureSegments.push_back (fs);
@@ -379,7 +381,6 @@ template class DisplayBody<
 	DisplayEdges<
 	    DisplayEdgeWithColor<DisplayElement::TEST_DISPLAY_TESSELLATION> >,
 	TexCoordSetter>, TexCoordSetter>;
-
 template class DisplayBody<
     DisplayFace<
 	DisplayEdges<DisplayEdgeTorusClipped>,
@@ -387,16 +388,17 @@ template class DisplayBody<
     TexCoordSetter>;
 template class DisplayBody<
     DisplayFace<DisplaySameEdges, TexCoordSetter>, TexCoordSetter>;
-template class DisplayBody<
-    DisplayFace<DisplaySameTriangles, TexCoordSetter>, TexCoordSetter>;
 
 template class DisplayBody<
     DisplayFaceWithColor<DisplaySameEdges, TexCoordSetter>, TexCoordSetter>;
 template class DisplayBody<
-    DisplayFaceWithColor<DisplaySameTriangles, TexCoordSetter>, TexCoordSetter>;
-template class DisplayBody<
     DisplayFaceWithColor<DisplaySameEdges, VertexAttributeSetter>,
     VertexAttributeSetter>;
+
+template class DisplayBody<
+    DisplayFace<DisplaySameTriangles, TexCoordSetter>, TexCoordSetter>;
+template class DisplayBody<
+    DisplayFaceWithColor<DisplaySameTriangles, TexCoordSetter>, TexCoordSetter>;
 template class DisplayBody<
     DisplayFaceWithColor<DisplaySameTriangles, VertexAttributeSetter>,
     VertexAttributeSetter>;

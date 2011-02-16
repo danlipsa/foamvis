@@ -108,6 +108,7 @@ private:
 // ======================================================================
 
 const size_t GLWidget::DISPLAY_ALL(numeric_limits<size_t>::max());
+const size_t GLWidget::NONE(numeric_limits<size_t>::max());
 // quadrics
 const size_t GLWidget::QUADRIC_SLICES = 8;
 const size_t GLWidget::QUADRIC_STACKS = 1;
@@ -118,6 +119,8 @@ const double GLWidget::MAX_CONTEXT_ALPHA = 0.5;
 const double GLWidget::ENCLOSE_ROTATION_RATIO = 1;
 const QColor GLWidget::NOT_AVAILABLE_CENTER_PATH_COLOR (Qt::black);
 const QColor GLWidget::NOT_AVAILABLE_FACE_COLOR (Qt::white);
+const QColor GLWidget::STATIONARY_BODY_FACE_COLOR (Qt::black);
+const QColor GLWidget::STATIONARY_CONTEXT_FACE_COLOR (Qt::white);
 
 // Methods
 // ======================================================================
@@ -132,6 +135,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_foamAlongTime (0), m_timeStep (0),
       m_selectedBodyIndex (DISPLAY_ALL), m_selectedFaceIndex (DISPLAY_ALL),
       m_selectedEdgeIndex (DISPLAY_ALL),
+      m_stationaryBodyId (NONE),
+      m_stationaryBodyTimeStep (0),
       m_contextAlpha (MIN_CONTEXT_ALPHA),
       m_rotationModel (G3D::Matrix3::identity ()),
       m_scaleRatio (1),
@@ -251,6 +256,25 @@ void GLWidget::createActions ()
     m_actionSelectBodiesById->setStatusTip(tr("Select bodies by id"));
     connect(m_actionSelectBodiesById.get (), SIGNAL(triggered()),
 	    this, SLOT(SelectBodiesByIdList ()));
+
+    m_actionStationarySet = boost::make_shared<QAction> (
+	tr("&Set stationary"), this);
+    m_actionStationarySet->setStatusTip(tr("Set stationary"));
+    connect(m_actionStationarySet.get (), SIGNAL(triggered()),
+	    this, SLOT(StationarySet ()));
+
+    m_actionStationaryReset = boost::make_shared<QAction> (
+	tr("&Reset stationary"), this);
+    m_actionStationaryReset->setStatusTip(tr("Reset stationary"));
+    connect(m_actionStationaryReset.get (), SIGNAL(triggered()),
+	    this, SLOT(StationaryReset ()));
+
+    m_actionStationaryContextAdd = boost::make_shared<QAction> (
+	tr("&Add context"), this);
+    m_actionStationaryContextAdd->setStatusTip(tr("Add context"));
+    connect(m_actionStationaryContextAdd.get (), SIGNAL(triggered()),
+	    this, SLOT(StationaryContextAdd ()));
+
 
     m_actionInfo = boost::make_shared<QAction> (tr("&Info"), this);
     m_actionInfo->setStatusTip(tr("Info"));
@@ -507,10 +531,11 @@ G3D::AABox GLWidget::calculateCenteredViewingVolume (
 /**
  * @todo: make sure context view works for 3D
  */
-void GLWidget::translate (
+void GLWidget::translateAndScale (
     double scaleRatio,
     const G3D::Vector3& translation, bool contextView) const
 {
+    glScale (scaleRatio);
     // if 2D, the back plane stays in the same place
     if (GetFoamAlongTime ().GetDimension () == 2 && 
 	! IsTimeDisplacementUsed ())
@@ -529,10 +554,7 @@ void GLWidget::ModelViewTransformNoRotation () const
     glLoadIdentity ();
     glTranslatef (0, 0, - m_cameraDistance);
     if (! m_contextView)
-    {
-	glScale (m_scaleRatio);
-	translate (m_scaleRatio, m_translation, m_contextView);
-    }
+	translateAndScale (m_scaleRatio, m_translation, m_contextView);
     switch (m_axesOrder)
     {
     case AxesOrder::TWO_D_ROTATE_RIGHT90:
@@ -541,6 +563,7 @@ void GLWidget::ModelViewTransformNoRotation () const
     default:
 	break;
     }
+    translateFoamStationaryBody ();
     glTranslate (-GetFoamAlongTime ().GetBoundingBox ().center ());
 }
 
@@ -552,12 +575,9 @@ void GLWidget::modelViewTransform () const
     // viewing transform
     glTranslatef (0, 0, - m_cameraDistance);
     
-    // modeling transform - build the model around origin
+    // modeling transform
     if (! m_contextView)
-    {
-	glScale (m_scaleRatio);
-	translate (m_scaleRatio, m_translation, m_contextView);
-    }
+	translateAndScale (m_scaleRatio, m_translation, m_contextView);
     glMultMatrix (m_rotationModel);
     switch (m_axesOrder)
     {
@@ -573,7 +593,22 @@ void GLWidget::modelViewTransform () const
     default:
 	break;
     }
+    translateFoamStationaryBody ();
     glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
+}
+
+void GLWidget::translateFoamStationaryBody () const
+{
+    if (m_stationaryBodyId != NONE)
+    {
+	G3D::Vector3 translation = 
+	    GetFoamAlongTime ().GetFoam (m_stationaryBodyTimeStep)->
+	    GetBody (m_stationaryBodyId)->GetCenter () -
+	    
+	    GetFoamAlongTime ().GetFoam (m_timeStep)->
+	    GetBody (m_stationaryBodyId)->GetCenter ();
+	glTranslate (translation);
+    }
 }
 
 G3D::AABox GLWidget::calculateViewingVolume (double xOverY) const
@@ -815,7 +850,7 @@ void GLWidget::paintGL ()
     modelViewTransform ();
     if (! m_hideContent)
     {
-	display ();
+	DisplayViewType ();
 	displayTextureColorBar ();
     }
     displayAxes ();
@@ -845,6 +880,7 @@ void GLWidget::RenderFromFbo (QGLFramebufferObject& fbo) const
     glPushAttrib (GL_VIEWPORT_BIT);
     glViewport (0, 0, width (), height ());
 
+    //glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
     {
 	glLoadIdentity ();
@@ -930,7 +966,6 @@ void GLWidget::scale (const QPoint& position)
 	m_scaleRatio = m_scaleRatio / ratio;
     else
 	m_scaleRatio = m_scaleRatio * ratio;
-    cdbg << "scale ratio=" << m_scaleRatio << endl;
 }
 
 
@@ -947,6 +982,60 @@ void GLWidget::brushedBodies (
 	if (box.contains (end))
 	    bodies->push_back (body->GetId ());
     }
+}
+
+void GLWidget::displayStationaryBodyAndContext () const
+{
+    if (m_stationaryBodyId != NONE)
+    {
+	
+    }
+    if (m_stationaryBodyContext.size () != 0)
+    {
+	
+    }
+}
+
+
+void GLWidget::setStationaryBodyLabel ()
+{
+    bitset<2> stationaryParameters;
+    const char* message[] = 
+    {
+	"",
+	"Stationary body",
+	"Context for stationary body",
+	"Stationary body + context"
+    };
+    stationaryParameters.set (0, m_stationaryBodyId != NONE);
+    stationaryParameters.set (1, m_stationaryBodyContext.size () != 0);
+    m_labelStatusBar->setText (message[stationaryParameters.to_ulong ()]);
+}
+
+
+void GLWidget::StationarySet ()
+{
+    vector<size_t> bodies;
+    brushedBodies (m_contextMenuPos, &bodies);
+    m_stationaryBodyId = bodies[0];
+    m_stationaryBodyTimeStep = m_timeStep;
+    setStationaryBodyLabel ();
+}
+
+void GLWidget::StationaryReset ()
+{
+    m_stationaryBodyId = NONE;
+    m_stationaryBodyTimeStep = 0;
+    m_stationaryBodyContext.clear ();
+    setStationaryBodyLabel ();
+}
+
+void GLWidget::StationaryContextAdd ()
+{
+    vector<size_t> bodies;
+    brushedBodies (m_contextMenuPos, &bodies);
+    m_stationaryBodyContext.insert (bodies[0]);
+    setStationaryBodyLabel ();
 }
 
 
@@ -1075,8 +1164,11 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     updateGL ();
 }
 
+
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
+    if (event->button () != Qt::LeftButton)
+	return;
     switch (m_interactionMode)
     {
     case InteractionMode::SELECT:
@@ -1112,8 +1204,7 @@ void GLWidget::displayFocusBox () const
 
 	G3D::AABox focusBox = calculateCenteredViewingVolume (
 	    static_cast<double> (width ()) / height ());
-	glScale (1 / m_scaleRatio);
-	translate (1 / m_scaleRatio, - m_translation, m_contextView);
+	translateAndScale (1 / m_scaleRatio, - m_translation, m_contextView);
 	DisplayBox (focusBox, Qt::black, GL_LINE);
 	glPopMatrix ();
     }
@@ -1191,10 +1282,13 @@ void GLWidget::displayEdges () const
 template<typename displayEdge>
 void GLWidget::displayStandaloneEdges (bool useZPos, double zPos) const
 {
+    glPushAttrib (GL_ENABLE_BIT);    
+    glDisable (GL_DEPTH_TEST);
     const Foam::Edges& standaloneEdges =
 	GetCurrentFoam ().GetStandaloneEdges ();
     BOOST_FOREACH (boost::shared_ptr<Edge> edge, standaloneEdges)
 	displayEdge (*this, DisplayElement::FOCUS, useZPos, zPos) (edge);
+    glPopAttrib ();
 }
 
 void GLWidget::displayEdgesNormal () const
@@ -1285,7 +1379,6 @@ void GLWidget::displayFacesNormal () const
 	displayFacesInterior<DisplaySameTriangles> (bodies);
 	displayStandaloneFaces<DisplaySameTriangles> ();
     }
-
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
 }
 
@@ -1295,7 +1388,10 @@ void GLWidget::displayFacesAverage () const
     m_displayFaceAverage->Display (
 	foamAlongTime.GetMin (GetColoredBy ()),
 	foamAlongTime.GetMax (GetColoredBy ()), GetStatisticsType ());
+    displayStandaloneEdges< DisplayEdgeWithColor<> > ();
+    displayStationaryBodyAndContext ();
 }
+
 
 template<typename displaySameEdges>
 void GLWidget::displayStandaloneFaces () const
@@ -1309,8 +1405,7 @@ template<typename displaySameEdges>
 void GLWidget::displayFacesContour (const Foam::Faces& faces) const
 {
 
-    glColor (G3D::Color4 (Color::GetValue(Color::BLACK),
-			  GetContextAlpha ()));
+    glColor (QColor::fromRgbF (0, 0, 0, GetContextAlpha ()));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 
     for_each (faces.begin (), faces.end (),
@@ -1321,8 +1416,7 @@ template<typename displaySameEdges>
 void GLWidget::displayFacesContour (const Foam::Bodies& bodies) const
 {
 
-    glColor (G3D::Color4 (Color::GetValue(Color::BLACK),
-			  GetContextAlpha ()));
+    glColor (QColor::fromRgbF (0, 0, 0, GetContextAlpha ()));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody< DisplayFace<displaySameEdges> > (
@@ -1454,11 +1548,6 @@ void GLWidget::displayCenterPaths () const
 		      *this, m_coloredBy, *m_bodySelector,
 		      IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     glPopAttrib ();
-}
-
-void GLWidget::display () const
-{
-    DisplayViewType ();
 }
 
 void GLWidget::DisplayViewType () const
@@ -2094,20 +2183,22 @@ void GLWidget::quadricErrorCallback (GLenum errorCode)
 
 void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 {
+    m_contextMenuPos = event->pos ();
     QMenu menu (this);
     menu.addAction (m_actionResetTransformation.get ());
     menu.addAction (m_actionResetSelectedLightPosition.get ());
     menu.addAction (m_actionSelectAll.get ());
     menu.addAction (m_actionDeselectAll.get ());
     menu.addAction (m_actionSelectBodiesById.get ());
+    {
+	QMenu* menuStationary = menu.addMenu ("Stationary");
+	menuStationary->addAction (m_actionStationarySet.get ());
+	menuStationary->addAction (m_actionStationaryReset.get ());
+	menuStationary->addAction (m_actionStationaryContextAdd.get ());
+    }
     menu.addAction (m_actionInfo.get ());
     menu.addAction (m_actionOpenGlInfo.get ());
     menu.exec (event->globalPos());
-}
-
-double GLWidget::TexCoord (double value) const
-{
-    return m_colorBarModel->TexCoord (value);
 }
 
 void GLWidget::initializeTextures ()
