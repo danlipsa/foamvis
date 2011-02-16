@@ -984,15 +984,27 @@ void GLWidget::brushedBodies (
     }
 }
 
-void GLWidget::displayStationaryBodyAndContext () const
+class IsStationaryOrContext
 {
-    if (m_stationaryBodyId != NONE)
+    bool operator () (const boost::shared_ptr<Body>& body)
     {
 	
     }
-    if (m_stationaryBodyContext.size () != 0)
+};
+
+void GLWidget::displayStationaryBodyAndContext () const
+{
+    const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
+    Foam::Bodies selectedBodies (bodies.size ());
+    transform (bodies.begin (), bodies.end (), selectedBodies, 
+	       isSelected);
+    if (foam.IsQuadratic ())
     {
-	
+	displayFacesContour<DisplaySameEdges> (bodies);
+    }
+    else
+    {
+	displayFacesContour<DisplaySameTriangles> (bodies);
     }
 }
 

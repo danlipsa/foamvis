@@ -72,6 +72,7 @@ public:
     {
 	return m_bodies[i];
     }
+
     /**
      * Gets all bodies from the Foam
      * @return a vector of Bodys sorted by ID
