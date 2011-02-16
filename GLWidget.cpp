@@ -517,7 +517,7 @@ void GLWidget::translate (
     {
 	G3D::AABox boundingBox = GetFoamAlongTime ().GetBoundingBox ();
 	float zTranslation = boundingBox.center ().z - boundingBox.low ().z;
-	zTranslation = zTranslation * scaleRatio - zTranslation;
+	zTranslation = zTranslation - zTranslation / scaleRatio;
 	glTranslatef (0, 0, zTranslation);
     }
 
@@ -528,6 +528,11 @@ void GLWidget::ModelViewTransformNoRotation () const
 {
     glLoadIdentity ();
     glTranslatef (0, 0, - m_cameraDistance);
+    if (! m_contextView)
+    {
+	glScale (m_scaleRatio);
+	translate (m_scaleRatio, m_translation, m_contextView);
+    }
     switch (m_axesOrder)
     {
     case AxesOrder::TWO_D_ROTATE_RIGHT90:
@@ -548,7 +553,11 @@ void GLWidget::modelViewTransform () const
     glTranslatef (0, 0, - m_cameraDistance);
     
     // modeling transform - build the model around origin
-
+    if (! m_contextView)
+    {
+	glScale (m_scaleRatio);
+	translate (m_scaleRatio, m_translation, m_contextView);
+    }
     glMultMatrix (m_rotationModel);
     switch (m_axesOrder)
     {
@@ -580,6 +589,7 @@ void GLWidget::projectionTransform () const
 {
     double xOverY = double (width ()) / height ();
     G3D::AABox viewingVolume = calculateViewingVolume (xOverY);
+/*
     if (! m_contextView)
     {
 	double oldZ = viewingVolume.low ().z;
@@ -592,7 +602,7 @@ void GLWidget::projectionTransform () const
 	    Translate (&viewingVolume, G3D::Vector3 (0, 0, oldZ - newZ));
 	}
     }
-
+*/
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
     if (m_angleOfView == 0)
@@ -819,9 +829,9 @@ void GLWidget::paintGL ()
 
 void GLWidget::resizeGL(int w, int h)
 {
+    (void)w;(void)h;
     projectionTransform ();
     ViewportTransform ();
-    QSize size = QSize (w, h);
     if (m_viewType == ViewType::FACES_AVERAGE)
 	initStepDisplayAverage ();
     setEdgeRadius ();
