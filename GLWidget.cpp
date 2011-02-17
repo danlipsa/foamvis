@@ -1131,7 +1131,8 @@ void GLWidget::SetBodySelector (boost::shared_ptr<IdBodySelector> selector)
 	m_bodySelector = selector;
 	break;
     case BodySelectorType::ID:
-	m_bodySelector = selector;
+	boost::static_pointer_cast<IdBodySelector> (m_bodySelector)->SetUnion (
+	    selector);
 	break;
     case BodySelectorType::PROPERTY_VALUE:
 	m_bodySelector = boost::shared_ptr<BodySelector> (
@@ -1142,7 +1143,7 @@ void GLWidget::SetBodySelector (boost::shared_ptr<IdBodySelector> selector)
 	break;
     case BodySelectorType::COMPOSITE:
 	boost::static_pointer_cast<CompositeBodySelector> (
-	    m_bodySelector)->SetSelector (selector);
+	    m_bodySelector)->GetIdSelector ()->SetUniton (selector);
 	break;
     }
     setBodySelectorLabel (m_bodySelector->GetType ());
