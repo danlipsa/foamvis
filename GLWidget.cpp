@@ -1449,11 +1449,11 @@ void GLWidget::displayFacesTorusTubes () const
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     FaceSet faceSet;
     GetCurrentFoam ().GetFaceSet (&faceSet);
-    for_each (faceSet.begin (), faceSet.end (),
-	      DisplayFace<
-	      DisplayEdges<
-	      DisplayEdgeTorus<DisplayEdgeQuadric, DisplayArrowQuadric, true> > > (
-		  *this));
+    for_each (
+	faceSet.begin (), faceSet.end (),
+	DisplayFace<DisplayEdges<
+	DisplayEdgeTorus<DisplayEdgeQuadric, DisplayArrowQuadric, true> > > (
+	    *this));
     glPopAttrib ();
 }
 
@@ -1968,7 +1968,6 @@ void GLWidget::ToggledTorusOriginalDomainClipped (bool checked)
 void GLWidget::ToggledCenterPath (bool checked)
 {
     changeView (checked, ViewType::CENTER_PATHS);
-    compile ();
 }
 
 
