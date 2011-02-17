@@ -71,6 +71,8 @@ public:
     void SetBodySelector (boost::shared_ptr<IdBodySelector> bodySelector);
     void SetBodySelector (boost::shared_ptr<AllBodySelector> selector, 
 			  BodySelectorType::Enum type);
+    void UnionBodySelector (const vector<size_t>& bodyIds);
+    void DifferenceBodySelector (const vector<size_t>& bodyIds);
 
     const BodySelector& GetBodySelector () const
     {
@@ -493,6 +495,7 @@ private:
 
     void displayCenterPaths () const;
     void compileCenterPaths () const;
+    void compile () const;
 
     void displayBoundingBox () const;
     void displayFocusBox () const;
