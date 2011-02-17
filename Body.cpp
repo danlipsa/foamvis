@@ -90,6 +90,7 @@ Body::Body(
                indexToOrientedFace(faces));
 }
 
+
 void Body::calculatePhysicalVertices (
     size_t dimension, bool isQuadratic,
     vector< boost::shared_ptr<Vertex> >* physicalVertices)
@@ -185,10 +186,12 @@ string Body::ToString () const
 
 bool Body::operator< (const Body& other) const
 {
-    return GetId () < other.GetId () ||
-	(GetId () == other.GetId () &&
-	 *GetOrientedFace (0)->GetFace () < 
-	 *other.GetOrientedFace (0)->GetFace ());
+    return GetId () < other.GetId ();
+}
+
+bool Body::operator< (size_t otherBodyId) const
+{
+    return GetId () < otherBodyId;
 }
 
 void Body::GetVertexSet (VertexSet* vertexSet) const

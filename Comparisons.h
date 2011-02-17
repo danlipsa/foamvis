@@ -231,6 +231,7 @@ typedef set<boost::shared_ptr<Face>, FaceLessThan> FaceSet;
 class Body;
 bool BodyLessThan (const boost::shared_ptr<Body>& first,
 		   const boost::shared_ptr<Body>& second);
+bool BodyLessThanId (const boost::shared_ptr<Body>& first, size_t bodyId);
 
 
 

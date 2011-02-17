@@ -73,6 +73,8 @@ public:
 	return m_bodies[i];
     }
 
+    Bodies::const_iterator FindBody (size_t bodyId) const;
+
     /**
      * Gets all bodies from the Foam
      * @return a vector of Bodys sorted by ID

@@ -24,7 +24,7 @@ ProcessBodyTorus::ProcessBodyTorus (const Foam& foam,
 
 void ProcessBodyTorus::Initialize ()
 {
-    boost::shared_ptr<OrientedFace>  of = m_body->GetOrientedFace (0);
+    boost::shared_ptr<OrientedFace> of = m_body->GetOrientedFace (0);
     m_traversed[0] = true;
     push (of);
 }
@@ -74,11 +74,38 @@ bool ProcessBodyTorus::Step (
 
 // Private Methods
 // ======================================================================
-void ProcessBodyTorus::push (boost::shared_ptr<OrientedFace>  of)
+void ProcessBodyTorus::push (boost::shared_ptr<OrientedFace> of)
 {
     for (size_t i = 0; i < of->size (); i++)
 	m_queue.push (OrientedFaceIndex (of, i));
 }
+
+bool ProcessBodyTorus::pop (
+    OrientedFaceIndex* orientedFaceIndex,
+    OrientedFaceIndex* nextOrientedFaceIndex)
+{
+
+    while (m_queue.size () > 0)
+    {
+	vector<OrientedFaceIndex> possibilities;
+	OrientedFaceIndex ofi = m_queue.front ();
+	m_queue.pop ();
+	restrictFacesAroundAnEdge (ofi, &possibilities);
+	if (chooseFaceNeighbor (ofi, possibilities, nextOrientedFaceIndex))
+	{
+
+	    boost::shared_ptr<OrientedFace> nextOf = 
+		nextOrientedFaceIndex->GetOrientedFace ();
+	    const BodyIndex& nextBi = nextOf->GetBodyPartOf ();
+	    push (nextOf);
+	    m_traversed[nextBi.GetOrientedFaceIndex ()] = true;
+	    *orientedFaceIndex = ofi;
+	    return true;
+	}
+    }
+    return false;
+}
+
 
 void ProcessBodyTorus::restrictFacesAroundAnEdge (
     const OrientedFaceIndex& ofi, 
@@ -145,32 +172,6 @@ bool ProcessBodyTorus::chooseFaceNeighbor (
 	}
 	*nextOrientedFaceIndex = nextOfi;
 	return true;
-    }
-    return false;
-}
-
-
-bool ProcessBodyTorus::pop (
-    OrientedFaceIndex* orientedFaceIndex,
-    OrientedFaceIndex* nextOrientedFaceIndex)
-{
-
-    while (m_queue.size () > 0)
-    {
-	vector<OrientedFaceIndex> possibilities;
-	OrientedFaceIndex ofi = m_queue.front ();
-	m_queue.pop ();
-	restrictFacesAroundAnEdge (ofi, &possibilities);
-	if (chooseFaceNeighbor (ofi, possibilities, nextOrientedFaceIndex))
-	{
-
-	    boost::shared_ptr<OrientedFace>  nextOf = nextOrientedFaceIndex->GetOrientedFace ();
-	    const BodyIndex& nextBi = nextOf->GetBodyPartOf ();
-	    push (nextOf);
-	    m_traversed[nextBi.GetOrientedFaceIndex ()] = true;
-	    *orientedFaceIndex = ofi;
-	    return true;
-	}
     }
     return false;
 }

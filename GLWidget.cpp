@@ -87,18 +87,19 @@ void display (const char* name, const T& what)
 // Private Classes
 // ======================================================================
 
-class IsStationaryBodyOrContext
+class NoStationaryBodyAndContext
 {
 public:
-    IsStationaryBodyOrContext (const GLWidget& widget) :
+    NoStationaryBodyAndContext (const GLWidget& widget) :
 	m_widget (widget)
     {
     }
     bool operator () (const boost::shared_ptr<Body>& body)
     {
 	size_t bodyId = body->GetId ();
-	return bodyId != m_widget.GetStationaryBodyId () &&
+	bool result = bodyId != m_widget.GetStationaryBodyId () &&
 	    ! m_widget.IsStationaryBodyContext (bodyId);
+	return result;
     }
 private:
     const GLWidget& m_widget;
@@ -293,16 +294,21 @@ void GLWidget::createActions ()
     connect(m_actionStationaryContextAdd.get (), SIGNAL(triggered()),
 	    this, SLOT(StationaryContextAdd ()));
 
+    m_actionInfoFocus = boost::make_shared<QAction> (tr("&Focus"), this);
+    m_actionInfoFocus->setStatusTip(tr("Info focus"));
+    connect(m_actionInfoFocus.get (), SIGNAL(triggered()), this, 
+	    SLOT(InfoFocus ()));
 
-    m_actionInfo = boost::make_shared<QAction> (tr("&Info"), this);
-    m_actionInfo->setStatusTip(tr("Info"));
-    connect(m_actionInfo.get (), SIGNAL(triggered()), this, SLOT(Info ()));
+    m_actionInfoFoam = boost::make_shared<QAction> (tr("&Foam"), this);
+    m_actionInfoFoam->setStatusTip(tr("Info foam"));
+    connect(m_actionInfoFoam.get (), SIGNAL(triggered()), this, 
+	    SLOT(InfoFoam ()));
 
-    m_actionOpenGlInfo = boost::make_shared<QAction> (
-	tr("&OpenGl info"), this);
-    m_actionOpenGlInfo->setStatusTip(tr("OpenGl info"));
-    connect(m_actionOpenGlInfo.get (), SIGNAL(triggered()),
-	    this, SLOT(ShowOpenGlInfo ()));
+    m_actionInfoOpenGL = boost::make_shared<QAction> (
+	tr("&OpenGL"), this);
+    m_actionInfoOpenGL->setStatusTip(tr("Info OpenGL"));
+    connect(m_actionInfoOpenGL.get (), SIGNAL(triggered()),
+	    this, SLOT(InfoOpenGL ()));
 }
 
 void GLWidget::initViewTypeDisplay ()
@@ -836,12 +842,24 @@ void GLWidget::DeselectAll ()
 	boost::shared_ptr<IdBodySelector> (new IdBodySelector ()));
 }
 
-void GLWidget::Info ()
+void GLWidget::InfoFoam ()
 {
     string message = (AllBodiesSelected ()) ?
 	GetFoamAlongTime ().ToHtml () : GetSelectedBody ()->ToString ();
     QMessageBox msgBox (this);
     msgBox.setText(message.c_str ());
+    msgBox.exec();
+}
+
+void GLWidget::InfoFocus ()
+{
+    vector<size_t> bodies;
+    brushedBodies (m_contextMenuPos, &bodies);
+    ostringstream ostr;
+    Foam::Bodies::const_iterator it = GetCurrentFoam ().FindBody (bodies[0]);
+    ostr << *it;
+    QMessageBox msgBox (this);
+    msgBox.setText(ostr.str ().c_str ());
     msgBox.exec();
 }
 
@@ -986,7 +1004,9 @@ void GLWidget::scale (const QPoint& position)
 	m_scaleRatio = m_scaleRatio * ratio;
 }
 
-
+/** 
+ * @todo Use body indexes instead of body IDs as the IDs might not be unique
+ */
 void GLWidget::brushedBodies (
     const QPoint& position, vector<size_t>* bodies) const
 {
@@ -1006,12 +1026,14 @@ void GLWidget::displayStationaryBodyAndContext () const
 {
     const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
     Foam::Bodies selectedBodies (bodies.size ());
-    remove_copy_if (bodies.begin (), bodies.end (), selectedBodies.begin (), 
-		    IsStationaryBodyOrContext(*this));
+    Foam::Bodies::const_iterator end = remove_copy_if (
+	bodies.begin (), bodies.end (), selectedBodies.begin (),
+	NoStationaryBodyAndContext(*this));
+    selectedBodies.resize (end - selectedBodies.begin ());
     if (GetCurrentFoam ().IsQuadratic ())
-	displayFacesContour<DisplaySameEdges> (bodies);
+	displayFacesContour<DisplaySameEdges> (selectedBodies);
     else
-	displayFacesContour<DisplaySameTriangles> (bodies);
+	displayFacesContour<DisplaySameTriangles> (selectedBodies);
 }
 
 
@@ -2189,7 +2211,7 @@ void GLWidget::ValueChangedAngleOfView (int angleOfView)
 }
 
 
-void GLWidget::ShowOpenGlInfo ()
+void GLWidget::InfoOpenGL ()
 {
     ostringstream ostr;
     printOpenGLInfo (ostr);
@@ -2220,8 +2242,12 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	menuStationary->addAction (m_actionStationaryReset.get ());
 	menuStationary->addAction (m_actionStationaryContextAdd.get ());
     }
-    menu.addAction (m_actionInfo.get ());
-    menu.addAction (m_actionOpenGlInfo.get ());
+    {
+	QMenu* menuInfo = menu.addMenu ("Info");
+	menuInfo->addAction (m_actionInfoFocus.get ());
+	menuInfo->addAction (m_actionInfoFoam.get ());
+	menuInfo->addAction (m_actionInfoOpenGL.get ());
+    }
     menu.exec (event->globalPos());
 }
 

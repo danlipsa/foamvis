@@ -117,6 +117,13 @@ bool BodyLessThan (const boost::shared_ptr<Body>& first,
     return *first < *second;
 }
 
+bool BodyLessThanId (const boost::shared_ptr<Body>& first,
+		   size_t secondBodyId)
+{
+    return *first < secondBodyId;
+}
+
+
 // ======================================================================
 // BBObjectLessThanAlong
 

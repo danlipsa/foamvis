@@ -376,6 +376,14 @@ void Foam::Preprocess ()
 }
 
 
+Foam::Bodies::const_iterator
+Foam::FindBody (size_t bodyId) const
+{
+    return lower_bound (m_bodies.begin (), m_bodies.end (), bodyId, 
+			BodyLessThanId);
+}
+
+
 void Foam::setMissingPressureZero ()
 {
     using EvolverData::parser;

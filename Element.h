@@ -42,7 +42,10 @@ public:
         const char* name, double r, const AttributesInfo& info);
 
     /**
-     * Gets the original index of this element
+     * Gets the original index of this element. Note that this might
+     * not be unique for vertices, edges and faces as a result of
+     * duplication because of periodic boundary conditions. For bodies
+     * it is unique for a given foam.
      */
     size_t GetId () const
     {

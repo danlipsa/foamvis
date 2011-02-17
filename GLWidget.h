@@ -340,8 +340,9 @@ public Q_SLOTS:
     void StationarySet ();
     void StationaryReset ();
     void StationaryContextAdd ();
-    void Info ();
-    void ShowOpenGlInfo ();
+    void InfoFocus ();
+    void InfoFoam ();
+    void InfoOpenGL ();
     /**
      * Signals a change in data displayed
      * @param timeStep the new index for the Foam to be displayed
@@ -671,14 +672,15 @@ private:
 
     boost::shared_ptr<QAction> m_actionSelectAll;
     boost::shared_ptr<QAction> m_actionDeselectAll;
-    boost::shared_ptr<QAction> m_actionInfo;
     boost::shared_ptr<QAction> m_actionResetTransformation;
     boost::shared_ptr<QAction> m_actionResetSelectedLightPosition;
     boost::shared_ptr<QAction> m_actionSelectBodiesById;
     boost::shared_ptr<QAction> m_actionStationarySet;
     boost::shared_ptr<QAction> m_actionStationaryReset;
     boost::shared_ptr<QAction> m_actionStationaryContextAdd;
-    boost::shared_ptr<QAction> m_actionOpenGlInfo;
+    boost::shared_ptr<QAction> m_actionInfoFocus;
+    boost::shared_ptr<QAction> m_actionInfoFoam;
+    boost::shared_ptr<QAction> m_actionInfoOpenGL;
     
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
     GLuint m_colorBarTexture;

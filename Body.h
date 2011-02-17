@@ -87,6 +87,8 @@ public:
     bool ExistsPropertyValue (BodyProperty::Enum property) const;
 
     bool operator< (const Body& other) const;
+    bool operator< (size_t otherBodyId) const;
+
     G3D::Vector3 GetVelocity () const
     {
 	return m_velocity;

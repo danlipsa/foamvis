@@ -25,8 +25,7 @@
  * \verbinclude README.txt
  *
  * \section torus_sec Processing done for the Torus model
- * \subsection onedge_sec Executed when creating an edge (may create
- * duplicate vertices)
+ * \subsection onedge_sec Executed when creating an edge (may create duplicate vertices)
  *
  <pre>
 The begin vertex (and the middle vertex in quadratic mode) of an edge is 
@@ -43,8 +42,7 @@ always defined in the data file (it's not a duplicate).
   }
  </pre>
  * 
- * \subsection onface_sec Executed when creating a face (may create
- * duplicate edges)
+ * \subsection onface_sec Executed when creating a face (may create duplicate edges)
  *
 <pre>
   first vertex of the face is defined in the data file (not a DUPLICATE).
@@ -57,6 +55,14 @@ always defined in the data file (it's not a duplicate).
     set beginVertex  to be the end vertex of currentEdge
   }
 </pre>
+ * 
+ * \subsection onbody_sec Executed when creating a body (may create duplicate faces)
+ *
+<pre>
+  ...
+</pre>
+
+
  *
  * \section physical_sec Physical and tesselation edges and vertices
  * In 2D we don't have physical edges. A vertex is "physical" if has
