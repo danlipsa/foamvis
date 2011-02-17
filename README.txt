@@ -170,7 +170,7 @@ Write an entry in the release log to describe the new features.
 doxygen
 Commit everything. 
 Make sure 'svnversion' reports one version
-make distclean;release.pl;cd ..;tar czf foam-<version>.tgz foam
+make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 
 

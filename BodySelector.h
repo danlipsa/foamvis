@@ -102,6 +102,7 @@ public:
 	return BodySelectorType::ID;
     }
     void SetUnion (const vector<size_t>& idsToAdd);
+    void SetUnion (const IdBodySelector& idsToAdd);
     void SetDifference (const vector<size_t>& idsToRemove);
     string ToString () const;
 

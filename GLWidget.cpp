@@ -185,7 +185,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_selectBodiesById (new SelectBodiesById (this)),
       m_contextView (false),
       m_hideContent(false),
-      m_tubeCenterPathUsed (true)
+      m_tubeCenterPathUsed (true),
+      m_listCenterPaths (0)
 {
     makeCurrent ();
     m_displayFaceAverage.reset (new DisplayFaceAverage (*this));
@@ -877,6 +878,7 @@ void GLWidget::initializeGL()
     m_displayFaceAverage->InitShaders ();
     initializeLighting ();
     setEdgeRadius ();
+    m_listCenterPaths = glGenLists (1);
     detectOpenGLError ("initializeGl");
 }
 
@@ -1120,6 +1122,34 @@ void GLWidget::select (const QPoint& position)
     setBodySelectorLabel (m_bodySelector->GetType ());
     updateGL ();
 }
+
+void GLWidget::SetBodySelector (boost::shared_ptr<IdBodySelector> selector)
+{
+    switch (m_bodySelector->GetType ())
+    {
+    case BodySelectorType::ALL:
+	m_bodySelector = selector;
+	break;
+    case BodySelectorType::ID:
+	m_bodySelector = selector;
+	break;
+    case BodySelectorType::PROPERTY_VALUE:
+	m_bodySelector = boost::shared_ptr<BodySelector> (
+	    new CompositeBodySelector (
+		selector,
+		boost::static_pointer_cast<PropertyValueBodySelector> (
+		    m_bodySelector)));
+	break;
+    case BodySelectorType::COMPOSITE:
+	boost::static_pointer_cast<CompositeBodySelector> (
+	    m_bodySelector)->SetSelector (selector);
+	break;
+    }
+    setBodySelectorLabel (m_bodySelector->GetType ());
+    updateGL ();
+}
+
+
 
 void GLWidget::deselect (const QPoint& position)
 {
@@ -1564,6 +1594,12 @@ void GLWidget::displayCenterPathsWithBodies () const
 
 void GLWidget::displayCenterPaths () const
 {
+    glCallList (m_listCenterPaths);
+}
+
+void GLWidget::compileCenterPaths () const
+{
+    glNewList (m_listCenterPaths, GL_COMPILE);
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT | 
 		  GL_POLYGON_BIT);
     glEnable(GL_TEXTURE_1D);
@@ -1594,6 +1630,7 @@ void GLWidget::displayCenterPaths () const
 		      *this, m_coloredBy, *m_bodySelector,
 		      IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     glPopAttrib ();
+    glEndList ();
 }
 
 void GLWidget::DisplayViewType () const
@@ -2006,6 +2043,7 @@ void GLWidget::ToggledTorusOriginalDomainClipped (bool checked)
 
 void GLWidget::ToggledCenterPath (bool checked)
 {
+    compileCenterPaths ();
     changeView (checked, ViewType::CENTER_PATHS);
 }
 
@@ -2051,13 +2089,15 @@ void GLWidget::BodyPropertyChanged (
 	initStepDisplayAverage ();
 	break;
     case ViewType::CENTER_PATHS:
-	m_coloredBy = property;
+	m_coloredBy = property;	
 	break;
     default:
 	RuntimeAssert (false, "Invalid value in switch: ", viewType);
     }
     if (m_coloredBy != BodyProperty::NONE)
 	ColorBarModelChanged (colorBarModel);
+    if (viewType == ViewType::CENTER_PATHS)
+	compileCenterPaths ();
     updateGL ();
 }
 
@@ -2090,6 +2130,7 @@ void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
     m_timeDisplacement =
 	(bb.high () - bb.low ()).z * timeDisplacement /
 	GetFoamAlongTime ().GetTimeSteps () / maximum;
+    compileCenterPaths ();
     updateGL ();
 }
 
@@ -2100,6 +2141,8 @@ void GLWidget::ValueChangedEdgesRadius (int sliderValue)
     m_edgeRadiusMultiplier = static_cast<double>(sliderValue) / maximum;
     setEdgeRadius ();
     enableLighting (m_lightEnabled.any ());
+    if (m_viewType == ViewType::CENTER_PATHS)
+	compileCenterPaths ();
     updateGL ();
 }
 
@@ -2355,33 +2398,6 @@ void GLWidget::SetBodySelector (
     setBodySelectorLabel (m_bodySelector->GetType ());
     updateGL ();
 }
-
-void GLWidget::SetBodySelector (boost::shared_ptr<IdBodySelector> selector)
-{
-    switch (m_bodySelector->GetType ())
-    {
-    case BodySelectorType::ALL:
-	m_bodySelector = selector;
-	break;
-    case BodySelectorType::PROPERTY_VALUE:
-	m_bodySelector = boost::shared_ptr<BodySelector> (
-	    new CompositeBodySelector (
-		selector,
-		boost::static_pointer_cast<PropertyValueBodySelector> (
-		    m_bodySelector)));
-	break;
-    case BodySelectorType::ID:
-	m_bodySelector = selector;
-	break;
-    case BodySelectorType::COMPOSITE:
-	boost::static_pointer_cast<CompositeBodySelector> (
-	    m_bodySelector)->SetSelector (selector);
-	break;
-    }
-    setBodySelectorLabel (m_bodySelector->GetType ());
-    updateGL ();
-}
-
 
 void GLWidget::SetBodySelector (
     boost::shared_ptr<AllBodySelector> selector, BodySelectorType::Enum type)

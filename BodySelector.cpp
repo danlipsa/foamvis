@@ -75,6 +75,11 @@ void IdBodySelector::SetUnion (const vector<size_t>& idsToAdd)
     m_ids = result;
 }
 
+void IdBodySelector::SetUnion (const IdBodySelector& idsToAdd)
+{
+    SetUnion (idsToAdd.m_ids);
+}
+
 void IdBodySelector::SetDifference (const vector<size_t>& idsToRemove)
 {
     vector<size_t> result (m_ids.size ());

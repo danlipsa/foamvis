@@ -490,7 +490,10 @@ private:
      */
     void displayCenterPathsWithBodies () const;
     void displayOriginalDomain () const;
+
     void displayCenterPaths () const;
+    void compileCenterPaths () const;
+
     void displayBoundingBox () const;
     void displayFocusBox () const;
     void displayAxes () const;
@@ -696,6 +699,7 @@ private:
     bool m_contextView;
     bool m_hideContent;
     bool m_tubeCenterPathUsed;
+    GLuint m_listCenterPaths;
 };
 
 #endif //__GLWIDGET_H__
