@@ -11,7 +11,7 @@
 #include "DebugStream.h"
 #include "FoamAlongTime.h"
 #include "GLWidget.h"
-
+#include "Utils.h"
 
 
 // AllBodySelector
@@ -38,6 +38,16 @@ bool PropertyValueBodySelector::operator () (
     }
     else
 	return false;
+}
+
+string PropertyValueBodySelector::ToUserString () const
+{
+    ostringstream ostr;
+    ostr << "Selection on " << BodyProperty::ToString (m_property) << endl
+	 << "Intervals: ";
+    ostream_iterator<QwtDoubleInterval> ido (ostr, " ");
+    copy (m_valueIntervals.begin (), m_valueIntervals.end (), ido);
+    return ostr.str ();
 }
 
 // IdBodySelector
@@ -94,6 +104,15 @@ string IdBodySelector::ToString () const
 {
     ostringstream ostr;
     ostr << "IdBodySelector: ";
+    ostream_iterator<size_t> ido (ostr, " ");
+    copy (m_ids.begin (), m_ids.end (), ido);
+    ostr << endl;
+    return ostr.str ();
+}
+
+string IdBodySelector::ToUserString () const
+{
+    ostringstream ostr;
     ostream_iterator<size_t> ido (ostr, " ");
     copy (m_ids.begin (), m_ids.end (), ido);
     ostr << endl;

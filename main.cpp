@@ -201,7 +201,13 @@ void printHelp ()
      * - ./release.pl
      */
     const char* version = "0.4.1740";
-    cdbg << "foam version " << version << endl;
+    cdbg << "foam version " << version 
+#ifdef QT_NO_DEBUG
+	 << " RELEASE build"
+#else
+	 << " DEBUG build"
+#endif
+	 << endl;
     cdbg << "foam [OPTIONS] <dir> <filter>\n";
     cdbg << "foam [OPTIONS] <file> ...\n";
     cdbg << "where: <dir> is the folder where the data files reside\n"

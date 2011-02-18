@@ -855,12 +855,33 @@ void GLWidget::InfoFoam ()
 
 void GLWidget::InfoFocus ()
 {
-    vector<size_t> bodies;
-    brushedBodies (m_contextMenuPos, &bodies);
-    ostringstream ostr;
-    Foam::Bodies::const_iterator it = GetCurrentFoam ().FindBody (bodies[0]);
-    ostr << *it;
     QMessageBox msgBox (this);
+    ostringstream ostr;
+    switch (m_bodySelector->GetType ())
+    {
+    case BodySelectorType::ALL:
+    {
+	vector<size_t> bodies;
+	brushedBodies (m_contextMenuPos, &bodies);
+	Foam::Bodies::const_iterator it = GetCurrentFoam ().FindBody (bodies[0]);
+	ostr << *it;
+	break;
+    }
+
+    case BodySelectorType::ID:
+    {
+	break;
+    }
+
+    case BodySelectorType::PROPERTY_VALUE:
+    {
+	break;
+    }
+
+    case BodySelectorType::COMPOSITE:
+	break;
+    }
+
     msgBox.setText(ostr.str ().c_str ());
     msgBox.exec();
 }
@@ -908,7 +929,6 @@ void GLWidget::resizeGL(int w, int h)
     ViewportTransform ();
     if (m_viewType == ViewType::FACES_AVERAGE)
 	initStepDisplayAverage ();
-    setEdgeRadius ();
     detectOpenGLError ("resizeGl");
 }
 

@@ -75,6 +75,7 @@ public:
     {
 	return BodySelectorType::PROPERTY_VALUE;
     }
+    string ToUserString () const;
 
 private:
     BodyProperty::Enum m_property;
@@ -105,6 +106,7 @@ public:
     void SetUnion (const IdBodySelector& idsToAdd);
     void SetDifference (const vector<size_t>& idsToRemove);
     string ToString () const;
+    string ToUserString () const;
 
 private:
     /**
