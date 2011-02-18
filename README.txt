@@ -178,68 +178,53 @@ Release log
 ===========
 0.4.1746 - use display lists for center paths resulting in significant speed 
 	   improvement for interaction with 3D bubble paths.
-0.4.1738 - stationary body + context selection in face and average view
+0.4.1740 - stationary body + context selection in face and average view
 	 - fixes to the context view
 0.4.1728 - set missing pressure of last body of constrained foam to 0
          - added 2D context view
          - fixed lighting for time displacement view
          - compile with optimizations by default
 	 - added selection by location in edge and face views
-0.3.1689 - added time displacement view for 2D data
+0.3.1690 - added time displacement view for 2D data
 	 - added command line option: -o : show original pressure values
 0.3.1682 - bug fix for coarse100/coarse_01_0100_0407.dmp
 	 - pressures made > 0 and aligned medians between time steps
 	 - added combination brushing: by id and by property value
 0.3.1598 - bug fix for pull2_bi_204_00099.dmp, updated test.pl
 	 - bug fix assert failure for ctnctr timesteps [89]??
-
 0.3.1596 - bug fixes to the average calculation (fixes for pressure and 
 	   velocity).
 	 - two new datasets tested ellipse_in_flow and sedimenting_discs
 	 - display the center path only if there is at least one segment in focus
-
-0.3.1569 
-	- per pixel average for bubble attributes values (2D)
-
-0.2.1489
-	- Fixes in the parser and new tests added to test.pl
-
-0.2.1486
-	- Per property color map with clamping
-	- Added several color maps: rainbow, black body radiator, 
-	  blue-red diverging
-
-0.1.1476
-	- Handle significant space between expressions correctly
-	- Apply the VIEW_MATRIX rotation, so that foam and evolver produce
-	  the same view
-        - added a few test files to test.pl
-
-0.1.1462
-	- Added UI feedback for histogram bars that are taller than the 
-          height of the histogram. (a red cap)
-	- Histogram selection is reflected in time step selection,
-	  scrolling is done through all time steps not only through
+0.3.1569 - per pixel average for bubble attributes values (2D)
+0.2.1489 - Fixes in the parser and new tests added to test.pl
+0.2.1487 - Per property color map with clamping
+	 - Added several color maps: rainbow, black body radiator, 
+	   blue-red diverging
+0.1.1476 - Handle significant space between expressions correctly
+	 - Apply the VIEW_MATRIX rotation, so that foam and evolver produce
+	   the same view
+         - added a few test files to test.pl
+0.1.1462 - Added UI feedback for histogram bars that are taller than the 
+           height of the histogram. (a red cap)
+	 - Histogram selection is reflected in time step selection,
+	   scrolling is done through all time steps not only through
 	  selected time steps (context)
-	- Added logarithmic scale for histogram
-	- Added color coded histograms
-	- Histogram selection is reflected in body selection and
-	  center path selection. Deselected bodies are displayed
-	  transparent in both Face and Center Path views
-
-0.1.1432
-	- Added user option to adjust the height of a histogram.
-	- Fixed histogram for center path
-
-0.1.1427
-	- parsing 2D and 3D dmp files
-	- support for torus model
-	- support for quadratic model
-	- display edges, faces and center paths
-	- body attributes supported: volume, pressure, 
+	 - Added logarithmic scale for histogram
+	 - Added color coded histograms
+	 - Histogram selection is reflected in body selection and
+	   center path selection. Deselected bodies are displayed
+	   transparent in both Face and Center Path views
+0.1.1432 - Added user option to adjust the height of a histogram.
+	 - Fixed histogram for center path
+0.1.1427 - parsing 2D and 3D dmp files
+	 - support for torus model
+	 - support for quadratic model
+	 - display edges, faces and center paths
+  	 - body attributes supported: volume, pressure, 
 	       velocity (magnitude, x,y,z)
-	- color faces based on values of attributes
-	- color center paths based on values of attributes
-	- histogram of values of attributes
-	- histogram selection resulting in selection of time steps in the 
-	  face view
+	 - color faces based on values of attributes
+	 - color center paths based on values of attributes
+	 - histogram of values of attributes
+	 - histogram selection resulting in selection of time steps in the 
+	   face view
