@@ -176,6 +176,8 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
+0.4.1746 - use display lists for center paths resulting in significant speed 
+	   improvement for interaction with 3D bubble paths.
 0.4.1738 - stationary body + context selection in face and average view
 	 - fixes to the context view
 0.4.1728 - set missing pressure of last body of constrained foam to 0
