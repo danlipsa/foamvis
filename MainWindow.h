@@ -115,8 +115,11 @@ public Q_SLOTS:
      */
     void TimeoutTimer ();
     void ToggledCenterPath (bool checked);
-    void ButtonClickedHistogram (int id);
+    
+    void ButtonClickedOneTimestepHistogram (int id);
+    void ButtonClickedAllTimestepsHistogram (int id);
     void ToggledFacesNormal (bool checked);
+    void ToggledFacesStatistics (bool checked);
     /**
      * Shows edges
      * @param checked true for showing edges false otherwise
@@ -129,6 +132,7 @@ public Q_SLOTS:
     void ValueChangedSliderTimeSteps (int value);
     void ValueChangedFontSize (int value);
 private:
+    bool isHistogramHidden (HistogramType::Enum histogramType);
     void connectColorBarModelChanged ();
     /**
      * Enables/Disables the Begin button
@@ -160,6 +164,8 @@ private:
 
     void setupColorBar ();
     void setupHistogram ();
+    void setVisibleFacesHistogramSelection (bool visible);
+    void setVisibleCenterPathHistogramSelection (bool visible);
     void processBodyTorusStep ();
     void translateBodyStep ();
     void createActions ();

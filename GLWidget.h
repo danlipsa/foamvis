@@ -290,7 +290,7 @@ public Q_SLOTS:
      * Shows faces
      * @param checked true for showing faces false otherwise
      */
-    void ToggledFacesAverage (bool checked);
+    void ToggledFacesStatistics (bool checked);
     void ToggledFaceEdgesTorus (bool checked);
     void ToggledFacesNormal (bool checked);
     void ToggledFacesShowEdges (bool checked);
@@ -332,6 +332,7 @@ public Q_SLOTS:
 
 
     void ValueChangedSliderTimeSteps (int timeStep);
+    void ValueChangedStatisticsHistory (int timeSteps);
     void ValueChangedTimeDisplacement (int timeDisplacement);
     // Actions
     void ResetTransformation ();
@@ -703,6 +704,7 @@ private:
     bool m_hideContent;
     bool m_tubeCenterPathUsed;
     GLuint m_listCenterPaths;
+    size_t m_statisticsHistory;
 };
 
 #endif //__GLWIDGET_H__

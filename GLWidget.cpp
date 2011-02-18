@@ -1941,7 +1941,7 @@ void GLWidget::initStepDisplayAverage ()
     m_displayFaceAverage->StepDisplay ();
 }
 
-void GLWidget::ToggledFacesAverage (bool checked)
+void GLWidget::ToggledFacesStatistics (bool checked)
 {
     makeCurrent ();
     if (checked)
@@ -2058,10 +2058,14 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 {
     m_timeStep = timeStep;
     makeCurrent ();
-    updateGL ();
     if (m_viewType == ViewType::FACES_AVERAGE)
 	m_displayFaceAverage->StepDisplay ();
     updateGL ();
+}
+
+void GLWidget::ValueChangedStatisticsHistory (int timeSteps)
+{
+    m_statisticsHistory = timeSteps;
 }
 
 void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
