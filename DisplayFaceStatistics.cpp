@@ -292,8 +292,8 @@ void DisplayFaceStatistics::Step (
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
     m_glWidget.ModelViewTransformNoRotation ();
     renderToStep (timeStep, property);
-    save (*m_step, "step", timeStep,
-	  minValue, maxValue, StatisticsType::AVERAGE);
+    //save (*m_step, "step", timeStep,
+    //minValue, maxValue, StatisticsType::AVERAGE);
     addStepToNew ();
     //save (*m_new, "new", timeStep,
     //minValue, maxValue, StatisticsType::AVERAGE);
@@ -304,26 +304,15 @@ void DisplayFaceStatistics::Step (
     if (m_currentHistoryCount > m_historyCount && 
 	timeStep >= m_historyCount)
     {
-	cdbg << "timestep: " << timeStep 
-	     << " currentHistoryCount: " << m_currentHistoryCount
-	     << " historyCount: " << m_historyCount << endl
-	     << "min: " << minValue
-	     << " max: " << maxValue << endl;
 	renderToStep (timeStep - m_historyCount, property);
-	save (*m_step, "step_", timeStep - m_historyCount,
-	      minValue, maxValue, StatisticsType::AVERAGE);
-/*
-	renderToStep (timeStep - m_historyCount, property);
-	save (*m_step, "step_", timeStep - m_historyCount,
-	      minValue, maxValue, StatisticsType::AVERAGE);
-
+	//save (*m_step, "step_", timeStep - m_historyCount,
+	//minValue, maxValue, StatisticsType::AVERAGE);
 	removeStepFromNew ();
-	save (*m_new, "new_", timeStep,
-	      minValue, maxValue, StatisticsType::AVERAGE);
+	//save (*m_new, "new_", timeStep,
+	//minValue, maxValue, StatisticsType::AVERAGE);
 	copyNewToOld ();
-	save (*m_old, "old_", timeStep, 
-	      minValue, maxValue, StatisticsType::AVERAGE);
-*/
+	//save (*m_old, "old_", timeStep, 
+	//minValue, maxValue, StatisticsType::AVERAGE);
 	--m_currentHistoryCount;
     }
     glPopAttrib ();

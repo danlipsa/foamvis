@@ -6,6 +6,7 @@
  * Implementation for functors that display a face
  */
 
+#include "Body.h"
 #include "DebugStream.h"
 #include "DisplayFaceFunctors.h"
 #include "DisplayEdgeFunctors.h"
@@ -162,16 +163,11 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	}
 	else
 	{
-	    size_t bodyId = of->GetBodyPartOf ().GetBodyId ();
-	    const FoamAlongTime& foamAlongTime = 
-		this->m_glWidget.GetFoamAlongTime ();
-	    if (foamAlongTime.ExistsBodyProperty (
-		    this->m_property, bodyId, 
-		    this->m_glWidget.GetTimeStep ()))
+	    boost::shared_ptr<Body> body = of->GetBodyPartOf ().GetBody ();
+	    size_t bodyId = body->GetId ();
+	    if (body->ExistsPropertyValue (this->m_property))
 	    {
-		double value = foamAlongTime.GetBodyPropertyValue (
-		    this->m_property, bodyId, 
-		    this->m_glWidget.GetTimeStep ());
+		double value = body->GetPropertyValue (this->m_property);
 
 		if (bodyId == this->m_glWidget.GetStationaryBodyId ())
 		    glColor (GLWidget::STATIONARY_BODY_FACE_COLOR);
