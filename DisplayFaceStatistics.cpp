@@ -230,8 +230,8 @@ void DisplayFaceStatistics::Init (const QSize& size)
 
 void DisplayFaceStatistics::Clear ()
 {
-    clearZero (*m_new);
-    clearMinMax (*m_old);
+    clearZero (m_new);
+    clearMinMax (m_old);
 }
 
 void DisplayFaceStatistics::Release ()
@@ -249,23 +249,6 @@ void DisplayFaceStatistics::InitShaders ()
     m_storeShaderProgram.Init ();
     m_displayShaderProgram.Init ();
     m_initShaderProgram.Init ();
-}
-
-void DisplayFaceStatistics::Calculate (BodyProperty::Enum property,
-				    GLfloat minValue, GLfloat maxValue)
-{
-    const FoamAlongTime& foamAlongTime = m_glWidget.GetFoamAlongTime ();
-    size_t count = foamAlongTime.GetTimeSteps ();
-    for (size_t i = 0; i < count; ++i)
-    {
-	Step (i, property, minValue, maxValue);
-	if (true /*i % 10 == 0*/)
-	{
-	    Display (minValue, maxValue);
-	    const_cast<GLWidget&>(m_glWidget).updateGL ();
-	    QCoreApplication::processEvents ();
-	}
-    }
 }
 
 void DisplayFaceStatistics::display (
@@ -312,18 +295,20 @@ void DisplayFaceStatistics::Step (
     save (*m_step, "step", timeStep,
 	  minValue, maxValue, StatisticsType::AVERAGE);
     addStepToNew ();
-    save (*m_new, "new", timeStep,
-	  minValue, maxValue, StatisticsType::AVERAGE);
+    //save (*m_new, "new", timeStep,
+    //minValue, maxValue, StatisticsType::AVERAGE);
     copyNewToOld ();
-    save (*m_old, "old", timeStep, 
-	  minValue, maxValue, StatisticsType::AVERAGE);
+    //save (*m_old, "old", timeStep, 
+    //minValue, maxValue, StatisticsType::AVERAGE);
     ++m_currentHistoryCount;
     if (m_currentHistoryCount > m_historyCount && 
 	timeStep >= m_historyCount)
     {
 	cdbg << "timestep: " << timeStep 
 	     << " currentHistoryCount: " << m_currentHistoryCount
-	     << " historyCount: " << m_historyCount << endl;
+	     << " historyCount: " << m_historyCount << endl
+	     << "min: " << minValue
+	     << " max: " << maxValue << endl;
 	renderToStep (timeStep - m_historyCount, property);
 	save (*m_step, "step_", timeStep - m_historyCount,
 	      minValue, maxValue, StatisticsType::AVERAGE);
@@ -349,7 +334,7 @@ void DisplayFaceStatistics::Step (
 void DisplayFaceStatistics::renderToStep (
     size_t timeStep, BodyProperty::Enum property)
 {
-    clearMinMax (*m_step);
+    clearMinMax (m_step);
     m_step->bind ();
     m_storeShaderProgram.Bind ();
     const Foam& foam = *m_glWidget.GetFoamAlongTime ().GetFoam (timeStep);
@@ -417,19 +402,21 @@ void DisplayFaceStatistics::copyNewToOld ()
 	m_old.get (), rect, m_new.get (), rect);
 }
 
-void DisplayFaceStatistics::clearZero (QGLFramebufferObject& fbo)
+void DisplayFaceStatistics::clearZero (
+    const boost::scoped_ptr<QGLFramebufferObject>& fbo)
 {
-    fbo.bind ();
+    fbo->bind ();
     glPushAttrib (GL_COLOR_BUFFER_BIT); 
     glClearColor (Qt::black);
     glClear(GL_COLOR_BUFFER_BIT);
     glPopAttrib ();
-    fbo.release ();    
+    fbo->release ();    
 }
 
-void DisplayFaceStatistics::clearMinMax (QGLFramebufferObject& fbo)
+void DisplayFaceStatistics::clearMinMax (
+    const boost::scoped_ptr<QGLFramebufferObject>& fbo)
 {
-    fbo.bind ();
+    fbo->bind ();
     m_initShaderProgram.Bind ();
     glPushAttrib (GL_VIEWPORT_BIT);
     glViewport (0, 0, m_glWidget.width (), m_glWidget.height ());
@@ -454,7 +441,7 @@ void DisplayFaceStatistics::clearMinMax (QGLFramebufferObject& fbo)
     glPopAttrib ();
     glPopMatrix ();
     m_initShaderProgram.release ();
-    fbo.release ();
+    fbo->release ();
 }
 
 

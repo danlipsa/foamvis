@@ -129,8 +129,6 @@ public:
     {
 	display (minValue, maxValue, displayType, *m_new);
     }
-    void Calculate (BodyProperty::Enum property,
-		    GLfloat minValue, GLfloat maxValue);
     void InitStepDisplay ();
     void StepDisplay ();
     void Step (size_t timeStep,
@@ -155,8 +153,10 @@ private:
     void addStepToNew ();
     void removeStepFromNew ();
     void copyNewToOld ();
-    static void clearZero (QGLFramebufferObject& fbo);
-    void clearMinMax (QGLFramebufferObject& fbo);
+    static void clearZero (
+	const boost::scoped_ptr<QGLFramebufferObject>& fbo);
+    void clearMinMax (
+	const boost::scoped_ptr<QGLFramebufferObject>& fbo);
 
 
 private:

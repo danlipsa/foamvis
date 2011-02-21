@@ -1389,12 +1389,12 @@ void GLWidget::displayFacesNormal () const
 
 void GLWidget::displayFacesStatistics () const
 {
+    glPushAttrib (GL_ENABLE_BIT);    
+    glDisable (GL_DEPTH_TEST);
     const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
     m_displayFaceStatistics->Display (
 	foamAlongTime.GetMin (GetColoredBy ()),
 	foamAlongTime.GetMax (GetColoredBy ()), GetStatisticsType ());
-    glPushAttrib (GL_ENABLE_BIT);    
-    glDisable (GL_DEPTH_TEST);
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
     displayStationaryBodyAndContext ();
     glPopAttrib ();
