@@ -18,6 +18,10 @@
 #include "SystemDifferences.h"
 #include "Utils.h"
 
+
+// Private Functions
+// ======================================================================
+
 int checkedId (const QButtonGroup* group)
 {
     return group->id (group->checkedButton ());
@@ -27,6 +31,16 @@ HistogramType::Enum histogramType (const QButtonGroup* group)
 {
     return HistogramType::Enum (checkedId (group));
 }
+
+template<size_t size>
+void setVisible (const boost::array<QWidget*, size>& widgets, bool visible)
+{
+    BOOST_FOREACH(QWidget* widget, widgets)
+	widget->setVisible (visible);
+}
+
+// Methods
+// ======================================================================
 
 MainWindow::MainWindow (FoamAlongTime& foamAlongTime) : 
     PLAY_TEXT (">"), PAUSE_TEXT("||"),
@@ -52,7 +66,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     boost::shared_ptr<Application> app = Application::Get ();
     QFont defaultFont = app->font ();
     spinBoxFontSize->setValue (defaultFont.pointSize ());
-    spinBoxStatisticsHistory->setMaximum (foamAlongTime.GetTimeSteps () - 1);
+    spinBoxStatisticsHistory->setMaximum (foamAlongTime.GetTimeSteps ());
     spinBoxStatisticsHistory->setValue (spinBoxStatisticsHistory->maximum ());
     widgetGl->SetFoamAlongTime (&foamAlongTime);
     widgetGl->SetStatus (labelStatusBar);
@@ -737,30 +751,18 @@ void MainWindow::CurrentIndexChangedSelectedLight (int i)
 	    horizontalSliderLightSpecularBlue->maximum () + 0.5));
 }
 
-void MainWindow::setVisibleFacesHistogramSelection (bool visible)
-{
-    labelFacesHistogram->setVisible (visible);
-    radioButtonFacesHistogramNone->setVisible (visible);
-    radioButtonFacesHistogramUnicolor->setVisible (visible);
-    radioButtonFacesHistogramColorCoded->setVisible (visible);
-}
-
-void MainWindow::setVisibleCenterPathHistogramSelection (bool visible)
-{
-    labelCenterPathHistogram->setVisible (visible);
-    radioButtonCenterPathHistogramNone->setVisible (visible);
-    radioButtonCenterPathHistogramUnicolor->setVisible (visible);
-    radioButtonCenterPathHistogramColorCoded->setVisible (visible);
-}
-
-
 void MainWindow::CurrentIndexChangedFacesColor (int value)
 {
+    boost::array<QWidget*, 4> widgetsFacesHistogramSelection = {{
+	    labelFacesHistogram,
+	    radioButtonFacesHistogramNone,
+	    radioButtonFacesHistogramUnicolor,
+	    radioButtonFacesHistogramColorCoded}};
     BodyProperty::Enum property = BodyProperty::FromSizeT (value);
     m_property = property;
     if (property == BodyProperty::NONE)
     {
-	setVisibleFacesHistogramSelection (false);
+	::setVisible (widgetsFacesHistogramSelection, false);
 	colorBar->setHidden (true);
 	widgetHistogram->setHidden (true);
 	Q_EMIT BodyPropertyChanged (
@@ -771,7 +773,7 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
     {
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	size_t timeStep = widgetGl->GetTimeStep ();
-	setVisibleFacesHistogramSelection (true);
+	::setVisible (widgetsFacesHistogramSelection, true);
 	colorBar->setVisible (true);
 	Q_EMIT BodyPropertyChanged (
 	    m_colorBarModel[property], property, 
@@ -788,11 +790,16 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 
 void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 {
+    boost::array<QWidget*, 4> widgetsCenterPathHistogramSelection = {{
+	    labelCenterPathHistogram,
+	    radioButtonCenterPathHistogramNone,
+	    radioButtonCenterPathHistogramUnicolor,
+	    radioButtonCenterPathHistogramColorCoded}};
     BodyProperty::Enum property = BodyProperty::FromSizeT(value);
     m_property = property;
     if (property == BodyProperty::NONE)
     {
-	setVisibleCenterPathHistogramSelection (false);
+	::setVisible (widgetsCenterPathHistogramSelection, false);
 	colorBar->setHidden (true);
 	widgetHistogram->setHidden (true);
 	Q_EMIT BodyPropertyChanged (
@@ -800,7 +807,7 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
     }
     else
     {
-	setVisibleCenterPathHistogramSelection (true);
+	::setVisible (widgetsCenterPathHistogramSelection, true);
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	colorBar->setVisible (true);
 	Q_EMIT BodyPropertyChanged (
@@ -811,6 +818,23 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 		property,
 		foamAlongTime.GetHistogram (property).ToQwtIntervalData (),
 		foamAlongTime.GetHistogram (property).GetMaxCountPerBin ());
+    }
+}
+
+
+void MainWindow::CurrentIndexChangedStatisticsType (int value)
+{
+    boost::array<QWidget*, 2> widgetsStatisticsHistory = 
+	{{ spinBoxStatisticsHistory, labelStatisticsHistory}};
+    switch (value)
+    {
+    case StatisticsType::AVERAGE:
+	::setVisible (widgetsStatisticsHistory, true);
+	break;
+    case StatisticsType::MIN:
+    case StatisticsType::MAX:
+	::setVisible (widgetsStatisticsHistory, false);
+	break;
     }
 }
 

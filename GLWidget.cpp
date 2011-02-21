@@ -12,7 +12,7 @@
 #include "ColorBarModel.h"
 #include "Debug.h"
 #include "DebugStream.h"
-#include "DisplayFaceAverage.h"
+#include "DisplayFaceStatistics.h"
 #include "DisplayBodyFunctors.h"
 #include "DisplayEdgeFunctors.h"
 #include "DisplayFaceFunctors.h"
@@ -189,7 +189,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_listCenterPaths (0)
 {
     makeCurrent ();
-    m_displayFaceAverage.reset (new DisplayFaceAverage (*this));
+    m_displayFaceStatistics.reset (new DisplayFaceStatistics (*this));
     initEndTranslationColor ();
     initQuadrics ();
     initViewTypeDisplay ();
@@ -320,7 +320,7 @@ void GLWidget::initViewTypeDisplay ()
 	  &GLWidget::displayEdgesTorus,
 	  &GLWidget::displayFacesTorus,
 	  &GLWidget::displayFacesNormal,
-	  &GLWidget::displayFacesAverage,
+	  &GLWidget::displayFacesStatistics,
 	  &GLWidget::displayCenterPathsWithBodies,
 	 }};
     copy (vtd.begin (), vtd.end (), m_viewTypeDisplay.begin ());
@@ -342,6 +342,7 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 	m_selectBodiesById->SetMaxBodyId (bodies[maxIndex]->GetId ());
 	m_selectBodiesById->UpdateLabelMinMax ();
     }
+    m_displayFaceStatistics->SetHistoryCount (foamAlongTime->GetTimeSteps ());
 }
 
 
@@ -897,7 +898,7 @@ void GLWidget::initializeGL()
     glEnable(GL_DEPTH_TEST);
     initializeTextures ();
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    m_displayFaceAverage->InitShaders ();
+    m_displayFaceStatistics->InitShaders ();
     initializeLighting ();
     setEdgeRadius ();
     m_listCenterPaths = glGenLists (1);
@@ -928,7 +929,7 @@ void GLWidget::resizeGL(int w, int h)
     projectionTransform ();
     ViewportTransform ();
     if (m_viewType == ViewType::FACES_AVERAGE)
-	initStepDisplayAverage ();
+	m_displayFaceStatistics->InitStepDisplay ();
     detectOpenGLError ("resizeGl");
 }
 
@@ -1386,10 +1387,10 @@ void GLWidget::displayFacesNormal () const
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
 }
 
-void GLWidget::displayFacesAverage () const
+void GLWidget::displayFacesStatistics () const
 {
     const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
-    m_displayFaceAverage->Display (
+    m_displayFaceStatistics->Display (
 	foamAlongTime.GetMin (GetColoredBy ()),
 	foamAlongTime.GetMax (GetColoredBy ()), GetStatisticsType ());
     glPushAttrib (GL_ENABLE_BIT);    
@@ -1934,28 +1935,14 @@ void GLWidget::ToggledFaceEdgesTorus (bool checked)
 }
 
 
-void GLWidget::initStepDisplayAverage ()
-{
-    makeCurrent ();
-    m_displayFaceAverage->Init (QSize (width (), height ()));
-    m_displayFaceAverage->StepDisplay ();
-}
-
 void GLWidget::ToggledFacesStatistics (bool checked)
 {
     makeCurrent ();
     if (checked)
-    {
-	m_displayFaceAverage->Init (QSize (width (), height ()));
-    }
+	m_displayFaceStatistics->InitStepDisplay ();
     else
-	m_displayFaceAverage->Release ();
+	m_displayFaceStatistics->Release ();
     changeView (checked, ViewType::FACES_AVERAGE);
-    if (checked)
-    {
-	m_displayFaceAverage->StepDisplay ();
-	updateGL ();
-    }
 }
 
 
@@ -2029,7 +2016,7 @@ void GLWidget::BodyPropertyChanged (
 	break;
     case ViewType::FACES_AVERAGE:
 	m_coloredBy = property;
-	initStepDisplayAverage ();
+	m_displayFaceStatistics->InitStepDisplay ();
 	break;
     case ViewType::CENTER_PATHS:
 	m_coloredBy = property;	
@@ -2059,13 +2046,13 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
     m_timeStep = timeStep;
     makeCurrent ();
     if (m_viewType == ViewType::FACES_AVERAGE)
-	m_displayFaceAverage->StepDisplay ();
+	m_displayFaceStatistics->StepDisplay ();
     updateGL ();
 }
 
 void GLWidget::ValueChangedStatisticsHistory (int timeSteps)
 {
-    m_statisticsHistory = timeSteps;
+    m_displayFaceStatistics->SetHistoryCount (timeSteps);
 }
 
 void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)

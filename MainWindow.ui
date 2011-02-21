@@ -264,7 +264,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="general">
           <attribute name="title">
@@ -1011,7 +1011,7 @@
            <item>
             <widget class="QStackedWidget" name="stackedWidgetFaces">
              <property name="currentIndex">
-              <number>2</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="pageFacesEmpty"/>
              <widget class="QWidget" name="pageFacesNormal">
@@ -1180,32 +1180,6 @@
                <property name="bottomMargin">
                 <number>0</number>
                </property>
-               <item row="7" column="0">
-                <widget class="QLabel" name="label_22">
-                 <property name="text">
-                  <string>Statistics Type</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="7" column="1">
-                <widget class="QComboBox" name="comboBoxStatisticsType">
-                 <item>
-                  <property name="text">
-                   <string>Average</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Minimum</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Maximum</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
                <item row="2" column="0">
                 <widget class="QLabel" name="label_23">
                  <property name="text">
@@ -1292,17 +1266,43 @@
                  </item>
                 </widget>
                </item>
-               <item row="5" column="0">
-                <widget class="QLabel" name="label_7">
+               <item row="7" column="0">
+                <widget class="QLabel" name="labelStatisticsHistory">
                  <property name="text">
                   <string>History</string>
                  </property>
                 </widget>
                </item>
-               <item row="5" column="1">
+               <item row="7" column="1">
                 <widget class="QSpinBox" name="spinBoxStatisticsHistory">
                  <property name="minimum">
-                  <number>1</number>
+                  <number>2</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="1">
+                <widget class="QComboBox" name="comboBoxStatisticsType">
+                 <item>
+                  <property name="text">
+                   <string>Average</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Minimum</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Maximum</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item row="5" column="0">
+                <widget class="QLabel" name="label_22">
+                 <property name="text">
+                  <string>Statistics Type</string>
                  </property>
                 </widget>
                </item>
@@ -1767,8 +1767,8 @@
    <slot>ToggledEdgesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>855</x>
-     <y>193</y>
+     <x>684</x>
+     <y>173</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1815,8 +1815,8 @@
    <slot>ToggledCenterPathBodyShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>660</x>
-     <y>252</y>
+     <x>622</x>
+     <y>210</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1832,7 +1832,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>702</x>
-     <y>283</y>
+     <y>267</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1848,7 +1848,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>702</x>
-     <y>283</y>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1863,8 +1863,8 @@
    <slot>CurrentIndexChangedCenterPathColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>819</x>
-     <y>220</y>
+     <x>702</x>
+     <y>206</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -2007,8 +2007,8 @@
    <slot>ToggledEdgesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>855</x>
-     <y>193</y>
+     <x>684</x>
+     <y>173</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2023,8 +2023,8 @@
    <slot>ToggledEdgesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>855</x>
-     <y>220</y>
+     <x>684</x>
+     <y>200</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2103,8 +2103,8 @@
    <slot>ValueChangedTimeDisplacement(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>819</x>
-     <y>279</y>
+     <x>702</x>
+     <y>214</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2119,8 +2119,8 @@
    <slot>ToggledFaceEdgesTorus(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>855</x>
-     <y>247</y>
+     <x>684</x>
+     <y>227</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2136,7 +2136,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>702</x>
-     <y>283</y>
+     <y>257</y>
     </hint>
     <hint type="destinationlabel">
      <x>414</x>
@@ -2151,8 +2151,8 @@
    <slot>ToggledIsContextHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>819</x>
-     <y>252</y>
+     <x>702</x>
+     <y>210</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2311,7 +2311,7 @@
    <slot>ValueChangedAngleOfView(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>686</x>
+     <x>732</x>
      <y>203</y>
     </hint>
     <hint type="destinationlabel">
@@ -2503,8 +2503,8 @@
    <slot>ValueChangedLightAmbientRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>715</x>
-     <y>394</y>
+     <x>697</x>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>518</x>
@@ -2535,8 +2535,8 @@
    <slot>ValueChangedLightAmbientGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>715</x>
-     <y>400</y>
+     <x>697</x>
+     <y>370</y>
     </hint>
     <hint type="destinationlabel">
      <x>550</x>
@@ -2551,8 +2551,8 @@
    <slot>ValueChangedLightAmbientBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>715</x>
-     <y>406</y>
+     <x>697</x>
+     <y>376</y>
     </hint>
     <hint type="destinationlabel">
      <x>553</x>
@@ -2599,8 +2599,8 @@
    <slot>ValueChangedLightSpecularRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>715</x>
-     <y>394</y>
+     <x>697</x>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>486</x>
@@ -2615,8 +2615,8 @@
    <slot>ValueChangedLightSpecularGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>715</x>
-     <y>400</y>
+     <x>697</x>
+     <y>370</y>
     </hint>
     <hint type="destinationlabel">
      <x>557</x>
@@ -2631,8 +2631,8 @@
    <slot>ValueChangedLightSpecularBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>715</x>
-     <y>406</y>
+     <x>697</x>
+     <y>376</y>
     </hint>
     <hint type="destinationlabel">
      <x>551</x>
@@ -2695,12 +2695,44 @@
    <slot>ValueChangedStatisticsHistory(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>744</x>
-     <y>308</y>
+     <x>811</x>
+     <y>296</y>
     </hint>
     <hint type="destinationlabel">
      <x>561</x>
      <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxStatisticsType</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>CurrentIndexChangedStatisticsType(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>801</x>
+     <y>370</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>874</x>
+     <y>406</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxStatisticsHistory</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedStatisticsHistory(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>716</x>
+     <y>406</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>543</x>
+     <y>402</y>
     </hint>
    </hints>
   </connection>
@@ -2716,6 +2748,7 @@
   <slot>ButtonClickedOneTimestepHistogram(int)</slot>
   <slot>ButtonClickedAllTimestepsHistogram(int)</slot>
   <slot>ToggledStatisticsHistoryEnabled(bool)</slot>
+  <slot>CurrentIndexChangedStatisticsType(int)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroupDisplay"/>

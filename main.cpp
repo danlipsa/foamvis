@@ -82,6 +82,8 @@ always defined in the data file (it's not a duplicate).
  * and for arrays (2d versus 3d)
  *
  *
+ * @todo Why time displacement does not go all the way to max Z?
+ * @todo Use vertex arrays for center paths
  * @todo Use google-breakpad for reporting crashes.  
  *
  * @todo set new line significant only for list of vertices, edges,

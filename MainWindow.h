@@ -95,6 +95,7 @@ public Q_SLOTS:
     void ClickedPlay ();
     void CurrentIndexChangedCenterPathColor (int value);
     void CurrentIndexChangedFacesColor (int value);
+    void CurrentIndexChangedStatisticsType (int value);
     /**
      * Copy status from GLWidget to the UI controls
      */
@@ -164,8 +165,6 @@ private:
 
     void setupColorBar ();
     void setupHistogram ();
-    void setVisibleFacesHistogramSelection (bool visible);
-    void setVisibleCenterPathHistogramSelection (bool visible);
     void processBodyTorusStep ();
     void translateBodyStep ();
     void createActions ();

@@ -1,9 +1,9 @@
 /**
- * @file   DisplayFaceAverage.h
+ * @file   DisplayFaceStatistics.h
  * @author Dan R. Lipsa
  * @date  24 Oct. 2010
  *
- * Interface for the DisplayFaceAverage class
+ * Interface for the DisplayFaceStatistics class
  */
 
 #ifndef __DISPLAY_FACE_AVERAGE_H__
@@ -21,7 +21,7 @@ class GLWidget;
  * where new, old and step are floating point textures
  * RGBA : sum, count, min, max
  */
-class ComposeShaderProgram : public QGLShaderProgram
+class AddShaderProgram : public QGLShaderProgram
 {
 public:
     void Init ();
@@ -34,11 +34,25 @@ public:
     {
 	return 2;
     }
-private:
+protected:
     int m_oldTexUnitIndex;
     int m_stepTexUnitIndex;
     boost::shared_ptr<QGLShader> m_fshader;
 };
+
+
+/**
+ * Shader that performs the following operation: new = old - step
+ * where new, old and step are floating point textures
+ * RGBA : sum, count, min, max. It leaves min and max values unchanged.
+ */
+class RemoveShaderProgram : public AddShaderProgram
+{
+public:
+    void Init ();
+    void Bind ();
+};
+
 
 /**
  * Shader that stores a floating point value in a floating point texture:
@@ -97,10 +111,10 @@ private:
 };
 
 
-class DisplayFaceAverage : public DisplayElement
+class DisplayFaceStatistics : public DisplayElement
 {
 public:
-    DisplayFaceAverage (const GLWidget& glWidget) :
+    DisplayFaceStatistics (const GLWidget& glWidget) :
 	DisplayElement (glWidget)
     {
     }
@@ -117,10 +131,15 @@ public:
     }
     void Calculate (BodyProperty::Enum property,
 		    GLfloat minValue, GLfloat maxValue);
+    void InitStepDisplay ();
     void StepDisplay ();
     void Step (size_t timeStep,
 	       BodyProperty::Enum property,
 	       GLfloat minValue, GLfloat maxValue);
+    void SetHistoryCount (size_t historyCount)
+    {
+	m_historyCount = historyCount;
+    }
 
 private:
     template<typename displaySameEdges>
@@ -129,32 +148,38 @@ private:
 	BodyProperty::Enum property);
     void display (GLfloat minValue, GLfloat maxValue,
 		  StatisticsType::Enum displayType, QGLFramebufferObject& fbo);
-    void save (QGLFramebufferObject& fbo, string fileName, size_t timeStep,
+    void save (QGLFramebufferObject& fbo, const char* fileName, size_t timeStep,
 	       GLfloat minValue, GLfloat maxValue,
 	       StatisticsType::Enum displayType);
-    void renderToStep (const Foam& foam, BodyProperty::Enum property);
-    void addToNew ();
-    void copyToOld ();
+    void renderToStep (size_t timeStep, BodyProperty::Enum property);
+    void addStepToNew ();
+    void removeStepFromNew ();
+    void copyNewToOld ();
     static void clearZero (QGLFramebufferObject& fbo);
     void clearMinMax (QGLFramebufferObject& fbo);
 
 
 private:
     /**
-     * Stores the sum and count of values
+     * Stores (sum,count,min,max) up too and including the current step
      */
     boost::scoped_ptr<QGLFramebufferObject> m_new;
     /**
-     * Stores the sum and count of the previous step.
+     * Stores (sum, count, min, max) up to and including the previous step.
      */
     boost::scoped_ptr<QGLFramebufferObject> m_old;
     /**
-     * Stores the value for one step and 1 for the count
-     * (or [0, 0] for no value)
+     * Stores (x, 1, x, x) for (sum, count, min, max) where x is the value for
+     * one step. It stores (0, 0, 0, 0) if there is no value for that pixel.
      */
     boost::scoped_ptr<QGLFramebufferObject> m_step;
     boost::scoped_ptr<QGLFramebufferObject> m_debug;
-    ComposeShaderProgram m_addShaderProgram;
+
+    size_t m_currentHistoryCount;
+    size_t m_historyCount;
+
+    AddShaderProgram m_addShaderProgram;
+    RemoveShaderProgram m_removeShaderProgram;
     StoreShaderProgram m_storeShaderProgram;
     DisplayShaderProgram m_displayShaderProgram;
     InitShaderProgram m_initShaderProgram;

@@ -1,13 +1,14 @@
 /**
- * @file   DisplayFaceAverage.h
+ * @file   DisplayFaceStatistics.h
  * @author Dan R. Lipsa
  * @date  24 Oct. 2010
  *
- * Implementation for the DisplayFaceAverage class
+ * Implementation for the DisplayFaceStatistics class
  */
 
 #include "Debug.h"
-#include "DisplayFaceAverage.h"
+#include "DebugStream.h"
+#include "DisplayFaceStatistics.h"
 #include "DisplayBodyFunctors.h"
 #include "DisplayFaceFunctors.h"
 #include "DisplayEdgeFunctors.h"
@@ -18,9 +19,9 @@
 #include "PropertySetter.h"
 
 
-// ComposeShaderProgram Methods
+// AddShaderProgram Methods
 // ======================================================================
-void ComposeShaderProgram::Init ()
+void AddShaderProgram::Init ()
 {
     m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
     const char *fsrc =
@@ -43,14 +44,48 @@ void ComposeShaderProgram::Init ()
     m_stepTexUnitIndex = uniformLocation("stepTexUnit");
 }
 
-void ComposeShaderProgram::Bind ()
+void AddShaderProgram::Bind ()
 {
     bool bindSuccessful = bind ();
-    RuntimeAssert (bindSuccessful, "Bind failed for ComposeShaderProgram");
+    RuntimeAssert (bindSuccessful, "Bind failed for AddShaderProgram");
     setUniformValue (m_oldTexUnitIndex, GetOldTexUnit ());
     setUniformValue (m_stepTexUnitIndex, GetStepTexUnit ());
 }
 
+
+
+// RemoveShaderProgram Methods
+// ======================================================================
+void RemoveShaderProgram::Init ()
+{
+    m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
+    const char *fsrc =
+	"uniform sampler2D oldTexUnit;\n"
+	"uniform sampler2D stepTexUnit;\n"
+        "void main(void)\n"
+        "{\n"
+	"    vec4 old = texture2D (oldTexUnit, gl_TexCoord[0].st);\n"
+	"    vec4 step = texture2D (stepTexUnit, gl_TexCoord[0].st);\n"
+	"    vec2 newSumCount = old.rg - step.rg;\n"
+	"    float min = old.b;"
+	"    float max = old.a;"
+        "    gl_FragColor = vec4 (newSumCount, min, max);\n"
+        "}\n";
+    m_fshader->compileSourceCode(fsrc);
+    addShader(m_fshader.get ());
+    link();
+
+    m_oldTexUnitIndex = uniformLocation("oldTexUnit");
+    m_stepTexUnitIndex = uniformLocation("stepTexUnit");
+}
+
+void RemoveShaderProgram::Bind ()
+{
+    bool bindSuccessful = bind ();
+    RuntimeAssert (bindSuccessful, "Bind failed for RemoveShaderProgram");
+    setUniformValue (m_oldTexUnitIndex, GetOldTexUnit ());
+    setUniformValue (m_stepTexUnitIndex, GetStepTexUnit ());
+}
 
 
 // StoreShaderProgram Methods
@@ -169,11 +204,12 @@ void DisplayShaderProgram::Bind (GLfloat minValue, GLfloat maxValue,
     setUniformValue (m_resultTexUnitIndex, GetResultTexUnit ());
 }
 
-// DisplayFaceAverage Methods
+// DisplayFaceStatistics Methods
 // ======================================================================
 
-void DisplayFaceAverage::Init (const QSize& size)
+void DisplayFaceStatistics::Init (const QSize& size)
 {
+    m_currentHistoryCount = 0;
     glPushAttrib (GL_COLOR_BUFFER_BIT);
     m_step.reset (
 	new QGLFramebufferObject (
@@ -192,28 +228,30 @@ void DisplayFaceAverage::Init (const QSize& size)
     Clear ();
 }
 
-void DisplayFaceAverage::Clear ()
+void DisplayFaceStatistics::Clear ()
 {
     clearZero (*m_new);
     clearMinMax (*m_old);
 }
 
-void DisplayFaceAverage::Release ()
+void DisplayFaceStatistics::Release ()
 {
     m_step.reset ();
     m_new.reset ();
     m_old.reset ();
+    m_debug.reset ();
 }
 
-void DisplayFaceAverage::InitShaders ()
+void DisplayFaceStatistics::InitShaders ()
 {
     m_addShaderProgram.Init ();
+    m_removeShaderProgram.Init ();
     m_storeShaderProgram.Init ();
     m_displayShaderProgram.Init ();
     m_initShaderProgram.Init ();
 }
 
-void DisplayFaceAverage::Calculate (BodyProperty::Enum property,
+void DisplayFaceStatistics::Calculate (BodyProperty::Enum property,
 				    GLfloat minValue, GLfloat maxValue)
 {
     const FoamAlongTime& foamAlongTime = m_glWidget.GetFoamAlongTime ();
@@ -230,7 +268,7 @@ void DisplayFaceAverage::Calculate (BodyProperty::Enum property,
     }
 }
 
-void DisplayFaceAverage::display (
+void DisplayFaceStatistics::display (
     GLfloat minValue, GLfloat maxValue,
     StatisticsType::Enum displayType, QGLFramebufferObject& srcFbo)
 {
@@ -243,7 +281,13 @@ void DisplayFaceAverage::display (
 }
 
 
-void DisplayFaceAverage::StepDisplay ()
+void DisplayFaceStatistics::InitStepDisplay ()
+{
+    Init (QSize (m_glWidget.width (), m_glWidget.height ()));
+    StepDisplay ();
+}
+
+void DisplayFaceStatistics::StepDisplay ()
 {
     const FoamAlongTime& foamAlongTime = m_glWidget.GetFoamAlongTime ();
     BodyProperty::Enum facesColor = m_glWidget.GetColoredBy ();
@@ -254,36 +298,61 @@ void DisplayFaceAverage::StepDisplay ()
     Display (minValue, maxValue, m_glWidget.GetStatisticsType ());
 }
 
-void DisplayFaceAverage::Step (
+void DisplayFaceStatistics::Step (
     size_t timeStep, BodyProperty::Enum property,
     GLfloat minValue, GLfloat maxValue)
 {
-    const Foam& foam = *m_glWidget.GetFoamAlongTime ().GetFoam (timeStep);
-
-    (void)timeStep;(void)minValue;(void)maxValue;
+    // used for display
+    //(void)minValue;(void)maxValue;
     QSize size = m_new->size ();
     glPushMatrix ();
+    glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
+    m_glWidget.ModelViewTransformNoRotation ();
+    renderToStep (timeStep, property);
+    save (*m_step, "step", timeStep,
+	  minValue, maxValue, StatisticsType::AVERAGE);
+    addStepToNew ();
+    save (*m_new, "new", timeStep,
+	  minValue, maxValue, StatisticsType::AVERAGE);
+    copyNewToOld ();
+    save (*m_old, "old", timeStep, 
+	  minValue, maxValue, StatisticsType::AVERAGE);
+    ++m_currentHistoryCount;
+    if (m_currentHistoryCount > m_historyCount && 
+	timeStep >= m_historyCount)
     {
-	glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
-	m_glWidget.ModelViewTransformNoRotation ();	
-	renderToStep (foam, property);
-	//save (*m_step, "step", timeStep);
-	addToNew ();
-	//save (*m_new, "new", timeStep);
-	copyToOld ();
-	//save (*m_old, "old", timeStep);    
-	glPopAttrib ();
+	cdbg << "timestep: " << timeStep 
+	     << " currentHistoryCount: " << m_currentHistoryCount
+	     << " historyCount: " << m_historyCount << endl;
+	renderToStep (timeStep - m_historyCount, property);
+	save (*m_step, "step_", timeStep - m_historyCount,
+	      minValue, maxValue, StatisticsType::AVERAGE);
+/*
+	renderToStep (timeStep - m_historyCount, property);
+	save (*m_step, "step_", timeStep - m_historyCount,
+	      minValue, maxValue, StatisticsType::AVERAGE);
+
+	removeStepFromNew ();
+	save (*m_new, "new_", timeStep,
+	      minValue, maxValue, StatisticsType::AVERAGE);
+	copyNewToOld ();
+	save (*m_old, "old_", timeStep, 
+	      minValue, maxValue, StatisticsType::AVERAGE);
+*/
+	--m_currentHistoryCount;
     }
+    glPopAttrib ();
     glPopMatrix ();
     detectOpenGLError ();
 }
 
-void DisplayFaceAverage::renderToStep (
-    const Foam& foam, BodyProperty::Enum property)
+void DisplayFaceStatistics::renderToStep (
+    size_t timeStep, BodyProperty::Enum property)
 {
     clearMinMax (*m_step);
     m_step->bind ();
     m_storeShaderProgram.Bind ();
+    const Foam& foam = *m_glWidget.GetFoamAlongTime ().GetFoam (timeStep);
     const Foam::Bodies& bodies = foam.GetBodies ();
     if (foam.IsQuadratic ())
 	writeFacesValues<DisplaySameEdges> (bodies, property);
@@ -293,7 +362,7 @@ void DisplayFaceAverage::renderToStep (
     m_step->release ();
 }
 
-void DisplayFaceAverage::addToNew ()
+void DisplayFaceStatistics::addStepToNew ()
 {
     m_new->bind ();
     m_addShaderProgram.Bind ();
@@ -315,7 +384,32 @@ void DisplayFaceAverage::addToNew ()
     m_new->release ();
 }
 
-void DisplayFaceAverage::copyToOld ()
+
+void DisplayFaceStatistics::removeStepFromNew ()
+{
+    m_new->bind ();
+    m_removeShaderProgram.Bind ();
+
+    // bind old texture
+    const_cast<GLWidget&>(m_glWidget).glActiveTexture (
+	TextureEnum (m_removeShaderProgram.GetOldTexUnit ()));
+    glBindTexture (GL_TEXTURE_2D, m_old->texture ());
+
+    // bind step texture
+    const_cast<GLWidget&>(m_glWidget).glActiveTexture (
+	TextureEnum (m_removeShaderProgram.GetStepTexUnit ()));
+    glBindTexture (GL_TEXTURE_2D, m_step->texture ());
+    // set the active texture to texture 0
+    const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
+
+    m_glWidget.RenderFromFbo (*m_step);
+    m_removeShaderProgram.release ();
+    m_new->release ();
+}
+
+
+
+void DisplayFaceStatistics::copyNewToOld ()
 {
     QSize size = m_new->size ();
     QRect rect (QPoint (0, 0), size);
@@ -323,7 +417,7 @@ void DisplayFaceAverage::copyToOld ()
 	m_old.get (), rect, m_new.get (), rect);
 }
 
-void DisplayFaceAverage::clearZero (QGLFramebufferObject& fbo)
+void DisplayFaceStatistics::clearZero (QGLFramebufferObject& fbo)
 {
     fbo.bind ();
     glPushAttrib (GL_COLOR_BUFFER_BIT); 
@@ -333,7 +427,7 @@ void DisplayFaceAverage::clearZero (QGLFramebufferObject& fbo)
     fbo.release ();    
 }
 
-void DisplayFaceAverage::clearMinMax (QGLFramebufferObject& fbo)
+void DisplayFaceStatistics::clearMinMax (QGLFramebufferObject& fbo)
 {
     fbo.bind ();
     m_initShaderProgram.Bind ();
@@ -365,8 +459,8 @@ void DisplayFaceAverage::clearMinMax (QGLFramebufferObject& fbo)
 
 
 
-void DisplayFaceAverage::save (
-    QGLFramebufferObject& fbo, string fileName, size_t timeStep,
+void DisplayFaceStatistics::save (
+    QGLFramebufferObject& fbo, const char* fileName, size_t timeStep,
     GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
 {
     // render to the debug buffer
@@ -374,12 +468,12 @@ void DisplayFaceAverage::save (
     display (minValue, maxValue, displayType, fbo);
     m_debug->release ();
     ostringstream ostr;
-    ostr << setfill ('0') << setw (4) << timeStep << fileName << ".jpg";
+    ostr << setfill ('0') << setw (4) << timeStep << fileName << ".png";
     m_debug->toImage ().save (ostr.str ().c_str ());    
 }
 
 template<typename displaySameEdges>
-void DisplayFaceAverage::writeFacesValues (
+void DisplayFaceStatistics::writeFacesValues (
     const Foam::Bodies& bodies, BodyProperty::Enum property)
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | 

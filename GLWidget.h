@@ -15,7 +15,7 @@ class BodyAlongTime;
 class BodiesAlongTime;
 class BodySelector;
 class ColorBarModel;
-class DisplayFaceAverage;
+class DisplayFaceStatistics;
 class Foam;
 class Edge;
 class EditColorMap;
@@ -415,7 +415,6 @@ private:
 	double edgeRadiusMultiplier,
 	double* edgeRadius, double* arrowBaseRadius, 
 	double* arrowHeight, bool* edgeTubes = 0) const;
-    void initStepDisplayAverage ();
 
     /**
      * Displays the center of the bodies
@@ -484,7 +483,7 @@ private:
      */
     void displayFacesNormal () const;
     void displayFacesTorus () const;
-    void displayFacesAverage () const;
+    void displayFacesStatistics () const;
     void displayFacesTorusTubes () const;
     void displayFacesTorusLines () const;
 
@@ -697,14 +696,13 @@ private:
      * otherwise
      */
     bool m_playMovie;
-    boost::scoped_ptr<DisplayFaceAverage> m_displayFaceAverage;
+    boost::scoped_ptr<DisplayFaceStatistics> m_displayFaceStatistics;
     boost::shared_ptr<SelectBodiesById> m_selectBodiesById;
     QLabel *m_labelStatusBar;
     bool m_contextView;
     bool m_hideContent;
     bool m_tubeCenterPathUsed;
     GLuint m_listCenterPaths;
-    size_t m_statisticsHistory;
 };
 
 #endif //__GLWIDGET_H__
