@@ -576,27 +576,7 @@ void GLWidget::translateAndScale (
     glTranslate (contextView ? (translation / scaleRatio) : translation);
 }
 
-void GLWidget::ModelViewTransformNoRotation () const
-{
-    glLoadIdentity ();
-    glTranslatef (0, 0, - m_cameraDistance);
-    if (! m_contextView)
-	translateAndScale (m_scaleRatio, m_translation, m_contextView);
-    switch (m_axesOrder)
-    {
-    case AxesOrder::TWO_D_ROTATE_RIGHT90:
-	rotate2DRight90 ();
-	break;
-    default:
-	break;
-    }
-    translateFoamStationaryBody ();
-    glTranslate (-GetFoamAlongTime ().GetBoundingBox ().center ());
-}
-
-
-
-void GLWidget::modelViewTransform () const
+void GLWidget::ModelViewTransform (size_t timeStep) const
 {
     glLoadIdentity ();
     // viewing transform
@@ -620,11 +600,11 @@ void GLWidget::modelViewTransform () const
     default:
 	break;
     }
-    translateFoamStationaryBody ();
+    translateFoamStationaryBody (timeStep);
     glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
 }
 
-void GLWidget::translateFoamStationaryBody () const
+void GLWidget::translateFoamStationaryBody (size_t timeStep) const
 {
     if (m_stationaryBodyId != NONE)
     {
@@ -632,7 +612,7 @@ void GLWidget::translateFoamStationaryBody () const
 	    GetFoamAlongTime ().GetFoam (m_stationaryBodyTimeStep)->
 	    GetBody (m_stationaryBodyId)->GetCenter () -
 	    
-	    GetFoamAlongTime ().GetFoam (m_timeStep)->
+	    GetFoamAlongTime ().GetFoam (timeStep)->
 	    GetBody (m_stationaryBodyId)->GetCenter ();
 	glTranslate (translation);
     }
@@ -908,7 +888,7 @@ void GLWidget::initializeGL()
 void GLWidget::paintGL ()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    modelViewTransform ();
+    ModelViewTransform (GetTimeStep ());
     if (! m_hideContent)
     {
 	DisplayViewType ();

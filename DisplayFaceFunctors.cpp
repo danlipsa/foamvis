@@ -164,11 +164,10 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	else
 	{
 	    boost::shared_ptr<Body> body = of->GetBodyPartOf ().GetBody ();
-	    size_t bodyId = body->GetId ();
 	    if (body->ExistsPropertyValue (this->m_property))
 	    {
 		double value = body->GetPropertyValue (this->m_property);
-
+		size_t bodyId = body->GetId ();
 		if (bodyId == this->m_glWidget.GetStationaryBodyId ())
 		    glColor (GLWidget::STATIONARY_BODY_FACE_COLOR);
 		else if (this->m_glWidget.IsStationaryBodyContext (bodyId))

@@ -247,7 +247,7 @@ public:
      * @param viewport stores the viewport.
      */
     void ViewportTransform ();
-    void ModelViewTransformNoRotation () const;
+    void ModelViewTransform (size_t timeStep) const;
     void RenderFromFbo (QGLFramebufferObject& fbo) const;
     /**
      * Displays the foam in various way
@@ -402,6 +402,13 @@ private:
 	LIGHTING_COUNT
     };
 
+    enum Rotation
+    {
+	NO_ROTATION,
+	ROTATION,
+	ROTATION_COUNT
+    };
+
     typedef boost::unordered_map<G3D::Vector3int16, QColor,
 				 Vector3int16Hash> EndLocationColor;
 
@@ -441,7 +448,6 @@ private:
      * rotate and then translate toward negative Z with
      * m_cameraDistance
      */
-    void modelViewTransform () const;
     void positionLight (LightPosition::Enum light);
     void positionLights ();
     void showLightPosition (LightPosition::Enum light) const;
@@ -568,7 +574,7 @@ private:
     void rotate2DRight90 () const;
     void setBodySelectorLabel (BodySelectorType::Enum type);
     void setStationaryBodyLabel ();
-    void translateFoamStationaryBody () const;
+    void translateFoamStationaryBody (size_t timeStep) const;
 
 private:
     /**

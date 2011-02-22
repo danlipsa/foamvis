@@ -286,14 +286,15 @@ void DisplayFaceStatistics::Step (
     GLfloat minValue, GLfloat maxValue)
 {
     // used for display
-    //(void)minValue;(void)maxValue;
+    (void)minValue;(void)maxValue;
     QSize size = m_new->size ();
-    glPushMatrix ();
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
-    m_glWidget.ModelViewTransformNoRotation ();
+    glPushMatrix ();
+    m_glWidget.ModelViewTransform (timeStep);
     renderToStep (timeStep, property);
     //save (*m_step, "step", timeStep,
     //minValue, maxValue, StatisticsType::AVERAGE);
+    glPopMatrix ();
     addStepToNew ();
     //save (*m_new, "new", timeStep,
     //minValue, maxValue, StatisticsType::AVERAGE);
@@ -304,7 +305,10 @@ void DisplayFaceStatistics::Step (
     if (m_currentHistoryCount > m_historyCount && 
 	timeStep >= m_historyCount)
     {
+	glPushMatrix ();
+	m_glWidget.ModelViewTransform (timeStep - m_historyCount);
 	renderToStep (timeStep - m_historyCount, property);
+	glPopMatrix ();
 	//save (*m_step, "step_", timeStep - m_historyCount,
 	//minValue, maxValue, StatisticsType::AVERAGE);
 	removeStepFromNew ();
@@ -316,7 +320,6 @@ void DisplayFaceStatistics::Step (
 	--m_currentHistoryCount;
     }
     glPopAttrib ();
-    glPopMatrix ();
     detectOpenGLError ();
 }
 
