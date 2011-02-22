@@ -139,7 +139,8 @@ public:
 	GLfloat minValue, GLfloat maxValue,
 	StatisticsType::Enum displayType = StatisticsType::AVERAGE)
     {
-	display (minValue, maxValue, displayType, *m_new);
+	if (m_new.get () != 0)
+	    display (minValue, maxValue, displayType, *m_new);
     }
     void InitStepDisplay ();
     void StepDisplay ();

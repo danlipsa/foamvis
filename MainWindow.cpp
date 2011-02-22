@@ -753,18 +753,18 @@ void MainWindow::CurrentIndexChangedSelectedLight (int i)
 
 void MainWindow::CurrentIndexChangedFacesColor (int value)
 {
-    boost::array<QWidget*, 4> widgetsFacesHistogramSelection = {{
+    boost::array<QWidget*, 5> widgetsBodyPropertyNone = {{
 	    labelFacesHistogram,
 	    radioButtonFacesHistogramNone,
 	    radioButtonFacesHistogramUnicolor,
-	    radioButtonFacesHistogramColorCoded}};
+	    radioButtonFacesHistogramColorCoded,
+	    colorBar}};
     BodyProperty::Enum property = BodyProperty::FromSizeT (value);
     m_property = property;
     if (property == BodyProperty::NONE)
     {
-	::setVisible (widgetsFacesHistogramSelection, false);
-	colorBar->setHidden (true);
-	widgetHistogram->setHidden (true);
+	::setVisible (widgetsBodyPropertyNone, false);
+	widgetHistogram->setVisible (false);
 	Q_EMIT BodyPropertyChanged (
 	    m_colorBarModel[0], property, 
 	    ViewType::FromInt (buttonGroupDisplay->checkedId ()));
@@ -773,8 +773,7 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
     {
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	size_t timeStep = widgetGl->GetTimeStep ();
-	::setVisible (widgetsFacesHistogramSelection, true);
-	colorBar->setVisible (true);
+	::setVisible (widgetsBodyPropertyNone, true);
 	Q_EMIT BodyPropertyChanged (
 	    m_colorBarModel[property], property, 
 	    ViewType::FromInt (buttonGroupDisplay->checkedId ()));
