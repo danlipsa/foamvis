@@ -69,11 +69,10 @@ template <typename PropertySetter>
 DisplayBodyBase<PropertySetter>::
 DisplayBodyBase (const GLWidget& widget,
 		 const BodySelector& bodySelector,
-		 PropertySetter propertySetter,
-		 BodyProperty::Enum property, bool useZPos, double zPos) :
+		 PropertySetter propertySetter, bool useZPos, double zPos) :
 
     DisplayElementProperty<PropertySetter> (
-	widget, propertySetter, property, useZPos, zPos),
+	widget, propertySetter, useZPos, zPos),
     m_bodySelector (bodySelector)
 {
 }
@@ -101,8 +100,9 @@ DisplayBodyCenter::DisplayBodyCenter (
     const GLWidget& widget, const BodySelector& bodySelector,
     bool useZPos, double zPos):
 
-    DisplayBodyBase<> (widget, bodySelector, TexCoordSetter(widget),
-		       BodyProperty::NONE, useZPos, zPos)
+    DisplayBodyBase<> (
+	widget, bodySelector,
+	SetterValueTextureCoordinate(widget, BodyProperty::NONE), useZPos, zPos)
 {}
 
 
@@ -128,8 +128,7 @@ DisplayBody (
     contextDisplay, BodyProperty::Enum property, bool useZPos, double zPos) :
 
     DisplayBodyBase<PropertySetter> (
-	widget, bodySelector, PropertySetter (widget), property,
-	useZPos, zPos),
+	widget, bodySelector, PropertySetter (widget, property), useZPos, zPos),
     m_contextDisplay (contextDisplay)
 {
 }
@@ -139,12 +138,11 @@ DisplayBody<displayFace, PropertySetter>::
 DisplayBody (
     const GLWidget& widget, const BodySelector& bodySelector,
     PropertySetter setter,
-    BodyProperty::Enum property,
     typename DisplayElement::ContextType contextDisplay,
     bool useZPos, double zPos) :
 
     DisplayBodyBase<PropertySetter> (
-	widget, bodySelector, setter, property, useZPos, zPos),
+	widget, bodySelector, setter, useZPos, zPos),
     m_contextDisplay (contextDisplay)
 {
 }
@@ -162,8 +160,7 @@ display (
     for_each (
 	v.begin (), v.end (),
 	displayFace(
-	    this->m_glWidget,
-	    this->m_propertySetter, bodyFc, this->m_property,
+	    this->m_glWidget, this->m_propertySetter, bodyFc,
 	    this->m_useZPos, this->m_zPos));
 }
 
@@ -182,68 +179,70 @@ DisplayCenterPath (
     boost::shared_ptr<ofstream> output) :
 
     DisplayBodyBase<PropertySetter> (
-	widget, bodySelector, PropertySetter (widget), property,
-	useTimeDisplacement, timeDisplacement),
-    m_displaySegment (this->m_glWidget.GetQuadricObject (),
-		      this->m_glWidget.GetEdgeRadius ()),
-    m_output (output),
-    m_index (0)
-{
-}
+	widget, bodySelector, PropertySetter (widget, property),
+	 useTimeDisplacement, timeDisplacement),
+     m_displaySegment (this->m_glWidget.GetQuadricObject (),
+		       this->m_glWidget.GetEdgeRadius ()),
+     m_output (output),
+     m_index (0)
+ {
+ }
 
 
-template<typename PropertySetter, typename DisplaySegment>
-void DisplayCenterPath<PropertySetter, DisplaySegment>::
-operator () (size_t bodyId)
-{
-    m_focusTextureSegments.resize (0);
-    m_focusColorSegments.resize (0);
-    m_contextSegments.resize (0);
-    const BodyAlongTime& bat = this->m_glWidget.GetBodyAlongTime (bodyId);
-    StripIterator it = bat.GetStripIterator (
-	this->m_glWidget.GetFoamAlongTime ());
-    it.ForEachSegment (
-	boost::bind (&DisplayCenterPath::valueStep, this, _1, _2, _3, _4));
-    displaySegments ();
-}
+ template<typename PropertySetter, typename DisplaySegment>
+ void DisplayCenterPath<PropertySetter, DisplaySegment>::
+ operator () (size_t bodyId)
+ {
+     m_focusTextureSegments.resize (0);
+     m_focusColorSegments.resize (0);
+     m_contextSegments.resize (0);
+     const BodyAlongTime& bat = this->m_glWidget.GetBodyAlongTime (bodyId);
+     StripIterator it = bat.GetStripIterator (
+	 this->m_glWidget.GetFoamAlongTime ());
+     it.ForEachSegment (
+	 boost::bind (&DisplayCenterPath::valueStep, this, _1, _2, _3, _4));
+     displaySegments ();
+ }
 
-template<typename PropertySetter, typename DisplaySegment>
-void DisplayCenterPath<PropertySetter, DisplaySegment>::
-valueStep (
-    const StripIteratorPoint& beforeBegin,
-    const StripIteratorPoint& begin,
-    const StripIteratorPoint& end,
-    const StripIteratorPoint& afterEnd)
-{
-    static_cast<void>(beforeBegin);
-    static_cast<void>(afterEnd);
-    G3D::Vector3 pointBegin = getPoint (begin);
-    G3D::Vector3 pointEnd = getPoint (end);
-    G3D::Vector3 middle = (pointBegin + pointEnd) / 2;
-    halfValueStep (
-	begin,
-	Segment (beforeBegin.IsEmpty () ? SegmentPerpendicularEnd::BEGIN_END :
-		 SegmentPerpendicularEnd::END,
-		 getPoint (beforeBegin), pointBegin, middle, G3D::Vector3 ()));
-    halfValueStep (
-	end,
-	Segment (
-	    afterEnd.IsEmpty () ? SegmentPerpendicularEnd::BEGIN_END :
-	    SegmentPerpendicularEnd::BEGIN,
-	    G3D::Vector3 (), middle, pointEnd, getPoint (afterEnd)));
-}
+ template<typename PropertySetter, typename DisplaySegment>
+ void DisplayCenterPath<PropertySetter, DisplaySegment>::
+ valueStep (
+     const StripIteratorPoint& beforeBegin,
+     const StripIteratorPoint& begin,
+     const StripIteratorPoint& end,
+     const StripIteratorPoint& afterEnd)
+ {
+     static_cast<void>(beforeBegin);
+     static_cast<void>(afterEnd);
+     G3D::Vector3 pointBegin = getPoint (begin);
+     G3D::Vector3 pointEnd = getPoint (end);
+     G3D::Vector3 middle = (pointBegin + pointEnd) / 2;
+     halfValueStep (
+	 begin,
+	 Segment (beforeBegin.IsEmpty () ? SegmentPerpendicularEnd::BEGIN_END :
+		  SegmentPerpendicularEnd::END,
+		  getPoint (beforeBegin), pointBegin, middle, G3D::Vector3 ()));
+     halfValueStep (
+	 end,
+	 Segment (
+	     afterEnd.IsEmpty () ? SegmentPerpendicularEnd::BEGIN_END :
+	     SegmentPerpendicularEnd::BEGIN,
+	     G3D::Vector3 (), middle, pointEnd, getPoint (afterEnd)));
+ }
 
 
-template<typename PropertySetter, typename DisplaySegment>
-void DisplayCenterPath<PropertySetter, DisplaySegment>::
-halfValueStep (const StripIteratorPoint& p, const Segment& segment)
-{
-    bool focus = this->m_bodySelector (p.m_body->GetId (), p.m_timeStep);
-    if (focus)
-    {
-	if (p.m_body->ExistsPropertyValue (this->m_property))
-	    storeFocusSegment (
-		p.m_body->GetPropertyValue (this->m_property), segment);
+ template<typename PropertySetter, typename DisplaySegment>
+ void DisplayCenterPath<PropertySetter, DisplaySegment>::
+ halfValueStep (const StripIteratorPoint& p, const Segment& segment)
+ {
+     bool focus = this->m_bodySelector (p.m_body->GetId (), p.m_timeStep);
+     if (focus)
+     {
+	 if (p.m_body->ExistsPropertyValue (
+		 this->m_propertySetter.GetBodyProperty ()))
+	     storeFocusSegment (
+		 p.m_body->GetPropertyValue (
+		     this->m_propertySetter.GetBodyProperty ()), segment);
 	else
 	    storeFocusSegment (
 		this->m_glWidget.NOT_AVAILABLE_CENTER_PATH_COLOR, segment);
@@ -366,8 +365,8 @@ displayFocusColorSegment (const boost::shared_ptr<FocusColorSegment>& segment)
 // DisplayBodyBase
 // ======================================================================
 
-template class DisplayBodyBase<VertexAttributeSetter>;
-template class DisplayBodyBase<TexCoordSetter>;
+template class DisplayBodyBase<SetterValueVertexAttribute>;
+template class DisplayBodyBase<SetterValueTextureCoordinate>;
 
 // DisplayBody
 // ======================================================================
@@ -376,38 +375,38 @@ template class DisplayBody<
     DisplayFace<
 	DisplayEdges<
 	    DisplayEdgeWithColor<DisplayElement::DONT_DISPLAY_TESSELLATION> >,
-	TexCoordSetter>, TexCoordSetter>;
+	SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
     DisplayFace<
 	DisplayEdges<
 	    DisplayEdgeWithColor<DisplayElement::TEST_DISPLAY_TESSELLATION> >,
-	TexCoordSetter>, TexCoordSetter>;
+	SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
     DisplayFace<
 	DisplayEdges<DisplayEdgeTorusClipped>,
-	TexCoordSetter>,
-    TexCoordSetter>;
+	SetterValueTextureCoordinate>,
+    SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFace<DisplaySameEdges, TexCoordSetter>, TexCoordSetter>;
+    DisplayFace<DisplaySameEdges, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 
 template class DisplayBody<
-    DisplayFaceWithColor<DisplaySameEdges, TexCoordSetter>, TexCoordSetter>;
+    DisplayFaceWithColor<DisplaySameEdges, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFaceWithColor<DisplaySameEdges, VertexAttributeSetter>,
-    VertexAttributeSetter>;
+    DisplayFaceWithColor<DisplaySameEdges, SetterValueVertexAttribute>,
+    SetterValueVertexAttribute>;
 
 template class DisplayBody<
-    DisplayFace<DisplaySameTriangles, TexCoordSetter>, TexCoordSetter>;
+    DisplayFace<DisplaySameTriangles, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFaceWithColor<DisplaySameTriangles, TexCoordSetter>, TexCoordSetter>;
+    DisplayFaceWithColor<DisplaySameTriangles, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFaceWithColor<DisplaySameTriangles, VertexAttributeSetter>,
-    VertexAttributeSetter>;
+    DisplayFaceWithColor<DisplaySameTriangles, SetterValueVertexAttribute>,
+    SetterValueVertexAttribute>;
 
 
 // DisplayCenterPath
 // ======================================================================
 
-template class DisplayCenterPath<TexCoordSetter, DisplayEdgeTube>;
-template class DisplayCenterPath<TexCoordSetter, DisplayEdgeQuadric>;
-template class DisplayCenterPath<TexCoordSetter, DisplayEdge>;
+template class DisplayCenterPath<SetterValueTextureCoordinate, DisplayEdgeTube>;
+template class DisplayCenterPath<SetterValueTextureCoordinate, DisplayEdgeQuadric>;
+template class DisplayCenterPath<SetterValueTextureCoordinate, DisplayEdge>;

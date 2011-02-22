@@ -65,31 +65,28 @@ protected:
     FocusContext m_focus;
 };
 
-class TexCoordSetter;
+class SetterValueTextureCoordinate;
 
-template<typename PropertySetter = TexCoordSetter>
+template<typename PropertySetter = SetterValueTextureCoordinate>
 class DisplayElementProperty : public DisplayElement
 {
 public:
     DisplayElementProperty (
 	const GLWidget& glWidget,
 	PropertySetter propertySetter,
-	BodyProperty::Enum property = BodyProperty::NONE,
 	bool useZPos = false, double zPos = 0) :
 
 	DisplayElement (glWidget, useZPos, zPos),
-	m_propertySetter (propertySetter),
-	m_property (property)
+	m_propertySetter (propertySetter)
     {
     }
 protected:
     PropertySetter m_propertySetter;
-    BodyProperty::Enum m_property;
 };
 
 
 
-template<typename PropertySetter = TexCoordSetter>
+template<typename PropertySetter = SetterValueTextureCoordinate>
 class DisplayElementPropertyFocus : 
     public DisplayElementProperty<PropertySetter>
 {
@@ -97,12 +94,11 @@ public:
     DisplayElementPropertyFocus (
 	const GLWidget& widget,
 	PropertySetter setter,
-	BodyProperty::Enum property = BodyProperty::NONE,
 	DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	bool useZPos = false, double zPos = 0) :
 	
 	DisplayElementProperty<PropertySetter> (
-	    widget, setter, property, useZPos, zPos),
+	    widget, setter, useZPos, zPos),
 	m_focus (focus)
     {
     }

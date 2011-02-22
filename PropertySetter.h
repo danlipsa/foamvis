@@ -10,49 +10,47 @@
 #define __PROPERTY_SETTER_H__
 
 class GLWidget;
-class TexCoordSetter
+class Body;
+class SetterValueTextureCoordinate
 {
 public:
-    TexCoordSetter (const GLWidget& glWidget) :
-	m_glWidget (glWidget)
+    SetterValueTextureCoordinate (
+	const GLWidget& glWidget, BodyProperty::Enum property) :
+	m_glWidget (glWidget), m_property (property)
     {
     }
 
-    void operator () (double value);
     void operator () ();
+    void operator () (const boost::shared_ptr<Body>& body);
+    BodyProperty::Enum GetBodyProperty () const
+    {
+	return m_property;
+    }
 
-private:
+protected:
     const GLWidget& m_glWidget;
+    BodyProperty::Enum m_property;
 };
 
-class VertexAttributeSetter
+class SetterValueVertexAttribute : public SetterValueTextureCoordinate
 {
 public:
-    VertexAttributeSetter (QGLShaderProgram& program, int attributeIndex, 
-			   const GLWidget& glWidget) :
-	m_program (program), m_attributeIndex (attributeIndex), 
-	m_glWidget(glWidget)
+    SetterValueVertexAttribute (
+	const GLWidget& glWidget,  BodyProperty::Enum property,
+	QGLShaderProgram* program = 0, int attributeIndex = 0) :
+	SetterValueTextureCoordinate (glWidget, property),
+	m_program (program), m_attributeIndex (attributeIndex)
     {
     }
 
-    VertexAttributeSetter (const GLWidget& glWidget) :
-	m_program (*(QGLShaderProgram*)0), m_attributeIndex (0),
-	m_glWidget (glWidget)
-    {
-	(void)glWidget;
-    }
-
-    void operator () (double value)
-    {
-	m_program.setAttributeValue (m_attributeIndex, value);
-    }
     void operator () ();
+    void operator () (const boost::shared_ptr<Body>& body);
 
 private:
-    QGLShaderProgram& m_program;
+    QGLShaderProgram* m_program;
     int m_attributeIndex;
-    const GLWidget& m_glWidget;
 };
+
 
 #endif //__PROPERTY_SETTER_H__
 

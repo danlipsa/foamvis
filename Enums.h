@@ -162,7 +162,8 @@ public:
     {
 	AVERAGE,
 	MIN,
-	MAX
+	MAX,
+	DOMAIN_HISTOGRAM
     };
 };
 

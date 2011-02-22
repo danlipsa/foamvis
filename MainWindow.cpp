@@ -835,6 +835,8 @@ void MainWindow::CurrentIndexChangedStatisticsType (int value)
     case StatisticsType::MAX:
 	::setVisible (widgetsStatisticsHistory, false);
 	break;
+    case StatisticsType::DOMAIN_HISTOGRAM:
+	break;
     }
 }
 

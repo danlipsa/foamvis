@@ -1294,6 +1294,11 @@
                    <string>Maximum</string>
                   </property>
                  </item>
+                 <item>
+                  <property name="text">
+                   <string>Domain Histogram</string>
+                  </property>
+                 </item>
                 </widget>
                </item>
                <item row="5" column="0">

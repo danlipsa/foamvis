@@ -18,7 +18,7 @@ class DisplaySameEdges;
 /**
  * Functor that displays a face
  */
-template <typename displayEdges, typename PropertySetter = TexCoordSetter>
+template <typename displayEdges, typename PropertySetter = SetterValueTextureCoordinate>
 class DisplayFace : public DisplayElementPropertyFocus<PropertySetter>
 {
 public:
@@ -31,12 +31,11 @@ public:
 		 DisplayElement::FOCUS,
 		 BodyProperty::Enum property = BodyProperty::NONE,
 		 bool useZPos = false, double zPos = 0);
-
+    
     DisplayFace (const GLWidget& widget,
 		 PropertySetter propertySetter,
 		 typename DisplayElement::FocusContext focus = 
 		 DisplayElement::FOCUS,
-		 BodyProperty::Enum property = BodyProperty::NONE, 
 		 bool useZPos = false, double zPos = 0);
 
     /**
@@ -63,7 +62,7 @@ private:
  * @todo Fix the back front facing for faces.
  */
 template<typename displaySameEdges = DisplaySameEdges, 
-	 typename PropertySetter = TexCoordSetter>
+	 typename PropertySetter = SetterValueTextureCoordinate>
 class DisplayFaceWithColor : 
     public DisplayFace<displaySameEdges, PropertySetter>
 {
@@ -82,7 +81,6 @@ public:
 	const GLWidget& widget,
 	PropertySetter propertySetter,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
-	BodyProperty::Enum property = BodyProperty::NONE, 
 	bool useZPos = false, double zPos = 0);
 
 protected:

@@ -111,6 +111,18 @@ private:
 };
 
 
+/**
+ * Calculate face average, min, max over all time steps.
+ * It uses three framebuffer objects: step, old, new.
+ * Average is implemented by first calculating the sum and then dividing by
+ * the number of elements in the sum. The sum is calculated in 3 steps:
+ * 1. step = draw current foam
+ * 2. new = step + old
+ * 3. old = new
+ *
+ * The reason for this type of implementation is that OpenGL cannot
+ * read and write to the same buffer in the same step.
+ */
 class DisplayFaceStatistics : public DisplayElement
 {
 public:

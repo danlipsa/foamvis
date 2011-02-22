@@ -26,7 +26,7 @@ class Segment;
 /**
  * Functor used to display a body
  */
-template <typename PropertySetter = TexCoordSetter>
+template <typename PropertySetter = SetterValueTextureCoordinate>
 class DisplayBodyBase : public DisplayElementProperty<PropertySetter>
 {
 public:
@@ -37,7 +37,6 @@ public:
     DisplayBodyBase (const GLWidget& widget, 
 		     const BodySelector& bodySelector, 
 		     PropertySetter propertySetter,
-		     BodyProperty::Enum property = BodyProperty::NONE,
 		     bool useZPos = false, double zPos = 0);
 
     /**
@@ -101,7 +100,7 @@ protected:
 /**
  * Displays a body going through all its faces
  */
-template<typename displayFace, typename PropertySetter = TexCoordSetter>
+template<typename displayFace, typename PropertySetter = SetterValueTextureCoordinate>
 class DisplayBody : public DisplayBodyBase<PropertySetter>
 {
 public:
@@ -119,7 +118,6 @@ public:
     DisplayBody (
 	const GLWidget& widget, const BodySelector& bodySelector,
 	PropertySetter setter,
-	BodyProperty::Enum property = BodyProperty::NONE,
 	typename DisplayElement::ContextType 
 	contextDisplay = DisplayElement::TRANSPARENT_CONTEXT,
 	bool useZPos = false, double zPos = 0);
@@ -143,7 +141,7 @@ private:
  * @todo Use FoamAlongTime::GetBodyPropertyValue instead of
  * StripIterator functions
  */
-template<typename PropertySetter = TexCoordSetter,
+template<typename PropertySetter = SetterValueTextureCoordinate,
 	 typename DisplaySegment = DisplayEdge>
 class DisplayCenterPath : public DisplayBodyBase<PropertySetter>
 {

@@ -463,13 +463,12 @@ void DisplayFaceStatistics::writeFacesValues (
     glBindTexture (GL_TEXTURE_1D, m_glWidget.GetColorBarTexture ());
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
-	      DisplayFaceWithColor<displaySameEdges, VertexAttributeSetter>,
-	      VertexAttributeSetter> (
+	      DisplayFaceWithColor<displaySameEdges, SetterValueVertexAttribute>,
+	      SetterValueVertexAttribute> (
 		  m_glWidget, m_glWidget.GetBodySelector (), 
-		  VertexAttributeSetter (
-		      m_storeShaderProgram, 
-		      m_storeShaderProgram.GetVValueIndex (), m_glWidget),
-		  property,
+		  SetterValueVertexAttribute (
+		      m_glWidget, property, &m_storeShaderProgram,
+		      m_storeShaderProgram.GetVValueIndex ()),
 		  DisplayElement::INVISIBLE_CONTEXT));
     glPopAttrib ();
 }

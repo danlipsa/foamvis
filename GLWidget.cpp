@@ -1538,19 +1538,23 @@ void GLWidget::compileCenterPaths () const
     if (m_edgesTubes)
     {
 	if (m_tubeCenterPathUsed)
-	    for_each (bats.begin (), bats.end (),
-		      DisplayCenterPath<TexCoordSetter, DisplayEdgeTube> (
-			  *this, m_coloredBy, *m_bodySelector,
-			  IsTimeDisplacementUsed (), GetTimeDisplacement ()));
+	    for_each (
+		bats.begin (), bats.end (),
+		DisplayCenterPath<
+		SetterValueTextureCoordinate, DisplayEdgeTube> (
+		    *this, m_coloredBy, *m_bodySelector,
+		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
 	else
-	    for_each (bats.begin (), bats.end (),
-		      DisplayCenterPath<TexCoordSetter, DisplayEdgeQuadric> (
-			  *this, m_coloredBy, *m_bodySelector,
-			  IsTimeDisplacementUsed (), GetTimeDisplacement ()));
+	    for_each (
+		bats.begin (), bats.end (),
+		DisplayCenterPath<
+		SetterValueTextureCoordinate, DisplayEdgeQuadric> (
+		    *this, m_coloredBy, *m_bodySelector,
+		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     }
     else
 	for_each (bats.begin (), bats.end (),
-		  DisplayCenterPath<TexCoordSetter, DisplayEdge> (
+		  DisplayCenterPath<SetterValueTextureCoordinate, DisplayEdge> (
 		      *this, m_coloredBy, *m_bodySelector,
 		      IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     glPopAttrib ();
@@ -1980,6 +1984,7 @@ void GLWidget::CurrentIndexChangedAxesOrder (int index)
     ResetTransformation ();
 }
 
+// @todo add a color bar model for BodyProperty::None
 void GLWidget::BodyPropertyChanged (
     boost::shared_ptr<ColorBarModel> colorBarModel,
     BodyProperty::Enum property, ViewType::Enum viewType)

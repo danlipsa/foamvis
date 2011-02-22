@@ -25,8 +25,7 @@ DisplayFace (const GLWidget& widget,
 	     BodyProperty::Enum property, bool useZPos, double zPos) : 
     
     DisplayElementPropertyFocus<PropertySetter> (
-	widget, PropertySetter (widget), property, focus, 
-	useZPos, zPos), 
+	widget, PropertySetter (widget, property), focus, useZPos, zPos), 
     m_count(0)
 {
 }
@@ -36,9 +35,9 @@ DisplayFace<displayEdges, PropertySetter>::
 DisplayFace (const GLWidget& widget,
 	     PropertySetter propertySetter,
 	     typename DisplayElement::FocusContext focus,
-	     BodyProperty::Enum property, bool useZPos, double zPos) : 
+	     bool useZPos, double zPos) : 
     DisplayElementPropertyFocus<PropertySetter> (
-	widget, propertySetter, property, focus, useZPos, zPos), 
+	widget, propertySetter, focus, useZPos, zPos), 
     m_count(0)
 {
 }
@@ -91,7 +90,8 @@ DisplayFaceWithColor (
     bool useZPos, double zPos) : 
     
     DisplayFace<displaySameEdges, PropertySetter> (
-	widget, PropertySetter (widget), focus, property, useZPos, zPos)
+	widget, PropertySetter (widget, property), 
+	focus, useZPos, zPos)
 {
 }
 
@@ -101,10 +101,10 @@ DisplayFaceWithColor (
     const GLWidget& widget,
     PropertySetter propertySetter,
     typename DisplayElement::FocusContext focus,
-    BodyProperty::Enum property, bool useZPos, double zPos) : 
+    bool useZPos, double zPos) : 
 
     DisplayFace<displaySameEdges, PropertySetter> (
-	widget, propertySetter, focus, property, useZPos, zPos) 
+	widget, propertySetter, focus, useZPos, zPos) 
 {
 }
 
@@ -156,7 +156,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
     *useColor = true;
     if (this->m_focus == DisplayElement::FOCUS)
     {
-	if (this->m_property == BodyProperty::NONE)
+	if (this->m_propertySetter.GetBodyProperty () == BodyProperty::NONE)
 	{
 	    glColor (of->GetColor (GLWidget::NOT_AVAILABLE_FACE_COLOR));
 	    this->m_propertySetter ();
@@ -164,9 +164,9 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	else
 	{
 	    boost::shared_ptr<Body> body = of->GetBodyPartOf ().GetBody ();
-	    if (body->ExistsPropertyValue (this->m_property))
+	    if (body->ExistsPropertyValue (
+		    this->m_propertySetter.GetBodyProperty ()))
 	    {
-		double value = body->GetPropertyValue (this->m_property);
 		size_t bodyId = body->GetId ();
 		if (bodyId == this->m_glWidget.GetStationaryBodyId ())
 		    glColor (GLWidget::STATIONARY_BODY_FACE_COLOR);
@@ -177,7 +177,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 		    glColor (Qt::white);
 		    *useColor = false;
 		}
-		this->m_propertySetter (value);
+		this->m_propertySetter (body);
 
 	    }
 	    else
@@ -200,32 +200,32 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 template class DisplayFace<
     DisplayEdges<
 	DisplayEdgeTorus<DisplayEdgeQuadric, DisplayArrowQuadric, true> >, 
-    TexCoordSetter>;
+    SetterValueTextureCoordinate>;
 template class DisplayFace<
     DisplayEdges<
-	DisplayEdgeTorus<DisplayEdge, DisplayArrow, true> >, TexCoordSetter>;
+	DisplayEdgeTorus<DisplayEdge, DisplayArrow, true> >, SetterValueTextureCoordinate>;
 template class DisplayFace<
     DisplayEdges<
-	DisplayEdgeTorusClipped>, TexCoordSetter>;
+	DisplayEdgeTorusClipped>, SetterValueTextureCoordinate>;
 template class DisplayFace<
     DisplayEdges<
 	DisplayEdgeWithColor<DisplayElement::TEST_DISPLAY_TESSELLATION> >, 
-    TexCoordSetter>;
+    SetterValueTextureCoordinate>;
 template class DisplayFace<
     DisplayEdges<
 	DisplayEdgeWithColor<DisplayElement::DONT_DISPLAY_TESSELLATION> >, 
-    TexCoordSetter>;
-template class DisplayFace<DisplaySameEdges, TexCoordSetter>;
-template class DisplayFace<DisplaySameEdges, VertexAttributeSetter>;
+    SetterValueTextureCoordinate>;
+template class DisplayFace<DisplaySameEdges, SetterValueTextureCoordinate>;
+template class DisplayFace<DisplaySameEdges, SetterValueVertexAttribute>;
 
-template class DisplayFace<DisplaySameTriangles, TexCoordSetter>;
-template class DisplayFace<DisplaySameTriangles, VertexAttributeSetter>;
+template class DisplayFace<DisplaySameTriangles, SetterValueTextureCoordinate>;
+template class DisplayFace<DisplaySameTriangles, SetterValueVertexAttribute>;
 
 
 // DisplayFaceWithColor
 // ======================================================================
 
-template class DisplayFaceWithColor<DisplaySameEdges, TexCoordSetter>;
-template class DisplayFaceWithColor<DisplaySameEdges, VertexAttributeSetter>;
-template class DisplayFaceWithColor<DisplaySameTriangles, TexCoordSetter>;
-template class DisplayFaceWithColor<DisplaySameTriangles, VertexAttributeSetter>;
+template class DisplayFaceWithColor<DisplaySameEdges, SetterValueTextureCoordinate>;
+template class DisplayFaceWithColor<DisplaySameEdges, SetterValueVertexAttribute>;
+template class DisplayFaceWithColor<DisplaySameTriangles, SetterValueTextureCoordinate>;
+template class DisplayFaceWithColor<DisplaySameTriangles, SetterValueVertexAttribute>;
