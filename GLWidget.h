@@ -254,9 +254,9 @@ public:
      * @param type the type of object that we want displayed.
      */
     void DisplayViewType () const;
-    BodyProperty::Enum GetColoredBy () const
+    BodyProperty::Enum GetBodyProperty () const
     {
-	return m_coloredBy;
+	return m_bodyProperty;
     }
 
 Q_SIGNALS:
@@ -679,7 +679,7 @@ private:
     bool m_axesShown;
     bool m_textureColorBarShown;
     boost::array<ViewTypeDisplay, ViewType::COUNT> m_viewTypeDisplay;
-    BodyProperty::Enum m_coloredBy;
+    BodyProperty::Enum m_bodyProperty;
     boost::shared_ptr<BodySelector> m_bodySelector;
 
     boost::shared_ptr<QAction> m_actionSelectAll;

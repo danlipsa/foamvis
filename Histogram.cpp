@@ -13,6 +13,12 @@
 #include "Statistics.h"
 
 
+const QSize Histogram::SIZE_HINT (200, 200);
+
+/**
+ * @todo Add an option to show percentage per bin instead of count per
+ * bin for the y axis of the histogram.
+ */
 Histogram::Histogram (QWidget* parent) :
     QwtPlot (parent), 
     m_plotPicker (QwtPlot::xBottom, QwtPlot::yLeft,
@@ -26,7 +32,7 @@ Histogram::Histogram (QWidget* parent) :
     setCanvasBackground(QColor(Qt::white));
     alignScales ();
     setAutoReplot ();
-    setAxisTitleDefaultFont (QwtPlot::yLeft, "Values per bin");
+    setAxisTitleDefaultFont (QwtPlot::yLeft, "Count per bin");
     setAxisDefaultFont (QwtPlot::yLeft);
     setAxisDefaultFont (QwtPlot::xBottom);
 
@@ -273,4 +279,9 @@ void Histogram::SetItemsSelectionLow (bool selected, double value)
 {
     size_t end = getBin (value);
     m_histogramItem.setSelected (selected, 0, end + 1);
+}
+
+QSize Histogram::sizeHint () const
+{
+    return SIZE_HINT;
 }

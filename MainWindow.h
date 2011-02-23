@@ -57,8 +57,8 @@ public:
 	BodyProperty::Enum property,
 	const QwtIntervalData& intervalData,
 	double maxValue,
-	HistogramSelection histogramSelection = DISCARD_SELECTION,
-	MaxValueOperation maxValueOperation = REPLACE_MAX_VALUE);
+	HistogramSelection histogramSelection,
+	MaxValueOperation maxValueOperation);
     boost::shared_ptr<ColorBarModel> GetColorBarModel (
 	BodyProperty::Enum property)
     {
@@ -201,6 +201,7 @@ private:
     BodyProperty::Enum m_property;
     HistogramType::Enum m_histogramType;
     vector< boost::shared_ptr<ColorBarModel> > m_colorBarModel;
+    boost::shared_ptr<ColorBarModel> m_colorBarModelDomainHistogram;
     boost::shared_ptr<EditColorMap> m_editColorMap;
 };
 

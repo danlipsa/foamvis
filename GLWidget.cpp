@@ -176,7 +176,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_bodiesBoundingBoxesShown (false),
       m_axesShown (false),
       m_textureColorBarShown (false),
-      m_coloredBy (BodyProperty::NONE),
+      m_bodyProperty (BodyProperty::NONE),
       m_bodySelector (AllBodySelector::Get ()),
       m_colorBarModel (new ColorBarModel ()),
       m_colorBarTexture (0),
@@ -1373,8 +1373,8 @@ void GLWidget::displayFacesStatistics () const
     glDisable (GL_DEPTH_TEST);
     const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
     m_displayFaceStatistics->Display (
-	foamAlongTime.GetMin (GetColoredBy ()),
-	foamAlongTime.GetMax (GetColoredBy ()), GetStatisticsType ());
+	foamAlongTime.GetMin (GetBodyProperty ()),
+	foamAlongTime.GetMax (GetBodyProperty ()), GetStatisticsType ());
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
     displayStationaryBodyAndContext ();
     glPopAttrib ();
@@ -1429,7 +1429,7 @@ void GLWidget::displayFacesInterior (const Foam::Bodies& bodies) const
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<DisplayFaceWithColor<displaySameEdges> > (
 		  *this, *m_bodySelector,
-		  DisplayElement::TRANSPARENT_CONTEXT, m_coloredBy));
+		  DisplayElement::TRANSPARENT_CONTEXT, m_bodyProperty));
     glPopAttrib ();
 }
 
@@ -1542,20 +1542,20 @@ void GLWidget::compileCenterPaths () const
 		bats.begin (), bats.end (),
 		DisplayCenterPath<
 		SetterValueTextureCoordinate, DisplayEdgeTube> (
-		    *this, m_coloredBy, *m_bodySelector,
+		    *this, m_bodyProperty, *m_bodySelector,
 		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
 	else
 	    for_each (
 		bats.begin (), bats.end (),
 		DisplayCenterPath<
 		SetterValueTextureCoordinate, DisplayEdgeQuadric> (
-		    *this, m_coloredBy, *m_bodySelector,
+		    *this, m_bodyProperty, *m_bodySelector,
 		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     }
     else
 	for_each (bats.begin (), bats.end (),
 		  DisplayCenterPath<SetterValueTextureCoordinate, DisplayEdge> (
-		      *this, m_coloredBy, *m_bodySelector,
+		      *this, m_bodyProperty, *m_bodySelector,
 		      IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     glPopAttrib ();
     glEndList ();
@@ -1997,19 +1997,19 @@ void GLWidget::BodyPropertyChanged (
     switch (viewType)
     {
     case ViewType::FACES:
-	m_coloredBy = property;
+	m_bodyProperty = property;
 	break;
     case ViewType::FACES_AVERAGE:
-	m_coloredBy = property;
+	m_bodyProperty = property;
 	m_displayFaceStatistics->InitStepDisplay ();
 	break;
     case ViewType::CENTER_PATHS:
-	m_coloredBy = property;	
+	m_bodyProperty = property;	
 	break;
     default:
 	RuntimeAssert (false, "Invalid value in switch: ", viewType);
     }
-    if (m_coloredBy != BodyProperty::NONE)
+    if (m_bodyProperty != BodyProperty::NONE)
 	ColorBarModelChanged (colorBarModel);
     compile ();
     updateGL ();

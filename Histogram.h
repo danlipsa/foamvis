@@ -68,6 +68,7 @@ public:
     void SetSelectionTool (SelectionTool selectionTool);    
     bool IsGridEnabled () const;
     void SetDefaultFont ();
+    virtual QSize sizeHint () const;
 
 Q_SIGNALS:
     void selectionChanged ();
@@ -99,6 +100,9 @@ private:
     SelectionTool m_selectionTool;
     bool m_displayColorBar;
     boost::shared_ptr<HistogramHeight> m_histogramHeight;
+
+private:
+    const static QSize SIZE_HINT;
 };
 
 

@@ -688,6 +688,8 @@ void MainWindow::setupColorBarModels ()
 	setupColorBarModel (property);
 	++i;
     }
+    m_colorBarModelDomainHistogram.reset (new ColorBarModel ());
+    m_colorBarModelDomainHistogram->SetupPalette (Palette::BLACK_BODY);
 }
 
 void MainWindow::setupColorBarModel (BodyProperty::Enum property)
@@ -753,11 +755,15 @@ void MainWindow::CurrentIndexChangedSelectedLight (int i)
 
 void MainWindow::CurrentIndexChangedFacesColor (int value)
 {
-    boost::array<QWidget*, 5> widgetsBodyPropertyNone = {{
+    boost::array<QWidget*, 9> widgetsBodyPropertyNone = {{
 	    labelFacesHistogram,
 	    radioButtonFacesHistogramNone,
 	    radioButtonFacesHistogramUnicolor,
 	    radioButtonFacesHistogramColorCoded,
+	    labelStatisticsHistogram,
+	    radioButtonStatisticsHistogramNone,
+	    radioButtonStatisticsHistogramUnicolor,
+	    radioButtonStatisticsHistogramColorCoded,
 	    colorBar}};
     BodyProperty::Enum property = BodyProperty::FromSizeT (value);
     m_property = property;
@@ -783,7 +789,8 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 		property,
 		foamAlongTime.GetFoam (timeStep)->
 		GetHistogram (property).ToQwtIntervalData (),
-		foamAlongTime.GetMaxCountPerBinIndividual (property));
+		foamAlongTime.GetMaxCountPerBinIndividual (property),
+		DISCARD_SELECTION, REPLACE_MAX_VALUE);
     }
 }
 
@@ -816,7 +823,8 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 		m_histogramType,
 		property,
 		foamAlongTime.GetHistogram (property).ToQwtIntervalData (),
-		foamAlongTime.GetHistogram (property).GetMaxCountPerBin ());
+		foamAlongTime.GetHistogram (property).GetMaxCountPerBin (),
+		DISCARD_SELECTION, REPLACE_MAX_VALUE);
     }
 }
 
@@ -835,6 +843,12 @@ void MainWindow::CurrentIndexChangedStatisticsType (int value)
 	::setVisible (widgetsStatisticsHistory, false);
 	break;
     case StatisticsType::DOMAIN_HISTOGRAM:
+	if (widgetGl->GetBodyProperty () != BodyProperty::NONE)
+	{
+	    radioButtonStatisticsHistogramUnicolor->setChecked (true);
+	    ButtonClickedAllTimestepsHistogram (HistogramType::UNICOLOR);
+	}
+	::setVisible (widgetsStatisticsHistory, false);
 	break;
     }
 }
@@ -858,13 +872,13 @@ void MainWindow::ButtonClickedAllTimestepsHistogram (int histogramType)
     if (isHistogramHidden (m_histogramType))
 	return;
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    const HistogramStatistics& histogramStatistics = 
+    const HistogramStatistics& allTimestepsHistogram = 
 	foamAlongTime.GetHistogram (m_property);
     SetAndDisplayHistogram (
 	m_histogramType, m_property,
-	histogramStatistics.ToQwtIntervalData (),
-	histogramStatistics.GetMaxCountPerBin (),
-	KEEP_SELECTION);
+	allTimestepsHistogram.ToQwtIntervalData (),
+	allTimestepsHistogram.GetMaxCountPerBin (),
+	KEEP_SELECTION, REPLACE_MAX_VALUE);
 }
 
 void MainWindow::ButtonClickedOneTimestepHistogram (int histogramType)
@@ -878,7 +892,7 @@ void MainWindow::ButtonClickedOneTimestepHistogram (int histogramType)
 	foamAlongTime.GetFoam (widgetGl->GetTimeStep ())->GetHistogram (
 	    m_property).ToQwtIntervalData (),
 	foamAlongTime.GetMaxCountPerBinIndividual (m_property), 
-	KEEP_SELECTION);
+	KEEP_SELECTION, REPLACE_MAX_VALUE);
 }
 
 void MainWindow::SelectionChangedHistogram ()
