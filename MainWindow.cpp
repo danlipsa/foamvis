@@ -173,13 +173,6 @@ void MainWindow::setupButtonGroups ()
     buttonGroupFacesHistogram->setId (
 	radioButtonFacesHistogramColorCoded, HistogramType::COLOR_CODED);
 
-    buttonGroupStatisticsHistogram->setId (
-	radioButtonStatisticsHistogramNone, HistogramType::NONE);
-    buttonGroupStatisticsHistogram->setId (
-	radioButtonStatisticsHistogramUnicolor, HistogramType::UNICOLOR);
-    buttonGroupStatisticsHistogram->setId (
-	radioButtonStatisticsHistogramColorCoded, HistogramType::COLOR_CODED);
-
     buttonGroupCenterPathHistogram->setId (
 	radioButtonCenterPathHistogramNone, HistogramType::NONE);
     buttonGroupCenterPathHistogram->setId (
@@ -621,8 +614,6 @@ void MainWindow::ToggledFacesStatistics (bool checked)
     if (checked)
     {
 	stackedWidgetFaces->setCurrentWidget (pageFacesStatistics);
-	fieldsToControls (comboBoxStatisticsColor, 
-			  buttonGroupStatisticsHistogram);
 	ButtonClickedAllTimestepsHistogram (m_histogramType);
     }
     else
@@ -636,9 +627,14 @@ void MainWindow::ToggledFacesNormal (bool checked)
 	stackedWidgetFaces->setCurrentWidget (pageFacesNormal);
 	fieldsToControls (comboBoxFacesColor, buttonGroupFacesHistogram);
 	ButtonClickedOneTimestepHistogram (m_histogramType);
+	radioButtonFacesStatistics->setEnabled (
+	    m_property != BodyProperty::NONE);
     }
     else
+    {
 	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
+	radioButtonFacesStatistics->setEnabled (true);
+    }
     displayHistogramColorBar (checked);
 }
 
@@ -650,9 +646,14 @@ void MainWindow::ToggledCenterPath (bool checked)
 			  buttonGroupCenterPathHistogram);
 	ButtonClickedAllTimestepsHistogram (m_histogramType);
 	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
+	radioButtonFacesStatistics->setEnabled (
+	    m_property != BodyProperty::NONE);
     }
     else
+    {
+	radioButtonFacesStatistics->setEnabled (true);
 	stackedWidgetComposite->setCurrentWidget (pageCompositeEmpty);
+    }
     displayHistogramColorBar (checked);
 }
 
@@ -755,15 +756,11 @@ void MainWindow::CurrentIndexChangedSelectedLight (int i)
 
 void MainWindow::CurrentIndexChangedFacesColor (int value)
 {
-    boost::array<QWidget*, 9> widgetsBodyPropertyNone = {{
+    boost::array<QWidget*, 5> widgetsBodyPropertyNone = {{
 	    labelFacesHistogram,
 	    radioButtonFacesHistogramNone,
 	    radioButtonFacesHistogramUnicolor,
 	    radioButtonFacesHistogramColorCoded,
-	    labelStatisticsHistogram,
-	    radioButtonStatisticsHistogramNone,
-	    radioButtonStatisticsHistogramUnicolor,
-	    radioButtonStatisticsHistogramColorCoded,
 	    colorBar}};
     BodyProperty::Enum property = BodyProperty::FromSizeT (value);
     m_property = property;
@@ -771,12 +768,14 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
     {
 	::setVisible (widgetsBodyPropertyNone, false);
 	widgetHistogram->setVisible (false);
+	radioButtonFacesStatistics->setEnabled (false);
 	Q_EMIT BodyPropertyChanged (
 	    m_colorBarModel[0], property, 
 	    ViewType::FromInt (buttonGroupDisplay->checkedId ()));
     }
     else
     {
+	radioButtonFacesStatistics->setEnabled (true);
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	size_t timeStep = widgetGl->GetTimeStep ();
 	::setVisible (widgetsBodyPropertyNone, true);
@@ -808,12 +807,14 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	::setVisible (widgetsCenterPathHistogramSelection, false);
 	colorBar->setHidden (true);
 	widgetHistogram->setHidden (true);
+	radioButtonFacesStatistics->setEnabled (false);
 	Q_EMIT BodyPropertyChanged (
 	    m_colorBarModel[0], property, ViewType::CENTER_PATHS);
     }
     else
     {
 	::setVisible (widgetsCenterPathHistogramSelection, true);
+	radioButtonFacesStatistics->setEnabled (true);
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	colorBar->setVisible (true);
 	Q_EMIT BodyPropertyChanged (
@@ -843,11 +844,6 @@ void MainWindow::CurrentIndexChangedStatisticsType (int value)
 	::setVisible (widgetsStatisticsHistory, false);
 	break;
     case StatisticsType::DOMAIN_HISTOGRAM:
-	if (widgetGl->GetBodyProperty () != BodyProperty::NONE)
-	{
-	    radioButtonStatisticsHistogramUnicolor->setChecked (true);
-	    ButtonClickedAllTimestepsHistogram (HistogramType::UNICOLOR);
-	}
 	::setVisible (widgetsStatisticsHistory, false);
 	break;
     }

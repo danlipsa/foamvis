@@ -404,7 +404,7 @@ void DisplaySameEdges::operator() (const boost::shared_ptr<OrientedFace>&  of)
 
 void DisplaySameEdges::operator() (const boost::shared_ptr<Face>& f)
 {
-    glBegin (m_primitive);
+    glBegin (GL_POLYGON);
     const vector<boost::shared_ptr<OrientedEdge> >& v =
 	f->GetOrientedEdges ();
     for_each (v.begin (), v.end (), DisplayAllButLastVertices);

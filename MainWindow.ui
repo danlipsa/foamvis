@@ -1174,6 +1174,9 @@
              </widget>
              <widget class="QWidget" name="pageFacesStatistics">
               <layout class="QFormLayout" name="formLayout_6">
+               <property name="fieldGrowthPolicy">
+                <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+               </property>
                <property name="leftMargin">
                 <number>0</number>
                </property>
@@ -1183,107 +1186,14 @@
                <property name="bottomMargin">
                 <number>0</number>
                </property>
-               <item row="2" column="0">
-                <widget class="QLabel" name="labelStatisticsHistogram">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_22">
                  <property name="text">
-                  <string>Histogram</string>
+                  <string>Statistics Type</string>
                  </property>
                 </widget>
                </item>
-               <item row="2" column="1">
-                <widget class="QRadioButton" name="radioButtonStatisticsHistogramNone">
-                 <property name="text">
-                  <string>None</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                 <attribute name="buttonGroup">
-                  <string>buttonGroupStatisticsHistogram</string>
-                 </attribute>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <widget class="QRadioButton" name="radioButtonStatisticsHistogramUnicolor">
-                 <property name="text">
-                  <string>Unicolor</string>
-                 </property>
-                 <attribute name="buttonGroup">
-                  <string>buttonGroupStatisticsHistogram</string>
-                 </attribute>
-                </widget>
-               </item>
-               <item row="4" column="1">
-                <widget class="QRadioButton" name="radioButtonStatisticsHistogramColorCoded">
-                 <property name="text">
-                  <string>Color Coded</string>
-                 </property>
-                 <attribute name="buttonGroup">
-                  <string>buttonGroupStatisticsHistogram</string>
-                 </attribute>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_21">
-                 <property name="text">
-                  <string>Colored By</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QComboBox" name="comboBoxStatisticsColor">
-                 <item>
-                  <property name="text">
-                   <string>Velocity along x</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Velocity along y</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Velocity along z</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Velocity magnitute</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Pressure</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Volume</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Data color</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item row="7" column="0">
-                <widget class="QLabel" name="labelStatisticsHistory">
-                 <property name="text">
-                  <string>History</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="7" column="1">
-                <widget class="QSpinBox" name="spinBoxStatisticsHistory">
-                 <property name="minimum">
-                  <number>2</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="1">
+               <item row="0" column="1">
                 <widget class="QComboBox" name="comboBoxStatisticsType">
                  <item>
                   <property name="text">
@@ -1307,10 +1217,17 @@
                  </item>
                 </widget>
                </item>
-               <item row="5" column="0">
-                <widget class="QLabel" name="label_22">
+               <item row="1" column="0">
+                <widget class="QLabel" name="labelStatisticsHistory">
                  <property name="text">
-                  <string>Statistics Type</string>
+                  <string>History</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QSpinBox" name="spinBoxStatisticsHistory">
+                 <property name="minimum">
+                  <number>2</number>
                  </property>
                 </widget>
                </item>
@@ -2681,22 +2598,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>buttonGroupStatisticsHistogram</sender>
-   <signal>buttonClicked(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ButtonClickedAllTimestepsHistogram(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>437</x>
-     <y>295</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>spinBoxFontSize</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
@@ -2760,22 +2661,6 @@
     </hint>
    </hints>
   </connection>
-  <connection>
-   <sender>comboBoxStatisticsColor</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>CurrentIndexChangedFacesColor(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>838</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>875</x>
-     <y>262</y>
-    </hint>
-   </hints>
-  </connection>
  </connections>
  <slots>
   <slot>ToggledFacesNormal(bool)</slot>
@@ -2793,7 +2678,6 @@
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroupDisplay"/>
-  <buttongroup name="buttonGroupStatisticsHistogram"/>
   <buttongroup name="buttonGroupCenterPathHistogram"/>
   <buttongroup name="buttonGroupFacesHistogram"/>
  </buttongroups>
