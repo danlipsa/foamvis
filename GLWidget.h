@@ -67,6 +67,11 @@ public:
     {
 	return *m_foamAlongTime;
     }
+    ViewType::Enum GetViewType () const
+    {
+	return m_viewType;
+    }
+
     void SetBodySelector (boost::shared_ptr<PropertyValueBodySelector> selector);
     void SetBodySelector (boost::shared_ptr<IdBodySelector> bodySelector);
     void SetBodySelector (boost::shared_ptr<AllBodySelector> selector, 
@@ -592,7 +597,7 @@ private:
     Q_OBJECT
 
     /**
-     * The elements displayed from a DMP file: vertices, edges, faces or bodies.
+     * What do we display
      */
     ViewType::Enum m_viewType;
     bool m_torusOriginalDomainDisplay;

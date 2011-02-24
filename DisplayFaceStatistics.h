@@ -83,7 +83,9 @@ private:
     boost::shared_ptr<QGLShader> m_fshader;
 };
 
-
+/**
+ * RGBA : sum, count, min, max
+ */
 class DisplayShaderProgram : public QGLShaderProgram
 {
 public:
@@ -136,14 +138,13 @@ public:
     void InitShaders ();
     void Release ();
     void Display (
-	GLfloat minValue, GLfloat maxValue,
-	StatisticsType::Enum displayType = StatisticsType::AVERAGE)
+	GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
     {
 	if (m_new.get () != 0)
 	    display (minValue, maxValue, displayType, *m_new);
     }
-    void InitStepDisplay ();
-    void StepDisplay ();
+    void InitStep (GLfloat minValue, GLfloat maxValue);
+    void Step (GLfloat minValue, GLfloat maxValue);
     void Step (size_t timeStep,
 	       BodyProperty::Enum property,
 	       GLfloat minValue, GLfloat maxValue);

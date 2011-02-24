@@ -166,7 +166,8 @@ public:
     {
 	AVERAGE,
 	MIN,
-	MAX
+	MAX,
+	COUNT
     };
 };
 

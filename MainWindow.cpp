@@ -56,7 +56,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_currentBody (0),
     m_property (BodyProperty::NONE),
     m_histogramType (HistogramType::NONE),
-    m_colorBarModel (BodyProperty::PROPERTY_END),
+    m_colorBarModelBodyProperty (BodyProperty::PROPERTY_END),
     m_editColorMap (new EditColorMap (this))
 {
     // for anti-aliased lines
@@ -375,7 +375,7 @@ void MainWindow::translateBodyStep ()
     {
 	cdbg << "End body translation" << endl;
     }
-    widgetGl->updateGL ();
+    widgetGl->update ();
 }
 
 void MainWindow::processBodyTorusStep ()
@@ -406,7 +406,7 @@ void MainWindow::processBodyTorusStep ()
 		    widgetGl->GetCurrentFoam ().GetBodies ().size ();
 	    }
 	}
-	widgetGl->updateGL ();
+	widgetGl->update ();
     }
     catch (const exception& e)
     {
@@ -634,10 +634,11 @@ void MainWindow::ToggledFacesDomainHistogram (bool checked)
     {
 	connectColorBarHistogram (false);
 	Q_EMIT ColorBarModelChanged (m_colorBarModelDomainHistogram);
+	ButtonClickedAllTimestepsHistogram (m_histogramType);
     }
     else
     {
-	Q_EMIT ColorBarModelChanged (m_colorBarModel[m_property]);
+	Q_EMIT ColorBarModelChanged (m_colorBarModelBodyProperty[m_property]);
 	connectColorBarHistogram (true);
     }
 }
@@ -653,7 +654,6 @@ void MainWindow::ToggledFacesNormal (bool checked)
     }
     else
 	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
-    displayHistogramColorBar (checked);
 }
 
 void MainWindow::ToggledCenterPath (bool checked)
@@ -667,7 +667,6 @@ void MainWindow::ToggledCenterPath (bool checked)
     }
     else
 	stackedWidgetComposite->setCurrentWidget (pageCompositeEmpty);
-    displayHistogramColorBar (checked);
 }
 
 
@@ -695,7 +694,7 @@ void MainWindow::setupColorBarModels ()
 {
     size_t i = 0;
     BOOST_FOREACH (boost::shared_ptr<ColorBarModel>& colorBarModel,
-		   m_colorBarModel)
+		   m_colorBarModelBodyProperty)
     {
 	BodyProperty::Enum property = BodyProperty::FromSizeT (i);
 	colorBarModel.reset (new ColorBarModel ());
@@ -712,11 +711,11 @@ void MainWindow::setupColorBarModels ()
 void MainWindow::setupColorBarModel (BodyProperty::Enum property)
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    m_colorBarModel[property]->SetTitle (
+    m_colorBarModelBodyProperty[property]->SetTitle (
 	BodyProperty::ToString (property));
-    m_colorBarModel[property]->SetInterval (
+    m_colorBarModelBodyProperty[property]->SetInterval (
 	foamAlongTime.GetRange (property));
-    m_colorBarModel[property]->SetupPalette (Palette::RAINBOW);
+    m_colorBarModelBodyProperty[property]->SetupPalette (Palette::RAINBOW);
 }
 
 void MainWindow::CurrentIndexChangedSelectedLight (int i)
@@ -788,7 +787,7 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	::setVisible (widgetsVisible, false);
 	::setEnabled (widgetsEnabled, false);
 	widgetHistogram->setVisible (false);
-	Q_EMIT BodyPropertyChanged (m_colorBarModel[0], property);
+	Q_EMIT BodyPropertyChanged (m_colorBarModelBodyProperty[0], property);
     }
     else
     {
@@ -796,7 +795,7 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	::setEnabled (widgetsEnabled, true);
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	size_t timeStep = widgetGl->GetTimeStep ();
-	Q_EMIT BodyPropertyChanged (m_colorBarModel[property], property);
+	Q_EMIT BodyPropertyChanged (m_colorBarModelBodyProperty[property], property);
 	if (m_histogramType != HistogramType::NONE)
 	    SetAndDisplayHistogram (
 		m_histogramType,
@@ -826,14 +825,14 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	::setVisible (widgetsHidden, false);
 	::setEnabled (widgetsEnabled, false);
 	widgetHistogram->setHidden (true);
-	Q_EMIT BodyPropertyChanged (m_colorBarModel[0], property);
+	Q_EMIT BodyPropertyChanged (m_colorBarModelBodyProperty[0], property);
     }
     else
     {
 	::setVisible (widgetsHidden, true);
 	::setEnabled (widgetsEnabled, true);
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-	Q_EMIT BodyPropertyChanged (m_colorBarModel[property], property);
+	Q_EMIT BodyPropertyChanged (m_colorBarModelBodyProperty[property], property);
 	if (m_histogramType != HistogramType::NONE)
 	    SetAndDisplayHistogram (
 		m_histogramType,
@@ -931,11 +930,19 @@ void MainWindow::ShowEditColorMap ()
     m_editColorMap->SetData (
 	histogramStatistics.ToQwtIntervalData (),
 	histogramStatistics.GetMaxCountPerBin (),
-	*m_colorBarModel[m_property],
+	*getCurrentColorBarModel (),
 	checkBoxHistogramGridShown->isChecked ());
     if (m_editColorMap->exec () == QDialog::Accepted)
     {
-	*m_colorBarModel[m_property] = m_editColorMap->GetColorBarModel ();
-	Q_EMIT ColorBarModelChanged (m_colorBarModel[m_property]);
+	*getCurrentColorBarModel () = m_editColorMap->GetColorBarModel ();
+	Q_EMIT ColorBarModelChanged (getCurrentColorBarModel ());
     }
+}
+
+boost::shared_ptr<ColorBarModel> MainWindow::getCurrentColorBarModel () const
+{
+    if (widgetGl->GetViewType () == ViewType::FACES_DOMAIN_HISTOGRAM)
+	return m_colorBarModelDomainHistogram;
+    else
+	return m_colorBarModelBodyProperty[m_property];
 }

@@ -62,7 +62,7 @@ public:
     boost::shared_ptr<ColorBarModel> GetColorBarModel (
 	BodyProperty::Enum property)
     {
-	return m_colorBarModel[property];
+	return m_colorBarModelBodyProperty[property];
     }
 
 Q_SIGNALS:
@@ -133,6 +133,7 @@ public Q_SLOTS:
      */
     void ValueChangedSliderTimeSteps (int value);
     void ValueChangedFontSize (int value);
+
 private:
     bool isHistogramHidden (HistogramType::Enum histogramType);
     void connectSignals ();
@@ -171,6 +172,7 @@ private:
     void createActions ();
     void fieldsToControls (QComboBox* comboBox, QButtonGroup* buttonGroup);
     void displayHistogramColorBar (bool checked);
+    boost::shared_ptr<ColorBarModel> getCurrentColorBarModel () const;
 
 private:
     Q_OBJECT
@@ -201,7 +203,7 @@ private:
 
     BodyProperty::Enum m_property;
     HistogramType::Enum m_histogramType;
-    vector< boost::shared_ptr<ColorBarModel> > m_colorBarModel;
+    vector< boost::shared_ptr<ColorBarModel> > m_colorBarModelBodyProperty;
     boost::shared_ptr<ColorBarModel> m_colorBarModelDomainHistogram;
     boost::shared_ptr<EditColorMap> m_editColorMap;
 };

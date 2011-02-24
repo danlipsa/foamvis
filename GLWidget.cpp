@@ -391,7 +391,7 @@ void GLWidget::changeView (bool checked, ViewType::Enum view)
     {
         m_viewType = view;
 	compile ();
-	updateGL ();
+	update ();
     }
 }
 
@@ -789,14 +789,14 @@ void GLWidget::ResetTransformation ()
     m_scaleRatio = 1;
     m_translation = G3D::Vector3::zero ();
     projectionTransform ();
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ResetSelectedLightPosition ()
 {
     setInitialLightPosition (m_selectedLight);
     positionLight (m_selectedLight);
-    updateGL ();
+    update ();
 }
 
 
@@ -817,7 +817,7 @@ void GLWidget::SelectAll ()
     m_selectedBodyIndex = DISPLAY_ALL;
     m_selectedFaceIndex = DISPLAY_ALL;
     m_selectedEdgeIndex = DISPLAY_ALL;
-    updateGL ();
+    update ();
 }
 
 void GLWidget::DeselectAll ()
@@ -910,7 +910,16 @@ void GLWidget::resizeGL(int w, int h)
     projectionTransform ();
     ViewportTransform ();
     if (m_viewType == ViewType::FACES_AVERAGE)
-	m_displayFaceStatistics->InitStepDisplay ();
+    {
+	m_displayFaceStatistics->InitStep (
+	    GetFoamAlongTime ().GetMin (GetBodyProperty ()), 
+	    GetFoamAlongTime ().GetMax (GetBodyProperty ()));
+    }
+    else if (m_viewType == ViewType::FACES_DOMAIN_HISTOGRAM)
+    {
+	m_displayFaceStatistics->InitStep (
+	    0, GetFoamAlongTime ().GetTimeSteps ());
+    }
     detectOpenGLError ("resizeGl");
 }
 
@@ -1065,7 +1074,7 @@ void GLWidget::StationarySet ()
     m_stationaryBodyId = bodies[0];
     m_stationaryBodyTimeStep = m_timeStep;
     setStationaryBodyLabel ();
-    updateGL ();
+    update ();
 }
 
 void GLWidget::StationaryReset ()
@@ -1074,7 +1083,7 @@ void GLWidget::StationaryReset ()
     m_stationaryBodyTimeStep = 0;
     m_stationaryBodyContext.clear ();
     setStationaryBodyLabel ();
-    updateGL ();
+    update ();
 }
 
 void GLWidget::StationaryContextAdd ()
@@ -1083,7 +1092,7 @@ void GLWidget::StationaryContextAdd ()
     brushedBodies (m_contextMenuPos, &bodies);
     m_stationaryBodyContext.insert (bodies[0]);
     setStationaryBodyLabel ();
-    updateGL ();
+    update ();
 }
 
 
@@ -1147,7 +1156,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	break;
     }
     m_lastPos = event->pos();
-    updateGL ();
+    update ();
 }
 
 
@@ -1166,7 +1175,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
     default:
 	break;
     }
-    updateGL ();
+    update ();
     m_lastPos = event->pos();
 }
 
@@ -1383,6 +1392,13 @@ void GLWidget::displayFacesStatistics () const
 
 void GLWidget::displayFacesDomainHistogram () const
 {
+    glPushAttrib (GL_ENABLE_BIT);    
+    glDisable (GL_DEPTH_TEST);
+    const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
+    m_displayFaceStatistics->Display (
+	0, foamAlongTime.GetTimeSteps (), StatisticsType::COUNT);
+    displayStandaloneEdges< DisplayEdgeWithColor<> > ();
+    glPopAttrib ();
 }
 
 
@@ -1636,7 +1652,7 @@ void GLWidget::IncrementSelectedBodyIndex ()
 	    SetBodySelector (
 		boost::shared_ptr<IdBodySelector> (new IdBodySelector (id)));
 	}
-	updateGL ();
+	update ();
     }
 }
 
@@ -1649,7 +1665,7 @@ void GLWidget::IncrementSelectedFaceIndex ()
         Body& body = *GetCurrentFoam ().GetBodies ()[m_selectedBodyIndex];
         if (m_selectedFaceIndex == body.GetOrientedFaces ().size ())
             m_selectedFaceIndex = DISPLAY_ALL;
-	updateGL ();
+	update ();
     }
 }
 
@@ -1661,7 +1677,7 @@ void GLWidget::IncrementSelectedEdgeIndex ()
 	Face& face = *GetSelectedFace ();
 	if (m_selectedEdgeIndex == face.GetOrientedEdges ().size ())
 	    m_selectedEdgeIndex = DISPLAY_ALL;
-	updateGL ();
+	update ();
     }
 }
 
@@ -1687,7 +1703,7 @@ void GLWidget::DecrementSelectedBodyIndex ()
 	{
 	    SetBodySelector (AllBodySelector::Get (), BodySelectorType::ID);
 	}
-	updateGL ();
+	update ();
     }
 }
 
@@ -1699,7 +1715,7 @@ void GLWidget::DecrementSelectedFaceIndex ()
         if (m_selectedFaceIndex == DISPLAY_ALL)
             m_selectedFaceIndex = body.GetOrientedFaces ().size ();
 	--m_selectedFaceIndex;
-	updateGL ();
+	update ();
     }
 }
 
@@ -1711,7 +1727,7 @@ void GLWidget::DecrementSelectedEdgeIndex ()
 	if (m_selectedEdgeIndex == DISPLAY_ALL)
 	    m_selectedEdgeIndex = face.GetOrientedEdges ().size ();
 	--m_selectedEdgeIndex;
-	updateGL ();
+	update ();
     }
 }
 
@@ -1800,7 +1816,7 @@ void GLWidget::enableLighting (bool checked)
 	glEnable (GL_LIGHTING);
     else
 	glDisable (GL_LIGHTING);
-    updateGL ();
+    update ();
 }
 
 
@@ -1812,13 +1828,13 @@ void GLWidget::ToggledDirectionalLightEnabled (bool checked)
 {
     m_directionalLightEnabled[m_selectedLight] = checked;
     positionLight (m_selectedLight);
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ToggledLightPositionShown (bool checked)
 {
     m_lightPositionShown[m_selectedLight] = checked;
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ToggledLightEnabled (bool checked)
@@ -1833,61 +1849,61 @@ void GLWidget::ToggledLightEnabled (bool checked)
     else
 	glDisable (GL_LIGHT0 + m_selectedLight);
     enableLighting (m_lightEnabled.any ());
-    updateGL ();
+    update ();
 }
 
 
 void GLWidget::ToggledBoundingBoxShown (bool checked)
 {
     m_boundingBoxShown = checked;
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ToggledBodiesBoundingBoxesShown (bool checked)
 {
     m_bodiesBoundingBoxesShown = checked;
-    updateGL ();
+    update ();
 }
 
 
 void GLWidget::ToggledColorBarShown (bool checked)
 {
     m_textureColorBarShown = ! checked;
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ToggledContextView (bool checked)
 {
     m_contextView = checked;
     projectionTransform ();
-    updateGL ();
+    update ();
 }
 
 
 void GLWidget::ToggledHideContent (bool checked)
 {
     m_hideContent = checked;
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ToggledAxesShown (bool checked)
 {
     m_axesShown = checked;
-    updateGL ();
+    update ();
 }
 
 
 void GLWidget::ToggledCenterPathBodyShown (bool checked)
 {
     m_centerPathBodyShown = checked;
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ToggledIsContextHidden (bool checked)
 {
     m_contextHidden = checked;
     compile ();
-    updateGL ();
+    update ();
 }
 
 
@@ -1904,7 +1920,7 @@ void GLWidget::ToggledEdgesTorus (bool checked)
 void GLWidget::ToggledEdgesBodyCenter (bool checked)
 {
     m_edgesBodyCenter = checked;
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ToggledFacesNormal (bool checked)
@@ -1916,7 +1932,9 @@ void GLWidget::ToggledFacesStatistics (bool checked)
 {
     makeCurrent ();
     if (checked)
-	m_displayFaceStatistics->InitStepDisplay ();
+	m_displayFaceStatistics->InitStep (
+	    GetFoamAlongTime ().GetMin (GetBodyProperty ()), 
+	    GetFoamAlongTime ().GetMax (GetBodyProperty ()));
     else
 	m_displayFaceStatistics->Release ();
     changeView (checked, ViewType::FACES_AVERAGE);
@@ -1924,6 +1942,12 @@ void GLWidget::ToggledFacesStatistics (bool checked)
 
 void GLWidget::ToggledFacesDomainHistogram (bool checked)
 {
+    makeCurrent ();
+    if (checked)
+	m_displayFaceStatistics->InitStep (
+	    0, GetFoamAlongTime ().GetTimeSteps ());
+    else
+	m_displayFaceStatistics->Release ();
     changeView (checked, ViewType::FACES_DOMAIN_HISTOGRAM);
 }
 
@@ -1931,7 +1955,7 @@ void GLWidget::ToggledFacesDomainHistogram (bool checked)
 void GLWidget::ToggledFacesShowEdges (bool checked)
 {
     m_facesShowEdges = checked;
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ToggledFaceEdgesTorus (bool checked)
@@ -1943,27 +1967,27 @@ void GLWidget::ToggledFaceEdgesTorus (bool checked)
 void GLWidget::ToggledEdgesTessellation (bool checked)
 {
     m_edgesTessellation = checked;
-    updateGL ();
+    update ();
 }
 
 
 void GLWidget::ToggledTorusOriginalDomainShown (bool checked)
 {
     m_torusOriginalDomainDisplay = checked;
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ToggledTubeCenterPathUsed (bool checked)
 {
     m_tubeCenterPathUsed = checked;
-    updateGL ();
+    update ();
 }
 
 
 void GLWidget::ToggledTorusOriginalDomainClipped (bool checked)
 {
     m_torusOriginalDomainClipped = checked;
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ToggledCenterPath (bool checked)
@@ -1985,7 +2009,7 @@ void GLWidget::CurrentIndexChangedInteractionMode (int index)
 void GLWidget::CurrentIndexChangedStatisticsType (int index)
 {
     m_statisticsType = StatisticsType::Enum(index);
-    updateGL ();
+    update ();
 }
 
 void GLWidget::CurrentIndexChangedAxesOrder (int index)
@@ -2003,7 +2027,7 @@ void GLWidget::SetBodyProperty (
     if (m_bodyProperty != BodyProperty::NONE)
 	SetColorBarModel (colorBarModel);
     compile ();
-    updateGL ();
+    update ();
 }
 
 void GLWidget::SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel)
@@ -2013,16 +2037,25 @@ void GLWidget::SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel)
     const QImage image = colorBarModel->GetImage ();
     glTexImage1D (GL_TEXTURE_1D, 0, GL_RGB, image.width (),
 		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 {
     m_timeStep = timeStep;
-    makeCurrent ();
     if (m_viewType == ViewType::FACES_AVERAGE)
-	m_displayFaceStatistics->StepDisplay ();
-    updateGL ();
+    {
+	makeCurrent ();
+	m_displayFaceStatistics->Step (
+	    GetFoamAlongTime ().GetMin (GetBodyProperty ()), 
+	    GetFoamAlongTime ().GetMax (GetBodyProperty ()));
+    }
+    else if (m_viewType == ViewType::FACES_DOMAIN_HISTOGRAM)
+    {
+	makeCurrent ();
+	m_displayFaceStatistics->Step (0, GetFoamAlongTime ().GetTimeSteps ());
+    }
+    update ();
 }
 
 void GLWidget::ValueChangedStatisticsHistory (int timeSteps)
@@ -2039,7 +2072,7 @@ void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
 	(bb.high () - bb.low ()).z * timeDisplacement /
 	GetFoamAlongTime ().GetTimeSteps () / maximum;
     compile ();
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ValueChangedEdgesRadius (int sliderValue)
@@ -2050,7 +2083,7 @@ void GLWidget::ValueChangedEdgesRadius (int sliderValue)
     setEdgeRadius ();
     enableLighting (m_lightEnabled.any ());
     compile ();
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ValueChangedContextAlpha (int sliderValue)
@@ -2059,7 +2092,7 @@ void GLWidget::ValueChangedContextAlpha (int sliderValue)
     m_contextAlpha = MIN_CONTEXT_ALPHA +
 	(MAX_CONTEXT_ALPHA - MIN_CONTEXT_ALPHA) * sliderValue / maximum;
     compile ();
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ValueChangedLightAmbientRed (int sliderValue)
@@ -2069,7 +2102,7 @@ void GLWidget::ValueChangedLightAmbientRed (int sliderValue)
 	static_cast<double>(sliderValue) / maximum;
     glLightfv(GL_LIGHT0 + m_selectedLight, GL_AMBIENT, 
 	      &m_lightAmbient[m_selectedLight][0]);
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ValueChangedLightAmbientGreen (int sliderValue)
@@ -2079,7 +2112,7 @@ void GLWidget::ValueChangedLightAmbientGreen (int sliderValue)
 	static_cast<double>(sliderValue) / maximum;
     glLightfv(GL_LIGHT0 + m_selectedLight, GL_AMBIENT, 
 	      &m_lightAmbient[m_selectedLight][0]);
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ValueChangedLightAmbientBlue (int sliderValue)
@@ -2089,7 +2122,7 @@ void GLWidget::ValueChangedLightAmbientBlue (int sliderValue)
 	static_cast<double>(sliderValue) / maximum;
     glLightfv(GL_LIGHT0 + m_selectedLight, GL_AMBIENT, 
 	      &m_lightAmbient[m_selectedLight][0]);
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ValueChangedLightDiffuseRed (int sliderValue)
@@ -2099,7 +2132,7 @@ void GLWidget::ValueChangedLightDiffuseRed (int sliderValue)
 	static_cast<double>(sliderValue) / maximum;
     glLightfv(GL_LIGHT0 + m_selectedLight, GL_DIFFUSE, 
 	      &m_lightDiffuse[m_selectedLight][0]);
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ValueChangedLightDiffuseGreen (int sliderValue)
@@ -2109,7 +2142,7 @@ void GLWidget::ValueChangedLightDiffuseGreen (int sliderValue)
 	static_cast<double>(sliderValue) / maximum;
     glLightfv(GL_LIGHT0 + m_selectedLight, GL_DIFFUSE, 
 	      &m_lightDiffuse[m_selectedLight][0]);
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ValueChangedLightDiffuseBlue (int sliderValue)
@@ -2119,7 +2152,7 @@ void GLWidget::ValueChangedLightDiffuseBlue (int sliderValue)
 	static_cast<double>(sliderValue) / maximum;
     glLightfv(GL_LIGHT0 + m_selectedLight, GL_DIFFUSE, 
 	      &m_lightDiffuse[m_selectedLight][0]);
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ValueChangedLightSpecularRed (int sliderValue)
@@ -2129,7 +2162,7 @@ void GLWidget::ValueChangedLightSpecularRed (int sliderValue)
 	static_cast<double>(sliderValue) / maximum;
     glLightfv(GL_LIGHT0 + m_selectedLight, GL_SPECULAR, 
 	      &m_lightSpecular[m_selectedLight][0]);
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ValueChangedLightSpecularGreen (int sliderValue)
@@ -2139,7 +2172,7 @@ void GLWidget::ValueChangedLightSpecularGreen (int sliderValue)
 	static_cast<double>(sliderValue) / maximum;
     glLightfv(GL_LIGHT0 + m_selectedLight, GL_SPECULAR, 
 	      &m_lightSpecular[m_selectedLight][0]);
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ValueChangedLightSpecularBlue (int sliderValue)
@@ -2149,7 +2182,7 @@ void GLWidget::ValueChangedLightSpecularBlue (int sliderValue)
 	static_cast<double>(sliderValue) / maximum;
     glLightfv(GL_LIGHT0 + m_selectedLight, GL_SPECULAR, 
 	      &m_lightSpecular[m_selectedLight][0]);
-    updateGL ();
+    update ();
 }
 
 void GLWidget::ValueChangedAngleOfView (int angleOfView)
@@ -2158,7 +2191,7 @@ void GLWidget::ValueChangedAngleOfView (int angleOfView)
     m_angleOfView = angleOfView;
     calculateCameraDistance ();
     projectionTransform ();
-    updateGL ();
+    update ();
 }
 
 
@@ -2315,7 +2348,7 @@ void GLWidget::UnionBodySelector (const vector<size_t>& bodyIds)
     }
     setBodySelectorLabel (m_bodySelector->GetType ());
     compile ();
-    updateGL ();
+    update ();
 }
 
 void GLWidget::DifferenceBodySelector (const vector<size_t>& bodyIds)
@@ -2350,7 +2383,7 @@ void GLWidget::DifferenceBodySelector (const vector<size_t>& bodyIds)
     }
     setBodySelectorLabel (m_bodySelector->GetType ());
     compile ();
-    updateGL ();
+    update ();
 }
 
 void GLWidget::SetBodySelector (boost::shared_ptr<IdBodySelector> selector)
@@ -2377,7 +2410,7 @@ void GLWidget::SetBodySelector (boost::shared_ptr<IdBodySelector> selector)
     }
     setBodySelectorLabel (m_bodySelector->GetType ());
     compile ();
-    updateGL ();
+    update ();
 }
 
 
@@ -2406,7 +2439,7 @@ void GLWidget::SetBodySelector (
     }
     setBodySelectorLabel (m_bodySelector->GetType ());
     compile ();
-    updateGL ();
+    update ();
 }
 
 void GLWidget::SetBodySelector (
@@ -2432,7 +2465,7 @@ void GLWidget::SetBodySelector (
     }
     setBodySelectorLabel (m_bodySelector->GetType ());
     compile ();
-    updateGL ();
+    update ();
 }
 
 bool GLWidget::IsTimeDisplacementUsed () const

@@ -156,7 +156,7 @@ void DisplayShaderProgram::Init ()
     m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
     // this should match StatisticsType::Enum order
     const char *fsrc =
-	"// 0: average, 1: min, 2: max\n"
+	"// 0: average, 1: min, 2: max, 3: count\n"
 	"uniform int displayType;\n"
 	"uniform float minValue;\n"
 	"uniform float maxValue;\n"
@@ -174,8 +174,10 @@ void DisplayShaderProgram::Init ()
 	"           value = result.r / result.g;\n"
 	"        else if (displayType == 1)\n"
 	"           value = result.b;\n"
-	"        else\n"
+	"        else if (displayType == 2)\n"
 	"           value = result.a;\n"
+	"        else\n"
+	"           value = result.g;\n"
 	"        float colorBarTexIndex = (value - minValue) / (maxValue - minValue);\n"
         "        gl_FragColor = texture1D (colorBarTexUnit, colorBarTexIndex);\n"
 	"    }\n"
@@ -264,21 +266,17 @@ void DisplayFaceStatistics::display (
 }
 
 
-void DisplayFaceStatistics::InitStepDisplay ()
+void DisplayFaceStatistics::InitStep (GLfloat minValue, GLfloat maxValue)
 {
     Init (QSize (m_glWidget.width (), m_glWidget.height ()));
-    StepDisplay ();
+    Step (minValue, maxValue);
 }
 
-void DisplayFaceStatistics::StepDisplay ()
+void DisplayFaceStatistics::Step (GLfloat minValue, GLfloat maxValue)
 {
-    const FoamAlongTime& foamAlongTime = m_glWidget.GetFoamAlongTime ();
-    BodyProperty::Enum facesColor = m_glWidget.GetBodyProperty ();
-    GLfloat minValue = foamAlongTime.GetMin (facesColor);
-    GLfloat maxValue = foamAlongTime.GetMax (facesColor);
+    BodyProperty::Enum property = m_glWidget.GetBodyProperty ();
     size_t timeStep = m_glWidget.GetTimeStep ();
-    Step (timeStep, facesColor, minValue, maxValue);
-    Display (minValue, maxValue, m_glWidget.GetStatisticsType ());
+    Step (timeStep, property, minValue, maxValue);
 }
 
 void DisplayFaceStatistics::Step (
@@ -292,8 +290,8 @@ void DisplayFaceStatistics::Step (
     glPushMatrix ();
     m_glWidget.ModelViewTransform (timeStep);
     renderToStep (timeStep, property);
-    //save (*m_step, "step", timeStep,
-    //minValue, maxValue, StatisticsType::AVERAGE);
+    save (*m_step, "step", timeStep,
+	  minValue, maxValue, StatisticsType::AVERAGE);
     glPopMatrix ();
     addStepToNew ();
     //save (*m_new, "new", timeStep,
