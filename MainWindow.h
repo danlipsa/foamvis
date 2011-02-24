@@ -68,7 +68,7 @@ public:
 Q_SIGNALS:
     void BodyPropertyChanged (
 	boost::shared_ptr<ColorBarModel> colorBarModel,
-	BodyProperty::Enum property, ViewType::Enum viewType);
+	BodyProperty::Enum property);
     void ColorBarModelChanged (
 	boost::shared_ptr<ColorBarModel> colorBarModel);
 
@@ -121,6 +121,7 @@ public Q_SLOTS:
     void ButtonClickedAllTimestepsHistogram (int id);
     void ToggledFacesNormal (bool checked);
     void ToggledFacesStatistics (bool checked);
+    void ToggledFacesDomainHistogram (bool checked);
     /**
      * Shows edges
      * @param checked true for showing edges false otherwise
@@ -134,7 +135,8 @@ public Q_SLOTS:
     void ValueChangedFontSize (int value);
 private:
     bool isHistogramHidden (HistogramType::Enum histogramType);
-    void connectColorBarModelChanged ();
+    void connectSignals ();
+    void connectColorBarHistogram (bool connected);
     /**
      * Enables/Disables the Begin button
      * @param enable true to enable and false to disable the button
@@ -163,7 +165,6 @@ private:
     void setupColorBarModel (BodyProperty::Enum property);
     void setupColorBarModels ();
 
-    void setupColorBar ();
     void setupHistogram ();
     void processBodyTorusStep ();
     void translateBodyStep ();

@@ -36,6 +36,9 @@
        </sizepolicy>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,0,0,0">
+       <property name="spacing">
+        <number>6</number>
+       </property>
        <property name="margin">
         <number>0</number>
        </property>
@@ -1012,6 +1015,16 @@
             </widget>
            </item>
            <item>
+            <widget class="QRadioButton" name="radioButtonFacesDomainHistogram">
+             <property name="text">
+              <string>Domain Histogram</string>
+             </property>
+             <attribute name="buttonGroup">
+              <string>buttonGroupDisplay</string>
+             </attribute>
+            </widget>
+           </item>
+           <item>
             <widget class="QStackedWidget" name="stackedWidgetFaces">
              <property name="currentIndex">
               <number>0</number>
@@ -1208,11 +1221,6 @@
                  <item>
                   <property name="text">
                    <string>Maximum</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Domain Histogram</string>
                   </property>
                  </item>
                 </widget>
@@ -1548,6 +1556,7 @@
     <slot>ToggledIsContextHidden(bool)</slot>
     <slot>ToggledFacesStatistics(bool)</slot>
     <slot>ValueChangedStatisticsHistory(int)</slot>
+    <slot>ToggledFacesDomainHistogram(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1805,7 +1814,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>855</x>
-     <y>267</y>
+     <y>294</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1824,8 +1833,8 @@
      <y>34</y>
     </hint>
     <hint type="destinationlabel">
-     <x>442</x>
-     <y>535</y>
+     <x>451</x>
+     <y>539</y>
     </hint>
    </hints>
   </connection>
@@ -1852,8 +1861,8 @@
    <slot>SelectionChangedHistogram()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>442</x>
-     <y>535</y>
+     <x>451</x>
+     <y>539</y>
     </hint>
     <hint type="destinationlabel">
      <x>336</x>
@@ -1901,7 +1910,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>8</x>
-     <y>524</y>
+     <y>528</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1917,7 +1926,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>701</x>
-     <y>294</y>
+     <y>321</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2620,8 +2629,8 @@
    <slot>CurrentIndexChangedStatisticsType(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>765</x>
-     <y>378</y>
+     <x>855</x>
+     <y>288</y>
     </hint>
     <hint type="destinationlabel">
      <x>874</x>
@@ -2637,7 +2646,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>855</x>
-     <y>418</y>
+     <y>320</y>
     </hint>
     <hint type="destinationlabel">
      <x>527</x>
@@ -2652,12 +2661,44 @@
    <slot>CurrentIndexChangedStatisticsType(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>698</x>
-     <y>366</y>
+     <x>855</x>
+     <y>288</y>
     </hint>
     <hint type="destinationlabel">
      <x>516</x>
      <y>392</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonFacesDomainHistogram</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledFacesDomainHistogram(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>723</x>
+     <y>241</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>876</x>
+     <y>257</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonFacesDomainHistogram</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledFacesDomainHistogram(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>613</x>
+     <y>236</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>575</x>
+     <y>237</y>
     </hint>
    </hints>
   </connection>
@@ -2675,6 +2716,7 @@
   <slot>ToggledStatisticsHistoryEnabled(bool)</slot>
   <slot>CurrentIndexChangedStatisticsType(int)</slot>
   <slot>CurrentIndexChangedFacesColor(int)</slot>
+  <slot>ToggledFacesDomainHistogram(bool)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroupDisplay"/>

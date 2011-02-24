@@ -123,9 +123,12 @@ class Palette
 public:
     enum Enum
     {
+	// multihue
 	RAINBOW, FIRST = RAINBOW,
 	RAINBOW_EXTENDED,
+	// sequential
 	BLACK_BODY,
+	// diverging
 	BLUE_RED_DIVERGING,
 	BLUE_TAN_DIVERGING,
 	PURPLE_ORANGE_DIVERGING,
@@ -148,6 +151,7 @@ public:
 
         FACES,
 	FACES_AVERAGE,
+	FACES_DOMAIN_HISTOGRAM,
 
 	CENTER_PATHS,
         COUNT
@@ -162,8 +166,7 @@ public:
     {
 	AVERAGE,
 	MIN,
-	MAX,
-	DOMAIN_HISTOGRAM
+	MAX
     };
 };
 

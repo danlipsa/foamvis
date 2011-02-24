@@ -15,6 +15,8 @@ ColorBar::ColorBar (QWidget* parent) :
     QwtScaleWidget (parent),
     m_model (new ColorBarModel())
 {
+    setAlignment (QwtScaleDraw::LeftScale);
+    setBorderDist (5, 5);
     setColorBarEnabled (true);
     createActions ();
 }
@@ -34,7 +36,7 @@ void ColorBar::createActions ()
 	    this, SLOT(ClampClear ()));
 }
 
-void ColorBar::ColorBarModelChangedSlot (
+void ColorBar::SetModel (
     boost::shared_ptr<ColorBarModel> model)
 {
     m_model = model;

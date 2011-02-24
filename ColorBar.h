@@ -19,14 +19,12 @@ public:
 public Q_SLOTS:
     void ShowEditColorMap ();
     void ClampClear ();
-    void ColorBarModelChangedSlot (
-	boost::shared_ptr<ColorBarModel> colorBarModel);
+    void SetModel (boost::shared_ptr<ColorBarModel> colorBarModel);
     void SetDefaultFont ();
 
 Q_SIGNALS:
     void EditColorMap ();
-    void ColorBarModelChanged (
-	boost::shared_ptr<ColorBarModel> colorBarModel);
+    void ColorBarModelChanged (boost::shared_ptr<ColorBarModel> colorBarModel);
 
 protected:
     virtual void contextMenuEvent (QContextMenuEvent *event);

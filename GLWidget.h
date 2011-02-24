@@ -290,9 +290,10 @@ public Q_SLOTS:
      * Shows faces
      * @param checked true for showing faces false otherwise
      */
-    void ToggledFacesStatistics (bool checked);
-    void ToggledFaceEdgesTorus (bool checked);
     void ToggledFacesNormal (bool checked);
+    void ToggledFacesStatistics (bool checked);
+    void ToggledFacesDomainHistogram (bool checked);
+    void ToggledFaceEdgesTorus (bool checked);
     void ToggledFacesShowEdges (bool checked);
 
     void ToggledHideContent (bool checked);
@@ -303,11 +304,10 @@ public Q_SLOTS:
     void ToggledTorusOriginalDomainClipped (bool checked);
     void ToggledTubeCenterPathUsed (bool checked);
 
-    void BodyPropertyChanged (
+    void SetBodyProperty (
 	boost::shared_ptr<ColorBarModel> colorBarModel,
-	BodyProperty::Enum property, ViewType::Enum viewType);
-    void ColorBarModelChanged (
-	boost::shared_ptr<ColorBarModel> colorBarModel);
+	BodyProperty::Enum property);
+    void SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel);
 
     void CurrentIndexChangedInteractionMode (int index);
     void CurrentIndexChangedStatisticsType (int index);
@@ -490,6 +490,7 @@ private:
     void displayFacesNormal () const;
     void displayFacesTorus () const;
     void displayFacesStatistics () const;
+    void displayFacesDomainHistogram () const;
     void displayFacesTorusTubes () const;
     void displayFacesTorusLines () const;
 

@@ -62,8 +62,8 @@ cd ~
 tar xzf foam-<version>.tgz
 cd foam
 qmake
-(you can do 'qmake CONFIG+=debug' for a debug build)
 make
+(you can do 'make debug' for a debug build)
 
 Make sure you don't run 'make clean' or 'make distclean' as this will
 delete bison/flex files and require additional dependencies on the

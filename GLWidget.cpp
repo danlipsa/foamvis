@@ -321,6 +321,7 @@ void GLWidget::initViewTypeDisplay ()
 	  &GLWidget::displayFacesTorus,
 	  &GLWidget::displayFacesNormal,
 	  &GLWidget::displayFacesStatistics,
+	  &GLWidget::displayFacesDomainHistogram,
 	  &GLWidget::displayCenterPathsWithBodies,
 	 }};
     copy (vtd.begin (), vtd.end (), m_viewTypeDisplay.begin ());
@@ -1380,6 +1381,10 @@ void GLWidget::displayFacesStatistics () const
     glPopAttrib ();
 }
 
+void GLWidget::displayFacesDomainHistogram () const
+{
+}
+
 
 template<typename displaySameEdges>
 void GLWidget::displayStandaloneFaces () const
@@ -1902,22 +1907,10 @@ void GLWidget::ToggledEdgesBodyCenter (bool checked)
     updateGL ();
 }
 
-void GLWidget::ToggledFacesShowEdges (bool checked)
-{
-    m_facesShowEdges = checked;
-    updateGL ();
-}
-
 void GLWidget::ToggledFacesNormal (bool checked)
 {
     changeView (checked, ViewType::FACES);
 }
-
-void GLWidget::ToggledFaceEdgesTorus (bool checked)
-{
-    changeView (checked, ViewType::FACES_TORUS);
-}
-
 
 void GLWidget::ToggledFacesStatistics (bool checked)
 {
@@ -1927,6 +1920,23 @@ void GLWidget::ToggledFacesStatistics (bool checked)
     else
 	m_displayFaceStatistics->Release ();
     changeView (checked, ViewType::FACES_AVERAGE);
+}
+
+void GLWidget::ToggledFacesDomainHistogram (bool checked)
+{
+    changeView (checked, ViewType::FACES_DOMAIN_HISTOGRAM);
+}
+
+
+void GLWidget::ToggledFacesShowEdges (bool checked)
+{
+    m_facesShowEdges = checked;
+    updateGL ();
+}
+
+void GLWidget::ToggledFaceEdgesTorus (bool checked)
+{
+    changeView (checked, ViewType::FACES_TORUS);
 }
 
 
@@ -1985,38 +1995,18 @@ void GLWidget::CurrentIndexChangedAxesOrder (int index)
 }
 
 // @todo add a color bar model for BodyProperty::None
-void GLWidget::BodyPropertyChanged (
+void GLWidget::SetBodyProperty (
     boost::shared_ptr<ColorBarModel> colorBarModel,
-    BodyProperty::Enum property, ViewType::Enum viewType)
+    BodyProperty::Enum property)
 {
-    RuntimeAssert (
-	viewType == ViewType::FACES ||
-	viewType == ViewType::CENTER_PATHS ||
-	viewType == ViewType::FACES_AVERAGE,
-	"Invalid view type: ", viewType);
-    switch (viewType)
-    {
-    case ViewType::FACES:
-	m_bodyProperty = property;
-	break;
-    case ViewType::FACES_AVERAGE:
-	m_bodyProperty = property;
-	m_displayFaceStatistics->InitStepDisplay ();
-	break;
-    case ViewType::CENTER_PATHS:
-	m_bodyProperty = property;	
-	break;
-    default:
-	RuntimeAssert (false, "Invalid value in switch: ", viewType);
-    }
+    m_bodyProperty = property;
     if (m_bodyProperty != BodyProperty::NONE)
-	ColorBarModelChanged (colorBarModel);
+	SetColorBarModel (colorBarModel);
     compile ();
     updateGL ();
 }
 
-void GLWidget::ColorBarModelChanged (
-    boost::shared_ptr<ColorBarModel> colorBarModel)
+void GLWidget::SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel)
 {
     makeCurrent ();
     m_colorBarModel = colorBarModel;
