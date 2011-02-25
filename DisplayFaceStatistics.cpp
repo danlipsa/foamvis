@@ -290,8 +290,8 @@ void DisplayFaceStatistics::Step (
     glPushMatrix ();
     m_glWidget.ModelViewTransform (timeStep);
     renderToStep (timeStep, property);
-    save (*m_step, "step", timeStep,
-	  minValue, maxValue, StatisticsType::AVERAGE);
+    //save (*m_step, "step", timeStep,
+    //minValue, maxValue, StatisticsType::AVERAGE);
     glPopMatrix ();
     addStepToNew ();
     //save (*m_new, "new", timeStep,

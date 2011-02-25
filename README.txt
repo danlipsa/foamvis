@@ -177,6 +177,8 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 Release log
 ===========
 0.4.	 - rolling average
+	 - domain histogram (count of values that fall in a certain interval per
+	   unit area)
 0.4.1746 - use display lists for center paths resulting in significant speed 
 	   improvement for interaction with 3D bubble paths.
 0.4.1740 - stationary body + context selection in face and average view

@@ -33,7 +33,7 @@ public:
 	KEEP_MAX_VALUE,
 	REPLACE_MAX_VALUE,
     };
-
+    typedef pair<QwtIntervalData, size_t> HistogramInfo;
 
 public:
     /**
@@ -172,6 +172,7 @@ private:
     void createActions ();
     void fieldsToControls (QComboBox* comboBox, QButtonGroup* buttonGroup);
     void displayHistogramColorBar (bool checked);
+    HistogramInfo getCurrentHistogramInfo () const;
     boost::shared_ptr<ColorBarModel> getCurrentColorBarModel () const;
 
 private:

@@ -924,13 +924,9 @@ void MainWindow::SelectionChangedHistogram ()
 
 void MainWindow::ShowEditColorMap ()
 {
-    FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    const HistogramStatistics& histogramStatistics = 
-	foamAlongTime.GetHistogram (m_property);
+    HistogramInfo p = getCurrentHistogramInfo ();
     m_editColorMap->SetData (
-	histogramStatistics.ToQwtIntervalData (),
-	histogramStatistics.GetMaxCountPerBin (),
-	*getCurrentColorBarModel (),
+	p.first, p.second, *getCurrentColorBarModel (),
 	checkBoxHistogramGridShown->isChecked ());
     if (m_editColorMap->exec () == QDialog::Accepted)
     {
@@ -945,4 +941,29 @@ boost::shared_ptr<ColorBarModel> MainWindow::getCurrentColorBarModel () const
 	return m_colorBarModelDomainHistogram;
     else
 	return m_colorBarModelBodyProperty[m_property];
+}
+
+MainWindow::HistogramInfo MainWindow::getCurrentHistogramInfo () const
+{
+    FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
+    if (widgetGl->GetViewType () == ViewType::FACES_DOMAIN_HISTOGRAM)
+    {
+	QwtArray<QwtDoubleInterval> a (HISTOGRAM_INTERVALS);
+	QwtArray<double> d (HISTOGRAM_INTERVALS);
+	size_t max = foamAlongTime.GetTimeSteps ();
+	double intervalSize = double (max) / HISTOGRAM_INTERVALS;
+	for (int i = 0; i < a.size (); ++i)
+	{
+	    a[i] = QwtDoubleInterval (intervalSize * i, intervalSize* (i+1));
+	    d[i] = 1;
+	}
+	return HistogramInfo (QwtIntervalData (a, d), 1);
+    }
+    else
+    {
+	const HistogramStatistics& histogramStatistics = 
+	    foamAlongTime.GetHistogram (m_property);
+	return HistogramInfo (histogramStatistics.ToQwtIntervalData (), 
+			      histogramStatistics.GetMaxCountPerBin ());
+    }
 }
