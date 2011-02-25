@@ -943,6 +943,9 @@ boost::shared_ptr<ColorBarModel> MainWindow::getCurrentColorBarModel () const
 	return m_colorBarModelBodyProperty[m_property];
 }
 
+/**
+ * @todo Calculate the correct histogram for the 'domain histogram' image.
+ */
 MainWindow::HistogramInfo MainWindow::getCurrentHistogramInfo () const
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
