@@ -176,7 +176,7 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
-0.4.1767 - rolling average
+0.4.1768 - rolling average
 	 - domain histogram (count of values that fall in a certain interval per
 	   unit area). Note that histogram shown for 'Edit Color Map' is not 
 	   correct for the 'Domain Histogram' color bar.
