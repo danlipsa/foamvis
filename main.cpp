@@ -202,7 +202,7 @@ void printHelp ()
      * - 'svn commmit/update everyting in the current directory
      * - ./release.pl
      */
-    const char* version = "0.4.1746";
+    const char* version = "0.4.1770";
     cdbg << "foam version " << version 
 #ifdef QT_NO_DEBUG
 	 << " RELEASE build"
