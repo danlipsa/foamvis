@@ -29,6 +29,12 @@ void  DisplayAllButLastVertices (const boost::shared_ptr<OrientedEdge> e)
 	::glVertex(e->GetPoint (i));
 }
 
+void  DisplayAllVertices (const boost::shared_ptr<OrientedEdge> e)
+{
+    for (size_t i = 0; i < e->PointCount (); ++i)
+	::glVertex(e->GetPoint (i));
+}
+
 // DisplayOriginalVertex
 // ======================================================================
 
@@ -43,12 +49,9 @@ void DisplayOriginalVertex::operator() (const boost::shared_ptr<Vertex>& v)
 // DisplayBeginVertex
 // ======================================================================
 
-void DisplayBeginVertex::operator() (const boost::shared_ptr<OrientedEdge> e)
+void DisplayBeginVertex::operator() (const OrientedEdge* e)
 {
     ::glVertex (e->GetBegin ()->GetVector ());
-    //for (size_t i = 0; i < e->PointCount (); ++i)
-    //glVertex(e->GetPoint (i));
-	
 }
 
 // DisplayTriangle

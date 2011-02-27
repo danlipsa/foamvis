@@ -257,10 +257,10 @@ public:
 
 // Display all edges of a face
 // ======================================================================
-class DisplaySameEdges : public DisplayElementFocus
+class DisplayFaceLineStrip : public DisplayElementFocus
 {
 public:
-    DisplaySameEdges (const GLWidget& widget, FocusContext focus = FOCUS,
+    DisplayFaceLineStrip (const GLWidget& widget, FocusContext focus = FOCUS,
 		      bool useZPos = false, double zPos = 0) :
 	DisplayElementFocus (widget, focus, useZPos, zPos)
     {
@@ -274,35 +274,21 @@ public:
 /**
  * Functor that displays an edge
  */
-class DisplaySameTriangles : public DisplayElementFocus
+class DisplayFaceTriangleFan : public DisplayElementFocus
 {
 public:
-    DisplaySameTriangles (const GLWidget& widget, FocusContext focus = FOCUS,
+    DisplayFaceTriangleFan (const GLWidget& widget, FocusContext focus = FOCUS,
 			  bool useZPos = false, double zPos = 0) : 
 	DisplayElementFocus (widget, focus, useZPos, zPos)
     {
     }
 
-    void operator() (const boost::shared_ptr<Face>& f);
-    void operator() (const boost::shared_ptr<OrientedFace>& of);
-};
-
-
-class DisplayTriangleFan : public DisplaySameEdges
-{
-public:
-    DisplayTriangleFan (const GLWidget& widget, FocusContext focus = FOCUS,
-			bool useZPos = false, double zPos = 0) :
-	DisplaySameEdges (widget, focus, useZPos, zPos)
+    void operator () (const boost::shared_ptr<Face>& f) const;
+    void operator () (const boost::shared_ptr<const OrientedFace>& of) const
     {
+	operator () (of.get ());
     }
-
-    void operator() (const boost::shared_ptr<OrientedFace>&  of);
-
-    inline void operator() (const boost::shared_ptr<Face>& f)
-    {
-	DisplaySameEdges::operator () (f);
-    }
+    void operator () (const OrientedFace* of) const;
 };
 
 

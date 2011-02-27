@@ -13,7 +13,7 @@
 
 class Face;
 class OrientedFace;
-class DisplaySameEdges;
+class DisplayFaceLineStrip;
 
 /**
  * Functor that displays a face
@@ -61,7 +61,7 @@ private:
  * Functor that displays a face using the color specified in the DMP file
  * @todo Fix the back front facing for faces.
  */
-template<typename displaySameEdges = DisplaySameEdges, 
+template<typename displaySameEdges = DisplayFaceLineStrip, 
 	 typename PropertySetter = SetterValueTextureCoordinate>
 class DisplayFaceWithColor : 
     public DisplayFace<displaySameEdges, PropertySetter>

@@ -395,61 +395,61 @@ operator() (const boost::shared_ptr<OrientedEdge> oe) const
     }
 
 
-// DisplaySameEdges
+// DisplayFaceLineStrip
 // ======================================================================
-void DisplaySameEdges::operator() (const boost::shared_ptr<OrientedFace>&  of)
+void DisplayFaceLineStrip::operator() (const boost::shared_ptr<OrientedFace>&  of)
 {
     operator() (of->GetFace ());
 }
 
-void DisplaySameEdges::operator() (const boost::shared_ptr<Face>& f)
+void DisplayFaceLineStrip::operator() (const boost::shared_ptr<Face>& f)
 {
-    glBegin (GL_POLYGON);
+    glBegin (GL_LINE_STRIP);
     const vector<boost::shared_ptr<OrientedEdge> >& v =
 	f->GetOrientedEdges ();
-    for_each (v.begin (), v.end (), DisplayAllButLastVertices);
-    if (! f->IsClosed ())
-	::glVertex (v[v.size () - 1]->GetEnd ()->GetVector ());
+    for_each (v.begin (), v.end (), DisplayAllVertices);
     glEnd ();
 }
 
-// DisplayTriangleFan
+
+// DisplayFaceTriangleFan
 // ======================================================================
 
-void DisplayTriangleFan::operator() (const boost::shared_ptr<OrientedFace>& of)
+void DisplayFaceTriangleFan::operator() (
+    const boost::shared_ptr<Face>& f) const
 {
-    operator() (of->GetFace ());
+    OrientedFace of (f, false);
+    operator () (&of);
 }
 
-
-// DisplaySameTriangles
-// ======================================================================
-
-void DisplaySameTriangles::operator() (const boost::shared_ptr<Face>& f)
+void DisplayFaceTriangleFan::operator() (const OrientedFace*  of) const
 {
-    const vector<boost::shared_ptr<OrientedEdge> >& orientedEdges = 
-	f->GetOrientedEdges ();
-    glBegin (GL_TRIANGLES);
-    if (f->IsTriangle ())
-	for_each (orientedEdges.begin (), orientedEdges.end (),
-		  DisplayBeginVertex());
+    if (of->IsTriangle ())
+    {
+	glBegin (GL_TRIANGLES);
+	for (size_t i = 0; i < of->size (); ++i)
+	    DisplayBeginVertex () (of->GetOrientedEdge (i));
+    }
     else
     {
-	DisplayTriangle dt (f->GetCenter ());
-	for_each (orientedEdges.begin (), orientedEdges.end (),
-		  boost::bind (dt, _1));
-	if (! f->IsClosed ())
-	    dt(orientedEdges[orientedEdges.size () - 1]
-	       ->GetEnd ()->GetVector (),
-	       orientedEdges[0]->GetBegin ()->GetVector ());
+	OrientedEdge oe = of->GetOrientedEdge (0);
+	glBegin (GL_TRIANGLE_FAN);
+	::glVertex (of->GetCenter ());
+	::glVertex (oe.GetPoint (0));
+	::glVertex (oe.GetPoint (1));
+	size_t pointIndex = 2;
+	for (size_t i = 0; i < of->size (); ++i)
+	{
+	    oe = of->GetOrientedEdge (i);
+	    for (; pointIndex < oe.PointCount (); ++pointIndex)
+		::glVertex (oe.GetPoint (pointIndex));
+	    pointIndex = 0;
+	}
+	
+	if (! of->IsClosed ())
+	    ::glVertex (of->GetOrientedEdge (0).GetBegin ()->GetVector ());
     }
     glEnd ();
-}
-
-void DisplaySameTriangles::operator() (
-    const boost::shared_ptr<OrientedFace>&  of)
-{
-    operator() (of->GetFace ());
 }
 
 

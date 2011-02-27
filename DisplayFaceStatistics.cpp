@@ -329,10 +329,7 @@ void DisplayFaceStatistics::renderToStep (
     m_storeShaderProgram.Bind ();
     const Foam& foam = *m_glWidget.GetFoamAlongTime ().GetFoam (timeStep);
     const Foam::Bodies& bodies = foam.GetBodies ();
-    if (foam.IsQuadratic ())
-	writeFacesValues<DisplaySameEdges> (bodies, property);
-    else
-	writeFacesValues<DisplaySameTriangles> (bodies, property);
+    writeFacesValues<DisplayFaceTriangleFan> (bodies, property);
     m_storeShaderProgram.release ();
     m_step->release ();
 }

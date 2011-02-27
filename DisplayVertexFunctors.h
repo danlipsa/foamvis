@@ -17,7 +17,7 @@ class Vertex;
 void DisplayEdgeVertices (const Edge& edge,
 			  bool useZPos = false, double zPos = 0);
 void  DisplayAllButLastVertices (const boost::shared_ptr<OrientedEdge> oe);
-
+void  DisplayAllVertices (const boost::shared_ptr<OrientedEdge> oe);
 struct DisplayOriginalVertex
 {
     void operator() (const boost::shared_ptr<Vertex>& v);
@@ -37,7 +37,15 @@ struct DisplayBeginVertex
     {
     }
     
-    void operator() (const boost::shared_ptr<OrientedEdge> e);
+    void operator() (const boost::shared_ptr<const OrientedEdge> oe)
+    {
+	operator () (oe.get ());
+    }
+    void operator () (const OrientedEdge* oe);
+    void operator () (const OrientedEdge& oe)
+    {
+	operator () (&oe);
+    }
 };
 
 class DisplayTriangle : 

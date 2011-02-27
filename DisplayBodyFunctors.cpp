@@ -387,20 +387,20 @@ template class DisplayBody<
 	SetterValueTextureCoordinate>,
     SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFace<DisplaySameEdges, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
+    DisplayFace<DisplayFaceLineStrip, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 
 template class DisplayBody<
-    DisplayFaceWithColor<DisplaySameEdges, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
+    DisplayFaceWithColor<DisplayFaceLineStrip, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFaceWithColor<DisplaySameEdges, SetterValueVertexAttribute>,
+    DisplayFaceWithColor<DisplayFaceLineStrip, SetterValueVertexAttribute>,
     SetterValueVertexAttribute>;
 
 template class DisplayBody<
-    DisplayFace<DisplaySameTriangles, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
+    DisplayFace<DisplayFaceTriangleFan, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFaceWithColor<DisplaySameTriangles, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
+    DisplayFaceWithColor<DisplayFaceTriangleFan, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFaceWithColor<DisplaySameTriangles, SetterValueVertexAttribute>,
+    DisplayFaceWithColor<DisplayFaceTriangleFan, SetterValueVertexAttribute>,
     SetterValueVertexAttribute>;
 
 

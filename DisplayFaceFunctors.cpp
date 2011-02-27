@@ -70,11 +70,11 @@ display (const boost::shared_ptr<OrientedFace>& of)
 {
     if (this->m_focus == DisplayElement::FOCUS)
     {
-	glColor (G3D::Color4 (Color::BLACK, 1.));
+	glColor (Qt::black);
     }
     else
-	glColor (
-	    G3D::Color4 (Color::BLACK, this->m_glWidget.GetContextAlpha ()));
+	glColor (QColor::fromRgbF (
+		     0, 0, 0, this->m_glWidget.GetContextAlpha ()));
     (displayEdges (this->m_glWidget, this->m_focus, 
 		   this->m_useZPos, this->m_zPos)) (of);
 }
@@ -215,17 +215,17 @@ template class DisplayFace<
     DisplayEdges<
 	DisplayEdgeWithColor<DisplayElement::DONT_DISPLAY_TESSELLATION> >, 
     SetterValueTextureCoordinate>;
-template class DisplayFace<DisplaySameEdges, SetterValueTextureCoordinate>;
-template class DisplayFace<DisplaySameEdges, SetterValueVertexAttribute>;
+template class DisplayFace<DisplayFaceLineStrip, SetterValueTextureCoordinate>;
+template class DisplayFace<DisplayFaceLineStrip, SetterValueVertexAttribute>;
 
-template class DisplayFace<DisplaySameTriangles, SetterValueTextureCoordinate>;
-template class DisplayFace<DisplaySameTriangles, SetterValueVertexAttribute>;
+template class DisplayFace<DisplayFaceTriangleFan, SetterValueTextureCoordinate>;
+template class DisplayFace<DisplayFaceTriangleFan, SetterValueVertexAttribute>;
 
 
 // DisplayFaceWithColor
 // ======================================================================
 
-template class DisplayFaceWithColor<DisplaySameEdges, SetterValueTextureCoordinate>;
-template class DisplayFaceWithColor<DisplaySameEdges, SetterValueVertexAttribute>;
-template class DisplayFaceWithColor<DisplaySameTriangles, SetterValueTextureCoordinate>;
-template class DisplayFaceWithColor<DisplaySameTriangles, SetterValueVertexAttribute>;
+template class DisplayFaceWithColor<DisplayFaceLineStrip, SetterValueTextureCoordinate>;
+template class DisplayFaceWithColor<DisplayFaceLineStrip, SetterValueVertexAttribute>;
+template class DisplayFaceWithColor<DisplayFaceTriangleFan, SetterValueTextureCoordinate>;
+template class DisplayFaceWithColor<DisplayFaceTriangleFan, SetterValueVertexAttribute>;

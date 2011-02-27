@@ -1030,10 +1030,7 @@ void GLWidget::displayStationaryBodyAndContext () const
 	bodies.begin (), bodies.end (), selectedBodies.begin (),
 	NoStationaryBodyAndContext(*this));
     selectedBodies.resize (end - selectedBodies.begin ());
-    if (GetCurrentFoam ().IsQuadratic ())
-	displayFacesContour<DisplaySameEdges> (selectedBodies);
-    else
-	displayFacesContour<DisplaySameTriangles> (selectedBodies);
+    displayFacesContour<DisplayFaceLineStrip> (selectedBodies);
 }
 
 
@@ -1301,7 +1298,7 @@ void GLWidget::displayFacesTorus () const
 void GLWidget::displayEdgesTorusTubes () const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+    glPolygonMode (GL_FRONT, GL_FILL);
     EdgeSet edgeSet;
     GetCurrentFoam ().GetEdgeSet (&edgeSet);
     for_each (
@@ -1343,20 +1340,10 @@ void GLWidget::displayFacesNormal () const
 {
     const Foam& foam = GetCurrentFoam ();
     const Foam::Bodies& bodies = foam.GetBodies ();
-    if (foam.IsQuadratic ())
-    {
-	if (m_facesShowEdges)
-	    displayFacesContour<DisplaySameEdges> (bodies);
-	displayFacesInterior<DisplaySameEdges> (bodies);
-	displayStandaloneFaces<DisplaySameEdges> ();
-    }
-    else
-    {
-	if (m_facesShowEdges)
-	    displayFacesContour<DisplaySameTriangles> (bodies);
-	displayFacesInterior<DisplaySameTriangles> (bodies);
-	displayStandaloneFaces<DisplaySameTriangles> ();
-    }
+    if (m_facesShowEdges)
+	displayFacesContour<DisplayFaceLineStrip> (bodies);
+    displayFacesInterior<DisplayFaceTriangleFan> (bodies);
+    displayStandaloneFaces<DisplayFaceTriangleFan> ();
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
 }
 
@@ -1396,19 +1383,22 @@ void GLWidget::displayStandaloneFaces () const
 template<typename displaySameEdges>
 void GLWidget::displayFacesContour (const Foam::Faces& faces) const
 {
-
-    glColor (QColor::fromRgbF (0, 0, 0, GetContextAlpha ()));
-    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
+    glPolygonMode (GL_FRONT, GL_LINE);
+    glEnable (GL_POLYGON_OFFSET_LINE);
+    glPolygonOffset (-1, -1);
     for_each (faces.begin (), faces.end (),
 	      DisplayFace<displaySameEdges> (*this));
+    glPopAttrib ();
 }
 
 template<typename displaySameEdges>
 void GLWidget::displayFacesContour (const Foam::Bodies& bodies) const
 {
-    glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT);
-    glColor (QColor::fromRgbF (0, 0, 0, GetContextAlpha ()));
-    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
+    glPolygonMode (GL_FRONT, GL_LINE);
+    glEnable (GL_POLYGON_OFFSET_LINE);
+    glPolygonOffset (-1, -1);
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody< DisplayFace<displaySameEdges> > (
 		  *this, *m_bodySelector));
@@ -1422,9 +1412,7 @@ void GLWidget::displayFacesInterior (const Foam::Bodies& bodies) const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT | 
 		  GL_TEXTURE_BIT);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-    glEnable (GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset (1, 1);
+    glPolygonMode (GL_FRONT, GL_FILL);
     glEnable(GL_TEXTURE_1D);
     //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
     //texture mapping?
@@ -1440,18 +1428,17 @@ void GLWidget::displayFacesInterior (const Foam::Bodies& bodies) const
 template<typename displaySameEdges>
 void GLWidget::displayFacesInterior (const Foam::Faces& faces) const
 {
-    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-    glEnable (GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset (1, 1);
+    glPushAttrib (GL_POLYGON_BIT);
+    glPolygonMode (GL_FRONT, GL_FILL);
     for_each (faces.begin (), faces.end (),
 	      DisplayFaceWithColor<displaySameEdges> (*this));
-    glDisable (GL_POLYGON_OFFSET_FILL);
+    glPopAttrib ();
 }
 
 void GLWidget::displayFacesTorusTubes () const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+    glPolygonMode (GL_FRONT, GL_FILL);
     FaceSet faceSet;
     GetCurrentFoam ().GetFaceSet (&faceSet);
     for_each (

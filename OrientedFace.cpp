@@ -90,6 +90,22 @@ size_t OrientedFace::size () const
     return GetFace ()->GetEdgeCount ();
 }
 
+bool OrientedFace::IsTriangle () const
+{
+    return GetFace ()->IsTriangle ();
+}
+
+const G3D::Vector3& OrientedFace::GetCenter () const
+{
+    return GetFace ()->GetCenter ();
+}
+
+bool OrientedFace::IsClosed () const
+{
+    return GetFace ()->IsClosed ();
+}
+
+
 boost::shared_ptr<Vertex> OrientedFace::getBegin (size_t edgeIndex) const
 {
     const OrientedEdge& oe = GetOrientedEdge (edgeIndex);
