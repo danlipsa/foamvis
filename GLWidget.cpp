@@ -628,24 +628,11 @@ G3D::AABox GLWidget::calculateViewingVolume (double xOverY) const
 }
 
 
-void GLWidget::projectionTransform () const
+void GLWidget::projectionTransform ()
 {
+    makeCurrent ();
     double xOverY = double (width ()) / height ();
     G3D::AABox viewingVolume = calculateViewingVolume (xOverY);
-/*
-    if (! m_contextView)
-    {
-	double oldZ = viewingVolume.low ().z;
-	Scale (&viewingVolume, 1 / m_scaleRatio);
-	Translate (&viewingVolume, - m_translation);
-	if (GetFoamAlongTime ().GetDimension () == 2 && 
-	    ! IsTimeDisplacementUsed ())
-	{
-	    double newZ = viewingVolume.low ().z;
-	    Translate (&viewingVolume, G3D::Vector3 (0, 0, oldZ - newZ));
-	}
-    }
-*/
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
     if (m_angleOfView == 0)
@@ -784,7 +771,6 @@ void GLWidget::calculateCameraDistance ()
 
 void GLWidget::ResetTransformation ()
 {
-    makeCurrent ();
     m_rotationModel = G3D::Matrix3::identity ();
     m_scaleRatio = 1;
     m_translation = G3D::Vector3::zero ();
@@ -1119,7 +1105,6 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	break;
 
     case InteractionMode::TRANSLATE:
-	makeCurrent ();
 	if (event->modifiers () & Qt::ControlModifier)
 	{
 	    QPoint point (m_lastPos.x (), event->pos ().y ());
@@ -1131,7 +1116,6 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	projectionTransform ();
 	break;
     case InteractionMode::SCALE:
-	makeCurrent ();
 	scale (event->pos ());
 	projectionTransform ();
 	break;
@@ -1368,7 +1352,6 @@ void GLWidget::displayFacesNormal () const
     }
     else
     {
-
 	if (m_facesShowEdges)
 	    displayFacesContour<DisplaySameTriangles> (bodies);
 	displayFacesInterior<DisplaySameTriangles> (bodies);
@@ -2187,7 +2170,6 @@ void GLWidget::ValueChangedLightSpecularBlue (int sliderValue)
 
 void GLWidget::ValueChangedAngleOfView (int angleOfView)
 {
-    makeCurrent ();
     m_angleOfView = angleOfView;
     calculateCameraDistance ();
     projectionTransform ();

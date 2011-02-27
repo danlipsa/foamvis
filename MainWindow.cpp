@@ -17,6 +17,7 @@
 #include "ProcessBodyTorus.h"
 #include "SystemDifferences.h"
 #include "Utils.h"
+#include "OpenGLUtils.h"
 
 
 // Private Functions
@@ -80,16 +81,11 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     setupColorBarModels ();
     widgetHistogram->setHidden (true);
     m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
-    configureInterface (foamAlongTime);
-    
-
-    setWindowTitle (
-	QString (
-	    (string("Foam - ") + foamAlongTime.GetFilePattern ()).c_str ()));
-    // 30 ms
-    m_timer->setInterval (30);
+    configureInterface (foamAlongTime);    
+    setWindowTitle (QString ((string("Foam - ") + 
+			      foamAlongTime.GetFilePattern ()).c_str ()));
+    m_timer->setInterval (30);    // 30 ms
     createActions ();
-
     setTabOrder (radioButtonCenterPath, sliderTimeSteps);
     connectSignals ();
 }

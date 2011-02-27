@@ -76,6 +76,12 @@ public:
     bool HasWrap () const;
     string ToString () const;
     void GetVertexSet (VertexSet* vertexSet) const;
+    VertexSet GetVertexSet () const
+    {
+	VertexSet set;
+	GetVertexSet (&set);
+	return set;
+    }
     void GetEdgeSet (EdgeSet* edgeSet) const;
     void GetFaceSet (FaceSet* faceSet) const;
     double GetPressure () const

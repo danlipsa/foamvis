@@ -257,8 +257,7 @@ void Body::SetPropertyValue (BodyProperty::Enum property, double value)
 void Body::CalculateBoundingBox ()
 {
     G3D::Vector3 low, high;
-    VertexSet vertexSet;
-    GetVertexSet (&vertexSet);
+    VertexSet vertexSet = GetVertexSet ();
     CalculateAggregate <VertexSet, VertexSet::iterator, VertexLessThanAlong>() (
 	min_element, vertexSet, &low);
     CalculateAggregate <VertexSet, VertexSet::iterator, VertexLessThanAlong>()(

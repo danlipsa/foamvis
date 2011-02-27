@@ -416,7 +416,7 @@ void DisplaySameEdges::operator() (const boost::shared_ptr<Face>& f)
 // DisplayTriangleFan
 // ======================================================================
 
-void DisplayTriangleFan::operator() (const boost::shared_ptr<OrientedFace>&  of)
+void DisplayTriangleFan::operator() (const boost::shared_ptr<OrientedFace>& of)
 {
     operator() (of->GetFace ());
 }
@@ -439,7 +439,8 @@ void DisplaySameTriangles::operator() (const boost::shared_ptr<Face>& f)
 	for_each (orientedEdges.begin (), orientedEdges.end (),
 		  boost::bind (dt, _1));
 	if (! f->IsClosed ())
-	    dt(orientedEdges[orientedEdges.size () - 1]->GetEnd ()->GetVector (),
+	    dt(orientedEdges[orientedEdges.size () - 1]
+	       ->GetEnd ()->GetVector (),
 	       orientedEdges[0]->GetBegin ()->GetVector ());
     }
     glEnd ();

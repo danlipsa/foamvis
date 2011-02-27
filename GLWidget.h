@@ -447,7 +447,7 @@ private:
      * Setup the viewing volume first centered around origin and then translated
      * toward negative Z with m_cameraDistance. 
      */
-    void projectionTransform () const;
+    void projectionTransform ();
     /**
      * First translate the data to be centered around origin, then
      * rotate and then translate toward negative Z with

@@ -44,7 +44,7 @@ sub main ()
     my $foam;
     if ($ENV{'OSTYPE'} eq "darwin10.0")
     {
-	$foam = "./foam.app/Contents/MacOS/foam";
+	$foam = "./foam_debug.app/Contents/MacOS/foam_debug";
     }
     else
     {

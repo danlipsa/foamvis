@@ -223,16 +223,17 @@ void Foam::updatePartOf ()
 
 void Foam::calculateBoundingBox ()
 {
+    G3D::Vector3 low, high;
     // calculate the BB for each body
     for_each (m_bodies.begin (), m_bodies.end (),
 	      boost::bind (&Body::CalculateBoundingBox, _1));
-
-    // calculate the BB for the foam using BB for bodies
-    G3D::Vector3 low, high;
-    CalculateAggregate <Bodies, Bodies::iterator,
-	BBObjectLessThanAlongLow<Body> >() (min_element, m_bodies, &low);
-    CalculateAggregate <Bodies, Bodies::iterator,
-	BBObjectLessThanAlongHigh<Body> >()(max_element, m_bodies, &high);
+    // using the BB for bodies to calculate BB for the foam does not
+    // work when there are no bodies
+    VertexSet vertexSet = GetVertexSet ();
+    CalculateAggregate <VertexSet, VertexSet::iterator, VertexLessThanAlong>() (
+	min_element, vertexSet, &low);
+    CalculateAggregate <VertexSet, VertexSet::iterator, VertexLessThanAlong>()(
+	max_element, vertexSet, &high);
     if (IsTorus ())
 	calculateBoundingBoxForTorus (&low, &high);
     m_boundingBox.set(low, high);
