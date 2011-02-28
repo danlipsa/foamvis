@@ -1895,19 +1895,6 @@ void GLWidget::ToggledFacesNormal (bool checked)
     changeView (checked, ViewType::FACES);
 }
 
-void GLWidget::ToggledFacesStatistics (bool checked)
-{
-    makeCurrent ();
-    if (checked)
-    {
-	pair<double, double> minMax = getStatisticsMinMax ();
-	m_displayFaceStatistics->InitStep (minMax.first, minMax.second);
-    }
-    else
-	m_displayFaceStatistics->Release ();
-    changeView (checked, ViewType::FACES_STATISTICS);
-}
-
 void GLWidget::ToggledFacesShowEdges (bool checked)
 {
     m_facesShowEdges = checked;
@@ -1960,6 +1947,19 @@ void GLWidget::CurrentIndexChangedSelectedLight (int selectedLight)
 void GLWidget::CurrentIndexChangedInteractionMode (int index)
 {
     m_interactionMode = InteractionMode::Enum(index);
+}
+
+void GLWidget::ToggledFacesStatistics (bool checked)
+{
+    makeCurrent ();
+    if (checked)
+    {
+	pair<double, double> minMax = getStatisticsMinMax ();
+	m_displayFaceStatistics->InitStep (minMax.first, minMax.second);
+    }
+    else
+	m_displayFaceStatistics->Release ();
+    changeView (checked, ViewType::FACES_STATISTICS);
 }
 
 void GLWidget::CurrentIndexChangedStatisticsType (int index)

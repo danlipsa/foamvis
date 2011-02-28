@@ -613,24 +613,6 @@ void MainWindow::ToggledEdgesNormal (bool checked)
 	stackedWidgetEdges->setCurrentWidget (pageEdgesEmpty);
 }
 
-
-void MainWindow::ToggledFacesStatistics (bool checked)
-{
-    if (checked)
-    {
-	Q_EMIT ColorBarModelChanged (getCurrentColorBarModel ());
-	stackedWidgetFaces->setCurrentWidget (pageFacesStatistics);
-	labelFacesStatisticsColor->setText (
-	    BodyProperty::ToString (widgetGl->GetBodyProperty ()));
-	ButtonClickedAllTimestepsHistogram (m_histogramType);
-    }
-    else
-    {	
-	Q_EMIT ColorBarModelChanged (m_colorBarModelBodyProperty[m_property]);
-	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
-    }
-}
-
 void MainWindow::ToggledFacesNormal (bool checked)
 {
     if (checked)
@@ -829,6 +811,23 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
     }
 }
 
+
+void MainWindow::ToggledFacesStatistics (bool checked)
+{
+    if (checked)
+    {
+	Q_EMIT ColorBarModelChanged (getCurrentColorBarModel ());
+	stackedWidgetFaces->setCurrentWidget (pageFacesStatistics);
+	labelFacesStatisticsColor->setText (
+	    BodyProperty::ToString (widgetGl->GetBodyProperty ()));
+	ButtonClickedAllTimestepsHistogram (m_histogramType);
+    }
+    else
+    {	
+	Q_EMIT ColorBarModelChanged (m_colorBarModelBodyProperty[m_property]);
+	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
+    }
+}
 
 void MainWindow::CurrentIndexChangedStatisticsType (int value)
 {
