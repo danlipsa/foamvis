@@ -1298,7 +1298,7 @@ void GLWidget::displayFacesTorus () const
 void GLWidget::displayEdgesTorusTubes () const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
-    glPolygonMode (GL_FRONT, GL_FILL);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     EdgeSet edgeSet;
     GetCurrentFoam ().GetEdgeSet (&edgeSet);
     for_each (
@@ -1384,9 +1384,7 @@ template<typename displaySameEdges>
 void GLWidget::displayFacesContour (const Foam::Faces& faces) const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
-    glPolygonMode (GL_FRONT, GL_LINE);
-    glEnable (GL_POLYGON_OFFSET_LINE);
-    glPolygonOffset (-1, -1);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     for_each (faces.begin (), faces.end (),
 	      DisplayFace<displaySameEdges> (*this));
     glPopAttrib ();
@@ -1396,9 +1394,7 @@ template<typename displaySameEdges>
 void GLWidget::displayFacesContour (const Foam::Bodies& bodies) const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
-    glPolygonMode (GL_FRONT, GL_LINE);
-    glEnable (GL_POLYGON_OFFSET_LINE);
-    glPolygonOffset (-1, -1);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody< DisplayFace<displaySameEdges> > (
 		  *this, *m_bodySelector));
@@ -1412,7 +1408,9 @@ void GLWidget::displayFacesInterior (const Foam::Bodies& bodies) const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT | 
 		  GL_TEXTURE_BIT);
-    glPolygonMode (GL_FRONT, GL_FILL);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+    glEnable (GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset (1, 1);
     glEnable(GL_TEXTURE_1D);
     //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
     //texture mapping?
@@ -1428,8 +1426,10 @@ void GLWidget::displayFacesInterior (const Foam::Bodies& bodies) const
 template<typename displaySameEdges>
 void GLWidget::displayFacesInterior (const Foam::Faces& faces) const
 {
-    glPushAttrib (GL_POLYGON_BIT);
-    glPolygonMode (GL_FRONT, GL_FILL);
+    glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+    glEnable (GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset (1, 1);
     for_each (faces.begin (), faces.end (),
 	      DisplayFaceWithColor<displaySameEdges> (*this));
     glPopAttrib ();
@@ -1438,7 +1438,7 @@ void GLWidget::displayFacesInterior (const Foam::Faces& faces) const
 void GLWidget::displayFacesTorusTubes () const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
-    glPolygonMode (GL_FRONT, GL_FILL);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     FaceSet faceSet;
     GetCurrentFoam ().GetFaceSet (&faceSet);
     for_each (
@@ -1519,7 +1519,7 @@ void GLWidget::compileCenterPaths () const
 		  GL_POLYGON_BIT);
     glEnable(GL_TEXTURE_1D);
     glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
-    glPolygonMode (GL_FRONT, GL_FILL);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glEnable (GL_CULL_FACE);
 
     //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 

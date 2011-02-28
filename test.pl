@@ -48,7 +48,7 @@ sub main ()
     }
     else
     {
-	$foam = "./foam";
+	$foam = "./foam_debug";
     }
 
     foreach (@tests)
