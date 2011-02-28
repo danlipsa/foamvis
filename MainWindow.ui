@@ -273,7 +273,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="general">
           <attribute name="title">
@@ -1017,7 +1017,7 @@
            <item>
             <widget class="QStackedWidget" name="stackedWidgetFaces">
              <property name="currentIndex">
-              <number>2</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="pageFacesEmpty"/>
              <widget class="QWidget" name="pageFacesNormal">
