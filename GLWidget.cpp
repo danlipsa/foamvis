@@ -321,7 +321,6 @@ void GLWidget::initViewTypeDisplay ()
 	  &GLWidget::displayFacesTorus,
 	  &GLWidget::displayFacesNormal,
 	  &GLWidget::displayFacesStatistics,
-	  &GLWidget::displayFacesDomainHistogram,
 	  &GLWidget::displayCenterPathsWithBodies,
 	 }};
     copy (vtd.begin (), vtd.end (), m_viewTypeDisplay.begin ());
@@ -895,16 +894,10 @@ void GLWidget::resizeGL(int w, int h)
     (void)w;(void)h;
     projectionTransform ();
     ViewportTransform ();
-    if (m_viewType == ViewType::FACES_AVERAGE)
+    if (m_viewType == ViewType::FACES_STATISTICS)
     {
-	m_displayFaceStatistics->InitStep (
-	    GetFoamAlongTime ().GetMin (GetBodyProperty ()), 
-	    GetFoamAlongTime ().GetMax (GetBodyProperty ()));
-    }
-    else if (m_viewType == ViewType::FACES_DOMAIN_HISTOGRAM)
-    {
-	m_displayFaceStatistics->InitStep (
-	    0, GetFoamAlongTime ().GetTimeSteps ());
+	pair<double, double> minMax = getStatisticsMinMax ();
+	m_displayFaceStatistics->InitStep (minMax.first, minMax.second);
     }
     detectOpenGLError ("resizeGl");
 }
@@ -1347,30 +1340,34 @@ void GLWidget::displayFacesNormal () const
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
 }
 
+pair<double, double> GLWidget::getStatisticsMinMax () const
+{
+    double minValue, maxValue;
+    if (GetStatisticsType () == StatisticsType::COUNT)
+    {
+	minValue = 0;
+	maxValue = GetFoamAlongTime ().GetTimeSteps ();
+    }
+    else
+    {
+	minValue = GetFoamAlongTime ().GetMin (GetBodyProperty ());
+	maxValue = GetFoamAlongTime ().GetMax (GetBodyProperty ());
+    }
+    return pair<double, double> (minValue, maxValue);
+}
+
+
 void GLWidget::displayFacesStatistics () const
 {
     glPushAttrib (GL_ENABLE_BIT);    
     glDisable (GL_DEPTH_TEST);
-    const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
+    pair<double, double> minMax = getStatisticsMinMax ();
     m_displayFaceStatistics->Display (
-	foamAlongTime.GetMin (GetBodyProperty ()),
-	foamAlongTime.GetMax (GetBodyProperty ()), GetStatisticsType ());
+	minMax.first, minMax.second, GetStatisticsType ());
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
     displayStationaryBodyAndContext ();
     glPopAttrib ();
 }
-
-void GLWidget::displayFacesDomainHistogram () const
-{
-    glPushAttrib (GL_ENABLE_BIT);    
-    glDisable (GL_DEPTH_TEST);
-    const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
-    m_displayFaceStatistics->Display (
-	0, foamAlongTime.GetTimeSteps (), StatisticsType::COUNT);
-    displayStandaloneEdges< DisplayEdgeWithColor<> > ();
-    glPopAttrib ();
-}
-
 
 template<typename displaySameEdges>
 void GLWidget::displayStandaloneFaces () const
@@ -1902,25 +1899,14 @@ void GLWidget::ToggledFacesStatistics (bool checked)
 {
     makeCurrent ();
     if (checked)
-	m_displayFaceStatistics->InitStep (
-	    GetFoamAlongTime ().GetMin (GetBodyProperty ()), 
-	    GetFoamAlongTime ().GetMax (GetBodyProperty ()));
+    {
+	pair<double, double> minMax = getStatisticsMinMax ();
+	m_displayFaceStatistics->InitStep (minMax.first, minMax.second);
+    }
     else
 	m_displayFaceStatistics->Release ();
-    changeView (checked, ViewType::FACES_AVERAGE);
+    changeView (checked, ViewType::FACES_STATISTICS);
 }
-
-void GLWidget::ToggledFacesDomainHistogram (bool checked)
-{
-    makeCurrent ();
-    if (checked)
-	m_displayFaceStatistics->InitStep (
-	    0, GetFoamAlongTime ().GetTimeSteps ());
-    else
-	m_displayFaceStatistics->Release ();
-    changeView (checked, ViewType::FACES_DOMAIN_HISTOGRAM);
-}
-
 
 void GLWidget::ToggledFacesShowEdges (bool checked)
 {
@@ -2013,17 +1999,11 @@ void GLWidget::SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel)
 void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 {
     m_timeStep = timeStep;
-    if (m_viewType == ViewType::FACES_AVERAGE)
+    if (m_viewType == ViewType::FACES_STATISTICS)
     {
 	makeCurrent ();
-	m_displayFaceStatistics->Step (
-	    GetFoamAlongTime ().GetMin (GetBodyProperty ()), 
-	    GetFoamAlongTime ().GetMax (GetBodyProperty ()));
-    }
-    else if (m_viewType == ViewType::FACES_DOMAIN_HISTOGRAM)
-    {
-	makeCurrent ();
-	m_displayFaceStatistics->Step (0, GetFoamAlongTime ().GetTimeSteps ());
+	pair<double, double> minMax = getStatisticsMinMax ();
+	m_displayFaceStatistics->Step (minMax.first, minMax.second);
     }
     update ();
 }

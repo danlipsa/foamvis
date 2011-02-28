@@ -1015,19 +1015,9 @@
             </widget>
            </item>
            <item>
-            <widget class="QRadioButton" name="radioButtonFacesDomainHistogram">
-             <property name="text">
-              <string>Domain Histogram</string>
-             </property>
-             <attribute name="buttonGroup">
-              <string>buttonGroupDisplay</string>
-             </attribute>
-            </widget>
-           </item>
-           <item>
             <widget class="QStackedWidget" name="stackedWidgetFaces">
              <property name="currentIndex">
-              <number>0</number>
+              <number>2</number>
              </property>
              <widget class="QWidget" name="pageFacesEmpty"/>
              <widget class="QWidget" name="pageFacesNormal">
@@ -1090,7 +1080,7 @@
                <item row="1" column="0">
                 <widget class="QLabel" name="label_3">
                  <property name="text">
-                  <string>Colored By</string>
+                  <string>Colored by</string>
                  </property>
                 </widget>
                </item>
@@ -1199,14 +1189,14 @@
                <property name="bottomMargin">
                 <number>0</number>
                </property>
-               <item row="0" column="0">
+               <item row="1" column="0">
                 <widget class="QLabel" name="label_22">
                  <property name="text">
                   <string>Statistics Type</string>
                  </property>
                 </widget>
                </item>
-               <item row="0" column="1">
+               <item row="1" column="1">
                 <widget class="QComboBox" name="comboBoxStatisticsType">
                  <item>
                   <property name="text">
@@ -1223,19 +1213,38 @@
                    <string>Maximum</string>
                   </property>
                  </item>
+                 <item>
+                  <property name="text">
+                   <string>Count</string>
+                  </property>
+                 </item>
                 </widget>
                </item>
-               <item row="1" column="0">
+               <item row="2" column="0">
                 <widget class="QLabel" name="labelStatisticsHistory">
                  <property name="text">
                   <string>History</string>
                  </property>
                 </widget>
                </item>
-               <item row="1" column="1">
+               <item row="2" column="1">
                 <widget class="QSpinBox" name="spinBoxStatisticsHistory">
                  <property name="minimum">
                   <number>2</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_7">
+                 <property name="text">
+                  <string>Colored by</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLabel" name="labelFacesStatisticsColor">
+                 <property name="text">
+                  <string/>
                  </property>
                 </widget>
                </item>
@@ -2625,6 +2634,22 @@
   <connection>
    <sender>comboBoxStatisticsType</sender>
    <signal>currentIndexChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>CurrentIndexChangedStatisticsType(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>855</x>
+     <y>288</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>516</x>
+     <y>392</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxStatisticsType</sender>
+   <signal>currentIndexChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>CurrentIndexChangedStatisticsType(int)</slot>
    <hints>
@@ -2651,54 +2676,6 @@
     <hint type="destinationlabel">
      <x>527</x>
      <y>411</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBoxStatisticsType</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>CurrentIndexChangedStatisticsType(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>855</x>
-     <y>288</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>516</x>
-     <y>392</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonFacesDomainHistogram</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledFacesDomainHistogram(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>723</x>
-     <y>241</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>876</x>
-     <y>257</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonFacesDomainHistogram</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledFacesDomainHistogram(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>613</x>
-     <y>236</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>575</x>
-     <y>237</y>
     </hint>
    </hints>
   </connection>

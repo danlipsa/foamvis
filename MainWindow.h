@@ -121,7 +121,6 @@ public Q_SLOTS:
     void ButtonClickedAllTimestepsHistogram (int id);
     void ToggledFacesNormal (bool checked);
     void ToggledFacesStatistics (bool checked);
-    void ToggledFacesDomainHistogram (bool checked);
     /**
      * Shows edges
      * @param checked true for showing edges false otherwise

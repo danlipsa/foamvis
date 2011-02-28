@@ -88,6 +88,7 @@ public:
     {
 	return m_statisticsType;
     }
+    pair<double, double> getStatisticsMinMax () const;
 
     const BodiesAlongTime& GetBodiesAlongTime () const;
     const BodyAlongTime& GetBodyAlongTime (size_t bodyId) const;
@@ -297,7 +298,6 @@ public Q_SLOTS:
      */
     void ToggledFacesNormal (bool checked);
     void ToggledFacesStatistics (bool checked);
-    void ToggledFacesDomainHistogram (bool checked);
     void ToggledFaceEdgesTorus (bool checked);
     void ToggledFacesShowEdges (bool checked);
 
@@ -495,7 +495,6 @@ private:
     void displayFacesNormal () const;
     void displayFacesTorus () const;
     void displayFacesStatistics () const;
-    void displayFacesDomainHistogram () const;
     void displayFacesTorusTubes () const;
     void displayFacesTorusLines () const;
 

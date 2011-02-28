@@ -160,13 +160,14 @@ void MainWindow::connectColorBarHistogram (bool connected)
 	    this, 
 	    SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
 	    widgetHistogram, 
-	    SLOT (SetColorBarModel (boost::shared_ptr<ColorBarModel>)));
+	    SLOT (SetColorBarModel (boost::shared_ptr<ColorBarModel>)), 
+	    Qt::UniqueConnection);
 	connect (
 	    colorBar, 
 	    SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
 	    widgetHistogram, 
-	    SLOT (SetColorBarModel (boost::shared_ptr<ColorBarModel>)));
-
+	    SLOT (SetColorBarModel (boost::shared_ptr<ColorBarModel>)), 
+	    Qt::UniqueConnection);
     }
     else
     {
@@ -196,7 +197,7 @@ void MainWindow::setupButtonGroups ()
     buttonGroupDisplay->setId (radioButtonEdgesTorus, ViewType::EDGES_TORUS);
     buttonGroupDisplay->setId (radioButtonFacesNormal, ViewType::FACES);
     buttonGroupDisplay->setId (radioButtonFaceEdgesTorus, ViewType::FACES_TORUS);
-    buttonGroupDisplay->setId (radioButtonFacesStatistics, ViewType::FACES_AVERAGE);
+    buttonGroupDisplay->setId (radioButtonFacesStatistics, ViewType::FACES_STATISTICS);
     buttonGroupDisplay->setId (radioButtonCenterPath, ViewType::CENTER_PATHS);
 }
 
@@ -617,28 +618,18 @@ void MainWindow::ToggledFacesStatistics (bool checked)
 {
     if (checked)
     {
+	Q_EMIT ColorBarModelChanged (getCurrentColorBarModel ());
 	stackedWidgetFaces->setCurrentWidget (pageFacesStatistics);
+	labelFacesStatisticsColor->setText (
+	    BodyProperty::ToString (widgetGl->GetBodyProperty ()));
 	ButtonClickedAllTimestepsHistogram (m_histogramType);
     }
     else
-	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
-}
-
-void MainWindow::ToggledFacesDomainHistogram (bool checked)
-{
-    if (checked)
-    {
-	connectColorBarHistogram (false);
-	Q_EMIT ColorBarModelChanged (m_colorBarModelDomainHistogram);
-	ButtonClickedAllTimestepsHistogram (m_histogramType);
-    }
-    else
-    {
+    {	
 	Q_EMIT ColorBarModelChanged (m_colorBarModelBodyProperty[m_property]);
-	connectColorBarHistogram (true);
+	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
     }
 }
-
 
 void MainWindow::ToggledFacesNormal (bool checked)
 {
@@ -773,9 +764,8 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	    radioButtonFacesHistogramUnicolor,
 	    radioButtonFacesHistogramColorCoded,
 	    colorBar}};
-    boost::array<QWidget*, 2> widgetsEnabled = {{
-	    radioButtonFacesStatistics, 
-	    radioButtonFacesDomainHistogram}};
+    boost::array<QWidget*, 1> widgetsEnabled = {{
+	    radioButtonFacesStatistics}};
     BodyProperty::Enum property = BodyProperty::FromSizeT (value);
     m_property = property;
     if (property == BodyProperty::NONE)
@@ -791,7 +781,8 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	::setEnabled (widgetsEnabled, true);
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	size_t timeStep = widgetGl->GetTimeStep ();
-	Q_EMIT BodyPropertyChanged (m_colorBarModelBodyProperty[property], property);
+	Q_EMIT BodyPropertyChanged (
+	    m_colorBarModelBodyProperty[property], property);
 	if (m_histogramType != HistogramType::NONE)
 	    SetAndDisplayHistogram (
 		m_histogramType,
@@ -811,9 +802,8 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	    radioButtonCenterPathHistogramUnicolor,
 	    radioButtonCenterPathHistogramColorCoded,
 	    colorBar}};
-    boost::array<QWidget*, 2> widgetsEnabled = {{
-	    radioButtonFacesStatistics, 
-	    radioButtonFacesDomainHistogram}};
+    boost::array<QWidget*, 1> widgetsEnabled = {{
+	    radioButtonFacesStatistics}};
     BodyProperty::Enum property = BodyProperty::FromSizeT(value);
     m_property = property;
     if (property == BodyProperty::NONE)
@@ -847,13 +837,20 @@ void MainWindow::CurrentIndexChangedStatisticsType (int value)
     switch (value)
     {
     case StatisticsType::AVERAGE:
+	connectColorBarHistogram (true);
 	::setVisible (widgetsStatisticsHistory, true);
 	break;
     case StatisticsType::MIN:
     case StatisticsType::MAX:
+	connectColorBarHistogram (true);
+	::setVisible (widgetsStatisticsHistory, false);
+	break;
+    case StatisticsType::COUNT:
+	connectColorBarHistogram (false);
 	::setVisible (widgetsStatisticsHistory, false);
 	break;
     }
+    Q_EMIT ColorBarModelChanged (getCurrentColorBarModel ());
 }
 
 bool MainWindow::isHistogramHidden (HistogramType::Enum histogramType)
@@ -933,7 +930,7 @@ void MainWindow::ShowEditColorMap ()
 
 boost::shared_ptr<ColorBarModel> MainWindow::getCurrentColorBarModel () const
 {
-    if (widgetGl->GetViewType () == ViewType::FACES_DOMAIN_HISTOGRAM)
+    if (widgetGl->GetStatisticsType () == StatisticsType::COUNT)
 	return m_colorBarModelDomainHistogram;
     else
 	return m_colorBarModelBodyProperty[m_property];
@@ -945,7 +942,7 @@ boost::shared_ptr<ColorBarModel> MainWindow::getCurrentColorBarModel () const
 MainWindow::HistogramInfo MainWindow::getCurrentHistogramInfo () const
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    if (widgetGl->GetViewType () == ViewType::FACES_DOMAIN_HISTOGRAM)
+    if (widgetGl->GetStatisticsType () == StatisticsType::COUNT)
     {
 	size_t fakeHistogramValue = 1;
 	QwtArray<QwtDoubleInterval> a (HISTOGRAM_INTERVALS);
