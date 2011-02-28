@@ -947,6 +947,7 @@ MainWindow::HistogramInfo MainWindow::getCurrentHistogramInfo () const
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     if (widgetGl->GetViewType () == ViewType::FACES_DOMAIN_HISTOGRAM)
     {
+	size_t fakeHistogramValue = 1;
 	QwtArray<QwtDoubleInterval> a (HISTOGRAM_INTERVALS);
 	QwtArray<double> d (HISTOGRAM_INTERVALS);
 	size_t max = foamAlongTime.GetTimeSteps ();
@@ -954,9 +955,9 @@ MainWindow::HistogramInfo MainWindow::getCurrentHistogramInfo () const
 	for (int i = 0; i < a.size (); ++i)
 	{
 	    a[i] = QwtDoubleInterval (intervalSize * i, intervalSize* (i+1));
-	    d[i] = 1;
+	    d[i] = fakeHistogramValue;
 	}
-	return HistogramInfo (QwtIntervalData (a, d), 1);
+	return HistogramInfo (QwtIntervalData (a, d), fakeHistogramValue);
     }
     else
     {
