@@ -242,7 +242,7 @@ void Foam::calculateBoundingBox ()
 void Foam::calculatePerimeterOverArea ()
 {
     for_each (m_bodies.begin (), m_bodies.end (),
-	      boost::bind (&Body::CalculatePerimeterOverArea, _1));
+	      boost::bind (&Body::CalculatePerimeterOverSqrtArea, _1));
 }
 
 void Foam::calculateBoundingBoxForTorus (G3D::Vector3* low, G3D::Vector3* high)

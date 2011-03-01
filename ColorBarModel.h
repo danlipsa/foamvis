@@ -69,6 +69,7 @@ public:
     }
     
     void SetupPalette (Palette::Enum palette);
+    QColor GetHighlightColor (size_t i) const;
     double TexCoord (double value) const;
     string ToString () const;
 
@@ -97,6 +98,7 @@ private:
     QwtDoubleInterval m_interval;
     QwtDoubleInterval m_clampValues;
     QString m_title;
+    QColor m_highlightColor[2];
 };
 
 inline ostream& operator<< (ostream& ostr, const ColorBarModel& b)

@@ -372,7 +372,7 @@ void FoamAlongTime::ReadT1s (const char* fileName)
 	in >> skipws >> timeStep >> x >> y;
 	// in the file: first time step is 1 and T1s occur before timeStep
 	// in memory: first time step is 0 and T1s occur after timeStep
-	timeStep -= 2;
+	timeStep -= 1;
 	if (timeStep >= GetTimeSteps ())
 	    break;
 	m_t1s[timeStep].push_back (G3D::Vector3 (x, y, Foam::Z_COORDINATE_2D));

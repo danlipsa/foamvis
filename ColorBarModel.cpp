@@ -71,6 +71,10 @@ ColorBarModel::ColorBarModel () :
 {
 }
 
+QColor ColorBarModel::GetHighlightColor (size_t i) const
+{
+    return m_highlightColor[i];
+}
 
 void ColorBarModel::setupPaletteRainbow ()
 {
@@ -82,6 +86,8 @@ void ColorBarModel::setupPaletteRainbow ()
     rainbow->AddRGBPoint(0.75, 1, 1, 0);   // yellow
     rainbow->AddRGBPoint(1.0, 1, 0, 0);   // red
     setup (ColorMapperVtkColorTransferFunction (rainbow));
+    m_highlightColor[0] = Qt::black;
+    m_highlightColor[1] = Qt::white;
 }
 
 void ColorBarModel::setupPaletteRainbowExtended ()
@@ -95,6 +101,8 @@ void ColorBarModel::setupPaletteRainbowExtended ()
     rainbow->AddRGBPoint(0.8, 1, 1, 0);   // yellow
     rainbow->AddRGBPoint(1.0, 1, 0, 0);   // red
     setup (ColorMapperVtkColorTransferFunction (rainbow));    
+    m_highlightColor[0] = Qt::black;
+    m_highlightColor[1] = Qt::white;
 }
 
 
@@ -102,6 +110,8 @@ void ColorBarModel::setupPaletteRainbowExtended ()
 void ColorBarModel::setupPaletteRainbowTelea ()
 {
     setup (ColorMapperRainbowTelea ());
+    m_highlightColor[0] = Qt::black;
+    m_highlightColor[1] = Qt::white;
 }
 
 void ColorBarModel::SetupPalette (Palette::Enum palette)
@@ -137,6 +147,8 @@ void ColorBarModel::setupPaletteBlackBody ()
   blackbody->AddRGBPoint(0.66, 1, 1, 0);   // yellow
   blackbody->AddRGBPoint(1.0, 1, 1, 1);   // white
   setup (ColorMapperVtkColorTransferFunction (blackbody));
+  m_highlightColor[0] = Qt::green;
+  m_highlightColor[1] = Qt::blue;
 }
 
 void ColorBarModel::setupPaletteRainbowHSV ()
@@ -175,8 +187,7 @@ void ColorBarModel::setupPaletteDiverging (size_t c)
 	    /* green to red */
 	    {{0.085, 0.532, 0.201},
 	     {0.758, 0.214, 0.233}}
-	};
-    
+	};    
     VTK_CREATE(vtkColorTransferFunction, colorTransferFunction);
     colorTransferFunction->SetColorSpaceToDiverging();
     colorTransferFunction->AddRGBPoint(
@@ -184,6 +195,8 @@ void ColorBarModel::setupPaletteDiverging (size_t c)
     colorTransferFunction->AddRGBPoint(
 	1.0, colors[c][1][0], colors[c][1][1], colors[c][1][2]);
     setup (ColorMapperVtkColorTransferFunction (colorTransferFunction));
+    m_highlightColor[0] = Qt::black;
+    m_highlightColor[1] = Qt::white;
 }
 
 template<typename ColorMapper>

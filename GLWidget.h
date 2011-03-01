@@ -72,6 +72,7 @@ public:
 	return m_viewType;
     }
 
+    QColor GetHighlightColor (size_t i) const;
     void SetBodySelector (boost::shared_ptr<PropertyValueBodySelector> selector);
     void SetBodySelector (boost::shared_ptr<IdBodySelector> bodySelector);
     void SetBodySelector (boost::shared_ptr<AllBodySelector> selector, 
@@ -504,8 +505,8 @@ private:
      */
     void displayCenterPathsWithBodies () const;
     void displayOriginalDomain () const;
+    void displayT1s (size_t timeStep) const;
     void displayT1s () const;
-
     void displayCenterPaths () const;
     void compileCenterPaths () const;
     void compile () const;

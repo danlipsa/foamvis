@@ -109,11 +109,11 @@ public:
     }
     
     size_t GetNumberOfSides () const;
-    double GetPerimeterOverArea () const
+    double GetPerimeterOverSqrtArea () const
     {
-	return m_perimeterOverArea;
+	return m_perimeterOverSqrtArea;
     }
-    void CalculatePerimeterOverArea ();
+    void CalculatePerimeterOverSqrtArea ();
 
 public:
     static const size_t PRESSURE_INDEX = 0;
@@ -152,7 +152,7 @@ private:
     G3D::Vector3 m_center;
     G3D::AABox m_boundingBox;
     G3D::Vector3 m_velocity;
-    double m_perimeterOverArea;
+    double m_perimeterOverSqrtArea;
 };
 
 /**

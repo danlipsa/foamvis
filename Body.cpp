@@ -84,7 +84,7 @@ Body::Body(
     const vector<boost::shared_ptr<Face> >& faces,
     size_t id, ElementStatus::Enum duplicateStatus) :
     Element(id, duplicateStatus),
-    m_perimeterOverArea (0)
+    m_perimeterOverSqrtArea (0)
 {
     m_orientedFaces.resize (faceIndexes.size ());
     transform (faceIndexes.begin(), faceIndexes.end(), m_orientedFaces.begin(), 
@@ -246,7 +246,7 @@ double Body::GetPropertyValue (BodyProperty::Enum property) const
     case BodyProperty::NUMBER_OF_SIDES:
 	return GetNumberOfSides ();
     case BodyProperty::PERIMETER_OVER_AREA:
-	return GetPerimeterOverArea ();
+	return GetPerimeterOverSqrtArea ();
     case BodyProperty::NONE:
 	return 0;
     case BodyProperty::COUNT:
@@ -293,13 +293,13 @@ void Body::CalculateBoundingBox ()
     m_boundingBox.set(low, high);
 }
 
-void Body::CalculatePerimeterOverArea ()
+void Body::CalculatePerimeterOverSqrtArea ()
 {
     if (m_orientedFaces.size () == 1 && 
 	ExistsPropertyValue (BodyProperty::VOLUME))
     {
 	const OrientedFace& of = *GetOrientedFace (0);
-	m_perimeterOverArea = of.GetPerimeter () / 
-	    GetPropertyValue (BodyProperty::VOLUME);
+	m_perimeterOverSqrtArea = of.GetPerimeter () / 
+	    sqrt (GetPropertyValue (BodyProperty::VOLUME));
     }
 }

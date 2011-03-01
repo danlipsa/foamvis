@@ -178,7 +178,6 @@ GLWidget::GLWidget(QWidget *parent)
       m_textureColorBarShown (false),
       m_bodyProperty (BodyProperty::NONE),
       m_bodySelector (AllBodySelector::Get ()),
-      m_colorBarModel (new ColorBarModel ()),
       m_colorBarTexture (0),
       m_timeDisplacement (0.0),
       m_playMovie (false),
@@ -187,7 +186,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_hideContent(false),
       m_tubeCenterPathUsed (true),
       m_listCenterPaths (0),
-      m_t1sShown (true)
+      m_t1sShown (false)
 {
     makeCurrent ();
     m_displayFaceStatistics.reset (new DisplayFaceStatistics (*this));
@@ -1270,24 +1269,38 @@ void GLWidget::displayEdgesNormal () const
 	displayEdges <DisplayEdgeTorusClipped> () :
 	displayEdges <DisplayEdgeWithColor<> >();
     glPopAttrib ();
-    displayT1s ();
+    displayT1s (GetTimeStep ());
 }
 
 void GLWidget::displayT1s () const
+{
+    for (size_t i = 0; i < GetFoamAlongTime ().GetTimeSteps (); ++i)
+	displayT1s (i);
+}
+
+void GLWidget::displayT1s (size_t timeStep) const
 {
     if (m_t1sShown)
     {
 	glPushAttrib (GL_ENABLE_BIT | GL_POINT_BIT | GL_CURRENT_BIT);
 	glDisable (GL_DEPTH_TEST);
 	glPointSize (4.0);
-	glColor (Qt::red);
+	glColor (GetHighlightColor (0));
 	glBegin (GL_POINTS);
 	BOOST_FOREACH (const G3D::Vector3 v, 
-		       GetFoamAlongTime ().GetT1s (GetTimeStep ()))
+		       GetFoamAlongTime ().GetT1s (timeStep))
 	    ::glVertex (v);
 	glEnd ();
 	glPopAttrib ();
     }
+}
+
+QColor GLWidget::GetHighlightColor (size_t i) const
+{
+    if (m_colorBarModel.get () == 0)
+	return Qt::red;
+    else
+	return m_colorBarModel->GetHighlightColor (i);
 }
 
 void GLWidget::displayEdgesTorus () const
@@ -1357,6 +1370,7 @@ void GLWidget::displayFacesNormal () const
     displayFacesInterior<DisplayFaceTriangleFan> (bodies);
     displayStandaloneFaces<DisplayFaceTriangleFan> ();
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
+    displayT1s (GetTimeStep ());
 }
 
 pair<double, double> GLWidget::getStatisticsMinMax () const
@@ -1385,6 +1399,7 @@ void GLWidget::displayFacesStatistics () const
 	minMax.first, minMax.second, GetStatisticsType ());
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
     displayStationaryBodyAndContext ();
+    displayT1s ();
     glPopAttrib ();
 }
 
@@ -2007,6 +2022,8 @@ void GLWidget::SetBodyProperty (
     m_bodyProperty = property;
     if (m_bodyProperty != BodyProperty::NONE)
 	SetColorBarModel (colorBarModel);
+    else
+	m_colorBarModel.reset ();
     compile ();
     update ();
 }

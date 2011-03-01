@@ -610,9 +610,14 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 void MainWindow::ToggledEdgesNormal (bool checked)
 {
     if (checked)
+    {
 	stackedWidgetEdges->setCurrentWidget (pageEdgesNormal);
+	colorBar->setVisible (false);
+    }
     else
+    {
 	stackedWidgetEdges->setCurrentWidget (pageEdgesEmpty);
+    }
 }
 
 void MainWindow::ToggledFacesNormal (bool checked)
