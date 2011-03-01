@@ -105,6 +105,10 @@ bool OrientedFace::IsClosed () const
     return GetFace ()->IsClosed ();
 }
 
+double OrientedFace::GetPerimeter () const
+{
+    return GetFace ()->GetPerimeter ();
+}
 
 boost::shared_ptr<Vertex> OrientedFace::getBegin (size_t edgeIndex) const
 {

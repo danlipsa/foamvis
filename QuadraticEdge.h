@@ -27,7 +27,7 @@ public:
     {
 	m_middle = middle;
     }
-    virtual size_t PointCount () const;
+    virtual size_t GetPointCount () const;
     virtual G3D::Vector3 GetPoint (size_t i) const;
     virtual boost::shared_ptr<Edge> Clone () const;
 
@@ -39,7 +39,7 @@ protected:
 
 private:
     /**
-     * Quadratic function applied do parameter t in [0, 2]
+     * Quadratic function applied to parameter t in [0, 2]
      */
     double quadratic (double t, size_t i) const;
     G3D::Vector3 quadratic (double t) const;

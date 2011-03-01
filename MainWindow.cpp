@@ -221,6 +221,8 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
     if (foamAlongTime.GetTimeSteps () == 1)
 	sliderTimeSteps->setDisabled (true);
     boost::shared_ptr<const Foam> foam = foamAlongTime.GetFoam (0);
+    if (foamAlongTime.T1sAvailable ())
+	checkBoxT1sShown->setEnabled (true);
     if (! foam->IsTorus ())
     {
 	checkBoxTorusOriginalDomain->setDisabled (true);

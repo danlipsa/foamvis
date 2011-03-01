@@ -83,7 +83,8 @@ Body::Body(
     const vector<int>& faceIndexes,
     const vector<boost::shared_ptr<Face> >& faces,
     size_t id, ElementStatus::Enum duplicateStatus) :
-    Element(id, duplicateStatus)
+    Element(id, duplicateStatus),
+    m_perimeterOverArea (0)
 {
     m_orientedFaces.resize (faceIndexes.size ());
     transform (faceIndexes.begin(), faceIndexes.end(), m_orientedFaces.begin(), 
@@ -217,11 +218,17 @@ void Body::GetFaceSet (FaceSet* faceSet) const
 
 bool Body::ExistsPropertyValue (BodyProperty::Enum property) const
 {
-    if (property >= BodyProperty::PER_BODY_BEGIN &&
-	property <= BodyProperty::PER_BODY_END)
+    switch (property)
+    {
+    case BodyProperty::PRESSURE:
+    case BodyProperty::VOLUME:
 	return ExistsAttribute (property - BodyProperty::PER_BODY_BEGIN);
-    else
+    case BodyProperty::PERIMETER_OVER_AREA:
+	return ExistsAttribute (BodyProperty::VOLUME - 
+				BodyProperty::PER_BODY_BEGIN);
+    default:
 	return true;
+    }
 }
 
 double Body::GetPropertyValue (BodyProperty::Enum property) const
@@ -236,6 +243,10 @@ double Body::GetPropertyValue (BodyProperty::Enum property) const
 	return GetVelocity ().z;
     case BodyProperty::VELOCITY_MAGNITUDE:
 	return GetVelocity ().length ();
+    case BodyProperty::NUMBER_OF_SIDES:
+	return GetNumberOfSides ();
+    case BodyProperty::PERIMETER_OVER_AREA:
+	return GetPerimeterOverArea ();
     case BodyProperty::NONE:
 	return 0;
     case BodyProperty::COUNT:
@@ -244,6 +255,23 @@ double Body::GetPropertyValue (BodyProperty::Enum property) const
 	return GetRealAttribute (property - BodyProperty::PER_BODY_BEGIN);
     }
 }
+
+size_t Body::GetNumberOfSides () const
+{
+    size_t ofSize = m_orientedFaces.size ();
+    if (ofSize == 1)
+    {
+	const OrientedFace& of = *GetOrientedFace (0);
+	size_t size = of.size ();
+	if (of.IsClosed ())
+	    return size;
+	else
+	    return size + 1;
+    }
+    else
+	return ofSize;
+}
+
 
 void Body::SetPropertyValue (BodyProperty::Enum property, double value)
 {
@@ -263,4 +291,15 @@ void Body::CalculateBoundingBox ()
     CalculateAggregate <VertexSet, VertexSet::iterator, VertexLessThanAlong>()(
 	max_element, vertexSet, &high);
     m_boundingBox.set(low, high);
+}
+
+void Body::CalculatePerimeterOverArea ()
+{
+    if (m_orientedFaces.size () == 1 && 
+	ExistsPropertyValue (BodyProperty::VOLUME))
+    {
+	const OrientedFace& of = *GetOrientedFace (0);
+	m_perimeterOverArea = of.GetPerimeter () / 
+	    GetPropertyValue (BodyProperty::VOLUME);
+    }
 }

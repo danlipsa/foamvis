@@ -18,7 +18,7 @@ ColorBar::ColorBar (QWidget* parent) :
     setAlignment (QwtScaleDraw::LeftScale);
     setLabelRotation (-90);
     setLabelAlignment (Qt::AlignHCenter);
-    setBorderDist (50, 50);
+    setBorderDist (30, 30);
     setColorBarEnabled (true);
     createActions ();
 }

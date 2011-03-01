@@ -287,6 +287,7 @@ string FoamAlongTime::ToHtml () const
 void FoamAlongTime::SetTimeSteps (size_t timeSteps)
 {
     m_foams.resize (timeSteps);
+    m_t1s.resize (timeSteps);
 }
 
 
@@ -343,4 +344,37 @@ size_t FoamAlongTime::GetMaxCountPerBinIndividual (
 	max = std::max (
 	    max, GetFoam (i)->GetHistogram (property).GetMaxCountPerBin ());
     return max;
+}
+
+bool FoamAlongTime::T1sAvailable () const
+{
+    BOOST_FOREACH (const vector<G3D::Vector3> timeStepT1s, m_t1s)
+	if (timeStepT1s.size () != 0)
+	    return true;
+    return false;
+}
+
+void FoamAlongTime::ReadT1s (const char* fileName)
+{
+    const size_t LINE_LENGTH = 256;
+    ifstream in;
+    in.exceptions (ios::failbit | ios::badbit | ios::eofbit);
+    in.open (fileName);
+    size_t timeStep;
+    float x, y;
+    while (! in.eof ())
+    {
+	if (in.peek () == '#')
+	{
+	    in.ignore (LINE_LENGTH, '\n');
+	    continue;
+	}
+	in >> skipws >> timeStep >> x >> y;
+	// in the file: first time step is 1 and T1s occur before timeStep
+	// in memory: first time step is 0 and T1s occur after timeStep
+	timeStep -= 2;
+	if (timeStep >= GetTimeSteps ())
+	    break;
+	m_t1s[timeStep].push_back (G3D::Vector3 (x, y, Foam::Z_COORDINATE_2D));
+    }
 }

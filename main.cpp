@@ -22,10 +22,11 @@
  * Source files and libraries:
  * http://csgalati.swansea.ac.uk/foam/build
  *
+ * The folowing section lists the content of README.txt
  * \verbinclude README.txt
  *
- * \section torus_sec Processing done for the Torus model
- * \subsection onedge_sec Executed when creating an edge (may create duplicate vertices)
+ * \section sec_torus Processing done for the Torus model
+ * \subsection sec_onedge Executed when creating an edge (may create duplicate vertices)
  *
  <pre>
 The begin vertex (and the middle vertex in quadratic mode) of an edge is 
@@ -42,7 +43,7 @@ always defined in the data file (it's not a duplicate).
   }
  </pre>
  * 
- * \subsection onface_sec Executed when creating a face (may create duplicate edges)
+ * \subsection sec_onface Executed when creating a face (may create duplicate edges)
  *
 <pre>
   first vertex of the face is defined in the data file (not a DUPLICATE).
@@ -56,15 +57,13 @@ always defined in the data file (it's not a duplicate).
   }
 </pre>
  * 
- * \subsection onbody_sec Executed when creating a body (may create duplicate faces)
+ * \subsection sec_onbody Executed when creating a body (may create duplicate faces)
  *
 <pre>
   ...
 </pre>
-
-
  *
- * \section physical_sec Physical and tesselation edges and vertices
+ * \section sec_physical_tesselation Physical and tesselation edges and vertices
  * In 2D we don't have physical edges. A vertex is "physical" if has
  * >= 3 edges adjacent to it.
  *
@@ -73,14 +72,19 @@ always defined in the data file (it's not a duplicate).
  * An vertex is physical if it has 4 physical edges adjacent to it.
  *
  *
- * \section Significant space
- * Space is significant for matrices of expressions and for vertex components
+ * \section sec_space Significant space
+ * For matrices of expressions and for vertex components
  * x, y, z.
  *
- * \section Significant new line
-
- * and for arrays (2d versus 3d)
+ * \section sec_new_line Significant new line
+ * For arrays (2d versus 3d)
  *
+ * \section sec_t1s Format of additional text file containing T1s
+ * A line that starts with a # is a comment line \n
+ * Each line contains three entries separated by space: time_step, x, y
+ * where x and y are the coordinates of the T1 in object space \n
+ * The first time step is 1. \n
+ * A T1 labeled with timestep T occurs between T-1 and T.\n
  *
  * @todo Why time displacement does not go all the way to max Z?
  * @todo Use vertex arrays for center paths
@@ -157,7 +161,7 @@ private:
 void readOptions (
     int argc, char *argv[],
     bool* debugParsing, bool* debugScanning, bool* textOutput, 
-    bool* adjustPressure)
+    bool* adjustPressure, char** t1sFile)
 {
     *adjustPressure = true;
     *textOutput = false;
@@ -167,7 +171,7 @@ void readOptions (
 
     opterr = 0;
 
-    while ((c = getopt (argc, argv, "opst")) != -1)
+    while ((c = getopt (argc, argv, "opr:st")) != -1)
 	switch (c)
 	{
 	case 'o':
@@ -176,6 +180,9 @@ void readOptions (
 	case 'p':
 	    *debugParsing = true;
 	    break;
+	case 'r':
+	    *t1sFile = optarg;
+	    break;
 	case 's':
 	    *debugScanning = true;
 	    break;
@@ -183,7 +190,9 @@ void readOptions (
 	    *textOutput = true;
 	    break;
 	case '?':
-	    if (isprint (optopt))
+	    if (optopt == 'r')
+		cdbg << "Option -r requires an argument" << endl;
+	    else if (isprint (optopt))
 		cdbg << "Unknown option `-" << optopt << "'." << endl;
 	    else
 		cdbg << "Unknown option character `x" 
@@ -211,14 +220,17 @@ void printHelp ()
 #endif
 	 << endl;
     cdbg << "foam [OPTIONS] <dir> <filter>\n";
-    cdbg << "foam [OPTIONS] <file> ...\n";
-    cdbg << "where: <dir> is the folder where the data files reside\n"
-	 << "       <filter> is filter for the name of "
-	"the data files\n"
-	 << "       <file> is the name of a data file\n"
+    cdbg << "where: <dir> - folder where the data files reside\n"
+	 << "       <filter> - filter for the name of "
+	"the data files\n\n";
+    cdbg << "foam [OPTIONS] <files> ...\n"
+	 << "where: <files> - names of a data files (can use shell filters)\n"
 	 << "OPTIONS:\n"
 	 << "       -o : show original pressure values\n"
 	 << "       -p : debug parsing\n"
+	 << "       -r <t1s> : load <t1s>, "
+	"a text file with T1 times and positions\n"
+	 << "          reading T1s won't work if you skip time steps"
 	 << "       -s : debug scanning\n"
 	 << "       -t : outputs a text representation of the data\n";
 }
@@ -293,11 +305,14 @@ int main(int argc, char *argv[])
     try
     {
 	bool debugParsing, debugScanning, textOutput, adjustPressure;
+	char* t1sFile = 0;
 	FoamAlongTime foamAlongTime;
 	readOptions (argc, argv,
 		     &debugParsing, &debugScanning, &textOutput, 
-		     &adjustPressure);
+		     &adjustPressure, &t1sFile);
 	parseFiles (argc, argv, &foamAlongTime, debugParsing, debugScanning);
+	if (t1sFile != 0)
+	    foamAlongTime.ReadT1s (t1sFile);
 	size_t timeSteps = foamAlongTime.GetTimeSteps ();
         if (timeSteps != 0)
         {

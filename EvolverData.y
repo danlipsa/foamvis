@@ -908,7 +908,7 @@ vertex_list_rest
 : /* empty */
 /* 2D Z value */
 {
-    $$ = 0;
+    $$ = Foam::Z_COORDINATE_2D;
 }
 |
 /* 3D Z value */

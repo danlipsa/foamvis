@@ -14,7 +14,7 @@
 
 void DisplayEdgeVertices (const Edge& edge, bool useZPos, double zPos)
 {
-    for (size_t i = 0; i < edge.PointCount (); i++)
+    for (size_t i = 0; i < edge.GetPointCount (); i++)
     {
 	G3D::Vector3 p = edge.GetPoint (i);
 	if (useZPos)
@@ -25,13 +25,13 @@ void DisplayEdgeVertices (const Edge& edge, bool useZPos, double zPos)
 
 void  DisplayAllButLastVertices (const boost::shared_ptr<OrientedEdge> e)
 {
-    for (size_t i = 0; i < e->PointCount () - 1; ++i)
+    for (size_t i = 0; i < e->GetPointCount () - 1; ++i)
 	::glVertex(e->GetPoint (i));
 }
 
 void  DisplayAllVertices (const boost::shared_ptr<OrientedEdge> e)
 {
-    for (size_t i = 0; i < e->PointCount (); ++i)
+    for (size_t i = 0; i < e->GetPointCount (); ++i)
 	::glVertex(e->GetPoint (i));
 }
 

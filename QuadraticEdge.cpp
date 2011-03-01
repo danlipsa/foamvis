@@ -66,7 +66,7 @@ G3D::Vector3 QuadraticEdge::quadratic (double t) const
     return result;
 }
 
-size_t QuadraticEdge::PointCount () const
+size_t QuadraticEdge::GetPointCount () const
 {
     return POINT_COUNT;
 }

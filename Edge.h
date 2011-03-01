@@ -141,6 +141,7 @@ public:
 
     string ToString () const;
     void GetVertexSet (VertexSet* vertexSet) const;
+    double GetLength () const;
 
     virtual boost::shared_ptr<Edge> Clone () const;
     boost::shared_ptr<Edge> GetDuplicate (
@@ -148,7 +149,7 @@ public:
 	const G3D::Vector3& newBegin,
 	VertexSet* vertexSet, EdgeSet* edgeSet) const;    
 
-    virtual size_t PointCount () const;
+    virtual size_t GetPointCount () const;
     virtual G3D::Vector3 GetPoint (size_t i) const;
 
 public:

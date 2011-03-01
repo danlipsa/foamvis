@@ -80,6 +80,7 @@ public:
     {
 	return m_normal;
     }
+    double GetPerimeter () const;
     boost::shared_ptr<Face> GetDuplicate (
 	const OOBox& periods, const G3D::Vector3int16& translation,
 	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet) const;

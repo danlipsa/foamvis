@@ -83,6 +83,7 @@ public:
     bool IsTriangle () const;
     bool IsClosed () const;
     const G3D::Vector3& GetCenter () const;
+    double GetPerimeter () const;
     string ToString () const;
     void GetVertexSet (VertexSet* vertexSet) const;
     void GetEdgeSet (EdgeSet* edgeSet) const;

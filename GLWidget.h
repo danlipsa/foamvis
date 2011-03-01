@@ -306,6 +306,7 @@ public Q_SLOTS:
     void ToggledLightEnabled (bool checked);
     void ToggledIsContextHidden (bool checked);
     void ToggledTorusOriginalDomainShown (bool checked);
+    void ToggledT1sShown (bool checked);
     void ToggledTorusOriginalDomainClipped (bool checked);
     void ToggledTubeCenterPathUsed (bool checked);
 
@@ -503,6 +504,7 @@ private:
      */
     void displayCenterPathsWithBodies () const;
     void displayOriginalDomain () const;
+    void displayT1s () const;
 
     void displayCenterPaths () const;
     void compileCenterPaths () const;
@@ -714,6 +716,7 @@ private:
     bool m_hideContent;
     bool m_tubeCenterPathUsed;
     GLuint m_listCenterPaths;
+    bool m_t1sShown;
 };
 
 #endif //__GLWIDGET_H__

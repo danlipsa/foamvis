@@ -264,6 +264,20 @@ void Edge::GetVertexSet (VertexSet* vertexSet) const
     vertexSet->insert (GetEnd ());
 }
 
+double Edge::GetLength () const
+{
+    size_t pointCount = GetPointCount ();
+    double length = 0;
+    G3D::Vector3 prev = GetPoint (0);
+    for (size_t i = 1; i < pointCount; ++i)
+    {
+	G3D::Vector3 p = GetPoint (i);
+	length += (p - prev).length ();
+	prev = p;
+    }
+    return length;
+}
+
 
 // Static and Friends Methods
 // ======================================================================
@@ -297,7 +311,7 @@ G3D::Vector3int16 Edge::IntToLocation (int value)
     return result;
 }
 
-size_t Edge::PointCount () const
+size_t Edge::GetPointCount () const
 {
     return 2;
 }

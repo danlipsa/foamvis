@@ -186,7 +186,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_contextView (false),
       m_hideContent(false),
       m_tubeCenterPathUsed (true),
-      m_listCenterPaths (0)
+      m_listCenterPaths (0),
+      m_t1sShown (true)
 {
     makeCurrent ();
     m_displayFaceStatistics.reset (new DisplayFaceStatistics (*this));
@@ -1269,6 +1270,24 @@ void GLWidget::displayEdgesNormal () const
 	displayEdges <DisplayEdgeTorusClipped> () :
 	displayEdges <DisplayEdgeWithColor<> >();
     glPopAttrib ();
+    displayT1s ();
+}
+
+void GLWidget::displayT1s () const
+{
+    if (m_t1sShown)
+    {
+	glPushAttrib (GL_ENABLE_BIT | GL_POINT_BIT | GL_CURRENT_BIT);
+	glDisable (GL_DEPTH_TEST);
+	glPointSize (4.0);
+	glColor (Qt::red);
+	glBegin (GL_POINTS);
+	BOOST_FOREACH (const G3D::Vector3 v, 
+		       GetFoamAlongTime ().GetT1s (GetTimeStep ()))
+	    ::glVertex (v);
+	glEnd ();
+	glPopAttrib ();
+    }
 }
 
 void GLWidget::displayEdgesTorus () const
@@ -1930,6 +1949,12 @@ void GLWidget::ToggledTubeCenterPathUsed (bool checked)
 void GLWidget::ToggledTorusOriginalDomainClipped (bool checked)
 {
     m_torusOriginalDomainClipped = checked;
+    update ();
+}
+
+void GLWidget::ToggledT1sShown (bool checked)
+{
+    m_t1sShown = checked;
     update ();
 }
 

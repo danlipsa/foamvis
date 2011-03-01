@@ -239,6 +239,12 @@ void Foam::calculateBoundingBox ()
     m_boundingBox.set(low, high);
 }
 
+void Foam::calculatePerimeterOverArea ()
+{
+    for_each (m_bodies.begin (), m_bodies.end (),
+	      boost::bind (&Body::CalculatePerimeterOverArea, _1));
+}
+
 void Foam::calculateBoundingBoxForTorus (G3D::Vector3* low, G3D::Vector3* high)
 {
     using boost::array;
@@ -374,6 +380,7 @@ void Foam::Preprocess ()
     calculateBoundingBox ();
     sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);
     setMissingPressureZero ();
+    calculatePerimeterOverArea ();
 }
 
 

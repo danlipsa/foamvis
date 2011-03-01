@@ -176,6 +176,14 @@ bool Face::IsTriangle () const
     return IsClosed () && m_orientedEdges.size () == 3;
 }
 
+double Face::GetPerimeter () const
+{
+    double perimeter = 0;
+    BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, GetOrientedEdges ())
+	perimeter += oe->GetLength ();
+    return perimeter;
+}
+
 
 bool Face::IsClosed () const
 {

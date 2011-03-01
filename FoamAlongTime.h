@@ -149,6 +149,17 @@ public:
     {
 	m_adjustPressure = adjustPressure;
     }
+    /**
+     * Read T1s from the file for as many time steps as there are DMPs
+     * Has to be called after parsing the DMP files.
+     *
+     */
+    void ReadT1s (const char* fileName);
+    bool T1sAvailable () const;
+    const vector<G3D::Vector3>& GetT1s (size_t timeStep) const
+    {
+	return m_t1s[timeStep];
+    }
 
 private:
     void adjustPressureAlignMedians ();
@@ -181,6 +192,7 @@ private:
     string m_filePattern;
     vector<HistogramStatistics> m_histogram;
     bool m_adjustPressure;
+    vector< vector<G3D::Vector3> > m_t1s;
 };
 
 

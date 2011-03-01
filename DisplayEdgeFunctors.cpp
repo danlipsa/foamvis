@@ -441,7 +441,7 @@ void DisplayFaceTriangleFan::operator() (const OrientedFace*  of) const
 	for (size_t i = 0; i < of->size (); ++i)
 	{
 	    oe = of->GetOrientedEdge (i);
-	    for (; pointIndex < oe.PointCount (); ++pointIndex)
+	    for (; pointIndex < oe.GetPointCount (); ++pointIndex)
 		::glVertex (oe.GetPoint (pointIndex));
 	    pointIndex = 0;
 	}

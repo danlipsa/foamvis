@@ -261,6 +261,9 @@ public:
     void CalculateMinMaxStatistics ();
 
 public:
+    static const double Z_COORDINATE_2D = 0.0;
+
+public:
     /**
      * Pretty print the Foam object
      */
@@ -283,6 +286,7 @@ private:
      */
     void calculateBodiesCenters ();
     void calculateTorusClipped ();
+    void calculatePerimeterOverArea ();
     /**
      * Calculate faces part of a body, edges part of a face, ...
      */
