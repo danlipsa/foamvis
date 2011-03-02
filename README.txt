@@ -91,6 +91,12 @@ To skip some files in the simulation (to save memory) use:
 loads files 0, 1, ..., 8 and skips 9. You can skip more files by
 removing more digits between the square brackets.
 
+To add a T1s file use '-r <t1s_file>' option. Note that if you skip
+files using shell patterrns you cannot use a T1s file. (the T1s won't
+match the time steps). It is ok to leave out the last time steps but
+not to skip time steps.
+
+
 
 Generate a movie
 ================
