@@ -1277,7 +1277,12 @@ void GLWidget::displayT1s (size_t timeStep) const
 QColor GLWidget::GetHighlightColor (size_t i) const
 {
     if (m_colorBarModel.get () == 0)
-	return Qt::red;
+    {
+	if (i == 0)
+	    return Qt::black;
+	else
+	    return Qt::red;
+    }
     else
 	return m_colorBarModel->GetHighlightColor (i);
 }
