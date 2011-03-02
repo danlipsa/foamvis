@@ -917,8 +917,7 @@ void MainWindow::SelectionChangedHistogram ()
     else
 	widgetGl->SetBodySelector (
 	    boost::shared_ptr<PropertyValueBodySelector> (
-		new PropertyValueBodySelector (
-		    m_property, valueIntervals, foamAlongTime)));
+		new PropertyValueBodySelector (m_property, valueIntervals)));
 }
 
 void MainWindow::ShowEditColorMap ()

@@ -48,9 +48,6 @@ public:
 	return m_bodiesAlongTime;
     }
     const Body& GetBody (size_t bodyId, size_t timeStep) const;
-    double GetBodyPropertyValue (
-	BodyProperty::Enum property,
-	size_t bodyId, size_t timeStep) const;
 
     const string& GetFilePattern () const
     {
@@ -126,11 +123,6 @@ public:
 	BodyProperty::Enum property,
 	const QwtDoubleInterval& valueInterval,
 	vector<bool>* timeStepSelection) const;
-
-
-    bool ExistsBodyProperty (
-	BodyProperty::Enum property,
-	size_t bodyId, size_t timeStep) const;
 
     void Preprocess ();
 

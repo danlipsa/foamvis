@@ -598,6 +598,17 @@ void Foam::CalculateHistogramStatistics (BodyProperty::Enum property,
     }
 }
 
+bool Foam::ExistsBodyWithValueIn (
+    BodyProperty::Enum property, const QwtDoubleInterval& interval) const
+{
+    Foam::Bodies::const_iterator it = find_if
+	(m_bodies.begin (), m_bodies.end (),
+	 boost::bind (&QwtDoubleInterval::contains, interval, 
+		      boost::bind (&Body::GetPropertyValue, _1, property)));
+    return it != m_bodies.end ();
+}
+
+
 // Static and Friends Methods
 // ======================================================================
 ostream& operator<< (ostream& ostr, const Foam& d)

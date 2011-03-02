@@ -6,10 +6,10 @@
  * Functors used to select a body
  */
 
+#include "Body.h"
 #include "BodySelector.h"
 #include "Debug.h"
 #include "DebugStream.h"
-#include "FoamAlongTime.h"
 #include "GLWidget.h"
 #include "Utils.h"
 
@@ -24,13 +24,11 @@ boost::shared_ptr<AllBodySelector> AllBodySelector::SELECTOR =
 // ======================================================================
 
 bool PropertyValueBodySelector::operator () (
-    size_t bodyId, size_t timeStep) const
+    const boost::shared_ptr<Body>& body) const
 {
-    if (m_foamAlongTime.ExistsBodyProperty (
-	    m_property, bodyId, timeStep))
+    if (body->ExistsPropertyValue (m_property))
     {
-	double value = m_foamAlongTime.GetBodyPropertyValue (
-	    m_property, bodyId, timeStep);
+	double value = body->GetPropertyValue (m_property);
 	ValueIntervals::const_iterator it = find_if (
 	    m_valueIntervals.begin (), m_valueIntervals.end (),
 	    boost::bind (&QwtDoubleInterval::contains, _1, value));
@@ -69,10 +67,9 @@ IdBodySelector::IdBodySelector (const vector<size_t>& ids) :
 
 
 bool IdBodySelector::operator () (
-    size_t bodyId, size_t timeStep) const
+    const boost::shared_ptr<Body>& body) const
 {
-    (void)timeStep;
-    return binary_search (m_ids.begin (), m_ids.end (), bodyId);
+    return binary_search (m_ids.begin (), m_ids.end (), body->GetId ());
 }
 
 void IdBodySelector::SetUnion (const vector<size_t>& idsToAdd)
@@ -124,9 +121,8 @@ string IdBodySelector::ToUserString () const
 // ======================================================================
 
 bool CompositeBodySelector::operator () (
-    size_t bodyId, size_t timeStep) const
+    const boost::shared_ptr<Body>& body) const
 {
-    return (*m_idSelector) (bodyId, timeStep) && 
-	(*m_propertyValueSelector) (bodyId, timeStep);
+    return (*m_idSelector) (body) && (*m_propertyValueSelector) (body);
 }
 

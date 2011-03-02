@@ -223,7 +223,7 @@ bool Body::ExistsPropertyValue (BodyProperty::Enum property) const
     case BodyProperty::PRESSURE:
     case BodyProperty::VOLUME:
 	return ExistsAttribute (property - BodyProperty::PER_BODY_BEGIN);
-    case BodyProperty::PERIMETER_OVER_AREA:
+    case BodyProperty::PERIMETER_OVER_SQRT_AREA:
 	return ExistsAttribute (BodyProperty::VOLUME - 
 				BodyProperty::PER_BODY_BEGIN);
     default:
@@ -245,7 +245,7 @@ double Body::GetPropertyValue (BodyProperty::Enum property) const
 	return GetVelocity ().length ();
     case BodyProperty::NUMBER_OF_SIDES:
 	return GetNumberOfSides ();
-    case BodyProperty::PERIMETER_OVER_AREA:
+    case BodyProperty::PERIMETER_OVER_SQRT_AREA:
 	return GetPerimeterOverSqrtArea ();
     case BodyProperty::NONE:
 	return 0;

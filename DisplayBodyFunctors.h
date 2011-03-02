@@ -100,7 +100,8 @@ protected:
 /**
  * Displays a body going through all its faces
  */
-template<typename displayFace, typename PropertySetter = SetterValueTextureCoordinate>
+template<typename displayFace, 
+	 typename PropertySetter = SetterValueTextureCoordinate>
 class DisplayBody : public DisplayBodyBase<PropertySetter>
 {
 public:

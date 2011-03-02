@@ -64,8 +64,8 @@ const char* BodyProperty::ToString (BodyProperty::Enum property)
 	return "Velocity magnitude";
     case NUMBER_OF_SIDES:
 	return "Number of sides";
-    case PERIMETER_OVER_AREA:
-	return "Perimeter / area";
+    case PERIMETER_OVER_SQRT_AREA:
+	return "Perimeter / sqrt(area)";
     case PRESSURE:
 	return "Pressure";
     case VOLUME:

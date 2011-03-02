@@ -81,8 +81,7 @@ template <typename PropertySetter>
 void DisplayBodyBase<PropertySetter>::
 operator () (boost::shared_ptr<Body> b)
 {
-    bool focus = m_bodySelector (
-	b->GetId (), this->m_glWidget.GetTimeStep ());
+    bool focus = m_bodySelector (b);
     if (focus)
 	display (b, DisplayElement::FOCUS);
     else
@@ -235,7 +234,7 @@ DisplayCenterPath (
  void DisplayCenterPath<PropertySetter, DisplaySegment>::
  halfValueStep (const StripIteratorPoint& p, const Segment& segment)
  {
-     bool focus = this->m_bodySelector (p.m_body->GetId (), p.m_timeStep);
+     bool focus = this->m_bodySelector (p.m_body);
      if (focus)
      {
 	 if (p.m_body->ExistsPropertyValue (

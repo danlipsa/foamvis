@@ -283,7 +283,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="general">
           <attribute name="title">
@@ -1123,7 +1123,7 @@
                  </item>
                  <item>
                   <property name="text">
-                   <string>Perimeter / area</string>
+                   <string>Elongation</string>
                   </property>
                  </item>
                  <item>
@@ -1348,7 +1348,7 @@
                  </item>
                  <item>
                   <property name="text">
-                   <string>Perimeter / area</string>
+                   <string>Elongation</string>
                   </property>
                  </item>
                  <item>

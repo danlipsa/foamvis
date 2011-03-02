@@ -197,34 +197,9 @@ void FoamAlongTime::CacheBodiesAlongTime ()
 	      boost::bind (&BodiesAlongTime::Resize, &m_bodiesAlongTime, _1));
 }
 
-double FoamAlongTime::GetBodyPropertyValue (
-    BodyProperty::Enum property,
-    size_t bodyId, size_t timeStep) const
-{
-    return GetBody (bodyId, timeStep).GetPropertyValue (property);
-}
-
 size_t FoamAlongTime::GetDimension () const
 {
     return GetFoam (0)->GetDimension ();
-}
-
-
-bool FoamAlongTime::ExistsBodyProperty (
-    BodyProperty::Enum property,
-    size_t bodyId, size_t timeStep) const
-{
-    if (property >= BodyProperty::VELOCITY_BEGIN &&
-	property < BodyProperty::VELOCITY_END)
-    {
-	if (timeStep == 0 && 
-	    GetBodiesAlongTime ().GetBodyAlongTime (bodyId).
-	    GetBodies ().size () == 1)
-	    return false;
-	else
-	    return true;
-    }
-    return GetBody (bodyId, timeStep).ExistsPropertyValue (property);
 }
 
 const Body& FoamAlongTime::GetBody (size_t bodyId, size_t timeStep) const
@@ -307,27 +282,13 @@ void FoamAlongTime::GetTimeStepSelection (
     const QwtDoubleInterval& valueInterval,
     vector<bool>* timeStepSelection) const
 {
-    const size_t INVALID = numeric_limits<size_t> ().max ();
-    size_t beginRange = INVALID;
     for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
-	if (valueInterval.intersects (
-		GetFoam (timeStep)->GetRange (property)))
-	{
-	    if (beginRange == INVALID)
-		beginRange = timeStep;
-	}
-	else
-	{
-	    if (beginRange != INVALID)
-	    {
-		fill (timeStepSelection->begin () + beginRange, 
-		      timeStepSelection->begin () + timeStep, true);
-		beginRange = INVALID;				  
-	    }
-	}
-    if (beginRange != INVALID)
-	fill (timeStepSelection->begin () + beginRange, 
-	      timeStepSelection->begin () + GetTimeSteps (), true);
+    {
+	const boost::shared_ptr<const Foam>& foam = GetFoam (timeStep);
+	if (valueInterval.intersects (foam->GetRange (property))
+	    && foam->ExistsBodyWithValueIn (property, valueInterval))
+	    (*timeStepSelection)[timeStep] = true;
+    }
 }
 
 bool FoamAlongTime::IsQuadratic () const

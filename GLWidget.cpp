@@ -87,38 +87,6 @@ void display (const char* name, const T& what)
 // Private Classes
 // ======================================================================
 
-class NotStationaryBodyContext
-{
-public:
-    NotStationaryBodyContext (const GLWidget& widget) :
-	m_widget (widget)
-    {
-    }
-    bool operator () (const boost::shared_ptr<Body>& body)
-    {
-	return ! m_widget.IsStationaryBodyContext (body->GetId ());
-    }
-private:
-    const GLWidget& m_widget;
-};
-
-
-template<typename T>
-class identity
-{
-public:
-    identity (T value)
-    {
-	m_value = value;
-    }
-    T operator() ()
-    {
-	return m_value;
-    }
-private:
-    T m_value;
-};
-
 
 // Static Fields
 // ======================================================================
@@ -1015,7 +983,8 @@ void GLWidget::displayStationaryBodyAndContext () const
     Foam::Bodies contextBodies (bodies.size ());
     Foam::Bodies::const_iterator end = remove_copy_if (
 	bodies.begin (), bodies.end (), contextBodies.begin (),
-	NotStationaryBodyContext(*this));
+	! boost::bind (&GLWidget::IsStationaryBodyContext, this, 
+		       boost::bind (&Body::GetId, _1)));
     contextBodies.resize (end - contextBodies.begin ());
     displayFacesContour<1> (contextBodies);
     Foam::Bodies focusBody (1);

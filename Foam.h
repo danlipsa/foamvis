@@ -74,6 +74,8 @@ public:
     }
 
     Bodies::const_iterator FindBody (size_t bodyId) const;
+    bool ExistsBodyWithValueIn (
+	BodyProperty::Enum property, const QwtDoubleInterval& interval) const;
 
     /**
      * Gets all bodies from the Foam

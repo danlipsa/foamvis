@@ -9,6 +9,8 @@
 #define __BODY_SELECTOR_H__
 
 #include "Enums.h"
+class Body;
+
 
 /**
  * Abstract class. Selects a list of bodies based on a criteria.
@@ -22,17 +24,16 @@ public:
     /**
      * Returns true if this body is selected.
      */
-    virtual bool operator () (size_t bodyId, size_t timeStep) const = 0;
+    virtual bool operator () (const boost::shared_ptr<Body>& body) const = 0;
     virtual BodySelectorType::Enum GetType () const = 0;
 };
 
 class AllBodySelector : public BodySelector
 {
 public:
-    virtual bool operator () (size_t bodyId, size_t timeStep) const
+    virtual bool operator () (const boost::shared_ptr<Body>& body) const
     {
-	(void) bodyId;
-	(void) timeStep;
+	(void) body;
 	return true;
     }
     BodySelectorType::Enum GetType () const
@@ -49,7 +50,6 @@ private:
     static boost::shared_ptr<AllBodySelector> SELECTOR;
 };
 
-class FoamAlongTime;
 /**
  * Selects bodies with a propriety value in an interval from an
  * interval list.
@@ -60,17 +60,15 @@ public:
     typedef vector<QwtDoubleInterval> ValueIntervals;
 public:
     PropertyValueBodySelector (BodyProperty::Enum property,
-			       vector<QwtDoubleInterval> valueIntervals,
-			       const FoamAlongTime& foamAlongTime) :
-	m_property (property), m_valueIntervals (valueIntervals),
-	m_foamAlongTime (foamAlongTime)
+			       vector<QwtDoubleInterval> valueIntervals) :
+	m_property (property), m_valueIntervals (valueIntervals)
     {
     }
     virtual ~PropertyValueBodySelector ()
     {
     }
 
-    virtual bool operator () (size_t bodyId, size_t timeStep) const;
+    virtual bool operator () (const boost::shared_ptr<Body>& body) const;
     BodySelectorType::Enum GetType () const
     {
 	return BodySelectorType::PROPERTY_VALUE;
@@ -80,7 +78,6 @@ public:
 private:
     BodyProperty::Enum m_property;
     ValueIntervals m_valueIntervals;
-    const FoamAlongTime& m_foamAlongTime;
 };
 
 
@@ -97,7 +94,7 @@ public:
     {
     }
 
-    virtual bool operator () (size_t bodyId, size_t timeStep) const;
+    virtual bool operator () (const boost::shared_ptr<Body>& body) const;
     BodySelectorType::Enum GetType () const
     {
 	return BodySelectorType::ID;
@@ -154,7 +151,7 @@ public:
 	m_idSelector = idSelector;
     }
 
-    virtual bool operator () (size_t bodyId, size_t timeStep) const;
+    virtual bool operator () (const boost::shared_ptr<Body>& body) const;
     BodySelectorType::Enum GetType () const
     {
 	return BodySelectorType::COMPOSITE;

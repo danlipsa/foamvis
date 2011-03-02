@@ -176,6 +176,9 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
+0.4.     - new scalar variables Number of sides, Elongation
+	 - added T1s overlay (-r option on the command line)
+	 - added 2 highlight colors for each color map
 0.4.1777 - rolling average
 	 - domain histogram (count of values that fall in a certain interval per
 	   unit area). Note that histogram shown for 'Edit Color Map' is not 
