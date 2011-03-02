@@ -979,17 +979,23 @@ void GLWidget::brushedBodies (
 
 void GLWidget::displayStationaryBodyAndContext () const
 {
-    const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
-    Foam::Bodies contextBodies (bodies.size ());
-    Foam::Bodies::const_iterator end = remove_copy_if (
-	bodies.begin (), bodies.end (), contextBodies.begin (),
-	! boost::bind (&GLWidget::IsStationaryBodyContext, this, 
-		       boost::bind (&Body::GetId, _1)));
-    contextBodies.resize (end - contextBodies.begin ());
-    displayFacesContour<1> (contextBodies);
-    Foam::Bodies focusBody (1);
-    focusBody[0] = *GetCurrentFoam ().FindBody (GetStationaryBodyId ());
-    displayFacesContour<0> (focusBody);
+    if (GetStationaryBodyId () != NONE)
+    {
+	Foam::Bodies focusBody (1);
+	focusBody[0] = *GetCurrentFoam ().FindBody (GetStationaryBodyId ());
+	displayFacesContour<0> (focusBody);
+    }
+    if (m_stationaryBodyContext.size () > 0)
+    {
+	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
+	Foam::Bodies contextBodies (bodies.size ());
+	Foam::Bodies::const_iterator end = remove_copy_if (
+	    bodies.begin (), bodies.end (), contextBodies.begin (),
+	    ! boost::bind (&GLWidget::IsStationaryBodyContext, this, 
+			   boost::bind (&Body::GetId, _1)));
+	contextBodies.resize (end - contextBodies.begin ());
+	displayFacesContour<1> (contextBodies);
+    }
 }
 
 

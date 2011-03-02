@@ -181,6 +181,10 @@ double Face::GetPerimeter () const
     double perimeter = 0;
     BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, GetOrientedEdges ())
 	perimeter += oe->GetLength ();
+    if (! IsClosed ())
+	perimeter += 
+	    (GetOrientedEdge (0)->GetBegin ()->GetVector () - 
+	     GetOrientedEdge (size () - 1)->GetEnd ()->GetVector ()).length ();
     return perimeter;
 }
 

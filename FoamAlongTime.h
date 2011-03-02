@@ -146,7 +146,7 @@ public:
      * Has to be called after parsing the DMP files.
      *
      */
-    void ReadT1s (const char* fileName);
+    void ReadT1s (const char* fileName, size_t timeSteps);
     bool T1sAvailable () const;
     const vector<G3D::Vector3>& GetT1s (size_t timeStep) const
     {

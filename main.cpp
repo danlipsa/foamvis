@@ -311,9 +311,9 @@ int main(int argc, char *argv[])
 		     &debugParsing, &debugScanning, &textOutput, 
 		     &adjustPressure, &t1sFile);
 	parseFiles (argc, argv, &foamAlongTime, debugParsing, debugScanning);
-	if (t1sFile != 0)
-	    foamAlongTime.ReadT1s (t1sFile);
 	size_t timeSteps = foamAlongTime.GetTimeSteps ();
+	if (t1sFile != 0)
+	    foamAlongTime.ReadT1s (t1sFile, timeSteps);
         if (timeSteps != 0)
         {
 	    foamAlongTime.SetAdjustPressure (adjustPressure);

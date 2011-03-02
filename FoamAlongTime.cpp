@@ -315,14 +315,17 @@ bool FoamAlongTime::T1sAvailable () const
     return false;
 }
 
-void FoamAlongTime::ReadT1s (const char* fileName)
+void FoamAlongTime::ReadT1s (const char* fileName, size_t timeSteps)
 {
+    cdbg << "Parsing T1s file..." << endl;
     const size_t LINE_LENGTH = 256;
     ifstream in;
-    in.exceptions (ios::failbit | ios::badbit | ios::eofbit);
+    in.exceptions (ios::failbit | ios::badbit);
     in.open (fileName);
     size_t timeStep;
     float x, y;
+    if (m_t1s.size () < timeSteps)
+	m_t1s.resize (timeSteps);
     while (! in.eof ())
     {
 	if (in.peek () == '#')
@@ -330,11 +333,11 @@ void FoamAlongTime::ReadT1s (const char* fileName)
 	    in.ignore (LINE_LENGTH, '\n');
 	    continue;
 	}
-	in >> skipws >> timeStep >> x >> y;
+	in >> timeStep >> x >> y >> ws;
 	// in the file: first time step is 1 and T1s occur before timeStep
 	// in memory: first time step is 0 and T1s occur after timeStep
 	timeStep -= 1;
-	if (timeStep >= GetTimeSteps ())
+	if (timeStep >= timeSteps)
 	    break;
 	m_t1s[timeStep].push_back (G3D::Vector3 (x, y, Foam::Z_COORDINATE_2D));
     }
