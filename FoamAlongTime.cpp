@@ -12,15 +12,8 @@
 #include "FoamAlongTime.h"
 #include "Utils.h"
 
-// version 1669 reverts to by hand calculation of statistics
-
 // Private Functions
 // ======================================================================
-inline void calculateBodyWraps (BodiesAlongTime::BodyMap::value_type& v,
-                                const FoamAlongTime& foamAlongTime)
-{
-    v.second->CalculateBodyWraps (foamAlongTime);
-}
 
 
 // Members
@@ -41,14 +34,24 @@ void FoamAlongTime::CalculateBoundingBox ()
     m_boundingBox.set (low, high);
 }
 
+inline void calculateBodyWraps (BodiesAlongTime::BodyMap::value_type& v,
+                                const FoamAlongTime& foamAlongTime)
+{
+    v.second->CalculateBodyWraps (foamAlongTime);
+}
+
+
 void FoamAlongTime::calculateBodyWraps ()
 {
-    if (m_foams.size () > 1)
-    {
-        BodiesAlongTime::BodyMap bodyMap = GetBodiesAlongTime ().GetBodyMap ();
-        for_each (bodyMap.begin (), bodyMap.end (),
-                  boost::bind(::calculateBodyWraps, _1, *this));
-    }
+    if (m_foams.size () <= 1)
+	return;
+    BodiesAlongTime::BodyMap bodyMap = GetBodiesAlongTime ().GetBodyMap ();
+    for_each (
+	bodyMap.begin (), bodyMap.end (),
+	boost::bind (
+	    &BodyAlongTime::CalculateBodyWraps,
+	    boost::bind (&BodiesAlongTime::BodyMap::value_type::second, 
+			 _1), *this));
 }
 
 void FoamAlongTime::Preprocess ()
