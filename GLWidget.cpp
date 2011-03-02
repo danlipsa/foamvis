@@ -87,19 +87,16 @@ void display (const char* name, const T& what)
 // Private Classes
 // ======================================================================
 
-class NoStationaryBodyAndContext
+class NotStationaryBodyContext
 {
 public:
-    NoStationaryBodyAndContext (const GLWidget& widget) :
+    NotStationaryBodyContext (const GLWidget& widget) :
 	m_widget (widget)
     {
     }
     bool operator () (const boost::shared_ptr<Body>& body)
     {
-	size_t bodyId = body->GetId ();
-	bool result = bodyId != m_widget.GetStationaryBodyId () &&
-	    ! m_widget.IsStationaryBodyContext (bodyId);
-	return result;
+	return ! m_widget.IsStationaryBodyContext (body->GetId ());
     }
 private:
     const GLWidget& m_widget;
@@ -136,10 +133,6 @@ const double GLWidget::MIN_CONTEXT_ALPHA = 0.05;
 const double GLWidget::MAX_CONTEXT_ALPHA = 0.5;
 
 const double GLWidget::ENCLOSE_ROTATION_RATIO = 1;
-const QColor GLWidget::NOT_AVAILABLE_CENTER_PATH_COLOR (Qt::black);
-const QColor GLWidget::NOT_AVAILABLE_FACE_COLOR (Qt::white);
-const QColor GLWidget::STATIONARY_BODY_FACE_COLOR (Qt::black);
-const QColor GLWidget::STATIONARY_CONTEXT_FACE_COLOR (Qt::white);
 
 // Methods
 // ======================================================================
@@ -885,6 +878,7 @@ void GLWidget::paintGL ()
     displayOriginalDomain ();
     displayFocusBox ();
     showLightPositions ();
+    displayT1s ();
     detectOpenGLError ("paintGl");
     Q_EMIT PaintedGL ();
 }
@@ -1018,12 +1012,15 @@ void GLWidget::brushedBodies (
 void GLWidget::displayStationaryBodyAndContext () const
 {
     const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
-    Foam::Bodies selectedBodies (bodies.size ());
+    Foam::Bodies contextBodies (bodies.size ());
     Foam::Bodies::const_iterator end = remove_copy_if (
-	bodies.begin (), bodies.end (), selectedBodies.begin (),
-	NoStationaryBodyAndContext(*this));
-    selectedBodies.resize (end - selectedBodies.begin ());
-    displayFacesContour<DisplayFaceLineStrip> (selectedBodies);
+	bodies.begin (), bodies.end (), contextBodies.begin (),
+	NotStationaryBodyContext(*this));
+    contextBodies.resize (end - contextBodies.begin ());
+    displayFacesContour<1> (contextBodies);
+    Foam::Bodies focusBody (1);
+    focusBody[0] = *GetCurrentFoam ().FindBody (GetStationaryBodyId ());
+    displayFacesContour<0> (focusBody);
 }
 
 
@@ -1239,9 +1236,8 @@ void GLWidget::displayEdges () const
     const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
-	      DisplayFace<
-	      DisplayEdges<
-	      displayEdge> > > (*this, *m_bodySelector));
+	      DisplayFaceWithHighlightColor<0,
+	      DisplayEdges<displayEdge> > > (*this, *m_bodySelector));
     displayStandaloneEdges<displayEdge> ();
 
     glPopAttrib ();
@@ -1269,10 +1265,21 @@ void GLWidget::displayEdgesNormal () const
 	displayEdges <DisplayEdgeTorusClipped> () :
 	displayEdges <DisplayEdgeWithColor<> >();
     glPopAttrib ();
-    displayT1s (GetTimeStep ());
 }
 
 void GLWidget::displayT1s () const
+{
+    if (m_t1sShown)
+    {
+	if (ViewType::IsGlobal (GetViewType ()))
+	    displayT1sGlobal ();
+	else
+	    displayT1s (GetTimeStep ());
+    }
+}
+
+
+void GLWidget::displayT1sGlobal () const
 {
     for (size_t i = 0; i < GetFoamAlongTime ().GetTimeSteps (); ++i)
 	displayT1s (i);
@@ -1280,19 +1287,16 @@ void GLWidget::displayT1s () const
 
 void GLWidget::displayT1s (size_t timeStep) const
 {
-    if (m_t1sShown)
-    {
-	glPushAttrib (GL_ENABLE_BIT | GL_POINT_BIT | GL_CURRENT_BIT);
-	glDisable (GL_DEPTH_TEST);
-	glPointSize (4.0);
-	glColor (GetHighlightColor (0));
-	glBegin (GL_POINTS);
-	BOOST_FOREACH (const G3D::Vector3 v, 
-		       GetFoamAlongTime ().GetT1s (timeStep))
-	    ::glVertex (v);
-	glEnd ();
-	glPopAttrib ();
-    }
+    glPushAttrib (GL_ENABLE_BIT | GL_POINT_BIT | GL_CURRENT_BIT);
+    glDisable (GL_DEPTH_TEST);
+    glPointSize (4.0);
+    glColor (GetHighlightColor (0));
+    glBegin (GL_POINTS);
+    BOOST_FOREACH (const G3D::Vector3 v, 
+		   GetFoamAlongTime ().GetT1s (timeStep))
+	::glVertex (v);
+    glEnd ();
+    glPopAttrib ();
 }
 
 QColor GLWidget::GetHighlightColor (size_t i) const
@@ -1366,11 +1370,10 @@ void GLWidget::displayFacesNormal () const
     const Foam& foam = GetCurrentFoam ();
     const Foam::Bodies& bodies = foam.GetBodies ();
     if (m_facesShowEdges)
-	displayFacesContour<DisplayFaceLineStrip> (bodies);
-    displayFacesInterior<DisplayFaceTriangleFan> (bodies);
-    displayStandaloneFaces<DisplayFaceTriangleFan> ();
+	displayFacesContour<0> (bodies);
+    displayFacesInterior (bodies);
+    displayStandaloneFaces ();
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
-    displayT1s (GetTimeStep ());
 }
 
 pair<double, double> GLWidget::getStatisticsMinMax () const
@@ -1399,42 +1402,42 @@ void GLWidget::displayFacesStatistics () const
 	minMax.first, minMax.second, GetStatisticsType ());
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
     displayStationaryBodyAndContext ();
-    displayT1s ();
     glPopAttrib ();
 }
 
-template<typename displaySameEdges>
 void GLWidget::displayStandaloneFaces () const
 {
     const Foam::Faces& faces = GetCurrentFoam ().GetStandaloneFaces ();
-    displayFacesContour<displaySameEdges> (faces);
-    displayFacesInterior<displaySameEdges> (faces);
+    displayFacesContour<0> (faces);
+    displayFacesInterior (faces);
 }
 
-template<typename displaySameEdges>
+template<size_t highlightColorIndex>
 void GLWidget::displayFacesContour (const Foam::Faces& faces) const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     for_each (faces.begin (), faces.end (),
-	      DisplayFace<displaySameEdges> (*this));
+	      DisplayFaceWithHighlightColor<highlightColorIndex, 
+	      DisplayFaceLineStrip> (*this));
     glPopAttrib ();
 }
 
-template<typename displaySameEdges>
-void GLWidget::displayFacesContour (const Foam::Bodies& bodies) const
+template<size_t highlightColorIndex>
+void GLWidget::displayFacesContour (
+    const Foam::Bodies& bodies) const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     for_each (bodies.begin (), bodies.end (),
-	      DisplayBody< DisplayFace<displaySameEdges> > (
+	      DisplayBody< DisplayFaceWithHighlightColor<highlightColorIndex, 
+	      DisplayFaceLineStrip> > (
 		  *this, *m_bodySelector));
     glPopAttrib ();
 }
 
 // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
 // Antialiasing, Fog and Polygon Offset page 293
-template<typename displaySameEdges>
 void GLWidget::displayFacesInterior (const Foam::Bodies& bodies) const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT | 
@@ -1448,13 +1451,13 @@ void GLWidget::displayFacesInterior (const Foam::Bodies& bodies) const
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
     for_each (bodies.begin (), bodies.end (),
-	      DisplayBody<DisplayFaceWithColor<displaySameEdges> > (
+	      DisplayBody<DisplayFaceWithBodyPropertyColor<
+	      DisplayFaceTriangleFan> > (
 		  *this, *m_bodySelector,
 		  DisplayElement::TRANSPARENT_CONTEXT, m_bodyProperty));
     glPopAttrib ();
 }
 
-template<typename displaySameEdges>
 void GLWidget::displayFacesInterior (const Foam::Faces& faces) const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
@@ -1462,7 +1465,7 @@ void GLWidget::displayFacesInterior (const Foam::Faces& faces) const
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
     for_each (faces.begin (), faces.end (),
-	      DisplayFaceWithColor<displaySameEdges> (*this));
+	      DisplayFaceWithBodyPropertyColor<DisplayFaceTriangleFan> (*this));
     glPopAttrib ();
 }
 
@@ -1474,7 +1477,7 @@ void GLWidget::displayFacesTorusTubes () const
     GetCurrentFoam ().GetFaceSet (&faceSet);
     for_each (
 	faceSet.begin (), faceSet.end (),
-	DisplayFace<DisplayEdges<
+	DisplayFaceWithHighlightColor<0, DisplayEdges<
 	DisplayEdgeTorus<DisplayEdgeQuadric, DisplayArrowQuadric, true> > > (
 	    *this));
     glPopAttrib ();
@@ -1488,7 +1491,7 @@ void GLWidget::displayFacesTorusLines () const
     FaceSet faceSet;
     GetCurrentFoam ().GetFaceSet (&faceSet);
     for_each (faceSet.begin (), faceSet.end (),
-	      DisplayFace<
+	      DisplayFaceWithHighlightColor<0,
 	      DisplayEdges<
 	      DisplayEdgeTorus<DisplayEdge, DisplayArrow, true> > > (
 		  *this, DisplayElement::FOCUS) );
@@ -1509,7 +1512,8 @@ void GLWidget::displayCenterPathsWithBodies () const
 	double zPos = GetTimeStep () * GetTimeDisplacement ();
 	for_each (
 	    bodies.begin (), bodies.end (),
-	    DisplayBody<DisplayFace<DisplayEdges<DisplayEdgeWithColor<
+	    DisplayBody<DisplayFaceWithHighlightColor<0,
+	    DisplayEdges<DisplayEdgeWithColor<
 	    DisplayElement::DONT_DISPLAY_TESSELLATION> > > > (
 		*this, *m_bodySelector, DisplayElement::INVISIBLE_CONTEXT,
 		BodyProperty::NONE, IsTimeDisplacementUsed (), zPos));

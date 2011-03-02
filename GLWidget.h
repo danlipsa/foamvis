@@ -367,10 +367,6 @@ public:
     const static size_t NONE;
     const static size_t QUADRIC_SLICES;
     const static size_t QUADRIC_STACKS;
-    const static QColor NOT_AVAILABLE_CENTER_PATH_COLOR;
-    const static QColor NOT_AVAILABLE_FACE_COLOR;
-    const static QColor STATIONARY_BODY_FACE_COLOR;
-    const static QColor STATIONARY_CONTEXT_FACE_COLOR;
 
 protected:
     /**
@@ -484,7 +480,6 @@ private:
     void displayEdgesNormal () const;
     template<typename displayEdge>
     void displayStandaloneEdges (bool useZPos = false, double zPos = 0) const;
-    template<typename displaySameEdges>
     void displayStandaloneFaces () const;
     void displayEdgesTorus () const;
     void displayEdgesTorusTubes () const;
@@ -505,8 +500,9 @@ private:
      */
     void displayCenterPathsWithBodies () const;
     void displayOriginalDomain () const;
-    void displayT1s (size_t timeStep) const;
     void displayT1s () const;
+    void displayT1s (size_t timeStep) const;
+    void displayT1sGlobal () const;
     void displayCenterPaths () const;
     void compileCenterPaths () const;
     void compile () const;
@@ -531,10 +527,10 @@ private:
      * continuous contours  for polygons.
      * @param bodies displays all the faces in these bodies
      */
-    template<typename displaySameEdges>
+    template<size_t highlightColorIndex>
     void displayFacesContour (
 	const vector< boost::shared_ptr<Body> >& bodies) const;
-    template<typename displaySameEdges>
+    template<size_t highlightColorIndex>
     void displayFacesContour (
 	const vector< boost::shared_ptr<Face> >& faces) const;
     /**
@@ -543,10 +539,8 @@ private:
      * continuous contours for polygons.
      * @param bodies displays all the faces in these bodies
      */
-    template<typename displaySameEdges>
     void displayFacesInterior (
 	const vector<boost::shared_ptr<Body> >& bodies) const;
-    template<typename displaySameEdges>
     void displayFacesInterior (
 	const vector<boost::shared_ptr<Face> >& faces) const;
 

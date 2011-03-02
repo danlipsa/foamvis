@@ -90,6 +90,18 @@ ViewType::Enum ViewType::FromInt (int i)
     return ViewType::Enum (i);
 }
 
+bool ViewType::IsGlobal (ViewType::Enum t)
+{
+    switch (t)
+    {
+    case FACES_STATISTICS:
+    case CENTER_PATHS:
+	return true;
+    default:
+	return false;
+    }
+}
+
 
 const char* Palette::ToString (Palette::Enum type)
 {

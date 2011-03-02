@@ -18,21 +18,24 @@ class DisplayFaceLineStrip;
 /**
  * Functor that displays a face
  */
-template <typename displayEdges, typename PropertySetter = SetterValueTextureCoordinate>
-class DisplayFace : public DisplayElementPropertyFocus<PropertySetter>
+template <size_t highlightColorIndex,
+	  typename displayEdges, 
+	  typename PropertySetter = SetterValueTextureCoordinate>
+class DisplayFaceWithHighlightColor : 
+    public DisplayElementPropertyFocus<PropertySetter>
 {
 public:
     /**
      * Constructor
      * @param widget Where should be the face displayed
      */
-    DisplayFace (const GLWidget& widget,
+    DisplayFaceWithHighlightColor (const GLWidget& widget,
 		 typename DisplayElement::FocusContext focus = 
 		 DisplayElement::FOCUS,
 		 BodyProperty::Enum property = BodyProperty::NONE,
 		 bool useZPos = false, double zPos = 0);
     
-    DisplayFace (const GLWidget& widget,
+    DisplayFaceWithHighlightColor (const GLWidget& widget,
 		 PropertySetter propertySetter,
 		 typename DisplayElement::FocusContext focus = 
 		 DisplayElement::FOCUS,
@@ -62,21 +65,21 @@ private:
  */
 template<typename displaySameEdges = DisplayFaceLineStrip, 
 	 typename PropertySetter = SetterValueTextureCoordinate>
-class DisplayFaceWithColor : 
-    public DisplayFace<displaySameEdges, PropertySetter>
+class DisplayFaceWithBodyPropertyColor : 
+    public DisplayFaceWithHighlightColor<0, displaySameEdges, PropertySetter>
 {
 public:
     /**
      * Constructor
      * @param widget where is the face displayed
      */
-    DisplayFaceWithColor (
+    DisplayFaceWithBodyPropertyColor (
 	const GLWidget& widget,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	BodyProperty::Enum property = BodyProperty::NONE, 
 	bool useZPos = false, double zPos = 0);
 
-    DisplayFaceWithColor (
+    DisplayFaceWithBodyPropertyColor (
 	const GLWidget& widget,
 	PropertySetter propertySetter,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,

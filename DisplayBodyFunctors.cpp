@@ -245,7 +245,7 @@ DisplayCenterPath (
 		     this->m_propertySetter.GetBodyProperty ()), segment);
 	else
 	    storeFocusSegment (
-		this->m_glWidget.NOT_AVAILABLE_CENTER_PATH_COLOR, segment);
+		this->m_glWidget.GetHighlightColor (0), segment);
     }
     else
 	storeContextSegment (
@@ -372,36 +372,39 @@ template class DisplayBodyBase<SetterValueTextureCoordinate>;
 // ======================================================================
 
 template class DisplayBody<
-    DisplayFace<
+    DisplayFaceWithHighlightColor<0,
 	DisplayEdges<
 	    DisplayEdgeWithColor<DisplayElement::DONT_DISPLAY_TESSELLATION> >,
 	SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFace<
+    DisplayFaceWithHighlightColor<0,
 	DisplayEdges<
 	    DisplayEdgeWithColor<DisplayElement::TEST_DISPLAY_TESSELLATION> >,
 	SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFace<
+    DisplayFaceWithHighlightColor<0,
 	DisplayEdges<DisplayEdgeTorusClipped>,
 	SetterValueTextureCoordinate>,
     SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFace<DisplayFaceLineStrip, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
+    DisplayFaceWithHighlightColor<0, DisplayFaceLineStrip, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 
 template class DisplayBody<
-    DisplayFaceWithColor<DisplayFaceLineStrip, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
+    DisplayFaceWithBodyPropertyColor<DisplayFaceLineStrip, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFaceWithColor<DisplayFaceLineStrip, SetterValueVertexAttribute>,
+    DisplayFaceWithBodyPropertyColor<DisplayFaceLineStrip, SetterValueVertexAttribute>,
     SetterValueVertexAttribute>;
 
 template class DisplayBody<
-    DisplayFace<DisplayFaceTriangleFan, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
+    DisplayFaceWithHighlightColor<0, DisplayFaceTriangleFan, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFaceWithColor<DisplayFaceTriangleFan, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
+    DisplayFaceWithBodyPropertyColor<DisplayFaceTriangleFan, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFaceWithColor<DisplayFaceTriangleFan, SetterValueVertexAttribute>,
+    DisplayFaceWithBodyPropertyColor<DisplayFaceTriangleFan, SetterValueVertexAttribute>,
     SetterValueVertexAttribute>;
+
+
+template class DisplayBody<DisplayFaceWithHighlightColor<1ul, DisplayFaceLineStrip, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 
 
 // DisplayCenterPath

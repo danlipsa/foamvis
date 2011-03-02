@@ -158,6 +158,7 @@ public:
         COUNT
     };
     static Enum FromInt (int i);
+    static bool IsGlobal (ViewType::Enum t);
 };
 
 class StatisticsType
