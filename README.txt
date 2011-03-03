@@ -182,6 +182,7 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
+0.4.1792 - added option to shift T1s lower
 0.4.1789 - new scalar variables Number of sides, Elongation
 	 - added T1s overlay (-r option on the command line)
 	 - added 2 highlight colors for each color map
