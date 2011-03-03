@@ -62,7 +62,7 @@ public:
     /**
      * Calculates the center
      */
-    void CalculateCenter (size_t dimension, bool isQuadratic);
+    void CalculateCenter (bool is2D, bool isQuadratic);
     void CalculateBoundingBox ();
     /**
      * Gets the center
@@ -124,7 +124,7 @@ private:
      * Caches edges and vertices
      */
     void calculatePhysicalVertices (
-	size_t dimension, bool isQuadratic,
+	bool is2D, bool isQuadratic,
 	vector< boost::shared_ptr<Vertex> >* physicalVertices);
 
 private:
@@ -139,7 +139,7 @@ private:
 	const VertexSet& src,
 	vector< boost::shared_ptr<Vertex> >* destTessellation,
 	vector< boost::shared_ptr<Vertex> >* destPhysical,
-	size_t dimension, bool isQuadratic);
+	bool is2D, bool isQuadratic);
 
 private:
     /**

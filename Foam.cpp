@@ -274,7 +274,7 @@ void Foam::calculateBodiesCenters ()
 {
     for_each (m_bodies.begin (), m_bodies.end (),
 	      boost::bind(&Body::CalculateCenter, _1,
-			  GetDimension (), IsQuadratic ()));
+			  Is2D (), IsQuadratic ()));
 }
 
 void Foam::calculateTorusClipped ()
@@ -494,7 +494,7 @@ void Foam::bodyTranslate (
 	    GetOriginalDomain (), translate, vertexSet, edgeSet, faceSet);
 	of->SetFace (duplicate);
     }
-    body->CalculateCenter (GetDimension (), IsQuadratic ());
+    body->CalculateCenter (Is2D (), IsQuadratic ());
 }
 
 void Foam::GetVertexSet (VertexSet* vertexSet) const

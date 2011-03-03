@@ -368,8 +368,7 @@ void DisplayEdgeWithColor<tesselationEdgesDisplay>::
 operator () (const Edge& edge) const
 {
     const Foam& foam = m_glWidget.GetCurrentFoam ();
-    bool isPhysical = edge.IsPhysical (foam.GetDimension (),
-				       foam.IsQuadratic ());
+    bool isPhysical = edge.IsPhysical (foam.Is2D (), foam.IsQuadratic ());
     if (isPhysical || 
 	(tesselationEdgesDisplay == TEST_DISPLAY_TESSELLATION &&
 	 m_glWidget.IsEdgesTessellation () && 

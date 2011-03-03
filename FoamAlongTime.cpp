@@ -200,9 +200,9 @@ void FoamAlongTime::CacheBodiesAlongTime ()
 	      boost::bind (&BodiesAlongTime::Resize, &m_bodiesAlongTime, _1));
 }
 
-size_t FoamAlongTime::GetDimension () const
+bool FoamAlongTime::Is2D () const
 {
-    return GetFoam (0)->GetDimension ();
+    return GetFoam (0)->Is2D ();
 }
 
 const Body& FoamAlongTime::GetBody (size_t bodyId, size_t timeStep) const

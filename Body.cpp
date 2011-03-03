@@ -82,7 +82,7 @@ Body::Body(
 
 
 void Body::calculatePhysicalVertices (
-    size_t dimension, bool isQuadratic,
+    bool is2D, bool isQuadratic,
     vector< boost::shared_ptr<Vertex> >* physicalVertices)
 {
     VertexSet vertices;
@@ -91,32 +91,32 @@ void Body::calculatePhysicalVertices (
     GetVertexSet (&vertices);
     splitTessellationPhysical (
 	vertices, &tessellationVertices, physicalVertices, 
-	dimension, isQuadratic);
+	is2D, isQuadratic);
 }
 
 void Body::splitTessellationPhysical (
     const VertexSet& src,
     vector< boost::shared_ptr<Vertex> >* destTessellation,
     vector< boost::shared_ptr<Vertex> >* destPhysical,
-    size_t dimension, bool isQuadratic)
+    bool is2D, bool isQuadratic)
 {
     destTessellation->resize (src.size ());
     copy (src.begin (), src.end (), destTessellation->begin ());
     vector< boost::shared_ptr<Vertex> >::iterator bp;
     bp = partition (destTessellation->begin (), destTessellation->end (), 
 		    !boost::bind(&Vertex::IsPhysical, _1, 
-				 dimension, isQuadratic));
+				 is2D, isQuadratic));
     destPhysical->resize (destTessellation->end () - bp);
     copy (bp, destTessellation->end (), destPhysical->begin ());
     destTessellation->resize (bp - destTessellation->begin ());
 }
 
 
-void Body::CalculateCenter (size_t dimension, bool isQuadratic)
+void Body::CalculateCenter (bool is2D, bool isQuadratic)
 {
     using G3D::Vector3;    
     vector< boost::shared_ptr<Vertex> > physicalVertices;
-    calculatePhysicalVertices (dimension, isQuadratic, &physicalVertices);
+    calculatePhysicalVertices (is2D, isQuadratic, &physicalVertices);
     size_t size = physicalVertices.size ();
     if (size >= 3)
     {	

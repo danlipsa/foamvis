@@ -29,8 +29,7 @@ public:
      * Foam objects
      */
     void CalculateBoundingBox ();
-    size_t GetDimension () const;
-
+    bool Is2D () const;
 
     /**
      * Gets the AABox for this vector of Foam objects

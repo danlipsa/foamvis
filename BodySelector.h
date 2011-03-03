@@ -102,6 +102,10 @@ public:
     void SetUnion (const vector<size_t>& idsToAdd);
     void SetUnion (const IdBodySelector& idsToAdd);
     void SetDifference (const vector<size_t>& idsToRemove);
+    const vector<size_t>& GetIds ()
+    {
+	return m_ids;
+    }
     string ToString () const;
     string ToUserString () const;
 

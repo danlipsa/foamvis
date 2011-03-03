@@ -176,9 +176,9 @@ public:
     {
 	m_spaceDimension = spaceDimension;
     }
-    size_t GetDimension () const 
+    bool Is2D () const
     {
-	return m_spaceDimension;
+	return m_spaceDimension == 2;
     }
     bool IsQuadratic () const
     {

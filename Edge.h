@@ -86,7 +86,7 @@ public:
      * In quadradic model all edges are physical
      * @return true if this is a physical edge, false otherwise
      */
-    bool IsPhysical (size_t dimension, bool isQuadratic) const;
+    bool IsPhysical (bool foam2D, bool isQuadratic) const;
 
     /**
      * Adds a face touched by this edge

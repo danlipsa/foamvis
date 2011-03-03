@@ -182,9 +182,16 @@ void Edge::PrintFacePartOfInformation (ostream& ostr) const
     ostr << endl;
 }
 
-bool Edge::IsPhysical (size_t dimension, bool isQuadratic) const
+bool Edge::IsPhysical (bool foam2D, bool isQuadratic) const
 {
-    if (dimension == 3)
+    if (foam2D)
+    {
+	if (isQuadratic)
+	    return true;
+	else
+	    return false;
+    }
+    else
     {
 	if (m_facesPartOf.size () < 4)
 	    return false;
@@ -199,13 +206,6 @@ bool Edge::IsPhysical (size_t dimension, bool isQuadratic) const
 	    ++facesPartOfSize;
 	} while (next != end);
 	return facesPartOfSize == 3;
-    }
-    else
-    {
-	if (isQuadratic)
-	    return true;
-	else
-	    return false;
     }
 }
 

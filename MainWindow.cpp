@@ -230,7 +230,7 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 	radioButtonEdgesTorus->setDisabled (true);
 	radioButtonFaceEdgesTorus->setDisabled (true);
     }
-    if (foam->GetDimension () == 2)
+    if (foam->Is2D ())
     {
 	radioButtonEdgesNormal->toggle ();
 	tabWidget->setCurrentWidget (edges);

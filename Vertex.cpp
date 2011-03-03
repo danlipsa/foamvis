@@ -63,17 +63,20 @@ bool Vertex::operator== (const Vertex& other) const
     return GetVector () == other.GetVector ();
 }
 
-bool Vertex::IsPhysical (size_t dimension, bool isQuadratic) const 
+bool Vertex::IsPhysical (bool is2D, bool isQuadratic) const 
 {
-    if (dimension == 3)
-	return count_if (m_edgesPartOf.begin (), m_edgesPartOf.end (),
-			 boost::bind (&Edge::IsPhysical, _1, 
-				      dimension, isQuadratic)) == 4;
-    else
+    if (is2D)
+    {
 	if (isQuadratic)
 	    return true;
 	else
 	    return m_edgesPartOf.size () >= 3;
+    }
+    else
+	return 
+	    count_if (m_edgesPartOf.begin (), m_edgesPartOf.end (),
+		      boost::bind (&Edge::IsPhysical, _1, is2D, isQuadratic)) 
+	    == 4;
 }
 
 string Vertex::ToString () const

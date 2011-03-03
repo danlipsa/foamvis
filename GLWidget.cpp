@@ -291,10 +291,7 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 {
     m_foamAlongTime = foamAlongTime;
     calculateCameraDistance ();
-    m_axesOrder =
-	(foamAlongTime->GetDimension () == 2) ?
-	AxesOrder::TWO_D :
-	AxesOrder::THREE_D;
+    m_axesOrder = foamAlongTime->Is2D () ? AxesOrder::TWO_D : AxesOrder::THREE_D;
     Foam::Bodies bodies = foamAlongTime->GetFoam (0)->GetBodies ();
     if (bodies.size () != 0)
     {
@@ -526,7 +523,7 @@ void GLWidget::translateAndScale (
     glScale (scaleRatio);
     // if 2D, the back plane stays in the same place
     //if (! IsTimeDisplacementUsed ())
-    if (true)
+    if (GetFoamAlongTime ().Is2D ())
     {
 	G3D::AABox boundingBox = GetFoamAlongTime ().GetBoundingBox ();
 	float zTranslation = boundingBox.center ().z - boundingBox.low ().z;
@@ -797,6 +794,17 @@ void GLWidget::InfoFocus ()
 
     case BodySelectorType::ID:
     {
+	ostr << "Selected ids: ";
+	const vector<size_t>& ids = 
+	    (boost::static_pointer_cast<IdBodySelector> (
+		m_bodySelector))->GetIds ();
+	ostream_iterator<size_t> out (ostr, " ");
+	copy (ids.begin (), ids.end (), out);
+	if (GetBodyProperty () != BodyProperty::NONE)
+	{
+	    ostr << endl;
+	    
+	}
 	break;
     }
 
@@ -965,7 +973,7 @@ void GLWidget::brushedBodies (
     const QPoint& position, vector<size_t>* bodies) const
 {
     G3D::Vector3 end = gluUnProject (MapToOpenGl (position, height ()));
-    if (GetFoamAlongTime ().GetDimension () == 2)
+    if (GetFoamAlongTime ().Is2D ())
 	end.z = 0;
     const Foam& foam = GetCurrentFoam ();
     BOOST_FOREACH (boost::shared_ptr<Body> body, foam.GetBodies ())
@@ -2455,7 +2463,5 @@ void GLWidget::SetBodySelector (
 
 bool GLWidget::IsTimeDisplacementUsed () const
 {
-    return 
-	GetFoamAlongTime ().GetDimension () == 2 &&
-	GetTimeDisplacement () > 0;
+    return GetFoamAlongTime ().Is2D () && GetTimeDisplacement () > 0;
 }

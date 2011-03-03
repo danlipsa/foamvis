@@ -17,10 +17,6 @@
 
 // Private Functions
 // ======================================================================
-bool isNull (const boost::shared_ptr<Body>& body)
-{
-    return body == 0;
-}
 
 
 // BodyAlongTime Methods
@@ -54,7 +50,8 @@ void BodyAlongTime::CalculateBodyWraps (const FoamAlongTime& foamAlongTime)
 void BodyAlongTime::Resize ()
 {
     Bodies::iterator it = find_if (
-	m_bodyAlongTime.begin (), m_bodyAlongTime.end (), isNull);
+	m_bodyAlongTime.begin (), m_bodyAlongTime.end (), 
+	boost::bind (logical_not< boost::shared_ptr<Body> > (), _1));
     size_t size = it - m_bodyAlongTime.begin ();
     m_bodyAlongTime.resize (size);
 }
