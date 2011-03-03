@@ -525,15 +525,14 @@ void GLWidget::translateAndScale (
 {
     glScale (scaleRatio);
     // if 2D, the back plane stays in the same place
-    if (GetFoamAlongTime ().GetDimension () == 2 && 
-	! IsTimeDisplacementUsed ())
+    //if (! IsTimeDisplacementUsed ())
+    if (true)
     {
 	G3D::AABox boundingBox = GetFoamAlongTime ().GetBoundingBox ();
 	float zTranslation = boundingBox.center ().z - boundingBox.low ().z;
 	zTranslation = zTranslation - zTranslation / scaleRatio;
 	glTranslatef (0, 0, zTranslation);
     }
-
     glTranslate (contextView ? (translation / scaleRatio) : translation);
 }
 
@@ -1957,6 +1956,17 @@ void GLWidget::ToggledT1sShown (bool checked)
     update ();
 }
 
+void GLWidget::ToggledT1sShiftLower (bool checked)
+{
+    if (checked)
+	GetFoamAlongTime ().SetT1sShift (1);
+    else
+	GetFoamAlongTime ().SetT1sShift (0);
+    update ();
+}
+
+
+
 void GLWidget::ToggledCenterPath (bool checked)
 {
     changeView (checked, ViewType::CENTER_PATHS);
@@ -2198,8 +2208,8 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
     {
 	QMenu* menuStationary = menu.addMenu ("Stationary");
 	menuStationary->addAction (m_actionStationarySet.get ());
-	menuStationary->addAction (m_actionStationaryReset.get ());
 	menuStationary->addAction (m_actionStationaryContextAdd.get ());
+	menuStationary->addAction (m_actionStationaryReset.get ());
     }
     {
 	QMenu* menuInfo = menu.addMenu ("Info");
@@ -2445,10 +2455,7 @@ void GLWidget::SetBodySelector (
 
 bool GLWidget::IsTimeDisplacementUsed () const
 {
-    if (GetFoamAlongTime ().GetDimension () == 2)
-    {
-	return GetTimeDisplacement () > 0;
-    }
-    else
-	return false;
+    return 
+	GetFoamAlongTime ().GetDimension () == 2 &&
+	GetTimeDisplacement () > 0;
 }

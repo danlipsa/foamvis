@@ -308,6 +308,7 @@ public Q_SLOTS:
     void ToggledIsContextHidden (bool checked);
     void ToggledTorusOriginalDomainShown (bool checked);
     void ToggledT1sShown (bool checked);
+    void ToggledT1sShiftLower (bool checked);
     void ToggledTorusOriginalDomainClipped (bool checked);
     void ToggledTubeCenterPathUsed (bool checked);
 

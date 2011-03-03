@@ -84,7 +84,7 @@ always defined in the data file (it's not a duplicate).
  * Each line contains three entries separated by space: time_step, x, y
  * where x and y are the coordinates of the T1 in object space \n
  * The first time step is 1. \n
- * A T1 labeled with timestep T occurs between T-1 and T.\n
+ * A T1 labeled with timestep T occurs between T and T+1.\n
  *
  * @todo Why time displacement does not go all the way to max Z?
  * @todo Use vertex arrays for center paths

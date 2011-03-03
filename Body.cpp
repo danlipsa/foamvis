@@ -63,17 +63,6 @@ private:
 
 // Private functions
 // ======================================================================
-/**
- * Accumulates along X, Y or Z
- * @param result where we accumulate
- * @param v the vertex
- * @return result + the value of the vertex along the specified axis
- */
-G3D::Vector3 vertexAccumulate (G3D::Vector3 result,
-			       const boost::shared_ptr<Vertex>& v)
-{
-    return result + v->GetVector ();
-}
 
 
 // Methods
@@ -133,16 +122,19 @@ void Body::CalculateCenter (size_t dimension, bool isQuadratic)
     {	
 	m_center = accumulate (
 	    physicalVertices.begin (), physicalVertices.end (),
-	    G3D::Vector3::zero (), &vertexAccumulate);
-
+	    G3D::Vector3::zero (), 
+	    boost::bind (plus<G3D::Vector3> (),
+			 _1, boost::bind (&Vertex::GetVector, _2)));
     }
     else
     {
 	VertexSet vertices;
 	GetVertexSet (&vertices);
 	size = vertices.size ();
-	m_center = accumulate (vertices.begin (), vertices.end (),
-			       G3D::Vector3::zero (), &vertexAccumulate);
+	m_center = accumulate (
+	    vertices.begin (), vertices.end (), G3D::Vector3::zero (), 
+	    boost::bind (plus<G3D::Vector3> (),
+			 _1, boost::bind (&Vertex::GetVector, _2)));
     }
     m_center /= Vector3(size, size, size);
 }
@@ -226,6 +218,8 @@ bool Body::ExistsPropertyValue (BodyProperty::Enum property) const
     case BodyProperty::ELONGATION:
 	return ExistsAttribute (BodyProperty::VOLUME - 
 				BodyProperty::PER_BODY_BEGIN);
+    case BodyProperty::NONE:
+	return false;
     default:
 	return true;
     }

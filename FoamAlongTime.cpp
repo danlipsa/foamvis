@@ -16,11 +16,18 @@
 // ======================================================================
 
 
+// Static Members
+// ======================================================================
+const vector<G3D::Vector3> FoamAlongTime::NO_T1S;
+
+
+
 // Members
 // ======================================================================
 FoamAlongTime::FoamAlongTime () :
     m_histogram (
-        BodyProperty::PROPERTY_END, HistogramStatistics (HISTOGRAM_INTERVALS))
+        BodyProperty::PROPERTY_END, HistogramStatistics (HISTOGRAM_INTERVALS)),
+    m_t1sShift (0)
 {
 }
 
@@ -33,13 +40,6 @@ void FoamAlongTime::CalculateBoundingBox ()
         BBObjectLessThanAlongHigh<Foam> > () (max_element, m_foams, &high);
     m_boundingBox.set (low, high);
 }
-
-inline void calculateBodyWraps (BodiesAlongTime::BodyMap::value_type& v,
-                                const FoamAlongTime& foamAlongTime)
-{
-    v.second->CalculateBodyWraps (foamAlongTime);
-}
-
 
 void FoamAlongTime::calculateBodyWraps ()
 {
@@ -344,4 +344,13 @@ void FoamAlongTime::ReadT1s (const char* fileName, size_t timeSteps)
 	    break;
 	m_t1s[timeStep].push_back (G3D::Vector3 (x, y, Foam::Z_COORDINATE_2D));
     }
+}
+
+const vector<G3D::Vector3>& FoamAlongTime::GetT1s (size_t timeStep) const
+{
+    int t = int(timeStep) + m_t1sShift;
+    if (t < 0 || size_t (t) >= m_t1s.size ())
+	return NO_T1S;
+    else
+	return m_t1s[t];
 }

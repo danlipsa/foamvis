@@ -148,10 +148,15 @@ public:
      */
     void ReadT1s (const char* fileName, size_t timeSteps);
     bool T1sAvailable () const;
-    const vector<G3D::Vector3>& GetT1s (size_t timeStep) const
+    void SetT1sShift (int i)
     {
-	return m_t1s[timeStep];
+	m_t1sShift = i;
     }
+    int GetT1sShift () const
+    {
+	return m_t1sShift;
+    }
+    const vector<G3D::Vector3>& GetT1s (size_t timeStep) const;
 
 private:
     void adjustPressureAlignMedians ();
@@ -172,6 +177,9 @@ private:
     void forAllBodiesAccumulate (Accumulator* acc, BodyProperty::Enum property);
 
 private:
+    static const vector<G3D::Vector3> NO_T1S;
+
+private:
     /**
      * Vector of Foam objects
      */
@@ -185,6 +193,7 @@ private:
     vector<HistogramStatistics> m_histogram;
     bool m_adjustPressure;
     vector< vector<G3D::Vector3> > m_t1s;
+    int m_t1sShift;
 };
 
 

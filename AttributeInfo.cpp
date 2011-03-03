@@ -11,37 +11,6 @@
 #include "Comparisons.h"
 #include "Debug.h"
 
-/**
- * Functor that checks if (name, AttributeInfo*) pair contains a given index
- */
-class indexEqual
-{
-public:
-    typedef pair<string, boost::shared_ptr<AttributeInfo> > NameInfo;
-    /**
-     * Constructor
-     * @param index the index value that will be checked.
-     */
-    indexEqual (size_t index) : m_index (index) {}
-    /**
-     * Functor that checks if a (name, AttributeInfo*) pair contains a
-     * given index
-     */
-    bool operator() (NameInfo p)
-    {
-	if (p.second->GetIndex () == m_index)
-	    return true;
-        else
-            return false;
-    }
-private:
-    /**
-     * Index  value   that  is   checked  against  values   in  (name,
-     * AttributeInfo*) pairs
-     */
-    size_t m_index;
-};
-
 
 // AttributeInfo Methods
 // ======================================================================
@@ -98,11 +67,14 @@ size_t AttributesInfo::AddAttributeInfoLoad (
 }
 
 
-
 const char* AttributesInfo::GetAttributeName (size_t index) const
 {
     NameInfoMap::const_iterator it = 
-        find_if (m_nameInfo.begin (), m_nameInfo.end (), indexEqual (index));
+        find_if (
+	    m_nameInfo.begin (), m_nameInfo.end (), 
+	    boost::bind (&AttributeInfo::GetIndex, 
+			 boost::bind (&NameInfoMap::value_type::second, _1)) 
+	    == index);
     return it->first.c_str ();
 }
 
