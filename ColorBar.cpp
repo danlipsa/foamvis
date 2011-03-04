@@ -93,7 +93,6 @@ void ColorBar::ShowEditColorMap ()
 void ColorBar::ClampClear ()
 {
     m_model->SetClampClear ();
-    m_model->SetupPalette (m_model->GetPalette ());
     setColorMap (m_model->GetInterval (), m_model->GetColorMap ());
     Q_EMIT ColorBarModelChanged (m_model);
 }

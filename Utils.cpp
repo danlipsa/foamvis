@@ -248,7 +248,7 @@ G3D::AABox ToG3D (const QBox3D& box)
 }
 
 
-G3D::Vector2 MapToOpenGl (const QPoint& point, int windowHeight)
+G3D::Vector2 ToOpenGl (const QPoint& point, int windowHeight)
 {
     return G3D::Vector2 (point.x (), windowHeight - point.y ());
 }

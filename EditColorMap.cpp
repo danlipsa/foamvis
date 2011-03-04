@@ -68,7 +68,6 @@ void EditColorMap::ClampLow (double value)
 void EditColorMap::ClampClear ()
 {
     m_colorBarModel.SetClampClear ();
-    m_colorBarModel.SetupPalette (m_colorBarModel.GetPalette ());
     widgetHistogram->SetColorMap (
 	m_colorBarModel.GetInterval (), m_colorBarModel.GetColorMap ());
 }

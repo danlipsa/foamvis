@@ -102,14 +102,7 @@ void MainWindow::connectSignals ()
 
 
     // BodyPropertyChanged: 
-    // from MainWindow to ColorBar, GLWidget and AttributeHistogram
-    connect (
-	this, 
-	SIGNAL (BodyPropertyChanged (
-		    boost::shared_ptr<ColorBarModel>,
-		    BodyProperty::Enum)),
-	colorBar, 
-	SLOT (SetModel (boost::shared_ptr<ColorBarModel>)));
+    // from MainWindow to GLWidget and AttributeHistogram
     connect (
 	this, 
 	SIGNAL (BodyPropertyChanged (
@@ -132,11 +125,6 @@ void MainWindow::connectSignals ()
     connect (
 	this, 
 	SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
-	colorBar, 
-	SLOT (SetModel (boost::shared_ptr<ColorBarModel>)));
-    connect (
-	this, 
-	SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
 	widgetGl, 
 	SLOT (SetColorBarModel (boost::shared_ptr<ColorBarModel>)));
 
@@ -144,7 +132,7 @@ void MainWindow::connectSignals ()
     // ColorBarModelChanged:
     // from ColorBar to GLWidget and AttributeHistogram
     connect (
-	colorBar, 
+	widgetGl, 
 	SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
 	widgetGl, 
 	SLOT (SetColorBarModel (boost::shared_ptr<ColorBarModel>)));
@@ -163,7 +151,7 @@ void MainWindow::connectColorBarHistogram (bool connected)
 	    SLOT (SetColorBarModel (boost::shared_ptr<ColorBarModel>)), 
 	    Qt::UniqueConnection);
 	connect (
-	    colorBar, 
+	    widgetGl, 
 	    SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
 	    widgetHistogram, 
 	    SLOT (SetColorBarModel (boost::shared_ptr<ColorBarModel>)), 
@@ -172,7 +160,6 @@ void MainWindow::connectColorBarHistogram (bool connected)
     else
     {
 	disconnect (widgetHistogram);
-	colorBar->disconnect (widgetHistogram);
     }
 }
 
@@ -197,7 +184,8 @@ void MainWindow::setupButtonGroups ()
     buttonGroupDisplay->setId (radioButtonEdgesTorus, ViewType::EDGES_TORUS);
     buttonGroupDisplay->setId (radioButtonFacesNormal, ViewType::FACES);
     buttonGroupDisplay->setId (radioButtonFaceEdgesTorus, ViewType::FACES_TORUS);
-    buttonGroupDisplay->setId (radioButtonFacesStatistics, ViewType::FACES_STATISTICS);
+    buttonGroupDisplay->setId (radioButtonFacesStatistics, 
+			       ViewType::FACES_STATISTICS);
     buttonGroupDisplay->setId (radioButtonCenterPath, ViewType::CENTER_PATHS);
 }
 
@@ -243,7 +231,6 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 	tabWidget->setCurrentWidget (faces);
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::THREE_D);
     }
-    colorBar->setHidden (true);
     comboBoxCenterPathColor->setCurrentIndex (BodyProperty::NONE);
     comboBoxFacesColor->setCurrentIndex (BodyProperty::NONE);
 }
@@ -462,7 +449,8 @@ void MainWindow::createActions ()
     connect(m_actionScaleShown.get (), SIGNAL(triggered()),
 	    this, SLOT(ScaleShown ()));
 
-    m_actionTranslateShown = boost::make_shared<QAction> (tr("&Translate"), this);
+    m_actionTranslateShown = boost::make_shared<QAction> (
+	tr("&Translate"), this);
     m_actionTranslateShown->setShortcut(QKeySequence (tr ("T")));
     m_actionTranslateShown->setStatusTip(tr("Translate"));
     connect(m_actionTranslateShown.get (), SIGNAL(triggered()),
@@ -526,11 +514,6 @@ void MainWindow::ToggledHistogramGridShown (bool checked)
     widgetHistogram->SetGridEnabled (checked);
 }
 
-void MainWindow::ToggledColorBarShown (bool checked)
-{
-    colorBar->setVisible (checked);
-}
-
 void MainWindow::ToggledStatusBarShown (bool checked)
 {
     labelStatusBar->setVisible (checked);
@@ -583,7 +566,6 @@ void MainWindow::ValueChangedFontSize (int fontSize)
     defaultFont.setPointSize (fontSize);
     app->setFont (defaultFont);
     widgetHistogram->SetDefaultFont ();
-    colorBar->SetDefaultFont ();    
 }
 
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
@@ -610,14 +592,9 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 void MainWindow::ToggledEdgesNormal (bool checked)
 {
     if (checked)
-    {
 	stackedWidgetEdges->setCurrentWidget (pageEdgesNormal);
-	colorBar->setVisible (false);
-    }
     else
-    {
 	stackedWidgetEdges->setCurrentWidget (pageEdgesEmpty);
-    }
 }
 
 void MainWindow::ToggledFacesNormal (bool checked)
@@ -662,8 +639,6 @@ void MainWindow::displayHistogramColorBar (bool checked)
 {
     widgetHistogram->setVisible (
 	checked && m_property != BodyProperty::NONE && m_histogramType);
-    colorBar->setVisible (
-	checked && m_property != BodyProperty::NONE);
 }
 
 void MainWindow::setupColorBarModels ()
@@ -747,12 +722,11 @@ void MainWindow::CurrentIndexChangedSelectedLight (int i)
 
 void MainWindow::CurrentIndexChangedFacesColor (int value)
 {
-    boost::array<QWidget*, 5> widgetsVisible = {{
+    boost::array<QWidget*, 4> widgetsVisible = {{
 	    labelFacesHistogram,
 	    radioButtonFacesHistogramNone,
 	    radioButtonFacesHistogramUnicolor,
-	    radioButtonFacesHistogramColorCoded,
-	    colorBar}};
+	    radioButtonFacesHistogramColorCoded}};
     boost::array<QWidget*, 1> widgetsEnabled = {{
 	    radioButtonFacesStatistics}};
     BodyProperty::Enum property = BodyProperty::FromSizeT (value);
@@ -785,12 +759,11 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 
 void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 {
-    boost::array<QWidget*, 5> widgetsHidden = {{
+    boost::array<QWidget*, 4> widgetsHidden = {{
 	    labelCenterPathHistogram,
 	    radioButtonCenterPathHistogramNone,
 	    radioButtonCenterPathHistogramUnicolor,
-	    radioButtonCenterPathHistogramColorCoded,
-	    colorBar}};
+	    radioButtonCenterPathHistogramColorCoded}};
     boost::array<QWidget*, 1> widgetsEnabled = {{
 	    radioButtonFacesStatistics}};
     BodyProperty::Enum property = BodyProperty::FromSizeT(value);
@@ -807,7 +780,8 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 	::setVisible (widgetsHidden, true);
 	::setEnabled (widgetsEnabled, true);
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-	Q_EMIT BodyPropertyChanged (m_colorBarModelBodyProperty[property], property);
+	Q_EMIT BodyPropertyChanged (
+	    m_colorBarModelBodyProperty[property], property);
 	if (m_histogramType != HistogramType::NONE)
 	    SetAndDisplayHistogram (
 		m_histogramType,

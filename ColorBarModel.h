@@ -61,6 +61,7 @@ public:
     void SetClampClear ()
     {
 	m_clampValues = m_interval;
+	SetupPalette (GetPalette ());
     }
 
     void SetTitle (const char* title)

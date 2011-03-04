@@ -74,7 +74,6 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void ToggledTimeStepsShown (bool checked);
-    void ToggledColorBarShown (bool checked);
     void ToggledHistogramGridShown (bool checked);
     void ToggledStatusBarShown (bool checked);
 

@@ -268,6 +268,8 @@ public:
 
 Q_SIGNALS:
     void PaintedGL ();
+    void EditColorMap ();
+    void ColorBarModelChanged (boost::shared_ptr<ColorBarModel> colorBarModel);
 
 public Q_SLOTS:
     /*
@@ -276,7 +278,6 @@ public Q_SLOTS:
     void ToggledAxesShown (bool checked);
     void ToggledBoundingBoxShown (bool checked);
     void ToggledBodiesBoundingBoxesShown (bool checked);
-    void ToggledColorBarShown (bool checked);
     /**
      * Shows center paths
      * param checked true for showing the center paths false otherwise
@@ -354,6 +355,10 @@ public Q_SLOTS:
     void InfoFocus ();
     void InfoFoam ();
     void InfoOpenGL ();
+    // Actions color bar
+    void ColorBarEdit ();
+    void ColorBarClampClear ();
+
     /**
      * Signals a change in data displayed
      * @param timeStep the new index for the Foam to be displayed
@@ -431,7 +436,9 @@ private:
      * Displays the center of the bodies
      */
     void displayCenterOfBodies (bool useZPos = false) const;
-    void displayTextureColorBar () const;
+    void displayViewDecorations ();
+    void displayTextureColorBar ();
+    void displayViewTitle ();
     bool areEdgesTubes () const
     {
 	return m_edgesTubes;
@@ -680,7 +687,6 @@ private:
     bool m_boundingBoxShown;
     bool m_bodiesBoundingBoxesShown;
     bool m_axesShown;
-    bool m_textureColorBarShown;
     boost::array<ViewTypeDisplay, ViewType::COUNT> m_viewTypeDisplay;
     BodyProperty::Enum m_bodyProperty;
     boost::shared_ptr<BodySelector> m_bodySelector;
@@ -696,6 +702,9 @@ private:
     boost::shared_ptr<QAction> m_actionInfoFocus;
     boost::shared_ptr<QAction> m_actionInfoFoam;
     boost::shared_ptr<QAction> m_actionInfoOpenGL;
+    boost::scoped_ptr<QAction> m_actionEditColorMap;
+    boost::scoped_ptr<QAction> m_actionClampClear;
+
     
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
     GLuint m_colorBarTexture;
@@ -713,6 +722,7 @@ private:
     bool m_tubeCenterPathUsed;
     GLuint m_listCenterPaths;
     bool m_t1sShown;
+    G3D::Rect2D m_colorBarRect;
 };
 
 #endif //__GLWIDGET_H__

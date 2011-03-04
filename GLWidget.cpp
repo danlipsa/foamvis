@@ -136,7 +136,6 @@ GLWidget::GLWidget(QWidget *parent)
       m_boundingBoxShown (false),
       m_bodiesBoundingBoxesShown (false),
       m_axesShown (false),
-      m_textureColorBarShown (false),
       m_bodyProperty (BodyProperty::NONE),
       m_bodySelector (AllBodySelector::Get ()),
       m_colorBarTexture (0),
@@ -271,6 +270,20 @@ void GLWidget::createActions ()
     m_actionInfoOpenGL->setStatusTip(tr("Info OpenGL"));
     connect(m_actionInfoOpenGL.get (), SIGNAL(triggered()),
 	    this, SLOT(InfoOpenGL ()));
+
+    // actions for the color bar
+    m_actionEditColorMap.reset (
+	new QAction (tr("&Edit Color Map"), this));
+    m_actionEditColorMap->setStatusTip(tr("Edit Color Map"));
+    connect(m_actionEditColorMap.get (), SIGNAL(triggered()),
+	    this, SLOT(ColorBarEdit ()));
+
+    m_actionClampClear.reset (
+	new QAction (tr("&Clamp Clear"), this));
+    m_actionClampClear->setStatusTip(tr("Clamp Clear"));
+    connect(m_actionClampClear.get (), SIGNAL(triggered()),
+	    this, SLOT(ColorBarClampClear ()));
+
 }
 
 void GLWidget::initViewTypeDisplay ()
@@ -821,6 +834,18 @@ void GLWidget::InfoFocus ()
     msgBox.exec();
 }
 
+void GLWidget::ColorBarEdit ()
+{
+    Q_EMIT EditColorMap ();
+}
+
+void GLWidget::ColorBarClampClear ()
+{
+    m_colorBarModel->SetClampClear ();
+    Q_EMIT ColorBarModelChanged (m_colorBarModel);
+}
+
+
 
 // Uses antialiased points and lines
 // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
@@ -846,7 +871,7 @@ void GLWidget::paintGL ()
     if (! m_hideContent)
     {
 	DisplayViewType ();
-	displayTextureColorBar ();
+	displayViewDecorations ();
     }
     displayAxes ();
     displayBoundingBox ();
@@ -861,6 +886,7 @@ void GLWidget::paintGL ()
 void GLWidget::resizeGL(int w, int h)
 {
     (void)w;(void)h;
+    m_colorBarRect = G3D::Rect2D::xywh (3, 3, 8, max (height () / 4, 50));
     projectionTransform ();
     ViewportTransform ();
     if (m_viewType == ViewType::FACES_STATISTICS)
@@ -972,7 +998,7 @@ void GLWidget::scale (const QPoint& position)
 void GLWidget::brushedBodies (
     const QPoint& position, vector<size_t>* bodies) const
 {
-    G3D::Vector3 end = gluUnProject (MapToOpenGl (position, height ()));
+    G3D::Vector3 end = gluUnProject (ToOpenGl (position, height ()));
     if (GetFoamAlongTime ().Is2D ())
 	end.z = 0;
     const Foam& foam = GetCurrentFoam ();
@@ -1283,15 +1309,15 @@ void GLWidget::displayT1s (size_t timeStep) const
 
 QColor GLWidget::GetHighlightColor (size_t i) const
 {
-    if (m_colorBarModel.get () == 0)
+    if (m_colorBarModel)
+	return m_colorBarModel->GetHighlightColor (i);
+    else
     {
 	if (i == 0)
 	    return Qt::black;
 	else
 	    return Qt::red;
     }
-    else
-	return m_colorBarModel->GetHighlightColor (i);
 }
 
 void GLWidget::displayEdgesTorus () const
@@ -1857,13 +1883,6 @@ void GLWidget::ToggledBodiesBoundingBoxesShown (bool checked)
     update ();
 }
 
-
-void GLWidget::ToggledColorBarShown (bool checked)
-{
-    m_textureColorBarShown = ! checked;
-    update ();
-}
-
 void GLWidget::ToggledContextView (bool checked)
 {
     m_contextView = checked;
@@ -2208,22 +2227,30 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     m_contextMenuPos = event->pos ();
     QMenu menu (this);
-    menu.addAction (m_actionResetTransformation.get ());
-    menu.addAction (m_actionResetSelectedLightPosition.get ());
-    menu.addAction (m_actionSelectAll.get ());
-    menu.addAction (m_actionDeselectAll.get ());
-    menu.addAction (m_actionSelectBodiesById.get ());
+    if (m_colorBarRect.contains (ToOpenGl (m_contextMenuPos, height ())))
     {
-	QMenu* menuStationary = menu.addMenu ("Stationary");
-	menuStationary->addAction (m_actionStationarySet.get ());
-	menuStationary->addAction (m_actionStationaryContextAdd.get ());
-	menuStationary->addAction (m_actionStationaryReset.get ());
+	menu.addAction (m_actionEditColorMap.get ());
+	menu.addAction (m_actionClampClear.get ());
     }
+    else
     {
-	QMenu* menuInfo = menu.addMenu ("Info");
-	menuInfo->addAction (m_actionInfoFocus.get ());
-	menuInfo->addAction (m_actionInfoFoam.get ());
-	menuInfo->addAction (m_actionInfoOpenGL.get ());
+	menu.addAction (m_actionResetTransformation.get ());
+	menu.addAction (m_actionResetSelectedLightPosition.get ());
+	menu.addAction (m_actionSelectAll.get ());
+	menu.addAction (m_actionDeselectAll.get ());
+	menu.addAction (m_actionSelectBodiesById.get ());
+	{
+	    QMenu* menuStationary = menu.addMenu ("Stationary");
+	    menuStationary->addAction (m_actionStationarySet.get ());
+	    menuStationary->addAction (m_actionStationaryContextAdd.get ());
+	    menuStationary->addAction (m_actionStationaryReset.get ());
+	}
+	{
+	    QMenu* menuInfo = menu.addMenu ("Info");
+	    menuInfo->addAction (m_actionInfoFocus.get ());
+	    menuInfo->addAction (m_actionInfoFoam.get ());
+	    menuInfo->addAction (m_actionInfoOpenGL.get ());
+	}
     }
     menu.exec (event->globalPos());
 }
@@ -2238,12 +2265,13 @@ void GLWidget::initializeTextures ()
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 }
 
-void GLWidget::displayTextureColorBar () const
+void GLWidget::displayViewDecorations ()
 {
-    if (! m_textureColorBarShown)
+    if (GetBodyProperty () == BodyProperty::NONE)
 	return;
     glPushAttrib (
-	GL_CURRENT_BIT | GL_VIEWPORT_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT);
+	GL_POLYGON_BIT | GL_CURRENT_BIT | 
+	GL_VIEWPORT_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT);
     if (isLightingEnabled ())
 	glDisable (GL_LIGHTING);
     // modelview
@@ -2258,23 +2286,53 @@ void GLWidget::displayTextureColorBar () const
 
     glViewport (0, 0, width (), height ());
 
-    glEnable(GL_TEXTURE_1D);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    glBindTexture (GL_TEXTURE_1D, m_colorBarTexture);
-
-    const int BAR_WIDTH = 8;
-    const int BAR_HEIGHT = max (height () / 4, 50);
-    glBegin (GL_QUADS);
-    glTexCoord1f(0);glVertex2s (0, 0);
-    glTexCoord1f(1);glVertex2s (0, BAR_HEIGHT);
-    glTexCoord1f(1);glVertex2s (BAR_WIDTH, BAR_HEIGHT);
-    glTexCoord1f(0);glVertex2s (BAR_WIDTH, 0);
-    glEnd ();
+    displayTextureColorBar ();
+    displayViewTitle ();
+ 
     glPopMatrix ();
     glMatrixMode (GL_MODELVIEW);
     glPopMatrix ();
     glPopAttrib ();
 }
+
+void GLWidget::displayTextureColorBar ()
+{
+   glEnable(GL_TEXTURE_1D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glBindTexture (GL_TEXTURE_1D, m_colorBarTexture);
+
+    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+    glBegin (GL_QUADS);
+    glTexCoord1f(0);glVertex (m_colorBarRect.x0y0 ());
+    glTexCoord1f(1);glVertex (m_colorBarRect.x0y1 ());
+    glTexCoord1f(1);glVertex (m_colorBarRect.x1y1 ());
+    glTexCoord1f(0);glVertex (m_colorBarRect.x1y0 ());
+    glEnd ();
+
+    glColor (Qt::black);
+    glEnable (GL_POLYGON_OFFSET_LINE);
+    glPolygonOffset (-1, -1);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    glBegin (GL_QUADS);
+    glVertex (m_colorBarRect.x0y0 ());
+    glVertex (m_colorBarRect.x0y1 ());
+    glVertex (m_colorBarRect.x1y1 ());
+    glVertex (m_colorBarRect.x1y0 ());
+    glEnd ();
+}
+
+void GLWidget::displayViewTitle ()
+{
+    QFont font;
+    QFontMetrics fm (font);
+    const char* text = BodyProperty::ToString (GetBodyProperty ());
+    const int textX = (width () - fm.width (text)) / 2;
+    const int textY = fm.height () + 3;
+    glColor (Qt::black);
+    renderText (textX, textY, text);
+}
+
+
 
 QColor GLWidget::GetCenterPathContextColor () const
 {
