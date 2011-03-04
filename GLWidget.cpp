@@ -146,7 +146,9 @@ GLWidget::GLWidget(QWidget *parent)
       m_hideContent(false),
       m_tubeCenterPathUsed (true),
       m_listCenterPaths (0),
-      m_t1sShown (false)
+      m_t1sShown (false),
+      m_viewCount (ViewCount::ONE),
+      m_viewLayout (ViewLayout::HORIZONTAL)
 {
     makeCurrent ();
     m_displayFaceStatistics.reset (new DisplayFaceStatistics (*this));
@@ -621,17 +623,40 @@ void GLWidget::projectionTransform ()
     
 }
 
-void GLWidget::ViewportTransform ()
+void GLWidget::viewportTransform (size_t view)
 {
     G3D::Rect2D screenWorld;
-    viewingVolumeCalculations (width (), height (), &m_viewport, &screenWorld);
+    m_viewport = calculateViewport (width (), height ());
     glViewport (m_viewport);
 }
 
+G3D::Vector2 GLWidget::viewX0y0 (size_t view)
+{
+    float w = width ();
+    float h = height ();
+    using G3D::Vector2;
+    switch (m_viewCount)
+    {
+    case ViewCount::ONE:
+	return G3D::Vector2 (0, 0);
+    case ViewCount::TWO:
+    {
+	RuntimeAssert (view < 2, "Invalid view: ", view);
+	Vector2 v[] = {Vector2 (0, 0), Vector2 (0, h / 2), // horizontal layout
+		       Vector2 (w/2, 0), Vector2 (0,0)};    // vertical layout
+	return v[view * 2 + m_viewLayout];
+    }
+    case ViewCount::FOUR:
+	RuntimeAssert (view < 4, "Invalid view: ", view);
+	Vector2 v[] = {Vector2 (0, h/2), Vector2 (w/2, h/2),
+		       Vector2 (0, 0), Vector2 (w/2, 0)};
+	return v[view];
+    }
+}
 
-void GLWidget::viewingVolumeCalculations (
-    int width, int height,
-    G3D::Rect2D* vv2dScreen, G3D::Rect2D* screenWorld) const
+
+G3D::Rect2D GLWidget::calculateViewport (
+    int width, int height) const
 {
     G3D::AABox vv = calculateCenteredViewingVolume (
 	static_cast<double> (width) / height);
@@ -641,45 +666,14 @@ void GLWidget::viewingVolumeCalculations (
     if (windowRatio > vvratio)
     {
 	double newWidth = vvratio * height;
-	*vv2dScreen = G3D::Rect2D::xywh ((width - newWidth) / 2, 0,
-					     newWidth, height);
-	*screenWorld = G3D::Rect2D::xywh (0, 0,
-	    vv2d.height () * windowRatio, vv2d.height ());
+	return G3D::Rect2D::xywh ((width - newWidth) / 2, 0,
+				  newWidth, height);
     }
     else
     {
 	double newHeight = width / vvratio;
-	*vv2dScreen = G3D::Rect2D::xywh (0, (height - newHeight) / 2,
-				   width, newHeight);
-	*screenWorld = G3D::Rect2D::xywh (0, 0,
-	    vv2d.width (), vv2d.width () / windowRatio);
-    }
-    //cdbg << "vv2d=" << vv2d << "screenWorld=" << *screenWorld << endl;
-}
-
-void GLWidget::boundingBoxCalculations (
-    int width, int height,
-    const G3D::Rect2D& screenWorld, G3D::Rect2D* bb2dScreen,
-    double* change) const
-{
-    G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
-    //cdbg << "bb=" << bb << endl;
-    G3D::Rect2D bb2d = G3D::Rect2D::xyxy (bb.low ().xy (), bb.high ().xy ());
-    double bbratio = bb2d.width () / bb2d.height ();
-    double windowRatio = static_cast<double>(width) / height;
-    if (windowRatio > bbratio)
-    {
-	*change = screenWorld.height () / bb2d.height ();
-	double newWidth = bbratio * height;
-	*bb2dScreen = G3D::Rect2D::xywh ((width - newWidth) / 2, 0,
-					newWidth, height);
-    }
-    else
-    {
-	*change = screenWorld.width () / bb2d.width ();
-	double newHeight = width / bbratio;
-	*bb2dScreen = G3D::Rect2D::xywh (
-	    0, (height - newHeight) / 2, width, newHeight);
+	return G3D::Rect2D::xywh (0, (height - newHeight) / 2,
+				  width, newHeight);
     }
 }
 
@@ -867,6 +861,13 @@ void GLWidget::initializeGL()
 void GLWidget::paintGL ()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    displayView (0);
+    Q_EMIT PaintedGL ();
+}
+
+void GLWidget::displayView (size_t view)
+{
+    viewportTransform (view);    
     ModelViewTransform (GetTimeStep ());
     if (! m_hideContent)
     {
@@ -880,15 +881,14 @@ void GLWidget::paintGL ()
     showLightPositions ();
     displayT1s ();
     detectOpenGLError ("paintGl");
-    Q_EMIT PaintedGL ();
 }
+
 
 void GLWidget::resizeGL(int w, int h)
 {
     (void)w;(void)h;
     m_colorBarRect = G3D::Rect2D::xywh (3, 3, 8, max (height () / 4, 50));
     projectionTransform ();
-    ViewportTransform ();
     if (m_viewType == ViewType::FACES_STATISTICS)
     {
 	pair<double, double> minMax = getStatisticsMinMax ();
@@ -2005,6 +2005,18 @@ void GLWidget::CurrentIndexChangedSelectedLight (int selectedLight)
     m_selectedLight = LightPosition::Enum (selectedLight);
 }
 
+void GLWidget::CurrentIndexChangedViewCount (int index)
+{
+    m_viewCount = ViewCount::Enum (index);
+    update ();
+}
+
+void GLWidget::CurrentIndexChangedViewLayout (int index)
+{
+    m_viewLayout = ViewLayout::Enum (index);
+    update ();
+}
+
 void GLWidget::CurrentIndexChangedInteractionMode (int index)
 {
     m_interactionMode = InteractionMode::Enum(index);
@@ -2297,10 +2309,10 @@ void GLWidget::displayViewDecorations ()
 
 void GLWidget::displayTextureColorBar ()
 {
-   glEnable(GL_TEXTURE_1D);
+    glEnable(GL_TEXTURE_1D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glBindTexture (GL_TEXTURE_1D, m_colorBarTexture);
-
+    
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glBegin (GL_QUADS);
     glTexCoord1f(0);glVertex (m_colorBarRect.x0y0 ());
@@ -2308,6 +2320,7 @@ void GLWidget::displayTextureColorBar ()
     glTexCoord1f(1);glVertex (m_colorBarRect.x1y1 ());
     glTexCoord1f(0);glVertex (m_colorBarRect.x1y0 ());
     glEnd ();
+    glDisable (GL_TEXTURE_1D);
 
     glColor (Qt::black);
     glEnable (GL_POLYGON_OFFSET_LINE);

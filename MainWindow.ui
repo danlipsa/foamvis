@@ -36,6 +36,9 @@
        </sizepolicy>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0,0,0">
+       <property name="margin">
+        <number>0</number>
+       </property>
        <item>
         <widget class="GLWidget" name="widgetGl" native="true">
          <property name="sizePolicy">
@@ -106,6 +109,9 @@
        <item>
         <widget class="QWidget" name="widget_3" native="true">
          <layout class="QFormLayout" name="formLayout_8">
+          <property name="margin">
+           <number>9</number>
+          </property>
           <item row="1" column="0">
            <widget class="QCheckBox" name="checkBoxContextView">
             <property name="text">
@@ -276,28 +282,14 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="currentIndex">
-              <number>3</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="tabShow">
               <attribute name="title">
                <string>Show</string>
               </attribute>
               <layout class="QFormLayout" name="formLayout_4">
-               <item row="0" column="0">
-                <widget class="QCheckBox" name="checkBoxAxes">
-                 <property name="text">
-                  <string>Axes</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QCheckBox" name="checkBoxBodiesBoundingBoxes">
-                 <property name="text">
-                  <string>Body box</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="0">
+               <item row="9" column="0">
                 <spacer name="verticalSpacer_5">
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
@@ -310,6 +302,39 @@
                  </property>
                 </spacer>
                </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="labelViewCount">
+                 <property name="text">
+                  <string>Views</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QComboBox" name="comboBoxViewCount">
+                 <item>
+                  <property name="text">
+                   <string>One</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Two</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Four</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QCheckBox" name="checkBoxAxes">
+                 <property name="text">
+                  <string>Axes</string>
+                 </property>
+                </widget>
+               </item>
                <item row="0" column="1">
                 <widget class="QCheckBox" name="checkBoxBoundingBox">
                  <property name="text">
@@ -317,11 +342,39 @@
                  </property>
                 </widget>
                </item>
-               <item row="2" column="1">
+               <item row="1" column="0">
+                <widget class="QCheckBox" name="checkBoxBodiesBoundingBoxes">
+                 <property name="text">
+                  <string>Body box</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
                 <widget class="QCheckBox" name="checkBoxTorusOriginalDomain">
                  <property name="text">
                   <string>Torus domain</string>
                  </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="labelViewLayout">
+                 <property name="text">
+                  <string>View layout</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QComboBox" name="comboBoxViewLayout">
+                 <item>
+                  <property name="text">
+                   <string>Horizontal</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Vertical</string>
+                  </property>
+                 </item>
                 </widget>
                </item>
               </layout>
@@ -1564,6 +1617,8 @@
     <slot>ToggledT1sShown(bool)</slot>
     <slot>ToggledT1sBeforeTimestep(bool)</slot>
     <slot>ToggledT1sShiftLower(bool)</slot>
+    <slot>CurrentIndexChangedViewCount(int)</slot>
+    <slot>CurrentIndexChangedViewLayout(int)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1864,8 +1919,8 @@
      <y>34</y>
     </hint>
     <hint type="destinationlabel">
-     <x>469</x>
-     <y>539</y>
+     <x>505</x>
+     <y>530</y>
     </hint>
    </hints>
   </connection>
@@ -1892,8 +1947,8 @@
    <slot>SelectionChangedHistogram()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>469</x>
-     <y>539</y>
+     <x>505</x>
+     <y>530</y>
     </hint>
     <hint type="destinationlabel">
      <x>336</x>
@@ -1940,8 +1995,8 @@
    <slot>ShowEditColorMap()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>8</x>
-     <y>528</y>
+     <x>26</x>
+     <y>519</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2133,7 +2188,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>853</x>
-     <y>396</y>
+     <y>357</y>
     </hint>
     <hint type="destinationlabel">
      <x>424</x>
@@ -2165,7 +2220,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>853</x>
-     <y>366</y>
+     <y>327</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2180,8 +2235,8 @@
    <slot>ToggledTorusOriginalDomainShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>674</x>
-     <y>225</y>
+     <x>853</x>
+     <y>265</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2196,8 +2251,8 @@
    <slot>ToggledBoundingBoxShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>674</x>
-     <y>216</y>
+     <x>853</x>
+     <y>238</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2212,8 +2267,8 @@
    <slot>ValueChangedAngleOfView(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>674</x>
-     <y>217</y>
+     <x>853</x>
+     <y>241</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2228,8 +2283,8 @@
    <slot>ToggledAxesShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>612</x>
-     <y>216</y>
+     <x>650</x>
+     <y>238</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2244,8 +2299,8 @@
    <slot>ToggledLightPositionShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>674</x>
-     <y>223</y>
+     <x>853</x>
+     <y>297</y>
     </hint>
     <hint type="destinationlabel">
      <x>424</x>
@@ -2260,8 +2315,8 @@
    <slot>CurrentIndexChangedAxesOrder(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>674</x>
-     <y>222</y>
+     <x>853</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2277,7 +2332,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>853</x>
-     <y>336</y>
+     <y>297</y>
     </hint>
     <hint type="destinationlabel">
      <x>868</x>
@@ -2308,8 +2363,8 @@
    <slot>ToggledDirectionalLightEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>660</x>
-     <y>223</y>
+     <x>709</x>
+     <y>297</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2324,8 +2379,8 @@
    <slot>ToggledBodiesBoundingBoxesShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>612</x>
-     <y>225</y>
+     <x>675</x>
+     <y>265</y>
     </hint>
     <hint type="destinationlabel">
      <x>506</x>
@@ -2356,8 +2411,8 @@
    <slot>CurrentIndexChangedSelectedLight(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>674</x>
-     <y>215</y>
+     <x>853</x>
+     <y>243</y>
     </hint>
     <hint type="destinationlabel">
      <x>526</x>
@@ -2372,8 +2427,8 @@
    <slot>CurrentIndexChangedSelectedLight(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>674</x>
-     <y>215</y>
+     <x>853</x>
+     <y>243</y>
     </hint>
     <hint type="destinationlabel">
      <x>879</x>
@@ -2389,7 +2444,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>660</x>
-     <y>219</y>
+     <y>270</y>
     </hint>
     <hint type="destinationlabel">
      <x>516</x>
@@ -2404,8 +2459,8 @@
    <slot>ValueChangedLightAmbientRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>683</x>
-     <y>232</y>
+     <x>685</x>
+     <y>372</y>
     </hint>
     <hint type="destinationlabel">
      <x>518</x>
@@ -2420,8 +2475,8 @@
    <slot>ValueChangedLightDiffuseRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>683</x>
-     <y>232</y>
+     <x>842</x>
+     <y>391</y>
     </hint>
     <hint type="destinationlabel">
      <x>527</x>
@@ -2436,8 +2491,8 @@
    <slot>ValueChangedLightAmbientGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>683</x>
-     <y>238</y>
+     <x>685</x>
+     <y>378</y>
     </hint>
     <hint type="destinationlabel">
      <x>527</x>
@@ -2452,8 +2507,8 @@
    <slot>ValueChangedLightAmbientBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>683</x>
-     <y>244</y>
+     <x>685</x>
+     <y>384</y>
     </hint>
     <hint type="destinationlabel">
      <x>527</x>
@@ -2468,8 +2523,8 @@
    <slot>ValueChangedLightDiffuseGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>683</x>
-     <y>238</y>
+     <x>842</x>
+     <y>416</y>
     </hint>
     <hint type="destinationlabel">
      <x>527</x>
@@ -2484,8 +2539,8 @@
    <slot>ValueChangedLightDiffuseBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>683</x>
-     <y>244</y>
+     <x>842</x>
+     <y>442</y>
     </hint>
     <hint type="destinationlabel">
      <x>527</x>
@@ -2500,8 +2555,8 @@
    <slot>ValueChangedLightSpecularRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>683</x>
-     <y>232</y>
+     <x>685</x>
+     <y>372</y>
     </hint>
     <hint type="destinationlabel">
      <x>486</x>
@@ -2516,8 +2571,8 @@
    <slot>ValueChangedLightSpecularGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>683</x>
-     <y>238</y>
+     <x>685</x>
+     <y>378</y>
     </hint>
     <hint type="destinationlabel">
      <x>527</x>
@@ -2532,8 +2587,8 @@
    <slot>ValueChangedLightSpecularBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>683</x>
-     <y>244</y>
+     <x>685</x>
+     <y>384</y>
     </hint>
     <hint type="destinationlabel">
      <x>527</x>
@@ -2548,8 +2603,8 @@
    <slot>ToggledTubeCenterPathUsed(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>717</x>
-     <y>292</y>
+     <x>853</x>
+     <y>238</y>
     </hint>
     <hint type="destinationlabel">
      <x>527</x>
@@ -2581,7 +2636,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>853</x>
-     <y>336</y>
+     <y>297</y>
     </hint>
     <hint type="destinationlabel">
      <x>527</x>
@@ -2666,6 +2721,38 @@
     <hint type="destinationlabel">
      <x>526</x>
      <y>116</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxViewCount</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>CurrentIndexChangedViewCount(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>853</x>
+     <y>297</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>550</x>
+     <y>246</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxViewLayout</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>CurrentIndexChangedViewLayout(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>707</x>
+     <y>310</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>556</x>
+     <y>268</y>
     </hint>
    </hints>
   </connection>

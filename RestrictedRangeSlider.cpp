@@ -173,7 +173,7 @@ void RestrictedRangeSlider::updateTitle ()
     }
     else
 	ostr << GetTitle () << ": " << (maximum () - minimum () + 1);
-    groupBoxRestrictedRange->setTitle (ostr.str ().c_str ());
+    labelInfo->setText (ostr.str ().c_str ());
 }
 
 void RestrictedRangeSlider::updateLabelValue (int value)

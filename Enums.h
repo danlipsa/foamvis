@@ -258,6 +258,24 @@ struct SegmentPerpendicularEnd
     };
 };
 
+struct ViewCount
+{
+    enum Enum
+    {
+	ONE,
+	TWO,
+	FOUR
+    };
+};
+
+struct ViewLayout
+{
+    enum Enum
+    {
+	HORIZONTAL,
+	VERTICAL
+    };
+};
 
 #endif //__ENUMS_H__
 

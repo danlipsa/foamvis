@@ -253,7 +253,6 @@ public:
      * Calculates and does the viewport transform.
      * @param viewport stores the viewport.
      */
-    void ViewportTransform ();
     void ModelViewTransform (size_t timeStep) const;
     void RenderFromFbo (QGLFramebufferObject& fbo) const;
     /**
@@ -322,6 +321,8 @@ public Q_SLOTS:
     void CurrentIndexChangedStatisticsType (int index);
     void CurrentIndexChangedAxesOrder (int index);
     void CurrentIndexChangedSelectedLight (int selectedLight);
+    void CurrentIndexChangedViewCount (int index);
+    void CurrentIndexChangedViewLayout (int index);
 
     void ValueChangedAngleOfView (int newIndex);
     void ValueChangedContextAlpha (int sliderValue);
@@ -424,6 +425,8 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) () const;
 
 private:
+    void viewportTransform (size_t view);
+    G3D::Vector2 viewX0y0 (size_t view);
     void enableLighting (bool checked);
     double getMinimumEdgeRadius () const;
     void setEdgeRadius ();
@@ -463,13 +466,7 @@ private:
     void positionLights ();
     void showLightPosition (LightPosition::Enum light) const;
     void showLightPositions () const;
-    void viewingVolumeCalculations (
-	int width, int height,
-	G3D::Rect2D* vv2dScreen, G3D::Rect2D* windowWorld) const;
-    void boundingBoxCalculations (
-	int width, int height, 
-	const G3D::Rect2D& windowWorld, G3D::Rect2D* bb2dScreen, 
-	double* change) const;
+    G3D::Rect2D calculateViewport (int width, int height) const;
     G3D::AABox calculateCenteredViewingVolume (double xOverY) const;
     G3D::AABox calculateViewingVolume (double xOverY) const;
 
@@ -483,6 +480,7 @@ private:
      */
     template<typename displayEdge>
     void displayEdges () const;
+    void displayView (size_t view);
     void displayStationaryBodyAndContext () const;
 
     void displayEdgesNormal () const;
@@ -723,6 +721,8 @@ private:
     GLuint m_listCenterPaths;
     bool m_t1sShown;
     G3D::Rect2D m_colorBarRect;
+    ViewCount::Enum m_viewCount;
+    ViewLayout::Enum m_viewLayout;
 };
 
 #endif //__GLWIDGET_H__
