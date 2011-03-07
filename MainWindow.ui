@@ -207,6 +207,12 @@
              </item>
              <item>
               <widget class="QToolButton" name="toolButtonPlay">
+               <property name="minimumSize">
+                <size>
+                 <width>22</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="text">
                 <string>&gt;</string>
                </property>
@@ -1899,8 +1905,8 @@
    <slot>CurrentIndexChangedFacesColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>698</x>
-     <y>249</y>
+     <x>690</x>
+     <y>271</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -1919,8 +1925,8 @@
      <y>34</y>
     </hint>
     <hint type="destinationlabel">
-     <x>505</x>
-     <y>530</y>
+     <x>514</x>
+     <y>539</y>
     </hint>
    </hints>
   </connection>
@@ -1947,8 +1953,8 @@
    <slot>SelectionChangedHistogram()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>505</x>
-     <y>530</y>
+     <x>514</x>
+     <y>539</y>
     </hint>
     <hint type="destinationlabel">
      <x>336</x>
@@ -2459,8 +2465,8 @@
    <slot>ValueChangedLightAmbientRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>685</x>
-     <y>372</y>
+     <x>703</x>
+     <y>402</y>
     </hint>
     <hint type="destinationlabel">
      <x>518</x>
@@ -2491,8 +2497,8 @@
    <slot>ValueChangedLightAmbientGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>685</x>
-     <y>378</y>
+     <x>703</x>
+     <y>408</y>
     </hint>
     <hint type="destinationlabel">
      <x>527</x>
@@ -2507,8 +2513,8 @@
    <slot>ValueChangedLightAmbientBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>685</x>
-     <y>384</y>
+     <x>703</x>
+     <y>414</y>
     </hint>
     <hint type="destinationlabel">
      <x>527</x>
@@ -2555,8 +2561,8 @@
    <slot>ValueChangedLightSpecularRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>685</x>
-     <y>372</y>
+     <x>703</x>
+     <y>402</y>
     </hint>
     <hint type="destinationlabel">
      <x>486</x>
@@ -2571,8 +2577,8 @@
    <slot>ValueChangedLightSpecularGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>685</x>
-     <y>378</y>
+     <x>703</x>
+     <y>408</y>
     </hint>
     <hint type="destinationlabel">
      <x>527</x>
@@ -2587,8 +2593,8 @@
    <slot>ValueChangedLightSpecularBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>685</x>
-     <y>384</y>
+     <x>703</x>
+     <y>414</y>
     </hint>
     <hint type="destinationlabel">
      <x>527</x>
@@ -2756,6 +2762,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>comboBoxViewCount</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>CurrentIndexChangedViewCount(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>852</x>
+     <y>286</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>874</x>
+     <y>294</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>ToggledFacesNormal(bool)</slot>
@@ -2771,6 +2793,7 @@
   <slot>CurrentIndexChangedStatisticsType(int)</slot>
   <slot>CurrentIndexChangedFacesColor(int)</slot>
   <slot>ToggledFacesDomainHistogram(bool)</slot>
+  <slot>CurrentIndexChangedViewCount(int)</slot>
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroupDisplay"/>

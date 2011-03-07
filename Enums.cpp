@@ -128,3 +128,9 @@ const char* Palette::ToString (Palette::Enum type)
 	return 0;
     }
 }
+
+size_t ViewCount::GetCount (ViewCount::Enum viewCount)
+{
+    size_t v[] = {1, 2, 4};
+    return v[viewCount];
+}

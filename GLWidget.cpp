@@ -148,7 +148,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_listCenterPaths (0),
       m_t1sShown (false),
       m_viewCount (ViewCount::ONE),
-      m_viewLayout (ViewLayout::HORIZONTAL)
+      m_viewLayout (ViewLayout::HORIZONTAL),
+      m_view (0)
 {
     makeCurrent ();
     m_displayFaceStatistics.reset (new DisplayFaceStatistics (*this));
@@ -396,7 +397,7 @@ G3D::Vector3 GLWidget::getInitialLightPosition (
     LightPosition::Enum lightPosition) const
 {
     G3D::AABox bb = calculateCenteredViewingVolume (
-	static_cast<double> (width ()) / height ());
+	double (width ()) / height ());
     G3D::Vector3 high = bb.high (), low = bb.low ();
     G3D::Vector3 nearRectangle[] = {
 	G3D::Vector3 (high.x, high.y, high.z),
@@ -475,7 +476,7 @@ void GLWidget::showLightPosition (LightPosition::Enum i) const
 void GLWidget::translateLight (const QPoint& position)
 {
     G3D::AABox vv = calculateCenteredViewingVolume (
-	static_cast<double> (width ()) / height ());
+	double (width ()) / height ());
     G3D::Vector2 oldPosition = G3D::Vector2 (m_lastPos.x (), m_lastPos.y ());
     G3D::Vector2 newPosition = G3D::Vector2 (position.x (), position.y ());
     G3D::Vector2 viewportCenter =
@@ -518,8 +519,7 @@ void GLWidget::initializeLighting ()
     glEnable (GL_COLOR_MATERIAL);
 }
 
-G3D::AABox GLWidget::calculateCenteredViewingVolume (
-    double xOverY) const
+G3D::AABox GLWidget::calculateCenteredViewingVolume (double xOverY) const
 {
     G3D::AABox boundingBox = AdjustXOverYRatio (
 	EncloseRotation (GetFoamAlongTime ().GetBoundingBox (), 
@@ -602,7 +602,7 @@ G3D::AABox GLWidget::calculateViewingVolume (double xOverY) const
 void GLWidget::projectionTransform ()
 {
     makeCurrent ();
-    double xOverY = double (width ()) / height ();
+    double xOverY = getViewXOverY ();
     G3D::AABox viewingVolume = calculateViewingVolume (xOverY);
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
@@ -623,45 +623,87 @@ void GLWidget::projectionTransform ()
     
 }
 
-void GLWidget::viewportTransform (size_t view)
+void GLWidget::viewportTransform (const G3D::Rect2D& viewRect)
 {
-    G3D::Rect2D screenWorld;
-    m_viewport = calculateViewport (width (), height ());
+    G3D::Rect2D v = calculateViewport (viewRect.width (), viewRect.height ());
+    m_viewport = G3D::Rect2D::xywh (viewRect.x0 (), viewRect.y0 (),
+				    v.width (), v.height ());
     glViewport (m_viewport);
 }
 
-G3D::Vector2 GLWidget::viewX0y0 (size_t view)
+G3D::Rect2D GLWidget::getViewRect (size_t view) const
 {
     float w = width ();
     float h = height ();
-    using G3D::Vector2;
+    using G3D::Rect2D;
     switch (m_viewCount)
     {
     case ViewCount::ONE:
-	return G3D::Vector2 (0, 0);
+	return Rect2D::xywh (0, 0, w, h);
     case ViewCount::TWO:
     {
 	RuntimeAssert (view < 2, "Invalid view: ", view);
-	Vector2 v[] = {Vector2 (0, 0), Vector2 (0, h / 2), // horizontal layout
-		       Vector2 (w/2, 0), Vector2 (0,0)};    // vertical layout
-	return v[view * 2 + m_viewLayout];
+	Rect2D v[] = {
+	    // horizontal layout
+	    Rect2D::xywh (0, 0, w/2, h), Rect2D::xywh (w/2, 0, w/2, h),
+	    // vertical layout
+	    Rect2D::xywh (0, h/2, w, h/2), Rect2D::xywh (0, 0, w, h/2)
+	};
+	return v[2 * m_viewLayout + view];
     }
     case ViewCount::FOUR:
+    {
 	RuntimeAssert (view < 4, "Invalid view: ", view);
-	Vector2 v[] = {Vector2 (0, h/2), Vector2 (w/2, h/2),
-		       Vector2 (0, 0), Vector2 (w/2, 0)};
+	Rect2D v[] = {
+	    Rect2D::xywh (0, h/2, w/2, h/2), Rect2D::xywh (w/2, h/2, w/2, h/2),
+	    Rect2D::xywh (0, 0, w/2, h/2), Rect2D::xywh (w/2, 0, w/2, h/2)
+	};
 	return v[view];
+    }
+    default:
+    {
+	RuntimeAssert (false, "Illegal number of views: ", m_viewCount);
+	return Rect2D ();	
+    }
     }
 }
 
-
-G3D::Rect2D GLWidget::calculateViewport (
-    int width, int height) const
+void GLWidget::setView (const G3D::Vector2& clickedPoint)
 {
-    G3D::AABox vv = calculateCenteredViewingVolume (
-	static_cast<double> (width) / height);
+    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
+    {
+	G3D::Rect2D viewRect = getViewRect (i);
+	if (viewRect.contains (clickedPoint))
+	{
+	    m_view = i;
+	    return;
+	}
+    }
+}
+
+G3D::Rect2D GLWidget::getViewColorBarRect (const G3D::Rect2D& viewRect)
+{
+    return G3D::Rect2D::xywh (
+	viewRect.x0 () + 5, viewRect.y0 () + 5,
+	10, max (viewRect.height () / 4, 50.0f));
+}
+
+double GLWidget::getViewXOverY () const
+{
+    double xOverY =  double (width ()) / height ();
+    double v[] = { 
+	xOverY, xOverY,     // ONE
+	xOverY/2, 2*xOverY, // TWO (HORIZONTAL, VERTICAL)
+	xOverY, xOverY      // FOUR
+    };
+    return v[m_viewCount * 2 + m_viewLayout];
+}
+
+G3D::Rect2D GLWidget::calculateViewport (int width, int height) const
+{
+    double windowRatio = double (width) / height;
+    G3D::AABox vv = calculateCenteredViewingVolume (windowRatio);
     G3D::Rect2D vv2d = G3D::Rect2D::xyxy (vv.low ().xy (), vv.high ().xy ());
-    double windowRatio = static_cast<double>(width) / height;
     double vvratio = vv2d.width () / vv2d.height ();
     if (windowRatio > vvratio)
     {
@@ -718,7 +760,7 @@ void GLWidget::calculateCameraDistance ()
 {
     G3D::AABox centeredViewingVolume = 
 	calculateCenteredViewingVolume (
-	    static_cast<double> (width ()) / height ());
+	    double (width ()) / height ());
     G3D::Vector3 diagonal =
 	centeredViewingVolume.high () - centeredViewingVolume.low ();
     if (m_angleOfView == 0)
@@ -861,18 +903,33 @@ void GLWidget::initializeGL()
 void GLWidget::paintGL ()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    displayView (0);
+    displayViews ();
     Q_EMIT PaintedGL ();
+}
+
+void GLWidget::displayViews ()
+{
+    switch (m_viewCount)
+    {
+    case ViewCount::FOUR:
+	displayView (2);
+	displayView (3);
+    case ViewCount::TWO:
+	displayView (1);
+    case ViewCount::ONE:
+	displayView (0);
+    }
 }
 
 void GLWidget::displayView (size_t view)
 {
-    viewportTransform (view);    
+    G3D::Rect2D viewRect = getViewRect (view);
+    viewportTransform (viewRect);    
     ModelViewTransform (GetTimeStep ());
     if (! m_hideContent)
     {
 	DisplayViewType ();
-	displayViewDecorations ();
+	displayViewDecorations (view);
     }
     displayAxes ();
     displayBoundingBox ();
@@ -887,7 +944,6 @@ void GLWidget::displayView (size_t view)
 void GLWidget::resizeGL(int w, int h)
 {
     (void)w;(void)h;
-    m_colorBarRect = G3D::Rect2D::xywh (3, 3, 8, max (height () / 4, 50));
     projectionTransform ();
     if (m_viewType == ViewType::FACES_STATISTICS)
     {
@@ -974,7 +1030,7 @@ void GLWidget::translate (const QPoint& position,
 
 
     G3D::AABox vv = calculateCenteredViewingVolume (
-	static_cast<double> (width ()) / height ());
+	double (width ()) / height ());
     G3D::Vector3 focusBoxExtent = vv.extent () / m_scaleRatio;
     if (m_contextView)
 	m_translation -= (translationRatio * focusBoxExtent);
@@ -998,7 +1054,7 @@ void GLWidget::scale (const QPoint& position)
 void GLWidget::brushedBodies (
     const QPoint& position, vector<size_t>* bodies) const
 {
-    G3D::Vector3 end = gluUnProject (ToOpenGl (position, height ()));
+    G3D::Vector3 end = gluUnProject (QtToOpenGl (position, height ()));
     if (GetFoamAlongTime ().Is2D ())
 	end.z = 0;
     const Foam& foam = GetCurrentFoam ();
@@ -1143,6 +1199,8 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 {
     if (event->button () != Qt::LeftButton)
 	return;
+    G3D::Vector2 p = QtToOpenGl (event->pos (), height ());
+    setView (p);
     switch (m_interactionMode)
     {
     case InteractionMode::SELECT:
@@ -1177,7 +1235,7 @@ void GLWidget::displayFocusBox () const
 	glTranslatef (0, 0, - m_cameraDistance);
 
 	G3D::AABox focusBox = calculateCenteredViewingVolume (
-	    static_cast<double> (width ()) / height ());
+	    double (width ()) / height ());
 	translateAndScale (1 / m_scaleRatio, - m_translation, m_contextView);
 	DisplayBox (focusBox, Qt::black, GL_LINE);
 	glPopMatrix ();
@@ -2008,12 +2066,14 @@ void GLWidget::CurrentIndexChangedSelectedLight (int selectedLight)
 void GLWidget::CurrentIndexChangedViewCount (int index)
 {
     m_viewCount = ViewCount::Enum (index);
+    projectionTransform ();
     update ();
 }
 
 void GLWidget::CurrentIndexChangedViewLayout (int index)
 {
     m_viewLayout = ViewLayout::Enum (index);
+    projectionTransform ();
     update ();
 }
 
@@ -2069,6 +2129,19 @@ void GLWidget::SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel)
     glTexImage1D (GL_TEXTURE_1D, 0, GL_RGB, image.width (),
 		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
     update ();
+}
+
+bool GLWidget::isColorBarUsed () const
+{
+    switch (m_viewType)
+    {
+    case ViewType::FACES:
+    case ViewType::FACES_STATISTICS:
+    case ViewType::CENTER_PATHS:
+	return m_bodyProperty != BodyProperty::NONE;
+    default:
+	return false;
+    }
 }
 
 void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
@@ -2239,7 +2312,8 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     m_contextMenuPos = event->pos ();
     QMenu menu (this);
-    if (m_colorBarRect.contains (ToOpenGl (m_contextMenuPos, height ())))
+    G3D::Rect2D colorBarRect = getViewColorBarRect (getViewRect (m_view));
+    if (colorBarRect.contains (QtToOpenGl (m_contextMenuPos, height ())))
     {
 	menu.addAction (m_actionEditColorMap.get ());
 	menu.addAction (m_actionClampClear.get ());
@@ -2277,7 +2351,7 @@ void GLWidget::initializeTextures ()
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 }
 
-void GLWidget::displayViewDecorations ()
+void GLWidget::displayViewDecorations (size_t view)
 {
     if (GetBodyProperty () == BodyProperty::NONE)
 	return;
@@ -2298,27 +2372,34 @@ void GLWidget::displayViewDecorations ()
 
     glViewport (0, 0, width (), height ());
 
-    displayTextureColorBar ();
-    displayViewTitle ();
- 
+    G3D::Rect2D viewRect = getViewRect (view);
+    if (isColorBarUsed ())
+    {
+	displayTextureColorBar (viewRect);
+	displayViewTitle (viewRect);
+    }
+    if (view == m_view && m_viewCount != ViewCount::ONE)
+	displayCurrentViewBorder (viewRect);
+
     glPopMatrix ();
     glMatrixMode (GL_MODELVIEW);
     glPopMatrix ();
     glPopAttrib ();
 }
 
-void GLWidget::displayTextureColorBar ()
+void GLWidget::displayTextureColorBar (const G3D::Rect2D& viewRect)
 {
+    G3D::Rect2D colorBarRect = getViewColorBarRect (viewRect);
     glEnable(GL_TEXTURE_1D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glBindTexture (GL_TEXTURE_1D, m_colorBarTexture);
     
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glBegin (GL_QUADS);
-    glTexCoord1f(0);glVertex (m_colorBarRect.x0y0 ());
-    glTexCoord1f(1);glVertex (m_colorBarRect.x0y1 ());
-    glTexCoord1f(1);glVertex (m_colorBarRect.x1y1 ());
-    glTexCoord1f(0);glVertex (m_colorBarRect.x1y0 ());
+    glTexCoord1f(0);glVertex (colorBarRect.x0y0 ());
+    glTexCoord1f(1);glVertex (colorBarRect.x0y1 ());
+    glTexCoord1f(1);glVertex (colorBarRect.x1y1 ());
+    glTexCoord1f(0);glVertex (colorBarRect.x1y0 ());
     glEnd ();
     glDisable (GL_TEXTURE_1D);
 
@@ -2327,20 +2408,42 @@ void GLWidget::displayTextureColorBar ()
     glPolygonOffset (-1, -1);
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     glBegin (GL_QUADS);
-    glVertex (m_colorBarRect.x0y0 ());
-    glVertex (m_colorBarRect.x0y1 ());
-    glVertex (m_colorBarRect.x1y1 ());
-    glVertex (m_colorBarRect.x1y0 ());
+    glVertex (colorBarRect.x0y0 ());
+    glVertex (colorBarRect.x0y1 ());
+    glVertex (colorBarRect.x1y1 ());
+    glVertex (colorBarRect.x1y0 ());
     glEnd ();
 }
 
-void GLWidget::displayViewTitle ()
+void GLWidget::displayCurrentViewBorder (const G3D::Rect2D& viewRect)
+{
+    G3D::Rect2D border = G3D::Rect2D::xyxy (
+	viewRect.x0 () + 2, viewRect.y0 () + 2, 
+	viewRect.x1 () - 2, viewRect.y1 () - 2);
+    glColor (Qt::red);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    glBegin (GL_QUADS);
+    glVertex (border.x0y0 ());
+    glVertex (border.x0y1 ());
+    glVertex (border.x1y1 ());
+    glVertex (border.x1y0 ());
+    glEnd ();
+}
+
+void GLWidget::displayViewGrid ()
+{
+
+}
+
+void GLWidget::displayViewTitle (const G3D::Rect2D& viewRect)
 {
     QFont font;
     QFontMetrics fm (font);
     const char* text = BodyProperty::ToString (GetBodyProperty ());
-    const int textX = (width () - fm.width (text)) / 2;
-    const int textY = fm.height () + 3;
+    const int textX = 
+	viewRect.x0 () + (float (viewRect.width ()) - fm.width (text)) / 2;
+    const int textY = OpenGlToQt (
+	viewRect.y1 () - (fm.height () + 3), height ());
     glColor (Qt::black);
     renderText (textX, textY, text);
 }

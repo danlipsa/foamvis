@@ -248,9 +248,14 @@ G3D::AABox ToG3D (const QBox3D& box)
 }
 
 
-G3D::Vector2 ToOpenGl (const QPoint& point, int windowHeight)
+G3D::Vector2 QtToOpenGl (const QPoint& point, int windowHeight)
 {
     return G3D::Vector2 (point.x (), windowHeight - point.y ());
+}
+
+int OpenGlToQt (int h, int windowHeight)
+{
+    return windowHeight - h;
 }
 
 // Container algorithms

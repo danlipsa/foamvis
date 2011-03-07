@@ -401,6 +401,7 @@ protected:
      */
     void mouseMoveEvent(QMouseEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
+    bool isColorBarUsed () const;
 
 
 private:
@@ -425,8 +426,12 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) () const;
 
 private:
-    void viewportTransform (size_t view);
-    G3D::Vector2 viewX0y0 (size_t view);
+    void viewportTransform (const G3D::Rect2D& viewRect);
+    void setView (const G3D::Vector2& clickedPoint);
+    G3D::Rect2D getViewRect (size_t view) const;
+    void selectView (const G3D::Vector2& clickedPoint);
+    double getViewXOverY () const;
+    static G3D::Rect2D getViewColorBarRect (const G3D::Rect2D& viewRect);
     void enableLighting (bool checked);
     double getMinimumEdgeRadius () const;
     void setEdgeRadius ();
@@ -439,9 +444,11 @@ private:
      * Displays the center of the bodies
      */
     void displayCenterOfBodies (bool useZPos = false) const;
-    void displayViewDecorations ();
-    void displayTextureColorBar ();
-    void displayViewTitle ();
+    void displayViewDecorations (size_t view);
+    void displayViewGrid ();
+    void displayTextureColorBar (const G3D::Rect2D& viewRect);
+    void displayViewTitle (const G3D::Rect2D& viewRect);
+    void displayCurrentViewBorder (const G3D::Rect2D& viewRect);
     bool areEdgesTubes () const
     {
 	return m_edgesTubes;
@@ -481,6 +488,7 @@ private:
     template<typename displayEdge>
     void displayEdges () const;
     void displayView (size_t view);
+    void displayViews ();
     void displayStationaryBodyAndContext () const;
 
     void displayEdgesNormal () const;
@@ -720,9 +728,9 @@ private:
     bool m_tubeCenterPathUsed;
     GLuint m_listCenterPaths;
     bool m_t1sShown;
-    G3D::Rect2D m_colorBarRect;
     ViewCount::Enum m_viewCount;
     ViewLayout::Enum m_viewLayout;
+    size_t m_view;
 };
 
 #endif //__GLWIDGET_H__

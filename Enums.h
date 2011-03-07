@@ -266,6 +266,7 @@ struct ViewCount
 	TWO,
 	FOUR
     };
+    static size_t GetCount (ViewCount::Enum);
 };
 
 struct ViewLayout

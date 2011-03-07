@@ -67,6 +67,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     QGLFormat::setDefaultFormat(format);
 
     setupUi (this);
+    CurrentIndexChangedViewCount (ViewCount::ONE);
     setupSliderData (foamAlongTime);
     setupHistogram ();
     setupButtonGroups ();
@@ -809,6 +810,18 @@ void MainWindow::ToggledFacesStatistics (bool checked)
 	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
     }
 }
+
+void MainWindow::CurrentIndexChangedViewCount (int index)
+{
+    boost::array<QWidget*, 2> widgetsViewLayout = 
+	{{labelViewLayout, comboBoxViewLayout}};
+    ViewCount::Enum viewCount = ViewCount::Enum (index);
+    if (viewCount == ViewCount::TWO)
+	::setVisible (widgetsViewLayout, true);
+    else
+	::setVisible (widgetsViewLayout, false);
+}
+
 
 void MainWindow::CurrentIndexChangedStatisticsType (int value)
 {
