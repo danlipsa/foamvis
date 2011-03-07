@@ -2378,7 +2378,7 @@ void GLWidget::displayViewDecorations (size_t view)
 	displayTextureColorBar (viewRect);
 	displayViewTitle (viewRect);
     }
-    if (view == m_view && m_viewCount != ViewCount::ONE)
+    if (view == m_view)
 	displayCurrentViewBorder (viewRect);
 
     glPopMatrix ();
