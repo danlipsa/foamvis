@@ -159,6 +159,7 @@ public:
     };
     static Enum FromInt (int i);
     static bool IsGlobal (ViewType::Enum t);
+    static const char* ToString (ViewType::Enum viewType);
 };
 
 class StatisticsType
@@ -267,6 +268,7 @@ struct ViewCount
 	FOUR
     };
     static size_t GetCount (ViewCount::Enum);
+    static const size_t MAX_COUNT = 4;
 };
 
 struct ViewLayout

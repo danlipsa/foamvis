@@ -209,6 +209,12 @@ void DisplayShaderProgram::Bind (GLfloat minValue, GLfloat maxValue,
 // DisplayFaceStatistics Methods
 // ======================================================================
 
+AddShaderProgram DisplayFaceStatistics::m_addShaderProgram;
+RemoveShaderProgram DisplayFaceStatistics::m_removeShaderProgram;
+StoreShaderProgram DisplayFaceStatistics::m_storeShaderProgram;
+DisplayShaderProgram DisplayFaceStatistics::m_displayShaderProgram;
+InitShaderProgram DisplayFaceStatistics::m_initShaderProgram;
+
 void DisplayFaceStatistics::Init (const QSize& size)
 {
     m_currentHistoryCount = 0;
@@ -266,15 +272,17 @@ void DisplayFaceStatistics::display (
 }
 
 
-void DisplayFaceStatistics::InitStep (GLfloat minValue, GLfloat maxValue)
+void DisplayFaceStatistics::InitStep (
+    size_t view, GLfloat minValue, GLfloat maxValue)
 {
     Init (QSize (m_glWidget.width (), m_glWidget.height ()));
-    Step (minValue, maxValue);
+    Step (view, minValue, maxValue);
 }
 
-void DisplayFaceStatistics::Step (GLfloat minValue, GLfloat maxValue)
+void DisplayFaceStatistics::Step (
+    size_t view, GLfloat minValue, GLfloat maxValue)
 {
-    BodyProperty::Enum property = m_glWidget.GetBodyProperty ();
+    BodyProperty::Enum property = m_glWidget.GetBodyProperty (view);
     size_t timeStep = m_glWidget.GetTimeStep ();
     Step (timeStep, property, minValue, maxValue);
 }

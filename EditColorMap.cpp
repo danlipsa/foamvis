@@ -35,6 +35,11 @@ void EditColorMap::SetData (
 	widgetHistogram->SetItemsSelectionLow (false, clampValues.minValue ());
     if (clampValues.maxValue () < interval.maxValue ())
 	widgetHistogram->SetItemsSelectionHigh (false, clampValues.maxValue ());
+    const char* t = "Hightlight Highlight";
+    labelHighlight1->setText (
+	ColorToHtml (colorBarModel.GetHighlightColor (0), t).c_str ());
+    labelHighlight2->setText (
+	ColorToHtml (colorBarModel.GetHighlightColor (1), t).c_str ());
 }
 
 void EditColorMap::HighlightedPalette (int index)

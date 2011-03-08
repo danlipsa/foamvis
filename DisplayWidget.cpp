@@ -28,7 +28,7 @@ void DisplayWidget::SaveFrame ()
     {
         ostringstream file;
         file << "movie/frame" << setfill ('0') << setw (4) <<
-	    m_currentFrame << ".jpg" << ends;
+	    m_currentFrame << ".png" << ends;
 	cdbg << "Taking snapshot ...";
         QImage snapshot = 
 	    QPixmap::grabWindow (winId ()).toImage ();

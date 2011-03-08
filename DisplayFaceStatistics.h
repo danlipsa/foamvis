@@ -135,7 +135,7 @@ public:
 
     void Init (const QSize& size);
     void Clear ();
-    void InitShaders ();
+    static void InitShaders ();
     void Release ();
     void Display (
 	GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
@@ -143,8 +143,8 @@ public:
 	if (m_new.get () != 0)
 	    display (minValue, maxValue, displayType, *m_new);
     }
-    void InitStep (GLfloat minValue, GLfloat maxValue);
-    void Step (GLfloat minValue, GLfloat maxValue);
+    void InitStep (size_t view, GLfloat minValue, GLfloat maxValue);
+    void Step (size_t view, GLfloat minValue, GLfloat maxValue);
     void Step (size_t timeStep,
 	       BodyProperty::Enum property,
 	       GLfloat minValue, GLfloat maxValue);
@@ -192,11 +192,11 @@ private:
     size_t m_currentHistoryCount;
     size_t m_historyCount;
 
-    AddShaderProgram m_addShaderProgram;
-    RemoveShaderProgram m_removeShaderProgram;
-    StoreShaderProgram m_storeShaderProgram;
-    DisplayShaderProgram m_displayShaderProgram;
-    InitShaderProgram m_initShaderProgram;
+    static AddShaderProgram m_addShaderProgram;
+    static RemoveShaderProgram m_removeShaderProgram;
+    static StoreShaderProgram m_storeShaderProgram;
+    static DisplayShaderProgram m_displayShaderProgram;
+    static InitShaderProgram m_initShaderProgram;
 };
 
 #endif //__DISPLAY_FACE_AVERAGE_H__

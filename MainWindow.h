@@ -59,11 +59,6 @@ public:
 	double maxValue,
 	HistogramSelection histogramSelection,
 	MaxValueOperation maxValueOperation);
-    boost::shared_ptr<ColorBarModel> GetColorBarModel (
-	BodyProperty::Enum property)
-    {
-	return m_colorBarModelBodyProperty[property];
-    }
 
 Q_SIGNALS:
     void BodyPropertyChanged (
@@ -133,6 +128,7 @@ public Q_SLOTS:
      */
     void ValueChangedSliderTimeSteps (int value);
     void ValueChangedFontSize (int value);
+    void ViewToUI ();
 
 private:
     bool isHistogramHidden (HistogramType::Enum histogramType);
@@ -204,7 +200,9 @@ private:
 
     BodyProperty::Enum m_property;
     HistogramType::Enum m_histogramType;
-    vector< boost::shared_ptr<ColorBarModel> > m_colorBarModelBodyProperty;
+    boost::array<
+	boost::shared_ptr<ColorBarModel>, 
+	BodyProperty::PROPERTY_END> m_colorBarModelBodyProperty;
     boost::shared_ptr<ColorBarModel> m_colorBarModelDomainHistogram;
     boost::shared_ptr<EditColorMap> m_editColorMap;
 };

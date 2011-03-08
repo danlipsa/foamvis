@@ -288,7 +288,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="currentIndex">
-              <number>0</number>
+              <number>3</number>
              </property>
              <widget class="QWidget" name="tabShow">
               <attribute name="title">
@@ -921,6 +921,20 @@
                  </property>
                 </widget>
                </item>
+               <item row="5" column="0">
+                <widget class="QLabel" name="labelT1Size">
+                 <property name="text">
+                  <string>T1 size</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="1">
+                <widget class="QSlider" name="horizontalSliderT1Size">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
               </layout>
              </widget>
             </widget>
@@ -947,7 +961,7 @@
               <bool>false</bool>
              </property>
              <attribute name="buttonGroup">
-              <string>buttonGroupDisplay</string>
+              <string>buttonGroupViewType</string>
              </attribute>
             </widget>
            </item>
@@ -957,7 +971,7 @@
               <string>Torus model edges</string>
              </property>
              <attribute name="buttonGroup">
-              <string>buttonGroupDisplay</string>
+              <string>buttonGroupViewType</string>
              </attribute>
             </widget>
            </item>
@@ -967,7 +981,7 @@
               <string>Torus model face edges</string>
              </property>
              <attribute name="buttonGroup">
-              <string>buttonGroupDisplay</string>
+              <string>buttonGroupViewType</string>
              </attribute>
             </widget>
            </item>
@@ -1039,7 +1053,7 @@
               <bool>false</bool>
              </property>
              <attribute name="buttonGroup">
-              <string>buttonGroupDisplay</string>
+              <string>buttonGroupViewType</string>
              </attribute>
             </widget>
            </item>
@@ -1049,7 +1063,7 @@
               <string>Statistics</string>
              </property>
              <attribute name="buttonGroup">
-              <string>buttonGroupDisplay</string>
+              <string>buttonGroupViewType</string>
              </attribute>
             </widget>
            </item>
@@ -1314,7 +1328,7 @@
               <string>Center Path</string>
              </property>
              <attribute name="buttonGroup">
-              <string>buttonGroupDisplay</string>
+              <string>buttonGroupViewType</string>
              </attribute>
             </widget>
            </item>
@@ -1625,6 +1639,7 @@
     <slot>ToggledT1sShiftLower(bool)</slot>
     <slot>CurrentIndexChangedViewCount(int)</slot>
     <slot>CurrentIndexChangedViewLayout(int)</slot>
+    <slot>ValueChangedT1Size(int)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1925,7 +1940,7 @@
      <y>34</y>
     </hint>
     <hint type="destinationlabel">
-     <x>514</x>
+     <x>523</x>
      <y>539</y>
     </hint>
    </hints>
@@ -1953,7 +1968,7 @@
    <slot>SelectionChangedHistogram()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>514</x>
+     <x>523</x>
      <y>539</y>
     </hint>
     <hint type="destinationlabel">
@@ -2778,6 +2793,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>horizontalSliderT1Size</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedT1Size(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>724</x>
+     <y>373</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>552</x>
+     <y>392</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>ToggledFacesNormal(bool)</slot>
@@ -2796,7 +2827,7 @@
   <slot>CurrentIndexChangedViewCount(int)</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="buttonGroupDisplay"/>
+  <buttongroup name="buttonGroupViewType"/>
   <buttongroup name="buttonGroupCenterPathHistogram"/>
   <buttongroup name="buttonGroupFacesHistogram"/>
  </buttongroups>

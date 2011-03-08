@@ -101,17 +101,17 @@ const double GLWidget::MIN_CONTEXT_ALPHA = 0.05;
 const double GLWidget::MAX_CONTEXT_ALPHA = 0.5;
 
 const double GLWidget::ENCLOSE_ROTATION_RATIO = 1;
+const GLfloat GLWidget::MAX_T1_SIZE = 10.0;
+const GLfloat GLWidget::MIN_T1_SIZE = 1.0;
 
 // Methods
 // ======================================================================
 
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent),
-      m_viewType (ViewType::COUNT),
       m_torusOriginalDomainDisplay (false),
       m_torusOriginalDomainClipped (false),
       m_interactionMode (InteractionMode::ROTATE),
-      m_statisticsType (StatisticsType::AVERAGE),
       m_foamAlongTime (0), m_timeStep (0),
       m_selectedBodyIndex (DISPLAY_ALL), m_selectedFaceIndex (DISPLAY_ALL),
       m_selectedEdgeIndex (DISPLAY_ALL),
@@ -136,7 +136,6 @@ GLWidget::GLWidget(QWidget *parent)
       m_boundingBoxShown (false),
       m_bodiesBoundingBoxesShown (false),
       m_axesShown (false),
-      m_bodyProperty (BodyProperty::NONE),
       m_bodySelector (AllBodySelector::Get ()),
       m_colorBarTexture (0),
       m_timeDisplacement (0.0),
@@ -145,14 +144,21 @@ GLWidget::GLWidget(QWidget *parent)
       m_contextView (false),
       m_hideContent(false),
       m_tubeCenterPathUsed (true),
-      m_listCenterPaths (0),
       m_t1sShown (false),
+      m_t1Size (MIN_T1_SIZE),
       m_viewCount (ViewCount::ONE),
       m_viewLayout (ViewLayout::HORIZONTAL),
       m_view (0)
 {
     makeCurrent ();
-    m_displayFaceStatistics.reset (new DisplayFaceStatistics (*this));
+    fill (m_viewType.begin (), m_viewType.end (), ViewType::COUNT);
+    fill (m_bodyProperty.begin (), m_bodyProperty.end (), BodyProperty::NONE);
+    BOOST_FOREACH (
+	boost::shared_ptr<DisplayFaceStatistics>& dfs, m_displayFaceStatistics)
+	dfs.reset (new DisplayFaceStatistics (*this));
+    fill (m_statisticsType.begin (), m_statisticsType.end (), 
+	  StatisticsType::AVERAGE);
+    fill (m_listCenterPaths.begin (), m_listCenterPaths.end (), 0);
     initEndTranslationColor ();
     initQuadrics ();
     initViewTypeDisplay ();
@@ -307,7 +313,16 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 {
     m_foamAlongTime = foamAlongTime;
     calculateCameraDistance ();
-    m_axesOrder = foamAlongTime->Is2D () ? AxesOrder::TWO_D : AxesOrder::THREE_D;
+    if (foamAlongTime->Is2D ())
+    {
+	fill (m_viewType.begin (), m_viewType.end (), ViewType::EDGES);
+	m_axesOrder = AxesOrder::TWO_D;
+    }
+    else
+    {
+	fill (m_viewType.begin (), m_viewType.end (), ViewType::FACES);
+	m_axesOrder = AxesOrder::THREE_D;
+    }
     Foam::Bodies bodies = foamAlongTime->GetFoam (0)->GetBodies ();
     if (bodies.size () != 0)
     {
@@ -316,7 +331,9 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 	m_selectBodiesById->SetMaxBodyId (bodies[maxIndex]->GetId ());
 	m_selectBodiesById->UpdateLabelMinMax ();
     }
-    m_displayFaceStatistics->SetHistoryCount (foamAlongTime->GetTimeSteps ());
+    BOOST_FOREACH (
+	boost::shared_ptr<DisplayFaceStatistics> dfs, m_displayFaceStatistics)
+	dfs->SetHistoryCount (foamAlongTime->GetTimeSteps ());
 }
 
 
@@ -358,12 +375,12 @@ GLWidget::~GLWidget()
     m_quadric = 0;
 }
 
-void GLWidget::changeView (bool checked, ViewType::Enum view)
+void GLWidget::changeViewType (bool checked, ViewType::Enum viewType)
 {
     if (checked)
     {
-        m_viewType = view;
-	compile ();
+        m_viewType[m_view] = viewType;
+	compile (m_view);
 	update ();
     }
 }
@@ -679,6 +696,7 @@ void GLWidget::setView (const G3D::Vector2& clickedPoint)
 	    return;
 	}
     }
+    Q_EMIT ViewChanged ();
 }
 
 G3D::Rect2D GLWidget::getViewColorBarRect (const G3D::Rect2D& viewRect)
@@ -849,7 +867,7 @@ void GLWidget::InfoFocus ()
 		m_bodySelector))->GetIds ();
 	ostream_iterator<size_t> out (ostr, " ");
 	copy (ids.begin (), ids.end (), out);
-	if (GetBodyProperty () != BodyProperty::NONE)
+	if (GetBodyProperty (m_view) != BodyProperty::NONE)
 	{
 	    ostr << endl;
 	    
@@ -893,10 +911,12 @@ void GLWidget::initializeGL()
     glEnable(GL_DEPTH_TEST);
     initializeTextures ();
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    m_displayFaceStatistics->InitShaders ();
+    DisplayFaceStatistics::InitShaders ();
     initializeLighting ();
     setEdgeRadius ();
-    m_listCenterPaths = glGenLists (1);
+    GLuint dl = glGenLists (ViewCount::MAX_COUNT);
+    for (size_t view = 0; view < ViewCount::MAX_COUNT; ++view)
+	m_listCenterPaths[view] = dl++;
     detectOpenGLError ("initializeGl");
 }
 
@@ -928,7 +948,7 @@ void GLWidget::displayView (size_t view)
     ModelViewTransform (GetTimeStep ());
     if (! m_hideContent)
     {
-	DisplayViewType ();
+	DisplayViewType (view);
 	displayViewDecorations (view);
     }
     displayAxes ();
@@ -945,11 +965,13 @@ void GLWidget::resizeGL(int w, int h)
 {
     (void)w;(void)h;
     projectionTransform ();
-    if (m_viewType == ViewType::FACES_STATISTICS)
-    {
-	pair<double, double> minMax = getStatisticsMinMax ();
-	m_displayFaceStatistics->InitStep (minMax.first, minMax.second);
-    }
+    for (size_t view = 0; view < ViewCount::GetCount (m_viewCount); ++view)
+	if (m_viewType[view] == ViewType::FACES_STATISTICS)
+	{
+	    pair<double, double> minMax = getStatisticsMinMax (view);
+	    m_displayFaceStatistics[view]->InitStep (
+		view, minMax.first, minMax.second);
+	}
     detectOpenGLError ("resizeGl");
 }
 
@@ -1066,7 +1088,7 @@ void GLWidget::brushedBodies (
     }
 }
 
-void GLWidget::displayStationaryBodyAndContext () const
+void GLWidget::displayBodyStationary () const
 {
     if (GetStationaryBodyId () != NONE)
     {
@@ -1074,6 +1096,10 @@ void GLWidget::displayStationaryBodyAndContext () const
 	focusBody[0] = *GetCurrentFoam ().FindBody (GetStationaryBodyId ());
 	displayFacesContour<0> (focusBody);
     }
+}
+
+void GLWidget::displayBodyContext () const
+{
     if (m_stationaryBodyContext.size () > 0)
     {
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
@@ -1197,10 +1223,10 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button () != Qt::LeftButton)
-	return;
     G3D::Vector2 p = QtToOpenGl (event->pos (), height ());
     setView (p);
+    if (event->button () != Qt::LeftButton)
+	return;
     switch (m_interactionMode)
     {
     case InteractionMode::SELECT:
@@ -1322,8 +1348,9 @@ void GLWidget::displayStandaloneEdges (bool useZPos, double zPos) const
     glPopAttrib ();
 }
 
-void GLWidget::displayEdgesNormal () const
+void GLWidget::displayEdgesNormal (size_t view) const
 {
+    (void)view;
     glPushAttrib (GL_ENABLE_BIT);
     if (isLightingEnabled ())
 	glDisable (GL_LIGHTING);
@@ -1337,7 +1364,7 @@ void GLWidget::displayT1s () const
 {
     if (m_t1sShown)
     {
-	if (ViewType::IsGlobal (GetViewType ()))
+	if (ViewType::IsGlobal (GetViewType (GetView ())))
 	    displayT1sGlobal ();
 	else
 	    displayT1s (GetTimeStep ());
@@ -1355,7 +1382,7 @@ void GLWidget::displayT1s (size_t timeStep) const
 {
     glPushAttrib (GL_ENABLE_BIT | GL_POINT_BIT | GL_CURRENT_BIT);
     glDisable (GL_DEPTH_TEST);
-    glPointSize (4.0);
+    glPointSize (m_t1Size);
     glColor (GetHighlightColor (0));
     glBegin (GL_POINTS);
     BOOST_FOREACH (const G3D::Vector3 v, 
@@ -1378,16 +1405,18 @@ QColor GLWidget::GetHighlightColor (size_t i) const
     }
 }
 
-void GLWidget::displayEdgesTorus () const
+void GLWidget::displayEdgesTorus (size_t view) const
 {
+    (void)view;
     if (m_edgesTubes)
 	displayEdgesTorusTubes ();
     else
 	displayEdgesTorusLines ();
 }
 
-void GLWidget::displayFacesTorus () const
+void GLWidget::displayFacesTorus (size_t view) const
 {
+    (void)view;
     if (m_edgesTubes)
 	displayFacesTorusTubes ();
     else
@@ -1421,10 +1450,10 @@ void GLWidget::displayEdgesTorusLines () const
 
 void GLWidget::displayCenterOfBodies (bool useZPos) const
 {
-    if ((m_viewType == ViewType::EDGES && m_edgesBodyCenter) ||
-	m_viewType == ViewType::CENTER_PATHS)
+    if ((GetViewType (GetView ()) == ViewType::EDGES && m_edgesBodyCenter) ||
+	GetViewType (GetView ()) == ViewType::CENTER_PATHS)
     {
-	double zPos = (m_viewType == ViewType::CENTER_PATHS) ?
+	double zPos = (GetViewType (GetView ()) == ViewType::CENTER_PATHS) ?
 	    GetTimeStep () * GetTimeDisplacement () : 0;
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
 	glPointSize (4.0);
@@ -1436,43 +1465,44 @@ void GLWidget::displayCenterOfBodies (bool useZPos) const
     }
 }
 
-void GLWidget::displayFacesNormal () const
+void GLWidget::displayFacesNormal (size_t view) const
 {
     const Foam& foam = GetCurrentFoam ();
     const Foam::Bodies& bodies = foam.GetBodies ();
     if (m_facesShowEdges)
 	displayFacesContour<0> (bodies);
-    displayFacesInterior (bodies);
+    displayFacesInterior (bodies, view);
     displayStandaloneFaces ();
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
 }
 
-pair<double, double> GLWidget::getStatisticsMinMax () const
+pair<double, double> GLWidget::getStatisticsMinMax (size_t view) const
 {
     double minValue, maxValue;
-    if (GetStatisticsType () == StatisticsType::COUNT)
+    if (GetStatisticsType (view) == StatisticsType::COUNT)
     {
 	minValue = 0;
 	maxValue = GetFoamAlongTime ().GetTimeSteps ();
     }
     else
     {
-	minValue = GetFoamAlongTime ().GetMin (GetBodyProperty ());
-	maxValue = GetFoamAlongTime ().GetMax (GetBodyProperty ());
+	minValue = GetFoamAlongTime ().GetMin (GetBodyProperty (view));
+	maxValue = GetFoamAlongTime ().GetMax (GetBodyProperty (view));
     }
     return pair<double, double> (minValue, maxValue);
 }
 
 
-void GLWidget::displayFacesStatistics () const
+void GLWidget::displayFacesStatistics (size_t view) const
 {
     glPushAttrib (GL_ENABLE_BIT);    
     glDisable (GL_DEPTH_TEST);
-    pair<double, double> minMax = getStatisticsMinMax ();
-    m_displayFaceStatistics->Display (
-	minMax.first, minMax.second, GetStatisticsType ());
+    pair<double, double> minMax = getStatisticsMinMax (view);
+    m_displayFaceStatistics[view]->Display (
+	minMax.first, minMax.second, GetStatisticsType (view));
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
-    displayStationaryBodyAndContext ();
+    displayBodyStationary ();
+    displayBodyContext ();
     glPopAttrib ();
 }
 
@@ -1509,7 +1539,8 @@ void GLWidget::displayFacesContour (
 
 // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
 // Antialiasing, Fog and Polygon Offset page 293
-void GLWidget::displayFacesInterior (const Foam::Bodies& bodies) const
+void GLWidget::displayFacesInterior (
+    const Foam::Bodies& bodies, size_t view) const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT | 
 		  GL_TEXTURE_BIT);
@@ -1525,7 +1556,7 @@ void GLWidget::displayFacesInterior (const Foam::Bodies& bodies) const
 	      DisplayBody<DisplayFaceWithBodyPropertyColor<
 	      DisplayFaceTriangleFan> > (
 		  *this, *m_bodySelector,
-		  DisplayElement::TRANSPARENT_CONTEXT, m_bodyProperty));
+		  DisplayElement::TRANSPARENT_CONTEXT, GetBodyProperty (view)));
     glPopAttrib ();
 }
 
@@ -1569,10 +1600,10 @@ void GLWidget::displayFacesTorusLines () const
     glPopAttrib ();
 }
 
-void GLWidget::displayCenterPathsWithBodies () const
+void GLWidget::displayCenterPathsWithBodies (size_t view) const
 {
     glLineWidth (1.0);
-    displayCenterPaths ();
+    displayCenterPaths (view);
     
     glPushAttrib (GL_ENABLE_BIT);
     if (isLightingEnabled ())
@@ -1601,26 +1632,26 @@ void GLWidget::displayCenterPathsWithBodies () const
     glPopAttrib ();
 }
 
-void GLWidget::displayCenterPaths () const
+void GLWidget::displayCenterPaths (size_t view) const
 {
-    glCallList (m_listCenterPaths);
+    glCallList (m_listCenterPaths[view]);
 }
 
-void GLWidget::compile () const
+void GLWidget::compile (size_t view) const
 {
-    switch (m_viewType)
+    switch (GetViewType (view))
     {
     case ViewType::CENTER_PATHS:
-	compileCenterPaths ();
+	compileCenterPaths (view);
 	break;
     default:
 	break;
     }    
 }
 
-void GLWidget::compileCenterPaths () const
+void GLWidget::compileCenterPaths (size_t view) const
 {
-    glNewList (m_listCenterPaths, GL_COMPILE);
+    glNewList (m_listCenterPaths[view], GL_COMPILE);
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT | 
 		  GL_POLYGON_BIT);
     glEnable(GL_TEXTURE_1D);
@@ -1639,28 +1670,28 @@ void GLWidget::compileCenterPaths () const
 		bats.begin (), bats.end (),
 		DisplayCenterPath<
 		SetterValueTextureCoordinate, DisplayEdgeTube> (
-		    *this, m_bodyProperty, *m_bodySelector,
+		    *this, m_bodyProperty[m_view], *m_bodySelector,
 		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
 	else
 	    for_each (
 		bats.begin (), bats.end (),
 		DisplayCenterPath<
 		SetterValueTextureCoordinate, DisplayEdgeQuadric> (
-		    *this, m_bodyProperty, *m_bodySelector,
+		    *this, m_bodyProperty[m_view], *m_bodySelector,
 		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     }
     else
 	for_each (bats.begin (), bats.end (),
 		  DisplayCenterPath<SetterValueTextureCoordinate, DisplayEdge> (
-		      *this, m_bodyProperty, *m_bodySelector,
+		      *this, m_bodyProperty[m_view], *m_bodySelector,
 		      IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     glPopAttrib ();
     glEndList ();
 }
 
-void GLWidget::DisplayViewType () const
+void GLWidget::DisplayViewType (size_t view) const
 {
-    (this->*(m_viewTypeDisplay[m_viewType])) ();
+    (this->*(m_viewTypeDisplay[m_viewType[view]])) (view);
 }
 
 bool GLWidget::IsDisplayedBody (size_t bodyId) const
@@ -1684,129 +1715,6 @@ bool GLWidget::IsDisplayedEdge (size_t oeI) const
     size_t edgeIndex = GetSelectedEdgeIndex ();
     return edgeIndex == DISPLAY_ALL || edgeIndex == oeI;
 }
-
-
-bool GLWidget::doesSelectBody () const
-{
-    return
-	m_viewType != ViewType::EDGES_TORUS &&
-	m_viewType != ViewType::FACES_TORUS;
-}
-
-bool GLWidget::doesSelectFace () const
-{
-    return
-	m_selectedBodyIndex != DISPLAY_ALL;
-}
-
-bool GLWidget::doesSelectEdge () const
-{
-    return
-	m_selectedFaceIndex != DISPLAY_ALL &&
-	m_viewType != ViewType::FACES;
-}
-
-
-void GLWidget::IncrementSelectedBodyIndex ()
-{
-    if (doesSelectBody ())
-    {
-	++m_selectedBodyIndex;
-	m_selectedFaceIndex = DISPLAY_ALL;
-	if (m_selectedBodyIndex ==
-	    GetFoamAlongTime ().GetFoam (0)->GetBodies ().size ())
-	{
-	    m_selectedBodyIndex = DISPLAY_ALL;
-	    SetBodySelector (AllBodySelector::Get (), BodySelectorType::ID);
-	}
-	else
-	{
-	    size_t id = GetCurrentFoam ().GetBodies ()[
-		m_selectedBodyIndex]->GetId ();
-	    cdbg << "IncrementSelectedBodyIndex index: " << m_selectedBodyIndex
-		 << " id: " << id << endl;
-	    SetBodySelector (
-		boost::shared_ptr<IdBodySelector> (new IdBodySelector (id)));
-	}
-	update ();
-    }
-}
-
-
-void GLWidget::IncrementSelectedFaceIndex ()
-{
-    if (doesSelectFace ())
-    {
-	++m_selectedFaceIndex;
-        Body& body = *GetCurrentFoam ().GetBodies ()[m_selectedBodyIndex];
-        if (m_selectedFaceIndex == body.GetOrientedFaces ().size ())
-            m_selectedFaceIndex = DISPLAY_ALL;
-	update ();
-    }
-}
-
-void GLWidget::IncrementSelectedEdgeIndex ()
-{
-    if (doesSelectEdge ())
-    {
-	++m_selectedEdgeIndex;
-	Face& face = *GetSelectedFace ();
-	if (m_selectedEdgeIndex == face.GetOrientedEdges ().size ())
-	    m_selectedEdgeIndex = DISPLAY_ALL;
-	update ();
-    }
-}
-
-void GLWidget::DecrementSelectedBodyIndex ()
-{
-    if (doesSelectBody ())
-    {
-	if (m_selectedBodyIndex == DISPLAY_ALL)
-	    m_selectedBodyIndex =
-		GetFoamAlongTime ().GetFoam (0)->GetBodies ().size ();
-	--m_selectedBodyIndex;
-	m_selectedFaceIndex = DISPLAY_ALL;
-	if (m_selectedBodyIndex != DISPLAY_ALL)
-	{
-	    size_t id = GetCurrentFoam ().GetBodies ()[
-		m_selectedBodyIndex]->GetId ();
-	    cdbg << "IncrementSelectedBodyIndex index: "
-		 << m_selectedBodyIndex << " id: " << id << endl;
-	    SetBodySelector (
-		boost::shared_ptr<IdBodySelector> (new IdBodySelector (id)));
-	}
-	else
-	{
-	    SetBodySelector (AllBodySelector::Get (), BodySelectorType::ID);
-	}
-	update ();
-    }
-}
-
-void GLWidget::DecrementSelectedFaceIndex ()
-{
-    if (doesSelectFace ())
-    {
-        Body& body = *GetCurrentFoam ().GetBodies ()[m_selectedBodyIndex];
-        if (m_selectedFaceIndex == DISPLAY_ALL)
-            m_selectedFaceIndex = body.GetOrientedFaces ().size ();
-	--m_selectedFaceIndex;
-	update ();
-    }
-}
-
-void GLWidget::DecrementSelectedEdgeIndex ()
-{
-    if (doesSelectEdge ())
-    {
-	Face& face = *GetSelectedFace ();
-	if (m_selectedEdgeIndex == DISPLAY_ALL)
-	    m_selectedEdgeIndex = face.GetOrientedEdges ().size ();
-	--m_selectedEdgeIndex;
-	update ();
-    }
-}
-
 
 
 const Foam& GLWidget::GetCurrentFoam () const
@@ -1971,19 +1879,19 @@ void GLWidget::ToggledCenterPathBodyShown (bool checked)
 void GLWidget::ToggledIsContextHidden (bool checked)
 {
     m_contextHidden = checked;
-    compile ();
+    compile (GetView ());
     update ();
 }
 
 
 void GLWidget::ToggledEdgesNormal (bool checked)
 {
-    changeView (checked, ViewType::EDGES);
+    changeViewType (checked, ViewType::EDGES);
 }
 
 void GLWidget::ToggledEdgesTorus (bool checked)
 {
-    changeView (checked, ViewType::EDGES_TORUS);
+    changeViewType (checked, ViewType::EDGES_TORUS);
 }
 
 void GLWidget::ToggledEdgesBodyCenter (bool checked)
@@ -1994,7 +1902,7 @@ void GLWidget::ToggledEdgesBodyCenter (bool checked)
 
 void GLWidget::ToggledFacesNormal (bool checked)
 {
-    changeView (checked, ViewType::FACES);
+    changeViewType (checked, ViewType::FACES);
 }
 
 void GLWidget::ToggledFacesShowEdges (bool checked)
@@ -2005,7 +1913,7 @@ void GLWidget::ToggledFacesShowEdges (bool checked)
 
 void GLWidget::ToggledFaceEdgesTorus (bool checked)
 {
-    changeView (checked, ViewType::FACES_TORUS);
+    changeViewType (checked, ViewType::FACES_TORUS);
 }
 
 
@@ -2054,7 +1962,7 @@ void GLWidget::ToggledT1sShiftLower (bool checked)
 
 void GLWidget::ToggledCenterPath (bool checked)
 {
-    changeView (checked, ViewType::CENTER_PATHS);
+    changeViewType (checked, ViewType::CENTER_PATHS);
 }
 
 
@@ -2087,17 +1995,18 @@ void GLWidget::ToggledFacesStatistics (bool checked)
     makeCurrent ();
     if (checked)
     {
-	pair<double, double> minMax = getStatisticsMinMax ();
-	m_displayFaceStatistics->InitStep (minMax.first, minMax.second);
+	pair<double, double> minMax = getStatisticsMinMax (GetView ());
+	m_displayFaceStatistics[GetView ()]->InitStep (
+	    GetView (), minMax.first, minMax.second);
     }
     else
-	m_displayFaceStatistics->Release ();
-    changeView (checked, ViewType::FACES_STATISTICS);
+	m_displayFaceStatistics[GetView ()]->Release ();
+    changeViewType (checked, ViewType::FACES_STATISTICS);
 }
 
 void GLWidget::CurrentIndexChangedStatisticsType (int index)
 {
-    m_statisticsType = StatisticsType::Enum(index);
+    m_statisticsType[GetView ()] = StatisticsType::Enum(index);
     update ();
 }
 
@@ -2112,12 +2021,12 @@ void GLWidget::SetBodyProperty (
     boost::shared_ptr<ColorBarModel> colorBarModel,
     BodyProperty::Enum property)
 {
-    m_bodyProperty = property;
-    if (m_bodyProperty != BodyProperty::NONE)
+    m_bodyProperty[GetView ()] = property;
+    if (m_bodyProperty[GetView ()] != BodyProperty::NONE)
 	SetColorBarModel (colorBarModel);
     else
 	m_colorBarModel.reset ();
-    compile ();
+    compile (GetView ());
     update ();
 }
 
@@ -2131,14 +2040,14 @@ void GLWidget::SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel)
     update ();
 }
 
-bool GLWidget::isColorBarUsed () const
+bool GLWidget::isColorBarUsed (size_t view) const
 {
-    switch (m_viewType)
+    switch (m_viewType[view])
     {
     case ViewType::FACES:
     case ViewType::FACES_STATISTICS:
     case ViewType::CENTER_PATHS:
-	return m_bodyProperty != BodyProperty::NONE;
+	return m_bodyProperty[view] != BodyProperty::NONE;
     default:
 	return false;
     }
@@ -2146,19 +2055,21 @@ bool GLWidget::isColorBarUsed () const
 
 void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 {
+    makeCurrent ();
     m_timeStep = timeStep;
-    if (m_viewType == ViewType::FACES_STATISTICS)
-    {
-	makeCurrent ();
-	pair<double, double> minMax = getStatisticsMinMax ();
-	m_displayFaceStatistics->Step (minMax.first, minMax.second);
-    }
+    for (size_t view = 0; view < ViewCount::GetCount (m_viewCount); ++view)
+	if (m_viewType[view] == ViewType::FACES_STATISTICS)
+	{
+	    pair<double, double> minMax = getStatisticsMinMax (view);
+	    m_displayFaceStatistics[view]->Step (
+		view, minMax.first, minMax.second);
+	}
     update ();
 }
 
 void GLWidget::ValueChangedStatisticsHistory (int timeSteps)
 {
-    m_displayFaceStatistics->SetHistoryCount (timeSteps);
+    m_displayFaceStatistics[GetView ()]->SetHistoryCount (timeSteps);
 }
 
 void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
@@ -2169,9 +2080,19 @@ void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
     m_timeDisplacement =
 	(bb.high () - bb.low ()).z * timeDisplacement /
 	GetFoamAlongTime ().GetTimeSteps () / maximum;
-    compile ();
+    compile (GetView ());
     update ();
 }
+
+void GLWidget::ValueChangedT1Size (int index)
+{
+    QSlider* slider = static_cast<QSlider*> (sender ());
+    size_t maximum = slider->maximum ();
+    m_t1Size = MIN_T1_SIZE + 
+	(GLfloat (index) / maximum) * (MAX_T1_SIZE - MIN_T1_SIZE);
+    update ();
+}
+
 
 void GLWidget::ValueChangedEdgesRadius (int sliderValue)
 {
@@ -2180,7 +2101,7 @@ void GLWidget::ValueChangedEdgesRadius (int sliderValue)
     m_edgeRadiusMultiplier = static_cast<double>(sliderValue) / maximum;
     setEdgeRadius ();
     enableLighting (m_lightEnabled.any ());
-    compile ();
+    compile (GetView ());
     update ();
 }
 
@@ -2189,7 +2110,7 @@ void GLWidget::ValueChangedContextAlpha (int sliderValue)
     size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
     m_contextAlpha = MIN_CONTEXT_ALPHA +
 	(MAX_CONTEXT_ALPHA - MIN_CONTEXT_ALPHA) * sliderValue / maximum;
-    compile ();
+    compile (GetView ());
     update ();
 }
 
@@ -2353,8 +2274,6 @@ void GLWidget::initializeTextures ()
 
 void GLWidget::displayViewDecorations (size_t view)
 {
-    if (GetBodyProperty () == BodyProperty::NONE)
-	return;
     glPushAttrib (
 	GL_POLYGON_BIT | GL_CURRENT_BIT | 
 	GL_VIEWPORT_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT);
@@ -2373,19 +2292,34 @@ void GLWidget::displayViewDecorations (size_t view)
     glViewport (0, 0, width (), height ());
 
     G3D::Rect2D viewRect = getViewRect (view);
-    if (isColorBarUsed ())
-    {
+    if (isColorBarUsed (view))
 	displayTextureColorBar (viewRect);
-	displayViewTitle (viewRect);
-    }
-    if (view == m_view)
-	displayCurrentViewBorder (viewRect);
+    displayViewTitle (viewRect, view);
+    displayViewGrid ();
 
     glPopMatrix ();
     glMatrixMode (GL_MODELVIEW);
     glPopMatrix ();
     glPopAttrib ();
 }
+
+void GLWidget::displayViewTitle (const G3D::Rect2D& viewRect, size_t view)
+{
+    QFont font;
+    if (view == m_view)
+	font.setUnderline (true);
+    const char* text = isColorBarUsed (view) ? 
+	BodyProperty::ToString (GetBodyProperty (view)) :
+	ViewType::ToString (m_viewType[view]);
+    QFontMetrics fm (font);
+    const int textX = 
+	viewRect.x0 () + (float (viewRect.width ()) - fm.width (text)) / 2;
+    const int textY = OpenGlToQt (
+	viewRect.y1 () - (fm.height () + 3), height ());
+    glColor (Qt::black);
+    renderText (textX, textY, text, font);
+}
+
 
 void GLWidget::displayTextureColorBar (const G3D::Rect2D& viewRect)
 {
@@ -2415,40 +2349,34 @@ void GLWidget::displayTextureColorBar (const G3D::Rect2D& viewRect)
     glEnd ();
 }
 
-void GLWidget::displayCurrentViewBorder (const G3D::Rect2D& viewRect)
-{
-    G3D::Rect2D border = G3D::Rect2D::xyxy (
-	viewRect.x0 () + 2, viewRect.y0 () + 2, 
-	viewRect.x1 () - 2, viewRect.y1 () - 2);
-    glColor (Qt::red);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-    glBegin (GL_QUADS);
-    glVertex (border.x0y0 ());
-    glVertex (border.x0y1 ());
-    glVertex (border.x1y1 ());
-    glVertex (border.x1y0 ());
-    glEnd ();
-}
-
 void GLWidget::displayViewGrid ()
 {
-
+    size_t w = width ();
+    size_t h = height ();
+    glColor (Qt::blue);
+    glBegin (GL_LINES);
+    if (m_viewCount == ViewCount::TWO)
+    {
+	if (m_viewLayout == ViewLayout::HORIZONTAL)
+	{
+	    glVertex2s (w/2, 0);
+	    glVertex2s (w/2, h);
+	}
+	else
+	{
+	    glVertex2s (0, h/2);
+	    glVertex2s (w, h/2);
+	}
+    }
+    else if (m_viewCount == ViewCount::FOUR)
+    {
+	glVertex2s (w/2, 0);
+	glVertex2s (w/2, h);
+	glVertex2s (0, h/2);
+	glVertex2s (w, h/2);	
+    }
+    glEnd ();
 }
-
-void GLWidget::displayViewTitle (const G3D::Rect2D& viewRect)
-{
-    QFont font;
-    QFontMetrics fm (font);
-    const char* text = BodyProperty::ToString (GetBodyProperty ());
-    const int textX = 
-	viewRect.x0 () + (float (viewRect.width ()) - fm.width (text)) / 2;
-    const int textY = OpenGlToQt (
-	viewRect.y1 () - (fm.height () + 3), height ());
-    glColor (Qt::black);
-    renderText (textX, textY, text);
-}
-
-
 
 QColor GLWidget::GetCenterPathContextColor () const
 {
@@ -2514,7 +2442,7 @@ void GLWidget::UnionBodySelector (const vector<size_t>& bodyIds)
 	break;
     }
     setBodySelectorLabel (m_bodySelector->GetType ());
-    compile ();
+    compile (GetView ());
     update ();
 }
 
@@ -2549,7 +2477,7 @@ void GLWidget::DifferenceBodySelector (const vector<size_t>& bodyIds)
 	break;
     }
     setBodySelectorLabel (m_bodySelector->GetType ());
-    compile ();
+    compile (GetView ());
     update ();
 }
 
@@ -2576,7 +2504,7 @@ void GLWidget::SetBodySelector (boost::shared_ptr<IdBodySelector> selector)
 	break;
     }
     setBodySelectorLabel (m_bodySelector->GetType ());
-    compile ();
+    compile (GetView ());
     update ();
 }
 
@@ -2605,7 +2533,7 @@ void GLWidget::SetBodySelector (
 	break;
     }
     setBodySelectorLabel (m_bodySelector->GetType ());
-    compile ();
+    compile (GetView ());
     update ();
 }
 
@@ -2631,7 +2559,7 @@ void GLWidget::SetBodySelector (
 	break;
     }
     setBodySelectorLabel (m_bodySelector->GetType ());
-    compile ();
+    compile (GetView ());
     update ();
 }
 

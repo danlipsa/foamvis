@@ -75,8 +75,14 @@ QBox3D ToQt (const G3D::AABox& box);
 G3D::Vector2 ToG3D (const QVector2D& v);
 G3D::Vector3 ToG3D (const QVector3D& v);
 G3D::AABox ToG3D (const QBox3D& box);
+
+
+// Conversions Qt - OpenGl
+// ======================================================================
 G3D::Vector2 QtToOpenGl (const QPoint& point, int windowHeight);
 int OpenGlToQt (int h, int windowHeight);
+
+string ColorToHtml (const QColor& color, const char* text);
 
 
 // Container algorithms

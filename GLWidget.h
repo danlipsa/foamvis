@@ -67,9 +67,13 @@ public:
     {
 	return *m_foamAlongTime;
     }
-    ViewType::Enum GetViewType () const
+    ViewType::Enum GetViewType (size_t view) const
     {
-	return m_viewType;
+	return m_viewType[view];
+    }
+    size_t GetView () const
+    {
+	return m_view;
     }
 
     QColor GetHighlightColor (size_t i) const;
@@ -85,11 +89,11 @@ public:
 	return *m_bodySelector;
     }
 
-    StatisticsType::Enum GetStatisticsType () const
+    StatisticsType::Enum GetStatisticsType (size_t view) const
     {
-	return m_statisticsType;
+	return m_statisticsType[view];
     }
-    pair<double, double> getStatisticsMinMax () const;
+    pair<double, double> getStatisticsMinMax (size_t view) const;
 
     const BodiesAlongTime& GetBodiesAlongTime () const;
     const BodyAlongTime& GetBodyAlongTime (size_t bodyId) const;
@@ -146,25 +150,6 @@ public:
     }
     size_t GetSelectedEdgeId () const;
     boost::shared_ptr<Edge>  GetSelectedEdge () const;
-    /**
-     * Increment displayed body
-     */
-    void IncrementSelectedBodyIndex ();
-    /**
-     * Increment displayed face
-     */
-    void IncrementSelectedFaceIndex ();
-    void IncrementSelectedEdgeIndex ();
-
-    /**
-     * Decrement displayed body
-     */
-    void DecrementSelectedBodyIndex ();
-    /**
-     * Decrement displayed face
-     */
-    void DecrementSelectedFaceIndex ();
-    void DecrementSelectedEdgeIndex ();
     double GetContextAlpha () const
     {
 	return m_contextAlpha;
@@ -259,15 +244,16 @@ public:
      * Displays the foam in various way
      * @param type the type of object that we want displayed.
      */
-    void DisplayViewType () const;
-    BodyProperty::Enum GetBodyProperty () const
+    void DisplayViewType (size_t view) const;
+    BodyProperty::Enum GetBodyProperty (size_t view) const
     {
-	return m_bodyProperty;
+	return m_bodyProperty[view];
     }
 
 Q_SIGNALS:
     void PaintedGL ();
     void EditColorMap ();
+    void ViewChanged ();
     void ColorBarModelChanged (boost::shared_ptr<ColorBarModel> colorBarModel);
 
 public Q_SLOTS:
@@ -344,6 +330,7 @@ public Q_SLOTS:
     void ValueChangedSliderTimeSteps (int timeStep);
     void ValueChangedStatisticsHistory (int timeSteps);
     void ValueChangedTimeDisplacement (int timeDisplacement);
+    void ValueChangedT1Size (int index);
     // Actions
     void ResetTransformation ();
     void ResetSelectedLightPosition ();
@@ -401,7 +388,7 @@ protected:
      */
     void mouseMoveEvent(QMouseEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
-    bool isColorBarUsed () const;
+    bool isColorBarUsed (size_t view) const;
 
 
 private:
@@ -422,8 +409,11 @@ private:
 
     typedef boost::unordered_map<G3D::Vector3int16, QColor,
 				 Vector3int16Hash> EndLocationColor;
+    typedef boost::array<
+	boost::shared_ptr<DisplayFaceStatistics>, 
+	ViewCount::MAX_COUNT> DisplayFaceStatisticsArray;
 
-    typedef void (GLWidget::* ViewTypeDisplay) () const;
+    typedef void (GLWidget::* ViewTypeDisplay) (size_t view) const;
 
 private:
     void viewportTransform (const G3D::Rect2D& viewRect);
@@ -447,8 +437,8 @@ private:
     void displayViewDecorations (size_t view);
     void displayViewGrid ();
     void displayTextureColorBar (const G3D::Rect2D& viewRect);
-    void displayViewTitle (const G3D::Rect2D& viewRect);
-    void displayCurrentViewBorder (const G3D::Rect2D& viewRect);
+    void displayViewTitle (const G3D::Rect2D& viewRect, size_t view);
+    void displayViewGrid () const;
     bool areEdgesTubes () const
     {
 	return m_edgesTubes;
@@ -458,7 +448,7 @@ private:
 	return m_lightingEnabled;
     }
 
-    void changeView (bool checked, ViewType::Enum view);
+    void changeViewType (bool checked, ViewType::Enum view);
     /**
      * Setup the viewing volume first centered around origin and then translated
      * toward negative Z with m_cameraDistance. 
@@ -489,13 +479,14 @@ private:
     void displayEdges () const;
     void displayView (size_t view);
     void displayViews ();
-    void displayStationaryBodyAndContext () const;
+    void displayBodyContext () const;
+    void displayBodyStationary () const;
 
-    void displayEdgesNormal () const;
+    void displayEdgesNormal (size_t view) const;
     template<typename displayEdge>
     void displayStandaloneEdges (bool useZPos = false, double zPos = 0) const;
     void displayStandaloneFaces () const;
-    void displayEdgesTorus () const;
+    void displayEdgesTorus (size_t view) const;
     void displayEdgesTorusTubes () const;
     void displayEdgesTorusLines () const;
 
@@ -503,23 +494,23 @@ private:
      * @todo display concave filled polygons using the stencil buffer.
      * @see Chapter 14, OpenGL Programming Guide, version 1.1
      */
-    void displayFacesNormal () const;
-    void displayFacesTorus () const;
-    void displayFacesStatistics () const;
+    void displayFacesNormal (size_t view) const;
+    void displayFacesTorus (size_t view) const;
+    void displayFacesStatistics (size_t view) const;
     void displayFacesTorusTubes () const;
     void displayFacesTorusLines () const;
 
     /**
      * Generates a display list for center paths
      */
-    void displayCenterPathsWithBodies () const;
+    void displayCenterPathsWithBodies (size_t view) const;
     void displayOriginalDomain () const;
     void displayT1s () const;
     void displayT1s (size_t timeStep) const;
     void displayT1sGlobal () const;
-    void displayCenterPaths () const;
-    void compileCenterPaths () const;
-    void compile () const;
+    void displayCenterPaths (size_t view) const;
+    void compileCenterPaths (size_t view) const;
+    void compile (size_t view) const;
 
     void displayBoundingBox () const;
     void displayFocusBox () const;
@@ -554,7 +545,7 @@ private:
      * @param bodies displays all the faces in these bodies
      */
     void displayFacesInterior (
-	const vector<boost::shared_ptr<Body> >& bodies) const;
+	const vector<boost::shared_ptr<Body> >& bodies, size_t view) const;
     void displayFacesInterior (
 	const vector<boost::shared_ptr<Face> >& faces) const;
 
@@ -578,9 +569,6 @@ private:
     void brushedBodies (const QPoint& position, vector<size_t>* bodies) const;
     
     void initViewTypeDisplay ();
-    bool doesSelectBody () const;
-    bool doesSelectFace () const;
-    bool doesSelectEdge () const;
     void createActions ();
     /**
      * Rotates the view so that we get the same image as in Surface Evolver
@@ -602,6 +590,8 @@ private:
     const static double MIN_CONTEXT_ALPHA;
     const static double MAX_CONTEXT_ALPHA;
     const static double ENCLOSE_ROTATION_RATIO;
+    const static GLfloat MAX_T1_SIZE;
+    const static GLfloat MIN_T1_SIZE;
 
 private:
     Q_OBJECT
@@ -609,11 +599,9 @@ private:
     /**
      * What do we display
      */
-    ViewType::Enum m_viewType;
     bool m_torusOriginalDomainDisplay;
     bool m_torusOriginalDomainClipped;
     InteractionMode::Enum m_interactionMode;
-    StatisticsType::Enum m_statisticsType;
     AxesOrder::Enum m_axesOrder;
 
     /**
@@ -669,7 +657,7 @@ private:
     boost::array<boost::array<GLfloat, 4>, LightPosition::COUNT> m_lightAmbient;
     boost::array<boost::array<GLfloat, 4>, LightPosition::COUNT> m_lightDiffuse;
     boost::array<boost::array<GLfloat, 4>, LightPosition::COUNT> m_lightSpecular;
-
+    boost::array<StatisticsType::Enum, 4> m_statisticsType;
     double m_angleOfView;
     EndLocationColor m_endTranslationColor;
     GLUquadricObj* m_quadric;    
@@ -694,7 +682,6 @@ private:
     bool m_bodiesBoundingBoxesShown;
     bool m_axesShown;
     boost::array<ViewTypeDisplay, ViewType::COUNT> m_viewTypeDisplay;
-    BodyProperty::Enum m_bodyProperty;
     boost::shared_ptr<BodySelector> m_bodySelector;
 
     boost::shared_ptr<QAction> m_actionSelectAll;
@@ -720,17 +707,22 @@ private:
      * otherwise
      */
     bool m_playMovie;
-    boost::scoped_ptr<DisplayFaceStatistics> m_displayFaceStatistics;
     boost::shared_ptr<SelectBodiesById> m_selectBodiesById;
     QLabel *m_labelStatusBar;
     bool m_contextView;
     bool m_hideContent;
     bool m_tubeCenterPathUsed;
-    GLuint m_listCenterPaths;
     bool m_t1sShown;
+    GLfloat m_t1Size;
+
+    // View related variables
     ViewCount::Enum m_viewCount;
     ViewLayout::Enum m_viewLayout;
     size_t m_view;
+    boost::array<ViewType::Enum, ViewCount::MAX_COUNT> m_viewType;
+    boost::array<BodyProperty::Enum,ViewCount::MAX_COUNT> m_bodyProperty;
+    DisplayFaceStatisticsArray m_displayFaceStatistics;
+    boost::array<GLuint,ViewCount::MAX_COUNT> m_listCenterPaths;
 };
 
 #endif //__GLWIDGET_H__

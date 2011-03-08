@@ -258,6 +258,23 @@ int OpenGlToQt (int h, int windowHeight)
     return windowHeight - h;
 }
 
+string ColorToHtml (const QColor& color, const char* text)
+{
+    ostringstream ostr;
+    ostr << "<table><td bgcolor=\"#" << hex << setfill ('0')
+	 << setw (2) << color.red ()
+	 << setw (2) << color.green ()
+	 << setw (2) << color.blue ()
+	 << "\"><font color=\"#"
+	 << setw (2) << color.red ()
+	 << setw (2) << color.green ()
+	 << setw (2) << color.blue ()
+	 << "\">" << text << "</font></td></table>";
+    cdbg << ostr.str () << endl;
+    return ostr.str ();
+}
+
+
 // Container algorithms
 // ======================================================================
 

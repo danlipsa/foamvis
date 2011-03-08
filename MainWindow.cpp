@@ -57,7 +57,6 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_currentBody (0),
     m_property (BodyProperty::NONE),
     m_histogramType (HistogramType::NONE),
-    m_colorBarModelBodyProperty (BodyProperty::PROPERTY_END),
     m_editColorMap (new EditColorMap (this))
 {
     // for anti-aliased lines
@@ -139,6 +138,19 @@ void MainWindow::connectSignals ()
 	SLOT (SetColorBarModel (boost::shared_ptr<ColorBarModel>)));
 
     connectColorBarHistogram (true);
+
+    connect (
+	widgetGl,
+	SIGNAL (ViewChanged ()),
+	this,
+	SLOT (ViewToUI ()));
+}
+
+void MainWindow::ViewToUI ()
+{
+    buttonGroupViewType->button (
+	widgetGl->GetViewType (widgetGl->GetView ()))->setChecked (true);
+    cdbg << "ViewToUI" << endl;
 }
 
 void MainWindow::connectColorBarHistogram (bool connected)
@@ -181,13 +193,13 @@ void MainWindow::setupButtonGroups ()
     buttonGroupCenterPathHistogram->setId (
 	radioButtonCenterPathHistogramColorCoded, HistogramType::COLOR_CODED);
 
-    buttonGroupDisplay->setId (radioButtonEdgesNormal, ViewType::EDGES);
-    buttonGroupDisplay->setId (radioButtonEdgesTorus, ViewType::EDGES_TORUS);
-    buttonGroupDisplay->setId (radioButtonFacesNormal, ViewType::FACES);
-    buttonGroupDisplay->setId (radioButtonFaceEdgesTorus, ViewType::FACES_TORUS);
-    buttonGroupDisplay->setId (radioButtonFacesStatistics, 
+    buttonGroupViewType->setId (radioButtonEdgesNormal, ViewType::EDGES);
+    buttonGroupViewType->setId (radioButtonEdgesTorus, ViewType::EDGES_TORUS);
+    buttonGroupViewType->setId (radioButtonFacesNormal, ViewType::FACES);
+    buttonGroupViewType->setId (radioButtonFaceEdgesTorus, ViewType::FACES_TORUS);
+    buttonGroupViewType->setId (radioButtonFacesStatistics, 
 			       ViewType::FACES_STATISTICS);
-    buttonGroupDisplay->setId (radioButtonCenterPath, ViewType::CENTER_PATHS);
+    buttonGroupViewType->setId (radioButtonCenterPath, ViewType::CENTER_PATHS);
 }
 
 void MainWindow::setupSliderData (const FoamAlongTime& foamAlongTime)
@@ -304,34 +316,6 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     Qt::KeyboardModifiers modifiers = event->modifiers ();
     switch (event->key ())
     {
-    case Qt::Key_Up:
-	widgetGl->IncrementSelectedEdgeIndex ();
-	break;
-    case Qt::Key_Down:
-	widgetGl->DecrementSelectedEdgeIndex ();
-	break;
-    case Qt::Key_PageUp:
-	switch (modifiers)
-	{
-	case Qt::NoModifier:
-            widgetGl->IncrementSelectedBodyIndex ();
-	    break;
-	case Qt::ShiftModifier:
-	    widgetGl->IncrementSelectedFaceIndex ();
-	    break;
-	}
-        break;
-    case Qt::Key_PageDown:
-	switch (modifiers)
-	{
-	case Qt::NoModifier:
-            widgetGl->DecrementSelectedBodyIndex ();
-	    break;
-	case Qt::ShiftModifier:
-	    widgetGl->DecrementSelectedFaceIndex ();
-	    break;
-	}
-	break;
     case Qt::Key_Space:
 	translateBodyStep ();
 	break;
@@ -801,7 +785,8 @@ void MainWindow::ToggledFacesStatistics (bool checked)
 	Q_EMIT ColorBarModelChanged (getCurrentColorBarModel ());
 	stackedWidgetFaces->setCurrentWidget (pageFacesStatistics);
 	labelFacesStatisticsColor->setText (
-	    BodyProperty::ToString (widgetGl->GetBodyProperty ()));
+	    BodyProperty::ToString (
+		widgetGl->GetBodyProperty (widgetGl->GetView ())));
 	ButtonClickedAllTimestepsHistogram (m_histogramType);
     }
     else
@@ -922,7 +907,8 @@ void MainWindow::ShowEditColorMap ()
 
 boost::shared_ptr<ColorBarModel> MainWindow::getCurrentColorBarModel () const
 {
-    if (widgetGl->GetStatisticsType () == StatisticsType::COUNT)
+    if (widgetGl->GetStatisticsType (widgetGl->GetView ()) == 
+	StatisticsType::COUNT)
 	return m_colorBarModelDomainHistogram;
     else
 	return m_colorBarModelBodyProperty[m_property];
@@ -934,7 +920,8 @@ boost::shared_ptr<ColorBarModel> MainWindow::getCurrentColorBarModel () const
 MainWindow::HistogramInfo MainWindow::getCurrentHistogramInfo () const
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    if (widgetGl->GetStatisticsType () == StatisticsType::COUNT)
+    if (widgetGl->GetStatisticsType (widgetGl->GetView ()) == 
+	StatisticsType::COUNT)
     {
 	size_t fakeHistogramValue = 1;
 	QwtArray<QwtDoubleInterval> a (HISTOGRAM_INTERVALS);

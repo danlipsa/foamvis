@@ -102,6 +102,27 @@ bool ViewType::IsGlobal (ViewType::Enum t)
     }
 }
 
+const char* ViewType::ToString (ViewType::Enum t)
+{
+    switch (t)
+    {
+    case EDGES:
+	return "Edges";
+    case EDGES_TORUS:
+	return "Edges torus";
+    case FACES_TORUS:
+	return "Faces torus";
+    case FACES:
+	return "Faces";	
+    case FACES_STATISTICS:
+	return "Faces statistics";
+    case CENTER_PATHS:
+	return "Center paths";
+    default:
+	return "Invalid ViewType";
+    }
+}
+
 
 const char* Palette::ToString (Palette::Enum type)
 {
