@@ -14,31 +14,31 @@ class Body;
 class SetterValueTextureCoordinate
 {
 public:
-    SetterValueTextureCoordinate (
-	const GLWidget& glWidget, BodyProperty::Enum property) :
-	m_glWidget (glWidget), m_property (property)
+    SetterValueTextureCoordinate (const GLWidget& glWidget, ViewNumber::Enum view) :
+	m_glWidget (glWidget), m_view (view)
     {
     }
 
     void operator () ();
     void operator () (const boost::shared_ptr<Body>& body);
-    BodyProperty::Enum GetBodyProperty () const
+    BodyProperty::Enum GetBodyProperty () const;
+    ViewNumber::Enum GetView () const
     {
-	return m_property;
+	return m_view;
     }
 
 protected:
     const GLWidget& m_glWidget;
-    BodyProperty::Enum m_property;
+    ViewNumber::Enum m_view;
 };
 
 class SetterValueVertexAttribute : public SetterValueTextureCoordinate
 {
 public:
     SetterValueVertexAttribute (
-	const GLWidget& glWidget,  BodyProperty::Enum property,
+	const GLWidget& glWidget,  ViewNumber::Enum view,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
-	SetterValueTextureCoordinate (glWidget, property),
+	SetterValueTextureCoordinate (glWidget, view),
 	m_program (program), m_attributeIndex (attributeIndex)
     {
     }

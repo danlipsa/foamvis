@@ -112,16 +112,17 @@ public:
     DisplayBody (
 	const GLWidget& widget, const BodySelector& bodySelector,
 	typename DisplayElement::ContextType 
-	         contextDisplay = DisplayElement::TRANSPARENT_CONTEXT,
-	BodyProperty::Enum property = BodyProperty::NONE,
+	    contextDisplay = DisplayElement::TRANSPARENT_CONTEXT,
+	ViewNumber::Enum view = ViewNumber::VIEW0,
 	bool useZPos = false, double zPos = 0);
 
     DisplayBody (
 	const GLWidget& widget, const BodySelector& bodySelector,
 	PropertySetter setter,
 	typename DisplayElement::ContextType 
-	         contextDisplay = DisplayElement::TRANSPARENT_CONTEXT,
+	    contextDisplay = DisplayElement::TRANSPARENT_CONTEXT,
 	bool useZPos = false, double zPos = 0);
+			
 
 protected:
     /**
@@ -129,7 +130,8 @@ protected:
      * @param b the body to be displayed
      */
     virtual void display (
-	boost::shared_ptr<Body> b, typename DisplayElement::FocusContext bodyFc);
+	boost::shared_ptr<Body> b, 
+	typename DisplayElement::FocusContext bodyFc);
 
 private:
     typename DisplayElement::ContextType m_contextDisplay;
@@ -152,9 +154,8 @@ public:
      * @param widget where to display the center path
      */
     DisplayCenterPath (
-	const GLWidget& widget,
-	BodyProperty::Enum property, 
-	const BodySelector& bodySelector,	
+	const GLWidget& widget, ViewNumber::Enum view, 
+	const BodySelector& bodySelector,
 	bool useTimeDisplacement = false, 
 	double timeDisplacement = 0,
 	boost::shared_ptr<ofstream> output = boost::shared_ptr<ofstream>());

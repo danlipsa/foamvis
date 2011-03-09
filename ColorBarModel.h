@@ -70,8 +70,8 @@ public:
     }
     
     void SetupPalette (Palette::Enum palette);
-    QColor GetHighlightColor (size_t i) const;
-    void SetHighlightColor (size_t i, const QColor& color)
+    QColor GetHighlightColor (HighlightNumber::Enum i) const;
+    void SetHighlightColor (HighlightNumber::Enum i, const QColor& color)
     {
 	m_highlightColor[i] = color;
     }

@@ -101,7 +101,7 @@ DisplayBodyCenter::DisplayBodyCenter (
 
     DisplayBodyBase<> (
 	widget, bodySelector,
-	SetterValueTextureCoordinate(widget, BodyProperty::NONE), useZPos, zPos)
+	SetterValueTextureCoordinate(widget, ViewNumber::VIEW0), useZPos, zPos)
 {}
 
 
@@ -124,10 +124,10 @@ DisplayBody<displayFace, PropertySetter>::
 DisplayBody (
     const GLWidget& widget, const BodySelector& bodySelector,
     typename DisplayElement::ContextType contextDisplay, 
-    BodyProperty::Enum property, bool useZPos, double zPos) :
+    ViewNumber::Enum view, bool useZPos, double zPos) :
 
     DisplayBodyBase<PropertySetter> (
-	widget, bodySelector, PropertySetter (widget, property), useZPos, zPos),
+	widget, bodySelector, PropertySetter (widget, view), useZPos, zPos),
     m_contextDisplay (contextDisplay)
 {
 }
@@ -171,14 +171,14 @@ template<typename PropertySetter, typename DisplaySegment>
 DisplayCenterPath<PropertySetter, DisplaySegment>::
 DisplayCenterPath (
     const GLWidget& widget,
-    BodyProperty::Enum property,
+    ViewNumber::Enum view,
     const BodySelector& bodySelector,
     bool useTimeDisplacement,
     double timeDisplacement,
     boost::shared_ptr<ofstream> output) :
 
     DisplayBodyBase<PropertySetter> (
-	widget, bodySelector, PropertySetter (widget, property),
+	widget, bodySelector, PropertySetter (widget, view),
 	 useTimeDisplacement, timeDisplacement),
      m_displaySegment (this->m_glWidget.GetQuadricObject (),
 		       this->m_glWidget.GetEdgeRadius ()),
@@ -244,7 +244,9 @@ DisplayCenterPath (
 		     this->m_propertySetter.GetBodyProperty ()), segment);
 	else
 	    storeFocusSegment (
-		this->m_glWidget.GetHighlightColor (0), segment);
+		this->m_glWidget.GetHighlightColor (
+		    this->m_propertySetter.GetView (),
+		    HighlightNumber::HIGHLIGHT0), segment);
     }
     else
 	storeContextSegment (
@@ -302,7 +304,8 @@ void DisplayCenterPath<PropertySetter, DisplaySegment>::
 storeFocusSegment (double value, const Segment& segment)
 {
     double textureCoordinate = 
-	this->m_glWidget.GetColorBarModel ().TexCoord (value);
+	this->m_glWidget.GetColorBarModel (
+	    this->m_propertySetter.GetView ()).TexCoord (value);
     boost::shared_ptr<FocusTextureSegment> fs = 
 	boost::make_shared<FocusTextureSegment> (textureCoordinate, segment);
     m_focusTextureSegments.push_back (fs);

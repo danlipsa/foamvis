@@ -25,10 +25,10 @@ DisplayFaceHighlightColor<highlightColorIndex,
 DisplayFaceHighlightColor (
     const GLWidget& widget,
     typename DisplayElement::FocusContext focus,
-    BodyProperty::Enum property, bool useZPos, double zPos) : 
+    ViewNumber::Enum view, bool useZPos, double zPos) : 
     
     DisplayElementPropertyFocus<PropertySetter> (
-	widget, PropertySetter (widget, property), focus, useZPos, zPos), 
+	widget, PropertySetter (widget, view), focus, useZPos, zPos), 
     m_count(0)
 {
 }
@@ -81,7 +81,9 @@ display (const boost::shared_ptr<OrientedFace>& of)
 {
     if (this->m_focus == DisplayElement::FOCUS)
     {
-	glColor (this->m_glWidget.GetHighlightColor (highlightColorIndex));
+	glColor (this->m_glWidget.GetHighlightColor (
+		     this->m_propertySetter.GetView (),
+		     HighlightNumber::Enum (highlightColorIndex)));
     }
     else
 	glColor (QColor::fromRgbF (
@@ -97,12 +99,11 @@ template<typename displaySameEdges, typename PropertySetter>
 DisplayFaceBodyPropertyColor<displaySameEdges, PropertySetter>::
 DisplayFaceBodyPropertyColor (
     const GLWidget& widget,
-    typename DisplayElement::FocusContext focus, BodyProperty::Enum property, 
+    typename DisplayElement::FocusContext focus, ViewNumber::Enum view, 
     bool useZPos, double zPos) : 
     
     DisplayFaceHighlightColor<0, displaySameEdges, PropertySetter> (
-	widget, PropertySetter (widget, property), 
-	focus, useZPos, zPos)
+	widget, PropertySetter (widget, view), focus, useZPos, zPos)
 {
 }
 
@@ -144,19 +145,25 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
     size_t bodyId = body->GetId ();
     if (bodyId == this->m_glWidget.GetBodyStationaryId ())
     {
-	glColor (this->m_glWidget.GetHighlightColor (0));
+	glColor (this->m_glWidget.GetHighlightColor (
+		     this->m_propertySetter.GetView (),
+		     HighlightNumber::HIGHLIGHT0));
 	this->m_propertySetter (body);
     }
     else if (this->m_glWidget.IsBodyContext (bodyId))
     {
-	glColor (this->m_glWidget.GetHighlightColor (1));
+	glColor (this->m_glWidget.GetHighlightColor (
+		     this->m_propertySetter.GetView (),
+		     HighlightNumber::HIGHLIGHT1));
 	this->m_propertySetter (body);
     }
     else if (this->m_focus == DisplayElement::FOCUS)
     {
 	if (this->m_propertySetter.GetBodyProperty () == BodyProperty::NONE)
 	{
-	    glColor (of->GetColor (this->m_glWidget.GetHighlightColor (0)));
+	    glColor (of->GetColor (this->m_glWidget.GetHighlightColor (
+				       this->m_propertySetter.GetView (),
+				       HighlightNumber::HIGHLIGHT0)));
 	    this->m_propertySetter ();
 	}
 	else
@@ -171,13 +178,16 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	    }
 	    else
 	    {
-		glColor (this->m_glWidget.GetHighlightColor (0));
+		glColor (this->m_glWidget.GetHighlightColor (
+			     this->m_propertySetter.GetView (),
+			     HighlightNumber::HIGHLIGHT0));
 		this->m_propertySetter ();
 	    }
 	}
     }
     else
-	glColor (QColor::fromRgbF(0, 0, 0, this->m_glWidget.GetContextAlpha ()));
+	glColor (QColor::fromRgbF(
+		     0, 0, 0, this->m_glWidget.GetContextAlpha ()));
 }
 
 
@@ -187,12 +197,11 @@ template<QRgb faceColor, typename displaySameEdges, typename PropertySetter>
 DisplayFaceColor<faceColor, displaySameEdges, PropertySetter>::
 DisplayFaceColor (
     const GLWidget& widget,
-    typename DisplayElement::FocusContext focus, BodyProperty::Enum property, 
+    typename DisplayElement::FocusContext focus, ViewNumber::Enum view, 
     bool useZPos, double zPos) : 
     
     DisplayFaceHighlightColor<0, displaySameEdges, PropertySetter> (
-	widget, PropertySetter (widget, property), 
-	focus, useZPos, zPos)
+	widget, PropertySetter (widget, view), focus, useZPos, zPos)
 {
 }
 

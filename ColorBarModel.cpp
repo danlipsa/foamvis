@@ -71,7 +71,7 @@ ColorBarModel::ColorBarModel () :
 {
 }
 
-QColor ColorBarModel::GetHighlightColor (size_t i) const
+QColor ColorBarModel::GetHighlightColor (HighlightNumber::Enum i) const
 {
     return m_highlightColor[i];
 }

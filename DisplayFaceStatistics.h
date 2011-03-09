@@ -143,11 +143,10 @@ public:
 	if (m_new.get () != 0)
 	    display (minValue, maxValue, displayType, *m_new);
     }
-    void InitStep (size_t view, GLfloat minValue, GLfloat maxValue);
-    void Step (size_t view, GLfloat minValue, GLfloat maxValue);
-    void Step (size_t timeStep,
-	       BodyProperty::Enum property,
-	       GLfloat minValue, GLfloat maxValue);
+    void InitStep (ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue);
+    void Step (ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue);
+    void Step (ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue,
+	       size_t timeStep);
     void SetHistoryCount (size_t historyCount)
     {
 	m_historyCount = historyCount;
@@ -156,14 +155,13 @@ public:
 private:
     template<typename displaySameEdges>
     void writeFacesValues (
-	const vector<boost::shared_ptr<Body> >& bodies,
-	BodyProperty::Enum property);
+	ViewNumber::Enum view, const vector<boost::shared_ptr<Body> >& bodies);
     void display (GLfloat minValue, GLfloat maxValue,
 		  StatisticsType::Enum displayType, QGLFramebufferObject& fbo);
     void save (QGLFramebufferObject& fbo, const char* fileName, size_t timeStep,
 	       GLfloat minValue, GLfloat maxValue,
 	       StatisticsType::Enum displayType);
-    void renderToStep (size_t timeStep, BodyProperty::Enum property);
+    void renderToStep (ViewNumber::Enum view, size_t timeStep);
     void addStepToNew ();
     void removeStepFromNew ();
     void copyNewToOld ();

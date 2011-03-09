@@ -280,6 +280,26 @@ struct ViewLayout
     };
 };
 
+struct ViewNumber
+{
+    enum Enum
+    {
+	VIEW0,
+	VIEW1,
+	VIEW2,
+	VIEW3
+    };
+};
+
+struct HighlightNumber
+{
+    enum Enum
+    {
+	HIGHLIGHT0,
+	HIGHLIGHT1
+    };
+};
+
 #endif //__ENUMS_H__
 
 // Local Variables:

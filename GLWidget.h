@@ -67,16 +67,17 @@ public:
     {
 	return *m_foamAlongTime;
     }
-    ViewType::Enum GetViewType (size_t view) const
+    ViewType::Enum GetViewType (ViewNumber::Enum view) const
     {
 	return m_viewType[view];
     }
-    size_t GetView () const
+    ViewNumber::Enum GetView () const
     {
 	return m_view;
     }
 
-    QColor GetHighlightColor (size_t i) const;
+    QColor GetHighlightColor (ViewNumber::Enum view, 
+			      HighlightNumber::Enum highlight) const;
     void SetBodySelector (boost::shared_ptr<PropertyValueBodySelector> selector);
     void SetBodySelector (boost::shared_ptr<IdBodySelector> bodySelector);
     void SetBodySelector (boost::shared_ptr<AllBodySelector> selector, 
@@ -89,11 +90,11 @@ public:
 	return *m_bodySelector;
     }
 
-    StatisticsType::Enum GetStatisticsType (size_t view) const
+    StatisticsType::Enum GetStatisticsType (ViewNumber::Enum view) const
     {
 	return m_statisticsType[view];
     }
-    pair<double, double> getStatisticsMinMax (size_t view) const;
+    pair<double, double> getStatisticsMinMax (ViewNumber::Enum view) const;
 
     const BodiesAlongTime& GetBodiesAlongTime () const;
     const BodyAlongTime& GetBodyAlongTime (size_t bodyId) const;
@@ -222,7 +223,7 @@ public:
 	return m_colorBarTexture;
     }
 
-    const ColorBarModel& GetColorBarModel (size_t view) const
+    const ColorBarModel& GetColorBarModel (ViewNumber::Enum view) const
     {
 	return *m_colorBarModel[view];
     }
@@ -243,8 +244,8 @@ public:
      * Displays the foam in various way
      * @param type the type of object that we want displayed.
      */
-    void DisplayViewType (size_t view) const;
-    BodyProperty::Enum GetBodyProperty (size_t view) const
+    void DisplayViewType (ViewNumber::Enum view) const;
+    BodyProperty::Enum GetBodyProperty (ViewNumber::Enum view) const
     {
 	return m_bodyProperty[view];
     }
@@ -388,7 +389,7 @@ protected:
      */
     void mouseMoveEvent(QMouseEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
-    bool isColorBarUsed (size_t view) const;
+    bool isColorBarUsed (ViewNumber::Enum view) const;
 
 
 private:
@@ -413,12 +414,12 @@ private:
 	boost::shared_ptr<DisplayFaceStatistics>, 
 	ViewCount::MAX_COUNT> DisplayFaceStatisticsArray;
 
-    typedef void (GLWidget::* ViewTypeDisplay) (size_t view) const;
+    typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
     void viewportTransform (const G3D::Rect2D& viewRect);
     void setView (const G3D::Vector2& clickedPoint);
-    G3D::Rect2D getViewRect (size_t view) const;
+    G3D::Rect2D getViewRect (ViewNumber::Enum view) const;
     void selectView (const G3D::Vector2& clickedPoint);
     double getViewXOverY () const;
     static G3D::Rect2D getViewColorBarRect (const G3D::Rect2D& viewRect);
@@ -434,10 +435,10 @@ private:
      * Displays the center of the bodies
      */
     void displayCenterOfBodies (bool useZPos = false) const;
-    void displayViewDecorations (size_t view);
+    void displayViewDecorations (ViewNumber::Enum view);
     void displayViewGrid ();
     void displayTextureColorBar (const G3D::Rect2D& viewRect);
-    void displayViewTitle (const G3D::Rect2D& viewRect, size_t view);
+    void displayViewTitle (const G3D::Rect2D& viewRect, ViewNumber::Enum view);
     void displayViewGrid () const;
     bool areEdgesTubes () const
     {
@@ -477,16 +478,16 @@ private:
      */
     template<typename displayEdge>
     void displayEdges () const;
-    void displayView (size_t view);
+    void displayView (ViewNumber::Enum view);
     void displayViews ();
     void displayBodyContextContour () const;
     void displayBodyStationaryContour () const;
 
-    void displayEdgesNormal (size_t view) const;
+    void displayEdgesNormal (ViewNumber::Enum view) const;
     template<typename displayEdge>
     void displayStandaloneEdges (bool useZPos = false, double zPos = 0) const;
     void displayStandaloneFaces () const;
-    void displayEdgesTorus (size_t view) const;
+    void displayEdgesTorus (ViewNumber::Enum view) const;
     void displayEdgesTorusTubes () const;
     void displayEdgesTorusLines () const;
 
@@ -494,23 +495,23 @@ private:
      * @todo display concave filled polygons using the stencil buffer.
      * @see Chapter 14, OpenGL Programming Guide, version 1.1
      */
-    void displayFacesNormal (size_t view) const;
-    void displayFacesTorus (size_t view) const;
-    void displayFacesStatistics (size_t view) const;
+    void displayFacesNormal (ViewNumber::Enum view) const;
+    void displayFacesTorus (ViewNumber::Enum view) const;
+    void displayFacesStatistics (ViewNumber::Enum view) const;
     void displayFacesTorusTubes () const;
     void displayFacesTorusLines () const;
 
     /**
      * Generates a display list for center paths
      */
-    void displayCenterPathsWithBodies (size_t view) const;
+    void displayCenterPathsWithBodies (ViewNumber::Enum view) const;
     void displayOriginalDomain () const;
-    void displayT1s () const;
-    void displayT1s (size_t timeStep) const;
-    void displayT1sGlobal () const;
-    void displayCenterPaths (size_t view) const;
-    void compileCenterPaths (size_t view) const;
-    void compile (size_t view) const;
+    void displayT1s (ViewNumber::Enum view) const;
+    void displayT1s (ViewNumber::Enum view, size_t timeStep) const;
+    void displayT1sGlobal (ViewNumber::Enum view) const;
+    void displayCenterPaths (ViewNumber::Enum view) const;
+    void compileCenterPaths (ViewNumber::Enum view) const;
+    void compile (ViewNumber::Enum view) const;
 
     void displayBoundingBox () const;
     void displayFocusBox () const;
@@ -546,7 +547,8 @@ private:
      * @param bodies displays all the faces in these bodies
      */
     void displayFacesInterior (
-	const vector<boost::shared_ptr<Body> >& bodies, size_t view) const;
+	const vector<boost::shared_ptr<Body> >& bodies, 
+	ViewNumber::Enum view) const;
     void displayFacesInterior (
 	const vector<boost::shared_ptr<Face> >& faces) const;
 
@@ -718,7 +720,7 @@ private:
     // View related variables
     ViewCount::Enum m_viewCount;
     ViewLayout::Enum m_viewLayout;
-    size_t m_view;
+    ViewNumber::Enum m_view;
     boost::array<ViewType::Enum, ViewCount::MAX_COUNT> m_viewType;
     boost::array<BodyProperty::Enum,ViewCount::MAX_COUNT> m_bodyProperty;
     DisplayFaceStatisticsArray m_displayFaceStatistics;

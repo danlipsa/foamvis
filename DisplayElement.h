@@ -72,11 +72,10 @@ class DisplayElementProperty : public DisplayElement
 {
 public:
     DisplayElementProperty (
-	const GLWidget& glWidget,
-	PropertySetter propertySetter,
+	const GLWidget& glWidget, PropertySetter propertySetter,
 	bool useZPos = false, double zPos = 0) :
 
-	DisplayElement (glWidget, useZPos, zPos),
+	DisplayElement (glWidget, useZPos, zPos), 
 	m_propertySetter (propertySetter)
     {
     }

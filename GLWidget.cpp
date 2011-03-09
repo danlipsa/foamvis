@@ -149,7 +149,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_t1Size (MIN_T1_SIZE),
       m_viewCount (ViewCount::ONE),
       m_viewLayout (ViewLayout::HORIZONTAL),
-      m_view (0)
+      m_view (ViewNumber::VIEW0)
 {
     makeCurrent ();
     fill (m_viewType.begin (), m_viewType.end (), ViewType::COUNT);
@@ -655,7 +655,7 @@ void GLWidget::viewportTransform (const G3D::Rect2D& viewRect)
     glViewport (m_viewport);
 }
 
-G3D::Rect2D GLWidget::getViewRect (size_t view) const
+G3D::Rect2D GLWidget::getViewRect (ViewNumber::Enum view) const
 {
     float w = width ();
     float h = height ();
@@ -703,10 +703,11 @@ void GLWidget::setView (const G3D::Vector2& clickedPoint)
 {
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
-	G3D::Rect2D viewRect = getViewRect (i);
+	ViewNumber::Enum view = ViewNumber::Enum (i);
+	G3D::Rect2D viewRect = getViewRect (view);
 	if (viewRect.contains (clickedPoint))
 	{
-	    m_view = i;
+	    m_view = view;
 	    return;
 	}
     }
@@ -909,8 +910,8 @@ void GLWidget::ColorBarEdit ()
 
 void GLWidget::ColorBarClampClear ()
 {
-    m_colorBarModel->SetClampClear ();
-    Q_EMIT ColorBarModelChanged (m_colorBarModel);
+    m_colorBarModel[GetView ()]->SetClampClear ();
+    Q_EMIT ColorBarModelChanged (m_colorBarModel[GetView ()]);
 }
 
 
@@ -946,16 +947,16 @@ void GLWidget::displayViews ()
     switch (m_viewCount)
     {
     case ViewCount::FOUR:
-	displayView (2);
-	displayView (3);
+	displayView (ViewNumber::VIEW2);
+	displayView (ViewNumber::VIEW3);
     case ViewCount::TWO:
-	displayView (1);
+	displayView (ViewNumber::VIEW1);
     case ViewCount::ONE:
-	displayView (0);
+	displayView (ViewNumber::VIEW0);
     }
 }
 
-void GLWidget::displayView (size_t view)
+void GLWidget::displayView (ViewNumber::Enum view)
 {
     G3D::Rect2D viewRect = getViewRect (view);
     viewportTransform (viewRect);    
@@ -970,7 +971,7 @@ void GLWidget::displayView (size_t view)
     displayOriginalDomain ();
     displayFocusBox ();
     showLightPositions ();
-    displayT1s ();
+    displayT1s (view);
     detectOpenGLError ("paintGl");
 }
 
@@ -979,13 +980,16 @@ void GLWidget::resizeGL(int w, int h)
 {
     (void)w;(void)h;
     projectionTransform ();
-    for (size_t view = 0; view < ViewCount::GetCount (m_viewCount); ++view)
+    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
+    {
+	ViewNumber::Enum view = ViewNumber::Enum (i);
 	if (m_viewType[view] == ViewType::FACES_STATISTICS)
 	{
 	    pair<double, double> minMax = getStatisticsMinMax (view);
 	    m_displayFaceStatistics[view]->InitStep (
 		view, minMax.first, minMax.second);
 	}
+    }
     detectOpenGLError ("resizeGl");
 }
 
@@ -1369,7 +1373,7 @@ void GLWidget::displayStandaloneEdges (bool useZPos, double zPos) const
     glPopAttrib ();
 }
 
-void GLWidget::displayEdgesNormal (size_t view) const
+void GLWidget::displayEdgesNormal (ViewNumber::Enum view) const
 {
     (void)view;
     glPushAttrib (GL_ENABLE_BIT);
@@ -1381,30 +1385,30 @@ void GLWidget::displayEdgesNormal (size_t view) const
     glPopAttrib ();
 }
 
-void GLWidget::displayT1s () const
+void GLWidget::displayT1s (ViewNumber::Enum view) const
 {
     if (m_t1sShown)
     {
 	if (ViewType::IsGlobal (GetViewType (GetView ())))
-	    displayT1sGlobal ();
+	    displayT1sGlobal (view);
 	else
-	    displayT1s (GetTimeStep ());
+	    displayT1s (view, GetTimeStep ());
     }
 }
 
 
-void GLWidget::displayT1sGlobal () const
+void GLWidget::displayT1sGlobal (ViewNumber::Enum view) const
 {
     for (size_t i = 0; i < GetFoamAlongTime ().GetTimeSteps (); ++i)
-	displayT1s (i);
+	displayT1s (view, i);
 }
 
-void GLWidget::displayT1s (size_t timeStep) const
+void GLWidget::displayT1s (ViewNumber::Enum view, size_t timeStep) const
 {
     glPushAttrib (GL_ENABLE_BIT | GL_POINT_BIT | GL_CURRENT_BIT);
     glDisable (GL_DEPTH_TEST);
     glPointSize (m_t1Size);
-    glColor (GetHighlightColor (0));
+    glColor (GetHighlightColor (view, HighlightNumber::HIGHLIGHT0));
     glBegin (GL_POINTS);
     BOOST_FOREACH (const G3D::Vector3 v, 
 		   GetFoamAlongTime ().GetT1s (timeStep))
@@ -1413,20 +1417,21 @@ void GLWidget::displayT1s (size_t timeStep) const
     glPopAttrib ();
 }
 
-QColor GLWidget::GetHighlightColor (size_t i) const
+QColor GLWidget::GetHighlightColor (ViewNumber::Enum view, 
+				    HighlightNumber::Enum highlight) const
 {
-    if (m_colorBarModel)
-	return m_colorBarModel->GetHighlightColor (i);
+    if (m_colorBarModel[view])
+	return m_colorBarModel[view]->GetHighlightColor (highlight);
     else
     {
-	if (i == 0)
+	if (highlight == HighlightNumber::HIGHLIGHT0)
 	    return Qt::black;
 	else
 	    return Qt::red;
     }
 }
 
-void GLWidget::displayEdgesTorus (size_t view) const
+void GLWidget::displayEdgesTorus (ViewNumber::Enum view) const
 {
     (void)view;
     if (m_edgesTubes)
@@ -1438,7 +1443,7 @@ void GLWidget::displayEdgesTorus (size_t view) const
     }
 }
 
-void GLWidget::displayFacesTorus (size_t view) const
+void GLWidget::displayFacesTorus (ViewNumber::Enum view) const
 {
     (void)view;
     if (m_edgesTubes)
@@ -1499,7 +1504,7 @@ void GLWidget::displayCenterOfBodies (bool useZPos) const
     }
 }
 
-void GLWidget::displayFacesNormal (size_t view) const
+void GLWidget::displayFacesNormal (ViewNumber::Enum view) const
 {
     const Foam& foam = GetCurrentFoam ();
     const Foam::Bodies& bodies = foam.GetBodies ();
@@ -1510,7 +1515,7 @@ void GLWidget::displayFacesNormal (size_t view) const
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
 }
 
-pair<double, double> GLWidget::getStatisticsMinMax (size_t view) const
+pair<double, double> GLWidget::getStatisticsMinMax (ViewNumber::Enum view) const
 {
     double minValue, maxValue;
     if (GetStatisticsType (view) == StatisticsType::COUNT)
@@ -1527,7 +1532,7 @@ pair<double, double> GLWidget::getStatisticsMinMax (size_t view) const
 }
 
 
-void GLWidget::displayFacesStatistics (size_t view) const
+void GLWidget::displayFacesStatistics (ViewNumber::Enum view) const
 {
     glPushAttrib (GL_ENABLE_BIT);    
     glDisable (GL_DEPTH_TEST);
@@ -1584,7 +1589,7 @@ void GLWidget::displayFacesContour (const Foam::Bodies& bodies) const
 // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
 // Antialiasing, Fog and Polygon Offset page 293
 void GLWidget::displayFacesInterior (
-    const Foam::Bodies& bodies, size_t view) const
+    const Foam::Bodies& bodies, ViewNumber::Enum view) const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT | 
 		  GL_TEXTURE_BIT);
@@ -1599,8 +1604,8 @@ void GLWidget::displayFacesInterior (
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<DisplayFaceBodyPropertyColor<
 	      DisplayFaceTriangleFan> > (
-		  *this, *m_bodySelector,
-		  DisplayElement::TRANSPARENT_CONTEXT, GetBodyProperty (view)));
+		  *this, *m_bodySelector, 
+		  DisplayElement::TRANSPARENT_CONTEXT, view));
     glPopAttrib ();
 }
 
@@ -1644,7 +1649,7 @@ void GLWidget::displayFacesTorusLines () const
     glPopAttrib ();
 }
 
-void GLWidget::displayCenterPathsWithBodies (size_t view) const
+void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum view) const
 {
     glLineWidth (1.0);
     displayCenterPaths (view);
@@ -1662,7 +1667,7 @@ void GLWidget::displayCenterPathsWithBodies (size_t view) const
 	    DisplayEdges<DisplayEdgeWithColor<
 	    DisplayElement::DONT_DISPLAY_TESSELLATION> > > > (
 		*this, *m_bodySelector, DisplayElement::INVISIBLE_CONTEXT,
-		BodyProperty::NONE, IsTimeDisplacementUsed (), zPos));
+		view, IsTimeDisplacementUsed (), zPos));
 	displayCenterOfBodies (IsTimeDisplacementUsed ());
     }
     displayStandaloneEdges< DisplayEdgeWithColor<> > (true, 0);
@@ -1676,12 +1681,12 @@ void GLWidget::displayCenterPathsWithBodies (size_t view) const
     glPopAttrib ();
 }
 
-void GLWidget::displayCenterPaths (size_t view) const
+void GLWidget::displayCenterPaths (ViewNumber::Enum view) const
 {
     glCallList (m_listCenterPaths[view]);
 }
 
-void GLWidget::compile (size_t view) const
+void GLWidget::compile (ViewNumber::Enum view) const
 {
     switch (GetViewType (view))
     {
@@ -1693,7 +1698,7 @@ void GLWidget::compile (size_t view) const
     }    
 }
 
-void GLWidget::compileCenterPaths (size_t view) const
+void GLWidget::compileCenterPaths (ViewNumber::Enum view) const
 {
     glNewList (m_listCenterPaths[view], GL_COMPILE);
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT | 
@@ -1714,26 +1719,26 @@ void GLWidget::compileCenterPaths (size_t view) const
 		bats.begin (), bats.end (),
 		DisplayCenterPath<
 		SetterValueTextureCoordinate, DisplayEdgeTube> (
-		    *this, m_bodyProperty[m_view], *m_bodySelector,
+		    *this, m_view, *m_bodySelector,
 		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
 	else
 	    for_each (
 		bats.begin (), bats.end (),
 		DisplayCenterPath<
 		SetterValueTextureCoordinate, DisplayEdgeQuadric> (
-		    *this, m_bodyProperty[m_view], *m_bodySelector,
+		    *this, m_view, *m_bodySelector,
 		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     }
     else
 	for_each (bats.begin (), bats.end (),
 		  DisplayCenterPath<SetterValueTextureCoordinate, DisplayEdge> (
-		      *this, m_bodyProperty[m_view], *m_bodySelector,
+		      *this, m_view, *m_bodySelector,
 		      IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     glPopAttrib ();
     glEndList ();
 }
 
-void GLWidget::DisplayViewType (size_t view) const
+void GLWidget::DisplayViewType (ViewNumber::Enum view) const
 {
     (this->*(m_viewTypeDisplay[m_viewType[view]])) (view);
 }
@@ -2069,7 +2074,7 @@ void GLWidget::SetBodyProperty (
     if (m_bodyProperty[GetView ()] != BodyProperty::NONE)
 	SetColorBarModel (colorBarModel);
     else
-	m_colorBarModel.reset ();
+	m_colorBarModel[GetView ()].reset ();
     compile (GetView ());
     update ();
 }
@@ -2077,14 +2082,14 @@ void GLWidget::SetBodyProperty (
 void GLWidget::SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel)
 {
     makeCurrent ();
-    m_colorBarModel = colorBarModel;
+    m_colorBarModel[GetView ()] = colorBarModel;
     const QImage image = colorBarModel->GetImage ();
     glTexImage1D (GL_TEXTURE_1D, 0, GL_RGB, image.width (),
 		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
     update ();
 }
 
-bool GLWidget::isColorBarUsed (size_t view) const
+bool GLWidget::isColorBarUsed (ViewNumber::Enum view) const
 {
     switch (m_viewType[view])
     {
@@ -2101,13 +2106,16 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 {
     makeCurrent ();
     m_timeStep = timeStep;
-    for (size_t view = 0; view < ViewCount::GetCount (m_viewCount); ++view)
+    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
+    {
+	ViewNumber::Enum view = ViewNumber::Enum (i);
 	if (m_viewType[view] == ViewType::FACES_STATISTICS)
 	{
 	    pair<double, double> minMax = getStatisticsMinMax (view);
 	    m_displayFaceStatistics[view]->Step (
 		view, minMax.first, minMax.second);
 	}
+    }
     update ();
 }
 
@@ -2317,7 +2325,7 @@ void GLWidget::initializeTextures ()
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 }
 
-void GLWidget::displayViewDecorations (size_t view)
+void GLWidget::displayViewDecorations (ViewNumber::Enum view)
 {
     glPushAttrib (
 	GL_POLYGON_BIT | GL_CURRENT_BIT | 
@@ -2348,7 +2356,8 @@ void GLWidget::displayViewDecorations (size_t view)
     glPopAttrib ();
 }
 
-void GLWidget::displayViewTitle (const G3D::Rect2D& viewRect, size_t view)
+void GLWidget::displayViewTitle (const G3D::Rect2D& viewRect, 
+				 ViewNumber::Enum view)
 {
     QFont font;
     if (view == m_view)

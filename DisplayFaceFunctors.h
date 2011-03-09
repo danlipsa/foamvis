@@ -32,7 +32,7 @@ public:
     DisplayFaceHighlightColor (
 	const GLWidget& widget,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
-	BodyProperty::Enum property = BodyProperty::NONE,
+	ViewNumber::Enum view = ViewNumber::VIEW0,
 	bool useZPos = false,
 	double zPos = 0);
     
@@ -79,7 +79,7 @@ public:
     DisplayFaceBodyPropertyColor (
 	const GLWidget& widget,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
-	BodyProperty::Enum property = BodyProperty::NONE, 
+	ViewNumber::Enum view = ViewNumber::VIEW0, 
 	bool useZPos = false,
 	double zPos = 0);
 
@@ -115,7 +115,7 @@ public:
     DisplayFaceColor (
 	const GLWidget& widget,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
-	BodyProperty::Enum property = BodyProperty::NONE, 
+	ViewNumber::Enum view = ViewNumber::VIEW0, 
 	bool useZPos = false,
 	double zPos = 0);
 
