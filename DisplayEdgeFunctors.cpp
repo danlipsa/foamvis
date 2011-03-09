@@ -423,31 +423,22 @@ void DisplayFaceTriangleFan::operator() (
 
 void DisplayFaceTriangleFan::operator() (const OrientedFace*  of) const
 {
-    if (of->IsTriangle ())
+    OrientedEdge oe = of->GetOrientedEdge (0);
+    glBegin (GL_TRIANGLE_FAN);
+    ::glVertex (of->GetCenter ());
+    ::glVertex (oe.GetPoint (0));
+    ::glVertex (oe.GetPoint (1));
+    size_t pointIndex = 2;
+    for (size_t i = 0; i < of->size (); ++i)
     {
-	glBegin (GL_TRIANGLES);
-	for (size_t i = 0; i < of->size (); ++i)
-	    DisplayBeginVertex () (of->GetOrientedEdge (i));
+	oe = of->GetOrientedEdge (i);
+	for (; pointIndex < oe.GetPointCount (); ++pointIndex)
+	    ::glVertex (oe.GetPoint (pointIndex));
+	pointIndex = 0;
     }
-    else
-    {
-	OrientedEdge oe = of->GetOrientedEdge (0);
-	glBegin (GL_TRIANGLE_FAN);
-	::glVertex (of->GetCenter ());
-	::glVertex (oe.GetPoint (0));
-	::glVertex (oe.GetPoint (1));
-	size_t pointIndex = 2;
-	for (size_t i = 0; i < of->size (); ++i)
-	{
-	    oe = of->GetOrientedEdge (i);
-	    for (; pointIndex < oe.GetPointCount (); ++pointIndex)
-		::glVertex (oe.GetPoint (pointIndex));
-	    pointIndex = 0;
-	}
 	
-	if (! of->IsClosed ())
-	    ::glVertex (of->GetOrientedEdge (0).GetBegin ()->GetVector ());
-    }
+    if (! of->IsClosed ())
+	::glVertex (of->GetOrientedEdge (0).GetBegin ()->GetVector ());
     glEnd ();
 }
 

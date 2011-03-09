@@ -110,14 +110,13 @@ public:
     {
 	return m_timeStep;
     }
-    size_t GetStationaryBodyId () const
+    size_t GetBodyStationaryId () const
     {
 	return m_stationaryBodyId;
     }
-    bool IsStationaryBodyContext (size_t bodyId) const
+    bool IsBodyContext (size_t bodyId) const
     {
-	return m_stationaryBodyContext.find (bodyId) != 
-	    m_stationaryBodyContext.end ();
+	return m_bodyContext.find (bodyId) != m_bodyContext.end ();
     }
 
     bool IsTimeDisplacementUsed () const;
@@ -337,9 +336,10 @@ public Q_SLOTS:
     void SelectBodiesByIdList ();
     void SelectAll ();
     void DeselectAll ();
-    void StationarySet ();
-    void StationaryReset ();
-    void StationaryContextAdd ();
+    void BodyStationarySet ();
+    void BodyStationaryReset ();
+    void BodyContextAdd ();
+    void BodyContextReset ();
     void InfoFocus ();
     void InfoFoam ();
     void InfoOpenGL ();
@@ -479,8 +479,8 @@ private:
     void displayEdges () const;
     void displayView (size_t view);
     void displayViews ();
-    void displayBodyContext () const;
-    void displayBodyStationary () const;
+    void displayBodyContextContour () const;
+    void displayBodyStationaryContour () const;
 
     void displayEdgesNormal (size_t view) const;
     template<typename displayEdge>
@@ -535,7 +535,8 @@ private:
     template<size_t highlightColorIndex>
     void displayFacesContour (
 	const vector< boost::shared_ptr<Body> >& bodies) const;
-    template<size_t highlightColorIndex>
+    void displayFacesContour (
+	const vector< boost::shared_ptr<Body> >& bodies) const;
     void displayFacesContour (
 	const vector< boost::shared_ptr<Face> >& faces) const;
     /**
@@ -577,7 +578,7 @@ private:
     void rotate2DTimeDisplacement () const;
     void rotate2DRight90 () const;
     void setBodySelectorLabel (BodySelectorType::Enum type);
-    void setStationaryBodyLabel ();
+    void setBodyStationaryContextLabel ();
     void translateFoamStationaryBody (size_t timeStep) const;
 
 private:
@@ -634,7 +635,7 @@ private:
      */
     size_t m_stationaryBodyId;
     size_t m_stationaryBodyTimeStep;
-    set<size_t> m_stationaryBodyContext;
+    set<size_t> m_bodyContext;
 
     double m_contextAlpha;
 
@@ -689,9 +690,10 @@ private:
     boost::shared_ptr<QAction> m_actionResetTransformation;
     boost::shared_ptr<QAction> m_actionResetSelectedLightPosition;
     boost::shared_ptr<QAction> m_actionSelectBodiesById;
-    boost::shared_ptr<QAction> m_actionStationarySet;
-    boost::shared_ptr<QAction> m_actionStationaryReset;
-    boost::shared_ptr<QAction> m_actionStationaryContextAdd;
+    boost::shared_ptr<QAction> m_actionBodyStationarySet;
+    boost::shared_ptr<QAction> m_actionBodyStationaryReset;
+    boost::shared_ptr<QAction> m_actionBodyContextAdd;
+    boost::shared_ptr<QAction> m_actionBodyContextReset;
     boost::shared_ptr<QAction> m_actionInfoFocus;
     boost::shared_ptr<QAction> m_actionInfoFoam;
     boost::shared_ptr<QAction> m_actionInfoOpenGL;

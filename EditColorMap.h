@@ -31,8 +31,11 @@ public Q_SLOTS:
     void ClampLow (double value);
     void ClampClear ();
     void ToggledColorCodedHistogram(bool checked);
+    void ClickedHighlight1 ();
+    void ClickedHighlight2 ();
 
 private:
+    static const char* HIGHLIGHT_LABEL_TEXT;
 
 private:
     Q_OBJECT

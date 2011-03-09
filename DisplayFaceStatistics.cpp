@@ -466,7 +466,7 @@ void DisplayFaceStatistics::writeFacesValues (
     glBindTexture (GL_TEXTURE_1D, m_glWidget.GetColorBarTexture ());
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
-	      DisplayFaceWithBodyPropertyColor<displaySameEdges, 
+	      DisplayFaceBodyPropertyColor<displaySameEdges, 
 	      SetterValueVertexAttribute>, SetterValueVertexAttribute> (
 		  m_glWidget, m_glWidget.GetBodySelector (), 
 		  SetterValueVertexAttribute (

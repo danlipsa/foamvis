@@ -15,6 +15,7 @@
 #include "Face.h"
 #include "OrientedEdge.h"
 #include "OrientedFace.h"
+#include "OpenGLUtils.h"
 #include "ParsingDriver.h"
 #include "Vertex.h"
 
@@ -63,6 +64,52 @@ private:
     const vector<boost::shared_ptr<Edge> >& m_edges;
 };
 
+class calculateCenter
+{
+public:
+    calculateCenter (const G3D::Vector3& first, double maxLength,
+		     bool debug = false) :
+	m_first (first), m_previous (first),
+	m_maxLength (maxLength), m_leftoverLength (0), m_count (0),
+	m_debug (debug)
+    {
+    }
+
+    void Add (const G3D::Vector3& p)
+    {
+	G3D::Vector3 segment = p - m_previous;
+	double segmentLength = segment.length ();
+	double subSegmentLength = m_maxLength - m_leftoverLength;
+	while (subSegmentLength <= segmentLength)
+	{
+	    G3D::Vector3 point = 
+		m_previous + (subSegmentLength / segmentLength) * segment;
+	    if (m_debug)
+		::glVertex (point);
+	    m_center += point;
+	    ++m_count;
+	    subSegmentLength += m_maxLength;
+	}
+	m_leftoverLength = m_maxLength - (subSegmentLength - segmentLength);
+	m_previous = p;
+    }
+
+    G3D::Vector3 GetCenter ()
+    {
+	return m_center / m_count;
+    }
+
+private:
+    G3D::Vector3 m_center;
+    G3D::Vector3 m_first;
+    G3D::Vector3 m_previous;
+    double m_maxLength;
+    double m_leftoverLength;
+    size_t m_count;
+    bool m_debug;
+};
+
+
 
 // Methods
 // ======================================================================
@@ -91,29 +138,51 @@ Face::Face (const vector<int>& edgeIndexes,
     m_orientedEdges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_orientedEdges.begin(), 
                indexToOrientedEdge(edges));
+    calculatePerimeter ();
     CalculateCenter ();
 }
 
-void Face::CalculateCenter ()
+void Face::CalculateCenter (bool debug)
 {
-    if (! IsTriangle ())
-    {
-	m_center = G3D::Vector3::zero ();
-	size_t count = 0;
-	BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, m_orientedEdges)
-	{
-	    m_center += oe->GetBegin ()->GetVector ();
-	    ++count;
-	}
-	if (! IsClosed ())
-	{
-	    m_center += m_orientedEdges[
-		m_orientedEdges.size () - 1]->GetEnd ()->GetVector ();
-	    ++count;
-	}
-	m_center /= count;
-    }
+    G3D::Vector3 first = m_orientedEdges[0]->GetPoint (0);
+    calculateCenter cc (first, getMaxEdgeLength () / 4, debug);
+    BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, m_orientedEdges)
+ 	for (size_t i = 0; i < oe->GetPointCount (); ++i)
+	    cc.Add (oe->GetPoint (i));
+     if (! IsClosed ())
+	cc.Add (first);
+    m_center = cc.GetCenter ();
 }
+
+double Face::getMaxEdgeLength ()
+{
+    double max = 0;
+    BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, m_orientedEdges)
+    {
+	G3D::Vector3 prev = oe->GetPoint (0);
+	for (size_t i = 1; i < oe->GetPointCount (); ++i)
+	{
+	    G3D::Vector3 p = oe->GetPoint (i);
+	    double length = (p - prev).length ();
+	    if (length > max)
+		max = length;
+	    prev = p;
+	}
+    }
+    return max;
+}
+
+void Face::calculatePerimeter ()
+{
+    m_perimeter = 0;
+    BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, GetOrientedEdges ())
+	m_perimeter += oe->GetLength ();
+    if (! IsClosed ())
+	m_perimeter += 
+	    (GetOrientedEdge (0)->GetBegin ()->GetVector () - 
+	     GetOrientedEdge (size () - 1)->GetEnd ()->GetVector ()).length ();
+}
+
 
 size_t Face::GetNextValidIndex (size_t index) const
 {
@@ -169,23 +238,6 @@ void Face::CalculateNormal ()
 	one->GetBegin ()->GetVector (), two->GetBegin ()->GetVector (), 
 	two->GetEnd ()->GetVector ());
     m_normal = plane.normal ();
-}
-
-bool Face::IsTriangle () const
-{
-    return IsClosed () && m_orientedEdges.size () == 3;
-}
-
-double Face::GetPerimeter () const
-{
-    double perimeter = 0;
-    BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, GetOrientedEdges ())
-	perimeter += oe->GetLength ();
-    if (! IsClosed ())
-	perimeter += 
-	    (GetOrientedEdge (0)->GetBegin ()->GetVector () - 
-	     GetOrientedEdge (size () - 1)->GetEnd ()->GetVector ()).length ();
-    return perimeter;
 }
 
 

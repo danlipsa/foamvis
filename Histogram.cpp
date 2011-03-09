@@ -42,7 +42,7 @@ Histogram::Histogram (QWidget* parent) :
     SetGridEnabled (true);
 
     m_histogramItem.setFocusColor(Qt::darkCyan);
-    m_histogramItem.setContextColor(Qt::lightGray);
+    m_histogramItem.setContextColor(QColor(Qt::lightGray).lighter (110));
     m_histogramItem.setOutOfBoundsColor(Qt::red);
     m_histogramItem.attach(this);
 

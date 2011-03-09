@@ -182,6 +182,11 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
+0.4      - edit highlight colors for colormaps
+	 - separated body context from body stationary and displayed both
+           regardless of focus
+         - more precise center calculation (using all aproximation points for a
+	   quadratic edge)
 0.4.1794 - added option to shift T1s lower
 0.4.1789 - new scalar variables Number of sides, Elongation
 	 - added T1s overlay (-r option on the command line)

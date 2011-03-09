@@ -90,11 +90,6 @@ size_t OrientedFace::size () const
     return GetFace ()->GetEdgeCount ();
 }
 
-bool OrientedFace::IsTriangle () const
-{
-    return GetFace ()->IsTriangle ();
-}
-
 const G3D::Vector3& OrientedFace::GetCenter () const
 {
     return GetFace ()->GetCenter ();

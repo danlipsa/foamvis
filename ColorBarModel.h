@@ -71,6 +71,10 @@ public:
     
     void SetupPalette (Palette::Enum palette);
     QColor GetHighlightColor (size_t i) const;
+    void SetHighlightColor (size_t i, const QColor& color)
+    {
+	m_highlightColor[i] = color;
+    }
     double TexCoord (double value) const;
     string ToString () const;
 

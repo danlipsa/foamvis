@@ -80,7 +80,10 @@ public:
     {
 	return m_normal;
     }
-    double GetPerimeter () const;
+    double GetPerimeter () const
+    {
+	return m_perimeter;
+    }
     boost::shared_ptr<Face> GetDuplicate (
 	const OOBox& periods, const G3D::Vector3int16& translation,
 	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet) const;
@@ -102,7 +105,6 @@ public:
     }
 
     bool IsClosed () const;
-    bool IsTriangle () const;
     bool HasWrap () const;
     size_t size () const
     {
@@ -115,12 +117,14 @@ public:
     }
     void PrintBodyPartOfInformation (ostream& ostr) const;
     void UpdateStandaloneFacePartOf (boost::shared_ptr<Face> face);
-    void CalculateCenter ();
+    void CalculateCenter (bool debug = false);
 
 private:
     boost::shared_ptr<Face> createDuplicate (
 	const OOBox& periods, const G3D::Vector3& newBegin,
 	VertexSet* vertexSet, EdgeSet* edgeSet) const;
+    void calculatePerimeter ();
+    double getMaxEdgeLength ();
 
 private:
     /**
@@ -133,6 +137,7 @@ private:
     vector<BodyIndex> m_bodiesPartOf;
     G3D::Vector3 m_normal;
     G3D::Vector3 m_center;
+    double m_perimeter;
     /**
      * Standalone faces need a place to store an OrientedFace
      * for the list of faces part of each edge.

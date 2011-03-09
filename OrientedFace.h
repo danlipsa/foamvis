@@ -80,7 +80,6 @@ public:
     G3D::Vector3 GetNormal () const;
 
     size_t size () const;
-    bool IsTriangle () const;
     bool IsClosed () const;
     const G3D::Vector3& GetCenter () const;
     double GetPerimeter () const;

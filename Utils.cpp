@@ -270,7 +270,6 @@ string ColorToHtml (const QColor& color, const char* text)
 	 << setw (2) << color.green ()
 	 << setw (2) << color.blue ()
 	 << "\">" << text << "</font></td></table>";
-    cdbg << ostr.str () << endl;
     return ostr.str ();
 }
 

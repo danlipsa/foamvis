@@ -371,39 +371,42 @@ template class DisplayBodyBase<SetterValueTextureCoordinate>;
 // ======================================================================
 
 template class DisplayBody<
-    DisplayFaceWithHighlightColor<0,
+    DisplayFaceHighlightColor<0,
 	DisplayEdges<
 	    DisplayEdgeWithColor<DisplayElement::DONT_DISPLAY_TESSELLATION> >,
 	SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFaceWithHighlightColor<0,
+    DisplayFaceHighlightColor<0,
 	DisplayEdges<
 	    DisplayEdgeWithColor<DisplayElement::TEST_DISPLAY_TESSELLATION> >,
 	SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFaceWithHighlightColor<0,
+    DisplayFaceHighlightColor<0,
 	DisplayEdges<DisplayEdgeTorusClipped>,
 	SetterValueTextureCoordinate>,
     SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFaceWithHighlightColor<0, DisplayFaceLineStrip, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
+    DisplayFaceHighlightColor<0, DisplayFaceLineStrip, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 
 template class DisplayBody<
-    DisplayFaceWithBodyPropertyColor<DisplayFaceLineStrip, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
+    DisplayFaceBodyPropertyColor<DisplayFaceLineStrip, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFaceWithBodyPropertyColor<DisplayFaceLineStrip, SetterValueVertexAttribute>,
+    DisplayFaceBodyPropertyColor<DisplayFaceLineStrip, SetterValueVertexAttribute>,
     SetterValueVertexAttribute>;
 
 template class DisplayBody<
-    DisplayFaceWithHighlightColor<0, DisplayFaceTriangleFan, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
+    DisplayFaceHighlightColor<0, DisplayFaceTriangleFan, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFaceWithBodyPropertyColor<DisplayFaceTriangleFan, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
+    DisplayFaceBodyPropertyColor<DisplayFaceTriangleFan, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFaceWithBodyPropertyColor<DisplayFaceTriangleFan, SetterValueVertexAttribute>,
+    DisplayFaceBodyPropertyColor<DisplayFaceTriangleFan, SetterValueVertexAttribute>,
     SetterValueVertexAttribute>;
 
 
-template class DisplayBody<DisplayFaceWithHighlightColor<1ul, DisplayFaceLineStrip, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
+template class DisplayBody<DisplayFaceHighlightColor<1ul, DisplayFaceLineStrip, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
+
+template class DisplayBody<DisplayFaceColor<0xff000000, DisplayFaceLineStrip, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
+
 
 
 // DisplayCenterPath

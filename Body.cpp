@@ -114,7 +114,12 @@ void Body::splitTessellationPhysical (
 
 void Body::CalculateCenter (bool is2D, bool isQuadratic)
 {
-    using G3D::Vector3;    
+    using G3D::Vector3;
+    if (is2D)
+    {
+	m_center = GetFace (0)->GetCenter ();
+	return;
+    }
     vector< boost::shared_ptr<Vertex> > physicalVertices;
     calculatePhysicalVertices (is2D, isQuadratic, &physicalVertices);
     size_t size = physicalVertices.size ();
