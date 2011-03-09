@@ -2070,12 +2070,14 @@ void GLWidget::SetBodyProperty (
     boost::shared_ptr<ColorBarModel> colorBarModel,
     BodyProperty::Enum property)
 {
-    m_bodyProperty[GetView ()] = property;
-    if (m_bodyProperty[GetView ()] != BodyProperty::NONE)
+    ViewNumber::Enum view = GetView ();
+    cdbg << "SetBodyProperty for view: " << view << endl;
+    m_bodyProperty[view] = property;
+    if (m_bodyProperty[view] != BodyProperty::NONE)
 	SetColorBarModel (colorBarModel);
     else
-	m_colorBarModel[GetView ()].reset ();
-    compile (GetView ());
+	m_colorBarModel[view].reset ();
+    compile (view);
     update ();
 }
 

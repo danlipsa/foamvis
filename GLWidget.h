@@ -249,6 +249,10 @@ public:
     {
 	return m_bodyProperty[view];
     }
+    BodyProperty::Enum GetCurrentBodyProperty () const
+    {
+	return m_bodyProperty[GetView ()];
+    }
 
 Q_SIGNALS:
     void PaintedGL ();
