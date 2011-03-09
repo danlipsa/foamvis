@@ -105,6 +105,11 @@ double OrientedFace::GetPerimeter () const
     return GetFace ()->GetPerimeter ();
 }
 
+void OrientedFace::CalculatePerimeter ()
+{
+    GetFace ()->CalculatePerimeter ();
+}
+
 boost::shared_ptr<Vertex> OrientedFace::getBegin (size_t edgeIndex) const
 {
     const OrientedEdge& oe = GetOrientedEdge (edgeIndex);

@@ -138,7 +138,6 @@ Face::Face (const vector<int>& edgeIndexes,
     m_orientedEdges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_orientedEdges.begin(), 
                indexToOrientedEdge(edges));
-    calculatePerimeter ();
     CalculateCenter ();
 }
 
@@ -172,7 +171,7 @@ double Face::getMaxEdgeLength ()
     return max;
 }
 
-void Face::calculatePerimeter ()
+void Face::CalculatePerimeter ()
 {
     m_perimeter = 0;
     BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, GetOrientedEdges ())

@@ -123,8 +123,8 @@ template<typename displayFace, typename PropertySetter>
 DisplayBody<displayFace, PropertySetter>::
 DisplayBody (
     const GLWidget& widget, const BodySelector& bodySelector,
-    typename DisplayElement::ContextType
-    contextDisplay, BodyProperty::Enum property, bool useZPos, double zPos) :
+    typename DisplayElement::ContextType contextDisplay, 
+    BodyProperty::Enum property, bool useZPos, double zPos) :
 
     DisplayBodyBase<PropertySetter> (
 	widget, bodySelector, PropertySetter (widget, property), useZPos, zPos),

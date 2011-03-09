@@ -297,8 +297,9 @@ void Body::CalculatePerimeterOverSqrtArea ()
     if (m_orientedFaces.size () == 1 && 
 	ExistsPropertyValue (BodyProperty::VOLUME))
     {
-	const OrientedFace& of = *GetOrientedFace (0);
-	m_perimeterOverSqrtArea = of.GetPerimeter () / 
+	const boost::shared_ptr<OrientedFace>& of = GetOrientedFace (0);
+	of->CalculatePerimeter ();
+	m_perimeterOverSqrtArea = of->GetPerimeter () / 
 	    sqrt (GetPropertyValue (BodyProperty::VOLUME));
     }
 }

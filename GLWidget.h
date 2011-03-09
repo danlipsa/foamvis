@@ -222,9 +222,9 @@ public:
 	return m_colorBarTexture;
     }
 
-    const ColorBarModel& GetColorBarModel () const
+    const ColorBarModel& GetColorBarModel (size_t view) const
     {
-	return *m_colorBarModel;
+	return *m_colorBarModel[view];
     }
 
     bool IsPlayMovie () const
@@ -699,9 +699,7 @@ private:
     boost::shared_ptr<QAction> m_actionInfoOpenGL;
     boost::scoped_ptr<QAction> m_actionEditColorMap;
     boost::scoped_ptr<QAction> m_actionClampClear;
-
     
-    boost::shared_ptr<ColorBarModel> m_colorBarModel;
     GLuint m_colorBarTexture;
     double m_timeDisplacement;
     /**
@@ -725,6 +723,8 @@ private:
     boost::array<BodyProperty::Enum,ViewCount::MAX_COUNT> m_bodyProperty;
     DisplayFaceStatisticsArray m_displayFaceStatistics;
     boost::array<GLuint,ViewCount::MAX_COUNT> m_listCenterPaths;
+    boost::array<boost::shared_ptr<ColorBarModel>, 
+		 ViewCount::MAX_COUNT> m_colorBarModel;
 };
 
 #endif //__GLWIDGET_H__
