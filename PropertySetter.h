@@ -15,21 +15,21 @@ class SetterValueTextureCoordinate
 {
 public:
     SetterValueTextureCoordinate (const GLWidget& glWidget, ViewNumber::Enum view) :
-	m_glWidget (glWidget), m_view (view)
+	m_glWidget (glWidget), m_viewNumber (view)
     {
     }
 
     void operator () ();
     void operator () (const boost::shared_ptr<Body>& body);
     BodyProperty::Enum GetBodyProperty () const;
-    ViewNumber::Enum GetView () const
+    ViewNumber::Enum GetViewNumber () const
     {
-	return m_view;
+	return m_viewNumber;
     }
 
 protected:
     const GLWidget& m_glWidget;
-    ViewNumber::Enum m_view;
+    ViewNumber::Enum m_viewNumber;
 };
 
 class SetterValueVertexAttribute : public SetterValueTextureCoordinate

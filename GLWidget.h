@@ -27,6 +27,7 @@ class SelectBodiesById;
 class PropertyValueBodySelector;
 class IdBodySelector;
 class AllBodySelector;
+class ViewSettings;
 
 /**
  * Widget for displaying foam bubbles using OpenGL
@@ -67,13 +68,19 @@ public:
     {
 	return *m_foamAlongTime;
     }
-    ViewType::Enum GetViewType (ViewNumber::Enum view) const
+    ViewNumber::Enum GetViewNumber () const
     {
-	return m_viewType[view];
+	return m_viewNumber;
     }
-    ViewNumber::Enum GetView () const
+    boost::shared_ptr<ViewSettings> GetViewSettings (
+	ViewNumber::Enum viewNumber) const
     {
-	return m_view;
+	return m_viewSettings[viewNumber];
+    }
+
+    boost::shared_ptr<ViewSettings> GetViewSettings () const
+    {
+	return GetViewSettings (GetViewNumber ());
     }
 
     QColor GetHighlightColor (ViewNumber::Enum view, 
@@ -90,10 +97,6 @@ public:
 	return *m_bodySelector;
     }
 
-    StatisticsType::Enum GetStatisticsType (ViewNumber::Enum view) const
-    {
-	return m_statisticsType[view];
-    }
     pair<double, double> getStatisticsMinMax (ViewNumber::Enum view) const;
 
     const BodiesAlongTime& GetBodiesAlongTime () const;
@@ -218,16 +221,6 @@ public:
 	return m_actionResetSelectedLightPosition;
     }
 
-    GLuint GetColorBarTexture () const
-    {
-	return m_colorBarTexture;
-    }
-
-    const ColorBarModel& GetColorBarModel (ViewNumber::Enum view) const
-    {
-	return *m_colorBarModel[view];
-    }
-
     bool IsPlayMovie () const
     {
 	return m_playMovie;
@@ -245,14 +238,7 @@ public:
      * @param type the type of object that we want displayed.
      */
     void DisplayViewType (ViewNumber::Enum view) const;
-    BodyProperty::Enum GetBodyProperty (ViewNumber::Enum view) const
-    {
-	return m_bodyProperty[view];
-    }
-    BodyProperty::Enum GetCurrentBodyProperty () const
-    {
-	return m_bodyProperty[GetView ()];
-    }
+    BodyProperty::Enum GetCurrentBodyProperty () const;
 
 Q_SIGNALS:
     void PaintedGL ();
@@ -441,7 +427,8 @@ private:
     void displayCenterOfBodies (bool useZPos = false) const;
     void displayViewDecorations (ViewNumber::Enum view);
     void displayViewGrid ();
-    void displayTextureColorBar (const G3D::Rect2D& viewRect);
+    void displayTextureColorBar (ViewNumber::Enum viewNumber, 
+				 const G3D::Rect2D& viewRect);
     void displayViewTitle (const G3D::Rect2D& viewRect, ViewNumber::Enum view);
     void displayViewGrid () const;
     bool areEdgesTubes () const
@@ -472,7 +459,6 @@ private:
     G3D::AABox calculateCenteredViewingVolume (double xOverY) const;
     G3D::AABox calculateViewingVolume (double xOverY) const;
 
-    void initializeTextures ();
     void initQuadrics ();
     void initEndTranslationColor ();
     void calculateCameraDistance ();
@@ -664,7 +650,6 @@ private:
     boost::array<boost::array<GLfloat, 4>, LightPosition::COUNT> m_lightAmbient;
     boost::array<boost::array<GLfloat, 4>, LightPosition::COUNT> m_lightDiffuse;
     boost::array<boost::array<GLfloat, 4>, LightPosition::COUNT> m_lightSpecular;
-    boost::array<StatisticsType::Enum, 4> m_statisticsType;
     double m_angleOfView;
     EndLocationColor m_endTranslationColor;
     GLUquadricObj* m_quadric;    
@@ -706,7 +691,6 @@ private:
     boost::scoped_ptr<QAction> m_actionEditColorMap;
     boost::scoped_ptr<QAction> m_actionClampClear;
     
-    GLuint m_colorBarTexture;
     double m_timeDisplacement;
     /**
      * True if the program displays data in a loop, false
@@ -724,13 +708,9 @@ private:
     // View related variables
     ViewCount::Enum m_viewCount;
     ViewLayout::Enum m_viewLayout;
-    ViewNumber::Enum m_view;
-    boost::array<ViewType::Enum, ViewCount::MAX_COUNT> m_viewType;
-    boost::array<BodyProperty::Enum,ViewCount::MAX_COUNT> m_bodyProperty;
-    DisplayFaceStatisticsArray m_displayFaceStatistics;
-    boost::array<GLuint,ViewCount::MAX_COUNT> m_listCenterPaths;
-    boost::array<boost::shared_ptr<ColorBarModel>, 
-		 ViewCount::MAX_COUNT> m_colorBarModel;
+    ViewNumber::Enum m_viewNumber;
+    boost::array<
+	boost::shared_ptr<ViewSettings>, ViewCount::MAX_COUNT> m_viewSettings;
 };
 
 #endif //__GLWIDGET_H__

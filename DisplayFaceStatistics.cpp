@@ -17,6 +17,7 @@
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
 #include "PropertySetter.h"
+#include "ViewSettings.h"
 
 
 // AddShaderProgram Methods
@@ -460,7 +461,8 @@ void DisplayFaceStatistics::writeFacesValues (
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_TEXTURE_1D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    glBindTexture (GL_TEXTURE_1D, m_glWidget.GetColorBarTexture ());
+    glBindTexture (GL_TEXTURE_1D, 
+		   m_glWidget.GetViewSettings (view)->GetColorBarTexture ());
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
 	      DisplayFaceBodyPropertyColor<displaySameEdges, 

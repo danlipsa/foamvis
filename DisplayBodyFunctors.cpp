@@ -16,6 +16,7 @@
 #include "FoamAlongTime.h"
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
+#include "ViewSettings.h"
 
 
 struct ContextSegment : public Segment
@@ -245,7 +246,7 @@ DisplayCenterPath (
 	else
 	    storeFocusSegment (
 		this->m_glWidget.GetHighlightColor (
-		    this->m_propertySetter.GetView (),
+		    this->m_propertySetter.GetViewNumber (),
 		    HighlightNumber::HIGHLIGHT0), segment);
     }
     else
@@ -304,8 +305,9 @@ void DisplayCenterPath<PropertySetter, DisplaySegment>::
 storeFocusSegment (double value, const Segment& segment)
 {
     double textureCoordinate = 
-	this->m_glWidget.GetColorBarModel (
-	    this->m_propertySetter.GetView ()).TexCoord (value);
+	this->m_glWidget.GetViewSettings (
+	    this->m_propertySetter.GetViewNumber ())->GetColorBarModel ()
+	->TexCoord (value);
     boost::shared_ptr<FocusTextureSegment> fs = 
 	boost::make_shared<FocusTextureSegment> (textureCoordinate, segment);
     m_focusTextureSegments.push_back (fs);

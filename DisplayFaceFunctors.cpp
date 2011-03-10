@@ -82,7 +82,7 @@ display (const boost::shared_ptr<OrientedFace>& of)
     if (this->m_focus == DisplayElement::FOCUS)
     {
 	glColor (this->m_glWidget.GetHighlightColor (
-		     this->m_propertySetter.GetView (),
+		     this->m_propertySetter.GetViewNumber (),
 		     HighlightNumber::Enum (highlightColorIndex)));
     }
     else
@@ -146,14 +146,14 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
     if (bodyId == this->m_glWidget.GetBodyStationaryId ())
     {
 	glColor (this->m_glWidget.GetHighlightColor (
-		     this->m_propertySetter.GetView (),
+		     this->m_propertySetter.GetViewNumber (),
 		     HighlightNumber::HIGHLIGHT0));
 	this->m_propertySetter (body);
     }
     else if (this->m_glWidget.IsBodyContext (bodyId))
     {
 	glColor (this->m_glWidget.GetHighlightColor (
-		     this->m_propertySetter.GetView (),
+		     this->m_propertySetter.GetViewNumber (),
 		     HighlightNumber::HIGHLIGHT1));
 	this->m_propertySetter (body);
     }
@@ -162,7 +162,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	if (this->m_propertySetter.GetBodyProperty () == BodyProperty::NONE)
 	{
 	    glColor (of->GetColor (this->m_glWidget.GetHighlightColor (
-				       this->m_propertySetter.GetView (),
+				       this->m_propertySetter.GetViewNumber (),
 				       HighlightNumber::HIGHLIGHT0)));
 	    this->m_propertySetter ();
 	}
@@ -179,7 +179,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	    else
 	    {
 		glColor (this->m_glWidget.GetHighlightColor (
-			     this->m_propertySetter.GetView (),
+			     this->m_propertySetter.GetViewNumber (),
 			     HighlightNumber::HIGHLIGHT0));
 		this->m_propertySetter ();
 	    }

@@ -18,6 +18,7 @@
 #include "SystemDifferences.h"
 #include "Utils.h"
 #include "OpenGLUtils.h"
+#include "ViewSettings.h"
 
 
 // Private Functions
@@ -63,13 +64,13 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     format.setSampleBuffers (true);
     format.setAlpha (true);
     QGLFormat::setDefaultFormat(format);
-
+    
     setupUi (this);
     CurrentIndexChangedViewCount (ViewCount::ONE);
     setupSliderData (foamAlongTime);
     setupHistogram ();
     setupButtonGroups ();
-
+    
     boost::shared_ptr<Application> app = Application::Get ();
     QFont defaultFont = app->font ();
     spinBoxFontSize->setValue (defaultFont.pointSize ());
@@ -92,14 +93,14 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
 
 void MainWindow::connectSignals ()
 {
-
+    
     connect (m_timer.get (), SIGNAL (timeout()),
 	     this, SLOT (TimeoutTimer ()));
     
     connect (widgetGl, SIGNAL (PaintedGL ()),
 	     widgetDisplay, SLOT (SaveFrame ()));
-
-
+    
+    
     // BodyPropertyChanged: 
     // from MainWindow to GLWidget and AttributeHistogram
     connect (
@@ -118,7 +119,7 @@ void MainWindow::connectSignals ()
 		    BodyProperty::Enum)),
 	widgetHistogram, 
 	SLOT (SetColorBarModel (boost::shared_ptr<ColorBarModel>)));
-
+    
     // ColorBarModelChanged:
     // from MainWindow to ColorBar, GLWidget and AttributeHistogram
     connect (
@@ -126,8 +127,8 @@ void MainWindow::connectSignals ()
 	SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
 	widgetGl, 
 	SLOT (SetColorBarModel (boost::shared_ptr<ColorBarModel>)));
-
-
+    
+    
     // ColorBarModelChanged:
     // from ColorBar to GLWidget and AttributeHistogram
     connect (
@@ -135,9 +136,9 @@ void MainWindow::connectSignals ()
 	SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
 	widgetGl, 
 	SLOT (SetColorBarModel (boost::shared_ptr<ColorBarModel>)));
-
+    
     connectColorBarHistogram (true);
-
+    
     connect (
 	widgetGl,
 	SIGNAL (ViewChanged ()),
@@ -147,9 +148,10 @@ void MainWindow::connectSignals ()
 
 void MainWindow::ViewToUI ()
 {
-    buttonGroupViewType->button (
-	widgetGl->GetViewType (widgetGl->GetView ()))->setChecked (true);
-    cdbg << "ViewToUI" << endl;
+    boost::shared_ptr<ViewSettings> vs = widgetGl->GetViewSettings ();
+    buttonGroupViewType->button (vs->GetViewType ())->setChecked (true);
+    comboBoxColor->setCurrentIndex (vs->GetBodyProperty ());
+    comboBoxStatisticsType->setCurrentIndex (vs->GetStatisticsType ());
 }
 
 void MainWindow::connectColorBarHistogram (bool connected)
@@ -179,25 +181,18 @@ void MainWindow::connectColorBarHistogram (bool connected)
 void MainWindow::setupButtonGroups ()
 {
     buttonGroupFacesHistogram->setId (
-	radioButtonFacesHistogramNone, HistogramType::NONE);
+	radioButtonHistogramNone, HistogramType::NONE);
     buttonGroupFacesHistogram->setId (
-	radioButtonFacesHistogramUnicolor, HistogramType::UNICOLOR);
+	radioButtonHistogramUnicolor, HistogramType::UNICOLOR);
     buttonGroupFacesHistogram->setId (
-	radioButtonFacesHistogramColorCoded, HistogramType::COLOR_CODED);
-
-    buttonGroupCenterPathHistogram->setId (
-	radioButtonCenterPathHistogramNone, HistogramType::NONE);
-    buttonGroupCenterPathHistogram->setId (
-	radioButtonCenterPathHistogramUnicolor, HistogramType::UNICOLOR);
-    buttonGroupCenterPathHistogram->setId (
-	radioButtonCenterPathHistogramColorCoded, HistogramType::COLOR_CODED);
-
+	radioButtonHistogramColorCoded, HistogramType::COLOR_CODED);
+        
     buttonGroupViewType->setId (radioButtonEdgesNormal, ViewType::EDGES);
     buttonGroupViewType->setId (radioButtonEdgesTorus, ViewType::EDGES_TORUS);
     buttonGroupViewType->setId (radioButtonFacesNormal, ViewType::FACES);
     buttonGroupViewType->setId (radioButtonFaceEdgesTorus, ViewType::FACES_TORUS);
     buttonGroupViewType->setId (radioButtonFacesStatistics, 
-			       ViewType::FACES_STATISTICS);
+				ViewType::FACES_STATISTICS);
     buttonGroupViewType->setId (radioButtonCenterPath, ViewType::CENTER_PATHS);
 }
 
@@ -243,8 +238,7 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 	tabWidget->setCurrentWidget (faces);
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::THREE_D);
     }
-    comboBoxCenterPathColor->setCurrentIndex (BodyProperty::NONE);
-    comboBoxFacesColor->setCurrentIndex (BodyProperty::NONE);
+    comboBoxColor->setCurrentIndex (BodyProperty::NONE);
 }
 
 
@@ -294,19 +288,19 @@ void MainWindow::updateButtons ()
 void MainWindow::enableBegin ()
 {
     if (sliderTimeSteps->value () > sliderTimeSteps->minimum ())
-        toolButtonBegin->setEnabled (true);
+	toolButtonBegin->setEnabled (true);
 }
 
 void MainWindow::enableEnd ()
 {
     if (sliderTimeSteps->value () < sliderTimeSteps->maximum ())
-        toolButtonEnd->setEnabled (true);
+	toolButtonEnd->setEnabled (true);
 }
 
 void MainWindow::enablePlay ()
 {
     if (sliderTimeSteps->value () < sliderTimeSteps->maximum ())
-        toolButtonPlay->setEnabled (true);
+	toolButtonPlay->setEnabled (true);
 }
 
 
@@ -318,11 +312,11 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     case Qt::Key_Space:
 	translateBodyStep ();
 	break;
-
+	
     case Qt::Key_A:
 	processBodyTorusStep ();
 	break;
-
+	
     case Qt::Key_P:
 	cdbg << "OpenGL State:" << endl;
 	cdbg << G3D::getOpenGLState (false) << endl;
@@ -407,7 +401,7 @@ void MainWindow::SetAndDisplayHistogram (
 	RuntimeAssert (false, "Invalid histogram type");
 	return;
     }
-
+    
     if (maxValueOperation == KEEP_MAX_VALUE)
 	maxYValue = widgetHistogram->GetMaxValueAxis ();
     if (histogramSelection == KEEP_SELECTION)
@@ -426,53 +420,53 @@ void MainWindow::createActions ()
     m_actionRotateShown->setStatusTip(tr("Rotate Model"));
     connect(m_actionRotateShown.get (), SIGNAL(triggered()),
 	    this, SLOT(RotateShown ()));
-
+    
     m_actionScaleShown = boost::make_shared<QAction> (tr("&Scale"), this);
     m_actionScaleShown->setShortcut(QKeySequence (tr ("Z")));
     m_actionScaleShown->setStatusTip(tr("Scale"));
     connect(m_actionScaleShown.get (), SIGNAL(triggered()),
 	    this, SLOT(ScaleShown ()));
-
+    
     m_actionTranslateShown = boost::make_shared<QAction> (
 	tr("&Translate"), this);
     m_actionTranslateShown->setShortcut(QKeySequence (tr ("T")));
     m_actionTranslateShown->setStatusTip(tr("Translate"));
     connect(m_actionTranslateShown.get (), SIGNAL(triggered()),
 	    this, SLOT(TranslateShown ()));
-
-
+    
+    
     m_actionRotateLightShown = boost::make_shared<QAction> (
 	tr("Rotate &Light"), this);
     m_actionRotateLightShown->setShortcut(QKeySequence (tr ("L")));
     m_actionRotateLightShown->setStatusTip(tr("Rotate Light"));
     connect(m_actionRotateLightShown.get (), SIGNAL(triggered()),
 	    this, SLOT(RotateLightShown ()));
-
+    
     m_actionTranslateLightShown = boost::make_shared<QAction> (
 	tr("Translate L&ight"), this);
     m_actionTranslateLightShown->setShortcut(QKeySequence (tr ("I")));
     m_actionTranslateLightShown->setStatusTip(tr("Translate Light"));
     connect(m_actionTranslateLightShown.get (), SIGNAL(triggered()),
 	    this, SLOT(TranslateLightShown ()));
-
-
+    
+    
     m_actionSelectShown = boost::make_shared<QAction> (
 	tr("&Select"), this);
     m_actionSelectShown->setShortcut(QKeySequence (tr ("S")));
     m_actionSelectShown->setStatusTip(tr("Select"));
     connect(m_actionSelectShown.get (), SIGNAL(triggered()),
 	    this, SLOT(SelectShown ()));
-
+    
     m_actionDeselectShown = boost::make_shared<QAction> (
 	tr("&Deselect"), this);
     m_actionDeselectShown->setShortcut (QKeySequence (tr ("D")));
     m_actionDeselectShown->setStatusTip (tr("Deselect"));
     connect(m_actionDeselectShown.get (), SIGNAL(triggered()),
 	    this, SLOT(DeselectShown ()));
-
+    
     addAction (widgetGl->GetActionResetTransformation ().get ());
     addAction (widgetGl->GetActionResetSelectedLightPosition ().get ());
-
+    
     addAction (sliderTimeSteps->GetActionNextSelectedTimeStep ().get ());
     addAction (sliderTimeSteps->GetActionPreviousSelectedTimeStep ().get ());
     addAction (m_actionRotateShown.get ());
@@ -509,7 +503,7 @@ void MainWindow::ClickedPlay ()
     if (playMovie)
     {
 	m_timer->stop ();
-        toolButtonPlay->setText (PLAY_TEXT);
+	toolButtonPlay->setText (PLAY_TEXT);
 	updateButtons ();
     }
     else
@@ -538,9 +532,9 @@ void MainWindow::TimeoutTimer ()
 {
     int value = sliderTimeSteps->value ();
     if (value < sliderTimeSteps->maximum ())
-        sliderTimeSteps->setValue (value + 1);
+	sliderTimeSteps->setValue (value + 1);
     else
-        ClickedPlay ();
+	ClickedPlay ();
 }
 
 void MainWindow::ValueChangedFontSize (int fontSize)
@@ -555,7 +549,7 @@ void MainWindow::ValueChangedFontSize (int fontSize)
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
     BodyProperty::Enum property = 
-	BodyProperty::FromSizeT (comboBoxFacesColor->currentIndex ());
+	BodyProperty::FromSizeT (comboBoxColor->currentIndex ());
     if (widgetHistogram->isVisible () && 
 	radioButtonFacesNormal->isChecked ())
     {
@@ -586,7 +580,6 @@ void MainWindow::ToggledFacesNormal (bool checked)
     if (checked)
     {
 	stackedWidgetFaces->setCurrentWidget (pageFacesNormal);
-	fieldsToControls (comboBoxFacesColor, buttonGroupFacesHistogram);
 	ButtonClickedOneTimestepHistogram (m_histogramType);
     }
     else
@@ -597,27 +590,16 @@ void MainWindow::ToggledCenterPath (bool checked)
 {
     if (checked)
     {
-	fieldsToControls (comboBoxCenterPathColor,
-			  buttonGroupCenterPathHistogram);
 	ButtonClickedAllTimestepsHistogram (m_histogramType);
 	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
+	labelCenterPathColor->setText (
+	    BodyProperty::ToString (
+		widgetGl->GetViewSettings ()->GetBodyProperty ()));
     }
     else
 	stackedWidgetComposite->setCurrentWidget (pageCompositeEmpty);
 }
 
-
-void MainWindow::fieldsToControls (QComboBox* comboBox,
-				   QButtonGroup* buttonGroup)
-{
-    BodyProperty::Enum property = 
-	BodyProperty::FromSizeT(comboBox->currentIndex ());
-    if (property != widgetGl->GetCurrentBodyProperty ())
-	comboBox->setCurrentIndex (widgetGl->GetCurrentBodyProperty ());
-    int type = histogramType(buttonGroup);
-    if (type != m_histogramType)
-	buttonGroup->button (m_histogramType)->setChecked (true);
-}
 
 void MainWindow::displayHistogramColorBar (bool checked)
 {
@@ -710,9 +692,9 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 {
     boost::array<QWidget*, 4> widgetsVisible = {{
 	    labelFacesHistogram,
-	    radioButtonFacesHistogramNone,
-	    radioButtonFacesHistogramUnicolor,
-	    radioButtonFacesHistogramColorCoded}};
+	    radioButtonHistogramNone,
+	    radioButtonHistogramUnicolor,
+	    radioButtonHistogramColorCoded}};
     boost::array<QWidget*, 1> widgetsEnabled = {{
 	    radioButtonFacesStatistics}};
     BodyProperty::Enum property = BodyProperty::FromSizeT (value);
@@ -744,24 +726,17 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 
 void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 {
-    boost::array<QWidget*, 4> widgetsHidden = {{
-	    labelCenterPathHistogram,
-	    radioButtonCenterPathHistogramNone,
-	    radioButtonCenterPathHistogramUnicolor,
-	    radioButtonCenterPathHistogramColorCoded}};
     boost::array<QWidget*, 1> widgetsEnabled = {{
 	    radioButtonFacesStatistics}};
     BodyProperty::Enum property = BodyProperty::FromSizeT(value);
     if (property == BodyProperty::NONE)
     {
-	::setVisible (widgetsHidden, false);
 	::setEnabled (widgetsEnabled, false);
 	widgetHistogram->setHidden (true);
 	Q_EMIT BodyPropertyChanged (m_colorBarModelBodyProperty[0], property);
     }
     else
     {
-	::setVisible (widgetsHidden, true);
 	::setEnabled (widgetsEnabled, true);
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	Q_EMIT BodyPropertyChanged (
@@ -785,7 +760,7 @@ void MainWindow::ToggledFacesStatistics (bool checked)
 	stackedWidgetFaces->setCurrentWidget (pageFacesStatistics);
 	labelFacesStatisticsColor->setText (
 	    BodyProperty::ToString (
-		widgetGl->GetBodyProperty (widgetGl->GetView ())));
+		widgetGl->GetViewSettings ()->GetBodyProperty ()));
 	ButtonClickedAllTimestepsHistogram (m_histogramType);
     }
     else
@@ -884,7 +859,7 @@ void MainWindow::SelectionChangedHistogram ()
 	widgetGl->GetCurrentBodyProperty (), 
 	valueIntervals, &timeStepSelection);
     sliderTimeSteps->SetRestrictedTo (timeStepSelection);
-
+    
     if (widgetHistogram->AreAllItemsSelected ())
 	widgetGl->SetBodySelector (
 	    AllBodySelector::Get (), BodySelectorType::PROPERTY_VALUE);
@@ -910,7 +885,7 @@ void MainWindow::ShowEditColorMap ()
 
 boost::shared_ptr<ColorBarModel> MainWindow::getCurrentColorBarModel () const
 {
-    if (widgetGl->GetStatisticsType (widgetGl->GetView ()) == 
+    if (widgetGl->GetViewSettings ()->GetStatisticsType () == 
 	StatisticsType::COUNT)
 	return m_colorBarModelDomainHistogram;
     else
@@ -923,7 +898,7 @@ boost::shared_ptr<ColorBarModel> MainWindow::getCurrentColorBarModel () const
 MainWindow::HistogramInfo MainWindow::getCurrentHistogramInfo () const
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    if (widgetGl->GetStatisticsType (widgetGl->GetView ()) == 
+    if (widgetGl->GetViewSettings ()->GetStatisticsType () == 
 	StatisticsType::COUNT)
     {
 	size_t fakeHistogramValue = 1;

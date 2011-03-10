@@ -166,7 +166,6 @@ private:
     void processBodyTorusStep ();
     void translateBodyStep ();
     void createActions ();
-    void fieldsToControls (QComboBox* comboBox, QButtonGroup* buttonGroup);
     void displayHistogramColorBar (bool checked);
     HistogramInfo getCurrentHistogramInfo () const;
     boost::shared_ptr<ColorBarModel> getCurrentColorBarModel () const;

@@ -16,7 +16,7 @@ HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
 	QuadraticEdge.h RestrictedRangeSlider.h \
 	stable.h Statistics.h StripIterator.h SystemDifferences.h \
 	TransferFunctionHistogram.h TimeStepsSlider.h Utils.h \
-	Vertex.h
+	Vertex.h ViewSettings.h
 SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	AttributeHistogram.cpp HistogramHeight.cpp \
 	Body.cpp BodyAlongTime.cpp BodyIndex.cpp BodySelector.cpp\
@@ -37,7 +37,7 @@ SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp 
 	PropertySetter.cpp \
 	QuadraticEdge.cpp RestrictedRangeSlider.cpp\
 	Statistics.cpp StripIterator.cpp TimeStepsSlider.cpp \
-	TransferFunctionHistogram.cpp Utils.cpp Vertex.cpp
+	TransferFunctionHistogram.cpp Utils.cpp Vertex.cpp ViewSettings.cpp
 FORMS += SelectBodiesById.ui EditColorMap.ui HistogramHeight.ui \
 	 RestrictedRangeSlider.ui MainWindow.ui OpenGLInfo.ui
 LEXSOURCES        += EvolverData.l
