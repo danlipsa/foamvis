@@ -238,9 +238,14 @@ DisplayCenterPath (
      bool focus = this->m_bodySelector (p.m_body);
      if (focus)
      {
-	 if (p.m_body->ExistsPropertyValue (
-		 this->m_propertySetter.GetBodyProperty ()) && 
-	     this->m_glWidget.IsZeroedPressure ())
+	 BodyProperty::Enum property = 
+	     this->m_propertySetter.GetBodyProperty ();
+	 bool deduced;
+	 bool exists = 
+	     p.m_body->ExistsPropertyValue (property, &deduced);
+	 if (exists && 
+	     (! deduced || 
+	      (deduced && this->m_glWidget.IsZeroedPressureShown ())))
 	     storeFocusSegment (
 		 p.m_body->GetPropertyValue (
 		     this->m_propertySetter.GetBodyProperty ()), segment);

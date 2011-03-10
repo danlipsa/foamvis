@@ -398,10 +398,13 @@ void Foam::setMissingPressureZero ()
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
 	if (! body->ExistsPropertyValue (BodyProperty::PRESSURE))
+	{
 	    body->StoreAttribute (
 		ParsingDriver::GetKeywordString(
 		    parser::token::LAGRANGE_MULTIPLIER), 0,
 		m_attributesInfo[DefineAttribute::BODY]);
+	    body->SetPressureDeduced ();
+	}
     }
 }
 

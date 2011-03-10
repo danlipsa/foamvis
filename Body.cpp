@@ -214,11 +214,17 @@ void Body::GetFaceSet (FaceSet* faceSet) const
 	faceSet->insert (of->GetFace ());
 }
 
-bool Body::ExistsPropertyValue (BodyProperty::Enum property) const
+bool Body::ExistsPropertyValue (BodyProperty::Enum property, 
+				bool* deduced) const
 {
+    if (deduced != 0)
+	*deduced = false;
     switch (property)
     {
     case BodyProperty::PRESSURE:
+	if (deduced != 0)
+	    *deduced = m_pressureDeduced;
+	return ExistsAttribute (property - BodyProperty::PER_BODY_BEGIN);
     case BodyProperty::VOLUME:
 	return ExistsAttribute (property - BodyProperty::PER_BODY_BEGIN);
     case BodyProperty::ELONGATION:
@@ -277,7 +283,6 @@ void Body::SetPressureValue (double value)
 {
     SetRealAttribute (
 	BodyProperty::PRESSURE - BodyProperty::PER_BODY_BEGIN, value);
-    m_pressureDeduced = true;
 }
 
 void Body::CalculateBoundingBox ()

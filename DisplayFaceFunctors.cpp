@@ -168,9 +168,14 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	}
 	else
 	{
-	    if (body->ExistsPropertyValue (
-		    this->m_propertySetter.GetBodyProperty ()) &&
-		this->m_glWidget.IsZeroedPressure ())
+	    BodyProperty::Enum property = 
+		this->m_propertySetter.GetBodyProperty ();
+	    bool deduced;
+	    bool exists = 
+		body->ExistsPropertyValue (property, &deduced);
+	    if (exists && 
+		(! deduced || 
+		 (deduced && this->m_glWidget.IsZeroedPressureShown ())))
 	    {
 		glColor (Qt::white);
 		*useColor = false;
@@ -181,7 +186,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	    {
 		glColor (this->m_glWidget.GetHighlightColor (
 			     this->m_propertySetter.GetViewNumber (),
-			     HighlightNumber::HIGHLIGHT0));
+			     HighlightNumber::HIGHLIGHT1));
 		this->m_propertySetter ();
 	    }
 	}

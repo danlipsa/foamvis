@@ -147,7 +147,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_tubeCenterPathUsed (true),
       m_t1sShown (false),
       m_t1Size (MIN_T1_SIZE),
-      m_zeroedPressure (false),
+      m_zeroedPressureShown (false),
       m_viewCount (ViewCount::ONE),
       m_viewLayout (ViewLayout::HORIZONTAL),
       m_viewNumber (ViewNumber::VIEW0)
@@ -1864,9 +1864,9 @@ void GLWidget::ToggledDirectionalLightEnabled (bool checked)
     update ();
 }
 
-void GLWidget::ToggledZeroedPressure (bool checked)
+void GLWidget::ToggledZeroedPressureShown (bool checked)
 {
-    m_zeroedPressure = checked;
+    m_zeroedPressureShown = checked;
     update ();
 }
 

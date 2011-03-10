@@ -122,9 +122,9 @@ public:
     {
 	return m_bodyContext.find (bodyId) != m_bodyContext.end ();
     }
-    bool IsZeroedPressure () const
+    bool IsZeroedPressureShown () const
     {
-	return m_zeroedPressure;
+	return m_zeroedPressureShown;
     }
 
     bool IsTimeDisplacementUsed () const;
@@ -291,7 +291,7 @@ public Q_SLOTS:
     void ToggledT1sShiftLower (bool checked);
     void ToggledTorusOriginalDomainClipped (bool checked);
     void ToggledTubeCenterPathUsed (bool checked);
-    void ToggledZeroedPressure (bool checked);
+    void ToggledZeroedPressureShown (bool checked);
 
     void SetBodyProperty (
 	boost::shared_ptr<ColorBarModel> colorBarModel,
@@ -709,7 +709,7 @@ private:
     bool m_tubeCenterPathUsed;
     bool m_t1sShown;
     GLfloat m_t1Size;
-    bool m_zeroedPressure;
+    bool m_zeroedPressureShown;
 
     // View related variables
     ViewCount::Enum m_viewCount;

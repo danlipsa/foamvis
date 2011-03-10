@@ -90,8 +90,12 @@ public:
     }
     double GetPropertyValue (BodyProperty::Enum property) const;
     void SetPressureValue (double value);
-    bool IsPressureDeduced () const;
-    bool ExistsPropertyValue (BodyProperty::Enum property) const;
+    void SetPressureDeduced ()
+    {
+	m_pressureDeduced = true;
+    }
+    bool ExistsPropertyValue (BodyProperty::Enum property, 
+			      bool* deduced = 0) const;
 
     bool operator< (const Body& other) const;
     bool operator< (size_t otherBodyId) const;
