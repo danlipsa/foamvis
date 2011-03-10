@@ -239,7 +239,8 @@ DisplayCenterPath (
      if (focus)
      {
 	 if (p.m_body->ExistsPropertyValue (
-		 this->m_propertySetter.GetBodyProperty ()))
+		 this->m_propertySetter.GetBodyProperty ()) && 
+	     this->m_glWidget.IsZeroedPressure ())
 	     storeFocusSegment (
 		 p.m_body->GetPropertyValue (
 		     this->m_propertySetter.GetBodyProperty ()), segment);

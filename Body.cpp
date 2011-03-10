@@ -73,7 +73,8 @@ Body::Body(
     const vector<boost::shared_ptr<Face> >& faces,
     size_t id, ElementStatus::Enum duplicateStatus) :
     Element(id, duplicateStatus),
-    m_perimeterOverSqrtArea (0)
+    m_perimeterOverSqrtArea (0),
+    m_pressureDeduced (false)
 {
     m_orientedFaces.resize (faceIndexes.size ());
     transform (faceIndexes.begin(), faceIndexes.end(), m_orientedFaces.begin(), 
@@ -272,13 +273,11 @@ size_t Body::GetNumberOfSides () const
 }
 
 
-void Body::SetPropertyValue (BodyProperty::Enum property, double value)
+void Body::SetPressureValue (double value)
 {
-    if (property >= BodyProperty::PER_BODY_BEGIN &&
-	property < BodyProperty::PER_BODY_END)
-	SetRealAttribute (property - BodyProperty::PER_BODY_BEGIN, value);
-    else
-	ThrowException ("Cannot set BodyProperty: ", property);
+    SetRealAttribute (
+	BodyProperty::PRESSURE - BodyProperty::PER_BODY_BEGIN, value);
+    m_pressureDeduced = true;
 }
 
 void Body::CalculateBoundingBox ()

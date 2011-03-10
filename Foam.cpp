@@ -413,7 +413,7 @@ void Foam::AdjustPressure (double adjustment)
 	{
 	    double newPressure =
 		body->GetPropertyValue (BodyProperty::PRESSURE) - adjustment;
-	    body->SetPropertyValue (BodyProperty::PRESSURE, newPressure);
+	    body->SetPressureValue (newPressure);
 	}
     }
     m_min[BodyProperty::PRESSURE] -= adjustment;

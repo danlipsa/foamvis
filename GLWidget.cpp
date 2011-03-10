@@ -147,6 +147,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_tubeCenterPathUsed (true),
       m_t1sShown (false),
       m_t1Size (MIN_T1_SIZE),
+      m_zeroedPressure (false),
       m_viewCount (ViewCount::ONE),
       m_viewLayout (ViewLayout::HORIZONTAL),
       m_viewNumber (ViewNumber::VIEW0)
@@ -1860,6 +1861,12 @@ void GLWidget::ToggledDirectionalLightEnabled (bool checked)
 {
     m_directionalLightEnabled[m_selectedLight] = checked;
     positionLight (m_selectedLight);
+    update ();
+}
+
+void GLWidget::ToggledZeroedPressure (bool checked)
+{
+    m_zeroedPressure = checked;
     update ();
 }
 

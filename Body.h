@@ -89,7 +89,8 @@ public:
 	return GetRealAttribute (PRESSURE_INDEX);
     }
     double GetPropertyValue (BodyProperty::Enum property) const;
-    void SetPropertyValue (BodyProperty::Enum property, double value);
+    void SetPressureValue (double value);
+    bool IsPressureDeduced () const;
     bool ExistsPropertyValue (BodyProperty::Enum property) const;
 
     bool operator< (const Body& other) const;
@@ -153,6 +154,7 @@ private:
     G3D::AABox m_boundingBox;
     G3D::Vector3 m_velocity;
     double m_perimeterOverSqrtArea;
+    bool m_pressureDeduced;
 };
 
 /**

@@ -169,7 +169,8 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	else
 	{
 	    if (body->ExistsPropertyValue (
-		    this->m_propertySetter.GetBodyProperty ()))
+		    this->m_propertySetter.GetBodyProperty ()) &&
+		this->m_glWidget.IsZeroedPressure ())
 	    {
 		glColor (Qt::white);
 		*useColor = false;
