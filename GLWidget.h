@@ -236,13 +236,20 @@ public:
      * @param viewport stores the viewport.
      */
     void ModelViewTransform (size_t timeStep) const;
-    void RenderFromFbo (QGLFramebufferObject& fbo) const;
+    void RenderFromFbo (G3D::Rect2D viewRect, QGLFramebufferObject& fbo) const;
     /**
      * Displays the foam in various way
      * @param type the type of object that we want displayed.
      */
     void DisplayViewType (ViewNumber::Enum view) const;
     BodyProperty::Enum GetCurrentBodyProperty () const;
+
+    G3D::Rect2D GetViewRect (ViewNumber::Enum viewNumber) const;
+    G3D::Rect2D GetViewRect () const
+    {
+	return GetViewRect (GetViewNumber ());
+    }
+
 
 Q_SIGNALS:
     void PaintedGL ();
@@ -414,11 +421,6 @@ private:
 private:
     void viewportTransform (const G3D::Rect2D& viewRect);
     void setView (const G3D::Vector2& clickedPoint);
-    G3D::Rect2D getViewRect (ViewNumber::Enum viewNumber) const;
-    G3D::Rect2D getViewRect () const
-    {
-	return getViewRect (GetViewNumber ());
-    }
     void selectView (const G3D::Vector2& clickedPoint);
     double getViewXOverY () const;
     static G3D::Rect2D getViewColorBarRect (const G3D::Rect2D& viewRect);

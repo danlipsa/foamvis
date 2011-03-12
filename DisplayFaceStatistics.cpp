@@ -261,13 +261,14 @@ void DisplayFaceStatistics::InitShaders ()
 }
 
 void DisplayFaceStatistics::display (
+    const G3D::Rect2D& viewRect,
     GLfloat minValue, GLfloat maxValue,
     StatisticsType::Enum displayType, QGLFramebufferObject& srcFbo)
 {
     m_displayShaderProgram.Bind (minValue, maxValue, displayType);
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (
 	TextureEnum (m_displayShaderProgram.GetResultTexUnit ()));
-    m_glWidget.RenderFromFbo (srcFbo);
+    m_glWidget.RenderFromFbo (viewRect, srcFbo);
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
     m_displayShaderProgram.release ();
 }
@@ -276,7 +277,8 @@ void DisplayFaceStatistics::display (
 void DisplayFaceStatistics::InitStep (
     ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue)
 {
-    Init (QSize (m_glWidget.width (), m_glWidget.height ()));
+    G3D::Rect2D viewRect = m_glWidget.GetViewRect (view);
+    Init (QSize (viewRect.width (), viewRect.height ()));
     Step (view, minValue, maxValue);
 }
 
@@ -289,6 +291,7 @@ void DisplayFaceStatistics::Step (
 void DisplayFaceStatistics::Step (
     ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue, size_t timeStep)
 {
+    G3D::Rect2D viewRect = m_glWidget.GetViewRect (view);
     // used for display
     (void)minValue;(void)maxValue;
     QSize size = m_new->size ();
@@ -296,14 +299,14 @@ void DisplayFaceStatistics::Step (
     glPushMatrix ();
     m_glWidget.ModelViewTransform (timeStep);
     renderToStep (view, timeStep);
-    //save (*m_step, "step", timeStep,
+    //save (viewRect, *m_step, "step", timeStep,
     //minValue, maxValue, StatisticsType::AVERAGE);
     glPopMatrix ();
-    addStepToNew ();
-    //save (*m_new, "new", timeStep,
+    addStepToNew (viewRect);
+    //save (viewRect, *m_new, "new", timeStep,
     //minValue, maxValue, StatisticsType::AVERAGE);
     copyNewToOld ();
-    //save (*m_old, "old", timeStep, 
+    //save (viewRect, *m_old, "old", timeStep, 
     //minValue, maxValue, StatisticsType::AVERAGE);
     ++m_currentHistoryCount;
     if (m_currentHistoryCount > m_historyCount && 
@@ -313,13 +316,13 @@ void DisplayFaceStatistics::Step (
 	m_glWidget.ModelViewTransform (timeStep - m_historyCount);
 	renderToStep (view, timeStep - m_historyCount);
 	glPopMatrix ();
-	//save (*m_step, "step_", timeStep - m_historyCount,
+	//save (viewRect, *m_step, "step_", timeStep - m_historyCount,
 	//minValue, maxValue, StatisticsType::AVERAGE);
-	removeStepFromNew ();
-	//save (*m_new, "new_", timeStep,
+	removeStepFromNew (viewRect);
+	//save (viewRect, *m_new, "new_", timeStep,
 	//minValue, maxValue, StatisticsType::AVERAGE);
 	copyNewToOld ();
-	//save (*m_old, "old_", timeStep, 
+	//save (viewRect, *m_old, "old_", timeStep, 
 	//minValue, maxValue, StatisticsType::AVERAGE);
 	--m_currentHistoryCount;
     }
@@ -340,7 +343,7 @@ void DisplayFaceStatistics::renderToStep (ViewNumber::Enum view,
     m_step->release ();
 }
 
-void DisplayFaceStatistics::addStepToNew ()
+void DisplayFaceStatistics::addStepToNew (const G3D::Rect2D& viewRect)
 {
     m_new->bind ();
     m_addShaderProgram.Bind ();
@@ -357,13 +360,13 @@ void DisplayFaceStatistics::addStepToNew ()
     // set the active texture to texture 0
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
 
-    m_glWidget.RenderFromFbo (*m_step);
+    m_glWidget.RenderFromFbo (viewRect, *m_step);
     m_addShaderProgram.release ();
     m_new->release ();
 }
 
 
-void DisplayFaceStatistics::removeStepFromNew ()
+void DisplayFaceStatistics::removeStepFromNew (const G3D::Rect2D& viewRect)
 {
     m_new->bind ();
     m_removeShaderProgram.Bind ();
@@ -380,7 +383,7 @@ void DisplayFaceStatistics::removeStepFromNew ()
     // set the active texture to texture 0
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
 
-    m_glWidget.RenderFromFbo (*m_step);
+    m_glWidget.RenderFromFbo (viewRect, *m_step);
     m_removeShaderProgram.release ();
     m_new->release ();
 }
@@ -439,13 +442,13 @@ void DisplayFaceStatistics::clearMinMax (
 
 
 
-void DisplayFaceStatistics::save (
+void DisplayFaceStatistics::save (const G3D::Rect2D& viewRect,
     QGLFramebufferObject& fbo, const char* fileName, size_t timeStep,
     GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
 {
     // render to the debug buffer
     m_debug->bind ();
-    display (minValue, maxValue, displayType, fbo);
+    display (viewRect, minValue, maxValue, displayType, fbo);
     m_debug->release ();
     ostringstream ostr;
     ostr << setfill ('0') << setw (4) << timeStep << fileName << ".png";

@@ -652,7 +652,7 @@ void GLWidget::viewportTransform (const G3D::Rect2D& viewRect)
     glViewport (m_viewport);
 }
 
-G3D::Rect2D GLWidget::getViewRect (ViewNumber::Enum view) const
+G3D::Rect2D GLWidget::GetViewRect (ViewNumber::Enum view) const
 {
     float w = width ();
     float h = height ();
@@ -701,7 +701,7 @@ void GLWidget::setView (const G3D::Vector2& clickedPoint)
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
 	ViewNumber::Enum view = ViewNumber::Enum (i);
-	G3D::Rect2D viewRect = getViewRect (view);
+	G3D::Rect2D viewRect = GetViewRect (view);
 	if (viewRect.contains (clickedPoint))
 	{
 	    m_viewNumber = view;
@@ -953,7 +953,7 @@ void GLWidget::displayViews ()
 
 void GLWidget::displayView (ViewNumber::Enum view)
 {
-    G3D::Rect2D viewRect = getViewRect (view);
+    G3D::Rect2D viewRect = GetViewRect (view);
     viewportTransform (viewRect);    
     ModelViewTransform (GetTimeStep ());
     if (! m_hideContent)
@@ -988,12 +988,14 @@ void GLWidget::resizeGL(int w, int h)
     detectOpenGLError ("resizeGl");
 }
 
-void GLWidget::RenderFromFbo (QGLFramebufferObject& fbo) const
+void GLWidget::RenderFromFbo (G3D::Rect2D viewRect,
+			      QGLFramebufferObject& fbo) const
 {
     glEnable (GL_TEXTURE_2D);
     glBindTexture (GL_TEXTURE_2D, fbo.texture ());
     glPushAttrib (GL_VIEWPORT_BIT);
-    glViewport (0, 0, width (), height ());
+    glViewport (viewRect.x0 (), viewRect.y0 (),
+		viewRect.width (), viewRect.height ());
 
     //glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
@@ -1030,11 +1032,11 @@ void GLWidget::setRotation (int axis, double angleRadians, G3D::Matrix3* rotate)
 double GLWidget::ratioFromCenter (const QPoint& p)
 {
     using G3D::Vector2;
-    G3D::Rect2D viewRect = getViewRect ();
+    G3D::Rect2D viewRect = GetViewRect ();
     Vector2 center = viewRect.center ();
-    cdbg << center << endl;
-    Vector2 lastPos = QtToOpenGl (m_lastPos, viewRect.height ());
-    Vector2 currentPos = QtToOpenGl (p, viewRect.height ());
+    int windowHeight = height ();
+    Vector2 lastPos = QtToOpenGl (m_lastPos, windowHeight);
+    Vector2 currentPos = QtToOpenGl (p, windowHeight);
     double ratio =
 	(currentPos - center).length () / (lastPos - center).length ();
     return ratio;
@@ -1540,6 +1542,7 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
     glDisable (GL_DEPTH_TEST);
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     view->GetDisplayFaceStatistics ()->Display (
+	GetViewRect (viewNumber),
 	minMax.first, minMax.second, view->GetStatisticsType ());
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
     displayBodyStationaryContour ();
@@ -2298,7 +2301,7 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     m_contextMenuPos = event->pos ();
     QMenu menu (this);
-    G3D::Rect2D colorBarRect = getViewColorBarRect (getViewRect ());
+    G3D::Rect2D colorBarRect = getViewColorBarRect (GetViewRect ());
     if (colorBarRect.contains (QtToOpenGl (m_contextMenuPos, height ())))
     {
 	menu.addAction (m_actionEditColorMap.get ());
@@ -2348,7 +2351,7 @@ void GLWidget::displayViewDecorations (ViewNumber::Enum view)
 
     glViewport (0, 0, width (), height ());
 
-    G3D::Rect2D viewRect = getViewRect (view);
+    G3D::Rect2D viewRect = GetViewRect (view);
     if (isColorBarUsed (view))
 	displayTextureColorBar (view, viewRect);
     displayViewTitle (viewRect, view);

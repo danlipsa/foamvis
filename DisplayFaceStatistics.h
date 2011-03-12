@@ -138,10 +138,11 @@ public:
     static void InitShaders ();
     void Release ();
     void Display (
+	const G3D::Rect2D& viewRect,
 	GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
     {
 	if (m_new.get () != 0)
-	    display (minValue, maxValue, displayType, *m_new);
+	    display (viewRect, minValue, maxValue, displayType, *m_new);
     }
     void InitStep (ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue);
     void Step (ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue);
@@ -156,14 +157,16 @@ private:
     template<typename displaySameEdges>
     void writeFacesValues (
 	ViewNumber::Enum view, const vector<boost::shared_ptr<Body> >& bodies);
-    void display (GLfloat minValue, GLfloat maxValue,
+    void display (const G3D::Rect2D& viewRect, 
+		  GLfloat minValue, GLfloat maxValue,
 		  StatisticsType::Enum displayType, QGLFramebufferObject& fbo);
-    void save (QGLFramebufferObject& fbo, const char* fileName, size_t timeStep,
-	       GLfloat minValue, GLfloat maxValue,
-	       StatisticsType::Enum displayType);
+    void save (const G3D::Rect2D& viewRect,
+	QGLFramebufferObject& fbo, const char* fileName, size_t timeStep,
+	GLfloat minValue, GLfloat maxValue,
+	StatisticsType::Enum displayType);
     void renderToStep (ViewNumber::Enum view, size_t timeStep);
-    void addStepToNew ();
-    void removeStepFromNew ();
+    void addStepToNew (const G3D::Rect2D& viewRect);
+    void removeStepFromNew (const G3D::Rect2D& viewRect);
     void copyNewToOld ();
     static void clearZero (
 	const boost::scoped_ptr<QGLFramebufferObject>& fbo);
