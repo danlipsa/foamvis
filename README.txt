@@ -187,6 +187,7 @@ Release log
            regardless of focus
          - more precise center calculation (using all aproximation points for a
 	   quadratic edge)
+	 - user option: show missing pressure as 0
 0.4.1794 - added option to shift T1s lower
 0.4.1789 - new scalar variables Number of sides, Elongation
 	 - added T1s overlay (-r option on the command line)
