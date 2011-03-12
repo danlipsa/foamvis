@@ -2137,7 +2137,8 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 
 void GLWidget::ValueChangedStatisticsHistory (int timeSteps)
 {
-    GetViewSettings ()->GetDisplayFaceStatistics ()->SetHistoryCount (timeSteps);
+    GetViewSettings ()->GetDisplayFaceStatistics ()->SetHistoryCount (
+	timeSteps);
 }
 
 void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
