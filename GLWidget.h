@@ -414,7 +414,11 @@ private:
 private:
     void viewportTransform (const G3D::Rect2D& viewRect);
     void setView (const G3D::Vector2& clickedPoint);
-    G3D::Rect2D getViewRect (ViewNumber::Enum view) const;
+    G3D::Rect2D getViewRect (ViewNumber::Enum viewNumber) const;
+    G3D::Rect2D getViewRect () const
+    {
+	return getViewRect (GetViewNumber ());
+    }
     void selectView (const G3D::Vector2& clickedPoint);
     double getViewXOverY () const;
     static G3D::Rect2D getViewColorBarRect (const G3D::Rect2D& viewRect);

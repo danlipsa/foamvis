@@ -1030,9 +1030,11 @@ void GLWidget::setRotation (int axis, double angleRadians, G3D::Matrix3* rotate)
 double GLWidget::ratioFromCenter (const QPoint& p)
 {
     using G3D::Vector2;
-    Vector2 center (width () / 2, height () / 2);
-    Vector2 lastPos (m_lastPos.x (), m_lastPos.y());
-    Vector2 currentPos (p.x (), p.y ());
+    G3D::Rect2D viewRect = getViewRect ();
+    Vector2 center = viewRect.center ();
+    cdbg << center << endl;
+    Vector2 lastPos = QtToOpenGl (m_lastPos, viewRect.height ());
+    Vector2 currentPos = QtToOpenGl (p, viewRect.height ());
     double ratio =
 	(currentPos - center).length () / (lastPos - center).length ();
     return ratio;
@@ -2296,7 +2298,7 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     m_contextMenuPos = event->pos ();
     QMenu menu (this);
-    G3D::Rect2D colorBarRect = getViewColorBarRect (getViewRect (m_viewNumber));
+    G3D::Rect2D colorBarRect = getViewColorBarRect (getViewRect ());
     if (colorBarRect.contains (QtToOpenGl (m_contextMenuPos, height ())))
     {
 	menu.addAction (m_actionEditColorMap.get ());
@@ -2382,6 +2384,7 @@ void GLWidget::displayTextureColorBar (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect)
 {
     G3D::Rect2D colorBarRect = getViewColorBarRect (viewRect);
+    glDisable (GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_1D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glBindTexture (GL_TEXTURE_1D, 
