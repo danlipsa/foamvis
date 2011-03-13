@@ -234,13 +234,13 @@ void DisplayFaceStatistics::Init (const QSize& size)
 	    GL_RGBA32F));
     m_debug.reset (new QGLFramebufferObject (size));
     glPopAttrib ();
-    Clear ();
+    Clear (size);
 }
 
-void DisplayFaceStatistics::Clear ()
+void DisplayFaceStatistics::Clear (const QSize& size)
 {
     clearZero (m_new);
-    clearMinMax (m_old);
+    clearMinMax (size, m_old);
 }
 
 void DisplayFaceStatistics::Release ()
@@ -295,13 +295,10 @@ void DisplayFaceStatistics::Step (
     // used for display
     (void)minValue;(void)maxValue;
     QSize size = m_new->size ();
-    glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT);
-    glPushMatrix ();
-    m_glWidget.ModelViewTransform (timeStep);
+    glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (view, timeStep);
     save (viewRect, *m_step, "step", timeStep,
 	  minValue, maxValue, StatisticsType::AVERAGE);
-    glPopMatrix ();
     addStepToNew (viewRect);
     //save (viewRect, *m_new, "new", timeStep,
     //minValue, maxValue, StatisticsType::AVERAGE);
@@ -312,10 +309,7 @@ void DisplayFaceStatistics::Step (
     if (m_currentHistoryCount > m_historyCount && 
 	timeStep >= m_historyCount)
     {
-	glPushMatrix ();
-	m_glWidget.ModelViewTransform (timeStep - m_historyCount);
 	renderToStep (view, timeStep - m_historyCount);
-	glPopMatrix ();
 	//save (viewRect, *m_step, "step_", timeStep - m_historyCount,
 	//minValue, maxValue, StatisticsType::AVERAGE);
 	removeStepFromNew (viewRect);
@@ -330,10 +324,14 @@ void DisplayFaceStatistics::Step (
     detectOpenGLError ();
 }
 
-void DisplayFaceStatistics::renderToStep (ViewNumber::Enum view,
-    size_t timeStep)
+void DisplayFaceStatistics::renderToStep (
+    ViewNumber::Enum view, size_t timeStep)
 {
-    clearMinMax (m_step);
+    G3D::Rect2D viewRect = m_glWidget.GetViewRect ();
+    glPushMatrix ();
+    m_glWidget.ModelViewTransform (timeStep);
+    glViewport (0, 0, viewRect.width (), viewRect.height ());
+    clearMinMax (QSize (viewRect.width (), viewRect.height ()), m_step);
     m_step->bind ();
     m_storeShaderProgram.Bind ();
     const Foam& foam = *m_glWidget.GetFoamAlongTime ().GetFoam (timeStep);
@@ -341,6 +339,7 @@ void DisplayFaceStatistics::renderToStep (ViewNumber::Enum view,
     writeFacesValues<DisplayFaceTriangleFan> (view, bodies);
     m_storeShaderProgram.release ();
     m_step->release ();
+    glPopMatrix ();
 }
 
 void DisplayFaceStatistics::addStepToNew (const G3D::Rect2D& viewRect)
@@ -409,14 +408,15 @@ void DisplayFaceStatistics::clearZero (
     fbo->release ();    
 }
 
+// Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
 void DisplayFaceStatistics::clearMinMax (
+    const QSize& viewSize,
     const boost::scoped_ptr<QGLFramebufferObject>& fbo)
 {
     fbo->bind ();
     m_initShaderProgram.Bind ();
     glPushAttrib (GL_VIEWPORT_BIT);
-    glViewport (0, 0, m_glWidget.width (), m_glWidget.height ());
-    // Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
+    glViewport (0, 0, viewSize.width (), viewSize.height ());
     glPushMatrix ();
     {
 	glLoadIdentity ();
@@ -459,7 +459,7 @@ template<typename displaySameEdges>
 void DisplayFaceStatistics::writeFacesValues (
     ViewNumber::Enum view, const Foam::Bodies& bodies)
 {
-    glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | 
+    glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT |
 		  GL_ENABLE_BIT | GL_TEXTURE_BIT);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_TEXTURE_1D);

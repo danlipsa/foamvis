@@ -134,7 +134,7 @@ public:
     }
 
     void Init (const QSize& size);
-    void Clear ();
+    void Clear (const QSize& size);
     static void InitShaders ();
     void Release ();
     void Display (
@@ -170,8 +170,8 @@ private:
     void copyNewToOld ();
     static void clearZero (
 	const boost::scoped_ptr<QGLFramebufferObject>& fbo);
-    void clearMinMax (
-	const boost::scoped_ptr<QGLFramebufferObject>& fbo);
+    void clearMinMax (const QSize& viewSize,
+		      const boost::scoped_ptr<QGLFramebufferObject>& fbo);
 
 
 private:
