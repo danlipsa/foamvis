@@ -990,14 +990,14 @@ void GLWidget::resizeGL(int w, int h)
 }
 
 // Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
-void GLWidget::RenderFromFbo (G3D::Rect2D viewRect,
+void GLWidget::RenderFromFbo (G3D::Rect2D destRect,
 			      QGLFramebufferObject& fbo) const
 {
     glEnable (GL_TEXTURE_2D);
     glBindTexture (GL_TEXTURE_2D, fbo.texture ());
     glPushAttrib (GL_VIEWPORT_BIT);
-    glViewport (viewRect.x0 (), viewRect.y0 (),
-		viewRect.width (), viewRect.height ());
+    glViewport (destRect.x0 (), destRect.y0 (),
+		destRect.width (), destRect.height ());
 
     //glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();

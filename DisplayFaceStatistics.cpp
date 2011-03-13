@@ -297,11 +297,11 @@ void DisplayFaceStatistics::Step (
     (void)minValue;(void)maxValue;
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (view, timeStep);
-    save (viewRect, *m_step, "step", timeStep,
-	  minValue, maxValue, StatisticsType::AVERAGE);
+    //save (viewRect, *m_step, "step", timeStep,
+    //minValue, maxValue, StatisticsType::AVERAGE);
     addStepToNew (viewRect);
-    save (viewRect, *m_new, "new", timeStep,
-	  minValue, maxValue, StatisticsType::AVERAGE);
+    //save (viewRect, *m_new, "new", timeStep,
+    //minValue, maxValue, StatisticsType::AVERAGE);
     copyNewToOld ();
     //save (viewRect, *m_old, "old", timeStep, 
     //minValue, maxValue, StatisticsType::AVERAGE);
@@ -384,7 +384,9 @@ void DisplayFaceStatistics::removeStepFromNew (const G3D::Rect2D& viewRect)
     // set the active texture to texture 0
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
 
-    m_glWidget.RenderFromFbo (viewRect, *m_step);
+    m_glWidget.RenderFromFbo (
+	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()),
+	*m_step);
     m_removeShaderProgram.release ();
     m_new->release ();
 }

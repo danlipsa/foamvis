@@ -149,9 +149,12 @@ void MainWindow::connectSignals ()
 void MainWindow::ViewToUI ()
 {
     boost::shared_ptr<ViewSettings> vs = widgetGl->GetViewSettings ();
+    BodyProperty::Enum property = vs->GetBodyProperty ();
     buttonGroupViewType->button (vs->GetViewType ())->setChecked (true);
-    comboBoxColor->setCurrentIndex (vs->GetBodyProperty ());
+    comboBoxColor->setCurrentIndex (property);
     comboBoxStatisticsType->setCurrentIndex (vs->GetStatisticsType ());
+    labelFacesStatisticsColor->setText (BodyProperty::ToString (property));
+    labelCenterPathColor->setText (BodyProperty::ToString (property));
 }
 
 void MainWindow::connectColorBarHistogram (bool connected)
