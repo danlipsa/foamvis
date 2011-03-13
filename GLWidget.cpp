@@ -647,8 +647,9 @@ void GLWidget::projectionTransform ()
 void GLWidget::viewportTransform (const G3D::Rect2D& viewRect)
 {
     G3D::Rect2D v = calculateViewport (viewRect.width (), viewRect.height ());
-    m_viewport = G3D::Rect2D::xywh (viewRect.x0 (), viewRect.y0 (),
-				    v.width (), v.height ());
+    m_viewport = G3D::Rect2D::xywh (
+	viewRect.x0 () + v.x0 (), viewRect.y0 () + v.y0 (),
+	v.width (), v.height ());
     glViewport (m_viewport);
 }
 

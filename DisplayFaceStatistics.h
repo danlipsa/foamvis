@@ -133,17 +133,13 @@ public:
     {
     }
 
-    void Init (const QSize& size);
-    void Clear (const QSize& size);
+    void Init (const G3D::Rect2D& viewRect);
+    void Clear (const G3D::Rect2D& viewRect);
     static void InitShaders ();
     void Release ();
-    void Display (
-	const G3D::Rect2D& viewRect,
-	GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
-    {
-	if (m_new.get () != 0)
-	    display (viewRect, minValue, maxValue, displayType, *m_new);
-    }
+    void Display (const G3D::Rect2D& viewRect,
+		  GLfloat minValue, GLfloat maxValue, 
+		  StatisticsType::Enum displayType);
     void InitStep (ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue);
     void Step (ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue);
     void Step (ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue,
@@ -170,7 +166,7 @@ private:
     void copyNewToOld ();
     static void clearZero (
 	const boost::scoped_ptr<QGLFramebufferObject>& fbo);
-    void clearMinMax (const QSize& viewSize,
+    void clearMinMax (const G3D::Rect2D& viewRect,
 		      const boost::scoped_ptr<QGLFramebufferObject>& fbo);
 
 

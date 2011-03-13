@@ -216,8 +216,9 @@ StoreShaderProgram DisplayFaceStatistics::m_storeShaderProgram;
 DisplayShaderProgram DisplayFaceStatistics::m_displayShaderProgram;
 InitShaderProgram DisplayFaceStatistics::m_initShaderProgram;
 
-void DisplayFaceStatistics::Init (const QSize& size)
+void DisplayFaceStatistics::Init (const G3D::Rect2D& viewRect)
 {
+    QSize size (viewRect.width (), viewRect.height ());
     m_currentHistoryCount = 0;
     glPushAttrib (GL_COLOR_BUFFER_BIT);
     m_step.reset (
@@ -234,13 +235,13 @@ void DisplayFaceStatistics::Init (const QSize& size)
 	    GL_RGBA32F));
     m_debug.reset (new QGLFramebufferObject (size));
     glPopAttrib ();
-    Clear (size);
+    Clear (viewRect);
 }
 
-void DisplayFaceStatistics::Clear (const QSize& size)
+void DisplayFaceStatistics::Clear (const G3D::Rect2D& viewRect)
 {
     clearZero (m_new);
-    clearMinMax (size, m_old);
+    clearMinMax (viewRect, m_old);
 }
 
 void DisplayFaceStatistics::Release ()
@@ -278,7 +279,7 @@ void DisplayFaceStatistics::InitStep (
     ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue)
 {
     G3D::Rect2D viewRect = m_glWidget.GetViewRect (view);
-    Init (QSize (viewRect.width (), viewRect.height ()));
+    Init (viewRect);
     Step (view, minValue, maxValue);
 }
 
@@ -294,14 +295,13 @@ void DisplayFaceStatistics::Step (
     G3D::Rect2D viewRect = m_glWidget.GetViewRect (view);
     // used for display
     (void)minValue;(void)maxValue;
-    QSize size = m_new->size ();
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (view, timeStep);
     save (viewRect, *m_step, "step", timeStep,
 	  minValue, maxValue, StatisticsType::AVERAGE);
     addStepToNew (viewRect);
-    //save (viewRect, *m_new, "new", timeStep,
-    //minValue, maxValue, StatisticsType::AVERAGE);
+    save (viewRect, *m_new, "new", timeStep,
+	  minValue, maxValue, StatisticsType::AVERAGE);
     copyNewToOld ();
     //save (viewRect, *m_old, "old", timeStep, 
     //minValue, maxValue, StatisticsType::AVERAGE);
@@ -331,7 +331,7 @@ void DisplayFaceStatistics::renderToStep (
     glPushMatrix ();
     m_glWidget.ModelViewTransform (timeStep);
     glViewport (0, 0, viewRect.width (), viewRect.height ());
-    clearMinMax (QSize (viewRect.width (), viewRect.height ()), m_step);
+    clearMinMax (viewRect, m_step);
     m_step->bind ();
     m_storeShaderProgram.Bind ();
     const Foam& foam = *m_glWidget.GetFoamAlongTime ().GetFoam (timeStep);
@@ -359,7 +359,9 @@ void DisplayFaceStatistics::addStepToNew (const G3D::Rect2D& viewRect)
     // set the active texture to texture 0
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
 
-    m_glWidget.RenderFromFbo (viewRect, *m_step);
+    m_glWidget.RenderFromFbo (
+	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()), 
+	*m_step);
     m_addShaderProgram.release ();
     m_new->release ();
 }
@@ -410,13 +412,13 @@ void DisplayFaceStatistics::clearZero (
 
 // Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
 void DisplayFaceStatistics::clearMinMax (
-    const QSize& viewSize,
+    const G3D::Rect2D& viewRect,
     const boost::scoped_ptr<QGLFramebufferObject>& fbo)
 {
     fbo->bind ();
     m_initShaderProgram.Bind ();
     glPushAttrib (GL_VIEWPORT_BIT);
-    glViewport (0, 0, viewSize.width (), viewSize.height ());
+    glViewport (0, 0, viewRect.width (), viewRect.height ());
     glPushMatrix ();
     {
 	glLoadIdentity ();
@@ -440,6 +442,13 @@ void DisplayFaceStatistics::clearMinMax (
     fbo->release ();
 }
 
+void DisplayFaceStatistics::Display (
+    const G3D::Rect2D& viewRect,
+    GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
+{
+    if (m_new.get () != 0)
+	display (viewRect, minValue, maxValue, displayType, *m_new);
+}
 
 
 void DisplayFaceStatistics::save (const G3D::Rect2D& viewRect,
@@ -448,7 +457,8 @@ void DisplayFaceStatistics::save (const G3D::Rect2D& viewRect,
 {
     // render to the debug buffer
     m_debug->bind ();
-    display (viewRect, minValue, maxValue, displayType, fbo);
+    display (G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()), 
+	     minValue, maxValue, displayType, fbo);
     m_debug->release ();
     ostringstream ostr;
     ostr << setfill ('0') << setw (4) << timeStep << fileName << ".png";
