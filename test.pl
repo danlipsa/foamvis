@@ -35,7 +35,8 @@ my @tests =
      "saus_4h_703v_0.130000_0.065000_0.680678_0197.dmp",
      "tor2d.fe",
      "twointor.fe",
-     "wet_surface_vert.fe.dmp"
+     "wet_surface_vert.fe.dmp",
+     "dump_0.1480_0.2400_11.0000_0729.dmp"
     );
 
 
