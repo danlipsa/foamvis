@@ -329,7 +329,7 @@ void DisplayFaceStatistics::renderToStep (
 {
     G3D::Rect2D viewRect = m_glWidget.GetViewRect ();
     glPushMatrix ();
-    m_glWidget.ModelViewTransform (timeStep);
+    m_glWidget.ModelViewTransform (view, timeStep);
     glViewport (0, 0, viewRect.width (), viewRect.height ());
     clearMinMax (viewRect, m_step);
     m_step->bind ();

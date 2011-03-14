@@ -73,6 +73,45 @@ public:
 	return m_colorBarTexture;
     }
 
+    const G3D::Matrix3& GetRotationModel () const
+    {
+	return m_rotationModel;
+    }
+    void SetRotationModel (const G3D::Matrix3& rotationModel)
+    {
+	m_rotationModel = rotationModel;
+    }
+    
+    const G3D::Rect2D& GetViewport () const
+    {
+	return m_viewport;
+    }
+
+    void SetViewport (const G3D::Rect2D& v)
+    {
+	m_viewport = v;
+    }
+    
+    double GetScaleRatio () const
+    {
+	return m_scaleRatio;
+    }
+
+    void SetScaleRatio (double scaleRatio)
+    {
+	m_scaleRatio = scaleRatio;
+    }
+
+    const G3D::Vector3& GetTranslation () const
+    {
+	return m_translation;
+    }
+    
+    void SetTranslation (const G3D::Vector3& translation)
+    {
+	m_translation = translation;
+    }
+
 private:
     void initTexture ();
     void initList ();
@@ -85,6 +124,10 @@ private:
     GLuint m_colorBarTexture;
     boost::shared_ptr<DisplayFaceStatistics> m_displayFaceStatistics;
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
+    G3D::Matrix3 m_rotationModel;
+    G3D::Rect2D m_viewport;
+    double m_scaleRatio;
+    G3D::Vector3 m_translation;
 };
 
 

@@ -235,7 +235,8 @@ public:
      * Calculates and does the viewport transform.
      * @param viewport stores the viewport.
      */
-    void ModelViewTransform (size_t timeStep) const;
+    void ModelViewTransform (ViewNumber::Enum viewNumber, 
+			     size_t timeStep) const;
     void RenderFromFbo (G3D::Rect2D viewRect, QGLFramebufferObject& fbo) const;
     /**
      * Displays the foam in various way
@@ -419,7 +420,7 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
-    void viewportTransform (const G3D::Rect2D& viewRect);
+    void viewportTransform (ViewNumber::Enum viewNumber);
     void setView (const G3D::Vector2& clickedPoint);
     void selectView (const G3D::Vector2& clickedPoint);
     double getViewXOverY () const;
@@ -515,7 +516,7 @@ private:
     void compile (ViewNumber::Enum view) const;
 
     void displayBoundingBox () const;
-    void displayFocusBox () const;
+    void displayFocusBox (ViewNumber::Enum viewNumber) const;
     void displayAxes () const;
     void setInitialLightPosition (LightPosition::Enum i);
     void setInitialLightParameters ();
@@ -523,11 +524,11 @@ private:
 	LightPosition::Enum lightPosition) const;
 
     /**
-     * Rotates the foam or the light around an axis with a certain angle
+     * Returns a rotation around an axis with a certain angle
      * @param axis can be 0, 1 or 2 for X, Y or Z
      * @param angle angle we rotate the foam with
      */
-    static void setRotation (int axis, double angle, G3D::Matrix3* rotate);
+    static G3D::Matrix3 getRotationAround (int axis, double angle);
     /**
      * Displays   the   contour   of   faces.   Used   together   with
      * displayFacesOffet   and  with  GL_POLYGON_OFFSET_FILL   to  get
@@ -558,13 +559,14 @@ private:
      */
     void initializeLighting ();
     double ratioFromCenter (const QPoint& p);
-    void rotate (const QPoint& position, G3D::Matrix3* rotate);
-    void translate (
+    G3D::Matrix3 rotate (ViewNumber::Enum viewNumber, 
+			 const QPoint& position, const G3D::Matrix3& rotate);
+    void translate (ViewNumber::Enum viewNumber,
 	const QPoint& position,
 	G3D::Vector3::Axis screenXTranslation,
 	G3D::Vector3::Axis screenYTranslation);
-    void translateLight (const QPoint& position);
-    void scale (const QPoint& position);
+    void translateLight (ViewNumber::Enum viewNumber, const QPoint& position);
+    void scale (ViewNumber::Enum viewNumber, const QPoint& position);
     void translateAndScale (
 	double m_scaleRatio, const G3D::Vector3& translation,
 	bool contextView) const;
@@ -642,10 +644,6 @@ private:
 
     double m_contextAlpha;
 
-    G3D::Matrix3 m_rotationModel;
-    G3D::Rect2D m_viewport;
-    double m_scaleRatio;
-    G3D::Vector3 m_translation;
     /**
      * Distance from the camera to the center of the bounding box for the foam.
      */
