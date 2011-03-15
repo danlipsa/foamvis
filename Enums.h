@@ -206,7 +206,7 @@ struct AxesOrder
     };
 };
 
-struct LightPosition
+struct LightNumber
 {
     enum Enum
     {
@@ -299,6 +299,28 @@ struct HighlightNumber
 	HIGHLIGHT1
     };
 };
+
+struct LightType
+{
+    enum Enum
+    {
+	AMBIENT,
+	DIFFUSE,
+	SPECULAR,
+	COUNT
+    };
+};
+
+struct ColorNumber
+{
+    enum Enum
+    {
+	RED,
+	GREEN,
+	BLUE
+    };
+};
+
 
 #endif //__ENUMS_H__
 

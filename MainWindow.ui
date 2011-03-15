@@ -423,7 +423,7 @@
                    </widget>
                   </item>
                   <item row="2" column="1">
-                   <widget class="QCheckBox" name="checkBoxLightPositionShown">
+                   <widget class="QCheckBox" name="checkBoxLightNumberShown">
                     <property name="text">
                      <string>Light direction</string>
                     </property>
@@ -1517,13 +1517,13 @@
     <slot>ValueChangedEdgesRadius(int)</slot>
     <slot>ToggledLighting(bool)</slot>
     <slot>ToggledFaceEdgesTorus(bool)</slot>
-    <slot>ToggledShowLightPosition(bool)</slot>
+    <slot>ToggledShowLightNumber(bool)</slot>
     <slot>ToggledCenterPathShowBody(bool)</slot>
     <slot>ToggledShowTorusOriginalDomain(bool)</slot>
     <slot>ToggledEnableLighting(bool)</slot>
     <slot>ToggledEnableDirectionalLight(bool)</slot>
     <slot>ToggledBoundingBoxShown(bool)</slot>
-    <slot>ToggledLightPositionShown(bool)</slot>
+    <slot>ToggledLightNumberShown(bool)</slot>
     <slot>ToggledTorusOriginalDomainShown(bool)</slot>
     <slot>ToggledLightingEnabled(bool)</slot>
     <slot>ToggledDirectionalLightEnabled(bool)</slot>
@@ -1536,7 +1536,7 @@
     <slot>CurrentIndexChangedViewportTransformationType(int)</slot>
     <slot>CurrentIndexChangedViewportTransformType(int)</slot>
     <slot>CurrentIndexChangedAxesOrder(int)</slot>
-    <slot>ButtonClickedLightPosition(int)</slot>
+    <slot>ButtonClickedLightNumber(int)</slot>
     <slot>ValueChangedContextAlpha(int)</slot>
     <slot>ToggledBodiesBoundingBoxesShown(bool)</slot>
     <slot>ToggledColorBarShown(bool)</slot>
@@ -2240,10 +2240,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxLightPositionShown</sender>
+   <sender>checkBoxLightNumberShown</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledLightPositionShown(bool)</slot>
+   <slot>ToggledLightNumberShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>853</x>

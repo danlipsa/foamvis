@@ -178,30 +178,6 @@ public:
     bool IsDisplayedBody (size_t bodyId) const;
     bool IsDisplayedFace (size_t faceI) const;
     bool IsDisplayedEdge (size_t edgeI) const;
-    bool IsLightEnabled (LightPosition::Enum i)
-    {
-	return m_lightEnabled[i];
-    }
-    bool IsDirectionalLightEnabled (LightPosition::Enum i)
-    {
-	return m_directionalLightEnabled [i];
-    }
-    bool IsLightPositionShown (LightPosition::Enum i)
-    {
-	return m_lightPositionShown[i];
-    }
-    const boost::array<GLfloat, 4> GetLightAmbient (LightPosition::Enum i)
-    {
-	return m_lightAmbient[i];
-    }
-    const boost::array<GLfloat, 4> GetLightDiffuse (LightPosition::Enum i)
-    {
-	return m_lightDiffuse[i];
-    }
-    const boost::array<GLfloat, 4> GetLightSpecular (LightPosition::Enum i)
-    {
-	return m_lightSpecular[i];
-    }
 
     bool IsEdgesTessellation () const
     {
@@ -220,9 +196,9 @@ public:
     {
 	return m_actionResetTransformation;
     }
-    boost::shared_ptr<QAction> GetActionResetSelectedLightPosition ()
+    boost::shared_ptr<QAction> GetActionResetSelectedLightNumber ()
     {
-	return m_actionResetSelectedLightPosition;
+	return m_actionResetSelectedLightNumber;
     }
 
     bool IsPlayMovie () const
@@ -291,7 +267,7 @@ public Q_SLOTS:
     void ToggledFacesShowEdges (bool checked);
 
     void ToggledHideContent (bool checked);
-    void ToggledLightPositionShown (bool checked);
+    void ToggledLightNumberShown (bool checked);
     void ToggledLightEnabled (bool checked);
     void ToggledIsContextHidden (bool checked);
     void ToggledTorusOriginalDomainShown (bool checked);
@@ -336,7 +312,7 @@ public Q_SLOTS:
     void ValueChangedT1Size (int index);
     // Actions
     void ResetTransformation ();
-    void ResetSelectedLightPosition ();
+    void ResetSelectedLightNumber ();
     void SelectBodiesByIdList ();
     void SelectAll ();
     void DeselectAll ();
@@ -420,12 +396,13 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    void setLight (int sliderValue, int maximumValue, 
+		   LightType::Enum lightType, ColorNumber::Enum colorNumber);    
     void viewportTransform (ViewNumber::Enum viewNumber);
     void setView (const G3D::Vector2& clickedPoint);
     void selectView (const G3D::Vector2& clickedPoint);
     double getViewXOverY () const;
     static G3D::Rect2D getViewColorBarRect (const G3D::Rect2D& viewRect);
-    void enableLighting (bool checked);
     double getMinimumEdgeRadius () const;
     void setEdgeRadius ();
     void calculateEdgeRadius (
@@ -447,10 +424,6 @@ private:
     {
 	return m_edgesTubes;
     }
-    bool isLightingEnabled () const
-    {
-	return m_lightingEnabled;
-    }
 
     void changeViewType (bool checked, ViewType::Enum view);
     /**
@@ -463,10 +436,9 @@ private:
      * rotate and then translate toward negative Z with
      * m_cameraDistance
      */
-    void positionLight (LightPosition::Enum light);
-    void positionLights ();
-    void showLightPosition (LightPosition::Enum light) const;
-    void showLightPositions () const;
+    void showLightNumber (
+	ViewNumber::Enum viewNumber, LightNumber::Enum light) const;
+    void showLightNumbers (ViewNumber::Enum viewNumber) const;
     G3D::Rect2D calculateViewport (int width, int height) const;
     G3D::AABox calculateCenteredViewingVolume (double xOverY) const;
     G3D::AABox calculateViewingVolume (double xOverY) const;
@@ -515,13 +487,11 @@ private:
     void compileCenterPaths (ViewNumber::Enum view) const;
     void compile (ViewNumber::Enum view) const;
 
-    void displayBoundingBox () const;
+    void displayBoundingBox (ViewNumber::Enum viewNumber) const;
     void displayFocusBox (ViewNumber::Enum viewNumber) const;
     void displayAxes () const;
-    void setInitialLightPosition (LightPosition::Enum i);
-    void setInitialLightParameters ();
     G3D::Vector3 getInitialLightPosition (
-	LightPosition::Enum lightPosition) const;
+	LightNumber::Enum lightPosition) const;
 
     /**
      * Returns a rotation around an axis with a certain angle
@@ -585,6 +555,7 @@ private:
     void setBodySelectorLabel (BodySelectorType::Enum type);
     void setBodyStationaryContextLabel ();
     void translateFoamStationaryBody (size_t timeStep) const;
+    
 
 private:
     /**
@@ -649,16 +620,6 @@ private:
      */
     double m_cameraDistance;
 
-    bool m_lightingEnabled;
-    LightPosition::Enum m_selectedLight;
-    bitset<LightPosition::COUNT> m_lightEnabled;
-    bitset<LightPosition::COUNT> m_directionalLightEnabled;
-    bitset<LightPosition::COUNT> m_lightPositionShown;    
-    boost::array<G3D::Matrix3, LightPosition::COUNT> m_rotationLight;
-    boost::array<double, LightPosition::COUNT> m_lightPositionRatio;
-    boost::array<boost::array<GLfloat, 4>, LightPosition::COUNT> m_lightAmbient;
-    boost::array<boost::array<GLfloat, 4>, LightPosition::COUNT> m_lightDiffuse;
-    boost::array<boost::array<GLfloat, 4>, LightPosition::COUNT> m_lightSpecular;
     double m_angleOfView;
     EndLocationColor m_endTranslationColor;
     GLUquadricObj* m_quadric;    
@@ -688,7 +649,7 @@ private:
     boost::shared_ptr<QAction> m_actionSelectAll;
     boost::shared_ptr<QAction> m_actionDeselectAll;
     boost::shared_ptr<QAction> m_actionResetTransformation;
-    boost::shared_ptr<QAction> m_actionResetSelectedLightPosition;
+    boost::shared_ptr<QAction> m_actionResetSelectedLightNumber;
     boost::shared_ptr<QAction> m_actionSelectBodiesById;
     boost::shared_ptr<QAction> m_actionBodyStationarySet;
     boost::shared_ptr<QAction> m_actionBodyStationaryReset;

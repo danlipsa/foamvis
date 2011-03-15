@@ -70,11 +70,6 @@ boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
     return idBodySelector;
 }
 
-void initialize (boost::array<GLfloat, 4>& colors,
-		 const boost::array<GLfloat, 4>& values)
-{
-    copy (values.begin (), values.end (), colors.begin ());
-}
 
 template <typename T>
 void display (const char* name, const T& what)
@@ -120,10 +115,6 @@ GLWidget::GLWidget(QWidget *parent)
       m_stationaryBodyId (NONE),
       m_stationaryBodyTimeStep (0),
       m_contextAlpha (MIN_CONTEXT_ALPHA),
-      m_lightingEnabled (false),
-      m_selectedLight (LightPosition::TOP_RIGHT),
-      m_lightEnabled (0),
-      m_lightPositionShown (0),
       m_angleOfView (0),
       m_edgeRadiusMultiplier (0),
       m_edgesTubes (false),
@@ -156,19 +147,6 @@ GLWidget::GLWidget(QWidget *parent)
     initQuadrics ();
     initViewTypeDisplay ();
     createActions ();
-    setInitialLightParameters ();
-    // default (0, 0, 0, 1)
-    boost::array<GLfloat,4> lightAmbient = {{0, 0, 0, 1.0}};
-    // default (1, 1, 1, 1)
-    boost::array<GLfloat,4> lightDiffuse = {{1.0, 1.0, 1.0, 1.0}};
-    // default (1, 1, 1, 1)
-    boost::array<GLfloat,4> lightSpecular = {{1.0, 1.0, 1.0, 1.0}};
-    for_each (m_lightAmbient.begin (), m_lightAmbient.end (),
-	      boost::bind (initialize, _1, lightAmbient));
-    for_each (m_lightDiffuse.begin (), m_lightDiffuse.end (),
-	      boost::bind (initialize, _1, lightDiffuse));
-    for_each (m_lightSpecular.begin (), m_lightSpecular.end (),
-	      boost::bind (initialize, _1, lightSpecular));
 }
 
 void GLWidget::initEndTranslationColor ()
@@ -223,14 +201,14 @@ void GLWidget::createActions ()
 	    this, SLOT(ResetTransformation ()));
 
 
-    m_actionResetSelectedLightPosition = boost::make_shared<QAction> (
+    m_actionResetSelectedLightNumber = boost::make_shared<QAction> (
 	tr("&Reset selected light"), this);
-    m_actionResetSelectedLightPosition->setShortcut(
+    m_actionResetSelectedLightNumber->setShortcut(
 	QKeySequence (tr ("Ctrl+L")));
-    m_actionResetSelectedLightPosition->setStatusTip(
+    m_actionResetSelectedLightNumber->setStatusTip(
 	tr("Reset selected light"));
-    connect(m_actionResetSelectedLightPosition.get (), SIGNAL(triggered()),
-	    this, SLOT(ResetSelectedLightPosition ()));
+    connect(m_actionResetSelectedLightNumber.get (), SIGNAL(triggered()),
+	    this, SLOT(ResetSelectedLightNumber ()));
 
 
     m_actionSelectBodiesById = boost::make_shared<QAction> (
@@ -396,23 +374,8 @@ QSize GLWidget::sizeHint()
     return QSize(512, 512);
 }
 
-void GLWidget::setInitialLightParameters ()
-{
-    for (size_t i = 0; i < LightPosition::COUNT; ++i)
-    {
-	setInitialLightPosition (LightPosition::Enum(i));
-	m_directionalLightEnabled[i] = true;
-    }
-}
-
-void GLWidget::setInitialLightPosition (LightPosition::Enum i)
-{
-    m_lightPositionRatio[i] = 1;
-    m_rotationLight[i] = G3D::Matrix3::identity ();
-}
-
 G3D::Vector3 GLWidget::getInitialLightPosition (
-    LightPosition::Enum lightPosition) const
+    LightNumber::Enum lightPosition) const
 {
     G3D::AABox bb = calculateCenteredViewingVolume (
 	double (width ()) / height ());
@@ -426,64 +389,29 @@ G3D::Vector3 GLWidget::getInitialLightPosition (
     return nearRectangle[lightPosition];
 }
 
-void GLWidget::positionLights ()
+
+void GLWidget::showLightNumbers (ViewNumber::Enum viewNumber) const
 {
-    for (size_t i = 0; i < LightPosition::COUNT; ++i)
-	positionLight (LightPosition::Enum (i));
+    for (size_t i = 0; i < LightNumber::COUNT; ++i)
+	showLightNumber (viewNumber, LightNumber::Enum (i));
 }
 
-void GLWidget::positionLight (LightPosition::Enum i)
+void GLWidget::showLightNumber (
+    ViewNumber::Enum viewNumber, LightNumber::Enum i) const
 {
-    if (m_lightEnabled[i])
-    {
-	makeCurrent ();
-	G3D::Vector3 lp = getInitialLightPosition (
-	    LightPosition::Enum (i)) * m_lightPositionRatio[i];
-	glPushMatrix ();
-	glLoadMatrix (G3D::CoordinateFrame (m_rotationLight[i]));
-	if (m_directionalLightEnabled[i])
-	{
-	    glLightf(GL_LIGHT0 + i, GL_SPOT_CUTOFF, 180);
-	    boost::array<GLfloat, 4> lightDirection = {{lp.x, lp.y, lp.z, 0}};
-	    glLightfv(GL_LIGHT0 + i, GL_POSITION, &lightDirection[0]);
-	}
-	else
-	{
-	    glLightf(GL_LIGHT0 + i, GL_SPOT_CUTOFF, 15);
-	    boost::array<GLfloat, 3> lightDirection = {{-lp.x, -lp.y, -lp.z}};
-	    glLightfv(GL_LIGHT0 + i, GL_SPOT_DIRECTION, &lightDirection[0]);
-	    glPushMatrix ();
-	    glLoadIdentity ();
-	    glTranslatef (0, 0, - m_cameraDistance);
-	    glMultMatrix (m_rotationLight[i]);
-	    GLfloat lightPosition[] = {lp.x, lp.y, lp.z, 1};
-	    glLightfv(GL_LIGHT0 + i, GL_POSITION, lightPosition);
-	    glPopMatrix ();
-	}
-	glPopMatrix ();
-    }
-}
-
-void GLWidget::showLightPositions () const
-{
-    for (size_t i = 0; i < LightPosition::COUNT; ++i)
-	showLightPosition (LightPosition::Enum (i));
-}
-
-void GLWidget::showLightPosition (LightPosition::Enum i) const
-{
-    if (m_lightPositionShown[i])
+    const ViewSettings& vs = *GetViewSettings (viewNumber);
+    if (vs.IsLightNumberShown (i))
     {
 	const double sqrt3 = 1.7321;
 	glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);    
 	glPushMatrix ();
 	glLoadIdentity ();
 	glTranslatef (0, 0, - m_cameraDistance);
-	glMultMatrix (m_rotationLight[i]);
+	glMultMatrix (vs.GetRotationLight (i));
 	G3D::Vector3 lp = getInitialLightPosition (
-	    LightPosition::Enum (i)) / sqrt3;
-	glColor (m_lightEnabled[i] ? Qt::red : Qt::gray);
-	if (isLightingEnabled ())
+	    LightNumber::Enum (i)) / sqrt3;
+	glColor (vs.IsLightEnabled (i) ? Qt::red : Qt::gray);
+	if (vs.IsLightingEnabled ())
 	    glDisable (GL_LIGHTING);
 	DisplayOrientedEdge () (lp, G3D::Vector3::zero ());
 	glPopMatrix ();
@@ -494,7 +422,8 @@ void GLWidget::showLightPosition (LightPosition::Enum i) const
 void GLWidget::translateLight (ViewNumber::Enum viewNumber, 
 			       const QPoint& position)
 {
-    G3D::Rect2D viewport = GetViewSettings (viewNumber)->GetViewport ();
+    ViewSettings& vs = *GetViewSettings (viewNumber);
+    G3D::Rect2D viewport = vs.GetViewport ();
     G3D::AABox vv = calculateCenteredViewingVolume (
 	double (width ()) / height ());
     G3D::Vector2 oldPosition = G3D::Vector2 (m_lastPos.x (), m_lastPos.y ());
@@ -506,8 +435,9 @@ void GLWidget::translateLight (ViewNumber::Enum viewNumber,
     float ratio = screenChange /
 	(viewport.x1y1 () - viewport.x0y0 ()).length ();
 
-    m_lightPositionRatio[m_selectedLight] = 
-	(1 + ratio) * m_lightPositionRatio[m_selectedLight];
+    vs.SetLightNumberRatio (
+	vs.GetSelectedLight (),
+	(1 + ratio) * vs.GetLightNumberRatio (vs.GetSelectedLight ()));
 }
 
 
@@ -818,10 +748,13 @@ void GLWidget::ResetTransformation ()
     update ();
 }
 
-void GLWidget::ResetSelectedLightPosition ()
+void GLWidget::ResetSelectedLightNumber ()
 {
-    setInitialLightPosition (m_selectedLight);
-    positionLight (m_selectedLight);
+    ViewSettings& vs = *GetViewSettings ();
+    LightNumber::Enum lightNumber = vs.GetSelectedLight ();
+    vs.SetInitialLightPosition (lightNumber);
+    vs.PositionLight (lightNumber, getInitialLightPosition (lightNumber),
+		      m_cameraDistance);
     update ();
 }
 
@@ -966,10 +899,10 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
 	displayViewDecorations (viewNumber);
     }
     displayAxes ();
-    displayBoundingBox ();
+    displayBoundingBox (viewNumber);
     displayOriginalDomain ();
     displayFocusBox (viewNumber);
-    showLightPositions ();
+    showLightNumbers (viewNumber);
     displayT1s (viewNumber);
     detectOpenGLError ("paintGl");
 }
@@ -1237,15 +1170,25 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	break;
 
     case InteractionMode::ROTATE_LIGHT:
-	m_rotationLight[m_selectedLight] = rotate (
-	    GetViewNumber (), event->pos (), m_rotationLight[m_selectedLight]);
-	positionLight (m_selectedLight);
+    {
+	ViewSettings& vs = *GetViewSettings ();
+	LightNumber::Enum i = vs.GetSelectedLight ();
+	vs.SetRotationLight (
+	    i, 
+	    rotate (GetViewNumber (), event->pos (), vs.GetRotationLight (i)));
+	vs.PositionLight (i, getInitialLightPosition (i),
+			  m_cameraDistance);
 	break;
+    }
     case InteractionMode::TRANSLATE_LIGHT:
-	positionLight (m_selectedLight);
+    {
+	ViewSettings& vs = *GetViewSettings ();
+	LightNumber::Enum i = vs.GetSelectedLight ();
+	vs.PositionLight (i, getInitialLightPosition (i),
+			  m_cameraDistance);
 	translateLight (GetViewNumber (), event->pos ());
 	break;
-
+    }
     case InteractionMode::SELECT:
 	select (event->pos ());
 	break;
@@ -1310,10 +1253,11 @@ void GLWidget::displayFocusBox (ViewNumber::Enum viewNumber) const
     }
 }
 
-void GLWidget::displayBoundingBox () const
+void GLWidget::displayBoundingBox (ViewNumber::Enum viewNumber) const
 {
+    const ViewSettings& vs = *GetViewSettings (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
-    if (isLightingEnabled ())
+    if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
     if (m_boundingBoxShown)
 	DisplayBox (GetFoamAlongTime ().GetBoundingBox (), Qt::black, GL_LINE);
@@ -1390,11 +1334,11 @@ void GLWidget::displayStandaloneEdges (bool useZPos, double zPos) const
     glPopAttrib ();
 }
 
-void GLWidget::displayEdgesNormal (ViewNumber::Enum view) const
+void GLWidget::displayEdgesNormal (ViewNumber::Enum viewNumber) const
 {
-    (void)view;
+    const ViewSettings& vs = *GetViewSettings (viewNumber);    
     glPushAttrib (GL_ENABLE_BIT);
-    if (isLightingEnabled ())
+    if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
     m_torusOriginalDomainClipped ?
 	displayEdges <DisplayEdgeTorusClipped> () :
@@ -1674,11 +1618,12 @@ void GLWidget::displayFacesTorusLines () const
 
 void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum view) const
 {
+    const ViewSettings& vs = *GetViewSettings (view);
     glLineWidth (1.0);
     displayCenterPaths (view);
     
     glPushAttrib (GL_ENABLE_BIT);
-    if (isLightingEnabled ())
+    if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
     if (IsCenterPathBodyShown ())
     {
@@ -1865,16 +1810,6 @@ size_t GLWidget::GetSelectedEdgeId () const
     return GetSelectedEdge ()->GetId ();
 }
 
-void GLWidget::enableLighting (bool checked)
-{
-    m_lightingEnabled = checked;
-    if (checked)
-	glEnable (GL_LIGHTING);
-    else
-	glDisable (GL_LIGHTING);
-    update ();
-}
-
 
 
 // Slots
@@ -1882,8 +1817,11 @@ void GLWidget::enableLighting (bool checked)
 
 void GLWidget::ToggledDirectionalLightEnabled (bool checked)
 {
-    m_directionalLightEnabled[m_selectedLight] = checked;
-    positionLight (m_selectedLight);
+    ViewSettings& vs = *GetViewSettings ();
+    LightNumber::Enum selectedLight = vs.GetSelectedLight ();
+    vs.SetDirectionalLightEnabled (selectedLight, checked);
+    vs.PositionLight (selectedLight, getInitialLightPosition (selectedLight),
+		      m_cameraDistance);
     update ();
 }
 
@@ -1893,24 +1831,28 @@ void GLWidget::ToggledZeroedPressureShown (bool checked)
     update ();
 }
 
-void GLWidget::ToggledLightPositionShown (bool checked)
+void GLWidget::ToggledLightNumberShown (bool checked)
 {
-    m_lightPositionShown[m_selectedLight] = checked;
+    ViewSettings& vs = *GetViewSettings ();
+    vs.SetLightNumberShown (vs.GetSelectedLight (), checked);
     update ();
 }
 
 void GLWidget::ToggledLightEnabled (bool checked)
 {
     makeCurrent ();
-    m_lightEnabled[m_selectedLight] = checked;
+    ViewSettings vs = *GetViewSettings ();
+    LightNumber::Enum selectedLight = vs.GetSelectedLight ();
+    vs.SetLightEnabled (selectedLight, checked);
     if (checked)
     {
-	glEnable(GL_LIGHT0 + m_selectedLight);
-	positionLight (m_selectedLight);
+	glEnable(GL_LIGHT0 + selectedLight);
+	vs.PositionLight (selectedLight, getInitialLightPosition (selectedLight),
+			  m_cameraDistance);
     }
     else
-	glDisable (GL_LIGHT0 + m_selectedLight);
-    enableLighting (m_lightEnabled.any ());
+	glDisable (GL_LIGHT0 + selectedLight);
+    vs.EnableLighting ();
     update ();
 }
 
@@ -2046,7 +1988,8 @@ void GLWidget::ToggledCenterPath (bool checked)
 
 void GLWidget::CurrentIndexChangedSelectedLight (int selectedLight)
 {
-    m_selectedLight = LightPosition::Enum (selectedLight);
+    ViewSettings& vs = *GetViewSettings ();
+    vs.SetSelectedLight (LightNumber::Enum (selectedLight));
 }
 
 void GLWidget::CurrentIndexChangedViewCount (int index)
@@ -2184,10 +2127,11 @@ void GLWidget::ValueChangedT1Size (int index)
 void GLWidget::ValueChangedEdgesRadius (int sliderValue)
 {
     makeCurrent ();
+    ViewSettings& vs = *GetViewSettings ();
     size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
     m_edgeRadiusMultiplier = static_cast<double>(sliderValue) / maximum;
     setEdgeRadius ();
-    enableLighting (m_lightEnabled.any ());
+    vs.EnableLighting ();
     compile (GetViewNumber ());
     update ();
 }
@@ -2201,94 +2145,73 @@ void GLWidget::ValueChangedContextAlpha (int sliderValue)
     update ();
 }
 
-void GLWidget::ValueChangedLightAmbientRed (int sliderValue)
+void GLWidget::setLight (int sliderValue, int maximumValue, 
+			 LightType::Enum lightType, 
+			 ColorNumber::Enum colorNumber)
 {
-    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
-    m_lightAmbient[m_selectedLight][0] = 
-	static_cast<double>(sliderValue) / maximum;
-    glLightfv(GL_LIGHT0 + m_selectedLight, GL_AMBIENT, 
-	      &m_lightAmbient[m_selectedLight][0]);
+    ViewSettings& vs = *GetViewSettings ();
+    LightNumber::Enum selectedLight = vs.GetSelectedLight ();
+    vs.SetLight (selectedLight, lightType, colorNumber,  
+		 double(sliderValue) / maximumValue);
+    boost::array<GLfloat, 4> lightAmbient = vs.GetLight (
+	selectedLight, LightType::AMBIENT);
+    glLightfv(GL_LIGHT0 + selectedLight, GL_AMBIENT, &lightAmbient[0]);
     update ();
 }
 
+void GLWidget::ValueChangedLightAmbientRed (int sliderValue)
+{
+    setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
+	      LightType::AMBIENT, ColorNumber::RED);
+}
+
+
 void GLWidget::ValueChangedLightAmbientGreen (int sliderValue)
 {
-    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
-    m_lightAmbient[m_selectedLight][1] = 
-	static_cast<double>(sliderValue) / maximum;
-    glLightfv(GL_LIGHT0 + m_selectedLight, GL_AMBIENT, 
-	      &m_lightAmbient[m_selectedLight][0]);
-    update ();
+    setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
+	      LightType::AMBIENT, ColorNumber::GREEN);
 }
 
 void GLWidget::ValueChangedLightAmbientBlue (int sliderValue)
 {
-    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
-    m_lightAmbient[m_selectedLight][2] = 
-	static_cast<double>(sliderValue) / maximum;
-    glLightfv(GL_LIGHT0 + m_selectedLight, GL_AMBIENT, 
-	      &m_lightAmbient[m_selectedLight][0]);
-    update ();
+    setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
+	      LightType::AMBIENT, ColorNumber::BLUE);
 }
 
 void GLWidget::ValueChangedLightDiffuseRed (int sliderValue)
 {
-    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
-    m_lightDiffuse[m_selectedLight][0] = 
-	static_cast<double>(sliderValue) / maximum;
-    glLightfv(GL_LIGHT0 + m_selectedLight, GL_DIFFUSE, 
-	      &m_lightDiffuse[m_selectedLight][0]);
-    update ();
+    setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
+	      LightType::DIFFUSE, ColorNumber::RED);
 }
 
 void GLWidget::ValueChangedLightDiffuseGreen (int sliderValue)
 {
-    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
-    m_lightDiffuse[m_selectedLight][1] = 
-	static_cast<double>(sliderValue) / maximum;
-    glLightfv(GL_LIGHT0 + m_selectedLight, GL_DIFFUSE, 
-	      &m_lightDiffuse[m_selectedLight][0]);
-    update ();
+    setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
+	      LightType::DIFFUSE, ColorNumber::GREEN);
 }
 
 void GLWidget::ValueChangedLightDiffuseBlue (int sliderValue)
 {
-    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
-    m_lightDiffuse[m_selectedLight][2] = 
-	static_cast<double>(sliderValue) / maximum;
-    glLightfv(GL_LIGHT0 + m_selectedLight, GL_DIFFUSE, 
-	      &m_lightDiffuse[m_selectedLight][0]);
-    update ();
+    setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
+	      LightType::DIFFUSE, ColorNumber::BLUE);
 }
 
 void GLWidget::ValueChangedLightSpecularRed (int sliderValue)
 {
-    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
-    m_lightSpecular[m_selectedLight][0] = 
-	static_cast<double>(sliderValue) / maximum;
-    glLightfv(GL_LIGHT0 + m_selectedLight, GL_SPECULAR, 
-	      &m_lightSpecular[m_selectedLight][0]);
-    update ();
+    setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
+	      LightType::SPECULAR, ColorNumber::RED);
 }
 
 void GLWidget::ValueChangedLightSpecularGreen (int sliderValue)
 {
-    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
-    m_lightSpecular[m_selectedLight][1] = 
-	static_cast<double>(sliderValue) / maximum;
-    glLightfv(GL_LIGHT0 + m_selectedLight, GL_SPECULAR, 
-	      &m_lightSpecular[m_selectedLight][0]);
-    update ();
+    setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
+	      LightType::SPECULAR, ColorNumber::GREEN);
 }
 
 void GLWidget::ValueChangedLightSpecularBlue (int sliderValue)
 {
-    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
-    m_lightSpecular[m_selectedLight][2] = 
-	static_cast<double>(sliderValue) / maximum;
-    glLightfv(GL_LIGHT0 + m_selectedLight, GL_SPECULAR, 
-	      &m_lightSpecular[m_selectedLight][0]);
-    update ();
+    setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
+	      LightType::SPECULAR, ColorNumber::BLUE);
 }
 
 void GLWidget::ValueChangedAngleOfView (int angleOfView)
@@ -2329,7 +2252,7 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
     else
     {
 	menu.addAction (m_actionResetTransformation.get ());
-	menu.addAction (m_actionResetSelectedLightPosition.get ());
+	menu.addAction (m_actionResetSelectedLightNumber.get ());
 	menu.addAction (m_actionSelectAll.get ());
 	menu.addAction (m_actionDeselectAll.get ());
 	menu.addAction (m_actionSelectBodiesById.get ());
@@ -2353,10 +2276,11 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 
 void GLWidget::displayViewDecorations (ViewNumber::Enum view)
 {
+    const ViewSettings& vs = *GetViewSettings (view);
     glPushAttrib (
 	GL_POLYGON_BIT | GL_CURRENT_BIT | 
 	GL_VIEWPORT_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT);
-    if (isLightingEnabled ())
+    if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
     // modelview
     glPushMatrix ();

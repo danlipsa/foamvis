@@ -81,7 +81,17 @@ public:
     {
 	m_rotationModel = rotationModel;
     }
+
+    const G3D::Matrix3& GetRotationLight (LightNumber::Enum i) const
+    {
+	return m_rotationLight[i];
+    }
     
+    void SetRotationLight (LightNumber::Enum i, const G3D::Matrix3& rl)
+    {
+	m_rotationLight[i] = rl;
+    }
+
     const G3D::Rect2D& GetViewport () const
     {
 	return m_viewport;
@@ -112,9 +122,73 @@ public:
 	m_translation = translation;
     }
 
+
+    bool IsLightingEnabled () const
+    {
+	return m_lightingEnabled;
+    }
+    bool IsLightEnabled (LightNumber::Enum i) const
+    {
+	return m_lightEnabled[i];
+    }
+    void SetLightEnabled (LightNumber::Enum i, bool enabled)
+    {
+	m_lightEnabled[i] = enabled;
+    }
+    bool IsDirectionalLightEnabled (LightNumber::Enum i) const
+    {
+	return m_directionalLightEnabled [i];
+    }
+    void SetDirectionalLightEnabled (LightNumber::Enum i, bool enabled)
+    {
+	m_directionalLightEnabled [i] = enabled;
+    }
+    bool IsLightNumberShown (LightNumber::Enum i) const
+    {
+	return m_lightPositionShown[i];
+    }
+    void SetLightNumberShown (LightNumber::Enum i, bool shown)
+    {
+	m_lightPositionShown[i] = shown;
+    }
+    void PositionLight (LightNumber::Enum i, 
+			const G3D::Vector3& initialLightPosition,
+			double cameraDistance);
+    const boost::array<GLfloat, 4> GetLight (
+	LightNumber::Enum lightNumber, LightType::Enum lightType) const
+    {
+	return m_light[lightNumber][lightType];
+    }
+    void SetLight (
+	LightNumber::Enum lightNumber, LightType::Enum lightType, 
+	size_t colorIndex, GLfloat color)
+    {
+	m_light[lightNumber][lightType][colorIndex] = color;
+    }
+    double GetLightNumberRatio (LightNumber::Enum i) const
+    {
+	return m_lightPositionRatio [i];
+    }
+    void SetLightNumberRatio (LightNumber::Enum i, double lpr)
+    {
+	m_lightPositionRatio [i] = lpr;
+    }
+    LightNumber::Enum GetSelectedLight () const
+    {
+	return m_selectedLight;
+    }
+    void SetSelectedLight (LightNumber::Enum i)
+    {
+	m_selectedLight = i;
+    }
+    void SetInitialLightPosition (LightNumber::Enum i);
+    void EnableLighting ();
+
 private:
     void initTexture ();
     void initList ();
+    void setInitialLightParameters ();
+
 
 private:
     ViewType::Enum m_viewType;
@@ -128,6 +202,17 @@ private:
     G3D::Rect2D m_viewport;
     double m_scaleRatio;
     G3D::Vector3 m_translation;
+
+    bool m_lightingEnabled;
+    LightNumber::Enum m_selectedLight;
+    bitset<LightNumber::COUNT> m_lightEnabled;
+    bitset<LightNumber::COUNT> m_directionalLightEnabled;
+    bitset<LightNumber::COUNT> m_lightPositionShown;    
+    boost::array<G3D::Matrix3, LightNumber::COUNT> m_rotationLight;
+    boost::array<double, LightNumber::COUNT> m_lightPositionRatio;
+    boost::array<
+	boost::array<boost::array<GLfloat, 4>, LightNumber::COUNT>, 
+	LightType::COUNT> m_light;
 };
 
 
