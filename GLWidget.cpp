@@ -115,7 +115,6 @@ GLWidget::GLWidget(QWidget *parent)
       m_stationaryBodyId (NONE),
       m_stationaryBodyTimeStep (0),
       m_contextAlpha (MIN_CONTEXT_ALPHA),
-      m_angleOfView (0),
       m_edgeRadiusMultiplier (0),
       m_edgesTubes (false),
       m_facesShowEdges (true),
@@ -289,18 +288,21 @@ void GLWidget::initViewTypeDisplay ()
 void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 {
     m_foamAlongTime = foamAlongTime;
-    calculateCameraDistance ();
     if (foamAlongTime->Is2D ())
     {
 	BOOST_FOREACH (boost::shared_ptr<ViewSettings> vs, m_viewSettings)
+	{
 	    vs->SetViewType (ViewType::EDGES);
-	m_axesOrder = AxesOrder::TWO_D;
+	    vs->SetAxesOrder (AxesOrder::TWO_D);
+	}
     }
     else
     {
 	BOOST_FOREACH (boost::shared_ptr<ViewSettings> vs, m_viewSettings)
+	{
 	    vs->SetViewType (ViewType::FACES);
-	m_axesOrder = AxesOrder::THREE_D;
+	    vs->SetAxesOrder (AxesOrder::THREE_D);
+	}
     }
     Foam::Bodies bodies = foamAlongTime->GetFoam (0)->GetBodies ();
     if (bodies.size () != 0)
@@ -311,8 +313,10 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 	m_selectBodiesById->UpdateLabelMinMax ();
     }
     BOOST_FOREACH (boost::shared_ptr<ViewSettings> vs, m_viewSettings)
+    {
 	vs->GetDisplayFaceStatistics ()->SetHistoryCount (
 	    foamAlongTime->GetTimeSteps ());
+    }
 }
 
 
@@ -390,23 +394,23 @@ G3D::Vector3 GLWidget::getInitialLightPosition (
 }
 
 
-void GLWidget::showLightNumbers (ViewNumber::Enum viewNumber) const
+void GLWidget::showLightPositions (ViewNumber::Enum viewNumber) const
 {
     for (size_t i = 0; i < LightNumber::COUNT; ++i)
-	showLightNumber (viewNumber, LightNumber::Enum (i));
+	showLightPosition (viewNumber, LightNumber::Enum (i));
 }
 
-void GLWidget::showLightNumber (
+void GLWidget::showLightPosition (
     ViewNumber::Enum viewNumber, LightNumber::Enum i) const
 {
     const ViewSettings& vs = *GetViewSettings (viewNumber);
-    if (vs.IsLightNumberShown (i))
+    if (vs.IsLightPositionShown (i))
     {
 	const double sqrt3 = 1.7321;
 	glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);    
 	glPushMatrix ();
 	glLoadIdentity ();
-	glTranslatef (0, 0, - m_cameraDistance);
+	glTranslatef (0, 0, - vs.GetCameraDistance ());
 	glMultMatrix (vs.GetRotationLight (i));
 	G3D::Vector3 lp = getInitialLightPosition (
 	    LightNumber::Enum (i)) / sqrt3;
@@ -503,14 +507,14 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
     const ViewSettings& vs = *GetViewSettings (viewNumber);
     glLoadIdentity ();
     // viewing transform
-    glTranslatef (0, 0, - m_cameraDistance);
+    glTranslatef (0, 0, - vs.GetCameraDistance ());
     
     // modeling transform
     if (! m_contextView)
 	translateAndScale (vs.GetScaleRatio (), vs.GetTranslation (), 
 			   m_contextView);
     glMultMatrix (vs.GetRotationModel ());
-    switch (m_axesOrder)
+    switch (vs.GetAxesOrder ())
     {
     case AxesOrder::TWO_D_TIME_DISPLACEMENT:
 	rotate2DTimeDisplacement ();
@@ -542,23 +546,26 @@ void GLWidget::translateFoamStationaryBody (size_t timeStep) const
     }
 }
 
-G3D::AABox GLWidget::calculateViewingVolume (double xOverY) const
+G3D::AABox GLWidget::calculateViewingVolume (ViewNumber::Enum viewNumber, 
+					     double xOverY) const
 {
+    const ViewSettings& vs = *GetViewSettings (viewNumber);
     G3D::AABox centeredViewingVolume = calculateCenteredViewingVolume (xOverY);
-    G3D::Vector3 translation (m_cameraDistance * G3D::Vector3::unitZ ());
+    G3D::Vector3 translation (vs.GetCameraDistance () * G3D::Vector3::unitZ ());
     G3D::AABox result = centeredViewingVolume - translation;
     return result;
 }
 
 
-void GLWidget::projectionTransform ()
+void GLWidget::projectionTransform (ViewNumber::Enum viewNumber)
 {
     makeCurrent ();
+    const ViewSettings& vs = *GetViewSettings (viewNumber);
     double xOverY = getViewXOverY ();
-    G3D::AABox viewingVolume = calculateViewingVolume (xOverY);
+    G3D::AABox viewingVolume = calculateViewingVolume (viewNumber, xOverY);
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
-    if (m_angleOfView == 0)
+    if (vs.GetAngleOfView () == 0)
     {
 	glOrtho (viewingVolume.low ().x, viewingVolume.high ().x,
 		 viewingVolume.low ().y, viewingVolume.high ().y,
@@ -572,7 +579,6 @@ void GLWidget::projectionTransform ()
     }
     glMatrixMode (GL_MODELVIEW);
     glLoadIdentity ();
-    
 }
 
 void GLWidget::viewportTransform (ViewNumber::Enum viewNumber)
@@ -720,31 +726,15 @@ void GLWidget::rotate3D () const
     glMultMatrix (foam.GetViewMatrix ().approxCoordinateFrame ().rotation);
 }
 
-void GLWidget::calculateCameraDistance ()
-{
-    G3D::AABox centeredViewingVolume = 
-	calculateCenteredViewingVolume (
-	    double (width ()) / height ());
-    G3D::Vector3 diagonal =
-	centeredViewingVolume.high () - centeredViewingVolume.low ();
-    if (m_angleOfView == 0)
-	m_cameraDistance = diagonal.z;
-    else
-    {
-	// distance from the camera to the middle of the bounding box
-	m_cameraDistance = diagonal.y / 2 /
-	    tan (m_angleOfView * M_PI / 360) + diagonal.z / 2;
-    }
-}
-
 
 void GLWidget::ResetTransformation ()
 {
+    ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = *GetViewSettings ();
     vs.SetRotationModel (G3D::Matrix3::identity ());
     vs.SetScaleRatio (1);
     vs.SetTranslation (G3D::Vector3::zero ());
-    projectionTransform ();
+    projectionTransform (viewNumber);
     update ();
 }
 
@@ -753,8 +743,7 @@ void GLWidget::ResetSelectedLightNumber ()
     ViewSettings& vs = *GetViewSettings ();
     LightNumber::Enum lightNumber = vs.GetSelectedLight ();
     vs.SetInitialLightPosition (lightNumber);
-    vs.PositionLight (lightNumber, getInitialLightPosition (lightNumber),
-		      m_cameraDistance);
+    vs.PositionLight (lightNumber, getInitialLightPosition (lightNumber));
     update ();
 }
 
@@ -891,7 +880,10 @@ void GLWidget::displayViews ()
 
 void GLWidget::displayView (ViewNumber::Enum viewNumber)
 {
+    ViewSettings& vs = *GetViewSettings (viewNumber);
+    vs.EnableLighting ();
     viewportTransform (viewNumber);    
+    projectionTransform (viewNumber);
     ModelViewTransform (viewNumber, GetTimeStep ());
     if (! m_hideContent)
     {
@@ -902,7 +894,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     displayBoundingBox (viewNumber);
     displayOriginalDomain ();
     displayFocusBox (viewNumber);
-    showLightNumbers (viewNumber);
+    showLightPositions (viewNumber);
     displayT1s (viewNumber);
     detectOpenGLError ("paintGl");
 }
@@ -911,14 +903,14 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
 void GLWidget::resizeGL(int w, int h)
 {
     (void)w;(void)h;
-    projectionTransform ();
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
 	ViewNumber::Enum view = ViewNumber::Enum (i);
-	if (GetViewSettings (view)->GetViewType () == ViewType::FACES_STATISTICS)
+	ViewSettings& vs = *GetViewSettings (view);
+	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
 	{
 	    pair<double, double> minMax = getStatisticsMinMax (view);
-	    GetViewSettings (view)->GetDisplayFaceStatistics ()->InitStep (
+	    vs.GetDisplayFaceStatistics ()->InitStep (
 		view, minMax.first, minMax.second);
 	}
     }
@@ -1162,11 +1154,9 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	else
 	    translate (GetViewNumber (), event->pos (), G3D::Vector3::X_AXIS,
 		       G3D::Vector3::Y_AXIS);
-	projectionTransform ();
 	break;
     case InteractionMode::SCALE:
 	scale (GetViewNumber (), event->pos ());
-	projectionTransform ();
 	break;
 
     case InteractionMode::ROTATE_LIGHT:
@@ -1176,16 +1166,14 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	vs.SetRotationLight (
 	    i, 
 	    rotate (GetViewNumber (), event->pos (), vs.GetRotationLight (i)));
-	vs.PositionLight (i, getInitialLightPosition (i),
-			  m_cameraDistance);
+	vs.PositionLight (i, getInitialLightPosition (i));
 	break;
     }
     case InteractionMode::TRANSLATE_LIGHT:
     {
 	ViewSettings& vs = *GetViewSettings ();
 	LightNumber::Enum i = vs.GetSelectedLight ();
-	vs.PositionLight (i, getInitialLightPosition (i),
-			  m_cameraDistance);
+	vs.PositionLight (i, getInitialLightPosition (i));
 	translateLight (GetViewNumber (), event->pos ());
 	break;
     }
@@ -1242,7 +1230,7 @@ void GLWidget::displayFocusBox (ViewNumber::Enum viewNumber) const
 	const ViewSettings& vs = *GetViewSettings (viewNumber);
 	glPushMatrix ();
 	glLoadIdentity ();
-	glTranslatef (0, 0, - m_cameraDistance);
+	glTranslatef (0, 0, - vs.GetCameraDistance ());
 
 	G3D::AABox focusBox = calculateCenteredViewingVolume (
 	    double (width ()) / height ());
@@ -1820,8 +1808,7 @@ void GLWidget::ToggledDirectionalLightEnabled (bool checked)
     ViewSettings& vs = *GetViewSettings ();
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     vs.SetDirectionalLightEnabled (selectedLight, checked);
-    vs.PositionLight (selectedLight, getInitialLightPosition (selectedLight),
-		      m_cameraDistance);
+    vs.PositionLight (selectedLight, getInitialLightPosition (selectedLight));
     update ();
 }
 
@@ -1834,25 +1821,21 @@ void GLWidget::ToggledZeroedPressureShown (bool checked)
 void GLWidget::ToggledLightNumberShown (bool checked)
 {
     ViewSettings& vs = *GetViewSettings ();
-    vs.SetLightNumberShown (vs.GetSelectedLight (), checked);
+    vs.SetLightPositionShown (vs.GetSelectedLight (), checked);
     update ();
 }
 
 void GLWidget::ToggledLightEnabled (bool checked)
 {
     makeCurrent ();
-    ViewSettings vs = *GetViewSettings ();
+    ViewSettings& vs = *GetViewSettings ();
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     vs.SetLightEnabled (selectedLight, checked);
+    /*
     if (checked)
-    {
-	glEnable(GL_LIGHT0 + selectedLight);
 	vs.PositionLight (selectedLight, getInitialLightPosition (selectedLight),
 			  m_cameraDistance);
-    }
-    else
-	glDisable (GL_LIGHT0 + selectedLight);
-    vs.EnableLighting ();
+    */
     update ();
 }
 
@@ -1872,7 +1855,6 @@ void GLWidget::ToggledBodiesBoundingBoxesShown (bool checked)
 void GLWidget::ToggledContextView (bool checked)
 {
     m_contextView = checked;
-    projectionTransform ();
     update ();
 }
 
@@ -1995,14 +1977,21 @@ void GLWidget::CurrentIndexChangedSelectedLight (int selectedLight)
 void GLWidget::CurrentIndexChangedViewCount (int index)
 {
     m_viewCount = ViewCount::Enum (index);
-    projectionTransform ();
+    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	G3D::Rect2D viewRect = GetViewRect (viewNumber);
+	ViewSettings& vs = *GetViewSettings (viewNumber);
+	vs.CalculateCameraDistance (
+	    calculateCenteredViewingVolume (
+		viewRect.width () / viewRect.height ()));
+    }
     update ();
 }
 
 void GLWidget::CurrentIndexChangedViewLayout (int index)
 {
     m_viewLayout = ViewLayout::Enum (index);
-    projectionTransform ();
     update ();
 }
 
@@ -2033,8 +2022,7 @@ void GLWidget::CurrentIndexChangedStatisticsType (int index)
 
 void GLWidget::CurrentIndexChangedAxesOrder (int index)
 {
-    m_axesOrder = AxesOrder::Enum(index);
-    ResetTransformation ();
+    GetViewSettings ()->SetAxesOrder (AxesOrder::Enum(index));
 }
 
 // @todo add a color bar model for BodyProperty::None
@@ -2127,11 +2115,9 @@ void GLWidget::ValueChangedT1Size (int index)
 void GLWidget::ValueChangedEdgesRadius (int sliderValue)
 {
     makeCurrent ();
-    ViewSettings& vs = *GetViewSettings ();
     size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
     m_edgeRadiusMultiplier = static_cast<double>(sliderValue) / maximum;
     setEdgeRadius ();
-    vs.EnableLighting ();
     compile (GetViewNumber ());
     update ();
 }
@@ -2216,9 +2202,12 @@ void GLWidget::ValueChangedLightSpecularBlue (int sliderValue)
 
 void GLWidget::ValueChangedAngleOfView (int angleOfView)
 {
-    m_angleOfView = angleOfView;
-    calculateCameraDistance ();
-    projectionTransform ();
+    G3D::Rect2D viewRect = GetViewRect ();
+    ViewSettings& vs = *GetViewSettings ();
+    vs.SetAngleOfView (angleOfView);
+    vs.CalculateCameraDistance (
+	calculateCenteredViewingVolume (
+	    viewRect.width () / viewRect.height ()));
     update ();
 }
 

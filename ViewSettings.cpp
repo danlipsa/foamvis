@@ -33,9 +33,10 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_scaleRatio (1),
     m_translation (G3D::Vector3::zero ()),
     m_lightingEnabled (false),
-    m_selectedLight (LightNumber::TOP_RIGHT),
+    m_selectedLight (LightNumber::LIGHT0),
     m_lightEnabled (0),
-    m_lightPositionShown (0)
+    m_lightPositionShown (0),
+    m_angleOfView (0)
 {
     initTexture ();
     initList ();
@@ -99,10 +100,21 @@ void ViewSettings::EnableLighting ()
 	glDisable (GL_LIGHTING);
 }
 
+void ViewSettings::SetLightEnabled (LightNumber::Enum i, bool enabled)
+{
+    m_lightEnabled[i] = enabled;
+    if (enabled)
+	glEnable(GL_LIGHT0 + i);
+    else
+	glDisable (GL_LIGHT0 + i);
+    EnableLighting ();
+}
+
+
+
 void ViewSettings::PositionLight (
     LightNumber::Enum i,
-    const G3D::Vector3& initialLightPosition,
-    double cameraDistance)
+    const G3D::Vector3& initialLightPosition)
 {
     if (IsLightEnabled (i))
     {
@@ -122,12 +134,27 @@ void ViewSettings::PositionLight (
 	    glLightfv(GL_LIGHT0 + i, GL_SPOT_DIRECTION, &lightDirection[0]);
 	    glPushMatrix ();
 	    glLoadIdentity ();
-	    glTranslated (0, 0, - cameraDistance);
+	    glTranslated (0, 0, - m_cameraDistance);
 	    glMultMatrix (GetRotationLight (i));
 	    GLfloat lightPosition[] = {lp.x, lp.y, lp.z, 1};
 	    glLightfv(GL_LIGHT0 + i, GL_POSITION, lightPosition);
 	    glPopMatrix ();
 	}
 	glPopMatrix ();
+    }
+}
+
+void ViewSettings::CalculateCameraDistance (
+    const G3D::AABox& centeredViewingVolume)
+{
+    G3D::Vector3 diagonal =
+	centeredViewingVolume.high () - centeredViewingVolume.low ();
+    if (GetAngleOfView () == 0)
+	m_cameraDistance = diagonal.z;
+    else
+    {
+	// distance from the camera to the middle of the bounding box
+	m_cameraDistance = diagonal.y / 2 /
+	    tan (GetAngleOfView () * M_PI / 360) + diagonal.z / 2;
     }
 }

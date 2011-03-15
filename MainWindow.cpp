@@ -148,13 +148,17 @@ void MainWindow::connectSignals ()
 
 void MainWindow::ViewToUI ()
 {
-    boost::shared_ptr<ViewSettings> vs = widgetGl->GetViewSettings ();
-    BodyProperty::Enum property = vs->GetBodyProperty ();
-    buttonGroupViewType->button (vs->GetViewType ())->setChecked (true);
+    const ViewSettings& vs = *widgetGl->GetViewSettings ();
+    LightNumber::Enum selectedLight = vs.GetSelectedLight ();
+    BodyProperty::Enum property = vs.GetBodyProperty ();
+    buttonGroupViewType->button (vs.GetViewType ())->setChecked (true);
     comboBoxColor->setCurrentIndex (property);
-    comboBoxStatisticsType->setCurrentIndex (vs->GetStatisticsType ());
+    comboBoxStatisticsType->setCurrentIndex (vs.GetStatisticsType ());
     labelFacesStatisticsColor->setText (BodyProperty::ToString (property));
     labelCenterPathColor->setText (BodyProperty::ToString (property));
+    updateLightControls (vs, selectedLight);
+    horizontalSliderAngleOfView->setValue (vs.GetAngleOfView ());
+    comboBoxAxesOrder->setCurrentIndex (vs.GetAxesOrder ());
 }
 
 void MainWindow::connectColorBarHistogram (bool connected)
@@ -643,52 +647,47 @@ void MainWindow::setupColorBarModel (BodyProperty::Enum property)
 void MainWindow::CurrentIndexChangedSelectedLight (int i)
 {
     const ViewSettings& vs = *widgetGl->GetViewSettings ();
-    checkBoxLightEnabled->setChecked (
-	vs.IsLightEnabled (LightNumber::Enum(i)));
-    checkBoxLightNumberShown->setChecked (
-	vs.IsLightNumberShown (LightNumber::Enum(i)));
+    LightNumber::Enum lightNumber = LightNumber::Enum (i);
+    updateLightControls (vs, lightNumber);
+}
+
+void MainWindow::updateLightControls (
+    const ViewSettings& vs, LightNumber::Enum lightNumber)
+{
+    checkBoxLightEnabled->setChecked (vs.IsLightEnabled (lightNumber));
+    checkBoxLightPositionShown->setChecked (
+	vs.IsLightPositionShown (lightNumber));
     checkBoxDirectionalLightEnabled->setChecked (
-	vs.IsDirectionalLightEnabled (
-	    LightNumber::Enum(i)));
-    
+	vs.IsDirectionalLightEnabled (lightNumber));
     horizontalSliderLightAmbientRed->setValue (
-	floor (
-	    vs.GetLight (LightNumber::Enum(i), LightType::AMBIENT)[0] * 
-	    horizontalSliderLightAmbientRed->maximum () + 0.5));
+	floor (vs.GetLight (lightNumber, LightType::AMBIENT)[0] * 
+	       horizontalSliderLightAmbientRed->maximum () + 0.5));
     horizontalSliderLightAmbientGreen->setValue (
-	floor (
-	    vs.GetLight (LightNumber::Enum(i), LightType::AMBIENT)[1] * 
-	    horizontalSliderLightAmbientGreen->maximum () + 0.5));
+	floor (vs.GetLight (lightNumber, LightType::AMBIENT)[1] * 
+	       horizontalSliderLightAmbientGreen->maximum () + 0.5));
     horizontalSliderLightAmbientBlue->setValue (
-	floor (
-	    vs.GetLight (LightNumber::Enum(i), LightType::AMBIENT)[2] * 
-	    horizontalSliderLightAmbientBlue->maximum () + 0.5));
+	floor (vs.GetLight (lightNumber, LightType::AMBIENT)[2] * 
+	       horizontalSliderLightAmbientBlue->maximum () + 0.5));
     horizontalSliderLightDiffuseRed->setValue (
-	floor (
-	    vs.GetLight (LightNumber::Enum(i), LightType::DIFFUSE)[0] * 
-	    horizontalSliderLightDiffuseRed->maximum () + 0.5));
+	floor (vs.GetLight (lightNumber, LightType::DIFFUSE)[0] * 
+	       horizontalSliderLightDiffuseRed->maximum () + 0.5));
     horizontalSliderLightDiffuseGreen->setValue (
-	floor (
-	    vs.GetLight (LightNumber::Enum(i), LightType::DIFFUSE)[1] * 
-	    horizontalSliderLightDiffuseGreen->maximum () + 0.5));
+	floor (vs.GetLight (lightNumber, LightType::DIFFUSE)[1] * 
+	       horizontalSliderLightDiffuseGreen->maximum () + 0.5));
     horizontalSliderLightDiffuseBlue->setValue (
-	floor (
-	    vs.GetLight (LightNumber::Enum(i), LightType::DIFFUSE)[2] * 
-	    horizontalSliderLightDiffuseBlue->maximum () + 0.5));
+	floor (vs.GetLight (lightNumber, LightType::DIFFUSE)[2] * 
+	       horizontalSliderLightDiffuseBlue->maximum () + 0.5));
     horizontalSliderLightSpecularRed->setValue (
-	floor (
-	    vs.GetLight (
-		LightNumber::Enum(i), LightType::SPECULAR)[0] * 
-	    horizontalSliderLightSpecularRed->maximum () + 0.5));
+	floor (vs.GetLight (
+		   lightNumber, LightType::SPECULAR)[0] * 
+	       horizontalSliderLightSpecularRed->maximum () + 0.5));
     horizontalSliderLightSpecularGreen->setValue (
-	floor (
-	    vs.GetLight (
-		LightNumber::Enum(i), LightType::SPECULAR)[1] * 
-	    horizontalSliderLightSpecularGreen->maximum () + 0.5));
+	floor (vs.GetLight (
+		   lightNumber, LightType::SPECULAR)[1] * 
+	       horizontalSliderLightSpecularGreen->maximum () + 0.5));
     horizontalSliderLightSpecularBlue->setValue (
-	floor (
-	    vs.GetLight (
-		LightNumber::Enum(i), LightType::SPECULAR)[2] * 
+	floor (vs.GetLight (
+		   lightNumber, LightType::SPECULAR)[2] * 
 	    horizontalSliderLightSpecularBlue->maximum () + 0.5));
 }
 

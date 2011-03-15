@@ -210,10 +210,10 @@ struct LightNumber
 {
     enum Enum
     {
-	TOP_RIGHT,
-	TOP_LEFT,
-	BOTTOM_LEFT,
-	BOTTOM_RIGHT,
+	LIGHT0,
+	LIGHT1,
+	LIGHT2,
+	LIGHT3,
 	COUNT
     };
 };

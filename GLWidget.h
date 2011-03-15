@@ -430,22 +430,23 @@ private:
      * Setup the viewing volume first centered around origin and then translated
      * toward negative Z with m_cameraDistance. 
      */
-    void projectionTransform ();
+    void projectionTransform (ViewNumber::Enum viewNumber);
     /**
      * First translate the data to be centered around origin, then
      * rotate and then translate toward negative Z with
      * m_cameraDistance
      */
-    void showLightNumber (
+    void showLightPosition (
 	ViewNumber::Enum viewNumber, LightNumber::Enum light) const;
-    void showLightNumbers (ViewNumber::Enum viewNumber) const;
+    void showLightPositions (ViewNumber::Enum viewNumber) const;
     G3D::Rect2D calculateViewport (int width, int height) const;
     G3D::AABox calculateCenteredViewingVolume (double xOverY) const;
-    G3D::AABox calculateViewingVolume (double xOverY) const;
+    G3D::AABox calculateViewingVolume (
+	ViewNumber::Enum viewNumber, double xOverY) const;
 
     void initQuadrics ();
     void initEndTranslationColor ();
-    void calculateCameraDistance ();
+    void calculateCameraDistance (ViewNumber::Enum viewNumber);
     /**
      * Generates a display list for edges
      * @return the display list
@@ -579,7 +580,6 @@ private:
     bool m_torusOriginalDomainDisplay;
     bool m_torusOriginalDomainClipped;
     InteractionMode::Enum m_interactionMode;
-    AxesOrder::Enum m_axesOrder;
 
     /**
      * Foam to be displayd. Each element coresponds to a DMP file
@@ -615,12 +615,6 @@ private:
 
     double m_contextAlpha;
 
-    /**
-     * Distance from the camera to the center of the bounding box for the foam.
-     */
-    double m_cameraDistance;
-
-    double m_angleOfView;
     EndLocationColor m_endTranslationColor;
     GLUquadricObj* m_quadric;    
     /**

@@ -121,20 +121,17 @@ public:
     {
 	m_translation = translation;
     }
-
-
     bool IsLightingEnabled () const
     {
 	return m_lightingEnabled;
     }
+    void EnableLighting ();
+
     bool IsLightEnabled (LightNumber::Enum i) const
     {
 	return m_lightEnabled[i];
     }
-    void SetLightEnabled (LightNumber::Enum i, bool enabled)
-    {
-	m_lightEnabled[i] = enabled;
-    }
+    void SetLightEnabled (LightNumber::Enum i, bool enabled);
     bool IsDirectionalLightEnabled (LightNumber::Enum i) const
     {
 	return m_directionalLightEnabled [i];
@@ -143,17 +140,16 @@ public:
     {
 	m_directionalLightEnabled [i] = enabled;
     }
-    bool IsLightNumberShown (LightNumber::Enum i) const
+    bool IsLightPositionShown (LightNumber::Enum i) const
     {
 	return m_lightPositionShown[i];
     }
-    void SetLightNumberShown (LightNumber::Enum i, bool shown)
+    void SetLightPositionShown (LightNumber::Enum i, bool shown)
     {
 	m_lightPositionShown[i] = shown;
     }
     void PositionLight (LightNumber::Enum i, 
-			const G3D::Vector3& initialLightPosition,
-			double cameraDistance);
+			const G3D::Vector3& initialLightPosition);
     const boost::array<GLfloat, 4> GetLight (
 	LightNumber::Enum lightNumber, LightType::Enum lightType) const
     {
@@ -182,7 +178,27 @@ public:
 	m_selectedLight = i;
     }
     void SetInitialLightPosition (LightNumber::Enum i);
-    void EnableLighting ();
+    void SetAxesOrder (AxesOrder::Enum axesOrder)
+    {
+	m_axesOrder = axesOrder;
+    }
+    AxesOrder::Enum GetAxesOrder () const
+    {
+	return m_axesOrder;
+    }
+    double GetAngleOfView () const
+    {
+	return m_angleOfView;
+    }
+    void SetAngleOfView (double value)
+    {
+	m_angleOfView = value;
+    }
+    double GetCameraDistance () const
+    {
+	return m_cameraDistance;
+    }
+    void CalculateCameraDistance (const G3D::AABox& centeredViewingVolume);
 
 private:
     void initTexture ();
@@ -213,6 +229,12 @@ private:
     boost::array<
 	boost::array<boost::array<GLfloat, 4>, LightNumber::COUNT>, 
 	LightType::COUNT> m_light;
+    double m_angleOfView;
+    AxesOrder::Enum m_axesOrder;
+    /**
+     * Distance from the camera to the center of the bounding box for the foam.
+     */
+    double m_cameraDistance;
 };
 
 

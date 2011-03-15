@@ -423,7 +423,7 @@
                    </widget>
                   </item>
                   <item row="2" column="1">
-                   <widget class="QCheckBox" name="checkBoxLightNumberShown">
+                   <widget class="QCheckBox" name="checkBoxLightPositionShown">
                     <property name="text">
                      <string>Light direction</string>
                     </property>
@@ -2240,7 +2240,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxLightNumberShown</sender>
+   <sender>checkBoxLightPositionShown</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
    <slot>ToggledLightNumberShown(bool)</slot>

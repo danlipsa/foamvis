@@ -131,6 +131,8 @@ public Q_SLOTS:
     void ViewToUI ();
 
 private:
+    void updateLightControls (
+	const ViewSettings& vs, LightNumber::Enum lightNumber);
     bool isHistogramHidden (HistogramType::Enum histogramType);
     void connectSignals ();
     void connectColorBarHistogram (bool connected);
