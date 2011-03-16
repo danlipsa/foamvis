@@ -1415,6 +1415,7 @@ void GLWidget::displayFacesTorus (ViewNumber::Enum view) const
 	displayFacesTorusLines ();
 	displayCenterOfBodies ();
     }
+    displayStandaloneEdges< DisplayEdgeWithColor<> > ();
 }
 
 
