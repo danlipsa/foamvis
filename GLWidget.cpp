@@ -833,9 +833,10 @@ void GLWidget::ColorBarEdit ()
 
 void GLWidget::ColorBarClampClear ()
 {
-    GetViewSettings ()->GetColorBarModel ()->SetClampClear ();
-    Q_EMIT ColorBarModelChanged (
-	GetViewSettings ()->GetColorBarModel ());
+    boost::shared_ptr<ViewSettings> vs = GetViewSettings ();
+    boost::shared_ptr<ColorBarModel> colorBarModel = vs->GetColorBarModel ();
+    colorBarModel->SetClampClear ();
+    Q_EMIT ColorBarModelChanged (colorBarModel);
 }
 
 

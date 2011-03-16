@@ -268,7 +268,6 @@ struct ViewCount
 	FOUR
     };
     static size_t GetCount (ViewCount::Enum);
-    static const size_t MAX_COUNT = 4;
 };
 
 struct ViewLayout
@@ -287,7 +286,8 @@ struct ViewNumber
 	VIEW0,
 	VIEW1,
 	VIEW2,
-	VIEW3
+	VIEW3,
+	COUNT
     };
 };
 

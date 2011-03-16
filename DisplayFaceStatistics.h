@@ -148,6 +148,11 @@ public:
     {
 	m_historyCount = historyCount;
     }
+    size_t GetHistoryCount () const
+    {
+	return m_historyCount;
+    }
+
 
 private:
     template<typename displaySameEdges>

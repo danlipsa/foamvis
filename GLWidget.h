@@ -273,7 +273,6 @@ public Q_SLOTS:
 	boost::shared_ptr<ColorBarModel> colorBarModel,
 	BodyProperty::Enum property);
     void SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel);
-
     void CurrentIndexChangedInteractionMode (int index);
     void CurrentIndexChangedStatisticsType (int index);
     void CurrentIndexChangedAxesOrder (int index);
@@ -382,7 +381,7 @@ private:
 				 Vector3int16Hash> EndLocationColor;
     typedef boost::array<
 	boost::shared_ptr<DisplayFaceStatistics>, 
-	ViewCount::MAX_COUNT> DisplayFaceStatisticsArray;
+	ViewNumber::COUNT> DisplayFaceStatisticsArray;
 
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
@@ -661,7 +660,7 @@ private:
     ViewLayout::Enum m_viewLayout;
     ViewNumber::Enum m_viewNumber;
     boost::array<
-	boost::shared_ptr<ViewSettings>, ViewCount::MAX_COUNT> m_viewSettings;
+	boost::shared_ptr<ViewSettings>, ViewNumber::COUNT> m_viewSettings;
 };
 
 #endif //__GLWIDGET_H__

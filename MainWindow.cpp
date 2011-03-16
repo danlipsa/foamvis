@@ -7,6 +7,7 @@
 #include "Application.h"
 #include "BodySelector.h"
 #include "ColorBarModel.h"
+#include "DisplayFaceStatistics.h"
 #include "Debug.h"
 #include "EditColorMap.h"
 #include "Foam.h"
@@ -78,7 +79,8 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     spinBoxStatisticsHistory->setValue (spinBoxStatisticsHistory->maximum ());
     widgetGl->SetFoamAlongTime (&foamAlongTime);
     widgetGl->SetStatus (labelStatusBar);
-    setupColorBarModels ();
+    for (size_t i = 0; i < ViewNumber::COUNT; ++i)
+	setupColorBarModels (ViewNumber::Enum (i));
     widgetHistogram->setHidden (true);
     m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
     configureInterface (foamAlongTime);    
@@ -130,7 +132,7 @@ void MainWindow::connectSignals ()
     
     
     // ColorBarModelChanged:
-    // from ColorBar to GLWidget and AttributeHistogram
+    // from GLWidget to GLWidget and MainWindow and AttributeHistogram
     connect (
 	widgetGl, 
 	SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
@@ -159,6 +161,8 @@ void MainWindow::ViewToUI ()
     updateLightControls (vs, selectedLight);
     horizontalSliderAngleOfView->setValue (vs.GetAngleOfView ());
     comboBoxAxesOrder->setCurrentIndex (vs.GetAxesOrder ());
+    spinBoxStatisticsHistory->setValue (
+	vs.GetDisplayFaceStatistics ()->GetHistoryCount ());
 }
 
 void MainWindow::connectColorBarHistogram (bool connected)
@@ -616,32 +620,36 @@ void MainWindow::displayHistogramColorBar (bool checked)
 	m_histogramType);
 }
 
-void MainWindow::setupColorBarModels ()
+void MainWindow::setupColorBarModels (ViewNumber::Enum viewNumber)
 {
     size_t i = 0;
     BOOST_FOREACH (boost::shared_ptr<ColorBarModel>& colorBarModel,
-		   m_colorBarModelBodyProperty)
+		   m_colorBarModelBodyProperty[viewNumber])
     {
 	BodyProperty::Enum property = BodyProperty::FromSizeT (i);
 	colorBarModel.reset (new ColorBarModel ());
-	setupColorBarModel (property);
+	setupColorBarModel (viewNumber, property);
 	++i;
     }
-    m_colorBarModelDomainHistogram.reset (new ColorBarModel ());
-    m_colorBarModelDomainHistogram->SetTitle ("Count per area");
-    m_colorBarModelDomainHistogram->SetInterval (
+    boost::shared_ptr<ColorBarModel>& colorBarModel = 
+	m_colorBarModelDomainHistogram[viewNumber];
+    colorBarModel.reset (new ColorBarModel ());
+    colorBarModel->SetTitle ("Count per area");
+    colorBarModel->SetInterval (
 	QwtDoubleInterval (0, widgetGl->GetFoamAlongTime ().GetTimeSteps ()));
-    m_colorBarModelDomainHistogram->SetupPalette (Palette::BLACK_BODY);
+    colorBarModel->SetupPalette (Palette::BLACK_BODY);
 }
 
-void MainWindow::setupColorBarModel (BodyProperty::Enum property)
+void MainWindow::setupColorBarModel (ViewNumber::Enum viewNumber,
+				     BodyProperty::Enum property)
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    m_colorBarModelBodyProperty[property]->SetTitle (
+    m_colorBarModelBodyProperty[viewNumber][property]->SetTitle (
 	BodyProperty::ToString (property));
-    m_colorBarModelBodyProperty[property]->SetInterval (
+    m_colorBarModelBodyProperty[viewNumber][property]->SetInterval (
 	foamAlongTime.GetRange (property));
-    m_colorBarModelBodyProperty[property]->SetupPalette (Palette::RAINBOW);
+    m_colorBarModelBodyProperty[viewNumber][property]->SetupPalette (
+	Palette::RAINBOW);
 }
 
 void MainWindow::CurrentIndexChangedSelectedLight (int i)
@@ -701,12 +709,14 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
     boost::array<QWidget*, 1> widgetsEnabled = {{
 	    radioButtonFacesStatistics}};
     BodyProperty::Enum property = BodyProperty::FromSizeT (value);
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
     if (property == BodyProperty::NONE)
     {
 	::setVisible (widgetsVisible, false);
 	::setEnabled (widgetsEnabled, false);
 	widgetHistogram->setVisible (false);
-	Q_EMIT BodyPropertyChanged (m_colorBarModelBodyProperty[0], property);
+	Q_EMIT BodyPropertyChanged (
+	    m_colorBarModelBodyProperty[viewNumber][0], property);
     }
     else
     {
@@ -715,7 +725,7 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	size_t timeStep = widgetGl->GetTimeStep ();
 	Q_EMIT BodyPropertyChanged (
-	    m_colorBarModelBodyProperty[property], property);
+	    m_colorBarModelBodyProperty[viewNumber][property], property);
 	if (m_histogramType != HistogramType::NONE)
 	    SetAndDisplayHistogram (
 		m_histogramType,
@@ -732,18 +742,20 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
     boost::array<QWidget*, 1> widgetsEnabled = {{
 	    radioButtonFacesStatistics}};
     BodyProperty::Enum property = BodyProperty::FromSizeT(value);
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
     if (property == BodyProperty::NONE)
     {
 	::setEnabled (widgetsEnabled, false);
 	widgetHistogram->setHidden (true);
-	Q_EMIT BodyPropertyChanged (m_colorBarModelBodyProperty[0], property);
+	Q_EMIT BodyPropertyChanged (
+	    m_colorBarModelBodyProperty[viewNumber][0], property);
     }
     else
     {
 	::setEnabled (widgetsEnabled, true);
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	Q_EMIT BodyPropertyChanged (
-	    m_colorBarModelBodyProperty[property], property);
+	    m_colorBarModelBodyProperty[viewNumber][property], property);
 	if (m_histogramType != HistogramType::NONE)
 	    SetAndDisplayHistogram (
 		m_histogramType,
@@ -757,6 +769,7 @@ void MainWindow::CurrentIndexChangedCenterPathColor (int value)
 
 void MainWindow::ToggledFacesStatistics (bool checked)
 {
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
     if (checked)
     {
 	Q_EMIT ColorBarModelChanged (getCurrentColorBarModel ());
@@ -768,8 +781,9 @@ void MainWindow::ToggledFacesStatistics (bool checked)
     }
     else
     {	
+	BodyProperty::Enum bodyProperty = widgetGl->GetCurrentBodyProperty ();
 	Q_EMIT ColorBarModelChanged (
-	    m_colorBarModelBodyProperty[widgetGl->GetCurrentBodyProperty ()]);
+	    m_colorBarModelBodyProperty[viewNumber][bodyProperty]);
 	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
     }
 }
@@ -888,11 +902,13 @@ void MainWindow::ShowEditColorMap ()
 
 boost::shared_ptr<ColorBarModel> MainWindow::getCurrentColorBarModel () const
 {
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
     if (widgetGl->GetViewSettings ()->GetStatisticsType () == 
 	StatisticsType::COUNT)
-	return m_colorBarModelDomainHistogram;
+	return m_colorBarModelDomainHistogram[viewNumber];
     else
-	return m_colorBarModelBodyProperty[widgetGl->GetCurrentBodyProperty ()];
+	return m_colorBarModelBodyProperty[viewNumber]
+	    [widgetGl->GetCurrentBodyProperty ()];
 }
 
 /**

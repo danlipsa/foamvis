@@ -161,8 +161,9 @@ private:
     void setupSliderData (const FoamAlongTime& foamAlongTime);
     void setupButtonGroups ();
     void configureInterface (const FoamAlongTime& foamAlongTime);
-    void setupColorBarModel (BodyProperty::Enum property);
-    void setupColorBarModels ();
+    void setupColorBarModel (ViewNumber::Enum viewNumber,
+			     BodyProperty::Enum property);
+    void setupColorBarModels (ViewNumber::Enum viewNumber);
 
     void setupHistogram ();
     void processBodyTorusStep ();
@@ -201,9 +202,12 @@ private:
 
     HistogramType::Enum m_histogramType;
     boost::array<
-	boost::shared_ptr<ColorBarModel>, 
-	BodyProperty::PROPERTY_END> m_colorBarModelBodyProperty;
-    boost::shared_ptr<ColorBarModel> m_colorBarModelDomainHistogram;
+	boost::array<boost::shared_ptr<ColorBarModel>, 
+		     BodyProperty::PROPERTY_END>,
+	ViewNumber::COUNT> m_colorBarModelBodyProperty;
+    boost::array<
+	boost::shared_ptr<ColorBarModel>,
+	ViewNumber::COUNT> m_colorBarModelDomainHistogram;
     boost::shared_ptr<EditColorMap> m_editColorMap;
 };
 
