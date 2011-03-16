@@ -201,6 +201,40 @@ public:
     void SetLightingParameters (const G3D::Vector3& initialLightPosition);
     void EnableLighting ();
 
+    size_t GetBodyStationaryId () const
+    {
+	return m_bodyStationaryId;
+    }
+    void SetBodyStationaryId (size_t id)
+    {
+	m_bodyStationaryId = id;
+    }
+
+    size_t GetBodyStationaryTimeStep () const
+    {
+	return m_bodyStationaryTimeStep;
+    }
+    void SetBodyStationaryTimeStep (size_t timeStep)
+    {
+	m_bodyStationaryTimeStep = timeStep;
+    }
+    bool IsBodyContext (size_t bodyId) const;
+    size_t GetBodyContextSize () const
+    {
+	return m_bodyContext.size ();
+    }
+    void ClearBodyContext ()
+    {
+	m_bodyContext.clear ();
+    }
+    void AddBodyContext (size_t bodyId)
+    {
+	m_bodyContext.insert (bodyId);
+    }
+
+public:
+    const static size_t NONE;
+
 private:
     void initTexture ();
     void initList ();
@@ -237,6 +271,13 @@ private:
      * Distance from the camera to the center of the bounding box for the foam.
      */
     double m_cameraDistance;
+
+    /**
+     * Keep this body stationary during the evolution of the foam
+     */
+    size_t m_bodyStationaryId;
+    size_t m_bodyStationaryTimeStep;
+    set<size_t> m_bodyContext;
 };
 
 

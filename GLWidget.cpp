@@ -89,7 +89,6 @@ void display (const char* name, const T& what)
 // ======================================================================
 
 const size_t GLWidget::DISPLAY_ALL(numeric_limits<size_t>::max());
-const size_t GLWidget::NONE(numeric_limits<size_t>::max());
 // quadrics
 const size_t GLWidget::QUADRIC_SLICES = 8;
 const size_t GLWidget::QUADRIC_STACKS = 1;
@@ -112,8 +111,6 @@ GLWidget::GLWidget(QWidget *parent)
       m_foamAlongTime (0), m_timeStep (0),
       m_selectedBodyIndex (DISPLAY_ALL), m_selectedFaceIndex (DISPLAY_ALL),
       m_selectedEdgeIndex (DISPLAY_ALL),
-      m_stationaryBodyId (NONE),
-      m_stationaryBodyTimeStep (0),
       m_contextAlpha (MIN_CONTEXT_ALPHA),
       m_edgeRadiusMultiplier (0),
       m_edgesTubes (false),
@@ -528,20 +525,22 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
     default:
 	break;
     }
-    translateFoamStationaryBody (timeStep);
+    translateFoamStationaryBody (viewNumber, timeStep);
     glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
 }
 
-void GLWidget::translateFoamStationaryBody (size_t timeStep) const
+void GLWidget::translateFoamStationaryBody (
+    ViewNumber::Enum viewNumber, size_t timeStep) const
 {
-    if (m_stationaryBodyId != NONE)
+    const ViewSettings& vs = *GetViewSettings (viewNumber);
+    if (vs.GetBodyStationaryId () != ViewSettings::NONE)
     {
 	G3D::Vector3 translation = 
-	    GetFoamAlongTime ().GetFoam (m_stationaryBodyTimeStep)->
-	    GetBody (m_stationaryBodyId)->GetCenter () -
+	    GetFoamAlongTime ().GetFoam (vs.GetBodyStationaryTimeStep ())->
+	    GetBody (vs.GetBodyStationaryId ())->GetCenter () -
 	    
 	    GetFoamAlongTime ().GetFoam (timeStep)->
-	    GetBody (m_stationaryBodyId)->GetCenter ();
+	    GetBody (vs.GetBodyStationaryId ())->GetCenter ();
 	glTranslate (translation);
     }
 }
@@ -1045,25 +1044,28 @@ void GLWidget::brushedBodies (
     }
 }
 
-void GLWidget::displayBodyStationaryContour () const
+void GLWidget::displayBodyStationaryContour (ViewNumber::Enum viewNumber) const
 {
-    if (GetBodyStationaryId () != NONE)
+    const ViewSettings& vs = *GetViewSettings (viewNumber);
+    if (vs.GetBodyStationaryId () != ViewSettings::NONE)
     {
 	Foam::Bodies focusBody (1);
-	focusBody[0] = *GetCurrentFoam ().FindBody (GetBodyStationaryId ());
+	focusBody[0] = *GetCurrentFoam ().FindBody (vs.GetBodyStationaryId ());
 	displayFacesContour<0> (focusBody);
     }
 }
 
-void GLWidget::displayBodyContextContour () const
+void GLWidget::displayBodyContextContour (ViewNumber::Enum viewNumber) const
 {
-    if (m_bodyContext.size () > 0)
+    boost::shared_ptr<ViewSettings> vs = GetViewSettings (viewNumber);
+    if (vs->GetBodyContextSize () > 0)
     {
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	Foam::Bodies contextBodies (bodies.size ());
+	
 	Foam::Bodies::const_iterator end = remove_copy_if (
 	    bodies.begin (), bodies.end (), contextBodies.begin (),
-	    ! boost::bind (&GLWidget::IsBodyContext, this, 
+	    ! boost::bind (&ViewSettings::IsBodyContext, vs, 
 			   boost::bind (&Body::GetId, _1)));
 	contextBodies.resize (end - contextBodies.begin ());
 	displayFacesContour<1> (contextBodies);
@@ -1073,6 +1075,7 @@ void GLWidget::displayBodyContextContour () const
 
 void GLWidget::setBodyStationaryContextLabel ()
 {
+    const ViewSettings& vs = *GetViewSettings ();
     bitset<2> stationaryParameters;
     const char* message[] = 
     {
@@ -1081,33 +1084,37 @@ void GLWidget::setBodyStationaryContextLabel ()
 	"Body context",
 	"Stationary body + body context"
     };
-    stationaryParameters.set (0, m_stationaryBodyId != NONE);
-    stationaryParameters.set (1, m_bodyContext.size () != 0);
+    stationaryParameters.set (0, vs.GetBodyStationaryId () != 
+			      ViewSettings::NONE);
+    stationaryParameters.set (1, vs.GetBodyContextSize () != 0);
     m_labelStatusBar->setText (message[stationaryParameters.to_ulong ()]);
 }
 
 
 void GLWidget::BodyStationarySet ()
 {
+    ViewSettings& vs = *GetViewSettings ();
     vector<size_t> bodies;
     brushedBodies (m_contextMenuPos, &bodies);
-    m_stationaryBodyId = bodies[0];
-    m_stationaryBodyTimeStep = m_timeStep;
+    vs.SetBodyStationaryId (bodies[0]);
+    vs.SetBodyStationaryTimeStep (m_timeStep);
     setBodyStationaryContextLabel ();
     update ();
 }
 
 void GLWidget::BodyStationaryReset ()
 {
-    m_stationaryBodyId = NONE;
-    m_stationaryBodyTimeStep = 0;
+    ViewSettings& vs = *GetViewSettings ();
+    vs.SetBodyStationaryId (ViewSettings::NONE);
+    vs.SetBodyStationaryTimeStep (0);
     setBodyStationaryContextLabel ();
     update ();
 }
 
 void GLWidget::BodyContextReset ()
 {
-    m_bodyContext.clear ();
+    ViewSettings& vs = *GetViewSettings ();
+    vs.ClearBodyContext ();
     setBodyStationaryContextLabel ();
     update ();
 }
@@ -1115,9 +1122,10 @@ void GLWidget::BodyContextReset ()
 
 void GLWidget::BodyContextAdd ()
 {
+    ViewSettings& vs = *GetViewSettings ();
     vector<size_t> bodies;
     brushedBodies (m_contextMenuPos, &bodies);
-    m_bodyContext.insert (bodies[0]);
+    vs.AddBodyContext (bodies[0]);
     setBodyStationaryContextLabel ();
     update ();
 }
@@ -1499,8 +1507,8 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
 	GetViewRect (viewNumber),
 	minMax.first, minMax.second, view->GetStatisticsType ());
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
-    displayBodyStationaryContour ();
-    displayBodyContextContour ();
+    displayBodyStationaryContour (viewNumber);
+    displayBodyContextContour (viewNumber);
     glPopAttrib ();
 }
 

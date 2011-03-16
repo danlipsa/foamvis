@@ -19,9 +19,14 @@ void initialize (boost::array<GLfloat, 4>& colors,
     copy (values.begin (), values.end (), colors.begin ());
 }
 
-// Methods
+
+// Static Fields
 // ======================================================================
 
+const size_t ViewSettings::NONE(numeric_limits<size_t>::max());
+
+// Methods
+// ======================================================================
 ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_viewType (ViewType::COUNT),
     m_bodyProperty (BodyProperty::NONE),
@@ -36,7 +41,9 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_selectedLight (LightNumber::LIGHT0),
     m_lightEnabled (0),
     m_lightPositionShown (0),
-    m_angleOfView (0)
+    m_angleOfView (0),
+    m_bodyStationaryId (NONE),
+    m_bodyStationaryTimeStep (0)
 {
     initTexture ();
     initList ();
@@ -174,4 +181,9 @@ void ViewSettings::SetLightingParameters (
 	}
     }
     EnableLighting ();
+}
+
+bool ViewSettings::IsBodyContext (size_t bodyId) const
+{
+    return m_bodyContext.find (bodyId) != m_bodyContext.end ();
 }

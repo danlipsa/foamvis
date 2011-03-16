@@ -14,6 +14,7 @@
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
 #include "OrientedFace.h"
+#include "ViewSettings.h"
 
 // DisplayFaceHighlightColor
 // ======================================================================
@@ -142,20 +143,22 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 {
     *useColor = true;
     boost::shared_ptr<Body> body = of->GetBodyPartOf ().GetBody ();
+    const ViewSettings& vs = *this->m_glWidget.GetViewSettings (
+	this->m_propertySetter.GetViewNumber ());
     size_t bodyId = body->GetId ();
-    if (bodyId == this->m_glWidget.GetBodyStationaryId ())
+    if (bodyId == vs.GetBodyStationaryId ())
     {
 	glColor (this->m_glWidget.GetHighlightColor (
 		     this->m_propertySetter.GetViewNumber (),
 		     HighlightNumber::HIGHLIGHT0));
-	//this->m_propertySetter (body);
+	this->m_propertySetter (body);
     }
-    else if (this->m_glWidget.IsBodyContext (bodyId))
+    else if (vs.IsBodyContext (bodyId))
     {
 	glColor (this->m_glWidget.GetHighlightColor (
 		     this->m_propertySetter.GetViewNumber (),
 		     HighlightNumber::HIGHLIGHT1));
-	//this->m_propertySetter (body);
+	this->m_propertySetter (body);
     }
     else if (this->m_focus == DisplayElement::FOCUS)
     {
@@ -230,9 +233,11 @@ display (const boost::shared_ptr<OrientedFace>& of)
 {
     boost::shared_ptr<Body> body = of->GetBodyPartOf ().GetBody ();
     size_t bodyId = body->GetId ();
+    const ViewSettings& vs = *this->m_glWidget.GetViewSettings (
+	this->m_propertySetter.GetViewNumber ());
     if (this->m_focus == DisplayElement::FOCUS ||
-	bodyId == this->m_glWidget.GetBodyStationaryId () ||
-	this->m_glWidget.IsBodyContext (bodyId))
+	bodyId == vs.GetBodyStationaryId () || 
+	vs.IsBodyContext (bodyId))
     {
 	glColor (QColor (faceColor));
     }

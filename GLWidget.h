@@ -114,14 +114,6 @@ public:
     {
 	return m_timeStep;
     }
-    size_t GetBodyStationaryId () const
-    {
-	return m_stationaryBodyId;
-    }
-    bool IsBodyContext (size_t bodyId) const
-    {
-	return m_bodyContext.find (bodyId) != m_bodyContext.end ();
-    }
     bool IsZeroedPressureShown () const
     {
 	return m_zeroedPressureShown;
@@ -338,7 +330,6 @@ public Q_SLOTS:
 
 public:
     const static  size_t DISPLAY_ALL;
-    const static size_t NONE;
     const static size_t QUADRIC_SLICES;
     const static size_t QUADRIC_STACKS;
 
@@ -455,8 +446,8 @@ private:
     void displayEdges () const;
     void displayView (ViewNumber::Enum view);
     void displayViews ();
-    void displayBodyContextContour () const;
-    void displayBodyStationaryContour () const;
+    void displayBodyContextContour (ViewNumber::Enum view) const;
+    void displayBodyStationaryContour (ViewNumber::Enum view) const;
 
     void displayEdgesNormal (ViewNumber::Enum view) const;
     template<typename displayEdge>
@@ -555,7 +546,8 @@ private:
     void rotate2DRight90 () const;
     void setBodySelectorLabel (BodySelectorType::Enum type);
     void setBodyStationaryContextLabel ();
-    void translateFoamStationaryBody (size_t timeStep) const;
+    void translateFoamStationaryBody (
+	ViewNumber::Enum viewNumber, size_t timeStep) const;
     
 
 private:
@@ -606,12 +598,6 @@ private:
      */
     size_t m_selectedFaceIndex;
     size_t m_selectedEdgeIndex;
-    /**
-     * Keep this body stationary during the evolution of the foam
-     */
-    size_t m_stationaryBodyId;
-    size_t m_stationaryBodyTimeStep;
-    set<size_t> m_bodyContext;
 
     double m_contextAlpha;
 
