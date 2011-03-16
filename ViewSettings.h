@@ -125,7 +125,6 @@ public:
     {
 	return m_lightingEnabled;
     }
-    void EnableLighting ();
 
     bool IsLightEnabled (LightNumber::Enum i) const
     {
@@ -199,12 +198,13 @@ public:
 	return m_cameraDistance;
     }
     void CalculateCameraDistance (const G3D::AABox& centeredViewingVolume);
+    void SetLightingParameters (const G3D::Vector3& initialLightPosition);
+    void EnableLighting ();
 
 private:
     void initTexture ();
     void initList ();
     void setInitialLightParameters ();
-
 
 private:
     ViewType::Enum m_viewType;
@@ -218,7 +218,7 @@ private:
     G3D::Rect2D m_viewport;
     double m_scaleRatio;
     G3D::Vector3 m_translation;
-
+    // lighting state
     bool m_lightingEnabled;
     LightNumber::Enum m_selectedLight;
     bitset<LightNumber::COUNT> m_lightEnabled;
@@ -229,6 +229,8 @@ private:
     boost::array<
 	boost::array<boost::array<GLfloat, 4>, LightNumber::COUNT>, 
 	LightType::COUNT> m_light;
+
+    //  requires camera distance
     double m_angleOfView;
     AxesOrder::Enum m_axesOrder;
     /**

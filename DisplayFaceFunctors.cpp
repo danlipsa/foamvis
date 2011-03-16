@@ -148,14 +148,14 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	glColor (this->m_glWidget.GetHighlightColor (
 		     this->m_propertySetter.GetViewNumber (),
 		     HighlightNumber::HIGHLIGHT0));
-	this->m_propertySetter (body);
+	//this->m_propertySetter (body);
     }
     else if (this->m_glWidget.IsBodyContext (bodyId))
     {
 	glColor (this->m_glWidget.GetHighlightColor (
 		     this->m_propertySetter.GetViewNumber (),
 		     HighlightNumber::HIGHLIGHT1));
-	this->m_propertySetter (body);
+	//this->m_propertySetter (body);
     }
     else if (this->m_focus == DisplayElement::FOCUS)
     {

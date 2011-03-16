@@ -107,37 +107,39 @@ void ViewSettings::SetLightEnabled (LightNumber::Enum i, bool enabled)
 	glEnable(GL_LIGHT0 + i);
     else
 	glDisable (GL_LIGHT0 + i);
-    EnableLighting ();
 }
 
 
 
 void ViewSettings::PositionLight (
-    LightNumber::Enum i,
+    LightNumber::Enum lightNumber,
     const G3D::Vector3& initialLightPosition)
 {
-    if (IsLightEnabled (i))
+    if (IsLightEnabled (lightNumber))
     {
-	G3D::Vector3 lp = initialLightPosition * GetLightNumberRatio (i);
+	G3D::Vector3 lp = initialLightPosition * 
+	    GetLightNumberRatio (lightNumber);
 	glPushMatrix ();
-	glLoadMatrix (G3D::CoordinateFrame (GetRotationLight (i)));
-	if (IsDirectionalLightEnabled (i))
+	glLoadMatrix (G3D::CoordinateFrame (
+			  GetRotationLight (lightNumber)));
+	if (IsDirectionalLightEnabled (lightNumber))
 	{
-	    glLightf(GL_LIGHT0 + i, GL_SPOT_CUTOFF, 180);
+	    glLightf(GL_LIGHT0 + lightNumber, GL_SPOT_CUTOFF, 180);
 	    boost::array<GLfloat, 4> lightDirection = {{lp.x, lp.y, lp.z, 0}};
-	    glLightfv(GL_LIGHT0 + i, GL_POSITION, &lightDirection[0]);
+	    glLightfv(GL_LIGHT0 + lightNumber, GL_POSITION, &lightDirection[0]);
 	}
 	else
 	{
-	    glLightf(GL_LIGHT0 + i, GL_SPOT_CUTOFF, 15);
+	    glLightf(GL_LIGHT0 + lightNumber, GL_SPOT_CUTOFF, 15);
 	    boost::array<GLfloat, 3> lightDirection = {{-lp.x, -lp.y, -lp.z}};
-	    glLightfv(GL_LIGHT0 + i, GL_SPOT_DIRECTION, &lightDirection[0]);
+	    glLightfv(GL_LIGHT0 + lightNumber, 
+		      GL_SPOT_DIRECTION, &lightDirection[0]);
 	    glPushMatrix ();
 	    glLoadIdentity ();
 	    glTranslated (0, 0, - m_cameraDistance);
-	    glMultMatrix (GetRotationLight (i));
+	    glMultMatrix (GetRotationLight (lightNumber));
 	    GLfloat lightPosition[] = {lp.x, lp.y, lp.z, 1};
-	    glLightfv(GL_LIGHT0 + i, GL_POSITION, lightPosition);
+	    glLightfv(GL_LIGHT0 + lightNumber, GL_POSITION, lightPosition);
 	    glPopMatrix ();
 	}
 	glPopMatrix ();
@@ -157,4 +159,19 @@ void ViewSettings::CalculateCameraDistance (
 	m_cameraDistance = diagonal.y / 2 /
 	    tan (GetAngleOfView () * M_PI / 360) + diagonal.z / 2;
     }
+}
+
+void ViewSettings::SetLightingParameters (
+    const G3D::Vector3& initialLightPosition)
+{
+    for (size_t i = 0; i < LightNumber::COUNT; ++i)
+    {
+	LightNumber::Enum lightNumber = LightNumber::Enum (i);
+	if (IsLightEnabled (lightNumber))
+	{
+	    SetLightEnabled (lightNumber, true);
+	    PositionLight (lightNumber, initialLightPosition);
+	}
+    }
+    EnableLighting ();
 }

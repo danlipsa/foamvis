@@ -557,9 +557,8 @@ G3D::AABox GLWidget::calculateViewingVolume (ViewNumber::Enum viewNumber,
 }
 
 
-void GLWidget::projectionTransform (ViewNumber::Enum viewNumber)
+void GLWidget::projectionTransform (ViewNumber::Enum viewNumber) const
 {
-    makeCurrent ();
     const ViewSettings& vs = *GetViewSettings (viewNumber);
     double xOverY = getViewXOverY ();
     G3D::AABox viewingVolume = calculateViewingVolume (viewNumber, xOverY);
@@ -581,7 +580,7 @@ void GLWidget::projectionTransform (ViewNumber::Enum viewNumber)
     glLoadIdentity ();
 }
 
-void GLWidget::viewportTransform (ViewNumber::Enum viewNumber)
+void GLWidget::viewportTransform (ViewNumber::Enum viewNumber) const
 {
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     ViewSettings& vs = *GetViewSettings (viewNumber);
@@ -881,7 +880,7 @@ void GLWidget::displayViews ()
 void GLWidget::displayView (ViewNumber::Enum viewNumber)
 {
     ViewSettings& vs = *GetViewSettings (viewNumber);
-    vs.EnableLighting ();
+    vs.SetLightingParameters (getInitialLightPosition (vs.GetSelectedLight ()));
     viewportTransform (viewNumber);    
     projectionTransform (viewNumber);
     ModelViewTransform (viewNumber, GetTimeStep ());
@@ -1029,6 +1028,11 @@ void GLWidget::scale (ViewNumber::Enum viewNumber, const QPoint& position)
 void GLWidget::brushedBodies (
     const QPoint& position, vector<size_t>* bodies) const
 {
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    viewportTransform (viewNumber);    
+    projectionTransform (viewNumber);
+    ModelViewTransform (viewNumber, GetTimeStep ());
+
     G3D::Vector3 end = gluUnProject (QtToOpenGl (position, height ()));
     if (GetFoamAlongTime ().Is2D ())
 	end.z = 0;
@@ -1831,11 +1835,10 @@ void GLWidget::ToggledLightEnabled (bool checked)
     ViewSettings& vs = *GetViewSettings ();
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     vs.SetLightEnabled (selectedLight, checked);
-    /*
+    vs.EnableLighting ();
     if (checked)
-	vs.PositionLight (selectedLight, getInitialLightPosition (selectedLight),
-			  m_cameraDistance);
-    */
+	vs.PositionLight (
+	    selectedLight, getInitialLightPosition (selectedLight));
     update ();
 }
 

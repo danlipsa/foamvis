@@ -398,7 +398,7 @@ private:
 private:
     void setLight (int sliderValue, int maximumValue, 
 		   LightType::Enum lightType, ColorNumber::Enum colorNumber);    
-    void viewportTransform (ViewNumber::Enum viewNumber);
+    void viewportTransform (ViewNumber::Enum viewNumber) const;
     void setView (const G3D::Vector2& clickedPoint);
     void selectView (const G3D::Vector2& clickedPoint);
     double getViewXOverY () const;
@@ -430,7 +430,7 @@ private:
      * Setup the viewing volume first centered around origin and then translated
      * toward negative Z with m_cameraDistance. 
      */
-    void projectionTransform (ViewNumber::Enum viewNumber);
+    void projectionTransform (ViewNumber::Enum viewNumber) const;
     /**
      * First translate the data to be centered around origin, then
      * rotate and then translate toward negative Z with
