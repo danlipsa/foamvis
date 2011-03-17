@@ -231,6 +231,15 @@ public:
     {
 	m_bodyContext.insert (bodyId);
     }
+    bool IsContextView () const
+    {
+	return m_contextView;
+    }
+
+    void SetContextView (bool contextView)
+    {
+	m_contextView = contextView;
+    }
 
 public:
     const static size_t NONE;
@@ -278,6 +287,7 @@ private:
     size_t m_bodyStationaryId;
     size_t m_bodyStationaryTimeStep;
     set<size_t> m_bodyContext;
+    bool m_contextView;
 };
 
 

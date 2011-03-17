@@ -43,7 +43,8 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_lightPositionShown (0),
     m_angleOfView (0),
     m_bodyStationaryId (NONE),
-    m_bodyStationaryTimeStep (0)
+    m_bodyStationaryTimeStep (0),
+    m_contextView (false)
 {
     initTexture ();
     initList ();

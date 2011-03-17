@@ -61,7 +61,7 @@ extern const G3D::Vector3int16 Vector3int16Zero;
 void Scale (G3D::AABox* aabox, double change);
 void Scale (G3D::Rect2D* aabox, double change);
 void Translate (G3D::AABox* aabox, const G3D::Vector3& translationRatio);
-G3D::AABox EncloseRotation (const G3D::AABox& aabox, double t);
+G3D::AABox EncloseRotation (const G3D::AABox& aabox);
 void AddBorder (G3D::AABox* aabox);
 bool Intersection (
     const QBox3D& box, const QVector3D& begin, const QVector3D& end);

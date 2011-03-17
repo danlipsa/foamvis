@@ -128,14 +128,13 @@ GLWidget::GLWidget(QWidget *parent)
       m_timeDisplacement (0.0),
       m_playMovie (false),
       m_selectBodiesById (new SelectBodiesById (this)),
-      m_contextView (false),
       m_hideContent(false),
       m_tubeCenterPathUsed (true),
       m_t1sShown (false),
       m_t1Size (MIN_T1_SIZE),
       m_zeroedPressureShown (false),
       m_titleShown (true),
-      m_markStationary (true),
+      m_bodyStationaryMarked (true),
       m_viewCount (ViewCount::ONE),
       m_viewLayout (ViewLayout::HORIZONTAL),
       m_viewNumber (ViewNumber::VIEW0)
@@ -476,8 +475,7 @@ void GLWidget::initializeLighting ()
 G3D::AABox GLWidget::calculateCenteredViewingVolume (double xOverY) const
 {
     G3D::AABox boundingBox = AdjustXOverYRatio (
-	EncloseRotation (GetFoamAlongTime ().GetBoundingBox (), 
-			 ENCLOSE_ROTATION_RATIO), xOverY);
+	EncloseRotation (GetFoamAlongTime ().GetBoundingBox ()), xOverY);
     G3D::Vector3 center = boundingBox.center ();
     return boundingBox - center;
 }
@@ -511,9 +509,9 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
     glTranslatef (0, 0, - vs.GetCameraDistance ());
     
     // modeling transform
-    if (! m_contextView)
+    if (! vs.IsContextView ())
 	translateAndScale (vs.GetScaleRatio (), vs.GetTranslation (), 
-			   m_contextView);
+			   vs.IsContextView ());
     glMultMatrix (vs.GetRotationModel ());
     switch (vs.GetAxesOrder ())
     {
@@ -1007,7 +1005,7 @@ void GLWidget::translate (
     G3D::AABox vv = calculateCenteredViewingVolume (
 	double (width ()) / height ());
     G3D::Vector3 focusBoxExtent = vv.extent () / vs.GetScaleRatio ();
-    if (m_contextView)
+    if (vs.IsContextView ())
 	vs.SetTranslation (
 	    vs.GetTranslation () - (translationRatio * focusBoxExtent));
     else
@@ -1020,7 +1018,7 @@ void GLWidget::scale (ViewNumber::Enum viewNumber, const QPoint& position)
 {
     ViewSettings& vs = *GetViewSettings (viewNumber);
     double ratio = ratioFromCenter (position);
-    if (m_contextView)
+    if (vs.IsContextView ())
 	vs.SetScaleRatio (vs.GetScaleRatio () / ratio);
     else
 	vs.SetScaleRatio (vs.GetScaleRatio () * ratio);
@@ -1242,17 +1240,18 @@ void GLWidget::displayOriginalDomain () const
  */
 void GLWidget::displayFocusBox (ViewNumber::Enum viewNumber) const
 {
-    if (m_contextView)
+    const ViewSettings& vs = *GetViewSettings (viewNumber);
+    G3D::Rect2D viewRect = GetViewRect (viewNumber);
+    if (vs.IsContextView ())
     {
-	const ViewSettings& vs = *GetViewSettings (viewNumber);
 	glPushMatrix ();
 	glLoadIdentity ();
 	glTranslatef (0, 0, - vs.GetCameraDistance ());
 
 	G3D::AABox focusBox = calculateCenteredViewingVolume (
-	    double (width ()) / height ());
+	    double (viewRect.width ()) / viewRect.height ());
 	translateAndScale (1 / vs.GetScaleRatio (), 
-			   - vs.GetTranslation (), m_contextView);
+			   - vs.GetTranslation (), vs.IsContextView ());
 	DisplayBox (focusBox, Qt::black, GL_LINE);
 	glPopMatrix ();
     }
@@ -1877,7 +1876,8 @@ void GLWidget::ToggledBodiesBoundingBoxesShown (bool checked)
 
 void GLWidget::ToggledContextView (bool checked)
 {
-    m_contextView = checked;
+    ViewSettings& vs = *GetViewSettings ();
+    vs.SetContextView (checked);
     update ();
 }
 

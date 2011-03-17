@@ -654,7 +654,6 @@ private:
     bool m_playMovie;
     boost::shared_ptr<SelectBodiesById> m_selectBodiesById;
     QLabel *m_labelStatusBar;
-    bool m_contextView;
     bool m_hideContent;
     bool m_tubeCenterPathUsed;
     bool m_t1sShown;
