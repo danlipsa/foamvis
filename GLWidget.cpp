@@ -5,6 +5,8 @@
  * Definitions for the widget for displaying foam bubbles using OpenGL
  */
 
+// @todo add context view as a view variable
+// @todo make the histogram work with the views
 
 #include "Body.h"
 #include "BodyAlongTime.h"
@@ -132,6 +134,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_t1sShown (false),
       m_t1Size (MIN_T1_SIZE),
       m_zeroedPressureShown (false),
+      m_titleShown (true),
+      m_markStationary (true),
       m_viewCount (ViewCount::ONE),
       m_viewLayout (ViewLayout::HORIZONTAL),
       m_viewNumber (ViewNumber::VIEW0)
@@ -1859,6 +1863,12 @@ void GLWidget::ToggledBoundingBoxShown (bool checked)
     update ();
 }
 
+void GLWidget::ToggledBodyStationaryMarked (bool checked)
+{
+    m_bodyStationaryMarked = checked;
+    update ();
+}
+
 void GLWidget::ToggledBodiesBoundingBoxesShown (bool checked)
 {
     m_bodiesBoundingBoxesShown = checked;
@@ -1948,6 +1958,12 @@ void GLWidget::ToggledTorusOriginalDomainShown (bool checked)
 void GLWidget::ToggledTubeCenterPathUsed (bool checked)
 {
     m_tubeCenterPathUsed = checked;
+    update ();
+}
+
+void GLWidget::ToggledTitleShown (bool checked)
+{
+    m_titleShown = checked;
     update ();
 }
 
@@ -2311,6 +2327,8 @@ void GLWidget::displayViewDecorations (ViewNumber::Enum view)
 void GLWidget::displayViewTitle (const G3D::Rect2D& viewRect, 
 				 ViewNumber::Enum view)
 {
+    if (! m_titleShown)
+	return;
     QFont font;
     if (view == m_viewNumber)
 	font.setUnderline (true);

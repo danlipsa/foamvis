@@ -146,7 +146,8 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
     const ViewSettings& vs = *this->m_glWidget.GetViewSettings (
 	this->m_propertySetter.GetViewNumber ());
     size_t bodyId = body->GetId ();
-    if (bodyId == vs.GetBodyStationaryId ())
+    if (this->m_glWidget.IsBodyStationaryMarked () &&
+	bodyId == vs.GetBodyStationaryId ())
     {
 	glColor (this->m_glWidget.GetHighlightColor (
 		     this->m_propertySetter.GetViewNumber (),

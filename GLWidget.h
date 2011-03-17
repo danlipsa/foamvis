@@ -218,6 +218,10 @@ public:
     {
 	return GetViewRect (GetViewNumber ());
     }
+    bool IsBodyStationaryMarked () const
+    {
+	return m_bodyStationaryMarked;
+    }
 
 
 Q_SIGNALS:
@@ -233,6 +237,7 @@ public Q_SLOTS:
     void ToggledAxesShown (bool checked);
     void ToggledBoundingBoxShown (bool checked);
     void ToggledBodiesBoundingBoxesShown (bool checked);
+    void ToggledBodyStationaryMarked (bool checked);
     /**
      * Shows center paths
      * param checked true for showing the center paths false otherwise
@@ -264,6 +269,7 @@ public Q_SLOTS:
     void ToggledIsContextHidden (bool checked);
     void ToggledTorusOriginalDomainShown (bool checked);
     void ToggledT1sShown (bool checked);
+    void ToggledTitleShown (bool checked);
     void ToggledT1sShiftLower (bool checked);
     void ToggledTorusOriginalDomainClipped (bool checked);
     void ToggledTubeCenterPathUsed (bool checked);
@@ -654,6 +660,8 @@ private:
     bool m_t1sShown;
     GLfloat m_t1Size;
     bool m_zeroedPressureShown;
+    bool m_titleShown;
+    bool m_bodyStationaryMarked;
 
     // View related variables
     ViewCount::Enum m_viewCount;
