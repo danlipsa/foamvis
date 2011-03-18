@@ -99,43 +99,13 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_20">
-       <property name="sizeConstraint">
-        <enum>QLayout::SetDefaultConstraint</enum>
-       </property>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
        <property name="margin">
         <number>0</number>
        </property>
        <item>
         <widget class="QWidget" name="widget_3" native="true">
          <layout class="QFormLayout" name="formLayout_8">
-          <property name="margin">
-           <number>9</number>
-          </property>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="checkBoxContextView">
-            <property name="text">
-             <string>Context view</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QCheckBox" name="checkBox">
-            <property name="text">
-             <string>Hide content</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="checkBoxT1sShown">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>T1s</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label_20">
             <property name="text">
@@ -182,14 +152,14 @@
             </item>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="1" column="0">
            <widget class="QLabel" name="label_21">
             <property name="text">
              <string>Animation</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="1" column="1">
            <widget class="QWidget" name="widget" native="true">
             <layout class="QHBoxLayout" name="horizontalLayout">
              <property name="margin">
@@ -241,22 +211,6 @@
             </layout>
            </widget>
           </item>
-          <item row="2" column="1">
-           <widget class="QCheckBox" name="checkBoxT1sShiftLower">
-            <property name="text">
-             <string>Shift T1s lower</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QWidget" name="widget_13" native="true">
-         <layout class="QHBoxLayout" name="horizontalLayout_19">
-          <property name="margin">
-           <number>0</number>
-          </property>
          </layout>
         </widget>
        </item>
@@ -288,34 +242,83 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="currentIndex">
-              <number>3</number>
+              <number>2</number>
              </property>
              <widget class="QWidget" name="tabShow">
               <attribute name="title">
                <string>Show</string>
               </attribute>
               <layout class="QFormLayout" name="formLayout_4">
-               <item row="9" column="0">
-                <spacer name="verticalSpacer_5">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
+               <property name="fieldGrowthPolicy">
+                <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+               </property>
+               <item row="0" column="0">
+                <widget class="QCheckBox" name="checkBoxT1sShown">
+                 <property name="enabled">
+                  <bool>false</bool>
                  </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>0</height>
-                  </size>
+                 <property name="text">
+                  <string>T1s</string>
                  </property>
-                </spacer>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QCheckBox" name="checkBoxT1sShiftLower">
+                 <property name="text">
+                  <string>Shift T1s lower</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QCheckBox" name="checkBoxContextView">
+                 <property name="text">
+                  <string>Context view</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QCheckBox" name="checkBox">
+                 <property name="text">
+                  <string>Hide content</string>
+                 </property>
+                </widget>
                </item>
                <item row="2" column="0">
+                <widget class="QCheckBox" name="checkBoxAxes">
+                 <property name="text">
+                  <string>Axes</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QCheckBox" name="checkBoxBoundingBox">
+                 <property name="text">
+                  <string>Foams box</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QCheckBox" name="checkBoxBodiesBoundingBoxes">
+                 <property name="text">
+                  <string>Body box</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QCheckBox" name="checkBoxTorusOriginalDomain">
+                 <property name="text">
+                  <string>Torus domain</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0">
                 <widget class="QLabel" name="labelViewCount">
                  <property name="text">
                   <string>Views</string>
                  </property>
                 </widget>
                </item>
-               <item row="2" column="1">
+               <item row="4" column="1">
                 <widget class="QComboBox" name="comboBoxViewCount">
                  <item>
                   <property name="text">
@@ -334,42 +337,14 @@
                  </item>
                 </widget>
                </item>
-               <item row="0" column="0">
-                <widget class="QCheckBox" name="checkBoxAxes">
-                 <property name="text">
-                  <string>Axes</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QCheckBox" name="checkBoxBoundingBox">
-                 <property name="text">
-                  <string>Foams box</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QCheckBox" name="checkBoxBodiesBoundingBoxes">
-                 <property name="text">
-                  <string>Body box</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QCheckBox" name="checkBoxTorusOriginalDomain">
-                 <property name="text">
-                  <string>Torus domain</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="0">
+               <item row="5" column="0">
                 <widget class="QLabel" name="labelViewLayout">
                  <property name="text">
                   <string>View layout</string>
                  </property>
                 </widget>
                </item>
-               <item row="3" column="1">
+               <item row="5" column="1">
                 <widget class="QComboBox" name="comboBoxViewLayout">
                  <item>
                   <property name="text">
@@ -472,7 +447,7 @@
                   </sizepolicy>
                  </property>
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="tabAmbient">
                   <attribute name="title">
@@ -1477,6 +1452,19 @@
           </layout>
          </widget>
         </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_7">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>113</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>

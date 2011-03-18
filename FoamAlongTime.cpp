@@ -27,7 +27,7 @@ const vector<G3D::Vector3> FoamAlongTime::NO_T1S;
 FoamAlongTime::FoamAlongTime () :
     m_histogram (
         BodyProperty::PROPERTY_END, HistogramStatistics (HISTOGRAM_INTERVALS)),
-    m_t1sShift (0)
+    m_t1sTimestepShift (0)
 {
 }
 
@@ -348,7 +348,7 @@ void FoamAlongTime::ReadT1s (const char* fileName, size_t timeSteps)
 
 const vector<G3D::Vector3>& FoamAlongTime::GetT1s (size_t timeStep) const
 {
-    int t = int(timeStep) + m_t1sShift;
+    int t = int(timeStep) + m_t1sTimestepShift;
     if (t < 0 || size_t (t) >= m_t1s.size ())
 	return NO_T1S;
     else
