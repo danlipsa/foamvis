@@ -5,7 +5,6 @@
  * Definitions for the widget for displaying foam bubbles using OpenGL
  */
 
-// @todo add context view as a view variable
 // @todo make the histogram work with the views
 
 #include "Body.h"
@@ -269,6 +268,17 @@ void GLWidget::createActions ()
     connect(m_actionClampClear.get (), SIGNAL(triggered()),
 	    this, SLOT(ColorBarClampClear ()));
 
+    m_actionViewDependentAdd = boost::make_shared<QAction> (
+	tr("&Add"), this);
+    m_actionViewDependentAdd->setStatusTip(tr("Add"));
+    connect(m_actionViewDependentAdd.get (), SIGNAL(triggered()),
+	    this, SLOT(ViewDependentAdd ()));
+
+    m_actionViewDependentReset = boost::make_shared<QAction> (
+	tr("&Reset"), this);
+    m_actionViewDependentReset->setStatusTip(tr("Reset"));
+    connect(m_actionViewDependentReset.get (), SIGNAL(triggered()),
+	    this, SLOT(ViewDependentReset ()));    
 }
 
 void GLWidget::initViewTypeDisplay ()
@@ -1815,6 +1825,241 @@ size_t GLWidget::GetSelectedEdgeId () const
     return GetSelectedEdge ()->GetId ();
 }
 
+void GLWidget::setLight (int sliderValue, int maximumValue, 
+			 LightType::Enum lightType, 
+			 ColorNumber::Enum colorNumber)
+{
+    ViewSettings& vs = *GetViewSettings ();
+    LightNumber::Enum selectedLight = vs.GetSelectedLight ();
+    vs.SetLight (selectedLight, lightType, colorNumber,  
+		 double(sliderValue) / maximumValue);
+    boost::array<GLfloat, 4> lightAmbient = vs.GetLight (
+	selectedLight, LightType::AMBIENT);
+    glLightfv(GL_LIGHT0 + selectedLight, GL_AMBIENT, &lightAmbient[0]);
+    update ();
+}
+
+bool GLWidget::isColorBarUsed (ViewNumber::Enum view) const
+{
+    boost::shared_ptr<ViewSettings> vs = GetViewSettings (view);
+    switch (vs->GetViewType ())
+    {
+    case ViewType::FACES:
+    case ViewType::FACES_STATISTICS:
+    case ViewType::CENTER_PATHS:
+	return vs->GetBodyProperty () != BodyProperty::NONE;
+    default:
+	return false;
+    }
+}
+
+void GLWidget::quadricErrorCallback (GLenum errorCode)
+{
+    const GLubyte* message = gluErrorString (errorCode);
+    qWarning () << "Quadric error:" << message;
+}
+
+
+void GLWidget::contextMenuEvent(QContextMenuEvent *event)
+{
+    m_contextMenuPos = event->pos ();
+    QMenu menu (this);
+    G3D::Rect2D colorBarRect = getViewColorBarRect (GetViewRect ());
+    if (colorBarRect.contains (QtToOpenGl (m_contextMenuPos, height ())))
+    {
+	menu.addAction (m_actionEditColorMap.get ());
+	menu.addAction (m_actionClampClear.get ());
+    }
+    else
+    {
+	menu.addAction (m_actionResetTransformation.get ());
+	menu.addAction (m_actionResetSelectedLightNumber.get ());
+	menu.addAction (m_actionSelectAll.get ());
+	menu.addAction (m_actionDeselectAll.get ());
+	menu.addAction (m_actionSelectBodiesById.get ());
+	{
+	    QMenu* menuBody = menu.addMenu ("Body");
+	    menuBody->addAction (m_actionBodyStationarySet.get ());
+	    menuBody->addAction (m_actionBodyStationaryReset.get ());
+	    menuBody->addAction (m_actionBodyContextAdd.get ());
+	    menuBody->addAction (m_actionBodyContextReset.get ());
+	}
+	{
+	    QMenu* menuInfo = menu.addMenu ("Info");
+	    menuInfo->addAction (m_actionInfoFocus.get ());
+	    menuInfo->addAction (m_actionInfoFoam.get ());
+	    menuInfo->addAction (m_actionInfoOpenGL.get ());
+	}
+	if (ViewCount::GetCount (m_viewCount) > 1)
+	{
+	    QMenu* menuViewDependent = menu.addMenu ("View Dependent");
+	    menuViewDependent->addAction (m_actionViewDependentAdd.get ());
+	    menuViewDependent->addAction (m_actionViewDependentReset.get ());
+	}
+    }
+    menu.exec (event->globalPos());
+}
+
+
+void GLWidget::displayViewDecorations (ViewNumber::Enum view)
+{
+    const ViewSettings& vs = *GetViewSettings (view);
+    glPushAttrib (
+	GL_POLYGON_BIT | GL_CURRENT_BIT | 
+	GL_VIEWPORT_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT);
+    if (vs.IsLightingEnabled ())
+	glDisable (GL_LIGHTING);
+    // modelview
+    glPushMatrix ();
+    glLoadIdentity ();
+    
+    // projection
+    glMatrixMode (GL_PROJECTION);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glOrtho (0, width (), 0, height (), -1, 1);
+
+    glViewport (0, 0, width (), height ());
+
+    G3D::Rect2D viewRect = GetViewRect (view);
+    if (isColorBarUsed (view))
+	displayTextureColorBar (view, viewRect);
+    displayViewTitle (viewRect, view);
+    displayViewGrid ();
+
+    glPopMatrix ();
+    glMatrixMode (GL_MODELVIEW);
+    glPopMatrix ();
+    glPopAttrib ();
+}
+
+void GLWidget::displayViewTitle (const G3D::Rect2D& viewRect, 
+				 ViewNumber::Enum viewNumber)
+{
+    if (! m_titleShown)
+	return;
+    QFont font;
+    if (viewNumber == m_viewNumber)
+	font.setUnderline (true);
+    boost::shared_ptr<ViewSettings> vs = GetViewSettings (viewNumber);
+    ostringstream ostr;
+    ostr << "View " << viewNumber << " - " <<
+	(isColorBarUsed (viewNumber) ? 
+	 BodyProperty::ToString (vs->GetBodyProperty ()) :
+	 ViewType::ToString (vs->GetViewType ()));
+    QString text = QString (ostr.str ().c_str ());
+    QFontMetrics fm (font);
+    const int textX = 
+	viewRect.x0 () + (float (viewRect.width ()) - fm.width (text)) / 2;
+    const int textY = OpenGlToQt (
+	viewRect.y1 () - (fm.height () + 3), height ());
+    glColor (Qt::black);
+    renderText (textX, textY, text, font);
+}
+
+
+void GLWidget::displayTextureColorBar (
+    ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect)
+{
+    G3D::Rect2D colorBarRect = getViewColorBarRect (viewRect);
+    glDisable (GL_DEPTH_TEST);
+    glEnable(GL_TEXTURE_1D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glBindTexture (GL_TEXTURE_1D, 
+		   GetViewSettings (viewNumber)->GetColorBarTexture ());
+    
+    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+    glBegin (GL_QUADS);
+    glTexCoord1f(0);glVertex (colorBarRect.x0y0 ());
+    glTexCoord1f(1);glVertex (colorBarRect.x0y1 ());
+    glTexCoord1f(1);glVertex (colorBarRect.x1y1 ());
+    glTexCoord1f(0);glVertex (colorBarRect.x1y0 ());
+    glEnd ();
+    glDisable (GL_TEXTURE_1D);
+
+    glColor (Qt::black);
+    glEnable (GL_POLYGON_OFFSET_LINE);
+    glPolygonOffset (-1, -1);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    glBegin (GL_QUADS);
+    glVertex (colorBarRect.x0y0 ());
+    glVertex (colorBarRect.x0y1 ());
+    glVertex (colorBarRect.x1y1 ());
+    glVertex (colorBarRect.x1y0 ());
+    glEnd ();
+}
+
+void GLWidget::displayViewGrid ()
+{
+    size_t w = width ();
+    size_t h = height ();
+    glColor (Qt::blue);
+    glBegin (GL_LINES);
+    if (m_viewCount == ViewCount::TWO)
+    {
+	if (m_viewLayout == ViewLayout::HORIZONTAL)
+	{
+	    glVertex2s (w/2, 0);
+	    glVertex2s (w/2, h);
+	}
+	else
+	{
+	    glVertex2s (0, h/2);
+	    glVertex2s (w, h/2);
+	}
+    }
+    else if (m_viewCount == ViewCount::FOUR)
+    {
+	glVertex2s (w/2, 0);
+	glVertex2s (w/2, h);
+	glVertex2s (0, h/2);
+	glVertex2s (w, h/2);	
+    }
+    glEnd ();
+}
+
+QColor GLWidget::GetCenterPathContextColor () const
+{
+    QColor returnColor (Qt::black);
+    returnColor.setAlphaF (GetContextAlpha ());
+    return returnColor;
+}
+
+void GLWidget::SetBodySelector (
+    boost::shared_ptr<AllBodySelector> selector, BodySelectorType::Enum type)
+{
+    switch (m_bodySelector->GetType ())
+    {
+    case BodySelectorType::ALL:
+	break;
+    case BodySelectorType::ID:
+    case BodySelectorType::PROPERTY_VALUE:
+	if (type == m_bodySelector->GetType ())
+	    m_bodySelector = selector;
+    	break;
+    case BodySelectorType::COMPOSITE:
+	if (type == BodySelectorType::ID)
+	    m_bodySelector = boost::static_pointer_cast<CompositeBodySelector> (
+		m_bodySelector)->GetPropertyValueSelector ();
+	else
+	    m_bodySelector = boost::static_pointer_cast<CompositeBodySelector> (
+		m_bodySelector)->GetIdSelector ();
+	break;
+    }
+    setBodySelectorLabel (m_bodySelector->GetType ());
+    compile (GetViewNumber ());
+    update ();
+}
+
+bool GLWidget::IsTimeDisplacementUsed () const
+{
+    return GetFoamAlongTime ().Is2D () && GetTimeDisplacement () > 0;
+}
+
+BodyProperty::Enum GLWidget::GetCurrentBodyProperty () const
+{
+    return GetViewSettings ()->GetBodyProperty ();
+}
 
 
 // Slots
@@ -2081,20 +2326,6 @@ void GLWidget::SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel)
     update ();
 }
 
-bool GLWidget::isColorBarUsed (ViewNumber::Enum view) const
-{
-    boost::shared_ptr<ViewSettings> vs = GetViewSettings (view);
-    switch (vs->GetViewType ())
-    {
-    case ViewType::FACES:
-    case ViewType::FACES_STATISTICS:
-    case ViewType::CENTER_PATHS:
-	return vs->GetBodyProperty () != BodyProperty::NONE;
-    default:
-	return false;
-    }
-}
-
 void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 {
     makeCurrent ();
@@ -2157,20 +2388,6 @@ void GLWidget::ValueChangedContextAlpha (int sliderValue)
     m_contextAlpha = MIN_CONTEXT_ALPHA +
 	(MAX_CONTEXT_ALPHA - MIN_CONTEXT_ALPHA) * sliderValue / maximum;
     compile (GetViewNumber ());
-    update ();
-}
-
-void GLWidget::setLight (int sliderValue, int maximumValue, 
-			 LightType::Enum lightType, 
-			 ColorNumber::Enum colorNumber)
-{
-    ViewSettings& vs = *GetViewSettings ();
-    LightNumber::Enum selectedLight = vs.GetSelectedLight ();
-    vs.SetLight (selectedLight, lightType, colorNumber,  
-		 double(sliderValue) / maximumValue);
-    boost::array<GLfloat, 4> lightAmbient = vs.GetLight (
-	selectedLight, LightType::AMBIENT);
-    glLightfv(GL_LIGHT0 + selectedLight, GL_AMBIENT, &lightAmbient[0]);
     update ();
 }
 
@@ -2250,168 +2467,6 @@ void GLWidget::InfoOpenGL ()
     openGLInfo->exec ();
 }
 
-void GLWidget::quadricErrorCallback (GLenum errorCode)
-{
-    const GLubyte* message = gluErrorString (errorCode);
-    qWarning () << "Quadric error:" << message;
-}
-
-
-void GLWidget::contextMenuEvent(QContextMenuEvent *event)
-{
-    m_contextMenuPos = event->pos ();
-    QMenu menu (this);
-    G3D::Rect2D colorBarRect = getViewColorBarRect (GetViewRect ());
-    if (colorBarRect.contains (QtToOpenGl (m_contextMenuPos, height ())))
-    {
-	menu.addAction (m_actionEditColorMap.get ());
-	menu.addAction (m_actionClampClear.get ());
-    }
-    else
-    {
-	menu.addAction (m_actionResetTransformation.get ());
-	menu.addAction (m_actionResetSelectedLightNumber.get ());
-	menu.addAction (m_actionSelectAll.get ());
-	menu.addAction (m_actionDeselectAll.get ());
-	menu.addAction (m_actionSelectBodiesById.get ());
-	{
-	    QMenu* menuBody = menu.addMenu ("Body");
-	    menuBody->addAction (m_actionBodyStationarySet.get ());
-	    menuBody->addAction (m_actionBodyStationaryReset.get ());
-	    menuBody->addAction (m_actionBodyContextAdd.get ());
-	    menuBody->addAction (m_actionBodyContextReset.get ());
-	}
-	{
-	    QMenu* menuInfo = menu.addMenu ("Info");
-	    menuInfo->addAction (m_actionInfoFocus.get ());
-	    menuInfo->addAction (m_actionInfoFoam.get ());
-	    menuInfo->addAction (m_actionInfoOpenGL.get ());
-	}
-    }
-    menu.exec (event->globalPos());
-}
-
-
-void GLWidget::displayViewDecorations (ViewNumber::Enum view)
-{
-    const ViewSettings& vs = *GetViewSettings (view);
-    glPushAttrib (
-	GL_POLYGON_BIT | GL_CURRENT_BIT | 
-	GL_VIEWPORT_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT);
-    if (vs.IsLightingEnabled ())
-	glDisable (GL_LIGHTING);
-    // modelview
-    glPushMatrix ();
-    glLoadIdentity ();
-    
-    // projection
-    glMatrixMode (GL_PROJECTION);
-    glPushMatrix ();
-    glLoadIdentity ();
-    glOrtho (0, width (), 0, height (), -1, 1);
-
-    glViewport (0, 0, width (), height ());
-
-    G3D::Rect2D viewRect = GetViewRect (view);
-    if (isColorBarUsed (view))
-	displayTextureColorBar (view, viewRect);
-    displayViewTitle (viewRect, view);
-    displayViewGrid ();
-
-    glPopMatrix ();
-    glMatrixMode (GL_MODELVIEW);
-    glPopMatrix ();
-    glPopAttrib ();
-}
-
-void GLWidget::displayViewTitle (const G3D::Rect2D& viewRect, 
-				 ViewNumber::Enum view)
-{
-    if (! m_titleShown)
-	return;
-    QFont font;
-    if (view == m_viewNumber)
-	font.setUnderline (true);
-    boost::shared_ptr<ViewSettings> vs = GetViewSettings (view);
-    const char* text = isColorBarUsed (view) ? 
-	BodyProperty::ToString (vs->GetBodyProperty ()) :
-	ViewType::ToString (vs->GetViewType ());
-    QFontMetrics fm (font);
-    const int textX = 
-	viewRect.x0 () + (float (viewRect.width ()) - fm.width (text)) / 2;
-    const int textY = OpenGlToQt (
-	viewRect.y1 () - (fm.height () + 3), height ());
-    glColor (Qt::black);
-    renderText (textX, textY, text, font);
-}
-
-
-void GLWidget::displayTextureColorBar (
-    ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect)
-{
-    G3D::Rect2D colorBarRect = getViewColorBarRect (viewRect);
-    glDisable (GL_DEPTH_TEST);
-    glEnable(GL_TEXTURE_1D);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    glBindTexture (GL_TEXTURE_1D, 
-		   GetViewSettings (viewNumber)->GetColorBarTexture ());
-    
-    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-    glBegin (GL_QUADS);
-    glTexCoord1f(0);glVertex (colorBarRect.x0y0 ());
-    glTexCoord1f(1);glVertex (colorBarRect.x0y1 ());
-    glTexCoord1f(1);glVertex (colorBarRect.x1y1 ());
-    glTexCoord1f(0);glVertex (colorBarRect.x1y0 ());
-    glEnd ();
-    glDisable (GL_TEXTURE_1D);
-
-    glColor (Qt::black);
-    glEnable (GL_POLYGON_OFFSET_LINE);
-    glPolygonOffset (-1, -1);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-    glBegin (GL_QUADS);
-    glVertex (colorBarRect.x0y0 ());
-    glVertex (colorBarRect.x0y1 ());
-    glVertex (colorBarRect.x1y1 ());
-    glVertex (colorBarRect.x1y0 ());
-    glEnd ();
-}
-
-void GLWidget::displayViewGrid ()
-{
-    size_t w = width ();
-    size_t h = height ();
-    glColor (Qt::blue);
-    glBegin (GL_LINES);
-    if (m_viewCount == ViewCount::TWO)
-    {
-	if (m_viewLayout == ViewLayout::HORIZONTAL)
-	{
-	    glVertex2s (w/2, 0);
-	    glVertex2s (w/2, h);
-	}
-	else
-	{
-	    glVertex2s (0, h/2);
-	    glVertex2s (w, h/2);
-	}
-    }
-    else if (m_viewCount == ViewCount::FOUR)
-    {
-	glVertex2s (w/2, 0);
-	glVertex2s (w/2, h);
-	glVertex2s (0, h/2);
-	glVertex2s (w, h/2);	
-    }
-    glEnd ();
-}
-
-QColor GLWidget::GetCenterPathContextColor () const
-{
-    QColor returnColor (Qt::black);
-    returnColor.setAlphaF (GetContextAlpha ());
-    return returnColor;
-}
 
 void GLWidget::SetPlayMovie (bool playMovie)
 {
@@ -2565,38 +2620,10 @@ void GLWidget::SetBodySelector (
     update ();
 }
 
-void GLWidget::SetBodySelector (
-    boost::shared_ptr<AllBodySelector> selector, BodySelectorType::Enum type)
+void GLWidget::ViewDependentAdd ()
 {
-    switch (m_bodySelector->GetType ())
-    {
-    case BodySelectorType::ALL:
-	break;
-    case BodySelectorType::ID:
-    case BodySelectorType::PROPERTY_VALUE:
-	if (type == m_bodySelector->GetType ())
-	    m_bodySelector = selector;
-    	break;
-    case BodySelectorType::COMPOSITE:
-	if (type == BodySelectorType::ID)
-	    m_bodySelector = boost::static_pointer_cast<CompositeBodySelector> (
-		m_bodySelector)->GetPropertyValueSelector ();
-	else
-	    m_bodySelector = boost::static_pointer_cast<CompositeBodySelector> (
-		m_bodySelector)->GetIdSelector ();
-	break;
-    }
-    setBodySelectorLabel (m_bodySelector->GetType ());
-    compile (GetViewNumber ());
-    update ();
 }
 
-bool GLWidget::IsTimeDisplacementUsed () const
+void GLWidget::ViewDependentReset ()
 {
-    return GetFoamAlongTime ().Is2D () && GetTimeDisplacement () > 0;
-}
-
-BodyProperty::Enum GLWidget::GetCurrentBodyProperty () const
-{
-    return GetViewSettings ()->GetBodyProperty ();
 }

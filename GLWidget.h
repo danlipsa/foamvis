@@ -323,6 +323,8 @@ public Q_SLOTS:
     // Actions color bar
     void ColorBarEdit ();
     void ColorBarClampClear ();
+    void ViewDependentAdd ();
+    void ViewDependentReset ();
 
     /**
      * Signals a change in data displayed
@@ -643,9 +645,11 @@ private:
     boost::shared_ptr<QAction> m_actionInfoFocus;
     boost::shared_ptr<QAction> m_actionInfoFoam;
     boost::shared_ptr<QAction> m_actionInfoOpenGL;
-    boost::scoped_ptr<QAction> m_actionEditColorMap;
-    boost::scoped_ptr<QAction> m_actionClampClear;
-    
+    boost::shared_ptr<QAction> m_actionEditColorMap;
+    boost::shared_ptr<QAction> m_actionClampClear;
+    boost::shared_ptr<QAction> m_actionViewDependentAdd;
+    boost::shared_ptr<QAction> m_actionViewDependentReset;
+
     double m_timeDisplacement;
     /**
      * True if the program displays data in a loop, false
