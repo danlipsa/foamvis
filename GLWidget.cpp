@@ -268,17 +268,23 @@ void GLWidget::createActions ()
     connect(m_actionClampClear.get (), SIGNAL(triggered()),
 	    this, SLOT(ColorBarClampClear ()));
 
-    m_actionViewDependentAdd = boost::make_shared<QAction> (
-	tr("&Add"), this);
-    m_actionViewDependentAdd->setStatusTip(tr("Add"));
-    connect(m_actionViewDependentAdd.get (), SIGNAL(triggered()),
-	    this, SLOT(ViewDependentAdd ()));
+    for (size_t i = 0; i < ViewNumber::COUNT; ++i)
+    {
+	ostringstream ostr;
+	ostr << "View " << i;
+	QString text (ostr.str ().c_str ());
+	m_actionDependentViewsAdd[i] = boost::make_shared<QAction> (
+	    text, this);
+	m_actionDependentViewsAdd[i]->setStatusTip(text);
+	connect(m_actionDependentViewsAdd[i].get (), SIGNAL(triggered()),
+		this, SLOT(DependentViewsAdd ()));
+    }
 
-    m_actionViewDependentReset = boost::make_shared<QAction> (
+    m_actionDependentViewsReset = boost::make_shared<QAction> (
 	tr("&Reset"), this);
-    m_actionViewDependentReset->setStatusTip(tr("Reset"));
-    connect(m_actionViewDependentReset.get (), SIGNAL(triggered()),
-	    this, SLOT(ViewDependentReset ()));    
+    m_actionDependentViewsReset->setStatusTip(tr("Reset"));
+    connect(m_actionDependentViewsReset.get (), SIGNAL(triggered()),
+	    this, SLOT(DependentViewsReset ()));    
 }
 
 void GLWidget::initViewTypeDisplay ()
@@ -1892,9 +1898,16 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	}
 	if (ViewCount::GetCount (m_viewCount) > 1)
 	{
-	    QMenu* menuViewDependent = menu.addMenu ("View Dependent");
-	    menuViewDependent->addAction (m_actionViewDependentAdd.get ());
-	    menuViewDependent->addAction (m_actionViewDependentReset.get ());
+	    QMenu* menuDependentViews = menu.addMenu ("Dependent Views");
+	    QMenu* menuAdd = menuDependentViews->addMenu ("Add");
+	    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
+	    {
+		ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+		if (viewNumber == m_viewNumber)
+		    continue;
+		menuAdd->addAction (m_actionDependentViewsAdd[i].get ());
+	    }
+	    menuDependentViews->addAction (m_actionDependentViewsReset.get ());
 	}
     }
     menu.exec (event->globalPos());
@@ -2059,6 +2072,158 @@ bool GLWidget::IsTimeDisplacementUsed () const
 BodyProperty::Enum GLWidget::GetCurrentBodyProperty () const
 {
     return GetViewSettings ()->GetBodyProperty ();
+}
+
+void GLWidget::SetPlayMovie (bool playMovie)
+{
+    m_playMovie = playMovie;
+}
+
+
+void GLWidget::setBodySelectorLabel (BodySelectorType::Enum type)
+{
+    switch (type)
+    {
+    case BodySelectorType::PROPERTY_VALUE:
+	m_labelStatusBar->setText ("Selection: by property");
+	break;
+    case BodySelectorType::ID:
+	m_labelStatusBar->setText ("Selection: by id");
+	break;
+    case BodySelectorType::COMPOSITE:
+	m_labelStatusBar->setText ("Selection: by id and property");
+	break;
+    default:
+	return m_labelStatusBar->setText ("");
+    }
+}
+
+void GLWidget::UnionBodySelector (const vector<size_t>& bodyIds)
+{
+    switch (m_bodySelector->GetType ())
+    {
+    case BodySelectorType::ALL:
+	m_bodySelector = boost::make_shared<IdBodySelector> (bodyIds);
+	break;
+
+    case BodySelectorType::ID:
+    {
+	IdBodySelector& selector =
+	    *boost::static_pointer_cast<IdBodySelector> (m_bodySelector);
+	selector.SetUnion (bodyIds);
+	break;
+    }
+
+    case BodySelectorType::PROPERTY_VALUE:
+    {
+	boost::shared_ptr<IdBodySelector> idSelector =
+	    boost::make_shared<IdBodySelector> (bodyIds);
+	m_bodySelector = boost::make_shared<CompositeBodySelector> (
+	    idSelector,
+	    boost::static_pointer_cast<PropertyValueBodySelector> (
+		m_bodySelector));
+	break;
+    }
+
+    case BodySelectorType::COMPOSITE:
+	boost::static_pointer_cast<CompositeBodySelector> (
+	    m_bodySelector)->GetIdSelector ()->SetUnion (bodyIds);
+	break;
+    }
+    setBodySelectorLabel (m_bodySelector->GetType ());
+    compile (GetViewNumber ());
+    update ();
+}
+
+void GLWidget::DifferenceBodySelector (const vector<size_t>& bodyIds)
+{
+    switch (m_bodySelector->GetType ())
+    {
+    case BodySelectorType::ALL:
+    {
+	m_bodySelector = idBodySelectorComplement (GetCurrentFoam (), bodyIds);
+	break;
+    }
+    case BodySelectorType::ID:
+	boost::static_pointer_cast<IdBodySelector> (
+	    m_bodySelector)->SetDifference (bodyIds);
+	break;
+
+    case BodySelectorType::PROPERTY_VALUE:
+    {
+	boost::shared_ptr<IdBodySelector> idSelector =
+	    idBodySelectorComplement (GetCurrentFoam (), bodyIds);
+	m_bodySelector = boost::make_shared<CompositeBodySelector> (
+	    idSelector,
+	    boost::static_pointer_cast<PropertyValueBodySelector> (
+		m_bodySelector));
+	break;
+    }
+
+    case BodySelectorType::COMPOSITE:
+	boost::static_pointer_cast<CompositeBodySelector> (
+	    m_bodySelector)->GetIdSelector ()->SetDifference (bodyIds);
+	break;
+    }
+    setBodySelectorLabel (m_bodySelector->GetType ());
+    compile (GetViewNumber ());
+    update ();
+}
+
+void GLWidget::SetBodySelector (boost::shared_ptr<IdBodySelector> selector)
+{
+    switch (m_bodySelector->GetType ())
+    {
+    case BodySelectorType::ALL:
+	m_bodySelector = selector;
+	break;
+    case BodySelectorType::ID:
+	m_bodySelector = selector;
+	break;
+    case BodySelectorType::PROPERTY_VALUE:
+	m_bodySelector = boost::shared_ptr<BodySelector> (
+	    new CompositeBodySelector (
+		selector,
+		boost::static_pointer_cast<PropertyValueBodySelector> (
+		    m_bodySelector)));
+	break;
+    case BodySelectorType::COMPOSITE:
+	boost::static_pointer_cast<CompositeBodySelector> (
+	    m_bodySelector)->SetSelector (selector);
+	break;
+    }
+    setBodySelectorLabel (m_bodySelector->GetType ());
+    compile (GetViewNumber ());
+    update ();
+}
+
+
+
+void GLWidget::SetBodySelector (
+    boost::shared_ptr<PropertyValueBodySelector> selector)
+{
+    switch (m_bodySelector->GetType ())
+    {
+    case BodySelectorType::ALL:
+	m_bodySelector = selector;
+	break;
+    case BodySelectorType::ID:
+	m_bodySelector = boost::shared_ptr<BodySelector> (
+	    new CompositeBodySelector (
+		boost::static_pointer_cast<IdBodySelector> (m_bodySelector),
+		selector));
+	break;
+    case BodySelectorType::PROPERTY_VALUE:
+	m_bodySelector = selector;
+	break;
+    case BodySelectorType::COMPOSITE:
+	boost::static_pointer_cast<CompositeBodySelector> (
+	    m_bodySelector)->SetSelector (selector);
+	break;
+    }
+    setBodySelectorLabel (m_bodySelector->GetType ());
+    compile (GetViewNumber ());
+    update ();
 }
 
 
@@ -2251,6 +2416,11 @@ void GLWidget::CurrentIndexChangedSelectedLight (int selectedLight)
 void GLWidget::CurrentIndexChangedViewCount (int index)
 {
     m_viewCount = ViewCount::Enum (index);
+    if (m_viewCount == ViewCount::ONE)
+    {
+	m_viewNumber = ViewNumber::VIEW0;
+	DependentViewsReset ();
+    }
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
@@ -2468,162 +2638,11 @@ void GLWidget::InfoOpenGL ()
 }
 
 
-void GLWidget::SetPlayMovie (bool playMovie)
-{
-    m_playMovie = playMovie;
-}
 
-
-void GLWidget::setBodySelectorLabel (BodySelectorType::Enum type)
-{
-    switch (type)
-    {
-    case BodySelectorType::PROPERTY_VALUE:
-	m_labelStatusBar->setText ("Selection: by property");
-	break;
-    case BodySelectorType::ID:
-	m_labelStatusBar->setText ("Selection: by id");
-	break;
-    case BodySelectorType::COMPOSITE:
-	m_labelStatusBar->setText ("Selection: by id and property");
-	break;
-    default:
-	return m_labelStatusBar->setText ("");
-    }
-}
-
-void GLWidget::UnionBodySelector (const vector<size_t>& bodyIds)
-{
-    switch (m_bodySelector->GetType ())
-    {
-    case BodySelectorType::ALL:
-	m_bodySelector = boost::make_shared<IdBodySelector> (bodyIds);
-	break;
-
-    case BodySelectorType::ID:
-    {
-	IdBodySelector& selector =
-	    *boost::static_pointer_cast<IdBodySelector> (m_bodySelector);
-	selector.SetUnion (bodyIds);
-	break;
-    }
-
-    case BodySelectorType::PROPERTY_VALUE:
-    {
-	boost::shared_ptr<IdBodySelector> idSelector =
-	    boost::make_shared<IdBodySelector> (bodyIds);
-	m_bodySelector = boost::make_shared<CompositeBodySelector> (
-	    idSelector,
-	    boost::static_pointer_cast<PropertyValueBodySelector> (
-		m_bodySelector));
-	break;
-    }
-
-    case BodySelectorType::COMPOSITE:
-	boost::static_pointer_cast<CompositeBodySelector> (
-	    m_bodySelector)->GetIdSelector ()->SetUnion (bodyIds);
-	break;
-    }
-    setBodySelectorLabel (m_bodySelector->GetType ());
-    compile (GetViewNumber ());
-    update ();
-}
-
-void GLWidget::DifferenceBodySelector (const vector<size_t>& bodyIds)
-{
-    switch (m_bodySelector->GetType ())
-    {
-    case BodySelectorType::ALL:
-    {
-	m_bodySelector = idBodySelectorComplement (GetCurrentFoam (), bodyIds);
-	break;
-    }
-    case BodySelectorType::ID:
-	boost::static_pointer_cast<IdBodySelector> (
-	    m_bodySelector)->SetDifference (bodyIds);
-	break;
-
-    case BodySelectorType::PROPERTY_VALUE:
-    {
-	boost::shared_ptr<IdBodySelector> idSelector =
-	    idBodySelectorComplement (GetCurrentFoam (), bodyIds);
-	m_bodySelector = boost::make_shared<CompositeBodySelector> (
-	    idSelector,
-	    boost::static_pointer_cast<PropertyValueBodySelector> (
-		m_bodySelector));
-	break;
-    }
-
-    case BodySelectorType::COMPOSITE:
-	boost::static_pointer_cast<CompositeBodySelector> (
-	    m_bodySelector)->GetIdSelector ()->SetDifference (bodyIds);
-	break;
-    }
-    setBodySelectorLabel (m_bodySelector->GetType ());
-    compile (GetViewNumber ());
-    update ();
-}
-
-void GLWidget::SetBodySelector (boost::shared_ptr<IdBodySelector> selector)
-{
-    switch (m_bodySelector->GetType ())
-    {
-    case BodySelectorType::ALL:
-	m_bodySelector = selector;
-	break;
-    case BodySelectorType::ID:
-	m_bodySelector = selector;
-	break;
-    case BodySelectorType::PROPERTY_VALUE:
-	m_bodySelector = boost::shared_ptr<BodySelector> (
-	    new CompositeBodySelector (
-		selector,
-		boost::static_pointer_cast<PropertyValueBodySelector> (
-		    m_bodySelector)));
-	break;
-    case BodySelectorType::COMPOSITE:
-	boost::static_pointer_cast<CompositeBodySelector> (
-	    m_bodySelector)->SetSelector (selector);
-	break;
-    }
-    setBodySelectorLabel (m_bodySelector->GetType ());
-    compile (GetViewNumber ());
-    update ();
-}
-
-
-
-void GLWidget::SetBodySelector (
-    boost::shared_ptr<PropertyValueBodySelector> selector)
-{
-    switch (m_bodySelector->GetType ())
-    {
-    case BodySelectorType::ALL:
-	m_bodySelector = selector;
-	break;
-    case BodySelectorType::ID:
-	m_bodySelector = boost::shared_ptr<BodySelector> (
-	    new CompositeBodySelector (
-		boost::static_pointer_cast<IdBodySelector> (m_bodySelector),
-		selector));
-	break;
-    case BodySelectorType::PROPERTY_VALUE:
-	m_bodySelector = selector;
-	break;
-    case BodySelectorType::COMPOSITE:
-	boost::static_pointer_cast<CompositeBodySelector> (
-	    m_bodySelector)->SetSelector (selector);
-	break;
-    }
-    setBodySelectorLabel (m_bodySelector->GetType ());
-    compile (GetViewNumber ());
-    update ();
-}
-
-void GLWidget::ViewDependentAdd ()
+void GLWidget::DependentViewsAdd ()
 {
 }
 
-void GLWidget::ViewDependentReset ()
+void GLWidget::DependentViewsReset ()
 {
 }
