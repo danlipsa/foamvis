@@ -271,24 +271,42 @@ void GLWidget::createActions ()
     connect(m_actionClampClear.get (), SIGNAL(triggered()),
 	    this, SLOT(ColorBarClampClear ()));
 
+    initCopy (m_actionCopyTransformations, m_signalMapperCopyTransformations);
+    connect (m_signalMapperCopyTransformations.get (),
+	     SIGNAL (mapped (int)),
+	     this,
+	     SLOT (CopyTransformationsFrom (int)));
+
+    initCopy (m_actionCopyColorBar, m_signalMapperCopyColorBar);
+    connect (m_signalMapperCopyColorBar.get (),
+	     SIGNAL (mapped (int)),
+	     this,
+	     SLOT (CopyColorBarFrom (int)));
+}
+
+void GLWidget::initCopy (
+    boost::array<boost::shared_ptr<QAction>, 
+    ViewNumber::COUNT>& actionCopyTransformations,
+    boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformations)
+{
+    signalMapperCopyTransformations.reset (new QSignalMapper (this));
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
     {
 	ostringstream ostr;
 	ostr << "View " << i;
 	QString text (ostr.str ().c_str ());
-	m_actionDependentViewsAdd[i] = boost::make_shared<QAction> (
+	actionCopyTransformations[i] = boost::make_shared<QAction> (
 	    text, this);
-	m_actionDependentViewsAdd[i]->setStatusTip(text);
-	connect(m_actionDependentViewsAdd[i].get (), SIGNAL(triggered()),
-		this, SLOT(DependentViewsAdd ()));
+	actionCopyTransformations[i]->setStatusTip(text);
+	connect(actionCopyTransformations[i].get (), 
+		SIGNAL(triggered()),
+		signalMapperCopyTransformations.get (), 
+		SLOT(map ()));
+	signalMapperCopyTransformations->setMapping (
+	    actionCopyTransformations[i].get (), i);
     }
-
-    m_actionDependentViewsReset = boost::make_shared<QAction> (
-	tr("&Reset"), this);
-    m_actionDependentViewsReset->setStatusTip(tr("Reset"));
-    connect(m_actionDependentViewsReset.get (), SIGNAL(triggered()),
-	    this, SLOT(DependentViewsReset ()));    
 }
+
 
 void GLWidget::initViewTypeDisplay ()
 {
@@ -1899,16 +1917,24 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	}
 	if (ViewCount::GetCount (m_viewCount) > 1)
 	{
-	    QMenu* menuDependentViews = menu.addMenu ("Dependent Views");
-	    QMenu* menuAdd = menuDependentViews->addMenu ("Add");
+	    QMenu* menuCopys = menu.addMenu ("Copy");
+	    QMenu* menuTransformations = menuCopys->addMenu ("Transformations");
 	    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
 	    {
 		ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 		if (viewNumber == m_viewNumber)
 		    continue;
-		menuAdd->addAction (m_actionDependentViewsAdd[i].get ());
+		menuTransformations->addAction (
+		    m_actionCopyTransformations[i].get ());
 	    }
-	    menuDependentViews->addAction (m_actionDependentViewsReset.get ());
+	    QMenu* menuColorBar = menuCopys->addMenu ("ColorBar");
+	    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
+	    {
+		ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+		if (viewNumber == m_viewNumber)
+		    continue;
+		menuColorBar->addAction (m_actionCopyColorBar[i].get ());
+	    }
 	}
     }
     menu.exec (event->globalPos());
@@ -2420,7 +2446,6 @@ void GLWidget::CurrentIndexChangedViewCount (int index)
     if (m_viewCount == ViewCount::ONE)
     {
 	m_viewNumber = ViewNumber::VIEW0;
-	DependentViewsReset ();
     }
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
@@ -2475,11 +2500,12 @@ void GLWidget::SetBodyProperty (
     boost::shared_ptr<ColorBarModel> colorBarModel,
     BodyProperty::Enum property)
 {
+    makeCurrent ();
     ViewNumber::Enum view = GetViewNumber ();
     boost::shared_ptr<ViewSettings> vs = GetViewSettings ();
     vs->SetBodyProperty (property);
     if (vs->GetBodyProperty () != BodyProperty::NONE)
-	SetColorBarModel (colorBarModel);
+	GetViewSettings ()->SetColorBarModel (colorBarModel);
     else
 	vs->ResetColorBarModel ();
     compile (view);
@@ -2490,10 +2516,6 @@ void GLWidget::SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel)
 {
     makeCurrent ();
     GetViewSettings ()->SetColorBarModel (colorBarModel);
-    const QImage image = colorBarModel->GetImage ();
-    glBindTexture (GL_TEXTURE_1D, GetViewSettings ()->GetColorBarTexture ());
-    glTexImage1D (GL_TEXTURE_1D, 0, GL_RGB, image.width (),
-		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
     update ();
 }
 
@@ -2638,12 +2660,17 @@ void GLWidget::InfoOpenGL ()
     openGLInfo->exec ();
 }
 
-
-
-void GLWidget::DependentViewsAdd ()
+void GLWidget::CopyTransformationsFrom (int viewNumber)
 {
+    GetViewSettings ()->CopyTransformations (
+	*GetViewSettings (ViewNumber::Enum (viewNumber)));
+    update ();
 }
 
-void GLWidget::DependentViewsReset ()
+void GLWidget::CopyColorBarFrom (int viewNumber)
 {
+    boost::shared_ptr<ViewSettings> vs = 
+	GetViewSettings (ViewNumber::Enum (viewNumber));
+    GetViewSettings ()->CopyColorBar (*vs);
+    Q_EMIT ColorBarModelChanged (GetViewSettings ()->GetColorBarModel ());
 }

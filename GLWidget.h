@@ -323,8 +323,6 @@ public Q_SLOTS:
     // Actions color bar
     void ColorBarEdit ();
     void ColorBarClampClear ();
-    void DependentViewsAdd ();
-    void DependentViewsReset ();
 
     /**
      * Signals a change in data displayed
@@ -334,6 +332,8 @@ public Q_SLOTS:
     {
 	m_labelStatusBar = labelStatusBar;
     }
+    void CopyTransformationsFrom (int viewNumber);
+    void CopyColorBarFrom (int viewNumber);
 
 public:
     const static  size_t DISPLAY_ALL;
@@ -556,6 +556,10 @@ private:
     void setBodyStationaryContextLabel ();
     void translateFoamStationaryBody (
 	ViewNumber::Enum viewNumber, size_t timeStep) const;
+    void initCopy (
+	boost::array<boost::shared_ptr<QAction>, 
+	ViewNumber::COUNT>& actionCopyTransformations,
+	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformations);
     
 
 private:
@@ -648,9 +652,12 @@ private:
     boost::shared_ptr<QAction> m_actionInfoOpenGL;
     boost::shared_ptr<QAction> m_actionEditColorMap;
     boost::shared_ptr<QAction> m_actionClampClear;
-    boost::array< boost::shared_ptr<QAction>,
-		  ViewNumber::COUNT > m_actionDependentViewsAdd;
-    boost::shared_ptr<QAction> m_actionDependentViewsReset;
+    boost::array<boost::shared_ptr<QAction>, 
+		 ViewNumber::COUNT> m_actionCopyTransformations;
+    boost::shared_ptr<QSignalMapper> m_signalMapperCopyTransformations;
+    boost::array<boost::shared_ptr<QAction>, 
+		 ViewNumber::COUNT> m_actionCopyColorBar;
+    boost::shared_ptr<QSignalMapper> m_signalMapperCopyColorBar;
     double m_timeDisplacement;
     /**
      * True if the program displays data in a loop, false

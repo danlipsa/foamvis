@@ -51,10 +51,8 @@ public:
     {
 	return m_colorBarModel;
     }
-    void SetColorBarModel (const boost::shared_ptr<ColorBarModel>& colorBarModel)
-    {
-	m_colorBarModel = colorBarModel;
-    }
+    void SetColorBarModel (
+	const boost::shared_ptr<ColorBarModel>& colorBarModel);
     void ResetColorBarModel ()
     {
 	m_colorBarModel.reset ();
@@ -240,6 +238,9 @@ public:
     {
 	m_contextView = contextView;
     }
+
+    void CopyTransformations (const ViewSettings& from);
+    void CopyColorBar (const ViewSettings& from);
 
 public:
     const static size_t NONE;

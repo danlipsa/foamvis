@@ -6,6 +6,7 @@
  * Definitions for the view settings
  */
 
+#include "ColorBarModel.h"
 #include "DebugStream.h"
 #include "DisplayFaceStatistics.h"
 #include "ViewSettings.h"
@@ -187,4 +188,27 @@ void ViewSettings::SetLightingParameters (
 bool ViewSettings::IsBodyContext (size_t bodyId) const
 {
     return m_bodyContext.find (bodyId) != m_bodyContext.end ();
+}
+
+void ViewSettings::CopyTransformations (const ViewSettings& from)
+{
+    m_rotationModel = from.m_rotationModel;
+    m_scaleRatio = from.m_scaleRatio;
+    m_translation = from.m_translation;
+    m_axesOrder = from.m_axesOrder;
+}
+
+void ViewSettings::CopyColorBar (const ViewSettings& from)
+{
+    *m_colorBarModel = *from.m_colorBarModel;
+}
+
+void ViewSettings::SetColorBarModel (
+    const boost::shared_ptr<ColorBarModel>& colorBarModel)
+{
+    m_colorBarModel = colorBarModel;
+    const QImage image = colorBarModel->GetImage ();
+    glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
+    glTexImage1D (GL_TEXTURE_1D, 0, GL_RGB, image.width (),
+		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
 }
