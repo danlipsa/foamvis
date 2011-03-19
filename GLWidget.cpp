@@ -1073,7 +1073,7 @@ void GLWidget::displayBodyStationaryContour (ViewNumber::Enum viewNumber) const
     {
 	Foam::Bodies focusBody (1);
 	focusBody[0] = *GetCurrentFoam ().FindBody (vs.GetBodyStationaryId ());
-	displayFacesContour<0> (focusBody);
+	displayFacesContour<0> (focusBody, 2.0);
     }
 }
 
@@ -1090,7 +1090,7 @@ void GLWidget::displayBodyContextContour (ViewNumber::Enum viewNumber) const
 	    ! boost::bind (&ViewSettings::IsBodyContext, vs, 
 			   boost::bind (&Body::GetId, _1)));
 	contextBodies.resize (end - contextBodies.begin ());
-	displayFacesContour<1> (contextBodies);
+	displayFacesContour<1> (contextBodies, 2.0);
     }
 }
 
@@ -1545,8 +1545,7 @@ void GLWidget::displayStandaloneFaces () const
 
 void GLWidget::displayFacesContour (const Foam::Faces& faces) const
 {
-    glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
     for_each (faces.begin (), faces.end (),
 	      DisplayFaceColor<0xff000000, DisplayFaceLineStrip> (*this));
     glPopAttrib ();
@@ -1554,10 +1553,10 @@ void GLWidget::displayFacesContour (const Foam::Faces& faces) const
 
 template<size_t highlightColorIndex>
 void GLWidget::displayFacesContour (
-    const Foam::Bodies& bodies) const
+    const Foam::Bodies& bodies, GLfloat lineWidth) const
 {
-    glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT| GL_LINE_BIT);
+    glLineWidth (lineWidth);
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody< DisplayFaceHighlightColor<highlightColorIndex, 
 	      DisplayFaceLineStrip> > (
@@ -1567,8 +1566,7 @@ void GLWidget::displayFacesContour (
 
 void GLWidget::displayFacesContour (const Foam::Bodies& bodies) const
 {
-    glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody< DisplayFaceColor<0xff000000, 
 	      DisplayFaceLineStrip> > (
