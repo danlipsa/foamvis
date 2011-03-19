@@ -152,14 +152,30 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	glColor (this->m_glWidget.GetHighlightColor (
 		     this->m_propertySetter.GetViewNumber (),
 		     HighlightNumber::HIGHLIGHT0));
-	this->m_propertySetter (body);
+	BodyProperty::Enum property = 
+	    this->m_propertySetter.GetBodyProperty ();
+	bool deduced;
+	bool exists = 
+	    body->ExistsPropertyValue (property, &deduced);
+	if (exists && 
+	    (! deduced || 
+	     (deduced && this->m_glWidget.IsZeroedPressureShown ())))
+	    this->m_propertySetter (body);
     }
     else if (vs.IsBodyContext (bodyId))
     {
 	glColor (this->m_glWidget.GetHighlightColor (
 		     this->m_propertySetter.GetViewNumber (),
 		     HighlightNumber::HIGHLIGHT1));
-	this->m_propertySetter (body);
+	BodyProperty::Enum property = 
+	    this->m_propertySetter.GetBodyProperty ();
+	bool deduced;
+	bool exists = 
+	    body->ExistsPropertyValue (property, &deduced);
+	if (exists && 
+	    (! deduced || 
+	     (deduced && this->m_glWidget.IsZeroedPressureShown ())))
+	    this->m_propertySetter (body);
     }
     else if (this->m_focus == DisplayElement::FOCUS)
     {

@@ -3,7 +3,10 @@
  * @author Dan R. Lipsa
  * @date  24 Oct. 2010
  *
- * Implementation for the DisplayFaceStatistics class
+ * Implementation for the DisplayFaceStatistics class 
+ *
+ * @todo: Fix average value for not available values. Now not
+ * available values are stored as the lowest value.
  */
 
 #include "Debug.h"

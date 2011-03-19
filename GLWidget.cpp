@@ -5,7 +5,10 @@
  * Definitions for the widget for displaying foam bubbles using OpenGL
  */
 
-// @todo make the histogram work with the views
+// @todo add View copy > Transformation > View x
+// @todo fix crash with setting a body stationary in edge mode and then switch 
+// to face colored by data values.
+// @todo fix stationary highlight is not view dependent
 
 #include "Body.h"
 #include "BodyAlongTime.h"
@@ -1949,7 +1952,7 @@ void GLWidget::displayViewDecorations (ViewNumber::Enum view)
 void GLWidget::displayViewTitle (const G3D::Rect2D& viewRect, 
 				 ViewNumber::Enum viewNumber)
 {
-    if (! m_titleShown)
+    if (! m_titleShown || m_viewCount == ViewCount::ONE)
 	return;
     QFont font;
     if (viewNumber == m_viewNumber)
