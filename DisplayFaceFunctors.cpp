@@ -143,12 +143,18 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 		   bool* useColor)
 {
     *useColor = true;
-    boost::shared_ptr<Body> body = of->GetBodyPartOf ().GetBody ();
-    const ViewSettings& vs = *this->m_glWidget.GetViewSettings (
-	this->m_propertySetter.GetViewNumber ());
-    size_t bodyId = body->GetId ();
-    if (this->m_glWidget.IsBodyStationaryMarked () &&
-	bodyId == vs.GetBodyStationaryId ())
+    boost::shared_ptr<Body> body;
+    boost::shared_ptr<ViewSettings> vs;
+    size_t bodyId = 0;
+    if (! of->IsStandalone ())
+    {
+	body = of->GetBodyPartOf ().GetBody ();
+	vs = this->m_glWidget.GetViewSettings (
+	    this->m_propertySetter.GetViewNumber ());
+	bodyId = body->GetId ();
+    }
+    if (! of->IsStandalone () && this->m_glWidget.IsBodyStationaryMarked () &&
+	bodyId == vs->GetBodyStationaryId ())
     {
 	glColor (this->m_glWidget.GetHighlightColor (
 		     this->m_propertySetter.GetViewNumber (),
@@ -163,7 +169,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	     (deduced && this->m_glWidget.IsZeroedPressureShown ())))
 	    this->m_propertySetter (body);
     }
-    else if (vs.IsBodyContext (bodyId))
+    else if (! of->IsStandalone () && vs->IsBodyContext (bodyId))
     {
 	glColor (this->m_glWidget.GetHighlightColor (
 		     this->m_propertySetter.GetViewNumber (),
@@ -249,19 +255,21 @@ template<QRgb faceColor, typename displaySameEdges, typename PropertySetter>
 void DisplayFaceColor<faceColor, displaySameEdges, PropertySetter>::
 display (const boost::shared_ptr<OrientedFace>& of)
 {
-    boost::shared_ptr<Body> body = of->GetBodyPartOf ().GetBody ();
-    size_t bodyId = body->GetId ();
-    const ViewSettings& vs = *this->m_glWidget.GetViewSettings (
-	this->m_propertySetter.GetViewNumber ());
-    if (this->m_focus == DisplayElement::FOCUS ||
-	bodyId == vs.GetBodyStationaryId () || 
-	vs.IsBodyContext (bodyId))
-    {
-	glColor (QColor (faceColor));
-    }
+    bool stationaryOrContext;
+    if (of->IsStandalone ())
+	stationaryOrContext = false;
     else
-	glColor (QColor::fromRgbF (
-		     0, 0, 0, this->m_glWidget.GetContextAlpha ()));
+    {
+	boost::shared_ptr<Body> body = of->GetBodyPartOf ().GetBody ();
+	size_t bodyId = body->GetId ();
+	const ViewSettings& vs = *this->m_glWidget.GetViewSettings (
+	    this->m_propertySetter.GetViewNumber ());
+	stationaryOrContext = bodyId == vs.GetBodyStationaryId () || 
+	    vs.IsBodyContext (bodyId);
+    }
+    glColor ((this->m_focus == DisplayElement::FOCUS || stationaryOrContext) ?
+	     QColor (faceColor) :
+	     QColor::fromRgbF (0, 0, 0, this->m_glWidget.GetContextAlpha ()));
     (displaySameEdges (this->m_glWidget, this->m_focus, 
 		       this->m_useZPos, this->m_zPos)) (of);
 }
