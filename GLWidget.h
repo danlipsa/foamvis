@@ -506,8 +506,8 @@ private:
      */
     template<size_t highlightColorIndex>
     void displayFacesContour (
-	const vector< boost::shared_ptr<Body> >& bodies,
-	GLfloat lineWidth = 1.0) const;
+	const vector< boost::shared_ptr<Body> >& bodies, 
+	ViewNumber::Enum viewNumber, GLfloat lineWidth) const;
     void displayFacesContour (
 	const vector< boost::shared_ptr<Body> >& bodies) const;
     void displayFacesContour (

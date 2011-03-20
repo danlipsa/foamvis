@@ -5,10 +5,10 @@
  * Definitions for the widget for displaying foam bubbles using OpenGL
  */
 
-// @todo add View copy > Transformation > View x
 // @todo fix crash with setting a body stationary in edge mode and then switch 
 // to face colored by data values.
-// @todo fix stationary highlight is not view dependent
+// @todo fix bug where statistics in the second view is displayed with the 
+// first view color bar if the first view is selected.
 
 #include "Body.h"
 #include "BodyAlongTime.h"
@@ -677,14 +677,15 @@ void GLWidget::setView (const G3D::Vector2& clickedPoint)
 {
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
-	ViewNumber::Enum view = ViewNumber::Enum (i);
-	G3D::Rect2D viewRect = GetViewRect (view);
+	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	G3D::Rect2D viewRect = GetViewRect (viewNumber);
 	if (viewRect.contains (clickedPoint))
 	{
-	    m_viewNumber = view;
+	    m_viewNumber = viewNumber;
 	    break;
 	}
     }
+    setBodyStationaryContextLabel ();
     Q_EMIT ViewChanged ();
 }
 
@@ -943,13 +944,13 @@ void GLWidget::resizeGL(int w, int h)
     (void)w;(void)h;
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
-	ViewNumber::Enum view = ViewNumber::Enum (i);
-	ViewSettings& vs = *GetViewSettings (view);
+	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	ViewSettings& vs = *GetViewSettings (viewNumber);
 	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
 	{
-	    pair<double, double> minMax = getStatisticsMinMax (view);
+	    pair<double, double> minMax = getStatisticsMinMax (viewNumber);
 	    vs.GetDisplayFaceStatistics ()->InitStep (
-		view, minMax.first, minMax.second);
+		viewNumber, minMax.first, minMax.second);
 	}
     }
     detectOpenGLError ("resizeGl");
@@ -1091,7 +1092,7 @@ void GLWidget::displayBodyStationaryContour (ViewNumber::Enum viewNumber) const
     {
 	Foam::Bodies focusBody (1);
 	focusBody[0] = *GetCurrentFoam ().FindBody (vs.GetBodyStationaryId ());
-	displayFacesContour<0> (focusBody, 2.0);
+	displayFacesContour<0> (focusBody, viewNumber, 2.0);
     }
 }
 
@@ -1108,7 +1109,7 @@ void GLWidget::displayBodyContextContour (ViewNumber::Enum viewNumber) const
 	    ! boost::bind (&ViewSettings::IsBodyContext, vs, 
 			   boost::bind (&Body::GetId, _1)));
 	contextBodies.resize (end - contextBodies.begin ());
-	displayFacesContour<1> (contextBodies, 2.0);
+	displayFacesContour<1> (contextBodies, viewNumber, 2.0);
     }
 }
 
@@ -1127,7 +1128,11 @@ void GLWidget::setBodyStationaryContextLabel ()
     stationaryParameters.set (0, vs.GetBodyStationaryId () != 
 			      ViewSettings::NONE);
     stationaryParameters.set (1, vs.GetBodyContextSize () != 0);
-    m_labelStatusBar->setText (message[stationaryParameters.to_ulong ()]);
+    ostringstream ostr;
+    ostr << message[stationaryParameters.to_ulong ()];
+    if (vs.GetBodyContextSize () != 0)
+	ostr << " (" << vs.GetBodyContextSize () << ")";
+    m_labelStatusBar->setText (QString (ostr.str ().c_str ()));
 }
 
 
@@ -1422,9 +1427,10 @@ void GLWidget::displayT1s (ViewNumber::Enum view, size_t timeStep) const
 QColor GLWidget::GetHighlightColor (ViewNumber::Enum view, 
 				    HighlightNumber::Enum highlight) const
 {
-    if (GetViewSettings (view)->GetColorBarModel ())
-	return GetViewSettings (view)->GetColorBarModel ()->GetHighlightColor (
-	    highlight);
+    boost::shared_ptr<ColorBarModel> colorBarModel = 
+	GetViewSettings (view)->GetColorBarModel ();
+    if (colorBarModel)
+	return colorBarModel->GetHighlightColor (highlight);
     else
     {
 	if (highlight == HighlightNumber::HIGHLIGHT0)
@@ -1569,19 +1575,6 @@ void GLWidget::displayFacesContour (const Foam::Faces& faces) const
     glPopAttrib ();
 }
 
-template<size_t highlightColorIndex>
-void GLWidget::displayFacesContour (
-    const Foam::Bodies& bodies, GLfloat lineWidth) const
-{
-    glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT| GL_LINE_BIT);
-    glLineWidth (lineWidth);
-    for_each (bodies.begin (), bodies.end (),
-	      DisplayBody< DisplayFaceHighlightColor<highlightColorIndex, 
-	      DisplayFaceLineStrip> > (
-		  *this, *m_bodySelector));
-    glPopAttrib ();
-}
-
 void GLWidget::displayFacesContour (const Foam::Bodies& bodies) const
 {
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
@@ -1589,6 +1582,23 @@ void GLWidget::displayFacesContour (const Foam::Bodies& bodies) const
 	      DisplayBody< DisplayFaceColor<0xff000000, 
 	      DisplayFaceLineStrip> > (
 		  *this, *m_bodySelector));
+    glPopAttrib ();
+}
+
+
+template<size_t highlightColorIndex>
+void GLWidget::displayFacesContour (
+    const Foam::Bodies& bodies, ViewNumber::Enum viewNumber, 
+    GLfloat lineWidth) const
+{
+    glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT| GL_LINE_BIT);
+    glLineWidth (lineWidth);
+    for_each (bodies.begin (), bodies.end (),
+	      DisplayBody< DisplayFaceHighlightColor<highlightColorIndex, 
+	      DisplayFaceLineStrip>,
+	      SetterValueTextureCoordinate> (
+		  *this, *m_bodySelector, SetterValueTextureCoordinate (
+		      *this, viewNumber)));
     glPopAttrib ();
 }
 

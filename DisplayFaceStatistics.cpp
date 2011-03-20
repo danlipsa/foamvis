@@ -279,27 +279,28 @@ void DisplayFaceStatistics::display (
 
 
 void DisplayFaceStatistics::InitStep (
-    ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue)
+    ViewNumber::Enum viewNumber, GLfloat minValue, GLfloat maxValue)
 {
-    G3D::Rect2D viewRect = m_glWidget.GetViewRect (view);
+    G3D::Rect2D viewRect = m_glWidget.GetViewRect (viewNumber);
     Init (viewRect);
-    Step (view, minValue, maxValue);
+    Step (viewNumber, minValue, maxValue);
 }
 
 void DisplayFaceStatistics::Step (
-    ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue)
+    ViewNumber::Enum viewNumber, GLfloat minValue, GLfloat maxValue)
 {
-    Step (view, minValue, maxValue, m_glWidget.GetTimeStep ());
+    Step (viewNumber, minValue, maxValue, m_glWidget.GetTimeStep ());
 }
 
 void DisplayFaceStatistics::Step (
-    ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue, size_t timeStep)
+    ViewNumber::Enum viewNumber, 
+    GLfloat minValue, GLfloat maxValue, size_t timeStep)
 {
-    G3D::Rect2D viewRect = m_glWidget.GetViewRect (view);
+    G3D::Rect2D viewRect = m_glWidget.GetViewRect (viewNumber);
     // used for display
     (void)minValue;(void)maxValue;
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
-    renderToStep (view, timeStep);
+    renderToStep (viewNumber, timeStep);
     //save (viewRect, *m_step, "step", timeStep,
     //minValue, maxValue, StatisticsType::AVERAGE);
     addStepToNew (viewRect);
@@ -312,7 +313,7 @@ void DisplayFaceStatistics::Step (
     if (m_currentHistoryCount > m_historyCount && 
 	timeStep >= m_historyCount)
     {
-	renderToStep (view, timeStep - m_historyCount);
+	renderToStep (viewNumber, timeStep - m_historyCount);
 	//save (viewRect, *m_step, "step_", timeStep - m_historyCount,
 	//minValue, maxValue, StatisticsType::AVERAGE);
 	removeStepFromNew (viewRect);
@@ -328,18 +329,18 @@ void DisplayFaceStatistics::Step (
 }
 
 void DisplayFaceStatistics::renderToStep (
-    ViewNumber::Enum view, size_t timeStep)
+    ViewNumber::Enum viewNumber, size_t timeStep)
 {
     G3D::Rect2D viewRect = m_glWidget.GetViewRect ();
     glPushMatrix ();
-    m_glWidget.ModelViewTransform (view, timeStep);
+    m_glWidget.ModelViewTransform (viewNumber, timeStep);
     glViewport (0, 0, viewRect.width (), viewRect.height ());
     clearMinMax (viewRect, m_step);
     m_step->bind ();
     m_storeShaderProgram.Bind ();
     const Foam& foam = *m_glWidget.GetFoamAlongTime ().GetFoam (timeStep);
     const Foam::Bodies& bodies = foam.GetBodies ();
-    writeFacesValues<DisplayFaceTriangleFan> (view, bodies);
+    writeFacesValues<DisplayFaceTriangleFan> (viewNumber, bodies);
     m_storeShaderProgram.release ();
     m_step->release ();
     glPopMatrix ();
@@ -472,22 +473,23 @@ void DisplayFaceStatistics::save (const G3D::Rect2D& viewRect,
 
 template<typename displaySameEdges>
 void DisplayFaceStatistics::writeFacesValues (
-    ViewNumber::Enum view, const Foam::Bodies& bodies)
+    ViewNumber::Enum viewNumber, const Foam::Bodies& bodies)
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT |
 		  GL_ENABLE_BIT | GL_TEXTURE_BIT);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_TEXTURE_1D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    glBindTexture (GL_TEXTURE_1D, 
-		   m_glWidget.GetViewSettings (view)->GetColorBarTexture ());
+    glBindTexture (
+	GL_TEXTURE_1D, 
+	m_glWidget.GetViewSettings (viewNumber)->GetColorBarTexture ());
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
 	      DisplayFaceBodyPropertyColor<displaySameEdges, 
 	      SetterValueVertexAttribute>, SetterValueVertexAttribute> (
 		  m_glWidget, m_glWidget.GetBodySelector (), 
 		  SetterValueVertexAttribute (
-		      m_glWidget, view, &m_storeShaderProgram,
+		      m_glWidget, viewNumber, &m_storeShaderProgram,
 		      m_storeShaderProgram.GetVValueIndex ()),
 		  DisplayElement::INVISIBLE_CONTEXT));
     glPopAttrib ();

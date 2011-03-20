@@ -86,7 +86,8 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     configureInterface (foamAlongTime);    
     setWindowTitle (QString ((string("Foam - ") + 
 			      foamAlongTime.GetFilePattern ()).c_str ()));
-    m_timer->setInterval (30);    // 30 ms
+    // fire as soon as all events have been processed
+    m_timer->setInterval (0);
     createActions ();
     setTabOrder (radioButtonCenterPath, sliderTimeSteps);
     connectSignals ();

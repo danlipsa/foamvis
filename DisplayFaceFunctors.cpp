@@ -42,6 +42,7 @@ DisplayFaceHighlightColor (const GLWidget& widget,
 			   PropertySetter propertySetter,
 			   typename DisplayElement::FocusContext focus,
 			   bool useZPos, double zPos) : 
+
     DisplayElementPropertyFocus<PropertySetter> (
 	widget, propertySetter, focus, useZPos, zPos), 
     m_count(0)
