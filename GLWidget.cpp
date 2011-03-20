@@ -1889,11 +1889,30 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     m_contextMenuPos = event->pos ();
     QMenu menu (this);
+    QMenu menuCopy ("Copy", this);
     G3D::Rect2D colorBarRect = getViewColorBarRect (GetViewRect ());
     if (colorBarRect.contains (QtToOpenGl (m_contextMenuPos, height ())))
     {
+	bool actions = false;
+	if (ViewCount::GetCount (m_viewCount) > 1)
+	{
+	    BodyProperty::Enum currentBodyProperty = 
+		GetViewSettings ()->GetBodyProperty ();
+	    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
+	    {
+		ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+		if (viewNumber == m_viewNumber ||
+		    currentBodyProperty != 
+		    GetViewSettings (viewNumber)->GetBodyProperty ())
+		    continue;
+		menuCopy.addAction (m_actionCopyColorBar[i].get ());
+		actions = true;
+	    }
+	}
 	menu.addAction (m_actionEditColorMap.get ());
 	menu.addAction (m_actionClampClear.get ());
+	if (actions)
+	    menu.addMenu (&menuCopy);
     }
     else
     {
@@ -1926,14 +1945,6 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 		    continue;
 		menuTransformations->addAction (
 		    m_actionCopyTransformations[i].get ());
-	    }
-	    QMenu* menuColorBar = menuCopys->addMenu ("ColorBar");
-	    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
-	    {
-		ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-		if (viewNumber == m_viewNumber)
-		    continue;
-		menuColorBar->addAction (m_actionCopyColorBar[i].get ());
 	    }
 	}
     }
