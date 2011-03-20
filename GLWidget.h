@@ -425,8 +425,8 @@ private:
 
     void changeViewType (bool checked, ViewType::Enum view);
     /**
-     * Setup the viewing volume first centered around origin and then translated
-     * toward negative Z with m_cameraDistance. 
+     * Setup the viewing volume first centered around origin and then 
+     * translated toward negative Z with m_cameraDistance.
      */
     void projectionTransform (ViewNumber::Enum viewNumber) const;
     /**
@@ -437,7 +437,6 @@ private:
     void showLightPosition (
 	ViewNumber::Enum viewNumber, LightNumber::Enum light) const;
     void showLightPositions (ViewNumber::Enum viewNumber) const;
-    G3D::Rect2D calculateViewport (int width, int height) const;
     G3D::AABox calculateCenteredViewingVolume (double xOverY) const;
     G3D::AABox calculateViewingVolume (
 	ViewNumber::Enum viewNumber, double xOverY) const;
@@ -537,6 +536,7 @@ private:
 	G3D::Vector3::Axis screenYTranslation);
     void translateLight (ViewNumber::Enum viewNumber, const QPoint& position);
     void scale (ViewNumber::Enum viewNumber, const QPoint& position);
+    void scaleContext (ViewNumber::Enum viewNumber, const QPoint& position);
     void translateAndScale (
 	double m_scaleRatio, const G3D::Vector3& translation,
 	bool contextView) const;

@@ -418,6 +418,7 @@ QSize GLWidget::sizeHint()
 G3D::Vector3 GLWidget::getInitialLightPosition (
     LightNumber::Enum lightPosition) const
 {
+    
     G3D::AABox bb = calculateCenteredViewingVolume (
 	double (width ()) / height ());
     G3D::Vector3 high = bb.high (), low = bb.low ();
@@ -511,10 +512,9 @@ void GLWidget::initializeLighting ()
 
 G3D::AABox GLWidget::calculateCenteredViewingVolume (double xOverY) const
 {
-    G3D::AABox boundingBox = AdjustXOverYRatio (
-	EncloseRotation (GetFoamAlongTime ().GetBoundingBox ()), xOverY);
-    G3D::Vector3 center = boundingBox.center ();
-    return boundingBox - center;
+    G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
+    G3D::AABox vv = AdjustXOverYRatio (EncloseRotation (bb), xOverY);
+    return vv - vv.center ();
 }
 
 /**
@@ -546,7 +546,10 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
     glTranslatef (0, 0, - vs.GetCameraDistance ());
     
     // modeling transform
-    if (! vs.IsContextView ())
+    if (vs.IsContextView ())
+	translateAndScale (vs.GetContextScaleRatio (), G3D::Vector3::zero (),
+			   false);
+    else
 	translateAndScale (vs.GetScaleRatio (), vs.GetTranslation (), 
 			   vs.IsContextView ());
     glMultMatrix (vs.GetRotationModel ());
@@ -584,11 +587,12 @@ void GLWidget::translateFoamStationaryBody (
     }
 }
 
-G3D::AABox GLWidget::calculateViewingVolume (ViewNumber::Enum viewNumber, 
-					     double xOverY) const
+G3D::AABox GLWidget::calculateViewingVolume (
+    ViewNumber::Enum viewNumber, double xOverY) const
 {
     const ViewSettings& vs = *GetViewSettings (viewNumber);
-    G3D::AABox centeredViewingVolume = calculateCenteredViewingVolume (xOverY);
+    G3D::AABox centeredViewingVolume = 
+	calculateCenteredViewingVolume (xOverY);
     G3D::Vector3 translation (vs.GetCameraDistance () * G3D::Vector3::unitZ ());
     G3D::AABox result = centeredViewingVolume - translation;
     return result;
@@ -622,10 +626,7 @@ void GLWidget::viewportTransform (ViewNumber::Enum viewNumber) const
 {
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     ViewSettings& vs = *GetViewSettings (viewNumber);
-    G3D::Rect2D v = calculateViewport (viewRect.width (), viewRect.height ());
-    vs.SetViewport (G3D::Rect2D::xywh (
-			viewRect.x0 () + v.x0 (), viewRect.y0 () + v.y0 (),
-			v.width (), v.height ()));
+    vs.SetViewport (viewRect);
     glViewport (vs.GetViewport ());
 }
 
@@ -705,26 +706,6 @@ double GLWidget::getViewXOverY () const
 	xOverY, xOverY      // FOUR
     };
     return v[m_viewCount * 2 + m_viewLayout];
-}
-
-G3D::Rect2D GLWidget::calculateViewport (int width, int height) const
-{
-    double windowRatio = double (width) / height;
-    G3D::AABox vv = calculateCenteredViewingVolume (windowRatio);
-    G3D::Rect2D vv2d = G3D::Rect2D::xyxy (vv.low ().xy (), vv.high ().xy ());
-    double vvratio = vv2d.width () / vv2d.height ();
-    if (windowRatio > vvratio)
-    {
-	double newWidth = vvratio * height;
-	return G3D::Rect2D::xywh ((width - newWidth) / 2, 0,
-				  newWidth, height);
-    }
-    else
-    {
-	double newHeight = width / vvratio;
-	return G3D::Rect2D::xywh (0, (height - newHeight) / 2,
-				  width, newHeight);
-    }
 }
 
 void GLWidget::rotate2DTimeDisplacement () const
@@ -1062,6 +1043,15 @@ void GLWidget::scale (ViewNumber::Enum viewNumber, const QPoint& position)
 	vs.SetScaleRatio (vs.GetScaleRatio () * ratio);
 }
 
+void GLWidget::scaleContext (
+    ViewNumber::Enum viewNumber, const QPoint& position)
+{
+    ViewSettings& vs = *GetViewSettings (viewNumber);
+    double ratio = ratioFromCenter (position);
+    vs.SetContextScaleRatio (vs.GetContextScaleRatio () * ratio);
+}
+
+
 /** 
  * @todo Use body indexes instead of body IDs as the IDs might not be unique
  */
@@ -1213,7 +1203,10 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 		       G3D::Vector3::Y_AXIS);
 	break;
     case InteractionMode::SCALE:
-	scale (GetViewNumber (), event->pos ());
+	if (event->modifiers () & Qt::ControlModifier)
+	    scaleContext (GetViewNumber (), event->pos ());
+	else
+	    scale (GetViewNumber (), event->pos ());
 	break;
 
     case InteractionMode::ROTATE_LIGHT:
@@ -1283,16 +1276,17 @@ void GLWidget::displayOriginalDomain () const
 void GLWidget::displayFocusBox (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = *GetViewSettings (viewNumber);
-    G3D::Rect2D viewRect = GetViewRect (viewNumber);
     if (vs.IsContextView ())
     {
+	G3D::Rect2D viewRect = GetViewRect (viewNumber);
+
 	glPushMatrix ();
 	glLoadIdentity ();
 	glTranslatef (0, 0, - vs.GetCameraDistance ());
 
 	G3D::AABox focusBox = calculateCenteredViewingVolume (
 	    double (viewRect.width ()) / viewRect.height ());
-	translateAndScale (1 / vs.GetScaleRatio (), 
+	translateAndScale (vs.GetContextScaleRatio () / vs.GetScaleRatio (), 
 			   - vs.GetTranslation (), vs.IsContextView ());
 	DisplayBox (focusBox, Qt::black, GL_LINE);
 	glPopMatrix ();
@@ -1550,6 +1544,8 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
     boost::shared_ptr<ViewSettings> view = GetViewSettings (viewNumber);
     glPushAttrib (GL_ENABLE_BIT);    
     glDisable (GL_DEPTH_TEST);
+    glBindTexture (GL_TEXTURE_1D, 
+		   GetViewSettings (viewNumber)->GetColorBarTexture ());
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     view->GetDisplayFaceStatistics ()->Display (
 	GetViewRect (viewNumber),
@@ -1617,7 +1613,8 @@ void GLWidget::displayFacesInterior (
     //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
     //texture mapping?
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    glBindTexture (GL_TEXTURE_1D, GetViewSettings (view)->GetColorBarTexture ());
+    glBindTexture (GL_TEXTURE_1D, 
+		   GetViewSettings (view)->GetColorBarTexture ());
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<DisplayFaceBodyPropertyColor<
 	      DisplayFaceTriangleFan> > (

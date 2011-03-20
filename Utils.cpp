@@ -168,12 +168,12 @@ void Scale (G3D::Rect2D* aabox, double change)
     *aabox = G3D::Rect2D::xyxy ( newLow, newHigh);
 }
 
-G3D::AABox EncloseRotation (const G3D::AABox& aabox)
+G3D::AABox EncloseRotation (const G3D::AABox& box)
 {
     using G3D::Vector3;
-    Vector3 center = aabox.center ();
-    double maxHalfSideLength = (aabox.high () - center).length ();
-    double minHalfSideLength = aabox.extent ().min () / 2;
+    Vector3 center = box.center ();
+    double maxHalfSideLength = (box.high () - center).length ();
+    double minHalfSideLength = box.extent ().min () / 2;
     double halfSideLength = minHalfSideLength + 
 	(maxHalfSideLength - minHalfSideLength);
     Vector3 halfDiagonal = halfSideLength * 

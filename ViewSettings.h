@@ -100,6 +100,17 @@ public:
 	m_viewport = v;
     }
     
+    double GetContextScaleRatio () const
+    {
+	return m_contextScaleRatio;
+    }
+    
+    void SetContextScaleRatio (double contextScaleRatio)
+    {
+	m_contextScaleRatio = contextScaleRatio;
+    }
+
+
     double GetScaleRatio () const
     {
 	return m_scaleRatio;
@@ -261,6 +272,7 @@ private:
     G3D::Matrix3 m_rotationModel;
     G3D::Rect2D m_viewport;
     double m_scaleRatio;
+    double m_contextScaleRatio;
     G3D::Vector3 m_translation;
     // lighting state
     bool m_lightingEnabled;

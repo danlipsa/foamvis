@@ -37,6 +37,7 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_displayFaceStatistics (new DisplayFaceStatistics (glWidget)),
     m_rotationModel (G3D::Matrix3::identity ()),
     m_scaleRatio (1),
+    m_contextScaleRatio (1),
     m_translation (G3D::Vector3::zero ()),
     m_lightingEnabled (false),
     m_selectedLight (LightNumber::LIGHT0),
