@@ -182,7 +182,7 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
-0.4      - linked views
+0.4.1852 - linked views
 	 - edit highlight colors for colormaps
 	 - separated body context from body stationary and displayed both
            regardless of focus
