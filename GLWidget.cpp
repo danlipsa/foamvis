@@ -8,7 +8,6 @@
 // @todo fix crash with setting a body stationary in edge mode and then switch 
 // to face colored by data values.
 // @todo fix the (slow) movement of the focus in context view
-// @todo fix the scaling of the context view
 // @todo fix the clipping of bubble paths
 
 #include "Body.h"
@@ -1283,8 +1282,10 @@ void GLWidget::displayFocusBox (ViewNumber::Enum viewNumber) const
 
 	G3D::AABox focusBox = calculateCenteredViewingVolume (
 	    double (viewRect.width ()) / viewRect.height ());
-	translateAndScale (vs.GetContextScaleRatio () / vs.GetScaleRatio (), 
-			   - vs.GetTranslation (), vs.IsContextView ());
+	translateAndScale ( 1 / vs.GetScaleRatio (), 
+			    - vs.GetContextScaleRatio () * 
+			    vs.GetTranslation (), true);
+	glScale (vs.GetContextScaleRatio ());
 	DisplayBox (focusBox, GetHighlightColor (
 			viewNumber, HighlightNumber::HIGHLIGHT0), 2.0);
 	glPopMatrix ();

@@ -333,6 +333,8 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
 	cdbg << "OpenGL State:" << endl;
 	cdbg << G3D::getOpenGLState (false) << endl;
 	break;
+
+    case Qt::Key_Ctrl
     }
 }
 
