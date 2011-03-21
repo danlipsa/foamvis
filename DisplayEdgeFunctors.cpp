@@ -67,9 +67,9 @@ void angledEnd (const G3D::Vector3& before,
 // ======================================================================
 
 void DisplayEdge::operator() (
-    const G3D::Vector3& begin, const G3D::Vector3& end)
+    const G3D::Vector3& begin, const G3D::Vector3& end, bool context)
 {
-    glLineWidth (m_radius);
+    glLineWidth (context ? m_contextRadius : m_radius);
     glBegin(GL_LINES);
     ::glVertex(begin);
     ::glVertex(end);

@@ -39,7 +39,7 @@ struct FocusTextureSegment : public Segment
     }
 
     FocusTextureSegment (GLfloat textureCoordinate,
-		  const Segment& segment) :
+			 const Segment& segment) :
 	Segment (segment), m_textureCoordinate (textureCoordinate)
     {
     }
@@ -217,17 +217,23 @@ DisplayCenterPath (
      G3D::Vector3 pointBegin = getPoint (begin);
      G3D::Vector3 pointEnd = getPoint (end);
      G3D::Vector3 middle = (pointBegin + pointEnd) / 2;
+     boost::shared_ptr<ViewSettings> vs = 
+	 this->m_glWidget.GetViewSettings (
+	     this->m_propertySetter.GetViewNumber ());
      halfValueStep (
 	 begin,
-	 Segment (beforeBegin.IsEmpty () ? SegmentPerpendicularEnd::BEGIN_END :
-		  SegmentPerpendicularEnd::END,
-		  getPoint (beforeBegin), pointBegin, middle, G3D::Vector3 ()));
+	 Segment (
+	     beforeBegin.IsEmpty () ? SegmentPerpendicularEnd::BEGIN_END :
+	     SegmentPerpendicularEnd::END,
+	     getPoint (beforeBegin), pointBegin, middle, G3D::Vector3 (),
+	     vs->IsBodyContext (begin.m_body->GetId ())));
      halfValueStep (
 	 end,
 	 Segment (
 	     afterEnd.IsEmpty () ? SegmentPerpendicularEnd::BEGIN_END :
 	     SegmentPerpendicularEnd::BEGIN,
-	     G3D::Vector3 (), middle, pointEnd, getPoint (afterEnd)));
+	     G3D::Vector3 (), middle, pointEnd, getPoint (afterEnd),
+	     vs->IsBodyContext (end.m_body->GetId ())));
  }
 
 

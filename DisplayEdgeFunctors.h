@@ -20,7 +20,8 @@ class OrientedFace;
 struct Segment
 {
     Segment () :
-	m_perpendicularEnd (SegmentPerpendicularEnd::COUNT)
+	m_perpendicularEnd (SegmentPerpendicularEnd::COUNT),
+	m_context (false)
     {
     }
 
@@ -28,13 +29,14 @@ struct Segment
 	     const G3D::Vector3& beforeBegin,
 	     const G3D::Vector3& begin,
 	     const G3D::Vector3& end,
-	     const G3D::Vector3& afterEnd) :
+	     const G3D::Vector3& afterEnd, bool context) :
 
 	m_perpendicularEnd (perpendicularEnd),
 	m_beforeBegin (beforeBegin),
 	m_begin (begin),
 	m_end (end),
-	m_afterEnd (afterEnd)
+	m_afterEnd (afterEnd),
+	m_context (context)
     {
     }
 
@@ -43,6 +45,7 @@ struct Segment
     G3D::Vector3 m_begin;
     G3D::Vector3 m_end;
     G3D::Vector3 m_afterEnd;
+    bool m_context;
 };
 
 
@@ -63,10 +66,12 @@ public:
     {
     }
 
-    void operator () (const G3D::Vector3& begin, const G3D::Vector3& end);
+    void operator () (
+	const G3D::Vector3& begin, const G3D::Vector3& end, 
+	bool context = false);
     void operator () (const Segment& segment)
     {
-	operator () (segment.m_begin, segment.m_end);
+	operator () (segment.m_begin, segment.m_end, segment.m_context);
     }
 
 protected:
