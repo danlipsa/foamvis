@@ -182,7 +182,7 @@ void GLWidget::initQuadrics ()
 
 void GLWidget::createActions ()
 {
-    m_actionSelectAll = boost::make_shared<QAction> (tr("&Select all"), this);
+    m_actionSelectAll = boost::make_shared<QAction> (tr("&All"), this);
     m_actionSelectAll->setStatusTip(tr("Select all"));
     connect(m_actionSelectAll.get (), SIGNAL(triggered()),
 	    this, SLOT(SelectAll ()));
@@ -193,8 +193,15 @@ void GLWidget::createActions ()
     connect(m_actionDeselectAll.get (), SIGNAL(triggered()),
 	    this, SLOT(DeselectAll ()));
 
+    m_actionSelectBodiesById = boost::make_shared<QAction> (
+	tr("&Bodies by id"), this);
+    m_actionSelectBodiesById->setStatusTip(tr("Select bodies by id"));
+    connect(m_actionSelectBodiesById.get (), SIGNAL(triggered()),
+	    this, SLOT(SelectBodiesByIdList ()));
+
+
     m_actionResetTransformation = boost::make_shared<QAction> (
-	tr("&Reset transformation"), this);
+	tr("&Transformation"), this);
     m_actionResetTransformation->setShortcut(
 	QKeySequence (tr ("Ctrl+R")));
     m_actionResetTransformation->setStatusTip(tr("Reset transformation"));
@@ -203,20 +210,13 @@ void GLWidget::createActions ()
 
 
     m_actionResetSelectedLightNumber = boost::make_shared<QAction> (
-	tr("&Reset selected light"), this);
+	tr("&Selected light"), this);
     m_actionResetSelectedLightNumber->setShortcut(
 	QKeySequence (tr ("Ctrl+L")));
     m_actionResetSelectedLightNumber->setStatusTip(
 	tr("Reset selected light"));
     connect(m_actionResetSelectedLightNumber.get (), SIGNAL(triggered()),
 	    this, SLOT(ResetSelectedLightNumber ()));
-
-
-    m_actionSelectBodiesById = boost::make_shared<QAction> (
-	tr("&Select bodies by id"), this);
-    m_actionSelectBodiesById->setStatusTip(tr("Select bodies by id"));
-    connect(m_actionSelectBodiesById.get (), SIGNAL(triggered()),
-	    this, SLOT(SelectBodiesByIdList ()));
 
     m_actionBodyStationarySet = boost::make_shared<QAction> (
 	tr("&Set stationary"), this);
@@ -364,13 +364,6 @@ double GLWidget::getMinimumEdgeRadius () const
     G3D::Vector3 objectOne = gluUnProject (G3D::Vector2::unitX (),
 					   GluUnProjectZOperation::SET0);
     return (objectOne - objectOrigin).length ();
-}
-
-void GLWidget::setEdgeRadius ()
-{
-    calculateEdgeRadius (m_edgeRadiusMultiplier,
-			 &m_edgeRadius, &m_arrowBaseRadius,
-			 &m_arrowHeight, &m_edgesTubes);
 }
 
 void GLWidget::calculateEdgeRadius (
@@ -752,6 +745,7 @@ void GLWidget::ResetTransformation ()
     ViewSettings& vs = *GetViewSettings ();
     vs.SetRotationModel (G3D::Matrix3::identity ());
     vs.SetScaleRatio (1);
+    vs.SetContextScaleRatio (1);
     vs.SetTranslation (G3D::Vector3::zero ());
     projectionTransform (viewNumber);
     update ();
@@ -873,7 +867,9 @@ void GLWidget::initializeGL()
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     DisplayFaceStatistics::InitShaders ();
     initializeLighting ();
-    setEdgeRadius ();
+    calculateEdgeRadius (m_edgeRadiusMultiplier,
+			 &m_edgeRadius, &m_arrowBaseRadius,
+			 &m_arrowHeight, &m_edgesTubes);
     detectOpenGLError ("initializeGl");
 }
 
@@ -1288,7 +1284,8 @@ void GLWidget::displayFocusBox (ViewNumber::Enum viewNumber) const
 	    double (viewRect.width ()) / viewRect.height ());
 	translateAndScale (vs.GetContextScaleRatio () / vs.GetScaleRatio (), 
 			   - vs.GetTranslation (), vs.IsContextView ());
-	DisplayBox (focusBox, Qt::black, GL_LINE);
+	DisplayBox (focusBox, GetHighlightColor (
+			viewNumber, HighlightNumber::HIGHLIGHT0), 2.0);
 	glPopMatrix ();
     }
 }
@@ -1300,15 +1297,14 @@ void GLWidget::displayBoundingBox (ViewNumber::Enum viewNumber) const
     if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
     if (m_boundingBoxShown)
-	DisplayBox (GetFoamAlongTime ().GetBoundingBox (), Qt::black, GL_LINE);
+	DisplayBox (GetFoamAlongTime ().GetBoundingBox (), Qt::black);
     if (m_bodiesBoundingBoxesShown)
     {
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	for_each (
 	    bodies.begin (), bodies.end (),
 	    boost::bind (
-		DisplayBox< boost::shared_ptr<Body> >,
-		_1, Qt::black, GL_LINE));
+		DisplayBox< boost::shared_ptr<Body> >, _1, Qt::black, 1.0));
     }
     glPopAttrib ();
 }
@@ -1418,11 +1414,11 @@ void GLWidget::displayT1s (ViewNumber::Enum view, size_t timeStep) const
     glPopAttrib ();
 }
 
-QColor GLWidget::GetHighlightColor (ViewNumber::Enum view, 
-				    HighlightNumber::Enum highlight) const
+QColor GLWidget::GetHighlightColor (
+    ViewNumber::Enum viewNumber, HighlightNumber::Enum highlight) const
 {
     boost::shared_ptr<ColorBarModel> colorBarModel = 
-	GetViewSettings (view)->GetColorBarModel ();
+	GetViewSettings (viewNumber)->GetColorBarModel ();
     if (colorBarModel)
 	return colorBarModel->GetHighlightColor (highlight);
     else
@@ -1923,11 +1919,17 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
     }
     else
     {
-	menu.addAction (m_actionResetTransformation.get ());
-	menu.addAction (m_actionResetSelectedLightNumber.get ());
-	menu.addAction (m_actionSelectAll.get ());
-	menu.addAction (m_actionDeselectAll.get ());
-	menu.addAction (m_actionSelectBodiesById.get ());
+	{
+	    QMenu* menuReset = menu.addMenu ("Reset");
+	    menuReset->addAction (m_actionResetTransformation.get ());
+	    menuReset->addAction (m_actionResetSelectedLightNumber.get ());
+	}
+	{
+	    QMenu* menuSelect = menu.addMenu ("Select");
+	    menuSelect->addAction (m_actionSelectAll.get ());
+	    menuSelect->addAction (m_actionDeselectAll.get ());
+	    menuSelect->addAction (m_actionSelectBodiesById.get ());
+	}
 	{
 	    QMenu* menuBody = menu.addMenu ("Body");
 	    menuBody->addAction (m_actionBodyStationarySet.get ());
@@ -2588,7 +2590,9 @@ void GLWidget::ValueChangedEdgesRadius (int sliderValue)
     makeCurrent ();
     size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
     m_edgeRadiusMultiplier = static_cast<double>(sliderValue) / maximum;
-    setEdgeRadius ();
+    calculateEdgeRadius (m_edgeRadiusMultiplier,
+			 &m_edgeRadius, &m_arrowBaseRadius,
+			 &m_arrowHeight, &m_edgesTubes);
     compile (GetViewNumber ());
     update ();
 }

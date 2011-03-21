@@ -252,14 +252,14 @@ void DisplayBox (const OOBox& oobox)
     glPopAttrib ();
 }
 
-void DisplayBox (const G3D::AABox& aabb, 
-		 const QColor& color, GLenum polygonMode)
+void DisplayBox (const G3D::AABox& aabb, const QColor& color,
+		 GLfloat lineWidth)
 {
     using G3D::Vector3;
     glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
-    glLineWidth (1.0);
+    glLineWidth (lineWidth);
     glColor (color);
-    glPolygonMode (GL_FRONT_AND_BACK, polygonMode);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     Vector3 diagonal = aabb.high () - aabb.low ();
     Vector3 first = diagonal.x * Vector3::unitX ();
     Vector3 second = diagonal.y * Vector3::unitY ();

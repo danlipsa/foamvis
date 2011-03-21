@@ -163,8 +163,14 @@ public:
     }
 
     double GetArrowBaseRadius () const {return m_arrowBaseRadius;}
-    double GetArrowHeight () const {return m_arrowHeight;}
-    double GetEdgeRadius () const {return m_edgeRadius;}
+    double GetArrowHeight () const 
+    {
+	return m_arrowHeight;
+    }
+    double GetEdgeRadius () const 
+    {
+	return m_edgeRadius;
+    }
 
     bool IsDisplayedBody (const boost::shared_ptr<Body>  body) const;
     bool IsDisplayedBody (size_t bodyId) const;
@@ -395,14 +401,13 @@ private:
 
 private:
     void setLight (int sliderValue, int maximumValue, 
-		   LightType::Enum lightType, ColorNumber::Enum colorNumber);    
+		   LightType::Enum lightType, ColorNumber::Enum colorNumber);
     void viewportTransform (ViewNumber::Enum viewNumber) const;
     void setView (const G3D::Vector2& clickedPoint);
     void selectView (const G3D::Vector2& clickedPoint);
     double getViewXOverY () const;
     static G3D::Rect2D getViewColorBarRect (const G3D::Rect2D& viewRect);
     double getMinimumEdgeRadius () const;
-    void setEdgeRadius ();
     void calculateEdgeRadius (
 	double edgeRadiusMultiplier,
 	double* edgeRadius, double* arrowBaseRadius, 

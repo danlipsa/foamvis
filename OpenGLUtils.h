@@ -79,14 +79,14 @@ inline GLenum TextureEnum (GLint texture)
 }
 
 void DisplayBox (const OOBox& oobox);
-void DisplayBox (const G3D::AABox& aabb, const QColor& color, 
-		 GLenum polygonMode);
+void DisplayBox (const G3D::AABox& aabb, const QColor& color,
+		 GLfloat lineWidth = 1.0);
 
 template<typename GraphicsObjectPtr>
-void DisplayBox (const GraphicsObjectPtr& o, const QColor& color,
-		 GLenum polygonMode)
+void DisplayBox (
+    const GraphicsObjectPtr& o, const QColor& color, GLfloat lineWidth = 1.0)
 {
-    DisplayBox (o->GetBoundingBox (), color, polygonMode);
+    DisplayBox (o->GetBoundingBox (), color, lineWidth);
 }
 
 

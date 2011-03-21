@@ -49,9 +49,17 @@ struct Segment
 class DisplayEdge
 {
 public:
-    DisplayEdge (GLUquadricObj* quadric = 0, double edgeRadius = 0) :
-	m_quadric (quadric),
-	m_radius (edgeRadius)
+    DisplayEdge () :
+	m_quadric (0), m_radius (1.0), m_contextRadius (1.0)
+    {
+    }
+    
+
+    DisplayEdge (GLUquadricObj* quadric, double edgeRadius, 
+		 double contextEdgeRadius = 2.0) :
+	
+	m_quadric (quadric), m_radius (edgeRadius), 
+	m_contextRadius (contextEdgeRadius)
     {
     }
 
@@ -64,6 +72,7 @@ public:
 protected:
     GLUquadricObj* m_quadric;
     double m_radius;
+    double m_contextRadius;
 };
 
 class DisplayEdgeQuadric : public DisplayEdge
@@ -73,8 +82,9 @@ public:
     {
     }
 
-    DisplayEdgeQuadric (GLUquadricObj* quadric, double edgeRadius) :
-	DisplayEdge (quadric, edgeRadius)
+    DisplayEdgeQuadric (
+	GLUquadricObj* quadric, double edgeRadius, double contextRadius = 2.0) :
+	DisplayEdge (quadric, edgeRadius, contextRadius)
     {
     }
     
@@ -92,8 +102,9 @@ public:
     {
     }
 
-    DisplayEdgeTube (GLUquadricObj* quadric, double edgeRadius) :
-	DisplayEdge (quadric, edgeRadius)
+    DisplayEdgeTube (GLUquadricObj* quadric, double edgeRadius, 
+		     double contextRadius = 2.0) :
+	DisplayEdge (quadric, edgeRadius, contextRadius)
     {
     }
     
