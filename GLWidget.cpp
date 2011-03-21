@@ -7,8 +7,7 @@
 
 // @todo fix crash with setting a body stationary in edge mode and then switch 
 // to face colored by data values.
-// @todo fix bug where statistics in the second view is displayed with the 
-// first view color bar if the first view is selected.
+// @todo use a different edge width for context paths
 
 #include "Body.h"
 #include "BodyAlongTime.h"
