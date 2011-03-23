@@ -171,6 +171,15 @@ public:
     {
 	return m_edgeRadius;
     }
+    double GetEdgeWidth () const 
+    {
+	return m_edgeWidth;
+    }
+
+    bool IsCenterPathLineUsed () const
+    {
+	return m_centerPathLineUsed;
+    }
 
     bool IsDisplayedBody (const boost::shared_ptr<Body>  body) const;
     bool IsDisplayedBody (size_t bodyId) const;
@@ -250,6 +259,8 @@ public Q_SLOTS:
      */
     void ToggledCenterPath (bool checked);
     void ToggledCenterPathBodyShown (bool checked);
+    void ToggledCenterPathLineUsed (bool checked);
+    void ToggledCenterPathTubeUsed (bool checked);
     void ToggledContextView (bool checked);
     void ToggledDirectionalLightEnabled (bool checked);
     /**
@@ -258,7 +269,7 @@ public Q_SLOTS:
      */
     void ToggledEdgesNormal (bool checked);
     void ToggledEdgesTorus (bool checked);
-    void ToggledEdgesBodyCenter (bool checked);
+    void ToggledBodyCenterShown (bool checked);
     void ToggledEdgesTessellation (bool checked);
     /**
      * Shows faces
@@ -278,7 +289,6 @@ public Q_SLOTS:
     void ToggledTitleShown (bool checked);
     void ToggledT1sShiftLower (bool checked);
     void ToggledTorusOriginalDomainClipped (bool checked);
-    void ToggledTubeCenterPathUsed (bool checked);
     void ToggledZeroedPressureShown (bool checked);
 
     void SetBodyProperty (
@@ -411,22 +421,18 @@ private:
     void calculateEdgeRadius (
 	double edgeRadiusMultiplier,
 	double* edgeRadius, double* arrowBaseRadius, 
-	double* arrowHeight, bool* edgeTubes = 0) const;
+	double* arrowHeight, double* edgeWidth) const;
 
     /**
      * Displays the center of the bodies
      */
-    void displayCenterOfBodies (bool useZPos = false) const;
+    void displayBodyCenters (bool useZPos = false) const;
     void displayViewDecorations (ViewNumber::Enum view);
     void displayViewGrid ();
     void displayTextureColorBar (ViewNumber::Enum viewNumber, 
 				 const G3D::Rect2D& viewRect);
     void displayViewTitle (const G3D::Rect2D& viewRect, ViewNumber::Enum view);
     void displayViewGrid () const;
-    bool areEdgesTubes () const
-    {
-	return m_edgesTubes;
-    }
 
     void changeViewType (bool checked, ViewType::Enum view);
     /**
@@ -624,16 +630,17 @@ private:
      * For displaying edges as tubes
      */
     double m_edgeRadius;
+    double m_edgeWidth;
+    double m_minimumEdgeRadius;
+    double m_edgeRadiusRatio;
     /**
      * For displaying arrows in the Torus Model edges
      */
     double m_arrowBaseRadius;
     double m_arrowHeight;
-    double m_edgeRadiusMultiplier;
 
-    bool m_edgesTubes;
     bool m_facesShowEdges;
-    bool m_edgesBodyCenter;
+    bool m_bodyCenterShown;
     bool m_edgesTessellation;
     bool m_centerPathBodyShown;
     bool m_contextHidden;
@@ -672,7 +679,8 @@ private:
     boost::shared_ptr<SelectBodiesById> m_selectBodiesById;
     QLabel *m_labelStatusBar;
     bool m_hideContent;
-    bool m_tubeCenterPathUsed;
+    bool m_centerPathTubeUsed;
+    bool m_centerPathLineUsed;
     bool m_t1sShown;
     GLfloat m_t1Size;
     bool m_zeroedPressureShown;

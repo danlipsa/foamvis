@@ -556,6 +556,7 @@ void MainWindow::ValueChangedFontSize (int fontSize)
     defaultFont.setPointSize (fontSize);
     app->setFont (defaultFont);
     widgetHistogram->SetDefaultFont ();
+    m_editColorMap->SetDefaultFont ();
 }
 
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)

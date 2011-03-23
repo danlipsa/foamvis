@@ -182,6 +182,8 @@ DisplayCenterPath (
 	widget, bodySelector, PropertySetter (widget, view),
 	 useTimeDisplacement, timeDisplacement),
      m_displaySegment (this->m_glWidget.GetQuadricObject (),
+		       this->m_glWidget.IsCenterPathLineUsed () ?
+		       this->m_glWidget.GetEdgeWidth () :
 		       this->m_glWidget.GetEdgeRadius ()),
      m_output (output),
      m_index (0)

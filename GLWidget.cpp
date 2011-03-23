@@ -116,10 +116,10 @@ GLWidget::GLWidget(QWidget *parent)
       m_selectedBodyIndex (DISPLAY_ALL), m_selectedFaceIndex (DISPLAY_ALL),
       m_selectedEdgeIndex (DISPLAY_ALL),
       m_contextAlpha (MIN_CONTEXT_ALPHA),
-      m_edgeRadiusMultiplier (0),
-      m_edgesTubes (false),
+      m_minimumEdgeRadius (0),
+      m_edgeRadiusRatio (0),
       m_facesShowEdges (true),
-      m_edgesBodyCenter (false),
+      m_bodyCenterShown (false),
       m_edgesTessellation (true),
       m_centerPathBodyShown (false),
       m_contextHidden (false),
@@ -131,7 +131,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_playMovie (false),
       m_selectBodiesById (new SelectBodiesById (this)),
       m_hideContent(false),
-      m_tubeCenterPathUsed (true),
+      m_centerPathTubeUsed (true),
+      m_centerPathLineUsed (false),
       m_t1sShown (false),
       m_t1Size (MIN_T1_SIZE),
       m_zeroedPressureShown (false),
@@ -366,19 +367,20 @@ double GLWidget::getMinimumEdgeRadius () const
     return (objectOne - objectOrigin).length ();
 }
 
-void GLWidget::calculateEdgeRadius (
-    double edgeRadiusMultiplier,
-    double* edgeRadius, double* arrowBaseRadius, 
-    double* arrowHeight, bool* edgesTubes) const
+void GLWidget::calculateEdgeRadius (double edgeRadiusRatio,
+				    double* edgeRadius, double* arrowBaseRadius, 
+				    double* arrowHeight,
+				    double* edgeWidth) const
 {
-    double r = getMinimumEdgeRadius ();
-    double R = 3 * r;
+    const int maxRadiusMultiplier = 5;
 
-    if (edgesTubes != 0)
-	*edgesTubes = (edgeRadiusMultiplier != 0.0);
-    *edgeRadius = (R - r) * edgeRadiusMultiplier + r;
+    double r = m_minimumEdgeRadius;
+    double R = maxRadiusMultiplier * r;
+
+    *edgeRadius = (R - r) * edgeRadiusRatio + r;
     *arrowBaseRadius = 4 * (*edgeRadius);
     *arrowHeight = 11 * (*edgeRadius);
+    *edgeWidth = (maxRadiusMultiplier - 1) * edgeRadiusRatio + 1;
 }
 
 GLWidget::~GLWidget()
@@ -867,9 +869,6 @@ void GLWidget::initializeGL()
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     DisplayFaceStatistics::InitShaders ();
     initializeLighting ();
-    calculateEdgeRadius (m_edgeRadiusMultiplier,
-			 &m_edgeRadius, &m_arrowBaseRadius,
-			 &m_arrowHeight, &m_edgesTubes);
     detectOpenGLError ("initializeGl");
 }
 
@@ -901,6 +900,14 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     viewportTransform (viewNumber);    
     projectionTransform (viewNumber);
     ModelViewTransform (viewNumber, GetTimeStep ());
+    if (m_minimumEdgeRadius == 0)
+    {
+	m_minimumEdgeRadius = getMinimumEdgeRadius ();
+	calculateEdgeRadius (m_edgeRadiusRatio,
+			     &m_edgeRadius, &m_arrowBaseRadius,
+			     &m_arrowHeight, &m_edgeWidth);
+    }
+
     if (! m_hideContent)
     {
 	DisplayViewType (viewNumber);
@@ -1323,12 +1330,9 @@ void GLWidget::displayAxes () const
 	Vector3 first = origin + diagonal.x * Vector3::unitX ();
 	Vector3 second = origin + diagonal.y * Vector3::unitY ();
 	Vector3 third = origin + diagonal.z * Vector3::unitZ ();
-	double edgeRadius, arrowBaseRadius, arrowHeight;
 
-	calculateEdgeRadius (0, &edgeRadius,
-			     &arrowBaseRadius, &arrowHeight);
 	DisplayOrientedEdgeQuadric displayOrientedEdge (
-	    GetQuadricObject (), arrowBaseRadius, edgeRadius, arrowHeight,
+	    GetQuadricObject (), m_arrowBaseRadius, m_edgeRadius, m_arrowHeight,
 	    DisplayArrow::TOP_END);
 
 	glColor (Qt::red);
@@ -1357,7 +1361,7 @@ void GLWidget::displayEdges () const
     displayStandaloneEdges<displayEdge> ();
 
     glPopAttrib ();
-    displayCenterOfBodies ();
+    displayBodyCenters ();
 }
 
 template<typename displayEdge>
@@ -1435,24 +1439,24 @@ QColor GLWidget::GetHighlightColor (
 void GLWidget::displayEdgesTorus (ViewNumber::Enum view) const
 {
     (void)view;
-    if (m_edgesTubes)
+    if (m_edgeRadiusRatio > 0)
 	displayEdgesTorusTubes ();
     else
     {
 	displayEdgesTorusLines ();
-	displayCenterOfBodies ();
+	displayBodyCenters ();
     }
 }
 
 void GLWidget::displayFacesTorus (ViewNumber::Enum view) const
 {
     (void)view;
-    if (m_edgesTubes)
+    if (m_edgeRadiusRatio > 0)
 	displayFacesTorusTubes ();
     else
     {
 	displayFacesTorusLines ();
-	displayCenterOfBodies ();
+	displayBodyCenters ();
     }
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
 }
@@ -1482,9 +1486,9 @@ void GLWidget::displayEdgesTorusLines () const
 }
 
 
-void GLWidget::displayCenterOfBodies (bool useZPos) const
+void GLWidget::displayBodyCenters (bool useZPos) const
 {
-    if (m_edgesBodyCenter)
+    if (m_bodyCenterShown)
     {
 	double zPos = (GetViewSettings ()->GetViewType () == 
 		       ViewType::CENTER_PATHS) ?
@@ -1681,7 +1685,7 @@ void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum view) const
 	    DisplayElement::DONT_DISPLAY_TESSELLATION> > > > (
 		*this, *m_bodySelector, DisplayElement::INVISIBLE_CONTEXT,
 		view, IsTimeDisplacementUsed (), zPos));
-	displayCenterOfBodies (IsTimeDisplacementUsed ());
+	displayBodyCenters (IsTimeDisplacementUsed ());
     }
     displayStandaloneEdges< DisplayEdgeWithColor<> > (true, 0);
     if (GetTimeDisplacement () != 0)
@@ -1715,7 +1719,7 @@ void GLWidget::compileCenterPaths (ViewNumber::Enum view) const
 {
     glNewList (GetViewSettings (view)->GetListCenterPaths (), GL_COMPILE);
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT | 
-		  GL_POLYGON_BIT);
+		  GL_POLYGON_BIT | GL_LINE_BIT);
     glEnable(GL_TEXTURE_1D);
     glBindTexture (GL_TEXTURE_1D, GetViewSettings (view)->GetColorBarTexture ());
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
@@ -1725,9 +1729,9 @@ void GLWidget::compileCenterPaths (ViewNumber::Enum view) const
     //texture mapping?
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     const BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
-    if (m_edgesTubes)
+    if (m_edgeRadiusRatio > 0 && ! m_centerPathLineUsed)
     {
-	if (m_tubeCenterPathUsed)
+	if (m_centerPathTubeUsed)
 	    for_each (
 		bats.begin (), bats.end (),
 		DisplayCenterPath<
@@ -2378,9 +2382,9 @@ void GLWidget::ToggledEdgesTorus (bool checked)
     changeViewType (checked, ViewType::EDGES_TORUS);
 }
 
-void GLWidget::ToggledEdgesBodyCenter (bool checked)
+void GLWidget::ToggledBodyCenterShown (bool checked)
 {
-    m_edgesBodyCenter = checked;
+    m_bodyCenterShown = checked;
     update ();
 }
 
@@ -2414,9 +2418,17 @@ void GLWidget::ToggledTorusOriginalDomainShown (bool checked)
     update ();
 }
 
-void GLWidget::ToggledTubeCenterPathUsed (bool checked)
+void GLWidget::ToggledCenterPathTubeUsed (bool checked)
 {
-    m_tubeCenterPathUsed = checked;
+    m_centerPathTubeUsed = checked;
+    compile (GetViewNumber ());
+    update ();
+}
+
+void GLWidget::ToggledCenterPathLineUsed (bool checked)
+{
+    m_centerPathLineUsed = checked;
+    compile (GetViewNumber ());
     update ();
 }
 
@@ -2591,10 +2603,10 @@ void GLWidget::ValueChangedEdgesRadius (int sliderValue)
 {
     makeCurrent ();
     size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
-    m_edgeRadiusMultiplier = static_cast<double>(sliderValue) / maximum;
-    calculateEdgeRadius (m_edgeRadiusMultiplier,
+    m_edgeRadiusRatio = static_cast<double>(sliderValue) / maximum;
+    calculateEdgeRadius (m_edgeRadiusRatio,
 			 &m_edgeRadius, &m_arrowBaseRadius,
-			 &m_arrowHeight, &m_edgesTubes);
+			 &m_arrowHeight, &m_edgeWidth);
     compile (GetViewNumber ());
     update ();
 }
@@ -2698,3 +2710,4 @@ void GLWidget::CopyColorBarFrom (int viewNumber)
     GetViewSettings ()->CopyColorBar (*vs);
     Q_EMIT ColorBarModelChanged (GetViewSettings ()->GetColorBarModel ());
 }
+

@@ -24,6 +24,7 @@ public:
     {
 	return m_colorBarModel;
     }
+    void SetDefaultFont ();
 
 public Q_SLOTS:
     void HighlightedPalette (int index);

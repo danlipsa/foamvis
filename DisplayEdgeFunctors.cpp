@@ -96,10 +96,6 @@ void DisplayEdgeQuadric::operator() (
 }
 
 
-
-
-
-
 // DisplayEdgeTube
 // ======================================================================
 

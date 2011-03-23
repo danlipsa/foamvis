@@ -119,3 +119,8 @@ void EditColorMap::ClickedHighlight1 ()
 			 HighlightNumber::HIGHLIGHT1), 
 		     HIGHLIGHT_LABEL_TEXT).c_str ());
 }
+
+void EditColorMap::SetDefaultFont ()
+{
+    widgetHistogram->SetDefaultFont ();
+}
