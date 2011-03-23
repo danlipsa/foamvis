@@ -58,7 +58,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_timer (new QTimer(this)), m_processBodyTorus (0), 
     m_currentBody (0),
     m_histogramType (HistogramType::NONE),
-    m_viewWithHistogram (ViewNumber::COUNT),
+    m_histogramViewNumber (ViewNumber::COUNT),
     m_editColorMap (new EditColorMap (this))
 {
     // for anti-aliased lines
@@ -168,7 +168,7 @@ void MainWindow::ViewToUI ()
     comboBoxAxesOrder->setCurrentIndex (vs.GetAxesOrder ());
     spinBoxStatisticsHistory->setValue (
 	vs.GetDisplayFaceStatistics ()->GetHistoryCount ());
-    if (viewNumber == m_viewWithHistogram)
+    if (viewNumber == m_histogramViewNumber)
 	buttonGroupFacesHistogram->button (m_histogramType)->setChecked (true);
     else
 	buttonGroupFacesHistogram->button (
@@ -408,6 +408,9 @@ void MainWindow::SetAndDisplayHistogram (
     HistogramSelection histogramSelection,
     MaxValueOperation maxValueOperation)
 {
+    if (widgetGl->GetViewNumber () != m_histogramViewNumber)
+	return;
+    m_histogramBodyProperty = property;
     switch (histogramType)
     {
     case HistogramType::UNICOLOR:
@@ -582,12 +585,11 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 	radioButtonFacesNormal->isChecked ())
     {
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-	
 	SetAndDisplayHistogram (
 	    m_histogramType,
 	    property,
-	    foamAlongTime.GetFoam (timeStep)->
-	    GetHistogram (property).ToQwtIntervalData (), 
+	    foamAlongTime.GetFoam (timeStep)->GetHistogram (
+		property).ToQwtIntervalData (), 
 	    0,
 	    KEEP_SELECTION,
 	    KEEP_MAX_VALUE);
@@ -608,7 +610,7 @@ void MainWindow::ToggledFacesNormal (bool checked)
     if (checked)
     {
 	stackedWidgetFaces->setCurrentWidget (pageFacesNormal);
-	if (m_viewWithHistogram == widgetGl->GetViewNumber ())
+	if (m_histogramViewNumber == widgetGl->GetViewNumber ())
 	    ButtonClickedOneTimestepHistogram (m_histogramType);
     }
     else
@@ -619,7 +621,7 @@ void MainWindow::ToggledCenterPath (bool checked)
 {
     if (checked)
     {
-	if (m_viewWithHistogram == widgetGl->GetViewNumber ())
+	if (m_histogramViewNumber == widgetGl->GetViewNumber ())
 	    ButtonClickedAllTimestepsHistogram (m_histogramType);
 	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
 	labelCenterPathColor->setText (
@@ -721,31 +723,27 @@ void MainWindow::updateLightControls (
 void MainWindow::CurrentIndexChangedFacesColor (int value)
 {
     boost::array<QWidget*, 4> widgetsVisible = {{
-	    labelFacesHistogram,
-	    radioButtonHistogramNone,
-	    radioButtonHistogramUnicolor,
-	    radioButtonHistogramColorCoded}};
-    boost::array<QWidget*, 1> widgetsEnabled = {{
-	    radioButtonFacesStatistics}};
+	    labelFacesHistogram, radioButtonHistogramNone,
+	    radioButtonHistogramUnicolor, radioButtonHistogramColorCoded}};
+    boost::array<QWidget*, 1> widgetsEnabled = {{radioButtonFacesStatistics}};
     BodyProperty::Enum property = BodyProperty::FromSizeT (value);
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
-    if (property == BodyProperty::NONE)
-    {
+    if (property == BodyProperty::NONE) {
 	::setVisible (widgetsVisible, false);
 	::setEnabled (widgetsEnabled, false);
 	widgetHistogram->setVisible (false);
 	Q_EMIT BodyPropertyChanged (
 	    m_colorBarModelBodyProperty[viewNumber][0], property);
     }
-    else
-    {
+    else {
 	::setVisible (widgetsVisible, true);
 	::setEnabled (widgetsEnabled, true);
 	FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
 	size_t timeStep = widgetGl->GetTimeStep ();
 	Q_EMIT BodyPropertyChanged (
 	    m_colorBarModelBodyProperty[viewNumber][property], property);
-	if (m_histogramType != HistogramType::NONE)
+	if (m_histogramType != HistogramType::NONE &&
+	    m_histogramBodyProperty != property)
 	    SetAndDisplayHistogram (
 		m_histogramType,
 		property,
@@ -830,8 +828,6 @@ void MainWindow::ButtonClickedAllTimestepsHistogram (int histogramType)
 	widgetHistogram->SetColorCoded (false);
 	return;
     }
-    cdbg << "all: " << widgetGl->GetViewNumber () << " "
-	 << m_viewWithHistogram << " " << m_histogramType << endl;
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     const HistogramStatistics& allTimestepsHistogram = 
 	foamAlongTime.GetHistogram (widgetGl->GetBodyProperty ());
@@ -851,9 +847,7 @@ void MainWindow::ButtonClickedOneTimestepHistogram (int histogramType)
 	widgetHistogram->SetColorCoded (false);
 	return;
     }
-    m_viewWithHistogram = widgetGl->GetViewNumber ();
-    cdbg << "one: " << widgetGl->GetViewNumber () << " "
-	 << m_viewWithHistogram << " " << m_histogramType << endl;
+    m_histogramViewNumber = widgetGl->GetViewNumber ();
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     SetAndDisplayHistogram (
 	m_histogramType, widgetGl->GetBodyProperty (),

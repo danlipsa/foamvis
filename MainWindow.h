@@ -202,7 +202,8 @@ private:
     boost::shared_ptr<QAction> m_actionDeselectShown;
 
     HistogramType::Enum m_histogramType;
-    ViewNumber::Enum m_viewWithHistogram;
+    ViewNumber::Enum m_histogramViewNumber;
+    BodyProperty::Enum m_histogramBodyProperty;
     boost::array<
 	boost::array<boost::shared_ptr<ColorBarModel>, 
 		     BodyProperty::PROPERTY_END>,
