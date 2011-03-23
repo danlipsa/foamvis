@@ -1531,7 +1531,6 @@
     <slot>ToggledFacesTorus(bool)</slot>
     <slot>ToggledCenterPath(bool)</slot>
     <slot>ValueChangedSliderTimeSteps(int)</slot>
-    <slot>CurrentIndexChangedCenterPathColor(int)</slot>
     <slot>CurrentIndexChangedFacesColor(int)</slot>
     <slot>ToggledFacesAverage(bool)</slot>
     <slot>ToggledCenterPathUnselected(bool)</slot>
@@ -1859,22 +1858,6 @@
    <sender>comboBoxColor</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>CurrentIndexChangedCenterPathColor(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>695</x>
-     <y>211</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>780</x>
-     <y>448</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBoxColor</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>MainWindow</receiver>
    <slot>CurrentIndexChangedFacesColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1932,22 +1915,6 @@
     <hint type="destinationlabel">
      <x>336</x>
      <y>573</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonGroupFacesHistogram</sender>
-   <signal>buttonClicked(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ButtonClickedAllTimestepsHistogram(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>507</x>
-     <y>396</y>
     </hint>
    </hints>
   </connection>

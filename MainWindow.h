@@ -89,7 +89,6 @@ public Q_SLOTS:
      * showing the time steps of the Surface Evolver data.
      */
     void ClickedPlay ();
-    void CurrentIndexChangedCenterPathColor (int value);
     void CurrentIndexChangedFacesColor (int value);
     void CurrentIndexChangedStatisticsType (int value);
     void CurrentIndexChangedViewCount (int index);

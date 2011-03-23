@@ -226,7 +226,7 @@ public:
      * @param type the type of object that we want displayed.
      */
     void DisplayViewType (ViewNumber::Enum view) const;
-    BodyProperty::Enum GetCurrentBodyProperty () const;
+    BodyProperty::Enum GetBodyProperty () const;
 
     G3D::Rect2D GetViewRect (ViewNumber::Enum viewNumber) const;
     G3D::Rect2D GetViewRect () const

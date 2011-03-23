@@ -2122,7 +2122,7 @@ bool GLWidget::IsTimeDisplacementUsed () const
     return GetFoamAlongTime ().Is2D () && GetTimeDisplacement () > 0;
 }
 
-BodyProperty::Enum GLWidget::GetCurrentBodyProperty () const
+BodyProperty::Enum GLWidget::GetBodyProperty () const
 {
     return GetViewSettings ()->GetBodyProperty ();
 }
