@@ -58,6 +58,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_timer (new QTimer(this)), m_processBodyTorus (0), 
     m_currentBody (0),
     m_histogramType (HistogramType::NONE),
+    m_viewWithHistogram (ViewNumber::COUNT),
     m_editColorMap (new EditColorMap (this))
 {
     // for anti-aliased lines
@@ -75,6 +76,8 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     boost::shared_ptr<Application> app = Application::Get ();
     QFont defaultFont = app->font ();
     spinBoxFontSize->setValue (defaultFont.pointSize ());
+    spinBoxHistogramHeight->setMaximum (500);
+    spinBoxHistogramHeight->setValue (widgetHistogram->sizeHint ().height ());
     spinBoxStatisticsHistory->setMaximum (foamAlongTime.GetTimeSteps ());
     spinBoxStatisticsHistory->setValue (spinBoxStatisticsHistory->maximum ());
     widgetGl->SetFoamAlongTime (&foamAlongTime);
@@ -557,6 +560,12 @@ void MainWindow::ValueChangedFontSize (int fontSize)
     app->setFont (defaultFont);
     widgetHistogram->SetDefaultFont ();
     m_editColorMap->SetDefaultFont ();
+}
+
+void MainWindow::ValueChangedHistogramHeight (int s)
+{
+    widgetHistogram->SetSizeHint (QSize(s, s));
+    widgetHistogram->updateGeometry ();
 }
 
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)

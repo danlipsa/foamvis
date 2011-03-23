@@ -27,7 +27,8 @@ Histogram::Histogram (QWidget* parent) :
 		  QwtPicker::AlwaysOff,
 		  canvas()),
     m_selectionTool (ERASER),
-    m_histogramHeight (new HistogramHeight (this))
+    m_histogramHeight (new HistogramHeight (this)),
+    m_sizeHint (SIZE_HINT)
 {
     setCanvasBackground(QColor(Qt::white));
     alignScales ();
@@ -283,5 +284,5 @@ void Histogram::SetItemsSelectionLow (bool selected, double value)
 
 QSize Histogram::sizeHint () const
 {
-    return SIZE_HINT;
+    return m_sizeHint;
 }

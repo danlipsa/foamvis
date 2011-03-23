@@ -59,6 +59,8 @@ public:
 	double maxValue,
 	HistogramSelection histogramSelection,
 	MaxValueOperation maxValueOperation);
+    void ButtonClickedAllTimestepsHistogram (int id);
+
 
 Q_SIGNALS:
     void BodyPropertyChanged (
@@ -114,7 +116,6 @@ public Q_SLOTS:
     void ToggledCenterPath (bool checked);
     
     void ButtonClickedOneTimestepHistogram (int id);
-    void ButtonClickedAllTimestepsHistogram (int id);
     void ToggledFacesNormal (bool checked);
     void ToggledFacesStatistics (bool checked);
     /**
@@ -128,6 +129,7 @@ public Q_SLOTS:
      */
     void ValueChangedSliderTimeSteps (int value);
     void ValueChangedFontSize (int value);
+    void ValueChangedHistogramHeight (int value);
     void ViewToUI ();
 
 private:
@@ -201,6 +203,7 @@ private:
     boost::shared_ptr<QAction> m_actionDeselectShown;
 
     HistogramType::Enum m_histogramType;
+    ViewNumber::Enum m_viewWithHistogram;
     boost::array<
 	boost::array<boost::shared_ptr<ColorBarModel>, 
 		     BodyProperty::PROPERTY_END>,
