@@ -174,7 +174,7 @@ class DisplayOrientedEdge : public DisplayArrow
 public:
     DisplayOrientedEdge (
 	GLUquadricObj* quadric = 0,
-	double baseRadius = 0, double topRadius = 0, double height = 0,
+	double baseRadius = 0, double topRadius = 1.0, double height = 0,
 	Position position = BASE_MIDDLE) :
 	DisplayArrow (quadric, baseRadius, topRadius, height, position)
     {
