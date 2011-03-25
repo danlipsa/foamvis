@@ -269,8 +269,11 @@ void DisplayOrientedEdge::operator () (
     DisplayEdge displayEdge (m_quadric, m_topRadius);
     DisplayArrow displayArrow (
 	m_quadric, m_baseRadius, m_topRadius, m_height, m_position);
+    detectOpenGLError ("dlp0");
     displayEdge (begin, end);
+    detectOpenGLError ("dlp1");
     displayArrow (begin, end);
+    detectOpenGLError ("dlp2");
 }
 
 // DisplayOrientedEdgeQuadric

@@ -427,13 +427,13 @@ G3D::Vector3 GLWidget::getInitialLightPosition (
 }
 
 
-void GLWidget::showLightPositions (ViewNumber::Enum viewNumber) const
+void GLWidget::displayLightDirection (ViewNumber::Enum viewNumber) const
 {
     for (size_t i = 0; i < LightNumber::COUNT; ++i)
-	showLightPosition (viewNumber, LightNumber::Enum (i));
+	displayLightDirection (viewNumber, LightNumber::Enum (i));
 }
 
-void GLWidget::showLightPosition (
+void GLWidget::displayLightDirection (
     ViewNumber::Enum viewNumber, LightNumber::Enum i) const
 {
     const ViewSettings& vs = *GetViewSettings (viewNumber);
@@ -447,7 +447,7 @@ void GLWidget::showLightPosition (
 	glMultMatrix (vs.GetRotationLight (i));
 	G3D::Vector3 lp = getInitialLightPosition (
 	    LightNumber::Enum (i)) / sqrt3;
-	glColor (vs.IsLightEnabled (i) ? Qt::red : Qt::gray);
+	::glColor (QColor (vs.IsLightEnabled (i) ? Qt::red : Qt::gray));
 	if (vs.IsLightingEnabled ())
 	    glDisable (GL_LIGHTING);
 	DisplayOrientedEdge () (lp, G3D::Vector3::zero ());
@@ -521,8 +521,7 @@ void GLWidget::translateAndScale (
 {
     glScale (scaleRatio);
     // if 2D, the back plane stays in the same place
-    //if (! IsTimeDisplacementUsed ())
-    if (GetFoamAlongTime ().Is2D ())
+    if (GetFoamAlongTime ().Is2D () && ! IsTimeDisplacementUsed ())
     {
 	G3D::AABox boundingBox = GetFoamAlongTime ().GetBoundingBox ();
 	float zTranslation = boundingBox.center ().z - boundingBox.low ().z;
@@ -917,9 +916,9 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     displayBoundingBox (viewNumber);
     displayOriginalDomain ();
     displayFocusBox (viewNumber);
-    showLightPositions (viewNumber);
+    displayLightDirection (viewNumber);
     displayT1s (viewNumber);
-    detectOpenGLError ("paintGl");
+    detectOpenGLError ("displayView");
 }
 
 
@@ -2119,7 +2118,7 @@ void GLWidget::SetBodySelector (
 
 bool GLWidget::IsTimeDisplacementUsed () const
 {
-    return GetFoamAlongTime ().Is2D () && GetTimeDisplacement () > 0;
+    return GetTimeDisplacement () > 0;
 }
 
 BodyProperty::Enum GLWidget::GetBodyProperty (ViewNumber::Enum viewNumber) const

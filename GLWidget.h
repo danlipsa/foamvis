@@ -450,9 +450,9 @@ private:
      * rotate and then translate toward negative Z with
      * m_cameraDistance
      */
-    void showLightPosition (
+    void displayLightDirection (
 	ViewNumber::Enum viewNumber, LightNumber::Enum light) const;
-    void showLightPositions (ViewNumber::Enum viewNumber) const;
+    void displayLightDirection (ViewNumber::Enum viewNumber) const;
     G3D::AABox calculateCenteredViewingVolume (double xOverY) const;
     G3D::AABox calculateViewingVolume (
 	ViewNumber::Enum viewNumber, double xOverY) const;
