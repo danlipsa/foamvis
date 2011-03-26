@@ -8,7 +8,6 @@
 // @todo fix crash with setting a body stationary in edge mode and then switch 
 // to face colored by data values.
 // @todo fix the (slow) movement of the focus in context view
-// @todo fix the clipping of bubble paths
 
 #include "Body.h"
 #include "BodyAlongTime.h"
