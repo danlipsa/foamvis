@@ -61,6 +61,35 @@ G3D::AABox AdjustXOverYRatio (const G3D::AABox& box, double xOverY)
     return result;
 }
 
+G3D::AABox EncloseRotation (const G3D::AABox& box)
+{
+    using G3D::Vector3;
+    Vector3 center = box.center ();
+    double maxHalfSideLength = (box.high () - center).length ();
+    double minHalfSideLength = box.extent ().min () / 2;
+    double halfSideLength = minHalfSideLength + 
+	(maxHalfSideLength - minHalfSideLength);
+    Vector3 halfDiagonal = halfSideLength * 
+	(Vector3::unitX () + Vector3::unitY () + Vector3::unitZ ());
+    return G3D::AABox (center - halfDiagonal, center + halfDiagonal);
+}
+
+G3D::AABox AdjustZ (const G3D::AABox& b, double scaleRatio)
+{
+    if (scaleRatio > 1)
+    {
+	double zExtent2 = b.extent ().z * scaleRatio / 2;
+	double zCenter = b.center ().z;
+	G3D::Vector3 low = b.low (), high = b.high ();
+	return G3D::AABox (
+	    G3D::Vector3 (low.x, low.y, zCenter - zExtent2),
+	    G3D::Vector3 (high.x, high.y, zCenter + zExtent2));
+    }
+    else
+	return b;
+}
+
+
 boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
     const Foam& foam, const vector<size_t> bodyIds)
 {
@@ -415,7 +444,7 @@ G3D::Vector3 GLWidget::getInitialLightPosition (
 {
     
     G3D::AABox bb = calculateCenteredViewingVolume (
-	double (width ()) / height ());
+	double (width ()) / height (), 1.0);
     G3D::Vector3 high = bb.high (), low = bb.low ();
     G3D::Vector3 nearRectangle[] = {
 	G3D::Vector3 (high.x, high.y, high.z),
@@ -461,8 +490,6 @@ void GLWidget::translateLight (ViewNumber::Enum viewNumber,
 {
     ViewSettings& vs = *GetViewSettings (viewNumber);
     G3D::Rect2D viewport = vs.GetViewport ();
-    G3D::AABox vv = calculateCenteredViewingVolume (
-	double (width ()) / height ());
     G3D::Vector2 oldPosition = G3D::Vector2 (m_lastPos.x (), m_lastPos.y ());
     G3D::Vector2 newPosition = G3D::Vector2 (position.x (), position.y ());
     G3D::Vector2 viewportCenter = viewport.center ();
@@ -505,10 +532,12 @@ void GLWidget::initializeLighting ()
     glEnable (GL_COLOR_MATERIAL);
 }
 
-G3D::AABox GLWidget::calculateCenteredViewingVolume (double xOverY) const
+G3D::AABox GLWidget::calculateCenteredViewingVolume (
+    double xOverY, double scaleRatio) const
 {
     G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
-    G3D::AABox vv = AdjustXOverYRatio (EncloseRotation (bb), xOverY);
+    G3D::AABox vv = AdjustZ (AdjustXOverYRatio (EncloseRotation (bb), xOverY), 
+			     scaleRatio);
     return vv - vv.center ();
 }
 
@@ -582,11 +611,11 @@ void GLWidget::translateFoamStationaryBody (
 }
 
 G3D::AABox GLWidget::calculateViewingVolume (
-    ViewNumber::Enum viewNumber, double xOverY) const
+    ViewNumber::Enum viewNumber, double xOverY, double scaleRatio) const
 {
     const ViewSettings& vs = *GetViewSettings (viewNumber);
     G3D::AABox centeredViewingVolume = 
-	calculateCenteredViewingVolume (xOverY);
+	calculateCenteredViewingVolume (xOverY, scaleRatio);
     G3D::Vector3 translation (vs.GetCameraDistance () * G3D::Vector3::unitZ ());
     G3D::AABox result = centeredViewingVolume - translation;
     return result;
@@ -597,7 +626,8 @@ void GLWidget::projectionTransform (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = *GetViewSettings (viewNumber);
     double xOverY = getViewXOverY ();
-    G3D::AABox viewingVolume = calculateViewingVolume (viewNumber, xOverY);
+    G3D::AABox viewingVolume = calculateViewingVolume (
+	viewNumber, xOverY, vs.GetScaleRatio ());
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
     if (vs.GetAngleOfView () == 0)
@@ -1024,7 +1054,7 @@ void GLWidget::translate (
 
 
     G3D::AABox vv = calculateCenteredViewingVolume (
-	double (width ()) / height ());
+	double (width ()) / height (), vs.GetScaleRatio ());
     G3D::Vector3 focusBoxExtent = vv.extent () / vs.GetScaleRatio ();
     if (vs.IsContextView ())
 	vs.SetTranslation (
@@ -1287,7 +1317,8 @@ void GLWidget::displayFocusBox (ViewNumber::Enum viewNumber) const
 	glTranslatef (0, 0, - vs.GetCameraDistance ());
 
 	G3D::AABox focusBox = calculateCenteredViewingVolume (
-	    double (viewRect.width ()) / viewRect.height ());
+	    double (viewRect.width ()) / viewRect.height (), 
+	    vs.GetScaleRatio ());
 	translateAndScale ( 1 / vs.GetScaleRatio (), 
 			    - vs.GetContextScaleRatio () * 
 			    vs.GetTranslation (), true);
@@ -2487,7 +2518,7 @@ void GLWidget::CurrentIndexChangedViewCount (int index)
 	ViewSettings& vs = *GetViewSettings (viewNumber);
 	vs.CalculateCameraDistance (
 	    calculateCenteredViewingVolume (
-		viewRect.width () / viewRect.height ()));
+		viewRect.width () / viewRect.height (), vs.GetScaleRatio ()));
     }
     update ();
 }
@@ -2681,7 +2712,7 @@ void GLWidget::ValueChangedAngleOfView (int angleOfView)
     vs.SetAngleOfView (angleOfView);
     vs.CalculateCameraDistance (
 	calculateCenteredViewingVolume (
-	    viewRect.width () / viewRect.height ()));
+	    viewRect.width () / viewRect.height (), vs.GetScaleRatio ()));
     update ();
 }
 

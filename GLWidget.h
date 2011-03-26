@@ -453,9 +453,10 @@ private:
     void displayLightDirection (
 	ViewNumber::Enum viewNumber, LightNumber::Enum light) const;
     void displayLightDirection (ViewNumber::Enum viewNumber) const;
-    G3D::AABox calculateCenteredViewingVolume (double xOverY) const;
+    G3D::AABox calculateCenteredViewingVolume (
+	double xOverY, double scaleRatio) const;
     G3D::AABox calculateViewingVolume (
-	ViewNumber::Enum viewNumber, double xOverY) const;
+	ViewNumber::Enum viewNumber, double xOverY, double scaleRatio) const;
 
     void initQuadrics ();
     void initEndTranslationColor ();
@@ -553,9 +554,8 @@ private:
     void translateLight (ViewNumber::Enum viewNumber, const QPoint& position);
     void scale (ViewNumber::Enum viewNumber, const QPoint& position);
     void scaleContext (ViewNumber::Enum viewNumber, const QPoint& position);
-    void translateAndScale (
-	double m_scaleRatio, const G3D::Vector3& translation,
-	bool contextView) const;
+    void translateAndScale (double scaleRatio, const G3D::Vector3& translation,
+			    bool contextView) const;
     void select (const QPoint& position);
     void deselect (const QPoint& position);
     void brushedBodies (const QPoint& position, vector<size_t>* bodies) const;
