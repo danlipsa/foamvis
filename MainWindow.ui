@@ -242,7 +242,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="currentIndex">
-              <number>3</number>
+              <number>4</number>
              </property>
              <widget class="QWidget" name="tabShow">
               <attribute name="title">
@@ -798,9 +798,6 @@
                <string>Look</string>
               </attribute>
               <layout class="QFormLayout" name="formLayout_2">
-               <property name="fieldGrowthPolicy">
-                <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-               </property>
                <item row="0" column="0">
                 <widget class="QCheckBox" name="checkBoxHistogramGridShown">
                  <property name="text">
@@ -811,37 +808,10 @@
                  </property>
                 </widget>
                </item>
-               <item row="2" column="0">
-                <widget class="QCheckBox" name="checkBoxZeroedPressureShown">
-                 <property name="text">
-                  <string>Zeroed pressure</string>
-                 </property>
-                </widget>
-               </item>
                <item row="0" column="1">
                 <widget class="QCheckBox" name="checkBoxTimeStepsShown">
                  <property name="text">
                   <string>Time steps</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QCheckBox" name="checkBoxTitleShown">
-                 <property name="text">
-                  <string>Title</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QCheckBox" name="checkBoxStatusBarShown">
-                 <property name="text">
-                  <string>Status bar</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
@@ -858,24 +828,68 @@
                  </property>
                 </widget>
                </item>
-               <item row="3" column="0">
-                <widget class="QLabel" name="label_10">
+               <item row="1" column="1">
+                <widget class="QCheckBox" name="checkBoxTitleShown">
                  <property name="text">
-                  <string>Font size</string>
+                  <string>Title</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
-               <item row="3" column="1">
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="checkBoxZeroedPressureShown">
+                 <property name="text">
+                  <string>Zeroed pressure</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QCheckBox" name="checkBoxStatusBarShown">
+                 <property name="text">
+                  <string>Status bar</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tabSize">
+              <attribute name="title">
+               <string>Size</string>
+              </attribute>
+              <layout class="QFormLayout" name="formLayout_9">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_10">
+                 <property name="text">
+                  <string>Font</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
                 <widget class="QSpinBox" name="spinBoxFontSize"/>
                </item>
-               <item row="5" column="0">
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_23">
+                 <property name="text">
+                  <string>Histogram height</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QSpinBox" name="spinBoxHistogramHeight"/>
+               </item>
+               <item row="2" column="0">
                 <widget class="QLabel" name="label_17">
                  <property name="text">
                   <string>Edge radius</string>
                  </property>
                 </widget>
                </item>
-               <item row="5" column="1">
+               <item row="2" column="1">
                 <widget class="QSlider" name="horizontalSliderEdgesRadius">
                  <property name="maximum">
                   <number>99</number>
@@ -894,14 +908,14 @@
                  </property>
                 </widget>
                </item>
-               <item row="6" column="0">
+               <item row="3" column="0">
                 <widget class="QLabel" name="label_18">
                  <property name="text">
                   <string>Context alpha</string>
                  </property>
                 </widget>
                </item>
-               <item row="6" column="1">
+               <item row="3" column="1">
                 <widget class="QSlider" name="horizontalSliderContextAlpha">
                  <property name="maximum">
                   <number>99</number>
@@ -920,29 +934,19 @@
                  </property>
                 </widget>
                </item>
-               <item row="7" column="0">
+               <item row="4" column="0">
                 <widget class="QLabel" name="labelT1Size">
                  <property name="text">
-                  <string>T1 size</string>
+                  <string>T1</string>
                  </property>
                 </widget>
                </item>
-               <item row="7" column="1">
+               <item row="4" column="1">
                 <widget class="QSlider" name="horizontalSliderT1Size">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
                 </widget>
-               </item>
-               <item row="4" column="0">
-                <widget class="QLabel" name="label_23">
-                 <property name="text">
-                  <string>Histogram height</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="1">
-                <widget class="QSpinBox" name="spinBoxHistogramHeight"/>
                </item>
               </layout>
              </widget>
