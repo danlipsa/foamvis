@@ -8,6 +8,8 @@
 // @todo fix crash with setting a body stationary in edge mode and then switch 
 // to face colored by data values.
 // @todo fix the (slow) movement of the focus in context view
+// @todo resize based on aspect ratio: 4:3 (640x480), 3:2 (720x480)
+// @todo save movies without the slider.
 
 #include "Body.h"
 #include "BodyAlongTime.h"
