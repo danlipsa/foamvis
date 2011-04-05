@@ -47,5 +47,6 @@ void DisplayWidget::ToggledSaveMovie (bool checked)
     {
 	m_currentFrame = 0;
     }
+    SaveFrame ();
     update ();
 }
