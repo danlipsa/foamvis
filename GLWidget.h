@@ -254,6 +254,7 @@ public Q_SLOTS:
     /*
      * Global options
      */
+    void ToggledTimeStepShown (bool checked);
     void ToggledAxesShown (bool checked);
     void ToggledBoundingBoxShown (bool checked);
     void ToggledBodiesBoundingBoxesShown (bool checked);
@@ -437,6 +438,7 @@ private:
     void displayTextureColorBar (ViewNumber::Enum viewNumber, 
 				 const G3D::Rect2D& viewRect);
     void displayViewTitle (const G3D::Rect2D& viewRect, ViewNumber::Enum view);
+    void displayViewTimeStep (const G3D::Rect2D& viewRect);
     void displayViewGrid () const;
 
     void changeViewType (bool checked, ViewType::Enum view);
@@ -690,6 +692,7 @@ private:
     GLfloat m_t1Size;
     bool m_zeroedPressureShown;
     bool m_titleShown;
+    bool m_timeStepShown;
     bool m_bodyStationaryMarked;
 
     // View related variables

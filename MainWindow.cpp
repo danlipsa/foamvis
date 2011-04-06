@@ -506,19 +506,9 @@ void MainWindow::createActions ()
 // Slots
 // ======================================================================
 
-void MainWindow::ToggledTimeStepsShown (bool checked)
-{
-    sliderTimeSteps->setVisible (checked);
-}
-
 void MainWindow::ToggledHistogramGridShown (bool checked)
 {
     widgetHistogram->SetGridEnabled (checked);
-}
-
-void MainWindow::ToggledStatusBarShown (bool checked)
-{
-    labelStatusBar->setVisible (checked);
 }
 
 void MainWindow::ClickedPlay ()
@@ -784,6 +774,7 @@ void MainWindow::CurrentIndexChangedViewCount (int index)
 	::setVisible (widgetsViewLayout, true);
     else
 	::setVisible (widgetsViewLayout, false);
+    checkBoxTitleShown->setChecked (viewCount != ViewCount::ONE);
 }
 
 

@@ -170,23 +170,38 @@ void ColorBarModel::setupPaletteRainbowHSV ()
  */
 void ColorBarModel::setupPaletteDiverging (size_t c)
 {
-    const static double colors[][2][3] = 
+    // two divergent color + two highlight colors
+    const static double colors[][4][3] = 
 	{
 	    /* blue red*/
 	    {{0.230, 0.299, 0.754},
-	     {0.706, 0.016, 0.150}},
+	     {0.706, 0.016, 0.150},
+	     {0, 0, 0}, {1, 1, 1}
+	    },
+
 	    /* blue to tan */
 	    {{0.217, 0.525, 0.910},
-	     {0.677, 0.492, 0.093}},
+	     {0.677, 0.492, 0.093},
+	     {0, 0, 0}, {1, 1, 1}
+	    },
+
 	    /* purple to orange */
 	    {{0.436, 0.308, 0.631},
-	     {0.759, 0.334, 0.046}},
+	     {0.759, 0.334, 0.046},
+	     {0, 1, 0}, {1, 1, 1}
+	    },
+
 	    /* green to purple */
 	    {{0.085, 0.532, 0.201},
-	     {0.436, 0.308, 0.631}},
+	     {0.436, 0.308, 0.631},
+	     {0, 0, 0}, {1, 1, 1}
+	    },
+
 	    /* green to red */
 	    {{0.085, 0.532, 0.201},
-	     {0.758, 0.214, 0.233}}
+	     {0.758, 0.214, 0.233},
+	     {0, 0, 0}, {1, 1, 1}
+	    }
 	};    
     VTK_CREATE(vtkColorTransferFunction, colorTransferFunction);
     colorTransferFunction->SetColorSpaceToDiverging();
@@ -195,8 +210,11 @@ void ColorBarModel::setupPaletteDiverging (size_t c)
     colorTransferFunction->AddRGBPoint(
 	1.0, colors[c][1][0], colors[c][1][1], colors[c][1][2]);
     setup (ColorMapperVtkColorTransferFunction (colorTransferFunction));
-    m_highlightColor[0] = Qt::black;
-    m_highlightColor[1] = Qt::white;
+
+    m_highlightColor[0] = QColor::fromRgbF (
+	colors[c][2][0], colors[c][2][1], colors[c][2][2]);
+    m_highlightColor[1] = QColor::fromRgbF (
+	colors[c][3][0], colors[c][3][1], colors[c][3][2]);
 }
 
 template<typename ColorMapper>

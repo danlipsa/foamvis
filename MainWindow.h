@@ -70,9 +70,7 @@ Q_SIGNALS:
 	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 public Q_SLOTS:
-    void ToggledTimeStepsShown (bool checked);
     void ToggledHistogramGridShown (bool checked);
-    void ToggledStatusBarShown (bool checked);
 
     /**
      * Called when the Begin Slider button is pressed. Shows the first

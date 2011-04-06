@@ -8,7 +8,6 @@
 // @todo fix crash with setting a body stationary in edge mode and then switch 
 // to face colored by data values.
 // @todo fix the (slow) movement of the focus in context view
-// @todo resize based on aspect ratio: 4:3 (640x480), 3:2 (720x480)
 // @todo save movies without the slider.
 
 #include "Body.h"
@@ -166,7 +165,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_t1sShown (false),
       m_t1Size (MIN_T1_SIZE),
       m_zeroedPressureShown (false),
-      m_titleShown (true),
+      m_titleShown (false),
+      m_timeStepShown (false),
       m_bodyStationaryMarked (true),
       m_viewCount (ViewCount::ONE),
       m_viewLayout (ViewLayout::HORIZONTAL),
@@ -2022,6 +2022,7 @@ void GLWidget::displayViewDecorations (ViewNumber::Enum view)
     if (isColorBarUsed (view))
 	displayTextureColorBar (view, viewRect);
     displayViewTitle (viewRect, view);
+    displayViewTimeStep (viewRect);
     displayViewGrid ();
 
     glPopMatrix ();
@@ -2033,7 +2034,7 @@ void GLWidget::displayViewDecorations (ViewNumber::Enum view)
 void GLWidget::displayViewTitle (const G3D::Rect2D& viewRect, 
 				 ViewNumber::Enum viewNumber)
 {
-    if (! m_titleShown || m_viewCount == ViewCount::ONE)
+    if (! m_titleShown)
 	return;
     QFont font;
     if (viewNumber == m_viewNumber)
@@ -2053,6 +2054,24 @@ void GLWidget::displayViewTitle (const G3D::Rect2D& viewRect,
     glColor (Qt::black);
     renderText (textX, textY, text, font);
 }
+
+
+void GLWidget::displayViewTimeStep (const G3D::Rect2D& viewRect)
+{
+    if (! m_timeStepShown)
+	return;
+    QFont font;
+    ostringstream ostr;
+    ostr << GetTimeStep ();
+    QString text = QString (ostr.str ().c_str ());
+    QFontMetrics fm (font);
+    const int textX = 
+	viewRect.x0 () + (float (viewRect.width ()) - fm.width (text)) / 2;
+    const int textY = OpenGlToQt (viewRect.y0 () + 3, height ());
+    glColor (Qt::black);
+    renderText (textX, textY, text, font);
+}
+
 
 
 void GLWidget::displayTextureColorBar (
@@ -2388,6 +2407,12 @@ void GLWidget::ToggledAxesShown (bool checked)
     update ();
 }
 
+void GLWidget::ToggledTimeStepShown (bool checked)
+{
+    m_timeStepShown = checked;
+    update ();
+}
+
 
 void GLWidget::ToggledCenterPathBodyShown (bool checked)
 {
@@ -2599,7 +2624,7 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 		view, minMax.first, minMax.second);
 	}
     }
-    update ();
+    repaint ();
 }
 
 void GLWidget::ValueChangedStatisticsHistory (int timeSteps)
