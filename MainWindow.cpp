@@ -94,6 +94,8 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     createActions ();
     setTabOrder (radioButtonCenterPath, sliderTimeSteps);
     connectSignals ();
+    horizontalSliderT1Size->setValue (60);
+    comboBoxWindowSize->setCurrentIndex (WindowSize::GL_720x480);
 }
 
 
@@ -663,13 +665,6 @@ void MainWindow::setupColorBarModel (ViewNumber::Enum viewNumber,
 	Palette::RAINBOW);
 }
 
-void MainWindow::CurrentIndexChangedSelectedLight (int i)
-{
-    const ViewSettings& vs = *widgetGl->GetViewSettings ();
-    LightNumber::Enum lightNumber = LightNumber::Enum (i);
-    updateLightControls (vs, lightNumber);
-}
-
 void MainWindow::updateLightControls (
     const ViewSettings& vs, LightNumber::Enum lightNumber)
 {
@@ -710,6 +705,14 @@ void MainWindow::updateLightControls (
 	    horizontalSliderLightSpecularBlue->maximum () + 0.5));
 }
 
+void MainWindow::CurrentIndexChangedSelectedLight (int i)
+{
+    const ViewSettings& vs = *widgetGl->GetViewSettings ();
+    LightNumber::Enum lightNumber = LightNumber::Enum (i);
+    updateLightControls (vs, lightNumber);
+}
+
+
 void MainWindow::CurrentIndexChangedFacesColor (int value)
 {
     boost::array<QWidget*, 4> widgetsVisible = {{
@@ -741,27 +744,6 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 		GetHistogram (property).ToQwtIntervalData (),
 		foamAlongTime.GetMaxCountPerBinIndividual (property),
 		DISCARD_SELECTION, REPLACE_MAX_VALUE);
-    }
-}
-
-void MainWindow::ToggledFacesStatistics (bool checked)
-{
-    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
-    if (checked)
-    {
-	Q_EMIT ColorBarModelChanged (getCurrentColorBarModel ());
-	stackedWidgetFaces->setCurrentWidget (pageFacesStatistics);
-	labelFacesStatisticsColor->setText (
-	    BodyProperty::ToString (
-		widgetGl->GetViewSettings ()->GetBodyProperty ()));
-	ButtonClickedAllTimestepsHistogram (m_histogramType);
-    }
-    else
-    {	
-	BodyProperty::Enum bodyProperty = widgetGl->GetBodyProperty ();
-	Q_EMIT ColorBarModelChanged (
-	    m_colorBarModelBodyProperty[viewNumber][bodyProperty]);
-	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
     }
 }
 
@@ -800,6 +782,42 @@ void MainWindow::CurrentIndexChangedStatisticsType (int value)
     }
     Q_EMIT ColorBarModelChanged (getCurrentColorBarModel ());
 }
+
+void MainWindow::CurrentIndexChangedWindowSize (int value)
+{
+    WindowSize::Enum windowSize = WindowSize::Enum (value);
+    switch (windowSize)
+    {
+    case WindowSize::WINDOW_720x480:
+	resize (720, 480);
+	break;
+    case WindowSize::GL_720x480:
+	resize (1028, 612);
+	break;
+    }
+}
+
+void MainWindow::ToggledFacesStatistics (bool checked)
+{
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
+    if (checked)
+    {
+	Q_EMIT ColorBarModelChanged (getCurrentColorBarModel ());
+	stackedWidgetFaces->setCurrentWidget (pageFacesStatistics);
+	labelFacesStatisticsColor->setText (
+	    BodyProperty::ToString (
+		widgetGl->GetViewSettings ()->GetBodyProperty ()));
+	ButtonClickedAllTimestepsHistogram (m_histogramType);
+    }
+    else
+    {	
+	BodyProperty::Enum bodyProperty = widgetGl->GetBodyProperty ();
+	Q_EMIT ColorBarModelChanged (
+	    m_colorBarModelBodyProperty[viewNumber][bodyProperty]);
+	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
+    }
+}
+
 
 bool MainWindow::isHistogramHidden (HistogramType::Enum histogramType)
 {

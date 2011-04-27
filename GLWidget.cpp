@@ -711,7 +711,7 @@ void GLWidget::setView (const G3D::Vector2& clickedPoint)
 	    break;
 	}
     }
-    setBodyStationaryContextLabel ();
+    setLabel ();
     Q_EMIT ViewChanged ();
 }
 
@@ -1137,7 +1137,7 @@ void GLWidget::displayBodyContextContour (ViewNumber::Enum viewNumber) const
 }
 
 
-void GLWidget::setBodyStationaryContextLabel ()
+string GLWidget::getBodyStationaryContextLabel ()
 {
     const ViewSettings& vs = *GetViewSettings ();
     bitset<2> stationaryParameters;
@@ -1155,8 +1155,43 @@ void GLWidget::setBodyStationaryContextLabel ()
     ostr << message[stationaryParameters.to_ulong ()];
     if (vs.GetBodyContextSize () != 0)
 	ostr << " (" << vs.GetBodyContextSize () << ")";
-    m_labelStatusBar->setText (QString (ostr.str ().c_str ()));
+    return ostr.str ();
 }
+
+string GLWidget::getBodySelectorLabel ()
+{
+    BodySelectorType::Enum type = m_bodySelector->GetType ();
+    switch (type)
+    {
+    case BodySelectorType::PROPERTY_VALUE:
+	return "Selection: by property";
+	break;
+    case BodySelectorType::ID:
+	return "Selection: by id";
+	break;
+    case BodySelectorType::COMPOSITE:
+	return "Selection: by id and property";
+	break;
+    default:
+	return "";
+    }
+}
+
+void GLWidget::setLabel ()
+{
+    ostringstream ostr;
+    string s1 = getBodyStationaryContextLabel ();
+    ostr << s1;
+    string s2 = getBodySelectorLabel ();
+    if (! ostr.str ().empty () && ! s2.empty ())
+	ostr << ", ";
+    ostr << s2;
+    string s = ostr.str ();
+    if (s.empty ())
+	s = "Ready";
+    m_labelStatusBar->setText (QString (s.c_str ()));
+}
+
 
 
 void GLWidget::BodyStationarySet ()
@@ -1166,7 +1201,7 @@ void GLWidget::BodyStationarySet ()
     brushedBodies (m_contextMenuPos, &bodies);
     vs.SetBodyStationaryId (bodies[0]);
     vs.SetBodyStationaryTimeStep (m_timeStep);
-    setBodyStationaryContextLabel ();
+    setLabel ();
     update ();
 }
 
@@ -1175,7 +1210,7 @@ void GLWidget::BodyStationaryReset ()
     ViewSettings& vs = *GetViewSettings ();
     vs.SetBodyStationaryId (ViewSettings::NONE);
     vs.SetBodyStationaryTimeStep (0);
-    setBodyStationaryContextLabel ();
+    setLabel ();
     update ();
 }
 
@@ -1183,7 +1218,7 @@ void GLWidget::BodyContextReset ()
 {
     ViewSettings& vs = *GetViewSettings ();
     vs.ClearBodyContext ();
-    setBodyStationaryContextLabel ();
+    setLabel ();
     update ();
 }
 
@@ -1194,7 +1229,7 @@ void GLWidget::BodyContextAdd ()
     vector<size_t> bodies;
     brushedBodies (m_contextMenuPos, &bodies);
     vs.AddBodyContext (bodies[0]);
-    setBodyStationaryContextLabel ();
+    setLabel ();
     update ();
 }
 
@@ -2162,7 +2197,7 @@ void GLWidget::SetBodySelector (
 		m_bodySelector)->GetIdSelector ();
 	break;
     }
-    setBodySelectorLabel (m_bodySelector->GetType ());
+    setLabel ();
     compile (GetViewNumber ());
     update ();
 }
@@ -2180,25 +2215,6 @@ BodyProperty::Enum GLWidget::GetBodyProperty (ViewNumber::Enum viewNumber) const
 void GLWidget::SetPlayMovie (bool playMovie)
 {
     m_playMovie = playMovie;
-}
-
-
-void GLWidget::setBodySelectorLabel (BodySelectorType::Enum type)
-{
-    switch (type)
-    {
-    case BodySelectorType::PROPERTY_VALUE:
-	m_labelStatusBar->setText ("Selection: by property");
-	break;
-    case BodySelectorType::ID:
-	m_labelStatusBar->setText ("Selection: by id");
-	break;
-    case BodySelectorType::COMPOSITE:
-	m_labelStatusBar->setText ("Selection: by id and property");
-	break;
-    default:
-	return m_labelStatusBar->setText ("");
-    }
 }
 
 void GLWidget::UnionBodySelector (const vector<size_t>& bodyIds)
@@ -2233,7 +2249,7 @@ void GLWidget::UnionBodySelector (const vector<size_t>& bodyIds)
 	    m_bodySelector)->GetIdSelector ()->SetUnion (bodyIds);
 	break;
     }
-    setBodySelectorLabel (m_bodySelector->GetType ());
+    setLabel ();
     compile (GetViewNumber ());
     update ();
 }
@@ -2268,7 +2284,7 @@ void GLWidget::DifferenceBodySelector (const vector<size_t>& bodyIds)
 	    m_bodySelector)->GetIdSelector ()->SetDifference (bodyIds);
 	break;
     }
-    setBodySelectorLabel (m_bodySelector->GetType ());
+    setLabel ();
     compile (GetViewNumber ());
     update ();
 }
@@ -2295,7 +2311,7 @@ void GLWidget::SetBodySelector (boost::shared_ptr<IdBodySelector> selector)
 	    m_bodySelector)->SetSelector (selector);
 	break;
     }
-    setBodySelectorLabel (m_bodySelector->GetType ());
+    setLabel ();
     compile (GetViewNumber ());
     update ();
 }
@@ -2324,7 +2340,7 @@ void GLWidget::SetBodySelector (
 	    m_bodySelector)->SetSelector (selector);
 	break;
     }
-    setBodySelectorLabel (m_bodySelector->GetType ());
+    setLabel ();
     compile (GetViewNumber ());
     update ();
 }

@@ -90,11 +90,11 @@ public Q_SLOTS:
     void CurrentIndexChangedFacesColor (int value);
     void CurrentIndexChangedStatisticsType (int value);
     void CurrentIndexChangedViewCount (int index);
-
     /**
      * Copy status from GLWidget to the UI controls
      */
     void CurrentIndexChangedSelectedLight (int i);
+    void CurrentIndexChangedWindowSize (int i);
 
     void ShowEditColorMap ();
     void RotateShown ();

@@ -570,8 +570,9 @@ private:
     void rotate3D () const;
     void rotate2DTimeDisplacement () const;
     void rotate2DRight90 () const;
-    void setBodySelectorLabel (BodySelectorType::Enum type);
-    void setBodyStationaryContextLabel ();
+    string getBodySelectorLabel ();
+    string getBodyStationaryContextLabel ();
+    void setLabel ();
     void translateFoamStationaryBody (
 	ViewNumber::Enum viewNumber, size_t timeStep) const;
     void initCopy (

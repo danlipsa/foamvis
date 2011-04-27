@@ -321,6 +321,15 @@ struct ColorNumber
     };
 };
 
+struct WindowSize
+{
+    enum Enum
+    {
+	WINDOW_720x480,
+	GL_720x480
+    };
+};
+
 
 #endif //__ENUMS_H__
 
