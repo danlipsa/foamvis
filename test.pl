@@ -36,7 +36,8 @@ my @tests =
      "tor2d.fe",
      "twointor.fe",
      "wet_surface_vert.fe.dmp",
-     "dump_0.1480_0.2400_11.0000_0729.dmp"
+     "dump_0.1480_0.2400_11.0000_0729.dmp",
+     "tmp_in.dmp"
     );
 
 

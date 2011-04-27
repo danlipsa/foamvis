@@ -367,8 +367,9 @@ array_initializer
 ;
 
 array_initializer_list
-: array_initializer
-| array_initializer_list ',' array_initializer
+: /* empty */
+| array_initializer
+| array_initializer_list ',' nlstar array_initializer
 ;
 
 toggle
