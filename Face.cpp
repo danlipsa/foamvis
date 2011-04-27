@@ -291,8 +291,11 @@ string Face::ToString () const
     ostr << "edges:\n";
     ostream_iterator< boost::shared_ptr<OrientedEdge> > output (ostr, "\n");
     copy (m_orientedEdges.begin (), m_orientedEdges.end (), output);
-    ostr << "Face attributes: ";
-    PrintAttributes (ostr);
+    if (HasAttributes ())
+    {
+	ostr << "Face attributes: ";
+	PrintAttributes (ostr);
+    }
     ostr << "Adjacent bodies" << "(" << m_bodiesPartOf.size () << "): ";
     BOOST_FOREACH (BodyIndex bi, m_bodiesPartOf)
 	ostr << "(" << bi.GetBody ()->GetId () 

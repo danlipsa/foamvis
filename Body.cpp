@@ -9,6 +9,7 @@
 #include "AttributeInfo.h"
 #include "Body.h"
 #include "Edge.h"
+#include "Foam.h"
 #include "Debug.h"
 #include "DebugStream.h"
 #include "Utils.h"
@@ -81,6 +82,10 @@ Body::Body(
                indexToOrientedFace(faces));
 }
 
+double Body::GetPressure () const
+{
+    return GetRealAttribute (Foam::BODY_PRESSURE_INDEX);
+}
 
 void Body::calculatePhysicalVertices (
     bool is2D, bool isQuadratic,
@@ -177,8 +182,11 @@ string Body::ToString () const
     ostr << m_orientedFaces.size () << " faces part of the body\n";
     ostream_iterator< boost::shared_ptr<OrientedFace> > ofOutput (ostr, "\n");
     copy (m_orientedFaces.begin (), m_orientedFaces.end (), ofOutput);
-    ostr << "Body attributes: ";
-    PrintAttributes (ostr);
+    if (HasAttributes ())
+    {
+	ostr << "Body attributes: ";
+	PrintAttributes (ostr);
+    }
     ostr << "\nBody center: " << m_center;
     return ostr.str ();
 }
@@ -224,11 +232,11 @@ bool Body::ExistsPropertyValue (BodyProperty::Enum property,
     case BodyProperty::PRESSURE:
 	if (deduced != 0)
 	    *deduced = m_pressureDeduced;
-	return ExistsAttribute (property - BodyProperty::PER_BODY_BEGIN);
+	return HasAttribute (property - BodyProperty::PER_BODY_BEGIN);
     case BodyProperty::VOLUME:
-	return ExistsAttribute (property - BodyProperty::PER_BODY_BEGIN);
+	return HasAttribute (property - BodyProperty::PER_BODY_BEGIN);
     case BodyProperty::ELONGATION:
-	return ExistsAttribute (BodyProperty::VOLUME - 
+	return HasAttribute (BodyProperty::VOLUME - 
 				BodyProperty::PER_BODY_BEGIN);
     case BodyProperty::NONE:
 	return false;

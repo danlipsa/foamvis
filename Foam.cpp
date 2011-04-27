@@ -101,17 +101,19 @@ void Foam::AddDefaultBodyAttributes ()
 
     // the order of the attributes should match the order in
     // BodyProperty::Enum
-    boost::shared_ptr<AttributeCreator> ac (new RealAttributeCreator ());
+    boost::shared_ptr<AttributeCreator> ac;
+
+    ac.reset (new RealAttributeCreator ());
     size_t index = infos->AddAttributeInfoLoad (
         ParsingDriver::GetKeywordString(
 	    parser::token::LAGRANGE_MULTIPLIER), ac);
-    RuntimeAssert (index == Body::PRESSURE_INDEX,
+    RuntimeAssert (index == BODY_PRESSURE_INDEX,
 		   "Pressure attribute index is ", index);
 
     ac.reset (new RealAttributeCreator());
     index = infos->AddAttributeInfoLoad (
         ParsingDriver::GetKeywordString(parser::token::VOLUME), ac);
-    RuntimeAssert (index == Body::VOLUME_INDEX,
+    RuntimeAssert (index == BODY_VOLUME_INDEX,
 		   "Volume attribute index is ", index);
 
     ac.reset (new IntegerAttributeCreator ());
@@ -135,13 +137,15 @@ void Foam::AddDefaultFaceAttributes ()
     AttributesInfo* infos = &m_attributesInfo[DefineAttribute::FACE];
     ColoredElement::AddDefaultAttributes (infos);
 
-    boost::shared_ptr<AttributeCreator> ac (new IntegerAttributeCreator ());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
-
+    boost::shared_ptr<AttributeCreator> ac;
+    
     ac.reset (new IntegerVectorAttributeCreator());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
+
+    ac.reset (new IntegerAttributeCreator ());
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
 
     ac.reset (new RealAttributeCreator());
     infos->AddAttributeInfo (
@@ -154,13 +158,15 @@ void Foam::AddDefaultEdgeAttributes ()
     using EvolverData::parser;
     AttributesInfo* infos = &m_attributesInfo[DefineAttribute::EDGE];
     ColoredElement::AddDefaultAttributes (infos);
-    boost::shared_ptr<AttributeCreator> ac (new IntegerAttributeCreator ());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
+    boost::shared_ptr<AttributeCreator> ac;
 
     ac.reset (new IntegerVectorAttributeCreator());
-    infos->AddAttributeInfo (
+    infos->AddAttributeInfoLoad (
         ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
+
+    ac.reset (new IntegerAttributeCreator ());
+    infos->AddAttributeInfo (
+        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
 
     ac.reset (new RealAttributeCreator());
     infos->AddAttributeInfo (
@@ -172,12 +178,16 @@ void Foam::AddDefaultVertexAttributes ()
 {
     using EvolverData::parser;
     AttributesInfo* infos = &m_attributesInfo[DefineAttribute::VERTEX];
-    boost::shared_ptr<AttributeCreator> ac (new IntegerAttributeCreator());
+    boost::shared_ptr<AttributeCreator> ac;
+
+    ac.reset (new IntegerVectorAttributeCreator());
+    size_t index = infos->AddAttributeInfoLoad (
+        ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
+    RuntimeAssert (index == CONSTRAINTS_INDEX, "Constraints index is ", index);
+
+    ac.reset (new IntegerAttributeCreator());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
-    ac.reset (new IntegerVectorAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
 }
 
 void Foam::SetBody (size_t i, vector<int>& faces,

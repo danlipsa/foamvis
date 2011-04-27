@@ -63,19 +63,12 @@ public:
     void SetEdge (boost::shared_ptr<Edge> edge);
     bool IsZero () const;
     G3D::Vector3 GetEdgeVector () const;
-    ostream& PrintReversed (ostream& ostr) const
-    {
-	return print (ostr, true);
-    }
     string ToString () const;
     void GetVertexSet (VertexSet* vertexSet) const;
     bool IsPhysical (size_t dimension, bool isQuadratic) const;
     size_t GetPointCount () const;
     G3D::Vector3 GetPoint (size_t i) const;
     double GetLength () const;
-
-private:
-    ostream& print (ostream& ostr, bool reversed = false) const;
 };
 /**
  * Pretty prints an Edge

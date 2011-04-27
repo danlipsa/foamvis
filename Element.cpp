@@ -135,9 +135,9 @@ void Element::StoreAttributes (
 
 ostream& Element::PrintAttributes (ostream& ostr) const
 {
-    ostream_iterator< boost::shared_ptr<Attribute> > oi (ostr, " ");
-    if (m_attributes != 0)
-	copy (m_attributes->begin (), m_attributes->end (), oi);
+    if (HasAttributes ())
+	for (size_t i = 0; i < m_attributes->size (); ++i)
+	    ostr << (*m_attributes)[i] << " ";
     return ostr;
 }
 
@@ -150,11 +150,21 @@ string Element::GetStringId () const
 
 double Element::GetRealAttribute (size_t i) const
 {
-    RuntimeAssert (m_attributes != 0 && i < m_attributes->size (),
+    RuntimeAssert (HasAttribute (i),
 		   "Attribute does not exist at index ", i, 
 		   " for element ", GetId ());
     return *boost::static_pointer_cast<RealAttribute> ((*m_attributes)[i]);
 }
+
+const vector<int>& Element::GetIntegerArrayAttribute (size_t i) const
+{
+    RuntimeAssert (HasAttribute (i),
+		   "Attribute does not exist at index ", i, 
+		   " for element ", GetId ());
+    return *boost::static_pointer_cast<IntegerArrayAttribute> (
+	(*m_attributes)[i]);
+}
+
 
 void Element::SetRealAttribute (size_t i, double value)
 {
@@ -166,8 +176,13 @@ void Element::SetRealAttribute (size_t i, double value)
     attribute.set (value);
 }
 
-bool Element::ExistsAttribute (size_t i) const
+bool Element::HasAttribute (size_t i) const
 {
-    return m_attributes != 0 && i < m_attributes->size () &&
+    return HasAttributes () && i < m_attributes->size () &&
 	(*m_attributes)[i] != 0;
+}
+
+bool Element::HasAttributes () const
+{
+    return m_attributes;
 }

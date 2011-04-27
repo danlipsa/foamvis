@@ -69,9 +69,10 @@ public:
      */
     ostream& PrintAttributes (ostream& ostr) const;
     double GetRealAttribute (size_t i) const;
+    const vector<int>& GetIntegerArrayAttribute (size_t i) const;
     void SetRealAttribute (size_t i, double value);
-    bool ExistsAttribute (size_t i) const;
-
+    bool HasAttribute (size_t i) const;
+    bool HasAttributes () const;
 private:
     void storeAttribute (
 	const NameSemanticValue& nv, const AttributesInfo& infos);

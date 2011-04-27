@@ -97,7 +97,6 @@ public:
 	return pair<G3D::Vector3, boost::shared_ptr<OrientedFace> > (
 	    face->GetNormal (), face);
     }
-    ostream& PrintAttributes (ostream& ostr) const;
 
 private:
     boost::shared_ptr<Vertex> getBegin (size_t edgeIndex) const;

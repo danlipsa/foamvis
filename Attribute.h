@@ -114,7 +114,7 @@ public:
      */
     virtual ostream& Print (ostream& ostr) const
     {
-	return ostr << "COLOR: " << m_color;
+	return ostr << m_color;
     }
     /**
      * Get the color of the attribute
@@ -156,6 +156,11 @@ public:
      * @return where to print the next item
      */
     virtual ostream& Print (ostream& ostr) const;
+    operator const vector<int>& ()
+    {
+	return *m_values;
+    }
+
 private:
     /**
      * Stores a pointer to an array of integers

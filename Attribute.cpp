@@ -9,15 +9,19 @@
 
 ostream& IntegerArrayAttribute::Print (ostream& ostr) const 
 {
+    ostr << "[";
     ostream_iterator<int> o (ostr, " ");
     copy (m_values->begin (), m_values->end (), o);
+    ostr << "]";
     return ostr;
 }
 
 ostream& RealArrayAttribute::Print (ostream& ostr) const
 {
+    ostr << "[";
     ostream_iterator<double> o (ostr, " ");
     copy (m_values->begin (), m_values->end (), o);
+    ostr << "]";
     return ostr;
 }
 

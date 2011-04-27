@@ -213,12 +213,15 @@ string Edge::ToString () const
 {
     ostringstream ostr;
     ostr << "Edge " << GetStringId () << " "
-	 << m_begin->GetVector () << ", " 
-	 << m_end->GetVector () << " "
+	 << *m_begin << ", " 
+	 << *m_end << " "
 	 << GetDuplicateStatus () << " "
-	 << " Adjacent faces(" << m_facesPartOf.size () << ")"
-	 << " Edge attributes: ";
-    PrintAttributes (ostr);
+	 << " Adjacent faces(" << m_facesPartOf.size () << ")";
+    if (HasAttributes ())
+    {
+	ostr << " Edge attributes: ";
+	PrintAttributes (ostr);
+    }
     return ostr.str ();
 }
 

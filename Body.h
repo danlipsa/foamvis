@@ -84,10 +84,7 @@ public:
     }
     void GetEdgeSet (EdgeSet* edgeSet) const;
     void GetFaceSet (FaceSet* faceSet) const;
-    double GetPressure () const
-    {
-	return GetRealAttribute (PRESSURE_INDEX);
-    }
+    double GetPressure () const;
     double GetPropertyValue (BodyProperty::Enum property) const;
     void SetPressureValue (double value);
     void SetPressureDeduced ()
@@ -119,10 +116,6 @@ public:
 	return m_perimeterOverSqrtArea;
     }
     void CalculatePerimeterOverSqrtArea ();
-
-public:
-    static const size_t PRESSURE_INDEX = 0;
-    static const size_t VOLUME_INDEX = 1;
 
 private:
     /**

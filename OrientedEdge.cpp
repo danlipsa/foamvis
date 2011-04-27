@@ -28,20 +28,6 @@ void OrientedEdge::SetEdge (boost::shared_ptr<Edge>  edge)
     SetElement (edge);
 }
 
-ostream& OrientedEdge::print (ostream& ostr, bool reversed) const
-{
-    using G3D::Vector3;
-    ostr << "Oriented Edge " << GetStringId () << " "
-	 << GetEdge ()->GetDuplicateStatus ()
-	 << ": ";
-    const Vector3* begin = &GetBegin ()->GetVector ();
-    const Vector3* end = &GetEnd ()->GetVector ();;
-    if (reversed)
-	swap (begin, end);
-    ostr << *begin << ", " << *end;
-    return ostr;
-}
-
 G3D::Vector3 OrientedEdge::GetEdgeVector () const
 {
     return GetEnd ()->GetVector () - GetBegin ()->GetVector ();
@@ -86,7 +72,20 @@ void OrientedEdge::AddFacePartOf (
 string OrientedEdge::ToString () const
 {
     ostringstream ostr;
-    print (ostr);
+    using G3D::Vector3;
+    ostr << "Oriented Edge " << GetStringId () << " "
+	 << GetEdge ()->GetDuplicateStatus ()
+	 << ": " << endl;
+    boost::shared_ptr<Vertex> begin = GetBegin ();
+    boost::shared_ptr<Vertex> end = GetEnd ();
+    if (IsReversed ())
+	swap (begin, end);
+    ostr << *begin << "," << endl << *end << endl;
+    if (GetEdge ()->HasAttributes ())
+    {
+	ostr << "Edge attributes: ";
+	GetEdge ()->PrintAttributes (ostr);
+    }
     return ostr.str ();
 }
 

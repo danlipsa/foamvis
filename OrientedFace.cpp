@@ -122,11 +122,6 @@ boost::shared_ptr<Vertex> OrientedFace::getEnd (size_t edgeIndex) const
     return oe.GetEnd ();
 }
 
-ostream& OrientedFace::PrintAttributes (ostream& ostr) const
-{
-    return GetFace ()->PrintAttributes (ostr);
-}
-
 string OrientedFace::ToString () const
 {
     ostringstream ostr;
@@ -137,8 +132,11 @@ string OrientedFace::ToString () const
     ostr << size () << " edges part of the face:" << endl;
     for (size_t i = 0; i < size (); i++)
 	ostr << i << ": " << GetOrientedEdge (i) << endl;
-    ostr << " Face attributes: ";
-    face->PrintAttributes (ostr);
+    if (face->HasAttributes ())
+    {
+	ostr << "Face attributes: ";
+	face->PrintAttributes (ostr);
+    }
     return ostr.str ();
 }
 

@@ -8,6 +8,7 @@
 #include "AttributeCreator.h"
 #include "Body.h"
 #include "Edge.h"
+#include "Foam.h"
 #include "EvolverData_yacc.h"
 #include "DebugStream.h"
 #include "Debug.h"
@@ -84,9 +85,12 @@ string Vertex::ToString () const
     ostringstream ostr;
     ostr << "Vertex " << GetStringId () << " "
 	 << GetVector () << " "
-	 << GetDuplicateStatus ()
-	 << " Vertex attributes: ";
-    PrintAttributes (ostr);
+	 << GetDuplicateStatus ();
+    if (HasAttributes ())
+    {
+	ostr << " Vertex attributes: ";
+	PrintAttributes (ostr);
+    }
     return ostr.str ();
 }
 
@@ -129,4 +133,9 @@ boost::shared_ptr<Vertex> Vertex::GetDuplicate (
 bool Vertex::fuzzyEq (const Vertex& other) const
 {
     return IsFuzzyZero (GetVector () - other.GetVector ());
+}
+
+const vector<int>& Vertex::GetConstraints () const
+{
+    return GetIntegerArrayAttribute (Foam::CONSTRAINTS_INDEX);
 }
