@@ -1914,7 +1914,7 @@ boost::shared_ptr<Edge> GLWidget::GetSelectedEdge () const
 	m_selectedFaceIndex != DISPLAY_ALL)
     {
 	boost::shared_ptr<Face> face = GetSelectedFace ();
-	return face->GetEdge (m_selectedEdgeIndex);
+	return face->GetOrientedEdge (m_selectedEdgeIndex)->GetEdge ();
     }
     RuntimeAssert (false, "There is no displayed edge");
     return boost::shared_ptr<Edge>();

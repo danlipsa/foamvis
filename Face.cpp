@@ -248,11 +248,6 @@ bool Face::IsClosed () const
 }
 
 
-boost::shared_ptr<Edge>  Face::GetEdge (size_t i) const
-{
-    return GetOrientedEdge (i)->GetEdge ();
-}
-
 const BodyIndex& Face::GetBodyPartOf (bool faceReversed) const
 {
     RuntimeAssert (! IsStandalone (), "GetBodyPartOf for standalone face: ",
@@ -372,7 +367,8 @@ void Face::UpdateStandaloneFacePartOf (boost::shared_ptr<Face> face)
     }
 }
 
-void Face::AddEdge (const boost::shared_ptr<ConstraintEdge>& edge)
+void Face::AddEdge (boost::shared_ptr<Edge> edge)
 {
-    
+    boost::shared_ptr<OrientedEdge> oe (new OrientedEdge (edge, false));
+    m_orientedEdges.push_back (oe);
 }

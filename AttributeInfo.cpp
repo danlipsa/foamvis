@@ -10,12 +10,11 @@
 #include "AttributeCreator.h"
 #include "Comparisons.h"
 #include "Debug.h"
+#include "Utils.h"
 
 
 // AttributeInfo Methods
 // ======================================================================
-
-const size_t AttributeInfo::INVALID_INDEX = numeric_limits<size_t>::max (); 
 
 AttributeInfo::AttributeInfo (
     size_t index, boost::shared_ptr<AttributeCreator> creator) :
@@ -54,8 +53,8 @@ size_t AttributesInfo::AddAttributeInfo (
     {
 	boost::shared_ptr<AttributeCreator> nullPtr;
         m_nameInfo[name] = boost::make_shared<AttributeInfo> (
-	    AttributeInfo::INVALID_INDEX, nullPtr);
-	return AttributeInfo::INVALID_INDEX;
+	    INVALID_INDEX, nullPtr);
+	return INVALID_INDEX;
     }
 }
 

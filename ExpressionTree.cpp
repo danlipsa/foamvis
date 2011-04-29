@@ -8,15 +8,6 @@
 #include "ExpressionTree.h"
 #include "ParsingData.h"
 
-void ExpressionTree::Delete (ExpressionTree* node)
-{
-    if (node == 0)
-        return;
-    Delete (node->m_first);
-    Delete (node->m_second);
-    delete node;
-}
-
 double ExpressionTreeNumber::Value (void)
 {
     return m_value;
@@ -30,7 +21,7 @@ double ExpressionTreeVariable::Value (void)
 
 double ExpressionTreeUnaryFunction::Value (void)
 {
-    double value = m_first->Value ();
+    double value = m_param->Value ();
     ParsingData::UnaryFunction f = m_parsingData.GetUnaryFunction (m_name);
     return f (value);
 }

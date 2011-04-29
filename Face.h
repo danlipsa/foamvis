@@ -13,6 +13,7 @@
 
 class AttributesInfo;
 class Body;
+class ConstraintEdge;
 class Foam;
 class Edge;
 class OrientedEdge;
@@ -45,7 +46,7 @@ public:
     {
 	m_bodiesPartOf.push_back (BodyIndex (body, orientedFaceIndex));
     }
-    void AddEdge (const boost::shared_ptr<ConstraintEdge>& edge);
+    void AddEdge (boost::shared_ptr<Edge> edge);
     void CalculateNormal ();
     const G3D::Vector3& GetCenter () const
     {
@@ -55,7 +56,6 @@ public:
     {
 	return m_orientedEdges.size ();
     }
-    boost::shared_ptr<Edge>  GetEdge (size_t i) const;
 
     const BodyIndex& GetBodyPartOf (bool faceReversed) const;
     const BodyIndex& GetBodyPartOf (size_t i) const

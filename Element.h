@@ -90,9 +90,6 @@ protected:
      */
     size_t m_id;
     ElementStatus::Enum m_duplicateStatus;
-
-protected:
-    const static size_t INVALID_INDEX;
 };
 
 #endif //__ELEMENT_H__

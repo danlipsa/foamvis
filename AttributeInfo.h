@@ -42,10 +42,6 @@ public:
     }
     string ToString () const;
 
-    /**
-     * Constant used to signal an attribute that will not be stored.
-     */
-    static const size_t INVALID_INDEX; 
 private:
     /**
      * The index where this attribute is going to be stored

@@ -51,7 +51,7 @@ public:
     {
 	return m_vector;
     }
-    const vector<int>& GetConstraints () const;
+    const vector<int>& GetConstraintIndexes () const;
 
     string ToString () const;
     boost::shared_ptr<Vertex> GetDuplicate (

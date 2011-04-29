@@ -34,7 +34,7 @@ Vertex::Vertex(double x, double y, double z,
 {}
 
 Vertex::Vertex (const G3D::Vector3& position) : 
-    Element (Element::INVALID_INDEX, ElementStatus::ORIGINAL),
+    Element (INVALID_INDEX, ElementStatus::ORIGINAL),
     m_vector (position)
 {}
 
@@ -135,7 +135,7 @@ bool Vertex::fuzzyEq (const Vertex& other) const
     return IsFuzzyZero (GetVector () - other.GetVector ());
 }
 
-const vector<int>& Vertex::GetConstraints () const
+const vector<int>& Vertex::GetConstraintIndexes () const
 {
     return GetIntegerArrayAttribute (Foam::CONSTRAINTS_INDEX);
 }

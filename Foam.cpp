@@ -7,6 +7,7 @@
 #include "AttributeInfo.h"
 #include "AttributeCreator.h"
 #include "Body.h"
+#include "ConstraintEdge.h"
 #include "Debug.h"
 #include "DebugStream.h"
 #include "Foam.h"
@@ -402,7 +403,19 @@ void Foam::addConstraintEdges (const FaceSet& faceSet)
 	{
 	    if (! face->IsClosed ())
 	    {
-		
+		const G3D::AABox& box = GetBoundingBox ();
+		boost::shared_ptr<Vertex> begin = 
+		    face->GetOrientedEdge (0)->GetBegin ();
+		boost::shared_ptr<Vertex> end = 
+		    face->GetOrientedEdge (face->GetEdgeCount () - 1)->GetEnd ();
+		if (begin->GetConstraintIndexes ()[0] == 4)
+		{
+		    cdbg << box.low ().y << " " << box.high ().y << endl;
+		    boost::shared_ptr<Edge> edge (
+			new ConstraintEdge (&GetParsingData (), begin,end,
+					    box.low ().y, box.high ().y));
+		    face->AddEdge (edge);
+		}
 	    }
 	}
     }
@@ -567,7 +580,7 @@ boost::shared_ptr<Edge> Foam::GetStandardEdge () const
 	f = m_standaloneFaces[0];
     else
 	f = GetBody (0)->GetFace (0);
-    return f->GetEdge (0);
+    return f->GetOrientedEdge (0)->GetEdge ();
 }
 
 void Foam::SetViewMatrix (

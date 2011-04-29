@@ -135,6 +135,8 @@ public:
 	return GetFacePartOfSize () == 0;
     }
 
+    const vector<int>& GetConstraintIndexes () const;
+
     string ToString () const;
     void GetVertexSet (VertexSet* vertexSet) const;
     double GetLength () const;

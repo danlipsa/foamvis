@@ -46,15 +46,6 @@ private:
 // Private functions
 // ======================================================================
 
-/**
- * Throws  an  exception  because  we  should  not  have
- * assignments in constant expressions.
- * @return it throws an exception before returning.
- */
-static double assignmentFunction (double, double)
-{
-    throw logic_error ("Assignment operation in constant expression");
-}
 
 /**
  * Deletes an identifier
@@ -97,7 +88,7 @@ ParsingData::ParsingData () :
 	{"*", multiplies<double> ()},
 	{"/", divides<double> ()},
 	{"^", powf},
-	{"=", assignmentFunction},
+	{"=", minus<double> ()},
 	{"atan2", atan2f},
 	{">", greater<double> ()},
 	{">=", greater_equal<double> ()},
@@ -125,7 +116,7 @@ ParsingData::~ParsingData ()
 {
     for_each (m_identifiers.begin (), m_identifiers.end (), deleteIdentifier);
     for_each (m_constraints.begin (), m_constraints.end (), 
-	      ExpressionTree::Delete);
+	      bl::delete_ptr ());
 }
 
 double ParsingData::GetVariableValue (const char* id) 

@@ -664,7 +664,7 @@ constraint
   constraint_energy
   constraint_content
 {
-    foam->GetParsingData ().SetConstraint ($2, $7);
+    foam->GetParsingData ().SetConstraint ($2 - 1, $7);
 }
 ;
 
@@ -689,7 +689,7 @@ constraint_energy
 | ENERGY nl
   E1 ':' non_const_expr nlplus constraint_energy_rest
 {
-    ExpressionTree::Delete ($5);
+    delete $5;
 }
 ;
 
@@ -698,8 +698,8 @@ constraint_energy_rest
 | E2 ':' non_const_expr nlplus
   E3 ':' non_const_expr nlplus
 {
-    ExpressionTree::Delete ($3);
-    ExpressionTree::Delete ($7);
+    delete $3;
+    delete $7;
 }
 ;
 
@@ -709,7 +709,7 @@ constraint_content
 | CONTENT nl
   C1 ':' non_const_expr nlplus constraint_content_c2c3
 {
-    ExpressionTree::Delete ($5);
+    delete $5;
 }
 ;
 
@@ -717,7 +717,7 @@ constraint_content_c2c3
 : /* empty */
 | C2 ':' non_const_expr nlplus constraint_content_c3
 {
-    ExpressionTree::Delete ($3);
+    delete $3;
 }
 ;
 
@@ -725,7 +725,7 @@ constraint_content_c3
 : /* empty */
 | C3 ':' non_const_expr nlplus
 {
-    ExpressionTree::Delete ($3);
+    delete $3;
 }
 ;
 
@@ -740,86 +740,86 @@ const_expr
 {
     double v = $1->Value ();
     $$ = v;
-    ExpressionTree::Delete ($1);
+    delete $1;
 }
 
 
 expr
 : number
 {
-    $$ = new ExpressionTreeNumber ($1);
+    $$ = new ExpressionTreeNumber (foam->GetParsingData (), $1);
 }
 | IDENTIFIER
 {
-    $$ = new ExpressionTreeVariable ($1, foam->GetParsingData ());
+    $$ = new ExpressionTreeVariable (foam->GetParsingData (), *$1);
 }
 /* Function calls */
 | IDENTIFIER '(' expr ')'
 {
-    $$ = new ExpressionTreeUnaryFunction ($1, $3, foam->GetParsingData ());
+    $$ = new ExpressionTreeUnaryFunction (foam->GetParsingData (), *$1, $3);
 }
 | IDENTIFIER '(' expr ',' expr ')'
 {
-    $$ = new ExpressionTreeBinaryFunction ($1, $3, $5, foam->GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$1, $3, $5);
 }
 
 /* Arithmetic operations */
 | '-' expr  %prec UMINUS
 {
-    $$ = new ExpressionTreeUnaryFunction ($1, $2, foam->GetParsingData ());
+    $$ = new ExpressionTreeUnaryFunction (foam->GetParsingData (), *$1, $2);
 }
 | expr '+' expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam->GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
 }
 | expr '-' expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam->GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
 }
 
 | expr '*' expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam->GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
 }
 | expr '/' expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam->GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
 }
 | expr '^' expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam->GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
 }
 
 /* Comparisions */
 | expr '>' expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam->GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
 }
 | expr GE expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam->GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
 }
 | expr '<' expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam->GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
 }
 | expr LE expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam->GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
 }
 
 /* Logical operations */
 | '!' expr
 {
-    $$ = new ExpressionTreeUnaryFunction ($1, $2, foam->GetParsingData ());
+    $$ = new ExpressionTreeUnaryFunction (foam->GetParsingData (), *$1, $2);
 }
 | expr AND expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam->GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
 }
 | expr OR expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam->GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
 }
 
 /* Other expressions */
@@ -829,11 +829,11 @@ expr
 }
 | expr '=' expr
 {
-    $$ = new ExpressionTreeBinaryFunction ($2, $1, $3, foam->GetParsingData ());
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
 }
 | expr '?' expr ':' expr
 {
-    $$ = new ExpressionTreeConditional ($1, $3, $5);
+    $$ = new ExpressionTreeConditional (foam->GetParsingData (), $1, $3, $5);
 }
 
 number
@@ -1386,7 +1386,7 @@ size_t intToUnsigned (int i, const char* message)
 ExpressionTree* uminusTree (ParsingData& parsingData, ExpressionTree* expr)
 {
     const string* uminusId = parsingData.CreateIdentifier ("-");
-    return new ExpressionTreeUnaryFunction (uminusId, expr, parsingData);
+    return new ExpressionTreeUnaryFunction (parsingData, *uminusId, expr);
 }
 
 // Local Variables:

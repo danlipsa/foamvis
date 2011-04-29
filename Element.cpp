@@ -46,7 +46,7 @@ public:
 	    boost::shared_ptr<AttributeInfo> info = 
                 m_infos.GetAttributeInfo (nv.GetName ());
             size_t index = info->GetIndex ();
-            if (index == AttributeInfo::INVALID_INDEX)
+            if (index == INVALID_INDEX)
                 return;
             else
             {
@@ -72,10 +72,6 @@ private:
     const AttributesInfo& m_infos;
 };
 
-
-// Static Fields
-// ======================================================================
-const size_t Element::INVALID_INDEX = numeric_limits<size_t>::max ();
 
 // Methods
 // ======================================================================

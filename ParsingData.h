@@ -86,6 +86,10 @@ public:
      * @return a binary function
      */
     BinaryFunction GetBinaryFunction (const char* name);
+    BinaryFunction GetBinaryFunction (const string& name)
+    {
+	return GetBinaryFunction (name.c_str ());
+    }
     /**
      * Gets all faces from this Foam
      */
@@ -108,12 +112,21 @@ public:
      * @return variable value
      */
     double GetVariableValue (const char* name);
+    double GetVariableValue (const string& name)
+    {
+	return GetVariableValue (name.c_str ());
+    }
+    
     /**
      * Returns the unary function with the name supplied by the parameter
      * @param name name of the function to be retrieved
      * @return a unary function
      */
     UnaryFunction GetUnaryFunction (const char* name);
+    UnaryFunction GetUnaryFunction (const string& name)
+    {
+	return GetUnaryFunction (name.c_str ());
+    }
     /**
      * Gets the vector of vertices
      * @return the vector of vertices
@@ -226,6 +239,10 @@ public:
     }    
 
     void SetConstraint (size_t i, ExpressionTree* constraint);
+    ExpressionTree* GetConstraint (size_t i)
+    {
+	return m_constraints[i];
+    }
 
 public:
     /**

@@ -106,7 +106,7 @@ struct CalculateAggregate
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 const size_t HISTOGRAM_INTERVALS = 256;
-
+const size_t INVALID_INDEX = numeric_limits<size_t>::max ();
 
 #endif //__UTILS_H__
 

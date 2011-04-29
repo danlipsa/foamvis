@@ -13,7 +13,6 @@
 #include "Utils.h"
 #include "Vertex.h"
 
-
 // Fuzzy equality functionality
 // ======================================================================
 

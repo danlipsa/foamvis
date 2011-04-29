@@ -289,6 +289,10 @@ G3D::Vector3 Edge::GetPoint (size_t i) const
 	return GetEnd ()->GetVector ();
 }
 
+const vector<int>& Edge::GetConstraintIndexes () const
+{
+    return GetIntegerArrayAttribute (Foam::CONSTRAINTS_INDEX);
+}
 
 // Static and Friends Methods
 // ======================================================================

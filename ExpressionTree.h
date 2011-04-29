@@ -18,23 +18,21 @@ class ExpressionTree
 {
 public:
     /**
-     * Constructs an ExpressionTree with one node
-     */
-    ExpressionTree () : m_first (0), m_second (0) {}
-    virtual ~ExpressionTree () {}
-    /**
      * Constructs an ExpressionTree
      * @param left the left child of the current node
      * @param second the second child of the current node
      */
-    ExpressionTree (ExpressionTree* first, ExpressionTree* second = 0,
-		    ExpressionTree* third = 0)
-        : m_first (first), m_second (second), m_third (third) {}
-    /**
-     * Deletes all nodes in an ExpressionTree
-     * @param node tree to be deleted
-     */
-    static void Delete (ExpressionTree* node);
+    ExpressionTree (ParsingData& parsingData)
+
+        : m_parsingData (parsingData)
+    {}
+    virtual ~ExpressionTree () 
+    {}
+
+    ParsingData& GetParsingData ()
+    {
+	return m_parsingData;
+    }
     /**
      * Calculates and returns the  value of the expression represented
      * by the tree
@@ -42,15 +40,7 @@ public:
      */
     virtual double Value (void) = 0;
 protected:
-    /**
-     * First child of this node
-     */
-    ExpressionTree* m_first;
-    /**
-     * Second child of this node
-     */
-    ExpressionTree* m_second;
-    ExpressionTree* m_third;
+    ParsingData& m_parsingData;
 };
 
 /**
@@ -62,7 +52,10 @@ public:
     /**
      * Constructs a number node
      */
-    ExpressionTreeNumber (double value) : m_value (value) {}
+    ExpressionTreeNumber (ParsingData& parsingData, double value) : 
+	ExpressionTree (parsingData),
+	m_value (value) 
+    {}
     /**
      * Value of the number
      * @return value of the number
@@ -86,8 +79,11 @@ public:
      * @param name the name of the variable
      * @param parsingData data which allows us to get the value of a variable.
      */
-    ExpressionTreeVariable (const string* name, ParsingData& parsingData)
-        : m_name (name->c_str()), m_parsingData (parsingData) {}
+    ExpressionTreeVariable (ParsingData& parsingData, const string& name) :
+
+	ExpressionTree (parsingData),
+        m_name (name)
+    {}
     /**
      * Value of the variable
      * @return the value of the variable
@@ -97,11 +93,7 @@ private:
     /**
      * Variable name
      */
-    const char* m_name;
-    /**
-     * Allows us to get variable values
-     */
-    ParsingData& m_parsingData;
+    string m_name;
 };
 
 /**
@@ -118,9 +110,15 @@ public:
      * with the function name
      */
     ExpressionTreeUnaryFunction (
-        const string* name, ExpressionTree* param, ParsingData& parsingData)
-        : ExpressionTree (param), m_name (name->c_str()), 
-          m_parsingData (parsingData) {}
+        ParsingData& parsingData, const string& name, ExpressionTree* param)
+        : ExpressionTree (parsingData), 
+	  m_name (name), 
+	  m_param (param)
+          {}
+    ~ExpressionTreeUnaryFunction ()
+    {
+	delete m_param;
+    }
     /**
      * Value of the function applied to the parameter.
      * @return the value of the function applied to the parameter.
@@ -130,11 +128,8 @@ private:
     /**
      * Name of the function
      */
-    const char* m_name;
-    /**
-     * Allows us to get the function associated with the function name.
-     */
-    ParsingData& m_parsingData;
+    string m_name;
+    ExpressionTree* m_param;
 };
 
 /**
@@ -145,17 +140,24 @@ class ExpressionTreeBinaryFunction : public ExpressionTree
 public:
     /**
      * Constructs a binary function tree node
+     * @param  parsingData allows  us to  get the  function associated
+     * with the function name
      * @param name name of the function
      * @param first child of the tree node
      * @param second second child of the tree node
-     * @param  parsingData allows  us to  get the  function associated
-     * with the function name
      */
     ExpressionTreeBinaryFunction (
-        const string* name, 
-        ExpressionTree* first, ExpressionTree* second, ParsingData& parsingData)
-        : ExpressionTree (first, second), m_name (name->c_str()),
-          m_parsingData (parsingData) {}
+	ParsingData& parsingData,
+        const string& name, 
+        ExpressionTree* first, ExpressionTree* second)
+        : ExpressionTree (parsingData), m_name (name),
+          m_first (first), m_second (second) 
+    {}
+    ~ExpressionTreeBinaryFunction ()
+    {
+	delete m_first;
+	delete m_second;
+    }
     /**
      * Value of the function applied to the parameters
      * @return the value of the function applied to the parameters.
@@ -165,11 +167,9 @@ private:
     /**
      * Function name
      */
-    const char* m_name;
-    /**
-     * Allows us to get the function associated with the function name.
-     */
-    ParsingData& m_parsingData;
+    string m_name;
+    ExpressionTree* m_first;
+    ExpressionTree* m_second;
 };
 
 
@@ -188,14 +188,26 @@ public:
      * with the function name
      */
     ExpressionTreeConditional (
+	ParsingData& parsingData,
         ExpressionTree* first, ExpressionTree* second, ExpressionTree* third)
-        : ExpressionTree (first, second, third)
+        : ExpressionTree (parsingData),
+	  m_first (first), m_second (second), m_third (third)
     {
+    }
+    ~ExpressionTreeConditional ()
+    {
+	delete m_first;
+	delete m_second;
+	delete m_third;
     }
     /**
      * Value of the contitional expression
      */
     virtual double Value (void);
+private:
+    ExpressionTree* m_first;
+    ExpressionTree* m_second;
+    ExpressionTree* m_third;
 };
 
 
