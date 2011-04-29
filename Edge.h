@@ -36,6 +36,9 @@ public:
 	  size_t id,
 	  ElementStatus::Enum duplicateStatus = ElementStatus::ORIGINAL);
     Edge (const boost::shared_ptr<Vertex>& begin, size_t id);
+    virtual ~Edge ()
+    {
+    }
     /**
      * @return the first vertex of the edge
      */
@@ -50,14 +53,6 @@ public:
      */
     G3D::Vector3 GetTranslatedBegin (const G3D::Vector3& newEnd) const;
     /**
-     * Sets the first vertex of the edge
-     * @param begin value stored in the first vertex of the edge
-     */
-    void SetBegin(boost::shared_ptr<Vertex> begin) 
-    {
-	m_begin = begin;
-    }
-    /**
      * @return last vertex of the edge
      */
     boost::shared_ptr<Vertex> GetEnd() const 
@@ -68,10 +63,11 @@ public:
      * Sets the last vertex of the edge
      * @param end value stored in the last vertex of the edge
      */
-    void SetEnd(boost::shared_ptr<Vertex> end) 
+    virtual void SetEnd(boost::shared_ptr<Vertex> end) 
     {
 	m_end = end;
     }
+
     /**
      * Prints the two vertices of an edge in reverse order (end , begin)
      * @param ostr the stream where to write the edge
@@ -149,7 +145,10 @@ public:
 	const G3D::Vector3& newBegin,
 	VertexSet* vertexSet, EdgeSet* edgeSet) const;    
 
-    virtual size_t GetPointCount () const;
+    virtual size_t GetPointCount () const
+    {
+	return 2;
+    }
     virtual G3D::Vector3 GetPoint (size_t i) const;
 
 public:
@@ -168,6 +167,17 @@ protected:
     virtual boost::shared_ptr<Edge> createDuplicate (
 	const OOBox& periods,
 	const G3D::Vector3& newBegin, VertexSet* vertexSet) const;
+
+private:
+    /**
+     * Sets the first vertex of the edge
+     * @param begin value stored in the first vertex of the edge
+     */
+    void setBegin(boost::shared_ptr<Vertex> begin) 
+    {
+	m_begin = begin;
+    }
+
 
 private:
     /**

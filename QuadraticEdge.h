@@ -7,9 +7,9 @@
 #ifndef __QUADRATIC_EDGE_H__
 #define __QUADRATIC_EDGE_H__
 
-#include "Edge.h"
+#include "ApproximationEdge.h"
 
-class QuadraticEdge : public Edge
+class QuadraticEdge : public ApproximationEdge
 {
 public:
     QuadraticEdge (
@@ -23,13 +23,8 @@ public:
     {
 	return m_middle;
     }
-    void SetMiddle (boost::shared_ptr<Vertex> middle)
-    {
-	m_middle = middle;
-    }
-    virtual size_t GetPointCount () const;
-    virtual G3D::Vector3 GetPoint (size_t i) const;
     virtual boost::shared_ptr<Edge> Clone () const;
+
 
 protected:
     QuadraticEdge (const QuadraticEdge& quadraticEdge);
@@ -37,16 +32,22 @@ protected:
 	const OOBox& periods,
 	const G3D::Vector3& newBegin, VertexSet* vertexSet) const;
 
+protected:
+    virtual G3D::Vector3 computePoint (size_t i) const;
+
 private:
     /**
      * Quadratic function applied to parameter t in [0, 2]
      */
     double quadratic (double t, size_t i) const;
     G3D::Vector3 quadratic (double t) const;
-    
+    void setMiddle (boost::shared_ptr<Vertex> middle)
+    {
+	m_middle = middle;
+    }
+
 private:
     boost::shared_ptr<Vertex> m_middle;
-    const static size_t POINT_COUNT = 5;
 };
 
 

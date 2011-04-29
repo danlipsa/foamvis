@@ -8,6 +8,7 @@
 #include "Debug.h"
 #include "DebugStream.h"
 #include "Edge.h"
+#include "ExpressionTree.h"
 #include "Face.h"
 #include "ParsingData.h"
 #include "QuadraticEdge.h"
@@ -122,7 +123,9 @@ ParsingData::ParsingData () :
 
 ParsingData::~ParsingData ()
 {
-    for_each(m_identifiers.begin (), m_identifiers.end (), deleteIdentifier);
+    for_each (m_identifiers.begin (), m_identifiers.end (), deleteIdentifier);
+    for_each (m_constraints.begin (), m_constraints.end (), 
+	      ExpressionTree::Delete);
 }
 
 double ParsingData::GetVariableValue (const char* id) 
@@ -208,4 +211,11 @@ void ParsingData::SetFace (size_t i,  vector<int>& edges,
     if (&attributes != 0)
         face->StoreAttributes (attributes, attributesInfo);
     m_faces[i] = face;
+}
+
+void ParsingData::SetConstraint (size_t i, ExpressionTree* constraint)
+{
+    if (i >= m_constraints.size ())
+	m_constraints.resize (i+1);
+    m_constraints[i] = constraint;
 }

@@ -174,7 +174,7 @@ private:
 
 
 /**
- * A binary function or binary operator expression tree node
+ * A conditional expression `first ? second : third'
  */
 class ExpressionTreeConditional : public ExpressionTree
 {
@@ -188,24 +188,14 @@ public:
      * with the function name
      */
     ExpressionTreeConditional (
-        ExpressionTree* first, ExpressionTree* second, ExpressionTree* third,
-	ParsingData& parsingData)
-        : ExpressionTree (first, second, third), m_name ("?:"),
-          m_parsingData (parsingData) {}
+        ExpressionTree* first, ExpressionTree* second, ExpressionTree* third)
+        : ExpressionTree (first, second, third)
+    {
+    }
     /**
-     * Value of the function applied to the parameters
-     * @return the value of the function applied to the parameters.
+     * Value of the contitional expression
      */
     virtual double Value (void);
-private:
-    /**
-     * Function name
-     */
-    const char* m_name;
-    /**
-     * Allows us to get the function associated with the function name.
-     */
-    ParsingData& m_parsingData;
 };
 
 

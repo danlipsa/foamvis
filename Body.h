@@ -73,7 +73,6 @@ public:
 	return m_center;
     }
     void UpdatePartOf (const boost::shared_ptr<Body>& body);
-    bool HasWrap () const;
     string ToString () const;
     void GetVertexSet (VertexSet* vertexSet) const;
     VertexSet GetVertexSet () const

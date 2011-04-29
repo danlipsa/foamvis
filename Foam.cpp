@@ -390,7 +390,22 @@ void Foam::Preprocess ()
     calculateBoundingBox ();
     sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);
     setMissingPressureZero ();
+    addConstraintEdges (faceSet);
     calculatePerimeterOverArea ();
+}
+
+void Foam::addConstraintEdges (const FaceSet& faceSet)
+{
+    if (Is2D ())
+    {
+	BOOST_FOREACH (boost::shared_ptr<Face> face, faceSet)
+	{
+	    if (! face->IsClosed ())
+	    {
+		
+	    }
+	}
+    }
 }
 
 

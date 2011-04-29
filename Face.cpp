@@ -247,13 +247,6 @@ bool Face::IsClosed () const
 	*m_orientedEdges[m_orientedEdges.size () - 1]->GetEnd ();
 }
 
-bool Face::HasWrap () const
-{
-    BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, m_orientedEdges)
-	if (oe->GetEdge ()->GetEndTranslation () != Vector3int16Zero)
-	    return true;
-    return false;
-}
 
 boost::shared_ptr<Edge>  Face::GetEdge (size_t i) const
 {
@@ -377,4 +370,9 @@ void Face::UpdateStandaloneFacePartOf (boost::shared_ptr<Face> face)
 	    oe->AddFacePartOf (m_orientedFace, i);
 	}
     }
+}
+
+void Face::AddEdge (const boost::shared_ptr<ConstraintEdge>& edge)
+{
+    
 }

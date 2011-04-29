@@ -11,6 +11,7 @@
 #include "ParsingDriver.h"
 
 class AttributesInfo;
+class ExpressionTree;
 
 /**
  * Stores data used during  the parsing such as identifiers, variables
@@ -20,35 +21,35 @@ class ParsingData : public ParsingDriver
 {
 public:
     /**
-     * How are variables stored
+     * Variable type
      */
     typedef map<const char*, double, LessThanNoCase> Variables;
     /**
-     * A unary function
+     * Unary function type
      */
-    //typedef double (*UnaryFunction)(double);
     typedef boost::function<double (double)> UnaryFunction;
     /**
-     * A binary function
+     * Binary function type
      */
     typedef boost::function<double (double, double)> BinaryFunction;
     /**
-     * How are unary functions stored.
+     * Unary functions type
      */
     typedef map<const char*, UnaryFunction, 
 		LessThanNoCase> UnaryFunctions;
     /**
-     * How are binary functions stored
+     * Binary functions type
      */
     typedef map<const char*, BinaryFunction, 
                      LessThanNoCase> BinaryFunctions;
     /**
-     * How are identifiers stored
+     * Identifiers type
      */
     typedef map<const char*, string*, LessThanNoCase> Identifiers;
     typedef vector< boost::shared_ptr<Vertex> > Vertices;
     typedef vector< boost::shared_ptr<Edge> > Edges;
     typedef vector< boost::shared_ptr<Face> > Faces;
+    typedef vector<ExpressionTree*> Constraints;
 
 public:
     /**
@@ -224,6 +225,8 @@ public:
 	m_newLineSignificant = newLineSignificant;
     }    
 
+    void SetConstraint (size_t i, ExpressionTree* constraint);
+
 public:
     /**
      * Pretty prints the ParsingData object
@@ -279,6 +282,7 @@ private:
     Identifiers m_identifiers;
     set<const char*, LessThanNoCase> m_attributes;
     set<const char*, LessThanNoCase> m_methodOrQuantity;
+    Constraints m_constraints;
     bool m_spaceSignificant;
     size_t m_parenthesisCount;
     bool m_newLineSignificant;

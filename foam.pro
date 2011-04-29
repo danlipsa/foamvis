@@ -1,7 +1,8 @@
-HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
+HEADERS += Application.h ApproximationEdge.h\
+	Attribute.h AttributeCreator.h AttributeInfo.h \
 	AttributeHistogram.h HistogramHeight.h Body.h \
 	BodyAlongTime.h BodyIndex.h BodySelector.h \
-	ColorBarModel.h ColoredElement.h Comparisons.h \
+	ConstraintEdge.h ColorBarModel.h ColoredElement.h Comparisons.h \
 	Debug.h DebugStream.h Disk.h DisplayFaceStatistics.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h DisplayWidget.h\
@@ -17,10 +18,11 @@ HEADERS += Application.h Attribute.h AttributeCreator.h AttributeInfo.h \
 	stable.h Statistics.h StripIterator.h SystemDifferences.h \
 	TransferFunctionHistogram.h TimeStepsSlider.h Utils.h \
 	Vertex.h ViewSettings.h
-SOURCES += Application.cpp Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
+SOURCES += Application.cpp ApproximationEdge.cpp\
+	Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	AttributeHistogram.cpp HistogramHeight.cpp \
 	Body.cpp BodyAlongTime.cpp BodyIndex.cpp BodySelector.cpp\
-	ColorBarModel.cpp ColoredElement.cpp Comparisons.cpp \
+	ConstraintEdge.cpp ColorBarModel.cpp ColoredElement.cpp Comparisons.cpp \
 	DebugStream.cpp Disk.cpp DisplayBodyFunctors.cpp \
 	DisplayFaceStatistics.cpp DisplayFaceFunctors.cpp \
 	DisplayEdgeFunctors.cpp	\

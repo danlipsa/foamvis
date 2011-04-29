@@ -18,16 +18,17 @@ QuadraticEdge::QuadraticEdge (
     size_t id,
     ElementStatus::Enum duplicateStatus) :
 
-    Edge (begin, end, endLocation, id, duplicateStatus),
+    ApproximationEdge (begin, end, endLocation, id, duplicateStatus),
     m_middle (middle)
 {
+    cachePoints ();
 }
 
 QuadraticEdge::QuadraticEdge (const QuadraticEdge& quadraticEdge) :
-    Edge (quadraticEdge),
+    ApproximationEdge (quadraticEdge),
     m_middle (quadraticEdge.m_middle)
 {
-    
+    cachePoints ();
 }
 
 boost::shared_ptr<Edge> QuadraticEdge::Clone () const
@@ -46,7 +47,8 @@ boost::shared_ptr<Edge> QuadraticEdge::createDuplicate (
 	    Edge::createDuplicate (periods, newBegin, vertexSet));
     boost::shared_ptr<Vertex> middleDuplicate = GetMiddle ()->GetDuplicate (
 	periods, translation, vertexSet);
-    duplicate->SetMiddle (middleDuplicate);
+    duplicate->setMiddle (middleDuplicate);
+    duplicate->cachePoints ();
     return duplicate;
 }
 
@@ -66,13 +68,7 @@ G3D::Vector3 QuadraticEdge::quadratic (double t) const
     return result;
 }
 
-size_t QuadraticEdge::GetPointCount () const
+G3D::Vector3 QuadraticEdge::computePoint (size_t i) const
 {
-    return POINT_COUNT;
-}
-
-G3D::Vector3 QuadraticEdge::GetPoint (size_t i) const
-{
-    RuntimeAssert (i < POINT_COUNT, "Invalid point index: ", i);
-    return quadratic ( static_cast<double>(i) * 2 / (POINT_COUNT - 1));
+    return quadratic ( static_cast<double>(i) * 2 / (GetPointCount () - 1));
 }

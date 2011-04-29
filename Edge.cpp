@@ -255,7 +255,7 @@ boost::shared_ptr<Edge> Edge::createDuplicate (
     boost::shared_ptr<Vertex> endDuplicate = GetEnd ()->GetDuplicate (
 	periods, translation, vertexSet);
     boost::shared_ptr<Edge> duplicate = Clone ();
-    duplicate->SetBegin (beginDuplicate);
+    duplicate->setBegin (beginDuplicate);
     duplicate->SetEnd (endDuplicate);
     duplicate->SetDuplicateStatus (ElementStatus::DUPLICATE);
     return duplicate;
@@ -279,6 +279,14 @@ double Edge::GetLength () const
 	prev = p;
     }
     return length;
+}
+
+G3D::Vector3 Edge::GetPoint (size_t i) const
+{
+    if (i == 0)
+	return GetBegin ()->GetVector ();
+    else
+	return GetEnd ()->GetVector ();
 }
 
 
@@ -312,18 +320,5 @@ G3D::Vector3int16 Edge::IntToLocation (int value)
 	value /= DOMAIN_INCREMENT_POSSIBILITIES;
     }
     return result;
-}
-
-size_t Edge::GetPointCount () const
-{
-    return 2;
-}
-
-G3D::Vector3 Edge::GetPoint (size_t i) const
-{
-    if (i == 0)
-	return GetBegin ()->GetVector ();
-    else
-	return GetEnd ()->GetVector ();
 }
 

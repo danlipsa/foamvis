@@ -220,6 +220,7 @@ class AttributeCreator;
 %type <m_attributeType> element_type
 %type <m_attributeCreator> attribute_value_type
 %type <m_node> expr
+%type <m_node> non_const_expr
 %type <m_real> number
 %type <m_nameSemanticValueList> vertex_attribute_list
 %type <m_nameSemanticValueList> edge_attribute_list
@@ -662,6 +663,9 @@ constraint
   constraint_type ':' non_const_expr nlplus
   constraint_energy
   constraint_content
+{
+    foam->GetParsingData ().SetConstraint ($2, $7);
+}
 ;
 
 constraint_params
@@ -684,12 +688,19 @@ constraint_energy
 : /* empty */
 | ENERGY nl
   E1 ':' non_const_expr nlplus constraint_energy_rest
+{
+    ExpressionTree::Delete ($5);
+}
 ;
 
 constraint_energy_rest
 : /* empty */
 | E2 ':' non_const_expr nlplus
   E3 ':' non_const_expr nlplus
+{
+    ExpressionTree::Delete ($3);
+    ExpressionTree::Delete ($7);
+}
 ;
 
 /* 2D or 3D */
@@ -697,22 +708,31 @@ constraint_content
 : /* empty */
 | CONTENT nl
   C1 ':' non_const_expr nlplus constraint_content_c2c3
+{
+    ExpressionTree::Delete ($5);
+}
 ;
 
 constraint_content_c2c3
 : /* empty */
 | C2 ':' non_const_expr nlplus constraint_content_c3
+{
+    ExpressionTree::Delete ($3);
+}
 ;
 
 constraint_content_c3
 : /* empty */
 | C3 ':' non_const_expr nlplus
+{
+    ExpressionTree::Delete ($3);
+}
 ;
 
 non_const_expr
 : expr
 {
-    ExpressionTree::Delete ($1);
+    $$ = $1;
 }
 
 const_expr
@@ -813,7 +833,7 @@ expr
 }
 | expr '?' expr ':' expr
 {
-    $$ = new ExpressionTreeConditional ($1, $3, $5, foam->GetParsingData ());
+    $$ = new ExpressionTreeConditional ($1, $3, $5);
 }
 
 number

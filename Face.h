@@ -45,6 +45,7 @@ public:
     {
 	m_bodiesPartOf.push_back (BodyIndex (body, orientedFaceIndex));
     }
+    void AddEdge (const boost::shared_ptr<ConstraintEdge>& edge);
     void CalculateNormal ();
     const G3D::Vector3& GetCenter () const
     {
@@ -105,7 +106,6 @@ public:
     }
 
     bool IsClosed () const;
-    bool HasWrap () const;
     size_t size () const
     {
 	return m_orientedEdges.size ();

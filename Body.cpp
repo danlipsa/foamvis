@@ -162,14 +162,6 @@ void Body::UpdatePartOf (const boost::shared_ptr<Body>& body)
 }
 
 
-bool Body::HasWrap () const
-{
-    BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, m_orientedFaces)
-	if (of->GetFace ()->HasWrap ())
-	    return true;
-    return false;
-}
-
 boost::shared_ptr<Face> Body::GetFace (size_t i) const
 {
     return GetOrientedFace (i)->GetFace ();
