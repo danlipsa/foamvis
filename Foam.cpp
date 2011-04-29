@@ -391,26 +391,28 @@ void Foam::Preprocess ()
     calculateBoundingBox ();
     sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);
     setMissingPressureZero ();
-    addConstraintEdges (faceSet);
+    addConstraintEdges ();
     calculatePerimeterOverArea ();
 }
 
-void Foam::addConstraintEdges (const FaceSet& faceSet)
+void Foam::addConstraintEdges ()
 {
     if (Is2D ())
     {
-	BOOST_FOREACH (boost::shared_ptr<Face> face, faceSet)
+	BOOST_FOREACH (boost::shared_ptr<Body> body, GetBodies ())
 	{
+	    boost::shared_ptr<Face> face = body->GetFace (0);
 	    if (! face->IsClosed ())
 	    {
+		cdbg << body->GetId () << endl;
 		const G3D::AABox& box = GetBoundingBox ();
 		boost::shared_ptr<Vertex> begin = 
 		    face->GetOrientedEdge (0)->GetBegin ();
 		boost::shared_ptr<Vertex> end = 
-		    face->GetOrientedEdge (face->GetEdgeCount () - 1)->GetEnd ();
+		    face->GetOrientedEdge (
+			face->GetEdgeCount () - 1)->GetEnd ();
 		if (begin->GetConstraintIndexes ()[0] == 4)
 		{
-		    cdbg << box.low ().y << " " << box.high ().y << endl;
 		    boost::shared_ptr<Edge> edge (
 			new ConstraintEdge (&GetParsingData (), begin,end,
 					    box.low ().y, box.high ().y));

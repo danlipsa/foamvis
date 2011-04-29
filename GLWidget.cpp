@@ -5,10 +5,7 @@
  * Definitions for the widget for displaying foam bubbles using OpenGL
  */
 
-// @todo fix crash with setting a body stationary in edge mode and then switch 
-// to face colored by data values.
 // @todo fix the (slow) movement of the focus in context view
-// @todo save movies without the slider.
 
 #include "Body.h"
 #include "BodyAlongTime.h"
@@ -254,6 +251,12 @@ void GLWidget::createActions ()
     m_actionBodyStationarySet->setStatusTip(tr("Set stationary"));
     connect(m_actionBodyStationarySet.get (), SIGNAL(triggered()),
 	    this, SLOT(BodyStationarySet ()));
+
+    m_actionBodyStationaryTwoSet = boost::make_shared<QAction> (
+	tr("&Set stationary two"), this);
+    m_actionBodyStationaryTwoSet->setStatusTip(tr("Set stationary two"));
+    connect(m_actionBodyStationaryTwoSet.get (), SIGNAL(triggered()),
+	    this, SLOT(BodyStationaryTwoSet ()));
 
     m_actionBodyStationaryReset = boost::make_shared<QAction> (
 	tr("&Reset stationary"), this);
@@ -1192,7 +1195,9 @@ void GLWidget::setLabel ()
     m_labelStatusBar->setText (QString (s.c_str ()));
 }
 
-
+void GLWidget::BodyStationaryTwoSet ()
+{
+}
 
 void GLWidget::BodyStationarySet ()
 {
@@ -2005,6 +2010,7 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	{
 	    QMenu* menuBody = menu.addMenu ("Body");
 	    menuBody->addAction (m_actionBodyStationarySet.get ());
+	    menuBody->addAction (m_actionBodyStationaryTwoSet.get ());
 	    menuBody->addAction (m_actionBodyStationaryReset.get ());
 	    menuBody->addAction (m_actionBodyContextAdd.get ());
 	    menuBody->addAction (m_actionBodyContextReset.get ());
@@ -2640,7 +2646,7 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 		view, minMax.first, minMax.second);
 	}
     }
-    repaint ();
+    update ();
 }
 
 void GLWidget::ValueChangedStatisticsHistory (int timeSteps)

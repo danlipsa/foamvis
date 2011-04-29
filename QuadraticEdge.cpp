@@ -52,23 +52,23 @@ boost::shared_ptr<Edge> QuadraticEdge::createDuplicate (
     return duplicate;
 }
 
-double QuadraticEdge::quadratic (double t, size_t i) const
+double QuadraticEdge::quadratic (double t, size_t axis) const
 {
     return
-	GetBegin ()->GetVector ()[i] * (1 - t) * (2 - t) / 2 +
-	GetMiddle ()->GetVector ()[i] * t * (2 - t) +
-	GetEnd ()->GetVector ()[i] * t * (t - 1) / 2;
+	GetBegin ()->GetVector ()[axis] * (1 - t) * (2 - t) / 2 +
+	GetMiddle ()->GetVector ()[axis] * t * (2 - t) +
+	GetEnd ()->GetVector ()[axis] * t * (t - 1) / 2;
 }
 
 G3D::Vector3 QuadraticEdge::quadratic (double t) const
 {
     G3D::Vector3 result;
-    for (size_t i = 0; i < 3; i++)
-	result[i] = quadratic (t, i);
+    for (size_t axis = 0; axis < 3; ++axis)
+	result[axis] = quadratic (t, axis);
     return result;
 }
 
 G3D::Vector3 QuadraticEdge::computePoint (size_t i) const
 {
-    return quadratic ( static_cast<double>(i) * 2 / (GetPointCount () - 1));
+    return quadratic (static_cast<double>(i) * 2 / (GetPointCount () - 1));
 }

@@ -54,18 +54,23 @@ ConstraintEdge::ConstraintEdge (
 
 G3D::Vector3 ConstraintEdge::computePoint (size_t i) const
 {
+    boost::uintmax_t maxIter (100);
     size_t constraintIndex = GetBegin ()->GetConstraintIndexes ()[0] - 1;
     ExpressionTree* constraint = m_parsingData->GetConstraint (constraintIndex);
     G3D::Vector3 begin = GetBegin ()->GetVector ();
     G3D::Vector3 end = GetEnd ()->GetVector ();
-    double x = begin.x + (end.x - begin.x) * i / (GetPointCount () - 1);
-    m_parsingData->SetVariable ("x", x);
-    mt::eps_tolerance<double> tol(numeric_limits<double>::digits - 3);
-    boost::uintmax_t maxIter (100);
-    return G3D::Vector3 (
-	x, 
-	mt::bisect (
-	    ConstraintEvaluator (m_parsingData, constraint),
-	    m_min, m_max, tol, maxIter).first, 
-	0);
+    G3D::Vector3 current = begin + (end - begin) * i / (GetPointCount () - 1);
+    m_parsingData->SetVariable ("x", current.x);
+    mt::eps_tolerance<double> tol(numeric_limits<double>::digits - 2);
+    double currentY = current.y;
+    double firstY = mt::bisect (
+	ConstraintEvaluator (m_parsingData, constraint),
+	m_min, currentY, tol, maxIter).first;
+    double secondY = mt::bisect (
+	ConstraintEvaluator (m_parsingData, constraint),
+	currentY, m_max, tol, maxIter).first;
+    double y = (currentY - firstY < secondY - currentY) ? firstY : secondY;
+    cdbg << m_min << " " << firstY << " " << currentY  << " " 
+	 << secondY << " " << m_max << endl;
+    return G3D::Vector3 (current.x, y, 0);
 }

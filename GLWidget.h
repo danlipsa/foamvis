@@ -336,6 +336,7 @@ public Q_SLOTS:
     void SelectAll ();
     void DeselectAll ();
     void BodyStationarySet ();
+    void BodyStationaryTwoSet ();
     void BodyStationaryReset ();
     void BodyContextAdd ();
     void BodyContextReset ();
@@ -664,6 +665,7 @@ private:
     boost::shared_ptr<QAction> m_actionResetSelectedLightNumber;
     boost::shared_ptr<QAction> m_actionSelectBodiesById;
     boost::shared_ptr<QAction> m_actionBodyStationarySet;
+    boost::shared_ptr<QAction> m_actionBodyStationaryTwoSet;
     boost::shared_ptr<QAction> m_actionBodyStationaryReset;
     boost::shared_ptr<QAction> m_actionBodyContextAdd;
     boost::shared_ptr<QAction> m_actionBodyContextReset;

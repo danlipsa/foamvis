@@ -39,7 +39,7 @@ private:
     /**
      * Quadratic function applied to parameter t in [0, 2]
      */
-    double quadratic (double t, size_t i) const;
+    double quadratic (double t, size_t axis) const;
     G3D::Vector3 quadratic (double t) const;
     void setMiddle (boost::shared_ptr<Vertex> middle)
     {

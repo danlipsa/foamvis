@@ -7,6 +7,7 @@
 
 #include "Debug.h"
 #include "ApproximationEdge.h"
+#include "Vertex.h"
 
 ApproximationEdge::ApproximationEdge (
     const boost::shared_ptr<Vertex>& begin,
@@ -28,7 +29,9 @@ ApproximationEdge::ApproximationEdge (
 
 void ApproximationEdge::cachePoints ()
 {
-    for (size_t i = 0; i < m_points.size (); ++i)
+    m_points[0] = GetBegin ()->GetVector ();
+    m_points[m_points.size () - 1] = GetEnd ()->GetVector ();
+    for (size_t i = 1; i < m_points.size () - 1; ++i)
 	m_points[i] = computePoint (i);
 }
 

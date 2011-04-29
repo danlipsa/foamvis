@@ -90,7 +90,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     setWindowTitle (QString ((string("Foam - ") + 
 			      foamAlongTime.GetFilePattern ()).c_str ()));
     // fire as soon as all events have been processed
-    m_timer->setInterval (0);
+    m_timer->setInterval (33);
     createActions ();
     setTabOrder (radioButtonCenterPath, sliderTimeSteps);
     connectSignals ();

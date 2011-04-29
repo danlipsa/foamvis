@@ -264,6 +264,7 @@ public:
 
 public:
     static const double Z_COORDINATE_2D = 0.0;
+
     static const size_t BODY_PRESSURE_INDEX = 0;
     static const size_t BODY_VOLUME_INDEX = 1;
     static const size_t CONSTRAINTS_INDEX = 0;
@@ -324,7 +325,7 @@ private:
 	const G3D::Vector3int16& translate,
 	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
     void setMissingPressureZero ();
-    void addConstraintEdges (const FaceSet& faceSet);
+    void addConstraintEdges ();
 
 
 private:
