@@ -60,17 +60,28 @@ G3D::Vector3 ConstraintEdge::computePoint (size_t i) const
     G3D::Vector3 begin = GetBegin ()->GetVector ();
     G3D::Vector3 end = GetEnd ()->GetVector ();
     G3D::Vector3 current = begin + (end - begin) * i / (GetPointCount () - 1);
-    m_parsingData->SetVariable ("x", current.x);
     mt::eps_tolerance<double> tol(numeric_limits<double>::digits - 2);
+
+    m_parsingData->SetVariable ("x", current.x);
     double currentY = current.y;
-    double firstY = mt::bisect (
-	ConstraintEvaluator (m_parsingData, constraint),
-	m_min, currentY, tol, maxIter).first;
-    double secondY = mt::bisect (
-	ConstraintEvaluator (m_parsingData, constraint),
-	currentY, m_max, tol, maxIter).first;
+    double firstY;
+    if (m_min < currentY)
+	firstY = mt::bisect (
+	    ConstraintEvaluator (m_parsingData, constraint),
+	    m_min, currentY, tol, maxIter).first;
+    else
+	firstY = -numeric_limits<double>::max ();
+    double secondY;
+    if (currentY < m_max)
+	secondY = mt::bisect (
+	    ConstraintEvaluator (m_parsingData, constraint),
+	    currentY, m_max, tol, maxIter).first;
+    else
+	secondY = numeric_limits<double>::max ();
     double y = (currentY - firstY < secondY - currentY) ? firstY : secondY;
     cdbg << m_min << " " << firstY << " " << currentY  << " " 
 	 << secondY << " " << m_max << endl;
     return G3D::Vector3 (current.x, y, 0);
 }
+
+
