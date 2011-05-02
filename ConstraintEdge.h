@@ -19,14 +19,14 @@ public:
     ConstraintEdge (ParsingData* parsingData,
 		    const boost::shared_ptr<Vertex>& begin,
 		    const boost::shared_ptr<Vertex>& end,
-		    double min, double max);
+		    const G3D::AABox& box);
 
 protected:
     virtual G3D::Vector3 computePoint (size_t i) const;
+    double computeValue (size_t axis, const G3D::Vector3& current) const;
 private:
     ParsingData* m_parsingData;
-    double m_min;
-    double m_max;
+    G3D::AABox m_box;
 };
 
 

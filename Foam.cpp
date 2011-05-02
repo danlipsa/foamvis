@@ -414,8 +414,8 @@ void Foam::addConstraintEdges ()
 		//if (begin->GetConstraintIndexes ()[0] == 4)
 		{
 		    boost::shared_ptr<Edge> edge (
-			new ConstraintEdge (&GetParsingData (), begin,end,
-					    box.low ().y, box.high ().y));
+			new ConstraintEdge (
+			    &GetParsingData (), begin, end, box));
 		    face->AddEdge (edge);
 		}
 	    }

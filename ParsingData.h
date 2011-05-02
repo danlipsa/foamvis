@@ -203,6 +203,11 @@ public:
     {
 	m_variables[id] = value;
     }
+    void SetVariable (const string& id, double value)
+    {
+	SetVariable (id.c_str (), value);
+    }
+
     /**
      * Stores an Edge object in the Foam object at a certain index
      * @param i index where to store the Edge object
