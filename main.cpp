@@ -302,6 +302,10 @@ void parseFiles (int argc, char *argv[],
  */
 int main(int argc, char *argv[])
 {
+
+    cdbg << numeric_limits<double>::digits << " " 
+	 << numeric_limits<double>::min () << endl;
+
     try
     {
 	bool debugParsing, debugScanning, textOutput, adjustPressure;
