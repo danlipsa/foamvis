@@ -255,6 +255,7 @@ public Q_SLOTS:
      * Global options
      */
     void ToggledTimeStepShown (bool checked);
+    void ToggledStandaloneElementsShown (bool checked);
     void ToggledAxesShown (bool checked);
     void ToggledBoundingBoxShown (bool checked);
     void ToggledBodiesBoundingBoxesShown (bool checked);
@@ -656,6 +657,7 @@ private:
     bool m_boundingBoxShown;
     bool m_bodiesBoundingBoxesShown;
     bool m_axesShown;
+    bool m_standaloneElementsShown;
     boost::array<ViewTypeDisplay, ViewType::COUNT> m_viewTypeDisplay;
     boost::shared_ptr<BodySelector> m_bodySelector;
 

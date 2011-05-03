@@ -24,6 +24,10 @@ public:
 protected:
     virtual G3D::Vector3 computePoint (size_t i) const;
     double computeValue (size_t axis, const G3D::Vector3& current) const;
+
+private:
+    static const char* AXIS_NAME[];
+    
 private:
     ParsingData* m_parsingData;
     G3D::AABox m_box;

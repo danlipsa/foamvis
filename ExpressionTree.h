@@ -38,7 +38,14 @@ public:
      * by the tree
      * @return the value of the tree
      */
-    virtual double Value (void) = 0;
+    virtual double Value () const = 0;
+    virtual bool IsNumber ()
+    {
+	return false;
+    }
+    virtual ExpressionTree* Simplify () const = 0;
+    virtual string ToString () = 0;
+
 protected:
     ParsingData& m_parsingData;
 };
@@ -60,7 +67,13 @@ public:
      * Value of the number
      * @return value of the number
      */
-    virtual double Value (void);
+    virtual double Value () const;
+    virtual ExpressionTree* Simplify () const;
+    virtual bool IsNumber ()
+    {
+	return true;
+    }
+    virtual string ToString ();
 private:
     /**
      * Value of the nubmber node
@@ -79,7 +92,7 @@ public:
      * @param name the name of the variable
      * @param parsingData data which allows us to get the value of a variable.
      */
-    ExpressionTreeVariable (ParsingData& parsingData, const string& name) :
+    ExpressionTreeVariable (ParsingData& parsingData, const char* name) :
 
 	ExpressionTree (parsingData),
         m_name (name)
@@ -88,7 +101,9 @@ public:
      * Value of the variable
      * @return the value of the variable
      */
-    virtual double Value (void);
+    virtual double Value () const;
+    virtual ExpressionTree* Simplify () const;
+    virtual string ToString ();
 private:
     /**
      * Variable name
@@ -110,7 +125,7 @@ public:
      * with the function name
      */
     ExpressionTreeUnaryFunction (
-        ParsingData& parsingData, const string& name, ExpressionTree* param)
+        ParsingData& parsingData, const char* name, ExpressionTree* param)
         : ExpressionTree (parsingData), 
 	  m_name (name), 
 	  m_param (param)
@@ -123,7 +138,9 @@ public:
      * Value of the function applied to the parameter.
      * @return the value of the function applied to the parameter.
      */
-    virtual double Value (void);
+    virtual double Value () const;
+    virtual ExpressionTree* Simplify () const;
+    virtual string ToString ();
 private:
     /**
      * Name of the function
@@ -148,7 +165,7 @@ public:
      */
     ExpressionTreeBinaryFunction (
 	ParsingData& parsingData,
-        const string& name, 
+        const char* name, 
         ExpressionTree* first, ExpressionTree* second)
         : ExpressionTree (parsingData), m_name (name),
           m_first (first), m_second (second) 
@@ -162,7 +179,9 @@ public:
      * Value of the function applied to the parameters
      * @return the value of the function applied to the parameters.
      */
-    virtual double Value (void);
+    virtual double Value () const;
+    virtual ExpressionTree* Simplify () const;
+    virtual string ToString ();
 private:
     /**
      * Function name
@@ -203,7 +222,9 @@ public:
     /**
      * Value of the contitional expression
      */
-    virtual double Value (void);
+    virtual double Value () const;
+    virtual ExpressionTree* Simplify () const;
+    virtual string ToString ();
 private:
     ExpressionTree* m_first;
     ExpressionTree* m_second;

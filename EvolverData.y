@@ -58,7 +58,7 @@ class AttributeCreator;
     /**
      * An identifier
      */
-    std::string* m_id;
+    const char* m_id;
     /**
      * An expression tree
      */
@@ -427,7 +427,7 @@ quantity
 : QUANTITY IDENTIFIER quantity_rest
 {
     if ($3 != 0)
-	foam->GetParsingData ().AddMethodOrQuantity ($2->c_str ());
+	foam->GetParsingData ().AddMethodOrQuantity ($2);
 }
 
 quantity_rest
@@ -468,7 +468,7 @@ method_instance:
 METHOD_INSTANCE IDENTIFIER method_instance_rest
 {
     if ($3 != 0)
-	foam->GetParsingData ().AddMethodOrQuantity ($2->c_str ());
+	foam->GetParsingData ().AddMethodOrQuantity ($2);
 }
 
 method_instance_rest
@@ -529,7 +529,7 @@ function_parameter_type
 parameter: PARAMETER IDENTIFIER '=' const_expr
 {
     double v = $4;
-    foam->GetParsingData ().SetVariable($2->c_str(), v);
+    foam->GetParsingData ().SetVariable($2, v);
 }
 
 
@@ -537,7 +537,7 @@ attribute
 : DEFINE element_type ATTRIBUTE IDENTIFIER attribute_value_type
 {
     boost::shared_ptr<AttributeCreator> ac ($5);
-    foam->AddAttributeInfo ($2, $4->c_str(), ac);
+    foam->AddAttributeInfo ($2, $4, ac);
 }
 
 element_type: VERTEX
@@ -751,75 +751,75 @@ expr
 }
 | IDENTIFIER
 {
-    $$ = new ExpressionTreeVariable (foam->GetParsingData (), *$1);
+    $$ = new ExpressionTreeVariable (foam->GetParsingData (), $1);
 }
 /* Function calls */
 | IDENTIFIER '(' expr ')'
 {
-    $$ = new ExpressionTreeUnaryFunction (foam->GetParsingData (), *$1, $3);
+    $$ = new ExpressionTreeUnaryFunction (foam->GetParsingData (), $1, $3);
 }
 | IDENTIFIER '(' expr ',' expr ')'
 {
-    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$1, $3, $5);
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $1, $3, $5);
 }
 
 /* Arithmetic operations */
 | '-' expr  %prec UMINUS
 {
-    $$ = new ExpressionTreeUnaryFunction (foam->GetParsingData (), *$1, $2);
+    $$ = new ExpressionTreeUnaryFunction (foam->GetParsingData (), $1, $2);
 }
 | expr '+' expr
 {
-    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
 }
 | expr '-' expr
 {
-    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
 }
 
 | expr '*' expr
 {
-    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
 }
 | expr '/' expr
 {
-    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
 }
 | expr '^' expr
 {
-    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
 }
 
 /* Comparisions */
 | expr '>' expr
 {
-    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
 }
 | expr GE expr
 {
-    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
 }
 | expr '<' expr
 {
-    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
 }
 | expr LE expr
 {
-    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
 }
 
 /* Logical operations */
 | '!' expr
 {
-    $$ = new ExpressionTreeUnaryFunction (foam->GetParsingData (), *$1, $2);
+    $$ = new ExpressionTreeUnaryFunction (foam->GetParsingData (), $1, $2);
 }
 | expr AND expr
 {
-    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
 }
 | expr OR expr
 {
-    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
 }
 
 /* Other expressions */
@@ -829,7 +829,7 @@ expr
 }
 | expr '=' expr
 {
-    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), *$2, $1, $3);
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
 }
 | expr '?' expr ':' expr
 {
@@ -972,7 +972,7 @@ method_or_quantity_sign
 predefined_vertex_attribute
 : ORIGINAL INTEGER_VALUE
 {
-    $$ = new NameSemanticValue ($1->c_str (), $2);
+    $$ = new NameSemanticValue ($1, $2);
 }
 | FIXED
 {
@@ -980,7 +980,7 @@ predefined_vertex_attribute
 }
 | constraints integer_list
 {
-    $$ = new NameSemanticValue ($1->c_str (), $2);
+    $$ = new NameSemanticValue ($1, $2);
 }
 
 constraints
@@ -997,22 +997,22 @@ constraints
 user_attribute
 : ATTRIBUTE_ID INTEGER_VALUE
 {
-    $$ = new NameSemanticValue ($1->c_str(), $2);
+    $$ = new NameSemanticValue ($1, $2);
 }
 | ATTRIBUTE_ID REAL_VALUE
 {
     $$ =
-	new NameSemanticValue ($1->c_str(), $2);
+	new NameSemanticValue ($1, $2);
 }
 | ATTRIBUTE_ID '{' comma_integer_list '}'
 {
     $$ =
-	new NameSemanticValue ($1->c_str(), $3);
+	new NameSemanticValue ($1, $3);
 }
 | ATTRIBUTE_ID '{' comma_real_list '}'
 {
     $$ =
-	new NameSemanticValue ($1->c_str(), $3);
+	new NameSemanticValue ($1, $3);
 }
 
 edges
@@ -1069,19 +1069,19 @@ edge_attribute_list
 predefined_edge_attribute
 : ORIGINAL INTEGER_VALUE
 {
-    $$ = new NameSemanticValue ($1->c_str (), $2);
+    $$ = new NameSemanticValue ($1, $2);
 }
 | COLOR color_name
 {
-    $$ = new NameSemanticValue ($1->c_str (), $2);
+    $$ = new NameSemanticValue ($1, $2);
 }
 | constraints integer_list
 {
-    $$ = new NameSemanticValue ($1->c_str (), $2);
+    $$ = new NameSemanticValue ($1, $2);
 }
 | tension_or_density const_expr
 {
-    $$ = new NameSemanticValue ($1->c_str (), $2);
+    $$ = new NameSemanticValue ($1, $2);
 }
 | FIXED
 {
@@ -1126,15 +1126,15 @@ opt_sign_torus_model
 sign_torus_model
 : '+'
 {
-    $$ = Edge::LocationCharToNumber((*$1)[0]);
+    $$ = Edge::LocationCharToNumber($1[0]);
 }
 | '*'
 {
-    $$ = Edge::LocationCharToNumber((*$1)[0]);
+    $$ = Edge::LocationCharToNumber($1[0]);
 }
 | '-'
 {
-    $$ = Edge::LocationCharToNumber((*$1)[0]);
+    $$ = Edge::LocationCharToNumber($1[0]);
 }
 ;
 
@@ -1172,19 +1172,19 @@ face_attribute_list
 predefined_face_attribute
 : COLOR color_name
 {
-    $$ = new NameSemanticValue ($1->c_str (), $2);
+    $$ = new NameSemanticValue ($1, $2);
 }
 | constraints integer_list
 {
-    $$ = new NameSemanticValue ($1->c_str (), $2);
+    $$ = new NameSemanticValue ($1, $2);
 }
 | ORIGINAL INTEGER_VALUE
 {
-    $$ = new NameSemanticValue ($1->c_str (), $2);
+    $$ = new NameSemanticValue ($1, $2);
 }
 | tension_or_density const_expr
 {
-    $$ = new NameSemanticValue ($1->c_str (), $2);
+    $$ = new NameSemanticValue ($1, $2);
 }
 | FIXED
 {
@@ -1333,26 +1333,26 @@ body_attribute_list
 predefined_body_attribute
 : VOLUME number
 {
-    $$ = new NameSemanticValue ($1->c_str (), $2);
+    $$ = new NameSemanticValue ($1, $2);
 }
 | pressure_or_lagrange_multiplier number
 {
-    $$ = new NameSemanticValue ($1->c_str (), $2);
+    $$ = new NameSemanticValue ($1, $2);
 }
 | ORIGINAL INTEGER_VALUE
 {
     $$ =
-	new NameSemanticValue ($1->c_str (), $2);
+	new NameSemanticValue ($1, $2);
 }
 | VOLCONST number
 {
     $$ =
-	new NameSemanticValue ($1->c_str (), $2);
+	new NameSemanticValue ($1, $2);
 }
 | ACTUAL_VOLUME number
 {
     $$ =
-	new NameSemanticValue ($1->c_str (), $2);
+	new NameSemanticValue ($1, $2);
 }
 
 
@@ -1385,8 +1385,8 @@ size_t intToUnsigned (int i, const char* message)
 
 ExpressionTree* uminusTree (ParsingData& parsingData, ExpressionTree* expr)
 {
-    const string* uminusId = parsingData.CreateIdentifier ("-");
-    return new ExpressionTreeUnaryFunction (parsingData, *uminusId, expr);
+    const char* uminusId = parsingData.CreateIdentifier ("-");
+    return new ExpressionTreeUnaryFunction (parsingData, uminusId, expr);
 }
 
 // Local Variables:

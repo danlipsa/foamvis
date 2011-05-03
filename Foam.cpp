@@ -404,14 +404,13 @@ void Foam::addConstraintEdges ()
 	    boost::shared_ptr<Face> face = body->GetFace (0);
 	    if (! face->IsClosed ())
 	    {
-		cdbg << body->GetId () << endl;
 		const G3D::AABox& box = GetBoundingBox ();
 		boost::shared_ptr<Vertex> begin = 
 		    face->GetOrientedEdge (0)->GetBegin ();
 		boost::shared_ptr<Vertex> end = 
 		    face->GetOrientedEdge (
 			face->GetEdgeCount () - 1)->GetEnd ();
-		//if (begin->GetConstraintIndexes ()[0] == 4)
+		if (body->GetId () == 549)
 		{
 		    boost::shared_ptr<Edge> edge (
 			new ConstraintEdge (

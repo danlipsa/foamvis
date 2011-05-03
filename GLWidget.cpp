@@ -152,6 +152,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_boundingBoxShown (false),
       m_bodiesBoundingBoxesShown (false),
       m_axesShown (false),
+      m_standaloneElementsShown (true),
       m_bodySelector (AllBodySelector::Get ()),
       m_timeDisplacement (0.0),
       m_playMovie (false),
@@ -1438,13 +1439,16 @@ void GLWidget::displayEdges () const
 template<typename displayEdge>
 void GLWidget::displayStandaloneEdges (bool useZPos, double zPos) const
 {
-    glPushAttrib (GL_ENABLE_BIT);    
-    glDisable (GL_DEPTH_TEST);
-    const Foam::Edges& standaloneEdges =
-	GetCurrentFoam ().GetStandaloneEdges ();
-    BOOST_FOREACH (boost::shared_ptr<Edge> edge, standaloneEdges)
-	displayEdge (*this, DisplayElement::FOCUS, useZPos, zPos) (edge);
-    glPopAttrib ();
+    if (m_standaloneElementsShown)
+    {
+	glPushAttrib (GL_ENABLE_BIT);    
+	glDisable (GL_DEPTH_TEST);
+	const Foam::Edges& standaloneEdges =
+	    GetCurrentFoam ().GetStandaloneEdges ();
+	BOOST_FOREACH (boost::shared_ptr<Edge> edge, standaloneEdges)
+	    displayEdge (*this, DisplayElement::FOCUS, useZPos, zPos) (edge);
+	glPopAttrib ();
+    }
 }
 
 void GLWidget::displayEdgesNormal (ViewNumber::Enum viewNumber) const
@@ -1631,9 +1635,12 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
 
 void GLWidget::displayStandaloneFaces () const
 {
-    const Foam::Faces& faces = GetCurrentFoam ().GetStandaloneFaces ();
-    displayFacesContour (faces);
-    displayFacesInterior (faces);
+    if (m_standaloneElementsShown)
+    {
+	const Foam::Faces& faces = GetCurrentFoam ().GetStandaloneFaces ();
+	displayFacesContour (faces);
+	displayFacesInterior (faces);
+    }
 }
 
 void GLWidget::displayFacesContour (const Foam::Faces& faces) const
@@ -2364,6 +2371,7 @@ void GLWidget::ToggledDirectionalLightEnabled (bool checked)
     update ();
 }
 
+
 void GLWidget::ToggledZeroedPressureShown (bool checked)
 {
     m_zeroedPressureShown = checked;
@@ -2428,6 +2436,13 @@ void GLWidget::ToggledAxesShown (bool checked)
     m_axesShown = checked;
     update ();
 }
+
+void GLWidget::ToggledStandaloneElementsShown (bool checked)
+{
+    m_standaloneElementsShown = checked;
+    update ();
+}
+
 
 void GLWidget::ToggledTimeStepShown (bool checked)
 {

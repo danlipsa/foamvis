@@ -95,9 +95,8 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
     }
     else
     {
-	string* s = yyextra->CreateIdentifier (yytext);
-	yylval->m_id = s;
-	const char* id = s->c_str ();
+	const char* id = yyextra->CreateIdentifier (yytext);
+	yylval->m_id = id;
 	if (yyextra->IsAttribute (id))
 	    return parser::token::ATTRIBUTE_ID;
 	else if (yyextra->IsMethodOrQuantity (id))

@@ -37,6 +37,10 @@ private:
     ExpressionTree* m_expressionTree;
 };
 
+// Static fields
+// ======================================================================
+const char* ConstraintEdge::AXIS_NAME[] = {"x", "y"};
+
 
 // Methods
 // ======================================================================
@@ -78,35 +82,47 @@ G3D::Vector3 ConstraintEdge::computePoint (size_t i) const
 double ConstraintEdge::computeValue (
     size_t axis, const G3D::Vector3& current) const
 {
-    const char* axisName[] = {"x", "y"};
     size_t other[] = {1, 0};
     boost::uintmax_t maxIter (100);
-    mt::eps_tolerance<double> tol(numeric_limits<double>::digits - 2);
+    mt::eps_tolerance<double> tol(numeric_limits<double>::digits - 10);
     size_t constraintIndex = GetBegin ()->GetConstraintIndexes ()[0] - 1;
     ExpressionTree* constraint = m_parsingData->GetConstraint (constraintIndex);
     double currentX = current[axis];
-    m_parsingData->SetVariable (axisName[axis], currentX);
+    m_parsingData->SetVariable (AXIS_NAME[axis], currentX);
+
+    m_parsingData->UnsetVariable (AXIS_NAME[other[axis]]);
+    ExpressionTree* simplifiedConstraint = constraint->Simplify ();
+    cdbg << simplifiedConstraint->ToString () << endl << endl;
+    delete simplifiedConstraint;
+
+
     double currentY = current[other[axis]];
     double min = m_box.low ()[other[axis]];
     double max = m_box.high ()[other[axis]];
     double firstY;
-    if (min < currentY)
-	firstY = mt::bisect (
-	    ConstraintEvaluator (
-		axisName[other[axis]], m_parsingData, constraint),
-	    min, currentY, tol, maxIter).first;
-    else
-	firstY = -numeric_limits<double>::max ();
+    ConstraintEvaluator evaluator (
+	AXIS_NAME[other[axis]], m_parsingData, constraint);
+    try
+    {
+	firstY = mt::bisect (evaluator, min, currentY, tol, maxIter).first;
+    }
+    catch (exception& err)
+    {
+	cdbg << min << " " << currentY << " " << err.what () << endl;
+	cdbg << evaluator (min) << ", " << evaluator (currentY) << endl;
+	firstY = -numeric_limits<double>::max ();	
+    }
     double secondY;
-    if (currentY < max)
-	secondY = mt::bisect (
-	    ConstraintEvaluator (
-		axisName[other[axis]], m_parsingData, constraint),
-	    currentY, max, tol, maxIter).first;
-    else
+    try 
+    {
+	secondY = mt::bisect (evaluator, currentY, max, tol, maxIter).first;
+    }
+    catch (exception& err)
+    {
+	cdbg << currentY << " " << max << " " << err.what () << endl;
+	cdbg << evaluator (currentY) << ", " << evaluator (max) << endl;
 	secondY = numeric_limits<double>::max ();
+    }
     double y = (currentY - firstY < secondY - currentY) ? firstY : secondY;
-    cdbg << min << " " << firstY << " " << currentY  << " " 
-	 << secondY << " " << max << endl;
     return y;
 }

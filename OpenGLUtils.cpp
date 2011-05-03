@@ -136,10 +136,12 @@ G3D::Vector3 gluUnProject (
     glGetDoublev (GL_PROJECTION_MATRIX, proj);
     GLint view[4];
     glGetIntegerv (GL_VIEWPORT, view);
-    GLfloat zScreenCoord = 0;
+    GLfloat zScreenCoord;
     if (zOperation == GluUnProjectZOperation::READ)
 	glReadPixels (screenCoord.x, screenCoord.y, 1, 1, 
 		      GL_DEPTH_COMPONENT, GL_FLOAT, &zScreenCoord);
+    else
+	zScreenCoord = 0;
     double x, y, z;
     gluUnProject (screenCoord.x, screenCoord.y, zScreenCoord, 
 		  model, proj, view, 

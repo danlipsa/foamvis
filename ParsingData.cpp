@@ -20,7 +20,7 @@
 /**
  * Pretty prints a variable. Used by a for_each algorithm.
  */
-struct printVariable : public unary_function<pair<const char*, double>, void>
+struct printVariable
 {
     /**
      * Constructs a printVariable object
@@ -31,10 +31,11 @@ struct printVariable : public unary_function<pair<const char*, double>, void>
      * Pretty prints a variable
      * @param nameValue a name-value pair
      */
-    void operator() (pair<const char*, double> nameValue)
+    void operator () (pair<string, double> nameValue)
     {
         m_ostr << nameValue.first << ": " << nameValue.second << endl;
     }
+
 private:
     /**
      * Stream where the variable will be printed.
@@ -58,14 +59,6 @@ inline void deleteIdentifier (pair<const char*, string*> pair)
 }
 
 
-ostream& operator<< (ostream& ostr, ParsingData& pd)
-{
-    ostr << "Variables: " << endl;
-    for_each (pd.m_variables.begin (), pd.m_variables.end (),
-              printVariable (ostr));
-    return ostr;
-}
-
 const char* ParsingData::IMPLEMENTED_METHODS[] = 
 {
     "edge_area",
@@ -88,12 +81,13 @@ ParsingData::ParsingData () :
 	{"*", multiplies<double> ()},
 	{"/", divides<double> ()},
 	{"^", powf},
-	{"=", minus<double> ()},
+	{"=", minus<double> ()}, // an equation is the same a a function = 0
 	{"atan2", atan2f},
 	{">", greater<double> ()},
 	{">=", greater_equal<double> ()},
 	{"<", less<double> ()},
-	{"<=", less_equal<double> ()}
+	{"<=", less_equal<double> ()},
+	{"&&", logical_and<bool> ()}
     };
     UnaryFunctionInformation UNARY_FUNCTION_INFORMATION[] =
     {
@@ -114,7 +108,6 @@ ParsingData::ParsingData () :
 
 ParsingData::~ParsingData ()
 {
-    for_each (m_identifiers.begin (), m_identifiers.end (), deleteIdentifier);
     for_each (m_constraints.begin (), m_constraints.end (), 
 	      bl::delete_ptr ());
 }
@@ -124,6 +117,12 @@ double ParsingData::GetVariableValue (const char* id)
     Variables::iterator it = m_variables.find (id);
     RuntimeAssert (it != m_variables.end (), "Undeclared variable: ", id);
     return it->second;
+}
+
+bool ParsingData::IsVariableSet (const char* id)
+{
+    Variables::iterator it = m_variables.find (id);
+    return it != m_variables.end ();
 }
 
 ParsingData::UnaryFunction ParsingData::GetUnaryFunction (const char* name)
@@ -144,18 +143,10 @@ ParsingData::BinaryFunction ParsingData::GetBinaryFunction (const char* name)
 
 
 
-string* ParsingData::CreateIdentifier(const char* id)
+const char* ParsingData::CreateIdentifier(const char* id)
 {
-    Identifiers::iterator it = m_identifiers.find (id);
-    if (it == m_identifiers.end ())
-    {
-        string* stringId = new string(id);
-        // do not store id, as it comes from the parser and it will go away.
-        m_identifiers[stringId->c_str ()] = stringId;
-        return stringId;
-    }
-    else
-        return it->second;
+    pair<Identifiers::iterator, bool> p = m_identifiers.insert (id);
+    return p.first->c_str ();
 }
 
 void ParsingData::SetVertex (size_t i, double x, double y, double z,
@@ -209,4 +200,20 @@ void ParsingData::SetConstraint (size_t i, ExpressionTree* constraint)
     if (i >= m_constraints.size ())
 	m_constraints.resize (i+1);
     m_constraints[i] = constraint;
+}
+
+string ParsingData::ToString () const
+{
+    ostringstream ostr;
+    ostr << "Variables: " << endl;
+    for_each (m_variables.begin (), m_variables.end (),
+              printVariable (ostr));
+    return ostr.str ();
+}
+
+void ParsingData::UnsetVariable (const char* name)
+{
+    Variables::iterator it = m_variables.find (name);
+    if (it != m_variables.end ())
+	m_variables.erase (it);
 }

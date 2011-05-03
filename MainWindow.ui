@@ -260,7 +260,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="currentIndex">
-              <number>4</number>
+              <number>3</number>
              </property>
              <widget class="QWidget" name="tabShow">
               <attribute name="title">
@@ -860,6 +860,16 @@
                 <widget class="QCheckBox" name="checkBoxZeroedPressureShown">
                  <property name="text">
                   <string>Zeroed pressure</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QCheckBox" name="checkBoxStandaloneElementsShown">
+                 <property name="text">
+                  <string>Standalone</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -1631,6 +1641,7 @@
     <slot>ToggledCenterPathTubeUsed(bool)</slot>
     <slot>ToggledCenterPathLineUsed(bool)</slot>
     <slot>ToggledTimeStepShown(bool)</slot>
+    <slot>ToggledStandaloneElementsShown(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1915,7 +1926,7 @@
      <y>34</y>
     </hint>
     <hint type="destinationlabel">
-     <x>604</x>
+     <x>622</x>
      <y>550</y>
     </hint>
    </hints>
@@ -1943,7 +1954,7 @@
    <slot>SelectionChangedHistogram()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>604</x>
+     <x>622</x>
      <y>550</y>
     </hint>
     <hint type="destinationlabel">
@@ -2845,6 +2856,22 @@
     <hint type="destinationlabel">
      <x>1024</x>
      <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxStandaloneElementsShown</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledStandaloneElementsShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>924</x>
+     <y>222</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>693</x>
+     <y>244</y>
     </hint>
    </hints>
   </connection>

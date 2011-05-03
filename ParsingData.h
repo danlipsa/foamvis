@@ -23,7 +23,7 @@ public:
     /**
      * Variable type
      */
-    typedef map<const char*, double, LessThanNoCase> Variables;
+    typedef map<string, double, LessThanNoCase> Variables;
     /**
      * Unary function type
      */
@@ -35,17 +35,15 @@ public:
     /**
      * Unary functions type
      */
-    typedef map<const char*, UnaryFunction, 
-		LessThanNoCase> UnaryFunctions;
+    typedef map<string, UnaryFunction, LessThanNoCase> UnaryFunctions;
     /**
      * Binary functions type
      */
-    typedef map<const char*, BinaryFunction, 
-                     LessThanNoCase> BinaryFunctions;
+    typedef map<string, BinaryFunction, LessThanNoCase> BinaryFunctions;
     /**
      * Identifiers type
      */
-    typedef map<const char*, string*, LessThanNoCase> Identifiers;
+    typedef set<string, LessThanNoCase> Identifiers;
     typedef vector< boost::shared_ptr<Vertex> > Vertices;
     typedef vector< boost::shared_ptr<Edge> > Edges;
     typedef vector< boost::shared_ptr<Face> > Faces;
@@ -79,7 +77,7 @@ public:
      * @param id string from the lexer
      * @return a string pointer which is stored in ParsingData object
      */
-    string* CreateIdentifier(const char* id);
+    const char* CreateIdentifier(const char* id);
     /**
      * Returns the binary function with the name supplied by the parameter
      * @param name name of the function to be retrieved
@@ -116,7 +114,12 @@ public:
     {
 	return GetVariableValue (name.c_str ());
     }
-    
+    bool IsVariableSet (const char* name);
+    bool IsVariableSet (const string& name)
+    {
+	return IsVariableSet (name.c_str ());
+    }
+
     /**
      * Returns the unary function with the name supplied by the parameter
      * @param name name of the function to be retrieved
@@ -207,6 +210,7 @@ public:
     {
 	SetVariable (id.c_str (), value);
     }
+    void UnsetVariable (const char* name);
 
     /**
      * Stores an Edge object in the Foam object at a certain index
@@ -250,12 +254,7 @@ public:
     }
 
 public:
-    /**
-     * Pretty prints the ParsingData object
-     * @param ostr output stream where to print the object
-     * @param pd object to be printed
-     */    
-    friend ostream& operator<< (ostream& ostr, ParsingData& pd);
+    string ToString () const;
 
 private:
     struct BinaryFunctionInformation
@@ -302,8 +301,8 @@ private:
      * Identifiers
      */
     Identifiers m_identifiers;
-    set<const char*, LessThanNoCase> m_attributes;
-    set<const char*, LessThanNoCase> m_methodOrQuantity;
+    set<string, LessThanNoCase> m_attributes;
+    set<string, LessThanNoCase> m_methodOrQuantity;
     Constraints m_constraints;
     bool m_spaceSignificant;
     size_t m_parenthesisCount;
@@ -312,6 +311,18 @@ private:
 private:
     static const char* IMPLEMENTED_METHODS[];
 };
+
+/**
+ * Pretty prints the ParsingData object
+ * @param ostr output stream where to print the object
+ * @param d object to be printed
+ */    
+inline ostream& operator<< (ostream& ostr, const ParsingData& d)
+{
+    return ostr << d.ToString ();
+}
+
+
 
 /**
  * Stores semantic values
