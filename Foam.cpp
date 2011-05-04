@@ -220,10 +220,10 @@ void Foam::SetBody (size_t i, vector<int>& faces,
 			       m_attributesInfo[DefineAttribute::BODY]);
     if (body->HasAttribute (BodyAttributeIndex::ORIGINAL))
     {
-	i = body->GetAttribute<
+	size_t newId = body->GetAttribute<
 	IntegerAttribute, IntegerAttribute::value_type> (
 	    BodyAttributeIndex::ORIGINAL) - 1;
-	resizeAllowIndex (&m_bodies, i);
+	body->SetId (newId);
     }
     m_bodies[i] = body;
 }
@@ -429,9 +429,9 @@ void Foam::addConstraintEdges ()
 	    if (! face->IsClosed ())
 	    {
 		const G3D::AABox& box = GetBoundingBox ();
-		boost::shared_ptr<Vertex> begin = 
-		    face->GetOrientedEdge (0)->GetBegin ();
 		boost::shared_ptr<Vertex> end = 
+		    face->GetOrientedEdge (0)->GetBegin ();
+		boost::shared_ptr<Vertex> begin = 
 		    face->GetOrientedEdge (
 			face->GetEdgeCount () - 1)->GetEnd ();
 		boost::shared_ptr<Edge> edge (

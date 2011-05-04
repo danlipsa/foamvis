@@ -60,7 +60,11 @@ public:
     {
 	return m_id;
     }    
-    
+    void SetId (size_t id)
+    {
+	m_id = id;
+    }
+
     string GetStringId () const;
 
     ElementStatus::Enum GetDuplicateStatus () const
