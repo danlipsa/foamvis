@@ -89,6 +89,7 @@ public:
     void GetEdgeSet (EdgeSet* edgeSet) const;
 
     bool IsStandalone () const;
+    QColor GetColor (const QColor& defaultColor) const;
 
 public:
     static pair< G3D::Vector3, boost::shared_ptr<OrientedFace> > 

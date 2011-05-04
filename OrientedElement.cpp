@@ -6,22 +6,17 @@
  */
 
 #include "OrientedElement.h"
-#include "ColoredElement.h"
+#include "Element.h"
 
 string OrientedElement::GetStringId () const
 {
     ostringstream ostr;
     ostr << (m_reversed ? "R" : "N") 
-	 << GetColoredElement ()->GetStringId ();
+	 << GetElement ()->GetStringId ();
     return ostr.str ();
 }
 
 size_t OrientedElement::GetId () const
 {
-    return GetColoredElement ()->GetId ();
-}
-
-QColor OrientedElement::GetColor (const QColor& defaultColor) const
-{
-    return GetColoredElement ()->GetColor (defaultColor);
+    return GetElement ()->GetId ();
 }

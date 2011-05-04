@@ -114,13 +114,13 @@ private:
 // Methods
 // ======================================================================
 Face::Face (const boost::shared_ptr<Edge>& edge, size_t id) :
-    ColoredElement (id, ElementStatus::ORIGINAL)
+    Element (id, ElementStatus::ORIGINAL)
 {
     m_orientedEdges.push_back (boost::make_shared<OrientedEdge> (edge, false));
 }
 
 Face::Face (const Face& original) :
-    ColoredElement (original),
+    Element (original),
     m_bodiesPartOf (original.m_bodiesPartOf),
     m_normal (original.m_normal),
     m_center (original.m_center)
@@ -132,7 +132,7 @@ Face::Face (const Face& original) :
 Face::Face (const vector<int>& edgeIndexes,
 	    const vector<boost::shared_ptr<Edge> >& edges, 
 	    size_t id, ElementStatus::Enum duplicateStatus) :
-    ColoredElement (id, duplicateStatus)
+    Element (id, duplicateStatus)
 {
     m_bodiesPartOf.reserve (2);
     m_orientedEdges.resize (edgeIndexes.size ());
@@ -371,4 +371,13 @@ void Face::AddEdge (boost::shared_ptr<Edge> edge)
 {
     boost::shared_ptr<OrientedEdge> oe (new OrientedEdge (edge, false));
     m_orientedEdges.push_back (oe);
+}
+
+QColor Face::GetColor (const QColor& defaultColor) const
+{
+    if (HasAttribute (FaceAttributeIndex::COLOR))
+	return Color::GetValue (*boost::static_pointer_cast<ColorAttribute> (
+				    (*m_attributes)[EdgeAttributeIndex::COLOR]));
+    else
+	return defaultColor;
 }

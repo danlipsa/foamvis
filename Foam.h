@@ -265,11 +265,6 @@ public:
 public:
     static const double Z_COORDINATE_2D = 0.0;
 
-    static const size_t BODY_PRESSURE_INDEX = 0;
-    static const size_t BODY_VOLUME_INDEX = 1;
-    static const size_t CONSTRAINTS_INDEX = 0;
-    
-
 public:
     /**
      * Pretty print the Foam object

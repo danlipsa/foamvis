@@ -84,7 +84,7 @@ Body::Body(
 
 double Body::GetPressure () const
 {
-    return GetRealAttribute (Foam::BODY_PRESSURE_INDEX);
+    return GetRealAttribute (BodyAttributeIndex::PRESSURE);
 }
 
 void Body::calculatePhysicalVertices (

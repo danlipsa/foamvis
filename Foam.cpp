@@ -108,14 +108,14 @@ void Foam::AddDefaultBodyAttributes ()
     size_t index = infos->AddAttributeInfoLoad (
         ParsingDriver::GetKeywordString(
 	    parser::token::LAGRANGE_MULTIPLIER), ac);
-    RuntimeAssert (index == BODY_PRESSURE_INDEX,
-		   "Pressure attribute index is ", index);
+    RuntimeAssert (index == BodyAttributeIndex::PRESSURE,
+		   "Pressure body attribute index is ", index);
 
     ac.reset (new RealAttributeCreator());
     index = infos->AddAttributeInfoLoad (
         ParsingDriver::GetKeywordString(parser::token::VOLUME), ac);
-    RuntimeAssert (index == BODY_VOLUME_INDEX,
-		   "Volume attribute index is ", index);
+    RuntimeAssert (index == BodyAttributeIndex::VOLUME,
+		   "Volume body attribute index is ", index);
 
     ac.reset (new IntegerAttributeCreator ());
     infos->AddAttributeInfo (
@@ -136,10 +136,15 @@ void Foam::AddDefaultFaceAttributes ()
 {
     using EvolverData::parser;
     AttributesInfo* infos = &m_attributesInfo[DefineAttribute::FACE];
-    ColoredElement::AddDefaultAttributes (infos);
-
     boost::shared_ptr<AttributeCreator> ac;
-    
+
+    ac.reset (new ColorAttributeCreator ());
+    size_t index = infos->AddAttributeInfoLoad (
+        ParsingDriver::GetKeywordString(parser::token::COLOR), ac);
+    RuntimeAssert (
+	index == FaceAttributeIndex::COLOR,
+	"Color face attribute index is ", FaceAttributeIndex::COLOR);
+
     ac.reset (new IntegerVectorAttributeCreator());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
@@ -158,12 +163,21 @@ void Foam::AddDefaultEdgeAttributes ()
 {
     using EvolverData::parser;
     AttributesInfo* infos = &m_attributesInfo[DefineAttribute::EDGE];
-    ColoredElement::AddDefaultAttributes (infos);
     boost::shared_ptr<AttributeCreator> ac;
 
+    ac.reset (new ColorAttributeCreator ());
+    size_t index = infos->AddAttributeInfoLoad (
+	ParsingDriver::GetKeywordString(parser::token::COLOR), ac);
+    RuntimeAssert (
+	index == EdgeAttributeIndex::COLOR, 
+	"Color edge attribute index is ", index);
+
     ac.reset (new IntegerVectorAttributeCreator());
-    infos->AddAttributeInfoLoad (
+    index = infos->AddAttributeInfoLoad (
         ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
+    RuntimeAssert (
+	index == EdgeAttributeIndex::CONSTRAINTS, 
+	"Constraints edge attribute index is ", index);
 
     ac.reset (new IntegerAttributeCreator ());
     infos->AddAttributeInfo (
@@ -184,7 +198,8 @@ void Foam::AddDefaultVertexAttributes ()
     ac.reset (new IntegerVectorAttributeCreator());
     size_t index = infos->AddAttributeInfoLoad (
         ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
-    RuntimeAssert (index == CONSTRAINTS_INDEX, "Constraints index is ", index);
+    RuntimeAssert (index == VertexAttributeIndex::CONSTRAINTS, 
+		   "Constraints vertex attribute index is ", index);
 
     ac.reset (new IntegerAttributeCreator());
     infos->AddAttributeInfo (

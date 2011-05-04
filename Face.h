@@ -7,7 +7,7 @@
 #ifndef __FACE_H__
 #define __FACE_H__
 
-#include "ColoredElement.h"
+#include "Element.h"
 #include "Comparisons.h"
 #include "BodyIndex.h"
 
@@ -22,7 +22,7 @@ class OOBox;
 /**
  * A Face is a oriented list of edges.
  */
-class Face : public ColoredElement
+class Face : public Element
 {
 public:
     typedef vector< boost::shared_ptr<OrientedEdge> > OrientedEdges;
@@ -119,6 +119,7 @@ public:
     void UpdateStandaloneFacePartOf (boost::shared_ptr<Face> face);
     void CalculateCenter (bool debug = false);
     void CalculatePerimeter ();
+    QColor GetColor (const QColor& defaultColor) const;
 
 private:
     boost::shared_ptr<Face> createDuplicate (

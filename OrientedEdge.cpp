@@ -20,7 +20,7 @@ OrientedEdge::OrientedEdge (
 
 boost::shared_ptr<Edge> OrientedEdge::GetEdge () const 
 {
-    return boost::static_pointer_cast<Edge> (GetColoredElement());
+    return boost::static_pointer_cast<Edge> (GetElement());
 }
 
 void OrientedEdge::SetEdge (boost::shared_ptr<Edge>  edge) 

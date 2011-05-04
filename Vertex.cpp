@@ -137,5 +137,5 @@ bool Vertex::fuzzyEq (const Vertex& other) const
 
 const vector<int>& Vertex::GetConstraintIndexes () const
 {
-    return GetIntegerArrayAttribute (Foam::CONSTRAINTS_INDEX);
+    return GetIntegerArrayAttribute (VertexAttributeIndex::CONSTRAINTS);
 }

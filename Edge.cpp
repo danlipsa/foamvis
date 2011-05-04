@@ -4,6 +4,7 @@
  * 
  * Implementation of the Edge class
  */
+#include "Attribute.h"
 #include "AttributeCreator.h"
 #include "AttributeInfo.h"
 #include "Debug.h"
@@ -24,7 +25,7 @@ Edge::Edge (const boost::shared_ptr<Vertex>& begin,
 	    const boost::shared_ptr<Vertex>& end,
 	    const G3D::Vector3int16& endTranslation, 
 	    size_t id, ElementStatus::Enum duplicateStatus):
-    ColoredElement(id, duplicateStatus),
+    Element(id, duplicateStatus),
     m_begin (begin), m_end (end),
     m_endTranslation (endTranslation), 
     m_torusClipped (0)
@@ -32,14 +33,14 @@ Edge::Edge (const boost::shared_ptr<Vertex>& begin,
 }
 
 Edge::Edge (const boost::shared_ptr<Vertex>& begin, size_t id) :
-    ColoredElement (id, ElementStatus::ORIGINAL),
+    Element (id, ElementStatus::ORIGINAL),
     m_begin (begin),
     m_torusClipped (0)
 {
 }
 
 Edge::Edge (const Edge& o) : 
-    ColoredElement (o),
+    Element (o),
     m_begin (o.GetBegin ()), m_end (o.GetEnd ()),
     m_endTranslation (o.GetEndTranslation ()),
     m_facesPartOf (o.m_facesPartOf),
@@ -291,8 +292,18 @@ G3D::Vector3 Edge::GetPoint (size_t i) const
 
 const vector<int>& Edge::GetConstraintIndexes () const
 {
-    return GetIntegerArrayAttribute (Foam::CONSTRAINTS_INDEX);
+    return GetIntegerArrayAttribute (EdgeAttributeIndex::CONSTRAINTS);
 }
+
+QColor Edge::GetColor (const QColor& defaultColor) const
+{
+    if (HasAttribute (FaceAttributeIndex::COLOR))
+	return Color::GetValue (*boost::static_pointer_cast<ColorAttribute> (
+				    (*m_attributes)[EdgeAttributeIndex::COLOR]));
+    else
+	return defaultColor;
+}
+
 
 // Static and Friends Methods
 // ======================================================================

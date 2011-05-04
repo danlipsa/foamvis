@@ -7,7 +7,7 @@
 #ifndef __EDGE_H__
 #define __EDGE_H__
 
-#include "ColoredElement.h"
+#include "Element.h"
 #include "OrientedFaceIndex.h"
 class AttributesInfo;
 class Foam;
@@ -18,7 +18,7 @@ class Vertex;
 /**
  * An edge is an object that stores a begin and an end vertex
  */
-class Edge : public ColoredElement
+class Edge : public Element
 {
 public:
     /**
@@ -152,6 +152,7 @@ public:
 	return 2;
     }
     virtual G3D::Vector3 GetPoint (size_t i) const;
+    QColor GetColor (const QColor& defaultColor) const;
 
 public:
     static short LocationCharToNumber (char sign);    

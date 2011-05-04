@@ -9,7 +9,7 @@
 #define __ORIENTED_ELEMENT_H__
 
 #include "ParsingEnums.h"
-class ColoredElement;
+class Element;
 
 /**
  * Base class for OrientedFace and OrientedEdge
@@ -18,18 +18,18 @@ class OrientedElement
 {
 public:
     OrientedElement (
-	boost::shared_ptr<ColoredElement> coloredElement, bool reversed) :
-	m_coloredElement (coloredElement), m_reversed (reversed) {}
+	boost::shared_ptr<Element> element, bool reversed) :
+	m_element (element), m_reversed (reversed) {}
 
     OrientedElement () : m_reversed(false) {}
 
-    boost::shared_ptr<ColoredElement> GetColoredElement () const
+    boost::shared_ptr<Element> GetElement () const
     {
-	return m_coloredElement;
+	return m_element;
     }
-    void SetElement (boost::shared_ptr<ColoredElement> coloredElement)
+    void SetElement (boost::shared_ptr<Element> element)
     {
-	m_coloredElement = coloredElement;
+	m_element = element;
     }
 
     size_t GetId () const;
@@ -40,7 +40,7 @@ public:
 
     /**
      * Is  this  in the  same  order  or  reversed compared  with  the
-     * ColoredElement associated with  it.  @return true for reversed,
+     * Element associated with  it.  @return true for reversed,
      * false otherwise
      */
     bool IsReversed () const
@@ -48,13 +48,10 @@ public:
 	return m_reversed;
     }
 
-    QColor GetColor (const QColor& defaultColor) const;
-
-
     string GetStringId () const;
 
 private:
-    boost::shared_ptr<ColoredElement> m_coloredElement;
+    boost::shared_ptr<Element> m_element;
     bool m_reversed;
 };
 

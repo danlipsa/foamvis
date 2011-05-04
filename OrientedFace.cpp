@@ -19,7 +19,7 @@ OrientedFace::OrientedFace(const boost::shared_ptr<Face>& face, bool reversed) :
 
 boost::shared_ptr<Face> OrientedFace::GetFace () const
 {
-    return boost::static_pointer_cast<Face>(GetColoredElement());
+    return boost::static_pointer_cast<Face>(GetElement());
 }
 
 void OrientedFace::SetFace (const boost::shared_ptr<Face>& face)
@@ -153,4 +153,9 @@ void OrientedFace::GetEdgeSet (EdgeSet* edgeSet) const
 bool OrientedFace::IsStandalone () const
 {
     return GetFace ()->IsStandalone ();
+}
+
+QColor OrientedFace::GetColor (const QColor& defaultColor) const
+{
+    return GetFace ()->GetColor (defaultColor);
 }

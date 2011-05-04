@@ -331,6 +331,40 @@ struct WindowSize
 };
 
 
+struct BodyAttributeIndex
+{
+    enum Enum
+    {
+	PRESSURE,
+	VOLUME
+    };
+};
+
+struct FaceAttributeIndex
+{
+    enum Enum
+    {
+	COLOR
+    };
+};
+
+struct EdgeAttributeIndex
+{
+    enum Enum
+    {
+	COLOR,
+	CONSTRAINTS
+    };
+};
+
+struct VertexAttributeIndex
+{
+    enum Enum
+    {
+	CONSTRAINTS
+    };
+};
+
 #endif //__ENUMS_H__
 
 // Local Variables:
