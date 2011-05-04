@@ -12,6 +12,7 @@
 #include "Face.h"
 #include "ParsingData.h"
 #include "QuadraticEdge.h"
+#include "Utils.h"
 #include "Vertex.h"
 
 // Private Classes
@@ -153,8 +154,7 @@ void ParsingData::SetVertex (size_t i, double x, double y, double z,
 			     vector<NameSemanticValue*>& attributes,
 			     const AttributesInfo& attributesInfo) 
 {
-    if (i >= m_vertices.size ())
-        m_vertices.resize (i + 1);
+    resizeAllowIndex (&m_vertices, i);
     boost::shared_ptr<Vertex> vertex = boost::make_shared<Vertex> (x, y ,z, i);
     if (&attributes != 0)
         vertex->StoreAttributes (attributes, attributesInfo);
@@ -168,8 +168,7 @@ void ParsingData::SetEdge (size_t i,
 			   const AttributesInfo& attributesInfo,
 			   bool isQuadratic)
 {
-    if (i >= m_edges.size ())
-        m_edges.resize (i + 1);
+    resizeAllowIndex (&m_edges, i);
     boost::shared_ptr<Edge> edge;
     if (isQuadratic)
 	edge.reset (new QuadraticEdge (
@@ -187,8 +186,7 @@ void ParsingData::SetFace (size_t i,  vector<int>& edges,
 			   vector<NameSemanticValue*>& attributes,
 			   const AttributesInfo& attributesInfo)
 {
-    if (i >= m_faces.size ())
-        m_faces.resize (i + 1);
+    resizeAllowIndex (&m_faces, i);
     boost::shared_ptr<Face> face = boost::make_shared<Face> (edges, m_edges, i);
     if (&attributes != 0)
         face->StoreAttributes (attributes, attributesInfo);
@@ -197,8 +195,7 @@ void ParsingData::SetFace (size_t i,  vector<int>& edges,
 
 void ParsingData::SetConstraint (size_t i, ExpressionTree* constraint)
 {
-    if (i >= m_constraints.size ())
-	m_constraints.resize (i+1);
+    resizeAllowIndex (&m_constraints, i);
     m_constraints[i] = constraint;
 }
 

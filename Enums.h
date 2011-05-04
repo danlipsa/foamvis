@@ -336,7 +336,8 @@ struct BodyAttributeIndex
     enum Enum
     {
 	PRESSURE,
-	VOLUME
+	VOLUME,
+	ORIGINAL
     };
 };
 

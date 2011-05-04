@@ -142,7 +142,7 @@ inline ostream& operator<< (ostream& ostr, const Vertex& v)
 inline ostream& operator<< (ostream& ostr,
 			    const boost::shared_ptr<Vertex>& vertex)
 {
-    return ostr << *vertex << "useCount=" << vertex.use_count ();
+    return ostr << *vertex << " useCount=" << vertex.use_count ();
 }
 
 size_t hash_value (Vertex const& v);

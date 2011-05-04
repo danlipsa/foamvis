@@ -93,8 +93,7 @@ Element::Element (const Element& other) :
 
 void Element::SetAttribute (size_t i, Attribute* attribute)
 {
-    if (i >= m_attributes.size ())
-        m_attributes.resize (i + 1);
+    resizeAllowIndex (&m_attributes, i);
     boost::shared_ptr<Attribute> p(attribute);
     m_attributes[i] = p;
 }
@@ -135,38 +134,20 @@ string Element::GetStringId () const
     return ostr.str ();
 }
 
-double Element::GetRealAttribute (size_t i) const
+
+template<typename T, typename TValue>
+TValue Element::GetAttribute (size_t i) const
 {
     RuntimeAssert (HasAttribute (i),
 		   "Attribute does not exist at index ", i, 
 		   " for element ", GetId ());
-    return *boost::static_pointer_cast<RealAttribute> (m_attributes[i]);
+    return *boost::static_pointer_cast<T> (m_attributes[i]);
 }
-
-const vector<int>& Element::GetIntegerArrayAttribute (size_t i) const
-{
-    RuntimeAssert (HasAttribute (i),
-		   "Attribute does not exist at index ", i, 
-		   " for element ", GetId ());
-    return *boost::static_pointer_cast<IntegerArrayAttribute> (
-	m_attributes[i]);
-}
-
-QColor Element::GetColorAttribute (size_t i) const
-{
-    RuntimeAssert (HasAttribute (i),
-		   "Attribute does not exist at index ", i, 
-		   " for element ", GetId ());
-    return Color::GetValue (*boost::static_pointer_cast<ColorAttribute> (
-				m_attributes[i]));
-}
-
 
 template<typename T, typename TValue>
 void Element::SetAttribute (size_t i, TValue value)
 {
-    if (i >= m_attributes.size ())
-        m_attributes.resize (i + 1);
+    resizeAllowIndex (&m_attributes, i);
     boost::shared_ptr<T> attribute = 
 	boost::static_pointer_cast<T> (m_attributes[i]);
     if (attribute == 0)
@@ -193,3 +174,7 @@ bool Element::HasAttributes () const
 
 template void Element::SetAttribute<RealAttribute, double>(unsigned long, double);
 template void Element::SetAttribute<ColorAttribute, Color::Enum>(unsigned long, Color::Enum);
+template double Element::GetAttribute<RealAttribute, double>(unsigned long) const;
+template std::vector<int, std::allocator<int> > const& Element::GetAttribute<IntegerArrayAttribute, std::vector<int, std::allocator<int> > const&>(unsigned long) const;
+template Color::Enum Element::GetAttribute<ColorAttribute, Color::Enum>(unsigned long) const;
+template int Element::GetAttribute<IntegerAttribute, int>(unsigned long) const;

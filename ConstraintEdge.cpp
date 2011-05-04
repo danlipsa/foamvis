@@ -84,6 +84,12 @@ G3D::Vector3 ConstraintEdge::computePoint (size_t i) const
 double ConstraintEdge::computeValue (
     size_t axis, const G3D::Vector3& current) const
 {
+    if (GetBegin ()->GetId () == 411)
+    {
+	cdbg << "problem";
+    }
+    if (*GetBegin () == *GetEnd ())
+	return current[axis];
     size_t other[] = {1, 0};
     boost::uintmax_t maxIter (100);
     mt::eps_tolerance<double> tol(numeric_limits<double>::digits - 3);
@@ -107,23 +113,29 @@ double ConstraintEdge::computeValue (
 	AXIS_NAME[other[axis]], m_parsingData, constraint);
     try
     {
-	firstY = mt::bisect (evaluator, min, currentY, tol, maxIter).first;
+	if (min < currentY)
+	    firstY = mt::bisect (evaluator, min, currentY, tol, maxIter).first;
+	else
+	    firstY = -numeric_limits<double>::max ();
     }
     catch (exception& err)
     {
-	//cdbg << min << " " << currentY << " " << err.what () << endl;
-	//cdbg << evaluator (min) << ", " << evaluator (currentY) << endl;
+	cdbg << min << " " << currentY << " " << err.what () << endl;
+	cdbg << evaluator (min) << ", " << evaluator (currentY) << endl;
 	firstY = -numeric_limits<double>::max ();	
     }
     double secondY;
     try 
     {
-	secondY = mt::bisect (evaluator, currentY, max, tol, maxIter).first;
+	if (currentY < max)
+	    secondY = mt::bisect (evaluator, currentY, max, tol, maxIter).first;
+	else
+	    secondY = numeric_limits<double>::max ();
     }
     catch (exception& err)
     {
-	//cdbg << currentY << " " << max << " " << err.what () << endl;
-	//cdbg << evaluator (currentY) << ", " << evaluator (max) << endl;
+	cdbg << currentY << " " << max << " " << err.what () << endl;
+	cdbg << evaluator (currentY) << ", " << evaluator (max) << endl;
 	secondY = numeric_limits<double>::max ();
     }
     double y = (currentY - firstY < secondY - currentY) ? firstY : secondY;

@@ -4,6 +4,7 @@
  *
  * Implementation of the Vertex class
  */
+#include "Attribute.h"
 #include "AttributeInfo.h"
 #include "AttributeCreator.h"
 #include "Body.h"
@@ -137,5 +138,6 @@ bool Vertex::fuzzyEq (const Vertex& other) const
 
 const vector<int>& Vertex::GetConstraintIndexes () const
 {
-    return GetIntegerArrayAttribute (VertexAttributeIndex::CONSTRAINTS);
+    return GetAttribute<IntegerArrayAttribute, 
+	IntegerArrayAttribute::value_type> (VertexAttributeIndex::CONSTRAINTS);
 }

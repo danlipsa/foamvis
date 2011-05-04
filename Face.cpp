@@ -376,7 +376,9 @@ void Face::AddEdge (boost::shared_ptr<Edge> edge)
 QColor Face::GetColor (const QColor& defaultColor) const
 {
     if (HasAttribute (FaceAttributeIndex::COLOR))
-	return GetColorAttribute (EdgeAttributeIndex::COLOR);
+	return Color::GetValue (
+	    GetAttribute<ColorAttribute, ColorAttribute::value_type> (
+		EdgeAttributeIndex::COLOR));
     else
 	return defaultColor;
 }

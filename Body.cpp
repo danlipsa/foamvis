@@ -84,7 +84,7 @@ Body::Body(
 
 double Body::GetPressure () const
 {
-    return GetRealAttribute (BodyAttributeIndex::PRESSURE);
+    return GetAttribute<RealAttribute, double> (BodyAttributeIndex::PRESSURE);
 }
 
 void Body::calculatePhysicalVertices (
@@ -258,7 +258,8 @@ double Body::GetPropertyValue (BodyProperty::Enum property) const
     case BodyProperty::COUNT:
 	RuntimeAssert (false, "Invalid BodyProperty: ", property);
     default:
-	return GetRealAttribute (property - BodyProperty::PER_BODY_BEGIN);
+	return GetAttribute<RealAttribute, double> (
+	    property - BodyProperty::PER_BODY_BEGIN);
     }
 }
 

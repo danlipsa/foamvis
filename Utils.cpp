@@ -34,6 +34,12 @@ ContainerIterator fuzzyFind (const Container& s, const ContainerKeyType& x)
 	--it;
 	if ((*(it))->fuzzyEq (*x))
 	    return it;
+	if (it != s.begin ())
+	{
+	    --it;
+	    if ((*(it))->fuzzyEq (*x))
+		return it;
+	}
     }
     return s.end ();
 }

@@ -78,8 +78,6 @@ string OrientedEdge::ToString () const
 	 << ": " << endl;
     boost::shared_ptr<Vertex> begin = GetBegin ();
     boost::shared_ptr<Vertex> end = GetEnd ();
-    if (IsReversed ())
-	swap (begin, end);
     ostr << *begin << "," << endl << *end << endl;
     if (GetEdge ()->HasAttributes ())
     {

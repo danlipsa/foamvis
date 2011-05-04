@@ -4,6 +4,7 @@
  *
  * Implementation of the Foam object
  */
+#include "Attribute.h"
 #include "AttributeInfo.h"
 #include "AttributeCreator.h"
 #include "Body.h"
@@ -118,8 +119,10 @@ void Foam::AddDefaultBodyAttributes ()
 		   "Volume body attribute index is ", index);
 
     ac.reset (new IntegerAttributeCreator ());
-    infos->AddAttributeInfo (
+    index = infos->AddAttributeInfoLoad (
         ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
+    RuntimeAssert (index == BodyAttributeIndex::ORIGINAL,
+		   "Volume original attribute index is ", index);
 
 
     ac.reset (new RealAttributeCreator());
@@ -209,13 +212,19 @@ void Foam::AddDefaultVertexAttributes ()
 void Foam::SetBody (size_t i, vector<int>& faces,
                     vector<NameSemanticValue*>& attributes)
 {
-    if (i >= m_bodies.size ())
-        m_bodies.resize (i + 1);
+    resizeAllowIndex (&m_bodies, i);
     boost::shared_ptr<Body> body = boost::make_shared<Body> (
 	faces, GetParsingData ().GetFaces (), i);
     if (&attributes != 0)
         body->StoreAttributes (attributes,
 			       m_attributesInfo[DefineAttribute::BODY]);
+    if (body->HasAttribute (BodyAttributeIndex::ORIGINAL))
+    {
+	i = body->GetAttribute<
+	IntegerAttribute, IntegerAttribute::value_type> (
+	    BodyAttributeIndex::ORIGINAL) - 1;
+	resizeAllowIndex (&m_bodies, i);
+    }
     m_bodies[i] = body;
 }
 
@@ -425,13 +434,10 @@ void Foam::addConstraintEdges ()
 		boost::shared_ptr<Vertex> end = 
 		    face->GetOrientedEdge (
 			face->GetEdgeCount () - 1)->GetEnd ();
-		//if (body->GetId () == 16)
-		{
-		    boost::shared_ptr<Edge> edge (
-			new ConstraintEdge (
-			    &GetParsingData (), begin, end, box));
-		    face->AddEdge (edge);
-		}
+		boost::shared_ptr<Edge> edge (
+		    new ConstraintEdge (
+			&GetParsingData (), begin, end, box));
+		face->AddEdge (edge);
 	    }
 	}
     }
@@ -530,12 +536,11 @@ bool Foam::bodyInsideOriginalDomain (
     const boost::shared_ptr<Body>& body,
     VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
 {
-    using G3D::Vector3int16;
-    Vector3int16 centerLocation =
+    G3D::Vector3int16 centerLocation =
 	GetOriginalDomain ().GetLocation (body->GetCenter ());
     if (centerLocation == Vector3int16Zero)
 	return true;
-    Vector3int16 translation = Vector3int16Zero - centerLocation;
+    G3D::Vector3int16 translation = Vector3int16Zero - centerLocation;
     bodyTranslate (body, translation, vertexSet, edgeSet, faceSet);
     return false;
 }

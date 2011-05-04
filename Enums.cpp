@@ -14,10 +14,10 @@ ostream& operator<< (ostream& ostr, ElementStatus::Enum duplicateStatus)
     switch (duplicateStatus)
     {
     case ElementStatus::ORIGINAL:
-	ostr << "ORIGINAL";
+	ostr << "ORIG";
 	break;
     case ElementStatus::DUPLICATE:
-	ostr << "DUPLICATE";
+	ostr << "DUP";
 	break;
     default:
 	RuntimeAssert (false, "Invalid ElementStatus: ", duplicateStatus);

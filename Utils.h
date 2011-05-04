@@ -99,6 +99,13 @@ struct CalculateAggregate
 		     G3D::Vector3* result);
 };
 
+template<typename Container> void resizeAllowIndex (Container* c, size_t i)
+{
+    if (i >= c->size ())
+        c->resize (i + 1);
+}
+
+
 // Other
 // ======================================================================
 

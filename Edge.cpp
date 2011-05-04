@@ -214,9 +214,9 @@ string Edge::ToString () const
 {
     ostringstream ostr;
     ostr << "Edge " << GetStringId () << " "
+	 << GetDuplicateStatus () << " "
 	 << *m_begin << ", " 
 	 << *m_end << " "
-	 << GetDuplicateStatus () << " "
 	 << " Adjacent faces(" << m_facesPartOf.size () << ")";
     if (HasAttributes ())
     {
@@ -292,13 +292,16 @@ G3D::Vector3 Edge::GetPoint (size_t i) const
 
 const vector<int>& Edge::GetConstraintIndexes () const
 {
-    return GetIntegerArrayAttribute (EdgeAttributeIndex::CONSTRAINTS);
+    return GetAttribute<IntegerArrayAttribute, 
+	IntegerArrayAttribute::value_type> (EdgeAttributeIndex::CONSTRAINTS);
 }
 
 QColor Edge::GetColor (const QColor& defaultColor) const
 {
     if (HasAttribute (EdgeAttributeIndex::COLOR))
-	return GetColorAttribute (EdgeAttributeIndex::COLOR);
+	return Color::GetValue (
+	    GetAttribute<ColorAttribute, ColorAttribute::value_type> (
+		EdgeAttributeIndex::COLOR));
     else
 	return defaultColor;
 }

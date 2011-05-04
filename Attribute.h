@@ -36,6 +36,7 @@ public:
 class IntegerAttribute : public Attribute
 {
 public:
+    typedef int value_type;
     /**
      * Constructor
      * @param value the value of the attribute
@@ -64,6 +65,7 @@ private:
 class RealAttribute : public Attribute
 {
 public:
+    typedef double value_type;
     /**
      * Constructor for the attribute with a real value
      * @param value the value of the attribute
@@ -102,6 +104,7 @@ private:
 class ColorAttribute : public Attribute
 {
 public:
+    typedef Color::Enum value_type;
     /**
      * Constructor for the color attribute
      * @param color the value of the attribute
@@ -141,6 +144,7 @@ private:
 class IntegerArrayAttribute : public Attribute
 {
 public:
+    typedef const vector<int>& value_type;
     /**
      * Constructs an integer array attribute
      * @param values pointer to vector of integers.

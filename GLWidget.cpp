@@ -849,17 +849,26 @@ void GLWidget::InfoFocus ()
 
     case BodySelectorType::ID:
     {
-	ostr << "Selected ids: ";
 	const vector<size_t>& ids = 
 	    (boost::static_pointer_cast<IdBodySelector> (
 		m_bodySelector))->GetIds ();
-	ostream_iterator<size_t> out (ostr, " ");
-	copy (ids.begin (), ids.end (), out);
-	if (GetViewSettings ()->GetBodyProperty () != 
-	    BodyProperty::NONE)
+	if (ids.size () == 1)
 	{
-	    ostr << endl;
-	    
+	    Foam::Bodies::const_iterator it = GetCurrentFoam ().FindBody (
+		ids[0]);
+	    ostr << *it;
+	}
+	else
+	{
+	    ostr << "Selected ids: ";
+	    ostream_iterator<size_t> out (ostr, " ");
+	    copy (ids.begin (), ids.end (), out);
+	    if (GetViewSettings ()->GetBodyProperty () != 
+		BodyProperty::NONE)
+	    {
+		ostr << endl;
+		
+	    }
 	}
 	break;
     }

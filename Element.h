@@ -25,6 +25,9 @@ public:
     Element(size_t id, ElementStatus::Enum duplicateStatus);
     Element (const Element& other);
 
+
+    template<typename T, typename TValueType>
+    TValueType GetAttribute (size_t i) const;
     /**
      * Sets an attribute for the element
      * @param i position in the vector of attributes
@@ -33,6 +36,9 @@ public:
     void SetAttribute (size_t i, Attribute* attribute);
     template<typename T, typename TValue>
     void SetAttribute (size_t i, TValue value);
+
+    bool HasAttribute (size_t i) const;
+    bool HasAttributes () const;
 
     /**
      * Stores all attributes in the element
@@ -71,13 +77,6 @@ public:
      * @param info information about attributes
      */
     ostream& PrintAttributes (ostream& ostr) const;
-
-    double GetRealAttribute (size_t i) const;
-    const vector<int>& GetIntegerArrayAttribute (size_t i) const;
-    QColor GetColorAttribute (size_t i) const;
-
-    bool HasAttribute (size_t i) const;
-    bool HasAttributes () const;
 private:
     void storeAttribute (
 	const NameSemanticValue& nv, const AttributesInfo& infos);
