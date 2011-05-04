@@ -4,7 +4,7 @@
  * 
  * Implementation of the ConstraintEdge class
  */
-
+#include "Attribute.h"
 #include "ConstraintEdge.h"
 #include "DebugStream.h"
 #include "ExpressionTree.h"
@@ -57,6 +57,8 @@ ConstraintEdge::ConstraintEdge (
     m_box (box)
 {    
     cachePoints ();
+    SetAttribute<ColorAttribute, Color::Enum> (
+	EdgeAttributeIndex::COLOR, Color::RED);
 }
 
 G3D::Vector3 ConstraintEdge::computePoint (size_t i) const

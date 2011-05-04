@@ -10,7 +10,6 @@
 
 /**
  * Colors of faces or edges
- * @todo Get rid of G3D::Color3 and replace it with QColor
  */
 class Color
 {

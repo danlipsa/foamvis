@@ -124,6 +124,10 @@ public:
     {
 	return m_color;
     }
+    void set (Color::Enum color)
+    {
+	m_color = color;
+    }
 private:
     /**
      * Color value of the attribute

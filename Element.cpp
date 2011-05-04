@@ -77,7 +77,6 @@ private:
 // ======================================================================
 
 Element::Element(size_t id, ElementStatus::Enum duplicateStatus) : 
-    m_attributes(0),
     m_id (id), 
     m_duplicateStatus (duplicateStatus)
 {
@@ -87,25 +86,17 @@ Element::Element (const Element& other) :
     m_id (other.m_id),
     m_duplicateStatus (other.m_duplicateStatus)
 {
-    if (other.m_attributes.get () != 0)
-    {
-	m_attributes.reset (new Attributes (other.m_attributes->size ()));
-	*m_attributes = *other.m_attributes;
-    }
+    m_attributes.resize (other.m_attributes.size ());
+    m_attributes = other.m_attributes;
 }
 
 
 void Element::SetAttribute (size_t i, Attribute* attribute)
 {
-    using boost::shared_ptr;
-    if (m_attributes == 0)
-    {
-	m_attributes.reset (new Attributes ());
-    }
-    if (i >= m_attributes->size ())
-        m_attributes->resize (i + 1);
-    shared_ptr<Attribute> p(attribute);
-    (*m_attributes)[i] = p;
+    if (i >= m_attributes.size ())
+        m_attributes.resize (i + 1);
+    boost::shared_ptr<Attribute> p(attribute);
+    m_attributes[i] = p;
 }
 
 void Element::storeAttribute (
@@ -132,8 +123,8 @@ void Element::StoreAttributes (
 ostream& Element::PrintAttributes (ostream& ostr) const
 {
     if (HasAttributes ())
-	for (size_t i = 0; i < m_attributes->size (); ++i)
-	    ostr << (*m_attributes)[i] << " ";
+	for (size_t i = 0; i < m_attributes.size (); ++i)
+	    ostr << m_attributes[i] << " ";
     return ostr;
 }
 
@@ -149,7 +140,7 @@ double Element::GetRealAttribute (size_t i) const
     RuntimeAssert (HasAttribute (i),
 		   "Attribute does not exist at index ", i, 
 		   " for element ", GetId ());
-    return *boost::static_pointer_cast<RealAttribute> ((*m_attributes)[i]);
+    return *boost::static_pointer_cast<RealAttribute> (m_attributes[i]);
 }
 
 const vector<int>& Element::GetIntegerArrayAttribute (size_t i) const
@@ -158,27 +149,47 @@ const vector<int>& Element::GetIntegerArrayAttribute (size_t i) const
 		   "Attribute does not exist at index ", i, 
 		   " for element ", GetId ());
     return *boost::static_pointer_cast<IntegerArrayAttribute> (
-	(*m_attributes)[i]);
+	m_attributes[i]);
+}
+
+QColor Element::GetColorAttribute (size_t i) const
+{
+    RuntimeAssert (HasAttribute (i),
+		   "Attribute does not exist at index ", i, 
+		   " for element ", GetId ());
+    return Color::GetValue (*boost::static_pointer_cast<ColorAttribute> (
+				m_attributes[i]));
 }
 
 
-void Element::SetRealAttribute (size_t i, double value)
+template<typename T, typename TValue>
+void Element::SetAttribute (size_t i, TValue value)
 {
-    RuntimeAssert (m_attributes != 0 && i < m_attributes->size (),
-		   "Attribute does not exist at index ", i, 
-		   " for element ", GetId ());
-    RealAttribute& attribute = *boost::static_pointer_cast<RealAttribute> (
-	(*m_attributes)[i]);
-    attribute.set (value);
+    if (i >= m_attributes.size ())
+        m_attributes.resize (i + 1);
+    boost::shared_ptr<T> attribute = 
+	boost::static_pointer_cast<T> (m_attributes[i]);
+    if (attribute == 0)
+    {
+	attribute = boost::shared_ptr<T> (new T (value));
+	m_attributes[i] = attribute;
+    }
+    else
+	attribute->set (value);
 }
 
 bool Element::HasAttribute (size_t i) const
 {
-    return HasAttributes () && i < m_attributes->size () &&
-	(*m_attributes)[i] != 0;
+    return i < m_attributes.size () &&	m_attributes[i] != 0;
 }
 
 bool Element::HasAttributes () const
 {
-    return m_attributes;
+    return m_attributes.size () > 0;
 }
+
+// Template instantiations
+// ======================================================================
+
+template void Element::SetAttribute<RealAttribute, double>(unsigned long, double);
+template void Element::SetAttribute<ColorAttribute, Color::Enum>(unsigned long, Color::Enum);

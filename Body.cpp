@@ -281,7 +281,7 @@ size_t Body::GetNumberOfSides () const
 
 void Body::SetPressureValue (double value)
 {
-    SetRealAttribute (
+    SetAttribute<RealAttribute, double> (
 	BodyProperty::PRESSURE - BodyProperty::PER_BODY_BEGIN, value);
 }
 

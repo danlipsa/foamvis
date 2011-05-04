@@ -297,9 +297,8 @@ const vector<int>& Edge::GetConstraintIndexes () const
 
 QColor Edge::GetColor (const QColor& defaultColor) const
 {
-    if (HasAttribute (FaceAttributeIndex::COLOR))
-	return Color::GetValue (*boost::static_pointer_cast<ColorAttribute> (
-				    (*m_attributes)[EdgeAttributeIndex::COLOR]));
+    if (HasAttribute (EdgeAttributeIndex::COLOR))
+	return GetColorAttribute (EdgeAttributeIndex::COLOR);
     else
 	return defaultColor;
 }

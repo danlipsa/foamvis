@@ -31,6 +31,9 @@ public:
      * @param attribute pointer to the attribute to set
      */
     void SetAttribute (size_t i, Attribute* attribute);
+    template<typename T, typename TValue>
+    void SetAttribute (size_t i, TValue value);
+
     /**
      * Stores all attributes in the element
      * @param list the list of attributes values
@@ -68,9 +71,11 @@ public:
      * @param info information about attributes
      */
     ostream& PrintAttributes (ostream& ostr) const;
+
     double GetRealAttribute (size_t i) const;
     const vector<int>& GetIntegerArrayAttribute (size_t i) const;
-    void SetRealAttribute (size_t i, double value);
+    QColor GetColorAttribute (size_t i) const;
+
     bool HasAttribute (size_t i) const;
     bool HasAttributes () const;
 private:
@@ -84,7 +89,7 @@ protected:
     /**
      * Vector of attributes
      */
-    boost::scoped_ptr<Attributes> m_attributes;
+    Attributes m_attributes;
     /**
      * The original index for this element
      */
