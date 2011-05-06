@@ -47,17 +47,13 @@ public:
     typedef vector< boost::shared_ptr<Vertex> > Vertices;
     typedef vector< boost::shared_ptr<Edge> > Edges;
     typedef vector< boost::shared_ptr<Face> > Faces;
-    typedef vector<ExpressionTree*> Constraints;
+    typedef vector<boost::shared_ptr<ExpressionTree> > Constraints;
 
 public:
     /**
      * Constructs a ParsingData object
      */
     ParsingData ();
-    /**
-     * Destructs this object
-     */
-    ~ParsingData ();
 
     void AddAttribute (const char* s)
     {
@@ -248,7 +244,7 @@ public:
     }    
 
     void SetConstraint (size_t i, ExpressionTree* constraint);
-    ExpressionTree* GetConstraint (size_t i)
+    boost::shared_ptr<ExpressionTree> GetConstraint (size_t i) const
     {
 	return m_constraints[i];
     }

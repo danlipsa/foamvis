@@ -182,6 +182,10 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
+0.5.     - bug for tmp_in.dmp (array on several lines)
+	 - changed body ID to the one specified in ORIGINAL attribute 
+	   (fixes ell0.700000_750v_5.000000_1.dmp)
+	 - added missing body edges from constraints specification
 0.4.1852 - linked views
 	 - edit highlight colors for colormaps
 	 - separated body context from body stationary and displayed both

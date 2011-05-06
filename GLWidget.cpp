@@ -1604,6 +1604,7 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum view) const
     displayFacesInterior (bodies, view);
     displayStandaloneFaces ();
     displayStandaloneEdges< DisplayEdgeWithColor<> > ();
+    displayBodyCenters ();
 }
 
 pair<double, double> GLWidget::getStatisticsMinMax (ViewNumber::Enum view) const

@@ -49,17 +49,6 @@ private:
 // ======================================================================
 
 
-/**
- * Deletes an identifier
- * @param  pair  this  is  how  an identifier  is  stored  in  the
- * ParsingData object. We delete the string* part.
- */
-inline void deleteIdentifier (pair<const char*, string*> pair)
-{
-    delete pair.second;
-}
-
-
 const char* ParsingData::IMPLEMENTED_METHODS[] = 
 {
     "edge_area",
@@ -82,13 +71,14 @@ ParsingData::ParsingData () :
 	{"*", multiplies<double> ()},
 	{"/", divides<double> ()},
 	{"^", powf},
-	{"=", minus<double> ()}, // an equation is the same a a function = 0
+	{"=", minus<double> ()}, // left = right is the same as left - right = 0
 	{"atan2", atan2f},
+	// results in a boolean
 	{">", greater<double> ()},
 	{">=", greater_equal<double> ()},
 	{"<", less<double> ()},
 	{"<=", less_equal<double> ()},
-	{"&&", logical_and<bool> ()}
+	{"&&", logical_and<double> ()}
     };
     UnaryFunctionInformation UNARY_FUNCTION_INFORMATION[] =
     {
@@ -105,12 +95,6 @@ ParsingData::ParsingData () :
 
     BOOST_FOREACH (const char* method, IMPLEMENTED_METHODS)
 	AddMethodOrQuantity (method);
-}
-
-ParsingData::~ParsingData ()
-{
-    for_each (m_constraints.begin (), m_constraints.end (), 
-	      bl::delete_ptr ());
 }
 
 double ParsingData::GetVariableValue (const char* id) 
@@ -196,7 +180,7 @@ void ParsingData::SetFace (size_t i,  vector<int>& edges,
 void ParsingData::SetConstraint (size_t i, ExpressionTree* constraint)
 {
     resizeAllowIndex (&m_constraints, i);
-    m_constraints[i] = constraint;
+    m_constraints[i].reset (constraint);
 }
 
 string ParsingData::ToString () const

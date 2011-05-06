@@ -43,7 +43,7 @@ public:
     {
 	return false;
     }
-    virtual ExpressionTree* Simplify () const = 0;
+    virtual ExpressionTree* GetSimplified () const = 0;
     virtual string ToString () = 0;
 
 protected:
@@ -68,7 +68,7 @@ public:
      * @return value of the number
      */
     virtual double Value () const;
-    virtual ExpressionTree* Simplify () const;
+    virtual ExpressionTree* GetSimplified () const;
     virtual bool IsNumber ()
     {
 	return true;
@@ -102,7 +102,7 @@ public:
      * @return the value of the variable
      */
     virtual double Value () const;
-    virtual ExpressionTree* Simplify () const;
+    virtual ExpressionTree* GetSimplified () const;
     virtual string ToString ();
 private:
     /**
@@ -127,26 +127,22 @@ public:
     ExpressionTreeUnaryFunction (
         ParsingData& parsingData, const char* name, ExpressionTree* param)
         : ExpressionTree (parsingData), 
-	  m_name (name), 
-	  m_param (param)
-          {}
-    ~ExpressionTreeUnaryFunction ()
+	  m_name (name), m_param (param)
     {
-	delete m_param;
     }
     /**
      * Value of the function applied to the parameter.
      * @return the value of the function applied to the parameter.
      */
     virtual double Value () const;
-    virtual ExpressionTree* Simplify () const;
+    virtual ExpressionTree* GetSimplified () const;
     virtual string ToString ();
 private:
     /**
      * Name of the function
      */
     string m_name;
-    ExpressionTree* m_param;
+    boost::shared_ptr<ExpressionTree> m_param;
 };
 
 /**
@@ -168,27 +164,23 @@ public:
         const char* name, 
         ExpressionTree* first, ExpressionTree* second)
         : ExpressionTree (parsingData), m_name (name),
-          m_first (first), m_second (second) 
-    {}
-    ~ExpressionTreeBinaryFunction ()
+	  m_first (first), m_second (second)
     {
-	delete m_first;
-	delete m_second;
     }
     /**
      * Value of the function applied to the parameters
      * @return the value of the function applied to the parameters.
      */
     virtual double Value () const;
-    virtual ExpressionTree* Simplify () const;
+    virtual ExpressionTree* GetSimplified () const;
     virtual string ToString ();
 private:
     /**
      * Function name
      */
     string m_name;
-    ExpressionTree* m_first;
-    ExpressionTree* m_second;
+    boost::shared_ptr<ExpressionTree> m_first;
+    boost::shared_ptr<ExpressionTree> m_second;
 };
 
 
@@ -213,22 +205,16 @@ public:
 	  m_first (first), m_second (second), m_third (third)
     {
     }
-    ~ExpressionTreeConditional ()
-    {
-	delete m_first;
-	delete m_second;
-	delete m_third;
-    }
     /**
      * Value of the contitional expression
      */
     virtual double Value () const;
-    virtual ExpressionTree* Simplify () const;
+    virtual ExpressionTree* GetSimplified () const;
     virtual string ToString ();
 private:
-    ExpressionTree* m_first;
-    ExpressionTree* m_second;
-    ExpressionTree* m_third;
+    boost::shared_ptr<ExpressionTree> m_first;
+    boost::shared_ptr<ExpressionTree> m_second;
+    boost::shared_ptr<ExpressionTree> m_third;
 };
 
 

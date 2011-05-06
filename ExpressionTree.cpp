@@ -5,6 +5,7 @@
  * Member definitions  for nodes used  in an expression tree  built in
  * the parser
  */
+#include "DebugStream.h"
 #include "ExpressionTree.h"
 #include "ParsingData.h"
 
@@ -15,7 +16,7 @@ double ExpressionTreeNumber::Value (void) const
     return m_value;
 }
 
-ExpressionTree* ExpressionTreeNumber::Simplify () const
+ExpressionTree* ExpressionTreeNumber::GetSimplified () const
 {
     return new ExpressionTreeNumber (m_parsingData, m_value);
 }
@@ -34,7 +35,7 @@ double ExpressionTreeVariable::Value (void) const
     return m_parsingData.GetVariableValue (m_name);
 }
 
-ExpressionTree* ExpressionTreeVariable::Simplify () const
+ExpressionTree* ExpressionTreeVariable::GetSimplified () const
 {
     if (m_parsingData.IsVariableSet (m_name))
 	return new ExpressionTreeNumber (m_parsingData, Value ());
@@ -63,9 +64,9 @@ double ExpressionTreeUnaryFunction::Value (void) const
     return f (value);
 }
 
-ExpressionTree* ExpressionTreeUnaryFunction::Simplify () const
+ExpressionTree* ExpressionTreeUnaryFunction::GetSimplified () const
 {
-    ExpressionTree* simplifiedParam = m_param->Simplify ();
+    ExpressionTree* simplifiedParam = m_param->GetSimplified ();
     if (simplifiedParam->IsNumber ())
     {
 	ParsingData::UnaryFunction f = m_parsingData.GetUnaryFunction (m_name);
@@ -95,10 +96,10 @@ double ExpressionTreeBinaryFunction::Value (void) const
     return f (first, second);
 }
 
-ExpressionTree* ExpressionTreeBinaryFunction::Simplify () const
+ExpressionTree* ExpressionTreeBinaryFunction::GetSimplified () const
 {
-    ExpressionTree* simplifiedFirst = m_first->Simplify ();
-    ExpressionTree* simplifiedSecond = m_second->Simplify ();
+    ExpressionTree* simplifiedFirst = m_first->GetSimplified ();
+    ExpressionTree* simplifiedSecond = m_second->GetSimplified ();
     if (simplifiedFirst->IsNumber () && simplifiedSecond->IsNumber ())
     {
 	ParsingData::BinaryFunction f = m_parsingData.GetBinaryFunction (m_name);
@@ -128,14 +129,23 @@ string ExpressionTreeBinaryFunction::ToString ()
 double ExpressionTreeConditional::Value (void) const
 {
     double first = m_first->Value ();
-    return first ? m_second->Value () : m_third->Value ();
+    if (first)
+    {
+	cdbg << "left ";
+	return m_second->Value ();
+    }
+    else
+    {	
+	cdbg << "right ";
+	return m_third->Value ();
+    }
 }
 
-ExpressionTree* ExpressionTreeConditional::Simplify () const
+ExpressionTree* ExpressionTreeConditional::GetSimplified () const
 {
-    ExpressionTree* simplifiedFirst = m_first->Simplify ();
-    ExpressionTree* simplifiedSecond = m_second->Simplify ();
-    ExpressionTree* simplifiedThird = m_third->Simplify ();
+    ExpressionTree* simplifiedFirst = m_first->GetSimplified ();
+    ExpressionTree* simplifiedSecond = m_second->GetSimplified ();
+    ExpressionTree* simplifiedThird = m_third->GetSimplified ();
     if (simplifiedFirst->IsNumber ())
     {
 	double firstValue = simplifiedFirst->Value ();

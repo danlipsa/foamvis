@@ -230,7 +230,7 @@ void printHelp ()
 	 << "       -p : debug parsing\n"
 	 << "       -r <t1s> : load <t1s>, "
 	"a text file with T1 times and positions\n"
-	 << "          reading T1s won't work if you skip time steps"
+	 << "          reading T1s won't work if you skip time steps\n"
 	 << "       -s : debug scanning\n"
 	 << "       -t : outputs a text representation of the data\n";
 }
