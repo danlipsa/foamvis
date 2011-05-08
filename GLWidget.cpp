@@ -841,9 +841,15 @@ void GLWidget::InfoFocus ()
     case BodySelectorType::ALL:
     {
 	vector<size_t> bodies;
-	brushedBodies (m_contextMenuPos, &bodies);
-	Foam::Bodies::const_iterator it = GetCurrentFoam ().FindBody (bodies[0]);
-	ostr << *it;
+	G3D::Vector3 op = brushedBodies (m_contextMenuPos, &bodies);
+	if (bodies.size () == 0)
+	    ostr << "Point: " << op;
+	else
+	{
+	    Foam::Bodies::const_iterator it = 
+		GetCurrentFoam ().FindBody (bodies[0]);
+	    ostr << *it;
+	}
 	break;
     }
 
@@ -1098,27 +1104,32 @@ void GLWidget::scaleContext (
 }
 
 
-/** 
- * @todo Use body indexes instead of body IDs as the IDs might not be unique
- */
-void GLWidget::brushedBodies (
+G3D::Vector3 GLWidget::brushedBodies (
     const QPoint& position, vector<size_t>* bodies) const
+{
+    G3D::Vector3 op = objectPosition (position);
+    const Foam& foam = GetCurrentFoam ();
+    BOOST_FOREACH (boost::shared_ptr<Body> body, foam.GetBodies ())
+    {
+	G3D::AABox box = body->GetBoundingBox ();
+	if (box.contains (op))
+	    bodies->push_back (body->GetId ());
+    }
+    return op;
+}
+
+G3D::Vector3 GLWidget::objectPosition (const QPoint& position) const
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     viewportTransform (viewNumber);    
     projectionTransform (viewNumber);
     ModelViewTransform (viewNumber, GetTimeStep ());
 
-    G3D::Vector3 end = gluUnProject (QtToOpenGl (position, height ()));
+    G3D::Vector3 op = gluUnProject (
+	QtToOpenGl (position, height ()));
     if (GetFoamAlongTime ().Is2D ())
-	end.z = 0;
-    const Foam& foam = GetCurrentFoam ();
-    BOOST_FOREACH (boost::shared_ptr<Body> body, foam.GetBodies ())
-    {
-	G3D::AABox box = body->GetBoundingBox ();
-	if (box.contains (end))
-	    bodies->push_back (body->GetId ());
-    }
+	op.z = 0;
+    return op;
 }
 
 void GLWidget::displayBodyStationaryContour (ViewNumber::Enum viewNumber) const

@@ -323,6 +323,9 @@ int main(int argc, char *argv[])
 	    else
 	    {
 		int result;
+		QCoreApplication::setOrganizationName ("Swansea University");
+		QCoreApplication::setOrganizationDomain ("www.swansea.ac.uk");
+		QCoreApplication::setApplicationName ("FoamVis");
 		boost::shared_ptr<Application> app = Application::Get (
 		    argc, argv);
 		MainWindow window (foamAlongTime);

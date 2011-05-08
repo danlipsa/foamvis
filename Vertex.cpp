@@ -89,7 +89,7 @@ string Vertex::ToString () const
 	 << GetDuplicateStatus ();
     if (HasAttributes ())
     {
-	ostr << " Vertex attributes: ";
+	ostr << endl << "Vertex attributes: ";
 	PrintAttributes (ostr);
     }
     return ostr.str ();

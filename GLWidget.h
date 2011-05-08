@@ -562,7 +562,9 @@ private:
 			    bool contextView) const;
     void select (const QPoint& position);
     void deselect (const QPoint& position);
-    void brushedBodies (const QPoint& position, vector<size_t>* bodies) const;
+    G3D::Vector3 brushedBodies (
+	const QPoint& position, vector<size_t>* bodies) const;
+    G3D::Vector3 objectPosition (const QPoint& position) const;
     
     void initViewTypeDisplay ();
     void createActions ();

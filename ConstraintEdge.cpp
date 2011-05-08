@@ -90,37 +90,33 @@ double ConstraintEdge::computeValue (
     boost::uintmax_t maxIter (100);
     mt::eps_tolerance<double> tol(numeric_limits<double>::digits - 3);
     size_t constraintIndex = GetBegin ()->GetConstraintIndexes ()[0] - 1;
-    boost::shared_ptr<ExpressionTree> constraint = 
-	m_parsingData->GetConstraint (constraintIndex);
+    Constraint constraint = m_parsingData->GetConstraint (constraintIndex);
     double currentX = current[axis];
     m_parsingData->SetVariable (AXIS_NAME[axis], currentX);
-
-    double currentY = current[other[axis]];
+    double middle = (constraint.HasCenter ()) ? 
+	constraint.GetCenter () [other[axis]] : current[other[axis]];
     double min = m_box.low ()[other[axis]];
     double max = m_box.high ()[other[axis]];
-    //double min = GetBegin ()->GetVector ()[other[axis]];
-    //double max = GetEnd ()->GetVector ()[other[axis]];
-    if (min > max)
-	swap (min, max);
 
     double firstY;
     ConstraintEvaluator evaluator (
-	AXIS_NAME[other[axis]], m_parsingData, constraint);
+	AXIS_NAME[other[axis]], m_parsingData, constraint.GetFunction ());
     try
     {
-	if (min < currentY)
-	    firstY = mt::bisect (evaluator, min, currentY, tol, maxIter).first;
+	if (min < middle)
+	    firstY = mt::bisect (evaluator, min, middle, tol, maxIter).first;
 	else
 	    firstY = -numeric_limits<double>::max ();
     }
     catch (exception& err)
     {
-	cdbg << endl << min << " " << currentY << " " << err.what () << endl;
-	cdbg << evaluator (min) << ", " << evaluator (currentY) << endl;
+	cdbg << endl << min << " " << middle << " " << err.what () << endl;
+	cdbg << evaluator (min) << ", " << evaluator (middle) << endl;
 
 	
 m_parsingData->UnsetVariable (AXIS_NAME[other[axis]]);
-boost::shared_ptr<ExpressionTree> simplifiedConstraint (constraint->GetSimplified ());
+boost::shared_ptr<ExpressionTree> simplifiedConstraint (
+    constraint.GetFunction ()->GetSimplified ());
 cdbg << simplifiedConstraint->ToString () << endl << endl;
 
 
@@ -130,24 +126,25 @@ cdbg << simplifiedConstraint->ToString () << endl << endl;
     double secondY;
     try 
     {
-	if (currentY < max)
-	    secondY = mt::bisect (evaluator, currentY, max, tol, maxIter).first;
+	if (middle < max)
+	    secondY = mt::bisect (evaluator, middle, max, tol, maxIter).first;
 	else
 	    secondY = numeric_limits<double>::max ();
     }
     catch (exception& err)
     {
-	cdbg << endl << currentY << " " << max << " " << err.what () << endl;
-	cdbg << evaluator (currentY) << ", " << evaluator (max) << endl;
+	cdbg << endl << middle << " " << max << " " << err.what () << endl;
+	cdbg << evaluator (middle) << ", " << evaluator (max) << endl;
 
 
 m_parsingData->UnsetVariable (AXIS_NAME[other[axis]]);
-boost::shared_ptr<ExpressionTree> simplifiedConstraint (constraint->GetSimplified ());
+boost::shared_ptr<ExpressionTree> simplifiedConstraint (
+    constraint.GetFunction ()->GetSimplified ());
 cdbg << simplifiedConstraint->ToString () << endl << endl;
 
 	secondY = numeric_limits<double>::max ();
     }
-    double y = (currentY - firstY < secondY - currentY) ? firstY : secondY;
+    double y = (middle - firstY < secondY - middle) ? firstY : secondY;
 
     return y;
 }

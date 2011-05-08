@@ -1,7 +1,7 @@
 HEADERS += Application.h ApproximationEdge.h\
 	Attribute.h AttributeCreator.h AttributeInfo.h \
 	AttributeHistogram.h HistogramHeight.h Body.h \
-	BodyAlongTime.h BodyIndex.h BodySelector.h \
+	BodyAlongTime.h BodyIndex.h BodySelector.h Constraint.h\
 	ConstraintEdge.h ColorBarModel.h Comparisons.h \
 	Debug.h DebugStream.h Disk.h DisplayFaceStatistics.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
@@ -20,9 +20,9 @@ HEADERS += Application.h ApproximationEdge.h\
 	Vertex.h ViewSettings.h
 SOURCES += Application.cpp ApproximationEdge.cpp\
 	Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
-	AttributeHistogram.cpp HistogramHeight.cpp \
+	AttributeHistogram.cpp \
 	Body.cpp BodyAlongTime.cpp BodyIndex.cpp BodySelector.cpp\
-	ConstraintEdge.cpp ColorBarModel.cpp Comparisons.cpp \
+	Constraint.cpp ConstraintEdge.cpp ColorBarModel.cpp Comparisons.cpp \
 	DebugStream.cpp Disk.cpp DisplayBodyFunctors.cpp \
 	DisplayFaceStatistics.cpp DisplayFaceFunctors.cpp \
 	DisplayEdgeFunctors.cpp	\
@@ -30,7 +30,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	SelectBodiesById.cpp EditColorMap.cpp Element.cpp ExpressionTree.cpp \
 	Enums.cpp Foam.cpp FoamAlongTime.cpp Face.cpp \
 	GLWidget.cpp Hashes.cpp Histogram.cpp HistogramItem.cpp\
-	main.cpp MainWindow.cpp  \
+	HistogramHeight.cpp main.cpp MainWindow.cpp  \
 	NameSemanticValue.cpp \
 	OOBox.cpp OpenGLUtils.cpp OrientedElement.cpp\
 	OrientedEdge.cpp OrientedFace.cpp OrientedFaceIndex.cpp\
