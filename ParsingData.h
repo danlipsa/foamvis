@@ -85,6 +85,14 @@ public:
     {
 	return GetBinaryFunction (name.c_str ());
     }
+    bool IsOperator (const char* name)
+    {
+	return OPERATORS.find (name) != OPERATORS.end ();
+    }
+    bool IsOperator (const string& name)
+    {
+	return IsOperator (name.c_str ());
+    }
     /**
      * Gets all faces from this Foam
      */
@@ -308,6 +316,7 @@ private:
 
 private:
     static const char* IMPLEMENTED_METHODS[];
+    static const set<string> OPERATORS;
 };
 
 /**

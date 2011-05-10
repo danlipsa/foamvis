@@ -49,12 +49,21 @@ private:
 // ======================================================================
 
 
+// Static fields
+// ======================================================================
+
 const char* ParsingData::IMPLEMENTED_METHODS[] = 
 {
     "edge_area",
     "vertex_scalar_integral",
     "facet_general_integral"
 };
+
+boost::array<string, 11> _operators = {{
+	"+", "-", "*", "/", "^", "=", ">", ">=", "<", "<=", "&&"
+    }};
+const set<string> ParsingData::OPERATORS (
+    _operators.begin (), _operators.end ());
 
 
 // Methods

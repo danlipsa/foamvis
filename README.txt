@@ -57,6 +57,15 @@ press c twice to configure the build and then g to generate the makefile and exi
 make -j <number_of_processors> (or just make if you have one processor)
 make install
 
+Copy Copy http://csgalati.swansea.ac.uk/foam/build/gsl-1.15.tar.gz to ~
+tar xzf gsl-1.15.tar.gz
+cd gsl-1.15
+./configure
+make
+su <password>
+make install
+
+
 Copy http://csgalati.swansea.ac.uk/foam/build/foam-<version>.tgz to ~
 cd ~
 tar xzf foam-<version>.tgz
@@ -64,6 +73,7 @@ cd foam
 qmake
 make
 (you can do 'make debug' for a debug build)
+
 
 Make sure you don't run 'make clean' or 'make distclean' as this will
 delete bison/flex files and require additional dependencies on the

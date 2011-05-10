@@ -19,6 +19,10 @@
 #include <cerrno>
 #include <unistd.h>
 
+// GSL headers
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_multiroots.h>
+
 // standard C++ headers
 #include <limits>
 #include <algorithm>
@@ -57,7 +61,6 @@
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/density.hpp>
 #include <boost/accumulators/statistics/median.hpp>
-#include <boost/math/tools/roots.hpp>
 
 // required by GLG3D
 #include <GLG3D/GL/glew.h>
@@ -86,7 +89,6 @@
 #include <qwt_scale_widget.h>
 #include <qwt_slider.h>
 
-
 // G3D headers
 #include <G3D/AABox.h>
 #include <G3D/CoordinateFrame.h>
@@ -101,6 +103,7 @@
 #include <G3D/Vector3.h>
 #include <G3D/Vector3int16.h>
 
+// VTK headers
 #include <vtkColorTransferFunction.h>
 #include <vtkSmartPointer.h>
 
@@ -111,5 +114,4 @@
 using namespace std;
 namespace bl = boost::lambda;
 namespace acc = boost::accumulators;
-namespace mt = boost::math::tools;
 #endif //__cplusplus

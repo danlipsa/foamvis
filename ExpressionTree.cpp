@@ -118,8 +118,16 @@ ExpressionTree* ExpressionTreeBinaryFunction::GetSimplified () const
 string ExpressionTreeBinaryFunction::ToString ()
 {
     ostringstream ostr;
-    ostr << m_name << "(" 
-	 << m_first->ToString () << ", " << m_second->ToString () << ")";
+    if (m_parsingData.IsOperator (m_name))
+    {
+	ostr << "(" << m_first->ToString () << ")" << m_name
+	     << "(" << m_second->ToString () << ")";
+    }
+    else
+    {
+	ostr << m_name << "(" 
+	     << m_first->ToString () << ", " << m_second->ToString () << ")";
+    }
     return ostr.str ();
 }
 
@@ -131,12 +139,12 @@ double ExpressionTreeConditional::Value (void) const
     double first = m_first->Value ();
     if (first)
     {
-	cdbg << "left ";
+	//cdbg << "left ";
 	return m_second->Value ();
     }
     else
-    {	
-	cdbg << "right ";
+    {
+	//cdbg << "right ";
 	return m_third->Value ();
     }
 }
@@ -171,9 +179,8 @@ ExpressionTree* ExpressionTreeConditional::GetSimplified () const
 string ExpressionTreeConditional::ToString ()
 {
     ostringstream ostr;
-    ostr << "?:(" 
-	 << m_first->ToString () << ", "
-	 << m_second->ToString () << ", "
+    ostr << "(" << m_first->ToString () << ")?("
+	 << m_second->ToString () << "):("
 	 << m_third->ToString () << ")";
     return ostr.str ();
 }
