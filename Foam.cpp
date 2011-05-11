@@ -415,7 +415,7 @@ void Foam::Preprocess ()
     calculateBoundingBox ();
     sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);
     setMissingPressureZero ();
-    addConstraintEdges ();
+    //addConstraintEdges ();
     calculatePerimeterOverArea ();
 }
 
@@ -434,7 +434,7 @@ void Foam::addConstraintEdges ()
 		boost::shared_ptr<Vertex> begin = 
 		    face->GetOrientedEdge (
 			face->GetEdgeCount () - 1)->GetEnd ();
-		//if (body->GetId () == 230)
+		if (body->GetId () == 370)
 		{
 		    boost::shared_ptr<Edge> edge (
 			new ConstraintEdge (

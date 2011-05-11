@@ -120,6 +120,11 @@ boost::shared_ptr<Vertex> Vertex::GetDuplicate (
 {
     boost::shared_ptr<Vertex> searchDummy = boost::make_shared<Vertex>(
 	periods.TorusTranslate (GetVector (), translation));
+    if (this->GetId () == 1124)
+    {
+	ostream_iterator<boost::shared_ptr<Vertex> > o (cdbg, "\n");
+	copy (vertexSet->begin (), vertexSet->end (), o);
+    }
     VertexSet::iterator it = fuzzyFind 
 	<VertexSet, VertexSet::iterator, VertexSet::key_type> (
 	    *vertexSet, searchDummy);

@@ -92,6 +92,8 @@ LIBS += "-lvtkFiltering"
 LIBS += "-lvtkCommon"
 LIBS += "-lvtksys"
 LIBS += "-lQt3D"
+LIBS += "-lgslcblas"
+LIBS += "-lgsl"
 }
 else:unix {
 INCLUDEPATH += /usr/local/include
