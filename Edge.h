@@ -103,7 +103,7 @@ public:
     {
 	return m_facesPartOf.end ();
     }
-    void PrintFacePartOfInformation (ostream& ostr) const;
+    string FacePartOfToString () const;
 
 
     /**
@@ -135,7 +135,7 @@ public:
 	return GetFacePartOfSize () == 0;
     }
 
-    const vector<int>& GetConstraintIndexes () const;
+    size_t GetConstraintIndex (size_t i) const;
 
     string ToString () const;
     void GetVertexSet (VertexSet* vertexSet) const;

@@ -61,6 +61,7 @@
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/density.hpp>
 #include <boost/accumulators/statistics/median.hpp>
+#include <boost/math/tools/roots.hpp>
 
 // required by GLG3D
 #include <GLG3D/GL/glew.h>
@@ -114,4 +115,5 @@
 using namespace std;
 namespace bl = boost::lambda;
 namespace acc = boost::accumulators;
+namespace mt = boost::math::tools;
 #endif //__cplusplus

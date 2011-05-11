@@ -189,14 +189,7 @@ void ParsingData::SetFace (size_t i,  vector<int>& edges,
 void ParsingData::SetConstraint (size_t i, ExpressionTree* function)
 {
     resizeAllowIndex (&m_constraints, i);
-    m_constraints[i] = Constraint (function);
-    if (i == 3)
-	SetConstraintCenter (i, G3D::Vector3 (.494253, .392765, 0));
-}
-
-void ParsingData::SetConstraintCenter (size_t i, const G3D::Vector3& center)
-{
-    m_constraints[i].SetCenter (center);
+    m_constraints[i].reset (function);
 }
 
 string ParsingData::ToString () const

@@ -45,6 +45,10 @@ public:
     }
     virtual ExpressionTree* GetSimplified () const = 0;
     virtual string ToString () = 0;
+    virtual bool HasConditional ()
+    {
+	return false;
+    }
 
 protected:
     ParsingData& m_parsingData;
@@ -137,6 +141,11 @@ public:
     virtual double Value () const;
     virtual ExpressionTree* GetSimplified () const;
     virtual string ToString ();
+    virtual bool HasConditional ()
+    {
+	return m_param->HasConditional ();
+    }
+
 private:
     /**
      * Name of the function
@@ -174,6 +183,10 @@ public:
     virtual double Value () const;
     virtual ExpressionTree* GetSimplified () const;
     virtual string ToString ();
+    virtual bool HasConditional ()
+    {
+	return m_first->HasConditional () || m_second->HasConditional ();
+    }
 private:
     /**
      * Function name
@@ -211,6 +224,10 @@ public:
     virtual double Value () const;
     virtual ExpressionTree* GetSimplified () const;
     virtual string ToString ();
+    virtual bool HasConditional ()
+    {
+	return true;
+    }
 private:
     boost::shared_ptr<ExpressionTree> m_first;
     boost::shared_ptr<ExpressionTree> m_second;

@@ -9,7 +9,6 @@
 
 #include "Comparisons.h"
 #include "ParsingDriver.h"
-#include "Constraint.h"
 
 class AttributesInfo;
 class ExpressionTree;
@@ -48,7 +47,7 @@ public:
     typedef vector< boost::shared_ptr<Vertex> > Vertices;
     typedef vector< boost::shared_ptr<Edge> > Edges;
     typedef vector< boost::shared_ptr<Face> > Faces;
-    typedef vector<Constraint> Constraints;
+    typedef vector< boost::shared_ptr<ExpressionTree> > Constraints;
 
 public:
     /**
@@ -253,8 +252,7 @@ public:
     }    
 
     void SetConstraint (size_t i, ExpressionTree* constraint);
-    void SetConstraintCenter (size_t i, const G3D::Vector3& center);
-    Constraint GetConstraint (size_t i) const
+    boost::shared_ptr<ExpressionTree> GetConstraint (size_t i) const
     {
 	return m_constraints[i];
     }

@@ -136,8 +136,9 @@ bool Vertex::fuzzyEq (const Vertex& other) const
     return IsFuzzyZero (GetVector () - other.GetVector ());
 }
 
-const vector<int>& Vertex::GetConstraintIndexes () const
+size_t Vertex::GetConstraintIndex (size_t i) const
 {
     return GetAttribute<IntegerArrayAttribute, 
-	IntegerArrayAttribute::value_type> (VertexAttributeIndex::CONSTRAINTS);
+	IntegerArrayAttribute::value_type> (
+	    VertexAttributeIndex::CONSTRAINTS) [i] - 1;
 }

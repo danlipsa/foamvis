@@ -1,7 +1,7 @@
 HEADERS += Application.h ApproximationEdge.h\
 	Attribute.h AttributeCreator.h AttributeInfo.h \
 	AttributeHistogram.h HistogramHeight.h Body.h \
-	BodyAlongTime.h BodyIndex.h BodySelector.h Constraint.h\
+	BodyAlongTime.h BodyIndex.h BodySelector.h \
 	ConstraintEdge.h ColorBarModel.h Comparisons.h \
 	Debug.h DebugStream.h Disk.h DisplayFaceStatistics.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
@@ -22,7 +22,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	AttributeHistogram.cpp \
 	Body.cpp BodyAlongTime.cpp BodyIndex.cpp BodySelector.cpp\
-	Constraint.cpp ConstraintEdge.cpp ColorBarModel.cpp Comparisons.cpp \
+	ConstraintEdge.cpp ColorBarModel.cpp Comparisons.cpp \
 	DebugStream.cpp Disk.cpp DisplayBodyFunctors.cpp \
 	DisplayFaceStatistics.cpp DisplayFaceFunctors.cpp \
 	DisplayEdgeFunctors.cpp	\

@@ -173,14 +173,15 @@ void Edge::AddFacePartOf (
 }
 
 
-void Edge::PrintFacePartOfInformation (ostream& ostr) const
+string Edge::FacePartOfToString () const
 {
+    ostringstream ostr;
     size_t facePartOfSize = GetFacePartOfSize ();
     ostr << "Edge " << GetStringId () << " is part of " 
 	 << facePartOfSize << " faces: ";
     ostream_iterator<OrientedFaceIndex> output (ostr, " ");
     copy (GetFacePartOfBegin (), GetFacePartOfEnd (), output);
-    ostr << endl;
+    return ostr.str ();
 }
 
 bool Edge::IsPhysical (bool foam2D, bool isQuadratic) const
@@ -290,10 +291,11 @@ G3D::Vector3 Edge::GetPoint (size_t i) const
 	return GetEnd ()->GetVector ();
 }
 
-const vector<int>& Edge::GetConstraintIndexes () const
+size_t Edge::GetConstraintIndex (size_t i) const
 {
     return GetAttribute<IntegerArrayAttribute, 
-	IntegerArrayAttribute::value_type> (EdgeAttributeIndex::CONSTRAINTS);
+	IntegerArrayAttribute::value_type> (
+	    EdgeAttributeIndex::CONSTRAINTS)[i] - 1;
 }
 
 QColor Edge::GetColor (const QColor& defaultColor) const
