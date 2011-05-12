@@ -150,8 +150,10 @@ bool ProcessBodyTorus::chooseFaceNeighbor (
     OrientedFaceIndex* nextOrientedFaceIndex)
 {
     OrientedFaceIndex nextOfi;
-    RuntimeAssert (possibilities.size () <= 2,
-		   "More possibilities than we can discern");
+    RuntimeAssert (
+	possibilities.size () <= 2,
+	"ProcessBodyTorus: more possibilities than we can discern: ", 
+	possibilities.size (), " (should be <= 2)");
     if (possibilities.size () == 0)
 	return false;
     BOOST_FOREACH (nextOfi, possibilities)
@@ -164,8 +166,7 @@ bool ProcessBodyTorus::chooseFaceNeighbor (
 	    continue;
 	}
 
-	if (possibilities.size () > 1 &&
-	    ! ofi.IsValidNext (nextOfi))
+	if (possibilities.size () > 1 && ! ofi.IsValidNext (nextOfi))
 	{
 	    //cdbg << "wrong angle around edge" << endl;
 	    continue;

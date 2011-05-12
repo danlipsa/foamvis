@@ -18,26 +18,22 @@ class ConstraintEdge : public ApproximationEdge
 public:
     ConstraintEdge (ParsingData* parsingData,
 		    const boost::shared_ptr<Vertex>& begin,
-		    const boost::shared_ptr<Vertex>& end,
-		    const G3D::AABox& foamBox, const G3D::AABox& bubbleBox);
+		    const boost::shared_ptr<Vertex>& end);
 
 protected:
     virtual G3D::Vector3 computePoint (size_t i) const;
+
+private:
     G3D::Vector3 computePointMulti (size_t i, bool* success) const;
-    G3D::Vector3 computePointBisection (size_t i, bool* success) const;
-    double computeValueBisection (
-	size_t axis, const G3D::Vector3& current, bool* success) const;
     void fixPoints ();
     void fixPoint (size_t i, const vector<int>& side, int correctSide);
+    void computeSide (vector<int>* side, size_t* countPlus,
+		      size_t* countMinus, size_t* countZero);
 
 
 private:
     ParsingData* m_parsingData;
-    G3D::AABox m_foamBox;
-    G3D::AABox m_bubbleBox;
-    G3D::Vector3 m_center;
     boost::shared_ptr<ExpressionTree> m_constraint;
-    bool m_piecewise;
 };
 
 

@@ -48,6 +48,10 @@ private:
 // Private functions
 // ======================================================================
 
+double doubleAbs (double value)
+{
+    return abs (value);
+}
 
 // Static fields
 // ======================================================================
@@ -94,7 +98,8 @@ ParsingData::ParsingData () :
 	{"-", negate<double> ()},
 	{"sqrt", sqrtf},
 	{"cos", cosf},
-	{"sin", sinf}
+	{"sin", sinf},
+	{"abs", doubleAbs}
     };
 
     BOOST_FOREACH (BinaryFunctionInformation bfi, BINARY_FUNCTION_INFORMATION)

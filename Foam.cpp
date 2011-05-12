@@ -433,12 +433,10 @@ void Foam::addConstraintEdges ()
 		boost::shared_ptr<Vertex> begin = 
 		    face->GetOrientedEdge (
 			face->GetEdgeCount () - 1)->GetEnd ();
-		//if (body->GetId () == 406)
+		if (body->GetId () == 283)
 		{
 		    boost::shared_ptr<Edge> edge (
-			new ConstraintEdge (
-			    &GetParsingData (), begin, end, 
-			    GetBoundingBox (), body->GetBoundingBox ()));
+			new ConstraintEdge (&GetParsingData (), begin, end));
 		    face->AddEdge (edge);
 		}
 	    }

@@ -174,48 +174,18 @@ string Solver::ErrorToString (int error)
 }
 
 
-// ConstraintEvaluator
-// ======================================================================
-class ConstraintEvaluator
- : public unary_function<double, double>
-{
-public:
-    ConstraintEvaluator (
-	const char* variableName,
-	ParsingData* parsingData, 
-	boost::shared_ptr<ExpressionTree> expressionTree) :
-	m_variableName (variableName),
-	m_parsingData (parsingData), m_expressionTree (expressionTree)
-    {
-    }
-
-    double operator () (const double& y)
-    {
-	m_parsingData->SetVariable (m_variableName, y);
-	return m_expressionTree->Value ();
-    }
-
-private:
-    string m_variableName;
-    ParsingData* m_parsingData;
-    boost::shared_ptr<ExpressionTree> m_expressionTree;
-};
-
 // Methods
 // ======================================================================
 
 ConstraintEdge::ConstraintEdge (
     ParsingData* parsingData,
     const boost::shared_ptr<Vertex>& begin,
-    const boost::shared_ptr<Vertex>& end, 
-    const G3D::AABox& foamBox, const G3D::AABox& bubbleBox) :
+    const boost::shared_ptr<Vertex>& end) :
 
     ApproximationEdge (
 	begin, end, 
 	G3D::Vector3int16(0, 0, 0), 0, ElementStatus::ORIGINAL),
-    m_parsingData (parsingData),
-    m_foamBox (foamBox),
-    m_bubbleBox (bubbleBox)
+    m_parsingData (parsingData)
 {
     size_t constraintIndex = GetBegin ()->GetConstraintIndex (0);
     m_constraint = m_parsingData->GetConstraint (constraintIndex);
@@ -223,7 +193,6 @@ ConstraintEdge::ConstraintEdge (
     m_parsingData->UnsetVariable ("y");
     boost::shared_ptr<ExpressionTree> simplified (
 	m_constraint->GetSimplified ());
-    m_piecewise = simplified->HasConditional ();
     cachePoints ();
     fixPoints ();
     SetAttribute<ColorAttribute, Color::Enum> (
@@ -232,36 +201,11 @@ ConstraintEdge::ConstraintEdge (
 
 void ConstraintEdge::fixPoints ()
 {
-    G3D::Vector3 begin = GetBegin ()->GetVector ();
-    G3D::Vector3 end = GetEnd ()->GetVector ();
-    size_t longAxis = 
-	(abs (end[0] - begin[0]) > abs (end[1] - begin[1])) ? 0 : 1;
     vector<int> side (GetPointCount ());
-    size_t other[] = {1, 0};
-    size_t 
-	countPlus = 0,
-	countMinus = 0,
-	countZero = 0;
+    size_t countPlus, countMinus, countZero;
     int correctSide;
-    for (size_t i = 1; i < GetPointCount () - 1; ++i)
-    {
-	G3D::Vector3 point = GetPoint (i);
-	float pointValue = 
-	    point[other[longAxis]] - begin[other[longAxis]] -
-	    (point[longAxis] - begin[longAxis]) * 
-	    (end[other[longAxis]] - begin[other[longAxis]]) / 
-	    (end[longAxis] - begin[longAxis]);
-	side[i] = G3D::fuzzyGt (pointValue, 0.0) ? 1 : 
-	    (G3D::fuzzyLt (pointValue, 0.0) ? -1 : 0);
-	if (side[i] > 0)
-	    ++countPlus;
-	else if (side[i] < 0)
-	    ++countMinus;
-	else
-	    ++countZero;
-    }
 
-
+    computeSide (&side, &countPlus, &countMinus, &countZero);
     size_t maxCount = max (countPlus, max (countMinus, countZero));
     if (maxCount == countPlus)
 	correctSide = 1;
@@ -277,6 +221,34 @@ void ConstraintEdge::fixPoints ()
 	    fixPoint (i, side, correctSide);
 	    side[i] = correctSide;
 	}
+}
+
+void ConstraintEdge::computeSide (vector<int>* side, size_t* countPlus,
+				  size_t* countMinus, size_t* countZero)
+{
+    G3D::Vector3 begin = GetBegin ()->GetVector ();
+    G3D::Vector3 end = GetEnd ()->GetVector ();
+    size_t other[] = {1, 0};
+    size_t longAxis = 
+	(abs (end[0] - begin[0]) > abs (end[1] - begin[1])) ? 0 : 1;
+    *countPlus = *countMinus = *countZero = 0;
+    for (size_t i = 1; i < GetPointCount () - 1; ++i)
+    {
+	G3D::Vector3 point = GetPoint (i);
+	float pointValue = 
+	    point[other[longAxis]] - begin[other[longAxis]] -
+	    (point[longAxis] - begin[longAxis]) * 
+	    (end[other[longAxis]] - begin[other[longAxis]]) / 
+	    (end[longAxis] - begin[longAxis]);
+	(*side)[i] = G3D::fuzzyGt (pointValue, 0.0) ? 1 : 
+	    (G3D::fuzzyLt (pointValue, 0.0) ? -1 : 0);
+	if ((*side)[i] > 0)
+	    ++(*countPlus);
+	else if ((*side)[i] < 0)
+	    ++(*countMinus);
+	else
+	    ++(*countZero);
+    }
 }
 
 void ConstraintEdge::fixPoint (
@@ -295,12 +267,7 @@ void ConstraintEdge::fixPoint (
 G3D::Vector3 ConstraintEdge::computePoint (size_t i) const
 {
     bool success;
-    G3D::Vector3 result;
-    //if (m_piecewise)
-	result = computePointMulti (i, &success);
-	//else
-	//result = computePointBisection (i, &success);
-    return result;
+    return computePointMulti (i, &success);
 }
 
 
@@ -343,142 +310,23 @@ G3D::Vector3 ConstraintEdge::computePointMulti (
 	{
 	    G3D::Vector3 result (gsl_vector_get (root, 0),
 				 gsl_vector_get (root, 1), 0);
-/*
-	    if ((current - result).squaredLength () > 
-		(m_bubbleBox.high () - m_bubbleBox.low ()).squaredLength () / 3)
-	    {
-		cdbg << "Multi-root fail: distant root, aabb bubble=" 
-		     << m_bubbleBox << " root=" << result
-		     << " constraint=" << constraintIndex 
-		     << ", index=" << i << endl;
-		*success = false;
-		return current;
-	    }
-	    else
-*/
-	    {
-/*
 		cdbg << "Multi-root success, iterations " 
 		     << (NUMBER_ITERATIONS - numberIterations) << " " 
 		     << result
 		     << " constraint=" << constraintIndex 
 		     << ", index=" << i << endl;
-*/
-		*success = true;
-		return result;
-	    }
-
+	    *success = true;
 	    return result;
 	}
 	
     }
     else
     {
-/*
 	*success = false;
 	cdbg << "Multi-root fail: no solution, " 
 	     << " constraint=" << constraintIndex << ", index=" << i << endl;
-*/
 	return current;
     }
 }
 
 
-G3D::Vector3 ConstraintEdge::computePointBisection (
-    size_t i, bool* success) const
-{
-    G3D::Vector3 begin = GetBegin ()->GetVector ();
-    G3D::Vector3 end = GetEnd ()->GetVector ();
-    double dx = abs (end.x - begin.x);
-    double dy = abs (end.y - begin.y);
-    G3D::Vector3 current = begin + (end - begin) * i / (GetPointCount () - 1);
-    if (dx > dy)
-    {
-	double y = computeValueBisection (0, current, success);
-	return G3D::Vector3 (current.x, y, 0);
-    }
-    else
-    {
-	double x = computeValueBisection (1, current, success);
-	return G3D::Vector3 (x, current.y, 0);
-    }
-}
-
-double ConstraintEdge::computeValueBisection (
-    size_t axis, const G3D::Vector3& current, bool* success) const
-{
-    const char* AXIS_NAME[] = {"x", "y"};
-    size_t other[] = {1, 0};
-    boost::uintmax_t maxIter (100);
-    mt::eps_tolerance<double> tol(numeric_limits<double>::digits - 3);
-    size_t constraintIndex = GetBegin ()->GetConstraintIndex (0);
-    boost::shared_ptr<ExpressionTree> constraint = 
-	m_parsingData->GetConstraint (constraintIndex);
-    double currentX = current[axis];
-    m_parsingData->SetVariable (AXIS_NAME[axis], currentX);
-    double middle = current[other[axis]];
-    double min = m_foamBox.low ()[other[axis]];
-    double max = m_foamBox.high ()[other[axis]];
-    //double min = GetBegin ()->GetVector ()[other[axis]];
-    //double max = GetEnd ()->GetVector ()[other[axis]];
-    //if (min > max)
-    //swap (min, max);
-
-    double firstY;
-    ConstraintEvaluator evaluator (
-	AXIS_NAME[other[axis]], m_parsingData, constraint);
-    *success = false;
-    try
-    {
-	if (min < middle)
-	{
-	    firstY = mt::bisect (evaluator, min, middle, tol, maxIter).first;
-	    *success = true;
-	}
-	else
-	    firstY = -numeric_limits<double>::max ();
-    }
-    catch (exception& err)
-    {
-/*
-	cdbg << endl << AXIS_NAME[other[axis]] << ": "
-	     << min << " " << middle << " " << err.what () << endl;
-	cdbg << evaluator (min) << ", " << evaluator (middle) << endl;	
-	m_parsingData->UnsetVariable (AXIS_NAME[other[axis]]);
-	boost::shared_ptr<ExpressionTree> simplifiedConstraint (
-	    constraint->GetSimplified ());
-	cdbg << simplifiedConstraint->ToString () << endl << endl;
-*/
-
-	firstY = -numeric_limits<double>::max ();	
-    }
-
-    double secondY;
-    try 
-    {
-	if (middle < max)
-	{
-	    secondY = mt::bisect (evaluator, middle, max, tol, maxIter).first;
-	    *success = true;
-	}
-	else
-	    secondY = numeric_limits<double>::max ();
-    }
-    catch (exception& err)
-    {
-/*
-	cdbg << endl  << AXIS_NAME[other[axis]] << ": "
-	     << middle << " " << max << " " << err.what () << endl;
-	cdbg << evaluator (middle) << ", " << evaluator (max) << endl;
-	m_parsingData->UnsetVariable (AXIS_NAME[other[axis]]);
-	boost::shared_ptr<ExpressionTree> simplifiedConstraint (
-	    constraint->GetSimplified ());
-	cdbg << simplifiedConstraint->ToString () << endl << endl;
-*/
-	secondY = numeric_limits<double>::max ();
-    }
-    double y = (*success) ? 
-	((middle - firstY < secondY - middle) ? firstY : secondY) : 
-	current[other[axis]];
-    return y;
-}
