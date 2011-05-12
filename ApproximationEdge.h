@@ -21,6 +21,10 @@ public:
 	ElementStatus::Enum duplicateStatus = ElementStatus::ORIGINAL);
     virtual size_t GetPointCount () const;
     virtual G3D::Vector3 GetPoint (size_t i) const;
+    void SetPoint (size_t i, const G3D::Vector3& p)
+    {
+	m_points[i] = p;
+    }
     virtual void SetEnd(boost::shared_ptr<Vertex> end);
 
 protected:
@@ -29,7 +33,7 @@ protected:
     void cachePoints ();
 
 private:
-    const static size_t POINT_COUNT = 5;
+    const static size_t POINT_COUNT = 7;
 
 private:
     boost::array<G3D::Vector3, POINT_COUNT> m_points;

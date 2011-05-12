@@ -34,8 +34,8 @@ Vertex::Vertex(double x, double y, double z,
     m_vector (x, y, z)
 {}
 
-Vertex::Vertex (const G3D::Vector3& position) : 
-    Element (INVALID_INDEX, ElementStatus::ORIGINAL),
+Vertex::Vertex (const G3D::Vector3& position, size_t id) : 
+    Element (id, ElementStatus::ORIGINAL),
     m_vector (position)
 {}
 
@@ -52,12 +52,20 @@ G3D::Vector3int16 Vertex::GetDomain () const
 
 bool Vertex::operator< (const Vertex& other) const
 {
-    return GetVector ().x < other.GetVector ().x ||
-	(GetVector ().x == other.GetVector ().x && 
-	 GetVector ().y < other.GetVector ().y) ||
-	(GetVector ().x == other.GetVector ().x && 
-	 GetVector ().y == other.GetVector ().y && 
-	 GetVector ().z < other.GetVector ().z);
+    return 
+	GetId () < other.GetId () ||
+
+	(GetId () == other.GetId () &&
+	 G3D::fuzzyLt (GetVector ().x, other.GetVector ().x)) ||
+
+	(GetId () == other.GetId () &&
+	 G3D::fuzzyEq (GetVector ().x, other.GetVector ().x) && 
+	 G3D::fuzzyLt (GetVector ().y, other.GetVector ().y)) ||
+
+	(GetId () == other.GetId () &&
+	 G3D::fuzzyEq (GetVector ().x, other.GetVector ().x) && 
+	 G3D::fuzzyEq (GetVector ().y, other.GetVector ().y) && 
+	 G3D::fuzzyLt (GetVector ().z, other.GetVector ().z));
 }
 
 bool Vertex::operator== (const Vertex& other) const
@@ -119,12 +127,7 @@ boost::shared_ptr<Vertex> Vertex::GetDuplicate (
     VertexSet* vertexSet) const
 {
     boost::shared_ptr<Vertex> searchDummy = boost::make_shared<Vertex>(
-	periods.TorusTranslate (GetVector (), translation));
-    if (this->GetId () == 1124)
-    {
-	ostream_iterator<boost::shared_ptr<Vertex> > o (cdbg, "\n");
-	copy (vertexSet->begin (), vertexSet->end (), o);
-    }
+	periods.TorusTranslate (GetVector (), translation), GetId ());
     VertexSet::iterator it = fuzzyFind 
 	<VertexSet, VertexSet::iterator, VertexSet::key_type> (
 	    *vertexSet, searchDummy);

@@ -19,7 +19,7 @@ public:
     ConstraintEdge (ParsingData* parsingData,
 		    const boost::shared_ptr<Vertex>& begin,
 		    const boost::shared_ptr<Vertex>& end,
-		    const G3D::AABox& box, const G3D::Vector3& center);
+		    const G3D::AABox& foamBox, const G3D::AABox& bubbleBox);
 
 protected:
     virtual G3D::Vector3 computePoint (size_t i) const;
@@ -27,11 +27,14 @@ protected:
     G3D::Vector3 computePointBisection (size_t i, bool* success) const;
     double computeValueBisection (
 	size_t axis, const G3D::Vector3& current, bool* success) const;
+    void fixPoints ();
+    void fixPoint (size_t i, const vector<int>& side, int correctSide);
 
 
 private:
     ParsingData* m_parsingData;
-    G3D::AABox m_box;
+    G3D::AABox m_foamBox;
+    G3D::AABox m_bubbleBox;
     G3D::Vector3 m_center;
     boost::shared_ptr<ExpressionTree> m_constraint;
     bool m_piecewise;

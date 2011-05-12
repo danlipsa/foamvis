@@ -415,7 +415,7 @@ void Foam::Preprocess ()
     calculateBoundingBox ();
     sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);
     setMissingPressureZero ();
-    //addConstraintEdges ();
+    addConstraintEdges ();
     calculatePerimeterOverArea ();
 }
 
@@ -428,18 +428,17 @@ void Foam::addConstraintEdges ()
 	    boost::shared_ptr<Face> face = body->GetFace (0);
 	    if (! face->IsClosed ())
 	    {
-		const G3D::AABox& box = GetBoundingBox ();
 		boost::shared_ptr<Vertex> end = 
 		    face->GetOrientedEdge (0)->GetBegin ();
 		boost::shared_ptr<Vertex> begin = 
 		    face->GetOrientedEdge (
 			face->GetEdgeCount () - 1)->GetEnd ();
-		if (body->GetId () == 370)
+		//if (body->GetId () == 406)
 		{
 		    boost::shared_ptr<Edge> edge (
 			new ConstraintEdge (
 			    &GetParsingData (), begin, end, 
-			    box, face->GetCenter ()));
+			    GetBoundingBox (), body->GetBoundingBox ()));
 		    face->AddEdge (edge);
 		}
 	    }

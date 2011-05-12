@@ -10,6 +10,7 @@
 #include "DebugStream.h"
 #include "ExpressionTree.h"
 #include "ParsingData.h"
+#include "Utils.h"
 #include "Vertex.h"
 
 
@@ -22,20 +23,53 @@ struct ConstraintLineParams
     ConstraintLineParams (
 	ParsingData* parsingData,
 	const boost::shared_ptr<ExpressionTree>& expressionTree,
-	size_t axis,
-	double value) :
+	G3D::Vector3 normal, G3D::Vector3 point) :
 
 	m_parsingData (parsingData),
 	m_expressionTree (expressionTree),
-	m_axis (axis),
-	m_value (value)
+	m_normal (normal),
+	m_point (point)
     {
+	//cdbg << "normal=" << m_normal << " point=" << m_point << endl;
     }
     ParsingData* m_parsingData;
     boost::shared_ptr<ExpressionTree> m_expressionTree;
-    size_t m_axis;
-    double m_value;
+    G3D::Vector3 m_normal;
+    G3D::Vector3 m_point;
 };
+
+// GslVector
+// ======================================================================
+
+struct GslVector
+{
+    GslVector (size_t n)
+    {
+	m_vector = gsl_vector_alloc (n);
+    }
+    ~GslVector ()
+    {
+	gsl_vector_free (m_vector);
+    }
+    void Set (size_t i, double value)
+    {
+	gsl_vector_set (m_vector, i, value);
+    }
+    gsl_vector* GetVector () const
+    {
+	return m_vector;
+    }
+private:
+    gsl_vector* m_vector;
+};
+
+ostream& operator<< (ostream& ostr, const gsl_vector* v)
+{
+    G3D::Vector3 result (gsl_vector_get (v, 0),
+			 gsl_vector_get (v, 1), 0);
+    return ostr << result;
+}
+
 
 // constraintLineEvaluator
 // ======================================================================
@@ -48,9 +82,20 @@ int constraintLineEvaluator (const gsl_vector* gslX, void* p, gsl_vector* f)
     params->m_parsingData->SetVariable ("x", x[0]);
     params->m_parsingData->SetVariable ("y", x[1]);
     gsl_vector_set (f, 0, params->m_expressionTree->Value ());
-    gsl_vector_set (f, 1, x[params->m_axis] - params->m_value);
+
+
+    //size_t axis = (abs(params->m_normal.x) > abs(params->m_normal.y)) ? 0 : 1;
+    //double value = params->m_point[axis];
+    //gsl_vector_set (f, 1, x[axis] - value);
+
+    gsl_vector_set (
+	f, 1, 
+	(x[0] - params->m_point[0])*params->m_normal[0] + 
+	(x[1] - params->m_point[1])*params->m_normal[1]);
+    //cdbg << "f (" << gslX << ")=" << f << endl;
     return GSL_SUCCESS;
 }
+
 
 
 // Solver
@@ -98,6 +143,7 @@ bool Solver::Solve (
 	    break;
 	x = gsl_multiroot_fsolver_root (m_solver);
 	dx = gsl_multiroot_fsolver_dx (m_solver);
+	//cdbg << "x=" << x << "dx=" << dx << endl;
 	result = gsl_multiroot_test_delta (dx, x, absoluteError, relativeError);
 	--(*maxIter);
     } while (result == GSL_CONTINUE && (*maxIter) > 0);
@@ -126,31 +172,6 @@ string Solver::ErrorToString (int error)
     }
     return ostr.str ();
 }
-
-// GslVector
-// ======================================================================
-
-struct GslVector
-{
-    GslVector (size_t n)
-    {
-	m_vector = gsl_vector_alloc (n);
-    }
-    ~GslVector ()
-    {
-	gsl_vector_free (m_vector);
-    }
-    void Set (size_t i, double value)
-    {
-	gsl_vector_set (m_vector, i, value);
-    }
-    gsl_vector* GetVector () const
-    {
-	return m_vector;
-    }
-private:
-    gsl_vector* m_vector;
-};
 
 
 // ConstraintEvaluator
@@ -187,14 +208,14 @@ ConstraintEdge::ConstraintEdge (
     ParsingData* parsingData,
     const boost::shared_ptr<Vertex>& begin,
     const boost::shared_ptr<Vertex>& end, 
-    const G3D::AABox& box, const G3D::Vector3& center) :
+    const G3D::AABox& foamBox, const G3D::AABox& bubbleBox) :
 
     ApproximationEdge (
 	begin, end, 
 	G3D::Vector3int16(0, 0, 0), 0, ElementStatus::ORIGINAL),
     m_parsingData (parsingData),
-    m_box (box),
-    m_center (center)
+    m_foamBox (foamBox),
+    m_bubbleBox (bubbleBox)
 {
     size_t constraintIndex = GetBegin ()->GetConstraintIndex (0);
     m_constraint = m_parsingData->GetConstraint (constraintIndex);
@@ -204,18 +225,81 @@ ConstraintEdge::ConstraintEdge (
 	m_constraint->GetSimplified ());
     m_piecewise = simplified->HasConditional ();
     cachePoints ();
+    fixPoints ();
     SetAttribute<ColorAttribute, Color::Enum> (
 	EdgeAttributeIndex::COLOR, Color::RED);
 }
+
+void ConstraintEdge::fixPoints ()
+{
+    G3D::Vector3 begin = GetBegin ()->GetVector ();
+    G3D::Vector3 end = GetEnd ()->GetVector ();
+    size_t longAxis = 
+	(abs (end[0] - begin[0]) > abs (end[1] - begin[1])) ? 0 : 1;
+    vector<int> side (GetPointCount ());
+    size_t other[] = {1, 0};
+    size_t 
+	countPlus = 0,
+	countMinus = 0,
+	countZero = 0;
+    int correctSide;
+    for (size_t i = 1; i < GetPointCount () - 1; ++i)
+    {
+	G3D::Vector3 point = GetPoint (i);
+	float pointValue = 
+	    point[other[longAxis]] - begin[other[longAxis]] -
+	    (point[longAxis] - begin[longAxis]) * 
+	    (end[other[longAxis]] - begin[other[longAxis]]) / 
+	    (end[longAxis] - begin[longAxis]);
+	side[i] = G3D::fuzzyGt (pointValue, 0.0) ? 1 : 
+	    (G3D::fuzzyLt (pointValue, 0.0) ? -1 : 0);
+	if (side[i] > 0)
+	    ++countPlus;
+	else if (side[i] < 0)
+	    ++countMinus;
+	else
+	    ++countZero;
+    }
+
+
+    size_t maxCount = max (countPlus, max (countMinus, countZero));
+    if (maxCount == countPlus)
+	correctSide = 1;
+    else if (maxCount == countMinus)
+	correctSide = -1;
+    else
+	correctSide = 0;
+    side[0] = side[side.size () - 1] = correctSide;
+    
+    for (size_t i = 1; i < GetPointCount () - 1; ++i)
+	if (side[i] != correctSide)
+	{
+	    fixPoint (i, side, correctSide);
+	    side[i] = correctSide;
+	}
+}
+
+void ConstraintEdge::fixPoint (
+    size_t i, const vector<int>& side, int correctSide)
+{
+    size_t left = i - 1;
+    size_t right = i + 1;
+    while (right < GetPointCount () && side[right] != correctSide)
+	++right;
+    SetPoint (i, 
+	      GetPoint (left) + 
+	      (GetPoint (right) - GetPoint (left)) / (right - left));
+}
+
 
 G3D::Vector3 ConstraintEdge::computePoint (size_t i) const
 {
     bool success;
     G3D::Vector3 result;
-    if (m_piecewise)
+    //if (m_piecewise)
 	result = computePointMulti (i, &success);
-    else
-	result = computePointBisection (i, &success);
+	//else
+	//result = computePointBisection (i, &success);
     return result;
 }
 
@@ -229,15 +313,12 @@ G3D::Vector3 ConstraintEdge::computePointMulti (
     const double RELATIVE_ERROR = GSL_SQRT_DBL_EPSILON;
     G3D::Vector3 begin = GetBegin ()->GetVector ();
     G3D::Vector3 end = GetEnd ()->GetVector ();
-    double dx = abs (end.x - begin.x);
-    double dy = abs (end.y - begin.y);
     G3D::Vector3 current = begin + (end - begin) * i / (GetPointCount () - 1);
     size_t constraintIndex = GetBegin ()->GetConstraintIndex (0);
     boost::shared_ptr<ExpressionTree> constraint = 
 	m_parsingData->GetConstraint (constraintIndex);
-    size_t axis = (dx > dy) ? 0 : 1;
     ConstraintLineParams clp (m_parsingData, constraint,
-			      axis, current[axis]);
+			      end - begin, current);
     gsl_multiroot_function function;
     function.f = &constraintLineEvaluator;
     function.n = 2;
@@ -246,28 +327,57 @@ G3D::Vector3 ConstraintEdge::computePointMulti (
     guess.Set (0, current[0]);
     guess.Set (1, current[1]);
     Solver solver;
+    //cdbg << "guess=" << guess.GetVector () << endl;
     solver.Set (&function, guess.GetVector ());
     if (solver.Solve (&numberIterations, ABSOLUTE_ERROR, RELATIVE_ERROR))
     {
 	gsl_vector* root = solver.GetRoot ();
 	if (numberIterations == 0)
 	{
-	    *success = false;	    
-	    cdbg << "Solution for constraint " 
-		 << constraintIndex << " point " << i
-		 << " excedeed " << NUMBER_ITERATIONS << endl;
+	    *success = false;
+	    cdbg << "Multi-root fail: # iterations,"
+		 << " constraint=" << constraintIndex << ", index=" << i << endl;
+	    return current;
 	}
 	else
-	    *success = true;
-	return G3D::Vector3 (gsl_vector_get (root, 0),
-			     gsl_vector_get (root, 1), 0);
+	{
+	    G3D::Vector3 result (gsl_vector_get (root, 0),
+				 gsl_vector_get (root, 1), 0);
+/*
+	    if ((current - result).squaredLength () > 
+		(m_bubbleBox.high () - m_bubbleBox.low ()).squaredLength () / 3)
+	    {
+		cdbg << "Multi-root fail: distant root, aabb bubble=" 
+		     << m_bubbleBox << " root=" << result
+		     << " constraint=" << constraintIndex 
+		     << ", index=" << i << endl;
+		*success = false;
+		return current;
+	    }
+	    else
+*/
+	    {
+/*
+		cdbg << "Multi-root success, iterations " 
+		     << (NUMBER_ITERATIONS - numberIterations) << " " 
+		     << result
+		     << " constraint=" << constraintIndex 
+		     << ", index=" << i << endl;
+*/
+		*success = true;
+		return result;
+	    }
+
+	    return result;
+	}
+	
     }
     else
     {
-	*success = false;
 /*
-	cdbg <<     "No solution for constraint " 
-	     << constraintIndex << " point " << i << endl;
+	*success = false;
+	cdbg << "Multi-root fail: no solution, " 
+	     << " constraint=" << constraintIndex << ", index=" << i << endl;
 */
 	return current;
     }
@@ -307,8 +417,8 @@ double ConstraintEdge::computeValueBisection (
     double currentX = current[axis];
     m_parsingData->SetVariable (AXIS_NAME[axis], currentX);
     double middle = current[other[axis]];
-    double min = m_box.low ()[other[axis]];
-    double max = m_box.high ()[other[axis]];
+    double min = m_foamBox.low ()[other[axis]];
+    double max = m_foamBox.high ()[other[axis]];
     //double min = GetBegin ()->GetVector ()[other[axis]];
     //double max = GetEnd ()->GetVector ()[other[axis]];
     //if (min > max)

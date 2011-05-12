@@ -66,7 +66,9 @@ void Edge::UpdateEdgePartOf (const boost::shared_ptr<Edge>& edge)
 
 bool Edge::operator< (const Edge& other) const
 {
-    return GetId () < other.GetId () ||
+    return 
+	GetId () < other.GetId () ||
+
 	(GetId () == other.GetId () &&
 	 *GetBegin () < *other.GetBegin ());
 }
@@ -234,7 +236,8 @@ boost::shared_ptr<Edge> Edge::GetDuplicate (
 {
     boost::shared_ptr<Edge> searchDummy = 
 	boost::make_shared<Edge>(
-	    boost::make_shared<Vertex> (newBegin), GetId ());
+	    boost::make_shared<Vertex> (
+		newBegin, GetBegin ()->GetId ()), GetId ());
     EdgeSet::iterator it = 
 	fuzzyFind <EdgeSet, EdgeSet::iterator, EdgeSet::key_type> (
 	    *edgeSet, searchDummy);

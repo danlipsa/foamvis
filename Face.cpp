@@ -222,7 +222,9 @@ bool Face::fuzzyEq (const Face& other) const
 
 bool Face::operator< (const Face& other) const
 {
-    return GetId () < other.GetId () ||
+    return 
+	GetId () < other.GetId () ||
+
 	(GetId () == other.GetId () &&
 	 *GetOrientedEdge (0)->GetBegin () < 
 	 *other.GetOrientedEdge (0)->GetBegin ());
@@ -310,14 +312,14 @@ boost::shared_ptr<Face> Face::GetDuplicate (
     const OOBox& periods, const G3D::Vector3int16& translation,
     VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet) const
 {
-    const G3D::Vector3& begin = 
-	GetOrientedEdge (0)->GetBegin ()->GetVector ();
+    boost::shared_ptr<Vertex> begin = GetOrientedEdge (0)->GetBegin ();
     const G3D::Vector3& newBegin = 
-	periods.TorusTranslate (begin, translation);
+	periods.TorusTranslate (begin->GetVector (), translation);
     boost::shared_ptr<Face> searchDummy =
 	boost::make_shared<Face> (
 	    boost::make_shared<Edge> (
-		boost::make_shared<Vertex> (newBegin), 0), GetId ());
+		boost::make_shared<Vertex> (
+		    newBegin, begin->GetId ()), 0), GetId ());
     FaceSet::iterator it = 
 	fuzzyFind <FaceSet, FaceSet::iterator, FaceSet::key_type> (
 	    *faceSet, searchDummy);

@@ -32,7 +32,7 @@ public:
     Vertex(double x, double y, double z,
 	   size_t id, 
 	   ElementStatus::Enum duplicateStatus = ElementStatus::ORIGINAL);
-    Vertex (const G3D::Vector3& position);
+    Vertex (const G3D::Vector3& position, size_t id);
 
     /**
      * Is this a physical (not tesselation) vertex
