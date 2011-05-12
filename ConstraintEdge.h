@@ -27,9 +27,11 @@ private:
     G3D::Vector3 computePointMulti (size_t i, bool* success) const;
     void fixPoints ();
     void fixPoint (size_t i, const vector<int>& side, int correctSide);
+    void fixPointInTriple (size_t i, int correctSide);
     void computeSide (vector<int>* side, size_t* countPlus,
 		      size_t* countMinus, size_t* countZero);
-
+    int computeCorrectSide (
+	size_t countPlus,  size_t countMinus, size_t countZero);
 
 private:
     ParsingData* m_parsingData;

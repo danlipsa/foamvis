@@ -16,6 +16,21 @@
 
 // Private Functions and Classes
 // ======================================================================
+float evaluateLineEquation (
+    const G3D::Vector3& begin, const G3D::Vector3& end, 
+    const G3D::Vector3 point)
+{
+    size_t other[] = {1, 0};
+    size_t longAxis = 
+	(abs (end[0] - begin[0]) > abs (end[1] - begin[1])) ? 0 : 1;
+    float pointValue = 
+	point[other[longAxis]] - begin[other[longAxis]] -
+	(point[longAxis] - begin[longAxis]) * 
+	(end[other[longAxis]] - begin[other[longAxis]]) / 
+	(end[longAxis] - begin[longAxis]);
+    return pointValue;
+}
+
 // ConstraintLineParams
 // ======================================================================
 struct ConstraintLineParams
@@ -206,13 +221,7 @@ void ConstraintEdge::fixPoints ()
     int correctSide;
 
     computeSide (&side, &countPlus, &countMinus, &countZero);
-    size_t maxCount = max (countPlus, max (countMinus, countZero));
-    if (maxCount == countPlus)
-	correctSide = 1;
-    else if (maxCount == countMinus)
-	correctSide = -1;
-    else
-	correctSide = 0;
+    correctSide = computeCorrectSide (countPlus, countMinus, countZero);
     side[0] = side[side.size () - 1] = correctSide;
     
     for (size_t i = 1; i < GetPointCount () - 1; ++i)
@@ -221,7 +230,36 @@ void ConstraintEdge::fixPoints ()
 	    fixPoint (i, side, correctSide);
 	    side[i] = correctSide;
 	}
+    for (size_t i = 1; i < GetPointCount () - 1; ++i)
+	fixPointInTriple (i, correctSide);
 }
+
+int ConstraintEdge::computeCorrectSide (
+    size_t countPlus,  size_t countMinus, size_t countZero)
+{
+    int correctSide;
+    size_t maxCount = max (countPlus, max (countMinus, countZero));
+    if (maxCount == countPlus)
+	correctSide = 1;
+    else if (maxCount == countMinus)
+	correctSide = -1;
+    else
+	correctSide = 0;
+    return correctSide;
+}
+
+void ConstraintEdge::fixPointInTriple (size_t i, int correctSide)
+{
+    G3D::Vector3 begin = GetPoint (i - 1);
+    G3D::Vector3 end = GetPoint (i + 1);
+    G3D::Vector3 point = GetPoint (i);
+    float pointValue = evaluateLineEquation (begin, end, point);
+    int side = G3D::fuzzyGt (pointValue, 0.0) ? 1 : 
+	(G3D::fuzzyLt (pointValue, 0.0) ? -1 : 0);
+    if (side != correctSide)
+	SetPoint (i, (begin + end) / 2);
+}
+
 
 void ConstraintEdge::computeSide (vector<int>* side, size_t* countPlus,
 				  size_t* countMinus, size_t* countZero)
@@ -310,11 +348,13 @@ G3D::Vector3 ConstraintEdge::computePointMulti (
 	{
 	    G3D::Vector3 result (gsl_vector_get (root, 0),
 				 gsl_vector_get (root, 1), 0);
+/*
 		cdbg << "Multi-root success, iterations " 
 		     << (NUMBER_ITERATIONS - numberIterations) << " " 
 		     << result
 		     << " constraint=" << constraintIndex 
 		     << ", index=" << i << endl;
+*/
 	    *success = true;
 	    return result;
 	}
@@ -323,8 +363,10 @@ G3D::Vector3 ConstraintEdge::computePointMulti (
     else
     {
 	*success = false;
+/*
 	cdbg << "Multi-root fail: no solution, " 
 	     << " constraint=" << constraintIndex << ", index=" << i << endl;
+*/
 	return current;
     }
 }
