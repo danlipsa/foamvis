@@ -412,10 +412,10 @@ void Foam::Preprocess ()
 	bodiesInsideOriginalDomain (&vertexSet, &edgeSet, &faceSet);
 	calculateTorusClipped ();
     }
-    calculateBoundingBox ();
     sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);
     setMissingPressureZero ();
     addConstraintEdges ();
+    calculateBoundingBox ();
     calculatePerimeterOverArea ();
 }
 
@@ -433,11 +433,12 @@ void Foam::addConstraintEdges ()
 		boost::shared_ptr<Vertex> begin = 
 		    face->GetOrientedEdge (
 			face->GetEdgeCount () - 1)->GetEnd ();
-		//if (body->GetId () == 283)
+		//if (body->GetId () == 446)
 		{
 		    boost::shared_ptr<Edge> edge (
 			new ConstraintEdge (&GetParsingData (), begin, end));
 		    face->AddEdge (edge);
+		    face->CalculateCenter ();
 		}
 	    }
 	}

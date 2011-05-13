@@ -23,12 +23,18 @@ float evaluateLineEquation (
     size_t other[] = {1, 0};
     size_t longAxis = 
 	(abs (end[0] - begin[0]) > abs (end[1] - begin[1])) ? 0 : 1;
-    float pointValue = 
-	point[other[longAxis]] - begin[other[longAxis]] -
-	(point[longAxis] - begin[longAxis]) * 
+    float factorLongAxis = 
 	(end[other[longAxis]] - begin[other[longAxis]]) / 
 	(end[longAxis] - begin[longAxis]);
-    return pointValue;
+    float pointValue = 
+	(point[longAxis] - begin[longAxis]) * factorLongAxis -
+	point[other[longAxis]] + begin[other[longAxis]];
+    if (longAxis == 0)
+	return ((end[longAxis] - begin[longAxis]) > 0) ? 
+	    - pointValue : pointValue;
+    else
+	return (end[longAxis] - begin[longAxis] > 0) ?
+	    pointValue : - pointValue;
 }
 
 // ConstraintLineParams
@@ -256,7 +262,7 @@ void ConstraintEdge::fixPointInTriple (size_t i, int correctSide)
     float pointValue = evaluateLineEquation (begin, end, point);
     int side = G3D::fuzzyGt (pointValue, 0.0) ? 1 : 
 	(G3D::fuzzyLt (pointValue, 0.0) ? -1 : 0);
-    if (side != correctSide)
+    if (side != 0 && side != correctSide)
 	SetPoint (i, (begin + end) / 2);
 }
 
@@ -266,18 +272,11 @@ void ConstraintEdge::computeSide (vector<int>* side, size_t* countPlus,
 {
     G3D::Vector3 begin = GetBegin ()->GetVector ();
     G3D::Vector3 end = GetEnd ()->GetVector ();
-    size_t other[] = {1, 0};
-    size_t longAxis = 
-	(abs (end[0] - begin[0]) > abs (end[1] - begin[1])) ? 0 : 1;
     *countPlus = *countMinus = *countZero = 0;
     for (size_t i = 1; i < GetPointCount () - 1; ++i)
     {
 	G3D::Vector3 point = GetPoint (i);
-	float pointValue = 
-	    point[other[longAxis]] - begin[other[longAxis]] -
-	    (point[longAxis] - begin[longAxis]) * 
-	    (end[other[longAxis]] - begin[other[longAxis]]) / 
-	    (end[longAxis] - begin[longAxis]);
+	float pointValue = evaluateLineEquation (begin, end, point);
 	(*side)[i] = G3D::fuzzyGt (pointValue, 0.0) ? 1 : 
 	    (G3D::fuzzyLt (pointValue, 0.0) ? -1 : 0);
 	if ((*side)[i] > 0)
@@ -340,8 +339,8 @@ G3D::Vector3 ConstraintEdge::computePointMulti (
 	if (numberIterations == 0)
 	{
 	    *success = false;
-	    cdbg << "Multi-root fail: # iterations,"
-		 << " constraint=" << constraintIndex << ", index=" << i << endl;
+	    //cdbg << "Multi-root fail: # iterations,"
+	    //<< " constraint=" << constraintIndex << ", index=" << i << endl;
 	    return current;
 	}
 	else
