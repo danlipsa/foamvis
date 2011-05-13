@@ -36,6 +36,9 @@ private:
 private:
     const Foam& m_foam;
     boost::shared_ptr<Body> m_body;
+    /**
+     * Queue of edges together with the face they are part of.
+     */
     queue<OrientedFaceIndex> m_queue;
     vector<bool> m_traversed;
 };

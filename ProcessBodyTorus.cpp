@@ -111,17 +111,17 @@ void ProcessBodyTorus::restrictFacesAroundAnEdge (
     const OrientedFaceIndex& ofi, 
     vector<OrientedFaceIndex>* possibilities)
 {
-    OrientedEdge nextOe = ofi.GetOrientedEdge ();
+    OrientedEdge oe = ofi.GetOrientedEdge ();
     size_t bodyId = ofi.GetBodyId ();
-    nextOe.Reverse ();
+    oe.Reverse ();
 /*
-    cdbg << " ---------- Trying " << nextOe.GetFacePartOfSize ()
+    cdbg << " ---------- Trying " << oe.GetFacePartOfSize ()
 	 << " possibilities ----------    " << "ofi: " << ofi << endl;
 */
 
     for (OrientedFaceIndexList::const_iterator 
-	     it = nextOe.GetFacePartOfBegin ();
-	 it != nextOe.GetFacePartOfEnd (); it++)
+	     it = oe.GetFacePartOfBegin ();
+	 it != oe.GetFacePartOfEnd (); it++)
     {
 	const OrientedFaceIndex& nextOfi = *it;
 	if (nextOfi.IsStandalone ())
@@ -133,7 +133,7 @@ void ProcessBodyTorus::restrictFacesAroundAnEdge (
 	    //cdbg << "wrong body" << endl;
 	    continue;
 	}
-	if (nextOe.IsReversed () != nextOfi.IsOrientedEdgeReversed ())
+	if (oe.IsReversed () != nextOfi.IsOrientedEdgeReversed ())
 	{
 	    //cdbg << "wrong orientation" << endl;
 	    continue;
