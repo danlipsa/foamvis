@@ -52,6 +52,14 @@ G3D::Vector3int16 Vertex::GetDomain () const
 
 bool Vertex::operator< (const Vertex& other) const
 {
+    return GetVector ().x < other.GetVector ().x ||
+	(GetVector ().x == other.GetVector ().x && 
+	 GetVector ().y < other.GetVector ().y) ||
+	(GetVector ().x == other.GetVector ().x && 
+	 GetVector ().y == other.GetVector ().y && 
+	 GetVector ().z < other.GetVector ().z);
+
+/*
     return 
 	GetId () < other.GetId () ||
 
@@ -66,12 +74,19 @@ bool Vertex::operator< (const Vertex& other) const
 	 G3D::fuzzyEq (GetVector ().x, other.GetVector ().x) && 
 	 G3D::fuzzyEq (GetVector ().y, other.GetVector ().y) && 
 	 G3D::fuzzyLt (GetVector ().z, other.GetVector ().z));
+*/
 }
 
 bool Vertex::operator== (const Vertex& other) const
 {
     return GetVector () == other.GetVector ();
 }
+
+bool Vertex::fuzzyEq (const Vertex& other) const
+{
+    return IsFuzzyZero (GetVector () - other.GetVector ());
+}
+
 
 bool Vertex::IsPhysical (bool is2D, bool isQuadratic) const 
 {
@@ -137,11 +152,6 @@ boost::shared_ptr<Vertex> Vertex::GetDuplicate (
 	periods, translation);
     vertexSet->insert (duplicate);
     return duplicate;
-}
-
-bool Vertex::fuzzyEq (const Vertex& other) const
-{
-    return IsFuzzyZero (GetVector () - other.GetVector ());
 }
 
 size_t Vertex::GetConstraintIndex (size_t i) const
