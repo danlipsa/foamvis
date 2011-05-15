@@ -123,7 +123,8 @@ ostream& Element::PrintAttributes (ostream& ostr) const
 {
     if (HasAttributes ())
 	for (size_t i = 0; i < m_attributes.size (); ++i)
-	    ostr << m_attributes[i] << " ";
+	    if (HasAttribute (i))
+		ostr << m_attributes[i] << " ";
     return ostr;
 }
 
