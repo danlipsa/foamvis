@@ -439,9 +439,6 @@ void DisplayFaceTriangleFan::operator() (const OrientedFace*  of) const
 	    ::glVertex (oe.GetPoint (pointIndex));
 	pointIndex = 0;
     }
-	
-    if (! of->IsClosed ())
-	::glVertex (of->GetOrientedEdge (0).GetBegin ()->GetVector ());
     glEnd ();
 }
 
