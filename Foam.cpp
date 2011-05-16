@@ -218,15 +218,14 @@ void Foam::SetBody (size_t i, vector<int>& faces,
     if (&attributes != 0)
         body->StoreAttributes (attributes,
 			       m_attributesInfo[DefineAttribute::BODY]);
-/*
-    if (body->HasAttribute (BodyAttributeIndex::ORIGINAL))
-    {
-	size_t newId = body->GetAttribute<
-	IntegerAttribute, IntegerAttribute::value_type> (
-	    BodyAttributeIndex::ORIGINAL) - 1;
-	body->SetId (newId);
-    }
-*/
+    if (Is2D ())
+	if (body->HasAttribute (BodyAttributeIndex::ORIGINAL))
+	{
+	    size_t newId = body->GetAttribute<
+	    IntegerAttribute, IntegerAttribute::value_type> (
+		BodyAttributeIndex::ORIGINAL) - 1;
+	    body->SetId (newId);
+	}
     m_bodies[i] = body;
 }
 

@@ -95,7 +95,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     setTabOrder (radioButtonCenterPath, sliderTimeSteps);
     connectSignals ();
     horizontalSliderT1Size->setValue (60);
-    comboBoxWindowSize->setCurrentIndex (WindowSize::GL_720x480);
+    comboBoxWindowSize->setCurrentIndex (WindowSize::GL_720x480);    
 }
 
 
@@ -253,7 +253,7 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 	radioButtonEdgesNormal->toggle ();
 	tabWidget->setCurrentWidget (edges);
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::TWO_D);
-	
+	comboBoxInteractionMode->setCurrentIndex (InteractionMode::SCALE);	
     }
     else
     {

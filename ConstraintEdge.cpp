@@ -236,6 +236,7 @@ void ConstraintEdge::fixPoints ()
 	    fixPoint (i, side, correctSide);
 	    side[i] = correctSide;
 	}
+
     for (size_t i = 1; i < GetPointCount () - 1; ++i)
 	fixPointInTriple (i, correctSide);
 }

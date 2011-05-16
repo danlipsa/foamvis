@@ -192,9 +192,10 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
-0.5.     - bug for tmp_in.dmp (array on several lines)
+0.5.1928 - bug for tmp_in.dmp (array on several lines)
 	 - changed body ID to the one specified in ORIGINAL attribute 
-	   (fixes ell0.700000_750v_5.000000_1.dmp)
+	   (fixes ell0.700000_750v_5.000000_1.dmp) only for 2D. Otherwise
+	   it breaks sphereall/sphere_0.711204_144_0001.dmp
 	 - added missing body edges from constraints specification
 0.4.1852 - linked views
 	 - edit highlight colors for colormaps

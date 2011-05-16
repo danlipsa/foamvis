@@ -152,7 +152,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_boundingBoxShown (false),
       m_bodiesBoundingBoxesShown (false),
       m_axesShown (false),
-      m_standaloneElementsShown (true),
+      m_standaloneElementsShown (false),
       m_bodySelector (AllBodySelector::Get ()),
       m_timeDisplacement (0.0),
       m_playMovie (false),
