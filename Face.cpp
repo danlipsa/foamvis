@@ -321,9 +321,7 @@ boost::shared_ptr<Face> Face::GetDuplicate (
 	    boost::make_shared<Edge> (
 		boost::make_shared<Vertex> (
 		    newBegin, begin->GetId ()), 0), GetId ());
-    FaceSet::iterator it = 
-	fuzzyFind <FaceSet, FaceSet::iterator, FaceSet::key_type> (
-	    *faceSet, searchDummy);
+    FaceSet::iterator it = faceSet->find (searchDummy);
     if (it != faceSet->end ())
 	return *it;
     boost::shared_ptr<Face> duplicate = this->createDuplicate (

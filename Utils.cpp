@@ -21,28 +21,7 @@ bool IsFuzzyZero (const G3D::Vector3& v)
     return v.squaredMagnitude () < fuzzyEpsilon * fuzzyEpsilon;
 }
 
-template <typename Container, 
-	  typename ContainerIterator,
-	  typename ContainerKeyType>
-ContainerIterator fuzzyFind (const Container& s, const ContainerKeyType& x)
-{
-    ContainerIterator it = s.lower_bound (x);
-    if (it != s.end () && (*it)->fuzzyEq (*x))
-	return it;
-    if (it != s.begin ())
-    {
-	--it;
-	if ((*(it))->fuzzyEq (*x))
-	    return it;
-    }
-    /*
-    pair<ContainerIterator, ContainerIterator> ret = s.equal_range (x);
-    for (ContainerIterator it = ret.first; it != ret.second; ++it)
-	if ((*it)->fuzzyEq (*x))
-	    return it;
-    */
-    return s.end ();
-}
+
 
 // ToString functionality
 // ======================================================================
@@ -292,13 +271,6 @@ operator() (Aggregate aggregate, Container& container, G3D::Vector3* v)
 // Template instantiations
 //======================================================================
 
-// fuzzyFind
-// ======================================================================
-template std::_Rb_tree_const_iterator<boost::shared_ptr<Vertex> > fuzzyFind<std::set<boost::shared_ptr<Vertex>, VertexLessThan, std::allocator<boost::shared_ptr<Vertex> > >, std::_Rb_tree_const_iterator<boost::shared_ptr<Vertex> >, boost::shared_ptr<Vertex> >(std::set<boost::shared_ptr<Vertex>, VertexLessThan, std::allocator<boost::shared_ptr<Vertex> > > const&, boost::shared_ptr<Vertex> const&);
-
-template std::_Rb_tree_const_iterator<boost::shared_ptr<Edge> > fuzzyFind<std::set<boost::shared_ptr<Edge>, EdgeLessThan, std::allocator<boost::shared_ptr<Edge> > >, std::_Rb_tree_const_iterator<boost::shared_ptr<Edge> >, boost::shared_ptr<Edge> >(std::set<boost::shared_ptr<Edge>, EdgeLessThan, std::allocator<boost::shared_ptr<Edge> > > const&, boost::shared_ptr<Edge> const&);
-
-template std::_Rb_tree_const_iterator<boost::shared_ptr<Face> > fuzzyFind<std::set<boost::shared_ptr<Face>, FaceLessThan, std::allocator<boost::shared_ptr<Face> > >, std::_Rb_tree_const_iterator<boost::shared_ptr<Face> >, boost::shared_ptr<Face> >(std::set<boost::shared_ptr<Face>, FaceLessThan, std::allocator<boost::shared_ptr<Face> > > const&, boost::shared_ptr<Face> const&);
 
 
 // CalculateAggregate

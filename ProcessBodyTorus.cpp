@@ -71,9 +71,6 @@ bool ProcessBodyTorus::Step (
     return true;
 }
 
-
-// Private Methods
-// ======================================================================
 void ProcessBodyTorus::push (boost::shared_ptr<OrientedFace> of)
 {
     for (size_t i = 0; i < of->size (); i++)
@@ -118,6 +115,7 @@ void ProcessBodyTorus::restrictFacesAroundAnEdge (
     cdbg << " ---------- Trying " << oe.GetFacePartOfSize ()
 	 << " possibilities ----------    " << "ofi: " << ofi << endl;
 */
+
 
     for (OrientedFaceIndexList::const_iterator 
 	     it = oe.GetFacePartOfBegin ();

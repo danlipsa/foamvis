@@ -62,5 +62,3 @@ bool OrientedFaceIndex::IsStandalone () const
     return GetOrientedFace ()->IsStandalone ();
 }
 
-// Static and friends methods
-// ======================================================================

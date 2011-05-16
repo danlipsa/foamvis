@@ -238,9 +238,7 @@ boost::shared_ptr<Edge> Edge::GetDuplicate (
 	boost::make_shared<Edge>(
 	    boost::make_shared<Vertex> (
 		newBegin, GetBegin ()->GetId ()), GetId ());
-    EdgeSet::iterator it = 
-	fuzzyFind <EdgeSet, EdgeSet::iterator, EdgeSet::key_type> (
-	    *edgeSet, searchDummy);
+    EdgeSet::iterator it = edgeSet->find (searchDummy);
     if (it != edgeSet->end ())
 	return *it;
     boost::shared_ptr<Edge> duplicate = createDuplicate (

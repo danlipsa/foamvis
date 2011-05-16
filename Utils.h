@@ -16,13 +16,6 @@
  * fuzzyEpsilon squared.
  */
 bool IsFuzzyZero (const G3D::Vector3& v);
-/**
- * Finds an item in a container using fuzzy comparison
- */
-template <typename Container, 
-	  typename ContainerIterator,
-	  typename ContainerKeyType>
-ContainerIterator fuzzyFind (const Container& s, const ContainerKeyType& x);
 
 // ToString functionality
 // ======================================================================
