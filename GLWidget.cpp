@@ -152,7 +152,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_boundingBoxShown (false),
       m_bodiesBoundingBoxesShown (false),
       m_axesShown (false),
-      m_standaloneElementsShown (false),
+      m_standaloneElementsShown (true),
       m_bodySelector (AllBodySelector::Get ()),
       m_timeDisplacement (0.0),
       m_playMovie (false),
@@ -252,12 +252,6 @@ void GLWidget::createActions ()
     m_actionBodyStationarySet->setStatusTip(tr("Set stationary"));
     connect(m_actionBodyStationarySet.get (), SIGNAL(triggered()),
 	    this, SLOT(BodyStationarySet ()));
-
-    m_actionBodyStationaryTwoSet = boost::make_shared<QAction> (
-	tr("&Set stationary two"), this);
-    m_actionBodyStationaryTwoSet->setStatusTip(tr("Set stationary two"));
-    connect(m_actionBodyStationaryTwoSet.get (), SIGNAL(triggered()),
-	    this, SLOT(BodyStationaryTwoSet ()));
 
     m_actionBodyStationaryReset = boost::make_shared<QAction> (
 	tr("&Reset stationary"), this);
@@ -1216,19 +1210,25 @@ void GLWidget::setLabel ()
     m_labelStatusBar->setText (QString (s.c_str ()));
 }
 
-void GLWidget::BodyStationaryTwoSet ()
-{
-}
 
 void GLWidget::BodyStationarySet ()
 {
     ViewSettings& vs = *GetViewSettings ();
     vector<size_t> bodies;
     brushedBodies (m_contextMenuPos, &bodies);
-    vs.SetBodyStationaryId (bodies[0]);
-    vs.SetBodyStationaryTimeStep (m_timeStep);
-    setLabel ();
-    update ();
+    if (bodies.size () != 0)
+    {
+	vs.SetBodyStationaryId (bodies[0]);
+	vs.SetBodyStationaryTimeStep (m_timeStep);
+	setLabel ();
+	update ();
+    }
+    else
+    {
+	QMessageBox msgBox (this);
+	msgBox.setText("No body selected");
+	msgBox.exec();
+    }
 }
 
 void GLWidget::BodyStationaryReset ()
@@ -2038,7 +2038,6 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	{
 	    QMenu* menuBody = menu.addMenu ("Body");
 	    menuBody->addAction (m_actionBodyStationarySet.get ());
-	    menuBody->addAction (m_actionBodyStationaryTwoSet.get ());
 	    menuBody->addAction (m_actionBodyStationaryReset.get ());
 	    menuBody->addAction (m_actionBodyContextAdd.get ());
 	    menuBody->addAction (m_actionBodyContextReset.get ());

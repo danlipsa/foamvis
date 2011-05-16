@@ -57,7 +57,7 @@ press c twice to configure the build and then g to generate the makefile and exi
 make -j <number_of_processors> (or just make if you have one processor)
 make install
 
-Copy Copy http://csgalati.swansea.ac.uk/foam/build/gsl-1.15.tar.gz to ~
+Copy http://csgalati.swansea.ac.uk/foam/build/gsl-1.15.tar.gz to ~
 tar xzf gsl-1.15.tar.gz
 cd gsl-1.15
 ./configure
@@ -192,6 +192,7 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
+0.5.
 0.5.1928 - bug for tmp_in.dmp (array on several lines)
 	 - changed body ID to the one specified in ORIGINAL attribute 
 	   (fixes ell0.700000_750v_5.000000_1.dmp) only for 2D. Otherwise
