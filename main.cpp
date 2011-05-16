@@ -158,10 +158,45 @@ private:
 };
 
 
+struct Options
+{
+    enum Enum
+    {
+	READ_TRANSFORMATION,    // a
+	SHOW_ORIGINAL_PRESSURE, // o
+	DEBUG_PARSING,          // p
+	READ_T1S,               // r
+	DEBUG_SCANNING,         // s
+	TEXT_OUTPUT,            // t
+	COUNT
+    };
+    Options::Enum toOptions (char c)
+    {
+	switch (c)
+	{
+	case 'a':
+	    return Options::READ_TRANSFORMATION;
+	case 'o':
+	    return Options::SHOW_ORIGINAL_PRESSURE;
+	case 'p':
+	    return Options::DEBUG_PARSING;
+	case 'r':
+	    return Options::READ_T1S;
+	case 's':
+	    return Options::DEBUG_SCANNING;
+	case 't':
+	    return Options::TEXT_OUTPUT;
+	default:
+	    ThrowException ("Invalid Options::Enum: ", c);
+	    return 0;
+	}
+    }
+};
+
+
 void readOptions (
     int argc, char *argv[],
-    bool* debugParsing, bool* debugScanning, bool* textOutput, 
-    bool* adjustPressure, char** t1sFile)
+    boost::array<bool, Options::COUNT>* options,  char** t1sFile)
 {
     *adjustPressure = true;
     *textOutput = false;
@@ -171,14 +206,14 @@ void readOptions (
 
     opterr = 0;
 
-    while ((c = getopt (argc, argv, "opr:st")) != -1)
+    while ((c = getopt (argc, argv, "a:opr:st")) != -1)
 	switch (c)
 	{
 	case 'o':
-	    *adjustPressure = false;
+	    options[Options::toOptions[c]] = true;
 	    break;
 	case 'p':
-	    *debugParsing = true;
+	    options[Options::DEBUG_PARSING] = true;
 	    break;
 	case 'r':
 	    *t1sFile = optarg;
@@ -226,6 +261,8 @@ void printHelp ()
     cdbg << "foam [OPTIONS] <files> ...\n"
 	 << "where: <files> - names of a data files (can use shell filters)\n"
 	 << "OPTIONS:\n"
+	 << "       -a <x> <y> <angle>: specify a translation and rotation\n"
+	"so that an object (constraint) in the foam stays stationary\n"
 	 << "       -o : show original pressure values\n"
 	 << "       -p : debug parsing\n"
 	 << "       -r <t1s> : load <t1s>, "
