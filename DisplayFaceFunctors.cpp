@@ -154,7 +154,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	bodyId = body->GetId ();
     }
     if (! of->IsStandalone () && this->m_glWidget.IsBodyStationaryMarked () &&
-	bodyId == vs->GetBodyStationaryId ())
+	bodyId == vs->GetStationaryBodyId ())
     {
 	glColor (this->m_glWidget.GetHighlightColor (
 		     this->m_propertySetter.GetViewNumber (),
@@ -264,7 +264,7 @@ display (const boost::shared_ptr<OrientedFace>& of)
 	size_t bodyId = body->GetId ();
 	const ViewSettings& vs = *this->m_glWidget.GetViewSettings (
 	    this->m_propertySetter.GetViewNumber ());
-	stationaryOrContext = bodyId == vs.GetBodyStationaryId () || 
+	stationaryOrContext = bodyId == vs.GetStationaryBodyId () || 
 	    vs.IsBodyContext (bodyId);
     }
     glColor ((this->m_focus == DisplayElement::FOCUS || stationaryOrContext) ?

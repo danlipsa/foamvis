@@ -61,6 +61,10 @@
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/density.hpp>
 #include <boost/accumulators/statistics/median.hpp>
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/variables_map.hpp>
+#include <boost/program_options/parsers.hpp>
+#include <boost/tokenizer.hpp>
 
 // required by GLG3D
 #include <GLG3D/GL/glew.h>
@@ -114,4 +118,5 @@
 using namespace std;
 namespace bl = boost::lambda;
 namespace acc = boost::accumulators;
+namespace po = boost::program_options;
 #endif //__cplusplus

@@ -318,13 +318,13 @@ bool FoamAlongTime::T1sAvailable () const
     return false;
 }
 
-void FoamAlongTime::ReadT1s (const char* fileName, size_t timeSteps)
+void FoamAlongTime::ReadT1s (const string& fileName, size_t timeSteps)
 {
     cdbg << "Parsing T1s file..." << endl;
     const size_t LINE_LENGTH = 256;
     ifstream in;
     in.exceptions (ios::failbit | ios::badbit);
-    in.open (fileName);
+    in.open (fileName.c_str ());
     size_t timeStep;
     float x, y;
     if (m_t1s.size () < timeSteps)

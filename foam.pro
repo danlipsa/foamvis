@@ -1,4 +1,4 @@
-HEADERS += Application.h ApproximationEdge.h\
+HEADERS += AffineMapNames.h Application.h ApproximationEdge.h\
 	Attribute.h AttributeCreator.h AttributeInfo.h \
 	AttributeHistogram.h HistogramHeight.h Body.h \
 	BodyAlongTime.h BodyIndex.h BodySelector.h \
@@ -125,6 +125,7 @@ LIBS += "-ldl"
 LIBS += "-lQt3D"
 LIBS += "-lgslcblas"
 LIBS += "-lgsl"
+LIBS += "-lboost_program_options"
 }
 
 # Local Variables:

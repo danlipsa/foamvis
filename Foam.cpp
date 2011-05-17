@@ -673,6 +673,12 @@ bool Foam::ExistsBodyWithValueIn (
     return it != m_bodies.end ();
 }
 
+void Foam::SetAffineMap (const AffineMapNames& names)
+{
+    for (size_t i = 0; i < m_affineMap.size (); ++i)
+	m_affineMap.Set (i, GetParsingData ().GetVariableValue (names.Get (i)));
+}
+
 
 // Static and Friends Methods
 // ======================================================================

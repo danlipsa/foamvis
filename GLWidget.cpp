@@ -247,29 +247,35 @@ void GLWidget::createActions ()
     connect(m_actionResetSelectedLightNumber.get (), SIGNAL(triggered()),
 	    this, SLOT(ResetSelectedLightNumber ()));
 
-    m_actionBodyStationarySet = boost::make_shared<QAction> (
-	tr("&Set stationary"), this);
-    m_actionBodyStationarySet->setStatusTip(tr("Set stationary"));
-    connect(m_actionBodyStationarySet.get (), SIGNAL(triggered()),
-	    this, SLOT(BodyStationarySet ()));
+    m_actionStationaryBody = boost::make_shared<QAction> (
+	tr("&Body"), this);
+    m_actionStationaryBody->setStatusTip(tr("Stationary body"));
+    connect(m_actionStationaryBody.get (), SIGNAL(triggered()),
+	    this, SLOT(StationaryBody ()));
 
-    m_actionBodyStationaryReset = boost::make_shared<QAction> (
-	tr("&Reset stationary"), this);
-    m_actionBodyStationaryReset->setStatusTip(tr("Reset stationary"));
-    connect(m_actionBodyStationaryReset.get (), SIGNAL(triggered()),
-	    this, SLOT(BodyStationaryReset ()));
+    m_actionStationaryObject = boost::make_shared<QAction> (
+	tr("&Object"), this);
+    m_actionStationaryObject->setStatusTip(tr("Stationary object"));
+    connect(m_actionStationaryObject.get (), SIGNAL(triggered()),
+	    this, SLOT(StationaryObject ()));
 
-    m_actionBodyContextAdd = boost::make_shared<QAction> (
-	tr("&Add context"), this);
-    m_actionBodyContextAdd->setStatusTip(tr("Add context"));
-    connect(m_actionBodyContextAdd.get (), SIGNAL(triggered()),
-	    this, SLOT(BodyContextAdd ()));
+    m_actionStationaryReset = boost::make_shared<QAction> (
+	tr("&Reset"), this);
+    m_actionStationaryReset->setStatusTip(tr("Stationary reset"));
+    connect(m_actionStationaryReset.get (), SIGNAL(triggered()),
+	    this, SLOT(StationaryReset ()));
 
-    m_actionBodyContextReset = boost::make_shared<QAction> (
-	tr("&Reset context"), this);
-    m_actionBodyContextReset->setStatusTip(tr("Reset context"));
-    connect(m_actionBodyContextReset.get (), SIGNAL(triggered()),
-	    this, SLOT(BodyContextReset ()));
+    m_actionContextBody = boost::make_shared<QAction> (
+	tr("&Body"), this);
+    m_actionContextBody->setStatusTip(tr("Context body"));
+    connect(m_actionContextBody.get (), SIGNAL(triggered()),
+	    this, SLOT(ContextBody ()));
+
+    m_actionContextReset = boost::make_shared<QAction> (
+	tr("&Reset"), this);
+    m_actionContextReset->setStatusTip(tr("Context reset"));
+    connect(m_actionContextReset.get (), SIGNAL(triggered()),
+	    this, SLOT(ContextReset ()));
 
     m_actionInfoFocus = boost::make_shared<QAction> (tr("&Focus"), this);
     m_actionInfoFocus->setStatusTip(tr("Info focus"));
@@ -597,14 +603,14 @@ void GLWidget::translateFoamStationaryBody (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
     const ViewSettings& vs = *GetViewSettings (viewNumber);
-    if (vs.GetBodyStationaryId () != ViewSettings::NONE)
+    if (vs.GetStationaryType () == ViewSettings::STATIONARY_BODY)
     {
 	G3D::Vector3 translation = 
-	    GetFoamAlongTime ().GetFoam (vs.GetBodyStationaryTimeStep ())->
-	    GetBody (vs.GetBodyStationaryId ())->GetCenter () -
+	    GetFoamAlongTime ().GetFoam (vs.GetStationaryTimeStep ())->
+	    GetBody (vs.GetStationaryBodyId ())->GetCenter () -
 	    
 	    GetFoamAlongTime ().GetFoam (timeStep)->
-	    GetBody (vs.GetBodyStationaryId ())->GetCenter ();
+	    GetBody (vs.GetStationaryBodyId ())->GetCenter ();
 	glTranslate (translation);
     }
 }
@@ -1129,10 +1135,10 @@ G3D::Vector3 GLWidget::objectPosition (const QPoint& position) const
 void GLWidget::displayBodyStationaryContour (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = *GetViewSettings (viewNumber);
-    if (vs.GetBodyStationaryId () != ViewSettings::NONE)
+    if (vs.GetStationaryType () == ViewSettings::STATIONARY_BODY)
     {
 	Foam::Bodies focusBody (1);
-	focusBody[0] = *GetCurrentFoam ().FindBody (vs.GetBodyStationaryId ());
+	focusBody[0] = *GetCurrentFoam ().FindBody (vs.GetStationaryBodyId ());
 	displayFacesContour<0> (focusBody, viewNumber, 2.0);
     }
 }
@@ -1166,8 +1172,8 @@ string GLWidget::getBodyStationaryContextLabel ()
 	"Body context",
 	"Stationary body + body context"
     };
-    stationaryParameters.set (0, vs.GetBodyStationaryId () != 
-			      ViewSettings::NONE);
+    stationaryParameters.set (
+	0, vs.GetStationaryType () == ViewSettings::STATIONARY_BODY);
     stationaryParameters.set (1, vs.GetBodyContextSize () != 0);
     ostringstream ostr;
     ostr << message[stationaryParameters.to_ulong ()];
@@ -1211,14 +1217,14 @@ void GLWidget::setLabel ()
 }
 
 
-void GLWidget::BodyStationarySet ()
+void GLWidget::StationaryBody ()
 {
     ViewSettings& vs = *GetViewSettings ();
     vector<size_t> bodies;
     brushedBodies (m_contextMenuPos, &bodies);
     if (bodies.size () != 0)
     {
-	vs.SetBodyStationaryId (bodies[0]);
+	vs.SetStationaryBodyId (bodies[0]);
 	vs.SetBodyStationaryTimeStep (m_timeStep);
 	setLabel ();
 	update ();
@@ -1231,16 +1237,22 @@ void GLWidget::BodyStationarySet ()
     }
 }
 
-void GLWidget::BodyStationaryReset ()
+void GLWidget::StationaryObject ()
+{
+    
+}
+
+void GLWidget::StationaryReset ()
 {
     ViewSettings& vs = *GetViewSettings ();
-    vs.SetBodyStationaryId (ViewSettings::NONE);
+    vs.SetStationaryType (ViewSettings::STATIONARY_NONE);
+    vs.SetStationaryBodyId (INVALID_INDEX);
     vs.SetBodyStationaryTimeStep (0);
     setLabel ();
     update ();
 }
 
-void GLWidget::BodyContextReset ()
+void GLWidget::ContextReset ()
 {
     ViewSettings& vs = *GetViewSettings ();
     vs.ClearBodyContext ();
@@ -1249,7 +1261,7 @@ void GLWidget::BodyContextReset ()
 }
 
 
-void GLWidget::BodyContextAdd ()
+void GLWidget::ContextBody ()
 {
     ViewSettings& vs = *GetViewSettings ();
     vector<size_t> bodies;
@@ -2036,11 +2048,15 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	    menuSelect->addAction (m_actionSelectBodiesById.get ());
 	}
 	{
-	    QMenu* menuBody = menu.addMenu ("Body");
-	    menuBody->addAction (m_actionBodyStationarySet.get ());
-	    menuBody->addAction (m_actionBodyStationaryReset.get ());
-	    menuBody->addAction (m_actionBodyContextAdd.get ());
-	    menuBody->addAction (m_actionBodyContextReset.get ());
+	    QMenu* menuStationary = menu.addMenu ("Stationary");
+	    menuStationary->addAction (m_actionStationaryBody.get ());
+	    menuStationary->addAction (m_actionStationaryObject.get ());
+	    menuStationary->addAction (m_actionStationaryReset.get ());
+	}
+	{
+	    QMenu* menuContext = menu.addMenu ("Context");
+	    menuContext->addAction (m_actionContextBody.get ());
+	    menuContext->addAction (m_actionContextReset.get ());
 	}
 	{
 	    QMenu* menuInfo = menu.addMenu ("Info");

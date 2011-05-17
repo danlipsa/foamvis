@@ -16,6 +16,14 @@ class ColorBarModel;
 class ViewSettings
 {
 public:
+    enum StationaryType
+    {
+	STATIONARY_BODY,
+	STATIONARY_OBJECT,
+	STATIONARY_NONE
+    };
+
+public:
     ViewSettings (const GLWidget& glWidget);
     ~ViewSettings ();
 
@@ -210,16 +218,27 @@ public:
     void SetLightingParameters (const G3D::Vector3& initialLightPosition);
     void EnableLighting ();
 
-    size_t GetBodyStationaryId () const
+    
+    size_t GetStationaryBodyId () const
     {
-	return m_bodyStationaryId;
+	return m_stationaryBodyId;
     }
-    void SetBodyStationaryId (size_t id)
+    void SetStationaryBodyId (size_t id)
     {
-	m_bodyStationaryId = id;
+	SetStationaryType (STATIONARY_BODY);
+	m_stationaryBodyId = id;
     }
 
-    size_t GetBodyStationaryTimeStep () const
+    StationaryType GetStationaryType () const
+    {
+	return m_stationaryType;
+    }
+    void SetStationaryType (StationaryType type)
+    {
+	m_stationaryType = type;
+    }
+
+    size_t GetStationaryTimeStep () const
     {
 	return m_bodyStationaryTimeStep;
     }
@@ -252,9 +271,6 @@ public:
 
     void CopyTransformations (const ViewSettings& from);
     void CopyColorBar (const ViewSettings& from);
-
-public:
-    const static size_t NONE;
 
 private:
     void initTexture ();
@@ -297,8 +313,10 @@ private:
     /**
      * Keep this body stationary during the evolution of the foam
      */
-    size_t m_bodyStationaryId;
-    size_t m_bodyStationaryTimeStep;
+    StationaryType m_stationaryType;
+    size_t m_stationaryBodyId;
+    size_t m_bodyStationaryTimeStep;   
+
     set<size_t> m_bodyContext;
     bool m_contextView;
 };

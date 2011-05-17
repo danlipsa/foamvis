@@ -9,6 +9,7 @@
 #include "ColorBarModel.h"
 #include "DebugStream.h"
 #include "DisplayFaceStatistics.h"
+#include "Utils.h"
 #include "ViewSettings.h"
 
 // Private Functions
@@ -20,11 +21,6 @@ void initialize (boost::array<GLfloat, 4>& colors,
     copy (values.begin (), values.end (), colors.begin ());
 }
 
-
-// Static Fields
-// ======================================================================
-
-const size_t ViewSettings::NONE(numeric_limits<size_t>::max());
 
 // Methods
 // ======================================================================
@@ -44,7 +40,8 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_lightEnabled (0),
     m_lightPositionShown (0),
     m_angleOfView (0),
-    m_bodyStationaryId (NONE),
+    m_stationaryType (STATIONARY_NONE),
+    m_stationaryBodyId (INVALID_INDEX),
     m_bodyStationaryTimeStep (0),
     m_contextView (false)
 {

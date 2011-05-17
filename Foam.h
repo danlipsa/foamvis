@@ -14,6 +14,7 @@
 #include "Hashes.h"
 #include "OOBox.h"
 #include "Statistics.h"
+#include "AffineMapNames.h"
 
 class AttributeCreator;
 class Body;
@@ -261,6 +262,7 @@ public:
     }
     
     void CalculateMinMaxStatistics ();
+    void SetAffineMap (const AffineMapNames& affineMapNames);
 
 public:
     static const double Z_COORDINATE_2D = 0.0;
@@ -354,6 +356,7 @@ private:
     double m_min[BodyProperty::PROPERTY_END];
     double m_max[BodyProperty::PROPERTY_END];
     vector<HistogramStatistics> m_histogram;
+    AffineMap m_affineMap;
 };
 
 /**

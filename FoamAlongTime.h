@@ -10,6 +10,7 @@
 #include "BodyAlongTime.h"
 #include "Comparisons.h"
 #include "Statistics.h"
+#include "AffineMapNames.h"
 
 class Foam;
 
@@ -140,12 +141,20 @@ public:
     {
 	m_adjustPressure = adjustPressure;
     }
+    void SetAffineMapNames (const AffineMapNames& am)
+    {
+	m_affineMapNames = am;
+    }
+    const AffineMapNames& GetAffineMapNames () const
+    {
+	return m_affineMapNames;
+    }
     /**
      * Read T1s from the file for as many time steps as there are DMPs
      * Has to be called after parsing the DMP files.
      *
      */
-    void ReadT1s (const char* fileName, size_t timeSteps);
+    void ReadT1s (const string& fileName, size_t timeSteps);
     bool T1sAvailable () const;
     void SetT1sShift (int i)
     {
@@ -193,6 +202,7 @@ private:
     bool m_adjustPressure;
     vector< vector<G3D::Vector3> > m_t1s;
     int m_t1sTimestepShift;
+    AffineMapNames m_affineMapNames;
 };
 
 
