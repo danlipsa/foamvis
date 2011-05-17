@@ -71,7 +71,6 @@ INCLUDEPATH += /usr/local/include
 INCLUDEPATH += /usr/local/qwt-5.2.1/include
 INCLUDEPATH += /usr/local/include/vtk-5.6
 INCLUDEPATH += /usr/local/Trolltech/Qt-4.7.0/include
-INCLUDEPATH += /usr/local/boost_1_45_0
 
 LIBS += -L/usr/local/lib
 LIBS += -L/usr/local/qwt-5.2.1/lib
@@ -94,6 +93,7 @@ LIBS += "-lvtksys"
 LIBS += "-lQt3D"
 LIBS += "-lgslcblas"
 LIBS += "-lgsl"
+LIBS += "-lboost_program_options"
 }
 else:unix {
 INCLUDEPATH += /usr/local/include

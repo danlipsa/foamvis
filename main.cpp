@@ -243,7 +243,7 @@ void validate(boost::any& v, const std::vector<std::string>& values,
 	 ++it, ++i)
 	am.Set (i, *it);
     if (i != am.size ())
-        throw boost::program_options::validation_error(
+        throw po::required_option (
 	    "Three parameters needed: \"<x> <y> <angle>\"");
     v = boost::any(am);
 }
