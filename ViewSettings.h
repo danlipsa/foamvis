@@ -225,7 +225,6 @@ public:
     }
     void SetStationaryBodyId (size_t id)
     {
-	SetStationaryType (STATIONARY_BODY);
 	m_stationaryBodyId = id;
     }
 
@@ -242,7 +241,7 @@ public:
     {
 	return m_bodyStationaryTimeStep;
     }
-    void SetBodyStationaryTimeStep (size_t timeStep)
+    void SetStationaryTimeStep (size_t timeStep)
     {
 	m_bodyStationaryTimeStep = timeStep;
     }

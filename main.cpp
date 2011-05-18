@@ -109,9 +109,10 @@ public:
      * @param data Where to store the data parsed from the DMP files
      * @param dir directory where all DMP files are
      */
-    parseFile (QString dir, const AffineMapNames& names,
+    parseFile (QString dir, const AffineMapNames& names, bool usingOriginal,
 	       bool debugParsing = false, bool debugScanning = false) : 
-        m_dir (qPrintable(dir)), m_names (names),
+        m_dir (qPrintable(dir)), m_names (names), 
+	m_usingOriginal (usingOriginal),
 	m_debugParsing (debugParsing),
 	m_debugScanning (debugScanning)
     {
@@ -132,7 +133,7 @@ public:
 	    ostringstream ostr;
 	    ostr << "Parsing " << file << " ..." << endl;
 	    cdbg << ostr.str ();
-	    foam.reset (new Foam ());
+	    foam.reset (new Foam (m_usingOriginal));
 	    foam->GetParsingData ().SetDebugParsing (m_debugParsing);
 	    foam->GetParsingData ().SetDebugScanning (m_debugScanning);
 	    string fullPath = m_dir + '/' + file;
@@ -157,6 +158,7 @@ private:
      */
     const string m_dir;
     const AffineMapNames& m_names;
+    const bool m_usingOriginal;
     const bool m_debugParsing;
     const bool m_debugScanning;
 };
@@ -172,6 +174,7 @@ const char* optionName[] =
     "original-pressure",
     "output-text",
     "t1s",
+    "using-original",
     "version"
 };
 
@@ -188,6 +191,7 @@ struct Option
 	ORIGINAL_PRESSURE,      // o
 	OUTPUT_TEXT,            // t
 	T1S,                    // r
+	USING_ORIGINAL,
 	VERSION,
 	COUNT
     };
@@ -222,8 +226,11 @@ void parseFiles (const vector<string>& fileNames,
 
     QList< boost::shared_ptr<Foam> > foams = QtConcurrent::blockingMapped (
 	files,
-	parseFile (dir.absolutePath (), foamAlongTime->GetAffineMapNames (),
-		   debugParsing, debugScanning));
+	parseFile (
+	    dir.absolutePath (), 
+	    foamAlongTime->GetAffineMapNames (), 
+	    foamAlongTime->IsUsingOriginal (),
+	    debugParsing, debugScanning));
     if (count_if (foams.constBegin (), foams.constEnd (),
 		  bl::_1 != boost::shared_ptr<Foam>()) != foams.size ())
 	ThrowException ("Could not process all files\n");
@@ -243,8 +250,8 @@ void validate(boost::any& v, const std::vector<std::string>& values,
 	 ++it, ++i)
 	am.Set (i, *it);
     if (i != am.size ())
-        throw po::required_option (
-	    "Three parameters needed: \"<x> <y> <angle>\"");
+        throw invalid_argument (
+	    "--affine-map needs three parameters: \"<x> <y> <angle>\"");
     v = boost::any(am);
 }
 
@@ -263,8 +270,9 @@ void parseOptions (int argc, char *argv[],
     genericOptions.add_options()
 	(optionName[Option::AFFINE_MAP], 
 	 po::value<AffineMapNames>(affineMapNames), 
-	 "read affine transformations for a foam object (constraint, ...). "
-	 "<x>, <y> specify the new position of the object and "
+	 "read affine transformations for a foam object (constraint, ...).\n"
+	 "arg=\"<x> <y> <angle>\" where <x>, <y> specify "
+	 "the new position of the object and "
 	 "<angle> specifies the new rotation angle.")
 	(optionName[Option::DEBUG_PARSING], "debug parsing")	    
 	(optionName[Option::DEBUG_SCANNING], "debug scanning")
@@ -275,25 +283,26 @@ void parseOptions (int argc, char *argv[],
 	 "outputs a text representation of the data")	    
 	(optionName[Option::T1S],
 	 po::value<string>(t1sFile), 
-	 "read T1 positions. "
-	 "<file> is a text file with T1 times and positions. "
-	 "Reading T1s won't work if you skip time steps")
+	 "read T1 positions.\n"
+	 "arg=<file> where <file> specifies a text file with "
+	 "T1 times and positions. Reading T1s won't work if you "
+	 "skip time steps")
+	(optionName[Option::USING_ORIGINAL], "use ORIGINAL atrribute "
+	 "to figure out the body id.")
 	(optionName[Option::VERSION], "print version information")
 	;
-
     po::options_description hiddenOptions("Hidden options");
     hiddenOptions.add_options()
 	("dmp-file", po::value< vector<string> >(fileNames), "dmp file")
 	;
-
-    po::options_description commandLineOptions;
-    commandLineOptions.add(genericOptions).add(hiddenOptions);
+    po::options_description options;
+    options.add(genericOptions).add(hiddenOptions);
 
     po::positional_options_description positionalOptions;
     positionalOptions.add(optionName[Option::DMP_FILE], -1);
 
     po::store(po::command_line_parser (argc, argv).
-	      options (commandLineOptions).positional (positionalOptions).
+	      options (options).positional (positionalOptions).
 	      run (), *vm);
     po::notify(*vm);
     if (vm->count (optionName[Option::HELP])) {
@@ -343,6 +352,8 @@ int main(int argc, char *argv[])
 	parseOptions (argc, argv, 
 		      &t1sFile, &fileNames, &affineMapNames,
 		      &vm);
+	foamAlongTime.SetUsingOriginal (
+	    vm.count (optionName[Option::USING_ORIGINAL]));
 	if (vm.count (optionName[Option::AFFINE_MAP]))
 	    foamAlongTime.SetAffineMapNames (affineMapNames);
 

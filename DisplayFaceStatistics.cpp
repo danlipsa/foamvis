@@ -458,7 +458,7 @@ void DisplayFaceStatistics::Display (
 
 
 void DisplayFaceStatistics::save (const G3D::Rect2D& viewRect,
-    QGLFramebufferObject& fbo, const char* fileName, size_t timeStep,
+    QGLFramebufferObject& fbo, const char* postfix, size_t timeStep,
     GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
 {
     // render to the debug buffer
@@ -467,7 +467,8 @@ void DisplayFaceStatistics::save (const G3D::Rect2D& viewRect,
 	     minValue, maxValue, displayType, fbo);
     m_debug->release ();
     ostringstream ostr;
-    ostr << setfill ('0') << setw (4) << timeStep << fileName << ".png";
+    ostr << "images/" 
+	 << setfill ('0') << setw (4) << timeStep << postfix << ".png";
     m_debug->toImage ().save (ostr.str ().c_str ());    
 }
 

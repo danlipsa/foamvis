@@ -1,4 +1,4 @@
-HEADERS += AffineMapNames.h Application.h ApproximationEdge.h\
+HEADERS += AffineMap.h Application.h ApproximationEdge.h\
 	Attribute.h AttributeCreator.h AttributeInfo.h \
 	AttributeHistogram.h HistogramHeight.h Body.h \
 	BodyAlongTime.h BodyIndex.h BodySelector.h \
@@ -18,7 +18,7 @@ HEADERS += AffineMapNames.h Application.h ApproximationEdge.h\
 	stable.h Statistics.h StripIterator.h SystemDifferences.h \
 	TransferFunctionHistogram.h TimeStepsSlider.h Utils.h \
 	Vertex.h ViewSettings.h
-SOURCES += Application.cpp ApproximationEdge.cpp\
+SOURCES += AffineMap.cpp Application.cpp ApproximationEdge.cpp\
 	Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	AttributeHistogram.cpp \
 	Body.cpp BodyAlongTime.cpp BodyIndex.cpp BodySelector.cpp\

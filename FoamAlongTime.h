@@ -10,7 +10,7 @@
 #include "BodyAlongTime.h"
 #include "Comparisons.h"
 #include "Statistics.h"
-#include "AffineMapNames.h"
+#include "AffineMap.h"
 
 class Foam;
 
@@ -149,6 +149,10 @@ public:
     {
 	return m_affineMapNames;
     }
+    bool AffineMapNamesUsed () const
+    {
+	return ! m_affineMapNames.X ().empty ();
+    }
     /**
      * Read T1s from the file for as many time steps as there are DMPs
      * Has to be called after parsing the DMP files.
@@ -165,6 +169,16 @@ public:
 	return m_t1sTimestepShift;
     }
     const vector<G3D::Vector3>& GetT1s (size_t timeStep) const;
+
+    bool IsUsingOriginal () const
+    {
+	return m_usingOriginal;
+    }
+    void SetUsingOriginal (bool useOriginal)
+    {
+	m_usingOriginal = useOriginal;
+    }
+
 
 private:
     void adjustPressureAlignMedians ();
@@ -203,6 +217,7 @@ private:
     vector< vector<G3D::Vector3> > m_t1s;
     int m_t1sTimestepShift;
     AffineMapNames m_affineMapNames;
+    bool m_usingOriginal;
 };
 
 

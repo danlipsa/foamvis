@@ -595,23 +595,47 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
     default:
 	break;
     }
-    translateFoamStationaryBody (viewNumber, timeStep);
-    glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
+    transformFoamStationary (viewNumber, timeStep);
 }
 
-void GLWidget::translateFoamStationaryBody (
+void GLWidget::transformFoamStationary (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
     const ViewSettings& vs = *GetViewSettings (viewNumber);
-    if (vs.GetStationaryType () == ViewSettings::STATIONARY_BODY)
+    ViewSettings::StationaryType type = vs.GetStationaryType ();
+    switch (type)
     {
-	G3D::Vector3 translation = 
-	    GetFoamAlongTime ().GetFoam (vs.GetStationaryTimeStep ())->
-	    GetBody (vs.GetStationaryBodyId ())->GetCenter () -
-	    
-	    GetFoamAlongTime ().GetFoam (timeStep)->
-	    GetBody (vs.GetStationaryBodyId ())->GetCenter ();
+    case ViewSettings::STATIONARY_BODY:
+    {
+	size_t id = vs.GetStationaryBodyId ();
+	G3D::Vector3 centerBegin = GetFoamAlongTime ().GetFoam (
+	    vs.GetStationaryTimeStep ())->GetBody (id)->GetCenter ();
+	G3D::Vector3 centerCurrent = GetFoamAlongTime ().GetFoam (
+	    timeStep)->GetBody (id)->GetCenter ();
+	G3D::Vector3 translation = centerBegin - centerCurrent;
 	glTranslate (translation);
+	glTranslate (-GetFoamAlongTime ().GetBoundingBox ().center ());
+	break;
+    }
+    case ViewSettings::STATIONARY_OBJECT:
+    {
+	const AffineMap& mapBegin = GetFoamAlongTime ().GetFoam (
+	    vs.GetStationaryTimeStep ())->GetAffineMap ();
+	const AffineMap& mapCurrent = GetFoamAlongTime ().GetFoam (
+	    timeStep)->GetAffineMap ();
+	G3D::Vector3 translation = G3D::Vector3 (
+	    mapBegin.GetTranslation (), 0.0);
+	glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
+	glTranslate (translation);
+	float angle = 
+	    (mapCurrent.GetAngle () - mapBegin.GetAngle ()) * 180 / M_PI;
+	glRotatef (angle, 0, 0, 1);	
+	glTranslate (-translation);
+	break;
+    }
+    default:
+	glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
+	break;
     }
 }
 
@@ -1161,26 +1185,35 @@ void GLWidget::displayBodyContextContour (ViewNumber::Enum viewNumber) const
 }
 
 
-string GLWidget::getBodyStationaryContextLabel ()
+string GLWidget::getStationaryLabel ()
 {
-    const ViewSettings& vs = *GetViewSettings ();
-    bitset<2> stationaryParameters;
-    const char* message[] = 
-    {
-	"",
-	"Stationary body",
-	"Body context",
-	"Stationary body + body context"
-    };
-    stationaryParameters.set (
-	0, vs.GetStationaryType () == ViewSettings::STATIONARY_BODY);
-    stationaryParameters.set (1, vs.GetBodyContextSize () != 0);
     ostringstream ostr;
-    ostr << message[stationaryParameters.to_ulong ()];
-    if (vs.GetBodyContextSize () != 0)
-	ostr << " (" << vs.GetBodyContextSize () << ")";
+    const ViewSettings& vs = *GetViewSettings ();
+    ViewSettings::StationaryType type = vs.GetStationaryType ();
+    switch (type)
+    {
+    case ViewSettings::STATIONARY_BODY:
+	ostr << "Stationary body";
+	break;
+    case ViewSettings::STATIONARY_OBJECT:
+	ostr << "Stationary object";
+	break;
+    default:
+	break;
+    }
     return ostr.str ();
 }
+
+string GLWidget::getContextLabel ()
+{
+    ostringstream ostr;
+    const ViewSettings& vs = *GetViewSettings ();
+    size_t count = vs.GetBodyContextSize ();
+    if (count != 0)
+	ostr << "Context (" << count << ")";
+    return ostr.str ();
+}
+
 
 string GLWidget::getBodySelectorLabel ()
 {
@@ -1204,16 +1237,18 @@ string GLWidget::getBodySelectorLabel ()
 void GLWidget::setLabel ()
 {
     ostringstream ostr;
-    string s1 = getBodyStationaryContextLabel ();
-    ostr << s1;
-    string s2 = getBodySelectorLabel ();
-    if (! ostr.str ().empty () && ! s2.empty ())
-	ostr << ", ";
-    ostr << s2;
-    string s = ostr.str ();
-    if (s.empty ())
-	s = "Ready";
-    m_labelStatusBar->setText (QString (s.c_str ()));
+    boost::array<string, 3> labels = {{
+	    getStationaryLabel (),
+	    getContextLabel (),
+	    getBodySelectorLabel ()
+	}};
+    ostream_iterator<string> o (ostr, " ");
+    remove_copy_if (labels.begin (), labels.end (), o,
+		    boost::bind (&string::empty, _1));
+    string label = ostr.str ();
+    if (label.empty ())
+	label = "Ready";
+    m_labelStatusBar->setText (QString (label.c_str ()));
 }
 
 
@@ -1224,8 +1259,9 @@ void GLWidget::StationaryBody ()
     brushedBodies (m_contextMenuPos, &bodies);
     if (bodies.size () != 0)
     {
+	vs.SetStationaryType (ViewSettings::STATIONARY_BODY);
 	vs.SetStationaryBodyId (bodies[0]);
-	vs.SetBodyStationaryTimeStep (m_timeStep);
+	vs.SetStationaryTimeStep (m_timeStep);
 	setLabel ();
 	update ();
     }
@@ -1239,7 +1275,22 @@ void GLWidget::StationaryBody ()
 
 void GLWidget::StationaryObject ()
 {
-    
+    ViewSettings& vs = *GetViewSettings ();
+    if (GetFoamAlongTime ().AffineMapNamesUsed ())
+    {
+	vs.SetStationaryType (ViewSettings::STATIONARY_OBJECT);
+	vs.SetStationaryBodyId (INVALID_INDEX);
+	vs.SetStationaryTimeStep (m_timeStep);
+	setLabel ();
+	update ();
+    }
+    else
+    {
+	QMessageBox msgBox (this);
+	msgBox.setText("No affine map read for a foam object: "
+		       "use --affine-map command line option.");
+	msgBox.exec();	
+    }
 }
 
 void GLWidget::StationaryReset ()
@@ -1247,7 +1298,7 @@ void GLWidget::StationaryReset ()
     ViewSettings& vs = *GetViewSettings ();
     vs.SetStationaryType (ViewSettings::STATIONARY_NONE);
     vs.SetStationaryBodyId (INVALID_INDEX);
-    vs.SetBodyStationaryTimeStep (0);
+    vs.SetStationaryTimeStep (0);
     setLabel ();
     update ();
 }

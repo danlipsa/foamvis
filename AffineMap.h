@@ -1,12 +1,12 @@
 /**
- * @file Foam.h
+ * @file AffineMap.h
  * @author Dan R. Lipsa
  * @date 17 May 2011
  *
- * Declaration of the AffineMapNames class
+ * Declaration of the AffineMap class
  */
-#ifndef __AFFINE_MAP_NAMES_H__
-#define __AFFINE_MAP_NAMES_H__
+#ifndef __AFFINE_MAP_H__
+#define __AFFINE_MAP_H__
 
 /**
  * Names of parameters in a DMP file where an affine transformation for a 
@@ -54,33 +54,23 @@ struct AffineMap
 public:
     size_t size () const
     {
-	return m_values.size ();
+	return 3;
     }
-    double X () const
+    G3D::Vector2 GetTranslation () const
     {
-	return m_values[0];
+	return m_translation;
     }
-    double Y () const
+    float GetAngle () const
     {
-	return m_values[1];
+	return m_angle;
     }
-    double Angle () const
-    {
-	return m_values[3];
-    }
-    void Set (size_t i, double value)
-    {
-	m_values[i] = value;
-    }
-    double Get (size_t i) const
-    {
-	return m_values[i];
-    }
+    void Set (size_t i, double value);
 private:
-    boost::array<double, 3> m_values;
+    G3D::Vector2 m_translation;
+    float m_angle;
 };
 
-#endif //__AFFINE_MAP_NAMES_H__
+#endif //__AFFINE_MAP_H__
 
 // Local Variables:
 // mode: c++

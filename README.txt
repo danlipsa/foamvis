@@ -3,7 +3,15 @@ Compile
 Linux
 -----
 Install using your system installation utility (yum, yast2, ...)
-boost-devel, libzip-devel, cmake (flex, bison)
+libzip-devel, cmake (flex, bison)
+
+Copy http://csgalati.swansea.ac.uk/foam/build/boost_1_45_0.tar.bz2 ~
+cd ~
+tar xjf qt3d-20101008.tgz
+cd boost_1_45_0
+sh bootstrap.sh
+su <password>
+./bjam install --prefix=/usr/local
 
 Copy http://csgalati.swansea.ac.uk/foam/build/qt-everywhere-opensource-src-4.7.0.tar.gz to ~
 cd ~

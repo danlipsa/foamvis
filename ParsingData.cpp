@@ -72,10 +72,11 @@ const set<string> ParsingData::OPERATORS (
 
 // Methods
 // ======================================================================
-ParsingData::ParsingData () :
+ParsingData::ParsingData (bool usingOriginal) :
     m_spaceSignificant (false),
     m_parenthesisCount (0),
-    m_newLineSignificant (false)
+    m_newLineSignificant (false),
+    m_usingOriginal (usingOriginal)
 {
     BinaryFunctionInformation BINARY_FUNCTION_INFORMATION[] = 
     {

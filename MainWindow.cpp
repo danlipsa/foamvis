@@ -812,8 +812,9 @@ void MainWindow::ToggledFacesStatistics (bool checked)
     else
     {	
 	BodyProperty::Enum bodyProperty = widgetGl->GetBodyProperty ();
-	Q_EMIT ColorBarModelChanged (
-	    m_colorBarModelBodyProperty[viewNumber][bodyProperty]);
+	if (bodyProperty != BodyProperty::NONE)
+	    Q_EMIT ColorBarModelChanged (
+		m_colorBarModelBodyProperty[viewNumber][bodyProperty]);
 	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
     }
 }

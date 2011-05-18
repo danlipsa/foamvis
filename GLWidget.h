@@ -575,9 +575,10 @@ private:
     void rotate2DTimeDisplacement () const;
     void rotate2DRight90 () const;
     string getBodySelectorLabel ();
-    string getBodyStationaryContextLabel ();
+    string getContextLabel ();
+    string getStationaryLabel ();
     void setLabel ();
-    void translateFoamStationaryBody (
+    void transformFoamStationary (
 	ViewNumber::Enum viewNumber, size_t timeStep) const;
     void initCopy (
 	boost::array<boost::shared_ptr<QAction>, 

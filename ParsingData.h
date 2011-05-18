@@ -53,7 +53,7 @@ public:
     /**
      * Constructs a ParsingData object
      */
-    ParsingData ();
+    ParsingData (bool usingOriginal);
 
     void AddAttribute (const char* s)
     {
@@ -257,6 +257,11 @@ public:
 	return m_constraints[i];
     }
 
+    bool IsUsingOriginal () const
+    {
+	return m_usingOriginal;
+    }
+
 public:
     string ToString () const;
 
@@ -311,6 +316,7 @@ private:
     bool m_spaceSignificant;
     size_t m_parenthesisCount;
     bool m_newLineSignificant;
+    bool m_usingOriginal;
 
 private:
     static const char* IMPLEMENTED_METHODS[];

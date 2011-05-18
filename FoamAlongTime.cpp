@@ -27,7 +27,8 @@ const vector<G3D::Vector3> FoamAlongTime::NO_T1S;
 FoamAlongTime::FoamAlongTime () :
     m_histogram (
         BodyProperty::PROPERTY_END, HistogramStatistics (HISTOGRAM_INTERVALS)),
-    m_t1sTimestepShift (0)
+    m_t1sTimestepShift (0),
+    m_usingOriginal (false)
 {
 }
 

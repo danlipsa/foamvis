@@ -64,9 +64,9 @@ void compact (vector< boost::shared_ptr<E> >& v)
 // Methods
 // ======================================================================
 
-Foam::Foam () :
+Foam::Foam (bool usingOriginal) :
     m_viewMatrix (new G3D::Matrix4 (G3D::Matrix4::identity ())),
-    m_parsingData (new ParsingData ()),
+    m_parsingData (new ParsingData (usingOriginal)),
     m_spaceDimension (3),
     m_quadratic (false),
     m_histogram (
@@ -210,7 +210,7 @@ void Foam::AddDefaultVertexAttributes ()
 }
 
 void Foam::SetBody (size_t i, vector<int>& faces,
-                    vector<NameSemanticValue*>& attributes)
+                    vector<NameSemanticValue*>& attributes, bool useOriginal)
 {
     resizeAllowIndex (&m_bodies, i);
     boost::shared_ptr<Body> body = boost::make_shared<Body> (
@@ -218,7 +218,7 @@ void Foam::SetBody (size_t i, vector<int>& faces,
     if (&attributes != 0)
         body->StoreAttributes (attributes,
 			       m_attributesInfo[DefineAttribute::BODY]);
-    if (Is2D ())
+    if (useOriginal)
 	if (body->HasAttribute (BodyAttributeIndex::ORIGINAL))
 	{
 	    size_t newId = body->GetAttribute<

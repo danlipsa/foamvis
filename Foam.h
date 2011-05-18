@@ -14,7 +14,8 @@
 #include "Hashes.h"
 #include "OOBox.h"
 #include "Statistics.h"
-#include "AffineMapNames.h"
+#include "AffineMap.h"
+
 
 class AttributeCreator;
 class Body;
@@ -40,7 +41,7 @@ public:
     /**
      * Constructs a Foam object.
      */
-    Foam ();
+    Foam (bool usingOriginal);
 
     void GetVertexSet (VertexSet* vertexSet) const;
     VertexSet GetVertexSet () const
@@ -104,7 +105,8 @@ public:
      * @param attributes the list of attributes
      */
     void SetBody (size_t i,  vector<int>& faces,
-                  vector<NameSemanticValue*>& attributes);
+                  vector<NameSemanticValue*>& attributes, 
+		  bool useOriginal);
     /**
      * Stores an element of the 4x4 view matrix.
      * @param i index where to store the elment
@@ -263,6 +265,10 @@ public:
     
     void CalculateMinMaxStatistics ();
     void SetAffineMap (const AffineMapNames& affineMapNames);
+    const AffineMap& GetAffineMap () const
+    {
+	return m_affineMap;
+    }
 
 public:
     static const double Z_COORDINATE_2D = 0.0;
