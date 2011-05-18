@@ -138,7 +138,7 @@ public:
 	    foam->GetParsingData ().SetDebugScanning (m_debugScanning);
 	    string fullPath = m_dir + '/' + file;
 	    result = foam->GetParsingData ().Parse (fullPath, foam.get ());
-	    if (! m_names.IsEmpty ())
+	    if (! m_names.m_xName.empty ())
 		foam->SetAffineMap (m_names);
 	    foam->ReleaseParsingData ();
 	    if (result != 0)
@@ -244,15 +244,30 @@ void validate(boost::any& v, const std::vector<std::string>& values,
     (void) ignore1;(void)ignore2;
     AffineMapNames am;
     boost::tokenizer<> tok (values[0]);
-    size_t i;
-    boost::tokenizer<>::iterator it;
-    for (i = 0, it = tok.begin (); i < am.size () && it != tok.end (); 
-	 ++it, ++i)
-	am.Set (i, *it);
-    if (i != am.size ())
-        throw invalid_argument (
-	    "--affine-map needs three parameters: \"<x> <y> <angle>\"");
+    istringstream istr;
+    boost::tokenizer<>::iterator it = tok.begin ();
+    if (it == tok.end ())
+	goto error;
+    am.m_xName = *it;
+    if (++it == tok.end ())
+	goto error;
+    am.m_yName = *it;
+    if (++it == tok.end ())
+	goto error;
+    am.m_angleName = *it;
+    if (++it == tok.end ())
+	goto error;
+    istr.str (*it);
+    istr >> am.m_constraint;
+    if (++it != tok.end ())
+	goto error;
     v = boost::any(am);
+    return;
+
+error:
+    throw invalid_argument (
+	"--affine-map needs four parameters: "
+	"\"<xName> <yName> <angleName> <constraint>\"");
 }
 
 
@@ -270,10 +285,11 @@ void parseOptions (int argc, char *argv[],
     genericOptions.add_options()
 	(optionName[Option::AFFINE_MAP], 
 	 po::value<AffineMapNames>(affineMapNames), 
-	 "read affine transformations for a foam object (constraint, ...).\n"
-	 "arg=\"<x> <y> <angle>\" where <x>, <y> specify "
-	 "the new position of the object and "
-	 "<angle> specifies the new rotation angle.")
+	 "read affine transformations for a constraint.\n"
+	 "arg=\"<x> <y> <angle> <constraint>\" where <x>, <y> specify "
+	 "names for parameters that store new position of the constraint, "
+	 "<angle> specifies the name of the parameter that stores "
+	 "the new rotation angle and <constraint> stores the constraint number.")
 	(optionName[Option::DEBUG_PARSING], "debug parsing")	    
 	(optionName[Option::DEBUG_SCANNING], "debug scanning")
 	(optionName[Option::HELP], "produce help message")

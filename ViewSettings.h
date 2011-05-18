@@ -19,7 +19,7 @@ public:
     enum StationaryType
     {
 	STATIONARY_BODY,
-	STATIONARY_OBJECT,
+	STATIONARY_CONSTRAINT,
 	STATIONARY_NONE
     };
 

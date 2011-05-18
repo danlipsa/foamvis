@@ -253,11 +253,11 @@ void GLWidget::createActions ()
     connect(m_actionStationaryBody.get (), SIGNAL(triggered()),
 	    this, SLOT(StationaryBody ()));
 
-    m_actionStationaryObject = boost::make_shared<QAction> (
-	tr("&Object"), this);
-    m_actionStationaryObject->setStatusTip(tr("Stationary object"));
-    connect(m_actionStationaryObject.get (), SIGNAL(triggered()),
-	    this, SLOT(StationaryObject ()));
+    m_actionStationaryConstraint = boost::make_shared<QAction> (
+	tr("&Constraint"), this);
+    m_actionStationaryConstraint->setStatusTip(tr("Stationary constraint"));
+    connect(m_actionStationaryConstraint.get (), SIGNAL(triggered()),
+	    this, SLOT(StationaryConstraint ()));
 
     m_actionStationaryReset = boost::make_shared<QAction> (
 	tr("&Reset"), this);
@@ -617,18 +617,18 @@ void GLWidget::transformFoamStationary (
 	glTranslate (-GetFoamAlongTime ().GetBoundingBox ().center ());
 	break;
     }
-    case ViewSettings::STATIONARY_OBJECT:
+    case ViewSettings::STATIONARY_CONSTRAINT:
     {
 	const AffineMap& mapBegin = GetFoamAlongTime ().GetFoam (
 	    vs.GetStationaryTimeStep ())->GetAffineMap ();
 	const AffineMap& mapCurrent = GetFoamAlongTime ().GetFoam (
 	    timeStep)->GetAffineMap ();
 	G3D::Vector3 translation = G3D::Vector3 (
-	    mapBegin.GetTranslation (), 0.0);
+	    mapBegin.m_translation, 0.0);
 	glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
 	glTranslate (translation);
 	float angle = 
-	    (mapCurrent.GetAngle () - mapBegin.GetAngle ()) * 180 / M_PI;
+	    (mapCurrent.m_angle - mapBegin.m_angle) * 180 / M_PI;
 	glRotatef (angle, 0, 0, 1);	
 	glTranslate (-translation);
 	break;
@@ -1195,8 +1195,8 @@ string GLWidget::getStationaryLabel ()
     case ViewSettings::STATIONARY_BODY:
 	ostr << "Stationary body";
 	break;
-    case ViewSettings::STATIONARY_OBJECT:
-	ostr << "Stationary object";
+    case ViewSettings::STATIONARY_CONSTRAINT:
+	ostr << "Stationary constraint";
 	break;
     default:
 	break;
@@ -1273,12 +1273,12 @@ void GLWidget::StationaryBody ()
     }
 }
 
-void GLWidget::StationaryObject ()
+void GLWidget::StationaryConstraint ()
 {
     ViewSettings& vs = *GetViewSettings ();
     if (GetFoamAlongTime ().AffineMapNamesUsed ())
     {
-	vs.SetStationaryType (ViewSettings::STATIONARY_OBJECT);
+	vs.SetStationaryType (ViewSettings::STATIONARY_CONSTRAINT);
 	vs.SetStationaryBodyId (INVALID_INDEX);
 	vs.SetStationaryTimeStep (m_timeStep);
 	setLabel ();
@@ -2101,7 +2101,7 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	{
 	    QMenu* menuStationary = menu.addMenu ("Stationary");
 	    menuStationary->addAction (m_actionStationaryBody.get ());
-	    menuStationary->addAction (m_actionStationaryObject.get ());
+	    menuStationary->addAction (m_actionStationaryConstraint.get ());
 	    menuStationary->addAction (m_actionStationaryReset.get ());
 	}
 	{

@@ -675,8 +675,12 @@ bool Foam::ExistsBodyWithValueIn (
 
 void Foam::SetAffineMap (const AffineMapNames& names)
 {
-    for (size_t i = 0; i < m_affineMap.size (); ++i)
-	m_affineMap.Set (i, GetParsingData ().GetVariableValue (names.Get (i)));
+    m_affineMap.m_translation.x =  
+	GetParsingData ().GetVariableValue (names.m_xName);
+    m_affineMap.m_translation.y =  
+	GetParsingData ().GetVariableValue (names.m_yName);
+    m_affineMap.m_angle =  
+	GetParsingData ().GetVariableValue (names.m_angleName);
 }
 
 

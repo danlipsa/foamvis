@@ -337,7 +337,7 @@ public Q_SLOTS:
     void SelectAll ();
     void DeselectAll ();
     void StationaryBody ();
-    void StationaryObject ();
+    void StationaryConstraint ();
     void StationaryReset ();
     void ContextBody ();
     void ContextReset ();
@@ -670,7 +670,7 @@ private:
     boost::shared_ptr<QAction> m_actionResetSelectedLightNumber;
     boost::shared_ptr<QAction> m_actionSelectBodiesById;
     boost::shared_ptr<QAction> m_actionStationaryBody;
-    boost::shared_ptr<QAction> m_actionStationaryObject;
+    boost::shared_ptr<QAction> m_actionStationaryConstraint;
     boost::shared_ptr<QAction> m_actionStationaryReset;
     boost::shared_ptr<QAction> m_actionContextBody;
     boost::shared_ptr<QAction> m_actionContextReset;

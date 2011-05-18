@@ -18,7 +18,7 @@ HEADERS += AffineMap.h Application.h ApproximationEdge.h\
 	stable.h Statistics.h StripIterator.h SystemDifferences.h \
 	TransferFunctionHistogram.h TimeStepsSlider.h Utils.h \
 	Vertex.h ViewSettings.h
-SOURCES += AffineMap.cpp Application.cpp ApproximationEdge.cpp\
+SOURCES += Application.cpp ApproximationEdge.cpp\
 	Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	AttributeHistogram.cpp \
 	Body.cpp BodyAlongTime.cpp BodyIndex.cpp BodySelector.cpp\

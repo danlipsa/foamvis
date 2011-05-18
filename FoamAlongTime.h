@@ -151,7 +151,7 @@ public:
     }
     bool AffineMapNamesUsed () const
     {
-	return ! m_affineMapNames.X ().empty ();
+	return ! m_affineMapNames.m_xName.empty ();
     }
     /**
      * Read T1s from the file for as many time steps as there are DMPs
