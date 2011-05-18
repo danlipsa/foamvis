@@ -333,6 +333,7 @@ private:
 
 private:
     Edges m_standaloneEdges;
+    vector< boost::shared_ptr<Edges> > m_constraintEdges;
     Faces m_standaloneFaces;
 
     /**

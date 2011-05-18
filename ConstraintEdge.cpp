@@ -208,16 +208,17 @@ ConstraintEdge::ConstraintEdge (
 	G3D::Vector3int16(0, 0, 0), 0, ElementStatus::ORIGINAL),
     m_parsingData (parsingData)
 {
-    size_t constraintIndex = GetBegin ()->GetConstraintIndex (0);
-    m_constraint = m_parsingData->GetConstraint (constraintIndex);
     m_parsingData->UnsetVariable ("x");
     m_parsingData->UnsetVariable ("y");
-    boost::shared_ptr<ExpressionTree> simplified (
-	m_constraint->GetSimplified ());
     cachePoints ();
     fixPoints ();
     SetAttribute<ColorAttribute, Color::Enum> (
 	EdgeAttributeIndex::COLOR, Color::RED);
+}
+
+size_t ConstraintEdge::GetConstraintIndex () const
+{
+    return GetBegin ()->GetConstraintIndex (0);
 }
 
 void ConstraintEdge::fixPoints ()

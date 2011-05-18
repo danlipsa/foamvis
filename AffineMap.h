@@ -10,7 +10,7 @@
 
 /**
  * Names of parameters in a DMP file where an affine transformation for a 
- * foam object is stored.
+ * constraint is stored, and the constraint number.
  * Names for x, y and angle are stored.
  */
 struct AffineMapNames

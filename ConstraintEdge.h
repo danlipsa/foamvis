@@ -32,10 +32,10 @@ private:
 		      size_t* countMinus, size_t* countZero);
     int computeCorrectSide (
 	size_t countPlus,  size_t countMinus, size_t countZero);
+    size_t GetConstraintIndex () const;
 
 private:
     ParsingData* m_parsingData;
-    boost::shared_ptr<ExpressionTree> m_constraint;
 };
 
 

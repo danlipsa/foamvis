@@ -133,7 +133,7 @@ public:
 	    ostringstream ostr;
 	    ostr << "Parsing " << file << " ..." << endl;
 	    cdbg << ostr.str ();
-	    foam.reset (new Foam (m_usingOriginal));
+	    foam.reset (new Foam (m_usingOriginal, m_names));
 	    foam->GetParsingData ().SetDebugParsing (m_debugParsing);
 	    foam->GetParsingData ().SetDebugScanning (m_debugScanning);
 	    string fullPath = m_dir + '/' + file;
@@ -259,6 +259,7 @@ void validate(boost::any& v, const std::vector<std::string>& values,
 	goto error;
     istr.str (*it);
     istr >> am.m_constraint;
+    --am.m_constraint;
     if (++it != tok.end ())
 	goto error;
     v = boost::any(am);
