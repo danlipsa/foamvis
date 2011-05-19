@@ -97,33 +97,35 @@ display (const boost::shared_ptr<OrientedFace>& of)
 // DisplayFaceBodyPropertyColor
 // ======================================================================
 
-template<typename displaySameEdges, typename PropertySetter>
-DisplayFaceBodyPropertyColor<displaySameEdges, PropertySetter>::
+template<typename PropertySetter>
+DisplayFaceBodyPropertyColor<PropertySetter>::
 DisplayFaceBodyPropertyColor (
     const GLWidget& widget,
     typename DisplayElement::FocusContext focus, ViewNumber::Enum view, 
     bool useZPos, double zPos) : 
     
-    DisplayFaceHighlightColor<HighlightNumber::H0, displaySameEdges, PropertySetter> (
+    DisplayFaceHighlightColor<HighlightNumber::H0, 
+			      DisplayFaceTriangleFan, PropertySetter> (
 	widget, PropertySetter (widget, view), focus, useZPos, zPos)
 {
 }
 
-template<typename displaySameEdges, typename PropertySetter>
-DisplayFaceBodyPropertyColor<displaySameEdges, PropertySetter>::
+template<typename PropertySetter>
+DisplayFaceBodyPropertyColor<PropertySetter>::
 DisplayFaceBodyPropertyColor (
     const GLWidget& widget,
     PropertySetter propertySetter,
     typename DisplayElement::FocusContext focus,
     bool useZPos, double zPos) : 
 
-    DisplayFaceHighlightColor<HighlightNumber::H0, displaySameEdges, PropertySetter> (
+    DisplayFaceHighlightColor<HighlightNumber::H0, 
+			      DisplayFaceTriangleFan, PropertySetter> (
 	widget, propertySetter, focus, useZPos, zPos) 
 {
 }
 
-template<typename displaySameEdges, typename PropertySetter>
-void DisplayFaceBodyPropertyColor<displaySameEdges, PropertySetter>::
+template<typename PropertySetter>
+void DisplayFaceBodyPropertyColor<PropertySetter>::
 display (const boost::shared_ptr<OrientedFace>& of)
 {
 
@@ -132,13 +134,16 @@ display (const boost::shared_ptr<OrientedFace>& of)
     setColorOrTexture (of, &useColor);
     if (useColor)
 	glDisable (GL_TEXTURE_1D);
-    (displaySameEdges (this->m_glWidget)) (of);
+    // clear stencil buffer
+    // disable writing into the color buffer
+    // set stencil function to GL_ALWAYS and stencil operation to GL_INVERT    
+    (DisplayFaceTriangleFan (this->m_glWidget)) (of);
     if (useColor)
 	glEnable (GL_TEXTURE_1D);
 }
 
-template<typename displaySameEdges, typename PropertySetter>
-void DisplayFaceBodyPropertyColor<displaySameEdges, PropertySetter>::
+template<typename PropertySetter>
+void DisplayFaceBodyPropertyColor<PropertySetter>::
 setColorOrTexture (const boost::shared_ptr<OrientedFace>& of, 
 		   bool* useColor)
 {
@@ -312,10 +317,8 @@ template class DisplayFaceHighlightColor<HighlightNumber::H1, DisplayFaceLineStr
 // DisplayFaceBodyPropertyColor
 // ======================================================================
 
-template class DisplayFaceBodyPropertyColor<DisplayFaceLineStrip, SetterValueTextureCoordinate>;
-template class DisplayFaceBodyPropertyColor<DisplayFaceLineStrip, SetterValueVertexAttribute>;
-template class DisplayFaceBodyPropertyColor<DisplayFaceTriangleFan, SetterValueTextureCoordinate>;
-template class DisplayFaceBodyPropertyColor<DisplayFaceTriangleFan, SetterValueVertexAttribute>;
+template class DisplayFaceBodyPropertyColor<SetterValueTextureCoordinate>;
+template class DisplayFaceBodyPropertyColor<SetterValueVertexAttribute>;
 
 // DisplayFaceColor
 // ======================================================================

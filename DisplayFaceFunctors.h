@@ -10,6 +10,7 @@
 #define __DISPLAY_FACE_FUNCTORS_H__
 
 #include "DisplayElement.h"
+#include "DisplayEdgeFunctors.h"
 #include "Enums.h"
 
 class Face;
@@ -67,11 +68,10 @@ private:
  * Functor that displays a face using the color specified in the DMP file or
  * a color mapped body property value
  */
-template<typename displaySameEdges = DisplayFaceLineStrip, 
-	 typename PropertySetter = SetterValueTextureCoordinate>
+template<typename PropertySetter = SetterValueTextureCoordinate>
 class DisplayFaceBodyPropertyColor : 
     public DisplayFaceHighlightColor<HighlightNumber::H0, 
-				     displaySameEdges, PropertySetter>
+				     DisplayFaceTriangleFan, PropertySetter>
 {
 public:
     /**

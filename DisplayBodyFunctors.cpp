@@ -407,18 +407,13 @@ template class DisplayBody<
 template class DisplayBody<
     DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceLineStrip, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 
-template class DisplayBody<
-    DisplayFaceBodyPropertyColor<DisplayFaceLineStrip, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
-template class DisplayBody<
-    DisplayFaceBodyPropertyColor<DisplayFaceLineStrip, SetterValueVertexAttribute>,
-    SetterValueVertexAttribute>;
 
 template class DisplayBody<
     DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceTriangleFan, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFaceBodyPropertyColor<DisplayFaceTriangleFan, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
+    DisplayFaceBodyPropertyColor<SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 template class DisplayBody<
-    DisplayFaceBodyPropertyColor<DisplayFaceTriangleFan, SetterValueVertexAttribute>,
+    DisplayFaceBodyPropertyColor<SetterValueVertexAttribute>,
     SetterValueVertexAttribute>;
 
 

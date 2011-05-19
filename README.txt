@@ -205,6 +205,8 @@ Release log
 	   attribute (ellipse)
 	 - added --affine-map option to read rotation of the ellipse from the 
 	   DMP file
+	 - Added boost-1.45 in the list of libraries.
+	 
 0.5.1928 - bug for tmp_in.dmp (array on several lines)
 	 - changed body ID to the one specified in ORIGINAL attribute 
 	   (fixes ell0.700000_750v_5.000000_1.dmp) only for 2D. Otherwise

@@ -340,7 +340,7 @@ void DisplayFaceStatistics::renderToStep (
     m_storeShaderProgram.Bind ();
     const Foam& foam = *m_glWidget.GetFoamAlongTime ().GetFoam (timeStep);
     const Foam::Bodies& bodies = foam.GetBodies ();
-    writeFacesValues<DisplayFaceTriangleFan> (viewNumber, bodies);
+    writeFacesValues (viewNumber, bodies);
     m_storeShaderProgram.release ();
     m_step->release ();
     glPopMatrix ();
@@ -472,7 +472,6 @@ void DisplayFaceStatistics::save (const G3D::Rect2D& viewRect,
     m_debug->toImage ().save (ostr.str ().c_str ());    
 }
 
-template<typename displaySameEdges>
 void DisplayFaceStatistics::writeFacesValues (
     ViewNumber::Enum viewNumber, const Foam::Bodies& bodies)
 {
@@ -486,7 +485,7 @@ void DisplayFaceStatistics::writeFacesValues (
 	m_glWidget.GetViewSettings (viewNumber)->GetColorBarTexture ());
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
-	      DisplayFaceBodyPropertyColor<displaySameEdges, 
+	      DisplayFaceBodyPropertyColor<
 	      SetterValueVertexAttribute>, SetterValueVertexAttribute> (
 		  m_glWidget, m_glWidget.GetBodySelector (), 
 		  SetterValueVertexAttribute (

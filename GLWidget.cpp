@@ -1740,6 +1740,7 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
     displayBodyStationaryContour (viewNumber);
     displayBodyContextContour (viewNumber);
+    displayConstraintEdges (viewNumber);
     glPopAttrib ();
 }
 
@@ -1806,8 +1807,7 @@ void GLWidget::displayFacesInterior (
     glBindTexture (GL_TEXTURE_1D, 
 		   GetViewSettings (view)->GetColorBarTexture ());
     for_each (bodies.begin (), bodies.end (),
-	      DisplayBody<DisplayFaceBodyPropertyColor<
-	      DisplayFaceTriangleFan> > (
+	      DisplayBody<DisplayFaceBodyPropertyColor<> > (
 		  *this, *m_bodySelector, 
 		  DisplayElement::TRANSPARENT_CONTEXT, view));
     glPopAttrib ();
@@ -1820,7 +1820,7 @@ void GLWidget::displayFacesInterior (const Foam::Faces& faces) const
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
     for_each (faces.begin (), faces.end (),
-	      DisplayFaceBodyPropertyColor<DisplayFaceTriangleFan> (*this));
+	      DisplayFaceBodyPropertyColor<> (*this));
     glPopAttrib ();
 }
 

@@ -155,7 +155,6 @@ public:
 
 
 private:
-    template<typename displaySameEdges>
     void writeFacesValues (
 	ViewNumber::Enum view, const vector<boost::shared_ptr<Body> >& bodies);
     void display (const G3D::Rect2D& viewRect, 
