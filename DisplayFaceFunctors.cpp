@@ -128,19 +128,39 @@ template<typename PropertySetter>
 void DisplayFaceBodyPropertyColor<PropertySetter>::
 display (const boost::shared_ptr<OrientedFace>& of)
 {
+    // clear stencil buffer
+    // disable writing into the color buffer
+    // set stencil function to GL_ALWAYS and stencil operation to GL_INVERT    
+    (DisplayFaceTriangleFan (this->m_glWidget)) (of);
+
+
+    // set stencil function to non zero and stencil operation to keep.
+    glNormal (of->GetNormal ());
+    bool useColor;
+    setColorOrTexture (of, &useColor);
+    if (useColor)
+	glDisable (GL_TEXTURE_1D);
+    // display AABB
+    if (useColor)
+	glEnable (GL_TEXTURE_1D);
+}
+
+/*
+template<typename PropertySetter>
+void DisplayFaceBodyPropertyColor<PropertySetter>::
+display (const boost::shared_ptr<OrientedFace>& of)
+{
 
     glNormal (of->GetNormal ());
     bool useColor;
     setColorOrTexture (of, &useColor);
     if (useColor)
 	glDisable (GL_TEXTURE_1D);
-    // clear stencil buffer
-    // disable writing into the color buffer
-    // set stencil function to GL_ALWAYS and stencil operation to GL_INVERT    
     (DisplayFaceTriangleFan (this->m_glWidget)) (of);
     if (useColor)
 	glEnable (GL_TEXTURE_1D);
 }
+*/
 
 template<typename PropertySetter>
 void DisplayFaceBodyPropertyColor<PropertySetter>::

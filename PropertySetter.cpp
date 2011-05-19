@@ -12,6 +12,8 @@
 #include "OpenGLUtils.h"
 #include "ViewSettings.h"
 
+// SetterValueTextureCoordinate
+// ======================================================================
 void SetterValueTextureCoordinate::operator () (
     const boost::shared_ptr<Body>& body)
 {
@@ -34,6 +36,9 @@ BodyProperty::Enum SetterValueTextureCoordinate::GetBodyProperty () const
     return m_glWidget.GetViewSettings (m_viewNumber)->GetBodyProperty ();
 }
 
+
+// SetterValueVertexAttribute
+// ======================================================================
 void SetterValueVertexAttribute::operator () (
     const boost::shared_ptr<Body>& body)
 {
@@ -47,5 +52,3 @@ void SetterValueVertexAttribute::operator () ()
 	m_viewNumber)->GetColorBarModel ()->GetInterval ().minValue ();
     m_program->setAttributeValue (m_attributeIndex, value);
 }
-
-
