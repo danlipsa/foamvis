@@ -138,8 +138,6 @@ public:
 	    foam->GetParsingData ().SetDebugScanning (m_debugScanning);
 	    string fullPath = m_dir + '/' + file;
 	    result = foam->GetParsingData ().Parse (fullPath, foam.get ());
-	    if (! m_names.m_xName.empty ())
-		foam->SetAffineMap (m_names);
 	    foam->ReleaseParsingData ();
 	    if (result != 0)
 		ThrowException ("Error parsing ", fullPath);
@@ -258,8 +256,8 @@ void validate(boost::any& v, const std::vector<std::string>& values,
     if (++it == tok.end ())
 	goto error;
     istr.str (*it);
-    istr >> am.m_constraint;
-    --am.m_constraint;
+    istr >> am.m_constraintIndex;
+    --am.m_constraintIndex;
     if (++it != tok.end ())
 	goto error;
     v = boost::any(am);

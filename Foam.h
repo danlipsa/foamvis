@@ -41,7 +41,7 @@ public:
     /**
      * Constructs a Foam object.
      */
-    Foam (bool usingOriginal);
+    Foam (bool usingOriginal, const AffineMapNames& names);
 
     void GetVertexSet (VertexSet* vertexSet) const;
     VertexSet GetVertexSet () const
@@ -197,6 +197,11 @@ public:
     {
 	return m_standaloneEdges;
     }
+    const Edges& GetConstraintEdges (size_t constraintIndex) const
+    {
+	return *m_constraintEdges[constraintIndex];
+    }
+
     const Faces& GetStandaloneFaces () const
     {
 	return m_standaloneFaces;

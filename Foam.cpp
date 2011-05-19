@@ -64,9 +64,9 @@ void compact (vector< boost::shared_ptr<E> >& v)
 // Methods
 // ======================================================================
 
-Foam::Foam (bool usingOriginal) :
+Foam::Foam (bool usingOriginal, const AffineMapNames& names) :
     m_viewMatrix (new G3D::Matrix4 (G3D::Matrix4::identity ())),
-    m_parsingData (new ParsingData (usingOriginal)),
+    m_parsingData (new ParsingData (usingOriginal, names)),
     m_spaceDimension (3),
     m_quadratic (false),
     m_histogram (
@@ -396,6 +396,9 @@ void Foam::Preprocess ()
     VertexSet vertexSet;
     EdgeSet edgeSet;
     FaceSet faceSet;
+    const AffineMapNames& names = GetParsingData ().GetAffineMapNames ();
+    if (! names.m_xName.empty ())
+	SetAffineMap (names);
     compact ();
     updatePartOf ();
     copyStandaloneElements ();
@@ -434,11 +437,21 @@ void Foam::addConstraintEdges ()
 		boost::shared_ptr<Vertex> begin = 
 		    face->GetOrientedEdge (
 			face->GetEdgeCount () - 1)->GetEnd ();
-		boost::shared_ptr<Edge> edge (
-		    new ConstraintEdge (&GetParsingData (), begin, end));
+		ConstraintEdge* constraintEdge = new ConstraintEdge (
+		    &GetParsingData (), begin, end);
+		boost::shared_ptr<Edge> edge (constraintEdge);
 		face->AddEdge (edge);
 		face->CalculateCenter ();
-		if (edge->GetConstraintIndex () == GetParsingData ().
+		size_t constraintIndex = constraintEdge->GetConstraintIndex ();
+		if ( constraintIndex == 
+		     GetParsingData ().GetAffineMapNames ().m_constraintIndex)
+		{
+		    resizeAllowIndex (&m_constraintEdges, constraintIndex);
+		    if (! m_constraintEdges[constraintIndex])
+			m_constraintEdges[constraintIndex].reset (
+			    new Edges ());
+		    m_constraintEdges[constraintIndex]->push_back (edge);
+		}
 	    }
 	}
     }

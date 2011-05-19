@@ -19,7 +19,7 @@
 // DisplayFaceHighlightColor
 // ======================================================================
 
-template <size_t highlightColorIndex,
+template <HighlightNumber::Enum highlightColorIndex,
 	  typename displayEdges, typename PropertySetter>
 DisplayFaceHighlightColor<highlightColorIndex, 
 			  displayEdges, PropertySetter>::
@@ -34,7 +34,7 @@ DisplayFaceHighlightColor (
 {
 }
 
-template <size_t highlightColorIndex,
+template <HighlightNumber::Enum highlightColorIndex,
 	  typename displayEdges, typename PropertySetter>
 DisplayFaceHighlightColor<highlightColorIndex, 
 			  displayEdges, PropertySetter>::
@@ -49,7 +49,7 @@ DisplayFaceHighlightColor (const GLWidget& widget,
 {
 }
 
-template <size_t highlightColorIndex,
+template <HighlightNumber::Enum highlightColorIndex,
 	  typename displayEdges, typename PropertySetter>
 void DisplayFaceHighlightColor<highlightColorIndex, 
 			       displayEdges, PropertySetter>::
@@ -64,7 +64,7 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
     m_count++;
 }
 
-template <size_t highlightColorIndex,
+template <HighlightNumber::Enum highlightColorIndex,
 	  typename displayEdges, typename PropertySetter>
 void DisplayFaceHighlightColor<highlightColorIndex, 
 			       displayEdges, PropertySetter>::
@@ -75,7 +75,7 @@ operator () (const boost::shared_ptr<Face>& f)
     operator () (of);
 }
 
-template <size_t highlightColorIndex,
+template <HighlightNumber::Enum highlightColorIndex,
 	  typename displayEdges, typename PropertySetter>
 void DisplayFaceHighlightColor<highlightColorIndex, 
 			       displayEdges, PropertySetter>::
@@ -85,7 +85,7 @@ display (const boost::shared_ptr<OrientedFace>& of)
     {
 	glColor (this->m_glWidget.GetHighlightColor (
 		     this->m_propertySetter.GetViewNumber (),
-		     HighlightNumber::Enum (highlightColorIndex)));
+		     highlightColorIndex));
     }
     else
 	glColor (QColor::fromRgbF (
@@ -104,7 +104,7 @@ DisplayFaceBodyPropertyColor (
     typename DisplayElement::FocusContext focus, ViewNumber::Enum view, 
     bool useZPos, double zPos) : 
     
-    DisplayFaceHighlightColor<0, displaySameEdges, PropertySetter> (
+    DisplayFaceHighlightColor<HighlightNumber::H0, displaySameEdges, PropertySetter> (
 	widget, PropertySetter (widget, view), focus, useZPos, zPos)
 {
 }
@@ -117,7 +117,7 @@ DisplayFaceBodyPropertyColor (
     typename DisplayElement::FocusContext focus,
     bool useZPos, double zPos) : 
 
-    DisplayFaceHighlightColor<0, displaySameEdges, PropertySetter> (
+    DisplayFaceHighlightColor<HighlightNumber::H0, displaySameEdges, PropertySetter> (
 	widget, propertySetter, focus, useZPos, zPos) 
 {
 }
@@ -158,7 +158,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
     {
 	glColor (this->m_glWidget.GetHighlightColor (
 		     this->m_propertySetter.GetViewNumber (),
-		     HighlightNumber::HIGHLIGHT0));
+		     HighlightNumber::H0));
 	BodyProperty::Enum property = 
 	    this->m_propertySetter.GetBodyProperty ();
 	bool deduced;
@@ -173,7 +173,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
     {
 	glColor (this->m_glWidget.GetHighlightColor (
 		     this->m_propertySetter.GetViewNumber (),
-		     HighlightNumber::HIGHLIGHT1));
+		     HighlightNumber::H1));
 	BodyProperty::Enum property = 
 	    this->m_propertySetter.GetBodyProperty ();
 	bool deduced;
@@ -190,7 +190,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	{
 	    glColor (of->GetColor (this->m_glWidget.GetHighlightColor (
 				       this->m_propertySetter.GetViewNumber (),
-				       HighlightNumber::HIGHLIGHT0)));
+				       HighlightNumber::H0)));
 	    this->m_propertySetter ();
 	}
 	else
@@ -213,7 +213,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	    {
 		glColor (this->m_glWidget.GetHighlightColor (
 			     this->m_propertySetter.GetViewNumber (),
-			     HighlightNumber::HIGHLIGHT1));
+			     HighlightNumber::H1));
 		this->m_propertySetter ();
 	    }
 	}
@@ -233,7 +233,7 @@ DisplayFaceColor (
     typename DisplayElement::FocusContext focus, ViewNumber::Enum view, 
     bool useZPos, double zPos) : 
     
-    DisplayFaceHighlightColor<0, displaySameEdges, PropertySetter> (
+    DisplayFaceHighlightColor<HighlightNumber::H0, displaySameEdges, PropertySetter> (
 	widget, PropertySetter (widget, view), focus, useZPos, zPos)
 {
 }
@@ -246,7 +246,7 @@ DisplayFaceColor (
     typename DisplayElement::FocusContext focus,
     bool useZPos, double zPos) : 
 
-    DisplayFaceHighlightColor<0, displaySameEdges, PropertySetter> (
+    DisplayFaceHighlightColor<HighlightNumber::H0, displaySameEdges, PropertySetter> (
 	widget, propertySetter, focus, useZPos, zPos) 
 {
 }
@@ -282,31 +282,31 @@ display (const boost::shared_ptr<OrientedFace>& of)
 // DisplayFaceHighlightColor
 // ======================================================================
 
-template class DisplayFaceHighlightColor<0,
-    DisplayEdges<
-	DisplayEdgeTorus<DisplayEdgeQuadric, DisplayArrowQuadric, true> >, 
+template class DisplayFaceHighlightColor<HighlightNumber::H0,
+    DisplayFaceEdges<
+	DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadric, true> >, 
     SetterValueTextureCoordinate>;
-template class DisplayFaceHighlightColor<0,
-    DisplayEdges<
-	DisplayEdgeTorus<DisplayEdge, DisplayArrow, true> >, SetterValueTextureCoordinate>;
-template class DisplayFaceHighlightColor<0,
-    DisplayEdges<
+template class DisplayFaceHighlightColor<HighlightNumber::H0,
+    DisplayFaceEdges<
+	DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow, true> >, SetterValueTextureCoordinate>;
+template class DisplayFaceHighlightColor<HighlightNumber::H0,
+    DisplayFaceEdges<
 	DisplayEdgeTorusClipped>, SetterValueTextureCoordinate>;
-template class DisplayFaceHighlightColor<0,
-    DisplayEdges<
-	DisplayEdgeWithColor<DisplayElement::TEST_DISPLAY_TESSELLATION> >, 
+template class DisplayFaceHighlightColor<HighlightNumber::H0,
+    DisplayFaceEdges<
+	DisplayEdgePropertyColor<DisplayElement::TEST_DISPLAY_TESSELLATION> >, 
     SetterValueTextureCoordinate>;
-template class DisplayFaceHighlightColor<0,
-    DisplayEdges<
-	DisplayEdgeWithColor<DisplayElement::DONT_DISPLAY_TESSELLATION> >, 
+template class DisplayFaceHighlightColor<HighlightNumber::H0,
+    DisplayFaceEdges<
+	DisplayEdgePropertyColor<DisplayElement::DONT_DISPLAY_TESSELLATION> >, 
     SetterValueTextureCoordinate>;
-template class DisplayFaceHighlightColor<0, DisplayFaceLineStrip, SetterValueTextureCoordinate>;
-template class DisplayFaceHighlightColor<0, DisplayFaceLineStrip, SetterValueVertexAttribute>;
+template class DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceLineStrip, SetterValueTextureCoordinate>;
+template class DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceLineStrip, SetterValueVertexAttribute>;
 
-template class DisplayFaceHighlightColor<0, DisplayFaceTriangleFan, SetterValueTextureCoordinate>;
-template class DisplayFaceHighlightColor<0, DisplayFaceTriangleFan, SetterValueVertexAttribute>;
+template class DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceTriangleFan, SetterValueTextureCoordinate>;
+template class DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceTriangleFan, SetterValueVertexAttribute>;
 
-template class DisplayFaceHighlightColor<1ul, DisplayFaceLineStrip, SetterValueTextureCoordinate>;
+template class DisplayFaceHighlightColor<HighlightNumber::H1, DisplayFaceLineStrip, SetterValueTextureCoordinate>;
 
 
 // DisplayFaceBodyPropertyColor

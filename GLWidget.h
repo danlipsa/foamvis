@@ -479,6 +479,7 @@ private:
     void displayEdgesNormal (ViewNumber::Enum view) const;
     template<typename displayEdge>
     void displayStandaloneEdges (bool useZPos = false, double zPos = 0) const;
+    void displayConstraintEdges (ViewNumber::Enum view) const;
     void displayStandaloneFaces () const;
     void displayEdgesTorus (ViewNumber::Enum view) const;
     void displayEdgesTorusTubes () const;
@@ -524,7 +525,7 @@ private:
      * continuous contours  for polygons.
      * @param bodies displays all the faces in these bodies
      */
-    template<size_t highlightColorIndex>
+    template<HighlightNumber::Enum highlightColorIndex>
     void displayFacesContour (
 	const vector< boost::shared_ptr<Body> >& bodies, 
 	ViewNumber::Enum viewNumber, GLfloat lineWidth) const;
@@ -598,6 +599,7 @@ private:
     const static double ENCLOSE_ROTATION_RATIO;
     const static GLfloat MAX_T1_SIZE;
     const static GLfloat MIN_T1_SIZE;
+    const static GLfloat HIGHLIGHT_LINE_WIDTH;
 
 private:
     Q_OBJECT

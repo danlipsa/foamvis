@@ -7,6 +7,7 @@
 #ifndef __PARSING_DATA_H__
 #define __PARSING_DATA_H__
 
+#include "AffineMap.h"
 #include "Comparisons.h"
 #include "ParsingDriver.h"
 
@@ -53,7 +54,7 @@ public:
     /**
      * Constructs a ParsingData object
      */
-    ParsingData (bool usingOriginal);
+    ParsingData (bool usingOriginal, const AffineMapNames& names);
 
     void AddAttribute (const char* s)
     {
@@ -262,6 +263,11 @@ public:
 	return m_usingOriginal;
     }
 
+    const AffineMapNames& GetAffineMapNames () const
+    {
+	return m_names;
+    }
+
 public:
     string ToString () const;
 
@@ -317,6 +323,7 @@ private:
     size_t m_parenthesisCount;
     bool m_newLineSignificant;
     bool m_usingOriginal;
+    AffineMapNames m_names;
 
 private:
     static const char* IMPLEMENTED_METHODS[];

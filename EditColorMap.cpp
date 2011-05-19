@@ -39,11 +39,11 @@ void EditColorMap::SetData (
 	widgetHistogram->SetItemsSelectionHigh (false, clampValues.maxValue ());
     labelHighlight0->setText (
 	ColorToHtml (m_colorBarModel.GetHighlightColor (
-			 HighlightNumber::HIGHLIGHT0), 
+			 HighlightNumber::H0), 
 		     HIGHLIGHT_LABEL_TEXT).c_str ());
     labelHighlight1->setText (
 	ColorToHtml (m_colorBarModel.GetHighlightColor (
-			 HighlightNumber::HIGHLIGHT1), 
+			 HighlightNumber::H1), 
 		     HIGHLIGHT_LABEL_TEXT).c_str ());
 }
 
@@ -57,11 +57,11 @@ void EditColorMap::HighlightedPalette (int index)
     widgetHistogram->replot ();
     labelHighlight0->setText (
 	ColorToHtml (m_colorBarModel.GetHighlightColor (
-			 HighlightNumber::HIGHLIGHT0), 
+			 HighlightNumber::H0), 
 		     HIGHLIGHT_LABEL_TEXT).c_str ());
     labelHighlight1->setText (
 	ColorToHtml (m_colorBarModel.GetHighlightColor (
-			 HighlightNumber::HIGHLIGHT1), 
+			 HighlightNumber::H1), 
 		     HIGHLIGHT_LABEL_TEXT).c_str ());
 }
 
@@ -99,24 +99,24 @@ void EditColorMap::ToggledColorCodedHistogram(bool checked)
 void EditColorMap::ClickedHighlight0 ()
 {
     m_colorBarModel.SetHighlightColor (
-	HighlightNumber::HIGHLIGHT0, 
+	HighlightNumber::H0, 
 	QColorDialog::getColor (m_colorBarModel.GetHighlightColor (
-				    HighlightNumber::HIGHLIGHT0)));
+				    HighlightNumber::H0)));
     labelHighlight0->setText (
 	ColorToHtml (m_colorBarModel.GetHighlightColor (
-			 HighlightNumber::HIGHLIGHT0), 
+			 HighlightNumber::H0), 
 		     HIGHLIGHT_LABEL_TEXT).c_str ());
 }
 
 void EditColorMap::ClickedHighlight1 ()
 {
     m_colorBarModel.SetHighlightColor (
-	HighlightNumber::HIGHLIGHT1, 
+	HighlightNumber::H1, 
 	QColorDialog::getColor (m_colorBarModel.GetHighlightColor (
-				    HighlightNumber::HIGHLIGHT1)));
+				    HighlightNumber::H1)));
     labelHighlight1->setText (
 	ColorToHtml (m_colorBarModel.GetHighlightColor (
-			 HighlightNumber::HIGHLIGHT1), 
+			 HighlightNumber::H1), 
 		     HIGHLIGHT_LABEL_TEXT).c_str ());
 }
 

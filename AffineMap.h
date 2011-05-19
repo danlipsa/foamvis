@@ -18,7 +18,7 @@ struct AffineMapNames
     string m_xName;
     string m_yName;
     string m_angleName;
-    size_t m_constraint;
+    size_t m_constraintIndex;
 };
 
 struct AffineMap

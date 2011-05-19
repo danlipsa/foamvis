@@ -295,8 +295,8 @@ struct HighlightNumber
 {
     enum Enum
     {
-	HIGHLIGHT0,
-	HIGHLIGHT1
+	H0,
+	H1
     };
 };
 

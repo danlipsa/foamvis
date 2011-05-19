@@ -129,6 +129,7 @@ const double GLWidget::MAX_CONTEXT_ALPHA = 0.5;
 const double GLWidget::ENCLOSE_ROTATION_RATIO = 1;
 const GLfloat GLWidget::MAX_T1_SIZE = 10.0;
 const GLfloat GLWidget::MIN_T1_SIZE = 1.0;
+const GLfloat GLWidget::HIGHLIGHT_LINE_WIDTH = 2.0;
 
 // Methods
 // ======================================================================
@@ -484,7 +485,7 @@ void GLWidget::displayLightDirection (
 	::glColor (QColor (vs.IsLightEnabled (i) ? Qt::red : Qt::gray));
 	if (vs.IsLightingEnabled ())
 	    glDisable (GL_LIGHTING);
-	DisplayOrientedEdge () (lp, G3D::Vector3::zero ());
+	DisplayOrientedSegment () (lp, G3D::Vector3::zero ());
 	glPopMatrix ();
 	glPopAttrib ();
     }
@@ -1163,7 +1164,7 @@ void GLWidget::displayBodyStationaryContour (ViewNumber::Enum viewNumber) const
     {
 	Foam::Bodies focusBody (1);
 	focusBody[0] = *GetCurrentFoam ().FindBody (vs.GetStationaryBodyId ());
-	displayFacesContour<0> (focusBody, viewNumber, 2.0);
+	displayFacesContour<HighlightNumber::H0> (focusBody, viewNumber, HIGHLIGHT_LINE_WIDTH);
     }
 }
 
@@ -1180,7 +1181,8 @@ void GLWidget::displayBodyContextContour (ViewNumber::Enum viewNumber) const
 	    ! boost::bind (&ViewSettings::IsBodyContext, vs, 
 			   boost::bind (&Body::GetId, _1)));
 	contextBodies.resize (end - contextBodies.begin ());
-	displayFacesContour<1> (contextBodies, viewNumber, 2.0);
+	displayFacesContour<HighlightNumber::H1> (
+	    contextBodies, viewNumber, HIGHLIGHT_LINE_WIDTH);
     }
 }
 
@@ -1449,7 +1451,8 @@ void GLWidget::displayFocusBox (ViewNumber::Enum viewNumber) const
 			    vs.GetTranslation (), true);
 	glScale (vs.GetContextScaleRatio ());
 	DisplayBox (focusBox, GetHighlightColor (
-			viewNumber, HighlightNumber::HIGHLIGHT0), 2.0);
+			viewNumber, HighlightNumber::H0), 
+		    HIGHLIGHT_LINE_WIDTH);
 	glPopMatrix ();
     }
 }
@@ -1486,9 +1489,9 @@ void GLWidget::displayAxes () const
 	Vector3 second = origin + diagonal.y * Vector3::unitY ();
 	Vector3 third = origin + diagonal.z * Vector3::unitZ ();
 
-	DisplayOrientedEdgeQuadric displayOrientedEdge (
+	DisplayOrientedSegmentQuadric displayOrientedEdge (
 	    GetQuadricObject (), m_arrowBaseRadius, m_edgeRadius, m_arrowHeight,
-	    DisplayArrow::TOP_END);
+	    DisplaySegmentArrow::TOP_END);
 
 	glColor (Qt::red);
 	displayOrientedEdge (origin, first);
@@ -1511,8 +1514,8 @@ void GLWidget::displayEdges () const
     const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
-	      DisplayFaceHighlightColor<0,
-	      DisplayEdges<displayEdge> > > (*this, *m_bodySelector));
+	      DisplayFaceHighlightColor<HighlightNumber::H0,
+	      DisplayFaceEdges<displayEdge> > > (*this, *m_bodySelector));
     displayStandaloneEdges<displayEdge> ();
 
     glPopAttrib ();
@@ -1534,6 +1537,28 @@ void GLWidget::displayStandaloneEdges (bool useZPos, double zPos) const
     }
 }
 
+void GLWidget::displayConstraintEdges (ViewNumber::Enum view) const
+{
+    const ViewSettings& vs = *GetViewSettings (view);
+    ViewSettings::StationaryType type = vs.GetStationaryType ();
+    if (type == ViewSettings::STATIONARY_CONSTRAINT)
+    {
+	glPushAttrib (GL_ENABLE_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
+	glDisable (GL_DEPTH_TEST);
+	glLineWidth (HIGHLIGHT_LINE_WIDTH);
+	glColor (GetHighlightColor (view, HighlightNumber::H0));
+	const Foam::Edges& constraintEdges = 
+	    GetCurrentFoam ().GetConstraintEdges (
+		GetFoamAlongTime ().GetAffineMapNames ().m_constraintIndex);
+	DisplayEdgeHighlightColor<HighlightNumber::H0> displayEdge (
+	    *this, DisplayElement::FOCUS, view);
+	BOOST_FOREACH (boost::shared_ptr<Edge> edge, constraintEdges)
+	    displayEdge (edge);
+	glPopAttrib ();
+    }
+}
+
+
 void GLWidget::displayEdgesNormal (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = *GetViewSettings (viewNumber);    
@@ -1542,7 +1567,7 @@ void GLWidget::displayEdgesNormal (ViewNumber::Enum viewNumber) const
 	glDisable (GL_LIGHTING);
     m_torusOriginalDomainClipped ?
 	displayEdges <DisplayEdgeTorusClipped> () :
-	displayEdges <DisplayEdgeWithColor<> >();
+	displayEdges <DisplayEdgePropertyColor<> >();
     glPopAttrib ();
 }
 
@@ -1569,7 +1594,7 @@ void GLWidget::displayT1s (ViewNumber::Enum view, size_t timeStep) const
     glPushAttrib (GL_ENABLE_BIT | GL_POINT_BIT | GL_CURRENT_BIT);
     glDisable (GL_DEPTH_TEST);
     glPointSize (m_t1Size);
-    glColor (GetHighlightColor (view, HighlightNumber::HIGHLIGHT0));
+    glColor (GetHighlightColor (view, HighlightNumber::H0));
     glBegin (GL_POINTS);
     BOOST_FOREACH (const G3D::Vector3 v, 
 		   GetFoamAlongTime ().GetT1s (timeStep))
@@ -1587,7 +1612,7 @@ QColor GLWidget::GetHighlightColor (
 	return colorBarModel->GetHighlightColor (highlight);
     else
     {
-	if (highlight == HighlightNumber::HIGHLIGHT0)
+	if (highlight == HighlightNumber::H0)
 	    return Qt::black;
 	else
 	    return Qt::red;
@@ -1616,7 +1641,7 @@ void GLWidget::displayFacesTorus (ViewNumber::Enum view) const
 	displayFacesTorusLines ();
 	displayBodyCenters ();
     }
-    displayStandaloneEdges< DisplayEdgeWithColor<> > ();
+    displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
 }
 
 
@@ -1628,7 +1653,7 @@ void GLWidget::displayEdgesTorusTubes () const
     GetCurrentFoam ().GetEdgeSet (&edgeSet);
     for_each (
 	edgeSet.begin (), edgeSet.end (),
-	DisplayEdgeTorus<DisplayEdgeQuadric, DisplayArrowQuadric, false>(*this));
+	DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadric, false>(*this));
     glPopAttrib ();
 }
 
@@ -1639,7 +1664,7 @@ void GLWidget::displayEdgesTorusLines () const
     EdgeSet edgeSet;
     GetCurrentFoam ().GetEdgeSet (&edgeSet);
     for_each (edgeSet.begin (), edgeSet.end (),
-	      DisplayEdgeTorus<DisplayEdge, DisplayArrow, false> (*this));
+	      DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow, false> (*this));
     glPopAttrib ();
 }
 
@@ -1676,8 +1701,9 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum view) const
     if (m_facesShowEdges)
 	displayFacesContour (bodies);
     displayFacesInterior (bodies, view);
-    displayStandaloneFaces ();
-    displayStandaloneEdges< DisplayEdgeWithColor<> > ();
+    displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
+    displayConstraintEdges (view);
+    displayStandaloneFaces ();    
     displayBodyCenters ();
 }
 
@@ -1711,7 +1737,7 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
     view->GetDisplayFaceStatistics ()->Display (
 	GetViewRect (viewNumber),
 	minMax.first, minMax.second, view->GetStatisticsType ());
-    displayStandaloneEdges< DisplayEdgeWithColor<> > ();
+    displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
     displayBodyStationaryContour (viewNumber);
     displayBodyContextContour (viewNumber);
     glPopAttrib ();
@@ -1746,12 +1772,12 @@ void GLWidget::displayFacesContour (const Foam::Bodies& bodies) const
 }
 
 
-template<size_t highlightColorIndex>
+template<HighlightNumber::Enum highlightColorIndex>
 void GLWidget::displayFacesContour (
     const Foam::Bodies& bodies, ViewNumber::Enum viewNumber, 
     GLfloat lineWidth) const
 {
-    glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT| GL_LINE_BIT);
+    glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_LINE_BIT);
     glLineWidth (lineWidth);
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody< DisplayFaceHighlightColor<highlightColorIndex, 
@@ -1806,8 +1832,8 @@ void GLWidget::displayFacesTorusTubes () const
     GetCurrentFoam ().GetFaceSet (&faceSet);
     for_each (
 	faceSet.begin (), faceSet.end (),
-	DisplayFaceHighlightColor<0, DisplayEdges<
-	DisplayEdgeTorus<DisplayEdgeQuadric, DisplayArrowQuadric, true> > > (
+	DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceEdges<
+	DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadric, true> > > (
 	    *this));
     glPopAttrib ();
 }
@@ -1820,9 +1846,9 @@ void GLWidget::displayFacesTorusLines () const
     FaceSet faceSet;
     GetCurrentFoam ().GetFaceSet (&faceSet);
     for_each (faceSet.begin (), faceSet.end (),
-	      DisplayFaceHighlightColor<0,
-	      DisplayEdges<
-	      DisplayEdgeTorus<DisplayEdge, DisplayArrow, true> > > (
+	      DisplayFaceHighlightColor<HighlightNumber::H0,
+	      DisplayFaceEdges<
+	      DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow, true> > > (
 		  *this, DisplayElement::FOCUS) );
     glPopAttrib ();
 }
@@ -1842,18 +1868,18 @@ void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum view) const
 	double zPos = GetTimeStep () * GetTimeDisplacement ();
 	for_each (
 	    bodies.begin (), bodies.end (),
-	    DisplayBody<DisplayFaceHighlightColor<0,
-	    DisplayEdges<DisplayEdgeWithColor<
+	    DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H0,
+	    DisplayFaceEdges<DisplayEdgePropertyColor<
 	    DisplayElement::DONT_DISPLAY_TESSELLATION> > > > (
 		*this, *m_bodySelector, DisplayElement::INVISIBLE_CONTEXT,
 		view, IsTimeDisplacementUsed (), zPos));
 	displayBodyCenters (IsTimeDisplacementUsed ());
     }
-    displayStandaloneEdges< DisplayEdgeWithColor<> > (true, 0);
+    displayStandaloneEdges< DisplayEdgePropertyColor<> > (true, 0);
     if (GetTimeDisplacement () != 0)
     {
 
-	displayStandaloneEdges< DisplayEdgeWithColor<> > (
+	displayStandaloneEdges< DisplayEdgePropertyColor<> > (
 	    IsTimeDisplacementUsed (),
 	    (GetFoamAlongTime ().GetTimeSteps () - 1)*GetTimeDisplacement ());
     }
@@ -1897,20 +1923,21 @@ void GLWidget::compileCenterPaths (ViewNumber::Enum view) const
 	    for_each (
 		bats.begin (), bats.end (),
 		DisplayCenterPath<
-		SetterValueTextureCoordinate, DisplayEdgeTube> (
+		SetterValueTextureCoordinate, DisplaySegmentTube> (
 		    *this, m_viewNumber, *m_bodySelector,
 		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
 	else
 	    for_each (
 		bats.begin (), bats.end (),
 		DisplayCenterPath<
-		SetterValueTextureCoordinate, DisplayEdgeQuadric> (
+		SetterValueTextureCoordinate, DisplaySegmentQuadric> (
 		    *this, m_viewNumber, *m_bodySelector,
 		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     }
     else
 	for_each (bats.begin (), bats.end (),
-		  DisplayCenterPath<SetterValueTextureCoordinate, DisplayEdge> (
+		  DisplayCenterPath<SetterValueTextureCoordinate, 
+		  DisplaySegment> (
 		      *this, m_viewNumber, *m_bodySelector,
 		      IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     glPopAttrib ();

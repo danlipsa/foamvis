@@ -19,6 +19,7 @@ public:
     ConstraintEdge (ParsingData* parsingData,
 		    const boost::shared_ptr<Vertex>& begin,
 		    const boost::shared_ptr<Vertex>& end);
+    size_t GetConstraintIndex () const;
 
 protected:
     virtual G3D::Vector3 computePoint (size_t i) const;
@@ -32,7 +33,6 @@ private:
 		      size_t* countMinus, size_t* countZero);
     int computeCorrectSide (
 	size_t countPlus,  size_t countMinus, size_t countZero);
-    size_t GetConstraintIndex () const;
 
 private:
     ParsingData* m_parsingData;

@@ -16,8 +16,7 @@ class Vertex;
 
 void DisplayEdgeVertices (const Edge& edge,
 			  bool useZPos = false, double zPos = 0);
-void  DisplayAllButLastVertices (const boost::shared_ptr<OrientedEdge> oe);
-void  DisplayAllVertices (const boost::shared_ptr<OrientedEdge> oe);
+void  DisplayOrientedEdgeVertices (const boost::shared_ptr<OrientedEdge> oe);
 struct DisplayOriginalVertex
 {
     void operator() (const boost::shared_ptr<Vertex>& v);

@@ -12,7 +12,7 @@
 #include "DisplayElement.h"
 #include "Enums.h"
 
-class DisplayEdge;
+class DisplaySegment;
 class Body;
 class BodyAlongTime;
 class BodySelector;
@@ -145,7 +145,7 @@ private:
  * StripIterator functions
  */
 template<typename PropertySetter = SetterValueTextureCoordinate,
-	 typename DisplaySegment = DisplayEdge>
+	 typename DisplayEdge = DisplaySegment>
 class DisplayCenterPath : public DisplayBodyBase<PropertySetter>
 {
 public:
@@ -205,7 +205,7 @@ private:
 	const boost::shared_ptr<FocusColorSegment>& segment);
 
 private:
-    DisplaySegment m_displaySegment;
+    DisplayEdge m_displaySegment;
     vector< boost::shared_ptr<FocusTextureSegment> > m_focusTextureSegments;
     vector< boost::shared_ptr<FocusColorSegment> > m_focusColorSegments;
     vector< boost::shared_ptr<ContextSegment> > m_contextSegments;

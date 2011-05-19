@@ -200,7 +200,11 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
-0.5.
+0.5.     - use boost program options for command line
+	 - use --using-original for datasets that have to use ORIGINAL 
+	   attribute (ellipse)
+	 - added --affine-map option to read rotation of the ellipse from the 
+	   DMP file
 0.5.1928 - bug for tmp_in.dmp (array on several lines)
 	 - changed body ID to the one specified in ORIGINAL attribute 
 	   (fixes ell0.700000_750v_5.000000_1.dmp) only for 2D. Otherwise

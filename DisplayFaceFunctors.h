@@ -10,6 +10,7 @@
 #define __DISPLAY_FACE_FUNCTORS_H__
 
 #include "DisplayElement.h"
+#include "Enums.h"
 
 class Face;
 class OrientedFace;
@@ -18,7 +19,7 @@ class DisplayFaceLineStrip;
 /**
  * Functor that displays a face using a color map highlight color
  */
-template <size_t highlightColorIndex,
+template <HighlightNumber::Enum highlightColorIndex,
 	  typename displayEdges, 
 	  typename PropertySetter = SetterValueTextureCoordinate>
 class DisplayFaceHighlightColor : 
@@ -69,7 +70,8 @@ private:
 template<typename displaySameEdges = DisplayFaceLineStrip, 
 	 typename PropertySetter = SetterValueTextureCoordinate>
 class DisplayFaceBodyPropertyColor : 
-    public DisplayFaceHighlightColor<0, displaySameEdges, PropertySetter>
+    public DisplayFaceHighlightColor<HighlightNumber::H0, 
+				     displaySameEdges, PropertySetter>
 {
 public:
     /**
@@ -98,14 +100,12 @@ private:
 			    bool* useColor);
 };
 
-
-
-
 template<QRgb faceColor,
 	 typename displaySameEdges = DisplayFaceLineStrip, 
 	 typename PropertySetter = SetterValueTextureCoordinate>
 class DisplayFaceColor : 
-    public DisplayFaceHighlightColor<0, displaySameEdges, PropertySetter>
+    public DisplayFaceHighlightColor<HighlightNumber::H0, 
+				     displaySameEdges, PropertySetter>
 {
 public:
     /**

@@ -16,7 +16,7 @@ class Face;
 class OrientedEdge;
 class OrientedFace;
 
-
+// Display segments
 struct Segment
 {
     Segment () :
@@ -49,16 +49,16 @@ struct Segment
 };
 
 
-class DisplayEdge
+class DisplaySegment
 {
 public:
-    DisplayEdge () :
+    DisplaySegment () :
 	m_quadric (0), m_radius (1.0), m_contextRadius (1.0)
     {
     }
     
 
-    DisplayEdge (GLUquadricObj* quadric, double edgeRadius, 
+    DisplaySegment (GLUquadricObj* quadric, double edgeRadius, 
 		 double contextEdgeRadius = 2.0) :
 	
 	m_quadric (quadric), m_radius (edgeRadius), 
@@ -80,16 +80,16 @@ protected:
     double m_contextRadius;
 };
 
-class DisplayEdgeQuadric : public DisplayEdge
+class DisplaySegmentQuadric : public DisplaySegment
 {
 public:
-    DisplayEdgeQuadric () : DisplayEdge ()
+    DisplaySegmentQuadric () : DisplaySegment ()
     {
     }
 
-    DisplayEdgeQuadric (
+    DisplaySegmentQuadric (
 	GLUquadricObj* quadric, double edgeRadius, double contextRadius = 2.0) :
-	DisplayEdge (quadric, edgeRadius, contextRadius)
+	DisplaySegment (quadric, edgeRadius, contextRadius)
     {
     }
     
@@ -100,16 +100,16 @@ public:
     }
 };
 
-class DisplayEdgeTube : public DisplayEdge
+class DisplaySegmentTube : public DisplaySegment
 {
 public:
-    DisplayEdgeTube () : DisplayEdge ()
+    DisplaySegmentTube () : DisplaySegment ()
     {
     }
 
-    DisplayEdgeTube (GLUquadricObj* quadric, double edgeRadius, 
+    DisplaySegmentTube (GLUquadricObj* quadric, double edgeRadius, 
 		     double contextRadius = 2.0) :
-	DisplayEdge (quadric, edgeRadius, contextRadius)
+	DisplaySegment (quadric, edgeRadius, contextRadius)
     {
     }
     
@@ -124,7 +124,7 @@ private:
 	const G3D::Vector3& afterP, const G3D::Vector3& origin) const;
 };
 
-class DisplayArrow
+class DisplaySegmentArrow
 {
 public:
     enum Position
@@ -134,7 +134,7 @@ public:
     };
 
 public:
-    DisplayArrow (
+    DisplaySegmentArrow (
 	GLUquadricObj* quadric = 0,
 	double baseRadius = 0, double topRadius = 0, double height = 0,
 	Position position = BASE_MIDDLE) :
@@ -155,41 +155,41 @@ protected:
     Position m_position;
 };
 
-class DisplayArrowQuadric : public DisplayArrow
+class DisplaySegmentArrowQuadric : public DisplaySegmentArrow
 {
 public:
-    DisplayArrowQuadric (
+    DisplaySegmentArrowQuadric (
 	GLUquadricObj* quadric,
 	double baseRadius, double topRadius, double height, 
 	Position position = BASE_MIDDLE) :
-	DisplayArrow (quadric, baseRadius, topRadius, height, position)
+	DisplaySegmentArrow (quadric, baseRadius, topRadius, height, position)
     {
     }
 
     void operator () (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
-class DisplayOrientedEdge : public DisplayArrow
+class DisplayOrientedSegment : public DisplaySegmentArrow
 {
 public:
-    DisplayOrientedEdge (
+    DisplayOrientedSegment (
 	GLUquadricObj* quadric = 0,
 	double baseRadius = 0, double topRadius = 1.0, double height = 0,
 	Position position = BASE_MIDDLE) :
-	DisplayArrow (quadric, baseRadius, topRadius, height, position)
+	DisplaySegmentArrow (quadric, baseRadius, topRadius, height, position)
     {
     }
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
-class DisplayOrientedEdgeQuadric : public DisplayArrow
+class DisplayOrientedSegmentQuadric : public DisplaySegmentArrow
 {
 public:
-    DisplayOrientedEdgeQuadric (
+    DisplayOrientedSegmentQuadric (
 	GLUquadricObj* quadric = 0,
 	double baseRadius = 0, double topRadius = 0, double height = 0,
 	Position position = BASE_MIDDLE) :
-	DisplayArrow (quadric, baseRadius, topRadius, height, position)
+	DisplaySegmentArrow (quadric, baseRadius, topRadius, height, position)
     {
     }
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
@@ -198,7 +198,8 @@ public:
 // Display one edge
 // ======================================================================
 
-template <typename DisplayEdge, typename DisplayArrow, bool showDuplicates>
+template <typename DisplayEdge, 
+	  typename DisplaySegmentArrow, bool showDuplicates>
 class DisplayEdgeTorus : public DisplayElementFocus
 {
 public:
@@ -224,19 +225,19 @@ protected:
 
 private:
     DisplayEdge m_displayEdge;
-    DisplayArrow m_displayArrow;
+    DisplaySegmentArrow m_displayArrow;
 };
 
 template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay = 
 	  DisplayElement::TEST_DISPLAY_TESSELLATION>
-class DisplayEdgeWithColor : public DisplayElementFocus
+class DisplayEdgePropertyColor : public DisplayElementFocus
 {
 public:
     /**
      * Constructor
      * @param widget Where should be the edge displayed
      */
-    DisplayEdgeWithColor (const GLWidget& widget, 
+    DisplayEdgePropertyColor (const GLWidget& widget, 
 			  FocusContext focus,
 			  bool useZPos = false, double zPos = 0);
 
@@ -250,6 +251,29 @@ public:
      */
     void operator() (const boost::shared_ptr<OrientedEdge> oe) const;
 };
+
+
+template <HighlightNumber::Enum highlightNumber,
+	  DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay = 
+	  DisplayElement::TEST_DISPLAY_TESSELLATION>
+class DisplayEdgeHighlightColor : public DisplayElementFocus
+{
+public:
+    /**
+     * Constructor
+     * @param widget Where should be the edge displayed
+     */
+    DisplayEdgeHighlightColor (const GLWidget& widget, 
+			       FocusContext focus, ViewNumber::Enum viewNumber,
+			       bool useZPos = false, double zPos = 0);
+
+    void operator () (const boost::shared_ptr<Edge> edge) const;
+    void operator () (const Edge& edge) const;
+    void operator() (const boost::shared_ptr<OrientedEdge> oe) const;
+private:
+    ViewNumber::Enum m_viewNumber;
+};
+
 
 
 /**
@@ -309,10 +333,10 @@ public:
 
 
 template<typename displayEdge>
-class DisplayEdges : public DisplayElementFocus
+class DisplayFaceEdges : public DisplayElementFocus
 {
 public:
-    DisplayEdges (const GLWidget& widget, FocusContext focus, 
+    DisplayFaceEdges (const GLWidget& widget, FocusContext focus, 
 		  bool useZPos = false, double zPos = 0);
 
     void operator() (const boost::shared_ptr<OrientedFace> f);

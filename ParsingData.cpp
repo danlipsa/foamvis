@@ -72,11 +72,12 @@ const set<string> ParsingData::OPERATORS (
 
 // Methods
 // ======================================================================
-ParsingData::ParsingData (bool usingOriginal) :
+ParsingData::ParsingData (bool usingOriginal, const AffineMapNames& names) :
     m_spaceSignificant (false),
     m_parenthesisCount (0),
     m_newLineSignificant (false),
-    m_usingOriginal (usingOriginal)
+    m_usingOriginal (usingOriginal),
+    m_names (names)
 {
     BinaryFunctionInformation BINARY_FUNCTION_INFORMATION[] = 
     {
