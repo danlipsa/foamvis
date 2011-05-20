@@ -128,39 +128,41 @@ template<typename PropertySetter>
 void DisplayFaceBodyPropertyColor<PropertySetter>::
 display (const boost::shared_ptr<OrientedFace>& of)
 {
-    // clear stencil buffer
-    // disable writing into the color buffer
-    // set stencil function to GL_ALWAYS and stencil operation to GL_INVERT    
-    (DisplayFaceTriangleFan (this->m_glWidget)) (of);
+    if (this->m_glWidget.GetFoamAlongTime ().Is2D ())
+    {
+	boost::shared_ptr<Body> body = of->GetBodyPartOf ().GetBody ();
+	G3D::AABox box = body->GetBoundingBox ();
+	// setup the stencil to contain 1s
+	glClear(GL_STENCIL_BUFFER_BIT);
+	glStencilFunc (GL_NEVER, 0, 0);
+	glStencilOp (GL_INVERT, GL_KEEP, GL_KEEP);
+	(DisplayFaceTriangleFan (this->m_glWidget)) (of);
 
-
-    // set stencil function to non zero and stencil operation to keep.
-    glNormal (of->GetNormal ());
-    bool useColor;
-    setColorOrTexture (of, &useColor);
-    if (useColor)
-	glDisable (GL_TEXTURE_1D);
-    // display AABB
-    if (useColor)
-	glEnable (GL_TEXTURE_1D);
+	// write to the buffer only if != 0.
+	glStencilFunc (GL_NOTEQUAL, 0, 1);
+	glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP);
+	glNormal (of->GetNormal ());
+	bool useColor;
+	setColorOrTexture (of, &useColor);
+	if (useColor)
+	    glDisable (GL_TEXTURE_1D);
+	DisplayBox (G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ()));
+	if (useColor)
+	    glEnable (GL_TEXTURE_1D);
+    }
+    else
+    {
+	glNormal (of->GetNormal ());
+	bool useColor;
+	setColorOrTexture (of, &useColor);
+	if (useColor)
+	    glDisable (GL_TEXTURE_1D);
+	(DisplayFaceTriangleFan (this->m_glWidget)) (of);
+	if (useColor)
+	    glEnable (GL_TEXTURE_1D);
+    }
 }
 
-/*
-template<typename PropertySetter>
-void DisplayFaceBodyPropertyColor<PropertySetter>::
-display (const boost::shared_ptr<OrientedFace>& of)
-{
-
-    glNormal (of->GetNormal ());
-    bool useColor;
-    setColorOrTexture (of, &useColor);
-    if (useColor)
-	glDisable (GL_TEXTURE_1D);
-    (DisplayFaceTriangleFan (this->m_glWidget)) (of);
-    if (useColor)
-	glEnable (GL_TEXTURE_1D);
-}
-*/
 
 template<typename PropertySetter>
 void DisplayFaceBodyPropertyColor<PropertySetter>::

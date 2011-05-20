@@ -74,14 +74,21 @@ public:
     }
     void UpdatePartOf (const boost::shared_ptr<Body>& body);
     string ToString () const;
-    void GetVertexSet (VertexSet* vertexSet) const;
+    void GetVertexSet (VertexSet* vertexSet) const;    
     VertexSet GetVertexSet () const
     {
 	VertexSet set;
 	GetVertexSet (&set);
 	return set;
     }
+    vector<G3D::Vector3> GetAllEdgeVertices () const;
     void GetEdgeSet (EdgeSet* edgeSet) const;
+    EdgeSet GetEdgeSet () const
+    {
+	EdgeSet set;
+	GetEdgeSet (&set);
+	return set;
+    }
     void GetFaceSet (FaceSet* faceSet) const;
     double GetPressure () const;
     double GetPropertyValue (BodyProperty::Enum property) const;

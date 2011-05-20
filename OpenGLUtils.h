@@ -21,6 +21,11 @@ inline void glVertex (const G3D::Vector3& p)
     glVertex3f (p.x, p.y, p.z);
 }
 
+inline void glVertex (const G3D::Vector2& p)
+{
+    glVertex2f (p.x, p.y);
+}
+
 inline void glScale (double ratio)
 {
     glScaled (ratio, ratio, ratio);
@@ -81,6 +86,7 @@ inline GLenum TextureEnum (GLint texture)
 void DisplayBox (const OOBox& oobox);
 void DisplayBox (const G3D::AABox& aabb, const QColor& color,
 		 GLfloat lineWidth = 1.0);
+void DisplayBox (const G3D::Rect2D& rect);
 
 template<typename GraphicsObjectPtr>
 void DisplayBox (

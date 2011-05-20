@@ -289,11 +289,13 @@ void Body::SetPressureValue (double value)
 void Body::CalculateBoundingBox ()
 {
     G3D::Vector3 low, high;
-    VertexSet vertexSet = GetVertexSet ();
-    CalculateAggregate <VertexSet, VertexSet::iterator, VertexLessThanAlong>() (
-	min_element, vertexSet, &low);
-    CalculateAggregate <VertexSet, VertexSet::iterator, VertexLessThanAlong>()(
-	max_element, vertexSet, &high);
+    vector<G3D::Vector3> v (GetAllEdgeVertices ());
+    CalculateAggregate <vector<G3D::Vector3>, vector<G3D::Vector3>::iterator, 
+	VertexLessThanAlong> () (
+	    min_element, v, &low);
+    CalculateAggregate <vector<G3D::Vector3>, 
+	vector<G3D::Vector3>::iterator, VertexLessThanAlong>()(
+	    max_element, v, &high);
     m_boundingBox.set(low, high);
 }
 
@@ -307,4 +309,16 @@ void Body::CalculatePerimeterOverSqrtArea ()
 	m_perimeterOverSqrtArea = of->GetPerimeter () / 
 	    sqrt (GetPropertyValue (BodyProperty::VOLUME));
     }
+}
+
+vector<G3D::Vector3> Body::GetAllEdgeVertices () const
+{
+    EdgeSet edges = GetEdgeSet ();
+    vector<G3D::Vector3> v;
+    BOOST_FOREACH (boost::shared_ptr<Edge> edge, edges)
+    {
+	for (size_t i = 0; i < edge->GetPointCount (); ++i)
+	    v.push_back (edge->GetPoint (i));
+    }
+    return v;
 }

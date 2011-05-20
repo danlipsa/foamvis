@@ -1800,6 +1800,9 @@ void GLWidget::displayFacesInterior (
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
+
+    glEnable (GL_STENCIL_TEST);
+
     glEnable(GL_TEXTURE_1D);
     //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
     //texture mapping?
@@ -2248,22 +2251,20 @@ void GLWidget::displayTextureColorBar (
     
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glBegin (GL_QUADS);
-    glTexCoord1f(0);glVertex (colorBarRect.x0y0 ());
-    glTexCoord1f(1);glVertex (colorBarRect.x0y1 ());
-    glTexCoord1f(1);glVertex (colorBarRect.x1y1 ());
-    glTexCoord1f(0);glVertex (colorBarRect.x1y0 ());
+    glTexCoord1f(0);::glVertex (colorBarRect.x0y0 ());
+    glTexCoord1f(1);::glVertex (colorBarRect.x0y1 ());
+    glTexCoord1f(1);::glVertex (colorBarRect.x1y1 ());
+    glTexCoord1f(0);::glVertex (colorBarRect.x1y0 ());
     glEnd ();
     glDisable (GL_TEXTURE_1D);
 
     glColor (Qt::black);
-    glEnable (GL_POLYGON_OFFSET_LINE);
-    glPolygonOffset (-1, -1);
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     glBegin (GL_QUADS);
-    glVertex (colorBarRect.x0y0 ());
-    glVertex (colorBarRect.x0y1 ());
-    glVertex (colorBarRect.x1y1 ());
-    glVertex (colorBarRect.x1y0 ());
+    ::glVertex (colorBarRect.x0y0 ());
+    ::glVertex (colorBarRect.x0y1 ());
+    ::glVertex (colorBarRect.x1y1 ());
+    ::glVertex (colorBarRect.x1y0 ());
     glEnd ();
 }
 
