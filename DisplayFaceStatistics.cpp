@@ -228,6 +228,10 @@ void DisplayFaceStatistics::Init (const G3D::Rect2D& viewRect)
 	new QGLFramebufferObject (
 	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, 
 	    GL_RGBA32F));
+/*
+    if (m_step->attachment () != QGLFramebufferObject::CombinedDepthStencil)
+	cdbg << "No stencil attachement available" << endl;
+*/
     m_new.reset (
 	new QGLFramebufferObject (
 	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D,
@@ -283,19 +287,22 @@ void DisplayFaceStatistics::InitStep (
 {
     G3D::Rect2D viewRect = m_glWidget.GetViewRect (viewNumber);
     Init (viewRect);
-    Step (viewNumber, minValue, maxValue);
+    Step (viewNumber, minValue, maxValue, 1);
 }
 
-void DisplayFaceStatistics::Step (
-    ViewNumber::Enum viewNumber, GLfloat minValue, GLfloat maxValue)
-{
-    Step (viewNumber, minValue, maxValue, m_glWidget.GetTimeStep ());
-}
+
+typedef void (DisplayFaceStatistics::*Operation) (const G3D::Rect2D& viewRect);
 
 void DisplayFaceStatistics::Step (
-    ViewNumber::Enum viewNumber, 
-    GLfloat minValue, GLfloat maxValue, size_t timeStep)
+    ViewNumber::Enum viewNumber, GLfloat minValue, GLfloat maxValue, 
+    int direction)
 {
+    Operation op[] = {
+	&DisplayFaceStatistics::addStepToNew, 
+	&DisplayFaceStatistics::removeStepFromNew
+    };
+    size_t timeStep = m_glWidget.GetTimeStep ();
+    timeStep += (direction < 0) ? 1 : 0;
     G3D::Rect2D viewRect = m_glWidget.GetViewRect (viewNumber);
     // used for display
     (void)minValue;(void)maxValue;
@@ -303,27 +310,26 @@ void DisplayFaceStatistics::Step (
     renderToStep (viewNumber, timeStep);
     //save (viewRect, *m_step, "step", timeStep,
     //minValue, maxValue, StatisticsType::AVERAGE);
-    addStepToNew (viewRect);
+    (this->*(op[direction < 0])) (viewRect);
     //save (viewRect, *m_new, "new", timeStep,
     //minValue, maxValue, StatisticsType::AVERAGE);
     copyNewToOld ();
     //save (viewRect, *m_old, "old", timeStep, 
     //minValue, maxValue, StatisticsType::AVERAGE);
-    ++m_currentHistoryCount;
-    if (m_currentHistoryCount > m_historyCount && 
-	timeStep >= m_historyCount)
+    if (m_currentHistoryCount >= m_historyCount && timeStep >= m_historyCount)
     {
 	renderToStep (viewNumber, timeStep - m_historyCount);
 	//save (viewRect, *m_step, "step_", timeStep - m_historyCount,
 	//minValue, maxValue, StatisticsType::AVERAGE);
-	removeStepFromNew (viewRect);
+	(this->*(op[direction > 0])) (viewRect);
 	//save (viewRect, *m_new, "new_", timeStep,
 	//minValue, maxValue, StatisticsType::AVERAGE);
 	copyNewToOld ();
 	//save (viewRect, *m_old, "old_", timeStep, 
 	//minValue, maxValue, StatisticsType::AVERAGE);
-	--m_currentHistoryCount;
     }
+    else
+	m_currentHistoryCount += (direction > 0)? 1 : -1;
     glPopAttrib ();
     detectOpenGLError ();
 }
@@ -478,6 +484,8 @@ void DisplayFaceStatistics::writeFacesValues (
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT |
 		  GL_ENABLE_BIT | GL_TEXTURE_BIT);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+    //glEnable (GL_STENCIL_TEST);
+
     glEnable(GL_TEXTURE_1D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glBindTexture (

@@ -141,9 +141,8 @@ public:
 		  GLfloat minValue, GLfloat maxValue, 
 		  StatisticsType::Enum displayType);
     void InitStep (ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue);
-    void Step (ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue);
-    void Step (ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue,
-	       size_t timeStep);
+    void Step (ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue, 
+	       int direction);
     void SetHistoryCount (size_t historyCount)
     {
 	m_historyCount = historyCount;

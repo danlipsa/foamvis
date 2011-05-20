@@ -128,25 +128,27 @@ template<typename PropertySetter>
 void DisplayFaceBodyPropertyColor<PropertySetter>::
 display (const boost::shared_ptr<OrientedFace>& of)
 {
-    if (this->m_glWidget.GetFoamAlongTime ().Is2D ())
+    if (false /*this->m_glWidget.GetFoamAlongTime ().Is2D ()*/)
     {
-	boost::shared_ptr<Body> body = of->GetBodyPartOf ().GetBody ();
-	G3D::AABox box = body->GetBoundingBox ();
-	// setup the stencil to contain 1s
-	glClear(GL_STENCIL_BUFFER_BIT);
-	glStencilFunc (GL_NEVER, 0, 0);
-	glStencilOp (GL_INVERT, GL_KEEP, GL_KEEP);
-	(DisplayFaceTriangleFan (this->m_glWidget)) (of);
-
-	// write to the buffer only if != 0.
-	glStencilFunc (GL_NOTEQUAL, 0, 1);
-	glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP);
 	glNormal (of->GetNormal ());
 	bool useColor;
 	setColorOrTexture (of, &useColor);
 	if (useColor)
 	    glDisable (GL_TEXTURE_1D);
+
+	// write to the stencil buffer 1s for the concave polygon
+	glClear(GL_STENCIL_BUFFER_BIT);
+	glStencilFunc (GL_NEVER, 0, 0);
+	glStencilOp (GL_INVERT, GL_KEEP, GL_KEEP);
+	(DisplayFaceTriangleFan (this->m_glWidget)) (of);
+	
+	// write to the buffer only if the stencil bit is != 0.
+	glStencilFunc (GL_NOTEQUAL, 0, 1);
+	glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP);
+	boost::shared_ptr<Body> body = of->GetBodyPartOf ().GetBody ();
+	G3D::AABox box = body->GetBoundingBox ();
 	DisplayBox (G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ()));
+
 	if (useColor)
 	    glEnable (GL_TEXTURE_1D);
     }

@@ -1468,10 +1468,9 @@ void GLWidget::displayBoundingBox (ViewNumber::Enum viewNumber) const
     if (m_bodiesBoundingBoxesShown)
     {
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
-	for_each (
-	    bodies.begin (), bodies.end (),
-	    boost::bind (
-		DisplayBox< boost::shared_ptr<Body> >, _1, Qt::black, 1.0));
+	BOOST_FOREACH (boost::shared_ptr<Body> body, bodies)
+	    if ((*m_bodySelector) (body))
+		DisplayBox< boost::shared_ptr<Body> > (body, Qt::black, 1.0);
     }
     glPopAttrib ();
 }
@@ -1801,7 +1800,7 @@ void GLWidget::displayFacesInterior (
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
 
-    glEnable (GL_STENCIL_TEST);
+    //glEnable (GL_STENCIL_TEST);
 
     glEnable(GL_TEXTURE_1D);
     //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
@@ -2764,6 +2763,7 @@ void GLWidget::SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel)
 void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 {
     makeCurrent ();
+    int direction = timeStep - m_timeStep;
     m_timeStep = timeStep;
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
@@ -2773,7 +2773,7 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 	{
 	    pair<double, double> minMax = getStatisticsMinMax (view);
 	    vs->GetDisplayFaceStatistics ()->Step (
-		view, minMax.first, minMax.second);
+		view, minMax.first, minMax.second, direction);
 	}
     }
     update ();
