@@ -226,12 +226,12 @@ void DisplayFaceStatistics::Init (const G3D::Rect2D& viewRect)
     glPushAttrib (GL_COLOR_BUFFER_BIT);
     m_step.reset (
 	new QGLFramebufferObject (
-	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, 
+	    size, QGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_2D, 
 	    GL_RGBA32F));
-/*
+
     if (m_step->attachment () != QGLFramebufferObject::CombinedDepthStencil)
 	cdbg << "No stencil attachement available" << endl;
-*/
+
     m_new.reset (
 	new QGLFramebufferObject (
 	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D,
@@ -484,7 +484,9 @@ void DisplayFaceStatistics::writeFacesValues (
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT |
 		  GL_ENABLE_BIT | GL_TEXTURE_BIT);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-    //glEnable (GL_STENCIL_TEST);
+    
+    glEnable (GL_STENCIL_TEST);
+    glClear(GL_STENCIL_BUFFER_BIT);
 
     glEnable(GL_TEXTURE_1D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);

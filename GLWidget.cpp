@@ -1800,7 +1800,8 @@ void GLWidget::displayFacesInterior (
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
 
-    //glEnable (GL_STENCIL_TEST);
+    glEnable (GL_STENCIL_TEST);
+    glClear(GL_STENCIL_BUFFER_BIT);
 
     glEnable(GL_TEXTURE_1D);
     //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
