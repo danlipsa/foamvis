@@ -48,6 +48,9 @@ inline void glViewport (const G3D::Rect2D& viewport)
 		viewport.width (), viewport.height ());
 }
 
+/**
+ * Maps object coordinates to window coordinates
+ */
 G3D::Vector3 gluProject (const G3D::Vector3& object);
 
 struct GluUnProjectZOperation

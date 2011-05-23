@@ -620,18 +620,17 @@ void GLWidget::transformFoamStationary (
     }
     case ViewSettings::STATIONARY_CONSTRAINT:
     {
-	const ConstraintRotation& mapBegin = GetFoamAlongTime ().GetFoam (
+	const ConstraintRotation& rotationBegin = GetFoamAlongTime ().GetFoam (
 	    vs.GetStationaryTimeStep ())->GetConstraintRotation ();
-	const ConstraintRotation& mapCurrent = GetFoamAlongTime ().GetFoam (
+	const ConstraintRotation& rotationCurrent = GetFoamAlongTime ().GetFoam (
 	    timeStep)->GetConstraintRotation ();
-	G3D::Vector3 translation = G3D::Vector3 (
-	    mapBegin.m_center, 0.0);
+	G3D::Vector3 rotationCenter = G3D::Vector3 (rotationBegin.m_center, 0.0);
 	glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
-	glTranslate (translation);
+	glTranslate (rotationCenter);
 	float angle = 
-	    (mapCurrent.m_angle - mapBegin.m_angle) * 180 / M_PI;
+	    (rotationCurrent.m_angle - rotationBegin.m_angle) * 180 / M_PI;
 	glRotatef (angle, 0, 0, 1);	
-	glTranslate (-translation);
+	glTranslate (-rotationCenter);
 	break;
     }
     default:
@@ -1697,6 +1696,10 @@ pair<double, double> GLWidget::getStatisticsMinMax (ViewNumber::Enum view) const
 void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
 {
     boost::shared_ptr<ViewSettings> view = GetViewSettings (viewNumber);
+    glPushAttrib (GL_ENABLE_BIT);    
+    glDisable (GL_DEPTH_TEST);
+    glBindTexture (GL_TEXTURE_1D, 
+		   GetViewSettings (viewNumber)->GetColorBarTexture ());
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     view->GetDisplayFaceStatistics ()->Display (
 	GetViewRect (viewNumber),
@@ -1705,6 +1708,7 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
     displayBodyStationaryContour (viewNumber);
     displayBodyContextContour (viewNumber);
     displayConstraintEdges (viewNumber);
+    glPopAttrib ();
 }
 
 void GLWidget::displayStandaloneFaces () const
