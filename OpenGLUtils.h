@@ -95,6 +95,12 @@ void DisplayBox (
     DisplayBox (o->GetBoundingBox (), color, lineWidth);
 }
 
+void RenderFromFbo (G3D::Rect2D viewRect, QGLFramebufferObject& fbo);
+
+void ClearColorBuffer (Qt::GlobalColor clearColor);
+void ClearColorStencilBuffers (
+    Qt::GlobalColor clearColor, GLint clearStencil);
+
 
 #endif //__OPENGL_UTIL_H__
 

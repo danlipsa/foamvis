@@ -247,9 +247,12 @@ void DisplayFaceStatistics::Init (const G3D::Rect2D& viewRect)
 
 void DisplayFaceStatistics::Clear (const G3D::Rect2D& viewRect)
 {
-    clearZero (m_step);
-    clearZero (m_new);
-    clearMinMax (viewRect, m_old);
+    m_step->bind ();ClearColorStencilBuffers (Qt::black, 0);
+    m_step->release ();
+
+    m_new->bind ();ClearColorBuffer (Qt::black);
+    m_new->release ();
+    clearColorBufferMinMax (viewRect, m_old);
 }
 
 void DisplayFaceStatistics::Release ()
@@ -277,7 +280,7 @@ void DisplayFaceStatistics::display (
     m_displayShaderProgram.Bind (minValue, maxValue, displayType);
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (
 	TextureEnum (m_displayShaderProgram.GetResultTexUnit ()));
-    m_glWidget.RenderFromFbo (viewRect, srcFbo);
+    RenderFromFbo (viewRect, srcFbo);
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
     m_displayShaderProgram.release ();
 }
@@ -342,8 +345,9 @@ void DisplayFaceStatistics::renderToStep (
     glPushMatrix ();
     m_glWidget.ModelViewTransform (viewNumber, timeStep);
     glViewport (0, 0, viewRect.width (), viewRect.height ());
-    clearMinMax (viewRect, m_step);
+    clearColorBufferMinMax (viewRect, m_step);
     m_step->bind ();
+    ClearColorStencilBuffers (Qt::black, 0);
     m_storeShaderProgram.Bind ();
     const Foam& foam = *m_glWidget.GetFoamAlongTime ().GetFoam (timeStep);
     const Foam::Bodies& bodies = foam.GetBodies ();
@@ -370,7 +374,7 @@ void DisplayFaceStatistics::addStepToNew (const G3D::Rect2D& viewRect)
     // set the active texture to texture 0
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
 
-    m_glWidget.RenderFromFbo (
+    RenderFromFbo (
 	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()), 
 	*m_step);
     m_addShaderProgram.release ();
@@ -395,7 +399,7 @@ void DisplayFaceStatistics::removeStepFromNew (const G3D::Rect2D& viewRect)
     // set the active texture to texture 0
     const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
 
-    m_glWidget.RenderFromFbo (
+    RenderFromFbo (
 	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()),
 	*m_step);
     m_removeShaderProgram.release ();
@@ -412,19 +416,8 @@ void DisplayFaceStatistics::copyNewToOld ()
 	m_old.get (), rect, m_new.get (), rect);
 }
 
-void DisplayFaceStatistics::clearZero (
-    const boost::scoped_ptr<QGLFramebufferObject>& fbo)
-{
-    fbo->bind ();
-    glPushAttrib (GL_COLOR_BUFFER_BIT); 
-    glClearColor (Qt::black);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glPopAttrib ();
-    fbo->release ();    
-}
-
 // Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
-void DisplayFaceStatistics::clearMinMax (
+void DisplayFaceStatistics::clearColorBufferMinMax (
     const G3D::Rect2D& viewRect,
     const boost::scoped_ptr<QGLFramebufferObject>& fbo)
 {
@@ -488,7 +481,6 @@ void DisplayFaceStatistics::writeFacesValues (
     
     glEnable (GL_STENCIL_TEST);
     glDisable (GL_DEPTH_TEST);
-    glClear(GL_STENCIL_BUFFER_BIT);
 
     glEnable(GL_TEXTURE_1D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);

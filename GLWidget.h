@@ -220,7 +220,6 @@ public:
      */
     void ModelViewTransform (ViewNumber::Enum viewNumber, 
 			     size_t timeStep) const;
-    void RenderFromFbo (G3D::Rect2D viewRect, QGLFramebufferObject& fbo) const;
     /**
      * Displays the foam in various way
      * @param type the type of object that we want displayed.

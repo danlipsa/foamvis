@@ -281,3 +281,48 @@ void DisplayBox (const G3D::Rect2D& rect)
     ::glVertex (rect.x0y1 ());
     glEnd ();
 }
+
+// Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
+void RenderFromFbo (G3D::Rect2D destRect, QGLFramebufferObject& srcFbo)
+{
+    glPushAttrib (GL_ENABLE_BIT | GL_VIEWPORT_BIT);
+    glEnable (GL_TEXTURE_2D);
+    glBindTexture (GL_TEXTURE_2D, srcFbo.texture ());
+    glViewport (destRect.x0 (), destRect.y0 (),
+		destRect.width (), destRect.height ());
+
+    //glMatrixMode (GL_MODELVIEW);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glMatrixMode (GL_PROJECTION);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glBegin (GL_QUADS);
+    glTexCoord2i (0, 0);glVertex3i (-1, -1, -1);
+    glTexCoord2i (1, 0);glVertex3i (1, -1, -1);
+    glTexCoord2i (1, 1);glVertex3i (1, 1, -1);
+    glTexCoord2i (0, 1);glVertex3i (-1, 1, -1);
+    glEnd ();
+    glPopMatrix ();
+    glMatrixMode (GL_MODELVIEW);
+    glPopMatrix ();
+    glPopAttrib ();
+}
+
+void ClearColorBuffer (Qt::GlobalColor clearColor)
+{
+    glPushAttrib (GL_COLOR_BUFFER_BIT); 
+    glClearColor (clearColor);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glPopAttrib ();
+}
+
+void ClearColorStencilBuffers (
+    Qt::GlobalColor clearColor, GLint clearStencil)
+{
+    glPushAttrib (GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); 
+    glClearColor (clearColor);
+    glClearStencil (clearStencil);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glPopAttrib ();
+}

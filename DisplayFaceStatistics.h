@@ -167,9 +167,7 @@ private:
     void addStepToNew (const G3D::Rect2D& viewRect);
     void removeStepFromNew (const G3D::Rect2D& viewRect);
     void copyNewToOld ();
-    static void clearZero (
-	const boost::scoped_ptr<QGLFramebufferObject>& fbo);
-    void clearMinMax (const G3D::Rect2D& viewRect,
+    void clearColorBufferMinMax (const G3D::Rect2D& viewRect,
 		      const boost::scoped_ptr<QGLFramebufferObject>& fbo);
 
 
