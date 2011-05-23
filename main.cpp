@@ -109,7 +109,7 @@ public:
      * @param data Where to store the data parsed from the DMP files
      * @param dir directory where all DMP files are
      */
-    parseFile (QString dir, const AffineMapNames& names, bool usingOriginal,
+    parseFile (QString dir, const ConstraintRotationNames& names, bool usingOriginal,
 	       bool debugParsing = false, bool debugScanning = false) : 
         m_dir (qPrintable(dir)), m_names (names), 
 	m_usingOriginal (usingOriginal),
@@ -155,7 +155,7 @@ private:
      * Directory that stores the DMP files.
      */
     const string m_dir;
-    const AffineMapNames& m_names;
+    const ConstraintRotationNames& m_names;
     const bool m_usingOriginal;
     const bool m_debugParsing;
     const bool m_debugScanning;
@@ -164,7 +164,7 @@ private:
 
 const char* optionName[] =
 {
-    "affine-map",
+    "constraint-rotation",
     "debug-parsing",
     "debug-scanning",
     "dmp-file",
@@ -181,7 +181,7 @@ struct Option
 {
     enum Enum
     {
-	AFFINE_MAP,             // a
+	CONSTRAINT_ROTATION,    // a
 	DEBUG_PARSING,          // p
 	DEBUG_SCANNING,         // s
 	DMP_FILE,
@@ -226,7 +226,7 @@ void parseFiles (const vector<string>& fileNames,
 	files,
 	parseFile (
 	    dir.absolutePath (), 
-	    foamAlongTime->GetAffineMapNames (), 
+	    foamAlongTime->GetConstraintRotationNames (), 
 	    foamAlongTime->IsUsingOriginal (),
 	    debugParsing, debugScanning));
     if (count_if (foams.constBegin (), foams.constEnd (),
@@ -237,10 +237,10 @@ void parseFiles (const vector<string>& fileNames,
 }
 
 void validate(boost::any& v, const std::vector<std::string>& values,
-              AffineMapNames* ignore1, int ignore2)
+              ConstraintRotationNames* ignore1, int ignore2)
 {
     (void) ignore1;(void)ignore2;
-    AffineMapNames am;
+    ConstraintRotationNames am;
     boost::tokenizer<> tok (values[0]);
     istringstream istr;
     boost::tokenizer<>::iterator it = tok.begin ();
@@ -265,7 +265,7 @@ void validate(boost::any& v, const std::vector<std::string>& values,
 
 error:
     throw invalid_argument (
-	"--affine-map needs four parameters: "
+	"--constraint-rotation needs four parameters: "
 	"\"<xName> <yName> <angleName> <constraint>\"");
 }
 
@@ -273,7 +273,7 @@ error:
 void parseOptions (int argc, char *argv[],
 		   string* t1sFile,
 		   vector<string>* fileNames,
-		   AffineMapNames* affineMapNames,
+		   ConstraintRotationNames* constraintRotationNames,
 		   po::variables_map* vm)
 {
     // Declare the supported options.
@@ -282,11 +282,11 @@ void parseOptions (int argc, char *argv[],
 	"<files> - one or more DMP files\n"
 	"OPTIONS");
     genericOptions.add_options()
-	(optionName[Option::AFFINE_MAP], 
-	 po::value<AffineMapNames>(affineMapNames), 
-	 "read affine transformations for a constraint.\n"
+	(optionName[Option::CONSTRAINT_ROTATION], 
+	 po::value<ConstraintRotationNames>(constraintRotationNames), 
+	 "read a rotation for a constraint.\n"
 	 "arg=\"<x> <y> <angle> <constraint>\" where <x>, <y> specify "
-	 "names for parameters that store new position of the constraint, "
+	 "names for parameters that store the center of rotation, "
 	 "<angle> specifies the name of the parameter that stores "
 	 "the new rotation angle and <constraint> stores the constraint number.")
 	(optionName[Option::DEBUG_PARSING], "debug parsing")	    
@@ -361,16 +361,16 @@ int main(int argc, char *argv[])
 	FoamAlongTime foamAlongTime;
 	string t1sFile;
 	vector<string> fileNames;
-	AffineMapNames affineMapNames;
+	ConstraintRotationNames constraintRotationNames;
 	po::variables_map vm;
 
 	parseOptions (argc, argv, 
-		      &t1sFile, &fileNames, &affineMapNames,
+		      &t1sFile, &fileNames, &constraintRotationNames,
 		      &vm);
 	foamAlongTime.SetUsingOriginal (
 	    vm.count (optionName[Option::USING_ORIGINAL]));
-	if (vm.count (optionName[Option::AFFINE_MAP]))
-	    foamAlongTime.SetAffineMapNames (affineMapNames);
+	if (vm.count (optionName[Option::CONSTRAINT_ROTATION]))
+	    foamAlongTime.SetConstraintRotationNames (constraintRotationNames);
 
 	//readOptions (argc, argv, &options, &t1sFile);
 	parseFiles (fileNames, &foamAlongTime, 

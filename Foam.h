@@ -14,7 +14,7 @@
 #include "Hashes.h"
 #include "OOBox.h"
 #include "Statistics.h"
-#include "AffineMap.h"
+#include "ConstraintRotation.h"
 
 
 class AttributeCreator;
@@ -41,7 +41,7 @@ public:
     /**
      * Constructs a Foam object.
      */
-    Foam (bool usingOriginal, const AffineMapNames& names);
+    Foam (bool usingOriginal, const ConstraintRotationNames& names);
 
     void GetVertexSet (VertexSet* vertexSet) const;
     VertexSet GetVertexSet () const
@@ -269,10 +269,10 @@ public:
     }
     
     void CalculateMinMaxStatistics ();
-    void SetAffineMap (const AffineMapNames& affineMapNames);
-    const AffineMap& GetAffineMap () const
+    void SetConstraintRotation (const ConstraintRotationNames& constraintRotationNames);
+    const ConstraintRotation& GetConstraintRotation () const
     {
-	return m_affineMap;
+	return m_constraintRotation;
     }
 
 public:
@@ -368,7 +368,7 @@ private:
     double m_min[BodyProperty::PROPERTY_END];
     double m_max[BodyProperty::PROPERTY_END];
     vector<HistogramStatistics> m_histogram;
-    AffineMap m_affineMap;
+    ConstraintRotation m_constraintRotation;
 };
 
 /**

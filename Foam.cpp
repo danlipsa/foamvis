@@ -64,7 +64,7 @@ void compact (vector< boost::shared_ptr<E> >& v)
 // Methods
 // ======================================================================
 
-Foam::Foam (bool usingOriginal, const AffineMapNames& names) :
+Foam::Foam (bool usingOriginal, const ConstraintRotationNames& names) :
     m_viewMatrix (new G3D::Matrix4 (G3D::Matrix4::identity ())),
     m_parsingData (new ParsingData (usingOriginal, names)),
     m_spaceDimension (3),
@@ -396,9 +396,9 @@ void Foam::Preprocess ()
     VertexSet vertexSet;
     EdgeSet edgeSet;
     FaceSet faceSet;
-    const AffineMapNames& names = GetParsingData ().GetAffineMapNames ();
+    const ConstraintRotationNames& names = GetParsingData ().GetConstraintRotationNames ();
     if (! names.m_xName.empty ())
-	SetAffineMap (names);
+	SetConstraintRotation (names);
     compact ();
     updatePartOf ();
     copyStandaloneElements ();
@@ -444,7 +444,7 @@ void Foam::addConstraintEdges ()
 		face->CalculateCenter ();
 		size_t constraintIndex = constraintEdge->GetConstraintIndex ();
 		if ( constraintIndex == 
-		     GetParsingData ().GetAffineMapNames ().m_constraintIndex)
+		     GetParsingData ().GetConstraintRotationNames ().m_constraintIndex)
 		{
 		    resizeAllowIndex (&m_constraintEdges, constraintIndex);
 		    if (! m_constraintEdges[constraintIndex])
@@ -684,13 +684,13 @@ bool Foam::ExistsBodyWithValueIn (
     return it != m_bodies.end ();
 }
 
-void Foam::SetAffineMap (const AffineMapNames& names)
+void Foam::SetConstraintRotation (const ConstraintRotationNames& names)
 {
-    m_affineMap.m_translation.x =  
+    m_constraintRotation.m_center.x =  
 	GetParsingData ().GetVariableValue (names.m_xName);
-    m_affineMap.m_translation.y =  
+    m_constraintRotation.m_center.y =  
 	GetParsingData ().GetVariableValue (names.m_yName);
-    m_affineMap.m_angle =  
+    m_constraintRotation.m_angle =  
 	GetParsingData ().GetVariableValue (names.m_angleName);
 }
 

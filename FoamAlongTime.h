@@ -10,7 +10,7 @@
 #include "BodyAlongTime.h"
 #include "Comparisons.h"
 #include "Statistics.h"
-#include "AffineMap.h"
+#include "ConstraintRotation.h"
 
 class Foam;
 
@@ -141,17 +141,17 @@ public:
     {
 	m_adjustPressure = adjustPressure;
     }
-    void SetAffineMapNames (const AffineMapNames& am)
+    void SetConstraintRotationNames (const ConstraintRotationNames& am)
     {
-	m_affineMapNames = am;
+	m_constraintRotationNames = am;
     }
-    const AffineMapNames& GetAffineMapNames () const
+    const ConstraintRotationNames& GetConstraintRotationNames () const
     {
-	return m_affineMapNames;
+	return m_constraintRotationNames;
     }
-    bool AffineMapNamesUsed () const
+    bool ConstraintRotationNamesUsed () const
     {
-	return ! m_affineMapNames.m_xName.empty ();
+	return ! m_constraintRotationNames.m_xName.empty ();
     }
     /**
      * Read T1s from the file for as many time steps as there are DMPs
@@ -216,7 +216,7 @@ private:
     bool m_adjustPressure;
     vector< vector<G3D::Vector3> > m_t1s;
     int m_t1sTimestepShift;
-    AffineMapNames m_affineMapNames;
+    ConstraintRotationNames m_constraintRotationNames;
     bool m_usingOriginal;
 };
 

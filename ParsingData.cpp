@@ -72,7 +72,7 @@ const set<string> ParsingData::OPERATORS (
 
 // Methods
 // ======================================================================
-ParsingData::ParsingData (bool usingOriginal, const AffineMapNames& names) :
+ParsingData::ParsingData (bool usingOriginal, const ConstraintRotationNames& names) :
     m_spaceSignificant (false),
     m_parenthesisCount (0),
     m_newLineSignificant (false),

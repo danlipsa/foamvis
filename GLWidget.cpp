@@ -620,12 +620,12 @@ void GLWidget::transformFoamStationary (
     }
     case ViewSettings::STATIONARY_CONSTRAINT:
     {
-	const AffineMap& mapBegin = GetFoamAlongTime ().GetFoam (
-	    vs.GetStationaryTimeStep ())->GetAffineMap ();
-	const AffineMap& mapCurrent = GetFoamAlongTime ().GetFoam (
-	    timeStep)->GetAffineMap ();
+	const ConstraintRotation& mapBegin = GetFoamAlongTime ().GetFoam (
+	    vs.GetStationaryTimeStep ())->GetConstraintRotation ();
+	const ConstraintRotation& mapCurrent = GetFoamAlongTime ().GetFoam (
+	    timeStep)->GetConstraintRotation ();
 	G3D::Vector3 translation = G3D::Vector3 (
-	    mapBegin.m_translation, 0.0);
+	    mapBegin.m_center, 0.0);
 	glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
 	glTranslate (translation);
 	float angle = 
@@ -1278,7 +1278,7 @@ void GLWidget::StationaryBody ()
 void GLWidget::StationaryConstraint ()
 {
     ViewSettings& vs = *GetViewSettings ();
-    if (GetFoamAlongTime ().AffineMapNamesUsed ())
+    if (GetFoamAlongTime ().ConstraintRotationNamesUsed ())
     {
 	vs.SetStationaryType (ViewSettings::STATIONARY_CONSTRAINT);
 	vs.SetStationaryBodyId (INVALID_INDEX);
@@ -1289,8 +1289,7 @@ void GLWidget::StationaryConstraint ()
     else
     {
 	QMessageBox msgBox (this);
-	msgBox.setText("No affine map read for a foam object: "
-		       "use --affine-map command line option.");
+	msgBox.setText("Use --constraint-rotation command line option.");
 	msgBox.exec();	
     }
 }
@@ -1548,7 +1547,7 @@ void GLWidget::displayConstraintEdges (ViewNumber::Enum view) const
 	glColor (GetHighlightColor (view, HighlightNumber::H0));
 	const Foam::Edges& constraintEdges = 
 	    GetCurrentFoam ().GetConstraintEdges (
-		GetFoamAlongTime ().GetAffineMapNames ().m_constraintIndex);
+		GetFoamAlongTime ().GetConstraintRotationNames ().m_constraintIndex);
 	DisplayEdgeHighlightColor<HighlightNumber::H0> displayEdge (
 	    *this, DisplayElement::FOCUS, view);
 	BOOST_FOREACH (boost::shared_ptr<Edge> edge, constraintEdges)

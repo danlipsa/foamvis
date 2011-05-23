@@ -1,7 +1,7 @@
-HEADERS += AffineMap.h Application.h ApproximationEdge.h\
+HEADERS += Application.h ApproximationEdge.h\
 	Attribute.h AttributeCreator.h AttributeInfo.h \
 	AttributeHistogram.h HistogramHeight.h Body.h \
-	BodyAlongTime.h BodyIndex.h BodySelector.h \
+	BodyAlongTime.h BodyIndex.h BodySelector.h ConstraintRotation.h \
 	ConstraintEdge.h ColorBarModel.h Comparisons.h \
 	Debug.h DebugStream.h Disk.h DisplayFaceStatistics.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
