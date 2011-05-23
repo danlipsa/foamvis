@@ -246,6 +246,11 @@ void validate(boost::any& v, const std::vector<std::string>& values,
     boost::tokenizer<>::iterator it = tok.begin ();
     if (it == tok.end ())
 	goto error;
+    istr.str (*it);
+    istr >> am.m_constraintIndex;
+    --am.m_constraintIndex;
+    if (++it == tok.end ())
+	goto error;
     am.m_xName = *it;
     if (++it == tok.end ())
 	goto error;
@@ -253,11 +258,6 @@ void validate(boost::any& v, const std::vector<std::string>& values,
     if (++it == tok.end ())
 	goto error;
     am.m_angleName = *it;
-    if (++it == tok.end ())
-	goto error;
-    istr.str (*it);
-    istr >> am.m_constraintIndex;
-    --am.m_constraintIndex;
     if (++it != tok.end ())
 	goto error;
     v = boost::any(am);
@@ -285,10 +285,11 @@ void parseOptions (int argc, char *argv[],
 	(optionName[Option::CONSTRAINT_ROTATION], 
 	 po::value<ConstraintRotationNames>(constraintRotationNames), 
 	 "read a rotation for a constraint.\n"
-	 "arg=\"<x> <y> <angle> <constraint>\" where <x>, <y> specify "
-	 "names for parameters that store the center of rotation, "
+	 "arg=\"<constraint> <x> <y> <angle>\" where " 
+	 "<constraint> specifies the constraint number, <x>, <y> specify "
+	 "names for parameters that store the center of rotation and "
 	 "<angle> specifies the name of the parameter that stores "
-	 "the new rotation angle and <constraint> stores the constraint number.")
+	 "the rotation angle.")
 	(optionName[Option::DEBUG_PARSING], "debug parsing")	    
 	(optionName[Option::DEBUG_SCANNING], "debug scanning")
 	(optionName[Option::HELP], "produce help message")
