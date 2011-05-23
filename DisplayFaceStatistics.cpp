@@ -247,6 +247,7 @@ void DisplayFaceStatistics::Init (const G3D::Rect2D& viewRect)
 
 void DisplayFaceStatistics::Clear (const G3D::Rect2D& viewRect)
 {
+    clearZero (m_step);
     clearZero (m_new);
     clearMinMax (viewRect, m_old);
 }
@@ -486,6 +487,7 @@ void DisplayFaceStatistics::writeFacesValues (
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     
     glEnable (GL_STENCIL_TEST);
+    glDisable (GL_DEPTH_TEST);
     glClear(GL_STENCIL_BUFFER_BIT);
 
     glEnable(GL_TEXTURE_1D);

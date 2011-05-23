@@ -1728,10 +1728,6 @@ pair<double, double> GLWidget::getStatisticsMinMax (ViewNumber::Enum view) const
 void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
 {
     boost::shared_ptr<ViewSettings> view = GetViewSettings (viewNumber);
-    glPushAttrib (GL_ENABLE_BIT);    
-    glDisable (GL_DEPTH_TEST);
-    glBindTexture (GL_TEXTURE_1D, 
-		   GetViewSettings (viewNumber)->GetColorBarTexture ());
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     view->GetDisplayFaceStatistics ()->Display (
 	GetViewRect (viewNumber),
@@ -1740,7 +1736,6 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
     displayBodyStationaryContour (viewNumber);
     displayBodyContextContour (viewNumber);
     displayConstraintEdges (viewNumber);
-    glPopAttrib ();
 }
 
 void GLWidget::displayStandaloneFaces () const
