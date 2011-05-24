@@ -16,14 +16,6 @@ class ColorBarModel;
 class ViewSettings
 {
 public:
-    enum StationaryType
-    {
-	STATIONARY_BODY,
-	STATIONARY_CONSTRAINT,
-	STATIONARY_NONE
-    };
-
-public:
     ViewSettings (const GLWidget& glWidget);
     ~ViewSettings ();
 
@@ -108,16 +100,6 @@ public:
 	m_viewport = v;
     }
     
-    double GetContextScaleRatio () const
-    {
-	return m_contextScaleRatio;
-    }
-    
-    void SetContextScaleRatio (double contextScaleRatio)
-    {
-	m_contextScaleRatio = contextScaleRatio;
-    }
-
 
     double GetScaleRatio () const
     {
@@ -218,7 +200,25 @@ public:
     void SetLightingParameters (const G3D::Vector3& initialLightPosition);
     void EnableLighting ();
 
-    
+    void CopyTransformations (const ViewSettings& from);
+    void CopyColorBar (const ViewSettings& from);
+
+    // Stationary
+    enum StationaryType
+    {
+	STATIONARY_BODY,
+	STATIONARY_CONSTRAINT,
+	STATIONARY_NONE
+    };
+
+    size_t GetStationaryTimeStep () const
+    {
+	return m_stationaryTimeStep;
+    }
+    void SetStationaryTimeStep (size_t timeStep)
+    {
+	m_stationaryTimeStep = timeStep;
+    }
     size_t GetStationaryBodyId () const
     {
 	return m_stationaryBodyId;
@@ -237,39 +237,56 @@ public:
 	m_stationaryType = type;
     }
 
-    size_t GetStationaryTimeStep () const
+    // Context View
+    void SetContextView (bool contextView)
     {
-	return m_bodyStationaryTimeStep;
-    }
-    void SetStationaryTimeStep (size_t timeStep)
-    {
-	m_bodyStationaryTimeStep = timeStep;
-    }
-    bool IsBodyContext (size_t bodyId) const;
-    size_t GetBodyContextSize () const
-    {
-	return m_bodyContext.size ();
-    }
-    void ClearBodyContext ()
-    {
-	m_bodyContext.clear ();
-    }
-    void AddBodyContext (size_t bodyId)
-    {
-	m_bodyContext.insert (bodyId);
+	m_contextView = contextView;
     }
     bool IsContextView () const
     {
 	return m_contextView;
     }
-
-    void SetContextView (bool contextView)
+    double GetContextScaleRatio () const
     {
-	m_contextView = contextView;
+	return m_contextScaleRatio;
+    }
+    
+    void SetContextScaleRatio (double contextScaleRatio)
+    {
+	m_contextScaleRatio = contextScaleRatio;
     }
 
-    void CopyTransformations (const ViewSettings& from);
-    void CopyColorBar (const ViewSettings& from);
+    // ContextDisplay
+    void AddContextDisplayBody (size_t bodyId)
+    {
+	m_contextBody.insert (bodyId);
+    }
+    void ContextDisplayReset ()
+    {
+	m_contextBody.clear ();
+    }
+    bool IsContextDisplayBody (size_t bodyId) const;
+    size_t GetContextDisplayBodySize () const
+    {
+	return m_contextBody.size ();
+    }
+
+    // ContextStationary
+    enum ContextStationaryType
+    {
+	CONTEXT_STATIONARY_FOAM,
+	CONTEXT_STATIONARY_NONE
+    };
+    ContextStationaryType GetContextStationaryType () const
+    {
+	return m_contextStationaryType;
+    }
+    void SetContextStationaryType (ContextStationaryType type)
+    {
+	m_contextStationaryType = type;
+    }
+
+    
 
 private:
     void initTexture ();
@@ -287,7 +304,6 @@ private:
     G3D::Matrix3 m_rotationModel;
     G3D::Rect2D m_viewport;
     double m_scaleRatio;
-    double m_contextScaleRatio;
     G3D::Vector3 m_translation;
     // lighting state
     bool m_lightingEnabled;
@@ -309,15 +325,17 @@ private:
      */
     double m_cameraDistance;
 
-    /**
-     * Keep this body stationary during the evolution of the foam
-     */
+    //Stationary
     StationaryType m_stationaryType;
     size_t m_stationaryBodyId;
-    size_t m_bodyStationaryTimeStep;   
-
-    set<size_t> m_bodyContext;
+    size_t m_stationaryTimeStep;   
+    // Context view
     bool m_contextView;
+    double m_contextScaleRatio;
+    // Context display
+    set<size_t> m_contextBody;
+    // Context stationary
+    ContextStationaryType m_contextStationaryType;
 };
 
 

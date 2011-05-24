@@ -16,7 +16,7 @@
 {
    fglrx-memcheck-addr1
    Memcheck:Addr1
-   fun:*
+   ...
    obj:/usr/lib64/dri/fglrx_dri.so
    ...
 }

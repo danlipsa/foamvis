@@ -239,7 +239,7 @@ public:
     }
     bool IsBodyStationaryMarked () const
     {
-	return m_bodyStationaryMarked;
+	return m_stationaryMarked;
     }
 
 
@@ -338,8 +338,10 @@ public Q_SLOTS:
     void StationaryBody ();
     void StationaryConstraint ();
     void StationaryReset ();
-    void ContextBody ();
-    void ContextReset ();
+    void ContextDisplayBody ();
+    void ContextDisplayReset ();
+    void ContextStationaryFoam ();
+    void ContextStationaryReset ();
     void InfoFocus ();
     void InfoFoam ();
     void InfoOpenGL ();
@@ -472,13 +474,14 @@ private:
     void displayEdges () const;
     void displayView (ViewNumber::Enum view);
     void displayViews ();
-    void displayBodyContextContour (ViewNumber::Enum view) const;
-    void displayBodyStationaryContour (ViewNumber::Enum view) const;
+    void displayContextBodies (ViewNumber::Enum view) const;
+    void displayContextStationaryFoam (ViewNumber::Enum view) const;
+    void displayStationaryBody (ViewNumber::Enum view) const;
+    void displayStationaryConstraint (ViewNumber::Enum view) const;
 
     void displayEdgesNormal (ViewNumber::Enum view) const;
     template<typename displayEdge>
     void displayStandaloneEdges (bool useZPos = false, double zPos = 0) const;
-    void displayConstraintEdges (ViewNumber::Enum view) const;
     void displayStandaloneFaces () const;
     void displayEdgesTorus (ViewNumber::Enum view) const;
     void displayEdgesTorusTubes () const;
@@ -670,11 +673,16 @@ private:
     boost::shared_ptr<QAction> m_actionResetTransformation;
     boost::shared_ptr<QAction> m_actionResetSelectedLightNumber;
     boost::shared_ptr<QAction> m_actionSelectBodiesById;
+
     boost::shared_ptr<QAction> m_actionStationaryBody;
     boost::shared_ptr<QAction> m_actionStationaryConstraint;
     boost::shared_ptr<QAction> m_actionStationaryReset;
-    boost::shared_ptr<QAction> m_actionContextBody;
-    boost::shared_ptr<QAction> m_actionContextReset;
+
+    boost::shared_ptr<QAction> m_actionContextDisplayBody;
+    boost::shared_ptr<QAction> m_actionContextDisplayReset;
+    boost::shared_ptr<QAction> m_actionContextStationaryFoam;
+    boost::shared_ptr<QAction> m_actionContextStationaryReset;
+
     boost::shared_ptr<QAction> m_actionInfoFocus;
     boost::shared_ptr<QAction> m_actionInfoFoam;
     boost::shared_ptr<QAction> m_actionInfoOpenGL;
@@ -702,7 +710,7 @@ private:
     bool m_zeroedPressureShown;
     bool m_titleShown;
     bool m_timeStepShown;
-    bool m_bodyStationaryMarked;
+    bool m_stationaryMarked;
 
     // View related variables
     ViewCount::Enum m_viewCount;

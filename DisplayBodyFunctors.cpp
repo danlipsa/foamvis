@@ -228,14 +228,14 @@ DisplayCenterPath (
 	     beforeBegin.IsEmpty () ? SegmentPerpendicularEnd::BEGIN_END :
 	     SegmentPerpendicularEnd::END,
 	     getPoint (beforeBegin), pointBegin, middle, G3D::Vector3 (),
-	     vs->IsBodyContext (begin.m_body->GetId ())));
+	     vs->IsContextDisplayBody (begin.m_body->GetId ())));
      halfValueStep (
 	 end,
 	 Segment (
 	     afterEnd.IsEmpty () ? SegmentPerpendicularEnd::BEGIN_END :
 	     SegmentPerpendicularEnd::BEGIN,
 	     G3D::Vector3 (), middle, pointEnd, getPoint (afterEnd),
-	     vs->IsBodyContext (end.m_body->GetId ())));
+	     vs->IsContextDisplayBody (end.m_body->GetId ())));
  }
 
 

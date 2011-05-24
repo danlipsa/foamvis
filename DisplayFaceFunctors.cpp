@@ -182,38 +182,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	    this->m_propertySetter.GetViewNumber ());
 	bodyId = body->GetId ();
     }
-    if (! of->IsStandalone () && this->m_glWidget.IsBodyStationaryMarked () &&
-	bodyId == vs->GetStationaryBodyId ())
-    {
-	glColor (this->m_glWidget.GetHighlightColor (
-		     this->m_propertySetter.GetViewNumber (),
-		     HighlightNumber::H0));
-	BodyProperty::Enum property = 
-	    this->m_propertySetter.GetBodyProperty ();
-	bool deduced;
-	bool exists = 
-	    body->ExistsPropertyValue (property, &deduced);
-	if (exists && 
-	    (! deduced || 
-	     (deduced && this->m_glWidget.IsZeroedPressureShown ())))
-	    this->m_propertySetter (body);
-    }
-    else if (! of->IsStandalone () && vs->IsBodyContext (bodyId))
-    {
-	glColor (this->m_glWidget.GetHighlightColor (
-		     this->m_propertySetter.GetViewNumber (),
-		     HighlightNumber::H1));
-	BodyProperty::Enum property = 
-	    this->m_propertySetter.GetBodyProperty ();
-	bool deduced;
-	bool exists = 
-	    body->ExistsPropertyValue (property, &deduced);
-	if (exists && 
-	    (! deduced || 
-	     (deduced && this->m_glWidget.IsZeroedPressureShown ())))
-	    this->m_propertySetter (body);
-    }
-    else if (this->m_focus == DisplayElement::FOCUS)
+    if (this->m_focus == DisplayElement::FOCUS)
     {
 	if (this->m_propertySetter.GetBodyProperty () == BodyProperty::NONE)
 	{
@@ -262,7 +231,8 @@ DisplayFaceColor (
     typename DisplayElement::FocusContext focus, ViewNumber::Enum view, 
     bool useZPos, double zPos) : 
     
-    DisplayFaceHighlightColor<HighlightNumber::H0, displaySameEdges, PropertySetter> (
+    DisplayFaceHighlightColor<HighlightNumber::H0, 
+			      displaySameEdges, PropertySetter> (
 	widget, PropertySetter (widget, view), focus, useZPos, zPos)
 {
 }
@@ -275,7 +245,8 @@ DisplayFaceColor (
     typename DisplayElement::FocusContext focus,
     bool useZPos, double zPos) : 
 
-    DisplayFaceHighlightColor<HighlightNumber::H0, displaySameEdges, PropertySetter> (
+    DisplayFaceHighlightColor<HighlightNumber::H0, 
+			      displaySameEdges, PropertySetter> (
 	widget, propertySetter, focus, useZPos, zPos) 
 {
 }
@@ -293,14 +264,18 @@ display (const boost::shared_ptr<OrientedFace>& of)
 	size_t bodyId = body->GetId ();
 	const ViewSettings& vs = *this->m_glWidget.GetViewSettings (
 	    this->m_propertySetter.GetViewNumber ());
-	stationaryOrContext = bodyId == vs.GetStationaryBodyId () || 
-	    vs.IsBodyContext (bodyId);
+	stationaryOrContext = ((bodyId == vs.GetStationaryBodyId ()) || 
+			       vs.IsContextDisplayBody (bodyId));
     }
-    glColor ((this->m_focus == DisplayElement::FOCUS || stationaryOrContext) ?
-	     QColor (faceColor) :
-	     QColor::fromRgbF (0, 0, 0, this->m_glWidget.GetContextAlpha ()));
-    (displaySameEdges (this->m_glWidget, this->m_focus, 
-		       this->m_useZPos, this->m_zPos)) (of);
+    if (! stationaryOrContext)
+    {
+	glColor (this->m_focus == DisplayElement::FOCUS ?
+		 QColor (faceColor) :
+		 QColor::fromRgbF (0, 0, 0, 
+				   this->m_glWidget.GetContextAlpha ()));
+	(displaySameEdges (this->m_glWidget, this->m_focus, 
+			   this->m_useZPos, this->m_zPos)) (of);
+    }
 }
 
 

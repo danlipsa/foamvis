@@ -87,7 +87,7 @@ void ColorBarModel::setupPaletteRainbow ()
     rainbow->AddRGBPoint(1.0, 1, 0, 0);   // red
     setup (ColorMapperVtkColorTransferFunction (rainbow));
     m_highlightColor[0] = Qt::black;
-    m_highlightColor[1] = Qt::white;
+    m_highlightColor[1] = Qt::yellow;
 }
 
 void ColorBarModel::setupPaletteRainbowExtended ()
@@ -102,7 +102,7 @@ void ColorBarModel::setupPaletteRainbowExtended ()
     rainbow->AddRGBPoint(1.0, 1, 0, 0);   // red
     setup (ColorMapperVtkColorTransferFunction (rainbow));    
     m_highlightColor[0] = Qt::black;
-    m_highlightColor[1] = Qt::white;
+    m_highlightColor[1] = Qt::yellow;
 }
 
 
@@ -111,7 +111,7 @@ void ColorBarModel::setupPaletteRainbowTelea ()
 {
     setup (ColorMapperRainbowTelea ());
     m_highlightColor[0] = Qt::black;
-    m_highlightColor[1] = Qt::white;
+    m_highlightColor[1] = Qt::yellow;
 }
 
 void ColorBarModel::SetupPalette (Palette::Enum palette)
@@ -176,31 +176,31 @@ void ColorBarModel::setupPaletteDiverging (size_t c)
 	    /* blue red*/
 	    {{0.230, 0.299, 0.754},
 	     {0.706, 0.016, 0.150},
-	     {0, 0, 0}, {1, 1, 1}
+	     {0, 0, 0}, {1, 1, 0}
 	    },
 
 	    /* blue to tan */
 	    {{0.217, 0.525, 0.910},
 	     {0.677, 0.492, 0.093},
-	     {0, 0, 0}, {1, 1, 1}
+	     {0, 0, 0}, {1, 1, 0}
 	    },
 
 	    /* purple to orange */
 	    {{0.436, 0.308, 0.631},
 	     {0.759, 0.334, 0.046},
-	     {0, 1, 0}, {1, 1, 1}
+	     {0, 1, 0}, {1, 1, 0}
 	    },
 
 	    /* green to purple */
 	    {{0.085, 0.532, 0.201},
 	     {0.436, 0.308, 0.631},
-	     {0, 0, 0}, {1, 1, 1}
+	     {0, 0, 0}, {1, 1, 0}
 	    },
 
 	    /* green to red */
 	    {{0.085, 0.532, 0.201},
 	     {0.758, 0.214, 0.233},
-	     {0, 0, 0}, {1, 1, 1}
+	     {0, 0, 0}, {1, 1, 0}
 	    }
 	};    
     VTK_CREATE(vtkColorTransferFunction, colorTransferFunction);

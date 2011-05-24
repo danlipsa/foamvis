@@ -33,7 +33,6 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_displayFaceStatistics (new DisplayFaceStatistics (glWidget)),
     m_rotationModel (G3D::Matrix3::identity ()),
     m_scaleRatio (1),
-    m_contextScaleRatio (1),
     m_translation (G3D::Vector3::zero ()),
     m_lightingEnabled (false),
     m_selectedLight (LightNumber::LIGHT0),
@@ -42,8 +41,10 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_angleOfView (0),
     m_stationaryType (STATIONARY_NONE),
     m_stationaryBodyId (INVALID_INDEX),
-    m_bodyStationaryTimeStep (0),
-    m_contextView (false)
+    m_stationaryTimeStep (0),
+    m_contextView (false),
+    m_contextScaleRatio (1),
+    m_contextStationaryType (CONTEXT_STATIONARY_NONE)
 {
     initTexture ();
     initList ();
@@ -183,9 +184,9 @@ void ViewSettings::SetLightingParameters (
     EnableLighting ();
 }
 
-bool ViewSettings::IsBodyContext (size_t bodyId) const
+bool ViewSettings::IsContextDisplayBody (size_t bodyId) const
 {
-    return m_bodyContext.find (bodyId) != m_bodyContext.end ();
+    return m_contextBody.find (bodyId) != m_contextBody.end ();
 }
 
 void ViewSettings::CopyTransformations (const ViewSettings& from)

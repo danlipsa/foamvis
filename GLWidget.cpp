@@ -129,7 +129,7 @@ const double GLWidget::MAX_CONTEXT_ALPHA = 0.5;
 const double GLWidget::ENCLOSE_ROTATION_RATIO = 1;
 const GLfloat GLWidget::MAX_T1_SIZE = 10.0;
 const GLfloat GLWidget::MIN_T1_SIZE = 1.0;
-const GLfloat GLWidget::HIGHLIGHT_LINE_WIDTH = 2.0;
+const GLfloat GLWidget::HIGHLIGHT_LINE_WIDTH = 3.0;
 
 // Methods
 // ======================================================================
@@ -166,7 +166,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_zeroedPressureShown (false),
       m_titleShown (false),
       m_timeStepShown (false),
-      m_bodyStationaryMarked (true),
+      m_stationaryMarked (true),
       m_viewCount (ViewCount::ONE),
       m_viewLayout (ViewLayout::HORIZONTAL),
       m_viewNumber (ViewNumber::VIEW0)
@@ -266,17 +266,30 @@ void GLWidget::createActions ()
     connect(m_actionStationaryReset.get (), SIGNAL(triggered()),
 	    this, SLOT(StationaryReset ()));
 
-    m_actionContextBody = boost::make_shared<QAction> (
+    m_actionContextDisplayBody = boost::make_shared<QAction> (
 	tr("&Body"), this);
-    m_actionContextBody->setStatusTip(tr("Context body"));
-    connect(m_actionContextBody.get (), SIGNAL(triggered()),
-	    this, SLOT(ContextBody ()));
+    m_actionContextDisplayBody->setStatusTip(tr("Context body"));
+    connect(m_actionContextDisplayBody.get (), SIGNAL(triggered()),
+	    this, SLOT(ContextDisplayBody ()));
 
-    m_actionContextReset = boost::make_shared<QAction> (
+    m_actionContextStationaryFoam = boost::make_shared<QAction> (
+	tr("&Foam"), this);
+    m_actionContextStationaryFoam->setStatusTip(tr("Context stationary foam"));
+    connect(m_actionContextStationaryFoam.get (), SIGNAL(triggered()),
+	    this, SLOT(ContextStationaryFoam ()));
+
+    m_actionContextStationaryReset = boost::make_shared<QAction> (
 	tr("&Reset"), this);
-    m_actionContextReset->setStatusTip(tr("Context reset"));
-    connect(m_actionContextReset.get (), SIGNAL(triggered()),
-	    this, SLOT(ContextReset ()));
+    m_actionContextStationaryReset->setStatusTip(tr("Context stationary reset"));
+    connect(m_actionContextStationaryReset.get (), SIGNAL(triggered()),
+	    this, SLOT(ContextStationaryReset ()));
+
+
+    m_actionContextDisplayReset = boost::make_shared<QAction> (
+	tr("&Reset"), this);
+    m_actionContextDisplayReset->setStatusTip(tr("Context reset"));
+    connect(m_actionContextDisplayReset.get (), SIGNAL(triggered()),
+	    this, SLOT(ContextDisplayReset ()));
 
     m_actionInfoFocus = boost::make_shared<QAction> (tr("&Focus"), this);
     m_actionInfoFocus->setStatusTip(tr("Info focus"));
@@ -395,11 +408,9 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 
 double GLWidget::getMinimumEdgeRadius () const
 {
-    G3D::Vector3 objectOrigin = gluUnProject (G3D::Vector2::zero (),
-					      GluUnProjectZOperation::SET0);
-    G3D::Vector3 objectOne = gluUnProject (G3D::Vector2::unitX (),
-					   GluUnProjectZOperation::SET0);
-    return (objectOne - objectOrigin).length ();
+    const G3D::AABox& box = 
+	GetFoamAlongTime ().GetFoam (0)->GetBody (0)->GetBoundingBox ();
+    return (box.high () - box.low ()).length () / 50;
 }
 
 void GLWidget::calculateEdgeRadius (double edgeRadiusRatio,
@@ -942,7 +953,7 @@ void GLWidget::initializeGL()
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     DisplayFaceStatistics::InitShaders ();
     initializeLighting ();
-    detectOpenGLError ("initializeGl");
+    WarnOnOpenGLError ("initializeGl");
 }
 
 void GLWidget::paintGL ()
@@ -992,7 +1003,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     displayFocusBox (viewNumber);
     displayLightDirection (viewNumber);
     displayT1s (viewNumber);
-    detectOpenGLError ("displayView");
+    WarnOnOpenGLError ("displayView");
 }
 
 
@@ -1010,7 +1021,7 @@ void GLWidget::resizeGL(int w, int h)
 		viewNumber, minMax.first, minMax.second);
 	}
     }
-    detectOpenGLError ("resizeGl");
+    WarnOnOpenGLError ("resizeGl");
 }
 
 G3D::Matrix3 GLWidget::getRotationAround (int axis, double angleRadians)
@@ -1126,32 +1137,69 @@ G3D::Vector3 GLWidget::objectPosition (const QPoint& position) const
     return op;
 }
 
-void GLWidget::displayBodyStationaryContour (ViewNumber::Enum viewNumber) const
+void GLWidget::displayStationaryBody (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = *GetViewSettings (viewNumber);
-    if (vs.GetStationaryType () == ViewSettings::STATIONARY_BODY)
+    if (m_stationaryMarked && 
+	vs.GetStationaryType () == ViewSettings::STATIONARY_BODY)
     {
 	Foam::Bodies focusBody (1);
 	focusBody[0] = *GetCurrentFoam ().FindBody (vs.GetStationaryBodyId ());
-	displayFacesContour<HighlightNumber::H0> (focusBody, viewNumber, HIGHLIGHT_LINE_WIDTH);
+	displayFacesContour<HighlightNumber::H0> (
+	    focusBody, viewNumber, HIGHLIGHT_LINE_WIDTH);
     }
 }
 
-void GLWidget::displayBodyContextContour (ViewNumber::Enum viewNumber) const
+void GLWidget::displayStationaryConstraint (ViewNumber::Enum view) const
+{
+    const ViewSettings& vs = *GetViewSettings (view);
+    ViewSettings::StationaryType type = vs.GetStationaryType ();
+    if (m_stationaryMarked && type == ViewSettings::STATIONARY_CONSTRAINT)
+    {
+	glPushAttrib (GL_ENABLE_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
+	glDisable (GL_DEPTH_TEST);
+	glLineWidth (HIGHLIGHT_LINE_WIDTH);
+	glColor (GetHighlightColor (view, HighlightNumber::H0));
+	const Foam::Edges& constraintEdges = 
+	    GetCurrentFoam ().GetConstraintEdges (
+		GetFoamAlongTime ().
+		GetConstraintRotationNames ().m_constraintIndex);
+	DisplayEdgeHighlightColor<HighlightNumber::H0> displayEdge (
+	    *this, DisplayElement::FOCUS, view);
+	BOOST_FOREACH (boost::shared_ptr<Edge> edge, constraintEdges)
+	    displayEdge (edge);
+	glPopAttrib ();
+    }
+}
+
+
+void GLWidget::displayContextBodies (ViewNumber::Enum viewNumber) const
 {
     boost::shared_ptr<ViewSettings> vs = GetViewSettings (viewNumber);
-    if (vs->GetBodyContextSize () > 0)
+    if (vs->GetContextDisplayBodySize () > 0)
     {
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	Foam::Bodies contextBodies (bodies.size ());
 	
 	Foam::Bodies::const_iterator end = remove_copy_if (
 	    bodies.begin (), bodies.end (), contextBodies.begin (),
-	    ! boost::bind (&ViewSettings::IsBodyContext, vs, 
+	    ! boost::bind (&ViewSettings::IsContextDisplayBody, vs, 
 			   boost::bind (&Body::GetId, _1)));
 	contextBodies.resize (end - contextBodies.begin ());
 	displayFacesContour<HighlightNumber::H1> (
 	    contextBodies, viewNumber, HIGHLIGHT_LINE_WIDTH);
+    }
+}
+
+void GLWidget::displayContextStationaryFoam (ViewNumber::Enum viewNumber) const
+{
+    const ViewSettings& vs = *GetViewSettings (viewNumber);
+    ViewSettings::ContextStationaryType type = vs.GetContextStationaryType ();
+    if (type == ViewSettings::CONTEXT_STATIONARY_FOAM)
+    {
+	DisplayBox (GetFoamAlongTime (), GetHighlightColor (
+			viewNumber, HighlightNumber::H1), 
+		    HIGHLIGHT_LINE_WIDTH);
     }
 }
 
@@ -1179,7 +1227,7 @@ string GLWidget::getContextLabel ()
 {
     ostringstream ostr;
     const ViewSettings& vs = *GetViewSettings ();
-    size_t count = vs.GetBodyContextSize ();
+    size_t count = vs.GetContextDisplayBodySize ();
     if (count != 0)
 	ostr << "Context (" << count << ")";
     return ostr.str ();
@@ -1213,12 +1261,14 @@ void GLWidget::setLabel ()
 	    getContextLabel (),
 	    getBodySelectorLabel ()
 	}};
-    ostream_iterator<string> o (ostr, " ");
+    ostream_iterator<string> o (ostr, "-");
     remove_copy_if (labels.begin (), labels.end (), o,
 		    boost::bind (&string::empty, _1));
-    string label = ostr.str ();
-    if (label.empty ())
+    string label;
+    if (ostr.str ().empty ())
 	label = "Ready";
+    else
+	label = "-" + ostr.str ();
     m_labelStatusBar->setText (QString (label.c_str ()));
 }
 
@@ -1273,25 +1323,39 @@ void GLWidget::StationaryReset ()
     update ();
 }
 
-void GLWidget::ContextReset ()
-{
-    ViewSettings& vs = *GetViewSettings ();
-    vs.ClearBodyContext ();
-    setLabel ();
-    update ();
-}
-
-
-void GLWidget::ContextBody ()
+void GLWidget::ContextDisplayBody ()
 {
     ViewSettings& vs = *GetViewSettings ();
     vector<size_t> bodies;
     brushedBodies (m_contextMenuPos, &bodies);
-    vs.AddBodyContext (bodies[0]);
+    vs.AddContextDisplayBody (bodies[0]);
     setLabel ();
     update ();
 }
 
+void GLWidget::ContextDisplayReset ()
+{
+    ViewSettings& vs = *GetViewSettings ();
+    vs.ContextDisplayReset ();
+    setLabel ();
+    update ();
+}
+
+void GLWidget::ContextStationaryFoam ()
+{
+    ViewSettings& vs = *GetViewSettings ();
+    vs.SetContextStationaryType (ViewSettings::CONTEXT_STATIONARY_FOAM);
+    setLabel ();
+    update ();
+}
+
+void GLWidget::ContextStationaryReset ()
+{
+    ViewSettings& vs = *GetViewSettings ();
+    vs.SetContextStationaryType (ViewSettings::CONTEXT_STATIONARY_NONE);
+    setLabel ();
+    update ();
+}
 
 void GLWidget::select (const QPoint& position)
 {
@@ -1432,13 +1496,13 @@ void GLWidget::displayBoundingBox (ViewNumber::Enum viewNumber) const
     if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
     if (m_boundingBoxShown)
-	DisplayBox (GetFoamAlongTime ().GetBoundingBox (), Qt::black);
+	DisplayBox (GetFoamAlongTime (), Qt::black);
     if (m_bodiesBoundingBoxesShown)
     {
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	BOOST_FOREACH (boost::shared_ptr<Body> body, bodies)
 	    if ((*m_bodySelector) (body))
-		DisplayBox< boost::shared_ptr<Body> > (body, Qt::black, 1.0);
+		DisplayBox (body, Qt::black);
     }
     glPopAttrib ();
 }
@@ -1503,28 +1567,6 @@ void GLWidget::displayStandaloneEdges (bool useZPos, double zPos) const
 	glPopAttrib ();
     }
 }
-
-void GLWidget::displayConstraintEdges (ViewNumber::Enum view) const
-{
-    const ViewSettings& vs = *GetViewSettings (view);
-    ViewSettings::StationaryType type = vs.GetStationaryType ();
-    if (type == ViewSettings::STATIONARY_CONSTRAINT)
-    {
-	glPushAttrib (GL_ENABLE_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
-	glDisable (GL_DEPTH_TEST);
-	glLineWidth (HIGHLIGHT_LINE_WIDTH);
-	glColor (GetHighlightColor (view, HighlightNumber::H0));
-	const Foam::Edges& constraintEdges = 
-	    GetCurrentFoam ().GetConstraintEdges (
-		GetFoamAlongTime ().GetConstraintRotationNames ().m_constraintIndex);
-	DisplayEdgeHighlightColor<HighlightNumber::H0> displayEdge (
-	    *this, DisplayElement::FOCUS, view);
-	BOOST_FOREACH (boost::shared_ptr<Edge> edge, constraintEdges)
-	    displayEdge (edge);
-	glPopAttrib ();
-    }
-}
-
 
 void GLWidget::displayEdgesNormal (ViewNumber::Enum viewNumber) const
 {
@@ -1669,7 +1711,10 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum view) const
 	displayFacesContour (bodies);
     displayFacesInterior (bodies, view);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
-    displayConstraintEdges (view);
+    displayStationaryBody (view);
+    displayStationaryConstraint (view);
+    displayContextBodies (view);
+    displayContextStationaryFoam (view);
     displayStandaloneFaces ();    
     displayBodyCenters ();
 }
@@ -1705,9 +1750,10 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
 	GetViewRect (viewNumber),
 	minMax.first, minMax.second, view->GetStatisticsType ());
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
-    displayBodyStationaryContour (viewNumber);
-    displayBodyContextContour (viewNumber);
-    displayConstraintEdges (viewNumber);
+    displayStationaryBody (viewNumber);
+    displayStationaryConstraint (viewNumber);
+    displayContextBodies (viewNumber);
+    displayContextStationaryFoam (viewNumber);
     glPopAttrib ();
 }
 
@@ -2104,8 +2150,15 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	}
 	{
 	    QMenu* menuContext = menu.addMenu ("Context");
-	    menuContext->addAction (m_actionContextBody.get ());
-	    menuContext->addAction (m_actionContextReset.get ());
+	    QMenu* menuContextDisplay = menuContext->addMenu ("Display");
+	    menuContextDisplay->addAction (m_actionContextDisplayBody.get ());
+	    menuContextDisplay->addAction (m_actionContextDisplayReset.get ());
+
+	    QMenu* menuContextStationary = menuContext->addMenu ("Stationary");
+	    menuContextStationary->addAction (
+		m_actionContextStationaryFoam.get ());
+	    menuContextStationary->addAction (
+		m_actionContextStationaryReset.get ());
 	}
 	{
 	    QMenu* menuInfo = menu.addMenu ("Info");
@@ -2490,7 +2543,7 @@ void GLWidget::ToggledBoundingBoxShown (bool checked)
 
 void GLWidget::ToggledBodyStationaryMarked (bool checked)
 {
-    m_bodyStationaryMarked = checked;
+    m_stationaryMarked = checked;
     update ();
 }
 

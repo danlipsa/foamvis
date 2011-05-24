@@ -248,17 +248,15 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 	radioButtonEdgesTorus->setDisabled (true);
 	radioButtonFaceEdgesTorus->setDisabled (true);
     }
+    radioButtonFacesNormal->toggle ();
+    tabWidget->setCurrentWidget (faces);
     if (foam->Is2D ())
     {
-	radioButtonEdgesNormal->toggle ();
-	tabWidget->setCurrentWidget (edges);
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::TWO_D);
 	comboBoxInteractionMode->setCurrentIndex (InteractionMode::SCALE);	
     }
     else
     {
-	radioButtonFacesNormal->toggle ();
-	tabWidget->setCurrentWidget (faces);
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::THREE_D);
     }
     comboBoxColor->setCurrentIndex (BodyProperty::NONE);
@@ -662,7 +660,7 @@ void MainWindow::setupColorBarModel (ViewNumber::Enum viewNumber,
     m_colorBarModelBodyProperty[viewNumber][property]->SetInterval (
 	foamAlongTime.GetRange (property));
     m_colorBarModelBodyProperty[viewNumber][property]->SetupPalette (
-	Palette::RAINBOW);
+	Palette::BLUE_RED_DIVERGING);
 }
 
 void MainWindow::updateLightControls (

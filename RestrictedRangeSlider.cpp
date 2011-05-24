@@ -60,9 +60,11 @@ void RestrictedRangeSlider::setupScale (int minimum, int maximum)
 	maxMajorTicks, maxMinorTicks);
     scale->setScaleDiv (scaleEngine.transformation (), scaleDiv);
     setupColorMap ();
+
     SliderDimensionsQuery sliderQuery (Application::Get ().get ());
     QRect r = sliderQuery.GetHandleRect ();
     scale->setBorderDist (r.width () / 2, r.width () / 2);
+
     updateTitle ();
 }
 

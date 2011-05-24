@@ -335,7 +335,7 @@ void DisplayFaceStatistics::Step (
     else
 	m_currentHistoryCount += (direction > 0)? 1 : -1;
     glPopAttrib ();
-    detectOpenGLError ();
+    WarnOnOpenGLError ();
 }
 
 void DisplayFaceStatistics::renderToStep (

@@ -77,7 +77,10 @@ G3D::Vector3 gluUnProject (
  * Check the OpenGL  error code and prints a message  to cdbg if there
  * is an error
  */
-void detectOpenGLError (string message = "");
+void WarnOnOpenGLError (string message = "");
+void ThrowOnOpenGLError (string message = "");
+
+
 
 void printOpenGLInfo (ostream& ostr);
 
@@ -91,11 +94,21 @@ void DisplayBox (const G3D::AABox& aabb, const QColor& color,
 		 GLfloat lineWidth = 1.0);
 void DisplayBox (const G3D::Rect2D& rect);
 
-template<typename GraphicsObjectPtr>
+
+template<typename GraphicsObject>
 void DisplayBox (
-    const GraphicsObjectPtr& o, const QColor& color, GLfloat lineWidth = 1.0)
+    boost::shared_ptr<GraphicsObject> o, 
+    const QColor& color, GLfloat lineWidth = 1.0)
 {
     DisplayBox (o->GetBoundingBox (), color, lineWidth);
+}
+
+
+template<typename GraphicsObject>
+void DisplayBox (
+    const GraphicsObject& o, const QColor& color, GLfloat lineWidth = 1.0)
+{
+    DisplayBox (o.GetBoundingBox (), color, lineWidth);
 }
 
 void RenderFromFbo (G3D::Rect2D viewRect, QGLFramebufferObject& fbo);

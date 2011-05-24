@@ -127,7 +127,7 @@ G3D::Vector3 gluProject (const G3D::Vector3& object)
 }
 
 G3D::Vector3 gluUnProject (
-    const G3D::Vector2& screenCoord, 
+    const G3D::Vector2& windowCoord, 
     GluUnProjectZOperation::Enum zOperation)
 {
     GLdouble model[16];
@@ -136,31 +136,40 @@ G3D::Vector3 gluUnProject (
     glGetDoublev (GL_PROJECTION_MATRIX, proj);
     GLint view[4];
     glGetIntegerv (GL_VIEWPORT, view);
-    GLfloat zScreenCoord;
+    GLfloat zWindowCoord;
     if (zOperation == GluUnProjectZOperation::READ)
-	glReadPixels (screenCoord.x, screenCoord.y, 1, 1, 
-		      GL_DEPTH_COMPONENT, GL_FLOAT, &zScreenCoord);
+	glReadPixels (windowCoord.x, windowCoord.y, 1, 1, 
+		      GL_DEPTH_COMPONENT, GL_FLOAT, &zWindowCoord);
     else
-	zScreenCoord = 0;
-    double x, y, z;
-    gluUnProject (screenCoord.x, screenCoord.y, zScreenCoord, 
+	zWindowCoord = 0;
+    double x = 0, y = 0, z = 0;
+    gluUnProject (windowCoord.x, windowCoord.y, zWindowCoord, 
 		  model, proj, view, 
 		  &x, &y, &z);
     return G3D::Vector3 (x, y, z);
 }
 
 
-/**
- * Check the OpenGL  error code and prints a message  to cdbg if there
- * is an error
- */
-void detectOpenGLError (string message)
+void WarnOnOpenGLError (string message)
 {
     GLenum errCode;
     if ((errCode = glGetError()) != GL_NO_ERROR)
         cdbg << "OpenGL Error " << message.c_str () << ":"
 	     << gluErrorString(errCode) << endl;
 }
+
+void ThrowOnOpenGLError (string message)
+{
+    GLenum errCode;
+    ostringstream ostr;
+    if ((errCode = glGetError()) != GL_NO_ERROR)
+    {
+        ostr << "OpenGL Error " << message.c_str () << ":"
+	     << gluErrorString(errCode);
+	ThrowException (ostr.str ());
+    }
+}
+
 
 void printOpenGLInfo (ostream& ostr)
 {
@@ -228,12 +237,13 @@ void DisplayOpositeFaces (G3D::Vector3 origin,
 	faceFirst += translations[i];
 	faceSecond += translations[i];
 	faceSum += translations[i];
-
-	glBegin (GL_POLYGON);
+	
+	glBegin (GL_LINE_STRIP);
 	::glVertex (faceOrigin);
 	::glVertex (faceFirst);
 	::glVertex (faceSum);
 	::glVertex (faceSecond);
+	::glVertex (faceOrigin);
 	glEnd ();
     }
 }
@@ -254,14 +264,13 @@ void DisplayBox (const OOBox& oobox)
     glPopAttrib ();
 }
 
-void DisplayBox (const G3D::AABox& aabb, const QColor& color,
-		 GLfloat lineWidth)
+void DisplayBox (const G3D::AABox& aabb, const QColor& color, GLfloat lineWidth)
 {
     using G3D::Vector3;
     glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
-    glLineWidth (lineWidth);
     glColor (color);
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    glLineWidth (lineWidth);
     Vector3 diagonal = aabb.high () - aabb.low ();
     Vector3 first = diagonal.x * Vector3::unitX ();
     Vector3 second = diagonal.y * Vector3::unitY ();
