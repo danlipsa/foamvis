@@ -579,6 +579,7 @@ private:
     void rotate2DRight90 () const;
     string getBodySelectorLabel ();
     string getContextLabel ();
+    string getContextStationaryLabel ();
     string getStationaryLabel ();
     void setLabel ();
     void transformFoamStationary (

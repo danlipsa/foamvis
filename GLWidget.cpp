@@ -1233,6 +1233,16 @@ string GLWidget::getContextLabel ()
     return ostr.str ();
 }
 
+string GLWidget::getContextStationaryLabel ()
+{
+    ostringstream ostr;
+    const ViewSettings& vs = *GetViewSettings ();
+    ViewSettings::ContextStationaryType type = vs.GetContextStationaryType ();
+    if (type == ViewSettings::CONTEXT_STATIONARY_FOAM)
+	ostr << "Context stationary foam";
+    return ostr.str ();
+}
+
 
 string GLWidget::getBodySelectorLabel ()
 {
@@ -1256,9 +1266,10 @@ string GLWidget::getBodySelectorLabel ()
 void GLWidget::setLabel ()
 {
     ostringstream ostr;
-    boost::array<string, 3> labels = {{
+    boost::array<string, 4> labels = {{
 	    getStationaryLabel (),
 	    getContextLabel (),
+	    getContextStationaryLabel (),
 	    getBodySelectorLabel ()
 	}};
     ostream_iterator<string> o (ostr, "-");
@@ -1710,6 +1721,8 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum view) const
     if (m_facesShowEdges)
 	displayFacesContour (bodies);
     displayFacesInterior (bodies, view);
+    glPushAttrib (GL_ENABLE_BIT);
+    glDisable (GL_DEPTH_TEST);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
     displayStationaryBody (view);
     displayStationaryConstraint (view);
@@ -1717,6 +1730,7 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum view) const
     displayContextStationaryFoam (view);
     displayStandaloneFaces ();    
     displayBodyCenters ();
+    glPopAttrib ();
 }
 
 pair<double, double> GLWidget::getStatisticsMinMax (ViewNumber::Enum view) const
