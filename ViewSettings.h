@@ -211,14 +211,6 @@ public:
 	STATIONARY_NONE
     };
 
-    size_t GetStationaryTimeStep () const
-    {
-	return m_stationaryTimeStep;
-    }
-    void SetStationaryTimeStep (size_t timeStep)
-    {
-	m_stationaryTimeStep = timeStep;
-    }
     size_t GetStationaryBodyId () const
     {
 	return m_stationaryBodyId;
@@ -328,7 +320,6 @@ private:
     //Stationary
     StationaryType m_stationaryType;
     size_t m_stationaryBodyId;
-    size_t m_stationaryTimeStep;   
     // Context view
     bool m_contextView;
     double m_contextScaleRatio;

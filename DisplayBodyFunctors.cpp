@@ -219,23 +219,22 @@ DisplayCenterPath (
      G3D::Vector3 pointBegin = getPoint (begin);
      G3D::Vector3 pointEnd = getPoint (end);
      G3D::Vector3 middle = (pointBegin + pointEnd) / 2;
-     boost::shared_ptr<ViewSettings> vs = 
-	 this->m_glWidget.GetViewSettings (
-	     this->m_propertySetter.GetViewNumber ());
+     ViewSettings& vs = this->m_glWidget.GetViewSettings (
+	 this->m_propertySetter.GetViewNumber ());
      halfValueStep (
 	 begin,
 	 Segment (
 	     beforeBegin.IsEmpty () ? SegmentPerpendicularEnd::BEGIN_END :
 	     SegmentPerpendicularEnd::END,
 	     getPoint (beforeBegin), pointBegin, middle, G3D::Vector3 (),
-	     vs->IsContextDisplayBody (begin.m_body->GetId ())));
+	     vs.IsContextDisplayBody (begin.m_body->GetId ())));
      halfValueStep (
 	 end,
 	 Segment (
 	     afterEnd.IsEmpty () ? SegmentPerpendicularEnd::BEGIN_END :
 	     SegmentPerpendicularEnd::BEGIN,
 	     G3D::Vector3 (), middle, pointEnd, getPoint (afterEnd),
-	     vs->IsContextDisplayBody (end.m_body->GetId ())));
+	     vs.IsContextDisplayBody (end.m_body->GetId ())));
  }
 
 
@@ -320,7 +319,7 @@ storeFocusSegment (double value, const Segment& segment)
 {
     double textureCoordinate = 
 	this->m_glWidget.GetViewSettings (
-	    this->m_propertySetter.GetViewNumber ())->GetColorBarModel ()
+	    this->m_propertySetter.GetViewNumber ()).GetColorBarModel ()
 	->TexCoord (value);
     boost::shared_ptr<FocusTextureSegment> fs = 
 	boost::make_shared<FocusTextureSegment> (textureCoordinate, segment);

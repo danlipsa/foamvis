@@ -278,12 +278,26 @@ void DisplayFaceStatistics::display (
     StatisticsType::Enum displayType, QGLFramebufferObject& srcFbo)
 {
     m_displayShaderProgram.Bind (minValue, maxValue, displayType);
-    const_cast<GLWidget&>(m_glWidget).glActiveTexture (
-	TextureEnum (m_displayShaderProgram.GetResultTexUnit ()));
+    glActiveTexture (TextureEnum (m_displayShaderProgram.GetResultTexUnit ()));
     RenderFromFbo (viewRect, srcFbo);
-    const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
+    glActiveTexture (GL_TEXTURE0);
     m_displayShaderProgram.release ();
 }
+
+void DisplayFaceStatistics::displayAndRotate (
+    const G3D::Rect2D& viewRect,
+    GLfloat minValue, GLfloat maxValue,
+    StatisticsType::Enum displayType, QGLFramebufferObject& srcFbo,
+    G3D::Vector2 rotationCenter, float angleDegrees)
+{
+    m_displayShaderProgram.Bind (minValue, maxValue, displayType);
+    glActiveTexture (TextureEnum (m_displayShaderProgram.GetResultTexUnit ()));
+    RenderFromFboAndRotate (viewRect, srcFbo, 
+			    rotationCenter, angleDegrees);
+    glActiveTexture (GL_TEXTURE0);
+    m_displayShaderProgram.release ();
+}
+
 
 
 void DisplayFaceStatistics::InitStep (
@@ -349,7 +363,7 @@ void DisplayFaceStatistics::renderToStep (
     m_step->bind ();
     ClearColorStencilBuffers (Qt::black, 0);
     m_storeShaderProgram.Bind ();
-    const Foam& foam = *m_glWidget.GetFoamAlongTime ().GetFoam (timeStep);
+    const Foam& foam = m_glWidget.GetFoamAlongTime ().GetFoam (timeStep);
     const Foam::Bodies& bodies = foam.GetBodies ();
     writeFacesValues (viewNumber, bodies);
     m_storeShaderProgram.release ();
@@ -363,16 +377,14 @@ void DisplayFaceStatistics::addStepToNew (const G3D::Rect2D& viewRect)
     m_addShaderProgram.Bind ();
 
     // bind old texture
-    const_cast<GLWidget&>(m_glWidget).glActiveTexture (
-	TextureEnum (m_addShaderProgram.GetOldTexUnit ()));
+    glActiveTexture (TextureEnum (m_addShaderProgram.GetOldTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, m_old->texture ());
 
     // bind step texture
-    const_cast<GLWidget&>(m_glWidget).glActiveTexture (
-	TextureEnum (m_addShaderProgram.GetStepTexUnit ()));
+    glActiveTexture (TextureEnum (m_addShaderProgram.GetStepTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, m_step->texture ());
     // set the active texture to texture 0
-    const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
+    glActiveTexture (GL_TEXTURE0);
 
     RenderFromFbo (
 	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()), 
@@ -388,16 +400,14 @@ void DisplayFaceStatistics::removeStepFromNew (const G3D::Rect2D& viewRect)
     m_removeShaderProgram.Bind ();
 
     // bind old texture
-    const_cast<GLWidget&>(m_glWidget).glActiveTexture (
-	TextureEnum (m_removeShaderProgram.GetOldTexUnit ()));
+    glActiveTexture (TextureEnum (m_removeShaderProgram.GetOldTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, m_old->texture ());
 
     // bind step texture
-    const_cast<GLWidget&>(m_glWidget).glActiveTexture (
-	TextureEnum (m_removeShaderProgram.GetStepTexUnit ()));
+    glActiveTexture (TextureEnum (m_removeShaderProgram.GetStepTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, m_step->texture ());
     // set the active texture to texture 0
-    const_cast<GLWidget&>(m_glWidget).glActiveTexture (GL_TEXTURE0);
+    glActiveTexture (GL_TEXTURE0);
 
     RenderFromFbo (
 	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()),
@@ -456,6 +466,18 @@ void DisplayFaceStatistics::Display (
 	display (viewRect, minValue, maxValue, displayType, *m_new);
 }
 
+void DisplayFaceStatistics::DisplayAndRotate (
+    const G3D::Rect2D& viewRect,
+    GLfloat minValue, GLfloat maxValue, 
+    StatisticsType::Enum displayType, 
+    G3D::Vector2 rotationCenter, float angleDegrees)
+{
+    if (m_new.get () != 0)
+	displayAndRotate (viewRect, minValue, maxValue, displayType, *m_new,
+			  rotationCenter, angleDegrees);
+}
+
+
 
 void DisplayFaceStatistics::save (const G3D::Rect2D& viewRect,
     QGLFramebufferObject& fbo, const char* postfix, size_t timeStep,
@@ -486,7 +508,7 @@ void DisplayFaceStatistics::writeFacesValues (
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glBindTexture (
 	GL_TEXTURE_1D, 
-	m_glWidget.GetViewSettings (viewNumber)->GetColorBarTexture ());
+	m_glWidget.GetViewSettings (viewNumber).GetColorBarTexture ());
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
 	      DisplayFaceBodyPropertyColor<
@@ -497,4 +519,9 @@ void DisplayFaceStatistics::writeFacesValues (
 		      m_storeShaderProgram.GetVValueIndex ()),
 		  DisplayElement::INVISIBLE_CONTEXT));
     glPopAttrib ();
+}
+
+void DisplayFaceStatistics::glActiveTexture (GLenum texture) const
+{
+    const_cast<GLWidget&>(m_glWidget).glActiveTexture (texture);
 }

@@ -140,6 +140,10 @@ public:
     void Display (const G3D::Rect2D& viewRect,
 		  GLfloat minValue, GLfloat maxValue, 
 		  StatisticsType::Enum displayType);
+    void DisplayAndRotate (const G3D::Rect2D& viewRect,
+			   GLfloat minValue, GLfloat maxValue, 
+			   StatisticsType::Enum displayType,
+			   G3D::Vector2 rotationCenter, float angleDegrees);
     void InitStep (ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue);
     void Step (ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue, 
 	       int direction);
@@ -159,6 +163,12 @@ private:
     void display (const G3D::Rect2D& viewRect, 
 		  GLfloat minValue, GLfloat maxValue,
 		  StatisticsType::Enum displayType, QGLFramebufferObject& fbo);
+    void displayAndRotate (const G3D::Rect2D& viewRect, 
+			   GLfloat minValue, GLfloat maxValue,
+			   StatisticsType::Enum displayType, 
+			   QGLFramebufferObject& fbo,
+			   G3D::Vector2 rotationCenter, float angleDegrees);
+
     void save (const G3D::Rect2D& viewRect,
 	QGLFramebufferObject& fbo, const char* fileName, size_t timeStep,
 	GLfloat minValue, GLfloat maxValue,
@@ -167,9 +177,10 @@ private:
     void addStepToNew (const G3D::Rect2D& viewRect);
     void removeStepFromNew (const G3D::Rect2D& viewRect);
     void copyNewToOld ();
-    void clearColorBufferMinMax (const G3D::Rect2D& viewRect,
-		      const boost::scoped_ptr<QGLFramebufferObject>& fbo);
-
+    void clearColorBufferMinMax (
+	const G3D::Rect2D& viewRect,
+	const boost::scoped_ptr<QGLFramebufferObject>& fbo);
+    void glActiveTexture (GLenum texture) const;
 
 private:
     /**

@@ -11,17 +11,17 @@
 
 class OOBox;
 
-inline void glColor (const QColor& color)
+inline void glColor (QColor color)
 {
     glColor4f (color.redF (), color.greenF (), color.blueF (), color.alphaF ());
 }
 
-inline void glVertex (const G3D::Vector3& p)
+inline void glVertex (G3D::Vector3 p)
 {
     glVertex3f (p.x, p.y, p.z);
 }
 
-inline void glVertex (const G3D::Vector2& p)
+inline void glVertex (G3D::Vector2 p)
 {
     glVertex2f (p.x, p.y);
 }
@@ -31,18 +31,23 @@ inline void glScale (double ratio)
     glScaled (ratio, ratio, ratio);
 }
 
-inline void glClearColor (const QColor& color)
+inline void glClearColor (QColor color)
 {
     glClearColor (color.redF (), color.greenF (), 
 		  color.blueF (), color.alphaF ());
 }
 
-inline void glTranslate (const G3D::Vector3& translate)
+inline void glTranslate (G3D::Vector3 translate)
 {
     glTranslatef (translate.x, translate.y, translate.z);
 }
 
-inline void glViewport (const G3D::Rect2D& viewport)
+inline void glTranslate (G3D::Vector2 translate)
+{
+    glTranslatef (translate.x, translate.y, 0);
+}
+
+inline void glViewport (G3D::Rect2D viewport)
 {
     glViewport (ceil (viewport.x0 ()), ceil (viewport.y0 ()), 
 		viewport.width (), viewport.height ());
@@ -51,7 +56,7 @@ inline void glViewport (const G3D::Rect2D& viewport)
 /**
  * Maps object coordinates to window coordinates
  */
-G3D::Vector3 gluProject (const G3D::Vector3& object);
+G3D::Vector3 gluProject (G3D::Vector3 object);
 
 struct GluUnProjectZOperation
 {
@@ -70,7 +75,7 @@ struct GluUnProjectZOperation
  * see OpenGL FAQ, 9.110
  */
 G3D::Vector3 gluUnProject (
-    const G3D::Vector2& screenCoord, 
+    G3D::Vector2 screenCoord, 
     GluUnProjectZOperation::Enum zOperation = GluUnProjectZOperation::READ);
 
 /**
@@ -112,11 +117,13 @@ void DisplayBox (
 }
 
 void RenderFromFbo (G3D::Rect2D viewRect, QGLFramebufferObject& fbo);
+void RenderFromFboAndRotate (
+    G3D::Rect2D viewRect, QGLFramebufferObject& fbo,
+    G3D::Vector2 rotationCenter, float angleDegrees);
 
 void ClearColorBuffer (Qt::GlobalColor clearColor);
 void ClearColorStencilBuffers (
     Qt::GlobalColor clearColor, GLint clearStencil);
-
 
 #endif //__OPENGL_UTIL_H__
 

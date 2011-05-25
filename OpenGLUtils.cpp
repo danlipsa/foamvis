@@ -111,8 +111,7 @@ private:
 };
 
 
-
-G3D::Vector3 gluProject (const G3D::Vector3& object)
+G3D::Vector3 gluProject (G3D::Vector3 object)
 {
     GLdouble model[16];
     glGetDoublev (GL_MODELVIEW_MATRIX, model);
@@ -127,7 +126,7 @@ G3D::Vector3 gluProject (const G3D::Vector3& object)
 }
 
 G3D::Vector3 gluUnProject (
-    const G3D::Vector2& windowCoord, 
+    G3D::Vector2 windowCoord, 
     GluUnProjectZOperation::Enum zOperation)
 {
     GLdouble model[16];
@@ -318,6 +317,40 @@ void RenderFromFbo (G3D::Rect2D destRect, QGLFramebufferObject& srcFbo)
     glPopAttrib ();
 }
 
+void RenderFromFboAndRotate (
+    G3D::Rect2D destRect, QGLFramebufferObject& srcFbo,
+    G3D::Vector2 rotationCenter, float angleDegrees)
+{
+    glPushAttrib (GL_ENABLE_BIT | GL_VIEWPORT_BIT);
+    glEnable (GL_TEXTURE_2D);
+    glBindTexture (GL_TEXTURE_2D, srcFbo.texture ());
+    glViewport (destRect.x0 (), destRect.y0 (),
+		destRect.width (), destRect.height ());
+
+    //glMatrixMode (GL_MODELVIEW);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glTranslate (rotationCenter);
+    glRotatef (angleDegrees, 0, 0, 1);	
+    glTranslate (-rotationCenter);
+    glMatrixMode (GL_PROJECTION);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glOrtho (0, destRect.width (), 0, destRect.height (), -1, 1);
+    glBegin (GL_QUADS);
+    glTexCoord2i (0, 0);glVertex2i (0, 0);
+    glTexCoord2i (1, 0);glVertex2i (destRect.width () - 1, 0);
+    glTexCoord2i (1, 1);glVertex2i (
+	destRect.width () - 1, destRect.height () - 1);
+    glTexCoord2i (0, 1);glVertex2i (0, destRect.height () - 1);
+    glEnd ();
+    glPopMatrix ();
+    glMatrixMode (GL_MODELVIEW);
+    glPopMatrix ();
+    glPopAttrib ();
+}
+
+
 void ClearColorBuffer (Qt::GlobalColor clearColor)
 {
     glPushAttrib (GL_COLOR_BUFFER_BIT); 
@@ -335,3 +368,4 @@ void ClearColorStencilBuffers (
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glPopAttrib ();
 }
+

@@ -14,6 +14,7 @@ class ApproximationEdge : public Edge
 {
 public:
     ApproximationEdge (
+	size_t pointCount,
 	const boost::shared_ptr<Vertex>& begin,
 	const boost::shared_ptr<Vertex>& end,
 	const G3D::Vector3int16& endLocation, 
@@ -33,10 +34,7 @@ protected:
     void cachePoints ();
 
 private:
-    const static size_t POINT_COUNT = 7;
-
-private:
-    boost::array<G3D::Vector3, POINT_COUNT> m_points;
+    vector<G3D::Vector3> m_points;
 };
 
 

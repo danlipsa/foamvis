@@ -72,13 +72,12 @@ public:
     {
 	return m_viewNumber;
     }
-    boost::shared_ptr<ViewSettings> GetViewSettings (
-	ViewNumber::Enum viewNumber) const
+    ViewSettings& GetViewSettings (ViewNumber::Enum viewNumber) const
     {
-	return m_viewSettings[viewNumber];
+	return *m_viewSettings[viewNumber];
     }
 
-    boost::shared_ptr<ViewSettings> GetViewSettings () const
+    ViewSettings& GetViewSettings () const
     {
 	return GetViewSettings (GetViewNumber ());
     }
@@ -475,9 +474,13 @@ private:
     void displayView (ViewNumber::Enum view);
     void displayViews ();
     void displayContextBodies (ViewNumber::Enum view) const;
-    void displayContextStationaryFoam (ViewNumber::Enum view) const;
+    void displayContextStationaryFoam (
+	ViewNumber::Enum view,
+	bool adjustForContextStationaryFoam = false) const;
     void displayStationaryBody (ViewNumber::Enum view) const;
-    void displayStationaryConstraint (ViewNumber::Enum view) const;
+    void displayStationaryConstraint (
+	ViewNumber::Enum view, 
+	bool adjustForContextStationaryFoam = false) const;
 
     void displayEdgesNormal (ViewNumber::Enum view) const;
     template<typename displayEdge>
@@ -588,6 +591,7 @@ private:
 	boost::array<boost::shared_ptr<QAction>, 
 	ViewNumber::COUNT>& actionCopyTransformations,
 	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformations);
+    void rotateStationaryConstraint (size_t timeStep, int direction) const;
     
 
 private:

@@ -173,13 +173,10 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 {
     *useColor = true;
     boost::shared_ptr<Body> body;
-    boost::shared_ptr<ViewSettings> vs;
     size_t bodyId = 0;
     if (! of->IsStandalone ())
     {
 	body = of->GetBodyPartOf ().GetBody ();
-	vs = this->m_glWidget.GetViewSettings (
-	    this->m_propertySetter.GetViewNumber ());
 	bodyId = body->GetId ();
     }
     if (this->m_focus == DisplayElement::FOCUS)
@@ -262,7 +259,7 @@ display (const boost::shared_ptr<OrientedFace>& of)
     {
 	boost::shared_ptr<Body> body = of->GetBodyPartOf ().GetBody ();
 	size_t bodyId = body->GetId ();
-	const ViewSettings& vs = *this->m_glWidget.GetViewSettings (
+	const ViewSettings& vs = this->m_glWidget.GetViewSettings (
 	    this->m_propertySetter.GetViewNumber ());
 	stationaryOrContext = ((bodyId == vs.GetStationaryBodyId ()) || 
 			       vs.IsContextDisplayBody (bodyId));

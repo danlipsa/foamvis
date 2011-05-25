@@ -390,7 +390,7 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 	    vs->SetAxesOrder (AxesOrder::THREE_D);
 	}
     }
-    Foam::Bodies bodies = foamAlongTime->GetFoam (0)->GetBodies ();
+    Foam::Bodies bodies = foamAlongTime->GetFoam (0).GetBodies ();
     if (bodies.size () != 0)
     {
 	size_t maxIndex = bodies.size () - 1;
@@ -409,7 +409,7 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 double GLWidget::getMinimumEdgeRadius () const
 {
     const G3D::AABox& box = 
-	GetFoamAlongTime ().GetFoam (0)->GetBody (0)->GetBoundingBox ();
+	GetFoamAlongTime ().GetFoam (0).GetBody (0)->GetBoundingBox ();
     return (box.high () - box.low ()).length () / 50;
 }
 
@@ -440,7 +440,7 @@ void GLWidget::changeViewType (bool checked, ViewType::Enum viewType)
 {
     if (checked)
     {
-	GetViewSettings ()->SetViewType (viewType);
+	GetViewSettings ().SetViewType (viewType);
 	compile (GetViewNumber ());
 	update ();
     }
@@ -482,7 +482,7 @@ void GLWidget::displayLightDirection (ViewNumber::Enum viewNumber) const
 void GLWidget::displayLightDirection (
     ViewNumber::Enum viewNumber, LightNumber::Enum i) const
 {
-    const ViewSettings& vs = *GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsLightPositionShown (i))
     {
 	const double sqrt3 = 1.7321;
@@ -505,7 +505,7 @@ void GLWidget::displayLightDirection (
 void GLWidget::translateLight (ViewNumber::Enum viewNumber, 
 			       const QPoint& position)
 {
-    ViewSettings& vs = *GetViewSettings (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
     G3D::Rect2D viewport = vs.GetViewport ();
     G3D::Vector2 oldPosition = G3D::Vector2 (m_lastPos.x (), m_lastPos.y ());
     G3D::Vector2 newPosition = G3D::Vector2 (position.x (), position.y ());
@@ -580,7 +580,7 @@ void GLWidget::translateAndScale (
 void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber, 
 				   size_t timeStep) const
 {
-    const ViewSettings& vs = *GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     glLoadIdentity ();
     // viewing transform
     glTranslatef (0, 0, - vs.GetCameraDistance ());
@@ -613,17 +613,17 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
 void GLWidget::transformFoamStationary (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
-    const ViewSettings& vs = *GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     ViewSettings::StationaryType type = vs.GetStationaryType ();
     switch (type)
     {
     case ViewSettings::STATIONARY_BODY:
     {
 	size_t id = vs.GetStationaryBodyId ();
-	G3D::Vector3 centerBegin = GetFoamAlongTime ().GetFoam (
-	    vs.GetStationaryTimeStep ())->GetBody (id)->GetCenter ();
+	G3D::Vector3 centerBegin = GetFoamAlongTime ().GetFoam (0).
+	    GetBody (id)->GetCenter ();
 	G3D::Vector3 centerCurrent = GetFoamAlongTime ().GetFoam (
-	    timeStep)->GetBody (id)->GetCenter ();
+	    timeStep).GetBody (id)->GetCenter ();
 	G3D::Vector3 translation = centerBegin - centerCurrent;
 	glTranslate (translation);
 	glTranslate (-GetFoamAlongTime ().GetBoundingBox ().center ());
@@ -631,17 +631,8 @@ void GLWidget::transformFoamStationary (
     }
     case ViewSettings::STATIONARY_CONSTRAINT:
     {
-	const ConstraintRotation& rotationBegin = GetFoamAlongTime ().GetFoam (
-	    vs.GetStationaryTimeStep ())->GetConstraintRotation ();
-	const ConstraintRotation& rotationCurrent = GetFoamAlongTime ().GetFoam (
-	    timeStep)->GetConstraintRotation ();
-	G3D::Vector3 rotationCenter = G3D::Vector3 (rotationBegin.m_center, 0.0);
 	glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
-	glTranslate (rotationCenter);
-	float angle = 
-	    (rotationCurrent.m_angle - rotationBegin.m_angle) * 180 / M_PI;
-	glRotatef (angle, 0, 0, 1);	
-	glTranslate (-rotationCenter);
+	rotateStationaryConstraint (timeStep, 1);
 	break;
     }
     default:
@@ -650,10 +641,27 @@ void GLWidget::transformFoamStationary (
     }
 }
 
+void GLWidget::rotateStationaryConstraint (size_t timeStep, int direction) const
+{
+	const ConstraintRotation& rotationBegin = GetFoamAlongTime ().
+	    GetFoam (0).GetConstraintRotation ();
+	const ConstraintRotation& rotationCurrent = GetFoamAlongTime ().
+	    GetFoam (timeStep).GetConstraintRotation ();
+	G3D::Vector3 rotationCenter = G3D::Vector3 (rotationBegin.m_center, 0.0);
+	glTranslate (rotationCenter);
+	float angleDegrees =  G3D::toDegrees (
+	    rotationCurrent.m_angle - rotationBegin.m_angle);
+	angleDegrees = direction > 0 ? angleDegrees : - angleDegrees;
+	glRotatef (angleDegrees, 0, 0, 1);
+	glTranslate (-rotationCenter);
+}
+
+
+
 G3D::AABox GLWidget::calculateViewingVolume (
     ViewNumber::Enum viewNumber, double xOverY, double scaleRatio) const
 {
-    const ViewSettings& vs = *GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     G3D::AABox centeredViewingVolume = 
 	calculateCenteredViewingVolume (xOverY, scaleRatio);
     G3D::Vector3 translation (vs.GetCameraDistance () * G3D::Vector3::unitZ ());
@@ -664,7 +672,7 @@ G3D::AABox GLWidget::calculateViewingVolume (
 
 void GLWidget::projectionTransform (ViewNumber::Enum viewNumber) const
 {
-    const ViewSettings& vs = *GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     double xOverY = getViewXOverY ();
     G3D::AABox viewingVolume = calculateViewingVolume (
 	viewNumber, xOverY, vs.GetScaleRatio ());
@@ -689,7 +697,7 @@ void GLWidget::projectionTransform (ViewNumber::Enum viewNumber) const
 void GLWidget::viewportTransform (ViewNumber::Enum viewNumber) const
 {
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
-    ViewSettings& vs = *GetViewSettings (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetViewport (viewRect);
     glViewport (vs.GetViewport ());
 }
@@ -805,7 +813,7 @@ void GLWidget::rotate3D () const
      */
     const static G3D::Matrix3 evolverAxes (0, 1, 0,  0, 0, 1,  1, 0, 0);
     glMultMatrix (evolverAxes);
-    const Foam& foam = *GetFoamAlongTime ().GetFoam (0);
+    const Foam& foam = GetFoamAlongTime ().GetFoam (0);
     glMultMatrix (foam.GetViewMatrix ().approxCoordinateFrame ().rotation);
 }
 
@@ -813,7 +821,7 @@ void GLWidget::rotate3D () const
 void GLWidget::ResetTransformation ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = *GetViewSettings ();
+    ViewSettings& vs = GetViewSettings ();
     vs.SetRotationModel (G3D::Matrix3::identity ());
     vs.SetScaleRatio (1);
     vs.SetContextScaleRatio (1);
@@ -824,7 +832,7 @@ void GLWidget::ResetTransformation ()
 
 void GLWidget::ResetSelectedLightNumber ()
 {
-    ViewSettings& vs = *GetViewSettings ();
+    ViewSettings& vs = GetViewSettings ();
     LightNumber::Enum lightNumber = vs.GetSelectedLight ();
     vs.SetInitialLightPosition (lightNumber);
     vs.PositionLight (lightNumber, getInitialLightPosition (lightNumber));
@@ -904,7 +912,7 @@ void GLWidget::InfoFocus ()
 	    ostr << "Selected ids: ";
 	    ostream_iterator<size_t> out (ostr, " ");
 	    copy (ids.begin (), ids.end (), out);
-	    if (GetViewSettings ()->GetBodyProperty () != 
+	    if (GetViewSettings ().GetBodyProperty () != 
 		BodyProperty::NONE)
 	    {
 		ostr << endl;
@@ -934,8 +942,8 @@ void GLWidget::ColorBarEdit ()
 
 void GLWidget::ColorBarClampClear ()
 {
-    boost::shared_ptr<ViewSettings> vs = GetViewSettings ();
-    boost::shared_ptr<ColorBarModel> colorBarModel = vs->GetColorBarModel ();
+    ViewSettings& vs = GetViewSettings ();
+    boost::shared_ptr<ColorBarModel> colorBarModel = vs.GetColorBarModel ();
     colorBarModel->SetClampClear ();
     Q_EMIT ColorBarModelChanged (colorBarModel);
 }
@@ -979,7 +987,7 @@ void GLWidget::displayViews ()
 
 void GLWidget::displayView (ViewNumber::Enum viewNumber)
 {
-    ViewSettings& vs = *GetViewSettings (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetLightingParameters (getInitialLightPosition (vs.GetSelectedLight ()));
     viewportTransform (viewNumber);    
     projectionTransform (viewNumber);
@@ -1013,7 +1021,7 @@ void GLWidget::resizeGL(int w, int h)
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	ViewSettings& vs = *GetViewSettings (viewNumber);
+	ViewSettings& vs = GetViewSettings (viewNumber);
 	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
 	{
 	    pair<double, double> minMax = getStatisticsMinMax (viewNumber);
@@ -1050,7 +1058,7 @@ G3D::Matrix3 GLWidget::rotate (ViewNumber::Enum viewNumber,
 			       const QPoint& position, const G3D::Matrix3& r)
 {
     G3D::Matrix3 rotate = r;
-    const G3D::Rect2D& viewport = GetViewSettings (viewNumber)->GetViewport ();
+    const G3D::Rect2D& viewport = GetViewSettings (viewNumber).GetViewport ();
     int dx = position.x() - m_lastPos.x();
     int dy = position.y() - m_lastPos.y();
 
@@ -1068,7 +1076,7 @@ void GLWidget::translate (
     G3D::Vector3::Axis screenXTranslation,
     G3D::Vector3::Axis screenYTranslation)
 {
-    ViewSettings& vs = *GetViewSettings (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
     G3D::Vector3 translationRatio;
     translationRatio[screenXTranslation] =
 	static_cast<double>(position.x() - m_lastPos.x()) /
@@ -1092,7 +1100,7 @@ void GLWidget::translate (
 
 void GLWidget::scale (ViewNumber::Enum viewNumber, const QPoint& position)
 {
-    ViewSettings& vs = *GetViewSettings (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
     double ratio = ratioFromCenter (position);
     if (vs.IsContextView ())
 	vs.SetScaleRatio (vs.GetScaleRatio () / ratio);
@@ -1103,7 +1111,7 @@ void GLWidget::scale (ViewNumber::Enum viewNumber, const QPoint& position)
 void GLWidget::scaleContext (
     ViewNumber::Enum viewNumber, const QPoint& position)
 {
-    ViewSettings& vs = *GetViewSettings (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
     double ratio = ratioFromCenter (position);
     vs.SetContextScaleRatio (vs.GetContextScaleRatio () * ratio);
 }
@@ -1139,7 +1147,7 @@ G3D::Vector3 GLWidget::objectPosition (const QPoint& position) const
 
 void GLWidget::displayStationaryBody (ViewNumber::Enum viewNumber) const
 {
-    const ViewSettings& vs = *GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     if (m_stationaryMarked && 
 	vs.GetStationaryType () == ViewSettings::STATIONARY_BODY)
     {
@@ -1150,13 +1158,20 @@ void GLWidget::displayStationaryBody (ViewNumber::Enum viewNumber) const
     }
 }
 
-void GLWidget::displayStationaryConstraint (ViewNumber::Enum view) const
+void GLWidget::displayStationaryConstraint (
+    ViewNumber::Enum view,
+    bool adjustForContextStationaryFoam) const
 {
-    const ViewSettings& vs = *GetViewSettings (view);
+    const ViewSettings& vs = GetViewSettings (view);
     ViewSettings::StationaryType type = vs.GetStationaryType ();
     if (m_stationaryMarked && type == ViewSettings::STATIONARY_CONSTRAINT)
     {
 	glPushAttrib (GL_ENABLE_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
+	if (adjustForContextStationaryFoam)
+	{
+	    glPushMatrix ();
+	    rotateStationaryConstraint (GetTimeStep (), -1);
+	}
 	glDisable (GL_DEPTH_TEST);
 	glLineWidth (HIGHLIGHT_LINE_WIDTH);
 	glColor (GetHighlightColor (view, HighlightNumber::H0));
@@ -1168,6 +1183,8 @@ void GLWidget::displayStationaryConstraint (ViewNumber::Enum view) const
 	    *this, DisplayElement::FOCUS, view);
 	BOOST_FOREACH (boost::shared_ptr<Edge> edge, constraintEdges)
 	    displayEdge (edge);
+	if (adjustForContextStationaryFoam)
+	    glPopMatrix ();
 	glPopAttrib ();
     }
 }
@@ -1175,8 +1192,8 @@ void GLWidget::displayStationaryConstraint (ViewNumber::Enum view) const
 
 void GLWidget::displayContextBodies (ViewNumber::Enum viewNumber) const
 {
-    boost::shared_ptr<ViewSettings> vs = GetViewSettings (viewNumber);
-    if (vs->GetContextDisplayBodySize () > 0)
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    if (vs.GetContextDisplayBodySize () > 0)
     {
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	Foam::Bodies contextBodies (bodies.size ());
@@ -1191,15 +1208,24 @@ void GLWidget::displayContextBodies (ViewNumber::Enum viewNumber) const
     }
 }
 
-void GLWidget::displayContextStationaryFoam (ViewNumber::Enum viewNumber) const
+void GLWidget::displayContextStationaryFoam (
+    ViewNumber::Enum viewNumber,
+    bool adjustForContextStationaryFoam) const
 {
-    const ViewSettings& vs = *GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     ViewSettings::ContextStationaryType type = vs.GetContextStationaryType ();
     if (type == ViewSettings::CONTEXT_STATIONARY_FOAM)
     {
+	if (adjustForContextStationaryFoam)
+	{
+	    glPushMatrix ();
+	    rotateStationaryConstraint (GetTimeStep (), -1);
+	}
 	DisplayBox (GetFoamAlongTime (), GetHighlightColor (
 			viewNumber, HighlightNumber::H1), 
 		    HIGHLIGHT_LINE_WIDTH);
+	if (adjustForContextStationaryFoam)
+	    glPopMatrix ();
     }
 }
 
@@ -1207,7 +1233,7 @@ void GLWidget::displayContextStationaryFoam (ViewNumber::Enum viewNumber) const
 string GLWidget::getStationaryLabel ()
 {
     ostringstream ostr;
-    const ViewSettings& vs = *GetViewSettings ();
+    const ViewSettings& vs = GetViewSettings ();
     ViewSettings::StationaryType type = vs.GetStationaryType ();
     switch (type)
     {
@@ -1226,7 +1252,7 @@ string GLWidget::getStationaryLabel ()
 string GLWidget::getContextLabel ()
 {
     ostringstream ostr;
-    const ViewSettings& vs = *GetViewSettings ();
+    const ViewSettings& vs = GetViewSettings ();
     size_t count = vs.GetContextDisplayBodySize ();
     if (count != 0)
 	ostr << "Context (" << count << ")";
@@ -1236,7 +1262,7 @@ string GLWidget::getContextLabel ()
 string GLWidget::getContextStationaryLabel ()
 {
     ostringstream ostr;
-    const ViewSettings& vs = *GetViewSettings ();
+    const ViewSettings& vs = GetViewSettings ();
     ViewSettings::ContextStationaryType type = vs.GetContextStationaryType ();
     if (type == ViewSettings::CONTEXT_STATIONARY_FOAM)
 	ostr << "Context stationary foam";
@@ -1286,14 +1312,13 @@ void GLWidget::setLabel ()
 
 void GLWidget::StationaryBody ()
 {
-    ViewSettings& vs = *GetViewSettings ();
+    ViewSettings& vs = GetViewSettings ();
     vector<size_t> bodies;
     brushedBodies (m_contextMenuPos, &bodies);
     if (bodies.size () != 0)
     {
 	vs.SetStationaryType (ViewSettings::STATIONARY_BODY);
 	vs.SetStationaryBodyId (bodies[0]);
-	vs.SetStationaryTimeStep (m_timeStep);
 	setLabel ();
 	update ();
     }
@@ -1307,12 +1332,11 @@ void GLWidget::StationaryBody ()
 
 void GLWidget::StationaryConstraint ()
 {
-    ViewSettings& vs = *GetViewSettings ();
+    ViewSettings& vs = GetViewSettings ();
     if (GetFoamAlongTime ().ConstraintRotationNamesUsed ())
     {
 	vs.SetStationaryType (ViewSettings::STATIONARY_CONSTRAINT);
 	vs.SetStationaryBodyId (INVALID_INDEX);
-	vs.SetStationaryTimeStep (m_timeStep);
 	setLabel ();
 	update ();
     }
@@ -1326,17 +1350,16 @@ void GLWidget::StationaryConstraint ()
 
 void GLWidget::StationaryReset ()
 {
-    ViewSettings& vs = *GetViewSettings ();
+    ViewSettings& vs = GetViewSettings ();
     vs.SetStationaryType (ViewSettings::STATIONARY_NONE);
     vs.SetStationaryBodyId (INVALID_INDEX);
-    vs.SetStationaryTimeStep (0);
     setLabel ();
     update ();
 }
 
 void GLWidget::ContextDisplayBody ()
 {
-    ViewSettings& vs = *GetViewSettings ();
+    ViewSettings& vs = GetViewSettings ();
     vector<size_t> bodies;
     brushedBodies (m_contextMenuPos, &bodies);
     vs.AddContextDisplayBody (bodies[0]);
@@ -1346,7 +1369,7 @@ void GLWidget::ContextDisplayBody ()
 
 void GLWidget::ContextDisplayReset ()
 {
-    ViewSettings& vs = *GetViewSettings ();
+    ViewSettings& vs = GetViewSettings ();
     vs.ContextDisplayReset ();
     setLabel ();
     update ();
@@ -1354,7 +1377,7 @@ void GLWidget::ContextDisplayReset ()
 
 void GLWidget::ContextStationaryFoam ()
 {
-    ViewSettings& vs = *GetViewSettings ();
+    ViewSettings& vs = GetViewSettings ();
     vs.SetContextStationaryType (ViewSettings::CONTEXT_STATIONARY_FOAM);
     setLabel ();
     update ();
@@ -1362,7 +1385,7 @@ void GLWidget::ContextStationaryFoam ()
 
 void GLWidget::ContextStationaryReset ()
 {
-    ViewSettings& vs = *GetViewSettings ();
+    ViewSettings& vs = GetViewSettings ();
     vs.SetContextStationaryType (ViewSettings::CONTEXT_STATIONARY_NONE);
     setLabel ();
     update ();
@@ -1388,7 +1411,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     {
     case InteractionMode::ROTATE:
     {
-	ViewSettings& vs = *GetViewSettings ();
+	ViewSettings& vs = GetViewSettings ();
 	vs.SetRotationModel (
 	    rotate (GetViewNumber (), event->pos (), vs.GetRotationModel ()));
 	break;
@@ -1413,7 +1436,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 
     case InteractionMode::ROTATE_LIGHT:
     {
-	ViewSettings& vs = *GetViewSettings ();
+	ViewSettings& vs = GetViewSettings ();
 	LightNumber::Enum i = vs.GetSelectedLight ();
 	vs.SetRotationLight (
 	    i, 
@@ -1423,7 +1446,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     }
     case InteractionMode::TRANSLATE_LIGHT:
     {
-	ViewSettings& vs = *GetViewSettings ();
+	ViewSettings& vs = GetViewSettings ();
 	LightNumber::Enum i = vs.GetSelectedLight ();
 	vs.PositionLight (i, getInitialLightPosition (i));
 	translateLight (GetViewNumber (), event->pos ());
@@ -1477,7 +1500,7 @@ void GLWidget::displayOriginalDomain () const
  */
 void GLWidget::displayFocusBox (ViewNumber::Enum viewNumber) const
 {
-    const ViewSettings& vs = *GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsContextView ())
     {
 	G3D::Rect2D viewRect = GetViewRect (viewNumber);
@@ -1502,7 +1525,7 @@ void GLWidget::displayFocusBox (ViewNumber::Enum viewNumber) const
 
 void GLWidget::displayBoundingBox (ViewNumber::Enum viewNumber) const
 {
-    const ViewSettings& vs = *GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
     if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
@@ -1581,7 +1604,7 @@ void GLWidget::displayStandaloneEdges (bool useZPos, double zPos) const
 
 void GLWidget::displayEdgesNormal (ViewNumber::Enum viewNumber) const
 {
-    const ViewSettings& vs = *GetViewSettings (viewNumber);    
+    const ViewSettings& vs = GetViewSettings (viewNumber);    
     glPushAttrib (GL_ENABLE_BIT);
     if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
@@ -1595,7 +1618,7 @@ void GLWidget::displayT1s (ViewNumber::Enum view) const
 {
     if (m_t1sShown)
     {
-	if (ViewType::IsGlobal (GetViewSettings ()->GetViewType ()))
+	if (ViewType::IsGlobal (GetViewSettings ().GetViewType ()))
 	    displayT1sGlobal (view);
 	else
 	    displayT1s (view, GetTimeStep ());
@@ -1627,7 +1650,7 @@ QColor GLWidget::GetHighlightColor (
     ViewNumber::Enum viewNumber, HighlightNumber::Enum highlight) const
 {
     boost::shared_ptr<ColorBarModel> colorBarModel = 
-	GetViewSettings (viewNumber)->GetColorBarModel ();
+	GetViewSettings (viewNumber).GetColorBarModel ();
     if (colorBarModel)
 	return colorBarModel->GetHighlightColor (highlight);
     else
@@ -1693,7 +1716,7 @@ void GLWidget::displayBodyCenters (bool useZPos) const
 {
     if (m_bodyCenterShown)
     {
-	double zPos = (GetViewSettings ()->GetViewType () == 
+	double zPos = (GetViewSettings ().GetViewType () == 
 		       ViewType::CENTER_PATHS) ?
 	    GetTimeStep () * GetTimeDisplacement () : 0;
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
@@ -1736,7 +1759,7 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum view) const
 pair<double, double> GLWidget::getStatisticsMinMax (ViewNumber::Enum view) const
 {
     double minValue, maxValue;
-    if (GetViewSettings (view)->GetStatisticsType () == StatisticsType::COUNT)
+    if (GetViewSettings (view).GetStatisticsType () == StatisticsType::COUNT)
     {
 	minValue = 0;
 	maxValue = GetFoamAlongTime ().GetTimeSteps ();
@@ -1744,9 +1767,9 @@ pair<double, double> GLWidget::getStatisticsMinMax (ViewNumber::Enum view) const
     else
     {
 	minValue = GetFoamAlongTime ().GetMin (
-	    GetViewSettings (view)->GetBodyProperty ());
+	    GetViewSettings (view).GetBodyProperty ());
 	maxValue = GetFoamAlongTime ().GetMax (
-	    GetViewSettings (view)->GetBodyProperty ());
+	    GetViewSettings (view).GetBodyProperty ());
     }
     return pair<double, double> (minValue, maxValue);
 }
@@ -1754,20 +1777,38 @@ pair<double, double> GLWidget::getStatisticsMinMax (ViewNumber::Enum view) const
 
 void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
 {
-    boost::shared_ptr<ViewSettings> view = GetViewSettings (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
     glPushAttrib (GL_ENABLE_BIT);    
     glDisable (GL_DEPTH_TEST);
-    glBindTexture (GL_TEXTURE_1D, 
-		   GetViewSettings (viewNumber)->GetColorBarTexture ());
+    glBindTexture (GL_TEXTURE_1D, vs.GetColorBarTexture ());
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
-    view->GetDisplayFaceStatistics ()->Display (
-	GetViewRect (viewNumber),
-	minMax.first, minMax.second, view->GetStatisticsType ());
+    bool adjustForContextStationaryFoam = 
+	(GetViewSettings (viewNumber).GetContextStationaryType () == 
+	 ViewSettings::CONTEXT_STATIONARY_FOAM);
+    if (adjustForContextStationaryFoam)
+    {
+	const ConstraintRotation& rotationBegin = GetFoamAlongTime ().
+	    GetFoam (0).GetConstraintRotation ();
+	const ConstraintRotation& rotationCurrent = GetFoamAlongTime ().
+	    GetFoam (GetTimeStep ()).GetConstraintRotation ();
+	G3D::Vector3 rc = G3D::Vector3 (rotationBegin.m_center, 0.0);
+	G3D::Vector2 rotationCenter = gluProject (rc).xy ();
+	float angleDegrees = G3D::toDegrees (
+	    rotationCurrent.m_angle - rotationBegin.m_angle);
+	vs.GetDisplayFaceStatistics ()->DisplayAndRotate (
+	    GetViewRect (viewNumber),
+	    minMax.first, minMax.second, vs.GetStatisticsType (),
+	    rotationCenter, - angleDegrees);
+    }
+    else
+	vs.GetDisplayFaceStatistics ()->Display (
+	    GetViewRect (viewNumber),
+	    minMax.first, minMax.second, vs.GetStatisticsType ());
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
     displayStationaryBody (viewNumber);
-    displayStationaryConstraint (viewNumber);
+    displayStationaryConstraint (viewNumber, adjustForContextStationaryFoam);
     displayContextBodies (viewNumber);
-    displayContextStationaryFoam (viewNumber);
+    displayContextStationaryFoam (viewNumber, adjustForContextStationaryFoam);
     glPopAttrib ();
 }
 
@@ -1836,7 +1877,7 @@ void GLWidget::displayFacesInterior (
     //texture mapping?
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glBindTexture (GL_TEXTURE_1D, 
-		   GetViewSettings (view)->GetColorBarTexture ());
+		   GetViewSettings (view).GetColorBarTexture ());
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<DisplayFaceBodyPropertyColor<> > (
 		  *this, *m_bodySelector, 
@@ -1886,7 +1927,7 @@ void GLWidget::displayFacesTorusLines () const
 
 void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum view) const
 {
-    const ViewSettings& vs = *GetViewSettings (view);
+    const ViewSettings& vs = GetViewSettings (view);
     glLineWidth (1.0);
     displayCenterPaths (view);
     
@@ -1919,12 +1960,12 @@ void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum view) const
 
 void GLWidget::displayCenterPaths (ViewNumber::Enum view) const
 {
-    glCallList (GetViewSettings (view)->GetListCenterPaths ());
+    glCallList (GetViewSettings (view).GetListCenterPaths ());
 }
 
 void GLWidget::compile (ViewNumber::Enum view) const
 {
-    switch (GetViewSettings (view)->GetViewType ())
+    switch (GetViewSettings (view).GetViewType ())
     {
     case ViewType::CENTER_PATHS:
 	compileCenterPaths (view);
@@ -1936,11 +1977,11 @@ void GLWidget::compile (ViewNumber::Enum view) const
 
 void GLWidget::compileCenterPaths (ViewNumber::Enum view) const
 {
-    glNewList (GetViewSettings (view)->GetListCenterPaths (), GL_COMPILE);
+    glNewList (GetViewSettings (view).GetListCenterPaths (), GL_COMPILE);
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT | 
 		  GL_POLYGON_BIT | GL_LINE_BIT);
     glEnable(GL_TEXTURE_1D);
-    glBindTexture (GL_TEXTURE_1D, GetViewSettings (view)->GetColorBarTexture ());
+    glBindTexture (GL_TEXTURE_1D, GetViewSettings (view).GetColorBarTexture ());
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glEnable (GL_CULL_FACE);
 
@@ -1977,7 +2018,7 @@ void GLWidget::compileCenterPaths (ViewNumber::Enum view) const
 
 void GLWidget::DisplayViewType (ViewNumber::Enum view) const
 {
-    (this->*(m_viewTypeDisplay[GetViewSettings (view)->GetViewType ()])) (view);
+    (this->*(m_viewTypeDisplay[GetViewSettings (view).GetViewType ()])) (view);
 }
 
 bool GLWidget::IsDisplayedBody (size_t bodyId) const
@@ -2005,12 +2046,12 @@ bool GLWidget::IsDisplayedEdge (size_t oeI) const
 
 const Foam& GLWidget::GetCurrentFoam () const
 {
-    return *GetFoamAlongTime ().GetFoam (m_timeStep);
+    return GetFoamAlongTime ().GetFoam (m_timeStep);
 }
 
 Foam& GLWidget::GetCurrentFoam ()
 {
-    return *GetFoamAlongTime ().GetFoam (m_timeStep);
+    return GetFoamAlongTime ().GetFoam (m_timeStep);
 }
 
 
@@ -2041,7 +2082,7 @@ boost::shared_ptr<Body> GLWidget::GetSelectedBody () const
 
 size_t GLWidget::GetSelectedBodyId () const
 {
-    return GetFoamAlongTime ().GetFoam (0)->GetBody (
+    return GetFoamAlongTime ().GetFoam (0).GetBody (
 	m_selectedBodyIndex)->GetId ();
 }
 
@@ -2083,7 +2124,7 @@ void GLWidget::setLight (int sliderValue, int maximumValue,
 			 LightType::Enum lightType, 
 			 ColorNumber::Enum colorNumber)
 {
-    ViewSettings& vs = *GetViewSettings ();
+    ViewSettings& vs = GetViewSettings ();
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     vs.SetLight (selectedLight, lightType, colorNumber,  
 		 double(sliderValue) / maximumValue);
@@ -2095,13 +2136,13 @@ void GLWidget::setLight (int sliderValue, int maximumValue,
 
 bool GLWidget::isColorBarUsed (ViewNumber::Enum view) const
 {
-    boost::shared_ptr<ViewSettings> vs = GetViewSettings (view);
-    switch (vs->GetViewType ())
+    ViewSettings& vs = GetViewSettings (view);
+    switch (vs.GetViewType ())
     {
     case ViewType::FACES:
     case ViewType::FACES_STATISTICS:
     case ViewType::CENTER_PATHS:
-	return vs->GetBodyProperty () != BodyProperty::NONE;
+	return vs.GetBodyProperty () != BodyProperty::NONE;
     default:
 	return false;
     }
@@ -2126,13 +2167,13 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	if (ViewCount::GetCount (m_viewCount) > 1)
 	{
 	    BodyProperty::Enum currentBodyProperty = 
-		GetViewSettings ()->GetBodyProperty ();
+		GetViewSettings ().GetBodyProperty ();
 	    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
 	    {
 		ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 		if (viewNumber == m_viewNumber ||
 		    currentBodyProperty != 
-		    GetViewSettings (viewNumber)->GetBodyProperty ())
+		    GetViewSettings (viewNumber).GetBodyProperty ())
 		    continue;
 		menuCopy.addAction (m_actionCopyColorBar[i].get ());
 		actions = true;
@@ -2200,7 +2241,7 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 
 void GLWidget::displayViewDecorations (ViewNumber::Enum view)
 {
-    const ViewSettings& vs = *GetViewSettings (view);
+    const ViewSettings& vs = GetViewSettings (view);
     glPushAttrib (
 	GL_POLYGON_BIT | GL_CURRENT_BIT | 
 	GL_VIEWPORT_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT);
@@ -2239,12 +2280,12 @@ void GLWidget::displayViewTitle (const G3D::Rect2D& viewRect,
     QFont font;
     if (viewNumber == m_viewNumber)
 	font.setUnderline (true);
-    boost::shared_ptr<ViewSettings> vs = GetViewSettings (viewNumber);
+    ViewSettings& vs = GetViewSettings (viewNumber);
     ostringstream ostr;
     ostr << "View " << viewNumber << " - " <<
 	(isColorBarUsed (viewNumber) ? 
-	 BodyProperty::ToString (vs->GetBodyProperty ()) :
-	 ViewType::ToString (vs->GetViewType ()));
+	 BodyProperty::ToString (vs.GetBodyProperty ()) :
+	 ViewType::ToString (vs.GetViewType ()));
     QString text = QString (ostr.str ().c_str ());
     QFontMetrics fm (font);
     const int textX = 
@@ -2282,7 +2323,7 @@ void GLWidget::displayTextureColorBar (
     glEnable(GL_TEXTURE_1D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glBindTexture (GL_TEXTURE_1D, 
-		   GetViewSettings (viewNumber)->GetColorBarTexture ());
+		   GetViewSettings (viewNumber).GetColorBarTexture ());
     
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glBegin (GL_QUADS);
@@ -2372,7 +2413,7 @@ bool GLWidget::IsTimeDisplacementUsed () const
 
 BodyProperty::Enum GLWidget::GetBodyProperty (ViewNumber::Enum viewNumber) const
 {
-    return GetViewSettings (viewNumber)->GetBodyProperty ();
+    return GetViewSettings (viewNumber).GetBodyProperty ();
 }
 
 void GLWidget::SetPlayMovie (bool playMovie)
@@ -2514,7 +2555,7 @@ void GLWidget::SetBodySelector (
 
 void GLWidget::ToggledDirectionalLightEnabled (bool checked)
 {
-    ViewSettings& vs = *GetViewSettings ();
+    ViewSettings& vs = GetViewSettings ();
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     vs.SetDirectionalLightEnabled (selectedLight, checked);
     vs.PositionLight (selectedLight, getInitialLightPosition (selectedLight));
@@ -2530,7 +2571,7 @@ void GLWidget::ToggledZeroedPressureShown (bool checked)
 
 void GLWidget::ToggledLightNumberShown (bool checked)
 {
-    ViewSettings& vs = *GetViewSettings ();
+    ViewSettings& vs = GetViewSettings ();
     vs.SetLightPositionShown (vs.GetSelectedLight (), checked);
     update ();
 }
@@ -2538,7 +2579,7 @@ void GLWidget::ToggledLightNumberShown (bool checked)
 void GLWidget::ToggledLightEnabled (bool checked)
 {
     makeCurrent ();
-    ViewSettings& vs = *GetViewSettings ();
+    ViewSettings& vs = GetViewSettings ();
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     vs.SetLightEnabled (selectedLight, checked);
     vs.EnableLighting ();
@@ -2569,7 +2610,7 @@ void GLWidget::ToggledBodiesBoundingBoxesShown (bool checked)
 
 void GLWidget::ToggledContextView (bool checked)
 {
-    ViewSettings& vs = *GetViewSettings ();
+    ViewSettings& vs = GetViewSettings ();
     vs.SetContextView (checked);
     update ();
 }
@@ -2713,7 +2754,7 @@ void GLWidget::ToggledCenterPath (bool checked)
 
 void GLWidget::CurrentIndexChangedSelectedLight (int selectedLight)
 {
-    ViewSettings& vs = *GetViewSettings ();
+    ViewSettings& vs = GetViewSettings ();
     vs.SetSelectedLight (LightNumber::Enum (selectedLight));
 }
 
@@ -2728,7 +2769,7 @@ void GLWidget::CurrentIndexChangedViewCount (int index)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	G3D::Rect2D viewRect = GetViewRect (viewNumber);
-	ViewSettings& vs = *GetViewSettings (viewNumber);
+	ViewSettings& vs = GetViewSettings (viewNumber);
 	vs.CalculateCameraDistance (
 	    calculateCenteredViewingVolume (
 		viewRect.width () / viewRect.height (), vs.GetScaleRatio ()));
@@ -2753,23 +2794,23 @@ void GLWidget::ToggledFacesStatistics (bool checked)
     if (checked)
     {
 	pair<double, double> minMax = getStatisticsMinMax (GetViewNumber ());
-	GetViewSettings ()->GetDisplayFaceStatistics ()->InitStep (
+	GetViewSettings ().GetDisplayFaceStatistics ()->InitStep (
 	    GetViewNumber (), minMax.first, minMax.second);
     }
     else
-	GetViewSettings ()->GetDisplayFaceStatistics ()->Release ();
+	GetViewSettings ().GetDisplayFaceStatistics ()->Release ();
     changeViewType (checked, ViewType::FACES_STATISTICS);
 }
 
 void GLWidget::CurrentIndexChangedStatisticsType (int index)
 {
-    GetViewSettings ()->SetStatisticsType (StatisticsType::Enum(index));
+    GetViewSettings ().SetStatisticsType (StatisticsType::Enum(index));
     update ();
 }
 
 void GLWidget::CurrentIndexChangedAxesOrder (int index)
 {
-    GetViewSettings ()->SetAxesOrder (AxesOrder::Enum(index));
+    GetViewSettings ().SetAxesOrder (AxesOrder::Enum(index));
 }
 
 // @todo add a color bar model for BodyProperty::None
@@ -2779,12 +2820,12 @@ void GLWidget::SetBodyProperty (
 {
     makeCurrent ();
     ViewNumber::Enum view = GetViewNumber ();
-    boost::shared_ptr<ViewSettings> vs = GetViewSettings ();
-    vs->SetBodyProperty (property);
-    if (vs->GetBodyProperty () != BodyProperty::NONE)
-	GetViewSettings ()->SetColorBarModel (colorBarModel);
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetBodyProperty (property);
+    if (vs.GetBodyProperty () != BodyProperty::NONE)
+	GetViewSettings ().SetColorBarModel (colorBarModel);
     else
-	vs->ResetColorBarModel ();
+	vs.ResetColorBarModel ();
     compile (view);
     update ();
 }
@@ -2792,7 +2833,7 @@ void GLWidget::SetBodyProperty (
 void GLWidget::SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel)
 {
     makeCurrent ();
-    GetViewSettings ()->SetColorBarModel (colorBarModel);
+    GetViewSettings ().SetColorBarModel (colorBarModel);
     update ();
 }
 
@@ -2804,11 +2845,11 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
 	ViewNumber::Enum view = ViewNumber::Enum (i);
-	boost::shared_ptr<ViewSettings> vs = GetViewSettings (view);
-	if (vs->GetViewType () == ViewType::FACES_STATISTICS)
+	ViewSettings& vs = GetViewSettings (view);
+	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
 	{
 	    pair<double, double> minMax = getStatisticsMinMax (view);
-	    vs->GetDisplayFaceStatistics ()->Step (
+	    vs.GetDisplayFaceStatistics ()->Step (
 		view, minMax.first, minMax.second, direction);
 	}
     }
@@ -2817,7 +2858,7 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 
 void GLWidget::ValueChangedStatisticsHistory (int timeSteps)
 {
-    GetViewSettings ()->GetDisplayFaceStatistics ()->SetHistoryCount (
+    GetViewSettings ().GetDisplayFaceStatistics ()->SetHistoryCount (
 	timeSteps);
 }
 
@@ -2922,7 +2963,7 @@ void GLWidget::ValueChangedLightSpecularBlue (int sliderValue)
 void GLWidget::ValueChangedAngleOfView (int angleOfView)
 {
     G3D::Rect2D viewRect = GetViewRect ();
-    ViewSettings& vs = *GetViewSettings ();
+    ViewSettings& vs = GetViewSettings ();
     vs.SetAngleOfView (angleOfView);
     vs.CalculateCameraDistance (
 	calculateCenteredViewingVolume (
@@ -2942,16 +2983,15 @@ void GLWidget::InfoOpenGL ()
 
 void GLWidget::CopyTransformationsFrom (int viewNumber)
 {
-    GetViewSettings ()->CopyTransformations (
-	*GetViewSettings (ViewNumber::Enum (viewNumber)));
+    GetViewSettings ().CopyTransformations (
+	GetViewSettings (ViewNumber::Enum (viewNumber)));
     update ();
 }
 
 void GLWidget::CopyColorBarFrom (int viewNumber)
 {
-    boost::shared_ptr<ViewSettings> vs = 
-	GetViewSettings (ViewNumber::Enum (viewNumber));
-    GetViewSettings ()->CopyColorBar (*vs);
-    Q_EMIT ColorBarModelChanged (GetViewSettings ()->GetColorBarModel ());
+    ViewSettings& vs = GetViewSettings (ViewNumber::Enum (viewNumber));
+    GetViewSettings ().CopyColorBar (vs);
+    Q_EMIT ColorBarModelChanged (GetViewSettings ().GetColorBarModel ());
 }
 

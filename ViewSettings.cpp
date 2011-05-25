@@ -41,7 +41,6 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_angleOfView (0),
     m_stationaryType (STATIONARY_NONE),
     m_stationaryBodyId (INVALID_INDEX),
-    m_stationaryTimeStep (0),
     m_contextView (false),
     m_contextScaleRatio (1),
     m_contextStationaryType (CONTEXT_STATIONARY_NONE)

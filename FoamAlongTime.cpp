@@ -203,7 +203,7 @@ void FoamAlongTime::CacheBodiesAlongTime ()
 
 bool FoamAlongTime::Is2D () const
 {
-    return GetFoam (0)->Is2D ();
+    return GetFoam (0).Is2D ();
 }
 
 const Body& FoamAlongTime::GetBody (size_t bodyId, size_t timeStep) const
@@ -225,9 +225,9 @@ string FoamAlongTime::ToString () const
 
 string FoamAlongTime::ToHtml () const
 {
-    const Foam& firstFoam = *GetFoam (0);
+    const Foam& firstFoam = GetFoam (0);
     size_t timeSteps = GetTimeSteps ();
-    const Foam& lastFoam = *GetFoam (timeSteps - 1);
+    const Foam& lastFoam = GetFoam (timeSteps - 1);
     size_t bodies[2] = 
 	{
 	    firstFoam.GetBodies ().size (), lastFoam.GetBodies ().size ()
@@ -288,9 +288,9 @@ void FoamAlongTime::GetTimeStepSelection (
 {
     for (size_t timeStep = 0; timeStep < GetTimeSteps (); ++timeStep)
     {
-	const boost::shared_ptr<const Foam>& foam = GetFoam (timeStep);
-	if (valueInterval.intersects (foam->GetRange (property))
-	    && foam->ExistsBodyWithValueIn (property, valueInterval))
+	const Foam& foam = GetFoam (timeStep);
+	if (valueInterval.intersects (foam.GetRange (property))
+	    && foam.ExistsBodyWithValueIn (property, valueInterval))
 	    (*timeStepSelection)[timeStep] = true;
     }
 }
@@ -307,7 +307,7 @@ size_t FoamAlongTime::GetMaxCountPerBinIndividual (
     size_t max = 0;
     for (size_t i = 0; i < size; ++i)
 	max = std::max (
-	    max, GetFoam (i)->GetHistogram (property).GetMaxCountPerBin ());
+	    max, GetFoam (i).GetHistogram (property).GetMaxCountPerBin ());
     return max;
 }
 

@@ -157,7 +157,7 @@ void MainWindow::connectSignals ()
 void MainWindow::ViewToUI ()
 {
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
-    const ViewSettings& vs = *widgetGl->GetViewSettings (viewNumber);
+    const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     BodyProperty::Enum property = vs.GetBodyProperty ();
     buttonGroupViewType->button (vs.GetViewType ())->setChecked (true);
@@ -238,10 +238,10 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 {
     if (foamAlongTime.GetTimeSteps () == 1)
 	sliderTimeSteps->setDisabled (true);
-    boost::shared_ptr<const Foam> foam = foamAlongTime.GetFoam (0);
+    const Foam& foam = foamAlongTime.GetFoam (0);
     if (foamAlongTime.T1sAvailable ())
 	checkBoxT1sShown->setEnabled (true);
-    if (! foam->IsTorus ())
+    if (! foam.IsTorus ())
     {
 	checkBoxTorusOriginalDomain->setDisabled (true);
 	checkBoxTorusOriginalDomainWrapInside->setDisabled (true);
@@ -250,7 +250,7 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
     }
     radioButtonFacesNormal->toggle ();
     tabWidget->setCurrentWidget (faces);
-    if (foam->Is2D ())
+    if (foam.Is2D ())
     {
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::TWO_D);
 	comboBoxInteractionMode->setCurrentIndex (InteractionMode::SCALE);	
@@ -578,7 +578,7 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 	SetAndDisplayHistogram (
 	    m_histogramType,
 	    property,
-	    foamAlongTime.GetFoam (timeStep)->GetHistogram (
+	    foamAlongTime.GetFoam (timeStep).GetHistogram (
 		property).ToQwtIntervalData (), 
 	    0,
 	    KEEP_SELECTION,
@@ -616,7 +616,7 @@ void MainWindow::ToggledCenterPath (bool checked)
 	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
 	labelCenterPathColor->setText (
 	    BodyProperty::ToString (
-		widgetGl->GetViewSettings ()->GetBodyProperty ()));
+		widgetGl->GetViewSettings ().GetBodyProperty ()));
     }
     else
 	stackedWidgetComposite->setCurrentWidget (pageCompositeEmpty);
@@ -705,7 +705,7 @@ void MainWindow::updateLightControls (
 
 void MainWindow::CurrentIndexChangedSelectedLight (int i)
 {
-    const ViewSettings& vs = *widgetGl->GetViewSettings ();
+    const ViewSettings& vs = widgetGl->GetViewSettings ();
     LightNumber::Enum lightNumber = LightNumber::Enum (i);
     updateLightControls (vs, lightNumber);
 }
@@ -738,7 +738,7 @@ void MainWindow::CurrentIndexChangedFacesColor (int value)
 	    SetAndDisplayHistogram (
 		m_histogramType,
 		property,
-		foamAlongTime.GetFoam (timeStep)->
+		foamAlongTime.GetFoam (timeStep).
 		GetHistogram (property).ToQwtIntervalData (),
 		foamAlongTime.GetMaxCountPerBinIndividual (property),
 		DISCARD_SELECTION, REPLACE_MAX_VALUE);
@@ -804,7 +804,7 @@ void MainWindow::ToggledFacesStatistics (bool checked)
 	stackedWidgetFaces->setCurrentWidget (pageFacesStatistics);
 	labelFacesStatisticsColor->setText (
 	    BodyProperty::ToString (
-		widgetGl->GetViewSettings ()->GetBodyProperty ()));
+		widgetGl->GetViewSettings ().GetBodyProperty ()));
 	ButtonClickedAllTimestepsHistogram (m_histogramType);
     }
     else
@@ -859,7 +859,7 @@ void MainWindow::ButtonClickedOneTimestepHistogram (int histogramType)
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     SetAndDisplayHistogram (
 	m_histogramType, widgetGl->GetBodyProperty (),
-	foamAlongTime.GetFoam (widgetGl->GetTimeStep ())->GetHistogram (
+	foamAlongTime.GetFoam (widgetGl->GetTimeStep ()).GetHistogram (
 	    widgetGl->GetBodyProperty ()).ToQwtIntervalData (),
 	foamAlongTime.GetMaxCountPerBinIndividual (
 	    widgetGl->GetBodyProperty ()), 
@@ -903,7 +903,7 @@ void MainWindow::ShowEditColorMap ()
 boost::shared_ptr<ColorBarModel> MainWindow::getCurrentColorBarModel () const
 {
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
-    if (widgetGl->GetViewSettings ()->GetStatisticsType () == 
+    if (widgetGl->GetViewSettings ().GetStatisticsType () == 
 	StatisticsType::COUNT)
 	return m_colorBarModelDomainHistogram[viewNumber];
     else
@@ -917,7 +917,7 @@ boost::shared_ptr<ColorBarModel> MainWindow::getCurrentColorBarModel () const
 MainWindow::HistogramInfo MainWindow::getCurrentHistogramInfo () const
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    if (widgetGl->GetViewSettings ()->GetStatisticsType () == 
+    if (widgetGl->GetViewSettings ().GetStatisticsType () == 
 	StatisticsType::COUNT)
     {
 	size_t fakeHistogramValue = 1;

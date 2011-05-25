@@ -18,10 +18,10 @@ void SetterValueTextureCoordinate::operator () (
     const boost::shared_ptr<Body>& body)
 {
     BodyProperty::Enum property = 
-	m_glWidget.GetViewSettings (m_viewNumber)->GetBodyProperty ();
+	m_glWidget.GetViewSettings (m_viewNumber).GetBodyProperty ();
     double value = body->GetPropertyValue (property);
     double texCoord = 
-	m_glWidget.GetViewSettings (m_viewNumber)->
+	m_glWidget.GetViewSettings (m_viewNumber).
 	GetColorBarModel ()->TexCoord (value);
     glTexCoord1f (texCoord); 
 }
@@ -33,7 +33,7 @@ void SetterValueTextureCoordinate::operator () ()
 
 BodyProperty::Enum SetterValueTextureCoordinate::GetBodyProperty () const
 {
-    return m_glWidget.GetViewSettings (m_viewNumber)->GetBodyProperty ();
+    return m_glWidget.GetViewSettings (m_viewNumber).GetBodyProperty ();
 }
 
 
@@ -49,6 +49,6 @@ void SetterValueVertexAttribute::operator () (
 void SetterValueVertexAttribute::operator () ()
 {
     double value = m_glWidget.GetViewSettings (
-	m_viewNumber)->GetColorBarModel ()->GetInterval ().minValue ();
+	m_viewNumber).GetColorBarModel ()->GetInterval ().minValue ();
     m_program->setAttributeValue (m_attributeIndex, value);
 }

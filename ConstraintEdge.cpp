@@ -204,14 +204,14 @@ ConstraintEdge::ConstraintEdge (
     const boost::shared_ptr<Vertex>& end) :
 
     ApproximationEdge (
-	begin, end, 
+	13, begin, end, 
 	G3D::Vector3int16(0, 0, 0), 0, ElementStatus::ORIGINAL),
     m_parsingData (parsingData)
 {
     m_parsingData->UnsetVariable ("x");
     m_parsingData->UnsetVariable ("y");
     cachePoints ();
-    fixPoints ();
+    //fixPoints ();
     SetAttribute<ColorAttribute, Color::Enum> (
 	EdgeAttributeIndex::COLOR, Color::RED);
 }
@@ -341,21 +341,19 @@ G3D::Vector3 ConstraintEdge::computePointMulti (
 	if (numberIterations == 0)
 	{
 	    *success = false;
-	    //cdbg << "Multi-root fail: # iterations,"
-	    //<< " constraint=" << constraintIndex << ", index=" << i << endl;
+	    cdbg << "Multi-root fail: # iterations,"
+		 << " constraint=" << constraintIndex << ", index=" << i << endl;
 	    return current;
 	}
 	else
 	{
 	    G3D::Vector3 result (gsl_vector_get (root, 0),
 				 gsl_vector_get (root, 1), 0);
-/*
-		cdbg << "Multi-root success, iterations " 
-		     << (NUMBER_ITERATIONS - numberIterations) << " " 
-		     << result
-		     << " constraint=" << constraintIndex 
-		     << ", index=" << i << endl;
-*/
+	    cdbg << "Multi-root success, iterations " 
+		 << (NUMBER_ITERATIONS - numberIterations) << " " 
+		 << result
+		 << " constraint=" << constraintIndex 
+		 << ", index=" << i << endl;
 	    *success = true;
 	    return result;
 	}
@@ -364,10 +362,8 @@ G3D::Vector3 ConstraintEdge::computePointMulti (
     else
     {
 	*success = false;
-/*
 	cdbg << "Multi-root fail: no solution, " 
 	     << " constraint=" << constraintIndex << ", index=" << i << endl;
-*/
 	return current;
     }
 }

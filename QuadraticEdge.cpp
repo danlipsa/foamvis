@@ -18,7 +18,7 @@ QuadraticEdge::QuadraticEdge (
     size_t id,
     ElementStatus::Enum duplicateStatus) :
 
-    ApproximationEdge (begin, end, endLocation, id, duplicateStatus),
+    ApproximationEdge (5, begin, end, endLocation, id, duplicateStatus),
     m_middle (middle)
 {
     cachePoints ();

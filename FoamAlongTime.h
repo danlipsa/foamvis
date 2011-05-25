@@ -57,14 +57,14 @@ public:
      * Gets the vector of Foam objects
      * @return vector of data objects
      */
-    boost::shared_ptr<Foam> GetFoam (size_t timeStep)
+    Foam& GetFoam (size_t timeStep)
     {
-	return m_foams[timeStep];
+	return *m_foams[timeStep];
     }
 
-    boost::shared_ptr<const Foam> GetFoam (size_t timeStep) const
+    const Foam& GetFoam (size_t timeStep) const
     {
-	return m_foams[timeStep];
+	return *m_foams[timeStep];
     }
 
     Foams& GetFoams ()

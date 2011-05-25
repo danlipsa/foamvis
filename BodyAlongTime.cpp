@@ -29,12 +29,12 @@ BodyAlongTime::BodyAlongTime (size_t timeSteps) :
 
 void BodyAlongTime::CalculateBodyWraps (const FoamAlongTime& foamAlongTime)
 {
-    if (foamAlongTime.GetFoam (0)->IsTorus ())
+    if (foamAlongTime.GetFoam (0).IsTorus ())
     {
 	for (size_t time = 0; time < (m_bodyAlongTime.size () - 1); time++)
 	{
 	    const OOBox& originalDomain = 
-		foamAlongTime.GetFoam (time+1)->GetOriginalDomain ();
+		foamAlongTime.GetFoam (time+1).GetOriginalDomain ();
 	    G3D::Vector3int16 translation;
 	    const G3D::Vector3& begin = m_bodyAlongTime[time]->GetCenter ();
 	    const G3D::Vector3& end = m_bodyAlongTime[time + 1]->GetCenter ();
