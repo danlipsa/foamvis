@@ -10,10 +10,82 @@
 #include "DebugStream.h"
 #include "Foam.h"
 #include "FoamAlongTime.h"
+#include "ParsingData.h"
 #include "Utils.h"
 
-// Private Functions
+// Private Functions and classes
 // ======================================================================
+QString lastName (const QString& path)
+{
+    int slashPos = path.lastIndexOf ('/');
+    QString ret = path;
+    return ret.remove (0, slashPos + 1);
+}
+
+/**
+ * Functor used to parse a DMP file
+ */
+class parseFile : public unary_function< QString, boost::shared_ptr<Foam> >
+{
+public:
+    /**
+     * Constructor
+     * @param data Where to store the data parsed from the DMP files
+     * @param dir directory where all DMP files are
+     */
+    parseFile (
+	QString dir, const ConstraintRotationNames& names, bool useOriginal,
+	bool debugParsing = false, bool debugScanning = false) : 
+
+        m_dir (qPrintable(dir)), m_names (names), 
+	m_useOriginal (useOriginal),
+	m_debugParsing (debugParsing),
+	m_debugScanning (debugScanning)
+    {
+    }
+    
+    /**
+     * Parses one file
+     * @param dmpFile name of the DMP file to be parsed.
+     */
+    boost::shared_ptr<Foam> operator () (QString dmpFile)
+    {
+	boost::shared_ptr<Foam> foam;
+	string file;
+	try
+	{
+	    int result;
+	    file = qPrintable (dmpFile);
+	    ostringstream ostr;
+	    ostr << "Parsing " << file << " ..." << endl;
+	    cdbg << ostr.str ();
+	    foam.reset (new Foam (m_useOriginal, m_names));
+	    foam->GetParsingData ().SetDebugParsing (m_debugParsing);
+	    foam->GetParsingData ().SetDebugScanning (m_debugScanning);
+	    string fullPath = m_dir + '/' + file;
+	    result = foam->GetParsingData ().Parse (fullPath, foam.get ());
+	    if (result != 0)
+		ThrowException ("Error parsing ", fullPath);
+	}
+	catch (const exception& e)
+	{
+	    cdbg << "Exception for " << file << ": "
+		 << e.what () << endl;
+	    foam.reset ();
+	}
+	return foam;
+    }
+private:
+    /**
+     * Directory that stores the DMP files.
+     */
+    const string m_dir;
+    const ConstraintRotationNames& m_names;
+    const bool m_useOriginal;
+    const bool m_debugParsing;
+    const bool m_debugScanning;
+};
+
 
 
 // Static Members
@@ -367,4 +439,37 @@ const vector<G3D::Vector3>& FoamAlongTime::GetT1s (size_t timeStep) const
 	return NO_T1S;
     else
 	return m_t1s[t];
+}
+
+void FoamAlongTime::ParseFiles (
+    const vector<string>& fileNames,
+    bool useOriginal,
+    bool debugParsing, bool debugScanning)
+{
+    QDir dir;
+    QStringList files;
+    string filePattern;
+    m_useOriginal = useOriginal;
+    QFileInfo fileInfo (fileNames[0].c_str ());
+    dir = fileInfo.absoluteDir ();
+    BOOST_FOREACH (const string& fn, fileNames)
+	files << QFileInfo(fn.c_str ()).fileName ();
+    filePattern = string (
+	(lastName (dir.absolutePath ()) + 
+	 '/' + fileInfo.fileName ()).toAscii ());
+
+    SetTimeSteps (files.size ());
+    SetFilePattern (filePattern);
+
+    QList< boost::shared_ptr<Foam> > foams = QtConcurrent::blockingMapped (
+	files,
+	parseFile (
+	    dir.absolutePath (), 
+	    GetConstraintRotationNames (), 
+	    OriginalUsed (),
+	    debugParsing, debugScanning));
+    if (count_if (foams.constBegin (), foams.constEnd (),
+		  bl::_1 != boost::shared_ptr<Foam>()) != foams.size ())
+	ThrowException ("Could not process all files\n");
+    copy (foams.constBegin (), foams.constEnd (), GetFoams ().begin ());
 }

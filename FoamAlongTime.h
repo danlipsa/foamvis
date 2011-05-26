@@ -174,11 +174,9 @@ public:
     {
 	return m_useOriginal;
     }
-    void UseOriginal (bool useOriginal)
-    {
-	m_useOriginal = useOriginal;
-    }
-
+    void ParseFiles (const vector<string>& fileNames,
+		     bool useOriginal,
+		     bool debugParsing, bool debugScanning);
 
 private:
     void fixConstraintPoints ();

@@ -97,72 +97,6 @@ always defined in the data file (it's not a duplicate).
  */
 
 
-
-/**
- * Functor used to parse a DMP file
- */
-class parseFile : public unary_function< QString, boost::shared_ptr<Foam> >
-{
-public:
-    /**
-     * Constructor
-     * @param data Where to store the data parsed from the DMP files
-     * @param dir directory where all DMP files are
-     */
-    parseFile (
-	QString dir, const ConstraintRotationNames& names, bool useOriginal,
-	bool debugParsing = false, bool debugScanning = false) : 
-
-        m_dir (qPrintable(dir)), m_names (names), 
-	m_useOriginal (useOriginal),
-	m_debugParsing (debugParsing),
-	m_debugScanning (debugScanning)
-    {
-    }
-    
-    /**
-     * Parses one file
-     * @param dmpFile name of the DMP file to be parsed.
-     */
-    boost::shared_ptr<Foam> operator () (QString dmpFile)
-    {
-	boost::shared_ptr<Foam> foam;
-	string file;
-	try
-	{
-	    int result;
-	    file = qPrintable (dmpFile);
-	    ostringstream ostr;
-	    ostr << "Parsing " << file << " ..." << endl;
-	    cdbg << ostr.str ();
-	    foam.reset (new Foam (m_useOriginal, m_names));
-	    foam->GetParsingData ().SetDebugParsing (m_debugParsing);
-	    foam->GetParsingData ().SetDebugScanning (m_debugScanning);
-	    string fullPath = m_dir + '/' + file;
-	    result = foam->GetParsingData ().Parse (fullPath, foam.get ());
-	    if (result != 0)
-		ThrowException ("Error parsing ", fullPath);
-	}
-	catch (const exception& e)
-	{
-	    cdbg << "Exception for " << file << ": "
-		 << e.what () << endl;
-	    foam.reset ();
-	}
-	return foam;
-    }
-private:
-    /**
-     * Directory that stores the DMP files.
-     */
-    const string m_dir;
-    const ConstraintRotationNames& m_names;
-    const bool m_useOriginal;
-    const bool m_debugParsing;
-    const bool m_debugScanning;
-};
-
-
 const char* optionName[] =
 {
     "constraint-rotation",
@@ -196,46 +130,6 @@ struct Option
     };
 };
 
-
-QString lastName (const QString& path)
-{
-    int slashPos = path.lastIndexOf ('/');
-    QString ret = path;
-    return ret.remove (0, slashPos + 1);
-}
-
-
-void parseFiles (const vector<string>& fileNames,
-		 FoamAlongTime* foamAlongTime,
-		 bool debugParsing, bool debugScanning)
-{
-    QDir dir;
-    QStringList files;
-    string filePattern;
-    QFileInfo fileInfo (fileNames[0].c_str ());
-    dir = fileInfo.absoluteDir ();
-    BOOST_FOREACH (const string& fn, fileNames)
-	files << QFileInfo(fn.c_str ()).fileName ();
-    filePattern = string (
-	(lastName (dir.absolutePath ()) + 
-	 '/' + fileInfo.fileName ()).toAscii ());
-
-    foamAlongTime->SetTimeSteps (files.size ());
-    foamAlongTime->SetFilePattern (filePattern);
-
-    QList< boost::shared_ptr<Foam> > foams = QtConcurrent::blockingMapped (
-	files,
-	parseFile (
-	    dir.absolutePath (), 
-	    foamAlongTime->GetConstraintRotationNames (), 
-	    foamAlongTime->OriginalUsed (),
-	    debugParsing, debugScanning));
-    if (count_if (foams.constBegin (), foams.constEnd (),
-		  bl::_1 != boost::shared_ptr<Foam>()) != foams.size ())
-	ThrowException ("Could not process all files\n");
-    copy (foams.constBegin (), foams.constEnd (),
-	  foamAlongTime->GetFoams ().begin ());
-}
 
 void validate(boost::any& v, const std::vector<std::string>& values,
               ConstraintRotationNames* ignore1, int ignore2)
@@ -369,15 +263,15 @@ int main(int argc, char *argv[])
 	parseOptions (argc, argv, 
 		      &t1sFile, &fileNames, &constraintRotationNames,
 		      &vm);
-	foamAlongTime.UseOriginal (
-	    vm.count (optionName[Option::USE_ORIGINAL]));
 	if (vm.count (optionName[Option::CONSTRAINT_ROTATION]))
 	    foamAlongTime.SetConstraintRotationNames (constraintRotationNames);
 
 	//readOptions (argc, argv, &options, &t1sFile);
-	parseFiles (fileNames, &foamAlongTime, 
-		    vm.count (optionName[Option::DEBUG_PARSING]), 
-		    vm.count (optionName[Option::DEBUG_SCANNING]));
+	foamAlongTime.ParseFiles (
+	    fileNames,
+	    vm.count (optionName[Option::USE_ORIGINAL]),
+	    vm.count (optionName[Option::DEBUG_PARSING]), 
+	    vm.count (optionName[Option::DEBUG_SCANNING]));
 	size_t timeSteps = foamAlongTime.GetTimeSteps ();
 	if (vm.count (optionName[Option::T1S]))
 	    foamAlongTime.ReadT1s (t1sFile, timeSteps);
