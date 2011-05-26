@@ -54,7 +54,7 @@ public:
     /**
      * Constructs a ParsingData object
      */
-    ParsingData (bool usingOriginal, const ConstraintRotationNames& names);
+    ParsingData (bool useOriginal, const ConstraintRotationNames& names);
 
     void AddAttribute (const char* s)
     {
@@ -258,9 +258,9 @@ public:
 	return m_constraints[i];
     }
 
-    bool IsUsingOriginal () const
+    bool OriginalUsed () const
     {
-	return m_usingOriginal;
+	return m_useOriginal;
     }
 
     const ConstraintRotationNames& GetConstraintRotationNames () const
@@ -322,7 +322,7 @@ private:
     bool m_spaceSignificant;
     size_t m_parenthesisCount;
     bool m_newLineSignificant;
-    bool m_usingOriginal;
+    bool m_useOriginal;
     ConstraintRotationNames m_names;
 
 private:

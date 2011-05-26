@@ -64,9 +64,9 @@ void compact (vector< boost::shared_ptr<E> >& v)
 // Methods
 // ======================================================================
 
-Foam::Foam (bool usingOriginal, const ConstraintRotationNames& names) :
+Foam::Foam (bool useOriginal, const ConstraintRotationNames& names) :
     m_viewMatrix (new G3D::Matrix4 (G3D::Matrix4::identity ())),
-    m_parsingData (new ParsingData (usingOriginal, names)),
+    m_parsingData (new ParsingData (useOriginal, names)),
     m_spaceDimension (3),
     m_quadratic (false),
     m_histogram (
@@ -257,7 +257,7 @@ void Foam::updatePartOf ()
 	      boost::bind (&Edge::UpdateEdgePartOf, _1, _1));
 }
 
-void Foam::calculateBoundingBox ()
+void Foam::CalculateBoundingBox ()
 {
     G3D::Vector3 low, high;
     // calculate the BB for each body
@@ -275,7 +275,7 @@ void Foam::calculateBoundingBox ()
     m_boundingBox.set(low, high);
 }
 
-void Foam::calculatePerimeterOverArea ()
+void Foam::CalculatePerimeterOverArea ()
 {
     for_each (m_bodies.begin (), m_bodies.end (),
 	      boost::bind (&Body::CalculatePerimeterOverSqrtArea, _1));
@@ -396,7 +396,8 @@ void Foam::Preprocess ()
     VertexSet vertexSet;
     EdgeSet edgeSet;
     FaceSet faceSet;
-    const ConstraintRotationNames& names = GetParsingData ().GetConstraintRotationNames ();
+    const ConstraintRotationNames& names = 
+	GetParsingData ().GetConstraintRotationNames ();
     if (! names.m_xName.empty ())
 	SetConstraintRotation (names);
     compact ();
@@ -419,32 +420,34 @@ void Foam::Preprocess ()
     sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);
     setMissingPressureZero ();
     addConstraintEdges ();
-    calculateBoundingBox ();
-    calculatePerimeterOverArea ();
 }
 
 void Foam::addConstraintEdges ()
 {
-    if (Is2D ())
+    if (! Is2D ())
+	return;
+    Bodies bodies = GetBodies ();
+    for (size_t i = 0; i < bodies.size (); ++i)
     {
-	BOOST_FOREACH (boost::shared_ptr<Body> body, GetBodies ())
+	boost::shared_ptr<Body> body = bodies[i];
+	Face& face = body->GetFace (0);
+	if (! face.IsClosed ())
 	{
-	    boost::shared_ptr<Face> face = body->GetFace (0);
-	    if (! face->IsClosed ())
+	    boost::shared_ptr<Vertex> end = 
+		face.GetOrientedEdge (0)->GetBegin ();
+	    boost::shared_ptr<Vertex> begin = 
+		face.GetOrientedEdge (
+		    face.GetEdgeCount () - 1)->GetEnd ();
+	    if (body->GetId () == 690)
 	    {
-		boost::shared_ptr<Vertex> end = 
-		    face->GetOrientedEdge (0)->GetBegin ();
-		boost::shared_ptr<Vertex> begin = 
-		    face->GetOrientedEdge (
-			face->GetEdgeCount () - 1)->GetEnd ();
 		ConstraintEdge* constraintEdge = new ConstraintEdge (
-		    &GetParsingData (), begin, end);
+		    &GetParsingData (), begin, end, &m_constraintPointsToFix, i);
 		boost::shared_ptr<Edge> edge (constraintEdge);
-		face->AddEdge (edge);
-		face->CalculateCenter ();
+		face.AddEdge (edge);
+		face.CalculateCenter ();
 		size_t constraintIndex = constraintEdge->GetConstraintIndex ();
-		if ( constraintIndex == 
-		     GetParsingData ().GetConstraintRotationNames ().m_constraintIndex)
+		if ( constraintIndex == GetParsingData ().
+		     GetConstraintRotationNames ().m_constraintIndex)
 		{
 		    resizeAllowIndex (&m_constraintEdges, constraintIndex);
 		    if (! m_constraintEdges[constraintIndex])
@@ -456,6 +459,28 @@ void Foam::addConstraintEdges ()
 	}
     }
 }
+
+void Foam::FixConstraintPoints (const Foam& prevFoam)
+{
+    pair<size_t, size_t> point;
+    BOOST_FOREACH (point, m_constraintPointsToFix)
+    {
+	bool valid;
+	Face& face = GetBody (point.first).GetFace (0);
+	Face& prevFace = prevFoam.GetBody (point.first).GetFace (0);
+
+	ConstraintEdge& edge = static_cast<ConstraintEdge&> (
+	    *face.GetOrientedEdge (face.size () - 1)->GetEdge ());
+	ConstraintEdge& prevEdge = static_cast<ConstraintEdge&> (
+	    *prevFace.GetOrientedEdge (prevFace.size () - 1)->GetEdge ());
+	G3D::Vector2 prevPoint = prevEdge.GetPoint (point.second).xy ();
+	G3D::Vector3 newPoint = edge.ComputePointMulti (
+	    point.second, &valid, prevPoint);
+	edge.SetPoint (point.second, newPoint, valid);
+	//edge.FixPointsConcaveOrConvex ();
+    }
+}
+
 
 
 Foam::Bodies::const_iterator
@@ -610,11 +635,11 @@ const AttributesInfo& Foam::GetAttributesInfo (
 
 boost::shared_ptr<Edge> Foam::GetStandardEdge () const
 {
-    boost::shared_ptr<Face> f;
+    Face* f;
     if (m_bodies.size () == 0)
-	f = m_standaloneFaces[0];
+	f = m_standaloneFaces[0].get ();
     else
-	f = GetBody (0)->GetFace (0);
+	f = &GetBody (0).GetFace (0);
     return f->GetOrientedEdge (0)->GetEdge ();
 }
 
@@ -693,6 +718,7 @@ void Foam::SetConstraintRotation (const ConstraintRotationNames& names)
     m_constraintRotation.m_angle =  
 	GetParsingData ().GetVariableValue (names.m_angleName);
 }
+
 
 
 // Static and Friends Methods

@@ -287,7 +287,6 @@ faces
 bodies
 {
     //foam->GetParsingData ().PrintTimeCheckpoint ("After bodies:");
-    foam->Preprocess ();
 }
 
 header
@@ -1275,7 +1274,7 @@ body_list
     vector<int>* intList = $3;
     foam->SetBody (
 	intToUnsigned($2- 1, "Semantic error: body index less than 0"),
-	*intList, *$4, foam->GetParsingData ().IsUsingOriginal ());
+	*intList, *$4, foam->GetParsingData ().OriginalUsed ());
     delete intList;
     NameSemanticValue::DeleteVector ($4);
 }

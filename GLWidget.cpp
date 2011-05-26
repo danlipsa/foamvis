@@ -140,8 +140,6 @@ GLWidget::GLWidget(QWidget *parent)
       m_torusOriginalDomainClipped (false),
       m_interactionMode (InteractionMode::ROTATE),
       m_foamAlongTime (0), m_timeStep (0),
-      m_selectedBodyIndex (DISPLAY_ALL), m_selectedFaceIndex (DISPLAY_ALL),
-      m_selectedEdgeIndex (DISPLAY_ALL),
       m_contextAlpha (MIN_CONTEXT_ALPHA),
       m_minimumEdgeRadius (0),
       m_edgeRadiusRatio (0),
@@ -296,6 +294,11 @@ void GLWidget::createActions ()
     connect(m_actionInfoFocus.get (), SIGNAL(triggered()), this, 
 	    SLOT(InfoFocus ()));
 
+    m_actionInfoPoint = boost::make_shared<QAction> (tr("&Point"), this);
+    m_actionInfoPoint->setStatusTip(tr("Info point"));
+    connect(m_actionInfoPoint.get (), SIGNAL(triggered()), this, 
+	    SLOT(InfoPoint ()));
+
     m_actionInfoFoam = boost::make_shared<QAction> (tr("&Foam"), this);
     m_actionInfoFoam->setStatusTip(tr("Info foam"));
     connect(m_actionInfoFoam.get (), SIGNAL(triggered()), this, 
@@ -409,7 +412,7 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 double GLWidget::getMinimumEdgeRadius () const
 {
     const G3D::AABox& box = 
-	GetFoamAlongTime ().GetFoam (0).GetBody (0)->GetBoundingBox ();
+	GetFoamAlongTime ().GetFoam (0).GetBody (0).GetBoundingBox ();
     return (box.high () - box.low ()).length () / 50;
 }
 
@@ -620,10 +623,10 @@ void GLWidget::transformFoamStationary (
     case ViewSettings::STATIONARY_BODY:
     {
 	size_t id = vs.GetStationaryBodyId ();
-	G3D::Vector3 centerBegin = GetFoamAlongTime ().GetFoam (0).
-	    GetBody (id)->GetCenter ();
-	G3D::Vector3 centerCurrent = GetFoamAlongTime ().GetFoam (
-	    timeStep).GetBody (id)->GetCenter ();
+	G3D::Vector3 centerBegin = (*GetFoamAlongTime ().GetFoam (0).
+				    FindBody (id))->GetCenter ();
+	G3D::Vector3 centerCurrent = (*GetFoamAlongTime ().GetFoam (timeStep).
+				      FindBody (id))->GetCenter ();
 	G3D::Vector3 translation = centerBegin - centerCurrent;
 	glTranslate (translation);
 	glTranslate (-GetFoamAlongTime ().GetBoundingBox ().center ());
@@ -854,9 +857,6 @@ void GLWidget::SelectAll ()
 {
     SetBodySelector (AllBodySelector::Get (), BodySelectorType::ID);
     m_selectBodiesById->ClearEditIds ();
-    m_selectedBodyIndex = DISPLAY_ALL;
-    m_selectedFaceIndex = DISPLAY_ALL;
-    m_selectedEdgeIndex = DISPLAY_ALL;
     update ();
 }
 
@@ -868,8 +868,7 @@ void GLWidget::DeselectAll ()
 
 void GLWidget::InfoFoam ()
 {
-    string message = (AllBodiesSelected ()) ?
-	GetFoamAlongTime ().ToHtml () : GetSelectedBody ()->ToString ();
+    string message = GetFoamAlongTime ().ToHtml ();
     QMessageBox msgBox (this);
     msgBox.setText(message.c_str ());
     msgBox.exec();
@@ -886,7 +885,7 @@ void GLWidget::InfoFocus ()
 	vector<size_t> bodies;
 	G3D::Vector3 op = brushedBodies (m_contextMenuPos, &bodies);
 	if (bodies.size () == 0)
-	    ostr << "Point: " << op;
+	    ostr << "No bodies focused.";
 	else
 	{
 	    Foam::Bodies::const_iterator it = 
@@ -934,6 +933,17 @@ void GLWidget::InfoFocus ()
     msgBox.setText(ostr.str ().c_str ());
     msgBox.exec();
 }
+
+void GLWidget::InfoPoint ()
+{
+    QMessageBox msgBox (this);
+    ostringstream ostr;
+    G3D::Vector3 op = toObject (m_contextMenuPos);
+    ostr << "Point: " << op;
+    msgBox.setText(ostr.str ().c_str ());
+    msgBox.exec();
+}
+
 
 void GLWidget::ColorBarEdit ()
 {
@@ -1120,7 +1130,7 @@ void GLWidget::scaleContext (
 G3D::Vector3 GLWidget::brushedBodies (
     const QPoint& position, vector<size_t>* bodies) const
 {
-    G3D::Vector3 op = objectPosition (position);
+    G3D::Vector3 op = toObject (position);
     const Foam& foam = GetCurrentFoam ();
     BOOST_FOREACH (boost::shared_ptr<Body> body, foam.GetBodies ())
     {
@@ -1131,7 +1141,7 @@ G3D::Vector3 GLWidget::brushedBodies (
     return op;
 }
 
-G3D::Vector3 GLWidget::objectPosition (const QPoint& position) const
+G3D::Vector3 GLWidget::toObject (const QPoint& position) const
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     viewportTransform (viewNumber);    
@@ -2021,28 +2031,6 @@ void GLWidget::DisplayViewType (ViewNumber::Enum view) const
     (this->*(m_viewTypeDisplay[GetViewSettings (view).GetViewType ()])) (view);
 }
 
-bool GLWidget::IsDisplayedBody (size_t bodyId) const
-{
-    return (AllBodiesSelected () || GetSelectedBodyId () == bodyId);
-}
-
-bool GLWidget::IsDisplayedBody (const boost::shared_ptr<Body> body) const
-{
-    return IsDisplayedBody (body->GetId ());
-}
-
-bool GLWidget::IsDisplayedFace (size_t faceI) const
-{
-    size_t faceIndex = GetSelectedFaceIndex ();
-    return (faceIndex == DISPLAY_ALL || faceIndex == faceI);
-}
-
-bool GLWidget::IsDisplayedEdge (size_t oeI) const
-{
-    size_t edgeIndex = GetSelectedEdgeIndex ();
-    return edgeIndex == DISPLAY_ALL || edgeIndex == oeI;
-}
-
 
 const Foam& GLWidget::GetCurrentFoam () const
 {
@@ -2075,50 +2063,6 @@ const BodyAlongTime& GLWidget::GetBodyAlongTime (size_t id) const
     return GetBodiesAlongTime ().GetBodyAlongTime (id);
 }
 
-boost::shared_ptr<Body> GLWidget::GetSelectedBody () const
-{
-    return GetBodyAlongTime (GetSelectedBodyId ()).GetBody (GetTimeStep ());
-}
-
-size_t GLWidget::GetSelectedBodyId () const
-{
-    return GetFoamAlongTime ().GetFoam (0).GetBody (
-	m_selectedBodyIndex)->GetId ();
-}
-
-size_t GLWidget::GetSelectedFaceId () const
-{
-    return GetSelectedFace ()->GetId ();
-}
-
-boost::shared_ptr<Face> GLWidget::GetSelectedFace () const
-{
-    size_t i = GetSelectedFaceIndex ();
-    if (m_selectedBodyIndex != DISPLAY_ALL)
-    {
-	Body& body = *GetSelectedBody ();
-	return body.GetFace (i);
-    }
-    RuntimeAssert (false, "There is no displayed face");
-    return boost::shared_ptr<Face>();
-}
-
-boost::shared_ptr<Edge> GLWidget::GetSelectedEdge () const
-{
-    if (m_selectedBodyIndex != DISPLAY_ALL &&
-	m_selectedFaceIndex != DISPLAY_ALL)
-    {
-	boost::shared_ptr<Face> face = GetSelectedFace ();
-	return face->GetOrientedEdge (m_selectedEdgeIndex)->GetEdge ();
-    }
-    RuntimeAssert (false, "There is no displayed edge");
-    return boost::shared_ptr<Edge>();
-}
-
-size_t GLWidget::GetSelectedEdgeId () const
-{
-    return GetSelectedEdge ()->GetId ();
-}
 
 void GLWidget::setLight (int sliderValue, int maximumValue, 
 			 LightType::Enum lightType, 
@@ -2218,6 +2162,7 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	{
 	    QMenu* menuInfo = menu.addMenu ("Info");
 	    menuInfo->addAction (m_actionInfoFocus.get ());
+	    menuInfo->addAction (m_actionInfoPoint.get ());
 	    menuInfo->addAction (m_actionInfoFoam.get ());
 	    menuInfo->addAction (m_actionInfoOpenGL.get ());
 	}

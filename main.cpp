@@ -109,10 +109,12 @@ public:
      * @param data Where to store the data parsed from the DMP files
      * @param dir directory where all DMP files are
      */
-    parseFile (QString dir, const ConstraintRotationNames& names, bool usingOriginal,
-	       bool debugParsing = false, bool debugScanning = false) : 
+    parseFile (
+	QString dir, const ConstraintRotationNames& names, bool useOriginal,
+	bool debugParsing = false, bool debugScanning = false) : 
+
         m_dir (qPrintable(dir)), m_names (names), 
-	m_usingOriginal (usingOriginal),
+	m_useOriginal (useOriginal),
 	m_debugParsing (debugParsing),
 	m_debugScanning (debugScanning)
     {
@@ -120,25 +122,24 @@ public:
     
     /**
      * Parses one file
-     * @param f name of the DMP file to be parsed.
+     * @param dmpFile name of the DMP file to be parsed.
      */
-    boost::shared_ptr<Foam> operator () (QString f)
+    boost::shared_ptr<Foam> operator () (QString dmpFile)
     {
 	boost::shared_ptr<Foam> foam;
 	string file;
 	try
 	{
 	    int result;
-	    file = qPrintable (f);
+	    file = qPrintable (dmpFile);
 	    ostringstream ostr;
 	    ostr << "Parsing " << file << " ..." << endl;
 	    cdbg << ostr.str ();
-	    foam.reset (new Foam (m_usingOriginal, m_names));
+	    foam.reset (new Foam (m_useOriginal, m_names));
 	    foam->GetParsingData ().SetDebugParsing (m_debugParsing);
 	    foam->GetParsingData ().SetDebugScanning (m_debugScanning);
 	    string fullPath = m_dir + '/' + file;
 	    result = foam->GetParsingData ().Parse (fullPath, foam.get ());
-	    foam->ReleaseParsingData ();
 	    if (result != 0)
 		ThrowException ("Error parsing ", fullPath);
 	}
@@ -156,7 +157,7 @@ private:
      */
     const string m_dir;
     const ConstraintRotationNames& m_names;
-    const bool m_usingOriginal;
+    const bool m_useOriginal;
     const bool m_debugParsing;
     const bool m_debugScanning;
 };
@@ -172,7 +173,7 @@ const char* optionName[] =
     "original-pressure",
     "output-text",
     "t1s",
-    "using-original",
+    "use-original",
     "version"
 };
 
@@ -189,7 +190,7 @@ struct Option
 	ORIGINAL_PRESSURE,      // o
 	OUTPUT_TEXT,            // t
 	T1S,                    // r
-	USING_ORIGINAL,
+	USE_ORIGINAL,
 	VERSION,
 	COUNT
     };
@@ -227,7 +228,7 @@ void parseFiles (const vector<string>& fileNames,
 	parseFile (
 	    dir.absolutePath (), 
 	    foamAlongTime->GetConstraintRotationNames (), 
-	    foamAlongTime->IsUsingOriginal (),
+	    foamAlongTime->OriginalUsed (),
 	    debugParsing, debugScanning));
     if (count_if (foams.constBegin (), foams.constEnd (),
 		  bl::_1 != boost::shared_ptr<Foam>()) != foams.size ())
@@ -303,7 +304,7 @@ void parseOptions (int argc, char *argv[],
 	 "arg=<file> where <file> specifies a text file with "
 	 "T1 times and positions. Reading T1s won't work if you "
 	 "skip time steps")
-	(optionName[Option::USING_ORIGINAL], "use ORIGINAL atrribute "
+	(optionName[Option::USE_ORIGINAL], "use ORIGINAL atrribute "
 	 "to figure out the body id.")
 	(optionName[Option::VERSION], "print version information")
 	;
@@ -368,8 +369,8 @@ int main(int argc, char *argv[])
 	parseOptions (argc, argv, 
 		      &t1sFile, &fileNames, &constraintRotationNames,
 		      &vm);
-	foamAlongTime.SetUsingOriginal (
-	    vm.count (optionName[Option::USING_ORIGINAL]));
+	foamAlongTime.UseOriginal (
+	    vm.count (optionName[Option::USE_ORIGINAL]));
 	if (vm.count (optionName[Option::CONSTRAINT_ROTATION]))
 	    foamAlongTime.SetConstraintRotationNames (constraintRotationNames);
 

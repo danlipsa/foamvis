@@ -50,11 +50,15 @@ public:
 	return m_orientedFaces;
     }
 
-    boost::shared_ptr<OrientedFace> GetOrientedFace (size_t i) const
+    OrientedFace& GetOrientedFace (size_t i) const
+    {
+	return *m_orientedFaces[i];
+    }
+    boost::shared_ptr<OrientedFace> GetOrientedFacePtr (size_t i) const
     {
 	return m_orientedFaces[i];
     }
-    boost::shared_ptr<Face> GetFace (size_t i) const;
+    Face& GetFace (size_t i) const;
     size_t size () const
     {
 	return m_orientedFaces.size ();

@@ -24,7 +24,7 @@ ProcessBodyTorus::ProcessBodyTorus (const Foam& foam,
 
 void ProcessBodyTorus::Initialize ()
 {
-    boost::shared_ptr<OrientedFace> of = m_body->GetOrientedFace (0);
+    boost::shared_ptr<OrientedFace> of = m_body->GetOrientedFacePtr (0);
     m_traversed[0] = true;
     push (of);
 }

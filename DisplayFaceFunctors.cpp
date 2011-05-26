@@ -55,12 +55,7 @@ void DisplayFaceHighlightColor<highlightColorIndex,
 			       displayEdges, PropertySetter>::
 operator () (const boost::shared_ptr<OrientedFace>& of)
 {
-    if (this->m_glWidget.IsDisplayedFace (m_count))
-    {
-	display (of);
-	if (m_count == this->m_glWidget.GetSelectedFaceIndex ())
-	    cdbg << "face " << m_count << ": " << *of << endl;
-    }
+    display (of);
     m_count++;
 }
 

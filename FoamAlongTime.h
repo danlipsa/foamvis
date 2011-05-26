@@ -93,7 +93,7 @@ public:
 	return acc::max (GetHistogram (property));
     }
 
-    void CalculateMinMaxStatistics ();
+    void MapPerFoam (void (Foam::*f) ());
 
     QwtDoubleInterval GetRange (BodyProperty::Enum property) const
     {
@@ -170,17 +170,18 @@ public:
     }
     const vector<G3D::Vector3>& GetT1s (size_t timeStep) const;
 
-    bool IsUsingOriginal () const
+    bool OriginalUsed () const
     {
-	return m_usingOriginal;
+	return m_useOriginal;
     }
-    void SetUsingOriginal (bool useOriginal)
+    void UseOriginal (bool useOriginal)
     {
-	m_usingOriginal = useOriginal;
+	m_useOriginal = useOriginal;
     }
 
 
 private:
+    void fixConstraintPoints ();
     void adjustPressureAlignMedians ();
     void adjustPressureSubtractReference ();
 
@@ -217,7 +218,7 @@ private:
     vector< vector<G3D::Vector3> > m_t1s;
     int m_t1sTimestepShift;
     ConstraintRotationNames m_constraintRotationNames;
-    bool m_usingOriginal;
+    bool m_useOriginal;
 };
 
 

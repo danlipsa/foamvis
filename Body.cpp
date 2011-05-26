@@ -123,7 +123,7 @@ void Body::CalculateCenter (bool is2D, bool isQuadratic)
     using G3D::Vector3;
     if (is2D)
     {
-	m_center = GetFace (0)->GetCenter ();
+	m_center = GetFace (0).GetCenter ();
 	return;
     }
     vector< boost::shared_ptr<Vertex> > physicalVertices;
@@ -162,9 +162,9 @@ void Body::UpdatePartOf (const boost::shared_ptr<Body>& body)
 }
 
 
-boost::shared_ptr<Face> Body::GetFace (size_t i) const
+Face& Body::GetFace (size_t i) const
 {
-    return GetOrientedFace (i)->GetFace ();
+    return *GetOrientedFace (i).GetFace ();
 }
 
 string Body::ToString () const
@@ -268,7 +268,7 @@ size_t Body::GetNumberOfSides () const
     size_t ofSize = m_orientedFaces.size ();
     if (ofSize == 1)
     {
-	const OrientedFace& of = *GetOrientedFace (0);
+	const OrientedFace& of = GetOrientedFace (0);
 	size_t size = of.size ();
 	if (of.IsClosed ())
 	    return size;
@@ -304,9 +304,9 @@ void Body::CalculatePerimeterOverSqrtArea ()
     if (m_orientedFaces.size () == 1 && 
 	ExistsPropertyValue (BodyProperty::VOLUME))
     {
-	const boost::shared_ptr<OrientedFace>& of = GetOrientedFace (0);
-	of->CalculatePerimeter ();
-	m_perimeterOverSqrtArea = of->GetPerimeter () / 
+	OrientedFace& of = GetOrientedFace (0);
+	of.CalculatePerimeter ();
+	m_perimeterOverSqrtArea = of.GetPerimeter () / 
 	    sqrt (GetPropertyValue (BodyProperty::VOLUME));
     }
 }

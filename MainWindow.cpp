@@ -368,11 +368,10 @@ void MainWindow::processBodyTorusStep ()
     try
     {
 	const Foam& currentFoam = widgetGl->GetCurrentFoam ();
-	boost::shared_ptr<Body>  b = currentFoam.GetBody (m_currentBody);
+	boost::shared_ptr<Body>  b = currentFoam.GetBodyPtr (m_currentBody);
 	if (m_processBodyTorus == 0)
 	{
-	    m_processBodyTorus = new ProcessBodyTorus (
-		currentFoam, b);
+	    m_processBodyTorus = new ProcessBodyTorus (currentFoam, b);
 	    m_processBodyTorus->Initialize ();
 	}
 	else

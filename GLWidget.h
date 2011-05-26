@@ -125,29 +125,7 @@ public:
 	return m_timeDisplacement;
     }
     
-    bool AllBodiesSelected () const
-    {
-	return m_selectedBodyIndex == DISPLAY_ALL;
-    }
-    size_t GetSelectedBodyId () const;
-    boost::shared_ptr<Body>  GetSelectedBody () const;
-    /**
-     * Gets the face number up to which faces are displayed
-     * @return face number up to which faces are displayed or UINT_MAX for all
-     */
-    size_t GetSelectedFaceIndex () const
-    {
-	return m_selectedFaceIndex;
-    }
-    size_t GetSelectedFaceId () const;
-    boost::shared_ptr<Face>  GetSelectedFace () const;
 
-    size_t GetSelectedEdgeIndex () const
-    {
-	return m_selectedEdgeIndex;
-    }
-    size_t GetSelectedEdgeId () const;
-    boost::shared_ptr<Edge>  GetSelectedEdge () const;
     double GetContextAlpha () const
     {
 	return m_contextAlpha;
@@ -179,11 +157,6 @@ public:
     {
 	return m_centerPathLineUsed;
     }
-
-    bool IsDisplayedBody (const boost::shared_ptr<Body>  body) const;
-    bool IsDisplayedBody (size_t bodyId) const;
-    bool IsDisplayedFace (size_t faceI) const;
-    bool IsDisplayedEdge (size_t edgeI) const;
 
     bool IsEdgesTessellation () const
     {
@@ -342,6 +315,7 @@ public Q_SLOTS:
     void ContextStationaryFoam ();
     void ContextStationaryReset ();
     void InfoFocus ();
+    void InfoPoint ();
     void InfoFoam ();
     void InfoOpenGL ();
     // Actions color bar
@@ -570,7 +544,7 @@ private:
     void deselect (const QPoint& position);
     G3D::Vector3 brushedBodies (
 	const QPoint& position, vector<size_t>* bodies) const;
-    G3D::Vector3 objectPosition (const QPoint& position) const;
+    G3D::Vector3 toObject (const QPoint& position) const;
     
     void initViewTypeDisplay ();
     void createActions ();
@@ -634,15 +608,6 @@ private:
      * Used to select a stationary body
      */
     QPoint m_contextMenuPos;
-    /**
-     * Used to display one body at a time
-     */
-    size_t m_selectedBodyIndex;
-    /**
-     * Used to display one face at a time from the m_selectedBodyIndex.
-     */
-    size_t m_selectedFaceIndex;
-    size_t m_selectedEdgeIndex;
 
     double m_contextAlpha;
 
@@ -689,6 +654,7 @@ private:
     boost::shared_ptr<QAction> m_actionContextStationaryReset;
 
     boost::shared_ptr<QAction> m_actionInfoFocus;
+    boost::shared_ptr<QAction> m_actionInfoPoint;
     boost::shared_ptr<QAction> m_actionInfoFoam;
     boost::shared_ptr<QAction> m_actionInfoOpenGL;
     boost::shared_ptr<QAction> m_actionEditColorMap;

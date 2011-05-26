@@ -72,3 +72,17 @@ G3D::Vector3 QuadraticEdge::computePoint (size_t i) const
 {
     return quadratic (static_cast<double>(i) * 2 / (GetPointCount () - 1));
 }
+
+void QuadraticEdge::cachePoints ()
+{
+    m_points[0] = GetBegin ()->GetVector ();
+    m_points[m_points.size () - 1] = GetEnd ()->GetVector ();
+    for (size_t i = 1; i < m_points.size () - 1; ++i)
+	m_points[i] = computePoint (i);
+}
+
+void QuadraticEdge::SetEnd(boost::shared_ptr<Vertex> end) 
+{
+    Edge::SetEnd (end);
+    cachePoints ();
+}

@@ -12,7 +12,7 @@
 
 boost::shared_ptr<OrientedFace>  BodyIndex::GetOrientedFace () const
 {
-    return GetBody ()->GetOrientedFace (GetOrientedFaceIndex ());
+    return GetBody ()->GetOrientedFacePtr (GetOrientedFaceIndex ());
 }
 
 size_t BodyIndex::GetBodyId () const

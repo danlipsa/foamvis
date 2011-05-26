@@ -28,7 +28,7 @@ FoamAlongTime::FoamAlongTime () :
     m_histogram (
         BodyProperty::PROPERTY_END, HistogramStatistics (HISTOGRAM_INTERVALS)),
     m_t1sTimestepShift (0),
-    m_usingOriginal (false)
+    m_useOriginal (false)
 {
 }
 
@@ -57,12 +57,18 @@ void FoamAlongTime::calculateBodyWraps ()
 
 void FoamAlongTime::Preprocess ()
 {
-    cdbg << "Preprocess data ..." << endl;
+    cdbg << "Preprocess foam data ..." << endl;
+    MapPerFoam (&Foam::Preprocess);
+    cdbg << "Preprocess temporal foam data ..." << endl;
+    fixConstraintPoints ();
+    MapPerFoam (&Foam::ReleaseParsingData);
+    MapPerFoam (&Foam::CalculateBoundingBox);
+    MapPerFoam (&Foam::CalculatePerimeterOverArea);
     CalculateBoundingBox ();
     CacheBodiesAlongTime ();
     calculateBodyWraps ();
     calculateVelocity ();
-    CalculateMinMaxStatistics ();
+    MapPerFoam (&Foam::CalculateMinMaxStatistics);
     if (IsPressureAdjusted ())
         adjustPressureAlignMedians ();
     else
@@ -72,11 +78,18 @@ void FoamAlongTime::Preprocess ()
     calculateStatistics ();
 }
 
-void FoamAlongTime::CalculateMinMaxStatistics ()
+
+void FoamAlongTime::fixConstraintPoints ()
+{
+    Foams foams = GetFoams ();
+    for (size_t i = 1; i < foams.size (); ++i)
+	foams[i]->FixConstraintPoints (*foams[i-1]);
+}
+
+void FoamAlongTime::MapPerFoam (void (Foam::*f) ())
 {
     QtConcurrent::blockingMap (
-	m_foams.begin (), m_foams.end (),
-	boost::bind (&Foam::CalculateMinMaxStatistics, _1));
+	m_foams.begin (), m_foams.end (), boost::bind (f, _1));
 }
 
 size_t foamsIndex (
@@ -88,7 +101,7 @@ size_t foamsIndex (
 
 double GetPressureBody0 (const boost::shared_ptr<Foam>& foam)
 {
-    return foam->GetBody (0)->GetPropertyValue (BodyProperty::PRESSURE);
+    return foam->GetBody (0).GetPropertyValue (BodyProperty::PRESSURE);
 }
 
 void FoamAlongTime::adjustPressureSubtractReference ()

@@ -201,19 +201,21 @@ string Solver::ErrorToString (int error)
 ConstraintEdge::ConstraintEdge (
     ParsingData* parsingData,
     const boost::shared_ptr<Vertex>& begin,
-    const boost::shared_ptr<Vertex>& end) :
+    const boost::shared_ptr<Vertex>& end,
+    vector< pair<size_t, size_t> >* pointsToFix, size_t bodyIndex) :
 
     ApproximationEdge (
-	13, begin, end, 
+	7, begin, end, 
 	G3D::Vector3int16(0, 0, 0), 0, ElementStatus::ORIGINAL),
-    m_parsingData (parsingData)
+    m_parsingData (parsingData),
+    m_valid (GetPointCount ())
 {
     m_parsingData->UnsetVariable ("x");
     m_parsingData->UnsetVariable ("y");
     cachePoints ();
-    //fixPoints ();
     SetAttribute<ColorAttribute, Color::Enum> (
 	EdgeAttributeIndex::COLOR, Color::RED);
+    storePointsToFix (pointsToFix, bodyIndex);
 }
 
 size_t ConstraintEdge::GetConstraintIndex () const
@@ -221,15 +223,46 @@ size_t ConstraintEdge::GetConstraintIndex () const
     return GetBegin ()->GetConstraintIndex (0);
 }
 
-void ConstraintEdge::fixPoints ()
+void ConstraintEdge::storePointsToFix (
+    vector< pair<size_t, size_t> >* pointsToFix, size_t bodyIndex)
 {
     vector<int> side (GetPointCount ());
-    size_t countPlus, countMinus, countZero;
-    int correctSide;
+    size_t countPlus, countMinus, countZero, countInvalid;
 
-    computeSide (&side, &countPlus, &countMinus, &countZero);
-    correctSide = computeCorrectSide (countPlus, countMinus, countZero);
+    computeSide (&side, &countPlus, &countMinus, 
+		 &countZero, &countInvalid);
+    float score = computeScore (countPlus, countMinus, countZero, countInvalid);
+    if (score < 1)
+	cdbg << "score=" << score << endl;
+    int correctSide = computeCorrectSide (countPlus, countMinus, countZero);
+    if (G3D::fuzzyEq (score, 1))
+	return;
+    else if (score < 0.5)
+    {
+	// recalculate all points
+	for (size_t i = 0; i < GetPointCount (); ++i)
+	    pointsToFix->push_back (pair <size_t, size_t> (bodyIndex, i));
+    }
+    else
+    {
+	// recalculate only the points that are on the wrong side
+	for (size_t i = 0; i < GetPointCount (); ++i)
+	    if (correctSide != side[i])
+		pointsToFix->push_back (pair <size_t, size_t> (bodyIndex, i));
+    }
+}
+
+
+void ConstraintEdge::FixPointsConcaveOrConvex ()
+{
+    vector<int> side (GetPointCount ());
+    size_t countPlus, countMinus, countZero, countInvalid;
+    computeSide (&side, &countPlus, &countMinus, &countZero, &countInvalid);
+    int correctSide = computeCorrectSide (countPlus, countMinus, countZero);
     side[0] = side[side.size () - 1] = correctSide;
+    float score = computeScore (countPlus, countMinus, countZero, countInvalid);
+    if (score < 1)
+	cdbg << "score=" << score << endl;
     
     for (size_t i = 1; i < GetPointCount () - 1; ++i)
 	if (side[i] != correctSide)
@@ -240,6 +273,15 @@ void ConstraintEdge::fixPoints ()
 
     for (size_t i = 1; i < GetPointCount () - 1; ++i)
 	fixPointInTriple (i, correctSide);
+}
+
+float ConstraintEdge::computeScore (
+    size_t countPlus,  size_t countMinus, size_t countZero, size_t countInvalid)
+{
+    size_t maxCount = max (countPlus, max (countMinus, countZero));
+    float score = static_cast<float>(maxCount) / 
+	(countPlus + countMinus + countZero + countInvalid);
+    return score;
 }
 
 int ConstraintEdge::computeCorrectSide (
@@ -265,28 +307,35 @@ void ConstraintEdge::fixPointInTriple (size_t i, int correctSide)
     int side = G3D::fuzzyGt (pointValue, 0.0) ? 1 : 
 	(G3D::fuzzyLt (pointValue, 0.0) ? -1 : 0);
     if (side != 0 && side != correctSide)
-	SetPoint (i, (begin + end) / 2);
+	ApproximationEdge::SetPoint (i, (begin + end) / 2);
 }
 
 
-void ConstraintEdge::computeSide (vector<int>* side, size_t* countPlus,
-				  size_t* countMinus, size_t* countZero)
+void ConstraintEdge::computeSide (
+    vector<int>* side,
+    size_t* countPlus, size_t* countMinus, 
+    size_t* countZero, size_t* countInvalid)
 {
     G3D::Vector3 begin = GetBegin ()->GetVector ();
     G3D::Vector3 end = GetEnd ()->GetVector ();
-    *countPlus = *countMinus = *countZero = 0;
+    *countPlus = *countMinus = *countZero = *countInvalid = 0;
     for (size_t i = 1; i < GetPointCount () - 1; ++i)
     {
-	G3D::Vector3 point = GetPoint (i);
-	float pointValue = evaluateLineEquation (begin, end, point);
-	(*side)[i] = G3D::fuzzyGt (pointValue, 0.0) ? 1 : 
-	    (G3D::fuzzyLt (pointValue, 0.0) ? -1 : 0);
-	if ((*side)[i] > 0)
-	    ++(*countPlus);
-	else if ((*side)[i] < 0)
-	    ++(*countMinus);
+	if (m_valid[i])
+	{
+	    G3D::Vector3 point = GetPoint (i);
+	    float pointValue = evaluateLineEquation (begin, end, point);
+	    (*side)[i] = G3D::fuzzyGt (pointValue, 0.0) ? 1 : 
+		(G3D::fuzzyLt (pointValue, 0.0) ? -1 : 0);
+	    if ((*side)[i] > 0)
+		++(*countPlus);
+	    else if ((*side)[i] < 0)
+		++(*countMinus);
+	    else
+		++(*countZero);
+	}
 	else
-	    ++(*countZero);
+	    ++(*countInvalid);
     }
 }
 
@@ -297,21 +346,25 @@ void ConstraintEdge::fixPoint (
     size_t right = i + 1;
     while (right < GetPointCount () && side[right] != correctSide)
 	++right;
-    SetPoint (i, 
+    ApproximationEdge::SetPoint (i, 
 	      GetPoint (left) + 
 	      (GetPoint (right) - GetPoint (left)) / (right - left));
 }
 
-
-G3D::Vector3 ConstraintEdge::computePoint (size_t i) const
+void ConstraintEdge::cachePoints ()
 {
-    bool success;
-    return computePointMulti (i, &success);
+    m_points[0] = GetBegin ()->GetVector ();
+    m_points[m_points.size () - 1] = GetEnd ()->GetVector ();
+    for (size_t i = 1; i < m_points.size () - 1; ++i)
+    {
+	bool valid;
+	m_points[i] = computePointMulti (i, &valid);
+	m_valid[i] = valid;
+    }
 }
 
-
 G3D::Vector3 ConstraintEdge::computePointMulti (
-    size_t i, bool* success) const
+    size_t i, bool* valid, const G3D::Vector2* previousTimeStepPoint) const
 {
     const size_t NUMBER_ITERATIONS = 50;
     size_t numberIterations = NUMBER_ITERATIONS;
@@ -330,8 +383,16 @@ G3D::Vector3 ConstraintEdge::computePointMulti (
     function.n = 2;
     function.params = &clp;
     GslVector guess (2);
-    guess.Set (0, current[0]);
-    guess.Set (1, current[1]);
+    if (previousTimeStepPoint == 0)
+    {
+	guess.Set (0, current[0]);
+	guess.Set (1, current[1]);
+    }
+    else
+    {
+	guess.Set (0, (*previousTimeStepPoint)[0]);
+	guess.Set (1, (*previousTimeStepPoint)[1]);
+    }
     Solver solver;
     //cdbg << "guess=" << guess.GetVector () << endl;
     solver.Set (&function, guess.GetVector ());
@@ -340,30 +401,32 @@ G3D::Vector3 ConstraintEdge::computePointMulti (
 	gsl_vector* root = solver.GetRoot ();
 	if (numberIterations == 0)
 	{
-	    *success = false;
-	    cdbg << "Multi-root fail: # iterations,"
-		 << " constraint=" << constraintIndex << ", index=" << i << endl;
+	    *valid = false;
+	    //cdbg << "Multi-root fail: # iterations,"
+	    //<< " constraint=" << constraintIndex << ", index=" << i << endl;
 	    return current;
 	}
 	else
 	{
 	    G3D::Vector3 result (gsl_vector_get (root, 0),
 				 gsl_vector_get (root, 1), 0);
-	    cdbg << "Multi-root success, iterations " 
+/*
+	    cdbg << "Multi-root valid, iterations " 
 		 << (NUMBER_ITERATIONS - numberIterations) << " " 
 		 << result
 		 << " constraint=" << constraintIndex 
 		 << ", index=" << i << endl;
-	    *success = true;
+*/
+	    *valid = true;
 	    return result;
 	}
 	
     }
     else
     {
-	*success = false;
-	cdbg << "Multi-root fail: no solution, " 
-	     << " constraint=" << constraintIndex << ", index=" << i << endl;
+	*valid = false;
+	//cdbg << "Multi-root fail: no solution, " 
+	//<< " constraint=" << constraintIndex << ", index=" << i << endl;
 	return current;
     }
 }

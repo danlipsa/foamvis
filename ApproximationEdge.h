@@ -26,14 +26,11 @@ public:
     {
 	m_points[i] = p;
     }
-    virtual void SetEnd(boost::shared_ptr<Vertex> end);
 
 protected:
     ApproximationEdge (const ApproximationEdge& approximationEdge);
-    virtual G3D::Vector3 computePoint (size_t i) const = 0;
-    void cachePoints ();
 
-private:
+protected:
     vector<G3D::Vector3> m_points;
 };
 

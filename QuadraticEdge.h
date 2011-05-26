@@ -24,7 +24,7 @@ public:
 	return m_middle;
     }
     virtual boost::shared_ptr<Edge> Clone () const;
-
+    virtual void SetEnd(boost::shared_ptr<Vertex> end);
 
 protected:
     QuadraticEdge (const QuadraticEdge& quadraticEdge);
@@ -32,13 +32,12 @@ protected:
 	const OOBox& periods,
 	const G3D::Vector3& newBegin, VertexSet* vertexSet) const;
 
-protected:
-    virtual G3D::Vector3 computePoint (size_t i) const;
-
 private:
     /**
      * Quadratic function applied to parameter t in [0, 2]
      */
+    void cachePoints ();
+    G3D::Vector3 computePoint (size_t i) const;
     double quadratic (double t, size_t axis) const;
     G3D::Vector3 quadratic (double t) const;
     void setMiddle (boost::shared_ptr<Vertex> middle)

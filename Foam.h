@@ -41,7 +41,7 @@ public:
     /**
      * Constructs a Foam object.
      */
-    Foam (bool usingOriginal, const ConstraintRotationNames& names);
+    Foam (bool useOriginal, const ConstraintRotationNames& names);
 
     void GetVertexSet (VertexSet* vertexSet) const;
     VertexSet GetVertexSet () const
@@ -70,10 +70,15 @@ public:
      * @param i index of the body to be returned
      * @return the body
      */
-    boost::shared_ptr<Body>  GetBody (size_t i) const
+    Body& GetBody (size_t index) const
     {
-	return m_bodies[i];
+	return *m_bodies[index];
     }
+    boost::shared_ptr<Body> GetBodyPtr (size_t index) const
+    {
+	return m_bodies[index];
+    }
+
 
     Bodies::const_iterator FindBody (size_t bodyId) const;
     bool ExistsBodyWithValueIn (
@@ -274,6 +279,12 @@ public:
     {
 	return m_constraintRotation;
     }
+    /**
+     * Calculate the bounding box for all vertices in this Foam
+     */
+    void CalculateBoundingBox ();
+    void CalculatePerimeterOverArea ();
+    void FixConstraintPoints (const Foam& prevFoam);
 
 public:
     static const double Z_COORDINATE_2D = 0.0;
@@ -293,15 +304,10 @@ private:
      */
     void compact ();
     /**
-     * Calculate the bounding box for all vertices in this Foam
-     */
-    void calculateBoundingBox ();
-    /**
      * Calculate centers for all bodies.
      */
     void calculateBodiesCenters ();
     void calculateTorusClipped ();
-    void calculatePerimeterOverArea ();
     /**
      * Calculate faces part of a body, edges part of a face, ...
      */
@@ -369,6 +375,10 @@ private:
     double m_max[BodyProperty::PROPERTY_END];
     vector<HistogramStatistics> m_histogram;
     ConstraintRotation m_constraintRotation;
+    /*
+     * BodyIndex, PointIndex for constraint points that need fixing.
+     */
+    vector< pair<size_t, size_t> > m_constraintPointsToFix;
 };
 
 /**
