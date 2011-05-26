@@ -240,13 +240,13 @@ void ConstraintEdge::storePointsToFix (
     else if (score < 0.5)
     {
 	// recalculate all points
-	for (size_t i = 0; i < GetPointCount (); ++i)
+	for (size_t i = 1; i < GetPointCount () - 1; ++i)
 	    pointsToFix->push_back (pair <size_t, size_t> (bodyIndex, i));
     }
     else
     {
 	// recalculate only the points that are on the wrong side
-	for (size_t i = 0; i < GetPointCount (); ++i)
+	for (size_t i = 1; i < GetPointCount () - 1; ++i)
 	    if (correctSide != side[i])
 		pointsToFix->push_back (pair <size_t, size_t> (bodyIndex, i));
     }

@@ -477,7 +477,7 @@ void Foam::FixConstraintPoints (const Foam& prevFoam)
 	G3D::Vector3 newPoint = edge.ComputePointMulti (
 	    point.second, &valid, prevPoint);
 	edge.SetPoint (point.second, newPoint, valid);
-	//edge.FixPointsConcaveOrConvex ();
+	edge.FixPointsConcaveOrConvex ();
     }
 }
 
