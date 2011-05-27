@@ -141,10 +141,6 @@ public:
     {
 	m_adjustPressure = adjustPressure;
     }
-    void SetConstraintRotationNames (const ConstraintRotationNames& am)
-    {
-	m_constraintRotationNames = am;
-    }
     const ConstraintRotationNames& GetConstraintRotationNames () const
     {
 	return m_constraintRotationNames;
@@ -176,6 +172,7 @@ public:
     }
     void ParseFiles (const vector<string>& fileNames,
 		     bool useOriginal,
+		     const ConstraintRotationNames& constraintRotationNames,
 		     bool debugParsing, bool debugScanning);
 
 private:

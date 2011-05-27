@@ -438,7 +438,7 @@ void Foam::addConstraintEdges ()
 	    boost::shared_ptr<Vertex> begin = 
 		face.GetOrientedEdge (
 		    face.GetEdgeCount () - 1)->GetEnd ();
-	    if (body->GetId () == 690)
+	    //if (body->GetId () == 541)
 	    {
 		ConstraintEdge* constraintEdge = new ConstraintEdge (
 		    &GetParsingData (), begin, end, &m_constraintPointsToFix, i);
@@ -460,25 +460,40 @@ void Foam::addConstraintEdges ()
     }
 }
 
-void Foam::FixConstraintPoints (const Foam& prevFoam)
+void Foam::FixConstraintPoints (const Foam* prevFoam)
 {
-    pair<size_t, size_t> point;
-    BOOST_FOREACH (point, m_constraintPointsToFix)
+    pair<size_t, size_t> index;
+    ConstraintEdge* prevProcessedEdge = 0;
+    BOOST_FOREACH (index, m_constraintPointsToFix)
     {
+	//cdbg << "process: " << index.first << ", " << index.second << endl;
 	bool valid;
-	Face& face = GetBody (point.first).GetFace (0);
-	Face& prevFace = prevFoam.GetBody (point.first).GetFace (0);
-
+	Face& face = GetBody (index.first).GetFace (0);
 	ConstraintEdge& edge = static_cast<ConstraintEdge&> (
 	    *face.GetOrientedEdge (face.size () - 1)->GetEdge ());
-	ConstraintEdge& prevEdge = static_cast<ConstraintEdge&> (
-	    *prevFace.GetOrientedEdge (prevFace.size () - 1)->GetEdge ());
-	G3D::Vector2 prevPoint = prevEdge.GetPoint (point.second).xy ();
-	G3D::Vector3 newPoint = edge.ComputePointMulti (
-	    point.second, &valid, prevPoint);
-	edge.SetPoint (point.second, newPoint, valid);
-	edge.FixPointsConcaveOrConvex ();
+	if (prevFoam == 0)
+	    edge.FixPointsConcaveOrConvex ();
+	else
+	{
+	    Face& prevFace = prevFoam->GetBody (index.first).GetFace (0);
+	    ConstraintEdge& prevEdge = static_cast<ConstraintEdge&> (
+		*prevFace.GetOrientedEdge (prevFace.size () - 1)->GetEdge ());
+	    G3D::Vector2 prevPoint = prevEdge.GetPoint (index.second).xy ();
+	    G3D::Vector3 newPoint = edge.ComputePointMulti (
+		index.second, &valid, prevPoint);
+	    if (valid)
+		edge.ChoosePoint (index.second, newPoint);
+	    if (prevProcessedEdge != &edge)
+	    {
+		if (prevProcessedEdge != 0)
+		    prevProcessedEdge->FixPointsConcaveOrConvex ();
+		prevProcessedEdge = &edge;	    
+	    }
+	}
     }
+    if (prevProcessedEdge != 0)
+	prevProcessedEdge->FixPointsConcaveOrConvex ();
+    m_constraintPointsToFix.clear ();
 }
 
 

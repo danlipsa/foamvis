@@ -284,7 +284,7 @@ public:
      */
     void CalculateBoundingBox ();
     void CalculatePerimeterOverArea ();
-    void FixConstraintPoints (const Foam& prevFoam);
+    void FixConstraintPoints (const Foam* prevFoam);
 
 public:
     static const double Z_COORDINATE_2D = 0.0;

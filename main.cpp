@@ -263,13 +263,10 @@ int main(int argc, char *argv[])
 	parseOptions (argc, argv, 
 		      &t1sFile, &fileNames, &constraintRotationNames,
 		      &vm);
-	if (vm.count (optionName[Option::CONSTRAINT_ROTATION]))
-	    foamAlongTime.SetConstraintRotationNames (constraintRotationNames);
-
-	//readOptions (argc, argv, &options, &t1sFile);
 	foamAlongTime.ParseFiles (
 	    fileNames,
 	    vm.count (optionName[Option::USE_ORIGINAL]),
+	    constraintRotationNames,
 	    vm.count (optionName[Option::DEBUG_PARSING]), 
 	    vm.count (optionName[Option::DEBUG_SCANNING]));
 	size_t timeSteps = foamAlongTime.GetTimeSteps ();

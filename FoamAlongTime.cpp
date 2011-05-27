@@ -154,8 +154,12 @@ void FoamAlongTime::Preprocess ()
 void FoamAlongTime::fixConstraintPoints ()
 {
     Foams foams = GetFoams ();
-    for (size_t i = 1; i < foams.size (); ++i)
-	foams[i]->FixConstraintPoints (*foams[i-1]);
+    Foam* prevFoam = 0;
+    for (size_t i = 0; i < foams.size (); ++i)
+    {
+	foams[i]->FixConstraintPoints (prevFoam);
+	prevFoam = foams[i-1].get ();
+    }
 }
 
 void FoamAlongTime::MapPerFoam (void (Foam::*f) ())
@@ -444,12 +448,14 @@ const vector<G3D::Vector3>& FoamAlongTime::GetT1s (size_t timeStep) const
 void FoamAlongTime::ParseFiles (
     const vector<string>& fileNames,
     bool useOriginal,
+    const ConstraintRotationNames& constraintRotationNames,
     bool debugParsing, bool debugScanning)
 {
     QDir dir;
     QStringList files;
     string filePattern;
     m_useOriginal = useOriginal;
+    m_constraintRotationNames = constraintRotationNames;
     QFileInfo fileInfo (fileNames[0].c_str ());
     dir = fileInfo.absoluteDir ();
     BOOST_FOREACH (const string& fn, fileNames)

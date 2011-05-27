@@ -29,30 +29,35 @@ public:
     {
 	return computePointMulti (i, success, &previousTimeStepPoint);
     }
-    void SetPoint (size_t i, const G3D::Vector3& p, bool valid)
-    {
-	ApproximationEdge::SetPoint (i, p);
-	m_valid[i] = valid;
-    }
+    void ChoosePoint (size_t i, const G3D::Vector3& p);
 
+private:
+    enum Side
+    {
+	SIDE_PLUS,
+	SIDE_MINUS,
+	SIDE_ZERO,
+	SIDE_INVALID
+    };
 
 private:
     G3D::Vector3 computePointMulti (
 	size_t i, bool* success,
 	const G3D::Vector2* previousTimeStepPoint = 0) const;
     void cachePoints ();
-    void fixPoint (size_t i, const vector<int>& side, int correctSide);
-    void fixPointInTriple (size_t i, int correctSide);
-    void computeSide (vector<int>* side,
+    void fixPoint (size_t i, const vector<Side>& side, Side correctSide);
+    void fixPointInTriple (size_t i, Side correctSide);
+    void computeSide (vector<Side>* side,
 		      size_t* countPlus, size_t* countMinus, 
 		      size_t* countZero, size_t* countInvalid);
-    int computeCorrectSide (
+    Side computeCorrectSide (
 	size_t countPlus,  size_t countMinus, size_t countZero);
     float computeScore (
 	size_t countPlus,  size_t countMinus, size_t countZero, 
 	size_t countInvalid);
-    void storePointsToFix (
+    size_t storePointsToFix (
 	vector< pair<size_t, size_t> >* pointsToFix, size_t bodyIndex);
+    float distanceToNeighbors (G3D::Vector3 point, size_t i);
 
 private:
     ParsingData* m_parsingData;
