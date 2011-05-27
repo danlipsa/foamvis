@@ -25,6 +25,7 @@ public:
 	BOOLEAN,
 	INTEGER,
 	INTEGER2,
+	FLOAT,
 	STRING,
 	SEPARATOR
     };
@@ -52,6 +53,13 @@ public:
 	{
 	    GLint where;
 	    glGetIntegerv (m_what, &where);
+	    ostr << where;
+	    return ostr.str ();
+	}
+	case FLOAT:
+	{
+	    GLfloat where;
+	    glGetFloatv (m_what, &where);
 	    ostr << where;
 	    return ostr.str ();
 	}
@@ -172,12 +180,21 @@ void ThrowOnOpenGLError (string message)
 
 void printOpenGLInfo (ostream& ostr)
 {
-    boost::array<OpenGLFeature, 27> info = {{
+    boost::array<OpenGLFeature, 31> info = {{
 	OpenGLFeature (GL_VENDOR, OpenGLFeature::STRING, "GL_VENDOR"),
 	OpenGLFeature (GL_RENDERER, OpenGLFeature::STRING, "GL_RENDERER"),
 	OpenGLFeature (GL_VERSION, OpenGLFeature::STRING, "GL_VERSION"),
 	OpenGLFeature (GL_SHADING_LANGUAGE_VERSION, 
 		       OpenGLFeature::STRING, "GL_SHADING_LANGUAGE_VERSION"),
+
+	OpenGLFeature ("--- Line width ---"),
+	OpenGLFeature (GL_ALIASED_LINE_WIDTH_RANGE, OpenGLFeature::INTEGER2,
+		       "GL_ALIASED_LINE_WIDTH_RANGE"),
+	OpenGLFeature (GL_LINE_WIDTH_RANGE, OpenGLFeature::INTEGER2,
+		       "GL_LINE_WIDTH_RANGE"),
+	OpenGLFeature (GL_LINE_WIDTH_GRANULARITY, OpenGLFeature::FLOAT,
+		       "GL_LINE_WIDTH_GRANULARITY"),
+
 
 	OpenGLFeature ("--- Texture / Viewport ---"),
 	OpenGLFeature (GL_MAX_VIEWPORT_DIMS, OpenGLFeature::INTEGER2,
@@ -266,9 +283,8 @@ void DisplayBox (const OOBox& oobox)
 void DisplayBox (const G3D::AABox& aabb, const QColor& color, GLfloat lineWidth)
 {
     using G3D::Vector3;
-    glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
+    glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
     glColor (color);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     glLineWidth (lineWidth);
     Vector3 diagonal = aabb.high () - aabb.low ();
     Vector3 first = diagonal.x * Vector3::unitX ();

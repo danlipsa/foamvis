@@ -109,11 +109,7 @@ To skip some files in the simulation (to save memory) use:
 loads files 0, 1, ..., 8 and skips 9. You can skip more files by
 removing more digits between the square brackets.
 
-To add a T1s file use '-r <t1s_file>' option. Note that if you skip
-files using shell patterrns you cannot use a T1s file. (the T1s won't
-match the time steps). It is ok to leave out the last time steps but
-not to skip time steps.
-
+Execute ./foam without any parameters to see a list of options.
 
 
 Generate a movie
@@ -200,8 +196,8 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
-0.5.     - use boost program_options for command line
-	 - use --using-original for datasets that have to use ORIGINAL 
+0.5.1957 - use long command line options (boost program options)
+	 - use --use-original for datasets that have to use ORIGINAL 
 	   attribute (ellipse)
 	 - added --constraint-rotation option to read rotation of the 
 	   ellipse from the DMP file
@@ -211,7 +207,8 @@ Release log
 	   previous timesteps)
 	 - use the stencil buffer to display concave polygons (fixes display 
 	   for some bubbles in the ellipse datase)
-	 - 	 
+	 - fix sausage_problem
+	 - added right-click > Context > Stationary > Foam
 0.5.1928 - bug for tmp_in.dmp (array on several lines)
 	 - changed body ID to the one specified in ORIGINAL attribute 
 	   (fixes ell0.700000_750v_5.000000_1.dmp) only for 2D. Otherwise

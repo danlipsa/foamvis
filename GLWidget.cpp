@@ -129,7 +129,7 @@ const double GLWidget::MAX_CONTEXT_ALPHA = 0.5;
 const double GLWidget::ENCLOSE_ROTATION_RATIO = 1;
 const GLfloat GLWidget::MAX_T1_SIZE = 10.0;
 const GLfloat GLWidget::MIN_T1_SIZE = 1.0;
-const GLfloat GLWidget::HIGHLIGHT_LINE_WIDTH = 3.0;
+const GLfloat GLWidget::HIGHLIGHT_LINE_WIDTH = 2.0;
 
 // Methods
 // ======================================================================
@@ -968,6 +968,7 @@ void GLWidget::initializeGL()
     initializeGLFunctions ();
     glClearColor (Qt::white);
     glEnable(GL_DEPTH_TEST);
+    glEnable (GL_MULTISAMPLE);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     DisplayFaceStatistics::InitShaders ();
     initializeLighting ();
@@ -1231,8 +1232,8 @@ void GLWidget::displayContextStationaryFoam (
 	    glPushMatrix ();
 	    rotateStationaryConstraint (GetTimeStep (), -1);
 	}
-	DisplayBox (GetFoamAlongTime (), GetHighlightColor (
-			viewNumber, HighlightNumber::H1), 
+	DisplayBox (GetFoamAlongTime (), 
+		    GetHighlightColor (viewNumber, HighlightNumber::H1),
 		    HIGHLIGHT_LINE_WIDTH);
 	if (adjustForContextStationaryFoam)
 	    glPopMatrix ();
@@ -1803,6 +1804,7 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
 	    GetFoam (GetTimeStep ()).GetConstraintRotation ();
 	G3D::Vector3 rc = G3D::Vector3 (rotationBegin.m_center, 0.0);
 	G3D::Vector2 rotationCenter = gluProject (rc).xy ();
+	rotationCenter -= vs.GetViewport ().x0y0 ();
 	float angleDegrees = G3D::toDegrees (
 	    rotationCurrent.m_angle - rotationBegin.m_angle);
 	vs.GetDisplayFaceStatistics ()->DisplayAndRotate (
