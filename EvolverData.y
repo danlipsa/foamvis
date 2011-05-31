@@ -286,6 +286,7 @@ faces
 }
 bodies
 {
+    foam->Preprocess ();
     //foam->GetParsingData ().PrintTimeCheckpoint ("After bodies:");
 }
 

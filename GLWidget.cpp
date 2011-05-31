@@ -161,6 +161,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_centerPathLineUsed (false),
       m_t1sShown (false),
       m_t1Size (MIN_T1_SIZE),
+      m_highlightLineWidth (HIGHLIGHT_LINE_WIDTH),
       m_zeroedPressureShown (false),
       m_titleShown (false),
       m_timeStepShown (false),
@@ -381,7 +382,7 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
     {
 	BOOST_FOREACH (boost::shared_ptr<ViewSettings> vs, m_viewSettings)
 	{
-	    vs->SetViewType (ViewType::EDGES);
+	    vs->SetViewType (ViewType::FACES);
 	    vs->SetAxesOrder (AxesOrder::TWO_D);
 	}
     }
@@ -411,9 +412,18 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 
 double GLWidget::getMinimumEdgeRadius () const
 {
-    const G3D::AABox& box = 
-	GetFoamAlongTime ().GetFoam (0).GetBody (0).GetBoundingBox ();
-    return (box.high () - box.low ()).length () / 50;
+    const Foam& foam = GetFoamAlongTime ().GetFoam (0);
+    float l;
+    if (foam.GetBodies ().size () > 0)
+    {
+	const G3D::AABox& box = foam.GetBody (0).GetBoundingBox ();
+	l = (box.high () - box.low ()).length ();
+    }
+    else
+    {
+	l = foam.GetStandaloneFaces ()[0]->GetOrientedEdge (0)->GetLength ();
+    }
+    return  l / 50;
 }
 
 void GLWidget::calculateEdgeRadius (double edgeRadiusRatio,
@@ -1165,7 +1175,7 @@ void GLWidget::displayStationaryBody (ViewNumber::Enum viewNumber) const
 	Foam::Bodies focusBody (1);
 	focusBody[0] = *GetCurrentFoam ().FindBody (vs.GetStationaryBodyId ());
 	displayFacesContour<HighlightNumber::H0> (
-	    focusBody, viewNumber, HIGHLIGHT_LINE_WIDTH);
+	    focusBody, viewNumber, m_highlightLineWidth);
     }
 }
 
@@ -1184,7 +1194,7 @@ void GLWidget::displayStationaryConstraint (
 	    rotateStationaryConstraint (GetTimeStep (), -1);
 	}
 	glDisable (GL_DEPTH_TEST);
-	glLineWidth (HIGHLIGHT_LINE_WIDTH);
+	glLineWidth (m_highlightLineWidth);
 	glColor (GetHighlightColor (view, HighlightNumber::H0));
 	const Foam::Edges& constraintEdges = 
 	    GetCurrentFoam ().GetConstraintEdges (
@@ -1215,7 +1225,7 @@ void GLWidget::displayContextBodies (ViewNumber::Enum viewNumber) const
 			   boost::bind (&Body::GetId, _1)));
 	contextBodies.resize (end - contextBodies.begin ());
 	displayFacesContour<HighlightNumber::H1> (
-	    contextBodies, viewNumber, HIGHLIGHT_LINE_WIDTH);
+	    contextBodies, viewNumber, m_highlightLineWidth);
     }
 }
 
@@ -1234,7 +1244,7 @@ void GLWidget::displayContextStationaryFoam (
 	}
 	DisplayBox (GetFoamAlongTime (), 
 		    GetHighlightColor (viewNumber, HighlightNumber::H1),
-		    HIGHLIGHT_LINE_WIDTH);
+		    m_highlightLineWidth);
 	if (adjustForContextStationaryFoam)
 	    glPopMatrix ();
     }
@@ -1529,7 +1539,7 @@ void GLWidget::displayFocusBox (ViewNumber::Enum viewNumber) const
 	glScale (vs.GetContextScaleRatio ());
 	DisplayBox (focusBox, GetHighlightColor (
 			viewNumber, HighlightNumber::H0), 
-		    HIGHLIGHT_LINE_WIDTH);
+		    m_highlightLineWidth);
 	glPopMatrix ();
     }
 }
@@ -1838,7 +1848,7 @@ void GLWidget::displayFacesContour (const Foam::Faces& faces) const
 {
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
     for_each (faces.begin (), faces.end (),
-	      DisplayFaceColor<0xff000000, DisplayFaceLineStrip> (*this));
+	      DisplayFaceLineStripColor<0xff000000> (*this));
     glPopAttrib ();
 }
 
@@ -1846,8 +1856,7 @@ void GLWidget::displayFacesContour (const Foam::Bodies& bodies) const
 {
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
     for_each (bodies.begin (), bodies.end (),
-	      DisplayBody< DisplayFaceColor<0xff000000, 
-	      DisplayFaceLineStrip> > (
+	      DisplayBody< DisplayFaceLineStripColor<0xff000000> > (
 		  *this, *m_bodySelector));
     glPopAttrib ();
 }
@@ -1897,6 +1906,7 @@ void GLWidget::displayFacesInterior (
     glPopAttrib ();
 }
 
+
 void GLWidget::displayFacesInterior (const Foam::Faces& faces) const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
@@ -1904,7 +1914,7 @@ void GLWidget::displayFacesInterior (const Foam::Faces& faces) const
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
     for_each (faces.begin (), faces.end (),
-	      DisplayFaceBodyPropertyColor<> (*this));
+	      DisplayFaceDmpColor<0xff000000>(*this));
     glPopAttrib ();
 }
 
@@ -1917,8 +1927,8 @@ void GLWidget::displayFacesTorusTubes () const
     for_each (
 	faceSet.begin (), faceSet.end (),
 	DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceEdges<
-	DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadric, true> > > (
-	    *this));
+	DisplayEdgeTorus<DisplaySegmentQuadric, 
+	                 DisplaySegmentArrowQuadric, true> > > (*this));
     glPopAttrib ();
 }
 
@@ -2830,6 +2840,11 @@ void GLWidget::ValueChangedT1Size (int index)
     update ();
 }
 
+void GLWidget::ValueChangedHighlightLineWidth (int newWidth)
+{
+    m_highlightLineWidth = newWidth;
+    update ();
+}
 
 void GLWidget::ValueChangedEdgesRadius (int sliderValue)
 {

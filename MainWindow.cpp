@@ -68,6 +68,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     QGLFormat::setDefaultFormat(format);
     
     setupUi (this);
+    connectSignals ();
     CurrentIndexChangedViewCount (ViewCount::ONE);
     setupSliderData (foamAlongTime);
     setupHistogram ();
@@ -93,7 +94,6 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_timer->setInterval (33);
     createActions ();
     setTabOrder (radioButtonCenterPath, sliderTimeSteps);
-    connectSignals ();
     horizontalSliderT1Size->setValue (60);
     comboBoxWindowSize->setCurrentIndex (WindowSize::GL_720x480);    
 }
@@ -213,7 +213,8 @@ void MainWindow::setupButtonGroups ()
     buttonGroupViewType->setId (radioButtonEdgesNormal, ViewType::EDGES);
     buttonGroupViewType->setId (radioButtonEdgesTorus, ViewType::EDGES_TORUS);
     buttonGroupViewType->setId (radioButtonFacesNormal, ViewType::FACES);
-    buttonGroupViewType->setId (radioButtonFaceEdgesTorus, ViewType::FACES_TORUS);
+    buttonGroupViewType->setId (radioButtonFaceEdgesTorus, 
+				ViewType::FACES_TORUS);
     buttonGroupViewType->setId (radioButtonFacesStatistics, 
 				ViewType::FACES_STATISTICS);
     buttonGroupViewType->setId (radioButtonCenterPath, ViewType::CENTER_PATHS);
@@ -254,12 +255,13 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
     {
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::TWO_D);
 	comboBoxInteractionMode->setCurrentIndex (InteractionMode::SCALE);	
+	comboBoxColor->setCurrentIndex (BodyProperty::PRESSURE);
     }
     else
     {
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::THREE_D);
+	comboBoxColor->setCurrentIndex (BodyProperty::NONE);
     }
-    comboBoxColor->setCurrentIndex (BodyProperty::NONE);
 }
 
 

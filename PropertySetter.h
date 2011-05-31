@@ -14,7 +14,9 @@ class Body;
 class SetterValueTextureCoordinate
 {
 public:
-    SetterValueTextureCoordinate (const GLWidget& glWidget, ViewNumber::Enum view) :
+    SetterValueTextureCoordinate (
+	const GLWidget& glWidget, ViewNumber::Enum view) :
+
 	m_glWidget (glWidget), m_viewNumber (view)
     {
     }

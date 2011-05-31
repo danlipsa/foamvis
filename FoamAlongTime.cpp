@@ -129,8 +129,6 @@ void FoamAlongTime::calculateBodyWraps ()
 
 void FoamAlongTime::Preprocess ()
 {
-    cdbg << "Preprocess foam data ..." << endl;
-    MapPerFoam (&Foam::Preprocess);
     cdbg << "Preprocess temporal foam data ..." << endl;
     fixConstraintPoints ();
     MapPerFoam (&Foam::ReleaseParsingData);
@@ -157,8 +155,9 @@ void FoamAlongTime::fixConstraintPoints ()
     Foam* prevFoam = 0;
     for (size_t i = 0; i < foams.size (); ++i)
     {
-	foams[i]->FixConstraintPoints (prevFoam);
-	prevFoam = foams[i-1].get ();
+	Foam* foam = foams[i].get ();
+	foam->FixConstraintPoints (prevFoam);
+	prevFoam = foam;
     }
 }
 

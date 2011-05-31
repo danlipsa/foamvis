@@ -111,6 +111,16 @@ removing more digits between the square brackets.
 
 Execute ./foam without any parameters to see a list of options.
 
+Command lines for various datasets:
+-----------------------------------
+./foam_debug --t1s ~/Documents/swansea-phd/foam/ctrctn/energy_704v_0.1520_0.2400_8.0000_v1.dat ~/Documents/swansea-phd/foam/ctrctn/dump_0.1520_0.2400_8.0000_*.dmp
+
+./foam_debug --t1s ~/Documents/swansea-phd/foam/sedimenting_discs_interacting/t1_v0_posn_1500.dat ~/Documents/swansea-phd/foam/sedimenting_discs_interacting/c1v0_*
+./foam_debug --use-original --constraint-rotation "4 x0 y0 phi" ~/Documents/swansea-phd/foam/ellipse_in_flow/ell0.700000_???v_5.000000_1.dmp
+
+./foam_debug --use-original ~/Documents/swansea-phd/foam/sausage_all/saus_4_703v_0.120000_0.060000_0.628319_????.dmp
+
+
 
 Generate a movie
 ================
@@ -149,6 +159,9 @@ valgrind --suppressions=valgrind-supressions.txt --leak-check=yes
 You can use the option '--gen-suppressions=yes' to print suppressions
 to be added to 'valgrind-suppressions.txt'.
 
+Debug OpenGL (bugle, gldb-gui)
+===============================
+gldb-gui
 
 
 Prerequisites
@@ -196,7 +209,7 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
-0.5.1957 - use long command line options (boost program options)
+0.5.1958 - use long command line options (boost program options)
 	 - use --use-original for datasets that have to use ORIGINAL 
 	   attribute (ellipse)
 	 - added --constraint-rotation option to read rotation of the 

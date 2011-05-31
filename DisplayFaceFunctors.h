@@ -50,17 +50,8 @@ public:
      * @param f the face to be displayed
      */
     void operator() (const boost::shared_ptr<OrientedFace>& of);
-
+    
     void operator () (const boost::shared_ptr<Face>& f);
-
-protected:
-    virtual void display (const boost::shared_ptr<OrientedFace>& of);
-
-private:
-    /**
-     * Used to display fewer faces (for DEBUG purposes)
-     */
-    size_t m_count;
 };
 
 
@@ -91,44 +82,77 @@ public:
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	bool useZPos = false, 
 	double zPos = 0);
-
-protected:
-    virtual void display (const boost::shared_ptr<OrientedFace>& of);
+    void operator () (const boost::shared_ptr<OrientedFace>& of);
 
 private:
     void setColorOrTexture (const boost::shared_ptr<OrientedFace>& of, 
 			    bool* useColor);
 };
 
+
 template<QRgb faceColor,
-	 typename displaySameEdges = DisplayFaceLineStrip, 
 	 typename PropertySetter = SetterValueTextureCoordinate>
-class DisplayFaceColor : 
+class DisplayFaceLineStripColor : 
     public DisplayFaceHighlightColor<HighlightNumber::H0, 
-				     displaySameEdges, PropertySetter>
+				     DisplayFaceLineStrip, PropertySetter>
 {
 public:
     /**
      * Constructor
      * @param widget where is the face displayed
      */
-    DisplayFaceColor (
+    DisplayFaceLineStripColor (
 	const GLWidget& widget,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	ViewNumber::Enum view = ViewNumber::VIEW0, 
 	bool useZPos = false,
 	double zPos = 0);
 
-    DisplayFaceColor (
+    DisplayFaceLineStripColor (
+	const GLWidget& widget,
+	PropertySetter propertySetter,
+	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
+	bool useZPos = false, 
+	double zPos = 0);
+    void operator () (const boost::shared_ptr<OrientedFace>& of);
+    void operator () (const boost::shared_ptr<Face>& f);
+};
+
+
+
+template<QRgb faceColor,
+	 typename PropertySetter = SetterValueTextureCoordinate>
+class DisplayFaceDmpColor : 
+    public DisplayFaceHighlightColor<HighlightNumber::H0, 
+				     DisplayFaceTriangleFan, PropertySetter>
+{
+public:
+    /**
+     * Constructor
+     * @param widget where is the face displayed
+     */
+    DisplayFaceDmpColor (
+	const GLWidget& widget,
+	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
+	ViewNumber::Enum view = ViewNumber::VIEW0, 
+	bool useZPos = false,
+	double zPos = 0);
+
+    DisplayFaceDmpColor (
 	const GLWidget& widget,
 	PropertySetter propertySetter,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	bool useZPos = false, 
 	double zPos = 0);
 
-protected:
-    virtual void display (const boost::shared_ptr<OrientedFace>& of);
+    void operator () (const boost::shared_ptr<OrientedFace>& of);
+    void operator () (const boost::shared_ptr<Face>& f);
+private:
+    void displayNoNormal (const boost::shared_ptr<Face>& f);
 };
+
+
+
 
 #endif //__DISPLAY_FACE_FUNCTORS_H__
 

@@ -418,7 +418,7 @@ template class DisplayBody<
 
 template class DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H1, DisplayFaceLineStrip, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 
-template class DisplayBody<DisplayFaceColor<0xff000000, DisplayFaceLineStrip, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
+template class DisplayBody<DisplayFaceLineStripColor<0xff000000, SetterValueTextureCoordinate>, SetterValueTextureCoordinate>;
 
 
 

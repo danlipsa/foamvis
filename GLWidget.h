@@ -301,6 +301,7 @@ public Q_SLOTS:
     void ValueChangedStatisticsHistory (int timeSteps);
     void ValueChangedTimeDisplacement (int timeDisplacement);
     void ValueChangedT1Size (int index);
+    void ValueChangedHighlightLineWidth (int newWidth);
     // Actions
     void ResetTransformation ();
     void ResetSelectedLightNumber ();
@@ -678,6 +679,7 @@ private:
     bool m_centerPathLineUsed;
     bool m_t1sShown;
     GLfloat m_t1Size;
+    size_t m_highlightLineWidth;
     bool m_zeroedPressureShown;
     bool m_titleShown;
     bool m_timeStepShown;

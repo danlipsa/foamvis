@@ -26,7 +26,7 @@ void initialize (boost::array<GLfloat, 4>& colors,
 // ======================================================================
 ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_viewType (ViewType::COUNT),
-    m_bodyProperty (BodyProperty::NONE),
+    m_bodyProperty (BodyProperty::PRESSURE),
     m_statisticsType (StatisticsType::AVERAGE),
     m_listCenterPaths (0),
     m_colorBarTexture (0),
