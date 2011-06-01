@@ -209,7 +209,7 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
-0.5.1958 - use long command line options (boost program options)
+0.5.1960 - use long command line options (boost program options)
 	 - use --use-original for datasets that have to use ORIGINAL 
 	   attribute (ellipse)
 	 - added --constraint-rotation option to read rotation of the 
