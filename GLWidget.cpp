@@ -1172,10 +1172,13 @@ void GLWidget::displayStationaryBody (ViewNumber::Enum viewNumber) const
     if (m_stationaryMarked && 
 	vs.GetStationaryType () == ViewSettings::STATIONARY_BODY)
     {
+	glPushAttrib (GL_ENABLE_BIT);
+	glDisable (GL_DEPTH_TEST);
 	Foam::Bodies focusBody (1);
 	focusBody[0] = *GetCurrentFoam ().FindBody (vs.GetStationaryBodyId ());
 	displayFacesContour<HighlightNumber::H0> (
 	    focusBody, viewNumber, m_highlightLineWidth);
+	glPopAttrib ();
     }
 }
 
@@ -1216,6 +1219,8 @@ void GLWidget::displayContextBodies (ViewNumber::Enum viewNumber) const
     ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.GetContextDisplayBodySize () > 0)
     {
+	glPushAttrib (GL_ENABLE_BIT);
+	glDisable (GL_DEPTH_TEST);
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	Foam::Bodies contextBodies (bodies.size ());
 	
@@ -1226,6 +1231,7 @@ void GLWidget::displayContextBodies (ViewNumber::Enum viewNumber) const
 	contextBodies.resize (end - contextBodies.begin ());
 	displayFacesContour<HighlightNumber::H1> (
 	    contextBodies, viewNumber, m_highlightLineWidth);
+	glPopAttrib ();
     }
 }
 
@@ -1237,6 +1243,8 @@ void GLWidget::displayContextStationaryFoam (
     ViewSettings::ContextStationaryType type = vs.GetContextStationaryType ();
     if (type == ViewSettings::CONTEXT_STATIONARY_FOAM)
     {
+	glPushAttrib (GL_ENABLE_BIT);
+	glDisable (GL_DEPTH_TEST);
 	if (adjustForContextStationaryFoam)
 	{
 	    glPushMatrix ();
@@ -1247,6 +1255,7 @@ void GLWidget::displayContextStationaryFoam (
 		    m_highlightLineWidth);
 	if (adjustForContextStationaryFoam)
 	    glPopMatrix ();
+	glPopAttrib ();
     }
 }
 
@@ -1740,7 +1749,8 @@ void GLWidget::displayBodyCenters (bool useZPos) const
 	double zPos = (GetViewSettings ().GetViewType () == 
 		       ViewType::CENTER_PATHS) ?
 	    GetTimeStep () * GetTimeDisplacement () : 0;
-	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
+	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
+	glDisable (GL_DEPTH_TEST);
 	glPointSize (4.0);
 	glColor (Qt::red);
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
@@ -1765,8 +1775,6 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum view) const
     if (m_facesShowEdges)
 	displayFacesContour (bodies);
     displayFacesInterior (bodies, view);
-    glPushAttrib (GL_ENABLE_BIT);
-    glDisable (GL_DEPTH_TEST);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
     displayStationaryBody (view);
     displayStationaryConstraint (view);
@@ -1774,7 +1782,6 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum view) const
     displayContextStationaryFoam (view);
     displayStandaloneFaces ();    
     displayBodyCenters ();
-    glPopAttrib ();
 }
 
 pair<double, double> GLWidget::getStatisticsMinMax (ViewNumber::Enum view) const
