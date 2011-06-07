@@ -20,6 +20,7 @@ class Foam;
 class Edge;
 class EditColorMap;
 class FoamAlongTime;
+class Force;
 class OrientedFace;
 class OrientedEdge;
 class OOBox;
@@ -449,6 +450,12 @@ private:
     void displayView (ViewNumber::Enum view);
     void displayViews ();
     void displayContextBodies (ViewNumber::Enum view) const;
+    void displayForces (ViewNumber::Enum viewNumber) const;
+    void displayNetworkPressureForce (
+	ViewNumber::Enum viewNumber, const Force& force) const;
+    void displayForce (
+	QColor color,
+	const G3D::Vector3& center, const G3D::Vector3& force) const;
     void displayContextStationaryFoam (
 	ViewNumber::Enum view,
 	bool adjustForContextStationaryFoam = false) const;

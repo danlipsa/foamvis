@@ -15,6 +15,26 @@
 
 // Private Functions and classes
 // ======================================================================
+class FoamMethodList
+{
+public:
+    FoamMethodList (FoamMethod* foamMethods, size_t n):
+	m_foamMethods (foamMethods), m_n (n)
+    {
+    }
+
+    void operator () (boost::shared_ptr<Foam> foam)
+    {
+	for (size_t i = 0; i < m_n; ++i)
+	    CALL_MEMBER_FN(foam.get (), m_foamMethods[i]) ();
+    }
+
+private:
+    FoamMethod* m_foamMethods;
+    size_t m_n;
+};
+
+
 QString lastName (const QString& path)
 {
     int slashPos = path.lastIndexOf ('/');
@@ -34,14 +54,20 @@ public:
      * @param dir directory where all DMP files are
      */
     parseFile (
-	QString dir, const ConstraintRotationNames& names, bool useOriginal,
+	QString dir, 
+	const ConstraintRotationNames& constraintRotationNames, 
+	const vector<ForceNames>& forcesNames,
+	bool useOriginal, 
 	bool debugParsing = false, bool debugScanning = false) : 
 
-        m_dir (qPrintable(dir)), m_names (names), 
+        m_dir (qPrintable(dir)), 
+	m_constraintRotationNames (constraintRotationNames), 
 	m_useOriginal (useOriginal),
 	m_debugParsing (debugParsing),
 	m_debugScanning (debugScanning)
     {
+	m_forcesNames.resize (forcesNames.size ());
+	copy (forcesNames.begin (), forcesNames.end (), m_forcesNames.begin ());
     }
     
     /**
@@ -59,7 +85,10 @@ public:
 	    ostringstream ostr;
 	    ostr << "Parsing " << file << " ..." << endl;
 	    cdbg << ostr.str ();
-	    foam.reset (new Foam (m_useOriginal, m_names));
+	    foam.reset (
+		new Foam (m_useOriginal, 
+			  m_constraintRotationNames,
+			  m_forcesNames));
 	    foam->GetParsingData ().SetDebugParsing (m_debugParsing);
 	    foam->GetParsingData ().SetDebugScanning (m_debugScanning);
 	    string fullPath = m_dir + '/' + file;
@@ -80,7 +109,8 @@ private:
      * Directory that stores the DMP files.
      */
     const string m_dir;
-    const ConstraintRotationNames& m_names;
+    const ConstraintRotationNames& m_constraintRotationNames;
+    vector<ForceNames> m_forcesNames;
     const bool m_useOriginal;
     const bool m_debugParsing;
     const bool m_debugScanning;
@@ -131,9 +161,11 @@ void FoamAlongTime::Preprocess ()
 {
     cdbg << "Preprocess temporal foam data ..." << endl;
     fixConstraintPoints ();
-    MapPerFoam (&Foam::ReleaseParsingData);
-    MapPerFoam (&Foam::CalculateBoundingBox);
-    MapPerFoam (&Foam::CalculatePerimeterOverArea);
+    boost::array<FoamMethod, 3> methods = {{
+	    &Foam::ReleaseParsingData,
+	    &Foam::CalculateBoundingBox,
+	    &Foam::CalculatePerimeterOverArea}};
+    MapPerFoam (&methods[0], methods.size ());
     CalculateBoundingBox ();
     CacheBodiesAlongTime ();
     calculateBodyWraps ();
@@ -161,7 +193,15 @@ void FoamAlongTime::fixConstraintPoints ()
     }
 }
 
-void FoamAlongTime::MapPerFoam (void (Foam::*f) ())
+
+void FoamAlongTime::MapPerFoam (FoamMethod* foamMethods, size_t n)
+{
+    FoamMethodList fl (foamMethods, n);
+    QtConcurrent::blockingMap (m_foams.begin (), m_foams.end (), fl);
+}
+
+
+void FoamAlongTime::MapPerFoam (FoamMethod f)
 {
     QtConcurrent::blockingMap (
 	m_foams.begin (), m_foams.end (), boost::bind (f, _1));
@@ -448,6 +488,7 @@ void FoamAlongTime::ParseFiles (
     const vector<string>& fileNames,
     bool useOriginal,
     const ConstraintRotationNames& constraintRotationNames,
+    const vector<ForceNames>& forcesNames,
     bool debugParsing, bool debugScanning)
 {
     QDir dir;
@@ -455,6 +496,8 @@ void FoamAlongTime::ParseFiles (
     string filePattern;
     m_useOriginal = useOriginal;
     m_constraintRotationNames = constraintRotationNames;
+    m_forcesNames.resize (forcesNames.size ());
+    copy (forcesNames.begin (), forcesNames.end (), m_forcesNames.begin ());
     QFileInfo fileInfo (fileNames[0].c_str ());
     dir = fileInfo.absoluteDir ();
     BOOST_FOREACH (const string& fn, fileNames)
@@ -470,7 +513,8 @@ void FoamAlongTime::ParseFiles (
 	files,
 	parseFile (
 	    dir.absolutePath (), 
-	    GetConstraintRotationNames (), 
+	    GetConstraintRotationNames (),
+	    GetForcesNames (),
 	    OriginalUsed (),
 	    debugParsing, debugScanning));
     if (count_if (foams.constBegin (), foams.constEnd (),

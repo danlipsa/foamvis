@@ -9,6 +9,7 @@
 
 #include "ConstraintRotation.h"
 #include "Comparisons.h"
+#include "Force.h"
 #include "ParsingDriver.h"
 
 class AttributesInfo;
@@ -54,7 +55,9 @@ public:
     /**
      * Constructs a ParsingData object
      */
-    ParsingData (bool useOriginal, const ConstraintRotationNames& names);
+    ParsingData (bool useOriginal, 
+		 const ConstraintRotationNames& constraintRotationNames,
+		 const vector<ForceNames>& forcesNames);
 
     void AddAttribute (const char* s)
     {
@@ -265,7 +268,11 @@ public:
 
     const ConstraintRotationNames& GetConstraintRotationNames () const
     {
-	return m_names;
+	return m_constraintRotationNames;
+    }
+    const vector<ForceNames>& GetForcesNames () const
+    {
+	return m_forcesNames;
     }
 
 public:
@@ -323,7 +330,8 @@ private:
     size_t m_parenthesisCount;
     bool m_newLineSignificant;
     bool m_useOriginal;
-    ConstraintRotationNames m_names;
+    ConstraintRotationNames m_constraintRotationNames;
+    vector<ForceNames> m_forcesNames;
 
 private:
     static const char* IMPLEMENTED_METHODS[];

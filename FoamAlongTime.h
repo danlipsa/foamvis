@@ -11,6 +11,8 @@
 #include "Comparisons.h"
 #include "Statistics.h"
 #include "ConstraintRotation.h"
+#include "Force.h"
+#include "Utils.h"
 
 class Foam;
 
@@ -93,8 +95,6 @@ public:
 	return acc::max (GetHistogram (property));
     }
 
-    void MapPerFoam (void (Foam::*f) ());
-
     QwtDoubleInterval GetRange (BodyProperty::Enum property) const
     {
 	return QwtDoubleInterval (GetMin (property), GetMax (property));
@@ -144,11 +144,20 @@ public:
     const ConstraintRotationNames& GetConstraintRotationNames () const
     {
 	return m_constraintRotationNames;
-    }
-    bool ConstraintRotationNamesUsed () const
+    }    
+    bool ConstraintRotationUsed () const
     {
-	return ! m_constraintRotationNames.m_xName.empty ();
+	return ! m_constraintRotationNames.IsEmpty ();
     }
+    const vector<ForceNames>& GetForcesNames () const
+    {
+	return m_forcesNames;
+    }
+    bool ForceUsed () const
+    {
+	return m_forcesNames.size ();
+    }
+
     /**
      * Read T1s from the file for as many time steps as there are DMPs
      * Has to be called after parsing the DMP files.
@@ -173,9 +182,12 @@ public:
     void ParseFiles (const vector<string>& fileNames,
 		     bool useOriginal,
 		     const ConstraintRotationNames& constraintRotationNames,
+		     const vector<ForceNames>& forcesNames,
 		     bool debugParsing, bool debugScanning);
 
 private:
+    void MapPerFoam (FoamMethod* foamMethods, size_t n);
+    void MapPerFoam (void (Foam::*f) ());
     void fixConstraintPoints ();
     void adjustPressureAlignMedians ();
     void adjustPressureSubtractReference ();
@@ -213,6 +225,7 @@ private:
     vector< vector<G3D::Vector3> > m_t1s;
     int m_t1sTimestepShift;
     ConstraintRotationNames m_constraintRotationNames;
+    vector<ForceNames> m_forcesNames;
     bool m_useOriginal;
 };
 

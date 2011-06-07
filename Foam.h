@@ -11,6 +11,7 @@
 #include "Comparisons.h"
 #include "ParsingEnums.h"
 #include "Enums.h"
+#include "Force.h"
 #include "Hashes.h"
 #include "OOBox.h"
 #include "Statistics.h"
@@ -36,12 +37,13 @@ public:
     typedef vector< boost::shared_ptr<Face> > Faces;
     typedef vector< boost::shared_ptr<Body> > Bodies;
 
-
 public:
     /**
      * Constructs a Foam object.
      */
-    Foam (bool useOriginal, const ConstraintRotationNames& names);
+    Foam (bool useOriginal, 
+	  const ConstraintRotationNames& constraintRotationNames,
+	  const vector<ForceNames>& forcesNames);
 
     void GetVertexSet (VertexSet* vertexSet) const;
     VertexSet GetVertexSet () const
@@ -274,11 +276,18 @@ public:
     }
     
     void CalculateMinMaxStatistics ();
-    void SetConstraintRotation (const ConstraintRotationNames& constraintRotationNames);
+    void SetConstraintRotation (
+	const ConstraintRotationNames& constraintRotationNames);
     const ConstraintRotation& GetConstraintRotation () const
     {
 	return m_constraintRotation;
     }
+    const vector<Force>& GetForces () const
+    {
+	return m_forces;
+    }
+    void SetForces (const vector<ForceNames>& forcesNames);
+
     /**
      * Calculate the bounding box for all vertices in this Foam
      */
@@ -296,6 +305,7 @@ public:
     friend ostream& operator<< (ostream& ostr, const Foam& d);
 
 private:
+    void setForce (const ForceNames& names, Force* forces);
     void copyStandaloneElements ();
     /**
      * The vectors of vertices, edges, faces and bodies may have holes.
@@ -375,6 +385,7 @@ private:
     double m_max[BodyProperty::PROPERTY_END];
     vector<HistogramStatistics> m_histogram;
     ConstraintRotation m_constraintRotation;
+    vector<Force> m_forces;
     /*
      * BodyIndex, PointIndex for constraint points that need fixing.
      */

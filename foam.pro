@@ -7,7 +7,7 @@ HEADERS += Application.h ApproximationEdge.h\
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h DisplayWidget.h\
 	SelectBodiesById.h EditColorMap.h Edge.h Element.h ExpressionTree.h \
-	Enums.h Foam.h FoamAlongTime.h Face.h \
+	Enums.h Foam.h FoamAlongTime.h Face.h Force.h\
 	GLWidget.h Hashes.h Histogram.h HistogramItem.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
 	OOBox.h OpenGLInfo.h OpenGLUtils.h OrientedElement.h\

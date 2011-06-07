@@ -64,9 +64,12 @@ void compact (vector< boost::shared_ptr<E> >& v)
 // Methods
 // ======================================================================
 
-Foam::Foam (bool useOriginal, const ConstraintRotationNames& names) :
+Foam::Foam (bool useOriginal, 
+	    const ConstraintRotationNames& constraintRotationNames,
+	    const vector<ForceNames>& forcesNames) :
     m_viewMatrix (new G3D::Matrix4 (G3D::Matrix4::identity ())),
-    m_parsingData (new ParsingData (useOriginal, names)),
+    m_parsingData (new ParsingData (
+		       useOriginal, constraintRotationNames, forcesNames)),
     m_spaceDimension (3),
     m_quadratic (false),
     m_histogram (
@@ -396,10 +399,13 @@ void Foam::Preprocess ()
     VertexSet vertexSet;
     EdgeSet edgeSet;
     FaceSet faceSet;
-    const ConstraintRotationNames& names = 
+    const ConstraintRotationNames& constraintRotationNames = 
 	GetParsingData ().GetConstraintRotationNames ();
-    if (! names.m_xName.empty ())
-	SetConstraintRotation (names);
+    if (! constraintRotationNames.IsEmpty ())
+	SetConstraintRotation (constraintRotationNames);
+    const vector<ForceNames>& forcesNames = GetParsingData ().GetForcesNames ();
+    if (forcesNames.size () > 0)
+	SetForces (forcesNames);
     compact ();
     updatePartOf ();
     copyStandaloneElements ();
@@ -732,6 +738,27 @@ void Foam::SetConstraintRotation (const ConstraintRotationNames& names)
 	GetParsingData ().GetVariableValue (names.m_yName);
     m_constraintRotation.m_angle =  
 	GetParsingData ().GetVariableValue (names.m_angleName);
+}
+
+
+void Foam::SetForces (const vector<ForceNames>& forcesNames)
+{
+    m_forces.resize (forcesNames.size ());
+    for (size_t i = 0; i < forcesNames.size (); ++i)
+	setForce (forcesNames[i], &m_forces[i]);
+}
+
+void Foam::setForce (const ForceNames& names, Force* forces)
+{
+    forces->m_body = *FindBody (names.m_bodyId);
+    forces->m_networkForce[0] = GetParsingData ().GetVariableValue (
+	names.m_networkForceName[0]);
+    forces->m_networkForce[1] = GetParsingData ().GetVariableValue (
+	names.m_networkForceName[1]);
+    forces->m_pressureForce[0] = GetParsingData ().GetVariableValue (
+	names.m_pressureForceName[0]);
+    forces->m_pressureForce[1] = GetParsingData ().GetVariableValue (
+	names.m_pressureForceName[1]);
 }
 
 

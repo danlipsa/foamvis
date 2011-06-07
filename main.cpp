@@ -8,6 +8,7 @@
 #include "Debug.h"
 #include "Foam.h"
 #include "FoamAlongTime.h"
+#include "Force.h"
 #include "ParsingData.h"
 #include "MainWindow.h"
 #include "DebugStream.h"
@@ -102,7 +103,8 @@ const char* optionName[] =
     "constraint-rotation",
     "debug-parsing",
     "debug-scanning",
-    "dmp-file",
+    "dmp-files",
+    "forces",
     "help",
     "original-pressure",
     "output-text",
@@ -116,59 +118,89 @@ struct Option
 {
     enum Enum
     {
-	CONSTRAINT_ROTATION,    // a
-	DEBUG_PARSING,          // p
-	DEBUG_SCANNING,         // s
-	DMP_FILE,
+	CONSTRAINT_ROTATION,
+	DEBUG_PARSING,
+	DEBUG_SCANNING,
+	DMP_FILES,
+	FORCES,
 	HELP,
-	ORIGINAL_PRESSURE,      // o
-	OUTPUT_TEXT,            // t
-	T1S,                    // r
+	ORIGINAL_PRESSURE,
+	OUTPUT_TEXT,
+	T1S,
 	USE_ORIGINAL,
 	VERSION,
 	COUNT
     };
 };
 
+class ReadStringToken
+{
+public:
+    ReadStringToken (boost::tokenizer<>& tok, const string& errorMessage) :
+	m_tok (tok), m_errorMessage (errorMessage)
+    {
+    }
+
+    void operator() (string* dest, boost::tokenizer<>::iterator* it)
+    {
+	if (++(*it) == m_tok.end ())
+	    throw invalid_argument (m_errorMessage);
+	*dest = *(*it);
+    }
+private:
+    boost::tokenizer<>& m_tok;
+    const string& m_errorMessage;
+};
 
 void validate(boost::any& v, const std::vector<std::string>& values,
               ConstraintRotationNames* ignore1, int ignore2)
 {
     (void) ignore1;(void)ignore2;
-    ConstraintRotationNames am;
+    ConstraintRotationNames crn;
     boost::tokenizer<> tok (values[0]);
     istringstream istr;
+    string errorMessage ("--constraint-rotation needs four parameters.");
     boost::tokenizer<>::iterator it = tok.begin ();
     if (it == tok.end ())
-	goto error;
+	throw invalid_argument (errorMessage);
     istr.str (*it);
-    istr >> am.m_constraintIndex;
-    --am.m_constraintIndex;
-    if (++it == tok.end ())
-	goto error;
-    am.m_xName = *it;
-    if (++it == tok.end ())
-	goto error;
-    am.m_yName = *it;
-    if (++it == tok.end ())
-	goto error;
-    am.m_angleName = *it;
-    if (++it != tok.end ())
-	goto error;
-    v = boost::any(am);
-    return;
-
-error:
-    throw invalid_argument (
-	"--constraint-rotation needs four parameters: "
-	"\"<xName> <yName> <angleName> <constraint>\"");
+    istr >> crn.m_constraintIndex;
+    --crn.m_constraintIndex;
+    ReadStringToken readStringToken (tok, errorMessage);
+    readStringToken (&crn.m_xName, &it);
+    readStringToken (&crn.m_yName, &it);
+    readStringToken (&crn.m_angleName, &it);
+    v = boost::any(crn);
 }
 
+
+void validate(boost::any& v, const std::vector<std::string>& values,
+              ForceNames* ignore1, int ignore2)
+{
+    (void)ignore1;(void)ignore2;
+    ForceNames fn;
+    boost::tokenizer<> tok (values[0]);
+    istringstream istr;
+    string errorMessage ("--forces needs 5 parameters.");
+    boost::tokenizer<>::iterator it = tok.begin ();
+    if (it == tok.end ())
+	throw invalid_argument (errorMessage);
+    istr.str (*it);
+    istr >> fn.m_bodyId;
+    --fn.m_bodyId;
+    ReadStringToken readStringToken (tok, errorMessage);
+    readStringToken (&fn.m_networkForceName[0], &it);
+    readStringToken (&fn.m_networkForceName[1], &it);
+    readStringToken (&fn.m_pressureForceName[0], &it);
+    readStringToken (&fn.m_pressureForceName[1], &it);
+    v = boost::any(fn);    
+}
 
 void parseOptions (int argc, char *argv[],
 		   string* t1sFile,
 		   vector<string>* fileNames,
 		   ConstraintRotationNames* constraintRotationNames,
+		   vector<ForceNames>* forcesNames,
 		   po::variables_map* vm)
 {
     // Declare the supported options.
@@ -179,38 +211,49 @@ void parseOptions (int argc, char *argv[],
     genericOptions.add_options()
 	(optionName[Option::CONSTRAINT_ROTATION], 
 	 po::value<ConstraintRotationNames>(constraintRotationNames), 
-	 "read a rotation for a constraint.\n"
-	 "arg=\"<constraint> <x> <y> <angle>\" where " 
-	 "<constraint> specifies the constraint number, <x>, <y> specify "
-	 "names for parameters that store the center of rotation and "
-	 "<angle> specifies the name of the parameter that stores "
+	 "reads a rotation for a constraint.\n"
+	 "arg=\"<constraint> <xName> <yName> <angleName>\" where " 
+	 "<constraint> specifies the constraint number, <xName>, <yName> "
+	 "specify names for parameters that store the center of rotation and "
+	 "<angleName> specifies the name of the parameter that stores "
 	 "the rotation angle.")
-	(optionName[Option::DEBUG_PARSING], "debug parsing")	    
-	(optionName[Option::DEBUG_SCANNING], "debug scanning")
+	(optionName[Option::DEBUG_PARSING], 
+	 "produces output that help debugging the parser")
+	(optionName[Option::DEBUG_SCANNING], 
+	 "produces output that helps debugging the scanner")
+	(optionName[Option::FORCES], 
+	 po::value< vector<ForceNames> >(forcesNames),
+	 "reads the forces acting on a body.\n"
+	 "arg=\"<bodyId> <networkXName> <networkYName> "
+	 "<pressureXName> <pressureYName>\" where <bodyId> is the ID of the "
+	 "body the force acts on, (<networkXName>, <networkYName>) are the "
+	 "names of the X and Y components of the network force and "
+	 "(<pressureXName>, <pressureYName>) are the X and Y components of "
+	 "the pressure force.")
 	(optionName[Option::HELP], "produce help message")
 	(optionName[Option::ORIGINAL_PRESSURE],
-	 "show original pressure values")	    
+	 "shows original pressure values")	    
 	(optionName[Option::OUTPUT_TEXT],
 	 "outputs a text representation of the data")	    
 	(optionName[Option::T1S],
 	 po::value<string>(t1sFile), 
-	 "read T1 positions.\n"
+	 "reads T1 positions.\n"
 	 "arg=<file> where <file> specifies a text file with "
 	 "T1 times and positions. Reading T1s won't work if you "
 	 "skip time steps")
-	(optionName[Option::USE_ORIGINAL], "use ORIGINAL atrribute "
+	(optionName[Option::USE_ORIGINAL], "uses the ORIGINAL atribute "
 	 "to figure out the body id.")
-	(optionName[Option::VERSION], "print version information")
+	(optionName[Option::VERSION], "prints version information")
 	;
     po::options_description hiddenOptions("Hidden options");
     hiddenOptions.add_options()
-	("dmp-file", po::value< vector<string> >(fileNames), "dmp file")
-	;
+	(optionName[Option::DMP_FILES], 
+	 po::value< vector<string> >(fileNames), "dmp file");
     po::options_description options;
     options.add(genericOptions).add(hiddenOptions);
 
     po::positional_options_description positionalOptions;
-    positionalOptions.add(optionName[Option::DMP_FILE], -1);
+    positionalOptions.add(optionName[Option::DMP_FILES], -1);
 
     po::store(po::command_line_parser (argc, argv).
 	      options (options).positional (positionalOptions).
@@ -236,7 +279,7 @@ void parseOptions (int argc, char *argv[],
 	cout << endl;
 	exit (0);
     }
-    if (argc == 1 || ! vm->count (optionName[Option::DMP_FILE]))
+    if (argc == 1 || ! vm->count (optionName[Option::DMP_FILES]))
     {
 	cerr << "No DMP file specified" << endl;
 	cerr << genericOptions << endl;
@@ -258,15 +301,18 @@ int main(int argc, char *argv[])
 	string t1sFile;
 	vector<string> fileNames;
 	ConstraintRotationNames constraintRotationNames;
+	vector<ForceNames> forcesNames;
 	po::variables_map vm;
 
 	parseOptions (argc, argv, 
 		      &t1sFile, &fileNames, &constraintRotationNames,
+		      &forcesNames,
 		      &vm);
 	foamAlongTime.ParseFiles (
 	    fileNames,
 	    vm.count (optionName[Option::USE_ORIGINAL]),
 	    constraintRotationNames,
+	    forcesNames,
 	    vm.count (optionName[Option::DEBUG_PARSING]), 
 	    vm.count (optionName[Option::DEBUG_SCANNING]));
 	size_t timeSteps = foamAlongTime.GetTimeSteps ();

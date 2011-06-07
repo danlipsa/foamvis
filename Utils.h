@@ -108,6 +108,11 @@ template<typename Container> void resizeAllowIndex (Container* c, size_t i)
 const size_t HISTOGRAM_INTERVALS = 256;
 const size_t INVALID_INDEX = numeric_limits<size_t>::max ();
 
+#define CALL_MEMBER_FN(object,ptrToMember)  ((object)->*(ptrToMember))
+class Foam;
+typedef void (Foam::*FoamMethod) ();
+
+
 #endif //__UTILS_H__
 
 // Local Variables:

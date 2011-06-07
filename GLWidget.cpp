@@ -1224,11 +1224,12 @@ void GLWidget::displayContextBodies (ViewNumber::Enum viewNumber) const
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	Foam::Bodies contextBodies (bodies.size ());
 	
-	Foam::Bodies::const_iterator end = remove_copy_if (
-	    bodies.begin (), bodies.end (), contextBodies.begin (),
-	    ! boost::bind (&ViewSettings::IsContextDisplayBody, vs, 
-			   boost::bind (&Body::GetId, _1)));
-	contextBodies.resize (end - contextBodies.begin ());
+
+	size_t j = 0;
+	for (size_t i = 0; i < bodies.size (); ++i)
+	    if (vs.IsContextDisplayBody (bodies[i]->GetId ()))
+		contextBodies[j++] = bodies[i];
+	contextBodies.resize (j);
 	displayFacesContour<HighlightNumber::H1> (
 	    contextBodies, viewNumber, m_highlightLineWidth);
 	glPopAttrib ();
@@ -1363,7 +1364,7 @@ void GLWidget::StationaryBody ()
 void GLWidget::StationaryConstraint ()
 {
     ViewSettings& vs = GetViewSettings ();
-    if (GetFoamAlongTime ().ConstraintRotationNamesUsed ())
+    if (GetFoamAlongTime ().ConstraintRotationUsed ())
     {
 	vs.SetStationaryType (ViewSettings::STATIONARY_CONSTRAINT);
 	vs.SetStationaryBodyId (INVALID_INDEX);
@@ -1768,20 +1769,59 @@ void GLWidget::displayBodyCenters (bool useZPos) const
     }
 }
 
-void GLWidget::displayFacesNormal (ViewNumber::Enum view) const
+void GLWidget::displayForces (ViewNumber::Enum viewNumber) const
+{
+    if (GetFoamAlongTime ().ForceUsed ())
+    {
+	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
+	glDisable (GL_DEPTH_TEST);
+	const vector<Force>& forces = GetCurrentFoam ().GetForces ();
+	BOOST_FOREACH (const Force& force, forces)
+	    displayNetworkPressureForce (viewNumber, force);
+	glPopAttrib ();
+    }
+}
+
+void GLWidget::displayNetworkPressureForce (
+    ViewNumber::Enum viewNumber, const Force& force) const
+{
+    const G3D::AABox& box = 
+	GetFoamAlongTime ().GetFoam (0).GetBody (0).GetBoundingBox ();
+    float unitForceSize = 5 * (box.high () - box.low ()).length ();
+    G3D::Vector3 center = force.m_body->GetCenter ();
+    displayForce (
+	GetHighlightColor (viewNumber, HighlightNumber::H0),
+	center, G3D::Vector3 (unitForceSize * force.m_networkForce, 0));
+    displayForce (
+	GetHighlightColor (viewNumber, HighlightNumber::H1),
+	center, G3D::Vector3 (unitForceSize * force.m_pressureForce, 0));
+}
+
+void GLWidget::displayForce (QColor color,
+    const G3D::Vector3& center, const G3D::Vector3& force) const
+{
+    glColor (color);
+    glBegin (GL_LINES);
+    ::glVertex (center);
+    ::glVertex (center + force);
+    glEnd ();
+}
+
+void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
 {
     const Foam& foam = GetCurrentFoam ();
     const Foam::Bodies& bodies = foam.GetBodies ();
     if (m_facesShowEdges)
 	displayFacesContour (bodies);
-    displayFacesInterior (bodies, view);
+    displayFacesInterior (bodies, viewNumber);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
-    displayStationaryBody (view);
-    displayStationaryConstraint (view);
-    displayContextBodies (view);
-    displayContextStationaryFoam (view);
+    displayStationaryBody (viewNumber);
+    displayStationaryConstraint (viewNumber);
+    displayContextBodies (viewNumber);
+    displayContextStationaryFoam (viewNumber);
     displayStandaloneFaces ();    
     displayBodyCenters ();
+    displayForces (viewNumber);
 }
 
 pair<double, double> GLWidget::getStatisticsMinMax (ViewNumber::Enum view) const

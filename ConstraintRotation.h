@@ -15,10 +15,14 @@
  */
 struct ConstraintRotationNames
 {
+    bool IsEmpty () const
+    {
+	return m_xName.empty ();
+    }
+    size_t m_constraintIndex;
     string m_xName;
     string m_yName;
     string m_angleName;
-    size_t m_constraintIndex;
 };
 
 struct ConstraintRotation

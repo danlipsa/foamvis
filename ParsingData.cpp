@@ -72,13 +72,19 @@ const set<string> ParsingData::OPERATORS (
 
 // Methods
 // ======================================================================
-ParsingData::ParsingData (bool useOriginal, const ConstraintRotationNames& names) :
+ParsingData::ParsingData (
+    bool useOriginal, 
+    const ConstraintRotationNames& constraintRotationNames,
+    const vector<ForceNames>& forcesNames) :
+
     m_spaceSignificant (false),
     m_parenthesisCount (0),
     m_newLineSignificant (false),
     m_useOriginal (useOriginal),
-    m_names (names)
+    m_constraintRotationNames (constraintRotationNames)
 {
+    m_forcesNames.resize (forcesNames.size ());
+    copy (forcesNames.begin (), forcesNames.end (), m_forcesNames.begin ());
     BinaryFunctionInformation BINARY_FUNCTION_INFORMATION[] = 
     {
 	{"+", plus<double> ()},
