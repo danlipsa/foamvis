@@ -18,6 +18,9 @@ EditColorMap::EditColorMap (
     QDialog (parent)
 {
     setupUi (this);
+    m_labelHighlight[0] = labelHighlight0;
+    m_labelHighlight[1] = labelHighlight1;
+    m_labelHighlight[2] = labelHighlight2;
 }
 
 void EditColorMap::SetData (
@@ -37,15 +40,18 @@ void EditColorMap::SetData (
 	widgetHistogram->SetItemsSelectionLow (false, clampValues.minValue ());
     if (clampValues.maxValue () < interval.maxValue ())
 	widgetHistogram->SetItemsSelectionHigh (false, clampValues.maxValue ());
-    labelHighlight0->setText (
-	ColorToHtml (m_colorBarModel.GetHighlightColor (
-			 HighlightNumber::H0), 
-		     HIGHLIGHT_LABEL_TEXT).c_str ());
-    labelHighlight1->setText (
-	ColorToHtml (m_colorBarModel.GetHighlightColor (
-			 HighlightNumber::H1), 
-		     HIGHLIGHT_LABEL_TEXT).c_str ());
+    setHighlightColors ();
+ }
+
+void EditColorMap::setHighlightColors ()
+{
+    for (size_t i = 0; i < m_labelHighlight.size (); ++i)
+	m_labelHighlight[i]->setText (
+	    ColorToHtml (m_colorBarModel.GetHighlightColor (
+			     HighlightNumber::Enum (i)), 
+			 HIGHLIGHT_LABEL_TEXT).c_str ());
 }
+
 
 void EditColorMap::HighlightedPalette (int index)
 {
@@ -55,14 +61,7 @@ void EditColorMap::HighlightedPalette (int index)
     widgetHistogram->SetColorMap (
 	m_colorBarModel.GetInterval (), m_colorBarModel.GetColorMap ());
     widgetHistogram->replot ();
-    labelHighlight0->setText (
-	ColorToHtml (m_colorBarModel.GetHighlightColor (
-			 HighlightNumber::H0), 
-		     HIGHLIGHT_LABEL_TEXT).c_str ());
-    labelHighlight1->setText (
-	ColorToHtml (m_colorBarModel.GetHighlightColor (
-			 HighlightNumber::H1), 
-		     HIGHLIGHT_LABEL_TEXT).c_str ());
+    setHighlightColors ();
 }
 
 void EditColorMap::ClampHigh (double value)
@@ -98,26 +97,29 @@ void EditColorMap::ToggledColorCodedHistogram(bool checked)
 
 void EditColorMap::ClickedHighlight0 ()
 {
-    m_colorBarModel.SetHighlightColor (
-	HighlightNumber::H0, 
-	QColorDialog::getColor (m_colorBarModel.GetHighlightColor (
-				    HighlightNumber::H0)));
-    labelHighlight0->setText (
-	ColorToHtml (m_colorBarModel.GetHighlightColor (
-			 HighlightNumber::H0), 
-		     HIGHLIGHT_LABEL_TEXT).c_str ());
+    clickedHighlight (HighlightNumber::H0);
 }
 
 void EditColorMap::ClickedHighlight1 ()
 {
-    m_colorBarModel.SetHighlightColor (
-	HighlightNumber::H1, 
-	QColorDialog::getColor (m_colorBarModel.GetHighlightColor (
-				    HighlightNumber::H1)));
-    labelHighlight1->setText (
-	ColorToHtml (m_colorBarModel.GetHighlightColor (
-			 HighlightNumber::H1), 
-		     HIGHLIGHT_LABEL_TEXT).c_str ());
+    clickedHighlight (HighlightNumber::H1);
+}
+
+void EditColorMap::ClickedHighlight2 ()
+{
+    clickedHighlight (HighlightNumber::H2);
+}
+
+void EditColorMap::clickedHighlight (HighlightNumber::Enum highlightNumber)
+{
+    QColor color = QColorDialog::getColor (m_colorBarModel.GetHighlightColor (
+					       highlightNumber));
+    if (color.isValid ())
+    {
+	m_colorBarModel.SetHighlightColor (highlightNumber, color);
+	m_labelHighlight[highlightNumber]->setText (
+	    ColorToHtml (color, HIGHLIGHT_LABEL_TEXT).c_str ());
+    }
 }
 
 void EditColorMap::SetDefaultFont ()

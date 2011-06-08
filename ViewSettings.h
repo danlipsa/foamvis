@@ -238,6 +238,32 @@ public:
     {
 	return m_contextView;
     }
+    void SetForceNetworkShown (bool value)
+    {
+	m_forceNetworkShown = value;
+    }
+    bool IsForceNetworkShown () const
+    {
+	return m_forceNetworkShown;
+    }
+    void SetForcePressureShown (bool value)
+    {
+	m_forcePressureShown = value;
+    }
+    bool IsForcePressureShown () const
+    {
+	return m_forcePressureShown;
+    }
+    void SetForceResultShown (bool value)
+    {
+	m_forceResultShown = value;
+    }
+    bool IsForceResultShown () const
+    {
+	return m_forceResultShown;
+    }
+
+
     double GetContextScaleRatio () const
     {
 	return m_contextScaleRatio;
@@ -322,6 +348,9 @@ private:
     size_t m_stationaryBodyId;
     // Context view
     bool m_contextView;
+    bool m_forceNetworkShown;
+    bool m_forcePressureShown;
+    bool m_forceResultShown;
     double m_contextScaleRatio;
     // Context display
     set<size_t> m_contextBody;

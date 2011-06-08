@@ -26,7 +26,7 @@ void initialize (boost::array<GLfloat, 4>& colors,
 // ======================================================================
 ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_viewType (ViewType::COUNT),
-    m_bodyProperty (BodyProperty::PRESSURE),
+    m_bodyProperty (BodyProperty::NONE),
     m_statisticsType (StatisticsType::AVERAGE),
     m_listCenterPaths (0),
     m_colorBarTexture (0),
@@ -42,6 +42,9 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_stationaryType (STATIONARY_NONE),
     m_stationaryBodyId (INVALID_INDEX),
     m_contextView (false),
+    m_forceNetworkShown (true),
+    m_forcePressureShown (true),
+    m_forceResultShown (true),
     m_contextScaleRatio (1),
     m_contextStationaryType (CONTEXT_STATIONARY_NONE)
 {

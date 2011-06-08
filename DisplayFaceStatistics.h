@@ -6,8 +6,8 @@
  * Interface for the DisplayFaceStatistics class
  */
 
-#ifndef __DISPLAY_FACE_AVERAGE_H__
-#define __DISPLAY_FACE_AVERAGE_H__
+#ifndef __DISPLAY_FACE_STATISTICS_H__
+#define __DISPLAY_FACE_STATISTICS_H__
 
 #include "DisplayElement.h"
 #include "Enums.h"
@@ -125,11 +125,11 @@ private:
  * The reason for this type of implementation is that OpenGL cannot
  * read and write to the same buffer in the same step.
  */
-class DisplayFaceStatistics : public DisplayElement
+class DisplayFaceStatistics
 {
 public:
     DisplayFaceStatistics (const GLWidget& glWidget) :
-	DisplayElement (glWidget)
+	m_glWidget (glWidget)
     {
     }
 
@@ -183,6 +183,7 @@ private:
     void glActiveTexture (GLenum texture) const;
 
 private:
+    const GLWidget& m_glWidget;
     /**
      * Stores (sum,count,min,max) up too and including the current step
      */
@@ -208,7 +209,7 @@ private:
     static InitShaderProgram m_initShaderProgram;
 };
 
-#endif //__DISPLAY_FACE_AVERAGE_H__
+#endif //__DISPLAY_FACE_STATISTICS_H__
 
 // Local Variables:
 // mode: c++

@@ -122,13 +122,11 @@ const size_t GLWidget::DISPLAY_ALL(numeric_limits<size_t>::max());
 // quadrics
 const size_t GLWidget::QUADRIC_SLICES = 8;
 const size_t GLWidget::QUADRIC_STACKS = 1;
-// alpha
-const double GLWidget::MIN_CONTEXT_ALPHA = 0.05;
-const double GLWidget::MAX_CONTEXT_ALPHA = 0.5;
 
 const double GLWidget::ENCLOSE_ROTATION_RATIO = 1;
-const GLfloat GLWidget::MAX_T1_SIZE = 10.0;
-const GLfloat GLWidget::MIN_T1_SIZE = 1.0;
+const pair<double,double> GLWidget::T1_SIZE (1, 10);
+const pair<double,double> GLWidget::CONTEXT_ALPHA (0.05, 0.5);
+const pair<double,double> GLWidget::FORCE_LENGTH (.5, 6);
 const GLfloat GLWidget::HIGHLIGHT_LINE_WIDTH = 2.0;
 
 // Methods
@@ -140,7 +138,6 @@ GLWidget::GLWidget(QWidget *parent)
       m_torusOriginalDomainClipped (false),
       m_interactionMode (InteractionMode::ROTATE),
       m_foamAlongTime (0), m_timeStep (0),
-      m_contextAlpha (MIN_CONTEXT_ALPHA),
       m_minimumEdgeRadius (0),
       m_edgeRadiusRatio (0),
       m_facesShowEdges (true),
@@ -156,11 +153,12 @@ GLWidget::GLWidget(QWidget *parent)
       m_timeDisplacement (0.0),
       m_playMovie (false),
       m_selectBodiesById (new SelectBodiesById (this)),
-      m_hideContent(false),
       m_centerPathTubeUsed (true),
       m_centerPathLineUsed (false),
       m_t1sShown (false),
-      m_t1Size (MIN_T1_SIZE),
+      m_t1Size (T1_SIZE.first),
+      m_contextAlpha (CONTEXT_ALPHA.first),
+      m_forceLength (FORCE_LENGTH.first),
       m_highlightLineWidth (HIGHLIGHT_LINE_WIDTH),
       m_zeroedPressureShown (false),
       m_titleShown (false),
@@ -171,8 +169,6 @@ GLWidget::GLWidget(QWidget *parent)
       m_viewNumber (ViewNumber::VIEW0)
 {
     makeCurrent ();
-    BOOST_FOREACH (boost::shared_ptr<ViewSettings>& vs, m_viewSettings)
-	vs = boost::make_shared <ViewSettings> (*this);
     initEndTranslationColor ();
     initQuadrics ();
     initViewTypeDisplay ();
@@ -375,10 +371,11 @@ void GLWidget::initViewTypeDisplay ()
     copy (vtd.begin (), vtd.end (), m_viewTypeDisplay.begin ());
 }
 
-void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
+void GLWidget::initViewSettings ()
 {
-    m_foamAlongTime = foamAlongTime;
-    if (foamAlongTime->Is2D ())
+    BOOST_FOREACH (boost::shared_ptr<ViewSettings>& vs, m_viewSettings)
+	vs = boost::make_shared <ViewSettings> (*this);
+    if (GetFoamAlongTime ().Is2D ())
     {
 	BOOST_FOREACH (boost::shared_ptr<ViewSettings> vs, m_viewSettings)
 	{
@@ -394,18 +391,24 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 	    vs->SetAxesOrder (AxesOrder::THREE_D);
 	}
     }
-    Foam::Bodies bodies = foamAlongTime->GetFoam (0).GetBodies ();
+    BOOST_FOREACH (boost::shared_ptr<ViewSettings> vs, m_viewSettings)
+    {
+	vs->GetDisplayFaceStatistics ()->SetHistoryCount (
+	    GetFoamAlongTime ().GetTimeSteps ());
+    }
+}
+
+void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
+{
+    m_foamAlongTime = foamAlongTime;
+    initViewSettings ();
+    Foam::Bodies bodies = GetFoamAlongTime ().GetFoam (0).GetBodies ();
     if (bodies.size () != 0)
     {
 	size_t maxIndex = bodies.size () - 1;
 	m_selectBodiesById->SetMinBodyId (bodies[0]->GetId ());
 	m_selectBodiesById->SetMaxBodyId (bodies[maxIndex]->GetId ());
 	m_selectBodiesById->UpdateLabelMinMax ();
-    }
-    BOOST_FOREACH (boost::shared_ptr<ViewSettings> vs, m_viewSettings)
-    {
-	vs->GetDisplayFaceStatistics ()->SetHistoryCount (
-	    foamAlongTime->GetTimeSteps ());
     }
 }
 
@@ -1021,11 +1024,8 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
 			     &m_arrowHeight, &m_edgeWidth);
     }
 
-    if (! m_hideContent)
-    {
-	DisplayViewType (viewNumber);
-	displayViewDecorations (viewNumber);
-    }
+    DisplayViewType (viewNumber);
+    displayViewDecorations (viewNumber);
     displayAxes ();
     displayBoundingBox (viewNumber);
     displayOriginalDomain ();
@@ -1773,28 +1773,37 @@ void GLWidget::displayForces (ViewNumber::Enum viewNumber) const
 {
     if (GetFoamAlongTime ().ForceUsed ())
     {
-	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
+	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT | GL_LINE_BIT);
 	glDisable (GL_DEPTH_TEST);
+	glLineWidth (m_highlightLineWidth);
 	const vector<Force>& forces = GetCurrentFoam ().GetForces ();
 	BOOST_FOREACH (const Force& force, forces)
-	    displayNetworkPressureForce (viewNumber, force);
+	    displayForces (viewNumber, force);
 	glPopAttrib ();
     }
 }
 
-void GLWidget::displayNetworkPressureForce (
+void GLWidget::displayForces (
     ViewNumber::Enum viewNumber, const Force& force) const
 {
     const G3D::AABox& box = 
 	GetFoamAlongTime ().GetFoam (0).GetBody (0).GetBoundingBox ();
-    float unitForceSize = 5 * (box.high () - box.low ()).length ();
+    float unitForceSize = m_forceLength * (box.high () - box.low ()).length ();
     G3D::Vector3 center = force.m_body->GetCenter ();
-    displayForce (
-	GetHighlightColor (viewNumber, HighlightNumber::H0),
-	center, G3D::Vector3 (unitForceSize * force.m_networkForce, 0));
-    displayForce (
-	GetHighlightColor (viewNumber, HighlightNumber::H1),
-	center, G3D::Vector3 (unitForceSize * force.m_pressureForce, 0));
+    if (GetViewSettings (viewNumber).IsForceNetworkShown ())
+	displayForce (
+	    GetHighlightColor (viewNumber, HighlightNumber::H0),
+	    center, G3D::Vector3 (unitForceSize * force.m_networkForce, 0));
+    if (GetViewSettings (viewNumber).IsForcePressureShown ())
+	displayForce (
+	    GetHighlightColor (viewNumber, HighlightNumber::H1),
+	    center, G3D::Vector3 (unitForceSize * force.m_pressureForce, 0));
+    if (GetViewSettings (viewNumber).IsForceResultShown ())
+	displayForce (
+	    GetHighlightColor (viewNumber, HighlightNumber::H2),
+	    center, G3D::Vector3 (
+		unitForceSize * 
+		(force.m_networkForce + force.m_pressureForce), 0));
 }
 
 void GLWidget::displayForce (QColor color,
@@ -2553,6 +2562,15 @@ void GLWidget::SetBodySelector (
     update ();
 }
 
+void GLWidget::valueChanged (
+    double* dest, const pair<double,double>& minMax, int index)
+{
+    QSlider* slider = static_cast<QSlider*> (sender ());
+    size_t maxSlider = slider->maximum ();
+    *dest = minMax.first + (double (index) / maxSlider) * 
+	(minMax.second - minMax.first);
+}
+
 
 // Slots
 // ======================================================================
@@ -2619,10 +2637,21 @@ void GLWidget::ToggledContextView (bool checked)
     update ();
 }
 
-
-void GLWidget::ToggledHideContent (bool checked)
+void GLWidget::ToggledForceNetworkShown (bool checked)
 {
-    m_hideContent = checked;
+    GetViewSettings ().SetForceNetworkShown (checked);
+    update ();
+}
+
+void GLWidget::ToggledForcePressureShown (bool checked)
+{
+    GetViewSettings ().SetForcePressureShown (checked);
+    update ();
+}
+
+void GLWidget::ToggledForceResultShown (bool checked)
+{
+    GetViewSettings ().SetForceResultShown (checked);
     update ();
 }
 
@@ -2880,12 +2909,23 @@ void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
 
 void GLWidget::ValueChangedT1Size (int index)
 {
-    QSlider* slider = static_cast<QSlider*> (sender ());
-    size_t maximum = slider->maximum ();
-    m_t1Size = MIN_T1_SIZE + 
-	(GLfloat (index) / maximum) * (MAX_T1_SIZE - MIN_T1_SIZE);
+    valueChanged (&m_t1Size, T1_SIZE, index);
     update ();
 }
+
+void GLWidget::ValueChangedContextAlpha (int index)
+{
+    valueChanged (&m_contextAlpha, CONTEXT_ALPHA, index);
+    compile (GetViewNumber ());
+    update ();
+}
+
+void GLWidget::ValueChangedForceLength (int index)
+{
+    valueChanged (&m_forceLength, FORCE_LENGTH, index);
+    update ();
+}
+
 
 void GLWidget::ValueChangedHighlightLineWidth (int newWidth)
 {
@@ -2905,14 +2945,6 @@ void GLWidget::ValueChangedEdgesRadius (int sliderValue)
     update ();
 }
 
-void GLWidget::ValueChangedContextAlpha (int sliderValue)
-{
-    size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
-    m_contextAlpha = MIN_CONTEXT_ALPHA +
-	(MAX_CONTEXT_ALPHA - MIN_CONTEXT_ALPHA) * sliderValue / maximum;
-    compile (GetViewNumber ());
-    update ();
-}
 
 void GLWidget::ValueChangedLightAmbientRed (int sliderValue)
 {

@@ -103,7 +103,7 @@ private:
     QwtDoubleInterval m_interval;
     QwtDoubleInterval m_clampValues;
     QString m_title;
-    QColor m_highlightColor[2];
+    boost::array<QColor,HighlightNumber::COUNT> m_highlightColor;
 };
 
 inline ostream& operator<< (ostream& ostr, const ColorBarModel& b)

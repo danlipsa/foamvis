@@ -74,6 +74,8 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     setupHistogram ();
     setupButtonGroups ();
     
+    widgetGl->SetFoamAlongTime (&foamAlongTime);
+    widgetGl->SetStatus (labelStatusBar);
     boost::shared_ptr<Application> app = Application::Get ();
     QFont defaultFont = app->font ();
     spinBoxFontSize->setValue (defaultFont.pointSize ());
@@ -81,8 +83,6 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     spinBoxHistogramHeight->setValue (widgetHistogram->sizeHint ().height ());
     spinBoxStatisticsHistory->setMaximum (foamAlongTime.GetTimeSteps ());
     spinBoxStatisticsHistory->setValue (spinBoxStatisticsHistory->maximum ());
-    widgetGl->SetFoamAlongTime (&foamAlongTime);
-    widgetGl->SetStatus (labelStatusBar);
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
 	setupColorBarModels (ViewNumber::Enum (i));
     widgetHistogram->setHidden (true);
@@ -163,18 +163,21 @@ void MainWindow::ViewToUI ()
     buttonGroupViewType->button (vs.GetViewType ())->setChecked (true);
     comboBoxColor->setCurrentIndex (property);
     comboBoxStatisticsType->setCurrentIndex (vs.GetStatisticsType ());
+    comboBoxAxesOrder->setCurrentIndex (vs.GetAxesOrder ());
     labelFacesStatisticsColor->setText (BodyProperty::ToString (property));
     labelCenterPathColor->setText (BodyProperty::ToString (property));
     updateLightControls (vs, selectedLight);
     horizontalSliderAngleOfView->setValue (vs.GetAngleOfView ());
-    comboBoxAxesOrder->setCurrentIndex (vs.GetAxesOrder ());
     spinBoxStatisticsHistory->setValue (
-	vs.GetDisplayFaceStatistics ()->GetHistoryCount ());
+	vs.GetDisplayFaceStatistics ()->GetHistoryCount ());    
     if (viewNumber == m_histogramViewNumber)
 	buttonGroupFacesHistogram->button (m_histogramType)->setChecked (true);
     else
 	buttonGroupFacesHistogram->button (
 	    HistogramType::NONE)->setChecked (true);
+    checkBoxForceNetwork->setChecked (vs.IsForceNetworkShown ());
+    checkBoxForcePressure->setChecked (vs.IsForcePressureShown ());
+    checkBoxForceResult->setChecked (vs.IsForceResultShown ());
 }
 
 void MainWindow::connectColorBarHistogram (bool connected)

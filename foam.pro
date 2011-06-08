@@ -3,7 +3,7 @@ HEADERS += Application.h ApproximationEdge.h\
 	AttributeHistogram.h HistogramHeight.h Body.h \
 	BodyAlongTime.h BodyIndex.h BodySelector.h ConstraintRotation.h \
 	ConstraintEdge.h ColorBarModel.h Comparisons.h \
-	Debug.h DebugStream.h Disk.h DisplayFaceStatistics.h \
+	Debug.h DebugStream.h Disk.h DisplayFaceStatistics.h DisplayForces.h\
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h DisplayWidget.h\
 	SelectBodiesById.h EditColorMap.h Edge.h Element.h ExpressionTree.h \
@@ -24,7 +24,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	Body.cpp BodyAlongTime.cpp BodyIndex.cpp BodySelector.cpp\
 	ConstraintEdge.cpp ColorBarModel.cpp Comparisons.cpp \
 	DebugStream.cpp Disk.cpp DisplayBodyFunctors.cpp \
-	DisplayFaceStatistics.cpp DisplayFaceFunctors.cpp \
+	DisplayFaceStatistics.cpp DisplayFaceFunctors.cpp DisplayForces.cpp \
 	DisplayEdgeFunctors.cpp	\
 	DisplayWidget.cpp DisplayVertexFunctors.cpp Edge.cpp \
 	SelectBodiesById.cpp EditColorMap.cpp Element.cpp ExpressionTree.cpp \

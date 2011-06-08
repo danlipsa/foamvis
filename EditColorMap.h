@@ -34,6 +34,11 @@ public Q_SLOTS:
     void ToggledColorCodedHistogram(bool checked);
     void ClickedHighlight0 ();
     void ClickedHighlight1 ();
+    void ClickedHighlight2 ();
+
+private:
+    void clickedHighlight (HighlightNumber::Enum highlightNumber);
+    void setHighlightColors ();
 
 private:
     static const char* HIGHLIGHT_LABEL_TEXT;
@@ -41,6 +46,7 @@ private:
 private:
     Q_OBJECT
     ColorBarModel m_colorBarModel;
+    boost::array<QLabel*, HighlightNumber::COUNT> m_labelHighlight;
 };
 
 #endif //__EDIT_COLOR_MAP_H__

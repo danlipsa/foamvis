@@ -241,6 +241,9 @@ public Q_SLOTS:
     void ToggledCenterPathLineUsed (bool checked);
     void ToggledCenterPathTubeUsed (bool checked);
     void ToggledContextView (bool checked);
+    void ToggledForceNetworkShown (bool checked);
+    void ToggledForcePressureShown (bool checked);
+    void ToggledForceResultShown (bool checked);
     void ToggledDirectionalLightEnabled (bool checked);
     /**
      * Shows edges
@@ -259,7 +262,6 @@ public Q_SLOTS:
     void ToggledFaceEdgesTorus (bool checked);
     void ToggledFacesShowEdges (bool checked);
 
-    void ToggledHideContent (bool checked);
     void ToggledLightNumberShown (bool checked);
     void ToggledLightEnabled (bool checked);
     void ToggledIsContextHidden (bool checked);
@@ -302,6 +304,7 @@ public Q_SLOTS:
     void ValueChangedStatisticsHistory (int timeSteps);
     void ValueChangedTimeDisplacement (int timeDisplacement);
     void ValueChangedT1Size (int index);
+    void ValueChangedForceLength (int index);
     void ValueChangedHighlightLineWidth (int newWidth);
     // Actions
     void ResetTransformation ();
@@ -440,6 +443,7 @@ private:
 
     void initQuadrics ();
     void initEndTranslationColor ();
+    void initViewSettings ();
     void calculateCameraDistance (ViewNumber::Enum viewNumber);
     /**
      * Generates a display list for edges
@@ -451,7 +455,7 @@ private:
     void displayViews ();
     void displayContextBodies (ViewNumber::Enum view) const;
     void displayForces (ViewNumber::Enum viewNumber) const;
-    void displayNetworkPressureForce (
+    void displayForces (
 	ViewNumber::Enum viewNumber, const Force& force) const;
     void displayForce (
 	QColor color,
@@ -574,6 +578,8 @@ private:
 	ViewNumber::COUNT>& actionCopyTransformations,
 	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformations);
     void rotateStationaryConstraint (size_t timeStep, int direction) const;
+    void valueChanged (
+	double* dest, const pair<double,double>& minMax, int index);
     
 
 private:
@@ -583,11 +589,11 @@ private:
     static void quadricErrorCallback (GLenum errorCode);
     
 private:
-    const static double MIN_CONTEXT_ALPHA;
-    const static double MAX_CONTEXT_ALPHA;
     const static double ENCLOSE_ROTATION_RATIO;
-    const static GLfloat MAX_T1_SIZE;
-    const static GLfloat MIN_T1_SIZE;
+    // Min, max values for T1s, Context alpha, force length
+    const static pair<double,double> T1_SIZE;
+    const static pair<double,double> CONTEXT_ALPHA;
+    const static pair<double,double> FORCE_LENGTH;
     const static GLfloat HIGHLIGHT_LINE_WIDTH;
 
 private:
@@ -616,8 +622,6 @@ private:
      * Used to select a stationary body
      */
     QPoint m_contextMenuPos;
-
-    double m_contextAlpha;
 
     EndLocationColor m_endTranslationColor;
     GLUquadricObj* m_quadric;    
@@ -681,11 +685,12 @@ private:
     bool m_playMovie;
     boost::shared_ptr<SelectBodiesById> m_selectBodiesById;
     QLabel *m_labelStatusBar;
-    bool m_hideContent;
     bool m_centerPathTubeUsed;
     bool m_centerPathLineUsed;
     bool m_t1sShown;
-    GLfloat m_t1Size;
+    double m_t1Size;
+    double m_contextAlpha;
+    double m_forceLength;
     size_t m_highlightLineWidth;
     bool m_zeroedPressureShown;
     bool m_titleShown;
