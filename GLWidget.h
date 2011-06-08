@@ -15,7 +15,6 @@ class BodyAlongTime;
 class BodiesAlongTime;
 class BodySelector;
 class ColorBarModel;
-class DisplayFaceStatistics;
 class Foam;
 class Edge;
 class EditColorMap;
@@ -85,7 +84,16 @@ public:
 
     QColor GetHighlightColor (ViewNumber::Enum view, 
 			      HighlightNumber::Enum highlight) const;
-    void SetBodySelector (boost::shared_ptr<PropertyValueBodySelector> selector);
+    size_t GetHighlightLineWidth () const
+    {
+	return m_highlightLineWidth;
+    }
+    double GetForceLength () const
+    {
+	return m_forceLength;
+    }
+    void SetBodySelector (
+	boost::shared_ptr<PropertyValueBodySelector> selector);
     void SetBodySelector (boost::shared_ptr<IdBodySelector> bodySelector);
     void SetBodySelector (boost::shared_ptr<AllBodySelector> selector, 
 			  BodySelectorType::Enum type);
@@ -390,10 +398,6 @@ private:
 
     typedef boost::unordered_map<G3D::Vector3int16, QColor,
 				 Vector3int16Hash> EndLocationColor;
-    typedef boost::array<
-	boost::shared_ptr<DisplayFaceStatistics>, 
-	ViewNumber::COUNT> DisplayFaceStatisticsArray;
-
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
@@ -454,12 +458,6 @@ private:
     void displayView (ViewNumber::Enum view);
     void displayViews ();
     void displayContextBodies (ViewNumber::Enum view) const;
-    void displayForces (ViewNumber::Enum viewNumber) const;
-    void displayForces (
-	ViewNumber::Enum viewNumber, const Force& force) const;
-    void displayForce (
-	QColor color,
-	const G3D::Vector3& center, const G3D::Vector3& force) const;
     void displayContextStationaryFoam (
 	ViewNumber::Enum view,
 	bool adjustForContextStationaryFoam = false) const;

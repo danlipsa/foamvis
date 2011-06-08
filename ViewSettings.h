@@ -11,6 +11,7 @@
 #include "Enums.h"
 class GLWidget;
 class DisplayFaceStatistics;
+class DisplayForces;
 class ColorBarModel;
 
 class ViewSettings
@@ -37,10 +38,16 @@ public:
 	m_bodyProperty = bodyProperty;
     }
 
-    boost::shared_ptr<DisplayFaceStatistics> GetDisplayFaceStatistics () const
+    DisplayFaceStatistics& GetDisplayFaceStatistics () const
     {
-	return m_displayFaceStatistics;
+	return *m_displayFaceStatistics;
     }
+
+    DisplayForces& GetDisplayForces () const
+    {
+	return *m_displayForces;
+    }
+    
 
     GLuint GetListCenterPaths () const
     {
@@ -318,6 +325,7 @@ private:
     GLuint m_listCenterPaths;
     GLuint m_colorBarTexture;
     boost::shared_ptr<DisplayFaceStatistics> m_displayFaceStatistics;
+    boost::shared_ptr<DisplayForces> m_displayForces;
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
     G3D::Matrix3 m_rotationModel;
     G3D::Rect2D m_viewport;

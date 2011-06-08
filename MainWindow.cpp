@@ -169,7 +169,7 @@ void MainWindow::ViewToUI ()
     updateLightControls (vs, selectedLight);
     horizontalSliderAngleOfView->setValue (vs.GetAngleOfView ());
     spinBoxStatisticsHistory->setValue (
-	vs.GetDisplayFaceStatistics ()->GetHistoryCount ());    
+	vs.GetDisplayFaceStatistics ().GetHistoryCount ());    
     if (viewNumber == m_histogramViewNumber)
 	buttonGroupFacesHistogram->button (m_histogramType)->setChecked (true);
     else

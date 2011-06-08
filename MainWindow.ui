@@ -368,30 +368,30 @@
                    <string>Force</string>
                   </attribute>
                   <layout class="QFormLayout" name="formLayout_12">
-                   <item row="0" column="0">
+                   <item row="1" column="0">
                     <widget class="QCheckBox" name="checkBoxForcePressure">
                      <property name="text">
-                      <string>Pressure</string>
+                      <string>Pressure (highlight2)</string>
                      </property>
                      <property name="checked">
                       <bool>true</bool>
                      </property>
                     </widget>
                    </item>
-                   <item row="0" column="1">
+                   <item row="0" column="0">
                     <widget class="QCheckBox" name="checkBoxForceNetwork">
                      <property name="text">
-                      <string>Network</string>
+                      <string>Network (highlight1)</string>
                      </property>
                      <property name="checked">
                       <bool>true</bool>
                      </property>
                     </widget>
                    </item>
-                   <item row="1" column="0">
+                   <item row="2" column="0">
                     <widget class="QCheckBox" name="checkBoxForceResult">
                      <property name="text">
-                      <string>Result</string>
+                      <string>Result (highlight3)</string>
                      </property>
                      <property name="checked">
                       <bool>true</bool>

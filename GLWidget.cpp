@@ -14,6 +14,7 @@
 #include "Debug.h"
 #include "DebugStream.h"
 #include "DisplayFaceStatistics.h"
+#include "DisplayForces.h"
 #include "DisplayBodyFunctors.h"
 #include "DisplayEdgeFunctors.h"
 #include "DisplayFaceFunctors.h"
@@ -127,7 +128,7 @@ const double GLWidget::ENCLOSE_ROTATION_RATIO = 1;
 const pair<double,double> GLWidget::T1_SIZE (1, 10);
 const pair<double,double> GLWidget::CONTEXT_ALPHA (0.05, 0.5);
 const pair<double,double> GLWidget::FORCE_LENGTH (.5, 6);
-const GLfloat GLWidget::HIGHLIGHT_LINE_WIDTH = 2.0;
+const GLfloat GLWidget::HIGHLIGHT_LINE_WIDTH = 3.0;
 
 // Methods
 // ======================================================================
@@ -393,7 +394,7 @@ void GLWidget::initViewSettings ()
     }
     BOOST_FOREACH (boost::shared_ptr<ViewSettings> vs, m_viewSettings)
     {
-	vs->GetDisplayFaceStatistics ()->SetHistoryCount (
+	vs->GetDisplayFaceStatistics ().SetHistoryCount (
 	    GetFoamAlongTime ().GetTimeSteps ());
     }
 }
@@ -1046,7 +1047,7 @@ void GLWidget::resizeGL(int w, int h)
 	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
 	{
 	    pair<double, double> minMax = getStatisticsMinMax (viewNumber);
-	    vs.GetDisplayFaceStatistics ()->InitStep (
+	    vs.GetDisplayFaceStatistics ().InitStep (
 		viewNumber, minMax.first, minMax.second);
 	}
     }
@@ -1769,55 +1770,9 @@ void GLWidget::displayBodyCenters (bool useZPos) const
     }
 }
 
-void GLWidget::displayForces (ViewNumber::Enum viewNumber) const
-{
-    if (GetFoamAlongTime ().ForceUsed ())
-    {
-	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT | GL_LINE_BIT);
-	glDisable (GL_DEPTH_TEST);
-	glLineWidth (m_highlightLineWidth);
-	const vector<Force>& forces = GetCurrentFoam ().GetForces ();
-	BOOST_FOREACH (const Force& force, forces)
-	    displayForces (viewNumber, force);
-	glPopAttrib ();
-    }
-}
-
-void GLWidget::displayForces (
-    ViewNumber::Enum viewNumber, const Force& force) const
-{
-    const G3D::AABox& box = 
-	GetFoamAlongTime ().GetFoam (0).GetBody (0).GetBoundingBox ();
-    float unitForceSize = m_forceLength * (box.high () - box.low ()).length ();
-    G3D::Vector3 center = force.m_body->GetCenter ();
-    if (GetViewSettings (viewNumber).IsForceNetworkShown ())
-	displayForce (
-	    GetHighlightColor (viewNumber, HighlightNumber::H0),
-	    center, G3D::Vector3 (unitForceSize * force.m_networkForce, 0));
-    if (GetViewSettings (viewNumber).IsForcePressureShown ())
-	displayForce (
-	    GetHighlightColor (viewNumber, HighlightNumber::H1),
-	    center, G3D::Vector3 (unitForceSize * force.m_pressureForce, 0));
-    if (GetViewSettings (viewNumber).IsForceResultShown ())
-	displayForce (
-	    GetHighlightColor (viewNumber, HighlightNumber::H2),
-	    center, G3D::Vector3 (
-		unitForceSize * 
-		(force.m_networkForce + force.m_pressureForce), 0));
-}
-
-void GLWidget::displayForce (QColor color,
-    const G3D::Vector3& center, const G3D::Vector3& force) const
-{
-    glColor (color);
-    glBegin (GL_LINES);
-    ::glVertex (center);
-    ::glVertex (center + force);
-    glEnd ();
-}
-
 void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
 {
+    ViewSettings& vs = GetViewSettings (viewNumber);
     const Foam& foam = GetCurrentFoam ();
     const Foam::Bodies& bodies = foam.GetBodies ();
     if (m_facesShowEdges)
@@ -1830,7 +1785,7 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
     displayContextStationaryFoam (viewNumber);
     displayStandaloneFaces ();    
     displayBodyCenters ();
-    displayForces (viewNumber);
+    vs.GetDisplayForces ().Display (viewNumber);
 }
 
 pair<double, double> GLWidget::getStatisticsMinMax (ViewNumber::Enum view) const
@@ -1873,13 +1828,13 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
 	rotationCenter -= vs.GetViewport ().x0y0 ();
 	float angleDegrees = G3D::toDegrees (
 	    rotationCurrent.m_angle - rotationBegin.m_angle);
-	vs.GetDisplayFaceStatistics ()->DisplayAndRotate (
+	vs.GetDisplayFaceStatistics ().DisplayAndRotate (
 	    GetViewRect (viewNumber),
 	    minMax.first, minMax.second, vs.GetStatisticsType (),
 	    rotationCenter, - angleDegrees);
     }
     else
-	vs.GetDisplayFaceStatistics ()->Display (
+	vs.GetDisplayFaceStatistics ().Display (
 	    GetViewRect (viewNumber),
 	    minMax.first, minMax.second, vs.GetStatisticsType ());
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
@@ -2827,11 +2782,11 @@ void GLWidget::ToggledFacesStatistics (bool checked)
     if (checked)
     {
 	pair<double, double> minMax = getStatisticsMinMax (GetViewNumber ());
-	GetViewSettings ().GetDisplayFaceStatistics ()->InitStep (
+	GetViewSettings ().GetDisplayFaceStatistics ().InitStep (
 	    GetViewNumber (), minMax.first, minMax.second);
     }
     else
-	GetViewSettings ().GetDisplayFaceStatistics ()->Release ();
+	GetViewSettings ().GetDisplayFaceStatistics ().Release ();
     changeViewType (checked, ViewType::FACES_STATISTICS);
 }
 
@@ -2882,7 +2837,7 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
 	{
 	    pair<double, double> minMax = getStatisticsMinMax (view);
-	    vs.GetDisplayFaceStatistics ()->Step (
+	    vs.GetDisplayFaceStatistics ().Step (
 		view, minMax.first, minMax.second, direction);
 	}
     }
@@ -2891,7 +2846,7 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 
 void GLWidget::ValueChangedStatisticsHistory (int timeSteps)
 {
-    GetViewSettings ().GetDisplayFaceStatistics ()->SetHistoryCount (
+    GetViewSettings ().GetDisplayFaceStatistics ().SetHistoryCount (
 	timeSteps);
 }
 

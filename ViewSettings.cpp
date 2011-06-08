@@ -9,6 +9,7 @@
 #include "ColorBarModel.h"
 #include "DebugStream.h"
 #include "DisplayFaceStatistics.h"
+#include "DisplayForces.h"
 #include "Utils.h"
 #include "ViewSettings.h"
 
@@ -31,6 +32,7 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_listCenterPaths (0),
     m_colorBarTexture (0),
     m_displayFaceStatistics (new DisplayFaceStatistics (glWidget)),
+    m_displayForces (new DisplayForces (glWidget)),
     m_rotationModel (G3D::Matrix3::identity ()),
     m_scaleRatio (1),
     m_translation (G3D::Vector3::zero ()),
