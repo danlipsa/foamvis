@@ -128,7 +128,7 @@ const double GLWidget::ENCLOSE_ROTATION_RATIO = 1;
 const pair<double,double> GLWidget::T1_SIZE (1, 10);
 const pair<double,double> GLWidget::CONTEXT_ALPHA (0.05, 0.5);
 const pair<double,double> GLWidget::FORCE_LENGTH (.5, 6);
-const GLfloat GLWidget::HIGHLIGHT_LINE_WIDTH = 3.0;
+const GLfloat GLWidget::HIGHLIGHT_LINE_WIDTH = 2.0;
 
 // Methods
 // ======================================================================
@@ -412,6 +412,7 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 	m_selectBodiesById->SetMaxBodyId (bodies[maxIndex]->GetId ());
 	m_selectBodiesById->UpdateLabelMinMax ();
     }
+    update ();
 }
 
 
