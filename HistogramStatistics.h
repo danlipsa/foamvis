@@ -1,13 +1,13 @@
 /**
- * @file   Statistics.h
+ * @file   HistogramStatistics.h
  * @author Dan R. Lipsa
  * @date 13 Jan 2011
  *
- * Declaration for Statistics
+ * Declaration for HistogramStatistics
  */
 
-#ifndef __STATISTICS_H__
-#define __STATISTICS_H__
+#ifndef __HISTOGRAM_STATISTICS_H__
+#define __HISTOGRAM_STATISTICS_H__
 
 
 typedef acc::accumulator_set<
@@ -54,7 +54,7 @@ typedef acc::accumulator_set<
     double, acc::features<acc::tag::median> > MedianStatistics;
 
 
-#endif //__STATISTICS_H__
+#endif //__HISTOGRAM_STATISTICS_H__
 
 // Local Variables:
 // mode: c++

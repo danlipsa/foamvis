@@ -1,12 +1,12 @@
 /**
- * @file   Statistics.cpp
+ * @file   HistogramStatistics.cpp
  * @author Dan R. Lipsa
  * @date 13 Jan. 2011
  *
- * Implementation of the Statistics class
+ * Implementation of the HistogramStatistics class
  */
 
-#include "Statistics.h"
+#include "HistogramStatistics.h"
 #include "DebugStream.h"
 
 size_t HistogramStatistics::GetCountPerBin (size_t bin) const

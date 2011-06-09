@@ -105,8 +105,6 @@ public:
 	return *m_bodySelector;
     }
 
-    pair<double, double> getStatisticsMinMax (ViewNumber::Enum view) const;
-
     const BodiesAlongTime& GetBodiesAlongTime () const;
     const BodyAlongTime& GetBodyAlongTime (size_t bodyId) const;
     /**

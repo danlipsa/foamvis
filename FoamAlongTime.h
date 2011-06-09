@@ -9,7 +9,7 @@
 
 #include "BodyAlongTime.h"
 #include "Comparisons.h"
-#include "Statistics.h"
+#include "HistogramStatistics.h"
 #include "ConstraintRotation.h"
 #include "Force.h"
 #include "Utils.h"

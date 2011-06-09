@@ -115,7 +115,7 @@ Command lines for various datasets:
 -----------------------------------
 ./foam_debug --t1s ~/Documents/swansea-phd/foam/ctrctn/energy_704v_0.1520_0.2400_8.0000_v1.dat ~/Documents/swansea-phd/foam/ctrctn/dump_0.1520_0.2400_8.0000_*.dmp
 
-./foam_debug --force "161 ftx1 fty1 fpx1 fpy1" --force "358 ftx2 fty2 fpx2 fpy2" --t1s ~/Documents/swansea-phd/foam/sedimenting_discs_interacting/t1_v0_posn_1500.dat ~/Documents/swansea-phd/foam/sedimenting_discs_interacting/c1v0_*
+./foam_debug --force "161 ftx1 fty1 fpx1 fpy1" --force "358 ftx2 fty2 fpx2 fpy2" --t1s ~/Documents/swansea-phd/foam/sedimenting_discs_interacting/t1_v0_posn_1500.dat ~/Documents/swansea-phd/foam/sedimenting_discs_interacting/c1v0_???.000000.dmp
 
 ./foam_debug --use-original --constraint-rotation "4 x0 y0 phi" ~/Documents/swansea-phd/foam/ellipse_in_flow/ell0.700000_???v_5.000000_1.dmp
 

@@ -15,40 +15,102 @@
 #include "ViewSettings.h"
 #include "OpenGLUtils.h"
 
+void DisplayForces::init (ViewNumber::Enum viewNumber)
+{
+    (void)viewNumber;
+    Average::init (viewNumber);
+    const vector<Force>& forces = 
+	GetGLWidget ().GetCurrentFoam ().GetForces ();
+    m_average.resize (forces.size ());
+    for (size_t i = 0; i < forces.size (); ++i)
+    {
+	m_average[i].m_body = forces[i].m_body;
+	m_average[i].m_networkForce = G3D::Vector2::zero ();
+	m_average[i].m_pressureForce = G3D::Vector2::zero ();
+    }
+}
+
+void DisplayForces::addStep (ViewNumber::Enum viewNumber, size_t timeStep)
+{
+    (void)viewNumber;
+    const vector<Force>& forces = 
+	GetGLWidget ().GetFoamAlongTime ().GetFoam (timeStep).GetForces ();
+    bool forward = (timeStep == GetGLWidget ().GetTimeStep ());
+    for (size_t i = 0; i < forces.size (); ++i)
+    {
+	if (forward)
+	    m_average[i].m_body = forces[i].m_body;
+	m_average[i].m_networkForce += forces[i].m_networkForce;
+	m_average[i].m_pressureForce += forces[i].m_pressureForce;
+    }
+}
+
+void DisplayForces::removeStep (ViewNumber::Enum viewNumber, size_t timeStep)
+{
+    (void)viewNumber;
+    const vector<Force>& forces = 
+	GetGLWidget ().GetFoamAlongTime ().GetFoam (timeStep).GetForces ();
+    bool backward = ((timeStep - 1) == GetGLWidget ().GetTimeStep ());
+    for (size_t i = 0; i < forces.size (); ++i)
+    {
+	if (backward)
+	{
+	    const vector<Force>& prevForces = 
+		GetGLWidget ().GetFoamAlongTime ().
+		GetFoam (timeStep - 1).GetForces ();
+	    m_average[i].m_body = prevForces[i].m_body;
+	}
+	m_average[i].m_networkForce -= forces[i].m_networkForce;
+	m_average[i].m_pressureForce -= forces[i].m_pressureForce;
+    }
+}
+
 void DisplayForces::Display (ViewNumber::Enum viewNumber) const
 {
-    if (m_glWidget.GetFoamAlongTime ().ForceUsed ())
+    display (viewNumber, GetGLWidget ().GetCurrentFoam ().GetForces (), 1);
+}
+
+void DisplayForces::DisplayAverage (ViewNumber::Enum viewNumber) const
+{
+    display (viewNumber, m_average, GetCurrentHistoryCount ());
+}
+
+
+void DisplayForces::display (ViewNumber::Enum viewNumber,
+			     const vector<Force>& forces, size_t count) const
+{
+    if (GetGLWidget ().GetFoamAlongTime ().ForceUsed ())
     {
 	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT | GL_LINE_BIT);
 	glDisable (GL_DEPTH_TEST);
-	glLineWidth (m_glWidget.GetHighlightLineWidth ());
-	const vector<Force>& forces = m_glWidget.GetCurrentFoam ().GetForces ();
+	glLineWidth (GetGLWidget ().GetHighlightLineWidth ());
 	BOOST_FOREACH (const Force& force, forces)
-	    displayForces (viewNumber, force);
+	    displayForces (viewNumber, force, count);
 	glPopAttrib ();
     }
 }
 
 void DisplayForces::displayForces (
-    ViewNumber::Enum viewNumber, const Force& force) const
+    ViewNumber::Enum viewNumber, const Force& force, size_t count) const
 {
     const G3D::AABox& box = 
-	m_glWidget.GetFoamAlongTime ().GetFoam (0).
+	GetGLWidget ().GetFoamAlongTime ().GetFoam (0).
 	GetBody (0).GetBoundingBox ();
     float unitForceSize = 
-	m_glWidget.GetForceLength () * (box.high () - box.low ()).length ();
+	GetGLWidget ().GetForceLength () * 
+	(box.high () - box.low ()).length () / count;
     G3D::Vector3 center = force.m_body->GetCenter ();
-    if (m_glWidget.GetViewSettings (viewNumber).IsForceNetworkShown ())
+    if (GetGLWidget ().GetViewSettings (viewNumber).IsForceNetworkShown ())
 	displayForce (
-	    m_glWidget.GetHighlightColor (viewNumber, HighlightNumber::H0),
+	    GetGLWidget ().GetHighlightColor (viewNumber, HighlightNumber::H0),
 	    center, G3D::Vector3 (unitForceSize * force.m_networkForce, 0));
-    if (m_glWidget.GetViewSettings (viewNumber).IsForcePressureShown ())
+    if (GetGLWidget ().GetViewSettings (viewNumber).IsForcePressureShown ())
 	displayForce (
-	    m_glWidget.GetHighlightColor (viewNumber, HighlightNumber::H1),
+	    GetGLWidget ().GetHighlightColor (viewNumber, HighlightNumber::H1),
 	    center, G3D::Vector3 (unitForceSize * force.m_pressureForce, 0));
-    if (m_glWidget.GetViewSettings (viewNumber).IsForceResultShown ())
+    if (GetGLWidget ().GetViewSettings (viewNumber).IsForceResultShown ())
 	displayForce (
-	    m_glWidget.GetHighlightColor (viewNumber, HighlightNumber::H2),
+	    GetGLWidget ().GetHighlightColor (viewNumber, HighlightNumber::H2),
 	    center, G3D::Vector3 (
 		unitForceSize * 
 		(force.m_networkForce + force.m_pressureForce), 0));

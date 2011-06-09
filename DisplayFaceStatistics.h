@@ -11,6 +11,7 @@
 
 #include "DisplayElement.h"
 #include "Enums.h"
+#include "Average.h"
 
 class Body;
 class Foam;
@@ -125,39 +126,30 @@ private:
  * The reason for this type of implementation is that OpenGL cannot
  * read and write to the same buffer in the same step.
  */
-class DisplayFaceStatistics
+class DisplayFaceStatistics : public Average
 {
 public:
     DisplayFaceStatistics (const GLWidget& glWidget) :
-	m_glWidget (glWidget)
+	Average (glWidget)
     {
     }
-
-    void Init (const G3D::Rect2D& viewRect);
-    void Clear (const G3D::Rect2D& viewRect);
-    static void InitShaders ();
     void Release ();
-    void Display (const G3D::Rect2D& viewRect,
-		  GLfloat minValue, GLfloat maxValue, 
-		  StatisticsType::Enum displayType);
-    void DisplayAndRotate (const G3D::Rect2D& viewRect,
-			   GLfloat minValue, GLfloat maxValue, 
+    void Display (ViewNumber::Enum viewNumber, StatisticsType::Enum displayType);
+    void DisplayAndRotate (ViewNumber::Enum viewNumber,
 			   StatisticsType::Enum displayType,
 			   G3D::Vector2 rotationCenter, float angleDegrees);
-    void InitStep (ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue);
-    void Step (ViewNumber::Enum view, GLfloat minValue, GLfloat maxValue, 
-	       int direction);
-    void SetHistoryCount (size_t historyCount)
-    {
-	m_historyCount = historyCount;
-    }
-    size_t GetHistoryCount () const
-    {
-	return m_historyCount;
-    }
 
+public:
+    static void InitShaders ();
+
+protected:
+    virtual void init (ViewNumber::Enum viewNumber);
+    virtual void addStep (ViewNumber::Enum viewNumber, size_t timeStep);
+    virtual void removeStep (ViewNumber::Enum viewNumber, size_t timeStep);
 
 private:
+
+    void clear (const G3D::Rect2D& viewRect);
     void writeFacesValues (
 	ViewNumber::Enum view, const vector<boost::shared_ptr<Body> >& bodies);
     void display (const G3D::Rect2D& viewRect, 
@@ -181,9 +173,9 @@ private:
 	const G3D::Rect2D& viewRect,
 	const boost::scoped_ptr<QGLFramebufferObject>& fbo);
     void glActiveTexture (GLenum texture) const;
+    pair<double, double> getStatisticsMinMax (ViewNumber::Enum view) const;
 
 private:
-    const GLWidget& m_glWidget;
     /**
      * Stores (sum,count,min,max) up too and including the current step
      */
@@ -198,9 +190,6 @@ private:
      */
     boost::scoped_ptr<QGLFramebufferObject> m_step;
     boost::scoped_ptr<QGLFramebufferObject> m_debug;
-
-    size_t m_currentHistoryCount;
-    size_t m_historyCount;
 
     static AddShaderProgram m_addShaderProgram;
     static RemoveShaderProgram m_removeShaderProgram;

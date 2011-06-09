@@ -14,7 +14,7 @@
 #include "Force.h"
 #include "Hashes.h"
 #include "OOBox.h"
-#include "Statistics.h"
+#include "HistogramStatistics.h"
 #include "ConstraintRotation.h"
 
 

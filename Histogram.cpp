@@ -10,7 +10,7 @@
 #include "DebugStream.h"
 #include "Histogram.h"
 #include "HistogramHeight.h"
-#include "Statistics.h"
+#include "HistogramStatistics.h"
 
 
 const QSize Histogram::SIZE_HINT (200, 200);

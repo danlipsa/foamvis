@@ -1,6 +1,6 @@
 HEADERS += Application.h ApproximationEdge.h\
 	Attribute.h AttributeCreator.h AttributeInfo.h \
-	AttributeHistogram.h HistogramHeight.h Body.h \
+	AttributeHistogram.h Average.h Body.h \
 	BodyAlongTime.h BodyIndex.h BodySelector.h ConstraintRotation.h \
 	ConstraintEdge.h ColorBarModel.h Comparisons.h \
 	Debug.h DebugStream.h Disk.h DisplayFaceStatistics.h DisplayForces.h\
@@ -8,19 +8,19 @@ HEADERS += Application.h ApproximationEdge.h\
 	DisplayEdgeFunctors.h DisplayElement.h DisplayWidget.h\
 	SelectBodiesById.h EditColorMap.h Edge.h Element.h ExpressionTree.h \
 	Enums.h Foam.h FoamAlongTime.h Face.h Force.h\
-	GLWidget.h Hashes.h Histogram.h HistogramItem.h\
+	GLWidget.h Hashes.h Histogram.h HistogramItem.h HistogramHeight.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
 	OOBox.h OpenGLInfo.h OpenGLUtils.h OrientedElement.h\
 	OrientedEdge.h OrientedFace.h OrientedFaceIndex.h \
 	ParsingData.h ParsingDriver.h \
 	ParsingEnums.h ProcessBodyTorus.h PropertySetter.h \
 	QuadraticEdge.h RestrictedRangeSlider.h \
-	stable.h Statistics.h StripIterator.h SystemDifferences.h \
+	stable.h HistogramStatistics.h StripIterator.h SystemDifferences.h \
 	TransferFunctionHistogram.h TimeStepsSlider.h Utils.h \
 	Vertex.h ViewSettings.h
 SOURCES += Application.cpp ApproximationEdge.cpp\
 	Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
-	AttributeHistogram.cpp \
+	AttributeHistogram.cpp Average.cpp \
 	Body.cpp BodyAlongTime.cpp BodyIndex.cpp BodySelector.cpp\
 	ConstraintEdge.cpp ColorBarModel.cpp Comparisons.cpp \
 	DebugStream.cpp Disk.cpp DisplayBodyFunctors.cpp \
@@ -38,7 +38,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	ParsingEnums.cpp ProcessBodyTorus.cpp \
 	PropertySetter.cpp \
 	QuadraticEdge.cpp RestrictedRangeSlider.cpp\
-	Statistics.cpp StripIterator.cpp TimeStepsSlider.cpp \
+	HistogramStatistics.cpp StripIterator.cpp TimeStepsSlider.cpp \
 	TransferFunctionHistogram.cpp Utils.cpp Vertex.cpp ViewSettings.cpp
 FORMS += SelectBodiesById.ui EditColorMap.ui HistogramHeight.ui \
 	 RestrictedRangeSlider.ui MainWindow.ui OpenGLInfo.ui

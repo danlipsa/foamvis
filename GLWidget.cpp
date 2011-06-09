@@ -394,8 +394,9 @@ void GLWidget::initViewSettings ()
     }
     BOOST_FOREACH (boost::shared_ptr<ViewSettings> vs, m_viewSettings)
     {
-	vs->GetDisplayFaceStatistics ().SetHistoryCount (
-	    GetFoamAlongTime ().GetTimeSteps ());
+	size_t timeSteps = GetFoamAlongTime ().GetTimeSteps ();
+	vs->GetDisplayFaceStatistics ().SetHistoryCount (timeSteps);
+	vs->GetDisplayForces ().SetHistoryCount (timeSteps);
     }
 }
 
@@ -1046,9 +1047,8 @@ void GLWidget::resizeGL(int w, int h)
 	ViewSettings& vs = GetViewSettings (viewNumber);
 	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
 	{
-	    pair<double, double> minMax = getStatisticsMinMax (viewNumber);
-	    vs.GetDisplayFaceStatistics ().InitStep (
-		viewNumber, minMax.first, minMax.second);
+	    vs.GetDisplayFaceStatistics ().InitStep (viewNumber);
+	    vs.GetDisplayForces ().InitStep (viewNumber);
 	}
     }
     WarnOnOpenGLError ("resizeGl");
@@ -1788,24 +1788,6 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
     vs.GetDisplayForces ().Display (viewNumber);
 }
 
-pair<double, double> GLWidget::getStatisticsMinMax (ViewNumber::Enum view) const
-{
-    double minValue, maxValue;
-    if (GetViewSettings (view).GetStatisticsType () == StatisticsType::COUNT)
-    {
-	minValue = 0;
-	maxValue = GetFoamAlongTime ().GetTimeSteps ();
-    }
-    else
-    {
-	minValue = GetFoamAlongTime ().GetMin (
-	    GetViewSettings (view).GetBodyProperty ());
-	maxValue = GetFoamAlongTime ().GetMax (
-	    GetViewSettings (view).GetBodyProperty ());
-    }
-    return pair<double, double> (minValue, maxValue);
-}
-
 
 void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
 {
@@ -1813,7 +1795,6 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
     glPushAttrib (GL_ENABLE_BIT);    
     glDisable (GL_DEPTH_TEST);
     glBindTexture (GL_TEXTURE_1D, vs.GetColorBarTexture ());
-    pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     bool adjustForContextStationaryFoam = 
 	(GetViewSettings (viewNumber).GetContextStationaryType () == 
 	 ViewSettings::CONTEXT_STATIONARY_FOAM);
@@ -1829,14 +1810,15 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
 	float angleDegrees = G3D::toDegrees (
 	    rotationCurrent.m_angle - rotationBegin.m_angle);
 	vs.GetDisplayFaceStatistics ().DisplayAndRotate (
-	    GetViewRect (viewNumber),
-	    minMax.first, minMax.second, vs.GetStatisticsType (),
+	    viewNumber, vs.GetStatisticsType (),
 	    rotationCenter, - angleDegrees);
     }
     else
+    {
 	vs.GetDisplayFaceStatistics ().Display (
-	    GetViewRect (viewNumber),
-	    minMax.first, minMax.second, vs.GetStatisticsType ());
+	    viewNumber, vs.GetStatisticsType ());
+	vs.GetDisplayForces ().DisplayAverage (viewNumber);
+    }
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
     displayStationaryBody (viewNumber);
     displayStationaryConstraint (viewNumber, adjustForContextStationaryFoam);
@@ -2781,9 +2763,9 @@ void GLWidget::ToggledFacesStatistics (bool checked)
     makeCurrent ();
     if (checked)
     {
-	pair<double, double> minMax = getStatisticsMinMax (GetViewNumber ());
-	GetViewSettings ().GetDisplayFaceStatistics ().InitStep (
-	    GetViewNumber (), minMax.first, minMax.second);
+	ViewNumber::Enum vn = GetViewNumber ();
+	GetViewSettings ().GetDisplayFaceStatistics ().InitStep (vn);
+	GetViewSettings ().GetDisplayForces ().InitStep (vn);
     }
     else
 	GetViewSettings ().GetDisplayFaceStatistics ().Release ();
@@ -2836,9 +2818,8 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 	ViewSettings& vs = GetViewSettings (view);
 	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
 	{
-	    pair<double, double> minMax = getStatisticsMinMax (view);
-	    vs.GetDisplayFaceStatistics ().Step (
-		view, minMax.first, minMax.second, direction);
+	    vs.GetDisplayFaceStatistics ().Step (view, direction);
+	    vs.GetDisplayForces ().Step (view, direction);
 	}
     }
     update ();
@@ -2846,8 +2827,8 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 
 void GLWidget::ValueChangedStatisticsHistory (int timeSteps)
 {
-    GetViewSettings ().GetDisplayFaceStatistics ().SetHistoryCount (
-	timeSteps);
+    GetViewSettings ().GetDisplayFaceStatistics ().SetHistoryCount (timeSteps);
+    GetViewSettings ().GetDisplayForces ().SetHistoryCount (timeSteps);
 }
 
 void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)

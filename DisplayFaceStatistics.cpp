@@ -219,10 +219,11 @@ StoreShaderProgram DisplayFaceStatistics::m_storeShaderProgram;
 DisplayShaderProgram DisplayFaceStatistics::m_displayShaderProgram;
 InitShaderProgram DisplayFaceStatistics::m_initShaderProgram;
 
-void DisplayFaceStatistics::Init (const G3D::Rect2D& viewRect)
+void DisplayFaceStatistics::init (ViewNumber::Enum viewNumber)
 {
+    Average::init (viewNumber);
+    const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
     QSize size (viewRect.width (), viewRect.height ());
-    m_currentHistoryCount = 0;
     glPushAttrib (GL_COLOR_BUFFER_BIT);
     m_step.reset (
 	new QGLFramebufferObject (
@@ -242,10 +243,10 @@ void DisplayFaceStatistics::Init (const G3D::Rect2D& viewRect)
 	    GL_RGBA32F));
     m_debug.reset (new QGLFramebufferObject (size));
     glPopAttrib ();
-    Clear (viewRect);
+    clear (viewRect);
 }
 
-void DisplayFaceStatistics::Clear (const G3D::Rect2D& viewRect)
+void DisplayFaceStatistics::clear (const G3D::Rect2D& viewRect)
 {
     m_step->bind ();ClearColorStencilBuffers (Qt::black, 0);
     m_step->release ();
@@ -299,71 +300,105 @@ void DisplayFaceStatistics::displayAndRotate (
 }
 
 
-
-void DisplayFaceStatistics::InitStep (
-    ViewNumber::Enum viewNumber, GLfloat minValue, GLfloat maxValue)
-{
-    G3D::Rect2D viewRect = m_glWidget.GetViewRect (viewNumber);
-    Init (viewRect);
-    Step (viewNumber, minValue, maxValue, 1);
-}
-
-
 typedef void (DisplayFaceStatistics::*Operation) (const G3D::Rect2D& viewRect);
 
-void DisplayFaceStatistics::Step (
-    ViewNumber::Enum viewNumber, GLfloat minValue, GLfloat maxValue, 
-    int direction)
+/*
+void DisplayFaceStatistics::Step (ViewNumber::Enum viewNumber, int direction)
 {
+    if (abs (direction) > 1)
+    {
+	InitStep (viewNumber);
+	return;
+    }
     Operation op[] = {
 	&DisplayFaceStatistics::addStepToNew, 
 	&DisplayFaceStatistics::removeStepFromNew
     };
-    size_t timeStep = m_glWidget.GetTimeStep ();
+    size_t timeStep = GetGLWidget ().GetTimeStep ();
     timeStep += (direction < 0) ? 1 : 0;
-    G3D::Rect2D viewRect = m_glWidget.GetViewRect (viewNumber);
     // used for display
-    (void)minValue;(void)maxValue;
+    pair<double, double> minMax = getStatisticsMinMax (viewNumber);
+    G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, timeStep);
     //save (viewRect, *m_step, "step", timeStep,
-    //minValue, maxValue, StatisticsType::AVERAGE);
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
     (this->*(op[direction < 0])) (viewRect);
     //save (viewRect, *m_new, "new", timeStep,
-    //minValue, maxValue, StatisticsType::AVERAGE);
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
     copyNewToOld ();
     //save (viewRect, *m_old, "old", timeStep, 
-    //minValue, maxValue, StatisticsType::AVERAGE);
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
     if (m_currentHistoryCount >= m_historyCount && timeStep >= m_historyCount)
     {
 	renderToStep (viewNumber, timeStep - m_historyCount);
 	//save (viewRect, *m_step, "step_", timeStep - m_historyCount,
-	//minValue, maxValue, StatisticsType::AVERAGE);
+	//minMax.first, minMax.second, StatisticsType::AVERAGE);
 	(this->*(op[direction > 0])) (viewRect);
 	//save (viewRect, *m_new, "new_", timeStep,
-	//minValue, maxValue, StatisticsType::AVERAGE);
+	//minMax.first, minMax.second, StatisticsType::AVERAGE);
 	copyNewToOld ();
 	//save (viewRect, *m_old, "old_", timeStep, 
-	//minValue, maxValue, StatisticsType::AVERAGE);
+	//minMax.first, minMax.second, StatisticsType::AVERAGE);
     }
     else
 	m_currentHistoryCount += (direction > 0)? 1 : -1;
     glPopAttrib ();
-    WarnOnOpenGLError ();
+    WarnOnOpenGLError ("DisplayFaceStatistics::Step");
 }
+*/
+
+void DisplayFaceStatistics::addStep (ViewNumber::Enum viewNumber, 
+				     size_t timeStep)
+{
+    pair<double, double> minMax = getStatisticsMinMax (viewNumber);
+    G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
+    glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
+    renderToStep (viewNumber, timeStep);
+    //save (viewRect, *m_step, "step", timeStep,
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
+    addStepToNew (viewRect);
+    //save (viewRect, *m_new, "new", timeStep,
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
+    copyNewToOld ();
+    //save (viewRect, *m_old, "old", timeStep, 
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);    
+    glPopAttrib ();
+    WarnOnOpenGLError ("DisplayFaceStatistics::addStep");
+}
+
+void DisplayFaceStatistics::removeStep (ViewNumber::Enum viewNumber, 
+				     size_t timeStep)
+{
+    pair<double, double> minMax = getStatisticsMinMax (viewNumber);
+    G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
+    glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
+    renderToStep (viewNumber, timeStep);
+    //save (viewRect, *m_step, "step_", timeStep - m_historyCount,
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
+    removeStepFromNew (viewRect);
+    //save (viewRect, *m_new, "new_", timeStep,
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
+    copyNewToOld ();
+    //save (viewRect, *m_old, "old_", timeStep, 
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
+    glPopAttrib ();
+    WarnOnOpenGLError ("DisplayFaceStatistics::addStep");
+}
+
 
 void DisplayFaceStatistics::renderToStep (
     ViewNumber::Enum viewNumber, size_t timeStep)
 {
-    G3D::Rect2D viewRect = m_glWidget.GetViewRect ();
+    G3D::Rect2D viewRect = GetGLWidget ().GetViewRect ();
     glPushMatrix ();
-    m_glWidget.ModelViewTransform (viewNumber, timeStep);
+    GetGLWidget ().ModelViewTransform (viewNumber, timeStep);
     glViewport (0, 0, viewRect.width (), viewRect.height ());
     clearColorBufferMinMax (viewRect, m_step);
     m_step->bind ();
     ClearColorStencilBuffers (Qt::black, 0);
     m_storeShaderProgram.Bind ();
-    const Foam& foam = m_glWidget.GetFoamAlongTime ().GetFoam (timeStep);
+    const Foam& foam = GetGLWidget ().GetFoamAlongTime ().GetFoam (timeStep);
     const Foam::Bodies& bodies = foam.GetBodies ();
     writeFacesValues (viewNumber, bodies);
     m_storeShaderProgram.release ();
@@ -459,22 +494,29 @@ void DisplayFaceStatistics::clearColorBufferMinMax (
 }
 
 void DisplayFaceStatistics::Display (
-    const G3D::Rect2D& viewRect,
-    GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
+    ViewNumber::Enum viewNumber, StatisticsType::Enum displayType)
 {
     if (m_new.get () != 0)
-	display (viewRect, minValue, maxValue, displayType, *m_new);
+    {
+	pair<double, double> minMax = getStatisticsMinMax (viewNumber);
+	const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
+	display (viewRect, minMax.first, minMax.second, displayType, *m_new);
+    }
 }
 
 void DisplayFaceStatistics::DisplayAndRotate (
-    const G3D::Rect2D& viewRect,
-    GLfloat minValue, GLfloat maxValue, 
+    ViewNumber::Enum viewNumber,
     StatisticsType::Enum displayType, 
     G3D::Vector2 rotationCenter, float angleDegrees)
 {
     if (m_new.get () != 0)
-	displayAndRotate (viewRect, minValue, maxValue, displayType, *m_new,
-			  rotationCenter, angleDegrees);
+    {
+	pair<double, double> minMax = getStatisticsMinMax (viewNumber);
+	const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
+	displayAndRotate (
+	    viewRect, minMax.first, minMax.second, displayType, *m_new,
+	    rotationCenter, angleDegrees);
+    }
 }
 
 
@@ -508,14 +550,14 @@ void DisplayFaceStatistics::writeFacesValues (
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glBindTexture (
 	GL_TEXTURE_1D, 
-	m_glWidget.GetViewSettings (viewNumber).GetColorBarTexture ());
+	GetGLWidget ().GetViewSettings (viewNumber).GetColorBarTexture ());
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
 	      DisplayFaceBodyPropertyColor<
 	      SetterValueVertexAttribute>, SetterValueVertexAttribute> (
-		  m_glWidget, m_glWidget.GetBodySelector (), 
+		  GetGLWidget (), GetGLWidget ().GetBodySelector (), 
 		  SetterValueVertexAttribute (
-		      m_glWidget, viewNumber, &m_storeShaderProgram,
+		      GetGLWidget (), viewNumber, &m_storeShaderProgram,
 		      m_storeShaderProgram.GetVValueIndex ()),
 		  DisplayElement::INVISIBLE_CONTEXT));
     glPopAttrib ();
@@ -523,5 +565,25 @@ void DisplayFaceStatistics::writeFacesValues (
 
 void DisplayFaceStatistics::glActiveTexture (GLenum texture) const
 {
-    const_cast<GLWidget&>(m_glWidget).glActiveTexture (texture);
+    const_cast<GLWidget&>(GetGLWidget ()).glActiveTexture (texture);
+}
+
+pair<double, double> DisplayFaceStatistics::getStatisticsMinMax (
+    ViewNumber::Enum view) const
+{
+    double minValue, maxValue;
+    if (GetGLWidget ().GetViewSettings (view).GetStatisticsType () == 
+	StatisticsType::COUNT)
+    {
+	minValue = 0;
+	maxValue = GetGLWidget ().GetFoamAlongTime ().GetTimeSteps ();
+    }
+    else
+    {
+	minValue = GetGLWidget ().GetFoamAlongTime ().GetMin (
+	    GetGLWidget ().GetViewSettings (view).GetBodyProperty ());
+	maxValue = GetGLWidget ().GetFoamAlongTime ().GetMax (
+	    GetGLWidget ().GetViewSettings (view).GetBodyProperty ());
+    }
+    return pair<double, double> (minValue, maxValue);
 }
