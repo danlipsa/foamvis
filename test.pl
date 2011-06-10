@@ -11,7 +11,6 @@ my @tests =
      "cststress_vfm/cststress_16_0001.dmp",
      "ctrctn/dump_0.1520_0.2400_8.0000_0001.dmp",
      "ellipse_in_flow/ell0.700000_344v_5.000000_1.dmp",
-     
      "periodicshear/shear_65_0001_2.dmp",
      "sphereall/sphere_0.711204_144_0001.dmp",
      "shear_160/shear_160_0000_1.dmp",
