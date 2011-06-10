@@ -88,6 +88,7 @@ const char* ParsingDriver::KEYWORD_TABLE[] = {
     "CONSTRAINT_TOLERANCE",
     "SYMMETRIC_CONTENT",
     "SCALE",
+    "SCALE_LIMIT",
     "NOWALL",
     "GLOBAL",
     "CONTENT",

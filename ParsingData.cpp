@@ -60,6 +60,7 @@ const char* ParsingData::IMPLEMENTED_METHODS[] =
 {
     "edge_area",
     "vertex_scalar_integral",
+    "edge_general_integral",
     "facet_general_integral"
 };
 

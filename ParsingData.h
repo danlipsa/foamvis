@@ -63,10 +63,6 @@ public:
     {
 	m_attributes.insert (s);
     }
-    void AddMethodOrQuantity (const char* s)
-    {
-	m_methodOrQuantity.insert (s);
-    }
 
     void CloseParenthesis ()
     {
@@ -182,6 +178,10 @@ public:
     bool IsNewLineSignificant () const
     {
 	return m_newLineSignificant;
+    }
+    void AddMethodOrQuantity (const char* s)
+    {
+	m_methodOrQuantity.insert (s);
     }
     bool IsMethodOrQuantity (const char* s)
     {

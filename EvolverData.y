@@ -80,7 +80,7 @@ class AttributeCreator;
 //    - add the keyword in the table in ParsingDriver.cpp
 //    - add the keyword  in the list of  tokens in EvolverData.y
 //    - add the correct rule in EvolverData.y
-//    - add the attribute in AddDefault...Attribute in Foam.cpp
+//    - IF NEEDED add the attribute in AddDefault...Attribute in Foam.cpp
 %token PARAMETER "PARAMETER"
 %token PERIODS "PERIODS"
 %token DISPLAY_PERIODS "DISPLAY_PERIODS"
@@ -131,6 +131,7 @@ class AttributeCreator;
 %token CONSTRAINT_TOLERANCE "CONSTRAINT_TOLERANCE"
 %token SYMMETRIC_CONTENT "SYMMETRIC_CONTENT"
 %token SCALE "SCALE"
+%token SCALE_LIMIT "SCALE_LIMIT"
 %token NOWALL "NOWALL"
 %token GLOBAL "GLOBAL"
 %token CONTENT "CONTENT"
@@ -298,6 +299,7 @@ header
 | header attribute nlplus
 | header representation nlplus
 | header scale_factor nlplus
+| header scale_limit nlplus
 | header total_time nlplus
 | header temperature nlplus
 | header constraint_tolerance nlplus
@@ -494,7 +496,7 @@ method_global
 
 method_parameters
 : /* empty */
-| SCALAR_INTEGRAND colon_assignment expr
+| SCALAR_INTEGRAND colon_assignment non_const_expr
 ;
 
 function_declaration
@@ -601,6 +603,10 @@ scale_factor
 scale_factor_rest
 : /* empty */
 | FIXED
+;
+
+scale_limit
+: SCALE_LIMIT colon_assignment const_expr
 ;
 
 total_time
@@ -729,12 +735,6 @@ constraint_content_c3
 }
 ;
 
-non_const_expr
-: expr
-{
-    $$ = $1;
-}
-
 const_expr
 : expr
 {
@@ -742,6 +742,100 @@ const_expr
     $$ = v;
     delete $1;
 }
+
+
+non_const_expr
+: number
+{
+    $$ = new ExpressionTreeNumber (foam->GetParsingData (), $1);
+}
+| IDENTIFIER
+{
+    $$ = new ExpressionTreeVariable (foam->GetParsingData (), $1);
+}
+| ATTRIBUTE_ID
+{
+    $$ = new ExpressionTreeVariable (foam->GetParsingData (), $1);
+}
+/* Function calls */
+| IDENTIFIER '(' non_const_expr ')'
+{
+    $$ = new ExpressionTreeUnaryFunction (foam->GetParsingData (), $1, $3);
+}
+| IDENTIFIER '(' non_const_expr ',' non_const_expr ')'
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $1, $3, $5);
+}
+/* Arithmetic operations */
+| '-' non_const_expr  %prec UMINUS
+{
+    $$ = new ExpressionTreeUnaryFunction (foam->GetParsingData (), $1, $2);
+}
+| non_const_expr '+' non_const_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+| non_const_expr '-' non_const_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+
+| non_const_expr '*' non_const_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+| non_const_expr '/' non_const_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+| non_const_expr '^' non_const_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+/* Comparisions */
+| non_const_expr '>' non_const_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+| non_const_expr GE non_const_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+| non_const_expr '<' non_const_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+| non_const_expr LE non_const_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+/* Logical operations */
+| '!' non_const_expr
+{
+    $$ = new ExpressionTreeUnaryFunction (foam->GetParsingData (), $1, $2);
+}
+| non_const_expr AND non_const_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+| non_const_expr OR non_const_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+/* Other expressions */
+| '(' non_const_expr ')'
+{
+    $$ = $2;
+}
+| non_const_expr '=' non_const_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+| non_const_expr '?' non_const_expr ':' non_const_expr
+{
+    $$ = new ExpressionTreeConditional (foam->GetParsingData (), $1, $3, $5);
+}
+
 
 
 expr
@@ -762,7 +856,6 @@ expr
 {
     $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $1, $3, $5);
 }
-
 /* Arithmetic operations */
 | '-' expr  %prec UMINUS
 {
@@ -789,7 +882,6 @@ expr
 {
     $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
 }
-
 /* Comparisions */
 | expr '>' expr
 {
@@ -807,7 +899,6 @@ expr
 {
     $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
 }
-
 /* Logical operations */
 | '!' expr
 {
@@ -821,7 +912,6 @@ expr
 {
     $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
 }
-
 /* Other expressions */
 | '(' expr ')'
 {
