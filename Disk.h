@@ -33,7 +33,7 @@
  *     |                            |
  *  V6 o              o (center)    o V2
  *     |                            |
- *
+ * </PRE>
  */
 class Disk 
 {
@@ -105,14 +105,7 @@ public:
 
     /**
      * This method returns the next disk vertex index defined in the
-     * DISK_INDEX enumeration.  Some examples:
-     * <LI>  GetNextVertexIndex(DISK_INDEX 1) returns 2
-     * <LI>  GetNextVertexIndex(DISK_INDEX 7) returns 0  <BR>
-     * This is very handy for procedures that cycle around disk objects.   
-     *
-     * @from   OglStreamComet::RenderAsQuadStrips()
-     * @param  thisVertexIndex
-     * @return the next vertex index
+     * DISK_INDEX enumeration.
      */
     static DISK_VERTEX GetNextVertexIndex(int thisVertexIndex);
 

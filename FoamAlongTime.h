@@ -187,7 +187,7 @@ public:
 
 private:
     void MapPerFoam (FoamMethod* foamMethods, size_t n);
-    void MapPerFoam (void (Foam::*f) ());
+    void MapPerFoam (FoamMethod foamMethod);
     void fixConstraintPoints ();
     void adjustPressureAlignMedians ();
     void adjustPressureSubtractReference ();

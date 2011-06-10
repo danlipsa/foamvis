@@ -32,7 +32,6 @@ class DisplayBodyBase : public DisplayElementProperty<PropertySetter>
 public:
     /**
      * Constructor
-     * @param widget where to display the body
      */
     DisplayBodyBase (const GLWidget& widget, 
 		     const BodySelector& bodySelector, 
@@ -53,7 +52,6 @@ public:
 protected:
     /**
      * Displays the body
-     * @param b the body
      */
     virtual void display (boost::shared_ptr<Body> b,
 			  typename DisplayElement::FocusContext fc)
@@ -82,7 +80,6 @@ class DisplayBodyCenter : public DisplayBodyBase<>
 public:
     /**
      * Constructor
-     * @param widget where to display the center of the bubble
      */
     DisplayBodyCenter (
 	const GLWidget& widget, const BodySelector& bodySelector,
@@ -91,7 +88,6 @@ public:
 protected:
     /**
      * Displays the center of a body (bubble)
-     * @param b body to display the center of
      */
     virtual void display (boost::shared_ptr<Body> b, FocusContext fc);
 };
@@ -107,7 +103,6 @@ class DisplayBody : public DisplayBodyBase<PropertySetter>
 public:
     /**
      * Constructor
-     * @param widget where to display the body
      */
     DisplayBody (
 	const GLWidget& widget, const BodySelector& bodySelector,
@@ -127,7 +122,6 @@ public:
 protected:
     /**
      * Displays a body going through all its faces
-     * @param b the body to be displayed
      */
     virtual void display (
 	boost::shared_ptr<Body> b, 
@@ -151,7 +145,6 @@ class DisplayCenterPath : public DisplayBodyBase<PropertySetter>
 public:
     /**
      * Constructor
-     * @param widget where to display the center path
      */
     DisplayCenterPath (
 	const GLWidget& widget, ViewNumber::Enum view, 

@@ -170,7 +170,6 @@ public:
     /**
      * Used for  profiling. Prints to  the debug stream  a description
      * and the time since the last checkpoint.  
-     * @param description what should be printed together with the time
      */
     bool IsAttribute (const char* s)
     {
@@ -195,11 +194,6 @@ public:
     }
     /**
      * Stores a Vertex object a certain index in the Foam object
-     * @param i where to store the Vertex object
-     * @param x coordinate X of the Vertex object
-     * @param y coordinate Y of the Vertex object
-     * @param z coordinate Z of the Vertex object
-     * @param attributes the list of attributes for the vertex
      */
     void SetVertex (size_t i, double x, double y, double z,
 		    vector<NameSemanticValue*>& attributes,
@@ -222,10 +216,6 @@ public:
 
     /**
      * Stores an Edge object in the Foam object at a certain index
-     * @param i index where to store the Edge object
-     * @param begin index of the first Point that determines the edge
-     * @param end index of the last Point that determines the edge
-     * @param attributes the list of attributes for this edge
      */
     void SetEdge (size_t i, size_t begin, size_t end, size_t middle,
 		  G3D::Vector3int16& endTranslation,
@@ -234,14 +224,6 @@ public:
 		  bool isQuadratic);
     /**
      * Stores a Face object in the Foam object 
-     * 
-     * @param i index where to store the Face object
-     * @param edges  vector of  edges that form  the face. An  edge is
-     *        specified using an index of the edge that should already
-     *        be stored in the Foam  object. If the index is negative,
-     *        the edge part of the  Face is in reversed order than the
-     *        Edge that is stored in the Foam object.
-     * @param attributes the list of attributes for the face
      */
     void SetFace (size_t i,  vector<int>& edges,
                   vector<NameSemanticValue*>& attributes,

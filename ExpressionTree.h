@@ -19,8 +19,6 @@ class ExpressionTree
 public:
     /**
      * Constructs an ExpressionTree
-     * @param left the left child of the current node
-     * @param second the second child of the current node
      */
     ExpressionTree (ParsingData& parsingData)
 
@@ -205,11 +203,6 @@ class ExpressionTreeConditional : public ExpressionTree
 public:
     /**
      * Constructs a binary function tree node
-     * @param name name of the function
-     * @param first child of the tree node
-     * @param second second child of the tree node
-     * @param  parsingData allows  us to  get the  function associated
-     * with the function name
      */
     ExpressionTreeConditional (
 	ParsingData& parsingData,

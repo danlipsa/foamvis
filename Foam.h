@@ -69,8 +69,6 @@ public:
 
     /**
      * Gets ith body
-     * @param i index of the body to be returned
-     * @return the body
      */
     Body& GetBody (size_t index) const
     {
@@ -102,22 +100,12 @@ public:
 
     /**
      * Stores a Body object in the Foam object
-     * @param i index where to store the Body object
-     * @param  faces vector of  faces that  form the  body. A  face is
-     *         specified  using  an  index  of the  face  that  should
-     *         already be *  stored in the Foam object.   If the index
-     *         is negative, the face * that  is part of the Body is in
-     *         reverse order  than the  Face that *  is stored  in the
-     *         Foam object.
-     * @param attributes the list of attributes
      */
     void SetBody (size_t i,  vector<int>& faces,
                   vector<NameSemanticValue*>& attributes, 
 		  bool useOriginal);
     /**
      * Stores an element of the 4x4 view matrix.
-     * @param i index where to store the elment
-     * @param f the value to be stored
      */
     void SetViewMatrix (
 	double r1c1, double r1c2, double r1c3, double r1c4, 
@@ -220,31 +208,27 @@ public:
      * @return true if the body is already inside the original domain,
      *         so no translation is necessary, false otherwise
      */
-    Bodies::iterator BodyInsideOriginalDomainStep (
-	Bodies::iterator begin,
+    Foam::Bodies::iterator BodyInsideOriginalDomainStep (
+	Foam::Bodies::iterator begin,
 	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
     /**
      * Specifies the default attributes for the Vertex object.
      * These attributes don't appear as a DEFINE in the .DMP file
-     * @param info the object where the default attributes are stored.
      */
     void AddDefaultVertexAttributes ();
     /**
      * Specifies the default attributes for an Edge object.
      * These attributes don't appear as a DEFINE in the .DMP file
-     * @param info the object where the default attributes are stored.
      */
     void AddDefaultEdgeAttributes ();
     /**
      * Specifies the default attributes for an Face object.
      * These attributes don't appear as a DEFINE in the .DMP file
-     * @param info the object where the default attributes are stored.
      */
     void AddDefaultFaceAttributes ();
     /**
      * Specifies the default attributes for the Body object.
      * These attributes don't appear as a DEFINE in the .DMP file
-     * @param info the object where the default attributes are stored.
      */
     void AddDefaultBodyAttributes ();
     template <typename Accumulator>

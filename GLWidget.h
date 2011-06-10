@@ -195,13 +195,11 @@ public:
     
     /**
      * Calculates and does the viewport transform.
-     * @param viewport stores the viewport.
      */
     void ModelViewTransform (ViewNumber::Enum viewNumber, 
 			     size_t timeStep) const;
     /**
      * Displays the foam in various way
-     * @param type the type of object that we want displayed.
      */
     void DisplayViewType (ViewNumber::Enum view) const;
     BodyProperty::Enum GetBodyProperty () const
@@ -335,7 +333,6 @@ public Q_SLOTS:
 
     /**
      * Signals a change in data displayed
-     * @param timeStep the new index for the Foam to be displayed
      */
     void SetStatus (QLabel* labelStatusBar)
     {

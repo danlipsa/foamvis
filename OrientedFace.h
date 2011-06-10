@@ -26,10 +26,6 @@ class OrientedFace : public OrientedElement
 public:
     /**
      * Constructs a OrientedFace object
-     * @param face a pointer to a Face
-     * @param reversed if true the edges in the Face should be read in
-     *        reverse order,  otherwise they should be  read in direct
-     *        order
      */
     OrientedFace () : OrientedElement() {}
     OrientedFace(const boost::shared_ptr<Face>& face, bool reversed);
@@ -114,9 +110,6 @@ inline ostream& operator<< (ostream& ostr, const OrientedFace& of)
 
 /**
  * Pretty prints a pointer to an oriented face
- * @param ostr where to print
- * @param pof pointer to an oriented face
- * @return where to print next
  */
 inline ostream& operator<< (ostream& ostr, 
 			    const boost::shared_ptr<OrientedFace>& of)

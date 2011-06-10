@@ -34,6 +34,9 @@ public:
      * @param attribute pointer to the attribute to set
      */
     void SetAttribute (size_t i, Attribute* attribute);
+    /**
+     * Sets a value of an attribute
+     */
     template<typename T, typename TValue>
     void SetAttribute (size_t i, TValue value);
 
@@ -77,8 +80,6 @@ public:
     }
     /**
      * Pretty print attributes of an element
-     * @param ostr where to print
-     * @param info information about attributes
      */
     ostream& PrintAttributes (ostream& ostr) const;
 private:

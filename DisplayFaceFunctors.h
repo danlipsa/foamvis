@@ -29,7 +29,6 @@ class DisplayFaceHighlightColor :
 public:
     /**
      * Constructor
-     * @param widget Where should be the face displayed
      */
     DisplayFaceHighlightColor (
 	const GLWidget& widget,
@@ -47,7 +46,6 @@ public:
 
     /**
      * Functor that displays a face
-     * @param f the face to be displayed
      */
     void operator() (const boost::shared_ptr<OrientedFace>& of);
     
@@ -65,10 +63,6 @@ class DisplayFaceBodyPropertyColor :
 				     DisplayFaceTriangleFan, PropertySetter>
 {
 public:
-    /**
-     * Constructor
-     * @param widget where is the face displayed
-     */
     DisplayFaceBodyPropertyColor (
 	const GLWidget& widget,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
@@ -82,6 +76,7 @@ public:
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	bool useZPos = false, 
 	double zPos = 0);
+
     void operator () (const boost::shared_ptr<OrientedFace>& of);
 
 private:

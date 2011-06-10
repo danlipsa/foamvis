@@ -49,8 +49,6 @@ public:
 
     /**
      * Shows a histogram of the current display
-     * @param checked true for showing the histogram, false otherwise
-     * @param intervalData data for the histogram
      */
     void SetAndDisplayHistogram (
 	HistogramType::Enum histogramType,

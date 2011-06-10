@@ -23,11 +23,6 @@ class Vertex : public Element
 public:
     /**
      * Creates a Vertex object
-     * @param id original index for this vertex 
-     *    (before invoque 'compact')
-     * @param x the X coordinate
-     * @param y the Y coordinate
-     * @param z the Z coordinate
      */
     Vertex(double x, double y, double z,
 	   size_t id, 
@@ -135,9 +130,6 @@ inline ostream& operator<< (ostream& ostr, const Vertex& v)
 }
 /**
  * Pretty prints a Vertex* by calling the operator<< for a Vertex.
- * @param ostr where to print
- * @param pv what to print
- * @return where to print
  */
 inline ostream& operator<< (ostream& ostr,
 			    const boost::shared_ptr<Vertex>& vertex)

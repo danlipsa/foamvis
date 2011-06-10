@@ -30,9 +30,6 @@ public:
 public:
     /**
      * Constructs a Face object
-     * @param id original index for this face
-     * @param edgeIndexes indexes into a vector of Edge objects
-     * @param edges vector of Edge objects
      */
     Face (const vector<int>& edgeIndexes,
 	  const vector< boost::shared_ptr<Edge> >& edges, 

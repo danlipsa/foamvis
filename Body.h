@@ -28,9 +28,6 @@ public:
 public:
     /**
      * Creates a new body
-     * @param id the original index for this body
-     * @param faceIndexes 0 based indexes into a vector of Face objects
-     * @param faces vector of Face objects
      */
     Body(const vector<int>& faceIndexes,
 	 const vector< boost::shared_ptr<Face> >& faces,

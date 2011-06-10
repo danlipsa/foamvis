@@ -275,6 +275,7 @@ operator() (Aggregate aggregate, Container& container, G3D::Vector3* v)
 
 // CalculateAggregate
 // ======================================================================
+/// @cond
 template void CalculateAggregate<std::set<boost::shared_ptr<Vertex>, VertexLessThan, std::allocator<boost::shared_ptr<Vertex> > >, std::_Rb_tree_const_iterator<boost::shared_ptr<Vertex> >, VertexLessThanAlong>::operator()(std::_Rb_tree_const_iterator<boost::shared_ptr<Vertex> > (*)(std::_Rb_tree_const_iterator<boost::shared_ptr<Vertex> >, std::_Rb_tree_const_iterator<boost::shared_ptr<Vertex> >, VertexLessThanAlong), std::set<boost::shared_ptr<Vertex>, VertexLessThan, std::allocator<boost::shared_ptr<Vertex> > >&, G3D::Vector3*);
 
 
@@ -290,3 +291,4 @@ template void CalculateAggregate<std::vector<boost::shared_ptr<Foam>, std::alloc
 
 
 template void CalculateAggregate<std::vector<G3D::Vector3, std::allocator<G3D::Vector3> >, __gnu_cxx::__normal_iterator<G3D::Vector3*, std::vector<G3D::Vector3, std::allocator<G3D::Vector3> > >, VertexLessThanAlong>::operator()(__gnu_cxx::__normal_iterator<G3D::Vector3*, std::vector<G3D::Vector3, std::allocator<G3D::Vector3> > > (*)(__gnu_cxx::__normal_iterator<G3D::Vector3*, std::vector<G3D::Vector3, std::allocator<G3D::Vector3> > >, __gnu_cxx::__normal_iterator<G3D::Vector3*, std::vector<G3D::Vector3, std::allocator<G3D::Vector3> > >, VertexLessThanAlong), std::vector<G3D::Vector3, std::allocator<G3D::Vector3> >&, G3D::Vector3*);
+/// @endcond

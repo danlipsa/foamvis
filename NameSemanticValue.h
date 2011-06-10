@@ -93,20 +93,14 @@ public:
     {
         return m_type;
     }
-    /**
-     * Deletes a vector  of attributes and the elements  of the vector
-     * as well (deep delete).
-     * @param v the vector to be deleted
-     */
 
 public:
     /**
      * Adds this attribute to a list of attributes
-     * @param listSoFar where to add this attribute
-     * @return the new list of attributes
      */
     static vector<NameSemanticValue*>* PushBack (
-	vector<NameSemanticValue*>* listSoFar, NameSemanticValue* attribute);
+	vector<NameSemanticValue*>* listSoFar, 
+	NameSemanticValue* attribute);
     static void DeleteVector (vector<NameSemanticValue*>* v);
     /**
      * Pretty print for a attribute stored as NameSemanticValue

@@ -86,9 +86,6 @@ public:
 
     /**
      * Adds a face touched by this edge
-     * @param face face adjacent to this edge
-     * @param reversed the edge is reversed in the face list
-     * @param
      */
     void AddFacePartOf (boost::shared_ptr<OrientedFace>  face, size_t edgeIndex);
     size_t GetFacePartOfSize () const

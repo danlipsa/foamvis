@@ -92,13 +92,6 @@ void Foam::Accumulate (Accumulator* acc, BodyProperty::Enum property) const
     }
 }
 
-// define instantiations used
-template void Foam::Accumulate<HistogramStatistics> (
-    HistogramStatistics* acc, BodyProperty::Enum property) const;
-template void Foam::Accumulate<MinMaxStatistics> (
-    MinMaxStatistics* acc, BodyProperty::Enum property) const;
-
-
 void Foam::AddDefaultBodyAttributes ()
 {
     using EvolverData::parser;
@@ -785,3 +778,12 @@ ostream& operator<< (ostream& ostr, const Foam& d)
     copy (d.m_bodies.begin (), d.m_bodies.end (), bOutput);
     return ostr;
 }
+
+// Template instantiations
+// ======================================================================
+/// @cond
+template void Foam::Accumulate<HistogramStatistics> (
+    HistogramStatistics* acc, BodyProperty::Enum property) const;
+template void Foam::Accumulate<MinMaxStatistics> (
+    MinMaxStatistics* acc, BodyProperty::Enum property) const;
+/// @endcond
