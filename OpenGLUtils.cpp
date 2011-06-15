@@ -384,4 +384,3 @@ void ClearColorStencilBuffers (
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glPopAttrib ();
 }
-
