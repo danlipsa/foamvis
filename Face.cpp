@@ -144,6 +144,14 @@ Face::Face (const vector<int>& edgeIndexes,
 
 void Face::CalculateCenter (bool debug)
 {
+    G3D::Vector3 center;
+    BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, m_orientedEdges)
+    {
+	G3D::Vector3 begin = oe->GetBegin ()->GetVector ();
+	G3D::Vector3 end = oe->GetEnd ()->GetVector ();
+	G3D::Vector3 edgeCenter = (begin + end) / 2;
+    }
+/*
     G3D::Vector3 first = m_orientedEdges[0]->GetPoint (0);
     calculateCenter cc (first, getMaxEdgeLength () / 4, debug);
     BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, m_orientedEdges)
@@ -152,6 +160,7 @@ void Face::CalculateCenter (bool debug)
      if (! IsClosed ())
 	cc.Add (first);
     m_center = cc.GetCenter ();
+*/
 }
 
 double Face::getMaxEdgeLength ()
