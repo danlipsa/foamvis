@@ -81,8 +81,8 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     spinBoxFontSize->setValue (defaultFont.pointSize ());
     spinBoxHistogramHeight->setMaximum (500);
     spinBoxHistogramHeight->setValue (widgetHistogram->sizeHint ().height ());
-    spinBoxStatisticsHistory->setMaximum (foamAlongTime.GetTimeSteps ());
-    spinBoxStatisticsHistory->setValue (spinBoxStatisticsHistory->maximum ());
+    spinBoxStatisticsTimeWindow->setMaximum (foamAlongTime.GetTimeSteps ());
+    spinBoxStatisticsTimeWindow->setValue (spinBoxStatisticsTimeWindow->maximum ());
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
 	setupColorBarModels (ViewNumber::Enum (i));
     widgetHistogram->setHidden (true);
@@ -168,8 +168,8 @@ void MainWindow::ViewToUI ()
     labelCenterPathColor->setText (BodyProperty::ToString (property));
     updateLightControls (vs, selectedLight);
     horizontalSliderAngleOfView->setValue (vs.GetAngleOfView ());
-    spinBoxStatisticsHistory->setValue (
-	vs.GetDisplayFaceStatistics ().GetHistoryCount ());    
+    spinBoxStatisticsTimeWindow->setValue (
+	vs.GetDisplayFaceStatistics ().GetTimeWindow ());    
     if (viewNumber == m_histogramViewNumber)
 	buttonGroupFacesHistogram->button (m_histogramType)->setChecked (true);
     else
@@ -764,22 +764,22 @@ void MainWindow::CurrentIndexChangedViewCount (int index)
 
 void MainWindow::CurrentIndexChangedStatisticsType (int value)
 {
-    boost::array<QWidget*, 2> widgetsStatisticsHistory = 
-	{{ spinBoxStatisticsHistory, labelStatisticsHistory}};
+    boost::array<QWidget*, 2> widgetsStatisticsTimeWindow = 
+	{{ spinBoxStatisticsTimeWindow, labelStatisticsTimeWindow}};
     switch (value)
     {
     case StatisticsType::AVERAGE:
 	connectColorBarHistogram (true);
-	::setVisible (widgetsStatisticsHistory, true);
+	::setVisible (widgetsStatisticsTimeWindow, true);
 	break;
     case StatisticsType::MIN:
     case StatisticsType::MAX:
 	connectColorBarHistogram (true);
-	::setVisible (widgetsStatisticsHistory, false);
+	::setVisible (widgetsStatisticsTimeWindow, false);
 	break;
     case StatisticsType::COUNT:
 	connectColorBarHistogram (false);
-	::setVisible (widgetsStatisticsHistory, false);
+	::setVisible (widgetsStatisticsTimeWindow, false);
 	break;
     }
     Q_EMIT ColorBarModelChanged (getCurrentColorBarModel ());

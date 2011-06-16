@@ -302,52 +302,6 @@ void DisplayFaceStatistics::displayAndRotate (
 
 typedef void (DisplayFaceStatistics::*Operation) (const G3D::Rect2D& viewRect);
 
-/*
-void DisplayFaceStatistics::Step (ViewNumber::Enum viewNumber, int direction)
-{
-    if (abs (direction) > 1)
-    {
-	InitStep (viewNumber);
-	return;
-    }
-    Operation op[] = {
-	&DisplayFaceStatistics::addStepToNew, 
-	&DisplayFaceStatistics::removeStepFromNew
-    };
-    size_t timeStep = GetGLWidget ().GetTimeStep ();
-    timeStep += (direction < 0) ? 1 : 0;
-    // used for display
-    pair<double, double> minMax = getStatisticsMinMax (viewNumber);
-    G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
-    glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
-    renderToStep (viewNumber, timeStep);
-    //save (viewRect, *m_step, "step", timeStep,
-    //minMax.first, minMax.second, StatisticsType::AVERAGE);
-    (this->*(op[direction < 0])) (viewRect);
-    //save (viewRect, *m_new, "new", timeStep,
-    //minMax.first, minMax.second, StatisticsType::AVERAGE);
-    copyNewToOld ();
-    //save (viewRect, *m_old, "old", timeStep, 
-    //minMax.first, minMax.second, StatisticsType::AVERAGE);
-    if (m_currentHistoryCount >= m_historyCount && timeStep >= m_historyCount)
-    {
-	renderToStep (viewNumber, timeStep - m_historyCount);
-	//save (viewRect, *m_step, "step_", timeStep - m_historyCount,
-	//minMax.first, minMax.second, StatisticsType::AVERAGE);
-	(this->*(op[direction > 0])) (viewRect);
-	//save (viewRect, *m_new, "new_", timeStep,
-	//minMax.first, minMax.second, StatisticsType::AVERAGE);
-	copyNewToOld ();
-	//save (viewRect, *m_old, "old_", timeStep, 
-	//minMax.first, minMax.second, StatisticsType::AVERAGE);
-    }
-    else
-	m_currentHistoryCount += (direction > 0)? 1 : -1;
-    glPopAttrib ();
-    WarnOnOpenGLError ("DisplayFaceStatistics::Step");
-}
-*/
-
 void DisplayFaceStatistics::addStep (ViewNumber::Enum viewNumber, 
 				     size_t timeStep)
 {
@@ -374,7 +328,7 @@ void DisplayFaceStatistics::removeStep (ViewNumber::Enum viewNumber,
     G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, timeStep);
-    //save (viewRect, *m_step, "step_", timeStep - m_historyCount,
+    //save (viewRect, *m_step, "step_", timeStepy - m_timeWindow,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
     removeStepFromNew (viewRect);
     //save (viewRect, *m_new, "new_", timeStep,

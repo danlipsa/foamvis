@@ -127,7 +127,7 @@ const size_t GLWidget::QUADRIC_STACKS = 1;
 const double GLWidget::ENCLOSE_ROTATION_RATIO = 1;
 const pair<double,double> GLWidget::T1_SIZE (1, 10);
 const pair<double,double> GLWidget::CONTEXT_ALPHA (0.05, 0.5);
-const pair<double,double> GLWidget::FORCE_LENGTH (.5, 6);
+const pair<double,double> GLWidget::FORCE_LENGTH (.25, 6);
 const GLfloat GLWidget::HIGHLIGHT_LINE_WIDTH = 2.0;
 
 // Methods
@@ -164,7 +164,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_zeroedPressureShown (false),
       m_titleShown (false),
       m_timeStepShown (false),
-      m_stationaryMarked (true),
+      m_averagedAroundBody (true),
       m_viewCount (ViewCount::ONE),
       m_viewLayout (ViewLayout::HORIZONTAL),
       m_viewNumber (ViewNumber::VIEW0)
@@ -244,23 +244,24 @@ void GLWidget::createActions ()
     connect(m_actionResetSelectedLightNumber.get (), SIGNAL(triggered()),
 	    this, SLOT(ResetSelectedLightNumber ()));
 
-    m_actionStationaryBody = boost::make_shared<QAction> (
+    m_actionAverageAroundBody = boost::make_shared<QAction> (
 	tr("&Body"), this);
-    m_actionStationaryBody->setStatusTip(tr("Stationary body"));
-    connect(m_actionStationaryBody.get (), SIGNAL(triggered()),
-	    this, SLOT(StationaryBody ()));
+    m_actionAverageAroundBody->setStatusTip(tr("Averaged around body"));
+    connect(m_actionAverageAroundBody.get (), SIGNAL(triggered()),
+	    this, SLOT(AverageAroundBody ()));
 
-    m_actionStationaryConstraint = boost::make_shared<QAction> (
+    m_actionAverageAroundConstraint = boost::make_shared<QAction> (
 	tr("&Constraint"), this);
-    m_actionStationaryConstraint->setStatusTip(tr("Stationary constraint"));
-    connect(m_actionStationaryConstraint.get (), SIGNAL(triggered()),
-	    this, SLOT(StationaryConstraint ()));
+    m_actionAverageAroundConstraint->setStatusTip(
+	tr("Averaged around constraint"));
+    connect(m_actionAverageAroundConstraint.get (), SIGNAL(triggered()),
+	    this, SLOT(AverageAroundConstraint ()));
 
-    m_actionStationaryReset = boost::make_shared<QAction> (
+    m_actionAverageAroundReset = boost::make_shared<QAction> (
 	tr("&Reset"), this);
-    m_actionStationaryReset->setStatusTip(tr("Stationary reset"));
-    connect(m_actionStationaryReset.get (), SIGNAL(triggered()),
-	    this, SLOT(StationaryReset ()));
+    m_actionAverageAroundReset->setStatusTip(tr("Average around reset"));
+    connect(m_actionAverageAroundReset.get (), SIGNAL(triggered()),
+	    this, SLOT(AverageAroundReset ()));
 
     m_actionContextDisplayBody = boost::make_shared<QAction> (
 	tr("&Body"), this);
@@ -395,8 +396,8 @@ void GLWidget::initViewSettings ()
     BOOST_FOREACH (boost::shared_ptr<ViewSettings> vs, m_viewSettings)
     {
 	size_t timeSteps = GetFoamAlongTime ().GetTimeSteps ();
-	vs->GetDisplayFaceStatistics ().SetHistoryCount (timeSteps);
-	vs->GetDisplayForces ().SetHistoryCount (timeSteps);
+	vs->GetDisplayFaceStatistics ().SetTimeWindow (timeSteps);
+	vs->GetDisplayForces ().SetTimeWindow (timeSteps);
     }
 }
 
@@ -651,7 +652,7 @@ void GLWidget::transformFoamStationary (
     case ViewSettings::STATIONARY_CONSTRAINT:
     {
 	glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
-	rotateStationaryConstraint (timeStep, 1);
+	rotateAveragedAroundConstraint (timeStep, 1);
 	break;
     }
     default:
@@ -660,7 +661,7 @@ void GLWidget::transformFoamStationary (
     }
 }
 
-void GLWidget::rotateStationaryConstraint (size_t timeStep, int direction) const
+void GLWidget::rotateAveragedAroundConstraint (size_t timeStep, int direction) const
 {
 	const ConstraintRotation& rotationBegin = GetFoamAlongTime ().
 	    GetFoam (0).GetConstraintRotation ();
@@ -1168,10 +1169,10 @@ G3D::Vector3 GLWidget::toObject (const QPoint& position) const
     return op;
 }
 
-void GLWidget::displayStationaryBody (ViewNumber::Enum viewNumber) const
+void GLWidget::displayAveragedAroundBody (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    if (m_stationaryMarked && 
+    if (m_averagedAroundBody && 
 	vs.GetStationaryType () == ViewSettings::STATIONARY_BODY)
     {
 	glPushAttrib (GL_ENABLE_BIT);
@@ -1184,19 +1185,19 @@ void GLWidget::displayStationaryBody (ViewNumber::Enum viewNumber) const
     }
 }
 
-void GLWidget::displayStationaryConstraint (
+void GLWidget::displayAveragedAroundConstraint (
     ViewNumber::Enum view,
     bool adjustForContextStationaryFoam) const
 {
     const ViewSettings& vs = GetViewSettings (view);
     ViewSettings::StationaryType type = vs.GetStationaryType ();
-    if (m_stationaryMarked && type == ViewSettings::STATIONARY_CONSTRAINT)
+    if (m_averagedAroundBody && type == ViewSettings::STATIONARY_CONSTRAINT)
     {
 	glPushAttrib (GL_ENABLE_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
 	if (adjustForContextStationaryFoam)
 	{
 	    glPushMatrix ();
-	    rotateStationaryConstraint (GetTimeStep (), -1);
+	    rotateAveragedAroundConstraint (GetTimeStep (), -1);
 	}
 	glDisable (GL_DEPTH_TEST);
 	glLineWidth (m_highlightLineWidth);
@@ -1251,7 +1252,7 @@ void GLWidget::displayContextStationaryFoam (
 	if (adjustForContextStationaryFoam)
 	{
 	    glPushMatrix ();
-	    rotateStationaryConstraint (GetTimeStep (), -1);
+	    rotateAveragedAroundConstraint (GetTimeStep (), -1);
 	}
 	DisplayBox (GetFoamAlongTime (), 
 		    GetHighlightColor (viewNumber, HighlightNumber::H1),
@@ -1263,7 +1264,7 @@ void GLWidget::displayContextStationaryFoam (
 }
 
 
-string GLWidget::getStationaryLabel ()
+string GLWidget::getAveragedAroundBody ()
 {
     ostringstream ostr;
     const ViewSettings& vs = GetViewSettings ();
@@ -1326,7 +1327,7 @@ void GLWidget::setLabel ()
 {
     ostringstream ostr;
     boost::array<string, 4> labels = {{
-	    getStationaryLabel (),
+	    getAveragedAroundBody (),
 	    getContextLabel (),
 	    getContextStationaryLabel (),
 	    getBodySelectorLabel ()
@@ -1343,7 +1344,7 @@ void GLWidget::setLabel ()
 }
 
 
-void GLWidget::StationaryBody ()
+void GLWidget::AverageAroundBody ()
 {
     ViewSettings& vs = GetViewSettings ();
     vector<size_t> bodies;
@@ -1363,7 +1364,7 @@ void GLWidget::StationaryBody ()
     }
 }
 
-void GLWidget::StationaryConstraint ()
+void GLWidget::AverageAroundConstraint ()
 {
     ViewSettings& vs = GetViewSettings ();
     if (GetFoamAlongTime ().ConstraintRotationUsed ())
@@ -1381,7 +1382,7 @@ void GLWidget::StationaryConstraint ()
     }
 }
 
-void GLWidget::StationaryReset ()
+void GLWidget::AverageAroundReset ()
 {
     ViewSettings& vs = GetViewSettings ();
     vs.SetStationaryType (ViewSettings::STATIONARY_NONE);
@@ -1780,8 +1781,8 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
 	displayFacesContour (bodies);
     displayFacesInterior (bodies, viewNumber);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
-    displayStationaryBody (viewNumber);
-    displayStationaryConstraint (viewNumber);
+    displayAveragedAroundBody (viewNumber);
+    displayAveragedAroundConstraint (viewNumber);
     displayContextBodies (viewNumber);
     displayContextStationaryFoam (viewNumber);
     displayStandaloneFaces ();    
@@ -1821,8 +1822,8 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
 	vs.GetDisplayForces ().DisplayAverage (viewNumber);
     }
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
-    displayStationaryBody (viewNumber);
-    displayStationaryConstraint (viewNumber, adjustForContextStationaryFoam);
+    displayAveragedAroundBody (viewNumber);
+    displayAveragedAroundConstraint (viewNumber, adjustForContextStationaryFoam);
     displayContextBodies (viewNumber);
     displayContextStationaryFoam (viewNumber, adjustForContextStationaryFoam);
     glPopAttrib ();
@@ -2148,10 +2149,10 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	    menuSelect->addAction (m_actionSelectBodiesById.get ());
 	}
 	{
-	    QMenu* menuStationary = menu.addMenu ("Stationary");
-	    menuStationary->addAction (m_actionStationaryBody.get ());
-	    menuStationary->addAction (m_actionStationaryConstraint.get ());
-	    menuStationary->addAction (m_actionStationaryReset.get ());
+	    QMenu* menuStationary = menu.addMenu ("Average around");
+	    menuStationary->addAction (m_actionAverageAroundBody.get ());
+	    menuStationary->addAction (m_actionAverageAroundConstraint.get ());
+	    menuStationary->addAction (m_actionAverageAroundReset.get ());
 	}
 	{
 	    QMenu* menuContext = menu.addMenu ("Context");
@@ -2556,9 +2557,9 @@ void GLWidget::ToggledBoundingBoxShown (bool checked)
     update ();
 }
 
-void GLWidget::ToggledBodyStationaryMarked (bool checked)
+void GLWidget::ToggledAverageAroundBody (bool checked)
 {
-    m_stationaryMarked = checked;
+    m_averagedAroundBody = checked;
     update ();
 }
 
@@ -2826,10 +2827,10 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
     update ();
 }
 
-void GLWidget::ValueChangedStatisticsHistory (int timeSteps)
+void GLWidget::ValueChangedStatisticsTimeWindow (int timeSteps)
 {
-    GetViewSettings ().GetDisplayFaceStatistics ().SetHistoryCount (timeSteps);
-    GetViewSettings ().GetDisplayForces ().SetHistoryCount (timeSteps);
+    GetViewSettings ().GetDisplayFaceStatistics ().SetTimeWindow (timeSteps);
+    GetViewSettings ().GetDisplayForces ().SetTimeWindow (timeSteps);
 }
 
 void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)

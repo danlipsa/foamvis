@@ -22,21 +22,21 @@ public:
     
     void InitStep (ViewNumber::Enum viewNumber);
     void Step (ViewNumber::Enum viewNumber, int direction);
-    void SetHistoryCount (size_t historyCount)
+    void SetTimeWindow (size_t historyCount)
     {
-	m_historyCount = historyCount;
+	m_timeWindow = historyCount;
     }
-    size_t GetHistoryCount () const
+    size_t GetTimeWindow () const
     {
-	return m_historyCount;
+	return m_timeWindow;
     }
     const GLWidget& GetGLWidget () const
     {
 	return m_glWidget;
     }
-    size_t GetCurrentHistoryCount () const
+    size_t GetCurrentTimeWindow () const
     {
-	return m_currentHistoryCount;
+	return m_currentTimeWindow;
     }
 
 protected:
@@ -46,8 +46,8 @@ protected:
 
 private:
     const GLWidget& m_glWidget;
-    size_t m_currentHistoryCount;
-    size_t m_historyCount;
+    size_t m_currentTimeWindow;
+    size_t m_timeWindow;
 };
 
 #endif //__AVERAGE_H__

@@ -13,7 +13,7 @@
 void Average::init (ViewNumber::Enum viewNumber)
 {
     (void)viewNumber;
-    m_currentHistoryCount = 0;
+    m_currentTimeWindow = 0;
 }
 
 void Average::InitStep (ViewNumber::Enum viewNumber)
@@ -46,10 +46,10 @@ void Average::Step (ViewNumber::Enum viewNumber, int direction)
 	second = &Average::removeStep;
     }
     (this->*first) (viewNumber, timeStep);
-    if (m_currentHistoryCount >= m_historyCount && timeStep >= m_historyCount)
+    if (m_currentTimeWindow >= m_timeWindow && timeStep >= m_timeWindow)
     {
-	(this->*second) (viewNumber, timeStep - m_historyCount);
+	(this->*second) (viewNumber, timeStep - m_timeWindow);
     }
     else
-	m_currentHistoryCount += direction;
+	m_currentTimeWindow += direction;
 }

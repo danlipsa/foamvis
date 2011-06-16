@@ -1427,14 +1427,14 @@
                 </widget>
                </item>
                <item row="2" column="0">
-                <widget class="QLabel" name="labelStatisticsHistory">
+                <widget class="QLabel" name="labelStatisticsTimeWindow">
                  <property name="text">
                   <string>Time window</string>
                  </property>
                 </widget>
                </item>
                <item row="2" column="1">
-                <widget class="QSpinBox" name="spinBoxStatisticsHistory">
+                <widget class="QSpinBox" name="spinBoxStatisticsTimeWindow">
                  <property name="minimum">
                   <number>1</number>
                  </property>
@@ -1725,7 +1725,7 @@
     <slot>ToggledTubeCenterPathUsed(bool)</slot>
     <slot>ToggledIsContextHidden(bool)</slot>
     <slot>ToggledFacesStatistics(bool)</slot>
-    <slot>ValueChangedStatisticsHistory(int)</slot>
+    <slot>ValueChangedStatisticsTimeWindow(int)</slot>
     <slot>ToggledFacesDomainHistogram(bool)</slot>
     <slot>ToggledT1sShown(bool)</slot>
     <slot>ToggledT1sBeforeTimestep(bool)</slot>
@@ -1735,7 +1735,7 @@
     <slot>ValueChangedT1Size(int)</slot>
     <slot>ToggledZeroedPressureShown(bool)</slot>
     <slot>ToggledTitleShown(bool)</slot>
-    <slot>ToggledBodyStationaryMarked(bool)</slot>
+    <slot>ToggledAverageAroundBody(bool)</slot>
     <slot>ToggledLineCenterPathUsed(bool)</slot>
     <slot>ToggledBodyCenter(bool)</slot>
     <slot>ToggledBodyCenterShown(bool)</slot>
@@ -2697,7 +2697,7 @@
    <sender>spinBoxFontSize</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ValueChangedStatisticsHistory(int)</slot>
+   <slot>ValueChangedStatisticsTimeWindow(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>996</x>
@@ -2742,10 +2742,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>spinBoxStatisticsHistory</sender>
+   <sender>spinBoxStatisticsTimeWindow</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ValueChangedStatisticsHistory(int)</slot>
+   <slot>ValueChangedStatisticsTimeWindow(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>854</x>
@@ -2889,7 +2889,7 @@
    <sender>checkBoxBodyStationaryMarked</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledBodyStationaryMarked(bool)</slot>
+   <slot>ToggledAverageAroundBody(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>757</x>
@@ -3056,7 +3056,7 @@
   <slot>ToggledFacesStatistics(bool)</slot>
   <slot>ButtonClickedOneTimestepHistogram(int)</slot>
   <slot>ButtonClickedAllTimestepsHistogram(int)</slot>
-  <slot>ToggledStatisticsHistoryEnabled(bool)</slot>
+  <slot>ToggledStatisticsTimeWindowEnabled(bool)</slot>
   <slot>CurrentIndexChangedStatisticsType(int)</slot>
   <slot>CurrentIndexChangedFacesColor(int)</slot>
   <slot>ToggledFacesDomainHistogram(bool)</slot>

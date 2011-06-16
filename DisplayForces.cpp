@@ -72,7 +72,7 @@ void DisplayForces::Display (ViewNumber::Enum viewNumber) const
 
 void DisplayForces::DisplayAverage (ViewNumber::Enum viewNumber) const
 {
-    display (viewNumber, m_average, GetCurrentHistoryCount ());
+    display (viewNumber, m_average, GetCurrentTimeWindow ());
 }
 
 

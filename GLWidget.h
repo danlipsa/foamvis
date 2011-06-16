@@ -214,10 +214,6 @@ public:
     {
 	return GetViewRect (GetViewNumber ());
     }
-    bool IsBodyStationaryMarked () const
-    {
-	return m_stationaryMarked;
-    }
 
 
 Q_SIGNALS:
@@ -235,7 +231,7 @@ public Q_SLOTS:
     void ToggledAxesShown (bool checked);
     void ToggledBoundingBoxShown (bool checked);
     void ToggledBodiesBoundingBoxesShown (bool checked);
-    void ToggledBodyStationaryMarked (bool checked);
+    void ToggledAverageAroundBody (bool checked);
     /**
      * Shows center paths
      * param checked true for showing the center paths false otherwise
@@ -305,7 +301,7 @@ public Q_SLOTS:
 
 
     void ValueChangedSliderTimeSteps (int timeStep);
-    void ValueChangedStatisticsHistory (int timeSteps);
+    void ValueChangedStatisticsTimeWindow (int timeSteps);
     void ValueChangedTimeDisplacement (int timeDisplacement);
     void ValueChangedT1Size (int index);
     void ValueChangedForceLength (int index);
@@ -316,9 +312,9 @@ public Q_SLOTS:
     void SelectBodiesByIdList ();
     void SelectAll ();
     void DeselectAll ();
-    void StationaryBody ();
-    void StationaryConstraint ();
-    void StationaryReset ();
+    void AverageAroundBody ();
+    void AverageAroundConstraint ();
+    void AverageAroundReset ();
     void ContextDisplayBody ();
     void ContextDisplayReset ();
     void ContextStationaryFoam ();
@@ -456,8 +452,8 @@ private:
     void displayContextStationaryFoam (
 	ViewNumber::Enum view,
 	bool adjustForContextStationaryFoam = false) const;
-    void displayStationaryBody (ViewNumber::Enum view) const;
-    void displayStationaryConstraint (
+    void displayAveragedAroundBody (ViewNumber::Enum view) const;
+    void displayAveragedAroundConstraint (
 	ViewNumber::Enum view, 
 	bool adjustForContextStationaryFoam = false) const;
 
@@ -562,7 +558,7 @@ private:
     string getBodySelectorLabel ();
     string getContextLabel ();
     string getContextStationaryLabel ();
-    string getStationaryLabel ();
+    string getAveragedAroundBody ();
     void setLabel ();
     void transformFoamStationary (
 	ViewNumber::Enum viewNumber, size_t timeStep) const;
@@ -570,7 +566,7 @@ private:
 	boost::array<boost::shared_ptr<QAction>, 
 	ViewNumber::COUNT>& actionCopyTransformations,
 	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformations);
-    void rotateStationaryConstraint (size_t timeStep, int direction) const;
+    void rotateAveragedAroundConstraint (size_t timeStep, int direction) const;
     void valueChanged (
 	double* dest, const pair<double,double>& minMax, int index);
     
@@ -649,9 +645,9 @@ private:
     boost::shared_ptr<QAction> m_actionResetSelectedLightNumber;
     boost::shared_ptr<QAction> m_actionSelectBodiesById;
 
-    boost::shared_ptr<QAction> m_actionStationaryBody;
-    boost::shared_ptr<QAction> m_actionStationaryConstraint;
-    boost::shared_ptr<QAction> m_actionStationaryReset;
+    boost::shared_ptr<QAction> m_actionAverageAroundBody;
+    boost::shared_ptr<QAction> m_actionAverageAroundConstraint;
+    boost::shared_ptr<QAction> m_actionAverageAroundReset;
 
     boost::shared_ptr<QAction> m_actionContextDisplayBody;
     boost::shared_ptr<QAction> m_actionContextDisplayReset;
@@ -688,7 +684,7 @@ private:
     bool m_zeroedPressureShown;
     bool m_titleShown;
     bool m_timeStepShown;
-    bool m_stationaryMarked;
+    bool m_averagedAroundBody;
 
     // View related variables
     ViewCount::Enum m_viewCount;
