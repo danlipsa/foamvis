@@ -34,6 +34,19 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
 
 %%
 
+"/*actual" {
+    yylval->m_id = yyextra->CreateIdentifier (yytext + 2);
+    yylloc->begin.line = yylineno;
+    return parser::token::ACTUAL;    
+}
+
+"*/" {
+    yylval->m_id = yyextra->CreateIdentifier (yytext);
+    yylloc->begin.line = yylineno;
+    return parser::token::END_COMMENT;
+}
+
+
 "/*"             { /* eat comment */
     register int c;
     while (1)

@@ -111,8 +111,14 @@ void Foam::AddDefaultBodyAttributes ()
     ac.reset (new RealAttributeCreator());
     index = infos->AddAttributeInfoLoad (
         ParsingDriver::GetKeywordString(parser::token::VOLUME), ac);
-    RuntimeAssert (index == BodyAttributeIndex::VOLUME,
-		   "Volume body attribute index is ", index);
+    RuntimeAssert (index == BodyAttributeIndex::TARGET_VOLUME,
+		   "Target volume body attribute index is ", index);
+
+    ac.reset (new RealAttributeCreator());
+    index = infos->AddAttributeInfoLoad (
+        ParsingDriver::GetKeywordString(parser::token::ACTUAL), ac);
+    RuntimeAssert (index == BodyAttributeIndex::ACTUAL_VOLUME,
+		   "Actual volume body attribute index is ", index);
 
     ac.reset (new IntegerAttributeCreator ());
     index = infos->AddAttributeInfoLoad (
@@ -418,6 +424,7 @@ void Foam::Preprocess ()
     }
     sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);
     setMissingPressureZero ();
+    setMissingVolume ();
     addConstraintEdges ();
 }
 
@@ -504,6 +511,33 @@ Foam::FindBody (size_t bodyId) const
 			BodyLessThanId);
 }
 
+void Foam::setMissingVolume ()
+{
+    if (Is2D ())
+    {
+	using EvolverData::parser;
+	BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
+	{
+	    double area = body->GetOrientedFace (0).GetArea ();
+	    if (! body->ExistsPropertyValue (BodyProperty::TARGET_VOLUME))
+	    {
+		body->StoreAttribute (
+		    ParsingDriver::GetKeywordString(
+			parser::token::VOLUME), area,
+		    m_attributesInfo[DefineAttribute::BODY]);
+		body->SetTargetVolumeDeduced ();
+	    }
+	    if (! body->ExistsPropertyValue (BodyProperty::ACTUAL_VOLUME))
+	    {
+		body->StoreAttribute (
+		    ParsingDriver::GetKeywordString(
+			parser::token::ACTUAL), area,
+		    m_attributesInfo[DefineAttribute::BODY]);
+		body->SetActualVolumeDeduced ();
+	    }
+	}
+    }
+}
 
 void Foam::setMissingPressureZero ()
 {

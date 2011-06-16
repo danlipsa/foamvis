@@ -75,16 +75,13 @@ Body::Body(
     size_t id, ElementStatus::Enum duplicateStatus) :
     Element(id, duplicateStatus),
     m_perimeterOverSqrtArea (0),
-    m_pressureDeduced (false)
+    m_pressureDeduced (false),
+    m_targetVolumeDeduced (false),
+    m_actualVolumeDeduced (false)
 {
     m_orientedFaces.resize (faceIndexes.size ());
     transform (faceIndexes.begin(), faceIndexes.end(), m_orientedFaces.begin(), 
                indexToOrientedFace(faces));
-}
-
-double Body::GetPressure () const
-{
-    return GetAttribute<RealAttribute, double> (BodyAttributeIndex::PRESSURE);
 }
 
 void Body::calculatePhysicalVertices (
@@ -225,10 +222,16 @@ bool Body::ExistsPropertyValue (BodyProperty::Enum property,
 	if (deduced != 0)
 	    *deduced = m_pressureDeduced;
 	return HasAttribute (property - BodyProperty::PER_BODY_BEGIN);
-    case BodyProperty::VOLUME:
+    case BodyProperty::TARGET_VOLUME:
+	if (deduced != 0)
+	    *deduced = m_targetVolumeDeduced;
+	return HasAttribute (property - BodyProperty::PER_BODY_BEGIN);
+    case BodyProperty::ACTUAL_VOLUME:
+	if (deduced != 0)
+	    *deduced = m_actualVolumeDeduced;
 	return HasAttribute (property - BodyProperty::PER_BODY_BEGIN);
     case BodyProperty::ELONGATION:
-	return HasAttribute (BodyProperty::VOLUME - 
+	return HasAttribute (BodyProperty::TARGET_VOLUME - 
 				BodyProperty::PER_BODY_BEGIN);
     case BodyProperty::NONE:
 	return false;
@@ -302,12 +305,12 @@ void Body::CalculateBoundingBox ()
 void Body::CalculatePerimeterOverSqrtArea ()
 {
     if (m_orientedFaces.size () == 1 && 
-	ExistsPropertyValue (BodyProperty::VOLUME))
+	ExistsPropertyValue (BodyProperty::TARGET_VOLUME))
     {
 	OrientedFace& of = GetOrientedFace (0);
 	of.CalculatePerimeter ();
 	m_perimeterOverSqrtArea = of.GetPerimeter () / 
-	    sqrt (GetPropertyValue (BodyProperty::VOLUME));
+	    sqrt (GetPropertyValue (BodyProperty::TARGET_VOLUME));
     }
 }
 

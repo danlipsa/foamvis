@@ -79,6 +79,7 @@ public:
     bool IsClosed () const;
     const G3D::Vector3& GetCenter () const;
     double GetPerimeter () const;
+    double GetArea () const;
     void CalculatePerimeter ();
     string ToString () const;
     void GetVertexSet (VertexSet* vertexSet) const;

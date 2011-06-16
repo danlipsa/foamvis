@@ -333,6 +333,7 @@ private:
 	const G3D::Vector3int16& translate,
 	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
     void setMissingPressureZero ();
+    void setMissingVolume ();
     void addConstraintEdges ();
 
 

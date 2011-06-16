@@ -105,6 +105,11 @@ double OrientedFace::GetPerimeter () const
     return GetFace ()->GetPerimeter ();
 }
 
+double OrientedFace::GetArea () const
+{
+    return GetFace ()->GetPerimeter ();
+}
+
 void OrientedFace::CalculatePerimeter ()
 {
     GetFace ()->CalculatePerimeter ();

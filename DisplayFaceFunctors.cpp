@@ -174,7 +174,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 		body->ExistsPropertyValue (property, &deduced);
 	    if (exists && 
 		(! deduced || 
-		 (deduced && this->m_glWidget.IsZeroedPressureShown ())))
+		 (deduced && this->m_glWidget.IsMissingPropertyShown (property))))
 	    {
 		glColor (Qt::white);
 		*useColor = false;
@@ -238,7 +238,7 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 	size_t bodyId = body->GetId ();
 	const ViewSettings& vs = this->m_glWidget.GetViewSettings (
 	    this->m_propertySetter.GetViewNumber ());
-	stationaryOrContext = ((bodyId == vs.GetStationaryBodyId ()) || 
+	stationaryOrContext = ((bodyId == vs.GetAverageAroundBodyId ()) || 
 			       vs.IsContextDisplayBody (bodyId));
     }
     if (! stationaryOrContext)

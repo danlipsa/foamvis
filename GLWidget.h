@@ -120,10 +120,7 @@ public:
     {
 	return m_timeStep;
     }
-    bool IsZeroedPressureShown () const
-    {
-	return m_zeroedPressureShown;
-    }
+    bool IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const;
 
     bool IsTimeDisplacementUsed () const;
 
@@ -270,7 +267,8 @@ public Q_SLOTS:
     void ToggledTitleShown (bool checked);
     void ToggledT1sShiftLower (bool checked);
     void ToggledTorusOriginalDomainClipped (bool checked);
-    void ToggledZeroedPressureShown (bool checked);
+    void ToggledMissingPressureShown (bool checked);
+    void ToggledMissingVolumeShown (bool checked);
 
     void SetBodyProperty (
 	boost::shared_ptr<ColorBarModel> colorBarModel,
@@ -452,8 +450,8 @@ private:
     void displayContextStationaryFoam (
 	ViewNumber::Enum view,
 	bool adjustForContextStationaryFoam = false) const;
-    void displayAveragedAroundBody (ViewNumber::Enum view) const;
-    void displayAveragedAroundConstraint (
+    void displayAverageAroundBody (ViewNumber::Enum view) const;
+    void displayAverageAroundConstraint (
 	ViewNumber::Enum view, 
 	bool adjustForContextStationaryFoam = false) const;
 
@@ -558,7 +556,7 @@ private:
     string getBodySelectorLabel ();
     string getContextLabel ();
     string getContextStationaryLabel ();
-    string getAveragedAroundBody ();
+    string getAverageAroundBody ();
     void setLabel ();
     void transformFoamStationary (
 	ViewNumber::Enum viewNumber, size_t timeStep) const;
@@ -566,7 +564,7 @@ private:
 	boost::array<boost::shared_ptr<QAction>, 
 	ViewNumber::COUNT>& actionCopyTransformations,
 	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformations);
-    void rotateAveragedAroundConstraint (size_t timeStep, int direction) const;
+    void rotateAverageAroundConstraint (size_t timeStep, int direction) const;
     void valueChanged (
 	double* dest, const pair<double,double>& minMax, int index);
     
@@ -681,10 +679,11 @@ private:
     double m_contextAlpha;
     double m_forceLength;
     size_t m_highlightLineWidth;
-    bool m_zeroedPressureShown;
+    bool m_missingPressureShown;
+    bool m_missingVolumeShown;
     bool m_titleShown;
     bool m_timeStepShown;
-    bool m_averagedAroundBody;
+    bool m_averageAroundBody;
 
     // View related variables
     ViewCount::Enum m_viewCount;

@@ -252,7 +252,7 @@ DisplayCenterPath (
 	     p.m_body->ExistsPropertyValue (property, &deduced);
 	 if (exists && 
 	     (! deduced || 
-	      (deduced && this->m_glWidget.IsZeroedPressureShown ())))
+	      (deduced && this->m_glWidget.IsMissingPropertyShown (property))))
 	     storeFocusSegment (
 		 p.m_body->GetPropertyValue (
 		     this->m_propertySetter.GetBodyProperty ()), segment);

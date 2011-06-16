@@ -41,14 +41,14 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_lightEnabled (0),
     m_lightPositionShown (0),
     m_angleOfView (0),
-    m_stationaryType (STATIONARY_NONE),
-    m_stationaryBodyId (INVALID_INDEX),
+    m_averageAroundType (AVERAGE_AROUND_NONE),
+    m_averageAroundBodyId (INVALID_INDEX),
     m_contextView (false),
     m_forceNetworkShown (true),
     m_forcePressureShown (true),
     m_forceResultShown (true),
     m_contextScaleRatio (1),
-    m_contextStationaryType (CONTEXT_STATIONARY_NONE)
+    m_contextStationaryType (CONTEXT_AVERAGE_AROUND_NONE)
 {
     initTexture ();
     initList ();

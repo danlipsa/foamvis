@@ -168,6 +168,7 @@ class AttributeCreator;
 %token INTEGRAL_ORDER_1D "INTEGRAL_ORDER_1D"
 %token <m_id> ORIGINAL "ORIGINAL"
 %token <m_id> VOLUME "VOLUME"
+%token <m_id> ACTUAL "ACTUAL"
 %token <m_id> VOLCONST "VOLCONST"
 %token <m_id> ACTUAL_VOLUME "ACTUAL_VOLUME"
 %token <m_id> LAGRANGE_MULTIPLIER "LAGRANGE_MULTIPLIER"
@@ -187,6 +188,7 @@ class AttributeCreator;
 %token <m_id> IDENTIFIER
 %token <m_id> ATTRIBUTE_ID
 %token <m_id> METHOD_OR_QUANTITY_ID
+%token <m_id> END_COMMENT "*/"
 %token <m_id> '='
 %token <m_id> '?'
  /* arithmetic */
@@ -1424,6 +1426,10 @@ predefined_body_attribute
 : VOLUME number
 {
     $$ = new NameSemanticValue ($1, $2);
+}
+| ACTUAL ':' number END_COMMENT
+{
+    $$ = new NameSemanticValue ($1, $3);
 }
 | pressure_or_lagrange_multiplier number
 {

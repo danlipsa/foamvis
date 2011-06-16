@@ -91,12 +91,19 @@ public:
 	return set;
     }
     void GetFaceSet (FaceSet* faceSet) const;
-    double GetPressure () const;
     double GetPropertyValue (BodyProperty::Enum property) const;
     void SetPressureValue (double value);
     void SetPressureDeduced ()
     {
 	m_pressureDeduced = true;
+    }
+    void SetTargetVolumeDeduced ()
+    {
+	m_targetVolumeDeduced = true;
+    }
+    void SetActualVolumeDeduced ()
+    {
+	m_actualVolumeDeduced = true;
     }
     bool ExistsPropertyValue (BodyProperty::Enum property, 
 			      bool* deduced = 0) const;
@@ -159,6 +166,8 @@ private:
     G3D::Vector3 m_velocity;
     double m_perimeterOverSqrtArea;
     bool m_pressureDeduced;
+    bool m_targetVolumeDeduced;
+    bool m_actualVolumeDeduced;
 };
 
 /**

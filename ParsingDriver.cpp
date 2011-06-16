@@ -125,6 +125,7 @@ const char* ParsingDriver::KEYWORD_TABLE[] = {
     "INTEGRAL_ORDER_1D",
     "ORIGINAL",
     "VOLUME",
+    "ACTUAL",
     "VOLCONST",
     "ACTUAL_VOLUME",
     "LAGRANGE_MULTIPLIER",

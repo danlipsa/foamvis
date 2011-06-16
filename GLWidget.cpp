@@ -161,10 +161,11 @@ GLWidget::GLWidget(QWidget *parent)
       m_contextAlpha (CONTEXT_ALPHA.first),
       m_forceLength (FORCE_LENGTH.first),
       m_highlightLineWidth (HIGHLIGHT_LINE_WIDTH),
-      m_zeroedPressureShown (false),
+      m_missingPressureShown (true),
+      m_missingVolumeShown (true),
       m_titleShown (false),
       m_timeStepShown (false),
-      m_averagedAroundBody (true),
+      m_averageAroundBody (true),
       m_viewCount (ViewCount::ONE),
       m_viewLayout (ViewLayout::HORIZONTAL),
       m_viewNumber (ViewNumber::VIEW0)
@@ -634,12 +635,12 @@ void GLWidget::transformFoamStationary (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    ViewSettings::StationaryType type = vs.GetStationaryType ();
+    ViewSettings::AverageAroundType type = vs.GetAverageAroundType ();
     switch (type)
     {
-    case ViewSettings::STATIONARY_BODY:
+    case ViewSettings::AVERAGE_AROUND_BODY:
     {
-	size_t id = vs.GetStationaryBodyId ();
+	size_t id = vs.GetAverageAroundBodyId ();
 	G3D::Vector3 centerBegin = (*GetFoamAlongTime ().GetFoam (0).
 				    FindBody (id))->GetCenter ();
 	G3D::Vector3 centerCurrent = (*GetFoamAlongTime ().GetFoam (timeStep).
@@ -649,10 +650,10 @@ void GLWidget::transformFoamStationary (
 	glTranslate (-GetFoamAlongTime ().GetBoundingBox ().center ());
 	break;
     }
-    case ViewSettings::STATIONARY_CONSTRAINT:
+    case ViewSettings::AVERAGE_AROUND_CONSTRAINT:
     {
 	glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
-	rotateAveragedAroundConstraint (timeStep, 1);
+	rotateAverageAroundConstraint (timeStep, 1);
 	break;
     }
     default:
@@ -661,7 +662,7 @@ void GLWidget::transformFoamStationary (
     }
 }
 
-void GLWidget::rotateAveragedAroundConstraint (size_t timeStep, int direction) const
+void GLWidget::rotateAverageAroundConstraint (size_t timeStep, int direction) const
 {
 	const ConstraintRotation& rotationBegin = GetFoamAlongTime ().
 	    GetFoam (0).GetConstraintRotation ();
@@ -1169,35 +1170,35 @@ G3D::Vector3 GLWidget::toObject (const QPoint& position) const
     return op;
 }
 
-void GLWidget::displayAveragedAroundBody (ViewNumber::Enum viewNumber) const
+void GLWidget::displayAverageAroundBody (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    if (m_averagedAroundBody && 
-	vs.GetStationaryType () == ViewSettings::STATIONARY_BODY)
+    if (m_averageAroundBody && 
+	vs.GetAverageAroundType () == ViewSettings::AVERAGE_AROUND_BODY)
     {
 	glPushAttrib (GL_ENABLE_BIT);
 	glDisable (GL_DEPTH_TEST);
 	Foam::Bodies focusBody (1);
-	focusBody[0] = *GetCurrentFoam ().FindBody (vs.GetStationaryBodyId ());
+	focusBody[0] = *GetCurrentFoam ().FindBody (vs.GetAverageAroundBodyId ());
 	displayFacesContour<HighlightNumber::H0> (
 	    focusBody, viewNumber, m_highlightLineWidth);
 	glPopAttrib ();
     }
 }
 
-void GLWidget::displayAveragedAroundConstraint (
+void GLWidget::displayAverageAroundConstraint (
     ViewNumber::Enum view,
     bool adjustForContextStationaryFoam) const
 {
     const ViewSettings& vs = GetViewSettings (view);
-    ViewSettings::StationaryType type = vs.GetStationaryType ();
-    if (m_averagedAroundBody && type == ViewSettings::STATIONARY_CONSTRAINT)
+    ViewSettings::AverageAroundType type = vs.GetAverageAroundType ();
+    if (m_averageAroundBody && type == ViewSettings::AVERAGE_AROUND_CONSTRAINT)
     {
 	glPushAttrib (GL_ENABLE_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
 	if (adjustForContextStationaryFoam)
 	{
 	    glPushMatrix ();
-	    rotateAveragedAroundConstraint (GetTimeStep (), -1);
+	    rotateAverageAroundConstraint (GetTimeStep (), -1);
 	}
 	glDisable (GL_DEPTH_TEST);
 	glLineWidth (m_highlightLineWidth);
@@ -1245,14 +1246,14 @@ void GLWidget::displayContextStationaryFoam (
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     ViewSettings::ContextStationaryType type = vs.GetContextStationaryType ();
-    if (type == ViewSettings::CONTEXT_STATIONARY_FOAM)
+    if (type == ViewSettings::CONTEXT_AVERAGE_AROUND_FOAM)
     {
 	glPushAttrib (GL_ENABLE_BIT);
 	glDisable (GL_DEPTH_TEST);
 	if (adjustForContextStationaryFoam)
 	{
 	    glPushMatrix ();
-	    rotateAveragedAroundConstraint (GetTimeStep (), -1);
+	    rotateAverageAroundConstraint (GetTimeStep (), -1);
 	}
 	DisplayBox (GetFoamAlongTime (), 
 		    GetHighlightColor (viewNumber, HighlightNumber::H1),
@@ -1264,17 +1265,17 @@ void GLWidget::displayContextStationaryFoam (
 }
 
 
-string GLWidget::getAveragedAroundBody ()
+string GLWidget::getAverageAroundBody ()
 {
     ostringstream ostr;
     const ViewSettings& vs = GetViewSettings ();
-    ViewSettings::StationaryType type = vs.GetStationaryType ();
+    ViewSettings::AverageAroundType type = vs.GetAverageAroundType ();
     switch (type)
     {
-    case ViewSettings::STATIONARY_BODY:
+    case ViewSettings::AVERAGE_AROUND_BODY:
 	ostr << "Stationary body";
 	break;
-    case ViewSettings::STATIONARY_CONSTRAINT:
+    case ViewSettings::AVERAGE_AROUND_CONSTRAINT:
 	ostr << "Stationary constraint";
 	break;
     default:
@@ -1298,7 +1299,7 @@ string GLWidget::getContextStationaryLabel ()
     ostringstream ostr;
     const ViewSettings& vs = GetViewSettings ();
     ViewSettings::ContextStationaryType type = vs.GetContextStationaryType ();
-    if (type == ViewSettings::CONTEXT_STATIONARY_FOAM)
+    if (type == ViewSettings::CONTEXT_AVERAGE_AROUND_FOAM)
 	ostr << "Context stationary foam";
     return ostr.str ();
 }
@@ -1327,7 +1328,7 @@ void GLWidget::setLabel ()
 {
     ostringstream ostr;
     boost::array<string, 4> labels = {{
-	    getAveragedAroundBody (),
+	    getAverageAroundBody (),
 	    getContextLabel (),
 	    getContextStationaryLabel (),
 	    getBodySelectorLabel ()
@@ -1351,8 +1352,8 @@ void GLWidget::AverageAroundBody ()
     brushedBodies (m_contextMenuPos, &bodies);
     if (bodies.size () != 0)
     {
-	vs.SetStationaryType (ViewSettings::STATIONARY_BODY);
-	vs.SetStationaryBodyId (bodies[0]);
+	vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND_BODY);
+	vs.SetAverageAroundBodyId (bodies[0]);
 	setLabel ();
 	update ();
     }
@@ -1369,8 +1370,8 @@ void GLWidget::AverageAroundConstraint ()
     ViewSettings& vs = GetViewSettings ();
     if (GetFoamAlongTime ().ConstraintRotationUsed ())
     {
-	vs.SetStationaryType (ViewSettings::STATIONARY_CONSTRAINT);
-	vs.SetStationaryBodyId (INVALID_INDEX);
+	vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND_CONSTRAINT);
+	vs.SetAverageAroundBodyId (INVALID_INDEX);
 	setLabel ();
 	update ();
     }
@@ -1385,8 +1386,8 @@ void GLWidget::AverageAroundConstraint ()
 void GLWidget::AverageAroundReset ()
 {
     ViewSettings& vs = GetViewSettings ();
-    vs.SetStationaryType (ViewSettings::STATIONARY_NONE);
-    vs.SetStationaryBodyId (INVALID_INDEX);
+    vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND_NONE);
+    vs.SetAverageAroundBodyId (INVALID_INDEX);
     setLabel ();
     update ();
 }
@@ -1412,7 +1413,7 @@ void GLWidget::ContextDisplayReset ()
 void GLWidget::ContextStationaryFoam ()
 {
     ViewSettings& vs = GetViewSettings ();
-    vs.SetContextStationaryType (ViewSettings::CONTEXT_STATIONARY_FOAM);
+    vs.SetContextStationaryType (ViewSettings::CONTEXT_AVERAGE_AROUND_FOAM);
     setLabel ();
     update ();
 }
@@ -1420,7 +1421,7 @@ void GLWidget::ContextStationaryFoam ()
 void GLWidget::ContextStationaryReset ()
 {
     ViewSettings& vs = GetViewSettings ();
-    vs.SetContextStationaryType (ViewSettings::CONTEXT_STATIONARY_NONE);
+    vs.SetContextStationaryType (ViewSettings::CONTEXT_AVERAGE_AROUND_NONE);
     setLabel ();
     update ();
 }
@@ -1781,8 +1782,8 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
 	displayFacesContour (bodies);
     displayFacesInterior (bodies, viewNumber);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
-    displayAveragedAroundBody (viewNumber);
-    displayAveragedAroundConstraint (viewNumber);
+    displayAverageAroundBody (viewNumber);
+    displayAverageAroundConstraint (viewNumber);
     displayContextBodies (viewNumber);
     displayContextStationaryFoam (viewNumber);
     displayStandaloneFaces ();    
@@ -1799,7 +1800,7 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
     glBindTexture (GL_TEXTURE_1D, vs.GetColorBarTexture ());
     bool adjustForContextStationaryFoam = 
 	(GetViewSettings (viewNumber).GetContextStationaryType () == 
-	 ViewSettings::CONTEXT_STATIONARY_FOAM);
+	 ViewSettings::CONTEXT_AVERAGE_AROUND_FOAM);
     if (adjustForContextStationaryFoam)
     {
 	const ConstraintRotation& rotationBegin = GetFoamAlongTime ().
@@ -1822,8 +1823,8 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
 	vs.GetDisplayForces ().DisplayAverage (viewNumber);
     }
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
-    displayAveragedAroundBody (viewNumber);
-    displayAveragedAroundConstraint (viewNumber, adjustForContextStationaryFoam);
+    displayAverageAroundBody (viewNumber);
+    displayAverageAroundConstraint (viewNumber, adjustForContextStationaryFoam);
     displayContextBodies (viewNumber);
     displayContextStationaryFoam (viewNumber, adjustForContextStationaryFoam);
     glPopAttrib ();
@@ -2510,6 +2511,20 @@ void GLWidget::valueChanged (
 	(minMax.second - minMax.first);
 }
 
+bool GLWidget::IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const
+{
+    switch (bodyProperty)
+    {
+    case BodyProperty::PRESSURE:
+	return m_missingPressureShown;
+    case BodyProperty::TARGET_VOLUME:
+    case BodyProperty::ACTUAL_VOLUME:
+	return m_missingVolumeShown;
+    default:
+	return true;
+    }
+}
+
 
 // Slots
 // ======================================================================
@@ -2524,11 +2539,18 @@ void GLWidget::ToggledDirectionalLightEnabled (bool checked)
 }
 
 
-void GLWidget::ToggledZeroedPressureShown (bool checked)
+void GLWidget::ToggledMissingPressureShown (bool checked)
 {
-    m_zeroedPressureShown = checked;
+    m_missingPressureShown = checked;
     update ();
 }
+
+void GLWidget::ToggledMissingVolumeShown (bool checked)
+{
+    m_missingVolumeShown = checked;
+    update ();
+}
+
 
 void GLWidget::ToggledLightNumberShown (bool checked)
 {
@@ -2559,7 +2581,7 @@ void GLWidget::ToggledBoundingBoxShown (bool checked)
 
 void GLWidget::ToggledAverageAroundBody (bool checked)
 {
-    m_averagedAroundBody = checked;
+    m_averageAroundBody = checked;
     update ();
 }
 

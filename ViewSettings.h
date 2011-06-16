@@ -210,30 +210,30 @@ public:
     void CopyTransformations (const ViewSettings& from);
     void CopyColorBar (const ViewSettings& from);
 
-    // Stationary
-    enum StationaryType
+    // Average around
+    enum AverageAroundType
     {
-	STATIONARY_BODY,
-	STATIONARY_CONSTRAINT,
-	STATIONARY_NONE
+	AVERAGE_AROUND_BODY,
+	AVERAGE_AROUND_CONSTRAINT,
+	AVERAGE_AROUND_NONE
     };
 
-    size_t GetStationaryBodyId () const
+    size_t GetAverageAroundBodyId () const
     {
-	return m_stationaryBodyId;
+	return m_averageAroundBodyId;
     }
-    void SetStationaryBodyId (size_t id)
+    void SetAverageAroundBodyId (size_t id)
     {
-	m_stationaryBodyId = id;
+	m_averageAroundBodyId = id;
     }
 
-    StationaryType GetStationaryType () const
+    AverageAroundType GetAverageAroundType () const
     {
-	return m_stationaryType;
+	return m_averageAroundType;
     }
-    void SetStationaryType (StationaryType type)
+    void SetAverageAroundType (AverageAroundType type)
     {
-	m_stationaryType = type;
+	m_averageAroundType = type;
     }
 
     // Context View
@@ -299,8 +299,8 @@ public:
     // ContextStationary
     enum ContextStationaryType
     {
-	CONTEXT_STATIONARY_FOAM,
-	CONTEXT_STATIONARY_NONE
+	CONTEXT_AVERAGE_AROUND_FOAM,
+	CONTEXT_AVERAGE_AROUND_NONE
     };
     ContextStationaryType GetContextStationaryType () const
     {
@@ -352,8 +352,8 @@ private:
     double m_cameraDistance;
 
     //Stationary
-    StationaryType m_stationaryType;
-    size_t m_stationaryBodyId;
+    AverageAroundType m_averageAroundType;
+    size_t m_averageAroundBodyId;
     // Context view
     bool m_contextView;
     bool m_forceNetworkShown;

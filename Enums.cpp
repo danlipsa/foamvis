@@ -68,8 +68,10 @@ const char* BodyProperty::ToString (BodyProperty::Enum property)
 	return "Elongation";
     case PRESSURE:
 	return "Pressure";
-    case VOLUME:
-	return "Volume";
+    case TARGET_VOLUME:
+	return "Target volume";
+    case ACTUAL_VOLUME:
+	return "Actual volume";
     case NONE:
 	return "None";
     case COUNT:
