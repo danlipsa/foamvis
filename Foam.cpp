@@ -368,7 +368,7 @@ void Foam::unwrap (boost::shared_ptr<Face> face,
 		GetOriginalDomain (), edgeBegin, vertexSet, edgeSet));
 	begin = &oe->GetEnd ()->GetVector ();
     }
-    face->CalculateCenter ();
+    face->CalculateCentroidAndArea ();
 }
 
 void Foam::unwrap (
@@ -443,7 +443,7 @@ void Foam::addConstraintEdges ()
 		    &GetParsingData (), begin, end, &m_constraintPointsToFix, i);
 		boost::shared_ptr<Edge> edge (constraintEdge);
 		face.AddEdge (edge);
-		face.CalculateCenter ();
+		face.CalculateCentroidAndArea ();
 		size_t constraintIndex = constraintEdge->GetConstraintIndex ();
 		if ( constraintIndex == GetParsingData ().
 		     GetConstraintRotationNames ().m_constraintIndex)

@@ -65,53 +65,6 @@ private:
     const vector<boost::shared_ptr<Edge> >& m_edges;
 };
 
-class calculateCenter
-{
-public:
-    calculateCenter (const G3D::Vector3& first, double maxLength,
-		     bool debug = false) :
-	m_first (first), m_previous (first),
-	m_maxLength (maxLength), m_leftoverLength (0), m_count (0),
-	m_debug (debug)
-    {
-    }
-
-    void Add (const G3D::Vector3& p)
-    {
-	G3D::Vector3 segment = p - m_previous;
-	double segmentLength = segment.length ();
-	double subSegmentLength = m_maxLength - m_leftoverLength;
-	while (subSegmentLength <= segmentLength)
-	{
-	    G3D::Vector3 point = 
-		m_previous + (subSegmentLength / segmentLength) * segment;
-	    if (m_debug)
-		::glVertex (point);
-	    m_center += point;
-	    ++m_count;
-	    subSegmentLength += m_maxLength;
-	}
-	m_leftoverLength = m_maxLength - (subSegmentLength - segmentLength);
-	m_previous = p;
-    }
-
-    G3D::Vector3 GetCenter ()
-    {
-	return m_center / m_count;
-    }
-
-private:
-    G3D::Vector3 m_center;
-    G3D::Vector3 m_first;
-    G3D::Vector3 m_previous;
-    double m_maxLength;
-    double m_leftoverLength;
-    size_t m_count;
-    bool m_debug;
-};
-
-
-
 // Methods
 // ======================================================================
 Face::Face (const boost::shared_ptr<Edge>& edge, size_t id) :
@@ -139,21 +92,26 @@ Face::Face (const vector<int>& edgeIndexes,
     m_orientedEdges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_orientedEdges.begin(), 
                indexToOrientedEdge(edges));
-    CalculateCenter ();
+    CalculateCentroidAndArea ();
 }
 
-void Face::CalculateCenter (bool debug)
+void Face::CalculateCentroidAndArea ()
 {
-/*
-    G3D::Vector3 first = m_orientedEdges[0]->GetPoint (0);
-    calculateCenter cc (first, getMaxEdgeLength () / 4, debug);
+    vector<double> x, y;
     BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, m_orientedEdges)
- 	for (size_t i = 0; i < oe->GetPointCount (); ++i)
-	    cc.Add (oe->GetPoint (i));
-     if (! IsClosed ())
-	cc.Add (first);
-    m_center = cc.GetCenter ();
-*/
+    {
+	size_t n = oe->GetPointCount ();
+	for (size_t i = 0; i < (n - 1); ++i)
+	{
+	    G3D::Vector3 v = oe->GetPoint (i);
+	    x.push_back (v.x);
+	    y.push_back (v.y);
+	}
+    }
+    double centroid[2];
+    polyCentroid (&x[0], &y[0], x.size (), &centroid[0], &centroid[1], &m_area);
+    m_center[0] = centroid[0];
+    m_center[1] = centroid[1];
 }
 
 double Face::getMaxEdgeLength ()
@@ -179,10 +137,6 @@ void Face::CalculatePerimeter ()
     m_perimeter = 0;
     BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, GetOrientedEdges ())
 	m_perimeter += oe->GetLength ();
-    if (! IsClosed ())
-	m_perimeter += 
-	    (GetOrientedEdge (0)->GetBegin ()->GetVector () - 
-	     GetOrientedEdge (size () - 1)->GetEnd ()->GetVector ()).length ();
 }
 
 
@@ -353,7 +307,7 @@ boost::shared_ptr<Face> Face::createDuplicate (
 	oe->SetEdge (edgeDuplicate);
 	begin = oe->GetEnd ()->GetVector ();
     }
-    faceDuplicate->CalculateCenter ();
+    faceDuplicate->CalculateCentroidAndArea ();
     return faceDuplicate;
 }
 

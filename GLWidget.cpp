@@ -1764,7 +1764,7 @@ void GLWidget::displayBodyCenters (bool useZPos) const
 	glBegin (GL_POINTS);
 	Foam::Bodies::const_iterator it = GetCurrentFoam ().FindBody (357);
 	Face& f = *(*it)->GetFace (0);
-	f.CalculateCenter (true);
+	f.CalculateCentroidAndArea (true);
 	glEnd ();
 	*/
 	glPopAttrib ();

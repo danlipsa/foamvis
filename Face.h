@@ -82,6 +82,10 @@ public:
     {
 	return m_perimeter;
     }
+    double GetArea () const
+    {
+	return m_area;
+    }
     boost::shared_ptr<Face> GetDuplicate (
 	const OOBox& periods, const G3D::Vector3int16& translation,
 	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet) const;
@@ -114,7 +118,7 @@ public:
     }
     void PrintBodyPartOfInformation (ostream& ostr) const;
     void UpdateStandaloneFacePartOf (boost::shared_ptr<Face> face);
-    void CalculateCenter (bool debug = false);
+    void CalculateCentroidAndArea ();
     void CalculatePerimeter ();
     QColor GetColor (const QColor& defaultColor) const;
 
@@ -136,6 +140,7 @@ private:
     G3D::Vector3 m_normal;
     G3D::Vector3 m_center;
     double m_perimeter;
+    double m_area;
     /**
      * Standalone faces need a place to store an OrientedFace
      * for the list of faces part of each edge.
