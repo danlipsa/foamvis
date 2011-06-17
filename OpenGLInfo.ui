@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>OpenGLInfo</class>
- <widget class="QDialog" name="OpenGLInfo">
+ <class>Info</class>
+ <widget class="QDialog" name="Info">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>OpenGL Info</string>
+   <string>Info</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -40,7 +40,7 @@
       <item>
        <widget class="QPushButton" name="pushButton">
         <property name="text">
-         <string>&amp;Close</string>
+         <string>&amp;Ok</string>
         </property>
        </widget>
       </item>
@@ -54,7 +54,7 @@
   <connection>
    <sender>pushButton</sender>
    <signal>clicked()</signal>
-   <receiver>OpenGLInfo</receiver>
+   <receiver>Info</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">

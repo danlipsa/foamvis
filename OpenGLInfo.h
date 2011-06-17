@@ -1,22 +1,22 @@
 /**
- * @file   OpenGLInfo.h
+ * @file   Info.h
  * @author Dan R. Lipsa
  * @date 18 October 2010
  *
- * Declaration of the OpenGLInfo class
+ * Declaration of the Info class
  */
 
-#ifndef __OPENGL_INFO_H__
-#define __OPENGL_INFO_H__
+#ifndef __INFO_H__
+#define __INFO_H__
 
-#include "ui_OpenGLInfo.h"
+#include "ui_Info.h"
 
-class OpenGLInfo : 
-    public QDialog, private Ui::OpenGLInfo
+class Info : 
+    public QDialog, private Ui::Info
 {
 
 public:
-    OpenGLInfo (QWidget* parent, const string& str) :
+    Info (QWidget* parent, const string& str) :
 	QDialog (parent)
     {
 	setupUi (this);
@@ -25,7 +25,7 @@ public:
 };
 
 
-#endif //__OPENGL_INFO_H__
+#endif //__INFO_H__
 
 // Local Variables:
 // mode: c++

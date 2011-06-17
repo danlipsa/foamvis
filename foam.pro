@@ -10,7 +10,7 @@ HEADERS += Application.h ApproximationEdge.h\
 	Enums.h Foam.h FoamAlongTime.h Face.h Force.h\
 	GLWidget.h Hashes.h Histogram.h HistogramItem.h HistogramHeight.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
-	OOBox.h OpenGLInfo.h OpenGLUtils.h OrientedElement.h\
+	OOBox.h Info.h OpenGLUtils.h OrientedElement.h\
 	OrientedEdge.h OrientedFace.h OrientedFaceIndex.h \
 	ParsingData.h ParsingDriver.h \
 	ParsingEnums.h ProcessBodyTorus.h PropertySetter.h \
