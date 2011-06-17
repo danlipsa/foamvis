@@ -24,7 +24,7 @@
 #include "Foam.h"
 #include "FoamAlongTime.h"
 #include "GLWidget.h"
-#include "OpenGLInfo.h"
+#include "Info.h"
 #include "OpenGLUtils.h"
 #include "OrientedEdge.h"
 #include "SelectBodiesById.h"
@@ -892,9 +892,17 @@ void GLWidget::InfoFoam ()
     msgBox.exec();
 }
 
+void GLWidget::InfoOpenGL ()
+{
+    ostringstream ostr;
+    printOpenGLInfo (ostr);
+    Info openGLInfo (this, "OpenGL Info", ostr.str ().c_str ());
+    openGLInfo.exec ();
+}
+
 void GLWidget::InfoFocus ()
 {
-    QMessageBox msgBox (this);
+    Info msgBox (this, "Info");
     ostringstream ostr;
     switch (m_bodySelector->GetType ())
     {
@@ -2525,6 +2533,20 @@ bool GLWidget::IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const
     }
 }
 
+void GLWidget::CopyTransformationsFrom (int viewNumber)
+{
+    GetViewSettings ().CopyTransformations (
+	GetViewSettings (ViewNumber::Enum (viewNumber)));
+    update ();
+}
+
+void GLWidget::CopyColorBarFrom (int viewNumber)
+{
+    ViewSettings& vs = GetViewSettings (ViewNumber::Enum (viewNumber));
+    GetViewSettings ().CopyColorBar (vs);
+    Q_EMIT ColorBarModelChanged (GetViewSettings ().GetColorBarModel ());
+}
+
 
 // Slots
 // ======================================================================
@@ -2973,26 +2995,4 @@ void GLWidget::ValueChangedAngleOfView (int angleOfView)
 }
 
 
-void GLWidget::InfoOpenGL ()
-{
-    ostringstream ostr;
-    printOpenGLInfo (ostr);
-    boost::scoped_ptr<OpenGLInfo> openGLInfo (
-	new OpenGLInfo (this, ostr.str ()));
-    openGLInfo->exec ();
-}
-
-void GLWidget::CopyTransformationsFrom (int viewNumber)
-{
-    GetViewSettings ().CopyTransformations (
-	GetViewSettings (ViewNumber::Enum (viewNumber)));
-    update ();
-}
-
-void GLWidget::CopyColorBarFrom (int viewNumber)
-{
-    ViewSettings& vs = GetViewSettings (ViewNumber::Enum (viewNumber));
-    GetViewSettings ().CopyColorBar (vs);
-    Q_EMIT ColorBarModelChanged (GetViewSettings ().GetColorBarModel ());
-}
 

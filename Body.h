@@ -130,6 +130,7 @@ public:
 	return m_perimeterOverSqrtArea;
     }
     void CalculatePerimeterOverSqrtArea ();
+    static const char* GetAttributeKeywordString (BodyProperty::Enum bp);
 
 private:
     /**

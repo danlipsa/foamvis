@@ -390,7 +390,8 @@ int polyCentroid(T x[], T y[], size_t n, T *xCentroid, T *yCentroid, T *area)
 {
     register size_t i, j;
     T ai, atmp = 0, xtmp = 0, ytmp = 0;
-    if (n < 3) return 1;
+    if (n < 3)
+	return 1;
     for (i = n-1, j = 0; j < n; i = j, j++)
     {
 	ai = x[i] * y[j] - x[j] * y[i];

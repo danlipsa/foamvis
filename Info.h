@@ -16,11 +16,18 @@ class Info :
 {
 
 public:
-    Info (QWidget* parent, const string& str) :
+    Info (QWidget* parent, const char* title, const char* text = 0) :
 	QDialog (parent)
     {
 	setupUi (this);
-	text->setPlainText (str.c_str ());
+	setWindowTitle (title);
+	if (text != 0)
+	    textEdit->setPlainText (text);
+    }
+    
+    void setText (const char* text)
+    {
+	textEdit->setPlainText (text);
     }
 };
 

@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QPlainTextEdit" name="text">
+    <widget class="QPlainTextEdit" name="textEdit">
      <property name="readOnly">
       <bool>true</bool>
      </property>

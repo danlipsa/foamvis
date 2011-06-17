@@ -278,6 +278,8 @@ public:
     void CalculateBoundingBox ();
     void CalculatePerimeterOverArea ();
     void FixConstraintPoints (const Foam* prevFoam);
+    void StoreAttribute (Body* body, BodyProperty::Enum property, double r);
+
 
 public:
     static const double Z_COORDINATE_2D = 0.0;

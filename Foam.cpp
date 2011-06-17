@@ -521,19 +521,21 @@ void Foam::setMissingVolume ()
 	    double area = body->GetOrientedFace (0).GetArea ();
 	    if (! body->ExistsPropertyValue (BodyProperty::TARGET_VOLUME))
 	    {
-		body->StoreAttribute (
-		    ParsingDriver::GetKeywordString(
-			parser::token::VOLUME), area,
-		    m_attributesInfo[DefineAttribute::BODY]);
 		body->SetTargetVolumeDeduced ();
+		StoreAttribute (body.get (), BodyProperty::TARGET_VOLUME, area);
 	    }
+	    /*
+	    else
+	    {
+		cdbg << "area: " << area 
+		     << body->GetPropertyValue (BodyProperty::TARGET_VOLUME) 
+		     << endl;
+	    }
+	    */
 	    if (! body->ExistsPropertyValue (BodyProperty::ACTUAL_VOLUME))
 	    {
-		body->StoreAttribute (
-		    ParsingDriver::GetKeywordString(
-			parser::token::ACTUAL), area,
-		    m_attributesInfo[DefineAttribute::BODY]);
 		body->SetActualVolumeDeduced ();
+		StoreAttribute (body.get (), BodyProperty::ACTUAL_VOLUME, area);
 	    }
 	}
     }
@@ -546,10 +548,7 @@ void Foam::setMissingPressureZero ()
     {
 	if (! body->ExistsPropertyValue (BodyProperty::PRESSURE))
 	{
-	    body->StoreAttribute (
-		ParsingDriver::GetKeywordString(
-		    parser::token::LAGRANGE_MULTIPLIER), 0,
-		m_attributesInfo[DefineAttribute::BODY]);
+	    StoreAttribute (body.get (), BodyProperty::PRESSURE, 0);
 	    body->SetPressureDeduced ();
 	}
     }
@@ -788,6 +787,12 @@ void Foam::setForce (const ForceNames& names, Force* forces)
 	names.m_pressureForceName[1]);
 }
 
+void Foam::StoreAttribute (
+    Body* body, BodyProperty::Enum bp, double value)
+{
+    body->StoreAttribute (Body::GetAttributeKeywordString(bp), value,
+			  m_attributesInfo[DefineAttribute::BODY]);
+}
 
 
 // Static and Friends Methods

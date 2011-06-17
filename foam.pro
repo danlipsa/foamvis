@@ -41,7 +41,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	HistogramStatistics.cpp StripIterator.cpp TimeStepsSlider.cpp \
 	TransferFunctionHistogram.cpp Utils.cpp Vertex.cpp ViewSettings.cpp
 FORMS += SelectBodiesById.ui EditColorMap.ui HistogramHeight.ui \
-	 RestrictedRangeSlider.ui MainWindow.ui OpenGLInfo.ui
+	 RestrictedRangeSlider.ui MainWindow.ui Info.ui
 LEXSOURCES        += EvolverData.l
 YACCSOURCES       += EvolverData.y
 QMAKE_YACC         = .\\/bison.pl -y --report=state --debug

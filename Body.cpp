@@ -16,6 +16,7 @@
 #include "Face.h"
 #include "OrientedEdge.h"
 #include "OrientedFace.h"
+#include "ParsingData.h"
 #include "ParsingDriver.h"
 #include "ProcessBodyTorus.h"
 #include "Vertex.h"
@@ -324,4 +325,21 @@ vector<G3D::Vector3> Body::GetAllEdgeVertices () const
 	    v.push_back (edge->GetPoint (i));
     }
     return v;
+}
+
+const char* Body::GetAttributeKeywordString (BodyProperty::Enum bp)
+{
+    using EvolverData::parser;
+    switch (bp)
+    {
+    case BodyProperty::PRESSURE:
+	return ParsingDriver::GetKeywordString(
+	    parser::token::LAGRANGE_MULTIPLIER);
+    case BodyProperty::TARGET_VOLUME:
+	return ParsingDriver::GetKeywordString(parser::token::VOLUME);	
+    case BodyProperty::ACTUAL_VOLUME:
+	return ParsingDriver::GetKeywordString(parser::token::ACTUAL);
+    default:
+	return 0;
+    }
 }
