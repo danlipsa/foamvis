@@ -1852,13 +1852,13 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
     {
 	vs.GetDisplayFaceStatistics ().Display (
 	    viewNumber, vs.GetStatisticsType ());
-	vs.GetDisplayForces ().DisplayAverage (viewNumber);
     }
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
     displayAverageAroundBody (viewNumber);
     displayAverageAroundConstraint (viewNumber, adjustForContextStationaryFoam);
     displayContextBodies (viewNumber);
     displayContextStationaryFoam (viewNumber, adjustForContextStationaryFoam);
+    vs.GetDisplayForces ().DisplayAverage (viewNumber);
     glPopAttrib ();
 }
 
