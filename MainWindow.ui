@@ -260,7 +260,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="currentIndex">
-              <number>3</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="tabShow">
               <attribute name="title">
@@ -276,7 +276,7 @@
                <item>
                 <widget class="QTabWidget" name="tabWidgetShow">
                  <property name="currentIndex">
-                  <number>2</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="tabView">
                   <attribute name="title">
@@ -300,6 +300,11 @@
                      <item>
                       <property name="text">
                        <string>Two</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Three</string>
                       </property>
                      </item>
                      <item>

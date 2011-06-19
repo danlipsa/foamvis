@@ -735,17 +735,36 @@ G3D::Rect2D GLWidget::GetViewRect (ViewNumber::Enum view) const
     case ViewCount::TWO:
     {
 	RuntimeAssert (view < 2, "Invalid view: ", view);
-	Rect2D v[] = {
+	Rect2D v[][2] = {
 	    // 0 | 1
 	    // horizontal layout
-	    Rect2D::xywh (0, 0, w/2, h), Rect2D::xywh (w/2, 0, w/2, h),
+	    {Rect2D::xywh (0, 0, w/2, h), Rect2D::xywh (w/2, 0, w/2, h)},
 	    // 0
 	    // -
 	    // 1
 	    // vertical layout
-	    Rect2D::xywh (0, h/2, w, h/2), Rect2D::xywh (0, 0, w, h/2)
+	    {Rect2D::xywh (0, h/2, w, h/2), Rect2D::xywh (0, 0, w, h/2)}
 	};
-	return v[2 * m_viewLayout + view];
+	return v[m_viewLayout][view];
+    }
+    case ViewCount::THREE:
+    {
+	RuntimeAssert (view < 3, "Invalid view: ", view);
+	Rect2D v[][3] = {
+	    // 0 | 1 | 3
+	    // horizontal layout
+	    {Rect2D::xywh (0, 0, w/3, h), Rect2D::xywh (w/3, 0, w/3, h),
+	     Rect2D::xywh (2*w/3, 0, w/3, h)},
+	    // 0
+	    // -
+	    // 1
+	    // -
+	    // 3
+	    // vertical layout
+	    {Rect2D::xywh (0, 2*h/3, w, h/3), Rect2D::xywh (0, h/3, w, h/3), 
+	     Rect2D::xywh (0, 0, w, h/3)}
+	};
+	return v[m_viewLayout][view];
     }
     case ViewCount::FOUR:
     {
@@ -1013,8 +1032,13 @@ void GLWidget::displayViews ()
     switch (m_viewCount)
     {
     case ViewCount::FOUR:
-	displayView (ViewNumber::VIEW2);
-	displayView (ViewNumber::VIEW3);
+	for (size_t i = 0; i < 4; ++i)
+	    displayView (ViewNumber::Enum (i));
+	break;
+    case ViewCount::THREE:
+	for (size_t i = 0; i < 3; ++i)
+	    displayView (ViewNumber::Enum (i));
+	break;
     case ViewCount::TWO:
 	displayView (ViewNumber::VIEW1);
     case ViewCount::ONE:
@@ -2311,7 +2335,9 @@ void GLWidget::displayViewGrid ()
     size_t h = height ();
     glColor (Qt::blue);
     glBegin (GL_LINES);
-    if (m_viewCount == ViewCount::TWO)
+    switch (m_viewCount)
+    {
+    case ViewCount::TWO:
     {
 	if (m_viewLayout == ViewLayout::HORIZONTAL)
 	{
@@ -2323,13 +2349,36 @@ void GLWidget::displayViewGrid ()
 	    glVertex2s (0, h/2);
 	    glVertex2s (w, h/2);
 	}
+	break;
     }
-    else if (m_viewCount == ViewCount::FOUR)
+    case ViewCount::THREE:
+    {
+	if (m_viewLayout == ViewLayout::HORIZONTAL)
+	{
+	    glVertex2s (w/3, 0);
+	    glVertex2s (w/3, h);
+	    glVertex2s (2*w/3, 0);
+	    glVertex2s (2*w/3, h);
+	}
+	else
+	{
+	    glVertex2s (0, h/3);
+	    glVertex2s (w, h/3);
+	    glVertex2s (0, 2*h/3);
+	    glVertex2s (w, 2*h/3);
+	}
+	break;
+    }
+    case ViewCount::FOUR:
     {
 	glVertex2s (w/2, 0);
 	glVertex2s (w/2, h);
 	glVertex2s (0, h/2);
 	glVertex2s (w, h/2);	
+	break;
+    }
+    default:
+	break;
     }
     glEnd ();
 }

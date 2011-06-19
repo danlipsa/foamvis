@@ -754,7 +754,7 @@ void MainWindow::CurrentIndexChangedViewCount (int index)
     boost::array<QWidget*, 2> widgetsViewLayout = 
 	{{labelViewLayout, comboBoxViewLayout}};
     ViewCount::Enum viewCount = ViewCount::Enum (index);
-    if (viewCount == ViewCount::TWO)
+    if (viewCount == ViewCount::TWO || viewCount == ViewCount::THREE)
 	::setVisible (widgetsViewLayout, true);
     else
 	::setVisible (widgetsViewLayout, false);

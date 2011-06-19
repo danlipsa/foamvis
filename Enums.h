@@ -266,6 +266,7 @@ struct ViewCount
     {
 	ONE,
 	TWO,
+	THREE,
 	FOUR
     };
     static size_t GetCount (ViewCount::Enum);
