@@ -278,7 +278,8 @@ void GLWidget::createActions ()
 
     m_actionContextStationaryReset = boost::make_shared<QAction> (
 	tr("&Reset"), this);
-    m_actionContextStationaryReset->setStatusTip(tr("Context stationary reset"));
+    m_actionContextStationaryReset->setStatusTip(
+	tr("Context stationary reset"));
     connect(m_actionContextStationaryReset.get (), SIGNAL(triggered()),
 	    this, SLOT(ContextStationaryReset ()));
 
