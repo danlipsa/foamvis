@@ -211,6 +211,8 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 Release log
 ===========
 0.5.     - fixed wetfoam_100_0002.dmp
+	 - added Actual Volume to the list of body properties, 
+	   Added 'General > Look > Volume' shown user option.
 0.5.1974 - read forces acting on sedimenting discs using --force command line
 0.5.1960 - use long command line options (boost program options)
 	 - use --use-original for datasets that have to use ORIGINAL 

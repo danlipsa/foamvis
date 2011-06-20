@@ -1811,6 +1811,22 @@
   <connection>
    <sender>radioButtonFacesNormal</sender>
    <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledFacesNormal(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>836</x>
+     <y>128</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>420</x>
+     <y>343</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonFacesNormal</sender>
+   <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>ToggledFacesNormal(bool)</slot>
    <hints>
@@ -1837,22 +1853,6 @@
     <hint type="destinationlabel">
      <x>873</x>
      <y>307</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonFacesNormal</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledFacesNormal(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>836</x>
-     <y>128</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>420</x>
-     <y>343</y>
     </hint>
    </hints>
   </connection>
@@ -1939,22 +1939,6 @@
   <connection>
    <sender>radioButtonCenterPath</sender>
    <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledCenterPath(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>845</x>
-     <y>130</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>460</x>
-     <y>359</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonCenterPath</sender>
-   <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
    <slot>ToggledCenterPath(bool)</slot>
    <hints>
@@ -1965,6 +1949,22 @@
     <hint type="destinationlabel">
      <x>420</x>
      <y>314</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonCenterPath</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ToggledCenterPath(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>845</x>
+     <y>130</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>460</x>
+     <y>359</y>
     </hint>
    </hints>
   </connection>
@@ -2067,6 +2067,22 @@
   <connection>
    <sender>sliderTimeSteps</sender>
    <signal>valueChanged(int)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ValueChangedSliderTimeSteps(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>395</x>
+     <y>571</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>301</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderTimeSteps</sender>
+   <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>ValueChangedSliderTimeSteps(int)</slot>
    <hints>
@@ -2100,7 +2116,7 @@
    <sender>buttonGroupFacesHistogram</sender>
    <signal>buttonClicked(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>ButtonClickedOneTimestepHistogram(int)</slot>
+   <slot>SetHistogram(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -2173,22 +2189,6 @@
     <hint type="destinationlabel">
      <x>420</x>
      <y>312</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>sliderTimeSteps</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedSliderTimeSteps(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>395</x>
-     <y>571</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>301</x>
-     <y>349</y>
     </hint>
    </hints>
   </connection>
@@ -3097,7 +3097,7 @@
   <slot>ToggledStatusBarShown(bool)</slot>
   <slot>CurrentIndexChangedSelectedLight(int)</slot>
   <slot>ToggledFacesStatistics(bool)</slot>
-  <slot>ButtonClickedOneTimestepHistogram(int)</slot>
+  <slot>SetHistogram(int)</slot>
   <slot>ButtonClickedAllTimestepsHistogram(int)</slot>
   <slot>ToggledStatisticsTimeWindowEnabled(bool)</slot>
   <slot>CurrentIndexChangedStatisticsType(int)</slot>

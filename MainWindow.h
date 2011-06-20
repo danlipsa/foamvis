@@ -51,13 +51,8 @@ public:
      * Shows a histogram of the current display
      */
     void SetAndDisplayHistogram (
-	HistogramType::Enum histogramType,
-	BodyProperty::Enum property,
-	const QwtIntervalData& intervalData,
-	double maxValue,
 	HistogramSelection histogramSelection,
 	MaxValueOperation maxValueOperation);
-    void ButtonClickedAllTimestepsHistogram (int id);
 
 
 Q_SIGNALS:
@@ -110,7 +105,7 @@ public Q_SLOTS:
     void TimeoutTimer ();
     void ToggledCenterPath (bool checked);
     
-    void ButtonClickedOneTimestepHistogram (int id);
+    void SetHistogram (int histogramType);
     void ToggledFacesNormal (bool checked);
     void ToggledFacesStatistics (bool checked);
     /**
@@ -130,7 +125,6 @@ public Q_SLOTS:
 private:
     void updateLightControls (
 	const ViewSettings& vs, LightNumber::Enum lightNumber);
-    bool isHistogramHidden (HistogramType::Enum histogramType);
     void connectSignals ();
     void connectColorBarHistogram (bool connected);
     /**
@@ -199,7 +193,6 @@ private:
 
     HistogramType::Enum m_histogramType;
     ViewNumber::Enum m_histogramViewNumber;
-    BodyProperty::Enum m_histogramBodyProperty;
     boost::array<
 	boost::array<boost::shared_ptr<ColorBarModel>, 
 		     BodyProperty::PROPERTY_END>,

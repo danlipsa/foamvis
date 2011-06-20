@@ -815,6 +815,7 @@ double GLWidget::getViewXOverY () const
     double v[] = { 
 	xOverY, xOverY,     // ONE
 	xOverY/2, 2*xOverY, // TWO (HORIZONTAL, VERTICAL)
+	xOverY/3, 3*xOverY, // THREE (HORIZONTAL, VERTICAL)
 	xOverY, xOverY      // FOUR
     };
     return v[m_viewCount * 2 + m_viewLayout];
@@ -2826,10 +2827,7 @@ void GLWidget::CurrentIndexChangedSelectedLight (int selectedLight)
 void GLWidget::CurrentIndexChangedViewCount (int index)
 {
     m_viewCount = ViewCount::Enum (index);
-    if (m_viewCount == ViewCount::ONE)
-    {
-	m_viewNumber = ViewNumber::VIEW0;
-    }
+    m_viewNumber = ViewNumber::VIEW0;
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
