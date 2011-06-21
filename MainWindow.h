@@ -121,6 +121,8 @@ public Q_SLOTS:
     void ValueChangedFontSize (int value);
     void ValueChangedHistogramHeight (int value);
     void ViewToUI ();
+    void SetHistogramColorBarModel (
+	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 private:
     void updateLightControls (

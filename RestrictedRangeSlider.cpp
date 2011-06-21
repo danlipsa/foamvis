@@ -131,8 +131,9 @@ void RestrictedRangeSlider::SetRestrictedTo (
     const vector<bool>& selectedIntervals)
 {
     setupColorMap (&selectedIntervals);
-    if (count (
-	    selectedIntervals.begin (), selectedIntervals.end (), false) == 0)
+    size_t unselectedIntervalCount = count (
+	selectedIntervals.begin (), selectedIntervals.end (), false);
+    if (unselectedIntervalCount == 0)
     {
 	SetFullRange ();
 	return;

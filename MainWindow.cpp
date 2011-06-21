@@ -121,13 +121,6 @@ void MainWindow::connectSignals ()
 	SLOT (SetBodyProperty (
 		  boost::shared_ptr<ColorBarModel>,
 		  BodyProperty::Enum)));
-    connect (
-	this, 
-	SIGNAL (BodyPropertyChanged (
-		    boost::shared_ptr<ColorBarModel>,
-		    BodyProperty::Enum)),
-	widgetHistogram, 
-	SLOT (SetColorBarModel (boost::shared_ptr<ColorBarModel>)));
     
     // ColorBarModelChanged:
     // from MainWindow to ColorBar, GLWidget and AttributeHistogram
@@ -187,20 +180,28 @@ void MainWindow::connectColorBarHistogram (bool connected)
     {
 	connect (
 	    this, 
+	    SIGNAL (BodyPropertyChanged (boost::shared_ptr<ColorBarModel>,
+					 BodyProperty::Enum)),
+	    this, 
+	    SLOT (SetHistogramColorBarModel (boost::shared_ptr<ColorBarModel>)));
+	connect (
+	    this, 
 	    SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
-	    widgetHistogram, 
-	    SLOT (SetColorBarModel (boost::shared_ptr<ColorBarModel>)), 
+	    this, 
+	    SLOT (SetHistogramColorBarModel (boost::shared_ptr<ColorBarModel>)), 
 	    Qt::UniqueConnection);
 	connect (
 	    widgetGl, 
 	    SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
-	    widgetHistogram, 
-	    SLOT (SetColorBarModel (boost::shared_ptr<ColorBarModel>)), 
+	    this, 
+	    SLOT (SetHistogramColorBarModel (boost::shared_ptr<ColorBarModel>)), 
 	    Qt::UniqueConnection);
     }
     else
     {
-	disconnect (widgetHistogram);
+	disconnect (
+	    this, 
+	    SLOT (SetHistogramColorBarModel (boost::shared_ptr<ColorBarModel>)));
     }
 }
 
@@ -523,6 +524,129 @@ void MainWindow::createActions ()
 }
 
 
+/**
+ * @todo Calculate the correct histogram for the 'domain histogram' image.
+ */
+MainWindow::HistogramInfo MainWindow::getCurrentHistogramInfo () const
+{
+    FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
+    if (widgetGl->GetViewSettings ().GetStatisticsType () == 
+	StatisticsType::COUNT)
+    {
+	size_t fakeHistogramValue = 1;
+	QwtArray<QwtDoubleInterval> a (HISTOGRAM_INTERVALS);
+	QwtArray<double> d (HISTOGRAM_INTERVALS);
+	size_t max = foamAlongTime.GetTimeSteps ();
+	double intervalSize = double (max) / HISTOGRAM_INTERVALS;
+	for (int i = 0; i < a.size (); ++i)
+	{
+	    a[i] = QwtDoubleInterval (intervalSize * i, intervalSize* (i+1));
+	    d[i] = fakeHistogramValue;
+	}
+	return HistogramInfo (QwtIntervalData (a, d), fakeHistogramValue);
+    }
+    else
+    {
+	const HistogramStatistics& histogramStatistics = 
+	    foamAlongTime.GetHistogram (widgetGl->GetBodyProperty ());
+	return HistogramInfo (histogramStatistics.ToQwtIntervalData (), 
+			      histogramStatistics.GetMaxCountPerBin ());
+    }
+}
+
+
+void MainWindow::displayHistogramColorBar (bool checked)
+{
+    widgetHistogram->setVisible (
+	checked && 
+	widgetGl->GetBodyProperty () != BodyProperty::NONE && 
+	m_histogramType);
+}
+
+void MainWindow::setupColorBarModels (ViewNumber::Enum viewNumber)
+{
+    size_t i = 0;
+    BOOST_FOREACH (boost::shared_ptr<ColorBarModel>& colorBarModel,
+		   m_colorBarModelBodyProperty[viewNumber])
+    {
+	BodyProperty::Enum property = BodyProperty::FromSizeT (i);
+	colorBarModel.reset (new ColorBarModel ());
+	setupColorBarModel (viewNumber, property);
+	++i;
+    }
+    boost::shared_ptr<ColorBarModel>& colorBarModel = 
+	m_colorBarModelDomainHistogram[viewNumber];
+    colorBarModel.reset (new ColorBarModel ());
+    colorBarModel->SetTitle ("Count per area");
+    colorBarModel->SetInterval (
+	QwtDoubleInterval (0, widgetGl->GetFoamAlongTime ().GetTimeSteps ()));
+    colorBarModel->SetupPalette (Palette::BLACK_BODY);
+}
+
+void MainWindow::setupColorBarModel (ViewNumber::Enum viewNumber,
+				     BodyProperty::Enum property)
+{
+    FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
+    m_colorBarModelBodyProperty[viewNumber][property]->SetTitle (
+	BodyProperty::ToString (property));
+    m_colorBarModelBodyProperty[viewNumber][property]->SetInterval (
+	foamAlongTime.GetRange (property));
+    m_colorBarModelBodyProperty[viewNumber][property]->SetupPalette (
+	Palette::BLUE_RED_DIVERGING);
+}
+
+void MainWindow::updateLightControls (
+    const ViewSettings& vs, LightNumber::Enum lightNumber)
+{
+    checkBoxLightEnabled->setChecked (vs.IsLightEnabled (lightNumber));
+    checkBoxLightPositionShown->setChecked (
+	vs.IsLightPositionShown (lightNumber));
+    checkBoxDirectionalLightEnabled->setChecked (
+	vs.IsDirectionalLightEnabled (lightNumber));
+    horizontalSliderLightAmbientRed->setValue (
+	floor (vs.GetLight (lightNumber, LightType::AMBIENT)[0] * 
+	       horizontalSliderLightAmbientRed->maximum () + 0.5));
+    horizontalSliderLightAmbientGreen->setValue (
+	floor (vs.GetLight (lightNumber, LightType::AMBIENT)[1] * 
+	       horizontalSliderLightAmbientGreen->maximum () + 0.5));
+    horizontalSliderLightAmbientBlue->setValue (
+	floor (vs.GetLight (lightNumber, LightType::AMBIENT)[2] * 
+	       horizontalSliderLightAmbientBlue->maximum () + 0.5));
+    horizontalSliderLightDiffuseRed->setValue (
+	floor (vs.GetLight (lightNumber, LightType::DIFFUSE)[0] * 
+	       horizontalSliderLightDiffuseRed->maximum () + 0.5));
+    horizontalSliderLightDiffuseGreen->setValue (
+	floor (vs.GetLight (lightNumber, LightType::DIFFUSE)[1] * 
+	       horizontalSliderLightDiffuseGreen->maximum () + 0.5));
+    horizontalSliderLightDiffuseBlue->setValue (
+	floor (vs.GetLight (lightNumber, LightType::DIFFUSE)[2] * 
+	       horizontalSliderLightDiffuseBlue->maximum () + 0.5));
+    horizontalSliderLightSpecularRed->setValue (
+	floor (vs.GetLight (
+		   lightNumber, LightType::SPECULAR)[0] * 
+	       horizontalSliderLightSpecularRed->maximum () + 0.5));
+    horizontalSliderLightSpecularGreen->setValue (
+	floor (vs.GetLight (
+		   lightNumber, LightType::SPECULAR)[1] * 
+	       horizontalSliderLightSpecularGreen->maximum () + 0.5));
+    horizontalSliderLightSpecularBlue->setValue (
+	floor (vs.GetLight (
+		   lightNumber, LightType::SPECULAR)[2] * 
+	    horizontalSliderLightSpecularBlue->maximum () + 0.5));
+}
+
+boost::shared_ptr<ColorBarModel> MainWindow::getCurrentColorBarModel () const
+{
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
+    if (widgetGl->GetViewSettings ().GetStatisticsType () == 
+	StatisticsType::COUNT)
+	return m_colorBarModelDomainHistogram[viewNumber];
+    else
+	return m_colorBarModelBodyProperty[viewNumber]
+	    [widgetGl->GetBodyProperty ()];
+}
+
+
 // Slots
 // ======================================================================
 
@@ -630,85 +754,6 @@ void MainWindow::ToggledCenterPath (bool checked)
 }
 
 
-void MainWindow::displayHistogramColorBar (bool checked)
-{
-    widgetHistogram->setVisible (
-	checked && 
-	widgetGl->GetBodyProperty () != BodyProperty::NONE && 
-	m_histogramType);
-}
-
-void MainWindow::setupColorBarModels (ViewNumber::Enum viewNumber)
-{
-    size_t i = 0;
-    BOOST_FOREACH (boost::shared_ptr<ColorBarModel>& colorBarModel,
-		   m_colorBarModelBodyProperty[viewNumber])
-    {
-	BodyProperty::Enum property = BodyProperty::FromSizeT (i);
-	colorBarModel.reset (new ColorBarModel ());
-	setupColorBarModel (viewNumber, property);
-	++i;
-    }
-    boost::shared_ptr<ColorBarModel>& colorBarModel = 
-	m_colorBarModelDomainHistogram[viewNumber];
-    colorBarModel.reset (new ColorBarModel ());
-    colorBarModel->SetTitle ("Count per area");
-    colorBarModel->SetInterval (
-	QwtDoubleInterval (0, widgetGl->GetFoamAlongTime ().GetTimeSteps ()));
-    colorBarModel->SetupPalette (Palette::BLACK_BODY);
-}
-
-void MainWindow::setupColorBarModel (ViewNumber::Enum viewNumber,
-				     BodyProperty::Enum property)
-{
-    FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    m_colorBarModelBodyProperty[viewNumber][property]->SetTitle (
-	BodyProperty::ToString (property));
-    m_colorBarModelBodyProperty[viewNumber][property]->SetInterval (
-	foamAlongTime.GetRange (property));
-    m_colorBarModelBodyProperty[viewNumber][property]->SetupPalette (
-	Palette::BLUE_RED_DIVERGING);
-}
-
-void MainWindow::updateLightControls (
-    const ViewSettings& vs, LightNumber::Enum lightNumber)
-{
-    checkBoxLightEnabled->setChecked (vs.IsLightEnabled (lightNumber));
-    checkBoxLightPositionShown->setChecked (
-	vs.IsLightPositionShown (lightNumber));
-    checkBoxDirectionalLightEnabled->setChecked (
-	vs.IsDirectionalLightEnabled (lightNumber));
-    horizontalSliderLightAmbientRed->setValue (
-	floor (vs.GetLight (lightNumber, LightType::AMBIENT)[0] * 
-	       horizontalSliderLightAmbientRed->maximum () + 0.5));
-    horizontalSliderLightAmbientGreen->setValue (
-	floor (vs.GetLight (lightNumber, LightType::AMBIENT)[1] * 
-	       horizontalSliderLightAmbientGreen->maximum () + 0.5));
-    horizontalSliderLightAmbientBlue->setValue (
-	floor (vs.GetLight (lightNumber, LightType::AMBIENT)[2] * 
-	       horizontalSliderLightAmbientBlue->maximum () + 0.5));
-    horizontalSliderLightDiffuseRed->setValue (
-	floor (vs.GetLight (lightNumber, LightType::DIFFUSE)[0] * 
-	       horizontalSliderLightDiffuseRed->maximum () + 0.5));
-    horizontalSliderLightDiffuseGreen->setValue (
-	floor (vs.GetLight (lightNumber, LightType::DIFFUSE)[1] * 
-	       horizontalSliderLightDiffuseGreen->maximum () + 0.5));
-    horizontalSliderLightDiffuseBlue->setValue (
-	floor (vs.GetLight (lightNumber, LightType::DIFFUSE)[2] * 
-	       horizontalSliderLightDiffuseBlue->maximum () + 0.5));
-    horizontalSliderLightSpecularRed->setValue (
-	floor (vs.GetLight (
-		   lightNumber, LightType::SPECULAR)[0] * 
-	       horizontalSliderLightSpecularRed->maximum () + 0.5));
-    horizontalSliderLightSpecularGreen->setValue (
-	floor (vs.GetLight (
-		   lightNumber, LightType::SPECULAR)[1] * 
-	       horizontalSliderLightSpecularGreen->maximum () + 0.5));
-    horizontalSliderLightSpecularBlue->setValue (
-	floor (vs.GetLight (
-		   lightNumber, LightType::SPECULAR)[2] * 
-	    horizontalSliderLightSpecularBlue->maximum () + 0.5));
-}
 
 void MainWindow::CurrentIndexChangedSelectedLight (int i)
 {
@@ -854,43 +899,9 @@ void MainWindow::ShowEditColorMap ()
     }
 }
 
-boost::shared_ptr<ColorBarModel> MainWindow::getCurrentColorBarModel () const
+void MainWindow::SetHistogramColorBarModel (
+    boost::shared_ptr<ColorBarModel> colorBarModel)
 {
-    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
-    if (widgetGl->GetViewSettings ().GetStatisticsType () == 
-	StatisticsType::COUNT)
-	return m_colorBarModelDomainHistogram[viewNumber];
-    else
-	return m_colorBarModelBodyProperty[viewNumber]
-	    [widgetGl->GetBodyProperty ()];
-}
-
-/**
- * @todo Calculate the correct histogram for the 'domain histogram' image.
- */
-MainWindow::HistogramInfo MainWindow::getCurrentHistogramInfo () const
-{
-    FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    if (widgetGl->GetViewSettings ().GetStatisticsType () == 
-	StatisticsType::COUNT)
-    {
-	size_t fakeHistogramValue = 1;
-	QwtArray<QwtDoubleInterval> a (HISTOGRAM_INTERVALS);
-	QwtArray<double> d (HISTOGRAM_INTERVALS);
-	size_t max = foamAlongTime.GetTimeSteps ();
-	double intervalSize = double (max) / HISTOGRAM_INTERVALS;
-	for (int i = 0; i < a.size (); ++i)
-	{
-	    a[i] = QwtDoubleInterval (intervalSize * i, intervalSize* (i+1));
-	    d[i] = fakeHistogramValue;
-	}
-	return HistogramInfo (QwtIntervalData (a, d), fakeHistogramValue);
-    }
-    else
-    {
-	const HistogramStatistics& histogramStatistics = 
-	    foamAlongTime.GetHistogram (widgetGl->GetBodyProperty ());
-	return HistogramInfo (histogramStatistics.ToQwtIntervalData (), 
-			      histogramStatistics.GetMaxCountPerBin ());
-    }
+    if (m_histogramViewNumber == widgetGl->GetViewNumber ())
+	widgetHistogram->SetColorBarModel (colorBarModel);
 }
