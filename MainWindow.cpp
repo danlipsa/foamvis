@@ -154,9 +154,18 @@ void MainWindow::ViewToUI ()
     const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     BodyProperty::Enum property = vs.GetBodyProperty ();
+    buttonGroupViewType->blockSignals (true);
     buttonGroupViewType->button (vs.GetViewType ())->setChecked (true);
+    buttonGroupViewType->blockSignals (false);
+
+    comboBoxColor->blockSignals (true);
     comboBoxColor->setCurrentIndex (property);
+    comboBoxColor->blockSignals (false);
+
+    comboBoxStatisticsType->blockSignals (true);
     comboBoxStatisticsType->setCurrentIndex (vs.GetStatisticsType ());
+    comboBoxStatisticsType->blockSignals (false);
+
     comboBoxAxesOrder->setCurrentIndex (vs.GetAxesOrder ());
     labelFacesStatisticsColor->setText (BodyProperty::ToString (property));
     labelCenterPathColor->setText (BodyProperty::ToString (property));
@@ -165,9 +174,9 @@ void MainWindow::ViewToUI ()
     spinBoxStatisticsTimeWindow->setValue (
 	vs.GetDisplayFaceStatistics ().GetTimeWindow ());    
     if (viewNumber == m_histogramViewNumber)
-	buttonGroupFacesHistogram->button (m_histogramType)->setChecked (true);
+	buttonGroupHistogram->button (m_histogramType)->setChecked (true);
     else
-	buttonGroupFacesHistogram->button (
+	buttonGroupHistogram->button (
 	    HistogramType::NONE)->setChecked (true);
     checkBoxForceNetwork->setChecked (vs.IsForceNetworkShown ());
     checkBoxForcePressure->setChecked (vs.IsForcePressureShown ());
@@ -208,11 +217,11 @@ void MainWindow::connectColorBarHistogram (bool connected)
 
 void MainWindow::setupButtonGroups ()
 {
-    buttonGroupFacesHistogram->setId (
+    buttonGroupHistogram->setId (
 	radioButtonHistogramNone, HistogramType::NONE);
-    buttonGroupFacesHistogram->setId (
+    buttonGroupHistogram->setId (
 	radioButtonHistogramUnicolor, HistogramType::UNICOLOR);
-    buttonGroupFacesHistogram->setId (
+    buttonGroupHistogram->setId (
 	radioButtonHistogramColorCoded, HistogramType::COLOR_CODED);
         
     buttonGroupViewType->setId (radioButtonEdgesNormal, ViewType::EDGES);
@@ -732,7 +741,7 @@ void MainWindow::ToggledFacesNormal (bool checked)
     {
 	stackedWidgetFaces->setCurrentWidget (pageFacesNormal);
 	if (m_histogramViewNumber == widgetGl->GetViewNumber ())
-	    SetHistogram (m_histogramType);
+	    ButtonClickedHistogram (m_histogramType);
     }
     else
 	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
@@ -743,7 +752,7 @@ void MainWindow::ToggledCenterPath (bool checked)
     if (checked)
     {
 	if (m_histogramViewNumber == widgetGl->GetViewNumber ())
-	    SetHistogram (m_histogramType);
+	    ButtonClickedHistogram (m_histogramType);
 	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
 	labelCenterPathColor->setText (
 	    BodyProperty::ToString (
@@ -846,7 +855,7 @@ void MainWindow::ToggledFacesStatistics (bool checked)
 	labelFacesStatisticsColor->setText (
 	    BodyProperty::ToString (
 		widgetGl->GetViewSettings ().GetBodyProperty ()));
-	SetHistogram (m_histogramType);
+	ButtonClickedHistogram (m_histogramType);
     }
     else
     {	
@@ -858,7 +867,7 @@ void MainWindow::ToggledFacesStatistics (bool checked)
     }
 }
 
-void MainWindow::SetHistogram (int histogramType)
+void MainWindow::ButtonClickedHistogram (int histogramType)
 {
     m_histogramType = HistogramType::Enum (histogramType);
     m_histogramViewNumber = widgetGl->GetViewNumber ();

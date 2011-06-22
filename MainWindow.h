@@ -105,7 +105,7 @@ public Q_SLOTS:
     void TimeoutTimer ();
     void ToggledCenterPath (bool checked);
     
-    void SetHistogram (int histogramType);
+    void ButtonClickedHistogram (int histogramType);
     void ToggledFacesNormal (bool checked);
     void ToggledFacesStatistics (bool checked);
     /**

@@ -243,7 +243,6 @@ public Q_SLOTS:
     void ToggledDirectionalLightEnabled (bool checked);
     void ToggledBodyCenterShown (bool checked);
     void ToggledEdgesTessellation (bool checked);
-    // viewtype
     void ButtonClickedViewType (int id);
 
     void ToggledFacesShowEdges (bool checked);
