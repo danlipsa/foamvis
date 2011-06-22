@@ -401,6 +401,7 @@ void GLWidget::initViewSettings ()
 	vs->GetDisplayFaceStatistics ().SetTimeWindow (timeSteps);
 	vs->GetDisplayForces ().SetTimeWindow (timeSteps);
     }
+    CurrentIndexChangedViewCount (ViewCount::ONE);
 }
 
 void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
@@ -458,14 +459,19 @@ GLWidget::~GLWidget()
     m_quadric = 0;
 }
 
-void GLWidget::changeViewType (bool checked, ViewType::Enum viewType)
+ViewType::Enum GLWidget::changeViewType (bool checked, 
+					 ViewType::Enum newViewType)
 {
     if (checked)
     {
-	GetViewSettings ().SetViewType (viewType);
+	ViewType::Enum oldViewType = GetViewSettings ().GetViewType ();
+	GetViewSettings ().SetViewType (newViewType);
 	compile (GetViewNumber ());
 	update ();
+	return oldViewType;
     }
+    else
+	return ViewType::COUNT;
 }
 
 QSize GLWidget::minimumSizeHint()
@@ -2722,15 +2728,21 @@ void GLWidget::ToggledIsContextHidden (bool checked)
     update ();
 }
 
-
-void GLWidget::ToggledEdgesNormal (bool checked)
+void GLWidget::ButtonClickedViewType (int id)
 {
-    changeViewType (checked, ViewType::EDGES);
-}
-
-void GLWidget::ToggledEdgesTorus (bool checked)
-{
-    changeViewType (checked, ViewType::EDGES_TORUS);
+    ViewType::Enum newViewType = ViewType::Enum(id);
+    ViewType::Enum oldViewType = GetViewSettings ().GetViewType ();
+    if (oldViewType == newViewType)
+	return;
+    if (newViewType == ViewType::FACES_STATISTICS)
+    {
+	ViewNumber::Enum vn = GetViewNumber ();
+	GetViewSettings ().GetDisplayFaceStatistics ().InitStep (vn);
+	GetViewSettings ().GetDisplayForces ().InitStep (vn);
+    }
+    if (oldViewType == ViewType::FACES_STATISTICS)
+	GetViewSettings ().GetDisplayFaceStatistics ().Release ();
+    changeViewType (true, newViewType);
 }
 
 void GLWidget::ToggledBodyCenterShown (bool checked)
@@ -2739,22 +2751,11 @@ void GLWidget::ToggledBodyCenterShown (bool checked)
     update ();
 }
 
-void GLWidget::ToggledFacesNormal (bool checked)
-{
-    changeViewType (checked, ViewType::FACES);
-}
-
 void GLWidget::ToggledFacesShowEdges (bool checked)
 {
     m_facesShowEdges = checked;
     update ();
 }
-
-void GLWidget::ToggledFaceEdgesTorus (bool checked)
-{
-    changeViewType (checked, ViewType::FACES_TORUS);
-}
-
 
 void GLWidget::ToggledEdgesTessellation (bool checked)
 {
@@ -2811,14 +2812,6 @@ void GLWidget::ToggledT1sShiftLower (bool checked)
     update ();
 }
 
-
-
-void GLWidget::ToggledCenterPath (bool checked)
-{
-    changeViewType (checked, ViewType::CENTER_PATHS);
-}
-
-
 void GLWidget::CurrentIndexChangedSelectedLight (int selectedLight)
 {
     ViewSettings& vs = GetViewSettings ();
@@ -2850,20 +2843,6 @@ void GLWidget::CurrentIndexChangedViewLayout (int index)
 void GLWidget::CurrentIndexChangedInteractionMode (int index)
 {
     m_interactionMode = InteractionMode::Enum(index);
-}
-
-void GLWidget::ToggledFacesStatistics (bool checked)
-{
-    makeCurrent ();
-    if (checked)
-    {
-	ViewNumber::Enum vn = GetViewNumber ();
-	GetViewSettings ().GetDisplayFaceStatistics ().InitStep (vn);
-	GetViewSettings ().GetDisplayForces ().InitStep (vn);
-    }
-    else
-	GetViewSettings ().GetDisplayFaceStatistics ().Release ();
-    changeViewType (checked, ViewType::FACES_STATISTICS);
 }
 
 void GLWidget::CurrentIndexChangedStatisticsType (int index)

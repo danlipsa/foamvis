@@ -217,9 +217,9 @@ void MainWindow::setupButtonGroups ()
         
     buttonGroupViewType->setId (radioButtonEdgesNormal, ViewType::EDGES);
     buttonGroupViewType->setId (radioButtonEdgesTorus, ViewType::EDGES_TORUS);
-    buttonGroupViewType->setId (radioButtonFacesNormal, ViewType::FACES);
     buttonGroupViewType->setId (radioButtonFaceEdgesTorus, 
 				ViewType::FACES_TORUS);
+    buttonGroupViewType->setId (radioButtonFacesNormal, ViewType::FACES);
     buttonGroupViewType->setId (radioButtonFacesStatistics, 
 				ViewType::FACES_STATISTICS);
     buttonGroupViewType->setId (radioButtonCenterPath, ViewType::CENTER_PATHS);

@@ -233,7 +233,6 @@ public Q_SLOTS:
      * Shows center paths
      * param checked true for showing the center paths false otherwise
      */
-    void ToggledCenterPath (bool checked);
     void ToggledCenterPathBodyShown (bool checked);
     void ToggledCenterPathLineUsed (bool checked);
     void ToggledCenterPathTubeUsed (bool checked);
@@ -242,23 +241,12 @@ public Q_SLOTS:
     void ToggledForcePressureShown (bool checked);
     void ToggledForceResultShown (bool checked);
     void ToggledDirectionalLightEnabled (bool checked);
-    /**
-     * Shows edges
-     * @param checked true for showing edges false otherwise
-     */
-    void ToggledEdgesNormal (bool checked);
-    void ToggledEdgesTorus (bool checked);
     void ToggledBodyCenterShown (bool checked);
     void ToggledEdgesTessellation (bool checked);
-    /**
-     * Shows faces
-     * @param checked true for showing faces false otherwise
-     */
-    void ToggledFacesNormal (bool checked);
-    void ToggledFacesStatistics (bool checked);
-    void ToggledFaceEdgesTorus (bool checked);
-    void ToggledFacesShowEdges (bool checked);
+    // viewtype
+    void ButtonClickedViewType (int id);
 
+    void ToggledFacesShowEdges (bool checked);
     void ToggledLightNumberShown (bool checked);
     void ToggledLightEnabled (bool checked);
     void ToggledIsContextHidden (bool checked);
@@ -415,7 +403,7 @@ private:
     void displayViewTimeStep (const G3D::Rect2D& viewRect);
     void displayViewGrid () const;
 
-    void changeViewType (bool checked, ViewType::Enum view);
+    ViewType::Enum changeViewType (bool checked, ViewType::Enum newViewType);
     /**
      * Setup the viewing volume first centered around origin and then 
      * translated toward negative Z with m_cameraDistance.
