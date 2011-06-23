@@ -12,7 +12,6 @@
 
 class Body;
 class BodyAlongTime;
-class BodySelector;
 class BodiesAlongTime;
 class ColorBarModel;
 class Foam;
@@ -24,10 +23,10 @@ class OrientedFace;
 class OrientedEdge;
 class OOBox;
 class SelectBodiesById;
+class ViewSettings;
 class PropertyValueBodySelector;
 class IdBodySelector;
 class AllBodySelector;
-class ViewSettings;
 
 /**
  * Widget for displaying foam bubbles using OpenGL
@@ -92,13 +91,6 @@ public:
     {
 	return m_forceLength;
     }
-    void SetBodySelector (
-	boost::shared_ptr<PropertyValueBodySelector> selector);
-    void SetBodySelector (boost::shared_ptr<IdBodySelector> bodySelector);
-    void SetBodySelector (boost::shared_ptr<AllBodySelector> selector, 
-			  BodySelectorType::Enum type);
-    void UnionBodySelector (const vector<size_t>& bodyIds);
-    void DifferenceBodySelector (const vector<size_t>& bodyIds);
 
     const BodiesAlongTime& GetBodiesAlongTime () const;
     const BodyAlongTime& GetBodyAlongTime (size_t bodyId) const;
@@ -211,11 +203,6 @@ public:
     {
 	m_labelStatusBar = labelStatusBar;
     }
-    const BodySelector& GetBodySelector () const
-    {
-	return *m_bodySelector;
-    }
-
 
 Q_SIGNALS:
     void PaintedGL ();
@@ -390,7 +377,8 @@ private:
     /**
      * Displays the center of the bodies
      */
-    void displayBodyCenters (bool useZPos = false) const;
+    void displayBodyCenters (ViewNumber::Enum viewNumber, 
+			     bool useZPos = false) const;
     void displayViewDecorations (ViewNumber::Enum view);
     void displayViewGrid ();
     void displayTextureColorBar (ViewNumber::Enum viewNumber, 
@@ -427,7 +415,7 @@ private:
      * @return the display list
      */
     template<typename displayEdge>
-    void displayEdges () const;
+    void displayEdges (ViewNumber::Enum viewNumber) const;
     void displayView (ViewNumber::Enum view);
     void displayViews ();
     void displayContextBodies (ViewNumber::Enum view) const;
@@ -468,6 +456,7 @@ private:
     void displayCenterPaths (ViewNumber::Enum view) const;
     void compileCenterPaths (ViewNumber::Enum view) const;
     void compile (ViewNumber::Enum view) const;
+    void labelCompileUpdate ();
 
     void displayBoundingBox (ViewNumber::Enum viewNumber) const;
     void displayFocusBox (ViewNumber::Enum viewNumber) const;
@@ -492,7 +481,8 @@ private:
 	const vector< boost::shared_ptr<Body> >& bodies, 
 	ViewNumber::Enum viewNumber, GLfloat lineWidth) const;
     void displayFacesContour (
-	const vector< boost::shared_ptr<Body> >& bodies) const;
+	const vector< boost::shared_ptr<Body> >& bodies, 
+	ViewNumber::Enum viewNumber) const;
     void displayFacesContour (
 	const vector< boost::shared_ptr<Face> >& faces) const;
     /**
@@ -618,7 +608,6 @@ private:
     bool m_bodiesBoundingBoxesShown;
     bool m_axesShown;
     bool m_standaloneElementsShown;
-    boost::shared_ptr<BodySelector> m_bodySelector;
     boost::array<ViewTypeDisplay, ViewType::COUNT> m_viewTypeDisplay;
 
     boost::shared_ptr<QAction> m_actionSelectAll;

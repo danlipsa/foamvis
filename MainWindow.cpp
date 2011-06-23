@@ -886,10 +886,10 @@ void MainWindow::SelectionChangedHistogram ()
     sliderTimeSteps->SetRestrictedTo (timeStepSelection);
     
     if (widgetHistogram->AreAllItemsSelected ())
-	widgetGl->SetBodySelector (
+	widgetGl->GetViewSettings ().SetBodySelector (
 	    AllBodySelector::Get (), BodySelectorType::PROPERTY_VALUE);
     else
-	widgetGl->SetBodySelector (
+	widgetGl->GetViewSettings ().SetBodySelector (
 	    boost::shared_ptr<PropertyValueBodySelector> (
 		new PropertyValueBodySelector (
 		    widgetGl->GetBodyProperty (), valueIntervals)));

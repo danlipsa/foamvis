@@ -9,10 +9,16 @@
 #define __VIEW_SETTINGS_H__
 
 #include "Enums.h"
-class GLWidget;
+class AllBodySelector;
+class BodySelector;
+class ColorBarModel;
 class DisplayFaceStatistics;
 class DisplayForces;
-class ColorBarModel;
+class GLWidget;
+class IdBodySelector;
+class PropertyValueBodySelector;
+
+
 
 class ViewSettings
 {
@@ -311,6 +317,19 @@ public:
 	m_contextStationaryType = type;
     }
     
+    const BodySelector& GetBodySelector () const
+    {
+	return *m_bodySelector;
+    }
+    void SetBodySelector (
+	boost::shared_ptr<PropertyValueBodySelector> selector);
+    void SetBodySelector (boost::shared_ptr<IdBodySelector> bodySelector);
+    void SetBodySelector (boost::shared_ptr<AllBodySelector> selector, 
+			  BodySelectorType::Enum type);
+    void UnionBodySelector (const vector<size_t>& bodyIds);
+    void DifferenceBodySelector (const Foam& foam, 
+				 const vector<size_t>& bodyIds);
+
 
 private:
     void initTexture ();
@@ -363,6 +382,7 @@ private:
     set<size_t> m_contextBody;
     // Context stationary
     ContextStationaryType m_contextStationaryType;
+    boost::shared_ptr<BodySelector> m_bodySelector;
 };
 
 

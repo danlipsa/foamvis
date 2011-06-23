@@ -88,20 +88,6 @@ G3D::AABox AdjustZ (const G3D::AABox& b, double scaleRatio)
 }
 
 
-boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
-    const Foam& foam, const vector<size_t> bodyIds)
-{
-    Foam::Bodies bodies = foam.GetBodies ();
-    vector<size_t> allBodyIds (bodies.size ());
-    transform (bodies.begin (), bodies.end (), allBodyIds.begin (),
-	       boost::bind (&Body::GetId, _1));
-    boost::shared_ptr<IdBodySelector> idBodySelector =
-	boost::make_shared<IdBodySelector> (allBodyIds);
-    idBodySelector->SetDifference (bodyIds);
-    return idBodySelector;
-}
-
-
 template <typename T>
 void display (const char* name, const T& what)
 {
@@ -150,7 +136,6 @@ GLWidget::GLWidget(QWidget *parent)
       m_bodiesBoundingBoxesShown (false),
       m_axesShown (false),
       m_standaloneElementsShown (true),
-      m_bodySelector (AllBodySelector::Get ()),
       m_timeDisplacement (0.0),
       m_playMovie (false),
       m_selectBodiesById (new SelectBodiesById (this)),
@@ -898,23 +883,27 @@ void GLWidget::SelectBodiesByIdList ()
 {
     if (m_selectBodiesById->exec () == QDialog::Accepted)
     {
-	SetBodySelector (
+	GetViewSettings ().SetBodySelector (
 	    boost::shared_ptr<IdBodySelector> (
 		new IdBodySelector (m_selectBodiesById->GetIds ())));
+	labelCompileUpdate ();
     }
 }
 
 void GLWidget::SelectAll ()
 {
-    SetBodySelector (AllBodySelector::Get (), BodySelectorType::ID);
+    GetViewSettings ().
+	SetBodySelector (AllBodySelector::Get (), BodySelectorType::ID);
+    labelCompileUpdate ();
     m_selectBodiesById->ClearEditIds ();
     update ();
 }
 
 void GLWidget::DeselectAll ()
 {
-    SetBodySelector (
+    GetViewSettings ().SetBodySelector (
 	boost::shared_ptr<IdBodySelector> (new IdBodySelector ()));
+    labelCompileUpdate ();
 }
 
 void GLWidget::InfoFoam ()
@@ -937,7 +926,8 @@ void GLWidget::InfoFocus ()
 {
     Info msgBox (this, "Info");
     ostringstream ostr;
-    switch (m_bodySelector->GetType ())
+    const BodySelector& bodySelector = GetViewSettings ().GetBodySelector ();
+    switch (bodySelector.GetType ())
     {
     case BodySelectorType::ALL:
     {
@@ -957,8 +947,7 @@ void GLWidget::InfoFocus ()
     case BodySelectorType::ID:
     {
 	const vector<size_t>& ids = 
-	    (boost::static_pointer_cast<IdBodySelector> (
-		m_bodySelector))->GetIds ();
+	    (static_cast<const IdBodySelector&> (bodySelector)).GetIds ();
 	if (ids.size () == 1)
 	{
 	    Foam::Bodies::const_iterator it = GetCurrentFoam ().FindBody (
@@ -1354,7 +1343,8 @@ string GLWidget::getContextStationaryLabel ()
 
 string GLWidget::getBodySelectorLabel ()
 {
-    BodySelectorType::Enum type = m_bodySelector->GetType ();
+    const BodySelector& bodySelector = GetViewSettings ().GetBodySelector ();
+    BodySelectorType::Enum type = bodySelector.GetType ();
     switch (type)
     {
     case BodySelectorType::PROPERTY_VALUE:
@@ -1477,14 +1467,16 @@ void GLWidget::select (const QPoint& position)
 {
     vector<size_t> bodyIds;
     brushedBodies (position, &bodyIds);
-    UnionBodySelector (bodyIds);
+    GetViewSettings ().UnionBodySelector (bodyIds);
+    labelCompileUpdate ();
 }
 
 void GLWidget::deselect (const QPoint& position)
 {
     vector<size_t> bodyIds;
     brushedBodies (position, &bodyIds);
-    DifferenceBodySelector (bodyIds);
+    GetViewSettings ().DifferenceBodySelector (GetCurrentFoam (), bodyIds);
+    labelCompileUpdate ();
 }
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
@@ -1616,8 +1608,10 @@ void GLWidget::displayBoundingBox (ViewNumber::Enum viewNumber) const
     if (m_bodiesBoundingBoxesShown)
     {
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
+	const BodySelector& bodySelector = 
+	    GetViewSettings (viewNumber).GetBodySelector ();
 	BOOST_FOREACH (boost::shared_ptr<Body> body, bodies)
-	    if ((*m_bodySelector) (body))
+	    if (bodySelector (body))
 		DisplayBox (body, Qt::black);
     }
     glPopAttrib ();
@@ -1654,19 +1648,20 @@ void GLWidget::displayAxes () const
 
 
 template<typename displayEdge>
-void GLWidget::displayEdges () const
+void GLWidget::displayEdges (ViewNumber::Enum viewNumber) const
 {
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
-
+    const BodySelector& bodySelector = 
+	GetViewSettings (viewNumber).GetBodySelector ();
     const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
 	      DisplayFaceHighlightColor<HighlightNumber::H0,
-	      DisplayFaceEdges<displayEdge> > > (*this, *m_bodySelector));
+	      DisplayFaceEdges<displayEdge> > > (*this, bodySelector));
     displayStandaloneEdges<displayEdge> ();
 
     glPopAttrib ();
-    displayBodyCenters ();
+    displayBodyCenters (viewNumber);
 }
 
 template<typename displayEdge>
@@ -1691,8 +1686,8 @@ void GLWidget::displayEdgesNormal (ViewNumber::Enum viewNumber) const
     if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
     m_torusOriginalDomainClipped ?
-	displayEdges <DisplayEdgeTorusClipped> () :
-	displayEdges <DisplayEdgePropertyColor<> >();
+	displayEdges <DisplayEdgeTorusClipped> (viewNumber) :
+	displayEdges <DisplayEdgePropertyColor<> >(viewNumber);
     glPopAttrib ();
 }
 
@@ -1744,15 +1739,14 @@ QColor GLWidget::GetHighlightColor (
     }
 }
 
-void GLWidget::displayEdgesTorus (ViewNumber::Enum view) const
+void GLWidget::displayEdgesTorus (ViewNumber::Enum viewNumber) const
 {
-    (void)view;
     if (m_edgeRadiusRatio > 0)
 	displayEdgesTorusTubes ();
     else
     {
 	displayEdgesTorusLines ();
-	displayBodyCenters ();
+	displayBodyCenters (viewNumber);
     }
 }
 
@@ -1764,7 +1758,7 @@ void GLWidget::displayFacesTorus (ViewNumber::Enum view) const
     else
     {
 	displayFacesTorusLines ();
-	displayBodyCenters ();
+	displayBodyCenters (view);
     }
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
 }
@@ -1794,10 +1788,13 @@ void GLWidget::displayEdgesTorusLines () const
 }
 
 
-void GLWidget::displayBodyCenters (bool useZPos) const
+void GLWidget::displayBodyCenters (
+    ViewNumber::Enum viewNumber, bool useZPos) const
 {
     if (m_bodyCenterShown)
     {
+	const BodySelector& bodySelector = GetViewSettings (viewNumber).
+	    GetBodySelector ();
 	double zPos = (GetViewSettings ().GetViewType () == 
 		       ViewType::CENTER_PATHS) ?
 	    GetTimeStep () * GetTimeDisplacement () : 0;
@@ -1807,7 +1804,7 @@ void GLWidget::displayBodyCenters (bool useZPos) const
 	glColor (Qt::red);
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	for_each (bodies.begin (), bodies.end (),
-		  DisplayBodyCenter (*this, *m_bodySelector, useZPos, zPos));
+		  DisplayBodyCenter (*this, bodySelector, useZPos, zPos));
 	/*
 	glPointSize (8.0);
 	glBegin (GL_POINTS);
@@ -1826,7 +1823,7 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
     const Foam& foam = GetCurrentFoam ();
     const Foam::Bodies& bodies = foam.GetBodies ();
     if (m_facesShowEdges)
-	displayFacesContour (bodies);
+	displayFacesContour (bodies, viewNumber);
     displayFacesInterior (bodies, viewNumber);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
     displayAverageAroundBody (viewNumber);
@@ -1834,7 +1831,7 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
     displayContextBodies (viewNumber);
     displayContextStationaryFoam (viewNumber);
     displayStandaloneFaces ();    
-    displayBodyCenters ();
+    displayBodyCenters (viewNumber);
     vs.GetDisplayForces ().Display (viewNumber);
 }
 
@@ -1895,12 +1892,15 @@ void GLWidget::displayFacesContour (const Foam::Faces& faces) const
     glPopAttrib ();
 }
 
-void GLWidget::displayFacesContour (const Foam::Bodies& bodies) const
+void GLWidget::displayFacesContour (
+    const Foam::Bodies& bodies, ViewNumber::Enum viewNumber) const
 {
+    const BodySelector& bodySelector = 
+	GetViewSettings (viewNumber).GetBodySelector ();
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody< DisplayFaceLineStripColor<0xff000000> > (
-		  *this, *m_bodySelector));
+		  *this, bodySelector));
     glPopAttrib ();
 }
 
@@ -1910,13 +1910,15 @@ void GLWidget::displayFacesContour (
     const Foam::Bodies& bodies, ViewNumber::Enum viewNumber, 
     GLfloat lineWidth) const
 {
+    const BodySelector& bodySelector = 
+	GetViewSettings (viewNumber).GetBodySelector ();
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_LINE_BIT);
     glLineWidth (lineWidth);
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody< DisplayFaceHighlightColor<highlightColorIndex, 
 	      DisplayFaceLineStrip>,
 	      SetterValueTextureCoordinate> (
-		  *this, *m_bodySelector, SetterValueTextureCoordinate (
+		  *this, bodySelector, SetterValueTextureCoordinate (
 		      *this, viewNumber)));
     glPopAttrib ();
 }
@@ -1927,6 +1929,8 @@ void GLWidget::displayFacesContour (
 void GLWidget::displayFacesInterior (
     const Foam::Bodies& bodies, ViewNumber::Enum view) const
 {
+    const BodySelector& bodySelector = 
+	GetViewSettings (view).GetBodySelector ();
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT | 
 		  GL_TEXTURE_BIT);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
@@ -1944,7 +1948,7 @@ void GLWidget::displayFacesInterior (
 		   GetViewSettings (view).GetColorBarTexture ());
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<DisplayFaceBodyPropertyColor<> > (
-		  *this, *m_bodySelector, 
+		  *this, bodySelector, 
 		  DisplayElement::TRANSPARENT_CONTEXT, view));
     glPopAttrib ();
 }
@@ -1993,6 +1997,7 @@ void GLWidget::displayFacesTorusLines () const
 void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum view) const
 {
     const ViewSettings& vs = GetViewSettings (view);
+    const BodySelector& bodySelector = vs.GetBodySelector ();
     glLineWidth (1.0);
     displayCenterPaths (view);
     
@@ -2008,9 +2013,9 @@ void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum view) const
 	    DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H0,
 	    DisplayFaceEdges<DisplayEdgePropertyColor<
 	    DisplayElement::DONT_DISPLAY_TESSELLATION> > > > (
-		*this, *m_bodySelector, DisplayElement::INVISIBLE_CONTEXT,
+		*this, bodySelector, DisplayElement::INVISIBLE_CONTEXT,
 		view, IsTimeDisplacementUsed (), zPos));
-	displayBodyCenters (IsTimeDisplacementUsed ());
+	displayBodyCenters (view, IsTimeDisplacementUsed ());
     }
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (true, 0);
     if (GetTimeDisplacement () != 0)
@@ -2028,6 +2033,13 @@ void GLWidget::displayCenterPaths (ViewNumber::Enum view) const
     glCallList (GetViewSettings (view).GetListCenterPaths ());
 }
 
+void GLWidget::labelCompileUpdate ()
+{
+    setLabel ();
+    compile (GetViewNumber ());
+    update ();
+}
+
 void GLWidget::compile (ViewNumber::Enum view) const
 {
     switch (GetViewSettings (view).GetViewType ())
@@ -2042,11 +2054,13 @@ void GLWidget::compile (ViewNumber::Enum view) const
 
 void GLWidget::compileCenterPaths (ViewNumber::Enum view) const
 {
-    glNewList (GetViewSettings (view).GetListCenterPaths (), GL_COMPILE);
+    const ViewSettings& vs = GetViewSettings (view);
+    const BodySelector& bodySelector = vs.GetBodySelector ();
+    glNewList (vs.GetListCenterPaths (), GL_COMPILE);
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT | 
 		  GL_POLYGON_BIT | GL_LINE_BIT);
     glEnable(GL_TEXTURE_1D);
-    glBindTexture (GL_TEXTURE_1D, GetViewSettings (view).GetColorBarTexture ());
+    glBindTexture (GL_TEXTURE_1D, vs.GetColorBarTexture ());
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glEnable (GL_CULL_FACE);
 
@@ -2061,21 +2075,21 @@ void GLWidget::compileCenterPaths (ViewNumber::Enum view) const
 		bats.begin (), bats.end (),
 		DisplayCenterPath<
 		SetterValueTextureCoordinate, DisplaySegmentTube> (
-		    *this, m_viewNumber, *m_bodySelector,
+		    *this, m_viewNumber, bodySelector,
 		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
 	else
 	    for_each (
 		bats.begin (), bats.end (),
 		DisplayCenterPath<
 		SetterValueTextureCoordinate, DisplaySegmentQuadric> (
-		    *this, m_viewNumber, *m_bodySelector,
+		    *this, m_viewNumber, bodySelector,
 		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     }
     else
 	for_each (bats.begin (), bats.end (),
 		  DisplayCenterPath<SetterValueTextureCoordinate, 
 		  DisplaySegment> (
-		      *this, m_viewNumber, *m_bodySelector,
+		      *this, m_viewNumber, bodySelector,
 		      IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     glPopAttrib ();
     glEndList ();
@@ -2407,32 +2421,6 @@ QColor GLWidget::GetCenterPathContextColor () const
     return returnColor;
 }
 
-void GLWidget::SetBodySelector (
-    boost::shared_ptr<AllBodySelector> selector, BodySelectorType::Enum type)
-{
-    switch (m_bodySelector->GetType ())
-    {
-    case BodySelectorType::ALL:
-	break;
-    case BodySelectorType::ID:
-    case BodySelectorType::PROPERTY_VALUE:
-	if (type == m_bodySelector->GetType ())
-	    m_bodySelector = selector;
-    	break;
-    case BodySelectorType::COMPOSITE:
-	if (type == BodySelectorType::ID)
-	    m_bodySelector = boost::static_pointer_cast<CompositeBodySelector> (
-		m_bodySelector)->GetPropertyValueSelector ();
-	else
-	    m_bodySelector = boost::static_pointer_cast<CompositeBodySelector> (
-		m_bodySelector)->GetIdSelector ();
-	break;
-    }
-    setLabel ();
-    compile (GetViewNumber ());
-    update ();
-}
-
 bool GLWidget::IsTimeDisplacementUsed () const
 {
     return GetTimeDisplacement () > 0;
@@ -2446,134 +2434,6 @@ BodyProperty::Enum GLWidget::GetBodyProperty (ViewNumber::Enum viewNumber) const
 void GLWidget::SetPlayMovie (bool playMovie)
 {
     m_playMovie = playMovie;
-}
-
-void GLWidget::UnionBodySelector (const vector<size_t>& bodyIds)
-{
-    switch (m_bodySelector->GetType ())
-    {
-    case BodySelectorType::ALL:
-	m_bodySelector = boost::make_shared<IdBodySelector> (bodyIds);
-	break;
-
-    case BodySelectorType::ID:
-    {
-	IdBodySelector& selector =
-	    *boost::static_pointer_cast<IdBodySelector> (m_bodySelector);
-	selector.SetUnion (bodyIds);
-	break;
-    }
-
-    case BodySelectorType::PROPERTY_VALUE:
-    {
-	boost::shared_ptr<IdBodySelector> idSelector =
-	    boost::make_shared<IdBodySelector> (bodyIds);
-	m_bodySelector = boost::make_shared<CompositeBodySelector> (
-	    idSelector,
-	    boost::static_pointer_cast<PropertyValueBodySelector> (
-		m_bodySelector));
-	break;
-    }
-
-    case BodySelectorType::COMPOSITE:
-	boost::static_pointer_cast<CompositeBodySelector> (
-	    m_bodySelector)->GetIdSelector ()->SetUnion (bodyIds);
-	break;
-    }
-    setLabel ();
-    compile (GetViewNumber ());
-    update ();
-}
-
-void GLWidget::DifferenceBodySelector (const vector<size_t>& bodyIds)
-{
-    switch (m_bodySelector->GetType ())
-    {
-    case BodySelectorType::ALL:
-    {
-	m_bodySelector = idBodySelectorComplement (GetCurrentFoam (), bodyIds);
-	break;
-    }
-    case BodySelectorType::ID:
-	boost::static_pointer_cast<IdBodySelector> (
-	    m_bodySelector)->SetDifference (bodyIds);
-	break;
-
-    case BodySelectorType::PROPERTY_VALUE:
-    {
-	boost::shared_ptr<IdBodySelector> idSelector =
-	    idBodySelectorComplement (GetCurrentFoam (), bodyIds);
-	m_bodySelector = boost::make_shared<CompositeBodySelector> (
-	    idSelector,
-	    boost::static_pointer_cast<PropertyValueBodySelector> (
-		m_bodySelector));
-	break;
-    }
-
-    case BodySelectorType::COMPOSITE:
-	boost::static_pointer_cast<CompositeBodySelector> (
-	    m_bodySelector)->GetIdSelector ()->SetDifference (bodyIds);
-	break;
-    }
-    setLabel ();
-    compile (GetViewNumber ());
-    update ();
-}
-
-void GLWidget::SetBodySelector (boost::shared_ptr<IdBodySelector> selector)
-{
-    switch (m_bodySelector->GetType ())
-    {
-    case BodySelectorType::ALL:
-	m_bodySelector = selector;
-	break;
-    case BodySelectorType::ID:
-	m_bodySelector = selector;
-	break;
-    case BodySelectorType::PROPERTY_VALUE:
-	m_bodySelector = boost::shared_ptr<BodySelector> (
-	    new CompositeBodySelector (
-		selector,
-		boost::static_pointer_cast<PropertyValueBodySelector> (
-		    m_bodySelector)));
-	break;
-    case BodySelectorType::COMPOSITE:
-	boost::static_pointer_cast<CompositeBodySelector> (
-	    m_bodySelector)->SetSelector (selector);
-	break;
-    }
-    setLabel ();
-    compile (GetViewNumber ());
-    update ();
-}
-
-
-
-void GLWidget::SetBodySelector (
-    boost::shared_ptr<PropertyValueBodySelector> selector)
-{
-    switch (m_bodySelector->GetType ())
-    {
-    case BodySelectorType::ALL:
-	m_bodySelector = selector;
-	break;
-    case BodySelectorType::ID:
-	m_bodySelector = boost::shared_ptr<BodySelector> (
-	    new CompositeBodySelector (
-		boost::static_pointer_cast<IdBodySelector> (m_bodySelector),
-		selector));
-	break;
-    case BodySelectorType::PROPERTY_VALUE:
-	m_bodySelector = selector;
-	break;
-    case BodySelectorType::COMPOSITE:
-	boost::static_pointer_cast<CompositeBodySelector> (
-	    m_bodySelector)->SetSelector (selector);
-	break;
-    }
-    setLabel ();
-    compile (GetViewNumber ());
-    update ();
 }
 
 void GLWidget::valueChanged (

@@ -509,7 +509,9 @@ void DisplayFaceStatistics::writeFacesValues (
 	      DisplayBody<
 	      DisplayFaceBodyPropertyColor<
 	      SetterValueVertexAttribute>, SetterValueVertexAttribute> (
-		  GetGLWidget (), GetGLWidget ().GetBodySelector (), 
+		  GetGLWidget (), 
+		  GetGLWidget ().GetViewSettings (viewNumber).
+		  GetBodySelector (), 
 		  SetterValueVertexAttribute (
 		      GetGLWidget (), viewNumber, &m_storeShaderProgram,
 		      m_storeShaderProgram.GetVValueIndex ()),

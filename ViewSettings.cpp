@@ -1,15 +1,18 @@
 /**
- * @file   GLWidget.cpp
+ * @file   ViewSettings.cpp
  * @author Dan R. Lipsa
  * @date 10 March 2011
  *
  * Definitions for the view settings
  */
 
+#include "Body.h"
+#include "BodySelector.h"
 #include "ColorBarModel.h"
 #include "DebugStream.h"
 #include "DisplayFaceStatistics.h"
 #include "DisplayForces.h"
+#include "Foam.h"
 #include "Utils.h"
 #include "ViewSettings.h"
 
@@ -20,6 +23,19 @@ void initialize (boost::array<GLfloat, 4>& colors,
 		 const boost::array<GLfloat, 4>& values)
 {
     copy (values.begin (), values.end (), colors.begin ());
+}
+
+boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
+    const Foam& foam, const vector<size_t> bodyIds)
+{
+    Foam::Bodies bodies = foam.GetBodies ();
+    vector<size_t> allBodyIds (bodies.size ());
+    transform (bodies.begin (), bodies.end (), allBodyIds.begin (),
+	       boost::bind (&Body::GetId, _1));
+    boost::shared_ptr<IdBodySelector> idBodySelector =
+	boost::make_shared<IdBodySelector> (allBodyIds);
+    idBodySelector->SetDifference (bodyIds);
+    return idBodySelector;
 }
 
 
@@ -48,7 +64,8 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_forcePressureShown (true),
     m_forceResultShown (true),
     m_contextScaleRatio (1),
-    m_contextStationaryType (CONTEXT_AVERAGE_AROUND_NONE)
+    m_contextStationaryType (CONTEXT_AVERAGE_AROUND_NONE),
+    m_bodySelector (AllBodySelector::Get ())
 {
     initTexture ();
     initList ();
@@ -214,4 +231,144 @@ void ViewSettings::SetColorBarModel (
     glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
     glTexImage1D (GL_TEXTURE_1D, 0, GL_RGB, image.width (),
 		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
+}
+
+void ViewSettings::SetBodySelector (
+    boost::shared_ptr<AllBodySelector> selector, BodySelectorType::Enum type)
+{
+    switch (m_bodySelector->GetType ())
+    {
+    case BodySelectorType::ALL:
+	break;
+    case BodySelectorType::ID:
+    case BodySelectorType::PROPERTY_VALUE:
+	if (type == m_bodySelector->GetType ())
+	    m_bodySelector = selector;
+    	break;
+    case BodySelectorType::COMPOSITE:
+	if (type == BodySelectorType::ID)
+	    m_bodySelector = boost::static_pointer_cast<CompositeBodySelector> (
+		m_bodySelector)->GetPropertyValueSelector ();
+	else
+	    m_bodySelector = boost::static_pointer_cast<CompositeBodySelector> (
+		m_bodySelector)->GetIdSelector ();
+	break;
+    }
+}
+
+void ViewSettings::SetBodySelector (boost::shared_ptr<IdBodySelector> selector)
+{
+    switch (m_bodySelector->GetType ())
+    {
+    case BodySelectorType::ALL:
+	m_bodySelector = selector;
+	break;
+    case BodySelectorType::ID:
+	m_bodySelector = selector;
+	break;
+    case BodySelectorType::PROPERTY_VALUE:
+	m_bodySelector = boost::shared_ptr<BodySelector> (
+	    new CompositeBodySelector (
+		selector,
+		boost::static_pointer_cast<PropertyValueBodySelector> (
+		    m_bodySelector)));
+	break;
+    case BodySelectorType::COMPOSITE:
+	boost::static_pointer_cast<CompositeBodySelector> (
+	    m_bodySelector)->SetSelector (selector);
+	break;
+    }
+}
+
+
+
+void ViewSettings::SetBodySelector (
+    boost::shared_ptr<PropertyValueBodySelector> selector)
+{
+    switch (m_bodySelector->GetType ())
+    {
+    case BodySelectorType::ALL:
+	m_bodySelector = selector;
+	break;
+    case BodySelectorType::ID:
+	m_bodySelector = boost::shared_ptr<BodySelector> (
+	    new CompositeBodySelector (
+		boost::static_pointer_cast<IdBodySelector> (m_bodySelector),
+		selector));
+	break;
+    case BodySelectorType::PROPERTY_VALUE:
+	m_bodySelector = selector;
+	break;
+    case BodySelectorType::COMPOSITE:
+	boost::static_pointer_cast<CompositeBodySelector> (
+	    m_bodySelector)->SetSelector (selector);
+	break;
+    }
+}
+
+void ViewSettings::UnionBodySelector (const vector<size_t>& bodyIds)
+{
+    switch (m_bodySelector->GetType ())
+    {
+    case BodySelectorType::ALL:
+	m_bodySelector = boost::make_shared<IdBodySelector> (bodyIds);
+	break;
+
+    case BodySelectorType::ID:
+    {
+	IdBodySelector& selector =
+	    *boost::static_pointer_cast<IdBodySelector> (m_bodySelector);
+	selector.SetUnion (bodyIds);
+	break;
+    }
+
+    case BodySelectorType::PROPERTY_VALUE:
+    {
+	boost::shared_ptr<IdBodySelector> idSelector =
+	    boost::make_shared<IdBodySelector> (bodyIds);
+	m_bodySelector = boost::make_shared<CompositeBodySelector> (
+	    idSelector,
+	    boost::static_pointer_cast<PropertyValueBodySelector> (
+		m_bodySelector));
+	break;
+    }
+
+    case BodySelectorType::COMPOSITE:
+	boost::static_pointer_cast<CompositeBodySelector> (
+	    m_bodySelector)->GetIdSelector ()->SetUnion (bodyIds);
+	break;
+    }
+}
+
+void ViewSettings::DifferenceBodySelector (
+    const Foam& foam, const vector<size_t>& bodyIds)
+{
+    switch (m_bodySelector->GetType ())
+    {
+    case BodySelectorType::ALL:
+    {
+	m_bodySelector = idBodySelectorComplement (foam, bodyIds);
+	break;
+    }
+    case BodySelectorType::ID:
+	boost::static_pointer_cast<IdBodySelector> (
+	    m_bodySelector)->SetDifference (bodyIds);
+	break;
+
+    case BodySelectorType::PROPERTY_VALUE:
+    {
+	boost::shared_ptr<IdBodySelector> idSelector =
+	    idBodySelectorComplement (foam, bodyIds);
+	m_bodySelector = boost::make_shared<CompositeBodySelector> (
+	    idSelector,
+	    boost::static_pointer_cast<PropertyValueBodySelector> (
+		m_bodySelector));
+	break;
+    }
+
+    case BodySelectorType::COMPOSITE:
+	boost::static_pointer_cast<CompositeBodySelector> (
+	    m_bodySelector)->GetIdSelector ()->SetDifference (bodyIds);
+	break;
+    }
 }
