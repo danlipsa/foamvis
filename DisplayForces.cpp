@@ -100,6 +100,12 @@ void DisplayForces::displayForces (
 	GetGLWidget ().GetForceLength () * 
 	(box.high () - box.low ()).length () / count;
     G3D::Vector3 center = force.m_body->GetCenter ();
+    if (GetGLWidget ().GetViewSettings (viewNumber).IsForceResultShown ())
+	displayForce (
+	    GetGLWidget ().GetHighlightColor (viewNumber, HighlightNumber::H2),
+	    center, G3D::Vector3 (
+		unitForceSize * 
+		(force.m_networkForce + force.m_pressureForce), 0));
     if (GetGLWidget ().GetViewSettings (viewNumber).IsForceNetworkShown ())
 	displayForce (
 	    GetGLWidget ().GetHighlightColor (viewNumber, HighlightNumber::H0),
@@ -108,12 +114,6 @@ void DisplayForces::displayForces (
 	displayForce (
 	    GetGLWidget ().GetHighlightColor (viewNumber, HighlightNumber::H1),
 	    center, G3D::Vector3 (unitForceSize * force.m_pressureForce, 0));
-    if (GetGLWidget ().GetViewSettings (viewNumber).IsForceResultShown ())
-	displayForce (
-	    GetGLWidget ().GetHighlightColor (viewNumber, HighlightNumber::H2),
-	    center, G3D::Vector3 (
-		unitForceSize * 
-		(force.m_networkForce + force.m_pressureForce), 0));
 }
 
 void DisplayForces::displayForce (QColor color,

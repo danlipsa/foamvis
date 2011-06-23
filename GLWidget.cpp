@@ -330,6 +330,12 @@ void GLWidget::createActions ()
 	     this,
 	     SLOT (CopyTransformationsFrom (int)));
 
+    initCopy (m_actionCopySelection, m_signalMapperCopySelection);
+    connect (m_signalMapperCopySelection.get (),
+	     SIGNAL (mapped (int)),
+	     this,
+	     SLOT (CopySelectionFrom (int)));
+
     initCopy (m_actionCopyColorBar, m_signalMapperCopyColorBar);
     connect (m_signalMapperCopyColorBar.get (),
 	     SIGNAL (mapped (int)),
@@ -1219,7 +1225,8 @@ void GLWidget::displayAverageAroundBody (ViewNumber::Enum viewNumber) const
 	glPushAttrib (GL_ENABLE_BIT);
 	glDisable (GL_DEPTH_TEST);
 	Foam::Bodies focusBody (1);
-	focusBody[0] = *GetCurrentFoam ().FindBody (vs.GetAverageAroundBodyId ());
+	focusBody[0] = *GetCurrentFoam ().FindBody (
+	    vs.GetAverageAroundBodyId ());
 	displayFacesContour<HighlightNumber::H0> (
 	    focusBody, viewNumber, m_highlightLineWidth);
 	glPopAttrib ();
@@ -2151,10 +2158,10 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     m_contextMenuPos = event->pos ();
     QMenu menu (this);
-    QMenu menuCopy ("Copy", this);
     G3D::Rect2D colorBarRect = getViewColorBarRect (GetViewRect ());
     if (colorBarRect.contains (QtToOpenGl (m_contextMenuPos, height ())))
     {
+	QMenu menuCopy ("Copy", this);
 	bool actions = false;
 	if (ViewCount::GetCount (m_viewCount) > 1)
 	{
@@ -2216,8 +2223,9 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	}
 	if (ViewCount::GetCount (m_viewCount) > 1)
 	{
-	    QMenu* menuCopys = menu.addMenu ("Copy");
-	    QMenu* menuTransformations = menuCopys->addMenu ("Transformations");
+	    QMenu* menuCopy = menu.addMenu ("Copy");
+	    QMenu* menuTransformations = menuCopy->addMenu ("Transformations");
+	    QMenu* menuSelection = menuCopy->addMenu ("Selection");
 	    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
 	    {
 		ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
@@ -2225,6 +2233,7 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 		    continue;
 		menuTransformations->addAction (
 		    m_actionCopyTransformations[i].get ());
+		menuSelection->addAction (m_actionCopySelection[i].get ());
 	    }
 	}
     }
@@ -2590,11 +2599,19 @@ bool GLWidget::IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const
     }
 }
 
+
+// Slots
+// ======================================================================
+
 void GLWidget::CopyTransformationsFrom (int viewNumber)
 {
     GetViewSettings ().CopyTransformations (
 	GetViewSettings (ViewNumber::Enum (viewNumber)));
     update ();
+}
+
+void GLWidget::CopySelectionFrom (int viewNumber)
+{
 }
 
 void GLWidget::CopyColorBarFrom (int viewNumber)
@@ -2604,9 +2621,6 @@ void GLWidget::CopyColorBarFrom (int viewNumber)
     Q_EMIT ColorBarModelChanged (GetViewSettings ().GetColorBarModel ());
 }
 
-
-// Slots
-// ======================================================================
 
 void GLWidget::ToggledDirectionalLightEnabled (bool checked)
 {

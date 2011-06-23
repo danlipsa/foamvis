@@ -310,7 +310,6 @@ public:
     {
 	m_contextStationaryType = type;
     }
-
     
 
 private:

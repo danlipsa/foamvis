@@ -12,8 +12,8 @@
 
 class Body;
 class BodyAlongTime;
-class BodiesAlongTime;
 class BodySelector;
+class BodiesAlongTime;
 class ColorBarModel;
 class Foam;
 class Edge;
@@ -99,11 +99,6 @@ public:
 			  BodySelectorType::Enum type);
     void UnionBodySelector (const vector<size_t>& bodyIds);
     void DifferenceBodySelector (const vector<size_t>& bodyIds);
-
-    const BodySelector& GetBodySelector () const
-    {
-	return *m_bodySelector;
-    }
 
     const BodiesAlongTime& GetBodiesAlongTime () const;
     const BodyAlongTime& GetBodyAlongTime (size_t bodyId) const;
@@ -212,6 +207,15 @@ public:
 	return GetViewRect (GetViewNumber ());
     }
 
+    void SetStatus (QLabel* labelStatusBar)
+    {
+	m_labelStatusBar = labelStatusBar;
+    }
+    const BodySelector& GetBodySelector () const
+    {
+	return *m_bodySelector;
+    }
+
 
 Q_SIGNALS:
     void PaintedGL ();
@@ -311,15 +315,8 @@ public Q_SLOTS:
     // Actions color bar
     void ColorBarEdit ();
     void ColorBarClampClear ();
-
-    /**
-     * Signals a change in data displayed
-     */
-    void SetStatus (QLabel* labelStatusBar)
-    {
-	m_labelStatusBar = labelStatusBar;
-    }
     void CopyTransformationsFrom (int viewNumber);
+    void CopySelectionFrom (int viewNumber);
     void CopyColorBarFrom (int viewNumber);
 
 public:
@@ -621,8 +618,8 @@ private:
     bool m_bodiesBoundingBoxesShown;
     bool m_axesShown;
     bool m_standaloneElementsShown;
-    boost::array<ViewTypeDisplay, ViewType::COUNT> m_viewTypeDisplay;
     boost::shared_ptr<BodySelector> m_bodySelector;
+    boost::array<ViewTypeDisplay, ViewType::COUNT> m_viewTypeDisplay;
 
     boost::shared_ptr<QAction> m_actionSelectAll;
     boost::shared_ptr<QAction> m_actionDeselectAll;
@@ -648,6 +645,9 @@ private:
     boost::array<boost::shared_ptr<QAction>, 
 		 ViewNumber::COUNT> m_actionCopyTransformations;
     boost::shared_ptr<QSignalMapper> m_signalMapperCopyTransformations;
+    boost::array<boost::shared_ptr<QAction>, 
+		 ViewNumber::COUNT> m_actionCopySelection;
+    boost::shared_ptr<QSignalMapper> m_signalMapperCopySelection;
     boost::array<boost::shared_ptr<QAction>, 
 		 ViewNumber::COUNT> m_actionCopyColorBar;
     boost::shared_ptr<QSignalMapper> m_signalMapperCopyColorBar;
