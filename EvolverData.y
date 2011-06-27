@@ -169,6 +169,7 @@ class AttributeCreator;
 %token <m_id> ORIGINAL "ORIGINAL"
 %token <m_id> VOLUME "VOLUME"
 %token <m_id> ACTUAL "ACTUAL"
+%token <m_id> AREA "AREA"
 %token <m_id> VOLCONST "VOLCONST"
 %token <m_id> ACTUAL_VOLUME "ACTUAL_VOLUME"
 %token <m_id> LAGRANGE_MULTIPLIER "LAGRANGE_MULTIPLIER"
@@ -1263,6 +1264,10 @@ face_attribute_list
 
 predefined_face_attribute
 : COLOR color_name
+{
+    $$ = new NameSemanticValue ($1, $2);
+}
+| AREA number END_COMMENT
 {
     $$ = new NameSemanticValue ($1, $2);
 }

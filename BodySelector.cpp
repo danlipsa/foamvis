@@ -32,6 +32,9 @@ boost::shared_ptr<BodySelector> BodySelector::Clone () const
 	
     case BodySelectorType::COMPOSITE:
 	return static_cast<const CompositeBodySelector*> (this)->Clone ();
+
+    default:
+	return boost::shared_ptr<BodySelector> ();
     }
 }
 

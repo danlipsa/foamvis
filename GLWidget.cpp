@@ -1662,6 +1662,7 @@ void GLWidget::displayEdges (ViewNumber::Enum viewNumber) const
 
     glPopAttrib ();
     displayBodyCenters (viewNumber);
+    displayFaceCenters (viewNumber);
 }
 
 template<typename displayEdge>
@@ -1783,7 +1784,8 @@ void GLWidget::displayEdgesTorusLines () const
     EdgeSet edgeSet;
     GetCurrentFoam ().GetEdgeSet (&edgeSet);
     for_each (edgeSet.begin (), edgeSet.end (),
-	      DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow, false> (*this));
+	      DisplayEdgeTorus<DisplaySegment, 
+	      DisplaySegmentArrow, false> (*this));
     glPopAttrib ();
 }
 
@@ -1815,9 +1817,13 @@ void GLWidget::displayFaceCenters (ViewNumber::Enum viewNumber) const
     {
 	FaceSet faces = 
 	    GetFoamAlongTime ().GetFoam (GetTimeStep ()).GetFaceSet ();
-	glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
-	for_each (faces.begin (), faces.end (),
-		  DisplayFaceLineStripColor<0xff000000> (*this));
+	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
+	glPointSize (4.0);
+	glColor (Qt::red);
+	glBegin (GL_POINTS);
+	BOOST_FOREACH (boost::shared_ptr<Face> face, faces)
+	    ::glVertex (face->GetCenter ());
+	glEnd ();
 	glPopAttrib ();
     }
 }

@@ -92,10 +92,10 @@ Face::Face (const vector<int>& edgeIndexes,
     m_orientedEdges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_orientedEdges.begin(), 
                indexToOrientedEdge(edges));
-    CalculateCentroidAndArea ();
+    CalculateCentroidAndArea2D ();
 }
 
-void Face::CalculateCentroidAndArea ()
+void Face::CalculateCentroidAndArea2D ()
 {
     vector<double> x, y;
     BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, m_orientedEdges)
@@ -307,7 +307,7 @@ boost::shared_ptr<Face> Face::createDuplicate (
 	oe->SetEdge (edgeDuplicate);
 	begin = oe->GetEnd ()->GetVector ();
     }
-    faceDuplicate->CalculateCentroidAndArea ();
+    faceDuplicate->CalculateCentroidAndArea2D ();
     return faceDuplicate;
 }
 

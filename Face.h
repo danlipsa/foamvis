@@ -118,7 +118,7 @@ public:
     }
     void PrintBodyPartOfInformation (ostream& ostr) const;
     void UpdateStandaloneFacePartOf (boost::shared_ptr<Face> face);
-    void CalculateCentroidAndArea ();
+    void CalculateCentroidAndArea2D ();
     void CalculatePerimeter ();
     QColor GetColor (const QColor& defaultColor) const;
 

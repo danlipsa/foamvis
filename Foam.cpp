@@ -150,6 +150,13 @@ void Foam::AddDefaultFaceAttributes ()
 	index == FaceAttributeIndex::COLOR,
 	"Color face attribute index is ", FaceAttributeIndex::COLOR);
 
+    ac.reset (new RealAttributeCreator ());
+    index = infos->AddAttributeInfoLoad (
+        ParsingDriver::GetKeywordString(parser::token::AREA), ac);
+    RuntimeAssert (
+	index == FaceAttributeIndex::AREA,
+	"Face area attribute index is ", FaceAttributeIndex::AREA);
+
     ac.reset (new IntegerVectorAttributeCreator());
     infos->AddAttributeInfo (
         ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
@@ -374,7 +381,8 @@ void Foam::unwrap (boost::shared_ptr<Face> face,
 		GetOriginalDomain (), edgeBegin, vertexSet, edgeSet));
 	begin = &oe->GetEnd ()->GetVector ();
     }
-    face->CalculateCentroidAndArea ();
+    if (Is2D ())
+	face->CalculateCentroidAndArea2D ();
 }
 
 void Foam::unwrap (
@@ -450,7 +458,7 @@ void Foam::addConstraintEdges ()
 		    &GetParsingData (), begin, end, &m_constraintPointsToFix, i);
 		boost::shared_ptr<Edge> edge (constraintEdge);
 		face.AddEdge (edge);
-		face.CalculateCentroidAndArea ();
+		face.CalculateCentroidAndArea2D ();
 		size_t constraintIndex = constraintEdge->GetConstraintIndex ();
 		if ( constraintIndex == GetParsingData ().
 		     GetConstraintRotationNames ().m_constraintIndex)

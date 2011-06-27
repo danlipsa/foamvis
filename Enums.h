@@ -350,7 +350,8 @@ struct FaceAttributeIndex
 {
     enum Enum
     {
-	COLOR
+	COLOR,
+	AREA
     };
 };
 

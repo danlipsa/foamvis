@@ -34,6 +34,13 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
 
 %%
 
+"/*area" {
+    yylval->m_id = yyextra->CreateIdentifier (yytext + 2);
+    yylloc->begin.line = yylineno;
+    return parser::token::AREA;    
+}
+
+
 "/*actual" {
     yylval->m_id = yyextra->CreateIdentifier (yytext + 2);
     yylloc->begin.line = yylineno;
