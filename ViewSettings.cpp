@@ -365,7 +365,7 @@ void ViewSettings::DifferenceBodySelector (
     }
 }
 
-void ViewSettings::CopyTransformations (const ViewSettings& from)
+void ViewSettings::CopyTransformation (const ViewSettings& from)
 {
     m_rotationModel = from.m_rotationModel;
     m_scaleRatio = from.m_scaleRatio;

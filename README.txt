@@ -212,7 +212,9 @@ Release log
 ===========
 0.5.     - fixed wetfoam_100_0002.dmp
 	 - added Actual Volume to the list of body properties, 
-	   Added 'General > Look > Volume' shown user option.
+	   Added 'General > Look > Volume shown' user option.
+	 - Set selections 'per view'. Added 'Copy Selection' right-click menu
+	 - Added 'Play Reverse' button
 0.5.1974 - read forces acting on sedimenting discs using --force command line
 0.5.1960 - use long command line options (boost program options)
 	 - use --use-original for datasets that have to use ORIGINAL 

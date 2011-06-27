@@ -31,8 +31,14 @@ public:
     enum MaxValueOperation
     {
 	KEEP_MAX_VALUE,
-	REPLACE_MAX_VALUE,
+	REPLACE_MAX_VALUE
     };
+    enum PlayType
+    {
+	PLAY_FORWARD,
+	PLAY_REVERSE
+    };
+    
     typedef pair<QwtIntervalData, size_t> HistogramInfo;
 
 public:
@@ -80,6 +86,7 @@ public Q_SLOTS:
      * showing the time steps of the Surface Evolver data.
      */
     void ClickedPlay ();
+    void ClickedPlayReverse ();
     void CurrentIndexChangedFacesColor (int value);
     void CurrentIndexChangedStatisticsType (int value);
     void CurrentIndexChangedViewCount (int index);
@@ -133,17 +140,18 @@ private:
      * Enables/Disables the Begin button
      * @param enable true to enable and false to disable the button
      */
-    void enableBegin ();
+    void enableBegin (bool enable);
     /**
      * Enables/Disables the End button
      * @param enable true to enable and false to disable the button
      */
-    void enableEnd ();
+    void enableEnd (bool enable);
     /**
      * Enables/Disables the Play button
      * @param enable true to enable and false to disable the button
      */
-    void enablePlay ();
+    void enablePlayForward ();
+    void enablePlayReverse ();
     /**
      * Enables/Disables all buttons based on the position of the slider.
      */
@@ -165,17 +173,22 @@ private:
     void displayHistogramColorBar (bool checked);
     HistogramInfo getCurrentHistogramInfo () const;
     boost::shared_ptr<ColorBarModel> getCurrentColorBarModel () const;
+    void clickedPlay (PlayType playType);
 
 private:
-    Q_OBJECT
     /**
      * Character used on the play button, when we can start the play
      */
-    const char* PLAY_TEXT;
+    static const char* PLAY_FORWARD_TEXT;
+    static const char* PLAY_REVERSE_TEXT;
     /**
      * Character used on the play button when we can pause the play
      */
-    const char* PAUSE_TEXT;
+    static const char* PAUSE_TEXT;
+
+
+private:
+    Q_OBJECT
     /**
      * Timer used  in displaying the  data files. Otherwise  you would
      * display the files too fast.
@@ -203,6 +216,12 @@ private:
 	boost::shared_ptr<ColorBarModel>,
 	ViewNumber::COUNT> m_colorBarModelDomainHistogram;
     boost::shared_ptr<EditColorMap> m_editColorMap;
+    /**
+     * True if the program displays data in a loop, false
+     * otherwise
+     */
+    bool m_playForward;
+    bool m_playReverse;
 };
 
 #endif //__MAIN_WINDOW_H__

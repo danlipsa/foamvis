@@ -170,12 +170,6 @@ public:
     {
 	return m_actionResetSelectedLightNumber;
     }
-
-    bool IsPlayMovie () const
-    {
-	return m_playMovie;
-    }
-    void SetPlayMovie (bool playMovie);
     
     /**
      * Calculates and does the viewport transform.
@@ -300,9 +294,9 @@ public Q_SLOTS:
     void InfoFoam ();
     void InfoOpenGL ();
     // Actions color bar
-    void ColorBarEdit ();
+    void EditColorMapDispatch ();
     void ColorBarClampClear ();
-    void CopyTransformationsFrom (int viewNumber);
+    void CopyTransformationFrom (int viewNumber);
     void CopySelectionFrom (int viewNumber);
     void CopyColorBarFrom (int viewNumber);
 
@@ -536,8 +530,8 @@ private:
 	ViewNumber::Enum viewNumber, size_t timeStep) const;
     void initCopy (
 	boost::array<boost::shared_ptr<QAction>, 
-	ViewNumber::COUNT>& actionCopyTransformations,
-	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformations);
+	ViewNumber::COUNT>& actionCopyTransformation,
+	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformation);
     void rotateAverageAroundConstraint (size_t timeStep, int direction) const;
     void valueChanged (
 	double* dest, const pair<double,double>& minMax, int index);
@@ -632,20 +626,15 @@ private:
     boost::shared_ptr<QAction> m_actionEditColorMap;
     boost::shared_ptr<QAction> m_actionClampClear;
     boost::array<boost::shared_ptr<QAction>, 
-		 ViewNumber::COUNT> m_actionCopyTransformations;
-    boost::shared_ptr<QSignalMapper> m_signalMapperCopyTransformations;
+		 ViewNumber::COUNT> m_actionCopyTransformation;
+    boost::shared_ptr<QSignalMapper> m_signalMapperCopyTransformation;
     boost::array<boost::shared_ptr<QAction>, 
 		 ViewNumber::COUNT> m_actionCopySelection;
     boost::shared_ptr<QSignalMapper> m_signalMapperCopySelection;
     boost::array<boost::shared_ptr<QAction>, 
-		 ViewNumber::COUNT> m_actionCopyColorBar;
+		 ViewNumber::COUNT> m_actionCopyColorMap;
     boost::shared_ptr<QSignalMapper> m_signalMapperCopyColorBar;
     double m_timeDisplacement;
-    /**
-     * True if the program displays data in a loop, false
-     * otherwise
-     */
-    bool m_playMovie;
     boost::shared_ptr<SelectBodiesById> m_selectBodiesById;
     QLabel *m_labelStatusBar;
     bool m_centerPathTubeUsed;

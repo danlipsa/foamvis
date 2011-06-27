@@ -213,7 +213,7 @@ public:
     void SetLightingParameters (const G3D::Vector3& initialLightPosition);
     void EnableLighting ();
 
-    void CopyTransformations (const ViewSettings& from);
+    void CopyTransformation (const ViewSettings& from);
     void CopyColorBar (const ViewSettings& from);
 
     // Average around

@@ -49,17 +49,23 @@ void setEnabled (const boost::array<QWidget*, size>& widgets, bool enabled)
 	widget->setEnabled (enabled);
 }
 
+// Static fields
+
+const char* MainWindow::PLAY_FORWARD_TEXT (">");
+const char* MainWindow::PLAY_REVERSE_TEXT ("<");
+const char* MainWindow::PAUSE_TEXT ("||");
 
 // Methods
 // ======================================================================
 
 MainWindow::MainWindow (FoamAlongTime& foamAlongTime) : 
-    PLAY_TEXT (">"), PAUSE_TEXT("||"),
     m_timer (new QTimer(this)), m_processBodyTorus (0), 
     m_currentBody (0),
     m_histogramType (HistogramType::NONE),
     m_histogramViewNumber (ViewNumber::COUNT),
-    m_editColorMap (new EditColorMap (this))
+    m_editColorMap (new EditColorMap (this)),
+    m_playForward (false),
+    m_playReverse (false)
 {
     // for anti-aliased lines
     QGLFormat format = QGLFormat::defaultFormat ();
@@ -317,27 +323,39 @@ void MainWindow::TranslateLightShown ()
 
 void MainWindow::updateButtons ()
 {
-    enableBegin ();
-    enableEnd ();
-    enablePlay ();
+    bool play = (m_playForward || m_playReverse);
+    enableBegin (! play);
+    enableEnd (! play);
+    enablePlayForward ();
+    enablePlayReverse ();
 }
 
-void MainWindow::enableBegin ()
+void MainWindow::enableBegin (bool enable)
+{
+    if (enable && sliderTimeSteps->value () > sliderTimeSteps->minimum ())
+	toolButtonBegin->setEnabled (true);
+    else
+	toolButtonBegin->setDisabled (true);
+}
+
+void MainWindow::enableEnd (bool enable)
+{
+    if (enable && sliderTimeSteps->value () < sliderTimeSteps->maximum ())
+	toolButtonEnd->setEnabled (true);
+    else
+	toolButtonEnd->setDisabled (true);
+}
+
+void MainWindow::enablePlayForward ()
+{
+    if (sliderTimeSteps->value () < sliderTimeSteps->maximum ())
+	toolButtonPlayForward->setEnabled (true);
+}
+
+void MainWindow::enablePlayReverse ()
 {
     if (sliderTimeSteps->value () > sliderTimeSteps->minimum ())
-	toolButtonBegin->setEnabled (true);
-}
-
-void MainWindow::enableEnd ()
-{
-    if (sliderTimeSteps->value () < sliderTimeSteps->maximum ())
-	toolButtonEnd->setEnabled (true);
-}
-
-void MainWindow::enablePlay ()
-{
-    if (sliderTimeSteps->value () < sliderTimeSteps->maximum ())
-	toolButtonPlay->setEnabled (true);
+	toolButtonPlayReverse->setEnabled (true);
 }
 
 
@@ -656,6 +674,34 @@ boost::shared_ptr<ColorBarModel> MainWindow::getCurrentColorBarModel () const
 }
 
 
+void MainWindow::clickedPlay (PlayType playType)
+{
+    bool* playMovie[] = {&m_playForward, &m_playReverse};
+    QToolButton* tbPlay[] = {toolButtonPlayForward, toolButtonPlayReverse};
+    const char* text[] = {PLAY_FORWARD_TEXT, PLAY_REVERSE_TEXT};
+    PlayType playTypeReverse = 
+	(playType == PLAY_FORWARD ? PLAY_REVERSE : PLAY_FORWARD);
+    if (*playMovie[playType])
+    {
+	m_timer->stop ();
+	tbPlay[playType]->setText (text[playType]);
+    }
+    else if (*playMovie[playTypeReverse])
+    {
+	*playMovie[playTypeReverse] = false;
+	tbPlay[playTypeReverse]->setText (text[playTypeReverse]);
+	tbPlay[playType]->setText (PAUSE_TEXT);
+    }
+    else
+    {
+	m_timer->start ();
+	tbPlay[playType]->setText (PAUSE_TEXT);
+    }
+    *playMovie[playType] = ! *playMovie[playType];
+    updateButtons ();
+}
+
+
 // Slots
 // ======================================================================
 
@@ -666,21 +712,12 @@ void MainWindow::ToggledHistogramGridShown (bool checked)
 
 void MainWindow::ClickedPlay ()
 {
-    bool playMovie = widgetGl->IsPlayMovie ();
-    if (playMovie)
-    {
-	m_timer->stop ();
-	toolButtonPlay->setText (PLAY_TEXT);
-	updateButtons ();
-    }
-    else
-    {
-	m_timer->start ();
-	toolButtonPlay->setText (PAUSE_TEXT);
-	toolButtonBegin->setDisabled (true);
-	toolButtonEnd->setDisabled (true);
-    }
-    widgetGl->SetPlayMovie (! playMovie);
+    clickedPlay (PLAY_FORWARD);
+}
+
+void MainWindow::ClickedPlayReverse ()
+{
+    clickedPlay (PLAY_REVERSE);
 }
 
 void MainWindow::ClickedBegin ()
@@ -698,10 +735,20 @@ void MainWindow::ClickedEnd ()
 void MainWindow::TimeoutTimer ()
 {
     int value = sliderTimeSteps->value ();
-    if (value < sliderTimeSteps->maximum ())
-	sliderTimeSteps->setValue (value + 1);
+    if (m_playForward)
+    {
+	if (value < sliderTimeSteps->maximum ())
+	    sliderTimeSteps->setValue (value + 1);
+	else
+	    clickedPlay (PLAY_FORWARD);
+    }
     else
-	ClickedPlay ();
+    {
+	if (value > sliderTimeSteps->minimum ())
+	    sliderTimeSteps->setValue (value - 1);
+	else
+	    clickedPlay (PLAY_REVERSE);
+    }
 }
 
 void MainWindow::ValueChangedFontSize (int fontSize)

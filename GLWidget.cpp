@@ -137,7 +137,6 @@ GLWidget::GLWidget(QWidget *parent)
       m_axesShown (false),
       m_standaloneElementsShown (true),
       m_timeDisplacement (0.0),
-      m_playMovie (false),
       m_selectBodiesById (new SelectBodiesById (this)),
       m_centerPathTubeUsed (true),
       m_centerPathLineUsed (false),
@@ -301,7 +300,7 @@ void GLWidget::createActions ()
 	new QAction (tr("&Edit Color Map"), this));
     m_actionEditColorMap->setStatusTip(tr("Edit Color Map"));
     connect(m_actionEditColorMap.get (), SIGNAL(triggered()),
-	    this, SLOT(ColorBarEdit ()));
+	    this, SLOT(EditColorMapDispatch ()));
 
     m_actionClampClear.reset (
 	new QAction (tr("&Clamp Clear"), this));
@@ -309,11 +308,11 @@ void GLWidget::createActions ()
     connect(m_actionClampClear.get (), SIGNAL(triggered()),
 	    this, SLOT(ColorBarClampClear ()));
 
-    initCopy (m_actionCopyTransformations, m_signalMapperCopyTransformations);
-    connect (m_signalMapperCopyTransformations.get (),
+    initCopy (m_actionCopyTransformation, m_signalMapperCopyTransformation);
+    connect (m_signalMapperCopyTransformation.get (),
 	     SIGNAL (mapped (int)),
 	     this,
-	     SLOT (CopyTransformationsFrom (int)));
+	     SLOT (CopyTransformationFrom (int)));
 
     initCopy (m_actionCopySelection, m_signalMapperCopySelection);
     connect (m_signalMapperCopySelection.get (),
@@ -321,7 +320,7 @@ void GLWidget::createActions ()
 	     this,
 	     SLOT (CopySelectionFrom (int)));
 
-    initCopy (m_actionCopyColorBar, m_signalMapperCopyColorBar);
+    initCopy (m_actionCopyColorMap, m_signalMapperCopyColorBar);
     connect (m_signalMapperCopyColorBar.get (),
 	     SIGNAL (mapped (int)),
 	     this,
@@ -330,24 +329,24 @@ void GLWidget::createActions ()
 
 void GLWidget::initCopy (
     boost::array<boost::shared_ptr<QAction>, 
-    ViewNumber::COUNT>& actionCopyTransformations,
-    boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformations)
+    ViewNumber::COUNT>& actionCopyTransformation,
+    boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformation)
 {
-    signalMapperCopyTransformations.reset (new QSignalMapper (this));
+    signalMapperCopyTransformation.reset (new QSignalMapper (this));
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
     {
 	ostringstream ostr;
 	ostr << "View " << i;
 	QString text (ostr.str ().c_str ());
-	actionCopyTransformations[i] = boost::make_shared<QAction> (
+	actionCopyTransformation[i] = boost::make_shared<QAction> (
 	    text, this);
-	actionCopyTransformations[i]->setStatusTip(text);
-	connect(actionCopyTransformations[i].get (), 
+	actionCopyTransformation[i]->setStatusTip(text);
+	connect(actionCopyTransformation[i].get (), 
 		SIGNAL(triggered()),
-		signalMapperCopyTransformations.get (), 
+		signalMapperCopyTransformation.get (), 
 		SLOT(map ()));
-	signalMapperCopyTransformations->setMapping (
-	    actionCopyTransformations[i].get (), i);
+	signalMapperCopyTransformation->setMapping (
+	    actionCopyTransformation[i].get (), i);
     }
 }
 
@@ -993,7 +992,7 @@ void GLWidget::InfoPoint ()
 }
 
 
-void GLWidget::ColorBarEdit ()
+void GLWidget::EditColorMapDispatch ()
 {
     Q_EMIT EditColorMap ();
 }
@@ -2175,7 +2174,7 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
     G3D::Rect2D colorBarRect = getViewColorBarRect (GetViewRect ());
     if (colorBarRect.contains (QtToOpenGl (m_contextMenuPos, height ())))
     {
-	QMenu menuCopy ("Copy", this);
+	QMenu* menuCopy = menu.addMenu ("Copy");
 	bool actions = false;
 	if (ViewCount::GetCount (m_viewCount) > 1)
 	{
@@ -2188,14 +2187,15 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 		    currentBodyProperty != 
 		    GetViewSettings (viewNumber).GetBodyProperty ())
 		    continue;
-		menuCopy.addAction (m_actionCopyColorBar[i].get ());
+		menuCopy->addAction (m_actionCopyColorMap[i].get ());
 		actions = true;
 	    }
 	}
+	if (! actions)
+	    menu.clear ();
 	menu.addAction (m_actionEditColorMap.get ());
 	menu.addAction (m_actionClampClear.get ());
-	if (actions)
-	    menu.addMenu (&menuCopy);
+
     }
     else
     {
@@ -2238,15 +2238,15 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	if (ViewCount::GetCount (m_viewCount) > 1)
 	{
 	    QMenu* menuCopy = menu.addMenu ("Copy");
-	    QMenu* menuTransformations = menuCopy->addMenu ("Transformations");
+	    QMenu* menuTransformation = menuCopy->addMenu ("Transformation");
 	    QMenu* menuSelection = menuCopy->addMenu ("Selection");
 	    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
 	    {
 		ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 		if (viewNumber == m_viewNumber)
 		    continue;
-		menuTransformations->addAction (
-		    m_actionCopyTransformations[i].get ());
+		menuTransformation->addAction (
+		    m_actionCopyTransformation[i].get ());
 		menuSelection->addAction (m_actionCopySelection[i].get ());
 	    }
 	}
@@ -2431,11 +2431,6 @@ BodyProperty::Enum GLWidget::GetBodyProperty (ViewNumber::Enum viewNumber) const
     return GetViewSettings (viewNumber).GetBodyProperty ();
 }
 
-void GLWidget::SetPlayMovie (bool playMovie)
-{
-    m_playMovie = playMovie;
-}
-
 void GLWidget::valueChanged (
     double* dest, const pair<double,double>& minMax, int index)
 {
@@ -2463,9 +2458,9 @@ bool GLWidget::IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const
 // Slots
 // ======================================================================
 
-void GLWidget::CopyTransformationsFrom (int viewNumber)
+void GLWidget::CopyTransformationFrom (int viewNumber)
 {
-    GetViewSettings ().CopyTransformations (
+    GetViewSettings ().CopyTransformation (
 	GetViewSettings (ViewNumber::Enum (viewNumber)));
     update ();
 }
