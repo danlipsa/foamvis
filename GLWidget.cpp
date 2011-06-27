@@ -2472,6 +2472,8 @@ void GLWidget::CopyTransformationsFrom (int viewNumber)
 
 void GLWidget::CopySelectionFrom (int viewNumber)
 {
+    GetViewSettings ().CopySelection (
+	GetViewSettings (ViewNumber::Enum (viewNumber)));
 }
 
 void GLWidget::CopyColorBarFrom (int viewNumber)

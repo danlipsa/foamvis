@@ -210,14 +210,6 @@ bool ViewSettings::IsContextDisplayBody (size_t bodyId) const
     return m_contextBody.find (bodyId) != m_contextBody.end ();
 }
 
-void ViewSettings::CopyTransformations (const ViewSettings& from)
-{
-    m_rotationModel = from.m_rotationModel;
-    m_scaleRatio = from.m_scaleRatio;
-    m_translation = from.m_translation;
-    m_axesOrder = from.m_axesOrder;
-}
-
 void ViewSettings::CopyColorBar (const ViewSettings& from)
 {
     *m_colorBarModel = *from.m_colorBarModel;
@@ -371,4 +363,18 @@ void ViewSettings::DifferenceBodySelector (
 	    m_bodySelector)->GetIdSelector ()->SetDifference (bodyIds);
 	break;
     }
+}
+
+void ViewSettings::CopyTransformations (const ViewSettings& from)
+{
+    m_rotationModel = from.m_rotationModel;
+    m_scaleRatio = from.m_scaleRatio;
+    m_translation = from.m_translation;
+    m_axesOrder = from.m_axesOrder;
+}
+
+
+void ViewSettings::CopySelection (const ViewSettings& other)
+{
+    m_bodySelector = other.m_bodySelector->Clone ();
 }

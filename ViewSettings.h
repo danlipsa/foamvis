@@ -329,7 +329,7 @@ public:
     void UnionBodySelector (const vector<size_t>& bodyIds);
     void DifferenceBodySelector (const Foam& foam, 
 				 const vector<size_t>& bodyIds);
-
+    void CopySelection (const ViewSettings& other);
 
 private:
     void initTexture ();

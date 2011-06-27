@@ -881,18 +881,20 @@ void MainWindow::SelectionChangedHistogram ()
     vector<bool> timeStepSelection;
     const FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     foamAlongTime.GetTimeStepSelection (
-	widgetGl->GetBodyProperty (), 
+	widgetGl->GetBodyProperty (m_histogramViewNumber), 
 	valueIntervals, &timeStepSelection);
     sliderTimeSteps->SetRestrictedTo (timeStepSelection);
     
     if (widgetHistogram->AreAllItemsSelected ())
-	widgetGl->GetViewSettings ().SetBodySelector (
+	widgetGl->GetViewSettings (m_histogramViewNumber).SetBodySelector (
 	    AllBodySelector::Get (), BodySelectorType::PROPERTY_VALUE);
     else
-	widgetGl->GetViewSettings ().SetBodySelector (
+	widgetGl->GetViewSettings (m_histogramViewNumber).SetBodySelector (
 	    boost::shared_ptr<PropertyValueBodySelector> (
 		new PropertyValueBodySelector (
-		    widgetGl->GetBodyProperty (), valueIntervals)));
+		    widgetGl->GetBodyProperty (m_histogramViewNumber), 
+		    valueIntervals)));
+    widgetGl->update ();
 }
 
 void MainWindow::ShowEditColorMap ()

@@ -14,6 +14,29 @@
 #include "Utils.h"
 
 
+// BodySelector
+// ======================================================================
+
+boost::shared_ptr<BodySelector> BodySelector::Clone () const
+{
+    switch (GetType ())
+    {
+    case BodySelectorType::ALL:
+	return static_cast<const AllBodySelector*> (this)->Clone ();
+	
+    case BodySelectorType::ID:
+	return static_cast<const IdBodySelector*> (this)->Clone ();
+	
+    case BodySelectorType::PROPERTY_VALUE:
+	return static_cast<const PropertyValueBodySelector*> (this)->Clone ();
+	
+    case BodySelectorType::COMPOSITE:
+	return static_cast<const CompositeBodySelector*> (this)->Clone ();
+    }
+}
+
+
+
 // AllBodySelector
 // ======================================================================
 
@@ -47,6 +70,15 @@ string PropertyValueBodySelector::ToUserString () const
     copy (m_valueIntervals.begin (), m_valueIntervals.end (), ido);
     return ostr.str ();
 }
+
+boost::shared_ptr<PropertyValueBodySelector> PropertyValueBodySelector::Clone (
+    ) const
+{
+    boost::shared_ptr<PropertyValueBodySelector> p (
+	new PropertyValueBodySelector (m_property, m_valueIntervals));
+    return p;
+}
+
 
 // IdBodySelector
 // ======================================================================
@@ -116,6 +148,12 @@ string IdBodySelector::ToUserString () const
     return ostr.str ();
 }
 
+boost::shared_ptr<IdBodySelector> IdBodySelector::Clone () const
+{
+    boost::shared_ptr<IdBodySelector> p (new IdBodySelector (m_ids));
+    return p;
+}
+
 
 // CompositeBodySelector
 // ======================================================================
@@ -126,3 +164,10 @@ bool CompositeBodySelector::operator () (
     return (*m_idSelector) (body) && (*m_propertyValueSelector) (body);
 }
 
+boost::shared_ptr<CompositeBodySelector> CompositeBodySelector::Clone () const
+{
+    boost::shared_ptr<CompositeBodySelector> p (
+	new CompositeBodySelector (m_idSelector->Clone (),
+				   m_propertyValueSelector->Clone ()));
+    return p;
+}

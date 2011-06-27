@@ -26,6 +26,7 @@ public:
      */
     virtual bool operator () (const boost::shared_ptr<Body>& body) const = 0;
     virtual BodySelectorType::Enum GetType () const = 0;
+    boost::shared_ptr<BodySelector> Clone () const;
 };
 
 class AllBodySelector : public BodySelector
@@ -36,9 +37,13 @@ public:
 	(void) body;
 	return true;
     }
-    BodySelectorType::Enum GetType () const
+    virtual BodySelectorType::Enum GetType () const
     {
 	return BodySelectorType::ALL;
+    }
+    boost::shared_ptr<AllBodySelector> Clone () const
+    {
+	return SELECTOR;
     }
 
 public:
@@ -69,10 +74,12 @@ public:
     }
 
     virtual bool operator () (const boost::shared_ptr<Body>& body) const;
-    BodySelectorType::Enum GetType () const
+    virtual BodySelectorType::Enum GetType () const
     {
 	return BodySelectorType::PROPERTY_VALUE;
     }
+    boost::shared_ptr<PropertyValueBodySelector> Clone () const;
+
     string ToUserString () const;
 
 private:
@@ -99,6 +106,8 @@ public:
     {
 	return BodySelectorType::ID;
     }
+    boost::shared_ptr<IdBodySelector> Clone () const;
+
     void SetUnion (const vector<size_t>& idsToAdd);
     void SetUnion (const IdBodySelector& idsToAdd);
     void SetDifference (const vector<size_t>& idsToRemove);
@@ -133,6 +142,8 @@ public:
     virtual ~CompositeBodySelector ()
     {
     }
+    boost::shared_ptr<CompositeBodySelector> Clone () const;
+
 
     boost::shared_ptr<PropertyValueBodySelector> 
     GetPropertyValueSelector () const
@@ -160,6 +171,7 @@ public:
     {
 	return BodySelectorType::COMPOSITE;
     }
+
 
 private:
     boost::shared_ptr<IdBodySelector> m_idSelector;
