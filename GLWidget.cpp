@@ -129,6 +129,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_edgeRadiusRatio (0),
       m_facesShowEdges (true),
       m_bodyCenterShown (false),
+      m_faceCenterShown (false),
       m_edgesTessellation (true),
       m_centerPathBodyShown (false),
       m_contextHidden (false),
@@ -1804,17 +1805,23 @@ void GLWidget::displayBodyCenters (
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
 	for_each (bodies.begin (), bodies.end (),
 		  DisplayBodyCenter (*this, bodySelector, useZPos, zPos));
-	/*
-	glPointSize (8.0);
-	glBegin (GL_POINTS);
-	Foam::Bodies::const_iterator it = GetCurrentFoam ().FindBody (357);
-	Face& f = *(*it)->GetFace (0);
-	f.CalculateCentroidAndArea (true);
-	glEnd ();
-	*/
 	glPopAttrib ();
     }
 }
+
+void GLWidget::displayFaceCenters (ViewNumber::Enum viewNumber) const
+{
+    if (m_faceCenterShown)
+    {
+	FaceSet faces = 
+	    GetFoamAlongTime ().GetFoam (GetTimeStep ()).GetFaceSet ();
+	glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
+	for_each (faces.begin (), faces.end (),
+		  DisplayFaceLineStripColor<0xff000000> (*this));
+	glPopAttrib ();
+    }
+}
+
 
 void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
 {
@@ -2621,6 +2628,13 @@ void GLWidget::ToggledBodyCenterShown (bool checked)
     m_bodyCenterShown = checked;
     update ();
 }
+
+void GLWidget::ToggledFaceCenterShown (bool checked)
+{
+    m_faceCenterShown = checked;
+    update ();
+}
+
 
 void GLWidget::ToggledFacesShowEdges (bool checked)
 {

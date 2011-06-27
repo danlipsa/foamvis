@@ -227,6 +227,7 @@ public Q_SLOTS:
     void ToggledForceResultShown (bool checked);
     void ToggledDirectionalLightEnabled (bool checked);
     void ToggledBodyCenterShown (bool checked);
+    void ToggledFaceCenterShown (bool checked);
     void ToggledEdgesTessellation (bool checked);
     void ButtonClickedViewType (int id);
 
@@ -373,6 +374,7 @@ private:
      */
     void displayBodyCenters (ViewNumber::Enum viewNumber, 
 			     bool useZPos = false) const;
+    void displayFaceCenters (ViewNumber::Enum viewNumber) const;
     void displayViewDecorations (ViewNumber::Enum view);
     void displayViewGrid ();
     void displayTextureColorBar (ViewNumber::Enum viewNumber, 
@@ -595,6 +597,7 @@ private:
 
     bool m_facesShowEdges;
     bool m_bodyCenterShown;
+    bool m_faceCenterShown;
     bool m_edgesTessellation;
     bool m_centerPathBodyShown;
     bool m_contextHidden;
