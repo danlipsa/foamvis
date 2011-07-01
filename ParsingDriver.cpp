@@ -130,6 +130,7 @@ const char* ParsingDriver::KEYWORD_TABLE[] = {
     "VOLCONST",
     "ACTUAL_VOLUME",
     "LAGRANGE_MULTIPLIER",
+    "CENTEROFMASS",
     "PRESSURE",
     "CONSTRAINTS",
     "DENSITY",

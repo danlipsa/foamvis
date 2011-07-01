@@ -59,15 +59,15 @@ bool ProcessBodyTorus::Step (
 		vertexSet, edgeSet, faceSet);
 	boost::shared_ptr<OrientedFace>  nextOf = nextOfi.GetOrientedFace ();
 	nextOf->SetFace (translatedNextFace);
-	//cdbg << "    Face " << nextOf->GetStringId ()
-	//     << " translated " << translation << endl;
+	cdbg << "    Face " << nextOf->GetStringId ()
+	     << " translated " << translation << endl;
     }
     else
     {
-	//cdbg << "    Face " << nextOfi.GetOrientedFace ()->GetStringId ()
-	//     << " does not need translation" << endl;
+	cdbg << "    Face " << nextOfi.GetOrientedFace ()->GetStringId ()
+	     << " does not need translation" << endl;
     }
-    //cdbg << endl;
+    cdbg << endl;
     return true;
 }
 

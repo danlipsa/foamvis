@@ -1813,6 +1813,7 @@ void GLWidget::displayBodyCenters (
 
 void GLWidget::displayFaceCenters (ViewNumber::Enum viewNumber) const
 {
+    (void)viewNumber;
     if (m_faceCenterShown)
     {
 	FaceSet faces = 

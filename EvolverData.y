@@ -173,6 +173,7 @@ class AttributeCreator;
 %token <m_id> VOLCONST "VOLCONST"
 %token <m_id> ACTUAL_VOLUME "ACTUAL_VOLUME"
 %token <m_id> LAGRANGE_MULTIPLIER "LAGRANGE_MULTIPLIER"
+%token <m_id> CENTEROFMASS "CENTEROFMASS"
 %token <m_id> PRESSURE "PRESSURE"
 %token <m_id> CONSTRAINTS "CONSTRAINTS"
 %token <m_id> DENSITY "DENSITY"
@@ -1442,18 +1443,19 @@ predefined_body_attribute
 }
 | ORIGINAL INTEGER_VALUE
 {
-    $$ =
-	new NameSemanticValue ($1, $2);
+    $$ = new NameSemanticValue ($1, $2);
 }
 | VOLCONST number
 {
-    $$ =
-	new NameSemanticValue ($1, $2);
+    $$ = new NameSemanticValue ($1, $2);
 }
 | ACTUAL_VOLUME number
 {
-    $$ =
-	new NameSemanticValue ($1, $2);
+    $$ = new NameSemanticValue ($1, $2);
+}
+| CENTEROFMASS
+{
+    $$ = 0;
 }
 
 
