@@ -118,13 +118,13 @@ void OrientedFace::CalculatePerimeter ()
 boost::shared_ptr<Vertex> OrientedFace::getBegin (size_t edgeIndex) const
 {
     const OrientedEdge& oe = GetOrientedEdge (edgeIndex);
-    return oe.GetBegin ();
+    return oe.GetBeginPtr ();
 }
 
 boost::shared_ptr<Vertex> OrientedFace::getEnd (size_t edgeIndex) const
 {
     const OrientedEdge& oe = GetOrientedEdge (edgeIndex);
-    return oe.GetEnd ();
+    return oe.GetEndPtr ();
 }
 
 string OrientedFace::ToString () const
@@ -141,6 +141,7 @@ string OrientedFace::ToString () const
     {
 	ostr << "Face attributes: ";
 	face->PrintAttributes (ostr);
+	ostr << " center=" << GetFace ()->GetCenter () << endl;
     }
     return ostr.str ();
 }

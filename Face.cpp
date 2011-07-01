@@ -92,26 +92,35 @@ Face::Face (const vector<int>& edgeIndexes,
     m_orientedEdges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_orientedEdges.begin(), 
                indexToOrientedEdge(edges));
-    CalculateCentroidAndArea2D ();
+    CalculateCentroidAndArea ();
 }
 
-void Face::CalculateCentroidAndArea2D ()
+void Face::CalculateCentroidAndArea ()
 {
+    G3D::Matrix3 rotation;
+    boost::array<G3D::Vector3, 3> a;
+    calculateAxes (&a[0], &a[1], &a[2]);
+    for (size_t i = 0; i < a.size (); ++i)
+	rotation.setColumn (i, a[i]);
+    G3D::Matrix3 inverseRotation = rotation.inverse ();
+
     vector<double> x, y;
+    G3D::Vector3 translation = GetOrientedEdge (0).GetBeginVector ();
     BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, m_orientedEdges)
     {
 	size_t n = oe->GetPointCount ();
 	for (size_t i = 0; i < (n - 1); ++i)
 	{
-	    G3D::Vector3 v = oe->GetPoint (i);
+	    G3D::Vector3 v = inverseRotation * (oe->GetPoint (i) - translation);
 	    x.push_back (v.x);
 	    y.push_back (v.y);
 	}
     }
-    double centroid[2];
-    polyCentroid (&x[0], &y[0], x.size (), &centroid[0], &centroid[1], &m_area);
-    m_center[0] = centroid[0];
-    m_center[1] = centroid[1];
+    double center[2];
+    double area;
+    polyCentroid2D (&x[0], &y[0], x.size (), &center[0], &center[1], &area);
+    m_area = abs (area);
+    m_center = rotation * G3D::Vector3 (center[0], center[1], 0) + translation;
 }
 
 double Face::getMaxEdgeLength ()
@@ -165,16 +174,15 @@ size_t Face::GetPreviousValidIndex (size_t index) const
 bool Face::operator== (const Face& other) const
 {
     return GetId () == other.GetId () &&
-	*GetOrientedEdge (0)->GetBegin () == 
-	*other.GetOrientedEdge (0)->GetBegin ();
+	GetOrientedEdge (0).GetBegin () == other.GetOrientedEdge (0).GetBegin ();
 }
 
 bool Face::fuzzyEq (const Face& other) const
 {
     return GetId () == other.GetId () &&
 	IsFuzzyZero (
-	    GetOrientedEdge (0)->GetBegin ()->GetVector () -
-	    other.GetOrientedEdge (0)->GetBegin ()->GetVector ());
+	    GetOrientedEdge (0).GetBeginVector () -
+	    other.GetOrientedEdge (0).GetBeginVector ());
 }
 
 bool Face::operator< (const Face& other) const
@@ -183,27 +191,35 @@ bool Face::operator< (const Face& other) const
 	GetId () < other.GetId () ||
 
 	(GetId () == other.GetId () &&
-	 *GetOrientedEdge (0)->GetBegin () < 
-	 *other.GetOrientedEdge (0)->GetBegin ());
+	 GetOrientedEdge (0).GetBegin () < 
+	 other.GetOrientedEdge (0).GetBegin ());
 }
 
-void Face::CalculateNormal ()
+void Face::SetNormal ()
+{
+    G3D::Vector3 x, y, z;
+    calculateAxes (&x, &z, &z);
+    m_normal = z;
+}
+
+void Face::calculateAxes (
+    G3D::Vector3* x, G3D::Vector3* y, G3D::Vector3* z) const
 {
     using G3D::Vector3; using G3D::Plane;
-    boost::shared_ptr<OrientedEdge> one = GetOrientedEdge (0);
-    boost::shared_ptr<OrientedEdge> two = GetOrientedEdge (1);
-    G3D::Plane plane (
-	one->GetBegin ()->GetVector (), two->GetBegin ()->GetVector (), 
-	two->GetEnd ()->GetVector ());
-    m_normal = plane.normal ();
+    const OrientedEdge& one = GetOrientedEdge (0);
+    const OrientedEdge& two = GetOrientedEdge (1);
+    G3D::Plane plane (one.GetBeginVector (), two.GetBeginVector (), 
+		      two.GetEndVector ());
+    *x = (one.GetEndVector () - one.GetBeginVector ()).unit ();    
+    *z = plane.normal ();
+    *y = z->cross (*x);
 }
-
 
 bool Face::IsClosed () const
 {
     return 
-	*m_orientedEdges[0]->GetBegin () == 
-	*m_orientedEdges[m_orientedEdges.size () - 1]->GetEnd ();
+	m_orientedEdges[0]->GetBegin () == 
+	m_orientedEdges[m_orientedEdges.size () - 1]->GetEnd ();
 }
 
 
@@ -269,14 +285,14 @@ boost::shared_ptr<Face> Face::GetDuplicate (
     const OOBox& periods, const G3D::Vector3int16& translation,
     VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet) const
 {
-    boost::shared_ptr<Vertex> begin = GetOrientedEdge (0)->GetBegin ();
+    const Vertex& begin = GetOrientedEdge (0).GetBegin ();
     const G3D::Vector3& newBegin = 
-	periods.TorusTranslate (begin->GetVector (), translation);
+	periods.TorusTranslate (begin.GetVector (), translation);
     boost::shared_ptr<Face> searchDummy =
 	boost::make_shared<Face> (
 	    boost::make_shared<Edge> (
 		boost::make_shared<Vertex> (
-		    newBegin, begin->GetId ()), 0), GetId ());
+		    newBegin, begin.GetId ()), 0), GetId ());
     FaceSet::iterator it = faceSet->find (searchDummy);
     if (it != faceSet->end ())
 	return *it;
@@ -305,9 +321,9 @@ boost::shared_ptr<Face> Face::createDuplicate (
 	    oe->GetEdge ()->GetDuplicate (
 		periods, edgeBegin, vertexSet, edgeSet);
 	oe->SetEdge (edgeDuplicate);
-	begin = oe->GetEnd ()->GetVector ();
+	begin = oe->GetEndVector ();
     }
-    faceDuplicate->CalculateCentroidAndArea2D ();
+    faceDuplicate->CalculateCentroidAndArea ();
     return faceDuplicate;
 }
 
@@ -318,7 +334,7 @@ void Face::UpdateStandaloneFacePartOf (boost::shared_ptr<Face> face)
 	m_orientedFace.reset (new OrientedFace (face, false));
 	for (size_t i = 0; i < size (); i++)
 	{
-	    boost::shared_ptr<OrientedEdge> oe = GetOrientedEdge (i);
+	    boost::shared_ptr<OrientedEdge> oe = GetOrientedEdgePtr (i);
 	    oe->AddFacePartOf (m_orientedFace, i);
 	}
     }

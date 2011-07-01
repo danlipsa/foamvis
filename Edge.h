@@ -42,10 +42,15 @@ public:
     /**
      * @return the first vertex of the edge
      */
-    boost::shared_ptr<Vertex> GetBegin() const 
+    const Vertex& GetBegin () const 
+    {
+	return *m_begin;
+    }
+    boost::shared_ptr<Vertex> GetBeginPtr () const 
     {
 	return m_begin;
     }
+    G3D::Vector3 GetBeginVector () const;
 
     /**
      * Translate the begin vertex so that the end vertex coincides with 
@@ -55,7 +60,13 @@ public:
     /**
      * @return last vertex of the edge
      */
-    boost::shared_ptr<Vertex> GetEnd() const 
+    const Vertex& GetEnd () const 
+    {
+	return *m_end;
+    }
+    G3D::Vector3 GetEndVector () const;
+    
+    boost::shared_ptr<Vertex> GetEndPtr () const 
     {
 	return m_end;
     }

@@ -267,10 +267,37 @@ operator() (Aggregate aggregate, Container& container, G3D::Vector3* v)
     v->z = comparator (*it);
 }
 
+template<typename T>
+int polyCentroid2D(T x[], T y[], size_t n, T *xCentroid, T *yCentroid, T *area)
+{
+    register size_t i, j;
+    T ai, atmp = 0, xtmp = 0, ytmp = 0;
+    if (n < 3)
+	return 1;
+    for (i = n-1, j = 0; j < n; i = j, j++)
+    {
+	ai = x[i] * y[j] - x[j] * y[i];
+	atmp += ai;
+	xtmp += (x[j] + x[i]) * ai;
+	ytmp += (y[j] + y[i]) * ai;
+    }
+    *area = atmp / 2;
+    if (atmp != 0)
+    {
+	*xCentroid =	xtmp / (3 * atmp);
+	*yCentroid =	ytmp / (3 * atmp);
+	return 0;
+    }
+    return 2;
+}
 
 // Template instantiations
 //======================================================================
 
+/// @cond
+template int polyCentroid2D<double>(
+    double*, double*, unsigned long, double*, double*, double*);
+/// @endcond
 
 
 // CalculateAggregate

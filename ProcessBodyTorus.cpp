@@ -49,8 +49,8 @@ bool ProcessBodyTorus::Step (
     const OOBox& periods = m_foam.GetOriginalDomain ();
 
     G3D::Vector3int16 translation = 
-	periods.GetTranslation (nextOe.GetBegin ()->GetVector (), 
-				oe.GetEnd ()->GetVector ());
+	periods.GetTranslation (nextOe.GetBeginVector (), 
+				oe.GetEndVector ());
     if (translation != Vector3int16Zero)
     {
 	boost::shared_ptr<Face>  translatedNextFace = 

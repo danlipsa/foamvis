@@ -47,7 +47,7 @@ public:
 	return m_orientedFaces;
     }
 
-    OrientedFace& GetOrientedFace (size_t i) const
+    const OrientedFace& GetOrientedFace (size_t i) const
     {
 	return *m_orientedFaces[i];
     }

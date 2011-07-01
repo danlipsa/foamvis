@@ -140,16 +140,14 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 	setColorOrTexture (of, &useColor);
 	if (useColor)
 	    glDisable (GL_TEXTURE_1D);
-    if (of->GetId () == 0)
-    {
-	glPushAttrib (GL_POLYGON_BIT);
-	glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-
-
-	(DisplayFaceTriangleFan (this->m_glWidget)) (of);
-
-	glPopAttrib ();
-    }
+	//if (of->GetId () == 4)
+	//{
+	//glPushAttrib (GL_POLYGON_BIT);
+	//glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+	    (DisplayFaceTriangleFan (this->m_glWidget)) (of);
+	    
+        //glPopAttrib ();
+        //}
 	if (useColor)
 	    glEnable (GL_TEXTURE_1D);
     }

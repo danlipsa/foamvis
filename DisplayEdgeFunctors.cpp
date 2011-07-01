@@ -329,14 +329,14 @@ void DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow, showDuplicates>::
 display (const boost::shared_ptr<Edge>  e)
 {
     glPushAttrib (GL_CURRENT_BIT);
-    const Vertex* begin = e->GetBegin ().get ();
-    const Vertex* end = e->GetEnd ().get ();
+    const Vertex& begin = e->GetBegin ();
+    const Vertex& end = e->GetEnd ();
     G3D::Vector3int16 endLocation = e->GetEndTranslation ();
     glColor (m_glWidget.GetEndTranslationColor (endLocation));
 
     if (endLocation != Vector3int16Zero)
-	m_displayArrow(begin->GetVector (), end->GetVector ());
-    m_displayEdge(begin->GetVector (), end->GetVector ());
+	m_displayArrow(begin.GetVector (), end.GetVector ());
+    m_displayEdge(begin.GetVector (), end.GetVector ());
     glPopAttrib ();
 }
 

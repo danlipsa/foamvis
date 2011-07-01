@@ -118,7 +118,6 @@ void Body::splitTessellationPhysical (
 
 void Body::CalculateCenter (bool is2D, bool isQuadratic)
 {
-    using G3D::Vector3;
     if (is2D)
     {
 	m_center = GetFace (0).GetCenter ();
@@ -145,7 +144,7 @@ void Body::CalculateCenter (bool is2D, bool isQuadratic)
 	    boost::bind (plus<G3D::Vector3> (),
 			 _1, boost::bind (&Vertex::GetVector, _2)));
     }
-    m_center /= Vector3(size, size, size);
+    m_center /= G3D::Vector3(size, size, size);
 }
 
 
@@ -308,9 +307,9 @@ void Body::CalculatePerimeterOverSqrtArea ()
     if (m_orientedFaces.size () == 1 && 
 	ExistsPropertyValue (BodyProperty::TARGET_VOLUME))
     {
-	OrientedFace& of = GetOrientedFace (0);
-	of.CalculatePerimeter ();
-	m_perimeterOverSqrtArea = of.GetPerimeter () / 
+	boost::shared_ptr<OrientedFace> of = GetOrientedFacePtr (0);
+	of->CalculatePerimeter ();
+	m_perimeterOverSqrtArea = of->GetPerimeter () / 
 	    sqrt (GetPropertyValue (BodyProperty::TARGET_VOLUME));
     }
 }

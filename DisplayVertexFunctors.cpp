@@ -45,7 +45,7 @@ void DisplayOriginalVertex::operator() (const boost::shared_ptr<Vertex>& v)
 
 void DisplayBeginVertex::operator() (const OrientedEdge* e)
 {
-    ::glVertex (e->GetBegin ()->GetVector ());
+    ::glVertex (e->GetBeginVector ());
 }
 
 // DisplayTriangle
@@ -53,7 +53,7 @@ void DisplayBeginVertex::operator() (const OrientedEdge* e)
 
 void DisplayTriangle::operator() (const boost::shared_ptr<OrientedEdge> e) const
 {
-    operator () (e->GetBegin ()->GetVector (), e->GetEnd ()->GetVector ());
+    operator () (e->GetBeginVector (), e->GetEndVector ());
 }
 
 void DisplayTriangle::operator() (

@@ -221,7 +221,7 @@ ConstraintEdge::ConstraintEdge (
 
 size_t ConstraintEdge::GetConstraintIndex () const
 {
-    return GetBegin ()->GetConstraintIndex (0);
+    return GetBegin ().GetConstraintIndex (0);
 }
 
 size_t ConstraintEdge::storePointsToFix (
@@ -318,8 +318,8 @@ void ConstraintEdge::computeSide (
     size_t* countPlus, size_t* countMinus, 
     size_t* countZero, size_t* countInvalid)
 {
-    G3D::Vector3 begin = GetBegin ()->GetVector ();
-    G3D::Vector3 end = GetEnd ()->GetVector ();
+    G3D::Vector3 begin = GetBeginVector ();
+    G3D::Vector3 end = GetEndVector ();
     *countPlus = *countMinus = *countZero = *countInvalid = 0;
     for (size_t i = 1; i < GetPointCount () - 1; ++i)
     {
@@ -358,8 +358,8 @@ void ConstraintEdge::fixPoint (
 
 void ConstraintEdge::cachePoints ()
 {
-    m_points[0] = GetBegin ()->GetVector ();
-    m_points[m_points.size () - 1] = GetEnd ()->GetVector ();
+    m_points[0] = GetBeginVector ();
+    m_points[m_points.size () - 1] = GetEndVector ();
     for (size_t i = 1; i < m_points.size () - 1; ++i)
     {
 	bool valid;
@@ -375,10 +375,10 @@ G3D::Vector3 ConstraintEdge::computePointMulti (
     size_t numberIterations = NUMBER_ITERATIONS;
     const double ABSOLUTE_ERROR = GSL_SQRT_DBL_EPSILON;
     const double RELATIVE_ERROR = GSL_SQRT_DBL_EPSILON;
-    G3D::Vector3 begin = GetBegin ()->GetVector ();
-    G3D::Vector3 end = GetEnd ()->GetVector ();
+    G3D::Vector3 begin = GetBeginVector ();
+    G3D::Vector3 end = GetEndVector ();
     G3D::Vector3 current = begin + (end - begin) * i / (GetPointCount () - 1);
-    size_t constraintIndex = GetBegin ()->GetConstraintIndex (0);
+    size_t constraintIndex = GetBegin ().GetConstraintIndex (0);
     boost::shared_ptr<ExpressionTree> constraint = 
 	m_parsingData->GetConstraint (constraintIndex);
     ConstraintLineParams clp (m_parsingData, constraint,

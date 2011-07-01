@@ -44,7 +44,7 @@ public:
 	m_bodiesPartOf.push_back (BodyIndex (body, orientedFaceIndex));
     }
     void AddEdge (boost::shared_ptr<Edge> edge);
-    void CalculateNormal ();
+    void SetNormal ();
     const G3D::Vector3& GetCenter () const
     {
 	return m_center;
@@ -89,7 +89,11 @@ public:
     boost::shared_ptr<Face> GetDuplicate (
 	const OOBox& periods, const G3D::Vector3int16& translation,
 	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet) const;
-    boost::shared_ptr<OrientedEdge> GetOrientedEdge (size_t i) const
+    const OrientedEdge& GetOrientedEdge (size_t i) const
+    {
+	return *m_orientedEdges[i];
+    }
+    boost::shared_ptr<OrientedEdge> GetOrientedEdgePtr (size_t i) const
     {
 	return m_orientedEdges[i];
     }
@@ -118,7 +122,7 @@ public:
     }
     void PrintBodyPartOfInformation (ostream& ostr) const;
     void UpdateStandaloneFacePartOf (boost::shared_ptr<Face> face);
-    void CalculateCentroidAndArea2D ();
+    void CalculateCentroidAndArea ();
     void CalculatePerimeter ();
     QColor GetColor (const QColor& defaultColor) const;
 
@@ -127,6 +131,11 @@ private:
 	const OOBox& periods, const G3D::Vector3& newBegin,
 	VertexSet* vertexSet, EdgeSet* edgeSet) const;
     double getMaxEdgeLength ();
+    /**
+     * Calculate a orthogonal system, where XY is on the face and Z is normal
+     * to the face
+     */
+    void calculateAxes (G3D::Vector3* x, G3D::Vector3* y, G3D::Vector3* z) const;
 
 private:
     /**

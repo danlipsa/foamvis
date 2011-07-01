@@ -348,7 +348,7 @@ void Foam::unwrap (VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
     BOOST_FOREACH (boost::shared_ptr<Face> f, GetParsingData ().GetFaces ())
     {
 	unwrap (f, vertexSet, edgeSet);
-	f->CalculateNormal ();
+	f->SetNormal ();
 	faceSet->insert (f);
     }
     BOOST_FOREACH (boost::shared_ptr<Body> b, GetBodies ())
@@ -361,7 +361,7 @@ void Foam::unwrap (boost::shared_ptr<Edge> edge, VertexSet* vertexSet) const
 {
     if (edge->GetEndTranslation () != Vector3int16Zero)
 	edge->SetEnd (
-	    edge->GetEnd ()->GetDuplicate (
+	    edge->GetEnd ().GetDuplicate (
 		GetOriginalDomain (), edge->GetEndTranslation (), vertexSet));
 }
 
@@ -369,20 +369,18 @@ void Foam::unwrap (boost::shared_ptr<Face> face,
 		   VertexSet* vertexSet, EdgeSet* edgeSet) const
 {
     Face::OrientedEdges& orientedEdges = face->GetOrientedEdges ();
-    const G3D::Vector3* begin = 
-	&(*orientedEdges.begin())->GetBegin ()->GetVector ();
+    G3D::Vector3 begin = (*orientedEdges.begin())->GetBeginVector ();
     BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, orientedEdges)
     {
 	boost::shared_ptr<Edge>  edge = oe->GetEdge ();
 	G3D::Vector3 edgeBegin =
-	    (oe->IsReversed ()) ? edge->GetTranslatedBegin (*begin) : *begin;
+	    (oe->IsReversed ()) ? edge->GetTranslatedBegin (begin) : begin;
 	oe->SetEdge (
 	    edge->GetDuplicate (
 		GetOriginalDomain (), edgeBegin, vertexSet, edgeSet));
-	begin = &oe->GetEnd ()->GetVector ();
+	begin = oe->GetEndVector ();
     }
-    if (Is2D ())
-	face->CalculateCentroidAndArea2D ();
+    face->CalculateCentroidAndArea ();
 }
 
 void Foam::unwrap (
@@ -422,7 +420,7 @@ void Foam::Preprocess ()
     {
 	GetFaceSet (&faceSet);
 	BOOST_FOREACH (const boost::shared_ptr<Face>& f, faceSet)
-	    f->CalculateNormal ();
+	    f->SetNormal ();
     }
     calculateBodiesCenters ();
     if (IsTorus ())
@@ -448,17 +446,17 @@ void Foam::addConstraintEdges ()
 	if (! face.IsClosed ())
 	{
 	    boost::shared_ptr<Vertex> end = 
-		face.GetOrientedEdge (0)->GetBegin ();
+		face.GetOrientedEdge (0).GetBeginPtr ();
 	    boost::shared_ptr<Vertex> begin = 
 		face.GetOrientedEdge (
-		    face.GetEdgeCount () - 1)->GetEnd ();
+		    face.GetEdgeCount () - 1).GetEndPtr ();
 	    //if (body->GetId () == 541)
 	    {
 		ConstraintEdge* constraintEdge = new ConstraintEdge (
 		    &GetParsingData (), begin, end, &m_constraintPointsToFix, i);
 		boost::shared_ptr<Edge> edge (constraintEdge);
 		face.AddEdge (edge);
-		face.CalculateCentroidAndArea2D ();
+		face.CalculateCentroidAndArea ();
 		size_t constraintIndex = constraintEdge->GetConstraintIndex ();
 		if ( constraintIndex == GetParsingData ().
 		     GetConstraintRotationNames ().m_constraintIndex)
@@ -484,14 +482,14 @@ void Foam::FixConstraintPoints (const Foam* prevFoam)
 	bool valid;
 	Face& face = GetBody (index.first).GetFace (0);
 	ConstraintEdge& edge = static_cast<ConstraintEdge&> (
-	    *face.GetOrientedEdge (face.size () - 1)->GetEdge ());
+	    *face.GetOrientedEdge (face.size () - 1).GetEdge ());
 	if (prevFoam == 0)
 	    edge.FixPointsConcaveOrConvex ();
 	else
 	{
 	    Face& prevFace = prevFoam->GetBody (index.first).GetFace (0);
 	    ConstraintEdge& prevEdge = static_cast<ConstraintEdge&> (
-		*prevFace.GetOrientedEdge (prevFace.size () - 1)->GetEdge ());
+		*prevFace.GetOrientedEdge (prevFace.size () - 1).GetEdge ());
 	    G3D::Vector2 prevPoint = prevEdge.GetPoint (index.second).xy ();
 	    G3D::Vector3 newPoint = edge.ComputePointMulti (
 		index.second, &valid, prevPoint);
@@ -695,7 +693,7 @@ boost::shared_ptr<Edge> Foam::GetStandardEdge () const
 	f = m_standaloneFaces[0].get ();
     else
 	f = &GetBody (0).GetFace (0);
-    return f->GetOrientedEdge (0)->GetEdge ();
+    return f->GetOrientedEdge (0).GetEdge ();
 }
 
 void Foam::SetViewMatrix (

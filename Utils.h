@@ -57,6 +57,30 @@ void Translate (G3D::AABox* aabox, const G3D::Vector3& translationRatio);
 void AddBorder (G3D::AABox* aabox);
 bool Intersection (
     const QBox3D& box, const QVector3D& begin, const QVector3D& end);
+/**
+ * ANSI C code from the article
+ * "Centroid of a Polygon"
+ * by Gerard Bashein and Paul R. Detmer,
+	(gb@locke.hs.washington.edu, pdetmer@u.washington.edu)
+ * in "Graphics Gems IV", Academic Press, 1994
+ *
+ *********************************************************************
+ polyCentroid2D: Calculates the centroid (xCentroid, yCentroid) and area
+ of a polygon, given its vertices (x[0], y[0]) ... (x[n-1], y[n-1]). It
+ is assumed that the contour is closed, i.e., that the vertex following
+ (x[n-1], y[n-1]) is (x[0], y[0]).  The algebraic sign of the area is
+ positive for counterclockwise ordering of vertices in x-y plane;
+ otherwise negative.
+
+ Returned values:  0 for normal execution;  1 if the polygon is
+ degenerate (number of vertices < 3);  and 2 if area = 0 (and the
+ centroid is undefined).
+**********************************************************************/
+template<typename T>
+int polyCentroid2D(T x[], T y[], size_t n,
+		 T* xCentroid, T* yCentroid, T* area);
+
+
 
 // Conversions Qt - G3D
 // ======================================================================

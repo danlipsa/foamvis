@@ -30,18 +30,30 @@ void OrientedEdge::SetEdge (boost::shared_ptr<Edge>  edge)
 
 G3D::Vector3 OrientedEdge::GetEdgeVector () const
 {
-    return GetEnd ()->GetVector () - GetBegin ()->GetVector ();
+    return GetEndVector () - GetBeginVector ();
 }
 
-boost::shared_ptr<Vertex> OrientedEdge::GetBegin (void) const
+boost::shared_ptr<Vertex> OrientedEdge::GetBeginPtr (void) const
 {
-    return IsReversed () ? GetEdge ()->GetEnd () : GetEdge ()->GetBegin ();
+    return IsReversed () ? GetEdge ()->GetEndPtr () : GetEdge ()->GetBeginPtr ();
 }
 
-boost::shared_ptr<Vertex> OrientedEdge::GetEnd (void) const
+G3D::Vector3 OrientedEdge::GetBeginVector () const
 {
-    return IsReversed () ? GetEdge ()->GetBegin () : GetEdge ()->GetEnd ();
+    return GetBegin ().GetVector ();
 }
+
+
+boost::shared_ptr<Vertex> OrientedEdge::GetEndPtr (void) const
+{
+    return IsReversed () ? GetEdge ()->GetBeginPtr () : GetEdge ()->GetEndPtr ();
+}
+
+G3D::Vector3 OrientedEdge::GetEndVector () const
+{
+    return GetEnd ().GetVector ();
+}
+
 
 bool OrientedEdge::IsZero () const
 {
@@ -76,9 +88,9 @@ string OrientedEdge::ToString () const
     ostr << "Oriented Edge " << GetStringId () << " "
 	 << GetEdge ()->GetDuplicateStatus ()
 	 << ": " << endl;
-    boost::shared_ptr<Vertex> begin = GetBegin ();
-    boost::shared_ptr<Vertex> end = GetEnd ();
-    ostr << *begin << "," << endl << *end << endl;
+    const Vertex& begin = GetBegin ();
+    const Vertex& end = GetEnd ();
+    ostr << begin << "," << endl << end << endl;
     if (GetEdge ()->HasAttributes ())
     {
 	ostr << "Edge attributes: ";

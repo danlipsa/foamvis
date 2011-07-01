@@ -422,7 +422,7 @@ double GLWidget::getMinimumEdgeRadius () const
     }
     else
     {
-	l = foam.GetStandaloneFaces ()[0]->GetOrientedEdge (0)->GetLength ();
+	l = foam.GetStandaloneFaces ()[0]->GetOrientedEdge (0).GetLength ();
     }
     return  l / 50;
 }

@@ -41,11 +41,11 @@ boost::shared_ptr<Edge> QuadraticEdge::createDuplicate (
     const G3D::Vector3& newBegin, VertexSet* vertexSet) const
 {
     G3D::Vector3int16 translation = periods.GetTranslation (
-	GetBegin ()->GetVector (), newBegin);
+	GetBeginVector (), newBegin);
     boost::shared_ptr<QuadraticEdge> duplicate = 
 	boost::static_pointer_cast<QuadraticEdge> (
 	    Edge::createDuplicate (periods, newBegin, vertexSet));
-    boost::shared_ptr<Vertex> middleDuplicate = GetMiddle ()->GetDuplicate (
+    boost::shared_ptr<Vertex> middleDuplicate = GetMiddle ().GetDuplicate (
 	periods, translation, vertexSet);
     duplicate->setMiddle (middleDuplicate);
     duplicate->cachePoints ();
@@ -55,9 +55,9 @@ boost::shared_ptr<Edge> QuadraticEdge::createDuplicate (
 double QuadraticEdge::quadratic (double t, size_t axis) const
 {
     return
-	GetBegin ()->GetVector ()[axis] * (1 - t) * (2 - t) / 2 +
-	GetMiddle ()->GetVector ()[axis] * t * (2 - t) +
-	GetEnd ()->GetVector ()[axis] * t * (t - 1) / 2;
+	GetBeginVector ()[axis] * (1 - t) * (2 - t) / 2 +
+	GetMiddle ().GetVector ()[axis] * t * (2 - t) +
+	GetEndVector ()[axis] * t * (t - 1) / 2;
 }
 
 G3D::Vector3 QuadraticEdge::quadratic (double t) const
@@ -75,8 +75,8 @@ G3D::Vector3 QuadraticEdge::computePoint (size_t i) const
 
 void QuadraticEdge::cachePoints ()
 {
-    m_points[0] = GetBegin ()->GetVector ();
-    m_points[m_points.size () - 1] = GetEnd ()->GetVector ();
+    m_points[0] = GetBeginVector ();
+    m_points[m_points.size () - 1] = GetEndVector ();
     for (size_t i = 1; i < m_points.size () - 1; ++i)
 	m_points[i] = computePoint (i);
 }

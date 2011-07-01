@@ -41,7 +41,7 @@ Edge::Edge (const boost::shared_ptr<Vertex>& begin, size_t id) :
 
 Edge::Edge (const Edge& o) : 
     Element (o),
-    m_begin (o.GetBegin ()), m_end (o.GetEnd ()),
+    m_begin (o.GetBeginPtr ()), m_end (o.GetEndPtr ()),
     m_endTranslation (o.GetEndTranslation ()),
     m_facesPartOf (o.m_facesPartOf),
     m_torusClipped (0)
@@ -55,13 +55,13 @@ boost::shared_ptr<Edge> Edge::Clone () const
 
 G3D::Vector3 Edge::GetTranslatedBegin (const G3D::Vector3& newEnd) const
 {
-    return newEnd + (GetBegin ()->GetVector () - GetEnd ()->GetVector ());
+    return newEnd + (GetBeginVector () - GetEndVector ());
 }
 
 void Edge::UpdateEdgePartOf (const boost::shared_ptr<Edge>& edge)
 {
-    GetBegin ()->AddEdgePartOf (edge);
-    GetEnd ()->AddEdgePartOf (edge);
+    GetBeginPtr ()->AddEdgePartOf (edge);
+    GetEndPtr ()->AddEdgePartOf (edge);
 }
 
 bool Edge::operator< (const Edge& other) const
@@ -69,26 +69,23 @@ bool Edge::operator< (const Edge& other) const
     return 
 	GetId () < other.GetId () ||
 
-	(GetId () == other.GetId () &&
-	 *GetBegin () < *other.GetBegin ());
+	(GetId () == other.GetId () && GetBegin () < other.GetBegin ());
 }
 
 bool Edge::operator== (const Edge& other) const
 {
-    return GetId () == other.GetId () &&
-	*GetBegin () == *other.GetBegin ();
+    return GetId () == other.GetId () && GetBegin () == other.GetBegin ();
 }
 
 bool Edge::fuzzyEq (const Edge& other) const
 {
     return GetId () == other.GetId () &&
-	IsFuzzyZero (
-	    GetBegin ()->GetVector () - other.GetBegin ()->GetVector ());
+	IsFuzzyZero (GetBeginVector () - other.GetBeginVector ());
 }
 
 bool Edge::IsZero () const
 {
-    return IsFuzzyZero (GetEnd ()->GetVector () - GetBegin ()->GetVector ());
+    return IsFuzzyZero (GetEndVector () - GetBeginVector ());
 }
 
 
@@ -237,7 +234,7 @@ boost::shared_ptr<Edge> Edge::GetDuplicate (
     boost::shared_ptr<Edge> searchDummy = 
 	boost::make_shared<Edge>(
 	    boost::make_shared<Vertex> (
-		newBegin, GetBegin ()->GetId ()), GetId ());
+		newBegin, GetBegin ().GetId ()), GetId ());
     EdgeSet::iterator it = edgeSet->find (searchDummy);
     if (it != edgeSet->end ())
 	return *it;
@@ -252,10 +249,10 @@ boost::shared_ptr<Edge> Edge::createDuplicate (
     const G3D::Vector3& newBegin, VertexSet* vertexSet) const
 {
     G3D::Vector3int16 translation = periods.GetTranslation (
-	GetBegin ()->GetVector (), newBegin);
-    boost::shared_ptr<Vertex> beginDuplicate = GetBegin ()->GetDuplicate (
+	GetBeginVector (), newBegin);
+    boost::shared_ptr<Vertex> beginDuplicate = GetBegin ().GetDuplicate (
 	periods, translation, vertexSet);
-    boost::shared_ptr<Vertex> endDuplicate = GetEnd ()->GetDuplicate (
+    boost::shared_ptr<Vertex> endDuplicate = GetEnd ().GetDuplicate (
 	periods, translation, vertexSet);
     boost::shared_ptr<Edge> duplicate = Clone ();
     duplicate->setBegin (beginDuplicate);
@@ -266,8 +263,8 @@ boost::shared_ptr<Edge> Edge::createDuplicate (
 
 void Edge::GetVertexSet (VertexSet* vertexSet) const
 {
-    vertexSet->insert (GetBegin ());
-    vertexSet->insert (GetEnd ());
+    vertexSet->insert (GetBeginPtr ());
+    vertexSet->insert (GetEndPtr ());
 }
 
 double Edge::GetLength () const
@@ -287,9 +284,9 @@ double Edge::GetLength () const
 G3D::Vector3 Edge::GetPoint (size_t i) const
 {
     if (i == 0)
-	return GetBegin ()->GetVector ();
+	return GetBeginVector ();
     else
-	return GetEnd ()->GetVector ();
+	return GetEndVector ();
 }
 
 size_t Edge::GetConstraintIndex (size_t i) const
@@ -307,6 +304,16 @@ QColor Edge::GetColor (const QColor& defaultColor) const
 		EdgeAttributeIndex::COLOR));
     else
 	return defaultColor;
+}
+
+G3D::Vector3 Edge::GetBeginVector () const
+{
+    return GetBegin ().GetVector ();
+}
+
+G3D::Vector3 Edge::GetEndVector () const
+{
+    return GetEnd ().GetVector ();
 }
 
 

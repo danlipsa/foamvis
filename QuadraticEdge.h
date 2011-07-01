@@ -19,10 +19,15 @@ public:
 	const G3D::Vector3int16& endLocation, 
 	size_t id,
 	ElementStatus::Enum duplicateStatus = ElementStatus::ORIGINAL);
-    boost::shared_ptr<Vertex> GetMiddle () const
+    boost::shared_ptr<Vertex> GetMiddlePtr () const
     {
 	return m_middle;
     }
+    const Vertex& GetMiddle () const
+    {
+	return *m_middle;
+    }
+
     virtual boost::shared_ptr<Edge> Clone () const;
     virtual void SetEnd(boost::shared_ptr<Vertex> end);
 
