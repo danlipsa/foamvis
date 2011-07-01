@@ -12,7 +12,7 @@
 #include "Face.h"
 #include "Foam.h"
 #include "OrientedFace.h"
-#include "OrientedFaceIndex.h"
+#include "AdjacentOrientedFace.h"
 
 
 
@@ -71,7 +71,7 @@ double VertexLessThanAlong::operator() (
 // OrientedFaceIndexLessThan
 
 bool OrientedFaceIndexLessThan::operator () (
-    const OrientedFaceIndex& first, const OrientedFaceIndex& second) const
+    const AdjacentOrientedFace& first, const AdjacentOrientedFace& second) const
 {
     boost::shared_ptr<OrientedFace> firstOf = first.GetOrientedFace ();
     boost::shared_ptr<OrientedFace> secondOf = second.GetOrientedFace ();

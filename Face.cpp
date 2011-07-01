@@ -223,22 +223,22 @@ bool Face::IsClosed () const
 }
 
 
-const BodyIndex& Face::GetBodyPartOf (bool faceReversed) const
+const AdjacentBody& Face::GetAdjacentBody (bool faceReversed) const
 {
-    RuntimeAssert (! IsStandalone (), "GetBodyPartOf for standalone face: ",
+    RuntimeAssert (! IsStandalone (), "GetAdjacentBody for standalone face: ",
 		   GetId ());
     size_t index = faceReversed ^ m_bodiesPartOf[0].IsOrientedFaceReversed ();
     return m_bodiesPartOf[index];
 }
 
-void Face::PrintBodyPartOfInformation (ostream& ostr) const
+void Face::PrintAdjacentBodyInformation (ostream& ostr) const
 {
-    size_t bodyPartOfSize = GetBodyPartOfSize ();
+    size_t bodyPartOfSize = GetAdjacentBodySize ();
     ostr << "Face " << GetStringId () << " part of " 
 	 << bodyPartOfSize << " bodies: ";
     for (size_t j = 0; j < bodyPartOfSize; j++)
     {
-	const BodyIndex& bi = GetBodyPartOf (j);
+	const AdjacentBody& bi = GetAdjacentBody (j);
 	ostr << setw (3) << bi.GetBody ()->GetId ()
 	     << " at index " << bi.GetOrientedFaceIndex () << " ";
     }
@@ -260,7 +260,7 @@ string Face::ToString () const
 	PrintAttributes (ostr);
     }
     ostr << "Adjacent bodies" << "(" << m_bodiesPartOf.size () << "): ";
-    BOOST_FOREACH (BodyIndex bi, m_bodiesPartOf)
+    BOOST_FOREACH (AdjacentBody bi, m_bodiesPartOf)
 	ostr << "(" << bi.GetBody ()->GetId () 
 	     << ", " << bi.GetOrientedFaceIndex ()<< ") ";
     ostr << endl;

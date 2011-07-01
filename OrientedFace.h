@@ -7,7 +7,7 @@
 #ifndef __ORIENTED_FACE_H__
 #define __ORIENTED_FACE_H__
 
-#include "BodyIndex.h"
+#include "AdjacentBody.h"
 #include "Comparisons.h"
 #include "OrientedElement.h"
 
@@ -36,9 +36,10 @@ public:
     boost::shared_ptr<Face> GetFace () const;
     void SetFace (const boost::shared_ptr<Face>& face);
 
-    void AddBodyPartOf (const boost::shared_ptr<Body>& body, size_t ofIndex);
-    const BodyIndex& GetBodyPartOf () const;
+    void AddAdjacentBody (const boost::shared_ptr<Body>& body, size_t ofIndex);
+    const AdjacentBody& GetAdjacentBody () const;
     void UpdateFacePartOf (const boost::shared_ptr<OrientedFace>& of);
+    string GetStringId () const;
 
     /**
      * Gets the begin vertex for an edge in this oriented face

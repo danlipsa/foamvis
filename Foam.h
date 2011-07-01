@@ -374,7 +374,7 @@ private:
     ConstraintRotation m_constraintRotation;
     vector<Force> m_forces;
     /*
-     * BodyIndex, PointIndex for constraint points that need fixing.
+     * AdjacentBody, PointIndex for constraint points that need fixing.
      */
     vector< pair<size_t, size_t> > m_constraintPointsToFix;
 };

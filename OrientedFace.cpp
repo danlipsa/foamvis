@@ -55,15 +55,15 @@ G3D::Vector3 OrientedFace::GetNormal () const
     return IsReversed () ? - normal : normal;
 }
 
-void OrientedFace::AddBodyPartOf (const boost::shared_ptr<Body>& body, 
+void OrientedFace::AddAdjacentBody (const boost::shared_ptr<Body>& body, 
 				  size_t ofIndex) 
 {
-    GetFace ()->AddBodyPartOf (body, ofIndex);
+    GetFace ()->AddAdjacentBody (body, ofIndex);
 }
 
-const BodyIndex& OrientedFace::GetBodyPartOf () const
+const AdjacentBody& OrientedFace::GetAdjacentBody () const
 {
-    return GetFace ()->GetBodyPartOf (IsReversed ());
+    return GetFace ()->GetAdjacentBody (IsReversed ());
 }
 
 void OrientedFace::UpdateFacePartOf (const boost::shared_ptr<OrientedFace>& of)
@@ -164,4 +164,13 @@ bool OrientedFace::IsStandalone () const
 QColor OrientedFace::GetColor (const QColor& defaultColor) const
 {
     return GetFace ()->GetColor (defaultColor);
+}
+
+string OrientedFace::GetStringId () const
+{
+    ostringstream ostr;
+    string color (GetColor (Qt::black).name ().toAscii ());
+    ostr << OrientedElement::GetStringId () << " " << color;
+    string s = ostr.str ();
+    return s;
 }

@@ -168,7 +168,7 @@ size_t Edge::GetTorusClippedSize (const OOBox& periods) const
 void Edge::AddFacePartOf (
     boost::shared_ptr<OrientedFace> orientedFace, size_t edgeIndex)
 {
-    m_facesPartOf.insert (OrientedFaceIndex (orientedFace, edgeIndex));
+    m_facesPartOf.insert (AdjacentOrientedFace (orientedFace, edgeIndex));
 }
 
 
@@ -178,7 +178,7 @@ string Edge::FacePartOfToString () const
     size_t facePartOfSize = GetFacePartOfSize ();
     ostr << "Edge " << GetStringId () << " is part of " 
 	 << facePartOfSize << " faces: ";
-    ostream_iterator<OrientedFaceIndex> output (ostr, " ");
+    ostream_iterator<AdjacentOrientedFace> output (ostr, " ");
     copy (GetFacePartOfBegin (), GetFacePartOfEnd (), output);
     return ostr.str ();
 }

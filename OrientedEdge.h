@@ -7,7 +7,7 @@
 #ifndef __ORIENTED_EDGE_H__
 #define __ORIENTED_EDGE_H__
 
-#include "OrientedFaceIndex.h"
+#include "AdjacentOrientedFace.h"
 #include "OrientedElement.h"
 class Edge;
 class OrientedFace;

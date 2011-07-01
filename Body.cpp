@@ -153,7 +153,7 @@ void Body::UpdatePartOf (const boost::shared_ptr<Body>& body)
     for (size_t i = 0; i < m_orientedFaces.size (); i++)
     {
 	boost::shared_ptr<OrientedFace> of = m_orientedFaces[i];
-	of->AddBodyPartOf (body, i);
+	of->AddAdjacentBody (body, i);
 	of->UpdateFacePartOf (of);
     }
 }

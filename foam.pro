@@ -1,7 +1,7 @@
 HEADERS += Application.h ApproximationEdge.h\
 	Attribute.h AttributeCreator.h AttributeInfo.h \
 	AttributeHistogram.h Average.h Body.h \
-	BodyAlongTime.h BodyIndex.h BodySelector.h ConstraintRotation.h \
+	BodyAlongTime.h AdjacentBody.h BodySelector.h ConstraintRotation.h \
 	ConstraintEdge.h ColorBarModel.h Comparisons.h \
 	Debug.h DebugStream.h Disk.h DisplayFaceStatistics.h DisplayForces.h\
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
@@ -11,7 +11,7 @@ HEADERS += Application.h ApproximationEdge.h\
 	GLWidget.h Hashes.h Histogram.h HistogramItem.h HistogramHeight.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
 	OOBox.h Info.h OpenGLUtils.h OrientedElement.h\
-	OrientedEdge.h OrientedFace.h OrientedFaceIndex.h \
+	OrientedEdge.h OrientedFace.h AdjacentOrientedFace.h \
 	ParsingData.h ParsingDriver.h \
 	ParsingEnums.h ProcessBodyTorus.h PropertySetter.h \
 	QuadraticEdge.h RestrictedRangeSlider.h \
@@ -21,7 +21,7 @@ HEADERS += Application.h ApproximationEdge.h\
 SOURCES += Application.cpp ApproximationEdge.cpp\
 	Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	AttributeHistogram.cpp Average.cpp \
-	Body.cpp BodyAlongTime.cpp BodyIndex.cpp BodySelector.cpp\
+	Body.cpp BodyAlongTime.cpp AdjacentBody.cpp BodySelector.cpp\
 	ConstraintEdge.cpp ColorBarModel.cpp Comparisons.cpp \
 	DebugStream.cpp Disk.cpp DisplayBodyFunctors.cpp \
 	DisplayFaceStatistics.cpp DisplayFaceFunctors.cpp DisplayForces.cpp \
@@ -33,7 +33,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	HistogramHeight.cpp main.cpp MainWindow.cpp  \
 	NameSemanticValue.cpp \
 	OOBox.cpp OpenGLUtils.cpp OrientedElement.cpp\
-	OrientedEdge.cpp OrientedFace.cpp OrientedFaceIndex.cpp\
+	OrientedEdge.cpp OrientedFace.cpp AdjacentOrientedFace.cpp\
 	ParsingData.cpp ParsingDriver.cpp \
 	ParsingEnums.cpp ProcessBodyTorus.cpp \
 	PropertySetter.cpp \

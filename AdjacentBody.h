@@ -1,12 +1,12 @@
 /**
- * @file   BodyIndex.h
+ * @file   AdjacentBody.h
  * @author Dan R. Lipsa
  * @date 20 May 2010
  *
- * Declaration of BodyIndex class
+ * Declaration of AdjacentBody class
  */
-#ifndef __BODY_INDEX_H__
-#define __BODY_INDEX_H__
+#ifndef __ADJACENT_BODY_H__
+#define __ADJACENT_BODY_H__
 
 class Body;
 class OrientedFace;
@@ -14,13 +14,13 @@ class OrientedFace;
 /**
  * Keeps track of what bodies a face is part of.
  */
-class BodyIndex
+class AdjacentBody
 {
 public:
-    BodyIndex (const boost::shared_ptr<Body>& body, size_t ofIndex) :
+    AdjacentBody (const boost::shared_ptr<Body>& body, size_t ofIndex) :
 	m_body (body), m_orientedFaceIndex (ofIndex)
     {}
-    BodyIndex () :
+    AdjacentBody () :
 	m_orientedFaceIndex (0) 
     {}
     boost::shared_ptr<Body> GetBody () const
@@ -42,13 +42,13 @@ private:
     size_t m_orientedFaceIndex;
 };
 
-inline ostream& operator<< (ostream& ostr, const BodyIndex& bi)
+inline ostream& operator<< (ostream& ostr, const AdjacentBody& bi)
 {
     return ostr << bi.ToString ();
 }
 
 
-#endif //__BODY_INDEX_H__
+#endif //__ADJACENT_BODY_H__
 
 // Local Variables:
 // mode: c++

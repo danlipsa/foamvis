@@ -8,7 +8,7 @@
 #define __EDGE_H__
 
 #include "Element.h"
-#include "OrientedFaceIndex.h"
+#include "AdjacentOrientedFace.h"
 class AttributesInfo;
 class Foam;
 class OOBox;

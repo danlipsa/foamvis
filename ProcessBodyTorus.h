@@ -9,7 +9,7 @@
 #ifndef __PROCESS_BODY_TORUS_H__
 #define __PROCESS_BODY_TORUS_H__
 
-#include "OrientedFaceIndex.h"
+#include "AdjacentOrientedFace.h"
 class Body;
 class Foam;
 class OrientedFace;
@@ -24,14 +24,14 @@ public:
 
 private:
     void push (boost::shared_ptr<OrientedFace>  of);
-    bool pop (OrientedFaceIndex* orientedFaceIndex,
-	      OrientedFaceIndex* nextOrientedFaceIndex);
-    void restrictFacesAroundAnEdge (const OrientedFaceIndex& ofi, 
-				    vector<OrientedFaceIndex>* possibilities);
+    bool pop (AdjacentOrientedFace* orientedFaceIndex,
+	      AdjacentOrientedFace* nextOrientedFaceIndex);
+    void restrictFacesAroundAnEdge (const AdjacentOrientedFace& ofi, 
+				    vector<AdjacentOrientedFace>* possibilities);
     bool chooseFaceNeighbor (
-	const OrientedFaceIndex& ofi, 
-	const vector<OrientedFaceIndex>& possibilities,
-	OrientedFaceIndex* nextOrientedFaceIndex);
+	const AdjacentOrientedFace& ofi, 
+	const vector<AdjacentOrientedFace>& possibilities,
+	AdjacentOrientedFace* nextOrientedFaceIndex);
 
 private:
     const Foam& m_foam;
@@ -39,7 +39,7 @@ private:
     /**
      * Queue of edges together with the face they are part of.
      */
-    queue<OrientedFaceIndex> m_queue;
+    queue<AdjacentOrientedFace> m_queue;
     vector<bool> m_traversed;
 };
 

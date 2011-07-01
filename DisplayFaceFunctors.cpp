@@ -127,7 +127,7 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 	// and set the stencil bit to 0.
 	glStencilFunc (GL_NOTEQUAL, 0, 1);
 	glStencilOp (GL_KEEP, GL_KEEP, GL_ZERO);
-	boost::shared_ptr<Body> body = of->GetBodyPartOf ().GetBody ();
+	boost::shared_ptr<Body> body = of->GetAdjacentBody ().GetBody ();
 	G3D::AABox box = body->GetBoundingBox ();
 	DisplayBox (G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ()));
 
@@ -162,7 +162,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
     *useColor = true;
     boost::shared_ptr<Body> body;
     if (! of->IsStandalone ())
-	body = of->GetBodyPartOf ().GetBody ();
+	body = of->GetAdjacentBody ().GetBody ();
     if (this->m_focus == DisplayElement::FOCUS)
     {
 	if (this->m_propertySetter.GetBodyProperty () == BodyProperty::NONE)
@@ -241,7 +241,7 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 	stationaryOrContext = false;
     else
     {
-	boost::shared_ptr<Body> body = of->GetBodyPartOf ().GetBody ();
+	boost::shared_ptr<Body> body = of->GetAdjacentBody ().GetBody ();
 	size_t bodyId = body->GetId ();
 	const ViewSettings& vs = this->m_glWidget.GetViewSettings (
 	    this->m_propertySetter.GetViewNumber ());

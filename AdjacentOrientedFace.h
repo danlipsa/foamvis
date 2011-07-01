@@ -1,15 +1,15 @@
 /**
- * @file   OrientedFaceIndex.h
+ * @file   AdjacentOrientedFace.h
  * @author Dan R. Lipsa
  * @date 20 May 2010
  * 
- * Declaration of the OrientedFaceIndex class
+ * Declaration of the AdjacentOrientedFace class
  */
-#ifndef __ORIENTED_FACE_INDEX_H__
-#define __ORIENTED_FACE_INDEX_H__
+#ifndef __ADJACENT_ORIENTED_FACE_H__
+#define __ADJACENT_ORIENTED_FACE_H__
 
 #include "Comparisons.h"
-class BodyIndex;
+class AdjacentBody;
 class Face;
 class OrientedEdge;
 class OrientedFace;
@@ -18,17 +18,17 @@ class OrientedFace;
  * An (oriented) edge in a (oriented) face. Keeps track of all faces
  * an edge is part of.
  */
-class OrientedFaceIndex
+class AdjacentOrientedFace
 {
 public:
-    OrientedFaceIndex (const boost::shared_ptr<OrientedFace>& face,
+    AdjacentOrientedFace (const boost::shared_ptr<OrientedFace>& face,
 		       size_t edgeIndex) :
 	m_orientedFace (face),
 	m_orientedEdgeIndex (edgeIndex)
     {
     }
 
-    OrientedFaceIndex () : 
+    AdjacentOrientedFace () : 
 	m_orientedEdgeIndex(0)
     {
     }
@@ -46,7 +46,7 @@ public:
     bool IsOrientedEdgeReversed () const;
     bool IsStandalone () const;
 
-    const BodyIndex& GetBodyIndex () const;
+    const AdjacentBody& GetAdjacentBody () const;
     size_t GetBodyId () const;
 
     void clear ()
@@ -54,7 +54,7 @@ public:
 	m_orientedFace.reset ();
 	m_orientedEdgeIndex = 0;
     }
-    bool IsValidNext (const OrientedFaceIndex& next) const;
+    bool IsValidNext (const AdjacentOrientedFace& next) const;
     string ToString () const;
 
 private:
@@ -64,14 +64,14 @@ private:
 
 };
 
-typedef multiset<OrientedFaceIndex,
+typedef multiset<AdjacentOrientedFace,
 		 OrientedFaceIndexLessThan> OrientedFaceIndexList;
-inline ostream& operator<< (ostream& ostr, const OrientedFaceIndex& ofi)
+inline ostream& operator<< (ostream& ostr, const AdjacentOrientedFace& ofi)
 {
     return ostr << ofi.ToString ();
 }
 
-#endif //__ORIENTED_FACE_INDEX_H__
+#endif //__ADJACENT_ORIENTED_FACE_H__
 
 // Local Variables:
 // mode: c++

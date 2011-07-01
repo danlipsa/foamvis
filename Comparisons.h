@@ -12,7 +12,7 @@ class Foam;
 class Face;
 class Edge;
 class Vertex;
-class OrientedFaceIndex;
+class AdjacentOrientedFace;
 
 #include "SystemDifferences.h"
 
@@ -130,7 +130,7 @@ class OrientedFaceIndexLessThan
 {
 public:
     bool operator () (
-	const OrientedFaceIndex& first, const OrientedFaceIndex& second) const;
+	const AdjacentOrientedFace& first, const AdjacentOrientedFace& second) const;
 };
 
 

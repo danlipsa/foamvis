@@ -68,7 +68,7 @@ always defined in the data file (it's not a duplicate).
  * In 2D we don't have physical edges. A vertex is "physical" if has
  * >= 3 edges adjacent to it.
  *
- * In 3D, an edge is physical if it has 6 OrientedFaceIndex is part of. (is
+ * In 3D, an edge is physical if it has 6 AdjacentOrientedFace is part of. (is
  * adjacent with 3 faces)
  * An vertex is physical if it has 4 physical edges adjacent to it.
  *

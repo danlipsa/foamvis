@@ -41,30 +41,29 @@ bool ProcessBodyTorus::Step (
     VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
 {
     using G3D::Vector3int16;
-    OrientedFaceIndex ofi, nextOfi;
-    if (! pop (&ofi, &nextOfi))
+    AdjacentOrientedFace aof, nextAof;
+    if (! pop (&aof, &nextAof))
 	return false;
-    const OrientedEdge& oe = ofi.GetOrientedEdge ();
-    const OrientedEdge& nextOe = nextOfi.GetOrientedEdge ();
+    const OrientedEdge& oe = aof.GetOrientedEdge ();
+    const OrientedEdge& nextOe = nextAof.GetOrientedEdge ();
     const OOBox& periods = m_foam.GetOriginalDomain ();
 
     G3D::Vector3int16 translation = 
-	periods.GetTranslation (nextOe.GetBeginVector (), 
-				oe.GetEndVector ());
+	periods.GetTranslation (nextOe.GetBeginVector (), oe.GetEndVector ());
     if (translation != Vector3int16Zero)
     {
 	boost::shared_ptr<Face>  translatedNextFace = 
-	    nextOfi.GetFace ()->GetDuplicate (
+	    nextAof.GetFace ()->GetDuplicate (
 		m_foam.GetOriginalDomain (), translation,
 		vertexSet, edgeSet, faceSet);
-	boost::shared_ptr<OrientedFace>  nextOf = nextOfi.GetOrientedFace ();
+	boost::shared_ptr<OrientedFace>  nextOf = nextAof.GetOrientedFace ();
 	nextOf->SetFace (translatedNextFace);
 	cdbg << "    Face " << nextOf->GetStringId ()
 	     << " translated " << translation << endl;
     }
     else
     {
-	cdbg << "    Face " << nextOfi.GetOrientedFace ()->GetStringId ()
+	cdbg << "    Face " << nextAof.GetOrientedFace ()->GetStringId ()
 	     << " does not need translation" << endl;
     }
     cdbg << endl;
@@ -74,29 +73,29 @@ bool ProcessBodyTorus::Step (
 void ProcessBodyTorus::push (boost::shared_ptr<OrientedFace> of)
 {
     for (size_t i = 0; i < of->size (); i++)
-	m_queue.push (OrientedFaceIndex (of, i));
+	m_queue.push (AdjacentOrientedFace (of, i));
 }
 
 bool ProcessBodyTorus::pop (
-    OrientedFaceIndex* orientedFaceIndex,
-    OrientedFaceIndex* nextOrientedFaceIndex)
+    AdjacentOrientedFace* adjacentOrientedFace,
+    AdjacentOrientedFace* nextAdjacentOrientedFace)
 {
 
     while (m_queue.size () > 0)
     {
-	vector<OrientedFaceIndex> possibilities;
-	OrientedFaceIndex ofi = m_queue.front ();
+	vector<AdjacentOrientedFace> possibilities;
+	AdjacentOrientedFace aof = m_queue.front ();
 	m_queue.pop ();
-	restrictFacesAroundAnEdge (ofi, &possibilities);
-	if (chooseFaceNeighbor (ofi, possibilities, nextOrientedFaceIndex))
+	restrictFacesAroundAnEdge (aof, &possibilities);
+	if (chooseFaceNeighbor (aof, possibilities, nextAdjacentOrientedFace))
 	{
 
 	    boost::shared_ptr<OrientedFace> nextOf = 
-		nextOrientedFaceIndex->GetOrientedFace ();
-	    const BodyIndex& nextBi = nextOf->GetBodyPartOf ();
+		nextAdjacentOrientedFace->GetOrientedFace ();
+	    const AdjacentBody& nextAb = nextOf->GetAdjacentBody ();
 	    push (nextOf);
-	    m_traversed[nextBi.GetOrientedFaceIndex ()] = true;
-	    *orientedFaceIndex = ofi;
+	    m_traversed[nextAb.GetOrientedFaceIndex ()] = true;
+	    *adjacentOrientedFace = aof;
 	    return true;
 	}
     }
@@ -105,71 +104,71 @@ bool ProcessBodyTorus::pop (
 
 
 void ProcessBodyTorus::restrictFacesAroundAnEdge (
-    const OrientedFaceIndex& ofi, 
-    vector<OrientedFaceIndex>* possibilities)
+    const AdjacentOrientedFace& aof, 
+    vector<AdjacentOrientedFace>* possibilities)
 {
-    OrientedEdge oe = ofi.GetOrientedEdge ();
-    size_t bodyId = ofi.GetBodyId ();
+    OrientedEdge oe = aof.GetOrientedEdge ();
+    size_t bodyId = aof.GetBodyId ();
     oe.Reverse ();
-/*
+
     cdbg << " ---------- Trying " << oe.GetFacePartOfSize ()
-	 << " possibilities ----------    " << "ofi: " << ofi << endl;
-*/
+	 << " possibilities ----------    " << "aof: " << aof << endl;
+
 
 
     for (OrientedFaceIndexList::const_iterator 
 	     it = oe.GetFacePartOfBegin ();
 	 it != oe.GetFacePartOfEnd (); it++)
     {
-	const OrientedFaceIndex& nextOfi = *it;
-	if (nextOfi.IsStandalone ())
+	const AdjacentOrientedFace& nextAof = *it;
+	if (nextAof.IsStandalone ())
 	    continue;
-	//cdbg << " nextOfi: " << nextOfi << endl;
+	cdbg << " nextAof: " << nextAof << endl;
 
-	if (bodyId != nextOfi.GetBodyId ())
+	if (bodyId != nextAof.GetBodyId ())
 	{
-	    //cdbg << "wrong body" << endl;
+	    cdbg << "wrong body" << endl;
 	    continue;
 	}
-	if (oe.IsReversed () != nextOfi.IsOrientedEdgeReversed ())
+	if (oe.IsReversed () != nextAof.IsOrientedEdgeReversed ())
 	{
-	    //cdbg << "wrong orientation" << endl;
+	    cdbg << "wrong orientation" << endl;
 	    continue;
 	}
-	//cdbg << "stored for later" << endl;
-	possibilities->push_back (nextOfi);
+	cdbg << "stored for later" << endl;
+	possibilities->push_back (nextAof);
     }
 }
 
 
 bool ProcessBodyTorus::chooseFaceNeighbor (
-    const OrientedFaceIndex& ofi, 
-    const vector<OrientedFaceIndex>& possibilities,
-    OrientedFaceIndex* nextOrientedFaceIndex)
+    const AdjacentOrientedFace& aof, 
+    const vector<AdjacentOrientedFace>& possibilities,
+    AdjacentOrientedFace* nextAdjacentOrientedFace)
 {
-    OrientedFaceIndex nextOfi;
+    AdjacentOrientedFace nextAof;
     RuntimeAssert (
 	possibilities.size () <= 2,
 	"ProcessBodyTorus: more possibilities than we can discern: ", 
 	possibilities.size (), " (should be <= 2)");
     if (possibilities.size () == 0)
 	return false;
-    BOOST_FOREACH (nextOfi, possibilities)
+    BOOST_FOREACH (nextAof, possibilities)
     {
-	boost::shared_ptr<OrientedFace>  nextOf = nextOfi.GetOrientedFace ();
-	const BodyIndex& nextBi = nextOf->GetBodyPartOf ();
-	if (m_traversed[nextBi.GetOrientedFaceIndex ()])
+	boost::shared_ptr<OrientedFace>  nextOf = nextAof.GetOrientedFace ();
+	const AdjacentBody& nextAb = nextOf->GetAdjacentBody ();
+	if (m_traversed[nextAb.GetOrientedFaceIndex ()])
 	{
 	    //cdbg << "already traversed" << endl;
 	    continue;
 	}
 
-	if (possibilities.size () > 1 && ! ofi.IsValidNext (nextOfi))
+	if (possibilities.size () > 1 && ! aof.IsValidNext (nextAof))
 	{
 	    //cdbg << "wrong angle around edge" << endl;
 	    continue;
 	}
-	*nextOrientedFaceIndex = nextOfi;
+	*nextAdjacentOrientedFace = nextAof;
 	return true;
     }
     return false;

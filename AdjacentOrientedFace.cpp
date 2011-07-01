@@ -3,35 +3,35 @@
  * @author Dan R. Lipsa
  * @date 20 May 2010
  *
- * Implementation of the OrientedFaceIndex class
+ * Implementation of the AdjacentOrientedFace class
  */
 
 #include "Body.h"
-#include "OrientedFaceIndex.h"
+#include "AdjacentOrientedFace.h"
 #include "OrientedFace.h"
 #include "OrientedEdge.h"
 
-const BodyIndex& OrientedFaceIndex::GetBodyIndex () const
+const AdjacentBody& AdjacentOrientedFace::GetAdjacentBody () const
 {
-    return GetOrientedFace ()->GetBodyPartOf ();
+    return GetOrientedFace ()->GetAdjacentBody ();
 }
 
-bool OrientedFaceIndex::IsOrientedEdgeReversed () const
+bool AdjacentOrientedFace::IsOrientedEdgeReversed () const
 {
     return GetOrientedEdge ().IsReversed ();
 }
 
-OrientedEdge OrientedFaceIndex::GetOrientedEdge () const
+OrientedEdge AdjacentOrientedFace::GetOrientedEdge () const
 {
     return GetOrientedFace ()->GetOrientedEdge (GetOrientedEdgeIndex ());
 }
 
-size_t OrientedFaceIndex::GetBodyId () const
+size_t AdjacentOrientedFace::GetBodyId () const
 {
-    return GetBodyIndex ().GetBodyId ();
+    return GetAdjacentBody ().GetBodyId ();
 }
 
-bool OrientedFaceIndex::IsValidNext (const OrientedFaceIndex& next) const
+bool AdjacentOrientedFace::IsValidNext (const AdjacentOrientedFace& next) const
 {
     using G3D::Vector3;
     Vector3 originalNormal = GetOrientedFace()->GetNormal ();
@@ -41,15 +41,15 @@ bool OrientedFaceIndex::IsValidNext (const OrientedFaceIndex& next) const
     return alongEdge.fuzzyEq (nextEdge);
 }
 
-boost::shared_ptr<Face> OrientedFaceIndex::GetFace () const
+boost::shared_ptr<Face> AdjacentOrientedFace::GetFace () const
 {
     return GetOrientedFace ()->GetFace ();
 }
 
-string OrientedFaceIndex::ToString () const
+string AdjacentOrientedFace::ToString () const
 {
     ostringstream ostr;
-    const BodyIndex& bi = GetBodyIndex ();
+    const AdjacentBody& bi = GetAdjacentBody ();
     ostr << "(" << bi
 	 << ", of=" << GetOrientedFace ()->GetStringId () << ", " 
 	 << "oeI=" << GetOrientedEdgeIndex ()
@@ -57,7 +57,7 @@ string OrientedFaceIndex::ToString () const
     return ostr.str ();
 }
 
-bool OrientedFaceIndex::IsStandalone () const
+bool AdjacentOrientedFace::IsStandalone () const
 {
     return GetOrientedFace ()->IsStandalone ();
 }

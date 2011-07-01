@@ -9,7 +9,7 @@
 
 #include "Element.h"
 #include "Comparisons.h"
-#include "BodyIndex.h"
+#include "AdjacentBody.h"
 
 class AttributesInfo;
 class Body;
@@ -39,9 +39,9 @@ public:
     Face (const boost::shared_ptr<Edge>& firstEdge, size_t id);
 
 
-    void AddBodyPartOf (boost::shared_ptr<Body>  body, size_t orientedFaceIndex)
+    void AddAdjacentBody (boost::shared_ptr<Body>  body, size_t orientedFaceIndex)
     {
-	m_bodiesPartOf.push_back (BodyIndex (body, orientedFaceIndex));
+	m_bodiesPartOf.push_back (AdjacentBody (body, orientedFaceIndex));
     }
     void AddEdge (boost::shared_ptr<Edge> edge);
     void SetNormal ();
@@ -54,12 +54,12 @@ public:
 	return m_orientedEdges.size ();
     }
 
-    const BodyIndex& GetBodyPartOf (bool faceReversed) const;
-    const BodyIndex& GetBodyPartOf (size_t i) const
+    const AdjacentBody& GetAdjacentBody (bool faceReversed) const;
+    const AdjacentBody& GetAdjacentBody (size_t i) const
     {
 	return m_bodiesPartOf[i];
     }
-    size_t GetBodyPartOfSize () const
+    size_t GetAdjacentBodySize () const
     {
 	return m_bodiesPartOf.size ();
     }
@@ -118,9 +118,9 @@ public:
     string ToString () const;
     bool IsStandalone () const
     {
-	return GetBodyPartOfSize () == 0;
+	return GetAdjacentBodySize () == 0;
     }
-    void PrintBodyPartOfInformation (ostream& ostr) const;
+    void PrintAdjacentBodyInformation (ostream& ostr) const;
     void UpdateStandaloneFacePartOf (boost::shared_ptr<Face> face);
     void CalculateCentroidAndArea ();
     void CalculatePerimeter ();
@@ -145,7 +145,7 @@ private:
     /**
      * Bodies this face is part of.
      */
-    vector<BodyIndex> m_bodiesPartOf;
+    vector<AdjacentBody> m_bodiesPartOf;
     G3D::Vector3 m_normal;
     G3D::Vector3 m_center;
     double m_perimeter;
