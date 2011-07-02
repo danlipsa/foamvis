@@ -198,25 +198,29 @@ void MainWindow::connectColorBarHistogram (bool connected)
 	    SIGNAL (BodyPropertyChanged (boost::shared_ptr<ColorBarModel>,
 					 BodyProperty::Enum)),
 	    this, 
-	    SLOT (SetHistogramColorBarModel (boost::shared_ptr<ColorBarModel>)));
+	    SLOT (SetHistogramColorBarModel (
+		      boost::shared_ptr<ColorBarModel>)));
 	connect (
 	    this, 
 	    SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
 	    this, 
-	    SLOT (SetHistogramColorBarModel (boost::shared_ptr<ColorBarModel>)), 
+	    SLOT (SetHistogramColorBarModel (
+		      boost::shared_ptr<ColorBarModel>)), 
 	    Qt::UniqueConnection);
 	connect (
 	    widgetGl, 
 	    SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
 	    this, 
-	    SLOT (SetHistogramColorBarModel (boost::shared_ptr<ColorBarModel>)), 
+	    SLOT (SetHistogramColorBarModel (
+		      boost::shared_ptr<ColorBarModel>)), 
 	    Qt::UniqueConnection);
     }
     else
     {
 	disconnect (
 	    this, 
-	    SLOT (SetHistogramColorBarModel (boost::shared_ptr<ColorBarModel>)));
+	    SLOT (SetHistogramColorBarModel (
+		      boost::shared_ptr<ColorBarModel>)));
     }
 }
 

@@ -1198,8 +1198,7 @@ G3D::Vector3 GLWidget::toObject (const QPoint& position) const
     projectionTransform (viewNumber);
     ModelViewTransform (viewNumber, GetTimeStep ());
 
-    G3D::Vector3 op = gluUnProject (
-	QtToOpenGl (position, height ()));
+    G3D::Vector3 op = gluUnProject (QtToOpenGl (position, height ()));
     if (GetFoamAlongTime ().Is2D ())
 	op.z = 0;
     return op;

@@ -111,10 +111,8 @@ void ProcessBodyTorus::restrictFacesAroundAnEdge (
     size_t bodyId = aof.GetBodyId ();
     oe.Reverse ();
 
-    cdbg << " ---------- Trying " << oe.GetFacePartOfSize ()
-	 << " possibilities ----------    " << "aof: " << aof << endl;
-
-
+    //cdbg << " ---------- Trying " << oe.GetFacePartOfSize ()
+    // << " possibilities ----------    " << "aof: " << aof << endl;
 
     for (OrientedFaceIndexList::const_iterator 
 	     it = oe.GetFacePartOfBegin ();
@@ -123,19 +121,19 @@ void ProcessBodyTorus::restrictFacesAroundAnEdge (
 	const AdjacentOrientedFace& nextAof = *it;
 	if (nextAof.IsStandalone ())
 	    continue;
-	cdbg << " nextAof: " << nextAof << endl;
+	//cdbg << " nextAof: " << nextAof << endl;
 
 	if (bodyId != nextAof.GetBodyId ())
 	{
-	    cdbg << "wrong body" << endl;
+	    //cdbg << "wrong body" << endl;
 	    continue;
 	}
 	if (oe.IsReversed () != nextAof.IsOrientedEdgeReversed ())
 	{
-	    cdbg << "wrong orientation" << endl;
+	    //cdbg << "wrong orientation" << endl;
 	    continue;
 	}
-	cdbg << "stored for later" << endl;
+	//cdbg << "stored for later" << endl;
 	possibilities->push_back (nextAof);
     }
 }
