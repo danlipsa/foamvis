@@ -1817,7 +1817,8 @@ void GLWidget::displayFaceCenters (ViewNumber::Enum viewNumber) const
     {
 	FaceSet faces = 
 	    GetFoamAlongTime ().GetFoam (GetTimeStep ()).GetFaceSet ();
-	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT);
+	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
+	glDisable (GL_DEPTH_TEST);
 	glPointSize (4.0);
 	glColor (Qt::red);
 	glBegin (GL_POINTS);
@@ -1844,6 +1845,7 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
     displayContextStationaryFoam (viewNumber);
     displayStandaloneFaces ();    
     displayBodyCenters (viewNumber);
+    displayFaceCenters (viewNumber);
     vs.GetDisplayForces ().Display (viewNumber);
 }
 

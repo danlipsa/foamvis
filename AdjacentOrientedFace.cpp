@@ -34,10 +34,10 @@ size_t AdjacentOrientedFace::GetBodyId () const
 bool AdjacentOrientedFace::IsValidNext (const AdjacentOrientedFace& next) const
 {
     using G3D::Vector3;
-    Vector3 originalNormal = GetOrientedFace()->GetNormal ();
+    Vector3 thisNormal = GetOrientedFace()->GetNormal ();
     Vector3 nextNormal = next.GetOrientedFace()->GetNormal ();
     Vector3 nextEdge = next.GetOrientedEdge ().GetEdgeVector ().unit ();
-    Vector3 alongEdge = nextNormal.cross (originalNormal).direction ();
+    Vector3 alongEdge = nextNormal.cross (thisNormal).direction ();
     return alongEdge.fuzzyEq (nextEdge);
 }
 

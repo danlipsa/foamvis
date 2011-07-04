@@ -58,10 +58,18 @@ always defined in the data file (it's not a duplicate).
   }
 </pre>
  * 
- * \subsection sec_onbody Executed when creating a body (may create duplicate faces)
+ * \subsection sec_onbody Executed when creating a body (may create duplicate 
+   faces)
  *
 <pre>
-  ...
+Add all adjacent faces of face 0 to a queue.
+while (no more items in the queue)
+{
+   remove a adjacent face, translate it if needed and mark it visited.
+   if several faces fit, choose the face with smallest angle between its 
+   normal and the original face normal.
+}
+
 </pre>
  *
  * \section sec_physical_tesselation Physical and tesselation edges and vertices

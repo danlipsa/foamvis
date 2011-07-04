@@ -17,6 +17,9 @@
 #include "Utils.h"
 #include "Vertex.h"
 
+//#define __LOG__(code) code
+#define __LOG__(code)
+
 ProcessBodyTorus::ProcessBodyTorus (const Foam& foam, 
 				    const boost::shared_ptr<Body>& body) : 
     m_foam (foam), m_body (body), m_traversed (body->size (), false)
@@ -58,15 +61,21 @@ bool ProcessBodyTorus::Step (
 		vertexSet, edgeSet, faceSet);
 	boost::shared_ptr<OrientedFace>  nextOf = nextAof.GetOrientedFace ();
 	nextOf->SetFace (translatedNextFace);
-	cdbg << "    Face " << nextOf->GetStringId ()
-	     << " translated " << translation << endl;
+	__LOG__(
+	    cdbg << "    Face " << nextOf->GetStringId ()
+	    << " translated " << translation << endl;
+	    );
     }
     else
     {
-	cdbg << "    Face " << nextAof.GetOrientedFace ()->GetStringId ()
-	     << " does not need translation" << endl;
+	__LOG__(
+	    cdbg << "    Face " << nextAof.GetOrientedFace ()->GetStringId ()
+	    << " does not need translation" << endl;
+	    );
     }
-    cdbg << endl;
+    __LOG__(
+	cdbg << endl;
+	);
     return true;
 }
 
@@ -150,24 +159,41 @@ bool ProcessBodyTorus::chooseFaceNeighbor (
 	"ProcessBodyTorus: more possibilities than we can discern: ", 
 	possibilities.size (), " (should be <= 2)");
     if (possibilities.size () == 0)
+    {
+	__LOG__(
+	    cdbg << "face(0 possibilities) discarded: " << aof << endl;
+	    );
 	return false;
+    }
     BOOST_FOREACH (nextAof, possibilities)
     {
 	boost::shared_ptr<OrientedFace>  nextOf = nextAof.GetOrientedFace ();
 	const AdjacentBody& nextAb = nextOf->GetAdjacentBody ();
 	if (m_traversed[nextAb.GetOrientedFaceIndex ()])
 	{
-	    //cdbg << "already traversed" << endl;
+	    __LOG__(
+		cdbg << "\talready traversed" << endl;
+		);
 	    continue;
 	}
 
 	if (possibilities.size () > 1 && ! aof.IsValidNext (nextAof))
 	{
-	    //cdbg << "wrong angle around edge" << endl;
+	    __LOG__(
+		cdbg << "\twrong angle around edge: " << nextAof << endl;
+		);
 	    continue;
 	}
 	*nextAdjacentOrientedFace = nextAof;
+	__LOG__(
+	    cdbg << "face(" << possibilities.size () << " possibilities) " 
+	    << aof << " next face: " << nextAof << endl;
+	    );
 	return true;
     }
+    __LOG__(
+	cdbg << "face(" << possibilities.size () 
+	<< " possibilities) discarded: " << aof << endl;
+	);
     return false;
 }

@@ -210,7 +210,7 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
-0.5.2017 - fixed wetfoam_100_0002.dmp
+0.5.2023 - fixed wetfoam_100_0002.dmp
 	 - added Actual Volume to the list of body properties, 
 	   Added 'General > Look > Volume shown' user option.
 	 - Set selections 'per view'. Added 'Copy Selection' right-click menu

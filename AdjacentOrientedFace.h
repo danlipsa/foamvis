@@ -54,6 +54,9 @@ public:
 	m_orientedFace.reset ();
 	m_orientedEdgeIndex = 0;
     }
+    /**
+     * Returns true if the angle between normals is less than 90 degrees.
+     */
     bool IsValidNext (const AdjacentOrientedFace& next) const;
     string ToString () const;
 

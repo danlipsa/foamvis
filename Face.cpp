@@ -198,7 +198,7 @@ bool Face::operator< (const Face& other) const
 void Face::SetNormal ()
 {
     G3D::Vector3 x, y, z;
-    calculateAxes (&x, &z, &z);
+    calculateAxes (&x, &y, &z);
     m_normal = z;
 }
 

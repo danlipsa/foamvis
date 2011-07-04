@@ -387,7 +387,7 @@ void Foam::unwrap (
     boost::shared_ptr<Body> body,
     VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet) const
 {
-    //ProcessBodyTorus(*this, body).Unwrap (vertexSet, edgeSet, faceSet);
+    ProcessBodyTorus(*this, body).Unwrap (vertexSet, edgeSet, faceSet);
 }
 
 
