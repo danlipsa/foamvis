@@ -1673,7 +1673,6 @@ void GLWidget::displayAxes ()
 	float a;
 	QFontMetrics fm (font);
 	ostringstream ostr;
-	QString text;
 	ostr << setprecision (4);
 	glPushAttrib (GL_CURRENT_BIT);
 	using G3D::Vector3;
@@ -1694,15 +1693,9 @@ void GLWidget::displayAxes ()
 	glColor (Qt::black);
 	ostr.str ("");
 	ostr  << first.x;
-	text = ostr.str ().c_str ();
-	renderText (first.x + a, 
-		    first.y - a, 
-		    first.z, text);
+	renderText (first.x + a, first.y - a, first.z, ostr.str ().c_str ());
 	ostr.str ("");ostr  << origin.x;
-	text = ostr.str ().c_str ();
-	renderText (origin.x + a, 
-		    origin.y - a, 
-		    origin.z, text);
+	renderText (origin.x + a, origin.y - a, origin.z, ostr.str ().c_str ());
 
 	glColor (Qt::green);
 	displayOrientedEdge (origin, second);
