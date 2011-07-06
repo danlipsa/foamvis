@@ -421,14 +421,14 @@ double GLWidget::getMinimumEdgeRadius () const
 {
     G3D::Vector3 first = toObject (QPoint (0, 0));
     G3D::Vector3 second = toObject (QPoint (1, 0));
-    float pixelObjectSpace = (second - first).length ();
-    return pixelObjectSpace;
+    float onePixelInObjectSpace = (second - first).length ();
+    return onePixelInObjectSpace;
 }
 
-void GLWidget::calculateEdgeRadius (double edgeRadiusRatio,
-				    double* edgeRadius, double* arrowBaseRadius, 
-				    double* arrowHeight,
-				    double* edgeWidth) const
+void GLWidget::calculateEdgeRadius (
+    double edgeRadiusRatio,
+    double* edgeRadius, double* arrowBaseRadius, 
+    double* arrowHeight, double* edgeWidth) const
 {
     const int maxRadiusMultiplier = 5;
 
