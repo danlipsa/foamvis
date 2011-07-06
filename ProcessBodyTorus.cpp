@@ -120,12 +120,12 @@ void ProcessBodyTorus::restrictFacesAroundAnEdge (
     size_t bodyId = aof.GetBodyId ();
     oe.Reverse ();
 
-    //cdbg << " ---------- Trying " << oe.GetFacePartOfSize ()
+    //cdbg << " ---------- Trying " << oe.GetAdjacentFaceCount ()
     // << " possibilities ----------    " << "aof: " << aof << endl;
 
-    for (OrientedFaceIndexList::const_iterator 
-	     it = oe.GetFacePartOfBegin ();
-	 it != oe.GetFacePartOfEnd (); it++)
+    for (AdjacentOrientedFaces::const_iterator 
+	     it = oe.GetAdjacentFaceBegin ();
+	 it != oe.GetAdjacentFaceEnd (); it++)
     {
 	const AdjacentOrientedFace& nextAof = *it;
 	if (nextAof.IsStandalone ())

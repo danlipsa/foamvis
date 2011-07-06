@@ -60,25 +60,25 @@ bool OrientedEdge::IsZero () const
     return GetEdge ()->IsZero ();
 }
 
-size_t OrientedEdge::GetFacePartOfSize () const
+size_t OrientedEdge::GetAdjacentFaceCount () const
 {
-    return GetEdge ()->GetFacePartOfSize ();
+    return GetEdge ()->GetAdjacentFaceCount ();
 }
 
-OrientedFaceIndexList::const_iterator OrientedEdge::GetFacePartOfBegin () const
+AdjacentOrientedFaces::const_iterator OrientedEdge::GetAdjacentFaceBegin () const
 {
-    return GetEdge ()->GetFacePartOfBegin ();
+    return GetEdge ()->GetAdjacentFaceBegin ();
 }
 
-OrientedFaceIndexList::const_iterator OrientedEdge::GetFacePartOfEnd () const
+AdjacentOrientedFaces::const_iterator OrientedEdge::GetAdjacentFaceEnd () const
 {
-    return GetEdge ()->GetFacePartOfEnd ();
+    return GetEdge ()->GetAdjacentFaceEnd ();
 }
 
-void OrientedEdge::AddFacePartOf (
+void OrientedEdge::AddAdjacentFace (
     boost::shared_ptr<OrientedFace> of, size_t edgeIndex) const
 {
-    GetEdge ()->AddFacePartOf (of, edgeIndex);
+    GetEdge ()->AddAdjacentFace (of, edgeIndex);
 }
 
 string OrientedEdge::ToString () const
@@ -90,7 +90,8 @@ string OrientedEdge::ToString () const
 	 << ": " << endl;
     const Vertex& begin = GetBegin ();
     const Vertex& end = GetEnd ();
-    ostr << begin << "," << endl << end << endl;
+    ostr << begin << "," << endl << end
+	 << " Adjacent faces (" << GetAdjacentFaceCount () << ")" << endl;
     if (GetEdge ()->HasAttributes ())
     {
 	ostr << "Edge attributes: ";

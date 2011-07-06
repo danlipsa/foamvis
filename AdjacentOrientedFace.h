@@ -68,7 +68,7 @@ private:
 };
 
 typedef multiset<AdjacentOrientedFace,
-		 OrientedFaceIndexLessThan> OrientedFaceIndexList;
+		 OrientedFaceIndexLessThan> AdjacentOrientedFaces;
 inline ostream& operator<< (ostream& ostr, const AdjacentOrientedFace& ofi)
 {
     return ostr << ofi.ToString ();

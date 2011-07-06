@@ -49,6 +49,7 @@ public:
     }
 
     string GetStringId () const;
+    string GetOrientationString () const;
 
 private:
     boost::shared_ptr<Element> m_element;

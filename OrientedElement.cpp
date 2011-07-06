@@ -16,6 +16,13 @@ string OrientedElement::GetStringId () const
     return ostr.str ();
 }
 
+string OrientedElement::GetOrientationString () const
+{
+    ostringstream ostr;
+    ostr << (m_reversed ? "(R)" : "(N)");
+    return ostr.str ();
+}
+
 size_t OrientedElement::GetId () const
 {
     return GetElement ()->GetId ();

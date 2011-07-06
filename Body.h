@@ -55,7 +55,8 @@ public:
     {
 	return m_orientedFaces[i];
     }
-    Face& GetFace (size_t i) const;
+    const Face& GetFace (size_t i) const;
+    Face& GetFace (size_t i);
     size_t size () const
     {
 	return m_orientedFaces.size ();
@@ -73,7 +74,7 @@ public:
     {
 	return m_center;
     }
-    void UpdatePartOf (const boost::shared_ptr<Body>& body);
+    void UpdateAdjacentBody (const boost::shared_ptr<Body>& body);
     string ToString () const;
     void GetVertexSet (VertexSet* vertexSet) const;    
     VertexSet GetVertexSet () const
@@ -82,7 +83,6 @@ public:
 	GetVertexSet (&set);
 	return set;
     }
-    vector<G3D::Vector3> GetAllEdgeVertices () const;
     void GetEdgeSet (EdgeSet* edgeSet) const;
     EdgeSet GetEdgeSet () const
     {
@@ -159,6 +159,7 @@ private:
      * Oriented faces that are part of this body.
      */
     OrientedFaces m_orientedFaces;
+    vector< boost::shared_ptr<Body> > m_neighbors;
     /**
      * Center of the body
      */

@@ -59,11 +59,11 @@ public:
     /**
      * Adds a face that is touched by this oriented edge.
      */
-    void AddFacePartOf (boost::shared_ptr<OrientedFace> face, 
+    void AddAdjacentFace (boost::shared_ptr<OrientedFace> face, 
 			size_t edgeIndex) const;
-    size_t GetFacePartOfSize () const;
-    OrientedFaceIndexList::const_iterator GetFacePartOfBegin () const;
-    OrientedFaceIndexList::const_iterator GetFacePartOfEnd () const;
+    size_t GetAdjacentFaceCount () const;
+    AdjacentOrientedFaces::const_iterator GetAdjacentFaceBegin () const;
+    AdjacentOrientedFaces::const_iterator GetAdjacentFaceEnd () const;
 
     /**
      * Edge for this oriented edge

@@ -279,7 +279,7 @@ public:
     void CalculatePerimeterOverArea ();
     void FixConstraintPoints (const Foam* prevFoam);
     void StoreAttribute (Body* body, BodyProperty::Enum property, double r);
-
+    void CalculateBodyNeighbors ();
 
 public:
     static const double Z_COORDINATE_2D = 0.0;
@@ -307,7 +307,7 @@ private:
     /**
      * Calculate faces part of a body, edges part of a face, ...
      */
-    void updatePartOf ();
+    void updateAdjacent ();
     bool bodyInsideOriginalDomain (
 	const boost::shared_ptr<Body>& body,
 	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
@@ -337,7 +337,6 @@ private:
     void setMissingPressureZero ();
     void setMissingVolume ();
     void addConstraintEdges ();
-
 
 private:
     Edges m_standaloneEdges;

@@ -43,7 +43,7 @@ Edge::Edge (const Edge& o) :
     Element (o),
     m_begin (o.GetBeginPtr ()), m_end (o.GetEndPtr ()),
     m_endTranslation (o.GetEndTranslation ()),
-    m_facesPartOf (o.m_facesPartOf),
+    m_adjacentOrientedFaces (o.m_adjacentOrientedFaces),
     m_torusClipped (0)
 {
 }
@@ -58,10 +58,10 @@ G3D::Vector3 Edge::GetTranslatedBegin (const G3D::Vector3& newEnd) const
     return newEnd + (GetBeginVector () - GetEndVector ());
 }
 
-void Edge::UpdateEdgePartOf (const boost::shared_ptr<Edge>& edge)
+void Edge::UpdateAdjacentEdge (const boost::shared_ptr<Edge>& edge)
 {
-    GetBeginPtr ()->AddEdgePartOf (edge);
-    GetEndPtr ()->AddEdgePartOf (edge);
+    GetBeginPtr ()->AddAdjacentEdge (edge);
+    GetEndPtr ()->AddAdjacentEdge (edge);
 }
 
 bool Edge::operator< (const Edge& other) const
@@ -165,21 +165,22 @@ size_t Edge::GetTorusClippedSize (const OOBox& periods) const
 }
 
 
-void Edge::AddFacePartOf (
+void Edge::AddAdjacentFace (
     boost::shared_ptr<OrientedFace> orientedFace, size_t edgeIndex)
 {
-    m_facesPartOf.insert (AdjacentOrientedFace (orientedFace, edgeIndex));
+    m_adjacentOrientedFaces.insert (
+	AdjacentOrientedFace (orientedFace, edgeIndex));
 }
 
 
-string Edge::FacePartOfToString () const
+string Edge::AdjacentFacesToString () const
 {
     ostringstream ostr;
-    size_t facePartOfSize = GetFacePartOfSize ();
+    size_t facePartOfSize = GetAdjacentFaceCount ();
     ostr << "Edge " << GetStringId () << " is part of " 
 	 << facePartOfSize << " faces: ";
     ostream_iterator<AdjacentOrientedFace> output (ostr, " ");
-    copy (GetFacePartOfBegin (), GetFacePartOfEnd (), output);
+    copy (GetAdjacentFaceBegin (), GetAdjacentFaceEnd (), output);
     return ostr.str ();
 }
 
@@ -194,16 +195,18 @@ bool Edge::IsPhysical (bool foam2D, bool isQuadratic) const
     }
     else
     {
-	if (m_facesPartOf.size () < 4)
+	if (m_adjacentOrientedFaces.size () < 4)
 	    return false;
-	OrientedFaceIndexList::const_iterator end = m_facesPartOf.end ();
-	OrientedFaceIndexList::const_iterator begin;
-	OrientedFaceIndexList::const_iterator next = m_facesPartOf.begin ();
+	AdjacentOrientedFaces::const_iterator end = 
+	    m_adjacentOrientedFaces.end ();
+	AdjacentOrientedFaces::const_iterator begin;
+	AdjacentOrientedFaces::const_iterator next = 
+	    m_adjacentOrientedFaces.begin ();
 	size_t facesPartOfSize = 0;
 	do
 	{
 	    begin = next;
-	    next = m_facesPartOf.equal_range (*begin).second;
+	    next = m_adjacentOrientedFaces.equal_range (*begin).second;
 	    ++facesPartOfSize;
 	} while (next != end);
 	return facesPartOfSize == 3;
@@ -217,7 +220,7 @@ string Edge::ToString () const
 	 << GetDuplicateStatus () << " "
 	 << *m_begin << ", " 
 	 << *m_end << " "
-	 << " Adjacent faces(" << m_facesPartOf.size () << ")";
+	 << " Adjacent faces(" << m_adjacentOrientedFaces.size () << ")";
     if (HasAttributes ())
     {
 	ostr << " Edge attributes: ";

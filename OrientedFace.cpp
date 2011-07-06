@@ -55,6 +55,15 @@ G3D::Vector3 OrientedFace::GetNormal () const
     return IsReversed () ? - normal : normal;
 }
 
+G3D::Plane OrientedFace::GetPlane () const
+{
+    G3D::Plane plane = GetFace ()->GetPlane ();
+    G3D::Vector3 normal;
+    float distance;
+    plane.getEquation (normal, distance);
+    return G3D::Plane (-normal, distance * normal);
+}
+
 void OrientedFace::AddAdjacentBody (const boost::shared_ptr<Body>& body, 
 				  size_t ofIndex) 
 {
@@ -66,12 +75,12 @@ const AdjacentBody& OrientedFace::GetAdjacentBody () const
     return GetFace ()->GetAdjacentBody (IsReversed ());
 }
 
-void OrientedFace::UpdateFacePartOf (const boost::shared_ptr<OrientedFace>& of)
+void OrientedFace::UpdateAdjacentFace (const boost::shared_ptr<OrientedFace>& of)
 {
     for (size_t i = 0; i < size (); i++)
     {
 	const OrientedEdge& oe = GetOrientedEdge (i);
-	oe.AddFacePartOf (of, i);
+	oe.AddAdjacentFace (of, i);
     }
 }
 

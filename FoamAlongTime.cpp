@@ -161,10 +161,11 @@ void FoamAlongTime::Preprocess ()
 {
     cdbg << "Preprocess temporal foam data ..." << endl;
     fixConstraintPoints ();
-    boost::array<FoamMethod, 3> methods = {{
+    boost::array<FoamMethod, 4> methods = {{
 	    &Foam::ReleaseParsingData,
 	    &Foam::CalculateBoundingBox,
-	    &Foam::CalculatePerimeterOverArea}};
+	    &Foam::CalculatePerimeterOverArea,
+	    &Foam::CalculateBodyNeighbors}};
     MapPerFoam (&methods[0], methods.size ());
     CalculateBoundingBox ();
     CacheBodiesAlongTime ();

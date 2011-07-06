@@ -252,26 +252,26 @@ void Foam::ReleaseParsingData ()
     m_parsingData.reset ();
 }
 
-void Foam::updatePartOf ()
+void Foam::updateAdjacent ()
 {
     for_each (m_bodies.begin (), m_bodies.end (),
-	      boost::bind(&Body::UpdatePartOf, _1, _1));
+	      boost::bind(&Body::UpdateAdjacentBody, _1, _1));
 
     ParsingData::Faces faces = GetParsingData ().GetFaces ();
     for_each (faces.begin (), faces.end (),
-	      boost::bind (&Face::UpdateStandaloneFacePartOf, _1, _1));
+	      boost::bind (&Face::UpdateAdjacentFaceStandalone, _1, _1));
 
     ParsingData::Edges edges = GetParsingData ().GetEdges ();
     for_each (edges.begin (), edges.end (),
-	      boost::bind (&Edge::UpdateEdgePartOf, _1, _1));
+	      boost::bind (&Edge::UpdateAdjacentEdge, _1, _1));
 }
 
 void Foam::CalculateBoundingBox ()
 {
     G3D::Vector3 low, high;
-    // calculate the BB for each body
     for_each (m_bodies.begin (), m_bodies.end (),
 	      boost::bind (&Body::CalculateBoundingBox, _1));
+
     // using the BB for bodies to calculate BB for the foam does not
     // work when there are no bodies
     VertexSet vertexSet = GetVertexSet ();
@@ -412,7 +412,7 @@ void Foam::Preprocess ()
     if (forcesNames.size () > 0)
 	SetForces (forcesNames);
     compact ();
-    updatePartOf ();
+    updateAdjacent ();
     copyStandaloneElements ();
     if (IsTorus ())
 	unwrap (&vertexSet, &edgeSet, &faceSet);
@@ -432,6 +432,10 @@ void Foam::Preprocess ()
     setMissingPressureZero ();
     setMissingVolume ();
     addConstraintEdges ();
+}
+
+void Foam::CalculateBodyNeighbors ()
+{
 }
 
 void Foam::addConstraintEdges ()
@@ -480,14 +484,14 @@ void Foam::FixConstraintPoints (const Foam* prevFoam)
     {
 	//cdbg << "process: " << index.first << ", " << index.second << endl;
 	bool valid;
-	Face& face = GetBody (index.first).GetFace (0);
+	const Face& face = GetBody (index.first).GetFace (0);
 	ConstraintEdge& edge = static_cast<ConstraintEdge&> (
 	    *face.GetOrientedEdge (face.size () - 1).GetEdge ());
 	if (prevFoam == 0)
 	    edge.FixPointsConcaveOrConvex ();
 	else
 	{
-	    Face& prevFace = prevFoam->GetBody (index.first).GetFace (0);
+	    const Face& prevFace = prevFoam->GetBody (index.first).GetFace (0);
 	    ConstraintEdge& prevEdge = static_cast<ConstraintEdge&> (
 		*prevFace.GetOrientedEdge (prevFace.size () - 1).GetEdge ());
 	    G3D::Vector2 prevPoint = prevEdge.GetPoint (index.second).xy ();
@@ -688,7 +692,7 @@ const AttributesInfo& Foam::GetAttributesInfo (
 
 boost::shared_ptr<Edge> Foam::GetStandardEdge () const
 {
-    Face* f;
+    const Face* f;
     if (m_bodies.size () == 0)
 	f = m_standaloneFaces[0].get ();
     else

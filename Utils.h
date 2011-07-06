@@ -122,6 +122,9 @@ template<typename Container> void resizeAllowIndex (Container* c, size_t i)
         c->resize (i + 1);
 }
 
+template<typename T> vector<G3D::Vector3> GetEdgeVectors (const T& t);
+template<typename T> G3D::AABox CalculateBoundingBox (const T& t);
+
 
 // Other
 // ======================================================================

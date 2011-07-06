@@ -38,7 +38,7 @@ public:
      * Adds an edge that is adjacent to this vertex
      * @param edge edge touched by this vertex
      */
-    void AddEdgePartOf (const boost::shared_ptr<Edge>& edge);
+    void AddAdjacentEdge (const boost::shared_ptr<Edge>& edge);
     G3D::Vector3int16 GetDomain () const;
     bool operator< (const Vertex& other) const;
     bool operator== (const Vertex& other) const;
@@ -115,7 +115,7 @@ private:
     /**
      * Edges this vertex is part of
      */
-    vector<boost::shared_ptr<Edge> > m_edgesPartOf;
+    vector<boost::shared_ptr<Edge> > m_adjacentEdges;
     G3D::Vector3 m_vector;
 };
 /**

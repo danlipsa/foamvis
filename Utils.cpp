@@ -5,6 +5,7 @@
  * Implementation of various utility functions
  */
 
+#include "Body.h"
 #include "Comparisons.h"
 #include "Edge.h"
 #include "Face.h"
@@ -291,18 +292,41 @@ int polyCentroid2D(T x[], T y[], size_t n, T *xCentroid, T *yCentroid, T *area)
     return 2;
 }
 
+template<typename T> vector<G3D::Vector3> GetEdgeVectors (const T& t)
+{
+    EdgeSet edges = t.GetEdgeSet ();
+    vector<G3D::Vector3> v;
+    BOOST_FOREACH (boost::shared_ptr<Edge> edge, edges)
+    {
+	for (size_t i = 0; i < edge->GetPointCount (); ++i)
+	    v.push_back (edge->GetPoint (i));
+    }
+    return v;
+}
+
+template<typename T> G3D::AABox CalculateBoundingBox (const T& t)
+{
+    G3D::Vector3 low, high;
+    vector<G3D::Vector3> v (GetEdgeVectors (t));
+    CalculateAggregate <vector<G3D::Vector3>, vector<G3D::Vector3>::iterator, 
+	VertexLessThanAlong> () (min_element, v, &low);
+    CalculateAggregate <vector<G3D::Vector3>, vector<G3D::Vector3>::iterator, 
+	VertexLessThanAlong>()(max_element, v, &high);
+    return G3D::AABox (low, high);
+}
+
+
 // Template instantiations
 //======================================================================
 
 /// @cond
 template int polyCentroid2D<double>(
     double*, double*, unsigned long, double*, double*, double*);
-/// @endcond
 
+template std::vector<G3D::Vector3, std::allocator<G3D::Vector3> > GetEdgeVectors<Body>(Body const&);
 
-// CalculateAggregate
-// ======================================================================
-/// @cond
+template G3D::AABox CalculateBoundingBox<Body>(Body const&);
+
 template void CalculateAggregate<std::set<boost::shared_ptr<Vertex>, VertexLessThan, std::allocator<boost::shared_ptr<Vertex> > >, std::_Rb_tree_const_iterator<boost::shared_ptr<Vertex> >, VertexLessThanAlong>::operator()(std::_Rb_tree_const_iterator<boost::shared_ptr<Vertex> > (*)(std::_Rb_tree_const_iterator<boost::shared_ptr<Vertex> >, std::_Rb_tree_const_iterator<boost::shared_ptr<Vertex> >, VertexLessThanAlong), std::set<boost::shared_ptr<Vertex>, VertexLessThan, std::allocator<boost::shared_ptr<Vertex> > >&, G3D::Vector3*);
 
 

@@ -38,7 +38,7 @@ public:
 
     void AddAdjacentBody (const boost::shared_ptr<Body>& body, size_t ofIndex);
     const AdjacentBody& GetAdjacentBody () const;
-    void UpdateFacePartOf (const boost::shared_ptr<OrientedFace>& of);
+    void UpdateAdjacentFace (const boost::shared_ptr<OrientedFace>& of);
     string GetStringId () const;
 
     /**
@@ -75,6 +75,7 @@ public:
     size_t GetNextValidIndex (size_t index) const;
     size_t GetPreviousValidIndex (size_t index) const;
     G3D::Vector3 GetNormal () const;
+    G3D::Plane GetPlane () const;
 
     size_t size () const;
     bool IsClosed () const;

@@ -176,10 +176,6 @@ public:
      */
     void ModelViewTransform (ViewNumber::Enum viewNumber, 
 			     size_t timeStep) const;
-    /**
-     * Displays the foam in various way
-     */
-    void DisplayViewType (ViewNumber::Enum view) const;
     BodyProperty::Enum GetBodyProperty () const
     {
 	return GetBodyProperty (GetViewNumber ());
@@ -290,8 +286,9 @@ public Q_SLOTS:
     void ContextDisplayReset ();
     void ContextStationaryFoam ();
     void ContextStationaryReset ();
-    void InfoFocus ();
     void InfoPoint ();
+    void InfoFace ();
+    void InfoBody ();
     void InfoFoam ();
     void InfoOpenGL ();
     // Actions color bar
@@ -368,10 +365,7 @@ private:
 	double edgeRadiusMultiplier,
 	double* edgeRadius, double* arrowBaseRadius, 
 	double* arrowHeight, double* edgeWidth) const;
-
-    /**
-     * Displays the center of the bodies
-     */
+    void displayContextMenuPos (ViewNumber::Enum viewNumber) const;
     void displayBodyCenters (ViewNumber::Enum viewNumber, 
 			     bool useZPos = false) const;
     void displayFaceCenters (ViewNumber::Enum viewNumber) const;
@@ -456,7 +450,7 @@ private:
 
     void displayBoundingBox (ViewNumber::Enum viewNumber) const;
     void displayFocusBox (ViewNumber::Enum viewNumber) const;
-    void displayAxes () const;
+    void displayAxes ();
     G3D::Vector3 getInitialLightPosition (
 	LightNumber::Enum lightPosition) const;
 
@@ -513,7 +507,13 @@ private:
     void deselect (const QPoint& position);
     G3D::Vector3 brushedBodies (
 	const QPoint& position, vector<size_t>* bodies) const;
+    G3D::Vector3 brushedBodies (const QPoint& position, 
+				vector< boost::shared_ptr<Body> >* bodies) const;
+    void brushedFace (const QPoint& position, vector<size_t>* bodies) const;
+    G3D::Vector3 toObjectTransform (const QPoint& position) const;
     G3D::Vector3 toObject (const QPoint& position) const;
+    G3D::Vector3 toObjectTransform (const QPoint& position, 
+				    ViewNumber::Enum viewNumber) const;
     
     void initViewTypeDisplay ();
     void createActions ();
@@ -537,7 +537,8 @@ private:
     void rotateAverageAroundConstraint (size_t timeStep, int direction) const;
     void valueChanged (
 	double* dest, const pair<double,double>& minMax, int index);
-    
+    string infoSelectedBody () const;
+    string infoSelectedBodies () const;
 
 private:
     /**
@@ -575,11 +576,8 @@ private:
      * Used for rotation, translation and scale
      */
     QPoint m_lastPos;
-    /**
-     * Used to select a stationary body
-     */
-    QPoint m_contextMenuPos;
-
+    QPoint m_contextMenuPosScreen;
+    G3D::Vector3 m_contextMenuPosObject;
     EndLocationColor m_endTranslationColor;
     GLUquadricObj* m_quadric;    
     /**
@@ -622,8 +620,9 @@ private:
     boost::shared_ptr<QAction> m_actionContextStationaryFoam;
     boost::shared_ptr<QAction> m_actionContextStationaryReset;
 
-    boost::shared_ptr<QAction> m_actionInfoFocus;
     boost::shared_ptr<QAction> m_actionInfoPoint;
+    boost::shared_ptr<QAction> m_actionInfoFace;
+    boost::shared_ptr<QAction> m_actionInfoBody;
     boost::shared_ptr<QAction> m_actionInfoFoam;
     boost::shared_ptr<QAction> m_actionInfoOpenGL;
     boost::shared_ptr<QAction> m_actionEditColorMap;

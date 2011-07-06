@@ -98,27 +98,28 @@ public:
     /**
      * Adds a face touched by this edge
      */
-    void AddFacePartOf (boost::shared_ptr<OrientedFace>  face, size_t edgeIndex);
-    size_t GetFacePartOfSize () const
+    void AddAdjacentFace (
+	boost::shared_ptr<OrientedFace>  face, size_t edgeIndex);
+    size_t GetAdjacentFaceCount () const
     {
-	return m_facesPartOf.size ();
+	return m_adjacentOrientedFaces.size ();
     }
-    OrientedFaceIndexList::const_iterator GetFacePartOfBegin () const
+    AdjacentOrientedFaces::const_iterator GetAdjacentFaceBegin () const
     {
-	return m_facesPartOf.begin ();
+	return m_adjacentOrientedFaces.begin ();
     }
-    OrientedFaceIndexList::const_iterator GetFacePartOfEnd () const
+    AdjacentOrientedFaces::const_iterator GetAdjacentFaceEnd () const
     {
-	return m_facesPartOf.end ();
+	return m_adjacentOrientedFaces.end ();
     }
-    string FacePartOfToString () const;
+    string AdjacentFacesToString () const;
 
 
     /**
      * For both  vertices of this edge,  add the edge as  being adjacent to
      * the vertices
      */
-    void UpdateEdgePartOf (const boost::shared_ptr<Edge>& edge);
+    void UpdateAdjacentEdge (const boost::shared_ptr<Edge>& edge);
     const G3D::Vector3int16& GetEndTranslation () const
     {
 	return m_endTranslation;
@@ -140,7 +141,7 @@ public:
 
     bool IsStandalone () const
     {
-	return GetFacePartOfSize () == 0;
+	return GetAdjacentFaceCount () == 0;
     }
 
     size_t GetConstraintIndex (size_t i) const;
@@ -204,7 +205,7 @@ private:
      * Stores adjacent faces to this edge. Assume no duplicate edges
      * in 3D torus model.
      */
-    OrientedFaceIndexList m_facesPartOf;
+    AdjacentOrientedFaces m_adjacentOrientedFaces;
     boost::scoped_ptr< vector<G3D::LineSegment> > m_torusClipped;
 
 };

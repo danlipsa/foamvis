@@ -148,18 +148,23 @@ void Body::CalculateCenter (bool is2D, bool isQuadratic)
 }
 
 
-void Body::UpdatePartOf (const boost::shared_ptr<Body>& body)
+void Body::UpdateAdjacentBody (const boost::shared_ptr<Body>& body)
 {
     for (size_t i = 0; i < m_orientedFaces.size (); i++)
     {
 	boost::shared_ptr<OrientedFace> of = m_orientedFaces[i];
 	of->AddAdjacentBody (body, i);
-	of->UpdateFacePartOf (of);
+	of->UpdateAdjacentFace (of);
     }
 }
 
 
-Face& Body::GetFace (size_t i) const
+const Face& Body::GetFace (size_t i) const
+{
+    return *GetOrientedFace (i).GetFace ();
+}
+
+Face& Body::GetFace (size_t i)
 {
     return *GetOrientedFace (i).GetFace ();
 }
@@ -291,15 +296,7 @@ void Body::SetPressureValue (double value)
 
 void Body::CalculateBoundingBox ()
 {
-    G3D::Vector3 low, high;
-    vector<G3D::Vector3> v (GetAllEdgeVertices ());
-    CalculateAggregate <vector<G3D::Vector3>, vector<G3D::Vector3>::iterator, 
-	VertexLessThanAlong> () (
-	    min_element, v, &low);
-    CalculateAggregate <vector<G3D::Vector3>, 
-	vector<G3D::Vector3>::iterator, VertexLessThanAlong>()(
-	    max_element, v, &high);
-    m_boundingBox.set(low, high);
+    m_boundingBox = ::CalculateBoundingBox (*this);
 }
 
 void Body::CalculatePerimeterOverSqrtArea ()
@@ -312,18 +309,6 @@ void Body::CalculatePerimeterOverSqrtArea ()
 	m_perimeterOverSqrtArea = of->GetPerimeter () / 
 	    sqrt (GetPropertyValue (BodyProperty::TARGET_VOLUME));
     }
-}
-
-vector<G3D::Vector3> Body::GetAllEdgeVertices () const
-{
-    EdgeSet edges = GetEdgeSet ();
-    vector<G3D::Vector3> v;
-    BOOST_FOREACH (boost::shared_ptr<Edge> edge, edges)
-    {
-	for (size_t i = 0; i < edge->GetPointCount (); ++i)
-	    v.push_back (edge->GetPoint (i));
-    }
-    return v;
 }
 
 const char* Body::GetAttributeKeywordString (BodyProperty::Enum bp)

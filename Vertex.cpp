@@ -40,9 +40,9 @@ Vertex::Vertex (const G3D::Vector3& position, size_t id) :
 {}
 
 
-void Vertex::AddEdgePartOf (const boost::shared_ptr<Edge>& edge) 
+void Vertex::AddAdjacentEdge (const boost::shared_ptr<Edge>& edge) 
 {
-    m_edgesPartOf.push_back (edge);
+    m_adjacentEdges.push_back (edge);
 }
 
 G3D::Vector3int16 Vertex::GetDomain () const
@@ -86,11 +86,11 @@ bool Vertex::IsPhysical (bool is2D, bool isQuadratic) const
 	if (isQuadratic)
 	    return true;
 	else
-	    return m_edgesPartOf.size () >= 3;
+	    return m_adjacentEdges.size () >= 3;
     }
     else
 	return 
-	    count_if (m_edgesPartOf.begin (), m_edgesPartOf.end (),
+	    count_if (m_adjacentEdges.begin (), m_adjacentEdges.end (),
 		      boost::bind (&Edge::IsPhysical, _1, is2D, isQuadratic)) 
 	    == 4;
 }

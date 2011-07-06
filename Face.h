@@ -41,7 +41,7 @@ public:
 
     void AddAdjacentBody (boost::shared_ptr<Body>  body, size_t orientedFaceIndex)
     {
-	m_bodiesPartOf.push_back (AdjacentBody (body, orientedFaceIndex));
+	m_adjacentBodies.push_back (AdjacentBody (body, orientedFaceIndex));
     }
     void AddEdge (boost::shared_ptr<Edge> edge);
     void SetNormal ();
@@ -57,14 +57,20 @@ public:
     const AdjacentBody& GetAdjacentBody (bool faceReversed) const;
     const AdjacentBody& GetAdjacentBody (size_t i) const
     {
-	return m_bodiesPartOf[i];
+	return m_adjacentBodies[i];
     }
     size_t GetAdjacentBodySize () const
     {
-	return m_bodiesPartOf.size ();
+	return m_adjacentBodies.size ();
     }
     void GetVertexSet (VertexSet* vertexSet) const;
     void GetEdgeSet (EdgeSet* edgeSet) const;
+    EdgeSet GetEdgeSet () const
+    {
+	EdgeSet set;
+	GetEdgeSet (&set);
+	return set;
+    }
 
 
     size_t GetNextValidIndex (size_t index) const;
@@ -78,6 +84,8 @@ public:
     {
 	return m_normal;
     }
+    G3D::Plane GetPlane () const;
+
     double GetPerimeter () const
     {
 	return m_perimeter;
@@ -121,7 +129,7 @@ public:
 	return GetAdjacentBodySize () == 0;
     }
     void PrintAdjacentBodyInformation (ostream& ostr) const;
-    void UpdateStandaloneFacePartOf (boost::shared_ptr<Face> face);
+    void UpdateAdjacentFaceStandalone (boost::shared_ptr<Face> face);
     void CalculateCentroidAndArea ();
     void CalculatePerimeter ();
     QColor GetColor (const QColor& defaultColor) const;
@@ -145,16 +153,11 @@ private:
     /**
      * Bodies this face is part of.
      */
-    vector<AdjacentBody> m_bodiesPartOf;
+    vector<AdjacentBody> m_adjacentBodies;
     G3D::Vector3 m_normal;
     G3D::Vector3 m_center;
     double m_perimeter;
     double m_area;
-    /**
-     * Standalone faces need a place to store an OrientedFace
-     * for the list of faces part of each edge.
-     */
-    boost::shared_ptr<OrientedFace> m_orientedFace;
 };
 /**
  * Pretty prints this Face by printing the edges in DIRECT order

@@ -75,7 +75,7 @@ Face::Face (const boost::shared_ptr<Edge>& edge, size_t id) :
 
 Face::Face (const Face& original) :
     Element (original),
-    m_bodiesPartOf (original.m_bodiesPartOf),
+    m_adjacentBodies (original.m_adjacentBodies),
     m_normal (original.m_normal),
     m_center (original.m_center)
 {
@@ -88,7 +88,7 @@ Face::Face (const vector<int>& edgeIndexes,
 	    size_t id, ElementStatus::Enum duplicateStatus) :
     Element (id, duplicateStatus)
 {
-    m_bodiesPartOf.reserve (2);
+    m_adjacentBodies.reserve (2);
     m_orientedEdges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_orientedEdges.begin(), 
                indexToOrientedEdge(edges));
@@ -205,14 +205,19 @@ void Face::SetNormal ()
 void Face::calculateAxes (
     G3D::Vector3* x, G3D::Vector3* y, G3D::Vector3* z) const
 {
-    using G3D::Vector3; using G3D::Plane;
+    const OrientedEdge& one = GetOrientedEdge (0);
+    *x = (one.GetEndVector () - one.GetBeginVector ()).unit ();    
+    *z = GetPlane ().normal ();
+    *y = z->cross (*x);
+}
+
+G3D::Plane Face::GetPlane () const
+{
     const OrientedEdge& one = GetOrientedEdge (0);
     const OrientedEdge& two = GetOrientedEdge (1);
     G3D::Plane plane (one.GetBeginVector (), two.GetBeginVector (), 
 		      two.GetEndVector ());
-    *x = (one.GetEndVector () - one.GetBeginVector ()).unit ();    
-    *z = plane.normal ();
-    *y = z->cross (*x);
+    return plane;
 }
 
 bool Face::IsClosed () const
@@ -227,8 +232,8 @@ const AdjacentBody& Face::GetAdjacentBody (bool faceReversed) const
 {
     RuntimeAssert (! IsStandalone (), "GetAdjacentBody for standalone face: ",
 		   GetId ());
-    size_t index = faceReversed ^ m_bodiesPartOf[0].IsOrientedFaceReversed ();
-    return m_bodiesPartOf[index];
+    size_t index = faceReversed ^ m_adjacentBodies[0].IsOrientedFaceReversed ();
+    return m_adjacentBodies[index];
 }
 
 void Face::PrintAdjacentBodyInformation (ostream& ostr) const
@@ -259,8 +264,8 @@ string Face::ToString () const
 	ostr << "Face attributes: ";
 	PrintAttributes (ostr);
     }
-    ostr << "Adjacent bodies" << "(" << m_bodiesPartOf.size () << "): ";
-    BOOST_FOREACH (AdjacentBody bi, m_bodiesPartOf)
+    ostr << "Adjacent bodies" << "(" << m_adjacentBodies.size () << "): ";
+    BOOST_FOREACH (AdjacentBody bi, m_adjacentBodies)
 	ostr << "(" << bi.GetBody ()->GetId () 
 	     << ", " << bi.GetOrientedFaceIndex ()<< ") ";
     ostr << endl;
@@ -327,15 +332,20 @@ boost::shared_ptr<Face> Face::createDuplicate (
     return faceDuplicate;
 }
 
-void Face::UpdateStandaloneFacePartOf (boost::shared_ptr<Face> face)
+void Face::UpdateAdjacentFaceStandalone (boost::shared_ptr<Face> face)
 {
     if (IsStandalone ())
     {
-	m_orientedFace.reset (new OrientedFace (face, false));
+	/**
+	 * Standalone faces need a place to store an OrientedFace
+	 * for the list of faces part of each edge.
+	 */
+	boost::shared_ptr<OrientedFace> orientedFace (
+	    new OrientedFace (face, false));
 	for (size_t i = 0; i < size (); i++)
 	{
 	    boost::shared_ptr<OrientedEdge> oe = GetOrientedEdgePtr (i);
-	    oe->AddFacePartOf (m_orientedFace, i);
+	    oe->AddAdjacentFace (orientedFace, i);
 	}
     }
 }
@@ -355,3 +365,4 @@ QColor Face::GetColor (const QColor& defaultColor) const
     else
 	return defaultColor;
 }
+

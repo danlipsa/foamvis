@@ -27,6 +27,7 @@
 #include "Info.h"
 #include "OpenGLUtils.h"
 #include "OrientedEdge.h"
+#include "OrientedFace.h"
 #include "SelectBodiesById.h"
 #include "Utils.h"
 #include "Vertex.h"
@@ -275,15 +276,20 @@ void GLWidget::createActions ()
     connect(m_actionContextDisplayReset.get (), SIGNAL(triggered()),
 	    this, SLOT(ContextDisplayReset ()));
 
-    m_actionInfoFocus = boost::make_shared<QAction> (tr("&Focus"), this);
-    m_actionInfoFocus->setStatusTip(tr("Info focus"));
-    connect(m_actionInfoFocus.get (), SIGNAL(triggered()), this, 
-	    SLOT(InfoFocus ()));
-
     m_actionInfoPoint = boost::make_shared<QAction> (tr("&Point"), this);
     m_actionInfoPoint->setStatusTip(tr("Info point"));
     connect(m_actionInfoPoint.get (), SIGNAL(triggered()), this, 
 	    SLOT(InfoPoint ()));
+
+    m_actionInfoFace = boost::make_shared<QAction> (tr("&Face"), this);
+    m_actionInfoFace->setStatusTip(tr("Info face"));
+    connect(m_actionInfoFace.get (), SIGNAL(triggered()), this, 
+	    SLOT(InfoFace ()));
+
+    m_actionInfoBody = boost::make_shared<QAction> (tr("&Body"), this);
+    m_actionInfoBody->setStatusTip(tr("Info body"));
+    connect(m_actionInfoBody.get (), SIGNAL(triggered()), this, 
+	    SLOT(InfoBody ()));
 
     m_actionInfoFoam = boost::make_shared<QAction> (tr("&Foam"), this);
     m_actionInfoFoam->setStatusTip(tr("Info foam"));
@@ -413,18 +419,10 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 
 double GLWidget::getMinimumEdgeRadius () const
 {
-    const Foam& foam = GetFoamAlongTime ().GetFoam (0);
-    float l;
-    if (foam.GetBodies ().size () > 0)
-    {
-	const G3D::AABox& box = foam.GetBody (0).GetBoundingBox ();
-	l = (box.high () - box.low ()).length ();
-    }
-    else
-    {
-	l = foam.GetStandaloneFaces ()[0]->GetOrientedEdge (0).GetLength ();
-    }
-    return  l / 50;
+    G3D::Vector3 first = toObject (QPoint (0, 0));
+    G3D::Vector3 second = toObject (QPoint (1, 0));
+    float pixelObjectSpace = (second - first).length ();
+    return pixelObjectSpace;
 }
 
 void GLWidget::calculateEdgeRadius (double edgeRadiusRatio,
@@ -914,6 +912,107 @@ void GLWidget::InfoFoam ()
     msgBox.exec();
 }
 
+void GLWidget::InfoPoint ()
+{
+    QMessageBox msgBox (this);
+    ostringstream ostr;
+    ostr << "Point: " << m_contextMenuPosObject;
+    msgBox.setText(ostr.str ().c_str ());
+    msgBox.exec();
+}
+
+void GLWidget::InfoFace ()
+{
+    Info msgBox (this, "Info");
+    ostringstream ostr;
+    vector< boost::shared_ptr<Body> > bodies;
+    G3D::Vector3 op = brushedBodies (m_contextMenuPosScreen, &bodies);
+    if (bodies.size () == 0)
+	ostr << "No bodies focused.";
+    else
+    {
+	float minDistance = numeric_limits<float>::max ();
+	const OrientedFace* clickedFace = 0;
+	BOOST_FOREACH (boost::shared_ptr<OrientedFace> face, 
+		       bodies[0]->GetOrientedFaces ())
+	{
+	    G3D::Plane plane = face->GetPlane ();
+	    float distance = plane.distance (op);
+	    distance = abs (distance);
+	    if ( minDistance > distance)
+	    {
+		minDistance = distance;
+		clickedFace = face.get ();
+	    }
+	}
+	ostr << *clickedFace;
+    }
+    msgBox.setText(ostr.str ().c_str ());
+    msgBox.exec();
+}
+
+void GLWidget::InfoBody ()
+{
+    Info msgBox (this, "Info");
+    const BodySelector& bodySelector = GetViewSettings ().GetBodySelector ();
+    string message;
+    switch (bodySelector.GetType ())
+    {
+    case BodySelectorType::ALL:
+	message = infoSelectedBody ();
+	break;
+
+    case BodySelectorType::ID:
+	message = infoSelectedBodies ();
+	break;
+
+    default:
+	break;
+    }
+
+    msgBox.setText (message.c_str ());
+    msgBox.exec();
+}
+
+string GLWidget::infoSelectedBody () const
+{
+    ostringstream ostr;
+    vector< boost::shared_ptr<Body> > bodies;
+    brushedBodies (m_contextMenuPosScreen, &bodies);
+    if (bodies.size () == 0)
+	ostr << "No bodies focused.";
+    else
+	ostr << bodies[0];
+    return ostr.str ();
+}
+
+string GLWidget::infoSelectedBodies () const
+{
+    ostringstream ostr;
+    const BodySelector& bodySelector = GetViewSettings ().GetBodySelector ();
+    const vector<size_t>& ids = 
+	(static_cast<const IdBodySelector&> (bodySelector)).GetIds ();
+    if (ids.size () == 1)
+    {
+	Foam::Bodies::const_iterator it = GetCurrentFoam ().FindBody (
+	    ids[0]);
+	ostr << *it;
+    }
+    else
+    {
+	ostr << "Selected ids: ";
+	ostream_iterator<size_t> out (ostr, " ");
+	copy (ids.begin (), ids.end (), out);
+	if (GetViewSettings ().GetBodyProperty () != 
+	    BodyProperty::NONE)
+	{
+	    ostr << endl;
+		
+	}
+    }
+    return ostr.str ();
+}
+
 void GLWidget::InfoOpenGL ()
 {
     ostringstream ostr;
@@ -921,77 +1020,6 @@ void GLWidget::InfoOpenGL ()
     Info openGLInfo (this, "OpenGL Info", ostr.str ().c_str ());
     openGLInfo.exec ();
 }
-
-void GLWidget::InfoFocus ()
-{
-    Info msgBox (this, "Info");
-    ostringstream ostr;
-    const BodySelector& bodySelector = GetViewSettings ().GetBodySelector ();
-    switch (bodySelector.GetType ())
-    {
-    case BodySelectorType::ALL:
-    {
-	vector<size_t> bodies;
-	G3D::Vector3 op = brushedBodies (m_contextMenuPos, &bodies);
-	if (bodies.size () == 0)
-	    ostr << "No bodies focused.";
-	else
-	{
-	    Foam::Bodies::const_iterator it = 
-		GetCurrentFoam ().FindBody (bodies[0]);
-	    ostr << *it;
-	}
-	break;
-    }
-
-    case BodySelectorType::ID:
-    {
-	const vector<size_t>& ids = 
-	    (static_cast<const IdBodySelector&> (bodySelector)).GetIds ();
-	if (ids.size () == 1)
-	{
-	    Foam::Bodies::const_iterator it = GetCurrentFoam ().FindBody (
-		ids[0]);
-	    ostr << *it;
-	}
-	else
-	{
-	    ostr << "Selected ids: ";
-	    ostream_iterator<size_t> out (ostr, " ");
-	    copy (ids.begin (), ids.end (), out);
-	    if (GetViewSettings ().GetBodyProperty () != 
-		BodyProperty::NONE)
-	    {
-		ostr << endl;
-		
-	    }
-	}
-	break;
-    }
-
-    case BodySelectorType::PROPERTY_VALUE:
-    {
-	break;
-    }
-
-    case BodySelectorType::COMPOSITE:
-	break;
-    }
-
-    msgBox.setText(ostr.str ().c_str ());
-    msgBox.exec();
-}
-
-void GLWidget::InfoPoint ()
-{
-    QMessageBox msgBox (this);
-    ostringstream ostr;
-    G3D::Vector3 op = toObject (m_contextMenuPos);
-    ostr << "Point: " << op;
-    msgBox.setText(ostr.str ().c_str ());
-    msgBox.exec();
-}
-
 
 void GLWidget::EditColorMapDispatch ()
 {
@@ -1063,8 +1091,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
 			     &m_edgeRadius, &m_arrowBaseRadius,
 			     &m_arrowHeight, &m_edgeWidth);
     }
-
-    DisplayViewType (viewNumber);
+    (this->*(m_viewTypeDisplay[vs.GetViewType ()])) (viewNumber);
     displayViewDecorations (viewNumber);
     displayAxes ();
     displayBoundingBox (viewNumber);
@@ -1072,6 +1099,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     displayFocusBox (viewNumber);
     displayLightDirection (viewNumber);
     displayT1s (viewNumber);
+    displayContextMenuPos (viewNumber);
     WarnOnOpenGLError ("displayView");
 }
 
@@ -1176,32 +1204,53 @@ void GLWidget::scaleContext (
     vs.SetContextScaleRatio (vs.GetContextScaleRatio () * ratio);
 }
 
-
 G3D::Vector3 GLWidget::brushedBodies (
     const QPoint& position, vector<size_t>* bodies) const
 {
-    G3D::Vector3 op = toObject (position);
+    vector< boost::shared_ptr<Body> > b;
+    G3D::Vector3 op = brushedBodies (position, &b);
+    bodies->resize (b.size ());
+    transform (b.begin (), b.end (), bodies->begin (),
+	       boost::bind (&Element::GetId, _1));
+    return op;
+}
+
+G3D::Vector3 GLWidget::brushedBodies (
+    const QPoint& position, vector< boost::shared_ptr<Body> >* bodies) const
+{
+    G3D::Vector3 op = toObjectTransform (position);
     const Foam& foam = GetCurrentFoam ();
     BOOST_FOREACH (boost::shared_ptr<Body> body, foam.GetBodies ())
     {
 	G3D::AABox box = body->GetBoundingBox ();
 	if (box.contains (op))
-	    bodies->push_back (body->GetId ());
+	    bodies->push_back (body);
     }
     return op;
 }
 
+
 G3D::Vector3 GLWidget::toObject (const QPoint& position) const
 {
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    viewportTransform (viewNumber);    
-    projectionTransform (viewNumber);
-    ModelViewTransform (viewNumber, GetTimeStep ());
-
     G3D::Vector3 op = gluUnProject (QtToOpenGl (position, height ()));
     if (GetFoamAlongTime ().Is2D ())
 	op.z = 0;
     return op;
+}
+
+
+G3D::Vector3 GLWidget::toObjectTransform (const QPoint& position, 
+					  ViewNumber::Enum viewNumber) const
+{
+    viewportTransform (viewNumber);    
+    projectionTransform (viewNumber);
+    ModelViewTransform (viewNumber, GetTimeStep ());
+    return toObject (position);
+}
+
+G3D::Vector3 GLWidget::toObjectTransform (const QPoint& position) const
+{
+    return toObjectTransform (position, GetViewNumber ());
 }
 
 void GLWidget::displayAverageAroundBody (ViewNumber::Enum viewNumber) const
@@ -1385,7 +1434,7 @@ void GLWidget::AverageAroundBody ()
 {
     ViewSettings& vs = GetViewSettings ();
     vector<size_t> bodies;
-    brushedBodies (m_contextMenuPos, &bodies);
+    brushedBodies (m_contextMenuPosScreen, &bodies);
     if (bodies.size () != 0)
     {
 	vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND_BODY);
@@ -1432,7 +1481,7 @@ void GLWidget::ContextDisplayBody ()
 {
     ViewSettings& vs = GetViewSettings ();
     vector<size_t> bodies;
-    brushedBodies (m_contextMenuPos, &bodies);
+    brushedBodies (m_contextMenuPosScreen, &bodies);
     vs.AddContextDisplayBody (bodies[0]);
     setLabel ();
     update ();
@@ -1616,10 +1665,16 @@ void GLWidget::displayBoundingBox (ViewNumber::Enum viewNumber) const
     glPopAttrib ();
 }
 
-void GLWidget::displayAxes () const
+void GLWidget::displayAxes ()
 {
     if (m_axesShown)
     {
+	QFont font;
+	float a;
+	QFontMetrics fm (font);
+	ostringstream ostr;
+	QString text;
+	ostr << setprecision (4);
 	glPushAttrib (GL_CURRENT_BIT);
 	using G3D::Vector3;
 	const G3D::AABox& aabb = GetFoamAlongTime ().GetBoundingBox ();
@@ -1633,14 +1688,38 @@ void GLWidget::displayAxes () const
 	    GetQuadricObject (), m_arrowBaseRadius, m_edgeRadius, m_arrowHeight,
 	    DisplaySegmentArrow::TOP_END);
 
+	a = fm.height () * m_minimumEdgeRadius;
 	glColor (Qt::red);
 	displayOrientedEdge (origin, first);
+	glColor (Qt::black);
+	ostr.str ("");
+	ostr  << first.x;
+	text = ostr.str ().c_str ();
+	renderText (first.x + a, 
+		    first.y - a, 
+		    first.z, text);
+	ostr.str ("");ostr  << origin.x;
+	text = ostr.str ().c_str ();
+	renderText (origin.x + a, 
+		    origin.y - a, 
+		    origin.z, text);
 
 	glColor (Qt::green);
 	displayOrientedEdge (origin, second);
+	glColor (Qt::black);
+	ostr.str ("");ostr << second.y;
+	renderText (second.x, second.y + a, second.z - a, ostr.str ().c_str ());
+	ostr.str ("");ostr  << origin.y;
+	renderText (origin.x, origin.y + a, origin.z - a, ostr.str ().c_str ());
+
 
 	glColor (Qt::blue);
 	displayOrientedEdge (origin, third);
+	glColor (Qt::black);
+	ostr.str ("");ostr << third.z;
+	renderText (third.x - a, third.y, third.z + a, ostr.str ().c_str ());
+	ostr.str ("");ostr << origin.z;
+	renderText (origin.x - a, origin.y, origin.z + a, ostr.str ().c_str ());
 	glPopAttrib ();
     }
 }
@@ -1830,6 +1909,20 @@ void GLWidget::displayFaceCenters (ViewNumber::Enum viewNumber) const
 }
 
 
+void GLWidget::displayContextMenuPos (ViewNumber::Enum viewNumber) const
+{
+    (void)viewNumber;
+    glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
+    glDisable (GL_DEPTH_TEST);
+    glPointSize (4.0);
+    glColor (Qt::red);
+    glBegin (GL_POINTS);
+    ::glVertex (m_contextMenuPosObject);
+    glEnd ();
+    glPopAttrib ();
+}
+
+
 void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -1947,7 +2040,7 @@ void GLWidget::displayFacesInterior (
 	GetViewSettings (view).GetBodySelector ();
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT | 
 		  GL_TEXTURE_BIT);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+    glPolygonMode (GL_FRONT, GL_FILL);
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
 
@@ -2109,11 +2202,6 @@ void GLWidget::compileCenterPaths (ViewNumber::Enum view) const
     glEndList ();
 }
 
-void GLWidget::DisplayViewType (ViewNumber::Enum view) const
-{
-    (this->*(m_viewTypeDisplay[GetViewSettings (view).GetViewType ()])) (view);
-}
-
 
 const Foam& GLWidget::GetCurrentFoam () const
 {
@@ -2184,10 +2272,11 @@ void GLWidget::quadricErrorCallback (GLenum errorCode)
 
 void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 {
-    m_contextMenuPos = event->pos ();
+    m_contextMenuPosScreen = event->pos ();
+    m_contextMenuPosObject = toObjectTransform (m_contextMenuPosScreen);
     QMenu menu (this);
     G3D::Rect2D colorBarRect = getViewColorBarRect (GetViewRect ());
-    if (colorBarRect.contains (QtToOpenGl (m_contextMenuPos, height ())))
+    if (colorBarRect.contains (QtToOpenGl (m_contextMenuPosScreen, height ())))
     {
 	QMenu* menuCopy = menu.addMenu ("Copy");
 	bool actions = false;
@@ -2245,8 +2334,9 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	}
 	{
 	    QMenu* menuInfo = menu.addMenu ("Info");
-	    menuInfo->addAction (m_actionInfoFocus.get ());
 	    menuInfo->addAction (m_actionInfoPoint.get ());
+	    menuInfo->addAction (m_actionInfoFace.get ());
+	    menuInfo->addAction (m_actionInfoBody.get ());
 	    menuInfo->addAction (m_actionInfoFoam.get ());
 	    menuInfo->addAction (m_actionInfoOpenGL.get ());
 	}
