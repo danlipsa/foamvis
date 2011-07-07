@@ -58,10 +58,9 @@ G3D::Vector3 OrientedFace::GetNormal () const
 G3D::Plane OrientedFace::GetPlane () const
 {
     G3D::Plane plane = GetFace ()->GetPlane ();
-    G3D::Vector3 normal;
-    float distance;
-    plane.getEquation (normal, distance);
-    return G3D::Plane (-normal, distance * normal);
+    if (IsReversed ())
+	plane.flip ();
+    return plane;
 }
 
 void OrientedFace::AddAdjacentBody (const boost::shared_ptr<Body>& body, 

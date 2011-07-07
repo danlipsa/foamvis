@@ -35,14 +35,23 @@ ostream& operator<< (ostream& ostr, const G3D::AABox& box)
 
 ostream& operator<< (ostream& ostr, const QBox3D& box)
 {
-    cdbg << "QBox3D(" << box.minimum () << ", " << box.maximum () << ")";
+    ostr << "QBox3D(" << box.minimum () << ", " << box.maximum () << ")";
     return ostr;
 }
 
 
 ostream& operator<< (ostream& ostr, const G3D::Rect2D& box)
 {
-    cdbg << "Rect2D (" << box.x0y0 () << ", " << box.x1y1 () << ")";
+    ostr << "Rect2D (" << box.x0y0 () << ", " << box.x1y1 () << ")";
+    return ostr;
+}
+
+ostream& operator<< (ostream& ostr, const G3D::Plane& plane)
+{
+    G3D::Vector3 normal;
+    float distance;
+    plane.getEquation (normal, distance);
+    ostr << "Plane (" << normal << ", " << distance << ")";
     return ostr;
 }
 

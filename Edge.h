@@ -100,17 +100,9 @@ public:
      */
     void AddAdjacentFace (
 	boost::shared_ptr<OrientedFace>  face, size_t edgeIndex);
-    size_t GetAdjacentFaceCount () const
+    const AdjacentOrientedFaces& GetAdjacentFaces () const
     {
-	return m_adjacentOrientedFaces.size ();
-    }
-    AdjacentOrientedFaces::const_iterator GetAdjacentFaceBegin () const
-    {
-	return m_adjacentOrientedFaces.begin ();
-    }
-    AdjacentOrientedFaces::const_iterator GetAdjacentFaceEnd () const
-    {
-	return m_adjacentOrientedFaces.end ();
+	return m_adjacentOrientedFaces;
     }
     string AdjacentFacesToString () const;
 
@@ -141,7 +133,7 @@ public:
 
     bool IsStandalone () const
     {
-	return GetAdjacentFaceCount () == 0;
+	return GetAdjacentFaces ().size () == 0;
     }
 
     size_t GetConstraintIndex (size_t i) const;

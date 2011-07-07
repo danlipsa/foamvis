@@ -61,9 +61,7 @@ public:
      */
     void AddAdjacentFace (boost::shared_ptr<OrientedFace> face, 
 			size_t edgeIndex) const;
-    size_t GetAdjacentFaceCount () const;
-    AdjacentOrientedFaces::const_iterator GetAdjacentFaceBegin () const;
-    AdjacentOrientedFaces::const_iterator GetAdjacentFaceEnd () const;
+    const AdjacentOrientedFaces& GetAdjacentFaces () const;
 
     /**
      * Edge for this oriented edge

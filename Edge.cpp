@@ -176,11 +176,12 @@ void Edge::AddAdjacentFace (
 string Edge::AdjacentFacesToString () const
 {
     ostringstream ostr;
-    size_t facePartOfSize = GetAdjacentFaceCount ();
+    const AdjacentOrientedFaces& aofs = GetAdjacentFaces ();
+    size_t facePartOfSize = aofs.size ();
     ostr << "Edge " << GetStringId () << " is part of " 
 	 << facePartOfSize << " faces: ";
     ostream_iterator<AdjacentOrientedFace> output (ostr, " ");
-    copy (GetAdjacentFaceBegin (), GetAdjacentFaceEnd (), output);
+    copy (aofs.begin (), aofs.end (), output);
     return ostr.str ();
 }
 

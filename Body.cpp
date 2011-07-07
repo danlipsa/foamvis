@@ -174,11 +174,11 @@ string Body::ToString () const
     ostringstream ostr;
     ostr << "Body " << GetId () << ":" << endl;
     ostr << m_orientedFaces.size () << " faces part of the body\n";
-    ostream_iterator< boost::shared_ptr<OrientedFace> > ofOutput (ostr, "\n");
-    copy (m_orientedFaces.begin (), m_orientedFaces.end (), ofOutput);
+    BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, m_orientedFaces)
+	ostr << of->GetStringId ();
     if (HasAttributes ())
     {
-	ostr << "Body attributes: ";
+	ostr << " Body attributes: ";
 	PrintAttributes (ostr);
     }
     ostr << "\nBody center: " << m_center;

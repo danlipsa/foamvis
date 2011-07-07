@@ -927,6 +927,7 @@ void GLWidget::InfoFace ()
     ostringstream ostr;
     vector< boost::shared_ptr<Body> > bodies;
     G3D::Vector3 op = brushedBodies (m_contextMenuPosScreen, &bodies);
+    //cdbg << "point=" << op << endl;
     if (bodies.size () == 0)
 	ostr << "No bodies focused.";
     else
@@ -938,6 +939,8 @@ void GLWidget::InfoFace ()
 	{
 	    G3D::Plane plane = face->GetPlane ();
 	    float distance = plane.distance (op);
+	    //cdbg << "distance=" << distance 
+	    //<< " to " << face->GetStringId () << " " << plane << endl;
 	    distance = abs (distance);
 	    if ( minDistance > distance)
 	    {
@@ -945,6 +948,7 @@ void GLWidget::InfoFace ()
 		clickedFace = face.get ();
 	    }
 	}
+	//cdbg << clickedFace->GetStringId () << endl << endl;	
 	ostr << *clickedFace;
     }
     msgBox.setText(ostr.str ().c_str ());
@@ -1084,13 +1088,10 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     viewportTransform (viewNumber);    
     projectionTransform (viewNumber);
     ModelViewTransform (viewNumber, GetTimeStep ());
-    if (m_minimumEdgeRadius == 0)
-    {
-	m_minimumEdgeRadius = getMinimumEdgeRadius ();
-	calculateEdgeRadius (m_edgeRadiusRatio,
-			     &m_edgeRadius, &m_arrowBaseRadius,
-			     &m_arrowHeight, &m_edgeWidth);
-    }
+    m_minimumEdgeRadius = getMinimumEdgeRadius ();
+    calculateEdgeRadius (m_edgeRadiusRatio,
+			 &m_edgeRadius, &m_arrowBaseRadius,
+			 &m_arrowHeight, &m_edgeWidth);
     (this->*(m_viewTypeDisplay[vs.GetViewType ()])) (viewNumber);
     displayViewDecorations (viewNumber);
     displayAxes ();
@@ -1099,7 +1100,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     displayFocusBox (viewNumber);
     displayLightDirection (viewNumber);
     displayT1s (viewNumber);
-    displayContextMenuPos (viewNumber);
+    //displayContextMenuPos (viewNumber);
     WarnOnOpenGLError ("displayView");
 }
 
