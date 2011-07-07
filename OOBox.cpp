@@ -148,6 +148,10 @@ bool OOBox::IsZero () const
     return GetX ().isZero () && GetY ().isZero () && GetZ ().isZero ();
 }
 
+bool OOBox::IsTorusDomain () const
+{
+    return ! IsZero ();
+}
 
 
 bool OOBox::IsWrap (const G3D::Vector3& begin, const G3D::Vector3& end,

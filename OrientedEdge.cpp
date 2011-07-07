@@ -54,15 +54,14 @@ G3D::Vector3 OrientedEdge::GetEndVector () const
     return GetEnd ().GetVector ();
 }
 
-
-bool OrientedEdge::IsZero () const
-{
-    return GetEdge ()->IsZero ();
-}
-
 const AdjacentOrientedFaces& OrientedEdge::GetAdjacentFaces () const
 {
     return GetEdge ()->GetAdjacentFaces ();
+}
+
+bool OrientedEdge::HasConstraints () const
+{
+    return GetEdge ()->HasConstraints ();
 }
 
 void OrientedEdge::AddAdjacentFace (
@@ -75,19 +74,21 @@ string OrientedEdge::ToString () const
 {
     ostringstream ostr;
     using G3D::Vector3;
+    const AdjacentOrientedFaces& afs = GetAdjacentFaces ();
     ostr << "Oriented Edge " << GetStringId () << " "
 	 << GetEdge ()->GetDuplicateStatus ()
 	 << ": " << endl;
     const Vertex& begin = GetBegin ();
     const Vertex& end = GetEnd ();
-    ostr << begin << "," << endl << end
-	 << " Adjacent faces (" << GetAdjacentFaces ().size () << ")" << endl;
+    ostr << begin << "," << endl << end << endl;
+    ostr << " Adjacent faces (" << afs.size () << "): ";
+    BOOST_FOREACH (AdjacentOrientedFace af, afs)
+	ostr << af << " ";
     if (GetEdge ()->HasAttributes ())
     {
 	ostr << "Edge attributes: ";
 	GetEdge ()->PrintAttributes (ostr);
     }
-    
     return ostr.str ();
 }
 

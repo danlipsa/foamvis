@@ -41,6 +41,7 @@ public:
     G3D::Matrix3 GetMatrix () const;
 
     bool IsZero () const;
+    bool IsTorusDomain () const;
 
     const G3D::Vector3& operator[] (size_t i) const
     {
@@ -57,7 +58,6 @@ public:
 	const G3D::Vector3& source, const G3D::Vector3& destination) const;
     bool IsWrap (const G3D::Vector3& begin, const G3D::Vector3& end,
 		 G3D::Vector3int16* translation = 0) const;
-
 
 public:
     friend ostream& operator<< (ostream& ostr, const OOBox& box);

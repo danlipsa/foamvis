@@ -39,7 +39,6 @@ public:
     void AddAdjacentBody (const boost::shared_ptr<Body>& body, size_t ofIndex);
     const AdjacentBody& GetAdjacentBody () const;
     void UpdateAdjacentFace (const boost::shared_ptr<OrientedFace>& of);
-    string GetStringId () const;
 
     /**
      * Gets the begin vertex for an edge in this oriented face

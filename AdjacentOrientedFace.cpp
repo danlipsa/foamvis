@@ -31,6 +31,11 @@ size_t AdjacentOrientedFace::GetBodyId () const
     return GetAdjacentBody ().GetBodyId ();
 }
 
+boost::shared_ptr<Body> AdjacentOrientedFace::GetBody () const
+{
+    return GetAdjacentBody ().GetBody ();
+}
+
 bool AdjacentOrientedFace::IsValidNext (const AdjacentOrientedFace& next) const
 {
     using G3D::Vector3;

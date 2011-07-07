@@ -436,6 +436,10 @@ void Foam::Preprocess ()
 
 void Foam::CalculateBodyNeighbors ()
 {
+    if (Is2D ())
+	for_each (m_bodies.begin (), m_bodies.end (),
+		  boost::bind (&Body::CalculateNeighbors2D, _1, 
+			       GetOriginalDomain ()));
 }
 
 void Foam::addConstraintEdges ()
@@ -592,7 +596,7 @@ double Foam::CalculateMedian (BodyProperty::Enum property)
 
 bool Foam::IsTorus () const
 {
-    return ! GetOriginalDomain ().IsZero ();
+    return GetOriginalDomain ().IsTorusDomain ();
 }
 
 

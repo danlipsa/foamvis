@@ -281,6 +281,11 @@ void GLWidget::createActions ()
     connect(m_actionInfoPoint.get (), SIGNAL(triggered()), this, 
 	    SLOT(InfoPoint ()));
 
+    m_actionInfoEdge = boost::make_shared<QAction> (tr("&Edge"), this);
+    m_actionInfoEdge->setStatusTip(tr("Info edge"));
+    connect(m_actionInfoEdge.get (), SIGNAL(triggered()), this, 
+	    SLOT(InfoEdge ()));
+
     m_actionInfoFace = boost::make_shared<QAction> (tr("&Face"), this);
     m_actionInfoFace->setStatusTip(tr("Info face"));
     connect(m_actionInfoFace.get (), SIGNAL(triggered()), this, 
@@ -921,36 +926,29 @@ void GLWidget::InfoPoint ()
     msgBox.exec();
 }
 
+void GLWidget::InfoEdge ()
+{
+    Info msgBox (this, "Info");
+    ostringstream ostr;
+    OrientedEdge oe = brushedEdge ();
+    if (! oe.GetEdge ())
+	ostr << "No edge focused.";
+    else
+	ostr << oe;
+    msgBox.setText(ostr.str ().c_str ());
+    msgBox.exec();
+}
+
 void GLWidget::InfoFace ()
 {
     Info msgBox (this, "Info");
     ostringstream ostr;
-    vector< boost::shared_ptr<Body> > bodies;
-    G3D::Vector3 op = brushedBodies (m_contextMenuPosScreen, &bodies);
-    //cdbg << "point=" << op << endl;
-    if (bodies.size () == 0)
-	ostr << "No bodies focused.";
+    const OrientedFace* of = 0;
+    brushedFace (&of);
+    if (of == 0)
+	ostr << "No face focused.";
     else
-    {
-	float minDistance = numeric_limits<float>::max ();
-	const OrientedFace* clickedFace = 0;
-	BOOST_FOREACH (boost::shared_ptr<OrientedFace> face, 
-		       bodies[0]->GetOrientedFaces ())
-	{
-	    G3D::Plane plane = face->GetPlane ();
-	    float distance = plane.distance (op);
-	    //cdbg << "distance=" << distance 
-	    //<< " to " << face->GetStringId () << " " << plane << endl;
-	    distance = abs (distance);
-	    if ( minDistance > distance)
-	    {
-		minDistance = distance;
-		clickedFace = face.get ();
-	    }
-	}
-	//cdbg << clickedFace->GetStringId () << endl << endl;	
-	ostr << *clickedFace;
-    }
+	ostr << *of;
     msgBox.setText(ostr.str ().c_str ());
     msgBox.exec();
 }
@@ -1230,6 +1228,58 @@ G3D::Vector3 GLWidget::brushedBodies (
     return op;
 }
 
+G3D::Vector3 GLWidget::brushedFace (const OrientedFace** of) const
+{
+    vector< boost::shared_ptr<Body> > bodies;
+    G3D::Vector3 op = brushedBodies (m_contextMenuPosScreen, &bodies);
+    //cdbg << "point=" << op << endl;
+    if (bodies.size () == 0)
+	*of = 0;
+    else
+    {
+	float minDistance = numeric_limits<float>::max ();
+	BOOST_FOREACH (boost::shared_ptr<OrientedFace> face, 
+		       bodies[0]->GetOrientedFaces ())
+	{
+	    G3D::Plane plane = face->GetPlane ();
+	    float distance = plane.distance (op);
+	    //cdbg << "distance=" << distance 
+	    //<< " to " << face->GetStringId () << " " << plane << endl;
+	    distance = abs (distance);
+	    if ( minDistance > distance)
+	    {
+		minDistance = distance;
+		*of = face.get ();
+	    }
+	}
+	//cdbg << clickedFace->GetStringId () << endl << endl;	
+    }
+    return op;
+}
+
+OrientedEdge GLWidget::brushedEdge () const
+{
+    const OrientedFace* of = 0;
+    G3D::Vector3 op = brushedFace (&of);
+    OrientedEdge result;
+    if (of != 0)
+    {
+	float minDistance = numeric_limits<float>::max ();
+	for (size_t i = 0; i < of->size (); ++i)
+	{
+	    OrientedEdge oe = of->GetOrientedEdge (i);
+	    G3D::Line line = G3D::Line::fromTwoPoints (
+		oe.GetBeginVector (), oe.GetEndVector ());
+	    float distance = line.distance (op);
+	    if (minDistance > distance)
+	    {
+		minDistance = distance;
+		result = oe;
+	    }
+	}
+    }
+    return result;
+}
 
 G3D::Vector3 GLWidget::toObject (const QPoint& position) const
 {
@@ -2329,6 +2379,7 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	{
 	    QMenu* menuInfo = menu.addMenu ("Info");
 	    menuInfo->addAction (m_actionInfoPoint.get ());
+	    menuInfo->addAction (m_actionInfoEdge.get ());
 	    menuInfo->addAction (m_actionInfoFace.get ());
 	    menuInfo->addAction (m_actionInfoBody.get ());
 	    menuInfo->addAction (m_actionInfoFoam.get ());

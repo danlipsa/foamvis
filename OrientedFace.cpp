@@ -144,12 +144,14 @@ string OrientedFace::ToString () const
 	 << ": " << endl;
     ostr << size () << " edges part of the face:" << endl;
     for (size_t i = 0; i < size (); i++)
-	ostr << i << ": " << GetOrientedEdge (i) << endl;
+	ostr << i << ": " << GetOrientedEdge (i).GetStringId () << endl;
     if (face->HasAttributes ())
     {
 	ostr << "Face attributes: ";
 	face->PrintAttributes (ostr);
-	ostr << " center=" << GetFace ()->GetCenter () << endl;
+	ostr << " center=" << GetFace ()->GetCenter () 
+	     << " "
+	     << endl;
     }
     return ostr.str ();
 }
@@ -172,13 +174,4 @@ bool OrientedFace::IsStandalone () const
 QColor OrientedFace::GetColor (const QColor& defaultColor) const
 {
     return GetFace ()->GetColor (defaultColor);
-}
-
-string OrientedFace::GetStringId () const
-{
-    ostringstream ostr;
-    string color (GetColor (Qt::black).name ().toAscii ());
-    ostr << OrientedElement::GetStringId () << " " << color;
-    string s = ostr.str ();
-    return s;
 }

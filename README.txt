@@ -211,8 +211,8 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 Release log
 ===========
 0.5.     - added axes labels
-	 - added right-click > Info > Face
-	 
+	 - added right-click > Info > Face and Info > Edge
+	 	 
 0.5.2023 - fixed wetfoam_100_0002.dmp
 	 - added Actual Volume to the list of body properties, 
 	   Added 'General > Look > Volume shown' user option.

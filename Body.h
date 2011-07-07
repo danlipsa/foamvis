@@ -16,6 +16,7 @@ class Edge;
 class Face;
 class OrientedFace;
 class OrientedEdge;
+class OOBox;
 class Vertex;
 
 /**
@@ -131,6 +132,13 @@ public:
     }
     void CalculatePerimeterOverSqrtArea ();
     static const char* GetAttributeKeywordString (BodyProperty::Enum bp);
+    void CalculateNeighbors2D (const OOBox& originalDomain);
+
+private:
+    typedef struct {
+	G3D::Vector3int16 m_translation;
+	boost::shared_ptr<Body> m_body;
+    } Neighbor;
 
 private:
     /**
@@ -159,7 +167,7 @@ private:
      * Oriented faces that are part of this body.
      */
     OrientedFaces m_orientedFaces;
-    vector< boost::shared_ptr<Body> > m_neighbors;
+    vector<Neighbor> m_neighbors;
     /**
      * Center of the body
      */

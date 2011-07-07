@@ -66,14 +66,12 @@ size_t AttributesInfo::AddAttributeInfoLoad (
 }
 
 
-const char* AttributesInfo::GetAttributeName (size_t index) const
+const char* AttributesInfo::GetAttributeName (size_t i) const
 {
     NameInfoMap::const_iterator it = 
-        find_if (
-	    m_nameInfo.begin (), m_nameInfo.end (), 
-	    boost::bind (&AttributeInfo::GetIndex, 
-			 boost::bind (&NameInfoMap::value_type::second, _1)) 
-	    == index);
+        find_if (m_nameInfo.begin (), m_nameInfo.end (), 
+		 boost::bind (&AttributeInfo::GetIndex, boost::bind (
+				  &NameInfoMap::value_type::second, _1)) == i);
     return it->first.c_str ();
 }
 

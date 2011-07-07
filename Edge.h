@@ -119,7 +119,6 @@ public:
     bool operator== (const Edge& other) const;
     bool fuzzyEq (const Edge& other) const;
     bool operator< (const Edge& other) const;
-    bool IsZero () const;
 
     G3D::Vector3 GetTorusClippedBegin (size_t index) const;
     G3D::Vector3 GetTorusClippedEnd (size_t index) const;
@@ -137,6 +136,7 @@ public:
     }
 
     size_t GetConstraintIndex (size_t i) const;
+    bool HasConstraints () const;
 
     string ToString () const;
     void GetVertexSet (VertexSet* vertexSet) const;

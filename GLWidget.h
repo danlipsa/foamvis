@@ -287,6 +287,7 @@ public Q_SLOTS:
     void ContextStationaryFoam ();
     void ContextStationaryReset ();
     void InfoPoint ();
+    void InfoEdge ();
     void InfoFace ();
     void InfoBody ();
     void InfoFoam ();
@@ -509,6 +510,8 @@ private:
 	const QPoint& position, vector<size_t>* bodies) const;
     G3D::Vector3 brushedBodies (const QPoint& position, 
 				vector< boost::shared_ptr<Body> >* bodies) const;
+    G3D::Vector3 brushedFace (const OrientedFace** of) const;
+    OrientedEdge brushedEdge () const;
     void brushedFace (const QPoint& position, vector<size_t>* bodies) const;
     G3D::Vector3 toObjectTransform (const QPoint& position) const;
     G3D::Vector3 toObject (const QPoint& position) const;
@@ -621,6 +624,7 @@ private:
     boost::shared_ptr<QAction> m_actionContextStationaryReset;
 
     boost::shared_ptr<QAction> m_actionInfoPoint;
+    boost::shared_ptr<QAction> m_actionInfoEdge;
     boost::shared_ptr<QAction> m_actionInfoFace;
     boost::shared_ptr<QAction> m_actionInfoBody;
     boost::shared_ptr<QAction> m_actionInfoFoam;

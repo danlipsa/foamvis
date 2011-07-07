@@ -327,3 +327,26 @@ const char* Body::GetAttributeKeywordString (BodyProperty::Enum bp)
 	return 0;
     }
 }
+
+void Body::CalculateNeighbors2D (const OOBox& originalDomain)
+{
+    const OrientedFace& of = GetOrientedFace (0);
+    m_neighbors.resize (of.size ());
+    for (size_t i = 0; i < of.size (); ++i)
+    {
+	OrientedEdge oe = of.GetOrientedEdge (i);
+	const AdjacentOrientedFaces& aofs = oe.GetAdjacentFaces ();
+	if (aofs.size () == 2 && ! oe.HasConstraints ())
+	{
+	    AdjacentOrientedFaces::const_iterator it = aofs.begin ();
+	    if (it->GetBodyId () == GetId ())
+		++it;
+	    boost::shared_ptr<Body> neighbor = it->GetBody ();
+	    m_neighbors[i].m_body = neighbor;
+	    originalDomain.IsWrap (GetCenter (), neighbor->GetCenter (),
+				   &m_neighbors[i].m_translation);
+	}
+	RuntimeAssert (aofs.size () <= 2, 
+		       "AdjacentOrientedFaces size > 2: ", aofs.size ());
+    }
+}

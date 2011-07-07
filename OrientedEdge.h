@@ -62,7 +62,7 @@ public:
     void AddAdjacentFace (boost::shared_ptr<OrientedFace> face, 
 			size_t edgeIndex) const;
     const AdjacentOrientedFaces& GetAdjacentFaces () const;
-
+    bool HasConstraints () const;
     /**
      * Edge for this oriented edge
      * @return the edge for this oriented edge
@@ -70,7 +70,7 @@ public:
     boost::shared_ptr<Edge> GetEdge () const;
     
     void SetEdge (boost::shared_ptr<Edge> edge);
-    bool IsZero () const;
+    //bool IsZero () const;
     G3D::Vector3 GetEdgeVector () const;
     string ToString () const;
     void GetVertexSet (VertexSet* vertexSet) const;

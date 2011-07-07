@@ -48,6 +48,7 @@ public:
 
     const AdjacentBody& GetAdjacentBody () const;
     size_t GetBodyId () const;
+    boost::shared_ptr<Body> GetBody () const;
 
     void clear ()
     {
