@@ -343,10 +343,42 @@ void Body::CalculateNeighbors2D (const OOBox& originalDomain)
 		++it;
 	    boost::shared_ptr<Body> neighbor = it->GetBody ();
 	    m_neighbors[i].m_body = neighbor;
+	    G3D::Vector3int16 translation;
 	    originalDomain.IsWrap (GetCenter (), neighbor->GetCenter (),
-				   &m_neighbors[i].m_translation);
+				   &translation);
+	    m_neighbors[i].m_translation = Vector3int16Zero - translation;
 	}
 	RuntimeAssert (aofs.size () <= 2, 
 		       "AdjacentOrientedFaces size > 2: ", aofs.size ());
     }
 }
+
+void Body::CalculateTextureTensor (const OOBox& originalDomain)
+{
+    size_t neighborCount = 0;
+    G3D::Matrix3 textureTensor;
+    BOOST_FOREACH (Body::Neighbor neighbor, GetNeighbors ())
+    {
+	if (! neighbor.m_body)
+	    continue;
+	G3D::Vector3 first = GetCenter ();
+	G3D::Vector3 second = originalDomain.TorusTranslate (
+	    neighbor.m_body->GetCenter (), neighbor.m_translation);
+	G3D::Vector3 l = second - first;
+	textureTensor += G3D::Matrix3 (l.x * l.x, l.x * l.y, l.x * l.z,
+					 l.y * l.x, l.y * l.y, l.y * l.z,
+					 l.z * l.x, l.z * l.y, l.z * l.z);
+	++neighborCount;
+    }
+    if (neighborCount > 0)
+    {
+	textureTensor /= neighborCount;
+	textureTensor.eigenSolveSymmetric (&m_textureEigenValues[0],
+				       &m_textureEigenVectors[0]);
+	cdbg << GetId () << ": ";
+	ostream_iterator<float> o (cdbg, " ");
+	copy (m_textureEigenValues.begin (), m_textureEigenValues.end (), o);
+	cdbg << endl;
+    }
+}
+

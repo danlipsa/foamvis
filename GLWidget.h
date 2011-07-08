@@ -292,6 +292,9 @@ public Q_SLOTS:
     void InfoBody ();
     void InfoFoam ();
     void InfoOpenGL ();
+    void ShowNeighbors ();
+    void ShowTextureTensor ();
+    void ShowReset ();
     // Actions color bar
     void EditColorMapDispatch ();
     void ColorBarClampClear ();
@@ -347,6 +350,13 @@ private:
 	NO_ROTATION,
 	ROTATION,
 	ROTATION_COUNT
+    };
+
+    enum ShowType
+    {
+	SHOW_NOTHING,
+	SHOW_NEIGHBORS,
+	SHOW_TEXTURE_TENSOR
     };
 
     typedef boost::unordered_map<G3D::Vector3int16, QColor,
@@ -442,6 +452,7 @@ private:
     void displayCenterPathsWithBodies (ViewNumber::Enum view) const;
     void displayOriginalDomain () const;
     void displayT1s (ViewNumber::Enum view) const;
+    void displayBodyNeighbors () const;
     void displayT1s (ViewNumber::Enum view, size_t timeStep) const;
     void displayT1sGlobal (ViewNumber::Enum view) const;
     void displayCenterPaths (ViewNumber::Enum view) const;
@@ -629,6 +640,11 @@ private:
     boost::shared_ptr<QAction> m_actionInfoBody;
     boost::shared_ptr<QAction> m_actionInfoFoam;
     boost::shared_ptr<QAction> m_actionInfoOpenGL;
+
+    boost::shared_ptr<QAction> m_actionShowNeighbors;
+    boost::shared_ptr<QAction> m_actionShowTextureTensor;
+    boost::shared_ptr<QAction> m_actionShowReset;
+
     boost::shared_ptr<QAction> m_actionEditColorMap;
     boost::shared_ptr<QAction> m_actionClampClear;
     boost::array<boost::shared_ptr<QAction>, 
@@ -662,6 +678,9 @@ private:
     ViewNumber::Enum m_viewNumber;
     boost::array<
 	boost::shared_ptr<ViewSettings>, ViewNumber::COUNT> m_viewSettings;
+
+    ShowType m_showType;
+    size_t m_showBodyId;
 };
 
 #endif //__GLWIDGET_H__

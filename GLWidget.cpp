@@ -154,7 +154,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_averageAroundBody (true),
       m_viewCount (ViewCount::ONE),
       m_viewLayout (ViewLayout::HORIZONTAL),
-      m_viewNumber (ViewNumber::VIEW0)
+      m_viewNumber (ViewNumber::VIEW0),
+      m_showType (SHOW_NOTHING)
 {
     makeCurrent ();
     initEndTranslationColor ();
@@ -306,6 +307,23 @@ void GLWidget::createActions ()
     m_actionInfoOpenGL->setStatusTip(tr("Info OpenGL"));
     connect(m_actionInfoOpenGL.get (), SIGNAL(triggered()),
 	    this, SLOT(InfoOpenGL ()));
+
+    m_actionShowNeighbors = boost::make_shared<QAction> (
+	tr("&Neighbors"), this);
+    m_actionShowNeighbors->setStatusTip(tr("Shown neighbors"));
+    connect(m_actionShowNeighbors.get (), SIGNAL(triggered()),
+	    this, SLOT(ShowNeighbors ()));
+
+    m_actionShowTextureTensor = boost::make_shared<QAction> (
+	tr("&Texture tensor"), this);
+    m_actionShowTextureTensor->setStatusTip(tr("Shown texture tensor"));
+    connect(m_actionShowTextureTensor.get (), SIGNAL(triggered()),
+	    this, SLOT(ShowTextureTensor ()));
+
+    m_actionShowReset = boost::make_shared<QAction> (tr("&Reset"), this);
+    m_actionShowReset->setStatusTip(tr("Shown reset"));
+    connect(m_actionShowReset.get (), SIGNAL(triggered()),
+	    this, SLOT(ShowReset ()));
 
     // actions for the color bar
     m_actionEditColorMap.reset (
@@ -1023,6 +1041,30 @@ void GLWidget::InfoOpenGL ()
     openGLInfo.exec ();
 }
 
+void GLWidget::ShowNeighbors ()
+{
+    m_showType = SHOW_NEIGHBORS;
+    vector<size_t> bodies;
+    brushedBodies (m_contextMenuPosScreen, &bodies);
+    m_showBodyId = bodies[0];
+    update ();
+}
+
+void GLWidget::ShowTextureTensor ()
+{
+    m_showType = SHOW_TEXTURE_TENSOR;
+    vector<size_t> bodies;
+    brushedBodies (m_contextMenuPosScreen, &bodies);
+    m_showBodyId = bodies[0];
+    update ();
+}
+
+void GLWidget::ShowReset ()
+{
+    m_showType = SHOW_NOTHING;
+    update ();
+}
+
 void GLWidget::EditColorMapDispatch ()
 {
     Q_EMIT EditColorMap ();
@@ -1098,6 +1140,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     displayFocusBox (viewNumber);
     displayLightDirection (viewNumber);
     displayT1s (viewNumber);
+    displayBodyNeighbors ();
     //displayContextMenuPos (viewNumber);
     WarnOnOpenGLError ("displayView");
 }
@@ -1825,6 +1868,32 @@ void GLWidget::displayT1s (ViewNumber::Enum view) const
     }
 }
 
+void GLWidget::displayBodyNeighbors () const
+{
+    if (m_showType != SHOW_NEIGHBORS)
+	return;
+    glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
+    glDisable (GL_DEPTH_TEST);
+    glColor (Qt::black);
+    glBegin (GL_LINES);
+
+    const Foam& foam = GetCurrentFoam ();
+    const OOBox& originalDomain = foam.GetOriginalDomain ();
+    Foam::Bodies::const_iterator showBody = foam.FindBody (m_showBodyId);
+    BOOST_FOREACH (Body::Neighbor neighbor, (*showBody)->GetNeighbors ())
+    {
+	if (! neighbor.m_body)
+	    continue;
+	G3D::Vector3 first = (*showBody)->GetCenter ();	    
+	G3D::Vector3 second = originalDomain.TorusTranslate (
+	    neighbor.m_body->GetCenter (), neighbor.m_translation);
+	::glVertex (first);
+	::glVertex (second);
+    }
+
+    glEnd ();
+    glPopAttrib ();
+}
 
 void GLWidget::displayT1sGlobal (ViewNumber::Enum view) const
 {
@@ -2385,6 +2454,13 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	    menuInfo->addAction (m_actionInfoFoam.get ());
 	    menuInfo->addAction (m_actionInfoOpenGL.get ());
 	}
+	{
+	    QMenu* menuShow = menu.addMenu ("Show");
+	    menuShow->addAction (m_actionShowNeighbors.get ());
+	    menuShow->addAction (m_actionShowTextureTensor.get ());
+	    menuShow->addAction (m_actionShowReset.get ());
+	}
+
 	if (ViewCount::GetCount (m_viewCount) > 1)
 	{
 	    QMenu* menuCopy = menu.addMenu ("Copy");

@@ -161,11 +161,12 @@ void FoamAlongTime::Preprocess ()
 {
     cdbg << "Preprocess temporal foam data ..." << endl;
     fixConstraintPoints ();
-    boost::array<FoamMethod, 4> methods = {{
+    boost::array<FoamMethod, 5> methods = {{
 	    &Foam::ReleaseParsingData,
 	    &Foam::CalculateBoundingBox,
 	    &Foam::CalculatePerimeterOverArea,
-	    &Foam::CalculateBodyNeighbors}};
+	    &Foam::CalculateBodyNeighbors,
+	    &Foam::CalculateBodyTextureTensor}};
     MapPerFoam (&methods[0], methods.size ());
     CalculateBoundingBox ();
     CacheBodiesAlongTime ();
@@ -523,3 +524,4 @@ void FoamAlongTime::ParseFiles (
 	ThrowException ("Could not process all files\n");
     copy (foams.constBegin (), foams.constEnd (), GetFoams ().begin ());
 }
+

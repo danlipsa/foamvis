@@ -26,6 +26,12 @@ class Body : public Element
 {
 public:
     typedef vector<boost::shared_ptr<OrientedFace> > OrientedFaces;
+    typedef struct {
+	G3D::Vector3int16 m_translation;
+	boost::shared_ptr<Body> m_body;
+    } Neighbor;
+
+
 public:
     /**
      * Creates a new body
@@ -48,6 +54,11 @@ public:
 	return m_orientedFaces;
     }
 
+    const vector<Neighbor>& GetNeighbors () const
+    {
+	return m_neighbors;
+    }
+    
     const OrientedFace& GetOrientedFace (size_t i) const
     {
 	return *m_orientedFaces[i];
@@ -133,12 +144,7 @@ public:
     void CalculatePerimeterOverSqrtArea ();
     static const char* GetAttributeKeywordString (BodyProperty::Enum bp);
     void CalculateNeighbors2D (const OOBox& originalDomain);
-
-private:
-    typedef struct {
-	G3D::Vector3int16 m_translation;
-	boost::shared_ptr<Body> m_body;
-    } Neighbor;
+    void CalculateTextureTensor (const OOBox& originalDomain);
 
 private:
     /**
@@ -168,6 +174,8 @@ private:
      */
     OrientedFaces m_orientedFaces;
     vector<Neighbor> m_neighbors;
+    boost::array <G3D::Vector3, 3> m_textureEigenVectors;
+    boost::array <float, 3> m_textureEigenValues;
     /**
      * Center of the body
      */
