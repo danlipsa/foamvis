@@ -444,6 +444,7 @@ void Foam::CalculateBodyNeighbors ()
 
 void Foam::CalculateBodyTextureTensor ()
 {
+
     for_each (m_bodies.begin (), m_bodies.end (),
 	      boost::bind (&Body::CalculateTextureTensor, _1, 
 			   GetOriginalDomain ()));

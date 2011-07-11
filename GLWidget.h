@@ -271,6 +271,7 @@ public Q_SLOTS:
     void ValueChangedStatisticsTimeWindow (int timeSteps);
     void ValueChangedTimeDisplacement (int timeDisplacement);
     void ValueChangedT1Size (int index);
+    void ValueChangedTensorSize (int index);
     void ValueChangedForceLength (int index);
     void ValueChangedHighlightLineWidth (int newWidth);
     // Actions
@@ -453,6 +454,7 @@ private:
     void displayOriginalDomain () const;
     void displayT1s (ViewNumber::Enum view) const;
     void displayBodyNeighbors () const;
+    void displayBodyTextureTensor2D () const;
     void displayT1s (ViewNumber::Enum view, size_t timeStep) const;
     void displayT1sGlobal (ViewNumber::Enum view) const;
     void displayCenterPaths (ViewNumber::Enum view) const;
@@ -564,6 +566,7 @@ private:
     const static double ENCLOSE_ROTATION_RATIO;
     // Min, max values for T1s, Context alpha, force length
     const static pair<double,double> T1_SIZE;
+    const static pair<double,double> TENSOR_SIZE;
     const static pair<double,double> CONTEXT_ALPHA;
     const static pair<double,double> FORCE_LENGTH;
     const static GLfloat HIGHLIGHT_LINE_WIDTH;
@@ -663,6 +666,7 @@ private:
     bool m_centerPathLineUsed;
     bool m_t1sShown;
     double m_t1Size;
+    double m_tensorSize;
     double m_contextAlpha;
     double m_forceLength;
     size_t m_highlightLineWidth;

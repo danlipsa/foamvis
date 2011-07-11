@@ -113,6 +113,7 @@ const size_t GLWidget::QUADRIC_STACKS = 1;
 
 const double GLWidget::ENCLOSE_ROTATION_RATIO = 1;
 const pair<double,double> GLWidget::T1_SIZE (1, 10);
+const pair<double,double> GLWidget::TENSOR_SIZE (1, 100);
 const pair<double,double> GLWidget::CONTEXT_ALPHA (0.05, 0.5);
 const pair<double,double> GLWidget::FORCE_LENGTH (.25, 6);
 const GLfloat GLWidget::HIGHLIGHT_LINE_WIDTH = 2.0;
@@ -144,6 +145,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_centerPathLineUsed (false),
       m_t1sShown (false),
       m_t1Size (T1_SIZE.first),
+      m_tensorSize (TENSOR_SIZE.first),
       m_contextAlpha (CONTEXT_ALPHA.first),
       m_forceLength (FORCE_LENGTH.first),
       m_highlightLineWidth (HIGHLIGHT_LINE_WIDTH),
@@ -1141,6 +1143,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     displayLightDirection (viewNumber);
     displayT1s (viewNumber);
     displayBodyNeighbors ();
+    displayBodyTextureTensor2D ();
     //displayContextMenuPos (viewNumber);
     WarnOnOpenGLError ("displayView");
 }
@@ -1867,6 +1870,30 @@ void GLWidget::displayT1s (ViewNumber::Enum view) const
 	    displayT1s (view, GetTimeStep ());
     }
 }
+
+void GLWidget::displayBodyTextureTensor2D () const
+{
+    const Foam& foam = GetCurrentFoam ();
+    if (! foam.Is2D () || m_showType != SHOW_TEXTURE_TENSOR)
+	return;
+    glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
+    glDisable (GL_DEPTH_TEST);
+    glColor (Qt::black);
+
+    const Body& showBody = *(*foam.FindBody (m_showBodyId));
+    G3D::Matrix3 rotation;
+    for (size_t i = 0; i < 3; ++i)
+	rotation.setColumn (i, showBody.GetTextureEigenVector (i));
+    G3D::CoordinateFrame cf (rotation, showBody.GetCenter ());
+    glPushMatrix ();
+    glMultMatrix (cf);
+    drawEllipsis2D (
+	showBody.GetTextureEigenValue (0), 
+	showBody.GetTextureEigenValue (1), m_tensorSize);
+    glPopMatrix ();
+    glPopAttrib ();
+}
+
 
 void GLWidget::displayBodyNeighbors () const
 {
@@ -3025,6 +3052,13 @@ void GLWidget::ValueChangedT1Size (int index)
     valueChanged (&m_t1Size, T1_SIZE, index);
     update ();
 }
+
+void GLWidget::ValueChangedTensorSize (int index)
+{
+    valueChanged (&m_tensorSize, TENSOR_SIZE, index);
+    update ();
+}
+
 
 void GLWidget::ValueChangedContextAlpha (int index)
 {

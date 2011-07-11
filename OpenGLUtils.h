@@ -125,6 +125,8 @@ void ClearColorBuffer (Qt::GlobalColor clearColor);
 void ClearColorStencilBuffers (
     Qt::GlobalColor clearColor, GLint clearStencil);
 
+void drawEllipsis2D (float l1, float l2, float c);
+
 #endif //__OPENGL_UTIL_H__
 
 // Local Variables:

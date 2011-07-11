@@ -21,7 +21,11 @@
 #include "ProcessBodyTorus.h"
 #include "Vertex.h"
 
-// Private Classes
+//#define __LOG__(code) code
+#define __LOG__(code)
+
+
+// Private Classes/Functions
 // ======================================================================
 
 /**
@@ -63,8 +67,54 @@ private:
     const vector<boost::shared_ptr<Face> >& m_faces;
 };
 
-// Private functions
-// ======================================================================
+class SymmetricMatrixEigen
+{
+public:
+    SymmetricMatrixEigen (size_t size) : SIZE (size)
+    {
+	m_m = gsl_matrix_alloc (SIZE, SIZE);	
+	m_eval = gsl_vector_alloc (SIZE);
+	m_evec = gsl_matrix_alloc (SIZE, SIZE);     
+	m_w = gsl_eigen_symmv_alloc (SIZE);
+    }
+
+    ~SymmetricMatrixEigen ()
+    {
+	gsl_eigen_symmv_free (m_w);
+	gsl_matrix_free (m_evec);
+	gsl_vector_free (m_eval);
+	gsl_matrix_free (m_m);
+    }
+
+    void Calculate (
+	const G3D::Matrix3& tensor,
+	float eigenValues[3], G3D::Vector3 eigenVectors[3])
+    {
+	for (size_t i = 0; i < SIZE; ++i)
+	    for (size_t j = 0; j < SIZE; ++j)
+		gsl_matrix_set (m_m, i, j, tensor[i][j]);
+	
+	gsl_eigen_symmv (m_m, m_eval, m_evec, m_w);     
+	gsl_eigen_symmv_sort (m_eval, m_evec, GSL_EIGEN_SORT_ABS_DESC);
+       
+	for (size_t i = 0; i < SIZE; ++i)
+	{
+	    eigenValues[i] = gsl_vector_get (m_eval, i);
+	    for (size_t j = 0; j < SIZE; ++j)
+	    {
+		gsl_vector_view evec_i = gsl_matrix_column (m_evec, i);
+		eigenVectors[i][j] = gsl_vector_get (&evec_i.vector, j);
+	    }
+	}
+    }
+
+private:
+    const size_t SIZE;
+    gsl_matrix* m_m;
+    gsl_vector* m_eval;
+    gsl_matrix* m_evec;
+    gsl_eigen_symmv_workspace* m_w;
+};
 
 
 // Methods
@@ -356,7 +406,7 @@ void Body::CalculateNeighbors2D (const OOBox& originalDomain)
 void Body::CalculateTextureTensor (const OOBox& originalDomain)
 {
     size_t neighborCount = 0;
-    G3D::Matrix3 textureTensor;
+    G3D::Matrix3 textureTensor = G3D::Matrix3::zero ();
     BOOST_FOREACH (Body::Neighbor neighbor, GetNeighbors ())
     {
 	if (! neighbor.m_body)
@@ -366,19 +416,27 @@ void Body::CalculateTextureTensor (const OOBox& originalDomain)
 	    neighbor.m_body->GetCenter (), neighbor.m_translation);
 	G3D::Vector3 l = second - first;
 	textureTensor += G3D::Matrix3 (l.x * l.x, l.x * l.y, l.x * l.z,
-					 l.y * l.x, l.y * l.y, l.y * l.z,
-					 l.z * l.x, l.z * l.y, l.z * l.z);
+				       l.y * l.x, l.y * l.y, l.y * l.z,
+				       l.z * l.x, l.z * l.y, l.z * l.z);
 	++neighborCount;
     }
+    // the sedimenting discs have 0 unconstrainted neighbors
     if (neighborCount > 0)
     {
 	textureTensor /= neighborCount;
-	textureTensor.eigenSolveSymmetric (&m_textureEigenValues[0],
-				       &m_textureEigenVectors[0]);
-	cdbg << GetId () << ": ";
-	ostream_iterator<float> o (cdbg, " ");
-	copy (m_textureEigenValues.begin (), m_textureEigenValues.end (), o);
-	cdbg << endl;
+	SymmetricMatrixEigen(3).Calculate (
+	    textureTensor, &m_textureEigenValues[0], &m_textureEigenVectors[0]);
+	//textureTensor.eigenSolveSymmetric (
+	//&m_textureEigenValues[0], &m_textureEigenVectors[0]);
+
+	__LOG__(
+	    ostream_iterator<float> of(cdbg, " ");
+	    copy (m_textureEigenValues.begin (), 
+		  m_textureEigenValues.end (), of);
+	    cdbg << endl;
+	    ostream_iterator<G3D::Vector3> ov (cdbg, "\n");
+	    copy (m_textureEigenVectors.begin (), 
+		  m_textureEigenVectors.end (), ov);
+	    );
     }
 }
-

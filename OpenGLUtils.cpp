@@ -384,3 +384,14 @@ void ClearColorStencilBuffers (
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glPopAttrib ();
 }
+
+void drawEllipsis2D (float l1, float l2, float c)
+{
+    glBegin(GL_LINE_LOOP);
+    for (int i = 0; i < 360; ++i)
+    {
+	float t = i * M_PI / 180;
+	glVertex2f( l1 * cos (t) * c, l2 * sin (t) * c);
+    }
+    glEnd();
+}

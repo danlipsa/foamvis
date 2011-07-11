@@ -145,6 +145,14 @@ public:
     static const char* GetAttributeKeywordString (BodyProperty::Enum bp);
     void CalculateNeighbors2D (const OOBox& originalDomain);
     void CalculateTextureTensor (const OOBox& originalDomain);
+    float GetTextureEigenValue (size_t i) const
+    {
+	return m_textureEigenValues[i];
+    }
+    G3D::Vector3 GetTextureEigenVector (size_t i) const
+    {
+	return m_textureEigenVectors[i];
+    }
 
 private:
     /**
