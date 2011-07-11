@@ -7,7 +7,7 @@ libzip-devel, cmake (flex, bison)
 
 Copy http://csgalati.swansea.ac.uk/foam/build/boost_1_45_0.tar.bz2 ~
 cd ~
-tar xjf qt3d-20101008.tgz
+tar xjf boost_1_45_0.tar.bz2
 cd boost_1_45_0
 sh bootstrap.sh
 su <password>
