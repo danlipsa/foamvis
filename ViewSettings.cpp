@@ -65,7 +65,9 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_forceResultShown (true),
     m_contextScaleRatio (1),
     m_contextStationaryType (CONTEXT_AVERAGE_AROUND_NONE),
-    m_bodySelector (AllBodySelector::Get ())
+    m_bodySelector (AllBodySelector::Get ()),
+    m_contextHidden (false),
+    m_centerPathHidden (false)
 {
     initTexture ();
     initList ();

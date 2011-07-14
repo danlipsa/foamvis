@@ -386,7 +386,11 @@ void Body::CalculateNeighbors2D (const OOBox& originalDomain)
     {
 	OrientedEdge oe = of.GetOrientedEdge (i);
 	const AdjacentOrientedFaces& aofs = oe.GetAdjacentFaces ();
-	if (aofs.size () == 2 && ! oe.HasConstraints ())
+	if (oe.HasConstraints ())
+	{
+	    
+	}
+	else
 	{
 	    AdjacentOrientedFaces::const_iterator it = aofs.begin ();
 	    if (it->GetBodyId () == GetId ())
@@ -403,7 +407,7 @@ void Body::CalculateNeighbors2D (const OOBox& originalDomain)
     }
 }
 
-void Body::CalculateTextureTensor (const OOBox& originalDomain)
+void Body::CalculateDeformationTensor (const OOBox& originalDomain)
 {
     size_t neighborCount = 0;
     G3D::Matrix3 textureTensor = G3D::Matrix3::zero ();
@@ -424,19 +428,20 @@ void Body::CalculateTextureTensor (const OOBox& originalDomain)
     if (neighborCount > 0)
     {
 	textureTensor /= neighborCount;
-	SymmetricMatrixEigen(3).Calculate (
-	    textureTensor, &m_textureEigenValues[0], &m_textureEigenVectors[0]);
+	SymmetricMatrixEigen(3).Calculate (textureTensor, 
+					   &m_deformationEigenValues[0], 
+					   &m_deformationEigenVectors[0]);
 	//textureTensor.eigenSolveSymmetric (
-	//&m_textureEigenValues[0], &m_textureEigenVectors[0]);
+	//&m_deformationEigenValues[0], &m_deformationEigenVectors[0]);
 
 	__LOG__(
 	    ostream_iterator<float> of(cdbg, " ");
-	    copy (m_textureEigenValues.begin (), 
-		  m_textureEigenValues.end (), of);
+	    copy (m_deformationEigenValues.begin (), 
+		  m_deformationEigenValues.end (), of);
 	    cdbg << endl;
 	    ostream_iterator<G3D::Vector3> ov (cdbg, "\n");
-	    copy (m_textureEigenVectors.begin (), 
-		  m_textureEigenVectors.end (), ov);
+	    copy (m_deformationEigenVectors.begin (), 
+		  m_deformationEigenVectors.end (), ov);
 	    );
     }
 }

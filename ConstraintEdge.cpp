@@ -213,8 +213,8 @@ ConstraintEdge::ConstraintEdge (
     m_parsingData->UnsetVariable ("x");
     m_parsingData->UnsetVariable ("y");
     cachePoints ();
-    SetAttribute<ColorAttribute, Color::Enum> (
-	EdgeAttributeIndex::COLOR, Color::RED);
+    SetAttribute<ColorAttribute, Color::Enum> (EdgeAttributeIndex::COLOR, 
+					       Color::RED);
     if (storePointsToFix (pointsToFix, bodyIndex) == 0)
 	FixPointsConcaveOrConvex ();
 }

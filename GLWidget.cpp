@@ -33,7 +33,7 @@
 #include "Vertex.h"
 #include "ViewSettings.h"
 
-// Private Functions
+// Private Classes/Functions
 // ======================================================================
 
 G3D::AABox AdjustXOverYRatio (const G3D::AABox& box, double xOverY)
@@ -98,9 +98,18 @@ void display (const char* name, const T& what)
     cdbg << endl;
 }
 
-
-// Private Classes
-// ======================================================================
+void displayBodyDeformationTensor2D (boost::shared_ptr<Body> body, double size)
+{
+    G3D::Matrix3 rotation;
+    for (size_t i = 0; i < 3; ++i)
+	rotation.setColumn (i, body->GetDeformationEigenVector (i));
+    G3D::CoordinateFrame cf (rotation, body->GetCenter ());
+    glPushMatrix ();
+    glMultMatrix (cf);
+    drawEllipsis2D (body->GetDeformationEigenValue (0), 
+		    body->GetDeformationEigenValue (1), size);
+    glPopMatrix ();
+}
 
 
 // Static Fields
@@ -113,7 +122,7 @@ const size_t GLWidget::QUADRIC_STACKS = 1;
 
 const double GLWidget::ENCLOSE_ROTATION_RATIO = 1;
 const pair<double,double> GLWidget::T1_SIZE (1, 10);
-const pair<double,double> GLWidget::TENSOR_SIZE (1, 100);
+const pair<double,double> GLWidget::DEFORMATION_TENSOR_SIZE (1, 100);
 const pair<double,double> GLWidget::CONTEXT_ALPHA (0.05, 0.5);
 const pair<double,double> GLWidget::FORCE_LENGTH (.25, 6);
 const GLfloat GLWidget::HIGHLIGHT_LINE_WIDTH = 2.0;
@@ -134,7 +143,6 @@ GLWidget::GLWidget(QWidget *parent)
       m_faceCenterShown (false),
       m_edgesTessellation (true),
       m_centerPathBodyShown (false),
-      m_contextHidden (false),
       m_boundingBoxShown (false),
       m_bodiesBoundingBoxesShown (false),
       m_axesShown (false),
@@ -145,7 +153,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_centerPathLineUsed (false),
       m_t1sShown (false),
       m_t1Size (T1_SIZE.first),
-      m_tensorSize (TENSOR_SIZE.first),
+      m_deformationTensorSize (DEFORMATION_TENSOR_SIZE.first),
       m_contextAlpha (CONTEXT_ALPHA.first),
       m_forceLength (FORCE_LENGTH.first),
       m_highlightLineWidth (HIGHLIGHT_LINE_WIDTH),
@@ -1054,7 +1062,7 @@ void GLWidget::ShowNeighbors ()
 
 void GLWidget::ShowTextureTensor ()
 {
-    m_showType = SHOW_TEXTURE_TENSOR;
+    m_showType = SHOW_DEFORMATION_TENSOR;
     vector<size_t> bodies;
     brushedBodies (m_contextMenuPosScreen, &bodies);
     m_showBodyId = bodies[0];
@@ -1143,7 +1151,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     displayLightDirection (viewNumber);
     displayT1s (viewNumber);
     displayBodyNeighbors ();
-    displayBodyTextureTensor2D ();
+    displayBodyDeformationTensor2D ();
     //displayContextMenuPos (viewNumber);
     WarnOnOpenGLError ("displayView");
 }
@@ -1871,26 +1879,33 @@ void GLWidget::displayT1s (ViewNumber::Enum view) const
     }
 }
 
-void GLWidget::displayBodyTextureTensor2D () const
+void GLWidget::displayDeformationTensor2D (ViewNumber::Enum viewNumber) const
 {
     const Foam& foam = GetCurrentFoam ();
-    if (! foam.Is2D () || m_showType != SHOW_TEXTURE_TENSOR)
+    if (! foam.Is2D () || ! m_showDeformationTensor || 
+	viewNumber != GetViewNumber ())
+	return;
+    Foam::Bodies bodies = foam.GetBodies ();
+    glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
+    glDisable (GL_DEPTH_TEST);
+    glColor (Qt::black);
+    for_each (bodies.begin (), bodies.end (),
+	      boost::bind (
+		  ::displayBodyDeformationTensor2D, _1, 
+		  m_deformationTensorSize));
+    glPopAttrib ();    
+}
+
+void GLWidget::displayBodyDeformationTensor2D () const
+{
+    const Foam& foam = GetCurrentFoam ();
+    if (! foam.Is2D () || m_showType != SHOW_DEFORMATION_TENSOR)
 	return;
     glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
     glDisable (GL_DEPTH_TEST);
     glColor (Qt::black);
-
-    const Body& showBody = *(*foam.FindBody (m_showBodyId));
-    G3D::Matrix3 rotation;
-    for (size_t i = 0; i < 3; ++i)
-	rotation.setColumn (i, showBody.GetTextureEigenVector (i));
-    G3D::CoordinateFrame cf (rotation, showBody.GetCenter ());
-    glPushMatrix ();
-    glMultMatrix (cf);
-    drawEllipsis2D (
-	showBody.GetTextureEigenValue (0), 
-	showBody.GetTextureEigenValue (1), m_tensorSize);
-    glPopMatrix ();
+    ::displayBodyDeformationTensor2D (
+	*foam.FindBody (m_showBodyId), m_deformationTensorSize);
     glPopAttrib ();
 }
 
@@ -2079,6 +2094,7 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
     displayStandaloneFaces ();    
     displayBodyCenters (viewNumber);
     displayFaceCenters (viewNumber);
+    displayDeformationTensor2D (viewNumber);
     vs.GetDisplayForces ().Display (viewNumber);
 }
 
@@ -2196,7 +2212,7 @@ void GLWidget::displayFacesInterior (
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<DisplayFaceBodyPropertyColor<> > (
 		  *this, bodySelector, 
-		  DisplayElement::TRANSPARENT_CONTEXT, view));
+		  DisplayElement::USER_DEFINED_CONTEXT, view));
     glPopAttrib ();
 }
 
@@ -2260,7 +2276,7 @@ void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum view) const
 	    DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H0,
 	    DisplayFaceEdges<DisplayEdgePropertyColor<
 	    DisplayElement::DONT_DISPLAY_TESSELLATION> > > > (
-		*this, bodySelector, DisplayElement::INVISIBLE_CONTEXT,
+		*this, bodySelector, DisplayElement::USER_DEFINED_CONTEXT,
 		view, IsTimeDisplacementUsed (), zPos));
 	displayBodyCenters (view, IsTimeDisplacementUsed ());
     }
@@ -2741,6 +2757,12 @@ void GLWidget::ToggledDirectionalLightEnabled (bool checked)
     update ();
 }
 
+void GLWidget::ToggledShowDeformationTensor (bool checked)
+{
+    m_showDeformationTensor = checked;
+    update ();
+}
+
 
 void GLWidget::ToggledMissingPressureShown (bool checked)
 {
@@ -2845,9 +2867,16 @@ void GLWidget::ToggledCenterPathBodyShown (bool checked)
     update ();
 }
 
-void GLWidget::ToggledIsContextHidden (bool checked)
+void GLWidget::ToggledContextHidden (bool checked)
 {
-    m_contextHidden = checked;
+    GetViewSettings ().SetContextHidden (checked);
+    compile (GetViewNumber ());
+    update ();
+}
+
+void GLWidget::ToggledCenterPathHidden (bool checked)
+{
+    GetViewSettings ().SetCenterPathHidden (checked);
     compile (GetViewNumber ());
     update ();
 }
@@ -3055,7 +3084,7 @@ void GLWidget::ValueChangedT1Size (int index)
 
 void GLWidget::ValueChangedTensorSize (int index)
 {
-    valueChanged (&m_tensorSize, TENSOR_SIZE, index);
+    valueChanged (&m_deformationTensorSize, DEFORMATION_TENSOR_SIZE, index);
     update ();
 }
 

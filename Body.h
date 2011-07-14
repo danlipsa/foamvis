@@ -29,6 +29,7 @@ public:
     typedef struct {
 	G3D::Vector3int16 m_translation;
 	boost::shared_ptr<Body> m_body;
+	G3D::Vector3 m_fakeCenter;
     } Neighbor;
 
 
@@ -144,14 +145,14 @@ public:
     void CalculatePerimeterOverSqrtArea ();
     static const char* GetAttributeKeywordString (BodyProperty::Enum bp);
     void CalculateNeighbors2D (const OOBox& originalDomain);
-    void CalculateTextureTensor (const OOBox& originalDomain);
-    float GetTextureEigenValue (size_t i) const
+    void CalculateDeformationTensor (const OOBox& originalDomain);
+    float GetDeformationEigenValue (size_t i) const
     {
-	return m_textureEigenValues[i];
+	return m_deformationEigenValues[i];
     }
-    G3D::Vector3 GetTextureEigenVector (size_t i) const
+    G3D::Vector3 GetDeformationEigenVector (size_t i) const
     {
-	return m_textureEigenVectors[i];
+	return m_deformationEigenVectors[i];
     }
 
 private:
@@ -182,8 +183,8 @@ private:
      */
     OrientedFaces m_orientedFaces;
     vector<Neighbor> m_neighbors;
-    boost::array <G3D::Vector3, 3> m_textureEigenVectors;
-    boost::array <float, 3> m_textureEigenValues;
+    boost::array <G3D::Vector3, 3> m_deformationEigenVectors;
+    boost::array <float, 3> m_deformationEigenValues;
     /**
      * Center of the body
      */

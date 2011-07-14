@@ -107,7 +107,7 @@ public:
     DisplayBody (
 	const GLWidget& widget, const BodySelector& bodySelector,
 	typename DisplayElement::ContextType 
-	    contextDisplay = DisplayElement::TRANSPARENT_CONTEXT,
+	contextDisplay = DisplayElement::USER_DEFINED_CONTEXT,
 	ViewNumber::Enum view = ViewNumber::VIEW0,
 	bool useZPos = false, double zPos = 0);
 
@@ -115,7 +115,7 @@ public:
 	const GLWidget& widget, const BodySelector& bodySelector,
 	PropertySetter setter,
 	typename DisplayElement::ContextType 
-	    contextDisplay = DisplayElement::TRANSPARENT_CONTEXT,
+	    contextDisplay = DisplayElement::USER_DEFINED_CONTEXT,
 	bool useZPos = false, double zPos = 0);
 			
 

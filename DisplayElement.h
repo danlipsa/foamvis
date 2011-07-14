@@ -23,7 +23,7 @@ public:
     };
     enum ContextType
     {
-	TRANSPARENT_CONTEXT,
+	USER_DEFINED_CONTEXT,
 	INVISIBLE_CONTEXT
     };
 

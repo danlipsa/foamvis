@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1019</width>
-    <height>612</height>
+    <width>1043</width>
+    <height>596</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -263,7 +263,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="general">
           <attribute name="title">
@@ -292,7 +292,7 @@
                <item>
                 <widget class="QTabWidget" name="tabWidgetShow">
                  <property name="currentIndex">
-                  <number>3</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="tabView">
                   <attribute name="title">
@@ -978,6 +978,13 @@
                  </property>
                 </widget>
                </item>
+               <item row="3" column="1">
+                <widget class="QCheckBox" name="checkBoxContextHidden">
+                 <property name="text">
+                  <string>Context hidden</string>
+                 </property>
+                </widget>
+               </item>
               </layout>
              </widget>
              <widget class="QWidget" name="tabSize">
@@ -1126,23 +1133,6 @@
                 <widget class="QLabel" name="label_26">
                  <property name="text">
                   <string>Force length</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="7" column="1">
-                <widget class="QSlider" name="horizontalSliderTensorSize">
-                 <property name="minimum">
-                  <number>0</number>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="7" column="0">
-                <widget class="QLabel" name="label_27">
-                 <property name="text">
-                  <string>Tensor</string>
                  </property>
                 </widget>
                </item>
@@ -1297,7 +1287,7 @@
                <property name="bottomMargin">
                 <number>0</number>
                </property>
-               <item row="12" column="0">
+               <item row="13" column="0">
                 <widget class="QWidget" name="widgetFaceColor" native="true">
                  <layout class="QHBoxLayout" name="horizontalLayout_6">
                   <property name="spacing">
@@ -1309,7 +1299,7 @@
                  </layout>
                 </widget>
                </item>
-               <item row="15" column="0">
+               <item row="16" column="0">
                 <widget class="QWidget" name="widgetStatisticsType" native="true">
                  <layout class="QHBoxLayout" name="horizontalLayout_10">
                   <property name="spacing">
@@ -1321,7 +1311,7 @@
                  </layout>
                 </widget>
                </item>
-               <item row="17" column="0">
+               <item row="18" column="0">
                 <spacer name="verticalSpacer_3">
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
@@ -1370,7 +1360,7 @@
                  </item>
                  <item>
                   <property name="text">
-                   <string>Elongation</string>
+                   <string>Deformation P/sqrt(A)</string>
                   </property>
                  </item>
                  <item>
@@ -1395,14 +1385,14 @@
                  </item>
                 </widget>
                </item>
-               <item row="3" column="0">
+               <item row="4" column="0">
                 <widget class="QLabel" name="labelFacesHistogram">
                  <property name="text">
                   <string>Histogram</string>
                  </property>
                 </widget>
                </item>
-               <item row="3" column="1">
+               <item row="4" column="1">
                 <widget class="QRadioButton" name="radioButtonHistogramNone">
                  <property name="text">
                   <string>None</string>
@@ -1415,7 +1405,7 @@
                  </attribute>
                 </widget>
                </item>
-               <item row="4" column="1">
+               <item row="5" column="1">
                 <widget class="QRadioButton" name="radioButtonHistogramUnicolor">
                  <property name="text">
                   <string>Unicolor</string>
@@ -1425,7 +1415,7 @@
                  </attribute>
                 </widget>
                </item>
-               <item row="5" column="1">
+               <item row="6" column="1">
                 <widget class="QRadioButton" name="radioButtonHistogramColorCoded">
                  <property name="text">
                   <string>Color Coded</string>
@@ -1442,6 +1432,30 @@
                  </property>
                  <property name="checked">
                   <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QCheckBox" name="checkBox">
+                 <property name="text">
+                  <string>Show deformation</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="label_27">
+                 <property name="text">
+                  <string>Deformation size</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QSlider" name="horizontalSliderTensorSize">
+                 <property name="minimum">
+                  <number>0</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
                  </property>
                 </widget>
                </item>
@@ -1547,7 +1561,7 @@
            <item>
             <widget class="QStackedWidget" name="stackedWidgetComposite">
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="pageCompositeEmpty"/>
              <widget class="QWidget" name="pageCenterPath">
@@ -1585,13 +1599,6 @@
                 <widget class="QCheckBox" name="checkBoxCenterPathBody">
                  <property name="text">
                   <string>Body</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QCheckBox" name="checkBoxContextHidden">
-                 <property name="text">
-                  <string>Context hidden</string>
                  </property>
                 </widget>
                </item>
@@ -1655,7 +1662,14 @@
                  </property>
                 </spacer>
                </item>
-               <item row="2" column="0">
+               <item row="2" column="1">
+                <widget class="QCheckBox" name="checkBoxLineCenterPathUsed">
+                 <property name="text">
+                  <string>Line / Tube</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
                 <widget class="QCheckBox" name="checkBoxTubeCenterPathUsed">
                  <property name="text">
                   <string>Tube / Quadric</string>
@@ -1665,10 +1679,10 @@
                  </property>
                 </widget>
                </item>
-               <item row="2" column="1">
-                <widget class="QCheckBox" name="checkBoxLineCenterPathUsed">
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="checkBoxCenterPathHidden">
                  <property name="text">
-                  <string>Line / Tube</string>
+                  <string>Path hidden</string>
                  </property>
                 </widget>
                </item>
@@ -1815,6 +1829,10 @@
     <slot>ButtonClickedViewType(int)</slot>
     <slot>ToggledFaceCenterShown(bool)</slot>
     <slot>ValueChangedTensorSize(int)</slot>
+    <slot>ToggledShowDeformation(bool)</slot>
+    <slot>ToggledContextHidden(bool)</slot>
+    <slot>ToggledShowDeformationTensor(bool)</slot>
+    <slot>ToggledCenterPathHidden(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1855,8 +1873,8 @@
    <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>830</x>
-     <y>127</y>
+     <x>998</x>
+     <y>148</y>
     </hint>
     <hint type="destinationlabel">
      <x>507</x>
@@ -1871,8 +1889,8 @@
    <slot>ToggledFacesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>830</x>
-     <y>133</y>
+     <x>998</x>
+     <y>175</y>
     </hint>
     <hint type="destinationlabel">
      <x>873</x>
@@ -1887,7 +1905,7 @@
    <slot>ClickedPlay()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>899</x>
+     <x>890</x>
      <y>73</y>
     </hint>
     <hint type="destinationlabel">
@@ -1903,7 +1921,7 @@
    <slot>ClickedBegin()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>843</x>
+     <x>834</x>
      <y>73</y>
     </hint>
     <hint type="destinationlabel">
@@ -1951,8 +1969,8 @@
    <slot>ToggledEdgesNormal(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>830</x>
-     <y>127</y>
+     <x>998</x>
+     <y>148</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -1999,8 +2017,8 @@
    <slot>ToggledCenterPathBodyShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>806</x>
-     <y>148</y>
+     <x>797</x>
+     <y>206</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2015,8 +2033,8 @@
    <slot>ToggledBodyCenterShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>994</x>
-     <y>208</y>
+     <x>825</x>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2031,8 +2049,8 @@
    <slot>ToggledEdgesTessellation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>848</x>
-     <y>172</y>
+     <x>839</x>
+     <y>238</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2047,8 +2065,8 @@
    <slot>CurrentIndexChangedFacesColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>848</x>
-     <y>169</y>
+     <x>839</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -2067,7 +2085,7 @@
      <y>34</y>
     </hint>
     <hint type="destinationlabel">
-     <x>722</x>
+     <x>713</x>
      <y>550</y>
     </hint>
    </hints>
@@ -2111,7 +2129,7 @@
    <slot>SelectionChangedHistogram()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>722</x>
+     <x>713</x>
      <y>550</y>
     </hint>
     <hint type="destinationlabel">
@@ -2159,8 +2177,8 @@
    <slot>ToggledFacesShowEdges(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>847</x>
-     <y>149</y>
+     <x>839</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2175,8 +2193,8 @@
    <slot>ValueChangedTimeDisplacement(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>848</x>
-     <y>156</y>
+     <x>998</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2191,8 +2209,8 @@
    <slot>ToggledTorusOriginalDomainClipped(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>848</x>
-     <y>172</y>
+     <x>839</x>
+     <y>238</y>
     </hint>
     <hint type="destinationlabel">
      <x>414</x>
@@ -2204,11 +2222,11 @@
    <sender>checkBoxContextHidden</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledIsContextHidden(bool)</slot>
+   <slot>ToggledContextHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>848</x>
-     <y>148</y>
+     <x>823</x>
+     <y>172</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2223,8 +2241,8 @@
    <slot>ToggledContextView(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>834</x>
-     <y>199</y>
+     <x>994</x>
+     <y>272</y>
     </hint>
     <hint type="destinationlabel">
      <x>526</x>
@@ -2239,8 +2257,8 @@
    <slot>ValueChangedContextAlpha(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>996</x>
-     <y>275</y>
+     <x>823</x>
+     <y>163</y>
     </hint>
     <hint type="destinationlabel">
      <x>424</x>
@@ -2255,12 +2273,12 @@
    <slot>ToggledTimeStepShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>832</x>
+     <x>823</x>
      <y>157</y>
     </hint>
     <hint type="destinationlabel">
-     <x>722</x>
-     <y>225</y>
+     <x>713</x>
+     <y>243</y>
     </hint>
    </hints>
   </connection>
@@ -2271,8 +2289,8 @@
    <slot>ValueChangedEdgesRadius(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>996</x>
-     <y>245</y>
+     <x>823</x>
+     <y>160</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2287,8 +2305,8 @@
    <slot>ToggledTorusOriginalDomainShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>857</x>
-     <y>262</y>
+     <x>743</x>
+     <y>199</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2303,8 +2321,8 @@
    <slot>ToggledBoundingBoxShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>994</x>
-     <y>235</y>
+     <x>825</x>
+     <y>193</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2319,7 +2337,7 @@
    <slot>ValueChangedAngleOfView(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>832</x>
+     <x>823</x>
      <y>157</y>
     </hint>
     <hint type="destinationlabel">
@@ -2335,8 +2353,8 @@
    <slot>ToggledAxesShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>994</x>
-     <y>262</y>
+     <x>825</x>
+     <y>199</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2351,8 +2369,8 @@
    <slot>ToggledLightNumberShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>832</x>
-     <y>163</y>
+     <x>841</x>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
      <x>424</x>
@@ -2367,7 +2385,7 @@
    <slot>CurrentIndexChangedAxesOrder(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>832</x>
+     <x>823</x>
      <y>162</y>
     </hint>
     <hint type="destinationlabel">
@@ -2383,8 +2401,8 @@
    <slot>ValueChangedFontSize(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>996</x>
-     <y>183</y>
+     <x>823</x>
+     <y>154</y>
     </hint>
     <hint type="destinationlabel">
      <x>868</x>
@@ -2399,7 +2417,7 @@
    <slot>ToggledHistogramGridShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>750</x>
+     <x>741</x>
      <y>157</y>
     </hint>
     <hint type="destinationlabel">
@@ -2415,8 +2433,8 @@
    <slot>ToggledDirectionalLightEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>818</x>
-     <y>163</y>
+     <x>841</x>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2431,8 +2449,8 @@
    <slot>ToggledBodiesBoundingBoxesShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>835</x>
-     <y>235</y>
+     <x>743</x>
+     <y>193</y>
     </hint>
     <hint type="destinationlabel">
      <x>506</x>
@@ -2447,7 +2465,7 @@
    <slot>CurrentIndexChangedSelectedLight(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>850</x>
+     <x>841</x>
      <y>187</y>
     </hint>
     <hint type="destinationlabel">
@@ -2463,7 +2481,7 @@
    <slot>CurrentIndexChangedSelectedLight(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>850</x>
+     <x>841</x>
      <y>187</y>
     </hint>
     <hint type="destinationlabel">
@@ -2479,8 +2497,8 @@
    <slot>ToggledLightEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>818</x>
-     <y>159</y>
+     <x>841</x>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
      <x>516</x>
@@ -2495,7 +2513,7 @@
    <slot>ValueChangedLightAmbientRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>859</x>
+     <x>850</x>
      <y>202</y>
     </hint>
     <hint type="destinationlabel">
@@ -2511,7 +2529,7 @@
    <slot>ValueChangedLightDiffuseRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>859</x>
+     <x>850</x>
      <y>202</y>
     </hint>
     <hint type="destinationlabel">
@@ -2527,7 +2545,7 @@
    <slot>ValueChangedLightAmbientGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>859</x>
+     <x>850</x>
      <y>208</y>
     </hint>
     <hint type="destinationlabel">
@@ -2543,7 +2561,7 @@
    <slot>ValueChangedLightAmbientBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>859</x>
+     <x>850</x>
      <y>214</y>
     </hint>
     <hint type="destinationlabel">
@@ -2559,7 +2577,7 @@
    <slot>ValueChangedLightDiffuseGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>859</x>
+     <x>850</x>
      <y>208</y>
     </hint>
     <hint type="destinationlabel">
@@ -2575,7 +2593,7 @@
    <slot>ValueChangedLightDiffuseBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>859</x>
+     <x>850</x>
      <y>214</y>
     </hint>
     <hint type="destinationlabel">
@@ -2591,7 +2609,7 @@
    <slot>ValueChangedLightSpecularRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>859</x>
+     <x>850</x>
      <y>202</y>
     </hint>
     <hint type="destinationlabel">
@@ -2607,7 +2625,7 @@
    <slot>ValueChangedLightSpecularGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>859</x>
+     <x>850</x>
      <y>208</y>
     </hint>
     <hint type="destinationlabel">
@@ -2623,7 +2641,7 @@
    <slot>ValueChangedLightSpecularBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>859</x>
+     <x>850</x>
      <y>214</y>
     </hint>
     <hint type="destinationlabel">
@@ -2639,8 +2657,8 @@
    <slot>ToggledCenterPathTubeUsed(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>812</x>
-     <y>152</y>
+     <x>998</x>
+     <y>206</y>
     </hint>
     <hint type="destinationlabel">
      <x>527</x>
@@ -2655,8 +2673,8 @@
    <slot>ToggledFacesStatistics(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>830</x>
-     <y>133</y>
+     <x>998</x>
+     <y>175</y>
     </hint>
     <hint type="destinationlabel">
      <x>872</x>
@@ -2671,8 +2689,8 @@
    <slot>ValueChangedStatisticsTimeWindow(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>996</x>
-     <y>183</y>
+     <x>823</x>
+     <y>154</y>
     </hint>
     <hint type="destinationlabel">
      <x>527</x>
@@ -2687,8 +2705,8 @@
    <slot>CurrentIndexChangedStatisticsType(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>848</x>
-     <y>160</y>
+     <x>839</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
      <x>516</x>
@@ -2703,8 +2721,8 @@
    <slot>CurrentIndexChangedStatisticsType(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>848</x>
-     <y>160</y>
+     <x>839</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
      <x>874</x>
@@ -2719,8 +2737,8 @@
    <slot>ValueChangedStatisticsTimeWindow(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>848</x>
-     <y>169</y>
+     <x>839</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
      <x>527</x>
@@ -2735,7 +2753,7 @@
    <slot>ToggledT1sShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>752</x>
+     <x>743</x>
      <y>199</y>
     </hint>
     <hint type="destinationlabel">
@@ -2751,7 +2769,7 @@
    <slot>ToggledT1sShiftLower(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>834</x>
+     <x>825</x>
      <y>199</y>
     </hint>
     <hint type="destinationlabel">
@@ -2767,8 +2785,8 @@
    <slot>CurrentIndexChangedViewCount(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>834</x>
-     <y>187</y>
+     <x>994</x>
+     <y>213</y>
     </hint>
     <hint type="destinationlabel">
      <x>550</x>
@@ -2783,8 +2801,8 @@
    <slot>CurrentIndexChangedViewLayout(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>834</x>
-     <y>193</y>
+     <x>994</x>
+     <y>245</y>
     </hint>
     <hint type="destinationlabel">
      <x>556</x>
@@ -2799,8 +2817,8 @@
    <slot>CurrentIndexChangedViewCount(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>834</x>
-     <y>187</y>
+     <x>994</x>
+     <y>213</y>
     </hint>
     <hint type="destinationlabel">
      <x>874</x>
@@ -2815,8 +2833,8 @@
    <slot>ValueChangedT1Size(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>996</x>
-     <y>300</y>
+     <x>823</x>
+     <y>166</y>
     </hint>
     <hint type="destinationlabel">
      <x>552</x>
@@ -2831,7 +2849,7 @@
    <slot>ToggledMissingPressureShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>750</x>
+     <x>741</x>
      <y>167</y>
     </hint>
     <hint type="destinationlabel">
@@ -2847,7 +2865,7 @@
    <slot>ToggledTitleShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>832</x>
+     <x>823</x>
      <y>162</y>
     </hint>
     <hint type="destinationlabel">
@@ -2863,7 +2881,7 @@
    <slot>ToggledAverageAroundBody(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>750</x>
+     <x>741</x>
      <y>162</y>
     </hint>
     <hint type="destinationlabel">
@@ -2879,8 +2897,8 @@
    <slot>ToggledCenterPathLineUsed(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>848</x>
-     <y>152</y>
+     <x>998</x>
+     <y>233</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -2895,8 +2913,8 @@
    <slot>ValueChangedHistogramHeight(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>996</x>
-     <y>215</y>
+     <x>823</x>
+     <y>157</y>
     </hint>
     <hint type="destinationlabel">
      <x>872</x>
@@ -2911,8 +2929,8 @@
    <slot>CurrentIndexChangedWindowSize(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>996</x>
-     <y>407</y>
+     <x>823</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
      <x>1018</x>
@@ -2927,7 +2945,7 @@
    <slot>ToggledStandaloneElementsShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>832</x>
+     <x>823</x>
      <y>167</y>
     </hint>
     <hint type="destinationlabel">
@@ -2943,8 +2961,8 @@
    <slot>ValueChangedHighlightLineWidth(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>996</x>
-     <y>325</y>
+     <x>823</x>
+     <y>169</y>
     </hint>
     <hint type="destinationlabel">
      <x>701</x>
@@ -2959,12 +2977,12 @@
    <slot>ValueChangedForceLength(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>996</x>
-     <y>350</y>
+     <x>823</x>
+     <y>172</y>
     </hint>
     <hint type="destinationlabel">
-     <x>720</x>
-     <y>441</y>
+     <x>713</x>
+     <y>459</y>
     </hint>
    </hints>
   </connection>
@@ -2975,7 +2993,7 @@
    <slot>ToggledForcePressureShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>752</x>
+     <x>743</x>
      <y>193</y>
     </hint>
     <hint type="destinationlabel">
@@ -2991,7 +3009,7 @@
    <slot>ToggledForceNetworkShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>752</x>
+     <x>743</x>
      <y>187</y>
     </hint>
     <hint type="destinationlabel">
@@ -3007,7 +3025,7 @@
    <slot>ToggledForceResultShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>752</x>
+     <x>743</x>
      <y>199</y>
     </hint>
     <hint type="destinationlabel">
@@ -3023,12 +3041,12 @@
    <slot>ToggledMissingVolumeShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>750</x>
+     <x>741</x>
      <y>172</y>
     </hint>
     <hint type="destinationlabel">
-     <x>719</x>
-     <y>303</y>
+     <x>713</x>
+     <y>321</y>
     </hint>
    </hints>
   </connection>
@@ -3055,8 +3073,8 @@
    <slot>ClickedPlayReverse()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>867</x>
-     <y>66</y>
+     <x>862</x>
+     <y>73</y>
     </hint>
     <hint type="destinationlabel">
      <x>1020</x>
@@ -3071,8 +3089,8 @@
    <slot>ToggledFaceCenterShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>799</x>
-     <y>196</y>
+     <x>743</x>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
      <x>650</x>
@@ -3087,12 +3105,44 @@
    <slot>ValueChangedTensorSize(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>946</x>
-     <y>366</y>
+     <x>839</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
      <x>656</x>
      <y>458</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledShowDeformationTensor(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>839</x>
+     <y>211</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>712</x>
+     <y>279</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxCenterPathHidden</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledCenterPathHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>786</x>
+     <y>221</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>668</x>
+     <y>229</y>
     </hint>
    </hints>
   </connection>

@@ -172,6 +172,14 @@ void MainWindow::ViewToUI ()
     comboBoxStatisticsType->setCurrentIndex (vs.GetStatisticsType ());
     comboBoxStatisticsType->blockSignals (false);
 
+    checkBoxContextHidden->blockSignals (true);
+    checkBoxContextHidden->setChecked (vs.IsContextHidden ());
+    checkBoxContextHidden->blockSignals (false);
+
+    checkBoxCenterPathHidden->blockSignals (true);
+    checkBoxCenterPathHidden->setChecked (vs.IsCenterPathHidden ());
+    checkBoxCenterPathHidden->blockSignals (false);
+
     comboBoxAxesOrder->setCurrentIndex (vs.GetAxesOrder ());
     labelFacesStatisticsColor->setText (BodyProperty::ToString (property));
     labelCenterPathColor->setText (BodyProperty::ToString (property));
@@ -891,7 +899,7 @@ void MainWindow::CurrentIndexChangedWindowSize (int value)
 	resize (720, 480);
 	break;
     case WindowSize::GL_720x480:
-	resize (1028, 612);
+	resize (1043, 596);
 	break;
     }
 }

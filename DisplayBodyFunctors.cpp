@@ -154,8 +154,13 @@ void DisplayBody<displayFace, PropertySetter>::
 display (
     boost::shared_ptr<Body> b, typename DisplayElement::FocusContext bodyFc)
 {
+     ViewSettings& vs = this->m_glWidget.GetViewSettings (
+	 this->m_propertySetter.GetViewNumber ());
     if (bodyFc == DisplayElement::CONTEXT &&
-	m_contextDisplay == DisplayElement::INVISIBLE_CONTEXT)
+	(m_contextDisplay == DisplayElement::INVISIBLE_CONTEXT ||
+	 (m_contextDisplay == DisplayElement::USER_DEFINED_CONTEXT && 
+	  vs.IsContextHidden ()))
+	)
 	return;
     vector<boost::shared_ptr<OrientedFace> > v = b->GetOrientedFaces ();
     for_each (
@@ -273,12 +278,14 @@ template<typename PropertySetter, typename DisplaySegment>
 void DisplayCenterPath<PropertySetter, DisplaySegment>::
 displaySegments ()
 {
+     ViewSettings& vs = this->m_glWidget.GetViewSettings (
+	 this->m_propertySetter.GetViewNumber ());
     for_each (
 	m_focusTextureSegments.begin (), m_focusTextureSegments.end (),
 	boost::bind (&DisplayCenterPath<PropertySetter, DisplaySegment>::
 		     displayFocusTextureSegment, this, _1));
-    if (! this->m_glWidget.IsContextHidden () && 
-	m_focusTextureSegments.size () > 0)
+    if (! vs.IsContextHidden () && 
+	! vs.IsCenterPathHidden () && m_contextSegments.size () > 0)
     {
 	glDisable (GL_TEXTURE_1D);
 	DisplayBodyBase<PropertySetter>::beginContext ();

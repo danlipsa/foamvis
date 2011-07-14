@@ -157,10 +157,6 @@ public:
     {
 	return m_centerPathBodyShown;
     }
-    bool IsContextHidden () const
-    {
-	return m_contextHidden;
-    }
 
     boost::shared_ptr<QAction> GetActionResetTransformation ()
     {
@@ -230,7 +226,8 @@ public Q_SLOTS:
     void ToggledFacesShowEdges (bool checked);
     void ToggledLightNumberShown (bool checked);
     void ToggledLightEnabled (bool checked);
-    void ToggledIsContextHidden (bool checked);
+    void ToggledContextHidden (bool checked);
+    void ToggledCenterPathHidden (bool checked);
     void ToggledTorusOriginalDomainShown (bool checked);
     void ToggledT1sShown (bool checked);
     void ToggledTitleShown (bool checked);
@@ -238,6 +235,7 @@ public Q_SLOTS:
     void ToggledTorusOriginalDomainClipped (bool checked);
     void ToggledMissingPressureShown (bool checked);
     void ToggledMissingVolumeShown (bool checked);
+    void ToggledShowDeformationTensor (bool checked);
 
     void SetBodyProperty (
 	boost::shared_ptr<ColorBarModel> colorBarModel,
@@ -357,7 +355,7 @@ private:
     {
 	SHOW_NOTHING,
 	SHOW_NEIGHBORS,
-	SHOW_TEXTURE_TENSOR
+	SHOW_DEFORMATION_TENSOR
     };
 
     typedef boost::unordered_map<G3D::Vector3int16, QColor,
@@ -454,7 +452,8 @@ private:
     void displayOriginalDomain () const;
     void displayT1s (ViewNumber::Enum view) const;
     void displayBodyNeighbors () const;
-    void displayBodyTextureTensor2D () const;
+    void displayBodyDeformationTensor2D () const;
+    void displayDeformationTensor2D (ViewNumber::Enum viewNumber) const;
     void displayT1s (ViewNumber::Enum view, size_t timeStep) const;
     void displayT1sGlobal (ViewNumber::Enum view) const;
     void displayCenterPaths (ViewNumber::Enum view) const;
@@ -566,7 +565,7 @@ private:
     const static double ENCLOSE_ROTATION_RATIO;
     // Min, max values for T1s, Context alpha, force length
     const static pair<double,double> T1_SIZE;
-    const static pair<double,double> TENSOR_SIZE;
+    const static pair<double,double> DEFORMATION_TENSOR_SIZE;
     const static pair<double,double> CONTEXT_ALPHA;
     const static pair<double,double> FORCE_LENGTH;
     const static GLfloat HIGHLIGHT_LINE_WIDTH;
@@ -615,7 +614,6 @@ private:
     bool m_faceCenterShown;
     bool m_edgesTessellation;
     bool m_centerPathBodyShown;
-    bool m_contextHidden;
     bool m_boundingBoxShown;
     bool m_bodiesBoundingBoxesShown;
     bool m_axesShown;
@@ -666,7 +664,7 @@ private:
     bool m_centerPathLineUsed;
     bool m_t1sShown;
     double m_t1Size;
-    double m_tensorSize;
+    double m_deformationTensorSize;
     double m_contextAlpha;
     double m_forceLength;
     size_t m_highlightLineWidth;
@@ -685,6 +683,7 @@ private:
 
     ShowType m_showType;
     size_t m_showBodyId;
+    bool m_showDeformationTensor;
 };
 
 #endif //__GLWIDGET_H__

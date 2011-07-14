@@ -330,6 +330,24 @@ public:
     void DifferenceBodySelector (const Foam& foam, 
 				 const vector<size_t>& bodyIds);
     void CopySelection (const ViewSettings& other);
+    bool IsContextHidden () const
+    {
+	return m_contextHidden;
+    }
+    void SetContextHidden (bool contextHidden)
+    {
+	m_contextHidden = contextHidden;
+    }
+    bool IsCenterPathHidden () const
+    {
+	return m_centerPathHidden;
+    }
+    void SetCenterPathHidden (bool centerPathHidden)
+    {
+	m_centerPathHidden = centerPathHidden;
+    }
+
+    
 
 private:
     void initTexture ();
@@ -383,6 +401,8 @@ private:
     // Context stationary
     ContextStationaryType m_contextStationaryType;
     boost::shared_ptr<BodySelector> m_bodySelector;
+    bool m_contextHidden;
+    bool m_centerPathHidden;
 };
 
 

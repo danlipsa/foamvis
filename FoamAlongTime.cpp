@@ -166,7 +166,7 @@ void FoamAlongTime::Preprocess ()
 	    &Foam::CalculateBoundingBox,
 	    &Foam::CalculatePerimeterOverArea,
 	    &Foam::CalculateBodyNeighbors,
-	    &Foam::CalculateBodyTextureTensor}};
+	    &Foam::CalculateBodyDeformationTensor}};
     MapPerFoam (&methods[0], methods.size ());
     CalculateBoundingBox ();
     CacheBodiesAlongTime ();

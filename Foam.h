@@ -280,7 +280,7 @@ public:
     void FixConstraintPoints (const Foam* prevFoam);
     void StoreAttribute (Body* body, BodyProperty::Enum property, double r);
     void CalculateBodyNeighbors ();
-    void CalculateBodyTextureTensor ();
+    void CalculateBodyDeformationTensor ();
 
 public:
     static const double Z_COORDINATE_2D = 0.0;
