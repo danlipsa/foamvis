@@ -146,6 +146,6 @@ boost::shared_ptr<Vertex> Vertex::GetDuplicate (
 size_t Vertex::GetConstraintIndex (size_t i) const
 {
     return GetAttribute<IntegerArrayAttribute, 
-	IntegerArrayAttribute::value_type> (
-	    VertexAttributeIndex::CONSTRAINTS) [i] - 1;
+	    IntegerArrayAttribute::value_type> (
+		VertexAttributeIndex::CONSTRAINTS) [i] - 1;
 }

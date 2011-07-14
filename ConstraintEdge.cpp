@@ -215,13 +215,13 @@ ConstraintEdge::ConstraintEdge (
     cachePoints ();
     SetAttribute<ColorAttribute, Color::Enum> (EdgeAttributeIndex::COLOR, 
 					       Color::RED);
+    vector<int> constraints (1);
+    constraints[0] = GetBegin ().GetConstraintIndex (0) + 1;
+    SetAttribute<IntegerArrayAttribute, 
+	IntegerArrayAttribute::value_type> (
+	    EdgeAttributeIndex::CONSTRAINTS, constraints);
     if (storePointsToFix (pointsToFix, bodyIndex) == 0)
 	FixPointsConcaveOrConvex ();
-}
-
-size_t ConstraintEdge::GetConstraintIndex () const
-{
-    return GetBegin ().GetConstraintIndex (0);
 }
 
 size_t ConstraintEdge::storePointsToFix (

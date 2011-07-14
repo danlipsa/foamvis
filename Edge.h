@@ -136,6 +136,10 @@ public:
     }
 
     size_t GetConstraintIndex (size_t i) const;
+    size_t GetConstraintIndex () const
+    {
+	return GetConstraintIndex (0);
+    }
     bool HasConstraints () const;
 
     string ToString () const;

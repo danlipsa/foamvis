@@ -175,8 +175,9 @@ bool Element::HasAttributes () const
 /// @cond
 template void Element::SetAttribute<RealAttribute, double>(unsigned long, double);
 template void Element::SetAttribute<ColorAttribute, Color::Enum>(unsigned long, Color::Enum);
+template void Element::SetAttribute<IntegerArrayAttribute, std::vector<int, std::allocator<int> > const> (unsigned long, std::vector<int, std::allocator<int> > const);
 template double Element::GetAttribute<RealAttribute, double>(unsigned long) const;
-template std::vector<int, std::allocator<int> > const& Element::GetAttribute<IntegerArrayAttribute, std::vector<int, std::allocator<int> > const&>(unsigned long) const;
 template Color::Enum Element::GetAttribute<ColorAttribute, Color::Enum>(unsigned long) const;
 template int Element::GetAttribute<IntegerAttribute, int>(unsigned long) const;
+template std::vector<int, std::allocator<int> > const Element::GetAttribute<IntegerArrayAttribute, std::vector<int, std::allocator<int> > const>(unsigned long) const;
 /// @endcond

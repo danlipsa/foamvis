@@ -21,7 +21,6 @@ public:
 		    const boost::shared_ptr<Vertex>& end,
 		    vector< pair<size_t, size_t> >* pointsToFix, 
 		    size_t bodyIndex);
-    size_t GetConstraintIndex () const;
     void FixPointsConcaveOrConvex ();
     G3D::Vector3 ComputePointMulti (
 	size_t i, bool* success,

@@ -691,19 +691,23 @@ void GLWidget::transformFoamStationary (
     }
 }
 
-void GLWidget::rotateAverageAroundConstraint (size_t timeStep, int direction) const
+void GLWidget::rotateAverageAroundConstraint (
+    size_t timeStep, int direction) const
 {
-	const ConstraintRotation& rotationBegin = GetFoamAlongTime ().
-	    GetFoam (0).GetConstraintRotation ();
-	const ConstraintRotation& rotationCurrent = GetFoamAlongTime ().
-	    GetFoam (timeStep).GetConstraintRotation ();
+    const ConstraintRotation& rotationBegin = GetFoamAlongTime ().
+	GetFoam (0).GetConstraintRotation ();
+    const ConstraintRotation& rotationCurrent = GetFoamAlongTime ().
+	GetFoam (timeStep).GetConstraintRotation ();
+    float angleRadians = rotationCurrent.m_angle - rotationBegin.m_angle;
+    if (angleRadians != 0)
+    {
 	G3D::Vector3 rotationCenter = G3D::Vector3 (rotationBegin.m_center, 0.0);
 	glTranslate (rotationCenter);
-	float angleDegrees =  G3D::toDegrees (
-	    rotationCurrent.m_angle - rotationBegin.m_angle);
+	float angleDegrees =  G3D::toDegrees (angleRadians);
 	angleDegrees = direction > 0 ? angleDegrees : - angleDegrees;
 	glRotatef (angleDegrees, 0, 0, 1);
 	glTranslate (-rotationCenter);
+    }
 }
 
 
@@ -1454,7 +1458,7 @@ void GLWidget::displayContextStationaryFoam (
 }
 
 
-string GLWidget::getAverageAroundBody ()
+string GLWidget::getAverageAroundLabel ()
 {
     ostringstream ostr;
     const ViewSettings& vs = GetViewSettings ();
@@ -1518,7 +1522,7 @@ void GLWidget::setLabel ()
 {
     ostringstream ostr;
     boost::array<string, 4> labels = {{
-	    getAverageAroundBody (),
+	    getAverageAroundLabel (),
 	    getContextLabel (),
 	    getContextStationaryLabel (),
 	    getBodySelectorLabel ()

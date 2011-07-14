@@ -27,6 +27,10 @@ struct ConstraintRotationNames
 
 struct ConstraintRotation
 {
+    ConstraintRotation () :
+	m_angle (0)
+    {
+    }
     G3D::Vector2 m_center;
     float m_angle;
 };

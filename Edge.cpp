@@ -291,8 +291,8 @@ G3D::Vector3 Edge::GetPoint (size_t i) const
 size_t Edge::GetConstraintIndex (size_t i) const
 {
     return GetAttribute<IntegerArrayAttribute, 
-	IntegerArrayAttribute::value_type> (EdgeAttributeIndex::CONSTRAINTS)[i] 
-	- 1;
+	IntegerArrayAttribute::value_type> (
+	    EdgeAttributeIndex::CONSTRAINTS)[i] - 1;
 }
 
 bool Edge::HasConstraints () const

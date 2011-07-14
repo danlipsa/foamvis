@@ -541,7 +541,7 @@ private:
     string getBodySelectorLabel ();
     string getContextLabel ();
     string getContextStationaryLabel ();
-    string getAverageAroundBody ();
+    string getAverageAroundLabel ();
     void setLabel ();
     void transformFoamStationary (
 	ViewNumber::Enum viewNumber, size_t timeStep) const;

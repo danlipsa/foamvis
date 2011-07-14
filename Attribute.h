@@ -144,7 +144,7 @@ private:
 class IntegerArrayAttribute : public Attribute
 {
 public:
-    typedef const vector<int>& value_type;
+    typedef const vector<int> value_type;
     /**
      * Constructs an integer array attribute
      * @param values pointer to vector of integers.
@@ -153,6 +153,14 @@ public:
     IntegerArrayAttribute (vector<int>* values)
     {
         m_values = values;
+    }
+    IntegerArrayAttribute (value_type values)
+    {
+	m_values = new vector<int> (values);
+    }
+    void set (value_type values)
+    {
+	*m_values = values;
     }
     /**
      * Destructor for the integer array attribute
@@ -164,7 +172,7 @@ public:
      * @return where to print the next item
      */
     virtual ostream& Print (ostream& ostr) const;
-    operator const vector<int>& ()
+    operator const vector<int> ()
     {
 	return *m_values;
     }
