@@ -111,6 +111,7 @@ void DisplayFaceBodyPropertyColor<PropertySetter>::
 operator () (const boost::shared_ptr<OrientedFace>& of)
 {
     glNormal (of->GetNormal ());
+/*
     if (this->m_glWidget.GetFoamAlongTime ().Is2D ())
     {
 	bool useColor;
@@ -135,6 +136,7 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 	    glEnable (GL_TEXTURE_1D);
     }
     else
+*/
     {
 	bool useColor;
 	setColorOrTexture (of, &useColor);
@@ -179,9 +181,9 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	    bool deduced;
 	    bool exists = 
 		body->ExistsPropertyValue (property, &deduced);
-	    if (exists && 
-		(! deduced || 
-		 (deduced && this->m_glWidget.IsMissingPropertyShown (property))))
+	    if (exists && (! deduced || 
+			   (deduced && 
+			    this->m_glWidget.IsMissingPropertyShown (property))))
 	    {
 		glColor (Qt::white);
 		*useColor = false;

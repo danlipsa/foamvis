@@ -15,10 +15,10 @@
 
 // Private Functions and classes
 // ======================================================================
-class FoamMethodList
+class FoamParamMethodList
 {
 public:
-    FoamMethodList (FoamMethod* foamMethods, size_t n):
+    FoamParamMethodList (FoamAlongTime::FoamParamMethod* foamMethods, size_t n):
 	m_foamMethods (foamMethods), m_n (n)
     {
     }
@@ -26,11 +26,11 @@ public:
     void operator () (boost::shared_ptr<Foam> foam)
     {
 	for (size_t i = 0; i < m_n; ++i)
-	    CALL_MEMBER_FN(foam.get (), m_foamMethods[i]) ();
+	    (m_foamMethods[i]) (foam.get ());
     }
 
 private:
-    FoamMethod* m_foamMethods;
+    FoamAlongTime::FoamParamMethod* m_foamMethods;
     size_t m_n;
 };
 
@@ -161,12 +161,15 @@ void FoamAlongTime::Preprocess ()
 {
     cdbg << "Preprocess temporal foam data ..." << endl;
     fixConstraintPoints ();
-    boost::array<FoamMethod, 5> methods = {{
-	    &Foam::ReleaseParsingData,
-	    &Foam::CalculateBoundingBox,
-	    &Foam::CalculatePerimeterOverArea,
-	    &Foam::CalculateBodyNeighbors,
-	    &Foam::CalculateBodyDeformationTensor}};
+    boost::array<FoamParamMethod, 6> methods = {{
+	    boost::bind (&Foam::CreateConstraintBody, _1, 
+			 GetConstraintRotationNames ().m_constraintIndex),
+	    boost::bind (&Foam::ReleaseParsingData, _1),
+	    boost::bind (&Foam::CalculateBoundingBox, _1),
+	    boost::bind (&Foam::CalculatePerimeterOverArea, _1),
+	    boost::bind (&Foam::CalculateBodyNeighbors, _1),
+	    boost::bind (&Foam::CalculateBodyDeformationTensor, _1)
+    }};
     MapPerFoam (&methods[0], methods.size ());
     CalculateBoundingBox ();
     CacheBodiesAlongTime ();
@@ -196,9 +199,9 @@ void FoamAlongTime::fixConstraintPoints ()
 }
 
 
-void FoamAlongTime::MapPerFoam (FoamMethod* foamMethods, size_t n)
+void FoamAlongTime::MapPerFoam (FoamParamMethod* foamMethods, size_t n)
 {
-    FoamMethodList fl (foamMethods, n);
+    FoamParamMethodList fl (foamMethods, n);
     QtConcurrent::blockingMap (m_foams.begin (), m_foams.end (), fl);
 }
 

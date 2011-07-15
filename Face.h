@@ -35,11 +35,13 @@ public:
 	  const vector< boost::shared_ptr<Edge> >& edges, 
 	  size_t id,
 	  ElementStatus::Enum duplicateStatus = ElementStatus::ORIGINAL);
+    Face (const vector< boost::shared_ptr<Edge> >& edges);
     Face (const Face& original);
     Face (const boost::shared_ptr<Edge>& firstEdge, size_t id);
 
 
-    void AddAdjacentBody (boost::shared_ptr<Body>  body, size_t orientedFaceIndex)
+    void AddAdjacentBody (boost::shared_ptr<Body>  body, 
+			  size_t orientedFaceIndex)
     {
 	m_adjacentBodies.push_back (AdjacentBody (body, orientedFaceIndex));
     }

@@ -108,6 +108,7 @@ while (no more items in the queue)
 
 const char* optionName[] =
 {
+    "constraint",
     "constraint-rotation",
     "debug-parsing",
     "debug-scanning",
@@ -126,6 +127,7 @@ struct Option
 {
     enum Enum
     {
+        CONSTRAINT,
 	CONSTRAINT_ROTATION,
 	DEBUG_PARSING,
 	DEBUG_SCANNING,
@@ -217,9 +219,13 @@ void parseOptions (int argc, char *argv[],
 	"<files> - one or more DMP files\n"
 	"OPTIONS");
     genericOptions.add_options()
+	(optionName[Option::CONSTRAINT],
+	 po::value<size_t>(&constraintRotationNames->m_constraintIndex), 
+	 "a constraint that specifies an object.\n"
+         "arg=<constraint> where <constraint> is the constraint number.")
 	(optionName[Option::CONSTRAINT_ROTATION], 
 	 po::value<ConstraintRotationNames>(constraintRotationNames), 
-	 "reads a rotation for a constraint.\n"
+	 "a constraint that specifies an object which rotates.\n"
 	 "arg=\"<constraint> <xName> <yName> <angleName>\" where " 
 	 "<constraint> specifies the constraint number, <xName>, <yName> "
 	 "specify names for parameters that store the center of rotation and "
@@ -267,6 +273,8 @@ void parseOptions (int argc, char *argv[],
 	      options (options).positional (positionalOptions).
 	      run (), *vm);
     po::notify(*vm);
+    if (constraintRotationNames->m_constraintIndex != INVALID_INDEX)
+	--constraintRotationNames->m_constraintIndex;
     if (vm->count (optionName[Option::HELP])) {
 	cout << genericOptions << "\n";
 	exit (0);
@@ -315,7 +323,7 @@ int main(int argc, char *argv[])
 	parseOptions (argc, argv, 
 		      &t1sFile, &fileNames, &constraintRotationNames,
 		      &forcesNames,
-		      &vm);
+		      &vm);	
 	foamAlongTime.ParseFiles (
 	    fileNames,
 	    vm.count (optionName[Option::USE_ORIGINAL]),

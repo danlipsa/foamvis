@@ -135,6 +135,13 @@ Body::Body(
                indexToOrientedFace(faces));
 }
 
+Body::Body (boost::shared_ptr<Face> face, size_t id) :
+    Element (id, ElementStatus::ORIGINAL)
+{
+    m_orientedFaces.resize (1);
+    m_orientedFaces[0].reset (new OrientedFace (face, false));
+}
+
 void Body::calculatePhysicalVertices (
     bool is2D, bool isQuadratic,
     vector< boost::shared_ptr<Vertex> >* physicalVertices)

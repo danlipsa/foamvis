@@ -8,6 +8,8 @@
 #ifndef __CONSTRAINT_ROTATION_H__
 #define __CONSTRAINT_ROTATION_H__
 
+#include "Utils.h"
+
 /**
  * Names of parameters in a DMP file where a rotation for a 
  * constraint is stored, and the constraint number.
@@ -15,9 +17,17 @@
  */
 struct ConstraintRotationNames
 {
-    bool IsEmpty () const
+    ConstraintRotationNames () :
+	m_constraintIndex (INVALID_INDEX)
     {
-	return m_xName.empty ();
+    }
+    bool ConstraintUsed () const
+    {
+	return m_constraintIndex != INVALID_INDEX;
+    }
+    bool RotationUsed () const
+    {
+	return ! m_xName.empty ();
     }
     size_t m_constraintIndex;
     string m_xName;

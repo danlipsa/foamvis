@@ -964,7 +964,7 @@ void GLWidget::InfoEdge ()
     ostringstream ostr;
     OrientedEdge oe = brushedEdge ();
     if (! oe.GetEdge ())
-	ostr << "No edge focused.";
+	ostr << "No body focused.";
     else
 	ostr << oe;
     msgBox.setText(ostr.str ().c_str ());
@@ -1562,7 +1562,7 @@ void GLWidget::AverageAroundBody ()
 void GLWidget::AverageAroundConstraint ()
 {
     ViewSettings& vs = GetViewSettings ();
-    if (GetFoamAlongTime ().ConstraintRotationUsed ())
+    if (GetFoamAlongTime ().GetConstraintRotationNames ().RotationUsed ())
     {
 	vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND_CONSTRAINT);
 	vs.SetAverageAroundBodyId (INVALID_INDEX);

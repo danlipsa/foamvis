@@ -133,12 +133,10 @@ template<typename T> G3D::AABox CalculateBoundingBox (const T& t);
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-const size_t HISTOGRAM_INTERVALS = 256;
-const size_t INVALID_INDEX = numeric_limits<size_t>::max ();
+const static size_t HISTOGRAM_INTERVALS = 256;
+const static size_t INVALID_INDEX = numeric_limits<size_t>::max ();
 
 #define CALL_MEMBER_FN(object,ptrToMember)  ((object)->*(ptrToMember))
-class Foam;
-typedef void (Foam::*FoamMethod) ();
 
 
 #endif //__UTILS_H__

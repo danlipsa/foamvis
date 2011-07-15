@@ -406,7 +406,7 @@ void Foam::Preprocess ()
     FaceSet faceSet;
     const ConstraintRotationNames& constraintRotationNames = 
 	GetParsingData ().GetConstraintRotationNames ();
-    if (! constraintRotationNames.IsEmpty ())
+    if (constraintRotationNames.RotationUsed ())
 	SetConstraintRotation (constraintRotationNames);
     const vector<ForceNames>& forcesNames = GetParsingData ().GetForcesNames ();
     if (forcesNames.size () > 0)
@@ -465,8 +465,7 @@ void Foam::addConstraintEdges ()
 	    boost::shared_ptr<Vertex> end = 
 		face.GetOrientedEdge (0).GetBeginPtr ();
 	    boost::shared_ptr<Vertex> begin = 
-		face.GetOrientedEdge (
-		    face.GetEdgeCount () - 1).GetEndPtr ();
+		face.GetOrientedEdge (face.GetEdgeCount () - 1).GetEndPtr ();
 	    //if (body->GetId () == 541)
 	    {
 		ConstraintEdge* constraintEdge = new ConstraintEdge (
@@ -817,6 +816,18 @@ void Foam::StoreAttribute (
 			  m_attributesInfo[DefineAttribute::BODY]);
 }
 
+
+void Foam::CreateConstraintBody (size_t constraint)
+{
+    if (constraint == INVALID_INDEX)
+	return;
+    boost::shared_ptr<Face> face (new Face (GetConstraintEdges (constraint)));
+    boost::shared_ptr<Body> body (
+	new Body (
+	    face, (*(m_bodies.end () - 1))->GetId () + 1));
+    body->UpdateAdjacentBody (body);
+    m_bodies.push_back (body);
+}
 
 // Static and Friends Methods
 // ======================================================================

@@ -41,6 +41,7 @@ public:
 	 const vector< boost::shared_ptr<Face> >& faces,
 	 size_t id, 
 	 ElementStatus::Enum duplicateStatus = ElementStatus::ORIGINAL);
+    Body (boost::shared_ptr<Face> face, size_t id);
 
     /**
      * Returns the  vector of oriented faces this body is made of

@@ -36,7 +36,8 @@ public:
      * @param edges vector of Edge objects
      */
     indexToOrientedEdge(
-	const vector<boost::shared_ptr<Edge> >& edges): m_edges(edges)
+	const vector<boost::shared_ptr<Edge> >& edges): 
+	m_edges(edges)
     {
     }
     /**
@@ -92,6 +93,16 @@ Face::Face (const vector<int>& edgeIndexes,
     m_orientedEdges.resize (edgeIndexes.size ());
     transform (edgeIndexes.begin(), edgeIndexes.end(), m_orientedEdges.begin(), 
                indexToOrientedEdge(edges));
+    CalculateCentroidAndArea ();
+}
+
+Face::Face (const vector<boost::shared_ptr<Edge> >& edges) :
+    Element (0, ElementStatus::ORIGINAL)
+{
+    m_adjacentBodies.reserve (2);
+    m_orientedEdges.resize (edges.size ());
+    for (size_t i = 0; i < edges.size (); ++i)
+	m_orientedEdges[i].reset (new OrientedEdge (edges[i], false));
     CalculateCentroidAndArea ();
 }
 

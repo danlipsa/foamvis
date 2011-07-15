@@ -145,14 +145,13 @@ string OrientedFace::ToString () const
     ostr << size () << " edges part of the face:" << endl;
     for (size_t i = 0; i < size (); i++)
 	ostr << i << ": " << GetOrientedEdge (i).GetStringId () << endl;
+    ostr << "Face attributes: ";
     if (face->HasAttributes ())
-    {
-	ostr << "Face attributes: ";
 	face->PrintAttributes (ostr);
-	ostr << " center=" << GetFace ()->GetCenter () 
-	     << " "
-	     << endl;
-    }
+    ostr << " center=" << GetFace ()->GetCenter () 
+	 << " "
+	 << endl;
+
     return ostr.str ();
 }
 

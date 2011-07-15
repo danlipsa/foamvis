@@ -288,7 +288,8 @@ void DisplayOrientedSegmentQuadric::operator () (
 
 // DisplayEdgeTorus
 // ======================================================================
-template <typename DisplayEdge, typename DisplaySegmentArrow, bool showDuplicates>
+template <typename DisplayEdge, typename DisplaySegmentArrow, 
+	  bool showDuplicates>
 DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow, showDuplicates>::DisplayEdgeTorus (
     const GLWidget& widget, FocusContext focus, bool useZPos, double zPos) : 
     
@@ -301,21 +302,24 @@ DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow, showDuplicates>::DisplayEdgeT
     {
     }
 
-template <typename DisplayEdge, typename DisplaySegmentArrow, bool showDuplicates>
+template <typename DisplayEdge, typename DisplaySegmentArrow, 
+	  bool showDuplicates>
 void DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow, showDuplicates>::
 operator () (const OrientedEdge& oe)
 {
     operator () (oe.GetEdge ());
 }
 
-template <typename DisplayEdge, typename DisplaySegmentArrow, bool showDuplicates>
+template <typename DisplayEdge, typename DisplaySegmentArrow, 
+	  bool showDuplicates>
 void DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow, showDuplicates>::
 operator() (const boost::shared_ptr<OrientedEdge> oe) 
 {
     operator() (oe->GetEdge());
 }
 
-template <typename DisplayEdge, typename DisplaySegmentArrow, bool showDuplicates>
+template <typename DisplayEdge, typename DisplaySegmentArrow, 
+	  bool showDuplicates>
 void DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow, showDuplicates>::
 operator() (const boost::shared_ptr<Edge>  e)
 {
@@ -324,7 +328,8 @@ operator() (const boost::shared_ptr<Edge>  e)
 	display (e);
 }
 
-template <typename DisplayEdge, typename DisplaySegmentArrow, bool showDuplicates>
+template <typename DisplayEdge, typename DisplaySegmentArrow, 
+	  bool showDuplicates>
 void DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow, showDuplicates>::
 display (const boost::shared_ptr<Edge>  e)
 {

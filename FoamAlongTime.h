@@ -23,6 +23,8 @@ class FoamAlongTime
 {
 public:
     typedef vector< boost::shared_ptr<Foam> > Foams;
+    typedef void (Foam::*FoamMethod) ();
+    typedef boost::function<void (Foam*)> FoamParamMethod;
 
 public:
     FoamAlongTime ();
@@ -145,10 +147,6 @@ public:
     {
 	return m_constraintRotationNames;
     }    
-    bool ConstraintRotationUsed () const
-    {
-	return ! m_constraintRotationNames.IsEmpty ();
-    }
     const vector<ForceNames>& GetForcesNames () const
     {
 	return m_forcesNames;
@@ -186,7 +184,7 @@ public:
 		     bool debugParsing, bool debugScanning);
 
 private:
-    void MapPerFoam (FoamMethod* foamMethods, size_t n);
+    void MapPerFoam (FoamParamMethod* foamMethods, size_t n);
     void MapPerFoam (FoamMethod foamMethod);
     void fixConstraintPoints ();
     void adjustPressureAlignMedians ();
