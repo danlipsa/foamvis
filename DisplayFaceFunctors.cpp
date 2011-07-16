@@ -111,7 +111,7 @@ void DisplayFaceBodyPropertyColor<PropertySetter>::
 operator () (const boost::shared_ptr<OrientedFace>& of)
 {
     glNormal (of->GetNormal ());
-/*
+
     if (this->m_glWidget.GetFoamAlongTime ().Is2D ())
     {
 	bool useColor;
@@ -136,7 +136,6 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 	    glEnable (GL_TEXTURE_1D);
     }
     else
-*/
     {
 	bool useColor;
 	setColorOrTexture (of, &useColor);

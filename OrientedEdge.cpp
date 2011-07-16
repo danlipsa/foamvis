@@ -70,6 +70,18 @@ void OrientedEdge::AddAdjacentFace (
     GetEdge ()->AddAdjacentFace (of, edgeIndex);
 }
 
+string OrientedEdge::ToStringShort () const
+{
+    ostringstream ostr;
+    ostr << "Oriented Edge " << GetStringId () << " "
+	 << GetEdge ()->GetDuplicateStatus ()
+	 << ": ";
+    const Vertex& begin = GetBegin ();
+    const Vertex& end = GetEnd ();
+    ostr << begin.GetId () << "," << end.GetId ();    
+    return ostr.str ();
+}
+
 string OrientedEdge::ToString () const
 {
     ostringstream ostr;

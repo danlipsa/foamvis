@@ -73,6 +73,7 @@ public:
     //bool IsZero () const;
     G3D::Vector3 GetEdgeVector () const;
     string ToString () const;
+    string ToStringShort () const;
     void GetVertexSet (VertexSet* vertexSet) const;
     bool IsPhysical (size_t dimension, bool isQuadratic) const;
     size_t GetPointCount () const;

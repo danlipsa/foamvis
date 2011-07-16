@@ -196,6 +196,7 @@ public:
     {
 	return *m_constraintEdges[constraintIndex];
     }
+    void SortConstraintEdges (size_t constraintIndex);
 
     const Faces& GetStandaloneFaces () const
     {

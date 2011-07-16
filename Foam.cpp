@@ -469,7 +469,8 @@ void Foam::addConstraintEdges ()
 	    //if (body->GetId () == 541)
 	    {
 		ConstraintEdge* constraintEdge = new ConstraintEdge (
-		    &GetParsingData (), begin, end, &m_constraintPointsToFix, i);
+		    &GetParsingData (), begin, end, 
+		    &m_constraintPointsToFix, i);
 		boost::shared_ptr<Edge> edge (constraintEdge);
 		face.AddEdge (edge);
 		face.CalculateCentroidAndArea ();
@@ -816,16 +817,37 @@ void Foam::StoreAttribute (
 			  m_attributesInfo[DefineAttribute::BODY]);
 }
 
+void Foam::SortConstraintEdges (size_t constraintIndex)
+{
+    Edges& edges = *m_constraintEdges[constraintIndex];
+    for (size_t i = 0; i < edges.size () - 1; ++i)
+    {
+	for (size_t j = i + 1; j < edges.size (); ++j)
+	{
+	    if (edges[i]->GetEnd ().GetId () != edges[j]->GetBegin ().GetId ())
+		continue;
+	    else
+		swap (edges[i+1], edges[j]);
+	}
+	RuntimeAssert (edges[i]->GetEnd ().GetId () == 
+		       edges[i + 1]->GetBegin ().GetId (), 
+		       "Next vector not found");
+    }
+}
 
 void Foam::CreateConstraintBody (size_t constraint)
 {
     if (constraint == INVALID_INDEX)
 	return;
+    SortConstraintEdges (constraint);
     boost::shared_ptr<Face> face (new Face (GetConstraintEdges (constraint)));
+    VertexSet vertexSet = GetVertexSet ();
+    EdgeSet edgeSet = GetEdgeSet ();
+    unwrap (face, &vertexSet, &edgeSet);
     boost::shared_ptr<Body> body (
-	new Body (
-	    face, (*(m_bodies.end () - 1))->GetId () + 1));
+	new Body (face, (*(m_bodies.end () - 1))->GetId () + 1));
     body->UpdateAdjacentBody (body);
+    body->CalculateCenter (Is2D (), IsQuadratic ());
     m_bodies.push_back (body);
 }
 
