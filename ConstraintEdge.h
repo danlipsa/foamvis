@@ -21,6 +21,8 @@ public:
 		    const boost::shared_ptr<Vertex>& end,
 		    vector< pair<size_t, size_t> >* pointsToFix, 
 		    size_t bodyIndex);
+    ConstraintEdge (const ConstraintEdge& ce);
+
     void FixPointsConcaveOrConvex ();
     G3D::Vector3 ComputePointMulti (
 	size_t i, bool* success,
@@ -29,6 +31,12 @@ public:
 	return computePointMulti (i, success, &previousTimeStepPoint);
     }
     void ChoosePoint (size_t i, const G3D::Vector3& p);
+
+protected:
+    boost::shared_ptr<Edge> Clone () const;
+    virtual boost::shared_ptr<Edge> createDuplicate (
+	const OOBox& originalDomain,
+	const G3D::Vector3& newBegin, VertexSet* vertexSet) const;
 
 private:
     enum Side

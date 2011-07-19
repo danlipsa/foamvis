@@ -170,10 +170,8 @@ public:
 
 protected:
     Edge (const Edge& edge);
-
-protected:
     virtual boost::shared_ptr<Edge> createDuplicate (
-	const OOBox& periods,
+	const OOBox& originalDomain,
 	const G3D::Vector3& newBegin, VertexSet* vertexSet) const;
 
 private:

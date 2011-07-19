@@ -9,6 +9,7 @@
 #include "Debug.h"
 #include "DebugStream.h"
 #include "ExpressionTree.h"
+#include "OOBox.h"
 #include "ParsingData.h"
 #include "Utils.h"
 #include "Vertex.h"
@@ -198,6 +199,13 @@ string Solver::ErrorToString (int error)
 // Methods
 // ======================================================================
 
+ConstraintEdge::ConstraintEdge (const ConstraintEdge& ce) :
+    ApproximationEdge (ce),
+    m_parsingData (ce.m_parsingData),
+    m_valid (GetPointCount (), true)
+{    
+}
+
 ConstraintEdge::ConstraintEdge (
     ParsingData* parsingData,
     const boost::shared_ptr<Vertex>& begin,
@@ -206,12 +214,10 @@ ConstraintEdge::ConstraintEdge (
 
     ApproximationEdge (
 	7, begin, end, 
-	G3D::Vector3int16(0, 0, 0), 0, ElementStatus::ORIGINAL),
+	Vector3int16Zero, 0, ElementStatus::ORIGINAL),
     m_parsingData (parsingData),
-    m_valid (GetPointCount ())
+    m_valid (GetPointCount (), false)
 {
-    m_parsingData->UnsetVariable ("x");
-    m_parsingData->UnsetVariable ("y");
     cachePoints ();
     SetAttribute<ColorAttribute, Color::Enum> (EdgeAttributeIndex::COLOR, 
 					       Color::RED);
@@ -222,6 +228,25 @@ ConstraintEdge::ConstraintEdge (
 	    EdgeAttributeIndex::CONSTRAINTS, constraints);
     if (storePointsToFix (pointsToFix, bodyIndex) == 0)
 	FixPointsConcaveOrConvex ();
+}
+
+
+boost::shared_ptr<Edge> ConstraintEdge::createDuplicate (
+    const OOBox& originalDomain,
+    const G3D::Vector3& newBegin, VertexSet* vertexSet) const
+{
+    G3D::Vector3int16 translation = originalDomain.GetTranslation (
+	GetBeginVector (), newBegin);
+    boost::shared_ptr<ApproximationEdge> duplicate = 
+	boost::static_pointer_cast<ApproximationEdge> (
+	    ApproximationEdge::createDuplicate (
+		originalDomain, newBegin, vertexSet));
+    return duplicate;
+}
+
+boost::shared_ptr<Edge> ConstraintEdge::Clone () const
+{
+    return boost::shared_ptr<Edge> (new ConstraintEdge(*this));
 }
 
 size_t ConstraintEdge::storePointsToFix (
@@ -358,6 +383,9 @@ void ConstraintEdge::fixPoint (
 
 void ConstraintEdge::cachePoints ()
 {
+    // do we really need to unset these variables?
+    m_parsingData->UnsetVariable ("x");
+    m_parsingData->UnsetVariable ("y");
     m_points[0] = GetBeginVector ();
     m_points[m_points.size () - 1] = GetEndVector ();
     for (size_t i = 1; i < m_points.size () - 1; ++i)
@@ -453,3 +481,4 @@ void ConstraintEdge::ChoosePoint (size_t i, const G3D::Vector3& newPoint)
 	m_valid[i] = true;
     }
 }
+

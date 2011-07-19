@@ -425,7 +425,7 @@ void Foam::Preprocess ()
     calculateBodiesCenters ();
     if (IsTorus ())
     {
-	bodiesInsideOriginalDomain (&vertexSet, &edgeSet, &faceSet);
+	//bodiesInsideOriginalDomain (&vertexSet, &edgeSet, &faceSet);
 	calculateTorusClipped ();
     }
     sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);

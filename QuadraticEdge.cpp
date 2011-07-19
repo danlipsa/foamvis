@@ -37,16 +37,16 @@ boost::shared_ptr<Edge> QuadraticEdge::Clone () const
 }
 
 boost::shared_ptr<Edge> QuadraticEdge::createDuplicate (
-    const OOBox& periods,
+    const OOBox& originalDomain,
     const G3D::Vector3& newBegin, VertexSet* vertexSet) const
 {
-    G3D::Vector3int16 translation = periods.GetTranslation (
+    G3D::Vector3int16 translation = originalDomain.GetTranslation (
 	GetBeginVector (), newBegin);
     boost::shared_ptr<QuadraticEdge> duplicate = 
 	boost::static_pointer_cast<QuadraticEdge> (
-	    Edge::createDuplicate (periods, newBegin, vertexSet));
+	    Edge::createDuplicate (originalDomain, newBegin, vertexSet));
     boost::shared_ptr<Vertex> middleDuplicate = GetMiddle ().GetDuplicate (
-	periods, translation, vertexSet);
+	originalDomain, translation, vertexSet);
     duplicate->setMiddle (middleDuplicate);
     duplicate->cachePoints ();
     return duplicate;

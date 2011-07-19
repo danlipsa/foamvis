@@ -29,6 +29,10 @@ public:
 
 protected:
     ApproximationEdge (const ApproximationEdge& approximationEdge);
+    virtual boost::shared_ptr<Edge> createDuplicate (
+	const OOBox& originalDomain,
+	const G3D::Vector3& newBegin, VertexSet* vertexSet) const;
+
 
 protected:
     vector<G3D::Vector3> m_points;

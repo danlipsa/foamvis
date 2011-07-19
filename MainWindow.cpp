@@ -376,7 +376,7 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     Qt::KeyboardModifiers modifiers = event->modifiers ();
     switch (event->key ())
     {
-    case Qt::Key_Space:
+    case Qt::Key_B:
 	translateBodyStep ();
 	break;
 	
