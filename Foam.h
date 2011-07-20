@@ -59,6 +59,7 @@ public:
 	GetEdgeSet (&edgeSet);
 	return edgeSet;
     }
+    size_t GetLastEdgeId () const;
     void GetFaceSet (FaceSet* faceSet) const;
     FaceSet GetFaceSet () const
     {
@@ -66,6 +67,7 @@ public:
 	GetFaceSet (&faceSet);
 	return faceSet;
     }
+    size_t GetLastFaceId () const;
 
     /**
      * Gets ith body
@@ -92,11 +94,11 @@ public:
     {
 	return m_bodies;
     }
-
     const Bodies& GetBodies () const
     {
 	return m_bodies;
     }
+    size_t GetLastBodyId () const;
 
     /**
      * Stores a Body object in the Foam object
@@ -340,6 +342,10 @@ private:
     void setMissingPressureZero ();
     void setMissingVolume ();
     void addConstraintEdges ();
+    bool isVectorOnConstraint (const G3D::Vector3& v, 
+			       size_t constraintIndex) const;
+    G3D::Vector3int16 getVectorOnConstraintTranslation (
+	const G3D::Vector3& v, size_t constraintIndex) const;
 
 private:
     Edges m_standaloneEdges;

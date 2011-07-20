@@ -19,6 +19,7 @@ public:
     ConstraintEdge (ParsingData* parsingData,
 		    const boost::shared_ptr<Vertex>& begin,
 		    const boost::shared_ptr<Vertex>& end,
+		    size_t id,
 		    vector< pair<size_t, size_t> >* pointsToFix, 
 		    size_t bodyIndex);
     ConstraintEdge (const ConstraintEdge& ce);

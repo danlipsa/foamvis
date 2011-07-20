@@ -14,6 +14,9 @@
 #include "Utils.h"
 #include "Vertex.h"
 
+//#define __LOG__(code) code
+#define __LOG__(code)
+
 
 // Private Functions and Classes
 // ======================================================================
@@ -210,11 +213,12 @@ ConstraintEdge::ConstraintEdge (
     ParsingData* parsingData,
     const boost::shared_ptr<Vertex>& begin,
     const boost::shared_ptr<Vertex>& end,
+    size_t id,
     vector< pair<size_t, size_t> >* pointsToFix, size_t bodyIndex) :
 
     ApproximationEdge (
 	7, begin, end, 
-	Vector3int16Zero, 0, ElementStatus::ORIGINAL),
+	Vector3int16Zero, id, ElementStatus::ORIGINAL),
     m_parsingData (parsingData),
     m_valid (GetPointCount (), false)
 {
@@ -382,17 +386,20 @@ void ConstraintEdge::fixPoint (
 }
 
 void ConstraintEdge::cachePoints ()
-{
+{    
     // do we really need to unset these variables?
     m_parsingData->UnsetVariable ("x");
     m_parsingData->UnsetVariable ("y");
     m_points[0] = GetBeginVector ();
     m_points[m_points.size () - 1] = GetEndVector ();
+    //cdbg << "0: " << m_points[0] 
+    //<< " 6: " << m_points[m_points.size () - 1] << endl;
     for (size_t i = 1; i < m_points.size () - 1; ++i)
     {
 	bool valid;
-	m_points[i] = computePointMulti (i, &valid);
+	m_points[i] = computePointMulti (i, &valid);	
 	m_valid[i] = valid;
+	//cdbg << i << ": " << m_points[i] << " " << m_valid[i] << endl;
     }
 }
 
@@ -427,7 +434,9 @@ G3D::Vector3 ConstraintEdge::computePointMulti (
 	guess.Set (1, (*previousTimeStepPoint)[1]);
     }
     Solver solver;
-    //cdbg << "guess=" << guess.GetVector () << endl;
+    __LOG__(
+	cdbg << "guess=" << guess.GetVector () << endl;
+	);
     solver.Set (&function, guess.GetVector ());
     if (solver.Solve (&numberIterations, ABSOLUTE_ERROR, RELATIVE_ERROR))
     {
@@ -435,21 +444,23 @@ G3D::Vector3 ConstraintEdge::computePointMulti (
 	if (numberIterations == 0)
 	{
 	    *valid = false;
-	    //cdbg << "Multi-root fail: # iterations,"
-	    //<< " constraint=" << constraintIndex << ", index=" << i << endl;
+	    __LOG__(
+		cdbg << "Multi-root fail: # iterations,"
+		<< " constraint=" << constraintIndex << ", index=" << i << endl;
+		);
 	    return current;
 	}
 	else
 	{
 	    G3D::Vector3 result (gsl_vector_get (root, 0),
 				 gsl_vector_get (root, 1), 0);
-/*
-	    cdbg << "Multi-root valid, iterations " 
-		 << (NUMBER_ITERATIONS - numberIterations) << " " 
-		 << result
-		 << " constraint=" << constraintIndex 
-		 << ", index=" << i << endl;
-*/
+	    __LOG__(
+		cdbg << "Multi-root valid, iterations " 
+		<< (NUMBER_ITERATIONS - numberIterations) << " " 
+		<< result
+		<< " constraint=" << constraintIndex 
+		<< ", index=" << i << endl;
+		);
 	    *valid = true;
 	    return result;
 	}
@@ -458,8 +469,10 @@ G3D::Vector3 ConstraintEdge::computePointMulti (
     else
     {
 	*valid = false;
-	//cdbg << "Multi-root fail: no solution, " 
-	//<< " constraint=" << constraintIndex << ", index=" << i << endl;
+	__LOG__(
+	    cdbg << "Multi-root fail: no solution, " 
+	    << " constraint=" << constraintIndex << ", index=" << i << endl;
+	    );
 	return current;
     }
 }

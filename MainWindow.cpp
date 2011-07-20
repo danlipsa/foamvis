@@ -783,6 +783,7 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
     (void)timeStep;
     SetAndDisplayHistogram (KEEP_SELECTION, KEEP_MAX_VALUE);
+    m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
     updateButtons ();
 }
 

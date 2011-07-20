@@ -96,8 +96,8 @@ Face::Face (const vector<int>& edgeIndexes,
     CalculateCentroidAndArea ();
 }
 
-Face::Face (const vector<boost::shared_ptr<Edge> >& edges) :
-    Element (0, ElementStatus::ORIGINAL)
+Face::Face (const vector<boost::shared_ptr<Edge> >& edges, size_t id) :
+    Element (id, ElementStatus::ORIGINAL)
 {
     m_adjacentBodies.reserve (2);
     m_orientedEdges.resize (edges.size ());

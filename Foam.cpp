@@ -11,9 +11,10 @@
 #include "ConstraintEdge.h"
 #include "Debug.h"
 #include "DebugStream.h"
-#include "Foam.h"
 #include "Edge.h"
+#include "ExpressionTree.h"
 #include "Face.h"
+#include "Foam.h"
 #include "Utils.h"
 #include "OrientedEdge.h"
 #include "OrientedFace.h"
@@ -450,12 +451,32 @@ void Foam::CalculateBodyDeformationTensor ()
 			   GetOriginalDomain ()));
 }
 
+size_t Foam::GetLastEdgeId () const
+{
+    EdgeSet::const_iterator it = GetEdgeSet ().end ();
+    return (*(--it))->GetId ();
+}
+
+size_t Foam::GetLastFaceId () const
+{
+    FaceSet::const_iterator it = GetFaceSet ().end ();
+    return (*(--it))->GetId ();
+}
+
+size_t Foam::GetLastBodyId () const
+{
+    Bodies::const_iterator it = GetBodies ().end ();
+    return (*(--it))->GetId ();
+}
 
 void Foam::addConstraintEdges ()
 {
     if (! Is2D ())
 	return;
     Bodies bodies = GetBodies ();
+    size_t lastEdgeId = GetLastEdgeId ();
+    VertexSet vertexSet = GetVertexSet ();
+    EdgeSet edgeSet = GetEdgeSet ();
     for (size_t i = 0; i < bodies.size (); ++i)
     {
 	boost::shared_ptr<Body> body = bodies[i];
@@ -466,28 +487,82 @@ void Foam::addConstraintEdges ()
 		face.GetOrientedEdge (0).GetBeginPtr ();
 	    boost::shared_ptr<Vertex> begin = 
 		face.GetOrientedEdge (face.GetEdgeCount () - 1).GetEndPtr ();
-	    //if (body->GetId () == 541)
+	    boost::shared_ptr<ConstraintEdge> constraintEdge;
+	    if (! isVectorOnConstraint (begin->GetVector (), 
+					begin->GetConstraintIndex (0)))
 	    {
-		ConstraintEdge* constraintEdge = new ConstraintEdge (
-		    &GetParsingData (), begin, end, 
-		    &m_constraintPointsToFix, i);
-		boost::shared_ptr<Edge> edge (constraintEdge);
-		face.AddEdge (edge);
-		face.CalculateCentroidAndArea ();
-		size_t constraintIndex = constraintEdge->GetConstraintIndex ();
-		if ( constraintIndex == GetParsingData ().
-		     GetConstraintRotationNames ().m_constraintIndex)
-		{
-		    resizeAllowIndex (&m_constraintEdges, constraintIndex);
-		    if (! m_constraintEdges[constraintIndex])
-			m_constraintEdges[constraintIndex].reset (
-			    new Edges ());
-		    m_constraintEdges[constraintIndex]->push_back (edge);
-		}
+		G3D::Vector3int16 translation = 
+		    getVectorOnConstraintTranslation (
+			begin->GetVector (),
+			begin->GetConstraintIndex (0));
+		boost::shared_ptr<Vertex> newEnd = end->GetDuplicate (
+		    GetOriginalDomain (), translation, &vertexSet);
+		boost::shared_ptr<Vertex> newBegin = begin->GetDuplicate (
+		    GetOriginalDomain (), translation, &vertexSet);
+		boost::shared_ptr<ConstraintEdge> newConstraintEdge (
+		    new ConstraintEdge (
+			&GetParsingData (), newBegin, newEnd, ++lastEdgeId,
+			&m_constraintPointsToFix, i));
+		constraintEdge =
+		    boost::static_pointer_cast<ConstraintEdge> (
+			newConstraintEdge->GetDuplicate (
+			    GetOriginalDomain (), begin->GetVector (), 
+			    &vertexSet, &edgeSet));
 	    }
+	    else
+	    {
+		constraintEdge.reset (
+		    new ConstraintEdge (
+			&GetParsingData (), begin, end, 
+			++lastEdgeId, &m_constraintPointsToFix, i));
+	    }
+	    boost::shared_ptr<Edge> edge (constraintEdge);
+	    face.AddEdge (edge);
+	    face.CalculateCentroidAndArea ();
+	    size_t constraintIndex = constraintEdge->GetConstraintIndex ();
+	    if ( constraintIndex == GetParsingData ().
+		 GetConstraintRotationNames ().m_constraintIndex)
+	    {
+		resizeAllowIndex (&m_constraintEdges, constraintIndex);
+		if (! m_constraintEdges[constraintIndex])
+		    m_constraintEdges[constraintIndex].reset (
+			new Edges ());
+		m_constraintEdges[constraintIndex]->push_back (edge);
+	    }
+	    
 	}
     }
 }
+
+bool Foam::isVectorOnConstraint (const G3D::Vector3& v, 
+				 size_t constraintIndex) const
+{
+    m_parsingData->SetVariable ("x", v.x);
+    m_parsingData->SetVariable ("y", v.y);
+    boost::shared_ptr<ExpressionTree> constraint = 
+	m_parsingData->GetConstraint (constraintIndex);
+    return G3D::fuzzyEq (constraint->Value (), 0);
+}
+
+G3D::Vector3int16 Foam::getVectorOnConstraintTranslation (
+    const G3D::Vector3& v, size_t constraintIndex) const
+{
+    boost::array<G3D::Vector3int16, 4> trials = {{
+	    G3D::Vector3int16 (1, 0, 0),
+	    G3D::Vector3int16 (-1, 0, 0),
+	    G3D::Vector3int16 (0, 1, 0),
+	    G3D::Vector3int16 (0, -1, 0),
+	}};
+    BOOST_FOREACH (G3D::Vector3int16 trial, trials)
+    {
+	G3D::Vector3 newV = GetOriginalDomain ().TorusTranslate (v, trial);
+	if (isVectorOnConstraint (newV, constraintIndex))
+	    return trial;
+    }
+    RuntimeAssert (false, "No vertex on constraint found");
+    return Vector3int16Zero;
+}
+
 
 void Foam::FixConstraintPoints (const Foam* prevFoam)
 {
@@ -629,7 +704,6 @@ Foam::Bodies::iterator Foam::BodyInsideOriginalDomainStep (
     Foam::Bodies::iterator begin,
     VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
 {
-    cdbg << "BodyInsideOriginalDomainStep" << endl;
     Bodies::iterator it = begin;
     while (it != m_bodies.end () &&
 	   bodyInsideOriginalDomain (*it, vertexSet, edgeSet, faceSet))
@@ -649,6 +723,8 @@ bool Foam::bodyInsideOriginalDomain (
 	GetOriginalDomain ().GetLocation (body->GetCenter ());
     if (centerLocation == Vector3int16Zero)
 	return true;
+    if (body->GetId () == 272)
+	cdbg << "bodyTranslate: " << body->GetId () << endl;
     G3D::Vector3int16 translation = Vector3int16Zero - centerLocation;
     bodyTranslate (body, translation, vertexSet, edgeSet, faceSet);
     return false;
@@ -840,12 +916,14 @@ void Foam::CreateConstraintBody (size_t constraint)
     if (constraint == INVALID_INDEX)
 	return;
     SortConstraintEdges (constraint);
-    boost::shared_ptr<Face> face (new Face (GetConstraintEdges (constraint)));
+    size_t lastFaceId = GetLastFaceId ();
+    boost::shared_ptr<Face> face (
+	new Face (GetConstraintEdges (constraint), ++lastFaceId));
     VertexSet vertexSet = GetVertexSet ();
     EdgeSet edgeSet = GetEdgeSet ();
     unwrap (face, &vertexSet, &edgeSet);
-    boost::shared_ptr<Body> body (
-	new Body (face, (*(m_bodies.end () - 1))->GetId () + 1));
+    size_t lastBodyId = GetLastBodyId ();
+    boost::shared_ptr<Body> body (new Body (face,  lastBodyId + 1));
     body->UpdateAdjacentBody (body);
     body->CalculateCenter (Is2D (), IsQuadratic ());
     m_bodies.push_back (body);
