@@ -129,8 +129,8 @@ void DisplaySegmentTube::operator() (const Segment& segment)
     {
 	beginDisk = perpendicularDisk (segment.m_begin, segment.m_end,
 				       segment.m_begin);
-	endDisk = angledDisk (segment.m_begin, segment.m_end, segment.m_afterEnd,
-			      segment.m_end);
+	endDisk = angledDisk (segment.m_begin, segment.m_end, 
+			      segment.m_afterEnd, segment.m_end);
 	break;
     }
     case SegmentPerpendicularEnd::END:
@@ -290,8 +290,9 @@ void DisplayOrientedSegmentQuadric::operator () (
 // ======================================================================
 template <typename DisplayEdge, typename DisplaySegmentArrow, 
 	  bool showDuplicates>
-DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow, showDuplicates>::DisplayEdgeTorus (
-    const GLWidget& widget, FocusContext focus, bool useZPos, double zPos) : 
+DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow, showDuplicates>::
+DisplayEdgeTorus (const GLWidget& widget, FocusContext focus, 
+		  bool useZPos, double zPos) : 
     
     DisplayElementFocus (widget, focus, useZPos, zPos),
     m_displayEdge (m_glWidget.GetQuadricObject (), m_glWidget.GetEdgeRadius ()),
@@ -385,12 +386,12 @@ operator () (const Edge& edge) const
 	glBegin(GL_LINE_STRIP);
 	DisplayEdgeVertices (edge, m_useZPos, m_zPos);
 	glEnd ();
-
+	/*
 	glPointSize (3);
 	glBegin(GL_POINTS);
 	DisplayEdgeVertices (edge, m_useZPos, m_zPos);
 	glEnd ();
-
+	*/
     }
 }
 
@@ -455,7 +456,8 @@ operator() (const boost::shared_ptr<OrientedEdge> oe) const
 
 // DisplayFaceLineStrip
 // ======================================================================
-void DisplayFaceLineStrip::operator() (const boost::shared_ptr<OrientedFace>&  of)
+void DisplayFaceLineStrip::operator() (
+    const boost::shared_ptr<OrientedFace>& of)
 {
     operator() (of->GetFace ());
 }

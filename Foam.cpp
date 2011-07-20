@@ -426,7 +426,7 @@ void Foam::Preprocess ()
     calculateBodiesCenters ();
     if (IsTorus ())
     {
-	//bodiesInsideOriginalDomain (&vertexSet, &edgeSet, &faceSet);
+	bodiesInsideOriginalDomain (&vertexSet, &edgeSet, &faceSet);
 	calculateTorusClipped ();
     }
     sort (m_bodies.begin (), m_bodies.end (), BodyLessThan);
@@ -451,9 +451,9 @@ void Foam::CalculateBodyDeformationTensor ()
 			   GetOriginalDomain ()));
 }
 
-size_t Foam::GetLastEdgeId () const
+size_t Foam::GetLastEdgeId (const EdgeSet& edgeSet) const
 {
-    EdgeSet::const_iterator it = GetEdgeSet ().end ();
+    EdgeSet::const_iterator it = edgeSet.end ();
     return (*(--it))->GetId ();
 }
 
@@ -474,9 +474,9 @@ void Foam::addConstraintEdges ()
     if (! Is2D ())
 	return;
     Bodies bodies = GetBodies ();
-    size_t lastEdgeId = GetLastEdgeId ();
     VertexSet vertexSet = GetVertexSet ();
     EdgeSet edgeSet = GetEdgeSet ();
+    size_t lastEdgeId = GetLastEdgeId (edgeSet);
     for (size_t i = 0; i < bodies.size (); ++i)
     {
 	boost::shared_ptr<Body> body = bodies[i];
@@ -487,35 +487,10 @@ void Foam::addConstraintEdges ()
 		face.GetOrientedEdge (0).GetBeginPtr ();
 	    boost::shared_ptr<Vertex> begin = 
 		face.GetOrientedEdge (face.GetEdgeCount () - 1).GetEndPtr ();
-	    boost::shared_ptr<ConstraintEdge> constraintEdge;
-	    if (! isVectorOnConstraint (begin->GetVector (), 
-					begin->GetConstraintIndex (0)))
-	    {
-		G3D::Vector3int16 translation = 
-		    getVectorOnConstraintTranslation (
-			begin->GetVector (),
-			begin->GetConstraintIndex (0));
-		boost::shared_ptr<Vertex> newEnd = end->GetDuplicate (
-		    GetOriginalDomain (), translation, &vertexSet);
-		boost::shared_ptr<Vertex> newBegin = begin->GetDuplicate (
-		    GetOriginalDomain (), translation, &vertexSet);
-		boost::shared_ptr<ConstraintEdge> newConstraintEdge (
-		    new ConstraintEdge (
-			&GetParsingData (), newBegin, newEnd, ++lastEdgeId,
-			&m_constraintPointsToFix, i));
-		constraintEdge =
-		    boost::static_pointer_cast<ConstraintEdge> (
-			newConstraintEdge->GetDuplicate (
-			    GetOriginalDomain (), begin->GetVector (), 
-			    &vertexSet, &edgeSet));
-	    }
-	    else
-	    {
-		constraintEdge.reset (
-		    new ConstraintEdge (
-			&GetParsingData (), begin, end, 
-			++lastEdgeId, &m_constraintPointsToFix, i));
-	    }
+	    boost::shared_ptr<ConstraintEdge> constraintEdge = 
+		calculateConstraintEdge (begin, end, lastEdgeId + 1, i,
+					 &vertexSet, &edgeSet);
+
 	    boost::shared_ptr<Edge> edge (constraintEdge);
 	    face.AddEdge (edge);
 	    face.CalculateCentroidAndArea ();
@@ -533,6 +508,38 @@ void Foam::addConstraintEdges ()
 	}
     }
 }
+
+boost::shared_ptr<ConstraintEdge> Foam::calculateConstraintEdge (
+    boost::shared_ptr<Vertex> begin, boost::shared_ptr<Vertex> end,
+    size_t id, size_t bodyIndex, VertexSet* vertexSet, EdgeSet* edgeSet)
+{
+    size_t constraintIndex = begin->GetConstraintIndex (0);
+    if (! isVectorOnConstraint (begin->GetVector (), constraintIndex))
+    {
+	G3D::Vector3int16 translation = 
+	    getVectorOnConstraintTranslation (
+		begin->GetVector (), constraintIndex);
+	boost::shared_ptr<Vertex> newEnd = end->GetDuplicate (
+	    GetOriginalDomain (), translation, vertexSet);
+	boost::shared_ptr<Vertex> newBegin = begin->GetDuplicate (
+	    GetOriginalDomain (), translation, vertexSet);
+	boost::shared_ptr<ConstraintEdge> newConstraintEdge (
+	    new ConstraintEdge (&GetParsingData (), newBegin, newEnd, id,
+				&m_constraintPointsToFix, bodyIndex));
+	return
+	    boost::static_pointer_cast<ConstraintEdge> (
+		newConstraintEdge->GetDuplicate (
+		    GetOriginalDomain (), begin->GetVector (), 
+		    vertexSet, edgeSet));
+    }
+    else
+    {
+	return boost::shared_ptr<ConstraintEdge> (
+	    new ConstraintEdge (&GetParsingData (), begin, end, 
+				id, &m_constraintPointsToFix, bodyIndex));
+    }
+}
+
 
 bool Foam::isVectorOnConstraint (const G3D::Vector3& v, 
 				 size_t constraintIndex) const
@@ -723,8 +730,6 @@ bool Foam::bodyInsideOriginalDomain (
 	GetOriginalDomain ().GetLocation (body->GetCenter ());
     if (centerLocation == Vector3int16Zero)
 	return true;
-    if (body->GetId () == 272)
-	cdbg << "bodyTranslate: " << body->GetId () << endl;
     G3D::Vector3int16 translation = Vector3int16Zero - centerLocation;
     bodyTranslate (body, translation, vertexSet, edgeSet, faceSet);
     return false;

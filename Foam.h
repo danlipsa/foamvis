@@ -20,6 +20,7 @@
 
 class AttributeCreator;
 class Body;
+class ConstraintEdge;
 class Edge;
 class Face;
 class NameSemanticValue;
@@ -59,7 +60,7 @@ public:
 	GetEdgeSet (&edgeSet);
 	return edgeSet;
     }
-    size_t GetLastEdgeId () const;
+    size_t GetLastEdgeId (const EdgeSet& edgeSet) const;
     void GetFaceSet (FaceSet* faceSet) const;
     FaceSet GetFaceSet () const
     {
@@ -342,6 +343,9 @@ private:
     void setMissingPressureZero ();
     void setMissingVolume ();
     void addConstraintEdges ();
+    boost::shared_ptr<ConstraintEdge> calculateConstraintEdge (
+	boost::shared_ptr<Vertex> begin, boost::shared_ptr<Vertex> end,
+	size_t id, size_t bodyIndex, VertexSet* vertexSet, EdgeSet* edgeSet);
     bool isVectorOnConstraint (const G3D::Vector3& v, 
 			       size_t constraintIndex) const;
     G3D::Vector3int16 getVectorOnConstraintTranslation (
