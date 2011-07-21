@@ -175,7 +175,6 @@ void validate(boost::any& v, const std::vector<std::string>& values,
 	throw invalid_argument (errorMessage);
     istr.str (*it);
     istr >> crn.m_constraintIndex;
-    --crn.m_constraintIndex;
     ReadStringToken readStringToken (tok, errorMessage);
     readStringToken (&crn.m_xName, &it);
     readStringToken (&crn.m_yName, &it);

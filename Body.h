@@ -35,12 +35,15 @@ public:
 
 public:
     /**
-     * Creates a new body
+     * Creates a body for a bubble
      */
     Body(const vector<int>& faceIndexes,
 	 const vector< boost::shared_ptr<Face> >& faces,
 	 size_t id, 
 	 ElementStatus::Enum duplicateStatus = ElementStatus::ORIGINAL);
+    /**
+     * Creates a body for a constraint
+     */
     Body (boost::shared_ptr<Face> face, size_t id);
 
     /**
@@ -155,6 +158,11 @@ public:
     {
 	return m_deformationEigenVectors[i];
     }
+    bool IsConstraint () const
+    {
+	return m_constraint;
+    }
+    size_t GetConstraintIndex () const;
 
 private:
     /**
@@ -196,6 +204,7 @@ private:
     bool m_pressureDeduced;
     bool m_targetVolumeDeduced;
     bool m_actualVolumeDeduced;
+    bool m_constraint;
 };
 
 /**

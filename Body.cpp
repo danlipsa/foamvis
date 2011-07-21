@@ -128,7 +128,8 @@ Body::Body(
     m_perimeterOverSqrtArea (0),
     m_pressureDeduced (false),
     m_targetVolumeDeduced (false),
-    m_actualVolumeDeduced (false)
+    m_actualVolumeDeduced (false),
+    m_constraint (false)
 {
     m_orientedFaces.resize (faceIndexes.size ());
     transform (faceIndexes.begin(), faceIndexes.end(), m_orientedFaces.begin(), 
@@ -136,7 +137,12 @@ Body::Body(
 }
 
 Body::Body (boost::shared_ptr<Face> face, size_t id) :
-    Element (id, ElementStatus::ORIGINAL)
+    Element (id, ElementStatus::ORIGINAL),
+    m_perimeterOverSqrtArea (0),
+    m_pressureDeduced (false),
+    m_targetVolumeDeduced (false),
+    m_actualVolumeDeduced (false),
+    m_constraint (true)
 {
     m_orientedFaces.resize (1);
     m_orientedFaces[0].reset (new OrientedFace (face, false));
@@ -459,4 +465,9 @@ void Body::CalculateDeformationTensor (const OOBox& originalDomain)
 		  m_deformationEigenVectors.end (), ov);
 	    );
     }
+}
+
+size_t Body::GetConstraintIndex () const
+{
+    return GetFace (0).GetOrientedEdge (0).GetConstraintIndex ();
 }

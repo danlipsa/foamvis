@@ -248,13 +248,6 @@ void GLWidget::createActions ()
     connect(m_actionAverageAroundBody.get (), SIGNAL(triggered()),
 	    this, SLOT(AverageAroundBody ()));
 
-    m_actionAverageAroundConstraint = boost::make_shared<QAction> (
-	tr("&Constraint"), this);
-    m_actionAverageAroundConstraint->setStatusTip(
-	tr("Averaged around constraint"));
-    connect(m_actionAverageAroundConstraint.get (), SIGNAL(triggered()),
-	    this, SLOT(AverageAroundConstraint ()));
-
     m_actionAverageAroundReset = boost::make_shared<QAction> (
 	tr("&Reset"), this);
     m_actionAverageAroundReset->setStatusTip(tr("Average around reset"));
@@ -667,7 +660,7 @@ void GLWidget::transformFoamStationary (
     ViewSettings::AverageAroundType type = vs.GetAverageAroundType ();
     switch (type)
     {
-    case ViewSettings::AVERAGE_AROUND_BODY:
+    case ViewSettings::AVERAGE_AROUND_TRANSLATION:
     {
 	size_t id = vs.GetAverageAroundBodyId ();
 	G3D::Vector3 centerBegin = (*GetFoamAlongTime ().GetFoam (0).
@@ -679,7 +672,7 @@ void GLWidget::transformFoamStationary (
 	glTranslate (-GetFoamAlongTime ().GetBoundingBox ().center ());
 	break;
     }
-    case ViewSettings::AVERAGE_AROUND_CONSTRAINT:
+    case ViewSettings::AVERAGE_AROUND_ROTATION:
     {
 	glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
 	rotateAverageAroundConstraint (timeStep, 1);
@@ -1366,7 +1359,7 @@ void GLWidget::displayAverageAroundBody (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (m_averageAroundBody && 
-	vs.GetAverageAroundType () == ViewSettings::AVERAGE_AROUND_BODY)
+	vs.GetAverageAroundType () == ViewSettings::AVERAGE_AROUND_TRANSLATION)
     {
 	glPushAttrib (GL_ENABLE_BIT);
 	glDisable (GL_DEPTH_TEST);
@@ -1385,7 +1378,7 @@ void GLWidget::displayAverageAroundConstraint (
 {
     const ViewSettings& vs = GetViewSettings (view);
     ViewSettings::AverageAroundType type = vs.GetAverageAroundType ();
-    if (m_averageAroundBody && type == ViewSettings::AVERAGE_AROUND_CONSTRAINT)
+    if (m_averageAroundBody && type == ViewSettings::AVERAGE_AROUND_ROTATION)
     {
 	glPushAttrib (GL_ENABLE_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
 	if (adjustForContextStationaryFoam)
@@ -1465,11 +1458,11 @@ string GLWidget::getAverageAroundLabel ()
     ViewSettings::AverageAroundType type = vs.GetAverageAroundType ();
     switch (type)
     {
-    case ViewSettings::AVERAGE_AROUND_BODY:
-	ostr << "Stationary body";
+    case ViewSettings::AVERAGE_AROUND_TRANSLATION:
+	ostr << "Average around + translation";
 	break;
-    case ViewSettings::AVERAGE_AROUND_CONSTRAINT:
-	ostr << "Stationary constraint";
+    case ViewSettings::AVERAGE_AROUND_ROTATION:
+	ostr << "Average around + rotation";
 	break;
     default:
 	break;
@@ -1542,12 +1535,16 @@ void GLWidget::setLabel ()
 void GLWidget::AverageAroundBody ()
 {
     ViewSettings& vs = GetViewSettings ();
-    vector<size_t> bodies;
+    vector< boost::shared_ptr<Body> > bodies;
     brushedBodies (m_contextMenuPosScreen, &bodies);
     if (bodies.size () != 0)
     {
-	vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND_BODY);
-	vs.SetAverageAroundBodyId (bodies[0]);
+	if (bodies[0]->IsConstraint () && 
+	    GetFoamAlongTime ().GetConstraintRotationNames ().RotationUsed ())
+	    vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND_ROTATION);
+	else
+	    vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND_TRANSLATION);
+	vs.SetAverageAroundBodyId (bodies[0]->GetId ());
 	setLabel ();
 	update ();
     }
@@ -1556,24 +1553,6 @@ void GLWidget::AverageAroundBody ()
 	QMessageBox msgBox (this);
 	msgBox.setText("No body selected");
 	msgBox.exec();
-    }
-}
-
-void GLWidget::AverageAroundConstraint ()
-{
-    ViewSettings& vs = GetViewSettings ();
-    if (GetFoamAlongTime ().GetConstraintRotationNames ().RotationUsed ())
-    {
-	vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND_CONSTRAINT);
-	vs.SetAverageAroundBodyId (INVALID_INDEX);
-	setLabel ();
-	update ();
-    }
-    else
-    {
-	QMessageBox msgBox (this);
-	msgBox.setText("Use --constraint-rotation command line option.");
-	msgBox.exec();	
     }
 }
 
@@ -2477,7 +2456,6 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	{
 	    QMenu* menuStationary = menu.addMenu ("Average around");
 	    menuStationary->addAction (m_actionAverageAroundBody.get ());
-	    menuStationary->addAction (m_actionAverageAroundConstraint.get ());
 	    menuStationary->addAction (m_actionAverageAroundReset.get ());
 	}
 	{

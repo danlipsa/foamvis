@@ -25,8 +25,15 @@ public:
 
     void operator () (boost::shared_ptr<Foam> foam)
     {
-	for (size_t i = 0; i < m_n; ++i)
-	    (m_foamMethods[i]) (foam.get ());
+	try
+	{
+	    for (size_t i = 0; i < m_n; ++i)
+		(m_foamMethods[i]) (foam.get ());
+	}
+	catch (const exception& e)
+	{
+	    cdbg << "Exception: " << e.what () << endl;
+	}
     }
 
 private:
@@ -175,7 +182,8 @@ void FoamAlongTime::Preprocess ()
     CacheBodiesAlongTime ();
     calculateBodyWraps ();
     calculateVelocity ();
-    MapPerFoam (&Foam::CalculateMinMaxStatistics);
+    FoamParamMethod f = boost::bind (&Foam::CalculateMinMaxStatistics, _1);
+    MapPerFoam (&f, 1);
     if (IsPressureAdjusted ())
         adjustPressureAlignMedians ();
     else
@@ -203,13 +211,6 @@ void FoamAlongTime::MapPerFoam (FoamParamMethod* foamMethods, size_t n)
 {
     FoamParamMethodList fl (foamMethods, n);
     QtConcurrent::blockingMap (m_foams.begin (), m_foams.end (), fl);
-}
-
-
-void FoamAlongTime::MapPerFoam (FoamMethod f)
-{
-    QtConcurrent::blockingMap (
-	m_foams.begin (), m_foams.end (), boost::bind (f, _1));
 }
 
 size_t foamsIndex (

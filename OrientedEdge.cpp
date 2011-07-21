@@ -130,3 +130,8 @@ G3D::Vector3 OrientedEdge::GetPoint (size_t i) const
 	i = GetPointCount () - 1 - i;
     return GetEdge ()->GetPoint (i);
 }
+
+size_t OrientedEdge::GetConstraintIndex () const
+{
+    return GetEdge ()->GetConstraintIndex (0);
+}

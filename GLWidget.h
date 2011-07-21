@@ -279,7 +279,6 @@ public Q_SLOTS:
     void SelectAll ();
     void DeselectAll ();
     void AverageAroundBody ();
-    void AverageAroundConstraint ();
     void AverageAroundReset ();
     void ContextDisplayBody ();
     void ContextDisplayReset ();
@@ -627,7 +626,6 @@ private:
     boost::shared_ptr<QAction> m_actionSelectBodiesById;
 
     boost::shared_ptr<QAction> m_actionAverageAroundBody;
-    boost::shared_ptr<QAction> m_actionAverageAroundConstraint;
     boost::shared_ptr<QAction> m_actionAverageAroundReset;
 
     boost::shared_ptr<QAction> m_actionContextDisplayBody;

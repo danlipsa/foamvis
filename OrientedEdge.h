@@ -63,6 +63,8 @@ public:
 			size_t edgeIndex) const;
     const AdjacentOrientedFaces& GetAdjacentFaces () const;
     bool HasConstraints () const;
+    size_t GetConstraintIndex () const;
+
     /**
      * Edge for this oriented edge
      * @return the edge for this oriented edge

@@ -437,17 +437,10 @@ void Foam::Preprocess ()
 
 void Foam::CalculateBodyNeighbors ()
 {
-    try
-    {
-	if (Is2D ())
-	    for_each (m_bodies.begin (), m_bodies.end (),
-		      boost::bind (&Body::CalculateNeighbors2D, _1, 
-				   GetOriginalDomain ()));
-    }
-    catch (const exception& e)
-    {
-	cdbg << "Exception: " << e.what () << endl;
-    }
+    if (Is2D ())
+	for_each (m_bodies.begin (), m_bodies.end (),
+		  boost::bind (&Body::CalculateNeighbors2D, _1, 
+			       GetOriginalDomain ()));
 }
 
 void Foam::CalculateBodyDeformationTensor ()
@@ -495,7 +488,7 @@ void Foam::addConstraintEdges ()
 	    boost::shared_ptr<Vertex> begin = 
 		face.GetOrientedEdge (face.GetEdgeCount () - 1).GetEndPtr ();
 	    boost::shared_ptr<ConstraintEdge> constraintEdge = 
-		calculateConstraintEdge (begin, end, lastEdgeId + 1, i,
+		calculateConstraintEdge (begin, end, ++lastEdgeId, i,
 					 &vertexSet, &edgeSet);
 
 	    boost::shared_ptr<Edge> edge (constraintEdge);
