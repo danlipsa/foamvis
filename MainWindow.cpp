@@ -101,8 +101,14 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_timer->setInterval (33);
     createActions ();
     setTabOrder (radioButtonCenterPath, sliderTimeSteps);
+    setDefaults ();
+}
+
+void MainWindow::setDefaults ()
+{
     horizontalSliderT1Size->setValue (60);
-    comboBoxWindowSize->setCurrentIndex (WindowSize::GL_720x480);    
+    comboBoxWindowSize->setCurrentIndex (WindowSize::GL_720x480);
+    horizontalSliderTensorSize->setValue (40);
 }
 
 

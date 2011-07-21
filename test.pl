@@ -12,6 +12,8 @@ my @tests =
      ["ctrctn/dump_0.1520_0.2400_8.0000_0001.dmp",""],
      ["ellipse_in_flow/ell0.700000_344v_5.000000_1.dmp",
       "--use-original --constraint-rotation \"4 x0 y0 phi\""],
+     ["sedimenting_ellipse_odd/ell_ecc0.700000_8.000000_1233.dmp",
+      "--constraint 4"],
      ["periodicshear/shear_65_0001_2.dmp",""],
      ["sphereall/sphere_0.711204_144_0001.dmp",""],
      ["shear_160/shear_160_0000_1.dmp",""],
