@@ -63,19 +63,16 @@ bool ProcessBodyTorus::Step (
 	nextOf->SetFace (translatedNextFace);
 	__LOG__(
 	    cdbg << "    Face " << nextOf->GetStringId ()
-	    << " translated " << translation << endl;
-	    );
+	    << " translated " << translation << endl;);
     }
     else
     {
 	__LOG__(
 	    cdbg << "    Face " << nextAof.GetOrientedFace ()->GetStringId ()
-	    << " does not need translation" << endl;
-	    );
+	    << " does not need translation" << endl;);
     }
     __LOG__(
-	cdbg << endl;
-	);
+	cdbg << endl;);
     return true;
 }
 
@@ -85,9 +82,8 @@ void ProcessBodyTorus::push (boost::shared_ptr<OrientedFace> of)
 	m_queue.push (AdjacentOrientedFace (of, i));
 }
 
-bool ProcessBodyTorus::pop (
-    AdjacentOrientedFace* adjacentOrientedFace,
-    AdjacentOrientedFace* nextAdjacentOrientedFace)
+bool ProcessBodyTorus::pop (AdjacentOrientedFace* adjacentOrientedFace,
+			    AdjacentOrientedFace* nextAdjacentOrientedFace)
 {
 
     while (m_queue.size () > 0)
@@ -121,25 +117,34 @@ void ProcessBodyTorus::restrictFacesAroundAnEdge (
     oe.Reverse ();
     const AdjacentOrientedFaces& aofs = oe.GetAdjacentFaces ();
 
-    //cdbg << " ---------- Trying " << oe.GetAdjacentFaceCount ()
-    // << " possibilities ----------    " << "aof: " << aof << endl;
+    __LOG__ (
+	cdbg << " ---------- Trying " << aofs.size ()
+	<< " possibilities ----------    " << "aof: " << aof << endl;);
 
     for (AdjacentOrientedFaces::const_iterator it = aofs.begin ();
 	 it != aofs.end (); it++)
     {
 	const AdjacentOrientedFace& nextAof = *it;
-	if (nextAof.IsStandalone ())
-	    continue;
-	//cdbg << " nextAof: " << nextAof << endl;
+	    __LOG__ (
+		cdbg << "nextFace: " << nextAof << endl);
 
+	if (nextAof.IsStandalone ())
+	{
+	    __LOG__ (
+		cdbg << "standalone face" << endl;);
+	    continue;
+	}
+	
 	if (bodyId != nextAof.GetBodyId ())
 	{
-	    //cdbg << "wrong body" << endl;
+	    __LOG__ (
+		cdbg << "wrong body" << endl;);
 	    continue;
 	}
 	if (oe.IsReversed () != nextAof.IsOrientedEdgeReversed ())
 	{
-	    //cdbg << "wrong orientation" << endl;
+	    __LOG__ (
+		cdbg << "wrong orientation" << endl;);
 	    continue;
 	}
 	//cdbg << "stored for later" << endl;
@@ -158,13 +163,6 @@ bool ProcessBodyTorus::chooseFaceNeighbor (
 	possibilities.size () <= 2,
 	"ProcessBodyTorus: more possibilities than we can discern: ", 
 	possibilities.size (), " (should be <= 2)");
-    if (possibilities.size () == 0)
-    {
-	__LOG__(
-	    cdbg << "face(0 possibilities) discarded: " << aof << endl;
-	    );
-	return false;
-    }
     BOOST_FOREACH (nextAof, possibilities)
     {
 	boost::shared_ptr<OrientedFace>  nextOf = nextAof.GetOrientedFace ();
@@ -172,28 +170,24 @@ bool ProcessBodyTorus::chooseFaceNeighbor (
 	if (m_traversed[nextAb.GetOrientedFaceIndex ()])
 	{
 	    __LOG__(
-		cdbg << "\talready traversed" << endl;
-		);
+		cdbg << "\talready traversed" << endl;);
 	    continue;
 	}
 
 	if (possibilities.size () > 1 && ! aof.IsValidNext (nextAof))
 	{
 	    __LOG__(
-		cdbg << "\twrong angle around edge: " << nextAof << endl;
-		);
+		cdbg << "\twrong angle around edge: " << nextAof << endl;);
 	    continue;
 	}
 	*nextAdjacentOrientedFace = nextAof;
 	__LOG__(
 	    cdbg << "face(" << possibilities.size () << " possibilities) " 
-	    << aof << " next face: " << nextAof << endl;
-	    );
+	    << aof << " next face: " << nextAof << endl;);
 	return true;
     }
     __LOG__(
 	cdbg << "face(" << possibilities.size () 
-	<< " possibilities) discarded: " << aof << endl;
-	);
+	<< " possibilities) discarded: " << endl;);
     return false;
 }

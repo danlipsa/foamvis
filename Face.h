@@ -155,6 +155,11 @@ private:
     /**
      * Bodies this face is part of.
      */
+    /**
+     * Standalone faces need a place to store an OrientedFace
+     * for the list of faces part of each edge.
+     */
+    boost::shared_ptr<OrientedFace> m_orientedFace;
     vector<AdjacentBody> m_adjacentBodies;
     G3D::Vector3 m_normal;
     G3D::Vector3 m_center;

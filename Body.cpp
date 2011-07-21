@@ -389,7 +389,8 @@ void Body::CalculateNeighbors2D (const OOBox& originalDomain)
 {
     const OrientedFace& of = GetOrientedFace (0);
     m_neighbors.resize (of.size ());
-    for (size_t i = 0; i < of.size (); ++i)
+    size_t j = 0;
+    for (size_t i = 0; i < of.size (); ++i, ++j)
     {
 	OrientedEdge oe = of.GetOrientedEdge (i);
 	const AdjacentOrientedFaces& aofs = oe.GetAdjacentFaces ();
@@ -400,18 +401,25 @@ void Body::CalculateNeighbors2D (const OOBox& originalDomain)
 	else
 	{
 	    AdjacentOrientedFaces::const_iterator it = aofs.begin ();
-	    if (it->GetBodyId () == GetId ())
+	    while (it != aofs.end () && (it->IsStandalone () ||
+					 it->GetBodyId () == GetId ()))
 		++it;
+	    if (it == aofs.end ())
+	    {
+		--j;
+		continue;
+	    }
 	    boost::shared_ptr<Body> neighbor = it->GetBody ();
-	    m_neighbors[i].m_body = neighbor;
+	    m_neighbors[j].m_body = neighbor;
 	    G3D::Vector3int16 translation;
 	    originalDomain.IsWrap (GetCenter (), neighbor->GetCenter (),
 				   &translation);
-	    m_neighbors[i].m_translation = Vector3int16Zero - translation;
+	    m_neighbors[j].m_translation = Vector3int16Zero - translation;
 	}
 	RuntimeAssert (aofs.size () <= 2, 
 		       "AdjacentOrientedFaces size > 2: ", aofs.size ());
     }
+    m_neighbors.resize (j);
 }
 
 void Body::CalculateDeformationTensor (const OOBox& originalDomain)

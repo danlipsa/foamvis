@@ -437,10 +437,17 @@ void Foam::Preprocess ()
 
 void Foam::CalculateBodyNeighbors ()
 {
-    if (Is2D ())
-	for_each (m_bodies.begin (), m_bodies.end (),
-		  boost::bind (&Body::CalculateNeighbors2D, _1, 
-			       GetOriginalDomain ()));
+    try
+    {
+	if (Is2D ())
+	    for_each (m_bodies.begin (), m_bodies.end (),
+		      boost::bind (&Body::CalculateNeighbors2D, _1, 
+				   GetOriginalDomain ()));
+    }
+    catch (const exception& e)
+    {
+	cdbg << "Exception: " << e.what () << endl;
+    }
 }
 
 void Foam::CalculateBodyDeformationTensor ()

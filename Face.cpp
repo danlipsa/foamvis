@@ -349,14 +349,14 @@ void Face::UpdateAdjacentFaceStandalone (boost::shared_ptr<Face> face)
     {
 	/**
 	 * Standalone faces need a place to store an OrientedFace
-	 * for the list of faces part of each edge.
+	 * for the list of faces part of each edge because AdjacentOrientedFace
+	 * stores a weak_ptr to the OrientedFace
 	 */
-	boost::shared_ptr<OrientedFace> orientedFace (
-	    new OrientedFace (face, false));
+	m_orientedFace.reset (new OrientedFace (face, false));
 	for (size_t i = 0; i < size (); i++)
 	{
 	    boost::shared_ptr<OrientedEdge> oe = GetOrientedEdgePtr (i);
-	    oe->AddAdjacentFace (orientedFace, i);
+	    oe->AddAdjacentFace (m_orientedFace, i);
 	}
     }
 }

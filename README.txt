@@ -119,6 +119,8 @@ Command lines for various datasets:
 
 ./foam_debug --use-original --constraint-rotation "4 x0 y0 phi" ~/Documents/swansea-phd/foam/ellipse_in_flow/ell0.700000_???v_5.000000_1.dmp
 
+./foam_debug --constraint 4 ~/Documents/swansea-phd/foam/sedimenting_ellipse_odd/ell_ecc0.700000_8.000000_????.dmp
+
 ./foam_debug --use-original ~/Documents/swansea-phd/foam/sausage_all/saus_4_703v_0.120000_0.060000_0.628319_????.dmp
 
 
@@ -212,7 +214,8 @@ Release log
 ===========
 0.5.     - added axes labels
 	 - added right-click > Info > Face and Info > Edge
-	 - 	 	 
+	 - added --constraint option, to specify an object described
+           with a constraint in the dmp file.
 0.5.2023 - fixed wetfoam_100_0002.dmp
 	 - added Actual Volume to the list of body properties, 
 	   Added 'General > Look > Volume shown' user option.

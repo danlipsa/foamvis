@@ -53,10 +53,16 @@ boost::shared_ptr<Face> AdjacentOrientedFace::GetFace () const
 
 string AdjacentOrientedFace::ToString () const
 {
+    boost::shared_ptr<OrientedFace> of = GetOrientedFace ();
     ostringstream ostr;
-    const AdjacentBody& bi = GetAdjacentBody ();
-    ostr << "(" << bi
-	 << ", of=" << GetOrientedFace ()->GetStringId () << ", " 
+    if (of->IsStandalone ())
+	ostr << "(standalone face";
+    else
+    {
+	const AdjacentBody& bi = GetAdjacentBody ();
+	ostr << "(" << bi;
+    }
+    ostr << ", of=" << of->GetStringId () << ", " 
 	 << "oeI=" << GetOrientedEdgeIndex ()
 	 << ")";
     return ostr.str ();
