@@ -161,28 +161,29 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 		   bool* useColor)
 {
     *useColor = true;
-    boost::shared_ptr<Body> body;
-    if (! of->IsStandalone ())
-	body = of->GetAdjacentBody ().GetBody ();
     if (this->m_focus == DisplayElement::FOCUS)
     {
 	if (this->m_propertySetter.GetBodyProperty () == BodyProperty::NONE)
 	{
-	    glColor (of->GetColor (this->m_glWidget.GetHighlightColor (
-				       this->m_propertySetter.GetViewNumber (),
-				       HighlightNumber::H0)));
+	    glColor (of->GetColor (
+			 this->m_glWidget.GetHighlightColor (
+			     this->m_propertySetter.GetViewNumber (),
+			     HighlightNumber::H0)));
 	    this->m_propertySetter ();
 	}
 	else
 	{
+	    boost::shared_ptr<Body> body = of->GetAdjacentBody ().GetBody ();
 	    BodyProperty::Enum property = 
 		this->m_propertySetter.GetBodyProperty ();
 	    bool deduced;
 	    bool exists = 
+		(! body->IsConstraint ()) &&  
 		body->ExistsPropertyValue (property, &deduced);
-	    if (exists && (! deduced || 
-			   (deduced && 
-			    this->m_glWidget.IsMissingPropertyShown (property))))
+	    if (exists && 
+		(! deduced || 
+		 (deduced && 
+		  this->m_glWidget.IsMissingPropertyShown (property))))
 	    {
 		glColor (Qt::white);
 		*useColor = false;

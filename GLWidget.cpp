@@ -100,6 +100,8 @@ void display (const char* name, const T& what)
 
 void displayBodyDeformationTensor2D (boost::shared_ptr<Body> body, double size)
 {
+    if (body->IsConstraint ())
+	return;
     G3D::Matrix3 rotation;
     for (size_t i = 0; i < 3; ++i)
 	rotation.setColumn (i, body->GetDeformationEigenVector (i));
@@ -110,6 +112,26 @@ void displayBodyDeformationTensor2D (boost::shared_ptr<Body> body, double size)
 		    body->GetDeformationEigenValue (1), size);
     glPopMatrix ();
 }
+
+
+void displayBodyNeighbors2D (boost::shared_ptr<Body> body, 
+			     const OOBox& originalDomain)
+{
+    if (body->IsConstraint ())
+	return;
+    BOOST_FOREACH (Body::Neighbor neighbor, body->GetNeighbors ())
+    {
+	G3D::Vector3 s;
+	s = (neighbor.m_body) ? 
+	    neighbor.m_body->GetCenter () : neighbor.m_centerReflection;
+	G3D::Vector3 first = body->GetCenter ();	    
+	G3D::Vector3 second = 
+	    originalDomain.TorusTranslate (s, neighbor.m_translation);
+	::glVertex (first);
+	::glVertex (second);
+    }
+}
+
 
 
 // Static Fields
@@ -140,6 +162,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_edgeRadiusRatio (0),
       m_facesShowEdges (true),
       m_bodyCenterShown (false),
+      m_bodyNeighborsShown (false),
       m_faceCenterShown (false),
       m_edgesTessellation (true),
       m_centerPathBodyShown (false),
@@ -1147,7 +1170,10 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     displayFocusBox (viewNumber);
     displayLightDirection (viewNumber);
     displayT1s (viewNumber);
+    displayBodyCenters (viewNumber);
+    displayFaceCenters (viewNumber);
     displayBodyNeighbors ();
+    displayBodiesNeighbors ();
     displayBodyDeformationTensor2D ();
     //displayContextMenuPos (viewNumber);
     WarnOnOpenGLError ("displayView");
@@ -1820,8 +1846,6 @@ void GLWidget::displayEdges (ViewNumber::Enum viewNumber) const
     displayStandaloneEdges<displayEdge> ();
 
     glPopAttrib ();
-    displayBodyCenters (viewNumber);
-    displayFaceCenters (viewNumber);
 }
 
 template<typename displayEdge>
@@ -1893,6 +1917,7 @@ void GLWidget::displayBodyDeformationTensor2D () const
 }
 
 
+
 void GLWidget::displayBodyNeighbors () const
 {
     if (m_showType != SHOW_NEIGHBORS)
@@ -1905,17 +1930,26 @@ void GLWidget::displayBodyNeighbors () const
     const Foam& foam = GetCurrentFoam ();
     const OOBox& originalDomain = foam.GetOriginalDomain ();
     Foam::Bodies::const_iterator showBody = foam.FindBody (m_showBodyId);
-    BOOST_FOREACH (Body::Neighbor neighbor, (*showBody)->GetNeighbors ())
-    {
-	if (! neighbor.m_body)
-	    continue;
-	G3D::Vector3 first = (*showBody)->GetCenter ();	    
-	G3D::Vector3 second = originalDomain.TorusTranslate (
-	    neighbor.m_body->GetCenter (), neighbor.m_translation);
-	::glVertex (first);
-	::glVertex (second);
-    }
+    ::displayBodyNeighbors2D (*showBody, originalDomain);
+    glEnd ();
+    glPopAttrib ();
+}
 
+
+void GLWidget::displayBodiesNeighbors () const
+{
+    const Foam& foam = GetCurrentFoam ();
+    if (! foam.Is2D () || ! m_bodyNeighborsShown)
+	return;
+    Foam::Bodies bodies = foam.GetBodies ();
+    glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
+    glDisable (GL_DEPTH_TEST);
+    glColor (Qt::black);
+    glBegin (GL_LINES);
+    for_each (bodies.begin (), bodies.end (),
+	      boost::bind (
+		  ::displayBodyNeighbors2D, _1, 
+		  GetCurrentFoam ().GetOriginalDomain ()));
     glEnd ();
     glPopAttrib ();
 }
@@ -1958,13 +1992,11 @@ QColor GLWidget::GetHighlightColor (
 
 void GLWidget::displayEdgesTorus (ViewNumber::Enum viewNumber) const
 {
+    (void)viewNumber;
     if (m_edgeRadiusRatio > 0)
 	displayEdgesTorusTubes ();
     else
-    {
 	displayEdgesTorusLines ();
-	displayBodyCenters (viewNumber);
-    }
 }
 
 void GLWidget::displayFacesTorus (ViewNumber::Enum view) const
@@ -1973,10 +2005,7 @@ void GLWidget::displayFacesTorus (ViewNumber::Enum view) const
     if (m_edgeRadiusRatio > 0)
 	displayFacesTorusTubes ();
     else
-    {
 	displayFacesTorusLines ();
-	displayBodyCenters (view);
-    }
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
 }
 
@@ -2075,8 +2104,6 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
     displayContextBodies (viewNumber);
     displayContextStationaryFoam (viewNumber);
     displayStandaloneFaces ();    
-    displayBodyCenters (viewNumber);
-    displayFaceCenters (viewNumber);
     displayDeformationTensor2D (viewNumber);
     vs.GetDisplayForces ().Display (viewNumber);
 }
@@ -2261,7 +2288,6 @@ void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum view) const
 	    DisplayElement::DONT_DISPLAY_TESSELLATION> > > > (
 		*this, bodySelector, DisplayElement::USER_DEFINED_CONTEXT,
 		view, IsTimeDisplacementUsed (), zPos));
-	displayBodyCenters (view, IsTimeDisplacementUsed ());
     }
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (true, 0);
     if (GetTimeDisplacement () != 0)
@@ -2885,6 +2911,13 @@ void GLWidget::ToggledBodyCenterShown (bool checked)
     m_bodyCenterShown = checked;
     update ();
 }
+
+void GLWidget::ToggledBodyNeighborsShown (bool checked)
+{
+    m_bodyNeighborsShown = checked;
+    update ();
+}
+
 
 void GLWidget::ToggledFaceCenterShown (bool checked)
 {

@@ -219,6 +219,7 @@ public Q_SLOTS:
     void ToggledForceResultShown (bool checked);
     void ToggledDirectionalLightEnabled (bool checked);
     void ToggledBodyCenterShown (bool checked);
+    void ToggledBodyNeighborsShown (bool checked);
     void ToggledFaceCenterShown (bool checked);
     void ToggledEdgesTessellation (bool checked);
     void ButtonClickedViewType (int id);
@@ -451,6 +452,7 @@ private:
     void displayOriginalDomain () const;
     void displayT1s (ViewNumber::Enum view) const;
     void displayBodyNeighbors () const;
+    void displayBodiesNeighbors () const;
     void displayBodyDeformationTensor2D () const;
     void displayDeformationTensor2D (ViewNumber::Enum viewNumber) const;
     void displayT1s (ViewNumber::Enum view, size_t timeStep) const;
@@ -610,6 +612,7 @@ private:
 
     bool m_facesShowEdges;
     bool m_bodyCenterShown;
+    bool m_bodyNeighborsShown;
     bool m_faceCenterShown;
     bool m_edgesTessellation;
     bool m_centerPathBodyShown;

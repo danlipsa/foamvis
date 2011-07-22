@@ -481,30 +481,25 @@ void Foam::addConstraintEdges ()
     {
 	boost::shared_ptr<Body> body = bodies[i];
 	Face& face = body->GetFace (0);
-	if (! face.IsClosed ())
+	if (face.IsClosed ())
+	    continue;
+	boost::shared_ptr<Vertex> end = face.GetOrientedEdge (0).GetBeginPtr ();
+	boost::shared_ptr<Vertex> begin = 
+	    face.GetOrientedEdge (face.GetEdgeCount () - 1).GetEndPtr ();
+	boost::shared_ptr<ConstraintEdge> constraintEdge = 
+	    calculateConstraintEdge (begin, end, ++lastEdgeId, i,
+				     &vertexSet, &edgeSet);
+	boost::shared_ptr<Edge> edge (constraintEdge);
+	face.AddEdge (edge);
+	face.CalculateCentroidAndArea ();
+	size_t constraintIndex = constraintEdge->GetConstraintIndex ();
+	if ( constraintIndex == GetParsingData ().
+	     GetConstraintRotationNames ().m_constraintIndex)
 	{
-	    boost::shared_ptr<Vertex> end = 
-		face.GetOrientedEdge (0).GetBeginPtr ();
-	    boost::shared_ptr<Vertex> begin = 
-		face.GetOrientedEdge (face.GetEdgeCount () - 1).GetEndPtr ();
-	    boost::shared_ptr<ConstraintEdge> constraintEdge = 
-		calculateConstraintEdge (begin, end, ++lastEdgeId, i,
-					 &vertexSet, &edgeSet);
-
-	    boost::shared_ptr<Edge> edge (constraintEdge);
-	    face.AddEdge (edge);
-	    face.CalculateCentroidAndArea ();
-	    size_t constraintIndex = constraintEdge->GetConstraintIndex ();
-	    if ( constraintIndex == GetParsingData ().
-		 GetConstraintRotationNames ().m_constraintIndex)
-	    {
-		resizeAllowIndex (&m_constraintEdges, constraintIndex);
-		if (! m_constraintEdges[constraintIndex])
-		    m_constraintEdges[constraintIndex].reset (
-			new Edges ());
-		m_constraintEdges[constraintIndex]->push_back (edge);
-	    }
-	    
+	    resizeAllowIndex (&m_constraintEdges, constraintIndex);
+	    if (! m_constraintEdges[constraintIndex])
+		m_constraintEdges[constraintIndex].reset (new Edges ());
+	    m_constraintEdges[constraintIndex]->push_back (edge);
 	}
     }
 }

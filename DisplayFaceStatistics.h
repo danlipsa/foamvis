@@ -18,8 +18,8 @@ class Foam;
 class GLWidget;
 
 /**
- * Shader that performs the following operation: new = old + step
- * where new, old and step are floating point textures
+ * Shader that performs the following operation: current = previous + step
+ * where current, previous and step are floating point textures
  * RGBA : sum, count, min, max
  */
 class AddShaderProgram : public QGLShaderProgram
@@ -27,7 +27,7 @@ class AddShaderProgram : public QGLShaderProgram
 public:
     void Init ();
     void Bind ();
-    GLint GetOldTexUnit ()
+    GLint GetPreviousTexUnit ()
     {
 	return 1;
     }
@@ -36,15 +36,15 @@ public:
 	return 2;
     }
 protected:
-    int m_oldTexUnitIndex;
+    int m_previousTexUnitIndex;
     int m_stepTexUnitIndex;
     boost::shared_ptr<QGLShader> m_fshader;
 };
 
 
 /**
- * Shader that performs the following operation: new = old - step
- * where new, old and step are floating point textures
+ * Shader that performs the following operation: current = previous - step
+ * where current, previous and step are floating point textures
  * RGBA : sum, count, min, max. It leaves min and max values unchanged.
  */
 class RemoveShaderProgram : public AddShaderProgram
@@ -116,12 +116,12 @@ private:
 
 /**
  * Calculate face average, min, max over all time steps.
- * It uses three framebuffer objects: step, old, new.
+ * It uses three framebuffer objects: step, previous, current.
  * Average is implemented by first calculating the sum and then dividing by
  * the number of elements in the sum. The sum is calculated in 3 steps:
  * 1. step = draw current foam
- * 2. new = step + old
- * 3. old = new
+ * 2. current = previous + step
+ * 3. previous = current
  *
  * The reason for this type of implementation is that OpenGL cannot
  * read and write to the same buffer in the same step.
@@ -166,9 +166,9 @@ private:
 	GLfloat minValue, GLfloat maxValue,
 	StatisticsType::Enum displayType);
     void renderToStep (ViewNumber::Enum view, size_t timeStep);
-    void addStepToNew (const G3D::Rect2D& viewRect);
-    void removeStepFromNew (const G3D::Rect2D& viewRect);
-    void copyNewToOld ();
+    void addStepToCurrent (const G3D::Rect2D& viewRect);
+    void removeStepFromCurrent (const G3D::Rect2D& viewRect);
+    void copyCurrentToPrevious ();
     void clearColorBufferMinMax (
 	const G3D::Rect2D& viewRect,
 	const boost::scoped_ptr<QGLFramebufferObject>& fbo);
@@ -177,18 +177,22 @@ private:
 
 private:
     /**
-     * Stores (sum,count,min,max) up too and including the current step
+     * Stores (sum,count,min,max) up to and including the current step
      */
-    boost::scoped_ptr<QGLFramebufferObject> m_new;
+    boost::scoped_ptr<QGLFramebufferObject> m_current;
     /**
      * Stores (sum, count, min, max) up to and including the previous step.
      */
-    boost::scoped_ptr<QGLFramebufferObject> m_old;
+    boost::scoped_ptr<QGLFramebufferObject> m_previous;
     /**
      * Stores (x, 1, x, x) for (sum, count, min, max) where x is the value for
-     * one step. It stores (0, 0, 0, 0) if there is no value for that pixel.
+     * one step. It stores (0, 0, maxFloat, -maxFloat) if there is no 
+     * value for that pixel.
      */
     boost::scoped_ptr<QGLFramebufferObject> m_step;
+    /**
+     * Used to save buffers as images.
+     */
     boost::scoped_ptr<QGLFramebufferObject> m_debug;
 
     static AddShaderProgram m_addShaderProgram;

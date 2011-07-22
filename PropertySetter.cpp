@@ -7,6 +7,7 @@
  */
 #include "Body.h"
 #include "ColorBarModel.h"
+#include "DebugStream.h"
 #include "GLWidget.h"
 #include "PropertySetter.h"
 #include "OpenGLUtils.h"
@@ -48,7 +49,8 @@ void SetterValueVertexAttribute::operator () (
 
 void SetterValueVertexAttribute::operator () ()
 {
-    double value = m_glWidget.GetViewSettings (
-	m_viewNumber).GetColorBarModel ()->GetInterval ().minValue ();
+    // close to maxFloat. The same value is specified in GLSL and tested
+    // against this value.
+    GLfloat value = 3.40282e+38;
     m_program->setAttributeValue (m_attributeIndex, value);
 }

@@ -245,6 +245,8 @@ string Body::ToString () const
 	PrintAttributes (ostr);
     }
     ostr << "\nBody center: " << m_center;
+    if (IsConstraint ())
+	ostr << " constraint";
     return ostr.str ();
 }
 
@@ -402,7 +404,11 @@ void Body::CalculateNeighbors2D (const OOBox& originalDomain)
 	const AdjacentOrientedFaces& aofs = oe.GetAdjacentFaces ();
 	if (oe.HasConstraints ())
 	{
-	    
+	    G3D::Vector3 b = oe.GetBeginVector ();
+	    G3D::Vector3 e = oe.GetEndVector ();
+	    G3D::Vector3 m = (b + e) / 2;
+	    G3D::Vector3 c = GetCenter ();
+	    m_neighbors[j].m_centerReflection = c + 2 * (m - c);
 	}
 	else
 	{
@@ -430,41 +436,47 @@ void Body::CalculateNeighbors2D (const OOBox& originalDomain)
 
 void Body::CalculateDeformationTensor (const OOBox& originalDomain)
 {
-    size_t neighborCount = 0;
+    size_t bubbleNeighborsCount = 0;
     G3D::Matrix3 textureTensor = G3D::Matrix3::zero ();
-    BOOST_FOREACH (Body::Neighbor neighbor, GetNeighbors ())
+    const vector<Neighbor>& neighbors = GetNeighbors ();
+    BOOST_FOREACH (Body::Neighbor neighbor, neighbors)
     {
-	if (! neighbor.m_body)
-	    continue;
+	G3D::Vector3 s;
+	if (neighbor.m_body)
+	{
+	    ++bubbleNeighborsCount;
+	    s = neighbor.m_body->GetCenter ();
+	}
+	else 
+	    s = neighbor.m_centerReflection;
 	G3D::Vector3 first = GetCenter ();
-	G3D::Vector3 second = originalDomain.TorusTranslate (
-	    neighbor.m_body->GetCenter (), neighbor.m_translation);
+	G3D::Vector3 second = 
+	    originalDomain.TorusTranslate (s, neighbor.m_translation);
 	G3D::Vector3 l = second - first;
 	textureTensor += G3D::Matrix3 (l.x * l.x, l.x * l.y, l.x * l.z,
 				       l.y * l.x, l.y * l.y, l.y * l.z,
 				       l.z * l.x, l.z * l.y, l.z * l.z);
-	++neighborCount;
     }
-    // the sedimenting discs have 0 unconstrainted neighbors
-    if (neighborCount > 0)
-    {
-	textureTensor /= neighborCount;
-	SymmetricMatrixEigen(3).Calculate (textureTensor, 
-					   &m_deformationEigenValues[0], 
-					   &m_deformationEigenVectors[0]);
-	//textureTensor.eigenSolveSymmetric (
-	//&m_deformationEigenValues[0], &m_deformationEigenVectors[0]);
+    // an object defined by a constraint has 0 neighbors adjacent to an
+    // unconstrainted edge.
+    textureTensor /= neighbors.size ();
+    SymmetricMatrixEigen(3).Calculate (textureTensor, 
+				       &m_deformationEigenValues[0], 
+				       &m_deformationEigenVectors[0]);
+    //textureTensor.eigenSolveSymmetric (
+    //&m_deformationEigenValues[0], &m_deformationEigenVectors[0]);
 
-	__LOG__(
-	    ostream_iterator<float> of(cdbg, " ");
-	    copy (m_deformationEigenValues.begin (), 
-		  m_deformationEigenValues.end (), of);
-	    cdbg << endl;
-	    ostream_iterator<G3D::Vector3> ov (cdbg, "\n");
-	    copy (m_deformationEigenVectors.begin (), 
-		  m_deformationEigenVectors.end (), ov);
-	    );
-    }
+    __LOG__(
+	ostream_iterator<float> of(cdbg, " ");
+	copy (m_deformationEigenValues.begin (), 
+	      m_deformationEigenValues.end (), of);
+	cdbg << endl;
+	ostream_iterator<G3D::Vector3> ov (cdbg, "\n");
+	copy (m_deformationEigenVectors.begin (), 
+	      m_deformationEigenVectors.end (), ov);
+	);
+    if (bubbleNeighborsCount == 0)
+	m_constraint = true;
 }
 
 size_t Body::GetConstraintIndex () const

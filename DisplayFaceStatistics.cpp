@@ -5,8 +5,6 @@
  *
  * Implementation for the DisplayFaceStatistics class 
  *
- * @todo: Fix average value for not available values. Now not
- * available values are stored as the lowest value.
  */
 
 #include "Debug.h"
@@ -29,22 +27,22 @@ void AddShaderProgram::Init ()
 {
     m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
     const char *fsrc =
-	"uniform sampler2D oldTexUnit;\n"
+	"uniform sampler2D previousTexUnit;\n"
 	"uniform sampler2D stepTexUnit;\n"
         "void main(void)\n"
         "{\n"
-	"    vec4 old = texture2D (oldTexUnit, gl_TexCoord[0].st);\n"
+	"    vec4 previous = texture2D (previousTexUnit, gl_TexCoord[0].st);\n"
 	"    vec4 step = texture2D (stepTexUnit, gl_TexCoord[0].st);\n"
-	"    vec2 newSumCount = old.rg + step.rg;\n"
-	"    float min = min (old.b, step.b);"
-	"    float max = max (old.a, step.a);"
-        "    gl_FragColor = vec4 (newSumCount, min, max);\n"
+	"    vec2 currentSumCount = previous.rg + step.rg;\n"
+	"    float min = min (previous.b, step.b);"
+	"    float max = max (previous.a, step.a);"
+        "    gl_FragColor = vec4 (currentSumCount, min, max);\n"
         "}\n";
     m_fshader->compileSourceCode(fsrc);
     addShader(m_fshader.get ());
     link();
 
-    m_oldTexUnitIndex = uniformLocation("oldTexUnit");
+    m_previousTexUnitIndex = uniformLocation("previousTexUnit");
     m_stepTexUnitIndex = uniformLocation("stepTexUnit");
 }
 
@@ -52,7 +50,7 @@ void AddShaderProgram::Bind ()
 {
     bool bindSuccessful = bind ();
     RuntimeAssert (bindSuccessful, "Bind failed for AddShaderProgram");
-    setUniformValue (m_oldTexUnitIndex, GetOldTexUnit ());
+    setUniformValue (m_previousTexUnitIndex, GetPreviousTexUnit ());
     setUniformValue (m_stepTexUnitIndex, GetStepTexUnit ());
 }
 
@@ -64,22 +62,22 @@ void RemoveShaderProgram::Init ()
 {
     m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
     const char *fsrc =
-	"uniform sampler2D oldTexUnit;\n"
+	"uniform sampler2D previousTexUnit;\n"
 	"uniform sampler2D stepTexUnit;\n"
         "void main(void)\n"
         "{\n"
-	"    vec4 old = texture2D (oldTexUnit, gl_TexCoord[0].st);\n"
+	"    vec4 previous = texture2D (previousTexUnit, gl_TexCoord[0].st);\n"
 	"    vec4 step = texture2D (stepTexUnit, gl_TexCoord[0].st);\n"
-	"    vec2 newSumCount = old.rg - step.rg;\n"
-	"    float min = old.b;"
-	"    float max = old.a;"
-        "    gl_FragColor = vec4 (newSumCount, min, max);\n"
+	"    vec2 currentSumCount = previous.rg - step.rg;\n"
+	"    float min = previous.b;\n"
+	"    float max = previous.a;\n"
+        "    gl_FragColor = vec4 (currentSumCount, min, max);\n"
         "}\n";
     m_fshader->compileSourceCode(fsrc);
     addShader(m_fshader.get ());
     link();
 
-    m_oldTexUnitIndex = uniformLocation("oldTexUnit");
+    m_previousTexUnitIndex = uniformLocation("previousTexUnit");
     m_stepTexUnitIndex = uniformLocation("stepTexUnit");
 }
 
@@ -87,7 +85,7 @@ void RemoveShaderProgram::Bind ()
 {
     bool bindSuccessful = bind ();
     RuntimeAssert (bindSuccessful, "Bind failed for RemoveShaderProgram");
-    setUniformValue (m_oldTexUnitIndex, GetOldTexUnit ());
+    setUniformValue (m_previousTexUnitIndex, GetPreviousTexUnit ());
     setUniformValue (m_stepTexUnitIndex, GetStepTexUnit ());
 }
 
@@ -112,7 +110,11 @@ void StoreShaderProgram::Init ()
 	"varying float fValue;\n"
         "void main(void)\n"
         "{\n"
-        "    gl_FragColor = vec4 (fValue, 1, fValue, fValue);\n"
+	"    float maxFloat = 3.40282e+38;\n"
+	"    if (fValue == maxFloat)\n"
+	"        gl_FragColor = vec4 (0, 0, maxFloat, -maxFloat);\n"
+	"    else\n"
+        "        gl_FragColor = vec4 (fValue, 1, fValue, fValue);\n"
         "}\n";
     m_fshader->compileSourceCode(fsrc);
 
@@ -137,8 +139,8 @@ void InitShaderProgram::Init ()
     const char *fsrc =
         "void main(void)\n"
         "{\n"
-        "    float max = 3.40282e+38;"
-        "    gl_FragColor = vec4 (0, 0, max, -max);\n"
+        "    float maxFloat = 3.40282e+38;"
+        "    gl_FragColor = vec4 (0, 0, maxFloat, -maxFloat);\n"
         "}\n";
     m_fshader->compileSourceCode(fsrc);
     addShader(m_fshader.get ());
@@ -233,11 +235,11 @@ void DisplayFaceStatistics::init (ViewNumber::Enum viewNumber)
     if (m_step->attachment () != QGLFramebufferObject::CombinedDepthStencil)
 	cdbg << "No stencil attachement available" << endl;
 
-    m_new.reset (
+    m_current.reset (
 	new QGLFramebufferObject (
 	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D,
 	    GL_RGBA32F));
-    m_old.reset (
+    m_previous.reset (
 	new QGLFramebufferObject (
 	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D,
 	    GL_RGBA32F));
@@ -251,16 +253,16 @@ void DisplayFaceStatistics::clear (const G3D::Rect2D& viewRect)
     m_step->bind ();ClearColorStencilBuffers (Qt::black, 0);
     m_step->release ();
 
-    m_new->bind ();ClearColorBuffer (Qt::black);
-    m_new->release ();
-    clearColorBufferMinMax (viewRect, m_old);
+    m_current->bind ();ClearColorBuffer (Qt::black);
+    m_current->release ();
+    clearColorBufferMinMax (viewRect, m_previous);
 }
 
 void DisplayFaceStatistics::Release ()
 {
     m_step.reset ();
-    m_new.reset ();
-    m_old.reset ();
+    m_current.reset ();
+    m_previous.reset ();
     m_debug.reset ();
 }
 
@@ -311,11 +313,11 @@ void DisplayFaceStatistics::addStep (ViewNumber::Enum viewNumber,
     renderToStep (viewNumber, timeStep);
     //save (viewRect, *m_step, "step", timeStep,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
-    addStepToNew (viewRect);
-    //save (viewRect, *m_new, "new", timeStep,
+    addStepToCurrent (viewRect);
+    //save (viewRect, *m_current, "current", timeStep,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
-    copyNewToOld ();
-    //save (viewRect, *m_old, "old", timeStep, 
+    copyCurrentToPrevious ();
+    //save (viewRect, *m_previous, "previous", timeStep, 
     //minMax.first, minMax.second, StatisticsType::AVERAGE);    
     glPopAttrib ();
     WarnOnOpenGLError ("DisplayFaceStatistics::addStep");
@@ -330,11 +332,11 @@ void DisplayFaceStatistics::removeStep (ViewNumber::Enum viewNumber,
     renderToStep (viewNumber, timeStep);
     //save (viewRect, *m_step, "step_", timeStepy - m_timeWindow,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
-    removeStepFromNew (viewRect);
-    //save (viewRect, *m_new, "new_", timeStep,
+    removeStepFromCurrent (viewRect);
+    //save (viewRect, *m_current, "current_", timeStep,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
-    copyNewToOld ();
-    //save (viewRect, *m_old, "old_", timeStep, 
+    copyCurrentToPrevious ();
+    //save (viewRect, *m_previous, "previous_", timeStep, 
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
     glPopAttrib ();
     WarnOnOpenGLError ("DisplayFaceStatistics::addStep");
@@ -360,14 +362,14 @@ void DisplayFaceStatistics::renderToStep (
     glPopMatrix ();
 }
 
-void DisplayFaceStatistics::addStepToNew (const G3D::Rect2D& viewRect)
+void DisplayFaceStatistics::addStepToCurrent (const G3D::Rect2D& viewRect)
 {
-    m_new->bind ();
+    m_current->bind ();
     m_addShaderProgram.Bind ();
 
-    // bind old texture
-    glActiveTexture (TextureEnum (m_addShaderProgram.GetOldTexUnit ()));
-    glBindTexture (GL_TEXTURE_2D, m_old->texture ());
+    // bind previous texture
+    glActiveTexture (TextureEnum (m_addShaderProgram.GetPreviousTexUnit ()));
+    glBindTexture (GL_TEXTURE_2D, m_previous->texture ());
 
     // bind step texture
     glActiveTexture (TextureEnum (m_addShaderProgram.GetStepTexUnit ()));
@@ -379,18 +381,18 @@ void DisplayFaceStatistics::addStepToNew (const G3D::Rect2D& viewRect)
 	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()), 
 	*m_step);
     m_addShaderProgram.release ();
-    m_new->release ();
+    m_current->release ();
 }
 
 
-void DisplayFaceStatistics::removeStepFromNew (const G3D::Rect2D& viewRect)
+void DisplayFaceStatistics::removeStepFromCurrent (const G3D::Rect2D& viewRect)
 {
-    m_new->bind ();
+    m_current->bind ();
     m_removeShaderProgram.Bind ();
 
-    // bind old texture
-    glActiveTexture (TextureEnum (m_removeShaderProgram.GetOldTexUnit ()));
-    glBindTexture (GL_TEXTURE_2D, m_old->texture ());
+    // bind previous texture
+    glActiveTexture (TextureEnum (m_removeShaderProgram.GetPreviousTexUnit ()));
+    glBindTexture (GL_TEXTURE_2D, m_previous->texture ());
 
     // bind step texture
     glActiveTexture (TextureEnum (m_removeShaderProgram.GetStepTexUnit ()));
@@ -402,17 +404,17 @@ void DisplayFaceStatistics::removeStepFromNew (const G3D::Rect2D& viewRect)
 	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()),
 	*m_step);
     m_removeShaderProgram.release ();
-    m_new->release ();
+    m_current->release ();
 }
 
 
 
-void DisplayFaceStatistics::copyNewToOld ()
+void DisplayFaceStatistics::copyCurrentToPrevious ()
 {
-    QSize size = m_new->size ();
+    QSize size = m_current->size ();
     QRect rect (QPoint (0, 0), size);
     QGLFramebufferObject::blitFramebuffer (
-	m_old.get (), rect, m_new.get (), rect);
+	m_previous.get (), rect, m_current.get (), rect);
 }
 
 // Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
@@ -450,11 +452,11 @@ void DisplayFaceStatistics::clearColorBufferMinMax (
 void DisplayFaceStatistics::Display (
     ViewNumber::Enum viewNumber, StatisticsType::Enum displayType)
 {
-    if (m_new.get () != 0)
+    if (m_current.get () != 0)
     {
 	pair<double, double> minMax = getStatisticsMinMax (viewNumber);
 	const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
-	display (viewRect, minMax.first, minMax.second, displayType, *m_new);
+	display (viewRect, minMax.first, minMax.second, displayType, *m_current);
     }
 }
 
@@ -463,12 +465,12 @@ void DisplayFaceStatistics::DisplayAndRotate (
     StatisticsType::Enum displayType, 
     G3D::Vector2 rotationCenter, float angleDegrees)
 {
-    if (m_new.get () != 0)
+    if (m_current.get () != 0)
     {
 	pair<double, double> minMax = getStatisticsMinMax (viewNumber);
 	const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
 	displayAndRotate (
-	    viewRect, minMax.first, minMax.second, displayType, *m_new,
+	    viewRect, minMax.first, minMax.second, displayType, *m_current,
 	    rotationCenter, angleDegrees);
     }
 }

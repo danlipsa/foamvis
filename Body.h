@@ -29,7 +29,7 @@ public:
     typedef struct {
 	G3D::Vector3int16 m_translation;
 	boost::shared_ptr<Body> m_body;
-	G3D::Vector3 m_fakeCenter;
+	G3D::Vector3 m_centerReflection;
     } Neighbor;
 
 

@@ -113,7 +113,7 @@ Execute ./foam without any parameters to see a list of options.
 
 Command lines for various datasets:
 -----------------------------------
-./foam_debug --t1s ~/Documents/swansea-phd/foam/ctrctn/energy_704v_0.1520_0.2400_8.0000_v1.dat ~/Documents/swansea-phd/foam/ctrctn/dump_0.1520_0.2400_8.0000_*.dmp
+./foam_debug --t1s ~/Documents/swansea-phd/foam/ctrctn/energy_704v_0.1520_0.2400_8.0000_v1.dat ~/Documents/swansea-phd/foam/ctrctn/dump_0.1520_0.2400_8.0000_0???.dmp
 
 ./foam_debug --force "161 ftx1 fty1 fpx1 fpy1" --force "358 ftx2 fty2 fpx2 fpy2" --t1s ~/Documents/swansea-phd/foam/sedimenting_discs_interacting/t1_v0_posn_1500.dat ~/Documents/swansea-phd/foam/sedimenting_discs_interacting/c1v0_???.000000.dmp
 
@@ -212,10 +212,13 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
-0.5.     - added axes labels
+0.5.     - added axes labels (Show > Ohter > Axes)
 	 - added right-click > Info > Face and Info > Edge
 	 - added --constraint option, to specify an object described
-           with a constraint in the dmp file.
+           with a constraint in the dmp file (for sedimenting_ellipse_odd).
+	 - deduce an object specified with a constraint (for sedimenting-discs)
+	 - added Show > Other > Body neighbors checkbox
+	 
 0.5.2023 - fixed wetfoam_100_0002.dmp
 	 - added Actual Volume to the list of body properties, 
 	   Added 'General > Look > Volume shown' user option.
