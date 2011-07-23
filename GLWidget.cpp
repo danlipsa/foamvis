@@ -13,8 +13,8 @@
 #include "ColorBarModel.h"
 #include "Debug.h"
 #include "DebugStream.h"
-#include "DisplayFaceStatistics.h"
-#include "DisplayForces.h"
+#include "ScalarAverage.h"
+#include "ForceAverage.h"
 #include "DisplayBodyFunctors.h"
 #include "DisplayEdgeFunctors.h"
 #include "DisplayFaceFunctors.h"
@@ -444,8 +444,8 @@ void GLWidget::initViewSettings ()
     BOOST_FOREACH (boost::shared_ptr<ViewSettings> vs, m_viewSettings)
     {
 	size_t timeSteps = GetFoamAlongTime ().GetTimeSteps ();
-	vs->GetDisplayFaceStatistics ().SetTimeWindow (timeSteps);
-	vs->GetDisplayForces ().SetTimeWindow (timeSteps);
+	vs->GetScalarAverage ().SetTimeWindow (timeSteps);
+	vs->GetForceAverage ().SetTimeWindow (timeSteps);
     }
     CurrentIndexChangedViewCount (ViewCount::ONE);
 }
@@ -698,7 +698,7 @@ void GLWidget::transformFoamStationary (
     case ViewSettings::AVERAGE_AROUND_ROTATION:
     {
 	glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
-	rotateAverageAroundConstraint (timeStep, 1);
+	rotateAverageAround (timeStep, 1);
 	break;
     }
     default:
@@ -707,7 +707,7 @@ void GLWidget::transformFoamStationary (
     }
 }
 
-void GLWidget::rotateAverageAroundConstraint (
+void GLWidget::rotateAverageAround (
     size_t timeStep, int direction) const
 {
     const ConstraintRotation& rotationBegin = GetFoamAlongTime ().
@@ -717,7 +717,8 @@ void GLWidget::rotateAverageAroundConstraint (
     float angleRadians = rotationCurrent.m_angle - rotationBegin.m_angle;
     if (angleRadians != 0)
     {
-	G3D::Vector3 rotationCenter = G3D::Vector3 (rotationBegin.m_center, 0.0);
+	G3D::Vector3 rotationCenter = G3D::Vector3 (
+	    rotationBegin.m_center, 0.0);
 	glTranslate (rotationCenter);
 	float angleDegrees =  G3D::toDegrees (angleRadians);
 	angleDegrees = direction > 0 ? angleDegrees : - angleDegrees;
@@ -725,8 +726,6 @@ void GLWidget::rotateAverageAroundConstraint (
 	glTranslate (-rotationCenter);
     }
 }
-
-
 
 G3D::AABox GLWidget::calculateViewingVolume (
     ViewNumber::Enum viewNumber, double xOverY, double scaleRatio) const
@@ -738,7 +737,6 @@ G3D::AABox GLWidget::calculateViewingVolume (
     G3D::AABox result = centeredViewingVolume - translation;
     return result;
 }
-
 
 void GLWidget::projectionTransform (ViewNumber::Enum viewNumber) const
 {
@@ -1120,7 +1118,7 @@ void GLWidget::initializeGL()
     glEnable(GL_DEPTH_TEST);
     glEnable (GL_MULTISAMPLE);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    DisplayFaceStatistics::InitShaders ();
+    ScalarAverage::InitShaders ();
     initializeLighting ();
     WarnOnOpenGLError ("initializeGl");
 }
@@ -1157,7 +1155,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     vs.SetLightingParameters (getInitialLightPosition (vs.GetSelectedLight ()));
     viewportTransform (viewNumber);    
     projectionTransform (viewNumber);
-    ModelViewTransform (viewNumber, GetTimeStep ());
+    ModelViewTransform (viewNumber, GetTime ());
     m_minimumEdgeRadius = getMinimumEdgeRadius ();
     calculateEdgeRadius (m_edgeRadiusRatio,
 			 &m_edgeRadius, &m_arrowBaseRadius,
@@ -1189,8 +1187,8 @@ void GLWidget::resizeGL(int w, int h)
 	ViewSettings& vs = GetViewSettings (viewNumber);
 	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
 	{
-	    vs.GetDisplayFaceStatistics ().InitStep (viewNumber);
-	    vs.GetDisplayForces ().InitStep (viewNumber);
+	    vs.GetScalarAverage ().InitStep (viewNumber);
+	    vs.GetForceAverage ().InitStep (viewNumber);
 	}
     }
     WarnOnOpenGLError ("resizeGl");
@@ -1372,7 +1370,7 @@ G3D::Vector3 GLWidget::toObjectTransform (const QPoint& position,
 {
     viewportTransform (viewNumber);    
     projectionTransform (viewNumber);
-    ModelViewTransform (viewNumber, GetTimeStep ());
+    ModelViewTransform (viewNumber, GetTime ());
     return toObject (position);
 }
 
@@ -1410,7 +1408,7 @@ void GLWidget::displayAverageAroundConstraint (
 	if (adjustForContextStationaryFoam)
 	{
 	    glPushMatrix ();
-	    rotateAverageAroundConstraint (GetTimeStep (), -1);
+	    rotateAverageAround (GetTime (), -1);
 	}
 	glDisable (GL_DEPTH_TEST);
 	glLineWidth (m_highlightLineWidth);
@@ -1465,7 +1463,7 @@ void GLWidget::displayContextStationaryFoam (
 	if (adjustForContextStationaryFoam)
 	{
 	    glPushMatrix ();
-	    rotateAverageAroundConstraint (GetTimeStep (), -1);
+	    rotateAverageAround (GetTime (), -1);
 	}
 	DisplayBox (GetFoamAlongTime (), 
 		    GetHighlightColor (viewNumber, HighlightNumber::H1),
@@ -1882,7 +1880,7 @@ void GLWidget::displayT1s (ViewNumber::Enum view) const
 	if (ViewType::IsGlobal (GetViewSettings ().GetViewType ()))
 	    displayT1sGlobal (view);
 	else
-	    displayT1s (view, GetTimeStep ());
+	    displayT1s (view, GetTime ());
     }
 }
 
@@ -2044,7 +2042,7 @@ void GLWidget::displayBodyCenters (
 	    GetBodySelector ();
 	double zPos = (GetViewSettings ().GetViewType () == 
 		       ViewType::CENTER_PATHS) ?
-	    GetTimeStep () * GetTimeDisplacement () : 0;
+	    GetTime () * GetTimeDisplacement () : 0;
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
 	glDisable (GL_DEPTH_TEST);
 	glPointSize (4.0);
@@ -2062,7 +2060,7 @@ void GLWidget::displayFaceCenters (ViewNumber::Enum viewNumber) const
     if (m_faceCenterShown)
     {
 	FaceSet faces = 
-	    GetFoamAlongTime ().GetFoam (GetTimeStep ()).GetFaceSet ();
+	    GetFoamAlongTime ().GetFoam (GetTime ()).GetFaceSet ();
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
 	glDisable (GL_DEPTH_TEST);
 	glPointSize (4.0);
@@ -2105,7 +2103,7 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
     displayContextStationaryFoam (viewNumber);
     displayStandaloneFaces ();    
     displayDeformationTensor2D (viewNumber);
-    vs.GetDisplayForces ().Display (viewNumber);
+    vs.GetForceAverage ().Display (viewNumber);
 }
 
 
@@ -2123,19 +2121,19 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
 	const ConstraintRotation& rotationBegin = GetFoamAlongTime ().
 	    GetFoam (0).GetConstraintRotation ();
 	const ConstraintRotation& rotationCurrent = GetFoamAlongTime ().
-	    GetFoam (GetTimeStep ()).GetConstraintRotation ();
+	    GetFoam (GetTime ()).GetConstraintRotation ();
 	G3D::Vector3 rc = G3D::Vector3 (rotationBegin.m_center, 0.0);
 	G3D::Vector2 rotationCenter = gluProject (rc).xy ();
 	rotationCenter -= vs.GetViewport ().x0y0 ();
 	float angleDegrees = G3D::toDegrees (
 	    rotationCurrent.m_angle - rotationBegin.m_angle);
-	vs.GetDisplayFaceStatistics ().DisplayAndRotate (
+	vs.GetScalarAverage ().DisplayAndRotate (
 	    viewNumber, vs.GetStatisticsType (),
 	    rotationCenter, - angleDegrees);
     }
     else
     {
-	vs.GetDisplayFaceStatistics ().Display (
+	vs.GetScalarAverage ().Display (
 	    viewNumber, vs.GetStatisticsType ());
     }
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
@@ -2143,7 +2141,7 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
     displayAverageAroundConstraint (viewNumber, adjustForContextStationaryFoam);
     displayContextBodies (viewNumber);
     displayContextStationaryFoam (viewNumber, adjustForContextStationaryFoam);
-    vs.GetDisplayForces ().DisplayAverage (viewNumber);
+    vs.GetForceAverage ().DisplayAverage (viewNumber);
     glPopAttrib ();
 }
 
@@ -2280,7 +2278,7 @@ void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum view) const
     if (IsCenterPathBodyShown ())
     {
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
-	double zPos = GetTimeStep () * GetTimeDisplacement ();
+	double zPos = GetTime () * GetTimeDisplacement ();
 	for_each (
 	    bodies.begin (), bodies.end (),
 	    DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H0,
@@ -2596,7 +2594,7 @@ void GLWidget::displayViewTimeStep (const G3D::Rect2D& viewRect)
 	return;
     QFont font;
     ostringstream ostr;
-    ostr << GetTimeStep ();
+    ostr << GetTime ();
     QString text = QString (ostr.str ().c_str ());
     QFontMetrics fm (font);
     const int textX = 
@@ -2898,11 +2896,11 @@ void GLWidget::ButtonClickedViewType (int id)
     if (newViewType == ViewType::FACES_STATISTICS)
     {
 	ViewNumber::Enum vn = GetViewNumber ();
-	GetViewSettings ().GetDisplayFaceStatistics ().InitStep (vn);
-	GetViewSettings ().GetDisplayForces ().InitStep (vn);
+	GetViewSettings ().GetScalarAverage ().InitStep (vn);
+	GetViewSettings ().GetForceAverage ().InitStep (vn);
     }
     if (oldViewType == ViewType::FACES_STATISTICS)
-	GetViewSettings ().GetDisplayFaceStatistics ().Release ();
+	GetViewSettings ().GetScalarAverage ().Release ();
     changeViewType (true, newViewType);
 }
 
@@ -3066,8 +3064,8 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 	ViewSettings& vs = GetViewSettings (view);
 	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
 	{
-	    vs.GetDisplayFaceStatistics ().Step (view, direction);
-	    vs.GetDisplayForces ().Step (view, direction);
+	    vs.GetScalarAverage ().Step (view, direction);
+	    vs.GetForceAverage ().Step (view, direction);
 	}
     }
     update ();
@@ -3075,8 +3073,8 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 
 void GLWidget::ValueChangedStatisticsTimeWindow (int timeSteps)
 {
-    GetViewSettings ().GetDisplayFaceStatistics ().SetTimeWindow (timeSteps);
-    GetViewSettings ().GetDisplayForces ().SetTimeWindow (timeSteps);
+    GetViewSettings ().GetScalarAverage ().SetTimeWindow (timeSteps);
+    GetViewSettings ().GetForceAverage ().SetTimeWindow (timeSteps);
 }
 
 void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)

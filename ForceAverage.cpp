@@ -1,21 +1,21 @@
 /**
- * @file   DisplayForces.cpp
+ * @file   ForceAverage.cpp
  * @author Dan R. Lipsa
  * @date  8 June 2010
  *
- * Implementation for the DisplayForces class 
+ * Implementation for the ForceAverage class 
  *
  */
 
 #include "Body.h"
-#include "DisplayForces.h"
+#include "ForceAverage.h"
 #include "FoamAlongTime.h"
 #include "Foam.h"
 #include "GLWidget.h"
 #include "ViewSettings.h"
 #include "OpenGLUtils.h"
 
-void DisplayForces::init (ViewNumber::Enum viewNumber)
+void ForceAverage::init (ViewNumber::Enum viewNumber)
 {
     (void)viewNumber;
     Average::init (viewNumber);
@@ -30,12 +30,12 @@ void DisplayForces::init (ViewNumber::Enum viewNumber)
     }
 }
 
-void DisplayForces::addStep (ViewNumber::Enum viewNumber, size_t timeStep)
+void ForceAverage::addStep (ViewNumber::Enum viewNumber, size_t timeStep)
 {
     (void)viewNumber;
     const vector<Force>& forces = 
 	GetGLWidget ().GetFoamAlongTime ().GetFoam (timeStep).GetForces ();
-    bool forward = (timeStep == GetGLWidget ().GetTimeStep ());
+    bool forward = (timeStep == GetGLWidget ().GetTime ());
     for (size_t i = 0; i < forces.size (); ++i)
     {
 	if (forward)
@@ -45,12 +45,12 @@ void DisplayForces::addStep (ViewNumber::Enum viewNumber, size_t timeStep)
     }
 }
 
-void DisplayForces::removeStep (ViewNumber::Enum viewNumber, size_t timeStep)
+void ForceAverage::removeStep (ViewNumber::Enum viewNumber, size_t timeStep)
 {
     (void)viewNumber;
     const vector<Force>& forces = 
 	GetGLWidget ().GetFoamAlongTime ().GetFoam (timeStep).GetForces ();
-    bool backward = ((timeStep - 1) == GetGLWidget ().GetTimeStep ());
+    bool backward = ((timeStep - 1) == GetGLWidget ().GetTime ());
     for (size_t i = 0; i < forces.size (); ++i)
     {
 	if (backward)
@@ -65,18 +65,18 @@ void DisplayForces::removeStep (ViewNumber::Enum viewNumber, size_t timeStep)
     }
 }
 
-void DisplayForces::Display (ViewNumber::Enum viewNumber) const
+void ForceAverage::Display (ViewNumber::Enum viewNumber) const
 {
     display (viewNumber, GetGLWidget ().GetCurrentFoam ().GetForces (), 1);
 }
 
-void DisplayForces::DisplayAverage (ViewNumber::Enum viewNumber) const
+void ForceAverage::DisplayAverage (ViewNumber::Enum viewNumber) const
 {
     display (viewNumber, m_average, GetCurrentTimeWindow ());
 }
 
 
-void DisplayForces::display (ViewNumber::Enum viewNumber,
+void ForceAverage::display (ViewNumber::Enum viewNumber,
 			     const vector<Force>& forces, size_t count) const
 {
     if (GetGLWidget ().GetFoamAlongTime ().ForceUsed ())
@@ -90,7 +90,7 @@ void DisplayForces::display (ViewNumber::Enum viewNumber,
     }
 }
 
-void DisplayForces::displayForces (
+void ForceAverage::displayForces (
     ViewNumber::Enum viewNumber, const Force& force, size_t count) const
 {
     const G3D::AABox& box = 
@@ -116,7 +116,7 @@ void DisplayForces::displayForces (
 	    center, G3D::Vector3 (unitForceSize * force.m_pressureForce, 0));
 }
 
-void DisplayForces::displayForce (QColor color,
+void ForceAverage::displayForce (QColor color,
     const G3D::Vector3& center, const G3D::Vector3& force) const
 {
     glColor (color);

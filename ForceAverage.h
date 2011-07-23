@@ -1,23 +1,23 @@
 /**
- * @file   DisplayForces.h
+ * @file   ForceAverage.h
  * @author Dan R. Lipsa
  * @date  8 June 2010
  *
- * Interface for the DisplayForces class
+ * Interface for the ForceAverage class
  */
 
-#ifndef __DISPLAY_FORCES_H__
-#define __DISPLAY_FORCES_H__
+#ifndef __DISPLAY_FORCE_AVERAGE_H__
+#define __DISPLAY_FORCE_AVERAGE_H__
 
 #include "Average.h"
 #include "Enums.h"
 #include "Force.h"
 class GLWidget;
 
-class DisplayForces : public Average
+class ForceAverage : public Average
 {
 public:
-    DisplayForces (const GLWidget& glWidget) :
+    ForceAverage (const GLWidget& glWidget) :
 	Average (glWidget)
     {
     }
@@ -44,7 +44,7 @@ private:
 };
 
 
-#endif //__DISPLAY_FORCES_H__
+#endif //__DISPLAY_FORCE_AVERAGE_H__
 
 // Local Variables:
 // mode: c++

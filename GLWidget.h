@@ -103,7 +103,7 @@ public:
     /**
      * Gets the index of the currently displayed data.
      */
-    size_t GetTimeStep () const
+    size_t GetTime () const
     {
 	return m_timeStep;
     }
@@ -550,7 +550,7 @@ private:
 	boost::array<boost::shared_ptr<QAction>, 
 	ViewNumber::COUNT>& actionCopyTransformation,
 	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformation);
-    void rotateAverageAroundConstraint (size_t timeStep, int direction) const;
+    void rotateAverageAround (size_t timeStep, int direction) const;
     void valueChanged (
 	double* dest, const pair<double,double>& minMax, int index);
     string infoSelectedBody () const;

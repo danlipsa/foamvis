@@ -25,18 +25,18 @@ void Average::InitStep (ViewNumber::Enum viewNumber)
 typedef void (Average::*Operation) (ViewNumber::Enum viewNumber, 
 				    size_t timeStep);
 
-void Average::Step (ViewNumber::Enum viewNumber, int direction)
+void Average::Step (ViewNumber::Enum viewNumber, int timeStep)
 {
-    if (abs (direction) > 1)
+    if (abs (timeStep) > 1)
     {
 	InitStep (viewNumber);
 	return;
     }
     Operation first, second;
-    size_t timeStep = m_glWidget.GetTimeStep ();
-    if (direction < 0)
+    size_t currentTime = m_glWidget.GetTime ();
+    if (timeStep < 0)
     {
-	++timeStep;
+	++currentTime;
 	first = &Average::removeStep;
 	second = &Average::addStep;
     }
@@ -45,11 +45,11 @@ void Average::Step (ViewNumber::Enum viewNumber, int direction)
 	first = &Average::addStep;
 	second = &Average::removeStep;
     }
-    (this->*first) (viewNumber, timeStep);
-    if (m_currentTimeWindow >= m_timeWindow && timeStep >= m_timeWindow)
+    (this->*first) (viewNumber, currentTime);
+    if (m_currentTimeWindow >= m_timeWindow && currentTime >= m_timeWindow)
     {
-	(this->*second) (viewNumber, timeStep - m_timeWindow);
+	(this->*second) (viewNumber, currentTime - m_timeWindow);
     }
     else
-	m_currentTimeWindow += direction;
+	m_currentTimeWindow += timeStep;
 }

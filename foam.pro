@@ -2,8 +2,8 @@ HEADERS += Application.h ApproximationEdge.h\
 	Attribute.h AttributeCreator.h AttributeInfo.h \
 	AttributeHistogram.h Average.h Body.h \
 	BodyAlongTime.h AdjacentBody.h BodySelector.h ConstraintRotation.h \
-	ConstraintEdge.h ColorBarModel.h Comparisons.h \
-	Debug.h DebugStream.h Disk.h DisplayFaceStatistics.h DisplayForces.h\
+	ConstraintEdge.h ColorBarModel.h Comparisons.h Debug.h \
+	DebugStream.h Disk.h ScalarAverage.h ForceAverage.h\
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h DisplayWidget.h\
 	SelectBodiesById.h EditColorMap.h Edge.h Element.h ExpressionTree.h \
@@ -24,8 +24,8 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	Body.cpp BodyAlongTime.cpp AdjacentBody.cpp BodySelector.cpp\
 	ConstraintEdge.cpp ColorBarModel.cpp Comparisons.cpp \
 	DebugStream.cpp Disk.cpp DisplayBodyFunctors.cpp \
-	DisplayFaceStatistics.cpp DisplayFaceFunctors.cpp DisplayForces.cpp \
-	DisplayEdgeFunctors.cpp	\
+	ScalarAverage.cpp DisplayFaceFunctors.cpp \
+	ForceAverage.cpp DisplayEdgeFunctors.cpp	\
 	DisplayWidget.cpp DisplayVertexFunctors.cpp Edge.cpp \
 	SelectBodiesById.cpp EditColorMap.cpp Element.cpp ExpressionTree.cpp \
 	Enums.cpp Foam.cpp FoamAlongTime.cpp Face.cpp \

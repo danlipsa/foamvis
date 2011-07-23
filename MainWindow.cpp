@@ -7,7 +7,7 @@
 #include "Application.h"
 #include "BodySelector.h"
 #include "ColorBarModel.h"
-#include "DisplayFaceStatistics.h"
+#include "ScalarAverage.h"
 #include "Debug.h"
 #include "EditColorMap.h"
 #include "Foam.h"
@@ -192,7 +192,7 @@ void MainWindow::ViewToUI ()
     updateLightControls (vs, selectedLight);
     horizontalSliderAngleOfView->setValue (vs.GetAngleOfView ());
     spinBoxStatisticsTimeWindow->setValue (
-	vs.GetDisplayFaceStatistics ().GetTimeWindow ());    
+	vs.GetScalarAverage ().GetTimeWindow ());    
     if (viewNumber == m_histogramViewNumber)
 	buttonGroupHistogram->button (m_histogramType)->setChecked (true);
     else
@@ -487,7 +487,7 @@ void MainWindow::SetAndDisplayHistogram (
     }
     else
     {
-	intervalData = foamAlongTime.GetFoam (widgetGl->GetTimeStep ()).
+	intervalData = foamAlongTime.GetFoam (widgetGl->GetTime ()).
 	    GetHistogram (property).ToQwtIntervalData ();
 	if (maxValueOperation == REPLACE_MAX_VALUE)
 	    maxYValue = foamAlongTime.GetMaxCountPerBinIndividual (property);

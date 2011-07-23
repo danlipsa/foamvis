@@ -12,8 +12,8 @@
 class AllBodySelector;
 class BodySelector;
 class ColorBarModel;
-class DisplayFaceStatistics;
-class DisplayForces;
+class ScalarAverage;
+class ForceAverage;
 class GLWidget;
 class IdBodySelector;
 class PropertyValueBodySelector;
@@ -44,12 +44,12 @@ public:
 	m_bodyProperty = bodyProperty;
     }
 
-    DisplayFaceStatistics& GetDisplayFaceStatistics () const
+    ScalarAverage& GetScalarAverage () const
     {
 	return *m_displayFaceStatistics;
     }
 
-    DisplayForces& GetDisplayForces () const
+    ForceAverage& GetForceAverage () const
     {
 	return *m_displayForces;
     }
@@ -360,8 +360,8 @@ private:
     StatisticsType::Enum m_statisticsType;
     GLuint m_listCenterPaths;
     GLuint m_colorBarTexture;
-    boost::shared_ptr<DisplayFaceStatistics> m_displayFaceStatistics;
-    boost::shared_ptr<DisplayForces> m_displayForces;
+    boost::shared_ptr<ScalarAverage> m_displayFaceStatistics;
+    boost::shared_ptr<ForceAverage> m_displayForces;
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
     G3D::Matrix3 m_rotationModel;
     G3D::Rect2D m_viewport;

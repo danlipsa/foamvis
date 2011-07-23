@@ -21,7 +21,7 @@ public:
     }
     
     void InitStep (ViewNumber::Enum viewNumber);
-    void Step (ViewNumber::Enum viewNumber, int direction);
+    void Step (ViewNumber::Enum viewNumber, int timeStep);
     void SetTimeWindow (size_t historyCount)
     {
 	m_timeWindow = historyCount;

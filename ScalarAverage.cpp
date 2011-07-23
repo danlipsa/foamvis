@@ -1,15 +1,15 @@
 /**
- * @file   DisplayFaceStatistics.h
+ * @file   ScalarAverage.h
  * @author Dan R. Lipsa
  * @date  24 Oct. 2010
  *
- * Implementation for the DisplayFaceStatistics class 
+ * Implementation for the ScalarAverage class 
  *
  */
 
 #include "Debug.h"
 #include "DebugStream.h"
-#include "DisplayFaceStatistics.h"
+#include "ScalarAverage.h"
 #include "DisplayBodyFunctors.h"
 #include "DisplayFaceFunctors.h"
 #include "DisplayEdgeFunctors.h"
@@ -212,16 +212,16 @@ void DisplayShaderProgram::Bind (GLfloat minValue, GLfloat maxValue,
     setUniformValue (m_resultTexUnitIndex, GetResultTexUnit ());
 }
 
-// DisplayFaceStatistics Methods
+// ScalarAverage Methods
 // ======================================================================
 
-AddShaderProgram DisplayFaceStatistics::m_addShaderProgram;
-RemoveShaderProgram DisplayFaceStatistics::m_removeShaderProgram;
-StoreShaderProgram DisplayFaceStatistics::m_storeShaderProgram;
-DisplayShaderProgram DisplayFaceStatistics::m_displayShaderProgram;
-InitShaderProgram DisplayFaceStatistics::m_initShaderProgram;
+AddShaderProgram ScalarAverage::m_addShaderProgram;
+RemoveShaderProgram ScalarAverage::m_removeShaderProgram;
+StoreShaderProgram ScalarAverage::m_storeShaderProgram;
+DisplayShaderProgram ScalarAverage::m_displayShaderProgram;
+InitShaderProgram ScalarAverage::m_initShaderProgram;
 
-void DisplayFaceStatistics::init (ViewNumber::Enum viewNumber)
+void ScalarAverage::init (ViewNumber::Enum viewNumber)
 {
     Average::init (viewNumber);
     const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
@@ -248,7 +248,7 @@ void DisplayFaceStatistics::init (ViewNumber::Enum viewNumber)
     clear (viewRect);
 }
 
-void DisplayFaceStatistics::clear (const G3D::Rect2D& viewRect)
+void ScalarAverage::clear (const G3D::Rect2D& viewRect)
 {
     m_step->bind ();ClearColorStencilBuffers (Qt::black, 0);
     m_step->release ();
@@ -258,7 +258,7 @@ void DisplayFaceStatistics::clear (const G3D::Rect2D& viewRect)
     clearColorBufferMinMax (viewRect, m_previous);
 }
 
-void DisplayFaceStatistics::Release ()
+void ScalarAverage::Release ()
 {
     m_step.reset ();
     m_current.reset ();
@@ -266,7 +266,7 @@ void DisplayFaceStatistics::Release ()
     m_debug.reset ();
 }
 
-void DisplayFaceStatistics::InitShaders ()
+void ScalarAverage::InitShaders ()
 {
     m_addShaderProgram.Init ();
     m_removeShaderProgram.Init ();
@@ -275,7 +275,7 @@ void DisplayFaceStatistics::InitShaders ()
     m_initShaderProgram.Init ();
 }
 
-void DisplayFaceStatistics::display (
+void ScalarAverage::display (
     const G3D::Rect2D& viewRect,
     GLfloat minValue, GLfloat maxValue,
     StatisticsType::Enum displayType, QGLFramebufferObject& srcFbo)
@@ -287,7 +287,7 @@ void DisplayFaceStatistics::display (
     m_displayShaderProgram.release ();
 }
 
-void DisplayFaceStatistics::displayAndRotate (
+void ScalarAverage::displayAndRotate (
     const G3D::Rect2D& viewRect,
     GLfloat minValue, GLfloat maxValue,
     StatisticsType::Enum displayType, QGLFramebufferObject& srcFbo,
@@ -302,9 +302,9 @@ void DisplayFaceStatistics::displayAndRotate (
 }
 
 
-typedef void (DisplayFaceStatistics::*Operation) (const G3D::Rect2D& viewRect);
+typedef void (ScalarAverage::*Operation) (const G3D::Rect2D& viewRect);
 
-void DisplayFaceStatistics::addStep (ViewNumber::Enum viewNumber, 
+void ScalarAverage::addStep (ViewNumber::Enum viewNumber, 
 				     size_t timeStep)
 {
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
@@ -320,10 +320,10 @@ void DisplayFaceStatistics::addStep (ViewNumber::Enum viewNumber,
     //save (viewRect, *m_previous, "previous", timeStep, 
     //minMax.first, minMax.second, StatisticsType::AVERAGE);    
     glPopAttrib ();
-    WarnOnOpenGLError ("DisplayFaceStatistics::addStep");
+    WarnOnOpenGLError ("ScalarAverage::addStep");
 }
 
-void DisplayFaceStatistics::removeStep (ViewNumber::Enum viewNumber, 
+void ScalarAverage::removeStep (ViewNumber::Enum viewNumber, 
 				     size_t timeStep)
 {
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
@@ -339,11 +339,11 @@ void DisplayFaceStatistics::removeStep (ViewNumber::Enum viewNumber,
     //save (viewRect, *m_previous, "previous_", timeStep, 
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
     glPopAttrib ();
-    WarnOnOpenGLError ("DisplayFaceStatistics::addStep");
+    WarnOnOpenGLError ("ScalarAverage::addStep");
 }
 
 
-void DisplayFaceStatistics::renderToStep (
+void ScalarAverage::renderToStep (
     ViewNumber::Enum viewNumber, size_t timeStep)
 {
     G3D::Rect2D viewRect = GetGLWidget ().GetViewRect ();
@@ -362,7 +362,7 @@ void DisplayFaceStatistics::renderToStep (
     glPopMatrix ();
 }
 
-void DisplayFaceStatistics::addStepToCurrent (const G3D::Rect2D& viewRect)
+void ScalarAverage::addStepToCurrent (const G3D::Rect2D& viewRect)
 {
     m_current->bind ();
     m_addShaderProgram.Bind ();
@@ -385,7 +385,7 @@ void DisplayFaceStatistics::addStepToCurrent (const G3D::Rect2D& viewRect)
 }
 
 
-void DisplayFaceStatistics::removeStepFromCurrent (const G3D::Rect2D& viewRect)
+void ScalarAverage::removeStepFromCurrent (const G3D::Rect2D& viewRect)
 {
     m_current->bind ();
     m_removeShaderProgram.Bind ();
@@ -409,7 +409,7 @@ void DisplayFaceStatistics::removeStepFromCurrent (const G3D::Rect2D& viewRect)
 
 
 
-void DisplayFaceStatistics::copyCurrentToPrevious ()
+void ScalarAverage::copyCurrentToPrevious ()
 {
     QSize size = m_current->size ();
     QRect rect (QPoint (0, 0), size);
@@ -418,7 +418,7 @@ void DisplayFaceStatistics::copyCurrentToPrevious ()
 }
 
 // Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
-void DisplayFaceStatistics::clearColorBufferMinMax (
+void ScalarAverage::clearColorBufferMinMax (
     const G3D::Rect2D& viewRect,
     const boost::scoped_ptr<QGLFramebufferObject>& fbo)
 {
@@ -449,7 +449,7 @@ void DisplayFaceStatistics::clearColorBufferMinMax (
     fbo->release ();
 }
 
-void DisplayFaceStatistics::Display (
+void ScalarAverage::Display (
     ViewNumber::Enum viewNumber, StatisticsType::Enum displayType)
 {
     if (m_current.get () != 0)
@@ -460,7 +460,7 @@ void DisplayFaceStatistics::Display (
     }
 }
 
-void DisplayFaceStatistics::DisplayAndRotate (
+void ScalarAverage::DisplayAndRotate (
     ViewNumber::Enum viewNumber,
     StatisticsType::Enum displayType, 
     G3D::Vector2 rotationCenter, float angleDegrees)
@@ -477,7 +477,7 @@ void DisplayFaceStatistics::DisplayAndRotate (
 
 
 
-void DisplayFaceStatistics::save (const G3D::Rect2D& viewRect,
+void ScalarAverage::save (const G3D::Rect2D& viewRect,
     QGLFramebufferObject& fbo, const char* postfix, size_t timeStep,
     GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
 {
@@ -492,7 +492,7 @@ void DisplayFaceStatistics::save (const G3D::Rect2D& viewRect,
     m_debug->toImage ().save (ostr.str ().c_str ());    
 }
 
-void DisplayFaceStatistics::writeFacesValues (
+void ScalarAverage::writeFacesValues (
     ViewNumber::Enum viewNumber, const Foam::Bodies& bodies)
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT |
@@ -521,12 +521,12 @@ void DisplayFaceStatistics::writeFacesValues (
     glPopAttrib ();
 }
 
-void DisplayFaceStatistics::glActiveTexture (GLenum texture) const
+void ScalarAverage::glActiveTexture (GLenum texture) const
 {
     const_cast<GLWidget&>(GetGLWidget ()).glActiveTexture (texture);
 }
 
-pair<double, double> DisplayFaceStatistics::getStatisticsMinMax (
+pair<double, double> ScalarAverage::getStatisticsMinMax (
     ViewNumber::Enum view) const
 {
     double minValue, maxValue;

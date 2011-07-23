@@ -1,9 +1,9 @@
 /**
- * @file   DisplayFaceStatistics.h
+ * @file   ScalarAverage.h
  * @author Dan R. Lipsa
  * @date  24 Oct. 2010
  *
- * Interface for the DisplayFaceStatistics class
+ * Interface for the ScalarAverage class
  */
 
 #ifndef __DISPLAY_FACE_STATISTICS_H__
@@ -115,29 +115,30 @@ private:
 
 
 /**
- * Calculate face average, min, max over all time steps.
+ * Calculate face average, min, max over a time window.
  * It uses three framebuffer objects: step, previous, current.
  * Average is implemented by first calculating the sum and then dividing by
  * the number of elements in the sum. The sum is calculated in 3 steps:
- * 1. step = draw current foam
+ * 1. step = draw current foam using attribute values instead of colors
  * 2. current = previous + step
  * 3. previous = current
  *
  * The reason for this type of implementation is that OpenGL cannot
  * read and write to the same buffer in the same step.
  */
-class DisplayFaceStatistics : public Average
+class ScalarAverage : public Average
 {
 public:
-    DisplayFaceStatistics (const GLWidget& glWidget) :
+    ScalarAverage (const GLWidget& glWidget) :
 	Average (glWidget)
     {
     }
     void Release ();
-    void Display (ViewNumber::Enum viewNumber, StatisticsType::Enum displayType);
-    void DisplayAndRotate (ViewNumber::Enum viewNumber,
-			   StatisticsType::Enum displayType,
-			   G3D::Vector2 rotationCenter, float angleDegrees);
+    void Display (ViewNumber::Enum viewNumber, 
+		  StatisticsType::Enum displayType);
+    void DisplayAndRotate (
+	ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
+	G3D::Vector2 rotationCenter, float angleDegrees);
 
 public:
     static void InitShaders ();
@@ -148,23 +149,20 @@ protected:
     virtual void removeStep (ViewNumber::Enum viewNumber, size_t timeStep);
 
 private:
-
     void clear (const G3D::Rect2D& viewRect);
     void writeFacesValues (
 	ViewNumber::Enum view, const vector<boost::shared_ptr<Body> >& bodies);
     void display (const G3D::Rect2D& viewRect, 
 		  GLfloat minValue, GLfloat maxValue,
 		  StatisticsType::Enum displayType, QGLFramebufferObject& fbo);
-    void displayAndRotate (const G3D::Rect2D& viewRect, 
-			   GLfloat minValue, GLfloat maxValue,
-			   StatisticsType::Enum displayType, 
-			   QGLFramebufferObject& fbo,
-			   G3D::Vector2 rotationCenter, float angleDegrees);
+    void displayAndRotate (
+	const G3D::Rect2D& viewRect, GLfloat minValue, GLfloat maxValue,
+	StatisticsType::Enum displayType, QGLFramebufferObject& fbo,
+	G3D::Vector2 rotationCenter, float angleDegrees);
 
-    void save (const G3D::Rect2D& viewRect,
-	QGLFramebufferObject& fbo, const char* fileName, size_t timeStep,
-	GLfloat minValue, GLfloat maxValue,
-	StatisticsType::Enum displayType);
+    void save (const G3D::Rect2D& viewRect, QGLFramebufferObject& fbo, 
+	       const char* fileName, size_t timeStep, GLfloat minValue, 
+	       GLfloat maxValue, StatisticsType::Enum displayType);
     void renderToStep (ViewNumber::Enum view, size_t timeStep);
     void addStepToCurrent (const G3D::Rect2D& viewRect);
     void removeStepFromCurrent (const G3D::Rect2D& viewRect);
