@@ -162,7 +162,7 @@ void DisplayShaderProgram::Init ()
     m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
     // this should match StatisticsType::Enum order
     const char *fsrc =
-	"// 0: average, 1: min, 2: max, 3: count\n"
+	"// displayType values: 0=average, 1=min, 2=max, 3=count\n"
 	"uniform int displayType;\n"
 	"uniform float minValue;\n"
 	"uniform float maxValue;\n"
