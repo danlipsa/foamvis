@@ -6,8 +6,8 @@
  * Interface for the ScalarAverage class
  */
 
-#ifndef __DISPLAY_FACE_STATISTICS_H__
-#define __DISPLAY_FACE_STATISTICS_H__
+#ifndef __SCALAR_AVERAGE_H__
+#define __SCALAR_AVERAGE_H__
 
 #include "DisplayElement.h"
 #include "Enums.h"
@@ -16,102 +16,11 @@
 class Body;
 class Foam;
 class GLWidget;
-
-/**
- * Shader that performs the following operation: current = previous + step
- * where current, previous and step are floating point textures
- * RGBA : sum, count, min, max
- */
-class AddShaderProgram : public QGLShaderProgram
-{
-public:
-    void Init ();
-    void Bind ();
-    GLint GetPreviousTexUnit ()
-    {
-	return 1;
-    }
-    GLint GetStepTexUnit ()
-    {
-	return 2;
-    }
-protected:
-    int m_previousTexUnitIndex;
-    int m_stepTexUnitIndex;
-    boost::shared_ptr<QGLShader> m_fshader;
-};
-
-
-/**
- * Shader that performs the following operation: current = previous - step
- * where current, previous and step are floating point textures
- * RGBA : sum, count, min, max. It leaves min and max values unchanged.
- */
-class RemoveShaderProgram : public AddShaderProgram
-{
-public:
-    void Init ();
-    void Bind ();
-};
-
-
-/**
- * Shader that stores a floating point value in a floating point texture:
- * RGBA: value, 1, value, value
- *
- */
-class StoreShaderProgram : public QGLShaderProgram
-{
-public:
-    void Init ();
-    void Bind ();
-    int GetVValueIndex () const
-    {
-	return m_vValueIndex;
-    }
-private:
-    int m_vValueIndex;
-    boost::shared_ptr<QGLShader> m_fshader;
-    boost::shared_ptr<QGLShader> m_vshader;
-};
-
-class InitShaderProgram : public QGLShaderProgram
-{
-public:
-    void Init ();
-    void Bind ();
-private:
-    boost::shared_ptr<QGLShader> m_fshader;
-};
-
-/**
- * RGBA : sum, count, min, max
- */
-class DisplayShaderProgram : public QGLShaderProgram
-{
-public:
-    void Init ();
-    void Bind (GLfloat minValue, GLfloat maxValue,
-	       StatisticsType::Enum displayType);
-
-    // assume the colorbar is alreay bound on texture unit 0
-    GLint GetColorBarTexUnit ()
-    {
-	return 0;
-    }
-    GLint GetResultTexUnit ()
-    {
-	return 1;
-    }
-
-private:
-    int m_displayTypeIndex;
-    int m_minValueIndex;
-    int m_maxValueIndex;
-    int m_colorBarTexUnitIndex;
-    int m_resultTexUnitIndex;
-    boost::shared_ptr<QGLShader> m_fshader;
-};
+class AddShaderProgram;
+class RemoveShaderProgram;
+class DisplayShaderProgram;
+class InitShaderProgram;
+class StoreShaderProgram;
 
 
 /**
@@ -139,8 +48,6 @@ public:
     void DisplayAndRotate (
 	ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
 	G3D::Vector2 rotationCenter, float angleDegrees);
-
-public:
     static void InitShaders ();
 
 protected:
@@ -200,7 +107,7 @@ private:
     static InitShaderProgram m_initShaderProgram;
 };
 
-#endif //__DISPLAY_FACE_STATISTICS_H__
+#endif //__SCALAR_AVERAGE_H__
 
 // Local Variables:
 // mode: c++

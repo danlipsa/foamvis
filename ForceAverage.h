@@ -6,8 +6,8 @@
  * Interface for the ForceAverage class
  */
 
-#ifndef __DISPLAY_FORCE_AVERAGE_H__
-#define __DISPLAY_FORCE_AVERAGE_H__
+#ifndef __FORCE_AVERAGE_H__
+#define __FORCE_AVERAGE_H__
 
 #include "Average.h"
 #include "Enums.h"
@@ -44,7 +44,7 @@ private:
 };
 
 
-#endif //__DISPLAY_FORCE_AVERAGE_H__
+#endif //__FORCE_AVERAGE_H__
 
 // Local Variables:
 // mode: c++

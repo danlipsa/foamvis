@@ -20,9 +20,34 @@
 #include "PropertySetter.h"
 #include "ViewSettings.h"
 
-
-// AddShaderProgram Methods
+// Private classes/functions
 // ======================================================================
+// AddShaderProgram
+// ======================================================================
+/**
+ * Shader that performs the following operation: current = previous + step
+ * where current, previous and step are floating point textures
+ * RGBA : sum, count, min, max
+ */
+class AddShaderProgram : public QGLShaderProgram
+{
+public:
+    void Init ();
+    void Bind ();
+    GLint GetPreviousTexUnit ()
+    {
+	return 1;
+    }
+    GLint GetStepTexUnit ()
+    {
+	return 2;
+    }
+protected:
+    int m_previousTexUnitIndex;
+    int m_stepTexUnitIndex;
+    boost::shared_ptr<QGLShader> m_fshader;
+};
+
 void AddShaderProgram::Init ()
 {
     m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
@@ -54,10 +79,20 @@ void AddShaderProgram::Bind ()
     setUniformValue (m_stepTexUnitIndex, GetStepTexUnit ());
 }
 
-
-
-// RemoveShaderProgram Methods
+// RemoveShaderProgram
 // ======================================================================
+/**
+ * Shader that performs the following operation: current = previous - step
+ * where current, previous and step are floating point textures
+ * RGBA : sum, count, min, max. It leaves min and max values unchanged.
+ */
+class RemoveShaderProgram : public AddShaderProgram
+{
+public:
+    void Init ();
+    void Bind ();
+};
+
 void RemoveShaderProgram::Init ()
 {
     m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
@@ -89,9 +124,28 @@ void RemoveShaderProgram::Bind ()
     setUniformValue (m_stepTexUnitIndex, GetStepTexUnit ());
 }
 
-
-// StoreShaderProgram Methods
+// StoreShaderProgram
 // ======================================================================
+/**
+ * Shader that stores a floating point value in a floating point texture:
+ * RGBA: value, 1, value, value
+ *
+ */
+class StoreShaderProgram : public QGLShaderProgram
+{
+public:
+    void Init ();
+    void Bind ();
+    int GetVValueIndex () const
+    {
+	return m_vValueIndex;
+    }
+private:
+    int m_vValueIndex;
+    boost::shared_ptr<QGLShader> m_fshader;
+    boost::shared_ptr<QGLShader> m_vshader;
+};
+
 void StoreShaderProgram::Init ()
 {
     m_vshader = boost::make_shared<QGLShader> (QGLShader::Vertex);
@@ -131,8 +185,17 @@ void StoreShaderProgram::Bind ()
     RuntimeAssert (bindSuccessful, "Bind failed for StoreShaderProgram");
 }
 
-// InitShaderProgram Methods
+// InitShaderProgram
 // ======================================================================
+class InitShaderProgram : public QGLShaderProgram
+{
+public:
+    void Init ();
+    void Bind ();
+private:
+    boost::shared_ptr<QGLShader> m_fshader;
+};
+
 void InitShaderProgram::Init ()
 {
     m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
@@ -154,8 +217,36 @@ void InitShaderProgram::Bind ()
 }
 
 
-// DisplayShaderProgram Methods
+// DisplayShaderProgram
 // ======================================================================
+/**
+ * RGBA : sum, count, min, max
+ */
+class DisplayShaderProgram : public QGLShaderProgram
+{
+public:
+    void Init ();
+    void Bind (GLfloat minValue, GLfloat maxValue,
+	       StatisticsType::Enum displayType);
+
+    // assume the colorbar is alreay bound on texture unit 0
+    GLint GetColorBarTexUnit ()
+    {
+	return 0;
+    }
+    GLint GetResultTexUnit ()
+    {
+	return 1;
+    }
+
+private:
+    int m_displayTypeIndex;
+    int m_minValueIndex;
+    int m_maxValueIndex;
+    int m_colorBarTexUnitIndex;
+    int m_resultTexUnitIndex;
+    boost::shared_ptr<QGLShader> m_fshader;
+};
 
 void DisplayShaderProgram::Init ()
 {
@@ -304,57 +395,54 @@ void ScalarAverage::displayAndRotate (
 
 typedef void (ScalarAverage::*Operation) (const G3D::Rect2D& viewRect);
 
-void ScalarAverage::addStep (ViewNumber::Enum viewNumber, 
-				     size_t timeStep)
+void ScalarAverage::addStep (ViewNumber::Enum viewNumber, size_t time)
 {
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
-    renderToStep (viewNumber, timeStep);
-    //save (viewRect, *m_step, "step", timeStep,
+    renderToStep (viewNumber, time);
+    //save (viewRect, *m_step, "step", time,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
     addStepToCurrent (viewRect);
-    //save (viewRect, *m_current, "current", timeStep,
+    //save (viewRect, *m_current, "current", time,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
     copyCurrentToPrevious ();
-    //save (viewRect, *m_previous, "previous", timeStep, 
+    //save (viewRect, *m_previous, "previous", time, 
     //minMax.first, minMax.second, StatisticsType::AVERAGE);    
     glPopAttrib ();
     WarnOnOpenGLError ("ScalarAverage::addStep");
 }
 
-void ScalarAverage::removeStep (ViewNumber::Enum viewNumber, 
-				     size_t timeStep)
+void ScalarAverage::removeStep (ViewNumber::Enum viewNumber, size_t time)
 {
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
-    renderToStep (viewNumber, timeStep);
-    //save (viewRect, *m_step, "step_", timeStepy - m_timeWindow,
+    renderToStep (viewNumber, time);
+    //save (viewRect, *m_step, "step_", timey - m_timeWindow,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
     removeStepFromCurrent (viewRect);
-    //save (viewRect, *m_current, "current_", timeStep,
+    //save (viewRect, *m_current, "current_", time,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
     copyCurrentToPrevious ();
-    //save (viewRect, *m_previous, "previous_", timeStep, 
+    //save (viewRect, *m_previous, "previous_", time, 
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
     glPopAttrib ();
     WarnOnOpenGLError ("ScalarAverage::addStep");
 }
 
 
-void ScalarAverage::renderToStep (
-    ViewNumber::Enum viewNumber, size_t timeStep)
+void ScalarAverage::renderToStep (ViewNumber::Enum viewNumber, size_t time)
 {
     G3D::Rect2D viewRect = GetGLWidget ().GetViewRect ();
     glPushMatrix ();
-    GetGLWidget ().ModelViewTransform (viewNumber, timeStep);
+    GetGLWidget ().ModelViewTransform (viewNumber, time);
     glViewport (0, 0, viewRect.width (), viewRect.height ());
     clearColorBufferMinMax (viewRect, m_step);
     m_step->bind ();
     ClearColorStencilBuffers (Qt::black, 0);
     m_storeShaderProgram.Bind ();
-    const Foam& foam = GetGLWidget ().GetFoamAlongTime ().GetFoam (timeStep);
+    const Foam& foam = GetGLWidget ().GetFoamAlongTime ().GetFoam (time);
     const Foam::Bodies& bodies = foam.GetBodies ();
     writeFacesValues (viewNumber, bodies);
     m_storeShaderProgram.release ();
@@ -408,7 +496,6 @@ void ScalarAverage::removeStepFromCurrent (const G3D::Rect2D& viewRect)
 }
 
 
-
 void ScalarAverage::copyCurrentToPrevious ()
 {
     QSize size = m_current->size ();
@@ -449,35 +536,32 @@ void ScalarAverage::clearColorBufferMinMax (
     fbo->release ();
 }
 
-void ScalarAverage::Display (
-    ViewNumber::Enum viewNumber, StatisticsType::Enum displayType)
+void ScalarAverage::Display (ViewNumber::Enum viewNumber, 
+			     StatisticsType::Enum displayType)
 {
-    if (m_current.get () != 0)
-    {
-	pair<double, double> minMax = getStatisticsMinMax (viewNumber);
-	const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
-	display (viewRect, minMax.first, minMax.second, displayType, *m_current);
-    }
+    if (! m_current)
+	return;
+    pair<double, double> minMax = getStatisticsMinMax (viewNumber);
+    const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
+    display (viewRect, minMax.first, minMax.second, displayType, *m_current);
 }
 
-void ScalarAverage::DisplayAndRotate (
-    ViewNumber::Enum viewNumber,
-    StatisticsType::Enum displayType, 
-    G3D::Vector2 rotationCenter, float angleDegrees)
+void ScalarAverage::DisplayAndRotate (ViewNumber::Enum viewNumber,
+				      StatisticsType::Enum displayType, 
+				      G3D::Vector2 rotationCenter, 
+				      float angleDegrees)
 {
-    if (m_current.get () != 0)
-    {
-	pair<double, double> minMax = getStatisticsMinMax (viewNumber);
-	const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
-	displayAndRotate (
-	    viewRect, minMax.first, minMax.second, displayType, *m_current,
-	    rotationCenter, angleDegrees);
-    }
+    if (! m_current.get ())
+	return;
+    pair<double, double> minMax = getStatisticsMinMax (viewNumber);
+    const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
+    displayAndRotate (
+	viewRect, minMax.first, minMax.second, displayType, *m_current,
+	rotationCenter, angleDegrees);
 }
 
-
-
-void ScalarAverage::save (const G3D::Rect2D& viewRect,
+void ScalarAverage::save (
+    const G3D::Rect2D& viewRect,
     QGLFramebufferObject& fbo, const char* postfix, size_t timeStep,
     GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
 {
@@ -492,8 +576,8 @@ void ScalarAverage::save (const G3D::Rect2D& viewRect,
     m_debug->toImage ().save (ostr.str ().c_str ());    
 }
 
-void ScalarAverage::writeFacesValues (
-    ViewNumber::Enum viewNumber, const Foam::Bodies& bodies)
+void ScalarAverage::writeFacesValues (ViewNumber::Enum viewNumber, 
+				      const Foam::Bodies& bodies)
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT |
 		  GL_ENABLE_BIT | GL_TEXTURE_BIT);
