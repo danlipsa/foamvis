@@ -138,6 +138,7 @@ const static size_t INVALID_INDEX = numeric_limits<size_t>::max ();
 
 #define CALL_MEMBER_FN(object,ptrToMember)  ((object)->*(ptrToMember))
 
+QString ReadShader (const QString& resourceUrl);
 
 #endif //__UTILS_H__
 

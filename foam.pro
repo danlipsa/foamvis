@@ -44,6 +44,7 @@ FORMS += SelectBodiesById.ui EditColorMap.ui HistogramHeight.ui \
 	 RestrictedRangeSlider.ui MainWindow.ui Info.ui
 LEXSOURCES        += EvolverData.l
 YACCSOURCES       += EvolverData.y
+RESOURCES          = foam.qrc
 QMAKE_YACC         = .\\/bison.pl -y --report=state --debug
 QMAKE_LEX          = .\\/flex.pl
 TARGET             = foam

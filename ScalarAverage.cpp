@@ -51,18 +51,7 @@ protected:
 void AddShaderProgram::Init ()
 {
     m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
-    const char *fsrc =
-	"uniform sampler2D previousTexUnit;\n"
-	"uniform sampler2D stepTexUnit;\n"
-        "void main(void)\n"
-        "{\n"
-	"    vec4 previous = texture2D (previousTexUnit, gl_TexCoord[0].st);\n"
-	"    vec4 step = texture2D (stepTexUnit, gl_TexCoord[0].st);\n"
-	"    vec2 currentSumCount = previous.rg + step.rg;\n"
-	"    float min = min (previous.b, step.b);"
-	"    float max = max (previous.a, step.a);"
-        "    gl_FragColor = vec4 (currentSumCount, min, max);\n"
-        "}\n";
+    QString fsrc = ReadShader (":/Add.frag");
     m_fshader->compileSourceCode(fsrc);
     addShader(m_fshader.get ());
     link();
@@ -96,18 +85,7 @@ public:
 void RemoveShaderProgram::Init ()
 {
     m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
-    const char *fsrc =
-	"uniform sampler2D previousTexUnit;\n"
-	"uniform sampler2D stepTexUnit;\n"
-        "void main(void)\n"
-        "{\n"
-	"    vec4 previous = texture2D (previousTexUnit, gl_TexCoord[0].st);\n"
-	"    vec4 step = texture2D (stepTexUnit, gl_TexCoord[0].st);\n"
-	"    vec2 currentSumCount = previous.rg - step.rg;\n"
-	"    float min = previous.b;\n"
-	"    float max = previous.a;\n"
-        "    gl_FragColor = vec4 (currentSumCount, min, max);\n"
-        "}\n";
+    QString fsrc = ReadShader (":/Remove.frag");
     m_fshader->compileSourceCode(fsrc);
     addShader(m_fshader.get ());
     link();
@@ -149,27 +127,11 @@ private:
 void StoreShaderProgram::Init ()
 {
     m_vshader = boost::make_shared<QGLShader> (QGLShader::Vertex);
-    const char *vsrc =
-        "attribute float vValue;\n"
-        "varying float fValue;\n"
-        "void main(void)\n"
-        "{\n"
-        "    gl_Position = ftransform();\n"	
-        "    fValue = vValue;\n"
-        "}\n";
+    QString vsrc = ReadShader (":/Store.vert");
     m_vshader->compileSourceCode(vsrc);
 
     m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
-    const char *fsrc =
-	"varying float fValue;\n"
-        "void main(void)\n"
-        "{\n"
-	"    float maxFloat = 3.40282e+38;\n"
-	"    if (fValue == maxFloat)\n"
-	"        gl_FragColor = vec4 (0, 0, maxFloat, -maxFloat);\n"
-	"    else\n"
-        "        gl_FragColor = vec4 (fValue, 1, fValue, fValue);\n"
-        "}\n";
+    QString fsrc = ReadShader (":/Store.frag");
     m_fshader->compileSourceCode(fsrc);
 
     addShader(m_vshader.get ());
@@ -199,12 +161,7 @@ private:
 void InitShaderProgram::Init ()
 {
     m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
-    const char *fsrc =
-        "void main(void)\n"
-        "{\n"
-        "    float maxFloat = 3.40282e+38;"
-        "    gl_FragColor = vec4 (0, 0, maxFloat, -maxFloat);\n"
-        "}\n";
+    QString fsrc = ReadShader (":/Init.frag");
     m_fshader->compileSourceCode(fsrc);
     addShader(m_fshader.get ());
     link();
@@ -251,34 +208,7 @@ private:
 void DisplayShaderProgram::Init ()
 {
     m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
-    // this should match StatisticsType::Enum order
-    const char *fsrc =
-	"// displayType values: 0=average, 1=min, 2=max, 3=count\n"
-	"uniform int displayType;\n"
-	"uniform float minValue;\n"
-	"uniform float maxValue;\n"
-	"uniform sampler1D colorBarTexUnit;\n"
-	"uniform sampler2D resultTexUnit;\n"
-        "void main(void)\n"
-        "{\n"
-	"    vec4 result = texture2D (resultTexUnit, gl_TexCoord[0].st);\n"
-	"    if (result.g == 0.0)\n"
-	"        gl_FragColor = vec4 (1.0, 1.0, 1.0, 1.0);\n"
-	"    else\n"
-	"    {\n"
-	"        float value;\n"
-	"        if (displayType == 0)\n"
-	"           value = result.r / result.g;\n"
-	"        else if (displayType == 1)\n"
-	"           value = result.b;\n"
-	"        else if (displayType == 2)\n"
-	"           value = result.a;\n"
-	"        else\n"
-	"           value = result.g;\n"
-	"        float colorBarTexIndex = (value - minValue) / (maxValue - minValue);\n"
-        "        gl_FragColor = texture1D (colorBarTexUnit, colorBarTexIndex);\n"
-	"    }\n"
-        "}\n";
+    QString fsrc = ReadShader (":/Display.frag");
     m_fshader->compileSourceCode(fsrc);
 
     addShader(m_fshader.get ());

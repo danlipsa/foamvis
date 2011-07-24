@@ -1,0 +1,16 @@
+<!DOCTYPE RCC><RCC version="1.0">
+  <qresource>
+    <file>Add.frag</file>
+    <file>Remove.frag</file>
+    <file>Store.vert</file>
+    <file>Store.frag</file>
+    <file>Init.frag</file>
+    <file>Display.frag</file>
+  </qresource>
+ </RCC>
+
+<!--
+Local Variables:
+mode: xml
+End:
+-->

@@ -7,6 +7,7 @@
 
 #include "Body.h"
 #include "Comparisons.h"
+#include "Debug.h"
 #include "Edge.h"
 #include "Face.h"
 #include "Foam.h"
@@ -326,6 +327,15 @@ template<typename T> G3D::AABox CalculateBoundingBox (const T& t)
     return G3D::AABox (low, high);
 }
 
+QString ReadShader (const QString& resourceUrl)
+{
+    QFile file (resourceUrl);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+	ThrowException ("Invalid resource: ", 
+			resourceUrl.toAscii ().constData ());
+    QTextStream in (&file);
+    return in.readAll ();
+}
 
 // Template instantiations
 //======================================================================
