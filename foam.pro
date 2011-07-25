@@ -9,14 +9,16 @@ HEADERS += Application.h ApproximationEdge.h\
 	SelectBodiesById.h EditColorMap.h Edge.h Element.h ExpressionTree.h \
 	Enums.h Foam.h FoamAlongTime.h Face.h Force.h\
 	GLWidget.h Hashes.h Histogram.h HistogramItem.h HistogramHeight.h\
+	HistogramStatistics.h \
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
 	OOBox.h Info.h OpenGLUtils.h OrientedElement.h\
 	OrientedEdge.h OrientedFace.h AdjacentOrientedFace.h \
 	ParsingData.h ParsingDriver.h ScalarAverage.h ShaderProgram.h\
 	ParsingEnums.h ProcessBodyTorus.h PropertySetter.h \
 	QuadraticEdge.h RestrictedRangeSlider.h \
-	stable.h HistogramStatistics.h StripIterator.h SystemDifferences.h \
-	TransferFunctionHistogram.h TimeStepsSlider.h Utils.h \
+	stable.h StripIterator.h SystemDifferences.h \
+	TensorAverage.h TransferFunctionHistogram.h \
+	TimeStepsSlider.h Utils.h \
 	Vertex.h ViewSettings.h
 SOURCES += Application.cpp ApproximationEdge.cpp\
 	Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
@@ -25,10 +27,11 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	ConstraintEdge.cpp ColorBarModel.cpp Comparisons.cpp \
 	DebugStream.cpp Disk.cpp DisplayBodyFunctors.cpp \
 	ImageBasedAverage.cpp DisplayFaceFunctors.cpp \
-	ForceAverage.cpp DisplayEdgeFunctors.cpp	\
+	DisplayEdgeFunctors.cpp	\
 	DisplayWidget.cpp DisplayVertexFunctors.cpp Edge.cpp \
+	HistogramStatistics.cpp\
 	SelectBodiesById.cpp EditColorMap.cpp Element.cpp ExpressionTree.cpp \
-	Enums.cpp Foam.cpp FoamAlongTime.cpp Face.cpp \
+	Enums.cpp Foam.cpp FoamAlongTime.cpp Face.cpp ForceAverage.cpp\
 	GLWidget.cpp Hashes.cpp Histogram.cpp HistogramItem.cpp\
 	HistogramHeight.cpp main.cpp MainWindow.cpp  \
 	NameSemanticValue.cpp \
@@ -38,8 +41,9 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	ParsingEnums.cpp ProcessBodyTorus.cpp \
 	PropertySetter.cpp ShaderProgram.cpp\
 	QuadraticEdge.cpp RestrictedRangeSlider.cpp\
-	HistogramStatistics.cpp StripIterator.cpp TimeStepsSlider.cpp \
-	TransferFunctionHistogram.cpp Utils.cpp Vertex.cpp ViewSettings.cpp
+	StripIterator.cpp TimeStepsSlider.cpp \
+	TransferFunctionHistogram.cpp TensorAverage.cpp \
+	Utils.cpp Vertex.cpp ViewSettings.cpp
 FORMS += SelectBodiesById.ui EditColorMap.ui HistogramHeight.ui \
 	 RestrictedRangeSlider.ui MainWindow.ui Info.ui
 LEXSOURCES        += EvolverData.l

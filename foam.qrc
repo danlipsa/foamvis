@@ -1,11 +1,11 @@
 <!DOCTYPE RCC><RCC version="1.0">
   <qresource>
-    <file>Add.frag</file>
-    <file>Remove.frag</file>
-    <file>Store.vert</file>
-    <file>Store.frag</file>
-    <file>Init.frag</file>
-    <file>Display.frag</file>
+    <file>ScalarAdd.frag</file>
+    <file>ScalarRemove.frag</file>
+    <file>ScalarStore.vert</file>
+    <file>ScalarStore.frag</file>
+    <file>ScalarInit.frag</file>
+    <file>ScalarDisplay.frag</file>
   </qresource>
  </RCC>
 

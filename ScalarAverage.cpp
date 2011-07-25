@@ -75,12 +75,13 @@ boost::shared_ptr<DisplayShaderProgram> ScalarAverage::m_displayShaderProgram;
 
 void ScalarAverage::InitShaders ()
 {
-    m_initShaderProgram.reset (new ShaderProgram (0, ":/Init.frag"));
-    m_storeShaderProgram.reset (new StoreShaderProgram (
-				    ":/Store.vert", ":/Store.frag"));
-    m_addShaderProgram.reset (new AddShaderProgram (":/Add.frag"));
-    m_removeShaderProgram.reset (new AddShaderProgram (":/Remove.frag"));
-    m_displayShaderProgram.reset (new DisplayShaderProgram (":/Display.frag"));
+    m_initShaderProgram.reset (new ShaderProgram (0, ":/ScalarInit.frag"));
+    m_storeShaderProgram.reset (
+	new StoreShaderProgram (":/ScalarStore.vert", ":/ScalarStore.frag"));
+    m_addShaderProgram.reset (new AddShaderProgram (":/ScalarAdd.frag"));
+    m_removeShaderProgram.reset (new AddShaderProgram (":/ScalarRemove.frag"));
+    m_displayShaderProgram.reset (
+	new DisplayShaderProgram (":/ScalarDisplay.frag"));
 }
 
 

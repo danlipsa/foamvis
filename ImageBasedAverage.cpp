@@ -62,11 +62,14 @@ void ImageBasedAverage::init (ViewNumber::Enum viewNumber)
 
 void ImageBasedAverage::clear (const G3D::Rect2D& viewRect)
 {
-    m_step->bind ();ClearColorStencilBuffers (Qt::black, 0);
+    m_step->bind ();
+    ClearColorStencilBuffers (Qt::black, 0);
     m_step->release ();
 
-    m_current->bind ();ClearColorBuffer (Qt::black);
+    m_current->bind ();
+    ClearColorBuffer (Qt::black);
     m_current->release ();
+    
     clearColorBufferMinMax (viewRect, m_previous);
 }
 
@@ -264,8 +267,8 @@ void ImageBasedAverage::save (
 }
 
 
-void ImageBasedAverage::writeFacesValues (ViewNumber::Enum viewNumber, 
-				      const Foam::Bodies& bodies)
+void ImageBasedAverage::writeFacesValues (
+    ViewNumber::Enum viewNumber, const Foam::Bodies& bodies)
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT |
 		  GL_ENABLE_BIT | GL_TEXTURE_BIT);
@@ -279,17 +282,16 @@ void ImageBasedAverage::writeFacesValues (ViewNumber::Enum viewNumber,
     glBindTexture (
 	GL_TEXTURE_1D, 
 	GetGLWidget ().GetViewSettings (viewNumber).GetColorBarTexture ());
-    for_each (bodies.begin (), bodies.end (),
-	      DisplayBody<
-	      DisplayFaceBodyPropertyColor<
-	      SetterValueVertexAttribute>, SetterValueVertexAttribute> (
-		  GetGLWidget (), 
-		  GetGLWidget ().GetViewSettings (viewNumber).
-		  GetBodySelector (), 
-		  SetterValueVertexAttribute (
-		      GetGLWidget (), viewNumber, m_storeShaderProgram.get (),
-		      m_storeShaderProgram->GetVValueIndex ()),
-		  DisplayElement::INVISIBLE_CONTEXT));
+    for_each (
+	bodies.begin (), bodies.end (),
+	DisplayBody<DisplayFaceBodyPropertyColor<
+	SetterVertexAttribute>, SetterVertexAttribute> (
+	    GetGLWidget (), 
+	    GetGLWidget ().GetViewSettings (viewNumber).GetBodySelector (), 
+	    SetterVertexAttribute (
+		GetGLWidget (), viewNumber, m_storeShaderProgram.get (),
+		m_storeShaderProgram->GetVValueIndex ()),
+	    DisplayElement::INVISIBLE_CONTEXT));
     glPopAttrib ();
 }
 

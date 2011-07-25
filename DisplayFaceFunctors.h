@@ -22,7 +22,7 @@ class DisplayFaceLineStrip;
  */
 template <HighlightNumber::Enum highlightColorIndex,
 	  typename displayEdges, 
-	  typename PropertySetter = SetterValueTextureCoordinate>
+	  typename PropertySetter = SetterTextureCoordinate>
 class DisplayFaceHighlightColor : 
     public DisplayElementPropertyFocus<PropertySetter>
 {
@@ -57,7 +57,7 @@ public:
  * Functor that displays a face using the color specified in the DMP file or
  * a color mapped body property value
  */
-template<typename PropertySetter = SetterValueTextureCoordinate>
+template<typename PropertySetter = SetterTextureCoordinate>
 class DisplayFaceBodyPropertyColor : 
     public DisplayFaceHighlightColor<HighlightNumber::H0, 
 				     DisplayFaceTriangleFan, PropertySetter>
@@ -86,7 +86,7 @@ private:
 
 
 template<QRgb faceColor,
-	 typename PropertySetter = SetterValueTextureCoordinate>
+	 typename PropertySetter = SetterTextureCoordinate>
 class DisplayFaceLineStripColor : 
     public DisplayFaceHighlightColor<HighlightNumber::H0, 
 				     DisplayFaceLineStrip, PropertySetter>
@@ -116,7 +116,7 @@ public:
 
 
 template<QRgb faceColor,
-	 typename PropertySetter = SetterValueTextureCoordinate>
+	 typename PropertySetter = SetterTextureCoordinate>
 class DisplayFaceDmpColor : 
     public DisplayFaceHighlightColor<HighlightNumber::H0, 
 				     DisplayFaceTriangleFan, PropertySetter>

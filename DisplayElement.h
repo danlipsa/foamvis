@@ -65,9 +65,9 @@ protected:
     FocusContext m_focus;
 };
 
-class SetterValueTextureCoordinate;
+class SetterTextureCoordinate;
 
-template<typename PropertySetter = SetterValueTextureCoordinate>
+template<typename PropertySetter = SetterTextureCoordinate>
 class DisplayElementProperty : public DisplayElement
 {
 public:
@@ -85,7 +85,7 @@ protected:
 
 
 
-template<typename PropertySetter = SetterValueTextureCoordinate>
+template<typename PropertySetter = SetterTextureCoordinate>
 class DisplayElementPropertyFocus : 
     public DisplayElementProperty<PropertySetter>
 {

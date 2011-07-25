@@ -346,40 +346,40 @@ displayNoNormal (const boost::shared_ptr<Face>& f)
 template class DisplayFaceHighlightColor<HighlightNumber::H0,
     DisplayFaceEdges<
 	DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadric, true> >, 
-    SetterValueTextureCoordinate>;
+    SetterTextureCoordinate>;
 template class DisplayFaceHighlightColor<HighlightNumber::H0,
     DisplayFaceEdges<
-	DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow, true> >, SetterValueTextureCoordinate>;
+	DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow, true> >, SetterTextureCoordinate>;
 template class DisplayFaceHighlightColor<HighlightNumber::H0,
     DisplayFaceEdges<
-	DisplayEdgeTorusClipped>, SetterValueTextureCoordinate>;
+	DisplayEdgeTorusClipped>, SetterTextureCoordinate>;
 template class DisplayFaceHighlightColor<HighlightNumber::H0,
     DisplayFaceEdges<
 	DisplayEdgePropertyColor<DisplayElement::TEST_DISPLAY_TESSELLATION> >, 
-    SetterValueTextureCoordinate>;
+    SetterTextureCoordinate>;
 template class DisplayFaceHighlightColor<HighlightNumber::H0,
     DisplayFaceEdges<
 	DisplayEdgePropertyColor<DisplayElement::DONT_DISPLAY_TESSELLATION> >, 
-    SetterValueTextureCoordinate>;
-template class DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceLineStrip, SetterValueTextureCoordinate>;
-template class DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceLineStrip, SetterValueVertexAttribute>;
+    SetterTextureCoordinate>;
+template class DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceLineStrip, SetterTextureCoordinate>;
+template class DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceLineStrip, SetterVertexAttribute>;
 
-template class DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceTriangleFan, SetterValueTextureCoordinate>;
-template class DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceTriangleFan, SetterValueVertexAttribute>;
+template class DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceTriangleFan, SetterTextureCoordinate>;
+template class DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceTriangleFan, SetterVertexAttribute>;
 
-template class DisplayFaceHighlightColor<HighlightNumber::H1, DisplayFaceLineStrip, SetterValueTextureCoordinate>;
+template class DisplayFaceHighlightColor<HighlightNumber::H1, DisplayFaceLineStrip, SetterTextureCoordinate>;
 
 
 // DisplayFaceBodyPropertyColor
 // ======================================================================
 
-template class DisplayFaceBodyPropertyColor<SetterValueTextureCoordinate>;
-template class DisplayFaceBodyPropertyColor<SetterValueVertexAttribute>;
+template class DisplayFaceBodyPropertyColor<SetterTextureCoordinate>;
+template class DisplayFaceBodyPropertyColor<SetterVertexAttribute>;
 
 // DisplayFaceLineStripColor
 // ======================================================================
-template class DisplayFaceLineStripColor<0xff000000, SetterValueTextureCoordinate>;
+template class DisplayFaceLineStripColor<0xff000000, SetterTextureCoordinate>;
 
 // DisplayFaceDmpColor
 // ======================================================================
-template class DisplayFaceDmpColor<0xff000000, SetterValueTextureCoordinate>;
+template class DisplayFaceDmpColor<0xff000000, SetterTextureCoordinate>;

@@ -14,14 +14,11 @@
 /**
  * Calculate face average, min, max over a time window.
  * It uses three framebuffer objects: step, previous, current.
- * Average is implemented by first calculating the sum and then dividing by
- * the number of elements in the sum. The sum is calculated in 3 steps:
- * 1. step = draw current foam using attribute values instead of colors
- * 2. current = previous + step
- * 3. previous = current
- *
- * The reason for this type of implementation is that OpenGL cannot
- * read and write to the same buffer in the same step.
+ * current = (sum,count,min,max) up to and including the current step
+ * previous = (sum, count, min, max) up to and including the previous step.
+ * step = (x, 1, x, x) for (sum, count, min, max) where x is the value for
+ * one step. step = (0, 0, maxFloat, -maxFloat) if there is no 
+ * value for that pixel.
  */
 class ScalarAverage : public ImageBasedAverage
 {

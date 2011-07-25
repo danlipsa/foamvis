@@ -436,6 +436,8 @@ void Body::CalculateNeighbors2D (const OOBox& originalDomain)
 
 void Body::CalculateDeformationTensor (const OOBox& originalDomain)
 {
+    if (IsConstraint ())
+	return;
     size_t bubbleNeighborsCount = 0;
     G3D::Matrix3 textureTensor = G3D::Matrix3::zero ();
     const vector<Neighbor>& neighbors = GetNeighbors ();
@@ -457,8 +459,6 @@ void Body::CalculateDeformationTensor (const OOBox& originalDomain)
 				       l.y * l.x, l.y * l.y, l.y * l.z,
 				       l.z * l.x, l.z * l.y, l.z * l.z);
     }
-    // an object defined by a constraint has 0 neighbors adjacent to an
-    // unconstrainted edge.
     textureTensor /= neighbors.size ();
     SymmetricMatrixEigen(3).Calculate (textureTensor, 
 				       &m_deformationEigenValues[0], 

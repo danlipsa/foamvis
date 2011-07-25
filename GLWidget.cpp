@@ -2188,8 +2188,8 @@ void GLWidget::displayFacesContour (
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody< DisplayFaceHighlightColor<highlightColorIndex, 
 	      DisplayFaceLineStrip>,
-	      SetterValueTextureCoordinate> (
-		  *this, bodySelector, SetterValueTextureCoordinate (
+	      SetterTextureCoordinate> (
+		  *this, bodySelector, SetterTextureCoordinate (
 		      *this, viewNumber)));
     glPopAttrib ();
 }
@@ -2344,20 +2344,20 @@ void GLWidget::compileCenterPaths (ViewNumber::Enum view) const
 	    for_each (
 		bats.begin (), bats.end (),
 		DisplayCenterPath<
-		SetterValueTextureCoordinate, DisplaySegmentTube> (
+		SetterTextureCoordinate, DisplaySegmentTube> (
 		    *this, m_viewNumber, bodySelector,
 		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
 	else
 	    for_each (
 		bats.begin (), bats.end (),
 		DisplayCenterPath<
-		SetterValueTextureCoordinate, DisplaySegmentQuadric> (
+		SetterTextureCoordinate, DisplaySegmentQuadric> (
 		    *this, m_viewNumber, bodySelector,
 		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     }
     else
 	for_each (bats.begin (), bats.end (),
-		  DisplayCenterPath<SetterValueTextureCoordinate, 
+		  DisplayCenterPath<SetterTextureCoordinate, 
 		  DisplaySegment> (
 		      *this, m_viewNumber, bodySelector,
 		      IsTimeDisplacementUsed (), GetTimeDisplacement ()));

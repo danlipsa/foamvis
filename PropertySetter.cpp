@@ -13,9 +13,9 @@
 #include "OpenGLUtils.h"
 #include "ViewSettings.h"
 
-// SetterValueTextureCoordinate
+// SetterTextureCoordinate
 // ======================================================================
-void SetterValueTextureCoordinate::operator () (
+void SetterTextureCoordinate::operator () (
     const boost::shared_ptr<Body>& body)
 {
     BodyProperty::Enum property = 
@@ -27,27 +27,44 @@ void SetterValueTextureCoordinate::operator () (
     glTexCoord1f (texCoord); 
 }
 
-void SetterValueTextureCoordinate::operator () ()
+void SetterTextureCoordinate::operator () ()
 {
     glTexCoord1f (0); 
 }
 
-BodyProperty::Enum SetterValueTextureCoordinate::GetBodyProperty () const
+BodyProperty::Enum SetterTextureCoordinate::GetBodyProperty () const
 {
     return m_glWidget.GetViewSettings (m_viewNumber).GetBodyProperty ();
 }
 
 
-// SetterValueVertexAttribute
+// SetterVertexAttribute
 // ======================================================================
-void SetterValueVertexAttribute::operator () (
+void SetterVertexAttribute::operator () (
     const boost::shared_ptr<Body>& body)
 {
     double value = body->GetPropertyValue (GetBodyProperty ());
     m_program->setAttributeValue (m_attributeIndex, value);
 }
 
-void SetterValueVertexAttribute::operator () ()
+void SetterVertexAttribute::operator () ()
+{
+    // close to maxFloat. The same value is specified in GLSL and tested
+    // against this value.
+    GLfloat value = 3.40282e+38;
+    m_program->setAttributeValue (m_attributeIndex, value);
+}
+
+
+// SetterDeformationTensor
+// ======================================================================
+void SetterDeformationTensor::operator () (const boost::shared_ptr<Body>& body)
+{
+    double value = body->GetPropertyValue (GetBodyProperty ());
+    m_program->setAttributeValue (m_attributeIndex, value);
+}
+
+void SetterDeformationTensor::operator () ()
 {
     // close to maxFloat. The same value is specified in GLSL and tested
     // against this value.

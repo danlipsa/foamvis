@@ -11,10 +11,10 @@
 
 class GLWidget;
 class Body;
-class SetterValueTextureCoordinate
+class SetterTextureCoordinate
 {
 public:
-    SetterValueTextureCoordinate (
+    SetterTextureCoordinate (
 	const GLWidget& glWidget, ViewNumber::Enum view) :
 
 	m_glWidget (glWidget), m_viewNumber (view)
@@ -34,13 +34,13 @@ protected:
     ViewNumber::Enum m_viewNumber;
 };
 
-class SetterValueVertexAttribute : public SetterValueTextureCoordinate
+class SetterVertexAttribute : public SetterTextureCoordinate
 {
 public:
-    SetterValueVertexAttribute (
+    SetterVertexAttribute (
 	const GLWidget& glWidget,  ViewNumber::Enum view,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
-	SetterValueTextureCoordinate (glWidget, view),
+	SetterTextureCoordinate (glWidget, view),
 	m_program (program), m_attributeIndex (attributeIndex)
     {
     }
@@ -52,6 +52,26 @@ private:
     QGLShaderProgram* m_program;
     int m_attributeIndex;
 };
+
+class SetterDeformationTensor : public SetterTextureCoordinate
+{
+public:
+    SetterDeformationTensor (
+	const GLWidget& glWidget,  ViewNumber::Enum view,
+	QGLShaderProgram* program = 0, int attributeIndex = 0) :
+	SetterTextureCoordinate (glWidget, view),
+	m_program (program), m_attributeIndex (attributeIndex)
+    {
+    }
+
+    void operator () ();
+    void operator () (const boost::shared_ptr<Body>& body);
+
+private:
+    QGLShaderProgram* m_program;
+    int m_attributeIndex;
+};
+
 
 
 #endif //__PROPERTY_SETTER_H__

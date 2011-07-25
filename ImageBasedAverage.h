@@ -23,7 +23,7 @@ class DisplayShaderProgram;
 
 
 /**
- * Calculate face average, min, max over a time window.
+ * Calculate an average a time window.
  * It uses three framebuffer objects: step, previous, current.
  * Average is implemented by first calculating the sum and then dividing by
  * the number of elements in the sum. The sum is calculated in 3 steps:
@@ -86,17 +86,15 @@ private:
 
 private:
     /**
-     * Stores (sum,count,min,max) up to and including the current step
+     * Stores values up to and including the current time step
      */
     boost::scoped_ptr<QGLFramebufferObject> m_current;
     /**
-     * Stores (sum, count, min, max) up to and including the previous step.
+     * Stores values up to and including the previous time step
      */
     boost::scoped_ptr<QGLFramebufferObject> m_previous;
     /**
-     * Stores (x, 1, x, x) for (sum, count, min, max) where x is the value for
-     * one step. It stores (0, 0, maxFloat, -maxFloat) if there is no 
-     * value for that pixel.
+     * Stores values for the current time step
      */
     boost::scoped_ptr<QGLFramebufferObject> m_step;
     /**
