@@ -22,6 +22,69 @@
 
 // Private classes/functions
 // ======================================================================
+// InitShaderProgram
+// ======================================================================
+class InitShaderProgram : public QGLShaderProgram
+{
+public:
+    void Init ();
+    void Bind ();
+private:
+    boost::shared_ptr<QGLShader> m_fshader;
+};
+
+void InitShaderProgram::Init ()
+{
+    m_fshader = CreateShader (":/Init.frag", QGLShader::Fragment);
+    addShader(m_fshader.get ());
+    link();
+}
+
+void InitShaderProgram::Bind ()
+{
+    bool bindSuccessful = bind ();
+    RuntimeAssert (bindSuccessful, "Bind failed for InitShaderProgram");
+}
+
+
+// StoreShaderProgram
+// ======================================================================
+/**
+ * Shader that stores a floating point value in a floating point texture:
+ * RGBA: value, 1, value, value
+ *
+ */
+class StoreShaderProgram : public QGLShaderProgram
+{
+public:
+    void Init ();
+    void Bind ();
+    int GetVValueIndex () const
+    {
+	return m_vValueIndex;
+    }
+private:
+    int m_vValueIndex;
+    boost::shared_ptr<QGLShader> m_fshader;
+    boost::shared_ptr<QGLShader> m_vshader;
+};
+
+void StoreShaderProgram::Init ()
+{
+    m_vshader = CreateShader (":/Store.vert", QGLShader::Vertex);
+    m_fshader = CreateShader (":/Store.frag", QGLShader::Fragment);
+    addShader(m_vshader.get ());
+    addShader(m_fshader.get ());
+    link();
+    m_vValueIndex = attributeLocation("vValue");
+}
+
+void StoreShaderProgram::Bind ()
+{
+    bool bindSuccessful = bind ();
+    RuntimeAssert (bindSuccessful, "Bind failed for StoreShaderProgram");
+}
+
 // AddShaderProgram
 // ======================================================================
 /**
@@ -50,12 +113,9 @@ protected:
 
 void AddShaderProgram::Init ()
 {
-    m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
-    QString fsrc = ReadShader (":/Add.frag");
-    m_fshader->compileSourceCode(fsrc);
+    m_fshader = CreateShader (":/Add.frag", QGLShader::Fragment);
     addShader(m_fshader.get ());
     link();
-
     m_previousTexUnitIndex = uniformLocation("previousTexUnit");
     m_stepTexUnitIndex = uniformLocation("stepTexUnit");
 }
@@ -84,12 +144,9 @@ public:
 
 void RemoveShaderProgram::Init ()
 {
-    m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
-    QString fsrc = ReadShader (":/Remove.frag");
-    m_fshader->compileSourceCode(fsrc);
+    m_fshader = CreateShader (":/Remove.frag", QGLShader::Fragment);
     addShader(m_fshader.get ());
     link();
-
     m_previousTexUnitIndex = uniformLocation("previousTexUnit");
     m_stepTexUnitIndex = uniformLocation("stepTexUnit");
 }
@@ -100,77 +157,6 @@ void RemoveShaderProgram::Bind ()
     RuntimeAssert (bindSuccessful, "Bind failed for RemoveShaderProgram");
     setUniformValue (m_previousTexUnitIndex, GetPreviousTexUnit ());
     setUniformValue (m_stepTexUnitIndex, GetStepTexUnit ());
-}
-
-// StoreShaderProgram
-// ======================================================================
-/**
- * Shader that stores a floating point value in a floating point texture:
- * RGBA: value, 1, value, value
- *
- */
-class StoreShaderProgram : public QGLShaderProgram
-{
-public:
-    void Init ();
-    void Bind ();
-    int GetVValueIndex () const
-    {
-	return m_vValueIndex;
-    }
-private:
-    int m_vValueIndex;
-    boost::shared_ptr<QGLShader> m_fshader;
-    boost::shared_ptr<QGLShader> m_vshader;
-};
-
-void StoreShaderProgram::Init ()
-{
-    m_vshader = boost::make_shared<QGLShader> (QGLShader::Vertex);
-    QString vsrc = ReadShader (":/Store.vert");
-    m_vshader->compileSourceCode(vsrc);
-
-    m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
-    QString fsrc = ReadShader (":/Store.frag");
-    m_fshader->compileSourceCode(fsrc);
-
-    addShader(m_vshader.get ());
-    addShader(m_fshader.get ());
-    link();
-
-    m_vValueIndex = attributeLocation("vValue");
-}
-
-void StoreShaderProgram::Bind ()
-{
-    bool bindSuccessful = bind ();
-    RuntimeAssert (bindSuccessful, "Bind failed for StoreShaderProgram");
-}
-
-// InitShaderProgram
-// ======================================================================
-class InitShaderProgram : public QGLShaderProgram
-{
-public:
-    void Init ();
-    void Bind ();
-private:
-    boost::shared_ptr<QGLShader> m_fshader;
-};
-
-void InitShaderProgram::Init ()
-{
-    m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
-    QString fsrc = ReadShader (":/Init.frag");
-    m_fshader->compileSourceCode(fsrc);
-    addShader(m_fshader.get ());
-    link();
-}
-
-void InitShaderProgram::Bind ()
-{
-    bool bindSuccessful = bind ();
-    RuntimeAssert (bindSuccessful, "Bind failed for InitShaderProgram");
 }
 
 
@@ -207,13 +193,9 @@ private:
 
 void DisplayShaderProgram::Init ()
 {
-    m_fshader = boost::make_shared<QGLShader> (QGLShader::Fragment);
-    QString fsrc = ReadShader (":/Display.frag");
-    m_fshader->compileSourceCode(fsrc);
-
+    m_fshader = CreateShader (":/Display.frag", QGLShader::Fragment);
     addShader(m_fshader.get ());
     link();
-
     m_displayTypeIndex = uniformLocation ("displayType");
     m_minValueIndex = uniformLocation("minValue");
     m_maxValueIndex = uniformLocation("maxValue");

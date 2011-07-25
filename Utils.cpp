@@ -337,6 +337,17 @@ QString ReadShader (const QString& resourceUrl)
     return in.readAll ();
 }
 
+boost::shared_ptr<QGLShader> CreateShader (const QString& resourceUrl,
+					   QGLShader::ShaderType type)
+{
+    boost::shared_ptr<QGLShader> shader(new QGLShader (type));
+    QString vsrc = ReadShader (resourceUrl);
+    shader->compileSourceCode(vsrc);
+    return shader;
+}
+
+
+
 // Template instantiations
 //======================================================================
 

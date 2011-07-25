@@ -100,11 +100,11 @@ private:
      */
     boost::scoped_ptr<QGLFramebufferObject> m_debug;
 
+    static InitShaderProgram m_initShaderProgram;
+    static StoreShaderProgram m_storeShaderProgram;
     static AddShaderProgram m_addShaderProgram;
     static RemoveShaderProgram m_removeShaderProgram;
-    static StoreShaderProgram m_storeShaderProgram;
     static DisplayShaderProgram m_displayShaderProgram;
-    static InitShaderProgram m_initShaderProgram;
 };
 
 #endif //__SCALAR_AVERAGE_H__
