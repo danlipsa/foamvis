@@ -1,0 +1,50 @@
+/**
+ * @file   AverageShaders.h
+ * @author Dan R. Lipsa
+ * @date  25 Jul. 2011
+ *
+ * Interface for the AverageShaders class
+ */
+
+#ifndef __AVERAGE_SHADERS_H__
+#define __AVERAGE_SHADERS_H__
+
+#include "ShaderProgram.h"
+
+class StoreShaderProgram : public ShaderProgram
+{
+public:
+    StoreShaderProgram (const char* vert, const char* frag);
+    int GetVValueIndex () const
+    {
+	return m_vValueIndex;
+    }
+private:
+    int m_vValueIndex;
+};
+
+
+class AddShaderProgram : public ShaderProgram
+{
+public:
+    AddShaderProgram (const char* frag);
+    void Bind ();
+    GLint GetPreviousTexUnit ()
+    {
+	return 1;
+    }
+    GLint GetStepTexUnit ()
+    {
+	return 2;
+    }
+protected:
+    int m_previousTexUnitIndex;
+    int m_stepTexUnitIndex;
+};
+
+
+#endif //__AVERAGE_SHADERS_H__
+
+// Local Variables:
+// mode: c++
+// End:
