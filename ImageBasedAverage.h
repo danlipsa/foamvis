@@ -1,13 +1,13 @@
 /**
- * @file   ScalarAverage.h
+ * @file   ImageBasedAverage.h
  * @author Dan R. Lipsa
  * @date  24 Oct. 2010
  *
- * Interface for the ScalarAverage class
+ * Interface for the ImageBasedAverage class
  */
 
-#ifndef __SCALAR_AVERAGE_H__
-#define __SCALAR_AVERAGE_H__
+#ifndef __IMAGE_BASED_AVERAGE_H__
+#define __IMAGE_BASED_AVERAGE_H__
 
 #include "DisplayElement.h"
 #include "Enums.h"
@@ -16,11 +16,10 @@
 class Body;
 class Foam;
 class GLWidget;
+class ShaderProgram;
 class AddShaderProgram;
-class RemoveShaderProgram;
-class DisplayShaderProgram;
-class InitShaderProgram;
 class StoreShaderProgram;
+class DisplayShaderProgram;
 
 
 /**
@@ -35,10 +34,10 @@ class StoreShaderProgram;
  * The reason for this type of implementation is that OpenGL cannot
  * read and write to the same buffer in the same step.
  */
-class ScalarAverage : public Average
+class ImageBasedAverage : public Average
 {
 public:
-    ScalarAverage (const GLWidget& glWidget) :
+    ImageBasedAverage (const GLWidget& glWidget) :
 	Average (glWidget)
     {
     }
@@ -48,24 +47,30 @@ public:
     void DisplayAndRotate (
 	ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
 	G3D::Vector2 rotationCenter, float angleDegrees);
-    static void InitShaders ();
 
 protected:
     virtual void init (ViewNumber::Enum viewNumber);
     virtual void addStep (ViewNumber::Enum viewNumber, size_t timeStep);
     virtual void removeStep (ViewNumber::Enum viewNumber, size_t timeStep);
+    virtual void display (
+	const G3D::Rect2D& viewRect, 
+	GLfloat minValue, GLfloat maxValue,
+	StatisticsType::Enum displayType, QGLFramebufferObject& srcFbo) = 0;
+    virtual void displayAndRotate (
+	const G3D::Rect2D& viewRect, GLfloat minValue, GLfloat maxValue,
+	StatisticsType::Enum displayType, QGLFramebufferObject& fbo,
+	G3D::Vector2 rotationCenter, float angleDegrees) = 0;
+    void glActiveTexture (GLenum texture) const;
+
+    static boost::shared_ptr<ShaderProgram> m_initShaderProgram;
+    static boost::shared_ptr<StoreShaderProgram> m_storeShaderProgram;
+    static boost::shared_ptr<AddShaderProgram> m_addShaderProgram;
+    static boost::shared_ptr<AddShaderProgram> m_removeShaderProgram;
 
 private:
     void clear (const G3D::Rect2D& viewRect);
     void writeFacesValues (
 	ViewNumber::Enum view, const vector<boost::shared_ptr<Body> >& bodies);
-    void display (const G3D::Rect2D& viewRect, 
-		  GLfloat minValue, GLfloat maxValue,
-		  StatisticsType::Enum displayType, QGLFramebufferObject& fbo);
-    void displayAndRotate (
-	const G3D::Rect2D& viewRect, GLfloat minValue, GLfloat maxValue,
-	StatisticsType::Enum displayType, QGLFramebufferObject& fbo,
-	G3D::Vector2 rotationCenter, float angleDegrees);
 
     void save (const G3D::Rect2D& viewRect, QGLFramebufferObject& fbo, 
 	       const char* fileName, size_t timeStep, GLfloat minValue, 
@@ -77,7 +82,6 @@ private:
     void clearColorBufferMinMax (
 	const G3D::Rect2D& viewRect,
 	const boost::scoped_ptr<QGLFramebufferObject>& fbo);
-    void glActiveTexture (GLenum texture) const;
     pair<double, double> getStatisticsMinMax (ViewNumber::Enum view) const;
 
 private:
@@ -99,15 +103,9 @@ private:
      * Used to save buffers as images.
      */
     boost::scoped_ptr<QGLFramebufferObject> m_debug;
-
-    static InitShaderProgram m_initShaderProgram;
-    static StoreShaderProgram m_storeShaderProgram;
-    static AddShaderProgram m_addShaderProgram;
-    static RemoveShaderProgram m_removeShaderProgram;
-    static DisplayShaderProgram m_displayShaderProgram;
 };
 
-#endif //__SCALAR_AVERAGE_H__
+#endif //__IMAGE_BASED_AVERAGE_H__
 
 // Local Variables:
 // mode: c++

@@ -1,3 +1,8 @@
+/**
+ * Shader that stores a floating point value in a floating point texture:
+ * RGBA: value, 1, value, value
+ *
+ */
 varying float fValue;
 
 void main(void)

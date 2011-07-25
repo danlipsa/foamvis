@@ -1,9 +1,9 @@
 HEADERS += Application.h ApproximationEdge.h\
 	Attribute.h AttributeCreator.h AttributeInfo.h \
-	AttributeHistogram.h Average.h Body.h \
+	AttributeHistogram.h Average.h AverageShaders.h Body.h \
 	BodyAlongTime.h AdjacentBody.h BodySelector.h ConstraintRotation.h \
 	ConstraintEdge.h ColorBarModel.h Comparisons.h Debug.h \
-	DebugStream.h Disk.h ScalarAverage.h ForceAverage.h\
+	DebugStream.h Disk.h ImageBasedAverage.h ForceAverage.h\
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h DisplayWidget.h\
 	SelectBodiesById.h EditColorMap.h Edge.h Element.h ExpressionTree.h \
@@ -12,7 +12,7 @@ HEADERS += Application.h ApproximationEdge.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
 	OOBox.h Info.h OpenGLUtils.h OrientedElement.h\
 	OrientedEdge.h OrientedFace.h AdjacentOrientedFace.h \
-	ParsingData.h ParsingDriver.h \
+	ParsingData.h ParsingDriver.h ScalarAverage.h ShaderProgram.h\
 	ParsingEnums.h ProcessBodyTorus.h PropertySetter.h \
 	QuadraticEdge.h RestrictedRangeSlider.h \
 	stable.h HistogramStatistics.h StripIterator.h SystemDifferences.h \
@@ -20,11 +20,11 @@ HEADERS += Application.h ApproximationEdge.h\
 	Vertex.h ViewSettings.h
 SOURCES += Application.cpp ApproximationEdge.cpp\
 	Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
-	AttributeHistogram.cpp Average.cpp \
+	AttributeHistogram.cpp Average.cpp AverageShaders.cpp \
 	Body.cpp BodyAlongTime.cpp AdjacentBody.cpp BodySelector.cpp\
 	ConstraintEdge.cpp ColorBarModel.cpp Comparisons.cpp \
 	DebugStream.cpp Disk.cpp DisplayBodyFunctors.cpp \
-	ScalarAverage.cpp DisplayFaceFunctors.cpp \
+	ImageBasedAverage.cpp DisplayFaceFunctors.cpp \
 	ForceAverage.cpp DisplayEdgeFunctors.cpp	\
 	DisplayWidget.cpp DisplayVertexFunctors.cpp Edge.cpp \
 	SelectBodiesById.cpp EditColorMap.cpp Element.cpp ExpressionTree.cpp \
@@ -34,9 +34,9 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	NameSemanticValue.cpp \
 	OOBox.cpp OpenGLUtils.cpp OrientedElement.cpp\
 	OrientedEdge.cpp OrientedFace.cpp AdjacentOrientedFace.cpp\
-	ParsingData.cpp ParsingDriver.cpp \
+	ScalarAverage.cpp ParsingData.cpp ParsingDriver.cpp \
 	ParsingEnums.cpp ProcessBodyTorus.cpp \
-	PropertySetter.cpp \
+	PropertySetter.cpp ShaderProgram.cpp\
 	QuadraticEdge.cpp RestrictedRangeSlider.cpp\
 	HistogramStatistics.cpp StripIterator.cpp TimeStepsSlider.cpp \
 	TransferFunctionHistogram.cpp Utils.cpp Vertex.cpp ViewSettings.cpp

@@ -346,9 +346,12 @@ void RenderFromFboAndRotate (
     //glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
     glLoadIdentity ();
-    glTranslate (rotationCenter);
-    glRotatef (angleDegrees, 0, 0, 1);	
-    glTranslate (-rotationCenter);
+    if (angleDegrees != 0)
+    {
+	glTranslate (rotationCenter);
+	glRotatef (angleDegrees, 0, 0, 1);	
+	glTranslate (-rotationCenter);
+    }
     glMatrixMode (GL_PROJECTION);
     glPushMatrix ();
     glLoadIdentity ();
