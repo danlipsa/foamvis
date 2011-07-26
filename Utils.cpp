@@ -17,7 +17,7 @@
 
 
 
-// Fuzzy equality functionality
+// G3D Helper functions
 // ======================================================================
 
 bool IsFuzzyZero (const G3D::Vector3& v)
@@ -25,6 +25,26 @@ bool IsFuzzyZero (const G3D::Vector3& v)
     return v.squaredMagnitude () < fuzzyEpsilon * fuzzyEpsilon;
 }
 
+void Matrix2SetColumn (G3D::Matrix2* m, size_t column, const G3D::Vector2& v)
+{
+    const size_t SIZE = 2;
+    for (size_t i = 0; i < SIZE; ++i)
+	(*m)[i][column] = v[column];
+}
+
+G3D::Matrix2 mult (const G3D::Matrix2& first, const G3D::Matrix2& second)
+{
+    const size_t SIZE = 2;
+    G3D::Matrix2 m;
+    for (size_t i = 0; i < SIZE; ++i)
+	for (size_t j = 0; j < SIZE; ++j)
+	{
+	    m[i][j] = 0;
+	    for (size_t k = 0; k < SIZE; ++k)
+		m[i][j] += first[i][k] * second[k][j];
+	}
+    return m;
+}
 
 
 // ToString functionality
@@ -342,7 +362,9 @@ boost::shared_ptr<QGLShader> CreateShader (const QString& resourceUrl,
 {
     boost::shared_ptr<QGLShader> shader(new QGLShader (type));
     QString vsrc = ReadShader (resourceUrl);
-    shader->compileSourceCode(vsrc);
+    if (! shader->compileSourceCode(vsrc))
+	ThrowException ("Compile error for ", 
+			resourceUrl.toLatin1 ().constData ());
     return shader;
 }
 

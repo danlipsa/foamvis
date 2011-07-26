@@ -375,6 +375,7 @@ template class DisplayFaceHighlightColor<HighlightNumber::H1, DisplayFaceLineStr
 
 template class DisplayFaceBodyPropertyColor<SetterTextureCoordinate>;
 template class DisplayFaceBodyPropertyColor<SetterVertexAttribute>;
+template class DisplayFaceBodyPropertyColor<SetterDeformationTensor>;
 
 // DisplayFaceLineStripColor
 // ======================================================================

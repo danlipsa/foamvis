@@ -96,8 +96,7 @@ protected:
 /**
  * Displays a body going through all its faces
  */
-template<typename displayFace, 
-	 typename PropertySetter = SetterTextureCoordinate>
+template<typename displayFace, typename PropertySetter = SetterTextureCoordinate>
 class DisplayBody : public DisplayBodyBase<PropertySetter>
 {
 public:

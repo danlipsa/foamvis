@@ -28,12 +28,17 @@
 // ImageBasedAverage Methods
 // ======================================================================
 
-boost::shared_ptr<ShaderProgram> ImageBasedAverage::m_initShaderProgram;
-boost::shared_ptr<StoreShaderProgram> ImageBasedAverage::m_storeShaderProgram;
-boost::shared_ptr<AddShaderProgram> ImageBasedAverage::m_addShaderProgram;
-boost::shared_ptr<AddShaderProgram> ImageBasedAverage::m_removeShaderProgram;
+template<typename PropertySetter>
+boost::shared_ptr<ShaderProgram> ImageBasedAverage<PropertySetter>::m_initShaderProgram;
+template<typename PropertySetter>
+boost::shared_ptr<StoreShaderProgram> ImageBasedAverage<PropertySetter>::m_storeShaderProgram;
+template<typename PropertySetter>
+boost::shared_ptr<AddShaderProgram> ImageBasedAverage<PropertySetter>::m_addShaderProgram;
+template<typename PropertySetter>
+boost::shared_ptr<AddShaderProgram> ImageBasedAverage<PropertySetter>::m_removeShaderProgram;
 
-void ImageBasedAverage::init (ViewNumber::Enum viewNumber)
+template<typename PropertySetter>
+void ImageBasedAverage<PropertySetter>::init (ViewNumber::Enum viewNumber)
 {
     Average::init (viewNumber);
     const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
@@ -60,7 +65,8 @@ void ImageBasedAverage::init (ViewNumber::Enum viewNumber)
     clear (viewRect);
 }
 
-void ImageBasedAverage::clear (const G3D::Rect2D& viewRect)
+template<typename PropertySetter>
+void ImageBasedAverage<PropertySetter>::clear (const G3D::Rect2D& viewRect)
 {
     m_step->bind ();
     ClearColorStencilBuffers (Qt::black, 0);
@@ -73,7 +79,8 @@ void ImageBasedAverage::clear (const G3D::Rect2D& viewRect)
     clearColorBufferMinMax (viewRect, m_previous);
 }
 
-void ImageBasedAverage::Release ()
+template<typename PropertySetter>
+void ImageBasedAverage<PropertySetter>::Release ()
 {
     m_step.reset ();
     m_current.reset ();
@@ -82,9 +89,8 @@ void ImageBasedAverage::Release ()
 }
 
 
-typedef void (ImageBasedAverage::*Operation) (const G3D::Rect2D& viewRect);
-
-void ImageBasedAverage::addStep (ViewNumber::Enum viewNumber, size_t time)
+template<typename PropertySetter>
+void ImageBasedAverage<PropertySetter>::addStep (ViewNumber::Enum viewNumber, size_t time)
 {
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
@@ -102,7 +108,8 @@ void ImageBasedAverage::addStep (ViewNumber::Enum viewNumber, size_t time)
     WarnOnOpenGLError ("ImageBasedAverage::addStep");
 }
 
-void ImageBasedAverage::removeStep (ViewNumber::Enum viewNumber, size_t time)
+template<typename PropertySetter>
+void ImageBasedAverage<PropertySetter>::removeStep (ViewNumber::Enum viewNumber, size_t time)
 {
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
@@ -120,8 +127,8 @@ void ImageBasedAverage::removeStep (ViewNumber::Enum viewNumber, size_t time)
     WarnOnOpenGLError ("ImageBasedAverage::addStep");
 }
 
-
-void ImageBasedAverage::renderToStep (ViewNumber::Enum viewNumber, size_t time)
+template<typename PropertySetter>
+void ImageBasedAverage<PropertySetter>::renderToStep (ViewNumber::Enum viewNumber, size_t time)
 {
     G3D::Rect2D viewRect = GetGLWidget ().GetViewRect ();
     glPushMatrix ();
@@ -139,7 +146,8 @@ void ImageBasedAverage::renderToStep (ViewNumber::Enum viewNumber, size_t time)
     glPopMatrix ();
 }
 
-void ImageBasedAverage::addStepToCurrent (const G3D::Rect2D& viewRect)
+template<typename PropertySetter>
+void ImageBasedAverage<PropertySetter>::addStepToCurrent (const G3D::Rect2D& viewRect)
 {
     m_current->bind ();
     m_addShaderProgram->Bind ();
@@ -161,8 +169,8 @@ void ImageBasedAverage::addStepToCurrent (const G3D::Rect2D& viewRect)
     m_current->release ();
 }
 
-
-void ImageBasedAverage::removeStepFromCurrent (const G3D::Rect2D& viewRect)
+template<typename PropertySetter>
+void ImageBasedAverage<PropertySetter>::removeStepFromCurrent (const G3D::Rect2D& viewRect)
 {
     m_current->bind ();
     m_removeShaderProgram->Bind ();
@@ -184,8 +192,8 @@ void ImageBasedAverage::removeStepFromCurrent (const G3D::Rect2D& viewRect)
     m_current->release ();
 }
 
-
-void ImageBasedAverage::copyCurrentToPrevious ()
+template<typename PropertySetter>
+void ImageBasedAverage<PropertySetter>::copyCurrentToPrevious ()
 {
     QSize size = m_current->size ();
     QRect rect (QPoint (0, 0), size);
@@ -194,7 +202,8 @@ void ImageBasedAverage::copyCurrentToPrevious ()
 }
 
 // Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
-void ImageBasedAverage::clearColorBufferMinMax (
+template<typename PropertySetter>
+void ImageBasedAverage<PropertySetter>::clearColorBufferMinMax (
     const G3D::Rect2D& viewRect,
     const boost::scoped_ptr<QGLFramebufferObject>& fbo)
 {
@@ -225,7 +234,8 @@ void ImageBasedAverage::clearColorBufferMinMax (
     fbo->release ();
 }
 
-void ImageBasedAverage::Display (ViewNumber::Enum viewNumber, 
+template<typename PropertySetter>
+void ImageBasedAverage<PropertySetter>::Display (ViewNumber::Enum viewNumber, 
 			     StatisticsType::Enum displayType)
 {
     if (! m_current)
@@ -235,7 +245,8 @@ void ImageBasedAverage::Display (ViewNumber::Enum viewNumber,
     display (viewRect, minMax.first, minMax.second, displayType, *m_current);
 }
 
-void ImageBasedAverage::DisplayAndRotate (ViewNumber::Enum viewNumber,
+template<typename PropertySetter>
+void ImageBasedAverage<PropertySetter>::DisplayAndRotate (ViewNumber::Enum viewNumber,
 				      StatisticsType::Enum displayType, 
 				      G3D::Vector2 rotationCenter, 
 				      float angleDegrees)
@@ -249,8 +260,8 @@ void ImageBasedAverage::DisplayAndRotate (ViewNumber::Enum viewNumber,
 	rotationCenter, angleDegrees);
 }
 
-
-void ImageBasedAverage::save (
+template<typename PropertySetter>
+void ImageBasedAverage<PropertySetter>::save (
     const G3D::Rect2D& viewRect,
     QGLFramebufferObject& fbo, const char* postfix, size_t timeStep,
     GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
@@ -266,8 +277,8 @@ void ImageBasedAverage::save (
     m_debug->toImage ().save (ostr.str ().c_str ());    
 }
 
-
-void ImageBasedAverage::writeFacesValues (
+template<typename PropertySetter>
+void ImageBasedAverage<PropertySetter>::writeFacesValues (
     ViewNumber::Enum viewNumber, const Foam::Bodies& bodies)
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT |
@@ -284,23 +295,25 @@ void ImageBasedAverage::writeFacesValues (
 	GetGLWidget ().GetViewSettings (viewNumber).GetColorBarTexture ());
     for_each (
 	bodies.begin (), bodies.end (),
-	DisplayBody<DisplayFaceBodyPropertyColor<
-	SetterVertexAttribute>, SetterVertexAttribute> (
+	DisplayBody<DisplayFaceBodyPropertyColor<PropertySetter>,
+	PropertySetter> (
 	    GetGLWidget (), 
 	    GetGLWidget ().GetViewSettings (viewNumber).GetBodySelector (), 
-	    SetterVertexAttribute (
+	    PropertySetter (
 		GetGLWidget (), viewNumber, m_storeShaderProgram.get (),
-		m_storeShaderProgram->GetVValueIndex ()),
+		m_storeShaderProgram->GetVValueLocation ()),
 	    DisplayElement::INVISIBLE_CONTEXT));
     glPopAttrib ();
 }
 
-void ImageBasedAverage::glActiveTexture (GLenum texture) const
+template<typename PropertySetter>
+void ImageBasedAverage<PropertySetter>::glActiveTexture (GLenum texture) const
 {
     const_cast<GLWidget&>(GetGLWidget ()).glActiveTexture (texture);
 }
 
-pair<double, double> ImageBasedAverage::getStatisticsMinMax (
+template<typename PropertySetter>
+pair<double, double> ImageBasedAverage<PropertySetter>::getStatisticsMinMax (
     ViewNumber::Enum view) const
 {
     double minValue, maxValue;
@@ -319,3 +332,10 @@ pair<double, double> ImageBasedAverage::getStatisticsMinMax (
     }
     return pair<double, double> (minValue, maxValue);
 }
+
+// Template instantiations
+//======================================================================
+/// @cond
+template class ImageBasedAverage<SetterVertexAttribute>;
+template class ImageBasedAverage<SetterDeformationTensor>;
+/// @endcond

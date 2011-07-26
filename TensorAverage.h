@@ -10,6 +10,7 @@
 #define __TENSOR_AVERAGE_H__
 
 #include "ImageBasedAverage.h"
+#include "PropertySetter.h"
 
 /**
  * Calculate face average, min, max over a time window.
@@ -19,11 +20,11 @@
  * step = (m00, m10, m01, m11) or step = (0, 0, 0, 0) if there is no 
  * value for that pixel.
  */
-class TensorAverage : public ImageBasedAverage
+class TensorAverage : public ImageBasedAverage<SetterDeformationTensor>
 {
 public:
     TensorAverage (const GLWidget& glWidget) :
-    ImageBasedAverage (glWidget)
+	ImageBasedAverage<SetterDeformationTensor> (glWidget)
     {
     }
 

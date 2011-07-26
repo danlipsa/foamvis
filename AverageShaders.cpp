@@ -13,7 +13,7 @@
 StoreShaderProgram::StoreShaderProgram (const char* vert, const char* frag)
     : ShaderProgram (vert, frag)
 {
-    m_vValueIndex = attributeLocation("vValue");
+    m_vValueLocation = attributeLocation("vValue");
 }
 
 // AddShaderProgram

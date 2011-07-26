@@ -165,7 +165,7 @@ display (
     vector<boost::shared_ptr<OrientedFace> > v = b->GetOrientedFaces ();
     for_each (
 	v.begin (), v.end (),
-	displayFace(
+	displayFace (
 	    this->m_glWidget, this->m_propertySetter, bodyFc,
 	    this->m_useZPos, this->m_zPos));
 }
@@ -428,7 +428,8 @@ template class DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H1, Displa
 
 template class DisplayBody<DisplayFaceLineStripColor<0xff000000, SetterTextureCoordinate>, SetterTextureCoordinate>;
 
-
+template class DisplayBody<DisplayFaceBodyPropertyColor<SetterDeformationTensor>, SetterDeformationTensor>;
+template class DisplayBodyBase<SetterDeformationTensor>;
 
 // DisplayCenterPath
 // ======================================================================

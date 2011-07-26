@@ -41,35 +41,30 @@ public:
 	const GLWidget& glWidget,  ViewNumber::Enum view,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
 	SetterTextureCoordinate (glWidget, view),
-	m_program (program), m_attributeIndex (attributeIndex)
+	m_program (program), m_attributeLocation (attributeIndex)
     {
     }
 
     void operator () ();
     void operator () (const boost::shared_ptr<Body>& body);
 
-private:
+protected:
     QGLShaderProgram* m_program;
-    int m_attributeIndex;
+    int m_attributeLocation;
 };
 
-class SetterDeformationTensor : public SetterTextureCoordinate
+class SetterDeformationTensor : public SetterVertexAttribute
 {
 public:
     SetterDeformationTensor (
 	const GLWidget& glWidget,  ViewNumber::Enum view,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
-	SetterTextureCoordinate (glWidget, view),
-	m_program (program), m_attributeIndex (attributeIndex)
+	SetterVertexAttribute (glWidget, view, program, attributeIndex)
     {
     }
 
     void operator () ();
     void operator () (const boost::shared_ptr<Body>& body);
-
-private:
-    QGLShaderProgram* m_program;
-    int m_attributeIndex;
 };
 
 

@@ -15,12 +15,12 @@ class StoreShaderProgram : public ShaderProgram
 {
 public:
     StoreShaderProgram (const char* vert, const char* frag);
-    int GetVValueIndex () const
+    int GetVValueLocation () const
     {
-	return m_vValueIndex;
+	return m_vValueLocation;
     }
 private:
-    int m_vValueIndex;
+    int m_vValueLocation;
 };
 
 

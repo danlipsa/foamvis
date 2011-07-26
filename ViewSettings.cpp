@@ -14,6 +14,7 @@
 #include "ForceAverage.h"
 #include "Foam.h"
 #include "Utils.h"
+#include "TensorAverage.h"
 #include "ViewSettings.h"
 
 // Private Functions
@@ -47,8 +48,9 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_statisticsType (StatisticsType::AVERAGE),
     m_listCenterPaths (0),
     m_colorBarTexture (0),
-    m_displayFaceStatistics (new ScalarAverage (glWidget)),
-    m_displayForces (new ForceAverage (glWidget)),
+    m_scalarAverage (new ScalarAverage (glWidget)),
+    m_tensorAverage (new TensorAverage (glWidget)),
+    m_forceAverage (new ForceAverage (glWidget)),
     m_rotationModel (G3D::Matrix3::identity ()),
     m_scaleRatio (1),
     m_translation (G3D::Vector3::zero ()),

@@ -1,11 +1,17 @@
 <!DOCTYPE RCC><RCC version="1.0">
   <qresource>
-    <file>ScalarAdd.frag</file>
-    <file>ScalarRemove.frag</file>
+    <file>ScalarInit.frag</file>
     <file>ScalarStore.vert</file>
     <file>ScalarStore.frag</file>
-    <file>ScalarInit.frag</file>
+    <file>ScalarAdd.frag</file>
+    <file>ScalarRemove.frag</file>
     <file>ScalarDisplay.frag</file>
+
+    <file>TensorInit.frag</file>
+    <file>TensorStore.vert</file>
+    <file>TensorStore.frag</file>
+    <file>TensorAdd.frag</file>
+    <file>TensorRemove.frag</file>
   </qresource>
  </RCC>
 

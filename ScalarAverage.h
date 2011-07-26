@@ -10,6 +10,7 @@
 #define __SCALAR_AVERAGE_H__
 
 #include "ImageBasedAverage.h"
+#include "PropertySetter.h"
 
 /**
  * Calculate face average, min, max over a time window.
@@ -20,11 +21,11 @@
  * one step. step = (0, 0, maxFloat, -maxFloat) if there is no 
  * value for that pixel.
  */
-class ScalarAverage : public ImageBasedAverage
+class ScalarAverage : public ImageBasedAverage<SetterVertexAttribute>
 {
 public:
     ScalarAverage (const GLWidget& glWidget) :
-    ImageBasedAverage (glWidget)
+    ImageBasedAverage<SetterVertexAttribute> (glWidget)
     {
     }
 

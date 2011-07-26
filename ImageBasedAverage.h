@@ -34,6 +34,7 @@ class DisplayShaderProgram;
  * The reason for this type of implementation is that OpenGL cannot
  * read and write to the same buffer in the same step.
  */
+template<typename PropertySetter>
 class ImageBasedAverage : public Average
 {
 public:

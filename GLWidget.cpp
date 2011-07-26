@@ -29,6 +29,7 @@
 #include "OrientedEdge.h"
 #include "OrientedFace.h"
 #include "SelectBodiesById.h"
+#include "TensorAverage.h"
 #include "Utils.h"
 #include "Vertex.h"
 #include "ViewSettings.h"
@@ -445,6 +446,7 @@ void GLWidget::initViewSettings ()
     {
 	size_t timeSteps = GetFoamAlongTime ().GetTimeSteps ();
 	vs->GetScalarAverage ().SetTimeWindow (timeSteps);
+	vs->GetTensorAverage ().SetTimeWindow (timeSteps);
 	vs->GetForceAverage ().SetTimeWindow (timeSteps);
     }
     CurrentIndexChangedViewCount (ViewCount::ONE);
@@ -1113,14 +1115,22 @@ void GLWidget::ColorBarClampClear ()
 // Antialiasing, Fog and Polygon Offset page 293
 void GLWidget::initializeGL()
 {
-    initializeGLFunctions ();
-    glClearColor (Qt::white);
-    glEnable(GL_DEPTH_TEST);
-    glEnable (GL_MULTISAMPLE);
-    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    ScalarAverage::InitShaders ();
-    initializeLighting ();
-    WarnOnOpenGLError ("initializeGl");
+    try {
+	initializeGLFunctions ();
+	glClearColor (Qt::white);
+	glEnable(GL_DEPTH_TEST);
+	glEnable (GL_MULTISAMPLE);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	ScalarAverage::InitShaders ();
+	TensorAverage::InitShaders ();
+	initializeLighting ();
+	WarnOnOpenGLError ("initializeGl");
+    }
+    catch (const exception& e)
+    {
+	cdbg << "Exception: " << e.what () << endl;
+    }
+
 }
 
 void GLWidget::paintGL ()
@@ -1188,6 +1198,7 @@ void GLWidget::resizeGL(int w, int h)
 	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
 	{
 	    vs.GetScalarAverage ().InitStep (viewNumber);
+	    vs.GetTensorAverage ().InitStep (viewNumber);
 	    vs.GetForceAverage ().InitStep (viewNumber);
 	}
     }
@@ -2893,14 +2904,19 @@ void GLWidget::ButtonClickedViewType (int id)
     ViewType::Enum oldViewType = GetViewSettings ().GetViewType ();
     if (oldViewType == newViewType)
 	return;
+    ViewSettings& vs = GetViewSettings ();
     if (newViewType == ViewType::FACES_STATISTICS)
     {
 	ViewNumber::Enum vn = GetViewNumber ();
-	GetViewSettings ().GetScalarAverage ().InitStep (vn);
-	GetViewSettings ().GetForceAverage ().InitStep (vn);
+	vs.GetScalarAverage ().InitStep (vn);
+	vs.GetTensorAverage ().InitStep (vn);
+	vs.GetForceAverage ().InitStep (vn);
     }
     if (oldViewType == ViewType::FACES_STATISTICS)
-	GetViewSettings ().GetScalarAverage ().Release ();
+    {
+	vs.GetScalarAverage ().Release ();
+	vs.GetTensorAverage ().Release ();
+    }
     changeViewType (true, newViewType);
 }
 
@@ -3065,6 +3081,7 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
 	{
 	    vs.GetScalarAverage ().Step (view, direction);
+	    vs.GetTensorAverage ().Step (view, direction);
 	    vs.GetForceAverage ().Step (view, direction);
 	}
     }
@@ -3073,8 +3090,10 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 
 void GLWidget::ValueChangedStatisticsTimeWindow (int timeSteps)
 {
-    GetViewSettings ().GetScalarAverage ().SetTimeWindow (timeSteps);
-    GetViewSettings ().GetForceAverage ().SetTimeWindow (timeSteps);
+    ViewSettings& vs = GetViewSettings ();
+    vs.GetScalarAverage ().SetTimeWindow (timeSteps);
+    vs.GetTensorAverage ().SetTimeWindow (timeSteps);
+    vs.GetForceAverage ().SetTimeWindow (timeSteps);
 }
 
 void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
