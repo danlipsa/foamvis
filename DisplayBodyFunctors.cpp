@@ -193,8 +193,8 @@ DisplayCenterPath (
 		       this->m_glWidget.GetEdgeRadius ()),
      m_output (output),
      m_index (0)
- {
- }
+{
+}
 
 
  template<typename PropertySetter, typename DisplaySegment>
@@ -254,7 +254,7 @@ DisplayCenterPath (
 	 BodyProperty::Enum property = 
 	     this->m_propertySetter.GetBodyProperty ();
 	 bool deduced;
-	 bool exists = 
+	 bool exists = (! p.m_body->IsConstraint ()) &&
 	     p.m_body->ExistsPropertyValue (property, &deduced);
 	 if (exists && 
 	     (! deduced || 
