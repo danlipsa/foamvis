@@ -241,8 +241,10 @@ size_t Face::largestEdgeIndex () const
 
 G3D::Plane Face::GetPlane () const
 {
+    // faces at corners for ctrctn have 2 edges before edges on the constraint
+    // are added.
     size_t size = GetOrientedEdges ().size ();
-    size_t oneIndex = largestEdgeIndex ();
+    size_t oneIndex = (size == 2) ? 0 : largestEdgeIndex ();
     const OrientedEdge& one = GetOrientedEdge (oneIndex);    
     G3D::Vector3 oneVector = one.GetEndVector () - one.GetBeginVector ();
     size_t twoIndex = (oneIndex + 1) % size;
