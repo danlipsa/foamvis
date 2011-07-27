@@ -216,11 +216,10 @@ Release log
 	 - added right-click > Info > Face and Info > Edge
 	 - added --constraint option, to specify an object described
            with a constraint in the dmp file (for sedimenting_ellipse_odd).
-	   
-
 	 - deduce an object specified with a constraint (for sedimenting-discs)
 	 - added Show > Other > Body neighbors checkbox
-	 
+	 - allow CR,LF as line termination, fix bug for two_discs_c1_n2200_dumps
+
 0.5.2023 - fixed wetfoam_100_0002.dmp
 	 - added Actual Volume to the list of body properties, 
 	   Added 'General > Look > Volume shown' user option.
