@@ -146,6 +146,7 @@ private:
      * to the face
      */
     void calculateAxes (G3D::Vector3* x, G3D::Vector3* y, G3D::Vector3* z) const;
+    size_t largestEdgeIndex () const;
 
 private:
     /**

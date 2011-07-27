@@ -216,6 +216,8 @@ Release log
 	 - added right-click > Info > Face and Info > Edge
 	 - added --constraint option, to specify an object described
            with a constraint in the dmp file (for sedimenting_ellipse_odd).
+	   
+
 	 - deduce an object specified with a constraint (for sedimenting-discs)
 	 - added Show > Other > Body neighbors checkbox
 	 

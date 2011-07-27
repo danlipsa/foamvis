@@ -94,6 +94,8 @@ G3D::Vector3int16 OOBox::GetLocation (const G3D::Vector3& point) const
 {
     using G3D::Vector3int16;using G3D::Vector3;using G3D::Plane;
     Vector3int16 location;
+    RuntimeAssert (bm::isfinite (point.x) && bm::isfinite (point.y),
+		   "GetLocation: Infinite or NaN point");
     BOOST_FOREACH (PlaneTranslation pt, OOBox::PLANES)
     {
 	size_t axis = pt[2];

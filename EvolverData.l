@@ -29,7 +29,7 @@ ID    [a-zA-Z][a-zA-Z0-9_]*
 D     [0-9]
 H     [0-9A-Fa-f]
 E     [Ee][+-]?{D}+
-NEWLINE "\n"
+NEWLINE ("\n"|"\r\n")
 SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
 
 %%
@@ -69,6 +69,9 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
 		  }
 
 "//".*       /* eat comments */
+
+"\\"{NEWLINE} /* splice a line terminated in \ to the next line */
+
 
 [+-]?{D}+ { /* decimal integers */
     yylval->m_int = yyextra->ReadInteger (yytext, 10);
@@ -196,10 +199,6 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
     yylloc->begin.line = yylineno;
     return *yytext;
 }
-
-
-"\\\n"  /*ignore escaping of new lines*/
-
 
 
 {SPACENONEWLINE}*{NEWLINE}{SPACENONEWLINE}* {

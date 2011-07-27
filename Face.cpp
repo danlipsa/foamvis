@@ -222,10 +222,31 @@ void Face::calculateAxes (
     *y = z->cross (*x);
 }
 
+size_t Face::largestEdgeIndex () const
+{
+    size_t size = GetOrientedEdges ().size ();
+    size_t largestIndex = 0;
+    double largestLength = GetOrientedEdge (largestIndex).GetLength ();
+    for (size_t i = 1; i < size; ++i)
+    {
+	double edgeLength = GetOrientedEdge (i).GetLength ();
+	if (edgeLength > largestLength)
+	{
+	    largestIndex = i;
+	    largestLength = edgeLength;
+	}
+    }
+    return largestIndex;
+}
+
 G3D::Plane Face::GetPlane () const
 {
-    const OrientedEdge& one = GetOrientedEdge (0);
-    const OrientedEdge& two = GetOrientedEdge (1);
+    size_t size = GetOrientedEdges ().size ();
+    size_t oneIndex = largestEdgeIndex ();
+    const OrientedEdge& one = GetOrientedEdge (oneIndex);    
+    G3D::Vector3 oneVector = one.GetEndVector () - one.GetBeginVector ();
+    size_t twoIndex = (oneIndex + 1) % size;
+    const OrientedEdge& two = GetOrientedEdge (twoIndex);
     G3D::Plane plane (one.GetBeginVector (), two.GetBeginVector (), 
 		      two.GetEndVector ());
     return plane;
