@@ -212,14 +212,16 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
-0.5.     - added axes labels (Show > Ohter > Axes)
+0.5.62   - added axes labels (Show > Ohter > Axes)
 	 - added right-click > Info > Face and Info > Edge
 	 - added --constraint option, to specify an object described
            with a constraint in the dmp file (for sedimenting_ellipse_odd).
+         -if a bubble edge is on a constraint, The bubble neighbor for that
+           edge is determined through "reflection". See previous discussion from
+           12/07/11.
 	 - deduce an object specified with a constraint (for sedimenting-discs)
 	 - added Show > Other > Body neighbors checkbox
-	 - allow CR,LF as line termination, fix bug for two_discs_c1_n2200_dumps
-
+	 - allow CR,LF as line termination (for two_discs_c1_n2200_dumps)
 0.5.2023 - fixed wetfoam_100_0002.dmp
 	 - added Actual Volume to the list of body properties, 
 	   Added 'General > Look > Volume shown' user option.
