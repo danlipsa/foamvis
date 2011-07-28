@@ -212,7 +212,7 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
-0.5.62   - added axes labels (Show > Ohter > Axes)
+0.5.2062 - added axes labels (Show > Ohter > Axes)
 	 - added right-click > Info > Face and Info > Edge
 	 - added --constraint option, to specify an object described
            with a constraint in the dmp file (for sedimenting_ellipse_odd).

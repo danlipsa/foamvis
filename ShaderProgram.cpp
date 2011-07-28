@@ -1,5 +1,5 @@
 /**
- * @file   SharedProgram.h
+ * @file   SharedProgram.cpp
  * @author Dan R. Lipsa
  * @date  25 Jul. 2011
  *
