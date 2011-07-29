@@ -280,10 +280,10 @@ void Foam::CalculateBoundingBox ()
 	min_element, vertexSet, &low);
     CalculateAggregate <VertexSet, VertexSet::iterator, VertexLessThanAlong>()(
 	max_element, vertexSet, &high);
-    // I am not sure why I had this here.
-    // if (IsTorus ())
-    // calculateBoundingBoxForTorus (&low, &high);
     m_boundingBox.set(low, high);
+    if (IsTorus ())
+	calculateBoundingBoxWithOriginalDomain (&low, &high);
+    m_boundingBoxWithOriginalDomain.set (low, high);
 }
 
 void Foam::CalculatePerimeterOverArea ()
@@ -292,7 +292,7 @@ void Foam::CalculatePerimeterOverArea ()
 	      boost::bind (&Body::CalculatePerimeterOverSqrtArea, _1));
 }
 
-void Foam::calculateBoundingBoxForTorus (G3D::Vector3* low, G3D::Vector3* high)
+void Foam::calculateBoundingBoxWithOriginalDomain (G3D::Vector3* low, G3D::Vector3* high)
 {
     using boost::array;
     using G3D::Vector3;

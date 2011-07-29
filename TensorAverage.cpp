@@ -11,9 +11,7 @@
 #include "TensorAverage.h"
 #include "ShaderProgram.h"
 #include "OpenGLUtils.h"
-
-//#define RESOURCE(name) ":/" name
-#define RESOURCE(name) name
+#include "Utils.h"
 
 // Private classes/functions
 // ======================================================================
@@ -75,14 +73,7 @@ void TensorAverage::InitShaders ()
 }
 
 
-void TensorAverage::display (
-    const G3D::Rect2D& viewRect,
-    GLfloat minValue, GLfloat maxValue,
-    StatisticsType::Enum displayType, QGLFramebufferObject& srcFbo)
-{
-}
-
-void TensorAverage::displayAndRotate (
+void TensorAverage::rotateAndDisplay (
     const G3D::Rect2D& viewRect,
     GLfloat minValue, GLfloat maxValue,
     StatisticsType::Enum displayType, QGLFramebufferObject& srcFbo,

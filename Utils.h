@@ -145,6 +145,9 @@ QString ReadShader (const QString& resourceUrl);
 boost::shared_ptr<QGLShader> CreateShader (const QString& resourceUrl,
 					   QGLShader::ShaderType type);
 
+//#define RESOURCE(name) ":/" name
+#define RESOURCE(name) name
+
 #endif //__UTILS_H__
 
 // Local Variables:

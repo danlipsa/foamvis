@@ -307,33 +307,7 @@ void DisplayBox (const G3D::Rect2D& rect)
 }
 
 // Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
-void RenderFromFbo (G3D::Rect2D destRect, QGLFramebufferObject& srcFbo)
-{
-    glPushAttrib (GL_ENABLE_BIT | GL_VIEWPORT_BIT);
-    glEnable (GL_TEXTURE_2D);
-    glBindTexture (GL_TEXTURE_2D, srcFbo.texture ());
-    glViewport (destRect.x0 (), destRect.y0 (),
-		destRect.width (), destRect.height ());
-
-    //glMatrixMode (GL_MODELVIEW);
-    glPushMatrix ();
-    glLoadIdentity ();
-    glMatrixMode (GL_PROJECTION);
-    glPushMatrix ();
-    glLoadIdentity ();
-    glBegin (GL_QUADS);
-    glTexCoord2i (0, 0);glVertex3i (-1, -1, -1);
-    glTexCoord2i (1, 0);glVertex3i (1, -1, -1);
-    glTexCoord2i (1, 1);glVertex3i (1, 1, -1);
-    glTexCoord2i (0, 1);glVertex3i (-1, 1, -1);
-    glEnd ();
-    glPopMatrix ();
-    glMatrixMode (GL_MODELVIEW);
-    glPopMatrix ();
-    glPopAttrib ();
-}
-
-void RenderFromFboAndRotate (
+void RotateAndRenderFromFbo (
     G3D::Rect2D destRect, QGLFramebufferObject& srcFbo,
     G3D::Vector2 rotationCenter, float angleDegrees)
 {
@@ -355,7 +329,7 @@ void RenderFromFboAndRotate (
     glMatrixMode (GL_PROJECTION);
     glPushMatrix ();
     glLoadIdentity ();
-    glOrtho (0, destRect.width (), 0, destRect.height (), -1, 1);
+    glOrtho (0, destRect.width ()-1, 0, destRect.height ()-1, -1, 1);
     glBegin (GL_QUADS);
     glTexCoord2i (0, 0);
     glVertex2i (0, 0);

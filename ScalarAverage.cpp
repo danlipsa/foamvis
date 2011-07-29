@@ -11,10 +11,7 @@
 #include "ScalarAverage.h"
 #include "ShaderProgram.h"
 #include "OpenGLUtils.h"
-
-//#define RESOURCE(name) ":/" name
-#define RESOURCE(name) name
-
+#include "Utils.h"
 
 // Private classes/functions
 // ======================================================================
@@ -93,19 +90,7 @@ void ScalarAverage::InitShaders ()
 }
 
 
-void ScalarAverage::display (
-    const G3D::Rect2D& viewRect,
-    GLfloat minValue, GLfloat maxValue,
-    StatisticsType::Enum displayType, QGLFramebufferObject& srcFbo)
-{
-    m_displayShaderProgram->Bind (minValue, maxValue, displayType);
-    glActiveTexture (TextureEnum (m_displayShaderProgram->GetResultTexUnit ()));
-    RenderFromFbo (viewRect, srcFbo);
-    glActiveTexture (GL_TEXTURE0);
-    m_displayShaderProgram->release ();
-}
-
-void ScalarAverage::displayAndRotate (
+void ScalarAverage::rotateAndDisplay (
     const G3D::Rect2D& viewRect,
     GLfloat minValue, GLfloat maxValue,
     StatisticsType::Enum displayType, QGLFramebufferObject& srcFbo,
@@ -113,7 +98,7 @@ void ScalarAverage::displayAndRotate (
 {
     m_displayShaderProgram->Bind (minValue, maxValue, displayType);
     glActiveTexture (TextureEnum (m_displayShaderProgram->GetResultTexUnit ()));
-    RenderFromFboAndRotate (viewRect, srcFbo, 
+    RotateAndRenderFromFbo (viewRect, srcFbo, 
 			    rotationCenter, angleDegrees);
     glActiveTexture (GL_TEXTURE0);
     m_displayShaderProgram->release ();

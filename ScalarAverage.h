@@ -33,14 +33,11 @@ public:
     static void InitShaders ();
 
 protected:
-    virtual void display (
-	const G3D::Rect2D& viewRect, 
-	GLfloat minValue, GLfloat maxValue,
-	StatisticsType::Enum displayType, QGLFramebufferObject& srcFbo);
-    virtual void displayAndRotate (
+    virtual void rotateAndDisplay (
 	const G3D::Rect2D& viewRect, GLfloat minValue, GLfloat maxValue,
 	StatisticsType::Enum displayType, QGLFramebufferObject& fbo,
-	G3D::Vector2 rotationCenter, float angleDegrees);
+	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
+	float angleDegrees = 0);
 
 private:
     static boost::shared_ptr<ScalarDisplay> m_displayShaderProgram;

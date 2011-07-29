@@ -116,10 +116,9 @@ void DisplayBox (
     DisplayBox (o.GetBoundingBox (), color, lineWidth);
 }
 
-void RenderFromFbo (G3D::Rect2D viewRect, QGLFramebufferObject& fbo);
-void RenderFromFboAndRotate (
+void RotateAndRenderFromFbo (
     G3D::Rect2D viewRect, QGLFramebufferObject& fbo,
-    G3D::Vector2 rotationCenter, float angleDegrees);
+    G3D::Vector2 rotationCenter = G3D::Vector2::zero (), float angleDegrees = 0);
 
 void ClearColorBuffer (Qt::GlobalColor clearColor);
 void ClearColorStencilBuffers (

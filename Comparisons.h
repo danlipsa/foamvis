@@ -134,13 +134,13 @@ public:
 };
 
 
-typedef const G3D::Vector3& (G3D::AABox::*BoxCorner) () const;
-
-
 template <typename BBObject>
 class BBObjectLessThanAlong
 {
 public:
+    typedef const G3D::Vector3& (G3D::AABox::*BoxCorner) () const;
+    typedef boost::function<G3D::AABox (const BBObject& object)> GetAABox;
+
     /**
      * Constructor
      * @param axis along which axis to compare
@@ -183,6 +183,7 @@ private:
      * What corner of the AABox to compare
      */
     BoxCorner m_corner;
+    GetAABox m_getAABox;
 };
 
 template<typename BBObject>

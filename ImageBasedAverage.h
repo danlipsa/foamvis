@@ -42,24 +42,20 @@ public:
     {
     }
     void Release ();
-    void Display (ViewNumber::Enum viewNumber, 
-		  StatisticsType::Enum displayType);
-    void DisplayAndRotate (
+    void RotateAndDisplay (
 	ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
-	G3D::Vector2 rotationCenter, float angleDegrees);
+	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
+	float angleDegrees = 0);
 
 protected:
     virtual void init (ViewNumber::Enum viewNumber);
     virtual void addStep (ViewNumber::Enum viewNumber, size_t timeStep);
     virtual void removeStep (ViewNumber::Enum viewNumber, size_t timeStep);
-    virtual void display (
-	const G3D::Rect2D& viewRect, 
-	GLfloat minValue, GLfloat maxValue,
-	StatisticsType::Enum displayType, QGLFramebufferObject& srcFbo) = 0;
-    virtual void displayAndRotate (
+    virtual void rotateAndDisplay (
 	const G3D::Rect2D& viewRect, GLfloat minValue, GLfloat maxValue,
 	StatisticsType::Enum displayType, QGLFramebufferObject& fbo,
-	G3D::Vector2 rotationCenter, float angleDegrees) = 0;
+	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
+	float angleDegrees = 0) = 0;
     void glActiveTexture (GLenum texture) const;
 
     static boost::shared_ptr<ShaderProgram> m_initShaderProgram;

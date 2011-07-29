@@ -152,6 +152,12 @@ public:
     {
 	return m_boundingBox;
     }
+    const G3D::AABox& GetBoundingBoxWithOriginalDomain () const
+    {
+	return m_boundingBoxWithOriginalDomain;
+    }
+    
+
     /**
      * Compares the low element of two data objects on the X,Y or Z axes
      * @return  true if  the  first  object is  less  than the  second
@@ -326,7 +332,7 @@ private:
      * @params low low point of the aabox for the Foam (input/output)
      * @params high high point of the aabox for the foam (input/output)
      */
-    void calculateBoundingBoxForTorus (G3D::Vector3* low, G3D::Vector3* high);
+    void calculateBoundingBoxWithOriginalDomain (G3D::Vector3* low, G3D::Vector3* high);
     void calculateMinMaxStatistics (BodyProperty::Enum property);
 
     void unwrap (VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
@@ -378,6 +384,7 @@ private:
      * The axially aligned bounding box for all vertices.
      */
     G3D::AABox m_boundingBox;
+    G3D::AABox m_boundingBoxWithOriginalDomain;
     size_t m_spaceDimension;
     bool m_quadratic;
     double m_min[BodyProperty::PROPERTY_END];

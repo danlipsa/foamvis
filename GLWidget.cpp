@@ -2127,6 +2127,8 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
     bool adjustForContextStationaryFoam = 
 	(GetViewSettings (viewNumber).GetContextStationaryType () == 
 	 ViewSettings::CONTEXT_AVERAGE_AROUND_FOAM);
+    G3D::Vector2 rotationCenter;
+    float angleDegrees = 0;
     if (adjustForContextStationaryFoam)
     {
 	const ConstraintRotation& rotationBegin = GetFoamAlongTime ().
@@ -2134,19 +2136,13 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
 	const ConstraintRotation& rotationCurrent = GetFoamAlongTime ().
 	    GetFoam (GetTime ()).GetConstraintRotation ();
 	G3D::Vector3 rc = G3D::Vector3 (rotationBegin.m_center, 0.0);
-	G3D::Vector2 rotationCenter = gluProject (rc).xy ();
+	rotationCenter = gluProject (rc).xy ();
 	rotationCenter -= vs.GetViewport ().x0y0 ();
-	float angleDegrees = G3D::toDegrees (
+	angleDegrees = G3D::toDegrees (
 	    rotationCurrent.m_angle - rotationBegin.m_angle);
-	vs.GetScalarAverage ().DisplayAndRotate (
-	    viewNumber, vs.GetStatisticsType (),
-	    rotationCenter, - angleDegrees);
     }
-    else
-    {
-	vs.GetScalarAverage ().Display (
-	    viewNumber, vs.GetStatisticsType ());
-    }
+    vs.GetScalarAverage ().RotateAndDisplay (
+	viewNumber, vs.GetStatisticsType (), rotationCenter, - angleDegrees);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
     displayAverageAroundBody (viewNumber);
     displayAverageAroundConstraint (viewNumber, adjustForContextStationaryFoam);
