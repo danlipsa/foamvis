@@ -280,8 +280,9 @@ void Foam::CalculateBoundingBox ()
 	min_element, vertexSet, &low);
     CalculateAggregate <VertexSet, VertexSet::iterator, VertexLessThanAlong>()(
 	max_element, vertexSet, &high);
-    if (IsTorus ())
-	calculateBoundingBoxForTorus (&low, &high);
+    // I am not sure why I had this here.
+    // if (IsTorus ())
+    // calculateBoundingBoxForTorus (&low, &high);
     m_boundingBox.set(low, high);
 }
 

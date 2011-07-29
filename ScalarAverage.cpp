@@ -12,18 +12,22 @@
 #include "ShaderProgram.h"
 #include "OpenGLUtils.h"
 
+//#define RESOURCE(name) ":/" name
+#define RESOURCE(name) name
+
+
 // Private classes/functions
 // ======================================================================
 
-// DisplayShaderProgram
+// ScalarDisplay
 // ======================================================================
 /**
  * RGBA : sum, count, min, max
  */
-class DisplayShaderProgram : public ShaderProgram
+class ScalarDisplay : public ShaderProgram
 {
 public:
-    DisplayShaderProgram (const char* frag);
+    ScalarDisplay (const char* frag);
     void Bind (GLfloat minValue, GLfloat maxValue,
 	       StatisticsType::Enum displayType);
 
@@ -45,7 +49,7 @@ private:
     int m_resultTexUnitIndex;
 };
 
-DisplayShaderProgram::DisplayShaderProgram (const char* frag) :
+ScalarDisplay::ScalarDisplay (const char* frag) :
     ShaderProgram (0, frag)
 {
     m_displayTypeIndex = uniformLocation ("displayType");
@@ -55,7 +59,7 @@ DisplayShaderProgram::DisplayShaderProgram (const char* frag) :
     m_resultTexUnitIndex = uniformLocation("resultTexUnit");
 }
 
-void DisplayShaderProgram::Bind (GLfloat minValue, GLfloat maxValue,
+void ScalarDisplay::Bind (GLfloat minValue, GLfloat maxValue,
 				 StatisticsType::Enum displayType)
 {
     ShaderProgram::Bind ();
@@ -71,17 +75,21 @@ void DisplayShaderProgram::Bind (GLfloat minValue, GLfloat maxValue,
 // ScalarAverage Methods
 // ======================================================================
 
-boost::shared_ptr<DisplayShaderProgram> ScalarAverage::m_displayShaderProgram;
+boost::shared_ptr<ScalarDisplay> ScalarAverage::m_displayShaderProgram;
 
 void ScalarAverage::InitShaders ()
 {
-    m_initShaderProgram.reset (new ShaderProgram (0, ":/ScalarInit.frag"));
+    m_initShaderProgram.reset (
+	new ShaderProgram (0, RESOURCE("ScalarInit.frag")));
     m_storeShaderProgram.reset (
-	new StoreShaderProgram (":/ScalarStore.vert", ":/ScalarStore.frag"));
-    m_addShaderProgram.reset (new AddShaderProgram (":/ScalarAdd.frag"));
-    m_removeShaderProgram.reset (new AddShaderProgram (":/ScalarRemove.frag"));
+	new StoreShaderProgram (
+	    RESOURCE("ScalarStore.vert"), RESOURCE("ScalarStore.frag")));
+    m_addShaderProgram.reset (
+	new AddShaderProgram (RESOURCE("ScalarAdd.frag")));
+    m_removeShaderProgram.reset (
+	new AddShaderProgram (RESOURCE("ScalarRemove.frag")));
     m_displayShaderProgram.reset (
-	new DisplayShaderProgram (":/ScalarDisplay.frag"));
+	new ScalarDisplay (RESOURCE("ScalarDisplay.frag")));
 }
 
 

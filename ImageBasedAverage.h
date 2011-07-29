@@ -19,7 +19,6 @@ class GLWidget;
 class ShaderProgram;
 class AddShaderProgram;
 class StoreShaderProgram;
-class DisplayShaderProgram;
 
 
 /**

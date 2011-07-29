@@ -11,6 +11,7 @@
 
 #include "ImageBasedAverage.h"
 #include "PropertySetter.h"
+class TensorDisplay;
 
 /**
  * Calculate face average, min, max over a time window.
@@ -39,6 +40,8 @@ protected:
 	const G3D::Rect2D& viewRect, GLfloat minValue, GLfloat maxValue,
 	StatisticsType::Enum displayType, QGLFramebufferObject& fbo,
 	G3D::Vector2 rotationCenter, float angleDegrees);
+private:
+    static boost::shared_ptr<TensorDisplay> m_displayShaderProgram;
 };
 
 #endif //__TENSOR_AVERAGE_H__

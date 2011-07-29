@@ -1,9 +1,14 @@
-// this should match StatisticsType::Enum order
-// displayType values: 0=average, 1=min, 2=max, 3=count
+/*
+ * Displays a color-mapped scalar average, min, max or count.
+ */
+
+// This should match StatisticsType::Enum
+// displayType possible values: 0=average, 1=min, 2=max, 3=count
 uniform int displayType;
 uniform float minValue;
 uniform float maxValue;
 uniform sampler1D colorBarTexUnit;
+// RGBA: sum, count, min, max
 uniform sampler2D resultTexUnit;
 
 void main(void)

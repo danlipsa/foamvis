@@ -186,8 +186,7 @@ private:
 };
 
 template<typename BBObject>
-class BBObjectLessThanAlongLow : 
-    public BBObjectLessThanAlong<BBObject>
+class BBObjectLessThanAlongLow : public BBObjectLessThanAlong<BBObject>
 {
 public:
     BBObjectLessThanAlongLow (G3D::Vector3::Axis axis) :
@@ -197,8 +196,7 @@ public:
 };
 
 template<typename BBObject>
-class BBObjectLessThanAlongHigh : 
-    public BBObjectLessThanAlong<BBObject>
+class BBObjectLessThanAlongHigh : public BBObjectLessThanAlong<BBObject>
 {
 public:
     BBObjectLessThanAlongHigh (G3D::Vector3::Axis axis) :

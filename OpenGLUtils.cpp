@@ -357,11 +357,17 @@ void RenderFromFboAndRotate (
     glLoadIdentity ();
     glOrtho (0, destRect.width (), 0, destRect.height (), -1, 1);
     glBegin (GL_QUADS);
-    glTexCoord2i (0, 0);glVertex2i (0, 0);
-    glTexCoord2i (1, 0);glVertex2i (destRect.width () - 1, 0);
-    glTexCoord2i (1, 1);glVertex2i (
-	destRect.width () - 1, destRect.height () - 1);
-    glTexCoord2i (0, 1);glVertex2i (0, destRect.height () - 1);
+    glTexCoord2i (0, 0);
+    glVertex2i (0, 0);
+
+    glTexCoord2i (1, 0);
+    glVertex2i (destRect.width () - 1, 0);
+
+    glTexCoord2i (1, 1);
+    glVertex2i (destRect.width () - 1, destRect.height () - 1);
+    
+    glTexCoord2i (0, 1);
+    glVertex2i (0, destRect.height () - 1);
     glEnd ();
     glPopMatrix ();
     glMatrixMode (GL_MODELVIEW);

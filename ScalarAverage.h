@@ -11,6 +11,7 @@
 
 #include "ImageBasedAverage.h"
 #include "PropertySetter.h"
+class ScalarDisplay;
 
 /**
  * Calculate face average, min, max over a time window.
@@ -42,7 +43,7 @@ protected:
 	G3D::Vector2 rotationCenter, float angleDegrees);
 
 private:
-    static boost::shared_ptr<DisplayShaderProgram> m_displayShaderProgram;
+    static boost::shared_ptr<ScalarDisplay> m_displayShaderProgram;
 };
 
 #endif //__SCALAR_AVERAGE_H__
