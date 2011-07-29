@@ -152,9 +152,9 @@ public:
     {
 	return m_boundingBox;
     }
-    const G3D::AABox& GetBoundingBoxWithOriginalDomain () const
+    const G3D::AABox& GetBoundingBoxTorus () const
     {
-	return m_boundingBoxWithOriginalDomain;
+	return m_boundingBoxTorus;
     }
     
 
@@ -332,7 +332,7 @@ private:
      * @params low low point of the aabox for the Foam (input/output)
      * @params high high point of the aabox for the foam (input/output)
      */
-    void calculateBoundingBoxWithOriginalDomain (G3D::Vector3* low, G3D::Vector3* high);
+    void calculateBoundingBoxTorus (G3D::Vector3* low, G3D::Vector3* high);
     void calculateMinMaxStatistics (BodyProperty::Enum property);
 
     void unwrap (VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
@@ -384,7 +384,7 @@ private:
      * The axially aligned bounding box for all vertices.
      */
     G3D::AABox m_boundingBox;
-    G3D::AABox m_boundingBoxWithOriginalDomain;
+    G3D::AABox m_boundingBoxTorus;
     size_t m_spaceDimension;
     bool m_quadratic;
     double m_min[BodyProperty::PROPERTY_END];

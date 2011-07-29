@@ -282,8 +282,8 @@ void Foam::CalculateBoundingBox ()
 	max_element, vertexSet, &high);
     m_boundingBox.set(low, high);
     if (IsTorus ())
-	calculateBoundingBoxWithOriginalDomain (&low, &high);
-    m_boundingBoxWithOriginalDomain.set (low, high);
+	calculateBoundingBoxTorus (&low, &high);
+    m_boundingBoxTorus.set (low, high);
 }
 
 void Foam::CalculatePerimeterOverArea ()
@@ -292,7 +292,7 @@ void Foam::CalculatePerimeterOverArea ()
 	      boost::bind (&Body::CalculatePerimeterOverSqrtArea, _1));
 }
 
-void Foam::calculateBoundingBoxWithOriginalDomain (G3D::Vector3* low, G3D::Vector3* high)
+void Foam::calculateBoundingBoxTorus (G3D::Vector3* low, G3D::Vector3* high)
 {
     using boost::array;
     using G3D::Vector3;

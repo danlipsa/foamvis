@@ -43,6 +43,11 @@ public:
     {
 	return m_boundingBox;
     }
+    const G3D::AABox& GetBoundingBoxTorus () const
+    {
+	return m_boundingBoxTorus;
+    }
+
     BodiesAlongTime& GetBodiesAlongTime ()
     {
 	return m_bodiesAlongTime;
@@ -216,6 +221,7 @@ private:
      * The AABox for this vector of Foam objects
      */
     G3D::AABox m_boundingBox;
+    G3D::AABox m_boundingBoxTorus;
     string m_filePattern;
     vector<HistogramStatistics> m_histogram;
     bool m_adjustPressure;

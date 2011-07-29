@@ -620,7 +620,7 @@ void GLWidget::initializeLighting ()
 G3D::AABox GLWidget::calculateCenteredViewingVolume (
     double xOverY, double scaleRatio) const
 {
-    G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
+    G3D::AABox bb = GetFoamAlongTime ().GetBoundingBoxTorus ();
     G3D::AABox vv = AdjustZ (AdjustXOverYRatio (EncloseRotation (bb), xOverY), 
 			     scaleRatio);
     return vv - vv.center ();
@@ -637,7 +637,7 @@ void GLWidget::translateAndScale (
     // if 2D, the back plane stays in the same place
     if (GetFoamAlongTime ().Is2D () && ! IsTimeDisplacementUsed ())
     {
-	G3D::AABox boundingBox = GetFoamAlongTime ().GetBoundingBox ();
+	G3D::AABox boundingBox = GetFoamAlongTime ().GetBoundingBoxTorus ();
 	float zTranslation = boundingBox.center ().z - boundingBox.low ().z;
 	zTranslation = zTranslation - zTranslation / scaleRatio;
 	glTranslatef (0, 0, zTranslation);
@@ -694,17 +694,17 @@ void GLWidget::transformFoamStationary (
 				      FindBody (id))->GetCenter ();
 	G3D::Vector3 translation = centerBegin - centerCurrent;
 	glTranslate (translation);
-	glTranslate (-GetFoamAlongTime ().GetBoundingBox ().center ());
+	glTranslate (-GetFoamAlongTime ().GetBoundingBoxTorus ().center ());
 	break;
     }
     case ViewSettings::AVERAGE_AROUND_ROTATION:
     {
-	glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
+	glTranslate (- GetFoamAlongTime ().GetBoundingBoxTorus ().center ());
 	rotateAverageAround (timeStep, 1);
 	break;
     }
     default:
-	glTranslate (- GetFoamAlongTime ().GetBoundingBox ().center ());
+	glTranslate (- GetFoamAlongTime ().GetBoundingBoxTorus ().center ());
 	break;
     }
 }
@@ -1799,7 +1799,7 @@ void GLWidget::displayAxes ()
 	ostr << setprecision (4);
 	glPushAttrib (GL_CURRENT_BIT);
 	using G3D::Vector3;
-	const G3D::AABox& aabb = GetFoamAlongTime ().GetBoundingBox ();
+	const G3D::AABox& aabb = GetFoamAlongTime ().GetBoundingBoxTorus ();
 	Vector3 origin = aabb.low ();
 	Vector3 diagonal = aabb.high () - origin;
 	Vector3 first = origin + diagonal.x * Vector3::unitX ();
@@ -3096,7 +3096,7 @@ void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
 {
     QSlider* slider = static_cast<QSlider*> (sender ());
     size_t maximum = slider->maximum ();
-    G3D::AABox bb = GetFoamAlongTime ().GetBoundingBox ();
+    G3D::AABox bb = GetFoamAlongTime ().GetBoundingBoxTorus ();
     m_timeDisplacement =
 	(bb.high () - bb.low ()).z * timeDisplacement /
 	GetFoamAlongTime ().GetTimeSteps () / maximum;

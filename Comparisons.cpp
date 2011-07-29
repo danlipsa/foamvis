@@ -99,15 +99,14 @@ bool BBObjectLessThanAlong<BBObject>::operator() (
     const BBObject& first, const BBObject& second)
 {
     return 
-	(first.GetBoundingBox ().*m_corner) ()[m_axis] < 
-	(second.GetBoundingBox ().*m_corner) ()[m_axis];
+	(m_getAABox (first).*m_corner) ()[m_axis] < 
+	(m_getAABox (second).*m_corner) ()[m_axis];
 }
 
 template <typename BBObject>
-double BBObjectLessThanAlong<BBObject>::operator() (
-    const BBObject& x)
+double BBObjectLessThanAlong<BBObject>::operator() (const BBObject& x)
 {
-    return (x.GetBoundingBox ().*m_corner) ()[m_axis];
+    return (m_getAABox (x).*m_corner) ()[m_axis];
 }
 
 

@@ -149,6 +149,12 @@ void FoamAlongTime::CalculateBoundingBox ()
     CalculateAggregate<Foams, Foams::iterator, 
         BBObjectLessThanAlongHigh<Foam> > () (max_element, m_foams, &high);
     m_boundingBox.set (low, high);
+
+    CalculateAggregate<Foams, Foams::iterator, 
+        BBObjectLessThanAlongLowTorus<Foam> > () (min_element, m_foams, &low);
+    CalculateAggregate<Foams, Foams::iterator, 
+        BBObjectLessThanAlongHighTorus<Foam> > () (max_element, m_foams, &high);
+    m_boundingBoxTorus.set (low, high);
 }
 
 void FoamAlongTime::calculateBodyWraps ()

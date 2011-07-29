@@ -146,8 +146,10 @@ public:
      * @param axis along which axis to compare
      * @param corner which corner of the AABox to compare
      */
-    BBObjectLessThanAlong (G3D::Vector3::Axis axis, BoxCorner corner) : 
-    m_axis (axis), m_corner(corner) {}
+    BBObjectLessThanAlong (G3D::Vector3::Axis axis, BoxCorner corner,
+			   GetAABox getAABox) : 
+	m_axis (axis), m_corner(corner), m_getAABox (getAABox)
+    {}
     /**
      * Functor that compares two data objects
      * @param first first data object
@@ -191,17 +193,46 @@ class BBObjectLessThanAlongLow : public BBObjectLessThanAlong<BBObject>
 {
 public:
     BBObjectLessThanAlongLow (G3D::Vector3::Axis axis) :
-	BBObjectLessThanAlong<BBObject> (axis, &G3D::AABox::low)
+	BBObjectLessThanAlong<BBObject> (
+	    axis, &G3D::AABox::low, 
+	    boost::bind (&BBObject::GetBoundingBox, _1))
     {
     }
 };
+
+template<typename BBObject>
+class BBObjectLessThanAlongLowTorus : public BBObjectLessThanAlong<BBObject>
+{
+public:
+    BBObjectLessThanAlongLowTorus (G3D::Vector3::Axis axis) :
+	BBObjectLessThanAlong<BBObject> (
+	    axis, &G3D::AABox::low,
+	    boost::bind (&BBObject::GetBoundingBoxTorus, _1))
+    {
+    }
+};
+
 
 template<typename BBObject>
 class BBObjectLessThanAlongHigh : public BBObjectLessThanAlong<BBObject>
 {
 public:
     BBObjectLessThanAlongHigh (G3D::Vector3::Axis axis) :
-	BBObjectLessThanAlong<BBObject> (axis, &G3D::AABox::high)
+	BBObjectLessThanAlong<BBObject> (
+	    axis, &G3D::AABox::high,
+	    boost::bind (&BBObject::GetBoundingBox, _1))
+    {
+    }
+};
+
+template<typename BBObject>
+class BBObjectLessThanAlongHighTorus : public BBObjectLessThanAlong<BBObject>
+{
+public:
+    BBObjectLessThanAlongHighTorus (G3D::Vector3::Axis axis) :
+	BBObjectLessThanAlong<BBObject> (
+	    axis, &G3D::AABox::high,
+	    boost::bind (&BBObject::GetBoundingBoxTorus, _1))
     {
     }
 };
