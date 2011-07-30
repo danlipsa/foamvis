@@ -116,9 +116,13 @@ void DisplayBox (
     DisplayBox (o.GetBoundingBox (), color, lineWidth);
 }
 
-void RotateAndRenderFromFbo (
-    G3D::Rect2D viewRect, QGLFramebufferObject& fbo,
-    G3D::Vector2 rotationCenter = G3D::Vector2::zero (), float angleDegrees = 0);
+/**
+ * Draw a quad over destRect. If angleDegrees != 0, rotate the quad first 
+ * and then draw it.
+ */
+void ActivateShader (
+    G3D::Rect2D destRect, G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
+    float angleDegrees = 0);
 
 void ClearColorBuffer (Qt::GlobalColor clearColor);
 void ClearColorStencilBuffers (

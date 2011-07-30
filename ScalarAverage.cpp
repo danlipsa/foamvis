@@ -97,9 +97,12 @@ void ScalarAverage::rotateAndDisplay (
     G3D::Vector2 rotationCenter, float angleDegrees)
 {
     m_displayShaderProgram->Bind (minValue, maxValue, displayType);
+    // activate texture unit 1
     glActiveTexture (TextureEnum (m_displayShaderProgram->GetResultTexUnit ()));
-    RotateAndRenderFromFbo (viewRect, srcFbo, 
-			    rotationCenter, angleDegrees);
+    glBindTexture (GL_TEXTURE_2D, srcFbo.texture ());
+
+    ActivateShader (viewRect, rotationCenter, angleDegrees);
+    // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
     m_displayShaderProgram->release ();
 }

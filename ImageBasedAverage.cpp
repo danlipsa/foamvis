@@ -137,15 +137,16 @@ void ImageBasedAverage<PropertySetter>::renderToStep (
     ViewNumber::Enum viewNumber, size_t time)
 {
     G3D::Rect2D viewRect = GetGLWidget ().GetViewRect ();
+    //glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
     GetGLWidget ().ModelViewTransform (viewNumber, time);
     glViewport (0, 0, viewRect.width (), viewRect.height ());
     clearColorBufferMinMax (viewRect, m_step);
     m_step->bind ();
     ClearColorStencilBuffers (Qt::black, 0);
-    m_storeShaderProgram->Bind ();
     const Foam& foam = GetGLWidget ().GetFoamAlongTime ().GetFoam (time);
     const Foam::Bodies& bodies = foam.GetBodies ();
+    m_storeShaderProgram->Bind ();
     writeFacesValues (viewNumber, bodies);
     m_storeShaderProgram->release ();
     m_step->release ();
@@ -159,19 +160,19 @@ void ImageBasedAverage<PropertySetter>::addStepToCurrent (
     m_current->bind ();
     m_addShaderProgram->Bind ();
 
-    // bind previous texture
+    // activate texture unit 1
     glActiveTexture (TextureEnum (m_addShaderProgram->GetPreviousTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, m_previous->texture ());
 
-    // bind step texture
+    // activate texture unit 2
     glActiveTexture (TextureEnum (m_addShaderProgram->GetStepTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, m_step->texture ());
-    // set the active texture to texture 0
+    
+    // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
 
-    RotateAndRenderFromFbo (
-	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()), 
-	*m_step);
+    ActivateShader (
+	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()));
     m_addShaderProgram->release ();
     m_current->release ();
 }
@@ -183,19 +184,19 @@ void ImageBasedAverage<PropertySetter>::removeStepFromCurrent (
     m_current->bind ();
     m_removeShaderProgram->Bind ();
 
-    // bind previous texture
-    glActiveTexture (TextureEnum (m_removeShaderProgram->GetPreviousTexUnit ()));
+    // activate texture unit 1
+    glActiveTexture (
+	TextureEnum (m_removeShaderProgram->GetPreviousTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, m_previous->texture ());
 
-    // bind step texture
+    // activate texture unit 2
     glActiveTexture (TextureEnum (m_removeShaderProgram->GetStepTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, m_step->texture ());
-    // set the active texture to texture 0
-    glActiveTexture (GL_TEXTURE0);
 
-    RotateAndRenderFromFbo (
-	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()),
-	*m_step);
+    // activate texture unit 0
+    glActiveTexture (GL_TEXTURE0);
+    ActivateShader (
+	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()));
     m_removeShaderProgram->release ();
     m_current->release ();
 }

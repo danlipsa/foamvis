@@ -130,7 +130,8 @@ class OrientedFaceIndexLessThan
 {
 public:
     bool operator () (
-	const AdjacentOrientedFace& first, const AdjacentOrientedFace& second) const;
+	const AdjacentOrientedFace& first, 
+	const AdjacentOrientedFace& second) const;
 };
 
 

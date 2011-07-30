@@ -761,7 +761,6 @@ void GLWidget::projectionTransform (ViewNumber::Enum viewNumber) const
 		   -viewingVolume.high ().z, -viewingVolume.low ().z);
     }
     glMatrixMode (GL_MODELVIEW);
-    glLoadIdentity ();
 }
 
 void GLWidget::viewportTransform (ViewNumber::Enum viewNumber) const
@@ -917,6 +916,7 @@ void GLWidget::ResetTransformation ()
     vs.SetContextScaleRatio (1);
     vs.SetTranslation (G3D::Vector3::zero ());
     projectionTransform (viewNumber);
+    glLoadIdentity ();
     update ();
 }
 

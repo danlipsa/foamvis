@@ -1,6 +1,5 @@
 /**
- * Shader program that performs the following operation: 
- * current = previous op step
+ * Shader program that performs: current = previous op step
  * where current, previous and step are floating point textures and op is + or -
  * RGBA : sum, count, min, max
  */

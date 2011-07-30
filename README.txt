@@ -123,7 +123,7 @@ Command lines for various datasets:
 
 ./foam_debug --constraint 4 ~/Documents/swansea-phd/foam/sedimenting_ellipse_odd/ell_ecc0.700000_8.000000_????.dmp
 
-./foam_debug --use-original ~/Documents/swansea-phd/foam/sausage_all/saus_4_703v_0.120000_0.060000_0.628319_????.dmp
+./Foam_debug --use-original ~/Documents/swansea-phd/foam/sausage_all/saus_4_703v_0.120000_0.060000_0.628319_????.dmp
 
 
 

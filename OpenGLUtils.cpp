@@ -306,14 +306,13 @@ void DisplayBox (const G3D::Rect2D& rect)
     glEnd ();
 }
 
+
 // Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
-void RotateAndRenderFromFbo (
-    G3D::Rect2D destRect, QGLFramebufferObject& srcFbo,
+void ActivateShader (
+    G3D::Rect2D destRect, 
     G3D::Vector2 rotationCenter, float angleDegrees)
 {
-    glPushAttrib (GL_ENABLE_BIT | GL_VIEWPORT_BIT);
-    glEnable (GL_TEXTURE_2D);
-    glBindTexture (GL_TEXTURE_2D, srcFbo.texture ());
+    glPushAttrib (GL_VIEWPORT_BIT);
     glViewport (destRect.x0 (), destRect.y0 (),
 		destRect.width (), destRect.height ());
 
