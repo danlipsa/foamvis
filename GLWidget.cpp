@@ -416,7 +416,7 @@ void GLWidget::initViewTypeDisplay ()
 	  &GLWidget::displayEdgesTorus,
 	  &GLWidget::displayFacesTorus,
 	  &GLWidget::displayFacesNormal,
-	  &GLWidget::displayFacesStatistics,
+	  &GLWidget::displayFacesAverage,
 	  &GLWidget::displayCenterPathsWithBodies,
 	 }};
     copy (vtd.begin (), vtd.end (), m_viewTypeDisplay.begin ());
@@ -617,14 +617,6 @@ void GLWidget::initializeLighting ()
     glEnable (GL_COLOR_MATERIAL);
 }
 
-G3D::AABox GLWidget::calculateCenteredViewingVolume (
-    double xOverY, double scaleRatio) const
-{
-    G3D::AABox bb = GetFoamAlongTime ().GetBoundingBoxTorus ();
-    G3D::AABox vv = AdjustZ (AdjustXOverYRatio (EncloseRotation (bb), xOverY), 
-			     scaleRatio);
-    return vv - vv.center ();
-}
 
 /**
  * @todo: make sure context view works for 3D
@@ -645,40 +637,8 @@ void GLWidget::translateAndScale (
     glTranslate (contextView ? (translation / scaleRatio) : translation);
 }
 
-void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber, 
-				   size_t timeStep) const
-{
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    glLoadIdentity ();
-    // viewing transform
-    glTranslatef (0, 0, - vs.GetCameraDistance ());
-    
-    // modeling transform
-    if (vs.IsContextView ())
-	translateAndScale (vs.GetContextScaleRatio (), G3D::Vector3::zero (),
-			   false);
-    else
-	translateAndScale (vs.GetScaleRatio (), vs.GetTranslation (), 
-			   vs.IsContextView ());
-    glMultMatrix (vs.GetRotationModel ());
-    switch (vs.GetAxesOrder ())
-    {
-    case AxesOrder::TWO_D_TIME_DISPLACEMENT:
-	rotate2DTimeDisplacement ();
-	break;
-    case AxesOrder::TWO_D_ROTATE_RIGHT90:
-	rotate2DRight90 ();
-	break;
-    case AxesOrder::THREE_D:
-	rotate3D ();
-	break;
-    default:
-	break;
-    }
-    transformFoamStationary (viewNumber, timeStep);
-}
 
-void GLWidget::transformFoamStationary (
+void GLWidget::transformFoamAverageAround (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
@@ -730,9 +690,27 @@ void GLWidget::rotateAverageAround (
 }
 
 G3D::AABox GLWidget::calculateViewingVolume (
-    ViewNumber::Enum viewNumber, double xOverY, double scaleRatio) const
+    double xOverY, double scaleRatio) const
 {
+    G3D::AABox bb = GetFoamAlongTime ().GetBoundingBoxTorus ();
+    G3D::AABox vv = AdjustZ (AdjustXOverYRatio (EncloseRotation (bb), xOverY), 
+			     scaleRatio);
+    return vv;
+}
+
+G3D::AABox GLWidget::calculateCenteredViewingVolume (
+    double xOverY, double scaleRatio) const
+{
+    G3D::AABox vv = calculateViewingVolume (xOverY, scaleRatio);
+    return vv - vv.center ();
+}
+
+G3D::AABox GLWidget::calculateEyeViewingVolume (
+    ViewNumber::Enum viewNumber) const
+{
+    double xOverY = getViewXOverY ();
     const ViewSettings& vs = GetViewSettings (viewNumber);
+    double scaleRatio = vs.GetScaleRatio ();
     G3D::AABox centeredViewingVolume = 
 	calculateCenteredViewingVolume (xOverY, scaleRatio);
     G3D::Vector3 translation (vs.GetCameraDistance () * G3D::Vector3::unitZ ());
@@ -740,12 +718,19 @@ G3D::AABox GLWidget::calculateViewingVolume (
     return result;
 }
 
+G3D::AABox GLWidget::CalculateViewingVolume (
+    ViewNumber::Enum viewNumber) const
+{
+    double xOverY = getViewXOverY ();
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    double scaleRatio = vs.GetScaleRatio ();
+    return calculateViewingVolume (xOverY, scaleRatio);
+}
+
 void GLWidget::projectionTransform (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    double xOverY = getViewXOverY ();
-    G3D::AABox viewingVolume = calculateViewingVolume (
-	viewNumber, xOverY, vs.GetScaleRatio ());
+    G3D::AABox viewingVolume = calculateEyeViewingVolume (viewNumber);
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
     if (vs.GetAngleOfView () == 0)
@@ -769,6 +754,50 @@ void GLWidget::viewportTransform (ViewNumber::Enum viewNumber) const
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetViewport (viewRect);
     glViewport (vs.GetViewport ());
+}
+
+void GLWidget::EyeTransform (ViewNumber::Enum viewNumber) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    glLoadIdentity ();
+    glTranslatef (0, 0, - vs.GetCameraDistance ());
+    glTranslate (- GetFoamAlongTime ().GetBoundingBoxTorus ().center ());
+}
+
+void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber, 
+				   size_t timeStep) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    glLoadIdentity ();
+    glTranslatef (0, 0, - vs.GetCameraDistance ());
+    if (vs.IsContextView ())
+	translateAndScale (vs.GetContextScaleRatio (), G3D::Vector3::zero (),
+			   false);
+    else
+	translateAndScale (vs.GetScaleRatio (), vs.GetTranslation (), 
+			   vs.IsContextView ());
+    glMultMatrix (vs.GetRotationModel ());
+    rotateForAxesOrder (viewNumber);
+    transformFoamAverageAround (viewNumber, timeStep);
+}
+
+void GLWidget::rotateForAxesOrder (ViewNumber::Enum viewNumber) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    switch (vs.GetAxesOrder ())
+    {
+    case AxesOrder::TWO_D_TIME_DISPLACEMENT:
+	rotate2DTimeDisplacement ();
+	break;
+    case AxesOrder::TWO_D_ROTATE_RIGHT90:
+	rotate2DRight90 ();
+	break;
+    case AxesOrder::THREE_D:
+	rotate3D ();
+	break;
+    default:
+	break;
+    }
 }
 
 G3D::Rect2D GLWidget::GetViewRect (ViewNumber::Enum view) const
@@ -2118,7 +2147,7 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
 }
 
 
-void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
+void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     glPushAttrib (GL_ENABLE_BIT);    
@@ -2135,9 +2164,7 @@ void GLWidget::displayFacesStatistics (ViewNumber::Enum viewNumber) const
 	    GetFoam (0).GetConstraintRotation ();
 	const ConstraintRotation& rotationCurrent = GetFoamAlongTime ().
 	    GetFoam (GetTime ()).GetConstraintRotation ();
-	G3D::Vector3 rc = G3D::Vector3 (rotationBegin.m_center, 0.0);
-	rotationCenter = gluProject (rc).xy ();
-	rotationCenter -= vs.GetViewport ().x0y0 ();
+	rotationCenter = rotationBegin.m_center;
 	angleDegrees = G3D::toDegrees (
 	    rotationCurrent.m_angle - rotationBegin.m_angle);
     }

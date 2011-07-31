@@ -12,6 +12,7 @@
 #include "ShaderProgram.h"
 #include "OpenGLUtils.h"
 #include "Utils.h"
+#include "GlWidget.h"
 
 // Private classes/functions
 // ======================================================================
@@ -91,6 +92,7 @@ void ScalarAverage::InitShaders ()
 
 
 void ScalarAverage::rotateAndDisplay (
+    ViewNumber::Enum viewNumber,
     const G3D::Rect2D& viewRect,
     GLfloat minValue, GLfloat maxValue,
     StatisticsType::Enum displayType, QGLFramebufferObject& srcFbo,
@@ -101,7 +103,8 @@ void ScalarAverage::rotateAndDisplay (
     glActiveTexture (TextureEnum (m_displayShaderProgram->GetResultTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, srcFbo.texture ());
 
-    ActivateShader (viewRect, rotationCenter, angleDegrees);
+    ActivateShader (viewNumber,
+		    viewRect, rotationCenter, angleDegrees);
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
     m_displayShaderProgram->release ();

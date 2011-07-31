@@ -9,6 +9,8 @@
 #ifndef __OPENGL_UTILS_H__
 #define __OPENGL_UTILS_H__
 
+#include "Enums.h"
+
 class OOBox;
 
 inline void glColor (QColor color)
@@ -115,14 +117,6 @@ void DisplayBox (
 {
     DisplayBox (o.GetBoundingBox (), color, lineWidth);
 }
-
-/**
- * Draw a quad over destRect. If angleDegrees != 0, rotate the quad first 
- * and then draw it.
- */
-void ActivateShader (
-    G3D::Rect2D destRect, G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
-    float angleDegrees = 0);
 
 void ClearColorBuffer (Qt::GlobalColor clearColor);
 void ClearColorStencilBuffers (

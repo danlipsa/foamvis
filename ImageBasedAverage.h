@@ -42,7 +42,7 @@ public:
     {
     }
     void Release ();
-    void RotateAndDisplay (
+    void RotateAndDisplay (	
 	ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0);
@@ -52,11 +52,22 @@ protected:
     virtual void addStep (ViewNumber::Enum viewNumber, size_t timeStep);
     virtual void removeStep (ViewNumber::Enum viewNumber, size_t timeStep);
     virtual void rotateAndDisplay (
+	ViewNumber::Enum viewNumber,
 	const G3D::Rect2D& viewRect, GLfloat minValue, GLfloat maxValue,
 	StatisticsType::Enum displayType, QGLFramebufferObject& fbo,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) = 0;
     void glActiveTexture (GLenum texture) const;
+    /**
+     * Draw a quad over destRect. If angleDegrees != 0, rotate the quad first 
+     * and then draw it.
+     */
+    void ActivateShader (
+	ViewNumber::Enum viewNumber,
+	G3D::Rect2D destRect, 
+	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
+	float angleDegrees = 0);
+
 
     static boost::shared_ptr<ShaderProgram> m_initShaderProgram;
     static boost::shared_ptr<StoreShaderProgram> m_storeShaderProgram;
@@ -68,12 +79,12 @@ private:
     void writeFacesValues (
 	ViewNumber::Enum view, const vector<boost::shared_ptr<Body> >& bodies);
 
-    void save (const G3D::Rect2D& viewRect, QGLFramebufferObject& fbo, 
+    void save (ViewNumber::Enum viewNumber, QGLFramebufferObject& fbo, 
 	       const char* fileName, size_t timeStep, GLfloat minValue, 
 	       GLfloat maxValue, StatisticsType::Enum displayType);
     void renderToStep (ViewNumber::Enum view, size_t timeStep);
-    void addStepToCurrent (const G3D::Rect2D& viewRect);
-    void removeStepFromCurrent (const G3D::Rect2D& viewRect);
+    void addStepToCurrent (ViewNumber::Enum viewNumber);
+    void removeStepFromCurrent (ViewNumber::Enum viewNumber);
     void copyCurrentToPrevious ();
     void clearColorBufferMinMax (
 	const G3D::Rect2D& viewRect,

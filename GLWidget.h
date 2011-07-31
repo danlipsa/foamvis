@@ -172,6 +172,7 @@ public:
      */
     void ModelViewTransform (ViewNumber::Enum viewNumber, 
 			     size_t timeStep) const;
+    void EyeTransform (ViewNumber::Enum viewNumber) const;
     BodyProperty::Enum GetBodyProperty () const
     {
 	return GetBodyProperty (GetViewNumber ());
@@ -189,6 +190,7 @@ public:
     {
 	m_labelStatusBar = labelStatusBar;
     }
+    G3D::AABox CalculateViewingVolume (ViewNumber::Enum viewNumber) const;
 
 Q_SIGNALS:
     void PaintedGL ();
@@ -401,10 +403,10 @@ private:
     void displayLightDirection (
 	ViewNumber::Enum viewNumber, LightNumber::Enum light) const;
     void displayLightDirection (ViewNumber::Enum viewNumber) const;
-    G3D::AABox calculateCenteredViewingVolume (
-	double xOverY, double scaleRatio) const;
-    G3D::AABox calculateViewingVolume (
-	ViewNumber::Enum viewNumber, double xOverY, double scaleRatio) const;
+    G3D::AABox calculateViewingVolume (double xOverY, double scaleRatio) const;
+    G3D::AABox calculateCenteredViewingVolume (double xOverY,
+					       double scaleRatio) const;
+    G3D::AABox calculateEyeViewingVolume (ViewNumber::Enum viewNumber) const;
 
     void initQuadrics ();
     void initEndTranslationColor ();
@@ -441,7 +443,7 @@ private:
      */
     void displayFacesNormal (ViewNumber::Enum view) const;
     void displayFacesTorus (ViewNumber::Enum view) const;
-    void displayFacesStatistics (ViewNumber::Enum view) const;
+    void displayFacesAverage (ViewNumber::Enum view) const;
     void displayFacesTorusTubes () const;
     void displayFacesTorusLines () const;
 
@@ -544,8 +546,9 @@ private:
     string getContextStationaryLabel ();
     string getAverageAroundLabel ();
     void setLabel ();
-    void transformFoamStationary (
+    void transformFoamAverageAround (
 	ViewNumber::Enum viewNumber, size_t timeStep) const;
+    void rotateForAxesOrder (ViewNumber::Enum viewNumber) const;
     void initCopy (
 	boost::array<boost::shared_ptr<QAction>, 
 	ViewNumber::COUNT>& actionCopyTransformation,

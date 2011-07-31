@@ -97,16 +97,15 @@ void ImageBasedAverage<PropertySetter>::addStep (
     ViewNumber::Enum viewNumber, size_t time)
 {
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
-    G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, time);
-    //save (viewRect, *m_step, "step", time,
+    //save (viewNumber, *m_step, "step", time,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
-    addStepToCurrent (viewRect);
-    //save (viewRect, *m_current, "current", time,
+    addStepToCurrent (viewNumber);
+    //save (viewNumber, *m_current, "current", time,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
     copyCurrentToPrevious ();
-    //save (viewRect, *m_previous, "previous", time, 
+    //save (viewNumber, *m_previous, "previous", time, 
     //minMax.first, minMax.second, StatisticsType::AVERAGE);    
     glPopAttrib ();
     WarnOnOpenGLError ("ImageBasedAverage::addStep");
@@ -117,16 +116,15 @@ void ImageBasedAverage<PropertySetter>::removeStep (
     ViewNumber::Enum viewNumber, size_t time)
 {
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
-    G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, time);
-    //save (viewRect, *m_step, "step_", timey - m_timeWindow,
+    //save (viewNumber, *m_step, "step_", timey - m_timeWindow,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
-    removeStepFromCurrent (viewRect);
-    //save (viewRect, *m_current, "current_", time,
+    removeStepFromCurrent (viewNumber);
+    //save (viewNumber, *m_current, "current_", time,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
     copyCurrentToPrevious ();
-    //save (viewRect, *m_previous, "previous_", time, 
+    //save (viewNumber, *m_previous, "previous_", time, 
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
     glPopAttrib ();
     WarnOnOpenGLError ("ImageBasedAverage::addStep");
@@ -155,8 +153,9 @@ void ImageBasedAverage<PropertySetter>::renderToStep (
 
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::addStepToCurrent (
-    const G3D::Rect2D& viewRect)
+    ViewNumber::Enum viewNumber)
 {
+    G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
     m_current->bind ();
     m_addShaderProgram->Bind ();
 
@@ -172,6 +171,7 @@ void ImageBasedAverage<PropertySetter>::addStepToCurrent (
     glActiveTexture (GL_TEXTURE0);
 
     ActivateShader (
+	viewNumber,
 	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()));
     m_addShaderProgram->release ();
     m_current->release ();
@@ -179,8 +179,9 @@ void ImageBasedAverage<PropertySetter>::addStepToCurrent (
 
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::removeStepFromCurrent (
-    const G3D::Rect2D& viewRect)
+    ViewNumber::Enum viewNumber)
 {
+    G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
     m_current->bind ();
     m_removeShaderProgram->Bind ();
 
@@ -196,6 +197,7 @@ void ImageBasedAverage<PropertySetter>::removeStepFromCurrent (
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
     ActivateShader (
+	viewNumber, 
 	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()));
     m_removeShaderProgram->release ();
     m_current->release ();
@@ -255,19 +257,22 @@ void ImageBasedAverage<PropertySetter>::RotateAndDisplay (
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
     rotateAndDisplay (
-	viewRect, minMax.first, minMax.second, displayType, *m_current,
-	rotationCenter, angleDegrees);
+	viewNumber, viewRect, minMax.first, minMax.second, displayType, 
+	*m_current, rotationCenter, angleDegrees);
 }
 
+// @todo: save does not work anymore 20110731
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::save (
-    const G3D::Rect2D& viewRect,
+    ViewNumber::Enum viewNumber,
     QGLFramebufferObject& fbo, const char* postfix, size_t timeStep,
     GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
 {
+    const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
     // render to the debug buffer
     m_debug->bind ();
     rotateAndDisplay (
+	viewNumber,
 	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()), 
 	minValue, maxValue, displayType, fbo);
     m_debug->release ();
@@ -332,6 +337,47 @@ pair<double, double> ImageBasedAverage<PropertySetter>::getStatisticsMinMax (
     }
     return pair<double, double> (minValue, maxValue);
 }
+
+
+// Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
+template<typename PropertySetter>
+void ImageBasedAverage<PropertySetter>::ActivateShader (
+    ViewNumber::Enum viewNumber,
+    G3D::Rect2D destRect, 
+    G3D::Vector2 rotationCenter, float angleDegrees)
+{
+    G3D::AABox srcAABox = GetGLWidget ().CalculateViewingVolume (viewNumber);
+    glPushAttrib (GL_VIEWPORT_BIT);
+    glViewport (destRect.x0 (), destRect.y0 (),
+		destRect.width (), destRect.height ());
+    //glMatrixMode (GL_MODELVIEW);
+    glPushMatrix ();
+    glLoadIdentity ();
+    GetGLWidget ().EyeTransform (viewNumber);
+    if (angleDegrees != 0)
+    {
+	glTranslate (rotationCenter);
+	glRotatef (angleDegrees, 0, 0, 1);	
+	glTranslate (-rotationCenter);
+    }    
+    G3D::Rect2D srcRect = G3D::Rect2D::xyxy (srcAABox.low ().xy (), 
+					     srcAABox.high ().xy ());
+    float z = (srcAABox.low ().z + srcAABox.high ().z) / 2;
+    glBegin (GL_QUADS);
+    glTexCoord2i (0, 0);
+    ::glVertex (G3D::Vector3 (srcRect.x0y0 (), z));
+    glTexCoord2i (1, 0);
+    ::glVertex (G3D::Vector3 (srcRect.x1y0 (), z));
+    glTexCoord2i (1, 1);
+    ::glVertex (G3D::Vector3 (srcRect.x1y1 (), z));
+    glTexCoord2i (0, 1);
+    ::glVertex (G3D::Vector3 (srcRect.x0y1 (), z));
+    glEnd ();
+    glMatrixMode (GL_MODELVIEW);
+    glPopMatrix ();
+    glPopAttrib ();
+}
+
 
 // Template instantiations
 //======================================================================
