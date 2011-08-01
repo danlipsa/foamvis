@@ -26,7 +26,7 @@ class ScalarAverage : public ImageBasedAverage<SetterVertexAttribute>
 {
 public:
     ScalarAverage (const GLWidget& glWidget) :
-    ImageBasedAverage<SetterVertexAttribute> (glWidget)
+	ImageBasedAverage<SetterVertexAttribute> (glWidget, "scalar")
     {
     }
 

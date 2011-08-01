@@ -37,8 +37,8 @@ template<typename PropertySetter>
 class ImageBasedAverage : public Average
 {
 public:
-    ImageBasedAverage (const GLWidget& glWidget) :
-	Average (glWidget)
+    ImageBasedAverage (const GLWidget& glWidget, string id) :
+	Average (glWidget), m_id (id)
     {
     }
     void Release ();
@@ -92,6 +92,7 @@ private:
     pair<double, double> getStatisticsMinMax (ViewNumber::Enum view) const;
 
 private:
+    string m_id;
     /**
      * Stores values up to and including the current time step
      */

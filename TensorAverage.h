@@ -25,7 +25,7 @@ class TensorAverage : public ImageBasedAverage<SetterDeformationTensor>
 {
 public:
     TensorAverage (const GLWidget& glWidget) :
-	ImageBasedAverage<SetterDeformationTensor> (glWidget)
+	ImageBasedAverage<SetterDeformationTensor> (glWidget, "tensor")
     {
     }
 

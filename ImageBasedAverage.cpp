@@ -99,8 +99,8 @@ void ImageBasedAverage<PropertySetter>::addStep (
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, time);
-    //save (viewNumber, *m_step, "step", time,
-    //minMax.first, minMax.second, StatisticsType::AVERAGE);
+    save (viewNumber, *m_step, "step", time,
+	  minMax.first, minMax.second, StatisticsType::AVERAGE);
     addStepToCurrent (viewNumber);
     //save (viewNumber, *m_current, "current", time,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
@@ -278,7 +278,7 @@ void ImageBasedAverage<PropertySetter>::save (
     m_debug->release ();
     ostringstream ostr;
     ostr << "images/" 
-	 << setfill ('0') << setw (4) << timeStep << postfix << ".png";
+	 << m_id << setfill ('0') << setw (4) << timeStep << postfix << ".png";
     m_debug->toImage ().save (ostr.str ().c_str ());    
 }
 

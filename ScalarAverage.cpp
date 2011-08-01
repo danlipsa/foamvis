@@ -12,7 +12,7 @@
 #include "ShaderProgram.h"
 #include "OpenGLUtils.h"
 #include "Utils.h"
-#include "GlWidget.h"
+#include "GLWidget.h"
 
 // Private classes/functions
 // ======================================================================
