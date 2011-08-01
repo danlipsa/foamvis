@@ -2180,6 +2180,8 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
     }
     vs.GetScalarAverage ().RotateAndDisplay (
 	viewNumber, vs.GetStatisticsType (), rotationCenter, - angleDegrees);
+    vs.GetTensorAverage ().RotateAndDisplay (
+	viewNumber, vs.GetStatisticsType (), rotationCenter, - angleDegrees);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
     displayAverageAroundBody (viewNumber);
     displayAverageAroundConstraint (viewNumber, adjustForContextStationaryFoam);

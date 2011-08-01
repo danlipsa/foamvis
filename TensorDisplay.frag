@@ -20,13 +20,15 @@ varying vec2 objectCoord;
 void main(void)
 {
     vec4 inkColor = vec4 (0, 0, 0, 1);
-    vec4 backgroundColor = vec4 (1, 1, 1, 1);
-    vec2 position = objectCoord / 8 / cellLength;
+    vec4 backgroundColor = vec4 (1, 1, 1, 0);
+    vec2 position = objectCoord / cellLength;
     position = fract (position);
-    vec2 percentage = vec2 (.95, .95);
+    vec2 percentage = vec2 (.8, .8);
     vec2 useBackground = step (position, percentage);
-    vec4 color = mix (inkColor, backgroundColor, 
-		      useBackground.x * useBackground.y);
+    float finish = useBackground.x * useBackground.y;
+    if (finish != 0.0)
+	discard;    
+    vec4 color = mix (inkColor, backgroundColor, finish);
     gl_FragColor = color;
 }
 
