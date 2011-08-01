@@ -28,7 +28,8 @@ public:
 	ImageBasedAverage<SetterDeformationTensor> (glWidget, "tensor")
     {
     }
-
+    void InitStep (ViewNumber::Enum viewNumber,
+		   boost::shared_ptr<QGLFramebufferObject> scalarAverage);
     static void InitShaders ();
 
 protected:
@@ -41,6 +42,8 @@ protected:
 
 private:
     static boost::shared_ptr<TensorDisplay> m_displayShaderProgram;
+
+    boost::shared_ptr<QGLFramebufferObject> m_scalarAverage;
 };
 
 #endif //__TENSOR_AVERAGE_H__

@@ -38,8 +38,8 @@ public:
 	return 2;
     }
 protected:
-    int m_previousTexUnitIndex;
-    int m_stepTexUnitIndex;
+    int m_previousTexUnitLocation;
+    int m_stepTexUnitLocation;
 };
 
 

@@ -153,6 +153,7 @@ G3D::Vector3 gluUnProject (
     gluUnProject (windowCoord.x, windowCoord.y, zWindowCoord, 
 		  model, proj, view, 
 		  &x, &y, &z);
+    WarnOnOpenGLError ("gluUnproject");
     return G3D::Vector3 (x, y, z);
 }
 

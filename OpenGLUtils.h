@@ -78,7 +78,7 @@ struct GluUnProjectZOperation
  */
 G3D::Vector3 gluUnProject (
     G3D::Vector2 screenCoord, 
-    GluUnProjectZOperation::Enum zOperation = GluUnProjectZOperation::READ);
+    GluUnProjectZOperation::Enum zOperation = GluUnProjectZOperation::SET0);
 
 /**
  * Check the OpenGL  error code and prints a message  to cdbg if there

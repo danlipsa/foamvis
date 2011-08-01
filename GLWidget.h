@@ -172,7 +172,6 @@ public:
      */
     void ModelViewTransform (ViewNumber::Enum viewNumber, 
 			     size_t timeStep) const;
-    void EyeTransform (ViewNumber::Enum viewNumber) const;
     BodyProperty::Enum GetBodyProperty () const
     {
 	return GetBodyProperty (GetViewNumber ());
@@ -190,7 +189,19 @@ public:
     {
 	m_labelStatusBar = labelStatusBar;
     }
-    G3D::AABox CalculateViewingVolume (ViewNumber::Enum viewNumber) const;
+    /**
+     * Draw a quad over destRect. If angleDegrees != 0, rotate the quad first 
+     * and then draw it.
+     */
+    void ActivateShader (
+	ViewNumber::Enum viewNumber,
+	G3D::Rect2D destRect, 
+	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
+	float angleDegrees = 0) const;
+    double GetOnePixelInObjectSpace () const;
+    double GetCellLength () const;
+
+
 
 Q_SIGNALS:
     void PaintedGL ();
@@ -365,14 +376,19 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    /**
+     * Setup the viewing volume first centered around origin and then 
+     * translated toward negative Z with m_cameraDistance.
+     */
+    void projectionTransform (ViewNumber::Enum viewNumber) const;
+    void viewportTransform (ViewNumber::Enum viewNumber) const;
+    void eyeTransform (ViewNumber::Enum viewNumber) const;
     void setLight (int sliderValue, int maximumValue, 
 		   LightType::Enum lightType, ColorNumber::Enum colorNumber);
-    void viewportTransform (ViewNumber::Enum viewNumber) const;
     void setView (const G3D::Vector2& clickedPoint);
     void selectView (const G3D::Vector2& clickedPoint);
     double getViewXOverY () const;
     static G3D::Rect2D getViewColorBarRect (const G3D::Rect2D& viewRect);
-    double getMinimumEdgeRadius () const;
     void calculateEdgeRadius (
 	double edgeRadiusMultiplier,
 	double* edgeRadius, double* arrowBaseRadius, 
@@ -391,11 +407,6 @@ private:
 
     ViewType::Enum changeViewType (bool checked, ViewType::Enum newViewType);
     /**
-     * Setup the viewing volume first centered around origin and then 
-     * translated toward negative Z with m_cameraDistance.
-     */
-    void projectionTransform (ViewNumber::Enum viewNumber) const;
-    /**
      * First translate the data to be centered around origin, then
      * rotate and then translate toward negative Z with
      * m_cameraDistance
@@ -404,6 +415,7 @@ private:
 	ViewNumber::Enum viewNumber, LightNumber::Enum light) const;
     void displayLightDirection (ViewNumber::Enum viewNumber) const;
     G3D::AABox calculateViewingVolume (double xOverY, double scaleRatio) const;
+    G3D::AABox calculateViewingVolume (ViewNumber::Enum viewNumber) const;
     G3D::AABox calculateCenteredViewingVolume (double xOverY,
 					       double scaleRatio) const;
     G3D::AABox calculateEyeViewingVolume (ViewNumber::Enum viewNumber) const;

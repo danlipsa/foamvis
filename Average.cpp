@@ -16,14 +16,15 @@ void Average::init (ViewNumber::Enum viewNumber)
     m_currentTimeWindow = 0;
 }
 
+
+typedef void (Average::*Operation) (ViewNumber::Enum viewNumber, 
+				    size_t timeStep);
+
 void Average::InitStep (ViewNumber::Enum viewNumber)
 {
     init (viewNumber);
     Step (viewNumber, 1);
 }
-
-typedef void (Average::*Operation) (ViewNumber::Enum viewNumber, 
-				    size_t timeStep);
 
 void Average::Step (ViewNumber::Enum viewNumber, int timeStep)
 {

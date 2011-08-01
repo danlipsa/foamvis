@@ -52,34 +52,52 @@ void ImageBasedAverage<PropertySetter>::init (ViewNumber::Enum viewNumber)
 	    size, QGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_2D, 
 	    GL_RGBA32F));
 
-    if (m_step->attachment () != QGLFramebufferObject::CombinedDepthStencil)
-	cdbg << "No stencil attachement available" << endl;
+    RuntimeAssert (m_step->isValid (), 
+		   "Framebuffer initialization failed:" + m_id);
+    RuntimeAssert (
+	m_step->attachment () == QGLFramebufferObject::CombinedDepthStencil,
+	"No stencil attachement available:" + m_id);
 
     m_current.reset (
 	new QGLFramebufferObject (
 	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D,
 	    GL_RGBA32F));
+    RuntimeAssert (m_current->isValid (), 
+		   "Framebuffer initialization failed:" + m_id);
     m_previous.reset (
 	new QGLFramebufferObject (
 	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D,
 	    GL_RGBA32F));
+    RuntimeAssert (m_previous->isValid (), 
+		   "Framebuffer initialization failed:" + m_id);
     m_debug.reset (new QGLFramebufferObject (size));
+    RuntimeAssert (m_debug->isValid (), 
+		   "Framebuffer initialization failed:" + m_id);
     glPopAttrib ();
-    clear (viewRect);
+    clear (viewNumber);
+    WarnOnOpenGLError ("ImageBasedAverage::init");
 }
 
 template<typename PropertySetter>
-void ImageBasedAverage<PropertySetter>::clear (const G3D::Rect2D& viewRect)
+void ImageBasedAverage<PropertySetter>::clear (ViewNumber::Enum viewNumber)
 {
+    pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     m_step->bind ();
     ClearColorStencilBuffers (Qt::black, 0);
     m_step->release ();
+    save (viewNumber, *m_step, "step", 0,
+	  minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     m_current->bind ();
     ClearColorBuffer (Qt::black);
     m_current->release ();
+    save (viewNumber, *m_current, "current", 0,
+	  minMax.first, minMax.second, StatisticsType::AVERAGE);
     
-    clearColorBufferMinMax (viewRect, m_previous);
+    initFramebuffer (viewNumber, m_previous);
+    save (viewNumber, *m_previous, "previous", 0,
+	  minMax.first, minMax.second, StatisticsType::AVERAGE);
+    WarnOnOpenGLError ("ImageBasedAverage::clear");
 }
 
 template<typename PropertySetter>
@@ -99,8 +117,8 @@ void ImageBasedAverage<PropertySetter>::addStep (
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, time);
-    save (viewNumber, *m_step, "step", time,
-	  minMax.first, minMax.second, StatisticsType::AVERAGE);
+    //save (viewNumber, *m_step, "step", time,
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
     addStepToCurrent (viewNumber);
     //save (viewNumber, *m_current, "current", time,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
@@ -108,7 +126,7 @@ void ImageBasedAverage<PropertySetter>::addStep (
     //save (viewNumber, *m_previous, "previous", time, 
     //minMax.first, minMax.second, StatisticsType::AVERAGE);    
     glPopAttrib ();
-    WarnOnOpenGLError ("ImageBasedAverage::addStep");
+    WarnOnOpenGLError ("ImageBasedAverage::addStep:" + m_id);
 }
 
 template<typename PropertySetter>
@@ -127,7 +145,7 @@ void ImageBasedAverage<PropertySetter>::removeStep (
     //save (viewNumber, *m_previous, "previous_", time, 
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
     glPopAttrib ();
-    WarnOnOpenGLError ("ImageBasedAverage::addStep");
+    WarnOnOpenGLError ("ImageBasedAverage::removeStep:" + m_id);
 }
 
 template<typename PropertySetter>
@@ -139,16 +157,15 @@ void ImageBasedAverage<PropertySetter>::renderToStep (
     glPushMatrix ();
     GetGLWidget ().ModelViewTransform (viewNumber, time);
     glViewport (0, 0, viewRect.width (), viewRect.height ());
-    clearColorBufferMinMax (viewRect, m_step);
+    initFramebuffer (viewNumber, m_step);
     m_step->bind ();
     ClearColorStencilBuffers (Qt::black, 0);
     const Foam& foam = GetGLWidget ().GetFoamAlongTime ().GetFoam (time);
     const Foam::Bodies& bodies = foam.GetBodies ();
-    m_storeShaderProgram->Bind ();
     writeFacesValues (viewNumber, bodies);
-    m_storeShaderProgram->release ();
     m_step->release ();
     glPopMatrix ();
+    WarnOnOpenGLError ("ImageBasedAverage::renderToStep:" + m_id);
 }
 
 template<typename PropertySetter>
@@ -170,11 +187,12 @@ void ImageBasedAverage<PropertySetter>::addStepToCurrent (
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
 
-    ActivateShader (
+    GetGLWidget ().ActivateShader (
 	viewNumber,
 	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()));
     m_addShaderProgram->release ();
     m_current->release ();
+    WarnOnOpenGLError ("ImageBasedAverage::addStepToCurrent:" + m_id);
 }
 
 template<typename PropertySetter>
@@ -196,11 +214,12 @@ void ImageBasedAverage<PropertySetter>::removeStepFromCurrent (
 
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
-    ActivateShader (
+    GetGLWidget ().ActivateShader (
 	viewNumber, 
 	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()));
     m_removeShaderProgram->release ();
     m_current->release ();
+    WarnOnOpenGLError ("ImageBasedAverage::removeStepFromCurrent:" + m_id);
 }
 
 template<typename PropertySetter>
@@ -214,33 +233,14 @@ void ImageBasedAverage<PropertySetter>::copyCurrentToPrevious ()
 
 // Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
 template<typename PropertySetter>
-void ImageBasedAverage<PropertySetter>::clearColorBufferMinMax (
-    const G3D::Rect2D& viewRect,
+void ImageBasedAverage<PropertySetter>::initFramebuffer (
+    ViewNumber::Enum viewNumber,
     const boost::scoped_ptr<QGLFramebufferObject>& fbo)
 {
+    const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
     fbo->bind ();
     m_initShaderProgram->Bind ();
-    glPushAttrib (GL_VIEWPORT_BIT);
-    glViewport (0, 0, viewRect.width (), viewRect.height ());
-    glPushMatrix ();
-    {
-	glLoadIdentity ();
-	glMatrixMode (GL_PROJECTION);
-	glPushMatrix ();
-	{
-	    glLoadIdentity ();
-	    glBegin (GL_QUADS);
-	    glVertex3i (-1, -1, -1);
-	    glVertex3i (1, -1, -1);
-	    glVertex3i (1, 1, -1);
-	    glVertex3i (-1, 1, -1);
-	    glEnd ();
-	}
-	glPopMatrix ();
-	glMatrixMode (GL_MODELVIEW);
-    }
-    glPopAttrib ();
-    glPopMatrix ();
+    GetGLWidget ().ActivateShader (viewNumber, viewRect - viewRect.x0y0 ());
     m_initShaderProgram->release ();
     fbo->release ();
 }
@@ -279,25 +279,20 @@ void ImageBasedAverage<PropertySetter>::save (
     ostringstream ostr;
     ostr << "images/" 
 	 << m_id << setfill ('0') << setw (4) << timeStep << postfix << ".png";
-    m_debug->toImage ().save (ostr.str ().c_str ());    
+    m_debug->toImage ().save (ostr.str ().c_str ());
+    WarnOnOpenGLError ("ImageBasedAverage::save");
 }
 
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::writeFacesValues (
     ViewNumber::Enum viewNumber, const Foam::Bodies& bodies)
 {
-    glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT |
-		  GL_ENABLE_BIT | GL_TEXTURE_BIT);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-    
+    m_storeShaderProgram->Bind ();
+    glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT );
+    glPolygonMode (GL_FRONT, GL_FILL);    
     glEnable (GL_STENCIL_TEST);
     glDisable (GL_DEPTH_TEST);
 
-    glEnable(GL_TEXTURE_1D);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    glBindTexture (
-	GL_TEXTURE_1D, 
-	GetGLWidget ().GetViewSettings (viewNumber).GetColorBarTexture ());
     for_each (
 	bodies.begin (), bodies.end (),
 	DisplayBody<DisplayFaceBodyPropertyColor<PropertySetter>,
@@ -309,6 +304,8 @@ void ImageBasedAverage<PropertySetter>::writeFacesValues (
 		m_storeShaderProgram->GetVValueLocation ()),
 	    DisplayElement::INVISIBLE_CONTEXT));
     glPopAttrib ();
+    m_storeShaderProgram->release ();
+    WarnOnOpenGLError ("ImageBasedAverage::writeFacesValues:" + m_id);
 }
 
 template<typename PropertySetter>
@@ -336,46 +333,6 @@ pair<double, double> ImageBasedAverage<PropertySetter>::getStatisticsMinMax (
 	    GetGLWidget ().GetViewSettings (view).GetBodyProperty ());
     }
     return pair<double, double> (minValue, maxValue);
-}
-
-
-// Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
-template<typename PropertySetter>
-void ImageBasedAverage<PropertySetter>::ActivateShader (
-    ViewNumber::Enum viewNumber,
-    G3D::Rect2D destRect, 
-    G3D::Vector2 rotationCenter, float angleDegrees)
-{
-    G3D::AABox srcAABox = GetGLWidget ().CalculateViewingVolume (viewNumber);
-    glPushAttrib (GL_VIEWPORT_BIT);
-    glViewport (destRect.x0 (), destRect.y0 (),
-		destRect.width (), destRect.height ());
-    //glMatrixMode (GL_MODELVIEW);
-    glPushMatrix ();
-    glLoadIdentity ();
-    GetGLWidget ().EyeTransform (viewNumber);
-    if (angleDegrees != 0)
-    {
-	glTranslate (rotationCenter);
-	glRotatef (angleDegrees, 0, 0, 1);	
-	glTranslate (-rotationCenter);
-    }    
-    G3D::Rect2D srcRect = G3D::Rect2D::xyxy (srcAABox.low ().xy (), 
-					     srcAABox.high ().xy ());
-    float z = (srcAABox.low ().z + srcAABox.high ().z) / 2;
-    glBegin (GL_QUADS);
-    glTexCoord2i (0, 0);
-    ::glVertex (G3D::Vector3 (srcRect.x0y0 (), z));
-    glTexCoord2i (1, 0);
-    ::glVertex (G3D::Vector3 (srcRect.x1y0 (), z));
-    glTexCoord2i (1, 1);
-    ::glVertex (G3D::Vector3 (srcRect.x1y1 (), z));
-    glTexCoord2i (0, 1);
-    ::glVertex (G3D::Vector3 (srcRect.x0y1 (), z));
-    glEnd ();
-    glMatrixMode (GL_MODELVIEW);
-    glPopMatrix ();
-    glPopAttrib ();
 }
 
 

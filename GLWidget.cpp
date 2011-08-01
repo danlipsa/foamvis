@@ -468,12 +468,21 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 }
 
 
-double GLWidget::getMinimumEdgeRadius () const
+double GLWidget::GetOnePixelInObjectSpace () const
 {
     G3D::Vector3 first = toObject (QPoint (0, 0));
     G3D::Vector3 second = toObject (QPoint (1, 0));
     float onePixelInObjectSpace = (second - first).length ();
+    WarnOnOpenGLError ("GetOnePixelInObjectSpace");
     return onePixelInObjectSpace;
+}
+
+double GLWidget::GetCellLength () const
+{
+    const Body& body = GetFoamAlongTime ().GetFoam (0).GetBody (0);
+    G3D::AABox box = body.GetBoundingBox ();
+    G3D::Vector3 extent = box.extent ();
+    return max (extent.x, extent.y);
 }
 
 void GLWidget::calculateEdgeRadius (
@@ -718,7 +727,7 @@ G3D::AABox GLWidget::calculateEyeViewingVolume (
     return result;
 }
 
-G3D::AABox GLWidget::CalculateViewingVolume (
+G3D::AABox GLWidget::calculateViewingVolume (
     ViewNumber::Enum viewNumber) const
 {
     double xOverY = getViewXOverY ();
@@ -756,7 +765,7 @@ void GLWidget::viewportTransform (ViewNumber::Enum viewNumber) const
     glViewport (vs.GetViewport ());
 }
 
-void GLWidget::EyeTransform (ViewNumber::Enum viewNumber) const
+void GLWidget::eyeTransform (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     glLoadIdentity ();
@@ -1195,7 +1204,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     viewportTransform (viewNumber);    
     projectionTransform (viewNumber);
     ModelViewTransform (viewNumber, GetTime ());
-    m_minimumEdgeRadius = getMinimumEdgeRadius ();
+    m_minimumEdgeRadius = GetOnePixelInObjectSpace ();
     calculateEdgeRadius (m_edgeRadiusRatio,
 			 &m_edgeRadius, &m_arrowBaseRadius,
 			 &m_arrowHeight, &m_edgeWidth);
@@ -1227,7 +1236,8 @@ void GLWidget::resizeGL(int w, int h)
 	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
 	{
 	    vs.GetScalarAverage ().InitStep (viewNumber);
-	    vs.GetTensorAverage ().InitStep (viewNumber);
+	    vs.GetTensorAverage ().InitStep (
+		viewNumber, vs.GetScalarAverage ().GetCurrent ());
 	    vs.GetForceAverage ().InitStep (viewNumber);
 	}
     }
@@ -2764,6 +2774,43 @@ bool GLWidget::IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const
 }
 
 
+// Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
+void GLWidget::ActivateShader (
+    ViewNumber::Enum viewNumber,
+    G3D::Rect2D destRect, G3D::Vector2 rotationCenter, float angleDegrees) const
+{
+    G3D::AABox srcAABox = calculateViewingVolume (viewNumber);
+    glPushAttrib (GL_VIEWPORT_BIT);
+    glViewport (destRect.x0 (), destRect.y0 (),
+		destRect.width (), destRect.height ());
+    //glMatrixMode (GL_MODELVIEW);
+    glPushMatrix ();
+    glLoadIdentity ();
+    eyeTransform (viewNumber);
+    if (angleDegrees != 0)
+    {
+	glTranslate (rotationCenter);
+	glRotatef (angleDegrees, 0, 0, 1);	
+	glTranslate (-rotationCenter);
+    }    
+    G3D::Rect2D srcRect = G3D::Rect2D::xyxy (srcAABox.low ().xy (), 
+					     srcAABox.high ().xy ());
+    float z = (srcAABox.low ().z + srcAABox.high ().z) / 2;
+    glBegin (GL_QUADS);
+    glTexCoord2i (0, 0);
+    ::glVertex (G3D::Vector3 (srcRect.x0y0 (), z));
+    glTexCoord2i (1, 0);
+    ::glVertex (G3D::Vector3 (srcRect.x1y0 (), z));
+    glTexCoord2i (1, 1);
+    ::glVertex (G3D::Vector3 (srcRect.x1y1 (), z));
+    glTexCoord2i (0, 1);
+    ::glVertex (G3D::Vector3 (srcRect.x0y1 (), z));
+    glEnd ();
+    glPopMatrix ();
+    glPopAttrib ();
+}
+
+
 // Slots
 // ======================================================================
 
@@ -2932,7 +2979,8 @@ void GLWidget::ButtonClickedViewType (int id)
     {
 	ViewNumber::Enum vn = GetViewNumber ();
 	vs.GetScalarAverage ().InitStep (vn);
-	vs.GetTensorAverage ().InitStep (vn);
+	vs.GetTensorAverage ().InitStep (
+	    vn, vs.GetScalarAverage ().GetCurrent ());
 	vs.GetForceAverage ().InitStep (vn);
     }
     if (oldViewType == ViewType::FACES_STATISTICS)

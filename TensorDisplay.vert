@@ -7,7 +7,7 @@ varying vec2 objectCoord;
 
 void main(void)
 {
-    objectCoord = gl_Vertex.xy - foamLow;
+    objectCoord = gl_Vertex.xy;
     gl_Position = ftransform();
 }
 

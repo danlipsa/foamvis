@@ -61,19 +61,19 @@ void SetterVertexAttribute::operator () ()
 // ======================================================================
 void SetterDeformationTensor::operator () (const boost::shared_ptr<Body>& body)
 {
-    G3D::Matrix2 L = G3D::Matrix2::identity ();
-    L[0][0] = body->GetDeformationEigenValue (0);
-    L[1][1] = body->GetDeformationEigenValue (1);
-    G3D::Matrix2 R;
-    Matrix2SetColumn (&R, 0, body->GetDeformationEigenVector (0).xy ());
-    Matrix2SetColumn (&R, 1, body->GetDeformationEigenVector (1).xy ());
-    G3D::Matrix2 A = mult (mult (R, L), R.transpose ()).transpose ();
-    // this function expects the matrix in column major order
-    m_program->setAttributeValue (m_attributeLocation, A[0], 2, 2);
+    G3D::Matrix2 l = G3D::Matrix2::identity ();
+    l[0][0] = body->GetDeformationEigenValue (0);
+    l[1][1] = body->GetDeformationEigenValue (1);
+    G3D::Matrix2 r;
+    Matrix2SetColumn (&r, 0, body->GetDeformationEigenVector (0).xy ());
+    Matrix2SetColumn (&r, 1, body->GetDeformationEigenVector (1).xy ());
+    G3D::Matrix2 a = mult (mult (r, l), r.transpose ());
+    // this function expects the matrix in row major order
+    m_program->setAttributeValue (
+	m_attributeLocation, a[0][0], a[0][1], a[1][0], a[1][1]);
 }
 
 void SetterDeformationTensor::operator () ()
 {
-    G3D::Matrix2 A (0, 0, 0, 0);
-    m_program->setAttributeValue (m_attributeLocation, A[0], 2, 2);
+    m_program->setAttributeValue (m_attributeLocation, 0, 0, 0, 0);
 }

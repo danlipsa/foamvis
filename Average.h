@@ -19,8 +19,7 @@ public:
     m_glWidget (glWidget)
     {
     }
-    
-    void InitStep (ViewNumber::Enum viewNumber);
+    void InitStep (ViewNumber::Enum viewNumber);    
     void Step (ViewNumber::Enum viewNumber, int timeStep);
     void SetTimeWindow (size_t historyCount)
     {

@@ -9,11 +9,11 @@ uniform float minValue;
 uniform float maxValue;
 uniform sampler1D colorBarTexUnit;
 // RGBA: sum, count, min, max
-uniform sampler2D resultTexUnit;
+uniform sampler2D scalarAverageTexUnit;
 
 void main(void)
 {
-    vec4 result = texture2D (resultTexUnit, gl_TexCoord[0].st);
+    vec4 result = texture2D (scalarAverageTexUnit, gl_TexCoord[0].st);
     if (result.g == 0.0)
         gl_FragColor = vec4 (1.0, 1.0, 1.0, 1.0);
     else

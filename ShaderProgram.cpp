@@ -8,6 +8,7 @@
  */
 
 #include "Debug.h"
+#include "OpenGLUtils.h"
 #include "ShaderProgram.h"
 #include "Utils.h"
 

@@ -25,12 +25,17 @@ class ScalarDisplay;
 class ScalarAverage : public ImageBasedAverage<SetterVertexAttribute>
 {
 public:
+    static void InitShaders ();
+
     ScalarAverage (const GLWidget& glWidget) :
 	ImageBasedAverage<SetterVertexAttribute> (glWidget, "scalar")
     {
     }
 
-    static void InitShaders ();
+    boost::shared_ptr<QGLFramebufferObject> GetCurrent () const
+    {
+	return m_current;
+    }
 
 protected:
     virtual void rotateAndDisplay (

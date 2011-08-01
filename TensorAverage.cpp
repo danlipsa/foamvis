@@ -8,9 +8,10 @@
  */
 
 #include "AverageShaders.h"
-#include "TensorAverage.h"
-#include "ShaderProgram.h"
+#include "GLWidget.h"
 #include "OpenGLUtils.h"
+#include "ShaderProgram.h"
+#include "TensorAverage.h"
 #include "Utils.h"
 
 // Private classes/functions
@@ -25,27 +26,42 @@ class TensorDisplay : public ShaderProgram
 {
 public:
     TensorDisplay (const char* vert, const char* frag);
-    void Bind ();
+    void Bind (float cellLength, float lineWidth);
 
-    GLint GetResultTexUnit ()
+    GLint GetTensorAverageTexUnit ()
     {
 	return 1;
     }
+    GLint GetScalarAverageTexUnit ()
+    {
+	return 2;
+    }
 
 private:
-    int m_resultTexUnitIndex;
+    int m_cellLengthLocation;
+    int m_lineWidthLocation;
+    int m_tensorAverageTexUnitLocation;
+    int m_scalarAverageTexUnitLocation;
 };
 
 TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
     ShaderProgram (vert, frag)
 {
-    m_resultTexUnitIndex = uniformLocation("resultTexUnit");
+    m_cellLengthLocation = uniformLocation ("cellLength");
+    m_lineWidthLocation = uniformLocation ("lineWidth");
+    m_tensorAverageTexUnitLocation = uniformLocation("tensorAverageTexUnit");
+    m_scalarAverageTexUnitLocation = uniformLocation("scalarAverageTexUnit");
 }
 
-void TensorDisplay::Bind ()
+void TensorDisplay::Bind (float cellLength, float lineWidth)
 {
     ShaderProgram::Bind ();
-    setUniformValue (m_resultTexUnitIndex, GetResultTexUnit ());
+    setUniformValue (m_cellLengthLocation, cellLength);
+    setUniformValue (m_lineWidthLocation, lineWidth);
+    setUniformValue (
+	m_tensorAverageTexUnitLocation, GetTensorAverageTexUnit ());
+    setUniformValue (
+	m_scalarAverageTexUnitLocation, GetScalarAverageTexUnit ());
 }
 
 
@@ -65,11 +81,17 @@ void TensorAverage::InitShaders ()
 	new AddShaderProgram (RESOURCE("TensorAdd.frag")));
     m_removeShaderProgram.reset (
 	new AddShaderProgram (RESOURCE("TensorRemove.frag")));
-/*
     m_displayShaderProgram.reset (
 	new TensorDisplay (RESOURCE("TensorDisplay.vert"),
 			   RESOURCE("TensorDisplay.frag")));
-*/
+}
+
+void TensorAverage::InitStep (
+    ViewNumber::Enum viewNumber,
+    boost::shared_ptr<QGLFramebufferObject> scalarAverage)
+{
+    m_scalarAverage = scalarAverage;
+    Average::InitStep (viewNumber);
 }
 
 
@@ -80,4 +102,28 @@ void TensorAverage::rotateAndDisplay (
     StatisticsType::Enum displayType, QGLFramebufferObject& srcFbo,
     G3D::Vector2 rotationCenter, float angleDegrees)
 {
+    (void)minValue;
+    (void)maxValue;
+    (void)displayType;
+
+    const GLWidget& glWidget = GetGLWidget ();
+    m_displayShaderProgram->Bind (
+	glWidget.GetCellLength (), glWidget.GetOnePixelInObjectSpace ());
+
+    // activate texture unit 1
+    glActiveTexture (
+	TextureEnum (m_displayShaderProgram->GetTensorAverageTexUnit ()));
+    glBindTexture (GL_TEXTURE_2D, srcFbo.texture ());
+
+    // activate texture unit 2
+    glActiveTexture (
+	TextureEnum (m_displayShaderProgram->GetScalarAverageTexUnit ()));
+    glBindTexture (GL_TEXTURE_2D, m_scalarAverage->texture ());
+
+    GetGLWidget ().ActivateShader (
+	viewNumber, viewRect, rotationCenter, angleDegrees);
+    // activate texture unit 0
+    glActiveTexture (GL_TEXTURE0);
+    m_displayShaderProgram->release ();
+    WarnOnOpenGLError ("TensorAverage::rotateAndDisplay");
 }

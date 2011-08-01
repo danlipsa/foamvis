@@ -34,38 +34,38 @@ public:
     {
 	return 0;
     }
-    GLint GetResultTexUnit ()
+    GLint GetScalarAverageTexUnit ()
     {
 	return 1;
     }
 
 private:
-    int m_displayTypeIndex;
-    int m_minValueIndex;
-    int m_maxValueIndex;
-    int m_colorBarTexUnitIndex;
-    int m_resultTexUnitIndex;
+    int m_displayTypeLocation;
+    int m_minValueLocation;
+    int m_maxValueLocation;
+    int m_colorBarTexUnitLocation;
+    int m_scalarAverageTexUnitLocation;
 };
 
 ScalarDisplay::ScalarDisplay (const char* frag) :
     ShaderProgram (0, frag)
 {
-    m_displayTypeIndex = uniformLocation ("displayType");
-    m_minValueIndex = uniformLocation("minValue");
-    m_maxValueIndex = uniformLocation("maxValue");
-    m_colorBarTexUnitIndex = uniformLocation("colorBarTexUnit");
-    m_resultTexUnitIndex = uniformLocation("resultTexUnit");
+    m_displayTypeLocation = uniformLocation ("displayType");
+    m_minValueLocation = uniformLocation("minValue");
+    m_maxValueLocation = uniformLocation("maxValue");
+    m_colorBarTexUnitLocation = uniformLocation("colorBarTexUnit");
+    m_scalarAverageTexUnitLocation = uniformLocation("scalarAverageTexUnit");
 }
 
 void ScalarDisplay::Bind (GLfloat minValue, GLfloat maxValue,
 				 StatisticsType::Enum displayType)
 {
     ShaderProgram::Bind ();
-    setUniformValue (m_displayTypeIndex, displayType);
-    setUniformValue (m_minValueIndex, minValue);
-    setUniformValue (m_maxValueIndex, maxValue);
-    setUniformValue (m_colorBarTexUnitIndex, GetColorBarTexUnit ());
-    setUniformValue (m_resultTexUnitIndex, GetResultTexUnit ());
+    setUniformValue (m_displayTypeLocation, displayType);
+    setUniformValue (m_minValueLocation, minValue);
+    setUniformValue (m_maxValueLocation, maxValue);
+    setUniformValue (m_colorBarTexUnitLocation, GetColorBarTexUnit ());
+    setUniformValue (m_scalarAverageTexUnitLocation, GetScalarAverageTexUnit ());
 }
 
 
@@ -100,11 +100,12 @@ void ScalarAverage::rotateAndDisplay (
 {
     m_displayShaderProgram->Bind (minValue, maxValue, displayType);
     // activate texture unit 1
-    glActiveTexture (TextureEnum (m_displayShaderProgram->GetResultTexUnit ()));
+    glActiveTexture (
+	TextureEnum (m_displayShaderProgram->GetScalarAverageTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, srcFbo.texture ());
 
-    ActivateShader (viewNumber,
-		    viewRect, rotationCenter, angleDegrees);
+    GetGLWidget ().ActivateShader (viewNumber,
+				   viewRect, rotationCenter, angleDegrees);
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
     m_displayShaderProgram->release ();
