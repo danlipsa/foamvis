@@ -9,6 +9,7 @@
 #define __VIEW_SETTINGS_H__
 
 #include "Enums.h"
+#include "AverageInterface.h"
 class AllBodySelector;
 class BodySelector;
 class ColorBarModel;
@@ -21,7 +22,7 @@ class PropertyValueBodySelector;
 
 
 
-class ViewSettings
+class ViewSettings : public AverageInterface
 {
 public:
     ViewSettings (const GLWidget& glWidget);
@@ -281,6 +282,14 @@ public:
 	return m_forceResultShown;
     }
 
+    void SetDeformationTensorShown (bool deformationTensorShown)
+    {
+	m_deformationTensorShown = deformationTensorShown;
+    }
+    bool IsDeformationTensorShown () const
+    {
+	return m_deformationTensorShown;
+    }
 
     double GetContextScaleRatio () const
     {
@@ -352,7 +361,15 @@ public:
 	m_centerPathHidden = centerPathHidden;
     }
 
-    
+    virtual void InitStep (ViewNumber::Enum viewNumber);
+    virtual void SetTimeWindow (size_t timeSteps);
+    virtual void Step (ViewNumber::Enum viewNumber, int timeStep);
+    virtual void RotateAndDisplay (
+	ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
+	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
+	float angleDegrees = 0) const;
+    virtual void Release ();
+
 
 private:
     void initTexture ();
@@ -401,6 +418,7 @@ private:
     bool m_forceNetworkShown;
     bool m_forcePressureShown;
     bool m_forceResultShown;
+    bool m_deformationTensorShown;
     double m_contextScaleRatio;
     // Context display
     set<size_t> m_contextBody;

@@ -8,11 +8,14 @@
  */
 
 #include "AverageShaders.h"
+#include "DebugStream.h"
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
 #include "ShaderProgram.h"
 #include "TensorAverage.h"
 #include "Utils.h"
+#include "ViewSettings.h"
+
 
 // Private classes/functions
 // ======================================================================
@@ -100,15 +103,19 @@ void TensorAverage::rotateAndDisplay (
     const G3D::Rect2D& viewRect,
     GLfloat minValue, GLfloat maxValue,
     StatisticsType::Enum displayType, QGLFramebufferObject& srcFbo,
-    G3D::Vector2 rotationCenter, float angleDegrees)
+    G3D::Vector2 rotationCenter, float angleDegrees) const
 {
     (void)minValue;
     (void)maxValue;
     (void)displayType;
 
     const GLWidget& glWidget = GetGLWidget ();
-    m_displayShaderProgram->Bind (
-	glWidget.GetCellLength (), glWidget.GetOnePixelInObjectSpace ());
+    double cellLength = glWidget.GetCellLength (viewNumber);
+    // @todo why do I have to use the scale ratio?
+    double lineWidth = glWidget.GetOnePixelInObjectSpace () * 
+	glWidget.GetEllipseLineWidthRatio () * 
+	glWidget.GetViewSettings (viewNumber).GetScaleRatio ();
+    m_displayShaderProgram->Bind (cellLength, lineWidth);
 
     // activate texture unit 1
     glActiveTexture (

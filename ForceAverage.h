@@ -21,8 +21,13 @@ public:
 	Average (glWidget)
     {
     }
-    void Display (ViewNumber::Enum viewNumber) const;
-    void DisplayAverage (ViewNumber::Enum viewNumber) const;
+    void DisplayOne (ViewNumber::Enum viewNumber) const;
+    virtual void RotateAndDisplay (
+	ViewNumber::Enum viewNumber, 
+	StatisticsType::Enum displayType = StatisticsType::AVERAGE,
+	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
+	float angleDegrees = 0) const;
+    void Release () {}
 
 protected:
     virtual void init (ViewNumber::Enum viewNumber);

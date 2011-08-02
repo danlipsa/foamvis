@@ -65,13 +65,17 @@ void ForceAverage::removeStep (ViewNumber::Enum viewNumber, size_t timeStep)
     }
 }
 
-void ForceAverage::Display (ViewNumber::Enum viewNumber) const
+void ForceAverage::DisplayOne (ViewNumber::Enum viewNumber) const
 {
     display (viewNumber, GetGLWidget ().GetCurrentFoam ().GetForces (), 1);
 }
 
-void ForceAverage::DisplayAverage (ViewNumber::Enum viewNumber) const
+void ForceAverage::RotateAndDisplay (
+    ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
+    G3D::Vector2 rotationCenter, 
+    float angleDegrees) const
 {
+    (void)displayType;(void)rotationCenter;(void)angleDegrees;
     display (viewNumber, m_average, GetCurrentTimeWindow ());
 }
 

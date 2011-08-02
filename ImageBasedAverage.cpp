@@ -250,7 +250,7 @@ void ImageBasedAverage<PropertySetter>::RotateAndDisplay (
     ViewNumber::Enum viewNumber,
     StatisticsType::Enum displayType, 
     G3D::Vector2 rotationCenter, 
-    float angleDegrees)
+    float angleDegrees) const
 {
     if (! m_current)
 	return;

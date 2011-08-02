@@ -199,8 +199,11 @@ public:
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
     double GetOnePixelInObjectSpace () const;
-    double GetCellLength () const;
-
+    double GetCellLength (ViewNumber::Enum viewNumber) const;
+    double GetEllipseLineWidthRatio () const
+    {
+	return m_ellipseLineWidthRatio;
+    }
 
 
 Q_SIGNALS:
@@ -283,7 +286,8 @@ public Q_SLOTS:
     void ValueChangedStatisticsTimeWindow (int timeSteps);
     void ValueChangedTimeDisplacement (int timeDisplacement);
     void ValueChangedT1Size (int index);
-    void ValueChangedTensorSize (int index);
+    void ValueChangedEllipseSize (int index);
+    void ValueChangedEllipseLineWidth (int index);
     void ValueChangedForceLength (int index);
     void ValueChangedHighlightLineWidth (int newWidth);
     // Actions
@@ -581,7 +585,8 @@ private:
     const static double ENCLOSE_ROTATION_RATIO;
     // Min, max values for T1s, Context alpha, force length
     const static pair<double,double> T1_SIZE;
-    const static pair<double,double> DEFORMATION_TENSOR_SIZE;
+    const static pair<double,double> ELLIPSE_SIZE;
+    const static pair<double,double> ELLIPSE_LINE_WIDTH_RATIO;
     const static pair<double,double> CONTEXT_ALPHA;
     const static pair<double,double> FORCE_LENGTH;
     const static GLfloat HIGHLIGHT_LINE_WIDTH;
@@ -680,7 +685,9 @@ private:
     bool m_centerPathLineUsed;
     bool m_t1sShown;
     double m_t1Size;
-    double m_deformationTensorSize;
+    double m_ellipseSize;
+    double m_ellipseLineWidthRatio;
+    
     double m_contextAlpha;
     double m_forceLength;
     size_t m_highlightLineWidth;
@@ -699,7 +706,6 @@ private:
 
     ShowType m_showType;
     size_t m_showBodyId;
-    bool m_showDeformationTensor;
 };
 
 #endif //__GLWIDGET_H__

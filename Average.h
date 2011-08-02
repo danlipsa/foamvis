@@ -10,21 +10,23 @@
 #define __AVERAGE_H__
 
 #include "Enums.h"
+#include "AverageInterface.h"
+
 class GLWidget;
 
-class Average
+class Average : public AverageInterface
 {
 public:
     Average (const GLWidget& glWidget) :
     m_glWidget (glWidget)
     {
     }
-    void InitStep (ViewNumber::Enum viewNumber);    
-    void Step (ViewNumber::Enum viewNumber, int timeStep);
+    void InitStep (ViewNumber::Enum viewNumber);
     void SetTimeWindow (size_t historyCount)
     {
 	m_timeWindow = historyCount;
     }
+    void Step (ViewNumber::Enum viewNumber, int timeStep);
     size_t GetTimeWindow () const
     {
 	return m_timeWindow;

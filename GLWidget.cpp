@@ -145,7 +145,9 @@ const size_t GLWidget::QUADRIC_STACKS = 1;
 
 const double GLWidget::ENCLOSE_ROTATION_RATIO = 1;
 const pair<double,double> GLWidget::T1_SIZE (1, 10);
-const pair<double,double> GLWidget::DEFORMATION_TENSOR_SIZE (1, 100);
+const pair<double,double> GLWidget::ELLIPSE_SIZE (1, 100);
+const pair<double,double> GLWidget::ELLIPSE_LINE_WIDTH_RATIO (1, 4);
+
 const pair<double,double> GLWidget::CONTEXT_ALPHA (0.05, 0.5);
 const pair<double,double> GLWidget::FORCE_LENGTH (.25, 6);
 const GLfloat GLWidget::HIGHLIGHT_LINE_WIDTH = 2.0;
@@ -177,7 +179,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_centerPathLineUsed (false),
       m_t1sShown (false),
       m_t1Size (T1_SIZE.first),
-      m_deformationTensorSize (DEFORMATION_TENSOR_SIZE.first),
+      m_ellipseSize (ELLIPSE_SIZE.first),
+      m_ellipseLineWidthRatio (1),
       m_contextAlpha (CONTEXT_ALPHA.first),
       m_forceLength (FORCE_LENGTH.first),
       m_highlightLineWidth (HIGHLIGHT_LINE_WIDTH),
@@ -445,12 +448,14 @@ void GLWidget::initViewSettings ()
     BOOST_FOREACH (boost::shared_ptr<ViewSettings> vs, m_viewSettings)
     {
 	size_t timeSteps = GetFoamAlongTime ().GetTimeSteps ();
-	vs->GetScalarAverage ().SetTimeWindow (timeSteps);
-	vs->GetTensorAverage ().SetTimeWindow (timeSteps);
-	vs->GetForceAverage ().SetTimeWindow (timeSteps);
+	vs->SetTimeWindow (timeSteps);
     }
     CurrentIndexChangedViewCount (ViewCount::ONE);
 }
+
+
+
+
 
 void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 {
@@ -477,12 +482,13 @@ double GLWidget::GetOnePixelInObjectSpace () const
     return onePixelInObjectSpace;
 }
 
-double GLWidget::GetCellLength () const
+double GLWidget::GetCellLength (ViewNumber::Enum viewNumber) const
 {
     const Body& body = GetFoamAlongTime ().GetFoam (0).GetBody (0);
     G3D::AABox box = body.GetBoundingBox ();
     G3D::Vector3 extent = box.extent ();
-    return max (extent.x, extent.y);
+    return max (extent.x, extent.y) * 
+	GetViewSettings (viewNumber).GetScaleRatio ();
 }
 
 void GLWidget::calculateEdgeRadius (
@@ -955,6 +961,8 @@ void GLWidget::ResetTransformation ()
     vs.SetTranslation (G3D::Vector3::zero ());
     projectionTransform (viewNumber);
     glLoadIdentity ();
+    if (vs.GetViewType () == ViewType::FACES_STATISTICS)
+	vs.InitStep (viewNumber);
     update ();
 }
 
@@ -1234,12 +1242,7 @@ void GLWidget::resizeGL(int w, int h)
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	ViewSettings& vs = GetViewSettings (viewNumber);
 	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
-	{
-	    vs.GetScalarAverage ().InitStep (viewNumber);
-	    vs.GetTensorAverage ().InitStep (
-		viewNumber, vs.GetScalarAverage ().GetCurrent ());
-	    vs.GetForceAverage ().InitStep (viewNumber);
-	}
+	    vs.InitStep (viewNumber);
     }
     WarnOnOpenGLError ("resizeGl");
 }
@@ -1691,11 +1694,12 @@ void GLWidget::deselect (const QPoint& position)
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
     switch (m_interactionMode)
     {
     case InteractionMode::ROTATE:
     {
-	ViewSettings& vs = GetViewSettings ();
 	vs.SetRotationModel (
 	    rotate (GetViewNumber (), event->pos (), vs.GetRotationModel ()));
 	break;
@@ -1703,6 +1707,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     case InteractionMode::TRANSLATE:
 	if (event->modifiers () & Qt::ControlModifier)
 	{
+	    // translate for context view
 	    QPoint point (m_lastPos.x (), event->pos ().y ());
 	    translate (GetViewNumber (), 
 		       point, G3D::Vector3::X_AXIS, G3D::Vector3::Z_AXIS);
@@ -1720,7 +1725,6 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 
     case InteractionMode::ROTATE_LIGHT:
     {
-	ViewSettings& vs = GetViewSettings ();
 	LightNumber::Enum i = vs.GetSelectedLight ();
 	vs.SetRotationLight (
 	    i, 
@@ -1730,7 +1734,6 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     }
     case InteractionMode::TRANSLATE_LIGHT:
     {
-	ViewSettings& vs = GetViewSettings ();
 	LightNumber::Enum i = vs.GetSelectedLight ();
 	vs.PositionLight (i, getInitialLightPosition (i));
 	translateLight (GetViewNumber (), event->pos ());
@@ -1747,6 +1750,8 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	break;
     }
     m_lastPos = event->pos();
+    if (vs.GetViewType () == ViewType::FACES_STATISTICS)
+	vs.InitStep (viewNumber);
     update ();
 }
 
@@ -1937,7 +1942,8 @@ void GLWidget::displayT1s (ViewNumber::Enum view) const
 void GLWidget::displayDeformationTensor2D (ViewNumber::Enum viewNumber) const
 {
     const Foam& foam = GetCurrentFoam ();
-    if (! foam.Is2D () || ! m_showDeformationTensor || 
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    if (! foam.Is2D () || ! vs.IsDeformationTensorShown () || 
 	viewNumber != GetViewNumber ())
 	return;
     Foam::Bodies bodies = foam.GetBodies ();
@@ -1947,7 +1953,7 @@ void GLWidget::displayDeformationTensor2D (ViewNumber::Enum viewNumber) const
     for_each (bodies.begin (), bodies.end (),
 	      boost::bind (
 		  ::displayBodyDeformationTensor2D, _1, 
-		  m_deformationTensorSize));
+		  m_ellipseSize));
     glPopAttrib ();    
 }
 
@@ -1960,7 +1966,7 @@ void GLWidget::displayBodyDeformationTensor2D () const
     glDisable (GL_DEPTH_TEST);
     glColor (Qt::black);
     ::displayBodyDeformationTensor2D (
-	*foam.FindBody (m_showBodyId), m_deformationTensorSize);
+	*foam.FindBody (m_showBodyId), m_ellipseSize);
     glPopAttrib ();
 }
 
@@ -2153,7 +2159,7 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
     displayContextStationaryFoam (viewNumber);
     displayStandaloneFaces ();    
     displayDeformationTensor2D (viewNumber);
-    vs.GetForceAverage ().Display (viewNumber);
+    vs.GetForceAverage ().DisplayOne (viewNumber);
 }
 
 
@@ -2178,16 +2184,13 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
 	angleDegrees = G3D::toDegrees (
 	    rotationCurrent.m_angle - rotationBegin.m_angle);
     }
-    vs.GetScalarAverage ().RotateAndDisplay (
-	viewNumber, vs.GetStatisticsType (), rotationCenter, - angleDegrees);
-    vs.GetTensorAverage ().RotateAndDisplay (
+    vs.RotateAndDisplay (
 	viewNumber, vs.GetStatisticsType (), rotationCenter, - angleDegrees);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
     displayAverageAroundBody (viewNumber);
     displayAverageAroundConstraint (viewNumber, adjustForContextStationaryFoam);
     displayContextBodies (viewNumber);
     displayContextStationaryFoam (viewNumber, adjustForContextStationaryFoam);
-    vs.GetForceAverage ().DisplayAverage (viewNumber);
     glPopAttrib ();
 }
 
@@ -2848,7 +2851,8 @@ void GLWidget::ToggledDirectionalLightEnabled (bool checked)
 
 void GLWidget::ToggledShowDeformationTensor (bool checked)
 {
-    m_showDeformationTensor = checked;
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetDeformationTensorShown (checked);
     update ();
 }
 
@@ -2980,16 +2984,10 @@ void GLWidget::ButtonClickedViewType (int id)
     if (newViewType == ViewType::FACES_STATISTICS)
     {
 	ViewNumber::Enum vn = GetViewNumber ();
-	vs.GetScalarAverage ().InitStep (vn);
-	vs.GetTensorAverage ().InitStep (
-	    vn, vs.GetScalarAverage ().GetCurrent ());
-	vs.GetForceAverage ().InitStep (vn);
+	vs.InitStep (vn);
     }
     if (oldViewType == ViewType::FACES_STATISTICS)
-    {
-	vs.GetScalarAverage ().Release ();
-	vs.GetTensorAverage ().Release ();
-    }
+	vs.Release ();
     changeViewType (true, newViewType);
 }
 
@@ -3152,11 +3150,7 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 	ViewNumber::Enum view = ViewNumber::Enum (i);
 	ViewSettings& vs = GetViewSettings (view);
 	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
-	{
-	    vs.GetScalarAverage ().Step (view, direction);
-	    vs.GetTensorAverage ().Step (view, direction);
-	    vs.GetForceAverage ().Step (view, direction);
-	}
+	    vs.Step (view, direction);
     }
     update ();
 }
@@ -3164,9 +3158,7 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 void GLWidget::ValueChangedStatisticsTimeWindow (int timeSteps)
 {
     ViewSettings& vs = GetViewSettings ();
-    vs.GetScalarAverage ().SetTimeWindow (timeSteps);
-    vs.GetTensorAverage ().SetTimeWindow (timeSteps);
-    vs.GetForceAverage ().SetTimeWindow (timeSteps);
+    vs.SetTimeWindow (timeSteps);
 }
 
 void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
@@ -3187,12 +3179,18 @@ void GLWidget::ValueChangedT1Size (int index)
     update ();
 }
 
-void GLWidget::ValueChangedTensorSize (int index)
+
+void GLWidget::ValueChangedEllipseSize (int index)
 {
-    valueChanged (&m_deformationTensorSize, DEFORMATION_TENSOR_SIZE, index);
+    valueChanged (&m_ellipseSize, ELLIPSE_SIZE, index);
     update ();
 }
 
+void GLWidget::ValueChangedEllipseLineWidth (int index)
+{
+    valueChanged (&m_ellipseLineWidthRatio, ELLIPSE_LINE_WIDTH_RATIO, index);
+    update ();
+}
 
 void GLWidget::ValueChangedContextAlpha (int index)
 {

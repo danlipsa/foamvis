@@ -17,20 +17,39 @@ uniform sampler2D scalarAverageTexUnit;
 // each fragmet receives the object coordinates of the fragment.
 varying vec2 objectCoord;
 
+struct Tensor
+{
+    float m_l1;
+    float m_l2;
+    vec2 m_v1;
+    vec2 m_v2;
+};
+
+Tensor calculateTensor ()
+{
+    return Tensor (2., 1., vec2 (1., 0.), vec2 (0., 1.));
+}
+
 void main(void)
 {
-    vec4 inkColor = vec4 (0, 0, 0, 1);
-    vec4 backgroundColor = vec4 (1, 1, 1, 0);
-    vec2 position = objectCoord / cellLength;
-    position = fract (position);
-    vec2 percentage = vec2 (.8, .8);
-    vec2 useBackground = step (position, percentage);
+    const vec4 inkColor = vec4 (0.0, 0.0, 0.0, 1.0);
+    Tensor t = calculateTensor ();
+    float c = max (t.m_l1, t.m_l2) / 4;
+    vec2 x = objectCoord / cellLength;
+    x = fract (x);
+    mat2 r = mat2(t.m_v1, t.m_v2);
+    mat2 d = mat2 (t.m_l1, 0.0, 0.0, t.m_l2);
+    float value = dot (x, r * d * transpose (r) * x);
+
+    float perc = (cellLength - lineWidth) / cellLength;
+    vec2 percentage = vec2 (perc, perc);
+    vec2 useBackground = step (x, percentage);
     float finish = useBackground.x * useBackground.y;
     if (finish != 0.0)
 	discard;    
-    vec4 color = mix (inkColor, backgroundColor, finish);
-    gl_FragColor = color;
+    gl_FragColor = inkColor;
 }
+
 
 // Local Variables:
 // mode: c++

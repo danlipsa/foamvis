@@ -1,6 +1,7 @@
-HEADERS += Application.h ApproximationEdge.h\
+HEADERS += Application.h ApproximationEdge.h \
 	Attribute.h AttributeCreator.h AttributeInfo.h \
-	AttributeHistogram.h Average.h AverageShaders.h Body.h \
+	AttributeHistogram.h Average.h AverageInterface.h\
+	AverageShaders.h Body.h \
 	BodyAlongTime.h AdjacentBody.h BodySelector.h ConstraintRotation.h \
 	ConstraintEdge.h ColorBarModel.h Comparisons.h Debug.h \
 	DebugStream.h Disk.h ImageBasedAverage.h ForceAverage.h\

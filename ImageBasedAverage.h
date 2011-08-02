@@ -45,7 +45,7 @@ public:
     void RotateAndDisplay (	
 	ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
-	float angleDegrees = 0);
+	float angleDegrees = 0) const;
 
 protected:
     virtual void init (ViewNumber::Enum viewNumber);
@@ -56,7 +56,7 @@ protected:
 	const G3D::Rect2D& viewRect, GLfloat minValue, GLfloat maxValue,
 	StatisticsType::Enum displayType, QGLFramebufferObject& fbo,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
-	float angleDegrees = 0) = 0;
+	float angleDegrees = 0) const = 0;
     void glActiveTexture (GLenum texture) const;
 
 

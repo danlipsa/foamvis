@@ -65,6 +65,7 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_forceNetworkShown (true),
     m_forcePressureShown (true),
     m_forceResultShown (true),
+    m_deformationTensorShown (false),
     m_contextScaleRatio (1),
     m_contextStationaryType (CONTEXT_AVERAGE_AROUND_NONE),
     m_bodySelector (AllBodySelector::Get ()),
@@ -382,3 +383,45 @@ void ViewSettings::CopySelection (const ViewSettings& other)
 {
     m_bodySelector = other.m_bodySelector->Clone ();
 }
+
+void ViewSettings::InitStep (ViewNumber::Enum viewNumber)
+{
+    GetScalarAverage ().InitStep (viewNumber);
+    GetTensorAverage ().InitStep (
+	viewNumber, GetScalarAverage ().GetCurrent ());
+    GetForceAverage ().InitStep (viewNumber);
+}
+
+void ViewSettings::SetTimeWindow (size_t timeSteps)
+{
+    GetScalarAverage ().SetTimeWindow (timeSteps);
+    GetTensorAverage ().SetTimeWindow (timeSteps);
+    GetForceAverage ().SetTimeWindow (timeSteps);
+}
+
+void ViewSettings::Step (ViewNumber::Enum viewNumber, int timeStep)
+{
+    GetScalarAverage ().Step (viewNumber, timeStep);
+    GetTensorAverage ().Step (viewNumber, timeStep);
+    GetForceAverage ().Step (viewNumber, timeStep);
+}
+
+void ViewSettings::RotateAndDisplay (
+    ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
+    G3D::Vector2 rotationCenter, 
+    float angleDegrees) const
+{
+    GetScalarAverage ().RotateAndDisplay (
+	viewNumber, displayType, rotationCenter, angleDegrees);
+    if (IsDeformationTensorShown ())
+	GetTensorAverage ().RotateAndDisplay (
+	    viewNumber, displayType, rotationCenter, angleDegrees);
+    GetForceAverage ().RotateAndDisplay (viewNumber);
+}
+
+void ViewSettings::Release ()
+{
+    GetScalarAverage ().Release ();
+    GetTensorAverage ().Release ();
+}
+

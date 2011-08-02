@@ -38,7 +38,7 @@ protected:
 	const G3D::Rect2D& viewRect, GLfloat minValue, GLfloat maxValue,
 	StatisticsType::Enum displayType, QGLFramebufferObject& fbo,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
-	float angleDegrees = 0);
+	float angleDegrees = 0) const;
 
 private:
     static boost::shared_ptr<TensorDisplay> m_displayShaderProgram;
