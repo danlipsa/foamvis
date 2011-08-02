@@ -198,6 +198,7 @@ public:
 	G3D::Rect2D destRect, 
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
+    double GetOnePixelInObjectSpaceScaled () const;
     double GetOnePixelInObjectSpace () const;
     double GetCellLength (ViewNumber::Enum viewNumber) const;
     double GetEllipseLineWidthRatio () const

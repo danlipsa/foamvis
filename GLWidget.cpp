@@ -473,14 +473,22 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 }
 
 
-double GLWidget::GetOnePixelInObjectSpace () const
+double GLWidget::GetOnePixelInObjectSpaceScaled () const
 {
     G3D::Vector3 first = toObject (QPoint (0, 0));
     G3D::Vector3 second = toObject (QPoint (1, 0));
     float onePixelInObjectSpace = (second - first).length ();
-    WarnOnOpenGLError ("GetOnePixelInObjectSpace");
+    WarnOnOpenGLError ("GetOnePixelInObjectSpaceScaled");
     return onePixelInObjectSpace;
 }
+
+double GLWidget::GetOnePixelInObjectSpace () const
+{
+    return GetViewSettings ().GetScaleRatio () * 
+	GetOnePixelInObjectSpaceScaled ();
+}
+
+
 
 double GLWidget::GetCellLength (ViewNumber::Enum viewNumber) const
 {
@@ -1212,7 +1220,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     viewportTransform (viewNumber);    
     projectionTransform (viewNumber);
     ModelViewTransform (viewNumber, GetTime ());
-    m_minimumEdgeRadius = GetOnePixelInObjectSpace ();
+    m_minimumEdgeRadius = GetOnePixelInObjectSpaceScaled ();
     calculateEdgeRadius (m_edgeRadiusRatio,
 			 &m_edgeRadius, &m_arrowBaseRadius,
 			 &m_arrowHeight, &m_edgeWidth);

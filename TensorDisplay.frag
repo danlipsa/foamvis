@@ -1,3 +1,4 @@
+#version 120
 /**
  * @file   TensorDisplay.frag
  * @author Dan R. Lipsa
@@ -32,13 +33,13 @@ Tensor calculateTensor ()
 
 void main(void)
 {
-    const vec4 inkColor = vec4 (0.0, 0.0, 0.0, 1.0);
+    const vec4 inkColor = vec4 (0., 0., 0., 1.);
     Tensor t = calculateTensor ();
-    float c = max (t.m_l1, t.m_l2) / 4;
+    float c = max (t.m_l1, t.m_l2) / 4.;
     vec2 x = objectCoord / cellLength;
     x = fract (x);
     mat2 r = mat2(t.m_v1, t.m_v2);
-    mat2 d = mat2 (t.m_l1, 0.0, 0.0, t.m_l2);
+    mat2 d = mat2 (t.m_l1, 0., 0., t.m_l2);
     float value = dot (x, r * d * transpose (r) * x);
 
     float perc = (cellLength - lineWidth) / cellLength;

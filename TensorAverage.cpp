@@ -113,8 +113,7 @@ void TensorAverage::rotateAndDisplay (
     double cellLength = glWidget.GetCellLength (viewNumber);
     // @todo why do I have to use the scale ratio?
     double lineWidth = glWidget.GetOnePixelInObjectSpace () * 
-	glWidget.GetEllipseLineWidthRatio () * 
-	glWidget.GetViewSettings (viewNumber).GetScaleRatio ();
+	glWidget.GetEllipseLineWidthRatio ();
     m_displayShaderProgram->Bind (cellLength, lineWidth);
 
     // activate texture unit 1
