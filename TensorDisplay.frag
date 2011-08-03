@@ -6,6 +6,7 @@
  * Displays deformation ellipses
  */
 
+uniform vec2 gridTranslation;
 // cell length in object coordinates
 uniform float cellLength;
 // line width in object coordinates
@@ -26,27 +27,39 @@ struct Tensor
     vec2 m_v2;
 };
 
-Tensor calculateTensor ()
+struct TensorAc
 {
-    return Tensor (2., 1., vec2 (1., 0.), vec2 (0., 1.));
+    mat2 m_a;
+    float m_c;
+};
+
+TensorAc getTensorAc ()
+{
+    const Tensor t = Tensor (1./25., 1./4., vec2 (1., 0.), vec2 (0., 1.));
+    mat2 r = mat2(t.m_v1, t.m_v2);
+    mat2 d = mat2 (t.m_l1, 0., 0., t.m_l2);
+    mat2 a = r * d * transpose (r);
+    return TensorAc (a, min (t.m_l1, t.m_l2) / 4);
 }
 
 void main(void)
 {
     const vec4 inkColor = vec4 (0., 0., 0., 1.);
-    Tensor t = calculateTensor ();
-    float c = max (t.m_l1, t.m_l2) / 4.;
-    vec2 x = objectCoord / cellLength;
-    x = fract (x);
-    mat2 r = mat2(t.m_v1, t.m_v2);
-    mat2 d = mat2 (t.m_l1, 0., 0., t.m_l2);
-    float value = dot (x, r * d * transpose (r) * x);
-
     float perc = (cellLength - lineWidth) / cellLength;
+    TensorAc t = getTensorAc ();
+    float cMax = t.m_c;
+    float cMin = perc * perc * cMax;
+    vec2 x = (objectCoord - gridTranslation) / cellLength;
+    x = fract (x);
+    vec2 v = vec2 (0.5, 0.5);
+    float value = dot (x - v, t.m_a * (x - v));
+
+    bool backgroundEllipse = value < cMin || cMax < value;
     vec2 percentage = vec2 (perc, perc);
-    vec2 useBackground = step (x, percentage);
-    float finish = useBackground.x * useBackground.y;
-    if (finish != 0.0)
+    vec2 backgroundBox = step (x, percentage);
+    bool finish = backgroundEllipse;
+    //&& (backgroundBox.x * backgroundBox.y != 0.);
+    if (finish)
 	discard;    
     gl_FragColor = inkColor;
 }

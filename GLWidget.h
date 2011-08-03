@@ -158,13 +158,13 @@ public:
 	return m_centerPathBodyShown;
     }
 
-    boost::shared_ptr<QAction> GetActionResetTransformation ()
+    boost::shared_ptr<QAction> GetActionResetTransformFocus ()
     {
-	return m_actionResetTransformation;
+	return m_actionResetTransformFocus;
     }
-    boost::shared_ptr<QAction> GetActionResetSelectedLightNumber ()
+    boost::shared_ptr<QAction> GetActionResetTransformLight ()
     {
-	return m_actionResetSelectedLightNumber;
+	return m_actionResetTransformLight;
     }
     
     /**
@@ -214,6 +214,9 @@ Q_SIGNALS:
     void ColorBarModelChanged (boost::shared_ptr<ColorBarModel> colorBarModel);
 
 public Q_SLOTS:
+    void ButtonClickedViewType (int id);
+    void ButtonClickedInteractionObject (int id);
+
     /*
      * Global options
      */
@@ -239,7 +242,6 @@ public Q_SLOTS:
     void ToggledBodyNeighborsShown (bool checked);
     void ToggledFaceCenterShown (bool checked);
     void ToggledEdgesTessellation (bool checked);
-    void ButtonClickedViewType (int id);
 
     void ToggledFacesShowEdges (bool checked);
     void ToggledLightNumberShown (bool checked);
@@ -292,8 +294,10 @@ public Q_SLOTS:
     void ValueChangedForceLength (int index);
     void ValueChangedHighlightLineWidth (int newWidth);
     // Actions
-    void ResetTransformation ();
-    void ResetSelectedLightNumber ();
+    void ResetTransformFocus ();
+    void ResetTransformContext ();
+    void ResetTransformLight ();    
+    void ResetTransformGrid ();
     void SelectBodiesByIdList ();
     void SelectAll ();
     void DeselectAll ();
@@ -381,6 +385,10 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    void mouseMoveRotate (QMouseEvent *event);
+    void mouseMoveTranslate (QMouseEvent *event);
+    void mouseMoveScale (QMouseEvent *event);
+
     /**
      * Setup the viewing volume first centered around origin and then 
      * translated toward negative Z with m_cameraDistance.
@@ -531,9 +539,16 @@ private:
 	const QPoint& position,
 	G3D::Vector3::Axis screenXTranslation,
 	G3D::Vector3::Axis screenYTranslation);
+    void translateGrid (ViewNumber::Enum viewNumber, const QPoint& position);
+    void calculateTranslationRatio (
+    ViewNumber::Enum viewNumber, const QPoint& position,
+    G3D::Vector3::Axis screenXTranslation,
+    G3D::Vector3::Axis screenYTranslation, 
+    G3D::Vector3* translationRatio, G3D::Vector3* focusBoxExtent);
     void translateLight (ViewNumber::Enum viewNumber, const QPoint& position);
     void scale (ViewNumber::Enum viewNumber, const QPoint& position);
     void scaleContext (ViewNumber::Enum viewNumber, const QPoint& position);
+    void scaleGrid (ViewNumber::Enum viewNumber, const QPoint& position);
     void translateAndScale (double scaleRatio, const G3D::Vector3& translation,
 			    bool contextView) const;
     void select (const QPoint& position);
@@ -573,6 +588,8 @@ private:
     void rotateAverageAround (size_t timeStep, int direction) const;
     void valueChanged (
 	double* dest, const pair<double,double>& minMax, int index);
+    void valueChangedLog2Scale (
+	double* dest, const pair<double,double>& minMax, int index);
     string infoSelectedBody () const;
     string infoSelectedBodies () const;
 
@@ -587,7 +604,8 @@ private:
     // Min, max values for T1s, Context alpha, force length
     const static pair<double,double> T1_SIZE;
     const static pair<double,double> ELLIPSE_SIZE;
-    const static pair<double,double> ELLIPSE_LINE_WIDTH_RATIO;
+    const static pair<double,double> ELLIPSE_LINE_WIDTH_EXP;
+    const static pair<double,double> CELL_LENGTH_EXP;
     const static pair<double,double> CONTEXT_ALPHA;
     const static pair<double,double> FORCE_LENGTH;
     const static GLfloat HIGHLIGHT_LINE_WIDTH;
@@ -601,6 +619,7 @@ private:
     bool m_torusOriginalDomainDisplay;
     bool m_torusOriginalDomainClipped;
     InteractionMode::Enum m_interactionMode;
+    InteractionObject::Enum m_interactionObject;
 
     /**
      * Foam to be displayd. Each element coresponds to a DMP file
@@ -645,8 +664,10 @@ private:
 
     boost::shared_ptr<QAction> m_actionSelectAll;
     boost::shared_ptr<QAction> m_actionDeselectAll;
-    boost::shared_ptr<QAction> m_actionResetTransformation;
-    boost::shared_ptr<QAction> m_actionResetSelectedLightNumber;
+    boost::shared_ptr<QAction> m_actionResetTransformFocus;
+    boost::shared_ptr<QAction> m_actionResetTransformContext;
+    boost::shared_ptr<QAction> m_actionResetTransformLight;
+    boost::shared_ptr<QAction> m_actionResetTransformGrid;
     boost::shared_ptr<QAction> m_actionSelectBodiesById;
 
     boost::shared_ptr<QAction> m_actionAverageAroundBody;
@@ -688,7 +709,6 @@ private:
     double m_t1Size;
     double m_ellipseSize;
     double m_ellipseLineWidthRatio;
-    
     double m_contextAlpha;
     double m_forceLength;
     size_t m_highlightLineWidth;

@@ -69,6 +69,8 @@ Q_SIGNALS:
 	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 public Q_SLOTS:
+    void ButtonClickedHistogram (int histogramType);
+
     void ToggledHistogramGridShown (bool checked);
 
     /**
@@ -87,6 +89,7 @@ public Q_SLOTS:
      */
     void ClickedPlay ();
     void ClickedPlayReverse ();
+    void CurrentIndexChangedInteractionMode (int index);
     void CurrentIndexChangedFacesColor (int value);
     void CurrentIndexChangedStatisticsType (int value);
     void CurrentIndexChangedViewCount (int index);
@@ -102,8 +105,6 @@ public Q_SLOTS:
     void TranslateShown ();    
     void SelectShown ();
     void DeselectShown ();
-    void RotateLightShown ();
-    void TranslateLightShown ();
 
     void SelectionChangedHistogram ();
     /**
@@ -112,7 +113,6 @@ public Q_SLOTS:
     void TimeoutTimer ();
     void ToggledCenterPath (bool checked);
     
-    void ButtonClickedHistogram (int histogramType);
     void ToggledFacesNormal (bool checked);
     void ToggledFacesStatistics (bool checked);
     /**
@@ -202,8 +202,6 @@ private:
     boost::shared_ptr<QAction> m_actionRotateShown;
     boost::shared_ptr<QAction> m_actionTranslateShown;
     boost::shared_ptr<QAction> m_actionScaleShown;
-    boost::shared_ptr<QAction> m_actionRotateLightShown;
-    boost::shared_ptr<QAction> m_actionTranslateLightShown;
     boost::shared_ptr<QAction> m_actionSelectShown;
     boost::shared_ptr<QAction> m_actionDeselectShown;
 

@@ -146,7 +146,7 @@ const size_t GLWidget::QUADRIC_STACKS = 1;
 const double GLWidget::ENCLOSE_ROTATION_RATIO = 1;
 const pair<double,double> GLWidget::T1_SIZE (1, 10);
 const pair<double,double> GLWidget::ELLIPSE_SIZE (1, 100);
-const pair<double,double> GLWidget::ELLIPSE_LINE_WIDTH_RATIO (1, 4);
+const pair<double,double> GLWidget::ELLIPSE_LINE_WIDTH_EXP (0, 3);
 
 const pair<double,double> GLWidget::CONTEXT_ALPHA (0.05, 0.5);
 const pair<double,double> GLWidget::FORCE_LENGTH (.25, 6);
@@ -160,6 +160,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_torusOriginalDomainDisplay (false),
       m_torusOriginalDomainClipped (false),
       m_interactionMode (InteractionMode::ROTATE),
+      m_interactionObject (InteractionObject::FOCUS),
       m_foamAlongTime (0), m_timeStep (0),
       m_minimumEdgeRadius (0),
       m_edgeRadiusRatio (0),
@@ -251,23 +252,34 @@ void GLWidget::createActions ()
 	    this, SLOT(SelectBodiesByIdList ()));
 
 
-    m_actionResetTransformation = boost::make_shared<QAction> (
-	tr("&Transformation"), this);
-    m_actionResetTransformation->setShortcut(
+    m_actionResetTransformFocus = boost::make_shared<QAction> (
+	tr("&Focus"), this);
+    m_actionResetTransformFocus->setShortcut(
 	QKeySequence (tr ("Ctrl+R")));
-    m_actionResetTransformation->setStatusTip(tr("Reset transformation"));
-    connect(m_actionResetTransformation.get (), SIGNAL(triggered()),
-	    this, SLOT(ResetTransformation ()));
+    m_actionResetTransformFocus->setStatusTip(tr("Reset transform focus"));
+    connect(m_actionResetTransformFocus.get (), SIGNAL(triggered()),
+	    this, SLOT(ResetTransformFocus ()));
 
+    m_actionResetTransformContext = boost::make_shared<QAction> (
+	tr("&Context"), this);
+    m_actionResetTransformContext->setStatusTip(tr("Reset transform context"));
+    connect(m_actionResetTransformContext.get (), SIGNAL(triggered()),
+	    this, SLOT(ResetTransformContext ()));
 
-    m_actionResetSelectedLightNumber = boost::make_shared<QAction> (
-	tr("&Selected light"), this);
-    m_actionResetSelectedLightNumber->setShortcut(
+    m_actionResetTransformLight = boost::make_shared<QAction> (
+	tr("&Light"), this);
+    m_actionResetTransformLight->setShortcut(
 	QKeySequence (tr ("Ctrl+L")));
-    m_actionResetSelectedLightNumber->setStatusTip(
-	tr("Reset selected light"));
-    connect(m_actionResetSelectedLightNumber.get (), SIGNAL(triggered()),
-	    this, SLOT(ResetSelectedLightNumber ()));
+    m_actionResetTransformLight->setStatusTip(
+	tr("Reset transform light"));
+    connect(m_actionResetTransformLight.get (), SIGNAL(triggered()),
+	    this, SLOT(ResetTransformLight ()));
+
+    m_actionResetTransformGrid = boost::make_shared<QAction> (
+	tr("&Grid"), this);
+    m_actionResetTransformGrid->setStatusTip(tr("Reset transform grid"));
+    connect(m_actionResetTransformGrid.get (), SIGNAL(triggered()),
+	    this, SLOT(ResetTransformGrid ()));
 
     m_actionAverageAroundBody = boost::make_shared<QAction> (
 	tr("&Body"), this);
@@ -959,13 +971,12 @@ void GLWidget::rotate3D () const
 }
 
 
-void GLWidget::ResetTransformation ()
+void GLWidget::ResetTransformFocus ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings ();
     vs.SetRotationModel (G3D::Matrix3::identity ());
     vs.SetScaleRatio (1);
-    vs.SetContextScaleRatio (1);
     vs.SetTranslation (G3D::Vector3::zero ());
     projectionTransform (viewNumber);
     glLoadIdentity ();
@@ -974,7 +985,26 @@ void GLWidget::ResetTransformation ()
     update ();
 }
 
-void GLWidget::ResetSelectedLightNumber ()
+void GLWidget::ResetTransformContext ()
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetContextScaleRatio (1);
+    projectionTransform (viewNumber);
+    glLoadIdentity ();
+    update ();
+}
+
+void GLWidget::ResetTransformGrid ()
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetGridScaleRatio (1);
+    vs.SetGridTranslation (G3D::Vector3::zero ());
+    update ();
+}
+
+void GLWidget::ResetTransformLight ()
 {
     ViewSettings& vs = GetViewSettings ();
     LightNumber::Enum lightNumber = vs.GetSelectedLight ();
@@ -982,7 +1012,6 @@ void GLWidget::ResetSelectedLightNumber ()
     vs.PositionLight (lightNumber, getInitialLightPosition (lightNumber));
     update ();
 }
-
 
 void GLWidget::SelectBodiesByIdList ()
 {
@@ -1294,24 +1323,38 @@ G3D::Matrix3 GLWidget::rotate (ViewNumber::Enum viewNumber,
     return rotate;
 }
 
-void GLWidget::translate (
+
+void GLWidget::calculateTranslationRatio (
     ViewNumber::Enum viewNumber, const QPoint& position,
     G3D::Vector3::Axis screenXTranslation,
-    G3D::Vector3::Axis screenYTranslation)
+    G3D::Vector3::Axis screenYTranslation, 
+    G3D::Vector3* translationRatio, G3D::Vector3* focusBoxExtent)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
-    G3D::Vector3 translationRatio;
-    translationRatio[screenXTranslation] =
+    (*translationRatio)[screenXTranslation] =
 	static_cast<double>(position.x() - m_lastPos.x()) /
 	vs.GetViewport ().width ();
-    translationRatio[screenYTranslation] =
+    (*translationRatio)[screenYTranslation] =
 	- static_cast<double> (position.y() - m_lastPos.y()) / 
 	vs.GetViewport ().height ();
 
 
     G3D::AABox vv = calculateCenteredViewingVolume (
 	double (width ()) / height (), vs.GetScaleRatio ());
-    G3D::Vector3 focusBoxExtent = vv.extent () / vs.GetScaleRatio ();
+    *focusBoxExtent = vv.extent () / vs.GetScaleRatio ();
+}
+
+
+void GLWidget::translate (
+    ViewNumber::Enum viewNumber, const QPoint& position,
+    G3D::Vector3::Axis screenXTranslation,
+    G3D::Vector3::Axis screenYTranslation)
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    G3D::Vector3 translationRatio, focusBoxExtent;
+    calculateTranslationRatio (viewNumber, position, 
+			       screenXTranslation, screenYTranslation, 
+			       &translationRatio, &focusBoxExtent);
     if (vs.IsContextView ())
 	vs.SetTranslation (
 	    vs.GetTranslation () - (translationRatio * focusBoxExtent));
@@ -1320,6 +1363,18 @@ void GLWidget::translate (
 	    vs.GetTranslation () + (translationRatio * focusBoxExtent));
 }
 
+void GLWidget::translateGrid (
+    ViewNumber::Enum viewNumber, const QPoint& position)
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    G3D::Vector3 translationRatio, focusBoxExtent;
+    calculateTranslationRatio (viewNumber, position, 
+			       G3D::Vector3::X_AXIS,
+			       G3D::Vector3::Y_AXIS, 
+			       &translationRatio, &focusBoxExtent);
+    vs.SetGridTranslation (
+	vs.GetGridTranslation () + (translationRatio * focusBoxExtent));
+}
 
 void GLWidget::scale (ViewNumber::Enum viewNumber, const QPoint& position)
 {
@@ -1330,6 +1385,14 @@ void GLWidget::scale (ViewNumber::Enum viewNumber, const QPoint& position)
     else
 	vs.SetScaleRatio (vs.GetScaleRatio () * ratio);
 }
+
+void GLWidget::scaleGrid (ViewNumber::Enum viewNumber, const QPoint& position)
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    double ratio = ratioFromCenter (position);
+    vs.SetGridScaleRatio (vs.GetGridScaleRatio () * ratio);
+}
+
 
 void GLWidget::scaleContext (
     ViewNumber::Enum viewNumber, const QPoint& position)
@@ -1700,66 +1763,113 @@ void GLWidget::deselect (const QPoint& position)
     labelCompileUpdate ();
 }
 
-void GLWidget::mouseMoveEvent(QMouseEvent *event)
+void GLWidget::mouseMoveRotate (QMouseEvent *event)
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    switch (m_interactionMode)
+    switch (m_interactionObject)
     {
-    case InteractionMode::ROTATE:
-    {
+    case InteractionObject::FOCUS:
 	vs.SetRotationModel (
-	    rotate (GetViewNumber (), event->pos (), vs.GetRotationModel ()));
-	break;
-    }
-    case InteractionMode::TRANSLATE:
-	if (event->modifiers () & Qt::ControlModifier)
-	{
-	    // translate for context view
-	    QPoint point (m_lastPos.x (), event->pos ().y ());
-	    translate (GetViewNumber (), 
-		       point, G3D::Vector3::X_AXIS, G3D::Vector3::Z_AXIS);
-	}
-	else
-	    translate (GetViewNumber (), event->pos (), G3D::Vector3::X_AXIS,
-		       G3D::Vector3::Y_AXIS);
-	break;
-    case InteractionMode::SCALE:
-	if (event->modifiers () & Qt::ControlModifier)
-	    scaleContext (GetViewNumber (), event->pos ());
-	else
-	    scale (GetViewNumber (), event->pos ());
-	break;
-
-    case InteractionMode::ROTATE_LIGHT:
+	    rotate (viewNumber, event->pos (), vs.GetRotationModel ()));
+    case InteractionObject::LIGHT:
     {
 	LightNumber::Enum i = vs.GetSelectedLight ();
 	vs.SetRotationLight (
-	    i, 
-	    rotate (GetViewNumber (), event->pos (), vs.GetRotationLight (i)));
+	    i, rotate (viewNumber, event->pos (), vs.GetRotationLight (i)));
 	vs.PositionLight (i, getInitialLightPosition (i));
 	break;
     }
-    case InteractionMode::TRANSLATE_LIGHT:
+    default:
+	break;
+    }
+}
+
+void GLWidget::mouseMoveTranslate (QMouseEvent *event)
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    switch (m_interactionObject)
+    {
+    case InteractionObject::FOCUS:
+	translate (viewNumber, event->pos (), G3D::Vector3::X_AXIS,
+		   G3D::Vector3::Y_AXIS);
+	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
+	    vs.InitStep (viewNumber);
+	break;
+    case InteractionObject::LIGHT:
     {
 	LightNumber::Enum i = vs.GetSelectedLight ();
 	vs.PositionLight (i, getInitialLightPosition (i));
-	translateLight (GetViewNumber (), event->pos ());
+	translateLight (viewNumber, event->pos ());
 	break;
     }
+    case InteractionObject::CONTEXT:
+    {
+	// translate for context view
+	QPoint point (m_lastPos.x (), event->pos ().y ());
+	translate (viewNumber, 
+		   point, G3D::Vector3::X_AXIS, G3D::Vector3::Z_AXIS);
+	break;
+    }
+    case InteractionObject::GRID:
+	translateGrid (viewNumber, event->pos ());
+	break;
+    }
+}
+
+void GLWidget::mouseMoveScale (QMouseEvent *event)
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    switch (m_interactionObject)
+    {
+    case InteractionObject::FOCUS:
+	scale (viewNumber, event->pos ());
+	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
+	    vs.InitStep (viewNumber);
+	break;
+    case InteractionObject::CONTEXT:
+	scaleContext (viewNumber, event->pos ());
+	break;
+    case InteractionObject::GRID:
+	scaleGrid (viewNumber, event->pos ());
+	break;
+    default:
+	break;
+    }
+}
+
+
+void GLWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    switch (m_interactionMode)
+    {
+    case InteractionMode::ROTATE:
+	mouseMoveRotate (event);
+	break;
+
+    case InteractionMode::TRANSLATE:
+	mouseMoveTranslate (event);
+	break;
+
+    case InteractionMode::SCALE:
+	mouseMoveScale (event);
+	break;
+
     case InteractionMode::SELECT:
 	select (event->pos ());
 	break;
+
     case InteractionMode::DESELECT:
 	deselect (event->pos ());
 	break;
 
     default:
 	break;
+
     }
     m_lastPos = event->pos();
-    if (vs.GetViewType () == ViewType::FACES_STATISTICS)
-	vs.InitStep (viewNumber);
     update ();
 }
 
@@ -2524,9 +2634,11 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
     else
     {
 	{
-	    QMenu* menuReset = menu.addMenu ("Reset");
-	    menuReset->addAction (m_actionResetTransformation.get ());
-	    menuReset->addAction (m_actionResetSelectedLightNumber.get ());
+	    QMenu* menuReset = menu.addMenu ("Reset transform");
+	    menuReset->addAction (m_actionResetTransformFocus.get ());
+	    menuReset->addAction (m_actionResetTransformContext.get ());
+	    menuReset->addAction (m_actionResetTransformLight.get ());
+	    menuReset->addAction (m_actionResetTransformGrid.get ());
 	}
 	{
 	    QMenu* menuSelect = menu.addMenu ("Select");
@@ -2772,6 +2884,17 @@ void GLWidget::valueChanged (
 	(minMax.second - minMax.first);
 }
 
+void GLWidget::valueChangedLog2Scale (
+    double* dest, const pair<double,double>& minMax, int index)
+{
+    QSlider* slider = static_cast<QSlider*> (sender ());
+    size_t maxSlider = slider->maximum ();
+    double exp = minMax.first + (double (index) / maxSlider) * 
+	(minMax.second - minMax.first);
+    *dest = pow (2, exp);
+}
+
+
 bool GLWidget::IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const
 {
     switch (bodyProperty)
@@ -2999,6 +3122,7 @@ void GLWidget::ButtonClickedViewType (int id)
     changeViewType (true, newViewType);
 }
 
+
 void GLWidget::ToggledBodyCenterShown (bool checked)
 {
     m_bodyCenterShown = checked;
@@ -3113,6 +3237,12 @@ void GLWidget::CurrentIndexChangedInteractionMode (int index)
     m_interactionMode = InteractionMode::Enum(index);
 }
 
+void GLWidget::ButtonClickedInteractionObject (int index)
+{
+    m_interactionObject = InteractionObject::Enum (index);
+}
+
+
 void GLWidget::CurrentIndexChangedStatisticsType (int index)
 {
     GetViewSettings ().SetStatisticsType (StatisticsType::Enum(index));
@@ -3196,7 +3326,8 @@ void GLWidget::ValueChangedEllipseSize (int index)
 
 void GLWidget::ValueChangedEllipseLineWidth (int index)
 {
-    valueChanged (&m_ellipseLineWidthRatio, ELLIPSE_LINE_WIDTH_RATIO, index);
+    valueChangedLog2Scale (
+	&m_ellipseLineWidthRatio, ELLIPSE_LINE_WIDTH_EXP, index);
     update ();
 }
 

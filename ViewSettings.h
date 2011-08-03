@@ -124,21 +124,50 @@ public:
     {
 	return m_scaleRatio;
     }
-
     void SetScaleRatio (double scaleRatio)
     {
 	m_scaleRatio = scaleRatio;
     }
 
+
+    double GetGridScaleRatio () const
+    {
+	return m_gridScaleRatio;
+    }
+    void SetGridScaleRatio (double gridScaleRatio)
+    {
+	m_gridScaleRatio = gridScaleRatio;
+    }
+
+    double GetContextScaleRatio () const
+    {
+	return m_contextScaleRatio;
+    }
+    
+    void SetContextScaleRatio (double contextScaleRatio)
+    {
+	m_contextScaleRatio = contextScaleRatio;
+    }
+
+
     const G3D::Vector3& GetTranslation () const
     {
 	return m_translation;
+    }
+    const G3D::Vector3& GetGridTranslation () const
+    {
+	return m_gridTranslation;
     }
     
     void SetTranslation (const G3D::Vector3& translation)
     {
 	m_translation = translation;
     }
+    void SetGridTranslation (const G3D::Vector3& gridTranslation)
+    {
+	m_gridTranslation = gridTranslation;
+    }
+
     bool IsLightingEnabled () const
     {
 	return m_lightingEnabled;
@@ -291,16 +320,6 @@ public:
 	return m_deformationTensorShown;
     }
 
-    double GetContextScaleRatio () const
-    {
-	return m_contextScaleRatio;
-    }
-    
-    void SetContextScaleRatio (double contextScaleRatio)
-    {
-	m_contextScaleRatio = contextScaleRatio;
-    }
-
     // ContextDisplay
     void AddContextDisplayBody (size_t bodyId)
     {
@@ -389,7 +408,10 @@ private:
     G3D::Matrix3 m_rotationModel;
     G3D::Rect2D m_viewport;
     double m_scaleRatio;
+    double m_gridScaleRatio;
+    double m_contextScaleRatio;
     G3D::Vector3 m_translation;
+    G3D::Vector3 m_gridTranslation;
     // lighting state
     bool m_lightingEnabled;
     LightNumber::Enum m_selectedLight;
@@ -419,7 +441,6 @@ private:
     bool m_forcePressureShown;
     bool m_forceResultShown;
     bool m_deformationTensorShown;
-    double m_contextScaleRatio;
     // Context display
     set<size_t> m_contextBody;
     // Context stationary

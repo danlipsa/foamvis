@@ -256,6 +256,15 @@ void MainWindow::setupButtonGroups ()
     buttonGroupViewType->setId (radioButtonFacesStatistics, 
 				ViewType::FACES_STATISTICS);
     buttonGroupViewType->setId (radioButtonCenterPath, ViewType::CENTER_PATHS);
+
+    buttonGroupInteractionObject->setId (
+	radioButtonInteractionFocus, InteractionObject::FOCUS);
+    buttonGroupInteractionObject->setId (
+	radioButtonInteractionLight, InteractionObject::LIGHT);
+    buttonGroupInteractionObject->setId (
+	radioButtonInteractionContext, InteractionObject::CONTEXT);
+    buttonGroupInteractionObject->setId (
+	radioButtonInteractionGrid, InteractionObject::GRID);
 }
 
 void MainWindow::setupSliderData (const FoamAlongTime& foamAlongTime)
@@ -326,16 +335,6 @@ void MainWindow::SelectShown ()
 void MainWindow::DeselectShown ()
 {
     comboBoxInteractionMode->setCurrentIndex (InteractionMode::DESELECT);
-}
-
-void MainWindow::RotateLightShown ()
-{
-    comboBoxInteractionMode->setCurrentIndex (InteractionMode::ROTATE_LIGHT);
-}
-
-void MainWindow::TranslateLightShown ()
-{
-    comboBoxInteractionMode->setCurrentIndex (InteractionMode::TRANSLATE_LIGHT);
 }
 
 
@@ -522,23 +521,7 @@ void MainWindow::createActions ()
     m_actionTranslateShown->setShortcut(QKeySequence (tr ("T")));
     m_actionTranslateShown->setStatusTip(tr("Translate"));
     connect(m_actionTranslateShown.get (), SIGNAL(triggered()),
-	    this, SLOT(TranslateShown ()));
-    
-    
-    m_actionRotateLightShown = boost::make_shared<QAction> (
-	tr("Rotate &Light"), this);
-    m_actionRotateLightShown->setShortcut(QKeySequence (tr ("L")));
-    m_actionRotateLightShown->setStatusTip(tr("Rotate Light"));
-    connect(m_actionRotateLightShown.get (), SIGNAL(triggered()),
-	    this, SLOT(RotateLightShown ()));
-    
-    m_actionTranslateLightShown = boost::make_shared<QAction> (
-	tr("Translate L&ight"), this);
-    m_actionTranslateLightShown->setShortcut(QKeySequence (tr ("I")));
-    m_actionTranslateLightShown->setStatusTip(tr("Translate Light"));
-    connect(m_actionTranslateLightShown.get (), SIGNAL(triggered()),
-	    this, SLOT(TranslateLightShown ()));
-    
+	    this, SLOT(TranslateShown ()));           
     
     m_actionSelectShown = boost::make_shared<QAction> (
 	tr("&Select"), this);
@@ -554,16 +537,14 @@ void MainWindow::createActions ()
     connect(m_actionDeselectShown.get (), SIGNAL(triggered()),
 	    this, SLOT(DeselectShown ()));
     
-    addAction (widgetGl->GetActionResetTransformation ().get ());
-    addAction (widgetGl->GetActionResetSelectedLightNumber ().get ());
+    addAction (widgetGl->GetActionResetTransformFocus ().get ());
+    addAction (widgetGl->GetActionResetTransformLight ().get ());
     
     addAction (sliderTimeSteps->GetActionNextSelectedTimeStep ().get ());
     addAction (sliderTimeSteps->GetActionPreviousSelectedTimeStep ().get ());
     addAction (m_actionRotateShown.get ());
     addAction (m_actionTranslateShown.get ());
     addAction (m_actionScaleShown.get ());
-    addAction (m_actionRotateLightShown.get ());
-    addAction (m_actionTranslateLightShown.get ());
     addAction (m_actionSelectShown.get ());
     addAction (m_actionDeselectShown.get ());
 }
@@ -981,4 +962,32 @@ void MainWindow::SetHistogramColorBarModel (
 {
     if (m_histogramViewNumber == widgetGl->GetViewNumber ())
 	widgetHistogram->SetColorBarModel (colorBarModel);
+}
+
+void MainWindow::CurrentIndexChangedInteractionMode (int index)
+{
+    InteractionMode::Enum im = InteractionMode::Enum(index);
+    radioButtonInteractionFocus->click ();
+    radioButtonInteractionLight->setDisabled (true);
+    radioButtonInteractionContext->setDisabled (true);
+    radioButtonInteractionGrid->setDisabled (true);
+    switch (im)
+    {
+    case InteractionMode::ROTATE:
+	radioButtonInteractionLight->setEnabled (true);
+	break;
+	
+    case InteractionMode::SCALE:
+	radioButtonInteractionContext->setEnabled (true);
+	radioButtonInteractionGrid->setEnabled (true);
+	break;
+	
+    case InteractionMode::TRANSLATE:
+	radioButtonInteractionLight->setEnabled (true);
+	radioButtonInteractionGrid->setEnabled (true);
+	break;
+    
+    default:
+	break;
+    }
 }

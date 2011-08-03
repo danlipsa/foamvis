@@ -45,15 +45,23 @@ public:
 	SCALE,
 	TRANSLATE,
 
-	ROTATE_LIGHT,
-	TRANSLATE_LIGHT,
-
 	SELECT,
 	DESELECT,
 
 	COUNT
     };
 };
+
+struct InteractionObject
+{
+    enum Enum {
+	FOCUS,
+	CONTEXT,
+	LIGHT,
+	GRID
+    };
+};
+
 
 struct AttributeType
 {
@@ -161,6 +169,7 @@ public:
     static bool IsGlobal (ViewType::Enum t);
     static const char* ToString (ViewType::Enum viewType);
 };
+
 
 class StatisticsType
 {

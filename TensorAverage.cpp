@@ -29,7 +29,7 @@ class TensorDisplay : public ShaderProgram
 {
 public:
     TensorDisplay (const char* vert, const char* frag);
-    void Bind (float cellLength, float lineWidth);
+    void Bind (G3D::Vector2 gridTranslation, float cellLength, float lineWidth);
 
     GLint GetTensorAverageTexUnit ()
     {
@@ -41,6 +41,7 @@ public:
     }
 
 private:
+    int m_gridTranslationLocation;
     int m_cellLengthLocation;
     int m_lineWidthLocation;
     int m_tensorAverageTexUnitLocation;
@@ -50,15 +51,19 @@ private:
 TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
     ShaderProgram (vert, frag)
 {
+    m_gridTranslationLocation = uniformLocation ("gridTranslation");
     m_cellLengthLocation = uniformLocation ("cellLength");
     m_lineWidthLocation = uniformLocation ("lineWidth");
     m_tensorAverageTexUnitLocation = uniformLocation("tensorAverageTexUnit");
     m_scalarAverageTexUnitLocation = uniformLocation("scalarAverageTexUnit");
 }
 
-void TensorDisplay::Bind (float cellLength, float lineWidth)
+void TensorDisplay::Bind (G3D::Vector2 gridTranslation, 
+			  float cellLength, float lineWidth)
 {
     ShaderProgram::Bind ();
+    setUniformValue (
+	m_gridTranslationLocation, gridTranslation[0], gridTranslation[1]);
     setUniformValue (m_cellLengthLocation, cellLength);
     setUniformValue (m_lineWidthLocation, lineWidth);
     setUniformValue (
@@ -110,11 +115,16 @@ void TensorAverage::rotateAndDisplay (
     (void)displayType;
 
     const GLWidget& glWidget = GetGLWidget ();
-    double cellLength = glWidget.GetCellLength (viewNumber);
+    ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
+    G3D::Vector2 gridTranslation = 
+	(vs.GetGridTranslation () * vs.GetScaleRatio () * 
+	 vs.GetGridScaleRatio () + vs.GetTranslation ()).xy ();
+    double cellLength = 
+	glWidget.GetCellLength (viewNumber) * vs.GetGridScaleRatio ();
     // @todo why do I have to use the scale ratio?
     double lineWidth = glWidget.GetOnePixelInObjectSpace () * 
 	glWidget.GetEllipseLineWidthRatio ();
-    m_displayShaderProgram->Bind (cellLength, lineWidth);
+    m_displayShaderProgram->Bind (gridTranslation, cellLength, lineWidth);
 
     // activate texture unit 1
     glActiveTexture (
