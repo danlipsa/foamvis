@@ -2,7 +2,7 @@
  * @file ScalarStore.vert
  * @author Dan R. Lipsa
  *
- * Store a 2x2 matrix in a texel row order: m00, m01, m10, m11
+ * Store a mat2 in column order.
  */
 
 attribute vec4 vValue;

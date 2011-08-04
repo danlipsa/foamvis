@@ -68,9 +68,9 @@ void SetterDeformationTensor::operator () (const boost::shared_ptr<Body>& body)
     Matrix2SetColumn (&r, 0, body->GetDeformationEigenVector (0).xy ());
     Matrix2SetColumn (&r, 1, body->GetDeformationEigenVector (1).xy ());
     G3D::Matrix2 a = mult (mult (r, l), r.transpose ());
-    // this function expects the matrix in row major order
+    // GLSL uses matrices in column order
     m_program->setAttributeValue (
-	m_attributeLocation, a[0][0], a[0][1], a[1][0], a[1][1]);
+	m_attributeLocation, a[0][0], a[1][0], a[0][1], a[1][1]);
 }
 
 void SetterDeformationTensor::operator () ()

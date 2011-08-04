@@ -1,6 +1,6 @@
 /**
- * Shader that stores a 2x2 matrix in a texel, column
- * RGBA: m00, m01, m10, m11
+ * Shader that stores a mat2 in column order
+ * RGBA: m00, m10, m01, m11
  *
  */
 varying vec4 fValue;
