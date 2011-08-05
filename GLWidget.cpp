@@ -997,7 +997,6 @@ void GLWidget::ResetTransformContext ()
 
 void GLWidget::ResetTransformGrid ()
 {
-    ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings ();
     vs.SetGridScaleRatio (1);
     vs.SetGridTranslation (G3D::Vector3::zero ());

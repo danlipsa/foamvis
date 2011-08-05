@@ -32,6 +32,7 @@ ostream& operator<< (ostream& ostr, const G3D::Plane& p);
 ostream& operator<< (ostream& ostr, const G3D::Matrix4& m);
 ostream& operator<< (ostream& ostr, const G3D::Vector4& v);
 ostream& operator<< (ostream& ostr, const G3D::Vector2& v);
+ostream& operator<< (ostream& ostr, const G3D::Matrix2& m);
 ostream& operator<< (ostream& ostr, const QColor& color);
 ostream& operator<< (ostream& ostr, const QVector3D& v);
 ostream& operator<< (ostream& ostr, const QPoint& p);

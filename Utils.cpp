@@ -36,7 +36,9 @@ G3D::Matrix2 mult (const G3D::Matrix2& first, const G3D::Matrix2& second)
 {
     const size_t SIZE = 2;
     G3D::Matrix2 m;
+    //row
     for (size_t i = 0; i < SIZE; ++i)
+	// column
 	for (size_t j = 0; j < SIZE; ++j)
 	{
 	    m[i][j] = 0;
@@ -53,6 +55,13 @@ G3D::Matrix2 mult (const G3D::Matrix2& first, const G3D::Matrix2& second)
 ostream& operator<< (ostream& ostr, const G3D::AABox& box)
 {
     ostr << "AABox(" << box.low () << ", " << box.high () << ")";
+    return ostr;
+}
+
+ostream& operator<< (ostream& ostr, const G3D::Matrix2& m)
+{
+    ostr << "Matrix2(" << m[0][0] << ", " << m[0][1] << ", "
+	 << m[1][0] << ", " << m[1][1] << ")";
     return ostr;
 }
 

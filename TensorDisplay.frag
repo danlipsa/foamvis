@@ -30,14 +30,17 @@ struct Tensor
 // see Practical Linear Algebra, ch. 9
 struct Ellipse
 {
+    // c such that the longest side of the ellipse is between percentage and 1.
+    //vec2 m_c;
     // ellipse coefficients = 1 / (eigen value)^2
     vec2 m_l;
     // r*d*transpose(r)
     mat2 m_a;
 };
 
+const float sqrt2 = 1.41421356237;
 const Tensor tensor45 = Tensor (vec2 (3., 1.), 
-				mat2 (1., 1., 1., -1.) / 1.4142);
+				mat2 (1., 1., 1., -1.) / sqrt2);
 const mat2 transform45 = mat2 (2., 1., 1., 2.);
 
 Ellipse fromEigen (Tensor t)
@@ -46,7 +49,7 @@ Ellipse fromEigen (Tensor t)
     vec2 ec = vec2 (1 / (t.m_l[0] * t.m_l[0]), 1 / (t.m_l[1], t.m_l[1]));
     mat2 d = mat2 (ec[0], 0., 0., ec[1]);
     mat2 a = r * d * transpose (r);
-    return Tensor (ec, a);
+    return Ellipse (ec, a);
 }
 
 // see Numerical Recipes, ch 5.6
@@ -56,40 +59,73 @@ vec2 getQuadraticRoots (float a, float b, float c)
     if (r < 0.0 || a == 0.0)
 	discard;
     r = sqrt (r);
-    float q = (-1 / 2) * (b + sign (b) * r);
+    float q = (-1.0 / 2.0) * (b + sign (b) * r);
     return vec2 (q / a, c / q);
 }
 
-mat2 getTransform ()
+vec2 getEigenVector (float l, mat2 a)
 {
-    vec4 scalarAverage = texture2D (scalarAverageTexUnit, gl_TexCoord[0].st);
+    a[0][0] -= l;
+    a[1][1] -= l;
+    int i = (abs(a[0][0]) < abs(a[1][0])) ? 1 : 0;
+    vec2 r = vec2 (-a[i][1] / a[i][0], 1.0);
+    r = normalize (r);
+    return r;
+}
+
+mat2 getEigenVectors (vec2 l, mat2 a)
+{
+    vec2 first = getEigenVector (l[0], a);
+    vec2 second = getEigenVector (l[1], a);
+    return mat2 (first, second);
+}
+
+/**
+ * returns true if the transform matrix is valid
+ */
+bool getTransform (out mat2 a)
+{
+    float count = texture2D (scalarAverageTexUnit, gl_TexCoord[0].st).g;
+    if (count == 0.0)
+	return false;
     vec4 ta = texture2D (tensorAverageTexUnit, gl_TexCoord[0].st);
-    mat2 a = mat2 (ta[0], ta[1], ta[2], ta[3]);
-    a = a / scalarAverage.g;
-    return a;
+    //debug
+    //ta = vec4 (2., 1., 1., 2.);
+    a = mat2 (ta[0], ta[1], ta[2], ta[3]);
+    a = a / count;
+    return true;
 }
 
 Ellipse fromTransform (mat2 a)
 {
-    vec2 l = getQuadraticRoots (1.0, -a[0][0] - a[1][1],
-				a[0][0] * a[1][1] - a[0][1] * a[1][0]);
-    return Ellipse (l, a);
+    vec2 el = getQuadraticRoots (1.0, -a[0][0] - a[1][1],
+				 a[0][0] * a[1][1] - a[0][1] * a[1][0]);
+    mat2 ea = getEigenVectors (el, a);
+    return fromEigen (Tensor (el, ea));
 }
 
 void main(void)
 {
     const vec4 inkColor = vec4 (0., 0., 0., 1.);
-    float perc = (cellLength - lineWidth) / cellLength;
-    Ellipse t = fromEigen (tensor45);
-    //Tensor t = fromTransform (getTransform ());
-    //Tensor t = fromTransform (transform45);
-    float cMax = min (t.m_l[0], t.m_l[1]) / 4.;
-    float cMin = perc * perc * cMax;
+    //Ellipse t = fromEigen (tensor45);
+    //Ellipse t = fromTransform (transform45);
     vec2 x = (objectCoord - gridTranslation) / cellLength;
     x = fract (x);
-    vec2 v = vec2 (0.5, 0.5);
-    float value = dot (x - v, t.m_a * (x - v));
-    bool backgroundEllipse = value < cMin || cMax < value;
+    bool backgroundEllipse = true;
+    mat2 a;
+    if (getTransform (a))
+    {
+	Ellipse t = fromTransform (a);
+	float cMax = min (t.m_l[0], t.m_l[1]) / 4.;
+	float perc = (cellLength - 4*lineWidth) / cellLength;
+	float cMin = perc * perc * cMax;
+	vec2 v = vec2 (0.5, 0.5);
+	float value = dot (x - v, t.m_a * (x - v));
+	backgroundEllipse = value < cMin || cMax < value;
+	//debug
+	//backgroundEllipse = false;
+    }
+    float perc = (cellLength - lineWidth) / cellLength;
     vec2 percentage = vec2 (perc, perc);
     vec2 backgroundBox = step (x, percentage);
     bool finish = backgroundEllipse
