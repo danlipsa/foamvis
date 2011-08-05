@@ -29,7 +29,7 @@ void Matrix2SetColumn (G3D::Matrix2* m, size_t column, const G3D::Vector2& v)
 {
     const size_t SIZE = 2;
     for (size_t i = 0; i < SIZE; ++i)
-	(*m)[i][column] = v[column];
+	(*m)[i][column] = v[i];
 }
 
 G3D::Matrix2 mult (const G3D::Matrix2& first, const G3D::Matrix2& second)

@@ -6,6 +6,15 @@
  * Displays deformation ellipses
  */
 
+/*
+#if __VERSION__ < 130
+float sign (float value)
+{
+    return ((value > 0.) ? 1.0 : ((value < 0.) ? -1.0 : 0.0));
+}
+#endif
+*/
+
 uniform vec2 gridTranslation;
 // cell length in object coordinates
 uniform float cellLength;
@@ -46,7 +55,7 @@ const mat2 transform45 = mat2 (2., 1., 1., 2.);
 Ellipse fromEigen (Tensor t)
 {
     mat2 r = t.m_a;
-    vec2 ec = vec2 (1 / (t.m_l[0] * t.m_l[0]), 1 / (t.m_l[1], t.m_l[1]));
+    vec2 ec = vec2 (1. / (t.m_l[0] * t.m_l[0]), 1. / (t.m_l[1], t.m_l[1]));
     mat2 d = mat2 (ec[0], 0., 0., ec[1]);
     mat2 a = r * d * transpose (r);
     return Ellipse (ec, a);
@@ -86,11 +95,13 @@ mat2 getEigenVectors (vec2 l, mat2 a)
 bool getTransform (out mat2 a)
 {
     float count = texture2D (scalarAverageTexUnit, gl_TexCoord[0].st).g;
+    // debug
+    count = 1.0;
     if (count == 0.0)
 	return false;
     vec4 ta = texture2D (tensorAverageTexUnit, gl_TexCoord[0].st);
     //debug
-    //ta = vec4 (2., 1., 1., 2.);
+    ta = vec4 (2., 1., 1., 2.);
     a = mat2 (ta[0], ta[1], ta[2], ta[3]);
     a = a / count;
     return true;
@@ -107,17 +118,17 @@ Ellipse fromTransform (mat2 a)
 void main(void)
 {
     const vec4 inkColor = vec4 (0., 0., 0., 1.);
-    //Ellipse t = fromEigen (tensor45);
-    //Ellipse t = fromTransform (transform45);
     vec2 x = (objectCoord - gridTranslation) / cellLength;
     x = fract (x);
     bool backgroundEllipse = true;
     mat2 a;
-    if (getTransform (a))
+    //if (getTransform (a))
     {
-	Ellipse t = fromTransform (a);
+	//Ellipse t = fromEigen (tensor45);
+	Ellipse t = fromTransform (transform45);
+	//Ellipse t = fromTransform (a);
 	float cMax = min (t.m_l[0], t.m_l[1]) / 4.;
-	float perc = (cellLength - 4*lineWidth) / cellLength;
+	float perc = (cellLength - 4. * lineWidth) / cellLength;
 	float cMin = perc * perc * cMax;
 	vec2 v = vec2 (0.5, 0.5);
 	float value = dot (x - v, t.m_a * (x - v));

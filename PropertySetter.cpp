@@ -71,21 +71,22 @@ void SetterDeformationTensor::operator () (const boost::shared_ptr<Body>& body)
     G3D::Matrix2 r;
     G3D::Vector2 first = body->GetDeformationEigenVector (0).xy ();
     // debug
-    first = G3D::Vector2 (1., 1.);
+    first = G3D::Vector2 (1., 1.) / sqrt (2);
     G3D::Vector2 second = body->GetDeformationEigenVector (1).xy ();
     // debug
-    second = G3D::Vector2 (1., -1.);
+    second = G3D::Vector2 (1., -1.) / sqrt (2);
     Matrix2SetColumn (&r, 0, first);
     Matrix2SetColumn (&r, 1, second);
     G3D::Matrix2 a = mult (mult (r, l), r.transpose ());
     // GLSL uses matrices in column order
-    m_program->setAttributeValue (
-	m_attributeLocation, a[0][0], a[1][0], a[0][1], a[1][1]);
+    //m_program->setAttributeValue (
+    //m_attributeLocation, a[0][0], a[1][0], a[0][1], a[1][1]);
+    cdbg << "r*l=" << mult (r, l) << endl;
     cdbg << "Eigen val.: " << l[0][0] << ", " << l[1][1] << endl;
     cdbg << "Eigen vec.: " << first << ", " << second << endl;
     cdbg << a << endl << endl;
     // debug
-    // m_program->setAttributeValue (m_attributeLocation, 2., 1., 1., 2.);
+    m_program->setAttributeValue (m_attributeLocation, 2., 1., 1., 2.);
 }
 
 void SetterDeformationTensor::operator () ()
