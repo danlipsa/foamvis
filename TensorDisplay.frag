@@ -6,15 +6,6 @@
  * Displays deformation ellipses
  */
 
-/*
-#if __VERSION__ < 130
-float sign (float value)
-{
-    return ((value > 0.) ? 1.0 : ((value < 0.) ? -1.0 : 0.0));
-}
-#endif
-*/
-
 uniform vec2 gridTranslation;
 // cell length in object coordinates
 uniform float cellLength;
@@ -28,37 +19,40 @@ uniform sampler2D scalarAverageTexUnit;
 // each fragmet receives the object coordinates of the fragment.
 varying vec2 objectCoord;
 
-struct Tensor
-{
-    // eigen values
-    vec2 m_l;
-    // eigen vectors in column order
-    mat2 m_a;
-};
-
 // see Practical Linear Algebra, ch. 9
+// BUG: Mac OS X 10.6.8 OpenGL driver does't like structures 
+//      that end in a mat2.
 struct Ellipse
 {
-    // c such that the longest side of the ellipse is between percentage and 1.
-    //vec2 m_c;
-    // ellipse coefficients = 1 / (eigen value)^2
-    vec2 m_l;
     // r*d*transpose(r)
     mat2 m_a;
+    // ellipse coefficients = 1 / (eigen value)^2
+    vec2 m_l;
 };
 
 const float sqrt2 = 1.41421356237;
-const Tensor tensor45 = Tensor (vec2 (3., 1.), 
-				mat2 (1., 1., 1., -1.) / sqrt2);
+const mat2 tensor45 = mat2 (3., 1., 1. / sqrt2, 1./ sqrt2);
+const mat2 tensor_b264 = mat2 (
+    //0.00099301, 0.000340428, 
+    .09, .03,
+    0.783351, 0.621579);
 const mat2 transform45 = mat2 (2., 1., 1., 2.);
 
-Ellipse fromEigen (Tensor t)
+vec2 getOrthogonal (vec2 v)
 {
-    mat2 r = t.m_a;
-    vec2 ec = vec2 (1. / (t.m_l[0] * t.m_l[0]), 1. / (t.m_l[1], t.m_l[1]));
-    mat2 d = mat2 (ec[0], 0., 0., ec[1]);
+    return vec2 (v[1], -v[0]);
+}
+
+Ellipse fromEigen (mat2 t)
+{
+    mat2 r = mat2 (t[1], getOrthogonal (t[1]));
+    vec2 l = vec2 (1. / (t[0][0] * t[0][0]), 1. / (t[0][1] * t[0][1]));
+    mat2 d = mat2 (l[0], 0., 0., l[1]);
     mat2 a = r * d * transpose (r);
-    return Ellipse (ec, a);
+    Ellipse e = Ellipse (a, l);
+    // debug
+    //e = Ellipse (mat2 (1./25., 0., 0., 1./9.), vec2 (1./25., 1./9.));
+    return e;
 }
 
 // see Numerical Recipes, ch 5.6
@@ -82,13 +76,6 @@ vec2 getEigenVector (float l, mat2 a)
     return r;
 }
 
-mat2 getEigenVectors (vec2 l, mat2 a)
-{
-    vec2 first = getEigenVector (l[0], a);
-    vec2 second = getEigenVector (l[1], a);
-    return mat2 (first, second);
-}
-
 /**
  * returns true if the transform matrix is valid
  */
@@ -96,12 +83,12 @@ bool getTransform (out mat2 a)
 {
     float count = texture2D (scalarAverageTexUnit, gl_TexCoord[0].st).g;
     // debug
-    count = 1.0;
+    //count = 1.0;
     if (count == 0.0)
 	return false;
     vec4 ta = texture2D (tensorAverageTexUnit, gl_TexCoord[0].st);
     //debug
-    ta = vec4 (2., 1., 1., 2.);
+    //ta = vec4 (2., 1., 1., 2.);
     a = mat2 (ta[0], ta[1], ta[2], ta[3]);
     a = a / count;
     return true;
@@ -109,10 +96,38 @@ bool getTransform (out mat2 a)
 
 Ellipse fromTransform (mat2 a)
 {
-    vec2 el = getQuadraticRoots (1.0, -a[0][0] - a[1][1],
+    vec2 eVal = getQuadraticRoots (1.0, -a[0][0] - a[1][1],
 				 a[0][0] * a[1][1] - a[0][1] * a[1][0]);
-    mat2 ea = getEigenVectors (el, a);
-    return fromEigen (Tensor (el, ea));
+    vec2 eVec = getEigenVector (eVal[0], a);
+    return fromEigen (mat2 (eVal, eVec));
+}
+
+bool isEllipseBackground (vec2 x, float perc)
+{
+    mat2 a;
+    if (getTransform (a))
+    {
+	//Ellipse t = fromEigen (tensor_b264);
+	//Ellipse t = fromTransform (transform45);
+	Ellipse t = fromTransform (a);
+	float cMax = min (t.m_l[0], t.m_l[1]) / 4.;
+	float cMin = perc * perc * cMax;
+	vec2 v = vec2 (0.5, 0.5);
+	float value = dot (x - v, t.m_a * (x - v));
+	return (value < cMin || cMax < value);
+	//debug
+	//return false;
+    }
+    else
+	return true;
+}
+
+bool isGridBackground (vec2 x, float perc)
+{
+    vec2 backgroundBox;
+    vec2 percentage = vec2 (perc, perc);
+    backgroundBox = step (x, percentage);
+    return backgroundBox.x * backgroundBox.y != 0.;
 }
 
 void main(void)
@@ -120,29 +135,12 @@ void main(void)
     const vec4 inkColor = vec4 (0., 0., 0., 1.);
     vec2 x = (objectCoord - gridTranslation) / cellLength;
     x = fract (x);
-    bool backgroundEllipse = true;
-    mat2 a;
-    //if (getTransform (a))
-    {
-	//Ellipse t = fromEigen (tensor45);
-	Ellipse t = fromTransform (transform45);
-	//Ellipse t = fromTransform (a);
-	float cMax = min (t.m_l[0], t.m_l[1]) / 4.;
-	float perc = (cellLength - 4. * lineWidth) / cellLength;
-	float cMin = perc * perc * cMax;
-	vec2 v = vec2 (0.5, 0.5);
-	float value = dot (x - v, t.m_a * (x - v));
-	backgroundEllipse = value < cMin || cMax < value;
-	//debug
-	//backgroundEllipse = false;
-    }
-    float perc = (cellLength - lineWidth) / cellLength;
-    vec2 percentage = vec2 (perc, perc);
-    vec2 backgroundBox = step (x, percentage);
-    bool finish = backgroundEllipse
-	&& (backgroundBox.x * backgroundBox.y != 0.);
-    if (finish)
-	discard;    
+    float perc = (cellLength - 4.0 * lineWidth) / cellLength;
+    bool ellipseBackground = isEllipseBackground (x, perc);
+    perc = (cellLength - lineWidth) / cellLength;
+    bool gridBackground = isGridBackground (x, perc);
+    if (ellipseBackground && gridBackground)
+	discard;
     gl_FragColor = inkColor;
 }
 

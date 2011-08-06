@@ -247,6 +247,12 @@ string Body::ToString () const
     ostr << "\nBody center: " << m_center;
     if (IsConstraint ())
 	ostr << " constraint";
+    ostr << "\nEigen values: " 
+	 << GetDeformationEigenValue (0) << ", "
+	 << GetDeformationEigenValue (1)
+	 << "\nEigen vectors: "
+	 << GetDeformationEigenVector (0) << ", "
+	 << GetDeformationEigenVector (1);
     return ostr.str ();
 }
 
