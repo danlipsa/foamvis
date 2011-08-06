@@ -753,7 +753,7 @@ G3D::AABox GLWidget::calculateEyeViewingVolume (
     return result;
 }
 
-G3D::AABox GLWidget::calculateViewingVolume (
+G3D::AABox GLWidget::CalculateViewingVolume (
     ViewNumber::Enum viewNumber) const
 {
     double xOverY = getViewXOverY ();
@@ -2914,7 +2914,7 @@ void GLWidget::ActivateShader (
     ViewNumber::Enum viewNumber,
     G3D::Rect2D destRect, G3D::Vector2 rotationCenter, float angleDegrees) const
 {
-    G3D::AABox srcAABox = calculateViewingVolume (viewNumber);
+    G3D::AABox srcAABox = CalculateViewingVolume (viewNumber);
     glPushAttrib (GL_VIEWPORT_BIT);
     glViewport (destRect.x0 (), destRect.y0 (),
 		destRect.width (), destRect.height ());

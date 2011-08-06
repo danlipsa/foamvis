@@ -29,7 +29,9 @@ class TensorDisplay : public ShaderProgram
 {
 public:
     TensorDisplay (const char* vert, const char* frag);
-    void Bind (G3D::Vector2 gridTranslation, float cellLength, float lineWidth);
+    void Bind (
+	G3D::Vector2 gridTranslation, float cellLength, float lineWidth,
+	G3D::Vector2 screenLow, G3D::Vector2 screenHigh);
 
     GLint GetTensorAverageTexUnit ()
     {
@@ -44,6 +46,8 @@ private:
     int m_gridTranslationLocation;
     int m_cellLengthLocation;
     int m_lineWidthLocation;
+    int m_screenLowLocation;
+    int m_screenHighLocation;
     int m_tensorAverageTexUnitLocation;
     int m_scalarAverageTexUnitLocation;
 };
@@ -54,18 +58,23 @@ TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
     m_gridTranslationLocation = uniformLocation ("gridTranslation");
     m_cellLengthLocation = uniformLocation ("cellLength");
     m_lineWidthLocation = uniformLocation ("lineWidth");
+    m_screenLowLocation = uniformLocation ("screenLow");
+    m_screenHighLocation = uniformLocation ("screenHigh");
     m_tensorAverageTexUnitLocation = uniformLocation("tensorAverageTexUnit");
     m_scalarAverageTexUnitLocation = uniformLocation("scalarAverageTexUnit");
 }
 
 void TensorDisplay::Bind (G3D::Vector2 gridTranslation, 
-			  float cellLength, float lineWidth)
+			  float cellLength, float lineWidth,
+			  G3D::Vector2 screenLow, G3D::Vector2 screenHigh)
 {
     ShaderProgram::Bind ();
     setUniformValue (
 	m_gridTranslationLocation, gridTranslation[0], gridTranslation[1]);
     setUniformValue (m_cellLengthLocation, cellLength);
     setUniformValue (m_lineWidthLocation, lineWidth);
+    setUniformValue (m_screenLowLocation, screenLow[0], screenLow[1]);
+    setUniformValue (m_screenHighLocation, screenHigh[0], screenHigh[1]);
     setUniformValue (
 	m_tensorAverageTexUnitLocation, GetTensorAverageTexUnit ());
     setUniformValue (
@@ -124,7 +133,9 @@ void TensorAverage::rotateAndDisplay (
     // @todo why do I have to use the scale ratio?
     double lineWidth = glWidget.GetOnePixelInObjectSpace () * 
 	glWidget.GetEllipseLineWidthRatio ();
-    m_displayShaderProgram->Bind (gridTranslation, cellLength, lineWidth);
+    G3D::AABox srcBox = glWidget.CalculateViewingVolume (viewNumber);
+    m_displayShaderProgram->Bind (gridTranslation, cellLength, lineWidth,
+				  srcBox.low ().xy (), srcBox.high ().xy ());
 
     // activate texture unit 1
     glActiveTexture (

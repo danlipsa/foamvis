@@ -5,7 +5,8 @@
  *
  * Displays deformation ellipses
  */
-
+uniform vec2 screenLow;
+uniform vec2 screenHigh;
 uniform vec2 gridTranslation;
 // cell length in object coordinates
 uniform float cellLength;
@@ -79,14 +80,14 @@ vec2 getEigenVector (float l, mat2 a)
 /**
  * returns true if the transform matrix is valid
  */
-bool getTransform (out mat2 a)
+bool getTransform (out mat2 a, vec2 texCoordCenter)
 {
-    float count = texture2D (scalarAverageTexUnit, gl_TexCoord[0].st).g;
+    float count = texture2D (scalarAverageTexUnit, texCoordCenter).g;
     // debug
     //count = 1.0;
     if (count == 0.0)
 	return false;
-    vec4 ta = texture2D (tensorAverageTexUnit, gl_TexCoord[0].st);
+    vec4 ta = texture2D (tensorAverageTexUnit, texCoordCenter);
     //debug
     //ta = vec4 (2., 1., 1., 2.);
     a = mat2 (ta[0], ta[1], ta[2], ta[3]);
@@ -102,10 +103,10 @@ Ellipse fromTransform (mat2 a)
     return fromEigen (mat2 (eVal, eVec));
 }
 
-bool isEllipseBackground (vec2 x, float perc)
+bool isEllipseBackground (vec2 x, float perc, vec2 texCoordCenter)
 {
     mat2 a;
-    if (getTransform (a))
+    if (getTransform (a, texCoordCenter))
     {
 	//Ellipse t = fromEigen (tensor_b264);
 	//Ellipse t = fromTransform (transform45);
@@ -133,12 +134,15 @@ bool isGridBackground (vec2 x, float perc)
 void main(void)
 {
     const vec4 inkColor = vec4 (0., 0., 0., 1.);
-    vec2 x = (objectCoord - gridTranslation) / cellLength;
-    x = fract (x);
+    vec2 x = (objectCoord - gridTranslation - screenLow) / cellLength;
+    vec2 xFract = fract (x);
+    vec2 xFloor = floor (x);
+    vec2 center = cellLength * (xFloor + vec2 (.5, .5));
+    center = center / (screenHigh - screenLow);
     float perc = (cellLength - 4.0 * lineWidth) / cellLength;
-    bool ellipseBackground = isEllipseBackground (x, perc);
+    bool ellipseBackground = isEllipseBackground (xFract, perc, center);
     perc = (cellLength - lineWidth) / cellLength;
-    bool gridBackground = isGridBackground (x, perc);
+    bool gridBackground = isGridBackground (xFract, perc);
     if (ellipseBackground && gridBackground)
 	discard;
     gl_FragColor = inkColor;

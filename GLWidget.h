@@ -205,7 +205,7 @@ public:
     {
 	return m_ellipseLineWidthRatio;
     }
-
+    G3D::AABox CalculateViewingVolume (ViewNumber::Enum viewNumber) const;
 
 Q_SIGNALS:
     void PaintedGL ();
@@ -428,7 +428,6 @@ private:
 	ViewNumber::Enum viewNumber, LightNumber::Enum light) const;
     void displayLightDirection (ViewNumber::Enum viewNumber) const;
     G3D::AABox calculateViewingVolume (double xOverY, double scaleRatio) const;
-    G3D::AABox calculateViewingVolume (ViewNumber::Enum viewNumber) const;
     G3D::AABox calculateCenteredViewingVolume (double xOverY,
 					       double scaleRatio) const;
     G3D::AABox calculateEyeViewingVolume (ViewNumber::Enum viewNumber) const;
