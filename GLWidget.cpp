@@ -251,11 +251,14 @@ void GLWidget::createActions ()
     connect(m_actionSelectBodiesById.get (), SIGNAL(triggered()),
 	    this, SLOT(SelectBodiesByIdList ()));
 
+    m_actionResetTransformAll = boost::make_shared<QAction> (tr("&All"), this);
+    m_actionResetTransformAll->setShortcut(QKeySequence (tr ("Ctrl+R")));
+    m_actionResetTransformAll->setStatusTip(tr("Reset transform all"));
+    connect(m_actionResetTransformAll.get (), SIGNAL(triggered()),
+	    this, SLOT(ResetTransformAll ()));
 
     m_actionResetTransformFocus = boost::make_shared<QAction> (
 	tr("&Focus"), this);
-    m_actionResetTransformFocus->setShortcut(
-	QKeySequence (tr ("Ctrl+R")));
     m_actionResetTransformFocus->setStatusTip(tr("Reset transform focus"));
     connect(m_actionResetTransformFocus.get (), SIGNAL(triggered()),
 	    this, SLOT(ResetTransformFocus ()));
@@ -268,8 +271,6 @@ void GLWidget::createActions ()
 
     m_actionResetTransformLight = boost::make_shared<QAction> (
 	tr("&Light"), this);
-    m_actionResetTransformLight->setShortcut(
-	QKeySequence (tr ("Ctrl+L")));
     m_actionResetTransformLight->setStatusTip(
 	tr("Reset transform light"));
     connect(m_actionResetTransformLight.get (), SIGNAL(triggered()),
@@ -818,21 +819,24 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
 
 void GLWidget::rotateForAxesOrder (ViewNumber::Enum viewNumber) const
 {
+    G3D::Matrix3 rotation;
     const ViewSettings& vs = GetViewSettings (viewNumber);
     switch (vs.GetAxesOrder ())
     {
     case AxesOrder::TWO_D_TIME_DISPLACEMENT:
-	rotate2DTimeDisplacement ();
+	rotation = rotate2DTimeDisplacement ();
 	break;
     case AxesOrder::TWO_D_ROTATE_RIGHT90:
-	rotate2DRight90 ();
+	rotation = rotate2DRight90 ();
 	break;
     case AxesOrder::THREE_D:
-	rotate3D ();
+	rotation = rotate3D ();
 	break;
     default:
+	rotation = G3D::Matrix3::identity ();
 	break;
     }
+    glMultMatrix (rotation);
 }
 
 G3D::Rect2D GLWidget::GetViewRect (ViewNumber::Enum view) const
@@ -933,31 +937,29 @@ double GLWidget::getViewXOverY () const
     return v[m_viewCount * 2 + m_viewLayout];
 }
 
-void GLWidget::rotate2DTimeDisplacement () const
+G3D::Matrix3 GLWidget::rotate2DTimeDisplacement () const
 {
     /**
      *  y        z
      *    x ->     x
      * z        -y
      */
-    const static G3D::Matrix3 axes (1, 0, 0,  0, 0, 1,  0, -1, 0);
-    glMultMatrix (axes);
+    return G3D::Matrix3 (1, 0, 0,  0, 0, 1,  0, -1, 0);
 }
 
-void GLWidget::rotate2DRight90 () const
+G3D::Matrix3 GLWidget::rotate2DRight90 () const
 {
     /**
      *  y       -x
      *    x ->     y
      * z        z
      */
-    const static G3D::Matrix3 axes (0, 1, 0,  -1, 0, 0,  0, 0, 1);
-    glMultMatrix (axes);
+    return G3D::Matrix3 (0, 1, 0,  -1, 0, 0,  0, 0, 1);
 }
 
 
 
-void GLWidget::rotate3D () const
+G3D::Matrix3 GLWidget::rotate3D () const
 {
     /**
      *  y        z
@@ -965,11 +967,20 @@ void GLWidget::rotate3D () const
      * z        x
      */
     const static G3D::Matrix3 evolverAxes (0, 1, 0,  0, 0, 1,  1, 0, 0);
-    glMultMatrix (evolverAxes);
+    G3D::Matrix3 rotation (evolverAxes);
     const Foam& foam = GetFoamAlongTime ().GetFoam (0);
-    glMultMatrix (foam.GetViewMatrix ().approxCoordinateFrame ().rotation);
+    rotation = rotation * 
+	foam.GetViewMatrix ().approxCoordinateFrame ().rotation;
+    return rotation;
 }
 
+void GLWidget::ResetTransformAll ()
+{
+    ResetTransformFocus ();
+    ResetTransformContext ();
+    ResetTransformGrid ();
+    ResetTransformLight ();
+}
 
 void GLWidget::ResetTransformFocus ()
 {
@@ -2634,6 +2645,7 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
     {
 	{
 	    QMenu* menuReset = menu.addMenu ("Reset transform");
+	    menuReset->addAction (m_actionResetTransformAll.get ());
 	    menuReset->addAction (m_actionResetTransformFocus.get ());
 	    menuReset->addAction (m_actionResetTransformContext.get ());
 	    menuReset->addAction (m_actionResetTransformLight.get ());

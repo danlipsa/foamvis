@@ -65,11 +65,17 @@ void SetterDeformationTensor::operator () (const boost::shared_ptr<Body>& body)
     l[0][0] = body->GetDeformationEigenValue (0);
     l[1][1] = body->GetDeformationEigenValue (1);
     G3D::Matrix2 r;
+    G3D::Matrix3 modelRotation3 = 
+	m_glWidget.GetViewSettings (m_viewNumber).GetRotationModel ();
+    G3D::Matrix2 modelRotation;
+    Matrix2SetColumn (&modelRotation, 0, modelRotation3.column (0).xy ());
+    Matrix2SetColumn (&modelRotation, 1, modelRotation3.column (1).xy ());
+    cdbg << modelRotation << endl;
     G3D::Vector2 first = body->GetDeformationEigenVector (0).xy ();
     G3D::Vector2 second = body->GetDeformationEigenVector (1).xy ();
     Matrix2SetColumn (&r, 0, first);
     Matrix2SetColumn (&r, 1, second);
-    G3D::Matrix2 a = mult (mult (r, l), r.transpose ());
+    G3D::Matrix2 a = mult (modelRotation, mult (mult (r, l), r.transpose ()));
     // GLSL uses matrices in column order
     m_program->setAttributeValue (
 	m_attributeLocation, a[0][0], a[1][0], a[0][1], a[1][1]);

@@ -158,13 +158,9 @@ public:
 	return m_centerPathBodyShown;
     }
 
-    boost::shared_ptr<QAction> GetActionResetTransformFocus ()
+    boost::shared_ptr<QAction> GetActionResetTransformAll ()
     {
-	return m_actionResetTransformFocus;
-    }
-    boost::shared_ptr<QAction> GetActionResetTransformLight ()
-    {
-	return m_actionResetTransformLight;
+	return m_actionResetTransformAll;
     }
     
     /**
@@ -294,6 +290,7 @@ public Q_SLOTS:
     void ValueChangedForceLength (int index);
     void ValueChangedHighlightLineWidth (int newWidth);
     // Actions
+    void ResetTransformAll ();
     void ResetTransformFocus ();
     void ResetTransformContext ();
     void ResetTransformLight ();    
@@ -569,9 +566,9 @@ private:
     /**
      * Rotates the view so that we get the same image as in Surface Evolver
      */
-    void rotate3D () const;
-    void rotate2DTimeDisplacement () const;
-    void rotate2DRight90 () const;
+    G3D::Matrix3 rotate3D () const;
+    G3D::Matrix3 rotate2DTimeDisplacement () const;
+    G3D::Matrix3 rotate2DRight90 () const;
     string getBodySelectorLabel ();
     string getContextLabel ();
     string getContextStationaryLabel ();
@@ -663,6 +660,7 @@ private:
 
     boost::shared_ptr<QAction> m_actionSelectAll;
     boost::shared_ptr<QAction> m_actionDeselectAll;
+    boost::shared_ptr<QAction> m_actionResetTransformAll;
     boost::shared_ptr<QAction> m_actionResetTransformFocus;
     boost::shared_ptr<QAction> m_actionResetTransformContext;
     boost::shared_ptr<QAction> m_actionResetTransformLight;

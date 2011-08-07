@@ -537,8 +537,7 @@ void MainWindow::createActions ()
     connect(m_actionDeselectShown.get (), SIGNAL(triggered()),
 	    this, SLOT(DeselectShown ()));
     
-    addAction (widgetGl->GetActionResetTransformFocus ().get ());
-    addAction (widgetGl->GetActionResetTransformLight ().get ());
+    addAction (widgetGl->GetActionResetTransformAll ().get ());
     
     addAction (sliderTimeSteps->GetActionNextSelectedTimeStep ().get ());
     addAction (sliderTimeSteps->GetActionPreviousSelectedTimeStep ().get ());

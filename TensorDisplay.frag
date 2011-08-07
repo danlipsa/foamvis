@@ -134,15 +134,21 @@ bool isGridBackground (vec2 x, float perc)
 void main(void)
 {
     const vec4 inkColor = vec4 (0., 0., 0., 1.);
-    vec2 x = (objectCoord - gridTranslation - screenLow) / cellLength;
-    vec2 xFract = fract (x);
-    vec2 xFloor = floor (x);
-    vec2 center = cellLength * (xFloor + vec2 (.5, .5));
-    center = center / (screenHigh - screenLow);
+    vec2 gridCoordStart = 
+	(screenLow + screenHigh) / 2. + gridTranslation;
+    vec2 gridCoord = (objectCoord - gridCoordStart) / cellLength;
+    vec2 gridCoordFract = fract (gridCoord);
+    vec2 gridCoordFloor = floor (gridCoord);
+    vec2 gridCoordCenter = cellLength * (gridCoordFloor + vec2 (.5, .5));
+    vec2 screenCoordCenter = gridCoordStart + gridCoordCenter - screenLow;
+    vec2 texCoordCenter = screenCoordCenter / (screenHigh - screenLow);
     float perc = (cellLength - 4.0 * lineWidth) / cellLength;
-    bool ellipseBackground = isEllipseBackground (xFract, perc, center);
+    bool ellipseBackground = isEllipseBackground (
+	gridCoordFract, perc, texCoordCenter);
     perc = (cellLength - lineWidth) / cellLength;
-    bool gridBackground = isGridBackground (xFract, perc);
+    bool gridBackground = isGridBackground (gridCoordFract, perc);
+    // debug
+    // bool gridBackground = true;
     if (ellipseBackground && gridBackground)
 	discard;
     gl_FragColor = inkColor;
