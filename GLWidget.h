@@ -563,12 +563,6 @@ private:
     
     void initViewTypeDisplay ();
     void createActions ();
-    /**
-     * Rotates the view so that we get the same image as in Surface Evolver
-     */
-    G3D::Matrix3 rotate3D () const;
-    G3D::Matrix3 rotate2DTimeDisplacement () const;
-    G3D::Matrix3 rotate2DRight90 () const;
     string getBodySelectorLabel ();
     string getContextLabel ();
     string getContextStationaryLabel ();
@@ -576,7 +570,6 @@ private:
     void setLabel ();
     void transformFoamAverageAround (
 	ViewNumber::Enum viewNumber, size_t timeStep) const;
-    void rotateForAxesOrder (ViewNumber::Enum viewNumber) const;
     void initCopy (
 	boost::array<boost::shared_ptr<QAction>, 
 	ViewNumber::COUNT>& actionCopyTransformation,

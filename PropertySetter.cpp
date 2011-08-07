@@ -8,6 +8,7 @@
 #include "Body.h"
 #include "ColorBarModel.h"
 #include "DebugStream.h"
+#include "FoamAlongTime.h"
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
 #include "PropertySetter.h"
@@ -61,30 +62,22 @@ void SetterVertexAttribute::operator () ()
 // ======================================================================
 void SetterDeformationTensor::operator () (const boost::shared_ptr<Body>& body)
 {
+    const ViewSettings& vs = m_glWidget.GetViewSettings (m_viewNumber);
+    const Foam& foam = m_glWidget.GetFoamAlongTime ().GetFoam (0);
     G3D::Matrix2 l = G3D::Matrix2::identity ();
     l[0][0] = body->GetDeformationEigenValue (0);
     l[1][1] = body->GetDeformationEigenValue (1);
-    G3D::Matrix2 r;
     G3D::Matrix3 modelRotation3 = 
-	m_glWidget.GetViewSettings (m_viewNumber).GetRotationModel ();
-    G3D::Matrix2 modelRotation;
-    Matrix2SetColumn (&modelRotation, 0, modelRotation3.column (0).xy ());
-    Matrix2SetColumn (&modelRotation, 1, modelRotation3.column (1).xy ());
-    cdbg << modelRotation << endl;
-    G3D::Vector2 first = body->GetDeformationEigenVector (0).xy ();
-    G3D::Vector2 second = body->GetDeformationEigenVector (1).xy ();
-    Matrix2SetColumn (&r, 0, first);
-    Matrix2SetColumn (&r, 1, second);
-    G3D::Matrix2 a = mult (modelRotation, mult (mult (r, l), r.transpose ()));
+	vs.GetRotationModel () * vs.GetRotationForAxesOrder (foam);
+    G3D::Matrix2 modelRotation = ToMatrix2 (modelRotation3);
+    G3D::Matrix2 r = 
+	mult (ToMatrix2 (body->GetDeformationEigenVector (0).xy (),
+			 body->GetDeformationEigenVector (1).xy ()),
+	      modelRotation);
+    G3D::Matrix2 a = mult (mult (r, l), r.transpose ());
     // GLSL uses matrices in column order
     m_program->setAttributeValue (
 	m_attributeLocation, a[0][0], a[1][0], a[0][1], a[1][1]);
-    /*
-    cdbg << "r*l=" << mult (r, l) << endl;
-    cdbg << "Eigen val.: " << l[0][0] << ", " << l[1][1] << endl;
-    cdbg << "Eigen vec.: " << first << ", " << second << endl;
-    cdbg << a << endl << endl;
-    */
     // debug
     //m_program->setAttributeValue (m_attributeLocation, 2., 1., 1., 2.);
 }

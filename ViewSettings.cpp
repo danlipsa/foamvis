@@ -425,3 +425,53 @@ void ViewSettings::Release ()
     GetTensorAverage ().Release ();
 }
 
+G3D::Matrix3 ViewSettings::GetRotationForAxesOrder (const Foam& foam) const
+{
+    switch (GetAxesOrder ())
+    {
+    case AxesOrder::TWO_D_TIME_DISPLACEMENT:
+	return getRotation2DTimeDisplacement ();
+    case AxesOrder::TWO_D_ROTATE_RIGHT90:
+	return getRotation2DRight90 ();
+    case AxesOrder::THREE_D:
+	return getRotation3D (foam);
+    default:
+	return G3D::Matrix3::identity ();
+    }
+}
+
+G3D::Matrix3 ViewSettings::getRotation2DTimeDisplacement ()
+{
+    /**
+     *  y        z
+     *    x ->     x
+     * z        -y
+     */
+    return G3D::Matrix3 (1, 0, 0,  0, 0, 1,  0, -1, 0);
+}
+
+G3D::Matrix3 ViewSettings::getRotation2DRight90 ()
+{
+    /**
+     *  y       -x
+     *    x ->     y
+     * z        z
+     */
+    return G3D::Matrix3 (0, 1, 0,  -1, 0, 0,  0, 0, 1);
+}
+
+
+
+G3D::Matrix3 ViewSettings::getRotation3D (const Foam& foam) const
+{
+    /**
+     *  y        z
+     *    x ->     y
+     * z        x
+     */
+    const static G3D::Matrix3 evolverAxes (0, 1, 0,  0, 0, 1,  1, 0, 0);
+    G3D::Matrix3 rotation (evolverAxes);
+    rotation = rotation * 
+	foam.GetViewMatrix ().approxCoordinateFrame ().rotation;
+    return rotation;
+}

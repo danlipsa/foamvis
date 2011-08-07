@@ -32,6 +32,22 @@ void Matrix2SetColumn (G3D::Matrix2* m, size_t column, const G3D::Vector2& v)
 	(*m)[i][column] = v[i];
 }
 
+G3D::Matrix2 ToMatrix2 (const G3D::Matrix3& matrix)
+{
+    G3D::Matrix2 m2;
+    Matrix2SetColumn (&m2, 0, matrix.column (0).xy ());
+    Matrix2SetColumn (&m2, 1, matrix.column (1).xy ());
+    return m2;
+}
+
+G3D::Matrix2 ToMatrix2 (const G3D::Vector2& col0, const G3D::Vector2& col1)
+{
+    G3D::Matrix2 r;
+    Matrix2SetColumn (&r, 0, col0);
+    Matrix2SetColumn (&r, 1, col1);
+    return r;
+}
+
 G3D::Matrix2 mult (const G3D::Matrix2& first, const G3D::Matrix2& second)
 {
     const size_t SIZE = 2;

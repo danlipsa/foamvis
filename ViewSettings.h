@@ -232,6 +232,8 @@ public:
     {
 	return m_axesOrder;
     }
+    G3D::Matrix3 GetRotationForAxesOrder (const Foam& foam) const;
+
     double GetAngleOfView () const
     {
 	return m_angleOfView;
@@ -391,9 +393,16 @@ public:
 
 
 private:
+    static G3D::Matrix3 getRotation2DTimeDisplacement ();
+    static G3D::Matrix3 getRotation2DRight90 ();
+
     void initTexture ();
     void initList ();
     void setInitialLightParameters ();
+    /**
+     * Rotates the view so that we get the same image as in Surface Evolver
+     */
+    G3D::Matrix3 getRotation3D (const Foam& foam) const;
 
 private:
     ViewType::Enum m_viewType;

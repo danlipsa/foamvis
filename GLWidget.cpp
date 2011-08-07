@@ -812,31 +812,9 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
     else
 	translateAndScale (vs.GetScaleRatio (), vs.GetTranslation (), 
 			   vs.IsContextView ());
-    glMultMatrix (vs.GetRotationModel ());
-    rotateForAxesOrder (viewNumber);
+    const Foam& foam = GetFoamAlongTime ().GetFoam (0);
+    glMultMatrix (vs.GetRotationModel () * vs.GetRotationForAxesOrder (foam));
     transformFoamAverageAround (viewNumber, timeStep);
-}
-
-void GLWidget::rotateForAxesOrder (ViewNumber::Enum viewNumber) const
-{
-    G3D::Matrix3 rotation;
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    switch (vs.GetAxesOrder ())
-    {
-    case AxesOrder::TWO_D_TIME_DISPLACEMENT:
-	rotation = rotate2DTimeDisplacement ();
-	break;
-    case AxesOrder::TWO_D_ROTATE_RIGHT90:
-	rotation = rotate2DRight90 ();
-	break;
-    case AxesOrder::THREE_D:
-	rotation = rotate3D ();
-	break;
-    default:
-	rotation = G3D::Matrix3::identity ();
-	break;
-    }
-    glMultMatrix (rotation);
 }
 
 G3D::Rect2D GLWidget::GetViewRect (ViewNumber::Enum view) const
@@ -935,43 +913,6 @@ double GLWidget::getViewXOverY () const
 	xOverY, xOverY      // FOUR
     };
     return v[m_viewCount * 2 + m_viewLayout];
-}
-
-G3D::Matrix3 GLWidget::rotate2DTimeDisplacement () const
-{
-    /**
-     *  y        z
-     *    x ->     x
-     * z        -y
-     */
-    return G3D::Matrix3 (1, 0, 0,  0, 0, 1,  0, -1, 0);
-}
-
-G3D::Matrix3 GLWidget::rotate2DRight90 () const
-{
-    /**
-     *  y       -x
-     *    x ->     y
-     * z        z
-     */
-    return G3D::Matrix3 (0, 1, 0,  -1, 0, 0,  0, 0, 1);
-}
-
-
-
-G3D::Matrix3 GLWidget::rotate3D () const
-{
-    /**
-     *  y        z
-     *    x ->     y
-     * z        x
-     */
-    const static G3D::Matrix3 evolverAxes (0, 1, 0,  0, 0, 1,  1, 0, 0);
-    G3D::Matrix3 rotation (evolverAxes);
-    const Foam& foam = GetFoamAlongTime ().GetFoam (0);
-    rotation = rotation * 
-	foam.GetViewMatrix ().approxCoordinateFrame ().rotation;
-    return rotation;
 }
 
 void GLWidget::ResetTransformAll ()
