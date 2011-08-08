@@ -27,7 +27,8 @@ struct Ellipse
 {
     // r*d*transpose(r)
     mat2 m_a;
-    // ellipse cMin, cMax which determine the width of the line
+    // ellipse cMin, cMax which determine the size of the ellipse and the 
+    // width of the line
     vec2 m_c;
 };
 

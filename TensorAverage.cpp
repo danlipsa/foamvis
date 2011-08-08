@@ -129,7 +129,8 @@ void TensorAverage::rotateAndDisplay (
 	(vs.GetGridTranslation () * vs.GetScaleRatio () * 
 	 vs.GetGridScaleRatio () + vs.GetTranslation ()).xy ();
     double cellLength = 
-	glWidget.GetCellLength (viewNumber) * vs.GetGridScaleRatio ();
+	glWidget.GetCellLength ().first * vs.GetScaleRatio () * 
+	vs.GetGridScaleRatio ();
     // @todo why do I have to use the scale ratio?
     double lineWidth = glWidget.GetOnePixelInObjectSpace () * 
 	glWidget.GetEllipseLineWidthRatio ();

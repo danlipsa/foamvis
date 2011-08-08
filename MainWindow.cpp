@@ -108,7 +108,7 @@ void MainWindow::setDefaults ()
 {
     horizontalSliderT1Size->setValue (60);
     comboBoxWindowSize->setCurrentIndex (WindowSize::GL_720x480);
-    horizontalSliderEllipseSize->setValue (40);
+    horizontalSliderEllipseSize->setValue (49);
 }
 
 

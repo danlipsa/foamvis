@@ -1910,7 +1910,7 @@
     <slot>ToggledBodyNeighborsShown(bool)</slot>
     <slot>ValueChangedEllipseSize(int)</slot>
     <slot>ValueChangedDeformationGridSize(int)</slot>
-    <slot>ValueChangedEllipseLineWidth(int)</slot>
+    <slot>ValueChangedEllipseLineWidthRatio(int)</slot>
     <slot>ValueChangedCellWidth(int)</slot>
     <slot>ValueChangedCellLength(int)</slot>
     <slot>ButtonClickedInteractionObject(int)</slot>
@@ -3247,7 +3247,7 @@
    <sender>horizontalSliderEllipseLineWidth</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ValueChangedEllipseLineWidth(int)</slot>
+   <slot>ValueChangedEllipseLineWidthRatio(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>635</x>

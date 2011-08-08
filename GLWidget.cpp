@@ -145,7 +145,7 @@ const size_t GLWidget::QUADRIC_STACKS = 1;
 
 const double GLWidget::ENCLOSE_ROTATION_RATIO = 1;
 const pair<double,double> GLWidget::T1_SIZE (1, 10);
-const pair<double,double> GLWidget::ELLIPSE_SIZE (1, 100);
+const pair<double,double> GLWidget::ELLIPSE_SIZE_EXP (-2, 2);
 const pair<double,double> GLWidget::ELLIPSE_LINE_WIDTH_EXP (0, 3);
 
 const pair<double,double> GLWidget::CONTEXT_ALPHA (0.05, 0.5);
@@ -180,7 +180,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_centerPathLineUsed (false),
       m_t1sShown (false),
       m_t1Size (T1_SIZE.first),
-      m_ellipseSize (ELLIPSE_SIZE.first),
+      m_ellipseSizeRatio (1),
       m_ellipseLineWidthRatio (1),
       m_contextAlpha (CONTEXT_ALPHA.first),
       m_forceLength (FORCE_LENGTH.first),
@@ -503,13 +503,15 @@ double GLWidget::GetOnePixelInObjectSpace () const
 
 
 
-double GLWidget::GetCellLength (ViewNumber::Enum viewNumber) const
+pair<double,double> GLWidget::GetCellLength () const
 {
     const Body& body = GetFoamAlongTime ().GetFoam (0).GetBody (0);
     G3D::AABox box = body.GetBoundingBox ();
     G3D::Vector3 extent = box.extent ();
-    return max (extent.x, extent.y) * 
-	GetViewSettings (viewNumber).GetScaleRatio ();
+    double cellLength = min (extent.x, extent.y);
+    double parametricEllipseScaleRatio = 
+	cellLength / (2 * body.GetDeformationEigenValue (0));
+    return pair<double, double> (cellLength, parametricEllipseScaleRatio);
 }
 
 void GLWidget::calculateEdgeRadius (
@@ -2021,7 +2023,7 @@ void GLWidget::displayDeformationTensor2D (ViewNumber::Enum viewNumber) const
     for_each (bodies.begin (), bodies.end (),
 	      boost::bind (
 		  ::displayBodyDeformationTensor2D, _1, 
-		  m_ellipseSize));
+		  GetCellLength ().second * m_ellipseSizeRatio));
     glPopAttrib ();    
 }
 
@@ -2034,7 +2036,8 @@ void GLWidget::displayBodyDeformationTensor2D () const
     glDisable (GL_DEPTH_TEST);
     glColor (Qt::black);
     ::displayBodyDeformationTensor2D (
-	*foam.FindBody (m_showBodyId), m_ellipseSize);
+	*foam.FindBody (m_showBodyId), 
+	GetCellLength ().second * m_ellipseSizeRatio);
     glPopAttrib ();
 }
 
@@ -3271,11 +3274,11 @@ void GLWidget::ValueChangedT1Size (int index)
 
 void GLWidget::ValueChangedEllipseSize (int index)
 {
-    valueChanged (&m_ellipseSize, ELLIPSE_SIZE, index);
+    valueChangedLog2Scale (&m_ellipseSizeRatio, ELLIPSE_SIZE_EXP, index);
     update ();
 }
 
-void GLWidget::ValueChangedEllipseLineWidth (int index)
+void GLWidget::ValueChangedEllipseLineWidthRatio (int index)
 {
     valueChangedLog2Scale (
 	&m_ellipseLineWidthRatio, ELLIPSE_LINE_WIDTH_EXP, index);

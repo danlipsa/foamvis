@@ -196,7 +196,7 @@ public:
 	float angleDegrees = 0) const;
     double GetOnePixelInObjectSpaceScaled () const;
     double GetOnePixelInObjectSpace () const;
-    double GetCellLength (ViewNumber::Enum viewNumber) const;
+    pair<double, double> GetCellLength () const;
     double GetEllipseLineWidthRatio () const
     {
 	return m_ellipseLineWidthRatio;
@@ -286,7 +286,7 @@ public Q_SLOTS:
     void ValueChangedTimeDisplacement (int timeDisplacement);
     void ValueChangedT1Size (int index);
     void ValueChangedEllipseSize (int index);
-    void ValueChangedEllipseLineWidth (int index);
+    void ValueChangedEllipseLineWidthRatio (int index);
     void ValueChangedForceLength (int index);
     void ValueChangedHighlightLineWidth (int newWidth);
     // Actions
@@ -592,7 +592,7 @@ private:
     const static double ENCLOSE_ROTATION_RATIO;
     // Min, max values for T1s, Context alpha, force length
     const static pair<double,double> T1_SIZE;
-    const static pair<double,double> ELLIPSE_SIZE;
+    const static pair<double,double> ELLIPSE_SIZE_EXP;
     const static pair<double,double> ELLIPSE_LINE_WIDTH_EXP;
     const static pair<double,double> CELL_LENGTH_EXP;
     const static pair<double,double> CONTEXT_ALPHA;
@@ -697,7 +697,7 @@ private:
     bool m_centerPathLineUsed;
     bool m_t1sShown;
     double m_t1Size;
-    double m_ellipseSize;
+    double m_ellipseSizeRatio;
     double m_ellipseLineWidthRatio;
     double m_contextAlpha;
     double m_forceLength;
