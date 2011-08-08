@@ -27,8 +27,8 @@ struct Ellipse
 {
     // r*d*transpose(r)
     mat2 m_a;
-    // ellipse coefficients = 1 / (eigen value)^2
-    vec2 m_l;
+    // ellipse cMin, cMax which determine the width of the line
+    vec2 m_c;
 };
 
 const float sqrt2 = 1.41421356237;
@@ -39,21 +39,16 @@ const mat2 tensor_b264 = mat2 (
     0.783351, 0.621579);
 const mat2 transform45 = mat2 (2., 1., 1., 2.);
 
+void swap (inout float first, inout float second)
+{
+    float temp = first;
+    first = second;
+    second = temp;
+}
+
 vec2 getOrthogonal (vec2 v)
 {
     return vec2 (v[1], -v[0]);
-}
-
-Ellipse fromEigen (mat2 t)
-{
-    mat2 r = mat2 (t[1], getOrthogonal (t[1]));
-    vec2 l = vec2 (1. / (t[0][0] * t[0][0]), 1. / (t[0][1] * t[0][1]));
-    mat2 d = mat2 (l[0], 0., 0., l[1]);
-    mat2 a = r * d * transpose (r);
-    Ellipse e = Ellipse (a, l);
-    // debug
-    //e = Ellipse (mat2 (1./25., 0., 0., 1./9.), vec2 (1./25., 1./9.));
-    return e;
 }
 
 // see Numerical Recipes, ch 5.6
@@ -64,7 +59,11 @@ vec2 getQuadraticRoots (float a, float b, float c)
 	discard;
     r = sqrt (r);
     float q = (-1.0 / 2.0) * (b + sign (b) * r);
-    return vec2 (q / a, c / q);
+    float first = q / a;
+    float second = c / q;
+    if (first < second)
+	swap (first, second);
+    return vec2 (first, second);
 }
 
 vec2 getEigenVector (float l, mat2 a)
@@ -95,12 +94,27 @@ bool getTransform (out mat2 a, vec2 texCoordCenter)
     return true;
 }
 
-Ellipse fromTransform (mat2 a)
+Ellipse fromEigen (mat2 t, float perc)
+{
+    mat2 r = mat2 (t[1], getOrthogonal (t[1]));
+    vec2 l = vec2 (1. / (t[0][0] * t[0][0]), 1. / (t[0][1] * t[0][1]));
+    mat2 d = mat2 (l[0], 0., 0., l[1]);
+    mat2 a = r * d * transpose (r);
+    float cMax = l[0] / 4;
+    perc = 1. - 2. * (1. - perc) * t[0][0] / t[0][1];
+    float cMin = perc * perc * cMax;
+    Ellipse e = Ellipse (a, vec2 (cMin, cMax));
+    // debug
+    //e = Ellipse (mat2 (1./25., 0., 0., 1./9.), vec2 (1./25., 1./9.));
+    return e;
+}
+
+Ellipse fromTransform (mat2 a, float perc)
 {
     vec2 eVal = getQuadraticRoots (1.0, -a[0][0] - a[1][1],
 				 a[0][0] * a[1][1] - a[0][1] * a[1][0]);
     vec2 eVec = getEigenVector (eVal[0], a);
-    return fromEigen (mat2 (eVal, eVec));
+    return fromEigen (mat2 (eVal, eVec), perc);
 }
 
 bool isEllipseBackground (vec2 x, float perc, vec2 texCoordCenter)
@@ -110,12 +124,10 @@ bool isEllipseBackground (vec2 x, float perc, vec2 texCoordCenter)
     {
 	//Ellipse t = fromEigen (tensor_b264);
 	//Ellipse t = fromTransform (transform45);
-	Ellipse t = fromTransform (a);
-	float cMax = min (t.m_l[0], t.m_l[1]) / 4.;
-	float cMin = perc * perc * cMax;
+	Ellipse t = fromTransform (a, perc);
 	vec2 v = vec2 (0.5, 0.5);
 	float value = dot (x - v, t.m_a * (x - v));
-	return (value < cMin || cMax < value);
+	return (value < t.m_c[0] || t.m_c[1] < value);
 	//debug
 	//return false;
     }
@@ -142,10 +154,9 @@ void main(void)
     vec2 gridCoordCenter = cellLength * (gridCoordFloor + vec2 (.5, .5));
     vec2 screenCoordCenter = gridCoordStart + gridCoordCenter - screenLow;
     vec2 texCoordCenter = screenCoordCenter / (screenHigh - screenLow);
-    float perc = (cellLength - 4.0 * lineWidth) / cellLength;
+    float perc = (cellLength - lineWidth) / cellLength;
     bool ellipseBackground = isEllipseBackground (
 	gridCoordFract, perc, texCoordCenter);
-    perc = (cellLength - lineWidth) / cellLength;
     bool gridBackground = isGridBackground (gridCoordFract, perc);
     // debug
     // bool gridBackground = true;
