@@ -166,25 +166,14 @@ void MainWindow::ViewToUI ()
     const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     BodyProperty::Enum property = vs.GetBodyProperty ();
-    buttonGroupViewType->blockSignals (true);
-    buttonGroupViewType->button (vs.GetViewType ())->setChecked (true);
-    buttonGroupViewType->blockSignals (false);
 
-    comboBoxColor->blockSignals (true);
-    comboBoxColor->setCurrentIndex (property);
-    comboBoxColor->blockSignals (false);
-
-    comboBoxStatisticsType->blockSignals (true);
-    comboBoxStatisticsType->setCurrentIndex (vs.GetStatisticsType ());
-    comboBoxStatisticsType->blockSignals (false);
-
-    checkBoxContextHidden->blockSignals (true);
-    checkBoxContextHidden->setChecked (vs.IsContextHidden ());
-    checkBoxContextHidden->blockSignals (false);
-
-    checkBoxCenterPathHidden->blockSignals (true);
-    checkBoxCenterPathHidden->setChecked (vs.IsCenterPathHidden ());
-    checkBoxCenterPathHidden->blockSignals (false);
+    SetCheckedNoSignals (buttonGroupViewType, vs.GetViewType (), true);
+    SetCurrentIndexNoSignals (comboBoxColor, property);
+    SetCurrentIndexNoSignals (comboBoxStatisticsType, vs.GetStatisticsType ());
+    SetCheckedNoSignals (checkBoxContextHidden, vs.IsContextHidden ());
+    SetCheckedNoSignals (checkBoxCenterPathHidden, vs.IsCenterPathHidden ());
+    SetCheckedNoSignals (checkBoxShowDeformation, 
+			 vs.IsDeformationTensorShown ());
 
     comboBoxAxesOrder->setCurrentIndex (vs.GetAxesOrder ());
     labelFacesStatisticsColor->setText (BodyProperty::ToString (property));

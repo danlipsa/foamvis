@@ -394,6 +394,26 @@ boost::shared_ptr<QGLShader> CreateShader (const QString& resourceUrl,
 }
 
 
+void SetCheckedNoSignals (QButtonGroup* buttonGroup, int buttonId, bool checked)
+{
+    buttonGroup->blockSignals (true);
+    buttonGroup->button (buttonId)->setChecked (checked);
+    buttonGroup->blockSignals (false);
+}
+
+void SetCurrentIndexNoSignals (QComboBox* comboBox, int index)
+{
+    comboBox->blockSignals (true);
+    comboBox->setCurrentIndex (index);
+    comboBox->blockSignals (false);    
+}
+
+void SetCheckedNoSignals (QCheckBox* checkBox, bool checked)
+{
+    checkBox->blockSignals (true);
+    checkBox->setChecked (checked);
+    checkBox->blockSignals (false);    
+}
 
 // Template instantiations
 //======================================================================

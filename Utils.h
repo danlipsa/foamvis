@@ -151,6 +151,11 @@ boost::shared_ptr<QGLShader> CreateShader (const QString& resourceUrl,
 //#define RESOURCE(name) ":/" name
 #define RESOURCE(name) name
 
+void SetCheckedNoSignals (QButtonGroup* buttonGroup, int buttonId, 
+			  bool checked);
+void SetCurrentIndexNoSignals (QComboBox* comboBox, int index);
+void SetCheckedNoSignals (QCheckBox* checkBox, bool checked);
+
 #endif //__UTILS_H__
 
 // Local Variables:

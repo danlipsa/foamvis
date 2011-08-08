@@ -2012,8 +2012,7 @@ void GLWidget::displayDeformationTensor2D (ViewNumber::Enum viewNumber) const
 {
     const Foam& foam = GetCurrentFoam ();
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    if (! foam.Is2D () || ! vs.IsDeformationTensorShown () || 
-	viewNumber != GetViewNumber ())
+    if (! foam.Is2D () || ! vs.IsDeformationTensorShown ())
 	return;
     Foam::Bodies bodies = foam.GetBodies ();
     glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
