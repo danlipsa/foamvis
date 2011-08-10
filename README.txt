@@ -113,7 +113,7 @@ Execute ./foam without any parameters to see a list of options.
 
 Command lines for various datasets:
 -----------------------------------
-./foam_debug --t1s ~/Documents/swansea-phd/foam/ctrctn/energy_704v_0.1520_0.2400_8.0000_v1.dat ~/Documents/swansea-phd/foam/ctrctn/dump_0.1520_0.2400_8.0000_0???.dmp
+./foam_debug --t1s ~/Documents/swansea-phd/foam/ctrctndumps_704v_0.1520_0.2400_8.0000_v1/energy_704v_0.1520_0.2400_8.0000_v1.dat ~/Documents/swansea-phd/foam/ctrctndumps_704v_0.1520_0.2400_8.0000_v1/dump_0.1520_0.2400_8.0000_0???.dmp
 
 ./foam_debug --force "161 ftx1 fty1 fpx1 fpy1" --force "358 ftx2 fty2 fpx2 fpy2" --t1s ~/Documents/swansea-phd/foam/sedimenting_discs_interacting/t1_v0_posn_1500.dat ~/Documents/swansea-phd/foam/sedimenting_discs_interacting/c1v0_???.000000.dmp
 
@@ -147,7 +147,7 @@ Recompile the program:
 make distclean;qmake;make -j 4;
 
 Run the program:
-./foam ~/Documents/swansea-phd/foam/ctrctn dump_0.1520_0.2400_8.0000_00*.dmp
+./foam ~/Documents/swansea-phd/foam/ctrctndumps_704v_0.1520_0.2400_8.0000_v1 dump_0.1520_0.2400_8.0000_00*.dmp
 
 Run gprof on the generated file (gmon.out), eventually selecting some
 files of interest (to profile only functions from those files):

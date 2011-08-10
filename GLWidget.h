@@ -194,12 +194,16 @@ public:
 	G3D::Rect2D destRect, 
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
-    double GetOnePixelInObjectSpaceScaled () const;
     double GetOnePixelInObjectSpace () const;
-    pair<double, double> GetCellLength () const;
+    double GetCellLength () const;
+    double GetEllipseSizeInitialRatio () const;
     double GetEllipseLineWidthRatio () const
     {
 	return m_ellipseLineWidthRatio;
+    }
+    double GetEllipseSizeRatio () const
+    {
+	return m_ellipseSizeRatio;
     }
     G3D::AABox CalculateViewingVolume (ViewNumber::Enum viewNumber) const;
 

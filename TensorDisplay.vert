@@ -3,11 +3,11 @@
 // translation desired.
 
 // each fragmet receives the object coordinates of the fragment.
-varying vec2 objectCoord;
+varying vec2 v_objectCoord;
 
 void main(void)
 {
-    objectCoord = gl_Vertex.xy;
+    v_objectCoord = gl_Vertex.xy;
     gl_Position = ftransform();
     gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
 }

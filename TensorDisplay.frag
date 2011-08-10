@@ -5,20 +5,21 @@
  *
  * Displays deformation ellipses
  */
-uniform vec2 screenLow;
-uniform vec2 screenHigh;
-uniform vec2 gridTranslation;
+uniform vec2 u_screenLow;
+uniform vec2 u_screenHigh;
+uniform vec2 u_gridTranslation;
 // cell length in object coordinates
-uniform float cellLength;
+uniform float u_cellLength;
 // line width in object coordinates
-uniform float lineWidth;
+uniform float u_lineWidth;
+uniform float u_ellipseSizeRatio;
 // deformation tensors are stored here.
-uniform sampler2D tensorAverageTexUnit;
+uniform sampler2D u_tensorAverageTexUnit;
 // scalar averages are stored here (sum, count, min, max). We use count.
-uniform sampler2D scalarAverageTexUnit;
+uniform sampler2D u_scalarAverageTexUnit;
 
 // each fragmet receives the object coordinates of the fragment.
-varying vec2 objectCoord;
+varying vec2 v_objectCoord;
 
 // see Practical Linear Algebra, ch. 9
 // BUG: Mac OS X 10.6.8 OpenGL driver does't like structures 
@@ -82,12 +83,12 @@ vec2 getEigenVector (float l, mat2 a)
  */
 bool getTransform (out mat2 a, vec2 texCoordCenter)
 {
-    float count = texture2D (scalarAverageTexUnit, texCoordCenter).g;
+    float count = texture2D (u_scalarAverageTexUnit, texCoordCenter).g;
     // debug
     //count = 1.0;
     if (count == 0.0)
 	return false;
-    vec4 ta = texture2D (tensorAverageTexUnit, texCoordCenter);
+    vec4 ta = texture2D (u_tensorAverageTexUnit, texCoordCenter);
     //debug
     //ta = vec4 (2., 1., 1., 2.);
     a = mat2 (ta[0], ta[1], ta[2], ta[3]);
@@ -95,37 +96,38 @@ bool getTransform (out mat2 a, vec2 texCoordCenter)
     return true;
 }
 
-Ellipse fromEigen (mat2 t, float perc)
+Ellipse fromEigen (mat2 t)
 {
     mat2 r = mat2 (t[1], getOrthogonal (t[1]));
-    vec2 l = vec2 (1. / (t[0][0] * t[0][0]), 1. / (t[0][1] * t[0][1]));
+    vec2 eigenVal = t[0];
+    vec2 l = vec2 (1. / (eigenVal[0] * eigenVal[0]), 
+		   1. / (eigenVal[1] * eigenVal[1]));
     mat2 d = mat2 (l[0], 0., 0., l[1]);
     mat2 a = r * d * transpose (r);
-    float cMax = l[0] / 4;
-    perc = 1. - 2. * (1. - perc) * t[0][0] / t[0][1];
-    float cMin = perc * perc * cMax;
-    Ellipse e = Ellipse (a, vec2 (cMin, cMax));
+    float cMax = u_ellipseSizeRatio / u_cellLength;
+    float cMin = cMax - u_lineWidth / eigenVal[1] / u_cellLength;
+    Ellipse e = Ellipse (a, vec2 (cMin * cMin, cMax * cMax));
     // debug
     //e = Ellipse (mat2 (1./25., 0., 0., 1./9.), vec2 (1./25., 1./9.));
     return e;
 }
 
-Ellipse fromTransform (mat2 a, float perc)
+Ellipse fromTransform (mat2 a)
 {
     vec2 eVal = getQuadraticRoots (1.0, -a[0][0] - a[1][1],
 				 a[0][0] * a[1][1] - a[0][1] * a[1][0]);
     vec2 eVec = getEigenVector (eVal[0], a);
-    return fromEigen (mat2 (eVal, eVec), perc);
+    return fromEigen (mat2 (eVal, eVec));
 }
 
-bool isEllipseBackground (vec2 x, float perc, vec2 texCoordCenter)
+bool isEllipseBackground (vec2 x, vec2 texCoordCenter)
 {
     mat2 a;
     if (getTransform (a, texCoordCenter))
     {
 	//Ellipse t = fromEigen (tensor_b264);
 	//Ellipse t = fromTransform (transform45);
-	Ellipse t = fromTransform (a, perc);
+	Ellipse t = fromTransform (a);
 	vec2 v = vec2 (0.5, 0.5);
 	float value = dot (x - v, t.m_a * (x - v));
 	return (value < t.m_c[0] || t.m_c[1] < value);
@@ -136,9 +138,10 @@ bool isEllipseBackground (vec2 x, float perc, vec2 texCoordCenter)
 	return true;
 }
 
-bool isGridBackground (vec2 x, float perc)
+bool isGridBackground (vec2 x)
 {
     vec2 backgroundBox;
+    float perc = (u_cellLength - u_lineWidth) / u_cellLength;
     vec2 percentage = vec2 (perc, perc);
     backgroundBox = step (x, percentage);
     return backgroundBox.x * backgroundBox.y != 0.;
@@ -148,17 +151,16 @@ void main(void)
 {
     const vec4 inkColor = vec4 (0., 0., 0., 1.);
     vec2 gridCoordStart = 
-	(screenLow + screenHigh) / 2. + gridTranslation;
-    vec2 gridCoord = (objectCoord - gridCoordStart) / cellLength;
+	(u_screenLow + u_screenHigh) / 2. + u_gridTranslation;
+    vec2 gridCoord = (v_objectCoord - gridCoordStart) / u_cellLength;
     vec2 gridCoordFract = fract (gridCoord);
     vec2 gridCoordFloor = floor (gridCoord);
-    vec2 gridCoordCenter = cellLength * (gridCoordFloor + vec2 (.5, .5));
-    vec2 screenCoordCenter = gridCoordStart + gridCoordCenter - screenLow;
-    vec2 texCoordCenter = screenCoordCenter / (screenHigh - screenLow);
-    float perc = (cellLength - lineWidth) / cellLength;
+    vec2 gridCoordCenter = u_cellLength * (gridCoordFloor + vec2 (.5, .5));
+    vec2 screenCoordCenter = gridCoordStart + gridCoordCenter - u_screenLow;
+    vec2 texCoordCenter = screenCoordCenter / (u_screenHigh - u_screenLow);
     bool ellipseBackground = isEllipseBackground (
-	gridCoordFract, perc, texCoordCenter);
-    bool gridBackground = isGridBackground (gridCoordFract, perc);
+	gridCoordFract, texCoordCenter);
+    bool gridBackground = isGridBackground (gridCoordFract);
     // debug
     // bool gridBackground = true;
     if (ellipseBackground && gridBackground)

@@ -486,33 +486,30 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 }
 
 
-double GLWidget::GetOnePixelInObjectSpaceScaled () const
+double GLWidget::GetOnePixelInObjectSpace () const
 {
     G3D::Vector3 first = toObject (QPoint (0, 0));
     G3D::Vector3 second = toObject (QPoint (1, 0));
     float onePixelInObjectSpace = (second - first).length ();
-    WarnOnOpenGLError ("GetOnePixelInObjectSpaceScaled");
+    WarnOnOpenGLError ("GetOnePixelInObjectSpace");
     return onePixelInObjectSpace;
 }
 
-double GLWidget::GetOnePixelInObjectSpace () const
-{
-    return GetViewSettings ().GetScaleRatio () * 
-	GetOnePixelInObjectSpaceScaled ();
-}
-
-
-
-pair<double,double> GLWidget::GetCellLength () const
+double GLWidget::GetCellLength () const
 {
     const Body& body = GetFoamAlongTime ().GetFoam (0).GetBody (0);
     G3D::AABox box = body.GetBoundingBox ();
     G3D::Vector3 extent = box.extent ();
-    double cellLength = min (extent.x, extent.y);
-    double parametricEllipseScaleRatio = 
-	cellLength / (2 * body.GetDeformationEigenValue (0));
-    return pair<double, double> (cellLength, parametricEllipseScaleRatio);
+    return min (extent.x, extent.y);
 }
+
+double GLWidget::GetEllipseSizeInitialRatio () const
+{
+    double cellLength = GetCellLength ();
+    const Body& body = GetFoamAlongTime ().GetFoam (0).GetBody (0);
+    return cellLength / (2 * body.GetDeformationEigenValue (0));
+}
+
 
 void GLWidget::calculateEdgeRadius (
     double edgeRadiusRatio,
@@ -1202,7 +1199,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     viewportTransform (viewNumber);    
     projectionTransform (viewNumber);
     ModelViewTransform (viewNumber, GetTime ());
-    m_minimumEdgeRadius = GetOnePixelInObjectSpaceScaled ();
+    m_minimumEdgeRadius = GetOnePixelInObjectSpace ();
     calculateEdgeRadius (m_edgeRadiusRatio,
 			 &m_edgeRadius, &m_arrowBaseRadius,
 			 &m_arrowHeight, &m_edgeWidth);
@@ -2023,7 +2020,7 @@ void GLWidget::displayDeformationTensor2D (ViewNumber::Enum viewNumber) const
     for_each (bodies.begin (), bodies.end (),
 	      boost::bind (
 		  ::displayBodyDeformationTensor2D, _1, 
-		  GetCellLength ().second * m_ellipseSizeRatio));
+		  GetEllipseSizeInitialRatio () * GetEllipseSizeRatio ()));
     glPopAttrib ();    
 }
 
@@ -2037,7 +2034,7 @@ void GLWidget::displayBodyDeformationTensor2D () const
     glColor (Qt::black);
     ::displayBodyDeformationTensor2D (
 	*foam.FindBody (m_showBodyId), 
-	GetCellLength ().second * m_ellipseSizeRatio);
+	GetEllipseSizeInitialRatio () * GetEllipseSizeRatio ());
     glPopAttrib ();
 }
 
