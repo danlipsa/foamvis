@@ -28,9 +28,9 @@ public:
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
     void Release () {}
+    virtual void Init (ViewNumber::Enum viewNumber);
 
 protected:
-    virtual void init (ViewNumber::Enum viewNumber);
     virtual void addStep (ViewNumber::Enum viewNumber, size_t timeStep);
     virtual void removeStep (ViewNumber::Enum viewNumber, size_t timeStep);
 

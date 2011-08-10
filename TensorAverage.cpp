@@ -109,20 +109,12 @@ void TensorAverage::InitShaders ()
 			   RESOURCE("TensorDisplay.frag")));
 }
 
-void TensorAverage::InitStep (
-    ViewNumber::Enum viewNumber,
-    boost::shared_ptr<QGLFramebufferObject> scalarAverage)
-{
-    m_scalarAverage = scalarAverage;
-    Average::InitStep (viewNumber);
-}
-
 
 void TensorAverage::rotateAndDisplay (
     ViewNumber::Enum viewNumber,
     const G3D::Rect2D& viewRect,
     GLfloat minValue, GLfloat maxValue,
-    StatisticsType::Enum displayType, QGLFramebufferObject& srcFbo,
+    StatisticsType::Enum displayType, FramebufferObjectPair srcFbo,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
     (void)minValue;
@@ -149,12 +141,12 @@ void TensorAverage::rotateAndDisplay (
     // activate texture unit 1
     glActiveTexture (
 	TextureEnum (m_displayShaderProgram->GetTensorAverageTexUnit ()));
-    glBindTexture (GL_TEXTURE_2D, srcFbo.texture ());
+    glBindTexture (GL_TEXTURE_2D, srcFbo.first->texture ());
 
     // activate texture unit 2
     glActiveTexture (
 	TextureEnum (m_displayShaderProgram->GetScalarAverageTexUnit ()));
-    glBindTexture (GL_TEXTURE_2D, m_scalarAverage->texture ());
+    glBindTexture (GL_TEXTURE_2D, srcFbo.second->texture ());
 
     GetGLWidget ().ActivateShader (
 	viewNumber, viewRect, rotationCenter, angleDegrees);

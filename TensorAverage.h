@@ -11,6 +11,7 @@
 
 #include "ImageBasedAverage.h"
 #include "PropertySetter.h"
+class ScalarAverage;
 class TensorDisplay;
 
 /**
@@ -24,26 +25,24 @@ class TensorDisplay;
 class TensorAverage : public ImageBasedAverage<SetterDeformationTensor>
 {
 public:
-    TensorAverage (const GLWidget& glWidget) :
-	ImageBasedAverage<SetterDeformationTensor> (glWidget, "tensor")
+    TensorAverage (const GLWidget& glWidget, 
+		   FramebufferObjects& scalarAverageFbos) :
+	ImageBasedAverage<SetterDeformationTensor> (
+	    glWidget, "tensor", scalarAverageFbos)
     {
     }
-    void InitStep (ViewNumber::Enum viewNumber,
-		   boost::shared_ptr<QGLFramebufferObject> scalarAverage);
     static void InitShaders ();
 
 protected:
     virtual void rotateAndDisplay (
 	ViewNumber::Enum viewNumber,
 	const G3D::Rect2D& viewRect, GLfloat minValue, GLfloat maxValue,
-	StatisticsType::Enum displayType, QGLFramebufferObject& fbo,
+	StatisticsType::Enum displayType, FramebufferObjectPair srcFbo,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
 
 private:
     static boost::shared_ptr<TensorDisplay> m_displayShaderProgram;
-
-    boost::shared_ptr<QGLFramebufferObject> m_scalarAverage;
 };
 
 #endif //__TENSOR_AVERAGE_H__

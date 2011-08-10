@@ -11,7 +11,7 @@
 
 struct AverageInterface
 {
-    virtual void InitStep (ViewNumber::Enum viewNumber) = 0;
+    virtual void Init (ViewNumber::Enum viewNumber) = 0;
     virtual void SetTimeWindow (size_t timeSteps) = 0;
     virtual void Step (ViewNumber::Enum viewNumber, int timeStep) = 0;
     virtual void RotateAndDisplay (

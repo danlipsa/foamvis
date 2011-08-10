@@ -21,7 +21,6 @@ public:
     m_glWidget (glWidget)
     {
     }
-    void InitStep (ViewNumber::Enum viewNumber);
     void SetTimeWindow (size_t historyCount)
     {
 	m_timeWindow = historyCount;
@@ -39,9 +38,9 @@ public:
     {
 	return m_currentTimeWindow;
     }
+    virtual void Init (ViewNumber::Enum viewNumber);
 
 protected:
-    virtual void init (ViewNumber::Enum viewNumber);
     virtual void addStep (ViewNumber::Enum viewNumber, size_t timeStep) = 0;
     virtual void removeStep (ViewNumber::Enum viewNumber, size_t timeStep) = 0;
 

@@ -932,7 +932,10 @@ void GLWidget::ResetTransformFocus ()
     projectionTransform (viewNumber);
     glLoadIdentity ();
     if (vs.GetViewType () == ViewType::FACES_STATISTICS)
-	vs.InitStep (viewNumber);
+    {
+	vs.Init (viewNumber);
+	vs.Step (viewNumber, 1);
+    }
     update ();
 }
 
@@ -1229,7 +1232,10 @@ void GLWidget::resizeGL(int w, int h)
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	ViewSettings& vs = GetViewSettings (viewNumber);
 	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
-	    vs.InitStep (viewNumber);
+	{
+	    vs.Init (viewNumber);
+	    vs.Step (viewNumber, 1);
+	}
     }
     WarnOnOpenGLError ("resizeGl");
 }
@@ -1745,7 +1751,10 @@ void GLWidget::mouseMoveTranslate (QMouseEvent *event)
 	translate (viewNumber, event->pos (), G3D::Vector3::X_AXIS,
 		   G3D::Vector3::Y_AXIS);
 	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
-	    vs.InitStep (viewNumber);
+	{
+	    vs.Init (viewNumber);
+	    vs.Step (viewNumber, 1);
+	}
 	break;
     case InteractionObject::LIGHT:
     {
@@ -1777,7 +1786,10 @@ void GLWidget::mouseMoveScale (QMouseEvent *event)
     case InteractionObject::FOCUS:
 	scale (viewNumber, event->pos ());
 	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
-	    vs.InitStep (viewNumber);
+	{
+	    vs.Init (viewNumber);
+	    vs.Step (viewNumber, 1);
+	}
 	break;
     case InteractionObject::CONTEXT:
 	scaleContext (viewNumber, event->pos ());
@@ -3066,7 +3078,8 @@ void GLWidget::ButtonClickedViewType (int id)
     if (newViewType == ViewType::FACES_STATISTICS)
     {
 	ViewNumber::Enum vn = GetViewNumber ();
-	vs.InitStep (vn);
+	vs.Init (vn);
+	vs.Step (vn, 1);
     }
     if (oldViewType == ViewType::FACES_STATISTICS)
 	vs.Release ();

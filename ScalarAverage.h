@@ -28,20 +28,15 @@ public:
     static void InitShaders ();
 
     ScalarAverage (const GLWidget& glWidget) :
-	ImageBasedAverage<SetterVertexAttribute> (glWidget, "scalar")
+	ImageBasedAverage<SetterVertexAttribute> (glWidget, "scalar", m_fbos)
     {
-    }
-
-    boost::shared_ptr<QGLFramebufferObject> GetCurrent () const
-    {
-	return m_current;
     }
 
 protected:
     virtual void rotateAndDisplay (
 	ViewNumber::Enum viewNumber,
 	const G3D::Rect2D& viewRect, GLfloat minValue, GLfloat maxValue,
-	StatisticsType::Enum displayType, QGLFramebufferObject& fbo,
+	StatisticsType::Enum displayType, FramebufferObjectPair fbo,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
 

@@ -10,7 +10,7 @@
 #include "Average.h"
 #include "GLWidget.h"
 
-void Average::init (ViewNumber::Enum viewNumber)
+void Average::Init (ViewNumber::Enum viewNumber)
 {
     (void)viewNumber;
     m_currentTimeWindow = 0;
@@ -20,17 +20,12 @@ void Average::init (ViewNumber::Enum viewNumber)
 typedef void (Average::*Operation) (ViewNumber::Enum viewNumber, 
 				    size_t timeStep);
 
-void Average::InitStep (ViewNumber::Enum viewNumber)
-{
-    init (viewNumber);
-    Step (viewNumber, 1);
-}
-
 void Average::Step (ViewNumber::Enum viewNumber, int timeStep)
 {
     if (abs (timeStep) > 1)
     {
-	InitStep (viewNumber);
+	Init (viewNumber);
+	Step (viewNumber, 1);
 	return;
     }
     Operation first, second;

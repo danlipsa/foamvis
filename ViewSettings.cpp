@@ -49,7 +49,7 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_listCenterPaths (0),
     m_colorBarTexture (0),
     m_scalarAverage (new ScalarAverage (glWidget)),
-    m_tensorAverage (new TensorAverage (glWidget)),
+    m_tensorAverage (new TensorAverage (glWidget, m_scalarAverage->GetFbos ())),
     m_forceAverage (new ForceAverage (glWidget)),
     m_rotationModel (G3D::Matrix3::identity ()),
     m_scaleRatio (1),
@@ -384,12 +384,11 @@ void ViewSettings::CopySelection (const ViewSettings& other)
     m_bodySelector = other.m_bodySelector->Clone ();
 }
 
-void ViewSettings::InitStep (ViewNumber::Enum viewNumber)
+void ViewSettings::Init (ViewNumber::Enum viewNumber)
 {
-    GetScalarAverage ().InitStep (viewNumber);
-    GetTensorAverage ().InitStep (
-	viewNumber, GetScalarAverage ().GetCurrent ());
-    GetForceAverage ().InitStep (viewNumber);
+    GetScalarAverage ().Init (viewNumber);
+    GetTensorAverage ().Init (viewNumber);
+    GetForceAverage ().Init (viewNumber);
 }
 
 void ViewSettings::SetTimeWindow (size_t timeSteps)

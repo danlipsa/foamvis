@@ -84,8 +84,6 @@ vec2 getEigenVector (float l, mat2 a)
 bool getTransform (out mat2 a, vec2 texCoordCenter)
 {
     float count = texture2D (u_scalarAverageTexUnit, texCoordCenter).g;
-    // debug
-    //count = 1.0;
     if (count == 0.0)
 	return false;
     vec4 ta = texture2D (u_tensorAverageTexUnit, texCoordCenter);
@@ -158,8 +156,8 @@ void main(void)
     vec2 gridCoordCenter = u_cellLength * (gridCoordFloor + vec2 (.5, .5));
     vec2 screenCoordCenter = gridCoordStart + gridCoordCenter - u_screenLow;
     vec2 texCoordCenter = screenCoordCenter / (u_screenHigh - u_screenLow);
-    bool ellipseBackground = isEllipseBackground (
-	gridCoordFract, texCoordCenter);
+    bool ellipseBackground = isEllipseBackground (gridCoordFract, 
+						  texCoordCenter);
     bool gridBackground = isGridBackground (gridCoordFract);
     // debug
     // bool gridBackground = true;

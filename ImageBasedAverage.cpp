@@ -20,6 +20,7 @@
 #include "OpenGLUtils.h"
 #include "PropertySetter.h"
 #include "ShaderProgram.h"
+#include "ScalarAverage.h"
 #include "ViewSettings.h"
 
 // Private classes/functions
@@ -41,37 +42,37 @@ template<typename PropertySetter> boost::shared_ptr<AddShaderProgram>
 ImageBasedAverage<PropertySetter>::m_removeShaderProgram;
 
 template<typename PropertySetter>
-void ImageBasedAverage<PropertySetter>::init (ViewNumber::Enum viewNumber)
+void ImageBasedAverage<PropertySetter>::Init (ViewNumber::Enum viewNumber)
 {
-    Average::init (viewNumber);
+    Average::Init (viewNumber);
     const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
     QSize size (viewRect.width (), viewRect.height ());
     glPushAttrib (GL_COLOR_BUFFER_BIT);
-    m_step.reset (
+    m_fbos.m_step.reset (
 	new QGLFramebufferObject (
 	    size, QGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_2D, 
 	    GL_RGBA32F));
 
-    RuntimeAssert (m_step->isValid (), 
+    RuntimeAssert (m_fbos.m_step->isValid (), 
 		   "Framebuffer initialization failed:" + m_id);
-    RuntimeAssert (
-	m_step->attachment () == QGLFramebufferObject::CombinedDepthStencil,
-	"No stencil attachement available:" + m_id);
+    RuntimeAssert (m_fbos.m_step->attachment () == 
+		   QGLFramebufferObject::CombinedDepthStencil,
+		   "No stencil attachement available:" + m_id);
 
-    m_current.reset (
+    m_fbos.m_current.reset (
 	new QGLFramebufferObject (
 	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D,
 	    GL_RGBA32F));
-    RuntimeAssert (m_current->isValid (), 
+    RuntimeAssert (m_fbos.m_current->isValid (), 
 		   "Framebuffer initialization failed:" + m_id);
-    m_previous.reset (
+    m_fbos.m_previous.reset (
 	new QGLFramebufferObject (
 	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D,
 	    GL_RGBA32F));
-    RuntimeAssert (m_previous->isValid (), 
+    RuntimeAssert (m_fbos.m_previous->isValid (), 
 		   "Framebuffer initialization failed:" + m_id);
-    m_debug.reset (new QGLFramebufferObject (size));
-    RuntimeAssert (m_debug->isValid (), 
+    m_fbos.m_debug.reset (new QGLFramebufferObject (size));
+    RuntimeAssert (m_fbos.m_debug->isValid (), 
 		   "Framebuffer initialization failed:" + m_id);
     glPopAttrib ();
     clear (viewNumber);
@@ -81,21 +82,28 @@ void ImageBasedAverage<PropertySetter>::init (ViewNumber::Enum viewNumber)
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::clear (ViewNumber::Enum viewNumber)
 {
+    const size_t FAKE_TIMESTEP = -1;
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
-    m_step->bind ();
+    m_fbos.m_step->bind ();
     ClearColorStencilBuffers (Qt::black, 0);
-    m_step->release ();
-    save (viewNumber, *m_step, "step", 0,
+    m_fbos.m_step->release ();
+    save (viewNumber, 
+	  make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
+	  "step", FAKE_TIMESTEP, 
 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
 
-    m_current->bind ();
+    m_fbos.m_current->bind ();
     ClearColorBuffer (Qt::black);
-    m_current->release ();
-    save (viewNumber, *m_current, "current", 0,
+    m_fbos.m_current->release ();
+    save (viewNumber, 
+	  make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
+	  "current", FAKE_TIMESTEP, 
 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
     
-    initFramebuffer (viewNumber, m_previous);
-    save (viewNumber, *m_previous, "previous", 0,
+    initFramebuffer (viewNumber, m_fbos.m_previous);
+    save (viewNumber, 
+	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
+	  "previous", FAKE_TIMESTEP + 1,
 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
     WarnOnOpenGLError ("ImageBasedAverage::clear");
 }
@@ -103,10 +111,10 @@ void ImageBasedAverage<PropertySetter>::clear (ViewNumber::Enum viewNumber)
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::Release ()
 {
-    m_step.reset ();
-    m_current.reset ();
-    m_previous.reset ();
-    m_debug.reset ();
+    m_fbos.m_step.reset ();
+    m_fbos.m_current.reset ();
+    m_fbos.m_previous.reset ();
+    m_fbos.m_debug.reset ();
 }
 
 
@@ -117,14 +125,20 @@ void ImageBasedAverage<PropertySetter>::addStep (
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, time);
-    //save (viewNumber, *m_step, "step", time,
-    //minMax.first, minMax.second, StatisticsType::AVERAGE);
-    addStepToCurrent (viewNumber);
-    //save (viewNumber, *m_current, "current", time,
-    //minMax.first, minMax.second, StatisticsType::AVERAGE);
+    save (viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
+	  "step", time, minMax.first, minMax.second, StatisticsType::AVERAGE);
+
+    currentIsPreviousPlusStep (viewNumber);
+    save (viewNumber, 
+	  make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
+	  "current", time, 
+	  minMax.first, minMax.second, StatisticsType::AVERAGE);
+
     copyCurrentToPrevious ();
-    //save (viewNumber, *m_previous, "previous", time, 
-    //minMax.first, minMax.second, StatisticsType::AVERAGE);    
+    save (viewNumber, 
+	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
+	  "previous", time + 1,
+	  minMax.first, minMax.second, StatisticsType::AVERAGE);
     glPopAttrib ();
     WarnOnOpenGLError ("ImageBasedAverage::addStep:" + m_id);
 }
@@ -136,14 +150,21 @@ void ImageBasedAverage<PropertySetter>::removeStep (
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, time);
-    //save (viewNumber, *m_step, "step_", timey - m_timeWindow,
-    //minMax.first, minMax.second, StatisticsType::AVERAGE);
-    removeStepFromCurrent (viewNumber);
-    //save (viewNumber, *m_current, "current_", time,
-    //minMax.first, minMax.second, StatisticsType::AVERAGE);
+    //save (viewNumber, 
+    //FramebufferObjectPair (*m_step, *m_scalarAverage.m_step), 
+    // "step", time, minMax.first, minMax.second, StatisticsType::AVERAGE);
+
+    currentIsPreviousMinusStep (viewNumber);
+    //save (viewNumber, 
+    //FramebufferObjectPair (*m_current, *m_scalarAverage.m_current), 
+    // "current", time, minMax.first, minMax.second, StatisticsType::AVERAGE);
+
     copyCurrentToPrevious ();
-    //save (viewNumber, *m_previous, "previous_", time, 
+    //save (viewNumber, 
+    //FramebufferObjectPair (*m_previous, *m_scalarAverage.m_previous), 
+    //"previous", time + 1,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
+
     glPopAttrib ();
     WarnOnOpenGLError ("ImageBasedAverage::removeStep:" + m_id);
 }
@@ -157,32 +178,32 @@ void ImageBasedAverage<PropertySetter>::renderToStep (
     glPushMatrix ();
     GetGLWidget ().ModelViewTransform (viewNumber, time);
     glViewport (0, 0, viewRect.width (), viewRect.height ());
-    initFramebuffer (viewNumber, m_step);
-    m_step->bind ();
+    initFramebuffer (viewNumber, m_fbos.m_step);
+    m_fbos.m_step->bind ();
     ClearColorStencilBuffers (Qt::black, 0);
     const Foam& foam = GetGLWidget ().GetFoamAlongTime ().GetFoam (time);
     const Foam::Bodies& bodies = foam.GetBodies ();
     writeFacesValues (viewNumber, bodies);
-    m_step->release ();
+    m_fbos.m_step->release ();
     glPopMatrix ();
     WarnOnOpenGLError ("ImageBasedAverage::renderToStep:" + m_id);
 }
 
 template<typename PropertySetter>
-void ImageBasedAverage<PropertySetter>::addStepToCurrent (
+void ImageBasedAverage<PropertySetter>::currentIsPreviousPlusStep (
     ViewNumber::Enum viewNumber)
 {
     G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
-    m_current->bind ();
+    m_fbos.m_current->bind ();
     m_addShaderProgram->Bind ();
 
     // activate texture unit 1
     glActiveTexture (TextureEnum (m_addShaderProgram->GetPreviousTexUnit ()));
-    glBindTexture (GL_TEXTURE_2D, m_previous->texture ());
+    glBindTexture (GL_TEXTURE_2D, m_fbos.m_previous->texture ());
 
     // activate texture unit 2
     glActiveTexture (TextureEnum (m_addShaderProgram->GetStepTexUnit ()));
-    glBindTexture (GL_TEXTURE_2D, m_step->texture ());
+    glBindTexture (GL_TEXTURE_2D, m_fbos.m_step->texture ());
     
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
@@ -191,26 +212,26 @@ void ImageBasedAverage<PropertySetter>::addStepToCurrent (
 	viewNumber,
 	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()));
     m_addShaderProgram->release ();
-    m_current->release ();
-    WarnOnOpenGLError ("ImageBasedAverage::addStepToCurrent:" + m_id);
+    m_fbos.m_current->release ();
+    WarnOnOpenGLError ("ImageBasedAverage::currentIsPreviousPlusStep:" + m_id);
 }
 
 template<typename PropertySetter>
-void ImageBasedAverage<PropertySetter>::removeStepFromCurrent (
+void ImageBasedAverage<PropertySetter>::currentIsPreviousMinusStep (
     ViewNumber::Enum viewNumber)
 {
     G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
-    m_current->bind ();
+    m_fbos.m_current->bind ();
     m_removeShaderProgram->Bind ();
 
     // activate texture unit 1
     glActiveTexture (
 	TextureEnum (m_removeShaderProgram->GetPreviousTexUnit ()));
-    glBindTexture (GL_TEXTURE_2D, m_previous->texture ());
+    glBindTexture (GL_TEXTURE_2D, m_fbos.m_previous->texture ());
 
     // activate texture unit 2
     glActiveTexture (TextureEnum (m_removeShaderProgram->GetStepTexUnit ()));
-    glBindTexture (GL_TEXTURE_2D, m_step->texture ());
+    glBindTexture (GL_TEXTURE_2D, m_fbos.m_step->texture ());
 
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
@@ -218,24 +239,24 @@ void ImageBasedAverage<PropertySetter>::removeStepFromCurrent (
 	viewNumber, 
 	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()));
     m_removeShaderProgram->release ();
-    m_current->release ();
-    WarnOnOpenGLError ("ImageBasedAverage::removeStepFromCurrent:" + m_id);
+    m_fbos.m_current->release ();
+    WarnOnOpenGLError ("ImageBasedAverage::currentIsPreviousMinusStep:" + m_id);
 }
 
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::copyCurrentToPrevious ()
 {
-    QSize size = m_current->size ();
+    QSize size = m_fbos.m_current->size ();
     QRect rect (QPoint (0, 0), size);
     QGLFramebufferObject::blitFramebuffer (
-	m_previous.get (), rect, m_current.get (), rect);
+	m_fbos.m_previous.get (), rect, m_fbos.m_current.get (), rect);
 }
 
 // Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::initFramebuffer (
     ViewNumber::Enum viewNumber,
-    const boost::scoped_ptr<QGLFramebufferObject>& fbo)
+    const boost::shared_ptr<QGLFramebufferObject>& fbo)
 {
     const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
     fbo->bind ();
@@ -252,34 +273,36 @@ void ImageBasedAverage<PropertySetter>::RotateAndDisplay (
     G3D::Vector2 rotationCenter, 
     float angleDegrees) const
 {
-    if (! m_current)
+    if (! m_fbos.m_current)
 	return;
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
     rotateAndDisplay (
 	viewNumber, viewRect, minMax.first, minMax.second, displayType, 
-	*m_current, rotationCenter, angleDegrees);
+	make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
+	rotationCenter, angleDegrees);
 }
 
 // @todo: save does not work anymore 20110731
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::save (
     ViewNumber::Enum viewNumber,
-    QGLFramebufferObject& fbo, const char* postfix, size_t timeStep,
+    FramebufferObjectPair fbo, const char* postfix, size_t timeStep,
     GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
 {
     const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
     // render to the debug buffer
-    m_debug->bind ();
+    m_fbos.m_debug->bind ();
+    ClearColorBuffer (Qt::white);
     rotateAndDisplay (
 	viewNumber,
 	G3D::Rect2D::xywh (0, 0, viewRect.width (), viewRect.height ()), 
 	minValue, maxValue, displayType, fbo);
-    m_debug->release ();
+    m_fbos.m_debug->release ();
     ostringstream ostr;
     ostr << "images/" 
 	 << m_id << setfill ('0') << setw (4) << timeStep << postfix << ".png";
-    m_debug->toImage ().save (ostr.str ().c_str ());
+    m_fbos.m_debug->toImage ().save (ostr.str ().c_str ());
     WarnOnOpenGLError ("ImageBasedAverage::save");
 }
 

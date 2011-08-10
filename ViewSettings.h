@@ -382,7 +382,7 @@ public:
 	m_centerPathHidden = centerPathHidden;
     }
 
-    virtual void InitStep (ViewNumber::Enum viewNumber);
+    virtual void Init (ViewNumber::Enum viewNumber);
     virtual void SetTimeWindow (size_t timeSteps);
     virtual void Step (ViewNumber::Enum viewNumber, int timeStep);
     virtual void RotateAndDisplay (
