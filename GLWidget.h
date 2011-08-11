@@ -205,6 +205,7 @@ public:
     {
 	return m_ellipseSizeRatio;
     }
+    G3D::AABox CalculateEyeViewingVolume (ViewNumber::Enum viewNumber) const;
     G3D::AABox CalculateViewingVolume (ViewNumber::Enum viewNumber) const;
 
 Q_SIGNALS:
@@ -431,7 +432,6 @@ private:
     G3D::AABox calculateViewingVolume (double xOverY, double scaleRatio) const;
     G3D::AABox calculateCenteredViewingVolume (double xOverY,
 					       double scaleRatio) const;
-    G3D::AABox calculateEyeViewingVolume (ViewNumber::Enum viewNumber) const;
 
     void initQuadrics ();
     void initEndTranslationColor ();

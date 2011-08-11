@@ -36,10 +36,11 @@ struct Ellipse
 const float sqrt2 = 1.41421356237;
 const mat2 tensor45 = mat2 (3., 1., 1. / sqrt2, 1./ sqrt2);
 const mat2 tensor_b264 = mat2 (
-    //0.00099301, 0.000340428, 
-    .09, .03,
+    0.00099301, 0.000340428,
     0.783351, 0.621579);
 const mat2 transform45 = mat2 (2., 1., 1., 2.);
+const mat2 transform_b264 = mat2 (
+    7.4088e-04, 3.1775e-04, 3.1775e-04, 5.9256e-04);
 
 void swap (inout float first, inout float second)
 {
@@ -86,9 +87,11 @@ bool getTransform (out mat2 a, vec2 texCoordCenter)
     float count = texture2D (u_scalarAverageTexUnit, texCoordCenter).g;
     if (count == 0.0)
 	return false;
-    vec4 ta = texture2D (u_tensorAverageTexUnit, texCoordCenter);
+
     //debug
-    //ta = vec4 (2., 1., 1., 2.);
+    //if (count == 1.0)
+    //texCoordCenter = vec2 (0.5, 0.5);
+    vec4 ta = texture2D (u_tensorAverageTexUnit, texCoordCenter);
     a = mat2 (ta[0], ta[1], ta[2], ta[3]);
     a = a / count;
     return true;

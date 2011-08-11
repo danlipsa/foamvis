@@ -470,6 +470,12 @@ size_t Foam::GetLastBodyId () const
     return (*(--it))->GetId ();
 }
 
+
+/**
+ * @todo: 1. Use face area to decide if the constraint is convex or concave.
+ *        2. For a piece wise defined constraint, use the intersection between
+ *           different pieces as points you know they are on the constraint.
+ */
 void Foam::addConstraintEdges ()
 {
     if (! Is2D ())

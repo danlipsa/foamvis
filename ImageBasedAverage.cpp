@@ -85,7 +85,7 @@ void ImageBasedAverage<PropertySetter>::clear (ViewNumber::Enum viewNumber)
     const size_t FAKE_TIMESTEP = -1;
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     m_fbos.m_step->bind ();
-    ClearColorStencilBuffers (Qt::black, 0);
+    ClearColorStencilBuffers (Qt::transparent, 0);
     m_fbos.m_step->release ();
     save (viewNumber, 
 	  make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
@@ -93,7 +93,7 @@ void ImageBasedAverage<PropertySetter>::clear (ViewNumber::Enum viewNumber)
 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     m_fbos.m_current->bind ();
-    ClearColorBuffer (Qt::black);
+    ClearColorBuffer (Qt::transparent);
     m_fbos.m_current->release ();
     save (viewNumber, 
 	  make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
@@ -180,7 +180,7 @@ void ImageBasedAverage<PropertySetter>::renderToStep (
     glViewport (0, 0, viewRect.width (), viewRect.height ());
     initFramebuffer (viewNumber, m_fbos.m_step);
     m_fbos.m_step->bind ();
-    ClearColorStencilBuffers (Qt::black, 0);
+    ClearColorStencilBuffers (Qt::transparent, 0);
     const Foam& foam = GetGLWidget ().GetFoamAlongTime ().GetFoam (time);
     const Foam::Bodies& bodies = foam.GetBodies ();
     writeFacesValues (viewNumber, bodies);

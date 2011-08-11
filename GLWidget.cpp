@@ -145,7 +145,7 @@ const size_t GLWidget::QUADRIC_STACKS = 1;
 
 const double GLWidget::ENCLOSE_ROTATION_RATIO = 1;
 const pair<double,double> GLWidget::T1_SIZE (1, 10);
-const pair<double,double> GLWidget::ELLIPSE_SIZE_EXP (-2, 2);
+const pair<double,double> GLWidget::ELLIPSE_SIZE_EXP (-10, 10);
 const pair<double,double> GLWidget::ELLIPSE_LINE_WIDTH_EXP (0, 3);
 
 const pair<double,double> GLWidget::CONTEXT_ALPHA (0.05, 0.5);
@@ -740,7 +740,7 @@ G3D::AABox GLWidget::calculateCenteredViewingVolume (
     return vv - vv.center ();
 }
 
-G3D::AABox GLWidget::calculateEyeViewingVolume (
+G3D::AABox GLWidget::CalculateEyeViewingVolume (
     ViewNumber::Enum viewNumber) const
 {
     double xOverY = getViewXOverY ();
@@ -753,8 +753,7 @@ G3D::AABox GLWidget::calculateEyeViewingVolume (
     return result;
 }
 
-G3D::AABox GLWidget::CalculateViewingVolume (
-    ViewNumber::Enum viewNumber) const
+G3D::AABox GLWidget::CalculateViewingVolume (ViewNumber::Enum viewNumber) const
 {
     double xOverY = getViewXOverY ();
     const ViewSettings& vs = GetViewSettings (viewNumber);
@@ -765,7 +764,7 @@ G3D::AABox GLWidget::CalculateViewingVolume (
 void GLWidget::projectionTransform (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    G3D::AABox viewingVolume = calculateEyeViewingVolume (viewNumber);
+    G3D::AABox viewingVolume = CalculateEyeViewingVolume (viewNumber);
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity();
     if (vs.GetAngleOfView () == 0)

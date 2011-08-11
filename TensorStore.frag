@@ -7,11 +7,7 @@ varying vec4 fValue;
 
 void main(void)
 {
-    float maxFloat = 3.40282e+38;
-    if (fValue[0] == maxFloat)
-        gl_FragColor = vec4 (0);
-    else
-        gl_FragColor = fValue;
+    gl_FragColor = fValue;
 }
 
 // Local Variables:
