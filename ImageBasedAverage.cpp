@@ -350,10 +350,10 @@ pair<double, double> ImageBasedAverage<PropertySetter>::getStatisticsMinMax (
     }
     else
     {
-	minValue = GetGLWidget ().GetFoamAlongTime ().GetMin (
-	    GetGLWidget ().GetViewSettings (view).GetBodyProperty ());
-	maxValue = GetGLWidget ().GetFoamAlongTime ().GetMax (
-	    GetGLWidget ().GetViewSettings (view).GetBodyProperty ());
+	BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT (
+	    GetGLWidget ().GetViewSettings (view).GetBodyOrFaceProperty ());
+	minValue = GetGLWidget ().GetFoamAlongTime ().GetMin (bodyProperty);
+	maxValue = GetGLWidget ().GetFoamAlongTime ().GetMax (bodyProperty);
     }
     return pair<double, double> (minValue, maxValue);
 }

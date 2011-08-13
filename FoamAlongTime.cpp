@@ -140,7 +140,7 @@ const vector<G3D::Vector3> FoamAlongTime::NO_T1S;
 // ======================================================================
 FoamAlongTime::FoamAlongTime () :
     m_histogram (
-        BodyProperty::PROPERTY_END, HistogramStatistics (HISTOGRAM_INTERVALS)),
+        BodyProperty::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
     m_t1sTimestepShift (0),
     m_useOriginal (false)
 {
@@ -267,9 +267,9 @@ void FoamAlongTime::adjustPressureAlignMedians ()
 
 void FoamAlongTime::calculateStatistics ()
 {
-    vector<MinMaxStatistics> minMaxStat(BodyProperty::PROPERTY_END);
+    vector<MinMaxStatistics> minMaxStat(BodyProperty::COUNT);
     for (size_t i = BodyProperty::PROPERTY_BEGIN; 
-	 i < BodyProperty::PROPERTY_END; ++i)
+	 i < BodyProperty::COUNT; ++i)
     {
 	// statistics for all time-steps
 	BodyProperty::Enum property = BodyProperty::FromSizeT (i);

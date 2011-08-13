@@ -296,23 +296,21 @@ bool Body::ExistsPropertyValue (BodyProperty::Enum property,
 	*deduced = false;
     switch (property)
     {
+    case BodyProperty::ELONGATION:
+	return HasAttribute (BodyProperty::TARGET_VOLUME - 
+			     BodyProperty::DMP_BEGIN);
     case BodyProperty::PRESSURE:
 	if (deduced != 0)
 	    *deduced = m_pressureDeduced;
-	return HasAttribute (property - BodyProperty::PER_BODY_BEGIN);
+	return HasAttribute (property - BodyProperty::DMP_BEGIN);
     case BodyProperty::TARGET_VOLUME:
 	if (deduced != 0)
 	    *deduced = m_targetVolumeDeduced;
-	return HasAttribute (property - BodyProperty::PER_BODY_BEGIN);
+	return HasAttribute (property - BodyProperty::DMP_BEGIN);
     case BodyProperty::ACTUAL_VOLUME:
 	if (deduced != 0)
 	    *deduced = m_actualVolumeDeduced;
-	return HasAttribute (property - BodyProperty::PER_BODY_BEGIN);
-    case BodyProperty::ELONGATION:
-	return HasAttribute (BodyProperty::TARGET_VOLUME - 
-				BodyProperty::PER_BODY_BEGIN);
-    case BodyProperty::NONE:
-	return false;
+	return HasAttribute (property - BodyProperty::DMP_BEGIN);
     default:
 	return true;
     }
@@ -330,25 +328,23 @@ double Body::GetPropertyValue (BodyProperty::Enum property) const
 	return GetVelocity ().z;
     case BodyProperty::VELOCITY_MAGNITUDE:
 	return GetVelocity ().length ();
-    case BodyProperty::NUMBER_OF_SIDES:
-	return GetNumberOfSides ();
+    case BodyProperty::SIDES_PER_BODY:
+	return GetSidesPerBody ();
     case BodyProperty::ELONGATION:
 	return GetPerimeterOverSqrtArea ();
-    case BodyProperty::NONE:
-	return 0;
     case BodyProperty::COUNT:
-	RuntimeAssert (false, "Invalid BodyProperty: ", property);
+	ThrowException ("Invalid BodyProperty: ", property);
     default:
 	return GetAttribute<RealAttribute, double> (
-	    property - BodyProperty::PER_BODY_BEGIN);
+	    property - BodyProperty::DMP_BEGIN);
     }
 }
 
-size_t Body::GetNumberOfSides () const
+size_t Body::GetSidesPerBody () const
 {
     size_t ofSize = m_orientedFaces.size ();
     if (ofSize == 1)
-	return GetOrientedFace (0).GetFace ()->GetNumberOfSides (
+	return GetOrientedFace (0).GetFace ()->GetEdgesPerFace (
 	    m_foamParameters);
     else
 	return ofSize;
@@ -358,7 +354,7 @@ size_t Body::GetNumberOfSides () const
 void Body::SetPressureValue (double value)
 {
     SetAttribute<RealAttribute, double> (
-	BodyProperty::PRESSURE - BodyProperty::PER_BODY_BEGIN, value);
+	BodyProperty::PRESSURE - BodyProperty::DMP_BEGIN, value);
 }
 
 void Body::CalculateBoundingBox ()

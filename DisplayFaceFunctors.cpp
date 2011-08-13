@@ -163,7 +163,8 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
     *useColor = true;
     if (this->m_focus == DisplayElement::FOCUS)
     {
-	if (this->m_propertySetter.GetBodyProperty () == BodyProperty::NONE)
+	if (this->m_propertySetter.GetBodyOrFaceProperty () == 
+	    FaceProperty::DMP_COLOR)
 	{
 	    glColor (of->GetColor (
 			 this->m_glWidget.GetHighlightColor (
@@ -174,8 +175,8 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	else
 	{
 	    boost::shared_ptr<Body> body = of->GetAdjacentBody ().GetBody ();
-	    BodyProperty::Enum property = 
-		this->m_propertySetter.GetBodyProperty ();
+	    BodyProperty::Enum property = BodyProperty::FromSizeT (
+		this->m_propertySetter.GetBodyOrFaceProperty ());
 	    bool deduced;
 	    bool exists = 
 		(! body->IsConstraint ()) &&  

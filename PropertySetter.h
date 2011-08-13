@@ -23,7 +23,7 @@ public:
 
     void operator () ();
     void operator () (const boost::shared_ptr<Body>& body);
-    BodyProperty::Enum GetBodyProperty () const;
+    int GetBodyOrFaceProperty () const;
     ViewNumber::Enum GetViewNumber () const
     {
 	return m_viewNumber;

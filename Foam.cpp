@@ -74,7 +74,7 @@ Foam::Foam (bool useOriginal,
     m_parsingData (new ParsingData (
 		       useOriginal, constraintRotationNames, forcesNames)),
     m_histogram (
-	BodyProperty::PROPERTY_END, HistogramStatistics (HISTOGRAM_INTERVALS)),
+	BodyProperty::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
     m_parameters (foamParameters),
     m_parametersOperation (paramsOp)
 {
@@ -447,10 +447,10 @@ void Foam::CalculateBodyNeighbors ()
 
 void Foam::CalculateBodyDeformationTensor ()
 {
-
-    for_each (m_bodies.begin (), m_bodies.end (),
-	      boost::bind (&Body::CalculateDeformationTensor, _1, 
-			   GetOriginalDomain ()));
+    if (Is2D ())
+	for_each (m_bodies.begin (), m_bodies.end (),
+		  boost::bind (&Body::CalculateDeformationTensor, _1, 
+			       GetOriginalDomain ()));
 }
 
 size_t Foam::GetLastEdgeId (const EdgeSet& edgeSet) const
@@ -821,7 +821,7 @@ void Foam::SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y)
 void Foam::CalculateMinMaxStatistics ()
 {
     for (size_t i = BodyProperty::PROPERTY_BEGIN;
-	 i < BodyProperty::PROPERTY_END; ++i)
+	 i < BodyProperty::COUNT; ++i)
     {
 	// statistics for all time-steps
 	BodyProperty::Enum property = BodyProperty::FromSizeT (i);

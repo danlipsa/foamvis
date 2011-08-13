@@ -122,17 +122,15 @@ void MainWindow::connectSignals ()
 	     widgetDisplay, SLOT (SaveFrame ()));
     
     
-    // BodyPropertyChanged: 
+    // BodyOrFacePropertyChanged: 
     // from MainWindow to GLWidget and AttributeHistogram
     connect (
 	this, 
-	SIGNAL (BodyPropertyChanged (
-		    boost::shared_ptr<ColorBarModel>,
-		    BodyProperty::Enum)),
+	SIGNAL (BodyOrFacePropertyChanged (
+		    boost::shared_ptr<ColorBarModel>, size_t)),
 	widgetGl, 
-	SLOT (SetBodyProperty (
-		  boost::shared_ptr<ColorBarModel>,
-		  BodyProperty::Enum)));
+	SLOT (SetBodyOrFaceProperty (
+		  boost::shared_ptr<ColorBarModel>, size_t)));
     
     // ColorBarModelChanged:
     // from MainWindow to ColorBar, GLWidget and AttributeHistogram
@@ -165,7 +163,7 @@ void MainWindow::ViewToUI ()
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
     const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
-    BodyProperty::Enum property = vs.GetBodyProperty ();
+    int property = vs.GetBodyOrFaceProperty ();
 
     SetCheckedNoSignals (buttonGroupViewType, vs.GetViewType (), true);
     SetCurrentIndexNoSignals (comboBoxColor, property);
@@ -176,8 +174,8 @@ void MainWindow::ViewToUI ()
 			 vs.IsDeformationTensorShown ());
 
     comboBoxAxesOrder->setCurrentIndex (vs.GetAxesOrder ());
-    labelFacesStatisticsColor->setText (BodyProperty::ToString (property));
-    labelCenterPathColor->setText (BodyProperty::ToString (property));
+    labelFacesStatisticsColor->setText (BodyOrFacePropertyToString (property));
+    labelCenterPathColor->setText (BodyOrFacePropertyToString (property));
     updateLightControls (vs, selectedLight);
     horizontalSliderAngleOfView->setValue (vs.GetAngleOfView ());
     spinBoxStatisticsTimeWindow->setValue (
@@ -198,8 +196,8 @@ void MainWindow::connectColorBarHistogram (bool connected)
     {
 	connect (
 	    this, 
-	    SIGNAL (BodyPropertyChanged (boost::shared_ptr<ColorBarModel>,
-					 BodyProperty::Enum)),
+	    SIGNAL (BodyOrFacePropertyChanged (boost::shared_ptr<ColorBarModel>,
+					       size_t)),
 	    this, 
 	    SLOT (SetHistogramColorBarModel (
 		      boost::shared_ptr<ColorBarModel>)));
@@ -296,7 +294,7 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
     else
     {
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::THREE_D);
-	comboBoxColor->setCurrentIndex (BodyProperty::NONE);
+	comboBoxColor->setCurrentIndex (FaceProperty::DMP_COLOR);
     }
 }
 
@@ -461,7 +459,8 @@ void MainWindow::SetAndDisplayHistogram (
 	return;
     }
     const ViewSettings& vs = widgetGl->GetViewSettings (m_histogramViewNumber);
-    BodyProperty::Enum property = vs.GetBodyProperty ();
+    BodyProperty::Enum property = BodyProperty::FromSizeT (
+	vs.GetBodyOrFaceProperty ());
     ViewType::Enum viewType = vs.GetViewType ();
     const FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     double maxYValue = 0;
@@ -562,7 +561,7 @@ MainWindow::HistogramInfo MainWindow::getCurrentHistogramInfo () const
     else
     {
 	const HistogramStatistics& histogramStatistics = 
-	    foamAlongTime.GetHistogram (widgetGl->GetBodyProperty ());
+	    foamAlongTime.GetHistogram (widgetGl->GetBodyOrFaceProperty ());
 	return HistogramInfo (histogramStatistics.ToQwtIntervalData (), 
 			      histogramStatistics.GetMaxCountPerBin ());
     }
@@ -573,7 +572,7 @@ void MainWindow::displayHistogramColorBar (bool checked)
 {
     widgetHistogram->setVisible (
 	checked && 
-	widgetGl->GetBodyProperty () != BodyProperty::NONE && 
+	widgetGl->GetBodyOrFaceProperty () != FaceProperty::DMP_COLOR && 
 	m_histogramType);
 }
 
@@ -657,7 +656,7 @@ boost::shared_ptr<ColorBarModel> MainWindow::getCurrentColorBarModel () const
 	return m_colorBarModelDomainHistogram[viewNumber];
     else
 	return m_colorBarModelBodyProperty[viewNumber]
-	    [widgetGl->GetBodyProperty ()];
+	    [widgetGl->GetBodyOrFaceProperty ()];
 }
 
 
@@ -791,7 +790,8 @@ void MainWindow::ToggledCenterPath (bool checked)
 	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
 	labelCenterPathColor->setText (
 	    BodyProperty::ToString (
-		widgetGl->GetViewSettings ().GetBodyProperty ()));
+		BodyProperty::FromSizeT (
+		    widgetGl->GetViewSettings ().GetBodyOrFaceProperty ())));
     }
     else
 	stackedWidgetComposite->setCurrentWidget (pageCompositeEmpty);
@@ -807,24 +807,24 @@ void MainWindow::CurrentIndexChangedSelectedLight (int i)
 }
 
 
-void MainWindow::CurrentIndexChangedFacesColor (int value)
+void MainWindow::CurrentIndexChangedFaceColor (int value)
 {
     boost::array<QWidget*, 4> widgetsVisible = {{
 	    labelFacesHistogram, radioButtonHistogramNone,
 	    radioButtonHistogramUnicolor, radioButtonHistogramColorCoded}};
     boost::array<QWidget*, 1> widgetsEnabled = {{radioButtonFacesStatistics}};
-    BodyProperty::Enum property = BodyProperty::FromSizeT (value);
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
-    if (property == BodyProperty::NONE) {
+    if (value == FaceProperty::DMP_COLOR) {
 	::setVisible (widgetsVisible, false);
 	::setEnabled (widgetsEnabled, false);
-	Q_EMIT BodyPropertyChanged (
-	    m_colorBarModelBodyProperty[viewNumber][0], property);
+	Q_EMIT BodyOrFacePropertyChanged (
+	    m_colorBarModelBodyProperty[viewNumber][0], value);
     }
     else {
+	BodyProperty::Enum property = BodyProperty::FromSizeT (value);
 	::setVisible (widgetsVisible, true);
 	::setEnabled (widgetsEnabled, true);
-	Q_EMIT BodyPropertyChanged (
+	Q_EMIT BodyOrFacePropertyChanged (
 	    m_colorBarModelBodyProperty[viewNumber][property], property);
 	SetAndDisplayHistogram (DISCARD_SELECTION, REPLACE_MAX_VALUE);
     }
@@ -889,15 +889,20 @@ void MainWindow::ToggledFacesStatistics (bool checked)
 	stackedWidgetFaces->setCurrentWidget (pageFacesStatistics);
 	labelFacesStatisticsColor->setText (
 	    BodyProperty::ToString (
-		widgetGl->GetViewSettings ().GetBodyProperty ()));
+		BodyProperty::FromSizeT (
+		    widgetGl->GetViewSettings ().GetBodyOrFaceProperty ())));
 	ButtonClickedHistogram (m_histogramType);
     }
     else
     {	
-	BodyProperty::Enum bodyProperty = widgetGl->GetBodyProperty ();
-	if (bodyProperty != BodyProperty::NONE)
+	size_t property = widgetGl->GetBodyOrFaceProperty ();
+	if (property != FaceProperty::DMP_COLOR)
+	{
+	    BodyProperty::Enum bodyProperty = 
+		BodyProperty::FromSizeT (property);
 	    Q_EMIT ColorBarModelChanged (
 		m_colorBarModelBodyProperty[viewNumber][bodyProperty]);
+	}
 	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
     }
 }
@@ -916,7 +921,8 @@ void MainWindow::SelectionChangedHistogram ()
     vector<bool> timeStepSelection;
     const FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     foamAlongTime.GetTimeStepSelection (
-	widgetGl->GetBodyProperty (m_histogramViewNumber), 
+	BodyProperty::FromSizeT (
+	    widgetGl->GetBodyOrFaceProperty (m_histogramViewNumber)), 
 	valueIntervals, &timeStepSelection);
     sliderTimeSteps->SetRestrictedTo (timeStepSelection);
     
@@ -927,7 +933,9 @@ void MainWindow::SelectionChangedHistogram ()
 	widgetGl->GetViewSettings (m_histogramViewNumber).SetBodySelector (
 	    boost::shared_ptr<PropertyValueBodySelector> (
 		new PropertyValueBodySelector (
-		    widgetGl->GetBodyProperty (m_histogramViewNumber), 
+		    BodyProperty::FromSizeT (
+			widgetGl->GetBodyOrFaceProperty (
+			    m_histogramViewNumber)), 
 		    valueIntervals)));
     widgetGl->update ();
 }

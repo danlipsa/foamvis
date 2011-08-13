@@ -62,9 +62,8 @@ public:
 
 
 Q_SIGNALS:
-    void BodyPropertyChanged (
-	boost::shared_ptr<ColorBarModel> colorBarModel,
-	BodyProperty::Enum property);
+    void BodyOrFacePropertyChanged (
+	boost::shared_ptr<ColorBarModel> colorBarModel, size_t property);
     void ColorBarModelChanged (
 	boost::shared_ptr<ColorBarModel> colorBarModel);
 
@@ -90,7 +89,7 @@ public Q_SLOTS:
     void ClickedPlay ();
     void ClickedPlayReverse ();
     void CurrentIndexChangedInteractionMode (int index);
-    void CurrentIndexChangedFacesColor (int value);
+    void CurrentIndexChangedFaceColor (int value);
     void CurrentIndexChangedStatisticsType (int value);
     void CurrentIndexChangedViewCount (int index);
     /**
@@ -209,7 +208,7 @@ private:
     ViewNumber::Enum m_histogramViewNumber;
     boost::array<
 	boost::array<boost::shared_ptr<ColorBarModel>, 
-		     BodyProperty::PROPERTY_END>,
+		     BodyProperty::COUNT>,
 	ViewNumber::COUNT> m_colorBarModelBodyProperty;
     boost::array<
 	boost::shared_ptr<ColorBarModel>,

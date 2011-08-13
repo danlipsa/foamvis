@@ -136,7 +136,7 @@ public:
     void CalculateCentroidAndArea ();
     void CalculatePerimeter ();
     QColor GetColor (const QColor& defaultColor) const;
-    size_t GetNumberOfSides (const FoamParameters& foamParameters) const;
+    size_t GetEdgesPerFace (const FoamParameters& foamParameters) const;
     
 private:
     boost::shared_ptr<Face> createDuplicate (

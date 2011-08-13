@@ -101,21 +101,35 @@ public:
 	VELOCITY_ALONG_Y,
 	VELOCITY_ALONG_Z,
 	VELOCITY_MAGNITUDE,
-	NUMBER_OF_SIDES,
+	SIDES_PER_BODY,
 	ELONGATION,
 
 	PRESSURE,
-	    PER_BODY_BEGIN = PRESSURE,
+	    DMP_BEGIN = PRESSURE,
 	TARGET_VOLUME,
 	ACTUAL_VOLUME,
-	NONE,
-	    PER_BODY_END = NONE, PROPERTY_END = NONE,
 	COUNT
     };
 public:
     static const char* ToString (BodyProperty::Enum property);
     static Enum FromSizeT (size_t i);
 };
+
+class FaceProperty
+{
+public:
+    enum Enum
+    {
+	DMP_COLOR = BodyProperty::COUNT,
+	EDGES_PER_FACE,
+	COUNT
+    };
+public:
+    static const char* ToString (FaceProperty::Enum property);
+    static Enum FromSizeT (size_t i);
+};
+
+const char* BodyOrFacePropertyToString (size_t property);
 
 class HistogramType
 {

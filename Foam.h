@@ -386,8 +386,8 @@ private:
     G3D::AABox m_boundingBox;
     G3D::AABox m_boundingBoxTorus;
 
-    double m_min[BodyProperty::PROPERTY_END];
-    double m_max[BodyProperty::PROPERTY_END];
+    double m_min[BodyProperty::COUNT];
+    double m_max[BodyProperty::COUNT];
     vector<HistogramStatistics> m_histogram;
     ConstraintRotation m_constraintRotation;
     vector<Force> m_forces;

@@ -1088,8 +1088,8 @@ string GLWidget::infoSelectedBodies () const
 	ostr << "Selected ids: ";
 	ostream_iterator<size_t> out (ostr, " ");
 	copy (ids.begin (), ids.end (), out);
-	if (GetViewSettings ().GetBodyProperty () != 
-	    BodyProperty::NONE)
+	if (GetViewSettings ().GetBodyOrFaceProperty () != 
+	    FaceProperty::DMP_COLOR)
 	{
 	    ostr << endl;
 		
@@ -2548,7 +2548,7 @@ bool GLWidget::isColorBarUsed (ViewNumber::Enum view) const
     case ViewType::FACES:
     case ViewType::FACES_STATISTICS:
     case ViewType::CENTER_PATHS:
-	return vs.GetBodyProperty () != BodyProperty::NONE;
+	return vs.GetBodyOrFaceProperty () != FaceProperty::DMP_COLOR;
     default:
 	return false;
     }
@@ -2573,14 +2573,14 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	bool actions = false;
 	if (ViewCount::GetCount (m_viewCount) > 1)
 	{
-	    BodyProperty::Enum currentBodyProperty = 
-		GetViewSettings ().GetBodyProperty ();
+	    size_t currentProperty = 
+		GetViewSettings ().GetBodyOrFaceProperty ();
 	    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
 	    {
 		ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 		if (viewNumber == m_viewNumber ||
-		    currentBodyProperty != 
-		    GetViewSettings (viewNumber).GetBodyProperty ())
+		    currentProperty != 
+		    GetViewSettings (viewNumber).GetBodyOrFaceProperty ())
 		    continue;
 		menuCopy->addAction (m_actionCopyColorMap[i].get ());
 		actions = true;
@@ -2704,10 +2704,9 @@ void GLWidget::displayViewTitle (const G3D::Rect2D& viewRect,
 	font.setUnderline (true);
     ViewSettings& vs = GetViewSettings (viewNumber);
     ostringstream ostr;
-    ostr << "View " << viewNumber << " - " <<
-	(isColorBarUsed (viewNumber) ? 
-	 BodyProperty::ToString (vs.GetBodyProperty ()) :
-	 ViewType::ToString (vs.GetViewType ()));
+    ostr << "View " << viewNumber << " - "
+	 << ViewType::ToString (vs.GetViewType ()) << " - "
+	 << BodyOrFacePropertyToString (vs.GetBodyOrFaceProperty ());
     QString text = QString (ostr.str ().c_str ());
     QFontMetrics fm (font);
     const int textX = 
@@ -2718,6 +2717,10 @@ void GLWidget::displayViewTitle (const G3D::Rect2D& viewRect,
     renderText (textX, textY, text, font);
 }
 
+size_t GLWidget::GetBodyOrFaceProperty (ViewNumber::Enum viewNumber) const
+{
+    return GetViewSettings (viewNumber).GetBodyOrFaceProperty ();
+}
 
 void GLWidget::displayViewTimeStep (const G3D::Rect2D& viewRect)
 {
@@ -2832,10 +2835,6 @@ bool GLWidget::IsTimeDisplacementUsed () const
     return GetTimeDisplacement () > 0;
 }
 
-BodyProperty::Enum GLWidget::GetBodyProperty (ViewNumber::Enum viewNumber) const
-{
-    return GetViewSettings (viewNumber).GetBodyProperty ();
-}
 
 void GLWidget::valueChanged (
     double* dest, const pair<double,double>& minMax, int index)
@@ -3218,15 +3217,15 @@ void GLWidget::CurrentIndexChangedAxesOrder (int index)
 }
 
 // @todo add a color bar model for BodyProperty::None
-void GLWidget::SetBodyProperty (
+void GLWidget::SetBodyOrFaceProperty (
     boost::shared_ptr<ColorBarModel> colorBarModel,
-    BodyProperty::Enum property)
+    size_t value)
 {
     makeCurrent ();
     ViewNumber::Enum view = GetViewNumber ();
     ViewSettings& vs = GetViewSettings ();
-    vs.SetBodyProperty (property);
-    if (vs.GetBodyProperty () != BodyProperty::NONE)
+    vs.SetBodyOrFaceProperty (value);
+    if (vs.GetBodyOrFaceProperty () != FaceProperty::DMP_COLOR)
 	GetViewSettings ().SetColorBarModel (colorBarModel);
     else
 	vs.ResetColorBarModel ();

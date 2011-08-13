@@ -168,12 +168,12 @@ public:
      */
     void ModelViewTransform (ViewNumber::Enum viewNumber, 
 			     size_t timeStep) const;
-    BodyProperty::Enum GetBodyProperty () const
+    size_t GetBodyOrFaceProperty () const
     {
-	return GetBodyProperty (GetViewNumber ());
+	return GetBodyOrFaceProperty (GetViewNumber ());
     }
 
-    BodyProperty::Enum GetBodyProperty (ViewNumber::Enum viewNumber) const;
+    size_t GetBodyOrFaceProperty (ViewNumber::Enum viewNumber) const;
 
     G3D::Rect2D GetViewRect (ViewNumber::Enum viewNumber) const;
     G3D::Rect2D GetViewRect () const
@@ -258,9 +258,9 @@ public Q_SLOTS:
     void ToggledMissingVolumeShown (bool checked);
     void ToggledShowDeformationTensor (bool checked);
 
-    void SetBodyProperty (
+    void SetBodyOrFaceProperty (
 	boost::shared_ptr<ColorBarModel> colorBarModel,
-	BodyProperty::Enum property);
+	size_t property);
     void SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel);
     void CurrentIndexChangedInteractionMode (int index);
     void CurrentIndexChangedStatisticsType (int index);

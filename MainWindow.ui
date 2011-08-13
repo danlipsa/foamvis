@@ -1826,7 +1826,7 @@
     <slot>ValueChangedBlend(int)</slot>
     <slot>ToggledFacesTorus(bool)</slot>
     <slot>ValueChangedSliderTimeSteps(int)</slot>
-    <slot>CurrentIndexChangedFacesColor(int)</slot>
+    <slot>CurrentIndexChangedFaceColor(int)</slot>
     <slot>ToggledFacesAverage(bool)</slot>
     <slot>ToggledCenterPathUnselected(bool)</slot>
     <slot>ToggledCenterPathDisplayUnselectedPaths(bool)</slot>
@@ -2143,7 +2143,7 @@
    <sender>comboBoxColor</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>CurrentIndexChangedFacesColor(int)</slot>
+   <slot>CurrentIndexChangedFaceColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>643</x>
@@ -3304,7 +3304,7 @@
   <slot>ButtonClickedAllTimestepsHistogram(int)</slot>
   <slot>ToggledStatisticsTimeWindowEnabled(bool)</slot>
   <slot>CurrentIndexChangedStatisticsType(int)</slot>
-  <slot>CurrentIndexChangedFacesColor(int)</slot>
+  <slot>CurrentIndexChangedFaceColor(int)</slot>
   <slot>ToggledFacesDomainHistogram(bool)</slot>
   <slot>CurrentIndexChangedViewCount(int)</slot>
   <slot>ValueChangedHistogramHeight(int)</slot>

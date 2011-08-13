@@ -62,7 +62,7 @@ const char* BodyProperty::ToString (BodyProperty::Enum property)
 	return "Velocity along z";
     case VELOCITY_MAGNITUDE:
 	return "Velocity magnitude";
-    case NUMBER_OF_SIDES:
+    case SIDES_PER_BODY:
 	return "Number of sides";
     case ELONGATION:
 	return "Elongation";
@@ -72,18 +72,37 @@ const char* BodyProperty::ToString (BodyProperty::Enum property)
 	return "Target volume";
     case ACTUAL_VOLUME:
 	return "Actual volume";
-    case NONE:
-	return "None";
     case COUNT:
-	return "Count";
+	return "Error";
     }
     return "Error";
 }
 
 BodyProperty::Enum BodyProperty::FromSizeT (size_t i)
 {
-    RuntimeAssert (i < COUNT, "Value outside of BodyProperty::Enum", i);
+    RuntimeAssert (i < COUNT, "Value outside of BodyProperty::Enum: ", i);
     return BodyProperty::Enum (i);
+}
+
+const char* FaceProperty::ToString (FaceProperty::Enum faceProperty)
+{
+    switch (faceProperty)
+    {
+    case DMP_COLOR:
+	return "Dmp color";
+    case EDGES_PER_FACE:
+	return "Edges per face";
+    default:
+	return "Error";
+    }
+}
+
+const char* BodyOrFacePropertyToString (size_t i)
+{
+    if (i < BodyProperty::COUNT)
+	return BodyProperty::ToString (BodyProperty::Enum (i));
+    else
+	return FaceProperty::ToString (FaceProperty::Enum (i));
 }
 
 ViewType::Enum ViewType::FromInt (int i)

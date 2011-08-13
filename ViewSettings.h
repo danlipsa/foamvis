@@ -40,6 +40,7 @@ public:
 	CONTEXT_AVERAGE_AROUND_NONE
     };
 
+
 public:
     ViewSettings (const GLWidget& glWidget);
     ~ViewSettings ();
@@ -53,13 +54,13 @@ public:
 	m_viewType = viewType;
     }
 
-    BodyProperty::Enum GetBodyProperty () const
+    size_t GetBodyOrFaceProperty () const
     {
-	return m_bodyProperty;
+	return m_bodyOrFaceProperty;
     }
-    void SetBodyProperty (BodyProperty::Enum bodyProperty)
+    void SetBodyOrFaceProperty (size_t bodyOrFaceProperty)
     {
-	m_bodyProperty = bodyProperty;
+	m_bodyOrFaceProperty = bodyOrFaceProperty;
     }
 
     ScalarAverage& GetScalarAverage () const
@@ -408,7 +409,7 @@ private:
 
 private:
     ViewType::Enum m_viewType;
-    BodyProperty::Enum m_bodyProperty;
+    size_t m_bodyOrFaceProperty;
     StatisticsType::Enum m_statisticsType;
     GLuint m_listCenterPaths;
     GLuint m_colorBarTexture;

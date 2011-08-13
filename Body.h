@@ -143,7 +143,7 @@ public:
 	return m_boundingBox;
     }
     
-    size_t GetNumberOfSides () const;
+    size_t GetSidesPerBody () const;
     double GetPerimeterOverSqrtArea () const
     {
 	return m_perimeterOverSqrtArea;

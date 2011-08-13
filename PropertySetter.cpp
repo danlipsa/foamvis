@@ -20,8 +20,8 @@
 void SetterTextureCoordinate::operator () (
     const boost::shared_ptr<Body>& body)
 {
-    BodyProperty::Enum property = 
-	m_glWidget.GetViewSettings (m_viewNumber).GetBodyProperty ();
+    BodyProperty::Enum property = BodyProperty::FromSizeT (
+	m_glWidget.GetViewSettings (m_viewNumber).GetBodyOrFaceProperty ());
     double value = body->GetPropertyValue (property);
     double texCoord = 
 	m_glWidget.GetViewSettings (m_viewNumber).
@@ -34,9 +34,9 @@ void SetterTextureCoordinate::operator () ()
     glTexCoord1f (0); 
 }
 
-BodyProperty::Enum SetterTextureCoordinate::GetBodyProperty () const
+int SetterTextureCoordinate::GetBodyOrFaceProperty () const
 {
-    return m_glWidget.GetViewSettings (m_viewNumber).GetBodyProperty ();
+    return m_glWidget.GetViewSettings (m_viewNumber).GetBodyOrFaceProperty ();
 }
 
 
@@ -45,7 +45,9 @@ BodyProperty::Enum SetterTextureCoordinate::GetBodyProperty () const
 void SetterVertexAttribute::operator () (
     const boost::shared_ptr<Body>& body)
 {
-    double value = body->GetPropertyValue (GetBodyProperty ());
+    BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT (
+	GetBodyOrFaceProperty ());
+    double value = body->GetPropertyValue (bodyProperty);
     m_program->setAttributeValue (m_attributeLocation, value);
 }
 

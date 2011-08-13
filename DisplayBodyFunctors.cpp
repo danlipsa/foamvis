@@ -251,8 +251,8 @@ DisplayCenterPath (
      bool focus = this->m_bodySelector (p.m_body);
      if (focus)
      {
-	 BodyProperty::Enum property = 
-	     this->m_propertySetter.GetBodyProperty ();
+	 BodyProperty::Enum property = BodyProperty::FromSizeT (
+	     this->m_propertySetter.GetBodyOrFaceProperty ());
 	 bool deduced;
 	 bool exists = (! p.m_body->IsConstraint ()) &&
 	     p.m_body->ExistsPropertyValue (property, &deduced);
@@ -260,8 +260,7 @@ DisplayCenterPath (
 	     (! deduced || 
 	      (deduced && this->m_glWidget.IsMissingPropertyShown (property))))
 	     storeFocusSegment (
-		 p.m_body->GetPropertyValue (
-		     this->m_propertySetter.GetBodyProperty ()), segment);
+		 p.m_body->GetPropertyValue (property), segment);
 	else
 	    storeFocusSegment (
 		this->m_glWidget.GetHighlightColor (
