@@ -64,12 +64,15 @@ public:
 	QString dir, 
 	const ConstraintRotationNames& constraintRotationNames, 
 	const vector<ForceNames>& forcesNames,
-	bool useOriginal, 
+	bool useOriginal, FoamParameters* foamParameters, 
+	Foam::ParametersOperation parametersOperation,
 	bool debugParsing = false, bool debugScanning = false) : 
 
         m_dir (qPrintable(dir)), 
 	m_constraintRotationNames (constraintRotationNames), 
 	m_useOriginal (useOriginal),
+	m_foamParameters (foamParameters), 
+	m_parametersOperation (parametersOperation),
 	m_debugParsing (debugParsing),
 	m_debugScanning (debugScanning)
     {
@@ -93,11 +96,11 @@ public:
 	    ostr << "Parsing " << file << " ..." << endl;
 	    cdbg << ostr.str ();
 	    foam.reset (
-		new Foam (m_useOriginal, 
-			  m_constraintRotationNames,
-			  m_forcesNames));
+		new Foam (m_useOriginal, m_constraintRotationNames,
+			  m_forcesNames, *m_foamParameters, 
+			  m_parametersOperation));
 	    foam->GetParsingData ().SetDebugParsing (m_debugParsing);
-	    foam->GetParsingData ().SetDebugScanning (m_debugScanning);
+	    foam->GetParsingData ().SetDebugScanning (m_debugScanning);	    
 	    string fullPath = m_dir + '/' + file;
 	    result = foam->GetParsingData ().Parse (fullPath, foam.get ());
 	    if (result != 0)
@@ -119,6 +122,8 @@ private:
     const ConstraintRotationNames& m_constraintRotationNames;
     vector<ForceNames> m_forcesNames;
     const bool m_useOriginal;
+    FoamParameters* m_foamParameters;
+    Foam::ParametersOperation m_parametersOperation;
     const bool m_debugParsing;
     const bool m_debugScanning;
 };
@@ -520,18 +525,29 @@ void FoamAlongTime::ParseFiles (
 
     SetTimeSteps (files.size ());
     SetFilePattern (filePattern);
-
-    QList< boost::shared_ptr<Foam> > foams = QtConcurrent::blockingMapped (
-	files,
-	parseFile (
-	    dir.absolutePath (), 
-	    GetConstraintRotationNames (),
-	    GetForcesNames (),
-	    OriginalUsed (),
-	    debugParsing, debugScanning));
+    
+    GetFoams ()[0] = parseFile (
+	dir.absolutePath (), 
+	GetConstraintRotationNames (),
+	GetForcesNames (),
+	OriginalUsed (),
+	GetFoamParameters (),
+	Foam::SET_FOAM_PARAMETERS,
+	debugParsing, debugScanning) (*files.begin ());
+    QList< boost::shared_ptr<Foam> > foams = QtConcurrent::blockingMapped 
+	< QList < boost::shared_ptr<Foam> > > (
+	    files.begin () + 1, files.end (),
+	    parseFile (
+		dir.absolutePath (), 
+		GetConstraintRotationNames (),
+		GetForcesNames (),
+		OriginalUsed (),
+		GetFoamParameters (),
+		Foam::TEST_FOAM_PARAMETERS,
+		debugParsing, debugScanning));
     if (count_if (foams.constBegin (), foams.constEnd (),
 		  bl::_1 != boost::shared_ptr<Foam>()) != foams.size ())
 	ThrowException ("Could not process all files\n");
-    copy (foams.constBegin (), foams.constEnd (), GetFoams ().begin ());
+    copy (foams.constBegin (), foams.constEnd (), GetFoams ().begin () + 1);
 }
 

@@ -15,10 +15,10 @@ ApproximationEdge::ApproximationEdge (
     const boost::shared_ptr<Vertex>& begin,
     const boost::shared_ptr<Vertex>& end,
     const G3D::Vector3int16& endLocation, 
-    size_t id,
+    size_t id, Edge::Type type,
     ElementStatus::Enum duplicateStatus) :
 
-    Edge (begin, end, endLocation, id, duplicateStatus),
+    Edge (begin, end, endLocation, id, type, duplicateStatus),
     m_points (pointCount)
 {
 }

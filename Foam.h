@@ -23,6 +23,7 @@ class Body;
 class ConstraintEdge;
 class Edge;
 class Face;
+class FoamParameters;
 class NameSemanticValue;
 class ParsingData;
 
@@ -37,6 +38,12 @@ public:
     typedef vector< boost::shared_ptr<Edge> > Edges;
     typedef vector< boost::shared_ptr<Face> > Faces;
     typedef vector< boost::shared_ptr<Body> > Bodies;
+    enum ParametersOperation 
+    {
+	SET_FOAM_PARAMETERS,
+	TEST_FOAM_PARAMETERS
+    };
+
 
 public:
     /**
@@ -44,7 +51,8 @@ public:
      */
     Foam (bool useOriginal, 
 	  const ConstraintRotationNames& constraintRotationNames,
-	  const vector<ForceNames>& forcesNames);
+	  const vector<ForceNames>& forcesNames,
+	  FoamParameters& foamParameters, ParametersOperation paramsOp);
 
     void GetVertexSet (VertexSet* vertexSet) const;
     VertexSet GetVertexSet () const
@@ -179,22 +187,6 @@ public:
 
     bool IsTorus () const;
     
-    void SetDimension (size_t spaceDimension) 
-    {
-	m_spaceDimension = spaceDimension;
-    }
-    bool Is2D () const
-    {
-	return m_spaceDimension == 2;
-    }
-    bool IsQuadratic () const
-    {
-	return m_quadratic;
-    }
-    void SetQuadratic ()
-    {
-	m_quadratic = true;
-    }
     const AttributesInfo& GetAttributesInfo (
 	DefineAttribute::Enum attributeType) const;
     const Edges& GetStandaloneEdges () const
@@ -292,6 +284,14 @@ public:
     void CalculateBodyNeighbors ();
     void CalculateBodyDeformationTensor ();
     void CreateConstraintBody (size_t constraint);
+    bool Is2D () const;
+    bool IsQuadratic () const;
+    const FoamParameters& GetParameters () const
+    {
+	return m_parameters;
+    }
+    void SetSpaceDimension (size_t spaceDimension);
+    void SetQuadratic (bool quadratic);
 
 public:
     static const double Z_COORDINATE_2D = 0.0;
@@ -385,8 +385,7 @@ private:
      */
     G3D::AABox m_boundingBox;
     G3D::AABox m_boundingBoxTorus;
-    size_t m_spaceDimension;
-    bool m_quadratic;
+
     double m_min[BodyProperty::PROPERTY_END];
     double m_max[BodyProperty::PROPERTY_END];
     vector<HistogramStatistics> m_histogram;
@@ -396,6 +395,8 @@ private:
      * AdjacentBody, PointIndex for constraint points that need fixing.
      */
     vector< pair<size_t, size_t> > m_constraintPointsToFix;
+    FoamParameters& m_parameters;    
+    ParametersOperation m_parametersOperation;
 };
 
 /**

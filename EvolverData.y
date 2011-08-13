@@ -590,7 +590,7 @@ representation
 : LINEAR
 | QUADRATIC
 {
-    foam->SetQuadratic ();
+    foam->SetQuadratic (true);
 }
 | SIMPLEX_REPRESENTATION
 ;
@@ -629,7 +629,7 @@ constraint_tolerance
 space_dimension
 : SPACE_DIMENSION const_expr
 {
-    foam->SetDimension ($2);
+    foam->SetSpaceDimension ($2);
 }
 
 /* 2D or 3D */

@@ -121,7 +121,7 @@ Command lines for various datasets:
 
 ./foam_debug --use-original --constraint-rotation "4 x0 y0 phi" ~/Documents/swansea-phd/foam/ellipse_in_flow/ell0.700000_???v_5.000000_1.dmp
 
-./foam_debug --constraint 4 ~/Documents/swansea-phd/foam/sedimenting_ellipse_odd/ell_ecc0.700000_8.000000_????.dmp
+./Foam_debug --constraint 4 ~/Documents/swansea-phd/foam/sedimenting_ellipse_odd/ell_ecc0.700000_8.000000_????.dmp
 
 ./foam_debug --use-original ~/Documents/swansea-phd/foam/sausage_all/saus_4_703v_0.120000_0.060000_0.628319_????.dmp
 
@@ -214,12 +214,19 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
+0.6.     - added instantaneous and time averaged deformation (texture) tensor.
+	 - change the 2D number of sides information to use the number 
+	   of physical vertices (fixes vfplug_137v_9.857973_2) instead of
+	   the number of physical vertices.
+	 - allow a face made of two quadratic edges (fixes 
+	   ctrctndumps_725v_0.1480_0.2400_9.0000_rupt_v1/
+	   dump_0.1480_0.2400_9.0000_0171.dmp)
 0.5.2062 - added axes labels (Show > Ohter > Axes)
 	 - added right-click > Info > Face and Info > Edge
 	 - added --constraint option, to specify an object described
            with a constraint in the dmp file (for sedimenting_ellipse_odd).
          -if a bubble edge is on a constraint, The bubble neighbor for that
-           edge is determined through "reflection". See previous discussion from
+           edge is determined through "reflection". See previous email from
            12/07/11.
 	 - deduce an object specified with a constraint (for sedimenting-discs)
 	 - added Show > Other > Body neighbors checkbox

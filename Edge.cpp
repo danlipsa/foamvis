@@ -12,6 +12,7 @@
 #include "Edge.h"
 #include "EvolverData_yacc.h"
 #include "Foam.h"
+#include "FoamParameters.h"
 #include "OrientedFace.h"
 #include "OrientedEdge.h"
 #include "ParsingDriver.h"
@@ -24,18 +25,20 @@
 Edge::Edge (const boost::shared_ptr<Vertex>& begin,
 	    const boost::shared_ptr<Vertex>& end,
 	    const G3D::Vector3int16& endTranslation, 
-	    size_t id, ElementStatus::Enum duplicateStatus):
+	    size_t id, Type type, ElementStatus::Enum duplicateStatus):
     Element(id, duplicateStatus),
     m_begin (begin), m_end (end),
     m_endTranslation (endTranslation), 
-    m_torusClipped (0)
+    m_torusClipped (0),
+    m_type (type)
 {
 }
 
-Edge::Edge (const boost::shared_ptr<Vertex>& begin, size_t id) :
+Edge::Edge (const boost::shared_ptr<Vertex>& begin, size_t id, Type type) :
     Element (id, ElementStatus::ORIGINAL),
     m_begin (begin),
-    m_torusClipped (0)
+    m_torusClipped (0),
+    m_type (type)
 {
 }
 
@@ -44,7 +47,8 @@ Edge::Edge (const Edge& o) :
     m_begin (o.GetBeginPtr ()), m_end (o.GetEndPtr ()),
     m_endTranslation (o.GetEndTranslation ()),
     m_adjacentOrientedFaces (o.m_adjacentOrientedFaces),
-    m_torusClipped (0)
+    m_torusClipped (0),
+    m_type (o.GetType ())
 {
 }
 
@@ -180,11 +184,11 @@ string Edge::AdjacentFacesToString () const
     return ostr.str ();
 }
 
-bool Edge::IsPhysical (bool foam2D, bool isQuadratic) const
+bool Edge::IsPhysical (const FoamParameters& foamParameters) const
 {
-    if (foam2D)
+    if (foamParameters.Is2D ())
     {
-	if (isQuadratic)
+	if (foamParameters.IsQuadratic ())
 	    return true;
 	else
 	    return false;

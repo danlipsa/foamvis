@@ -18,7 +18,7 @@ public:
 	const boost::shared_ptr<Vertex>& begin,
 	const boost::shared_ptr<Vertex>& end,
 	const G3D::Vector3int16& endLocation, 
-	size_t id,
+	size_t id, Edge::Type type,
 	ElementStatus::Enum duplicateStatus = ElementStatus::ORIGINAL);
     virtual size_t GetPointCount () const;
     virtual G3D::Vector3 GetPoint (size_t i) const;

@@ -206,7 +206,7 @@ ConstraintEdge::ConstraintEdge (const ConstraintEdge& ce) :
     ApproximationEdge (ce),
     m_parsingData (ce.m_parsingData),
     m_valid (GetPointCount (), true)
-{    
+{
 }
 
 ConstraintEdge::ConstraintEdge (
@@ -218,7 +218,7 @@ ConstraintEdge::ConstraintEdge (
 
     ApproximationEdge (
 	7, begin, end, 
-	Vector3int16Zero, id, ElementStatus::ORIGINAL),
+	Vector3int16Zero, id, CONSTRAINT_EDGE, ElementStatus::ORIGINAL),
     m_parsingData (parsingData),
     m_valid (GetPointCount (), false)
 {

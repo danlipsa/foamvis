@@ -162,9 +162,7 @@ void main(void)
     bool ellipseBackground = isEllipseBackground (gridCoordFract, 
 						  texCoordCenter);
     bool gridBackground = isGridBackground (gridCoordFract);
-    // debug
-    // bool gridBackground = true;
-    if (ellipseBackground && gridBackground)
+    if (ellipseBackground /*&& gridBackground*/)
 	discard;
     gl_FragColor = inkColor;
 }

@@ -10,6 +10,7 @@
 #include "AdjacentOrientedFace.h"
 #include "OrientedElement.h"
 class Edge;
+class FoamParameters;
 class OrientedFace;
 class Vertex;
 
@@ -77,7 +78,7 @@ public:
     string ToString () const;
     string ToStringShort () const;
     void GetVertexSet (VertexSet* vertexSet) const;
-    bool IsPhysical (size_t dimension, bool isQuadratic) const;
+    bool IsPhysical (const FoamParameters& foamParameters) const;
     size_t GetPointCount () const;
     G3D::Vector3 GetPoint (size_t i) const;
     double GetLength () const;

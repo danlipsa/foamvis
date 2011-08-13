@@ -63,13 +63,13 @@ void SetterVertexAttribute::operator () ()
 void SetterDeformationTensor::operator () (const boost::shared_ptr<Body>& body)
 {
     const ViewSettings& vs = m_glWidget.GetViewSettings (m_viewNumber);
-    const Foam& foam = m_glWidget.GetFoamAlongTime ().GetFoam (0);
     G3D::Matrix2 l = G3D::Matrix2::identity ();
     l[0][0] = body->GetDeformationEigenValue (0);
     l[1][1] = body->GetDeformationEigenValue (1);
-    G3D::Matrix3 modelRotation3 = 
-	vs.GetRotationModel () * vs.GetRotationForAxesOrder (foam);
-    G3D::Matrix2 modelRotation = ToMatrix2 (modelRotation3);
+    G3D::Matrix4 modelRotation4; 
+    G3D::glGetMatrix (GL_MODELVIEW_MATRIX, modelRotation4);
+    G3D::Matrix2 modelRotation = ToMatrix2 (modelRotation4) / 
+	vs.GetScaleRatio ();
     G3D::Matrix2 r = 
 	mult (ToMatrix2 (body->GetDeformationEigenVector (0).xy (),
 			 body->GetDeformationEigenVector (1).xy ()),

@@ -82,29 +82,29 @@ void ImageBasedAverage<PropertySetter>::Init (ViewNumber::Enum viewNumber)
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::clear (ViewNumber::Enum viewNumber)
 {
-    const size_t FAKE_TIMESTEP = -1;
+    //const size_t FAKE_TIMESTEP = -1;
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     m_fbos.m_step->bind ();
     ClearColorStencilBuffers (Qt::transparent, 0);
     m_fbos.m_step->release ();
-    save (viewNumber, 
-	  make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
-	  "step", FAKE_TIMESTEP, 
-	  minMax.first, minMax.second, StatisticsType::AVERAGE);
+//     save (viewNumber, 
+// 	  make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
+// 	  "step", FAKE_TIMESTEP, 
+// 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     m_fbos.m_current->bind ();
     ClearColorBuffer (Qt::transparent);
     m_fbos.m_current->release ();
-    save (viewNumber, 
-	  make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
-	  "current", FAKE_TIMESTEP, 
-	  minMax.first, minMax.second, StatisticsType::AVERAGE);
+//     save (viewNumber, 
+// 	  make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
+// 	  "current", FAKE_TIMESTEP, 
+// 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
     
     initFramebuffer (viewNumber, m_fbos.m_previous);
-    save (viewNumber, 
-	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
-	  "previous", FAKE_TIMESTEP + 1,
-	  minMax.first, minMax.second, StatisticsType::AVERAGE);
+//     save (viewNumber, 
+// 	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
+// 	  "previous", FAKE_TIMESTEP + 1,
+// 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
     WarnOnOpenGLError ("ImageBasedAverage::clear");
 }
 
@@ -125,20 +125,20 @@ void ImageBasedAverage<PropertySetter>::addStep (
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, time);
-    save (viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
-	  "step", time, minMax.first, minMax.second, StatisticsType::AVERAGE);
+//     save (viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
+// 	  "step", time, minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     currentIsPreviousPlusStep (viewNumber);
-    save (viewNumber, 
-	  make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
-	  "current", time, 
-	  minMax.first, minMax.second, StatisticsType::AVERAGE);
+//     save (viewNumber, 
+// 	  make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
+// 	  "current", time, 
+// 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     copyCurrentToPrevious ();
-    save (viewNumber, 
-	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
-	  "previous", time + 1,
-	  minMax.first, minMax.second, StatisticsType::AVERAGE);
+//     save (viewNumber, 
+// 	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
+// 	  "previous", time + 1,
+// 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
     glPopAttrib ();
     WarnOnOpenGLError ("ImageBasedAverage::addStep:" + m_id);
 }

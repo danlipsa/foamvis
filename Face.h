@@ -15,6 +15,7 @@ class AttributesInfo;
 class Body;
 class ConstraintEdge;
 class Foam;
+class FoamParameters;
 class Edge;
 class OrientedEdge;
 class OOBox;
@@ -135,7 +136,8 @@ public:
     void CalculateCentroidAndArea ();
     void CalculatePerimeter ();
     QColor GetColor (const QColor& defaultColor) const;
-
+    size_t GetNumberOfSides (const FoamParameters& foamParameters) const;
+    
 private:
     boost::shared_ptr<Face> createDuplicate (
 	const OOBox& periods, const G3D::Vector3& newBegin,
@@ -145,7 +147,8 @@ private:
      * Calculate a orthogonal system, where XY is on the face and Z is normal
      * to the face
      */
-    void calculateAxes (G3D::Vector3* x, G3D::Vector3* y, G3D::Vector3* z) const;
+    void calculateAxes (
+	G3D::Vector3* x, G3D::Vector3* y, G3D::Vector3* z) const;
     size_t largestEdgeIndex () const;
 
 private:

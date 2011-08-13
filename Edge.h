@@ -11,6 +11,7 @@
 #include "AdjacentOrientedFace.h"
 class AttributesInfo;
 class Foam;
+class FoamParameters;
 class OOBox;
 class OrientedFace;
 class Vertex;
@@ -21,6 +22,13 @@ class Vertex;
 class Edge : public Element
 {
 public:
+    enum Type
+    {
+	EDGE,
+	QUADRATIC_EDGE,
+	CONSTRAINT_EDGE
+    };
+
     /**
      * Creates an Edge object
      * @param begin the first point of the endge
@@ -33,9 +41,9 @@ public:
     Edge (const boost::shared_ptr<Vertex>& begin,
 	  const boost::shared_ptr<Vertex>& end, 
 	  const G3D::Vector3int16& endLocation, 
-	  size_t id,
+	  size_t id, Type type = EDGE,
 	  ElementStatus::Enum duplicateStatus = ElementStatus::ORIGINAL);
-    Edge (const boost::shared_ptr<Vertex>& begin, size_t id);
+    Edge (const boost::shared_ptr<Vertex>& begin, size_t id, Type type = EDGE);
     virtual ~Edge ()
     {
     }
@@ -93,7 +101,7 @@ public:
      * In quadradic model all edges are physical
      * @return true if this is a physical edge, false otherwise
      */
-    bool IsPhysical (bool foam2D, bool isQuadratic) const;
+    bool IsPhysical (const FoamParameters& foamParameters) const;
 
     /**
      * Adds a face touched by this edge
@@ -158,6 +166,10 @@ public:
     }
     virtual G3D::Vector3 GetPoint (size_t i) const;
     QColor GetColor (const QColor& defaultColor) const;
+    Type GetType () const
+    {
+	return m_type;
+    }
 
 public:
     static short LocationCharToNumber (char sign);    
@@ -201,7 +213,7 @@ private:
      */
     AdjacentOrientedFaces m_adjacentOrientedFaces;
     boost::scoped_ptr< vector<G3D::LineSegment> > m_torusClipped;
-
+    Type m_type;
 };
 /**
  * Prints an edge to the output stream

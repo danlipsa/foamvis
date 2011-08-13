@@ -27,6 +27,7 @@ public:
     {
 	return *m_middle;
     }
+    G3D::Vector3 GetMiddleVector () const;
 
     virtual boost::shared_ptr<Edge> Clone () const;
     virtual void SetEnd(boost::shared_ptr<Vertex> end);

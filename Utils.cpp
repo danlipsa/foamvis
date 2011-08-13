@@ -32,7 +32,8 @@ void Matrix2SetColumn (G3D::Matrix2* m, size_t column, const G3D::Vector2& v)
 	(*m)[i][column] = v[i];
 }
 
-G3D::Matrix2 ToMatrix2 (const G3D::Matrix3& matrix)
+template <typename M>
+G3D::Matrix2 ToMatrix2 (const M& matrix)
 {
     G3D::Matrix2 m2;
     Matrix2SetColumn (&m2, 0, matrix.column (0).xy ());
@@ -444,4 +445,5 @@ template void CalculateAggregate<std::vector<boost::shared_ptr<Foam>, std::alloc
 
 template void CalculateAggregate<std::vector<boost::shared_ptr<Foam>, std::allocator<boost::shared_ptr<Foam> > >, __gnu_cxx::__normal_iterator<boost::shared_ptr<Foam>*, std::vector<boost::shared_ptr<Foam>, std::allocator<boost::shared_ptr<Foam> > > >, BBObjectLessThanAlongHigh<Foam> >::operator()(__gnu_cxx::__normal_iterator<boost::shared_ptr<Foam>*, std::vector<boost::shared_ptr<Foam>, std::allocator<boost::shared_ptr<Foam> > > > (*)(__gnu_cxx::__normal_iterator<boost::shared_ptr<Foam>*, std::vector<boost::shared_ptr<Foam>, std::allocator<boost::shared_ptr<Foam> > > >, __gnu_cxx::__normal_iterator<boost::shared_ptr<Foam>*, std::vector<boost::shared_ptr<Foam>, std::allocator<boost::shared_ptr<Foam> > > >, BBObjectLessThanAlongHigh<Foam>), std::vector<boost::shared_ptr<Foam>, std::allocator<boost::shared_ptr<Foam> > >&, G3D::Vector3*);
 
+template G3D::Matrix2 ToMatrix2<G3D::Matrix4>(G3D::Matrix4 const&);
 /// @endcond

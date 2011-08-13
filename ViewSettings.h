@@ -25,6 +25,22 @@ class PropertyValueBodySelector;
 class ViewSettings : public AverageInterface
 {
 public:
+    // Average around
+    enum AverageAroundType
+    {
+	AVERAGE_AROUND_TRANSLATION,
+	AVERAGE_AROUND_ROTATION,
+	AVERAGE_AROUND_NONE
+    };
+
+    // ContextStationary
+    enum ContextStationaryType
+    {
+	CONTEXT_AVERAGE_AROUND_FOAM,
+	CONTEXT_AVERAGE_AROUND_NONE
+    };
+
+public:
     ViewSettings (const GLWidget& glWidget);
     ~ViewSettings ();
 
@@ -253,14 +269,6 @@ public:
     void CopyTransformation (const ViewSettings& from);
     void CopyColorBar (const ViewSettings& from);
 
-    // Average around
-    enum AverageAroundType
-    {
-	AVERAGE_AROUND_TRANSLATION,
-	AVERAGE_AROUND_ROTATION,
-	AVERAGE_AROUND_NONE
-    };
-
     size_t GetAverageAroundBodyId () const
     {
 	return m_averageAroundBodyId;
@@ -337,12 +345,6 @@ public:
 	return m_contextBody.size ();
     }
 
-    // ContextStationary
-    enum ContextStationaryType
-    {
-	CONTEXT_AVERAGE_AROUND_FOAM,
-	CONTEXT_AVERAGE_AROUND_NONE
-    };
     ContextStationaryType GetContextStationaryType () const
     {
 	return m_contextStationaryType;

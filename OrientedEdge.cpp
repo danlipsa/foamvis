@@ -109,9 +109,9 @@ void OrientedEdge::GetVertexSet (VertexSet* vertexSet) const
     GetEdge ()->GetVertexSet (vertexSet);
 }
 
-bool OrientedEdge::IsPhysical (size_t dimension, bool isQuadratic) const
+bool OrientedEdge::IsPhysical (const FoamParameters& foamParameters) const
 {
-    return GetEdge ()->IsPhysical (dimension, isQuadratic);
+    return GetEdge ()->IsPhysical (foamParameters);
 }
 
 size_t OrientedEdge::GetPointCount () const

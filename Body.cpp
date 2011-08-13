@@ -10,6 +10,7 @@
 #include "Body.h"
 #include "Edge.h"
 #include "Foam.h"
+#include "FoamParameters.h"
 #include "Debug.h"
 #include "DebugStream.h"
 #include "Utils.h"
@@ -123,33 +124,36 @@ private:
 Body::Body(
     const vector<int>& faceIndexes,
     const vector<boost::shared_ptr<Face> >& faces,
-    size_t id, ElementStatus::Enum duplicateStatus) :
+    size_t id, const FoamParameters& foamParameters, 
+    ElementStatus::Enum duplicateStatus) :
     Element(id, duplicateStatus),
     m_perimeterOverSqrtArea (0),
     m_pressureDeduced (false),
     m_targetVolumeDeduced (false),
     m_actualVolumeDeduced (false),
-    m_constraint (false)
+    m_constraint (false),
+    m_foamParameters (foamParameters)
 {
     m_orientedFaces.resize (faceIndexes.size ());
     transform (faceIndexes.begin(), faceIndexes.end(), m_orientedFaces.begin(), 
                indexToOrientedFace(faces));
 }
 
-Body::Body (boost::shared_ptr<Face> face, size_t id) :
+Body::Body (boost::shared_ptr<Face> face, size_t id, 
+	    const FoamParameters& foamParameters) :
     Element (id, ElementStatus::ORIGINAL),
     m_perimeterOverSqrtArea (0),
     m_pressureDeduced (false),
     m_targetVolumeDeduced (false),
     m_actualVolumeDeduced (false),
-    m_constraint (true)
+    m_constraint (true),
+    m_foamParameters (foamParameters)
 {
     m_orientedFaces.resize (1);
     m_orientedFaces[0].reset (new OrientedFace (face, false));
 }
 
 void Body::calculatePhysicalVertices (
-    bool is2D, bool isQuadratic,
     vector< boost::shared_ptr<Vertex> >* physicalVertices)
 {
     VertexSet vertices;
@@ -157,37 +161,35 @@ void Body::calculatePhysicalVertices (
 
     GetVertexSet (&vertices);
     splitTessellationPhysical (
-	vertices, &tessellationVertices, physicalVertices, 
-	is2D, isQuadratic);
+	vertices, &tessellationVertices, physicalVertices);
 }
 
 void Body::splitTessellationPhysical (
     const VertexSet& src,
     vector< boost::shared_ptr<Vertex> >* destTessellation,
-    vector< boost::shared_ptr<Vertex> >* destPhysical,
-    bool is2D, bool isQuadratic)
+    vector< boost::shared_ptr<Vertex> >* destPhysical)
 {
     destTessellation->resize (src.size ());
     copy (src.begin (), src.end (), destTessellation->begin ());
     vector< boost::shared_ptr<Vertex> >::iterator bp;
     bp = partition (destTessellation->begin (), destTessellation->end (), 
 		    !boost::bind(&Vertex::IsPhysical, _1, 
-				 is2D, isQuadratic));
+				 m_foamParameters));
     destPhysical->resize (destTessellation->end () - bp);
     copy (bp, destTessellation->end (), destPhysical->begin ());
     destTessellation->resize (bp - destTessellation->begin ());
 }
 
 
-void Body::CalculateCenter (bool is2D, bool isQuadratic)
+void Body::CalculateCenter ()
 {
-    if (is2D)
+    if (m_foamParameters.Is2D ())
     {
 	m_center = GetFace (0).GetCenter ();
 	return;
     }
     vector< boost::shared_ptr<Vertex> > physicalVertices;
-    calculatePhysicalVertices (is2D, isQuadratic, &physicalVertices);
+    calculatePhysicalVertices (&physicalVertices);
     size_t size = physicalVertices.size ();
     if (size >= 3)
     {	
@@ -346,14 +348,8 @@ size_t Body::GetNumberOfSides () const
 {
     size_t ofSize = m_orientedFaces.size ();
     if (ofSize == 1)
-    {
-	const OrientedFace& of = GetOrientedFace (0);
-	size_t size = of.size ();
-	if (of.IsClosed ())
-	    return size;
-	else
-	    return size + 1;
-    }
+	return GetOrientedFace (0).GetFace ()->GetNumberOfSides (
+	    m_foamParameters);
     else
 	return ofSize;
 }

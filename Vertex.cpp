@@ -10,6 +10,7 @@
 #include "Body.h"
 #include "Edge.h"
 #include "Foam.h"
+#include "FoamParameters.h"
 #include "EvolverData_yacc.h"
 #include "DebugStream.h"
 #include "Debug.h"
@@ -79,11 +80,11 @@ bool Vertex::fuzzyEq (const Vertex& other) const
 }
 
 
-bool Vertex::IsPhysical (bool is2D, bool isQuadratic) const 
+bool Vertex::IsPhysical (const FoamParameters& foamParameters) const 
 {
-    if (is2D)
+    if (foamParameters.Is2D ())
     {
-	if (isQuadratic)
+	if (foamParameters.IsQuadratic ())
 	    return true;
 	else
 	    return m_adjacentEdges.size () >= 3;
@@ -91,7 +92,7 @@ bool Vertex::IsPhysical (bool is2D, bool isQuadratic) const
     else
 	return 
 	    count_if (m_adjacentEdges.begin (), m_adjacentEdges.end (),
-		      boost::bind (&Edge::IsPhysical, _1, is2D, isQuadratic)) 
+		      boost::bind (&Edge::IsPhysical, _1, foamParameters)) 
 	    == 4;
 }
 

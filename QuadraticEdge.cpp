@@ -18,7 +18,8 @@ QuadraticEdge::QuadraticEdge (
     size_t id,
     ElementStatus::Enum duplicateStatus) :
 
-    ApproximationEdge (5, begin, end, endLocation, id, duplicateStatus),
+    ApproximationEdge (5, begin, end, endLocation, id, QUADRATIC_EDGE, 
+		       duplicateStatus),
     m_middle (middle)
 {
     cachePoints ();
@@ -85,4 +86,9 @@ void QuadraticEdge::SetEnd(boost::shared_ptr<Vertex> end)
 {
     Edge::SetEnd (end);
     cachePoints ();
+}
+
+G3D::Vector3 QuadraticEdge::GetMiddleVector () const
+{
+    return GetMiddle ().GetVector ();
 }

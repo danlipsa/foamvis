@@ -67,14 +67,16 @@ void compact (vector< boost::shared_ptr<E> >& v)
 
 Foam::Foam (bool useOriginal, 
 	    const ConstraintRotationNames& constraintRotationNames,
-	    const vector<ForceNames>& forcesNames) :
+	    const vector<ForceNames>& forcesNames, 
+	    FoamParameters& foamParameters,
+	    ParametersOperation paramsOp) :
     m_viewMatrix (new G3D::Matrix4 (G3D::Matrix4::identity ())),
     m_parsingData (new ParsingData (
 		       useOriginal, constraintRotationNames, forcesNames)),
-    m_spaceDimension (3),
-    m_quadratic (false),
     m_histogram (
-	BodyProperty::PROPERTY_END, HistogramStatistics (HISTOGRAM_INTERVALS))
+	BodyProperty::PROPERTY_END, HistogramStatistics (HISTOGRAM_INTERVALS)),
+    m_parameters (foamParameters),
+    m_parametersOperation (paramsOp)
 {
     m_parsingData->SetVariable ("pi", M_PI);
     AddDefaultVertexAttributes ();
@@ -224,7 +226,7 @@ void Foam::SetBody (size_t i, vector<int>& faces,
 {
     resizeAllowIndex (&m_bodies, i);
     boost::shared_ptr<Body> body = boost::make_shared<Body> (
-	faces, GetParsingData ().GetFaces (), i);
+	faces, GetParsingData ().GetFaces (), i, m_parameters);
     if (&attributes != 0)
         body->StoreAttributes (attributes,
 			       m_attributesInfo[DefineAttribute::BODY]);
@@ -319,9 +321,8 @@ void Foam::calculateBoundingBoxTorus (G3D::Vector3* low, G3D::Vector3* high)
 
 void Foam::calculateBodiesCenters ()
 {
-    for_each (m_bodies.begin (), m_bodies.end (),
-	      boost::bind(&Body::CalculateCenter, _1,
-			  Is2D (), IsQuadratic ()));
+    for_each (m_bodies.begin (), m_bodies.end (), 
+	      boost::bind(&Body::CalculateCenter, _1));
 }
 
 void Foam::calculateTorusClipped ()
@@ -748,7 +749,7 @@ void Foam::bodyTranslate (
 	    GetOriginalDomain (), translate, vertexSet, edgeSet, faceSet);
 	of->SetFace (duplicate);
     }
-    body->CalculateCenter (Is2D (), IsQuadratic ());
+    body->CalculateCenter ();
 }
 
 void Foam::GetVertexSet (VertexSet* vertexSet) const
@@ -930,11 +931,43 @@ void Foam::CreateConstraintBody (size_t constraint)
     EdgeSet edgeSet = GetEdgeSet ();
     unwrap (face, &vertexSet, &edgeSet);
     size_t lastBodyId = GetLastBodyId ();
-    boost::shared_ptr<Body> body (new Body (face,  lastBodyId + 1));
+    boost::shared_ptr<Body> body (new Body (face,  lastBodyId + 1, 
+					    m_parameters));
     body->UpdateAdjacentBody (body);
-    body->CalculateCenter (Is2D (), IsQuadratic ());
+    body->CalculateCenter ();
     m_bodies.push_back (body);
 }
+
+bool Foam::Is2D () const
+{
+    return m_parameters.Is2D ();
+}
+
+bool Foam::IsQuadratic () const
+{
+    return m_parameters.IsQuadratic ();
+}
+
+void Foam::SetSpaceDimension (size_t spaceDimension)
+{
+    if (m_parametersOperation == SET_FOAM_PARAMETERS)
+	m_parameters.SetSpaceDimension (spaceDimension);
+    else
+	if (m_parameters.GetSpaceDimension () != spaceDimension)
+	    ThrowException (
+		"Space dimension has to be the same for all time steps");
+}
+
+void Foam::SetQuadratic (bool quadratic)
+{
+    if (m_parametersOperation == SET_FOAM_PARAMETERS)
+	m_parameters.SetQuadratic (quadratic);
+    else
+	if (m_parameters.IsQuadratic () != quadratic)
+	    ThrowException ("Edges have to be the same "
+			    "(quadratic or not) for all time steps");
+}
+
 
 // Static and Friends Methods
 // ======================================================================

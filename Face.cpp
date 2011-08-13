@@ -9,6 +9,7 @@
 #include "AttributeInfo.h"
 #include "Body.h"
 #include "Foam.h"
+#include "FoamParameters.h"
 #include "Debug.h"
 #include "DebugStream.h"
 #include "Edge.h"
@@ -18,6 +19,7 @@
 #include "OrientedFace.h"
 #include "OpenGLUtils.h"
 #include "ParsingDriver.h"
+#include "QuadraticEdge.h"
 #include "Vertex.h"
 
 // Private Classes
@@ -217,7 +219,7 @@ void Face::calculateAxes (
     G3D::Vector3* x, G3D::Vector3* y, G3D::Vector3* z) const
 {
     const OrientedEdge& one = GetOrientedEdge (0);
-    *x = (one.GetEndVector () - one.GetBeginVector ()).unit ();    
+    *x = (one.GetEndVector () - one.GetBeginVector ()).unit ();
     *z = GetPlane ().normal ();
     *y = z->cross (*x);
 }
@@ -239,6 +241,9 @@ size_t Face::largestEdgeIndex () const
     return largestIndex;
 }
 
+// @todo: deal with ctrctndumps_725v_0.1480_0.2400_9.0000_rupt_v1/
+// dump_0.1480_0.2400_9.0000_0171.dmp, face 300, which is a bubble 
+// with two round edges.
 G3D::Plane Face::GetPlane () const
 {
     // faces at corners for ctrctn have 2 edges before edges on the constraint
@@ -246,12 +251,20 @@ G3D::Plane Face::GetPlane () const
     size_t size = GetOrientedEdges ().size ();
     size_t oneIndex = (size == 2) ? 0 : largestEdgeIndex ();
     const OrientedEdge& one = GetOrientedEdge (oneIndex);    
-    G3D::Vector3 oneVector = one.GetEndVector () - one.GetBeginVector ();
     size_t twoIndex = (oneIndex + 1) % size;
     const OrientedEdge& two = GetOrientedEdge (twoIndex);
-    G3D::Plane plane (one.GetBeginVector (), two.GetBeginVector (), 
-		      two.GetEndVector ());
-    return plane;
+    if (size == 2 &&
+	IsFuzzyZero (one.GetBeginVector () - two.GetEndVector ()))
+	if (one.GetEdge ()->GetType () == Edge::QUADRATIC_EDGE)
+	{
+	    QuadraticEdge& e = static_cast<QuadraticEdge&> (*one.GetEdge ());
+	    return G3D::Plane (e.GetBeginVector (), e.GetMiddleVector (),
+			       e.GetEndVector ());
+	}
+	else
+	    ThrowException ("Face ", this->GetId (), " has only two edges.");
+    return G3D::Plane (one.GetBeginVector (), two.GetBeginVector (), 
+		       two.GetEndVector ());
 }
 
 bool Face::IsClosed () const
@@ -400,3 +413,13 @@ QColor Face::GetColor (const QColor& defaultColor) const
 	return defaultColor;
 }
 
+size_t Face::GetNumberOfSides (const FoamParameters& foamParameters) const
+{
+    size_t count = 0;
+    BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, GetOrientedEdges ())
+    {
+	if (oe->GetBegin ().IsPhysical (foamParameters))
+	    ++count;
+    }
+    return count;
+}

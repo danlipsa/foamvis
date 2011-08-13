@@ -14,6 +14,7 @@
 class AttributesInfo;
 class Edge;
 class Face;
+class FoamParameters;
 class OrientedFace;
 class OrientedEdge;
 class OOBox;
@@ -39,12 +40,13 @@ public:
      */
     Body(const vector<int>& faceIndexes,
 	 const vector< boost::shared_ptr<Face> >& faces,
-	 size_t id, 
+	 size_t id, const FoamParameters& foamParameters,
 	 ElementStatus::Enum duplicateStatus = ElementStatus::ORIGINAL);
     /**
      * Creates a body for a constraint
      */
-    Body (boost::shared_ptr<Face> face, size_t id);
+    Body (boost::shared_ptr<Face> face, size_t id, 
+	  const FoamParameters& foamParameters);
 
     /**
      * Returns the  vector of oriented faces this body is made of
@@ -81,7 +83,7 @@ public:
     /**
      * Calculates the center
      */
-    void CalculateCenter (bool is2D, bool isQuadratic);
+    void CalculateCenter ();
     void CalculateBoundingBox ();
     /**
      * Gets the center
@@ -172,7 +174,6 @@ private:
      * Caches edges and vertices
      */
     void calculatePhysicalVertices (
-	bool is2D, bool isQuadratic,
 	vector< boost::shared_ptr<Vertex> >* physicalVertices);
 
 private:
@@ -183,11 +184,10 @@ private:
      * @param destTessellation where we store tessellation objects
      * @param destPhysical where we store physical objects
      */
-    static void splitTessellationPhysical (
+    void splitTessellationPhysical (
 	const VertexSet& src,
 	vector< boost::shared_ptr<Vertex> >* destTessellation,
-	vector< boost::shared_ptr<Vertex> >* destPhysical,
-	bool is2D, bool isQuadratic);
+	vector< boost::shared_ptr<Vertex> >* destPhysical);
 
 private:
     /**
@@ -208,6 +208,7 @@ private:
     bool m_targetVolumeDeduced;
     bool m_actualVolumeDeduced;
     bool m_constraint;
+    const FoamParameters& m_foamParameters;
 };
 
 /**

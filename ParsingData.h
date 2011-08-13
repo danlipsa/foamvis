@@ -9,6 +9,7 @@
 
 #include "ConstraintRotation.h"
 #include "Comparisons.h"
+#include "FoamParameters.h"
 #include "Force.h"
 #include "ParsingDriver.h"
 
