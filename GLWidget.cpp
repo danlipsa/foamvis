@@ -1437,8 +1437,11 @@ OrientedEdge GLWidget::brushedEdge () const
 
 G3D::Vector3 GLWidget::toObject (const QPoint& position) const
 {
-    G3D::Vector3 op = gluUnProject (QtToOpenGl (position, height ()));
-    if (GetFoamAlongTime ().Is2D ())
+    bool is2D = GetFoamAlongTime ().Is2D ();
+    G3D::Vector3 op = gluUnProject (
+	QtToOpenGl (position, height ()), 
+	is2D ? GluUnProjectZOperation::SET0 : GluUnProjectZOperation::READ);
+    if (is2D)
 	op.z = 0;
     return op;
 }

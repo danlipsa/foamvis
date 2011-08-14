@@ -134,7 +134,7 @@ G3D::Vector3 gluProject (G3D::Vector3 object)
 }
 
 G3D::Vector3 gluUnProject (
-    G3D::Vector2 windowCoord, 
+    G3D::Vector2 screenCoord, 
     GluUnProjectZOperation::Enum zOperation)
 {
     GLdouble model[16];
@@ -143,14 +143,14 @@ G3D::Vector3 gluUnProject (
     glGetDoublev (GL_PROJECTION_MATRIX, proj);
     GLint view[4];
     glGetIntegerv (GL_VIEWPORT, view);
-    GLfloat zWindowCoord;
+    GLfloat zScreenCoord;
     if (zOperation == GluUnProjectZOperation::READ)
-	glReadPixels (windowCoord.x, windowCoord.y, 1, 1, 
-		      GL_DEPTH_COMPONENT, GL_FLOAT, &zWindowCoord);
+	glReadPixels (screenCoord.x, screenCoord.y, 1, 1, 
+		      GL_DEPTH_COMPONENT, GL_FLOAT, &zScreenCoord);
     else
-	zWindowCoord = 0;
+	zScreenCoord = 0;
     double x = 0, y = 0, z = 0;
-    gluUnProject (windowCoord.x, windowCoord.y, zWindowCoord, 
+    gluUnProject (screenCoord.x, screenCoord.y, zScreenCoord, 
 		  model, proj, view, 
 		  &x, &y, &z);
     WarnOnOpenGLError ("gluUnproject");

@@ -231,7 +231,8 @@ ConstraintEdge::ConstraintEdge (
 	IntegerArrayAttribute::value_type> (
 	    EdgeAttributeIndex::CONSTRAINTS, constraints);
     if (storePointsToFix (pointsToFix, bodyIndex) == 0)
-	FixPointsConcaveOrConvex ();
+	//FixPointsConcaveOrConvex ();
+	;
 }
 
 
