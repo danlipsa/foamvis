@@ -198,7 +198,7 @@ GLWidget::GLWidget(QWidget *parent)
     makeCurrent ();
     initEndTranslationColor ();
     initQuadrics ();
-    initViewTypeDisplay ();
+    initDisplayView ();
     createActions ();
 }
 
@@ -424,18 +424,18 @@ void GLWidget::initCopy (
 }
 
 
-void GLWidget::initViewTypeDisplay ()
+void GLWidget::initDisplayView ()
 {
     // WARNING: This has to be in the same order as ViewType::Enum
-    boost::array<ViewTypeDisplay, ViewType::COUNT> vtd =
+    boost::array<ViewTypeDisplay, ViewType::COUNT> displayView =
 	{{&GLWidget::displayEdgesNormal,
 	  &GLWidget::displayEdgesTorus,
 	  &GLWidget::displayFacesTorus,
 	  &GLWidget::displayFacesNormal,
 	  &GLWidget::displayFacesAverage,
 	  &GLWidget::displayCenterPathsWithBodies,
-	 }};
-    copy (vtd.begin (), vtd.end (), m_viewTypeDisplay.begin ());
+	    }};
+    copy (displayView.begin (), displayView.end (), m_displayView.begin ());
 }
 
 void GLWidget::initViewSettings ()
@@ -714,8 +714,7 @@ void GLWidget::rotateAverageAround (
     float angleRadians = rotationCurrent.m_angle - rotationBegin.m_angle;
     if (angleRadians != 0)
     {
-	G3D::Vector3 rotationCenter = G3D::Vector3 (
-	    rotationBegin.m_center, 0.0);
+	G3D::Vector2 rotationCenter = rotationBegin.m_center;
 	glTranslate (rotationCenter);
 	float angleDegrees =  G3D::toDegrees (angleRadians);
 	angleDegrees = direction > 0 ? angleDegrees : - angleDegrees;
@@ -1205,7 +1204,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     calculateEdgeRadius (m_edgeRadiusRatio,
 			 &m_edgeRadius, &m_arrowBaseRadius,
 			 &m_arrowHeight, &m_edgeWidth);
-    (this->*(m_viewTypeDisplay[vs.GetViewType ()])) (viewNumber);
+    (this->*(m_displayView[vs.GetViewType ()])) (viewNumber);
     displayViewDecorations (viewNumber);
     displayAxes ();
     displayBoundingBox (viewNumber);
@@ -2154,7 +2153,8 @@ void GLWidget::displayEdgesTorusTubes () const
     GetCurrentFoam ().GetEdgeSet (&edgeSet);
     for_each (
 	edgeSet.begin (), edgeSet.end (),
-	DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadric, false>(*this));
+	DisplayEdgeTorus<DisplaySegmentQuadric, 
+	DisplaySegmentArrowQuadric, false>(*this));
     glPopAttrib ();
 }
 
@@ -2211,7 +2211,7 @@ void GLWidget::displayFaceCenters (ViewNumber::Enum viewNumber) const
     }
 }
 
-
+    
 void GLWidget::displayContextMenuPos (ViewNumber::Enum viewNumber) const
 {
     (void)viewNumber;
@@ -2889,6 +2889,8 @@ void GLWidget::ActivateShader (
     eyeTransform (viewNumber);
     if (angleDegrees != 0)
     {
+	//rotationCenter = G3D::Vector2 (.5, .25);
+	//cdbg << "rotationCenter: " << rotationCenter << endl;
 	glTranslate (rotationCenter);
 	glRotatef (angleDegrees, 0, 0, 1);	
 	glTranslate (-rotationCenter);

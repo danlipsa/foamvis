@@ -255,6 +255,7 @@ G3D::Plane Face::GetPlane () const
     const OrientedEdge& two = GetOrientedEdge (twoIndex);
     if (size == 2 &&
 	IsFuzzyZero (one.GetBeginVector () - two.GetEndVector ()))
+    {
 	if (one.GetEdge ()->GetType () == Edge::QUADRATIC_EDGE)
 	{
 	    QuadraticEdge& e = static_cast<QuadraticEdge&> (*one.GetEdge ());
@@ -263,6 +264,7 @@ G3D::Plane Face::GetPlane () const
 	}
 	else
 	    ThrowException ("Face ", this->GetId (), " has only two edges.");
+    }
     return G3D::Plane (one.GetBeginVector (), two.GetBeginVector (), 
 		       two.GetEndVector ());
 }

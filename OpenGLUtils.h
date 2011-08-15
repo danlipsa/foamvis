@@ -46,7 +46,7 @@ inline void glTranslate (G3D::Vector3 translate)
 
 inline void glTranslate (G3D::Vector2 translate)
 {
-    glTranslatef (translate.x, translate.y, 0);
+    glTranslatef (translate.x, translate.y, 0.);
 }
 
 inline void glViewport (G3D::Rect2D viewport)

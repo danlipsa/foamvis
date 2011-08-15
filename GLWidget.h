@@ -565,7 +565,7 @@ private:
     G3D::Vector3 toObjectTransform (const QPoint& position, 
 				    ViewNumber::Enum viewNumber) const;
     
-    void initViewTypeDisplay ();
+    void initDisplayView ();
     void createActions ();
     string getBodySelectorLabel ();
     string getContextLabel ();
@@ -653,7 +653,7 @@ private:
     bool m_bodiesBoundingBoxesShown;
     bool m_axesShown;
     bool m_standaloneElementsShown;
-    boost::array<ViewTypeDisplay, ViewType::COUNT> m_viewTypeDisplay;
+    boost::array<ViewTypeDisplay, ViewType::COUNT> m_displayView;
 
     boost::shared_ptr<QAction> m_actionSelectAll;
     boost::shared_ptr<QAction> m_actionDeselectAll;
