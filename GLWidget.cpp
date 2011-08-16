@@ -717,6 +717,7 @@ void GLWidget::rotateAverageAround (
 	G3D::Vector2 rotationCenter = rotationBegin.m_center;
 	glTranslate (rotationCenter);
 	float angleDegrees =  G3D::toDegrees (angleRadians);
+	//cdbg << "angleDegrees: " << angleDegrees << endl;
 	angleDegrees = direction > 0 ? angleDegrees : - angleDegrees;
 	glRotatef (angleDegrees, 0, 0, 1);
 	glTranslate (-rotationCenter);
