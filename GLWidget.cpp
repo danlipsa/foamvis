@@ -2879,6 +2879,7 @@ void GLWidget::ActivateShader (
     ViewNumber::Enum viewNumber,
     G3D::Rect2D destRect, G3D::Vector2 rotationCenter, float angleDegrees) const
 {
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     G3D::AABox srcAABox = CalculateViewingVolume (viewNumber);
     glPushAttrib (GL_VIEWPORT_BIT);
     glViewport (destRect.x0 (), destRect.y0 (),
@@ -2891,9 +2892,15 @@ void GLWidget::ActivateShader (
     {
 	//rotationCenter = G3D::Vector2 (.5, .25);
 	//cdbg << "rotationCenter: " << rotationCenter << endl;
-	glTranslate (rotationCenter);
+	G3D::Vector2 center = 
+	    (srcAABox.low ().xy () + srcAABox.high ().xy ()) / 2;
+	// why this?
+	G3D::Vector2 translation = 
+	    center + (rotationCenter - center + vs.GetTranslation ().xy ()) * 
+	    vs.GetScaleRatio ();
+	glTranslate (translation);
 	glRotatef (angleDegrees, 0, 0, 1);	
-	glTranslate (-rotationCenter);
+	glTranslate (- translation);
     }    
     G3D::Rect2D srcRect = G3D::Rect2D::xyxy (srcAABox.low ().xy (), 
 					     srcAABox.high ().xy ());
