@@ -397,6 +397,13 @@ void ConstraintEdge::cachePoints ()
     m_points[m_points.size () - 1] = GetEndVector ();
     //cdbg << "0: " << m_points[0] 
     //<< " 6: " << m_points[m_points.size () - 1] << endl;
+    __LOG__ (
+	size_t constraintIndex = GetBegin ().GetConstraintIndex (0);
+	boost::shared_ptr<ExpressionTree> constraint = 
+	m_parsingData->GetConstraint (constraintIndex);
+	boost::shared_ptr<ExpressionTree> c (constraint->GetSimplified ());
+	cdbg << "constraint: " << *c << endl;
+	);
     for (size_t i = 1; i < m_points.size () - 1; ++i)
     {
 	bool valid;
@@ -409,7 +416,7 @@ void ConstraintEdge::cachePoints ()
 G3D::Vector3 ConstraintEdge::computePointMulti (
     size_t i, bool* valid, const G3D::Vector2* previousTimeStepPoint) const
 {
-    const size_t NUMBER_ITERATIONS = 50;
+    const size_t NUMBER_ITERATIONS = 18;
     size_t numberIterations = NUMBER_ITERATIONS;
     const double ABSOLUTE_ERROR = GSL_SQRT_DBL_EPSILON;
     const double RELATIVE_ERROR = GSL_SQRT_DBL_EPSILON;

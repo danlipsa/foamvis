@@ -14,6 +14,20 @@ class ParsingData;
  * expression tree is a tree with operators (or functions) as internal
  * nodes and operands (numbers and variables) as leafs.
  */
+
+class ExpressionTreeType
+{
+public:
+    enum Enum
+    {
+	NUMBER,
+	VARIABLE,
+	UNARY_FUNCTION,
+	BINARY_FUNCTION,
+	CONDITIONAL
+    };
+};
+
 class ExpressionTree
 {
 public:
@@ -37,16 +51,20 @@ public:
      * @return the value of the tree
      */
     virtual double Value () const = 0;
-    virtual bool IsNumber ()
+    virtual size_t Height () const
     {
-	return false;
+	return 0;
     }
+    virtual ExpressionTreeType::Enum GetType () const = 0;
     virtual ExpressionTree* GetSimplified () const = 0;
-    virtual string ToString () = 0;
+    virtual string ToString () const = 0;
     virtual bool HasConditional ()
     {
 	return false;
     }
+
+    string ToParenthesisString () const;
+    bool IsProperBinaryFunction () const;
 
 protected:
     ParsingData& m_parsingData;
@@ -71,11 +89,11 @@ public:
      */
     virtual double Value () const;
     virtual ExpressionTree* GetSimplified () const;
-    virtual bool IsNumber ()
+    virtual ExpressionTreeType::Enum GetType () const 
     {
-	return true;
+	return ExpressionTreeType::NUMBER;
     }
-    virtual string ToString ();
+    virtual string ToString () const;
 private:
     /**
      * Value of the nubmber node
@@ -105,7 +123,11 @@ public:
      */
     virtual double Value () const;
     virtual ExpressionTree* GetSimplified () const;
-    virtual string ToString ();
+    virtual ExpressionTreeType::Enum GetType () const 
+    {
+	return ExpressionTreeType::VARIABLE;
+    }
+    virtual string ToString () const;
 private:
     /**
      * Variable name
@@ -137,8 +159,16 @@ public:
      * @return the value of the function applied to the parameter.
      */
     virtual double Value () const;
+    virtual size_t Height () const
+    {
+	return 1 + m_param->Height ();
+    }
     virtual ExpressionTree* GetSimplified () const;
-    virtual string ToString ();
+    virtual ExpressionTreeType::Enum GetType () const 
+    {
+	return ExpressionTreeType::UNARY_FUNCTION;
+    }
+    virtual string ToString () const;
     virtual bool HasConditional ()
     {
 	return m_param->HasConditional ();
@@ -179,12 +209,21 @@ public:
      * @return the value of the function applied to the parameters.
      */
     virtual double Value () const;
+    virtual size_t Height () const
+    {
+	return 1 + max (m_first->Height (), m_second->Height ());
+    }
     virtual ExpressionTree* GetSimplified () const;
-    virtual string ToString ();
+    virtual ExpressionTreeType::Enum GetType () const 
+    {
+	return ExpressionTreeType::BINARY_FUNCTION;
+    }
+    virtual string ToString () const;
     virtual bool HasConditional ()
     {
 	return m_first->HasConditional () || m_second->HasConditional ();
     }
+    bool IsOperator () const;
 private:
     /**
      * Function name
@@ -215,8 +254,17 @@ public:
      * Value of the contitional expression
      */
     virtual double Value () const;
+    virtual size_t Height () const
+    {
+	return 1 + max (max (m_first->Height (), m_second->Height ()), 
+		 m_third->Height ());
+    }
     virtual ExpressionTree* GetSimplified () const;
-    virtual string ToString ();
+    virtual ExpressionTreeType::Enum GetType () const 
+    {
+	return ExpressionTreeType::CONDITIONAL;
+    }
+    virtual string ToString () const;
     virtual bool HasConditional ()
     {
 	return true;
@@ -226,6 +274,12 @@ private:
     boost::shared_ptr<ExpressionTree> m_second;
     boost::shared_ptr<ExpressionTree> m_third;
 };
+
+
+inline ostream& operator<< (ostream& ostr, const ExpressionTree& t)
+{
+    return ostr << t.ToString ();
+}
 
 
 #endif //__EXPRESSION_TREE_H__

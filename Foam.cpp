@@ -490,6 +490,8 @@ void Foam::addConstraintEdges ()
     for (size_t i = 0; i < bodies.size (); ++i)
     {
 	boost::shared_ptr<Body> body = bodies[i];
+	//if (body->GetId () != 487)
+	//continue;
 	Face& face = body->GetFace (0);
 	if (face.IsClosed ())
 	    continue;

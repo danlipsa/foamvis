@@ -9,6 +9,30 @@
 #include "ExpressionTree.h"
 #include "ParsingData.h"
 
+string ExpressionTree::ToParenthesisString () const
+{
+    ExpressionTreeType::Enum type = GetType ();
+    if (Height () == 0 || 
+	type == ExpressionTreeType::UNARY_FUNCTION ||
+	IsProperBinaryFunction ())
+	return ToString ();
+    else
+	return "(" + ToString () + ")";
+}
+
+bool ExpressionTree::IsProperBinaryFunction () const
+{
+    if (GetType () == ExpressionTreeType::BINARY_FUNCTION)
+    {
+	const ExpressionTreeBinaryFunction* bf = 
+	    static_cast<const ExpressionTreeBinaryFunction*> (this);
+	return ! bf->IsOperator ();
+    }
+    else
+	return false;
+}
+
+
 // ExpressionTreeNumber
 // ======================================================================
 double ExpressionTreeNumber::Value (void) const
@@ -21,7 +45,7 @@ ExpressionTree* ExpressionTreeNumber::GetSimplified () const
     return new ExpressionTreeNumber (m_parsingData, m_value);
 }
 
-string ExpressionTreeNumber::ToString ()
+string ExpressionTreeNumber::ToString () const
 {
     ostringstream ostr;
     ostr << m_value;
@@ -43,14 +67,13 @@ ExpressionTree* ExpressionTreeVariable::GetSimplified () const
 	return new ExpressionTreeVariable (m_parsingData, m_name.c_str ());
 }
 
-string ExpressionTreeVariable::ToString ()
+string ExpressionTreeVariable::ToString () const
 {
     ostringstream ostr;
-    ostr << m_name;
     if (m_parsingData.IsVariableSet (m_name))
-    {
-	ostr << "=" << Value ();
-    }
+	ostr << Value ();
+    else
+	ostr << m_name;
     return ostr.str ();
 }
 
@@ -67,7 +90,7 @@ double ExpressionTreeUnaryFunction::Value (void) const
 ExpressionTree* ExpressionTreeUnaryFunction::GetSimplified () const
 {
     ExpressionTree* simplifiedParam = m_param->GetSimplified ();
-    if (simplifiedParam->IsNumber ())
+    if (simplifiedParam->GetType () == ExpressionTreeType::NUMBER)
     {
 	ParsingData::UnaryFunction f = m_parsingData.GetUnaryFunction (m_name);
 	double value = f(simplifiedParam->Value ());
@@ -79,7 +102,7 @@ ExpressionTree* ExpressionTreeUnaryFunction::GetSimplified () const
 	    m_parsingData, m_name.c_str (), simplifiedParam);
 }
 
-string ExpressionTreeUnaryFunction::ToString ()
+string ExpressionTreeUnaryFunction::ToString () const
 {
     ostringstream ostr;
     ostr << m_name << "(" << m_param->ToString () << ")";
@@ -100,7 +123,8 @@ ExpressionTree* ExpressionTreeBinaryFunction::GetSimplified () const
 {
     ExpressionTree* simplifiedFirst = m_first->GetSimplified ();
     ExpressionTree* simplifiedSecond = m_second->GetSimplified ();
-    if (simplifiedFirst->IsNumber () && simplifiedSecond->IsNumber ())
+    if (simplifiedFirst->GetType () == ExpressionTreeType::NUMBER && 
+	simplifiedSecond->GetType () == ExpressionTreeType::NUMBER)
     {
 	ParsingData::BinaryFunction f = m_parsingData.GetBinaryFunction (m_name);
 	double firstValue = simplifiedFirst->Value ();
@@ -115,13 +139,19 @@ ExpressionTree* ExpressionTreeBinaryFunction::GetSimplified () const
 	    m_parsingData, m_name.c_str (), simplifiedFirst, simplifiedSecond);
 }
 
-string ExpressionTreeBinaryFunction::ToString ()
+bool ExpressionTreeBinaryFunction::IsOperator () const
+{
+    return m_parsingData.IsOperator (m_name);
+}
+
+
+string ExpressionTreeBinaryFunction::ToString () const
 {
     ostringstream ostr;
-    if (m_parsingData.IsOperator (m_name))
+    if (IsOperator ())
     {
-	ostr << "(" << m_first->ToString () << ")" << m_name
-	     << "(" << m_second->ToString () << ")";
+	ostr << m_first->ToParenthesisString () << " " << m_name << " "
+	     << m_second->ToParenthesisString ();
     }
     else
     {
@@ -154,7 +184,7 @@ ExpressionTree* ExpressionTreeConditional::GetSimplified () const
     ExpressionTree* simplifiedFirst = m_first->GetSimplified ();
     ExpressionTree* simplifiedSecond = m_second->GetSimplified ();
     ExpressionTree* simplifiedThird = m_third->GetSimplified ();
-    if (simplifiedFirst->IsNumber ())
+    if (simplifiedFirst->GetType () == ExpressionTreeType::NUMBER)
     {
 	double firstValue = simplifiedFirst->Value ();
 	delete simplifiedFirst;
@@ -176,11 +206,11 @@ ExpressionTree* ExpressionTreeConditional::GetSimplified () const
     }
 }
 
-string ExpressionTreeConditional::ToString ()
+string ExpressionTreeConditional::ToString () const
 {
     ostringstream ostr;
-    ostr << "(" << m_first->ToString () << ")?("
-	 << m_second->ToString () << "):("
-	 << m_third->ToString () << ")";
+    ostr << m_first->ToParenthesisString () << " ? "
+	 << m_second->ToParenthesisString () << " : "
+	 << m_third->ToParenthesisString ();
     return ostr.str ();
 }

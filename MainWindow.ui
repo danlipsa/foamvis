@@ -305,7 +305,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="general">
           <attribute name="title">
@@ -334,7 +334,7 @@
                <item>
                 <widget class="QTabWidget" name="tabWidgetShow">
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>3</number>
                  </property>
                  <widget class="QWidget" name="tabView">
                   <attribute name="title">
@@ -531,6 +531,26 @@
                     <widget class="QCheckBox" name="checkBoxBodyNeighbors">
                      <property name="text">
                       <string>Body neighbors</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QCheckBox" name="checkBoxStandaloneEdge">
+                     <property name="text">
+                      <string>Standalone edge</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QCheckBox" name="checkBoxStandaloneFace">
+                     <property name="text">
+                      <string>Standalone face</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
                      </property>
                     </widget>
                    </item>

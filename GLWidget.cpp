@@ -1021,6 +1021,7 @@ void GLWidget::InfoEdge ()
     msgBox.exec();
 }
 
+
 void GLWidget::InfoFace ()
 {
     Info msgBox (this, "Info");
