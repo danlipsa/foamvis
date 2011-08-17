@@ -25,7 +25,7 @@ struct Option
 	FORCES,
 	HELP,
 	INI_FILE,
-	LABEL,
+	NAME,
 	ORIGINAL_PRESSURE,
 	OUTPUT_TEXT,
 	PARAMETERS,
@@ -47,7 +47,7 @@ const char* Option::m_name[] = {
     "forces",
     "help",
     "ini-file",
-    "label",
+    "name",
     "original-pressure",
     "output-text",
     "parameters",
@@ -184,7 +184,7 @@ po::options_description getCommonOptions (
 }
 
 po::options_description getCommandLineOptions (
-    string* iniFile, string* simulationLabel)
+    string* iniFile, string* simulationName)
 {
     po::options_description commandLineOptions (
 	"COMMAND_LINE_OPTIONS");
@@ -202,9 +202,9 @@ po::options_description getCommandLineOptions (
 	(Option::m_name[Option::OUTPUT_TEXT],
 	 "outputs a text representation of the data")
 	(Option::m_name[Option::SIMULATION],
-	 po::value<string>(simulationLabel),
+	 po::value<string>(simulationName),
 	 "read visualization parameters from the ini file.\n"
-	 "arg=<simulation> where <simulation> is a label "
+	 "arg=<simulation> where <simulation> is a name "
 	 "in the ini file specified with the ini-file option." )
 	(Option::m_name[Option::VERSION], "prints version information")
 	;
@@ -212,15 +212,15 @@ po::options_description getCommandLineOptions (
 }
 
 po::options_description getIniOptions (
-    vector<string>* labels, vector<string>* parameters)
+    vector<string>* names, vector<string>* parameters)
 {
     po::options_description iniOptions (
 	"INI_OPTIONS: (see simulations.ini for an example)");
     iniOptions.add_options()
-	(Option::m_name[Option::LABEL], 
-	 po::value< vector<string> >(labels), 
-	 "name a simulation.\n"
-	 "arg=<simulationLabel> A JPG file <simulationLabel>.jpg is "
+	(Option::m_name[Option::NAME], 
+	 po::value< vector<string> >(names), 
+	 "name of a simulation.\n"
+	 "arg=<simulationName> A JPG file <simulationName>.jpg is "
 	 "read from the same folder as the ini file.")
 	(Option::m_name[Option::PARAMETERS], 
 	 po::value< vector<string> >(parameters), 
@@ -239,14 +239,14 @@ void parseOptions (int argc, char *argv[],
 		   vector<ForceNames>* forcesNames,
 		   po::variables_map* vm)
 {
-    string iniFile, simulationLabel;
-    vector<string> labels, parameters;
+    vector<string> names, parameters;
+    string iniFileName, simulationName;
     po::options_description commandLineOptions = getCommandLineOptions (
-	&iniFile, &simulationLabel);
-    po::options_description iniOptions = getIniOptions (
-	&labels, &parameters);
+	&iniFileName, &simulationName);
     po::options_description commonOptions = getCommonOptions (
 	t1sFile, constraintRotationNames, forcesNames);
+    po::options_description iniOptions = getIniOptions (
+	&names, &parameters);
     // Declare the supported options.
     po::options_description hiddenOptions("Hidden options");
     hiddenOptions.add_options()
@@ -254,13 +254,42 @@ void parseOptions (int argc, char *argv[],
 	 po::value< vector<string> >(fileNames), "dmp file");
     po::options_description options;
     options.add(commonOptions).add (commandLineOptions).add(hiddenOptions);
-
     po::positional_options_description positionalOptions;
     positionalOptions.add(Option::m_name[Option::DMP_FILES], -1);
-
     po::store(po::command_line_parser (argc, argv).
 	      options (options).positional (positionalOptions).run (), *vm);
     po::notify(*vm);
+    if (vm->count (Option::m_name[Option::INI_FILE]))
+    {
+	ifstream iniStream (iniFileName.c_str ());
+	if (iniStream.fail ())
+	{
+	    cerr << "Cannot open " << iniFileName << " for reading." << endl;
+	    exit (13);
+	}
+	string visParameters;
+	po::store (po::parse_config_file (iniStream, iniOptions), *vm);
+	if (vm->count (Option::m_name[Option::SIMULATION]))
+	{
+	    vector<string>::const_iterator it = find (
+		names.begin (), names.end (), simulationName);
+	    if (it == names.end ())
+	    {
+		cerr << "Cannot find " << simulationName << " in the ini file.";
+		exit (13);
+	    }
+	    size_t i = it - names.begin ();
+	    visParameters = parameters[i];
+	}
+	else
+	{
+	    // browse simulations and choose a name.
+	}
+	boost::tokenizer<> tok (visParameters);
+	for(boost::tokenizer<>::iterator it = tok.begin(); 
+	    it != tok.end(); ++it)
+	    cout << *it << endl;
+    }
     if (constraintRotationNames->m_constraintIndex != INVALID_INDEX)
 	--constraintRotationNames->m_constraintIndex;
     if (vm->count (Option::m_name[Option::HELP])) 
