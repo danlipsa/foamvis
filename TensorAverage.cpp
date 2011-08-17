@@ -117,26 +117,16 @@ void TensorAverage::rotateAndDisplay (
     StatisticsType::Enum displayType, FramebufferObjectPair srcFbo,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
-    (void)minValue;
-    (void)maxValue;
-    (void)displayType;
+    (void)minValue;(void)maxValue;(void)displayType;
+    G3D::Vector2 gridTranslation;float cellLength; float lineWidth;
+    float ellipseSizeRatio;G3D::Rect2D screenRect;
 
-    const GLWidget& glWidget = GetGLWidget ();
-    ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
-    float scaleRatio = vs.GetScaleRatio ();
-    float gridScaleRatio = vs.GetScaleRatio () * vs.GetGridScaleRatio ();
-
-    G3D::Vector2 gridTranslation = 
-	(vs.GetGridTranslation () * scaleRatio + vs.GetTranslation ()).xy ();
-    float cellLength = glWidget.GetCellLength () * gridScaleRatio;
-    float ellipseSizeRatio = glWidget.GetEllipseSizeInitialRatio () * 
-	glWidget.GetEllipseSizeRatio () * gridScaleRatio;
-    float lineWidth = glWidget.GetOnePixelInObjectSpace () * 
-	scaleRatio * glWidget.GetEllipseLineWidthRatio ();
-    G3D::AABox srcBox = glWidget.CalculateViewingVolume (viewNumber);
+    calculateShaderParameters (
+	viewNumber, angleDegrees, &gridTranslation, &cellLength, &lineWidth,
+	&ellipseSizeRatio, &screenRect);
     m_displayShaderProgram->Bind (
 	gridTranslation, cellLength, lineWidth, 
-	ellipseSizeRatio, srcBox.low ().xy (), srcBox.high ().xy ());
+	ellipseSizeRatio, screenRect.x0y0 (), screenRect.x1y1 ());
 
     // activate texture unit 1
     glActiveTexture (
@@ -154,4 +144,37 @@ void TensorAverage::rotateAndDisplay (
     glActiveTexture (GL_TEXTURE0);
     m_displayShaderProgram->release ();
     WarnOnOpenGLError ("TensorAverage::rotateAndDisplay");
+}
+
+void TensorAverage::calculateShaderParameters (
+    ViewNumber::Enum viewNumber, float angleDegrees,
+    G3D::Vector2* gridTranslation, float* cellLength, float* lineWidth, 
+    float* ellipseSizeRatio, G3D::Rect2D* screenRect) const
+{
+    const GLWidget& glWidget = GetGLWidget ();
+    ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
+    float scaleRatio = vs.GetScaleRatio ();
+    float gridScaleRatio = vs.GetScaleRatio () * vs.GetGridScaleRatio ();
+    *gridTranslation = 
+	(vs.GetGridTranslation () * scaleRatio + vs.GetTranslation ()).xy ();
+    if (angleDegrees != 0.)
+    {
+	//cdbg << angleDegrees << endl;
+	//cdbg << "gridTranslation: " << gridTranslation << endl;
+	float cosa = cos (angleDegrees);
+	float sina = sin (angleDegrees);
+	G3D::Matrix2 m;
+	Matrix2SetColumn (&m, 0, G3D::Vector2 (cosa, sina));
+	Matrix2SetColumn (&m, 1, G3D::Vector2 (-sina, cosa));
+	*gridTranslation = m * (*gridTranslation);
+	//cdbg << "gridTranslation: " << gridTranslation << endl << endl;
+    }    
+    *cellLength = glWidget.GetCellLength () * gridScaleRatio;
+    *lineWidth = glWidget.GetOnePixelInObjectSpace () * 
+	scaleRatio * glWidget.GetEllipseLineWidthRatio ();
+
+    *ellipseSizeRatio = glWidget.GetEllipseSizeInitialRatio () * 
+	glWidget.GetEllipseSizeRatio () * gridScaleRatio;
+    G3D::AABox srcBox = glWidget.CalculateViewingVolume (viewNumber);
+    *screenRect = G3D::Rect2D::xyxy (srcBox.low ().xy (), srcBox.high ().xy ());
 }

@@ -2,16 +2,20 @@
 use strict;
 use warnings;
 use File::Copy;
+use POSIX qw/strftime/;
 
 do "replace.pl";
 my $majorVersion = "0.5";
 my $svnVersion = `svnversion`;
 $svnVersion = $svnVersion + 1;
+my $currentDate = strftime ('%F %T', localtime);
 
-print "Setting version $majorVersion.$svnVersion\n";
+print "Setting version $majorVersion.$svnVersion, date $currentDate\n";
 
 my $version = "version = \"" . $majorVersion . "." . $svnVersion . "\";";
-my @substitution = (["version = \"[\\d.]+\";", $version]);
+my $date = "date = \"" . $currentDate . "\";";
+my @substitution = (["version = \"[\\d.]+\";", $version],
+		    ["date = \"[^\"]+\";", $date]);
 replace ("main.cpp", \@substitution);
 
 $version = "PROJECT_NUMBER = " . $majorVersion . "." . $svnVersion;

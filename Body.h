@@ -152,6 +152,7 @@ public:
     static const char* GetAttributeKeywordString (BodyProperty::Enum bp);
     void CalculateNeighbors2D (const OOBox& originalDomain);
     void CalculateDeformationTensor (const OOBox& originalDomain);
+    float GetDeformationEigen () const;
     /**
      * The eigen values are sorted decreasing.
      */

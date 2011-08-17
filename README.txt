@@ -215,12 +215,16 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 Release log
 ===========
 0.6.     - added instantaneous and time averaged deformation (texture) tensor.
+	 - added scalar value: deformation eigen (1 - l_min/l_max)
+	 - added the release date to the version information. (when you execute
+           foamvis without any parameters)
 	 - change the 2D number of sides information to use the number 
 	   of physical vertices (fixes vfplug_137v_9.857973_2) instead of
 	   the number of physical vertices.
 	 - allow a face made of two quadratic edges (fixes 
 	   ctrctndumps_725v_0.1480_0.2400_9.0000_rupt_v1/
 	   dump_0.1480_0.2400_9.0000_0171.dmp)
+	 - reading command line from ini file + browsing simulations
 0.5.2062 - added axes labels (Show > Ohter > Axes)
 	 - added right-click > Info > Face and Info > Edge
 	 - added --constraint option, to specify an object described

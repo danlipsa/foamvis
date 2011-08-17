@@ -296,9 +296,11 @@ bool Body::ExistsPropertyValue (BodyProperty::Enum property,
 	*deduced = false;
     switch (property)
     {
-    case BodyProperty::ELONGATION:
+    case BodyProperty::DEFORMATION_P_OVER_SQRTA:
 	return HasAttribute (BodyProperty::TARGET_VOLUME - 
 			     BodyProperty::DMP_BEGIN);
+    case BodyProperty::DEFORMATION_EIGEN:
+	return ! IsConstraint ();
     case BodyProperty::PRESSURE:
 	if (deduced != 0)
 	    *deduced = m_pressureDeduced;
@@ -330,14 +332,23 @@ double Body::GetPropertyValue (BodyProperty::Enum property) const
 	return GetVelocity ().length ();
     case BodyProperty::SIDES_PER_BODY:
 	return GetSidesPerBody ();
-    case BodyProperty::ELONGATION:
+    case BodyProperty::DEFORMATION_P_OVER_SQRTA:
 	return GetPerimeterOverSqrtArea ();
+    case BodyProperty::DEFORMATION_EIGEN:
+	return GetDeformationEigen ();
     case BodyProperty::COUNT:
 	ThrowException ("Invalid BodyProperty: ", property);
     default:
 	return GetAttribute<RealAttribute, double> (
 	    property - BodyProperty::DMP_BEGIN);
     }
+}
+
+float Body::GetDeformationEigen () const
+{
+    float deformationEigen = 1. - 
+	GetDeformationEigenValue (1) / GetDeformationEigenValue (0);
+    return deformationEigen;
 }
 
 size_t Body::GetSidesPerBody () const

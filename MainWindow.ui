@@ -305,7 +305,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="general">
           <attribute name="title">
@@ -1467,6 +1467,11 @@
                  </item>
                  <item>
                   <property name="text">
+                   <string>Deformation eigen</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
                    <string>Pressure</string>
                   </property>
                  </item>
@@ -1934,6 +1939,8 @@
     <slot>ValueChangedCellWidth(int)</slot>
     <slot>ValueChangedCellLength(int)</slot>
     <slot>ButtonClickedInteractionObject(int)</slot>
+    <slot>ToggledStandaloneFaceShown(bool)</slot>
+    <slot>ToggledStandaloneEdgeShown(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>

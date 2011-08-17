@@ -64,8 +64,10 @@ const char* BodyProperty::ToString (BodyProperty::Enum property)
 	return "Velocity magnitude";
     case SIDES_PER_BODY:
 	return "Number of sides";
-    case ELONGATION:
-	return "Elongation";
+    case DEFORMATION_P_OVER_SQRTA:
+	return "Deformation P / sqrt(A)";
+    case DEFORMATION_EIGEN:
+	return "Deformation eigen";
     case PRESSURE:
 	return "Pressure";
     case TARGET_VOLUME:
