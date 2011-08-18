@@ -24,7 +24,7 @@ BrowseSimulations::BrowseSimulations (const vector<string>& names,
 
 void BrowseSimulations::CurrentChanged (int row)
 {
-    string fileName = m_names[row] + ".jpg";
+    string fileName = "simulations/" + m_names[row] + ".jpg";
     QPixmap pixmap (fileName.c_str ());
     if (pixmap.isNull ())
 	labelImage->setText (string ("Invalid file: " + fileName).c_str ());

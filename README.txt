@@ -113,18 +113,7 @@ Execute ./foam without any parameters to see a list of options.
 
 Command lines for various datasets:
 -----------------------------------
-./foam_debug --t1s ~/Documents/swansea-phd/foam/ctrctndumps_704v_0.1520_0.2400_8.0000_v1/energy_704v_0.1520_0.2400_8.0000_v1.dat ~/Documents/swansea-phd/foam/ctrctndumps_704v_0.1520_0.2400_8.0000_v1/dump_0.1520_0.2400_8.0000_0???.dmp
-
-./foam_debug --force "161 ftx1 fty1 fpx1 fpy1" --force "358 ftx2 fty2 fpx2 fpy2" --t1s ~/Documents/swansea-phd/foam/sedimenting_discs_interacting/t1_v0_posn_1500.dat ~/Documents/swansea-phd/foam/sedimenting_discs_interacting/c1v0_???.000000.dmp
-
-./foam_debug --force "2113 ftx1 fty1 fpx1 fpy1" --force "2025 ftx2 fty2 fpx2 fpy2" ~/Documents/swansea-phd/foam/two_discs_c1_n2200_dumps/c1v0_4Ab_n2200_0???.dmp
-
-./foam_debug --use-original --constraint-rotation "4 x0 y0 phi" ~/Documents/swansea-phd/foam/ellipse_in_flow/ell0.700000_???v_5.000000_1.dmp
-
-./Foam_debug --constraint 4 ~/Documents/swansea-phd/foam/sedimenting_ellipse_odd/ell_ecc0.700000_8.000000_????.dmp
-
-./foam_debug --use-original ~/Documents/swansea-phd/foam/sausage_all/saus_4_703v_0.120000_0.060000_0.628319_????.dmp
-
+See simulations.ini.
 
 
 Generate a movie
