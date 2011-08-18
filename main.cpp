@@ -5,6 +5,7 @@
  * Parses an Evolver DMP file and displays the data from the file.
  */
 #include "Application.h"
+#include "BrowseSimulations.h"
 #include "Debug.h"
 #include "Foam.h"
 #include "FoamAlongTime.h"
@@ -25,6 +26,7 @@ struct Option
 	FORCES,
 	HELP,
 	INI_FILE,
+	INI_FILTER,
 	NAME,
 	ORIGINAL_PRESSURE,
 	OUTPUT_TEXT,
@@ -47,6 +49,7 @@ const char* Option::m_name[] = {
     "forces",
     "help",
     "ini-file",
+    "ini-filter",
     "name",
     "original-pressure",
     "output-text",
@@ -184,7 +187,7 @@ po::options_description getCommonOptions (
 }
 
 po::options_description getCommandLineOptions (
-    string* iniFile, string* simulationName)
+    string* iniFileName, string* simulationName, string* iniFilter)
 {
     po::options_description commandLineOptions (
 	"COMMAND_LINE_OPTIONS");
@@ -195,10 +198,19 @@ po::options_description getCommandLineOptions (
 	 "produces output that helps debugging the scanner")
 	(Option::m_name[Option::HELP], "produce help message")
 	(Option::m_name[Option::INI_FILE], 
-	 po::value<string>(iniFile), 
+	 po::value<string>(iniFileName), 
 	 "choose simulation and read visualization parameters " 
 	 "from the ini file.\n"
-	 "arg=<iniFile>. See simulations.ini for an example.")
+	 "arg=<iniFileName>. See simulations.ini for an example.")
+	(Option::m_name[Option::INI_FILTER], 
+	 po::value<string>(iniFilter), 
+	 "Filter simulation DMPs specified in the ini file.\n"
+	 "arg=<filter> where <filter> characters replace the question marks "
+	 "in the patern specified in the ini file staring with the least "
+	 "significant.For example, '1', results in the pattern '???1' which "
+	 "selects DMP files numbered 0001, 0011, 0021, ..., 0091, 0101, ...."
+	 "'0001' results in patern '0001' which selects only the DMP "
+	 "numbered 0001.")
 	(Option::m_name[Option::OUTPUT_TEXT],
 	 "outputs a text representation of the data")
 	(Option::m_name[Option::SIMULATION],
@@ -231,65 +243,149 @@ po::options_description getIniOptions (
     return iniOptions;
 }
 
-
-void parseOptions (int argc, char *argv[],
-		   string* t1sFile,
-		   vector<string>* fileNames,
-		   ConstraintRotationNames* constraintRotationNames,
-		   vector<ForceNames>* forcesNames,
-		   po::variables_map* vm)
+po::options_description getHiddenOptions (vector<string>* fileNames)
 {
-    vector<string> names, parameters;
-    string iniFileName, simulationName;
-    po::options_description commandLineOptions = getCommandLineOptions (
-	&iniFileName, &simulationName);
-    po::options_description commonOptions = getCommonOptions (
-	t1sFile, constraintRotationNames, forcesNames);
-    po::options_description iniOptions = getIniOptions (
-	&names, &parameters);
-    // Declare the supported options.
     po::options_description hiddenOptions("Hidden options");
     hiddenOptions.add_options()
 	(Option::m_name[Option::DMP_FILES], 
 	 po::value< vector<string> >(fileNames), "dmp file");
+    return hiddenOptions;
+}
+
+po::options_description getOptions (
+    vector<string>* fileNames,
+    po::options_description& commonOptions,
+    po::options_description& commandLineOptions)
+{
     po::options_description options;
+    po::options_description hiddenOptions = getHiddenOptions (fileNames);
     options.add(commonOptions).add (commandLineOptions).add(hiddenOptions);
+    return options;
+}
+
+void storeIniOptions (
+    const string& iniFileName, const string& simulationName,
+    const vector<string>& names, const vector<string>& parameters, 
+    string* iniFilter,
+    po::options_description& options,
+    po::positional_options_description& positionalOptions,
+    po::options_description& iniOptions,
+    po::variables_map* vm)
+{
+    ifstream iniStream (iniFileName.c_str ());
+    if (iniStream.fail ())
+    {
+	cerr << "Cannot open \"" << iniFileName << "\" for reading." << endl;
+	exit (13);
+    }
+    size_t i;
+    string visParameters;
+    po::store (po::parse_config_file (iniStream, iniOptions), *vm);
+    po::notify(*vm);
+    if (vm->count (Option::m_name[Option::SIMULATION]))
+    {
+	vector<string>::const_iterator it = find (
+	    names.begin (), names.end (), simulationName);
+	if (it == names.end ())
+	{
+	    cerr << "Cannot find " << simulationName 
+		 << " in the ini file." << endl;
+	    exit (13);
+	}
+	i = it - names.begin ();
+    }
+    else
+    {
+	// browse simulations and choose a name.
+	BrowseSimulations browseSimulations (names);
+	if (browseSimulations.exec () == QDialog::Accepted)
+	{
+	    i = browseSimulations.GetIndex ();
+	    *iniFilter = browseSimulations.GetFilter ();
+	}
+	else
+	    exit (0);
+    }
+    visParameters = parameters[i];
+    typedef boost::tokenizer< boost::escaped_list_separator<char> > 
+	Tokenizer;
+    boost::escaped_list_separator<char> els ('\\', ' ', '\"');
+    Tokenizer tok (visParameters, els);
+    vector<string> tokenizedVisParameters;
+    vector<char*> tvs;
+    tvs.push_back (0);
+    for (Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it)
+    {
+	tokenizedVisParameters.push_back (*it);
+	tvs.push_back (const_cast<char*> (
+			   (tokenizedVisParameters.end () - 1)->c_str ()));
+	//cout << *(tvs.end () - 1) << endl;
+    }
+    tvs.push_back (0);
+    po::store (po::command_line_parser (tvs.size () - 1, &tvs[0]).
+	       options (options).positional (positionalOptions).run (), *vm);
+    po::notify (*vm);
+}
+
+
+void filterAndExpandWildcards (vector<string>* fileNames, const string& filter)
+{
+    QFileInfo fileInfo (QString::fromStdString ((*fileNames)[0]));
+    QString path = fileInfo.path ();
+    QString fileName = fileInfo.fileName ();
+    int questionMarkIndex = fileName.lastIndexOf ('?');
+    int filterLength = filter.length ();
+    for (int i = 0; i < filterLength; ++i)
+    {
+	if (fileName[questionMarkIndex - i] == '?')
+	    fileName[questionMarkIndex - i] = filter[filterLength - 1 - i];
+	else
+	    break;
+    }
+    QDir dir (path, fileName);
+    QStringList fns = dir.entryList ();
+    fileNames->resize (fns.size ());
+    vector<string>::iterator itDest = fileNames->begin ();
+    QStringList::const_iterator itSrc = fns.constBegin ();
+    while (itSrc != fns.constEnd ())
+    {
+	QString full = path + "/" + *itSrc;
+	*itDest = full.toAscii ().constData ();
+	++itSrc;
+	++itDest;
+    }
+}
+
+
+void parseOptions (
+    int argc, char *argv[], string* t1sFile,
+    vector<string>* fileNames, ConstraintRotationNames* constraintRotationNames,
+    vector<ForceNames>* forcesNames, po::variables_map* vm)
+{
+    vector<string> names, parameters;
+    string iniFileName, simulationName, iniFilter;
+    po::options_description commandLineOptions = getCommandLineOptions (
+	&iniFileName, &simulationName, &iniFilter);
+    po::options_description commonOptions = getCommonOptions (
+	t1sFile, constraintRotationNames, forcesNames);
+    po::options_description iniOptions = getIniOptions (
+	&names, &parameters);
+    po::options_description options = getOptions (
+	fileNames, commonOptions, commandLineOptions);
     po::positional_options_description positionalOptions;
-    positionalOptions.add(Option::m_name[Option::DMP_FILES], -1);
+    positionalOptions.add (Option::m_name[Option::DMP_FILES], -1);
+
     po::store(po::command_line_parser (argc, argv).
 	      options (options).positional (positionalOptions).run (), *vm);
     po::notify(*vm);
     if (vm->count (Option::m_name[Option::INI_FILE]))
     {
-	ifstream iniStream (iniFileName.c_str ());
-	if (iniStream.fail ())
-	{
-	    cerr << "Cannot open " << iniFileName << " for reading." << endl;
-	    exit (13);
-	}
-	string visParameters;
-	po::store (po::parse_config_file (iniStream, iniOptions), *vm);
-	if (vm->count (Option::m_name[Option::SIMULATION]))
-	{
-	    vector<string>::const_iterator it = find (
-		names.begin (), names.end (), simulationName);
-	    if (it == names.end ())
-	    {
-		cerr << "Cannot find " << simulationName << " in the ini file.";
-		exit (13);
-	    }
-	    size_t i = it - names.begin ();
-	    visParameters = parameters[i];
-	}
-	else
-	{
-	    // browse simulations and choose a name.
-	}
-	boost::tokenizer<> tok (visParameters);
-	for(boost::tokenizer<>::iterator it = tok.begin(); 
-	    it != tok.end(); ++it)
-	    cout << *it << endl;
+	storeIniOptions (
+	    iniFileName, simulationName, names, parameters, &iniFilter,
+	    options, positionalOptions, iniOptions, vm);
+	filterAndExpandWildcards (fileNames, iniFilter);
     }
+
     if (constraintRotationNames->m_constraintIndex != INVALID_INDEX)
 	--constraintRotationNames->m_constraintIndex;
     if (vm->count (Option::m_name[Option::HELP])) 
@@ -330,6 +426,12 @@ int main(int argc, char *argv[])
 	ConstraintRotationNames constraintRotationNames;
 	vector<ForceNames> forcesNames;
 	po::variables_map vm;
+	QCoreApplication::setOrganizationName ("Swansea University");
+	QCoreApplication::setOrganizationDomain ("www.swansea.ac.uk");
+	QCoreApplication::setApplicationName ("FoamVis");
+	boost::shared_ptr<Application> app = Application::Get (
+	    argc, argv);
+
 
 	parseOptions (argc, argv, 
 		      &t1sFile, &fileNames, &constraintRotationNames,
@@ -355,11 +457,6 @@ int main(int argc, char *argv[])
 	    else
 	    {
 		int result;
-		QCoreApplication::setOrganizationName ("Swansea University");
-		QCoreApplication::setOrganizationDomain ("www.swansea.ac.uk");
-		QCoreApplication::setApplicationName ("FoamVis");
-		boost::shared_ptr<Application> app = Application::Get (
-		    argc, argv);
 		MainWindow window (foamAlongTime);
 		window.show();
 		result = app->exec();

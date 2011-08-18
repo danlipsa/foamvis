@@ -304,6 +304,17 @@ string ColorToHtml (const QColor& color, const char* text)
 }
 
 
+// Conversions Qt - stl
+// ======================================================================
+QStringList ToQStringList (const vector<string>& v)
+{
+    QStringList list;
+    BOOST_FOREACH (string s, v)
+	list << QString::fromStdString (s);
+    return list;
+}
+
+
 // Container algorithms
 // ======================================================================
 

@@ -107,6 +107,9 @@ int OpenGlToQt (int h, int windowHeight);
 
 string ColorToHtml (const QColor& color, const char* text);
 
+// Conversions Qt - stl
+QStringList ToQStringList (const vector<string>& v);
+
 
 // Container algorithms
 // ======================================================================

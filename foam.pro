@@ -1,7 +1,7 @@
 HEADERS += Application.h ApproximationEdge.h \
 	Attribute.h AttributeCreator.h AttributeInfo.h \
 	AttributeHistogram.h Average.h AverageInterface.h\
-	AverageShaders.h Body.h \
+	AverageShaders.h Body.h BrowseSimulations.h\
 	BodyAlongTime.h AdjacentBody.h BodySelector.h ConstraintRotation.h \
 	ConstraintEdge.h ColorBarModel.h Comparisons.h Debug.h \
 	DebugStream.h Disk.h ImageBasedAverage.h ForceAverage.h\
@@ -10,7 +10,7 @@ HEADERS += Application.h ApproximationEdge.h \
 	SelectBodiesById.h EditColorMap.h Edge.h Element.h ExpressionTree.h \
 	Enums.h Foam.h FoamAlongTime.h FoamParameters.h Face.h Force.h\
 	GLWidget.h Hashes.h Histogram.h HistogramItem.h HistogramHeight.h\
-	HistogramStatistics.h \
+	HistogramStatistics.h ListViewChange.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
 	OOBox.h Info.h OpenGLUtils.h OrientedElement.h\
 	OrientedEdge.h OrientedFace.h AdjacentOrientedFace.h \
@@ -25,6 +25,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
 	AttributeHistogram.cpp Average.cpp AverageShaders.cpp \
 	Body.cpp BodyAlongTime.cpp AdjacentBody.cpp BodySelector.cpp\
+	BrowseSimulations.cpp \
 	ConstraintEdge.cpp ColorBarModel.cpp Comparisons.cpp \
 	DebugStream.cpp Disk.cpp DisplayBodyFunctors.cpp \
 	ImageBasedAverage.cpp DisplayFaceFunctors.cpp \
@@ -45,8 +46,8 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	StripIterator.cpp TimeStepsSlider.cpp \
 	TransferFunctionHistogram.cpp TensorAverage.cpp \
 	Utils.cpp Vertex.cpp ViewSettings.cpp
-FORMS += SelectBodiesById.ui EditColorMap.ui HistogramHeight.ui \
-	 RestrictedRangeSlider.ui MainWindow.ui Info.ui
+FORMS += BrowseSimulations.ui SelectBodiesById.ui EditColorMap.ui \
+	 HistogramHeight.ui RestrictedRangeSlider.ui MainWindow.ui Info.ui
 LEXSOURCES        += EvolverData.l
 YACCSOURCES       += EvolverData.y
 RESOURCES          = foam.qrc
