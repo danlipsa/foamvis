@@ -432,6 +432,8 @@ G3D::Matrix3 ViewSettings::GetRotationForAxesOrder (const Foam& foam) const
 	return getRotation2DTimeDisplacement ();
     case AxesOrder::TWO_D_ROTATE_RIGHT90:
 	return getRotation2DRight90 ();
+    case AxesOrder::TWO_D_ROTATE_LEFT90:
+	return getRotation2DLeft90 ();
     case AxesOrder::THREE_D:
 	return getRotation3D (foam);
     default:
@@ -457,6 +459,16 @@ G3D::Matrix3 ViewSettings::getRotation2DRight90 ()
      * z        z
      */
     return G3D::Matrix3 (0, 1, 0,  -1, 0, 0,  0, 0, 1);
+}
+
+G3D::Matrix3 ViewSettings::getRotation2DLeft90 ()
+{
+    /**
+     *  y       x
+     *    x ->     -y
+     * z        z
+     */
+    return G3D::Matrix3 (0, -1, 0,  1, 0, 0,  0, 0, 1);
 }
 
 

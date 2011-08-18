@@ -215,11 +215,12 @@ struct AxesOrder
 	 */
 	TWO_D_TIME_DISPLACEMENT,
 	/**
-	 *  z
+	 * -x
 	 *    y
-	 * x
+	 * z
 	 */
 	TWO_D_ROTATE_RIGHT90,
+	TWO_D_ROTATE_LEFT90,
 	/**
 	 *  z
 	 *    y

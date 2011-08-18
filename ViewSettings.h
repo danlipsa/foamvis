@@ -398,6 +398,7 @@ public:
 private:
     static G3D::Matrix3 getRotation2DTimeDisplacement ();
     static G3D::Matrix3 getRotation2DRight90 ();
+    static G3D::Matrix3 getRotation2DLeft90 ();
 
     void initTexture ();
     void initList ();

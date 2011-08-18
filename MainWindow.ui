@@ -972,6 +972,11 @@
                  </item>
                  <item>
                   <property name="text">
+                   <string>2D rotate left 90</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
                    <string>3D</string>
                   </property>
                  </item>
