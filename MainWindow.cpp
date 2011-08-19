@@ -296,6 +296,9 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::THREE_D);
 	comboBoxColor->setCurrentIndex (FaceProperty::DMP_COLOR);
     }
+    checkBoxT1sShiftLower->setChecked (
+	widgetGl->GetFoamAlongTime ().GetT1sShiftLower () == 1);
+
 }
 
 

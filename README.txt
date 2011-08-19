@@ -213,7 +213,7 @@ Release log
 	 - allow a face made of two quadratic edges (fixes 
 	   ctrctndumps_725v_0.1480_0.2400_9.0000_rupt_v1/
 	   dump_0.1480_0.2400_9.0000_0171.dmp)
-	 - reading command line from ini file + browsing simulations
+	 - reading command parameters from ini file + browsing simulations
 0.5.2062 - added axes labels (Show > Ohter > Axes)
 	 - added right-click > Info > Face and Info > Edge
 	 - added --constraint option, to specify an object described

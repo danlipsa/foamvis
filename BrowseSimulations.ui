@@ -98,10 +98,10 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>comboBoxLabel</tabstop>
   <tabstop>listViewSimulation</tabstop>
   <tabstop>lineEditFilter</tabstop>
   <tabstop>buttonBox</tabstop>
+  <tabstop>comboBoxLabel</tabstop>
  </tabstops>
  <resources/>
  <connections>

@@ -167,13 +167,13 @@ public:
      * Has to be called after parsing the DMP files.
      *
      */
-    void ReadT1s (const string& fileName, size_t timeSteps);
+    void ReadT1s (const string& fileName, size_t timeSteps, bool shiftT1sLower);
     bool T1sAvailable () const;
-    void SetT1sShift (int i)
+    void SetT1sShiftLower (int i)
     {
 	m_t1sTimestepShift = i;
     }
-    int GetT1sShift () const
+    int GetT1sShiftLower () const
     {
 	return m_t1sTimestepShift;
     }

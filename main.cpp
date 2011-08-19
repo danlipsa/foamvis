@@ -34,6 +34,7 @@ struct Option
 	PARAMETERS,
 	SIMULATION,
 	T1S,
+	T1S_LOWER,
 	USE_ORIGINAL,
 	VERSION
     };
@@ -58,6 +59,7 @@ const char* Option::m_name[] = {
     "parameters",
     "simulation",
     "t1s",
+    "t1s-lower",
     "use-original",
     "version"
 };
@@ -194,6 +196,8 @@ po::options_description getCommonOptions (
 	 "arg=<file> where <file> specifies a text file with "
 	 "T1 times and positions. Reading T1s won't work if you "
 	 "skip time steps")
+	(Option::m_name[Option::T1S_LOWER],
+	 "Shift T1s one time step lower.")
 	(Option::m_name[Option::USE_ORIGINAL], "uses the ORIGINAL atribute "
 	 "to figure out the body id.")
 	;
@@ -238,8 +242,7 @@ po::options_description getCommandLineOptions (
 }
 
 po::options_description getIniOptions (
-    vector<string>* names, 
-    vector<Labels>* labels, vector<string>* parameters)
+    vector<string>* names, vector<Labels>* labels, vector<string>* parameters)
 {
     po::options_description iniOptions (
 	"INI_OPTIONS: (see simulations.ini for an example)");
@@ -286,7 +289,7 @@ po::options_description getOptions (
 void storeIniOptions (
     const string& iniFileName, const string& simulationName,
     const vector<string>& names, const vector<Labels>& labels, 
-    const vector<string>& parameters, 
+    const vector<string>& parametersArray, 
     string* iniFilter,
     po::options_description& options,
     po::positional_options_description& positionalOptions,
@@ -300,7 +303,7 @@ void storeIniOptions (
 	exit (13);
     }
     size_t i;
-    string visParameters;
+    string parameters;
     po::store (po::parse_config_file (iniStream, iniOptions), *vm);
     po::notify(*vm);
     if (vm->count (Option::m_name[Option::SIMULATION]))
@@ -327,19 +330,19 @@ void storeIniOptions (
 	else
 	    exit (0);
     }
-    visParameters = parameters[i];
+    parameters = parametersArray[i];
     typedef boost::tokenizer< boost::escaped_list_separator<char> > 
 	Tokenizer;
     boost::escaped_list_separator<char> els ('\\', ' ', '\"');
-    Tokenizer tok (visParameters, els);
-    vector<string> tokenizedVisParameters;
+    Tokenizer tok (parameters, els);
+    vector<string> tokenizedParameters;
     vector<char*> tvs;
     tvs.push_back (0);
     for (Tokenizer::iterator it = tok.begin(); it != tok.end(); ++it)
     {
-	tokenizedVisParameters.push_back (*it);
+	tokenizedParameters.push_back (*it);
 	tvs.push_back (const_cast<char*> (
-			   (tokenizedVisParameters.end () - 1)->c_str ()));
+			   (tokenizedParameters.end () - 1)->c_str ()));
 	//cout << *(tvs.end () - 1) << endl;
     }
     tvs.push_back (0);
@@ -383,7 +386,7 @@ void parseOptions (
     vector<string>* fileNames, ConstraintRotationNames* constraintRotationNames,
     vector<ForceNames>* forcesNames, po::variables_map* vm)
 {
-    vector<string> names, parameters;
+    vector<string> names, parametersArray;
     vector<Labels> labels;
     string iniFileName, simulationName, iniFilter;
     po::options_description commandLineOptions = getCommandLineOptions (
@@ -391,7 +394,7 @@ void parseOptions (
     po::options_description commonOptions = getCommonOptions (
 	t1sFile, constraintRotationNames, forcesNames);
     po::options_description iniOptions = getIniOptions (
-	&names, &labels, &parameters);
+	&names, &labels, &parametersArray);
     po::options_description options = getOptions (
 	fileNames, commonOptions, commandLineOptions);
     po::positional_options_description positionalOptions;
@@ -403,7 +406,8 @@ void parseOptions (
     if (vm->count (Option::m_name[Option::INI_FILE]))
     {
 	storeIniOptions (
-	    iniFileName, simulationName, names, labels, parameters, &iniFilter,
+	    iniFileName, simulationName, names, labels, parametersArray, 
+	    &iniFilter,
 	    options, positionalOptions, iniOptions, vm);
 	filterAndExpandWildcards (fileNames, iniFilter);
     }
@@ -465,7 +469,9 @@ int main(int argc, char *argv[])
 	    vm.count (Option::m_name[Option::DEBUG_SCANNING]));
 	size_t timeSteps = foamAlongTime.GetTimeSteps ();
 	if (vm.count (Option::m_name[Option::T1S]))
-	    foamAlongTime.ReadT1s (t1sFile, timeSteps);
+	    foamAlongTime.ReadT1s (
+		t1sFile, timeSteps, 
+		vm.count (Option::m_name[Option::T1S_LOWER]));
         if (timeSteps == 0)
 	{
 	    cdbg << "Error: The patern provided does not match any file" 

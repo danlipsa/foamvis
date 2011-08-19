@@ -464,7 +464,8 @@ bool FoamAlongTime::T1sAvailable () const
     return false;
 }
 
-void FoamAlongTime::ReadT1s (const string& fileName, size_t timeSteps)
+void FoamAlongTime::ReadT1s (const string& fileName, size_t timeSteps, 
+			     bool shiftT1sLower)
 {
     cdbg << "Parsing T1s file..." << endl;
     const size_t LINE_LENGTH = 256;
@@ -492,6 +493,7 @@ void FoamAlongTime::ReadT1s (const string& fileName, size_t timeSteps)
 	    break;
 	m_t1s[timeStep].push_back (G3D::Vector3 (x, y, Foam::Z_COORDINATE_2D));
     }
+    SetT1sShiftLower (shiftT1sLower);
 }
 
 const vector<G3D::Vector3>& FoamAlongTime::GetT1s (size_t timeStep) const

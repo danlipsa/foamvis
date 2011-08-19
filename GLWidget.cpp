@@ -3174,9 +3174,9 @@ void GLWidget::ToggledT1sShown (bool checked)
 void GLWidget::ToggledT1sShiftLower (bool checked)
 {
     if (checked)
-	GetFoamAlongTime ().SetT1sShift (1);
+	GetFoamAlongTime ().SetT1sShiftLower (1);
     else
-	GetFoamAlongTime ().SetT1sShift (0);
+	GetFoamAlongTime ().SetT1sShiftLower (0);
     update ();
 }
 
