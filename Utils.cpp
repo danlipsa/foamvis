@@ -389,7 +389,7 @@ QString ReadShader (const QString& resourceUrl)
     QFile file (resourceUrl);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
 	ThrowException ("Invalid resource: ", 
-			resourceUrl.toAscii ().constData ());
+			resourceUrl.toStdString ());
     QTextStream in (&file);
     return in.readAll ();
 }

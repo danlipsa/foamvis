@@ -469,8 +469,10 @@ void FoamAlongTime::ReadT1s (const string& fileName, size_t timeSteps)
     cdbg << "Parsing T1s file..." << endl;
     const size_t LINE_LENGTH = 256;
     ifstream in;
-    in.exceptions (ios::failbit | ios::badbit);
     in.open (fileName.c_str ());
+    if (! in)
+	ThrowException ("Cannot open \"" + fileName + "\"");
+    in.exceptions (ios::failbit | ios::badbit);
     size_t timeStep;
     float x, y;
     if (m_t1s.size () < timeSteps)
@@ -517,11 +519,18 @@ void FoamAlongTime::ParseFiles (
     copy (forcesNames.begin (), forcesNames.end (), m_forcesNames.begin ());
     QFileInfo fileInfo (fileNames[0].c_str ());
     dir = fileInfo.absoluteDir ();
+    if (! dir.exists ())
+	ThrowException ("Directory does not exist: \"" + 
+			dir.path ().toStdString () + "\"");
     BOOST_FOREACH (const string& fn, fileNames)
 	files << QFileInfo(fn.c_str ()).fileName ();
+    if (files.size () == 0)
+	ThrowException (
+	    "No files match: \"" + 
+	    fileInfo.filePath ().toStdString () + "\"");
     filePattern = string (
 	(lastName (dir.absolutePath ()) + 
-	 '/' + fileInfo.fileName ()).toAscii ());
+	 '/' + fileInfo.fileName ()).toStdString ());
 
     SetTimeSteps (files.size ());
     SetFilePattern (filePattern);

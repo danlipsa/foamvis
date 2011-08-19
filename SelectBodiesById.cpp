@@ -21,7 +21,7 @@ SelectBodiesById::SelectBodiesById (QWidget* parent) :
 void SelectBodiesById::UpdateLabelMinMax ()
 {
     ostringstream instructions;
-    instructions << labelInstructions->text ().toAscii ().data ()
+    instructions << labelInstructions->text ().toStdString ()
 		 << m_minBodyId << " to " << m_maxBodyId << ".";
     labelInstructions->setText (instructions.str ().c_str ());    
 }

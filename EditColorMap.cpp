@@ -30,7 +30,8 @@ void EditColorMap::SetData (
     m_colorBarModel = colorBarModel;
     comboBoxPalette->setCurrentIndex (m_colorBarModel.GetPalette ());
     widgetHistogram->SetDataAllBinsSelected (
-	intervalData, maxValue, m_colorBarModel.GetTitle ().toAscii ());
+	intervalData, maxValue, 
+	m_colorBarModel.GetTitle ().toStdString ().c_str ());
     widgetHistogram->SetColorMap (
 	m_colorBarModel.GetInterval (), m_colorBarModel.GetColorMap ());
     widgetHistogram->SetGridEnabled (gridEnabled);

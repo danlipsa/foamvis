@@ -11,21 +11,34 @@
 
 #include "ui_BrowseSimulations.h"
 
+struct Labels
+{
+    vector<string> m_values;
+};
+
 class BrowseSimulations : 
     public QDialog, private Ui::BrowseSimulations
 {
 public:
-    BrowseSimulations (const vector<string>& names, QWidget* parent = 0);
+    BrowseSimulations (
+	const vector<string>& names, const vector<Labels>& labels, 
+	QWidget* parent = 0);
     size_t GetIndex () const;
     string GetFilter () const;
 
 public Q_SLOTS:
-    void CurrentChanged (int row);
+    void CurrentChangedSimulation (int row);
+    void CurrentIndexChangedLabel(QString);
+
+private:
+    static const char* LABEL_ALL;
 
 private:
     Q_OBJECT
     QStringListModel m_model;
-    vector<string> m_names;
+    QStringList m_selectedNames;
+    const vector<string>& m_names;
+    const vector<Labels>& m_labels;
 };
 
 

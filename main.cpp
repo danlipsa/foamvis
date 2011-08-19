@@ -28,6 +28,7 @@ struct Option
 	INI_FILE,
 	INI_FILTER,
 	NAME,
+	LABELS,
 	ORIGINAL_PRESSURE,
 	OUTPUT_TEXT,
 	PARAMETERS,
@@ -51,6 +52,7 @@ const char* Option::m_name[] = {
     "ini-file",
     "ini-filter",
     "name",
+    "labels",
     "original-pressure",
     "output-text",
     "parameters",
@@ -121,6 +123,18 @@ void validate(boost::any& v, const std::vector<std::string>& values,
     readStringToken (&fn.m_pressureForceName[0], &it);
     readStringToken (&fn.m_pressureForceName[1], &it);
     v = boost::any(fn);    
+}
+
+void validate(boost::any& v, const std::vector<std::string>& values,
+              Labels* ignore1, int ignore2)
+{
+    (void)ignore1;(void)ignore2;
+    Labels labels;
+    boost::tokenizer<> tok (values[0]);
+    for (boost::tokenizer<>::iterator it = tok.begin ();
+	 it != tok.end (); ++it)
+	labels.m_values.push_back (*it);
+    v = boost::any(labels);
 }
 
 void printVersion ()
@@ -224,7 +238,8 @@ po::options_description getCommandLineOptions (
 }
 
 po::options_description getIniOptions (
-    vector<string>* names, vector<string>* parameters)
+    vector<string>* names, 
+    vector<Labels>* labels, vector<string>* parameters)
 {
     po::options_description iniOptions (
 	"INI_OPTIONS: (see simulations.ini for an example)");
@@ -234,6 +249,11 @@ po::options_description getIniOptions (
 	 "name of a simulation.\n"
 	 "arg=<simulationName> A JPG file <simulationName>.jpg is "
 	 "read from the same folder as the ini file.")
+	(Option::m_name[Option::LABELS], 
+	 po::value< vector<Labels> >(labels), 
+	 "labels for the simulation.\n"
+	 "arg=<labels> where labels is a comma separated list of labels. "
+	 "You can use labels to group related simulations.")
 	(Option::m_name[Option::PARAMETERS], 
 	 po::value< vector<string> >(parameters), 
 	 "foamvis parameters.\n"
@@ -265,7 +285,8 @@ po::options_description getOptions (
 
 void storeIniOptions (
     const string& iniFileName, const string& simulationName,
-    const vector<string>& names, const vector<string>& parameters, 
+    const vector<string>& names, const vector<Labels>& labels, 
+    const vector<string>& parameters, 
     string* iniFilter,
     po::options_description& options,
     po::positional_options_description& positionalOptions,
@@ -297,7 +318,7 @@ void storeIniOptions (
     else
     {
 	// browse simulations and choose a name.
-	BrowseSimulations browseSimulations (names);
+	BrowseSimulations browseSimulations (names, labels);
 	if (browseSimulations.exec () == QDialog::Accepted)
 	{
 	    i = browseSimulations.GetIndex ();
@@ -350,7 +371,7 @@ void filterAndExpandWildcards (vector<string>* fileNames, const string& filter)
     while (itSrc != fns.constEnd ())
     {
 	QString full = path + "/" + *itSrc;
-	*itDest = full.toAscii ().constData ();
+	*itDest = full.toStdString ();
 	++itSrc;
 	++itDest;
     }
@@ -363,13 +384,14 @@ void parseOptions (
     vector<ForceNames>* forcesNames, po::variables_map* vm)
 {
     vector<string> names, parameters;
+    vector<Labels> labels;
     string iniFileName, simulationName, iniFilter;
     po::options_description commandLineOptions = getCommandLineOptions (
 	&iniFileName, &simulationName, &iniFilter);
     po::options_description commonOptions = getCommonOptions (
 	t1sFile, constraintRotationNames, forcesNames);
     po::options_description iniOptions = getIniOptions (
-	&names, &parameters);
+	&names, &labels, &parameters);
     po::options_description options = getOptions (
 	fileNames, commonOptions, commandLineOptions);
     po::positional_options_description positionalOptions;
@@ -381,7 +403,7 @@ void parseOptions (
     if (vm->count (Option::m_name[Option::INI_FILE]))
     {
 	storeIniOptions (
-	    iniFileName, simulationName, names, parameters, &iniFilter,
+	    iniFileName, simulationName, names, labels, parameters, &iniFilter,
 	    options, positionalOptions, iniOptions, vm);
 	filterAndExpandWildcards (fileNames, iniFilter);
     }
@@ -418,6 +440,11 @@ void parseOptions (
  */
 int main(int argc, char *argv[])
 {
+    QCoreApplication::setOrganizationName ("Swansea University");
+    QCoreApplication::setOrganizationDomain ("www.swansea.ac.uk");
+    QCoreApplication::setApplicationName ("FoamVis");
+    boost::shared_ptr<Application> app = Application::Get (
+	argc, argv);
     try
     {
 	FoamAlongTime foamAlongTime;
@@ -426,53 +453,45 @@ int main(int argc, char *argv[])
 	ConstraintRotationNames constraintRotationNames;
 	vector<ForceNames> forcesNames;
 	po::variables_map vm;
-	QCoreApplication::setOrganizationName ("Swansea University");
-	QCoreApplication::setOrganizationDomain ("www.swansea.ac.uk");
-	QCoreApplication::setApplicationName ("FoamVis");
-	boost::shared_ptr<Application> app = Application::Get (
-	    argc, argv);
-
 
 	parseOptions (argc, argv, 
 		      &t1sFile, &fileNames, &constraintRotationNames,
 		      &forcesNames,
 		      &vm);	
 	foamAlongTime.ParseFiles (
-	    fileNames,
-	    vm.count (Option::m_name[Option::USE_ORIGINAL]),
-	    constraintRotationNames,
-	    forcesNames,
+	    fileNames, vm.count (Option::m_name[Option::USE_ORIGINAL]),
+	    constraintRotationNames, forcesNames,
 	    vm.count (Option::m_name[Option::DEBUG_PARSING]), 
 	    vm.count (Option::m_name[Option::DEBUG_SCANNING]));
 	size_t timeSteps = foamAlongTime.GetTimeSteps ();
 	if (vm.count (Option::m_name[Option::T1S]))
 	    foamAlongTime.ReadT1s (t1sFile, timeSteps);
-        if (timeSteps != 0)
-        {
-	    foamAlongTime.SetAdjustPressure (
-		! vm.count (Option::m_name[Option::ORIGINAL_PRESSURE]));
-	    foamAlongTime.Preprocess ();
-	    if (vm.count (Option::m_name[Option::OUTPUT_TEXT]))
-		cdbg << foamAlongTime;
-	    else
-	    {
-		int result;
-		MainWindow window (foamAlongTime);
-		window.show();
-		result = app->exec();
-		app->release ();
-		return result;
-	    }
-            return 0;
-        }
-	else
+        if (timeSteps == 0)
 	{
 	    cdbg << "Error: The patern provided does not match any file" 
 		 << endl;
+	    exit (13);
 	}
+
+	foamAlongTime.SetAdjustPressure (
+	    ! vm.count (Option::m_name[Option::ORIGINAL_PRESSURE]));
+	foamAlongTime.Preprocess ();
+	if (vm.count (Option::m_name[Option::OUTPUT_TEXT]))
+	    cdbg << foamAlongTime;
+	else
+	{
+	    int result;
+	    MainWindow window (foamAlongTime);
+	    window.show();
+	    result = app->exec();
+	    app->release ();
+	    return result;
+	}
+	return 0;
     }
     catch (const exception& e)
     {
 	cdbg << "Exception: " << e.what () << endl;
+	exit (13);
     }
 }

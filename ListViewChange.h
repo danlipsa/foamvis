@@ -23,7 +23,7 @@ protected:
     virtual void currentChanged (const QModelIndex& current, 
 				 const QModelIndex& previous)
     {
-	(void)previous;
+	QListView::currentChanged (current, previous);
 	Q_EMIT CurrentChanged (current.row ());
     }
 
