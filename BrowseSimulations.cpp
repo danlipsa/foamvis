@@ -35,18 +35,6 @@ BrowseSimulations::BrowseSimulations (
 	comboBoxLabel->addItem (label.c_str ());
 }
 
-void BrowseSimulations::CurrentChangedSimulation (int row)
-{
-    QString fileName = 
-	"simulations/" + m_selectedNames[row] + ".jpg";
-    QPixmap pixmap (fileName);
-    if (pixmap.isNull ())
-	labelImage->setText ("Invalid file: " + fileName);
-    else
-	labelImage->setPixmap (pixmap);
-    update ();
-}
-
 size_t BrowseSimulations::GetIndex () const
 {
     size_t index = listViewSimulation->currentIndex ().row ();
@@ -63,15 +51,33 @@ string BrowseSimulations::GetFilter () const
     return string (lineEditFilter->text ().toAscii ().constData ());
 }
 
+// Slots
+// ======================================================================
+
+void BrowseSimulations::CurrentChangedSimulation (int row)
+{
+    QString fileName = 
+	"simulations/" + m_selectedNames[row] + ".jpg";
+    QPixmap pixmap (fileName);
+    if (pixmap.isNull ())
+	labelImage->setText ("Invalid file: " + fileName);
+    else
+	labelImage->setPixmap (pixmap);
+    update ();
+}
+
+
 void BrowseSimulations::CurrentIndexChangedLabel(QString label)
 {
+    m_selectedNames.clear ();
     if (label == LABEL_ALL)
     {
 	m_model.setStringList (ToQStringList (m_names));
+	BOOST_FOREACH (string name, m_names)
+	    m_selectedNames << name.c_str ();
     }
     else
     {
-	m_selectedNames.clear ();
 	for (size_t i = 0; i < m_names.size (); ++i)
 	{
 	    Labels labels = m_labels[i];
@@ -82,4 +88,8 @@ void BrowseSimulations::CurrentIndexChangedLabel(QString label)
 	m_model.setStringList (m_selectedNames);
     }
     update ();
+    listViewSimulation->selectionModel ()->select (
+	m_model.index (0), QItemSelectionModel::Select);
+    CurrentChangedSimulation (0);
+    listViewSimulation->setFocus (Qt::OtherFocusReason);
 }

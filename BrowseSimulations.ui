@@ -50,6 +50,13 @@
          <item row="0" column="1">
           <widget class="QComboBox" name="comboBoxLabel"/>
          </item>
+         <item row="3" column="1">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Use ? to match any number.</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>

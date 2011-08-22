@@ -2892,18 +2892,18 @@ void GLWidget::ActivateShader (
     eyeTransform (viewNumber);
     if (angleDegrees != 0)
     {
-	//rotationCenter = G3D::Vector2 (.5, .25);
-	//cdbg << "rotationCenter: " << rotationCenter << endl;
 	G3D::Vector2 center = 
 	    (srcAABox.low ().xy () + srcAABox.high ().xy ()) / 2;
-	// why this?
-	G3D::Vector2 translation = 
-	    center + (rotationCenter - center + vs.GetTranslation ().xy ()) * 
+	G3D::Matrix3 rotation3 = vs.GetRotationForAxesOrder (GetCurrentFoam ());
+	G3D::Matrix2 rotation = ToMatrix2 (rotation3);
+	G3D::Vector2 translationFromCenter = 
+	    rotation * (rotationCenter - center + vs.GetTranslation ().xy ()) * 
 	    vs.GetScaleRatio ();
+	G3D::Vector2 translation = center + translationFromCenter;
 	glTranslate (translation);
 	glRotatef (angleDegrees, 0, 0, 1);	
 	glTranslate (- translation);
-    }    
+    }
     G3D::Rect2D srcRect = G3D::Rect2D::xyxy (srcAABox.low ().xy (), 
 					     srcAABox.high ().xy ());
     float z = (srcAABox.low ().z + srcAABox.high ().z) / 2;
