@@ -48,7 +48,7 @@ void ImageBasedAverage<PropertySetter>::Init (ViewNumber::Enum viewNumber)
     const ViewSettings& vs = GetGLWidget ().GetViewSettings (viewNumber);
     const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
     QSize size (viewRect.width (), viewRect.height ());
-    size *= vs.GetScaleRatio ();
+    //size *= vs.GetScaleRatio ();
     glPushAttrib (GL_COLOR_BUFFER_BIT);
     m_fbos.m_step.reset (
 	new QGLFramebufferObject (
