@@ -74,7 +74,8 @@ G3D::AABox EncloseRotation (const G3D::AABox& box)
     return G3D::AABox (center - halfDiagonal, center + halfDiagonal);
 }
 
-G3D::AABox AdjustZ (const G3D::AABox& b, double scaleRatio)
+G3D::AABox TranslateCameraOutside3DObject (
+    const G3D::AABox& b, double scaleRatio)
 {
     if (scaleRatio > 1)
     {
@@ -728,8 +729,10 @@ G3D::AABox GLWidget::calculateViewingVolume (
     double xOverY, double scaleRatio) const
 {
     G3D::AABox bb = GetFoamAlongTime ().GetBoundingBoxTorus ();
-    G3D::AABox vv = AdjustZ (AdjustXOverYRatio (EncloseRotation (bb), xOverY), 
-			     scaleRatio);
+    // TranslateCameraOutside3DObject is used for 3D, 
+    // so that you keep the 3D objects outside the camera
+    G3D::AABox vv = TranslateCameraOutside3DObject (
+	AdjustXOverYRatio (EncloseRotation (bb), xOverY), scaleRatio);
     return vv;
 }
 
@@ -761,7 +764,32 @@ G3D::AABox GLWidget::CalculateViewingVolume (ViewNumber::Enum viewNumber) const
     return calculateViewingVolume (xOverY, scaleRatio);
 }
 
-void GLWidget::projectionTransform (ViewNumber::Enum viewNumber) const
+void GLWidget::eyeTransform (ViewNumber::Enum viewNumber) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    glLoadIdentity ();
+    glTranslatef (0, 0, - vs.GetCameraDistance ());
+    glTranslate (- GetFoamAlongTime ().GetBoundingBoxTorus ().center ());
+}
+
+void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber, 
+				   size_t timeStep) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    glLoadIdentity ();
+    glTranslatef (0, 0, - vs.GetCameraDistance ());
+    if (vs.IsContextView ())
+	translateAndScale (vs.GetContextScaleRatio (), G3D::Vector3::zero (),
+			   false);
+    else
+	translateAndScale (vs.GetScaleRatio (), vs.GetTranslation (), 
+			   vs.IsContextView ());
+    const Foam& foam = GetFoamAlongTime ().GetFoam (0);
+    glMultMatrix (vs.GetRotationModel () * vs.GetRotationForAxesOrder (foam));
+    transformFoamAverageAround (viewNumber, timeStep);
+}
+
+void GLWidget::ProjectionTransform (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     G3D::AABox viewingVolume = CalculateEyeViewingVolume (viewNumber);
@@ -790,30 +818,6 @@ void GLWidget::viewportTransform (ViewNumber::Enum viewNumber) const
     glViewport (vs.GetViewport ());
 }
 
-void GLWidget::eyeTransform (ViewNumber::Enum viewNumber) const
-{
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    glLoadIdentity ();
-    glTranslatef (0, 0, - vs.GetCameraDistance ());
-    glTranslate (- GetFoamAlongTime ().GetBoundingBoxTorus ().center ());
-}
-
-void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber, 
-				   size_t timeStep) const
-{
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    glLoadIdentity ();
-    glTranslatef (0, 0, - vs.GetCameraDistance ());
-    if (vs.IsContextView ())
-	translateAndScale (vs.GetContextScaleRatio (), G3D::Vector3::zero (),
-			   false);
-    else
-	translateAndScale (vs.GetScaleRatio (), vs.GetTranslation (), 
-			   vs.IsContextView ());
-    const Foam& foam = GetFoamAlongTime ().GetFoam (0);
-    glMultMatrix (vs.GetRotationModel () * vs.GetRotationForAxesOrder (foam));
-    transformFoamAverageAround (viewNumber, timeStep);
-}
 
 G3D::Rect2D GLWidget::GetViewRect (ViewNumber::Enum view) const
 {
@@ -928,7 +932,7 @@ void GLWidget::ResetTransformFocus ()
     vs.SetRotationModel (G3D::Matrix3::identity ());
     vs.SetScaleRatio (1);
     vs.SetTranslation (G3D::Vector3::zero ());
-    projectionTransform (viewNumber);
+    ProjectionTransform (viewNumber);
     glLoadIdentity ();
     if (vs.GetViewType () == ViewType::FACES_STATISTICS)
     {
@@ -943,7 +947,7 @@ void GLWidget::ResetTransformContext ()
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings ();
     vs.SetContextScaleRatio (1);
-    projectionTransform (viewNumber);
+    ProjectionTransform (viewNumber);
     glLoadIdentity ();
     update ();
 }
@@ -1200,7 +1204,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetLightingParameters (getInitialLightPosition (vs.GetSelectedLight ()));
     viewportTransform (viewNumber);    
-    projectionTransform (viewNumber);
+    ProjectionTransform (viewNumber);
     ModelViewTransform (viewNumber, GetTime ());
     m_minimumEdgeRadius = GetOnePixelInObjectSpace ();
     calculateEdgeRadius (m_edgeRadiusRatio,
@@ -1452,7 +1456,7 @@ G3D::Vector3 GLWidget::toObjectTransform (const QPoint& position,
 					  ViewNumber::Enum viewNumber) const
 {
     viewportTransform (viewNumber);    
-    projectionTransform (viewNumber);
+    ProjectionTransform (viewNumber);
     ModelViewTransform (viewNumber, GetTime ());
     return toObject (position);
 }

@@ -45,8 +45,10 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::Init (ViewNumber::Enum viewNumber)
 {
     Average::Init (viewNumber);
+    const ViewSettings& vs = GetGLWidget ().GetViewSettings (viewNumber);
     const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
     QSize size (viewRect.width (), viewRect.height ());
+    size *= vs.GetScaleRatio ();
     glPushAttrib (GL_COLOR_BUFFER_BIT);
     m_fbos.m_step.reset (
 	new QGLFramebufferObject (
@@ -125,20 +127,20 @@ void ImageBasedAverage<PropertySetter>::addStep (
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, time);
-//     save (viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
-// 	  "step", time, minMax.first, minMax.second, StatisticsType::AVERAGE);
+    save (viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
+	   "step", time, minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     currentIsPreviousPlusStep (viewNumber);
-//     save (viewNumber, 
-// 	  make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
-// 	  "current", time, 
-// 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
+    save (viewNumber, 
+	   make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
+	   "current", time, 
+	   minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     copyCurrentToPrevious ();
-//     save (viewNumber, 
-// 	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
-// 	  "previous", time + 1,
-// 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
+    save (viewNumber, 
+	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
+	  "previous", time + 1,
+	  minMax.first, minMax.second, StatisticsType::AVERAGE);
     glPopAttrib ();
     WarnOnOpenGLError ("ImageBasedAverage::addStep:" + m_id);
 }

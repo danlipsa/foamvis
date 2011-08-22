@@ -168,6 +168,11 @@ public:
      */
     void ModelViewTransform (ViewNumber::Enum viewNumber, 
 			     size_t timeStep) const;
+    /**
+     * Setup the viewing volume first centered around origin and then 
+     * translated toward negative Z with m_cameraDistance.
+     */
+    void ProjectionTransform (ViewNumber::Enum viewNumber) const;
     size_t GetBodyOrFaceProperty () const
     {
 	return GetBodyOrFaceProperty (GetViewNumber ());
@@ -205,8 +210,10 @@ public:
     {
 	return m_ellipseSizeRatio;
     }
-    G3D::AABox CalculateEyeViewingVolume (ViewNumber::Enum viewNumber) const;
-    G3D::AABox CalculateViewingVolume (ViewNumber::Enum viewNumber) const;
+    G3D::AABox CalculateEyeViewingVolume (
+	ViewNumber::Enum viewNumber) const;
+    G3D::AABox CalculateViewingVolume (
+	ViewNumber::Enum viewNumber) const;
 
 Q_SIGNALS:
     void PaintedGL ();
@@ -390,12 +397,6 @@ private:
     void mouseMoveRotate (QMouseEvent *event);
     void mouseMoveTranslate (QMouseEvent *event);
     void mouseMoveScale (QMouseEvent *event);
-
-    /**
-     * Setup the viewing volume first centered around origin and then 
-     * translated toward negative Z with m_cameraDistance.
-     */
-    void projectionTransform (ViewNumber::Enum viewNumber) const;
     void viewportTransform (ViewNumber::Enum viewNumber) const;
     void eyeTransform (ViewNumber::Enum viewNumber) const;
     void setLight (int sliderValue, int maximumValue, 
