@@ -427,6 +427,18 @@ void SetCheckedNoSignals (QCheckBox* checkBox, bool checked)
     checkBox->blockSignals (false);    
 }
 
+G3D::Rect2D AreaFromView (
+    G3D::Rect2D viewRect,
+    boost::function<float (float first, float second)> minOrMax)
+{
+    float length = minOrMax (viewRect.width (), viewRect.height ());
+    G3D::Vector2 x0y0 = 
+	viewRect.center () - G3D::Vector2 (length / 2., length / 2.);
+    return G3D::Rect2D::xywh (x0y0, G3D::Vector2 (length, length));
+}
+
+
+
 // Template instantiations
 //======================================================================
 

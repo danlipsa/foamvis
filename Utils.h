@@ -149,7 +149,12 @@ const static size_t INVALID_INDEX = numeric_limits<size_t>::max ();
 
 QString ReadShader (const QString& resourceUrl);
 boost::shared_ptr<QGLShader> CreateShader (const QString& resourceUrl,
-					   QGLShader::ShaderType type);
+	
+				   QGLShader::ShaderType type);
+G3D::Rect2D AreaFromView (
+    G3D::Rect2D viewRect, 
+    boost::function<float (float first, float second)> minOrMax);
+
 
 //#define RESOURCE(name) ":/" name
 #define RESOURCE(name) name

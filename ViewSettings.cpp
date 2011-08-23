@@ -192,7 +192,7 @@ void ViewSettings::CalculateCameraDistance (
 	// distance from the camera to the middle of the bounding box
 	m_cameraDistance = diagonal.y / 2 /
 	    tan (GetAngleOfView () * M_PI / 360) + diagonal.z / 2;
-    }
+    }    
 }
 
 void ViewSettings::SetLightingParameters (

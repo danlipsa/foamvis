@@ -222,10 +222,10 @@ po::options_description getCommandLineOptions (
 	 "arg=<iniFileName>. See simulations.ini for an example.")
 	(Option::m_name[Option::INI_FILTER], 
 	 po::value<string>(iniFilter), 
-	 "Filter simulation DMPs specified in the ini file.\n"
+	 "Filter simulation DMPs.\n"
 	 "arg=<filter> where <filter> characters replace the question marks "
 	 "in the patern specified in the ini file staring with the least "
-	 "significant.For example, '1', results in the pattern '???1' which "
+	 "significant. For example, '1', results in the pattern '???1' which "
 	 "selects DMP files numbered 0001, 0011, 0021, ..., 0091, 0101, ...."
 	 "'0001' results in patern '0001' which selects only the DMP "
 	 "numbered 0001.")
@@ -233,9 +233,8 @@ po::options_description getCommandLineOptions (
 	 "outputs a text representation of the data")
 	(Option::m_name[Option::SIMULATION],
 	 po::value<string>(simulationName),
-	 "read visualization parameters from the ini file.\n"
-	 "arg=<simulation> where <simulation> is a name "
-	 "in the ini file specified with the ini-file option." )
+	 "parse the simulation files labeld by <name> in the ini file.\n"
+	 "arg=<name>." )
 	(Option::m_name[Option::VERSION], "prints version information")
 	;
     return commandLineOptions;

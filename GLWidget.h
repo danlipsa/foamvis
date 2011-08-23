@@ -173,6 +173,7 @@ public:
      * translated toward negative Z with m_cameraDistance.
      */
     void ProjectionTransform (ViewNumber::Enum viewNumber) const;
+    void ProjectionTransformExtendedVolume (ViewNumber::Enum viewNumber) const;
     size_t GetBodyOrFaceProperty () const
     {
 	return GetBodyOrFaceProperty (GetViewNumber ());
@@ -210,8 +211,6 @@ public:
     {
 	return m_ellipseSizeRatio;
     }
-    G3D::AABox CalculateEyeViewingVolume (
-	ViewNumber::Enum viewNumber) const;
     G3D::AABox CalculateViewingVolume (
 	ViewNumber::Enum viewNumber) const;
 
@@ -394,6 +393,7 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    G3D::AABox calculateEyeViewingVolume (ViewNumber::Enum viewNumber) const;
     void mouseMoveRotate (QMouseEvent *event);
     void mouseMoveTranslate (QMouseEvent *event);
     void mouseMoveScale (QMouseEvent *event);

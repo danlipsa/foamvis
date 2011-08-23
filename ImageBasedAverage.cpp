@@ -46,9 +46,11 @@ void ImageBasedAverage<PropertySetter>::Init (ViewNumber::Enum viewNumber)
 {
     Average::Init (viewNumber);
     const ViewSettings& vs = GetGLWidget ().GetViewSettings (viewNumber);
-    const G3D::Rect2D viewRect = GetGLWidget ().GetViewRect (viewNumber);
-    QSize size (viewRect.width (), viewRect.height ());
-    //size *= vs.GetScaleRatio ();
+    const G3D::Rect2D extendedArea = AreaFromView (
+	GetGLWidget ().GetViewRect (viewNumber), 
+	boost::function<float (float, float)> (std::max<float>));
+    QSize size (extendedArea.width (), extendedArea.height ());
+    size *= vs.GetScaleRatio ();
     glPushAttrib (GL_COLOR_BUFFER_BIT);
     m_fbos.m_step.reset (
 	new QGLFramebufferObject (
@@ -84,7 +86,7 @@ void ImageBasedAverage<PropertySetter>::Init (ViewNumber::Enum viewNumber)
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::clear (ViewNumber::Enum viewNumber)
 {
-    //const size_t FAKE_TIMESTEP = -1;
+    const size_t FAKE_TIMESTEP = -1;
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     m_fbos.m_step->bind ();
     ClearColorStencilBuffers (Qt::transparent, 0);
@@ -103,10 +105,10 @@ void ImageBasedAverage<PropertySetter>::clear (ViewNumber::Enum viewNumber)
 // 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
     
     initFramebuffer (viewNumber, m_fbos.m_previous);
-//     save (viewNumber, 
-// 	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
-// 	  "previous", FAKE_TIMESTEP + 1,
-// 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
+    save (viewNumber, 
+ 	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
+ 	  "previous", FAKE_TIMESTEP + 1,
+ 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
     WarnOnOpenGLError ("ImageBasedAverage::clear");
 }
 
@@ -175,11 +177,17 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::renderToStep (
     ViewNumber::Enum viewNumber, size_t time)
 {
-    G3D::Rect2D viewRect = GetGLWidget ().GetViewRect ();
-    //glMatrixMode (GL_MODELVIEW);
+    G3D::Rect2D extendedArea = AreaFromView (
+	GetGLWidget ().GetViewRect (viewNumber), 
+	boost::function<float (float, float)> (std::max<float>));
+    glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
     GetGLWidget ().ModelViewTransform (viewNumber, time);
-    glViewport (0, 0, viewRect.width (), viewRect.height ());
+    glMatrixMode (GL_PROJECTION);
+    glPushMatrix ();
+    GetGLWidget ().ProjectionTransformExtendedVolume (viewNumber);
+    glViewport (
+	0, 0, extendedArea.width (), extendedArea.height ());
     initFramebuffer (viewNumber, m_fbos.m_step);
     m_fbos.m_step->bind ();
     ClearColorStencilBuffers (Qt::transparent, 0);
@@ -187,6 +195,9 @@ void ImageBasedAverage<PropertySetter>::renderToStep (
     const Foam::Bodies& bodies = foam.GetBodies ();
     writeFacesValues (viewNumber, bodies);
     m_fbos.m_step->release ();
+    glMatrixMode (GL_PROJECTION);
+    glPopMatrix ();
+    glMatrixMode (GL_MODELVIEW);
     glPopMatrix ();
     WarnOnOpenGLError ("ImageBasedAverage::renderToStep:" + m_id);
 }

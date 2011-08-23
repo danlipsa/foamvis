@@ -57,9 +57,22 @@ G3D::AABox AdjustXOverYRatio (const G3D::AABox& box, double xOverY)
 	high = box.high ();
 	high.y = center.y + extentY / 2;
     }
-    G3D::AABox result = G3D::AABox (low, high);
+    G3D::AABox result (low, high);
     return result;
 }
+
+G3D::AABox ExtendMaxXY (const G3D::AABox& box)
+{
+    G3D::Vector3 center = box.center ();
+    G3D::Vector3 extent = box.extent ();
+    G3D::Vector3 low = box.low (), high = box.high ();
+    float length = max (extent.x, extent.y) / 2.0;
+    G3D::AABox result (
+	G3D::Vector3 (center.x - length, center.y - length, low.z),
+	G3D::Vector3 (center.x + length, center.y + length, high.z));
+    return result;
+}
+
 
 G3D::AABox EncloseRotation (const G3D::AABox& box)
 {
@@ -74,7 +87,7 @@ G3D::AABox EncloseRotation (const G3D::AABox& box)
     return G3D::AABox (center - halfDiagonal, center + halfDiagonal);
 }
 
-G3D::AABox TranslateCameraOutside3DObject (
+G3D::AABox ExtendAlongZFor3D (
     const G3D::AABox& b, double scaleRatio)
 {
     if (scaleRatio > 1)
@@ -726,31 +739,32 @@ void GLWidget::rotateAverageAround (
 }
 
 G3D::AABox GLWidget::calculateViewingVolume (
-    double xOverY, double scaleRatio) const
+    double xOverY, double extendAlongZRatio) const
 {
     G3D::AABox bb = GetFoamAlongTime ().GetBoundingBoxTorus ();
-    // TranslateCameraOutside3DObject is used for 3D, 
-    // so that you keep the 3D objects outside the camera
-    G3D::AABox vv = TranslateCameraOutside3DObject (
-	AdjustXOverYRatio (EncloseRotation (bb), xOverY), scaleRatio);
+    G3D::AABox vv = AdjustXOverYRatio (EncloseRotation (bb), xOverY);
+    if (! GetFoamAlongTime ().Is2D ())
+	// ExtendAlongZFor3D is used for 3D, 
+	// so that you keep the 3D objects outside the camera
+	vv = ExtendAlongZFor3D (vv, extendAlongZRatio);
     return vv;
 }
 
 G3D::AABox GLWidget::calculateCenteredViewingVolume (
-    double xOverY, double scaleRatio) const
+    double xOverY, double extendAlongZRatio) const
 {
-    G3D::AABox vv = calculateViewingVolume (xOverY, scaleRatio);
+    G3D::AABox vv = calculateViewingVolume (xOverY, extendAlongZRatio);
     return vv - vv.center ();
 }
 
-G3D::AABox GLWidget::CalculateEyeViewingVolume (
+G3D::AABox GLWidget::calculateEyeViewingVolume (
     ViewNumber::Enum viewNumber) const
 {
     double xOverY = getViewXOverY ();
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    double scaleRatio = vs.GetScaleRatio ();
+    double extendAlongZRatio = vs.GetScaleRatio ();
     G3D::AABox centeredViewingVolume = 
-	calculateCenteredViewingVolume (xOverY, scaleRatio);
+	calculateCenteredViewingVolume (xOverY, extendAlongZRatio);
     G3D::Vector3 translation (vs.GetCameraDistance () * G3D::Vector3::unitZ ());
     G3D::AABox result = centeredViewingVolume - translation;
     return result;
@@ -760,8 +774,8 @@ G3D::AABox GLWidget::CalculateViewingVolume (ViewNumber::Enum viewNumber) const
 {
     double xOverY = getViewXOverY ();
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    double scaleRatio = vs.GetScaleRatio ();
-    return calculateViewingVolume (xOverY, scaleRatio);
+    double extendAlongZRatio = vs.GetScaleRatio ();
+    return calculateViewingVolume (xOverY, extendAlongZRatio);
 }
 
 void GLWidget::eyeTransform (ViewNumber::Enum viewNumber) const
@@ -792,8 +806,7 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
 void GLWidget::ProjectionTransform (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    G3D::AABox viewingVolume = CalculateEyeViewingVolume (viewNumber);
-    glMatrixMode (GL_PROJECTION);
+    G3D::AABox viewingVolume = calculateEyeViewingVolume (viewNumber);
     glLoadIdentity();
     if (vs.GetAngleOfView () == 0)
     {
@@ -807,8 +820,28 @@ void GLWidget::ProjectionTransform (ViewNumber::Enum viewNumber) const
 		   viewingVolume.low ().y, viewingVolume.high ().y,
 		   -viewingVolume.high ().z, -viewingVolume.low ().z);
     }
-    glMatrixMode (GL_MODELVIEW);
 }
+
+void GLWidget::ProjectionTransformExtendedVolume (
+    ViewNumber::Enum viewNumber) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    G3D::AABox viewingVolume = calculateEyeViewingVolume (viewNumber);
+    glLoadIdentity();
+    if (vs.GetAngleOfView () == 0)
+    {
+	glOrtho (viewingVolume.low ().x, viewingVolume.high ().x,
+		 viewingVolume.low ().y, viewingVolume.high ().y,
+		 -viewingVolume.high ().z, -viewingVolume.low ().z);
+    }
+    else
+    {
+	glFrustum (viewingVolume.low ().x, viewingVolume.high ().x,
+		   viewingVolume.low ().y, viewingVolume.high ().y,
+		   -viewingVolume.high ().z, -viewingVolume.low ().z);
+    }
+}
+
 
 void GLWidget::viewportTransform (ViewNumber::Enum viewNumber) const
 {
@@ -932,7 +965,9 @@ void GLWidget::ResetTransformFocus ()
     vs.SetRotationModel (G3D::Matrix3::identity ());
     vs.SetScaleRatio (1);
     vs.SetTranslation (G3D::Vector3::zero ());
+    glMatrixMode (GL_PROJECTION);
     ProjectionTransform (viewNumber);
+    glMatrixMode (GL_MODELVIEW);
     glLoadIdentity ();
     if (vs.GetViewType () == ViewType::FACES_STATISTICS)
     {
@@ -947,7 +982,9 @@ void GLWidget::ResetTransformContext ()
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings ();
     vs.SetContextScaleRatio (1);
+    glMatrixMode (GL_PROJECTION);
     ProjectionTransform (viewNumber);
+    glMatrixMode (GL_MODELVIEW);
     glLoadIdentity ();
     update ();
 }
@@ -1204,7 +1241,9 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetLightingParameters (getInitialLightPosition (vs.GetSelectedLight ()));
     viewportTransform (viewNumber);    
+    glMatrixMode (GL_PROJECTION);
     ProjectionTransform (viewNumber);
+    glMatrixMode (GL_MODELVIEW);
     ModelViewTransform (viewNumber, GetTime ());
     m_minimumEdgeRadius = GetOnePixelInObjectSpace ();
     calculateEdgeRadius (m_edgeRadiusRatio,
@@ -1456,7 +1495,9 @@ G3D::Vector3 GLWidget::toObjectTransform (const QPoint& position,
 					  ViewNumber::Enum viewNumber) const
 {
     viewportTransform (viewNumber);    
+    glMatrixMode (GL_PROJECTION);
     ProjectionTransform (viewNumber);
+    glMatrixMode (GL_MODELVIEW);
     ModelViewTransform (viewNumber, GetTime ());
     return toObject (position);
 }
@@ -2890,7 +2931,7 @@ void GLWidget::ActivateShader (
     glPushAttrib (GL_VIEWPORT_BIT);
     glViewport (destRect.x0 (), destRect.y0 (),
 		destRect.width (), destRect.height ());
-    //glMatrixMode (GL_MODELVIEW);
+    glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
     glLoadIdentity ();
     eyeTransform (viewNumber);
