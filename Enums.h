@@ -396,6 +396,18 @@ struct VertexAttributeIndex
     };
 };
 
+
+class ViewingVolumeOperation
+{
+public:
+    enum Enum
+    {
+	DONT_ENCLOSE,
+	ENCLOSE
+    };
+};
+
+
 #endif //__ENUMS_H__
 
 // Local Variables:

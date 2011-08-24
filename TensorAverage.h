@@ -38,6 +38,7 @@ protected:
 	ViewNumber::Enum viewNumber,
 	const G3D::Rect2D& viewRect, GLfloat minValue, GLfloat maxValue,
 	StatisticsType::Enum displayType, FramebufferObjectPair srcFbo,
+	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
 

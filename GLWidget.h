@@ -172,8 +172,9 @@ public:
      * Setup the viewing volume first centered around origin and then 
      * translated toward negative Z with m_cameraDistance.
      */
-    void ProjectionTransform (ViewNumber::Enum viewNumber) const;
-    void ProjectionTransformExtendedVolume (ViewNumber::Enum viewNumber) const;
+    void ProjectionTransform (
+	ViewNumber::Enum viewNumber, 
+	ViewingVolumeOperation::Enum enclose = ViewingVolumeOperation::DONT_ENCLOSE) const;
     size_t GetBodyOrFaceProperty () const
     {
 	return GetBodyOrFaceProperty (GetViewNumber ());
@@ -197,7 +198,8 @@ public:
      */
     void ActivateShader (
 	ViewNumber::Enum viewNumber,
-	G3D::Rect2D destRect, 
+	G3D::Rect2D destRect,
+	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
     double GetOnePixelInObjectSpace () const;
@@ -212,7 +214,8 @@ public:
 	return m_ellipseSizeRatio;
     }
     G3D::AABox CalculateViewingVolume (
-	ViewNumber::Enum viewNumber) const;
+	ViewNumber::Enum viewNumber,
+	ViewingVolumeOperation::Enum enclose = ViewingVolumeOperation::DONT_ENCLOSE) const;
 
 Q_SIGNALS:
     void PaintedGL ();
@@ -393,7 +396,9 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
-    G3D::AABox calculateEyeViewingVolume (ViewNumber::Enum viewNumber) const;
+    G3D::AABox calculateEyeViewingVolume (
+	ViewNumber::Enum viewNumber, 
+	ViewingVolumeOperation::Enum enclose = ViewingVolumeOperation::DONT_ENCLOSE) const;
     void mouseMoveRotate (QMouseEvent *event);
     void mouseMoveTranslate (QMouseEvent *event);
     void mouseMoveScale (QMouseEvent *event);
@@ -430,7 +435,9 @@ private:
     void displayLightDirection (
 	ViewNumber::Enum viewNumber, LightNumber::Enum light) const;
     void displayLightDirection (ViewNumber::Enum viewNumber) const;
-    G3D::AABox calculateViewingVolume (double xOverY, double scaleRatio) const;
+    G3D::AABox calculateViewingVolume (
+	double xOverY, double scaleRatio, 
+	ViewingVolumeOperation::Enum enclose = ViewingVolumeOperation::DONT_ENCLOSE) const;
     G3D::AABox calculateCenteredViewingVolume (double xOverY,
 					       double scaleRatio) const;
 

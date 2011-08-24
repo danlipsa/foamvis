@@ -739,15 +739,27 @@ void GLWidget::rotateAverageAround (
 }
 
 G3D::AABox GLWidget::calculateViewingVolume (
-    double xOverY, double extendAlongZRatio) const
+    double xOverY, double extendAlongZRatio, 
+    ViewingVolumeOperation::Enum enclose) const
 {
     G3D::AABox bb = GetFoamAlongTime ().GetBoundingBoxTorus ();
     G3D::AABox vv = AdjustXOverYRatio (EncloseRotation (bb), xOverY);
+    if (enclose == ViewingVolumeOperation::ENCLOSE)
+	vv = GetEnclosingBox (vv);
     if (! GetFoamAlongTime ().Is2D ())
 	// ExtendAlongZFor3D is used for 3D, 
 	// so that you keep the 3D objects outside the camera
 	vv = ExtendAlongZFor3D (vv, extendAlongZRatio);
     return vv;
+}
+
+G3D::AABox GLWidget::CalculateViewingVolume (
+    ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose) const
+{
+    double xOverY = getViewXOverY ();
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    double extendAlongZRatio = vs.GetScaleRatio ();
+    return calculateViewingVolume (xOverY, extendAlongZRatio, enclose);
 }
 
 G3D::AABox GLWidget::calculateCenteredViewingVolume (
@@ -758,24 +770,16 @@ G3D::AABox GLWidget::calculateCenteredViewingVolume (
 }
 
 G3D::AABox GLWidget::calculateEyeViewingVolume (
-    ViewNumber::Enum viewNumber) const
+    ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose) const
 {
     double xOverY = getViewXOverY ();
     const ViewSettings& vs = GetViewSettings (viewNumber);
     double extendAlongZRatio = vs.GetScaleRatio ();
-    G3D::AABox centeredViewingVolume = 
-	calculateCenteredViewingVolume (xOverY, extendAlongZRatio);
+    G3D::AABox vv = calculateViewingVolume (xOverY, extendAlongZRatio, enclose);
+    vv = vv - vv.center ();
     G3D::Vector3 translation (vs.GetCameraDistance () * G3D::Vector3::unitZ ());
-    G3D::AABox result = centeredViewingVolume - translation;
+    G3D::AABox result = vv - translation;
     return result;
-}
-
-G3D::AABox GLWidget::CalculateViewingVolume (ViewNumber::Enum viewNumber) const
-{
-    double xOverY = getViewXOverY ();
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    double extendAlongZRatio = vs.GetScaleRatio ();
-    return calculateViewingVolume (xOverY, extendAlongZRatio);
 }
 
 void GLWidget::eyeTransform (ViewNumber::Enum viewNumber) const
@@ -803,44 +807,20 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
     transformFoamAverageAround (viewNumber, timeStep);
 }
 
-void GLWidget::ProjectionTransform (ViewNumber::Enum viewNumber) const
+void GLWidget::ProjectionTransform (ViewNumber::Enum viewNumber,
+				    ViewingVolumeOperation::Enum enclose) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    G3D::AABox viewingVolume = calculateEyeViewingVolume (viewNumber);
+    G3D::AABox vv = calculateEyeViewingVolume (viewNumber, enclose);
     glLoadIdentity();
     if (vs.GetAngleOfView () == 0)
-    {
-	glOrtho (viewingVolume.low ().x, viewingVolume.high ().x,
-		 viewingVolume.low ().y, viewingVolume.high ().y,
-		 -viewingVolume.high ().z, -viewingVolume.low ().z);
-    }
+	glOrtho (vv.low ().x, vv.high ().x, vv.low ().y, vv.high ().y,
+		 -vv.high ().z, -vv.low ().z);
     else
-    {
-	glFrustum (viewingVolume.low ().x, viewingVolume.high ().x,
-		   viewingVolume.low ().y, viewingVolume.high ().y,
-		   -viewingVolume.high ().z, -viewingVolume.low ().z);
-    }
+	glFrustum (vv.low ().x, vv.high ().x, vv.low ().y, vv.high ().y,
+		   -vv.high ().z, -vv.low ().z);
 }
 
-void GLWidget::ProjectionTransformExtendedVolume (
-    ViewNumber::Enum viewNumber) const
-{
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    G3D::AABox viewingVolume = calculateEyeViewingVolume (viewNumber);
-    glLoadIdentity();
-    if (vs.GetAngleOfView () == 0)
-    {
-	glOrtho (viewingVolume.low ().x, viewingVolume.high ().x,
-		 viewingVolume.low ().y, viewingVolume.high ().y,
-		 -viewingVolume.high ().z, -viewingVolume.low ().z);
-    }
-    else
-    {
-	glFrustum (viewingVolume.low ().x, viewingVolume.high ().x,
-		   viewingVolume.low ().y, viewingVolume.high ().y,
-		   -viewingVolume.high ().z, -viewingVolume.low ().z);
-    }
-}
 
 
 void GLWidget::viewportTransform (ViewNumber::Enum viewNumber) const
@@ -2923,11 +2903,12 @@ bool GLWidget::IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const
 
 // Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
 void GLWidget::ActivateShader (
-    ViewNumber::Enum viewNumber,
-    G3D::Rect2D destRect, G3D::Vector2 rotationCenter, float angleDegrees) const
+    ViewNumber::Enum viewNumber, G3D::Rect2D destRect, 
+    ViewingVolumeOperation::Enum enclose,
+    G3D::Vector2 rotationCenter, float angleDegrees) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    G3D::AABox srcAABox = CalculateViewingVolume (viewNumber);
+    G3D::AABox srcAABox = CalculateViewingVolume (viewNumber, enclose);
     glPushAttrib (GL_VIEWPORT_BIT);
     glViewport (destRect.x0 (), destRect.y0 (),
 		destRect.width (), destRect.height ());
@@ -2949,19 +2930,28 @@ void GLWidget::ActivateShader (
 	glRotatef (angleDegrees, 0, 0, 1);	
 	glTranslate (- translation);
     }
+    glMatrixMode (GL_PROJECTION);
+    glPushMatrix ();
+    ProjectionTransform (viewNumber, enclose);
     G3D::Rect2D srcRect = G3D::Rect2D::xyxy (srcAABox.low ().xy (), 
 					     srcAABox.high ().xy ());
+    G3D::Rect2D srcTexRect = G3D::Rect2D::xyxy (0., 0., 1., 1.);
+    if (enclose == ViewingVolumeOperation::DONT_ENCLOSE)
+	srcTexRect = GetTexForInRect (srcRect);
     float z = (srcAABox.low ().z + srcAABox.high ().z) / 2;
     glBegin (GL_QUADS);
-    glTexCoord2i (0, 0);
+    glTexCoord (srcTexRect.x0y0 ());
     ::glVertex (G3D::Vector3 (srcRect.x0y0 (), z));
-    glTexCoord2i (1, 0);
+    glTexCoord (srcTexRect.x1y0 ());
     ::glVertex (G3D::Vector3 (srcRect.x1y0 (), z));
-    glTexCoord2i (1, 1);
+    glTexCoord (srcTexRect.x1y1 ());
     ::glVertex (G3D::Vector3 (srcRect.x1y1 (), z));
-    glTexCoord2i (0, 1);
+    glTexCoord (srcTexRect.x0y1 ());
     ::glVertex (G3D::Vector3 (srcRect.x0y1 (), z));
     glEnd ();
+    glMatrixMode (GL_PROJECTION);
+    glPopMatrix ();
+    glMatrixMode (GL_MODELVIEW);
     glPopMatrix ();
     glPopAttrib ();
 }

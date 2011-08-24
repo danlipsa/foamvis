@@ -427,16 +427,35 @@ void SetCheckedNoSignals (QCheckBox* checkBox, bool checked)
     checkBox->blockSignals (false);    
 }
 
-G3D::Rect2D AreaFromView (
-    G3D::Rect2D viewRect,
-    boost::function<float (float first, float second)> minOrMax)
+G3D::Rect2D GetEnclosingRect (G3D::Rect2D viewRect)
 {
-    float length = minOrMax (viewRect.width (), viewRect.height ());
+    float length = max (viewRect.width (), viewRect.height ());
     G3D::Vector2 x0y0 = 
 	viewRect.center () - G3D::Vector2 (length / 2., length / 2.);
     return G3D::Rect2D::xywh (x0y0, G3D::Vector2 (length, length));
 }
 
+G3D::Rect2D GetTexForInRect (G3D::Rect2D viewRect)
+{
+    G3D::Rect2D enclosingRect = GetEnclosingRect (viewRect);
+    float width = enclosingRect.width ();
+    float height = enclosingRect.height ();
+    return G3D::Rect2D::xyxy (
+	(viewRect.x0 () - enclosingRect.x0 ()) / width,
+	(viewRect.y0 () - enclosingRect.y0 ()) / height,
+	(viewRect.x1 () - enclosingRect.x0 ()) / width,
+	(viewRect.y1 () - enclosingRect.y0 ()) / height);
+}
+
+G3D::AABox GetEnclosingBox (G3D::AABox box)
+{
+    G3D::Vector3 extent = box.extent ();
+    float length = max (extent.x, extent.y);
+    G3D::Vector3 low = G3D::Vector3 (box.center ().xy () - 
+				     G3D::Vector2 (length / 2.0, length / 2.),
+				     box.low ().z);
+    return G3D::AABox (low, low + G3D::Vector3 (length, length, extent.z));
+}
 
 
 // Template instantiations
