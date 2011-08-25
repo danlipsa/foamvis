@@ -44,9 +44,11 @@ protected:
 
 private:
     void calculateShaderParameters (
+	ViewingVolumeOperation::Enum enclose,
 	ViewNumber::Enum viewNumber, float angleDegrees,
 	G3D::Vector2* gridTranslation, float* cellLength, float* lineWidth, 
-	float* elipseSizeRatio, G3D::Rect2D* screenRect) const;
+	float* elipseSizeRatio, G3D::Rect2D* srcRect, 
+	G3D::Rect2D* srcTexRect) const;
 
 private:
     static boost::shared_ptr<TensorDisplay> m_displayShaderProgram;

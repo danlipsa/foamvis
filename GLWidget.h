@@ -174,7 +174,7 @@ public:
      */
     void ProjectionTransform (
 	ViewNumber::Enum viewNumber, 
-	ViewingVolumeOperation::Enum enclose = ViewingVolumeOperation::DONT_ENCLOSE) const;
+	ViewingVolumeOperation::Enum enclose = ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     size_t GetBodyOrFaceProperty () const
     {
 	return GetBodyOrFaceProperty (GetViewNumber ());
@@ -215,7 +215,12 @@ public:
     }
     G3D::AABox CalculateViewingVolume (
 	ViewNumber::Enum viewNumber,
-	ViewingVolumeOperation::Enum enclose = ViewingVolumeOperation::DONT_ENCLOSE) const;
+	ViewingVolumeOperation::Enum enclose = 
+	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
+    void CalculateViewingVolumeAndTexture (
+	ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose,
+	G3D::AABox* box, G3D::Rect2D* texRect) const;
+
 
 Q_SIGNALS:
     void PaintedGL ();
@@ -398,7 +403,7 @@ private:
 private:
     G3D::AABox calculateEyeViewingVolume (
 	ViewNumber::Enum viewNumber, 
-	ViewingVolumeOperation::Enum enclose = ViewingVolumeOperation::DONT_ENCLOSE) const;
+	ViewingVolumeOperation::Enum enclose = ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     void mouseMoveRotate (QMouseEvent *event);
     void mouseMoveTranslate (QMouseEvent *event);
     void mouseMoveScale (QMouseEvent *event);
@@ -437,7 +442,7 @@ private:
     void displayLightDirection (ViewNumber::Enum viewNumber) const;
     G3D::AABox calculateViewingVolume (
 	double xOverY, double scaleRatio, 
-	ViewingVolumeOperation::Enum enclose = ViewingVolumeOperation::DONT_ENCLOSE) const;
+	ViewingVolumeOperation::Enum enclose = ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     G3D::AABox calculateCenteredViewingVolume (double xOverY,
 					       double scaleRatio) const;
 
@@ -601,7 +606,6 @@ private:
     static void quadricErrorCallback (GLenum errorCode);
     
 private:
-    const static double ENCLOSE_ROTATION_RATIO;
     // Min, max values for T1s, Context alpha, force length
     const static pair<double,double> T1_SIZE;
     const static pair<double,double> ELLIPSE_SIZE_EXP;

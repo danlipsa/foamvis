@@ -5,8 +5,29 @@
  *
  * Displays deformation ellipses
  */
-uniform vec2 u_screenLow;
-uniform vec2 u_screenHigh;
+
+struct Rect
+{
+    vec2 m_low;
+    vec2 m_high;
+};
+
+// see Practical Linear Algebra, ch. 9
+// BUG: Mac OS X 10.6.8 OpenGL driver does't like structures 
+//      that end in a mat2.
+struct Ellipse
+{
+    // r*d*transpose(r)
+    mat2 m_a;
+    // ellipse cMin, cMax which determine the size of the ellipse and the 
+    // width of the line
+    vec2 m_c;
+};
+
+
+// object coordinates for screen
+uniform Rect u_srcRect;
+uniform Rect u_srcTexRect;
 uniform vec2 u_gridTranslation;
 // cell length in object coordinates
 uniform float u_cellLength;
@@ -21,17 +42,6 @@ uniform sampler2D u_scalarAverageTexUnit;
 // each fragmet receives the object coordinates of the fragment.
 varying vec2 v_objectCoord;
 
-// see Practical Linear Algebra, ch. 9
-// BUG: Mac OS X 10.6.8 OpenGL driver does't like structures 
-//      that end in a mat2.
-struct Ellipse
-{
-    // r*d*transpose(r)
-    mat2 m_a;
-    // ellipse cMin, cMax which determine the size of the ellipse and the 
-    // width of the line
-    vec2 m_c;
-};
 
 const float sqrt2 = 1.41421356237;
 const mat2 tensor45 = mat2 (3., 1., 1. / sqrt2, 1./ sqrt2);
@@ -121,7 +131,8 @@ Ellipse fromTransform (mat2 a)
     return fromEigen (mat2 (eVal, eVec));
 }
 
-bool isEllipseBackground (vec2 x, vec2 texCoordCenter)
+// x is in [0, 1)
+bool isEllipse (vec2 x, vec2 texCoordCenter)
 {
     mat2 a;
     if (getTransform (a, texCoordCenter))
@@ -131,40 +142,56 @@ bool isEllipseBackground (vec2 x, vec2 texCoordCenter)
 	Ellipse t = fromTransform (a);
 	vec2 v = vec2 (0.5, 0.5);
 	float value = dot (x - v, t.m_a * (x - v));
-	return (value < t.m_c[0] || t.m_c[1] < value);
+	return (t.m_c[0] <= value && value <= t.m_c[1]);
 	//debug
-	//return false;
+	//return true;
     }
     else
-	return true;
+	return false;
 }
 
-bool isGridBackground (vec2 x)
+// x is in [0, 1)
+bool isGrid (vec2 x)
 {
-    vec2 backgroundBox;
+    vec2 isBackground;
     float perc = (u_cellLength - u_lineWidth) / u_cellLength;
     vec2 percentage = vec2 (perc, perc);
-    backgroundBox = step (x, percentage);
-    return backgroundBox.x * backgroundBox.y != 0.;
+    isBackground = step (x, percentage);
+    return isBackground.x * isBackground.y == 0.;
+}
+
+// x is in [0, 1)
+bool isGridCenter (vec2 x)
+{
+    x = fract (vec2 (0.5, 0.5) + x);
+    vec2 isLine;
+    float perc = (u_cellLength - u_lineWidth) / u_cellLength;
+    vec2 percentage = vec2 (perc, perc);
+    isLine = step (percentage, x);
+    return isLine.x * isLine.y == 1.0;
 }
 
 void main(void)
 {
     const vec4 inkColor = vec4 (0., 0., 0., 1.);
     vec2 gridCoordStart = 
-	(u_screenLow + u_screenHigh) / 2. + u_gridTranslation;
+	(u_srcRect.m_low + u_srcRect.m_high) / 2. + u_gridTranslation;
     vec2 gridCoord = (v_objectCoord - gridCoordStart) / u_cellLength;
     vec2 gridCoordFract = fract (gridCoord);
     vec2 gridCoordFloor = floor (gridCoord);
     vec2 gridCoordCenter = u_cellLength * (gridCoordFloor + vec2 (.5, .5));
-    vec2 screenCoordCenter = gridCoordStart + gridCoordCenter - u_screenLow;
-    vec2 texCoordCenter = screenCoordCenter / (u_screenHigh - u_screenLow);
-    bool ellipseBackground = isEllipseBackground (gridCoordFract, 
-						  texCoordCenter);
-    bool gridBackground = isGridBackground (gridCoordFract);
-    if (ellipseBackground /*&& gridBackground*/)
+    vec2 screenCoordCenter = gridCoordStart + gridCoordCenter - u_srcRect.m_low;
+    vec2 texCoordCenter = 
+	screenCoordCenter / (u_srcRect.m_high - u_srcRect.m_low);
+    // use coordinates for the enclosing VV 2.
+    texCoordCenter = u_srcTexRect.m_low + 
+	(u_srcTexRect.m_high - u_srcTexRect.m_low) * texCoordCenter;
+    if (isEllipse (gridCoordFract, texCoordCenter) || 
+	isGrid (gridCoordFract) ||
+	isGridCenter (gridCoordFract))
+	gl_FragColor = inkColor;
+    else
 	discard;
-    gl_FragColor = inkColor;
 }
 
 

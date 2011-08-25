@@ -74,19 +74,6 @@ G3D::AABox ExtendMaxXY (const G3D::AABox& box)
 }
 
 
-G3D::AABox EncloseRotation (const G3D::AABox& box)
-{
-    using G3D::Vector3;
-    Vector3 center = box.center ();
-    double maxHalfSideLength = (box.high () - center).length ();
-    double minHalfSideLength = box.extent ().min () / 2;
-    double halfSideLength = minHalfSideLength + 
-	(maxHalfSideLength - minHalfSideLength);
-    Vector3 halfDiagonal = halfSideLength * 
-	(Vector3::unitX () + Vector3::unitY () + Vector3::unitZ ());
-    return G3D::AABox (center - halfDiagonal, center + halfDiagonal);
-}
-
 G3D::AABox ExtendAlongZFor3D (
     const G3D::AABox& b, double scaleRatio)
 {
@@ -147,6 +134,22 @@ void displayBodyNeighbors2D (boost::shared_ptr<Body> body,
     }
 }
 
+void sendQuad (
+    const G3D::Rect2D& srcRect, float z, const G3D::Rect2D& srcTexRect)
+{
+    glBegin (GL_QUADS);
+    glTexCoord (srcTexRect.x0y0 ());
+    ::glVertex (G3D::Vector3 (srcRect.x0y0 (), z));
+    glTexCoord (srcTexRect.x1y0 ());
+    ::glVertex (G3D::Vector3 (srcRect.x1y0 (), z));
+    glTexCoord (srcTexRect.x1y1 ());
+    ::glVertex (G3D::Vector3 (srcRect.x1y1 (), z));
+    glTexCoord (srcTexRect.x0y1 ());
+    ::glVertex (G3D::Vector3 (srcRect.x0y1 (), z));
+    glEnd ();
+    
+}
+
 
 
 // Static Fields
@@ -157,7 +160,6 @@ const size_t GLWidget::DISPLAY_ALL(numeric_limits<size_t>::max());
 const size_t GLWidget::QUADRIC_SLICES = 8;
 const size_t GLWidget::QUADRIC_STACKS = 1;
 
-const double GLWidget::ENCLOSE_ROTATION_RATIO = 1;
 const pair<double,double> GLWidget::T1_SIZE (1, 10);
 const pair<double,double> GLWidget::ELLIPSE_SIZE_EXP (-10, 10);
 const pair<double,double> GLWidget::ELLIPSE_LINE_WIDTH_EXP (0, 3);
@@ -743,13 +745,13 @@ G3D::AABox GLWidget::calculateViewingVolume (
     ViewingVolumeOperation::Enum enclose) const
 {
     G3D::AABox bb = GetFoamAlongTime ().GetBoundingBoxTorus ();
-    G3D::AABox vv = AdjustXOverYRatio (EncloseRotation (bb), xOverY);
-    if (enclose == ViewingVolumeOperation::ENCLOSE)
-	vv = GetEnclosingBox (vv);
+    G3D::AABox vv = AdjustXOverYRatio (GetEnclosingBox (bb), xOverY);
     if (! GetFoamAlongTime ().Is2D ())
 	// ExtendAlongZFor3D is used for 3D, 
 	// so that you keep the 3D objects outside the camera
 	vv = ExtendAlongZFor3D (vv, extendAlongZRatio);
+    if (enclose == ViewingVolumeOperation::ENCLOSE2D)
+	vv = GetEnclosingBox2D (vv);
     return vv;
 }
 
@@ -761,6 +763,19 @@ G3D::AABox GLWidget::CalculateViewingVolume (
     double extendAlongZRatio = vs.GetScaleRatio ();
     return calculateViewingVolume (xOverY, extendAlongZRatio, enclose);
 }
+
+void GLWidget::CalculateViewingVolumeAndTexture (
+    ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose,
+    G3D::AABox* box, G3D::Rect2D* texRect) const
+{
+    *box = CalculateViewingVolume (viewNumber, enclose);
+    G3D::Rect2D rect = G3D::Rect2D::xyxy (box->low ().xy (), 
+					     box->high ().xy ());
+    *texRect = G3D::Rect2D::xyxy (0., 0., 1., 1.);
+    if (enclose == ViewingVolumeOperation::DONT_ENCLOSE2D)
+	*texRect = GetTextureForInsideBox (rect);
+}
+
 
 G3D::AABox GLWidget::calculateCenteredViewingVolume (
     double xOverY, double extendAlongZRatio) const
@@ -2901,14 +2916,29 @@ bool GLWidget::IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const
 }
 
 
-// Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
+/**
+ * Activate a shader for each fragment of the destRect.
+ * Use use the following notation: VV = viewing volume, VP = viewport, 
+ * T = texture, 1 = original VV, 2 = enclosing VV
+ * Can be called in 3 situations:
+ *                 VV    VP, T
+ * 1. fbo -> fbo : 2  -> 2 , 2
+ * 2. fbo -> img : 2  -> 2,  2
+ * 3. fbo -> scr : 1  -> 1,  2
+ *
+ * Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
+ */
 void GLWidget::ActivateShader (
     ViewNumber::Enum viewNumber, G3D::Rect2D destRect, 
     ViewingVolumeOperation::Enum enclose,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    G3D::AABox srcAABox = CalculateViewingVolume (viewNumber, enclose);
+    G3D::AABox srcBox;
+    G3D::Rect2D srcTexRect;
+    CalculateViewingVolumeAndTexture (viewNumber, enclose,
+				      &srcBox, &srcTexRect);
+    G3D::Rect2D srcRect = G3D::Rect2D::xyxy (srcBox.low ().xy (), 
+					     srcBox.high ().xy ());
     glPushAttrib (GL_VIEWPORT_BIT);
     glViewport (destRect.x0 (), destRect.y0 (),
 		destRect.width (), destRect.height ());
@@ -2918,8 +2948,8 @@ void GLWidget::ActivateShader (
     eyeTransform (viewNumber);
     if (angleDegrees != 0)
     {
-	G3D::Vector2 center = 
-	    (srcAABox.low ().xy () + srcAABox.high ().xy ()) / 2;
+	const ViewSettings& vs = GetViewSettings (viewNumber);
+	G3D::Vector2 center = srcBox.center ().xy ();
 	G3D::Matrix3 rotation3 = vs.GetRotationForAxesOrder (GetCurrentFoam ());
 	G3D::Matrix2 rotation = ToMatrix2 (rotation3);
 	G3D::Vector2 translationFromCenter = 
@@ -2933,22 +2963,8 @@ void GLWidget::ActivateShader (
     glMatrixMode (GL_PROJECTION);
     glPushMatrix ();
     ProjectionTransform (viewNumber, enclose);
-    G3D::Rect2D srcRect = G3D::Rect2D::xyxy (srcAABox.low ().xy (), 
-					     srcAABox.high ().xy ());
-    G3D::Rect2D srcTexRect = G3D::Rect2D::xyxy (0., 0., 1., 1.);
-    if (enclose == ViewingVolumeOperation::DONT_ENCLOSE)
-	srcTexRect = GetTexForInRect (srcRect);
-    float z = (srcAABox.low ().z + srcAABox.high ().z) / 2;
-    glBegin (GL_QUADS);
-    glTexCoord (srcTexRect.x0y0 ());
-    ::glVertex (G3D::Vector3 (srcRect.x0y0 (), z));
-    glTexCoord (srcTexRect.x1y0 ());
-    ::glVertex (G3D::Vector3 (srcRect.x1y0 (), z));
-    glTexCoord (srcTexRect.x1y1 ());
-    ::glVertex (G3D::Vector3 (srcRect.x1y1 (), z));
-    glTexCoord (srcTexRect.x0y1 ());
-    ::glVertex (G3D::Vector3 (srcRect.x0y1 (), z));
-    glEnd ();
+    float z = (srcBox.low ().z + srcBox.high ().z) / 2;
+    sendQuad (srcRect, z, srcTexRect);
     glMatrixMode (GL_PROJECTION);
     glPopMatrix ();
     glMatrixMode (GL_MODELVIEW);

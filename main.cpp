@@ -23,10 +23,10 @@ struct Option
 	DEBUG_PARSING,
 	DEBUG_SCANNING,
 	DMP_FILES,
+	FILTER,
 	FORCES,
 	HELP,
 	INI_FILE,
-	INI_FILTER,
 	NAME,
 	LABELS,
 	ORIGINAL_PRESSURE,
@@ -48,10 +48,10 @@ const char* Option::m_name[] = {
     "debug-parsing",
     "debug-scanning",
     "dmp-files",
+    "filter",
     "forces",
     "help",
     "ini-file",
-    "ini-filter",
     "name",
     "labels",
     "original-pressure",
@@ -214,21 +214,21 @@ po::options_description getCommandLineOptions (
 	 "produces output that help debugging the parser")
 	(Option::m_name[Option::DEBUG_SCANNING], 
 	 "produces output that helps debugging the scanner")
+	(Option::m_name[Option::FILTER], 
+	 po::value<string>(iniFilter), 
+	 "Filter simulation DMPs. Default value is '0001'.\n"
+	 "arg=<filter> where <filter> characters replace the question marks "
+	 "in the patern specified in the ini file staring with the least "
+	 "significant. For example, filter '1', results in the pattern "
+	 "'???1' which selects DMP files numbered 0001, 0011, 0021, ..., 0091, "
+	 "0101, ...., filter '0001' results in patern '0001' which selects "
+	 "only the DMP numbered 0001.")
 	(Option::m_name[Option::HELP], "produce help message")
 	(Option::m_name[Option::INI_FILE], 
 	 po::value<string>(iniFileName), 
 	 "choose simulation and read visualization parameters " 
 	 "from the ini file.\n"
 	 "arg=<iniFileName>. See simulations.ini for an example.")
-	(Option::m_name[Option::INI_FILTER], 
-	 po::value<string>(iniFilter), 
-	 "Filter simulation DMPs.\n"
-	 "arg=<filter> where <filter> characters replace the question marks "
-	 "in the patern specified in the ini file staring with the least "
-	 "significant. For example, '1', results in the pattern '???1' which "
-	 "selects DMP files numbered 0001, 0011, 0021, ..., 0091, 0101, ...."
-	 "'0001' results in patern '0001' which selects only the DMP "
-	 "numbered 0001.")
 	(Option::m_name[Option::OUTPUT_TEXT],
 	 "outputs a text representation of the data")
 	(Option::m_name[Option::SIMULATION],
@@ -329,6 +329,7 @@ void storeIniOptions (
 	else
 	    exit (0);
     }
+    cdbg << "Simulation name " << names[i] << "." << endl;
     parameters = parametersArray[i];
     typedef boost::tokenizer< boost::escaped_list_separator<char> > 
 	Tokenizer;
@@ -351,12 +352,14 @@ void storeIniOptions (
 }
 
 
-void filterAndExpandWildcards (vector<string>* fileNames, const string& filter)
+void filterAndExpandWildcards (vector<string>* fileNames, string filter)
 {
     QFileInfo fileInfo (QString::fromStdString ((*fileNames)[0]));
     QString path = fileInfo.path ();
     QString fileName = fileInfo.fileName ();
     int questionMarkIndex = fileName.lastIndexOf ('?');
+    if (filter.empty ())
+	filter = "0001";
     int filterLength = filter.length ();
     for (int i = 0; i < filterLength; ++i)
     {

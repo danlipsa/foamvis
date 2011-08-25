@@ -45,7 +45,7 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::Init (ViewNumber::Enum viewNumber)
 {
     Average::Init (viewNumber);
-    const G3D::Rect2D extendedArea = GetEnclosingRect (
+    const G3D::Rect2D extendedArea = GetEnclosingBox (
 	GetGLWidget ().GetViewRect (viewNumber));
     QSize size (extendedArea.width (), extendedArea.height ());
     glPushAttrib (GL_COLOR_BUFFER_BIT);
@@ -83,7 +83,7 @@ void ImageBasedAverage<PropertySetter>::Init (ViewNumber::Enum viewNumber)
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::clear (ViewNumber::Enum viewNumber)
 {
-    const size_t FAKE_TIMESTEP = -1;
+    //const size_t FAKE_TIMESTEP = -1;
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     m_fbos.m_step->bind ();
     ClearColorStencilBuffers (Qt::transparent, 0);
@@ -102,10 +102,10 @@ void ImageBasedAverage<PropertySetter>::clear (ViewNumber::Enum viewNumber)
 // 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
     
     initFramebuffer (viewNumber, m_fbos.m_previous);
-    save (viewNumber, 
- 	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
- 	  "previous", FAKE_TIMESTEP + 1,
- 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
+    // save (viewNumber, 
+    // 	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
+    // 	  "previous", FAKE_TIMESTEP + 1,
+    // 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
     WarnOnOpenGLError ("ImageBasedAverage::clear");
 }
 
@@ -127,19 +127,19 @@ void ImageBasedAverage<PropertySetter>::addStep (
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, time);
     save (viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
-	   "step", time, minMax.first, minMax.second, StatisticsType::AVERAGE);
+	  "step", time, minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     currentIsPreviousPlusStep (viewNumber);
-    save (viewNumber, 
-	   make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
-	   "current", time, 
-	   minMax.first, minMax.second, StatisticsType::AVERAGE);
+    // save (viewNumber, 
+    // 	   make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
+    // 	   "current", time, 
+    // 	   minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     copyCurrentToPrevious ();
-    save (viewNumber, 
-	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
-	  "previous", time + 1,
-	  minMax.first, minMax.second, StatisticsType::AVERAGE);
+    // save (viewNumber, 
+    // 	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
+    // 	  "previous", time + 1,
+    // 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
     glPopAttrib ();
     WarnOnOpenGLError ("ImageBasedAverage::addStep:" + m_id);
 }
@@ -174,7 +174,7 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::renderToStep (
     ViewNumber::Enum viewNumber, size_t time)
 {
-    G3D::Rect2D destRect = GetEnclosingRect (
+    G3D::Rect2D destRect = GetEnclosingBox (
 	GetGLWidget ().GetViewRect (viewNumber));
     glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
@@ -182,7 +182,7 @@ void ImageBasedAverage<PropertySetter>::renderToStep (
     glMatrixMode (GL_PROJECTION);
     glPushMatrix ();
     GetGLWidget ().ProjectionTransform (
-	viewNumber, ViewingVolumeOperation::ENCLOSE);
+	viewNumber, ViewingVolumeOperation::ENCLOSE2D);
     glViewport (0, 0, destRect.width (), destRect.height ());    
     initFramebuffer (viewNumber, m_fbos.m_step);
     m_fbos.m_step->bind ();
@@ -202,7 +202,7 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::currentIsPreviousPlusStep (
     ViewNumber::Enum viewNumber)
 {
-    const G3D::Rect2D destRect = GetEnclosingRect (
+    const G3D::Rect2D destRect = GetEnclosingBox (
 	GetGLWidget ().GetViewRect (viewNumber));
     m_fbos.m_current->bind ();
     m_addShaderProgram->Bind ();
@@ -221,7 +221,7 @@ void ImageBasedAverage<PropertySetter>::currentIsPreviousPlusStep (
     GetGLWidget ().ActivateShader (
 	viewNumber, 
 	G3D::Rect2D::xywh (0, 0, destRect.width (), destRect.height ()),
-	ViewingVolumeOperation::ENCLOSE);
+	ViewingVolumeOperation::ENCLOSE2D);
     m_addShaderProgram->release ();
     m_fbos.m_current->release ();
     WarnOnOpenGLError ("ImageBasedAverage::currentIsPreviousPlusStep:" + m_id);
@@ -231,7 +231,7 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::currentIsPreviousMinusStep (
     ViewNumber::Enum viewNumber)
 {
-    const G3D::Rect2D destRect = GetEnclosingRect (
+    const G3D::Rect2D destRect = GetEnclosingBox (
 	GetGLWidget ().GetViewRect (viewNumber));
     m_fbos.m_current->bind ();
     m_removeShaderProgram->Bind ();
@@ -250,7 +250,7 @@ void ImageBasedAverage<PropertySetter>::currentIsPreviousMinusStep (
     GetGLWidget ().ActivateShader (
 	viewNumber, 
 	G3D::Rect2D::xywh (0, 0, destRect.width (), destRect.height ()),
-	ViewingVolumeOperation::ENCLOSE);
+	ViewingVolumeOperation::ENCLOSE2D);
     m_removeShaderProgram->release ();
     m_fbos.m_current->release ();
     WarnOnOpenGLError ("ImageBasedAverage::currentIsPreviousMinusStep:" + m_id);
@@ -271,12 +271,12 @@ void ImageBasedAverage<PropertySetter>::initFramebuffer (
     ViewNumber::Enum viewNumber,
     const boost::shared_ptr<QGLFramebufferObject>& fbo)
 {
-    const G3D::Rect2D destRect = GetEnclosingRect (
+    const G3D::Rect2D destRect = GetEnclosingBox (
 	GetGLWidget ().GetViewRect (viewNumber));
     fbo->bind ();
     m_initShaderProgram->Bind ();
     GetGLWidget ().ActivateShader (viewNumber, destRect - destRect.x0y0 (),
-	ViewingVolumeOperation::ENCLOSE);
+	ViewingVolumeOperation::ENCLOSE2D);
     m_initShaderProgram->release ();
     fbo->release ();
 }
@@ -295,7 +295,7 @@ void ImageBasedAverage<PropertySetter>::RotateAndDisplay (
     rotateAndDisplay (
 	viewNumber, destRect, minMax.first, minMax.second, displayType, 
 	make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
-	ViewingVolumeOperation::DONT_ENCLOSE, rotationCenter, angleDegrees);
+	ViewingVolumeOperation::DONT_ENCLOSE2D, rotationCenter, angleDegrees);
 }
 
 template<typename PropertySetter>
@@ -304,7 +304,7 @@ void ImageBasedAverage<PropertySetter>::save (
     FramebufferObjectPair fbo, const char* postfix, size_t timeStep,
     GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
 {
-    const G3D::Rect2D destRect = GetEnclosingRect (
+    const G3D::Rect2D destRect = GetEnclosingBox (
 	GetGLWidget ().GetViewRect (viewNumber));
     // render to the debug buffer
     m_fbos.m_debug->bind ();
@@ -312,7 +312,7 @@ void ImageBasedAverage<PropertySetter>::save (
     rotateAndDisplay (
 	viewNumber,
 	G3D::Rect2D::xywh (0, 0, destRect.width (), destRect.height ()), 
-	minValue, maxValue, displayType, fbo, ViewingVolumeOperation::ENCLOSE);
+	minValue, maxValue, displayType, fbo, ViewingVolumeOperation::ENCLOSE2D);
     m_fbos.m_debug->release ();
     ostringstream ostr;
     ostr << "images/" 

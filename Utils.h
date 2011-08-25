@@ -151,10 +151,10 @@ QString ReadShader (const QString& resourceUrl);
 boost::shared_ptr<QGLShader> CreateShader (const QString& resourceUrl,
 	
 				   QGLShader::ShaderType type);
-G3D::Rect2D GetEnclosingRect (G3D::Rect2D viewRect);
-G3D::Rect2D GetTexForInRect (G3D::Rect2D viewRect);
-G3D::AABox GetEnclosingBox (G3D::AABox box);
-
+G3D::Rect2D GetTextureForInsideBox (G3D::Rect2D viewRect);
+G3D::AABox GetEnclosingBox (const G3D::AABox& box);
+G3D::AABox GetEnclosingBox2D (const G3D::AABox& box);
+G3D::Rect2D GetEnclosingBox (const G3D::Rect2D& rect);
 
 //#define RESOURCE(name) ":/" name
 #define RESOURCE(name) name

@@ -427,17 +427,9 @@ void SetCheckedNoSignals (QCheckBox* checkBox, bool checked)
     checkBox->blockSignals (false);    
 }
 
-G3D::Rect2D GetEnclosingRect (G3D::Rect2D viewRect)
+G3D::Rect2D GetTextureForInsideBox (G3D::Rect2D viewRect)
 {
-    float length = max (viewRect.width (), viewRect.height ());
-    G3D::Vector2 x0y0 = 
-	viewRect.center () - G3D::Vector2 (length / 2., length / 2.);
-    return G3D::Rect2D::xywh (x0y0, G3D::Vector2 (length, length));
-}
-
-G3D::Rect2D GetTexForInRect (G3D::Rect2D viewRect)
-{
-    G3D::Rect2D enclosingRect = GetEnclosingRect (viewRect);
+    G3D::Rect2D enclosingRect = GetEnclosingBox (viewRect);
     float width = enclosingRect.width ();
     float height = enclosingRect.height ();
     return G3D::Rect2D::xyxy (
@@ -447,16 +439,34 @@ G3D::Rect2D GetTexForInRect (G3D::Rect2D viewRect)
 	(viewRect.y1 () - enclosingRect.y0 ()) / height);
 }
 
-G3D::AABox GetEnclosingBox (G3D::AABox box)
+G3D::AABox GetEnclosingBox (const G3D::AABox& box)
 {
-    G3D::Vector3 extent = box.extent ();
-    float length = max (extent.x, extent.y);
-    G3D::Vector3 low = G3D::Vector3 (box.center ().xy () - 
-				     G3D::Vector2 (length / 2.0, length / 2.),
-				     box.low ().z);
-    return G3D::AABox (low, low + G3D::Vector3 (length, length, extent.z));
+    using G3D::Vector3;
+    Vector3 center = box.center ();
+    double halfSideLength = (box.high () - center).length ();
+    Vector3 halfDiagonal = halfSideLength * 
+	(Vector3::unitX () + Vector3::unitY () + Vector3::unitZ ());
+    return G3D::AABox (center - halfDiagonal, center + halfDiagonal);
 }
 
+G3D::AABox GetEnclosingBox2D (const G3D::AABox& box)
+{
+    G3D::Vector3 center = box.center ();
+    float halfSideLength = (box.high ().xy () - center.xy ()).length ();
+    G3D::Vector3 halfDiagonal = halfSideLength * 
+	(G3D::Vector3::unitX () + 
+	 G3D::Vector3::unitY () + G3D::Vector3::unitZ ());
+    return G3D::AABox (center - halfDiagonal, center + halfDiagonal);
+}
+
+G3D::Rect2D GetEnclosingBox (const G3D::Rect2D& rect)
+{
+    G3D::Vector2 center = rect.center ();
+    float halfSideLength = (rect.x1y1 () - center).length ();
+    G3D::Vector2 halfDiagonal = halfSideLength * 
+	(G3D::Vector2::unitX () + G3D::Vector2::unitY ());
+    return G3D::Rect2D::xyxy (center - halfDiagonal, center + halfDiagonal);
+}
 
 // Template instantiations
 //======================================================================

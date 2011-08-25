@@ -397,13 +397,12 @@ struct VertexAttributeIndex
 };
 
 
-class ViewingVolumeOperation
+struct ViewingVolumeOperation
 {
-public:
     enum Enum
     {
-	DONT_ENCLOSE,
-	ENCLOSE
+	DONT_ENCLOSE2D,
+	ENCLOSE2D
     };
 };
 
