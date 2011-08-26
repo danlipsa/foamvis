@@ -186,9 +186,9 @@ void main(void)
     // use coordinates for the enclosing VV 2.
     texCoordCenter = u_srcTexRect.m_low + 
 	(u_srcTexRect.m_high - u_srcTexRect.m_low) * texCoordCenter;
-    if (isEllipse (gridCoordFract, texCoordCenter) || 
+    if (isEllipse (gridCoordFract, texCoordCenter) /*|| 
 	isGrid (gridCoordFract) ||
-	isGridCenter (gridCoordFract))
+	isGridCenter (gridCoordFract)*/)
 	gl_FragColor = inkColor;
     else
 	discard;
