@@ -203,7 +203,8 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
-0.6.2105 - added instantaneous and time averaged deformation (texture) tensor.
+0.6.2116 - added instantaneous and time averaged deformation (texture) tensor.
+	 - fixed 'Context > Stationary > Foam' to not cut the displayed image.
 	 - added scalar value: deformation eigen (1 - l_min/l_max)
 	 - added the release date to the version information. (when you execute
            foamvis without any parameters)
