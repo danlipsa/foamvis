@@ -104,9 +104,10 @@ void displayBodyDeformationTensor2D (boost::shared_ptr<Body> body, double size)
 {
     if (body->IsConstraint ())
 	return;
-    G3D::Matrix3 rotation;
-    for (size_t i = 0; i < 3; ++i)
-	rotation.setColumn (i, body->GetDeformationEigenVector (i));
+    G3D::Matrix3 rotation = MatrixFromColumns (
+	body->GetDeformationEigenVector (0),
+	body->GetDeformationEigenVector (1),
+	body->GetDeformationEigenVector (2));
     G3D::CoordinateFrame cf (rotation, body->GetCenter ());
     glPushMatrix ();
     glMultMatrix (cf);
@@ -134,20 +135,18 @@ void displayBodyNeighbors2D (boost::shared_ptr<Body> body,
     }
 }
 
-void sendQuad (
-    const G3D::Rect2D& srcRect, float z, const G3D::Rect2D& srcTexRect)
+void sendQuad (const G3D::Rect2D& srcRect, const G3D::Rect2D& srcTexRect)
 {
     glBegin (GL_QUADS);
     glTexCoord (srcTexRect.x0y0 ());
-    ::glVertex (G3D::Vector3 (srcRect.x0y0 (), z));
+    glVertex (srcRect.x0y0 ());
     glTexCoord (srcTexRect.x1y0 ());
-    ::glVertex (G3D::Vector3 (srcRect.x1y0 (), z));
+    glVertex (srcRect.x1y0 ());
     glTexCoord (srcTexRect.x1y1 ());
-    ::glVertex (G3D::Vector3 (srcRect.x1y1 (), z));
+    glVertex (srcRect.x1y1 ());
     glTexCoord (srcTexRect.x0y1 ());
-    ::glVertex (G3D::Vector3 (srcRect.x0y1 (), z));
+    glVertex (srcRect.x0y1 ());
     glEnd ();
-    
 }
 
 
@@ -745,13 +744,13 @@ G3D::AABox GLWidget::calculateViewingVolume (
     ViewingVolumeOperation::Enum enclose) const
 {
     G3D::AABox bb = GetFoamAlongTime ().GetBoundingBoxTorus ();
-    G3D::AABox vv = AdjustXOverYRatio (GetEnclosingBox (bb), xOverY);
+    G3D::AABox vv = AdjustXOverYRatio (EncloseRotation (bb), xOverY);
     if (! GetFoamAlongTime ().Is2D ())
 	// ExtendAlongZFor3D is used for 3D, 
 	// so that you keep the 3D objects outside the camera
 	vv = ExtendAlongZFor3D (vv, extendAlongZRatio);
     if (enclose == ViewingVolumeOperation::ENCLOSE2D)
-	vv = GetEnclosingBox2D (vv);
+	vv = EncloseRotation2D (vv);
     return vv;
 }
 
@@ -764,16 +763,15 @@ G3D::AABox GLWidget::CalculateViewingVolume (
     return calculateViewingVolume (xOverY, extendAlongZRatio, enclose);
 }
 
-void GLWidget::CalculateViewingVolumeAndTexture (
-    ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose,
-    G3D::AABox* box, G3D::Rect2D* texRect) const
+void GLWidget::CalculateQuadAndTexture (
+    ViewNumber::Enum viewNumber,
+    G3D::Rect2D* rect, G3D::Rect2D* texRect) const
 {
-    *box = CalculateViewingVolume (viewNumber, enclose);
-    G3D::Rect2D rect = G3D::Rect2D::xyxy (box->low ().xy (), 
-					     box->high ().xy ());
+    G3D::AABox box = CalculateViewingVolume (viewNumber, 
+					     ViewingVolumeOperation::ENCLOSE2D);
+    *rect = G3D::Rect2D::xyxy (box.low ().xy (), 
+			       box.high ().xy ());
     *texRect = G3D::Rect2D::xyxy (0., 0., 1., 1.);
-    if (enclose == ViewingVolumeOperation::DONT_ENCLOSE2D)
-	*texRect = GetTextureForInsideBox (rect);
 }
 
 
@@ -790,7 +788,8 @@ G3D::AABox GLWidget::calculateEyeViewingVolume (
     double xOverY = getViewXOverY ();
     const ViewSettings& vs = GetViewSettings (viewNumber);
     double extendAlongZRatio = vs.GetScaleRatio ();
-    G3D::AABox vv = calculateViewingVolume (xOverY, extendAlongZRatio, enclose);
+    G3D::AABox vv = calculateViewingVolume (
+	xOverY, extendAlongZRatio, enclose);
     vv = vv - vv.center ();
     G3D::Vector3 translation (vs.GetCameraDistance () * G3D::Vector3::unitZ ());
     G3D::AABox result = vv - translation;
@@ -822,8 +821,9 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
     transformFoamAverageAround (viewNumber, timeStep);
 }
 
-void GLWidget::ProjectionTransform (ViewNumber::Enum viewNumber,
-				    ViewingVolumeOperation::Enum enclose) const
+void GLWidget::ProjectionTransform (
+    ViewNumber::Enum viewNumber,
+    ViewingVolumeOperation::Enum enclose) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     G3D::AABox vv = calculateEyeViewingVolume (viewNumber, enclose);
@@ -2797,20 +2797,20 @@ void GLWidget::displayTextureColorBar (
     
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glBegin (GL_QUADS);
-    glTexCoord1f(0);::glVertex (colorBarRect.x0y0 ());
-    glTexCoord1f(1);::glVertex (colorBarRect.x0y1 ());
-    glTexCoord1f(1);::glVertex (colorBarRect.x1y1 ());
-    glTexCoord1f(0);::glVertex (colorBarRect.x1y0 ());
+    glTexCoord1f(0);glVertex (colorBarRect.x0y0 ());
+    glTexCoord1f(1);glVertex (colorBarRect.x0y1 ());
+    glTexCoord1f(1);glVertex (colorBarRect.x1y1 ());
+    glTexCoord1f(0);glVertex (colorBarRect.x1y0 ());
     glEnd ();
     glDisable (GL_TEXTURE_1D);
 
     glColor (Qt::black);
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     glBegin (GL_QUADS);
-    ::glVertex (colorBarRect.x0y0 ());
-    ::glVertex (colorBarRect.x0y1 ());
-    ::glVertex (colorBarRect.x1y1 ());
-    ::glVertex (colorBarRect.x1y0 ());
+    glVertex (colorBarRect.x0y0 ());
+    glVertex (colorBarRect.x0y1 ());
+    glVertex (colorBarRect.x1y1 ());
+    glVertex (colorBarRect.x1y0 ());
     glEnd ();
 }
 
@@ -2915,6 +2915,21 @@ bool GLWidget::IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const
     }
 }
 
+G3D::Vector2 GLWidget::adjustForScaleAndAxesOrder (
+    ViewNumber::Enum viewNumber, G3D::Rect2D srcRect,
+    G3D::Vector2 rotationCenter) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    G3D::Vector2 center = srcRect.center ();
+    G3D::Matrix3 rotation3 = vs.GetRotationForAxesOrder (GetCurrentFoam ());
+    G3D::Matrix2 rotation = ToMatrix2 (rotation3);
+    G3D::Vector2 translationFromCenter = 
+	rotation * (rotationCenter - center + vs.GetTranslation ().xy ()) * 
+	vs.GetScaleRatio ();
+    return center + translationFromCenter;
+    
+}
+
 
 /**
  * Activate a shader for each fragment of the destRect.
@@ -2933,12 +2948,8 @@ void GLWidget::ActivateShader (
     ViewingVolumeOperation::Enum enclose,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
-    G3D::AABox srcBox;
-    G3D::Rect2D srcTexRect;
-    CalculateViewingVolumeAndTexture (viewNumber, enclose,
-				      &srcBox, &srcTexRect);
-    G3D::Rect2D srcRect = G3D::Rect2D::xyxy (srcBox.low ().xy (), 
-					     srcBox.high ().xy ());
+    G3D::Rect2D srcRect;G3D::Rect2D srcTexRect;
+    CalculateQuadAndTexture (viewNumber, &srcRect, &srcTexRect);
     glPushAttrib (GL_VIEWPORT_BIT);
     glViewport (destRect.x0 (), destRect.y0 (),
 		destRect.width (), destRect.height ());
@@ -2946,25 +2957,20 @@ void GLWidget::ActivateShader (
     glPushMatrix ();
     glLoadIdentity ();
     eyeTransform (viewNumber);
+    G3D::Vector2 adjustedRotationCenter;
     if (angleDegrees != 0)
     {
-	const ViewSettings& vs = GetViewSettings (viewNumber);
-	G3D::Vector2 center = srcBox.center ().xy ();
-	G3D::Matrix3 rotation3 = vs.GetRotationForAxesOrder (GetCurrentFoam ());
-	G3D::Matrix2 rotation = ToMatrix2 (rotation3);
-	G3D::Vector2 translationFromCenter = 
-	    rotation * (rotationCenter - center + vs.GetTranslation ().xy ()) * 
-	    vs.GetScaleRatio ();
-	G3D::Vector2 translation = center + translationFromCenter;
-	glTranslate (translation);
+	adjustedRotationCenter = adjustForScaleAndAxesOrder (
+	    viewNumber, srcRect, rotationCenter);
+	glTranslate (adjustedRotationCenter);
 	glRotatef (angleDegrees, 0, 0, 1);	
-	glTranslate (- translation);
+	glTranslate (- adjustedRotationCenter);
+	
     }
     glMatrixMode (GL_PROJECTION);
     glPushMatrix ();
     ProjectionTransform (viewNumber, enclose);
-    float z = (srcBox.low ().z + srcBox.high ().z) / 2;
-    sendQuad (srcRect, z, srcTexRect);
+    sendQuad (srcRect, srcTexRect);
     glMatrixMode (GL_PROJECTION);
     glPopMatrix ();
     glMatrixMode (GL_MODELVIEW);

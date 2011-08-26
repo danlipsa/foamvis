@@ -73,8 +73,8 @@ void SetterDeformationTensor::operator () (const boost::shared_ptr<Body>& body)
     G3D::Matrix2 modelRotation = ToMatrix2 (modelRotation4) / 
 	vs.GetScaleRatio ();
     G3D::Matrix2 r = 
-	mult (ToMatrix2 (body->GetDeformationEigenVector (0).xy (),
-			 body->GetDeformationEigenVector (1).xy ()),
+	mult (MatrixFromColumns (body->GetDeformationEigenVector (0).xy (),
+				  body->GetDeformationEigenVector (1).xy ()),
 	      modelRotation);
     G3D::Matrix2 a = mult (mult (r, l), r.transpose ());
     // GLSL uses matrices in column order

@@ -29,10 +29,7 @@ G3D::Matrix3 edgeRotation (const G3D::Vector3& begin, const G3D::Vector3& end)
     newZ = newZ.unit ();
     G3D::Vector3 newX, newY;
     newZ.getTangents (newX, newY);
-    G3D::Matrix3 rotation;
-    rotation.setColumn (0, newX);
-    rotation.setColumn (1, newY);
-    rotation.setColumn (2, newZ);
+    G3D::Matrix3 rotation = MatrixFromColumns (newX, newY, newZ);
     return rotation;
 }
 

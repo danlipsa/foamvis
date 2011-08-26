@@ -41,13 +41,26 @@ G3D::Matrix2 ToMatrix2 (const M& matrix)
     return m2;
 }
 
-G3D::Matrix2 ToMatrix2 (const G3D::Vector2& col0, const G3D::Vector2& col1)
+G3D::Matrix2 MatrixFromColumns (
+    const G3D::Vector2& col0, const G3D::Vector2& col1)
 {
     G3D::Matrix2 r;
     Matrix2SetColumn (&r, 0, col0);
     Matrix2SetColumn (&r, 1, col1);
     return r;
 }
+
+G3D::Matrix3 MatrixFromColumns (
+    const G3D::Vector3& col0, const G3D::Vector3& col1, 
+    const G3D::Vector3& col2)
+{
+    G3D::Matrix3 r;
+    r.setColumn (0, col0);
+    r.setColumn (1, col1);
+    r.setColumn (2, col2);
+    return r;
+}
+
 
 G3D::Matrix2 mult (const G3D::Matrix2& first, const G3D::Matrix2& second)
 {
@@ -427,19 +440,24 @@ void SetCheckedNoSignals (QCheckBox* checkBox, bool checked)
     checkBox->blockSignals (false);    
 }
 
-G3D::Rect2D GetTextureForInsideBox (G3D::Rect2D viewRect)
+G3D::Rect2D TexRectFromInsideRect (G3D::Rect2D insideRect)
 {
-    G3D::Rect2D enclosingRect = GetEnclosingBox (viewRect);
-    float width = enclosingRect.width ();
-    float height = enclosingRect.height ();
+    G3D::Rect2D enclosingRect = EncloseRotation (insideRect);
     return G3D::Rect2D::xyxy (
-	(viewRect.x0 () - enclosingRect.x0 ()) / width,
-	(viewRect.y0 () - enclosingRect.y0 ()) / height,
-	(viewRect.x1 () - enclosingRect.x0 ()) / width,
-	(viewRect.y1 () - enclosingRect.y0 ()) / height);
+	TexCoord (enclosingRect, insideRect.x0y0 ()),
+	TexCoord (enclosingRect, insideRect.x1y1 ()));
 }
 
-G3D::AABox GetEnclosingBox (const G3D::AABox& box)
+G3D::Vector2 TexCoord (G3D::Rect2D enclosingRect, G3D::Vector2 v)
+{
+    float width = enclosingRect.width ();
+    float height = enclosingRect.height ();
+    return G3D::Vector2 ((v.x - enclosingRect.x0 ()) / width,
+			 (v.y - enclosingRect.y0 ()) / height);
+}
+
+
+G3D::AABox EncloseRotation (const G3D::AABox& box)
 {
     using G3D::Vector3;
     Vector3 center = box.center ();
@@ -449,7 +467,7 @@ G3D::AABox GetEnclosingBox (const G3D::AABox& box)
     return G3D::AABox (center - halfDiagonal, center + halfDiagonal);
 }
 
-G3D::AABox GetEnclosingBox2D (const G3D::AABox& box)
+G3D::AABox EncloseRotation2D (const G3D::AABox& box)
 {
     G3D::Vector3 center = box.center ();
     float halfSideLength = (box.high ().xy () - center.xy ()).length ();
@@ -459,7 +477,7 @@ G3D::AABox GetEnclosingBox2D (const G3D::AABox& box)
     return G3D::AABox (center - halfDiagonal, center + halfDiagonal);
 }
 
-G3D::Rect2D GetEnclosingBox (const G3D::Rect2D& rect)
+G3D::Rect2D EncloseRotation (const G3D::Rect2D& rect)
 {
     G3D::Vector2 center = rect.center ();
     float halfSideLength = (rect.x1y1 () - center).length ();

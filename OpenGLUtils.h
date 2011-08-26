@@ -23,10 +23,6 @@ inline void glVertex (G3D::Vector3 p)
     glVertex3f (p.x, p.y, p.z);
 }
 
-inline void glVertex (G3D::Vector2 p)
-{
-    glVertex2f (p.x, p.y);
-}
 
 inline void glScale (double ratio)
 {

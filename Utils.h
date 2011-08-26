@@ -51,7 +51,11 @@ const G3D::Vector3int16& Vector3int16Unit (size_t direction);
 extern const G3D::Vector3int16 Vector3int16Zero;
 void Matrix2SetColumn (G3D::Matrix2* m, size_t i, const G3D::Vector2& v);
 template <typename M> G3D::Matrix2 ToMatrix2 (const M& m);
-G3D::Matrix2 ToMatrix2 (const G3D::Vector2& col1, const G3D::Vector2& col2);
+G3D::Matrix2 MatrixFromColumns (
+    const G3D::Vector2& col1, const G3D::Vector2& col2);
+G3D::Matrix3 MatrixFromColumns (
+    const G3D::Vector3& col1, const G3D::Vector3& col2, 
+    const G3D::Vector3& col3);
 G3D::Matrix2 mult (const G3D::Matrix2& first, const G3D::Matrix2& second);
 
 
@@ -151,10 +155,11 @@ QString ReadShader (const QString& resourceUrl);
 boost::shared_ptr<QGLShader> CreateShader (const QString& resourceUrl,
 	
 				   QGLShader::ShaderType type);
-G3D::Rect2D GetTextureForInsideBox (G3D::Rect2D viewRect);
-G3D::AABox GetEnclosingBox (const G3D::AABox& box);
-G3D::AABox GetEnclosingBox2D (const G3D::AABox& box);
-G3D::Rect2D GetEnclosingBox (const G3D::Rect2D& rect);
+G3D::Rect2D TexRectFromInsideRect (G3D::Rect2D insideRect);
+G3D::Vector2 TexCoord (G3D::Rect2D enclosingRect, G3D::Vector2 v);
+G3D::AABox EncloseRotation (const G3D::AABox& box);
+G3D::AABox EncloseRotation2D (const G3D::AABox& box);
+G3D::Rect2D EncloseRotation (const G3D::Rect2D& rect);
 
 //#define RESOURCE(name) ":/" name
 #define RESOURCE(name) name

@@ -128,7 +128,7 @@ void TensorAverage::rotateAndDisplay (
     float ellipseSizeRatio;G3D::Rect2D srcRect;G3D::Rect2D srcTexRect;
 
     calculateShaderParameters (
-	enclose, viewNumber, angleDegrees, &gridTranslation, &cellLength, 
+	viewNumber, angleDegrees, &gridTranslation, &cellLength, 
 	&lineWidth, &ellipseSizeRatio, &srcRect, &srcTexRect);
     m_displayShaderProgram->Bind (
 	gridTranslation, cellLength, lineWidth, 
@@ -153,7 +153,6 @@ void TensorAverage::rotateAndDisplay (
 }
 
 void TensorAverage::calculateShaderParameters (
-    ViewingVolumeOperation::Enum enclose,
     ViewNumber::Enum viewNumber, float angleDegrees,
     G3D::Vector2* gridTranslation, float* cellLength, float* lineWidth, 
     float* ellipseSizeRatio, G3D::Rect2D* srcRect, 
@@ -182,8 +181,5 @@ void TensorAverage::calculateShaderParameters (
 	scaleRatio * glWidget.GetEllipseLineWidthRatio ();
     *ellipseSizeRatio = glWidget.GetEllipseSizeInitialRatio () * 
 	glWidget.GetEllipseSizeRatio () * gridScaleRatio;
-    G3D::AABox srcBox;
-    glWidget.CalculateViewingVolumeAndTexture (
-	viewNumber, enclose, &srcBox, srcTexRect);
-    *srcRect = G3D::Rect2D::xyxy (srcBox.low ().xy (), srcBox.high ().xy ());
+    glWidget.CalculateQuadAndTexture (viewNumber, srcRect, srcTexRect);
 }

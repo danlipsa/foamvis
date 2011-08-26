@@ -174,7 +174,8 @@ public:
      */
     void ProjectionTransform (
 	ViewNumber::Enum viewNumber, 
-	ViewingVolumeOperation::Enum enclose = ViewingVolumeOperation::DONT_ENCLOSE2D) const;
+	ViewingVolumeOperation::Enum enclose = 
+	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     size_t GetBodyOrFaceProperty () const
     {
 	return GetBodyOrFaceProperty (GetViewNumber ());
@@ -217,9 +218,9 @@ public:
 	ViewNumber::Enum viewNumber,
 	ViewingVolumeOperation::Enum enclose = 
 	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
-    void CalculateViewingVolumeAndTexture (
-	ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose,
-	G3D::AABox* box, G3D::Rect2D* texRect) const;
+    void CalculateQuadAndTexture (
+	ViewNumber::Enum viewNumber, 
+	G3D::Rect2D* rect, G3D::Rect2D* texRect) const;
 
 
 Q_SIGNALS:
@@ -401,9 +402,13 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    G3D::Vector2 adjustForScaleAndAxesOrder (
+	ViewNumber::Enum viewNumber, G3D::Rect2D srcRect,
+	G3D::Vector2 rotationCenter) const;
     G3D::AABox calculateEyeViewingVolume (
 	ViewNumber::Enum viewNumber, 
-	ViewingVolumeOperation::Enum enclose = ViewingVolumeOperation::DONT_ENCLOSE2D) const;
+	ViewingVolumeOperation::Enum enclose = 
+	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     void mouseMoveRotate (QMouseEvent *event);
     void mouseMoveTranslate (QMouseEvent *event);
     void mouseMoveScale (QMouseEvent *event);
@@ -442,7 +447,8 @@ private:
     void displayLightDirection (ViewNumber::Enum viewNumber) const;
     G3D::AABox calculateViewingVolume (
 	double xOverY, double scaleRatio, 
-	ViewingVolumeOperation::Enum enclose = ViewingVolumeOperation::DONT_ENCLOSE2D) const;
+	ViewingVolumeOperation::Enum enclose = 
+	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     G3D::AABox calculateCenteredViewingVolume (double xOverY,
 					       double scaleRatio) const;
 

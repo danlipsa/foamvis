@@ -110,11 +110,9 @@ Face::Face (const vector<boost::shared_ptr<Edge> >& edges, size_t id) :
 
 void Face::CalculateCentroidAndArea ()
 {
-    G3D::Matrix3 rotation;
     boost::array<G3D::Vector3, 3> a;
     calculateAxes (&a[0], &a[1], &a[2]);
-    for (size_t i = 0; i < a.size (); ++i)
-	rotation.setColumn (i, a[i]);
+    G3D::Matrix3 rotation = MatrixFromColumns (a[0], a[1], a[2]);
     G3D::Matrix3 inverseRotation = rotation.inverse ();
 
     vector<double> x, y;

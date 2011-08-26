@@ -127,10 +127,7 @@ G3D::Vector3int16 OOBox::GetLocation (const G3D::Vector3& point) const
 
 G3D::Matrix3 OOBox::GetMatrix () const
 {
-    G3D::Matrix3 m;
-    for (size_t i = 0; i < 3; i++)
-	m.setColumn (i, (*this)[i]);
-    return m;
+    return MatrixFromColumns ((*this)[0],(*this)[1],(*this)[2]);
 }
 
 G3D::Vector3int16 OOBox::GetTranslation (

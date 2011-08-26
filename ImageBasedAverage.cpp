@@ -45,7 +45,7 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::Init (ViewNumber::Enum viewNumber)
 {
     Average::Init (viewNumber);
-    const G3D::Rect2D extendedArea = GetEnclosingBox (
+    const G3D::Rect2D extendedArea = EncloseRotation (
 	GetGLWidget ().GetViewRect (viewNumber));
     QSize size (extendedArea.width (), extendedArea.height ());
     glPushAttrib (GL_COLOR_BUFFER_BIT);
@@ -174,7 +174,7 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::renderToStep (
     ViewNumber::Enum viewNumber, size_t time)
 {
-    G3D::Rect2D destRect = GetEnclosingBox (
+    G3D::Rect2D destRect = EncloseRotation (
 	GetGLWidget ().GetViewRect (viewNumber));
     glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
@@ -202,7 +202,7 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::currentIsPreviousPlusStep (
     ViewNumber::Enum viewNumber)
 {
-    const G3D::Rect2D destRect = GetEnclosingBox (
+    const G3D::Rect2D destRect = EncloseRotation (
 	GetGLWidget ().GetViewRect (viewNumber));
     m_fbos.m_current->bind ();
     m_addShaderProgram->Bind ();
@@ -231,7 +231,7 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::currentIsPreviousMinusStep (
     ViewNumber::Enum viewNumber)
 {
-    const G3D::Rect2D destRect = GetEnclosingBox (
+    const G3D::Rect2D destRect = EncloseRotation (
 	GetGLWidget ().GetViewRect (viewNumber));
     m_fbos.m_current->bind ();
     m_removeShaderProgram->Bind ();
@@ -271,7 +271,7 @@ void ImageBasedAverage<PropertySetter>::initFramebuffer (
     ViewNumber::Enum viewNumber,
     const boost::shared_ptr<QGLFramebufferObject>& fbo)
 {
-    const G3D::Rect2D destRect = GetEnclosingBox (
+    const G3D::Rect2D destRect = EncloseRotation (
 	GetGLWidget ().GetViewRect (viewNumber));
     fbo->bind ();
     m_initShaderProgram->Bind ();
@@ -304,7 +304,7 @@ void ImageBasedAverage<PropertySetter>::save (
     FramebufferObjectPair fbo, const char* postfix, size_t timeStep,
     GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
 {
-    const G3D::Rect2D destRect = GetEnclosingBox (
+    const G3D::Rect2D destRect = EncloseRotation (
 	GetGLWidget ().GetViewRect (viewNumber));
     // render to the debug buffer
     m_fbos.m_debug->bind ();
