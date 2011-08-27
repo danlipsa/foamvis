@@ -203,6 +203,9 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 
 Release log
 ===========
+0.6      - added --ticks-for-timestep to deal with vfplug_137v_9.857973_2.
+	 
+
 0.6.2118 - added instantaneous and time averaged deformation (texture) tensor.
 	 - fixed 'Context > Stationary > Foam' to not cut the displayed image.
 	 - added scalar value: deformation eigen (1 - l_min/l_max)

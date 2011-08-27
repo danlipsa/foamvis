@@ -275,7 +275,10 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 	sliderTimeSteps->setDisabled (true);
     const Foam& foam = foamAlongTime.GetFoam (0);
     if (foamAlongTime.T1sAvailable ())
+    {
 	checkBoxT1sShown->setEnabled (true);
+	checkBoxT1sShown->setChecked (true);
+    }
     if (! foam.IsTorus ())
     {
 	checkBoxTorusOriginalDomain->setDisabled (true);

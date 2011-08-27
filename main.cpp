@@ -35,6 +35,7 @@ struct Option
 	SIMULATION,
 	T1S,
 	T1S_LOWER,
+	TICKS_FOR_TIMESTEP,
 	USE_ORIGINAL,
 	VERSION
     };
@@ -60,6 +61,7 @@ const char* Option::m_name[] = {
     "simulation",
     "t1s",
     "t1s-lower",
+    "ticks-for-timestep",
     "use-original",
     "version"
 };
@@ -159,7 +161,8 @@ void printVersion ()
 po::options_description getCommonOptions (
     string* t1sFile,
     ConstraintRotationNames* constraintRotationNames,
-    vector<ForceNames>* forcesNames)
+    vector<ForceNames>* forcesNames,
+    size_t* ticksForTimeStep)
 {
     po::options_description commonOptions (
 	"\"foam [COMMAND_LINE_OPTIONS] [COMMON_OPTIONS] <files> ...\"\n"
@@ -194,10 +197,16 @@ po::options_description getCommonOptions (
 	 po::value<string>(t1sFile), 
 	 "reads T1 positions.\n"
 	 "arg=<file> where <file> specifies a text file with "
-	 "T1 times and positions. Reading T1s won't work if you "
+	 "T1 times and positions. T1s won't be displayed correctly if you "
 	 "skip time steps")
 	(Option::m_name[Option::T1S_LOWER],
 	 "Shift T1s one time step lower.")
+	(Option::m_name[Option::TICKS_FOR_TIMESTEP],
+	 po::value<size_t>(ticksForTimeStep), 
+	 "arg=<numTicks> specifies how many ticks you have in 1 timestep. "
+	 "A DMP file is saved every 1 time step or every specified number of "
+	 "ticks. If this parameters is not provided, the default number "
+	 "of ticks for a timestep is one.")
 	(Option::m_name[Option::USE_ORIGINAL], "uses the ORIGINAL atribute "
 	 "to figure out the body id.")
 	;
@@ -329,7 +338,7 @@ void storeIniOptions (
 	else
 	    exit (0);
     }
-    cdbg << "Simulation name " << names[i] << "." << endl;
+    cdbg << "Simulation name: " << names[i] << endl;
     parameters = parametersArray[i];
     typedef boost::tokenizer< boost::escaped_list_separator<char> > 
 	Tokenizer;
@@ -358,6 +367,9 @@ void filterAndExpandWildcards (vector<string>* fileNames, string filter)
     QString path = fileInfo.path ();
     QString fileName = fileInfo.fileName ();
     int questionMarkIndex = fileName.lastIndexOf ('?');
+    if (questionMarkIndex == -1)
+	ThrowException ("No ? in simulation parameters: ", 
+			fileName.toStdString ());
     if (filter.empty ())
 	filter = "0001";
     int filterLength = filter.length ();
@@ -386,7 +398,8 @@ void filterAndExpandWildcards (vector<string>* fileNames, string filter)
 void parseOptions (
     int argc, char *argv[], string* t1sFile,
     vector<string>* fileNames, ConstraintRotationNames* constraintRotationNames,
-    vector<ForceNames>* forcesNames, po::variables_map* vm)
+    vector<ForceNames>* forcesNames, size_t* ticksForTimeStep, 
+    po::variables_map* vm)
 {
     vector<string> names, parametersArray;
     vector<Labels> labels;
@@ -394,7 +407,7 @@ void parseOptions (
     po::options_description commandLineOptions = getCommandLineOptions (
 	&iniFileName, &simulationName, &iniFilter);
     po::options_description commonOptions = getCommonOptions (
-	t1sFile, constraintRotationNames, forcesNames);
+	t1sFile, constraintRotationNames, forcesNames, ticksForTimeStep);
     po::options_description iniOptions = getIniOptions (
 	&names, &labels, &parametersArray);
     po::options_description options = getOptions (
@@ -414,6 +427,8 @@ void parseOptions (
 	filterAndExpandWildcards (fileNames, iniFilter);
     }
 
+    if (vm->count (Option::m_name[Option::TICKS_FOR_TIMESTEP]) == 0)
+	*ticksForTimeStep = 1;
     if (constraintRotationNames->m_constraintIndex != INVALID_INDEX)
 	--constraintRotationNames->m_constraintIndex;
     if (vm->count (Option::m_name[Option::HELP])) 
@@ -458,23 +473,23 @@ int main(int argc, char *argv[])
 	vector<string> fileNames;
 	ConstraintRotationNames constraintRotationNames;
 	vector<ForceNames> forcesNames;
+	size_t ticksForTimeStep;
 	po::variables_map vm;
 
 	parseOptions (argc, argv, 
 		      &t1sFile, &fileNames, &constraintRotationNames,
-		      &forcesNames,
+		      &forcesNames, &ticksForTimeStep,
 		      &vm);	
-	foamAlongTime.ParseFiles (
+	if (vm.count (Option::m_name[Option::T1S]))
+	    foamAlongTime.ParseT1s (
+		t1sFile, ticksForTimeStep,
+		vm.count (Option::m_name[Option::T1S_LOWER]));
+	foamAlongTime.ParseDMPs (
 	    fileNames, vm.count (Option::m_name[Option::USE_ORIGINAL]),
 	    constraintRotationNames, forcesNames,
 	    vm.count (Option::m_name[Option::DEBUG_PARSING]), 
 	    vm.count (Option::m_name[Option::DEBUG_SCANNING]));
-	size_t timeSteps = foamAlongTime.GetTimeSteps ();
-	if (vm.count (Option::m_name[Option::T1S]))
-	    foamAlongTime.ReadT1s (
-		t1sFile, timeSteps, 
-		vm.count (Option::m_name[Option::T1S_LOWER]));
-        if (timeSteps == 0)
+        if (foamAlongTime.GetTimeSteps () == 0)
 	{
 	    cdbg << "Error: The patern provided does not match any file" 
 		 << endl;

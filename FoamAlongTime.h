@@ -162,12 +162,6 @@ public:
 	return m_forcesNames.size ();
     }
 
-    /**
-     * Read T1s from the file for as many time steps as there are DMPs
-     * Has to be called after parsing the DMP files.
-     *
-     */
-    void ReadT1s (const string& fileName, size_t timeSteps, bool shiftT1sLower);
     bool T1sAvailable () const;
     void SetT1sShiftLower (int i)
     {
@@ -183,11 +177,19 @@ public:
     {
 	return m_useOriginal;
     }
-    void ParseFiles (const vector<string>& fileNames,
-		     bool useOriginal,
-		     const ConstraintRotationNames& constraintRotationNames,
-		     const vector<ForceNames>& forcesNames,
-		     bool debugParsing, bool debugScanning);
+    /**
+     * Parse T1s from the file.
+     * in the file: first time step is 1 and T1s occur before timeStep
+     * in memory: first time step is 0 and T1s occur after timeStep
+     *
+     */
+    void ParseT1s (
+	const string& fileName, size_t ticksForTimeStep, bool shiftT1sLower);
+    void ParseDMPs (const vector<string>& fileNames,
+		    bool useOriginal,
+		    const ConstraintRotationNames& constraintRotationNames,
+		    const vector<ForceNames>& forcesNames,
+		    bool debugParsing, bool debugScanning);
     FoamParameters* GetFoamParameters ()
     {
 	return &m_foamParameters;

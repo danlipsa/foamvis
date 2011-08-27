@@ -52,7 +52,7 @@ QString lastName (const QString& path)
 /**
  * Functor used to parse a DMP file
  */
-class parseFile : public unary_function< QString, boost::shared_ptr<Foam> >
+class ParseDMP : public unary_function< QString, boost::shared_ptr<Foam> >
 {
 public:
     /**
@@ -60,7 +60,7 @@ public:
      * @param data Where to store the data parsed from the DMP files
      * @param dir directory where all DMP files are
      */
-    parseFile (
+    ParseDMP (
 	QString dir, 
 	const ConstraintRotationNames& constraintRotationNames, 
 	const vector<ForceNames>& forcesNames,
@@ -464,10 +464,11 @@ bool FoamAlongTime::T1sAvailable () const
     return false;
 }
 
-void FoamAlongTime::ReadT1s (const string& fileName, size_t timeSteps, 
-			     bool shiftT1sLower)
+
+void FoamAlongTime::ParseT1s (
+    const string& fileName, size_t ticksForTimeStep, bool shiftT1sLower)
 {
-    cdbg << "Parsing T1s file..." << endl;
+    cdbg << "Parsing T1s file...";
     const size_t LINE_LENGTH = 256;
     ifstream in;
     in.open (fileName.c_str ());
@@ -476,8 +477,6 @@ void FoamAlongTime::ReadT1s (const string& fileName, size_t timeSteps,
     in.exceptions (ios::failbit | ios::badbit);
     size_t timeStep;
     float x, y;
-    if (m_t1s.size () < timeSteps)
-	m_t1s.resize (timeSteps);
     while (! in.eof ())
     {
 	if (in.peek () == '#')
@@ -486,14 +485,16 @@ void FoamAlongTime::ReadT1s (const string& fileName, size_t timeSteps,
 	    continue;
 	}
 	in >> timeStep >> x >> y >> ws;
+	timeStep /= ticksForTimeStep;
 	// in the file: first time step is 1 and T1s occur before timeStep
 	// in memory: first time step is 0 and T1s occur after timeStep
 	timeStep -= 1;
-	if (timeStep >= timeSteps)
-	    break;
+	if (timeStep >= m_t1s.size ())
+	    m_t1s.resize (timeStep + 1);
 	m_t1s[timeStep].push_back (G3D::Vector3 (x, y, Foam::Z_COORDINATE_2D));
     }
     SetT1sShiftLower (shiftT1sLower);
+    cdbg << "last timestep with T1s: " << timeStep << endl;
 }
 
 const vector<G3D::Vector3>& FoamAlongTime::GetT1s (size_t timeStep) const
@@ -505,7 +506,7 @@ const vector<G3D::Vector3>& FoamAlongTime::GetT1s (size_t timeStep) const
 	return m_t1s[t];
 }
 
-void FoamAlongTime::ParseFiles (
+void FoamAlongTime::ParseDMPs (
     const vector<string>& fileNames,
     bool useOriginal,
     const ConstraintRotationNames& constraintRotationNames,
@@ -537,7 +538,7 @@ void FoamAlongTime::ParseFiles (
     SetTimeSteps (files.size ());
     SetFilePattern (filePattern);
     // FoamParameters are shared between all Foams
-    GetFoams ()[0] = parseFile (
+    GetFoams ()[0] = ParseDMP (
 	dir.absolutePath (), GetConstraintRotationNames (),
 	GetForcesNames (), OriginalUsed (), GetFoamParameters (),
 	Foam::SET_FOAM_PARAMETERS,
@@ -545,7 +546,7 @@ void FoamAlongTime::ParseFiles (
     QList< boost::shared_ptr<Foam> > foams = QtConcurrent::blockingMapped 
 	< QList < boost::shared_ptr<Foam> > > (
 	    files.begin () + 1, files.end (),
-	    parseFile (	
+	    ParseDMP (	
 		dir.absolutePath (), GetConstraintRotationNames (),
 		GetForcesNames (), OriginalUsed (), GetFoamParameters (),
 		Foam::TEST_FOAM_PARAMETERS, debugParsing, debugScanning));
