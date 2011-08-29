@@ -287,7 +287,7 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 	radioButtonFaceEdgesTorus->setDisabled (true);
     }
     radioButtonFacesNormal->toggle ();
-    tabWidget->setCurrentWidget (faces);
+    tabWidget->setCurrentWidget (timeStep);
     if (foam.Is2D ())
     {
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::TWO_D);
@@ -770,21 +770,21 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 void MainWindow::ToggledEdgesNormal (bool checked)
 {
     if (checked)
-	stackedWidgetEdges->setCurrentWidget (pageEdgesNormal);
+	stackedWidgetTimeStep->setCurrentWidget (pageEdgesNormal);
     else
-	stackedWidgetEdges->setCurrentWidget (pageEdgesEmpty);
+	stackedWidgetTimeStep->setCurrentWidget (pageTimeStepEmpty);
 }
 
 void MainWindow::ToggledFacesNormal (bool checked)
 {
     if (checked)
     {
-	stackedWidgetFaces->setCurrentWidget (pageFacesNormal);
+	stackedWidgetTimeStep->setCurrentWidget (pageFacesNormal);
 	if (m_histogramViewNumber == widgetGl->GetViewNumber ())
 	    ButtonClickedHistogram (m_histogramType);
     }
     else
-	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
+	stackedWidgetTimeStep->setCurrentWidget (pageTimeStepEmpty);
 }
 
 void MainWindow::ToggledCenterPath (bool checked)
@@ -793,14 +793,14 @@ void MainWindow::ToggledCenterPath (bool checked)
     {
 	if (m_histogramViewNumber == widgetGl->GetViewNumber ())
 	    ButtonClickedHistogram (m_histogramType);
-	stackedWidgetComposite->setCurrentWidget (pageCenterPath);
+	stackedWidgetTimeDependent->setCurrentWidget (pageCenterPath);
 	labelCenterPathColor->setText (
 	    BodyProperty::ToString (
 		BodyProperty::FromSizeT (
 		    widgetGl->GetViewSettings ().GetBodyOrFaceProperty ())));
     }
     else
-	stackedWidgetComposite->setCurrentWidget (pageCompositeEmpty);
+	stackedWidgetTimeDependent->setCurrentWidget (pageTimeDependentEmpty);
 }
 
 
@@ -892,7 +892,7 @@ void MainWindow::ToggledFacesStatistics (bool checked)
     if (checked)
     {
 	Q_EMIT ColorBarModelChanged (getCurrentColorBarModel ());
-	stackedWidgetFaces->setCurrentWidget (pageFacesStatistics);
+	stackedWidgetTimeDependent->setCurrentWidget (pageFacesStatistics);
 	labelFacesStatisticsColor->setText (
 	    BodyProperty::ToString (
 		BodyProperty::FromSizeT (
@@ -909,7 +909,7 @@ void MainWindow::ToggledFacesStatistics (bool checked)
 	    Q_EMIT ColorBarModelChanged (
 		m_colorBarModelBodyProperty[viewNumber][bodyProperty]);
 	}
-	stackedWidgetFaces->setCurrentWidget (pageFacesEmpty);
+	stackedWidgetTimeDependent->setCurrentWidget (pageTimeDependentEmpty);
     }
 }
 

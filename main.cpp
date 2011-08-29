@@ -168,6 +168,11 @@ po::options_description getCommonOptions (
 	"\"foam [COMMAND_LINE_OPTIONS] [COMMON_OPTIONS] <files> ...\"\n"
 	"\"foam [COMMAND_LINE_OPTIONS]\" where --ini-file has to be specified\n"
 	"<files> - one or more DMP files\n"
+	"Examples...\n"
+	"using the ini file:\n"
+	"./foam --ini-file simulations.ini --simulation ctrctndumps_704v_0.1520_0.2400_8.0000_v1 --filter '???1'\n"
+	"using command line parameters:\n"
+	"./foam --t1s /home/dlipsa/Documents/swansea-phd/foam/ctrctndumps_704v_0.1520_0.2400_8.0000_v1/energy_704v_0.1520_0.2400_8.0000_v1.dat /home/dlipsa/Documents/swansea-phd/foam/ctrctndumps_704v_0.1520_0.2400_8.0000_v1/dump_0.1520_0.2400_8.0000_0???.dmp\n"
 	"COMMON_OPTIONS");
     commonOptions.add_options()
 	(Option::m_name[Option::CONSTRAINT],
@@ -242,8 +247,8 @@ po::options_description getCommandLineOptions (
 	 "outputs a text representation of the data")
 	(Option::m_name[Option::SIMULATION],
 	 po::value<string>(simulationName),
-	 "parse the simulation files labeld by <name> in the ini file.\n"
-	 "arg=<name>." )
+	 "arg=<simulationName>, parse the simulation with name "
+	 "<simulationName> in the ini file.")
 	(Option::m_name[Option::VERSION], "prints version information")
 	;
     return commandLineOptions;
