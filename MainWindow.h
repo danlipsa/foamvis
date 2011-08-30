@@ -69,6 +69,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void ButtonClickedHistogram (int histogramType);
+    void ButtonClickedViewType (int viewType);
 
     void ToggledHistogramGridShown (bool checked);
 
@@ -114,11 +115,6 @@ public Q_SLOTS:
     
     void ToggledFacesNormal (bool checked);
     void ToggledFacesStatistics (bool checked);
-    /**
-     * Shows edges
-     * @param checked true for showing edges false otherwise
-     */
-    void ToggledEdgesNormal (bool checked);
     /**
      * Invoqued by the UI when  the slider changes to display the data
      * at the current position of the slider.

@@ -436,7 +436,7 @@ private:
     void displayViewTimeStep (const G3D::Rect2D& viewRect);
     void displayViewGrid () const;
 
-    ViewType::Enum changeViewType (bool checked, ViewType::Enum newViewType);
+    void changeViewType (ViewType::Enum newViewType);
     /**
      * First translate the data to be centered around origin, then
      * rotate and then translate toward negative Z with
@@ -481,13 +481,10 @@ private:
     void displayEdgesTorusTubes () const;
     void displayEdgesTorusLines () const;
 
-    /**
-     * @todo display concave filled polygons using the stencil buffer.
-     * @see Chapter 14, OpenGL Programming Guide, version 1.1
-     */
     void displayFacesNormal (ViewNumber::Enum view) const;
     void displayFacesTorus (ViewNumber::Enum view) const;
     void displayFacesAverage (ViewNumber::Enum view) const;
+    void displayT1sPDE (ViewNumber::Enum view) const;
     void displayFacesTorusTubes () const;
     void displayFacesTorusLines () const;
 
@@ -501,8 +498,8 @@ private:
     void displayBodiesNeighbors () const;
     void displayBodyDeformationTensor2D () const;
     void displayDeformationTensor2D (ViewNumber::Enum viewNumber) const;
-    void displayT1s (ViewNumber::Enum view, size_t timeStep) const;
-    void displayT1sGlobal (ViewNumber::Enum view) const;
+    void displayT1sTimeStep (ViewNumber::Enum view, size_t timeStep) const;
+    void displayT1sTimeDependent (ViewNumber::Enum view) const;
     void displayCenterPaths (ViewNumber::Enum view) const;
     void compileCenterPaths (ViewNumber::Enum view) const;
     void compile (ViewNumber::Enum view) const;
@@ -613,10 +610,10 @@ private:
     
 private:
     // Min, max values for T1s, Context alpha, force length
-    const static pair<double,double> T1_SIZE;
-    const static pair<double,double> ELLIPSE_SIZE_EXP;
-    const static pair<double,double> ELLIPSE_LINE_WIDTH_EXP;
-    const static pair<double,double> CELL_LENGTH_EXP;
+    const static pair<double,double> T1_SIZE_EXP2;
+    const static pair<double,double> ELLIPSE_SIZE_EXP2;
+    const static pair<double,double> ELLIPSE_LINE_WIDTH_EXP2;
+    const static pair<double,double> CELL_LENGTH_EXP2;
     const static pair<double,double> CONTEXT_ALPHA;
     const static pair<double,double> FORCE_LENGTH;
     const static GLfloat HIGHLIGHT_LINE_WIDTH;
@@ -718,7 +715,7 @@ private:
     bool m_centerPathTubeUsed;
     bool m_centerPathLineUsed;
     bool m_t1sShown;
-    double m_t1Size;
+    double m_t1sSizeRatio;
     double m_ellipseSizeRatio;
     double m_ellipseLineWidthRatio;
     double m_contextAlpha;

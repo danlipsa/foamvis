@@ -204,7 +204,9 @@ make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
 Release log
 ===========
 0.6      - added --ticks-for-timestep to deal with vfplug_137v_9.857973_2.
-	 
+	 - Rearanged the views in 'Time step' and 'Time dependent' categories 
+	   (instead of Edges, Faces and Bodies).
+         - 
 
 0.6.2118 - added instantaneous and time averaged deformation (texture) tensor.
 	 - fixed 'Context > Stationary > Foam' to not cut the displayed image.
@@ -218,6 +220,7 @@ Release log
 	   ctrctndumps_725v_0.1480_0.2400_9.0000_rupt_v1/
 	   dump_0.1480_0.2400_9.0000_0171.dmp)
 	 - reading command parameters from ini file + browsing simulations
+
 0.5.2062 - added axes labels (Show > Ohter > Axes)
 	 - added right-click > Info > Face and Info > Edge
 	 - added --constraint option, to specify an object described
@@ -228,12 +231,15 @@ Release log
 	 - deduce an object specified with a constraint (for sedimenting-discs)
 	 - added Show > Other > Body neighbors checkbox
 	 - allow CR,LF as line termination (for two_discs_c1_n2200_dumps)
+
 0.5.2023 - fixed wetfoam_100_0002.dmp
 	 - added Actual Volume to the list of body properties, 
 	   Added 'General > Look > Volume shown' user option.
 	 - Set selections 'per view'. Added 'Copy Selection' right-click menu
 	 - Added 'Play Reverse' button
+
 0.5.1974 - read forces acting on sedimenting discs using --force command line
+
 0.5.1960 - use long command line options (boost program options)
 	 - use --use-original for datasets that have to use ORIGINAL 
 	   attribute (ellipse)
@@ -247,11 +253,13 @@ Release log
 	   for some bubbles in the ellipse datase)
 	 - fix sausage_problem
 	 - added right-click > Context > Stationary > Foam
+
 0.5.1928 - bug for tmp_in.dmp (array on several lines)
 	 - changed body ID to the one specified in ORIGINAL attribute 
 	   (fixes ell0.700000_750v_5.000000_1.dmp) only for 2D. Otherwise
 	   it breaks sphereall/sphere_0.711204_144_0001.dmp
 	 - added missing body edges from constraints specification
+
 0.4.1852 - linked views
 	 - edit highlight colors for colormaps
 	 - separated body context from body stationary and displayed both
@@ -259,45 +267,60 @@ Release log
          - more precise center calculation (using all aproximation points for a
 	   quadratic edge)
 	 - user option: show missing pressure as 0
+
 0.4.1794 - added option to shift T1s lower
+
 0.4.1789 - new scalar variables Number of sides, Elongation
 	 - added T1s overlay (-r option on the command line)
 	 - added 2 highlight colors for each color map
+
 0.4.1777 - rolling average
 	 - domain histogram (count of values that fall in a certain interval per
 	   unit area). Note that histogram shown for 'Edit Color Map' is not 
 	   correct for the 'Domain Histogram' color bar.
 	 - fix the front-back faces
          - fix the concave polygons problem.
+
 0.4.1746 - use display lists for center paths resulting in significant speed 
 	   improvement for interaction with 3D bubble paths.
+
 0.4.1740 - stationary body + context selection in face and average view
 	 - fixes to the context view
+
 0.4.1728 - set missing pressure of last body of constrained foam to 0
          - added 2D context view
          - fixed lighting for time displacement view
          - compile with optimizations by default
 	 - added selection by location in edge and face views
+
 0.3.1690 - added time displacement view for 2D data
 	 - added command line option: -o : show original pressure values
+
 0.3.1682 - bug fix for coarse100/coarse_01_0100_0407.dmp
 	 - pressures made > 0 and aligned medians between time steps
 	 - added combination brushing: by id and by property value
+
 0.3.1598 - bug fix for pull2_bi_204_00099.dmp, updated test.pl
 	 - bug fix assert failure for ctnctr timesteps [89]??
+
 0.3.1596 - bug fixes to the average calculation (fixes for pressure and 
 	   velocity).
 	 - two new datasets tested ellipse_in_flow and sedimenting_discs
 	 - display the center path only if there is at least one segment in focus
+
 0.3.1569 - per pixel average for bubble attributes values (2D)
+
 0.2.1489 - Fixes in the parser and new tests added to test.pl
+
 0.2.1487 - Per property color map with clamping
 	 - Added several color maps: rainbow, black body radiator, 
 	   blue-red diverging
+
 0.1.1476 - Handle significant space between expressions correctly
 	 - Apply the VIEW_MATRIX rotation, so that foam and evolver produce
 	   the same view
          - added a few test files to test.pl
+
 0.1.1462 - Added UI feedback for histogram bars that are taller than the 
            height of the histogram. (a red cap)
 	 - Histogram selection is reflected in time step selection,
@@ -308,8 +331,10 @@ Release log
 	 - Histogram selection is reflected in body selection and
 	   center path selection. Deselected bodies are displayed
 	   transparent in both Face and Center Path views
+
 0.1.1432 - Added user option to adjust the height of a histogram.
 	 - Fixed histogram for center path
+
 0.1.1427 - parsing 2D and 3D dmp files
 	 - support for torus model
 	 - support for quadratic model

@@ -141,7 +141,7 @@ const vector<G3D::Vector3> FoamAlongTime::NO_T1S;
 FoamAlongTime::FoamAlongTime () :
     m_histogram (
         BodyProperty::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
-    m_t1sTimestepShift (0),
+    m_t1sTimeStepShift (0),
     m_useOriginal (false)
 {
 }
@@ -411,7 +411,6 @@ string FoamAlongTime::ToHtml () const
 void FoamAlongTime::SetTimeSteps (size_t timeSteps)
 {
     m_foams.resize (timeSteps);
-    m_t1s.resize (timeSteps);
 }
 
 
@@ -464,6 +463,11 @@ bool FoamAlongTime::T1sAvailable () const
     return false;
 }
 
+size_t FoamAlongTime::GetT1sTimeSteps () const
+{
+    return m_t1s.size ();
+}
+
 
 void FoamAlongTime::ParseT1s (
     const string& fileName, size_t ticksForTimeStep, bool shiftT1sLower)
@@ -499,7 +503,7 @@ void FoamAlongTime::ParseT1s (
 
 const vector<G3D::Vector3>& FoamAlongTime::GetT1s (size_t timeStep) const
 {
-    int t = int(timeStep) + m_t1sTimestepShift;
+    int t = int(timeStep) + m_t1sTimeStepShift;
     if (t < 0 || size_t (t) >= m_t1s.size ())
 	return NO_T1S;
     else

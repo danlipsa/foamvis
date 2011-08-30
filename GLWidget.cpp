@@ -159,9 +159,9 @@ const size_t GLWidget::DISPLAY_ALL(numeric_limits<size_t>::max());
 const size_t GLWidget::QUADRIC_SLICES = 8;
 const size_t GLWidget::QUADRIC_STACKS = 1;
 
-const pair<double,double> GLWidget::T1_SIZE (1, 10);
-const pair<double,double> GLWidget::ELLIPSE_SIZE_EXP (-10, 10);
-const pair<double,double> GLWidget::ELLIPSE_LINE_WIDTH_EXP (0, 3);
+const pair<double,double> GLWidget::T1_SIZE_EXP2 (2, 5);
+const pair<double,double> GLWidget::ELLIPSE_SIZE_EXP2 (-10, 10);
+const pair<double,double> GLWidget::ELLIPSE_LINE_WIDTH_EXP2 (0, 3);
 
 const pair<double,double> GLWidget::CONTEXT_ALPHA (0.05, 0.5);
 const pair<double,double> GLWidget::FORCE_LENGTH (.25, 6);
@@ -194,7 +194,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_centerPathTubeUsed (true),
       m_centerPathLineUsed (false),
       m_t1sShown (false),
-      m_t1Size (T1_SIZE.first),
+      m_t1sSizeRatio (2.0),
       m_ellipseSizeRatio (1),
       m_ellipseLineWidthRatio (1),
       m_contextAlpha (CONTEXT_ALPHA.first),
@@ -447,8 +447,9 @@ void GLWidget::initDisplayView ()
 	  &GLWidget::displayEdgesTorus,
 	  &GLWidget::displayFacesTorus,
 	  &GLWidget::displayFacesNormal,
-	  &GLWidget::displayFacesAverage,
 	  &GLWidget::displayCenterPathsWithBodies,
+	  &GLWidget::displayFacesAverage,
+	  &GLWidget::displayT1sPDE,
 	    }};
     copy (displayView.begin (), displayView.end (), m_displayView.begin ());
 }
@@ -549,19 +550,11 @@ GLWidget::~GLWidget()
     m_quadric = 0;
 }
 
-ViewType::Enum GLWidget::changeViewType (bool checked, 
-					 ViewType::Enum newViewType)
+void GLWidget::changeViewType (ViewType::Enum newViewType)
 {
-    if (checked)
-    {
-	ViewType::Enum oldViewType = GetViewSettings ().GetViewType ();
-	GetViewSettings ().SetViewType (newViewType);
-	compile (GetViewNumber ());
-	update ();
-	return oldViewType;
-    }
-    else
-	return ViewType::COUNT;
+    GetViewSettings ().SetViewType (newViewType);
+    compile (GetViewNumber ());
+    update ();
 }
 
 QSize GLWidget::minimumSizeHint()
@@ -2055,10 +2048,10 @@ void GLWidget::displayT1s (ViewNumber::Enum view) const
 {
     if (m_t1sShown)
     {
-	if (ViewType::IsGlobal (GetViewSettings ().GetViewType ()))
-	    displayT1sGlobal (view);
+	if (ViewType::IsTimeDependent (GetViewSettings ().GetViewType ()))
+	    displayT1sTimeDependent (view);
 	else
-	    displayT1s (view, GetTime ());
+	    displayT1sTimeStep (view, GetTime ());
     }
 }
 
@@ -2131,17 +2124,20 @@ void GLWidget::displayBodiesNeighbors () const
     glPopAttrib ();
 }
 
-void GLWidget::displayT1sGlobal (ViewNumber::Enum view) const
+void GLWidget::displayT1sTimeDependent (ViewNumber::Enum view) const
 {
-    for (size_t i = 0; i < GetFoamAlongTime ().GetTimeSteps (); ++i)
-	displayT1s (view, i);
+/*
+    for (size_t i = 0; i < GetFoamAlongTime ().GetT1sTimeSteps (); ++i)
+    displayT1sTimeStep (view, i);
+*/
+    displayT1sTimeStep (view, 5);
 }
 
-void GLWidget::displayT1s (ViewNumber::Enum view, size_t timeStep) const
+void GLWidget::displayT1sTimeStep (ViewNumber::Enum view, size_t timeStep) const
 {
     glPushAttrib (GL_ENABLE_BIT | GL_POINT_BIT | GL_CURRENT_BIT);
     glDisable (GL_DEPTH_TEST);
-    glPointSize (m_t1Size);
+    glPointSize (m_t1sSizeRatio);
     glColor (GetHighlightColor (view, HighlightNumber::H0));
     glBegin (GL_POINTS);
     BOOST_FOREACH (const G3D::Vector3 v, 
@@ -2150,6 +2146,17 @@ void GLWidget::displayT1s (ViewNumber::Enum view, size_t timeStep) const
     glEnd ();
     glPopAttrib ();
 }
+
+// Interactive Visualization of Streaming Data with Kernel Density Estimation
+// Ove Daae Lampe and Helwig Hauser
+// h: bandwidth is equal with standard deviation
+void GLWidget::calculateGaussian (
+    boost::array< boost::array<float, GAUSSIAN_TEXTURE_SIZE>, 
+    GAUSSIAN_TEXTURE_SIZE>, float h, float GAUSSIAN_INTERVAL)
+{
+    
+}
+
 
 QColor GLWidget::GetHighlightColor (
     ViewNumber::Enum viewNumber, HighlightNumber::Enum highlight) const
@@ -2284,6 +2291,13 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
     displayStandaloneFaces ();    
     displayDeformationTensor2D (viewNumber);
     vs.GetForceAverage ().DisplayOne (viewNumber);
+}
+
+void GLWidget::displayT1sPDE (ViewNumber::Enum viewNumber) const
+{
+    displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
+    displayStandaloneFaces ();    
+    displayT1sTimeDependent (viewNumber);
 }
 
 
@@ -3152,7 +3166,7 @@ void GLWidget::ButtonClickedViewType (int id)
     }
     if (oldViewType == ViewType::FACES_STATISTICS)
 	vs.Release ();
-    changeViewType (true, newViewType);
+    changeViewType (newViewType);
 }
 
 
@@ -3346,21 +3360,21 @@ void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
 
 void GLWidget::ValueChangedT1Size (int index)
 {
-    valueChanged (&m_t1Size, T1_SIZE, index);
+    valueChangedLog2Scale (&m_t1sSizeRatio, T1_SIZE_EXP2, index);
     update ();
 }
 
 
 void GLWidget::ValueChangedEllipseSize (int index)
 {
-    valueChangedLog2Scale (&m_ellipseSizeRatio, ELLIPSE_SIZE_EXP, index);
+    valueChangedLog2Scale (&m_ellipseSizeRatio, ELLIPSE_SIZE_EXP2, index);
     update ();
 }
 
 void GLWidget::ValueChangedEllipseLineWidthRatio (int index)
 {
     valueChangedLog2Scale (
-	&m_ellipseLineWidthRatio, ELLIPSE_LINE_WIDTH_EXP, index);
+	&m_ellipseLineWidthRatio, ELLIPSE_LINE_WIDTH_EXP2, index);
     update ();
 }
 

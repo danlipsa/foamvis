@@ -106,7 +106,6 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
 
 void MainWindow::setDefaults ()
 {
-    horizontalSliderT1Size->setValue (60);
     comboBoxWindowSize->setCurrentIndex (WindowSize::GL_720x480);
     horizontalSliderEllipseSize->setValue (49);
 }
@@ -240,9 +239,11 @@ void MainWindow::setupButtonGroups ()
     buttonGroupViewType->setId (radioButtonFaceEdgesTorus, 
 				ViewType::FACES_TORUS);
     buttonGroupViewType->setId (radioButtonFacesNormal, ViewType::FACES);
+    buttonGroupViewType->setId (radioButtonCenterPath, ViewType::CENTER_PATHS);
     buttonGroupViewType->setId (radioButtonFacesStatistics, 
 				ViewType::FACES_STATISTICS);
-    buttonGroupViewType->setId (radioButtonCenterPath, ViewType::CENTER_PATHS);
+    buttonGroupViewType->setId (radioButtonT1sPDE, ViewType::T1S_PDE);
+    
 
     buttonGroupInteractionObject->setId (
 	radioButtonInteractionFocus, InteractionObject::FOCUS);
@@ -767,24 +768,55 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
     updateButtons ();
 }
 
-void MainWindow::ToggledEdgesNormal (bool checked)
+void MainWindow::ButtonClickedViewType (int id)
 {
-    if (checked)
-	stackedWidgetTimeStep->setCurrentWidget (pageEdgesNormal);
-    else
-	stackedWidgetTimeStep->setCurrentWidget (pageTimeStepEmpty);
+    ViewType::Enum viewType = ViewType::Enum(id);
+    // WARNING: Has to match ViewType::Enum order
+    QWidget* pages[] = 
+    {
+	pageEdgesNormal,
+	pageTimeStepEmpty,
+	pageTimeStepEmpty,
+	pageFacesNormal,
+
+	pageCenterPath,
+	pageFacesStatistics,
+	pageTimeDependentEmpty
+    };
+    ((ViewType::IsTimeDependent (viewType)) ? stackedWidgetTimeDependent :
+     stackedWidgetTimeStep)->setCurrentWidget (pages[viewType]);
 }
+
 
 void MainWindow::ToggledFacesNormal (bool checked)
 {
+    if (checked && m_histogramViewNumber == widgetGl->GetViewNumber ())
+	ButtonClickedHistogram (m_histogramType);
+}
+
+void MainWindow::ToggledFacesStatistics (bool checked)
+{
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
     if (checked)
     {
-	stackedWidgetTimeStep->setCurrentWidget (pageFacesNormal);
-	if (m_histogramViewNumber == widgetGl->GetViewNumber ())
-	    ButtonClickedHistogram (m_histogramType);
+	Q_EMIT ColorBarModelChanged (getCurrentColorBarModel ());
+	labelFacesStatisticsColor->setText (
+	    BodyProperty::ToString (
+		BodyProperty::FromSizeT (
+		    widgetGl->GetViewSettings ().GetBodyOrFaceProperty ())));
+	ButtonClickedHistogram (m_histogramType);
     }
     else
-	stackedWidgetTimeStep->setCurrentWidget (pageTimeStepEmpty);
+    {	
+	size_t property = widgetGl->GetBodyOrFaceProperty ();
+	if (property != FaceProperty::DMP_COLOR)
+	{
+	    BodyProperty::Enum bodyProperty = 
+		BodyProperty::FromSizeT (property);
+	    Q_EMIT ColorBarModelChanged (
+		m_colorBarModelBodyProperty[viewNumber][bodyProperty]);
+	}
+    }
 }
 
 void MainWindow::ToggledCenterPath (bool checked)
@@ -793,14 +825,11 @@ void MainWindow::ToggledCenterPath (bool checked)
     {
 	if (m_histogramViewNumber == widgetGl->GetViewNumber ())
 	    ButtonClickedHistogram (m_histogramType);
-	stackedWidgetTimeDependent->setCurrentWidget (pageCenterPath);
 	labelCenterPathColor->setText (
 	    BodyProperty::ToString (
 		BodyProperty::FromSizeT (
 		    widgetGl->GetViewSettings ().GetBodyOrFaceProperty ())));
     }
-    else
-	stackedWidgetTimeDependent->setCurrentWidget (pageTimeDependentEmpty);
 }
 
 
@@ -886,32 +915,6 @@ void MainWindow::CurrentIndexChangedWindowSize (int value)
     }
 }
 
-void MainWindow::ToggledFacesStatistics (bool checked)
-{
-    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
-    if (checked)
-    {
-	Q_EMIT ColorBarModelChanged (getCurrentColorBarModel ());
-	stackedWidgetTimeDependent->setCurrentWidget (pageFacesStatistics);
-	labelFacesStatisticsColor->setText (
-	    BodyProperty::ToString (
-		BodyProperty::FromSizeT (
-		    widgetGl->GetViewSettings ().GetBodyOrFaceProperty ())));
-	ButtonClickedHistogram (m_histogramType);
-    }
-    else
-    {	
-	size_t property = widgetGl->GetBodyOrFaceProperty ();
-	if (property != FaceProperty::DMP_COLOR)
-	{
-	    BodyProperty::Enum bodyProperty = 
-		BodyProperty::FromSizeT (property);
-	    Q_EMIT ColorBarModelChanged (
-		m_colorBarModelBodyProperty[viewNumber][bodyProperty]);
-	}
-	stackedWidgetTimeDependent->setCurrentWidget (pageTimeDependentEmpty);
-    }
-}
 
 void MainWindow::ButtonClickedHistogram (int histogramType)
 {

@@ -113,12 +113,13 @@ ViewType::Enum ViewType::FromInt (int i)
     return ViewType::Enum (i);
 }
 
-bool ViewType::IsGlobal (ViewType::Enum t)
+bool ViewType::IsTimeDependent (ViewType::Enum t)
 {
     switch (t)
     {
-    case FACES_STATISTICS:
     case CENTER_PATHS:
+    case FACES_STATISTICS:
+    case T1S_PDE:
 	return true;
     default:
 	return false;
@@ -137,10 +138,10 @@ const char* ViewType::ToString (ViewType::Enum t)
 	return "Faces torus";
     case FACES:
 	return "Faces";	
-    case FACES_STATISTICS:
-	return "Faces statistics";
     case CENTER_PATHS:
 	return "Center paths";
+    case FACES_STATISTICS:
+	return "Faces statistics";
     default:
 	return "Invalid ViewType";
     }

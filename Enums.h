@@ -173,15 +173,15 @@ public:
         EDGES,
 	EDGES_TORUS,
 	FACES_TORUS,
-
         FACES,
-	FACES_STATISTICS,
 
 	CENTER_PATHS,
+	FACES_STATISTICS,
+	T1S_PDE,
         COUNT
     };
     static Enum FromInt (int i);
-    static bool IsGlobal (ViewType::Enum t);
+    static bool IsTimeDependent (ViewType::Enum t);
     static const char* ToString (ViewType::Enum viewType);
 };
 

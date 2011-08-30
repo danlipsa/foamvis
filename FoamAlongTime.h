@@ -165,13 +165,14 @@ public:
     bool T1sAvailable () const;
     void SetT1sShiftLower (int i)
     {
-	m_t1sTimestepShift = i;
+	m_t1sTimeStepShift = i;
     }
     int GetT1sShiftLower () const
     {
-	return m_t1sTimestepShift;
+	return m_t1sTimeStepShift;
     }
     const vector<G3D::Vector3>& GetT1s (size_t timeStep) const;
+    size_t GetT1sTimeSteps () const;
 
     bool OriginalUsed () const
     {
@@ -234,7 +235,7 @@ private:
     vector<HistogramStatistics> m_histogram;
     bool m_adjustPressure;
     vector< vector<G3D::Vector3> > m_t1s;
-    int m_t1sTimestepShift;
+    int m_t1sTimeStepShift;
     ConstraintRotationNames m_constraintRotationNames;
     vector<ForceNames> m_forcesNames;
     bool m_useOriginal;
