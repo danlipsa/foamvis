@@ -181,7 +181,7 @@ void ThrowOnOpenGLError (string message)
 
 void printOpenGLInfo (ostream& ostr)
 {
-    boost::array<OpenGLFeature, 31> info = {{
+    boost::array<OpenGLFeature, 33> info = {{
 	OpenGLFeature (GL_VENDOR, OpenGLFeature::STRING, "GL_VENDOR"),
 	OpenGLFeature (GL_RENDERER, OpenGLFeature::STRING, "GL_RENDERER"),
 	OpenGLFeature (GL_VERSION, OpenGLFeature::STRING, "GL_VERSION"),
@@ -213,6 +213,10 @@ void printOpenGLInfo (ostream& ostr)
 	OpenGLFeature ("--- Vertex Shader ---"),
 	OpenGLFeature (GL_MAX_VERTEX_ATTRIBS, OpenGLFeature::INTEGER,
 		       "GL_MAX_VERTEX_ATTRIBS"),
+
+	OpenGLFeature ("--- Geometry Shader ---"),
+	OpenGLFeature (GL_MAX_GEOMETRY_OUTPUT_VERTICES, OpenGLFeature::INTEGER,
+		       "GL_MAX_GEOMETRY_OUTPUT_VERTIES"),
 
 	OpenGLFeature ("--- Multisampling ---"),	
 	OpenGLFeature (GL_SAMPLE_BUFFERS, OpenGLFeature::INTEGER, 

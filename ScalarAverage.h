@@ -27,8 +27,8 @@ class ScalarAverage : public ImageBasedAverage<SetterVertexAttribute>
 public:
     static void InitShaders ();
 
-    ScalarAverage (const GLWidget& glWidget) :
-	ImageBasedAverage<SetterVertexAttribute> (glWidget, "scalar", m_fbos)
+    ScalarAverage (const GLWidget& glWidget, string id = "scalar") :
+	ImageBasedAverage<SetterVertexAttribute> (glWidget, id, m_fbos)
     {
     }
 

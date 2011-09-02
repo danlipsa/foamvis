@@ -37,7 +37,7 @@ struct FramebufferObjects
      */
     boost::shared_ptr<QGLFramebufferObject> m_step;
     /**
-     * Used to save buffers as images.
+     * Used to save fbos as images.
      */
     boost::shared_ptr<QGLFramebufferObject> m_debug;
 };
@@ -76,6 +76,10 @@ public:
 	return m_fbos;
     }
     virtual void Init (ViewNumber::Enum viewNumber);
+    string GetId () const
+    {
+	return m_id;
+    }
 
 protected:
     typedef pair<boost::shared_ptr<QGLFramebufferObject>, 
@@ -90,6 +94,8 @@ protected:
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const = 0;
+    virtual void writeStepValues (ViewNumber::Enum view, size_t timeStep);
+
     void glActiveTexture (GLenum texture) const;
 
 
@@ -103,8 +109,6 @@ protected:
 
 private:
     void clear (ViewNumber::Enum viewNumber);
-    void writeFacesValues (
-	ViewNumber::Enum view, const vector<boost::shared_ptr<Body> >& bodies);
 
     void save (ViewNumber::Enum viewNumber, FramebufferObjectPair fbo, 
 	       const char* fileName, size_t timeStep, GLfloat minValue, 

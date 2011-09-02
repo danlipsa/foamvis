@@ -174,22 +174,20 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::renderToStep (
     ViewNumber::Enum viewNumber, size_t time)
 {
-    G3D::Rect2D destRect = EncloseRotation (
-	GetGLWidget ().GetViewRect (viewNumber));
+    const GLWidget& glWidget = GetGLWidget ();
+    G3D::Rect2D destRect = EncloseRotation (glWidget.GetViewRect (viewNumber));
     glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
-    GetGLWidget ().ModelViewTransform (viewNumber, time);
+    glWidget.ModelViewTransform (viewNumber, time);
     glMatrixMode (GL_PROJECTION);
     glPushMatrix ();
-    GetGLWidget ().ProjectionTransform (
+    glWidget.ProjectionTransform (
 	viewNumber, ViewingVolumeOperation::ENCLOSE2D);
     glViewport (0, 0, destRect.width (), destRect.height ());    
     initFramebuffer (viewNumber, m_fbos.m_step);
     m_fbos.m_step->bind ();
     ClearColorStencilBuffers (Qt::transparent, 0);
-    const Foam& foam = GetGLWidget ().GetFoamAlongTime ().GetFoam (time);
-    const Foam::Bodies& bodies = foam.GetBodies ();
-    writeFacesValues (viewNumber, bodies);
+    writeStepValues (viewNumber, time);
     m_fbos.m_step->release ();
     glMatrixMode (GL_PROJECTION);
     glPopMatrix ();
@@ -322,9 +320,11 @@ void ImageBasedAverage<PropertySetter>::save (
 }
 
 template<typename PropertySetter>
-void ImageBasedAverage<PropertySetter>::writeFacesValues (
-    ViewNumber::Enum viewNumber, const Foam::Bodies& bodies)
+void ImageBasedAverage<PropertySetter>::writeStepValues (
+    ViewNumber::Enum viewNumber, size_t timeStep)
 {
+    const Foam& foam = GetGLWidget ().GetFoamAlongTime ().GetFoam (timeStep);
+    const Foam::Bodies& bodies = foam.GetBodies ();
     m_storeShaderProgram->Bind ();
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT );
     glPolygonMode (GL_FRONT, GL_FILL);    
@@ -343,7 +343,7 @@ void ImageBasedAverage<PropertySetter>::writeFacesValues (
 	    DisplayElement::INVISIBLE_CONTEXT));
     glPopAttrib ();
     m_storeShaderProgram->release ();
-    WarnOnOpenGLError ("ImageBasedAverage::writeFacesValues:" + m_id);
+    WarnOnOpenGLError ("ImageBasedAverage::writeStepValues:" + m_id);
 }
 
 template<typename PropertySetter>

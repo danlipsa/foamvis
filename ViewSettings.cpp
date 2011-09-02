@@ -14,6 +14,7 @@
 #include "ForceAverage.h"
 #include "Foam.h"
 #include "Utils.h"
+#include "T1sPDE.h"
 #include "TensorAverage.h"
 #include "ViewSettings.h"
 
@@ -49,6 +50,7 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_listCenterPaths (0),
     m_colorBarTexture (0),
     m_scalarAverage (new ScalarAverage (glWidget)),
+    m_t1sPDE (new T1sPDE (glWidget)),
     m_tensorAverage (new TensorAverage (glWidget, m_scalarAverage->GetFbos ())),
     m_forceAverage (new ForceAverage (glWidget)),
     m_rotationModel (G3D::Matrix3::identity ()),

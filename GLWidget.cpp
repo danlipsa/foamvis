@@ -2147,17 +2147,6 @@ void GLWidget::displayT1sTimeStep (ViewNumber::Enum view, size_t timeStep) const
     glPopAttrib ();
 }
 
-// Interactive Visualization of Streaming Data with Kernel Density Estimation
-// Ove Daae Lampe and Helwig Hauser
-// h: bandwidth is equal with standard deviation
-void GLWidget::calculateGaussian (
-    boost::array< boost::array<float, GAUSSIAN_TEXTURE_SIZE>, 
-    GAUSSIAN_TEXTURE_SIZE>, float h, float GAUSSIAN_INTERVAL)
-{
-    
-}
-
-
 QColor GLWidget::GetHighlightColor (
     ViewNumber::Enum viewNumber, HighlightNumber::Enum highlight) const
 {

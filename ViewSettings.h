@@ -14,6 +14,7 @@ class AllBodySelector;
 class BodySelector;
 class ColorBarModel;
 class ScalarAverage;
+class T1sPDE;
 class TensorAverage;
 class ForceAverage;
 class GLWidget;
@@ -66,6 +67,11 @@ public:
     ScalarAverage& GetScalarAverage () const
     {
 	return *m_scalarAverage;
+    }
+    
+    T1sPDE& GetT1sPDE () const
+    {
+	return *m_t1sPDE;
     }
 
     TensorAverage& GetTensorAverage () const
@@ -415,6 +421,7 @@ private:
     GLuint m_listCenterPaths;
     GLuint m_colorBarTexture;
     boost::shared_ptr<ScalarAverage> m_scalarAverage;
+    boost::shared_ptr<T1sPDE> m_t1sPDE;
     boost::shared_ptr<TensorAverage> m_tensorAverage;
     boost::shared_ptr<ForceAverage> m_forceAverage;
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
