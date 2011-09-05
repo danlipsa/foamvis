@@ -65,8 +65,8 @@ public:
 	Average (glWidget), m_scalarAverageFbos (scalarAverageFbos), m_id (id)
     {
     }
-    void Release ();
-    void RotateAndDisplay (	
+    void AverageRelease ();
+    void AverageRotateAndDisplay (	
 	ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
 	
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
@@ -75,7 +75,7 @@ public:
     {
 	return m_fbos;
     }
-    virtual void Init (ViewNumber::Enum viewNumber);
+    virtual void AverageInit (ViewNumber::Enum viewNumber);
     string GetId () const
     {
 	return m_id;

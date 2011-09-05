@@ -21,11 +21,11 @@ public:
     m_glWidget (glWidget)
     {
     }
-    void SetTimeWindow (size_t historyCount)
+    void AverageSetTimeWindow (size_t historyCount)
     {
 	m_timeWindow = historyCount;
     }
-    void Step (ViewNumber::Enum viewNumber, int timeStep);
+    void AverageStep (ViewNumber::Enum viewNumber, int timeStep);
     size_t GetTimeWindow () const
     {
 	return m_timeWindow;
@@ -38,7 +38,7 @@ public:
     {
 	return m_currentTimeWindow;
     }
-    virtual void Init (ViewNumber::Enum viewNumber);
+    virtual void AverageInit (ViewNumber::Enum viewNumber);
 
 protected:
     virtual void addStep (ViewNumber::Enum viewNumber, size_t timeStep) = 0;

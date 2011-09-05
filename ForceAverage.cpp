@@ -15,10 +15,10 @@
 #include "ViewSettings.h"
 #include "OpenGLUtils.h"
 
-void ForceAverage::Init (ViewNumber::Enum viewNumber)
+void ForceAverage::AverageInit (ViewNumber::Enum viewNumber)
 {
     (void)viewNumber;
-    Average::Init (viewNumber);
+    Average::AverageInit (viewNumber);
     const vector<Force>& forces = 
 	GetGLWidget ().GetCurrentFoam ().GetForces ();
     m_average.resize (forces.size ());
@@ -70,7 +70,7 @@ void ForceAverage::DisplayOne (ViewNumber::Enum viewNumber) const
     display (viewNumber, GetGLWidget ().GetCurrentFoam ().GetForces (), 1);
 }
 
-void ForceAverage::RotateAndDisplay (
+void ForceAverage::AverageRotateAndDisplay (
     ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
     G3D::Vector2 rotationCenter, 
     float angleDegrees) const

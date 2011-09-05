@@ -46,6 +46,7 @@ public:
     ViewSettings (const GLWidget& glWidget);
     ~ViewSettings ();
 
+    void Init (ViewNumber::Enum viewNumber);
     ViewType::Enum GetViewType () const
     {
 	return m_viewType;
@@ -391,14 +392,14 @@ public:
 	m_centerPathHidden = centerPathHidden;
     }
 
-    virtual void Init (ViewNumber::Enum viewNumber);
-    virtual void SetTimeWindow (size_t timeSteps);
-    virtual void Step (ViewNumber::Enum viewNumber, int timeStep);
-    virtual void RotateAndDisplay (
+    virtual void AverageInit (ViewNumber::Enum viewNumber);
+    virtual void AverageSetTimeWindow (size_t timeSteps);
+    virtual void AverageStep (ViewNumber::Enum viewNumber, int timeStep);
+    virtual void AverageRotateAndDisplay (
 	ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
-    virtual void Release ();
+    virtual void AverageRelease ();
 
 
 private:

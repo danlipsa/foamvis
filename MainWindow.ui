@@ -1314,7 +1314,7 @@
               <string>Faces</string>
              </property>
              <property name="checked">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <attribute name="buttonGroup">
               <string>buttonGroupViewType</string>
@@ -1324,7 +1324,7 @@
            <item>
             <widget class="QStackedWidget" name="stackedWidgetTimeStep">
              <property name="currentIndex">
-              <number>0</number>
+              <number>2</number>
              </property>
              <widget class="QWidget" name="pageTimeStepEmpty"/>
              <widget class="QWidget" name="pageEdgesNormal">
@@ -1571,7 +1571,7 @@
            <item>
             <widget class="QRadioButton" name="radioButtonT1sPDE">
              <property name="text">
-              <string>T1s PDE</string>
+              <string>T1s Probability Density</string>
              </property>
              <attribute name="buttonGroup">
               <string>buttonGroupViewType</string>

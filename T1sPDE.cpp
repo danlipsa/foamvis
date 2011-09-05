@@ -7,7 +7,10 @@
  */
 
 #include "Debug.h"
+#include "DebugStream.h"
+#include "GLWidget.h"
 #include "T1sPDE.h"
+#include "ViewSettings.h"
 
 // Private classes/functions
 // ======================================================================
@@ -17,20 +20,29 @@
 // ======================================================================
 
 const size_t T1sPDE::KERNEL_TEXTURE_SIZE = 64;
+const float T1sPDE::KERNEL_INTERVAL_MARGIN = 5.0;
+const float T1sPDE::KERNEL_SIGMA = 1.0;
 
-void T1sPDE::Init (ViewNumber::Enum viewNumber)
+void T1sPDE::AverageInit (ViewNumber::Enum viewNumber)
 {
-    ScalarAverage::Init (viewNumber);
-    QSize size (KERNEL_TEXTURE_SIZE, KERNEL_TEXTURE_SIZE);
+    ScalarAverage::AverageInit (viewNumber);
+    initKernel (viewNumber);
+}
+
+
+void T1sPDE::initKernel (ViewNumber::Enum viewNumber)
+{
+    ViewSettings& vs = GetGLWidget ().GetViewSettings (viewNumber);
+    size_t newSize = KERNEL_TEXTURE_SIZE * vs.GetScaleRatio ();
+    QSize size (newSize, newSize);
+    cdbg << newSize << endl;
     m_kernel.reset (
 	new QGLFramebufferObject (
 	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, 
 	    GL_RGBA32F));
     RuntimeAssert (m_kernel->isValid (), 
 		   "Framebuffer initialization failed:" + GetId ());
-    initKernel ();
 }
-
 
 void T1sPDE::rotateAndDisplay (
     ViewNumber::Enum viewNumber,

@@ -29,6 +29,7 @@
 #include "OrientedEdge.h"
 #include "OrientedFace.h"
 #include "SelectBodiesById.h"
+#include "T1sPDE.h"
 #include "TensorAverage.h"
 #include "Utils.h"
 #include "Vertex.h"
@@ -159,7 +160,7 @@ const size_t GLWidget::DISPLAY_ALL(numeric_limits<size_t>::max());
 const size_t GLWidget::QUADRIC_SLICES = 8;
 const size_t GLWidget::QUADRIC_STACKS = 1;
 
-const pair<double,double> GLWidget::T1_SIZE_EXP2 (2, 5);
+const pair<double,double> GLWidget::T1_SIZE_EXP2 (1, 4);
 const pair<double,double> GLWidget::ELLIPSE_SIZE_EXP2 (-10, 10);
 const pair<double,double> GLWidget::ELLIPSE_LINE_WIDTH_EXP2 (0, 3);
 
@@ -194,7 +195,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_centerPathTubeUsed (true),
       m_centerPathLineUsed (false),
       m_t1sShown (false),
-      m_t1sSizeRatio (2.0),
+      m_t1sSizeRatio (1.0),
       m_ellipseSizeRatio (1),
       m_ellipseLineWidthRatio (1),
       m_contextAlpha (CONTEXT_ALPHA.first),
@@ -477,7 +478,7 @@ void GLWidget::initViewSettings ()
     BOOST_FOREACH (boost::shared_ptr<ViewSettings> vs, m_viewSettings)
     {
 	size_t timeSteps = GetFoamAlongTime ().GetTimeSteps ();
-	vs->SetTimeWindow (timeSteps);
+	vs->AverageSetTimeWindow (timeSteps);
     }
     CurrentIndexChangedViewCount (ViewCount::ONE);
 }
@@ -957,11 +958,7 @@ void GLWidget::ResetTransformFocus ()
     ProjectionTransform (viewNumber);
     glMatrixMode (GL_MODELVIEW);
     glLoadIdentity ();
-    if (vs.GetViewType () == ViewType::FACES_STATISTICS)
-    {
-	vs.Init (viewNumber);
-	vs.Step (viewNumber, 1);
-    }
+    vs.Init (viewNumber);
     update ();
 }
 
@@ -1262,11 +1259,7 @@ void GLWidget::resizeGL(int w, int h)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	ViewSettings& vs = GetViewSettings (viewNumber);
-	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
-	{
-	    vs.Init (viewNumber);
-	    vs.Step (viewNumber, 1);
-	}
+	vs.Init (viewNumber);
     }
     WarnOnOpenGLError ("resizeGl");
 }
@@ -1786,11 +1779,7 @@ void GLWidget::mouseMoveTranslate (QMouseEvent *event)
     case InteractionObject::FOCUS:
 	translate (viewNumber, event->pos (), G3D::Vector3::X_AXIS,
 		   G3D::Vector3::Y_AXIS);
-	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
-	{
-	    vs.Init (viewNumber);
-	    vs.Step (viewNumber, 1);
-	}
+	vs.Init (viewNumber);
 	break;
     case InteractionObject::LIGHT:
     {
@@ -1821,11 +1810,7 @@ void GLWidget::mouseMoveScale (QMouseEvent *event)
     {
     case InteractionObject::FOCUS:
 	scale (viewNumber, event->pos ());
-	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
-	{
-	    vs.Init (viewNumber);
-	    vs.Step (viewNumber, 1);
-	}
+	vs.Init (viewNumber);
 	break;
     case InteractionObject::CONTEXT:
 	scaleContext (viewNumber, event->pos ());
@@ -2126,11 +2111,9 @@ void GLWidget::displayBodiesNeighbors () const
 
 void GLWidget::displayT1sTimeDependent (ViewNumber::Enum view) const
 {
-/*
     for (size_t i = 0; i < GetFoamAlongTime ().GetT1sTimeSteps (); ++i)
-    displayT1sTimeStep (view, i);
-*/
-    displayT1sTimeStep (view, 5);
+	displayT1sTimeStep (view, i);
+    //displayT1sTimeStep (view, 5);
 }
 
 void GLWidget::displayT1sTimeStep (ViewNumber::Enum view, size_t timeStep) const
@@ -2311,7 +2294,7 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
 	angleDegrees = G3D::toDegrees (
 	    rotationCurrent.m_angle - rotationBegin.m_angle);
     }
-    vs.RotateAndDisplay (
+    vs.AverageRotateAndDisplay (
 	viewNumber, vs.GetStatisticsType (), rotationCenter, - angleDegrees);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
     displayAverageAroundBody (viewNumber);
@@ -3147,15 +3130,10 @@ void GLWidget::ButtonClickedViewType (int id)
     if (oldViewType == newViewType)
 	return;
     ViewSettings& vs = GetViewSettings ();
-    if (newViewType == ViewType::FACES_STATISTICS)
-    {
-	ViewNumber::Enum vn = GetViewNumber ();
-	vs.Init (vn);
-	vs.Step (vn, 1);
-    }
     if (oldViewType == ViewType::FACES_STATISTICS)
-	vs.Release ();
+	vs.AverageRelease ();
     changeViewType (newViewType);
+    vs.Init (GetViewNumber ());
 }
 
 
@@ -3324,7 +3302,7 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 	ViewNumber::Enum view = ViewNumber::Enum (i);
 	ViewSettings& vs = GetViewSettings (view);
 	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
-	    vs.Step (view, direction);
+	    vs.AverageStep (view, direction);
     }
     update ();
 }
@@ -3332,7 +3310,7 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 void GLWidget::ValueChangedStatisticsTimeWindow (int timeSteps)
 {
     ViewSettings& vs = GetViewSettings ();
-    vs.SetTimeWindow (timeSteps);
+    vs.AverageSetTimeWindow (timeSteps);
 }
 
 void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)

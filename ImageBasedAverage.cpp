@@ -42,9 +42,9 @@ template<typename PropertySetter> boost::shared_ptr<AddShaderProgram>
 ImageBasedAverage<PropertySetter>::m_removeShaderProgram;
 
 template<typename PropertySetter>
-void ImageBasedAverage<PropertySetter>::Init (ViewNumber::Enum viewNumber)
+void ImageBasedAverage<PropertySetter>::AverageInit (ViewNumber::Enum viewNumber)
 {
-    Average::Init (viewNumber);
+    Average::AverageInit (viewNumber);
     const G3D::Rect2D extendedArea = EncloseRotation (
 	GetGLWidget ().GetViewRect (viewNumber));
     QSize size (extendedArea.width (), extendedArea.height ());
@@ -110,7 +110,7 @@ void ImageBasedAverage<PropertySetter>::clear (ViewNumber::Enum viewNumber)
 }
 
 template<typename PropertySetter>
-void ImageBasedAverage<PropertySetter>::Release ()
+void ImageBasedAverage<PropertySetter>::AverageRelease ()
 {
     m_fbos.m_step.reset ();
     m_fbos.m_current.reset ();
@@ -280,7 +280,7 @@ void ImageBasedAverage<PropertySetter>::initFramebuffer (
 }
 
 template<typename PropertySetter>
-void ImageBasedAverage<PropertySetter>::RotateAndDisplay (
+void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
     ViewNumber::Enum viewNumber,
     StatisticsType::Enum displayType, 
     G3D::Vector2 rotationCenter, 

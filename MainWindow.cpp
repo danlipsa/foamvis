@@ -101,13 +101,6 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_timer->setInterval (33);
     createActions ();
     setTabOrder (radioButtonCenterPath, sliderTimeSteps);
-    setDefaults ();
-}
-
-void MainWindow::setDefaults ()
-{
-    comboBoxWindowSize->setCurrentIndex (WindowSize::GL_720x480);
-    horizontalSliderEllipseSize->setValue (49);
 }
 
 
@@ -287,7 +280,6 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 	radioButtonEdgesTorus->setDisabled (true);
 	radioButtonFaceEdgesTorus->setDisabled (true);
     }
-    radioButtonFacesNormal->toggle ();
     tabWidget->setCurrentWidget (timeStep);
     if (foam.Is2D ())
     {
@@ -302,7 +294,8 @@ void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
     }
     checkBoxT1sShiftLower->setChecked (
 	widgetGl->GetFoamAlongTime ().GetT1sShiftLower () == 1);
-
+    comboBoxWindowSize->setCurrentIndex (WindowSize::GL_720x480);
+    horizontalSliderEllipseSize->setValue (49);
 }
 
 

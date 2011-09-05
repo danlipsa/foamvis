@@ -22,13 +22,13 @@ public:
     {
     }
     void DisplayOne (ViewNumber::Enum viewNumber) const;
-    virtual void RotateAndDisplay (
+    virtual void AverageRotateAndDisplay (
 	ViewNumber::Enum viewNumber, 
 	StatisticsType::Enum displayType = StatisticsType::AVERAGE,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
-    void Release () {}
-    virtual void Init (ViewNumber::Enum viewNumber);
+    void AverageRelease () {}
+    virtual void AverageInit (ViewNumber::Enum viewNumber);
 
 protected:
     virtual void addStep (ViewNumber::Enum viewNumber, size_t timeStep);

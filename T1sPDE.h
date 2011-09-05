@@ -29,7 +29,7 @@ public:
 	ScalarAverage (glWidget, "t1sPDE")
     {
     }
-    virtual void Init (ViewNumber::Enum viewNumber);
+    virtual void AverageInit (ViewNumber::Enum viewNumber);
 
 
 
@@ -44,7 +44,12 @@ protected:
     virtual void writeStepValues (ViewNumber::Enum view, size_t timeStep);
 
 private:
+    void initKernel (ViewNumber::Enum viewNumber);
+
+private:
     static const size_t KERNEL_TEXTURE_SIZE;
+    static const float KERNEL_SIGMA;
+    static const float KERNEL_INTERVAL_MARGIN;
 
     boost::shared_ptr<QGLFramebufferObject> m_kernel;
 };

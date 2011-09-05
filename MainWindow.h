@@ -169,7 +169,6 @@ private:
     HistogramInfo getCurrentHistogramInfo () const;
     boost::shared_ptr<ColorBarModel> getCurrentColorBarModel () const;
     void clickedPlay (PlayType playType);
-    void setDefaults ();
 
 private:
     /**
