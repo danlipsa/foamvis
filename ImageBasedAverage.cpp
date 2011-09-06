@@ -216,7 +216,7 @@ void ImageBasedAverage<PropertySetter>::currentIsPreviousPlusStep (
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
 
-    GetGLWidget ().ActivateShader (
+    GetGLWidget ().ActivateViewShader (
 	viewNumber, 
 	G3D::Rect2D::xywh (0, 0, destRect.width (), destRect.height ()),
 	ViewingVolumeOperation::ENCLOSE2D);
@@ -245,7 +245,7 @@ void ImageBasedAverage<PropertySetter>::currentIsPreviousMinusStep (
 
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
-    GetGLWidget ().ActivateShader (
+    GetGLWidget ().ActivateViewShader (
 	viewNumber, 
 	G3D::Rect2D::xywh (0, 0, destRect.width (), destRect.height ()),
 	ViewingVolumeOperation::ENCLOSE2D);
@@ -273,7 +273,7 @@ void ImageBasedAverage<PropertySetter>::initFramebuffer (
 	GetGLWidget ().GetViewRect (viewNumber));
     fbo->bind ();
     m_initShaderProgram->Bind ();
-    GetGLWidget ().ActivateShader (viewNumber, destRect - destRect.x0y0 (),
+    GetGLWidget ().ActivateViewShader (viewNumber, destRect - destRect.x0y0 (),
 	ViewingVolumeOperation::ENCLOSE2D);
     m_initShaderProgram->release ();
     fbo->release ();

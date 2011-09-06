@@ -19,9 +19,11 @@
 // T1sPDE Methods and static fields
 // ======================================================================
 
-const size_t T1sPDE::KERNEL_TEXTURE_SIZE = 64;
-const float T1sPDE::KERNEL_INTERVAL_MARGIN = 5.0;
-const float T1sPDE::KERNEL_SIGMA = 1.0;
+const pair<size_t, size_t> T1sPDE::KERNEL_TEXTURE_SIZE = 
+    pair<size_t, size_t> (32, 128);
+const pair<float, float> T1sPDE::KERNEL_INTERVAL_MARGIN = 
+    pair<float, float> (5.0, 10.0);
+const pair<float, float> T1sPDE::KERNEL_SIGMA = pair<float, float> (1.0, 5.0);
 
 void T1sPDE::AverageInit (ViewNumber::Enum viewNumber)
 {
@@ -30,18 +32,29 @@ void T1sPDE::AverageInit (ViewNumber::Enum viewNumber)
 }
 
 
+// Interactive Visualization of Streaming Data with Kernel Density Estimation
+// Ove Daae Lampe and Helwig Hauser
+// h: bandwidth is equal with standard deviation
 void T1sPDE::initKernel (ViewNumber::Enum viewNumber)
 {
     ViewSettings& vs = GetGLWidget ().GetViewSettings (viewNumber);
-    size_t newSize = KERNEL_TEXTURE_SIZE * vs.GetScaleRatio ();
-    QSize size (newSize, newSize);
-    cdbg << newSize << endl;
+    QSize size (m_kernelTextureSize, m_kernelTextureSize);
     m_kernel.reset (
 	new QGLFramebufferObject (
 	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, 
 	    GL_RGBA32F));
     RuntimeAssert (m_kernel->isValid (), 
 		   "Framebuffer initialization failed:" + GetId ());
+/*
+    const G3D::Rect2D destRect = EncloseRotation (
+	GetGLWidget ().GetViewRect (viewNumber));
+    fbo->bind ();
+    m_initShaderProgram->Bind ();
+    ActivateShader (destRect - destRect.x0y0 (),
+	ViewingVolumeOperation::ENCLOSE2D);
+    m_initShaderProgram->release ();
+    fbo->release ();
+*/
 }
 
 void T1sPDE::rotateAndDisplay (
@@ -57,16 +70,3 @@ void T1sPDE::rotateAndDisplay (
 void T1sPDE::writeStepValues (ViewNumber::Enum view, size_t timeStep)
 {
 }
-
-
-// Interactive Visualization of Streaming Data with Kernel Density Estimation
-// Ove Daae Lampe and Helwig Hauser
-// h: bandwidth is equal with standard deviation
-/*
-void GLWidget::calculateGaussian (
-    boost::array< boost::array<float, GAUSSIAN_TEXTURE_SIZE>, 
-    GAUSSIAN_TEXTURE_SIZE>, float h, float GAUSSIAN_INTERVAL)
-{
-    
-}
-*/

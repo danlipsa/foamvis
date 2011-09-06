@@ -26,12 +26,42 @@ public:
     static void InitShaders ();
     
     T1sPDE (const GLWidget& glWidget) :
-	ScalarAverage (glWidget, "t1sPDE")
+	ScalarAverage (glWidget, "t1sPDE"),
+	m_kernelIntervalMargin (KERNEL_INTERVAL_MARGIN.first),
+	m_kernelSigma (KERNEL_SIGMA.first),
+	m_kernelTextureSize (KERNEL_TEXTURE_SIZE.first)
     {
     }
     virtual void AverageInit (ViewNumber::Enum viewNumber);
+    float GetKernelIntervalMargin () const
+    {
+	return m_kernelIntervalMargin;
+    }
+    void SetKernelIntervalMargin (float kernelIntervalMargin)
+    {
+	m_kernelIntervalMargin = kernelIntervalMargin;
+    }
+    float GetKernelSigma () const
+    {
+	return m_kernelSigma;
+    }
+    void SetKernelSigma (float kernelSigma)
+    {
+	m_kernelSigma = kernelSigma;
+    }
+    size_t GetKernelTextureSize () const
+    {
+	return m_kernelTextureSize;
+    }
+    void SetKernelTextureSize (size_t kernelTextureSize)
+    {
+	m_kernelTextureSize = kernelTextureSize;
+    }
 
-
+public:
+    static const pair<size_t, size_t> KERNEL_TEXTURE_SIZE;
+    static const pair<float, float> KERNEL_SIGMA;
+    static const pair<float, float> KERNEL_INTERVAL_MARGIN;
 
 protected:
     virtual void rotateAndDisplay (
@@ -46,12 +76,10 @@ protected:
 private:
     void initKernel (ViewNumber::Enum viewNumber);
 
-private:
-    static const size_t KERNEL_TEXTURE_SIZE;
-    static const float KERNEL_SIGMA;
-    static const float KERNEL_INTERVAL_MARGIN;
-
     boost::shared_ptr<QGLFramebufferObject> m_kernel;
+    float m_kernelIntervalMargin;
+    float m_kernelSigma;
+    size_t m_kernelTextureSize;
 };
 
 #endif //__T1S_PDE_H__

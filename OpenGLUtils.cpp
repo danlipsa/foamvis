@@ -260,11 +260,11 @@ void DisplayOpositeFaces (G3D::Vector3 origin,
 	faceSum += translations[i];
 	
 	glBegin (GL_LINE_STRIP);
-	::glVertex (faceOrigin);
-	::glVertex (faceFirst);
-	::glVertex (faceSum);
-	::glVertex (faceSecond);
-	::glVertex (faceOrigin);
+	glVertex (faceOrigin);
+	glVertex (faceFirst);
+	glVertex (faceSum);
+	glVertex (faceSecond);
+	glVertex (faceOrigin);
 	glEnd ();
     }
 }
@@ -339,3 +339,29 @@ void drawEllipsis2D (float l1, float l2, float c)
     }
     glEnd();
 }
+
+// Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
+void ActivateShader (G3D::Rect2D destRect, G3D::Rect2D viewRect)
+{
+    glPushAttrib (GL_VIEWPORT_BIT);
+    glViewport (destRect.x0 (), destRect.y0 (),
+		destRect.width (), destRect.height ());
+
+    glMatrixMode (GL_MODELVIEW);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glMatrixMode (GL_PROJECTION);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glBegin (GL_QUADS);
+    glTexCoord2i (0, 0);glVertex3i (-1, -1, -1);
+    glTexCoord2i (1, 0);glVertex3i (1, -1, -1);
+    glTexCoord2i (1, 1);glVertex3i (1, 1, -1);
+    glTexCoord2i (0, 1);glVertex3i (-1, 1, -1);
+    glEnd ();
+    glPopMatrix ();
+    glMatrixMode (GL_MODELVIEW);
+    glPopMatrix ();
+    glPopAttrib ();
+}
+

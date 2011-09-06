@@ -27,7 +27,6 @@ struct Ellipse
 
 // object coordinates for screen
 uniform Rect u_srcRect;
-uniform Rect u_srcTexRect;
 uniform vec2 u_gridTranslation;
 // cell length in object coordinates
 uniform float u_cellLength;
@@ -183,9 +182,6 @@ void main(void)
     vec2 screenCoordCenter = gridCoordStart + gridCoordCenter - u_srcRect.m_low;
     vec2 texCoordCenter = 
 	screenCoordCenter / (u_srcRect.m_high - u_srcRect.m_low);
-    // use coordinates for the enclosing VV 2.
-    texCoordCenter = u_srcTexRect.m_low + 
-	(u_srcTexRect.m_high - u_srcTexRect.m_low) * texCoordCenter;
     if (isEllipse (gridCoordFract, texCoordCenter) /*|| 
 	isGrid (gridCoordFract) ||
 	isGridCenter (gridCoordFract)*/)

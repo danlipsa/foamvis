@@ -31,7 +31,7 @@ public:
     TensorDisplay (const char* vert, const char* frag);
     void Bind (
 	G3D::Vector2 gridTranslation, float cellLength, float lineWidth, 
-	float elipseSizeRatio, G3D::Rect2D screen, G3D::Rect2D tex);
+	float elipseSizeRatio, G3D::Rect2D screen);
 
     GLint GetTensorAverageTexUnit ()
     {
@@ -49,8 +49,6 @@ private:
     int m_ellipseSizeRatioLocation;
     int m_srcRectLowLocation;
     int m_srcRectHighLocation;
-    int m_srcTexRectLowLocation;
-    int m_srcTexRectHighLocation;
     int m_tensorAverageTexUnitLocation;
     int m_scalarAverageTexUnitLocation;
 };
@@ -64,15 +62,13 @@ TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
     m_ellipseSizeRatioLocation = uniformLocation ("u_ellipseSizeRatio");
     m_srcRectLowLocation = uniformLocation ("u_srcRect.m_low");
     m_srcRectHighLocation = uniformLocation ("u_srcRect.m_high");
-    m_srcTexRectLowLocation = uniformLocation ("u_srcTexRect.m_low");
-    m_srcTexRectHighLocation = uniformLocation ("u_srcTexRect.m_high");
     m_tensorAverageTexUnitLocation = uniformLocation("u_tensorAverageTexUnit");
     m_scalarAverageTexUnitLocation = uniformLocation("u_scalarAverageTexUnit");
 }
 
 void TensorDisplay::Bind (
     G3D::Vector2 gridTranslation, float cellLength, float lineWidth,
-    float ellipseSizeRatio, G3D::Rect2D srcRect, G3D::Rect2D srcTexRect)
+    float ellipseSizeRatio, G3D::Rect2D srcRect)
 {
     ShaderProgram::Bind ();
     setUniformValue (
@@ -82,10 +78,6 @@ void TensorDisplay::Bind (
     setUniformValue (m_ellipseSizeRatioLocation, ellipseSizeRatio);
     setUniformValue (m_srcRectLowLocation, srcRect.x0 (), srcRect.y0 ());
     setUniformValue (m_srcRectHighLocation, srcRect.x1 (), srcRect.y1 ());
-    setUniformValue (m_srcTexRectLowLocation, 
-		     srcTexRect.x0 (), srcTexRect.y0 ());
-    setUniformValue (m_srcTexRectHighLocation, 
-		     srcTexRect.x1 (), srcTexRect.y1 ());
     setUniformValue (
 	m_tensorAverageTexUnitLocation, GetTensorAverageTexUnit ());
     setUniformValue (
@@ -125,14 +117,14 @@ void TensorAverage::rotateAndDisplay (
 {
     (void)minValue;(void)maxValue;(void)displayType;
     G3D::Vector2 gridTranslation;float cellLength; float lineWidth;
-    float ellipseSizeRatio;G3D::Rect2D srcRect;G3D::Rect2D srcTexRect;
+    float ellipseSizeRatio;G3D::Rect2D srcRect;
 
     calculateShaderParameters (
 	viewNumber, angleDegrees, &gridTranslation, &cellLength, 
-	&lineWidth, &ellipseSizeRatio, &srcRect, &srcTexRect);
+	&lineWidth, &ellipseSizeRatio, &srcRect);
     m_displayShaderProgram->Bind (
 	gridTranslation, cellLength, lineWidth, 
-	ellipseSizeRatio, srcRect, srcTexRect);
+	ellipseSizeRatio, srcRect);
 
     // activate texture unit 1
     glActiveTexture (
@@ -144,8 +136,8 @@ void TensorAverage::rotateAndDisplay (
 	TextureEnum (m_displayShaderProgram->GetScalarAverageTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, srcFbo.second->texture ());
     
-    GetGLWidget ().ActivateShader (viewNumber, destRect, enclose,
-				   rotationCenter, angleDegrees);
+    GetGLWidget ().ActivateViewShader (viewNumber, destRect, enclose,
+				       rotationCenter, angleDegrees);
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
     m_displayShaderProgram->release ();
@@ -155,8 +147,7 @@ void TensorAverage::rotateAndDisplay (
 void TensorAverage::calculateShaderParameters (
     ViewNumber::Enum viewNumber, float angleDegrees,
     G3D::Vector2* gridTranslation, float* cellLength, float* lineWidth, 
-    float* ellipseSizeRatio, G3D::Rect2D* srcRect, 
-    G3D::Rect2D* srcTexRect) const
+    float* ellipseSizeRatio, G3D::Rect2D* srcRect) const
 {
     const GLWidget& glWidget = GetGLWidget ();
     ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
@@ -181,5 +172,5 @@ void TensorAverage::calculateShaderParameters (
 	scaleRatio * glWidget.GetEllipseLineWidthRatio ();
     *ellipseSizeRatio = glWidget.GetEllipseSizeInitialRatio () * 
 	glWidget.GetEllipseSizeRatio () * gridScaleRatio;
-    glWidget.CalculateQuadAndTexture (viewNumber, srcRect, srcTexRect);
+    *srcRect = glWidget.CalculateViewEnclosingRect (viewNumber);
 }

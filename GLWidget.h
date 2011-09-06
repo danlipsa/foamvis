@@ -197,13 +197,13 @@ public:
      * Draw a quad over destRect. If angleDegrees != 0, rotate the quad first 
      * and then draw it.
      */
-    void ActivateShader (
+    void ActivateViewShader (
 	ViewNumber::Enum viewNumber,
 	G3D::Rect2D destRect,
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
-    double GetOnePixelInObjectSpace () const;
+    float GetOnePixelInObjectSpace () const;
     double GetCellLength () const;
     double GetEllipseSizeInitialRatio () const;
     double GetEllipseLineWidthRatio () const
@@ -218,9 +218,7 @@ public:
 	ViewNumber::Enum viewNumber,
 	ViewingVolumeOperation::Enum enclose = 
 	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
-    void CalculateQuadAndTexture (
-	ViewNumber::Enum viewNumber, 
-	G3D::Rect2D* rect, G3D::Rect2D* texRect) const;
+    G3D::Rect2D CalculateViewEnclosingRect (ViewNumber::Enum viewNumber) const;
 
 
 Q_SIGNALS:
@@ -305,6 +303,9 @@ public Q_SLOTS:
     void ValueChangedStatisticsTimeWindow (int timeSteps);
     void ValueChangedTimeDisplacement (int timeDisplacement);
     void ValueChangedT1Size (int index);
+    void ValueChangedT1sKernelIntervalMargin (int index);
+    void ValueChangedT1sKernelSigma (int index);
+    void ValueChangedT1sKernelTextureSize (int index);
     void ValueChangedEllipseSize (int index);
     void ValueChangedEllipseLineWidthRatio (int index);
     void ValueChangedForceLength (int index);
@@ -595,10 +596,8 @@ private:
 	ViewNumber::COUNT>& actionCopyTransformation,
 	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformation);
     void rotateAverageAround (size_t timeStep, int direction) const;
-    void valueChanged (
-	double* dest, const pair<double,double>& minMax, int index);
-    void valueChangedLog2Scale (
-	double* dest, const pair<double,double>& minMax, int index);
+    float valueChanged (const pair<float,float>& minMax, int index);
+    float valueChangedLog2Scale (const pair<double,double>& minMax, int index);
     string infoSelectedBody () const;
     string infoSelectedBodies () const;
 
@@ -610,12 +609,12 @@ private:
     
 private:
     // Min, max values for T1s, Context alpha, force length
-    const static pair<double,double> T1_SIZE_EXP2;
-    const static pair<double,double> ELLIPSE_SIZE_EXP2;
-    const static pair<double,double> ELLIPSE_LINE_WIDTH_EXP2;
-    const static pair<double,double> CELL_LENGTH_EXP2;
-    const static pair<double,double> CONTEXT_ALPHA;
-    const static pair<double,double> FORCE_LENGTH;
+    const static pair<float,float> T1S_SIZE;
+    const static pair<float,float> ELLIPSE_SIZE_EXP2;
+    const static pair<float,float> ELLIPSE_LINE_WIDTH_EXP2;
+    const static pair<float,float> CELL_LENGTH_EXP2;
+    const static pair<float,float> CONTEXT_ALPHA;
+    const static pair<float,float> FORCE_LENGTH;
     const static GLfloat HIGHLIGHT_LINE_WIDTH;
 
 private:
@@ -715,7 +714,7 @@ private:
     bool m_centerPathTubeUsed;
     bool m_centerPathLineUsed;
     bool m_t1sShown;
-    double m_t1sSizeRatio;
+    double m_t1sSize;
     double m_ellipseSizeRatio;
     double m_ellipseLineWidthRatio;
     double m_contextAlpha;

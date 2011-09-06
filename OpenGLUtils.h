@@ -18,12 +18,6 @@ inline void glColor (QColor color)
     glColor4f (color.redF (), color.greenF (), color.blueF (), color.alphaF ());
 }
 
-inline void glVertex (G3D::Vector3 p)
-{
-    glVertex3f (p.x, p.y, p.z);
-}
-
-
 inline void glScale (double ratio)
 {
     glScaled (ratio, ratio, ratio);
@@ -118,6 +112,13 @@ void ClearColorStencilBuffers (
     Qt::GlobalColor clearColor, GLint clearStencil);
 
 void drawEllipsis2D (float l1, float l2, float c);
+
+/**
+ * Activate destRect which is inside viewRect. Set texture coordinates
+ * to reflect destRect inside viewRect
+ */
+void ActivateShader (G3D::Rect2D destRect, G3D::Rect2D viewRect);
+
 
 #endif //__OPENGL_UTIL_H__
 

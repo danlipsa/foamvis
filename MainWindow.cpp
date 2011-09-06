@@ -774,10 +774,18 @@ void MainWindow::ButtonClickedViewType (int id)
 
 	pageCenterPath,
 	pageFacesStatistics,
-	pageTimeDependentEmpty
+	pageT1sProbabilityDensity
     };
-    ((ViewType::IsTimeDependent (viewType)) ? stackedWidgetTimeDependent :
-     stackedWidgetTimeStep)->setCurrentWidget (pages[viewType]);
+    if (ViewType::IsTimeDependent (viewType))
+    {
+	stackedWidgetTimeStep->setCurrentWidget (pageTimeStepEmpty);
+	stackedWidgetTimeDependent->setCurrentWidget (pages[viewType]);
+    }
+    else
+    {
+	stackedWidgetTimeStep->setCurrentWidget (pages[viewType]);
+	stackedWidgetTimeDependent->setCurrentWidget (pageTimeDependentEmpty);
+    }
 }
 
 

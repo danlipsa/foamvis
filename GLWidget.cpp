@@ -131,8 +131,8 @@ void displayBodyNeighbors2D (boost::shared_ptr<Body> body,
 	G3D::Vector3 first = body->GetCenter ();	    
 	G3D::Vector3 second = 
 	    originalDomain.TorusTranslate (s, neighbor.m_translation);
-	::glVertex (first);
-	::glVertex (second);
+	glVertex (first);
+	glVertex (second);
     }
 }
 
@@ -160,12 +160,12 @@ const size_t GLWidget::DISPLAY_ALL(numeric_limits<size_t>::max());
 const size_t GLWidget::QUADRIC_SLICES = 8;
 const size_t GLWidget::QUADRIC_STACKS = 1;
 
-const pair<double,double> GLWidget::T1_SIZE_EXP2 (1, 4);
-const pair<double,double> GLWidget::ELLIPSE_SIZE_EXP2 (-10, 10);
-const pair<double,double> GLWidget::ELLIPSE_LINE_WIDTH_EXP2 (0, 3);
+const pair<float,float> GLWidget::T1S_SIZE (1, 32);
+const pair<float,float> GLWidget::ELLIPSE_SIZE_EXP2 (-10, 10);
+const pair<float,float> GLWidget::ELLIPSE_LINE_WIDTH_EXP2 (0, 3);
 
-const pair<double,double> GLWidget::CONTEXT_ALPHA (0.05, 0.5);
-const pair<double,double> GLWidget::FORCE_LENGTH (.25, 6);
+const pair<float,float> GLWidget::CONTEXT_ALPHA (0.05, 0.5);
+const pair<float,float> GLWidget::FORCE_LENGTH (.25, 6);
 const GLfloat GLWidget::HIGHLIGHT_LINE_WIDTH = 2.0;
 
 // Methods
@@ -195,7 +195,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_centerPathTubeUsed (true),
       m_centerPathLineUsed (false),
       m_t1sShown (false),
-      m_t1sSizeRatio (1.0),
+      m_t1sSize (1.0),
       m_ellipseSizeRatio (1),
       m_ellipseLineWidthRatio (1),
       m_contextAlpha (CONTEXT_ALPHA.first),
@@ -503,7 +503,7 @@ void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
 }
 
 
-double GLWidget::GetOnePixelInObjectSpace () const
+float GLWidget::GetOnePixelInObjectSpace () const
 {
     G3D::Vector3 first = toObject (QPoint (0, 0));
     G3D::Vector3 second = toObject (QPoint (1, 0));
@@ -757,15 +757,12 @@ G3D::AABox GLWidget::CalculateViewingVolume (
     return calculateViewingVolume (xOverY, extendAlongZRatio, enclose);
 }
 
-void GLWidget::CalculateQuadAndTexture (
-    ViewNumber::Enum viewNumber,
-    G3D::Rect2D* rect, G3D::Rect2D* texRect) const
+G3D::Rect2D GLWidget::CalculateViewEnclosingRect (
+    ViewNumber::Enum viewNumber) const
 {
     G3D::AABox box = CalculateViewingVolume (viewNumber, 
 					     ViewingVolumeOperation::ENCLOSE2D);
-    *rect = G3D::Rect2D::xyxy (box.low ().xy (), 
-			       box.high ().xy ());
-    *texRect = G3D::Rect2D::xyxy (0., 0., 1., 1.);
+    return G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ());
 }
 
 
@@ -2116,17 +2113,38 @@ void GLWidget::displayT1sTimeDependent (ViewNumber::Enum view) const
     //displayT1sTimeStep (view, 5);
 }
 
-void GLWidget::displayT1sTimeStep (ViewNumber::Enum view, size_t timeStep) const
+void GLWidget::displayT1sTimeStep (
+    ViewNumber::Enum viewNumber, size_t timeStep) const
 {
-    glPushAttrib (GL_ENABLE_BIT | GL_POINT_BIT | GL_CURRENT_BIT);
+    glPushAttrib (GL_ENABLE_BIT | GL_POINT_BIT | 
+		  GL_CURRENT_BIT | GL_POLYGON_BIT);
     glDisable (GL_DEPTH_TEST);
-    glPointSize (m_t1sSizeRatio);
-    glColor (GetHighlightColor (view, HighlightNumber::H0));
+    glPointSize (m_t1sSize);
+    glColor (GetHighlightColor (viewNumber, HighlightNumber::H0));
     glBegin (GL_POINTS);
     BOOST_FOREACH (const G3D::Vector3 v, 
 		   GetFoamAlongTime ().GetT1s (timeStep))
-	::glVertex (v);
+	glVertex (v);
     glEnd ();
+
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    T1sPDE& t1sPDE = vs.GetT1sPDE ();
+    float rectSize = t1sPDE.GetKernelTextureSize () * 
+	GetOnePixelInObjectSpace ();
+    float half = rectSize / 2;
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    glBegin (GL_QUADS);
+    BOOST_FOREACH (const G3D::Vector3 t1Pos, 
+		   GetFoamAlongTime ().GetT1s (timeStep))
+    {
+	G3D::Vector2 v = t1Pos.xy ();
+	glVertex (v + G3D::Vector2 (- half, - half));
+	glVertex (v + G3D::Vector2 (  half, - half));
+	glVertex (v + G3D::Vector2 (  half,   half));
+	glVertex (v + G3D::Vector2 (- half,   half));
+    }
+    glEnd ();
+
     glPopAttrib ();
 }
 
@@ -2226,7 +2244,7 @@ void GLWidget::displayFaceCenters (ViewNumber::Enum viewNumber) const
 	glColor (Qt::red);
 	glBegin (GL_POINTS);
 	BOOST_FOREACH (boost::shared_ptr<Face> face, faces)
-	    ::glVertex (face->GetCenter ());
+	    glVertex (face->GetCenter ());
 	glEnd ();
 	glPopAttrib ();
     }
@@ -2241,7 +2259,7 @@ void GLWidget::displayContextMenuPos (ViewNumber::Enum viewNumber) const
     glPointSize (4.0);
     glColor (Qt::red);
     glBegin (GL_POINTS);
-    ::glVertex (m_contextMenuPosObject);
+    glVertex (m_contextMenuPosObject);
     glEnd ();
     glPopAttrib ();
 }
@@ -2867,23 +2885,22 @@ bool GLWidget::IsTimeDisplacementUsed () const
 }
 
 
-void GLWidget::valueChanged (
-    double* dest, const pair<double,double>& minMax, int index)
+float GLWidget::valueChanged (const pair<float,float>& minMax, int index)
 {
     QSlider* slider = static_cast<QSlider*> (sender ());
     size_t maxSlider = slider->maximum ();
-    *dest = minMax.first + (double (index) / maxSlider) * 
+    return minMax.first + (double (index) / maxSlider) * 
 	(minMax.second - minMax.first);
 }
 
-void GLWidget::valueChangedLog2Scale (
-    double* dest, const pair<double,double>& minMax, int index)
+float GLWidget::valueChangedLog2Scale (
+    const pair<double,double>& minMax, int index)
 {
     QSlider* slider = static_cast<QSlider*> (sender ());
     size_t maxSlider = slider->maximum ();
     double exp = minMax.first + (double (index) / maxSlider) * 
 	(minMax.second - minMax.first);
-    *dest = pow (2, exp);
+    return pow (2, exp);
 }
 
 
@@ -2918,24 +2935,24 @@ G3D::Vector2 GLWidget::adjustForScaleAndAxesOrder (
 
 
 /**
- * Activate a shader for each fragment of the destRect.
- * Use use the following notation: VV = viewing volume, VP = viewport, 
- * T = texture, 1 = original VV, 2 = enclosing VV
+ * Activate a shader for each fragment where the Quad is projected on destRect. 
+ * Rotate the Quad if angleDegrees != 0.
+ * Use the following notation: VV = viewing volume, VP = viewport, 
+ * Q = quad, 1 = original VV, 2 = enclosing VV
  * Can be called in 3 situations:
- *                 VV    VP, T
- * 1. fbo -> fbo : 2  -> 2 , 2
- * 2. fbo -> img : 2  -> 2,  2
- * 3. fbo -> scr : 1  -> 1,  2
+ *                 VV    VP, Q
+ * 1. fbo -> fbo : 2  -> 2 , 2       ENCLOSE2D
+ * 2. fbo -> img : 2  -> 2,  2       ENCLOSE2D
+ * 3. fbo -> scr : 1  -> 1,  2       DONT_ENCLOSE2D
  *
  * Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
  */
-void GLWidget::ActivateShader (
+void GLWidget::ActivateViewShader (
     ViewNumber::Enum viewNumber, G3D::Rect2D destRect, 
     ViewingVolumeOperation::Enum enclose,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
-    G3D::Rect2D srcRect;G3D::Rect2D srcTexRect;
-    CalculateQuadAndTexture (viewNumber, &srcRect, &srcTexRect);
+    G3D::Rect2D srcRect = CalculateViewEnclosingRect (viewNumber);
     glPushAttrib (GL_VIEWPORT_BIT);
     glViewport (destRect.x0 (), destRect.y0 (),
 		destRect.width (), destRect.height ());
@@ -2956,7 +2973,7 @@ void GLWidget::ActivateShader (
     glMatrixMode (GL_PROJECTION);
     glPushMatrix ();
     ProjectionTransform (viewNumber, enclose);
-    sendQuad (srcRect, srcTexRect);
+    sendQuad (srcRect, G3D::Rect2D::xyxy (0., 0., 1., 1.));
     glMatrixMode (GL_PROJECTION);
     glPopMatrix ();
     glMatrixMode (GL_MODELVIEW);
@@ -3327,34 +3344,61 @@ void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
 
 void GLWidget::ValueChangedT1Size (int index)
 {
-    valueChangedLog2Scale (&m_t1sSizeRatio, T1_SIZE_EXP2, index);
+    m_t1sSize = valueChanged (T1S_SIZE, index);
     update ();
 }
 
 
+void GLWidget::ValueChangedT1sKernelIntervalMargin (int index)
+{
+    ViewSettings& vs = GetViewSettings ();
+    T1sPDE& t1sPDE = vs.GetT1sPDE ();
+    t1sPDE.SetKernelIntervalMargin (
+	valueChanged (T1sPDE::KERNEL_INTERVAL_MARGIN, index));
+    update ();
+}
+
+void GLWidget::ValueChangedT1sKernelSigma (int index)
+{
+    ViewSettings& vs = GetViewSettings ();
+    T1sPDE& t1sPDE = vs.GetT1sPDE ();
+    t1sPDE.SetKernelSigma (
+	valueChanged (T1sPDE::KERNEL_SIGMA, index));
+    update ();
+}
+
+void GLWidget::ValueChangedT1sKernelTextureSize (int index)
+{
+    ViewSettings& vs = GetViewSettings ();
+    T1sPDE& t1sPDE = vs.GetT1sPDE ();
+    t1sPDE.SetKernelTextureSize (
+	valueChanged (T1sPDE::KERNEL_TEXTURE_SIZE, index));
+    update ();
+}
+
 void GLWidget::ValueChangedEllipseSize (int index)
 {
-    valueChangedLog2Scale (&m_ellipseSizeRatio, ELLIPSE_SIZE_EXP2, index);
+    m_ellipseSizeRatio = valueChangedLog2Scale (ELLIPSE_SIZE_EXP2, index);
     update ();
 }
 
 void GLWidget::ValueChangedEllipseLineWidthRatio (int index)
 {
-    valueChangedLog2Scale (
-	&m_ellipseLineWidthRatio, ELLIPSE_LINE_WIDTH_EXP2, index);
+    m_ellipseLineWidthRatio = valueChangedLog2Scale (
+	ELLIPSE_LINE_WIDTH_EXP2, index);
     update ();
 }
 
 void GLWidget::ValueChangedContextAlpha (int index)
 {
-    valueChanged (&m_contextAlpha, CONTEXT_ALPHA, index);
+    m_contextAlpha = valueChanged (CONTEXT_ALPHA, index);
     compile (GetViewNumber ());
     update ();
 }
 
 void GLWidget::ValueChangedForceLength (int index)
 {
-    valueChanged (&m_forceLength, FORCE_LENGTH, index);
+    m_forceLength = valueChanged (FORCE_LENGTH, index);
     update ();
 }
 
