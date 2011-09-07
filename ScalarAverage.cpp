@@ -94,7 +94,7 @@ void ScalarAverage::InitShaders ()
 void ScalarAverage::rotateAndDisplay (
     ViewNumber::Enum viewNumber,
     GLfloat minValue, GLfloat maxValue,
-    StatisticsType::Enum displayType, FramebufferObjectPair srcFbo,
+    StatisticsType::Enum displayType, TensorScalarFbo srcFbo,
     ViewingVolumeOperation::Enum enclose,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
@@ -102,7 +102,7 @@ void ScalarAverage::rotateAndDisplay (
     // activate texture unit 1
     glActiveTexture (
 	TextureEnum (m_displayShaderProgram->GetScalarAverageTexUnit ()));
-    glBindTexture (GL_TEXTURE_2D, srcFbo.first->texture ());
+    glBindTexture (GL_TEXTURE_2D, srcFbo.second->texture ());
     GetGLWidget ().ActivateViewShader (viewNumber, enclose,
 				       rotationCenter, angleDegrees);
     // activate texture unit 0

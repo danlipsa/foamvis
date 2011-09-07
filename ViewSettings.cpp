@@ -427,8 +427,7 @@ void ViewSettings::AverageStep (ViewNumber::Enum viewNumber, int timeStep)
 
 void ViewSettings::AverageRotateAndDisplay (
     ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
-    G3D::Vector2 rotationCenter, 
-    float angleDegrees) const
+    G3D::Vector2 rotationCenter, float angleDegrees) const
 {
     GetScalarAverage ().AverageRotateAndDisplay (
 	viewNumber, displayType, rotationCenter, angleDegrees);

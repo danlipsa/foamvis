@@ -31,7 +31,8 @@ public:
     TensorDisplay (const char* vert, const char* frag);
     void Bind (
 	G3D::Vector2 gridTranslation, float cellLength, float lineWidth, 
-	float elipseSizeRatio, G3D::Rect2D screen);
+	float elipseSizeRatio, G3D::Rect2D screen,
+	bool deformationGridShown, bool deformationGridCellCenterShown);
 
     GLint GetTensorAverageTexUnit ()
     {
@@ -51,6 +52,8 @@ private:
     int m_srcRectHighLocation;
     int m_tensorAverageTexUnitLocation;
     int m_scalarAverageTexUnitLocation;
+    int m_deformationGridShownLocation;
+    int m_deformationGridCellCenterShownLocation;
 };
 
 TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
@@ -64,11 +67,15 @@ TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
     m_srcRectHighLocation = uniformLocation ("u_srcRect.m_high");
     m_tensorAverageTexUnitLocation = uniformLocation("u_tensorAverageTexUnit");
     m_scalarAverageTexUnitLocation = uniformLocation("u_scalarAverageTexUnit");
+    m_deformationGridShownLocation = uniformLocation ("u_deformationGridShown");
+    m_deformationGridCellCenterShownLocation = 
+	uniformLocation ("u_deformationGridCellCenterShown");
 }
 
 void TensorDisplay::Bind (
     G3D::Vector2 gridTranslation, float cellLength, float lineWidth,
-    float ellipseSizeRatio, G3D::Rect2D srcRect)
+    float ellipseSizeRatio, G3D::Rect2D srcRect, 
+    bool deformationGridShown, bool deformationGridCellCenterShown)
 {
     ShaderProgram::Bind ();
     setUniformValue (
@@ -82,6 +89,9 @@ void TensorDisplay::Bind (
 	m_tensorAverageTexUnitLocation, GetTensorAverageTexUnit ());
     setUniformValue (
 	m_scalarAverageTexUnitLocation, GetScalarAverageTexUnit ());
+    setUniformValue (m_deformationGridShownLocation, deformationGridShown);
+    setUniformValue (m_deformationGridCellCenterShownLocation, 
+		     deformationGridCellCenterShown);
 }
 
 
@@ -110,7 +120,7 @@ void TensorAverage::InitShaders ()
 void TensorAverage::rotateAndDisplay (
     ViewNumber::Enum viewNumber,
     GLfloat minValue, GLfloat maxValue,
-    StatisticsType::Enum displayType, FramebufferObjectPair srcFbo,
+    StatisticsType::Enum displayType, TensorScalarFbo srcFbo,
     ViewingVolumeOperation::Enum enclose,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
@@ -123,7 +133,8 @@ void TensorAverage::rotateAndDisplay (
 	&lineWidth, &ellipseSizeRatio, &srcRect);
     m_displayShaderProgram->Bind (
 	gridTranslation, cellLength, lineWidth, 
-	ellipseSizeRatio, srcRect);
+	ellipseSizeRatio, srcRect, 
+	m_deformationGridShown, m_deformationGridCellCenterShown);
 
     // activate texture unit 1
     glActiveTexture (

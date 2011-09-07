@@ -152,17 +152,17 @@ void ImageBasedAverage<PropertySetter>::removeStep (
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, time);
     //save (viewNumber, 
-    //FramebufferObjectPair (*m_step, *m_scalarAverage.m_step), 
+    //TensorScalarFbo (*m_step, *m_scalarAverage.m_step), 
     // "step", time, minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     currentIsPreviousMinusStep (viewNumber);
     //save (viewNumber, 
-    //FramebufferObjectPair (*m_current, *m_scalarAverage.m_current), 
+    //TensorScalarFbo (*m_current, *m_scalarAverage.m_current), 
     // "current", time, minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     copyCurrentToPrevious ();
     //save (viewNumber, 
-    //FramebufferObjectPair (*m_previous, *m_scalarAverage.m_previous), 
+    //TensorScalarFbo (*m_previous, *m_scalarAverage.m_previous), 
     //"previous", time + 1,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
 
@@ -290,7 +290,7 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::save (
     ViewNumber::Enum viewNumber,
-    FramebufferObjectPair fbo, const char* postfix, size_t timeStep,
+    TensorScalarFbo fbo, const char* postfix, size_t timeStep,
     GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
 {
     // render to the debug buffer
@@ -315,7 +315,6 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
     const Foam::Bodies& bodies = foam.GetBodies ();
     m_storeShaderProgram->Bind ();
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT );
-    glPolygonMode (GL_FRONT, GL_FILL);    
     glEnable (GL_STENCIL_TEST);
     glDisable (GL_DEPTH_TEST);
 

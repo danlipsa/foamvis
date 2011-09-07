@@ -28,16 +28,26 @@ public:
     TensorAverage (const GLWidget& glWidget, 
 		   FramebufferObjects& scalarAverageFbos) :
 	ImageBasedAverage<SetterDeformationTensor> (
-	    glWidget, "tensor", scalarAverageFbos)
+	    glWidget, "tensor", scalarAverageFbos),
+	m_deformationGridShown (false),
+	m_deformationGridCellCenterShown (false)
     {
     }
     static void InitShaders ();
+    void SetDeformationGridShown (bool shown)
+    {
+	m_deformationGridShown = shown;
+    }
+    void SetDeformationGridCellCenterShown (bool shown)
+    {
+	m_deformationGridCellCenterShown = shown;
+    }
 
 protected:
     virtual void rotateAndDisplay (
 	ViewNumber::Enum viewNumber,
 	GLfloat minValue, GLfloat maxValue,
-	StatisticsType::Enum displayType, FramebufferObjectPair srcFbo,
+	StatisticsType::Enum displayType, TensorScalarFbo srcFbo,
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
@@ -50,6 +60,8 @@ private:
 
 private:
     static boost::shared_ptr<TensorDisplay> m_displayShaderProgram;
+    bool m_deformationGridShown;
+    bool m_deformationGridCellCenterShown;
 };
 
 #endif //__TENSOR_AVERAGE_H__

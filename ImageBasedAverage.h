@@ -84,13 +84,13 @@ public:
 protected:
     typedef pair<boost::shared_ptr<QGLFramebufferObject>, 
 		 boost::shared_ptr<QGLFramebufferObject> > 
-	FramebufferObjectPair;
+	TensorScalarFbo;
     virtual void addStep (ViewNumber::Enum viewNumber, size_t timeStep);
     virtual void removeStep (ViewNumber::Enum viewNumber, size_t timeStep);
     virtual void rotateAndDisplay (
 	ViewNumber::Enum viewNumber,
 	GLfloat minValue, GLfloat maxValue,
-	StatisticsType::Enum displayType, FramebufferObjectPair fbo,
+	StatisticsType::Enum displayType, TensorScalarFbo fbo,
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const = 0;
@@ -110,7 +110,7 @@ protected:
 private:
     void clear (ViewNumber::Enum viewNumber);
 
-    void save (ViewNumber::Enum viewNumber, FramebufferObjectPair fbo, 
+    void save (ViewNumber::Enum viewNumber, TensorScalarFbo fbo, 
 	       const char* fileName, size_t timeStep, GLfloat minValue, 
 	       GLfloat maxValue, StatisticsType::Enum displayType);
     void renderToStep (ViewNumber::Enum view, size_t timeStep);

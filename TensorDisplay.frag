@@ -37,6 +37,8 @@ uniform float u_ellipseSizeRatio;
 uniform sampler2D u_tensorAverageTexUnit;
 // scalar averages are stored here (sum, count, min, max). We use count.
 uniform sampler2D u_scalarAverageTexUnit;
+uniform bool u_deformationGridShown;
+uniform bool u_deformationGridCellCenterShown;
 
 // each fragmet receives the object coordinates of the fragment.
 varying vec2 v_objectCoord;
@@ -160,7 +162,7 @@ bool isGrid (vec2 x)
 }
 
 // x is in [0, 1)
-bool isGridCenter (vec2 x)
+bool isGridCellCenter (vec2 x)
 {
     x = fract (vec2 (0.5, 0.5) + x);
     vec2 isLine;
@@ -182,9 +184,9 @@ void main(void)
     vec2 screenCoordCenter = gridCoordStart + gridCoordCenter - u_srcRect.m_low;
     vec2 texCoordCenter = 
 	screenCoordCenter / (u_srcRect.m_high - u_srcRect.m_low);
-    if (isEllipse (gridCoordFract, texCoordCenter) /*|| 
-	isGrid (gridCoordFract) ||
-	isGridCenter (gridCoordFract)*/)
+    if (isEllipse (gridCoordFract, texCoordCenter) || 
+	(u_deformationGridShown && isGrid (gridCoordFract)) ||
+	(u_deformationGridCellCenterShown && isGridCellCenter (gridCoordFract)))
 	gl_FragColor = inkColor;
     else
 	discard;

@@ -691,14 +691,8 @@ void GLWidget::transformFoamAverageAround (
     {
     case ViewSettings::AVERAGE_AROUND_TRANSLATION:
     {
-	size_t id = vs.GetAverageAroundBodyId ();
-	G3D::Vector3 centerBegin = (*GetFoamAlongTime ().GetFoam (0).
-				    FindBody (id))->GetCenter ();
-	G3D::Vector3 centerCurrent = (*GetFoamAlongTime ().GetFoam (timeStep).
-				      FindBody (id))->GetCenter ();
-	G3D::Vector3 translation = centerBegin - centerCurrent;
-	glTranslate (translation);
 	glTranslate (-GetFoamAlongTime ().GetBoundingBoxTorus ().center ());
+	translateAverageAround (viewNumber, timeStep);
 	break;
     }
     case ViewSettings::AVERAGE_AROUND_ROTATION:
@@ -713,6 +707,20 @@ void GLWidget::transformFoamAverageAround (
     }
 }
 
+void GLWidget::translateAverageAround (
+    ViewNumber::Enum viewNumber, size_t timeStep) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    size_t id = vs.GetAverageAroundBodyId ();
+    G3D::Vector3 centerBegin = 
+	(*GetFoamAlongTime ().GetFoam (0).FindBody (id))->GetCenter ();
+    G3D::Vector3 centerCurrent = 
+	(*GetFoamAlongTime ().GetFoam (timeStep).FindBody (id))->GetCenter ();
+    G3D::Vector3 translation = centerBegin - centerCurrent;
+    glTranslate (translation);
+}
+
+
 void GLWidget::rotateAverageAround (
     size_t timeStep, int direction) const
 {
@@ -721,9 +729,15 @@ void GLWidget::rotateAverageAround (
     const ConstraintRotation& rotationCurrent = GetFoamAlongTime ().
 	GetFoam (timeStep).GetConstraintRotation ();
     float angleRadians = rotationCurrent.m_angle - rotationBegin.m_angle;
+    if (direction > 0)
+    {
+	G3D::Vector2 translation = 
+	    rotationBegin.m_center - rotationCurrent.m_center;
+	glTranslate (translation);
+    }
     if (angleRadians != 0)
     {
-	G3D::Vector2 rotationCenter = rotationBegin.m_center;
+	G3D::Vector2 rotationCenter = rotationCurrent.m_center;
 	glTranslate (rotationCenter);
 	float angleDegrees =  G3D::toDegrees (angleRadians);
 	//cdbg << "angleDegrees: " << angleDegrees << endl;
@@ -2186,8 +2200,7 @@ void GLWidget::displayFacesTorus (ViewNumber::Enum view) const
 
 void GLWidget::displayEdgesTorusTubes () const
 {
-    glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+    glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
     EdgeSet edgeSet;
     GetCurrentFoam ().GetEdgeSet (&edgeSet);
     for_each (
@@ -2381,7 +2394,6 @@ void GLWidget::displayFacesInterior (
 	GetViewSettings (view).GetBodySelector ();
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT | 
 		  GL_TEXTURE_BIT);
-    glPolygonMode (GL_FRONT, GL_FILL);
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
 
@@ -2405,7 +2417,6 @@ void GLWidget::displayFacesInterior (
 void GLWidget::displayFacesInterior (const Foam::Faces& faces) const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
     for_each (faces.begin (), faces.end (),
@@ -2415,8 +2426,7 @@ void GLWidget::displayFacesInterior (const Foam::Faces& faces) const
 
 void GLWidget::displayFacesTorusTubes () const
 {
-    glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
-    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+    glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
     FaceSet faceSet;
     GetCurrentFoam ().GetFaceSet (&faceSet);
     for_each (
@@ -2508,7 +2518,6 @@ void GLWidget::compileCenterPaths (ViewNumber::Enum view) const
 		  GL_POLYGON_BIT | GL_LINE_BIT);
     glEnable(GL_TEXTURE_1D);
     glBindTexture (GL_TEXTURE_1D, vs.GetColorBarTexture ());
-    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glEnable (GL_CULL_FACE);
 
     //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
@@ -2793,13 +2802,14 @@ void GLWidget::displayTextureColorBar (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect)
 {
     G3D::Rect2D colorBarRect = getViewColorBarRect (viewRect);
+    glPushAttrib (GL_POLYGON_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT);
+
     glDisable (GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_1D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glBindTexture (GL_TEXTURE_1D, 
 		   GetViewSettings (viewNumber).GetColorBarTexture ());
     
-    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     glBegin (GL_QUADS);
     glTexCoord1f(0);glVertex (colorBarRect.x0y0 ());
     glTexCoord1f(1);glVertex (colorBarRect.x0y1 ());
@@ -2816,6 +2826,7 @@ void GLWidget::displayTextureColorBar (
     glVertex (colorBarRect.x1y1 ());
     glVertex (colorBarRect.x1y0 ());
     glEnd ();
+    glPopAttrib ();
 }
 
 void GLWidget::displayViewGrid ()
@@ -2937,7 +2948,7 @@ G3D::Vector2 GLWidget::adjustForScaleAndAxesOrder (
 /**
  * Activate a shader for each fragment where the Quad is projected on destRect. 
  * Rotate the Quad if angleDegrees != 0.
- * Use the following notation: VV = viewing volume, VP = viewport, 
+ * We use the following notation: VV = viewing volume, VP = viewport, 
  * Q = quad, 1 = original VV, 2 = enclosing VV
  * Can be called in 2 situations:
  *                        VV    VP, Q
@@ -2973,7 +2984,6 @@ void GLWidget::ActivateViewShader (
 	glTranslate (adjustedRotationCenter);
 	glRotatef (angleDegrees, 0, 0, 1);	
 	glTranslate (- adjustedRotationCenter);
-	
     }
     glMatrixMode (GL_PROJECTION);
     glPushMatrix ();
@@ -3024,6 +3034,20 @@ void GLWidget::ToggledShowDeformationTensor (bool checked)
 {
     ViewSettings& vs = GetViewSettings ();
     vs.SetDeformationTensorShown (checked);
+    update ();
+}
+
+void GLWidget::ToggledShowDeformationGrid (bool checked)
+{
+    TensorAverage& ta = GetViewSettings ().GetTensorAverage ();
+    ta.SetDeformationGridShown (checked);
+    update ();
+}
+
+void GLWidget::ToggledShowDeformationGridCellCenter (bool checked)
+{
+    TensorAverage& ta = GetViewSettings ().GetTensorAverage ();
+    ta.SetDeformationGridCellCenterShown (checked);
     update ();
 }
 

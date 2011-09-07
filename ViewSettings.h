@@ -333,6 +333,7 @@ public:
     {
 	m_deformationTensorShown = deformationTensorShown;
     }
+
     bool IsDeformationTensorShown () const
     {
 	return m_deformationTensorShown;

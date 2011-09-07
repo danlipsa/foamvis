@@ -36,7 +36,7 @@ protected:
     virtual void rotateAndDisplay (
 	ViewNumber::Enum viewNumber,
 	GLfloat minValue, GLfloat maxValue,
-	StatisticsType::Enum displayType, FramebufferObjectPair fbo,
+	StatisticsType::Enum displayType, TensorScalarFbo fbo,
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;

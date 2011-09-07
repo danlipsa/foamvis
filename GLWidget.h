@@ -269,6 +269,9 @@ public Q_SLOTS:
     void ToggledMissingPressureShown (bool checked);
     void ToggledMissingVolumeShown (bool checked);
     void ToggledShowDeformationTensor (bool checked);
+    void ToggledShowDeformationGrid (bool checked);
+    void ToggledShowDeformationGridCellCenter (bool checked);
+
 
     void SetBodyOrFaceProperty (
 	boost::shared_ptr<ColorBarModel> colorBarModel,
@@ -595,6 +598,8 @@ private:
 	ViewNumber::COUNT>& actionCopyTransformation,
 	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformation);
     void rotateAverageAround (size_t timeStep, int direction) const;
+    void translateAverageAround (ViewNumber::Enum viewNumber, 
+				 size_t timeStep) const;
     float valueChanged (const pair<float,float>& minMax, int index);
     float valueChangedLog2Scale (const pair<double,double>& minMax, int index);
     string infoSelectedBody () const;

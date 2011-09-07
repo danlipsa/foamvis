@@ -61,7 +61,7 @@ void T1sPDE::rotateAndDisplay (
     ViewNumber::Enum viewNumber,
     const G3D::Rect2D& destRect,
     GLfloat minValue, GLfloat maxValue,
-    StatisticsType::Enum displayType, FramebufferObjectPair srcFbo,
+    StatisticsType::Enum displayType, TensorScalarFbo srcFbo,
     ViewingVolumeOperation::Enum enclose,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {

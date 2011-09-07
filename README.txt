@@ -206,7 +206,8 @@ Release log
 0.6      - added --ticks-for-timestep to deal with vfplug_137v_9.857973_2.
 	 - Rearanged the views in 'Time step' and 'Time dependent' categories 
 	   (instead of Edges, Faces and Bodies).
-         - 
+	 - Fixed Average Around for ellipse_sed_rotate simulation (enabled both 
+	   rotation and translation)
 
 0.6.2118 2011-08-26
 	 - added instantaneous and time averaged deformation (texture) tensor.
