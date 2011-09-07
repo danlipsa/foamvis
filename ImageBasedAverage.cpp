@@ -200,8 +200,6 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::currentIsPreviousPlusStep (
     ViewNumber::Enum viewNumber)
 {
-    const G3D::Rect2D destRect = EncloseRotation (
-	GetGLWidget ().GetViewRect (viewNumber));
     m_fbos.m_current->bind ();
     m_addShaderProgram->Bind ();
 
@@ -218,7 +216,6 @@ void ImageBasedAverage<PropertySetter>::currentIsPreviousPlusStep (
 
     GetGLWidget ().ActivateViewShader (
 	viewNumber, 
-	G3D::Rect2D::xywh (0, 0, destRect.width (), destRect.height ()),
 	ViewingVolumeOperation::ENCLOSE2D);
     m_addShaderProgram->release ();
     m_fbos.m_current->release ();
@@ -229,8 +226,6 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::currentIsPreviousMinusStep (
     ViewNumber::Enum viewNumber)
 {
-    const G3D::Rect2D destRect = EncloseRotation (
-	GetGLWidget ().GetViewRect (viewNumber));
     m_fbos.m_current->bind ();
     m_removeShaderProgram->Bind ();
 
@@ -247,7 +242,6 @@ void ImageBasedAverage<PropertySetter>::currentIsPreviousMinusStep (
     glActiveTexture (GL_TEXTURE0);
     GetGLWidget ().ActivateViewShader (
 	viewNumber, 
-	G3D::Rect2D::xywh (0, 0, destRect.width (), destRect.height ()),
 	ViewingVolumeOperation::ENCLOSE2D);
     m_removeShaderProgram->release ();
     m_fbos.m_current->release ();
@@ -269,12 +263,10 @@ void ImageBasedAverage<PropertySetter>::initFramebuffer (
     ViewNumber::Enum viewNumber,
     const boost::shared_ptr<QGLFramebufferObject>& fbo)
 {
-    const G3D::Rect2D destRect = EncloseRotation (
-	GetGLWidget ().GetViewRect (viewNumber));
     fbo->bind ();
     m_initShaderProgram->Bind ();
-    GetGLWidget ().ActivateViewShader (viewNumber, destRect - destRect.x0y0 (),
-	ViewingVolumeOperation::ENCLOSE2D);
+    GetGLWidget ().ActivateViewShader (viewNumber, 
+				       ViewingVolumeOperation::ENCLOSE2D);
     m_initShaderProgram->release ();
     fbo->release ();
 }
@@ -289,9 +281,8 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
     if (! m_fbos.m_current)
 	return;
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
-    const G3D::Rect2D destRect = GetGLWidget ().GetViewRect (viewNumber);
     rotateAndDisplay (
-	viewNumber, destRect, minMax.first, minMax.second, displayType, 
+	viewNumber, minMax.first, minMax.second, displayType, 
 	make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
 	ViewingVolumeOperation::DONT_ENCLOSE2D, rotationCenter, angleDegrees);
 }
@@ -302,14 +293,11 @@ void ImageBasedAverage<PropertySetter>::save (
     FramebufferObjectPair fbo, const char* postfix, size_t timeStep,
     GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
 {
-    const G3D::Rect2D destRect = EncloseRotation (
-	GetGLWidget ().GetViewRect (viewNumber));
     // render to the debug buffer
     m_fbos.m_debug->bind ();
     ClearColorBuffer (Qt::white);
     rotateAndDisplay (
-	viewNumber,
-	G3D::Rect2D::xywh (0, 0, destRect.width (), destRect.height ()), 
+	viewNumber,	
 	minValue, maxValue, displayType, fbo, ViewingVolumeOperation::ENCLOSE2D);
     m_fbos.m_debug->release ();
     ostringstream ostr;

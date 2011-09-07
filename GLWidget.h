@@ -199,7 +199,6 @@ public:
      */
     void ActivateViewShader (
 	ViewNumber::Enum viewNumber,
-	G3D::Rect2D destRect,
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;

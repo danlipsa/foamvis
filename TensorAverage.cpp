@@ -109,7 +109,6 @@ void TensorAverage::InitShaders ()
 
 void TensorAverage::rotateAndDisplay (
     ViewNumber::Enum viewNumber,
-    const G3D::Rect2D& destRect,
     GLfloat minValue, GLfloat maxValue,
     StatisticsType::Enum displayType, FramebufferObjectPair srcFbo,
     ViewingVolumeOperation::Enum enclose,
@@ -136,7 +135,7 @@ void TensorAverage::rotateAndDisplay (
 	TextureEnum (m_displayShaderProgram->GetScalarAverageTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, srcFbo.second->texture ());
     
-    GetGLWidget ().ActivateViewShader (viewNumber, destRect, enclose,
+    GetGLWidget ().ActivateViewShader (viewNumber, enclose,
 				       rotationCenter, angleDegrees);
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);

@@ -2939,19 +2939,24 @@ G3D::Vector2 GLWidget::adjustForScaleAndAxesOrder (
  * Rotate the Quad if angleDegrees != 0.
  * Use the following notation: VV = viewing volume, VP = viewport, 
  * Q = quad, 1 = original VV, 2 = enclosing VV
- * Can be called in 3 situations:
- *                 VV    VP, Q
- * 1. fbo -> fbo : 2  -> 2 , 2       ENCLOSE2D
- * 2. fbo -> img : 2  -> 2,  2       ENCLOSE2D
- * 3. fbo -> scr : 1  -> 1,  2       DONT_ENCLOSE2D
+ * Can be called in 2 situations:
+ *                        VV    VP, Q
+ * 1. fbo -> fbo or img : 2  -> 2 , 2       ENCLOSE2D
+ * 3. fbo -> scr        : 1  -> 1,  2       DONT_ENCLOSE2D
  *
  * Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
  */
 void GLWidget::ActivateViewShader (
-    ViewNumber::Enum viewNumber, G3D::Rect2D destRect, 
+    ViewNumber::Enum viewNumber, 
     ViewingVolumeOperation::Enum enclose,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
+    G3D::Rect2D destRect = GetViewRect (viewNumber);
+    if (enclose == ViewingVolumeOperation::ENCLOSE2D)
+    {
+	destRect = EncloseRotation (destRect);
+	destRect = destRect - destRect.x0y0 ();
+    }
     G3D::Rect2D srcRect = CalculateViewEnclosingRect (viewNumber);
     glPushAttrib (GL_VIEWPORT_BIT);
     glViewport (destRect.x0 (), destRect.y0 (),
