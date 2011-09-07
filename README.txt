@@ -1,5 +1,9 @@
 Compile
 =======
+Mac OS X Snow Leopard
+---------------------
+Install XCode 3.2.6 (search for 'Xcode snow leopard')
+
 Linux
 -----
 Install using your system installation utility (yum, yast2, ...)
