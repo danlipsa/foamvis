@@ -87,10 +87,10 @@ private:
 };
 
 void validate(boost::any& v, const std::vector<std::string>& values,
-              DmpObjectPositionNames* ignore1, int ignore2)
+              DmpObjectInfo* ignore1, int ignore2)
 {
     (void) ignore1;(void)ignore2;
-    DmpObjectPositionNames crn;
+    DmpObjectInfo crn;
     boost::tokenizer<> tok (values[0]);
     istringstream istr;
     string errorMessage ("--constraint-rotation needs four parameters.");
@@ -160,7 +160,7 @@ void printVersion ()
 
 po::options_description getCommonOptions (
     string* t1sFile,
-    DmpObjectPositionNames* constraintRotationNames,
+    DmpObjectInfo* constraintRotationNames,
     vector<ForceNames>* forcesNames,
     size_t* ticksForTimeStep)
 {
@@ -180,14 +180,15 @@ po::options_description getCommonOptions (
 	 "a constraint that specifies an object.\n"
          "arg=<constraint> where <constraint> is the constraint number.")
 	(Option::m_name[Option::CONSTRAINT_ROTATION], 
-	 po::value<DmpObjectPositionNames>(constraintRotationNames), 
+	 po::value<DmpObjectInfo>(constraintRotationNames), 
 	 "a constraint that specifies an object which moves (translates" 
 	 " and rotates) through foam.\n"
 	 "arg=\"<constraint> <xName> <yName> <angleName>\" where " 
 	 "<constraint> specifies the constraint number, <xName>, <yName> "
 	 "specify names for parameters that store the center of rotation and "
 	 "<angleName> specifies the name of the parameter that stores "
-	 "the rotation angle.")
+	 "the rotation angle. The rotation (in radians) follows the "
+	 "left-hand rule: a rotation around z axis is clock-wise.")
 	(Option::m_name[Option::FORCES], 
 	 po::value< vector<ForceNames> >(forcesNames),
 	 "reads the forces acting on a body.\n"
@@ -403,7 +404,7 @@ void filterAndExpandWildcards (vector<string>* fileNames, string filter)
 
 void parseOptions (
     int argc, char *argv[], string* t1sFile,
-    vector<string>* fileNames, DmpObjectPositionNames* constraintRotationNames,
+    vector<string>* fileNames, DmpObjectInfo* constraintRotationNames,
     vector<ForceNames>* forcesNames, size_t* ticksForTimeStep, 
     po::variables_map* vm)
 {
@@ -477,7 +478,7 @@ int main(int argc, char *argv[])
 	FoamAlongTime foamAlongTime;
 	string t1sFile;
 	vector<string> fileNames;
-	DmpObjectPositionNames constraintRotationNames;
+	DmpObjectInfo constraintRotationNames;
 	vector<ForceNames> forcesNames;
 	size_t ticksForTimeStep;
 	po::variables_map vm;

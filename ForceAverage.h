@@ -21,7 +21,9 @@ public:
 	Average (glWidget)
     {
     }
-    void DisplayOne (ViewNumber::Enum viewNumber) const;
+    void DisplayOneTimeStep (ViewNumber::Enum viewNumber) const;
+    void Display (ViewNumber::Enum viewNumber,
+		  bool adjustForAverageAroundMovementRotation = false) const;    
     virtual void AverageRotateAndDisplay (
 	ViewNumber::Enum viewNumber, 
 	StatisticsType::Enum displayType = StatisticsType::AVERAGE,
@@ -37,7 +39,8 @@ protected:
 private:
     void display (
 	ViewNumber::Enum viewNumber, 
-	const vector<Force>& forces, size_t count) const;
+	const vector<Force>& forces, size_t timeWindow,
+	bool adjustForAverageAroundMovementRotation = false) const;
     void displayForces (
 	ViewNumber::Enum viewNumber, const Force& force, size_t count) const;
     void displayForce (

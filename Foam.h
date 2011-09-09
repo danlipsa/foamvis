@@ -50,7 +50,7 @@ public:
      * Constructs a Foam object.
      */
     Foam (bool useOriginal, 
-	  const DmpObjectPositionNames& constraintRotationNames,
+	  const DmpObjectInfo& constraintRotationNames,
 	  const vector<ForceNames>& forcesNames,
 	  FoamParameters& foamParameters, ParametersOperation paramsOp);
 
@@ -263,7 +263,7 @@ public:
     
     void CalculateMinMaxStatistics ();
     void SetDmpObjectPosition (
-	const DmpObjectPositionNames& constraintRotationNames);    
+	const DmpObjectInfo& constraintRotationNames);    
     const ObjectPosition& GetAverageAroundPosition () const
     {
 	return m_averageAroundPosition;
@@ -273,6 +273,9 @@ public:
 	m_averageAroundPosition = m_dmpObjectPosition;
     }
     void SetAverageAroundFromBody (size_t bodyId);
+    void SetAverageAroundFromBody (
+	size_t bodyId, size_t secondBodyId, G3D::Vector2 beginAxis);
+    G3D::Vector2 GetAverageAroundAxis (size_t bodyId, size_t secondBodyId) const;
     const vector<Force>& GetForces () const
     {
 	return m_forces;

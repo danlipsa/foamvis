@@ -29,8 +29,7 @@ public:
     // Average around
     enum AverageAroundType
     {
-	AVERAGE_AROUND_TRANSLATION,
-	AVERAGE_AROUND_ROTATION,
+	AVERAGE_AROUND,
 	AVERAGE_AROUND_NONE
     };
 
@@ -279,13 +278,20 @@ public:
 
     size_t GetAverageAroundBodyId () const
     {
-	return m_averageAroundBodyId;
-    }
+	return m_averageAroundBodyId[0];
+    }    
     void SetAverageAroundBodyId (size_t id)
     {
-	m_averageAroundBodyId = id;
+	m_averageAroundBodyId[0] = id;
     }
-
+    size_t GetAverageAroundSecondBodyId () const
+    {
+	return m_averageAroundBodyId[1];
+    }
+    void SetAverageAroundSecondBodyId (size_t id)
+    {
+	m_averageAroundBodyId[1] = id;
+    }
     AverageAroundType GetAverageAroundType () const
     {
 	return m_averageAroundType;
@@ -456,7 +462,7 @@ private:
 
     //Stationary
     AverageAroundType m_averageAroundType;
-    size_t m_averageAroundBodyId;
+    boost::array<size_t, 2> m_averageAroundBodyId;
     // Context view
     bool m_contextView;
     bool m_forceNetworkShown;

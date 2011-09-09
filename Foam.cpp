@@ -66,7 +66,7 @@ void compact (vector< boost::shared_ptr<E> >& v)
 // ======================================================================
 
 Foam::Foam (bool useOriginal, 
-	    const DmpObjectPositionNames& constraintRotationNames,
+	    const DmpObjectInfo& constraintRotationNames,
 	    const vector<ForceNames>& forcesNames, 
 	    FoamParameters& foamParameters,
 	    ParametersOperation paramsOp) :
@@ -407,8 +407,8 @@ void Foam::Preprocess ()
     VertexSet vertexSet;
     EdgeSet edgeSet;
     FaceSet faceSet;
-    const DmpObjectPositionNames& constraintRotationNames = 
-	GetParsingData ().GetDmpObjectPositionNames ();
+    const DmpObjectInfo& constraintRotationNames = 
+	GetParsingData ().GetDmpObjectInfo ();
     if (constraintRotationNames.RotationUsed ())
 	SetDmpObjectPosition (constraintRotationNames);
     const vector<ForceNames>& forcesNames = GetParsingData ().GetForcesNames ();
@@ -506,7 +506,7 @@ void Foam::addConstraintEdges ()
 	face.CalculateCentroidAndArea ();
 	size_t constraintIndex = constraintEdge->GetConstraintIndex ();
 	if ( constraintIndex == GetParsingData ().
-	     GetDmpObjectPositionNames ().m_constraintIndex)
+	     GetDmpObjectInfo ().m_constraintIndex)
 	{
 	    resizeAllowIndex (&m_constraintEdges, constraintIndex);
 	    if (! m_constraintEdges[constraintIndex])
@@ -867,7 +867,7 @@ bool Foam::ExistsBodyWithValueIn (
     return it != m_bodies.end ();
 }
 
-void Foam::SetDmpObjectPosition (const DmpObjectPositionNames& names)
+void Foam::SetDmpObjectPosition (const DmpObjectInfo& names)
 {
     m_dmpObjectPosition.m_rotationCenter.x =  
 	GetParsingData ().GetVariableValue (names.m_xName);
@@ -882,6 +882,23 @@ void Foam::SetAverageAroundFromBody (size_t bodyId)
     m_averageAroundPosition.m_angle = 0;
     m_averageAroundPosition.m_rotationCenter = 
 	(*FindBody (bodyId))->GetCenter ().xy ();
+}
+
+void Foam::SetAverageAroundFromBody (
+    size_t bodyId, size_t secondBodyId, G3D::Vector2 beginAxis)
+{
+    G3D::Vector2 currentAxis = GetAverageAroundAxis (bodyId, secondBodyId);
+    float angleRadians = 
+	acos (currentAxis.direction ().dot (beginAxis.direction ()));
+    m_averageAroundPosition.m_angle = - angleRadians;
+}
+
+G3D::Vector2 Foam::GetAverageAroundAxis (
+    size_t bodyId, size_t secondBodyId) const
+{
+    boost::shared_ptr<Body> first = *FindBody (bodyId);
+    boost::shared_ptr<Body> second = *FindBody (secondBodyId);
+    return (second->GetCenter () - first->GetCenter ()).xy ();
 }
 
 void Foam::SetForces (const vector<ForceNames>& forcesNames)

@@ -62,14 +62,14 @@ public:
      */
     ParseDMP (
 	QString dir, 
-	const DmpObjectPositionNames& constraintRotationNames, 
+	const DmpObjectInfo& constraintRotationNames, 
 	const vector<ForceNames>& forcesNames,
 	bool useOriginal, FoamParameters* foamParameters, 
 	Foam::ParametersOperation parametersOperation,
 	bool debugParsing = false, bool debugScanning = false) : 
 
         m_dir (qPrintable(dir)), 
-	m_dmpObjectNames (constraintRotationNames), 
+	m_dmpObjectInfo (constraintRotationNames), 
 	m_useOriginal (useOriginal),
 	m_foamParameters (foamParameters), 
 	m_parametersOperation (parametersOperation),
@@ -96,7 +96,7 @@ public:
 	    ostr << "Parsing " << file << " ..." << endl;
 	    cdbg << ostr.str ();
 	    foam.reset (
-		new Foam (m_useOriginal, m_dmpObjectNames,
+		new Foam (m_useOriginal, m_dmpObjectInfo,
 			  m_forcesNames, *m_foamParameters, 
 			  m_parametersOperation));
 	    foam->GetParsingData ().SetDebugParsing (m_debugParsing);
@@ -119,7 +119,7 @@ private:
      * Directory that stores the DMP files.
      */
     const string m_dir;
-    const DmpObjectPositionNames& m_dmpObjectNames;
+    const DmpObjectInfo& m_dmpObjectInfo;
     vector<ForceNames> m_forcesNames;
     const bool m_useOriginal;
     FoamParameters* m_foamParameters;
@@ -187,6 +187,15 @@ void FoamAlongTime::SetAverageAroundFromBody (size_t bodyId)
 	f->SetAverageAroundFromBody (bodyId);
 }
 
+void FoamAlongTime::SetAverageAroundFromBody (
+    size_t bodyId, size_t secondBodyId)
+{
+    G3D::Vector2 beginAxis = 
+	GetFoam (0).GetAverageAroundAxis (bodyId, secondBodyId);
+    for (size_t i = 1; i < GetFoams ().size (); ++i)
+	GetFoam (i).SetAverageAroundFromBody (bodyId, secondBodyId, beginAxis);
+}
+
 
 void FoamAlongTime::Preprocess ()
 {
@@ -194,7 +203,7 @@ void FoamAlongTime::Preprocess ()
     fixConstraintPoints ();
     boost::array<FoamParamMethod, 6> methods = {{
 	    boost::bind (&Foam::CreateConstraintBody, _1, 
-			 GetDmpObjectPositionNames ().m_constraintIndex),
+			 GetDmpObjectInfo ().m_constraintIndex),
 	    boost::bind (&Foam::ReleaseParsingData, _1),
 	    boost::bind (&Foam::CalculateBoundingBox, _1),
 	    boost::bind (&Foam::CalculatePerimeterOverArea, _1),
@@ -526,7 +535,7 @@ const vector<G3D::Vector3>& FoamAlongTime::GetT1s (size_t timeStep) const
 void FoamAlongTime::ParseDMPs (
     const vector<string>& fileNames,
     bool useOriginal,
-    const DmpObjectPositionNames& constraintRotationNames,
+    const DmpObjectInfo& constraintRotationNames,
     const vector<ForceNames>& forcesNames,
     bool debugParsing, bool debugScanning)
 {
@@ -534,7 +543,7 @@ void FoamAlongTime::ParseDMPs (
     QStringList files;
     string filePattern;
     m_useOriginal = useOriginal;
-    m_dmpObjectNames = constraintRotationNames;
+    m_dmpObjectInfo = constraintRotationNames;
     m_forcesNames.resize (forcesNames.size ());
     copy (forcesNames.begin (), forcesNames.end (), m_forcesNames.begin ());
     QFileInfo fileInfo (fileNames[0].c_str ());
@@ -556,7 +565,7 @@ void FoamAlongTime::ParseDMPs (
     SetFilePattern (filePattern);
     // FoamParameters are shared between all Foams
     GetFoams ()[0] = ParseDMP (
-	dir.absolutePath (), GetDmpObjectPositionNames (),
+	dir.absolutePath (), GetDmpObjectInfo (),
 	GetForcesNames (), OriginalUsed (), GetFoamParameters (),
 	Foam::SET_FOAM_PARAMETERS,
 	debugParsing, debugScanning) (*files.begin ());
@@ -564,7 +573,7 @@ void FoamAlongTime::ParseDMPs (
 	< QList < boost::shared_ptr<Foam> > > (
 	    files.begin () + 1, files.end (),
 	    ParseDMP (	
-		dir.absolutePath (), GetDmpObjectPositionNames (),
+		dir.absolutePath (), GetDmpObjectInfo (),
 		GetForcesNames (), OriginalUsed (), GetFoamParameters (),
 		Foam::TEST_FOAM_PARAMETERS, debugParsing, debugScanning));
     if (count_if (foams.constBegin (), foams.constEnd (),

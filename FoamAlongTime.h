@@ -151,9 +151,10 @@ public:
     }
     void SetAverageAroundFromDmp ();
     void SetAverageAroundFromBody (size_t bodyId);
-    const DmpObjectPositionNames& GetDmpObjectPositionNames () const
+    void SetAverageAroundFromBody (size_t bodyId, size_t secondBodyId);
+    const DmpObjectInfo& GetDmpObjectInfo () const
     {
-	return m_dmpObjectNames;
+	return m_dmpObjectInfo;
     }    
     const vector<ForceNames>& GetForcesNames () const
     {
@@ -190,7 +191,7 @@ public:
 	const string& fileName, size_t ticksForTimeStep, bool shiftT1sLower);
     void ParseDMPs (const vector<string>& fileNames,
 		    bool useOriginal,
-		    const DmpObjectPositionNames& constraintRotationNames,
+		    const DmpObjectInfo& constraintRotationNames,
 		    const vector<ForceNames>& forcesNames,
 		    bool debugParsing, bool debugScanning);
     FoamParameters* GetFoamParameters ()
@@ -238,7 +239,7 @@ private:
     bool m_adjustPressure;
     vector< vector<G3D::Vector3> > m_t1s;
     int m_t1sTimeStepShift;
-    DmpObjectPositionNames m_dmpObjectNames;
+    DmpObjectInfo m_dmpObjectInfo;
     vector<ForceNames> m_forcesNames;
     bool m_useOriginal;
 };

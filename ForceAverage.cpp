@@ -8,6 +8,7 @@
  */
 
 #include "Body.h"
+#include "DebugStream.h"
 #include "ForceAverage.h"
 #include "FoamAlongTime.h"
 #include "Foam.h"
@@ -65,31 +66,52 @@ void ForceAverage::removeStep (ViewNumber::Enum viewNumber, size_t timeStep)
     }
 }
 
-void ForceAverage::DisplayOne (ViewNumber::Enum viewNumber) const
+void ForceAverage::Display (
+    ViewNumber::Enum viewNumber,
+    bool adjustForAverageAroundMovementRotation) const
 {
-    display (viewNumber, GetGLWidget ().GetCurrentFoam ().GetForces (), 1);
+    display (viewNumber, m_average, 
+	     GetCurrentTimeWindow (), adjustForAverageAroundMovementRotation);
+}
+
+void ForceAverage::DisplayOneTimeStep (
+    ViewNumber::Enum viewNumber) const
+{
+    display (viewNumber, GetGLWidget ().GetCurrentFoam ().GetForces (), 
+	     1, false);
 }
 
 void ForceAverage::AverageRotateAndDisplay (
     ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
-    G3D::Vector2 rotationCenter, 
-    float angleDegrees) const
+    G3D::Vector2 rotationCenter, float angleDegrees) const
 {
+    (void)displayType;
     (void)displayType;(void)rotationCenter;(void)angleDegrees;
     display (viewNumber, m_average, GetCurrentTimeWindow ());
+    cdbg << "WARNING: This function show not be used" << endl;
 }
 
 
-void ForceAverage::display (ViewNumber::Enum viewNumber,
-			     const vector<Force>& forces, size_t count) const
+void ForceAverage::display (
+    ViewNumber::Enum viewNumber, const vector<Force>& forces, size_t count,
+    bool adjustForAverageAroundMovementRotation) const
 {
-    if (GetGLWidget ().GetFoamAlongTime ().ForceUsed ())
+    const GLWidget& glWidget = GetGLWidget ();
+    if (glWidget.GetFoamAlongTime ().ForceUsed ())
     {
 	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT | GL_LINE_BIT);
+	if (adjustForAverageAroundMovementRotation)
+	{
+	    glMatrixMode (GL_MODELVIEW);
+	    glPushMatrix ();
+	    glWidget.RotateAndTranslateAverageAround (glWidget.GetTime (), -1);
+	}
 	glDisable (GL_DEPTH_TEST);
 	glLineWidth (GetGLWidget ().GetHighlightLineWidth ());
 	BOOST_FOREACH (const Force& force, forces)
 	    displayForces (viewNumber, force, count);
+	if (adjustForAverageAroundMovementRotation)
+	    glPopMatrix ();
 	glPopAttrib ();
     }
 }

@@ -63,7 +63,6 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_lightPositionShown (0),
     m_angleOfView (0),
     m_averageAroundType (AVERAGE_AROUND_NONE),
-    m_averageAroundBodyId (INVALID_INDEX),
     m_contextView (false),
     m_forceNetworkShown (true),
     m_forcePressureShown (true),
@@ -77,6 +76,8 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     initTexture ();
     initList ();
     setInitialLightParameters ();
+    for (size_t i = 0; i < m_averageAroundBodyId.size (); ++i)
+	m_averageAroundBodyId[i] = INVALID_INDEX;
 }
 
 ViewSettings::~ViewSettings ()
@@ -434,7 +435,6 @@ void ViewSettings::AverageRotateAndDisplay (
     if (IsDeformationTensorShown ())
 	GetTensorAverage ().AverageRotateAndDisplay (
 	    viewNumber, displayType, rotationCenter, angleDegrees);
-    GetForceAverage ().AverageRotateAndDisplay (viewNumber);
 }
 
 void ViewSettings::AverageRelease ()

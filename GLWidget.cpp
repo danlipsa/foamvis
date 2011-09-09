@@ -304,6 +304,13 @@ void GLWidget::createActions ()
     connect(m_actionAverageAroundBody.get (), SIGNAL(triggered()),
 	    this, SLOT(AverageAroundBody ()));
 
+    m_actionAverageAroundSecondBody = boost::make_shared<QAction> (
+	tr("&Second Body"), this);
+    m_actionAverageAroundSecondBody->setStatusTip(
+	tr("Averaged around second body"));
+    connect(m_actionAverageAroundSecondBody.get (), SIGNAL(triggered()),
+	    this, SLOT(AverageAroundSecondBody ()));
+
     m_actionAverageAroundReset = boost::make_shared<QAction> (
 	tr("&Reset"), this);
     m_actionAverageAroundReset->setStatusTip(tr("Average around reset"));
@@ -317,7 +324,7 @@ void GLWidget::createActions ()
 	    this, SLOT(ContextDisplayBody ()));
 
     m_actionAverageAroundShowRotation = boost::make_shared<QAction> (
-	tr("&Allow rotation"), this);
+	tr("&Show rotation"), this);
     m_actionAverageAroundShowRotation->setStatusTip(tr("Show rotation"));
     m_actionAverageAroundShowRotation->setCheckable (true);
     connect(m_actionAverageAroundShowRotation.get (), SIGNAL(toggled(bool)),
@@ -680,22 +687,12 @@ void GLWidget::transformFoamAverageAround (
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     ViewSettings::AverageAroundType type = vs.GetAverageAroundType ();
-    switch (type)
-    {
-    case ViewSettings::AVERAGE_AROUND_TRANSLATION:
-    case ViewSettings::AVERAGE_AROUND_ROTATION:
-    {
-	glTranslate (- GetFoamAlongTime ().GetBoundingBoxTorus ().center ());
-	rotateAndTranslateAverageAround (timeStep, 1);
-	break;
-    }
-    default:
-	glTranslate (- GetFoamAlongTime ().GetBoundingBoxTorus ().center ());
-	break;
-    }
+    glTranslate (- GetFoamAlongTime ().GetBoundingBoxTorus ().center ());
+    if (type == ViewSettings::AVERAGE_AROUND)
+	RotateAndTranslateAverageAround (timeStep, 1);
 }
 
-void GLWidget::rotateAndTranslateAverageAround (
+void GLWidget::RotateAndTranslateAverageAround (
     size_t timeStep, int direction) const
 {
     const ObjectPosition& rotationBegin = GetFoamAlongTime ().
@@ -714,7 +711,7 @@ void GLWidget::rotateAndTranslateAverageAround (
 	G3D::Vector2 rotationCenter = rotationCurrent.m_rotationCenter;
 	glTranslate (rotationCenter);
 	float angleDegrees =  G3D::toDegrees (angleRadians);
-	//cdbg << "angleDegrees: " << angleDegrees << endl;
+	//cdbg << "angle degrees = " << angleDegrees << endl;
 	angleDegrees = direction > 0 ? angleDegrees : - angleDegrees;
 	glRotatef (angleDegrees, 0, 0, 1);
 	glTranslate (-rotationCenter);
@@ -1472,49 +1469,34 @@ G3D::Vector3 GLWidget::toObjectTransform (const QPoint& position) const
     return toObjectTransform (position, GetViewNumber ());
 }
 
-void GLWidget::displayAverageAroundBody (ViewNumber::Enum viewNumber) const
-{
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    if (m_averageAroundBody && 
-	vs.GetAverageAroundType () == ViewSettings::AVERAGE_AROUND_TRANSLATION)
-    {
-	glPushAttrib (GL_ENABLE_BIT);
-	glDisable (GL_DEPTH_TEST);
-	Foam::Bodies focusBody (1);
-	focusBody[0] = *GetCurrentFoam ().FindBody (
-	    vs.GetAverageAroundBodyId ());
-	displayFacesContour<HighlightNumber::H0> (
-	    focusBody, viewNumber, m_highlightLineWidth);
-	glPopAttrib ();
-    }
-}
-
-void GLWidget::displayAverageAroundConstraint (
-    ViewNumber::Enum view,
+void GLWidget::displayAverageAround (
+    ViewNumber::Enum viewNumber,
     bool adjustForAverageAroundMovementRotation) const
 {
-    const ViewSettings& vs = GetViewSettings (view);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     ViewSettings::AverageAroundType type = vs.GetAverageAroundType ();
-    if (m_averageAroundBody && type == ViewSettings::AVERAGE_AROUND_ROTATION)
+    if (m_averageAroundBody && type == ViewSettings::AVERAGE_AROUND)
     {
 	glPushAttrib (GL_ENABLE_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
 	if (adjustForAverageAroundMovementRotation)
 	{
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
-	    rotateAndTranslateAverageAround (GetTime (), -1);
+	    RotateAndTranslateAverageAround (GetTime (), -1);
 	}
 	glDisable (GL_DEPTH_TEST);
-	glLineWidth (m_highlightLineWidth);
-	glColor (GetHighlightColor (view, HighlightNumber::H0));
-	const Foam::Edges& constraintEdges = 
-	    GetCurrentFoam ().GetConstraintEdges (
-		GetFoamAlongTime ().
-		GetDmpObjectPositionNames ().m_constraintIndex);
-	DisplayEdgeHighlightColor<HighlightNumber::H0> displayEdge (
-	    *this, DisplayElement::FOCUS, view);
-	BOOST_FOREACH (boost::shared_ptr<Edge> edge, constraintEdges)
-	    displayEdge (edge);
+	Foam::Bodies focusBody (1);
+	size_t bodyId = vs.GetAverageAroundBodyId ();
+	focusBody[0] = *GetCurrentFoam ().FindBody (bodyId);
+	displayFacesContour<HighlightNumber::H0> (
+	    focusBody, viewNumber, m_highlightLineWidth);
+	size_t secondBodyId = vs.GetAverageAroundSecondBodyId ();
+	if (secondBodyId != INVALID_INDEX)
+	{
+	    focusBody[0] = *GetCurrentFoam ().FindBody (secondBodyId);
+	    displayFacesContour<HighlightNumber::H0> (
+		focusBody, viewNumber, 2*m_highlightLineWidth);
+	}
 	if (adjustForAverageAroundMovementRotation)
 	    glPopMatrix ();
 	glPopAttrib ();
@@ -1556,8 +1538,9 @@ void GLWidget::displayContextStationaryFoam (
 	glDisable (GL_DEPTH_TEST);
 	if (adjustForAverageAroundMovementRotation)
 	{
+	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
-	    rotateAndTranslateAverageAround (GetTime (), -1);
+	    RotateAndTranslateAverageAround (GetTime (), -1);
 	}
 	DisplayBox (GetFoamAlongTime (), 
 		    GetHighlightColor (viewNumber, HighlightNumber::H1),
@@ -1574,16 +1557,13 @@ string GLWidget::getAverageAroundLabel ()
     ostringstream ostr;
     const ViewSettings& vs = GetViewSettings ();
     ViewSettings::AverageAroundType type = vs.GetAverageAroundType ();
-    switch (type)
+    if (type == ViewSettings::AVERAGE_AROUND)
     {
-    case ViewSettings::AVERAGE_AROUND_TRANSLATION:
-	ostr << "Average around (t)";
-	break;
-    case ViewSettings::AVERAGE_AROUND_ROTATION:
-	ostr << "Average around (r)";
-	break;
-    default:
-	break;
+	ostr << "Average around";
+	if (vs.GetAverageAroundSecondBodyId () == INVALID_INDEX)
+	    ostr << " (1)";
+	else
+	    ostr << " (2)";	    
     }
     return ostr.str ();
 }
@@ -1598,11 +1578,12 @@ string GLWidget::getContextLabel ()
     return ostr.str ();
 }
 
-string GLWidget::getContextStationaryLabel ()
+string GLWidget::getAverageAroundMovementShownLabel ()
 {
     ostringstream ostr;
     const ViewSettings& vs = GetViewSettings ();
-    ViewSettings::AverageAroundMovementShown type = vs.GetAverageAroundMovementShown ();
+    ViewSettings::AverageAroundMovementShown type = 
+	vs.GetAverageAroundMovementShown ();
     if (type == ViewSettings::AVERAGE_AROUND_MOVEMENT_ROTATION)
 	ostr << "Show rotation";
     return ostr.str ();
@@ -1635,7 +1616,7 @@ void GLWidget::setLabel ()
     boost::array<string, 4> labels = {{
 	    getAverageAroundLabel (),
 	    getContextLabel (),
-	    getContextStationaryLabel (),
+	    getAverageAroundMovementShownLabel (),
 	    getBodySelectorLabel ()
 	}};
     ostream_iterator<string> o (ostr, "-");
@@ -1660,17 +1641,13 @@ void GLWidget::AverageAroundBody ()
 	FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
 	size_t bodyId = bodies[0]->GetId ();
 	vs.SetAverageAroundBodyId (bodyId);
+	vs.SetAverageAroundSecondBodyId (INVALID_INDEX);
+	vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND);
 	if (bodies[0]->IsConstraint () && 
-	    foamAlongTime.GetDmpObjectPositionNames ().RotationUsed ())
-	{
-	    vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND_ROTATION);
+	    foamAlongTime.GetDmpObjectInfo ().RotationUsed ())
 	    foamAlongTime.SetAverageAroundFromDmp ();
-	}
 	else
-	{
-	    vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND_TRANSLATION);
 	    foamAlongTime.SetAverageAroundFromBody (bodyId);
-	}
 	setLabel ();
 	update ();
     }
@@ -1682,11 +1659,49 @@ void GLWidget::AverageAroundBody ()
     }
 }
 
+void GLWidget::AverageAroundSecondBody ()
+{
+    ViewSettings& vs = GetViewSettings ();
+    vector< boost::shared_ptr<Body> > bodies;
+    brushedBodies (m_contextMenuPosScreen, &bodies);
+    string message;
+    if (bodies.size () != 0)
+    {
+	FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
+	size_t secondBodyId = bodies[0]->GetId ();
+	size_t bodyId = vs.GetAverageAroundBodyId ();
+	if (bodyId != INVALID_INDEX)
+	{
+	    if (bodyId == secondBodyId)
+		message = "\"Average around > Second body\" needs to "
+		    "be different than \"Average around > Body\"";
+	    else
+	    {
+		vs.SetAverageAroundSecondBodyId (secondBodyId);
+		vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND);
+		foamAlongTime.SetAverageAroundFromBody (bodyId, secondBodyId);
+		setLabel ();
+		update ();
+		return;
+	    }
+	}
+	else
+	    message = "Select \"Average around > Body\" first";
+    }
+    else
+	message = "No body selected";
+    QMessageBox msgBox (this);
+    msgBox.setText(message.c_str ());
+    msgBox.exec();
+}
+
+
 void GLWidget::AverageAroundReset ()
 {
     ViewSettings& vs = GetViewSettings ();
     vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND_NONE);
     vs.SetAverageAroundBodyId (INVALID_INDEX);
+    vs.SetAverageAroundSecondBodyId (INVALID_INDEX);
     setLabel ();
     update ();
 }
@@ -2263,13 +2278,12 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
 	displayFacesContour (bodies, viewNumber);
     displayFacesInterior (bodies, viewNumber);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
-    displayAverageAroundBody (viewNumber);
-    displayAverageAroundConstraint (viewNumber);
+    displayAverageAround (viewNumber);
     displayContextBodies (viewNumber);
     displayContextStationaryFoam (viewNumber);
     displayStandaloneFaces ();    
     displayDeformationTensor2D (viewNumber);
-    vs.GetForceAverage ().DisplayOne (viewNumber);
+    vs.GetForceAverage ().DisplayOneTimeStep (viewNumber);
 }
 
 void GLWidget::displayT1sPDE (ViewNumber::Enum viewNumber) const
@@ -2304,9 +2318,10 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
     }
     vs.AverageRotateAndDisplay (
 	viewNumber, vs.GetStatisticsType (), rotationCenter, - angleDegrees);
+    vs.GetForceAverage ().Display (
+	viewNumber, adjustForAverageAroundMovementRotation);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
-    displayAverageAroundBody (viewNumber);
-    displayAverageAroundConstraint (
+    displayAverageAround (
 	viewNumber, adjustForAverageAroundMovementRotation);
     displayContextBodies (viewNumber);
     displayContextStationaryFoam (
@@ -2648,6 +2663,8 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	{
 	    QMenu* menuAverageAround = menu.addMenu ("Average around");
 	    menuAverageAround->addAction (m_actionAverageAroundBody.get ());
+	    menuAverageAround->addAction (
+		m_actionAverageAroundSecondBody.get ());
 	    menuAverageAround->addAction (m_actionAverageAroundReset.get ());
 	    menuAverageAround->addAction (
 		m_actionAverageAroundShowRotation.get ());

@@ -218,7 +218,7 @@ public:
 	ViewingVolumeOperation::Enum enclose = 
 	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     G3D::Rect2D CalculateViewEnclosingRect (ViewNumber::Enum viewNumber) const;
-
+    void RotateAndTranslateAverageAround (size_t timeStep, int direction) const;
 
 Q_SIGNALS:
     void PaintedGL ();
@@ -322,6 +322,7 @@ public Q_SLOTS:
     void SelectAll ();
     void DeselectAll ();
     void AverageAroundBody ();
+    void AverageAroundSecondBody ();
     void AverageAroundReset ();
     void ContextDisplayBody ();
     void ContextDisplayReset ();
@@ -404,6 +405,7 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    G3D::Vector3 getEyeTransform (ViewNumber::Enum viewNumber) const;
     G3D::AABox calculateEyeViewingVolume (
 	ViewNumber::Enum viewNumber, 
 	ViewingVolumeOperation::Enum enclose = 
@@ -412,7 +414,6 @@ private:
     void mouseMoveTranslate (QMouseEvent *event);
     void mouseMoveScale (QMouseEvent *event);
     void viewportTransform (ViewNumber::Enum viewNumber) const;
-    G3D::Vector3 getEyeTransform (ViewNumber::Enum viewNumber) const;
     void setLight (int sliderValue, int maximumValue, 
 		   LightType::Enum lightType, ColorNumber::Enum colorNumber);
     void setView (const G3D::Vector2& clickedPoint);
@@ -467,8 +468,7 @@ private:
     void displayContextStationaryFoam (
 	ViewNumber::Enum view,
 	bool adjustForAverageAroundMovementRotation = false) const;
-    void displayAverageAroundBody (ViewNumber::Enum view) const;
-    void displayAverageAroundConstraint (
+    void displayAverageAround (
 	ViewNumber::Enum view, 
 	bool adjustForAverageAroundMovementRotation = false) const;
 
@@ -584,7 +584,7 @@ private:
     void createActions ();
     string getBodySelectorLabel ();
     string getContextLabel ();
-    string getContextStationaryLabel ();
+    string getAverageAroundMovementShownLabel ();
     string getAverageAroundLabel ();
     void setLabel ();
     void transformFoamAverageAround (
@@ -593,7 +593,6 @@ private:
 	boost::array<boost::shared_ptr<QAction>, 
 	ViewNumber::COUNT>& actionCopyTransformation,
 	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformation);
-    void rotateAndTranslateAverageAround (size_t timeStep, int direction) const;
     float valueChanged (const pair<float,float>& minMax, int index);
     float valueChangedLog2Scale (const pair<double,double>& minMax, int index);
     string infoSelectedBody () const;
@@ -677,6 +676,7 @@ private:
     boost::shared_ptr<QAction> m_actionSelectBodiesById;
 
     boost::shared_ptr<QAction> m_actionAverageAroundBody;
+    boost::shared_ptr<QAction> m_actionAverageAroundSecondBody;
     boost::shared_ptr<QAction> m_actionAverageAroundReset;
     boost::shared_ptr<QAction> m_actionAverageAroundShowRotation;
 

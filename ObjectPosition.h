@@ -15,9 +15,9 @@
  * constraint is stored, and the constraint number.
  * Names for x, y and angle are stored.
  */
-struct DmpObjectPositionNames
+struct DmpObjectInfo
 {
-    DmpObjectPositionNames () :
+    DmpObjectInfo () :
 	m_constraintIndex (INVALID_INDEX)
     {
     }
@@ -35,6 +35,9 @@ struct DmpObjectPositionNames
     string m_angleName;
 };
 
+/**
+ * The angle is stored in radians
+ */
 struct ObjectPosition
 {
     ObjectPosition () :

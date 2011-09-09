@@ -57,7 +57,7 @@ public:
      * Constructs a ParsingData object
      */
     ParsingData (bool useOriginal, 
-		 const DmpObjectPositionNames& constraintRotationNames,
+		 const DmpObjectInfo& constraintRotationNames,
 		 const vector<ForceNames>& forcesNames);
 
     void AddAttribute (const char* s)
@@ -249,9 +249,9 @@ public:
 	return m_useOriginal;
     }
 
-    const DmpObjectPositionNames& GetDmpObjectPositionNames () const
+    const DmpObjectInfo& GetDmpObjectInfo () const
     {
-	return m_dmpObjectNames;
+	return m_dmpObjectInfo;
     }
     const vector<ForceNames>& GetForcesNames () const
     {
@@ -313,7 +313,7 @@ private:
     size_t m_parenthesisCount;
     bool m_newLineSignificant;
     bool m_useOriginal;
-    DmpObjectPositionNames m_dmpObjectNames;
+    DmpObjectInfo m_dmpObjectInfo;
     vector<ForceNames> m_forcesNames;
 
 private:
