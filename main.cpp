@@ -87,10 +87,10 @@ private:
 };
 
 void validate(boost::any& v, const std::vector<std::string>& values,
-              ConstraintRotationNames* ignore1, int ignore2)
+              DmpObjectPositionNames* ignore1, int ignore2)
 {
     (void) ignore1;(void)ignore2;
-    ConstraintRotationNames crn;
+    DmpObjectPositionNames crn;
     boost::tokenizer<> tok (values[0]);
     istringstream istr;
     string errorMessage ("--constraint-rotation needs four parameters.");
@@ -160,7 +160,7 @@ void printVersion ()
 
 po::options_description getCommonOptions (
     string* t1sFile,
-    ConstraintRotationNames* constraintRotationNames,
+    DmpObjectPositionNames* constraintRotationNames,
     vector<ForceNames>* forcesNames,
     size_t* ticksForTimeStep)
 {
@@ -180,8 +180,9 @@ po::options_description getCommonOptions (
 	 "a constraint that specifies an object.\n"
          "arg=<constraint> where <constraint> is the constraint number.")
 	(Option::m_name[Option::CONSTRAINT_ROTATION], 
-	 po::value<ConstraintRotationNames>(constraintRotationNames), 
-	 "a constraint that specifies an object which rotates.\n"
+	 po::value<DmpObjectPositionNames>(constraintRotationNames), 
+	 "a constraint that specifies an object which moves (translates" 
+	 " and rotates) through foam.\n"
 	 "arg=\"<constraint> <xName> <yName> <angleName>\" where " 
 	 "<constraint> specifies the constraint number, <xName>, <yName> "
 	 "specify names for parameters that store the center of rotation and "
@@ -402,7 +403,7 @@ void filterAndExpandWildcards (vector<string>* fileNames, string filter)
 
 void parseOptions (
     int argc, char *argv[], string* t1sFile,
-    vector<string>* fileNames, ConstraintRotationNames* constraintRotationNames,
+    vector<string>* fileNames, DmpObjectPositionNames* constraintRotationNames,
     vector<ForceNames>* forcesNames, size_t* ticksForTimeStep, 
     po::variables_map* vm)
 {
@@ -476,7 +477,7 @@ int main(int argc, char *argv[])
 	FoamAlongTime foamAlongTime;
 	string t1sFile;
 	vector<string> fileNames;
-	ConstraintRotationNames constraintRotationNames;
+	DmpObjectPositionNames constraintRotationNames;
 	vector<ForceNames> forcesNames;
 	size_t ticksForTimeStep;
 	po::variables_map vm;

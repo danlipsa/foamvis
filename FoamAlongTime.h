@@ -11,7 +11,7 @@
 #include "Comparisons.h"
 #include "FoamParameters.h"
 #include "HistogramStatistics.h"
-#include "ConstraintRotation.h"
+#include "ObjectPosition.h"
 #include "Force.h"
 #include "Utils.h"
 
@@ -149,9 +149,11 @@ public:
     {
 	m_adjustPressure = adjustPressure;
     }
-    const ConstraintRotationNames& GetConstraintRotationNames () const
+    void SetAverageAroundFromDmp ();
+    void SetAverageAroundFromBody (size_t bodyId);
+    const DmpObjectPositionNames& GetDmpObjectPositionNames () const
     {
-	return m_constraintRotationNames;
+	return m_dmpObjectNames;
     }    
     const vector<ForceNames>& GetForcesNames () const
     {
@@ -188,7 +190,7 @@ public:
 	const string& fileName, size_t ticksForTimeStep, bool shiftT1sLower);
     void ParseDMPs (const vector<string>& fileNames,
 		    bool useOriginal,
-		    const ConstraintRotationNames& constraintRotationNames,
+		    const DmpObjectPositionNames& constraintRotationNames,
 		    const vector<ForceNames>& forcesNames,
 		    bool debugParsing, bool debugScanning);
     FoamParameters* GetFoamParameters ()
@@ -236,7 +238,7 @@ private:
     bool m_adjustPressure;
     vector< vector<G3D::Vector3> > m_t1s;
     int m_t1sTimeStepShift;
-    ConstraintRotationNames m_constraintRotationNames;
+    DmpObjectPositionNames m_dmpObjectNames;
     vector<ForceNames> m_forcesNames;
     bool m_useOriginal;
 };

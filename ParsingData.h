@@ -7,7 +7,7 @@
 #ifndef __PARSING_DATA_H__
 #define __PARSING_DATA_H__
 
-#include "ConstraintRotation.h"
+#include "ObjectPosition.h"
 #include "Comparisons.h"
 #include "FoamParameters.h"
 #include "Force.h"
@@ -57,7 +57,7 @@ public:
      * Constructs a ParsingData object
      */
     ParsingData (bool useOriginal, 
-		 const ConstraintRotationNames& constraintRotationNames,
+		 const DmpObjectPositionNames& constraintRotationNames,
 		 const vector<ForceNames>& forcesNames);
 
     void AddAttribute (const char* s)
@@ -249,9 +249,9 @@ public:
 	return m_useOriginal;
     }
 
-    const ConstraintRotationNames& GetConstraintRotationNames () const
+    const DmpObjectPositionNames& GetDmpObjectPositionNames () const
     {
-	return m_constraintRotationNames;
+	return m_dmpObjectNames;
     }
     const vector<ForceNames>& GetForcesNames () const
     {
@@ -313,7 +313,7 @@ private:
     size_t m_parenthesisCount;
     bool m_newLineSignificant;
     bool m_useOriginal;
-    ConstraintRotationNames m_constraintRotationNames;
+    DmpObjectPositionNames m_dmpObjectNames;
     vector<ForceNames> m_forcesNames;
 
 private:

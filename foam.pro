@@ -2,7 +2,7 @@ HEADERS += Application.h ApproximationEdge.h \
 	Attribute.h AttributeCreator.h AttributeInfo.h \
 	AttributeHistogram.h Average.h AverageInterface.h\
 	AverageShaders.h Body.h BrowseSimulations.h\
-	BodyAlongTime.h AdjacentBody.h BodySelector.h ConstraintRotation.h \
+	BodyAlongTime.h AdjacentBody.h BodySelector.h \
 	ConstraintEdge.h ColorBarModel.h Comparisons.h Debug.h \
 	DebugStream.h Disk.h ImageBasedAverage.h ForceAverage.h\
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
@@ -12,7 +12,7 @@ HEADERS += Application.h ApproximationEdge.h \
 	GLWidget.h Hashes.h Histogram.h HistogramItem.h HistogramHeight.h\
 	HistogramStatistics.h ListViewChange.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
-	OOBox.h Info.h OpenGLUtils.h OrientedElement.h\
+	OOBox.h Info.h ObjectPosition.h OpenGLUtils.h OrientedElement.h\
 	OrientedEdge.h OrientedFace.h AdjacentOrientedFace.h \
 	ParsingData.h ParsingDriver.h ScalarAverage.h ShaderProgram.h\
 	ParsingEnums.h ProcessBodyTorus.h PropertySetter.h \

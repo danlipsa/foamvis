@@ -1,12 +1,12 @@
 /**
- * @file ConstraintRotation.h
+ * @file ObjectPosition.h
  * @author Dan R. Lipsa
  * @date 17 May 2011
  *
- * Declaration of the ConstraintRotation class
+ * Declaration of the ObjectPosition class
  */
-#ifndef __CONSTRAINT_ROTATION_H__
-#define __CONSTRAINT_ROTATION_H__
+#ifndef __OBJECT_POSITION_H__
+#define __OBJECT_POSITION_H__
 
 #include "Utils.h"
 
@@ -15,9 +15,9 @@
  * constraint is stored, and the constraint number.
  * Names for x, y and angle are stored.
  */
-struct ConstraintRotationNames
+struct DmpObjectPositionNames
 {
-    ConstraintRotationNames () :
+    DmpObjectPositionNames () :
 	m_constraintIndex (INVALID_INDEX)
     {
     }
@@ -35,17 +35,17 @@ struct ConstraintRotationNames
     string m_angleName;
 };
 
-struct ConstraintRotation
+struct ObjectPosition
 {
-    ConstraintRotation () :
+    ObjectPosition () :
 	m_angle (0)
     {
     }
-    G3D::Vector2 m_center;
+    G3D::Vector2 m_rotationCenter;
     float m_angle;
 };
 
-#endif //__CONSTRAINT_ROTATION_H__
+#endif //__OBJECT_POSITION_H__
 
 // Local Variables:
 // mode: c++

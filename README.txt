@@ -212,6 +212,8 @@ Release log
 	   (instead of Edges, Faces and Bodies).
 	 - Fixed Average Around for ellipse_sed_rotate simulation (enabled both 
 	   rotation and translation)
+	 - Replaced 'Context > Stationary foam' with 
+	            'Average around > Allow rotation'.         
 
 0.6.2118 2011-08-26
 	 - added instantaneous and time averaged deformation (texture) tensor.

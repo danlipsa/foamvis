@@ -66,7 +66,7 @@ void compact (vector< boost::shared_ptr<E> >& v)
 // ======================================================================
 
 Foam::Foam (bool useOriginal, 
-	    const ConstraintRotationNames& constraintRotationNames,
+	    const DmpObjectPositionNames& constraintRotationNames,
 	    const vector<ForceNames>& forcesNames, 
 	    FoamParameters& foamParameters,
 	    ParametersOperation paramsOp) :
@@ -407,10 +407,10 @@ void Foam::Preprocess ()
     VertexSet vertexSet;
     EdgeSet edgeSet;
     FaceSet faceSet;
-    const ConstraintRotationNames& constraintRotationNames = 
-	GetParsingData ().GetConstraintRotationNames ();
+    const DmpObjectPositionNames& constraintRotationNames = 
+	GetParsingData ().GetDmpObjectPositionNames ();
     if (constraintRotationNames.RotationUsed ())
-	SetConstraintRotation (constraintRotationNames);
+	SetDmpObjectPosition (constraintRotationNames);
     const vector<ForceNames>& forcesNames = GetParsingData ().GetForcesNames ();
     if (forcesNames.size () > 0)
 	SetForces (forcesNames);
@@ -506,7 +506,7 @@ void Foam::addConstraintEdges ()
 	face.CalculateCentroidAndArea ();
 	size_t constraintIndex = constraintEdge->GetConstraintIndex ();
 	if ( constraintIndex == GetParsingData ().
-	     GetConstraintRotationNames ().m_constraintIndex)
+	     GetDmpObjectPositionNames ().m_constraintIndex)
 	{
 	    resizeAllowIndex (&m_constraintEdges, constraintIndex);
 	    if (! m_constraintEdges[constraintIndex])
@@ -867,16 +867,22 @@ bool Foam::ExistsBodyWithValueIn (
     return it != m_bodies.end ();
 }
 
-void Foam::SetConstraintRotation (const ConstraintRotationNames& names)
+void Foam::SetDmpObjectPosition (const DmpObjectPositionNames& names)
 {
-    m_constraintRotation.m_center.x =  
+    m_dmpObjectPosition.m_rotationCenter.x =  
 	GetParsingData ().GetVariableValue (names.m_xName);
-    m_constraintRotation.m_center.y =  
+    m_dmpObjectPosition.m_rotationCenter.y =  
 	GetParsingData ().GetVariableValue (names.m_yName);
-    m_constraintRotation.m_angle =  
+    m_dmpObjectPosition.m_angle =  
 	GetParsingData ().GetVariableValue (names.m_angleName);
 }
 
+void Foam::SetAverageAroundFromBody (size_t bodyId)
+{
+    m_averageAroundPosition.m_angle = 0;
+    m_averageAroundPosition.m_rotationCenter = 
+	(*FindBody (bodyId))->GetCenter ().xy ();
+}
 
 void Foam::SetForces (const vector<ForceNames>& forcesNames)
 {

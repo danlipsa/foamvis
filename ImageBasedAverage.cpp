@@ -126,8 +126,8 @@ void ImageBasedAverage<PropertySetter>::addStep (
     pair<double, double> minMax = getStatisticsMinMax (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, time);
-    // save (viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
-    // 	  "step", time, minMax.first, minMax.second, StatisticsType::AVERAGE);
+    //save (viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
+    //"step", time, minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     currentIsPreviousPlusStep (viewNumber);
     // save (viewNumber, 
@@ -214,9 +214,8 @@ void ImageBasedAverage<PropertySetter>::currentIsPreviousPlusStep (
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
 
-    GetGLWidget ().ActivateViewShader (
-	viewNumber, 
-	ViewingVolumeOperation::ENCLOSE2D);
+    GetGLWidget ().ActivateViewShader (viewNumber, 
+				       ViewingVolumeOperation::ENCLOSE2D);
     m_addShaderProgram->release ();
     m_fbos.m_current->release ();
     WarnOnOpenGLError ("ImageBasedAverage::currentIsPreviousPlusStep:" + m_id);
@@ -240,9 +239,8 @@ void ImageBasedAverage<PropertySetter>::currentIsPreviousMinusStep (
 
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
-    GetGLWidget ().ActivateViewShader (
-	viewNumber, 
-	ViewingVolumeOperation::ENCLOSE2D);
+    GetGLWidget ().ActivateViewShader (viewNumber, 
+				       ViewingVolumeOperation::ENCLOSE2D);
     m_removeShaderProgram->release ();
     m_fbos.m_current->release ();
     WarnOnOpenGLError ("ImageBasedAverage::currentIsPreviousMinusStep:" + m_id);

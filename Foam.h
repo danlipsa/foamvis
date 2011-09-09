@@ -15,7 +15,7 @@
 #include "Hashes.h"
 #include "OOBox.h"
 #include "HistogramStatistics.h"
-#include "ConstraintRotation.h"
+#include "ObjectPosition.h"
 
 
 class AttributeCreator;
@@ -50,7 +50,7 @@ public:
      * Constructs a Foam object.
      */
     Foam (bool useOriginal, 
-	  const ConstraintRotationNames& constraintRotationNames,
+	  const DmpObjectPositionNames& constraintRotationNames,
 	  const vector<ForceNames>& forcesNames,
 	  FoamParameters& foamParameters, ParametersOperation paramsOp);
 
@@ -262,12 +262,17 @@ public:
     }
     
     void CalculateMinMaxStatistics ();
-    void SetConstraintRotation (
-	const ConstraintRotationNames& constraintRotationNames);
-    const ConstraintRotation& GetConstraintRotation () const
+    void SetDmpObjectPosition (
+	const DmpObjectPositionNames& constraintRotationNames);    
+    const ObjectPosition& GetAverageAroundPosition () const
     {
-	return m_constraintRotation;
+	return m_averageAroundPosition;
     }
+    void SetAverageAroundFromDmp ()
+    {
+	m_averageAroundPosition = m_dmpObjectPosition;
+    }
+    void SetAverageAroundFromBody (size_t bodyId);
     const vector<Force>& GetForces () const
     {
 	return m_forces;
@@ -389,7 +394,8 @@ private:
     double m_min[BodyProperty::COUNT];
     double m_max[BodyProperty::COUNT];
     vector<HistogramStatistics> m_histogram;
-    ConstraintRotation m_constraintRotation;
+    ObjectPosition m_averageAroundPosition;
+    ObjectPosition m_dmpObjectPosition;
     vector<Force> m_forces;
     /*
      * AdjacentBody, PointIndex for constraint points that need fixing.

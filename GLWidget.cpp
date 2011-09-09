@@ -316,19 +316,12 @@ void GLWidget::createActions ()
     connect(m_actionContextDisplayBody.get (), SIGNAL(triggered()),
 	    this, SLOT(ContextDisplayBody ()));
 
-    m_actionContextStationaryFoam = boost::make_shared<QAction> (
-	tr("&Foam"), this);
-    m_actionContextStationaryFoam->setStatusTip(tr("Context stationary foam"));
-    connect(m_actionContextStationaryFoam.get (), SIGNAL(triggered()),
-	    this, SLOT(ContextStationaryFoam ()));
-
-    m_actionContextStationaryReset = boost::make_shared<QAction> (
-	tr("&Reset"), this);
-    m_actionContextStationaryReset->setStatusTip(
-	tr("Context stationary reset"));
-    connect(m_actionContextStationaryReset.get (), SIGNAL(triggered()),
-	    this, SLOT(ContextStationaryReset ()));
-
+    m_actionAverageAroundShowRotation = boost::make_shared<QAction> (
+	tr("&Allow rotation"), this);
+    m_actionAverageAroundShowRotation->setStatusTip(tr("Show rotation"));
+    m_actionAverageAroundShowRotation->setCheckable (true);
+    connect(m_actionAverageAroundShowRotation.get (), SIGNAL(toggled(bool)),
+	    this, SLOT(ToggledAverageAroundAllowRotation (bool)));
 
     m_actionContextDisplayReset = boost::make_shared<QAction> (
 	tr("&Reset"), this);
@@ -690,15 +683,10 @@ void GLWidget::transformFoamAverageAround (
     switch (type)
     {
     case ViewSettings::AVERAGE_AROUND_TRANSLATION:
-    {
-	glTranslate (-GetFoamAlongTime ().GetBoundingBoxTorus ().center ());
-	translateAverageAround (viewNumber, timeStep);
-	break;
-    }
     case ViewSettings::AVERAGE_AROUND_ROTATION:
     {
 	glTranslate (- GetFoamAlongTime ().GetBoundingBoxTorus ().center ());
-	rotateAverageAround (timeStep, 1);
+	rotateAndTranslateAverageAround (timeStep, 1);
 	break;
     }
     default:
@@ -707,37 +695,23 @@ void GLWidget::transformFoamAverageAround (
     }
 }
 
-void GLWidget::translateAverageAround (
-    ViewNumber::Enum viewNumber, size_t timeStep) const
-{
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    size_t id = vs.GetAverageAroundBodyId ();
-    G3D::Vector3 centerBegin = 
-	(*GetFoamAlongTime ().GetFoam (0).FindBody (id))->GetCenter ();
-    G3D::Vector3 centerCurrent = 
-	(*GetFoamAlongTime ().GetFoam (timeStep).FindBody (id))->GetCenter ();
-    G3D::Vector3 translation = centerBegin - centerCurrent;
-    glTranslate (translation);
-}
-
-
-void GLWidget::rotateAverageAround (
+void GLWidget::rotateAndTranslateAverageAround (
     size_t timeStep, int direction) const
 {
-    const ConstraintRotation& rotationBegin = GetFoamAlongTime ().
-	GetFoam (0).GetConstraintRotation ();
-    const ConstraintRotation& rotationCurrent = GetFoamAlongTime ().
-	GetFoam (timeStep).GetConstraintRotation ();
+    const ObjectPosition& rotationBegin = GetFoamAlongTime ().
+	GetFoam (0).GetAverageAroundPosition ();
+    const ObjectPosition& rotationCurrent = GetFoamAlongTime ().
+	GetFoam (timeStep).GetAverageAroundPosition ();
     float angleRadians = rotationCurrent.m_angle - rotationBegin.m_angle;
     if (direction > 0)
     {
 	G3D::Vector2 translation = 
-	    rotationBegin.m_center - rotationCurrent.m_center;
+	    rotationBegin.m_rotationCenter - rotationCurrent.m_rotationCenter;
 	glTranslate (translation);
     }
     if (angleRadians != 0)
     {
-	G3D::Vector2 rotationCenter = rotationCurrent.m_center;
+	G3D::Vector2 rotationCenter = rotationCurrent.m_rotationCenter;
 	glTranslate (rotationCenter);
 	float angleDegrees =  G3D::toDegrees (angleRadians);
 	//cdbg << "angleDegrees: " << angleDegrees << endl;
@@ -801,12 +775,11 @@ G3D::AABox GLWidget::calculateEyeViewingVolume (
     return result;
 }
 
-void GLWidget::eyeTransform (ViewNumber::Enum viewNumber) const
+G3D::Vector3 GLWidget::getEyeTransform (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    glLoadIdentity ();
-    glTranslatef (0, 0, - vs.GetCameraDistance ());
-    glTranslate (- GetFoamAlongTime ().GetBoundingBoxTorus ().center ());
+    return G3D::Vector3 (0, 0, - vs.GetCameraDistance ()) -
+	GetFoamAlongTime ().GetBoundingBoxTorus ().center ();
 }
 
 void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber, 
@@ -1518,17 +1491,18 @@ void GLWidget::displayAverageAroundBody (ViewNumber::Enum viewNumber) const
 
 void GLWidget::displayAverageAroundConstraint (
     ViewNumber::Enum view,
-    bool adjustForContextStationaryFoam) const
+    bool adjustForAverageAroundMovementRotation) const
 {
     const ViewSettings& vs = GetViewSettings (view);
     ViewSettings::AverageAroundType type = vs.GetAverageAroundType ();
     if (m_averageAroundBody && type == ViewSettings::AVERAGE_AROUND_ROTATION)
     {
 	glPushAttrib (GL_ENABLE_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
-	if (adjustForContextStationaryFoam)
+	if (adjustForAverageAroundMovementRotation)
 	{
+	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
-	    rotateAverageAround (GetTime (), -1);
+	    rotateAndTranslateAverageAround (GetTime (), -1);
 	}
 	glDisable (GL_DEPTH_TEST);
 	glLineWidth (m_highlightLineWidth);
@@ -1536,12 +1510,12 @@ void GLWidget::displayAverageAroundConstraint (
 	const Foam::Edges& constraintEdges = 
 	    GetCurrentFoam ().GetConstraintEdges (
 		GetFoamAlongTime ().
-		GetConstraintRotationNames ().m_constraintIndex);
+		GetDmpObjectPositionNames ().m_constraintIndex);
 	DisplayEdgeHighlightColor<HighlightNumber::H0> displayEdge (
 	    *this, DisplayElement::FOCUS, view);
 	BOOST_FOREACH (boost::shared_ptr<Edge> edge, constraintEdges)
 	    displayEdge (edge);
-	if (adjustForContextStationaryFoam)
+	if (adjustForAverageAroundMovementRotation)
 	    glPopMatrix ();
 	glPopAttrib ();
     }
@@ -1572,23 +1546,23 @@ void GLWidget::displayContextBodies (ViewNumber::Enum viewNumber) const
 
 void GLWidget::displayContextStationaryFoam (
     ViewNumber::Enum viewNumber,
-    bool adjustForContextStationaryFoam) const
+    bool adjustForAverageAroundMovementRotation) const
 {
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    ViewSettings::ContextStationaryType type = vs.GetContextStationaryType ();
-    if (type == ViewSettings::CONTEXT_AVERAGE_AROUND_FOAM)
+    ViewSettings::AverageAroundMovementShown type = 
+	GetViewSettings (viewNumber).GetAverageAroundMovementShown ();
+    if (type == ViewSettings::AVERAGE_AROUND_MOVEMENT_ROTATION)
     {
 	glPushAttrib (GL_ENABLE_BIT);
 	glDisable (GL_DEPTH_TEST);
-	if (adjustForContextStationaryFoam)
+	if (adjustForAverageAroundMovementRotation)
 	{
 	    glPushMatrix ();
-	    rotateAverageAround (GetTime (), -1);
+	    rotateAndTranslateAverageAround (GetTime (), -1);
 	}
 	DisplayBox (GetFoamAlongTime (), 
 		    GetHighlightColor (viewNumber, HighlightNumber::H1),
 		    m_highlightLineWidth);
-	if (adjustForContextStationaryFoam)
+	if (adjustForAverageAroundMovementRotation)
 	    glPopMatrix ();
 	glPopAttrib ();
     }
@@ -1603,10 +1577,10 @@ string GLWidget::getAverageAroundLabel ()
     switch (type)
     {
     case ViewSettings::AVERAGE_AROUND_TRANSLATION:
-	ostr << "Average around + translation";
+	ostr << "Average around (t)";
 	break;
     case ViewSettings::AVERAGE_AROUND_ROTATION:
-	ostr << "Average around + rotation";
+	ostr << "Average around (r)";
 	break;
     default:
 	break;
@@ -1628,9 +1602,9 @@ string GLWidget::getContextStationaryLabel ()
 {
     ostringstream ostr;
     const ViewSettings& vs = GetViewSettings ();
-    ViewSettings::ContextStationaryType type = vs.GetContextStationaryType ();
-    if (type == ViewSettings::CONTEXT_AVERAGE_AROUND_FOAM)
-	ostr << "Context stationary foam";
+    ViewSettings::AverageAroundMovementShown type = vs.GetAverageAroundMovementShown ();
+    if (type == ViewSettings::AVERAGE_AROUND_MOVEMENT_ROTATION)
+	ostr << "Show rotation";
     return ostr.str ();
 }
 
@@ -1683,12 +1657,20 @@ void GLWidget::AverageAroundBody ()
     brushedBodies (m_contextMenuPosScreen, &bodies);
     if (bodies.size () != 0)
     {
+	FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
+	size_t bodyId = bodies[0]->GetId ();
+	vs.SetAverageAroundBodyId (bodyId);
 	if (bodies[0]->IsConstraint () && 
-	    GetFoamAlongTime ().GetConstraintRotationNames ().RotationUsed ())
+	    foamAlongTime.GetDmpObjectPositionNames ().RotationUsed ())
+	{
 	    vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND_ROTATION);
+	    foamAlongTime.SetAverageAroundFromDmp ();
+	}
 	else
+	{
 	    vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND_TRANSLATION);
-	vs.SetAverageAroundBodyId (bodies[0]->GetId ());
+	    foamAlongTime.SetAverageAroundFromBody (bodyId);
+	}
 	setLabel ();
 	update ();
     }
@@ -1727,18 +1709,12 @@ void GLWidget::ContextDisplayReset ()
     update ();
 }
 
-void GLWidget::ContextStationaryFoam ()
+void GLWidget::ToggledAverageAroundAllowRotation (bool checked)
 {
     ViewSettings& vs = GetViewSettings ();
-    vs.SetContextStationaryType (ViewSettings::CONTEXT_AVERAGE_AROUND_FOAM);
-    setLabel ();
-    update ();
-}
-
-void GLWidget::ContextStationaryReset ()
-{
-    ViewSettings& vs = GetViewSettings ();
-    vs.SetContextStationaryType (ViewSettings::CONTEXT_AVERAGE_AROUND_NONE);
+    vs.SetAverageAroundMovementShown (
+	checked ? ViewSettings::AVERAGE_AROUND_MOVEMENT_ROTATION : 
+	ViewSettings::AVERAGE_AROUND_MOVEMENT_NONE);
     setLabel ();
     update ();
 }
@@ -2310,28 +2286,31 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
     glPushAttrib (GL_ENABLE_BIT);    
     glDisable (GL_DEPTH_TEST);
     glBindTexture (GL_TEXTURE_1D, vs.GetColorBarTexture ());
-    bool adjustForContextStationaryFoam = 
-	(GetViewSettings (viewNumber).GetContextStationaryType () == 
-	 ViewSettings::CONTEXT_AVERAGE_AROUND_FOAM);
+    bool adjustForAverageAroundMovementRotation = 
+	(GetViewSettings (viewNumber).GetAverageAroundMovementShown () == 
+	 ViewSettings::AVERAGE_AROUND_MOVEMENT_ROTATION);
     G3D::Vector2 rotationCenter;
     float angleDegrees = 0;
-    if (adjustForContextStationaryFoam)
+    if (adjustForAverageAroundMovementRotation)
     {
-	const ConstraintRotation& rotationBegin = GetFoamAlongTime ().
-	    GetFoam (0).GetConstraintRotation ();
-	const ConstraintRotation& rotationCurrent = GetFoamAlongTime ().
-	    GetFoam (GetTime ()).GetConstraintRotation ();
-	rotationCenter = rotationBegin.m_center;
+	const ObjectPosition& rotationBegin = GetFoamAlongTime ().
+	    GetFoam (0).GetAverageAroundPosition ();
+	const ObjectPosition& rotationCurrent = GetFoamAlongTime ().
+	    GetFoam (GetTime ()).GetAverageAroundPosition ();
+	rotationCenter = toEye (rotationCurrent.m_rotationCenter);
+	rotationCenter -= getEyeTransform (viewNumber).xy ();
 	angleDegrees = G3D::toDegrees (
-	    rotationCurrent.m_angle - rotationBegin.m_angle);
+	    rotationCurrent.m_angle - rotationBegin.m_angle);	
     }
     vs.AverageRotateAndDisplay (
 	viewNumber, vs.GetStatisticsType (), rotationCenter, - angleDegrees);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
     displayAverageAroundBody (viewNumber);
-    displayAverageAroundConstraint (viewNumber, adjustForContextStationaryFoam);
+    displayAverageAroundConstraint (
+	viewNumber, adjustForAverageAroundMovementRotation);
     displayContextBodies (viewNumber);
-    displayContextStationaryFoam (viewNumber, adjustForContextStationaryFoam);
+    displayContextStationaryFoam (
+	viewNumber, adjustForAverageAroundMovementRotation);
     glPopAttrib ();
 }
 
@@ -2667,21 +2646,16 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	    menuSelect->addAction (m_actionSelectBodiesById.get ());
 	}
 	{
-	    QMenu* menuStationary = menu.addMenu ("Average around");
-	    menuStationary->addAction (m_actionAverageAroundBody.get ());
-	    menuStationary->addAction (m_actionAverageAroundReset.get ());
+	    QMenu* menuAverageAround = menu.addMenu ("Average around");
+	    menuAverageAround->addAction (m_actionAverageAroundBody.get ());
+	    menuAverageAround->addAction (m_actionAverageAroundReset.get ());
+	    menuAverageAround->addAction (
+		m_actionAverageAroundShowRotation.get ());
 	}
 	{
-	    QMenu* menuContext = menu.addMenu ("Context");
-	    QMenu* menuContextDisplay = menuContext->addMenu ("Display");
-	    menuContextDisplay->addAction (m_actionContextDisplayBody.get ());
-	    menuContextDisplay->addAction (m_actionContextDisplayReset.get ());
-
-	    QMenu* menuContextStationary = menuContext->addMenu ("Stationary");
-	    menuContextStationary->addAction (
-		m_actionContextStationaryFoam.get ());
-	    menuContextStationary->addAction (
-		m_actionContextStationaryReset.get ());
+	    QMenu* menuContext = menu.addMenu ("Context display");
+	    menuContext->addAction (m_actionContextDisplayBody.get ());
+	    menuContext->addAction (m_actionContextDisplayReset.get ());
 	}
 	{
 	    QMenu* menuInfo = menu.addMenu ("Info");
@@ -2929,22 +2903,6 @@ bool GLWidget::IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const
     }
 }
 
-G3D::Vector2 GLWidget::adjustForScaleAndAxesOrder (
-    ViewNumber::Enum viewNumber, G3D::Rect2D srcRect,
-    G3D::Vector2 rotationCenter) const
-{
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    G3D::Vector2 center = srcRect.center ();
-    G3D::Matrix3 rotation3 = vs.GetRotationForAxesOrder (GetCurrentFoam ());
-    G3D::Matrix2 rotation = ToMatrix2 (rotation3);
-    G3D::Vector2 translationFromCenter = 
-	rotation * (rotationCenter - center + vs.GetTranslation ().xy ()) * 
-	vs.GetScaleRatio ();
-    return center + translationFromCenter;
-    
-}
-
-
 /**
  * Activate a shader for each fragment where the Quad is projected on destRect. 
  * Rotate the Quad if angleDegrees != 0.
@@ -2975,15 +2933,13 @@ void GLWidget::ActivateViewShader (
     glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
     glLoadIdentity ();
-    eyeTransform (viewNumber);
+    glTranslate (getEyeTransform (viewNumber));
     G3D::Vector2 adjustedRotationCenter;
     if (angleDegrees != 0)
     {
-	adjustedRotationCenter = adjustForScaleAndAxesOrder (
-	    viewNumber, srcRect, rotationCenter);
-	glTranslate (adjustedRotationCenter);
+	glTranslate (rotationCenter);
 	glRotatef (angleDegrees, 0, 0, 1);	
-	glTranslate (- adjustedRotationCenter);
+	glTranslate (- rotationCenter);
     }
     glMatrixMode (GL_PROJECTION);
     glPushMatrix ();

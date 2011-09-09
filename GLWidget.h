@@ -325,8 +325,7 @@ public Q_SLOTS:
     void AverageAroundReset ();
     void ContextDisplayBody ();
     void ContextDisplayReset ();
-    void ContextStationaryFoam ();
-    void ContextStationaryReset ();
+    void ToggledAverageAroundAllowRotation (bool checked);
     void InfoPoint ();
     void InfoEdge ();
     void InfoFace ();
@@ -405,9 +404,6 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
-    G3D::Vector2 adjustForScaleAndAxesOrder (
-	ViewNumber::Enum viewNumber, G3D::Rect2D srcRect,
-	G3D::Vector2 rotationCenter) const;
     G3D::AABox calculateEyeViewingVolume (
 	ViewNumber::Enum viewNumber, 
 	ViewingVolumeOperation::Enum enclose = 
@@ -416,7 +412,7 @@ private:
     void mouseMoveTranslate (QMouseEvent *event);
     void mouseMoveScale (QMouseEvent *event);
     void viewportTransform (ViewNumber::Enum viewNumber) const;
-    void eyeTransform (ViewNumber::Enum viewNumber) const;
+    G3D::Vector3 getEyeTransform (ViewNumber::Enum viewNumber) const;
     void setLight (int sliderValue, int maximumValue, 
 		   LightType::Enum lightType, ColorNumber::Enum colorNumber);
     void setView (const G3D::Vector2& clickedPoint);
@@ -470,11 +466,11 @@ private:
     void displayContextBodies (ViewNumber::Enum view) const;
     void displayContextStationaryFoam (
 	ViewNumber::Enum view,
-	bool adjustForContextStationaryFoam = false) const;
+	bool adjustForAverageAroundMovementRotation = false) const;
     void displayAverageAroundBody (ViewNumber::Enum view) const;
     void displayAverageAroundConstraint (
 	ViewNumber::Enum view, 
-	bool adjustForContextStationaryFoam = false) const;
+	bool adjustForAverageAroundMovementRotation = false) const;
 
     void displayEdgesNormal (ViewNumber::Enum view) const;
     template<typename displayEdge>
@@ -597,9 +593,7 @@ private:
 	boost::array<boost::shared_ptr<QAction>, 
 	ViewNumber::COUNT>& actionCopyTransformation,
 	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformation);
-    void rotateAverageAround (size_t timeStep, int direction) const;
-    void translateAverageAround (ViewNumber::Enum viewNumber, 
-				 size_t timeStep) const;
+    void rotateAndTranslateAverageAround (size_t timeStep, int direction) const;
     float valueChanged (const pair<float,float>& minMax, int index);
     float valueChangedLog2Scale (const pair<double,double>& minMax, int index);
     string infoSelectedBody () const;
@@ -684,11 +678,10 @@ private:
 
     boost::shared_ptr<QAction> m_actionAverageAroundBody;
     boost::shared_ptr<QAction> m_actionAverageAroundReset;
+    boost::shared_ptr<QAction> m_actionAverageAroundShowRotation;
 
     boost::shared_ptr<QAction> m_actionContextDisplayBody;
     boost::shared_ptr<QAction> m_actionContextDisplayReset;
-    boost::shared_ptr<QAction> m_actionContextStationaryFoam;
-    boost::shared_ptr<QAction> m_actionContextStationaryReset;
 
     boost::shared_ptr<QAction> m_actionInfoPoint;
     boost::shared_ptr<QAction> m_actionInfoEdge;

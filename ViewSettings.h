@@ -34,11 +34,11 @@ public:
 	AVERAGE_AROUND_NONE
     };
 
-    // ContextStationary
-    enum ContextStationaryType
+    // Average around movement
+    enum AverageAroundMovementShown
     {
-	CONTEXT_AVERAGE_AROUND_FOAM,
-	CONTEXT_AVERAGE_AROUND_NONE
+	AVERAGE_AROUND_MOVEMENT_ROTATION,
+	AVERAGE_AROUND_MOVEMENT_NONE
     };
 
 
@@ -354,13 +354,13 @@ public:
 	return m_contextBody.size ();
     }
 
-    ContextStationaryType GetContextStationaryType () const
+    AverageAroundMovementShown GetAverageAroundMovementShown () const
     {
-	return m_contextStationaryType;
+	return m_averageAroundMovementShown;
     }
-    void SetContextStationaryType (ContextStationaryType type)
+    void SetAverageAroundMovementShown (AverageAroundMovementShown movement)
     {
-	m_contextStationaryType = type;
+	m_averageAroundMovementShown = movement;
     }
     
     const BodySelector& GetBodySelector () const
@@ -466,7 +466,7 @@ private:
     // Context display
     set<size_t> m_contextBody;
     // Context stationary
-    ContextStationaryType m_contextStationaryType;
+    AverageAroundMovementShown m_averageAroundMovementShown;
     boost::shared_ptr<BodySelector> m_bodySelector;
     bool m_contextHidden;
     bool m_centerPathHidden;

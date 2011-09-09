@@ -69,7 +69,7 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_forcePressureShown (true),
     m_forceResultShown (true),
     m_deformationTensorShown (false),
-    m_contextStationaryType (CONTEXT_AVERAGE_AROUND_NONE),
+    m_averageAroundMovementShown (AVERAGE_AROUND_MOVEMENT_NONE),
     m_bodySelector (AllBodySelector::Get ()),
     m_contextHidden (false),
     m_centerPathHidden (false)

@@ -10,6 +10,7 @@
 #include "DebugStream.h"
 #include "Debug.h"
 #include "OOBox.h"
+#include "Utils.h"
 
 // Private Classes
 // ======================================================================
@@ -132,6 +133,16 @@ G3D::Vector3 gluProject (G3D::Vector3 object)
 		&x, &y, &z);
     return G3D::Vector3 (x, y, z);
 }
+
+G3D::Vector2 toEye (G3D::Vector2 object)
+{
+    G3D::Matrix4 m;
+    G3D::Vector4 o (object, 0, 1);
+    G3D::glGetMatrix (GL_MODELVIEW_MATRIX, m);
+    return (m * o).xy ();
+}
+
+
 
 G3D::Vector3 gluUnProject (
     G3D::Vector2 screenCoord, 
@@ -341,7 +352,7 @@ void drawEllipsis2D (float l1, float l2, float c)
 }
 
 // Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
-void ActivateShader (G3D::Rect2D destRect, G3D::Rect2D viewRect)
+void ActivateShader (G3D::Rect2D destRect)
 {
     glPushAttrib (GL_VIEWPORT_BIT);
     glViewport (destRect.x0 (), destRect.y0 (),
