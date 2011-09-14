@@ -25,9 +25,14 @@ struct Ellipse
 };
 
 
+// each fragmet receives the object coordinates of the fragment.
+varying vec2 v_objectCoord;
+
 // object coordinates for screen
 uniform Rect u_enclosingRect;
 uniform vec2 u_rotationCenter;
+uniform vec2 u_angleDegrees;
+
 uniform vec2 u_gridTranslation;
 // cell length in object coordinates
 uniform float u_cellLength;
@@ -40,10 +45,6 @@ uniform sampler2D u_tensorAverageTexUnit;
 uniform sampler2D u_scalarAverageTexUnit;
 uniform bool u_deformationGridShown;
 uniform bool u_deformationGridCellCenterShown;
-
-// each fragmet receives the object coordinates of the fragment.
-varying vec2 v_objectCoord;
-
 
 const float sqrt2 = 1.41421356237;
 const mat2 tensor45 = mat2 (3., 1., 1. / sqrt2, 1./ sqrt2);
@@ -94,7 +95,7 @@ vec2 getEigenVector (float l, mat2 a)
 /**
  * returns true if the transform matrix is valid
  */
-bool getTransform (out mat2 a, vec2 texCoordCenter)
+bool getTransform (vec2 texCoordCenter, out mat2 a)
 {
     float count = texture2D (u_scalarAverageTexUnit, texCoordCenter).g;
     if (count == 0.0)
@@ -137,7 +138,7 @@ Ellipse fromTransform (mat2 a)
 bool isEllipse (vec2 x, vec2 texCoordCenter)
 {
     mat2 a;
-    if (getTransform (a, texCoordCenter))
+    if (getTransform (texCoordCenter, a))
     {
 	//Ellipse t = fromEigen (tensor_b264);
 	//Ellipse t = fromTransform (transform45);
@@ -184,19 +185,32 @@ bool isGridCenter (vec2 x)
     return isLine.x * isLine.y == 1.0;
 }
 
-
-void main (void)
+void getCoordinates (out vec2 gridCoord, out vec2 texCoordCenter)
 {
-    const vec4 inkColor = vec4 (0., 0., 0., 1.);
     vec2 gridCoordStart = u_rotationCenter + u_gridTranslation;
-    vec2 gridCoord = (v_objectCoord - gridCoordStart) / u_cellLength;
-    vec2 gridCoordFract = fract (gridCoord);
+    gridCoord = (v_objectCoord - gridCoordStart) / u_cellLength;
+
     vec2 gridCoordFloor = floor (gridCoord);
     vec2 gridCoordCenter = u_cellLength * (gridCoordFloor + vec2 (.5, .5));
     vec2 screenCoordCenter = 
 	gridCoordStart + gridCoordCenter - u_enclosingRect.m_low;
-    vec2 texCoordCenter = 
+    texCoordCenter = 
 	screenCoordCenter / (u_enclosingRect.m_high - u_enclosingRect.m_low);
+}
+
+void getCoordinatesAngle (out vec2 gridCoord, out vec2 texCoordCenter)
+{
+    vec2 gridCoordStart = u_rotationCenter + u_gridTranslation;
+    
+}
+
+
+void main (void)
+{
+    const vec4 inkColor = vec4 (0., 0., 0., 1.);
+    vec2 gridCoord, texCoordCenter;
+    getCoordinatesAngle (gridCoord, texCoordCenter);
+    vec2 gridCoordFract = fract (gridCoord);
     if (isEllipse (gridCoordFract, texCoordCenter) || 
 	(u_deformationGridShown && isGrid (gridCoordFract)) ||
 	(u_deformationGridCellCenterShown && isGridCellCenter (gridCoordFract))

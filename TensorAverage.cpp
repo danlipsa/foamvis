@@ -31,8 +31,8 @@ public:
     TensorDisplay (const char* vert, const char* frag);
     void Bind (
 	G3D::Vector2 gridTranslation, float cellLength, float lineWidth, 
-	float elipseSizeRatio, G3D::Rect2D enclsingRect,
-	G3D::Vector2 rotationCenter,
+	float elipseSizeRatio, G3D::Rect2D enclosingRect,
+	G3D::Vector2 rotationCenter, float angleDegrees,
 	bool deformationGridShown, bool deformationGridCellCenterShown);
 
     GLint GetTensorAverageTexUnit ()
@@ -52,6 +52,7 @@ private:
     int m_enclosingRectLowLocation;
     int m_enclosingRectHighLocation;
     int m_rotationCenterLocation;
+    int m_angleDegreesLocation;
     int m_tensorAverageTexUnitLocation;
     int m_scalarAverageTexUnitLocation;
     int m_deformationGridShownLocation;
@@ -68,6 +69,7 @@ TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
     m_enclosingRectLowLocation = uniformLocation ("u_enclosingRect.m_low");
     m_enclosingRectHighLocation = uniformLocation ("u_enclosingRect.m_high");
     m_rotationCenterLocation = uniformLocation ("u_rotationCenter");
+    m_angleDegreesLocation = uniformLocation ("u_angleDegrees");
     m_tensorAverageTexUnitLocation = uniformLocation("u_tensorAverageTexUnit");
     m_scalarAverageTexUnitLocation = uniformLocation("u_scalarAverageTexUnit");
     m_deformationGridShownLocation = uniformLocation ("u_deformationGridShown");
@@ -78,7 +80,7 @@ TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
 void TensorDisplay::Bind (
     G3D::Vector2 gridTranslation, float cellLength, float lineWidth,
     float ellipseSizeRatio, G3D::Rect2D enclosingRect, 
-    G3D::Vector2 rotationCenter,
+    G3D::Vector2 rotationCenter, float angleDegrees,
     bool deformationGridShown, bool deformationGridCellCenterShown)
 {
     ShaderProgram::Bind ();
@@ -93,6 +95,7 @@ void TensorDisplay::Bind (
 		     enclosingRect.x1 (), enclosingRect.y1 ());
     setUniformValue (
 	m_rotationCenterLocation, rotationCenter[0], rotationCenter[1]);
+    setUniformValue (m_angleDegreesLocation, angleDegrees);
     setUniformValue (
 	m_tensorAverageTexUnitLocation, GetTensorAverageTexUnit ());
     setUniformValue (
@@ -141,7 +144,7 @@ void TensorAverage::rotateAndDisplay (
 	&lineWidth, &ellipseSizeRatio, &enclosingRect);
     m_displayShaderProgram->Bind (
 	gridTranslation, cellLength, lineWidth, 
-	ellipseSizeRatio, enclosingRect, rotationCenter,
+	ellipseSizeRatio, enclosingRect, rotationCenter, angleDegrees,
 	m_deformationGridShown, m_deformationGridCellCenterShown);
 
     // activate texture unit 1
