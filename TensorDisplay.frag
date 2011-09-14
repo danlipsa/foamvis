@@ -26,7 +26,8 @@ struct Ellipse
 
 
 // object coordinates for screen
-uniform Rect u_srcRect;
+uniform Rect u_enclosingRect;
+uniform vec2 u_rotationCenter;
 uniform vec2 u_gridTranslation;
 // cell length in object coordinates
 uniform float u_cellLength;
@@ -166,27 +167,41 @@ bool isGridCellCenter (vec2 x)
 {
     x = fract (vec2 (0.5, 0.5) + x);
     vec2 isLine;
-    float perc = (u_cellLength - u_lineWidth) / u_cellLength;
-    vec2 percentage = vec2 (perc, perc);
+    float p = (u_cellLength - u_lineWidth) / u_cellLength;
+    vec2 percentage = vec2 (p, p);
     isLine = step (percentage, x);
     return isLine.x * isLine.y == 1.0;
 }
 
-void main(void)
+// x is in (-inf, +inf)
+bool isGridCenter (vec2 x)
+{
+    x = abs (x);
+    vec2 isLine;
+    float perc = 3*u_lineWidth / u_cellLength;
+    vec2 percentage = vec2 (perc, perc);
+    isLine = step (x, percentage);
+    return isLine.x * isLine.y == 1.0;
+}
+
+
+void main (void)
 {
     const vec4 inkColor = vec4 (0., 0., 0., 1.);
-    vec2 gridCoordStart = 
-	(u_srcRect.m_low + u_srcRect.m_high) / 2. + u_gridTranslation;
+    vec2 gridCoordStart = u_rotationCenter + u_gridTranslation;
     vec2 gridCoord = (v_objectCoord - gridCoordStart) / u_cellLength;
     vec2 gridCoordFract = fract (gridCoord);
     vec2 gridCoordFloor = floor (gridCoord);
     vec2 gridCoordCenter = u_cellLength * (gridCoordFloor + vec2 (.5, .5));
-    vec2 screenCoordCenter = gridCoordStart + gridCoordCenter - u_srcRect.m_low;
+    vec2 screenCoordCenter = 
+	gridCoordStart + gridCoordCenter - u_enclosingRect.m_low;
     vec2 texCoordCenter = 
-	screenCoordCenter / (u_srcRect.m_high - u_srcRect.m_low);
+	screenCoordCenter / (u_enclosingRect.m_high - u_enclosingRect.m_low);
     if (isEllipse (gridCoordFract, texCoordCenter) || 
 	(u_deformationGridShown && isGrid (gridCoordFract)) ||
-	(u_deformationGridCellCenterShown && isGridCellCenter (gridCoordFract)))
+	(u_deformationGridCellCenterShown && isGridCellCenter (gridCoordFract))
+	||
+	isGridCenter (gridCoord))
 	gl_FragColor = inkColor;
     else
 	discard;

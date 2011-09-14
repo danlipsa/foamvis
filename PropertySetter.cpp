@@ -65,6 +65,8 @@ void SetterVertexAttribute::operator () ()
 void SetterDeformationTensor::operator () (const boost::shared_ptr<Body>& body)
 {
     const ViewSettings& vs = m_glWidget.GetViewSettings (m_viewNumber);
+    // Practical Linear Algebra, A Geometry Toolbox, 
+    // Gerald Farin, Dianne Hansford, Sec 7.5
     G3D::Matrix2 l = G3D::Matrix2::identity ();
     l[0][0] = body->GetDeformationEigenValue (0);
     l[1][1] = body->GetDeformationEigenValue (1);
@@ -73,10 +75,11 @@ void SetterDeformationTensor::operator () (const boost::shared_ptr<Body>& body)
     G3D::Matrix2 modelRotation = ToMatrix2 (modelRotation4) / 
 	vs.GetScaleRatio ();
     G3D::Matrix2 r = 
-	mult (MatrixFromColumns (body->GetDeformationEigenVector (0).xy (),
-				  body->GetDeformationEigenVector (1).xy ()),
-	      modelRotation);
+	mult (modelRotation,
+	      MatrixFromColumns (body->GetDeformationEigenVector (0).xy (),
+				 body->GetDeformationEigenVector (1).xy ()));
     G3D::Matrix2 a = mult (mult (r, l), r.transpose ());
+
     // GLSL uses matrices in column order
     m_program->setAttributeValue (
 	m_attributeLocation, a[0][0], a[1][0], a[0][1], a[1][1]);

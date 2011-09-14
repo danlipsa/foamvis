@@ -42,7 +42,8 @@ template<typename PropertySetter> boost::shared_ptr<AddShaderProgram>
 ImageBasedAverage<PropertySetter>::m_removeShaderProgram;
 
 template<typename PropertySetter>
-void ImageBasedAverage<PropertySetter>::AverageInit (ViewNumber::Enum viewNumber)
+void ImageBasedAverage<PropertySetter>::AverageInit (
+    ViewNumber::Enum viewNumber)
 {
     Average::AverageInit (viewNumber);
     const G3D::Rect2D extendedArea = EncloseRotation (

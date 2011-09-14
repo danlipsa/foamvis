@@ -405,6 +405,8 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    G3D::Vector2 toTexture (ViewNumber::Enum viewNumber, 
+			    G3D::Vector2 object) const;
     G3D::Vector3 getEyeTransform (ViewNumber::Enum viewNumber) const;
     G3D::AABox calculateEyeViewingVolume (
 	ViewNumber::Enum viewNumber, 

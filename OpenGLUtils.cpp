@@ -142,8 +142,6 @@ G3D::Vector2 toEye (G3D::Vector2 object)
     return (m * o).xy ();
 }
 
-
-
 G3D::Vector3 gluUnProject (
     G3D::Vector2 screenCoord, 
     GluUnProjectZOperation::Enum zOperation)

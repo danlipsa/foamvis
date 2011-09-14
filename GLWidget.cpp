@@ -1267,6 +1267,7 @@ double GLWidget::ratioFromCenter (const QPoint& p)
     return ratio;
 }
 
+// @todo add a 2D rotation which rotates only around Z axis.
 G3D::Matrix3 GLWidget::rotate (ViewNumber::Enum viewNumber,
 			       const QPoint& position, const G3D::Matrix3& r)
 {
@@ -2293,6 +2294,17 @@ void GLWidget::displayT1sPDE (ViewNumber::Enum viewNumber) const
     displayT1sTimeDependent (viewNumber);
 }
 
+G3D::Vector2 GLWidget::toTexture (ViewNumber::Enum viewNumber, 
+				  G3D::Vector2 object) const
+{
+    G3D::Vector2 eye = toEye (object);
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    G3D::Rect2D viewRect = GetViewRect (viewNumber);
+    G3D::AABox vv = calculateCenteredViewingVolume (
+	double (viewRect.width ()) / viewRect.height (), 
+	vs.GetScaleRatio ());
+    return (eye - vv.low ().xy ()) / (vv.high ().xy () - vv.low ().xy ());
+}
 
 void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
 {
@@ -2303,7 +2315,8 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
     bool adjustForAverageAroundMovementRotation = 
 	(GetViewSettings (viewNumber).GetAverageAroundMovementShown () == 
 	 ViewSettings::AVERAGE_AROUND_MOVEMENT_ROTATION);
-    G3D::Vector2 rotationCenter;
+    G3D::Vector2 rotationCenter = toEye (G3D::Vector2 ()) - 
+	getEyeTransform (viewNumber).xy ();
     float angleDegrees = 0;
     if (adjustForAverageAroundMovementRotation)
     {
@@ -2311,8 +2324,8 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
 	    GetFoam (0).GetAverageAroundPosition ();
 	const ObjectPosition& rotationCurrent = GetFoamAlongTime ().
 	    GetFoam (GetTime ()).GetAverageAroundPosition ();
-	rotationCenter = toEye (rotationCurrent.m_rotationCenter);
-	rotationCenter -= getEyeTransform (viewNumber).xy ();
+	rotationCenter = toEye (rotationCurrent.m_rotationCenter) - 
+	    getEyeTransform (viewNumber).xy ();
 	angleDegrees = G3D::toDegrees (
 	    rotationCurrent.m_angle - rotationBegin.m_angle);	
     }
@@ -2921,7 +2934,7 @@ bool GLWidget::IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const
 }
 
 /**
- * Activate a shader for each fragment where the Quad is projected on destRect. 
+ * Activate a shader for each fragment where the Quad is drawn on destRect. 
  * Rotate the Quad if angleDegrees != 0.
  * We use the following notation: VV = viewing volume, VP = viewport, 
  * Q = quad, 1 = original VV, 2 = enclosing VV
@@ -2954,6 +2967,7 @@ void GLWidget::ActivateViewShader (
     G3D::Vector2 adjustedRotationCenter;
     if (angleDegrees != 0)
     {
+	//glMatrixMode (GL_TEXTURE);
 	glTranslate (rotationCenter);
 	glRotatef (angleDegrees, 0, 0, 1);	
 	glTranslate (- rotationCenter);

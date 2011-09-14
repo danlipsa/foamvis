@@ -214,6 +214,9 @@ Release log
 	   rotation and translation)
 	 - Replaced 'Context > Stationary foam' with 
 	            'Average around > Allow rotation'.         
+         - Solved bug that produced wrong deformation tensor for Average Around.
+	 - Added Average around > Second body to compute average around two 
+	   bodies.
 
 0.6.2118 2011-08-26
 	 - added instantaneous and time averaged deformation (texture) tensor.

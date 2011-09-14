@@ -181,7 +181,7 @@ po::options_description getCommonOptions (
          "arg=<constraint> where <constraint> is the constraint number.")
 	(Option::m_name[Option::CONSTRAINT_ROTATION], 
 	 po::value<DmpObjectInfo>(constraintRotationNames), 
-	 "a constraint that specifies an object which moves (translates" 
+	 "a constraint that specifies an object that moves (translates" 
 	 " and rotates) through foam.\n"
 	 "arg=\"<constraint> <xName> <yName> <angleName>\" where " 
 	 "<constraint> specifies the constraint number, <xName>, <yName> "
