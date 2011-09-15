@@ -2964,10 +2964,8 @@ void GLWidget::ActivateViewShader (
     glPushMatrix ();
     glLoadIdentity ();
     glTranslate (getEyeTransform (viewNumber));
-    G3D::Vector2 adjustedRotationCenter;
     if (angleDegrees != 0)
     {
-	//glMatrixMode (GL_TEXTURE);
 	glTranslate (rotationCenter);
 	glRotatef (angleDegrees, 0, 0, 1);	
 	glTranslate (- rotationCenter);
