@@ -1,6 +1,6 @@
 Release log
 ===========
-0.6      
+0.6.2147 2011-09-16
 	 - added --ticks-for-timestep to deal with vfplug_137v_9.857973_2.
 	 - Rearanged the views in 'Time step' and 'Time dependent' categories 
 	   (instead of Edges, Faces and Bodies).
@@ -376,8 +376,8 @@ Release
 =======
 ./test.pl
 Set the major version in release.pl
-Write an entry in the release log to describe the new features.
+Write an entry in the release log to describe the new features (version += 2)
+Commit everything.
 doxygen
-Commit everything. 
 Make sure 'svnversion' reports one version
 make distclean;release.pl;svn commit -m "";cd ..;tar czf foam-<version>.tgz foam
