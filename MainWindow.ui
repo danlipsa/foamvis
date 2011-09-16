@@ -305,7 +305,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="general">
           <attribute name="title">
@@ -1632,7 +1632,7 @@
                <item row="1" column="0">
                 <widget class="QCheckBox" name="checkBoxCenterPathBody">
                  <property name="text">
-                  <string>Body</string>
+                  <string>Show body</string>
                  </property>
                 </widget>
                </item>

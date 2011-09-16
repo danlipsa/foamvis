@@ -1496,7 +1496,7 @@ void GLWidget::displayAverageAround (
 	{
 	    focusBody[0] = *GetCurrentFoam ().FindBody (secondBodyId);
 	    displayFacesContour<HighlightNumber::H0> (
-		focusBody, viewNumber, 2*m_highlightLineWidth);
+		focusBody, viewNumber, m_highlightLineWidth);
 	}
 	if (adjustForAverageAroundMovementRotation)
 	    glPopMatrix ();
