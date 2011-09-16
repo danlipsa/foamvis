@@ -2324,7 +2324,8 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
 	(vs.GetAverageAroundType () == ViewSettings::AVERAGE_AROUND) ? 
 	(toEye (rotationCurrent.m_rotationCenter) - 
 	 getEyeTransform (viewNumber).xy ()) : 
-	(toEye (G3D::Vector2 ()) - getEyeTransform (viewNumber).xy ());
+	(toEye (GetFoamAlongTime ().GetBoundingBox ().low ().xy ()) - 
+	 getEyeTransform (viewNumber).xy ());
     float angleDegrees = 
 	adjustForAverageAroundMovementRotation ? G3D::toDegrees (
 	    rotationCurrent.m_angle - rotationBegin.m_angle) : 0;
