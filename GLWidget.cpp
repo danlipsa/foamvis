@@ -2313,22 +2313,21 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
     glDisable (GL_DEPTH_TEST);
     glBindTexture (GL_TEXTURE_1D, vs.GetColorBarTexture ());
     bool adjustForAverageAroundMovementRotation = 
-	(GetViewSettings (viewNumber).GetAverageAroundMovementShown () == 
+	(vs.GetAverageAroundMovementShown () == 
 	 ViewSettings::AVERAGE_AROUND_MOVEMENT_ROTATION);
-    G3D::Vector2 rotationCenter = toEye (G3D::Vector2 ()) - 
-	getEyeTransform (viewNumber).xy ();
-    float angleDegrees = 0;
-    if (adjustForAverageAroundMovementRotation)
-    {
-	const ObjectPosition& rotationBegin = GetFoamAlongTime ().
-	    GetFoam (0).GetAverageAroundPosition ();
-	const ObjectPosition& rotationCurrent = GetFoamAlongTime ().
-	    GetFoam (GetTime ()).GetAverageAroundPosition ();
-	rotationCenter = toEye (rotationCurrent.m_rotationCenter) - 
-	    getEyeTransform (viewNumber).xy ();
-	angleDegrees = G3D::toDegrees (
-	    rotationCurrent.m_angle - rotationBegin.m_angle);	
-    }
+
+    const ObjectPosition& rotationBegin = GetFoamAlongTime ().
+	GetFoam (0).GetAverageAroundPosition ();
+    const ObjectPosition& rotationCurrent = GetFoamAlongTime ().
+	GetFoam (GetTime ()).GetAverageAroundPosition ();
+    G3D::Vector2 rotationCenter = 
+	(vs.GetAverageAroundType () == ViewSettings::AVERAGE_AROUND) ? 
+	(toEye (rotationCurrent.m_rotationCenter) - 
+	 getEyeTransform (viewNumber).xy ()) : 
+	(toEye (G3D::Vector2 ()) - getEyeTransform (viewNumber).xy ());
+    float angleDegrees = 
+	adjustForAverageAroundMovementRotation ? G3D::toDegrees (
+	    rotationCurrent.m_angle - rotationBegin.m_angle) : 0;
     vs.AverageRotateAndDisplay (
 	viewNumber, vs.GetStatisticsType (), rotationCenter, - angleDegrees);
     vs.GetForceAverage ().Display (
