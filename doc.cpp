@@ -8,6 +8,9 @@
  * Source files and libraries:
  * http://csgalati.swansea.ac.uk/foam/build
  *
+ * Mac Os X binary release:
+ * http://csgalati.swansea.ac.uk/foam/bin/mac-osx-10.6.8/
+ *
  * The folowing section lists the content of README.txt
  * \verbinclude README.txt
  *

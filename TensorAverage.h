@@ -38,9 +38,19 @@ public:
     {
 	m_deformationGridShown = shown;
     }
+    bool IsDeformationGridShown () const
+    {
+	return m_deformationGridShown;
+    }
+
     void SetDeformationGridCellCenterShown (bool shown)
     {
 	m_deformationGridCellCenterShown = shown;
+    }
+
+    bool IsDeformationGridCellCenterShown ()
+    {
+	return m_deformationGridCellCenterShown;
     }
 
 protected:

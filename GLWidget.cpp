@@ -1478,7 +1478,8 @@ void GLWidget::displayAverageAround (
     ViewSettings::AverageAroundType type = vs.GetAverageAroundType ();
     if (m_averageAroundBody && type == ViewSettings::AVERAGE_AROUND)
     {
-	glPushAttrib (GL_ENABLE_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
+	glPushAttrib (GL_CURRENT_BIT |
+		      GL_ENABLE_BIT | GL_LINE_BIT | GL_POINT_BIT);
 	if (adjustForAverageAroundMovementRotation)
 	{
 	    glMatrixMode (GL_MODELVIEW);
@@ -1491,6 +1492,9 @@ void GLWidget::displayAverageAround (
 	focusBody[0] = *GetCurrentFoam ().FindBody (bodyId);
 	displayFacesContour<HighlightNumber::H0> (
 	    focusBody, viewNumber, m_highlightLineWidth);
+	glPointSize (4.0);
+	glColor (Qt::black);
+	DisplayBodyCenter (*this, IdBodySelector (bodyId)) (focusBody[0]);
 	size_t secondBodyId = vs.GetAverageAroundSecondBodyId ();
 	if (secondBodyId != INVALID_INDEX)
 	{
@@ -2628,6 +2632,7 @@ void GLWidget::quadricErrorCallback (GLenum errorCode)
 
 void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 {
+    ViewSettings& vs = GetViewSettings ();
     m_contextMenuPosScreen = event->pos ();
     m_contextMenuPosObject = toObjectTransform (m_contextMenuPosScreen);
     QMenu menu (this);
@@ -2638,8 +2643,7 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	bool actions = false;
 	if (ViewCount::GetCount (m_viewCount) > 1)
 	{
-	    size_t currentProperty = 
-		GetViewSettings ().GetBodyOrFaceProperty ();
+	    size_t currentProperty = vs.GetBodyOrFaceProperty ();
 	    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
 	    {
 		ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
@@ -2679,6 +2683,9 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 	    menuAverageAround->addAction (
 		m_actionAverageAroundSecondBody.get ());
 	    menuAverageAround->addAction (m_actionAverageAroundReset.get ());
+	    m_actionAverageAroundShowRotation->setChecked (
+		vs.GetAverageAroundMovementShown () == 
+		ViewSettings::AVERAGE_AROUND_MOVEMENT_ROTATION);
 	    menuAverageAround->addAction (
 		m_actionAverageAroundShowRotation.get ());
 	}

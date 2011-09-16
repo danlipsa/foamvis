@@ -17,6 +17,7 @@
 #include "MainWindow.h"
 #include "ProcessBodyTorus.h"
 #include "SystemDifferences.h"
+#include "TensorAverage.h"
 #include "Utils.h"
 #include "OpenGLUtils.h"
 #include "ViewSettings.h"
@@ -164,6 +165,11 @@ void MainWindow::ViewToUI ()
     SetCheckedNoSignals (checkBoxCenterPathHidden, vs.IsCenterPathHidden ());
     SetCheckedNoSignals (checkBoxShowDeformation, 
 			 vs.IsDeformationTensorShown ());
+    SetCheckedNoSignals (checkBoxDeformationGrid, 
+			 vs.GetTensorAverage ().IsDeformationGridShown ());
+    SetCheckedNoSignals (
+	checkBoxDeformationGridCellCenter, 
+	vs.GetTensorAverage ().IsDeformationGridCellCenterShown ());
 
     comboBoxAxesOrder->setCurrentIndex (vs.GetAxesOrder ());
     labelFacesStatisticsColor->setText (BodyOrFacePropertyToString (property));
