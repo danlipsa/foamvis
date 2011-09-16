@@ -335,8 +335,10 @@ void storeIniOptions (
     }
     else
     {
+	QFileInfo iniFileInfo (iniFileName.c_str ());
 	// browse simulations and choose a name.
-	BrowseSimulations browseSimulations (names, labels);
+	BrowseSimulations browseSimulations (
+	    iniFileInfo.baseName ().toAscii (), names, labels);
 	if (browseSimulations.exec () == QDialog::Accepted)
 	{
 	    i = browseSimulations.GetIndex ();

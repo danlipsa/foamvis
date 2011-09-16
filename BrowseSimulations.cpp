@@ -14,8 +14,10 @@
 const char* BrowseSimulations::LABEL_ALL = "All";
 
 BrowseSimulations::BrowseSimulations (
+    const char* imageFolder,
     const vector<string>& names, const vector<Labels>& labels, QWidget* parent) :
-    QDialog (parent), m_names (names), m_labels (labels)
+    QDialog (parent), m_imageFolder (imageFolder), 
+    m_names (names), m_labels (labels)
 {
     setupUi (this);
     m_selectedNames = ToQStringList (names);
@@ -57,7 +59,7 @@ string BrowseSimulations::GetFilter () const
 void BrowseSimulations::CurrentChangedSimulation (int row)
 {
     QString fileName = 
-	"simulations/" + m_selectedNames[row] + ".jpg";
+	QString (m_imageFolder.c_str ()) + "/" + m_selectedNames[row] + ".jpg";
     QPixmap pixmap (fileName);
     if (pixmap.isNull ())
 	labelImage->setText ("Invalid file: " + fileName);

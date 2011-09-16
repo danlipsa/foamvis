@@ -21,8 +21,8 @@ class BrowseSimulations :
 {
 public:
     BrowseSimulations (
-	const vector<string>& names, const vector<Labels>& labels, 
-	QWidget* parent = 0);
+	const char* imageFolder, const vector<string>& names, 
+	const vector<Labels>& labels, QWidget* parent = 0);
     size_t GetIndex () const;
     string GetFilter () const;
 
@@ -35,8 +35,9 @@ private:
 
 private:
     Q_OBJECT
-    QStringListModel m_model;
+    QStringListModel m_model;    
     QStringList m_selectedNames;
+    string m_imageFolder;
     const vector<string>& m_names;
     const vector<Labels>& m_labels;
 };

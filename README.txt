@@ -217,6 +217,8 @@ Release log
          - Solved bug that produced wrong deformation tensor for Average Around.
 	 - Added Average around > Second body to compute average around two 
 	   bodies.
+	 - Renamed simulations.ini to aber.ini and changed the name of the 
+	   folder where images for simulations are read from.
 
 0.6.2118 2011-08-26
 	 - added instantaneous and time averaged deformation (texture) tensor.
