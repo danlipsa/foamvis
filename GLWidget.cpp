@@ -138,7 +138,6 @@ void displayBodyNeighbors2D (boost::shared_ptr<Body> body,
 
 void sendQuad (const G3D::Rect2D& srcRect, const G3D::Rect2D& srcTexRect)
 {
-    glBegin (GL_QUADS);
     glTexCoord (srcTexRect.x0y0 ());
     glVertex (srcRect.x0y0 ());
     glTexCoord (srcTexRect.x1y0 ());
@@ -147,7 +146,6 @@ void sendQuad (const G3D::Rect2D& srcRect, const G3D::Rect2D& srcTexRect)
     glVertex (srcRect.x1y1 ());
     glTexCoord (srcTexRect.x0y1 ());
     glVertex (srcRect.x0y1 ());
-    glEnd ();
 }
 
 
@@ -815,14 +813,14 @@ void GLWidget::ProjectionTransform (
 
 void GLWidget::viewportTransform (ViewNumber::Enum viewNumber) const
 {
-    G3D::Rect2D viewRect = GetViewRect (viewNumber);
+    G3D::Rect2D viewRect = GetViewportRect (viewNumber);
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetViewport (viewRect);
     glViewport (vs.GetViewport ());
 }
 
 
-G3D::Rect2D GLWidget::GetViewRect (ViewNumber::Enum view) const
+G3D::Rect2D GLWidget::GetViewportRect (ViewNumber::Enum view) const
 {
     float w = width ();
     float h = height ();
@@ -890,7 +888,7 @@ void GLWidget::setView (const G3D::Vector2& clickedPoint)
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	G3D::Rect2D viewRect = GetViewRect (viewNumber);
+	G3D::Rect2D viewRect = GetViewportRect (viewNumber);
 	if (viewRect.contains (clickedPoint))
 	{
 	    m_viewNumber = viewNumber;
@@ -1166,6 +1164,7 @@ void GLWidget::initializeGL()
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	ScalarAverage::InitShaders ();
 	TensorAverage::InitShaders ();
+	T1sPDE::InitShaders ();
 	initializeLighting ();
 	WarnOnOpenGLError ("initializeGl");
     }
@@ -1222,7 +1221,6 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     displayOriginalDomain ();
     displayFocusBox (viewNumber);
     displayLightDirection (viewNumber);
-    displayT1s (viewNumber);
     displayBodyCenters (viewNumber);
     displayFaceCenters (viewNumber);
     displayBodyNeighbors ();
@@ -1257,7 +1255,7 @@ G3D::Matrix3 GLWidget::getRotationAround (int axis, double angleRadians)
 double GLWidget::ratioFromCenter (const QPoint& p)
 {
     using G3D::Vector2;
-    G3D::Rect2D viewRect = GetViewRect ();
+    G3D::Rect2D viewRect = GetViewportRect ();
     Vector2 center = viewRect.center ();
     int windowHeight = height ();
     Vector2 lastPos = QtToOpenGl (m_lastPos, windowHeight);
@@ -1900,7 +1898,7 @@ void GLWidget::displayFocusBox (ViewNumber::Enum viewNumber) const
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsContextView ())
     {
-	G3D::Rect2D viewRect = GetViewRect (viewNumber);
+	G3D::Rect2D viewRect = GetViewportRect (viewNumber);
 
 	glPushMatrix ();
 	glLoadIdentity ();
@@ -2036,17 +2034,6 @@ void GLWidget::displayEdgesNormal (ViewNumber::Enum viewNumber) const
     glPopAttrib ();
 }
 
-void GLWidget::displayT1s (ViewNumber::Enum view) const
-{
-    if (m_t1sShown)
-    {
-	if (ViewType::IsTimeDependent (GetViewSettings ().GetViewType ()))
-	    displayT1sTimeDependent (view);
-	else
-	    displayT1sTimeStep (view, GetTime ());
-    }
-}
-
 void GLWidget::displayDeformationTensor2D (ViewNumber::Enum viewNumber) const
 {
     const Foam& foam = GetCurrentFoam ();
@@ -2116,14 +2103,14 @@ void GLWidget::displayBodiesNeighbors () const
     glPopAttrib ();
 }
 
-void GLWidget::displayT1sTimeDependent (ViewNumber::Enum view) const
+void GLWidget::displayT1sDot (ViewNumber::Enum view) const
 {
     for (size_t i = 0; i < GetFoamAlongTime ().GetT1sTimeSteps (); ++i)
-	displayT1sTimeStep (view, i);
-    //displayT1sTimeStep (view, 5);
+	displayT1sDot (view, i);
+    //displayT1sDot (view, 5);
 }
 
-void GLWidget::displayT1sTimeStep (
+void GLWidget::displayT1sDot (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
     glPushAttrib (GL_ENABLE_BIT | GL_POINT_BIT | 
@@ -2132,30 +2119,78 @@ void GLWidget::displayT1sTimeStep (
     glPointSize (m_t1sSize);
     glColor (GetHighlightColor (viewNumber, HighlightNumber::H0));
     glBegin (GL_POINTS);
-    BOOST_FOREACH (const G3D::Vector3 v, 
+    BOOST_FOREACH (const G3D::Vector3 t1Pos, 
 		   GetFoamAlongTime ().GetT1s (timeStep))
-	glVertex (v);
+	glVertex (t1Pos);
     glEnd ();
+    glPopAttrib ();
+}
 
+void GLWidget::DisplayT1sGaussian (
+    ViewNumber::Enum viewNumber, size_t timeStep) const
+{
+    glPushAttrib (GL_ENABLE_BIT | GL_POINT_BIT | 
+		  GL_CURRENT_BIT | GL_POLYGON_BIT);
+    glDisable (GL_DEPTH_TEST);
+    glColor (GetHighlightColor (viewNumber, HighlightNumber::H0));
     ViewSettings& vs = GetViewSettings (viewNumber);
     T1sPDE& t1sPDE = vs.GetT1sPDE ();
     float rectSize = t1sPDE.GetKernelTextureSize () * 
 	GetOnePixelInObjectSpace ();
     float half = rectSize / 2;
-    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    G3D::Rect2D srcTexRect = G3D::Rect2D::xyxy (0., 0., 1., 1.);
     glBegin (GL_QUADS);
     BOOST_FOREACH (const G3D::Vector3 t1Pos, 
 		   GetFoamAlongTime ().GetT1s (timeStep))
     {
 	G3D::Vector2 v = t1Pos.xy ();
-	glVertex (v + G3D::Vector2 (- half, - half));
-	glVertex (v + G3D::Vector2 (  half, - half));
-	glVertex (v + G3D::Vector2 (  half,   half));
-	glVertex (v + G3D::Vector2 (- half,   half));
+	G3D::Rect2D srcRect = G3D::Rect2D::xyxy (
+	    v + G3D::Vector2 (- half, - half),
+	    v + G3D::Vector2 (  half,   half));
+	sendQuad (srcRect, srcTexRect);
     }
     glEnd ();
-
     glPopAttrib ();
+}
+
+// Three types of minMax (and ColorBarModels)
+pair<float, float> GLWidget::GetMinMax (ViewNumber::Enum viewNumber) const
+{
+    const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    float minValue = 0.0, maxValue = 0.0;
+    switch (vs.GetViewType ())
+    {
+    case ViewType::FACES_STATISTICS:
+	if (vs.GetStatisticsType () == StatisticsType::COUNT)
+	    return GetMinMaxCount ();
+	else
+	{
+	    BodyProperty::Enum bodyProperty = 
+		BodyProperty::FromSizeT (vs.GetBodyOrFaceProperty ());
+	    minValue = foamAlongTime.GetMin (bodyProperty);
+	    maxValue = foamAlongTime.GetMax (bodyProperty);
+	}
+	break;
+    case ViewType::T1S_PDE:
+	return GetMinMaxT1sPDE (viewNumber);
+    default:
+	break;
+    }
+    return pair<float, float> (minValue, maxValue);
+}
+
+pair<float, float> GLWidget::GetMinMaxCount () const
+{
+    return pair<float, float> (0, GetFoamAlongTime ().GetTimeSteps ());
+}
+
+pair<float, float> GLWidget::GetMinMaxT1sPDE (ViewNumber::Enum viewNumber) const
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    T1sPDE& t1sPDE = vs.GetT1sPDE ();
+    float sigma = t1sPDE.GetKernelSigma ();
+    return pair<float, float> (0.0, 1 / (2 * M_PI * sigma * sigma));
 }
 
 QColor GLWidget::GetHighlightColor (
@@ -2288,14 +2323,17 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
     displayContextStationaryFoam (viewNumber);
     displayStandaloneFaces ();    
     displayDeformationTensor2D (viewNumber);
+    if (m_t1sShown)
+	displayT1sDot (viewNumber, GetTime ());
     vs.GetForceAverage ().DisplayOneTimeStep (viewNumber);
 }
 
 void GLWidget::displayT1sPDE (ViewNumber::Enum viewNumber) const
 {
+    ViewSettings& vs = GetViewSettings (viewNumber);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
     displayStandaloneFaces ();    
-    displayT1sTimeDependent (viewNumber);
+    vs.GetT1sPDE ().AverageRotateAndDisplay (viewNumber);
 }
 
 G3D::Vector2 GLWidget::toTexture (ViewNumber::Enum viewNumber, 
@@ -2303,7 +2341,7 @@ G3D::Vector2 GLWidget::toTexture (ViewNumber::Enum viewNumber,
 {
     G3D::Vector2 eye = toEye (object);
     ViewSettings& vs = GetViewSettings (viewNumber);
-    G3D::Rect2D viewRect = GetViewRect (viewNumber);
+    G3D::Rect2D viewRect = GetViewportRect (viewNumber);
     G3D::AABox vv = calculateCenteredViewingVolume (
 	double (viewRect.width ()) / viewRect.height (), 
 	vs.GetScaleRatio ());
@@ -2338,6 +2376,8 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
     vs.GetForceAverage ().Display (
 	viewNumber, adjustForAverageAroundMovementRotation);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
+    if (m_t1sShown)
+	displayT1sDot (viewNumber);
     displayAverageAround (
 	viewNumber, adjustForAverageAroundMovementRotation);
     displayContextBodies (viewNumber);
@@ -2636,7 +2676,7 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
     m_contextMenuPosScreen = event->pos ();
     m_contextMenuPosObject = toObjectTransform (m_contextMenuPosScreen);
     QMenu menu (this);
-    G3D::Rect2D colorBarRect = getViewColorBarRect (GetViewRect ());
+    G3D::Rect2D colorBarRect = getViewColorBarRect (GetViewportRect ());
     if (colorBarRect.contains (QtToOpenGl (m_contextMenuPosScreen, height ())))
     {
 	QMenu* menuCopy = menu.addMenu ("Copy");
@@ -2750,7 +2790,7 @@ void GLWidget::displayViewDecorations (ViewNumber::Enum view)
 
     glViewport (0, 0, width (), height ());
 
-    G3D::Rect2D viewRect = GetViewRect (view);
+    G3D::Rect2D viewRect = GetViewportRect (view);
     if (isColorBarUsed (view))
 	displayTextureColorBar (view, viewRect);
     displayViewTitle (viewRect, view);
@@ -2907,7 +2947,7 @@ bool GLWidget::IsTimeDisplacementUsed () const
 }
 
 
-float GLWidget::valueChanged (const pair<float,float>& minMax, int index)
+float GLWidget::getValueFromIndex (const pair<float,float>& minMax, int index)
 {
     QSlider* slider = static_cast<QSlider*> (sender ());
     size_t maxSlider = slider->maximum ();
@@ -2950,20 +2990,19 @@ bool GLWidget::IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const
  * 1. fbo -> fbo or img : 2  -> 2 , 2       ENCLOSE2D
  * 3. fbo -> scr        : 1  -> 1,  2       DONT_ENCLOSE2D
  *
- * Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?
+ * @see doc/TensorDisplay.pdf
  */
-void GLWidget::ActivateViewShader (
+void GLWidget::activateViewShader (
     ViewNumber::Enum viewNumber, 
-    ViewingVolumeOperation::Enum enclose,
+    ViewingVolumeOperation::Enum enclose, G3D::Rect2D& srcRect,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
-    G3D::Rect2D destRect = GetViewRect (viewNumber);
+    G3D::Rect2D destRect = GetViewportRect (viewNumber);
     if (enclose == ViewingVolumeOperation::ENCLOSE2D)
     {
 	destRect = EncloseRotation (destRect);
 	destRect = destRect - destRect.x0y0 ();
     }
-    G3D::Rect2D srcRect = CalculateViewEnclosingRect (viewNumber);
     glPushAttrib (GL_VIEWPORT_BIT);
     glViewport (destRect.x0 (), destRect.y0 (),
 		destRect.width (), destRect.height ());
@@ -2980,13 +3019,40 @@ void GLWidget::ActivateViewShader (
     glMatrixMode (GL_PROJECTION);
     glPushMatrix ();
     ProjectionTransform (viewNumber, enclose);
+    glBegin (GL_QUADS);
     sendQuad (srcRect, G3D::Rect2D::xyxy (0., 0., 1., 1.));
+    glEnd ();
     glMatrixMode (GL_PROJECTION);
     glPopMatrix ();
     glMatrixMode (GL_MODELVIEW);
     glPopMatrix ();
     glPopAttrib ();
 }
+
+void GLWidget::ActivateViewShader (ViewNumber::Enum viewNumber) const
+{
+    ActivateViewShader (viewNumber, ViewingVolumeOperation::ENCLOSE2D,
+			G3D::Vector2::zero (), 0);
+}
+
+void GLWidget::ActivateViewShader (ViewNumber::Enum viewNumber, 
+				   ViewingVolumeOperation::Enum enclose,
+				   G3D::Rect2D& srcRect) const
+{
+    activateViewShader (viewNumber, enclose,
+			srcRect, G3D::Vector2::zero (), 0);
+}
+
+
+void GLWidget::ActivateViewShader (
+    ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose,
+    G3D::Vector2 rotationCenter, float angleDegrees) const
+{
+    G3D::Rect2D srcRect = CalculateViewEnclosingRect (viewNumber);
+    activateViewShader (viewNumber, enclose, srcRect, 
+			rotationCenter, angleDegrees);
+}
+
 
 
 // Slots
@@ -3269,7 +3335,7 @@ void GLWidget::CurrentIndexChangedViewCount (int index)
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	G3D::Rect2D viewRect = GetViewRect (viewNumber);
+	G3D::Rect2D viewRect = GetViewportRect (viewNumber);
 	ViewSettings& vs = GetViewSettings (viewNumber);
 	vs.CalculateCameraDistance (
 	    calculateCenteredViewingVolume (
@@ -3365,7 +3431,7 @@ void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
 
 void GLWidget::ValueChangedT1Size (int index)
 {
-    m_t1sSize = valueChanged (T1S_SIZE, index);
+    m_t1sSize = getValueFromIndex (T1S_SIZE, index);
     update ();
 }
 
@@ -3375,7 +3441,7 @@ void GLWidget::ValueChangedT1sKernelIntervalMargin (int index)
     ViewSettings& vs = GetViewSettings ();
     T1sPDE& t1sPDE = vs.GetT1sPDE ();
     t1sPDE.SetKernelIntervalMargin (
-	valueChanged (T1sPDE::KERNEL_INTERVAL_MARGIN, index));
+	getValueFromIndex (T1sPDE::KERNEL_INTERVAL_MARGIN, index));
     update ();
 }
 
@@ -3384,7 +3450,7 @@ void GLWidget::ValueChangedT1sKernelSigma (int index)
     ViewSettings& vs = GetViewSettings ();
     T1sPDE& t1sPDE = vs.GetT1sPDE ();
     t1sPDE.SetKernelSigma (
-	valueChanged (T1sPDE::KERNEL_SIGMA, index));
+	getValueFromIndex (T1sPDE::KERNEL_SIGMA, index));
     update ();
 }
 
@@ -3393,7 +3459,7 @@ void GLWidget::ValueChangedT1sKernelTextureSize (int index)
     ViewSettings& vs = GetViewSettings ();
     T1sPDE& t1sPDE = vs.GetT1sPDE ();
     t1sPDE.SetKernelTextureSize (
-	valueChanged (T1sPDE::KERNEL_TEXTURE_SIZE, index));
+	getValueFromIndex (T1sPDE::KERNEL_TEXTURE_SIZE, index));
     update ();
 }
 
@@ -3412,14 +3478,14 @@ void GLWidget::ValueChangedEllipseLineWidthRatio (int index)
 
 void GLWidget::ValueChangedContextAlpha (int index)
 {
-    m_contextAlpha = valueChanged (CONTEXT_ALPHA, index);
+    m_contextAlpha = getValueFromIndex (CONTEXT_ALPHA, index);
     compile (GetViewNumber ());
     update ();
 }
 
 void GLWidget::ValueChangedForceLength (int index)
 {
-    m_forceLength = valueChanged (FORCE_LENGTH, index);
+    m_forceLength = getValueFromIndex (FORCE_LENGTH, index);
     update ();
 }
 
@@ -3500,7 +3566,7 @@ void GLWidget::ValueChangedLightSpecularBlue (int sliderValue)
 
 void GLWidget::ValueChangedAngleOfView (int angleOfView)
 {
-    G3D::Rect2D viewRect = GetViewRect ();
+    G3D::Rect2D viewRect = GetViewportRect ();
     ViewSettings& vs = GetViewSettings ();
     vs.SetAngleOfView (angleOfView);
     vs.CalculateCameraDistance (

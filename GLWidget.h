@@ -183,10 +183,10 @@ public:
 
     size_t GetBodyOrFaceProperty (ViewNumber::Enum viewNumber) const;
 
-    G3D::Rect2D GetViewRect (ViewNumber::Enum viewNumber) const;
-    G3D::Rect2D GetViewRect () const
+    G3D::Rect2D GetViewportRect (ViewNumber::Enum viewNumber) const;
+    G3D::Rect2D GetViewportRect () const
     {
-	return GetViewRect (GetViewNumber ());
+	return GetViewportRect (GetViewNumber ());
     }
 
     void SetStatus (QLabel* labelStatusBar)
@@ -197,11 +197,15 @@ public:
      * Draw a quad over destRect. If angleDegrees != 0, rotate the quad first 
      * and then draw it.
      */
+    void ActivateViewShader (ViewNumber::Enum viewNumber) const;
     void ActivateViewShader (
 	ViewNumber::Enum viewNumber,
 	ViewingVolumeOperation::Enum enclose,
-	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
-	float angleDegrees = 0) const;
+	G3D::Vector2 rotationCenter, 
+	float angleDegrees) const;
+    void ActivateViewShader (ViewNumber::Enum viewNumber,
+			     ViewingVolumeOperation::Enum enclose,
+			     G3D::Rect2D& srcRect) const;
     float GetOnePixelInObjectSpace () const;
     double GetCellLength () const;
     double GetEllipseSizeInitialRatio () const;
@@ -219,6 +223,11 @@ public:
 	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     G3D::Rect2D CalculateViewEnclosingRect (ViewNumber::Enum viewNumber) const;
     void RotateAndTranslateAverageAround (size_t timeStep, int direction) const;
+    void DisplayT1sGaussian (ViewNumber::Enum view, size_t timeStep) const;
+    pair<float, float> GetMinMax (ViewNumber::Enum viewNumber) const;
+    pair<float, float> GetMinMaxCount () const;
+    pair<float, float> GetMinMaxT1sPDE (ViewNumber::Enum viewNumber) const;
+
 
 Q_SIGNALS:
     void PaintedGL ();
@@ -405,6 +414,10 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    void activateViewShader (
+	ViewNumber::Enum viewNumber, 
+	ViewingVolumeOperation::Enum enclose, G3D::Rect2D& srcRect,
+	G3D::Vector2 rotationCenter, float angleDegrees) const;
     G3D::Vector2 toTexture (ViewNumber::Enum viewNumber, 
 			    G3D::Vector2 object) const;
     G3D::Vector3 getEyeTransform (ViewNumber::Enum viewNumber) const;
@@ -494,13 +507,12 @@ private:
      */
     void displayCenterPathsWithBodies (ViewNumber::Enum view) const;
     void displayOriginalDomain () const;
-    void displayT1s (ViewNumber::Enum view) const;
     void displayBodyNeighbors () const;
     void displayBodiesNeighbors () const;
     void displayBodyDeformationTensor2D () const;
     void displayDeformationTensor2D (ViewNumber::Enum viewNumber) const;
-    void displayT1sTimeStep (ViewNumber::Enum view, size_t timeStep) const;
-    void displayT1sTimeDependent (ViewNumber::Enum view) const;
+    void displayT1sDot (ViewNumber::Enum view) const;
+    void displayT1sDot (ViewNumber::Enum view, size_t timeStep) const;
     void displayCenterPaths (ViewNumber::Enum view) const;
     void compileCenterPaths (ViewNumber::Enum view) const;
     void compile (ViewNumber::Enum view) const;
@@ -595,7 +607,7 @@ private:
 	boost::array<boost::shared_ptr<QAction>, 
 	ViewNumber::COUNT>& actionCopyTransformation,
 	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformation);
-    float valueChanged (const pair<float,float>& minMax, int index);
+    float getValueFromIndex (const pair<float,float>& minMax, int index);
     float valueChangedLog2Scale (const pair<double,double>& minMax, int index);
     string infoSelectedBody () const;
     string infoSelectedBodies () const;

@@ -53,8 +53,8 @@ void SetterVertexAttribute::operator () (
 
 void SetterVertexAttribute::operator () ()
 {
-    // close to maxFloat. The same value is specified in GLSL and tested
-    // against this value.
+    // max_float
+    // WARNING: has to be the same as ScalarStore.frag
     GLfloat maxFloat = 3.40282e+38;
     m_program->setAttributeValue (m_attributeLocation, maxFloat);
 }

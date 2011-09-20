@@ -17,7 +17,7 @@ HEADERS += Application.h ApproximationEdge.h \
 	ParsingData.h ParsingDriver.h ScalarAverage.h ShaderProgram.h\
 	ParsingEnums.h ProcessBodyTorus.h PropertySetter.h \
 	QuadraticEdge.h RestrictedRangeSlider.h \
-	stable.h StripIterator.h SystemDifferences.h \
+	stable.h StripIterator.h SystemDifferences.h ScalarDisplay.h \
 	T1sPDE.h TensorAverage.h TransferFunctionHistogram.h \
 	TimeStepsSlider.h Utils.h \
 	Vertex.h ViewSettings.h
@@ -43,7 +43,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	ParsingEnums.cpp ProcessBodyTorus.cpp \
 	PropertySetter.cpp ShaderProgram.cpp\
 	QuadraticEdge.cpp RestrictedRangeSlider.cpp\
-	StripIterator.cpp T1sPDE.cpp TimeStepsSlider.cpp \
+	StripIterator.cpp ScalarDisplay.cpp T1sPDE.cpp TimeStepsSlider.cpp \
 	TransferFunctionHistogram.cpp TensorAverage.cpp \
 	Utils.cpp Vertex.cpp ViewSettings.cpp
 FORMS += BrowseSimulations.ui SelectBodiesById.ui EditColorMap.ui \

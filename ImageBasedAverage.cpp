@@ -47,7 +47,7 @@ void ImageBasedAverage<PropertySetter>::AverageInit (
 {
     Average::AverageInit (viewNumber);
     const G3D::Rect2D extendedArea = EncloseRotation (
-	GetGLWidget ().GetViewRect (viewNumber));
+	GetGLWidget ().GetViewportRect (viewNumber));
     QSize size (extendedArea.width (), extendedArea.height ());
     glPushAttrib (GL_COLOR_BUFFER_BIT);
     m_fbos.m_step.reset (
@@ -85,7 +85,8 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::clear (ViewNumber::Enum viewNumber)
 {
     //const size_t FAKE_TIMESTEP = -1;
-    pair<double, double> minMax = getStatisticsMinMax (viewNumber);
+    pair<double, double> minMax = 
+	GetGLWidget ().GetMinMax (viewNumber);
     m_fbos.m_step->bind ();
     ClearColorStencilBuffers (Qt::transparent, 0);
     m_fbos.m_step->release ();
@@ -124,7 +125,8 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::addStep (
     ViewNumber::Enum viewNumber, size_t time)
 {
-    pair<double, double> minMax = getStatisticsMinMax (viewNumber);
+    pair<double, double> minMax = 
+	GetGLWidget ().GetMinMax (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, time);
     save (viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
@@ -149,7 +151,8 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::removeStep (
     ViewNumber::Enum viewNumber, size_t time)
 {
-    pair<double, double> minMax = getStatisticsMinMax (viewNumber);
+    pair<double, double> minMax = 
+	GetGLWidget ().GetMinMax (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, time);
     //save (viewNumber, 
@@ -176,7 +179,8 @@ void ImageBasedAverage<PropertySetter>::renderToStep (
     ViewNumber::Enum viewNumber, size_t time)
 {
     const GLWidget& glWidget = GetGLWidget ();
-    G3D::Rect2D destRect = EncloseRotation (glWidget.GetViewRect (viewNumber));
+    G3D::Rect2D destRect = 
+	EncloseRotation (glWidget.GetViewportRect (viewNumber));
     glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
     glWidget.ModelViewTransform (viewNumber, time);
@@ -215,8 +219,7 @@ void ImageBasedAverage<PropertySetter>::currentIsPreviousPlusStep (
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
 
-    GetGLWidget ().ActivateViewShader (viewNumber, 
-				       ViewingVolumeOperation::ENCLOSE2D);
+    GetGLWidget ().ActivateViewShader (viewNumber);
     m_addShaderProgram->release ();
     m_fbos.m_current->release ();
     WarnOnOpenGLError ("ImageBasedAverage::currentIsPreviousPlusStep:" + m_id);
@@ -240,8 +243,7 @@ void ImageBasedAverage<PropertySetter>::currentIsPreviousMinusStep (
 
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
-    GetGLWidget ().ActivateViewShader (viewNumber, 
-				       ViewingVolumeOperation::ENCLOSE2D);
+    GetGLWidget ().ActivateViewShader (viewNumber);
     m_removeShaderProgram->release ();
     m_fbos.m_current->release ();
     WarnOnOpenGLError ("ImageBasedAverage::currentIsPreviousMinusStep:" + m_id);
@@ -264,8 +266,7 @@ void ImageBasedAverage<PropertySetter>::initFramebuffer (
 {
     fbo->bind ();
     m_initShaderProgram->Bind ();
-    GetGLWidget ().ActivateViewShader (viewNumber, 
-				       ViewingVolumeOperation::ENCLOSE2D);
+    GetGLWidget ().ActivateViewShader (viewNumber);
     m_initShaderProgram->release ();
     fbo->release ();
 }
@@ -279,7 +280,8 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
 {
     if (! m_fbos.m_current)
 	return;
-    pair<double, double> minMax = getStatisticsMinMax (viewNumber);
+    pair<double, double> minMax = 
+	GetGLWidget ().GetMinMax (viewNumber);
     rotateAndDisplay (
 	viewNumber, minMax.first, minMax.second, displayType, 
 	make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
@@ -336,27 +338,6 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::glActiveTexture (GLenum texture) const
 {
     const_cast<GLWidget&>(GetGLWidget ()).glActiveTexture (texture);
-}
-
-template<typename PropertySetter>
-pair<double, double> ImageBasedAverage<PropertySetter>::getStatisticsMinMax (
-    ViewNumber::Enum view) const
-{
-    double minValue, maxValue;
-    if (GetGLWidget ().GetViewSettings (view).GetStatisticsType () == 
-	StatisticsType::COUNT)
-    {
-	minValue = 0;
-	maxValue = GetGLWidget ().GetFoamAlongTime ().GetTimeSteps ();
-    }
-    else
-    {
-	BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT (
-	    GetGLWidget ().GetViewSettings (view).GetBodyOrFaceProperty ());
-	minValue = GetGLWidget ().GetFoamAlongTime ().GetMin (bodyProperty);
-	maxValue = GetGLWidget ().GetFoamAlongTime ().GetMax (bodyProperty);
-    }
-    return pair<double, double> (minValue, maxValue);
 }
 
 

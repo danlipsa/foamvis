@@ -67,8 +67,8 @@ public:
     }
     void AverageRelease ();
     void AverageRotateAndDisplay (	
-	ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
-	
+	ViewNumber::Enum viewNumber, 
+	StatisticsType::Enum displayType = StatisticsType::AVERAGE,	
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
     FramebufferObjects& GetFbos ()
@@ -120,7 +120,6 @@ private:
     void initFramebuffer (
 	ViewNumber::Enum viewNumber,
 	const boost::shared_ptr<QGLFramebufferObject>& fbo);
-    pair<double, double> getStatisticsMinMax (ViewNumber::Enum view) const;
 
 private:
     string m_id;

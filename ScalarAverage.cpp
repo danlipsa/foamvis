@@ -8,66 +8,16 @@
  */
 
 #include "AverageShaders.h"
-#include "ScalarAverage.h"
-#include "ShaderProgram.h"
-#include "OpenGLUtils.h"
-#include "Utils.h"
 #include "GLWidget.h"
+#include "OpenGLUtils.h"
+#include "ScalarAverage.h"
+#include "ScalarDisplay.h"
+#include "ShaderProgram.h"
+#include "Utils.h"
+
 
 // Private classes/functions
 // ======================================================================
-
-// ScalarDisplay
-// ======================================================================
-/**
- * RGBA : sum, count, min, max
- */
-class ScalarDisplay : public ShaderProgram
-{
-public:
-    ScalarDisplay (const char* frag);
-    void Bind (GLfloat minValue, GLfloat maxValue,
-	       StatisticsType::Enum displayType);
-
-    // assume the colorbar is alreay bound on texture unit 0
-    GLint GetColorBarTexUnit ()
-    {
-	return 0;
-    }
-    GLint GetScalarAverageTexUnit ()
-    {
-	return 1;
-    }
-
-private:
-    int m_displayTypeLocation;
-    int m_minValueLocation;
-    int m_maxValueLocation;
-    int m_colorBarTexUnitLocation;
-    int m_scalarAverageTexUnitLocation;
-};
-
-ScalarDisplay::ScalarDisplay (const char* frag) :
-    ShaderProgram (0, frag)
-{
-    m_displayTypeLocation = uniformLocation ("displayType");
-    m_minValueLocation = uniformLocation("minValue");
-    m_maxValueLocation = uniformLocation("maxValue");
-    m_colorBarTexUnitLocation = uniformLocation("colorBarTexUnit");
-    m_scalarAverageTexUnitLocation = uniformLocation("scalarAverageTexUnit");
-}
-
-void ScalarDisplay::Bind (GLfloat minValue, GLfloat maxValue,
-				 StatisticsType::Enum displayType)
-{
-    ShaderProgram::Bind ();
-    setUniformValue (m_displayTypeLocation, displayType);
-    setUniformValue (m_minValueLocation, minValue);
-    setUniformValue (m_maxValueLocation, maxValue);
-    setUniformValue (m_colorBarTexUnitLocation, GetColorBarTexUnit ());
-    setUniformValue (m_scalarAverageTexUnitLocation, GetScalarAverageTexUnit ());
-}
-
 
 
 // ScalarAverage Methods

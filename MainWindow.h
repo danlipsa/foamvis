@@ -111,10 +111,7 @@ public Q_SLOTS:
      * Invoqued by the timer to show the next data in the vector
      */
     void TimeoutTimer ();
-    void ToggledCenterPath (bool checked);
     
-    void ToggledFacesNormal (bool checked);
-    void ToggledFacesStatistics (bool checked);
     /**
      * Invoqued by the UI when  the slider changes to display the data
      * at the current position of the slider.
@@ -205,9 +202,10 @@ private:
 	boost::array<boost::shared_ptr<ColorBarModel>, 
 		     BodyProperty::COUNT>,
 	ViewNumber::COUNT> m_colorBarModelBodyProperty;
-    boost::array<
-	boost::shared_ptr<ColorBarModel>,
-	ViewNumber::COUNT> m_colorBarModelDomainHistogram;
+    boost::array<boost::shared_ptr<ColorBarModel>,
+		 ViewNumber::COUNT> m_colorBarModelDomainHistogram;
+    boost::array<boost::shared_ptr<ColorBarModel>,
+		 ViewNumber::COUNT> m_colorBarModelT1sPDE;
     boost::shared_ptr<EditColorMap> m_editColorMap;
     /**
      * True if the program displays data in a loop, false

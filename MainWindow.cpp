@@ -593,13 +593,26 @@ void MainWindow::setupColorBarModels (ViewNumber::Enum viewNumber)
 	setupColorBarModel (viewNumber, property);
 	++i;
     }
-    boost::shared_ptr<ColorBarModel>& colorBarModel = 
-	m_colorBarModelDomainHistogram[viewNumber];
-    colorBarModel.reset (new ColorBarModel ());
-    colorBarModel->SetTitle ("Count per area");
-    colorBarModel->SetInterval (
-	QwtDoubleInterval (0, widgetGl->GetFoamAlongTime ().GetTimeSteps ()));
-    colorBarModel->SetupPalette (Palette::BLACK_BODY);
+
+    {
+	boost::shared_ptr<ColorBarModel>& colorBarModel = 
+	    m_colorBarModelDomainHistogram[viewNumber];
+	colorBarModel.reset (new ColorBarModel ());
+	colorBarModel->SetTitle ("Count per area");
+	colorBarModel->SetInterval (
+	    toQwtDoubleInterval (widgetGl->GetMinMaxCount ()));
+	colorBarModel->SetupPalette (Palette::BLACK_BODY);
+    }
+
+    {
+	boost::shared_ptr<ColorBarModel>& colorBarModel = 
+	    m_colorBarModelT1sPDE[viewNumber];
+	colorBarModel.reset (new ColorBarModel ());
+	colorBarModel->SetTitle ("T1s PDE");
+	colorBarModel->SetInterval (
+	    toQwtDoubleInterval (widgetGl->GetMinMaxT1sPDE (viewNumber)));
+	colorBarModel->SetupPalette (Palette::BLACK_BODY);
+    }
 }
 
 void MainWindow::setupColorBarModel (ViewNumber::Enum viewNumber,
@@ -657,12 +670,21 @@ void MainWindow::updateLightControls (
 boost::shared_ptr<ColorBarModel> MainWindow::getCurrentColorBarModel () const
 {
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
-    if (widgetGl->GetViewSettings ().GetStatisticsType () == 
-	StatisticsType::COUNT)
-	return m_colorBarModelDomainHistogram[viewNumber];
-    else
+    ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
+    switch (vs.GetViewType ())
+    {
+    case ViewType::T1S_PDE:
+	return m_colorBarModelT1sPDE[viewNumber];
+    case ViewType::FACES_STATISTICS:
+	if (vs.GetStatisticsType () == StatisticsType::COUNT)
+	    return m_colorBarModelDomainHistogram[viewNumber];
+    case ViewType::FACES:
+    case ViewType::CENTER_PATHS:
 	return m_colorBarModelBodyProperty[viewNumber]
-	    [widgetGl->GetBodyOrFaceProperty ()];
+	    [vs.GetBodyOrFaceProperty ()];
+    default:
+	return boost::shared_ptr<ColorBarModel> ();
+    }
 }
 
 
@@ -792,9 +814,37 @@ void MainWindow::ButtonClickedViewType (int id)
 	stackedWidgetTimeStep->setCurrentWidget (pages[viewType]);
 	stackedWidgetTimeDependent->setCurrentWidget (pageTimeDependentEmpty);
     }
+    switch (viewType)
+    {
+    case ViewType::FACES:
+	if (m_histogramViewNumber == widgetGl->GetViewNumber ())
+	    ButtonClickedHistogram (m_histogramType);
+	break;
+
+    case ViewType::FACES_STATISTICS:
+	Q_EMIT ColorBarModelChanged (getCurrentColorBarModel ());
+	labelFacesStatisticsColor->setText (
+	    BodyProperty::ToString (
+		BodyProperty::FromSizeT (
+		    widgetGl->GetViewSettings ().GetBodyOrFaceProperty ())));
+	if (m_histogramViewNumber == widgetGl->GetViewNumber ())
+	    ButtonClickedHistogram (m_histogramType);
+	break;
+
+    case ViewType::CENTER_PATHS:
+	labelCenterPathColor->setText (
+	    BodyProperty::ToString (
+		BodyProperty::FromSizeT (
+		    widgetGl->GetViewSettings ().GetBodyOrFaceProperty ())));
+	if (m_histogramViewNumber == widgetGl->GetViewNumber ())
+	    ButtonClickedHistogram (m_histogramType);
+	break;
+    default:
+	break;
+    }
 }
 
-
+/*
 void MainWindow::ToggledFacesNormal (bool checked)
 {
     if (checked && m_histogramViewNumber == widgetGl->GetViewNumber ())
@@ -838,7 +888,7 @@ void MainWindow::ToggledCenterPath (bool checked)
 		    widgetGl->GetViewSettings ().GetBodyOrFaceProperty ())));
     }
 }
-
+*/
 
 
 void MainWindow::CurrentIndexChangedSelectedLight (int i)

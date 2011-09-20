@@ -403,7 +403,8 @@ public:
     virtual void AverageSetTimeWindow (size_t timeSteps);
     virtual void AverageStep (ViewNumber::Enum viewNumber, int timeStep);
     virtual void AverageRotateAndDisplay (
-	ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
+	ViewNumber::Enum viewNumber, 
+	StatisticsType::Enum displayType = StatisticsType::AVERAGE,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
     virtual void AverageRelease ();

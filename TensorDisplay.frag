@@ -195,6 +195,7 @@ bool isGridCenter (vec2 x)
     return isLine.x * isLine.y == 1.0;
 }
 
+// See doc/TensorDisplay.pdf
 void getCoordinates (out vec2 gridCoord, out vec2 texCoordCenter)
 {
     vec2 gridTranslationA = mat2 (gl_ModelViewMatrix[0].xy, 

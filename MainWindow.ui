@@ -2044,38 +2044,6 @@
  <resources/>
  <connections>
   <connection>
-   <sender>radioButtonFacesNormal</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledFacesNormal(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>779</x>
-     <y>236</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>507</x>
-     <y>359</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonFacesStatistics</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledFacesNormal(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1022</x>
-     <y>202</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>873</x>
-     <y>307</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>toolButtonPlayForward</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -2136,22 +2104,6 @@
     <hint type="destinationlabel">
      <x>343</x>
      <y>324</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButtonCenterPath</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledCenterPath(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1022</x>
-     <y>175</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>460</x>
-     <y>359</y>
     </hint>
    </hints>
   </connection>
@@ -2828,22 +2780,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioButtonFacesStatistics</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ToggledFacesStatistics(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1022</x>
-     <y>202</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>872</x>
-     <y>217</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>spinBoxFontSize</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
@@ -3469,13 +3405,11 @@
   </connection>
  </connections>
  <slots>
-  <slot>ToggledFacesNormal(bool)</slot>
   <slot>ToggledColorBarShown(bool)</slot>
   <slot>ValueChangedFontSize(int)</slot>
   <slot>ToggledHistogramGridShown(bool)</slot>
   <slot>ToggledStatusBarShown(bool)</slot>
   <slot>CurrentIndexChangedSelectedLight(int)</slot>
-  <slot>ToggledFacesStatistics(bool)</slot>
   <slot>ButtonClickedHistogram(int)</slot>
   <slot>ButtonClickedAllTimestepsHistogram(int)</slot>
   <slot>ToggledStatisticsTimeWindowEnabled(bool)</slot>

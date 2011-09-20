@@ -41,7 +41,7 @@ protected:
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
 
-private:
+protected:
     static boost::shared_ptr<ScalarDisplay> m_displayShaderProgram;
 };
 

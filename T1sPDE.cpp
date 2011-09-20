@@ -6,38 +6,124 @@
  * Implementation for the T1sPDE class 
  */
 
+#include "AverageShaders.h"
 #include "Debug.h"
 #include "DebugStream.h"
 #include "GLWidget.h"
+#include "OpenGLUtils.h"
+#include "ScalarDisplay.h"
+#include "ShaderProgram.h"
 #include "T1sPDE.h"
+#include "Utils.h"
 #include "ViewSettings.h"
 
 // Private classes/functions
 // ======================================================================
+
+class GaussianInitShaderProgram : public ShaderProgram
+{
+public:
+    GaussianInitShaderProgram (const char* frag);
+    void Bind (float kernelSigma, float kernelIntervalMargin);
+protected:
+    float m_sigmaLocation;
+    float m_intervalMarginLocation;
+};
+
+GaussianInitShaderProgram::GaussianInitShaderProgram (const char* frag) :
+    ShaderProgram (0, frag)
+{
+    m_sigmaLocation = uniformLocation("m_sigma");
+    m_intervalMarginLocation = uniformLocation("u_intervalMargin");
+}
+
+void GaussianInitShaderProgram::Bind (float sigma,
+				      float intervalMargin)
+{
+    ShaderProgram::Bind ();
+    setUniformValue (m_sigmaLocation, sigma);
+    setUniformValue (m_intervalMarginLocation, intervalMargin);
+}
+
+
+class GaussianStoreShaderProgram : public ShaderProgram
+{
+public:
+    GaussianStoreShaderProgram (const char* frag);
+    GLint GetGaussianTexUnit ()
+    {
+	return 1;
+    }
+    void Bind ();
+protected:
+    int m_gaussianTexUnitLocation;
+};
+
+GaussianStoreShaderProgram::GaussianStoreShaderProgram (const char* frag) :
+    ShaderProgram (0, frag)
+{
+    m_gaussianTexUnitLocation = uniformLocation("u_gaussianTexUnit");
+}
+
+void GaussianStoreShaderProgram::Bind ()
+{
+    ShaderProgram::Bind ();
+    setUniformValue (m_gaussianTexUnitLocation, GetGaussianTexUnit ());
+}
 
 
 // T1sPDE Methods and static fields
 // ======================================================================
 
 const pair<size_t, size_t> T1sPDE::KERNEL_TEXTURE_SIZE = 
-    pair<size_t, size_t> (32, 128);
+    pair<size_t, size_t> (16, 128);
 const pair<float, float> T1sPDE::KERNEL_INTERVAL_MARGIN = 
     pair<float, float> (5.0, 10.0);
 const pair<float, float> T1sPDE::KERNEL_SIGMA = pair<float, float> (1.0, 5.0);
+boost::shared_ptr<GaussianInitShaderProgram> T1sPDE::m_gaussianInitShaderProgram;
+boost::shared_ptr<GaussianStoreShaderProgram
+		  > T1sPDE::m_gaussianStoreShaderProgram;
+
+
+void T1sPDE::InitShaders ()
+{
+    m_initShaderProgram.reset (
+	new ShaderProgram (0, RESOURCE("ScalarInit.frag")));
+    m_storeShaderProgram.reset (
+	new StoreShaderProgram (
+	    RESOURCE("ScalarStore.vert"), RESOURCE("ScalarStore.frag")));
+    m_addShaderProgram.reset (
+	new AddShaderProgram (RESOURCE("ScalarAdd.frag")));
+    m_removeShaderProgram.reset (
+	new AddShaderProgram (RESOURCE("ScalarRemove.frag")));
+    m_displayShaderProgram.reset (
+	new ScalarDisplay (RESOURCE("ScalarDisplay.frag")));
+    m_gaussianInitShaderProgram.reset (new GaussianInitShaderProgram
+				       (RESOURCE ("GaussianInit.frag")));
+    m_gaussianStoreShaderProgram.reset (new GaussianStoreShaderProgram
+				       (RESOURCE ("GaussianStore.frag")));
+}
+
+T1sPDE::T1sPDE (const GLWidget& glWidget) :
+    ScalarAverage (glWidget, "t1sPDE"),
+    m_kernelIntervalMargin (KERNEL_INTERVAL_MARGIN.first),
+    m_kernelSigma (KERNEL_SIGMA.first),
+    m_kernelTextureSize (KERNEL_TEXTURE_SIZE.first)
+{
+}
 
 void T1sPDE::AverageInit (ViewNumber::Enum viewNumber)
 {
     ScalarAverage::AverageInit (viewNumber);
-    initKernel (viewNumber);
+    initKernel ();
 }
 
 
 // Interactive Visualization of Streaming Data with Kernel Density Estimation
 // Ove Daae Lampe and Helwig Hauser
 // h: bandwidth is equal with standard deviation
-void T1sPDE::initKernel (ViewNumber::Enum viewNumber)
+void T1sPDE::initKernel ()
 {
-    ViewSettings& vs = GetGLWidget ().GetViewSettings (viewNumber);
     QSize size (m_kernelTextureSize, m_kernelTextureSize);
     m_kernel.reset (
 	new QGLFramebufferObject (
@@ -45,28 +131,23 @@ void T1sPDE::initKernel (ViewNumber::Enum viewNumber)
 	    GL_RGBA32F));
     RuntimeAssert (m_kernel->isValid (), 
 		   "Framebuffer initialization failed:" + GetId ());
-/*
-    const G3D::Rect2D destRect = EncloseRotation (
-	GetGLWidget ().GetViewRect (viewNumber));
-    fbo->bind ();
-    m_initShaderProgram->Bind ();
-    ActivateShader (destRect - destRect.x0y0 (),
-	ViewingVolumeOperation::ENCLOSE2D);
-    m_initShaderProgram->release ();
-    fbo->release ();
-*/
+    m_kernel->bind ();
+    m_gaussianInitShaderProgram->Bind (m_kernelSigma, m_kernelIntervalMargin);
+    ActivateShader (
+	G3D::Rect2D (G3D::Vector2 (m_kernelTextureSize, m_kernelTextureSize)));
+    m_gaussianInitShaderProgram->release ();
+    m_kernel->release ();
 }
 
-void T1sPDE::rotateAndDisplay (
-    ViewNumber::Enum viewNumber,
-    const G3D::Rect2D& destRect,
-    GLfloat minValue, GLfloat maxValue,
-    StatisticsType::Enum displayType, TensorScalarFbo srcFbo,
-    ViewingVolumeOperation::Enum enclose,
-    G3D::Vector2 rotationCenter, float angleDegrees) const
+void T1sPDE::writeStepValues (ViewNumber::Enum viewNumber, size_t timeStep)
 {
-}
-
-void T1sPDE::writeStepValues (ViewNumber::Enum view, size_t timeStep)
-{
+    m_gaussianStoreShaderProgram->Bind ();
+    // activate texture unit 1
+    glActiveTexture (
+	TextureEnum (m_gaussianStoreShaderProgram->GetGaussianTexUnit ()));
+    glBindTexture (GL_TEXTURE_2D, m_kernel->texture ());
+    GetGLWidget ().DisplayT1sGaussian (viewNumber, timeStep);
+    // activate texture unit 0
+    glActiveTexture (GL_TEXTURE0);
+    m_gaussianStoreShaderProgram->release ();
 }

@@ -117,11 +117,7 @@ void ClearColorStencilBuffers (
 
 void drawEllipsis2D (float l1, float l2, float c);
 
-/**
- * Activate destRect which is inside viewRect. Set texture coordinates
- * to reflect destRect inside viewRect
- */
-void ActivateShader (G3D::Rect2D destRect, G3D::Rect2D viewRect);
+void ActivateShader (G3D::Rect2D destRect);
 
 
 #endif //__OPENGL_UTIL_H__

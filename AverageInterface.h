@@ -15,7 +15,8 @@ struct AverageInterface
     virtual void AverageSetTimeWindow (size_t timeSteps) = 0;
     virtual void AverageStep (ViewNumber::Enum viewNumber, int timeStep) = 0;
     virtual void AverageRotateAndDisplay (
-	ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
+	ViewNumber::Enum viewNumber, 
+	StatisticsType::Enum displayType = StatisticsType::AVERAGE,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const = 0;
     virtual void AverageRelease () = 0;
