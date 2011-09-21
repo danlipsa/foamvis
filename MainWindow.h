@@ -124,6 +124,9 @@ public Q_SLOTS:
 	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 private:
+    HistogramInfo createHistogramInfo (
+	pair<float, float> minMax, size_t count) const;    
+    void setStackedWidget (ViewType::Enum viewType);
     void updateLightControls (
 	const ViewSettings& vs, LightNumber::Enum lightNumber);
     void connectSignals ();
@@ -164,7 +167,14 @@ private:
     void createActions ();
     void displayHistogramColorBar (bool checked);
     HistogramInfo getCurrentHistogramInfo () const;
-    boost::shared_ptr<ColorBarModel> getCurrentColorBarModel () const;
+    boost::shared_ptr<ColorBarModel> getColorBarModel () const;
+    boost::shared_ptr<ColorBarModel> getColorBarModel (
+	ViewNumber::Enum viewNumber,
+	ViewType::Enum viewType, size_t property, 
+	StatisticsType::Enum statisticsType) const;
+    void emitColorBarModelChanged (ViewNumber::Enum viewNumber,
+	ViewType::Enum oldViewType, ViewType::Enum viewType, 
+	size_t property, StatisticsType::Enum statisticsType);
     void clickedPlay (PlayType playType);
 
 private:

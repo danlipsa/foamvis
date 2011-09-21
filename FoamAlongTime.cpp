@@ -490,6 +490,16 @@ size_t FoamAlongTime::GetT1sTimeSteps () const
     return m_t1s.size ();
 }
 
+size_t FoamAlongTime::GetT1sSize () const
+{
+    size_t size = 0;
+    BOOST_FOREACH (const vector<G3D::Vector3>& t1sTimeStep, m_t1s)
+    {
+	size += t1sTimeStep.size ();
+    }
+    return size;
+}
+
 
 void FoamAlongTime::ParseT1s (
     const string& fileName, size_t ticksForTimeStep, bool shiftT1sLower)

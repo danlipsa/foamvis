@@ -406,6 +406,17 @@ struct ViewingVolumeOperation
     };
 };
 
+struct ColorBarType
+{
+    enum Enum
+    {
+	PROPERTY,
+	STATISTICS_COUNT,
+	T1S_PDE,
+	NONE
+    };
+
+};
 
 #endif //__ENUMS_H__
 

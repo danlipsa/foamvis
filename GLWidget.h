@@ -223,11 +223,19 @@ public:
 	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     G3D::Rect2D CalculateViewEnclosingRect (ViewNumber::Enum viewNumber) const;
     void RotateAndTranslateAverageAround (size_t timeStep, int direction) const;
-    void DisplayT1sGaussian (ViewNumber::Enum view, size_t timeStep) const;
+    void DisplayT1sQuad (ViewNumber::Enum view, size_t timeStep) const;
     pair<float, float> GetMinMax (ViewNumber::Enum viewNumber) const;
     pair<float, float> GetMinMaxCount () const;
     pair<float, float> GetMinMaxT1sPDE (ViewNumber::Enum viewNumber) const;
-
+    pair<float, float> GetMinMaxT1sPDE () const
+    {
+	return GetMinMaxT1sPDE (GetViewNumber ());
+    }
+    static ColorBarType::Enum GetColorBarType (
+	ViewType::Enum viewType, size_t property, 
+	StatisticsType::Enum statisticsType);
+    ColorBarType::Enum GetColorBarType (ViewNumber::Enum viewNumber);
+    ColorBarType::Enum GetColorBarType ();
 
 Q_SIGNALS:
     void PaintedGL ();
@@ -383,7 +391,6 @@ protected:
      */
     void mouseMoveEvent(QMouseEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
-    bool isColorBarUsed (ViewNumber::Enum view) const;
 
 
 private:

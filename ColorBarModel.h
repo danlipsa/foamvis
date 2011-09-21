@@ -6,8 +6,8 @@
  * Declaration of the ColorBarModel class
  */
 
-#ifndef __COLOR_BAR_MODEL_H__
-#define __COLOR_BAR_MODEL_H__
+#ifndef __MODEL_H__
+#define __MODEL_H__
 
 #include "Enums.h"
 
@@ -112,7 +112,7 @@ inline ostream& operator<< (ostream& ostr, const ColorBarModel& b)
 }
 
 
-#endif //__COLOR_BAR_MODEL_H__
+#endif //__MODEL_H__
 
 // Local Variables:
 // mode: c++

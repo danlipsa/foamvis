@@ -549,28 +549,42 @@ void MainWindow::createActions ()
 MainWindow::HistogramInfo MainWindow::getCurrentHistogramInfo () const
 {
     FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    if (widgetGl->GetViewSettings ().GetStatisticsType () == 
-	StatisticsType::COUNT)
+    switch (widgetGl->GetColorBarType ())
     {
-	size_t fakeHistogramValue = 1;
-	QwtArray<QwtDoubleInterval> a (HISTOGRAM_INTERVALS);
-	QwtArray<double> d (HISTOGRAM_INTERVALS);
-	size_t max = foamAlongTime.GetTimeSteps ();
-	double intervalSize = double (max) / HISTOGRAM_INTERVALS;
-	for (int i = 0; i < a.size (); ++i)
-	{
-	    a[i] = QwtDoubleInterval (intervalSize * i, intervalSize* (i+1));
-	    d[i] = fakeHistogramValue;
-	}
-	return HistogramInfo (QwtIntervalData (a, d), fakeHistogramValue);
-    }
-    else
+    case ColorBarType::STATISTICS_COUNT:
+	return createHistogramInfo (widgetGl->GetMinMaxCount (), 1);
+    
+    case ColorBarType::PROPERTY:
     {
 	const HistogramStatistics& histogramStatistics = 
 	    foamAlongTime.GetHistogram (widgetGl->GetBodyOrFaceProperty ());
 	return HistogramInfo (histogramStatistics.ToQwtIntervalData (), 
 			      histogramStatistics.GetMaxCountPerBin ());
     }
+    
+    case ColorBarType::T1S_PDE:
+	return createHistogramInfo (
+	    widgetGl->GetMinMaxT1sPDE (), foamAlongTime.GetT1sSize ());
+
+    default:
+	ThrowException ("Invalid call to getCurrentHistogramInfo");
+	return createHistogramInfo (widgetGl->GetMinMaxCount (), 1);
+    }
+}
+
+MainWindow::HistogramInfo MainWindow::createHistogramInfo (
+    pair<float, float> minMax, size_t count) const
+{
+    QwtArray<QwtDoubleInterval> a (HISTOGRAM_INTERVALS);
+    QwtArray<double> d (HISTOGRAM_INTERVALS);
+    double intervalSize = (minMax.second - minMax.first) / HISTOGRAM_INTERVALS;
+    double begin = minMax.first;
+    for (int i = 0; i < a.size (); ++i, begin += intervalSize)
+    {
+	a[i] = QwtDoubleInterval (begin, begin + intervalSize);
+	d[i] = count;
+    }
+    return HistogramInfo (QwtIntervalData (a, d), count);
 }
 
 
@@ -667,24 +681,48 @@ void MainWindow::updateLightControls (
 	    horizontalSliderLightSpecularBlue->maximum () + 0.5));
 }
 
-boost::shared_ptr<ColorBarModel> MainWindow::getCurrentColorBarModel () const
+boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel (
+    ViewNumber::Enum viewNumber,
+    ViewType::Enum viewType, size_t property, 
+    StatisticsType::Enum statisticsType) const
 {
-    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
-    ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
-    switch (vs.GetViewType ())
+    ColorBarType::Enum colorBarType = GLWidget::GetColorBarType (
+	viewType, property, statisticsType);
+    switch (colorBarType)
     {
-    case ViewType::T1S_PDE:
+    case ColorBarType::T1S_PDE:
 	return m_colorBarModelT1sPDE[viewNumber];
-    case ViewType::FACES_STATISTICS:
-	if (vs.GetStatisticsType () == StatisticsType::COUNT)
-	    return m_colorBarModelDomainHistogram[viewNumber];
-    case ViewType::FACES:
-    case ViewType::CENTER_PATHS:
-	return m_colorBarModelBodyProperty[viewNumber]
-	    [vs.GetBodyOrFaceProperty ()];
+    case ColorBarType::STATISTICS_COUNT:
+	return m_colorBarModelDomainHistogram[viewNumber];
+    case ColorBarType::PROPERTY:
+	return m_colorBarModelBodyProperty[viewNumber][property];
     default:
 	return boost::shared_ptr<ColorBarModel> ();
     }
+}
+
+boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel () const
+{
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
+    ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
+    ViewType::Enum viewType = vs.GetViewType ();
+    size_t property = vs.GetBodyOrFaceProperty ();
+    StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
+    return getColorBarModel (viewNumber, viewType, property, statisticsType);
+}
+
+
+void MainWindow::emitColorBarModelChanged (ViewNumber::Enum viewNumber,
+    ViewType::Enum oldViewType, ViewType::Enum viewType, 
+    size_t property, StatisticsType::Enum statisticsType)
+{
+    ColorBarType::Enum oldColorBarType = GLWidget::GetColorBarType (
+	oldViewType, property, statisticsType);
+    ColorBarType::Enum colorBarType = GLWidget::GetColorBarType (
+	viewType, property, statisticsType);
+    if (colorBarType != oldColorBarType)
+	Q_EMIT ColorBarModelChanged (
+	    getColorBarModel (viewNumber, viewType, property, statisticsType));
 }
 
 
@@ -789,21 +827,57 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
     updateButtons ();
 }
 
-void MainWindow::ButtonClickedViewType (int id)
+void MainWindow::ButtonClickedViewType (int vt)
 {
-    ViewType::Enum viewType = ViewType::Enum(id);
+    ViewType::Enum viewType = ViewType::Enum(vt);
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
+    ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
+    ViewType::Enum oldViewType = vs.GetViewType ();
+    size_t property = vs.GetBodyOrFaceProperty ();
+    StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
+
+    setStackedWidget (viewType);
+    emitColorBarModelChanged (
+	viewNumber, oldViewType, viewType, property, statisticsType);
+    switch (viewType)
+    {
+    case ViewType::FACES:
+	if (m_histogramViewNumber == viewNumber)
+	    ButtonClickedHistogram (m_histogramType);
+	break;
+
+    case ViewType::FACES_STATISTICS:
+	labelFacesStatisticsColor->setText (
+	    BodyProperty::ToString (BodyProperty::FromSizeT (property)));
+	if (m_histogramViewNumber == viewNumber)
+	    ButtonClickedHistogram (m_histogramType);
+	break;
+
+    case ViewType::CENTER_PATHS:
+	labelCenterPathColor->setText (
+	    BodyProperty::ToString (BodyProperty::FromSizeT (property)));
+	if (m_histogramViewNumber == viewNumber)
+	    ButtonClickedHistogram (m_histogramType);
+	break;
+    default:
+	break;
+    }
+}
+
+void MainWindow::setStackedWidget (ViewType::Enum viewType)
+{
     // WARNING: Has to match ViewType::Enum order
     QWidget* pages[] = 
-    {
-	pageEdgesNormal,
-	pageTimeStepEmpty,
-	pageTimeStepEmpty,
-	pageFacesNormal,
+	{
+	    pageEdgesNormal,
+	    pageTimeStepEmpty,
+	    pageTimeStepEmpty,
+	    pageFacesNormal,
 
-	pageCenterPath,
-	pageFacesStatistics,
-	pageT1sProbabilityDensity
-    };
+	    pageCenterPath,
+	    pageFacesStatistics,
+	    pageT1sProbabilityDensity
+	};
     if (ViewType::IsTimeDependent (viewType))
     {
 	stackedWidgetTimeStep->setCurrentWidget (pageTimeStepEmpty);
@@ -814,82 +888,7 @@ void MainWindow::ButtonClickedViewType (int id)
 	stackedWidgetTimeStep->setCurrentWidget (pages[viewType]);
 	stackedWidgetTimeDependent->setCurrentWidget (pageTimeDependentEmpty);
     }
-    switch (viewType)
-    {
-    case ViewType::FACES:
-	if (m_histogramViewNumber == widgetGl->GetViewNumber ())
-	    ButtonClickedHistogram (m_histogramType);
-	break;
-
-    case ViewType::FACES_STATISTICS:
-	Q_EMIT ColorBarModelChanged (getCurrentColorBarModel ());
-	labelFacesStatisticsColor->setText (
-	    BodyProperty::ToString (
-		BodyProperty::FromSizeT (
-		    widgetGl->GetViewSettings ().GetBodyOrFaceProperty ())));
-	if (m_histogramViewNumber == widgetGl->GetViewNumber ())
-	    ButtonClickedHistogram (m_histogramType);
-	break;
-
-    case ViewType::CENTER_PATHS:
-	labelCenterPathColor->setText (
-	    BodyProperty::ToString (
-		BodyProperty::FromSizeT (
-		    widgetGl->GetViewSettings ().GetBodyOrFaceProperty ())));
-	if (m_histogramViewNumber == widgetGl->GetViewNumber ())
-	    ButtonClickedHistogram (m_histogramType);
-	break;
-    default:
-	break;
-    }
 }
-
-/*
-void MainWindow::ToggledFacesNormal (bool checked)
-{
-    if (checked && m_histogramViewNumber == widgetGl->GetViewNumber ())
-	ButtonClickedHistogram (m_histogramType);
-}
-
-void MainWindow::ToggledFacesStatistics (bool checked)
-{
-    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
-    if (checked)
-    {
-	Q_EMIT ColorBarModelChanged (getCurrentColorBarModel ());
-	labelFacesStatisticsColor->setText (
-	    BodyProperty::ToString (
-		BodyProperty::FromSizeT (
-		    widgetGl->GetViewSettings ().GetBodyOrFaceProperty ())));
-	ButtonClickedHistogram (m_histogramType);
-    }
-    else
-    {	
-	size_t property = widgetGl->GetBodyOrFaceProperty ();
-	if (property != FaceProperty::DMP_COLOR)
-	{
-	    BodyProperty::Enum bodyProperty = 
-		BodyProperty::FromSizeT (property);
-	    Q_EMIT ColorBarModelChanged (
-		m_colorBarModelBodyProperty[viewNumber][bodyProperty]);
-	}
-    }
-}
-
-void MainWindow::ToggledCenterPath (bool checked)
-{
-    if (checked)
-    {
-	if (m_histogramViewNumber == widgetGl->GetViewNumber ())
-	    ButtonClickedHistogram (m_histogramType);
-	labelCenterPathColor->setText (
-	    BodyProperty::ToString (
-		BodyProperty::FromSizeT (
-		    widgetGl->GetViewSettings ().GetBodyOrFaceProperty ())));
-    }
-}
-*/
-
 
 void MainWindow::CurrentIndexChangedSelectedLight (int i)
 {
@@ -955,7 +954,7 @@ void MainWindow::CurrentIndexChangedStatisticsType (int value)
 	::setVisible (widgetsStatisticsTimeWindow, false);
 	break;
     }
-    Q_EMIT ColorBarModelChanged (getCurrentColorBarModel ());
+    Q_EMIT ColorBarModelChanged (getColorBarModel ());
 }
 
 void MainWindow::CurrentIndexChangedWindowSize (int value)
@@ -1010,12 +1009,12 @@ void MainWindow::ShowEditColorMap ()
 {
     HistogramInfo p = getCurrentHistogramInfo ();
     m_editColorMap->SetData (
-	p.first, p.second, *getCurrentColorBarModel (),
+	p.first, p.second, *getColorBarModel (),
 	checkBoxHistogramGridShown->isChecked ());
     if (m_editColorMap->exec () == QDialog::Accepted)
     {
-	*getCurrentColorBarModel () = m_editColorMap->GetColorBarModel ();
-	Q_EMIT ColorBarModelChanged (getCurrentColorBarModel ());
+	*getColorBarModel () = m_editColorMap->GetColorBarModel ();
+	Q_EMIT ColorBarModelChanged (getColorBarModel ());
     }
 }
 

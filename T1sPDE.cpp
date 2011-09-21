@@ -146,7 +146,7 @@ void T1sPDE::writeStepValues (ViewNumber::Enum viewNumber, size_t timeStep)
     glActiveTexture (
 	TextureEnum (m_gaussianStoreShaderProgram->GetGaussianTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, m_kernel->texture ());
-    GetGLWidget ().DisplayT1sGaussian (viewNumber, timeStep);
+    GetGLWidget ().DisplayT1sQuad (viewNumber, timeStep);
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
     m_gaussianStoreShaderProgram->release ();

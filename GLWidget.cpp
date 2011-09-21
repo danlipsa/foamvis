@@ -937,7 +937,7 @@ void GLWidget::ResetTransformFocus ()
     ProjectionTransform (viewNumber);
     glMatrixMode (GL_MODELVIEW);
     glLoadIdentity ();
-    vs.Init (viewNumber);
+    vs.AverageInitStep (viewNumber);
     update ();
 }
 
@@ -1238,7 +1238,7 @@ void GLWidget::resizeGL(int w, int h)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	ViewSettings& vs = GetViewSettings (viewNumber);
-	vs.Init (viewNumber);
+	vs.AverageInitStep (viewNumber);
     }
     WarnOnOpenGLError ("resizeGl");
 }
@@ -1784,7 +1784,7 @@ void GLWidget::mouseMoveTranslate (QMouseEvent *event)
     case InteractionObject::FOCUS:
 	translate (viewNumber, event->pos (), G3D::Vector3::X_AXIS,
 		   G3D::Vector3::Y_AXIS);
-	vs.Init (viewNumber);
+	vs.AverageInitStep (viewNumber);
 	break;
     case InteractionObject::LIGHT:
     {
@@ -1815,7 +1815,7 @@ void GLWidget::mouseMoveScale (QMouseEvent *event)
     {
     case InteractionObject::FOCUS:
 	scale (viewNumber, event->pos ());
-	vs.Init (viewNumber);
+	vs.AverageInitStep (viewNumber);
 	break;
     case InteractionObject::CONTEXT:
 	scaleContext (viewNumber, event->pos ());
@@ -2107,7 +2107,6 @@ void GLWidget::displayT1sDot (ViewNumber::Enum view) const
 {
     for (size_t i = 0; i < GetFoamAlongTime ().GetT1sTimeSteps (); ++i)
 	displayT1sDot (view, i);
-    //displayT1sDot (view, 5);
 }
 
 void GLWidget::displayT1sDot (
@@ -2126,7 +2125,7 @@ void GLWidget::displayT1sDot (
     glPopAttrib ();
 }
 
-void GLWidget::DisplayT1sGaussian (
+void GLWidget::DisplayT1sQuad (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
     glPushAttrib (GL_ENABLE_BIT | GL_POINT_BIT | 
@@ -2331,9 +2330,9 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
 void GLWidget::displayT1sPDE (ViewNumber::Enum viewNumber) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
+    vs.AverageRotateAndDisplay (viewNumber);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > ();
-    displayStandaloneFaces ();    
-    vs.GetT1sPDE ().AverageRotateAndDisplay (viewNumber);
+    displayStandaloneFaces ();
 }
 
 G3D::Vector2 GLWidget::toTexture (ViewNumber::Enum viewNumber, 
@@ -2649,17 +2648,39 @@ void GLWidget::setLight (int sliderValue, int maximumValue,
     update ();
 }
 
-bool GLWidget::isColorBarUsed (ViewNumber::Enum view) const
+ColorBarType::Enum GLWidget::GetColorBarType ()
 {
-    ViewSettings& vs = GetViewSettings (view);
-    switch (vs.GetViewType ())
+    return GetColorBarType (GetViewNumber ());
+}
+
+ColorBarType::Enum GLWidget::GetColorBarType (ViewNumber::Enum viewNumber)
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    ViewType::Enum viewType = vs.GetViewType ();
+    size_t property = vs.GetBodyOrFaceProperty ();
+    StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
+    return GLWidget::GetColorBarType (viewType, property, statisticsType);
+}
+
+
+ColorBarType::Enum GLWidget::GetColorBarType (
+    ViewType::Enum viewType, size_t property, 
+    StatisticsType::Enum statisticsType)
+{
+    switch (viewType)
     {
-    case ViewType::FACES:
+    case ViewType::T1S_PDE:
+	return ColorBarType::T1S_PDE;
     case ViewType::FACES_STATISTICS:
+	if (statisticsType == StatisticsType::COUNT)
+	    return ColorBarType::STATISTICS_COUNT;
+    case ViewType::FACES:
+	if (property == FaceProperty::DMP_COLOR)
+	    return ColorBarType::NONE;
     case ViewType::CENTER_PATHS:
-	return vs.GetBodyOrFaceProperty () != FaceProperty::DMP_COLOR;
+	return ColorBarType::PROPERTY;
     default:
-	return false;
+	return ColorBarType::NONE;
     }
 }
 
@@ -2770,9 +2791,9 @@ void GLWidget::contextMenuEvent(QContextMenuEvent *event)
 }
 
 
-void GLWidget::displayViewDecorations (ViewNumber::Enum view)
+void GLWidget::displayViewDecorations (ViewNumber::Enum viewNumber)
 {
-    const ViewSettings& vs = GetViewSettings (view);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     glPushAttrib (
 	GL_POLYGON_BIT | GL_CURRENT_BIT | 
 	GL_VIEWPORT_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT);
@@ -2790,10 +2811,10 @@ void GLWidget::displayViewDecorations (ViewNumber::Enum view)
 
     glViewport (0, 0, width (), height ());
 
-    G3D::Rect2D viewRect = GetViewportRect (view);
-    if (isColorBarUsed (view))
-	displayTextureColorBar (view, viewRect);
-    displayViewTitle (viewRect, view);
+    G3D::Rect2D viewRect = GetViewportRect (viewNumber);
+    if (GetColorBarType (viewNumber) != ColorBarType::NONE)
+	displayTextureColorBar (viewNumber, viewRect);
+    displayViewTitle (viewRect, viewNumber);
     displayViewTimeStep (viewRect);
     displayViewGrid ();
 
@@ -2802,6 +2823,8 @@ void GLWidget::displayViewDecorations (ViewNumber::Enum view)
     glPopMatrix ();
     glPopAttrib ();
 }
+
+
 
 void GLWidget::displayViewTitle (const G3D::Rect2D& viewRect, 
 				 ViewNumber::Enum viewNumber)
@@ -3234,10 +3257,9 @@ void GLWidget::ButtonClickedViewType (int id)
     if (oldViewType == newViewType)
 	return;
     ViewSettings& vs = GetViewSettings ();
-    if (oldViewType == ViewType::FACES_STATISTICS)
-	vs.AverageRelease ();
+    vs.AverageRelease ();
     changeViewType (newViewType);
-    vs.Init (GetViewNumber ());
+    vs.AverageInitStep (GetViewNumber ());
 }
 
 
@@ -3375,12 +3397,12 @@ void GLWidget::CurrentIndexChangedAxesOrder (int index)
 // @todo add a color bar model for BodyProperty::None
 void GLWidget::SetBodyOrFaceProperty (
     boost::shared_ptr<ColorBarModel> colorBarModel,
-    size_t value)
+    size_t bodyOrFaceProperty)
 {
     makeCurrent ();
     ViewNumber::Enum view = GetViewNumber ();
     ViewSettings& vs = GetViewSettings ();
-    vs.SetBodyOrFaceProperty (value);
+    vs.SetBodyOrFaceProperty (bodyOrFaceProperty);
     if (vs.GetBodyOrFaceProperty () != FaceProperty::DMP_COLOR)
 	GetViewSettings ().SetColorBarModel (colorBarModel);
     else
@@ -3403,10 +3425,9 @@ void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
     m_timeStep = timeStep;
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
-	ViewNumber::Enum view = ViewNumber::Enum (i);
-	ViewSettings& vs = GetViewSettings (view);
-	if (vs.GetViewType () == ViewType::FACES_STATISTICS)
-	    vs.AverageStep (view, direction);
+	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	vs.AverageStep (viewNumber, direction);
     }
     update ();
 }

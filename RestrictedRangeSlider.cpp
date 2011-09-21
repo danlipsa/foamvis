@@ -71,7 +71,7 @@ void RestrictedRangeSlider::setupScale (int minimum, int maximum)
 void RestrictedRangeSlider::setupColorMap (const vector<bool>* selected)
 {
     vector<bool> v;
-    const size_t COLOR_BAR_WIDTH = 3;
+    const size_t WIDTH = 3;
     const QwtDoubleInterval interval (minimum (), maximum ());
     m_colorMap = boost::make_shared<QwtLinearColorMap> ();
     if (selected == 0)
@@ -92,7 +92,7 @@ void RestrictedRangeSlider::setupColorMap (const vector<bool>* selected)
     }
     scale->setColorMap (interval, *m_colorMap);
     scale->setColorBarEnabled (false);
-    scale->setColorBarWidth (COLOR_BAR_WIDTH);
+    scale->setColorBarWidth (WIDTH);
 }
 
 void RestrictedRangeSlider::ensureMinimumWidth (

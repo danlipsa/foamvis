@@ -3150,6 +3150,22 @@
   <connection>
    <sender>buttonGroupViewType</sender>
    <signal>buttonClicked(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>ButtonClickedViewType(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>521</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonGroupViewType</sender>
+   <signal>buttonClicked(int)</signal>
    <receiver>widgetGl</receiver>
    <slot>ButtonClickedViewType(int)</slot>
    <hints>
@@ -3304,22 +3320,6 @@
     <hint type="destinationlabel">
      <x>342</x>
      <y>273</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonGroupViewType</sender>
-   <signal>buttonClicked(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ButtonClickedViewType(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>521</x>
-     <y>297</y>
     </hint>
    </hints>
   </connection>

@@ -133,10 +133,10 @@ void ImageBasedAverage<PropertySetter>::addStep (
 	  "step", time, minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     currentIsPreviousPlusStep (viewNumber);
-    // save (viewNumber, 
-    // 	   make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
-    // 	   "current", time, 
-    // 	   minMax.first, minMax.second, StatisticsType::AVERAGE);
+    save (viewNumber, 
+	  make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
+	  "current", time, 
+	  minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     copyCurrentToPrevious ();
     // save (viewNumber, 

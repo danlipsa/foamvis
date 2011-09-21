@@ -86,24 +86,6 @@ ViewSettings::~ViewSettings ()
     glDeleteLists (m_listCenterPaths, 1);
 }
 
-void ViewSettings::Init (ViewNumber::Enum viewNumber)
-{
-    switch (GetViewType ())
-    {
-    case ViewType::FACES_STATISTICS:
-	AverageInit (viewNumber);
-	AverageStep (viewNumber, 1);
-	break;
-    
-    case ViewType::T1S_PDE:
-	GetT1sPDE ().AverageInit (viewNumber);
-	break;
-    default:
-	break;
-    }
-}
-
-
 void ViewSettings::initTexture ()
 {
     glGenTextures (1, &m_colorBarTexture);
@@ -245,10 +227,13 @@ void ViewSettings::SetColorBarModel (
     const boost::shared_ptr<ColorBarModel>& colorBarModel)
 {
     m_colorBarModel = colorBarModel;
-    const QImage image = colorBarModel->GetImage ();
-    glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
-    glTexImage1D (GL_TEXTURE_1D, 0, GL_RGB, image.width (),
-		  0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
+    if (colorBarModel)
+    {
+	const QImage image = colorBarModel->GetImage ();
+	glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
+	glTexImage1D (GL_TEXTURE_1D, 0, GL_RGB, image.width (),
+		      0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
+    }
 }
 
 void ViewSettings::SetBodySelector (
@@ -407,40 +392,96 @@ void ViewSettings::CopySelection (const ViewSettings& other)
 
 void ViewSettings::AverageInit (ViewNumber::Enum viewNumber)
 {
-    GetScalarAverage ().AverageInit (viewNumber);
-    GetTensorAverage ().AverageInit (viewNumber);
-    GetForceAverage ().AverageInit (viewNumber);
+    switch (GetViewType ())
+    {
+    case ViewType::FACES_STATISTICS:
+	GetScalarAverage ().AverageInit (viewNumber);
+	GetTensorAverage ().AverageInit (viewNumber);
+	GetForceAverage ().AverageInit (viewNumber);
+	break;
+	
+    case ViewType::T1S_PDE:
+	GetT1sPDE ().AverageInit (viewNumber);
+	break;
+    default:
+	break;
+    }
 }
 
 void ViewSettings::AverageSetTimeWindow (size_t timeSteps)
 {
-    GetScalarAverage ().AverageSetTimeWindow (timeSteps);
-    GetTensorAverage ().AverageSetTimeWindow (timeSteps);
-    GetForceAverage ().AverageSetTimeWindow (timeSteps);
+    switch (GetViewType ())
+    {
+    case ViewType::FACES_STATISTICS:
+	GetScalarAverage ().AverageSetTimeWindow (timeSteps);
+	GetTensorAverage ().AverageSetTimeWindow (timeSteps);
+	GetForceAverage ().AverageSetTimeWindow (timeSteps);
+	break;
+	
+    case ViewType::T1S_PDE:
+	GetT1sPDE ().AverageSetTimeWindow (timeSteps);
+	break;
+    default:
+	break;
+    }
 }
 
 void ViewSettings::AverageStep (ViewNumber::Enum viewNumber, int timeStep)
 {
-    GetScalarAverage ().AverageStep (viewNumber, timeStep);
-    GetTensorAverage ().AverageStep (viewNumber, timeStep);
-    GetForceAverage ().AverageStep (viewNumber, timeStep);
+    switch (GetViewType ())
+    {
+    case ViewType::FACES_STATISTICS:
+	GetScalarAverage ().AverageStep (viewNumber, timeStep);
+	GetTensorAverage ().AverageStep (viewNumber, timeStep);
+	GetForceAverage ().AverageStep (viewNumber, timeStep);
+	break;
+	
+    case ViewType::T1S_PDE:
+	GetT1sPDE ().AverageStep (viewNumber, timeStep);
+	break;
+    default:
+	break;
+    }
 }
 
 void ViewSettings::AverageRotateAndDisplay (
     ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
-    GetScalarAverage ().AverageRotateAndDisplay (
-	viewNumber, displayType, rotationCenter, angleDegrees);
-    if (IsDeformationTensorShown ())
-	GetTensorAverage ().AverageRotateAndDisplay (
+    switch (GetViewType ())
+    {
+    case ViewType::FACES_STATISTICS:
+	GetScalarAverage ().AverageRotateAndDisplay (
 	    viewNumber, displayType, rotationCenter, angleDegrees);
+	if (IsDeformationTensorShown ())
+	    GetTensorAverage ().AverageRotateAndDisplay (
+		viewNumber, displayType, rotationCenter, angleDegrees);
+	break;
+	
+    case ViewType::T1S_PDE:
+	GetT1sPDE ().AverageRotateAndDisplay (
+	    viewNumber, displayType, rotationCenter, angleDegrees);
+	break;
+    default:
+	break;
+    }
 }
 
 void ViewSettings::AverageRelease ()
 {
-    GetScalarAverage ().AverageRelease ();
-    GetTensorAverage ().AverageRelease ();
+    switch (GetViewType ())
+    {
+    case ViewType::FACES_STATISTICS:
+	GetScalarAverage ().AverageRelease ();
+	GetTensorAverage ().AverageRelease ();
+	break;
+	
+    case ViewType::T1S_PDE:
+	GetT1sPDE ().AverageRelease ();
+	break;
+    default:
+	break;
+    }
 }
 
 G3D::Matrix3 ViewSettings::GetRotationForAxesOrder (const Foam& foam) const

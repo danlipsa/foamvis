@@ -45,7 +45,6 @@ public:
     ViewSettings (const GLWidget& glWidget);
     ~ViewSettings ();
 
-    void Init (ViewNumber::Enum viewNumber);
     ViewType::Enum GetViewType () const
     {
 	return m_viewType;

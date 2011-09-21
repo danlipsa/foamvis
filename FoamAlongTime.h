@@ -175,6 +175,7 @@ public:
 	return m_t1sTimeStepShift;
     }
     const vector<G3D::Vector3>& GetT1s (size_t timeStep) const;
+    size_t GetT1sSize () const;
     size_t GetT1sTimeSteps () const;
 
     bool OriginalUsed () const
