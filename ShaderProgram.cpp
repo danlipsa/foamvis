@@ -21,7 +21,8 @@ ShaderProgram::ShaderProgram (const char* vert, const char* frag)
     }
     m_fshader = CreateShader (frag, QGLShader::Fragment);
     addShader(m_fshader.get ());
-    link();
+    bool linked = link();
+    RuntimeAssert (linked, "Shader not linked");
 }
 
 void ShaderProgram::Bind ()

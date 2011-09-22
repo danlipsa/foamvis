@@ -17,6 +17,8 @@
     <file>TensorRemove.frag</file>
     <file>TensorStore.frag</file>
     <file>TensorStore.vert</file>
+
+    <file>T1sPDEInit.frag</file>
   </qresource>
  </RCC>
 

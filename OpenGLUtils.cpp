@@ -159,10 +159,10 @@ G3D::Vector3 gluUnProject (
     else
 	zScreenCoord = 0;
     double x = 0, y = 0, z = 0;
-    gluUnProject (screenCoord.x, screenCoord.y, zScreenCoord, 
-		  model, proj, view, 
-		  &x, &y, &z);
-    WarnOnOpenGLError ("gluUnproject");
+    GLint ret = gluUnProject (screenCoord.x, screenCoord.y, zScreenCoord, 
+			      model, proj, view, 
+			      &x, &y, &z);
+    RuntimeAssert (ret == GLU_TRUE, "gluUnproject");
     return G3D::Vector3 (x, y, z);
 }
 

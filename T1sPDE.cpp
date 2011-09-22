@@ -33,8 +33,11 @@ protected:
 GaussianInitShaderProgram::GaussianInitShaderProgram (const char* frag) :
     ShaderProgram (0, frag)
 {
-    m_sigmaLocation = uniformLocation("m_sigma");
-    m_intervalMarginLocation = uniformLocation("u_intervalMargin");
+    m_intervalMarginLocation = uniformLocation("m_intervalMargin");
+    RuntimeAssert (m_intervalMarginLocation != -1, "Invalid location: m_intervalMargin");
+
+    m_sigmaLocation = uniformLocation("u_sigma");
+    RuntimeAssert (m_sigmaLocation != -1, "Invalid location: u_sigma");
 }
 
 void GaussianInitShaderProgram::Bind (float sigma,
@@ -88,7 +91,7 @@ boost::shared_ptr<GaussianStoreShaderProgram
 void T1sPDE::InitShaders ()
 {
     m_initShaderProgram.reset (
-	new ShaderProgram (0, RESOURCE("ScalarInit.frag")));
+	new ShaderProgram (0, RESOURCE("T1sPDEInit.frag")));
     m_storeShaderProgram.reset (
 	new StoreShaderProgram (
 	    RESOURCE("ScalarStore.vert"), RESOURCE("ScalarStore.frag")));
@@ -114,8 +117,10 @@ T1sPDE::T1sPDE (const GLWidget& glWidget) :
 
 void T1sPDE::AverageInit (ViewNumber::Enum viewNumber)
 {
+    WarnOnOpenGLError ("a - T1sPDE::AverageInit");
     ScalarAverage::AverageInit (viewNumber);
     initKernel ();
+    WarnOnOpenGLError ("b - T1sPDE::AverageInit");
 }
 
 
@@ -139,8 +144,16 @@ void T1sPDE::initKernel ()
     m_kernel->release ();
 }
 
+void T1sPDE::SetKernelTextureSize (size_t kernelTextureSize)
+{
+    m_kernelTextureSize = kernelTextureSize;
+    initKernel ();
+}
+
+
 void T1sPDE::writeStepValues (ViewNumber::Enum viewNumber, size_t timeStep)
 {
+    WarnOnOpenGLError ("a - T1sPDE::writeStepValues");
     m_gaussianStoreShaderProgram->Bind ();
     // activate texture unit 1
     glActiveTexture (
@@ -150,4 +163,5 @@ void T1sPDE::writeStepValues (ViewNumber::Enum viewNumber, size_t timeStep)
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
     m_gaussianStoreShaderProgram->release ();
+    WarnOnOpenGLError ("b - T1sPDE::writeStepValues");
 }

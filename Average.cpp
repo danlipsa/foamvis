@@ -9,6 +9,7 @@
 
 #include "Average.h"
 #include "GLWidget.h"
+#include "OpenGLUtils.h"
 
 void Average::AverageInit (ViewNumber::Enum viewNumber)
 {
@@ -24,8 +25,7 @@ void Average::AverageStep (ViewNumber::Enum viewNumber, int timeStep)
 {
     if (abs (timeStep) > 1)
     {
-	AverageInit (viewNumber);
-	AverageStep (viewNumber, 1);
+	AverageInitStep (viewNumber);
 	return;
     }
     Operation first, second;
@@ -48,4 +48,5 @@ void Average::AverageStep (ViewNumber::Enum viewNumber, int timeStep)
     }
     else
 	m_currentTimeWindow += timeStep;
+    WarnOnOpenGLError ("AverageStep");
 }

@@ -52,11 +52,7 @@ public:
     {
 	return m_kernelTextureSize;
     }
-    void SetKernelTextureSize (size_t kernelTextureSize)
-    {
-	m_kernelTextureSize = kernelTextureSize;
-	initKernel ();
-    }
+    void SetKernelTextureSize (size_t kernelTextureSize);
 
 public:
     static const pair<size_t, size_t> KERNEL_TEXTURE_SIZE;

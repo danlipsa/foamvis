@@ -129,14 +129,14 @@ void ImageBasedAverage<PropertySetter>::addStep (
 	GetGLWidget ().GetMinMax (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, time);
-    save (viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
-	  "step", time, minMax.first, minMax.second, StatisticsType::AVERAGE);
+    //save (viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
+    //"step", time, minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     currentIsPreviousPlusStep (viewNumber);
-    save (viewNumber, 
-	  make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
-	  "current", time, 
-	  minMax.first, minMax.second, StatisticsType::AVERAGE);
+    //save (viewNumber, 
+    //make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
+    //"current", time, 
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     copyCurrentToPrevious ();
     // save (viewNumber, 

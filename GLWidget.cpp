@@ -506,7 +506,6 @@ float GLWidget::GetOnePixelInObjectSpace () const
     G3D::Vector3 first = toObject (QPoint (0, 0));
     G3D::Vector3 second = toObject (QPoint (1, 0));
     float onePixelInObjectSpace = (second - first).length ();
-    WarnOnOpenGLError ("GetOnePixelInObjectSpace");
     return onePixelInObjectSpace;
 }
 
@@ -3459,28 +3458,34 @@ void GLWidget::ValueChangedT1Size (int index)
 
 void GLWidget::ValueChangedT1sKernelIntervalMargin (int index)
 {
-    ViewSettings& vs = GetViewSettings ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
     T1sPDE& t1sPDE = vs.GetT1sPDE ();
     t1sPDE.SetKernelIntervalMargin (
 	getValueFromIndex (T1sPDE::KERNEL_INTERVAL_MARGIN, index));
+    t1sPDE.AverageInitStep (viewNumber);
     update ();
 }
 
 void GLWidget::ValueChangedT1sKernelSigma (int index)
 {
-    ViewSettings& vs = GetViewSettings ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
     T1sPDE& t1sPDE = vs.GetT1sPDE ();
     t1sPDE.SetKernelSigma (
 	getValueFromIndex (T1sPDE::KERNEL_SIGMA, index));
+    t1sPDE.AverageInitStep (viewNumber);
     update ();
 }
 
 void GLWidget::ValueChangedT1sKernelTextureSize (int index)
 {
-    ViewSettings& vs = GetViewSettings ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
     T1sPDE& t1sPDE = vs.GetT1sPDE ();
     t1sPDE.SetKernelTextureSize (
 	getValueFromIndex (T1sPDE::KERNEL_TEXTURE_SIZE, index));
+    t1sPDE.AverageInitStep (viewNumber);
     update ();
 }
 
