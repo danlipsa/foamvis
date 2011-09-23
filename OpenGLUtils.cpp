@@ -328,6 +328,15 @@ void ClearColorBuffer (Qt::GlobalColor clearColor)
     glPopAttrib ();
 }
 
+void ClearStencilBuffer (GLint clearStencil)
+{
+    glPushAttrib (GL_STENCIL_BUFFER_BIT); 
+    glClearStencil (clearStencil);
+    glClear(GL_STENCIL_BUFFER_BIT);
+    glPopAttrib ();
+}
+
+
 void ClearColorStencilBuffers (
     Qt::GlobalColor clearColor, GLint clearStencil)
 {

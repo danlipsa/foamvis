@@ -95,13 +95,11 @@ void ImageBasedAverage<PropertySetter>::clear (ViewNumber::Enum viewNumber)
 // 	  "step", FAKE_TIMESTEP, 
 // 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
 
-    m_fbos.m_current->bind ();
-    ClearColorBuffer (Qt::transparent);
-    m_fbos.m_current->release ();
-//     save (viewNumber, 
-// 	  make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
-// 	  "current", FAKE_TIMESTEP, 
-// 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
+    initFramebuffer (viewNumber, m_fbos.m_current);
+    //save (viewNumber, 
+    //make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
+    //"current", FAKE_TIMESTEP, 0,
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
     
     initFramebuffer (viewNumber, m_fbos.m_previous);
     // save (viewNumber, 
@@ -123,25 +121,28 @@ void ImageBasedAverage<PropertySetter>::AverageRelease ()
 
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::addStep (
-    ViewNumber::Enum viewNumber, size_t time)
+    ViewNumber::Enum viewNumber, size_t timeStep, size_t subStep)
 {
     pair<double, double> minMax = 
 	GetGLWidget ().GetMinMax (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
-    renderToStep (viewNumber, time);
-    //save (viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
-    //"step", time, minMax.first, minMax.second, StatisticsType::AVERAGE);
+    renderToStep (viewNumber, timeStep, subStep);
+    save (
+	viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
+	"step", timeStep, subStep, 
+	minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     currentIsPreviousPlusStep (viewNumber);
     //save (viewNumber, 
     //make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
-    //"current", time, 
+    //"current", timeStep, subStep,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
+    //cdbg << "addStep: " << timeStep << "-" << subStep << endl;
 
     copyCurrentToPrevious ();
     // save (viewNumber, 
     // 	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
-    // 	  "previous", time + 1,
+    // 	  "previous", timeStep + 1,
     // 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
     glPopAttrib ();
     WarnOnOpenGLError ("ImageBasedAverage::addStep:" + m_id);
@@ -149,25 +150,27 @@ void ImageBasedAverage<PropertySetter>::addStep (
 
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::removeStep (
-    ViewNumber::Enum viewNumber, size_t time)
+    ViewNumber::Enum viewNumber, size_t timeStep, size_t subStep)
 {
     pair<double, double> minMax = 
 	GetGLWidget ().GetMinMax (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
-    renderToStep (viewNumber, time);
+    renderToStep (viewNumber, timeStep, subStep);
     //save (viewNumber, 
     //TensorScalarFbo (*m_step, *m_scalarAverage.m_step), 
-    // "step", time, minMax.first, minMax.second, StatisticsType::AVERAGE);
+    // "step", timeStep, minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     currentIsPreviousMinusStep (viewNumber);
     //save (viewNumber, 
-    //TensorScalarFbo (*m_current, *m_scalarAverage.m_current), 
-    // "current", time, minMax.first, minMax.second, StatisticsType::AVERAGE);
+    //make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
+    //"current", timeStep, subStep,
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
+    //cdbg << "removeStep: " << timeStep << "-" << subStep << endl;
 
     copyCurrentToPrevious ();
     //save (viewNumber, 
     //TensorScalarFbo (*m_previous, *m_scalarAverage.m_previous), 
-    //"previous", time + 1,
+    //"previous", timeStep + 1,
     //minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     glPopAttrib ();
@@ -176,24 +179,25 @@ void ImageBasedAverage<PropertySetter>::removeStep (
 
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::renderToStep (
-    ViewNumber::Enum viewNumber, size_t time)
+    ViewNumber::Enum viewNumber, size_t timeStep, size_t subStep)
 {
     const GLWidget& glWidget = GetGLWidget ();
     G3D::Rect2D destRect = 
 	EncloseRotation (glWidget.GetViewportRect (viewNumber));
     glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
-    glWidget.ModelViewTransform (viewNumber, time);
+    glWidget.ModelViewTransform (viewNumber, timeStep);
     glMatrixMode (GL_PROJECTION);
     glPushMatrix ();
     glWidget.ProjectionTransform (
 	viewNumber, ViewingVolumeOperation::ENCLOSE2D);
     glViewport (0, 0, destRect.width (), destRect.height ());    
-    initFramebuffer (viewNumber, m_fbos.m_step);
+
     m_fbos.m_step->bind ();
     ClearColorStencilBuffers (Qt::transparent, 0);
-    writeStepValues (viewNumber, time);
+    writeStepValues (viewNumber, timeStep, subStep);
     m_fbos.m_step->release ();
+
     glMatrixMode (GL_PROJECTION);
     glPopMatrix ();
     glMatrixMode (GL_MODELVIEW);
@@ -278,8 +282,8 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
     G3D::Vector2 rotationCenter, 
     float angleDegrees) const
 {
-    if (! m_fbos.m_current)
-	return;
+//    if (! m_fbos.m_current)
+//	return;
     pair<double, double> minMax = 
 	GetGLWidget ().GetMinMax (viewNumber);
     rotateAndDisplay (
@@ -291,7 +295,7 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::save (
     ViewNumber::Enum viewNumber,
-    TensorScalarFbo fbo, const char* postfix, size_t timeStep,
+    TensorScalarFbo fbo, const char* postfix, size_t timeStep, size_t subStep,
     GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
 {
     // render to the debug buffer
@@ -303,15 +307,17 @@ void ImageBasedAverage<PropertySetter>::save (
     m_fbos.m_debug->release ();
     ostringstream ostr;
     ostr << "images/" 
-	 << m_id << setfill ('0') << setw (4) << timeStep << postfix << ".png";
+	 << m_id << setfill ('0') << setw (4) << timeStep << "-" 
+	 << setw (2) << subStep << postfix << ".png";
     m_fbos.m_debug->toImage ().save (ostr.str ().c_str ());
     WarnOnOpenGLError ("ImageBasedAverage::save");
 }
 
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::writeStepValues (
-    ViewNumber::Enum viewNumber, size_t timeStep)
+    ViewNumber::Enum viewNumber, size_t timeStep, size_t subStep)
 {
+    (void)subStep;
     const Foam& foam = GetGLWidget ().GetFoamAlongTime ().GetFoam (timeStep);
     const Foam::Bodies& bodies = foam.GetBodies ();
     m_storeShaderProgram->Bind ();
@@ -340,10 +346,10 @@ void ImageBasedAverage<PropertySetter>::glActiveTexture (GLenum texture) const
     const_cast<GLWidget&>(GetGLWidget ()).glActiveTexture (texture);
 }
 
-
 // Template instantiations
 //======================================================================
 /// @cond
 template class ImageBasedAverage<SetterVertexAttribute>;
 template class ImageBasedAverage<SetterDeformationTensor>;
+template class ImageBasedAverage<SetterNop>;
 /// @endcond

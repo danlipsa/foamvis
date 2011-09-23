@@ -33,8 +33,10 @@ public:
     virtual void AverageInit (ViewNumber::Enum viewNumber);
 
 protected:
-    virtual void addStep (ViewNumber::Enum viewNumber, size_t timeStep);
-    virtual void removeStep (ViewNumber::Enum viewNumber, size_t timeStep);
+    virtual void addStep (ViewNumber::Enum viewNumber, size_t timeStep, 
+			  size_t subStep);
+    virtual void removeStep (ViewNumber::Enum viewNumber, size_t timeStep, 
+			     size_t subStep);
 
 private:
     void display (

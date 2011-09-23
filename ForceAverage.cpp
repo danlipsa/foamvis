@@ -31,12 +31,13 @@ void ForceAverage::AverageInit (ViewNumber::Enum viewNumber)
     }
 }
 
-void ForceAverage::addStep (ViewNumber::Enum viewNumber, size_t timeStep)
+void ForceAverage::addStep (ViewNumber::Enum viewNumber, size_t timeStep, 
+			    size_t subStep)
 {
-    (void)viewNumber;
+    (void)viewNumber;(void)subStep;
     const vector<Force>& forces = 
 	GetGLWidget ().GetFoamAlongTime ().GetFoam (timeStep).GetForces ();
-    bool forward = (timeStep == GetGLWidget ().GetTime ());
+    bool forward = (timeStep == GetGLWidget ().GetCurrentTime ());
     for (size_t i = 0; i < forces.size (); ++i)
     {
 	if (forward)
@@ -46,12 +47,13 @@ void ForceAverage::addStep (ViewNumber::Enum viewNumber, size_t timeStep)
     }
 }
 
-void ForceAverage::removeStep (ViewNumber::Enum viewNumber, size_t timeStep)
+void ForceAverage::removeStep (ViewNumber::Enum viewNumber, size_t timeStep, 
+			       size_t subStep)
 {
-    (void)viewNumber;
+    (void)viewNumber;(void)subStep;
     const vector<Force>& forces = 
 	GetGLWidget ().GetFoamAlongTime ().GetFoam (timeStep).GetForces ();
-    bool backward = ((timeStep - 1) == GetGLWidget ().GetTime ());
+    bool backward = ((timeStep - 1) == GetGLWidget ().GetCurrentTime ());
     for (size_t i = 0; i < forces.size (); ++i)
     {
 	if (backward)
@@ -104,7 +106,7 @@ void ForceAverage::display (
 	{
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
-	    glWidget.RotateAndTranslateAverageAround (glWidget.GetTime (), -1);
+	    glWidget.RotateAndTranslateAverageAround (glWidget.GetCurrentTime (), -1);
 	}
 	glDisable (GL_DEPTH_TEST);
 	glLineWidth (GetGLWidget ().GetHighlightLineWidth ());

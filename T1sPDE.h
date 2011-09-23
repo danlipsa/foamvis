@@ -23,7 +23,7 @@ class GaussianStoreShaderProgram;
  * one step. step = (0, 0, maxFloat, -maxFloat) if there is no 
  * value for that pixel.
  */
-class T1sPDE : public ScalarAverage
+class T1sPDE : public ScalarAverageTemplate<SetterNop>
 {
 public:
     static void InitShaders ();
@@ -60,7 +60,9 @@ public:
     static const pair<float, float> KERNEL_INTERVAL_MARGIN;
 
 protected:
-    virtual void writeStepValues (ViewNumber::Enum view, size_t timeStep);
+    virtual void writeStepValues (ViewNumber::Enum view, size_t timeStep, 
+				  size_t subStep);
+    virtual size_t getStepSize (size_t timeStep) const;
 
 private:
     void initKernel ();

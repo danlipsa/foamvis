@@ -9,6 +9,7 @@
 #include "AverageShaders.h"
 #include "Debug.h"
 #include "DebugStream.h"
+#include "FoamAlongTime.h"
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
 #include "ScalarDisplay.h"
@@ -92,9 +93,6 @@ void T1sPDE::InitShaders ()
 {
     m_initShaderProgram.reset (
 	new ShaderProgram (0, RESOURCE("T1sPDEInit.frag")));
-    m_storeShaderProgram.reset (
-	new StoreShaderProgram (
-	    RESOURCE("ScalarStore.vert"), RESOURCE("ScalarStore.frag")));
     m_addShaderProgram.reset (
 	new AddShaderProgram (RESOURCE("ScalarAdd.frag")));
     m_removeShaderProgram.reset (
@@ -108,7 +106,7 @@ void T1sPDE::InitShaders ()
 }
 
 T1sPDE::T1sPDE (const GLWidget& glWidget) :
-    ScalarAverage (glWidget, "t1sPDE"),
+    ScalarAverageTemplate<SetterNop> (glWidget, "t1sPDE"),
     m_kernelIntervalMargin (KERNEL_INTERVAL_MARGIN.first),
     m_kernelSigma (KERNEL_SIGMA.first),
     m_kernelTextureSize (KERNEL_TEXTURE_SIZE.first)
@@ -118,7 +116,7 @@ T1sPDE::T1sPDE (const GLWidget& glWidget) :
 void T1sPDE::AverageInit (ViewNumber::Enum viewNumber)
 {
     WarnOnOpenGLError ("a - T1sPDE::AverageInit");
-    ScalarAverage::AverageInit (viewNumber);
+    ScalarAverageTemplate<SetterNop>::AverageInit (viewNumber);
     initKernel ();
     WarnOnOpenGLError ("b - T1sPDE::AverageInit");
 }
@@ -151,7 +149,8 @@ void T1sPDE::SetKernelTextureSize (size_t kernelTextureSize)
 }
 
 
-void T1sPDE::writeStepValues (ViewNumber::Enum viewNumber, size_t timeStep)
+void T1sPDE::writeStepValues (ViewNumber::Enum viewNumber, size_t timeStep, 
+			      size_t subStep)
 {
     WarnOnOpenGLError ("a - T1sPDE::writeStepValues");
     m_gaussianStoreShaderProgram->Bind ();
@@ -159,9 +158,14 @@ void T1sPDE::writeStepValues (ViewNumber::Enum viewNumber, size_t timeStep)
     glActiveTexture (
 	TextureEnum (m_gaussianStoreShaderProgram->GetGaussianTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, m_kernel->texture ());
-    GetGLWidget ().DisplayT1sQuad (viewNumber, timeStep);
+    GetGLWidget ().DisplayT1Quad (viewNumber, timeStep, subStep);
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
     m_gaussianStoreShaderProgram->release ();
     WarnOnOpenGLError ("b - T1sPDE::writeStepValues");
+}
+
+size_t T1sPDE::getStepSize (size_t timeStep) const
+{
+    return GetGLWidget ().GetFoamAlongTime ().GetT1s (timeStep).size ();
 }

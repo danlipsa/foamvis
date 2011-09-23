@@ -9,8 +9,9 @@
 #ifndef __AVERAGE_INTERFACE_H__
 #define __AVERAGE_INTERFACE_H__
 
-struct AverageInterface
+class AverageInterface
 {
+public:
     virtual void AverageInit (ViewNumber::Enum viewNumber) = 0;
     void AverageInitStep (ViewNumber::Enum viewNumber)
     {
@@ -18,7 +19,8 @@ struct AverageInterface
 	AverageStep (viewNumber, 1);
     }
     virtual void AverageSetTimeWindow (size_t timeSteps) = 0;
-    virtual void AverageStep (ViewNumber::Enum viewNumber, int timeStep) = 0;
+    virtual void AverageStep (ViewNumber::Enum viewNumber, 
+			      int timeDifference) = 0;
     virtual void AverageRotateAndDisplay (
 	ViewNumber::Enum viewNumber, 
 	StatisticsType::Enum displayType = StatisticsType::AVERAGE,

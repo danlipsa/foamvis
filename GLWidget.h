@@ -103,9 +103,9 @@ public:
     /**
      * Gets the index of the currently displayed data.
      */
-    size_t GetTime () const
+    size_t GetCurrentTime () const
     {
-	return m_timeStep;
+	return m_currentTime;
     }
     bool IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const;
 
@@ -223,7 +223,8 @@ public:
 	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     G3D::Rect2D CalculateViewEnclosingRect (ViewNumber::Enum viewNumber) const;
     void RotateAndTranslateAverageAround (size_t timeStep, int direction) const;
-    void DisplayT1sQuad (ViewNumber::Enum view, size_t timeStep) const;
+    void DisplayT1Quad (ViewNumber::Enum view, 
+			size_t timeStep, size_t t1Index) const;
     pair<float, float> GetMinMax (ViewNumber::Enum viewNumber) const;
     pair<float, float> GetMinMaxCount () const;
     pair<float, float> GetMinMaxT1sPDE (ViewNumber::Enum viewNumber) const;
@@ -653,7 +654,7 @@ private:
     /**
      * Index into m_foam that shows the current DMP file displayed
      */
-    size_t m_timeStep;
+    size_t m_currentTime;
     /**
      * Used for rotation, translation and scale
      */

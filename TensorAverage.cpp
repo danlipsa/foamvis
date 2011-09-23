@@ -144,12 +144,12 @@ void TensorAverage::rotateAndDisplay (
 	ellipseSizeRatio, enclosingRect, rotationCenter,
 	m_deformationGridShown, m_deformationGridCellCenterShown);
 
-    // activate texture unit 1
+    // activate texture unit 1 - tensor average
     glActiveTexture (
 	TextureEnum (m_displayShaderProgram->GetTensorAverageTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, srcFbo.first->texture ());
 
-    // activate texture unit 2
+    // activate texture unit 2 - scalar average
     glActiveTexture (
 	TextureEnum (m_displayShaderProgram->GetScalarAverageTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, srcFbo.second->texture ());

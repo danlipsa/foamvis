@@ -392,38 +392,18 @@ void ViewSettings::CopySelection (const ViewSettings& other)
 
 void ViewSettings::AverageInit (ViewNumber::Enum viewNumber)
 {
-    switch (GetViewType ())
-    {
-    case ViewType::FACES_STATISTICS:
-	GetScalarAverage ().AverageInit (viewNumber);
-	GetTensorAverage ().AverageInit (viewNumber);
-	GetForceAverage ().AverageInit (viewNumber);
-	break;
-	
-    case ViewType::T1S_PDE:
-	GetT1sPDE ().AverageInit (viewNumber);
-	break;
-    default:
-	break;
-    }
+    GetScalarAverage ().AverageInit (viewNumber);
+    GetTensorAverage ().AverageInit (viewNumber);
+    GetForceAverage ().AverageInit (viewNumber);
+    GetT1sPDE ().AverageInit (viewNumber);
 }
 
 void ViewSettings::AverageSetTimeWindow (size_t timeSteps)
 {
-    switch (GetViewType ())
-    {
-    case ViewType::FACES_STATISTICS:
-	GetScalarAverage ().AverageSetTimeWindow (timeSteps);
-	GetTensorAverage ().AverageSetTimeWindow (timeSteps);
-	GetForceAverage ().AverageSetTimeWindow (timeSteps);
-	break;
-	
-    case ViewType::T1S_PDE:
-	GetT1sPDE ().AverageSetTimeWindow (timeSteps);
-	break;
-    default:
-	break;
-    }
+    GetScalarAverage ().AverageSetTimeWindow (timeSteps);
+    GetTensorAverage ().AverageSetTimeWindow (timeSteps);
+    GetForceAverage ().AverageSetTimeWindow (timeSteps);
+    GetT1sPDE ().AverageSetTimeWindow (timeSteps);
 }
 
 void ViewSettings::AverageStep (ViewNumber::Enum viewNumber, int timeStep)
@@ -469,19 +449,9 @@ void ViewSettings::AverageRotateAndDisplay (
 
 void ViewSettings::AverageRelease ()
 {
-    switch (GetViewType ())
-    {
-    case ViewType::FACES_STATISTICS:
-	GetScalarAverage ().AverageRelease ();
-	GetTensorAverage ().AverageRelease ();
-	break;
-	
-    case ViewType::T1S_PDE:
-	GetT1sPDE ().AverageRelease ();
-	break;
-    default:
-	break;
-    }
+    GetScalarAverage ().AverageRelease ();
+    GetTensorAverage ().AverageRelease ();
+    GetT1sPDE ().AverageRelease ();
 }
 
 G3D::Matrix3 ViewSettings::GetRotationForAxesOrder (const Foam& foam) const

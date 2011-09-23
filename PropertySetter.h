@@ -67,6 +67,27 @@ public:
     void operator () (const boost::shared_ptr<Body>& body);
 };
 
+class SetterNop : public SetterVertexAttribute
+{
+public:
+    SetterNop (
+	const GLWidget& glWidget,  ViewNumber::Enum view,
+	QGLShaderProgram* program = 0, int attributeIndex = 0) :
+	SetterVertexAttribute (glWidget, view, program, attributeIndex)
+    {
+    }
+
+    inline void operator () ()
+    {
+    }
+    
+    inline void operator () (const boost::shared_ptr<Body>& body)
+    {
+	(void)body;
+    }
+};
+
+
 
 
 #endif //__PROPERTY_SETTER_H__

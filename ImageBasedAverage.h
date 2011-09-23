@@ -85,8 +85,10 @@ protected:
     typedef pair<boost::shared_ptr<QGLFramebufferObject>, 
 		 boost::shared_ptr<QGLFramebufferObject> > 
 	TensorScalarFbo;
-    virtual void addStep (ViewNumber::Enum viewNumber, size_t timeStep);
-    virtual void removeStep (ViewNumber::Enum viewNumber, size_t timeStep);
+    virtual void addStep (ViewNumber::Enum viewNumber, size_t timeStep, 
+			  size_t subStep);
+    virtual void removeStep (ViewNumber::Enum viewNumber, size_t timeStep, 
+			     size_t subStep);
     virtual void rotateAndDisplay (
 	ViewNumber::Enum viewNumber,
 	GLfloat minValue, GLfloat maxValue,
@@ -94,7 +96,8 @@ protected:
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const = 0;
-    virtual void writeStepValues (ViewNumber::Enum view, size_t timeStep);
+    virtual void writeStepValues (ViewNumber::Enum view, size_t timeStep, 
+				  size_t subStep);
 
     void glActiveTexture (GLenum texture) const;
 
@@ -111,9 +114,10 @@ private:
     void clear (ViewNumber::Enum viewNumber);
 
     void save (ViewNumber::Enum viewNumber, TensorScalarFbo fbo, 
-	       const char* fileName, size_t timeStep, GLfloat minValue, 
+	       const char* fileName, size_t timeStep, size_t subStep,
+	       GLfloat minValue, 
 	       GLfloat maxValue, StatisticsType::Enum displayType);
-    void renderToStep (ViewNumber::Enum view, size_t timeStep);
+    void renderToStep (ViewNumber::Enum view, size_t timeStep, size_t subStep);
     void currentIsPreviousPlusStep (ViewNumber::Enum viewNumber);
     void currentIsPreviousMinusStep (ViewNumber::Enum viewNumber);
     void copyCurrentToPrevious ();

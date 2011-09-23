@@ -112,6 +112,7 @@ void DisplayBox (
 }
 
 void ClearColorBuffer (Qt::GlobalColor clearColor);
+void ClearStencilBuffer (GLint clearStencil);
 void ClearColorStencilBuffers (
     Qt::GlobalColor clearColor, GLint clearStencil);
 

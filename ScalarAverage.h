@@ -22,13 +22,15 @@ class ScalarDisplay;
  * one step. step = (0, 0, maxFloat, -maxFloat) if there is no 
  * value for that pixel.
  */
-class ScalarAverage : public ImageBasedAverage<SetterVertexAttribute>
+template<typename PropertySetter>
+class ScalarAverageTemplate : public ImageBasedAverage<PropertySetter>
 {
 public:
     static void InitShaders ();
 
-    ScalarAverage (const GLWidget& glWidget, string id = "scalar") :
-	ImageBasedAverage<SetterVertexAttribute> (glWidget, id, m_fbos)
+    ScalarAverageTemplate (const GLWidget& glWidget, string id) :
+	ImageBasedAverage<PropertySetter> (
+	    glWidget, id, this->m_fbos)
     {
     }
 
@@ -36,13 +38,23 @@ protected:
     virtual void rotateAndDisplay (
 	ViewNumber::Enum viewNumber,
 	GLfloat minValue, GLfloat maxValue,
-	StatisticsType::Enum displayType, TensorScalarFbo fbo,
+	StatisticsType::Enum displayType, 
+	typename ImageBasedAverage<PropertySetter>::TensorScalarFbo fbo,
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
 
 protected:
     static boost::shared_ptr<ScalarDisplay> m_displayShaderProgram;
+};
+
+class ScalarAverage : public ScalarAverageTemplate<SetterVertexAttribute>
+{
+public:
+    ScalarAverage (const GLWidget& glWidget) :
+	ScalarAverageTemplate<SetterVertexAttribute> (glWidget, "scalar")
+    {
+    }
 };
 
 #endif //__SCALAR_AVERAGE_H__

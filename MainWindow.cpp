@@ -480,7 +480,7 @@ void MainWindow::SetAndDisplayHistogram (
     }
     else
     {
-	intervalData = foamAlongTime.GetFoam (widgetGl->GetTime ()).
+	intervalData = foamAlongTime.GetFoam (widgetGl->GetCurrentTime ()).
 	    GetHistogram (property).ToQwtIntervalData ();
 	if (maxValueOperation == REPLACE_MAX_VALUE)
 	    maxYValue = foamAlongTime.GetMaxCountPerBinIndividual (property);

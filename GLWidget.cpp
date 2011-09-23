@@ -175,7 +175,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_torusOriginalDomainClipped (false),
       m_interactionMode (InteractionMode::ROTATE),
       m_interactionObject (InteractionObject::FOCUS),
-      m_foamAlongTime (0), m_timeStep (0),
+      m_foamAlongTime (0), m_currentTime (0),
       m_minimumEdgeRadius (0),
       m_edgeRadiusRatio (0),
       m_facesShowEdges (true),
@@ -1208,7 +1208,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     glMatrixMode (GL_PROJECTION);
     ProjectionTransform (viewNumber);
     glMatrixMode (GL_MODELVIEW);
-    ModelViewTransform (viewNumber, GetTime ());
+    ModelViewTransform (viewNumber, GetCurrentTime ());
     m_minimumEdgeRadius = GetOnePixelInObjectSpace ();
     calculateEdgeRadius (m_edgeRadiusRatio,
 			 &m_edgeRadius, &m_arrowBaseRadius,
@@ -1458,7 +1458,7 @@ G3D::Vector3 GLWidget::toObjectTransform (const QPoint& position,
     glMatrixMode (GL_PROJECTION);
     ProjectionTransform (viewNumber);
     glMatrixMode (GL_MODELVIEW);
-    ModelViewTransform (viewNumber, GetTime ());
+    ModelViewTransform (viewNumber, GetCurrentTime ());
     return toObject (position);
 }
 
@@ -1481,7 +1481,7 @@ void GLWidget::displayAverageAround (
 	{
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
-	    RotateAndTranslateAverageAround (GetTime (), -1);
+	    RotateAndTranslateAverageAround (GetCurrentTime (), -1);
 	}
 	glDisable (GL_DEPTH_TEST);
 	Foam::Bodies focusBody (1);
@@ -1542,7 +1542,7 @@ void GLWidget::displayContextStationaryFoam (
 	{
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
-	    RotateAndTranslateAverageAround (GetTime (), -1);
+	    RotateAndTranslateAverageAround (GetCurrentTime (), -1);
 	}
 	DisplayBox (GetFoamAlongTime (), 
 		    GetHighlightColor (viewNumber, HighlightNumber::H1),
@@ -2124,8 +2124,8 @@ void GLWidget::displayT1sDot (
     glPopAttrib ();
 }
 
-void GLWidget::DisplayT1sQuad (
-    ViewNumber::Enum viewNumber, size_t timeStep) const
+void GLWidget::DisplayT1Quad (
+    ViewNumber::Enum viewNumber, size_t timeStep, size_t t1Index) const
 {
     glPushAttrib (GL_ENABLE_BIT | GL_POINT_BIT | 
 		  GL_CURRENT_BIT | GL_POLYGON_BIT);
@@ -2138,15 +2138,12 @@ void GLWidget::DisplayT1sQuad (
     float half = rectSize / 2;
     G3D::Rect2D srcTexRect = G3D::Rect2D::xyxy (0., 0., 1., 1.);
     glBegin (GL_QUADS);
-    BOOST_FOREACH (const G3D::Vector3 t1Pos, 
-		   GetFoamAlongTime ().GetT1s (timeStep))
-    {
-	G3D::Vector2 v = t1Pos.xy ();
-	G3D::Rect2D srcRect = G3D::Rect2D::xyxy (
-	    v + G3D::Vector2 (- half, - half),
-	    v + G3D::Vector2 (  half,   half));
-	sendQuad (srcRect, srcTexRect);
-    }
+    const G3D::Vector3 t1Pos = GetFoamAlongTime ().GetT1s (timeStep)[t1Index];
+    G3D::Vector2 v = t1Pos.xy ();
+    G3D::Rect2D srcRect = G3D::Rect2D::xyxy (
+	v + G3D::Vector2 (- half, - half),
+	v + G3D::Vector2 (  half,   half));
+    sendQuad (srcRect, srcTexRect);
     glEnd ();
     glPopAttrib ();
 }
@@ -2261,7 +2258,7 @@ void GLWidget::displayBodyCenters (
 	    GetBodySelector ();
 	double zPos = (GetViewSettings ().GetViewType () == 
 		       ViewType::CENTER_PATHS) ?
-	    GetTime () * GetTimeDisplacement () : 0;
+	    GetCurrentTime () * GetTimeDisplacement () : 0;
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
 	glDisable (GL_DEPTH_TEST);
 	glPointSize (4.0);
@@ -2279,7 +2276,7 @@ void GLWidget::displayFaceCenters (ViewNumber::Enum viewNumber) const
     if (m_faceCenterShown)
     {
 	FaceSet faces = 
-	    GetFoamAlongTime ().GetFoam (GetTime ()).GetFaceSet ();
+	    GetFoamAlongTime ().GetFoam (GetCurrentTime ()).GetFaceSet ();
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
 	glDisable (GL_DEPTH_TEST);
 	glPointSize (4.0);
@@ -2322,7 +2319,7 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
     displayStandaloneFaces ();    
     displayDeformationTensor2D (viewNumber);
     if (m_t1sShown)
-	displayT1sDot (viewNumber, GetTime ());
+	displayT1sDot (viewNumber, GetCurrentTime ());
     vs.GetForceAverage ().DisplayOneTimeStep (viewNumber);
 }
 
@@ -2359,7 +2356,7 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
     const ObjectPosition& rotationBegin = GetFoamAlongTime ().
 	GetFoam (0).GetAverageAroundPosition ();
     const ObjectPosition& rotationCurrent = GetFoamAlongTime ().
-	GetFoam (GetTime ()).GetAverageAroundPosition ();
+	GetFoam (GetCurrentTime ()).GetAverageAroundPosition ();
     G3D::Vector2 rotationCenter = 
 	(vs.GetAverageAroundType () == ViewSettings::AVERAGE_AROUND) ? 
 	(toEye (rotationCurrent.m_rotationCenter) - 
@@ -2514,7 +2511,7 @@ void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum view) const
     if (IsCenterPathBodyShown ())
     {
 	const Foam::Bodies& bodies = GetCurrentFoam ().GetBodies ();
-	double zPos = GetTime () * GetTimeDisplacement ();
+	double zPos = GetCurrentTime () * GetTimeDisplacement ();
 	for_each (
 	    bodies.begin (), bodies.end (),
 	    DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H0,
@@ -2603,12 +2600,12 @@ void GLWidget::compileCenterPaths (ViewNumber::Enum view) const
 
 const Foam& GLWidget::GetCurrentFoam () const
 {
-    return GetFoamAlongTime ().GetFoam (m_timeStep);
+    return GetFoamAlongTime ().GetFoam (m_currentTime);
 }
 
 Foam& GLWidget::GetCurrentFoam ()
 {
-    return GetFoamAlongTime ().GetFoam (m_timeStep);
+    return GetFoamAlongTime ().GetFoam (m_currentTime);
 }
 
 
@@ -2859,7 +2856,7 @@ void GLWidget::displayViewTimeStep (const G3D::Rect2D& viewRect)
 	return;
     QFont font;
     ostringstream ostr;
-    ostr << GetTime ();
+    ostr << GetCurrentTime ();
     QString text = QString (ostr.str ().c_str ());
     QFontMetrics fm (font);
     const int textX = 
@@ -3420,8 +3417,8 @@ void GLWidget::SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel)
 void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 {
     makeCurrent ();
-    int direction = timeStep - m_timeStep;
-    m_timeStep = timeStep;
+    int direction = timeStep - m_currentTime;
+    m_currentTime = timeStep;
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
