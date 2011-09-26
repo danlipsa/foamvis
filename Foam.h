@@ -13,7 +13,6 @@
 #include "Enums.h"
 #include "Force.h"
 #include "Hashes.h"
-#include "OOBox.h"
 #include "HistogramStatistics.h"
 #include "ObjectPosition.h"
 
@@ -25,6 +24,7 @@ class Edge;
 class Face;
 class FoamProperties;
 class NameSemanticValue;
+class OOBox;
 class ParsingData;
 
 /**
@@ -173,18 +173,10 @@ public:
      */
     void Preprocess ();
 
-    const OOBox& GetOriginalDomain () const 
-    {
-	return m_originalDomain;
-    }
+    const OOBox& GetOriginalDomain () const;
     void SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y,
-		     const G3D::Vector3& z)
-    {
-	m_originalDomain.Set (x, y, z);
-    }
-
+		     const G3D::Vector3& z);
     void SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y);
-
     bool IsTorus () const;
     
     const AttributesInfo& GetAttributesInfo (
@@ -296,7 +288,7 @@ public:
     bool IsQuadratic () const;
     const FoamProperties& GetProperties () const
     {
-	return m_parameters;
+	return m_properties;
     }
     void SetSpaceDimension (size_t spaceDimension);
     void SetQuadratic (bool quadratic);
@@ -378,7 +370,6 @@ private:
      * View matrix for displaying vertices, edges, faces and bodies.
      */
     boost::shared_ptr<G3D::Matrix4> m_viewMatrix;
-    OOBox m_originalDomain;
     /**
      * Vector of maps between the name of an attribute and information about it.
      * The indexes in the vector are for vertices, edges, faces, ...
@@ -404,7 +395,7 @@ private:
      * AdjacentBody, PointIndex for constraint points that need fixing.
      */
     vector< pair<size_t, size_t> > m_constraintPointsToFix;
-    FoamProperties& m_parameters;    
+    FoamProperties& m_properties;    
     ParametersOperation m_parametersOperation;
 };
 

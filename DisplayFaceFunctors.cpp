@@ -114,7 +114,7 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 {
     glNormal (of->GetNormal ());
 
-    if (this->m_glWidget.GetFoamAlongTime ().Is2D ())
+    if (this->m_foamProperties.Is2D ())
     {
 	bool useColor;
 	setColorOrTexture (of, &useColor);

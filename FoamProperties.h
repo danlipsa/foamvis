@@ -7,6 +7,8 @@
 #ifndef __FOAM_PROPERTIES_H__
 #define __FOAM_PROPERTIES_H__
 
+#include "OOBox.h"
+
 class FoamProperties
 {
 public:
@@ -48,9 +50,23 @@ public:
 	return ! operator== (other);
     }
 
+    const OOBox& GetOriginalDomain () const 
+    {
+	return m_originalDomain;
+    }
+    void SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y,
+		     const G3D::Vector3& z)
+    {
+	m_originalDomain.Set (x, y, z);
+    }
+
+    void SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y);
+    bool IsTorus () const;
+
 private:
     size_t m_spaceDimension;
     bool m_quadratic;
+    OOBox m_originalDomain;
 };
 
 

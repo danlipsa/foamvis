@@ -403,7 +403,6 @@ void ViewSettings::AverageSetTimeWindow (size_t timeSteps)
     GetScalarAverage ().AverageSetTimeWindow (timeSteps);
     GetTensorAverage ().AverageSetTimeWindow (timeSteps);
     GetForceAverage ().AverageSetTimeWindow (timeSteps);
-    GetT1sPDE ().AverageSetTimeWindow (timeSteps);
 }
 
 void ViewSettings::AverageStep (ViewNumber::Enum viewNumber, int timeStep)

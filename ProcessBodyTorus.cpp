@@ -14,6 +14,7 @@
 #include "ProcessBodyTorus.h"
 #include "OrientedFace.h"
 #include "OrientedEdge.h"
+#include "OOBox.h"
 #include "Utils.h"
 #include "Vertex.h"
 

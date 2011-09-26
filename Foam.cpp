@@ -75,7 +75,7 @@ Foam::Foam (bool useOriginal,
 		       useOriginal, constraintRotationNames, forcesNames)),
     m_histogram (
 	BodyProperty::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
-    m_parameters (foamParameters),
+    m_properties (foamParameters),
     m_parametersOperation (paramsOp)
 {
     m_parsingData->SetVariable ("pi", M_PI);
@@ -226,7 +226,7 @@ void Foam::SetBody (size_t i, vector<int>& faces,
 {
     resizeAllowIndex (&m_bodies, i);
     boost::shared_ptr<Body> body = boost::make_shared<Body> (
-	faces, GetParsingData ().GetFaces (), i, m_parameters);
+	faces, GetParsingData ().GetFaces (), i, m_properties);
     if (&attributes != 0)
         body->StoreAttributes (attributes,
 			       m_attributesInfo[DefineAttribute::BODY]);
@@ -299,10 +299,10 @@ void Foam::calculateBoundingBoxTorus (G3D::Vector3* low, G3D::Vector3* high)
     using boost::array;
     using G3D::Vector3;
     Vector3 origin = Vector3::zero ();
-    Vector3 first = m_originalDomain[0];
-    Vector3 second = m_originalDomain[1];
+    Vector3 first = GetOriginalDomain ()[0];
+    Vector3 second = GetOriginalDomain ()[1];
     Vector3 sum = first + second;
-    Vector3 third = m_originalDomain[2];
+    Vector3 third = GetOriginalDomain ()[2];
     array<Vector3, 10> additionalVertices =
     {{
 	    *low,
@@ -692,12 +692,6 @@ double Foam::CalculateMedian (BodyProperty::Enum property)
     return acc::median (median);
 }
 
-bool Foam::IsTorus () const
-{
-    return GetOriginalDomain ().IsTorusDomain ();
-}
-
-
 void Foam::AddAttributeInfo (
     DefineAttribute::Enum type, const char* name,
     boost::shared_ptr<AttributeCreator> creator)
@@ -812,14 +806,6 @@ void Foam::SetViewMatrix (
 	r2c1, r2c2, r2c3, r2c4,
 	r3c1, r3c2, r3c3, r3c4,
 	r4c1, r4c2, r4c3, r4c4));
-}
-
-void Foam::SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y)
-{
-    using G3D::Vector3;
-    Vector3 third = x.cross (y).unit ();
-    double thirdLength = min (x.length (), y.length ());
-    SetPeriods (x, y, thirdLength * third);
 }
 
 void Foam::CalculateMinMaxStatistics ()
@@ -959,7 +945,7 @@ void Foam::CreateConstraintBody (size_t constraint)
     unwrap (face, &vertexSet, &edgeSet);
     size_t lastBodyId = GetLastBodyId ();
     boost::shared_ptr<Body> body (new Body (face,  lastBodyId + 1, 
-					    m_parameters));
+					    m_properties));
     body->UpdateAdjacentBody (body);
     body->CalculateCenter ();
     m_bodies.push_back (body);
@@ -967,20 +953,20 @@ void Foam::CreateConstraintBody (size_t constraint)
 
 bool Foam::Is2D () const
 {
-    return m_parameters.Is2D ();
+    return m_properties.Is2D ();
 }
 
 bool Foam::IsQuadratic () const
 {
-    return m_parameters.IsQuadratic ();
+    return m_properties.IsQuadratic ();
 }
 
 void Foam::SetSpaceDimension (size_t spaceDimension)
 {
     if (m_parametersOperation == SET_FOAM_PROPERTIES)
-	m_parameters.SetSpaceDimension (spaceDimension);
+	m_properties.SetSpaceDimension (spaceDimension);
     else
-	if (m_parameters.GetSpaceDimension () != spaceDimension)
+	if (m_properties.GetSpaceDimension () != spaceDimension)
 	    ThrowException (
 		"Space dimension has to be the same for all time steps");
 }
@@ -988,11 +974,32 @@ void Foam::SetSpaceDimension (size_t spaceDimension)
 void Foam::SetQuadratic (bool quadratic)
 {
     if (m_parametersOperation == SET_FOAM_PROPERTIES)
-	m_parameters.SetQuadratic (quadratic);
+	m_properties.SetQuadratic (quadratic);
     else
-	if (m_parameters.IsQuadratic () != quadratic)
+	if (m_properties.IsQuadratic () != quadratic)
 	    ThrowException ("Edges have to be the same "
 			    "(quadratic or not) for all time steps");
+}
+
+bool Foam::IsTorus () const
+{
+    return m_properties.IsTorus ();
+}
+
+const OOBox& Foam::GetOriginalDomain () const
+{
+    return m_properties.GetOriginalDomain ();
+}
+
+void Foam::SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y,
+		       const G3D::Vector3& z)
+{
+    m_properties.SetPeriods (x, y, z);
+}
+
+void Foam::SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y)
+{
+    m_properties.SetPeriods (x, y);
 }
 
 
@@ -1010,7 +1017,7 @@ ostream& operator<< (ostream& ostr, const Foam& d)
     if (d.IsTorus ())
     {
 	ostr << "torus periods:\n";
-	ostr << d.m_originalDomain;
+	ostr << d.GetOriginalDomain ();
     }
 
     ostr << "bodies:\n";

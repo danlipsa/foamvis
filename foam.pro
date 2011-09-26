@@ -33,8 +33,9 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	DisplayWidget.cpp DisplayVertexFunctors.cpp Edge.cpp \
 	HistogramStatistics.cpp\
 	SelectBodiesById.cpp EditColorMap.cpp Element.cpp ExpressionTree.cpp \
-	Enums.cpp Foam.cpp FoamAlongTime.cpp Face.cpp ForceAverage.cpp\
-	GLWidget.cpp Hashes.cpp Histogram.cpp HistogramItem.cpp\
+	Enums.cpp Foam.cpp FoamAlongTime.cpp Face.cpp FoamProperties.cpp \
+	ForceAverage.cpp \
+	GLWidget.cpp Hashes.cpp Histogram.cpp HistogramItem.cpp \
 	HistogramHeight.cpp main.cpp MainWindow.cpp  \
 	NameSemanticValue.cpp \
 	OOBox.cpp OpenGLUtils.cpp OrientedElement.cpp\

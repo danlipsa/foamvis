@@ -305,7 +305,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="general">
           <attribute name="title">
@@ -334,7 +334,7 @@
                <item>
                 <widget class="QTabWidget" name="tabWidgetShow">
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>3</number>
                  </property>
                  <widget class="QWidget" name="tabView">
                   <attribute name="title">
@@ -1802,11 +1802,8 @@
              </widget>
              <widget class="QWidget" name="pageT1sProbabilityDensity">
               <layout class="QFormLayout" name="formLayout_13">
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
+               <property name="fieldGrowthPolicy">
+                <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
                </property>
                <item row="0" column="0">
                 <widget class="QLabel" name="label_28">

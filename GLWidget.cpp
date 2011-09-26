@@ -455,9 +455,10 @@ void GLWidget::initDisplayView ()
 
 void GLWidget::initViewSettings ()
 {
+    const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
     BOOST_FOREACH (boost::shared_ptr<ViewSettings>& vs, m_viewSettings)
 	vs = boost::make_shared <ViewSettings> (*this);
-    if (GetFoamAlongTime ().Is2D ())
+    if (foamAlongTime.Is2D ())
     {
 	BOOST_FOREACH (boost::shared_ptr<ViewSettings> vs, m_viewSettings)
 	{
@@ -475,8 +476,8 @@ void GLWidget::initViewSettings ()
     }
     BOOST_FOREACH (boost::shared_ptr<ViewSettings> vs, m_viewSettings)
     {
-	size_t timeSteps = GetFoamAlongTime ().GetTimeSteps ();
-	vs->AverageSetTimeWindow (timeSteps);
+	vs->AverageSetTimeWindow (foamAlongTime.GetTimeSteps ());
+	vs->GetT1sPDE ().AverageSetTimeWindow (foamAlongTime.GetT1sTimeSteps ());
     }
     CurrentIndexChangedViewCount (ViewCount::ONE);
 }
