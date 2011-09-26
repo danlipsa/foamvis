@@ -68,12 +68,12 @@ struct FocusColorSegment : public Segment
 
 template <typename PropertySetter>
 DisplayBodyBase<PropertySetter>::
-DisplayBodyBase (const GLWidget& widget,
+DisplayBodyBase (const GLWidget& widget, const FoamProperties& fp,
 		 const BodySelector& bodySelector,
 		 PropertySetter propertySetter, bool useZPos, double zPos) :
 
     DisplayElementProperty<PropertySetter> (
-	widget, propertySetter, useZPos, zPos),
+	widget, fp, propertySetter, useZPos, zPos),
     m_bodySelector (bodySelector)
 {
 }
@@ -97,11 +97,12 @@ operator () (boost::shared_ptr<Body> b)
 // ======================================================================
 
 DisplayBodyCenter::DisplayBodyCenter (
-    const GLWidget& widget, const BodySelector& bodySelector,
+    const GLWidget& widget, const FoamProperties& fp,
+    const BodySelector& bodySelector,
     bool useZPos, double zPos):
-
+    
     DisplayBodyBase<> (
-	widget, bodySelector,
+	widget, fp, bodySelector,
 	SetterTextureCoordinate(widget, ViewNumber::VIEW0), useZPos, zPos)
 {}
 
@@ -124,12 +125,13 @@ void DisplayBodyCenter::display (boost::shared_ptr<Body> b, FocusContext fc)
 template<typename displayFace, typename PropertySetter>
 DisplayBody<displayFace, PropertySetter>::
 DisplayBody (
-    const GLWidget& widget, const BodySelector& bodySelector,
+    const GLWidget& widget, const FoamProperties& fp,
+    const BodySelector& bodySelector,
     typename DisplayElement::ContextType contextDisplay, 
     ViewNumber::Enum view, bool useZPos, double zPos) :
 
     DisplayBodyBase<PropertySetter> (
-	widget, bodySelector, PropertySetter (widget, view), useZPos, zPos),
+	widget, fp, bodySelector, PropertySetter (widget, view), useZPos, zPos),
     m_contextDisplay (contextDisplay)
 {
 }
@@ -137,13 +139,14 @@ DisplayBody (
 template<typename displayFace, typename PropertySetter>
 DisplayBody<displayFace, PropertySetter>::
 DisplayBody (
-    const GLWidget& widget, const BodySelector& bodySelector,
+    const GLWidget& widget, const FoamProperties& fp,
+    const BodySelector& bodySelector,
     PropertySetter setter,
     typename DisplayElement::ContextType contextDisplay,
     bool useZPos, double zPos) :
 
     DisplayBodyBase<PropertySetter> (
-	widget, bodySelector, setter, useZPos, zPos),
+	widget, fp, bodySelector, setter, useZPos, zPos),
     m_contextDisplay (contextDisplay)
 {
 }
@@ -166,7 +169,8 @@ display (
     for_each (
 	v.begin (), v.end (),
 	displayFace (
-	    this->m_glWidget, this->m_propertySetter, bodyFc,
+	    this->m_glWidget, this->m_foamProperties, 
+	    this->m_propertySetter, bodyFc,
 	    this->m_useZPos, this->m_zPos));
 }
 
@@ -177,7 +181,7 @@ display (
 template<typename PropertySetter, typename DisplaySegment>
 DisplayCenterPath<PropertySetter, DisplaySegment>::
 DisplayCenterPath (
-    const GLWidget& widget,
+    const GLWidget& widget, const FoamProperties& fp,
     ViewNumber::Enum view,
     const BodySelector& bodySelector,
     bool useTimeDisplacement,
@@ -185,7 +189,7 @@ DisplayCenterPath (
     boost::shared_ptr<ofstream> output) :
 
     DisplayBodyBase<PropertySetter> (
-	widget, bodySelector, PropertySetter (widget, view),
+	widget, fp, bodySelector, PropertySetter (widget, view),
 	 useTimeDisplacement, timeDisplacement),
      m_displaySegment (this->m_glWidget.GetQuadricObject (),
 		       this->m_glWidget.IsCenterPathLineUsed () ?
@@ -197,51 +201,51 @@ DisplayCenterPath (
 }
 
 
- template<typename PropertySetter, typename DisplaySegment>
- void DisplayCenterPath<PropertySetter, DisplaySegment>::
- operator () (size_t bodyId)
- {
-     m_focusTextureSegments.resize (0);
-     m_focusColorSegments.resize (0);
-     m_contextSegments.resize (0);
-     const BodyAlongTime& bat = this->m_glWidget.GetBodyAlongTime (bodyId);
-     StripIterator it = bat.GetStripIterator (
-	 this->m_glWidget.GetFoamAlongTime ());
-     it.ForEachSegment (
-	 boost::bind (&DisplayCenterPath::valueStep, this, _1, _2, _3, _4));
-     displaySegments ();
- }
+template<typename PropertySetter, typename DisplaySegment>
+void DisplayCenterPath<PropertySetter, DisplaySegment>::
+operator () (size_t bodyId)
+{
+    m_focusTextureSegments.resize (0);
+    m_focusColorSegments.resize (0);
+    m_contextSegments.resize (0);
+    const BodyAlongTime& bat = this->m_glWidget.GetBodyAlongTime (bodyId);
+    StripIterator it = bat.GetStripIterator (
+	this->m_glWidget.GetFoamAlongTime ());
+    it.ForEachSegment (
+	boost::bind (&DisplayCenterPath::valueStep, this, _1, _2, _3, _4));
+    displaySegments ();
+}
 
- template<typename PropertySetter, typename DisplaySegment>
- void DisplayCenterPath<PropertySetter, DisplaySegment>::
- valueStep (
-     const StripIteratorPoint& beforeBegin,
-     const StripIteratorPoint& begin,
-     const StripIteratorPoint& end,
-     const StripIteratorPoint& afterEnd)
- {
-     static_cast<void>(beforeBegin);
-     static_cast<void>(afterEnd);
-     G3D::Vector3 pointBegin = getPoint (begin);
-     G3D::Vector3 pointEnd = getPoint (end);
-     G3D::Vector3 middle = (pointBegin + pointEnd) / 2;
-     ViewSettings& vs = this->m_glWidget.GetViewSettings (
-	 this->m_propertySetter.GetViewNumber ());
-     halfValueStep (
-	 begin,
-	 Segment (
-	     beforeBegin.IsEmpty () ? SegmentPerpendicularEnd::BEGIN_END :
-	     SegmentPerpendicularEnd::END,
-	     getPoint (beforeBegin), pointBegin, middle, G3D::Vector3 (),
-	     vs.IsContextDisplayBody (begin.m_body->GetId ())));
-     halfValueStep (
-	 end,
-	 Segment (
-	     afterEnd.IsEmpty () ? SegmentPerpendicularEnd::BEGIN_END :
-	     SegmentPerpendicularEnd::BEGIN,
-	     G3D::Vector3 (), middle, pointEnd, getPoint (afterEnd),
-	     vs.IsContextDisplayBody (end.m_body->GetId ())));
- }
+template<typename PropertySetter, typename DisplaySegment>
+void DisplayCenterPath<PropertySetter, DisplaySegment>::
+valueStep (
+    const StripIteratorPoint& beforeBegin,
+    const StripIteratorPoint& begin,
+    const StripIteratorPoint& end,
+    const StripIteratorPoint& afterEnd)
+{
+    static_cast<void>(beforeBegin);
+    static_cast<void>(afterEnd);
+    G3D::Vector3 pointBegin = getPoint (begin);
+    G3D::Vector3 pointEnd = getPoint (end);
+    G3D::Vector3 middle = (pointBegin + pointEnd) / 2;
+    ViewSettings& vs = this->m_glWidget.GetViewSettings (
+	this->m_propertySetter.GetViewNumber ());
+    halfValueStep (
+	begin,
+	Segment (
+	    beforeBegin.IsEmpty () ? SegmentPerpendicularEnd::BEGIN_END :
+	    SegmentPerpendicularEnd::END,
+	    getPoint (beforeBegin), pointBegin, middle, G3D::Vector3 (),
+	    vs.IsContextDisplayBody (begin.m_body->GetId ())));
+    halfValueStep (
+	end,
+	Segment (
+	    afterEnd.IsEmpty () ? SegmentPerpendicularEnd::BEGIN_END :
+	    SegmentPerpendicularEnd::BEGIN,
+	    G3D::Vector3 (), middle, pointEnd, getPoint (afterEnd),
+	    vs.IsContextDisplayBody (end.m_body->GetId ())));
+}
 
 
  template<typename PropertySetter, typename DisplaySegment>

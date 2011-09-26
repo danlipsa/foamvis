@@ -329,7 +329,7 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
 	bodies.begin (), bodies.end (),
 	DisplayBody<DisplayFaceBodyPropertyColor<PropertySetter>,
 	PropertySetter> (
-	    GetGLWidget (), 
+	    GetGLWidget (), foam.GetProperties (),
 	    GetGLWidget ().GetViewSettings (viewNumber).GetBodySelector (), 
 	    PropertySetter (
 		GetGLWidget (), viewNumber, m_storeShaderProgram.get (),

@@ -12,7 +12,7 @@
 #include "Edge.h"
 #include "EvolverData_yacc.h"
 #include "Foam.h"
-#include "FoamParameters.h"
+#include "FoamProperties.h"
 #include "OrientedFace.h"
 #include "OrientedEdge.h"
 #include "ParsingDriver.h"
@@ -184,7 +184,7 @@ string Edge::AdjacentFacesToString () const
     return ostr.str ();
 }
 
-bool Edge::IsPhysical (const FoamParameters& foamParameters) const
+bool Edge::IsPhysical (const FoamProperties& foamParameters) const
 {
     if (foamParameters.Is2D ())
     {

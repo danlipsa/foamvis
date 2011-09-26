@@ -1,16 +1,16 @@
 /**
- * @file FoamParameters.h
+ * @file FoamProperties.h
  * @author Dan R. Lipsa
  *
- * Declaration of the FoamParameters class
+ * Declaration of the FoamProperties class
  */
-#ifndef __FOAM_PARAMETERS_H__
-#define __FOAM_PARAMETERS_H__
+#ifndef __FOAM_PROPERTIES_H__
+#define __FOAM_PROPERTIES_H__
 
-class FoamParameters
+class FoamProperties
 {
 public:
-    FoamParameters () :
+    FoamProperties () :
 	m_spaceDimension (3),
 	m_quadratic (false)
     {
@@ -37,13 +37,13 @@ public:
 	m_quadratic = quadratic;
     }
 
-    bool operator== (const FoamParameters& other)
+    bool operator== (const FoamProperties& other)
     {
 	return m_spaceDimension == other.m_spaceDimension &&
 	    m_quadratic == other.m_quadratic;
     }
 
-    bool operator!= (const FoamParameters& other)
+    bool operator!= (const FoamProperties& other)
     {
 	return ! operator== (other);
     }
@@ -55,7 +55,7 @@ private:
 
 
 
-#endif //__FOAM_PARAMETERS_H__
+#endif //__FOAM_PROPERTIES_H__
 
 // Local Variables:
 // mode: c++

@@ -68,7 +68,7 @@ void compact (vector< boost::shared_ptr<E> >& v)
 Foam::Foam (bool useOriginal, 
 	    const DmpObjectInfo& constraintRotationNames,
 	    const vector<ForceNames>& forcesNames, 
-	    FoamParameters& foamParameters,
+	    FoamProperties& foamParameters,
 	    ParametersOperation paramsOp) :
     m_viewMatrix (new G3D::Matrix4 (G3D::Matrix4::identity ())),
     m_parsingData (new ParsingData (
@@ -977,7 +977,7 @@ bool Foam::IsQuadratic () const
 
 void Foam::SetSpaceDimension (size_t spaceDimension)
 {
-    if (m_parametersOperation == SET_FOAM_PARAMETERS)
+    if (m_parametersOperation == SET_FOAM_PROPERTIES)
 	m_parameters.SetSpaceDimension (spaceDimension);
     else
 	if (m_parameters.GetSpaceDimension () != spaceDimension)
@@ -987,7 +987,7 @@ void Foam::SetSpaceDimension (size_t spaceDimension)
 
 void Foam::SetQuadratic (bool quadratic)
 {
-    if (m_parametersOperation == SET_FOAM_PARAMETERS)
+    if (m_parametersOperation == SET_FOAM_PROPERTIES)
 	m_parameters.SetQuadratic (quadratic);
     else
 	if (m_parameters.IsQuadratic () != quadratic)

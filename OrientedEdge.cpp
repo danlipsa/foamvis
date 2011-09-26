@@ -109,7 +109,7 @@ void OrientedEdge::GetVertexSet (VertexSet* vertexSet) const
     GetEdge ()->GetVertexSet (vertexSet);
 }
 
-bool OrientedEdge::IsPhysical (const FoamParameters& foamParameters) const
+bool OrientedEdge::IsPhysical (const FoamProperties& foamParameters) const
 {
     return GetEdge ()->IsPhysical (foamParameters);
 }

@@ -9,7 +9,7 @@
 #include "AttributeInfo.h"
 #include "Body.h"
 #include "Foam.h"
-#include "FoamParameters.h"
+#include "FoamProperties.h"
 #include "Debug.h"
 #include "DebugStream.h"
 #include "Edge.h"
@@ -413,7 +413,7 @@ QColor Face::GetColor (const QColor& defaultColor) const
 	return defaultColor;
 }
 
-size_t Face::GetEdgesPerFace (const FoamParameters& foamParameters) const
+size_t Face::GetEdgesPerFace (const FoamProperties& foamParameters) const
 {
     size_t count = 0;
     BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, GetOrientedEdges ())

@@ -23,7 +23,7 @@ class Body;
 class ConstraintEdge;
 class Edge;
 class Face;
-class FoamParameters;
+class FoamProperties;
 class NameSemanticValue;
 class ParsingData;
 
@@ -40,8 +40,8 @@ public:
     typedef vector< boost::shared_ptr<Body> > Bodies;
     enum ParametersOperation 
     {
-	SET_FOAM_PARAMETERS,
-	TEST_FOAM_PARAMETERS
+	SET_FOAM_PROPERTIES,
+	TEST_FOAM_PROPERTIES
     };
 
 
@@ -52,7 +52,7 @@ public:
     Foam (bool useOriginal, 
 	  const DmpObjectInfo& constraintRotationNames,
 	  const vector<ForceNames>& forcesNames,
-	  FoamParameters& foamParameters, ParametersOperation paramsOp);
+	  FoamProperties& foamParameters, ParametersOperation paramsOp);
 
     void GetVertexSet (VertexSet* vertexSet) const;
     VertexSet GetVertexSet () const
@@ -294,7 +294,7 @@ public:
     void CreateConstraintBody (size_t constraint);
     bool Is2D () const;
     bool IsQuadratic () const;
-    const FoamParameters& GetParameters () const
+    const FoamProperties& GetProperties () const
     {
 	return m_parameters;
     }
@@ -404,7 +404,7 @@ private:
      * AdjacentBody, PointIndex for constraint points that need fixing.
      */
     vector< pair<size_t, size_t> > m_constraintPointsToFix;
-    FoamParameters& m_parameters;    
+    FoamProperties& m_parameters;    
     ParametersOperation m_parametersOperation;
 };
 

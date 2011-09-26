@@ -10,7 +10,7 @@
 #include "Body.h"
 #include "Edge.h"
 #include "Foam.h"
-#include "FoamParameters.h"
+#include "FoamProperties.h"
 #include "Debug.h"
 #include "DebugStream.h"
 #include "Utils.h"
@@ -124,7 +124,7 @@ private:
 Body::Body(
     const vector<int>& faceIndexes,
     const vector<boost::shared_ptr<Face> >& faces,
-    size_t id, const FoamParameters& foamParameters, 
+    size_t id, const FoamProperties& foamParameters, 
     ElementStatus::Enum duplicateStatus) :
     Element(id, duplicateStatus),
     m_perimeterOverSqrtArea (0),
@@ -140,7 +140,7 @@ Body::Body(
 }
 
 Body::Body (boost::shared_ptr<Face> face, size_t id, 
-	    const FoamParameters& foamParameters) :
+	    const FoamProperties& foamParameters) :
     Element (id, ElementStatus::ORIGINAL),
     m_perimeterOverSqrtArea (0),
     m_pressureDeduced (false),

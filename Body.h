@@ -14,7 +14,7 @@
 class AttributesInfo;
 class Edge;
 class Face;
-class FoamParameters;
+class FoamProperties;
 class OrientedFace;
 class OrientedEdge;
 class OOBox;
@@ -40,13 +40,13 @@ public:
      */
     Body(const vector<int>& faceIndexes,
 	 const vector< boost::shared_ptr<Face> >& faces,
-	 size_t id, const FoamParameters& foamParameters,
+	 size_t id, const FoamProperties& foamParameters,
 	 ElementStatus::Enum duplicateStatus = ElementStatus::ORIGINAL);
     /**
      * Creates a body for a constraint
      */
     Body (boost::shared_ptr<Face> face, size_t id, 
-	  const FoamParameters& foamParameters);
+	  const FoamProperties& foamParameters);
 
     /**
      * Returns the  vector of oriented faces this body is made of
@@ -209,7 +209,7 @@ private:
     bool m_targetVolumeDeduced;
     bool m_actualVolumeDeduced;
     bool m_constraint;
-    const FoamParameters& m_foamParameters;
+    const FoamProperties& m_foamParameters;
 };
 
 /**

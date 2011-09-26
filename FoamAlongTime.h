@@ -9,7 +9,7 @@
 
 #include "BodyAlongTime.h"
 #include "Comparisons.h"
-#include "FoamParameters.h"
+#include "FoamProperties.h"
 #include "HistogramStatistics.h"
 #include "ObjectPosition.h"
 #include "Force.h"
@@ -195,7 +195,7 @@ public:
 		    const DmpObjectInfo& constraintRotationNames,
 		    const vector<ForceNames>& forcesNames,
 		    bool debugParsing, bool debugScanning);
-    FoamParameters* GetFoamParameters ()
+    FoamProperties* GetFoamProperties ()
     {
 	return &m_foamParameters;
     }
@@ -229,7 +229,7 @@ private:
      */
     Foams m_foams;
     BodiesAlongTime m_bodiesAlongTime;
-    FoamParameters m_foamParameters;
+    FoamProperties m_foamParameters;
     /**
      * The AABox for this vector of Foam objects
      */

@@ -1491,7 +1491,8 @@ void GLWidget::displayAverageAround (
 	    focusBody, viewNumber, m_highlightLineWidth);
 	glPointSize (4.0);
 	glColor (Qt::black);
-	DisplayBodyCenter (*this, IdBodySelector (bodyId)) (focusBody[0]);
+	DisplayBodyCenter (*this, GetFoam ().GetProperties (), 
+			   IdBodySelector (bodyId)) (focusBody[0]);
 	size_t secondBodyId = vs.GetAverageAroundSecondBodyId ();
 	if (secondBodyId != INVALID_INDEX)
 	{
@@ -2000,7 +2001,8 @@ void GLWidget::displayEdges (ViewNumber::Enum viewNumber) const
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
 	      DisplayFaceHighlightColor<HighlightNumber::H0,
-	      DisplayFaceEdges<displayEdge> > > (*this, bodySelector));
+	      DisplayFaceEdges<displayEdge> > > (
+		  *this, GetFoam ().GetProperties (), bodySelector));
     displayStandaloneEdges<displayEdge> (GetFoam ());
 
     glPopAttrib ();
@@ -2016,7 +2018,8 @@ void GLWidget::displayStandaloneEdges (const Foam& foam,
 	glDisable (GL_DEPTH_TEST);
 	const Foam::Edges& standaloneEdges = foam.GetStandaloneEdges ();
 	BOOST_FOREACH (boost::shared_ptr<Edge> edge, standaloneEdges)
-	    displayEdge (*this, DisplayElement::FOCUS, useZPos, zPos) (edge);
+	    displayEdge (*this, foam.GetProperties (),
+			 DisplayElement::FOCUS, useZPos, zPos) (edge);
 	glPopAttrib ();
     }
 }
@@ -2052,16 +2055,19 @@ void GLWidget::displayDeformationTensor2D (ViewNumber::Enum viewNumber) const
 
 void GLWidget::displayBodyDeformationTensor2D () const
 {
-    const Foam& foam = GetFoam ();
-    if (! foam.Is2D () || m_showType != SHOW_DEFORMATION_TENSOR)
-	return;
-    glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
-    glDisable (GL_DEPTH_TEST);
-    glColor (Qt::black);
-    ::displayBodyDeformationTensor2D (
-	*foam.FindBody (m_showBodyId), 
-	GetEllipseSizeInitialRatio () * GetEllipseSizeRatio ());
-    glPopAttrib ();
+    if (m_showType == SHOW_DEFORMATION_TENSOR)
+    {
+	const Foam& foam = GetFoam ();
+	if (! foam.Is2D ())
+	    return;
+	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
+	glDisable (GL_DEPTH_TEST);
+	glColor (Qt::black);
+	::displayBodyDeformationTensor2D (
+	    *foam.FindBody (m_showBodyId), 
+	    GetEllipseSizeInitialRatio () * GetEllipseSizeRatio ());
+	glPopAttrib ();
+    }
 }
 
 
@@ -2086,20 +2092,23 @@ void GLWidget::displayBodyNeighbors () const
 
 void GLWidget::displayBodiesNeighbors () const
 {
-    const Foam& foam = GetFoam ();
-    if (! foam.Is2D () || ! m_bodyNeighborsShown)
-	return;
-    Foam::Bodies bodies = foam.GetBodies ();
-    glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
-    glDisable (GL_DEPTH_TEST);
-    glColor (Qt::black);
-    glBegin (GL_LINES);
-    for_each (bodies.begin (), bodies.end (),
-	      boost::bind (
-		  ::displayBodyNeighbors2D, _1, 
-		  GetFoam ().GetOriginalDomain ()));
-    glEnd ();
-    glPopAttrib ();
+    if (m_bodyNeighborsShown)
+    {
+	const Foam& foam = GetFoam ();
+	if (! foam.Is2D ())
+	    return;
+	Foam::Bodies bodies = foam.GetBodies ();
+	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
+	glDisable (GL_DEPTH_TEST);
+	glColor (Qt::black);
+	glBegin (GL_LINES);
+	for_each (bodies.begin (), bodies.end (),
+		  boost::bind (
+		      ::displayBodyNeighbors2D, _1, 
+		      GetFoam ().GetOriginalDomain ()));
+	glEnd ();
+	glPopAttrib ();
+    }
 }
 
 void GLWidget::displayT1sDot (ViewNumber::Enum view) const
@@ -2232,7 +2241,7 @@ void GLWidget::displayEdgesTorusTubes () const
     for_each (
 	edgeSet.begin (), edgeSet.end (),
 	DisplayEdgeTorus<DisplaySegmentQuadric, 
-	DisplaySegmentArrowQuadric, false>(*this));
+	DisplaySegmentArrowQuadric, false>(*this, GetFoam ().GetProperties ()));
     glPopAttrib ();
 }
 
@@ -2244,7 +2253,7 @@ void GLWidget::displayEdgesTorusLines () const
     GetFoam ().GetEdgeSet (&edgeSet);
     for_each (edgeSet.begin (), edgeSet.end (),
 	      DisplayEdgeTorus<DisplaySegment, 
-	      DisplaySegmentArrow, false> (*this));
+	      DisplaySegmentArrow, false> (*this, GetFoam ().GetProperties ()));
     glPopAttrib ();
 }
 
@@ -2265,7 +2274,8 @@ void GLWidget::displayBodyCenters (
 	glColor (Qt::red);
 	const Foam::Bodies& bodies = GetFoam ().GetBodies ();
 	for_each (bodies.begin (), bodies.end (),
-		  DisplayBodyCenter (*this, bodySelector, useZPos, zPos));
+		  DisplayBodyCenter (*this, GetFoam ().GetProperties (),
+				     bodySelector, useZPos, zPos));
 	glPopAttrib ();
     }
 }
@@ -2394,7 +2404,8 @@ void GLWidget::displayFacesContour (const Foam::Faces& faces) const
 {
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
     for_each (faces.begin (), faces.end (),
-	      DisplayFaceLineStripColor<0xff000000> (*this));
+	      DisplayFaceLineStripColor<0xff000000> (
+		  *this, GetFoam ().GetProperties ()));
     glPopAttrib ();
 }
 
@@ -2406,7 +2417,7 @@ void GLWidget::displayFacesContour (
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody< DisplayFaceLineStripColor<0xff000000> > (
-		  *this, bodySelector));
+		  *this, GetFoam ().GetProperties (), bodySelector));
     glPopAttrib ();
 }
 
@@ -2424,7 +2435,8 @@ void GLWidget::displayFacesContour (
 	      DisplayBody< DisplayFaceHighlightColor<highlightColorIndex, 
 	      DisplayFaceLineStrip>,
 	      SetterTextureCoordinate> (
-		  *this, bodySelector, SetterTextureCoordinate (
+		  *this, GetFoam ().GetProperties (), 
+		  bodySelector, SetterTextureCoordinate (
 		      *this, viewNumber)));
     glPopAttrib ();
 }
@@ -2453,7 +2465,7 @@ void GLWidget::displayFacesInterior (
 		   GetViewSettings (view).GetColorBarTexture ());
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<DisplayFaceBodyPropertyColor<> > (
-		  *this, bodySelector, 
+		  *this, GetFoam ().GetProperties (), bodySelector, 
 		  DisplayElement::USER_DEFINED_CONTEXT, view));
     glPopAttrib ();
 }
@@ -2465,7 +2477,8 @@ void GLWidget::displayFacesInterior (const Foam::Faces& faces) const
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
     for_each (faces.begin (), faces.end (),
-	      DisplayFaceDmpColor<0xff000000>(*this));
+	      DisplayFaceDmpColor<0xff000000>(
+		  *this, GetFoam ().GetProperties ()));
     glPopAttrib ();
 }
 
@@ -2477,8 +2490,10 @@ void GLWidget::displayFacesTorusTubes () const
     for_each (
 	faceSet.begin (), faceSet.end (),
 	DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceEdges<
-	DisplayEdgeTorus<DisplaySegmentQuadric, 
-	                 DisplaySegmentArrowQuadric, true> > > (*this));
+	DisplayEdgeTorus<
+	DisplaySegmentQuadric, 
+	DisplaySegmentArrowQuadric, true> > > (*this, 
+					       GetFoam ().GetProperties ()));
     glPopAttrib ();
 }
 
@@ -2493,7 +2508,7 @@ void GLWidget::displayFacesTorusLines () const
 	      DisplayFaceHighlightColor<HighlightNumber::H0,
 	      DisplayFaceEdges<
 	      DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow, true> > > (
-		  *this, DisplayElement::FOCUS) );
+		  *this, GetFoam ().GetProperties (), DisplayElement::FOCUS) );
     glPopAttrib ();
 }
 
@@ -2516,7 +2531,8 @@ void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum view) const
 	    DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H0,
 	    DisplayFaceEdges<DisplayEdgePropertyColor<
 	    DisplayElement::DONT_DISPLAY_TESSELLATION> > > > (
-		*this, bodySelector, DisplayElement::USER_DEFINED_CONTEXT,
+		*this, GetFoam ().GetProperties (),
+		bodySelector, DisplayElement::USER_DEFINED_CONTEXT,
 		view, IsTimeDisplacementUsed (), zPos));
     }
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (
@@ -2578,21 +2594,24 @@ void GLWidget::compileCenterPaths (ViewNumber::Enum view) const
 		bats.begin (), bats.end (),
 		DisplayCenterPath<
 		SetterTextureCoordinate, DisplaySegmentTube> (
-		    *this, m_viewNumber, bodySelector,
+		    *this, GetFoam ().GetProperties (), 
+		    m_viewNumber, bodySelector,
 		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
 	else
 	    for_each (
 		bats.begin (), bats.end (),
 		DisplayCenterPath<
 		SetterTextureCoordinate, DisplaySegmentQuadric> (
-		    *this, m_viewNumber, bodySelector,
+		    *this, GetFoam ().GetProperties (), 
+		    m_viewNumber, bodySelector,
 		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     }
     else
 	for_each (bats.begin (), bats.end (),
 		  DisplayCenterPath<SetterTextureCoordinate, 
 		  DisplaySegment> (
-		      *this, m_viewNumber, bodySelector,
+		      *this, GetFoam ().GetProperties (), 
+		      m_viewNumber, bodySelector,
 		      IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     glPopAttrib ();
     glEndList ();

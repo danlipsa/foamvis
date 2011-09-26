@@ -10,7 +10,7 @@
 #include "Body.h"
 #include "Edge.h"
 #include "Foam.h"
-#include "FoamParameters.h"
+#include "FoamProperties.h"
 #include "EvolverData_yacc.h"
 #include "DebugStream.h"
 #include "Debug.h"
@@ -80,7 +80,7 @@ bool Vertex::fuzzyEq (const Vertex& other) const
 }
 
 
-bool Vertex::IsPhysical (const FoamParameters& foamParameters) const 
+bool Vertex::IsPhysical (const FoamProperties& foamParameters) const 
 {
     if (foamParameters.Is2D ())
     {

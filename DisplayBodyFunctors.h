@@ -33,7 +33,7 @@ public:
     /**
      * Constructor
      */
-    DisplayBodyBase (const GLWidget& widget, 
+    DisplayBodyBase (const GLWidget& widget, const FoamProperties& fp,
 		     const BodySelector& bodySelector, 
 		     PropertySetter propertySetter,
 		     bool useZPos = false, double zPos = 0);
@@ -82,7 +82,8 @@ public:
      * Constructor
      */
     DisplayBodyCenter (
-	const GLWidget& widget, const BodySelector& bodySelector,
+	const GLWidget& widget, const FoamProperties& fp,
+	const BodySelector& bodySelector,
 	bool useZPos = false, double zPos = 0);
 
 protected:
@@ -104,14 +105,16 @@ public:
      * Constructor
      */
     DisplayBody (
-	const GLWidget& widget, const BodySelector& bodySelector,
+	const GLWidget& widget, const FoamProperties& fp,
+	const BodySelector& bodySelector,
 	typename DisplayElement::ContextType 
 	contextDisplay = DisplayElement::USER_DEFINED_CONTEXT,
 	ViewNumber::Enum view = ViewNumber::VIEW0,
 	bool useZPos = false, double zPos = 0);
 
     DisplayBody (
-	const GLWidget& widget, const BodySelector& bodySelector,
+	const GLWidget& widget, const FoamProperties& fp,
+	const BodySelector& bodySelector,
 	PropertySetter setter,
 	typename DisplayElement::ContextType 
 	    contextDisplay = DisplayElement::USER_DEFINED_CONTEXT,
@@ -146,7 +149,7 @@ public:
      * Constructor
      */
     DisplayCenterPath (
-	const GLWidget& widget, ViewNumber::Enum view, 
+	const GLWidget& widget, const FoamProperties& fp, ViewNumber::Enum view, 
 	const BodySelector& bodySelector,
 	bool useTimeDisplacement = false, 
 	double timeDisplacement = 0,
