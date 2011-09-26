@@ -60,7 +60,9 @@ const char* MainWindow::PAUSE_TEXT ("||");
 // ======================================================================
 
 MainWindow::MainWindow (FoamAlongTime& foamAlongTime) : 
-    m_timer (new QTimer(this)), m_processBodyTorus (0), 
+    m_timer (new QTimer(this)),
+    m_processBodyTorus (0), 
+    m_debugTranslatedBody (false),
     m_currentBody (0),
     m_histogramType (HistogramType::NONE),
     m_histogramViewNumber (ViewNumber::COUNT),
@@ -94,7 +96,6 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
 	setupColorBarModels (ViewNumber::Enum (i));
     widgetHistogram->setHidden (true);
-    m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
     configureInterface (foamAlongTime);    
     setWindowTitle (QString ((string("Foam - ") + 
 			      foamAlongTime.GetFilePattern ()).c_str ()));
@@ -102,6 +103,13 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     m_timer->setInterval (33);
     createActions ();
     setTabOrder (radioButtonCenterPath, sliderTimeSteps);
+    //initTranslatedBody ();
+}
+
+void MainWindow::translatedBodyInit ()
+{
+    m_debugTranslatedBody = true;
+    m_currentTranslatedBody = widgetGl->GetFoam ().GetBodies ().begin ();
 }
 
 
@@ -375,7 +383,7 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     switch (event->key ())
     {
     case Qt::Key_B:
-	translateBodyStep ();
+	translatedBodyStep ();
 	break;
 	
     case Qt::Key_A:
@@ -389,29 +397,32 @@ void MainWindow::keyPressEvent (QKeyEvent* event)
     }
 }
 
-void MainWindow::translateBodyStep ()
+void MainWindow::translatedBodyStep ()
 {
-    Foam& currentFoam = widgetGl->GetCurrentFoam ();
-    VertexSet vertexSet;
-    EdgeSet edgeSet;
-    FaceSet faceSet;
-    currentFoam.GetVertexSet (&vertexSet);
-    currentFoam.GetEdgeSet (&edgeSet);
-    currentFoam.GetFaceSet (&faceSet);
-    m_currentTranslatedBody = currentFoam.BodyInsideOriginalDomainStep (
-	m_currentTranslatedBody, &vertexSet, &edgeSet, &faceSet);
-    if (m_currentTranslatedBody == currentFoam.GetBodies ().end ())
+    if (m_debugTranslatedBody)
     {
-	cdbg << "End body translation" << endl;
+	Foam& currentFoam = widgetGl->GetFoam ();
+	VertexSet vertexSet;
+	EdgeSet edgeSet;
+	FaceSet faceSet;
+	currentFoam.GetVertexSet (&vertexSet);
+	currentFoam.GetEdgeSet (&edgeSet);
+	currentFoam.GetFaceSet (&faceSet);
+	m_currentTranslatedBody = currentFoam.BodyInsideOriginalDomainStep (
+	    m_currentTranslatedBody, &vertexSet, &edgeSet, &faceSet);
+	if (m_currentTranslatedBody == currentFoam.GetBodies ().end ())
+	{
+	    cdbg << "End body translation" << endl;
+	}
+	widgetGl->update ();
     }
-    widgetGl->update ();
 }
 
 void MainWindow::processBodyTorusStep ()
 {
     try
     {
-	const Foam& currentFoam = widgetGl->GetCurrentFoam ();
+	const Foam& currentFoam = widgetGl->GetFoam ();
 	boost::shared_ptr<Body>  b = currentFoam.GetBodyPtr (m_currentBody);
 	if (m_processBodyTorus == 0)
 	{
@@ -431,7 +442,7 @@ void MainWindow::processBodyTorusStep ()
 		m_processBodyTorus = 0;
 		cdbg << "End process torus" << endl;
 		m_currentBody = (m_currentBody + 1) % 
-		    widgetGl->GetCurrentFoam ().GetBodies ().size ();
+		    widgetGl->GetFoam ().GetBodies ().size ();
 	    }
 	}
 	widgetGl->update ();
@@ -823,12 +834,15 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
     (void)timeStep;
     SetAndDisplayHistogram (KEEP_SELECTION, KEEP_MAX_VALUE);
-    m_currentTranslatedBody = widgetGl->GetCurrentFoam ().GetBodies ().begin ();
+    if (m_debugTranslatedBody)
+	m_currentTranslatedBody = 
+	    widgetGl->GetFoam ().GetBodies ().begin ();
     updateButtons ();
 }
 
 void MainWindow::ButtonClickedViewType (int vt)
 {
+    FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     ViewType::Enum viewType = ViewType::Enum(vt);
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
     ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
@@ -859,9 +873,16 @@ void MainWindow::ButtonClickedViewType (int vt)
 	if (m_histogramViewNumber == viewNumber)
 	    ButtonClickedHistogram (m_histogramType);
 	break;
+
+    case ViewType::T1S_PDE:
+	sliderTimeSteps->setMaximum (foamAlongTime.GetT1sTimeSteps () - 1);
+	break;
+
     default:
 	break;
     }
+    if (oldViewType == ViewType::T1S_PDE)
+	sliderTimeSteps->setMaximum (foamAlongTime.GetTimeSteps () - 1);
 }
 
 void MainWindow::setStackedWidget (ViewType::Enum viewType)

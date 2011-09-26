@@ -28,9 +28,10 @@ class ScalarAverageTemplate : public ImageBasedAverage<PropertySetter>
 public:
     static void InitShaders ();
 
-    ScalarAverageTemplate (const GLWidget& glWidget, string id) :
+    ScalarAverageTemplate (const GLWidget& glWidget, string id, 
+			   QColor stepClearColor) :
 	ImageBasedAverage<PropertySetter> (
-	    glWidget, id, this->m_fbos)
+	    glWidget, id, stepClearColor, this->m_fbos)
     {
     }
 
@@ -52,7 +53,8 @@ class ScalarAverage : public ScalarAverageTemplate<SetterVertexAttribute>
 {
 public:
     ScalarAverage (const GLWidget& glWidget) :
-	ScalarAverageTemplate<SetterVertexAttribute> (glWidget, "scalar")
+	ScalarAverageTemplate<SetterVertexAttribute> (
+	    glWidget, "scalar", QColor (0, 0, 0, 0))
     {
     }
 };

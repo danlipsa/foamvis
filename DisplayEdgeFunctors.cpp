@@ -243,7 +243,7 @@ void DisplayEdgeTorusClipped::operator() (
 void DisplayEdgeTorusClipped::operator () (
     const boost::shared_ptr<Edge>& edge) const
 {
-    const OOBox& periods = m_glWidget.GetCurrentFoam ().GetOriginalDomain ();
+    const OOBox& periods = m_glWidget.GetFoam ().GetOriginalDomain ();
     if (edge->IsClipped ())
     {
 	glColor (edge->GetColor (Color::BLACK));
@@ -349,8 +349,9 @@ display (const boost::shared_ptr<Edge>  e)
 
 template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
 DisplayEdgePropertyColor<tesselationEdgesDisplay>::
-DisplayEdgePropertyColor (const GLWidget& widget, FocusContext focus,
-		      bool useZPos, double zPos) : 
+DisplayEdgePropertyColor (const GLWidget& widget,
+			  FocusContext focus,
+			  bool useZPos, double zPos) : 
     
     DisplayElementFocus (widget, focus, useZPos, zPos)
 {
@@ -367,7 +368,7 @@ template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
 void DisplayEdgePropertyColor<tesselationEdgesDisplay>::
 operator () (const Edge& edge) const
 {
-    const Foam& foam = m_glWidget.GetCurrentFoam ();
+    const Foam& foam = m_glWidget.GetFoam ();
     bool isPhysical = edge.IsPhysical (foam.GetParameters ());
     if (isPhysical || 
 	(tesselationEdgesDisplay == TEST_DISPLAY_TESSELLATION &&

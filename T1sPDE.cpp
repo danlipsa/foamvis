@@ -106,7 +106,7 @@ void T1sPDE::InitShaders ()
 }
 
 T1sPDE::T1sPDE (const GLWidget& glWidget) :
-    ScalarAverageTemplate<SetterNop> (glWidget, "t1sPDE"),
+    ScalarAverageTemplate<SetterNop> (glWidget, "t1sPDE", QColor (0, 255, 0, 0)),
     m_kernelIntervalMargin (KERNEL_INTERVAL_MARGIN.first),
     m_kernelSigma (KERNEL_SIGMA.first),
     m_kernelTextureSize (KERNEL_TEXTURE_SIZE.first)

@@ -114,7 +114,7 @@ void DisplayBox (
 void ClearColorBuffer (Qt::GlobalColor clearColor);
 void ClearStencilBuffer (GLint clearStencil);
 void ClearColorStencilBuffers (
-    Qt::GlobalColor clearColor, GLint clearStencil);
+    QColor clearColor, GLint clearStencil);
 
 void drawEllipsis2D (float l1, float l2, float c);
 

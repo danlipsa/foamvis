@@ -163,7 +163,8 @@ private:
 
     void setupHistogram ();
     void processBodyTorusStep ();
-    void translateBodyStep ();
+    void translatedBodyInit ();
+    void translatedBodyStep ();
     void createActions ();
     void displayHistogramColorBar (bool checked);
     HistogramInfo getCurrentHistogramInfo () const;
@@ -197,7 +198,10 @@ private:
      */
     boost::scoped_ptr<QTimer> m_timer;
     ProcessBodyTorus* m_processBodyTorus;
+    
+    bool m_debugTranslatedBody;
     Foam::Bodies::iterator m_currentTranslatedBody;
+
     size_t m_currentBody;
 
     boost::shared_ptr<QAction> m_actionRotateShown;

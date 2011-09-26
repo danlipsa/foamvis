@@ -60,9 +60,10 @@ class ImageBasedAverage : public Average
 {
 public:
     ImageBasedAverage (
-	const GLWidget& glWidget, string id, 
+	const GLWidget& glWidget, string id, QColor stepClearColor,
 	FramebufferObjects& scalarAverageFbos) :
-	Average (glWidget), m_scalarAverageFbos (scalarAverageFbos), m_id (id)
+	Average (glWidget), m_scalarAverageFbos (scalarAverageFbos), m_id (id),
+	m_stepClearColor (stepClearColor)
     {
     }
     void AverageRelease ();
@@ -79,7 +80,7 @@ public:
     string GetId () const
     {
 	return m_id;
-    }
+    }    
 
 protected:
     typedef pair<boost::shared_ptr<QGLFramebufferObject>, 
@@ -100,6 +101,10 @@ protected:
 				  size_t subStep);
 
     void glActiveTexture (GLenum texture) const;
+    QColor getStepClearColor ()
+    {
+	return m_stepClearColor;
+    }
 
 
     static boost::shared_ptr<ShaderProgram> m_initShaderProgram;
@@ -127,6 +132,7 @@ private:
 
 private:
     string m_id;
+    QColor m_stepClearColor;
 };
 
 #endif //__IMAGE_BASED_AVERAGE_H__

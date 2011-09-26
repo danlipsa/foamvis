@@ -88,12 +88,12 @@ void ImageBasedAverage<PropertySetter>::clear (ViewNumber::Enum viewNumber)
     pair<double, double> minMax = 
 	GetGLWidget ().GetMinMax (viewNumber);
     m_fbos.m_step->bind ();
-    ClearColorStencilBuffers (Qt::transparent, 0);
+    ClearColorStencilBuffers (getStepClearColor (), 0);
     m_fbos.m_step->release ();
-//     save (viewNumber, 
-// 	  make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
-// 	  "step", FAKE_TIMESTEP, 
-// 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
+    //save (
+    //viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
+    //"step", FAKE_TIMESTEP, 0, 
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     initFramebuffer (viewNumber, m_fbos.m_current);
     //save (viewNumber, 
@@ -127,10 +127,10 @@ void ImageBasedAverage<PropertySetter>::addStep (
 	GetGLWidget ().GetMinMax (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, timeStep, subStep);
-    save (
-	viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
-	"step", timeStep, subStep, 
-	minMax.first, minMax.second, StatisticsType::AVERAGE);
+    //save (
+    //viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
+    //"step", timeStep, subStep, 
+    //minMax.first, minMax.second, StatisticsType::AVERAGE);
 
     currentIsPreviousPlusStep (viewNumber);
     //save (viewNumber, 
@@ -194,7 +194,7 @@ void ImageBasedAverage<PropertySetter>::renderToStep (
     glViewport (0, 0, destRect.width (), destRect.height ());    
 
     m_fbos.m_step->bind ();
-    ClearColorStencilBuffers (Qt::transparent, 0);
+    ClearColorStencilBuffers (getStepClearColor (), 0);
     writeStepValues (viewNumber, timeStep, subStep);
     m_fbos.m_step->release ();
 

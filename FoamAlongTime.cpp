@@ -530,7 +530,7 @@ void FoamAlongTime::ParseT1s (
 	m_t1s[timeStep].push_back (G3D::Vector3 (x, y, Foam::Z_COORDINATE_2D));
     }
     SetT1sShiftLower (shiftT1sLower);
-    cdbg << "last timestep with T1s: " << timeStep << endl;
+    cdbg << "last T1s'  timestep: " << timeStep << endl;
 }
 
 const vector<G3D::Vector3>& FoamAlongTime::GetT1s (size_t timeStep) const

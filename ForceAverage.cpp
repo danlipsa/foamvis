@@ -21,7 +21,7 @@ void ForceAverage::AverageInit (ViewNumber::Enum viewNumber)
     (void)viewNumber;
     Average::AverageInit (viewNumber);
     const vector<Force>& forces = 
-	GetGLWidget ().GetCurrentFoam ().GetForces ();
+	GetGLWidget ().GetFoam ().GetForces ();
     m_average.resize (forces.size ());
     for (size_t i = 0; i < forces.size (); ++i)
     {
@@ -79,7 +79,7 @@ void ForceAverage::Display (
 void ForceAverage::DisplayOneTimeStep (
     ViewNumber::Enum viewNumber) const
 {
-    display (viewNumber, GetGLWidget ().GetCurrentFoam ().GetForces (), 
+    display (viewNumber, GetGLWidget ().GetFoam ().GetForces (), 
 	     1, false);
 }
 

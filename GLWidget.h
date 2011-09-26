@@ -97,8 +97,9 @@ public:
     /**
      * Gets the currently displayed data
      */
-    const Foam& GetCurrentFoam () const;
-    Foam& GetCurrentFoam ();
+    const Foam& GetFoam () const;
+    Foam& GetFoam ();
+    const Foam& GetFoam (size_t timeStep) const;
 
     /**
      * Gets the index of the currently displayed data.
@@ -497,7 +498,8 @@ private:
 
     void displayEdgesNormal (ViewNumber::Enum view) const;
     template<typename displayEdge>
-    void displayStandaloneEdges (bool useZPos = false, double zPos = 0) const;
+    void displayStandaloneEdges (
+	const Foam& foam, bool useZPos = false, double zPos = 0) const;
     void displayStandaloneFaces () const;
     void displayEdgesTorus (ViewNumber::Enum view) const;
     void displayEdgesTorusTubes () const;

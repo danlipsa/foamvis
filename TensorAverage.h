@@ -28,7 +28,7 @@ public:
     TensorAverage (const GLWidget& glWidget, 
 		   FramebufferObjects& scalarAverageFbos) :
 	ImageBasedAverage<SetterDeformationTensor> (
-	    glWidget, "tensor", scalarAverageFbos),
+	    glWidget, "tensor", QColor (0, 0, 0, 0), scalarAverageFbos),
 	m_deformationGridShown (false),
 	m_deformationGridCellCenterShown (false)
     {
