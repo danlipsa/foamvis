@@ -60,8 +60,9 @@ PRECOMPILED_HEADER = stable.h
 CONFIG            += qt precompile_header no_keywords debug_and_release
 CONFIG(debug, debug|release) {
 	TARGET = $$join(TARGET,,,_debug)
+	QMAKE_CXXFLAGS += -pg
+	QMAKE_LFLAGS += -pg
 }
-
 
 win32 {
 INCLUDEPATH += "C:\G3D-7.00-vc8\include"
