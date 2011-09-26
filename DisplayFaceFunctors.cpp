@@ -11,7 +11,7 @@
 #include "DisplayFaceFunctors.h"
 #include "DisplayEdgeFunctors.h"
 #include "Face.h"
-#include "FoamAlongTime.h"
+#include "FoamProperties.h"
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
 #include "OrientedFace.h"

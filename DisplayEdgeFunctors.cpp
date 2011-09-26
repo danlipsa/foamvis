@@ -13,7 +13,7 @@
 #include "DisplayVertexFunctors.h"
 #include "Edge.h"
 #include "Face.h"
-#include "Foam.h"
+#include "FoamProperties.h"
 #include "GLWidget.h"
 #include "OrientedEdge.h"
 #include "OrientedFace.h"
@@ -243,7 +243,7 @@ void DisplayEdgeTorusClipped::operator() (
 void DisplayEdgeTorusClipped::operator () (
     const boost::shared_ptr<Edge>& edge) const
 {
-    const OOBox& periods = m_glWidget.GetFoam ().GetOriginalDomain ();
+    const OOBox& periods = m_foamProperties.GetOriginalDomain ();
     if (edge->IsClipped ())
     {
 	glColor (edge->GetColor (Color::BLACK));
