@@ -58,7 +58,7 @@ void ScalarAverageTemplate<PropertySetter>::rotateAndDisplay (
 	TextureEnum (m_displayShaderProgram->GetScalarAverageTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, srcFbo.second->texture ());
     this->GetGLWidget ().ActivateViewShader (viewNumber, enclose,
-				       rotationCenter, angleDegrees);
+					     rotationCenter, angleDegrees);
     // activate texture unit 0
     this->glActiveTexture (GL_TEXTURE0);
     m_displayShaderProgram->release ();

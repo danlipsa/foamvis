@@ -119,6 +119,7 @@ public Q_SLOTS:
     void ValueChangedSliderTimeSteps (int value);
     void ValueChangedFontSize (int value);
     void ValueChangedHistogramHeight (int value);
+    void ValueChangedT1sKernelSigma (int index);
     void ViewToUI ();
     void SetHistogramColorBarModel (
 	boost::shared_ptr<ColorBarModel> colorBarModel);

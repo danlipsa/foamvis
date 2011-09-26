@@ -2137,22 +2137,21 @@ void GLWidget::displayT1sDot (
 void GLWidget::DisplayT1Quad (
     ViewNumber::Enum viewNumber, size_t timeStep, size_t t1Index) const
 {
-    glPushAttrib (GL_ENABLE_BIT | GL_POINT_BIT | 
-		  GL_CURRENT_BIT | GL_POLYGON_BIT);
-    glDisable (GL_DEPTH_TEST);
-    glColor (GetHighlightColor (viewNumber, HighlightNumber::H0));
     ViewSettings& vs = GetViewSettings (viewNumber);
     T1sPDE& t1sPDE = vs.GetT1sPDE ();
     float rectSize = t1sPDE.GetKernelTextureSize () * 
 	GetOnePixelInObjectSpace ();
     float half = rectSize / 2;
     G3D::Rect2D srcTexRect = G3D::Rect2D::xyxy (0., 0., 1., 1.);
-    glBegin (GL_QUADS);
     const G3D::Vector3 t1Pos = GetFoamAlongTime ().GetT1s (timeStep)[t1Index];
     G3D::Vector2 v = t1Pos.xy ();
     G3D::Rect2D srcRect = G3D::Rect2D::xyxy (
 	v + G3D::Vector2 (- half, - half),
 	v + G3D::Vector2 (  half,   half));
+
+    glPushAttrib (GL_ENABLE_BIT);
+    glDisable (GL_DEPTH_TEST);
+    glBegin (GL_QUADS);
     sendQuad (srcRect, srcTexRect);
     glEnd ();
     glPopAttrib ();
@@ -2339,6 +2338,16 @@ void GLWidget::displayT1sPDE (ViewNumber::Enum viewNumber) const
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.AverageRotateAndDisplay (viewNumber);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (GetFoam (0));
+    
+
+    T1sPDE& t1sPDE = vs.GetT1sPDE ();
+    if (t1sPDE.GetKernelTextureSizeShown ())
+    {
+	size_t timeStep = GetCurrentTime ();
+	size_t stepSize = GetFoamAlongTime ().GetT1s (timeStep).size ();
+	for (size_t i = 0; i < stepSize; ++i)
+	    t1sPDE.DisplayTextureSize (viewNumber, timeStep, i);
+    }
 }
 
 G3D::Vector2 GLWidget::toTexture (ViewNumber::Enum viewNumber, 
@@ -3478,13 +3487,13 @@ void GLWidget::ValueChangedT1Size (int index)
 }
 
 
-void GLWidget::ValueChangedT1sKernelIntervalMargin (int index)
+void GLWidget::ValueChangedT1sKernelIntervalPerPixel (int index)
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     T1sPDE& t1sPDE = vs.GetT1sPDE ();
-    t1sPDE.SetKernelIntervalMargin (
-	getValueFromIndex (T1sPDE::KERNEL_INTERVAL_MARGIN, index));
+    t1sPDE.SetKernelIntervalPerPixel (
+	getValueFromIndex (T1sPDE::KERNEL_INTERVAL_PER_PIXEL, index));
     t1sPDE.AverageInitStep (viewNumber);
     update ();
 }
@@ -3508,6 +3517,15 @@ void GLWidget::ValueChangedT1sKernelTextureSize (int index)
     t1sPDE.SetKernelTextureSize (
 	getValueFromIndex (T1sPDE::KERNEL_TEXTURE_SIZE, index));
     t1sPDE.AverageInitStep (viewNumber);
+    update ();
+}
+
+void GLWidget::ToggledT1sKernelTextureSizeShown (bool checked)
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    T1sPDE& t1sPDE = vs.GetT1sPDE ();
+    t1sPDE.SetKernelTextureSizeShown (checked);
     update ();
 }
 

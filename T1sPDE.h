@@ -30,13 +30,13 @@ public:
     
     T1sPDE (const GLWidget& glWidget);
     virtual void AverageInit (ViewNumber::Enum viewNumber);
-    float GetKernelIntervalMargin () const
+    float GetKernelIntervalPerPixel () const
     {
-	return m_kernelIntervalMargin;
+	return m_kernelIntervalPerPixel;
     }
-    void SetKernelIntervalMargin (float kernelIntervalMargin)
+    void SetKernelIntervalPerPixel (float kernelIntervalMargin)
     {
-	m_kernelIntervalMargin = kernelIntervalMargin;
+	m_kernelIntervalPerPixel = kernelIntervalMargin;
 	initKernel ();
     }
     float GetKernelSigma () const
@@ -53,11 +53,22 @@ public:
 	return m_kernelTextureSize;
     }
     void SetKernelTextureSize (size_t kernelTextureSize);
+    bool GetKernelTextureSizeShown () const
+    {
+	return m_kernelTextureSizeShown;
+    }
+    void SetKernelTextureSizeShown (bool kernelTextureSizeShown)
+    {
+	m_kernelTextureSizeShown = kernelTextureSizeShown;
+    }
+
+    void DisplayTextureSize (ViewNumber::Enum viewNumber, size_t timeStep, 
+			     size_t subStep) const;
 
 public:
     static const pair<size_t, size_t> KERNEL_TEXTURE_SIZE;
     static const pair<float, float> KERNEL_SIGMA;
-    static const pair<float, float> KERNEL_INTERVAL_MARGIN;
+    static const pair<float, float> KERNEL_INTERVAL_PER_PIXEL;
 
 protected:
     virtual void writeStepValues (ViewNumber::Enum view, size_t timeStep, 
@@ -76,9 +87,10 @@ private:
 
 
     boost::shared_ptr<QGLFramebufferObject> m_kernel;
-    float m_kernelIntervalMargin;
+    float m_kernelIntervalPerPixel;
     float m_kernelSigma;
     size_t m_kernelTextureSize;
+    bool m_kernelTextureSizeShown;
 };
 
 #endif //__T1S_PDE_H__

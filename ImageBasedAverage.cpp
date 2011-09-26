@@ -282,8 +282,6 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
     G3D::Vector2 rotationCenter, 
     float angleDegrees) const
 {
-//    if (! m_fbos.m_current)
-//	return;
     pair<double, double> minMax = 
 	GetGLWidget ().GetMinMax (viewNumber);
     rotateAndDisplay (

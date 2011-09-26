@@ -81,8 +81,8 @@ void GaussianStoreShaderProgram::Bind ()
 
 const pair<size_t, size_t> T1sPDE::KERNEL_TEXTURE_SIZE = 
     pair<size_t, size_t> (16, 128);
-const pair<float, float> T1sPDE::KERNEL_INTERVAL_MARGIN = 
-    pair<float, float> (5.0, 10.0);
+const pair<float, float> T1sPDE::KERNEL_INTERVAL_PER_PIXEL = 
+    pair<float, float> (5.0/16.0, 10.0/16.0);
 const pair<float, float> T1sPDE::KERNEL_SIGMA = pair<float, float> (1.0, 5.0);
 boost::shared_ptr<GaussianInitShaderProgram> T1sPDE::m_gaussianInitShaderProgram;
 boost::shared_ptr<GaussianStoreShaderProgram
@@ -107,9 +107,10 @@ void T1sPDE::InitShaders ()
 
 T1sPDE::T1sPDE (const GLWidget& glWidget) :
     ScalarAverageTemplate<SetterNop> (glWidget, "t1sPDE", QColor (0, 255, 0, 0)),
-    m_kernelIntervalMargin (KERNEL_INTERVAL_MARGIN.first),
+    m_kernelIntervalPerPixel (KERNEL_INTERVAL_PER_PIXEL.first),
     m_kernelSigma (KERNEL_SIGMA.first),
-    m_kernelTextureSize (KERNEL_TEXTURE_SIZE.first)
+    m_kernelTextureSize (KERNEL_TEXTURE_SIZE.first),
+    m_kernelTextureSizeShown (false)
 {
 }
 
@@ -135,7 +136,8 @@ void T1sPDE::initKernel ()
     RuntimeAssert (m_kernel->isValid (), 
 		   "Framebuffer initialization failed:" + GetId ());
     m_kernel->bind ();
-    m_gaussianInitShaderProgram->Bind (m_kernelSigma, m_kernelIntervalMargin);
+    m_gaussianInitShaderProgram->Bind (
+	m_kernelSigma, m_kernelIntervalPerPixel * m_kernelTextureSize);
     ActivateShader (
 	G3D::Rect2D (G3D::Vector2 (m_kernelTextureSize, m_kernelTextureSize)));
     m_gaussianInitShaderProgram->release ();
@@ -153,16 +155,27 @@ void T1sPDE::writeStepValues (ViewNumber::Enum viewNumber, size_t timeStep,
 			      size_t subStep)
 {
     WarnOnOpenGLError ("a - T1sPDE::writeStepValues");
-    m_gaussianStoreShaderProgram->Bind ();
     // activate texture unit 1
     glActiveTexture (
 	TextureEnum (m_gaussianStoreShaderProgram->GetGaussianTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, m_kernel->texture ());
+    m_gaussianStoreShaderProgram->Bind ();
     GetGLWidget ().DisplayT1Quad (viewNumber, timeStep, subStep);
     // activate texture unit 0
-    glActiveTexture (GL_TEXTURE0);
     m_gaussianStoreShaderProgram->release ();
+    glActiveTexture (GL_TEXTURE0);    
     WarnOnOpenGLError ("b - T1sPDE::writeStepValues");
+}
+
+void T1sPDE::DisplayTextureSize (ViewNumber::Enum viewNumber, size_t timeStep, 
+				 size_t subStep) const
+{
+    glPushAttrib (GL_CURRENT_BIT | GL_POLYGON_BIT);
+    glColor (
+	GetGLWidget ().GetHighlightColor (viewNumber, HighlightNumber::H0));
+    glPolygonMode (GL_FRONT, GL_LINE);
+    GetGLWidget ().DisplayT1Quad (viewNumber, timeStep, subStep);
+    glPopAttrib ();
 }
 
 size_t T1sPDE::getStepSize (size_t timeStep) const

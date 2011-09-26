@@ -830,6 +830,14 @@ void MainWindow::ValueChangedHistogramHeight (int s)
     widgetHistogram->updateGeometry ();
 }
 
+void MainWindow::ValueChangedT1sKernelSigma (int index)
+{
+    (void)index;
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
+    m_colorBarModelT1sPDE[viewNumber]->SetInterval (
+	toQwtDoubleInterval (widgetGl->GetMinMaxT1sPDE (viewNumber)));
+}
+
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
     (void)timeStep;

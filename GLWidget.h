@@ -324,9 +324,10 @@ public Q_SLOTS:
     void ValueChangedStatisticsTimeWindow (int timeSteps);
     void ValueChangedTimeDisplacement (int timeDisplacement);
     void ValueChangedT1Size (int index);
-    void ValueChangedT1sKernelIntervalMargin (int index);
+    void ValueChangedT1sKernelIntervalPerPixel (int index);
     void ValueChangedT1sKernelSigma (int index);
     void ValueChangedT1sKernelTextureSize (int index);
+    void ToggledT1sKernelTextureSizeShown (bool checked);
     void ValueChangedEllipseSize (int index);
     void ValueChangedEllipseLineWidthRatio (int index);
     void ValueChangedForceLength (int index);
