@@ -164,10 +164,6 @@ public:
     {
 	return m_vertices;
     }
-    /**
-     * Used for  profiling. Prints to  the debug stream  a description
-     * and the time since the last checkpoint.  
-     */
     bool IsAttribute (const char* s)
     {
 	return m_attributes.find (s) != m_attributes.end ();

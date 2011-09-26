@@ -62,6 +62,7 @@ CONFIG(debug, debug|release) {
 	TARGET = $$join(TARGET,,,_debug)
 }
 
+
 win32 {
 INCLUDEPATH += "C:\G3D-7.00-vc8\include"
 LIBS += "C:\G3D-7.00-vc8\lib\zlib.lib" 
