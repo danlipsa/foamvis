@@ -41,6 +41,7 @@ public:
     virtual void AverageInit (ViewNumber::Enum viewNumber);
 
 protected:
+    //@todo write and add/remove in one operations instead of two.
     virtual void addStep (
 	ViewNumber::Enum viewNumber, size_t timeStep, size_t subStep) = 0;
     virtual void removeStep (ViewNumber::Enum viewNumber, 
