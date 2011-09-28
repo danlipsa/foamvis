@@ -1,5 +1,7 @@
 Release log
 ===========
+0.6.2166 2011-09-28
+	 - added T1s probability density estimate
 0.6.2148 2011-09-16
 	 - added --ticks-for-timestep to deal with vfplug_137v_9.857973_2.
 	 - Rearanged the views in 'Time step' and 'Time dependent' categories 
