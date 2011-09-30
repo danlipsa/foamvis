@@ -13,7 +13,7 @@
 
 class QTimer;
 class GLWidget;
-class FoamAlongTime;
+class FoamAlongTimeGroup;
 class ProcessBodyTorus;
 
 /**
@@ -46,7 +46,7 @@ public:
      * Constructor
      * @param foamAlongTime data to be displayed read from Surface Evolver files
      */
-    MainWindow(FoamAlongTime& foamAlongTime);
+    MainWindow(FoamAlongTimeGroup& foamAlongTime);
     /**
      * Called when a key is pressed
      * @param event object describing the key

@@ -75,14 +75,14 @@ const set<string> ParsingData::OPERATORS (
 // ======================================================================
 ParsingData::ParsingData (
     bool useOriginal, 
-    const DmpObjectInfo& constraintRotationNames,
+    const DmpObjectInfo& dmpObjectInfo,
     const vector<ForceNames>& forcesNames) :
 
     m_spaceSignificant (false),
     m_parenthesisCount (0),
     m_newLineSignificant (false),
     m_useOriginal (useOriginal),
-    m_dmpObjectInfo (constraintRotationNames)
+    m_dmpObjectInfo (dmpObjectInfo)
 {
     m_forcesNames.resize (forcesNames.size ());
     copy (forcesNames.begin (), forcesNames.end (), m_forcesNames.begin ());

@@ -59,7 +59,7 @@ const char* MainWindow::PAUSE_TEXT ("||");
 // Methods
 // ======================================================================
 
-MainWindow::MainWindow (FoamAlongTime& foamAlongTime) : 
+MainWindow::MainWindow (FoamAlongTimeGroup& foamAlongTimeGroup) : 
     m_timer (new QTimer(this)),
     m_processBodyTorus (0), 
     m_debugTranslatedBody (false),
@@ -79,6 +79,7 @@ MainWindow::MainWindow (FoamAlongTime& foamAlongTime) :
     setupUi (this);
     connectSignals ();
     CurrentIndexChangedViewCount (ViewCount::ONE);
+    FoamAlongTime& foamAlongTime = foamAlongTimeGroup.GetFoamAlongTime (0);
     setupSliderData (foamAlongTime);
     setupHistogram ();
     setupButtonGroups ();
@@ -279,8 +280,6 @@ void MainWindow::setupHistogram ()
 
 void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
 {
-    if (foamAlongTime.GetTimeSteps () == 1)
-	sliderTimeSteps->setDisabled (true);
     const Foam& foam = foamAlongTime.GetFoam (0);
     if (foamAlongTime.T1sAvailable ())
     {

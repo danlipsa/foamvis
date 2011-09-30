@@ -22,10 +22,11 @@ BrowseSimulations::BrowseSimulations (
     setupUi (this);
     m_selectedNames = ToQStringList (names);
     m_model.setStringList (m_selectedNames);
-    listViewSimulation->setModel (&m_model);
-    lineEditFilter->setText ("0001");
     QModelIndex index = m_model.index (0);
+    listViewSimulation->setSelectionMode (QAbstractItemView::ExtendedSelection);
+    listViewSimulation->setModel (&m_model);
     listViewSimulation->setCurrentIndex (index);
+    lineEditFilter->setText ("0001");
     comboBoxLabel->addItem (LABEL_ALL);
     set<string> distinctLabels;
     BOOST_FOREACH (Labels labels, m_labels)
@@ -37,10 +38,18 @@ BrowseSimulations::BrowseSimulations (
 	comboBoxLabel->addItem (label.c_str ());
 }
 
-size_t BrowseSimulations::GetIndex () const
+vector<size_t> BrowseSimulations::GetSelectedIndexes () const
 {
-    size_t index = listViewSimulation->currentIndex ().row ();
-    string name = m_selectedNames[index].toStdString ();
+    vector<size_t> selectedIndexes;
+    QModelIndexList mil = listViewSimulation->selectedIndexes ();
+    Q_FOREACH (QModelIndex mi, mil)
+	selectedIndexes.push_back (globalIndex (mi.row ()));
+    return selectedIndexes;
+}
+
+size_t BrowseSimulations::globalIndex (size_t localIndex) const
+{
+    string name = m_selectedNames[localIndex].toStdString ();
     vector<string>::const_iterator it = 
 	std::find (m_names.begin (), m_names.end (), name);
     RuntimeAssert (it != m_names.end (), 

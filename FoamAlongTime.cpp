@@ -62,14 +62,14 @@ public:
      */
     ParseDMP (
 	QString dir, 
-	const DmpObjectInfo& constraintRotationNames, 
+	const DmpObjectInfo& dmpObjectInfo, 
 	const vector<ForceNames>& forcesNames,
 	bool useOriginal, FoamProperties* foamParameters, 
 	Foam::ParametersOperation parametersOperation,
 	bool debugParsing = false, bool debugScanning = false) : 
 
         m_dir (qPrintable(dir)), 
-	m_dmpObjectInfo (constraintRotationNames), 
+	m_dmpObjectInfo (dmpObjectInfo), 
 	m_useOriginal (useOriginal),
 	m_foamParameters (foamParameters), 
 	m_parametersOperation (parametersOperation),
@@ -545,7 +545,7 @@ const vector<G3D::Vector3>& FoamAlongTime::GetT1s (size_t timeStep) const
 void FoamAlongTime::ParseDMPs (
     const vector<string>& fileNames,
     bool useOriginal,
-    const DmpObjectInfo& constraintRotationNames,
+    const DmpObjectInfo& dmpObjectInfo,
     const vector<ForceNames>& forcesNames,
     bool debugParsing, bool debugScanning)
 {
@@ -553,7 +553,7 @@ void FoamAlongTime::ParseDMPs (
     QStringList files;
     string filePattern;
     m_useOriginal = useOriginal;
-    m_dmpObjectInfo = constraintRotationNames;
+    m_dmpObjectInfo = dmpObjectInfo;
     m_forcesNames.resize (forcesNames.size ());
     copy (forcesNames.begin (), forcesNames.end (), m_forcesNames.begin ());
     QFileInfo fileInfo (fileNames[0].c_str ());
@@ -592,3 +592,12 @@ void FoamAlongTime::ParseDMPs (
     copy (foams.constBegin (), foams.constEnd (), GetFoams ().begin () + 1);
 }
 
+string FoamAlongTimeGroup::ToString () const
+{
+    ostringstream ostr;
+    BOOST_FOREACH (const FoamAlongTime& fat, m_foamAlongTime)
+    {
+	ostr << fat << endl;
+    }
+    return ostr.str ();
+}

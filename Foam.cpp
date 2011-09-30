@@ -66,13 +66,13 @@ void compact (vector< boost::shared_ptr<E> >& v)
 // ======================================================================
 
 Foam::Foam (bool useOriginal, 
-	    const DmpObjectInfo& constraintRotationNames,
+	    const DmpObjectInfo& dmpObjectInfo,
 	    const vector<ForceNames>& forcesNames, 
 	    FoamProperties& foamParameters,
 	    ParametersOperation paramsOp) :
     m_viewMatrix (new G3D::Matrix4 (G3D::Matrix4::identity ())),
     m_parsingData (new ParsingData (
-		       useOriginal, constraintRotationNames, forcesNames)),
+		       useOriginal, dmpObjectInfo, forcesNames)),
     m_histogram (
 	BodyProperty::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
     m_properties (foamParameters),
@@ -407,10 +407,10 @@ void Foam::Preprocess ()
     VertexSet vertexSet;
     EdgeSet edgeSet;
     FaceSet faceSet;
-    const DmpObjectInfo& constraintRotationNames = 
+    const DmpObjectInfo& dmpObjectInfo = 
 	GetParsingData ().GetDmpObjectInfo ();
-    if (constraintRotationNames.RotationUsed ())
-	SetDmpObjectPosition (constraintRotationNames);
+    if (dmpObjectInfo.RotationUsed ())
+	SetDmpObjectPosition (dmpObjectInfo);
     const vector<ForceNames>& forcesNames = GetParsingData ().GetForcesNames ();
     if (forcesNames.size () > 0)
 	SetForces (forcesNames);

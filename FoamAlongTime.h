@@ -192,7 +192,7 @@ public:
 	const string& fileName, size_t ticksForTimeStep, bool shiftT1sLower);
     void ParseDMPs (const vector<string>& fileNames,
 		    bool useOriginal,
-		    const DmpObjectInfo& constraintRotationNames,
+		    const DmpObjectInfo& dmpObjectInfo,
 		    const vector<ForceNames>& forcesNames,
 		    bool debugParsing, bool debugScanning);
     FoamProperties* GetFoamProperties ()
@@ -245,6 +245,28 @@ private:
     bool m_useOriginal;
 };
 
+class FoamAlongTimeGroup
+{
+public:
+    void SetSize (size_t n)
+    {
+	m_foamAlongTime.resize (n);
+    }
+
+    size_t size ()
+    {
+	return m_foamAlongTime.size ();
+    }
+
+    FoamAlongTime& GetFoamAlongTime (size_t i)
+    {
+	return m_foamAlongTime[i];
+    }
+    string ToString () const;
+
+private:
+    vector<FoamAlongTime> m_foamAlongTime;
+};
 
 /**
  * Pretty print a FoamAlongTime
@@ -252,6 +274,12 @@ private:
 inline ostream& operator<< (ostream& ostr, const FoamAlongTime& foamAlongTime)
 {
     return ostr << foamAlongTime.ToString () << endl;
+}
+
+inline ostream& operator<< (ostream& ostr, 
+			    const FoamAlongTimeGroup& foamAlongTimeGroup)
+{
+    return ostr << foamAlongTimeGroup.ToString () << endl;
 }
 
 

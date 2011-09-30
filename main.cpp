@@ -160,7 +160,7 @@ void printVersion ()
 
 po::options_description getCommonOptions (
     string* t1sFile,
-    DmpObjectInfo* constraintRotationNames,
+    DmpObjectInfo* dmpObjectInfo,
     vector<ForceNames>* forcesNames,
     size_t* ticksForTimeStep)
 {
@@ -176,11 +176,11 @@ po::options_description getCommonOptions (
 	"COMMON_OPTIONS");
     commonOptions.add_options()
 	(Option::m_name[Option::CONSTRAINT],
-	 po::value<size_t>(&constraintRotationNames->m_constraintIndex), 
+	 po::value<size_t>(&dmpObjectInfo->m_constraintIndex), 
 	 "a constraint that specifies an object.\n"
          "arg=<constraint> where <constraint> is the constraint number.")
 	(Option::m_name[Option::CONSTRAINT_ROTATION], 
-	 po::value<DmpObjectInfo>(constraintRotationNames), 
+	 po::value<DmpObjectInfo>(dmpObjectInfo), 
 	 "a constraint that specifies an object that moves (translates" 
 	 " and rotates) through foam.\n"
 	 "arg=\"<constraint> <xName> <yName> <angleName>\" where " 
@@ -221,7 +221,7 @@ po::options_description getCommonOptions (
 }
 
 po::options_description getCommandLineOptions (
-    string* iniFileName, string* simulationName, string* iniFilter)
+    string* iniFileName, vector<string>* simulationName, string* iniFilter)
 {
     po::options_description commandLineOptions (
 	"COMMAND_LINE_OPTIONS");
@@ -248,16 +248,18 @@ po::options_description getCommandLineOptions (
 	(Option::m_name[Option::OUTPUT_TEXT],
 	 "outputs a text representation of the data")
 	(Option::m_name[Option::SIMULATION],
-	 po::value<string>(simulationName),
-	 "arg=<simulationName>, parse the simulation with name "
-	 "<simulationName> in the ini file.")
+	 po::value< vector<string> >(simulationName),
+	 "arg=<simulationNames>, parse the simulations with name "
+	 "<simulationNames> in the ini file.")
 	(Option::m_name[Option::VERSION], "prints version information")
 	;
     return commandLineOptions;
 }
 
 po::options_description getIniOptions (
-    vector<string>* names, vector<Labels>* labels, vector<string>* parameters)
+    vector<string>* names = 0,
+    vector<Labels>* labels = 0, 
+    vector<string>* parameters = 0)
 {
     po::options_description iniOptions (
 	"INI_OPTIONS: (see simulations.ini for an example)");
@@ -301,26 +303,80 @@ po::options_description getOptions (
     return options;
 }
 
-void storeIniOptions (
-    const string& iniFileName, const string& simulationName,
-    const vector<string>& names, const vector<Labels>& labels, 
-    const vector<string>& parametersArray, 
-    string* iniFilter,
-    po::options_description& options,
-    po::positional_options_description& positionalOptions,
-    po::options_description& iniOptions,
-    po::variables_map* vm)
+
+void getIniOptions (const string& iniFileName, 
+		    vector<string>* names, 
+		    vector<Labels>* labels, 
+		    vector<string>* parametersArray)
 {
+    po::variables_map vm;
+    po::options_description iniOptions = getIniOptions (
+	names, labels, parametersArray);
+    
     ifstream iniStream (iniFileName.c_str ());
     if (iniStream.fail ())
     {
 	cerr << "Cannot open \"" << iniFileName << "\" for reading." << endl;
 	exit (13);
     }
+    string parameters;
+    po::store (po::parse_config_file (iniStream, iniOptions), vm);
+    po::notify(vm);
+}
+
+void getSelectedIndexesAndFilter (
+    const string& iniFileName, const vector<string>& names,
+    const vector<Labels>& labels,
+    vector<size_t>* selectedIndexes, string* filter)
+{
+    QFileInfo iniFileInfo (iniFileName.c_str ());
+    // browse simulations and choose a name.
+    BrowseSimulations browseSimulations (
+	(iniFileInfo.absolutePath () + "/" +
+	 iniFileInfo.baseName ()).toAscii (), names, labels);
+    if (browseSimulations.exec () == QDialog::Accepted)
+    {
+	*selectedIndexes = browseSimulations.GetSelectedIndexes ();
+	*filter = browseSimulations.GetFilter ();
+    }
+}
+
+void getSelectedIndexes (const vector<string>& selectedNames,
+			 const vector<string>& allNames,
+			 vector<size_t>* selectedIndexes)
+{
+    selectedIndexes->resize (selectedNames.size ());
+    for (size_t i = 0; i < selectedNames.size (); ++i)
+    {
+	string name = selectedNames[i];
+	vector<string>::const_iterator it = find (
+	    allNames.begin (), allNames.end (), name);
+	if (it == allNames.end ())
+	{
+	    cerr << "Cannot find " << name 
+		 << " in the ini file." << endl;
+	    exit (13);
+	}
+	size_t index = it - allNames.begin ();
+	(*selectedIndexes)[i] = index;
+    }
+}
+
+
+void storeIniOptions (
+    const string& iniFileName, const string& simulationName,    
+    string* iniFilter,
+    po::options_description& options,
+    po::positional_options_description& positionalOptions,
+    po::variables_map* vm)
+{
+    vector<string> names;
+    vector<Labels> labels;
+    vector<string> parametersArray;
+    getIniOptions (iniFileName, &names, &labels, &parametersArray);
+
     size_t i;
     string parameters;
-    po::store (po::parse_config_file (iniStream, iniOptions), *vm);
-    po::notify(*vm);
     if (vm->count (Option::m_name[Option::SIMULATION]))
     {
 	vector<string>::const_iterator it = find (
@@ -405,21 +461,19 @@ void filterAndExpandWildcards (vector<string>* fileNames, string filter)
 }
 
 
+
 void parseOptions (
     int argc, char *argv[], string* t1sFile,
-    vector<string>* fileNames, DmpObjectInfo* constraintRotationNames,
+    vector<string>* fileNames, DmpObjectInfo* dmpObjectInfo,
     vector<ForceNames>* forcesNames, size_t* ticksForTimeStep, 
     po::variables_map* vm)
 {
-    vector<string> names, parametersArray;
-    vector<Labels> labels;
-    string iniFileName, simulationName, iniFilter;
+    string iniFileName, iniFilter;
+    vector<string> simulationName;
     po::options_description commandLineOptions = getCommandLineOptions (
 	&iniFileName, &simulationName, &iniFilter);
     po::options_description commonOptions = getCommonOptions (
-	t1sFile, constraintRotationNames, forcesNames, ticksForTimeStep);
-    po::options_description iniOptions = getIniOptions (
-	&names, &labels, &parametersArray);
+	t1sFile, dmpObjectInfo, forcesNames, ticksForTimeStep);
     po::options_description options = getOptions (
 	fileNames, commonOptions, commandLineOptions);
     po::positional_options_description positionalOptions;
@@ -428,24 +482,26 @@ void parseOptions (
     po::store(po::command_line_parser (argc, argv).
 	      options (options).positional (positionalOptions).run (), *vm);
     po::notify(*vm);
+
+
     if (vm->count (Option::m_name[Option::INI_FILE]))
     {
 	storeIniOptions (
-	    iniFileName, simulationName, names, labels, parametersArray, 
+	    iniFileName, simulationName[0],
 	    &iniFilter,
-	    options, positionalOptions, iniOptions, vm);
+	    options, positionalOptions, vm);
 	filterAndExpandWildcards (fileNames, iniFilter);
     }
 
     if (vm->count (Option::m_name[Option::TICKS_FOR_TIMESTEP]) == 0)
 	*ticksForTimeStep = 1;
-    if (constraintRotationNames->m_constraintIndex != INVALID_INDEX)
-	--constraintRotationNames->m_constraintIndex;
+    if (dmpObjectInfo->m_constraintIndex != INVALID_INDEX)
+	--dmpObjectInfo->m_constraintIndex;
     if (vm->count (Option::m_name[Option::HELP])) 
     {
 	cout << commonOptions << "\n";
 	cout << commandLineOptions << endl;
-	cout << iniOptions << endl;
+	cout << getIniOptions () << endl;
 	exit (0);
     }
     if (vm->count (Option::m_name[Option::VERSION]))
@@ -459,10 +515,52 @@ void parseOptions (
 	cerr << "No DMP file specified" << endl;
 	cerr << commonOptions << endl;
 	cerr << commandLineOptions << endl;
-	cerr << iniOptions << endl;
+	cerr << getIniOptions () << endl;
 	exit (13);
     }
 }
+
+
+
+void parseOptions (int argc, char *argv[], 
+		   FoamAlongTimeGroup* foamAlongTimeGroup, bool* print)
+{
+    string t1sFile;
+    vector<string> fileNames;
+    DmpObjectInfo dmpObjectInfo;
+    vector<ForceNames> forcesNames;
+    size_t ticksForTimeStep;
+    po::variables_map vm;
+
+    foamAlongTimeGroup->SetSize (1);
+    FoamAlongTime& foamAlongTime = foamAlongTimeGroup->GetFoamAlongTime (0);
+    parseOptions (argc, argv, 
+		  &t1sFile, &fileNames, &dmpObjectInfo,
+		  &forcesNames, &ticksForTimeStep,
+		  &vm);	
+    if (vm.count (Option::m_name[Option::T1S]))
+	foamAlongTime.ParseT1s (
+	    t1sFile, ticksForTimeStep,
+	    vm.count (Option::m_name[Option::T1S_LOWER]));
+    foamAlongTime.ParseDMPs (
+	fileNames, vm.count (Option::m_name[Option::USE_ORIGINAL]),
+	dmpObjectInfo, forcesNames,
+	vm.count (Option::m_name[Option::DEBUG_PARSING]), 
+	vm.count (Option::m_name[Option::DEBUG_SCANNING]));
+    if (foamAlongTime.GetTimeSteps () == 0)
+    {
+	cdbg << "Error: The patern provided does not match any file" 
+	     << endl;
+	exit (13);
+    }
+
+    foamAlongTime.SetAdjustPressure (
+	! vm.count (Option::m_name[Option::ORIGINAL_PRESSURE]));
+    foamAlongTime.Preprocess ();
+    *print = vm.count (Option::m_name[Option::OUTPUT_TEXT]);
+}
+
+
 
 
 /**
@@ -478,43 +576,15 @@ int main(int argc, char *argv[])
 	argc, argv);
     try
     {
-	FoamAlongTime foamAlongTime;
-	string t1sFile;
-	vector<string> fileNames;
-	DmpObjectInfo constraintRotationNames;
-	vector<ForceNames> forcesNames;
-	size_t ticksForTimeStep;
-	po::variables_map vm;
-
-	parseOptions (argc, argv, 
-		      &t1sFile, &fileNames, &constraintRotationNames,
-		      &forcesNames, &ticksForTimeStep,
-		      &vm);	
-	if (vm.count (Option::m_name[Option::T1S]))
-	    foamAlongTime.ParseT1s (
-		t1sFile, ticksForTimeStep,
-		vm.count (Option::m_name[Option::T1S_LOWER]));
-	foamAlongTime.ParseDMPs (
-	    fileNames, vm.count (Option::m_name[Option::USE_ORIGINAL]),
-	    constraintRotationNames, forcesNames,
-	    vm.count (Option::m_name[Option::DEBUG_PARSING]), 
-	    vm.count (Option::m_name[Option::DEBUG_SCANNING]));
-        if (foamAlongTime.GetTimeSteps () == 0)
-	{
-	    cdbg << "Error: The patern provided does not match any file" 
-		 << endl;
-	    exit (13);
-	}
-
-	foamAlongTime.SetAdjustPressure (
-	    ! vm.count (Option::m_name[Option::ORIGINAL_PRESSURE]));
-	foamAlongTime.Preprocess ();
-	if (vm.count (Option::m_name[Option::OUTPUT_TEXT]))
-	    cdbg << foamAlongTime;
+	FoamAlongTimeGroup foamAlongTimeGroup;
+	bool print;
+	parseOptions (argc, argv, &foamAlongTimeGroup, &print);
+	if (print)
+	    cdbg << foamAlongTimeGroup;
 	else
 	{
 	    int result;
-	    MainWindow window (foamAlongTime);
+	    MainWindow window (foamAlongTimeGroup);
 	    window.show();
 	    result = app->exec();
 	    app->release ();

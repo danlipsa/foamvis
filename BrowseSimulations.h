@@ -23,7 +23,7 @@ public:
     BrowseSimulations (
 	const char* imageFolder, const vector<string>& names, 
 	const vector<Labels>& labels, QWidget* parent = 0);
-    size_t GetIndex () const;
+    vector<size_t> GetSelectedIndexes () const;
     string GetFilter () const;
 
 public Q_SLOTS:
@@ -31,6 +31,7 @@ public Q_SLOTS:
     void CurrentIndexChangedLabel(QString);
 
 private:
+    size_t globalIndex (size_t localIndex) const;
     static const char* LABEL_ALL;
 
 private:

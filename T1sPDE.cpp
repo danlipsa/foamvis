@@ -80,10 +80,10 @@ void GaussianStoreShaderProgram::Bind ()
 // ======================================================================
 
 const pair<size_t, size_t> T1sPDE::KERNEL_TEXTURE_SIZE = 
-    pair<size_t, size_t> (16, 128);
+    pair<size_t, size_t> (32, 128);
 const pair<float, float> T1sPDE::KERNEL_INTERVAL_PER_PIXEL = 
-    pair<float, float> (5.0/16.0, 10.0/16.0);
-const pair<float, float> T1sPDE::KERNEL_SIGMA = pair<float, float> (1.0, 5.0);
+    pair<float, float> (5.0/32.0, 10.0/32.0);
+const pair<float, float> T1sPDE::KERNEL_SIGMA = pair<float, float> (1.0, 7.0);
 boost::shared_ptr<GaussianInitShaderProgram> T1sPDE::m_gaussianInitShaderProgram;
 boost::shared_ptr<GaussianStoreShaderProgram
 		  > T1sPDE::m_gaussianStoreShaderProgram;

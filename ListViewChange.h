@@ -16,6 +16,12 @@ public:
 	QListView (parent)
     {
     }
+    QModelIndexList selectedIndexes () const
+    {
+	return selectedIndexes ();
+    }
+
+
 Q_SIGNALS:
     void CurrentChanged (int current);
 

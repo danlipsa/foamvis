@@ -50,7 +50,7 @@ public:
      * Constructs a Foam object.
      */
     Foam (bool useOriginal, 
-	  const DmpObjectInfo& constraintRotationNames,
+	  const DmpObjectInfo& dmpObjectInfo,
 	  const vector<ForceNames>& forcesNames,
 	  FoamProperties& foamParameters, ParametersOperation paramsOp);
 
@@ -255,7 +255,7 @@ public:
     
     void CalculateMinMaxStatistics ();
     void SetDmpObjectPosition (
-	const DmpObjectInfo& constraintRotationNames);    
+	const DmpObjectInfo& dmpObjectInfo);    
     const ObjectPosition& GetAverageAroundPosition () const
     {
 	return m_averageAroundPosition;

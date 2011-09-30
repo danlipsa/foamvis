@@ -57,7 +57,7 @@ public:
      * Constructs a ParsingData object
      */
     ParsingData (bool useOriginal, 
-		 const DmpObjectInfo& constraintRotationNames,
+		 const DmpObjectInfo& dmpObjectInfo,
 		 const vector<ForceNames>& forcesNames);
 
     void AddAttribute (const char* s)

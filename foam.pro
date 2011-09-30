@@ -8,7 +8,8 @@ HEADERS += Application.h ApproximationEdge.h \
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h DisplayWidget.h\
 	SelectBodiesById.h EditColorMap.h Edge.h Element.h ExpressionTree.h \
-	Enums.h Foam.h FoamAlongTime.h FoamProperties.h Face.h Force.h\
+	Enums.h Foam.h FoamAlongTime.h \
+	FoamProperties.h Face.h Force.h\
 	GLWidget.h Hashes.h Histogram.h HistogramItem.h HistogramHeight.h\
 	HistogramStatistics.h ListViewChange.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
@@ -33,7 +34,8 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	DisplayWidget.cpp DisplayVertexFunctors.cpp Edge.cpp \
 	HistogramStatistics.cpp\
 	SelectBodiesById.cpp EditColorMap.cpp Element.cpp ExpressionTree.cpp \
-	Enums.cpp Foam.cpp FoamAlongTime.cpp Face.cpp FoamProperties.cpp \
+	Enums.cpp Foam.cpp FoamAlongTime.cpp \
+	Face.cpp FoamProperties.cpp \
 	ForceAverage.cpp \
 	GLWidget.cpp Hashes.cpp Histogram.cpp HistogramItem.cpp \
 	HistogramHeight.cpp main.cpp MainWindow.cpp  \
