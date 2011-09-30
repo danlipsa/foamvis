@@ -460,56 +460,63 @@ void filterAndExpandWildcards (vector<string>* fileNames, string filter)
     }
 }
 
+struct FoamAlongTimeParameters
+{
+    string t1sFile;
+    vector<string> fileNames;
+    DmpObjectInfo dmpObjectInfo;
+    vector<ForceNames> forcesNames;
+    size_t ticksForTimeStep;
+    po::variables_map vm;
+};
 
 
-void parseOptions (
-    int argc, char *argv[], string* t1sFile,
-    vector<string>* fileNames, DmpObjectInfo* dmpObjectInfo,
-    vector<ForceNames>* forcesNames, size_t* ticksForTimeStep, 
-    po::variables_map* vm)
+void parseOptions (int argc, char *argv[], FoamAlongTimeParameters* params)
 {
     string iniFileName, iniFilter;
-    vector<string> simulationName;
+    vector<string> simulationNames;
     po::options_description commandLineOptions = getCommandLineOptions (
-	&iniFileName, &simulationName, &iniFilter);
+	&iniFileName, &simulationNames, &iniFilter);
     po::options_description commonOptions = getCommonOptions (
-	t1sFile, dmpObjectInfo, forcesNames, ticksForTimeStep);
+	&params->t1sFile, &params->dmpObjectInfo, &params->forcesNames, 
+	&params->ticksForTimeStep);
     po::options_description options = getOptions (
-	fileNames, commonOptions, commandLineOptions);
+	&params->fileNames, commonOptions, commandLineOptions);
     po::positional_options_description positionalOptions;
     positionalOptions.add (Option::m_name[Option::DMP_FILES], -1);
 
     po::store(po::command_line_parser (argc, argv).
-	      options (options).positional (positionalOptions).run (), *vm);
-    po::notify(*vm);
+	      options (options).positional (positionalOptions).run (), 
+	      params->vm);
+    po::notify(params->vm);
 
 
-    if (vm->count (Option::m_name[Option::INI_FILE]))
+    if (params->vm.count (Option::m_name[Option::INI_FILE]))
     {
 	storeIniOptions (
-	    iniFileName, simulationName[0],
+	    iniFileName, simulationNames[0],
 	    &iniFilter,
-	    options, positionalOptions, vm);
-	filterAndExpandWildcards (fileNames, iniFilter);
+	    options, positionalOptions, &params->vm);
+	filterAndExpandWildcards (&params->fileNames, iniFilter);
     }
 
-    if (vm->count (Option::m_name[Option::TICKS_FOR_TIMESTEP]) == 0)
-	*ticksForTimeStep = 1;
-    if (dmpObjectInfo->m_constraintIndex != INVALID_INDEX)
-	--dmpObjectInfo->m_constraintIndex;
-    if (vm->count (Option::m_name[Option::HELP])) 
+    if (params->vm.count (Option::m_name[Option::TICKS_FOR_TIMESTEP]) == 0)
+	params->ticksForTimeStep = 1;
+    if (params->dmpObjectInfo.m_constraintIndex != INVALID_INDEX)
+	--params->dmpObjectInfo.m_constraintIndex;
+    if (params->vm.count (Option::m_name[Option::HELP])) 
     {
 	cout << commonOptions << "\n";
 	cout << commandLineOptions << endl;
 	cout << getIniOptions () << endl;
 	exit (0);
     }
-    if (vm->count (Option::m_name[Option::VERSION]))
+    if (params->vm.count (Option::m_name[Option::VERSION]))
     {
 	printVersion ();
 	exit (0);
     }
-    if (argc == 1 || ! vm->count (Option::m_name[Option::DMP_FILES]))
+    if (argc == 1 || ! params->vm.count (Option::m_name[Option::DMP_FILES]))
     {
 	printVersion ();
 	cerr << "No DMP file specified" << endl;
@@ -520,33 +527,23 @@ void parseOptions (
     }
 }
 
-
-
 void parseOptions (int argc, char *argv[], 
 		   FoamAlongTimeGroup* foamAlongTimeGroup, bool* print)
 {
-    string t1sFile;
-    vector<string> fileNames;
-    DmpObjectInfo dmpObjectInfo;
-    vector<ForceNames> forcesNames;
-    size_t ticksForTimeStep;
-    po::variables_map vm;
-
+    vector<FoamAlongTimeParameters> params;
     foamAlongTimeGroup->SetSize (1);
     FoamAlongTime& foamAlongTime = foamAlongTimeGroup->GetFoamAlongTime (0);
-    parseOptions (argc, argv, 
-		  &t1sFile, &fileNames, &dmpObjectInfo,
-		  &forcesNames, &ticksForTimeStep,
-		  &vm);	
-    if (vm.count (Option::m_name[Option::T1S]))
+    parseOptions (argc, argv, &params[0]);
+    if (params[0].vm.count (Option::m_name[Option::T1S]))
 	foamAlongTime.ParseT1s (
-	    t1sFile, ticksForTimeStep,
-	    vm.count (Option::m_name[Option::T1S_LOWER]));
+	    params[0].t1sFile, params[0].ticksForTimeStep,
+	    params[0].vm.count (Option::m_name[Option::T1S_LOWER]));
     foamAlongTime.ParseDMPs (
-	fileNames, vm.count (Option::m_name[Option::USE_ORIGINAL]),
-	dmpObjectInfo, forcesNames,
-	vm.count (Option::m_name[Option::DEBUG_PARSING]), 
-	vm.count (Option::m_name[Option::DEBUG_SCANNING]));
+	params[0].fileNames, 
+	params[0].vm.count (Option::m_name[Option::USE_ORIGINAL]),
+	params[0].dmpObjectInfo, params[0].forcesNames,
+	params[0].vm.count (Option::m_name[Option::DEBUG_PARSING]), 
+	params[0].vm.count (Option::m_name[Option::DEBUG_SCANNING]));
     if (foamAlongTime.GetTimeSteps () == 0)
     {
 	cdbg << "Error: The patern provided does not match any file" 
@@ -555,9 +552,9 @@ void parseOptions (int argc, char *argv[],
     }
 
     foamAlongTime.SetAdjustPressure (
-	! vm.count (Option::m_name[Option::ORIGINAL_PRESSURE]));
+	! params[0].vm.count (Option::m_name[Option::ORIGINAL_PRESSURE]));
     foamAlongTime.Preprocess ();
-    *print = vm.count (Option::m_name[Option::OUTPUT_TEXT]);
+    *print = params[0].vm.count (Option::m_name[Option::OUTPUT_TEXT]);
 }
 
 
