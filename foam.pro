@@ -1,9 +1,10 @@
-HEADERS += Application.h ApproximationEdge.h \
+HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	Attribute.h AttributeCreator.h AttributeInfo.h \
 	AttributeHistogram.h Average.h AverageInterface.h\
 	AverageShaders.h Body.h BrowseSimulations.h\
 	BodyAlongTime.h AdjacentBody.h BodySelector.h \
-	ConstraintEdge.h ColorBarModel.h Comparisons.h Debug.h \
+	ConstraintEdge.h ColorBarModel.h Comparisons.h\
+	Debug.h \
 	DebugStream.h Disk.h ImageBasedAverage.h ForceAverage.h\
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h DisplayWidget.h\
@@ -11,10 +12,10 @@ HEADERS += Application.h ApproximationEdge.h \
 	Enums.h Foam.h FoamAlongTime.h \
 	FoamProperties.h Face.h Force.h\
 	GLWidget.h Hashes.h Histogram.h HistogramItem.h HistogramHeight.h\
-	HistogramStatistics.h ListViewChange.h\
+	HistogramStatistics.h Labels.h ListViewChange.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
 	OOBox.h Info.h ObjectPosition.h OpenGLUtils.h OrientedElement.h\
-	OrientedEdge.h OrientedFace.h AdjacentOrientedFace.h \
+	OrientedEdge.h OrientedFace.h Options.h \
 	ParsingData.h ParsingDriver.h ScalarAverage.h ShaderProgram.h\
 	ParsingEnums.h ProcessBodyTorus.h PropertySetter.h \
 	QuadraticEdge.h RestrictedRangeSlider.h \
@@ -40,7 +41,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	GLWidget.cpp Hashes.cpp Histogram.cpp HistogramItem.cpp \
 	HistogramHeight.cpp main.cpp MainWindow.cpp  \
 	NameSemanticValue.cpp \
-	OOBox.cpp OpenGLUtils.cpp OrientedElement.cpp\
+	OOBox.cpp OpenGLUtils.cpp OrientedElement.cpp Options.cpp\
 	OrientedEdge.cpp OrientedFace.cpp AdjacentOrientedFace.cpp\
 	ScalarAverage.cpp ParsingData.cpp ParsingDriver.cpp \
 	ParsingEnums.cpp ProcessBodyTorus.cpp \

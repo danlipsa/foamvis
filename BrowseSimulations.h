@@ -10,11 +10,7 @@
 #define __BROWSE_SIMULATION_H__
 
 #include "ui_BrowseSimulations.h"
-
-struct Labels
-{
-    vector<string> m_values;
-};
+#include "Labels.h"
 
 class BrowseSimulations : 
     public QDialog, private Ui::BrowseSimulations

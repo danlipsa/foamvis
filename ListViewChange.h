@@ -18,7 +18,7 @@ public:
     }
     QModelIndexList selectedIndexes () const
     {
-	return selectedIndexes ();
+	return QListView::selectedIndexes ();
     }
 
 
