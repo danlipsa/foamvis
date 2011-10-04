@@ -373,6 +373,11 @@ bool FoamAlongTime::Is2D () const
     return GetFoam (0).Is2D ();
 }
 
+bool FoamAlongTime::IsTorus () const
+{
+    return GetFoam (0).IsTorus ();
+}
+
 const Body& FoamAlongTime::GetBody (size_t bodyId, size_t timeStep) const
 {
     const BodyAlongTime& bat = GetBodiesAlongTime ().GetBodyAlongTime (bodyId);

@@ -18,6 +18,7 @@ class Foam;
 class Edge;
 class EditColorMap;
 class FoamAlongTime;
+class FoamAlongTimeGroup;
 class Force;
 class OrientedFace;
 class OrientedEdge;
@@ -55,18 +56,18 @@ public:
      * Sets the data displayed by the GLWidget
      * @param dataAlongTime data displayed by the GLWidget
      */
-    void SetFoamAlongTime (FoamAlongTime* dataAlongTime);
+    void SetFoamAlongTimeGroup (FoamAlongTimeGroup* dataAlongTime);
+    FoamAlongTimeGroup& GetFoamAlongTimeGroup ()
+    {
+	return *m_foamAlongTimeGroup;
+    }
     /**
      * Gets the data displayed by the GLWidget
      */
-    const FoamAlongTime& GetFoamAlongTime () const
-    {
-	return *m_foamAlongTime;
-    }
-    FoamAlongTime& GetFoamAlongTime ()
-    {
-	return *m_foamAlongTime;
-    }
+    const FoamAlongTime& GetFoamAlongTime (size_t index) const;
+    const FoamAlongTime& GetFoamAlongTime () const;
+    const FoamAlongTime& GetFoamAlongTime (ViewNumber::Enum viewNumber) const;
+    FoamAlongTime& GetFoamAlongTime ();
     ViewNumber::Enum GetViewNumber () const
     {
 	return m_viewNumber;
@@ -296,6 +297,7 @@ public Q_SLOTS:
 	boost::shared_ptr<ColorBarModel> colorBarModel,
 	size_t property);
     void SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel);
+    void CurrentIndexChangedSimulation (int index);
     void CurrentIndexChangedInteractionMode (int index);
     void CurrentIndexChangedStatisticsType (int index);
     void CurrentIndexChangedAxesOrder (int index);
@@ -653,7 +655,7 @@ private:
     /**
      * Foam to be displayd. Each element coresponds to a DMP file
      */
-    FoamAlongTime* m_foamAlongTime;
+    FoamAlongTimeGroup* m_foamAlongTimeGroup;
     /**
      * Index into m_foam that shows the current DMP file displayed
      */

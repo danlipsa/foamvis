@@ -46,7 +46,7 @@ public:
      * Constructor
      * @param foamAlongTime data to be displayed read from Surface Evolver files
      */
-    MainWindow(FoamAlongTimeGroup& foamAlongTime);
+    MainWindow(FoamAlongTimeGroup& foamAlongTimeGroup);
     /**
      * Called when a key is pressed
      * @param event object describing the key
@@ -89,6 +89,7 @@ public Q_SLOTS:
      */
     void ClickedPlay ();
     void ClickedPlayReverse ();
+    void CurrentIndexChangedSimulation (int index);
     void CurrentIndexChangedInteractionMode (int index);
     void CurrentIndexChangedFaceColor (int value);
     void CurrentIndexChangedStatisticsType (int value);
@@ -157,14 +158,19 @@ private:
      */
     void setupSliderData (const FoamAlongTime& foamAlongTime);
     void setupButtonGroups ();
-    void configureInterface (const FoamAlongTime& foamAlongTime);
-    void setupColorBarModel (ViewNumber::Enum viewNumber,
+    void configureInterfaceDataDependent (const FoamAlongTime& foamAlongTime);
+    void configureInterface ();
+    void setupColorBarModel (size_t simulationIndex, 
+			     ViewNumber::Enum viewNumber,
 			     BodyProperty::Enum property);
-    void setupColorBarModels (ViewNumber::Enum viewNumber);
+    void setupColorBarModels (size_t simulationIndex, 
+			      ViewNumber::Enum viewNumber);
+    void setupColorBarModels ();
 
     void setupHistogram ();
     void processBodyTorusStep ();
     void translatedBodyInit ();
+    void initComboBoxSimulation (FoamAlongTimeGroup& foamAlongTimeGroup);
     void translatedBodyStep ();
     void createActions ();
     void displayHistogramColorBar (bool checked);
@@ -196,7 +202,7 @@ private:
     /**
      * Timer used  in displaying the  data files. Otherwise  you would
      * display the files too fast.
-     */
+     */    
     boost::scoped_ptr<QTimer> m_timer;
     ProcessBodyTorus* m_processBodyTorus;
     
@@ -213,14 +219,17 @@ private:
 
     HistogramType::Enum m_histogramType;
     ViewNumber::Enum m_histogramViewNumber;
-    boost::array<
-	boost::array<boost::shared_ptr<ColorBarModel>, 
-		     BodyProperty::COUNT>,
-	ViewNumber::COUNT> m_colorBarModelBodyProperty;
-    boost::array<boost::shared_ptr<ColorBarModel>,
-		 ViewNumber::COUNT> m_colorBarModelDomainHistogram;
-    boost::array<boost::shared_ptr<ColorBarModel>,
-		 ViewNumber::COUNT> m_colorBarModelT1sPDE;
+    vector <
+	boost::array<
+	    boost::array<boost::shared_ptr<ColorBarModel>, 
+			 BodyProperty::COUNT>,
+	    ViewNumber::COUNT> > m_colorBarModelBodyProperty;
+    vector <
+	boost::array<boost::shared_ptr<ColorBarModel>,
+		     ViewNumber::COUNT> > m_colorBarModelDomainHistogram;
+    vector <boost::array<boost::shared_ptr<ColorBarModel>,
+		     ViewNumber::COUNT> > m_colorBarModelT1sPDE;
+
     boost::shared_ptr<EditColorMap> m_editColorMap;
     /**
      * True if the program displays data in a loop, false

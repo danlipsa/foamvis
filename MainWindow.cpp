@@ -79,32 +79,88 @@ MainWindow::MainWindow (FoamAlongTimeGroup& foamAlongTimeGroup) :
     setupUi (this);
     connectSignals ();
     CurrentIndexChangedViewCount (ViewCount::ONE);
-    FoamAlongTime& foamAlongTime = foamAlongTimeGroup.GetFoamAlongTime (0);
-    setupSliderData (foamAlongTime);
+    widgetGl->SetStatus (labelStatusBar);
+    widgetGl->SetFoamAlongTimeGroup (&foamAlongTimeGroup);
+    setupColorBarModels ();
+    initComboBoxSimulation (foamAlongTimeGroup);
+    configureInterface ();
     setupHistogram ();
     setupButtonGroups ();
     
-    widgetGl->SetFoamAlongTime (&foamAlongTime);
-    widgetGl->SetStatus (labelStatusBar);
     boost::shared_ptr<Application> app = Application::Get ();
     QFont defaultFont = app->font ();
     spinBoxFontSize->setValue (defaultFont.pointSize ());
     spinBoxHistogramHeight->setMaximum (500);
     spinBoxHistogramHeight->setValue (widgetHistogram->sizeHint ().height ());
-    spinBoxStatisticsTimeWindow->setMaximum (foamAlongTime.GetTimeSteps ());
-    spinBoxStatisticsTimeWindow->setValue (
-	spinBoxStatisticsTimeWindow->maximum ());
-    for (size_t i = 0; i < ViewNumber::COUNT; ++i)
-	setupColorBarModels (ViewNumber::Enum (i));
+    FoamAlongTime& foamAlongTime = foamAlongTimeGroup.GetFoamAlongTime (0);
+    configureInterfaceDataDependent (foamAlongTime);
     widgetHistogram->setHidden (true);
-    configureInterface (foamAlongTime);    
-    setWindowTitle (QString ((string("Foam - ") + 
-			      foamAlongTime.GetFilePattern ()).c_str ()));
     // fire as soon as all events have been processed
     m_timer->setInterval (33);
     createActions ();
     setTabOrder (radioButtonCenterPath, sliderTimeSteps);
     //initTranslatedBody ();
+}
+
+void MainWindow::configureInterface ()
+{
+    tabWidget->setCurrentWidget (timeStep);
+    comboBoxWindowSize->setCurrentIndex (WindowSize::GL_720x480);
+    horizontalSliderEllipseSize->setValue (49);
+}
+
+
+void MainWindow::configureInterfaceDataDependent (
+    const FoamAlongTime& foamAlongTime)
+{
+    setupSliderData (foamAlongTime);
+    if (foamAlongTime.T1sAvailable ())
+    {
+	checkBoxT1sShown->setEnabled (true);
+	checkBoxT1sShown->setChecked (true);
+    }
+    checkBoxT1sShiftLower->setChecked (foamAlongTime.GetT1sShiftLower () == 1);
+    if (! foamAlongTime.IsTorus ())
+    {
+	checkBoxTorusOriginalDomain->setDisabled (true);
+	checkBoxTorusOriginalDomainWrapInside->setDisabled (true);
+	radioButtonEdgesTorus->setDisabled (true);
+	radioButtonFaceEdgesTorus->setDisabled (true);
+    }
+    if (foamAlongTime.Is2D ())
+    {
+	comboBoxAxesOrder->setCurrentIndex (AxesOrder::TWO_D);
+	comboBoxInteractionMode->setCurrentIndex (InteractionMode::SCALE);	
+	comboBoxColor->setCurrentIndex (BodyProperty::PRESSURE);
+    }
+    else
+    {
+	comboBoxAxesOrder->setCurrentIndex (AxesOrder::THREE_D);
+	comboBoxColor->setCurrentIndex (FaceProperty::DMP_COLOR);
+    }
+    setWindowTitle (QString ((string("Foam - ") + 
+			      foamAlongTime.GetFilePattern ()).c_str ()));
+    spinBoxStatisticsTimeWindow->setMaximum (foamAlongTime.GetTimeSteps ());
+    spinBoxStatisticsTimeWindow->setValue (
+	spinBoxStatisticsTimeWindow->maximum ());
+}
+
+
+void MainWindow::initComboBoxSimulation (FoamAlongTimeGroup& foamAlongTimeGroup)
+{
+    size_t simulationsCount = foamAlongTimeGroup.size ();
+    if (simulationsCount == 1)
+	comboBoxSimulation->setHidden (true);
+    else
+    {
+	for (size_t i = 0; i < simulationsCount; ++i)
+	{
+	    const FoamAlongTime& foamAlongTime = 
+		foamAlongTimeGroup.GetFoamAlongTime (i);
+	    comboBoxSimulation->addItem (
+		foamAlongTime.GetSimulationName ().c_str ());
+	}
+    }
 }
 
 void MainWindow::translatedBodyInit ()
@@ -277,40 +333,6 @@ void MainWindow::setupHistogram ()
     QwtScaleWidget* yLeftAxis = widgetHistogram->axisWidget (QwtPlot::yLeft);
     yLeftAxis->setBorderDist (100, 100);
 }
-
-void MainWindow::configureInterface (const FoamAlongTime& foamAlongTime)
-{
-    const Foam& foam = foamAlongTime.GetFoam (0);
-    if (foamAlongTime.T1sAvailable ())
-    {
-	checkBoxT1sShown->setEnabled (true);
-	checkBoxT1sShown->setChecked (true);
-    }
-    if (! foam.IsTorus ())
-    {
-	checkBoxTorusOriginalDomain->setDisabled (true);
-	checkBoxTorusOriginalDomainWrapInside->setDisabled (true);
-	radioButtonEdgesTorus->setDisabled (true);
-	radioButtonFaceEdgesTorus->setDisabled (true);
-    }
-    tabWidget->setCurrentWidget (timeStep);
-    if (foam.Is2D ())
-    {
-	comboBoxAxesOrder->setCurrentIndex (AxesOrder::TWO_D);
-	comboBoxInteractionMode->setCurrentIndex (InteractionMode::SCALE);	
-	comboBoxColor->setCurrentIndex (BodyProperty::PRESSURE);
-    }
-    else
-    {
-	comboBoxAxesOrder->setCurrentIndex (AxesOrder::THREE_D);
-	comboBoxColor->setCurrentIndex (FaceProperty::DMP_COLOR);
-    }
-    checkBoxT1sShiftLower->setChecked (
-	widgetGl->GetFoamAlongTime ().GetT1sShiftLower () == 1);
-    comboBoxWindowSize->setCurrentIndex (WindowSize::GL_720x480);
-    horizontalSliderEllipseSize->setValue (49);
-}
-
 
 void MainWindow::RotateShown ()
 {
@@ -558,7 +580,7 @@ void MainWindow::createActions ()
  */
 MainWindow::HistogramInfo MainWindow::getCurrentHistogramInfo () const
 {
-    FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
+    const FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     switch (widgetGl->GetColorBarType ())
     {
     case ColorBarType::STATISTICS_COUNT:
@@ -606,21 +628,34 @@ void MainWindow::displayHistogramColorBar (bool checked)
 	m_histogramType);
 }
 
-void MainWindow::setupColorBarModels (ViewNumber::Enum viewNumber)
+void MainWindow::setupColorBarModels ()
+{
+    size_t simulationCount = widgetGl->GetFoamAlongTimeGroup ().size ();
+    m_colorBarModelBodyProperty.resize (simulationCount);
+    m_colorBarModelDomainHistogram.resize (simulationCount);
+    m_colorBarModelT1sPDE.resize (simulationCount);
+    for (size_t simulationIndex = 0; simulationIndex < simulationCount; 
+	 ++simulationIndex)
+	for (size_t vn = 0; vn < ViewNumber::COUNT; ++vn)
+	    setupColorBarModels (simulationIndex, ViewNumber::Enum (vn));
+}
+
+void MainWindow::setupColorBarModels (size_t simulationIndex,
+				      ViewNumber::Enum viewNumber)
 {
     size_t i = 0;
     BOOST_FOREACH (boost::shared_ptr<ColorBarModel>& colorBarModel,
-		   m_colorBarModelBodyProperty[viewNumber])
+		   m_colorBarModelBodyProperty[simulationIndex][viewNumber])
     {
 	BodyProperty::Enum property = BodyProperty::FromSizeT (i);
 	colorBarModel.reset (new ColorBarModel ());
-	setupColorBarModel (viewNumber, property);
+	setupColorBarModel (simulationIndex, viewNumber, property);
 	++i;
     }
 
     {
 	boost::shared_ptr<ColorBarModel>& colorBarModel = 
-	    m_colorBarModelDomainHistogram[viewNumber];
+	    m_colorBarModelDomainHistogram[simulationIndex][viewNumber];
 	colorBarModel.reset (new ColorBarModel ());
 	colorBarModel->SetTitle ("Count per area");
 	colorBarModel->SetInterval (
@@ -630,7 +665,7 @@ void MainWindow::setupColorBarModels (ViewNumber::Enum viewNumber)
 
     {
 	boost::shared_ptr<ColorBarModel>& colorBarModel = 
-	    m_colorBarModelT1sPDE[viewNumber];
+	    m_colorBarModelT1sPDE[simulationIndex][viewNumber];
 	colorBarModel.reset (new ColorBarModel ());
 	colorBarModel->SetTitle ("T1s PDE");
 	colorBarModel->SetInterval (
@@ -639,16 +674,18 @@ void MainWindow::setupColorBarModels (ViewNumber::Enum viewNumber)
     }
 }
 
-void MainWindow::setupColorBarModel (ViewNumber::Enum viewNumber,
+void MainWindow::setupColorBarModel (size_t simulationIndex,
+				     ViewNumber::Enum viewNumber,
 				     BodyProperty::Enum property)
 {
-    FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
-    m_colorBarModelBodyProperty[viewNumber][property]->SetTitle (
-	BodyProperty::ToString (property));
-    m_colorBarModelBodyProperty[viewNumber][property]->SetInterval (
-	foamAlongTime.GetRange (property));
-    m_colorBarModelBodyProperty[viewNumber][property]->SetupPalette (
-	Palette::BLUE_RED_DIVERGING);
+    const FoamAlongTime& foamAlongTime = 
+	widgetGl->GetFoamAlongTime (simulationIndex);
+    m_colorBarModelBodyProperty[simulationIndex][viewNumber][property]
+	->SetTitle (BodyProperty::ToString (property));
+    m_colorBarModelBodyProperty[simulationIndex][viewNumber][property]
+	->SetInterval (foamAlongTime.GetRange (property));
+    m_colorBarModelBodyProperty[simulationIndex][viewNumber][property]
+	->SetupPalette (Palette::BLUE_RED_DIVERGING);
 }
 
 void MainWindow::updateLightControls (
@@ -698,14 +735,17 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel (
 {
     ColorBarType::Enum colorBarType = GLWidget::GetColorBarType (
 	viewType, property, statisticsType);
+    size_t simulationIndex = 
+	widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
     switch (colorBarType)
     {
     case ColorBarType::T1S_PDE:
-	return m_colorBarModelT1sPDE[viewNumber];
+	return m_colorBarModelT1sPDE[simulationIndex][viewNumber];
     case ColorBarType::STATISTICS_COUNT:
-	return m_colorBarModelDomainHistogram[viewNumber];
+	return m_colorBarModelDomainHistogram[simulationIndex][viewNumber];
     case ColorBarType::PROPERTY:
-	return m_colorBarModelBodyProperty[viewNumber][property];
+	return m_colorBarModelBodyProperty
+	    [simulationIndex][viewNumber][property];
     default:
 	return boost::shared_ptr<ColorBarModel> ();
     }
@@ -833,7 +873,9 @@ void MainWindow::ValueChangedT1sKernelSigma (int index)
 {
     (void)index;
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
-    m_colorBarModelT1sPDE[viewNumber]->SetInterval (
+    size_t simulationIndex = 
+	widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
+    m_colorBarModelT1sPDE[simulationIndex][viewNumber]->SetInterval (
 	toQwtDoubleInterval (widgetGl->GetMinMaxT1sPDE (viewNumber)));
 }
 
@@ -849,7 +891,7 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 
 void MainWindow::ButtonClickedViewType (int vt)
 {
-    FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
+    const FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime ();
     ViewType::Enum viewType = ViewType::Enum(vt);
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
     ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
@@ -918,13 +960,18 @@ void MainWindow::setStackedWidget (ViewType::Enum viewType)
     }
 }
 
+void MainWindow::CurrentIndexChangedSimulation (int index)
+{
+    const FoamAlongTime& foamAlongTime = widgetGl->GetFoamAlongTime (index);
+    configureInterfaceDataDependent (foamAlongTime);
+}
+
 void MainWindow::CurrentIndexChangedSelectedLight (int i)
 {
     const ViewSettings& vs = widgetGl->GetViewSettings ();
     LightNumber::Enum lightNumber = LightNumber::Enum (i);
     updateLightControls (vs, lightNumber);
 }
-
 
 void MainWindow::CurrentIndexChangedFaceColor (int value)
 {
@@ -933,18 +980,21 @@ void MainWindow::CurrentIndexChangedFaceColor (int value)
 	    radioButtonHistogramUnicolor, radioButtonHistogramColorCoded}};
     boost::array<QWidget*, 1> widgetsEnabled = {{radioButtonFacesStatistics}};
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
+    size_t simulationIndex = 
+	widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
     if (value == FaceProperty::DMP_COLOR) {
 	::setVisible (widgetsVisible, false);
 	::setEnabled (widgetsEnabled, false);
 	Q_EMIT BodyOrFacePropertyChanged (
-	    m_colorBarModelBodyProperty[viewNumber][0], value);
+	    m_colorBarModelBodyProperty[simulationIndex][viewNumber][0], value);
     }
     else {
 	BodyProperty::Enum property = BodyProperty::FromSizeT (value);
 	::setVisible (widgetsVisible, true);
 	::setEnabled (widgetsEnabled, true);
 	Q_EMIT BodyOrFacePropertyChanged (
-	    m_colorBarModelBodyProperty[viewNumber][property], property);
+	    m_colorBarModelBodyProperty
+	    [simulationIndex][viewNumber][property], property);
 	SetAndDisplayHistogram (DISCARD_SELECTION, REPLACE_MAX_VALUE);
     }
 }

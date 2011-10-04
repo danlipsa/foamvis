@@ -175,7 +175,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_torusOriginalDomainClipped (false),
       m_interactionMode (InteractionMode::ROTATE),
       m_interactionObject (InteractionObject::FOCUS),
-      m_foamAlongTime (0), m_currentTime (0),
+      m_foamAlongTimeGroup (0), 
+      m_currentTime (0),
       m_minimumEdgeRadius (0),
       m_edgeRadiusRatio (0),
       m_facesShowEdges (true),
@@ -455,9 +456,9 @@ void GLWidget::initDisplayView ()
 
 void GLWidget::initViewSettings ()
 {
-    const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
     BOOST_FOREACH (boost::shared_ptr<ViewSettings>& vs, m_viewSettings)
 	vs = boost::make_shared <ViewSettings> (*this);
+    const FoamAlongTime& foamAlongTime = GetFoamAlongTime ();
     if (foamAlongTime.Is2D ())
     {
 	BOOST_FOREACH (boost::shared_ptr<ViewSettings> vs, m_viewSettings)
@@ -482,13 +483,33 @@ void GLWidget::initViewSettings ()
     CurrentIndexChangedViewCount (ViewCount::ONE);
 }
 
-
-
-
-
-void GLWidget::SetFoamAlongTime (FoamAlongTime* foamAlongTime)
+const FoamAlongTime& GLWidget::GetFoamAlongTime (
+    ViewNumber::Enum viewNumber) const
 {
-    m_foamAlongTime = foamAlongTime;
+    return GetFoamAlongTime (
+	GetViewSettings (viewNumber).GetSimulationIndex ());
+}
+
+const FoamAlongTime& GLWidget::GetFoamAlongTime () const
+{
+    return GetFoamAlongTime (GetViewNumber ());
+}
+
+const FoamAlongTime& GLWidget::GetFoamAlongTime (size_t i) const
+{
+    return m_foamAlongTimeGroup->GetFoamAlongTime (i);
+}
+
+FoamAlongTime& GLWidget::GetFoamAlongTime ()
+{
+    ViewSettings& vs = GetViewSettings ();
+    return m_foamAlongTimeGroup->GetFoamAlongTime (vs.GetSimulationIndex ());
+}
+
+
+void GLWidget::SetFoamAlongTimeGroup (FoamAlongTimeGroup* foamAlongTimeGroup)
+{
+    m_foamAlongTimeGroup = foamAlongTimeGroup;
     initViewSettings ();
     Foam::Bodies bodies = GetFoamAlongTime ().GetFoam (0).GetBodies ();
     if (bodies.size () != 0)
@@ -3378,6 +3399,13 @@ void GLWidget::CurrentIndexChangedSelectedLight (int selectedLight)
 {
     ViewSettings& vs = GetViewSettings ();
     vs.SetSelectedLight (LightNumber::Enum (selectedLight));
+}
+
+void GLWidget::CurrentIndexChangedSimulation (int i)
+{
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetSimulationIndex (i);
+    update ();
 }
 
 void GLWidget::CurrentIndexChangedViewCount (int index)

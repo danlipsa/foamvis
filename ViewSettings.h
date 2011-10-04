@@ -398,6 +398,15 @@ public:
 	m_centerPathHidden = centerPathHidden;
     }
 
+    size_t GetSimulationIndex () const
+    {
+	return m_simulationIndex;
+    }
+    void SetSimulationIndex (size_t i)
+    {
+	m_simulationIndex = i;
+    }
+
     virtual void AverageInit (ViewNumber::Enum viewNumber);
     virtual void AverageSetTimeWindow (size_t timeSteps);
     virtual void AverageStep (ViewNumber::Enum viewNumber, int timeStep);
@@ -476,6 +485,7 @@ private:
     boost::shared_ptr<BodySelector> m_bodySelector;
     bool m_contextHidden;
     bool m_centerPathHidden;
+    size_t m_simulationIndex;
 };
 
 

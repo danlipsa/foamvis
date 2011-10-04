@@ -36,6 +36,7 @@ public:
      */
     void CalculateBoundingBox ();
     bool Is2D () const;
+    bool IsTorus () const;
 
     /**
      * Gets the AABox for this vector of Foam objects
@@ -138,6 +139,15 @@ public:
     {
 	m_filePattern = filePattern;
     }
+    void SetSimulationName (string simulationName)
+    {
+	m_simulationName = simulationName;
+    }
+    string GetSimulationName () const
+    {
+	return m_simulationName;
+    }
+
     void SetTimeSteps (size_t timeSteps);
     string ToString () const;
     string ToHtml () const;
@@ -236,6 +246,10 @@ private:
     G3D::AABox m_boundingBox;
     G3D::AABox m_boundingBoxTorus;
     string m_filePattern;
+    /**
+     * This is the name specified in the ini file.
+     */
+    string m_simulationName;
     vector<HistogramStatistics> m_histogram;
     bool m_adjustPressure;
     vector< vector<G3D::Vector3> > m_t1s;

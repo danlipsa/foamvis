@@ -70,9 +70,11 @@ void parseOptions (int argc, char *argv[],
 	foamAlongTime.ParseDMPs (
 	    co[i]->m_fileNames, 
 	    co[i]->m_vm.count (Option::m_name[Option::USE_ORIGINAL]),
-	co[i]->m_dmpObjectInfo, co[i]->m_forcesNames,
+	    co[i]->m_dmpObjectInfo, co[i]->m_forcesNames,
 	    co[i]->m_vm.count (Option::m_name[Option::DEBUG_PARSING]), 
 	    co[i]->m_vm.count (Option::m_name[Option::DEBUG_SCANNING]));
+	foamAlongTime.SetSimulationName (
+	    clo.m_names[clo.m_simulationIndexes[i]]);
 	if (foamAlongTime.GetTimeSteps () == 0)
 	{
 	    cdbg << "Error: The patern provided does not match any file" 
