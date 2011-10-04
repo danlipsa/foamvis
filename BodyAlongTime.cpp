@@ -10,7 +10,7 @@
 #include "BodyAlongTime.h"
 #include "Debug.h"
 #include "DebugStream.h"
-#include "FoamAlongTime.h"
+#include "Simulation.h"
 #include "Foam.h"
 #include "Utils.h"
 
@@ -27,14 +27,14 @@ BodyAlongTime::BodyAlongTime (size_t timeSteps) :
 {
 }
 
-void BodyAlongTime::CalculateBodyWraps (const FoamAlongTime& foamAlongTime)
+void BodyAlongTime::CalculateBodyWraps (const Simulation& simulation)
 {
-    if (foamAlongTime.GetFoam (0).IsTorus ())
+    if (simulation.GetFoam (0).IsTorus ())
     {
 	for (size_t time = 0; time < (m_bodyAlongTime.size () - 1); time++)
 	{
 	    const OOBox& originalDomain = 
-		foamAlongTime.GetFoam (time+1).GetOriginalDomain ();
+		simulation.GetFoam (time+1).GetOriginalDomain ();
 	    G3D::Vector3int16 translation;
 	    const G3D::Vector3& begin = m_bodyAlongTime[time]->GetCenter ();
 	    const G3D::Vector3& end = m_bodyAlongTime[time + 1]->GetCenter ();

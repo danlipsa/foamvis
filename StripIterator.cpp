@@ -12,18 +12,18 @@
 #include "DisplayBodyFunctors.h"
 #include "DisplayEdgeFunctors.h"
 #include "Foam.h"
-#include "FoamAlongTime.h"
+#include "Simulation.h"
 #include "OOBox.h"
 #include "StripIterator.h"
 #include "Utils.h"
 
 StripIterator::StripIterator (
     const BodyAlongTime& bodyAlongTime,
-    const FoamAlongTime& foamAlongTime, size_t timeStep) : 
+    const Simulation& simulation, size_t timeStep) : 
 
     m_timeStep (timeStep),
     m_bodyAlongTime (bodyAlongTime),
-    m_foamAlongTime (foamAlongTime)
+    m_simulation (simulation)
 {
     m_currentWrap = 0;
     size_t wrapSize = m_bodyAlongTime.GetWrapSize ();
@@ -99,7 +99,7 @@ StripIteratorPoint StripIterator::Next ()
     { // at the end of a middle wrap
 	m_isNextBeginOfStrip = true;
 	const OOBox& originalDomain = 
-	    m_foamAlongTime.GetFoam (m_timeStep).GetOriginalDomain ();
+	    m_simulation.GetFoam (m_timeStep).GetOriginalDomain ();
 	body = m_bodyAlongTime.GetBody (m_timeStep);
 	point = StripIteratorPoint (
 	    originalDomain.TorusTranslate (
@@ -135,7 +135,7 @@ template void StripIterator::ForEachSegment<boost::_bi::bind_t<void, boost::_mfi
 template void StripIterator::ForEachSegment<boost::_bi::bind_t<void, boost::_mfi::mf4<void, DisplayCenterPath<SetterTextureCoordinate, DisplaySegment>, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<DisplayCenterPath<SetterTextureCoordinate, DisplaySegment>*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > > >
 (boost::_bi::bind_t<void, boost::_mfi::mf4<void, DisplayCenterPath<SetterTextureCoordinate, DisplaySegment>, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<DisplayCenterPath<SetterTextureCoordinate, DisplaySegment>*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > >);
 
-template void StripIterator::ForEachSegment<boost::_bi::bind_t<void, boost::_mfi::mf4<void, FoamAlongTime, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<FoamAlongTime*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > > > (boost::_bi::bind_t<void, boost::_mfi::mf4<void, FoamAlongTime, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<FoamAlongTime*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > >);
+template void StripIterator::ForEachSegment<boost::_bi::bind_t<void, boost::_mfi::mf4<void, Simulation, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<Simulation*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > > > (boost::_bi::bind_t<void, boost::_mfi::mf4<void, Simulation, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<Simulation*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > >);
 
 template void StripIterator::ForEachSegment<boost::_bi::bind_t<void, boost::_mfi::mf4<void, DisplayCenterPath<SetterTextureCoordinate, DisplaySegmentTube>, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<DisplayCenterPath<SetterTextureCoordinate, DisplaySegmentTube>*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > > >(boost::_bi::bind_t<void, boost::_mfi::mf4<void, DisplayCenterPath<SetterTextureCoordinate, DisplaySegmentTube>, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&, StripIteratorPoint const&>, boost::_bi::list5<boost::_bi::value<DisplayCenterPath<SetterTextureCoordinate, DisplaySegmentTube>*>, boost::arg<1>, boost::arg<2>, boost::arg<3>, boost::arg<4> > >);
 /// @endcond

@@ -1,5 +1,5 @@
 /**
- * @file FoamAlongTime.cpp
+ * @file Simulation.cpp
  * @author Dan R. Lipsa
  *
  * Method implementation for a list of Foam objects
@@ -9,7 +9,7 @@
 #include "Debug.h"
 #include "DebugStream.h"
 #include "Foam.h"
-#include "FoamAlongTime.h"
+#include "Simulation.h"
 #include "ParsingData.h"
 #include "Utils.h"
 
@@ -18,7 +18,7 @@
 class FoamParamMethodList
 {
 public:
-    FoamParamMethodList (FoamAlongTime::FoamParamMethod* foamMethods, size_t n):
+    FoamParamMethodList (Simulation::FoamParamMethod* foamMethods, size_t n):
 	m_foamMethods (foamMethods), m_n (n)
     {
     }
@@ -37,7 +37,7 @@ public:
     }
 
 private:
-    FoamAlongTime::FoamParamMethod* m_foamMethods;
+    Simulation::FoamParamMethod* m_foamMethods;
     size_t m_n;
 };
 
@@ -132,13 +132,13 @@ private:
 
 // Static Members
 // ======================================================================
-const vector<G3D::Vector3> FoamAlongTime::NO_T1S;
+const vector<G3D::Vector3> Simulation::NO_T1S;
 
 
 
 // Members
 // ======================================================================
-FoamAlongTime::FoamAlongTime () :
+Simulation::Simulation () :
     m_histogram (
         BodyProperty::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
     m_t1sTimeStepShift (0),
@@ -146,7 +146,7 @@ FoamAlongTime::FoamAlongTime () :
 {
 }
 
-void FoamAlongTime::CalculateBoundingBox ()
+void Simulation::CalculateBoundingBox ()
 {
     G3D::Vector3 low, high;
     CalculateAggregate<Foams, Foams::iterator, 
@@ -162,7 +162,7 @@ void FoamAlongTime::CalculateBoundingBox ()
     m_boundingBoxTorus.set (low, high);
 }
 
-void FoamAlongTime::calculateBodyWraps ()
+void Simulation::calculateBodyWraps ()
 {
     if (m_foams.size () <= 1)
 	return;
@@ -175,19 +175,19 @@ void FoamAlongTime::calculateBodyWraps ()
 			 _1), *this));
 }
 
-void FoamAlongTime::SetAverageAroundFromDmp ()
+void Simulation::SetAverageAroundFromDmp ()
 {
     BOOST_FOREACH (boost::shared_ptr<Foam> f, GetFoams ())
 	f->SetAverageAroundFromDmp ();
 }
 
-void FoamAlongTime::SetAverageAroundFromBody (size_t bodyId)
+void Simulation::SetAverageAroundFromBody (size_t bodyId)
 {
     BOOST_FOREACH (boost::shared_ptr<Foam> f, GetFoams ())
 	f->SetAverageAroundFromBody (bodyId);
 }
 
-void FoamAlongTime::SetAverageAroundFromBody (
+void Simulation::SetAverageAroundFromBody (
     size_t bodyId, size_t secondBodyId)
 {
     G3D::Vector2 beginAxis = 
@@ -197,7 +197,7 @@ void FoamAlongTime::SetAverageAroundFromBody (
 }
 
 
-void FoamAlongTime::Preprocess ()
+void Simulation::Preprocess ()
 {
     cdbg << "Preprocess temporal foam data ..." << endl;
     fixConstraintPoints ();
@@ -227,7 +227,7 @@ void FoamAlongTime::Preprocess ()
 }
 
 
-void FoamAlongTime::fixConstraintPoints ()
+void Simulation::fixConstraintPoints ()
 {
     Foams foams = GetFoams ();
     Foam* prevFoam = 0;
@@ -240,14 +240,14 @@ void FoamAlongTime::fixConstraintPoints ()
 }
 
 
-void FoamAlongTime::MapPerFoam (FoamParamMethod* foamMethods, size_t n)
+void Simulation::MapPerFoam (FoamParamMethod* foamMethods, size_t n)
 {
     FoamParamMethodList fl (foamMethods, n);
     QtConcurrent::blockingMap (m_foams.begin (), m_foams.end (), fl);
 }
 
 size_t foamsIndex (
-    FoamAlongTime::Foams::iterator current, FoamAlongTime::Foams::iterator begin)
+    Simulation::Foams::iterator current, Simulation::Foams::iterator begin)
 {
     return (current - begin) / sizeof *begin;
 }
@@ -258,7 +258,7 @@ double GetPressureBody0 (const boost::shared_ptr<Foam>& foam)
     return foam->GetBody (0).GetPropertyValue (BodyProperty::PRESSURE);
 }
 
-void FoamAlongTime::adjustPressureSubtractReference ()
+void Simulation::adjustPressureSubtractReference ()
 {
     QtConcurrent::blockingMap (
 	m_foams.begin (), m_foams.end (),
@@ -266,7 +266,7 @@ void FoamAlongTime::adjustPressureSubtractReference ()
 		     boost::bind (GetPressureBody0, _1)));
 }
 
-void FoamAlongTime::adjustPressureAlignMedians ()
+void Simulation::adjustPressureAlignMedians ()
 {
     // adjust pressure in every time step,
     // by substracting the minimum pressure of a bubble in that time step.
@@ -287,7 +287,7 @@ void FoamAlongTime::adjustPressureAlignMedians ()
 	m_foams[i]->AdjustPressure (medians[i] - maxMedian);
 }
 
-void FoamAlongTime::calculateStatistics ()
+void Simulation::calculateStatistics ()
 {
     vector<MinMaxStatistics> minMaxStat(BodyProperty::COUNT);
     for (size_t i = BodyProperty::PROPERTY_BEGIN; 
@@ -312,7 +312,7 @@ void FoamAlongTime::calculateStatistics ()
 }
 
 template <typename Accumulator>
-void FoamAlongTime::forAllBodiesAccumulate (
+void Simulation::forAllBodiesAccumulate (
     Accumulator* acc, BodyProperty::Enum property)
 {
     QtConcurrent::blockingMap (
@@ -321,24 +321,24 @@ void FoamAlongTime::forAllBodiesAccumulate (
 }
 
 
-void FoamAlongTime::calculateVelocityBody (
+void Simulation::calculateVelocityBody (
     pair< size_t, boost::shared_ptr<BodyAlongTime> > p)
 {
     const BodyAlongTime& bat = *p.second;
     StripIterator stripIt = bat.GetStripIterator (*this);
-    stripIt.ForEachSegment (boost::bind (&FoamAlongTime::storeVelocity,
+    stripIt.ForEachSegment (boost::bind (&Simulation::storeVelocity,
 					 this, _1, _2, _3, _4));    
 }
 
-void FoamAlongTime::calculateVelocity ()
+void Simulation::calculateVelocity ()
 {
     BodiesAlongTime::BodyMap& map = GetBodiesAlongTime ().GetBodyMap ();
     QtConcurrent::blockingMap (
 	map.begin (), map.end (), 
-	boost::bind (&FoamAlongTime::calculateVelocityBody, this, _1));
+	boost::bind (&Simulation::calculateVelocityBody, this, _1));
 }
 
-void FoamAlongTime::storeVelocity (
+void Simulation::storeVelocity (
     const StripIteratorPoint& beforeBegin,
     const StripIteratorPoint& begin,
     const StripIteratorPoint& end,
@@ -352,7 +352,7 @@ void FoamAlongTime::storeVelocity (
 	end.m_body->SetVelocity (velocity);
 }
 
-void FoamAlongTime::CacheBodiesAlongTime ()
+void Simulation::CacheBodiesAlongTime ()
 {
     Foam::Bodies& bodies = m_foams[0]->GetBodies ();
     for_each (bodies.begin (), bodies.end (), 
@@ -368,26 +368,26 @@ void FoamAlongTime::CacheBodiesAlongTime ()
 	      boost::bind (&BodiesAlongTime::Resize, &m_bodiesAlongTime, _1));
 }
 
-bool FoamAlongTime::Is2D () const
+bool Simulation::Is2D () const
 {
     return GetFoam (0).Is2D ();
 }
 
-bool FoamAlongTime::IsTorus () const
+bool Simulation::IsTorus () const
 {
     return GetFoam (0).IsTorus ();
 }
 
-const Body& FoamAlongTime::GetBody (size_t bodyId, size_t timeStep) const
+const Body& Simulation::GetBody (size_t bodyId, size_t timeStep) const
 {
     const BodyAlongTime& bat = GetBodiesAlongTime ().GetBodyAlongTime (bodyId);
     return *bat.GetBody (timeStep);
 }
 
-string FoamAlongTime::ToString () const
+string Simulation::ToString () const
 {
     ostringstream ostr;
-    ostr << "FoamAlongTime: " << endl;
+    ostr << "Simulation: " << endl;
     ostr << m_boundingBox << endl;
     ostream_iterator< boost::shared_ptr<const Foam> > output (ostr, "\n");
     copy (m_foams.begin (), m_foams.end (), output);
@@ -395,7 +395,7 @@ string FoamAlongTime::ToString () const
     return ostr.str ();
 }
 
-string FoamAlongTime::ToHtml () const
+string Simulation::ToHtml () const
 {
     const Foam& firstFoam = GetFoam (0);
     size_t timeSteps = GetTimeSteps ();
@@ -435,13 +435,13 @@ string FoamAlongTime::ToHtml () const
 }
 
 
-void FoamAlongTime::SetTimeSteps (size_t timeSteps)
+void Simulation::SetTimeSteps (size_t timeSteps)
 {
     m_foams.resize (timeSteps);
 }
 
 
-void FoamAlongTime::GetTimeStepSelection (
+void Simulation::GetTimeStepSelection (
     BodyProperty::Enum property,
     const vector<QwtDoubleInterval>& valueIntervals,
     vector<bool>* timeStepSelection) const
@@ -452,7 +452,7 @@ void FoamAlongTime::GetTimeStepSelection (
 	GetTimeStepSelection (property, valueInterval, timeStepSelection);
 }
 
-void FoamAlongTime::GetTimeStepSelection (
+void Simulation::GetTimeStepSelection (
     BodyProperty::Enum property,
     const QwtDoubleInterval& valueInterval,
     vector<bool>* timeStepSelection) const
@@ -466,12 +466,12 @@ void FoamAlongTime::GetTimeStepSelection (
     }
 }
 
-bool FoamAlongTime::IsQuadratic () const
+bool Simulation::IsQuadratic () const
 {
     return m_foams[0]->IsQuadratic ();
 }
 
-size_t FoamAlongTime::GetMaxCountPerBinIndividual (
+size_t Simulation::GetMaxCountPerBinIndividual (
     BodyProperty::Enum property) const
 {
     size_t size = GetTimeSteps ();
@@ -482,7 +482,7 @@ size_t FoamAlongTime::GetMaxCountPerBinIndividual (
     return max;
 }
 
-bool FoamAlongTime::T1sAvailable () const
+bool Simulation::T1sAvailable () const
 {
     BOOST_FOREACH (const vector<G3D::Vector3> timeStepT1s, m_t1s)
 	if (timeStepT1s.size () != 0)
@@ -490,12 +490,12 @@ bool FoamAlongTime::T1sAvailable () const
     return false;
 }
 
-size_t FoamAlongTime::GetT1sTimeSteps () const
+size_t Simulation::GetT1sTimeSteps () const
 {
     return m_t1s.size ();
 }
 
-size_t FoamAlongTime::GetT1sSize () const
+size_t Simulation::GetT1sSize () const
 {
     size_t size = 0;
     BOOST_FOREACH (const vector<G3D::Vector3>& t1sTimeStep, m_t1s)
@@ -506,7 +506,7 @@ size_t FoamAlongTime::GetT1sSize () const
 }
 
 
-void FoamAlongTime::ParseT1s (
+void Simulation::ParseT1s (
     const string& fileName, size_t ticksForTimeStep, bool shiftT1sLower)
 {
     cdbg << "Parsing T1s file...";
@@ -538,7 +538,7 @@ void FoamAlongTime::ParseT1s (
     cdbg << "last T1s'  timestep: " << timeStep << endl;
 }
 
-const vector<G3D::Vector3>& FoamAlongTime::GetT1s (size_t timeStep) const
+const vector<G3D::Vector3>& Simulation::GetT1s (size_t timeStep) const
 {
     int t = int(timeStep) + m_t1sTimeStepShift;
     if (t < 0 || size_t (t) >= m_t1s.size ())
@@ -547,7 +547,7 @@ const vector<G3D::Vector3>& FoamAlongTime::GetT1s (size_t timeStep) const
 	return m_t1s[t];
 }
 
-void FoamAlongTime::ParseDMPs (
+void Simulation::ParseDMPs (
     const vector<string>& fileNames,
     bool useOriginal,
     const DmpObjectInfo& dmpObjectInfo,
@@ -597,10 +597,10 @@ void FoamAlongTime::ParseDMPs (
     copy (foams.constBegin (), foams.constEnd (), GetFoams ().begin () + 1);
 }
 
-string FoamAlongTimeGroup::ToString () const
+string SimulationGroup::ToString () const
 {
     ostringstream ostr;
-    BOOST_FOREACH (const FoamAlongTime& fat, m_foamAlongTime)
+    BOOST_FOREACH (const Simulation& fat, m_simulation)
     {
 	ostr << fat << endl;
     }

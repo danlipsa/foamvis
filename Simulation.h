@@ -1,11 +1,11 @@
 /**
- * @file FoamAlongTime.h
+ * @file Simulation.h
  * @author Dan R. Lipsa
  *
- * Declaration of FoamAlongTime object
+ * Declaration of Simulation object
  */
-#ifndef __FOAM_ALONG_TIME_H__
-#define __FOAM_ALONG_TIME_H__
+#ifndef __SIMULATION_H__
+#define __SIMULATION_H__
 
 #include "BodyAlongTime.h"
 #include "Comparisons.h"
@@ -20,7 +20,7 @@ class Foam;
 /**
  * Stores information about a list of DMP files
  */
-class FoamAlongTime
+class Simulation
 {
 public:
     typedef vector< boost::shared_ptr<Foam> > Foams;
@@ -28,7 +28,7 @@ public:
     typedef boost::function<void (Foam*)> FoamParamMethod;
 
 public:
-    FoamAlongTime ();
+    Simulation ();
     void CacheBodiesAlongTime ();
     /**
      * Calculate the  axially aligned bounding box for  this vector of
@@ -259,46 +259,46 @@ private:
     bool m_useOriginal;
 };
 
-class FoamAlongTimeGroup
+class SimulationGroup
 {
 public:
     void SetSize (size_t n)
     {
-	m_foamAlongTime.resize (n);
+	m_simulation.resize (n);
     }
 
     size_t size ()
     {
-	return m_foamAlongTime.size ();
+	return m_simulation.size ();
     }
 
-    FoamAlongTime& GetFoamAlongTime (size_t i)
+    Simulation& GetSimulation (size_t i)
     {
-	return m_foamAlongTime[i];
+	return m_simulation[i];
     }
     string ToString () const;
 
 private:
-    vector<FoamAlongTime> m_foamAlongTime;
+    vector<Simulation> m_simulation;
 };
 
 /**
- * Pretty print a FoamAlongTime
+ * Pretty print a Simulation
  */
-inline ostream& operator<< (ostream& ostr, const FoamAlongTime& foamAlongTime)
+inline ostream& operator<< (ostream& ostr, const Simulation& simulation)
 {
-    return ostr << foamAlongTime.ToString () << endl;
+    return ostr << simulation.ToString () << endl;
 }
 
 inline ostream& operator<< (ostream& ostr, 
-			    const FoamAlongTimeGroup& foamAlongTimeGroup)
+			    const SimulationGroup& simulationGroup)
 {
-    return ostr << foamAlongTimeGroup.ToString () << endl;
+    return ostr << simulationGroup.ToString () << endl;
 }
 
 
 
-#endif //__FOAM_ALONG_TIME_H__
+#endif //__SIMULATION_H__
 
 // Local Variables:
 // mode: c++

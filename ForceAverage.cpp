@@ -10,7 +10,7 @@
 #include "Body.h"
 #include "DebugStream.h"
 #include "ForceAverage.h"
-#include "FoamAlongTime.h"
+#include "Simulation.h"
 #include "Foam.h"
 #include "GLWidget.h"
 #include "ViewSettings.h"
@@ -21,7 +21,7 @@ void ForceAverage::AverageInit (ViewNumber::Enum viewNumber)
     (void)viewNumber;
     Average::AverageInit (viewNumber);
     const vector<Force>& forces = 
-	GetGLWidget ().GetFoam ().GetForces ();
+	GetGLWidget ().GetSimulation (viewNumber).GetFoam (0).GetForces ();
     m_average.resize (forces.size ());
     for (size_t i = 0; i < forces.size (); ++i)
     {
@@ -36,7 +36,8 @@ void ForceAverage::addStep (ViewNumber::Enum viewNumber, size_t timeStep,
 {
     (void)viewNumber;(void)subStep;
     const vector<Force>& forces = 
-	GetGLWidget ().GetFoamAlongTime ().GetFoam (timeStep).GetForces ();
+	GetGLWidget ().GetSimulation (viewNumber).
+	GetFoam (timeStep).GetForces ();
     bool forward = (timeStep == GetGLWidget ().GetCurrentTime ());
     for (size_t i = 0; i < forces.size (); ++i)
     {
@@ -52,14 +53,15 @@ void ForceAverage::removeStep (ViewNumber::Enum viewNumber, size_t timeStep,
 {
     (void)viewNumber;(void)subStep;
     const vector<Force>& forces = 
-	GetGLWidget ().GetFoamAlongTime ().GetFoam (timeStep).GetForces ();
+	GetGLWidget ().
+	GetSimulation (viewNumber).GetFoam (timeStep).GetForces ();
     bool backward = ((timeStep - 1) == GetGLWidget ().GetCurrentTime ());
     for (size_t i = 0; i < forces.size (); ++i)
     {
 	if (backward)
 	{
 	    const vector<Force>& prevForces = 
-		GetGLWidget ().GetFoamAlongTime ().
+		GetGLWidget ().GetSimulation (viewNumber).
 		GetFoam (timeStep - 1).GetForces ();
 	    m_average[i].m_body = prevForces[i].m_body;
 	}
@@ -79,8 +81,9 @@ void ForceAverage::Display (
 void ForceAverage::DisplayOneTimeStep (
     ViewNumber::Enum viewNumber) const
 {
-    display (viewNumber, GetGLWidget ().GetFoam ().GetForces (), 
-	     1, false);
+    display (
+	viewNumber, GetGLWidget ().GetSimulation (viewNumber).
+	GetFoam (0).GetForces (), 1, false);
 }
 
 void ForceAverage::AverageRotateAndDisplay (
@@ -99,7 +102,7 @@ void ForceAverage::display (
     bool adjustForAverageAroundMovementRotation) const
 {
     const GLWidget& glWidget = GetGLWidget ();
-    if (glWidget.GetFoamAlongTime ().ForceUsed ())
+    if (glWidget.GetSimulation (viewNumber).ForceUsed ())
     {
 	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT | GL_LINE_BIT);
 	if (adjustForAverageAroundMovementRotation)
@@ -122,7 +125,7 @@ void ForceAverage::displayForces (
     ViewNumber::Enum viewNumber, const Force& force, size_t count) const
 {
     const G3D::AABox& box = 
-	GetGLWidget ().GetFoamAlongTime ().GetFoam (0).
+	GetGLWidget ().GetSimulation (viewNumber).GetFoam (0).
 	GetBody (0).GetBoundingBox ();
     float unitForceSize = 
 	GetGLWidget ().GetForceLength () * 

@@ -12,7 +12,7 @@
 #include "Enums.h"
 class Body;
 class BodyAlongTime;
-class FoamAlongTime;
+class Simulation;
 
 struct StripIteratorPoint
 {
@@ -56,7 +56,7 @@ public:
 
 public:
     StripIterator (const BodyAlongTime& bodyAlongTime,
-		   const FoamAlongTime& foamAlongTime, size_t timeStep = 0);
+		   const Simulation& simulation, size_t timeStep = 0);
     bool HasNext () const;
     StripIteratorPoint Next ();    
 
@@ -79,7 +79,7 @@ private:
      */
     bool m_isNextBeginOfStrip;
     const BodyAlongTime& m_bodyAlongTime;
-    const FoamAlongTime& m_foamAlongTime;
+    const Simulation& m_simulation;
 };
 
 

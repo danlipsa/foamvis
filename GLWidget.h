@@ -17,8 +17,8 @@ class ColorBarModel;
 class Foam;
 class Edge;
 class EditColorMap;
-class FoamAlongTime;
-class FoamAlongTimeGroup;
+class Simulation;
+class SimulationGroup;
 class Force;
 class OrientedFace;
 class OrientedEdge;
@@ -56,18 +56,20 @@ public:
      * Sets the data displayed by the GLWidget
      * @param dataAlongTime data displayed by the GLWidget
      */
-    void SetFoamAlongTimeGroup (FoamAlongTimeGroup* dataAlongTime);
-    FoamAlongTimeGroup& GetFoamAlongTimeGroup ()
+    void SetSimulationGroup (SimulationGroup* dataAlongTime);
+    SimulationGroup& GetSimulationGroup ()
     {
-	return *m_foamAlongTimeGroup;
+	return *m_simulationGroup;
     }
     /**
      * Gets the data displayed by the GLWidget
      */
-    const FoamAlongTime& GetFoamAlongTime (size_t index) const;
-    const FoamAlongTime& GetFoamAlongTime () const;
-    const FoamAlongTime& GetFoamAlongTime (ViewNumber::Enum viewNumber) const;
-    FoamAlongTime& GetFoamAlongTime ();
+    const Simulation& GetSimulation (size_t index) const;
+    Simulation& GetSimulation (size_t index);
+    const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
+    Simulation& GetSimulation (ViewNumber::Enum viewNumber);
+    const Simulation& GetSimulation () const;
+    Simulation& GetSimulation ();
     ViewNumber::Enum GetViewNumber () const
     {
 	return m_viewNumber;
@@ -95,12 +97,6 @@ public:
 
     const BodiesAlongTime& GetBodiesAlongTime () const;
     const BodyAlongTime& GetBodyAlongTime (size_t bodyId) const;
-    /**
-     * Gets the currently displayed data
-     */
-    const Foam& GetFoam () const;
-    Foam& GetFoam ();
-    const Foam& GetFoam (size_t timeStep) const;
 
     /**
      * Gets the index of the currently displayed data.
@@ -473,11 +469,13 @@ private:
 	ViewNumber::Enum viewNumber, LightNumber::Enum light) const;
     void displayLightDirection (ViewNumber::Enum viewNumber) const;
     G3D::AABox calculateViewingVolume (
+	ViewNumber::Enum viewNumber,
 	double xOverY, double scaleRatio, 
 	ViewingVolumeOperation::Enum enclose = 
 	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
-    G3D::AABox calculateCenteredViewingVolume (double xOverY,
-					       double scaleRatio) const;
+    G3D::AABox calculateCenteredViewingVolume (
+	ViewNumber::Enum viewNumber, double xOverY,
+	double scaleRatio) const;
 
     void initQuadrics ();
     void initEndTranslationColor ();
@@ -519,7 +517,7 @@ private:
      * Generates a display list for center paths
      */
     void displayCenterPathsWithBodies (ViewNumber::Enum view) const;
-    void displayOriginalDomain () const;
+    void displayOriginalDomain (ViewNumber::Enum viewNumber) const;
     void displayBodyNeighbors () const;
     void displayBodiesNeighbors () const;
     void displayBodyDeformationTensor2D () const;
@@ -533,9 +531,9 @@ private:
 
     void displayBoundingBox (ViewNumber::Enum viewNumber) const;
     void displayFocusBox (ViewNumber::Enum viewNumber) const;
-    void displayAxes ();
-    G3D::Vector3 getInitialLightPosition (
-	LightNumber::Enum lightPosition) const;
+    void displayAxes (ViewNumber::Enum viewNumber);
+    G3D::Vector3 getInitialLightPosition (ViewNumber::Enum viewNumber,
+					  LightNumber::Enum lightPosition) const;
 
     /**
      * Returns a rotation around an axis with a certain angle
@@ -591,8 +589,9 @@ private:
     void scale (ViewNumber::Enum viewNumber, const QPoint& position);
     void scaleContext (ViewNumber::Enum viewNumber, const QPoint& position);
     void scaleGrid (ViewNumber::Enum viewNumber, const QPoint& position);
-    void translateAndScale (double scaleRatio, const G3D::Vector3& translation,
-			    bool contextView) const;
+    void translateAndScale (ViewNumber::Enum viewNumber,
+	double scaleRatio, const G3D::Vector3& translation,
+	bool contextView) const;
     void select (const QPoint& position);
     void deselect (const QPoint& position);
     G3D::Vector3 brushedBodies (
@@ -655,7 +654,7 @@ private:
     /**
      * Foam to be displayd. Each element coresponds to a DMP file
      */
-    FoamAlongTimeGroup* m_foamAlongTimeGroup;
+    SimulationGroup* m_simulationGroup;
     /**
      * Index into m_foam that shows the current DMP file displayed
      */

@@ -8,7 +8,7 @@
 #include "Body.h"
 #include "ColorBarModel.h"
 #include "DebugStream.h"
-#include "FoamAlongTime.h"
+#include "Simulation.h"
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
 #include "PropertySetter.h"

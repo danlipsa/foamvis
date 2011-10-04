@@ -9,7 +9,7 @@
 #include "Options.h"
 #include "Debug.h"
 #include "Foam.h"
-#include "FoamAlongTime.h"
+#include "Simulation.h"
 #include "Force.h"
 #include "ParsingData.h"
 #include "MainWindow.h"
@@ -53,38 +53,38 @@ void readOptions (int argc, char *argv[],
 
 
 void parseOptions (int argc, char *argv[], 
-		   FoamAlongTimeGroup* foamAlongTimeGroup, bool* print)
+		   SimulationGroup* simulationGroup, bool* print)
 {
     CommandLineOptions clo;
     vector< boost::shared_ptr<CommonOptions> > co;
     readOptions (argc, argv, &clo, &co);
     size_t simulationsCount = co.size ();
-    foamAlongTimeGroup->SetSize (simulationsCount);
+    simulationGroup->SetSize (simulationsCount);
     for (size_t i = 0; i < simulationsCount; ++i)
     {
-	FoamAlongTime& foamAlongTime = foamAlongTimeGroup->GetFoamAlongTime (i);
+	Simulation& simulation = simulationGroup->GetSimulation (i);
 	if (co[i]->m_vm.count (Option::m_name[Option::T1S]))
-	    foamAlongTime.ParseT1s (
+	    simulation.ParseT1s (
 		co[i]->m_t1sFile, co[i]->m_ticksForTimeStep,
 		co[i]->m_vm.count (Option::m_name[Option::T1S_LOWER]));
-	foamAlongTime.ParseDMPs (
+	simulation.ParseDMPs (
 	    co[i]->m_fileNames, 
 	    co[i]->m_vm.count (Option::m_name[Option::USE_ORIGINAL]),
 	    co[i]->m_dmpObjectInfo, co[i]->m_forcesNames,
 	    co[i]->m_vm.count (Option::m_name[Option::DEBUG_PARSING]), 
 	    co[i]->m_vm.count (Option::m_name[Option::DEBUG_SCANNING]));
-	foamAlongTime.SetSimulationName (
+	simulation.SetSimulationName (
 	    clo.m_names[clo.m_simulationIndexes[i]]);
-	if (foamAlongTime.GetTimeSteps () == 0)
+	if (simulation.GetTimeSteps () == 0)
 	{
 	    cdbg << "Error: The patern provided does not match any file" 
 		 << endl;
 	    exit (13);
 	}
 	
-	foamAlongTime.SetAdjustPressure (
+	simulation.SetAdjustPressure (
 	    ! co[i]->m_vm.count (Option::m_name[Option::ORIGINAL_PRESSURE]));
-	foamAlongTime.Preprocess ();
+	simulation.Preprocess ();
 	*print = co[i]->m_vm.count (Option::m_name[Option::OUTPUT_TEXT]);
     }
 }
@@ -105,15 +105,15 @@ int main(int argc, char *argv[])
 	argc, argv);
     try
     {
-	FoamAlongTimeGroup foamAlongTimeGroup;
+	SimulationGroup simulationGroup;
 	bool print;
-	parseOptions (argc, argv, &foamAlongTimeGroup, &print);
+	parseOptions (argc, argv, &simulationGroup, &print);
 	if (print)
-	    cdbg << foamAlongTimeGroup;
+	    cdbg << simulationGroup;
 	else
 	{
 	    int result;
-	    MainWindow window (foamAlongTimeGroup);
+	    MainWindow window (simulationGroup);
 	    window.show();
 	    result = app->exec();
 	    app->release ();

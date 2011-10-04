@@ -9,7 +9,7 @@
 #include "AverageShaders.h"
 #include "Debug.h"
 #include "DebugStream.h"
-#include "FoamAlongTime.h"
+#include "Simulation.h"
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
 #include "ScalarDisplay.h"
@@ -180,5 +180,5 @@ void T1sPDE::DisplayTextureSize (ViewNumber::Enum viewNumber, size_t timeStep,
 
 size_t T1sPDE::getStepSize (size_t timeStep) const
 {
-    return GetGLWidget ().GetFoamAlongTime ().GetT1s (timeStep).size ();
+    return GetGLWidget ().GetSimulation ().GetT1s (timeStep).size ();
 }

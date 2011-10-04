@@ -15,7 +15,7 @@
 #include "DisplayFaceFunctors.h"
 #include "DisplayEdgeFunctors.h"
 #include "Foam.h"
-#include "FoamAlongTime.h"
+#include "Simulation.h"
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
 #include "PropertySetter.h"
@@ -316,7 +316,7 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
     ViewNumber::Enum viewNumber, size_t timeStep, size_t subStep)
 {
     (void)subStep;
-    const Foam& foam = GetGLWidget ().GetFoamAlongTime ().GetFoam (timeStep);
+    const Foam& foam = GetGLWidget ().GetSimulation ().GetFoam (timeStep);
     const Foam::Bodies& bodies = foam.GetBodies ();
     m_storeShaderProgram->Bind ();
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT );

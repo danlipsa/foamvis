@@ -13,7 +13,7 @@
 
 class QTimer;
 class GLWidget;
-class FoamAlongTimeGroup;
+class SimulationGroup;
 class ProcessBodyTorus;
 
 /**
@@ -44,9 +44,9 @@ public:
 public:
     /**
      * Constructor
-     * @param foamAlongTime data to be displayed read from Surface Evolver files
+     * @param simulation data to be displayed read from Surface Evolver files
      */
-    MainWindow(FoamAlongTimeGroup& foamAlongTimeGroup);
+    MainWindow(SimulationGroup& simulationGroup);
     /**
      * Called when a key is pressed
      * @param event object describing the key
@@ -156,9 +156,9 @@ private:
     /**
      * Updates the status bar based on the postion of the slider.
      */
-    void setupSliderData (const FoamAlongTime& foamAlongTime);
+    void setupSliderData (const Simulation& simulation);
     void setupButtonGroups ();
-    void configureInterfaceDataDependent (const FoamAlongTime& foamAlongTime);
+    void configureInterfaceDataDependent (const Simulation& simulation);
     void configureInterface ();
     void setupColorBarModel (size_t simulationIndex, 
 			     ViewNumber::Enum viewNumber,
@@ -170,18 +170,20 @@ private:
     void setupHistogram ();
     void processBodyTorusStep ();
     void translatedBodyInit ();
-    void initComboBoxSimulation (FoamAlongTimeGroup& foamAlongTimeGroup);
+    void initComboBoxSimulation (SimulationGroup& simulationGroup);
     void translatedBodyStep ();
     void createActions ();
     void displayHistogramColorBar (bool checked);
     HistogramInfo getCurrentHistogramInfo () const;
     boost::shared_ptr<ColorBarModel> getColorBarModel () const;
     boost::shared_ptr<ColorBarModel> getColorBarModel (
+	size_t simulationIndex,
 	ViewNumber::Enum viewNumber,
 	ViewType::Enum viewType, size_t property, 
 	StatisticsType::Enum statisticsType) const;
-    void emitColorBarModelChanged (ViewNumber::Enum viewNumber,
-	ViewType::Enum oldViewType, ViewType::Enum viewType, 
+    void emitColorBarModelChanged (
+	size_t simulationIndex, ViewNumber::Enum viewNumber,
+	ViewType::Enum viewType, 
 	size_t property, StatisticsType::Enum statisticsType);
     void clickedPlay (PlayType playType);
 

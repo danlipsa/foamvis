@@ -13,7 +13,7 @@
 #include "DisplayBodyFunctors.h"
 #include "DisplayFaceFunctors.h"
 #include "DisplayEdgeFunctors.h"
-#include "FoamAlongTime.h"
+#include "Simulation.h"
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
 #include "ViewSettings.h"
@@ -210,7 +210,7 @@ operator () (size_t bodyId)
     m_contextSegments.resize (0);
     const BodyAlongTime& bat = this->m_glWidget.GetBodyAlongTime (bodyId);
     StripIterator it = bat.GetStripIterator (
-	this->m_glWidget.GetFoamAlongTime ());
+	this->m_glWidget.GetSimulation ());
     it.ForEachSegment (
 	boost::bind (&DisplayCenterPath::valueStep, this, _1, _2, _3, _4));
     displaySegments ();

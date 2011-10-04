@@ -13,7 +13,7 @@
 #include "Enums.h"
 
 class Body;
-class FoamAlongTime;
+class Simulation;
 class BodyAlongTime
 {
 public:
@@ -47,12 +47,12 @@ public:
      * the original domain. A body wraps around when it moves a distance longer
      * than 1/2 of min all sides of the original domain
      */
-    void CalculateBodyWraps (const FoamAlongTime& foamAlongTime);
+    void CalculateBodyWraps (const Simulation& simulation);
 
     StripIterator GetStripIterator (
-	const FoamAlongTime& foamAlongTime) const
+	const Simulation& simulation) const
     {
-	return StripIterator (*this, foamAlongTime);
+	return StripIterator (*this, simulation);
     }
 
     size_t GetWrapSize () const

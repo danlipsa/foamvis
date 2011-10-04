@@ -137,7 +137,7 @@ private:
 /**
  * Displays the center path for a certain body id
  *
- * @todo Use FoamAlongTime::GetBodyPropertyValue instead of
+ * @todo Use Simulation::GetBodyPropertyValue instead of
  * StripIterator functions
  */
 template<typename PropertySetter = SetterTextureCoordinate,
