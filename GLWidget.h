@@ -223,12 +223,13 @@ public:
     void RotateAndTranslateAverageAround (size_t timeStep, int direction) const;
     void DisplayT1Quad (ViewNumber::Enum view, 
 			size_t timeStep, size_t t1Index) const;
-    pair<float, float> GetMinMax (ViewNumber::Enum viewNumber) const;
-    pair<float, float> GetMinMaxCount () const;
-    pair<float, float> GetMinMaxT1sPDE (ViewNumber::Enum viewNumber) const;
-    pair<float, float> GetMinMaxT1sPDE () const
+    pair<float, float> GetRange (ViewNumber::Enum viewNumber) const;
+    pair<float, float> GetRangeCount (ViewNumber::Enum viewNumber) const;
+    pair<float, float> GetRangeCount () const;
+    pair<float, float> GetRangeT1sPDE (ViewNumber::Enum viewNumber) const;
+    pair<float, float> GetRangeT1sPDE () const
     {
-	return GetMinMaxT1sPDE (GetViewNumber ());
+	return GetRangeT1sPDE (GetViewNumber ());
     }
     static ColorBarType::Enum GetColorBarType (
 	ViewType::Enum viewType, size_t property, 

@@ -586,7 +586,7 @@ MainWindow::HistogramInfo MainWindow::getCurrentHistogramInfo () const
     switch (widgetGl->GetColorBarType ())
     {
     case ColorBarType::STATISTICS_COUNT:
-	return createHistogramInfo (widgetGl->GetMinMaxCount (), 1);
+	return createHistogramInfo (widgetGl->GetRangeCount (), 1);
     
     case ColorBarType::PROPERTY:
     {
@@ -598,11 +598,11 @@ MainWindow::HistogramInfo MainWindow::getCurrentHistogramInfo () const
     
     case ColorBarType::T1S_PDE:
 	return createHistogramInfo (
-	    widgetGl->GetMinMaxT1sPDE (), simulation.GetT1sSize ());
+	    widgetGl->GetRangeT1sPDE (), simulation.GetT1sSize ());
 
     default:
 	ThrowException ("Invalid call to getCurrentHistogramInfo");
-	return createHistogramInfo (widgetGl->GetMinMaxCount (), 1);
+	return createHistogramInfo (widgetGl->GetRangeCount (), 1);
     }
 }
 
@@ -661,7 +661,7 @@ void MainWindow::setupColorBarModels (size_t simulationIndex,
 	colorBarModel.reset (new ColorBarModel ());
 	colorBarModel->SetTitle ("Count per area");
 	colorBarModel->SetInterval (
-	    toQwtDoubleInterval (widgetGl->GetMinMaxCount ()));
+	    toQwtDoubleInterval (widgetGl->GetRangeCount ()));
 	colorBarModel->SetupPalette (Palette::BLACK_BODY);
     }
 
@@ -671,7 +671,7 @@ void MainWindow::setupColorBarModels (size_t simulationIndex,
 	colorBarModel.reset (new ColorBarModel ());
 	colorBarModel->SetTitle ("T1s PDE");
 	colorBarModel->SetInterval (
-	    toQwtDoubleInterval (widgetGl->GetMinMaxT1sPDE (viewNumber)));
+	    toQwtDoubleInterval (widgetGl->GetRangeT1sPDE (viewNumber)));
 	colorBarModel->SetupPalette (Palette::BLACK_BODY);
     }
 }
@@ -878,7 +878,7 @@ void MainWindow::ValueChangedT1sKernelSigma (int index)
     size_t simulationIndex = 
 	widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
     m_colorBarModelT1sPDE[simulationIndex][viewNumber]->SetInterval (
-	toQwtDoubleInterval (widgetGl->GetMinMaxT1sPDE (viewNumber)));
+	toQwtDoubleInterval (widgetGl->GetRangeT1sPDE (viewNumber)));
 }
 
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)

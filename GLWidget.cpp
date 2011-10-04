@@ -2214,16 +2214,16 @@ void GLWidget::DisplayT1Quad (
 }
 
 // Three types of minMax (and ColorBarModels)
-pair<float, float> GLWidget::GetMinMax (ViewNumber::Enum viewNumber) const
+pair<float, float> GLWidget::GetRange (ViewNumber::Enum viewNumber) const
 {
-    const Simulation& simulation = GetSimulation ();
+    const Simulation& simulation = GetSimulation (viewNumber);
     ViewSettings& vs = GetViewSettings (viewNumber);
     float minValue = 0.0, maxValue = 0.0;
     switch (vs.GetViewType ())
     {
     case ViewType::FACES_STATISTICS:
 	if (vs.GetStatisticsType () == StatisticsType::COUNT)
-	    return GetMinMaxCount ();
+	    return GetRangeCount (viewNumber);
 	else
 	{
 	    BodyProperty::Enum bodyProperty = 
@@ -2233,19 +2233,24 @@ pair<float, float> GLWidget::GetMinMax (ViewNumber::Enum viewNumber) const
 	}
 	break;
     case ViewType::T1S_PDE:
-	return GetMinMaxT1sPDE (viewNumber);
+	return GetRangeT1sPDE (viewNumber);
     default:
 	break;
     }
     return pair<float, float> (minValue, maxValue);
 }
 
-pair<float, float> GLWidget::GetMinMaxCount () const
+pair<float, float> GLWidget::GetRangeCount (ViewNumber::Enum viewNumber) const
 {
-    return pair<float, float> (0, GetSimulation ().GetTimeSteps ());
+    return pair<float, float> (0, GetSimulation (viewNumber).GetTimeSteps ());
 }
 
-pair<float, float> GLWidget::GetMinMaxT1sPDE (ViewNumber::Enum viewNumber) const
+pair<float, float> GLWidget::GetRangeCount () const
+{
+    return GetRangeCount (GetViewNumber ());
+}
+
+pair<float, float> GLWidget::GetRangeT1sPDE (ViewNumber::Enum viewNumber) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     T1sPDE& t1sPDE = vs.GetT1sPDE ();

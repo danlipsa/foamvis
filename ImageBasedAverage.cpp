@@ -86,7 +86,7 @@ void ImageBasedAverage<PropertySetter>::clear (ViewNumber::Enum viewNumber)
 {
     //const size_t FAKE_TIMESTEP = -1;
     pair<double, double> minMax = 
-	GetGLWidget ().GetMinMax (viewNumber);
+	GetGLWidget ().GetRange (viewNumber);
     m_fbos.m_step->bind ();
     ClearColorStencilBuffers (getStepClearColor (), 0);
     m_fbos.m_step->release ();
@@ -124,7 +124,7 @@ void ImageBasedAverage<PropertySetter>::addStep (
     ViewNumber::Enum viewNumber, size_t timeStep, size_t subStep)
 {
     pair<double, double> minMax = 
-	GetGLWidget ().GetMinMax (viewNumber);
+	GetGLWidget ().GetRange (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, timeStep, subStep);
     //save (
@@ -153,7 +153,7 @@ void ImageBasedAverage<PropertySetter>::removeStep (
     ViewNumber::Enum viewNumber, size_t timeStep, size_t subStep)
 {
     pair<double, double> minMax = 
-	GetGLWidget ().GetMinMax (viewNumber);
+	GetGLWidget ().GetRange (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, timeStep, subStep);
     //save (viewNumber, 
@@ -283,7 +283,7 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
     float angleDegrees) const
 {
     pair<double, double> minMax = 
-	GetGLWidget ().GetMinMax (viewNumber);
+	GetGLWidget ().GetRange (viewNumber);
     rotateAndDisplay (
 	viewNumber, minMax.first, minMax.second, displayType, 
 	make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
