@@ -237,7 +237,9 @@ void MainWindow::ViewToUI ()
     SetCheckedNoSignals (
 	checkBoxDeformationGridCellCenter, 
 	vs.GetTensorAverage ().IsDeformationGridCellCenterShown ());
-
+    sliderTimeSteps->SetValueMaximumNoSignals (
+	vs.GetCurrentTime (), widgetGl->GetTimeSteps (viewNumber) - 1);
+	
     comboBoxAxesOrder->setCurrentIndex (vs.GetAxesOrder ());
     labelFacesStatisticsColor->setText (BodyOrFacePropertyToString (property));
     labelCenterPathColor->setText (BodyOrFacePropertyToString (property));

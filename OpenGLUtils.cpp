@@ -269,11 +269,11 @@ void DisplayOpositeFaces (G3D::Vector3 origin,
 	faceSum += translations[i];
 	
 	glBegin (GL_LINE_STRIP);
-	glVertex (faceOrigin);
-	glVertex (faceFirst);
-	glVertex (faceSum);
-	glVertex (faceSecond);
-	glVertex (faceOrigin);
+	::glVertex (faceOrigin);
+	::glVertex (faceFirst);
+	::glVertex (faceSum);
+	::glVertex (faceSecond);
+	::glVertex (faceOrigin);
 	glEnd ();
     }
 }
@@ -313,10 +313,10 @@ void DisplayBox (const G3D::AABox& aabb, const QColor& color, GLfloat lineWidth)
 void DisplayBox (const G3D::Rect2D& rect)
 {
     glBegin (GL_POLYGON);
-    glVertex (rect.x0y0 ());
-    glVertex (rect.x1y0 ());
-    glVertex (rect.x1y1 ());
-    glVertex (rect.x0y1 ());
+    ::glVertex (rect.x0y0 ());
+    ::glVertex (rect.x1y0 ());
+    ::glVertex (rect.x1y1 ());
+    ::glVertex (rect.x0y1 ());
     glEnd ();
 }
 

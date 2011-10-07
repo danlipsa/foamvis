@@ -131,21 +131,21 @@ void displayBodyNeighbors2D (boost::shared_ptr<Body> body,
 	G3D::Vector3 first = body->GetCenter ();	    
 	G3D::Vector3 second = 
 	    originalDomain.TorusTranslate (s, neighbor.m_translation);
-	glVertex (first);
-	glVertex (second);
+	::glVertex (first);
+	::glVertex (second);
     }
 }
 
 void sendQuad (const G3D::Rect2D& srcRect, const G3D::Rect2D& srcTexRect)
 {
     glTexCoord (srcTexRect.x0y0 ());
-    glVertex (srcRect.x0y0 ());
+    ::glVertex (srcRect.x0y0 ());
     glTexCoord (srcTexRect.x1y0 ());
-    glVertex (srcRect.x1y0 ());
+    ::glVertex (srcRect.x1y0 ());
     glTexCoord (srcTexRect.x1y1 ());
-    glVertex (srcRect.x1y1 ());
+    ::glVertex (srcRect.x1y1 ());
     glTexCoord (srcTexRect.x0y1 ());
-    glVertex (srcRect.x0y1 ());
+    ::glVertex (srcRect.x0y1 ());
 }
 
 
@@ -176,7 +176,6 @@ GLWidget::GLWidget(QWidget *parent)
       m_interactionMode (InteractionMode::ROTATE),
       m_interactionObject (InteractionObject::FOCUS),
       m_simulationGroup (0), 
-      m_currentTime (0),
       m_minimumEdgeRadius (0),
       m_edgeRadiusRatio (0),
       m_facesShowEdges (true),
@@ -2184,7 +2183,7 @@ void GLWidget::displayT1sDot (
     glBegin (GL_POINTS);
     BOOST_FOREACH (const G3D::Vector3 t1Pos, 
 		   GetSimulation (viewNumber).GetT1s (timeStep))
-	glVertex (t1Pos);
+	::glVertex (t1Pos);
     glEnd ();
     glPopAttrib ();
 }
@@ -2361,7 +2360,7 @@ void GLWidget::displayFaceCenters (ViewNumber::Enum viewNumber) const
 	glColor (Qt::red);
 	glBegin (GL_POINTS);
 	BOOST_FOREACH (boost::shared_ptr<Face> face, faces)
-	    glVertex (face->GetCenter ());
+	    ::glVertex (face->GetCenter ());
 	glEnd ();
 	glPopAttrib ();
     }
@@ -2376,7 +2375,7 @@ void GLWidget::displayContextMenuPos (ViewNumber::Enum viewNumber) const
     glPointSize (4.0);
     glColor (Qt::red);
     glBegin (GL_POINTS);
-    glVertex (m_contextMenuPosObject);
+    ::glVertex (m_contextMenuPosObject);
     glEnd ();
     glPopAttrib ();
 }
@@ -2784,6 +2783,28 @@ ColorBarType::Enum GLWidget::GetColorBarType (
     }
 }
 
+size_t GLWidget::GetCurrentTime (ViewNumber::Enum viewNumber) const
+{
+    return GetViewSettings (viewNumber).GetCurrentTime ();
+}
+
+void GLWidget::SetCurrentTime (size_t timeStep)
+{
+    GetViewSettings ().SetCurrentTime (timeStep);
+}
+
+size_t GLWidget::GetTimeSteps (ViewNumber::Enum viewNumber) const
+{
+    const ViewSettings vs = GetViewSettings (viewNumber);
+    ViewType::Enum viewType = vs.GetViewType ();
+    size_t simulationIndex = vs.GetSimulationIndex ();
+    const Simulation& simulation = GetSimulation (simulationIndex);
+    return (viewType == ViewType::T1S_PDE) ?
+	simulation.GetT1sTimeSteps () :
+	simulation.GetTimeSteps ();
+}
+
+
 void GLWidget::quadricErrorCallback (GLenum errorCode)
 {
     const GLubyte* message = gluErrorString (errorCode);
@@ -2985,20 +3006,20 @@ void GLWidget::displayTextureColorBar (
 		   GetViewSettings (viewNumber).GetColorBarTexture ());
     
     glBegin (GL_QUADS);
-    glTexCoord1f(0);glVertex (colorBarRect.x0y0 ());
-    glTexCoord1f(1);glVertex (colorBarRect.x0y1 ());
-    glTexCoord1f(1);glVertex (colorBarRect.x1y1 ());
-    glTexCoord1f(0);glVertex (colorBarRect.x1y0 ());
+    glTexCoord1f(0);::glVertex (colorBarRect.x0y0 ());
+    glTexCoord1f(1);::glVertex (colorBarRect.x0y1 ());
+    glTexCoord1f(1);::glVertex (colorBarRect.x1y1 ());
+    glTexCoord1f(0);::glVertex (colorBarRect.x1y0 ());
     glEnd ();
     glDisable (GL_TEXTURE_1D);
 
     glColor (Qt::black);
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     glBegin (GL_QUADS);
-    glVertex (colorBarRect.x0y0 ());
-    glVertex (colorBarRect.x0y1 ());
-    glVertex (colorBarRect.x1y1 ());
-    glVertex (colorBarRect.x1y0 ());
+    ::glVertex (colorBarRect.x0y0 ());
+    ::glVertex (colorBarRect.x0y1 ());
+    ::glVertex (colorBarRect.x1y1 ());
+    ::glVertex (colorBarRect.x1y0 ());
     glEnd ();
     glPopAttrib ();
 }
@@ -3533,8 +3554,8 @@ void GLWidget::SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel)
 void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 {
     makeCurrent ();
-    int direction = timeStep - m_currentTime;
-    m_currentTime = timeStep;
+    int direction = timeStep - GetCurrentTime ();
+    SetCurrentTime (timeStep);
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);

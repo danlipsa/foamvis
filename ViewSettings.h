@@ -407,6 +407,9 @@ public:
 	m_simulationIndex = i;
     }
 
+    size_t GetCurrentTime () const;
+    void SetCurrentTime (size_t time);
+
     virtual void AverageInit (ViewNumber::Enum viewNumber);
     virtual void AverageSetTimeWindow (size_t timeSteps);
     virtual void AverageStep (ViewNumber::Enum viewNumber, int timeStep);
@@ -486,6 +489,11 @@ private:
     bool m_contextHidden;
     bool m_centerPathHidden;
     size_t m_simulationIndex;
+    /**
+     * Index into m_foam that shows the current DMP file displayed
+     */
+    size_t m_currentTime;
+    size_t m_currentTimeT1sPDE;
 };
 
 

@@ -68,8 +68,8 @@ void DisplaySegment::operator() (
 {
     glLineWidth (context ? m_contextRadius : m_radius);
     glBegin(GL_LINES);
-    glVertex(begin);
-    glVertex(end);
+    ::glVertex(begin);
+    ::glVertex(end);
     glEnd();
 }
 
@@ -178,14 +178,14 @@ void DisplaySegmentTube::displayTube (const Disk& begin, const Disk& end) const
     for (size_t i = 0; i < begin.size (); ++i)
     {
 	glNormal (begin.GetVertexNormal (i));
-	glVertex (begin.GetVertex (i));
+	::glVertex (begin.GetVertex (i));
 	glNormal (end.GetVertexNormal (i));
-	glVertex (end.GetVertex (i));
+	::glVertex (end.GetVertex (i));
     }
     glNormal (begin.GetVertexNormal (0));
-    glVertex (begin.GetVertex (0));
+    ::glVertex (begin.GetVertex (0));
     glNormal (end.GetVertexNormal (0));
-    glVertex (end.GetVertex (0));
+    ::glVertex (end.GetVertex (0));
     glEnd ();    
 }
 
@@ -199,8 +199,8 @@ void DisplaySegmentArrow::operator () (
     glPushAttrib (GL_LINE_BIT);
     glLineWidth (3.0);
     glBegin(GL_LINES);
-    glVertex(begin);
-    glVertex((begin + end) / 2);
+    ::glVertex(begin);
+    ::glVertex((begin + end) / 2);
     glEnd();
     glPopAttrib ();
 }
@@ -250,8 +250,8 @@ void DisplayEdgeTorusClipped::operator () (
 	glBegin(GL_LINES);
 	for (size_t i = 0; i < edge->GetTorusClippedSize (periods); i++)
 	{
-	    glVertex(edge->GetTorusClippedBegin (i));
-	    glVertex (edge->GetTorusClippedEnd (i));
+	    ::glVertex(edge->GetTorusClippedBegin (i));
+	    ::glVertex (edge->GetTorusClippedEnd (i));
 	}
 	glEnd ();
     }
@@ -485,15 +485,15 @@ void DisplayFaceTriangleFan::operator() (const OrientedFace*  of) const
 {
     OrientedEdge oe = of->GetOrientedEdge (0);
     glBegin (GL_TRIANGLE_FAN);
-    glVertex (of->GetCenter ());
-    glVertex (oe.GetPoint (0));
-    glVertex (oe.GetPoint (1));
+    ::glVertex (of->GetCenter ());
+    ::glVertex (oe.GetPoint (0));
+    ::glVertex (oe.GetPoint (1));
     size_t pointIndex = 2;
     for (size_t i = 0; i < of->size (); ++i)
     {
 	oe = of->GetOrientedEdge (i);
 	for (; pointIndex < oe.GetPointCount (); ++pointIndex)
-	    glVertex (oe.GetPoint (pointIndex));
+	    ::glVertex (oe.GetPoint (pointIndex));
 	pointIndex = 0;
     }
     glEnd ();

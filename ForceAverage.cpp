@@ -152,7 +152,7 @@ void ForceAverage::displayForce (QColor color,
 {
     glColor (color);
     glBegin (GL_LINES);
-    glVertex (center);
-    glVertex (center + force);
+    ::glVertex (center);
+    ::glVertex (center + force);
     glEnd ();
 }

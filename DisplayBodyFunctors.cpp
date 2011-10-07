@@ -114,7 +114,7 @@ void DisplayBodyCenter::display (boost::shared_ptr<Body> b, FocusContext fc)
 	G3D::Vector3 v = b->GetCenter ();
 	v = (m_useZPos ? G3D::Vector3 (v.xy (), m_zPos) : v);
 	glBegin(GL_POINTS);
-	glVertex(v);
+	::glVertex(v);
 	glEnd ();
     }
 }

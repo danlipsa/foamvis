@@ -98,13 +98,18 @@ public:
     const BodiesAlongTime& GetBodiesAlongTime () const;
     const BodyAlongTime& GetBodyAlongTime (size_t bodyId) const;
 
-    /**
-     * Gets the index of the currently displayed data.
-     */
     size_t GetCurrentTime () const
     {
-	return m_currentTime;
+	return GetCurrentTime (GetViewNumber ());
     }
+    size_t GetCurrentTime (ViewNumber::Enum viewNumber) const;
+    void SetCurrentTime (size_t time);
+    size_t GetTimeSteps () const
+    {
+	return GetTimeSteps (GetViewNumber ());
+    }
+    size_t GetTimeSteps (ViewNumber::Enum viewNumber) const;
+
     bool IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const;
 
     bool IsTimeDisplacementUsed () const;
@@ -656,10 +661,6 @@ private:
      * Foam to be displayd. Each element coresponds to a DMP file
      */
     SimulationGroup* m_simulationGroup;
-    /**
-     * Index into m_foam that shows the current DMP file displayed
-     */
-    size_t m_currentTime;
     /**
      * Used for rotation, translation and scale
      */

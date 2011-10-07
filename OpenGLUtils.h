@@ -23,6 +23,19 @@ inline void glScale (double ratio)
     glScaled (ratio, ratio, ratio);
 }
 
+// eliminate Valgrind errors with G3D version
+inline void glVertex (const G3D::Vector2& v)
+{
+    glVertex2f (v.x, v.y);
+}
+
+// eliminate Valgrind errors with G3D version
+inline void glVertex (const G3D::Vector3& v)
+{
+    glVertex3f (v.x, v.y, v.z);
+}
+
+
 inline void glClearColor (QColor color)
 {
     glClearColor (color.redF (), color.greenF (), 
