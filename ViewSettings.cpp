@@ -73,8 +73,7 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_contextHidden (false),
     m_centerPathHidden (false),
     m_simulationIndex (0),
-    m_currentTime (0),
-    m_currentTimeT1sPDE (0)
+    m_currentTime (0)
 {
     initTexture ();
     initList ();
@@ -521,17 +520,11 @@ G3D::Matrix3 ViewSettings::getRotation3D (const Foam& foam) const
 
 size_t ViewSettings::GetCurrentTime () const
 {
-    if (GetViewType () == ViewType::T1S_PDE)
-	return m_currentTimeT1sPDE;
-    else
-	return m_currentTimeT1sPDE;
+    return m_currentTime;
 }
 
 
 void ViewSettings::SetCurrentTime (size_t time)
 {
-    if (GetViewType () == ViewType::T1S_PDE)
-	m_currentTimeT1sPDE = time;
-    else
-	m_currentTimeT1sPDE = time;
+    m_currentTime = time;
 }

@@ -249,6 +249,7 @@ Q_SIGNALS:
     void ColorBarModelChanged (boost::shared_ptr<ColorBarModel> colorBarModel);
 
 public Q_SLOTS:
+    void ButtonClickedTimeLinkage (int id);
     void ButtonClickedViewType (int id);
     void ButtonClickedInteractionObject (int id);
 
@@ -428,6 +429,8 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    void contextMenuEventColorBar (QMenu* menu) const;
+    void contextMenuEventView (QMenu* menu) const;
     void activateViewShader (
 	ViewNumber::Enum viewNumber, 
 	ViewingVolumeOperation::Enum enclose, G3D::Rect2D& srcRect,
@@ -757,6 +760,7 @@ private:
     ViewNumber::Enum m_viewNumber;
     boost::array<
 	boost::shared_ptr<ViewSettings>, ViewNumber::COUNT> m_viewSettings;
+    TimeLinkage::Enum m_timeLinkage;
 
     ShowType m_showType;
     size_t m_showBodyId;

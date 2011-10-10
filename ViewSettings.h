@@ -493,7 +493,6 @@ private:
      * Index into m_foam that shows the current DMP file displayed
      */
     size_t m_currentTime;
-    size_t m_currentTimeT1sPDE;
 };
 
 

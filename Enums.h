@@ -418,6 +418,16 @@ struct ColorBarType
 
 };
 
+struct TimeLinkage
+{
+    enum Enum
+    {
+	LINKED,
+	INDEPENDENT,
+	SYNCHRONIZED
+    };
+};
+
 #endif //__ENUMS_H__
 
 // Local Variables:

@@ -321,6 +321,13 @@ void MainWindow::setupButtonGroups ()
 	radioButtonInteractionContext, InteractionObject::CONTEXT);
     buttonGroupInteractionObject->setId (
 	radioButtonInteractionGrid, InteractionObject::GRID);
+
+    buttonGroupTimeLinkage->setId (
+	radioButtonTimeIndependent, TimeLinkage::INDEPENDENT);
+    buttonGroupTimeLinkage->setId (
+	radioButtonTimeLinked, TimeLinkage::LINKED);
+    buttonGroupTimeLinkage->setId (
+	radioButtonTimeSynchronized, TimeLinkage::SYNCHRONIZED);
 }
 
 void MainWindow::setupSliderData (const Simulation& simulation)

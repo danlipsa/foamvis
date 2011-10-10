@@ -207,6 +207,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_viewCount (ViewCount::ONE),
       m_viewLayout (ViewLayout::HORIZONTAL),
       m_viewNumber (ViewNumber::VIEW0),
+      m_timeLinkage (TimeLinkage::LINKED),
       m_showType (SHOW_NOTHING)
 {
     makeCurrent ();
@@ -520,6 +521,10 @@ Simulation& GLWidget::GetSimulation (size_t i)
 void GLWidget::SetSimulationGroup (SimulationGroup* simulationGroup)
 {
     m_simulationGroup = simulationGroup;
+    if (GetSimulationGroup ().size () == 1)
+	m_timeLinkage = TimeLinkage::LINKED;
+    else
+	m_timeLinkage = TimeLinkage::INDEPENDENT;
     initViewSettings ();
     Foam::Bodies bodies = GetSimulation ().GetFoam (0).GetBodies ();
     if (bodies.size () != 0)
@@ -2790,12 +2795,23 @@ size_t GLWidget::GetCurrentTime (ViewNumber::Enum viewNumber) const
 
 void GLWidget::SetCurrentTime (size_t timeStep)
 {
-    GetViewSettings ().SetCurrentTime (timeStep);
+    if (m_timeLinkage == TimeLinkage::INDEPENDENT)
+	GetViewSettings ().SetCurrentTime (timeStep);
+    else
+    {
+	for (size_t i = 0; i < ViewNumber::COUNT; ++i)
+	{
+	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	    size_t maxTimeStep = GetTimeSteps (viewNumber) - 1;
+	    GetViewSettings (viewNumber).SetCurrentTime (
+		min (timeStep, maxTimeStep));
+	}
+    }
 }
 
 size_t GLWidget::GetTimeSteps (ViewNumber::Enum viewNumber) const
 {
-    const ViewSettings vs = GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     ViewType::Enum viewType = vs.GetViewType ();
     size_t simulationIndex = vs.GetSimulationIndex ();
     const Simulation& simulation = GetSimulation (simulationIndex);
@@ -2812,102 +2828,108 @@ void GLWidget::quadricErrorCallback (GLenum errorCode)
 }
 
 
-void GLWidget::contextMenuEvent(QContextMenuEvent *event)
+void GLWidget::contextMenuEventColorBar (QMenu* menu) const
 {
     ViewSettings& vs = GetViewSettings ();
+    menu->addAction (m_actionClampClear.get ());
+    QMenu* menuCopy = menu->addMenu ("Copy");
+    bool actions = false;
+    if (ViewCount::GetCount (m_viewCount) > 1)
+    {
+	size_t currentProperty = vs.GetBodyOrFaceProperty ();
+	for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
+	{
+	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	    if (viewNumber == m_viewNumber ||
+		currentProperty != 
+		GetViewSettings (viewNumber).GetBodyOrFaceProperty ())
+		continue;
+	    menuCopy->addAction (m_actionCopyColorMap[i].get ());
+	    actions = true;
+	}
+    }
+    if (! actions)
+	menu->clear ();
+    menu->addAction (m_actionEditColorMap.get ());
+}
+
+void GLWidget::contextMenuEventView (QMenu* menu) const
+{
+    ViewSettings& vs = GetViewSettings ();
+    {
+	QMenu* menuAverageAround = menu->addMenu ("Average around");
+	menuAverageAround->addAction (m_actionAverageAroundBody.get ());
+	menuAverageAround->addAction (
+	    m_actionAverageAroundSecondBody.get ());
+	menuAverageAround->addAction (m_actionAverageAroundReset.get ());
+	m_actionAverageAroundShowRotation->setChecked (
+	    vs.GetAverageAroundMovementShown () == 
+	    ViewSettings::AVERAGE_AROUND_MOVEMENT_ROTATION);
+	menuAverageAround->addAction (
+	    m_actionAverageAroundShowRotation.get ());
+    }
+    {
+	QMenu* menuContext = menu->addMenu ("Context display");
+	menuContext->addAction (m_actionContextDisplayBody.get ());
+	menuContext->addAction (m_actionContextDisplayReset.get ());
+    }
+    if (ViewCount::GetCount (m_viewCount) > 1)
+    {
+	QMenu* menuCopy = menu->addMenu ("Copy");
+	QMenu* menuTransformation = menuCopy->addMenu ("Transformation");
+	QMenu* menuSelection = menuCopy->addMenu ("Selection");
+	for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
+	{
+	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	    if (viewNumber == m_viewNumber)
+		continue;
+	    menuTransformation->addAction (
+		m_actionCopyTransformation[i].get ());
+	    menuSelection->addAction (m_actionCopySelection[i].get ());
+	}
+    }
+    {
+	QMenu* menuInfo = menu->addMenu ("Info");
+	menuInfo->addAction (m_actionInfoPoint.get ());
+	menuInfo->addAction (m_actionInfoEdge.get ());
+	menuInfo->addAction (m_actionInfoFace.get ());
+	menuInfo->addAction (m_actionInfoBody.get ());
+	menuInfo->addAction (m_actionInfoFoam.get ());
+	menuInfo->addAction (m_actionInfoOpenGL.get ());
+    }
+    {
+	QMenu* menuReset = menu->addMenu ("Reset transform");
+	menuReset->addAction (m_actionResetTransformAll.get ());
+	menuReset->addAction (m_actionResetTransformFocus.get ());
+	menuReset->addAction (m_actionResetTransformContext.get ());
+	menuReset->addAction (m_actionResetTransformLight.get ());
+	menuReset->addAction (m_actionResetTransformGrid.get ());
+    }
+    {
+	QMenu* menuSelect = menu->addMenu ("Select");
+	menuSelect->addAction (m_actionSelectAll.get ());
+	menuSelect->addAction (m_actionDeselectAll.get ());
+	menuSelect->addAction (m_actionSelectBodiesById.get ());
+    }
+    {
+	QMenu* menuShow = menu->addMenu ("Show");
+	menuShow->addAction (m_actionShowNeighbors.get ());
+	menuShow->addAction (m_actionShowTextureTensor.get ());
+	menuShow->addAction (m_actionShowReset.get ());
+    }    
+}
+
+
+void GLWidget::contextMenuEvent (QContextMenuEvent *event)
+{
     m_contextMenuPosScreen = event->pos ();
     m_contextMenuPosObject = toObjectTransform (m_contextMenuPosScreen);
     QMenu menu (this);
     G3D::Rect2D colorBarRect = getViewColorBarRect (GetViewportRect ());
     if (colorBarRect.contains (QtToOpenGl (m_contextMenuPosScreen, height ())))
-    {
-	QMenu* menuCopy = menu.addMenu ("Copy");
-	bool actions = false;
-	if (ViewCount::GetCount (m_viewCount) > 1)
-	{
-	    size_t currentProperty = vs.GetBodyOrFaceProperty ();
-	    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
-	    {
-		ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-		if (viewNumber == m_viewNumber ||
-		    currentProperty != 
-		    GetViewSettings (viewNumber).GetBodyOrFaceProperty ())
-		    continue;
-		menuCopy->addAction (m_actionCopyColorMap[i].get ());
-		actions = true;
-	    }
-	}
-	if (! actions)
-	    menu.clear ();
-	menu.addAction (m_actionEditColorMap.get ());
-	menu.addAction (m_actionClampClear.get ());
-
-    }
+	contextMenuEventColorBar (&menu);
     else
-    {
-	{
-	    QMenu* menuReset = menu.addMenu ("Reset transform");
-	    menuReset->addAction (m_actionResetTransformAll.get ());
-	    menuReset->addAction (m_actionResetTransformFocus.get ());
-	    menuReset->addAction (m_actionResetTransformContext.get ());
-	    menuReset->addAction (m_actionResetTransformLight.get ());
-	    menuReset->addAction (m_actionResetTransformGrid.get ());
-	}
-	{
-	    QMenu* menuSelect = menu.addMenu ("Select");
-	    menuSelect->addAction (m_actionSelectAll.get ());
-	    menuSelect->addAction (m_actionDeselectAll.get ());
-	    menuSelect->addAction (m_actionSelectBodiesById.get ());
-	}
-	{
-	    QMenu* menuAverageAround = menu.addMenu ("Average around");
-	    menuAverageAround->addAction (m_actionAverageAroundBody.get ());
-	    menuAverageAround->addAction (
-		m_actionAverageAroundSecondBody.get ());
-	    menuAverageAround->addAction (m_actionAverageAroundReset.get ());
-	    m_actionAverageAroundShowRotation->setChecked (
-		vs.GetAverageAroundMovementShown () == 
-		ViewSettings::AVERAGE_AROUND_MOVEMENT_ROTATION);
-	    menuAverageAround->addAction (
-		m_actionAverageAroundShowRotation.get ());
-	}
-	{
-	    QMenu* menuContext = menu.addMenu ("Context display");
-	    menuContext->addAction (m_actionContextDisplayBody.get ());
-	    menuContext->addAction (m_actionContextDisplayReset.get ());
-	}
-	{
-	    QMenu* menuInfo = menu.addMenu ("Info");
-	    menuInfo->addAction (m_actionInfoPoint.get ());
-	    menuInfo->addAction (m_actionInfoEdge.get ());
-	    menuInfo->addAction (m_actionInfoFace.get ());
-	    menuInfo->addAction (m_actionInfoBody.get ());
-	    menuInfo->addAction (m_actionInfoFoam.get ());
-	    menuInfo->addAction (m_actionInfoOpenGL.get ());
-	}
-	{
-	    QMenu* menuShow = menu.addMenu ("Show");
-	    menuShow->addAction (m_actionShowNeighbors.get ());
-	    menuShow->addAction (m_actionShowTextureTensor.get ());
-	    menuShow->addAction (m_actionShowReset.get ());
-	}
-
-	if (ViewCount::GetCount (m_viewCount) > 1)
-	{
-	    QMenu* menuCopy = menu.addMenu ("Copy");
-	    QMenu* menuTransformation = menuCopy->addMenu ("Transformation");
-	    QMenu* menuSelection = menuCopy->addMenu ("Selection");
-	    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
-	    {
-		ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-		if (viewNumber == m_viewNumber)
-		    continue;
-		menuTransformation->addAction (
-		    m_actionCopyTransformation[i].get ());
-		menuSelection->addAction (m_actionCopySelection[i].get ());
-	    }
-	}
-    }
+	contextMenuEventView (&menu);
     menu.exec (event->globalPos());
 }
 
@@ -3387,6 +3409,10 @@ void GLWidget::ButtonClickedViewType (int id)
     vs.AverageInitStep (GetViewNumber ());
 }
 
+void GLWidget::ButtonClickedTimeLinkage (int id)
+{
+    m_timeLinkage = TimeLinkage::Enum (id);
+}
 
 void GLWidget::ToggledBodyCenterShown (bool checked)
 {
