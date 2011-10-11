@@ -408,6 +408,12 @@
                      <property name="text">
                       <string>Linked</string>
                      </property>
+                     <property name="checkable">
+                      <bool>true</bool>
+                     </property>
+                     <property name="checked">
+                      <bool>false</bool>
+                     </property>
                      <attribute name="buttonGroup">
                       <string>buttonGroupTimeLinkage</string>
                      </attribute>
@@ -2315,22 +2321,6 @@
    </hints>
   </connection>
   <connection>
-      <sender>buttonGroupTimeLinkage</sender>
-   <signal>buttonClicked(int)</signal>
-   <receiver>GLWidget</receiver>
-   <slot>ButtonClickedTimeLinkage(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>507</x>
-     <y>396</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>widgetGl</sender>
    <signal>EditColorMap()</signal>
    <receiver>MainWindow</receiver>
@@ -3241,6 +3231,12 @@
      <y>277</y>
     </hint>
    </hints>
+  </connection>
+  <connection>
+   <sender>buttonGroupTimeLinkage</sender>
+   <signal>buttonClicked(int)</signal>
+   <receiver>widgetGl</receiver>
+      <slot>ButtonClickedTimeLinkage(int)</slot>
   </connection>
   <connection>
    <sender>toolButtonPlayReverse</sender>

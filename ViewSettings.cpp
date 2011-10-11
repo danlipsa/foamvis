@@ -316,7 +316,6 @@ void ViewSettings::UnionBodySelector (const vector<size_t>& bodyIds)
     switch (m_bodySelector->GetType ())
     {
     case BodySelectorType::ALL:
-	m_bodySelector = boost::make_shared<IdBodySelector> (bodyIds);
 	break;
 
     case BodySelectorType::ID:
@@ -352,7 +351,8 @@ void ViewSettings::DifferenceBodySelector (
     {
     case BodySelectorType::ALL:
     {
-	m_bodySelector = idBodySelectorComplement (foam, bodyIds);
+	if (bodyIds.size () != 0)
+	    m_bodySelector = idBodySelectorComplement (foam, bodyIds);
 	break;
     }
     case BodySelectorType::ID:
@@ -407,18 +407,18 @@ void ViewSettings::AverageSetTimeWindow (size_t timeSteps)
     GetForceAverage ().AverageSetTimeWindow (timeSteps);
 }
 
-void ViewSettings::AverageStep (ViewNumber::Enum viewNumber, int timeStep)
+void ViewSettings::AverageStep (ViewNumber::Enum viewNumber, int direction)
 {
     switch (GetViewType ())
     {
     case ViewType::FACES_STATISTICS:
-	GetScalarAverage ().AverageStep (viewNumber, timeStep);
-	GetTensorAverage ().AverageStep (viewNumber, timeStep);
-	GetForceAverage ().AverageStep (viewNumber, timeStep);
+	GetScalarAverage ().AverageStep (viewNumber, direction);
+	GetTensorAverage ().AverageStep (viewNumber, direction);
+	GetForceAverage ().AverageStep (viewNumber, direction);
 	break;
 	
     case ViewType::T1S_PDE:
-	GetT1sPDE ().AverageStep (viewNumber, timeStep);
+	GetT1sPDE ().AverageStep (viewNumber, direction);
 	break;
     default:
 	break;
@@ -524,7 +524,9 @@ size_t ViewSettings::GetCurrentTime () const
 }
 
 
-void ViewSettings::SetCurrentTime (size_t time)
+void ViewSettings::SetCurrentTime (size_t time, ViewNumber::Enum viewNumber)
 {
+    int direction = time - GetCurrentTime ();
     m_currentTime = time;
+    AverageStep (viewNumber, direction);
 }

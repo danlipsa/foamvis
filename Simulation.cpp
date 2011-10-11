@@ -556,7 +556,6 @@ void Simulation::ParseDMPs (
 {
     QDir dir;
     QStringList files;
-    string filePattern;
     m_useOriginal = useOriginal;
     m_dmpObjectInfo = dmpObjectInfo;
     m_forcesNames.resize (forcesNames.size ());
@@ -572,12 +571,8 @@ void Simulation::ParseDMPs (
 	ThrowException (
 	    "No files match: \"" + 
 	    fileInfo.filePath ().toStdString () + "\"");
-    filePattern = string (
-	(lastName (dir.absolutePath ()) + 
-	 '/' + fileInfo.fileName ()).toStdString ());
 
     SetTimeSteps (files.size ());
-    SetFilePattern (filePattern);
     // FoamProperties are shared between all Foams
     GetFoams ()[0] = ParseDMP (
 	dir.absolutePath (), GetDmpObjectInfo (),

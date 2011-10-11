@@ -47,9 +47,10 @@ protected:
     virtual void removeStep (ViewNumber::Enum viewNumber, 
 			     size_t timeStep, size_t subStep) = 0;
     // a step is divident in stepSize subSteps
-    virtual size_t getStepSize (size_t timeStep) const
+    virtual size_t getStepSize (
+	ViewNumber::Enum viewNumber, size_t timeStep) const
     {
-	(void)timeStep;
+	(void)timeStep;(void)viewNumber;
 	return 1;
     }
 

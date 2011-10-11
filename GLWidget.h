@@ -186,10 +186,10 @@ public:
 
     size_t GetBodyOrFaceProperty (ViewNumber::Enum viewNumber) const;
 
-    G3D::Rect2D GetViewportRect (ViewNumber::Enum viewNumber) const;
-    G3D::Rect2D GetViewportRect () const
+    G3D::Rect2D GetViewRect (ViewNumber::Enum viewNumber) const;
+    G3D::Rect2D GetViewRect () const
     {
-	return GetViewportRect (GetViewNumber ());
+	return GetViewRect (GetViewNumber ());
     }
 
     void SetStatus (QLabel* labelStatusBar)
@@ -464,7 +464,10 @@ private:
     void displayViewGrid ();
     void displayTextureColorBar (ViewNumber::Enum viewNumber, 
 				 const G3D::Rect2D& viewRect);
-    void displayViewTitle (const G3D::Rect2D& viewRect, ViewNumber::Enum view);
+    void displayViewTitle (ViewNumber::Enum viewNumber);
+    void displayViewText (
+	ViewNumber::Enum viewNumber, const string& text, size_t row);
+
     void displayViewTimeStep (const G3D::Rect2D& viewRect);
     void displayViewGrid () const;
 

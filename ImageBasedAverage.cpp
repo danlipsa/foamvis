@@ -47,7 +47,7 @@ void ImageBasedAverage<PropertySetter>::AverageInit (
 {
     Average::AverageInit (viewNumber);
     const G3D::Rect2D extendedArea = EncloseRotation (
-	GetGLWidget ().GetViewportRect (viewNumber));
+	GetGLWidget ().GetViewRect (viewNumber));
     QSize size (extendedArea.width (), extendedArea.height ());
     glPushAttrib (GL_COLOR_BUFFER_BIT);
     m_fbos.m_step.reset (
@@ -183,7 +183,7 @@ void ImageBasedAverage<PropertySetter>::renderToStep (
 {
     const GLWidget& glWidget = GetGLWidget ();
     G3D::Rect2D destRect = 
-	EncloseRotation (glWidget.GetViewportRect (viewNumber));
+	EncloseRotation (glWidget.GetViewRect (viewNumber));
     glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
     glWidget.ModelViewTransform (viewNumber, timeStep);
@@ -281,7 +281,9 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
     StatisticsType::Enum displayType, 
     G3D::Vector2 rotationCenter, 
     float angleDegrees) const
-{
+{    
+    ViewSettings& vs = GetGLWidget ().GetViewSettings (viewNumber);
+    glBindTexture (GL_TEXTURE_1D, vs.GetColorBarTexture ());
     pair<double, double> minMax = 
 	GetGLWidget ().GetRange (viewNumber);
     rotateAndDisplay (
@@ -316,6 +318,7 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
     ViewNumber::Enum viewNumber, size_t timeStep, size_t subStep)
 {
     (void)subStep;
+    ViewSettings& vs = GetGLWidget ().GetViewSettings (viewNumber);
     const Foam& foam = GetGLWidget ().GetSimulation ().GetFoam (timeStep);
     const Foam::Bodies& bodies = foam.GetBodies ();
     m_storeShaderProgram->Bind ();
@@ -328,7 +331,7 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
 	DisplayBody<DisplayFaceBodyPropertyColor<PropertySetter>,
 	PropertySetter> (
 	    GetGLWidget (), foam.GetProperties (),
-	    GetGLWidget ().GetViewSettings (viewNumber).GetBodySelector (), 
+	    vs.GetBodySelector (), 
 	    PropertySetter (
 		GetGLWidget (), viewNumber, m_storeShaderProgram.get (),
 		m_storeShaderProgram->GetVValueLocation ()),

@@ -440,6 +440,13 @@ void SetCheckedNoSignals (QCheckBox* checkBox, bool checked)
     checkBox->blockSignals (false);    
 }
 
+void SetValueNoSignals (QSlider* slider, size_t value)
+{
+    slider->blockSignals (true);
+    slider->setValue (value);
+    slider->blockSignals (false);
+}
+
 G3D::Rect2D TexRectFromInsideRect (G3D::Rect2D insideRect)
 {
     G3D::Rect2D enclosingRect = EncloseRotation (insideRect);

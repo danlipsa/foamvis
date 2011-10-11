@@ -17,6 +17,7 @@
 #include "MainWindow.h"
 #include "ProcessBodyTorus.h"
 #include "SystemDifferences.h"
+#include "T1sPDE.h"
 #include "TensorAverage.h"
 #include "Utils.h"
 #include "OpenGLUtils.h"
@@ -94,6 +95,10 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     spinBoxHistogramHeight->setValue (widgetHistogram->sizeHint ().height ());
     Simulation& simulation = simulationGroup.GetSimulation (0);
     configureInterfaceDataDependent (simulation);
+    string title ("FoamVis");
+    if (simulationGroup.size () == 1)
+	title += simulation.GetName ();
+    setWindowTitle (QString (title.c_str ()));
     widgetHistogram->setHidden (true);
     // fire as soon as all events have been processed
     m_timer->setInterval (33);
@@ -137,8 +142,6 @@ void MainWindow::configureInterfaceDataDependent (
     {
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::THREE_D);
     }
-    setWindowTitle (QString ((string("Foam - ") + 
-			      simulation.GetFilePattern ()).c_str ()));
     spinBoxStatisticsTimeWindow->setMaximum (simulation.GetTimeSteps ());
     spinBoxStatisticsTimeWindow->setValue (
 	spinBoxStatisticsTimeWindow->maximum ());
@@ -157,7 +160,7 @@ void MainWindow::initComboBoxSimulation (SimulationGroup& simulationGroup)
 	    const Simulation& simulation = 
 		simulationGroup.GetSimulation (i);
 	    comboBoxSimulation->addItem (
-		simulation.GetSimulationName ().c_str ());
+		simulation.GetName ().c_str ());
 	}
     }
 }
@@ -223,8 +226,10 @@ void MainWindow::ViewToUI ()
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     int property = vs.GetBodyOrFaceProperty ();
     size_t simulationIndex = vs.GetSimulationIndex ();
+    ViewType::Enum viewType = vs.GetViewType ();
 
-    SetCheckedNoSignals (buttonGroupViewType, vs.GetViewType (), true);
+    SetCheckedNoSignals (buttonGroupViewType, viewType, true);
+    setStackedWidget (viewType);
     SetCurrentIndexNoSignals (comboBoxColor, property);
     SetCurrentIndexNoSignals (comboBoxSimulation, simulationIndex);
     SetCurrentIndexNoSignals (comboBoxStatisticsType, vs.GetStatisticsType ());
@@ -239,7 +244,15 @@ void MainWindow::ViewToUI ()
 	vs.GetTensorAverage ().IsDeformationGridCellCenterShown ());
     sliderTimeSteps->SetValueMaximumNoSignals (
 	vs.GetCurrentTime (), widgetGl->GetTimeSteps (viewNumber) - 1);
-	
+    SetCheckedNoSignals (checkBoxTextureSizeShown, 
+			 vs.GetT1sPDE ().IsKernelTextureSizeShown ());
+    SetValueNoSignals (horizontalSliderT1sKernelTextureSize,
+		       vs.GetT1sPDE ().GetKernelTextureSize ());
+    SetValueNoSignals (horizontalSliderT1sKernelIntervalPerPixel,
+		       vs.GetT1sPDE ().GetKernelIntervalPerPixel ());
+    SetValueNoSignals (horizontalSliderT1sKernelSigma,
+		       vs.GetT1sPDE ().GetKernelSigma ());
+
     comboBoxAxesOrder->setCurrentIndex (vs.GetAxesOrder ());
     labelFacesStatisticsColor->setText (BodyOrFacePropertyToString (property));
     labelCenterPathColor->setText (BodyOrFacePropertyToString (property));
@@ -255,6 +268,7 @@ void MainWindow::ViewToUI ()
     checkBoxForceNetwork->setChecked (vs.IsForceNetworkShown ());
     checkBoxForcePressure->setChecked (vs.IsForcePressureShown ());
     checkBoxForceResult->setChecked (vs.IsForceResultShown ());
+    updateButtons ();
 }
 
 void MainWindow::connectColorBarHistogram (bool connected)
@@ -328,6 +342,10 @@ void MainWindow::setupButtonGroups ()
 	radioButtonTimeLinked, TimeLinkage::LINKED);
     buttonGroupTimeLinkage->setId (
 	radioButtonTimeSynchronized, TimeLinkage::SYNCHRONIZED);
+    buttonGroupTimeLinkage->button (
+	widgetGl->GetSimulationGroup ().size () == 1 ? 
+	TimeLinkage::LINKED : 
+	TimeLinkage::INDEPENDENT)->setChecked (true);
 }
 
 void MainWindow::setupSliderData (const Simulation& simulation)
@@ -965,11 +983,13 @@ void MainWindow::setStackedWidget (ViewType::Enum viewType)
     {
 	stackedWidgetTimeStep->setCurrentWidget (pageTimeStepEmpty);
 	stackedWidgetTimeDependent->setCurrentWidget (pages[viewType]);
+	tabWidget->setCurrentWidget (timeDependent);
     }
     else
     {
 	stackedWidgetTimeStep->setCurrentWidget (pages[viewType]);
 	stackedWidgetTimeDependent->setCurrentWidget (pageTimeDependentEmpty);
+	tabWidget->setCurrentWidget (timeStep);
     }
 }
 

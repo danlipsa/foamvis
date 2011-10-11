@@ -59,11 +59,6 @@ public:
 	return m_bodiesAlongTime;
     }
     const Body& GetBody (size_t bodyId, size_t timeStep) const;
-
-    const string& GetFilePattern () const
-    {
-	return m_filePattern;
-    }
     /**
      * Gets the vector of Foam objects
      * @return vector of data objects
@@ -135,17 +130,13 @@ public:
 
     void Preprocess ();
 
-    void SetFilePattern (const string& filePattern)
+    void SetName (string simulationName)
     {
-	m_filePattern = filePattern;
+	m_name = simulationName;
     }
-    void SetSimulationName (string simulationName)
+    string GetName () const
     {
-	m_simulationName = simulationName;
-    }
-    string GetSimulationName () const
-    {
-	return m_simulationName;
+	return m_name;
     }
 
     void SetTimeSteps (size_t timeSteps);
@@ -245,11 +236,10 @@ private:
      */
     G3D::AABox m_boundingBox;
     G3D::AABox m_boundingBoxTorus;
-    string m_filePattern;
     /**
      * This is the name specified in the ini file.
      */
-    string m_simulationName;
+    string m_name;
     vector<HistogramStatistics> m_histogram;
     bool m_adjustPressure;
     vector< vector<G3D::Vector3> > m_t1s;

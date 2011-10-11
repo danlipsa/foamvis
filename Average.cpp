@@ -22,7 +22,7 @@ void Average::AverageInit (ViewNumber::Enum viewNumber)
 void Average::loopOperation (Operation op, 
 			     ViewNumber::Enum viewNumber, size_t currentTime)
 {
-    size_t stepSize = getStepSize (currentTime);
+    size_t stepSize = getStepSize (viewNumber, currentTime);
     for (size_t i = 0; i < stepSize; ++i)
 	(this->*op) (viewNumber, currentTime, i);
 }

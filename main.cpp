@@ -73,7 +73,7 @@ void parseOptions (int argc, char *argv[],
 	    co[i]->m_dmpObjectInfo, co[i]->m_forcesNames,
 	    co[i]->m_vm.count (Option::m_name[Option::DEBUG_PARSING]), 
 	    co[i]->m_vm.count (Option::m_name[Option::DEBUG_SCANNING]));
-	simulation.SetSimulationName (
+	simulation.SetName (
 	    clo.m_names[clo.m_simulationIndexes[i]]);
 	if (simulation.GetTimeSteps () == 0)
 	{

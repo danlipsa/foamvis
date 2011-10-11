@@ -161,8 +161,8 @@ void T1sPDE::writeStepValues (ViewNumber::Enum viewNumber, size_t timeStep,
     glBindTexture (GL_TEXTURE_2D, m_kernel->texture ());
     m_gaussianStoreShaderProgram->Bind ();
     GetGLWidget ().DisplayT1Quad (viewNumber, timeStep, subStep);
-    // activate texture unit 0
     m_gaussianStoreShaderProgram->release ();
+    // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);    
     WarnOnOpenGLError ("b - T1sPDE::writeStepValues");
 }
@@ -178,7 +178,7 @@ void T1sPDE::DisplayTextureSize (ViewNumber::Enum viewNumber, size_t timeStep,
     glPopAttrib ();
 }
 
-size_t T1sPDE::getStepSize (size_t timeStep) const
+size_t T1sPDE::getStepSize (ViewNumber::Enum viewNumber, size_t timeStep) const
 {
-    return GetGLWidget ().GetSimulation ().GetT1s (timeStep).size ();
+    return GetGLWidget ().GetSimulation (viewNumber).GetT1s (timeStep).size ();
 }

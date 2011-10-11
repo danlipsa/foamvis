@@ -408,11 +408,11 @@ public:
     }
 
     size_t GetCurrentTime () const;
-    void SetCurrentTime (size_t time);
+    void SetCurrentTime (size_t time, ViewNumber::Enum viewNumber);
 
     virtual void AverageInit (ViewNumber::Enum viewNumber);
     virtual void AverageSetTimeWindow (size_t timeSteps);
-    virtual void AverageStep (ViewNumber::Enum viewNumber, int timeStep);
+    virtual void AverageStep (ViewNumber::Enum viewNumber, int direction);
     virtual void AverageRotateAndDisplay (
 	ViewNumber::Enum viewNumber, 
 	StatisticsType::Enum displayType = StatisticsType::AVERAGE,

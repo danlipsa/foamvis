@@ -142,6 +142,8 @@ const char* ViewType::ToString (ViewType::Enum t)
 	return "Center paths";
     case FACES_STATISTICS:
 	return "Faces statistics";
+    case T1S_PDE:
+	return "T1s PDE";
     default:
 	return "Invalid ViewType";
     }

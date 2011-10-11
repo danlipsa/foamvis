@@ -456,27 +456,12 @@ void GLWidget::initDisplayView ()
 
 void GLWidget::initViewSettings ()
 {
+    const Simulation& simulation = GetSimulation (0);
     BOOST_FOREACH (boost::shared_ptr<ViewSettings>& vs, m_viewSettings)
+    {
 	vs = boost::make_shared <ViewSettings> (*this);
-    const Simulation& simulation = GetSimulation ();
-    if (simulation.Is2D ())
-    {
-	BOOST_FOREACH (boost::shared_ptr<ViewSettings> vs, m_viewSettings)
-	{
-	    vs->SetViewType (ViewType::FACES);
-	    vs->SetAxesOrder (AxesOrder::TWO_D);
-	}
-    }
-    else
-    {
-	BOOST_FOREACH (boost::shared_ptr<ViewSettings> vs, m_viewSettings)
-	{
-	    vs->SetViewType (ViewType::FACES);
-	    vs->SetAxesOrder (AxesOrder::THREE_D);
-	}
-    }
-    BOOST_FOREACH (boost::shared_ptr<ViewSettings> vs, m_viewSettings)
-    {
+	vs->SetAxesOrder (
+	    simulation.Is2D () ? AxesOrder::TWO_D : AxesOrder::THREE_D);
 	vs->AverageSetTimeWindow (simulation.GetTimeSteps ());
 	vs->GetT1sPDE ().AverageSetTimeWindow (simulation.GetT1sTimeSteps ());
     }
@@ -860,14 +845,14 @@ void GLWidget::ProjectionTransform (
 
 void GLWidget::viewportTransform (ViewNumber::Enum viewNumber) const
 {
-    G3D::Rect2D viewRect = GetViewportRect (viewNumber);
+    G3D::Rect2D viewRect = GetViewRect (viewNumber);
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetViewport (viewRect);
     glViewport (vs.GetViewport ());
 }
 
 
-G3D::Rect2D GLWidget::GetViewportRect (ViewNumber::Enum view) const
+G3D::Rect2D GLWidget::GetViewRect (ViewNumber::Enum view) const
 {
     float w = width ();
     float h = height ();
@@ -935,7 +920,7 @@ void GLWidget::setView (const G3D::Vector2& clickedPoint)
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	G3D::Rect2D viewRect = GetViewportRect (viewNumber);
+	G3D::Rect2D viewRect = GetViewRect (viewNumber);
 	if (viewRect.contains (clickedPoint))
 	{
 	    m_viewNumber = viewNumber;
@@ -1305,7 +1290,7 @@ G3D::Matrix3 GLWidget::getRotationAround (int axis, double angleRadians)
 double GLWidget::ratioFromCenter (const QPoint& p)
 {
     using G3D::Vector2;
-    G3D::Rect2D viewRect = GetViewportRect ();
+    G3D::Rect2D viewRect = GetViewRect ();
     Vector2 center = viewRect.center ();
     int windowHeight = height ();
     Vector2 lastPos = QtToOpenGl (m_lastPos, windowHeight);
@@ -1954,7 +1939,7 @@ void GLWidget::displayFocusBox (ViewNumber::Enum viewNumber) const
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsContextView ())
     {
-	G3D::Rect2D viewRect = GetViewportRect (viewNumber);
+	G3D::Rect2D viewRect = GetViewRect (viewNumber);
 
 	glPushMatrix ();
 	glLoadIdentity ();
@@ -2389,7 +2374,7 @@ void GLWidget::displayContextMenuPos (ViewNumber::Enum viewNumber) const
 void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
-    const Foam& foam = GetSimulation (viewNumber).GetFoam (0);
+    const Foam& foam = GetSimulation (viewNumber).GetFoam (vs.GetCurrentTime ());
     const Foam::Bodies& bodies = foam.GetBodies ();
     if (m_facesShowEdges)
 	displayFacesContour (bodies, viewNumber);
@@ -2414,10 +2399,10 @@ void GLWidget::displayT1sPDE (ViewNumber::Enum viewNumber) const
     
 
     T1sPDE& t1sPDE = vs.GetT1sPDE ();
-    if (t1sPDE.GetKernelTextureSizeShown ())
+    if (t1sPDE.IsKernelTextureSizeShown ())
     {
-	size_t timeStep = GetCurrentTime ();
-	size_t stepSize = GetSimulation ().GetT1s (timeStep).size ();
+	size_t timeStep = GetCurrentTime (viewNumber);
+	size_t stepSize = GetSimulation (viewNumber).GetT1s (timeStep).size ();
 	for (size_t i = 0; i < stepSize; ++i)
 	    t1sPDE.DisplayTextureSize (viewNumber, timeStep, i);
     }
@@ -2428,7 +2413,7 @@ G3D::Vector2 GLWidget::toTexture (ViewNumber::Enum viewNumber,
 {
     G3D::Vector2 eye = toEye (object);
     ViewSettings& vs = GetViewSettings (viewNumber);
-    G3D::Rect2D viewRect = GetViewportRect (viewNumber);
+    G3D::Rect2D viewRect = GetViewRect (viewNumber);
     G3D::AABox vv = calculateCenteredViewingVolume (
 	viewNumber, double (viewRect.width ()) / viewRect.height (), 
 	vs.GetScaleRatio ());
@@ -2793,18 +2778,18 @@ size_t GLWidget::GetCurrentTime (ViewNumber::Enum viewNumber) const
     return GetViewSettings (viewNumber).GetCurrentTime ();
 }
 
-void GLWidget::SetCurrentTime (size_t timeStep)
+void GLWidget::SetCurrentTime (size_t time)
 {
     if (m_timeLinkage == TimeLinkage::INDEPENDENT)
-	GetViewSettings ().SetCurrentTime (timeStep);
+	GetViewSettings ().SetCurrentTime (time, GetViewNumber ());
     else
     {
-	for (size_t i = 0; i < ViewNumber::COUNT; ++i)
+	for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
 	{
 	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	    ViewSettings& vs = GetViewSettings (viewNumber);
 	    size_t maxTimeStep = GetTimeSteps (viewNumber) - 1;
-	    GetViewSettings (viewNumber).SetCurrentTime (
-		min (timeStep, maxTimeStep));
+	    vs.SetCurrentTime (min (time, maxTimeStep), viewNumber);
 	}
     }
 }
@@ -2832,8 +2817,8 @@ void GLWidget::contextMenuEventColorBar (QMenu* menu) const
 {
     ViewSettings& vs = GetViewSettings ();
     menu->addAction (m_actionClampClear.get ());
-    QMenu* menuCopy = menu->addMenu ("Copy");
     bool actions = false;
+    QMenu* menuCopy = menu->addMenu ("Copy");
     if (ViewCount::GetCount (m_viewCount) > 1)
     {
 	size_t currentProperty = vs.GetBodyOrFaceProperty ();
@@ -2849,7 +2834,7 @@ void GLWidget::contextMenuEventColorBar (QMenu* menu) const
 	}
     }
     if (! actions)
-	menu->clear ();
+	menuCopy->setDisabled (true);
     menu->addAction (m_actionEditColorMap.get ());
 }
 
@@ -2925,7 +2910,7 @@ void GLWidget::contextMenuEvent (QContextMenuEvent *event)
     m_contextMenuPosScreen = event->pos ();
     m_contextMenuPosObject = toObjectTransform (m_contextMenuPosScreen);
     QMenu menu (this);
-    G3D::Rect2D colorBarRect = getViewColorBarRect (GetViewportRect ());
+    G3D::Rect2D colorBarRect = getViewColorBarRect (GetViewRect ());
     if (colorBarRect.contains (QtToOpenGl (m_contextMenuPosScreen, height ())))
 	contextMenuEventColorBar (&menu);
     else
@@ -2954,10 +2939,10 @@ void GLWidget::displayViewDecorations (ViewNumber::Enum viewNumber)
 
     glViewport (0, 0, width (), height ());
 
-    G3D::Rect2D viewRect = GetViewportRect (viewNumber);
+    G3D::Rect2D viewRect = GetViewRect (viewNumber);
     if (GetColorBarType (viewNumber) != ColorBarType::NONE)
 	displayTextureColorBar (viewNumber, viewRect);
-    displayViewTitle (viewRect, viewNumber);
+    displayViewTitle (viewNumber);
     displayViewTimeStep (viewRect);
     displayViewGrid ();
 
@@ -2969,28 +2954,38 @@ void GLWidget::displayViewDecorations (ViewNumber::Enum viewNumber)
 
 
 
-void GLWidget::displayViewTitle (const G3D::Rect2D& viewRect, 
-				 ViewNumber::Enum viewNumber)
+void GLWidget::displayViewTitle (ViewNumber::Enum viewNumber)
 {
     if (! m_titleShown)
 	return;
+    ostringstream ostr;
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    ostr << "View " << viewNumber << " - "
+	 << ViewType::ToString (vs.GetViewType ()) << " - "
+	 << BodyOrFacePropertyToString (vs.GetBodyOrFaceProperty ()) << " - "
+	 << vs.GetCurrentTime ();    
+    displayViewText (viewNumber, GetSimulation (viewNumber).GetName (), 0);
+    displayViewText (viewNumber, ostr.str (), 1);
+}
+
+void GLWidget::displayViewText (
+    ViewNumber::Enum viewNumber, const string& t, size_t row)
+{
+    G3D::Rect2D viewRect = GetViewRect (viewNumber);
     QFont font;
     if (viewNumber == m_viewNumber)
 	font.setUnderline (true);
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    ostringstream ostr;
-    ostr << "View " << viewNumber << " - "
-	 << ViewType::ToString (vs.GetViewType ()) << " - "
-	 << BodyOrFacePropertyToString (vs.GetBodyOrFaceProperty ());
-    QString text = QString (ostr.str ().c_str ());
+    QString text (t.c_str ());
     QFontMetrics fm (font);
     const int textX = 
 	viewRect.x0 () + (float (viewRect.width ()) - fm.width (text)) / 2;
     const int textY = OpenGlToQt (
-	viewRect.y1 () - (fm.height () + 3), height ());
-    glColor (Qt::black);
-    renderText (textX, textY, text, font);
+	viewRect.y1 () - fm.lineSpacing () * (row + 1), height ());
+    glColor (GetHighlightColor (viewNumber, HighlightNumber::H0));
+    renderText (textX, textY, text, font);    
 }
+
+
 
 size_t GLWidget::GetBodyOrFaceProperty (ViewNumber::Enum viewNumber) const
 {
@@ -3163,7 +3158,7 @@ void GLWidget::activateViewShader (
     ViewingVolumeOperation::Enum enclose, G3D::Rect2D& srcRect,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
-    G3D::Rect2D destRect = GetViewportRect (viewNumber);
+    G3D::Rect2D destRect = GetViewRect (viewNumber);
     if (enclose == ViewingVolumeOperation::ENCLOSE2D)
     {
 	destRect = EncloseRotation (destRect);
@@ -3412,6 +3407,8 @@ void GLWidget::ButtonClickedViewType (int id)
 void GLWidget::ButtonClickedTimeLinkage (int id)
 {
     m_timeLinkage = TimeLinkage::Enum (id);
+    SetCurrentTime (GetCurrentTime ());
+    update ();
 }
 
 void GLWidget::ToggledBodyCenterShown (bool checked)
@@ -3512,11 +3509,14 @@ void GLWidget::CurrentIndexChangedViewCount (int index)
 {
     m_viewCount = ViewCount::Enum (index);
     m_viewNumber = ViewNumber::VIEW0;
-    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
+    size_t n = ViewCount::GetCount (m_viewCount);
+    for (size_t i = 0; i < n; ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	G3D::Rect2D viewRect = GetViewportRect (viewNumber);
+	G3D::Rect2D viewRect = GetViewRect (viewNumber);
 	ViewSettings& vs = GetViewSettings (viewNumber);
+	if (vs.GetViewType () == ViewType::COUNT)
+	    vs.SetViewType (ViewType::FACES);
 	vs.CalculateCameraDistance (
 	    calculateCenteredViewingVolume (
 		viewNumber,
@@ -3579,15 +3579,7 @@ void GLWidget::SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel)
 
 void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 {
-    makeCurrent ();
-    int direction = timeStep - GetCurrentTime ();
     SetCurrentTime (timeStep);
-    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
-    {
-	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	ViewSettings& vs = GetViewSettings (viewNumber);
-	vs.AverageStep (viewNumber, direction);
-    }
     update ();
 }
 
@@ -3762,7 +3754,7 @@ void GLWidget::ValueChangedLightSpecularBlue (int sliderValue)
 void GLWidget::ValueChangedAngleOfView (int angleOfView)
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
-    G3D::Rect2D viewRect = GetViewportRect ();
+    G3D::Rect2D viewRect = GetViewRect ();
     ViewSettings& vs = GetViewSettings ();
     vs.SetAngleOfView (angleOfView);
     vs.CalculateCameraDistance (
