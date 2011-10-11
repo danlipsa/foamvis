@@ -1,5 +1,10 @@
 Release log
 ===========
+0.6.
+	- several simulations can be loaded to facilitate comparison
+	- added two time linkage modes between multiple views: 
+	  Linked and Independent. Can be accessed with in the 
+	  'General > Show > View' panel.	
 0.6.2166 2011-09-28
 	 - added T1s probability density estimate
 0.6.2148 2011-09-16

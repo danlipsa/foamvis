@@ -403,7 +403,7 @@ void Foam::copyStandaloneElements ()
 }
 
 void Foam::Preprocess ()
-{
+{    
     VertexSet vertexSet;
     EdgeSet edgeSet;
     FaceSet faceSet;
@@ -487,10 +487,13 @@ void Foam::addConstraintEdges ()
     VertexSet vertexSet = GetVertexSet ();
     EdgeSet edgeSet = GetEdgeSet ();
     size_t lastEdgeId = GetLastEdgeId (edgeSet);
+    size_t dmpObjectConstraintIndex = GetParsingData ().
+	GetDmpObjectInfo ().m_constraintIndex;
     for (size_t i = 0; i < bodies.size (); ++i)
     {
 	boost::shared_ptr<Body> body = bodies[i];
-	//if (body->GetId () != 487)
+	//DEBUG
+	//if (body->GetId () != 311)
 	//continue;
 	Face& face = body->GetFace (0);
 	if (face.IsClosed ())
@@ -505,8 +508,7 @@ void Foam::addConstraintEdges ()
 	face.AddEdge (edge);
 	face.CalculateCentroidAndArea ();
 	size_t constraintIndex = constraintEdge->GetConstraintIndex ();
-	if ( constraintIndex == GetParsingData ().
-	     GetDmpObjectInfo ().m_constraintIndex)
+	if ( constraintIndex == dmpObjectConstraintIndex)
 	{
 	    resizeAllowIndex (&m_constraintEdges, constraintIndex);
 	    if (! m_constraintEdges[constraintIndex])

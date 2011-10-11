@@ -398,10 +398,7 @@ void CommonOptions::read (string parameters, string filter)
 			   (tokenizedParameters.end () - 1)->c_str ()));
     }
     tvs.push_back (0);
-    po::store (
-	po::command_line_parser (tvs.size () - 1, &tvs[0]).
-	options (m_commonOptions).positional (m_positionalOptions).run (), m_vm);
-    po::notify (m_vm);
+    read (tvs.size () - 1, &tvs[0]);
     filterAndExpandWildcards (&m_fileNames, filter);
 }
 
