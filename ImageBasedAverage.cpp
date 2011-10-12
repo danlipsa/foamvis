@@ -319,7 +319,8 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
 {
     (void)subStep;
     ViewSettings& vs = GetGLWidget ().GetViewSettings (viewNumber);
-    const Foam& foam = GetGLWidget ().GetSimulation ().GetFoam (timeStep);
+    const Foam& foam = 
+	GetGLWidget ().GetSimulation (viewNumber).GetFoam (timeStep);
     const Foam::Bodies& bodies = foam.GetBodies ();
     m_storeShaderProgram->Bind ();
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT );

@@ -166,6 +166,7 @@ private:
     void setupColorBarModels (size_t simulationIndex, 
 			      ViewNumber::Enum viewNumber);
     void setupColorBarModels ();
+    void setupViews ();
 
     void setupHistogram ();
     void processBodyTorusStep ();
@@ -221,6 +222,9 @@ private:
 
     HistogramType::Enum m_histogramType;
     ViewNumber::Enum m_histogramViewNumber;
+    /*
+     * Index order: simulation index, view number, body property
+     */
     vector <
 	boost::array<
 	    boost::array<boost::shared_ptr<ColorBarModel>, 

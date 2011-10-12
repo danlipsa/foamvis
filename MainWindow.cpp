@@ -83,6 +83,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     widgetGl->SetStatus (labelStatusBar);
     widgetGl->SetSimulationGroup (&simulationGroup);
     setupColorBarModels ();
+    setupViews ();
     initComboBoxSimulation (simulationGroup);
     configureInterface ();
     setupHistogram ();
@@ -112,7 +113,7 @@ void MainWindow::configureInterface ()
     tabWidget->setCurrentWidget (timeStep);
     comboBoxWindowSize->setCurrentIndex (WindowSize::GL_720x480);
     horizontalSliderEllipseSize->setValue (49);
-    comboBoxColor->setCurrentIndex (FaceProperty::DMP_COLOR);
+    comboBoxColor->setCurrentIndex (BodyProperty::PRESSURE);
 }
 
 
@@ -666,7 +667,19 @@ void MainWindow::setupColorBarModels ()
     for (size_t simulationIndex = 0; simulationIndex < simulationCount; 
 	 ++simulationIndex)
 	for (size_t vn = 0; vn < ViewNumber::COUNT; ++vn)
-	    setupColorBarModels (simulationIndex, ViewNumber::Enum (vn));
+	    setupColorBarModels (simulationIndex, ViewNumber::Enum (vn));    
+}
+
+void MainWindow::setupViews ()
+{
+    for (size_t i = 0; i < widgetGl->GetViewSettingsSize (); ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	widgetGl->SetBodyOrFaceProperty (
+	    viewNumber, 
+	    m_colorBarModelBodyProperty[0][viewNumber][BodyProperty::PRESSURE], 
+	    BodyProperty::PRESSURE);
+    }
 }
 
 void MainWindow::setupColorBarModels (size_t simulationIndex,
@@ -1026,7 +1039,7 @@ void MainWindow::CurrentIndexChangedFaceColor (int value)
 	::setVisible (widgetsVisible, false);
 	::setEnabled (widgetsEnabled, false);
 	Q_EMIT BodyOrFacePropertyChanged (
-	    m_colorBarModelBodyProperty[simulationIndex][viewNumber][0], value);
+	    boost::shared_ptr<ColorBarModel> (), value);
     }
     else {
 	BodyProperty::Enum property = BodyProperty::FromSizeT (value);

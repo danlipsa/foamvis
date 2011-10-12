@@ -1,7 +1,9 @@
 Release log
 ===========
 0.6.
-	- several simulations can be loaded to facilitate comparison
+	- several simulations can be loaded to facilitate comparison. To do 
+	  this, several --simulation switches can be used or the browse 
+	  simulations dialog.
 	- added two time linkage modes between multiple views: 
 	  Linked and Independent. Can be accessed with in the 
 	  'General > Show > View' panel.	

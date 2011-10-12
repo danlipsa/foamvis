@@ -308,7 +308,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="general">
           <attribute name="title">
@@ -321,7 +321,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="currentIndex">
-              <number>0</number>
+              <number>3</number>
              </property>
              <widget class="QWidget" name="tabShow">
               <attribute name="title">
@@ -1139,9 +1139,9 @@
                 </widget>
                </item>
                <item row="1" column="0">
-                <widget class="QCheckBox" name="checkBoxBodyStationaryMarked">
+                <widget class="QCheckBox" name="checkBoxAverageAroundMarked">
                  <property name="text">
-                  <string>Mark stationary</string>
+                  <string>Average around marked</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
@@ -2063,6 +2063,7 @@
     <slot>ValueChangedT1sKernelIntervalPerPixel(int)</slot>
     <slot>ToggledT1sKernelTextureSizeShown(bool)</slot>
     <slot>CurrentIndexChangedSimulation(int)</slot>
+    <slot>ToggledAverageAroundMarked(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -3025,10 +3026,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxBodyStationaryMarked</sender>
+   <sender>checkBoxAverageAroundMarked</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledAverageAroundBody(bool)</slot>
+   <slot>ToggledAverageAroundMarked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>817</x>
@@ -3236,7 +3237,17 @@
    <sender>buttonGroupTimeLinkage</sender>
    <signal>buttonClicked(int)</signal>
    <receiver>widgetGl</receiver>
-      <slot>ButtonClickedTimeLinkage(int)</slot>
+   <slot>ButtonClickedTimeLinkage(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>toolButtonPlayReverse</sender>
@@ -3551,8 +3562,8 @@
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroupInteractionObject"/>
+  <buttongroup name="buttonGroupTimeLinkage"/>
   <buttongroup name="buttonGroupHistogram"/>
   <buttongroup name="buttonGroupViewType"/>
-  <buttongroup name="buttonGroupTimeLinkage"/>
  </buttongroups>
 </ui>

@@ -203,7 +203,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_missingVolumeShown (true),
       m_titleShown (false),
       m_timeStepShown (false),
-      m_averageAroundBody (true),
+      m_averageAroundMarked (true),
       m_viewCount (ViewCount::ONE),
       m_viewLayout (ViewLayout::HORIZONTAL),
       m_viewNumber (ViewNumber::VIEW0),
@@ -711,15 +711,16 @@ void GLWidget::transformFoamAverageAround (
     ViewSettings::AverageAroundType type = vs.GetAverageAroundType ();
     glTranslate (- GetSimulation (viewNumber).GetBoundingBoxTorus ().center ());
     if (type == ViewSettings::AVERAGE_AROUND)
-	RotateAndTranslateAverageAround (timeStep, 1);
+	RotateAndTranslateAverageAround (viewNumber, timeStep, 1);
 }
 
 void GLWidget::RotateAndTranslateAverageAround (
+    ViewNumber::Enum viewNumber,
     size_t timeStep, int direction) const
 {
-    const ObjectPosition& rotationBegin = GetSimulation ().
+    const ObjectPosition& rotationBegin = GetSimulation (viewNumber).
 	GetFoam (0).GetAverageAroundPosition ();
-    const ObjectPosition& rotationCurrent = GetSimulation ().
+    const ObjectPosition& rotationCurrent = GetSimulation (viewNumber).
 	GetFoam (timeStep).GetAverageAroundPosition ();
     float angleRadians = rotationCurrent.m_angle - rotationBegin.m_angle;
     if (direction > 0)
@@ -747,7 +748,7 @@ G3D::AABox GLWidget::calculateViewingVolume (
 {
     G3D::AABox bb = GetSimulation (viewNumber).GetBoundingBoxTorus ();
     G3D::AABox vv = AdjustXOverYRatio (EncloseRotation (bb), xOverY);
-    if (! GetSimulation ().Is2D ())
+    if (! GetSimulation (viewNumber).Is2D ())
 	// ExtendAlongZFor3D is used for 3D, 
 	// so that you keep the 3D objects outside the camera
 	vv = ExtendAlongZFor3D (vv, extendAlongZRatio);
@@ -1119,8 +1120,8 @@ string GLWidget::infoSelectedBodies () const
 	(static_cast<const IdBodySelector&> (bodySelector)).GetIds ();
     if (ids.size () == 1)
     {
-	Foam::Bodies::const_iterator it = GetSimulation ().GetFoam (0).FindBody (
-	    ids[0]);
+	Foam::Bodies::const_iterator it = 
+	    GetSimulation ().GetFoam (0).FindBody (ids[0]);
 	ostr << *it;
     }
     else
@@ -1244,7 +1245,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     glMatrixMode (GL_PROJECTION);
     ProjectionTransform (viewNumber);
     glMatrixMode (GL_MODELVIEW);
-    ModelViewTransform (viewNumber, GetCurrentTime ());
+    ModelViewTransform (viewNumber, GetCurrentTime (viewNumber));
     m_minimumEdgeRadius = GetOnePixelInObjectSpace ();
     calculateEdgeRadius (m_edgeRadiusRatio,
 			 &m_edgeRadius, &m_arrowBaseRadius,
@@ -1494,7 +1495,7 @@ G3D::Vector3 GLWidget::toObjectTransform (const QPoint& position,
     glMatrixMode (GL_PROJECTION);
     ProjectionTransform (viewNumber);
     glMatrixMode (GL_MODELVIEW);
-    ModelViewTransform (viewNumber, GetCurrentTime ());
+    ModelViewTransform (viewNumber, GetCurrentTime (viewNumber));
     return toObject (position);
 }
 
@@ -1503,39 +1504,41 @@ G3D::Vector3 GLWidget::toObjectTransform (const QPoint& position) const
     return toObjectTransform (position, GetViewNumber ());
 }
 
-void GLWidget::displayAverageAround (
+void GLWidget::displayAverageAroundBodies (
     ViewNumber::Enum viewNumber,
     bool adjustForAverageAroundMovementRotation) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     ViewSettings::AverageAroundType type = vs.GetAverageAroundType ();
-    if (m_averageAroundBody && type == ViewSettings::AVERAGE_AROUND)
+    if (m_averageAroundMarked && type == ViewSettings::AVERAGE_AROUND)
     {
+	const Simulation& simulation = GetSimulation (viewNumber);
 	glPushAttrib (GL_CURRENT_BIT |
 		      GL_ENABLE_BIT | GL_LINE_BIT | GL_POINT_BIT);
 	if (adjustForAverageAroundMovementRotation)
 	{
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
-	    RotateAndTranslateAverageAround (GetCurrentTime (), -1);
+	    RotateAndTranslateAverageAround (
+		viewNumber, GetCurrentTime (viewNumber), -1);
 	}
 	glDisable (GL_DEPTH_TEST);
 	Foam::Bodies focusBody (1);
 	size_t bodyId = vs.GetAverageAroundBodyId ();
-	focusBody[0] = *GetSimulation (viewNumber).GetFoam (0).FindBody (bodyId);
+	focusBody[0] = *simulation.GetFoam (vs.GetCurrentTime ()).FindBody (bodyId);
 	displayFacesContour<HighlightNumber::H0> (
 	    focusBody, viewNumber, m_highlightLineWidth);
 	glPointSize (4.0);
 	glColor (Qt::black);
 	DisplayBodyCenter (
-	    *this, 
-	    GetSimulation (viewNumber).GetFoam (0).GetProperties (), 
+	    *this, simulation.GetFoam (vs.GetCurrentTime ()).GetProperties (), 
 	    IdBodySelector (bodyId)) (focusBody[0]);
 	size_t secondBodyId = vs.GetAverageAroundSecondBodyId ();
 	if (secondBodyId != INVALID_INDEX)
 	{
 	    focusBody[0] = 
-		*GetSimulation (viewNumber).GetFoam (0).FindBody (secondBodyId);
+		*simulation.GetFoam (vs.GetCurrentTime ()).
+		FindBody (secondBodyId);
 	    displayFacesContour<HighlightNumber::H0> (
 		focusBody, viewNumber, m_highlightLineWidth);
 	}
@@ -1583,7 +1586,8 @@ void GLWidget::displayContextStationaryFoam (
 	{
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
-	    RotateAndTranslateAverageAround (GetCurrentTime (), -1);
+	    RotateAndTranslateAverageAround (
+		viewNumber, GetCurrentTime (viewNumber), -1);
 	}
 	DisplayBox (GetSimulation (viewNumber), 
 		    GetHighlightColor (viewNumber, HighlightNumber::H1),
@@ -2321,7 +2325,7 @@ void GLWidget::displayBodyCenters (
 	    GetBodySelector ();
 	double zPos = (GetViewSettings ().GetViewType () == 
 		       ViewType::CENTER_PATHS) ?
-	    GetCurrentTime () * GetTimeDisplacement () : 0;
+	    GetCurrentTime (viewNumber) * GetTimeDisplacement () : 0;
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
 	glDisable (GL_DEPTH_TEST);
 	glPointSize (4.0);
@@ -2343,7 +2347,8 @@ void GLWidget::displayFaceCenters (ViewNumber::Enum viewNumber) const
     if (m_faceCenterShown)
     {
 	FaceSet faces = 
-	    GetSimulation ().GetFoam (GetCurrentTime ()).GetFaceSet ();
+	    GetSimulation (viewNumber).GetFoam (
+		GetCurrentTime (viewNumber)).GetFaceSet ();
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
 	glDisable (GL_DEPTH_TEST);
 	glPointSize (4.0);
@@ -2374,19 +2379,20 @@ void GLWidget::displayContextMenuPos (ViewNumber::Enum viewNumber) const
 void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
-    const Foam& foam = GetSimulation (viewNumber).GetFoam (vs.GetCurrentTime ());
+    const Foam& foam = 
+	GetSimulation (viewNumber).GetFoam (vs.GetCurrentTime ());
     const Foam::Bodies& bodies = foam.GetBodies ();
     if (m_facesShowEdges)
 	displayFacesContour (bodies, viewNumber);
     displayFacesInterior (bodies, viewNumber);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (foam);
-    displayAverageAround (viewNumber);
+    displayAverageAroundBodies (viewNumber);
     displayContextBodies (viewNumber);
     displayContextStationaryFoam (viewNumber);
     displayStandaloneFaces ();    
     displayDeformationTensor2D (viewNumber);
     if (m_t1sShown)
-	displayT1sDot (viewNumber, GetCurrentTime ());
+	displayT1sDot (viewNumber, GetCurrentTime (viewNumber));
     vs.GetForceAverage ().DisplayOneTimeStep (viewNumber);
 }
 
@@ -2429,16 +2435,18 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
     bool adjustForAverageAroundMovementRotation = 
 	(vs.GetAverageAroundMovementShown () == 
 	 ViewSettings::AVERAGE_AROUND_MOVEMENT_ROTATION);
+    const Simulation& simulation = GetSimulation (viewNumber);
 
-    const ObjectPosition& rotationBegin = GetSimulation ().
-	GetFoam (0).GetAverageAroundPosition ();
-    const ObjectPosition& rotationCurrent = GetSimulation ().
-	GetFoam (GetCurrentTime ()).GetAverageAroundPosition ();
+    const ObjectPosition& rotationBegin = 
+	simulation.GetFoam (0).GetAverageAroundPosition ();
+    const ObjectPosition& rotationCurrent = 
+	simulation.GetFoam (GetCurrentTime (viewNumber)).
+	GetAverageAroundPosition ();
     G3D::Vector2 rotationCenter = 
 	(vs.GetAverageAroundType () == ViewSettings::AVERAGE_AROUND) ? 
 	(toEye (rotationCurrent.m_rotationCenter) - 
 	 getEyeTransform (viewNumber).xy ()) : 
-	(toEye (GetSimulation ().GetBoundingBox ().low ().xy ()) - 
+	(toEye (simulation.GetBoundingBox ().low ().xy ()) - 
 	 getEyeTransform (viewNumber).xy ());
     float angleDegrees = 
 	adjustForAverageAroundMovementRotation ? G3D::toDegrees (
@@ -2451,7 +2459,7 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
 	GetSimulation (viewNumber).GetFoam (0));
     if (m_t1sShown)
 	displayT1sDot (viewNumber);
-    displayAverageAround (
+    displayAverageAroundBodies (
 	viewNumber, adjustForAverageAroundMovementRotation);
     displayContextBodies (viewNumber);
     displayContextStationaryFoam (
@@ -2489,8 +2497,8 @@ void GLWidget::displayFacesContour (
 	bodies.begin (), bodies.end (),
 	DisplayBody< DisplayFaceLineStripColor<0xff000000> > (
 	    *this, 
-	    GetSimulation (viewNumber).GetFoam (0).
-	    GetProperties (), bodySelector));
+	    GetSimulation (viewNumber).GetFoam (0).GetProperties (), 
+	    bodySelector));
     glPopAttrib ();
 }
 
@@ -2606,7 +2614,7 @@ void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
     {
 	const Foam::Bodies& bodies = 
 	    GetSimulation (viewNumber).GetFoam (0).GetBodies ();
-	double zPos = GetCurrentTime () * GetTimeDisplacement ();
+	double zPos = GetCurrentTime (viewNumber) * GetTimeDisplacement ();
 	for_each (
 	    bodies.begin (), bodies.end (),
 	    DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H0,
@@ -2624,7 +2632,7 @@ void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
 	displayStandaloneEdges< DisplayEdgePropertyColor<> > (
 	    GetSimulation (viewNumber).GetFoam (0),
 	    IsTimeDisplacementUsed (),
-	    (GetSimulation ().GetTimeSteps () - 1)*GetTimeDisplacement ());
+	    (GetSimulation (viewNumber).GetTimeSteps () - 1) * GetTimeDisplacement ());
     }
     glPopAttrib ();
 }
@@ -3315,9 +3323,9 @@ void GLWidget::ToggledBoundingBoxShown (bool checked)
     update ();
 }
 
-void GLWidget::ToggledAverageAroundBody (bool checked)
+void GLWidget::ToggledAverageAroundMarked (bool checked)
 {
-    m_averageAroundBody = checked;
+    m_averageAroundMarked = checked;
     update ();
 }
 
@@ -3555,20 +3563,28 @@ void GLWidget::CurrentIndexChangedAxesOrder (int index)
 
 // @todo add a color bar model for BodyProperty::None
 void GLWidget::SetBodyOrFaceProperty (
+    ViewNumber::Enum viewNumber,
     boost::shared_ptr<ColorBarModel> colorBarModel,
     size_t bodyOrFaceProperty)
 {
-    makeCurrent ();
-    ViewNumber::Enum view = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetBodyOrFaceProperty (bodyOrFaceProperty);
     if (vs.GetBodyOrFaceProperty () != FaceProperty::DMP_COLOR)
-	GetViewSettings ().SetColorBarModel (colorBarModel);
+	vs.SetColorBarModel (colorBarModel);
     else
 	vs.ResetColorBarModel ();
-    compile (view);
+    compile (viewNumber);
     update ();
 }
+
+void GLWidget::SetBodyOrFaceProperty (
+    boost::shared_ptr<ColorBarModel> colorBarModel,
+    size_t bodyOrFaceProperty)
+{
+    SetBodyOrFaceProperty (GetViewNumber (), colorBarModel, bodyOrFaceProperty);
+}
+
+
 
 void GLWidget::SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel)
 {

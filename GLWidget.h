@@ -78,10 +78,13 @@ public:
     {
 	return *m_viewSettings[viewNumber];
     }
-
     ViewSettings& GetViewSettings () const
     {
 	return GetViewSettings (GetViewNumber ());
+    }
+    size_t GetViewSettingsSize ()
+    {
+	return m_viewSettings.size ();
     }
 
     QColor GetHighlightColor (ViewNumber::Enum view, 
@@ -225,7 +228,9 @@ public:
 	ViewingVolumeOperation::Enum enclose = 
 	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     G3D::Rect2D CalculateViewEnclosingRect (ViewNumber::Enum viewNumber) const;
-    void RotateAndTranslateAverageAround (size_t timeStep, int direction) const;
+    void RotateAndTranslateAverageAround (
+	ViewNumber::Enum viewNumber,
+	size_t timeStep, int direction) const;
     void DisplayT1Quad (ViewNumber::Enum view, 
 			size_t timeStep, size_t t1Index) const;
     pair<float, float> GetRange (ViewNumber::Enum viewNumber) const;
@@ -241,6 +246,11 @@ public:
 	StatisticsType::Enum statisticsType);
     ColorBarType::Enum GetColorBarType (ViewNumber::Enum viewNumber);
     ColorBarType::Enum GetColorBarType ();
+    void SetBodyOrFaceProperty (
+	ViewNumber::Enum viewNumber,
+	boost::shared_ptr<ColorBarModel> colorBarModel,
+	size_t property);
+
 
 Q_SIGNALS:
     void PaintedGL ();
@@ -261,7 +271,7 @@ public Q_SLOTS:
     void ToggledAxesShown (bool checked);
     void ToggledBoundingBoxShown (bool checked);
     void ToggledBodiesBoundingBoxesShown (bool checked);
-    void ToggledAverageAroundBody (bool checked);
+    void ToggledAverageAroundMarked (bool checked);
     /**
      * Shows center paths
      * param checked true for showing the center paths false otherwise
@@ -505,7 +515,7 @@ private:
     void displayContextStationaryFoam (
 	ViewNumber::Enum view,
 	bool adjustForAverageAroundMovementRotation = false) const;
-    void displayAverageAround (
+    void displayAverageAroundBodies (
 	ViewNumber::Enum view, 
 	bool adjustForAverageAroundMovementRotation = false) const;
 
@@ -755,7 +765,7 @@ private:
     bool m_missingVolumeShown;
     bool m_titleShown;
     bool m_timeStepShown;
-    bool m_averageAroundBody;
+    bool m_averageAroundMarked;
 
     // View related variables
     ViewCount::Enum m_viewCount;

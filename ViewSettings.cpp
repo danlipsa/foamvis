@@ -45,7 +45,7 @@ boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
 // ======================================================================
 ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_viewType (ViewType::COUNT),
-    m_bodyOrFaceProperty (FaceProperty::DMP_COLOR),
+    m_bodyOrFaceProperty (BodyProperty::PRESSURE),
     m_statisticsType (StatisticsType::AVERAGE),
     m_listCenterPaths (0),
     m_colorBarTexture (0),
