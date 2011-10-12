@@ -343,10 +343,7 @@ void MainWindow::setupButtonGroups ()
 	radioButtonTimeLinked, TimeLinkage::LINKED);
     buttonGroupTimeLinkage->setId (
 	radioButtonTimeSynchronized, TimeLinkage::SYNCHRONIZED);
-    buttonGroupTimeLinkage->button (
-	widgetGl->GetSimulationGroup ().size () == 1 ? 
-	TimeLinkage::LINKED : 
-	TimeLinkage::INDEPENDENT)->setChecked (true);
+    buttonGroupTimeLinkage->button (TimeLinkage::LINKED)->setChecked (true);
 }
 
 void MainWindow::setupSliderData (const Simulation& simulation)

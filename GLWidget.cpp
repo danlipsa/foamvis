@@ -2800,7 +2800,7 @@ void GLWidget::SetCurrentTime (size_t time)
 	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	    ViewSettings& vs = GetViewSettings (viewNumber);
 	    size_t timeSteps = GetTimeSteps (viewNumber);
-	    if (time <= timeSteps)
+	    if (time < timeSteps)
 		vs.SetCurrentTime (time, viewNumber);
 	}
     }
