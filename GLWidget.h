@@ -213,8 +213,8 @@ public:
 			     ViewingVolumeOperation::Enum enclose,
 			     G3D::Rect2D& srcRect) const;
     float GetOnePixelInObjectSpace () const;
-    double GetCellLength () const;
-    double GetEllipseSizeInitialRatio () const;
+    double GetCellLength (ViewNumber::Enum viewNumber) const;
+    double GetEllipseSizeInitialRatio (ViewNumber::Enum viewNumber) const;
     double GetEllipseLineWidthRatio () const
     {
 	return m_ellipseLineWidthRatio;

@@ -531,18 +531,18 @@ float GLWidget::GetOnePixelInObjectSpace () const
     return onePixelInObjectSpace;
 }
 
-double GLWidget::GetCellLength () const
+double GLWidget::GetCellLength (ViewNumber::Enum viewNumber) const
 {
-    const Body& body = GetSimulation ().GetFoam (0).GetBody (0);
+    const Body& body = GetSimulation (viewNumber).GetFoam (0).GetBody (0);
     G3D::AABox box = body.GetBoundingBox ();
     G3D::Vector3 extent = box.extent ();
     return min (extent.x, extent.y);
 }
 
-double GLWidget::GetEllipseSizeInitialRatio () const
+double GLWidget::GetEllipseSizeInitialRatio (ViewNumber::Enum viewNumber) const
 {
-    double cellLength = GetCellLength ();
-    const Body& body = GetSimulation ().GetFoam (0).GetBody (0);
+    double cellLength = GetCellLength (viewNumber);
+    const Body& body = GetSimulation (viewNumber).GetFoam (0).GetBody (0);
     return cellLength / (2 * body.GetDeformationEigenValue (0));
 }
 
@@ -2087,7 +2087,8 @@ void GLWidget::displayEdgesNormal (ViewNumber::Enum viewNumber) const
 
 void GLWidget::displayDeformationTensor2D (ViewNumber::Enum viewNumber) const
 {
-    const Foam& foam = GetSimulation (viewNumber).GetFoam (0);
+    const Foam& foam = 
+	GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber));
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (! foam.Is2D () || ! vs.IsDeformationTensorShown ())
 	return;
@@ -2095,10 +2096,11 @@ void GLWidget::displayDeformationTensor2D (ViewNumber::Enum viewNumber) const
     glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
     glDisable (GL_DEPTH_TEST);
     glColor (Qt::black);
-    for_each (bodies.begin (), bodies.end (),
-	      boost::bind (
-		  ::displayBodyDeformationTensor2D, _1, 
-		  GetEllipseSizeInitialRatio () * GetEllipseSizeRatio ()));
+    for_each (
+	bodies.begin (), bodies.end (),
+	boost::bind (
+	    ::displayBodyDeformationTensor2D, _1, 
+	    GetEllipseSizeInitialRatio (viewNumber) * GetEllipseSizeRatio ()));
     glPopAttrib ();    
 }
 
@@ -2114,7 +2116,8 @@ void GLWidget::displayBodyDeformationTensor2D () const
 	glColor (Qt::black);
 	::displayBodyDeformationTensor2D (
 	    *foam.FindBody (m_showBodyId), 
-	    GetEllipseSizeInitialRatio () * GetEllipseSizeRatio ());
+	    GetEllipseSizeInitialRatio (GetViewNumber ()) * 
+	    GetEllipseSizeRatio ());
 	glPopAttrib ();
     }
 }

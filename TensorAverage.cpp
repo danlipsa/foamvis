@@ -184,10 +184,10 @@ void TensorAverage::calculateShaderParameters (
 	*gridTranslation = m * (*gridTranslation);
 	//cdbg << "gridTranslation: " << gridTranslation << endl << endl;
     }
-    *cellLength = glWidget.GetCellLength () * gridScaleRatio;
+    *cellLength = glWidget.GetCellLength (viewNumber) * gridScaleRatio;
     *lineWidth = glWidget.GetOnePixelInObjectSpace () * 
 	scaleRatio * glWidget.GetEllipseLineWidthRatio ();
-    *ellipseSizeRatio = glWidget.GetEllipseSizeInitialRatio () * 
+    *ellipseSizeRatio = glWidget.GetEllipseSizeInitialRatio (viewNumber) * 
 	glWidget.GetEllipseSizeRatio () * gridScaleRatio;
     *enclosingRect = 
 	glWidget.CalculateViewEnclosingRect (viewNumber) - rotationCenter;
