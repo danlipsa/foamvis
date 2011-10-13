@@ -150,9 +150,6 @@ public:
     {
 	m_adjustPressure = adjustPressure;
     }
-    void SetAverageAroundFromDmp ();
-    void SetAverageAroundFromBody (size_t bodyId);
-    void SetAverageAroundFromBody (size_t bodyId, size_t secondBodyId);
     const DmpObjectInfo& GetDmpObjectInfo () const
     {
 	return m_dmpObjectInfo;
@@ -270,11 +267,15 @@ public:
 	m_simulation.resize (n);
     }
 
-    size_t size ()
+    size_t size () const
     {
 	return m_simulation.size ();
     }
 
+    const Simulation& GetSimulation (size_t i) const
+    {
+	return m_simulation[i];
+    }
     Simulation& GetSimulation (size_t i)
     {
 	return m_simulation[i];

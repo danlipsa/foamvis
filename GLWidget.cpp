@@ -479,19 +479,8 @@ const Simulation& GLWidget::GetSimulation () const
     return GetSimulation (GetViewNumber ());
 }
 
-Simulation& GLWidget::GetSimulation ()
-{
-    return GetSimulation (GetViewNumber ());
-}
-
 const Simulation& GLWidget::GetSimulation (
     ViewNumber::Enum viewNumber) const
-{
-    return GetSimulation (
-	GetViewSettings (viewNumber).GetSimulationIndex ());
-}
-
-Simulation& GLWidget::GetSimulation (ViewNumber::Enum viewNumber)
 {
     return GetSimulation (
 	GetViewSettings (viewNumber).GetSimulationIndex ());
@@ -502,13 +491,7 @@ const Simulation& GLWidget::GetSimulation (size_t i) const
     return m_simulationGroup->GetSimulation (i);
 }
 
-Simulation& GLWidget::GetSimulation (size_t i)
-{
-    return m_simulationGroup->GetSimulation (i);
-}
-
-
-void GLWidget::SetSimulationGroup (SimulationGroup* simulationGroup)
+void GLWidget::SetSimulationGroup (const SimulationGroup* simulationGroup)
 {
     m_simulationGroup = simulationGroup;
     if (GetSimulationGroup ().size () == 1)
@@ -723,10 +706,10 @@ void GLWidget::RotateAndTranslateAverageAround (
     ViewNumber::Enum viewNumber,
     size_t timeStep, int direction) const
 {
-    const ObjectPosition& rotationBegin = GetSimulation (viewNumber).
-	GetFoam (0).GetAverageAroundPosition ();
-    const ObjectPosition& rotationCurrent = GetSimulation (viewNumber).
-	GetFoam (timeStep).GetAverageAroundPosition ();
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    const ObjectPosition rotationBegin = vs.GetAverageAroundPosition (0);
+    const ObjectPosition rotationCurrent = 
+	vs.GetAverageAroundPosition (timeStep);
     float angleRadians = rotationCurrent.m_angle - rotationBegin.m_angle;
     if (direction > 0)
     {
@@ -1690,16 +1673,16 @@ void GLWidget::AverageAroundBody ()
     brushedBodies (m_contextMenuPosScreen, &bodies);
     if (bodies.size () != 0)
     {
-	Simulation& simulation = GetSimulation ();
+	const Simulation& simulation = GetSimulation ();
 	size_t bodyId = bodies[0]->GetId ();
 	vs.SetAverageAroundBodyId (bodyId);
 	vs.SetAverageAroundSecondBodyId (INVALID_INDEX);
 	vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND);
 	if (bodies[0]->IsConstraint () && 
 	    simulation.GetDmpObjectInfo ().RotationUsed ())
-	    simulation.SetAverageAroundFromDmp ();
+	    vs.SetAverageAroundPositions (simulation);
 	else
-	    simulation.SetAverageAroundFromBody (bodyId);
+	    vs.SetAverageAroundPositions (simulation, bodyId);
 	setLabel ();
 	update ();
     }
@@ -1719,7 +1702,7 @@ void GLWidget::AverageAroundSecondBody ()
     string message;
     if (bodies.size () != 0)
     {
-	Simulation& simulation = GetSimulation ();
+	const Simulation& simulation = GetSimulation ();
 	size_t secondBodyId = bodies[0]->GetId ();
 	size_t bodyId = vs.GetAverageAroundBodyId ();
 	if (bodyId != INVALID_INDEX)
@@ -1731,7 +1714,7 @@ void GLWidget::AverageAroundSecondBody ()
 	    {
 		vs.SetAverageAroundSecondBodyId (secondBodyId);
 		vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND);
-		simulation.SetAverageAroundFromBody (bodyId, secondBodyId);
+		vs.SetAverageAroundPositions (simulation, bodyId, secondBodyId);
 		setLabel ();
 		update ();
 		return;
@@ -2445,11 +2428,9 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
 	 ViewSettings::AVERAGE_AROUND_MOVEMENT_ROTATION);
     const Simulation& simulation = GetSimulation (viewNumber);
 
-    const ObjectPosition& rotationBegin = 
-	simulation.GetFoam (0).GetAverageAroundPosition ();
-    const ObjectPosition& rotationCurrent = 
-	simulation.GetFoam (GetCurrentTime (viewNumber)).
-	GetAverageAroundPosition ();
+    const ObjectPosition rotationBegin = vs.GetAverageAroundPosition (0);
+    const ObjectPosition rotationCurrent = 
+	vs.GetAverageAroundPosition (GetCurrentTime (viewNumber));
     G3D::Vector2 rotationCenter = 
 	(vs.GetAverageAroundType () == ViewSettings::AVERAGE_AROUND) ? 
 	(toEye (rotationCurrent.m_rotationCenter) - 

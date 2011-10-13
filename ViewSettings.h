@@ -10,17 +10,18 @@
 
 #include "Enums.h"
 #include "AverageInterface.h"
+#include "ObjectPosition.h"
 class AllBodySelector;
 class BodySelector;
 class ColorBarModel;
-class ScalarAverage;
-class T1sPDE;
-class TensorAverage;
 class ForceAverage;
 class GLWidget;
 class IdBodySelector;
 class PropertyValueBodySelector;
-
+class ScalarAverage;
+class Simulation;
+class T1sPDE;
+class TensorAverage;
 
 
 class ViewSettings : public AverageInterface
@@ -418,6 +419,15 @@ public:
 	m_t1sShiftLower = t1sShiftLower;
     }
 
+    ObjectPosition GetAverageAroundPosition (size_t timeStep) const
+    {
+	return m_averageAroundPositions[timeStep];
+    }
+    void SetAverageAroundPositions (const Simulation& simulation);
+    void SetAverageAroundPositions (const Simulation& simulation, size_t bodyId);
+    void SetAverageAroundPositions (const Simulation& simulation,
+				    size_t bodyId, size_t secondBodyId);
+
     virtual void AverageInit (ViewNumber::Enum viewNumber);
     virtual void AverageSetTimeWindow (size_t timeSteps);
     virtual void AverageStep (ViewNumber::Enum viewNumber, int direction);
@@ -496,7 +506,9 @@ private:
     boost::shared_ptr<BodySelector> m_bodySelector;
     bool m_contextHidden;
     bool m_centerPathHidden;
+    // Simulation related variables
     size_t m_simulationIndex;
+    vector<ObjectPosition> m_averageAroundPositions;
     /**
      * Index into m_foam that shows the current DMP file displayed
      */

@@ -167,8 +167,9 @@ void MainWindow::initComboBoxSimulation (SimulationGroup& simulationGroup)
 void MainWindow::translatedBodyInit ()
 {
     m_debugTranslatedBody = true;
-    m_currentTranslatedBody = 
-	widgetGl->GetSimulation ().GetFoam (0).GetBodies ().begin ();
+    Foam& foam = const_cast<Foam&>
+	(widgetGl->GetSimulation ().GetFoam (0));
+    m_currentTranslatedBody = foam.GetBodies ().begin ();
 }
 
 
@@ -450,7 +451,8 @@ void MainWindow::translatedBodyStep ()
 {
     if (m_debugTranslatedBody)
     {
-	Foam& currentFoam = widgetGl->GetSimulation ().GetFoam (0);
+	Foam& currentFoam = const_cast<Foam&> (
+	    widgetGl->GetSimulation ().GetFoam (0));
 	VertexSet vertexSet;
 	EdgeSet edgeSet;
 	FaceSet faceSet;
@@ -923,9 +925,10 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
     (void)timeStep;
     SetAndDisplayHistogram (KEEP_SELECTION, KEEP_MAX_VALUE);
+    Foam& foam = const_cast<Foam&>
+	(widgetGl->GetSimulation ().GetFoam (0));
     if (m_debugTranslatedBody)
-	m_currentTranslatedBody = 
-	    widgetGl->GetSimulation ().GetFoam (0).GetBodies ().begin ();
+	m_currentTranslatedBody = foam.GetBodies ().begin ();
     updateButtons ();
 }
 

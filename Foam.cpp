@@ -865,21 +865,6 @@ void Foam::SetDmpObjectPosition (const DmpObjectInfo& names)
 	GetParsingData ().GetVariableValue (names.m_angleName);
 }
 
-void Foam::SetAverageAroundFromBody (size_t bodyId)
-{
-    m_averageAroundPosition.m_angle = 0;
-    m_averageAroundPosition.m_rotationCenter = 
-	(*FindBody (bodyId))->GetCenter ().xy ();
-}
-
-void Foam::SetAverageAroundFromBody (
-    size_t bodyId, size_t secondBodyId, G3D::Vector2 beginAxis)
-{
-    G3D::Vector2 currentAxis = GetAverageAroundAxis (bodyId, secondBodyId);
-    float angleRadians = 
-	acos (currentAxis.direction ().dot (beginAxis.direction ()));
-    m_averageAroundPosition.m_angle = - angleRadians;
-}
 
 G3D::Vector2 Foam::GetAverageAroundAxis (
     size_t bodyId, size_t secondBodyId) const

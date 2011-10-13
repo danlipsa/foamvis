@@ -254,19 +254,11 @@ public:
     }
     
     void CalculateMinMaxStatistics ();
-    void SetDmpObjectPosition (
-	const DmpObjectInfo& dmpObjectInfo);    
-    const ObjectPosition& GetAverageAroundPosition () const
+    void SetDmpObjectPosition (const DmpObjectInfo& dmpObjectInfo);
+    ObjectPosition GetDmpObjectPosition () const
     {
-	return m_averageAroundPosition;
+	return m_dmpObjectPosition;
     }
-    void SetAverageAroundFromDmp ()
-    {
-	m_averageAroundPosition = m_dmpObjectPosition;
-    }
-    void SetAverageAroundFromBody (size_t bodyId);
-    void SetAverageAroundFromBody (
-	size_t bodyId, size_t secondBodyId, G3D::Vector2 beginAxis);
     G3D::Vector2 GetAverageAroundAxis (size_t bodyId, size_t secondBodyId) const;
     const vector<Force>& GetForces () const
     {
@@ -388,7 +380,6 @@ private:
     double m_min[BodyProperty::COUNT];
     double m_max[BodyProperty::COUNT];
     vector<HistogramStatistics> m_histogram;
-    ObjectPosition m_averageAroundPosition;
     ObjectPosition m_dmpObjectPosition;
     vector<Force> m_forces;
     /*

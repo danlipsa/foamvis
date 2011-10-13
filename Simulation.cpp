@@ -176,27 +176,6 @@ void Simulation::calculateBodyWraps ()
 			 _1), *this));
 }
 
-void Simulation::SetAverageAroundFromDmp ()
-{
-    BOOST_FOREACH (boost::shared_ptr<Foam> f, GetFoams ())
-	f->SetAverageAroundFromDmp ();
-}
-
-void Simulation::SetAverageAroundFromBody (size_t bodyId)
-{
-    BOOST_FOREACH (boost::shared_ptr<Foam> f, GetFoams ())
-	f->SetAverageAroundFromBody (bodyId);
-}
-
-void Simulation::SetAverageAroundFromBody (
-    size_t bodyId, size_t secondBodyId)
-{
-    G3D::Vector2 beginAxis = 
-	GetFoam (0).GetAverageAroundAxis (bodyId, secondBodyId);
-    for (size_t i = 1; i < GetFoams ().size (); ++i)
-	GetFoam (i).SetAverageAroundFromBody (bodyId, secondBodyId, beginAxis);
-}
-
 
 void Simulation::Preprocess ()
 {
