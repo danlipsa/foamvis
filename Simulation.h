@@ -167,13 +167,17 @@ public:
     }
 
     bool T1sAvailable () const;
-    void SetT1sShiftLower (int i)
+    void SetT1sTimeStepShift (int i)
     {
 	m_t1sTimeStepShift = i;
     }
-    int GetT1sShiftLower () const
+    int GetT1sTimeStepShift () const
     {
 	return m_t1sTimeStepShift;
+    }
+    bool GetT1sShiftLower () const
+    {
+	return m_t1sTimeStepShift == 1;
     }
     const vector<G3D::Vector3>& GetT1s (size_t timeStep) const;
     size_t GetT1sSize () const;
@@ -199,6 +203,14 @@ public:
     FoamProperties* GetFoamProperties ()
     {
 	return &m_foamParameters;
+    }
+    int GetRotation2D () const
+    {
+	return m_rotation2D;
+    }
+    void SetRotation2D (int rotation2D)
+    {
+	m_rotation2D = rotation2D;
     }
 
 private:
@@ -247,6 +259,7 @@ private:
     DmpObjectInfo m_dmpObjectInfo;
     vector<ForceNames> m_forcesNames;
     bool m_useOriginal;
+    int m_rotation2D;
 };
 
 class SimulationGroup

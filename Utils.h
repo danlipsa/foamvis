@@ -173,7 +173,9 @@ void SetCheckedNoSignals (QButtonGroup* buttonGroup, int buttonId,
 			  bool checked);
 void SetCurrentIndexNoSignals (QComboBox* comboBox, int index);
 void SetCheckedNoSignals (QCheckBox* checkBox, bool checked);
-void SetValueNoSignals (QSlider* slider, size_t value);
+template<typename T>
+void SetValueNoSignals (T* slider, size_t value);
+
 
 #endif //__UTILS_H__
 

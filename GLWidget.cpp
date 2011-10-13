@@ -457,11 +457,16 @@ void GLWidget::initDisplayView ()
 void GLWidget::initViewSettings ()
 {
     const Simulation& simulation = GetSimulation (0);
+    int rotation2D = simulation.GetRotation2D ();
     BOOST_FOREACH (boost::shared_ptr<ViewSettings>& vs, m_viewSettings)
     {
 	vs = boost::make_shared <ViewSettings> (*this);
 	vs->SetAxesOrder (
-	    simulation.Is2D () ? AxesOrder::TWO_D : AxesOrder::THREE_D);
+	    simulation.Is2D () ? 
+	    (rotation2D == 0 ? AxesOrder::TWO_D :
+	     (rotation2D == 90 ? AxesOrder::TWO_D_ROTATE_LEFT90 : 
+	      AxesOrder::TWO_D_ROTATE_RIGHT90)): AxesOrder::THREE_D);
+	vs->SetT1sShiftLower (simulation.GetT1sShiftLower ());
 	vs->AverageSetTimeWindow (simulation.GetTimeSteps ());
 	vs->GetT1sPDE ().AverageSetTimeWindow (simulation.GetT1sTimeSteps ());
     }
@@ -3497,10 +3502,8 @@ void GLWidget::ToggledT1sShown (bool checked)
 
 void GLWidget::ToggledT1sShiftLower (bool checked)
 {
-    if (checked)
-	GetSimulation ().SetT1sShiftLower (1);
-    else
-	GetSimulation ().SetT1sShiftLower (0);
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetT1sShiftLower (checked);
     update ();
 }
 
@@ -3513,7 +3516,15 @@ void GLWidget::CurrentIndexChangedSelectedLight (int selectedLight)
 void GLWidget::CurrentIndexChangedSimulation (int i)
 {
     ViewSettings& vs = GetViewSettings ();
+    const Simulation& simulation = GetSimulation (i);
+    int rotation2D = simulation.GetRotation2D ();
     vs.SetSimulationIndex (i);
+    vs.SetAxesOrder (
+	simulation.Is2D () ? 
+	(rotation2D == 0 ? AxesOrder::TWO_D :
+	 (rotation2D == 90 ? AxesOrder::TWO_D_ROTATE_LEFT90 : 
+	  AxesOrder::TWO_D_ROTATE_RIGHT90)): AxesOrder::THREE_D);
+    vs.SetT1sShiftLower (simulation.GetT1sShiftLower ());
     update ();
 }
 

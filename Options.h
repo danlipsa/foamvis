@@ -31,6 +31,7 @@ struct Option
 	ORIGINAL_PRESSURE,
 	OUTPUT_TEXT,
 	PARAMETERS,
+	ROTATION_2D,
 	SIMULATION,
 	T1S,
 	T1S_LOWER,
@@ -47,9 +48,13 @@ class CommandLineOptions
 public:
     CommandLineOptions ();
     void read (int argc, char *argv[]);
+    static po::options_description getDescription ()
+    {
+	return getDescription (0, 0, 0);
+    }
+
     static po::options_description getDescription (
-	string* iniFileName = 0,
-	vector<string>* simulationName = 0, string* iniFilter = 0);
+	string* iniFileName, vector<string>* simulationName, string* iniFilter);
 
 public:    
     string m_iniFileName;
@@ -72,11 +77,16 @@ public:
     CommonOptions ();
     void read (int argc, char *argv[]);
     void read (string parameters, string filter);
+    static po::options_description getDescription ()
+    {
+	return getDescription (0, 0, 0, 0, 0);
+    }
+
     static po::options_description getDescription (
-	string* t1sFile = 0,
-	DmpObjectInfo* dmpObjectInfo = 0,
-	vector<ForceNames>* forcesNames = 0,
-	size_t* ticksForTimeStep = 0);
+	string* t1sFile,
+	DmpObjectInfo* dmpObjectInfo,
+	vector<ForceNames>* forcesNames,
+	size_t* ticksForTimeStep, int* rotation2D);
 
 public:
     string m_t1sFile;
@@ -84,6 +94,7 @@ public:
     DmpObjectInfo m_dmpObjectInfo;
     vector<ForceNames> m_forcesNames;
     size_t m_ticksForTimeStep;
+    int m_rotation2D;
     po::variables_map m_vm;
 
 private:

@@ -73,7 +73,8 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_contextHidden (false),
     m_centerPathHidden (false),
     m_simulationIndex (0),
-    m_currentTime (0)
+    m_currentTime (0),
+    m_t1sShiftLower (false)
 {
     initTexture ();
     initList ();

@@ -262,6 +262,7 @@ const char* Option::m_name[] = {
     "original-pressure",
     "output-text",
     "parameters",
+    "rotation-2d",
     "simulation",
     "t1s",
     "t1s-lower",
@@ -353,11 +354,12 @@ po::options_description CommandLineOptions::getDescription (
 
 CommonOptions::CommonOptions () :
     m_ticksForTimeStep (1),
+    m_rotation2D (0),
     m_commonOptions (
 	getCommonAndHiddenOptions (
 	    &m_fileNames, 
 	    getDescription (&m_t1sFile, &m_dmpObjectInfo, &m_forcesNames, 
-			    &m_ticksForTimeStep)))
+			    &m_ticksForTimeStep, &m_rotation2D)))
 {
     m_positionalOptions.add (Option::m_name[Option::DMP_FILES], -1);    
 }
@@ -368,6 +370,9 @@ void CommonOptions::read (int argc, char *argv[])
 	      options (m_commonOptions).positional (m_positionalOptions).run (), 
 	      m_vm);
     po::notify(m_vm);
+    if (m_rotation2D != 0)
+	RuntimeAssert (abs (m_rotation2D) == 90, 
+		       "Invalid rotation: ", m_rotation2D);
     if (m_dmpObjectInfo.m_constraintIndex != INVALID_INDEX)
 	--m_dmpObjectInfo.m_constraintIndex;
     if (argc == 1 || ! m_vm.count (Option::m_name[Option::DMP_FILES]))
@@ -407,7 +412,8 @@ po::options_description CommonOptions::getDescription (
     string* t1sFile,
     DmpObjectInfo* dmpObjectInfo,
     vector<ForceNames>* forcesNames,
-    size_t* ticksForTimeStep)
+    size_t* ticksForTimeStep,
+    int *rotation2D)
 {
     po::options_description commonOptions (
 	"\"foam [COMMAND_LINE_OPTIONS] [COMMON_OPTIONS] <files> ...\"\n"
@@ -435,7 +441,8 @@ po::options_description CommonOptions::getDescription (
 	 "specify names for parameters that store the center of rotation and "
 	 "<angleName> specifies the name of the parameter that stores "
 	 "the rotation angle. The rotation (in radians) follows the "
-	 "left-hand rule: a rotation around z axis is clock-wise.")
+	 "left-hand rule: a rotation around z axis pointing toward "
+	 "the user is clockwise.")
 	(Option::m_name[Option::FORCES], 
 	 po::value< vector<ForceNames> >(forcesNames),
 	 "reads the forces acting on a body.\n"
@@ -446,7 +453,12 @@ po::options_description CommonOptions::getDescription (
 	 "(<pressureXName>, <pressureYName>) are the X and Y components of "
 	 "the pressure force.")
 	(Option::m_name[Option::ORIGINAL_PRESSURE],
-	 "shows original pressure values")	    
+	 "shows original pressure values")
+	(Option::m_name[Option::ROTATION_2D],
+	 po::value<int> (rotation2D),
+	 "rotate around Z axes.\n"
+	 "arg=<angle>, where <angle> can be 90 or -90, positive rotation is "
+	 "counterclockwise.")
 	(Option::m_name[Option::T1S],
 	 po::value<string>(t1sFile), 
 	 "reads T1 positions.\n"

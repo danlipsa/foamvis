@@ -142,7 +142,8 @@ Simulation::Simulation () :
     m_histogram (
         BodyProperty::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
     m_t1sTimeStepShift (0),
-    m_useOriginal (false)
+    m_useOriginal (false),
+    m_rotation2D (0)
 {
 }
 
@@ -534,7 +535,7 @@ void Simulation::ParseT1s (
 	    m_t1s.resize (timeStep + 1);
 	m_t1s[timeStep].push_back (G3D::Vector3 (x, y, Foam::Z_COORDINATE_2D));
     }
-    SetT1sShiftLower (shiftT1sLower);
+    SetT1sTimeStepShift (shiftT1sLower ? 1 : 0);
     cdbg << "last T1s'  timestep: " << timeStep << endl;
 }
 

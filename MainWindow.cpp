@@ -79,6 +79,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     
     setupUi (this);
     connectSignals ();
+    setupButtonGroups ();
     CurrentIndexChangedViewCount (ViewCount::ONE);
     widgetGl->SetStatus (labelStatusBar);
     widgetGl->SetSimulationGroup (&simulationGroup);
@@ -87,7 +88,6 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     initComboBoxSimulation (simulationGroup);
     configureInterface ();
     setupHistogram ();
-    setupButtonGroups ();
     
     boost::shared_ptr<Application> app = Application::Get ();
     QFont defaultFont = app->font ();
@@ -126,7 +126,6 @@ void MainWindow::configureInterfaceDataDependent (
 	checkBoxT1sShown->setEnabled (true);
 	checkBoxT1sShown->setChecked (true);
     }
-    checkBoxT1sShiftLower->setChecked (simulation.GetT1sShiftLower () == 1);
     if (! simulation.IsTorus ())
     {
 	checkBoxTorusOriginalDomain->setDisabled (true);
@@ -136,7 +135,6 @@ void MainWindow::configureInterfaceDataDependent (
     }
     if (simulation.Is2D ())
     {
-	comboBoxAxesOrder->setCurrentIndex (AxesOrder::TWO_D);
 	comboBoxInteractionMode->setCurrentIndex (InteractionMode::SCALE);	
     }
     else
@@ -230,45 +228,48 @@ void MainWindow::ViewToUI ()
     ViewType::Enum viewType = vs.GetViewType ();
 
     SetCheckedNoSignals (buttonGroupViewType, viewType, true);
-    setStackedWidget (viewType);
+    SetCheckedNoSignals (buttonGroupHistogram, 
+			 (viewNumber == m_histogramViewNumber) ?
+			 m_histogramType : HistogramType::NONE, true);
+
     SetCurrentIndexNoSignals (comboBoxColor, property);
     SetCurrentIndexNoSignals (comboBoxSimulation, simulationIndex);
     SetCurrentIndexNoSignals (comboBoxStatisticsType, vs.GetStatisticsType ());
+    SetCurrentIndexNoSignals (comboBoxAxesOrder, vs.GetAxesOrder ());
+
     SetCheckedNoSignals (checkBoxContextHidden, vs.IsContextHidden ());
     SetCheckedNoSignals (checkBoxCenterPathHidden, vs.IsCenterPathHidden ());
     SetCheckedNoSignals (checkBoxShowDeformation, 
 			 vs.IsDeformationTensorShown ());
+    SetCheckedNoSignals (checkBoxT1sShiftLower, vs.IsT1sShiftLower ());
     SetCheckedNoSignals (checkBoxDeformationGrid, 
 			 vs.GetTensorAverage ().IsDeformationGridShown ());
     SetCheckedNoSignals (
 	checkBoxDeformationGridCellCenter, 
 	vs.GetTensorAverage ().IsDeformationGridCellCenterShown ());
-    sliderTimeSteps->SetValueMaximumNoSignals (
-	vs.GetCurrentTime (), widgetGl->GetTimeSteps (viewNumber) - 1);
+    SetCheckedNoSignals (checkBoxForceNetwork, vs.IsForceNetworkShown ());
+    SetCheckedNoSignals (checkBoxForcePressure, vs.IsForcePressureShown ());
+    SetCheckedNoSignals (checkBoxForceResult, vs.IsForceResultShown ());
     SetCheckedNoSignals (checkBoxTextureSizeShown, 
 			 vs.GetT1sPDE ().IsKernelTextureSizeShown ());
+
     SetValueNoSignals (horizontalSliderT1sKernelTextureSize,
 		       vs.GetT1sPDE ().GetKernelTextureSize ());
     SetValueNoSignals (horizontalSliderT1sKernelIntervalPerPixel,
 		       vs.GetT1sPDE ().GetKernelIntervalPerPixel ());
     SetValueNoSignals (horizontalSliderT1sKernelSigma,
 		       vs.GetT1sPDE ().GetKernelSigma ());
+    SetValueNoSignals (horizontalSliderAngleOfView, vs.GetAngleOfView ());
+    SetValueNoSignals (spinBoxStatisticsTimeWindow,
+		       vs.GetScalarAverage ().GetTimeWindow ());    
 
-    comboBoxAxesOrder->setCurrentIndex (vs.GetAxesOrder ());
+    sliderTimeSteps->SetValueMaximumNoSignals (
+	vs.GetCurrentTime (), widgetGl->GetTimeSteps (viewNumber) - 1);
+
     labelFacesStatisticsColor->setText (BodyOrFacePropertyToString (property));
     labelCenterPathColor->setText (BodyOrFacePropertyToString (property));
+
     updateLightControls (vs, selectedLight);
-    horizontalSliderAngleOfView->setValue (vs.GetAngleOfView ());
-    spinBoxStatisticsTimeWindow->setValue (
-	vs.GetScalarAverage ().GetTimeWindow ());    
-    if (viewNumber == m_histogramViewNumber)
-	buttonGroupHistogram->button (m_histogramType)->setChecked (true);
-    else
-	buttonGroupHistogram->button (
-	    HistogramType::NONE)->setChecked (true);
-    checkBoxForceNetwork->setChecked (vs.IsForceNetworkShown ());
-    checkBoxForcePressure->setChecked (vs.IsForcePressureShown ());
-    checkBoxForceResult->setChecked (vs.IsForceResultShown ());
     updateButtons ();
 }
 
@@ -1010,10 +1011,9 @@ void MainWindow::CurrentIndexChangedSimulation (int index)
     ViewType::Enum viewType = vs.GetViewType ();
     size_t property = vs.GetBodyOrFaceProperty ();
     StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
-    const Simulation& simulation = widgetGl->GetSimulation (index);
     emitColorBarModelChanged (
 	index, viewNumber, viewType, property, statisticsType);
-    configureInterfaceDataDependent (simulation);    
+    ViewToUI ();
 }
 
 void MainWindow::CurrentIndexChangedSelectedLight (int i)

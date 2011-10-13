@@ -27,33 +27,44 @@ void readOptions (int argc, char *argv[],
     catch (const exception& e)
     {}
 
-    size_t simulationsCount = clo->m_simulationIndexes.size ();
-    if (simulationsCount == 0)
+    try
     {
-	simulationsCount = 1;
-	co->resize (1);
-	// read common options from the command line
-	(*co)[0].reset (new CommonOptions ());
-	(*co)[0]->read (argc, argv);
-    }
-    else
-    {
-	// read common options from the ini file
-	co->resize (simulationsCount);
-	for (size_t i = 0; i < simulationsCount; ++i)
+	size_t simulationsCount = clo->m_simulationIndexes.size ();
+	if (simulationsCount == 0)
 	{
-	    string simulation = clo->m_names[clo->m_simulationIndexes[i]];
-	    cdbg << "Simulation name: " << simulation << " ...\n";
-	    (*co)[i].reset (new CommonOptions ());
-	    (*co)[i]->read (clo->m_parametersArray[clo->m_simulationIndexes[i]],
-			 clo->m_filter);
+	    if (! clo->m_iniFileName.empty ())
+		// the user pressed cancel on the BrowseSimulations dialog
+		exit (0);
+	    simulationsCount = 1;
+	    co->resize (1);
+	    // read common options from the command line
+	    (*co)[0].reset (new CommonOptions ());
+	    (*co)[0]->read (argc, argv);
 	}
-    }    
+	else
+	{
+	    // read common options from the ini file
+	    co->resize (simulationsCount);
+	    for (size_t i = 0; i < simulationsCount; ++i)
+	    {
+		string simulation = clo->m_names[clo->m_simulationIndexes[i]];
+		cdbg << "Simulation name: " << simulation << " ...\n";
+		(*co)[i].reset (new CommonOptions ());
+		(*co)[i]->read (
+		    clo->m_parametersArray[clo->m_simulationIndexes[i]],
+		    clo->m_filter);
+	    }
+	}
+    }
+    catch (const exception& e)
+    {
+	cdbg << "Exception reading common options: " << e.what () << endl;
+	exit (13);
+    }
 }
 
-
 void parseOptions (int argc, char *argv[], 
-		   SimulationGroup* simulationGroup, bool* print)
+		   SimulationGroup* simulationGroup, bool* outputText)
 {
     CommandLineOptions clo;
     vector< boost::shared_ptr<CommonOptions> > co;
@@ -71,10 +82,10 @@ void parseOptions (int argc, char *argv[],
 	    co[i]->m_fileNames, 
 	    co[i]->m_vm.count (Option::m_name[Option::USE_ORIGINAL]),
 	    co[i]->m_dmpObjectInfo, co[i]->m_forcesNames,
-	    co[i]->m_vm.count (Option::m_name[Option::DEBUG_PARSING]), 
-	    co[i]->m_vm.count (Option::m_name[Option::DEBUG_SCANNING]));
-	simulation.SetName (
-	    clo.m_names[clo.m_simulationIndexes[i]]);
+	    clo.m_vm.count (Option::m_name[Option::DEBUG_PARSING]), 
+	    clo.m_vm.count (Option::m_name[Option::DEBUG_SCANNING]));
+	simulation.SetName (clo.m_names[clo.m_simulationIndexes[i]]);
+	simulation.SetRotation2D (co[i]->m_rotation2D);
 	if (simulation.GetTimeSteps () == 0)
 	{
 	    cdbg << "Error: The patern provided does not match any file" 
@@ -85,10 +96,9 @@ void parseOptions (int argc, char *argv[],
 	simulation.SetAdjustPressure (
 	    ! co[i]->m_vm.count (Option::m_name[Option::ORIGINAL_PRESSURE]));
 	simulation.Preprocess ();
-	*print = co[i]->m_vm.count (Option::m_name[Option::OUTPUT_TEXT]);
     }
+    *outputText = clo.m_vm.count (Option::m_name[Option::OUTPUT_TEXT]);
 }
-
 
 
 
@@ -101,14 +111,14 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName ("Swansea University");
     QCoreApplication::setOrganizationDomain ("www.swansea.ac.uk");
     QCoreApplication::setApplicationName ("FoamVis");
-    boost::shared_ptr<Application> app = Application::Get (
-	argc, argv);
+
+    boost::shared_ptr<Application> app = Application::Get (argc, argv);
+    bool outputText;
     try
     {
 	SimulationGroup simulationGroup;
-	bool print;
-	parseOptions (argc, argv, &simulationGroup, &print);
-	if (print)
+	parseOptions (argc, argv, &simulationGroup, &outputText);
+	if (outputText)
 	    cdbg << simulationGroup;
 	else
 	{

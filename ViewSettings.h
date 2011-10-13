@@ -409,6 +409,14 @@ public:
 
     size_t GetCurrentTime () const;
     void SetCurrentTime (size_t time, ViewNumber::Enum viewNumber);
+    bool IsT1sShiftLower () const
+    {
+	return m_t1sShiftLower;
+    }
+    void SetT1sShiftLower (bool t1sShiftLower)
+    {
+	m_t1sShiftLower = t1sShiftLower;
+    }
 
     virtual void AverageInit (ViewNumber::Enum viewNumber);
     virtual void AverageSetTimeWindow (size_t timeSteps);
@@ -493,6 +501,7 @@ private:
      * Index into m_foam that shows the current DMP file displayed
      */
     size_t m_currentTime;
+    bool m_t1sShiftLower;
 };
 
 
