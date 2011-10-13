@@ -7,6 +7,9 @@ Release log
 	- added two time linkage modes between multiple views: 
 	  Linked and Independent. Can be accessed with in the 
 	  'General > Show > View' panel.	
+	- added --rotation-2d to specify a rotated dataset (Transform > 
+	  Axes Order > '2D rotated right 90' and '2D rotated left 90'.
+        
 0.6.2166 2011-09-28
 	 - added T1s probability density estimate
 0.6.2148 2011-09-16

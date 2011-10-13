@@ -451,7 +451,7 @@ void GLWidget::initDisplayView ()
 	  &GLWidget::displayFacesAverage,
 	  &GLWidget::displayT1sPDE,
 	    }};
-    copy (displayView.begin (), displayView.end (), m_displayView.begin ());
+    copy (displayView.begin (), displayView.end (), m_display.begin ());
 }
 
 void GLWidget::initViewSettings ()
@@ -683,7 +683,7 @@ void GLWidget::translateAndScale (
     if (GetSimulation (viewNumber).Is2D () && ! IsTimeDisplacementUsed ())
     {
 	G3D::AABox boundingBox = 
-	    GetSimulation (viewNumber).GetBoundingBoxTorus ();
+	    GetSimulation (viewNumber).GetBoundingBox ();
 	float zTranslation = boundingBox.center ().z - boundingBox.low ().z;
 	zTranslation = zTranslation - zTranslation / scaleRatio;
 	glTranslatef (0, 0, zTranslation);
@@ -697,7 +697,7 @@ void GLWidget::transformFoamAverageAround (
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     ViewSettings::AverageAroundType type = vs.GetAverageAroundType ();
-    glTranslate (- GetSimulation (viewNumber).GetBoundingBoxTorus ().center ());
+    glTranslate (- GetSimulation (viewNumber).GetBoundingBox ().center ());
     if (type == ViewSettings::AVERAGE_AROUND)
 	RotateAndTranslateAverageAround (viewNumber, timeStep, 1);
 }
@@ -734,7 +734,7 @@ G3D::AABox GLWidget::calculateViewingVolume (
     double xOverY, double extendAlongZRatio, 
     ViewingVolumeOperation::Enum enclose) const
 {
-    G3D::AABox bb = GetSimulation (viewNumber).GetBoundingBoxTorus ();
+    G3D::AABox bb = GetSimulation (viewNumber).GetBoundingBox ();
     G3D::AABox vv = AdjustXOverYRatio (EncloseRotation (bb), xOverY);
     if (! GetSimulation (viewNumber).Is2D ())
 	// ExtendAlongZFor3D is used for 3D, 
@@ -792,7 +792,7 @@ G3D::Vector3 GLWidget::getEyeTransform (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     return G3D::Vector3 (0, 0, - vs.GetCameraDistance ()) -
-	GetSimulation (viewNumber).GetBoundingBoxTorus ().center ();
+	GetSimulation (viewNumber).GetBoundingBox ().center ();
 }
 
 void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber, 
@@ -1238,7 +1238,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     calculateEdgeRadius (m_edgeRadiusRatio,
 			 &m_edgeRadius, &m_arrowBaseRadius,
 			 &m_arrowHeight, &m_edgeWidth);
-    (this->*(m_displayView[vs.GetViewType ()])) (viewNumber);
+    (this->*(m_display[vs.GetViewType ()])) (viewNumber);
     displayViewDecorations (viewNumber);
     displayAxes (viewNumber);
     displayBoundingBox (viewNumber);
@@ -1984,7 +1984,7 @@ void GLWidget::displayAxes (ViewNumber::Enum viewNumber)
 	glPushAttrib (GL_CURRENT_BIT);
 	using G3D::Vector3;
 	const G3D::AABox& aabb = 
-	    GetSimulation (viewNumber).GetBoundingBoxTorus ();
+	    GetSimulation (viewNumber).GetBoundingBox ();
 	Vector3 origin = aabb.low ();
 	Vector3 diagonal = aabb.high () - origin;
 	Vector3 first = origin + diagonal.x * Vector3::unitX ();
@@ -2428,20 +2428,27 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
 	 ViewSettings::AVERAGE_AROUND_MOVEMENT_ROTATION);
     const Simulation& simulation = GetSimulation (viewNumber);
 
-    const ObjectPosition rotationBegin = vs.GetAverageAroundPosition (0);
-    const ObjectPosition rotationCurrent = 
-	vs.GetAverageAroundPosition (GetCurrentTime (viewNumber));
-    G3D::Vector2 rotationCenter = 
-	(vs.GetAverageAroundType () == ViewSettings::AVERAGE_AROUND) ? 
-	(toEye (rotationCurrent.m_rotationCenter) - 
-	 getEyeTransform (viewNumber).xy ()) : 
-	(toEye (simulation.GetBoundingBox ().low ().xy ()) - 
-	 getEyeTransform (viewNumber).xy ());
-    float angleDegrees = 
-	adjustForAverageAroundMovementRotation ? G3D::toDegrees (
-	    rotationCurrent.m_angle - rotationBegin.m_angle) : 0;
+    G3D::Vector2 rotationCenter;
+    float angleDegrees;
+    if (vs.GetAverageAroundType () == ViewSettings::AVERAGE_AROUND)
+    {
+	const ObjectPosition rotationBegin = vs.GetAverageAroundPosition (0);
+	const ObjectPosition rotationCurrent = 
+	    vs.GetAverageAroundPosition (GetCurrentTime (viewNumber));
+	rotationCenter = toEye (rotationCurrent.m_rotationCenter) - 
+	    getEyeTransform (viewNumber).xy ();
+	angleDegrees =
+	    adjustForAverageAroundMovementRotation ? - G3D::toDegrees (
+		rotationCurrent.m_angle - rotationBegin.m_angle) : 0;
+    }
+    else
+    {
+	rotationCenter = toEye (simulation.GetLowerLeftCorner ()) - 
+	    getEyeTransform (viewNumber).xy ();
+	angleDegrees = 0;
+    }
     vs.AverageRotateAndDisplay (
-	viewNumber, vs.GetStatisticsType (), rotationCenter, - angleDegrees);
+	viewNumber, vs.GetStatisticsType (), rotationCenter, angleDegrees);
     vs.GetForceAverage ().Display (
 	viewNumber, adjustForAverageAroundMovementRotation);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (
@@ -3605,7 +3612,7 @@ void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
 {
     QSlider* slider = static_cast<QSlider*> (sender ());
     size_t maximum = slider->maximum ();
-    G3D::AABox bb = GetSimulation ().GetBoundingBoxTorus ();
+    G3D::AABox bb = GetSimulation ().GetBoundingBox ();
     m_timeDisplacement =
 	(bb.high () - bb.low ()).z * timeDisplacement /
 	GetSimulation ().GetTimeSteps () / maximum;

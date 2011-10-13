@@ -705,7 +705,7 @@ private:
     bool m_bodiesBoundingBoxesShown;
     bool m_axesShown;
     bool m_standaloneElementsShown;
-    boost::array<ViewTypeDisplay, ViewType::COUNT> m_displayView;
+    boost::array<ViewTypeDisplay, ViewType::COUNT> m_display;
 
     boost::shared_ptr<QAction> m_actionSelectAll;
     boost::shared_ptr<QAction> m_actionDeselectAll;

@@ -209,6 +209,7 @@ public:
     {
 	m_rotation2D = rotation2D;
     }
+    G3D::Vector2 GetLowerLeftCorner () const;
 
 private:
     void MapPerFoam (FoamParamMethod* foamMethods, size_t n);
