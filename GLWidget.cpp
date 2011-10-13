@@ -1982,14 +1982,13 @@ void GLWidget::displayAxes (ViewNumber::Enum viewNumber)
 	ostringstream ostr;
 	ostr << setprecision (4);
 	glPushAttrib (GL_CURRENT_BIT);
-	using G3D::Vector3;
 	const G3D::AABox& aabb = 
 	    GetSimulation (viewNumber).GetBoundingBox ();
-	Vector3 origin = aabb.low ();
-	Vector3 diagonal = aabb.high () - origin;
-	Vector3 first = origin + diagonal.x * Vector3::unitX ();
-	Vector3 second = origin + diagonal.y * Vector3::unitY ();
-	Vector3 third = origin + diagonal.z * Vector3::unitZ ();
+	G3D::Vector3 origin = aabb.low ();
+	G3D::Vector3 diagonal = aabb.high () - origin;
+	G3D::Vector3 first = origin + diagonal.x * G3D::Vector3::unitX ();
+	G3D::Vector3 second = origin + diagonal.y * G3D::Vector3::unitY ();
+	G3D::Vector3 third = origin + diagonal.z * G3D::Vector3::unitZ ();
 
 	DisplayOrientedSegmentQuadric displayOrientedEdge (
 	    GetQuadricObject (), m_arrowBaseRadius, m_edgeRadius, m_arrowHeight,
@@ -2022,6 +2021,7 @@ void GLWidget::displayAxes (ViewNumber::Enum viewNumber)
 	ostr.str ("");ostr << origin.z;
 	renderText (origin.x - a, origin.y, origin.z + a, ostr.str ().c_str ());
 	glPopAttrib ();
+	WarnOnOpenGLError ("displayAxes");
     }
 }
 
@@ -2814,7 +2814,7 @@ size_t GLWidget::GetTimeSteps (ViewNumber::Enum viewNumber) const
 void GLWidget::quadricErrorCallback (GLenum errorCode)
 {
     const GLubyte* message = gluErrorString (errorCode);
-    qWarning () << "Quadric error:" << message;
+    cdbg << "Quadric error:" << message << endl;
 }
 
 
