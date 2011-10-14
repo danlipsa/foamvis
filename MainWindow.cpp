@@ -102,6 +102,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     if (simulationGroup.size () == 1)
     {
 	Simulation& simulation = simulationGroup.GetSimulation (0);
+	title += " - ";
 	title += simulation.GetName ();
     }
     setWindowTitle (QString (title.c_str ()));

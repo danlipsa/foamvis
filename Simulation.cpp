@@ -42,13 +42,6 @@ private:
 };
 
 
-QString lastName (const QString& path)
-{
-    int slashPos = path.lastIndexOf ('/');
-    QString ret = path;
-    return ret.remove (0, slashPos + 1);
-}
-
 /**
  * Functor used to parse a DMP file
  */

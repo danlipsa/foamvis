@@ -63,6 +63,25 @@ void readOptions (int argc, char *argv[],
     }
 }
 
+
+QString lastName (const QString& path)
+{
+    int slashPos = path.lastIndexOf ('/');
+    QString ret = path;
+    return ret.remove (0, slashPos + 1);
+}
+
+
+string lastDirFile (const char* fileName)
+{
+    QFileInfo fileInfo (fileName);
+    QDir dir = fileInfo.absoluteDir ();
+    string filePattern = 
+	(lastName (dir.absolutePath ()) + 
+	 '/' + fileInfo.fileName ()).toStdString ();
+    return filePattern;
+}
+
 void parseOptions (int argc, char *argv[], 
 		   SimulationGroup* simulationGroup, bool* outputText)
 {
@@ -86,7 +105,7 @@ void parseOptions (int argc, char *argv[],
 	    clo.m_vm.count (Option::m_name[Option::DEBUG_SCANNING]));
 	string simulationName = (clo.m_names.size () != 0) ?
 	    clo.m_names[clo.m_simulationIndexes[i]] :
-	    co[0]->m_fileNames[0];
+	    lastDirFile (co[0]->m_fileNames[0].c_str ());
 	simulation.SetName (simulationName);
 	simulation.SetRotation2D (co[i]->m_rotation2D);
 	if (simulation.GetTimeSteps () == 0)
@@ -102,7 +121,6 @@ void parseOptions (int argc, char *argv[],
     }
     *outputText = clo.m_vm.count (Option::m_name[Option::OUTPUT_TEXT]);
 }
-
 
 
 /**
