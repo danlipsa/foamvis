@@ -175,6 +175,9 @@ void SetCurrentIndexNoSignals (QComboBox* comboBox, int index);
 void SetCheckedNoSignals (QCheckBox* checkBox, bool checked);
 template<typename T>
 void SetValueNoSignals (T* slider, size_t value);
+template<typename T>
+void SetValueAndMaxNoSignals (T* slider, size_t value);
+
 
 
 #endif //__UTILS_H__

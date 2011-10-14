@@ -80,6 +80,14 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     setupUi (this);
     connectSignals ();
     setupButtonGroups ();
+
+    boost::shared_ptr<Application> app = Application::Get ();
+    QFont defaultFont = app->font ();
+    spinBoxFontSize->setValue (defaultFont.pointSize ());
+    spinBoxHistogramHeight->setMaximum (500);
+    spinBoxHistogramHeight->setValue (widgetHistogram->sizeHint ().height ());
+
+
     CurrentIndexChangedViewCount (ViewCount::ONE);
     widgetGl->SetStatus (labelStatusBar);
     widgetGl->SetSimulationGroup (&simulationGroup);
@@ -88,12 +96,6 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     initComboBoxSimulation (simulationGroup);
     configureInterface ();
     setupHistogram ();
-    
-    boost::shared_ptr<Application> app = Application::Get ();
-    QFont defaultFont = app->font ();
-    spinBoxFontSize->setValue (defaultFont.pointSize ());
-    spinBoxHistogramHeight->setMaximum (500);
-    spinBoxHistogramHeight->setValue (widgetHistogram->sizeHint ().height ());
     createActions ();
     setTabOrder (radioButtonCenterPath, sliderTimeSteps);
     string title ("FoamVis");
@@ -273,10 +275,9 @@ void MainWindow::ViewToUI ()
     SetValueNoSignals (horizontalSliderT1sKernelSigma,
 		       vs.GetT1sPDE ().GetKernelSigma ());
     SetValueNoSignals (horizontalSliderAngleOfView, vs.GetAngleOfView ());
-    SetValueNoSignals (spinBoxStatisticsTimeWindow,
-		       vs.GetScalarAverage ().GetTimeWindow ());    
-
-    sliderTimeSteps->SetValueMaximumNoSignals (
+    SetValueAndMaxNoSignals (spinBoxStatisticsTimeWindow,
+			     vs.GetScalarAverage ().GetTimeWindow ());    
+    sliderTimeSteps->SetValueAndMaxNoSignals (
 	vs.GetCurrentTime (), widgetGl->GetTimeSteps (viewNumber) - 1);
 
     labelFacesStatisticsColor->setText (BodyOrFacePropertyToString (property));

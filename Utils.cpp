@@ -448,6 +448,16 @@ void SetValueNoSignals (T* t, size_t value)
     t->blockSignals (false);
 }
 
+template<typename T>
+void SetValueAndMaxNoSignals (T* t, size_t value)
+{
+    t->blockSignals (true);
+    t->setValue (value);
+    t->setMaximum (value);
+    t->blockSignals (false);
+}
+
+
 G3D::Rect2D TexRectFromInsideRect (G3D::Rect2D insideRect)
 {
     G3D::Rect2D enclosingRect = EncloseRotation (insideRect);
@@ -499,7 +509,7 @@ G3D::Rect2D EncloseRotation (const G3D::Rect2D& rect)
 
 /// @cond
 template void SetValueNoSignals<QSlider>(QSlider*, unsigned long);
-template void SetValueNoSignals<QSpinBox>(QSpinBox*, unsigned long);
+template void SetValueAndMaxNoSignals<QSpinBox>(QSpinBox*, unsigned long);
 
 template int polyCentroid2D<double>(
     double*, double*, unsigned long, double*, double*, double*);

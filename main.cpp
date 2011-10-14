@@ -84,7 +84,10 @@ void parseOptions (int argc, char *argv[],
 	    co[i]->m_dmpObjectInfo, co[i]->m_forcesNames,
 	    clo.m_vm.count (Option::m_name[Option::DEBUG_PARSING]), 
 	    clo.m_vm.count (Option::m_name[Option::DEBUG_SCANNING]));
-	simulation.SetName (clo.m_names[clo.m_simulationIndexes[i]]);
+	string simulationName = (clo.m_names.size () != 0) ?
+	    clo.m_names[clo.m_simulationIndexes[i]] :
+	    co[0]->m_fileNames[0];
+	simulation.SetName (simulationName);
 	simulation.SetRotation2D (co[i]->m_rotation2D);
 	if (simulation.GetTimeSteps () == 0)
 	{

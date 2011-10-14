@@ -220,7 +220,7 @@ void RestrictedRangeSlider::PreviousSelected ()
 	slider->triggerAction (QSlider::SliderSingleStepSub);
 }
 
-void RestrictedRangeSlider::SetValueMaximumNoSignals (
+void RestrictedRangeSlider::SetValueAndMaxNoSignals (
     size_t value, size_t maximum)
 {
     blockSignals (true);

@@ -2834,22 +2834,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>spinBoxFontSize</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedStatisticsTimeWindow(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1020</x>
-     <y>242</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>324</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>comboBoxStatisticsType</sender>
    <signal>currentIndexChanged(int)</signal>
    <receiver>widgetGl</receiver>

@@ -466,6 +466,7 @@ void GLWidget::initViewSettings ()
 	    (rotation2D == 0 ? AxesOrder::TWO_D :
 	     (rotation2D == 90 ? AxesOrder::TWO_D_ROTATE_LEFT90 : 
 	      AxesOrder::TWO_D_ROTATE_RIGHT90)): AxesOrder::THREE_D);
+	vs->SetViewType (ViewType::FACES);
 	vs->SetT1sShiftLower (simulation.GetT1sShiftLower ());
 	vs->AverageSetTimeWindow (simulation.GetTimeSteps ());
 	vs->GetT1sPDE ().AverageSetTimeWindow (simulation.GetT1sTimeSteps ());
@@ -497,7 +498,7 @@ void GLWidget::SetSimulationGroup (const SimulationGroup* simulationGroup)
     if (GetSimulationGroup ().size () == 1)
 	m_timeLinkage = TimeLinkage::LINKED;
     else
-	m_timeLinkage = TimeLinkage::INDEPENDENT;
+	m_timeLinkage = TimeLinkage::LINKED;
     initViewSettings ();
     Foam::Bodies bodies = GetSimulation ().GetFoam (0).GetBodies ();
     if (bodies.size () != 0)
@@ -556,13 +557,6 @@ GLWidget::~GLWidget()
     makeCurrent();
     gluDeleteQuadric (m_quadric);
     m_quadric = 0;
-}
-
-void GLWidget::changeViewType (ViewType::Enum newViewType)
-{
-    GetViewSettings ().SetViewType (newViewType);
-    compile (GetViewNumber ());
-    update ();
 }
 
 QSize GLWidget::minimumSizeHint()
@@ -3400,14 +3394,17 @@ void GLWidget::ToggledCenterPathHidden (bool checked)
 
 void GLWidget::ButtonClickedViewType (int id)
 {
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
     ViewType::Enum newViewType = ViewType::Enum(id);
     ViewType::Enum oldViewType = GetViewSettings ().GetViewType ();
     if (oldViewType == newViewType)
 	return;
-    ViewSettings& vs = GetViewSettings ();
     vs.AverageRelease ();
-    changeViewType (newViewType);
-    vs.AverageInitStep (GetViewNumber ());
+    vs.SetViewType (newViewType);
+    vs.AverageInitStep (viewNumber);
+    compile (viewNumber);
+    update ();
 }
 
 void GLWidget::ButtonClickedTimeLinkage (int id)

@@ -479,7 +479,6 @@ private:
     void displayViewTimeStep (const G3D::Rect2D& viewRect);
     void displayViewGrid () const;
 
-    void changeViewType (ViewType::Enum newViewType);
     /**
      * First translate the data to be centered around origin, then
      * rotate and then translate toward negative Z with
