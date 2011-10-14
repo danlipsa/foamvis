@@ -9,7 +9,8 @@ Release log
 	  'General > Show > View' panel.	
 	- added --rotation-2d to specify a rotated dataset (Transform > 
 	  Axes Order > '2D rotated right 90' and '2D rotated left 90'.
-        
+        - added slice_coeff to the parser
+ 
 0.6.2166 2011-09-28
 	 - added T1s probability density estimate
 0.6.2148 2011-09-16

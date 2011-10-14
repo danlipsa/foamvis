@@ -179,6 +179,7 @@ class AttributeCreator;
 %token <m_id> DENSITY "DENSITY"
 %token <m_id> TENSION "TENSION"
 %token CLIP_COEFF "CLIP_COEFF"
+%token SLICE_COEFF "SLICE_COEFF"
 %token AREA_NORMALIZATION "AREA_NORMALIZATION"
 %token MODULUS "MODULUS"
 %token SUPPRESS_WARNING "SUPPRESS_WARNING"
@@ -311,6 +312,7 @@ header
 | header KEEP_ORIGINALS nlplus
 | header view_matrix nlplus
 | header clip_coefficients nlplus
+| header slice_coefficient nlplus
 | header constraint
 | header torus_domain nlplus
 | header torus_display_periods nlplus
@@ -661,7 +663,21 @@ clip_coefficients
 
 
 clip_coefficient
-: '{' number ',' number ',' number ',' number '}';
+: '{' number ',' number ',' number clip_coefficient_rest
+
+slice_coefficient
+: SLICE_COEFF '=' '{' number ',' number ',' number slice_coefficient_rest
+
+
+clip_coefficient_rest
+: ',' number '}'
+| '}'
+
+slice_coefficient_rest
+: ',' number '}'
+| '}'
+
+
 
 clip_coefficient_list
 : /* empty */

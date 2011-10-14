@@ -81,30 +81,21 @@ public:
     {
 	boost::shared_ptr<Foam> foam;
 	string file;
-	try
-	{
-	    int result;
-	    file = qPrintable (dmpFile);
-	    ostringstream ostr;
-	    ostr << "Parsing " << file << " ..." << endl;
-	    cdbg << ostr.str ();
-	    foam.reset (
-		new Foam (m_useOriginal, m_dmpObjectInfo,
-			  m_forcesNames, *m_foamParameters, 
-			  m_parametersOperation));
-	    foam->GetParsingData ().SetDebugParsing (m_debugParsing);
-	    foam->GetParsingData ().SetDebugScanning (m_debugScanning);	    
-	    string fullPath = m_dir + '/' + file;
-	    result = foam->GetParsingData ().Parse (fullPath, foam.get ());
-	    if (result != 0)
-		ThrowException ("Error parsing ", fullPath);
-	}
-	catch (const exception& e)
-	{
-	    cdbg << "Exception for " << file << ": "
-		 << e.what () << endl;
-	    foam.reset ();
-	}
+	int result;
+	file = qPrintable (dmpFile);
+	ostringstream ostr;
+	ostr << "Parsing " << file << " ..." << endl;
+	cdbg << ostr.str ();
+	foam.reset (
+	    new Foam (m_useOriginal, m_dmpObjectInfo,
+		      m_forcesNames, *m_foamParameters, 
+		      m_parametersOperation));
+	foam->GetParsingData ().SetDebugParsing (m_debugParsing);
+	foam->GetParsingData ().SetDebugScanning (m_debugScanning);	    
+	string fullPath = m_dir + '/' + file;
+	result = foam->GetParsingData ().Parse (fullPath, foam.get ());
+	if (result != 0)
+	    ThrowException ("Error parsing ", fullPath);
 	return foam;
     }
 private:
@@ -202,7 +193,7 @@ void Simulation::Preprocess ()
 
 void Simulation::fixConstraintPoints ()
 {
-    Foams foams = GetFoams ();
+    Foams& foams = GetFoams ();
     Foam* prevFoam = 0;
     for (size_t i = 0; i < foams.size (); ++i)
     {

@@ -136,6 +136,7 @@ const char* ParsingDriver::KEYWORD_TABLE[] = {
     "DENSITY",
     "TENSION",
     "CLIP_COEFF",
+    "SLICE_COEFF",
     "AREA_NORMALIZATION",
     "MODULUS",
     "SUPPRESS_WARNING"
