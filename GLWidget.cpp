@@ -469,8 +469,8 @@ void GLWidget::initViewSettings ()
 	vs->SetT1sShiftLower (simulation.GetT1sShiftLower ());
 	vs->AverageSetTimeWindow (simulation.GetTimeSteps ());
 	vs->GetT1sPDE ().AverageSetTimeWindow (simulation.GetT1sTimeSteps ());
+	vs->AverageSetTimeWindow (simulation.GetTimeSteps ());
     }
-    CurrentIndexChangedViewCount (ViewCount::ONE);
 }
 
 
@@ -912,11 +912,15 @@ void GLWidget::setView (const G3D::Vector2& clickedPoint)
 	G3D::Rect2D viewRect = GetViewRect (viewNumber);
 	if (viewRect.contains (clickedPoint))
 	{
-	    m_viewNumber = viewNumber;
+	    SetViewNumber (viewNumber);
 	    break;
 	}
     }
-    setLabel ();
+}
+
+void GLWidget::SetViewNumber (ViewNumber::Enum viewNumber)
+{
+    m_viewNumber = viewNumber;
     Q_EMIT ViewChanged ();
 }
 
@@ -1250,6 +1254,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     displayBodyNeighbors ();
     displayBodiesNeighbors ();
     displayBodyDeformationTensor2D ();
+    displayStatus ();
     //displayContextMenuPos (viewNumber);
     WarnOnOpenGLError ("displayView");
 }
@@ -1645,7 +1650,7 @@ string GLWidget::getBodySelectorLabel ()
     }
 }
 
-void GLWidget::setLabel ()
+void GLWidget::displayStatus ()
 {
     ostringstream ostr;
     boost::array<string, 4> labels = {{
@@ -1683,7 +1688,6 @@ void GLWidget::AverageAroundBody ()
 	    vs.SetAverageAroundPositions (simulation);
 	else
 	    vs.SetAverageAroundPositions (simulation, bodyId);
-	setLabel ();
 	update ();
     }
     else
@@ -1715,7 +1719,6 @@ void GLWidget::AverageAroundSecondBody ()
 		vs.SetAverageAroundSecondBodyId (secondBodyId);
 		vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND);
 		vs.SetAverageAroundPositions (simulation, bodyId, secondBodyId);
-		setLabel ();
 		update ();
 		return;
 	    }
@@ -1737,7 +1740,6 @@ void GLWidget::AverageAroundReset ()
     vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND_NONE);
     vs.SetAverageAroundBodyId (INVALID_INDEX);
     vs.SetAverageAroundSecondBodyId (INVALID_INDEX);
-    setLabel ();
     update ();
 }
 
@@ -1747,7 +1749,6 @@ void GLWidget::ContextDisplayBody ()
     vector<size_t> bodies;
     brushedBodies (m_contextMenuPosScreen, &bodies);
     vs.AddContextDisplayBody (bodies[0]);
-    setLabel ();
     update ();
 }
 
@@ -1755,7 +1756,6 @@ void GLWidget::ContextDisplayReset ()
 {
     ViewSettings& vs = GetViewSettings ();
     vs.ContextDisplayReset ();
-    setLabel ();
     update ();
 }
 
@@ -1765,7 +1765,6 @@ void GLWidget::ToggledAverageAroundAllowRotation (bool checked)
     vs.SetAverageAroundMovementShown (
 	checked ? ViewSettings::AVERAGE_AROUND_MOVEMENT_ROTATION : 
 	ViewSettings::AVERAGE_AROUND_MOVEMENT_NONE);
-    setLabel ();
     update ();
 }
 
@@ -1976,14 +1975,15 @@ void GLWidget::displayAxes (ViewNumber::Enum viewNumber)
 {
     if (m_axesShown)
     {
+	const Simulation& simulation = GetSimulation (viewNumber);
+
 	QFont font;
 	float a;
 	QFontMetrics fm (font);
 	ostringstream ostr;
 	ostr << setprecision (4);
 	glPushAttrib (GL_CURRENT_BIT);
-	const G3D::AABox& aabb = 
-	    GetSimulation (viewNumber).GetBoundingBox ();
+	const G3D::AABox& aabb = simulation.GetBoundingBox ();
 	G3D::Vector3 origin = aabb.low ();
 	G3D::Vector3 diagonal = aabb.high () - origin;
 	G3D::Vector3 first = origin + diagonal.x * G3D::Vector3::unitX ();
@@ -2012,16 +2012,18 @@ void GLWidget::displayAxes (ViewNumber::Enum viewNumber)
 	ostr.str ("");ostr  << origin.y;
 	renderText (origin.x, origin.y + a, origin.z - a, ostr.str ().c_str ());
 
-
-	glColor (Qt::blue);
-	displayOrientedEdge (origin, third);
-	glColor (Qt::black);
-	ostr.str ("");ostr << third.z;
-	renderText (third.x - a, third.y, third.z + a, ostr.str ().c_str ());
-	ostr.str ("");ostr << origin.z;
-	renderText (origin.x - a, origin.y, origin.z + a, ostr.str ().c_str ());
+	if (! simulation.Is2D ())
+	{
+	    glColor (Qt::blue);
+	    displayOrientedEdge (origin, third);
+	    glColor (Qt::black);
+	    ostr.str ("");ostr << third.z;
+	    renderText (third.x - a, third.y, third.z + a, ostr.str ().c_str ());
+	    ostr.str ("");ostr << origin.z;
+	    renderText (origin.x - a, origin.y, 
+			origin.z + a, ostr.str ().c_str ());
+	}
 	glPopAttrib ();
-	WarnOnOpenGLError ("displayAxes");
     }
 }
 
@@ -2640,7 +2642,6 @@ void GLWidget::displayCenterPaths (ViewNumber::Enum view) const
 
 void GLWidget::labelCompileUpdate ()
 {
-    setLabel ();
     compile (GetViewNumber ());
     update ();
 }
@@ -3513,6 +3514,7 @@ void GLWidget::CurrentIndexChangedSimulation (int i)
 	 (rotation2D == 90 ? AxesOrder::TWO_D_ROTATE_LEFT90 : 
 	  AxesOrder::TWO_D_ROTATE_RIGHT90)): AxesOrder::THREE_D);
     vs.SetT1sShiftLower (simulation.GetT1sShiftLower ());
+    vs.AverageSetTimeWindow (simulation.GetTimeSteps ());
     update ();
 }
 

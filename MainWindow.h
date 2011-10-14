@@ -158,7 +158,8 @@ private:
      */
     void setupSliderData (const Simulation& simulation);
     void setupButtonGroups ();
-    void configureInterfaceDataDependent (const Simulation& simulation);
+    void configureInterfaceDataDependent (
+	const SimulationGroup& simulationGroup);
     void configureInterface ();
     void setupColorBarModel (size_t simulationIndex, 
 			     ViewNumber::Enum viewNumber,

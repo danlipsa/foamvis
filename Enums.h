@@ -180,7 +180,7 @@ public:
 	T1S_PDE,
         COUNT
     };
-    static Enum FromInt (int i);
+    static Enum FromSizeT (size_t i);
     static bool IsTimeDependent (ViewType::Enum t);
     static const char* ToString (ViewType::Enum viewType);
 };
@@ -291,9 +291,10 @@ struct ViewCount
 	ONE,
 	TWO,
 	THREE,
-	FOUR
+	FOUR, MAX = FOUR
     };
     static size_t GetCount (ViewCount::Enum);
+    static ViewCount::Enum FromSizeT (size_t count);
 };
 
 struct ViewLayout

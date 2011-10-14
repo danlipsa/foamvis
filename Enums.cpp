@@ -107,9 +107,9 @@ const char* BodyOrFacePropertyToString (size_t i)
 	return FaceProperty::ToString (FaceProperty::Enum (i));
 }
 
-ViewType::Enum ViewType::FromInt (int i)
+ViewType::Enum ViewType::FromSizeT (size_t i)
 {
-    RuntimeAssert (i < COUNT && i >= 0, "Value outside of ViewType::Enum", i);
+    RuntimeAssert (i < COUNT, "Value outside of ViewType::Enum", i);
     return ViewType::Enum (i);
 }
 
@@ -179,4 +179,12 @@ const char* Palette::ToString (Palette::Enum type)
 size_t ViewCount::GetCount (ViewCount::Enum viewCount)
 {
     return viewCount + 1;
+}
+
+
+ViewCount::Enum ViewCount::FromSizeT (size_t count)
+{
+    RuntimeAssert (count <= FOUR,
+		   "Value outside of ViewCount::Enum: ", count);
+    return ViewCount::Enum (count - 1);
 }

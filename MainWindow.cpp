@@ -94,18 +94,20 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     spinBoxFontSize->setValue (defaultFont.pointSize ());
     spinBoxHistogramHeight->setMaximum (500);
     spinBoxHistogramHeight->setValue (widgetHistogram->sizeHint ().height ());
-    Simulation& simulation = simulationGroup.GetSimulation (0);
-    configureInterfaceDataDependent (simulation);
+    createActions ();
+    setTabOrder (radioButtonCenterPath, sliderTimeSteps);
     string title ("FoamVis");
     if (simulationGroup.size () == 1)
+    {
+	Simulation& simulation = simulationGroup.GetSimulation (0);
 	title += simulation.GetName ();
+    }
     setWindowTitle (QString (title.c_str ()));
     widgetHistogram->setHidden (true);
     // fire as soon as all events have been processed
     m_timer->setInterval (33);
-    createActions ();
-    setTabOrder (radioButtonCenterPath, sliderTimeSteps);
     //initTranslatedBody ();
+    configureInterfaceDataDependent (simulationGroup);    
 }
 
 void MainWindow::configureInterface ()
@@ -118,8 +120,9 @@ void MainWindow::configureInterface ()
 
 
 void MainWindow::configureInterfaceDataDependent (
-    const Simulation& simulation)
+    const SimulationGroup& simulationGroup)
 {
+    const Simulation& simulation = simulationGroup.GetSimulation (0);
     setupSliderData (simulation);
     if (simulation.T1sAvailable ())
     {
@@ -141,9 +144,16 @@ void MainWindow::configureInterfaceDataDependent (
     {
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::THREE_D);
     }
-    spinBoxStatisticsTimeWindow->setMaximum (simulation.GetTimeSteps ());
-    spinBoxStatisticsTimeWindow->setValue (
-	spinBoxStatisticsTimeWindow->maximum ());
+    size_t viewCount = min (simulationGroup.size (),
+			    ViewCount::GetCount (ViewCount::MAX));
+    if (simulationGroup.size () > 1)
+	comboBoxViewCount->setCurrentIndex (ViewCount::FromSizeT (viewCount));
+    for (size_t i = 1; i < viewCount; ++i)
+    {
+	widgetGl->SetViewNumber (ViewNumber::Enum (i));
+	comboBoxSimulation->setCurrentIndex (i);
+    }
+    widgetGl->SetViewNumber (ViewNumber::VIEW0);
 }
 
 
@@ -154,6 +164,7 @@ void MainWindow::initComboBoxSimulation (SimulationGroup& simulationGroup)
 	comboBoxSimulation->setHidden (true);
     else
     {
+	comboBoxSimulation->blockSignals (true);
 	for (size_t i = 0; i < simulationsCount; ++i)
 	{
 	    const Simulation& simulation = 
@@ -161,6 +172,7 @@ void MainWindow::initComboBoxSimulation (SimulationGroup& simulationGroup)
 	    comboBoxSimulation->addItem (
 		simulation.GetName ().c_str ());
 	}
+	comboBoxSimulation->blockSignals (false);
     }
 }
 

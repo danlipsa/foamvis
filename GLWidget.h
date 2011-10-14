@@ -71,6 +71,7 @@ public:
     {
 	return m_viewNumber;
     }
+    void SetViewNumber (ViewNumber::Enum viewNumber);
     ViewSettings& GetViewSettings (ViewNumber::Enum viewNumber) const
     {
 	return *m_viewSettings[viewNumber];
@@ -631,7 +632,7 @@ private:
     string getContextLabel ();
     string getAverageAroundMovementShownLabel ();
     string getAverageAroundLabel ();
-    void setLabel ();
+    void displayStatus ();
     void transformFoamAverageAround (
 	ViewNumber::Enum viewNumber, size_t timeStep) const;
     void initCopy (
