@@ -58,9 +58,15 @@ double doubleAbs (double value)
 
 const char* ParsingData::IMPLEMENTED_METHODS[] = 
 {
-    "edge_area",
+    // 0-dimensional
     "vertex_scalar_integral",
+
+    // 1-dimensional
+    "edge_area",
+    "edge_length", "edge_tension",
     "edge_general_integral",
+
+    // 2-dimensional
     "facet_general_integral"
 };
 

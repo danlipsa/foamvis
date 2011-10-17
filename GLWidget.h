@@ -356,6 +356,8 @@ public Q_SLOTS:
     void ResetTransformLight ();    
     void ResetTransformGrid ();
     void SelectBodiesByIdList ();
+    void SyncViewTimeBegin ();
+    void SyncViewTimeEnd ();
     void SelectAll ();
     void DeselectAll ();
     void AverageAroundBody ();
@@ -711,7 +713,8 @@ private:
     boost::array<ViewTypeDisplay, ViewType::COUNT> m_display;
 
 
-    boost::shared_ptr<QAction> m_actionSynchronizeTime;
+    boost::shared_ptr<QAction> m_actionSyncViewTimeBegin;
+    boost::shared_ptr<QAction> m_actionSyncViewTimeEnd;
     boost::shared_ptr<QAction> m_actionSelectAll;
     boost::shared_ptr<QAction> m_actionDeselectAll;
     boost::shared_ptr<QAction> m_actionResetTransformAll;

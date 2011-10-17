@@ -249,6 +249,18 @@ void GLWidget::initQuadrics ()
 
 void GLWidget::createActions ()
 {
+    m_actionSyncViewTimeBegin = boost::make_shared<QAction> (
+	tr("&Begin interval"), this);
+    m_actionSyncViewTimeBegin->setStatusTip(tr("Sync view time begin interval"));
+    connect(m_actionSyncViewTimeBegin.get (), SIGNAL(triggered()),
+	    this, SLOT(SyncViewTimeBegin ()));
+
+    m_actionSyncViewTimeEnd = boost::make_shared<QAction> (
+	tr("&End interval"), this);
+    m_actionSyncViewTimeEnd->setStatusTip(tr("Sync view time end interval"));
+    connect(m_actionSyncViewTimeEnd.get (), SIGNAL(triggered()),
+	    this, SLOT(SyncViewTimeEnd ()));
+
     m_actionSelectAll = boost::make_shared<QAction> (tr("&All"), this);
     m_actionSelectAll->setStatusTip(tr("Select all"));
     connect(m_actionSelectAll.get (), SIGNAL(triggered()),
@@ -999,6 +1011,20 @@ void GLWidget::SelectBodiesByIdList ()
 		new IdBodySelector (m_selectBodiesById->GetIds ())));
 	labelCompileUpdate ();
     }
+}
+
+void GLWidget::SyncViewTimeBegin ()
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    vs.SetSyncViewTimeBegin (GetCurrentTime (viewNumber));
+}
+
+void GLWidget::SyncViewTimeEnd ()
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    vs.SetSyncViewTimeEnd (GetCurrentTime (viewNumber));
 }
 
 void GLWidget::SelectAll ()
@@ -2901,7 +2927,12 @@ void GLWidget::contextMenuEventView (QMenu* menu) const
 	menuShow->addAction (m_actionShowNeighbors.get ());
 	menuShow->addAction (m_actionShowTextureTensor.get ());
 	menuShow->addAction (m_actionShowReset.get ());
-    }    
+    }
+    {
+	QMenu* menuSyncViewTime = menu->addMenu ("Sync view time");
+	menuSyncViewTime->addAction (m_actionSyncViewTimeBegin.get ());
+	menuSyncViewTime->addAction (m_actionSyncViewTimeEnd.get ());
+    }
 }
 
 

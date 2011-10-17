@@ -154,7 +154,7 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
 }
 
 
-"+"|"-"|"*"|"/"|">"|"<"|"!"  {/*operators*/
+"+"|"-"|"*"|"/"|">"|"<"|"!"|"."  {/*operators*/
     yylval->m_id = yyextra->CreateIdentifier (yytext);
     yylloc->begin.line = yylineno;
     return *yytext;

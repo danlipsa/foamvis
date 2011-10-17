@@ -367,7 +367,8 @@ CommonOptions::CommonOptions () :
 void CommonOptions::read (int argc, char *argv[])
 {
     po::store(po::command_line_parser (argc, argv).
-	      options (m_commonOptions).positional (m_positionalOptions).run (), 
+	      options (m_commonOptions).positional (m_positionalOptions).
+	      allow_unregistered ().run (), 
 	      m_vm);
     po::notify(m_vm);
     if (m_rotation2D != 0)

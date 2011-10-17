@@ -427,6 +427,14 @@ public:
     void SetAverageAroundPositions (const Simulation& simulation, size_t bodyId);
     void SetAverageAroundPositions (const Simulation& simulation,
 				    size_t bodyId, size_t secondBodyId);
+    void SetSyncViewTimeBegin (size_t begin)
+    {
+	m_syncViewTimeBegin = begin;
+    }
+    void SetSyncViewTimeEnd (size_t end)
+    {
+	m_syncViewTimeEnd = end;
+    }
 
     virtual void AverageInit (ViewNumber::Enum viewNumber);
     virtual void AverageSetTimeWindow (size_t timeSteps);
@@ -514,6 +522,8 @@ private:
      */
     size_t m_currentTime;
     bool m_t1sShiftLower;
+    size_t m_syncViewTimeBegin;
+    size_t m_syncViewTimeEnd;
 };
 
 

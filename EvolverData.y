@@ -183,6 +183,7 @@ class AttributeCreator;
 %token AREA_NORMALIZATION "AREA_NORMALIZATION"
 %token MODULUS "MODULUS"
 %token SUPPRESS_WARNING "SUPPRESS_WARNING"
+%token VALUE "VALUE"
 
  // terminal symbols
 %token SPACE   /* Only transmited if ParsingData::IsSpaceSignificant */
@@ -209,6 +210,8 @@ class AttributeCreator;
 %token <m_id> '!'
 %token <m_id> AND "&&"
 %token <m_id> OR "||"
+ /* method instance value */
+%token <m_id> '.'
 
  // operator precedence
 %right '='
@@ -227,6 +230,8 @@ class AttributeCreator;
 %type <m_attributeCreator> attribute_value_type
 %type <m_node> expr
 %type <m_node> non_const_expr
+%type <m_node> method_expr
+%type <m_real> method_value
 %type <m_real> number
 %type <m_nameSemanticValueList> vertex_attribute_list
 %type <m_nameSemanticValueList> edge_attribute_list
@@ -444,7 +449,7 @@ quantity_rest
     $$ = 0;
 }
 | quantity_type quantity_lagrange_multiplier quantity_modulus
-  quantity_method_list
+  quantity_method_list_or_function
 {
     $$ = 1;
 }
@@ -467,9 +472,18 @@ quantity_modulus
 | MODULUS const_expr
 
 
+quantity_method_list_or_function
+: quantity_method_list
+| quantity_function
+;
+
 quantity_method_list
 : quantity_method_list method
 | method
+;
+
+quantity_function
+: FUNCTION method_expr
 ;
 
 method_instance:
@@ -856,6 +870,109 @@ non_const_expr
     $$ = new ExpressionTreeConditional (foam->GetParsingData (), $1, $3, $5);
 }
 
+
+method_expr
+: number
+{
+    $$ = new ExpressionTreeNumber (foam->GetParsingData (), $1);
+}
+| IDENTIFIER
+{
+    $$ = new ExpressionTreeVariable (foam->GetParsingData (), $1);
+}
+| method_value
+{
+    $$ = new ExpressionTreeNumber (foam->GetParsingData (), $1);
+}
+/* Function calls */
+| IDENTIFIER '(' method_expr ')'
+{
+    $$ = new ExpressionTreeUnaryFunction (foam->GetParsingData (), $1, $3);
+}
+| IDENTIFIER '(' method_expr ',' method_expr ')'
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $1, $3, $5);
+}
+/* Arithmetic operations */
+| '-' method_expr  %prec UMINUS
+{
+    $$ = new ExpressionTreeUnaryFunction (foam->GetParsingData (), $1, $2);
+}
+| method_expr '+' method_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+| method_expr '-' method_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+
+| method_expr '*' method_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+| method_expr '/' method_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+| method_expr '^' method_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+/* Comparisions */
+| method_expr '>' method_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+| method_expr GE method_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+| method_expr '<' method_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+| method_expr LE method_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+/* Logical operations */
+| '!' method_expr
+{
+    $$ = new ExpressionTreeUnaryFunction (foam->GetParsingData (), $1, $2);
+}
+| method_expr AND method_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+| method_expr OR method_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+/* Other expressions */
+| '(' method_expr ')'
+{
+    $$ = $2;
+}
+| method_expr '=' method_expr
+{
+    $$ = new ExpressionTreeBinaryFunction (foam->GetParsingData (), $2, $1, $3);
+}
+| method_expr '?' method_expr ':' method_expr
+{
+    $$ = new ExpressionTreeConditional (foam->GetParsingData (), $1, $3, $5);
+}
+
+method_value
+: METHOD_OR_QUANTITY_ID method_value_rest
+{
+    $$ = 0;
+}
+
+method_value_rest
+: /* empty */
+| '.' VALUE
+;
 
 
 expr

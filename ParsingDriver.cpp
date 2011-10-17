@@ -139,7 +139,8 @@ const char* ParsingDriver::KEYWORD_TABLE[] = {
     "SLICE_COEFF",
     "AREA_NORMALIZATION",
     "MODULUS",
-    "SUPPRESS_WARNING"
+    "SUPPRESS_WARNING",
+    "VALUE"
 };
 
 int ParsingDriver::GetKeywordId (char* keyword)

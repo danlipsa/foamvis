@@ -75,7 +75,9 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_centerPathHidden (false),
     m_simulationIndex (0),
     m_currentTime (0),
-    m_t1sShiftLower (false)
+    m_t1sShiftLower (false),
+    m_syncViewTimeBegin (INVALID_INDEX),
+    m_syncViewTimeEnd (INVALID_INDEX)
 {
     initTexture ();
     initList ();

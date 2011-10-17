@@ -22,6 +22,8 @@ my @tests =
      ["straight_5x2q_2per/straightq_2per_10_0001.dmp",""],
      ["straight_6x2q_2/straightq_2_12_0001.dmp",""],
      ["wetfoam/dump_050.dmp",""],
+     ["pierra-20111013/3cells0.dmp",""],
+     ["pierra-20111013/3cellsv15.dmp",""],
 
      ["all_outside.fe",""],
      ["dry_cross_4.fe",""],
