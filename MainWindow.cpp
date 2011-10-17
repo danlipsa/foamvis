@@ -607,10 +607,12 @@ void MainWindow::createActions ()
     connect(m_actionDeselectShown.get (), SIGNAL(triggered()),
 	    this, SLOT(DeselectShown ()));
     
-    addAction (widgetGl->GetActionResetTransformAll ().get ());
-    
+    addAction (widgetGl->GetActionResetTransformAll ().get ());    
+    connect(widgetGl->GetActionEditColorMap ().get (), SIGNAL(triggered()),
+	    this, SLOT(ShowEditColorMap ()));
     addAction (sliderTimeSteps->GetActionNextSelectedTimeStep ().get ());
     addAction (sliderTimeSteps->GetActionPreviousSelectedTimeStep ().get ());
+
     addAction (m_actionRotateShown.get ());
     addAction (m_actionTranslateShown.get ());
     addAction (m_actionScaleShown.get ());

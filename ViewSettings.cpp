@@ -315,6 +315,8 @@ void ViewSettings::SetBodySelector (
 
 void ViewSettings::UnionBodySelector (const vector<size_t>& bodyIds)
 {
+    if (bodyIds.size () == 0)
+	return;
     switch (m_bodySelector->GetType ())
     {
     case BodySelectorType::ALL:
@@ -349,6 +351,8 @@ void ViewSettings::UnionBodySelector (const vector<size_t>& bodyIds)
 void ViewSettings::DifferenceBodySelector (
     const Foam& foam, const vector<size_t>& bodyIds)
 {
+    if (bodyIds.size () == 0)
+	return;
     switch (m_bodySelector->GetType ())
     {
     case BodySelectorType::ALL:

@@ -162,10 +162,15 @@ public:
 	return m_centerPathBodyShown;
     }
 
-    boost::shared_ptr<QAction> GetActionResetTransformAll ()
+    boost::shared_ptr<QAction> GetActionResetTransformAll () const
     {
 	return m_actionResetTransformAll;
     }
+    boost::shared_ptr<QAction> GetActionEditColorMap () const
+    {
+	return m_actionEditColorMap;
+    }
+
     
     /**
      * Calculates and does the viewport transform.
@@ -252,7 +257,6 @@ public:
 
 Q_SIGNALS:
     void PaintedGL ();
-    void EditColorMap ();
     void ViewChanged ();
     void ColorBarModelChanged (boost::shared_ptr<ColorBarModel> colorBarModel);
 
@@ -370,7 +374,6 @@ public Q_SLOTS:
     void ShowTextureTensor ();
     void ShowReset ();
     // Actions color bar
-    void EditColorMapDispatch ();
     void ColorBarClampClear ();
     void CopyTransformationFrom (int viewNumber);
     void CopySelectionFrom (int viewNumber);
@@ -537,9 +540,9 @@ private:
      */
     void displayCenterPathsWithBodies (ViewNumber::Enum view) const;
     void displayOriginalDomain (ViewNumber::Enum viewNumber) const;
-    void displayBodyNeighbors () const;
+    void displayBodyNeighbors (ViewNumber::Enum viewNumber) const;
     void displayBodiesNeighbors () const;
-    void displayBodyDeformationTensor2D () const;
+    void displayBodyDeformationTensor2D (ViewNumber::Enum viewNumber) const;
     void displayDeformationTensor2D (ViewNumber::Enum viewNumber) const;
     void displayT1sDot (ViewNumber::Enum view) const;
     void displayT1sDot (ViewNumber::Enum view, size_t timeStep) const;
@@ -707,6 +710,8 @@ private:
     bool m_standaloneElementsShown;
     boost::array<ViewTypeDisplay, ViewType::COUNT> m_display;
 
+
+    boost::shared_ptr<QAction> m_actionSynchronizeTime;
     boost::shared_ptr<QAction> m_actionSelectAll;
     boost::shared_ptr<QAction> m_actionDeselectAll;
     boost::shared_ptr<QAction> m_actionResetTransformAll;

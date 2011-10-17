@@ -387,8 +387,7 @@ void GLWidget::createActions ()
     m_actionEditColorMap.reset (
 	new QAction (tr("&Edit Color Map"), this));
     m_actionEditColorMap->setStatusTip(tr("Edit Color Map"));
-    connect(m_actionEditColorMap.get (), SIGNAL(triggered()),
-	    this, SLOT(EditColorMapDispatch ()));
+    // connected in MainWindow
 
     m_actionClampClear.reset (
 	new QAction (tr("&Clamp Clear"), this));
@@ -1157,11 +1156,6 @@ void GLWidget::ShowReset ()
     update ();
 }
 
-void GLWidget::EditColorMapDispatch ()
-{
-    Q_EMIT EditColorMap ();
-}
-
 void GLWidget::ColorBarClampClear ()
 {
     ViewSettings& vs = GetViewSettings ();
@@ -1245,9 +1239,13 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     displayLightDirection (viewNumber);
     displayBodyCenters (viewNumber);
     displayFaceCenters (viewNumber);
-    displayBodyNeighbors ();
+    ViewNumber::Enum currentView = GetViewNumber ();
+    if (currentView == viewNumber)
+    {
+	displayBodyNeighbors (currentView);
+	displayBodyDeformationTensor2D (currentView);
+    }
     displayBodiesNeighbors ();
-    displayBodyDeformationTensor2D ();
     displayStatus ();
     //displayContextMenuPos (viewNumber);
     WarnOnOpenGLError ("displayView");
@@ -2088,11 +2086,12 @@ void GLWidget::displayDeformationTensor2D (ViewNumber::Enum viewNumber) const
     glPopAttrib ();    
 }
 
-void GLWidget::displayBodyDeformationTensor2D () const
+void GLWidget::displayBodyDeformationTensor2D (ViewNumber::Enum viewNumber) const
 {
     if (m_showType == SHOW_DEFORMATION_TENSOR)
     {
-	const Foam& foam = GetSimulation ().GetFoam (0);
+	const Foam& foam = 
+	    GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber));
 	if (! foam.Is2D ())
 	    return;
 	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
@@ -2100,7 +2099,7 @@ void GLWidget::displayBodyDeformationTensor2D () const
 	glColor (Qt::black);
 	::displayBodyDeformationTensor2D (
 	    *foam.FindBody (m_showBodyId), 
-	    GetEllipseSizeInitialRatio (GetViewNumber ()) * 
+	    GetEllipseSizeInitialRatio (viewNumber) * 
 	    GetEllipseSizeRatio ());
 	glPopAttrib ();
     }
@@ -2108,7 +2107,7 @@ void GLWidget::displayBodyDeformationTensor2D () const
 
 
 
-void GLWidget::displayBodyNeighbors () const
+void GLWidget::displayBodyNeighbors (ViewNumber::Enum viewNumber) const
 {
     if (m_showType != SHOW_NEIGHBORS)
 	return;
@@ -2117,7 +2116,8 @@ void GLWidget::displayBodyNeighbors () const
     glColor (Qt::black);
     glBegin (GL_LINES);
 
-    const Foam& foam = GetSimulation ().GetFoam (0);
+    const Foam& foam = GetSimulation (viewNumber).GetFoam (
+	GetCurrentTime(viewNumber));
     const OOBox& originalDomain = foam.GetOriginalDomain ();
     Foam::Bodies::const_iterator showBody = foam.FindBody (m_showBodyId);
     ::displayBodyNeighbors2D (*showBody, originalDomain);

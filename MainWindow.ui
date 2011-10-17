@@ -308,7 +308,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="general">
           <attribute name="title">
@@ -321,7 +321,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="currentIndex">
-              <number>3</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="tabShow">
               <attribute name="title">
@@ -431,6 +431,9 @@
                    </item>
                    <item row="5" column="1">
                     <widget class="QRadioButton" name="radioButtonTimeSynchronized">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="text">
                       <string>Synchronized</string>
                      </property>
@@ -2318,22 +2321,6 @@
     <hint type="destinationlabel">
      <x>507</x>
      <y>396</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>widgetGl</sender>
-   <signal>EditColorMap()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>ShowEditColorMap()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>47</x>
-     <y>518</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>234</y>
     </hint>
    </hints>
   </connection>
