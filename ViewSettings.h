@@ -427,13 +427,25 @@ public:
     void SetAverageAroundPositions (const Simulation& simulation, size_t bodyId);
     void SetAverageAroundPositions (const Simulation& simulation,
 				    size_t bodyId, size_t secondBodyId);
-    void SetSyncViewTimeBegin (size_t begin)
+    void SetLinkedTimeBegin (size_t begin)
     {
 	m_syncViewTimeBegin = begin;
     }
-    void SetSyncViewTimeEnd (size_t end)
+    size_t GetLinkedTimeBegin () const
+    {
+	return m_syncViewTimeBegin;
+    }
+    void SetLinkedTimeEnd (size_t end)
     {
 	m_syncViewTimeEnd = end;
+    }
+    size_t GetLinkedTimeEnd () const
+    {
+	return m_syncViewTimeEnd;
+    }
+    size_t GetLinkedTimeInterval () const
+    {
+	return m_syncViewTimeEnd - m_syncViewTimeBegin + 1;
     }
 
     virtual void AverageInit (ViewNumber::Enum viewNumber);

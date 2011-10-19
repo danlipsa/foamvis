@@ -253,6 +253,19 @@ public:
 	ViewNumber::Enum viewNumber,
 	boost::shared_ptr<ColorBarModel> colorBarModel,
 	size_t property);
+    float LinkedTimeStepMultiplier (ViewNumber::Enum viewNumber) const;
+    float LinkedTimeStepMultiplier (size_t max,
+				    ViewNumber::Enum viewNumber) const;
+    pair<size_t, ViewNumber::Enum> LinkedTimeMaxInterval () const;
+    pair<size_t, ViewNumber::Enum> LinkedTimeMaxSteps () const;
+    TimeLinkage::Enum GetTimeLinkage () const
+    {
+	return m_timeLinkage;
+    }
+    size_t GetLinkedTime () const
+    {
+	return m_linkedTime;
+    }
 
 
 Q_SIGNALS:
@@ -356,8 +369,8 @@ public Q_SLOTS:
     void ResetTransformLight ();    
     void ResetTransformGrid ();
     void SelectBodiesByIdList ();
-    void SyncViewTimeBegin ();
-    void SyncViewTimeEnd ();
+    void LinkedTimeBegin ();
+    void LinkedTimeEnd ();
     void SelectAll ();
     void DeselectAll ();
     void AverageAroundBody ();
@@ -442,6 +455,7 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    bool linkedTimesValid (size_t timeBegin, size_t timeEnd);
     void contextMenuEventColorBar (QMenu* menu) const;
     void contextMenuEventView (QMenu* menu) const;
     void activateViewShader (
@@ -713,8 +727,8 @@ private:
     boost::array<ViewTypeDisplay, ViewType::COUNT> m_display;
 
 
-    boost::shared_ptr<QAction> m_actionSyncViewTimeBegin;
-    boost::shared_ptr<QAction> m_actionSyncViewTimeEnd;
+    boost::shared_ptr<QAction> m_actionLinkedTimeBegin;
+    boost::shared_ptr<QAction> m_actionLinkedTimeEnd;
     boost::shared_ptr<QAction> m_actionSelectAll;
     boost::shared_ptr<QAction> m_actionDeselectAll;
     boost::shared_ptr<QAction> m_actionResetTransformAll;
@@ -779,7 +793,13 @@ private:
     boost::array<
 	boost::shared_ptr<ViewSettings>, ViewNumber::COUNT> m_viewSettings;
     TimeLinkage::Enum m_timeLinkage;
-
+    /**
+     * Used to keep trak of time for TimeLinkage::LINKED.
+     * It has the resolution of the view that has the maximum interval and the 
+     * range of the view that has the maximum range.
+     * @see LinkedTimeMaxInterval, @see LinkedTimeMaxSteps
+     */
+    size_t m_linkedTime;
     ShowType m_showType;
     size_t m_showBodyId;
 };

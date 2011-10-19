@@ -108,7 +108,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     setWindowTitle (QString (title.c_str ()));
     widgetHistogram->setHidden (true);
     // fire as soon as all events have been processed
-    m_timer->setInterval (33);
+    m_timer->setInterval (0);
     //initTranslatedBody ();
     configureInterfaceDataDependent (simulationGroup);    
 }
@@ -243,7 +243,8 @@ void MainWindow::ViewToUI ()
     size_t simulationIndex = vs.GetSimulationIndex ();
     ViewType::Enum viewType = vs.GetViewType ();
 
-    SetCheckedNoSignals (buttonGroupViewType, viewType, true);
+    SetCheckedNoSignals (buttonGroupViewType, viewType, true);    
+    setStackedWidget (viewType);
     SetCheckedNoSignals (buttonGroupHistogram, 
 			 (viewNumber == m_histogramViewNumber) ?
 			 m_histogramType : HistogramType::NONE, true);
@@ -277,12 +278,33 @@ void MainWindow::ViewToUI ()
 		       vs.GetT1sPDE ().GetKernelSigma ());
     SetValueNoSignals (horizontalSliderAngleOfView, vs.GetAngleOfView ());
     SetValueAndMaxNoSignals (spinBoxStatisticsTimeWindow,
-			     vs.GetScalarAverage ().GetTimeWindow ());    
-    sliderTimeSteps->SetValueAndMaxNoSignals (
-	vs.GetCurrentTime (), widgetGl->GetTimeSteps (viewNumber) - 1);
+			     vs.GetScalarAverage ().GetTimeWindow (), 
+			     widgetGl->GetTimeSteps (viewNumber));
+    if (widgetGl->GetTimeLinkage () == TimeLinkage::INDEPENDENT)
+	sliderTimeSteps->SetValueAndMaxNoSignals (
+	    vs.GetCurrentTime (), widgetGl->GetTimeSteps (viewNumber) - 1);
+    else
+    {
+	size_t steps = widgetGl->LinkedTimeMaxSteps ().first;
+	sliderTimeSteps->SetValueAndMaxNoSignals (widgetGl->GetLinkedTime (), 
+						  steps - 1);
+    }
 
     labelFacesStatisticsColor->setText (BodyOrFacePropertyToString (property));
     labelCenterPathColor->setText (BodyOrFacePropertyToString (property));
+
+    ostringstream ostr;
+    ostr << vs.GetLinkedTimeBegin ();
+    labelLinkedTimeBegin->setText (ostr.str ().c_str ());
+    ostr.str ("");
+    ostr << vs.GetLinkedTimeEnd ();
+    labelLinkedTimeEnd->setText (ostr.str ().c_str ());
+    ostr.str ("");
+    ostr << widgetGl->GetTimeSteps (viewNumber);
+    labelLinkedTimeSteps->setText (ostr.str ().c_str ());
+    ostr.str ("");
+    ostr << setprecision (3) << widgetGl->LinkedTimeStepMultiplier (viewNumber);
+    labelLinkedTimeStepMultiplier->setText (ostr.str ().c_str ());
 
     updateLightControls (vs, selectedLight);
     updateButtons ();
@@ -357,8 +379,6 @@ void MainWindow::setupButtonGroups ()
 	radioButtonTimeIndependent, TimeLinkage::INDEPENDENT);
     buttonGroupTimeLinkage->setId (
 	radioButtonTimeLinked, TimeLinkage::LINKED);
-    buttonGroupTimeLinkage->setId (
-	radioButtonTimeSynchronized, TimeLinkage::SYNCHRONIZED);
     buttonGroupTimeLinkage->button (TimeLinkage::LINKED)->setChecked (true);
 }
 
@@ -894,6 +914,7 @@ void MainWindow::ClickedEnd ()
 
 void MainWindow::TimeoutTimer ()
 {
+    //cdbg << "TimeoutTimer" << endl;
     int value = sliderTimeSteps->value ();
     if (m_playForward)
     {
@@ -995,6 +1016,9 @@ void MainWindow::ButtonClickedViewType (int vt)
 	sliderTimeSteps->setMaximum (simulation.GetTimeSteps () - 1);
 }
 
+
+
+
 void MainWindow::setStackedWidget (ViewType::Enum viewType)
 {
     // WARNING: Has to match ViewType::Enum order
@@ -1013,13 +1037,11 @@ void MainWindow::setStackedWidget (ViewType::Enum viewType)
     {
 	stackedWidgetTimeStep->setCurrentWidget (pageTimeStepEmpty);
 	stackedWidgetTimeDependent->setCurrentWidget (pages[viewType]);
-	tabWidget->setCurrentWidget (timeDependent);
     }
     else
     {
 	stackedWidgetTimeStep->setCurrentWidget (pages[viewType]);
 	stackedWidgetTimeDependent->setCurrentWidget (pageTimeDependentEmpty);
-	tabWidget->setCurrentWidget (timeStep);
     }
 }
 

@@ -176,7 +176,7 @@ void SetCheckedNoSignals (QCheckBox* checkBox, bool checked);
 template<typename T>
 void SetValueNoSignals (T* slider, size_t value);
 template<typename T>
-void SetValueAndMaxNoSignals (T* slider, size_t value);
+void SetValueAndMaxNoSignals (T* slider, size_t value, size_t max);
 
 
 

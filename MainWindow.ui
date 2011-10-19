@@ -310,9 +310,9 @@
          <property name="currentIndex">
           <number>0</number>
          </property>
-         <widget class="QWidget" name="general">
+         <widget class="QWidget" name="settings">
           <attribute name="title">
-           <string>General</string>
+           <string>Settings</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_14">
            <property name="margin">
@@ -344,6 +344,9 @@
                    <string>View</string>
                   </attribute>
                   <layout class="QFormLayout" name="formLayout_4">
+                   <property name="fieldGrowthPolicy">
+                    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+                   </property>
                    <item row="0" column="0">
                     <widget class="QLabel" name="labelViewCount">
                      <property name="text">
@@ -403,7 +406,24 @@
                      </property>
                     </widget>
                    </item>
+                   <item row="3" column="0">
+                    <widget class="QLabel" name="label_32">
+                     <property name="text">
+                      <string>Time Linkage</string>
+                     </property>
+                    </widget>
+                   </item>
                    <item row="3" column="1">
+                    <widget class="QRadioButton" name="radioButtonTimeIndependent">
+                     <property name="text">
+                      <string>Independent</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string>buttonGroupTimeLinkage</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                   <item row="4" column="1">
                     <widget class="QRadioButton" name="radioButtonTimeLinked">
                      <property name="text">
                       <string>Linked</string>
@@ -419,34 +439,93 @@
                      </attribute>
                     </widget>
                    </item>
-                   <item row="4" column="1">
-                    <widget class="QRadioButton" name="radioButtonTimeIndependent">
-                     <property name="text">
-                      <string>Independent</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string>buttonGroupTimeLinkage</string>
-                     </attribute>
-                    </widget>
-                   </item>
                    <item row="5" column="1">
-                    <widget class="QRadioButton" name="radioButtonTimeSynchronized">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="text">
-                      <string>Synchronized</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string>buttonGroupTimeLinkage</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                   <item row="3" column="0">
-                    <widget class="QLabel" name="label_32">
-                     <property name="text">
-                      <string>Time Linkage</string>
-                     </property>
+                    <widget class="QWidget" name="widget_3" native="true">
+                     <layout class="QGridLayout" name="gridLayout_2">
+                      <property name="margin">
+                       <number>0</number>
+                      </property>
+                      <item row="0" column="0">
+                       <widget class="QLabel" name="label_33">
+                        <property name="text">
+                         <string>Begin</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="1">
+                       <widget class="QLabel" name="label_34">
+                        <property name="text">
+                         <string>End</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="3">
+                       <widget class="QLabel" name="label_35">
+                        <property name="text">
+                         <string>Multiplier</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QLabel" name="labelLinkedTimeBegin">
+                        <property name="text">
+                         <string>0</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="1">
+                       <widget class="QLabel" name="labelLinkedTimeEnd">
+                        <property name="text">
+                         <string>0</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="3">
+                       <widget class="QLabel" name="labelLinkedTimeStepMultiplier">
+                        <property name="text">
+                         <string>1</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="2">
+                       <widget class="QLabel" name="label_36">
+                        <property name="text">
+                         <string>Steps</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="2">
+                       <widget class="QLabel" name="labelLinkedTimeSteps">
+                        <property name="text">
+                         <string>0</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
                     </widget>
                    </item>
                   </layout>
@@ -1644,7 +1723,7 @@
            <item>
             <widget class="QStackedWidget" name="stackedWidgetTimeDependent">
              <property name="currentIndex">
-              <number>3</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="pageTimeDependentEmpty"/>
              <widget class="QWidget" name="pageCenterPath">

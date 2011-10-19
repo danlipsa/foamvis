@@ -76,8 +76,8 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_simulationIndex (0),
     m_currentTime (0),
     m_t1sShiftLower (false),
-    m_syncViewTimeBegin (INVALID_INDEX),
-    m_syncViewTimeEnd (INVALID_INDEX)
+    m_syncViewTimeBegin (0),
+    m_syncViewTimeEnd (0)
 {
     initTexture ();
     initList ();
@@ -534,9 +534,13 @@ size_t ViewSettings::GetCurrentTime () const
 
 void ViewSettings::SetCurrentTime (size_t time, ViewNumber::Enum viewNumber)
 {
+    QTime t;t.start ();
     int direction = time - GetCurrentTime ();
     m_currentTime = time;
     AverageStep (viewNumber, direction);
+    if (viewNumber == 1)
+	cdbg << "SetCurrentTime(" <<  viewNumber << ", " << time << "): "
+	     << t.elapsed () << " ms" << endl;    
 }
 
 void ViewSettings::SetAverageAroundPositions (const Simulation& simulation)

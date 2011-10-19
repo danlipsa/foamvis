@@ -423,9 +423,8 @@ struct TimeLinkage
 {
     enum Enum
     {
-	LINKED,
 	INDEPENDENT,
-	SYNCHRONIZED
+	LINKED,
     };
 };
 

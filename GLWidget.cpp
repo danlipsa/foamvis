@@ -208,6 +208,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_viewLayout (ViewLayout::HORIZONTAL),
       m_viewNumber (ViewNumber::VIEW0),
       m_timeLinkage (TimeLinkage::LINKED),
+      m_linkedTime (0),
       m_showType (SHOW_NOTHING)
 {
     makeCurrent ();
@@ -249,17 +250,17 @@ void GLWidget::initQuadrics ()
 
 void GLWidget::createActions ()
 {
-    m_actionSyncViewTimeBegin = boost::make_shared<QAction> (
+    m_actionLinkedTimeBegin = boost::make_shared<QAction> (
 	tr("&Begin interval"), this);
-    m_actionSyncViewTimeBegin->setStatusTip(tr("Sync view time begin interval"));
-    connect(m_actionSyncViewTimeBegin.get (), SIGNAL(triggered()),
-	    this, SLOT(SyncViewTimeBegin ()));
+    m_actionLinkedTimeBegin->setStatusTip(tr("Linked time begin interval"));
+    connect(m_actionLinkedTimeBegin.get (), SIGNAL(triggered()),
+	    this, SLOT(LinkedTimeBegin ()));
 
-    m_actionSyncViewTimeEnd = boost::make_shared<QAction> (
+    m_actionLinkedTimeEnd = boost::make_shared<QAction> (
 	tr("&End interval"), this);
-    m_actionSyncViewTimeEnd->setStatusTip(tr("Sync view time end interval"));
-    connect(m_actionSyncViewTimeEnd.get (), SIGNAL(triggered()),
-	    this, SLOT(SyncViewTimeEnd ()));
+    m_actionLinkedTimeEnd->setStatusTip(tr("Linked time end interval"));
+    connect(m_actionLinkedTimeEnd.get (), SIGNAL(triggered()),
+	    this, SLOT(LinkedTimeEnd ()));
 
     m_actionSelectAll = boost::make_shared<QAction> (tr("&All"), this);
     m_actionSelectAll->setStatusTip(tr("Select all"));
@@ -1013,18 +1014,46 @@ void GLWidget::SelectBodiesByIdList ()
     }
 }
 
-void GLWidget::SyncViewTimeBegin ()
+bool GLWidget::linkedTimesValid (size_t timeBegin, size_t timeEnd)
 {
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    vs.SetSyncViewTimeBegin (GetCurrentTime (viewNumber));
+    if (timeBegin <= timeEnd)
+	return true;
+    else
+    {
+	ostringstream ostr;
+	ostr << "Error: timeBegin: " << timeBegin 
+	     << " smaller than timeEnd: " << timeEnd;
+	QMessageBox msgBox (this);
+	msgBox.setText(ostr.str ().c_str ());
+	msgBox.exec();
+	return false;
+    }
 }
 
-void GLWidget::SyncViewTimeEnd ()
+void GLWidget::LinkedTimeBegin ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    vs.SetSyncViewTimeEnd (GetCurrentTime (viewNumber));
+    size_t linkedTimeBegin = GetCurrentTime (viewNumber);
+    size_t linkedTimeEnd = vs.GetLinkedTimeEnd ();
+    if (linkedTimesValid (linkedTimeBegin, linkedTimeEnd))
+    {
+	vs.SetLinkedTimeBegin (linkedTimeBegin);
+	Q_EMIT ViewChanged ();
+    }	
+}
+
+void GLWidget::LinkedTimeEnd ()
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    size_t linkedTimeBegin = vs.GetLinkedTimeBegin ();
+    size_t linkedTimeEnd = GetCurrentTime (viewNumber);
+    if (linkedTimesValid (linkedTimeBegin, linkedTimeEnd))
+    {
+	vs.SetLinkedTimeEnd (linkedTimeEnd);
+	Q_EMIT ViewChanged ();
+    }
 }
 
 void GLWidget::SelectAll ()
@@ -1244,6 +1273,7 @@ void GLWidget::displayViews ()
 
 void GLWidget::displayView (ViewNumber::Enum viewNumber)
 {
+    //QTime t;t.start ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetLightingParameters (
 	getInitialLightPosition (viewNumber, vs.GetSelectedLight ()));
@@ -1272,9 +1302,11 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
 	displayBodyDeformationTensor2D (currentView);
     }
     displayBodiesNeighbors ();
-    displayStatus ();
+    displayStatus ();    
     //displayContextMenuPos (viewNumber);
     WarnOnOpenGLError ("displayView");
+    //cdbg << "displayView(" <<  viewNumber << "): " 
+    //<< t.elapsed () << " ms" << endl;
 }
 
 
@@ -2650,7 +2682,8 @@ void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
 	displayStandaloneEdges< DisplayEdgePropertyColor<> > (
 	    GetSimulation (viewNumber).GetFoam (0),
 	    IsTimeDisplacementUsed (),
-	    (GetSimulation (viewNumber).GetTimeSteps () - 1) * GetTimeDisplacement ());
+	    (GetSimulation (viewNumber).GetTimeSteps () - 1) * 
+	    GetTimeDisplacement ());
     }
     glPopAttrib ();
 }
@@ -2803,22 +2836,86 @@ size_t GLWidget::GetCurrentTime (ViewNumber::Enum viewNumber) const
     return GetViewSettings (viewNumber).GetCurrentTime ();
 }
 
-void GLWidget::SetCurrentTime (size_t time)
+void GLWidget::SetCurrentTime (size_t currentTime)
 {
-    if (m_timeLinkage == TimeLinkage::INDEPENDENT)
-	GetViewSettings ().SetCurrentTime (time, GetViewNumber ());
-    else
+    ViewNumber::Enum currentViewNumber = GetViewNumber ();
+    ViewSettings& currentVs = GetViewSettings (currentViewNumber);
+    size_t currentInterval = currentVs.GetLinkedTimeInterval ();
+    switch (m_timeLinkage) 
     {
+    case TimeLinkage::INDEPENDENT:
+	currentVs.SetCurrentTime (currentTime, currentViewNumber);
+	break;
+    case TimeLinkage::LINKED:
+	m_linkedTime = currentTime;
 	for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
 	{
 	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	    ViewSettings& vs = GetViewSettings (viewNumber);
+	    size_t interval = vs.GetLinkedTimeInterval ();
 	    size_t timeSteps = GetTimeSteps (viewNumber);
+	    size_t time = 
+		round (static_cast<float>(currentTime) * 
+		       interval / currentInterval);
 	    if (time < timeSteps)
 		vs.SetCurrentTime (time, viewNumber);
 	}
+	break;
     }
 }
+
+
+pair<size_t, ViewNumber::Enum> GLWidget::LinkedTimeMaxInterval () const
+{
+    pair<size_t, ViewNumber::Enum> max (0, ViewNumber::COUNT);
+    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	size_t interval = vs.GetLinkedTimeInterval ();
+	if (max.first < interval)
+	{
+	    max.first = interval;
+	    max.second = viewNumber;
+	}
+    }
+    return max;
+}
+
+pair<size_t, ViewNumber::Enum> GLWidget::LinkedTimeMaxSteps () const
+{
+    pair<size_t, ViewNumber::Enum> maxInterval = LinkedTimeMaxInterval ();    
+    pair<size_t, ViewNumber::Enum> max (0, ViewNumber::COUNT);
+    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	size_t maxStep = 
+	    (GetTimeSteps (viewNumber) - 1) /
+	    LinkedTimeStepMultiplier (maxInterval.first, viewNumber);
+	if (max.first < maxStep)
+	{
+	    max.first = maxStep;
+	    max.second = viewNumber;
+	}
+    }
+    max.first += 1;
+    return max;
+}
+
+
+float GLWidget::LinkedTimeStepMultiplier (ViewNumber::Enum viewNumber) const
+{
+    return LinkedTimeStepMultiplier (LinkedTimeMaxInterval ().first, viewNumber);
+}
+
+float GLWidget::LinkedTimeStepMultiplier (size_t max,
+					  ViewNumber::Enum viewNumber) const
+{
+    return static_cast<float> (
+	GetViewSettings (viewNumber).GetLinkedTimeInterval ()) / max;
+}
+
+
 
 size_t GLWidget::GetTimeSteps (ViewNumber::Enum viewNumber) const
 {
@@ -2909,6 +3006,11 @@ void GLWidget::contextMenuEventView (QMenu* menu) const
 	menuInfo->addAction (m_actionInfoOpenGL.get ());
     }
     {
+	QMenu* menuLinkedTime = menu->addMenu ("Linked time");
+	menuLinkedTime->addAction (m_actionLinkedTimeBegin.get ());
+	menuLinkedTime->addAction (m_actionLinkedTimeEnd.get ());
+    }
+    {
 	QMenu* menuReset = menu->addMenu ("Reset transform");
 	menuReset->addAction (m_actionResetTransformAll.get ());
 	menuReset->addAction (m_actionResetTransformFocus.get ());
@@ -2927,11 +3029,6 @@ void GLWidget::contextMenuEventView (QMenu* menu) const
 	menuShow->addAction (m_actionShowNeighbors.get ());
 	menuShow->addAction (m_actionShowTextureTensor.get ());
 	menuShow->addAction (m_actionShowReset.get ());
-    }
-    {
-	QMenu* menuSyncViewTime = menu->addMenu ("Sync view time");
-	menuSyncViewTime->addAction (m_actionSyncViewTimeBegin.get ());
-	menuSyncViewTime->addAction (m_actionSyncViewTimeEnd.get ());
     }
 }
 
