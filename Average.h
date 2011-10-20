@@ -21,9 +21,9 @@ public:
     m_glWidget (glWidget)
     {
     }
-    void AverageSetTimeWindow (size_t historyCount)
+    void AverageSetTimeWindow (size_t timeWindow)
     {
-	m_timeWindow = historyCount;
+	m_timeWindow = timeWindow;
     }
     void AverageStep (ViewNumber::Enum viewNumber, int timeDifference);
     size_t GetTimeWindow () const

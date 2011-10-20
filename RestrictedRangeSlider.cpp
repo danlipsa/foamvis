@@ -228,3 +228,11 @@ void RestrictedRangeSlider::SetValueAndMaxNoSignals (
     setValue (value);
     blockSignals (false);
 }
+
+
+void RestrictedRangeSlider::SetValueNoSignals (size_t value)
+{
+    blockSignals (true);
+    setValue (value);
+    blockSignals (false);
+}

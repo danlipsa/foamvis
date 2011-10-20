@@ -534,13 +534,11 @@ size_t ViewSettings::GetCurrentTime () const
 
 void ViewSettings::SetCurrentTime (size_t time, ViewNumber::Enum viewNumber)
 {
-    QTime t;t.start ();
     int direction = time - GetCurrentTime ();
+    if (direction == 0)
+	return;
     m_currentTime = time;
     AverageStep (viewNumber, direction);
-    if (viewNumber == 1)
-	cdbg << "SetCurrentTime(" <<  viewNumber << ", " << time << "): "
-	     << t.elapsed () << " ms" << endl;    
 }
 
 void ViewSettings::SetAverageAroundPositions (const Simulation& simulation)

@@ -57,6 +57,7 @@ public:
 	updateLabelValue (value);
     }
     void SetValueAndMaxNoSignals (size_t value, size_t maximum);
+    void SetValueNoSignals (size_t value);
     int minimum () const
     {
 	return slider->minimum ();

@@ -279,15 +279,25 @@ void MainWindow::ViewToUI ()
     SetValueNoSignals (horizontalSliderAngleOfView, vs.GetAngleOfView ());
     SetValueAndMaxNoSignals (spinBoxStatisticsTimeWindow,
 			     vs.GetScalarAverage ().GetTimeWindow (), 
-			     widgetGl->GetTimeSteps (viewNumber));
+			     widgetGl->GetTimeSteps (viewNumber));    
     if (widgetGl->GetTimeLinkage () == TimeLinkage::INDEPENDENT)
+    {
 	sliderTimeSteps->SetValueAndMaxNoSignals (
 	    vs.GetCurrentTime (), widgetGl->GetTimeSteps (viewNumber) - 1);
+	labelStatisticsLinkedTimeWindowTitle->setHidden (true);
+	labelStatisticsLinkedTimeWindow->setHidden (true);
+    }
     else
     {
+	ostringstream ostr;
 	size_t steps = widgetGl->LinkedTimeMaxSteps ().first;
 	sliderTimeSteps->SetValueAndMaxNoSignals (widgetGl->GetLinkedTime (), 
 						  steps - 1);
+	labelStatisticsLinkedTimeWindowTitle->setHidden (false);
+	labelStatisticsLinkedTimeWindow->setHidden (false);
+	ostr << vs.GetScalarAverage ().GetTimeWindow () * 
+	    widgetGl->LinkedTimeStepStretch (viewNumber);
+	labelStatisticsLinkedTimeWindow->setText (ostr.str ().c_str ());
     }
 
     labelFacesStatisticsColor->setText (BodyOrFacePropertyToString (property));
@@ -303,8 +313,8 @@ void MainWindow::ViewToUI ()
     ostr << widgetGl->GetTimeSteps (viewNumber);
     labelLinkedTimeSteps->setText (ostr.str ().c_str ());
     ostr.str ("");
-    ostr << setprecision (3) << widgetGl->LinkedTimeStepMultiplier (viewNumber);
-    labelLinkedTimeStepMultiplier->setText (ostr.str ().c_str ());
+    ostr << setprecision (3) << widgetGl->LinkedTimeStepStretch (viewNumber);
+    labelLinkedTimeStepStretch->setText (ostr.str ().c_str ());
 
     updateLightControls (vs, selectedLight);
     updateButtons ();
@@ -908,7 +918,7 @@ void MainWindow::ClickedBegin ()
 
 void MainWindow::ClickedEnd ()
 {
-    sliderTimeSteps->setValue (sliderTimeSteps->maximum ());
+    sliderTimeSteps->SetValueNoSignals (sliderTimeSteps->maximum ());
     updateButtons ();
 }
 

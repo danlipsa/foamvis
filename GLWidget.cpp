@@ -1030,8 +1030,26 @@ bool GLWidget::linkedTimesValid (size_t timeBegin, size_t timeEnd)
     }
 }
 
+
+bool GLWidget::linkedTimesValid ()
+{
+    if (GetTimeLinkage () == TimeLinkage::LINKED)
+    {
+	QMessageBox msgBox (this);
+	msgBox.setText("You need to be in Settings > Show > "
+		       "View > Time linkage > Independent mode");
+	msgBox.exec();
+	return false;
+    }
+    else
+	return true;
+}
+
+
 void GLWidget::LinkedTimeBegin ()
 {
+    if (! linkedTimesValid ())
+	return;
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     size_t linkedTimeBegin = GetCurrentTime (viewNumber);
@@ -1045,6 +1063,8 @@ void GLWidget::LinkedTimeBegin ()
 
 void GLWidget::LinkedTimeEnd ()
 {
+    if (! linkedTimesValid ())
+	return;
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     size_t linkedTimeBegin = vs.GetLinkedTimeBegin ();
@@ -2836,29 +2856,30 @@ size_t GLWidget::GetCurrentTime (ViewNumber::Enum viewNumber) const
     return GetViewSettings (viewNumber).GetCurrentTime ();
 }
 
-void GLWidget::SetCurrentTime (size_t currentTime)
+void GLWidget::SetCurrentTime (size_t currentTime, bool setLastStep)
 {
-    ViewNumber::Enum currentViewNumber = GetViewNumber ();
-    ViewSettings& currentVs = GetViewSettings (currentViewNumber);
-    size_t currentInterval = currentVs.GetLinkedTimeInterval ();
     switch (m_timeLinkage) 
     {
     case TimeLinkage::INDEPENDENT:
-	currentVs.SetCurrentTime (currentTime, currentViewNumber);
+    {
+	ViewNumber::Enum viewNumber = GetViewNumber ();
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	vs.SetCurrentTime (currentTime, viewNumber);
 	break;
+    }
     case TimeLinkage::LINKED:
 	m_linkedTime = currentTime;
 	for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
 	{
 	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	    ViewSettings& vs = GetViewSettings (viewNumber);
-	    size_t interval = vs.GetLinkedTimeInterval ();
+	    float multiplier = LinkedTimeStepStretch (viewNumber);
 	    size_t timeSteps = GetTimeSteps (viewNumber);
-	    size_t time = 
-		round (static_cast<float>(currentTime) * 
-		       interval / currentInterval);
+	    size_t time = floor (m_linkedTime / multiplier);
 	    if (time < timeSteps)
 		vs.SetCurrentTime (time, viewNumber);
+	    else if (setLastStep)
+		vs.SetCurrentTime (timeSteps - 1, viewNumber);
 	}
 	break;
     }
@@ -2890,8 +2911,8 @@ pair<size_t, ViewNumber::Enum> GLWidget::LinkedTimeMaxSteps () const
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	size_t maxStep = 
-	    (GetTimeSteps (viewNumber) - 1) /
-	    LinkedTimeStepMultiplier (maxInterval.first, viewNumber);
+	    (GetTimeSteps (viewNumber) - 1) *
+	    LinkedTimeStepStretch (maxInterval.first, viewNumber);
 	if (max.first < maxStep)
 	{
 	    max.first = maxStep;
@@ -2903,16 +2924,16 @@ pair<size_t, ViewNumber::Enum> GLWidget::LinkedTimeMaxSteps () const
 }
 
 
-float GLWidget::LinkedTimeStepMultiplier (ViewNumber::Enum viewNumber) const
+float GLWidget::LinkedTimeStepStretch (ViewNumber::Enum viewNumber) const
 {
-    return LinkedTimeStepMultiplier (LinkedTimeMaxInterval ().first, viewNumber);
+    return LinkedTimeStepStretch (LinkedTimeMaxInterval ().first, viewNumber);
 }
 
-float GLWidget::LinkedTimeStepMultiplier (size_t max,
+float GLWidget::LinkedTimeStepStretch (size_t max,
 					  ViewNumber::Enum viewNumber) const
 {
-    return static_cast<float> (
-	GetViewSettings (viewNumber).GetLinkedTimeInterval ()) / max;
+    return static_cast<float> (max) / 
+	GetViewSettings (viewNumber).GetLinkedTimeInterval ();
 }
 
 
@@ -3540,6 +3561,7 @@ void GLWidget::ButtonClickedTimeLinkage (int id)
     m_timeLinkage = TimeLinkage::Enum (id);
     SetCurrentTime (GetCurrentTime ());
     update ();
+    Q_EMIT ViewChanged ();
 }
 
 void GLWidget::ToggledBodyCenterShown (bool checked)
@@ -3726,6 +3748,14 @@ void GLWidget::SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel)
 void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 {
     SetCurrentTime (timeStep);
+    update ();
+}
+
+void GLWidget::ClickedEnd ()
+{
+    size_t steps = ((GetTimeLinkage () == TimeLinkage::INDEPENDENT) ?
+		    GetTimeSteps () : LinkedTimeMaxSteps ().first);
+    SetCurrentTime (steps - 1, true);
     update ();
 }
 

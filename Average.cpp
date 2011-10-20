@@ -17,8 +17,6 @@ void Average::AverageInit (ViewNumber::Enum viewNumber)
     m_currentTimeWindow = 0;
 }
 
-
-
 void Average::loopOperation (Operation op, 
 			     ViewNumber::Enum viewNumber, size_t currentTime)
 {

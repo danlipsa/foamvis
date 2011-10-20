@@ -104,7 +104,7 @@ public:
 	return GetCurrentTime (GetViewNumber ());
     }
     size_t GetCurrentTime (ViewNumber::Enum viewNumber) const;
-    void SetCurrentTime (size_t time);
+    void SetCurrentTime (size_t time, bool setLastStep = false);
     size_t GetTimeSteps () const
     {
 	return GetTimeSteps (GetViewNumber ());
@@ -253,8 +253,8 @@ public:
 	ViewNumber::Enum viewNumber,
 	boost::shared_ptr<ColorBarModel> colorBarModel,
 	size_t property);
-    float LinkedTimeStepMultiplier (ViewNumber::Enum viewNumber) const;
-    float LinkedTimeStepMultiplier (size_t max,
+    float LinkedTimeStepStretch (ViewNumber::Enum viewNumber) const;
+    float LinkedTimeStepStretch (size_t max,
 				    ViewNumber::Enum viewNumber) const;
     pair<size_t, ViewNumber::Enum> LinkedTimeMaxInterval () const;
     pair<size_t, ViewNumber::Enum> LinkedTimeMaxSteps () const;
@@ -277,6 +277,7 @@ public Q_SLOTS:
     void ButtonClickedTimeLinkage (int id);
     void ButtonClickedViewType (int id);
     void ButtonClickedInteractionObject (int id);
+    void ClickedEnd ();
 
     /*
      * Global options
@@ -456,6 +457,7 @@ private:
 
 private:
     bool linkedTimesValid (size_t timeBegin, size_t timeEnd);
+    bool linkedTimesValid ();
     void contextMenuEventColorBar (QMenu* menu) const;
     void contextMenuEventView (QMenu* menu) const;
     void activateViewShader (
