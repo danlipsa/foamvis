@@ -289,12 +289,12 @@ void MainWindow::ViewToUI ()
     }
     else
     {
-	ostringstream ostr;
 	size_t steps = widgetGl->LinkedTimeMaxSteps ().first;
 	sliderTimeSteps->SetValueAndMaxNoSignals (widgetGl->GetLinkedTime (), 
 						  steps - 1);
 	labelStatisticsLinkedTimeWindowTitle->setHidden (false);
 	labelStatisticsLinkedTimeWindow->setHidden (false);
+	ostringstream ostr;
 	ostr << vs.GetScalarAverage ().GetTimeWindow () * 
 	    widgetGl->LinkedTimeStepStretch (viewNumber);
 	labelStatisticsLinkedTimeWindow->setText (ostr.str ().c_str ());
@@ -978,6 +978,15 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 	m_currentTranslatedBody = foam.GetBodies ().begin ();
     updateButtons ();
 }
+
+void MainWindow::ValueChangedStatisticsTimeWindow (int timeSteps)
+{
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
+    ostringstream ostr;
+    ostr << timeSteps * widgetGl->LinkedTimeStepStretch (viewNumber);
+    labelStatisticsLinkedTimeWindow->setText (ostr.str ().c_str ());
+}
+
 
 void MainWindow::ButtonClickedViewType (int vt)
 {

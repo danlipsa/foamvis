@@ -117,9 +117,10 @@ public Q_SLOTS:
      * Invoqued by the UI when  the slider changes to display the data
      * at the current position of the slider.
      */
-    void ValueChangedSliderTimeSteps (int value);
     void ValueChangedFontSize (int value);
     void ValueChangedHistogramHeight (int value);
+    void ValueChangedSliderTimeSteps (int value);
+    void ValueChangedStatisticsTimeWindow (int timeSteps);
     void ValueChangedT1sKernelSigma (int index);
     void ViewToUI ();
     void SetHistogramColorBarModel (
