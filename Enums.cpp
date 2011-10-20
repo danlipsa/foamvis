@@ -184,7 +184,7 @@ size_t ViewCount::GetCount (ViewCount::Enum viewCount)
 
 ViewCount::Enum ViewCount::FromSizeT (size_t count)
 {
-    RuntimeAssert (count <= FOUR,
+    RuntimeAssert (count <= (MAX + 1),
 		   "Value outside of ViewCount::Enum: ", count);
     return ViewCount::Enum (count - 1);
 }
