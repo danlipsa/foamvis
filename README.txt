@@ -1,17 +1,17 @@
 Release log
 ===========
-0.6.
+0.7.2198
 	- several simulations can be loaded to facilitate comparison. To do 
-	  this, several --simulation switches can be used or the browse 
-	  simulations dialog.
+	  this, several --simulation switches or the browse 
+	  simulations dialog can be used.
 	- added two time linkage modes between multiple views: 
 	  Linked and Independent. Can be accessed with in the 
 	  'General > Show > View' panel.	
 	- added --rotation-2d to specify a rotated dataset (Transform > 
 	  Axes Order > '2D rotated right 90' and '2D rotated left 90'.
-        - added slice_coeff to the parser
-	- added edge_length and edge_tension implemented methods to the parser.
- 
+        - added slice_coeff keword to the parser
+	- added edge_length and edge_tension Evolver methods to the parser.
+	- added method_instance.value construct to the parser.
 0.6.2166 2011-09-28
 	 - added T1s probability density estimate
 0.6.2148 2011-09-16

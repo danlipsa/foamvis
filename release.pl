@@ -5,7 +5,7 @@ use File::Copy;
 use POSIX qw/strftime/;
 
 do "replace.pl";
-my $majorVersion = "0.6";
+my $majorVersion = "0.7";
 my $svnVersion = `svnversion`;
 $svnVersion = $svnVersion + 1;
 my $currentDate = strftime ('%F %T', localtime);
