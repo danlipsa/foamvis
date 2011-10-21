@@ -1,6 +1,6 @@
 Release log
 ===========
-0.7.2200 2011-10-21
+0.7.2202 2011-10-21
 	- several simulations can be loaded to facilitate comparison. To do 
 	  this, several --simulation switches or the browse 
 	  simulations dialog can be used.

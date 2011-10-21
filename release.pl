@@ -16,7 +16,7 @@ my $version = "version = \"" . $majorVersion . "." . $svnVersion . "\";";
 my $date = "date = \"" . $currentDate . "\";";
 my @substitution = (["version = \"[\\d.]+\";", $version],
 		    ["date = \"[^\"]+\";", $date]);
-replace ("main.cpp", \@substitution);
+replace ("Options.cpp", \@substitution);
 
 $version = "PROJECT_NUMBER = " . $majorVersion . "." . $svnVersion;
 @substitution = (["PROJECT_NUMBER\ += [\\d.]+", $version]);
