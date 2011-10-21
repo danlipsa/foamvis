@@ -29,15 +29,6 @@ public:
 	CONSTRAINT_EDGE
     };
 
-    /**
-     * Creates an Edge object
-     * @param begin the first point of the endge
-     * @param end the last point of the edge
-     * @param endLocation used in torus model to mark a translation relative to
-     *        the domain where the second vertex is defined in the data file.
-     * @param id what is the original index for this edge
-     * @param duplicateStatus is this an original edge or a duplicate
-     */
     Edge (const boost::shared_ptr<Vertex>& begin,
 	  const boost::shared_ptr<Vertex>& end, 
 	  const G3D::Vector3int16& endLocation, 

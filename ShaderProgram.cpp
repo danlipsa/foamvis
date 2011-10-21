@@ -1,5 +1,5 @@
 /**
- * @file   SharedProgram.cpp
+ * @file   ShaderProgram.cpp
  * @author Dan R. Lipsa
  * @date  25 Jul. 2011
  *

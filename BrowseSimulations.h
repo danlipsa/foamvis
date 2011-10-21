@@ -1,5 +1,5 @@
 /**
- * @file   BrowseSimulation.h
+ * @file   BrowseSimulations.h
  * @author Dan R. Lipsa
  * @date 18 August 2011
  *

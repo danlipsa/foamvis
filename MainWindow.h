@@ -44,7 +44,7 @@ public:
 public:
     /**
      * Constructor
-     * @param simulation data to be displayed read from Surface Evolver files
+     * @param simulationGroup data to be displayed
      */
     MainWindow(SimulationGroup& simulationGroup);
     /**
