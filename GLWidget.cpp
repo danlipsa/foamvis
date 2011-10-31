@@ -540,7 +540,7 @@ double GLWidget::GetCellLength (ViewNumber::Enum viewNumber) const
     return min (extent.x, extent.y);
 }
 
-double GLWidget::GetEllipseSizeInitialRatio (ViewNumber::Enum viewNumber) const
+double GLWidget::GetDeformationEllipseSizeInitialRatio (ViewNumber::Enum viewNumber) const
 {
     double cellLength = GetCellLength (viewNumber);
     const Body& body = GetSimulation (viewNumber).GetFoam (0).GetBody (0);
@@ -2160,7 +2160,7 @@ void GLWidget::displayDeformationTensor2D (ViewNumber::Enum viewNumber) const
 	bodies.begin (), bodies.end (),
 	boost::bind (
 	    ::displayBodyDeformationTensor2D, _1, 
-	    GetEllipseSizeInitialRatio (viewNumber) * GetEllipseSizeRatio ()));
+	    GetDeformationEllipseSizeInitialRatio (viewNumber) * GetDeformationEllipseSizeRatio ()));
     glPopAttrib ();    
 }
 
@@ -2177,8 +2177,8 @@ void GLWidget::displayBodyDeformationTensor2D (ViewNumber::Enum viewNumber) cons
 	glColor (Qt::black);
 	::displayBodyDeformationTensor2D (
 	    *foam.FindBody (m_showBodyId), 
-	    GetEllipseSizeInitialRatio (viewNumber) * 
-	    GetEllipseSizeRatio ());
+	    GetDeformationEllipseSizeInitialRatio (viewNumber) * 
+	    GetDeformationEllipseSizeRatio ());
 	glPopAttrib ();
     }
 }
@@ -3414,6 +3414,16 @@ void GLWidget::ToggledShowDeformationGrid (bool checked)
     update ();
 }
 
+void GLWidget::ToggledShowVelocity (bool checked)
+{
+}
+
+void GLWidget::ToggledShowVelocityGrid (bool checked)
+{
+}
+
+
+
 void GLWidget::ToggledShowDeformationGridCellCenter (bool checked)
 {
     TensorAverage& ta = GetViewSettings ().GetTensorAverage ();
@@ -3826,17 +3836,26 @@ void GLWidget::ToggledT1sKernelTextureSizeShown (bool checked)
     update ();
 }
 
-void GLWidget::ValueChangedEllipseSize (int index)
+void GLWidget::ValueChangedDeformationEllipseSize (int index)
 {
     m_ellipseSizeRatio = valueChangedLog2Scale (ELLIPSE_SIZE_EXP2, index);
     update ();
 }
 
-void GLWidget::ValueChangedEllipseLineWidthRatio (int index)
+void GLWidget::ValueChangedDeformationEllipseLineWidthRatio (int index)
 {
     m_ellipseLineWidthRatio = valueChangedLog2Scale (
 	ELLIPSE_LINE_WIDTH_EXP2, index);
     update ();
+}
+
+void GLWidget::ValueChangedVelocitySize (int index)
+{
+
+}
+
+void GLWidget::ValueChangedVelocityLineWidthRatio (int index)
+{
 }
 
 void GLWidget::ValueChangedContextAlpha (int index)

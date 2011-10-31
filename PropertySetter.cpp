@@ -7,6 +7,7 @@
  */
 #include "Body.h"
 #include "ColorBarModel.h"
+#include "Debug.h"
 #include "DebugStream.h"
 #include "Simulation.h"
 #include "GLWidget.h"
@@ -89,5 +90,20 @@ void SetterDeformationTensor::operator () (const boost::shared_ptr<Body>& body)
 
 void SetterDeformationTensor::operator () ()
 {
-    m_program->setAttributeValue (m_attributeLocation, 0, 0, 0, 0);
+    ThrowException (
+	"Illegal function call: SetterDeformationTensor::operator ()");
+}
+
+// SetterVelocity
+// ======================================================================
+
+void SetterVelocity::operator () (const boost::shared_ptr<Body>& body)
+{
+    G3D::Vector3 velocity = body->GetVelocity ();
+    m_program->setAttributeValue (m_attributeLocation, velocity.x, velocity.y);
+}
+
+void SetterVelocity::operator () ()
+{
+    ThrowException ("Illegal function call: SetterVelocity::operator ()");
 }

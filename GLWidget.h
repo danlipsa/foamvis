@@ -217,12 +217,13 @@ public:
 			     G3D::Rect2D& srcRect) const;
     float GetOnePixelInObjectSpace () const;
     double GetCellLength (ViewNumber::Enum viewNumber) const;
-    double GetEllipseSizeInitialRatio (ViewNumber::Enum viewNumber) const;
-    double GetEllipseLineWidthRatio () const
+    double GetDeformationEllipseSizeInitialRatio (
+	ViewNumber::Enum viewNumber) const;
+    double GetDeformationEllipseLineWidthRatio () const
     {
 	return m_ellipseLineWidthRatio;
     }
-    double GetEllipseSizeRatio () const
+    double GetDeformationEllipseSizeRatio () const
     {
 	return m_ellipseSizeRatio;
     }
@@ -319,6 +320,8 @@ public Q_SLOTS:
     void ToggledMissingVolumeShown (bool checked);
     void ToggledShowDeformationTensor (bool checked);
     void ToggledShowDeformationGrid (bool checked);
+    void ToggledShowVelocity (bool checked);
+    void ToggledShowVelocityGrid (bool checked);
     void ToggledShowDeformationGridCellCenter (bool checked);
 
 
@@ -359,8 +362,10 @@ public Q_SLOTS:
     void ValueChangedT1sKernelSigma (int index);
     void ValueChangedT1sKernelTextureSize (int index);
     void ToggledT1sKernelTextureSizeShown (bool checked);
-    void ValueChangedEllipseSize (int index);
-    void ValueChangedEllipseLineWidthRatio (int index);
+    void ValueChangedDeformationEllipseSize (int index);
+    void ValueChangedDeformationEllipseLineWidthRatio (int index);
+    void ValueChangedVelocitySize (int index);
+    void ValueChangedVelocityLineWidthRatio (int index);
     void ValueChangedForceLength (int index);
     void ValueChangedHighlightLineWidth (int newWidth);
     // Actions

@@ -186,9 +186,9 @@ void TensorAverage::calculateShaderParameters (
     }
     *cellLength = glWidget.GetCellLength (viewNumber) * gridScaleRatio;
     *lineWidth = glWidget.GetOnePixelInObjectSpace () * 
-	scaleRatio * glWidget.GetEllipseLineWidthRatio ();
-    *ellipseSizeRatio = glWidget.GetEllipseSizeInitialRatio (viewNumber) * 
-	glWidget.GetEllipseSizeRatio () * gridScaleRatio;
+	scaleRatio * glWidget.GetDeformationEllipseLineWidthRatio ();
+    *ellipseSizeRatio = glWidget.GetDeformationEllipseSizeInitialRatio (viewNumber) * 
+	glWidget.GetDeformationEllipseSizeRatio () * gridScaleRatio;
     *enclosingRect = 
 	glWidget.CalculateViewEnclosingRect (viewNumber) - rotationCenter;
 }
