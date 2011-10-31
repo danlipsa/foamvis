@@ -90,9 +90,14 @@ void SetterDeformationTensor::operator () (const boost::shared_ptr<Body>& body)
 
 void SetterDeformationTensor::operator () ()
 {
-    ThrowException (
-	"Illegal function call: SetterDeformationTensor::operator ()");
+    m_program->setAttributeValue (m_attributeLocation, 0, 0, 0, 0);
 }
+
+int SetterDeformationTensor::GetBodyOrFaceProperty () const
+{
+    return BodyProperty::DEFORMATION_EIGEN;
+}
+
 
 // SetterVelocity
 // ======================================================================
@@ -106,4 +111,9 @@ void SetterVelocity::operator () (const boost::shared_ptr<Body>& body)
 void SetterVelocity::operator () ()
 {
     ThrowException ("Illegal function call: SetterVelocity::operator ()");
+}
+
+int SetterVelocity::GetBodyOrFaceProperty () const
+{
+    return BodyProperty::VELOCITY_MAGNITUDE;
 }

@@ -62,7 +62,7 @@ public:
 	SetterVertexAttribute (glWidget, view, program, attributeIndex)
     {
     }
-
+    int GetBodyOrFaceProperty () const;
     void operator () ();
     void operator () (const boost::shared_ptr<Body>& body);
 };
@@ -77,6 +77,7 @@ public:
     {
     }
 
+    int GetBodyOrFaceProperty () const;
     void operator () ();
     void operator () (const boost::shared_ptr<Body>& body);
 };
