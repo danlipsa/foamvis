@@ -40,7 +40,7 @@ Release log
 	   dump_0.1480_0.2400_9.0000_0171.dmp)
 	 - reading command parameters from ini file + browsing simulations
 
-0.5.2062 
+0.5.2062 2011-07-11
 	 - added axes labels (Show > Ohter > Axes)
 	 - added right-click > Info > Face and Info > Edge
 	 - added --constraint option, to specify an object described
@@ -52,17 +52,17 @@ Release log
 	 - added Show > Other > Body neighbors checkbox
 	 - allow CR,LF as line termination (for two_discs_c1_n2200_dumps)
 
-0.5.2023 
+0.5.2023 2011-07-04
 	 - fixed wetfoam_100_0002.dmp
 	 - added Actual Volume to the list of body properties, 
 	   Added 'General > Look > Volume shown' user option.
 	 - Set selections 'per view'. Added 'Copy Selection' right-click menu
 	 - Added 'Play Reverse' button
 
-0.5.1974 
+0.5.1974 2011-06-10
 	 - read forces acting on sedimenting discs using --force command line
 
-0.5.1960 
+0.5.1960 2011-06-01
 	 - use long command line options (boost program options)
 	 - use --use-original for datasets that have to use ORIGINAL 
 	   attribute (ellipse)
@@ -77,7 +77,7 @@ Release log
 	 - fix sausage_problem
 	 - added right-click > Context > Stationary > Foam
 
-0.5.1928 
+0.5.1928 2011-05-16
 	 - bug for tmp_in.dmp (array on several lines)
 	 - changed body ID to the one specified in ORIGINAL attribute 
 	   (fixes ell0.700000_750v_5.000000_1.dmp) only for 2D. Otherwise
