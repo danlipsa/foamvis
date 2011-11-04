@@ -397,6 +397,7 @@ template class DisplayBodyBase<SetterVertexAttribute>;
 template class DisplayBodyBase<SetterTextureCoordinate>;
 template class DisplayBodyBase<SetterDeformationTensor>;
 template class DisplayBodyBase<SetterNop>;
+template class DisplayBodyBase<SetterVelocity>;
 
 
 // DisplayBody
@@ -425,6 +426,7 @@ template class DisplayBody<
     DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceTriangleFan, SetterTextureCoordinate>, SetterTextureCoordinate>;
 template class DisplayBody<
     DisplayFaceBodyPropertyColor<SetterTextureCoordinate>, SetterTextureCoordinate>;
+template class DisplayBody<DisplayFaceBodyPropertyColor<SetterVelocity>, SetterVelocity>;
 template class DisplayBody<
     DisplayFaceBodyPropertyColor<SetterVertexAttribute>,
     SetterVertexAttribute>;

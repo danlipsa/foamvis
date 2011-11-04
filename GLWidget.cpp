@@ -34,6 +34,7 @@
 #include "Utils.h"
 #include "Vertex.h"
 #include "ViewSettings.h"
+#include "VectorAverage.h"
 
 // Private Classes/Functions
 // ======================================================================
@@ -3416,10 +3417,16 @@ void GLWidget::ToggledShowDeformationGrid (bool checked)
 
 void GLWidget::ToggledShowVelocity (bool checked)
 {
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetVelocityShown (checked);
+    update ();
 }
 
 void GLWidget::ToggledShowVelocityGrid (bool checked)
 {
+    VectorAverage& va = GetViewSettings ().GetVectorAverage ();
+    va.SetGridShown (checked);
+    update ();
 }
 
 

@@ -18,6 +18,7 @@
 #include "T1sPDE.h"
 #include "TensorAverage.h"
 #include "ViewSettings.h"
+#include "VectorAverage.h"
 
 // Private Functions
 // ======================================================================
@@ -53,6 +54,7 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_scalarAverage (new ScalarAverage (glWidget)),
     m_t1sPDE (new T1sPDE (glWidget)),
     m_tensorAverage (new TensorAverage (glWidget, m_scalarAverage->GetFbos ())),
+    m_vectorAverage (new VectorAverage (glWidget, m_scalarAverage->GetFbos ())),
     m_forceAverage (new ForceAverage (glWidget)),
     m_rotationModel (G3D::Matrix3::identity ()),
     m_scaleRatio (1),
@@ -69,6 +71,7 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_forcePressureShown (true),
     m_forceResultShown (true),
     m_deformationTensorShown (false),
+    m_velocityShown (false),
     m_averageAroundMovementShown (AVERAGE_AROUND_MOVEMENT_NONE),
     m_bodySelector (AllBodySelector::Get ()),
     m_contextHidden (false),

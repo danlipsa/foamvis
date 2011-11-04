@@ -12,7 +12,7 @@
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
 #include "ShaderProgram.h"
-#include "TensorAverage.h"
+#include "VectorAverage.h"
 #include "Utils.h"
 #include "ViewSettings.h"
 
@@ -20,22 +20,21 @@
 // Private classes/functions
 // ======================================================================
 
-// TensorDisplay
+// VectorDisplay
 // ======================================================================
 /**
  * RGBA : sum, count, min, max
  */
-class TensorDisplay : public ShaderProgram
+class VectorDisplay : public ShaderProgram
 {
 public:
-    TensorDisplay (const char* vert, const char* frag);
+    VectorDisplay (const char* vert, const char* frag);
     void Bind (
 	G3D::Vector2 gridTranslation, float cellLength, float lineWidth, 
 	float elipseSizeRatio, G3D::Rect2D enclosingRect,
-	G3D::Vector2 rotationCenter, 
-	bool deformationGridShown, bool deformationGridCellCenterShown);
+	G3D::Vector2 rotationCenter, bool gridShown);
 
-    GLint GetTensorAverageTexUnit ()
+    GLint GetVectorAverageTexUnit ()
     {
 	return 1;
     }
@@ -54,11 +53,10 @@ private:
     int m_rotationCenterLocation;
     int m_tensorAverageTexUnitLocation;
     int m_scalarAverageTexUnitLocation;
-    int m_deformationGridShownLocation;
-    int m_deformationGridCellCenterShownLocation;
+    int m_gridShownLocation;
 };
 
-TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
+VectorDisplay::VectorDisplay (const char* vert, const char* frag) :
     ShaderProgram (vert, frag)
 {
     m_gridTranslationLocation = uniformLocation ("u_gridTranslationE");
@@ -70,16 +68,13 @@ TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
     m_rotationCenterLocation = uniformLocation ("u_rotationCenter");
     m_tensorAverageTexUnitLocation = uniformLocation("u_tensorAverageTexUnit");
     m_scalarAverageTexUnitLocation = uniformLocation("u_scalarAverageTexUnit");
-    m_deformationGridShownLocation = uniformLocation ("u_deformationGridShown");
-    m_deformationGridCellCenterShownLocation = 
-	uniformLocation ("u_deformationGridCellCenterShown");
+    m_gridShownLocation = uniformLocation ("u_gridShown");
 }
 
-void TensorDisplay::Bind (
+void VectorDisplay::Bind (
     G3D::Vector2 gridTranslation, float cellLength, float lineWidth,
     float ellipseSizeRatio, G3D::Rect2D enclosingRect, 
-    G3D::Vector2 rotationCenter,
-    bool deformationGridShown, bool deformationGridCellCenterShown)
+    G3D::Vector2 rotationCenter, bool gridShown)
 {
     ShaderProgram::Bind ();
     setUniformValue (
@@ -94,21 +89,19 @@ void TensorDisplay::Bind (
     setUniformValue (
 	m_rotationCenterLocation, rotationCenter[0], rotationCenter[1]);
     setUniformValue (
-	m_tensorAverageTexUnitLocation, GetTensorAverageTexUnit ());
+	m_tensorAverageTexUnitLocation, GetVectorAverageTexUnit ());
     setUniformValue (
 	m_scalarAverageTexUnitLocation, GetScalarAverageTexUnit ());
-    setUniformValue (m_deformationGridShownLocation, deformationGridShown);
-    setUniformValue (m_deformationGridCellCenterShownLocation, 
-		     deformationGridCellCenterShown);
+    setUniformValue (m_gridShownLocation, gridShown);
 }
 
 
-// TensorAverage Methods
+// VectorAverage Methods
 // ======================================================================
 
-boost::shared_ptr<TensorDisplay> TensorAverage::m_displayShaderProgram;
+boost::shared_ptr<VectorDisplay> VectorAverage::m_displayShaderProgram;
 
-void TensorAverage::InitShaders ()
+void VectorAverage::InitShaders ()
 {
     m_initShaderProgram.reset (
 	new ShaderProgram (0, RESOURCE("TensorInit.frag")));
@@ -120,12 +113,12 @@ void TensorAverage::InitShaders ()
     m_removeShaderProgram.reset (
 	new AddShaderProgram (RESOURCE("TensorRemove.frag")));
     m_displayShaderProgram.reset (
-	new TensorDisplay (RESOURCE("TensorDisplay.vert"),
+	new VectorDisplay (RESOURCE("TensorDisplay.vert"),
 			   RESOURCE("TensorDisplay.frag")));
 }
 
 
-void TensorAverage::rotateAndDisplay (
+void VectorAverage::rotateAndDisplay (
     ViewNumber::Enum viewNumber,
     GLfloat minValue, GLfloat maxValue,
     StatisticsType::Enum displayType, TensorScalarFbo srcFbo,
@@ -142,11 +135,11 @@ void TensorAverage::rotateAndDisplay (
     m_displayShaderProgram->Bind (
 	gridTranslation, cellLength, lineWidth, 
 	ellipseSizeRatio, enclosingRect, rotationCenter,
-	m_deformationGridShown, m_deformationGridCellCenterShown);
+	m_gridShown);
 
     // activate texture unit 1 - tensor average
     glActiveTexture (
-	TextureEnum (m_displayShaderProgram->GetTensorAverageTexUnit ()));
+	TextureEnum (m_displayShaderProgram->GetVectorAverageTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, srcFbo.first->texture ());
 
     // activate texture unit 2 - scalar average
@@ -159,10 +152,10 @@ void TensorAverage::rotateAndDisplay (
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
     m_displayShaderProgram->release ();
-    WarnOnOpenGLError ("TensorAverage::rotateAndDisplay");
+    WarnOnOpenGLError ("VectorAverage::rotateAndDisplay");
 }
 
-void TensorAverage::calculateShaderParameters (
+void VectorAverage::calculateShaderParameters (
     ViewNumber::Enum viewNumber, G3D::Vector2 rotationCenter, float angleDegrees,
     G3D::Vector2* gridTranslation, float* cellLength, float* lineWidth, 
     float* ellipseSizeRatio, G3D::Rect2D* enclosingRect) const

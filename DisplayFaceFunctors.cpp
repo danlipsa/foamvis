@@ -384,6 +384,7 @@ template class DisplayFaceBodyPropertyColor<SetterTextureCoordinate>;
 template class DisplayFaceBodyPropertyColor<SetterVertexAttribute>;
 template class DisplayFaceBodyPropertyColor<SetterDeformationTensor>;
 template class DisplayFaceBodyPropertyColor<SetterNop>;
+template class DisplayFaceBodyPropertyColor<SetterVelocity>;
 
 // DisplayFaceLineStripColor
 // ======================================================================

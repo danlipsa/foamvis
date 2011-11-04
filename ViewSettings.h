@@ -22,6 +22,7 @@ class ScalarAverage;
 class Simulation;
 class T1sPDE;
 class TensorAverage;
+class VectorAverage;
 
 
 class ViewSettings : public AverageInterface
@@ -77,6 +78,10 @@ public:
     TensorAverage& GetTensorAverage () const
     {
 	return *m_tensorAverage;
+    }
+    VectorAverage& GetVectorAverage () const
+    {
+	return *m_vectorAverage;
     }
 
     ForceAverage& GetForceAverage () const
@@ -345,6 +350,16 @@ public:
 	return m_deformationTensorShown;
     }
 
+    void SetVelocityShown (bool velocityShown)
+    {
+	m_velocityShown = velocityShown;
+    }
+
+    bool IsVelocityShown () const
+    {
+	return m_velocityShown;
+    }
+
     // ContextDisplay
     void AddContextDisplayBody (size_t bodyId)
     {
@@ -481,6 +496,7 @@ private:
     boost::shared_ptr<ScalarAverage> m_scalarAverage;
     boost::shared_ptr<T1sPDE> m_t1sPDE;
     boost::shared_ptr<TensorAverage> m_tensorAverage;
+    boost::shared_ptr<VectorAverage> m_vectorAverage;
     boost::shared_ptr<ForceAverage> m_forceAverage;
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
     G3D::Matrix3 m_rotationModel;
@@ -519,6 +535,7 @@ private:
     bool m_forcePressureShown;
     bool m_forceResultShown;
     bool m_deformationTensorShown;
+    bool m_velocityShown;
     // Context display
     set<size_t> m_contextBody;
     // Context stationary

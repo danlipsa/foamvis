@@ -21,7 +21,7 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	QuadraticEdge.h RestrictedRangeSlider.h Simulation.h\
 	stable.h StripIterator.h SystemDifferences.h ScalarDisplay.h \
 	T1sPDE.h TensorAverage.h TransferFunctionHistogram.h \
-	TimeStepsSlider.h Utils.h \
+	TimeStepsSlider.h Utils.h VectorAverage.h \
 	Vertex.h ViewSettings.h
 SOURCES += Application.cpp ApproximationEdge.cpp\
 	Attribute.cpp AttributeCreator.cpp AttributeInfo.cpp \
@@ -49,7 +49,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	QuadraticEdge.cpp RestrictedRangeSlider.cpp Simulation.cpp\
 	StripIterator.cpp ScalarDisplay.cpp T1sPDE.cpp TimeStepsSlider.cpp \
 	TransferFunctionHistogram.cpp TensorAverage.cpp \
-	Utils.cpp Vertex.cpp ViewSettings.cpp
+	Utils.cpp VectorAverage.cpp Vertex.cpp ViewSettings.cpp
 FORMS += BrowseSimulations.ui SelectBodiesById.ui EditColorMap.ui \
 	 HistogramHeight.ui RestrictedRangeSlider.ui MainWindow.ui Info.ui
 LEXSOURCES        += EvolverData.l
