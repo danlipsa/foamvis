@@ -352,7 +352,7 @@ void ImageBasedAverage<PropertySetter>::glActiveTexture (GLenum texture) const
 //======================================================================
 /// @cond
 template class ImageBasedAverage<SetterVertexAttribute>;
-template class ImageBasedAverage<SetterDeformationTensor>;
+template class ImageBasedAverage<SetterDeformation>;
 template class ImageBasedAverage<SetterVelocity>;
 template class ImageBasedAverage<SetterNop>;
 /// @endcond

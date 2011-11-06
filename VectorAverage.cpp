@@ -19,9 +19,6 @@
 
 // Private classes/functions
 // ======================================================================
-
-// VectorDisplay
-// ======================================================================
 /**
  * RGBA : sum, count, min, max
  */
@@ -32,7 +29,8 @@ public:
     void Bind (
 	G3D::Vector2 gridTranslation, float cellLength, float lineWidth, 
 	float elipseSizeRatio, G3D::Rect2D enclosingRect,
-	G3D::Vector2 rotationCenter, bool gridShown);
+	G3D::Vector2 rotationCenter, 
+	bool gridShown, bool gridCellCenterShown);
 
     GLint GetVectorAverageTexUnit ()
     {
@@ -54,6 +52,7 @@ private:
     int m_tensorAverageTexUnitLocation;
     int m_scalarAverageTexUnitLocation;
     int m_gridShownLocation;
+    int m_gridCellCenterShownLocation;
 };
 
 VectorDisplay::VectorDisplay (const char* vert, const char* frag) :
@@ -69,12 +68,15 @@ VectorDisplay::VectorDisplay (const char* vert, const char* frag) :
     m_tensorAverageTexUnitLocation = uniformLocation("u_tensorAverageTexUnit");
     m_scalarAverageTexUnitLocation = uniformLocation("u_scalarAverageTexUnit");
     m_gridShownLocation = uniformLocation ("u_gridShown");
+    m_gridCellCenterShownLocation = 
+	uniformLocation ("u_gridCellCenterShown");
 }
 
 void VectorDisplay::Bind (
     G3D::Vector2 gridTranslation, float cellLength, float lineWidth,
     float ellipseSizeRatio, G3D::Rect2D enclosingRect, 
-    G3D::Vector2 rotationCenter, bool gridShown)
+    G3D::Vector2 rotationCenter,
+    bool gridShown, bool gridCellCenterShown)
 {
     ShaderProgram::Bind ();
     setUniformValue (
@@ -93,7 +95,10 @@ void VectorDisplay::Bind (
     setUniformValue (
 	m_scalarAverageTexUnitLocation, GetScalarAverageTexUnit ());
     setUniformValue (m_gridShownLocation, gridShown);
+    setUniformValue (m_gridCellCenterShownLocation, 
+		     gridCellCenterShown);
 }
+
 
 
 // VectorAverage Methods
@@ -130,12 +135,13 @@ void VectorAverage::rotateAndDisplay (
     float ellipseSizeRatio;G3D::Rect2D enclosingRect;
 
     calculateShaderParameters (
-	viewNumber, rotationCenter, angleDegrees, &gridTranslation, &cellLength, 
+	viewNumber, rotationCenter, 
+	angleDegrees, &gridTranslation, &cellLength, 
 	&lineWidth, &ellipseSizeRatio, &enclosingRect);
     m_displayShaderProgram->Bind (
 	gridTranslation, cellLength, lineWidth, 
 	ellipseSizeRatio, enclosingRect, rotationCenter,
-	m_gridShown);
+	m_gridShown, false);
 
     // activate texture unit 1 - tensor average
     glActiveTexture (
@@ -156,7 +162,8 @@ void VectorAverage::rotateAndDisplay (
 }
 
 void VectorAverage::calculateShaderParameters (
-    ViewNumber::Enum viewNumber, G3D::Vector2 rotationCenter, float angleDegrees,
+    ViewNumber::Enum viewNumber, G3D::Vector2 rotationCenter, 
+    float angleDegrees,
     G3D::Vector2* gridTranslation, float* cellLength, float* lineWidth, 
     float* ellipseSizeRatio, G3D::Rect2D* enclosingRect) const
 {
@@ -179,10 +186,10 @@ void VectorAverage::calculateShaderParameters (
     }
     *cellLength = glWidget.GetCellLength (viewNumber) * gridScaleRatio;
     *lineWidth = glWidget.GetOnePixelInObjectSpace () * 
-	scaleRatio * glWidget.GetDeformationEllipseLineWidthRatio ();
-    *ellipseSizeRatio = glWidget.GetDeformationEllipseSizeInitialRatio (
+	scaleRatio * glWidget.GetVelocityLineWidthRatio ();
+    *ellipseSizeRatio = glWidget.GetDeformationSizeInitialRatio (
 	viewNumber) * 
-	glWidget.GetDeformationEllipseSizeRatio () * gridScaleRatio;
+	glWidget.GetVelocitySizeRatio () * gridScaleRatio;
     *enclosingRect = 
 	glWidget.CalculateViewEnclosingRect (viewNumber) - rotationCenter;
 }

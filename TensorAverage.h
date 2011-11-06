@@ -14,42 +14,44 @@
 class ScalarAverage;
 class TensorDisplay;
 
-class TensorAverage : public ImageBasedAverage<SetterDeformationTensor>
+template<typename Setter>
+class TensorAverageTemplate : public ImageBasedAverage<Setter>
 {
 public:
-    TensorAverage (const GLWidget& glWidget, 
-		   FramebufferObjects& scalarAverageFbos) :
-	ImageBasedAverage<SetterDeformationTensor> (
+    TensorAverageTemplate (const GLWidget& glWidget, 
+			   FramebufferObjects& scalarAverageFbos) :
+	ImageBasedAverage<Setter> (
 	    glWidget, "tensor", QColor (0, 0, 0, 0), scalarAverageFbos),
-	m_deformationGridShown (false),
-	m_deformationGridCellCenterShown (false)
+	m_gridShown (false),
+	m_gridCellCenterShown (false)
     {
     }
     static void InitShaders ();
     void SetDeformationGridShown (bool shown)
     {
-	m_deformationGridShown = shown;
+	m_gridShown = shown;
     }
     bool IsDeformationGridShown () const
     {
-	return m_deformationGridShown;
+	return m_gridShown;
     }
 
     void SetDeformationGridCellCenterShown (bool shown)
     {
-	m_deformationGridCellCenterShown = shown;
+	m_gridCellCenterShown = shown;
     }
 
     bool IsDeformationGridCellCenterShown ()
     {
-	return m_deformationGridCellCenterShown;
+	return m_gridCellCenterShown;
     }
 
 protected:
     virtual void rotateAndDisplay (
 	ViewNumber::Enum viewNumber,
 	GLfloat minValue, GLfloat maxValue,
-	StatisticsType::Enum displayType, TensorScalarFbo srcFbo,
+	StatisticsType::Enum displayType, 
+	typename ImageBasedAverage<Setter>::TensorScalarFbo srcFbo,
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
@@ -63,8 +65,18 @@ private:
 
 private:
     static boost::shared_ptr<TensorDisplay> m_displayShaderProgram;
-    bool m_deformationGridShown;
-    bool m_deformationGridCellCenterShown;
+    bool m_gridShown;
+    bool m_gridCellCenterShown;
+};
+
+class TensorAverage : public TensorAverageTemplate<SetterDeformation>
+{
+public:
+    TensorAverage (const GLWidget& glWidget, 
+		   FramebufferObjects& scalarAverageFbos) :
+	TensorAverageTemplate<SetterDeformation> (glWidget, scalarAverageFbos)
+    {
+    }
 };
 
 #endif //__TENSOR_AVERAGE_H__

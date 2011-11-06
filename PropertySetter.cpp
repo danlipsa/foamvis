@@ -61,9 +61,9 @@ void SetterVertexAttribute::operator () ()
 }
 
 
-// SetterDeformationTensor
+// SetterDeformation
 // ======================================================================
-void SetterDeformationTensor::operator () (const boost::shared_ptr<Body>& body)
+void SetterDeformation::operator () (const boost::shared_ptr<Body>& body)
 {
     const ViewSettings& vs = m_glWidget.GetViewSettings (m_viewNumber);
     // Practical Linear Algebra, A Geometry Toolbox, 
@@ -88,12 +88,12 @@ void SetterDeformationTensor::operator () (const boost::shared_ptr<Body>& body)
     //m_program->setAttributeValue (m_attributeLocation, 2., 1., 1., 2.);
 }
 
-void SetterDeformationTensor::operator () ()
+void SetterDeformation::operator () ()
 {
     m_program->setAttributeValue (m_attributeLocation, 0, 0, 0, 0);
 }
 
-int SetterDeformationTensor::GetBodyOrFaceProperty () const
+int SetterDeformation::GetBodyOrFaceProperty () const
 {
     return BodyProperty::DEFORMATION_EIGEN;
 }
@@ -105,7 +105,8 @@ int SetterDeformationTensor::GetBodyOrFaceProperty () const
 void SetterVelocity::operator () (const boost::shared_ptr<Body>& body)
 {
     G3D::Vector3 velocity = body->GetVelocity ();
-    m_program->setAttributeValue (m_attributeLocation, velocity.x, velocity.y);
+    m_program->setAttributeValue (
+	m_attributeLocation, velocity.x, velocity.y, 0, 0);
 }
 
 void SetterVelocity::operator () ()

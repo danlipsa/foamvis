@@ -53,8 +53,8 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_colorBarTexture (0),
     m_scalarAverage (new ScalarAverage (glWidget)),
     m_t1sPDE (new T1sPDE (glWidget)),
-    m_tensorAverage (new TensorAverage (glWidget, m_scalarAverage->GetFbos ())),
-    m_vectorAverage (new VectorAverage (glWidget, m_scalarAverage->GetFbos ())),
+    m_deformationAverage (new TensorAverage (glWidget, m_scalarAverage->GetFbos ())),
+    m_velocityAverage (new VectorAverage (glWidget, m_scalarAverage->GetFbos ())),
     m_forceAverage (new ForceAverage (glWidget)),
     m_rotationModel (G3D::Matrix3::identity ()),
     m_scaleRatio (1),
@@ -406,7 +406,8 @@ void ViewSettings::CopySelection (const ViewSettings& other)
 void ViewSettings::AverageInit (ViewNumber::Enum viewNumber)
 {
     GetScalarAverage ().AverageInit (viewNumber);
-    GetTensorAverage ().AverageInit (viewNumber);
+    GetDeformationAverage ().AverageInit (viewNumber);
+    GetVelocityAverage ().AverageInit (viewNumber);
     GetForceAverage ().AverageInit (viewNumber);
     GetT1sPDE ().AverageInit (viewNumber);
 }
@@ -414,7 +415,8 @@ void ViewSettings::AverageInit (ViewNumber::Enum viewNumber)
 void ViewSettings::AverageSetTimeWindow (size_t timeSteps)
 {
     GetScalarAverage ().AverageSetTimeWindow (timeSteps);
-    GetTensorAverage ().AverageSetTimeWindow (timeSteps);
+    GetDeformationAverage ().AverageSetTimeWindow (timeSteps);
+    GetVelocityAverage ().AverageSetTimeWindow (timeSteps);
     GetForceAverage ().AverageSetTimeWindow (timeSteps);
 }
 
@@ -424,7 +426,8 @@ void ViewSettings::AverageStep (ViewNumber::Enum viewNumber, int direction)
     {
     case ViewType::FACES_STATISTICS:
 	GetScalarAverage ().AverageStep (viewNumber, direction);
-	GetTensorAverage ().AverageStep (viewNumber, direction);
+	GetDeformationAverage ().AverageStep (viewNumber, direction);
+	GetVelocityAverage ().AverageStep (viewNumber, direction);
 	GetForceAverage ().AverageStep (viewNumber, direction);
 	break;
 	
@@ -445,9 +448,12 @@ void ViewSettings::AverageRotateAndDisplay (
     case ViewType::FACES_STATISTICS:
 	GetScalarAverage ().AverageRotateAndDisplay (
 	    viewNumber, displayType, rotationCenter, angleDegrees);
-	if (IsDeformationTensorShown ())
-	    GetTensorAverage ().AverageRotateAndDisplay (
+	if (IsDeformationShown ())
+	    GetDeformationAverage ().AverageRotateAndDisplay (
 		viewNumber, displayType, rotationCenter, angleDegrees);
+	if (IsVelocityShown ())
+	    GetVelocityAverage ().AverageRotateAndDisplay (
+		viewNumber, displayType, rotationCenter, angleDegrees);	    
 	break;
 	
     case ViewType::T1S_PDE:
@@ -462,7 +468,8 @@ void ViewSettings::AverageRotateAndDisplay (
 void ViewSettings::AverageRelease ()
 {
     GetScalarAverage ().AverageRelease ();
-    GetTensorAverage ().AverageRelease ();
+    GetDeformationAverage ().AverageRelease ();
+    GetVelocityAverage ().AverageRelease ();
     GetT1sPDE ().AverageRelease ();
 }
 

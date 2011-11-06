@@ -41,8 +41,8 @@ uniform float u_ellipseSizeRatio;
 uniform sampler2D u_tensorAverageTexUnit;
 // scalar averages are stored here (sum, count, min, max). We use count.
 uniform sampler2D u_scalarAverageTexUnit;
-uniform bool u_deformationGridShown;
-uniform bool u_deformationGridCellCenterShown;
+uniform bool u_gridShown;
+uniform bool u_gridCellCenterShown;
 
 
 const float sqrt2 = 1.41421356237;
@@ -224,8 +224,8 @@ void main (void)
     getCoordinates (gridCoord, texCoordCenter);
     vec2 gridCoordFract = fract (gridCoord);
     if (isEllipse (gridCoordFract, texCoordCenter) || 
-	(u_deformationGridShown && isGrid (gridCoordFract)) ||
-	(u_deformationGridCellCenterShown && isGridCellCenter (gridCoordFract))
+	(u_gridShown && isGrid (gridCoordFract)) ||
+	(u_gridCellCenterShown && isGridCellCenter (gridCoordFract))
 	||
 	isGridCenter (gridCoord))
 	gl_FragColor = inkColor;

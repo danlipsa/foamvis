@@ -195,8 +195,10 @@ GLWidget::GLWidget(QWidget *parent)
       m_centerPathLineUsed (false),
       m_t1sShown (false),
       m_t1sSize (1.0),
-      m_ellipseSizeRatio (1),
-      m_ellipseLineWidthRatio (1),
+      m_deformationSizeRatio (1),
+      m_deformationLineWidthRatio (1),
+      m_velocitySizeRatio (1),
+      m_velocityLineWidthRatio (1),
       m_contextAlpha (CONTEXT_ALPHA.first),
       m_forceLength (FORCE_LENGTH.first),
       m_highlightLineWidth (HIGHLIGHT_LINE_WIDTH),
@@ -541,7 +543,8 @@ double GLWidget::GetCellLength (ViewNumber::Enum viewNumber) const
     return min (extent.x, extent.y);
 }
 
-double GLWidget::GetDeformationEllipseSizeInitialRatio (ViewNumber::Enum viewNumber) const
+double GLWidget::GetDeformationSizeInitialRatio (
+    ViewNumber::Enum viewNumber) const
 {
     double cellLength = GetCellLength (viewNumber);
     const Body& body = GetSimulation (viewNumber).GetFoam (0).GetBody (0);
@@ -1255,6 +1258,7 @@ void GLWidget::initializeGL()
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	ScalarAverage::InitShaders ();
 	TensorAverage::InitShaders ();
+	VectorAverage::InitShaders ();
 	T1sPDE::InitShaders ();
 	initializeLighting ();
 	WarnOnOpenGLError ("initializeGl");
@@ -2151,7 +2155,7 @@ void GLWidget::displayDeformationTensor2D (ViewNumber::Enum viewNumber) const
     const Foam& foam = 
 	GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber));
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    if (! foam.Is2D () || ! vs.IsDeformationTensorShown ())
+    if (! foam.Is2D () || ! vs.IsDeformationShown ())
 	return;
     Foam::Bodies bodies = foam.GetBodies ();
     glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
@@ -2161,11 +2165,13 @@ void GLWidget::displayDeformationTensor2D (ViewNumber::Enum viewNumber) const
 	bodies.begin (), bodies.end (),
 	boost::bind (
 	    ::displayBodyDeformationTensor2D, _1, 
-	    GetDeformationEllipseSizeInitialRatio (viewNumber) * GetDeformationEllipseSizeRatio ()));
+	    GetDeformationSizeInitialRatio (viewNumber) * 
+	    GetDeformationSizeRatio ()));
     glPopAttrib ();    
 }
 
-void GLWidget::displayBodyDeformationTensor2D (ViewNumber::Enum viewNumber) const
+void GLWidget::displayBodyDeformationTensor2D (
+    ViewNumber::Enum viewNumber) const
 {
     if (m_showType == SHOW_DEFORMATION_TENSOR)
     {
@@ -2178,8 +2184,8 @@ void GLWidget::displayBodyDeformationTensor2D (ViewNumber::Enum viewNumber) cons
 	glColor (Qt::black);
 	::displayBodyDeformationTensor2D (
 	    *foam.FindBody (m_showBodyId), 
-	    GetDeformationEllipseSizeInitialRatio (viewNumber) * 
-	    GetDeformationEllipseSizeRatio ());
+	    GetDeformationSizeInitialRatio (viewNumber) * 
+	    GetDeformationSizeRatio ());
 	glPopAttrib ();
     }
 }
@@ -3410,7 +3416,7 @@ void GLWidget::ToggledShowDeformationTensor (bool checked)
 
 void GLWidget::ToggledShowDeformationGrid (bool checked)
 {
-    TensorAverage& ta = GetViewSettings ().GetTensorAverage ();
+    TensorAverage& ta = GetViewSettings ().GetDeformationAverage ();
     ta.SetDeformationGridShown (checked);
     update ();
 }
@@ -3424,7 +3430,7 @@ void GLWidget::ToggledShowVelocity (bool checked)
 
 void GLWidget::ToggledShowVelocityGrid (bool checked)
 {
-    VectorAverage& va = GetViewSettings ().GetVectorAverage ();
+    VectorAverage& va = GetViewSettings ().GetVelocityAverage ();
     va.SetGridShown (checked);
     update ();
 }
@@ -3433,7 +3439,7 @@ void GLWidget::ToggledShowVelocityGrid (bool checked)
 
 void GLWidget::ToggledShowDeformationGridCellCenter (bool checked)
 {
-    TensorAverage& ta = GetViewSettings ().GetTensorAverage ();
+    TensorAverage& ta = GetViewSettings ().GetDeformationAverage ();
     ta.SetDeformationGridCellCenterShown (checked);
     update ();
 }
@@ -3843,26 +3849,30 @@ void GLWidget::ToggledT1sKernelTextureSizeShown (bool checked)
     update ();
 }
 
-void GLWidget::ValueChangedDeformationEllipseSize (int index)
+void GLWidget::ValueChangedDeformationSize (int index)
 {
-    m_ellipseSizeRatio = valueChangedLog2Scale (ELLIPSE_SIZE_EXP2, index);
+    m_deformationSizeRatio = valueChangedLog2Scale (ELLIPSE_SIZE_EXP2, index);
     update ();
 }
 
-void GLWidget::ValueChangedDeformationEllipseLineWidthRatio (int index)
+void GLWidget::ValueChangedDeformationLineWidthRatio (int index)
 {
-    m_ellipseLineWidthRatio = valueChangedLog2Scale (
+    m_deformationLineWidthRatio = valueChangedLog2Scale (
 	ELLIPSE_LINE_WIDTH_EXP2, index);
     update ();
 }
 
 void GLWidget::ValueChangedVelocitySize (int index)
 {
-
+    m_velocitySizeRatio = valueChangedLog2Scale (ELLIPSE_SIZE_EXP2, index);
+    update ();
 }
 
 void GLWidget::ValueChangedVelocityLineWidthRatio (int index)
 {
+    m_velocityLineWidthRatio = valueChangedLog2Scale (
+	ELLIPSE_LINE_WIDTH_EXP2, index);
+    update ();
 }
 
 void GLWidget::ValueChangedContextAlpha (int index)

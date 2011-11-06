@@ -2260,9 +2260,9 @@
     <slot>ToggledShowDeformationTensor(bool)</slot>
     <slot>ToggledCenterPathHidden(bool)</slot>
     <slot>ToggledBodyNeighborsShown(bool)</slot>
-    <slot>ValueChangedDeformationEllipseSize(int)</slot>
+    <slot>ValueChangedDeformationSize(int)</slot>
     <slot>ValueChangedDeformationGridSize(int)</slot>
-    <slot>ValueChangedDeformationEllipseLineWidthRatio(int)</slot>
+    <slot>ValueChangedDeformationLineWidthRatio(int)</slot>
     <slot>ValueChangedCellWidth(int)</slot>
     <slot>ValueChangedCellLength(int)</slot>
     <slot>ButtonClickedInteractionObject(int)</slot>
@@ -3471,7 +3471,7 @@
    <sender>horizontalSliderEllipseSize</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ValueChangedDeformationEllipseSize(int)</slot>
+   <slot>ValueChangedDeformationSize(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>873</x>
@@ -3535,7 +3535,7 @@
    <sender>horizontalSliderEllipseLineWidth</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ValueChangedDeformationEllipseLineWidthRatio(int)</slot>
+   <slot>ValueChangedDeformationLineWidthRatio(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>873</x>

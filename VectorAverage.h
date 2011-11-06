@@ -14,12 +14,12 @@
 class ScalarAverage;
 class VectorDisplay;
 
-class VectorAverage : public ImageBasedAverage<SetterDeformationTensor>
+class VectorAverage : public ImageBasedAverage<SetterVelocity>
 {
 public:
     VectorAverage (const GLWidget& glWidget, 
 		   FramebufferObjects& scalarAverageFbos) :
-	ImageBasedAverage<SetterDeformationTensor> (
+	ImageBasedAverage<SetterVelocity> (
 	    glWidget, "vector", QColor (0, 0, 0, 0), scalarAverageFbos),
 	m_gridShown (false)
     {

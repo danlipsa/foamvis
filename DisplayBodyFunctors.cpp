@@ -395,7 +395,7 @@ displayFocusColorSegment (const boost::shared_ptr<FocusColorSegment>& segment)
 
 template class DisplayBodyBase<SetterVertexAttribute>;
 template class DisplayBodyBase<SetterTextureCoordinate>;
-template class DisplayBodyBase<SetterDeformationTensor>;
+template class DisplayBodyBase<SetterDeformation>;
 template class DisplayBodyBase<SetterNop>;
 template class DisplayBodyBase<SetterVelocity>;
 
@@ -436,7 +436,7 @@ template class DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H1, Displa
 
 template class DisplayBody<DisplayFaceLineStripColor<0xff000000, SetterTextureCoordinate>, SetterTextureCoordinate>;
 
-template class DisplayBody<DisplayFaceBodyPropertyColor<SetterDeformationTensor>, SetterDeformationTensor>;
+template class DisplayBody<DisplayFaceBodyPropertyColor<SetterDeformation>, SetterDeformation>;
 
 // DisplayCenterPath
 // ======================================================================

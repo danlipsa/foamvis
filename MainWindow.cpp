@@ -257,13 +257,13 @@ void MainWindow::ViewToUI ()
     SetCheckedNoSignals (checkBoxContextHidden, vs.IsContextHidden ());
     SetCheckedNoSignals (checkBoxCenterPathHidden, vs.IsCenterPathHidden ());
     SetCheckedNoSignals (checkBoxShowDeformation, 
-			 vs.IsDeformationTensorShown ());
+			 vs.IsDeformationShown ());
     SetCheckedNoSignals (checkBoxT1sShiftLower, vs.IsT1sShiftLower ());
     SetCheckedNoSignals (checkBoxDeformationGrid, 
-			 vs.GetTensorAverage ().IsDeformationGridShown ());
+			 vs.GetDeformationAverage ().IsDeformationGridShown ());
     SetCheckedNoSignals (
 	checkBoxDeformationGridCellCenter, 
-	vs.GetTensorAverage ().IsDeformationGridCellCenterShown ());
+	vs.GetDeformationAverage ().IsDeformationGridCellCenterShown ());
     SetCheckedNoSignals (checkBoxForceNetwork, vs.IsForceNetworkShown ());
     SetCheckedNoSignals (checkBoxForcePressure, vs.IsForcePressureShown ());
     SetCheckedNoSignals (checkBoxForceResult, vs.IsForceResultShown ());

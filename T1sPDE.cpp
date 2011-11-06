@@ -35,7 +35,8 @@ GaussianInitShaderProgram::GaussianInitShaderProgram (const char* frag) :
     ShaderProgram (0, frag)
 {
     m_intervalMarginLocation = uniformLocation("m_intervalMargin");
-    RuntimeAssert (m_intervalMarginLocation != -1, "Invalid location: m_intervalMargin");
+    RuntimeAssert (m_intervalMarginLocation != -1, 
+		   "Invalid location: m_intervalMargin");
 
     m_sigmaLocation = uniformLocation("u_sigma");
     RuntimeAssert (m_sigmaLocation != -1, "Invalid location: u_sigma");
@@ -84,7 +85,8 @@ const pair<size_t, size_t> T1sPDE::KERNEL_TEXTURE_SIZE =
 const pair<float, float> T1sPDE::KERNEL_INTERVAL_PER_PIXEL = 
     pair<float, float> (5.0/32.0, 10.0/32.0);
 const pair<float, float> T1sPDE::KERNEL_SIGMA = pair<float, float> (1.0, 7.0);
-boost::shared_ptr<GaussianInitShaderProgram> T1sPDE::m_gaussianInitShaderProgram;
+boost::shared_ptr<
+    GaussianInitShaderProgram> T1sPDE::m_gaussianInitShaderProgram;
 boost::shared_ptr<GaussianStoreShaderProgram
 		  > T1sPDE::m_gaussianStoreShaderProgram;
 
@@ -106,7 +108,8 @@ void T1sPDE::InitShaders ()
 }
 
 T1sPDE::T1sPDE (const GLWidget& glWidget) :
-    ScalarAverageTemplate<SetterNop> (glWidget, "t1sPDE", QColor (0, 255, 0, 0)),
+    ScalarAverageTemplate<SetterNop> (glWidget, 
+				      "t1sPDE", QColor (0, 255, 0, 0)),
     m_kernelIntervalPerPixel (KERNEL_INTERVAL_PER_PIXEL.first),
     m_kernelSigma (KERNEL_SIGMA.first),
     m_kernelTextureSize (KERNEL_TEXTURE_SIZE.first),

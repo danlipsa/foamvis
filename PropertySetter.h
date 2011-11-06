@@ -53,10 +53,10 @@ protected:
     int m_attributeLocation;
 };
 
-class SetterDeformationTensor : public SetterVertexAttribute
+class SetterDeformation : public SetterVertexAttribute
 {
 public:
-    SetterDeformationTensor (
+    SetterDeformation (
 	const GLWidget& glWidget,  ViewNumber::Enum view,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
 	SetterVertexAttribute (glWidget, view, program, attributeIndex)

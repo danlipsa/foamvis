@@ -217,15 +217,22 @@ public:
 			     G3D::Rect2D& srcRect) const;
     float GetOnePixelInObjectSpace () const;
     double GetCellLength (ViewNumber::Enum viewNumber) const;
-    double GetDeformationEllipseSizeInitialRatio (
-	ViewNumber::Enum viewNumber) const;
-    double GetDeformationEllipseLineWidthRatio () const
+    double GetDeformationSizeInitialRatio (ViewNumber::Enum viewNumber) const;
+    double GetDeformationLineWidthRatio () const
     {
-	return m_ellipseLineWidthRatio;
+	return m_deformationLineWidthRatio;
     }
-    double GetDeformationEllipseSizeRatio () const
+    double GetDeformationSizeRatio () const
     {
-	return m_ellipseSizeRatio;
+	return m_deformationSizeRatio;
+    }
+    double GetVelocityLineWidthRatio () const
+    {
+	return m_velocityLineWidthRatio;
+    }
+    double GetVelocitySizeRatio () const
+    {
+	return m_velocitySizeRatio;
     }
     G3D::AABox CalculateViewingVolume (
 	ViewNumber::Enum viewNumber,
@@ -362,8 +369,8 @@ public Q_SLOTS:
     void ValueChangedT1sKernelSigma (int index);
     void ValueChangedT1sKernelTextureSize (int index);
     void ToggledT1sKernelTextureSizeShown (bool checked);
-    void ValueChangedDeformationEllipseSize (int index);
-    void ValueChangedDeformationEllipseLineWidthRatio (int index);
+    void ValueChangedDeformationSize (int index);
+    void ValueChangedDeformationLineWidthRatio (int index);
     void ValueChangedVelocitySize (int index);
     void ValueChangedVelocityLineWidthRatio (int index);
     void ValueChangedForceLength (int index);
@@ -782,8 +789,10 @@ private:
     bool m_centerPathLineUsed;
     bool m_t1sShown;
     double m_t1sSize;
-    double m_ellipseSizeRatio;
-    double m_ellipseLineWidthRatio;
+    double m_deformationSizeRatio;
+    double m_deformationLineWidthRatio;
+    double m_velocitySizeRatio;
+    double m_velocityLineWidthRatio;
     double m_contextAlpha;
     double m_forceLength;
     size_t m_highlightLineWidth;

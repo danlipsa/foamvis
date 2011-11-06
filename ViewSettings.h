@@ -75,13 +75,13 @@ public:
 	return *m_t1sPDE;
     }
 
-    TensorAverage& GetTensorAverage () const
+    TensorAverage& GetDeformationAverage () const
     {
-	return *m_tensorAverage;
+	return *m_deformationAverage;
     }
-    VectorAverage& GetVectorAverage () const
+    VectorAverage& GetVelocityAverage () const
     {
-	return *m_vectorAverage;
+	return *m_velocityAverage;
     }
 
     ForceAverage& GetForceAverage () const
@@ -345,7 +345,7 @@ public:
 	m_deformationTensorShown = deformationTensorShown;
     }
 
-    bool IsDeformationTensorShown () const
+    bool IsDeformationShown () const
     {
 	return m_deformationTensorShown;
     }
@@ -495,8 +495,8 @@ private:
     GLuint m_colorBarTexture;
     boost::shared_ptr<ScalarAverage> m_scalarAverage;
     boost::shared_ptr<T1sPDE> m_t1sPDE;
-    boost::shared_ptr<TensorAverage> m_tensorAverage;
-    boost::shared_ptr<VectorAverage> m_vectorAverage;
+    boost::shared_ptr<TensorAverage> m_deformationAverage;
+    boost::shared_ptr<VectorAverage> m_velocityAverage;
     boost::shared_ptr<ForceAverage> m_forceAverage;
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
     G3D::Matrix3 m_rotationModel;
