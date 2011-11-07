@@ -218,21 +218,22 @@ public:
     float GetOnePixelInObjectSpace () const;
     double GetCellLength (ViewNumber::Enum viewNumber) const;
     double GetDeformationSizeInitialRatio (ViewNumber::Enum viewNumber) const;
-    double GetDeformationLineWidthRatio () const
-    {
-	return m_deformationLineWidthRatio;
-    }
     double GetDeformationSizeRatio () const
     {
 	return m_deformationSizeRatio;
     }
-    double GetVelocityLineWidthRatio () const
+    double GetDeformationLineWidthRatio () const
     {
-	return m_velocityLineWidthRatio;
+	return m_deformationLineWidthRatio;
     }
+    double GetVelocitySizeInitialRatio (ViewNumber::Enum viewNumber) const;
     double GetVelocitySizeRatio () const
     {
 	return m_velocitySizeRatio;
+    }
+    double GetVelocityLineWidthRatio () const
+    {
+	return m_velocityLineWidthRatio;
     }
     G3D::AABox CalculateViewingVolume (
 	ViewNumber::Enum viewNumber,

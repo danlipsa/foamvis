@@ -551,6 +551,16 @@ double GLWidget::GetDeformationSizeInitialRatio (
     return cellLength / (2 * body.GetDeformationEigenValue (0));
 }
 
+double GLWidget::GetVelocitySizeInitialRatio (
+    ViewNumber::Enum viewNumber) const
+{
+    double cellLength = GetCellLength (viewNumber);
+    float velocityMagnitude = 
+	GetSimulation (viewNumber).GetFoam (0).GetMax (
+	    BodyProperty::VELOCITY_MAGNITUDE);
+    return cellLength / velocityMagnitude;
+}
+
 
 void GLWidget::calculateEdgeRadius (
     double edgeRadiusRatio,

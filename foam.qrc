@@ -21,6 +21,7 @@
     <file>T1sPDEInit.frag</file>
 
     <file>VectorStore.vert</file>
+    <file>VectorDisplay.frag</file>
   </qresource>
  </RCC>
 

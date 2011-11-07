@@ -93,6 +93,7 @@ boost::shared_ptr<GaussianStoreShaderProgram
 
 void T1sPDE::InitShaders ()
 {
+    cdbg << "==== T1sPDE ====" << endl;
     m_initShaderProgram.reset (
 	new ShaderProgram (0, RESOURCE("T1sPDEInit.frag")));
     m_addShaderProgram.reset (

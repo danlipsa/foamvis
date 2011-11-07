@@ -8,6 +8,7 @@
  */
 
 #include "AverageShaders.h"
+#include "DebugStream.h"
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
 #include "ScalarAverage.h"
@@ -30,6 +31,7 @@ ScalarAverageTemplate<PropertySetter>::m_displayShaderProgram;
 template<typename PropertySetter>
 void ScalarAverageTemplate<PropertySetter>::InitShaders ()
 {
+    cdbg << "==== ScalarAverageTemplate ====" << endl;
     ImageBasedAverage<PropertySetter>::m_initShaderProgram.reset (
 	new ShaderProgram (0, RESOURCE("ScalarInit.frag")));
     ImageBasedAverage<PropertySetter>::m_storeShaderProgram.reset (
@@ -63,6 +65,7 @@ void ScalarAverageTemplate<PropertySetter>::rotateAndDisplay (
     this->glActiveTexture (GL_TEXTURE0);
     m_displayShaderProgram->release ();
 }
+
 
 // Template instantiations
 //======================================================================

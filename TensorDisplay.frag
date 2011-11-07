@@ -36,7 +36,7 @@ uniform vec2 u_gridTranslationE;
 uniform float u_cellLength;
 // line width in object coordinates
 uniform float u_lineWidth;
-uniform float u_ellipseSizeRatio;
+uniform float u_sizeRatio;
 // deformation tensors are stored here.
 uniform sampler2D u_tensorAverageTexUnit;
 // scalar averages are stored here (sum, count, min, max). We use count.
@@ -117,7 +117,7 @@ Ellipse fromEigen (mat2 t)
 		   1. / (eigenVal[1] * eigenVal[1]));
     mat2 d = mat2 (l[0], 0., 0., l[1]);
     mat2 a = r * d * transpose (r);
-    float cMax = u_ellipseSizeRatio / u_cellLength;
+    float cMax = u_sizeRatio / u_cellLength;
     float cMin = cMax - u_lineWidth / eigenVal[1] / u_cellLength;
     Ellipse e = Ellipse (a, vec2 (cMin * cMin, cMax * cMax));
     // debug

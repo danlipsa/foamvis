@@ -16,12 +16,11 @@
 #include "Utils.h"
 #include "ViewSettings.h"
 
-
 VectorAverage::VectorAverage (const GLWidget& glWidget, 
 			      FramebufferObjects& scalarAverageFbos) :
     TensorAverageTemplate<SetterVelocity> (
 	glWidget,
-	&GLWidget::GetDeformationSizeInitialRatio,
+	&GLWidget::GetVelocitySizeInitialRatio,
 	&GLWidget::GetVelocitySizeRatio,
 	&GLWidget::GetVelocityLineWidthRatio,
 	scalarAverageFbos)
@@ -30,6 +29,7 @@ VectorAverage::VectorAverage (const GLWidget& glWidget,
 
 void VectorAverage::InitShaders ()
 {
+    cdbg << "==== VectorAverage ====" << endl;
     m_initShaderProgram.reset (
 	new ShaderProgram (0, RESOURCE("TensorInit.frag")));
     m_storeShaderProgram.reset (

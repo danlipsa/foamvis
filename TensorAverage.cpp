@@ -25,7 +25,7 @@ TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
     m_gridTranslationLocation = uniformLocation ("u_gridTranslationE");
     m_cellLengthLocation = uniformLocation ("u_cellLength");
     m_lineWidthLocation = uniformLocation ("u_lineWidth");
-    m_ellipseSizeRatioLocation = uniformLocation ("u_ellipseSizeRatio");
+    m_ellipseSizeRatioLocation = uniformLocation ("u_sizeRatio");
     m_enclosingRectLowLocation = uniformLocation ("u_enclosingRect.m_low");
     m_enclosingRectHighLocation = uniformLocation ("u_enclosingRect.m_high");
     m_rotationCenterLocation = uniformLocation ("u_rotationCenter");
@@ -74,6 +74,7 @@ boost::shared_ptr<TensorDisplay> TensorAverageTemplate<
 template<typename Setter>
 void TensorAverageTemplate<Setter>::InitShaders ()
 {
+    cdbg << "==== TensorAverageTemplate ====" << endl;
     ImageBasedAverage<Setter>::m_initShaderProgram.reset (
 	new ShaderProgram (0, RESOURCE("TensorInit.frag")));
     ImageBasedAverage<Setter>::m_storeShaderProgram.reset (
@@ -99,14 +100,14 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
 {
     (void)minValue;(void)maxValue;(void)displayType;
     G3D::Vector2 gridTranslation;float cellLength; float lineWidth;
-    float ellipseSizeRatio;G3D::Rect2D enclosingRect;
+    float sizeRatio;G3D::Rect2D enclosingRect;
 
     calculateShaderParameters (
 	viewNumber, rotationCenter, angleDegrees, &gridTranslation, 
-	&cellLength, &lineWidth, &ellipseSizeRatio, &enclosingRect);
+	&cellLength, &lineWidth, &sizeRatio, &enclosingRect);
     m_displayShaderProgram->Bind (
 	gridTranslation, cellLength, lineWidth, 
-	ellipseSizeRatio, enclosingRect, rotationCenter,
+	sizeRatio, enclosingRect, rotationCenter,
 	m_gridShown, m_gridCellCenterShown);
 
     // activate texture unit 1 - tensor average
@@ -132,7 +133,7 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
     ViewNumber::Enum viewNumber, G3D::Vector2 rotationCenter, 
     float angleDegrees,
     G3D::Vector2* gridTranslation, float* cellLength, float* lineWidth, 
-    float* ellipseSizeRatio, G3D::Rect2D* enclosingRect) const
+    float* sizeRatio, G3D::Rect2D* enclosingRect) const
 {
     const GLWidget& glWidget = this->GetGLWidget ();
     ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
@@ -154,8 +155,8 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
     *cellLength = glWidget.GetCellLength (viewNumber) * gridScaleRatio;
     *lineWidth = glWidget.GetOnePixelInObjectSpace () * 
 	scaleRatio * CALL_MEMBER_FN (glWidget, m_lineWidthRatio) ();
-    *ellipseSizeRatio = CALL_MEMBER_FN (glWidget, m_sizeInitialRatio) (
-	viewNumber) * 
+    *sizeRatio = 
+	CALL_MEMBER_FN (glWidget, m_sizeInitialRatio) (viewNumber) * 
 	CALL_MEMBER_FN (glWidget, m_sizeRatio) () * gridScaleRatio;
     *enclosingRect = 
 	glWidget.CalculateViewEnclosingRect (viewNumber) - rotationCenter;
