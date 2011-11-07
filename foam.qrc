@@ -19,6 +19,8 @@
     <file>TensorStore.vert</file>
 
     <file>T1sPDEInit.frag</file>
+
+    <file>VectorStore.vert</file>
   </qresource>
  </RCC>
 

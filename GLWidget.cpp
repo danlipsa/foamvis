@@ -3417,7 +3417,7 @@ void GLWidget::ToggledShowDeformationTensor (bool checked)
 void GLWidget::ToggledShowDeformationGrid (bool checked)
 {
     TensorAverage& ta = GetViewSettings ().GetDeformationAverage ();
-    ta.SetDeformationGridShown (checked);
+    ta.SetGridShown (checked);
     update ();
 }
 
@@ -3440,7 +3440,7 @@ void GLWidget::ToggledShowVelocityGrid (bool checked)
 void GLWidget::ToggledShowDeformationGridCellCenter (bool checked)
 {
     TensorAverage& ta = GetViewSettings ().GetDeformationAverage ();
-    ta.SetDeformationGridCellCenterShown (checked);
+    ta.SetGridCellCenterShown (checked);
     update ();
 }
 

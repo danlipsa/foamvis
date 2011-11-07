@@ -154,7 +154,7 @@ template<typename T> G3D::AABox CalculateBoundingBox (const T& t);
 const static size_t HISTOGRAM_INTERVALS = 256;
 const static size_t INVALID_INDEX = numeric_limits<size_t>::max ();
 
-#define CALL_MEMBER_FN(object,ptrToMember)  ((object)->*(ptrToMember))
+#define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember))
 
 QString ReadShader (const QString& resourceUrl);
 boost::shared_ptr<QGLShader> CreateShader (const QString& resourceUrl,

@@ -105,8 +105,7 @@ int SetterDeformation::GetBodyOrFaceProperty () const
 void SetterVelocity::operator () (const boost::shared_ptr<Body>& body)
 {
     G3D::Vector3 velocity = body->GetVelocity ();
-    m_program->setAttributeValue (
-	m_attributeLocation, velocity.x, velocity.y, 0, 0);
+    m_program->setAttributeValue (m_attributeLocation, velocity.x, velocity.y);
 }
 
 void SetterVelocity::operator () ()

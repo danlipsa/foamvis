@@ -117,7 +117,8 @@ void MainWindow::configureInterface ()
 {
     tabWidget->setCurrentWidget (timeStep);
     comboBoxWindowSize->setCurrentIndex (WindowSize::GL_720x480);
-    horizontalSliderEllipseSize->setValue (49);
+    horizontalSliderDeformationSize->setValue (49);
+    horizontalSliderVelocitySize->setValue (49);
     comboBoxColor->setCurrentIndex (BodyProperty::PRESSURE);
 }
 
@@ -256,14 +257,15 @@ void MainWindow::ViewToUI ()
 
     SetCheckedNoSignals (checkBoxContextHidden, vs.IsContextHidden ());
     SetCheckedNoSignals (checkBoxCenterPathHidden, vs.IsCenterPathHidden ());
+    SetCheckedNoSignals (checkBoxT1sShiftLower, vs.IsT1sShiftLower ());
     SetCheckedNoSignals (checkBoxShowDeformation, 
 			 vs.IsDeformationShown ());
-    SetCheckedNoSignals (checkBoxT1sShiftLower, vs.IsT1sShiftLower ());
     SetCheckedNoSignals (checkBoxDeformationGrid, 
-			 vs.GetDeformationAverage ().IsDeformationGridShown ());
+			 vs.GetDeformationAverage ().IsGridShown ());
     SetCheckedNoSignals (
 	checkBoxDeformationGridCellCenter, 
-	vs.GetDeformationAverage ().IsDeformationGridCellCenterShown ());
+	vs.GetDeformationAverage ().IsGridCellCenterShown ());
+
     SetCheckedNoSignals (checkBoxForceNetwork, vs.IsForceNetworkShown ());
     SetCheckedNoSignals (checkBoxForcePressure, vs.IsForcePressureShown ());
     SetCheckedNoSignals (checkBoxForceResult, vs.IsForceResultShown ());

@@ -11,37 +11,78 @@
 
 #include "ImageBasedAverage.h"
 #include "PropertySetter.h"
-class ScalarAverage;
-class TensorDisplay;
+#include "ShaderProgram.h"
+
+
+class TensorDisplay : public ShaderProgram
+{
+public:
+    TensorDisplay (const char* vert, const char* frag);
+    void Bind (
+	G3D::Vector2 gridTranslation, float cellLength, float lineWidth, 
+	float elipseSizeRatio, G3D::Rect2D enclosingRect,
+	G3D::Vector2 rotationCenter, 
+	bool gridShown, bool gridCellCenterShown);
+
+    GLint GetTensorAverageTexUnit ()
+    {
+	return 1;
+    }
+    GLint GetScalarAverageTexUnit ()
+    {
+	return 2;
+    }
+
+private:
+    int m_gridTranslationLocation;
+    int m_cellLengthLocation;
+    int m_lineWidthLocation;
+    int m_ellipseSizeRatioLocation;
+    int m_enclosingRectLowLocation;
+    int m_enclosingRectHighLocation;
+    int m_rotationCenterLocation;
+    int m_tensorAverageTexUnitLocation;
+    int m_scalarAverageTexUnitLocation;
+    int m_gridShownLocation;
+    int m_gridCellCenterShownLocation;
+};
 
 template<typename Setter>
 class TensorAverageTemplate : public ImageBasedAverage<Setter>
 {
 public:
-    TensorAverageTemplate (const GLWidget& glWidget, 
-			   FramebufferObjects& scalarAverageFbos) :
+    typedef double (GLWidget::*ParameterView) (
+	ViewNumber::Enum viewNumber) const;
+    typedef double (GLWidget::*Parameter) () const;    
+
+public:
+    TensorAverageTemplate (
+	const GLWidget& glWidget, ParameterView sizeInitialRatio,
+	Parameter sizeRatio, Parameter lineWidthRatio,
+	FramebufferObjects& scalarAverageFbos) :
 	ImageBasedAverage<Setter> (
 	    glWidget, "tensor", QColor (0, 0, 0, 0), scalarAverageFbos),
 	m_gridShown (false),
-	m_gridCellCenterShown (false)
+	m_gridCellCenterShown (false),
+	m_sizeInitialRatio (sizeInitialRatio),
+	m_sizeRatio (sizeRatio),
+	m_lineWidthRatio (lineWidthRatio)
     {
     }
     static void InitShaders ();
-    void SetDeformationGridShown (bool shown)
+    void SetGridShown (bool shown)
     {
 	m_gridShown = shown;
     }
-    bool IsDeformationGridShown () const
+    bool IsGridShown () const
     {
 	return m_gridShown;
     }
-
-    void SetDeformationGridCellCenterShown (bool shown)
+    void SetGridCellCenterShown (bool shown)
     {
 	m_gridCellCenterShown = shown;
     }
-
-    bool IsDeformationGridCellCenterShown ()
+    bool IsGridCellCenterShown ()
     {
 	return m_gridCellCenterShown;
     }
@@ -63,20 +104,22 @@ private:
 	G3D::Vector2* gridTranslation, float* cellLength, float* lineWidth, 
 	float* elipseSizeRatio, G3D::Rect2D* srcRect) const;
 
-private:
+protected:
     static boost::shared_ptr<TensorDisplay> m_displayShaderProgram;
+
+private:
     bool m_gridShown;
-    bool m_gridCellCenterShown;
+    bool m_gridCellCenterShown;    
+    ParameterView m_sizeInitialRatio;
+    Parameter m_sizeRatio;
+    Parameter m_lineWidthRatio;
 };
 
 class TensorAverage : public TensorAverageTemplate<SetterDeformation>
 {
 public:
-    TensorAverage (const GLWidget& glWidget, 
-		   FramebufferObjects& scalarAverageFbos) :
-	TensorAverageTemplate<SetterDeformation> (glWidget, scalarAverageFbos)
-    {
-    }
+    TensorAverage (const GLWidget& glWidget,
+		   FramebufferObjects& scalarAverageFbos);
 };
 
 #endif //__TENSOR_AVERAGE_H__

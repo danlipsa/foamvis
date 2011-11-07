@@ -640,7 +640,7 @@
                     </widget>
                    </item>
                    <item row="2" column="1">
-                    <widget class="QSlider" name="horizontalSliderEllipseSize">
+                    <widget class="QSlider" name="horizontalSliderDeformationSize">
                      <property name="minimum">
                       <number>0</number>
                      </property>
@@ -657,7 +657,7 @@
                     </widget>
                    </item>
                    <item row="3" column="1">
-                    <widget class="QSlider" name="horizontalSliderEllipseLineWidth">
+                    <widget class="QSlider" name="horizontalSliderDeformationLineWidth">
                      <property name="value">
                       <number>0</number>
                      </property>
@@ -3468,7 +3468,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>horizontalSliderEllipseSize</sender>
+   <sender>horizontalSliderDeformationSize</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
    <slot>ValueChangedDeformationSize(int)</slot>
@@ -3532,7 +3532,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>horizontalSliderEllipseLineWidth</sender>
+   <sender>horizontalSliderDeformationLineWidth</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
    <slot>ValueChangedDeformationLineWidthRatio(int)</slot>

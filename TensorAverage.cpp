@@ -11,7 +11,6 @@
 #include "DebugStream.h"
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
-#include "ShaderProgram.h"
 #include "TensorAverage.h"
 #include "Utils.h"
 #include "ViewSettings.h"
@@ -19,44 +18,6 @@
 
 // Private classes/functions
 // ======================================================================
-
-// TensorDisplay
-// ======================================================================
-/**
- * RGBA : sum, count, min, max
- */
-class TensorDisplay : public ShaderProgram
-{
-public:
-    TensorDisplay (const char* vert, const char* frag);
-    void Bind (
-	G3D::Vector2 gridTranslation, float cellLength, float lineWidth, 
-	float elipseSizeRatio, G3D::Rect2D enclosingRect,
-	G3D::Vector2 rotationCenter, 
-	bool gridShown, bool gridCellCenterShown);
-
-    GLint GetTensorAverageTexUnit ()
-    {
-	return 1;
-    }
-    GLint GetScalarAverageTexUnit ()
-    {
-	return 2;
-    }
-
-private:
-    int m_gridTranslationLocation;
-    int m_cellLengthLocation;
-    int m_lineWidthLocation;
-    int m_ellipseSizeRatioLocation;
-    int m_enclosingRectLowLocation;
-    int m_enclosingRectHighLocation;
-    int m_rotationCenterLocation;
-    int m_tensorAverageTexUnitLocation;
-    int m_scalarAverageTexUnitLocation;
-    int m_gridShownLocation;
-    int m_gridCellCenterShownLocation;
-};
 
 TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
     ShaderProgram (vert, frag)
@@ -122,7 +83,7 @@ void TensorAverageTemplate<Setter>::InitShaders ()
 	new AddShaderProgram (RESOURCE("TensorAdd.frag")));
     ImageBasedAverage<Setter>::m_removeShaderProgram.reset (
 	new AddShaderProgram (RESOURCE("TensorRemove.frag")));
-    ImageBasedAverage<Setter>::m_displayShaderProgram.reset (
+    m_displayShaderProgram.reset (
 	new TensorDisplay (RESOURCE("TensorDisplay.vert"),
 			   RESOURCE("TensorDisplay.frag")));
 }
@@ -131,7 +92,8 @@ template<typename Setter>
 void TensorAverageTemplate<Setter>::rotateAndDisplay (
     ViewNumber::Enum viewNumber,
     GLfloat minValue, GLfloat maxValue,
-    StatisticsType::Enum displayType, TensorScalarFbo srcFbo,
+    StatisticsType::Enum displayType, 
+    typename ImageBasedAverage<Setter>::TensorScalarFbo srcFbo,
     ViewingVolumeOperation::Enum enclose,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
@@ -148,19 +110,19 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
 	m_gridShown, m_gridCellCenterShown);
 
     // activate texture unit 1 - tensor average
-    glActiveTexture (
+    this->glActiveTexture (
 	TextureEnum (m_displayShaderProgram->GetTensorAverageTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, srcFbo.first->texture ());
 
     // activate texture unit 2 - scalar average
-    glActiveTexture (
+    this->glActiveTexture (
 	TextureEnum (m_displayShaderProgram->GetScalarAverageTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, srcFbo.second->texture ());
     
-    GetGLWidget ().ActivateViewShader (viewNumber, enclose,
+    this->GetGLWidget ().ActivateViewShader (viewNumber, enclose,
 				       rotationCenter, angleDegrees);
     // activate texture unit 0
-    glActiveTexture (GL_TEXTURE0);
+    this->glActiveTexture (GL_TEXTURE0);
     m_displayShaderProgram->release ();
     WarnOnOpenGLError ("TensorAverage::rotateAndDisplay");
 }
@@ -172,7 +134,7 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
     G3D::Vector2* gridTranslation, float* cellLength, float* lineWidth, 
     float* ellipseSizeRatio, G3D::Rect2D* enclosingRect) const
 {
-    const GLWidget& glWidget = GetGLWidget ();
+    const GLWidget& glWidget = this->GetGLWidget ();
     ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
     float scaleRatio = vs.GetScaleRatio ();
     float gridScaleRatio = vs.GetScaleRatio () * vs.GetGridScaleRatio ();
@@ -191,10 +153,28 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
     }
     *cellLength = glWidget.GetCellLength (viewNumber) * gridScaleRatio;
     *lineWidth = glWidget.GetOnePixelInObjectSpace () * 
-	scaleRatio * glWidget.GetDeformationLineWidthRatio ();
-    *ellipseSizeRatio = glWidget.GetDeformationSizeInitialRatio (
+	scaleRatio * CALL_MEMBER_FN (glWidget, m_lineWidthRatio) ();
+    *ellipseSizeRatio = CALL_MEMBER_FN (glWidget, m_sizeInitialRatio) (
 	viewNumber) * 
-	glWidget.GetDeformationSizeRatio () * gridScaleRatio;
+	CALL_MEMBER_FN (glWidget, m_sizeRatio) () * gridScaleRatio;
     *enclosingRect = 
 	glWidget.CalculateViewEnclosingRect (viewNumber) - rotationCenter;
 }
+
+TensorAverage::TensorAverage (const GLWidget& glWidget,
+			      FramebufferObjects& scalarAverageFbos) :
+    TensorAverageTemplate<SetterDeformation> (
+	glWidget, &GLWidget::GetDeformationSizeInitialRatio,
+	&GLWidget::GetDeformationSizeRatio,
+	&GLWidget::GetDeformationLineWidthRatio,
+	scalarAverageFbos)
+{
+}
+
+
+// Template instantiations
+//======================================================================
+/// @cond
+template class TensorAverageTemplate<SetterDeformation>;
+template class TensorAverageTemplate<SetterVelocity>;
+/// @endcond
