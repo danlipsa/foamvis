@@ -32,6 +32,10 @@ uniform sampler2D u_scalarAverageTexUnit;
 uniform bool u_gridShown;
 uniform bool u_gridCellCenterShown;
 
+
+float lineWidthPerc = u_lineWidth / u_cellLength;
+
+
 /**
  * returns true if the transform matrix is valid
  */
@@ -40,10 +44,6 @@ bool getVector (vec2 texCoordCenter, out vec2 v)
     float count = texture2D (u_scalarAverageTexUnit, texCoordCenter).g;
     if (count == 0.0)
 	return false;
-
-    //debug
-    //if (count == 1.0)
-    //texCoordCenter = vec2 (0.5, 0.5);
     v = texture2D (u_tensorAverageTexUnit, texCoordCenter).xy;
     v = v / count;
     return true;
@@ -54,6 +54,21 @@ void rotateVector (inout vec2 v)
 {
 }
 
+bool isRectangle (vec2 x, vec2 n, float width, 
+		  float lengthLeft, float lengthRight)
+{
+    width = width / 2;
+    lengthLeft = lengthLeft / 2;
+    lengthRight = lengthRight / 2;
+    // lines along n
+    return 
+	dot (x, vec2 (-n[1], n[0])) <= width &&
+	dot (x, vec2 (n[1], -n[0])) <= width &&
+	// lines perpendicular to n
+	dot (x, vec2 (n[0], n[1])) <= lengthLeft &&
+	dot (x, vec2 (-n[0], -n[1])) <= lengthRight;
+}
+
 
 // x is in [0, 1)
 bool isArrow (vec2 x, vec2 texCoordCenter)
@@ -61,12 +76,14 @@ bool isArrow (vec2 x, vec2 texCoordCenter)
     vec2 v;
     if (getVector (texCoordCenter, v))
     {
+	x = x - vec2 (0.5, 0.5);
 	rotateVector (v);
-	float magnitude = length (v) * u_sizeRatio / u_cellLength;
-	vec2 origin = vec2 (0.5, 0.5);
-	
-	//debug
-	//return true;
+	v = v * u_sizeRatio / u_cellLength;
+	vec2 n = normalize (v);
+	n = vec2 (-n[1], n[0]);
+	float magnitude = length (v);
+	return isRectangle (x, n, 3 * lineWidthPerc, 0, magnitude) ||
+	    isRectangle (x, n, lineWidthPerc, magnitude, 0);
     }
     else
 	return false;

@@ -400,7 +400,8 @@ public Q_SLOTS:
     void InfoFoam ();
     void InfoOpenGL ();
     void ShowNeighbors ();
-    void ShowTextureTensor ();
+    void ShowDeformation ();
+    void ShowVelocity ();
     void ShowReset ();
     // Actions color bar
     void ColorBarClampClear ();
@@ -461,7 +462,8 @@ private:
     {
 	SHOW_NOTHING,
 	SHOW_NEIGHBORS,
-	SHOW_DEFORMATION_TENSOR
+	SHOW_DEFORMATION_TENSOR,
+	SHOW_VELOCITY
     };
 
     typedef boost::unordered_map<G3D::Vector3int16, QColor,
@@ -573,8 +575,10 @@ private:
     void displayOriginalDomain (ViewNumber::Enum viewNumber) const;
     void displayBodyNeighbors (ViewNumber::Enum viewNumber) const;
     void displayBodiesNeighbors () const;
-    void displayBodyDeformationTensor2D (ViewNumber::Enum viewNumber) const;
-    void displayDeformationTensor2D (ViewNumber::Enum viewNumber) const;
+    void displayBodyDeformation (ViewNumber::Enum viewNumber) const;
+    void displayBodyVelocity (ViewNumber::Enum viewNumber) const;
+    void displayDeformation (ViewNumber::Enum viewNumber) const;
+    void displayVelocity (ViewNumber::Enum viewNumber) const;
     void displayT1sDot (ViewNumber::Enum view) const;
     void displayT1sDot (ViewNumber::Enum view, size_t timeStep) const;
     void displayCenterPaths (ViewNumber::Enum view) const;
@@ -769,7 +773,8 @@ private:
     boost::shared_ptr<QAction> m_actionInfoOpenGL;
 
     boost::shared_ptr<QAction> m_actionShowNeighbors;
-    boost::shared_ptr<QAction> m_actionShowTextureTensor;
+    boost::shared_ptr<QAction> m_actionShowDeformation;
+    boost::shared_ptr<QAction> m_actionShowVelocity;
     boost::shared_ptr<QAction> m_actionShowReset;
 
     boost::shared_ptr<QAction> m_actionEditColorMap;

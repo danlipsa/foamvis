@@ -102,7 +102,7 @@ void display (const char* name, const T& what)
     cdbg << endl;
 }
 
-void displayBodyDeformationTensor2D (boost::shared_ptr<Body> body, double size)
+void displayBodyDeformation (boost::shared_ptr<Body> body, double size)
 {
     if (body->IsConstraint ())
 	return;
@@ -117,6 +117,29 @@ void displayBodyDeformationTensor2D (boost::shared_ptr<Body> body, double size)
 		    body->GetDeformationEigenValue (1), size);
     glPopMatrix ();
 }
+
+void displayBodyVelocity (boost::shared_ptr<Body> body, double ratio)
+{
+    if (body->IsConstraint ())
+	return;
+    G3D::Vector2 velocity = body->GetVelocity ().xy () * ratio;
+    glPushMatrix ();
+    glTranslate (body->GetCenter ().xy ());
+	
+    glLineWidth (3);
+    glBegin (GL_LINES);
+    ::glVertex (- velocity / 2);
+    ::glVertex (G3D::Vector2::zero ());
+    glEnd ();
+
+    glLineWidth (1);
+    glBegin (GL_LINES);
+    ::glVertex (G3D::Vector2::zero ());
+    ::glVertex (velocity / 2);
+    glEnd ();
+    glPopMatrix ();
+}
+
 
 
 void displayBodyNeighbors2D (boost::shared_ptr<Body> body, 
@@ -388,11 +411,17 @@ void GLWidget::createActions ()
     connect(m_actionShowNeighbors.get (), SIGNAL(triggered()),
 	    this, SLOT(ShowNeighbors ()));
 
-    m_actionShowTextureTensor = boost::make_shared<QAction> (
-	tr("&Texture tensor"), this);
-    m_actionShowTextureTensor->setStatusTip(tr("Shown texture tensor"));
-    connect(m_actionShowTextureTensor.get (), SIGNAL(triggered()),
-	    this, SLOT(ShowTextureTensor ()));
+    m_actionShowDeformation = boost::make_shared<QAction> (
+	tr("&Deformation"), this);
+    m_actionShowDeformation->setStatusTip(tr("Shown deformation"));
+    connect(m_actionShowDeformation.get (), SIGNAL(triggered()),
+	    this, SLOT(ShowDeformation ()));
+
+    m_actionShowVelocity = boost::make_shared<QAction> (
+	tr("&Velocity"), this);
+    m_actionShowVelocity->setStatusTip(tr("Shown velocity"));
+    connect(m_actionShowVelocity.get (), SIGNAL(triggered()),
+	    this, SLOT(ShowVelocity ()));
 
     m_actionShowReset = boost::make_shared<QAction> (tr("&Reset"), this);
     m_actionShowReset->setStatusTip(tr("Shown reset"));
@@ -558,6 +587,7 @@ double GLWidget::GetVelocitySizeInitialRatio (
     float velocityMagnitude = 
 	GetSimulation (viewNumber).GetFoam (0).GetMax (
 	    BodyProperty::VELOCITY_MAGNITUDE);
+    // cdbg << "max=" << velocityMagnitude << endl;
     return cellLength / velocityMagnitude;
 }
 
@@ -1230,7 +1260,7 @@ void GLWidget::ShowNeighbors ()
     update ();
 }
 
-void GLWidget::ShowTextureTensor ()
+void GLWidget::ShowDeformation ()
 {
     m_showType = SHOW_DEFORMATION_TENSOR;
     vector<size_t> bodies;
@@ -1238,6 +1268,16 @@ void GLWidget::ShowTextureTensor ()
     m_showBodyId = bodies[0];
     update ();
 }
+
+void GLWidget::ShowVelocity ()
+{
+    m_showType = SHOW_VELOCITY;
+    vector<size_t> bodies;
+    brushedBodies (m_contextMenuPosScreen, &bodies);
+    m_showBodyId = bodies[0];
+    update ();
+}
+
 
 void GLWidget::ShowReset ()
 {
@@ -1334,7 +1374,8 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     if (currentView == viewNumber)
     {
 	displayBodyNeighbors (currentView);
-	displayBodyDeformationTensor2D (currentView);
+	displayBodyDeformation (currentView);
+	displayBodyVelocity (currentView);
     }
     displayBodiesNeighbors ();
     displayStatus ();    
@@ -2160,7 +2201,7 @@ void GLWidget::displayEdgesNormal (ViewNumber::Enum viewNumber) const
     glPopAttrib ();
 }
 
-void GLWidget::displayDeformationTensor2D (ViewNumber::Enum viewNumber) const
+void GLWidget::displayDeformation (ViewNumber::Enum viewNumber) const
 {
     const Foam& foam = 
 	GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber));
@@ -2174,13 +2215,35 @@ void GLWidget::displayDeformationTensor2D (ViewNumber::Enum viewNumber) const
     for_each (
 	bodies.begin (), bodies.end (),
 	boost::bind (
-	    ::displayBodyDeformationTensor2D, _1, 
+	    ::displayBodyDeformation, _1, 
 	    GetDeformationSizeInitialRatio (viewNumber) * 
 	    GetDeformationSizeRatio ()));
     glPopAttrib ();    
 }
 
-void GLWidget::displayBodyDeformationTensor2D (
+void GLWidget::displayVelocity (ViewNumber::Enum viewNumber) const
+{
+    const Foam& foam = 
+	GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber));
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    if (! foam.Is2D () || ! vs.IsVelocityShown ())
+	return;
+    Foam::Bodies bodies = foam.GetBodies ();
+    glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
+    glDisable (GL_DEPTH_TEST);
+    glColor (Qt::black);
+    for_each (
+	bodies.begin (), bodies.end (),
+	boost::bind (
+	    ::displayBodyVelocity, _1, 
+	    GetVelocitySizeInitialRatio (viewNumber) * 
+	    GetVelocitySizeRatio ()));
+    glPopAttrib ();    
+}
+
+
+
+void GLWidget::displayBodyDeformation (
     ViewNumber::Enum viewNumber) const
 {
     if (m_showType == SHOW_DEFORMATION_TENSOR)
@@ -2192,7 +2255,7 @@ void GLWidget::displayBodyDeformationTensor2D (
 	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glDisable (GL_DEPTH_TEST);
 	glColor (Qt::black);
-	::displayBodyDeformationTensor2D (
+	::displayBodyDeformation (
 	    *foam.FindBody (m_showBodyId), 
 	    GetDeformationSizeInitialRatio (viewNumber) * 
 	    GetDeformationSizeRatio ());
@@ -2200,6 +2263,25 @@ void GLWidget::displayBodyDeformationTensor2D (
     }
 }
 
+void GLWidget::displayBodyVelocity (
+    ViewNumber::Enum viewNumber) const
+{
+    if (m_showType == SHOW_VELOCITY)
+    {
+	const Foam& foam = 
+	    GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber));
+	if (! foam.Is2D ())
+	    return;
+	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
+	glDisable (GL_DEPTH_TEST);
+	glColor (Qt::black);
+	::displayBodyVelocity (
+	    *foam.FindBody (m_showBodyId), 
+	    GetVelocitySizeInitialRatio (viewNumber) * 
+	    GetVelocitySizeRatio ());
+	glPopAttrib ();
+    }
+}
 
 
 void GLWidget::displayBodyNeighbors (ViewNumber::Enum viewNumber) const
@@ -2472,7 +2554,8 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
     displayContextBodies (viewNumber);
     displayContextStationaryFoam (viewNumber);
     displayStandaloneFaces ();    
-    displayDeformationTensor2D (viewNumber);
+    displayDeformation (viewNumber);
+    displayVelocity (viewNumber);
     if (m_t1sShown)
 	displayT1sDot (viewNumber, GetCurrentTime (viewNumber));
     vs.GetForceAverage ().DisplayOneTimeStep (viewNumber);
@@ -3065,7 +3148,8 @@ void GLWidget::contextMenuEventView (QMenu* menu) const
     {
 	QMenu* menuShow = menu->addMenu ("Show");
 	menuShow->addAction (m_actionShowNeighbors.get ());
-	menuShow->addAction (m_actionShowTextureTensor.get ());
+	menuShow->addAction (m_actionShowDeformation.get ());
+	menuShow->addAction (m_actionShowVelocity.get ());
 	menuShow->addAction (m_actionShowReset.get ());
     }
 }

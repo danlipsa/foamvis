@@ -106,11 +106,13 @@ void SetterVelocity::operator () (const boost::shared_ptr<Body>& body)
 {
     G3D::Vector3 velocity = body->GetVelocity ();
     m_program->setAttributeValue (m_attributeLocation, velocity.x, velocity.y);
+    //cdbg << velocity.x << ", " << velocity.y << ", " 
+    //<< velocity.length () << endl;
 }
 
 void SetterVelocity::operator () ()
 {
-    ThrowException ("Illegal function call: SetterVelocity::operator ()");
+    m_program->setAttributeValue (m_attributeLocation, 0, 0);
 }
 
 int SetterVelocity::GetBodyOrFaceProperty () const
