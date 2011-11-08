@@ -80,7 +80,7 @@ bool isArrow (vec2 x, vec2 texCoordCenter)
 	rotateVector (v);
 	v = v * u_sizeRatio / u_cellLength;
 	vec2 n = normalize (v);
-	n = vec2 (-n[1], n[0]);
+	n = vec2 (n[1], -n[0]);
 	float magnitude = length (v);
 	return isRectangle (x, n, 3 * lineWidthPerc, 0, magnitude) ||
 	    isRectangle (x, n, lineWidthPerc, magnitude, 0);

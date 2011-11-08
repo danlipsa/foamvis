@@ -30,6 +30,9 @@ public:
     }
 
 protected:
+    G3D::Matrix2 getRotation () const;
+
+protected:
     const GLWidget& m_glWidget;
     ViewNumber::Enum m_viewNumber;
 };

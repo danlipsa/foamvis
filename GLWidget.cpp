@@ -1306,6 +1306,7 @@ void GLWidget::initializeGL()
 	glEnable(GL_DEPTH_TEST);
 	glEnable (GL_MULTISAMPLE);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	cdbg << "Compiling shaders..." << endl;
 	ScalarAverage::InitShaders ();
 	TensorAverage::InitShaders ();
 	VectorAverage::InitShaders ();

@@ -40,6 +40,14 @@ int SetterTextureCoordinate::GetBodyOrFaceProperty () const
     return m_glWidget.GetViewSettings (m_viewNumber).GetBodyOrFaceProperty ();
 }
 
+G3D::Matrix2 SetterTextureCoordinate::getRotation () const
+{
+    const ViewSettings& vs = m_glWidget.GetViewSettings (m_viewNumber);    
+    G3D::Matrix4 modelRotation4; 
+    G3D::glGetMatrix (GL_MODELVIEW_MATRIX, modelRotation4);
+    return ToMatrix2 (modelRotation4) / vs.GetScaleRatio ();
+}
+
 
 // SetterVertexAttribute
 // ======================================================================
@@ -65,16 +73,12 @@ void SetterVertexAttribute::operator () ()
 // ======================================================================
 void SetterDeformation::operator () (const boost::shared_ptr<Body>& body)
 {
-    const ViewSettings& vs = m_glWidget.GetViewSettings (m_viewNumber);
     // Practical Linear Algebra, A Geometry Toolbox, 
     // Gerald Farin, Dianne Hansford, Sec 7.5
     G3D::Matrix2 l = G3D::Matrix2::identity ();
     l[0][0] = body->GetDeformationEigenValue (0);
     l[1][1] = body->GetDeformationEigenValue (1);
-    G3D::Matrix4 modelRotation4; 
-    G3D::glGetMatrix (GL_MODELVIEW_MATRIX, modelRotation4);
-    G3D::Matrix2 modelRotation = ToMatrix2 (modelRotation4) / 
-	vs.GetScaleRatio ();
+    G3D::Matrix2 modelRotation = getRotation ();
     G3D::Matrix2 r = 
 	mult (modelRotation,
 	      MatrixFromColumns (body->GetDeformationEigenVector (0).xy (),
@@ -104,7 +108,9 @@ int SetterDeformation::GetBodyOrFaceProperty () const
 
 void SetterVelocity::operator () (const boost::shared_ptr<Body>& body)
 {
-    G3D::Vector3 velocity = body->GetVelocity ();
+    G3D::Vector2 velocity = body->GetVelocity ().xy ();
+    G3D::Matrix2 m = getRotation ();
+    velocity = m * velocity;
     m_program->setAttributeValue (m_attributeLocation, velocity.x, velocity.y);
     //cdbg << velocity.x << ", " << velocity.y << ", " 
     //<< velocity.length () << endl;
