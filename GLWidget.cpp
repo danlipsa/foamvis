@@ -2235,7 +2235,7 @@ void GLWidget::displayVelocity (ViewNumber::Enum viewNumber) const
 	boost::bind (
 	    ::displayBodyVelocity, _1, 
 	    GetVelocitySizeInitialRatio (viewNumber) * 
-	    vs.GetVelocitySizeRatio ()));
+	    vs.GetVelocitySize ()));
     glPopAttrib ();    
 }
 
@@ -2278,7 +2278,7 @@ void GLWidget::displayBodyVelocity (
 	::displayBodyVelocity (
 	    *foam.FindBody (m_showBodyId), 
 	    GetVelocitySizeInitialRatio (viewNumber) * 
-	    vs.GetVelocitySizeRatio ());
+	    vs.GetVelocitySize ());
 	glPopAttrib ();
     }
 }
@@ -3366,16 +3366,6 @@ float GLWidget::getValueFromIndex (const pair<float,float>& minMax, int index)
 	(minMax.second - minMax.first);
 }
 
-float GLWidget::valueChangedLog2Scale (
-    const pair<double,double>& minMax, int index)
-{
-    QSlider* slider = static_cast<QSlider*> (sender ());
-    size_t maxSlider = slider->maximum ();
-    double exp = minMax.first + (double (index) / maxSlider) * 
-	(minMax.second - minMax.first);
-    return pow (2, exp);
-}
-
 
 bool GLWidget::IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const
 {
@@ -3943,35 +3933,37 @@ void GLWidget::ToggledT1sKernelTextureSizeShown (bool checked)
     update ();
 }
 
-void GLWidget::ValueChangedDeformationSize (int index)
+void GLWidget::ValueChangedDeformationSizeRatio (int index)
 {
     ViewSettings& vs = GetViewSettings ();
-    vs.SetDeformationSizeRatio (
-	valueChangedLog2Scale (ELLIPSE_SIZE_EXP2, index));
+    vs.SetDeformationSize (
+	Exp2ToValue (
+	    static_cast<QSlider*> (sender ()), ELLIPSE_SIZE_EXP2));
     update ();
 }
 
 void GLWidget::ValueChangedDeformationLineWidthRatio (int index)
 {
     ViewSettings& vs = GetViewSettings ();
-    vs.SetDeformationLineWidthRatio (
-	valueChangedLog2Scale (ELLIPSE_LINE_WIDTH_EXP2, index));
+    vs.SetDeformationLineWidth (
+	Exp2ToValue (
+	    static_cast<QSlider*> (sender ()), ELLIPSE_LINE_WIDTH_EXP2));
     update ();
 }
 
-void GLWidget::ValueChangedVelocitySize (int index)
+void GLWidget::ValueChangedVelocitySizeRatio (int index)
 {
     ViewSettings& vs = GetViewSettings ();
-    vs.SetVelocitySizeRatio (
-	valueChangedLog2Scale (ELLIPSE_SIZE_EXP2, index));
+    vs.SetVelocitySize (
+	Exp2ToValue (static_cast<QSlider*> (sender ()), ELLIPSE_SIZE_EXP2));
     update ();
 }
 
-void GLWidget::ValueChangedForceLength (int index)
+void GLWidget::ValueChangedForceSizeRatio (int index)
 {
     ViewSettings& vs = GetViewSettings ();
-    vs.SetForceSizeRatio (
-	valueChangedLog2Scale (FORCE_SIZE_EXP2, index));
+    vs.SetForceSize (
+	Exp2ToValue (static_cast<QSlider*> (sender ()), FORCE_SIZE_EXP2));
     update ();
 }
 
@@ -3979,8 +3971,8 @@ void GLWidget::ValueChangedForceLength (int index)
 void GLWidget::ValueChangedVelocityLineWidthRatio (int index)
 {
     ViewSettings& vs = GetViewSettings ();
-    vs.SetVelocityLineWidthRatio (valueChangedLog2Scale (
-				      ELLIPSE_LINE_WIDTH_EXP2, index));
+    vs.SetVelocityLineWidth (Exp2ToValue (static_cast<QSlider*> (sender ()),
+					  ELLIPSE_LINE_WIDTH_EXP2));
     update ();
 }
 

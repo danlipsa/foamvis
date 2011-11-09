@@ -167,7 +167,7 @@ TensorAverage::TensorAverage (const GLWidget& glWidget,
     TensorAverageTemplate<SetterDeformation> (
 	glWidget, &GLWidget::GetDeformationSizeInitialRatio,
 	&ViewSettings::GetDeformationSizeRatio,
-	&ViewSettings::GetDeformationLineWidthRatio,
+	&ViewSettings::GetDeformationLineWidth,
 	scalarAverageFbos)
 {
 }

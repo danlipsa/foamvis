@@ -466,39 +466,39 @@ public:
     {
 	return m_deformationSizeRatio;
     }
-    void SetDeformationSizeRatio (float value)
+    void SetDeformationSize (float value)
     {
 	m_deformationSizeRatio = value;
     }
-    float GetDeformationLineWidthRatio () const
+    float GetDeformationLineWidth () const
     {
 	return m_deformationLineWidthRatio;
     }
-    void SetDeformationLineWidthRatio (float value)
+    void SetDeformationLineWidth (float value)
     {
 	m_deformationLineWidthRatio = value;
     }
-    float GetVelocitySizeRatio () const
+    float GetVelocitySize () const
     {
 	return m_velocitySizeRatio;
     }
-    void SetVelocitySizeRatio (float value)
+    void SetVelocitySize (float value)
     {
 	m_velocitySizeRatio = value;
     }
-    float GetVelocityLineWidthRatio () const
+    float GetVelocityLineWidth () const
     {
 	return m_velocityLineWidthRatio;
     }
-    void SetVelocityLineWidthRatio (float value)
+    void SetVelocityLineWidth (float value)
     {
 	m_velocityLineWidthRatio = value;
     }
-    float GetForceSizeRatio () const
+    float GetForceSize () const
     {
 	return m_forceSizeRatio;
     }
-    void SetForceSizeRatio (float value)
+    void SetForceSize (float value)
     {
 	m_forceSizeRatio = value;
     }

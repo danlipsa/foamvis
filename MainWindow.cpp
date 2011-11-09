@@ -251,7 +251,7 @@ void MainWindow::deformationViewToUI ()
 	horizontalSliderDeformationSize, vs.GetDeformationSizeRatio ());
     SetValueNoSignals (
 	horizontalSliderDeformationLineWidth, 
-	vs.GetDeformationLineWidthRatio ());
+	vs.GetDeformationLineWidth ());
 }
 
 void MainWindow::velocityViewToUI ()
@@ -261,10 +261,10 @@ void MainWindow::velocityViewToUI ()
     SetCheckedNoSignals (checkBoxVelocityGrid, 
 			 vs.GetVelocityAverage ().IsGridShown ());
     SetValueNoSignals (
-	horizontalSliderVelocitySize, vs.GetVelocitySizeRatio ());
+	horizontalSliderVelocitySize, vs.GetVelocitySize ());
     SetValueNoSignals (
 	horizontalSliderVelocityLineWidth, 
-	vs.GetVelocityLineWidthRatio ());
+	vs.GetVelocityLineWidth ());
 }
 
 void MainWindow::forceViewToUI ()
@@ -274,7 +274,7 @@ void MainWindow::forceViewToUI ()
     SetCheckedNoSignals (checkBoxForcePressure, vs.IsForcePressureShown ());
     SetCheckedNoSignals (checkBoxForceResult, vs.IsForceResultShown ());    
     SetValueNoSignals (
-	horizontalSliderForceSize, vs.GetForceSizeRatio ());
+	horizontalSliderForceSize, vs.GetForceSize ());
  }
 
 void MainWindow::t1sPDEViewToUI ()

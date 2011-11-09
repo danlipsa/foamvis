@@ -2242,7 +2242,7 @@
     <slot>ToggledTimeStepShown(bool)</slot>
     <slot>ToggledStandaloneElementsShown(bool)</slot>
     <slot>ValueChangedHighlightLineWidth(int)</slot>
-    <slot>ValueChangedForceLength(int)</slot>
+    <slot>ValueChangedForceSizeRatio(int)</slot>
     <slot>ToggledForcePressureShown(bool)</slot>
     <slot>ToggledForceNetworkShown(bool)</slot>
     <slot>ToggledForceResultShown(bool)</slot>
@@ -2257,7 +2257,7 @@
     <slot>ToggledShowDeformationTensor(bool)</slot>
     <slot>ToggledCenterPathHidden(bool)</slot>
     <slot>ToggledBodyNeighborsShown(bool)</slot>
-    <slot>ValueChangedDeformationSize(int)</slot>
+    <slot>ValueChangedDeformationSizeRatio(int)</slot>
     <slot>ValueChangedDeformationGridSize(int)</slot>
     <slot>ValueChangedDeformationLineWidthRatio(int)</slot>
     <slot>ValueChangedCellWidth(int)</slot>
@@ -2277,7 +2277,7 @@
     <slot>ClickedEnd()</slot>
     <slot>ToggledShowVelocity(bool)</slot>
     <slot>ToggledShowVelocityGrid(bool)</slot>
-    <slot>ValueChangedVelocitySize(int)</slot>
+    <slot>ValueChangedVelocitySizeRatio(int)</slot>
     <slot>ValueChangedVelocityLineWidthRatio(int)</slot>
    </slots>
   </customwidget>
@@ -3308,7 +3308,7 @@
    <sender>horizontalSliderForceSize</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ValueChangedForceLength(int)</slot>
+   <slot>ValueChangedForceSizeRatio(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>913</x>
@@ -3468,7 +3468,7 @@
    <sender>horizontalSliderDeformationSize</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ValueChangedDeformationSize(int)</slot>
+   <slot>ValueChangedDeformationSizeRatio(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>873</x>
@@ -3788,7 +3788,7 @@
    <sender>horizontalSliderVelocitySize</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ValueChangedVelocitySize(int)</slot>
+   <slot>ValueChangedVelocitySizeRatio(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>877</x>

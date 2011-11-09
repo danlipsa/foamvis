@@ -350,11 +350,11 @@ public Q_SLOTS:
     void ValueChangedT1sKernelSigma (int index);
     void ValueChangedT1sKernelTextureSize (int index);
     void ToggledT1sKernelTextureSizeShown (bool checked);
-    void ValueChangedDeformationSize (int index);
+    void ValueChangedDeformationSizeRatio (int index);
     void ValueChangedDeformationLineWidthRatio (int index);
-    void ValueChangedVelocitySize (int index);
+    void ValueChangedVelocitySizeRatio (int index);
     void ValueChangedVelocityLineWidthRatio (int index);
-    void ValueChangedForceLength (int index);
+    void ValueChangedForceSizeRatio (int index);
     void ValueChangedHighlightLineWidth (int newWidth);
     // Actions
     void ResetTransformAll ();
@@ -658,7 +658,6 @@ private:
 	ViewNumber::COUNT>& actionCopyTransformation,
 	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformation);
     float getValueFromIndex (const pair<float,float>& minMax, int index);
-    float valueChangedLog2Scale (const pair<double,double>& minMax, int index);
     string infoSelectedBody () const;
     string infoSelectedBodies () const;
 

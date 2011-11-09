@@ -131,7 +131,7 @@ void ForceAverage::displayForces (
     const G3D::AABox& box = 
 	GetGLWidget ().GetSimulation (viewNumber).GetFoam (0).
 	GetBody (0).GetBoundingBox ();
-    float unitForceSize = vs.GetForceSizeRatio () * 
+    float unitForceSize = vs.GetForceSize () * 
 	(box.high () - box.low ()).length () / count;
     G3D::Vector3 center = force.m_body->GetCenter ();
     if (vs.IsForceResultShown ())
