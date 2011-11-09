@@ -127,6 +127,10 @@ public Q_SLOTS:
 	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 private:
+    void deformationViewToUI ();
+    void velocityViewToUI ();
+    void forceViewToUI ();
+    void t1sPDEViewToUI ();
     HistogramInfo createHistogramInfo (
 	pair<float, float> minMax, size_t count) const;    
     void setStackedWidget (ViewType::Enum viewType);

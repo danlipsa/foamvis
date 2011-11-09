@@ -53,8 +53,10 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_colorBarTexture (0),
     m_scalarAverage (new ScalarAverage (glWidget)),
     m_t1sPDE (new T1sPDE (glWidget)),
-    m_deformationAverage (new TensorAverage (glWidget, m_scalarAverage->GetFbos ())),
-    m_velocityAverage (new VectorAverage (glWidget, m_scalarAverage->GetFbos ())),
+    m_deformationAverage (
+	new TensorAverage (glWidget, m_scalarAverage->GetFbos ())),
+    m_velocityAverage (
+	new VectorAverage (glWidget, m_scalarAverage->GetFbos ())),
     m_forceAverage (new ForceAverage (glWidget)),
     m_rotationModel (G3D::Matrix3::identity ()),
     m_scaleRatio (1),
@@ -80,7 +82,12 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_currentTime (0),
     m_t1sShiftLower (false),
     m_syncViewTimeBegin (0),
-    m_syncViewTimeEnd (0)
+    m_syncViewTimeEnd (0),
+    m_deformationSizeRatio (1),
+    m_deformationLineWidthRatio (1),
+    m_velocitySizeRatio (1),
+    m_velocityLineWidthRatio (1),
+    m_forceSizeRatio (1)
 {
     initTexture ();
     initList ();

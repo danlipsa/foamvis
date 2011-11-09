@@ -154,10 +154,10 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
     }
     *cellLength = glWidget.GetCellLength (viewNumber) * gridScaleRatio;
     *lineWidth = glWidget.GetOnePixelInObjectSpace () * 
-	scaleRatio * CALL_MEMBER_FN (glWidget, m_lineWidthRatio) ();
+	scaleRatio * CALL_MEMBER_FN (vs, m_lineWidthRatio) ();
     *sizeRatio = 
 	CALL_MEMBER_FN (glWidget, m_sizeInitialRatio) (viewNumber) * 
-	CALL_MEMBER_FN (glWidget, m_sizeRatio) () * gridScaleRatio;
+	CALL_MEMBER_FN (vs, m_sizeRatio) () * gridScaleRatio;
     *enclosingRect = 
 	glWidget.CalculateViewEnclosingRect (viewNumber) - rotationCenter;
 }
@@ -166,8 +166,8 @@ TensorAverage::TensorAverage (const GLWidget& glWidget,
 			      FramebufferObjects& scalarAverageFbos) :
     TensorAverageTemplate<SetterDeformation> (
 	glWidget, &GLWidget::GetDeformationSizeInitialRatio,
-	&GLWidget::GetDeformationSizeRatio,
-	&GLWidget::GetDeformationLineWidthRatio,
+	&ViewSettings::GetDeformationSizeRatio,
+	&ViewSettings::GetDeformationLineWidthRatio,
 	scalarAverageFbos)
 {
 }

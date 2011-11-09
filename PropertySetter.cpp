@@ -18,6 +18,7 @@
 
 // SetterTextureCoordinate
 // ======================================================================
+
 void SetterTextureCoordinate::operator () (
     const boost::shared_ptr<Body>& body)
 {
@@ -112,8 +113,6 @@ void SetterVelocity::operator () (const boost::shared_ptr<Body>& body)
     G3D::Matrix2 m = getRotation ();
     velocity = m * velocity;
     m_program->setAttributeValue (m_attributeLocation, velocity.x, velocity.y);
-    //cdbg << velocity.x << ", " << velocity.y << ", " 
-    //<< velocity.length () << endl;
 }
 
 void SetterVelocity::operator () ()

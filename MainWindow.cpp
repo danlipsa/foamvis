@@ -21,6 +21,7 @@
 #include "TensorAverage.h"
 #include "Utils.h"
 #include "OpenGLUtils.h"
+#include "VectorAverage.h"
 #include "ViewSettings.h"
 
 
@@ -119,6 +120,7 @@ void MainWindow::configureInterface ()
     comboBoxWindowSize->setCurrentIndex (WindowSize::GL_720x480);
     horizontalSliderDeformationSize->setValue (49);
     horizontalSliderVelocitySize->setValue (49);
+    horizontalSliderForceSize->setValue (49);
     comboBoxColor->setCurrentIndex (BodyProperty::PRESSURE);
 }
 
@@ -235,6 +237,59 @@ void MainWindow::connectSignals ()
 	SLOT (ViewToUI ()));
 }
 
+void MainWindow::deformationViewToUI ()
+{
+    const ViewSettings& vs = widgetGl->GetViewSettings ();
+    SetCheckedNoSignals (checkBoxShowDeformation, 
+			 vs.IsDeformationShown ());
+    SetCheckedNoSignals (checkBoxDeformationGrid, 
+			 vs.GetDeformationAverage ().IsGridShown ());
+    SetCheckedNoSignals (
+	checkBoxDeformationGridCellCenter, 
+	vs.GetDeformationAverage ().IsGridCellCenterShown ());
+    SetValueNoSignals (
+	horizontalSliderDeformationSize, vs.GetDeformationSizeRatio ());
+    SetValueNoSignals (
+	horizontalSliderDeformationLineWidth, 
+	vs.GetDeformationLineWidthRatio ());
+}
+
+void MainWindow::velocityViewToUI ()
+{
+    const ViewSettings& vs = widgetGl->GetViewSettings ();
+    SetCheckedNoSignals (checkBoxShowVelocity, vs.IsVelocityShown ());
+    SetCheckedNoSignals (checkBoxVelocityGrid, 
+			 vs.GetVelocityAverage ().IsGridShown ());
+    SetValueNoSignals (
+	horizontalSliderVelocitySize, vs.GetVelocitySizeRatio ());
+    SetValueNoSignals (
+	horizontalSliderVelocityLineWidth, 
+	vs.GetVelocityLineWidthRatio ());
+}
+
+void MainWindow::forceViewToUI ()
+{
+    const ViewSettings& vs = widgetGl->GetViewSettings ();
+    SetCheckedNoSignals (checkBoxForceNetwork, vs.IsForceNetworkShown ());
+    SetCheckedNoSignals (checkBoxForcePressure, vs.IsForcePressureShown ());
+    SetCheckedNoSignals (checkBoxForceResult, vs.IsForceResultShown ());    
+    SetValueNoSignals (
+	horizontalSliderForceSize, vs.GetForceSizeRatio ());
+ }
+
+void MainWindow::t1sPDEViewToUI ()
+{
+    const ViewSettings& vs = widgetGl->GetViewSettings ();
+    SetCheckedNoSignals (checkBoxTextureSizeShown, 
+			 vs.GetT1sPDE ().IsKernelTextureSizeShown ());
+    SetValueNoSignals (horizontalSliderT1sKernelTextureSize,
+		       vs.GetT1sPDE ().GetKernelTextureSize ());
+    SetValueNoSignals (horizontalSliderT1sKernelIntervalPerPixel,
+		       vs.GetT1sPDE ().GetKernelIntervalPerPixel ());
+    SetValueNoSignals (horizontalSliderT1sKernelSigma,
+		       vs.GetT1sPDE ().GetKernelSigma ());
+}
+
 void MainWindow::ViewToUI ()
 {
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
@@ -258,26 +313,12 @@ void MainWindow::ViewToUI ()
     SetCheckedNoSignals (checkBoxContextHidden, vs.IsContextHidden ());
     SetCheckedNoSignals (checkBoxCenterPathHidden, vs.IsCenterPathHidden ());
     SetCheckedNoSignals (checkBoxT1sShiftLower, vs.IsT1sShiftLower ());
-    SetCheckedNoSignals (checkBoxShowDeformation, 
-			 vs.IsDeformationShown ());
-    SetCheckedNoSignals (checkBoxDeformationGrid, 
-			 vs.GetDeformationAverage ().IsGridShown ());
-    SetCheckedNoSignals (
-	checkBoxDeformationGridCellCenter, 
-	vs.GetDeformationAverage ().IsGridCellCenterShown ());
 
-    SetCheckedNoSignals (checkBoxForceNetwork, vs.IsForceNetworkShown ());
-    SetCheckedNoSignals (checkBoxForcePressure, vs.IsForcePressureShown ());
-    SetCheckedNoSignals (checkBoxForceResult, vs.IsForceResultShown ());
-    SetCheckedNoSignals (checkBoxTextureSizeShown, 
-			 vs.GetT1sPDE ().IsKernelTextureSizeShown ());
+    deformationViewToUI ();
+    velocityViewToUI ();
+    forceViewToUI ();
+    t1sPDEViewToUI ();
 
-    SetValueNoSignals (horizontalSliderT1sKernelTextureSize,
-		       vs.GetT1sPDE ().GetKernelTextureSize ());
-    SetValueNoSignals (horizontalSliderT1sKernelIntervalPerPixel,
-		       vs.GetT1sPDE ().GetKernelIntervalPerPixel ());
-    SetValueNoSignals (horizontalSliderT1sKernelSigma,
-		       vs.GetT1sPDE ().GetKernelSigma ());
     SetValueNoSignals (horizontalSliderAngleOfView, vs.GetAngleOfView ());
     SetValueAndMaxNoSignals (spinBoxStatisticsTimeWindow,
 			     vs.GetScalarAverage ().GetTimeWindow (), 

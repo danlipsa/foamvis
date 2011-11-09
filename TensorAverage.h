@@ -12,6 +12,7 @@
 #include "ImageBasedAverage.h"
 #include "PropertySetter.h"
 #include "ShaderProgram.h"
+#include "ViewSettings.h"
 
 
 class TensorDisplay : public ShaderProgram
@@ -51,9 +52,9 @@ template<typename Setter>
 class TensorAverageTemplate : public ImageBasedAverage<Setter>
 {
 public:
-    typedef double (GLWidget::*ParameterView) (
+    typedef float (GLWidget::*ParameterView) (
 	ViewNumber::Enum viewNumber) const;
-    typedef double (GLWidget::*Parameter) () const;    
+    typedef float (ViewSettings::*Parameter) () const;    
 
 public:
     TensorAverageTemplate (

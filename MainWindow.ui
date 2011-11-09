@@ -694,9 +694,6 @@
                    <string>Velocity</string>
                   </attribute>
                   <layout class="QFormLayout" name="formLayout_14">
-                   <property name="fieldGrowthPolicy">
-                    <enum>QFormLayout::FieldsStayAtSizeHint</enum>
-                   </property>
                    <item row="0" column="0">
                     <widget class="QCheckBox" name="checkBoxShowVelocity">
                      <property name="text">
@@ -785,12 +782,12 @@
                    <item row="2" column="0">
                     <widget class="QLabel" name="label_26">
                      <property name="text">
-                      <string>Length</string>
+                      <string>Size</string>
                      </property>
                     </widget>
                    </item>
                    <item row="2" column="1">
-                    <widget class="QSlider" name="horizontalSliderForceLength">
+                    <widget class="QSlider" name="horizontalSliderForceSize">
                      <property name="orientation">
                       <enum>Qt::Horizontal</enum>
                      </property>
@@ -3308,7 +3305,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>horizontalSliderForceLength</sender>
+   <sender>horizontalSliderForceSize</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
    <slot>ValueChangedForceLength(int)</slot>
@@ -3487,7 +3484,7 @@
    <sender>checkBoxShowDeformation</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledShowDeformationTensor(bool)</slot>
+   <slot>ToggledShowDeformation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>759</x>

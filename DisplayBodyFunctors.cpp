@@ -18,7 +18,6 @@
 #include "OpenGLUtils.h"
 #include "ViewSettings.h"
 
-
 struct ContextSegment : public Segment
 {
     ContextSegment () : Segment ()

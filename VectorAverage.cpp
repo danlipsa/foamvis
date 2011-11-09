@@ -21,8 +21,8 @@ VectorAverage::VectorAverage (const GLWidget& glWidget,
     TensorAverageTemplate<SetterVelocity> (
 	glWidget,
 	&GLWidget::GetVelocitySizeInitialRatio,
-	&GLWidget::GetVelocitySizeRatio,
-	&GLWidget::GetVelocityLineWidthRatio,
+	&ViewSettings::GetVelocitySizeRatio,
+	&ViewSettings::GetVelocityLineWidthRatio,
 	scalarAverageFbos)
 {
 }

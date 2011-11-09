@@ -127,24 +127,24 @@ void ForceAverage::display (
 void ForceAverage::displayForces (
     ViewNumber::Enum viewNumber, const Force& force, size_t count) const
 {
+    ViewSettings& vs = GetGLWidget ().GetViewSettings (viewNumber);
     const G3D::AABox& box = 
 	GetGLWidget ().GetSimulation (viewNumber).GetFoam (0).
 	GetBody (0).GetBoundingBox ();
-    float unitForceSize = 
-	GetGLWidget ().GetForceLength () * 
+    float unitForceSize = vs.GetForceSizeRatio () * 
 	(box.high () - box.low ()).length () / count;
     G3D::Vector3 center = force.m_body->GetCenter ();
-    if (GetGLWidget ().GetViewSettings (viewNumber).IsForceResultShown ())
+    if (vs.IsForceResultShown ())
 	displayForce (
 	    GetGLWidget ().GetHighlightColor (viewNumber, HighlightNumber::H2),
 	    center, G3D::Vector3 (
 		unitForceSize * 
 		(force.m_networkForce + force.m_pressureForce), 0));
-    if (GetGLWidget ().GetViewSettings (viewNumber).IsForceNetworkShown ())
+    if (vs.IsForceNetworkShown ())
 	displayForce (
 	    GetGLWidget ().GetHighlightColor (viewNumber, HighlightNumber::H0),
 	    center, G3D::Vector3 (unitForceSize * force.m_networkForce, 0));
-    if (GetGLWidget ().GetViewSettings (viewNumber).IsForcePressureShown ())
+    if (vs.IsForcePressureShown ())
 	displayForce (
 	    GetGLWidget ().GetHighlightColor (viewNumber, HighlightNumber::H1),
 	    center, G3D::Vector3 (unitForceSize * force.m_pressureForce, 0));

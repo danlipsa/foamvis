@@ -37,7 +37,7 @@ float lineWidthPerc = u_lineWidth / u_cellLength;
 
 
 /**
- * returns true if the transform matrix is valid
+ * @return true if the transform matrix is valid
  */
 bool getVector (vec2 texCoordCenter, out vec2 v)
 {
@@ -52,6 +52,9 @@ bool getVector (vec2 texCoordCenter, out vec2 v)
 
 void rotateVector (inout vec2 v)
 {
+    mat2 r = mat2 (gl_ModelViewMatrix[0].xy, 
+		   gl_ModelViewMatrix[1].xy);
+    v = r * v;
 }
 
 bool isRectangle (vec2 x, vec2 n, float width, 
@@ -60,13 +63,13 @@ bool isRectangle (vec2 x, vec2 n, float width,
     width = width / 2;
     lengthLeft = lengthLeft / 2;
     lengthRight = lengthRight / 2;
-    // lines along n
     return 
-	dot (x, vec2 (-n[1], n[0])) <= width &&
-	dot (x, vec2 (n[1], -n[0])) <= width &&
+	// lines along n
+	dot (x, vec2 (n[0], n[1])) <= width 
+	&& dot (x, vec2 (-n[0], -n[1])) <= width 
 	// lines perpendicular to n
-	dot (x, vec2 (n[0], n[1])) <= lengthLeft &&
-	dot (x, vec2 (-n[0], -n[1])) <= lengthRight;
+	&& dot (x, vec2 (-n[1], n[0])) <= lengthLeft
+	&& dot (x, vec2 (n[1], -n[0])) <= lengthRight;
 }
 
 
@@ -80,10 +83,10 @@ bool isArrow (vec2 x, vec2 texCoordCenter)
 	rotateVector (v);
 	v = v * u_sizeRatio / u_cellLength;
 	vec2 n = normalize (v);
-	n = vec2 (n[1], -n[0]);
+	n = vec2 (-n[1], n[0]);
 	float magnitude = length (v);
-	return isRectangle (x, n, 3 * lineWidthPerc, 0, magnitude) ||
-	    isRectangle (x, n, lineWidthPerc, magnitude, 0);
+	return isRectangle (x, n, 3 * lineWidthPerc, magnitude, 0) ||
+	    isRectangle (x, n, lineWidthPerc, 0, magnitude);
     }
     else
 	return false;

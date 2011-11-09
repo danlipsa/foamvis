@@ -91,10 +91,6 @@ public:
     {
 	return m_highlightLineWidth;
     }
-    double GetForceLength () const
-    {
-	return m_forceLength;
-    }
 
     const BodiesAlongTime& GetBodiesAlongTime () const;
     const BodyAlongTime& GetBodyAlongTime (size_t bodyId) const;
@@ -217,24 +213,8 @@ public:
 			     G3D::Rect2D& srcRect) const;
     float GetOnePixelInObjectSpace () const;
     double GetCellLength (ViewNumber::Enum viewNumber) const;
-    double GetDeformationSizeInitialRatio (ViewNumber::Enum viewNumber) const;
-    double GetDeformationSizeRatio () const
-    {
-	return m_deformationSizeRatio;
-    }
-    double GetDeformationLineWidthRatio () const
-    {
-	return m_deformationLineWidthRatio;
-    }
-    double GetVelocitySizeInitialRatio (ViewNumber::Enum viewNumber) const;
-    double GetVelocitySizeRatio () const
-    {
-	return m_velocitySizeRatio;
-    }
-    double GetVelocityLineWidthRatio () const
-    {
-	return m_velocityLineWidthRatio;
-    }
+    float GetDeformationSizeInitialRatio (ViewNumber::Enum viewNumber) const;
+    float GetVelocitySizeInitialRatio (ViewNumber::Enum viewNumber) const;
     G3D::AABox CalculateViewingVolume (
 	ViewNumber::Enum viewNumber,
 	ViewingVolumeOperation::Enum enclose = 
@@ -326,7 +306,7 @@ public Q_SLOTS:
     void ToggledTorusOriginalDomainClipped (bool checked);
     void ToggledMissingPressureShown (bool checked);
     void ToggledMissingVolumeShown (bool checked);
-    void ToggledShowDeformationTensor (bool checked);
+    void ToggledShowDeformation (bool checked);
     void ToggledShowDeformationGrid (bool checked);
     void ToggledShowVelocity (bool checked);
     void ToggledShowVelocityGrid (bool checked);
@@ -489,6 +469,7 @@ private:
     void mouseMoveRotate (QMouseEvent *event);
     void mouseMoveTranslate (QMouseEvent *event);
     void mouseMoveScale (QMouseEvent *event);
+    void allTransform (ViewNumber::Enum viewNumber) const;
     void viewportTransform (ViewNumber::Enum viewNumber) const;
     void setLight (int sliderValue, int maximumValue, 
 		   LightType::Enum lightType, ColorNumber::Enum colorNumber);
@@ -694,7 +675,7 @@ private:
     const static pair<float,float> ELLIPSE_LINE_WIDTH_EXP2;
     const static pair<float,float> CELL_LENGTH_EXP2;
     const static pair<float,float> CONTEXT_ALPHA;
-    const static pair<float,float> FORCE_LENGTH;
+    const static pair<float,float> FORCE_SIZE_EXP2;
     const static GLfloat HIGHLIGHT_LINE_WIDTH;
 
 private:
@@ -795,12 +776,7 @@ private:
     bool m_centerPathLineUsed;
     bool m_t1sShown;
     double m_t1sSize;
-    double m_deformationSizeRatio;
-    double m_deformationLineWidthRatio;
-    double m_velocitySizeRatio;
-    double m_velocityLineWidthRatio;
     double m_contextAlpha;
-    double m_forceLength;
     size_t m_highlightLineWidth;
     bool m_missingPressureShown;
     bool m_missingVolumeShown;

@@ -185,9 +185,9 @@ const size_t GLWidget::QUADRIC_STACKS = 1;
 const pair<float,float> GLWidget::T1S_SIZE (1, 32);
 const pair<float,float> GLWidget::ELLIPSE_SIZE_EXP2 (-10, 10);
 const pair<float,float> GLWidget::ELLIPSE_LINE_WIDTH_EXP2 (0, 3);
+const pair<float,float> GLWidget::FORCE_SIZE_EXP2 (-2, 2);
 
 const pair<float,float> GLWidget::CONTEXT_ALPHA (0.05, 0.5);
-const pair<float,float> GLWidget::FORCE_LENGTH (.25, 6);
 const GLfloat GLWidget::HIGHLIGHT_LINE_WIDTH = 2.0;
 
 // Methods
@@ -218,12 +218,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_centerPathLineUsed (false),
       m_t1sShown (false),
       m_t1sSize (1.0),
-      m_deformationSizeRatio (1),
-      m_deformationLineWidthRatio (1),
-      m_velocitySizeRatio (1),
-      m_velocityLineWidthRatio (1),
       m_contextAlpha (CONTEXT_ALPHA.first),
-      m_forceLength (FORCE_LENGTH.first),
       m_highlightLineWidth (HIGHLIGHT_LINE_WIDTH),
       m_missingPressureShown (true),
       m_missingVolumeShown (true),
@@ -572,18 +567,18 @@ double GLWidget::GetCellLength (ViewNumber::Enum viewNumber) const
     return min (extent.x, extent.y);
 }
 
-double GLWidget::GetDeformationSizeInitialRatio (
+float GLWidget::GetDeformationSizeInitialRatio (
     ViewNumber::Enum viewNumber) const
 {
-    double cellLength = GetCellLength (viewNumber);
+    float cellLength = GetCellLength (viewNumber);
     const Body& body = GetSimulation (viewNumber).GetFoam (0).GetBody (0);
     return cellLength / (2 * body.GetDeformationEigenValue (0));
 }
 
-double GLWidget::GetVelocitySizeInitialRatio (
+float GLWidget::GetVelocitySizeInitialRatio (
     ViewNumber::Enum viewNumber) const
 {
-    double cellLength = GetCellLength (viewNumber);
+    float cellLength = GetCellLength (viewNumber);
     float velocityMagnitude = 
 	GetSimulation (viewNumber).GetFoam (0).GetMax (
 	    BodyProperty::VELOCITY_MAGNITUDE);
@@ -1347,17 +1342,22 @@ void GLWidget::displayViews ()
     }
 }
 
+void GLWidget::allTransform (ViewNumber::Enum viewNumber) const
+{
+    viewportTransform (viewNumber);    
+    glMatrixMode (GL_PROJECTION);
+    ProjectionTransform (viewNumber);
+    glMatrixMode (GL_MODELVIEW);
+    ModelViewTransform (viewNumber, GetCurrentTime (viewNumber));
+}
+
 void GLWidget::displayView (ViewNumber::Enum viewNumber)
 {
     //QTime t;t.start ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetLightingParameters (
 	getInitialLightPosition (viewNumber, vs.GetSelectedLight ()));
-    viewportTransform (viewNumber);    
-    glMatrixMode (GL_PROJECTION);
-    ProjectionTransform (viewNumber);
-    glMatrixMode (GL_MODELVIEW);
-    ModelViewTransform (viewNumber, GetCurrentTime (viewNumber));
+    allTransform (viewNumber);
     m_minimumEdgeRadius = GetOnePixelInObjectSpace ();
     calculateEdgeRadius (m_edgeRadiusRatio,
 			 &m_edgeRadius, &m_arrowBaseRadius,
@@ -1524,7 +1524,7 @@ G3D::Vector3 GLWidget::brushedBodies (
     vector< boost::shared_ptr<Body> > b;
     G3D::Vector3 op = brushedBodies (position, &b);
     bodies->resize (b.size ());
-    transform (b.begin (), b.end (), bodies->begin (),
+    ::transform (b.begin (), b.end (), bodies->begin (),
 	       boost::bind (&Element::GetId, _1));
     return op;
 }
@@ -1533,7 +1533,7 @@ G3D::Vector3 GLWidget::brushedBodies (
     const QPoint& position, vector< boost::shared_ptr<Body> >* bodies) const
 {
     G3D::Vector3 op = toObjectTransform (position);
-    const Foam& foam = GetSimulation ().GetFoam (0);
+    const Foam& foam = GetSimulation ().GetFoam (GetCurrentTime ());
     BOOST_FOREACH (boost::shared_ptr<Body> body, foam.GetBodies ())
     {
 	G3D::AABox box = body->GetBoundingBox ();
@@ -1611,11 +1611,7 @@ G3D::Vector3 GLWidget::toObject (const QPoint& position) const
 G3D::Vector3 GLWidget::toObjectTransform (const QPoint& position, 
 					  ViewNumber::Enum viewNumber) const
 {
-    viewportTransform (viewNumber);    
-    glMatrixMode (GL_PROJECTION);
-    ProjectionTransform (viewNumber);
-    glMatrixMode (GL_MODELVIEW);
-    ModelViewTransform (viewNumber, GetCurrentTime (viewNumber));
+    allTransform (viewNumber);
     return toObject (position);
 }
 
@@ -1645,7 +1641,8 @@ void GLWidget::displayAverageAroundBodies (
 	glDisable (GL_DEPTH_TEST);
 	Foam::Bodies focusBody (1);
 	size_t bodyId = vs.GetAverageAroundBodyId ();
-	focusBody[0] = *simulation.GetFoam (vs.GetCurrentTime ()).FindBody (bodyId);
+	focusBody[0] = *simulation.GetFoam (
+	    vs.GetCurrentTime ()).FindBody (bodyId);
 	displayFacesContour<HighlightNumber::H0> (
 	    focusBody, viewNumber, m_highlightLineWidth);
 	glPointSize (4.0);
@@ -2218,7 +2215,7 @@ void GLWidget::displayDeformation (ViewNumber::Enum viewNumber) const
 	boost::bind (
 	    ::displayBodyDeformation, _1, 
 	    GetDeformationSizeInitialRatio (viewNumber) * 
-	    GetDeformationSizeRatio ()));
+	    vs.GetDeformationSizeRatio ()));
     glPopAttrib ();    
 }
 
@@ -2238,7 +2235,7 @@ void GLWidget::displayVelocity (ViewNumber::Enum viewNumber) const
 	boost::bind (
 	    ::displayBodyVelocity, _1, 
 	    GetVelocitySizeInitialRatio (viewNumber) * 
-	    GetVelocitySizeRatio ()));
+	    vs.GetVelocitySizeRatio ()));
     glPopAttrib ();    
 }
 
@@ -2249,6 +2246,7 @@ void GLWidget::displayBodyDeformation (
 {
     if (m_showType == SHOW_DEFORMATION_TENSOR)
     {
+	ViewSettings& vs = GetViewSettings (viewNumber);
 	const Foam& foam = 
 	    GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber));
 	if (! foam.Is2D ())
@@ -2259,7 +2257,7 @@ void GLWidget::displayBodyDeformation (
 	::displayBodyDeformation (
 	    *foam.FindBody (m_showBodyId), 
 	    GetDeformationSizeInitialRatio (viewNumber) * 
-	    GetDeformationSizeRatio ());
+	    vs.GetDeformationSizeRatio ());
 	glPopAttrib ();
     }
 }
@@ -2269,6 +2267,7 @@ void GLWidget::displayBodyVelocity (
 {
     if (m_showType == SHOW_VELOCITY)
     {
+	ViewSettings& vs = GetViewSettings (viewNumber);
 	const Foam& foam = 
 	    GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber));
 	if (! foam.Is2D ())
@@ -2279,7 +2278,7 @@ void GLWidget::displayBodyVelocity (
 	::displayBodyVelocity (
 	    *foam.FindBody (m_showBodyId), 
 	    GetVelocitySizeInitialRatio (viewNumber) * 
-	    GetVelocitySizeRatio ());
+	    vs.GetVelocitySizeRatio ());
 	glPopAttrib ();
     }
 }
@@ -3502,7 +3501,7 @@ void GLWidget::ToggledDirectionalLightEnabled (bool checked)
     update ();
 }
 
-void GLWidget::ToggledShowDeformationTensor (bool checked)
+void GLWidget::ToggledShowDeformation (bool checked)
 {
     ViewSettings& vs = GetViewSettings ();
     vs.SetDeformationTensorShown (checked);
@@ -3946,27 +3945,42 @@ void GLWidget::ToggledT1sKernelTextureSizeShown (bool checked)
 
 void GLWidget::ValueChangedDeformationSize (int index)
 {
-    m_deformationSizeRatio = valueChangedLog2Scale (ELLIPSE_SIZE_EXP2, index);
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetDeformationSizeRatio (
+	valueChangedLog2Scale (ELLIPSE_SIZE_EXP2, index));
     update ();
 }
 
 void GLWidget::ValueChangedDeformationLineWidthRatio (int index)
 {
-    m_deformationLineWidthRatio = valueChangedLog2Scale (
-	ELLIPSE_LINE_WIDTH_EXP2, index);
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetDeformationLineWidthRatio (
+	valueChangedLog2Scale (ELLIPSE_LINE_WIDTH_EXP2, index));
     update ();
 }
 
 void GLWidget::ValueChangedVelocitySize (int index)
 {
-    m_velocitySizeRatio = valueChangedLog2Scale (ELLIPSE_SIZE_EXP2, index);
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetVelocitySizeRatio (
+	valueChangedLog2Scale (ELLIPSE_SIZE_EXP2, index));
     update ();
 }
 
+void GLWidget::ValueChangedForceLength (int index)
+{
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetForceSizeRatio (
+	valueChangedLog2Scale (FORCE_SIZE_EXP2, index));
+    update ();
+}
+
+
 void GLWidget::ValueChangedVelocityLineWidthRatio (int index)
 {
-    m_velocityLineWidthRatio = valueChangedLog2Scale (
-	ELLIPSE_LINE_WIDTH_EXP2, index);
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetVelocityLineWidthRatio (valueChangedLog2Scale (
+				      ELLIPSE_LINE_WIDTH_EXP2, index));
     update ();
 }
 
@@ -3974,12 +3988,6 @@ void GLWidget::ValueChangedContextAlpha (int index)
 {
     m_contextAlpha = getValueFromIndex (CONTEXT_ALPHA, index);
     compile (GetViewNumber ());
-    update ();
-}
-
-void GLWidget::ValueChangedForceLength (int index)
-{
-    m_forceLength = getValueFromIndex (FORCE_LENGTH, index);
     update ();
 }
 
