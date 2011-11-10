@@ -1355,7 +1355,7 @@ void GLWidget::allTransform (ViewNumber::Enum viewNumber) const
 
 void GLWidget::displayView (ViewNumber::Enum viewNumber)
 {
-    //QTime t;t.start ();
+    QTime t;t.start ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetLightingParameters (
 	getInitialLightPosition (viewNumber, vs.GetSelectedLight ()));
@@ -1384,8 +1384,8 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     displayStatus ();    
     //displayContextMenuPos (viewNumber);
     WarnOnOpenGLError ("displayView");
-    //cdbg << "displayView(" <<  viewNumber << "): " 
-    //<< t.elapsed () << " ms" << endl;
+    cdbg << "displayView(" <<  viewNumber << "): " 
+    << t.elapsed () << " ms" << endl;
 }
 
 
