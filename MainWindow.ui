@@ -2242,7 +2242,7 @@
     <slot>ToggledTimeStepShown(bool)</slot>
     <slot>ToggledStandaloneElementsShown(bool)</slot>
     <slot>ValueChangedHighlightLineWidth(int)</slot>
-    <slot>ValueChangedForceSizeRatio(int)</slot>
+    <slot>ValueChangedForceSizeExp(int)</slot>
     <slot>ToggledForcePressureShown(bool)</slot>
     <slot>ToggledForceNetworkShown(bool)</slot>
     <slot>ToggledForceResultShown(bool)</slot>
@@ -2257,9 +2257,9 @@
     <slot>ToggledShowDeformationTensor(bool)</slot>
     <slot>ToggledCenterPathHidden(bool)</slot>
     <slot>ToggledBodyNeighborsShown(bool)</slot>
-    <slot>ValueChangedDeformationSizeRatio(int)</slot>
+    <slot>ValueChangedDeformationSizeExp(int)</slot>
     <slot>ValueChangedDeformationGridSize(int)</slot>
-    <slot>ValueChangedDeformationLineWidthRatio(int)</slot>
+    <slot>ValueChangedDeformationLineWidthExp(int)</slot>
     <slot>ValueChangedCellWidth(int)</slot>
     <slot>ValueChangedCellLength(int)</slot>
     <slot>ButtonClickedInteractionObject(int)</slot>
@@ -2277,8 +2277,8 @@
     <slot>ClickedEnd()</slot>
     <slot>ToggledShowVelocity(bool)</slot>
     <slot>ToggledShowVelocityGrid(bool)</slot>
-    <slot>ValueChangedVelocitySizeRatio(int)</slot>
-    <slot>ValueChangedVelocityLineWidthRatio(int)</slot>
+    <slot>ValueChangedVelocitySizeExp(int)</slot>
+    <slot>ValueChangedVelocityLineWidthExp(int)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -3308,7 +3308,7 @@
    <sender>horizontalSliderForceSize</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ValueChangedForceSizeRatio(int)</slot>
+   <slot>ValueChangedForceSizeExp(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>913</x>
@@ -3468,7 +3468,7 @@
    <sender>horizontalSliderDeformationSize</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ValueChangedDeformationSizeRatio(int)</slot>
+   <slot>ValueChangedDeformationSizeExp(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>873</x>
@@ -3532,7 +3532,7 @@
    <sender>horizontalSliderDeformationLineWidth</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ValueChangedDeformationLineWidthRatio(int)</slot>
+   <slot>ValueChangedDeformationLineWidthExp(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>873</x>
@@ -3788,7 +3788,7 @@
    <sender>horizontalSliderVelocitySize</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ValueChangedVelocitySizeRatio(int)</slot>
+   <slot>ValueChangedVelocitySizeExp(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>877</x>
@@ -3804,7 +3804,7 @@
    <sender>horizontalSliderVelocityLineWidth</sender>
    <signal>valueChanged(int)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ValueChangedVelocityLineWidthRatio(int)</slot>
+   <slot>ValueChangedVelocityLineWidthExp(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>848</x>

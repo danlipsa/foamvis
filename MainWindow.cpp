@@ -248,10 +248,14 @@ void MainWindow::deformationViewToUI ()
 	checkBoxDeformationGridCellCenter, 
 	vs.GetDeformationAverage ().IsGridCellCenterShown ());
     SetValueNoSignals (
-	horizontalSliderDeformationSize, vs.GetDeformationSizeRatio ());
+	horizontalSliderDeformationSize, 
+	ValueToExp2 (horizontalSliderDeformationSize, 
+		    GLWidget::SIZE_EXP2, vs.GetDeformationSize ()));
     SetValueNoSignals (
 	horizontalSliderDeformationLineWidth, 
-	vs.GetDeformationLineWidth ());
+	ValueToExp2 (horizontalSliderDeformationLineWidth,
+		     GLWidget::LINE_WIDTH_EXP2,
+		     vs.GetDeformationLineWidth ()));
 }
 
 void MainWindow::velocityViewToUI ()
@@ -261,10 +265,14 @@ void MainWindow::velocityViewToUI ()
     SetCheckedNoSignals (checkBoxVelocityGrid, 
 			 vs.GetVelocityAverage ().IsGridShown ());
     SetValueNoSignals (
-	horizontalSliderVelocitySize, vs.GetVelocitySize ());
+	horizontalSliderVelocitySize, 
+	ValueToExp2 (horizontalSliderVelocitySize, 
+		    GLWidget::SIZE_EXP2, vs.GetVelocitySize ()));
     SetValueNoSignals (
 	horizontalSliderVelocityLineWidth, 
-	vs.GetVelocityLineWidth ());
+	ValueToExp2 (horizontalSliderVelocityLineWidth,
+		    GLWidget::LINE_WIDTH_EXP2,
+		    vs.GetVelocityLineWidth ()));
 }
 
 void MainWindow::forceViewToUI ()

@@ -462,7 +462,7 @@ public:
     {
 	return m_syncViewTimeEnd - m_syncViewTimeBegin + 1;
     }
-    float GetDeformationSizeRatio () const
+    float GetDeformationSize () const
     {
 	return m_deformationSizeRatio;
     }

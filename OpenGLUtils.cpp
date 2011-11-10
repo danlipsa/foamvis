@@ -346,15 +346,18 @@ void ClearColorStencilBuffers (QColor clearColor, GLint clearStencil)
     glPopAttrib ();
 }
 
-void drawEllipsis2D (float l1, float l2, float c)
+void drawEllipsis2D (float l1, float l2, float size, float lineWidth)
 {
+    glPushAttrib (GL_LINE_BIT);
+    glLineWidth (lineWidth);
     glBegin(GL_LINE_LOOP);
     for (int i = 0; i < 360; ++i)
     {
 	float t = i * M_PI / 180;
-	glVertex2f( l1 * cos (t) * c, l2 * sin (t) * c);
+	glVertex2f( l1 * cos (t) * size, l2 * sin (t) * size);
     }
     glEnd();
+    glPopAttrib ();
 }
 
 // Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?

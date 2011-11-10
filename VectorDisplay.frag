@@ -118,7 +118,7 @@ bool isGridCenter (vec2 x)
 {
     x = abs (x);
     vec2 isLine;
-    float perc = 3*u_lineWidth / u_cellLength;
+    float perc = 2*u_lineWidth / u_cellLength;
     vec2 percentage = vec2 (perc, perc);
     isLine = step (x, percentage);
     return isLine.x * isLine.y == 1.0;

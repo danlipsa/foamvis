@@ -102,7 +102,8 @@ void display (const char* name, const T& what)
     cdbg << endl;
 }
 
-void displayBodyDeformation (boost::shared_ptr<Body> body, double size)
+void displayBodyDeformation (boost::shared_ptr<Body> body, 
+			     float size, float lineWidth)
 {
     if (body->IsConstraint ())
 	return;
@@ -114,25 +115,26 @@ void displayBodyDeformation (boost::shared_ptr<Body> body, double size)
     glPushMatrix ();
     glMultMatrix (cf);
     drawEllipsis2D (body->GetDeformationEigenValue (0), 
-		    body->GetDeformationEigenValue (1), size);
+		    body->GetDeformationEigenValue (1), size, lineWidth);
     glPopMatrix ();
 }
 
-void displayBodyVelocity (boost::shared_ptr<Body> body, double ratio)
+void displayBodyVelocity (boost::shared_ptr<Body> body, float size, 
+			  float lineWidth)
 {
     if (body->IsConstraint ())
 	return;
-    G3D::Vector2 velocity = body->GetVelocity ().xy () * ratio;
+    G3D::Vector2 velocity = body->GetVelocity ().xy () * size;
     glPushMatrix ();
     glTranslate (body->GetCenter ().xy ());
 	
-    glLineWidth (3);
+    glLineWidth (2 * lineWidth);
     glBegin (GL_LINES);
     ::glVertex (- velocity / 2);
     ::glVertex (G3D::Vector2::zero ());
     glEnd ();
 
-    glLineWidth (1);
+    glLineWidth (lineWidth);
     glBegin (GL_LINES);
     ::glVertex (G3D::Vector2::zero ());
     ::glVertex (velocity / 2);
@@ -183,8 +185,8 @@ const size_t GLWidget::QUADRIC_SLICES = 8;
 const size_t GLWidget::QUADRIC_STACKS = 1;
 
 const pair<float,float> GLWidget::T1S_SIZE (1, 32);
-const pair<float,float> GLWidget::ELLIPSE_SIZE_EXP2 (-10, 10);
-const pair<float,float> GLWidget::ELLIPSE_LINE_WIDTH_EXP2 (0, 3);
+const pair<float,float> GLWidget::SIZE_EXP2 (-10, 10);
+const pair<float,float> GLWidget::LINE_WIDTH_EXP2 (0, 3);
 const pair<float,float> GLWidget::FORCE_SIZE_EXP2 (-2, 2);
 
 const pair<float,float> GLWidget::CONTEXT_ALPHA (0.05, 0.5);
@@ -2215,7 +2217,8 @@ void GLWidget::displayDeformation (ViewNumber::Enum viewNumber) const
 	boost::bind (
 	    ::displayBodyDeformation, _1, 
 	    GetDeformationSizeInitialRatio (viewNumber) * 
-	    vs.GetDeformationSizeRatio ()));
+	    vs.GetDeformationSize (), 
+	    vs.GetDeformationLineWidth ()));
     glPopAttrib ();    
 }
 
@@ -2235,7 +2238,8 @@ void GLWidget::displayVelocity (ViewNumber::Enum viewNumber) const
 	boost::bind (
 	    ::displayBodyVelocity, _1, 
 	    GetVelocitySizeInitialRatio (viewNumber) * 
-	    vs.GetVelocitySize ()));
+	    vs.GetVelocitySize (),
+	    vs.GetVelocityLineWidth ()));
     glPopAttrib ();    
 }
 
@@ -2257,7 +2261,8 @@ void GLWidget::displayBodyDeformation (
 	::displayBodyDeformation (
 	    *foam.FindBody (m_showBodyId), 
 	    GetDeformationSizeInitialRatio (viewNumber) * 
-	    vs.GetDeformationSizeRatio ());
+	    vs.GetDeformationSize (),
+	    vs.GetDeformationLineWidth ());
 	glPopAttrib ();
     }
 }
@@ -2278,7 +2283,8 @@ void GLWidget::displayBodyVelocity (
 	::displayBodyVelocity (
 	    *foam.FindBody (m_showBodyId), 
 	    GetVelocitySizeInitialRatio (viewNumber) * 
-	    vs.GetVelocitySize ());
+	    vs.GetVelocitySize (),
+	    vs.GetVelocityLineWidth ());
 	glPopAttrib ();
     }
 }
@@ -3933,46 +3939,51 @@ void GLWidget::ToggledT1sKernelTextureSizeShown (bool checked)
     update ();
 }
 
-void GLWidget::ValueChangedDeformationSizeRatio (int index)
+void GLWidget::ValueChangedDeformationSizeExp (int index)
 {
+    (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetDeformationSize (
-	Exp2ToValue (
-	    static_cast<QSlider*> (sender ()), ELLIPSE_SIZE_EXP2));
+	Exp2Value (
+	    static_cast<QSlider*> (sender ()), SIZE_EXP2));
     update ();
 }
 
-void GLWidget::ValueChangedDeformationLineWidthRatio (int index)
+void GLWidget::ValueChangedDeformationLineWidthExp (int index)
 {
+    (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetDeformationLineWidth (
-	Exp2ToValue (
-	    static_cast<QSlider*> (sender ()), ELLIPSE_LINE_WIDTH_EXP2));
+	Exp2Value (
+	    static_cast<QSlider*> (sender ()), LINE_WIDTH_EXP2));
     update ();
 }
 
-void GLWidget::ValueChangedVelocitySizeRatio (int index)
+void GLWidget::ValueChangedVelocitySizeExp (int index)
 {
+    (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetVelocitySize (
-	Exp2ToValue (static_cast<QSlider*> (sender ()), ELLIPSE_SIZE_EXP2));
+	Exp2Value (static_cast<QSlider*> (sender ()), SIZE_EXP2));
     update ();
 }
 
-void GLWidget::ValueChangedForceSizeRatio (int index)
+void GLWidget::ValueChangedForceSizeExp (int index)
 {
+    (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetForceSize (
-	Exp2ToValue (static_cast<QSlider*> (sender ()), FORCE_SIZE_EXP2));
+	Exp2Value (static_cast<QSlider*> (sender ()), FORCE_SIZE_EXP2));
     update ();
 }
 
 
-void GLWidget::ValueChangedVelocityLineWidthRatio (int index)
+void GLWidget::ValueChangedVelocityLineWidthExp (int index)
 {
+    (void)index;
     ViewSettings& vs = GetViewSettings ();
-    vs.SetVelocityLineWidth (Exp2ToValue (static_cast<QSlider*> (sender ()),
-					  ELLIPSE_LINE_WIDTH_EXP2));
+    vs.SetVelocityLineWidth (Exp2Value (static_cast<QSlider*> (sender ()),
+					  LINE_WIDTH_EXP2));
     update ();
 }
 

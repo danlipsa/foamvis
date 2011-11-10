@@ -350,11 +350,11 @@ public Q_SLOTS:
     void ValueChangedT1sKernelSigma (int index);
     void ValueChangedT1sKernelTextureSize (int index);
     void ToggledT1sKernelTextureSizeShown (bool checked);
-    void ValueChangedDeformationSizeRatio (int index);
-    void ValueChangedDeformationLineWidthRatio (int index);
-    void ValueChangedVelocitySizeRatio (int index);
-    void ValueChangedVelocityLineWidthRatio (int index);
-    void ValueChangedForceSizeRatio (int index);
+    void ValueChangedDeformationSizeExp (int index);
+    void ValueChangedDeformationLineWidthExp (int index);
+    void ValueChangedVelocitySizeExp (int index);
+    void ValueChangedVelocityLineWidthExp (int index);
+    void ValueChangedForceSizeExp (int index);
     void ValueChangedHighlightLineWidth (int newWidth);
     // Actions
     void ResetTransformAll ();
@@ -393,6 +393,8 @@ public:
     const static  size_t DISPLAY_ALL;
     const static size_t QUADRIC_SLICES;
     const static size_t QUADRIC_STACKS;
+    const static pair<float,float> SIZE_EXP2;
+    const static pair<float,float> LINE_WIDTH_EXP2;
 
 protected:
     /**
@@ -670,8 +672,6 @@ private:
 private:
     // Min, max values for T1s, Context alpha, force length
     const static pair<float,float> T1S_SIZE;
-    const static pair<float,float> ELLIPSE_SIZE_EXP2;
-    const static pair<float,float> ELLIPSE_LINE_WIDTH_EXP2;
     const static pair<float,float> CELL_LENGTH_EXP2;
     const static pair<float,float> CONTEXT_ALPHA;
     const static pair<float,float> FORCE_SIZE_EXP2;

@@ -129,7 +129,7 @@ void ClearStencilBuffer (GLint clearStencil);
 void ClearColorStencilBuffers (
     QColor clearColor, GLint clearStencil);
 
-void drawEllipsis2D (float l1, float l2, float c);
+void drawEllipsis2D (float l1, float l2, float size, float lineWidth);
 
 void ActivateShader (G3D::Rect2D destRect);
 
