@@ -3461,6 +3461,11 @@ void GLWidget::ActivateViewShader (
 			rotationCenter, angleDegrees);
 }
 
+void GLWidget::SetTransformLinkage (TransformLinkage::Enum transformLinkage)
+{
+    m_transformLinkage = transformLinkage;
+    update ();
+}
 
 
 // Slots
@@ -3676,22 +3681,6 @@ void GLWidget::ButtonClickedTimeLinkage (int id)
     SetCurrentTime (GetCurrentTime ());
     update ();
     Q_EMIT ViewChanged ();
-}
-
-void GLWidget::ButtonClickedTransformLinkage (int id)
-{
-    TransformLinkage::Enum transformLinkage = TransformLinkage::Enum (id);
-    if (transformLinkage == TransformLinkage::LINKED_HORIZONTAL_AXIS &&
-	(m_viewCount != ViewCount::TWO || m_viewLayout != ViewLayout::VERTICAL))
-    {
-	QMessageBox msgBox (this);
-	msgBox.setText("Linked transform horizontal axis works only for "
-		       "two views, in vertical layout");
-	msgBox.exec();
-	return;
-    }
-    m_transformLinkage = transformLinkage;
-    update ();
 }
 
 void GLWidget::ToggledBodyCenterShown (bool checked)

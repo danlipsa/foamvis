@@ -255,11 +255,19 @@ public:
     {
 	return m_transformLinkage;
     }
+    void SetTransformLinkage (TransformLinkage::Enum transformLinkage);
     size_t GetLinkedTime () const
     {
 	return m_linkedTime;
     }
-
+    ViewCount::Enum GetViewCount () const
+    {
+	return m_viewCount;
+    }
+    ViewLayout::Enum GetViewLayout () const
+    {
+	return m_viewLayout;
+    }
 
 Q_SIGNALS:
     void PaintedGL ();
@@ -268,7 +276,6 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void ButtonClickedTimeLinkage (int id);
-    void ButtonClickedTransformLinkage (int id);
     void ButtonClickedViewType (int id);
     void ButtonClickedInteractionObject (int id);
     void ClickedEnd ();

@@ -3485,7 +3485,7 @@
   <connection>
    <sender>buttonGroupTransformLinkage</sender>
    <signal>buttonClicked(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>MainWindow</receiver>
    <slot>ButtonClickedTransformLinkage(int)</slot>
    <hints>
     <hint type="sourcelabel">

@@ -1105,6 +1105,8 @@ void MainWindow::ButtonClickedViewType (int vt)
 
 
 
+
+
 void MainWindow::setStackedWidget (ViewType::Enum viewType)
 {
     // WARNING: Has to match ViewType::Enum order
@@ -1233,6 +1235,24 @@ void MainWindow::ButtonClickedHistogram (int histogramType)
     m_histogramViewNumber = widgetGl->GetViewNumber ();
     SetAndDisplayHistogram (KEEP_SELECTION, REPLACE_MAX_VALUE);
 }
+
+void MainWindow::ButtonClickedTransformLinkage (int id)
+{
+    TransformLinkage::Enum transformLinkage = TransformLinkage::Enum (id);
+    if (transformLinkage == TransformLinkage::LINKED_HORIZONTAL_AXIS &&
+	(widgetGl->GetViewCount () != ViewCount::TWO || 
+	 widgetGl->GetViewLayout () != ViewLayout::VERTICAL))
+    {
+	QMessageBox msgBox (this);
+	msgBox.setText("Linked transform horizontal axis works only for "
+		       "two views, in vertical layout");
+	msgBox.exec();
+	SetCheckedNoSignals (radioButtonTransformIndependent, true);
+	return;
+    }
+    widgetGl->SetTransformLinkage (transformLinkage);
+}
+
 
 void MainWindow::SelectionChangedHistogram ()
 {

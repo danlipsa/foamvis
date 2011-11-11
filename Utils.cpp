@@ -433,7 +433,8 @@ void SetCurrentIndexNoSignals (QComboBox* comboBox, int index)
     comboBox->blockSignals (false);    
 }
 
-void SetCheckedNoSignals (QCheckBox* checkBox, bool checked)
+template<typename T>
+void SetCheckedNoSignals (T* checkBox, bool checked)
 {
     checkBox->blockSignals (true);
     checkBox->setChecked (checked);
@@ -530,6 +531,9 @@ int Value2Exp (QSlider* slider,
 //======================================================================
 
 /// @cond
+
+template void SetCheckedNoSignals<QCheckBox> (QCheckBox*, bool);
+template void SetCheckedNoSignals<QRadioButton> (QRadioButton*, bool);
 template void SetValueNoSignals<QSlider>(QSlider*, unsigned long);
 template void SetValueAndMaxNoSignals<QSpinBox>(
     QSpinBox*, unsigned long, unsigned long);
