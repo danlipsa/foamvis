@@ -83,11 +83,12 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_t1sShiftLower (false),
     m_syncViewTimeBegin (0),
     m_syncViewTimeEnd (0),
-    m_deformationSizeRatio (1),
-    m_deformationLineWidthRatio (1),
-    m_velocitySizeRatio (1),
-    m_velocityLineWidthRatio (1),
-    m_forceSizeRatio (1)
+    m_deformationSize (1),
+    m_deformationLineWidth (1),
+    m_velocitySize (1),
+    m_velocityLineWidth (1),
+    m_forceSize (1),
+    m_forceLineWidth (1)
 {
     initTexture ();
     initList ();

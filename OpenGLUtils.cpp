@@ -281,7 +281,6 @@ void DisplayOpositeFaces (G3D::Vector3 origin,
 void DisplayBox (const OOBox& oobox)
 {
     glPushAttrib (GL_POLYGON_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
-    glLineWidth (1.0);
     glColor (Qt::black);
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 
@@ -348,7 +347,6 @@ void ClearColorStencilBuffers (QColor clearColor, GLint clearStencil)
 
 void drawEllipsis2D (float l1, float l2, float size, float lineWidth)
 {
-    glPushAttrib (GL_LINE_BIT);
     glLineWidth (lineWidth);
     glBegin(GL_LINE_LOOP);
     for (int i = 0; i < 360; ++i)
@@ -357,7 +355,7 @@ void drawEllipsis2D (float l1, float l2, float size, float lineWidth)
 	glVertex2f( l1 * cos (t) * size, l2 * sin (t) * size);
     }
     glEnd();
-    glPopAttrib ();
+    glLineWidth (1.0);
 }
 
 // Based on OpenGL FAQ, 9.090 How do I draw a full-screen quad?

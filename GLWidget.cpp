@@ -140,6 +140,7 @@ void displayBodyVelocity (boost::shared_ptr<Body> body, float size,
     ::glVertex (velocity / 2);
     glEnd ();
     glPopMatrix ();
+    glLineWidth (1.0);
 }
 
 
@@ -231,6 +232,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_viewLayout (ViewLayout::HORIZONTAL),
       m_viewNumber (ViewNumber::VIEW0),
       m_timeLinkage (TimeLinkage::LINKED),
+      m_transformLinkage (TransformLinkage::INDEPENDENT),
       m_linkedTime (0),
       m_showType (SHOW_NOTHING)
 {
@@ -884,7 +886,7 @@ void GLWidget::viewportTransform (ViewNumber::Enum viewNumber) const
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetViewport (viewRect);
-    glViewport (vs.GetViewport ());
+    glViewport (viewRect);
 }
 
 
@@ -1355,7 +1357,7 @@ void GLWidget::allTransform (ViewNumber::Enum viewNumber) const
 
 void GLWidget::displayView (ViewNumber::Enum viewNumber)
 {
-    QTime t;t.start ();
+    //QTime t;t.start ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetLightingParameters (
 	getInitialLightPosition (viewNumber, vs.GetSelectedLight ()));
@@ -1384,8 +1386,8 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     displayStatus ();    
     //displayContextMenuPos (viewNumber);
     WarnOnOpenGLError ("displayView");
-    cdbg << "displayView(" <<  viewNumber << "): " 
-    << t.elapsed () << " ms" << endl;
+    //cdbg << "displayView(" <<  viewNumber << "): " 
+    //<< t.elapsed () << " ms" << endl;
 }
 
 
@@ -1646,7 +1648,7 @@ void GLWidget::displayAverageAroundBodies (
 	focusBody[0] = *simulation.GetFoam (
 	    vs.GetCurrentTime ()).FindBody (bodyId);
 	displayFacesContour<HighlightNumber::H0> (
-	    focusBody, viewNumber, m_highlightLineWidth);
+	    focusBody, viewNumber, GetHighlightLineWidth ());
 	glPointSize (4.0);
 	glColor (Qt::black);
 	DisplayBodyCenter (
@@ -1659,7 +1661,7 @@ void GLWidget::displayAverageAroundBodies (
 		*simulation.GetFoam (vs.GetCurrentTime ()).
 		FindBody (secondBodyId);
 	    displayFacesContour<HighlightNumber::H0> (
-		focusBody, viewNumber, m_highlightLineWidth);
+		focusBody, viewNumber, GetHighlightLineWidth ());
 	}
 	if (adjustForAverageAroundMovementRotation)
 	    glPopMatrix ();
@@ -1686,7 +1688,7 @@ void GLWidget::displayContextBodies (ViewNumber::Enum viewNumber) const
 		contextBodies[j++] = bodies[i];
 	contextBodies.resize (j);
 	displayFacesContour<HighlightNumber::H1> (
-	    contextBodies, viewNumber, m_highlightLineWidth);
+	    contextBodies, viewNumber, GetHighlightLineWidth ());
 	glPopAttrib ();
     }
 }
@@ -1710,7 +1712,7 @@ void GLWidget::displayContextStationaryFoam (
 	}
 	DisplayBox (GetSimulation (viewNumber), 
 		    GetHighlightColor (viewNumber, HighlightNumber::H1),
-		    m_highlightLineWidth);
+		    GetHighlightLineWidth ());
 	if (adjustForAverageAroundMovementRotation)
 	    glPopMatrix ();
 	glPopAttrib ();
@@ -2071,7 +2073,7 @@ void GLWidget::displayFocusBox (ViewNumber::Enum viewNumber) const
 	glScale (vs.GetContextScaleRatio ());
 	DisplayBox (focusBox, GetHighlightColor (
 			viewNumber, HighlightNumber::H0), 
-		    m_highlightLineWidth);
+		    GetHighlightLineWidth ());
 	glPopMatrix ();
     }
 }
@@ -2780,7 +2782,6 @@ void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const BodySelector& bodySelector = vs.GetBodySelector ();
-    glLineWidth (1.0);
     displayCenterPaths (viewNumber);
     
     glPushAttrib (GL_ENABLE_BIT);
@@ -3677,6 +3678,22 @@ void GLWidget::ButtonClickedTimeLinkage (int id)
     Q_EMIT ViewChanged ();
 }
 
+void GLWidget::ButtonClickedTransformLinkage (int id)
+{
+    TransformLinkage::Enum transformLinkage = TransformLinkage::Enum (id);
+    if (transformLinkage == TransformLinkage::LINKED_HORIZONTAL_AXIS &&
+	(m_viewCount != ViewCount::TWO || m_viewLayout != ViewLayout::VERTICAL))
+    {
+	QMessageBox msgBox (this);
+	msgBox.setText("Linked transform horizontal axis works only for "
+		       "two views, in vertical layout");
+	msgBox.exec();
+	return;
+    }
+    m_transformLinkage = transformLinkage;
+    update ();
+}
+
 void GLWidget::ToggledBodyCenterShown (bool checked)
 {
     m_bodyCenterShown = checked;
@@ -3974,6 +3991,15 @@ void GLWidget::ValueChangedForceSizeExp (int index)
     ViewSettings& vs = GetViewSettings ();
     vs.SetForceSize (
 	Exp2Value (static_cast<QSlider*> (sender ()), FORCE_SIZE_EXP2));
+    update ();
+}
+
+void GLWidget::ValueChangedForceLineWidthExp (int index)
+{
+    (void)index;
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetForceLineWidth (Exp2Value (static_cast<QSlider*> (sender ()),
+				     LINE_WIDTH_EXP2));
     update ();
 }
 

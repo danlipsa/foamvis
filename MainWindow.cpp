@@ -132,8 +132,9 @@ void MainWindow::configureInterfaceDataDependent (
     setupSliderData (simulation);
     if (simulation.T1sAvailable ())
     {
-	checkBoxT1sShown->setEnabled (true);
+	checkBoxT1sShown->setEnabled (true);	
 	checkBoxT1sShown->setChecked (true);
+	radioButtonT1sPDE->setEnabled (true);
     }
     if (! simulation.IsTorus ())
     {
@@ -249,11 +250,11 @@ void MainWindow::deformationViewToUI ()
 	vs.GetDeformationAverage ().IsGridCellCenterShown ());
     SetValueNoSignals (
 	horizontalSliderDeformationSize, 
-	ValueToExp2 (horizontalSliderDeformationSize, 
+	Value2Exp (horizontalSliderDeformationSize, 
 		    GLWidget::SIZE_EXP2, vs.GetDeformationSize ()));
     SetValueNoSignals (
 	horizontalSliderDeformationLineWidth, 
-	ValueToExp2 (horizontalSliderDeformationLineWidth,
+	Value2Exp (horizontalSliderDeformationLineWidth,
 		     GLWidget::LINE_WIDTH_EXP2,
 		     vs.GetDeformationLineWidth ()));
 }
@@ -266,11 +267,11 @@ void MainWindow::velocityViewToUI ()
 			 vs.GetVelocityAverage ().IsGridShown ());
     SetValueNoSignals (
 	horizontalSliderVelocitySize, 
-	ValueToExp2 (horizontalSliderVelocitySize, 
+	Value2Exp (horizontalSliderVelocitySize, 
 		    GLWidget::SIZE_EXP2, vs.GetVelocitySize ()));
     SetValueNoSignals (
 	horizontalSliderVelocityLineWidth, 
-	ValueToExp2 (horizontalSliderVelocityLineWidth,
+	Value2Exp (horizontalSliderVelocityLineWidth,
 		    GLWidget::LINE_WIDTH_EXP2,
 		    vs.GetVelocityLineWidth ()));
 }
@@ -283,7 +284,16 @@ void MainWindow::forceViewToUI ()
     SetCheckedNoSignals (checkBoxForceResult, vs.IsForceResultShown ());    
     SetValueNoSignals (
 	horizontalSliderForceSize, vs.GetForceSize ());
- }
+    SetValueNoSignals (
+	horizontalSliderForceSize, 
+	Value2Exp (horizontalSliderForceSize,
+		   GLWidget::FORCE_SIZE_EXP2, vs.GetForceSize ()));
+    SetValueNoSignals (
+	horizontalSliderForceLineWidth, 
+	Value2Exp (horizontalSliderForceLineWidth,
+		   GLWidget::LINE_WIDTH_EXP2,
+		   vs.GetForceLineWidth ()));
+}
 
 void MainWindow::t1sPDEViewToUI ()
 {
@@ -441,6 +451,12 @@ void MainWindow::setupButtonGroups ()
     buttonGroupTimeLinkage->setId (
 	radioButtonTimeLinked, TimeLinkage::LINKED);
     buttonGroupTimeLinkage->button (TimeLinkage::LINKED)->setChecked (true);
+
+    buttonGroupTransformLinkage->setId (
+	radioButtonTransformIndependent, TransformLinkage::INDEPENDENT);
+    buttonGroupTransformLinkage->setId (
+	radioButtonTransformLinkedHorizontalAxis, 
+	TransformLinkage::LINKED_HORIZONTAL_AXIS);
 }
 
 void MainWindow::setupSliderData (const Simulation& simulation)

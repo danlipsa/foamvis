@@ -464,46 +464,52 @@ public:
     }
     float GetDeformationSize () const
     {
-	return m_deformationSizeRatio;
+	return m_deformationSize;
     }
     void SetDeformationSize (float value)
     {
-	m_deformationSizeRatio = value;
+	m_deformationSize = value;
     }
     float GetDeformationLineWidth () const
     {
-	return m_deformationLineWidthRatio;
+	return m_deformationLineWidth;
     }
     void SetDeformationLineWidth (float value)
     {
-	m_deformationLineWidthRatio = value;
+	m_deformationLineWidth = value;
     }
     float GetVelocitySize () const
     {
-	return m_velocitySizeRatio;
+	return m_velocitySize;
     }
     void SetVelocitySize (float value)
     {
-	m_velocitySizeRatio = value;
+	m_velocitySize = value;
     }
     float GetVelocityLineWidth () const
     {
-	return m_velocityLineWidthRatio;
+	return m_velocityLineWidth;
     }
     void SetVelocityLineWidth (float value)
     {
-	m_velocityLineWidthRatio = value;
+	m_velocityLineWidth = value;
     }
     float GetForceSize () const
     {
-	return m_forceSizeRatio;
+	return m_forceSize;
     }
     void SetForceSize (float value)
     {
-	m_forceSizeRatio = value;
+	m_forceSize = value;
     }
-
-
+    float GetForceLineWidth () const
+    {
+	return m_forceLineWidth;
+    }
+    void SetForceLineWidth (float value)
+    {
+	m_forceLineWidth = value;
+    }
     virtual void AverageInit (ViewNumber::Enum viewNumber);
     virtual void AverageSetTimeWindow (size_t timeSteps);
     virtual void AverageStep (ViewNumber::Enum viewNumber, int direction);
@@ -594,11 +600,12 @@ private:
     bool m_t1sShiftLower;
     size_t m_syncViewTimeBegin;
     size_t m_syncViewTimeEnd;
-    float m_deformationSizeRatio;
-    float m_deformationLineWidthRatio;
-    float m_velocitySizeRatio;
-    float m_velocityLineWidthRatio;
-    float m_forceSizeRatio;
+    float m_deformationSize;
+    float m_deformationLineWidth;
+    float m_velocitySize;
+    float m_velocityLineWidth;
+    float m_forceSize;
+    float m_forceLineWidth;
 };
 
 

@@ -71,6 +71,7 @@ void DisplaySegment::operator() (
     ::glVertex(begin);
     ::glVertex(end);
     glEnd();
+    glLineWidth (1.0);
 }
 
 // DisplaySegmentQuadric
@@ -196,13 +197,12 @@ void DisplaySegmentTube::displayTube (const Disk& begin, const Disk& end) const
 void DisplaySegmentArrow::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
-    glPushAttrib (GL_LINE_BIT);
     glLineWidth (3.0);
     glBegin(GL_LINES);
     ::glVertex(begin);
     ::glVertex((begin + end) / 2);
     glEnd();
-    glPopAttrib ();
+    glLineWidth (1.0);
 }
 
 // DisplaySegmentArrowQuadric

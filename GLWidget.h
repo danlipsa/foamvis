@@ -251,6 +251,10 @@ public:
     {
 	return m_timeLinkage;
     }
+    TransformLinkage::Enum GetTransformLinkage () const
+    {
+	return m_transformLinkage;
+    }
     size_t GetLinkedTime () const
     {
 	return m_linkedTime;
@@ -264,6 +268,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void ButtonClickedTimeLinkage (int id);
+    void ButtonClickedTransformLinkage (int id);
     void ButtonClickedViewType (int id);
     void ButtonClickedInteractionObject (int id);
     void ClickedEnd ();
@@ -355,6 +360,7 @@ public Q_SLOTS:
     void ValueChangedVelocitySizeExp (int index);
     void ValueChangedVelocityLineWidthExp (int index);
     void ValueChangedForceSizeExp (int index);
+    void ValueChangedForceLineWidthExp (int index);
     void ValueChangedHighlightLineWidth (int newWidth);
     // Actions
     void ResetTransformAll ();
@@ -395,6 +401,7 @@ public:
     const static size_t QUADRIC_STACKS;
     const static pair<float,float> SIZE_EXP2;
     const static pair<float,float> LINE_WIDTH_EXP2;
+    const static pair<float,float> FORCE_SIZE_EXP2;
 
 protected:
     /**
@@ -674,7 +681,6 @@ private:
     const static pair<float,float> T1S_SIZE;
     const static pair<float,float> CELL_LENGTH_EXP2;
     const static pair<float,float> CONTEXT_ALPHA;
-    const static pair<float,float> FORCE_SIZE_EXP2;
     const static GLfloat HIGHLIGHT_LINE_WIDTH;
 
 private:
@@ -790,6 +796,7 @@ private:
     boost::array<
 	boost::shared_ptr<ViewSettings>, ViewNumber::COUNT> m_viewSettings;
     TimeLinkage::Enum m_timeLinkage;
+    TransformLinkage::Enum m_transformLinkage;
     /**
      * Used to keep trak of time for TimeLinkage::LINKED.
      * It has the resolution of the view that has the maximum interval and the 
