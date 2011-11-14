@@ -159,7 +159,9 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
 	CALL_MEMBER_FN (glWidget, m_sizeInitialRatio) (viewNumber) * 
 	CALL_MEMBER_FN (vs, m_sizeRatio) () * gridScaleRatio;
     *enclosingRect = 
-	glWidget.CalculateViewEnclosingRect (viewNumber) - rotationCenter;
+	toRect2D (
+	    glWidget.CalculateViewingVolume (
+		viewNumber, ViewingVolumeOperation::ENCLOSE2D)) - rotationCenter;
 }
 
 TensorAverage::TensorAverage (const GLWidget& glWidget,

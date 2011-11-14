@@ -78,6 +78,11 @@ G3D::Matrix2 mult (const G3D::Matrix2& first, const G3D::Matrix2& second)
     return m;
 }
 
+G3D::Rect2D toRect2D (G3D::AABox box)
+{
+    return G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ());
+}
+
 
 // ToString functionality
 // ======================================================================

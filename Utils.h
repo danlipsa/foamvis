@@ -49,15 +49,6 @@ ostream& operator<< (ostream& ostr, const pair<U, V>& p);
 
 const G3D::Vector3int16& Vector3int16Unit (size_t direction);
 extern const G3D::Vector3int16 Vector3int16Zero;
-void Matrix2SetColumn (G3D::Matrix2* m, size_t i, const G3D::Vector2& v);
-template <typename M> G3D::Matrix2 ToMatrix2 (const M& m);
-G3D::Matrix2 MatrixFromColumns (
-    const G3D::Vector2& col1, const G3D::Vector2& col2);
-G3D::Matrix3 MatrixFromColumns (
-    const G3D::Vector3& col1, const G3D::Vector3& col2, 
-    const G3D::Vector3& col3);
-G3D::Matrix2 mult (const G3D::Matrix2& first, const G3D::Matrix2& second);
-
 
 // 3D Math functionality
 // ======================================================================
@@ -90,7 +81,15 @@ bool Intersection (
 template<typename T>
 int polyCentroid2D(T x[], T y[], size_t n,
 		 T* xCentroid, T* yCentroid, T* area);
-
+void Matrix2SetColumn (G3D::Matrix2* m, size_t i, const G3D::Vector2& v);
+template <typename M> G3D::Matrix2 ToMatrix2 (const M& m);
+G3D::Matrix2 MatrixFromColumns (
+    const G3D::Vector2& col1, const G3D::Vector2& col2);
+G3D::Matrix3 MatrixFromColumns (
+    const G3D::Vector3& col1, const G3D::Vector3& col2, 
+    const G3D::Vector3& col3);
+G3D::Matrix2 mult (const G3D::Matrix2& first, const G3D::Matrix2& second);
+G3D::Rect2D toRect2D (G3D::AABox aabox);
 
 
 // Conversions Qt - G3D

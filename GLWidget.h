@@ -216,10 +216,7 @@ public:
     float GetDeformationSizeInitialRatio (ViewNumber::Enum viewNumber) const;
     float GetVelocitySizeInitialRatio (ViewNumber::Enum viewNumber) const;
     G3D::AABox CalculateViewingVolume (
-	ViewNumber::Enum viewNumber,
-	ViewingVolumeOperation::Enum enclose = 
-	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
-    G3D::Rect2D CalculateViewEnclosingRect (ViewNumber::Enum viewNumber) const;
+	ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose) const;
     void RotateAndTranslateAverageAround (
 	ViewNumber::Enum viewNumber,
 	size_t timeStep, int direction) const;
@@ -467,6 +464,10 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    void setScaleCenter (ViewNumber::Enum viewNumber);
+    G3D::Vector3 getScaleCenterTranslation (ViewNumber::Enum viewNumber) const;
+    G3D::Vector2 getScaleCenter (ViewNumber::Enum viewNumber, 
+				 const G3D::Rect2D& rect) const;
     bool linkedTimesValid (size_t timeBegin, size_t timeEnd);
     bool linkedTimesValid ();
     void contextMenuEventColorBar (QMenu* menu) const;
@@ -626,7 +627,7 @@ private:
      * Setup lighting for shaded bodies
      */
     void initializeLighting ();
-    double ratioFromCenter (const QPoint& p);
+    float ratioFromScaleCenter (ViewNumber::Enum viewNumber, const QPoint& p);
     G3D::Matrix3 rotate (ViewNumber::Enum viewNumber, 
 			 const QPoint& position, const G3D::Matrix3& rotate);
     void translate (ViewNumber::Enum viewNumber,

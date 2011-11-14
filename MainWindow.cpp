@@ -143,6 +143,13 @@ void MainWindow::configureInterfaceDataDependent (
 	radioButtonEdgesTorus->setDisabled (true);
 	radioButtonFaceEdgesTorus->setDisabled (true);
     }
+    else if (simulation.Is2D () && simulationGroup.size () == 2)
+    {
+	G3D::AABox box = simulation.GetBoundingBoxTorus ();
+	G3D::Vector3 extent = box.extent ();
+	if (extent.x > extent.y)
+	    comboBoxViewLayout->setCurrentIndex (ViewLayout::VERTICAL);
+    }
     if (simulation.Is2D ())
     {
 	comboBoxInteractionMode->setCurrentIndex (InteractionMode::SCALE);	
@@ -1244,8 +1251,8 @@ void MainWindow::ButtonClickedTransformLinkage (int id)
 	 widgetGl->GetViewLayout () != ViewLayout::VERTICAL))
     {
 	QMessageBox msgBox (this);
-	msgBox.setText("Linked transform horizontal axis works only for "
-		       "two views, in vertical layout");
+	msgBox.setText("This feature works only with two views "
+		       "in vertical layout");
 	msgBox.exec();
 	SetCheckedNoSignals (radioButtonTransformIndependent, true);
 	return;

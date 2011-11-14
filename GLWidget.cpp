@@ -501,6 +501,7 @@ void GLWidget::initViewSettings ()
 {
     const Simulation& simulation = GetSimulation (0);
     int rotation2D = simulation.GetRotation2D ();
+    ViewNumber::Enum viewNumber (ViewNumber::VIEW0);
     BOOST_FOREACH (boost::shared_ptr<ViewSettings>& vs, m_viewSettings)
     {
 	vs = boost::make_shared <ViewSettings> (*this);
@@ -514,6 +515,11 @@ void GLWidget::initViewSettings ()
 	vs->AverageSetTimeWindow (simulation.GetTimeSteps ());
 	vs->GetT1sPDE ().AverageSetTimeWindow (simulation.GetT1sTimeSteps ());
 	vs->AverageSetTimeWindow (simulation.GetTimeSteps ());
+	vs->SetScaleCenter (
+	    CalculateViewingVolume (
+		viewNumber, 
+		ViewingVolumeOperation::DONT_ENCLOSE2D).center ().xy ());
+	viewNumber = ViewNumber::Enum (viewNumber + 1);
     }
 }
 
@@ -538,10 +544,6 @@ const Simulation& GLWidget::GetSimulation (size_t i) const
 void GLWidget::SetSimulationGroup (const SimulationGroup* simulationGroup)
 {
     m_simulationGroup = simulationGroup;
-    if (GetSimulationGroup ().size () == 1)
-	m_timeLinkage = TimeLinkage::LINKED;
-    else
-	m_timeLinkage = TimeLinkage::LINKED;
     initViewSettings ();
     Foam::Bodies bodies = GetSimulation ().GetFoam (0).GetBodies ();
     if (bodies.size () != 0)
@@ -723,8 +725,7 @@ void GLWidget::initializeLighting ()
  * @todo: make sure context view works for 3D
  */
 void GLWidget::translateAndScale (
-    ViewNumber::Enum viewNumber,
-    double scaleRatio,
+    ViewNumber::Enum viewNumber, double scaleRatio,
     const G3D::Vector3& translation, bool contextView) const
 {
     glScale (scaleRatio);
@@ -746,7 +747,6 @@ void GLWidget::transformFoamAverageAround (
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     ViewSettings::AverageAroundType type = vs.GetAverageAroundType ();
-    glTranslate (- GetSimulation (viewNumber).GetBoundingBox ().center ());
     if (type == ViewSettings::AVERAGE_AROUND)
 	RotateAndTranslateAverageAround (viewNumber, timeStep, 1);
 }
@@ -804,14 +804,6 @@ G3D::AABox GLWidget::CalculateViewingVolume (
 				   xOverY, extendAlongZRatio, enclose);
 }
 
-G3D::Rect2D GLWidget::CalculateViewEnclosingRect (
-    ViewNumber::Enum viewNumber) const
-{
-    G3D::AABox box = CalculateViewingVolume (viewNumber, 
-					     ViewingVolumeOperation::ENCLOSE2D);
-    return G3D::Rect2D::xyxy (box.low ().xy (), box.high ().xy ());
-}
-
 
 G3D::AABox GLWidget::calculateCenteredViewingVolume (
     ViewNumber::Enum viewNumber,
@@ -848,8 +840,11 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
 				   size_t timeStep) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
     glLoadIdentity ();
-    glTranslatef (0, 0, - vs.GetCameraDistance ());
+    glTranslate (
+	getScaleCenterTranslation (viewNumber) +
+	G3D::Vector3 (0, 0, - vs.GetCameraDistance ()));
     bool contextView = vs.IsContextView ();
     if (contextView)
 	translateAndScale (
@@ -857,10 +852,10 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
 	    false);
     else
 	translateAndScale (
-	    viewNumber, vs.GetScaleRatio (), vs.GetTranslation (), 
-	    contextView);
-    const Foam& foam = GetSimulation (viewNumber).GetFoam (0);
+	    viewNumber, vs.GetScaleRatio (), vs.GetTranslation (), false);
+    const Foam& foam = simulation.GetFoam (0);
     glMultMatrix (vs.GetRotationModel () * vs.GetRotationForAxesOrder (foam));
+    glTranslate (- simulation.GetBoundingBox ().center ());
     transformFoamAverageAround (viewNumber, timeStep);
 }
 
@@ -1412,15 +1407,27 @@ G3D::Matrix3 GLWidget::getRotationAround (int axis, double angleRadians)
     return Matrix3::fromAxisAngle (axes[axis], angleRadians);
 }
 
-double GLWidget::ratioFromCenter (const QPoint& p)
+G3D::Vector2 GLWidget::getScaleCenter (
+    ViewNumber::Enum viewNumber, const G3D::Rect2D& rect) const
 {
-    using G3D::Vector2;
-    G3D::Rect2D viewRect = GetViewRect ();
-    Vector2 center = viewRect.center ();
+    if (m_transformLinkage == TransformLinkage::INDEPENDENT)
+	return rect.center ();
+    else if (viewNumber == ViewNumber::VIEW0)
+	return (rect.x0y0 () + rect.x1y0 ()) / 2;
+    else
+	return (rect.x0y1 () + rect.x1y1 ()) / 2;
+}
+
+
+float GLWidget::ratioFromScaleCenter (
+    ViewNumber::Enum viewNumber, const QPoint& p)
+{
+    
+    G3D::Vector2 center = getScaleCenter (viewNumber, GetViewRect (viewNumber));
     int windowHeight = height ();
-    Vector2 lastPos = QtToOpenGl (m_lastPos, windowHeight);
-    Vector2 currentPos = QtToOpenGl (p, windowHeight);
-    double ratio =
+    G3D::Vector2 lastPos = QtToOpenGl (m_lastPos, windowHeight);
+    G3D::Vector2 currentPos = QtToOpenGl (p, windowHeight);
+    float ratio =
 	(currentPos - center).length () / (lastPos - center).length ();
     return ratio;
 }
@@ -1479,8 +1486,12 @@ void GLWidget::translate (
 	vs.SetTranslation (
 	    vs.GetTranslation () - (translationRatio * focusBoxExtent));
     else
-	vs.SetTranslation (
-	    vs.GetTranslation () + (translationRatio * focusBoxExtent));
+    {
+	G3D::Vector3 translation = 
+	    vs.GetTranslation () + (translationRatio * focusBoxExtent);
+	vs.SetTranslation (translation);
+	cdbg << translation << endl;
+    }
 }
 
 void GLWidget::translateGrid (
@@ -1499,17 +1510,27 @@ void GLWidget::translateGrid (
 void GLWidget::scale (ViewNumber::Enum viewNumber, const QPoint& position)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
-    double ratio = ratioFromCenter (position);
+    float ratio = ratioFromScaleCenter (viewNumber, position);
     if (vs.IsContextView ())
 	vs.SetScaleRatio (vs.GetScaleRatio () / ratio);
     else
-	vs.SetScaleRatio (vs.GetScaleRatio () * ratio);
+    {
+	if (m_transformLinkage == TransformLinkage::LINKED_HORIZONTAL_AXIS)
+	    for (size_t i = 0; i < 2; ++i)
+	    {
+		ViewNumber::Enum vn = ViewNumber::Enum (i);
+		ViewSettings& vs = GetViewSettings (vn);
+		vs.SetScaleRatio (vs.GetScaleRatio () * ratio);
+	    }
+	else
+	    vs.SetScaleRatio (vs.GetScaleRatio () * ratio);
+    }
 }
 
 void GLWidget::scaleGrid (ViewNumber::Enum viewNumber, const QPoint& position)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
-    double ratio = ratioFromCenter (position);
+    float ratio = ratioFromScaleCenter (viewNumber, position);
     vs.SetGridScaleRatio (vs.GetGridScaleRatio () * ratio);
 }
 
@@ -1518,7 +1539,7 @@ void GLWidget::scaleContext (
     ViewNumber::Enum viewNumber, const QPoint& position)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
-    double ratio = ratioFromCenter (position);
+    float ratio = ratioFromScaleCenter (viewNumber, position);
     vs.SetContextScaleRatio (vs.GetContextScaleRatio () * ratio);
 }
 
@@ -3456,14 +3477,41 @@ void GLWidget::ActivateViewShader (
     ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
-    G3D::Rect2D srcRect = CalculateViewEnclosingRect (viewNumber);
+    G3D::Rect2D srcRect = 
+	toRect2D (CalculateViewingVolume (viewNumber,
+					  ViewingVolumeOperation::ENCLOSE2D));
     activateViewShader (viewNumber, enclose, srcRect, 
 			rotationCenter, angleDegrees);
 }
 
+G3D::Vector3 GLWidget::getScaleCenterTranslation (
+    ViewNumber::Enum viewNumber) const
+{
+    G3D::Vector2 center = 
+	GetSimulation (viewNumber).
+	GetFoam (0).GetBoundingBoxTorus ().center ().xy ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    G3D::Vector2 newCenter = vs.GetScaleCenter ();
+    return G3D::Vector3 (newCenter - center, 0);
+}
+
+void GLWidget::setScaleCenter (ViewNumber::Enum viewNumber)
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    G3D::Rect2D rect = 
+	toRect2D (CalculateViewingVolume (
+		      viewNumber, 
+		      ViewingVolumeOperation::DONT_ENCLOSE2D));
+    G3D::Vector2 newCenter = getScaleCenter (viewNumber, rect);
+    vs.SetScaleCenter (newCenter);
+}
+
+
 void GLWidget::SetTransformLinkage (TransformLinkage::Enum transformLinkage)
 {
     m_transformLinkage = transformLinkage;
+    setScaleCenter (ViewNumber::VIEW0);
+    setScaleCenter (ViewNumber::VIEW1);
     update ();
 }
 

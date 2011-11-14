@@ -510,6 +510,14 @@ public:
     {
 	m_forceLineWidth = value;
     }
+    G3D::Vector2 GetScaleCenter () const
+    {
+	return m_scaleCenter;
+    }
+    void SetScaleCenter (G3D::Vector2 scaleCenter)
+    {
+	m_scaleCenter = scaleCenter;
+    }
     virtual void AverageInit (ViewNumber::Enum viewNumber);
     virtual void AverageSetTimeWindow (size_t timeSteps);
     virtual void AverageStep (ViewNumber::Enum viewNumber, int direction);
@@ -606,6 +614,7 @@ private:
     float m_velocityLineWidth;
     float m_forceSize;
     float m_forceLineWidth;
+    G3D::Vector2 m_scaleCenter;
 };
 
 
