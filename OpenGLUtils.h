@@ -132,7 +132,7 @@ void ClearColorStencilBuffers (
 void drawEllipsis2D (float l1, float l2, float size, float lineWidth);
 
 void ActivateShader (G3D::Rect2D destRect);
-
+bool isMatrixValid (GLenum matrixType);
 
 #endif //__OPENGL_UTIL_H__
 

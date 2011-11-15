@@ -142,6 +142,24 @@ G3D::Vector2 toEye (G3D::Vector2 object)
     return (m * o).xy ();
 }
 
+bool isMatrixValid (GLenum matrixType)
+{
+    GLdouble model[16];
+    glGetDoublev (matrixType, model);
+    for (size_t i = 0; i < 16; ++i)
+    {
+	if (! bm::isfinite (model[i]))
+	{
+	    cdbg << "model: ";
+	    for (size_t j = 0; j < 16; ++j)
+		cdbg << model[j] << " ";
+	    cdbg << endl;
+	    return false;
+	}
+    }
+    return true;
+}
+
 G3D::Vector3 gluUnProject (
     G3D::Vector2 screenCoord, 
     GluUnProjectZOperation::Enum zOperation)
@@ -152,7 +170,7 @@ G3D::Vector3 gluUnProject (
     glGetDoublev (GL_PROJECTION_MATRIX, proj);
     GLint view[4];
     glGetIntegerv (GL_VIEWPORT, view);
-    GLfloat zScreenCoord;
+    GLfloat zScreenCoord = 0;
     if (zOperation == GluUnProjectZOperation::READ)
 	glReadPixels (screenCoord.x, screenCoord.y, 1, 1, 
 		      GL_DEPTH_COMPONENT, GL_FLOAT, &zScreenCoord);
@@ -162,8 +180,24 @@ G3D::Vector3 gluUnProject (
     GLint ret = gluUnProject (screenCoord.x, screenCoord.y, zScreenCoord, 
 			      model, proj, view, 
 			      &x, &y, &z);
-    RuntimeAssert (ret == GLU_TRUE, "gluUnproject");
-    return G3D::Vector3 (x, y, z);
+    G3D::Vector3 v = G3D::Vector3 (x, y, z);
+    if (ret != GLU_TRUE)
+    {
+	cdbg << "model: ";
+	for (size_t i = 0; i < 16; ++i)
+	    cdbg << model[i] << " ";
+	cdbg << endl << "projection: ";
+	for (size_t i = 0; i < 16; ++i)
+	    cdbg << proj[i] << " ";
+	cdbg << endl << "viewport: ";
+	for (size_t i = 0; i < 4; ++i)
+	    cdbg << view[i] << " ";
+	cdbg << endl;
+	WarnOnOpenGLError ("gluUnProject");
+	RuntimeAssert (ret == GLU_TRUE, "gluUnproject: ", v, 
+		       " zOp:", zOperation);
+    }
+    return v;
 }
 
 

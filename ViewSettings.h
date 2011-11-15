@@ -270,7 +270,7 @@ public:
     {
 	m_angleOfView = value;
     }
-    double GetCameraDistance () const
+    float GetCameraDistance () const
     {
 	return m_cameraDistance;
     }
@@ -579,7 +579,7 @@ private:
     /**
      * Distance from the camera to the center of the bounding box for the foam.
      */
-    double m_cameraDistance;
+    float m_cameraDistance;
 
     //Stationary
     AverageAroundType m_averageAroundType;

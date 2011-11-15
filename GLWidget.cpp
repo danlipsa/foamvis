@@ -243,6 +243,14 @@ GLWidget::GLWidget(QWidget *parent)
     createActions ();
 }
 
+GLWidget::~GLWidget()
+{
+    makeCurrent();
+    gluDeleteQuadric (m_quadric);
+    m_quadric = 0;
+}
+
+
 void GLWidget::initEndTranslationColor ()
 {
     const int DOMAIN_INCREMENT_COLOR[] = {255, 0, 255};
@@ -609,12 +617,6 @@ void GLWidget::calculateEdgeRadius (
     *edgeWidth = (maxRadiusMultiplier - 1) * edgeRadiusRatio + 1;
 }
 
-GLWidget::~GLWidget()
-{
-    makeCurrent();
-    gluDeleteQuadric (m_quadric);
-    m_quadric = 0;
-}
 
 QSize GLWidget::minimumSizeHint()
 {
@@ -845,6 +847,12 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
     glTranslate (
 	getScaleCenterTranslation (viewNumber) +
 	G3D::Vector3 (0, 0, - vs.GetCameraDistance ()));
+    if (! isMatrixValid (GL_MODELVIEW_MATRIX))
+    {
+	cdbg << "1: " << getScaleCenterTranslation (viewNumber)
+	     << " " << vs.GetCameraDistance () << endl;
+	abort ();
+    }
     bool contextView = vs.IsContextView ();
     if (contextView)
 	translateAndScale (
@@ -853,6 +861,11 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
     else
 	translateAndScale (
 	    viewNumber, vs.GetScaleRatio (), vs.GetTranslation (), false);
+    if (! isMatrixValid (GL_MODELVIEW_MATRIX))
+    {
+	cdbg << "2" << endl;
+	abort ();
+    }
     const Foam& foam = simulation.GetFoam (0);
     glMultMatrix (vs.GetRotationModel () * vs.GetRotationForAxesOrder (foam));
     glTranslate (- simulation.GetBoundingBox ().center ());

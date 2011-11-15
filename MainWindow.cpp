@@ -88,7 +88,6 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     spinBoxHistogramHeight->setMaximum (500);
     spinBoxHistogramHeight->setValue (widgetHistogram->sizeHint ().height ());
 
-
     CurrentIndexChangedViewCount (ViewCount::ONE);
     widgetGl->SetStatus (labelStatusBar);
     widgetGl->SetSimulationGroup (&simulationGroup);

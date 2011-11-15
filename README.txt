@@ -3,6 +3,8 @@ Release log
 0.7.
 	- fixed selection for timesteps other than 0.
 	- added average velocity vector	overlay
+	- added linked transform horizontal axis: oposite halfs from each view 
+	  is shown.
 0.7.2201 2011-10-21
 	- several simulations can be loaded to facilitate comparison. To do 
 	  this, several --simulation switches or the browse 
