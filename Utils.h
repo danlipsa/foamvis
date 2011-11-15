@@ -172,7 +172,7 @@ void SetCheckedNoSignals (QButtonGroup* buttonGroup, int buttonId,
 			  bool checked);
 void SetCurrentIndexNoSignals (QComboBox* comboBox, int index);
 template<typename T>
-void SetCheckedNoSignals (T* checkBox, bool checked);
+void SetCheckedNoSignals (T* checkBox, bool checked, bool enabled = true);
 template<typename T>
 void SetValueNoSignals (T* slider, size_t value);
 template<typename T>

@@ -321,7 +321,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="currentIndex">
-              <number>2</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="tabShow">
               <attribute name="title">
@@ -755,7 +755,7 @@
                       <string>Network (h1)</string>
                      </property>
                      <property name="checked">
-                      <bool>true</bool>
+                      <bool>false</bool>
                      </property>
                     </widget>
                    </item>
@@ -765,7 +765,7 @@
                       <string>Pressure (h2)</string>
                      </property>
                      <property name="checked">
-                      <bool>true</bool>
+                      <bool>false</bool>
                      </property>
                     </widget>
                    </item>
@@ -775,7 +775,7 @@
                       <string>Result (h3)</string>
                      </property>
                      <property name="checked">
-                      <bool>true</bool>
+                      <bool>false</bool>
                      </property>
                     </widget>
                    </item>
@@ -3923,10 +3923,10 @@
   <slot>ValueChangedStatisticsTimeWindow(int)</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="buttonGroupTransformLinkage"/>
   <buttongroup name="buttonGroupInteractionObject"/>
   <buttongroup name="buttonGroupTimeLinkage"/>
   <buttongroup name="buttonGroupHistogram"/>
   <buttongroup name="buttonGroupViewType"/>
-  <buttongroup name="buttonGroupTransformLinkage"/>
  </buttongroups>
 </ui>

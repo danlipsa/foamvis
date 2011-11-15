@@ -1823,14 +1823,14 @@ void GLWidget::displayStatus ()
 	    getBodySelectorLabel (),
 	    getBodyScaleLabel ()
 	}};
-    ostream_iterator<string> o (ostr, "-");
+    ostream_iterator<string> o (ostr, " ");
     remove_copy_if (labels.begin (), labels.end (), o,
 		    boost::bind (&string::empty, _1));
     string label;
     if (ostr.str ().empty ())
 	label = "Ready";
     else
-	label = "-" + ostr.str ();
+	label = " " + ostr.str ();
     m_labelStatusBar->setText (QString (label.c_str ()));
 }
 

@@ -142,16 +142,22 @@ void MainWindow::configureInterfaceDataDependent (
 	radioButtonEdgesTorus->setDisabled (true);
 	radioButtonFaceEdgesTorus->setDisabled (true);
     }
-    else if (simulation.Is2D () && simulationGroup.size () == 2)
-    {
-	G3D::AABox box = simulation.GetBoundingBoxTorus ();
-	G3D::Vector3 extent = box.extent ();
-	if (extent.x > extent.y)
-	    comboBoxViewLayout->setCurrentIndex (ViewLayout::VERTICAL);
-    }
     if (simulation.Is2D ())
     {
-	comboBoxInteractionMode->setCurrentIndex (InteractionMode::SCALE);	
+	comboBoxInteractionMode->setCurrentIndex (InteractionMode::SCALE);
+	if (simulation.IsTorus () && simulationGroup.size () == 2)
+	{
+	    G3D::AABox box = simulation.GetBoundingBoxTorus ();
+	    G3D::Vector3 extent = box.extent ();
+	    if (extent.x > extent.y && simulation.GetRotation2D () == 0)
+		comboBoxViewLayout->setCurrentIndex (ViewLayout::VERTICAL);
+	}
+	if (! simulation.ForcesUsed ())
+	{
+	    checkBoxForceNetwork->setDisabled (true);
+	    checkBoxForcePressure->setDisabled (true);
+	    checkBoxForceResult->setDisabled (true);
+	}
     }
     else
     {
@@ -284,10 +290,18 @@ void MainWindow::velocityViewToUI ()
 
 void MainWindow::forceViewToUI ()
 {
-    const ViewSettings& vs = widgetGl->GetViewSettings ();
-    SetCheckedNoSignals (checkBoxForceNetwork, vs.IsForceNetworkShown ());
-    SetCheckedNoSignals (checkBoxForcePressure, vs.IsForcePressureShown ());
-    SetCheckedNoSignals (checkBoxForceResult, vs.IsForceResultShown ());    
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
+    const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
+    SetCheckedNoSignals (
+	checkBoxForceNetwork, vs.IsForceNetworkShown (),
+	widgetGl->GetSimulation (viewNumber).ForcesUsed ());
+    SetCheckedNoSignals (
+	checkBoxForcePressure, 
+	vs.IsForcePressureShown (), 
+	widgetGl->GetSimulation (viewNumber).ForcesUsed ());
+    SetCheckedNoSignals (
+	checkBoxForceResult, vs.IsForceResultShown (),
+	widgetGl->GetSimulation (viewNumber).ForcesUsed ());
     SetValueNoSignals (
 	horizontalSliderForceSize, vs.GetForceSize ());
     SetValueNoSignals (

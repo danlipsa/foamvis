@@ -105,7 +105,7 @@ void ForceAverage::display (
 {
     const GLWidget& glWidget = GetGLWidget ();
     const ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
-    if (glWidget.GetSimulation (viewNumber).ForceUsed ())
+    if (glWidget.GetSimulation (viewNumber).ForcesUsed ())
     {
 	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT | GL_LINE_BIT);
 	if (adjustForAverageAroundMovementRotation)

@@ -158,7 +158,7 @@ public:
     {
 	return m_forcesNames;
     }
-    bool ForceUsed () const
+    bool ForcesUsed () const
     {
 	return m_forcesNames.size ();
     }
