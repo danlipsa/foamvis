@@ -1,6 +1,6 @@
 Release log
 ===========
-0.7.
+0.7.2231 2011-11-15
 	- fixed selection for timesteps other than 0.
 	- added average velocity vector	overlay
 	- added linked transform horizontal axis: oposite halfs from each view 
