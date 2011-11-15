@@ -847,12 +847,6 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
     glTranslate (
 	getScaleCenterTranslation (viewNumber) +
 	G3D::Vector3 (0, 0, - vs.GetCameraDistance ()));
-    if (! isMatrixValid (GL_MODELVIEW_MATRIX))
-    {
-	cdbg << "1: " << getScaleCenterTranslation (viewNumber)
-	     << " " << vs.GetCameraDistance () << endl;
-	abort ();
-    }
     bool contextView = vs.IsContextView ();
     if (contextView)
 	translateAndScale (
@@ -861,11 +855,6 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
     else
 	translateAndScale (
 	    viewNumber, vs.GetScaleRatio (), vs.GetTranslation (), false);
-    if (! isMatrixValid (GL_MODELVIEW_MATRIX))
-    {
-	cdbg << "2" << endl;
-	abort ();
-    }
     const Foam& foam = simulation.GetFoam (0);
     glMultMatrix (vs.GetRotationModel () * vs.GetRotationForAxesOrder (foam));
     glTranslate (- simulation.GetBoundingBox ().center ());

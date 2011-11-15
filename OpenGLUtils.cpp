@@ -194,8 +194,7 @@ G3D::Vector3 gluUnProject (
 	    cdbg << view[i] << " ";
 	cdbg << endl;
 	WarnOnOpenGLError ("gluUnProject");
-	RuntimeAssert (ret == GLU_TRUE, "gluUnproject: ", v, 
-		       " zOp:", zOperation);
+	RuntimeAssert (false, "gluUnproject: ", v, " zOp:", zOperation);
     }
     return v;
 }
