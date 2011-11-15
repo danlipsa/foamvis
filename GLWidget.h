@@ -233,8 +233,8 @@ public:
     static ColorBarType::Enum GetColorBarType (
 	ViewType::Enum viewType, size_t property, 
 	StatisticsType::Enum statisticsType);
-    ColorBarType::Enum GetColorBarType (ViewNumber::Enum viewNumber);
-    ColorBarType::Enum GetColorBarType ();
+    ColorBarType::Enum GetColorBarType (ViewNumber::Enum viewNumber) const;
+    ColorBarType::Enum GetColorBarType () const;
     void SetBodyOrFaceProperty (
 	ViewNumber::Enum viewNumber,
 	boost::shared_ptr<ColorBarModel> colorBarModel,

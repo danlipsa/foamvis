@@ -2943,12 +2943,12 @@ void GLWidget::setLight (int sliderValue, int maximumValue,
     update ();
 }
 
-ColorBarType::Enum GLWidget::GetColorBarType ()
+ColorBarType::Enum GLWidget::GetColorBarType () const
 {
     return GetColorBarType (GetViewNumber ());
 }
 
-ColorBarType::Enum GLWidget::GetColorBarType (ViewNumber::Enum viewNumber)
+ColorBarType::Enum GLWidget::GetColorBarType (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     ViewType::Enum viewType = vs.GetViewType ();
@@ -3098,7 +3098,9 @@ void GLWidget::contextMenuEventColorBar (QMenu* menu) const
 	{
 	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	    if (viewNumber == m_viewNumber ||
-		currentProperty != 
+		GetColorBarType (m_viewNumber) != 
+		GetColorBarType (viewNumber) ||
+		currentProperty !=
 		GetViewSettings (viewNumber).GetBodyOrFaceProperty ())
 		continue;
 	    menuCopy->addAction (m_actionCopyColorMap[i].get ());
