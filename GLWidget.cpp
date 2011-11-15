@@ -1798,14 +1798,28 @@ string GLWidget::getBodySelectorLabel ()
     }
 }
 
+string GLWidget::getBodyScaleLabel ()
+{
+    if (m_interactionMode == InteractionMode::SCALE)
+    {
+	ostringstream ostr;
+	const ViewSettings& vs = GetViewSettings ();
+	ostr << "Scale: " << setprecision (3) << vs.GetScaleRatio ();
+	return ostr.str ();
+    }
+    else
+	return "";
+}
+
 void GLWidget::displayStatus ()
 {
     ostringstream ostr;
-    boost::array<string, 4> labels = {{
+    boost::array<string, 5> labels = {{
 	    getAverageAroundLabel (),
 	    getContextLabel (),
 	    getAverageAroundMovementShownLabel (),
-	    getBodySelectorLabel ()
+	    getBodySelectorLabel (),
+	    getBodyScaleLabel ()
 	}};
     ostream_iterator<string> o (ostr, "-");
     remove_copy_if (labels.begin (), labels.end (), o,

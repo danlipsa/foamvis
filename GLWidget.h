@@ -673,6 +673,7 @@ private:
     string getContextLabel ();
     string getAverageAroundMovementShownLabel ();
     string getAverageAroundLabel ();
+    string getBodyScaleLabel ();
     void displayStatus ();
     void transformFoamAverageAround (
 	ViewNumber::Enum viewNumber, size_t timeStep) const;
