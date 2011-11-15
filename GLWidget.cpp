@@ -1490,7 +1490,6 @@ void GLWidget::translate (
 	G3D::Vector3 translation = 
 	    vs.GetTranslation () + (translationRatio * focusBoxExtent);
 	vs.SetTranslation (translation);
-	cdbg << translation << endl;
     }
 }
 
@@ -3387,16 +3386,6 @@ bool GLWidget::IsTimeDisplacementUsed () const
     return GetTimeDisplacement () > 0;
 }
 
-
-float GLWidget::getValueFromIndex (const pair<float,float>& minMax, int index)
-{
-    QSlider* slider = static_cast<QSlider*> (sender ());
-    size_t maxSlider = slider->maximum ();
-    return minMax.first + (double (index) / maxSlider) * 
-	(minMax.second - minMax.first);
-}
-
-
 bool GLWidget::IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const
 {
     switch (bodyProperty)
@@ -3515,6 +3504,57 @@ void GLWidget::SetTransformLinkage (TransformLinkage::Enum transformLinkage)
     setScaleCenter (ViewNumber::VIEW0);
     setScaleCenter (ViewNumber::VIEW1);
     update ();
+}
+
+void GLWidget::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    T1sPDE& t1sPDE = vs.GetT1sPDE ();
+    t1sPDE.SetKernelSigma (
+	Index2Value (static_cast<QSlider*> (sender ()), T1sPDE::KERNEL_SIGMA));
+    t1sPDE.AverageInitStep (viewNumber);
+}
+
+void GLWidget::valueChangedT1sKernelTextureSize (
+    ViewNumber::Enum viewNumber)
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    T1sPDE& t1sPDE = vs.GetT1sPDE ();
+    t1sPDE.SetKernelTextureSize (
+	Index2Value (static_cast<QSlider*> (sender ()), 
+		     T1sPDE::KERNEL_TEXTURE_SIZE));
+    t1sPDE.AverageInitStep (viewNumber);    
+}
+
+void GLWidget::toggledT1sKernelTextureSizeShown (
+    ViewNumber::Enum viewNumber, bool checked)
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    T1sPDE& t1sPDE = vs.GetT1sPDE ();
+    t1sPDE.SetKernelTextureSizeShown (checked);    
+}
+
+void GLWidget::setOneOrTwoViews (void (GLWidget::*f) (ViewNumber::Enum))
+{
+    if (m_transformLinkage == TransformLinkage::INDEPENDENT)
+	CALL_MEMBER_FN (*this, f) (GetViewNumber ());
+    else
+    {
+	CALL_MEMBER_FN (*this, f) (ViewNumber::VIEW0);
+	CALL_MEMBER_FN (*this, f) (ViewNumber::VIEW1);
+    }
+}
+
+
+void GLWidget::valueChangedT1sKernelIntervalPerPixel (
+    ViewNumber::Enum viewNumber)
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    T1sPDE& t1sPDE = vs.GetT1sPDE ();
+    t1sPDE.SetKernelIntervalPerPixel (
+	Index2Value (static_cast<QSlider*> (sender ()), 
+		     T1sPDE::KERNEL_INTERVAL_PER_PIXEL));
+    t1sPDE.AverageInitStep (viewNumber);
 }
 
 
@@ -3948,50 +3988,42 @@ void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
 
 void GLWidget::ValueChangedT1Size (int index)
 {
-    m_t1sSize = getValueFromIndex (T1S_SIZE, index);
+    (void)index;
+    m_t1sSize = Index2Value (static_cast<QSlider*> (sender ()), T1S_SIZE);
     update ();
 }
 
 
 void GLWidget::ValueChangedT1sKernelIntervalPerPixel (int index)
 {
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    T1sPDE& t1sPDE = vs.GetT1sPDE ();
-    t1sPDE.SetKernelIntervalPerPixel (
-	getValueFromIndex (T1sPDE::KERNEL_INTERVAL_PER_PIXEL, index));
-    t1sPDE.AverageInitStep (viewNumber);
+    (void)index;
+    setOneOrTwoViews (&GLWidget::valueChangedT1sKernelIntervalPerPixel);
     update ();
 }
 
 void GLWidget::ValueChangedT1sKernelSigma (int index)
 {
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    T1sPDE& t1sPDE = vs.GetT1sPDE ();
-    t1sPDE.SetKernelSigma (
-	getValueFromIndex (T1sPDE::KERNEL_SIGMA, index));
-    t1sPDE.AverageInitStep (viewNumber);
+    (void)index;
+    setOneOrTwoViews (&GLWidget::valueChangedT1sKernelSigma);
     update ();
 }
 
 void GLWidget::ValueChangedT1sKernelTextureSize (int index)
 {
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    T1sPDE& t1sPDE = vs.GetT1sPDE ();
-    t1sPDE.SetKernelTextureSize (
-	getValueFromIndex (T1sPDE::KERNEL_TEXTURE_SIZE, index));
-    t1sPDE.AverageInitStep (viewNumber);
+    (void)index;
+    setOneOrTwoViews (&GLWidget::valueChangedT1sKernelTextureSize);
     update ();
 }
 
 void GLWidget::ToggledT1sKernelTextureSizeShown (bool checked)
 {
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    T1sPDE& t1sPDE = vs.GetT1sPDE ();
-    t1sPDE.SetKernelTextureSizeShown (checked);
+    if (m_transformLinkage == TransformLinkage::INDEPENDENT)
+	toggledT1sKernelTextureSizeShown (GetViewNumber (), checked);
+    else
+    {
+	toggledT1sKernelTextureSizeShown (ViewNumber::VIEW0, checked);
+	toggledT1sKernelTextureSizeShown (ViewNumber::VIEW1, checked);
+    }
     update ();
 }
 
@@ -4000,7 +4032,7 @@ void GLWidget::ValueChangedDeformationSizeExp (int index)
     (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetDeformationSize (
-	Exp2Value (
+	IndexExponent2Value (
 	    static_cast<QSlider*> (sender ()), SIZE_EXP2));
     update ();
 }
@@ -4010,7 +4042,7 @@ void GLWidget::ValueChangedDeformationLineWidthExp (int index)
     (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetDeformationLineWidth (
-	Exp2Value (
+	IndexExponent2Value (
 	    static_cast<QSlider*> (sender ()), LINE_WIDTH_EXP2));
     update ();
 }
@@ -4020,7 +4052,7 @@ void GLWidget::ValueChangedVelocitySizeExp (int index)
     (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetVelocitySize (
-	Exp2Value (static_cast<QSlider*> (sender ()), SIZE_EXP2));
+	IndexExponent2Value (static_cast<QSlider*> (sender ()), SIZE_EXP2));
     update ();
 }
 
@@ -4029,7 +4061,7 @@ void GLWidget::ValueChangedForceSizeExp (int index)
     (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetForceSize (
-	Exp2Value (static_cast<QSlider*> (sender ()), FORCE_SIZE_EXP2));
+	IndexExponent2Value (static_cast<QSlider*> (sender ()), FORCE_SIZE_EXP2));
     update ();
 }
 
@@ -4037,7 +4069,7 @@ void GLWidget::ValueChangedForceLineWidthExp (int index)
 {
     (void)index;
     ViewSettings& vs = GetViewSettings ();
-    vs.SetForceLineWidth (Exp2Value (static_cast<QSlider*> (sender ()),
+    vs.SetForceLineWidth (IndexExponent2Value (static_cast<QSlider*> (sender ()),
 				     LINE_WIDTH_EXP2));
     update ();
 }
@@ -4047,14 +4079,17 @@ void GLWidget::ValueChangedVelocityLineWidthExp (int index)
 {
     (void)index;
     ViewSettings& vs = GetViewSettings ();
-    vs.SetVelocityLineWidth (Exp2Value (static_cast<QSlider*> (sender ()),
-					  LINE_WIDTH_EXP2));
+    vs.SetVelocityLineWidth (
+	IndexExponent2Value (static_cast<QSlider*> (sender ()),
+			     LINE_WIDTH_EXP2));
     update ();
 }
 
 void GLWidget::ValueChangedContextAlpha (int index)
 {
-    m_contextAlpha = getValueFromIndex (CONTEXT_ALPHA, index);
+    (void)index;
+    m_contextAlpha = Index2Value (static_cast<QSlider*> (sender ()), 
+				  CONTEXT_ALPHA);
     compile (GetViewNumber ());
     update ();
 }

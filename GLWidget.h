@@ -464,6 +464,12 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    void setOneOrTwoViews (void (GLWidget::*f) (ViewNumber::Enum));
+    void valueChangedT1sKernelTextureSize (ViewNumber::Enum viewNumber);
+    void toggledT1sKernelTextureSizeShown (
+	ViewNumber::Enum viewNumber, bool checked);
+    void valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber);
+    void valueChangedT1sKernelIntervalPerPixel (ViewNumber::Enum viewNumber);
     void setScaleCenter (ViewNumber::Enum viewNumber);
     G3D::Vector3 getScaleCenterTranslation (ViewNumber::Enum viewNumber) const;
     G3D::Vector2 getScaleCenter (ViewNumber::Enum viewNumber, 
@@ -674,7 +680,6 @@ private:
 	boost::array<boost::shared_ptr<QAction>, 
 	ViewNumber::COUNT>& actionCopyTransformation,
 	boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformation);
-    float getValueFromIndex (const pair<float,float>& minMax, int index);
     string infoSelectedBody () const;
     string infoSelectedBodies () const;
 

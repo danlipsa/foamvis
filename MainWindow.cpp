@@ -257,11 +257,11 @@ void MainWindow::deformationViewToUI ()
 	vs.GetDeformationAverage ().IsGridCellCenterShown ());
     SetValueNoSignals (
 	horizontalSliderDeformationSize, 
-	Value2Exp (horizontalSliderDeformationSize, 
+	Value2ExponentIndex (horizontalSliderDeformationSize, 
 		    GLWidget::SIZE_EXP2, vs.GetDeformationSize ()));
     SetValueNoSignals (
 	horizontalSliderDeformationLineWidth, 
-	Value2Exp (horizontalSliderDeformationLineWidth,
+	Value2ExponentIndex (horizontalSliderDeformationLineWidth,
 		     GLWidget::LINE_WIDTH_EXP2,
 		     vs.GetDeformationLineWidth ()));
 }
@@ -274,11 +274,11 @@ void MainWindow::velocityViewToUI ()
 			 vs.GetVelocityAverage ().IsGridShown ());
     SetValueNoSignals (
 	horizontalSliderVelocitySize, 
-	Value2Exp (horizontalSliderVelocitySize, 
+	Value2ExponentIndex (horizontalSliderVelocitySize, 
 		    GLWidget::SIZE_EXP2, vs.GetVelocitySize ()));
     SetValueNoSignals (
 	horizontalSliderVelocityLineWidth, 
-	Value2Exp (horizontalSliderVelocityLineWidth,
+	Value2ExponentIndex (horizontalSliderVelocityLineWidth,
 		    GLWidget::LINE_WIDTH_EXP2,
 		    vs.GetVelocityLineWidth ()));
 }
@@ -293,11 +293,11 @@ void MainWindow::forceViewToUI ()
 	horizontalSliderForceSize, vs.GetForceSize ());
     SetValueNoSignals (
 	horizontalSliderForceSize, 
-	Value2Exp (horizontalSliderForceSize,
+	Value2ExponentIndex (horizontalSliderForceSize,
 		   GLWidget::FORCE_SIZE_EXP2, vs.GetForceSize ()));
     SetValueNoSignals (
 	horizontalSliderForceLineWidth, 
-	Value2Exp (horizontalSliderForceLineWidth,
+	Value2ExponentIndex (horizontalSliderForceLineWidth,
 		   GLWidget::LINE_WIDTH_EXP2,
 		   vs.GetForceLineWidth ()));
 }
@@ -307,12 +307,21 @@ void MainWindow::t1sPDEViewToUI ()
     const ViewSettings& vs = widgetGl->GetViewSettings ();
     SetCheckedNoSignals (checkBoxTextureSizeShown, 
 			 vs.GetT1sPDE ().IsKernelTextureSizeShown ());
-    SetValueNoSignals (horizontalSliderT1sKernelTextureSize,
-		       vs.GetT1sPDE ().GetKernelTextureSize ());
-    SetValueNoSignals (horizontalSliderT1sKernelIntervalPerPixel,
-		       vs.GetT1sPDE ().GetKernelIntervalPerPixel ());
-    SetValueNoSignals (horizontalSliderT1sKernelSigma,
-		       vs.GetT1sPDE ().GetKernelSigma ());
+    SetValueNoSignals (
+	horizontalSliderT1sKernelTextureSize,
+	Value2Index (horizontalSliderT1sKernelTextureSize,
+		     T1sPDE::KERNEL_TEXTURE_SIZE,
+		     vs.GetT1sPDE ().GetKernelTextureSize ()));
+    SetValueNoSignals (
+	horizontalSliderT1sKernelIntervalPerPixel,
+	Value2Index(horizontalSliderT1sKernelIntervalPerPixel,
+		    T1sPDE::KERNEL_INTERVAL_PER_PIXEL,
+		    vs.GetT1sPDE ().GetKernelIntervalPerPixel ()));
+    SetValueNoSignals (
+	horizontalSliderT1sKernelSigma,
+	Value2Index (horizontalSliderT1sKernelSigma,
+		     T1sPDE::KERNEL_SIGMA,
+		     vs.GetT1sPDE ().GetKernelSigma ()));
 }
 
 void MainWindow::ViewToUI ()

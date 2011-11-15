@@ -178,10 +178,14 @@ void SetValueNoSignals (T* slider, size_t value);
 template<typename T>
 void SetValueAndMaxNoSignals (T* slider, size_t value, size_t max);
 
-float Exp2Value (const QSlider* slider, 
-		 const pair<float,float>& minMax);
-int Value2Exp (QSlider* slider, 
-	       const pair<float,float>& minMax, float value);
+float IndexExponent2Value (const QSlider* slider, 
+			   const pair<float,float>& minMax);
+int Value2ExponentIndex (QSlider* slider, 
+			 const pair<float,float>& minMax, float value);
+float Index2Value (const QSlider* slider, const pair<float,float>& minMax);
+int Value2Index (QSlider* slider, 
+		 const pair<float,float>& minMax, float value);
+
 
 
 #endif //__UTILS_H__

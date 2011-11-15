@@ -510,26 +510,47 @@ G3D::Rect2D EncloseRotation (const G3D::Rect2D& rect)
     return G3D::Rect2D::xyxy (center - halfDiagonal, center + halfDiagonal);
 }
 
-float Exp2Value (const QSlider* slider, const pair<float,float>& minMax)
+float IndexExponent2Value (
+    const QSlider* slider, const pair<float,float>& exponentMinMax)
 {
     int index = slider->value ();
     size_t maxSlider = slider->maximum ();
-    float exp = minMax.first + (double (index) / maxSlider) * 
-	(minMax.second - minMax.first);
+    float exp = exponentMinMax.first + (double (index) / maxSlider) * 
+	(exponentMinMax.second - exponentMinMax.first);
     return pow (2, exp);
 }
 
-int Value2Exp (QSlider* slider, 
-		 const pair<float,float>& minMax, float value)
+int Value2ExponentIndex (QSlider* slider, 
+		 const pair<float,float>& exponentMinMax, float value)
 {
     size_t maxSlider = slider->maximum ();
     size_t minSlider = slider->minimum ();
     float exp = log (value) / log (2.0);
     return minSlider + 
 	floor (
-	    (exp - minMax.first) / (minMax.second - minMax.first) * 
+	    (exp - exponentMinMax.first) / 
+	    (exponentMinMax.second - exponentMinMax.first) * 
 	    (maxSlider - minSlider));
 }
+
+float Index2Value (const QSlider* slider, const pair<float,float>& minMax)
+{
+    int index = slider->value ();
+    size_t maxSlider = slider->maximum ();
+    return minMax.first + (double (index) / maxSlider) * 
+	(minMax.second - minMax.first);
+}
+
+int Value2Index (QSlider* slider, 
+		 const pair<float,float>& minMax, float value)
+{
+    size_t maxSlider = slider->maximum ();
+    size_t minSlider = slider->minimum ();
+    return minSlider + 
+	floor ((value - minMax.first) / (minMax.second - minMax.first) * 
+	       (maxSlider - minSlider)); 
+}
+
 
 
 // Template instantiations
