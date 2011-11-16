@@ -344,7 +344,7 @@ void DisplayBox (const G3D::AABox& aabb, const QColor& color, GLfloat lineWidth)
 
 void DisplayBox (const G3D::Rect2D& rect)
 {
-    glBegin (GL_POLYGON);
+    glBegin (GL_QUADS);
     ::glVertex (rect.x0y0 ());
     ::glVertex (rect.x1y0 ());
     ::glVertex (rect.x1y1 ());

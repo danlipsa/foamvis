@@ -150,8 +150,8 @@ void ColorBarModel::setupPaletteBlackBody ()
   blackbody->AddRGBPoint(0.66, 1, 1, 0);   // yellow
   blackbody->AddRGBPoint(1.0, 1, 1, 1);   // white
   setup (ColorMapperVtkColorTransferFunction (blackbody));
-  m_highlightColor[0] = Qt::blue;
-  m_highlightColor[1] = Qt::green;
+  m_highlightColor[0] = Qt::green;
+  m_highlightColor[1] = Qt::blue;
   m_highlightColor[2] = Qt::magenta;
 }
 

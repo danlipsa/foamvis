@@ -1370,30 +1370,10 @@
                  </property>
                 </widget>
                </item>
-               <item row="0" column="1">
-                <widget class="QCheckBox" name="checkBoxTimeStepsShown">
-                 <property name="text">
-                  <string>Time steps</string>
-                 </property>
-                 <property name="checked">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
                <item row="1" column="0">
                 <widget class="QCheckBox" name="checkBoxAverageAroundMarked">
                  <property name="text">
                   <string>Average around marked</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QCheckBox" name="checkBoxTitleShown">
-                 <property name="text">
-                  <string>Title</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
@@ -1410,16 +1390,6 @@
                  </property>
                 </widget>
                </item>
-               <item row="2" column="1">
-                <widget class="QCheckBox" name="checkBoxStandaloneElementsShown">
-                 <property name="text">
-                  <string>Standalone</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
                <item row="3" column="0">
                 <widget class="QCheckBox" name="checkBoxMissingVolumeShown">
                  <property name="text">
@@ -1430,7 +1400,27 @@
                  </property>
                 </widget>
                </item>
-               <item row="3" column="1">
+               <item row="0" column="1">
+                <widget class="QCheckBox" name="checkBoxTitleShown">
+                 <property name="text">
+                  <string>Title</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QCheckBox" name="checkBoxStandaloneElementsShown">
+                 <property name="text">
+                  <string>Standalone</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
                 <widget class="QCheckBox" name="checkBoxContextHidden">
                  <property name="text">
                   <string>Context hidden</string>
@@ -2679,22 +2669,6 @@
     <hint type="destinationlabel">
      <x>424</x>
      <y>503</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBoxTimeStepsShown</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ToggledTimeStepShown(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>952</x>
-     <y>237</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>509</x>
-     <y>282</y>
     </hint>
    </hints>
   </connection>

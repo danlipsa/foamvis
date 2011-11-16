@@ -280,7 +280,6 @@ public Q_SLOTS:
     /*
      * Global options
      */
-    void ToggledTimeStepShown (bool checked);
     void ToggledStandaloneElementsShown (bool checked);
     void ToggledAxesShown (bool checked);
     void ToggledBoundingBoxShown (bool checked);
@@ -464,6 +463,8 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    void initTransformViewport ();
+    void cleanupTransformViewport ();
     void setOneOrTwoViews (void (GLWidget::*f) (ViewNumber::Enum));
     void valueChangedT1sKernelTextureSize (ViewNumber::Enum viewNumber);
     void toggledT1sKernelTextureSizeShown (
@@ -508,16 +509,14 @@ private:
     void displayBodyCenters (ViewNumber::Enum viewNumber, 
 			     bool useZPos = false) const;
     void displayFaceCenters (ViewNumber::Enum viewNumber) const;
-    void displayViewDecorations (ViewNumber::Enum view);
-    void displayViewGrid ();
+    void displayViewDecorations (ViewNumber::Enum viewNumber);
+    void displayViewFocus (ViewNumber::Enum viewNumber);
+    void displayViewsGrid ();
     void displayTextureColorBar (ViewNumber::Enum viewNumber, 
 				 const G3D::Rect2D& viewRect);
     void displayViewTitle (ViewNumber::Enum viewNumber);
     void displayViewText (
 	ViewNumber::Enum viewNumber, const string& text, size_t row);
-
-    void displayViewTimeStep (const G3D::Rect2D& viewRect);
-    void displayViewGrid () const;
 
     /**
      * First translate the data to be centered around origin, then
@@ -800,7 +799,6 @@ private:
     bool m_missingPressureShown;
     bool m_missingVolumeShown;
     bool m_titleShown;
-    bool m_timeStepShown;
     bool m_averageAroundMarked;
 
     // View related variables

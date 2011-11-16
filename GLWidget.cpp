@@ -226,7 +226,6 @@ GLWidget::GLWidget(QWidget *parent)
       m_missingPressureShown (true),
       m_missingVolumeShown (true),
       m_titleShown (false),
-      m_timeStepShown (false),
       m_averageAroundMarked (true),
       m_viewCount (ViewCount::ONE),
       m_viewLayout (ViewLayout::HORIZONTAL),
@@ -1321,8 +1320,22 @@ void GLWidget::paintGL ()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     displayViews ();
+    //displayViewsGrid ();
     Q_EMIT PaintedGL ();
 }
+
+void GLWidget::resizeGL(int w, int h)
+{
+    (void)w;(void)h;
+    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	vs.AverageInitStep (viewNumber);
+    }
+    WarnOnOpenGLError ("resizeGl");
+}
+
 
 void GLWidget::displayViews ()
 {
@@ -1341,15 +1354,6 @@ void GLWidget::displayViews ()
     case ViewCount::ONE:
 	displayView (ViewNumber::VIEW0);
     }
-}
-
-void GLWidget::allTransform (ViewNumber::Enum viewNumber) const
-{
-    viewportTransform (viewNumber);    
-    glMatrixMode (GL_PROJECTION);
-    ProjectionTransform (viewNumber);
-    glMatrixMode (GL_MODELVIEW);
-    ModelViewTransform (viewNumber, GetCurrentTime (viewNumber));
 }
 
 void GLWidget::displayView (ViewNumber::Enum viewNumber)
@@ -1388,17 +1392,15 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
 }
 
 
-void GLWidget::resizeGL(int w, int h)
+void GLWidget::allTransform (ViewNumber::Enum viewNumber) const
 {
-    (void)w;(void)h;
-    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
-    {
-	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	ViewSettings& vs = GetViewSettings (viewNumber);
-	vs.AverageInitStep (viewNumber);
-    }
-    WarnOnOpenGLError ("resizeGl");
+    viewportTransform (viewNumber);    
+    glMatrixMode (GL_PROJECTION);
+    ProjectionTransform (viewNumber);
+    glMatrixMode (GL_MODELVIEW);
+    ModelViewTransform (viewNumber, GetCurrentTime (viewNumber));
 }
+
 
 G3D::Matrix3 GLWidget::getRotationAround (int axis, double angleRadians)
 {
@@ -3217,37 +3219,40 @@ void GLWidget::contextMenuEvent (QContextMenuEvent *event)
 void GLWidget::displayViewDecorations (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    glPushAttrib (
-	GL_POLYGON_BIT | GL_CURRENT_BIT | 
-	GL_VIEWPORT_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT);
+    initTransformViewport ();
     if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
-    // modelview
-    glPushMatrix ();
-    glLoadIdentity ();
-    
-    // projection
-    glMatrixMode (GL_PROJECTION);
-    glPushMatrix ();
-    glLoadIdentity ();
-    glOrtho (0, width (), 0, height (), -1, 1);
-
-    glViewport (0, 0, width (), height ());
-
+    glDisable (GL_DEPTH_TEST);
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     if (GetColorBarType (viewNumber) != ColorBarType::NONE)
 	displayTextureColorBar (viewNumber, viewRect);
     displayViewTitle (viewNumber);
-    displayViewTimeStep (viewRect);
-    displayViewGrid ();
+    if (viewNumber == GetViewNumber ())
+	displayViewFocus (viewNumber);
+    cleanupTransformViewport ();
+}
 
+void GLWidget::initTransformViewport ()
+{
+    glPushAttrib (
+	GL_POLYGON_BIT | GL_CURRENT_BIT | 
+	GL_VIEWPORT_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glMatrixMode (GL_PROJECTION);
+    glPushMatrix ();
+    glLoadIdentity ();
+    glOrtho (0, width (), 0, height (), -1, 1);
+    glViewport (0, 0, width (), height ());
+}
+
+void GLWidget::cleanupTransformViewport ()
+{
     glPopMatrix ();
     glMatrixMode (GL_MODELVIEW);
     glPopMatrix ();
     glPopAttrib ();
 }
-
-
 
 void GLWidget::displayViewTitle (ViewNumber::Enum viewNumber)
 {
@@ -3268,8 +3273,6 @@ void GLWidget::displayViewText (
 {
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     QFont font;
-    if (viewNumber == m_viewNumber)
-	font.setUnderline (true);
     QString text (t.c_str ());
     QFontMetrics fm (font);
     const int textX = 
@@ -3287,23 +3290,17 @@ size_t GLWidget::GetBodyOrFaceProperty (ViewNumber::Enum viewNumber) const
     return GetViewSettings (viewNumber).GetBodyOrFaceProperty ();
 }
 
-void GLWidget::displayViewTimeStep (const G3D::Rect2D& viewRect)
+
+void GLWidget::displayViewFocus (ViewNumber::Enum viewNumber)
 {
-    if (! m_timeStepShown)
-	return;
-    QFont font;
-    ostringstream ostr;
-    ostr << GetCurrentTime ();
-    QString text = QString (ostr.str ().c_str ());
-    QFontMetrics fm (font);
-    const int textX = 
-	viewRect.x0 () + (float (viewRect.width ()) - fm.width (text)) / 2;
-    const int textY = OpenGlToQt (viewRect.y0 () + 3, height ());
-    glColor (Qt::black);
-    renderText (textX, textY, text, font);
+    G3D::Rect2D viewRect = GetViewRect (viewNumber);
+    G3D::Vector2 margin (2, 2);
+    G3D::Rect2D rect = G3D::Rect2D::xyxy(
+	viewRect.x0y0 () + margin, viewRect.x1y1 () - margin);
+    glColor (GetHighlightColor (viewNumber, HighlightNumber::H0));
+    glPolygonMode (GL_FRONT, GL_LINE);
+    DisplayBox (rect);
 }
-
-
 
 void GLWidget::displayTextureColorBar (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect)
@@ -3325,19 +3322,15 @@ void GLWidget::displayTextureColorBar (
     glEnd ();
     glDisable (GL_TEXTURE_1D);
 
-    glColor (Qt::black);
+    glColor (GetHighlightColor (viewNumber, HighlightNumber::H0));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-    glBegin (GL_QUADS);
-    ::glVertex (colorBarRect.x0y0 ());
-    ::glVertex (colorBarRect.x0y1 ());
-    ::glVertex (colorBarRect.x1y1 ());
-    ::glVertex (colorBarRect.x1y0 ());
-    glEnd ();
+    DisplayBox (colorBarRect);
     glPopAttrib ();
 }
 
-void GLWidget::displayViewGrid ()
+void GLWidget::displayViewsGrid ()
 {
+    initTransformViewport ();
     size_t w = width ();
     size_t h = height ();
     glColor (Qt::blue);
@@ -3388,6 +3381,7 @@ void GLWidget::displayViewGrid ()
 	break;
     }
     glEnd ();
+    cleanupTransformViewport ();
 }
 
 QColor GLWidget::GetCenterPathContextColor () const
@@ -3735,13 +3729,6 @@ void GLWidget::ToggledAxesShown (bool checked)
 void GLWidget::ToggledStandaloneElementsShown (bool checked)
 {
     m_standaloneElementsShown = checked;
-    update ();
-}
-
-
-void GLWidget::ToggledTimeStepShown (bool checked)
-{
-    m_timeStepShown = checked;
     update ();
 }
 

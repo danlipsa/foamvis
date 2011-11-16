@@ -1,10 +1,13 @@
 Release log
 ===========
+0.7.
+	- added blue rectangle for the selected view
+	- T1s are shown
 0.7.2231 2011-11-15
 	- fixed selection for timesteps other than 0.
 	- added average velocity vector	overlay
-	- added linked transform horizontal axis: oposite halfs from each view 
-	  is shown.
+	- added linked transform horizontal axis: opposite halves from each view 
+	  are shown.
 0.7.2201 2011-10-21
 	- several simulations can be loaded to facilitate comparison. To do 
 	  this, several --simulation switches or the browse 
