@@ -285,6 +285,7 @@ public Q_SLOTS:
     void ToggledBoundingBoxShown (bool checked);
     void ToggledBodiesBoundingBoxesShown (bool checked);
     void ToggledAverageAroundMarked (bool checked);
+    void ToggledViewFocusShown (bool checked);
     /**
      * Shows center paths
      * param checked true for showing the center paths false otherwise
@@ -800,6 +801,7 @@ private:
     bool m_missingVolumeShown;
     bool m_titleShown;
     bool m_averageAroundMarked;
+    bool m_viewFocusShown;
 
     // View related variables
     ViewCount::Enum m_viewCount;

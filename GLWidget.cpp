@@ -227,6 +227,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_missingVolumeShown (true),
       m_titleShown (false),
       m_averageAroundMarked (true),
+      m_viewFocusShown (true),
       m_viewCount (ViewCount::ONE),
       m_viewLayout (ViewLayout::HORIZONTAL),
       m_viewNumber (ViewNumber::VIEW0),
@@ -1320,7 +1321,7 @@ void GLWidget::paintGL ()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     displayViews ();
-    //displayViewsGrid ();
+    displayViewsGrid ();
     Q_EMIT PaintedGL ();
 }
 
@@ -3227,7 +3228,7 @@ void GLWidget::displayViewDecorations (ViewNumber::Enum viewNumber)
     if (GetColorBarType (viewNumber) != ColorBarType::NONE)
 	displayTextureColorBar (viewNumber, viewRect);
     displayViewTitle (viewNumber);
-    if (viewNumber == GetViewNumber ())
+    if (viewNumber == GetViewNumber () && m_viewFocusShown)
 	displayViewFocus (viewNumber);
     cleanupTransformViewport ();
 }
@@ -3294,7 +3295,7 @@ size_t GLWidget::GetBodyOrFaceProperty (ViewNumber::Enum viewNumber) const
 void GLWidget::displayViewFocus (ViewNumber::Enum viewNumber)
 {
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
-    G3D::Vector2 margin (2, 2);
+    G3D::Vector2 margin (3, 3);
     G3D::Rect2D rect = G3D::Rect2D::xyxy(
 	viewRect.x0y0 () + margin, viewRect.x1y1 () - margin);
     glColor (GetHighlightColor (viewNumber, HighlightNumber::H0));
@@ -3333,7 +3334,8 @@ void GLWidget::displayViewsGrid ()
     initTransformViewport ();
     size_t w = width ();
     size_t h = height ();
-    glColor (Qt::blue);
+    glDisable (GL_DEPTH_TEST);
+    glColor (GetHighlightColor (ViewNumber::VIEW0, HighlightNumber::H0));
     glBegin (GL_LINES);
     switch (m_viewCount)
     {
@@ -3686,6 +3688,12 @@ void GLWidget::ToggledBoundingBoxShown (bool checked)
 void GLWidget::ToggledAverageAroundMarked (bool checked)
 {
     m_averageAroundMarked = checked;
+    update ();
+}
+
+void GLWidget::ToggledViewFocusShown (bool checked)
+{
+    m_viewFocusShown = checked;
     update ();
 }
 

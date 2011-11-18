@@ -2,7 +2,8 @@ Release log
 ===========
 0.7.
 	- added blue rectangle for the selected view
-	- T1s are shown
+	- T1s in statistics mode are shown as the average is computed.
+
 0.7.2231 2011-11-15
 	- fixed selection for timesteps other than 0.
 	- added average velocity vector	overlay

@@ -321,7 +321,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="currentIndex">
-              <number>0</number>
+              <number>3</number>
              </property>
              <widget class="QWidget" name="tabShow">
               <attribute name="title">
@@ -337,7 +337,7 @@
                <item>
                 <widget class="QTabWidget" name="tabWidgetShow">
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>3</number>
                  </property>
                  <widget class="QWidget" name="tabView">
                   <attribute name="title">
@@ -1427,6 +1427,16 @@
                  </property>
                 </widget>
                </item>
+               <item row="3" column="1">
+                <widget class="QCheckBox" name="checkBoxViewFocusShown">
+                 <property name="text">
+                  <string>View focus</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
               </layout>
              </widget>
              <widget class="QWidget" name="tabSize">
@@ -2319,6 +2329,8 @@
     <slot>ValueChangedVelocitySizeExp(int)</slot>
     <slot>ValueChangedVelocityLineWidthExp(int)</slot>
     <slot>ValueChangedForceLineWidthExp(int)</slot>
+    <slot>ToggledViewSelectionShown(bool)</slot>
+    <slot>ToggledViewFocusShown(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -2507,7 +2519,7 @@
      <y>34</y>
     </hint>
     <hint type="destinationlabel">
-     <x>620</x>
+     <x>638</x>
      <y>534</y>
     </hint>
    </hints>
@@ -2551,7 +2563,7 @@
    <slot>SelectionChangedHistogram()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>620</x>
+     <x>638</x>
      <y>534</y>
     </hint>
     <hint type="destinationlabel">
@@ -2631,8 +2643,8 @@
    <slot>ToggledContextHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>981</x>
-     <y>300</y>
+     <x>1020</x>
+     <y>291</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2919,8 +2931,8 @@
    <slot>ValueChangedLightDiffuseRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>792</x>
-     <y>350</y>
+     <x>810</x>
+     <y>380</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -2967,8 +2979,8 @@
    <slot>ValueChangedLightDiffuseGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>792</x>
-     <y>356</y>
+     <x>810</x>
+     <y>386</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -2983,8 +2995,8 @@
    <slot>ValueChangedLightDiffuseBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>792</x>
-     <y>362</y>
+     <x>810</x>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -2999,8 +3011,8 @@
    <slot>ValueChangedLightSpecularRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>792</x>
-     <y>350</y>
+     <x>810</x>
+     <y>380</y>
     </hint>
     <hint type="destinationlabel">
      <x>486</x>
@@ -3015,8 +3027,8 @@
    <slot>ValueChangedLightSpecularGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>792</x>
-     <y>356</y>
+     <x>810</x>
+     <y>386</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3031,8 +3043,8 @@
    <slot>ValueChangedLightSpecularBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>792</x>
-     <y>362</y>
+     <x>810</x>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3223,8 +3235,8 @@
    <slot>ToggledTitleShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>911</x>
-     <y>258</y>
+     <x>1020</x>
+     <y>237</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3303,8 +3315,8 @@
    <slot>ToggledStandaloneElementsShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>953</x>
-     <y>279</y>
+     <x>1020</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3869,6 +3881,22 @@
     <hint type="destinationlabel">
      <x>649</x>
      <y>348</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxViewFocusShown</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledViewFocusShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>920</x>
+     <y>302</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>660</x>
+     <y>383</y>
     </hint>
    </hints>
   </connection>
