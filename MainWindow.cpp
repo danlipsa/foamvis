@@ -145,7 +145,7 @@ void MainWindow::configureInterfaceDataDependent (
     if (simulation.Is2D ())
     {
 	comboBoxInteractionMode->setCurrentIndex (InteractionMode::SCALE);
-	if (simulation.IsTorus () && simulationGroup.size () == 2)
+	if (simulation.IsTorus ())
 	{
 	    G3D::AABox box = simulation.GetBoundingBoxTorus ();
 	    G3D::Vector3 extent = box.extent ();
