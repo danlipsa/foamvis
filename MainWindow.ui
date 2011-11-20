@@ -308,7 +308,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="settings">
           <attribute name="title">
@@ -1851,9 +1851,9 @@
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_11">
            <item>
-            <widget class="QRadioButton" name="radioButtonCenterPath">
+            <widget class="QRadioButton" name="radioButtonBubblesPaths">
              <property name="text">
-              <string>Center Path</string>
+              <string>Bubbles Paths</string>
              </property>
              <attribute name="buttonGroup">
               <string>buttonGroupViewType</string>

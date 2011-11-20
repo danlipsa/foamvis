@@ -97,7 +97,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     configureInterface ();
     setupHistogram ();
     createActions ();
-    setTabOrder (radioButtonCenterPath, sliderTimeSteps);
+    setTabOrder (radioButtonBubblesPaths, sliderTimeSteps);
     string title ("FoamVis");
     if (simulationGroup.size () == 1)
     {
@@ -460,7 +460,7 @@ void MainWindow::setupButtonGroups ()
     buttonGroupViewType->setId (radioButtonFaceEdgesTorus, 
 				ViewType::FACES_TORUS);
     buttonGroupViewType->setId (radioButtonFacesNormal, ViewType::FACES);
-    buttonGroupViewType->setId (radioButtonCenterPath, ViewType::CENTER_PATHS);
+    buttonGroupViewType->setId (radioButtonBubblesPaths, ViewType::CENTER_PATHS);
     buttonGroupViewType->setId (radioButtonFacesStatistics, 
 				ViewType::FACES_STATISTICS);
     buttonGroupViewType->setId (radioButtonT1sPDE, ViewType::T1S_PDE);
