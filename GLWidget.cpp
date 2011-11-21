@@ -3228,7 +3228,8 @@ void GLWidget::displayViewDecorations (ViewNumber::Enum viewNumber)
     if (GetColorBarType (viewNumber) != ColorBarType::NONE)
 	displayTextureColorBar (viewNumber, viewRect);
     displayViewTitle (viewNumber);
-    if (viewNumber == GetViewNumber () && m_viewFocusShown)
+    if (viewNumber == GetViewNumber () && m_viewFocusShown &&
+	GetViewCount () != ViewCount::ONE)
 	displayViewFocus (viewNumber);
     cleanupTransformViewport ();
 }
