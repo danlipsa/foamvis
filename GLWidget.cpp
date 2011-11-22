@@ -2202,7 +2202,8 @@ void GLWidget::displayEdges (ViewNumber::Enum viewNumber) const
     const BodySelector& bodySelector = 
 	GetViewSettings (viewNumber).GetBodySelector ();
     const Foam::Bodies& bodies = 
-	GetSimulation (viewNumber).GetFoam (0).GetBodies ();
+	GetSimulation (viewNumber).GetFoam (
+	    GetCurrentTime (viewNumber)).GetBodies ();
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
 	      DisplayFaceHighlightColor<HighlightNumber::H0,

@@ -211,7 +211,7 @@ void MainWindow::connectSignals ()
 	     this, SLOT (TimeoutTimer ()));
     
     connect (widgetGl, SIGNAL (PaintedGL ()),
-	     widgetDisplay, SLOT (SaveFrame ()));
+	     widgetDisplay, SLOT (SaveFrame ()), Qt::QueuedConnection);
     
     
     // BodyOrFacePropertyChanged: 

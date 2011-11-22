@@ -493,7 +493,7 @@ void Foam::addConstraintEdges ()
     {
 	boost::shared_ptr<Body> body = bodies[i];
 	//DEBUG
-	//if (body->GetId () != 311)
+	//if (body->GetId () != 607)
 	//continue;
 	Face& face = body->GetFace (0);
 	if (face.IsClosed ())
@@ -523,6 +523,8 @@ boost::shared_ptr<ConstraintEdge> Foam::calculateConstraintEdge (
     size_t id, size_t bodyIndex, VertexSet* vertexSet, EdgeSet* edgeSet)
 {
     size_t constraintIndex = begin->GetConstraintIndex (0);
+    // deal with the case when one of the vertices of the edge has 
+    // wrapped around.
     if (! isVectorOnConstraint (begin->GetVector (), constraintIndex))
     {
 	G3D::Vector3int16 translation = 

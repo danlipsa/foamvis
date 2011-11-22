@@ -384,12 +384,12 @@ operator () (const Edge& edge) const
 	DisplayEdgeVertices (edge, m_useZPos, m_zPos);
 	glEnd ();
 	
-	/*
+	
 	glPointSize (3);
 	glBegin(GL_POINTS);
 	DisplayEdgeVertices (edge, m_useZPos, m_zPos);
 	glEnd ();
-	*/
+	
     }
 }
 
