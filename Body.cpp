@@ -459,7 +459,11 @@ void Body::CalculateDeformationTensor (const OOBox& originalDomain)
 	    s = neighbor.m_body->GetCenter ();
 	}
 	else 
+	{
+	    // debug: no reflection used in average computation.
+	    // continue;
 	    s = neighbor.m_centerReflection;
+	}
 	G3D::Vector3 first = GetCenter ();
 	G3D::Vector3 second = 
 	    originalDomain.TorusTranslate (s, neighbor.m_translation);

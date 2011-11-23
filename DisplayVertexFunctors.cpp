@@ -23,6 +23,14 @@ void DisplayEdgeVertices (const Edge& edge, bool useZPos, double zPos)
     }
 }
 
+
+void DisplayEdgeVerticesNoEnds (const Edge& edge)
+{
+    for (size_t i = 1; i < edge.GetPointCount () - 1; ++i)
+	::glVertex (edge.GetPoint (i));
+}
+
+
 void  DisplayOrientedEdgeVertices (const boost::shared_ptr<OrientedEdge> e)
 {
     for (size_t i = 0; i < e->GetPointCount (); ++i)

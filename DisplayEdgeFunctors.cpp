@@ -374,6 +374,9 @@ operator () (const Edge& edge) const
 	 m_glWidget.IsEdgesTessellation () && 
 	 m_focus == FOCUS))
     {
+	bool hasConstraints = edge.HasConstraints ();
+	if (hasConstraints && ! m_glWidget.ConstraintsShown ())
+	    return;
 	double alpha = 
 	    (m_focus == FOCUS ? 1.0 : m_glWidget.GetContextAlpha ());
 	QColor color = edge.GetColor (Qt::black);
@@ -384,11 +387,11 @@ operator () (const Edge& edge) const
 	DisplayEdgeVertices (edge, m_useZPos, m_zPos);
 	glEnd ();
 	
-	if (edge.HasConstraints ())
+	if (hasConstraints && m_glWidget.ConstraintPointsShown ())
 	{
 	    glPointSize (5);
 	    glBegin(GL_POINTS);
-	    DisplayEdgeVertices (edge, m_useZPos, m_zPos);
+	    DisplayEdgeVerticesNoEnds (edge);
 	    glEnd ();
 	}
     }

@@ -158,6 +158,16 @@ public:
 	return m_centerPathBodyShown;
     }
 
+    bool ConstraintsShown () const
+    {
+	return m_constraintsShown;
+    }
+
+    bool ConstraintPointsShown () const
+    {
+	return m_constraintPointsShown;
+    }
+
     boost::shared_ptr<QAction> GetActionResetTransformAll () const
     {
 	return m_actionResetTransformAll;
@@ -290,6 +300,8 @@ public Q_SLOTS:
      * Shows center paths
      * param checked true for showing the center paths false otherwise
      */
+    void ToggledConstraintsShown (bool checked);
+    void ToggledConstraintPointsShown (bool checked);
     void ToggledCenterPathBodyShown (bool checked);
     void ToggledCenterPathLineUsed (bool checked);
     void ToggledCenterPathTubeUsed (bool checked);
@@ -802,6 +814,8 @@ private:
     bool m_titleShown;
     bool m_averageAroundMarked;
     bool m_viewFocusShown;
+    bool m_constraintsShown;
+    bool m_constraintPointsShown;
 
     // View related variables
     ViewCount::Enum m_viewCount;

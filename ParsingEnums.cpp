@@ -19,6 +19,9 @@ const QColor Color::COLORS[] =
     QColor::fromRgbF (1.0, 0.5, 0.0),  // BROWN
     QColor::fromRgbF (.6f, .6f, .6f),  // LIGHTGRAY
     QColor::fromRgbF (.3f, .3f, .3f),  // DARKGRAY
+    // replace darkgray with blue for illustrations
+    //QColor::fromRgbF (0.0, 0.0, 1.0),  // BLUE
+
     QColor::fromRgbF (.3f, .8f, 1.0),  // LIGHTBLUE
     QColor::fromRgbF (0.5, 1.0, 0.5),  // LIGHTGREEN
     QColor::fromRgbF (0.5, 1.0, 1.0),  // LIGHTCYAN

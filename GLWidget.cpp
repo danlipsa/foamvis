@@ -102,23 +102,6 @@ void display (const char* name, const T& what)
     cdbg << endl;
 }
 
-void displayBodyDeformation (boost::shared_ptr<Body> body, 
-			     float size, float lineWidth)
-{
-    if (body->IsConstraint ())
-	return;
-    G3D::Matrix3 rotation = MatrixFromColumns (
-	body->GetDeformationEigenVector (0),
-	body->GetDeformationEigenVector (1),
-	body->GetDeformationEigenVector (2));
-    G3D::CoordinateFrame cf (rotation, body->GetCenter ());
-    glPushMatrix ();
-    glMultMatrix (cf);
-    drawEllipsis2D (body->GetDeformationEigenValue (0), 
-		    body->GetDeformationEigenValue (1), size, lineWidth);
-    glPopMatrix ();
-}
-
 void displayBodyVelocity (boost::shared_ptr<Body> body, float size, 
 			  float lineWidth)
 {
@@ -153,8 +136,17 @@ void displayBodyNeighbors2D (boost::shared_ptr<Body> body,
     BOOST_FOREACH (Body::Neighbor neighbor, body->GetNeighbors ())
     {
 	G3D::Vector3 s;
-	s = (neighbor.m_body) ? 
-	    neighbor.m_body->GetCenter () : neighbor.m_centerReflection;
+	if (neighbor.m_body)
+	{
+	    s = neighbor.m_body->GetCenter ();
+	}
+	else
+	{
+	    // debug
+	    // no reflection displayed
+	    // continue;
+	    s = neighbor.m_centerReflection;
+	}
 	G3D::Vector3 first = body->GetCenter ();	    
 	G3D::Vector3 second = 
 	    originalDomain.TorusTranslate (s, neighbor.m_translation);
@@ -228,6 +220,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_titleShown (false),
       m_averageAroundMarked (true),
       m_viewFocusShown (true),
+      m_constraintsShown (true),
+      m_constraintPointsShown (false),
       m_viewCount (ViewCount::ONE),
       m_viewLayout (ViewLayout::HORIZONTAL),
       m_viewNumber (ViewNumber::VIEW0),
@@ -2240,6 +2234,7 @@ void GLWidget::displayEdgesNormal (ViewNumber::Enum viewNumber) const
     m_torusOriginalDomainClipped ?
 	displayEdges <DisplayEdgeTorusClipped> (viewNumber) :
 	displayEdges <DisplayEdgePropertyColor<> >(viewNumber);
+    displayDeformation (viewNumber);
     glPopAttrib ();
 }
 
@@ -2253,14 +2248,12 @@ void GLWidget::displayDeformation (ViewNumber::Enum viewNumber) const
     Foam::Bodies bodies = foam.GetBodies ();
     glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
     glDisable (GL_DEPTH_TEST);
-    glColor (Qt::black);
-    for_each (
-	bodies.begin (), bodies.end (),
-	boost::bind (
-	    ::displayBodyDeformation, _1, 
-	    GetDeformationSizeInitialRatio (viewNumber) * 
-	    vs.GetDeformationSize (), 
-	    vs.GetDeformationLineWidth ()));
+    for_each (bodies.begin (), bodies.end (),
+	      DisplayBodyDeformation (
+		  *this, 
+		  GetSimulation (viewNumber).GetFoam (
+		      GetCurrentTime (viewNumber)).GetProperties (),
+		  vs.GetBodySelector ()));
     glPopAttrib ();    
 }
 
@@ -2300,11 +2293,11 @@ void GLWidget::displayBodyDeformation (
 	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glDisable (GL_DEPTH_TEST);
 	glColor (Qt::black);
-	::displayBodyDeformation (
-	    *foam.FindBody (m_showBodyId), 
-	    GetDeformationSizeInitialRatio (viewNumber) * 
-	    vs.GetDeformationSize (),
-	    vs.GetDeformationLineWidth ());
+	DisplayBodyDeformation (
+	    *this, 
+	    GetSimulation (viewNumber).GetFoam (
+		GetCurrentTime (viewNumber)).GetProperties (),
+	    vs.GetBodySelector ()) (*foam.FindBody (m_showBodyId));
 	glPopAttrib ();
     }
 }
@@ -2547,7 +2540,8 @@ void GLWidget::displayBodyCenters (
 	for_each (bodies.begin (), bodies.end (),
 		  DisplayBodyCenter (
 		      *this, 
-		      GetSimulation (viewNumber).GetFoam (0).GetProperties (),
+		      GetSimulation (viewNumber).GetFoam (
+			  GetCurrentTime (viewNumber)).GetProperties (),
 		      bodySelector, useZPos, zPos));
 	glPopAttrib ();
     }
@@ -3742,6 +3736,17 @@ void GLWidget::ToggledStandaloneElementsShown (bool checked)
     update ();
 }
 
+void GLWidget::ToggledConstraintsShown (bool checked)
+{
+    m_constraintsShown = checked;
+    update ();
+}
+
+void GLWidget::ToggledConstraintPointsShown (bool checked)
+{
+    m_constraintPointsShown = checked;
+    update ();
+}
 
 void GLWidget::ToggledCenterPathBodyShown (bool checked)
 {

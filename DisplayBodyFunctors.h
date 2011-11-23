@@ -53,7 +53,7 @@ protected:
     /**
      * Displays the body
      */
-    virtual void display (boost::shared_ptr<Body> b,
+    virtual void display (const boost::shared_ptr<Body>& b,
 			  typename DisplayElement::FocusContext fc)
     {
 	static_cast<void> (b);
@@ -71,6 +71,26 @@ protected:
     }
     const BodySelector& m_bodySelector;
 };
+
+
+class DisplayBodyDeformation : public DisplayBodyBase<>
+{
+public:
+    /**
+     * Constructor
+     */
+    DisplayBodyDeformation (
+	const GLWidget& widget, const FoamProperties& fp,
+	const BodySelector& bodySelector,
+	bool useZPos = false, double zPos = 0);
+
+protected:
+    /**
+     * Displays the center of a body (bubble)
+     */
+    virtual void display (const boost::shared_ptr<Body>& b, FocusContext fc);
+};
+
 
 /**
  * Functor that displays the center of a bubble
@@ -90,7 +110,7 @@ protected:
     /**
      * Displays the center of a body (bubble)
      */
-    virtual void display (boost::shared_ptr<Body> b, FocusContext fc);
+    virtual void display (const boost::shared_ptr<Body>& b, FocusContext fc);
 };
 
 
@@ -126,7 +146,7 @@ protected:
      * Displays a body going through all its faces
      */
     virtual void display (
-	boost::shared_ptr<Body> b, 
+	const boost::shared_ptr<Body>& b, 
 	typename DisplayElement::FocusContext bodyFc);
 
 private:

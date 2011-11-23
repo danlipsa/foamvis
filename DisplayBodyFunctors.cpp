@@ -92,6 +92,51 @@ operator () (boost::shared_ptr<Body> b)
     }
 }
 
+// DisplayBodyDeformation
+// ======================================================================
+
+DisplayBodyDeformation::DisplayBodyDeformation (
+    const GLWidget& widget, const FoamProperties& fp,
+    const BodySelector& bodySelector,
+    bool useZPos, double zPos):
+    
+    DisplayBodyBase<> (
+	widget, fp, bodySelector,
+	SetterTextureCoordinate(widget, ViewNumber::VIEW0), useZPos, zPos)
+{}
+
+void DisplayBodyDeformation::display (const boost::shared_ptr<Body>& body, 
+				      FocusContext fc)
+{
+    if (body->IsConstraint ())
+	return;
+    ViewNumber::Enum viewNumber = m_propertySetter.GetViewNumber ();
+    ViewSettings& vs = m_glWidget.GetViewSettings (viewNumber);
+    float size = m_glWidget.GetDeformationSizeInitialRatio (viewNumber) * 
+	vs.GetDeformationSize ();
+    float lineWidth = vs.GetDeformationLineWidth ();
+    if (fc == FOCUS)
+    {
+	glColor (m_glWidget.GetHighlightColor (viewNumber, HighlightNumber::H0));
+    }
+    else
+	glColor (QColor::fromRgbF (
+		     0, 0, 0, this->m_glWidget.GetContextAlpha ()));
+
+    G3D::Matrix3 rotation = MatrixFromColumns (
+	body->GetDeformationEigenVector (0),
+	body->GetDeformationEigenVector (1),
+	body->GetDeformationEigenVector (2));
+    G3D::CoordinateFrame cf (rotation, body->GetCenter ());
+    glPushMatrix ();
+    glMultMatrix (cf);
+    drawEllipsis2D (body->GetDeformationEigenValue (0), 
+		    body->GetDeformationEigenValue (1), size, lineWidth);
+    glPopMatrix ();
+}
+
+
+
 // DisplayBodyCenter
 // ======================================================================
 
@@ -106,7 +151,8 @@ DisplayBodyCenter::DisplayBodyCenter (
 {}
 
 
-void DisplayBodyCenter::display (boost::shared_ptr<Body> b, FocusContext fc)
+void DisplayBodyCenter::display (const boost::shared_ptr<Body>& b, 
+				 FocusContext fc)
 {
     if (fc == FOCUS)
     {
@@ -154,7 +200,8 @@ DisplayBody (
 template<typename displayFace, typename PropertySetter>
 void DisplayBody<displayFace, PropertySetter>::
 display (
-    boost::shared_ptr<Body> b, typename DisplayElement::FocusContext bodyFc)
+    const boost::shared_ptr<Body>& b, 
+    typename DisplayElement::FocusContext bodyFc)
 {
      ViewSettings& vs = this->m_glWidget.GetViewSettings (
 	 this->m_propertySetter.GetViewNumber ());
