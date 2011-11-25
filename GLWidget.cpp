@@ -178,8 +178,8 @@ const size_t GLWidget::QUADRIC_SLICES = 8;
 const size_t GLWidget::QUADRIC_STACKS = 1;
 
 const pair<float,float> GLWidget::T1S_SIZE (1, 32);
-const pair<float,float> GLWidget::SIZE_EXP2 (-10, 10);
-const pair<float,float> GLWidget::LINE_WIDTH_EXP2 (0, 3);
+const pair<float,float> GLWidget::TENSOR_SIZE_EXP2 (-10, 10);
+const pair<float,float> GLWidget::TENSOR_LINE_WIDTH_EXP2 (0, 3);
 const pair<float,float> GLWidget::FORCE_SIZE_EXP2 (-2, 2);
 
 const pair<float,float> GLWidget::CONTEXT_ALPHA (0.05, 0.5);
@@ -4051,7 +4051,7 @@ void GLWidget::ValueChangedDeformationSizeExp (int index)
     ViewSettings& vs = GetViewSettings ();
     vs.SetDeformationSize (
 	IndexExponent2Value (
-	    static_cast<QSlider*> (sender ()), SIZE_EXP2));
+	    static_cast<QSlider*> (sender ()), TENSOR_SIZE_EXP2));
     update ();
 }
 
@@ -4061,7 +4061,7 @@ void GLWidget::ValueChangedDeformationLineWidthExp (int index)
     ViewSettings& vs = GetViewSettings ();
     vs.SetDeformationLineWidth (
 	IndexExponent2Value (
-	    static_cast<QSlider*> (sender ()), LINE_WIDTH_EXP2));
+	    static_cast<QSlider*> (sender ()), TENSOR_LINE_WIDTH_EXP2));
     update ();
 }
 
@@ -4070,7 +4070,7 @@ void GLWidget::ValueChangedVelocitySizeExp (int index)
     (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetVelocitySize (
-	IndexExponent2Value (static_cast<QSlider*> (sender ()), SIZE_EXP2));
+	IndexExponent2Value (static_cast<QSlider*> (sender ()), TENSOR_SIZE_EXP2));
     update ();
 }
 
@@ -4088,7 +4088,7 @@ void GLWidget::ValueChangedForceLineWidthExp (int index)
     (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetForceLineWidth (IndexExponent2Value (static_cast<QSlider*> (sender ()),
-				     LINE_WIDTH_EXP2));
+				     TENSOR_LINE_WIDTH_EXP2));
     update ();
 }
 
@@ -4099,7 +4099,7 @@ void GLWidget::ValueChangedVelocityLineWidthExp (int index)
     ViewSettings& vs = GetViewSettings ();
     vs.SetVelocityLineWidth (
 	IndexExponent2Value (static_cast<QSlider*> (sender ()),
-			     LINE_WIDTH_EXP2));
+			     TENSOR_LINE_WIDTH_EXP2));
     update ();
 }
 

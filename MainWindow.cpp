@@ -263,11 +263,11 @@ void MainWindow::deformationViewToUI ()
     SetValueNoSignals (
 	horizontalSliderDeformationSize, 
 	Value2ExponentIndex (horizontalSliderDeformationSize, 
-		    GLWidget::SIZE_EXP2, vs.GetDeformationSize ()));
+		    GLWidget::TENSOR_SIZE_EXP2, vs.GetDeformationSize ()));
     SetValueNoSignals (
 	horizontalSliderDeformationLineWidth, 
 	Value2ExponentIndex (horizontalSliderDeformationLineWidth,
-		     GLWidget::LINE_WIDTH_EXP2,
+		     GLWidget::TENSOR_LINE_WIDTH_EXP2,
 		     vs.GetDeformationLineWidth ()));
 }
 
@@ -280,11 +280,11 @@ void MainWindow::velocityViewToUI ()
     SetValueNoSignals (
 	horizontalSliderVelocitySize, 
 	Value2ExponentIndex (horizontalSliderVelocitySize, 
-		    GLWidget::SIZE_EXP2, vs.GetVelocitySize ()));
+		    GLWidget::TENSOR_SIZE_EXP2, vs.GetVelocitySize ()));
     SetValueNoSignals (
 	horizontalSliderVelocityLineWidth, 
 	Value2ExponentIndex (horizontalSliderVelocityLineWidth,
-		    GLWidget::LINE_WIDTH_EXP2,
+		    GLWidget::TENSOR_LINE_WIDTH_EXP2,
 		    vs.GetVelocityLineWidth ()));
 }
 
@@ -311,7 +311,7 @@ void MainWindow::forceViewToUI ()
     SetValueNoSignals (
 	horizontalSliderForceLineWidth, 
 	Value2ExponentIndex (horizontalSliderForceLineWidth,
-		   GLWidget::LINE_WIDTH_EXP2,
+		   GLWidget::TENSOR_LINE_WIDTH_EXP2,
 		   vs.GetForceLineWidth ()));
 }
 

@@ -66,6 +66,9 @@ void TensorDisplay::Bind (
 
 // TensorAverage Methods
 // ======================================================================
+// @todo Implement clamping for tensor size: Initially, render the
+// ellipse so that the maximum is fully rendered. Then, when
+// increasing the size, keep the maximum size fixed.
 
 template<typename Setter>
 boost::shared_ptr<TensorDisplay> TensorAverageTemplate<

@@ -16,6 +16,11 @@
 #include "Utils.h"
 #include "ViewSettings.h"
 
+// @todo Implement clamping for vector size: Initially, render the
+// vector so that the maximum is fully rendered. Then, when
+// increasing the size, keep the maximum size fixed.
+
+
 VectorAverage::VectorAverage (const GLWidget& glWidget, 
 			      FramebufferObjects& scalarAverageFbos) :
     TensorAverageTemplate<SetterVelocity> (

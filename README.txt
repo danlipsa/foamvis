@@ -2,7 +2,7 @@ Release log
 ===========
 0.7.
 	- added focus rectangle for the current view
-	
+	- alow _ and . for labels inside the ini file		
 0.7.2231 2011-11-15
 	- fixed selection for timesteps other than 0.
 	- added average velocity vector	overlay

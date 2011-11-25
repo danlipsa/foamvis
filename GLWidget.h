@@ -415,8 +415,8 @@ public:
     const static  size_t DISPLAY_ALL;
     const static size_t QUADRIC_SLICES;
     const static size_t QUADRIC_STACKS;
-    const static pair<float,float> SIZE_EXP2;
-    const static pair<float,float> LINE_WIDTH_EXP2;
+    const static pair<float,float> TENSOR_SIZE_EXP2;
+    const static pair<float,float> TENSOR_LINE_WIDTH_EXP2;
     const static pair<float,float> FORCE_SIZE_EXP2;
 
 protected:

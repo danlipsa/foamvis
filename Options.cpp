@@ -113,8 +113,10 @@ void validate(boost::any& v, const std::vector<std::string>& values,
 {
     (void)ignore1;(void)ignore2;
     Labels labels;
-    boost::tokenizer<> tok (values[0]);
-    for (boost::tokenizer<>::iterator it = tok.begin ();
+    typedef boost::tokenizer< boost::char_separator<char> > tokenizer;
+    boost::char_separator<char> sep(", ");
+    tokenizer tok (values[0], sep);
+    for (tokenizer::iterator it = tok.begin ();
 	 it != tok.end (); ++it)
 	labels.m_values.push_back (*it);
     v = boost::any(labels);
