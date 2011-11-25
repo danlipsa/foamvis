@@ -226,7 +226,11 @@ public:
      */
     void AddDefaultBodyAttributes ();
     template <typename Accumulator>
-    void Accumulate (Accumulator* acc, BodyProperty::Enum property) const;
+    void AccumulateProperty (
+	Accumulator* acc, BodyProperty::Enum property) const;
+    template <typename Accumulator, typename GetBodyProperty>
+    void Accumulate (Accumulator* acc, GetBodyProperty getBodyProperty) const;
+
     void AdjustPressure (double adjustment);
 
     void CalculateHistogramStatistics (BodyProperty::Enum property,

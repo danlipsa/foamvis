@@ -85,8 +85,10 @@ Foam::Foam (bool useOriginal,
     AddDefaultBodyAttributes ();
 }
 
+
 template <typename Accumulator>
-void Foam::Accumulate (Accumulator* acc, BodyProperty::Enum property) const
+void Foam::AccumulateProperty (Accumulator* acc, 
+			       BodyProperty::Enum property) const
 {
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
     {
@@ -94,6 +96,14 @@ void Foam::Accumulate (Accumulator* acc, BodyProperty::Enum property) const
 	    (*acc) (body->GetPropertyValue (property));
     }
 }
+
+template <typename Accumulator, typename GetBodyProperty>
+void Foam::Accumulate (Accumulator* acc, GetBodyProperty getBodyProperty) const
+{
+    BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
+	(*acc) (getBodyProperty (body));
+}
+
 
 void Foam::AddDefaultBodyAttributes ()
 {
@@ -1018,8 +1028,14 @@ ostream& operator<< (ostream& ostr, const Foam& d)
 // Template instantiations
 // ======================================================================
 /// @cond
-template void Foam::Accumulate<HistogramStatistics> (
+template void Foam::AccumulateProperty<HistogramStatistics> (
     HistogramStatistics* acc, BodyProperty::Enum property) const;
-template void Foam::Accumulate<MinMaxStatistics> (
+template void Foam::AccumulateProperty<MinMaxStatistics> (
     MinMaxStatistics* acc, BodyProperty::Enum property) const;
+
+template void Foam::Accumulate<
+    MinMaxStatistics, 
+    getBodyDeformationEigenValue<0> > (
+	MinMaxStatistics*, getBodyDeformationEigenValue<0>) const;
+
 /// @endcond

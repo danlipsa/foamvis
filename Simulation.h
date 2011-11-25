@@ -98,7 +98,10 @@ public:
     {
 	return acc::max (GetHistogram (property));
     }
-
+    float GetMaxDeformationEigenValue () const
+    {
+	return m_maxDeformationEigenValue;
+    }
     QwtDoubleInterval GetRange (BodyProperty::Enum property) const
     {
 	return QwtDoubleInterval (GetMin (property), GetMax (property));
@@ -229,7 +232,12 @@ private:
 	const StripIteratorPoint& afterEnd);
     
     template <typename Accumulator>
-    void forAllBodiesAccumulate (Accumulator* acc, BodyProperty::Enum property);
+    void forAllBodiesAccumulateProperty (
+	Accumulator* acc, BodyProperty::Enum property);
+    template <typename Accumulator, typename GetBodyProperty>
+    void forAllBodiesAccumulate (
+	Accumulator* acc, GetBodyProperty getBodyProperty);
+
 
 private:
     static const vector<G3D::Vector3> NO_T1S;
@@ -258,6 +266,7 @@ private:
     vector<ForceNames> m_forcesNames;
     bool m_useOriginal;
     int m_rotation2D;
+    float m_maxDeformationEigenValue;
 };
 
 class SimulationGroup

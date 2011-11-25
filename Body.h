@@ -233,6 +233,17 @@ inline ostream& operator<< (ostream& ostr, const boost::shared_ptr<Body>& b)
     return ostr << *b << " useCount=" << b.use_count ();;
 }
 
+template <int index>
+class getBodyDeformationEigenValue
+{
+public:
+    float operator () (const boost::shared_ptr<Body>& body)
+    {
+	return body->GetDeformationEigenValue (index);
+    }
+};
+
+
 #endif //__BODY_H__
 
 // Local Variables:

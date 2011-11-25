@@ -322,11 +322,11 @@ double Body::GetPropertyValue (BodyProperty::Enum property) const
 {
     switch (property)
     {
-    case BodyProperty::VELOCITY_ALONG_X:
+    case BodyProperty::VELOCITY_X:
 	return GetVelocity ().x;
-    case BodyProperty::VELOCITY_ALONG_Y:
+    case BodyProperty::VELOCITY_Y:
 	return GetVelocity ().y;
-    case BodyProperty::VELOCITY_ALONG_Z:
+    case BodyProperty::VELOCITY_Z:
 	return GetVelocity ().z;
     case BodyProperty::VELOCITY_MAGNITUDE:
 	return GetVelocity ().length ();

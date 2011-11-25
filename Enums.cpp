@@ -54,11 +54,11 @@ const char* BodyProperty::ToString (BodyProperty::Enum property)
 {
     switch (property)
     {
-    case VELOCITY_ALONG_X:
+    case VELOCITY_X:
 	return "Velocity along x";
-    case VELOCITY_ALONG_Y:
+    case VELOCITY_Y:
 	return "Velocity along y";
-    case VELOCITY_ALONG_Z:
+    case VELOCITY_Z:
 	return "Velocity along z";
     case VELOCITY_MAGNITUDE:
 	return "Velocity magnitude";

@@ -253,17 +253,16 @@ void Simulation::adjustPressureAlignMedians ()
 
 void Simulation::calculateStatistics ()
 {
-    vector<MinMaxStatistics> minMaxStat(BodyProperty::COUNT);
     for (size_t i = BodyProperty::PROPERTY_BEGIN; 
 	 i < BodyProperty::COUNT; ++i)
     {
+	MinMaxStatistics minMaxStat;
 	// statistics for all time-steps
 	BodyProperty::Enum property = BodyProperty::FromSizeT (i);
-	forAllBodiesAccumulate (&minMaxStat[property], property);
-	m_histogram[property] (acc::min (minMaxStat[property]));
-	m_histogram[property] (acc::max (minMaxStat[property]));
-	forAllBodiesAccumulate (&m_histogram[property], property);
-
+	forAllBodiesAccumulateProperty (&minMaxStat, property);
+	m_histogram[property] (acc::min (minMaxStat));
+	m_histogram[property] (acc::max (minMaxStat));
+	forAllBodiesAccumulateProperty (&m_histogram[property], property);
 
 	// statistics per time-step
 	double min = acc::min(m_histogram[property]);
@@ -273,15 +272,33 @@ void Simulation::calculateStatistics ()
 	    boost::bind (&Foam::CalculateHistogramStatistics, _1,
 			 BodyProperty::FromSizeT (i), min, max));
     }
+    {
+	MinMaxStatistics minMaxStat;
+	forAllBodiesAccumulate (&minMaxStat, 
+				getBodyDeformationEigenValue<0> ());
+	m_maxDeformationEigenValue = acc::max (minMaxStat);
+    }
 }
 
-template <typename Accumulator>
+template <typename Accumulator, typename GetBodyProperty>
 void Simulation::forAllBodiesAccumulate (
+    Accumulator* acc, GetBodyProperty getBodyProperty)
+{
+    QtConcurrent::blockingMap (
+	m_foams.begin (), m_foams.end (),
+	boost::bind (&Foam::Accumulate<Accumulator, GetBodyProperty>, 
+		     _1, acc, getBodyProperty));
+}
+
+
+template <typename Accumulator>
+void Simulation::forAllBodiesAccumulateProperty (
     Accumulator* acc, BodyProperty::Enum property)
 {
     QtConcurrent::blockingMap (
 	m_foams.begin (), m_foams.end (),
-	boost::bind (&Foam::Accumulate<Accumulator>, _1, acc, property));
+	boost::bind (&Foam::AccumulateProperty<Accumulator>, 
+		     _1, acc, property));
 }
 
 

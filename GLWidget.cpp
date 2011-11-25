@@ -579,8 +579,8 @@ float GLWidget::GetDeformationSizeInitialRatio (
     ViewNumber::Enum viewNumber) const
 {
     float cellLength = GetCellLength (viewNumber);
-    const Body& body = GetSimulation (viewNumber).GetFoam (0).GetBody (0);
-    return cellLength / (2 * body.GetDeformationEigenValue (0));
+    return cellLength / 
+	(2 * GetSimulation (viewNumber).GetMaxDeformationEigenValue ());
 }
 
 float GLWidget::GetVelocitySizeInitialRatio (
@@ -4197,6 +4197,3 @@ void GLWidget::ValueChangedAngleOfView (int angleOfView)
 	    viewRect.width () / viewRect.height (), vs.GetScaleRatio ()));
     update ();
 }
-
-
-
