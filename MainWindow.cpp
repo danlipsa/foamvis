@@ -117,8 +117,6 @@ void MainWindow::configureInterface ()
 {
     tabWidget->setCurrentWidget (timeStep);
     comboBoxWindowSize->setCurrentIndex (WindowSize::GL_720x480);
-    horizontalSliderDeformationSize->setValue (49);
-    horizontalSliderVelocitySize->setValue (49);
     horizontalSliderForceSize->setValue (49);
     comboBoxColor->setCurrentIndex (BodyProperty::PRESSURE);
 }

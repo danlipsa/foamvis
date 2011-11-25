@@ -178,7 +178,7 @@ const size_t GLWidget::QUADRIC_SLICES = 8;
 const size_t GLWidget::QUADRIC_STACKS = 1;
 
 const pair<float,float> GLWidget::T1S_SIZE (1, 32);
-const pair<float,float> GLWidget::TENSOR_SIZE_EXP2 (-10, 10);
+const pair<float,float> GLWidget::TENSOR_SIZE_EXP2 (0, 10);
 const pair<float,float> GLWidget::TENSOR_LINE_WIDTH_EXP2 (0, 3);
 const pair<float,float> GLWidget::FORCE_SIZE_EXP2 (-2, 2);
 
@@ -588,9 +588,7 @@ float GLWidget::GetVelocitySizeInitialRatio (
 {
     float cellLength = GetCellLength (viewNumber);
     float velocityMagnitude = 
-	GetSimulation (viewNumber).GetFoam (0).GetMax (
-	    BodyProperty::VELOCITY_MAGNITUDE);
-    // cdbg << "max=" << velocityMagnitude << endl;
+	GetSimulation (viewNumber).GetMax (BodyProperty::VELOCITY_MAGNITUDE);
     return cellLength / velocityMagnitude;
 }
 

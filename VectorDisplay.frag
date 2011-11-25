@@ -61,16 +61,30 @@ bool isRectangle (vec2 x, vec2 n, float width,
 		  float lengthLeft, float lengthRight)
 {
     width = width / 2;
-    lengthLeft = lengthLeft / 2;
-    lengthRight = lengthRight / 2;
+    lengthLeft = min (lengthLeft / 2, .5);
+    lengthRight = min (lengthRight / 2, .5);
     return 
-	// lines along n
-	dot (x, vec2 (n[0], n[1])) <= width 
-	&& dot (x, vec2 (-n[0], -n[1])) <= width 
-	// lines perpendicular to n
-	&& dot (x, vec2 (-n[1], n[0])) <= lengthLeft
-	&& dot (x, vec2 (n[1], -n[0])) <= lengthRight;
+	// pixels along the line (perpendicular on n)
+	dot (x, vec2 (n[0], n[1])) <= width &&
+	dot (x, vec2 (-n[0], -n[1])) <= width &&
+	// pixels perpendicular to the line (along n)
+	dot (x, vec2 (-n[1], n[0])) <= lengthLeft &&
+	dot (x, vec2 (n[1], -n[0])) <= lengthRight;
 }
+
+bool isTriangle (vec2 x, vec2 n, float width)
+{
+    width = width / 2;
+    float length = .5;
+    return 
+	// pixels along the line (perpendicular on n)
+	dot (x, vec2 (n[0], n[1])) <= width &&
+	dot (x, vec2 (-n[0], -n[1])) <= width &&
+	// pixels perpendicular to the line (along n)
+	dot (x, vec2 (-n[1], n[0])) <= length &&
+	dot (x, vec2 (n[1], -n[0])) <= length;
+}
+
 
 
 // x is in [0, 1)
@@ -87,6 +101,7 @@ bool isArrow (vec2 x, vec2 texCoordCenter)
 	float magnitude = length (v);
 	return isRectangle (x, n, 3 * lineWidthPerc, magnitude, 0) ||
 	    isRectangle (x, n, lineWidthPerc, 0, magnitude);
+	//return isTriangle (x, n, lineWidthPerc);
     }
     else
 	return false;
