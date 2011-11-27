@@ -412,10 +412,15 @@ void Body::CalculateNeighbors2D (const OOBox& originalDomain)
 	OrientedEdge oe = of.GetOrientedEdge (i);
 	const AdjacentOrientedFaces& aofs = oe.GetAdjacentFaces ();
 	if (oe.HasConstraints ())
-	{
+	{	    
 	    G3D::Vector3 b = oe.GetBeginVector ();
 	    G3D::Vector3 e = oe.GetEndVector ();
-	    G3D::Vector3 m = (b + e) / 2;
+	    G3D::Vector3 m = (b + e) / 2;	    
+	    /*
+	     * Another way to do the reflection.
+	    size_t i = oe.GetPointCount () / 2;
+	    G3D::Vector3 m = oe.GetPoint (i);
+	    */
 	    G3D::Vector3 c = GetCenter ();
 	    m_neighbors[j].m_centerReflection = c + 2 * (m - c);
 	}

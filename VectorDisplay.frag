@@ -78,10 +78,10 @@ bool isRectangle (vec2 x, vec2 n, float width,
 	dot (x, vec2 (n[1], -n[0])) <= lengthRight;
 }
 
-bool isTriangle (vec2 x, vec2 n, float width)
+bool isLine (vec2 x, vec2 n, float width, float length)
 {
     width = width / 2;
-    float length = .5;
+    length = clampVectorLength (length / 2);
     return 
 	// pixels along the line (perpendicular on n)
 	dot (x, vec2 (n[0], n[1])) <= width &&
@@ -92,22 +92,22 @@ bool isTriangle (vec2 x, vec2 n, float width)
 }
 
 
-
 // x is in [0, 1)
 bool isArrow (vec2 x, vec2 texCoordCenter)
 {
     vec2 v;
     if (getVector (texCoordCenter, v))
     {
-	x = x - vec2 (0.5, 0.5);
+	float arrowHead = .125;
 	rotateVector (v);
 	v = v * u_sizeRatio / u_cellLength;
-	vec2 n = normalize (v);
-	n = vec2 (-n[1], n[0]);
 	float magnitude = length (v);
-	return isRectangle (x, n, 3 * lineWidthPerc, magnitude / 2, 0) ||
-	    isRectangle (x, n, lineWidthPerc, 0, magnitude / 2);
-	//return isTriangle (x, n, lineWidthPerc);
+	v = normalize (v);
+	vec2 n = vec2 (-v[1], v[0]);
+	return 
+	    //isLine (x - vec2 (.5, .5), n, lineWidthPerc, magnitude) ||
+	    isLine (x - vec2 (.5, .5) - v * (magnitude / 2), n,
+		    lineWidthPerc, arrowHead);
     }
     else
 	return false;
