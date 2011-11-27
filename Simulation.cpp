@@ -165,9 +165,10 @@ void Simulation::Preprocess ()
 {
     cdbg << "Preprocess temporal foam data ..." << endl;
     fixConstraintPoints ();
-    boost::array<FoamParamMethod, 6> methods = {{
+    boost::array<FoamParamMethod, 7> methods = {{
 	    boost::bind (&Foam::CreateConstraintBody, _1, 
 			 GetDmpObjectInfo ().m_constraintIndex),
+	    boost::bind (&Foam::SetForces, _1),
 	    boost::bind (&Foam::ReleaseParsingData, _1),
 	    boost::bind (&Foam::CalculateBoundingBox, _1),
 	    boost::bind (&Foam::CalculatePerimeterOverArea, _1),

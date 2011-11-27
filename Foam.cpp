@@ -421,9 +421,6 @@ void Foam::Preprocess ()
 	GetParsingData ().GetDmpObjectInfo ();
     if (dmpObjectInfo.RotationUsed ())
 	SetDmpObjectPosition (dmpObjectInfo);
-    const vector<ForceNames>& forcesNames = GetParsingData ().GetForcesNames ();
-    if (forcesNames.size () > 0)
-	SetForces (forcesNames);
     compact ();
     updateAdjacent ();
     copyStandaloneElements ();
@@ -886,11 +883,15 @@ G3D::Vector2 Foam::GetAverageAroundAxis (
     return (second->GetCenter () - first->GetCenter ()).xy ();
 }
 
-void Foam::SetForces (const vector<ForceNames>& forcesNames)
+void Foam::SetForces ()
 {
-    m_forces.resize (forcesNames.size ());
-    for (size_t i = 0; i < forcesNames.size (); ++i)
-	setForce (forcesNames[i], &m_forces[i]);
+    const vector<ForceNames>& forcesNames = GetParsingData ().GetForcesNames ();
+    if (forcesNames.size () > 0)
+    {
+	m_forces.resize (forcesNames.size ());
+	for (size_t i = 0; i < forcesNames.size (); ++i)
+	    setForce (forcesNames[i], &m_forces[i]);
+    }
 }
 
 void Foam::setForce (const ForceNames& names, Force* forces)

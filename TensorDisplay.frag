@@ -109,17 +109,34 @@ bool getTensor (vec2 texCoordCenter, out mat2 a)
     return true;
 }
 
+void clampTensorSize (inout vec2 eigenVal, float max)
+{
+    if (eigenVal[0] > max)
+    {
+	float ratio = max / eigenVal[0];
+	eigenVal = ratio * eigenVal;
+    }
+}
+
+vec2 calculateC (vec2 eigen)
+{
+    float middle = u_sizeRatio / u_cellLength;
+    float width = u_lineWidth / eigen[1] / u_cellLength / 2;
+    return vec2 (middle - width, middle + width);
+}
+
 Ellipse fromEigen (mat2 t)
 {
     mat2 r = mat2 (t[1], getOrthogonal (t[1]));
     vec2 eigenVal = t[0];
+    vec2 c = calculateC (eigenVal);
+    clampTensorSize (eigenVal, 0.5 / c[1]);
+    c = calculateC (eigenVal);
     vec2 l = vec2 (1. / (eigenVal[0] * eigenVal[0]), 
 		   1. / (eigenVal[1] * eigenVal[1]));
     mat2 d = mat2 (l[0], 0., 0., l[1]);
     mat2 a = r * d * transpose (r);
-    float cMax = u_sizeRatio / u_cellLength;
-    float cMin = cMax - u_lineWidth / eigenVal[1] / u_cellLength;
-    Ellipse e = Ellipse (a, vec2 (cMin * cMin, cMax * cMax));
+    Ellipse e = Ellipse (a, vec2 (c[0] * c[0], c[1] * c[1]));
     // debug
     //e = Ellipse (mat2 (1./25., 0., 0., 1./9.), vec2 (1./25., 1./9.));
     return e;

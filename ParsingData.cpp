@@ -114,6 +114,7 @@ ParsingData::ParsingData (
 	{"sqrt", sqrtf},
 	{"cos", cosf},
 	{"sin", sinf},
+	{"asin", asinf},
 	{"abs", doubleAbs}
     };
 

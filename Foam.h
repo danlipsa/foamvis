@@ -268,7 +268,7 @@ public:
     {
 	return m_forces;
     }
-    void SetForces (const vector<ForceNames>& forcesNames);
+    void SetForces ();
 
     /**
      * Calculate the bounding box for all vertices in this Foam

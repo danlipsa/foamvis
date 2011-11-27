@@ -57,12 +57,18 @@ void rotateVector (inout vec2 v)
     v = r * v;
 }
 
+float clampVectorLength (float length)
+{
+    return min (length, 0.5);
+}
+
+
 bool isRectangle (vec2 x, vec2 n, float width, 
 		  float lengthLeft, float lengthRight)
 {
     width = width / 2;
-    lengthLeft = min (lengthLeft / 2, .5);
-    lengthRight = min (lengthRight / 2, .5);
+    lengthLeft = clampVectorLength (lengthLeft);
+    lengthRight = clampVectorLength (lengthRight);
     return 
 	// pixels along the line (perpendicular on n)
 	dot (x, vec2 (n[0], n[1])) <= width &&
@@ -99,8 +105,8 @@ bool isArrow (vec2 x, vec2 texCoordCenter)
 	vec2 n = normalize (v);
 	n = vec2 (-n[1], n[0]);
 	float magnitude = length (v);
-	return isRectangle (x, n, 3 * lineWidthPerc, magnitude, 0) ||
-	    isRectangle (x, n, lineWidthPerc, 0, magnitude);
+	return isRectangle (x, n, 3 * lineWidthPerc, magnitude / 2, 0) ||
+	    isRectangle (x, n, lineWidthPerc, 0, magnitude / 2);
 	//return isTriangle (x, n, lineWidthPerc);
     }
     else
