@@ -2,7 +2,11 @@ Release log
 ===========
 0.7.
 	- added focus rectangle for the current view
-	- alow _ and . for labels inside the ini file		
+	- alow _ and . for labels inside the ini file
+	- fix to allow reading forces on a constraint object
+	- deformation and velocity are clamped when increasing size (instead of 
+	  disapearing from view)
+	- use an arrow for velocity vector.
 0.7.2231 2011-11-15
 	- fixed selection for timesteps other than 0.
 	- added average velocity vector	overlay

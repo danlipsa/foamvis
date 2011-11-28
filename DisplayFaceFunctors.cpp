@@ -195,9 +195,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	    }
 	    else
 	    {
-		glColor (this->m_glWidget.GetHighlightColor (
-			     this->m_propertySetter.GetViewNumber (),
-			     HighlightNumber::H1));
+		glColor (Qt::white);
 		this->m_propertySetter ();
 	    }
 	}

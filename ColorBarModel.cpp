@@ -180,7 +180,7 @@ void ColorBarModel::setupPaletteDiverging (size_t c)
 	    /* blue red*/
 	    {{0.230, 0.299, 0.754},
 	     {0.706, 0.016, 0.150},
-	     {0, 0, 0}, {1, 1, 0}, {0, 1, 0}
+	     {0, 0, 0}, {0, 1, 1}, {0, 1, 0} // black, cyan, green
 	    },
 
 	    /* blue to tan */
