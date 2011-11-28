@@ -1,6 +1,6 @@
 Release log
 ===========
-0.7.
+0.7.2257
 	- added focus rectangle for the current view
 	- alow _ and . for labels inside the ini file
 	- fix to allow reading forces on a constraint object
