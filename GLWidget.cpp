@@ -102,32 +102,6 @@ void display (const char* name, const T& what)
     cdbg << endl;
 }
 
-void displayBodyVelocity (boost::shared_ptr<Body> body, float size, 
-			  float lineWidth)
-{
-    if (body->IsConstraint ())
-	return;
-    G3D::Vector2 velocity = body->GetVelocity ().xy () * size;
-    glPushMatrix ();
-    glTranslate (body->GetCenter ().xy ());
-	
-    glLineWidth (2 * lineWidth);
-    glBegin (GL_LINES);
-    ::glVertex (- velocity / 2);
-    ::glVertex (G3D::Vector2::zero ());
-    glEnd ();
-
-    glLineWidth (lineWidth);
-    glBegin (GL_LINES);
-    ::glVertex (G3D::Vector2::zero ());
-    ::glVertex (velocity / 2);
-    glEnd ();
-    glPopMatrix ();
-    glLineWidth (1.0);
-}
-
-
-
 void displayBodyNeighbors2D (boost::shared_ptr<Body> body, 
 			     const OOBox& originalDomain)
 {
@@ -2268,11 +2242,11 @@ void GLWidget::displayVelocity (ViewNumber::Enum viewNumber) const
     glColor (Qt::black);
     for_each (
 	bodies.begin (), bodies.end (),
-	boost::bind (
-	    ::displayBodyVelocity, _1, 
-	    GetVelocitySizeInitialRatio (viewNumber) * 
-	    vs.GetVelocitySize (),
-	    vs.GetVelocityLineWidth ()));
+	DisplayBodyVelocity (
+	    *this, 
+	    GetSimulation (viewNumber).GetFoam (
+		GetCurrentTime (viewNumber)).GetProperties (),
+	    vs.GetBodySelector ()));
     glPopAttrib ();    
 }
 
@@ -2313,11 +2287,11 @@ void GLWidget::displayBodyVelocity (
 	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glDisable (GL_DEPTH_TEST);
 	glColor (Qt::black);
-	::displayBodyVelocity (
-	    *foam.FindBody (m_showBodyId), 
-	    GetVelocitySizeInitialRatio (viewNumber) * 
-	    vs.GetVelocitySize (),
-	    vs.GetVelocityLineWidth ());
+	DisplayBodyVelocity (
+	    *this, 
+	    GetSimulation (viewNumber).GetFoam (
+		GetCurrentTime (viewNumber)).GetProperties (),
+	    vs.GetBodySelector ()) (*foam.FindBody (m_showBodyId));
 	glPopAttrib ();
     }
 }

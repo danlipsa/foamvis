@@ -116,9 +116,7 @@ void DisplayBodyDeformation::display (const boost::shared_ptr<Body>& body,
 	vs.GetDeformationSize ();
     float lineWidth = vs.GetDeformationLineWidth ();
     if (fc == FOCUS)
-    {
 	glColor (m_glWidget.GetHighlightColor (viewNumber, HighlightNumber::H0));
-    }
     else
 	glColor (QColor::fromRgbF (
 		     0, 0, 0, this->m_glWidget.GetContextAlpha ()));
@@ -135,7 +133,55 @@ void DisplayBodyDeformation::display (const boost::shared_ptr<Body>& body,
     glPopMatrix ();
 }
 
+// DisplayBodyVelocity
+// ======================================================================
 
+DisplayBodyVelocity::DisplayBodyVelocity (
+    const GLWidget& widget, const FoamProperties& fp,
+    const BodySelector& bodySelector,
+    bool useZPos, double zPos):
+    
+    DisplayBodyBase<> (
+	widget, fp, bodySelector,
+	SetterTextureCoordinate(widget, ViewNumber::VIEW0), useZPos, zPos)
+{}
+
+
+
+void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body, 
+				   FocusContext fc)
+{
+    if (body->IsConstraint ())
+	return;
+    const float arrowDegrees = 15.0;
+    ViewNumber::Enum viewNumber = m_propertySetter.GetViewNumber ();
+    ViewSettings& vs = m_glWidget.GetViewSettings (viewNumber);
+    float size = m_glWidget.GetVelocitySizeInitialRatio (viewNumber) * 
+	vs.GetVelocitySize ();
+    float lineWidth = vs.GetVelocityLineWidth ();
+    if (fc == FOCUS)
+	glColor (m_glWidget.GetHighlightColor (viewNumber, HighlightNumber::H0));
+    else
+	glColor (QColor::fromRgbF (
+		     0, 0, 0, this->m_glWidget.GetContextAlpha ()));
+    G3D::Vector2 velocity = body->GetVelocity ().xy () * size;
+    G3D::Vector2 v = velocity / 3;
+    glPushMatrix ();
+    glLineWidth (lineWidth);
+    glTranslate (body->GetCenter ().xy ());
+    glBegin (GL_LINES);
+    ::glVertex (- velocity / 2);
+    ::glVertex (velocity / 2);
+    glEnd ();
+    glTranslate (velocity / 2);
+    glBegin (GL_LINE_STRIP);
+    ::glVertex (- rotate (v, arrowDegrees));
+    ::glVertex (G3D::Vector2::zero ());
+    ::glVertex (- rotate (v, -arrowDegrees));
+    glEnd ();
+    glPopMatrix ();
+    glLineWidth (1.0);
+}
 
 // DisplayBodyCenter
 // ======================================================================

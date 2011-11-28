@@ -553,6 +553,12 @@ int Value2Index (QSlider* slider,
 }
 
 
+G3D::Vector2 rotate (G3D::Vector2 v, float deg)
+{
+    float rad = G3D::toRadians (deg);
+    G3D::Matrix2 m (cos (rad), -sin (rad), sin (rad), cos (rad));
+    return m*v;
+}
 
 // Template instantiations
 //======================================================================

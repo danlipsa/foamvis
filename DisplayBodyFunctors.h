@@ -76,21 +76,27 @@ protected:
 class DisplayBodyDeformation : public DisplayBodyBase<>
 {
 public:
-    /**
-     * Constructor
-     */
     DisplayBodyDeformation (
 	const GLWidget& widget, const FoamProperties& fp,
 	const BodySelector& bodySelector,
 	bool useZPos = false, double zPos = 0);
 
 protected:
-    /**
-     * Displays the center of a body (bubble)
-     */
     virtual void display (const boost::shared_ptr<Body>& b, FocusContext fc);
 };
 
+
+class DisplayBodyVelocity : public DisplayBodyBase<>
+{
+public:
+    DisplayBodyVelocity (
+	const GLWidget& widget, const FoamProperties& fp,
+	const BodySelector& bodySelector,
+	bool useZPos = false, double zPos = 0);
+
+protected:
+    virtual void display (const boost::shared_ptr<Body>& b, FocusContext fc);
+};
 
 /**
  * Functor that displays the center of a bubble

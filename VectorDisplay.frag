@@ -36,6 +36,8 @@ uniform bool u_gridCellCenterShown;
 float lineWidthPerc = u_lineWidth / u_cellLength;
 
 
+
+
 /**
  * @return true if the transform matrix is valid
  */
@@ -50,25 +52,31 @@ bool getVector (vec2 texCoordCenter, out vec2 v)
 }
 
 
-void rotateVector (inout vec2 v)
+void rotateModelView (inout vec2 v)
 {
     mat2 r = mat2 (gl_ModelViewMatrix[0].xy, 
 		   gl_ModelViewMatrix[1].xy);
     v = r * v;
 }
 
-float clampVectorLength (float length)
+vec2 rotate (vec2 v, float deg)
 {
-    return min (length, 0.5);
+    float rad = radians (deg);
+    mat2 r = mat2 (cos (rad), sin (rad), - sin (rad), cos (rad));
+    return r * v;
 }
 
 
-bool isRectangle (vec2 x, vec2 n, float width, 
-		  float lengthLeft, float lengthRight)
+float clampVectorLength (float length)
+{
+    return min (length, 1.0);
+}
+
+
+bool isLine (vec2 x, vec2 n, float width, 
+	     float lengthLeft, float lengthRight)
 {
     width = width / 2;
-    lengthLeft = clampVectorLength (lengthLeft);
-    lengthRight = clampVectorLength (lengthRight);
     return 
 	// pixels along the line (perpendicular on n)
 	dot (x, vec2 (n[0], n[1])) <= width &&
@@ -81,7 +89,7 @@ bool isRectangle (vec2 x, vec2 n, float width,
 bool isLine (vec2 x, vec2 n, float width, float length)
 {
     width = width / 2;
-    length = clampVectorLength (length / 2);
+    length = length / 2;
     return 
 	// pixels along the line (perpendicular on n)
 	dot (x, vec2 (n[0], n[1])) <= width &&
@@ -91,23 +99,27 @@ bool isLine (vec2 x, vec2 n, float width, float length)
 	dot (x, vec2 (n[1], -n[0])) <= length;
 }
 
-
 // x is in [0, 1)
 bool isArrow (vec2 x, vec2 texCoordCenter)
 {
     vec2 v;
     if (getVector (texCoordCenter, v))
     {
-	float arrowHead = .125;
-	rotateVector (v);
+	const float arrowAngle = 15.0;
+	rotateModelView (v);
 	v = v * u_sizeRatio / u_cellLength;
-	float magnitude = length (v);
+	float magnitude = clampVectorLength (length (v));
+	float arrowHeadLength = magnitude / 3;
 	v = normalize (v);
 	vec2 n = vec2 (-v[1], v[0]);
+	vec2 xToMiddle = x - vec2 (.5, .5);
+	vec2 xToTop = xToMiddle - v * (magnitude / 2);
 	return 
-	    //isLine (x - vec2 (.5, .5), n, lineWidthPerc, magnitude) ||
-	    isLine (x - vec2 (.5, .5) - v * (magnitude / 2), n,
-		    lineWidthPerc, arrowHead);
+	    isLine (xToMiddle, n, lineWidthPerc, magnitude) ||
+	    isLine (xToTop, rotate (n, arrowAngle), 
+		    lineWidthPerc, arrowHeadLength, 0) ||
+	    isLine (xToTop, rotate (n, -arrowAngle), 
+		    lineWidthPerc, arrowHeadLength, 0);
     }
     else
 	return false;
