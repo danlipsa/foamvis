@@ -514,6 +514,7 @@ private:
     void selectView (const G3D::Vector2& clickedPoint);
     double getViewXOverY () const;
     static G3D::Rect2D getViewColorBarRect (const G3D::Rect2D& viewRect);
+    static G3D::Rect2D getViewOverlayBarRect (const G3D::Rect2D& viewRect);
     void calculateEdgeRadius (
 	double edgeRadiusMultiplier,
 	double* edgeRadius, double* arrowBaseRadius, 
@@ -527,6 +528,8 @@ private:
     void displayViewsGrid ();
     void displayTextureColorBar (ViewNumber::Enum viewNumber, 
 				 const G3D::Rect2D& viewRect);
+    void displayVelocityOverlayBar (
+	ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect);
     void displayViewTitle (ViewNumber::Enum viewNumber);
     void displayViewText (
 	ViewNumber::Enum viewNumber, const string& text, size_t row);

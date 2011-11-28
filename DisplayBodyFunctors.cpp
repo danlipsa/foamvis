@@ -146,7 +146,14 @@ DisplayBodyVelocity::DisplayBodyVelocity (
 	SetterTextureCoordinate(widget, ViewNumber::VIEW0), useZPos, zPos)
 {}
 
-
+G3D::Vector2 clamp (G3D::Vector2 v, float maxLength)
+{
+    float length = v.length ();
+    if (length > maxLength)
+	return v * (maxLength / length);
+    else
+	return v;
+}
 
 void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body, 
 				   FocusContext fc)
@@ -164,7 +171,9 @@ void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body,
     else
 	glColor (QColor::fromRgbF (
 		     0, 0, 0, this->m_glWidget.GetContextAlpha ()));
-    G3D::Vector2 velocity = body->GetVelocity ().xy () * size;
+    G3D::Vector2 velocity = clamp (
+	body->GetVelocity ().xy () * size, 
+	m_glWidget.GetCellLength (viewNumber));
     G3D::Vector2 v = velocity / 3;
     glPushMatrix ();
     glLineWidth (lineWidth);

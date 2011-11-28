@@ -943,6 +943,14 @@ G3D::Rect2D GLWidget::getViewColorBarRect (const G3D::Rect2D& viewRect)
 	10, max (viewRect.height () / 4, 50.0f));
 }
 
+G3D::Rect2D GLWidget::getViewOverlayBarRect (const G3D::Rect2D& viewRect)
+{
+    return G3D::Rect2D::xywh (
+	viewRect.x0 () + 5 + 10 + 5, viewRect.y0 () + 5,
+	10, max (viewRect.height () / 4, 50.0f));
+}
+
+
 double GLWidget::getViewXOverY () const
 {
     double xOverY =  double (width ()) / height ();
@@ -3194,6 +3202,8 @@ void GLWidget::displayViewDecorations (ViewNumber::Enum viewNumber)
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     if (GetColorBarType (viewNumber) != ColorBarType::NONE)
 	displayTextureColorBar (viewNumber, viewRect);
+    if (vs.IsVelocityShown ())
+	displayVelocityOverlayBar (viewNumber, viewRect);
     displayViewTitle (viewNumber);
     if (viewNumber == GetViewNumber () && m_viewFocusShown &&
 	GetViewCount () != ViewCount::ONE)
@@ -3296,6 +3306,21 @@ void GLWidget::displayTextureColorBar (
     DisplayBox (colorBarRect);
     glPopAttrib ();
 }
+
+void GLWidget::displayVelocityOverlayBar (
+    ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect)
+{
+    G3D::Rect2D overlayBarRect = getViewOverlayBarRect (viewRect);
+    glPushAttrib (GL_POLYGON_BIT | GL_ENABLE_BIT);
+    glDisable (GL_DEPTH_TEST);    
+    glColor (GetHighlightColor (viewNumber, HighlightNumber::H0));
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+    DisplayBox (overlayBarRect);
+    glBegin (GL_LINES);
+    glEnd ();
+    glPopAttrib ();
+}
+
 
 void GLWidget::displayViewsGrid ()
 {

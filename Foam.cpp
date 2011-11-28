@@ -101,7 +101,10 @@ template <typename Accumulator, typename GetBodyProperty>
 void Foam::Accumulate (Accumulator* acc, GetBodyProperty getBodyProperty) const
 {
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
-	(*acc) (getBodyProperty (body));
+    {
+	if (! body->IsConstraint ())
+	    (*acc) (getBodyProperty (body));
+    }
 }
 
 
