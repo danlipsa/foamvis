@@ -32,7 +32,6 @@ uniform sampler2D u_scalarAverageTexUnit;
 uniform bool u_gridShown;
 uniform bool u_gridCellCenterShown;
 
-
 float lineWidthPerc = u_lineWidth / u_cellLength;
 
 
@@ -109,7 +108,7 @@ bool isArrow (vec2 x, vec2 texCoordCenter)
 	rotateModelView (v);
 	v = v * u_sizeRatio / u_cellLength;
 	float magnitude = clampVectorLength (length (v));
-	float arrowHeadLength = magnitude / 3;
+	float arrowHeadLength = magnitude / 3;	
 	v = normalize (v);
 	vec2 n = vec2 (-v[1], v[0]);
 	vec2 xToMiddle = x - vec2 (.5, .5);

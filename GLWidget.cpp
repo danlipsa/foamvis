@@ -3310,13 +3310,21 @@ void GLWidget::displayTextureColorBar (
 void GLWidget::displayVelocityOverlayBar (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect)
 {
-    G3D::Rect2D overlayBarRect = getViewOverlayBarRect (viewRect);
-    glPushAttrib (GL_POLYGON_BIT | GL_ENABLE_BIT);
-    glDisable (GL_DEPTH_TEST);    
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    G3D::Rect2D r = getViewOverlayBarRect (viewRect);
+    glPushAttrib (GL_POLYGON_BIT | GL_ENABLE_BIT | GL_LINE_BIT);
+    glDisable (GL_DEPTH_TEST);
+    glColor (Qt::white);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+    DisplayBox (r);
     glColor (GetHighlightColor (viewNumber, HighlightNumber::H0));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-    DisplayBox (overlayBarRect);
+    DisplayBox (r);
+    float y = r.y0 () + (r.y1 () - r.y0 ()) / vs.GetVelocitySize ();
+    glLineWidth (2);    
     glBegin (GL_LINES);
+    ::glVertex (G3D::Vector2 (r.x0 (), y));
+    ::glVertex (G3D::Vector2 (r.x1 (), y));
     glEnd ();
     glPopAttrib ();
 }

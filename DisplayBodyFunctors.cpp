@@ -167,14 +167,16 @@ void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body,
 	vs.GetVelocitySize ();
     float lineWidth = vs.GetVelocityLineWidth ();
     if (fc == FOCUS)
-	glColor (m_glWidget.GetHighlightColor (viewNumber, HighlightNumber::H0));
+	glColor (
+	    m_glWidget.GetHighlightColor (viewNumber, HighlightNumber::H0));
     else
-	glColor (QColor::fromRgbF (
-		     0, 0, 0, this->m_glWidget.GetContextAlpha ()));
+	glColor (QColor::fromRgbF (0, 0, 0, m_glWidget.GetContextAlpha ()));
     G3D::Vector2 velocity = clamp (
 	body->GetVelocity ().xy () * size, 
 	m_glWidget.GetCellLength (viewNumber));
-    G3D::Vector2 v = velocity / 3;
+    float arrowLength = min (velocity.length (), 
+			     10 * m_glWidget.GetOnePixelInObjectSpace ());
+    G3D::Vector2 arrow = velocity.direction () * arrowLength;
     glPushMatrix ();
     glLineWidth (lineWidth);
     glTranslate (body->GetCenter ().xy ());
@@ -184,9 +186,9 @@ void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body,
     glEnd ();
     glTranslate (velocity / 2);
     glBegin (GL_LINE_STRIP);
-    ::glVertex (- rotate (v, arrowDegrees));
+    ::glVertex (- rotate (arrow, arrowDegrees));
     ::glVertex (G3D::Vector2::zero ());
-    ::glVertex (- rotate (v, -arrowDegrees));
+    ::glVertex (- rotate (arrow, -arrowDegrees));
     glEnd ();
     glPopMatrix ();
     glLineWidth (1.0);
