@@ -23,7 +23,7 @@ public:
 	G3D::Vector2 gridTranslation, float cellLength, float lineWidth, 
 	float elipseSizeRatio, G3D::Rect2D enclosingRect,
 	G3D::Vector2 rotationCenter, 
-	bool gridShown, bool gridCellCenterShown);
+	bool gridShown, bool gridCellCenterShown, float onePixelInObjectSpace);
 
     GLint GetTensorAverageTexUnit ()
     {
@@ -46,6 +46,7 @@ private:
     int m_scalarAverageTexUnitLocation;
     int m_gridShownLocation;
     int m_gridCellCenterShownLocation;
+    int m_onePixelInObjectSpaceLocation;
 };
 
 template<typename Setter>
@@ -103,7 +104,8 @@ private:
 	ViewNumber::Enum viewNumber, G3D::Vector2 rotationCenter, 
 	float angleDegrees,
 	G3D::Vector2* gridTranslation, float* cellLength, float* lineWidth, 
-	float* elipseSizeRatio, G3D::Rect2D* srcRect) const;
+	float* elipseSizeRatio, G3D::Rect2D* srcRect, 
+	float* onePixelInObjectSpace) const;
 
 protected:
     static boost::shared_ptr<TensorDisplay> m_displayShaderProgram;

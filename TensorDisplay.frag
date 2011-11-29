@@ -43,6 +43,7 @@ uniform sampler2D u_tensorAverageTexUnit;
 uniform sampler2D u_scalarAverageTexUnit;
 uniform bool u_gridShown;
 uniform bool u_gridCellCenterShown;
+uniform float u_onePixelInObjectSpace;
 
 const float sqrt2 = 1.41421356237;
 const mat2 tensor45 = mat2 (3., 1., 1. / sqrt2, 1./ sqrt2);

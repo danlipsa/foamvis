@@ -161,6 +161,7 @@ void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body,
     if (body->IsConstraint ())
 	return;
     const float arrowDegrees = 15.0;
+    const float arrowLengthInPixels = 10;
     ViewNumber::Enum viewNumber = m_propertySetter.GetViewNumber ();
     ViewSettings& vs = m_glWidget.GetViewSettings (viewNumber);
     float size = m_glWidget.GetVelocitySizeInitialRatio (viewNumber) * 
@@ -174,8 +175,9 @@ void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body,
     G3D::Vector2 velocity = clamp (
 	body->GetVelocity ().xy () * size, 
 	m_glWidget.GetCellLength (viewNumber));
-    float arrowLength = min (velocity.length (), 
-			     10 * m_glWidget.GetOnePixelInObjectSpace ());
+    float arrowLength = min (
+	velocity.length (), 
+	arrowLengthInPixels * m_glWidget.GetOnePixelInObjectSpace ());
     G3D::Vector2 arrow = velocity.direction () * arrowLength;
     glPushMatrix ();
     glLineWidth (lineWidth);

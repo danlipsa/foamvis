@@ -31,6 +31,7 @@ uniform sampler2D u_tensorAverageTexUnit;
 uniform sampler2D u_scalarAverageTexUnit;
 uniform bool u_gridShown;
 uniform bool u_gridCellCenterShown;
+uniform float u_onePixelInObjectSpace;
 
 float lineWidthPerc = u_lineWidth / u_cellLength;
 
@@ -66,10 +67,6 @@ vec2 rotate (vec2 v, float deg)
 }
 
 
-float clampVectorLength (float length)
-{
-    return min (length, 1.0);
-}
 
 
 bool isLine (vec2 x, vec2 n, float width, 
@@ -98,6 +95,22 @@ bool isLine (vec2 x, vec2 n, float width, float length)
 	dot (x, vec2 (n[1], -n[0])) <= length;
 }
 
+float clampVectorLength (float length, float maxLength)
+{
+    return min (length, 1.0);
+}
+
+vec2 clamp (vec2 v, float maxLength)
+{
+    float length = length (v);
+    if (length > maxLength)
+	return v * (maxLength / length);
+    else
+	return v;
+}
+
+
+
 // x is in [0, 1)
 bool isArrow (vec2 x, vec2 texCoordCenter)
 {
@@ -105,10 +118,15 @@ bool isArrow (vec2 x, vec2 texCoordCenter)
     if (getVector (texCoordCenter, v))
     {
 	const float arrowAngle = 15.0;
+	const float arrowLengthInPixels = 10;
 	rotateModelView (v);
-	v = v * u_sizeRatio / u_cellLength;
-	float magnitude = clampVectorLength (length (v));
-	float arrowHeadLength = magnitude / 3;	
+	v = clamp (v * u_sizeRatio, u_cellLength);
+	float arrowLength = min (
+	    length (v), arrowLengthInPixels * u_onePixelInObjectSpace) / 
+	    u_cellLength;
+	//float arrowLength = length (v) / u_cellLength;
+	v = v / u_cellLength;
+	float magnitude = length (v);
 	v = normalize (v);
 	vec2 n = vec2 (-v[1], v[0]);
 	vec2 xToMiddle = x - vec2 (.5, .5);
@@ -116,9 +134,9 @@ bool isArrow (vec2 x, vec2 texCoordCenter)
 	return 
 	    isLine (xToMiddle, n, lineWidthPerc, magnitude) ||
 	    isLine (xToTop, rotate (n, arrowAngle), 
-		    lineWidthPerc, arrowHeadLength, 0) ||
+		    lineWidthPerc, arrowLength, 0) ||
 	    isLine (xToTop, rotate (n, -arrowAngle), 
-		    lineWidthPerc, arrowHeadLength, 0);
+		    lineWidthPerc, arrowLength, 0);
     }
     else
 	return false;
