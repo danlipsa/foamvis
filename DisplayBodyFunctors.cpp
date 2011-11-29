@@ -146,13 +146,19 @@ DisplayBodyVelocity::DisplayBodyVelocity (
 	SetterTextureCoordinate(widget, ViewNumber::VIEW0), useZPos, zPos)
 {}
 
-G3D::Vector2 clamp (G3D::Vector2 v, float maxLength)
+G3D::Vector2 clamp (G3D::Vector2 v, float maxLength, bool* clamped)
 {
     float length = v.length ();
     if (length > maxLength)
+    {
+	*clamped = true;
 	return v * (maxLength / length);
+    }
     else
+    {
+	*clamped = false;
 	return v;
+    }
 }
 
 void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body, 
@@ -172,9 +178,10 @@ void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body,
 	    m_glWidget.GetHighlightColor (viewNumber, HighlightNumber::H0));
     else
 	glColor (QColor::fromRgbF (0, 0, 0, m_glWidget.GetContextAlpha ()));
+    bool clamped = false;
     G3D::Vector2 velocity = clamp (
 	body->GetVelocity ().xy () * size, 
-	m_glWidget.GetCellLength (viewNumber));
+	m_glWidget.GetCellLength (viewNumber), &clamped);
     float arrowLength = min (
 	velocity.length (), 
 	arrowLengthInPixels * m_glWidget.GetOnePixelInObjectSpace ());
@@ -192,6 +199,15 @@ void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body,
     ::glVertex (G3D::Vector2::zero ());
     ::glVertex (- rotate (arrow, -arrowDegrees));
     glEnd ();
+    if (clamped)
+    {
+	glTranslate (- velocity / 2);
+	arrow = G3D::Vector2 (- arrow.y, arrow.x) /2;
+	glBegin (GL_LINES);
+	::glVertex (- arrow);
+	::glVertex (arrow);
+	glEnd ();
+    }
     glPopMatrix ();
     glLineWidth (1.0);
 }

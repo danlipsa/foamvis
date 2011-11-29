@@ -100,13 +100,19 @@ float clampVectorLength (float length, float maxLength)
     return min (length, 1.0);
 }
 
-vec2 clamp (vec2 v, float maxLength)
+vec2 clamp (vec2 v, float maxLength, out bool clamped)
 {
     float length = length (v);
     if (length > maxLength)
+    {
+	clamped = true;
 	return v * (maxLength / length);
+    }
     else
+    {
+	clamped = false;
 	return v;
+    }
 }
 
 
@@ -120,7 +126,8 @@ bool isArrow (vec2 x, vec2 texCoordCenter)
 	const float arrowAngle = 15.0;
 	const float arrowLengthInPixels = 10;
 	rotateModelView (v);
-	v = clamp (v * u_sizeRatio, u_cellLength);
+	bool clamped = false;
+	v = clamp (v * u_sizeRatio, u_cellLength, clamped);
 	float arrowLength = min (
 	    length (v), arrowLengthInPixels * u_onePixelInObjectSpace) / 
 	    u_cellLength;
@@ -136,7 +143,8 @@ bool isArrow (vec2 x, vec2 texCoordCenter)
 	    isLine (xToTop, rotate (n, arrowAngle), 
 		    lineWidthPerc, arrowLength, 0) ||
 	    isLine (xToTop, rotate (n, -arrowAngle), 
-		    lineWidthPerc, arrowLength, 0);
+		    lineWidthPerc, arrowLength, 0) ||
+	    (clamped && isLine (xToMiddle, v, lineWidthPerc, arrowLength));
     }
     else
 	return false;
