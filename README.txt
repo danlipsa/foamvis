@@ -4,7 +4,8 @@ Release log
 	- fixed bug where deformation ellipses are too small for
           datasets containing constraint objects.
 	- added an "overlay bar" that shows clamping for velocity overlay.
-	- improved appearance for velocity arrows.
+	- improved appearance for velocity arrows and show which arrows are 
+	  clamped.
 0.7.2257 2011-11-28
 	- added focus rectangle for the current view
 	- alow _ and . for labels inside the ini file
