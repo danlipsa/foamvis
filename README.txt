@@ -1,6 +1,6 @@
 Release log
 ===========
-0.7.2268 2011-11-30
+0.7.2270 2011-11-30
 	- fixed bug where deformation ellipses are too small for
           datasets containing constraint objects.
 	- added an "overlay bar" that shows clamping for velocity overlay.
