@@ -1677,7 +1677,8 @@ void GLWidget::displayContextBodies (ViewNumber::Enum viewNumber) const
 	glPushAttrib (GL_ENABLE_BIT);
 	glDisable (GL_DEPTH_TEST);
 	const Foam::Bodies& bodies = 
-	    GetSimulation (viewNumber).GetFoam (0).GetBodies ();
+	    GetSimulation (viewNumber).GetFoam (
+		GetCurrentTime (viewNumber)).GetBodies ();
 	Foam::Bodies contextBodies (bodies.size ());
 	
 
@@ -2215,6 +2216,7 @@ void GLWidget::displayEdgesNormal (ViewNumber::Enum viewNumber) const
 	displayEdges <DisplayEdgeTorusClipped> (viewNumber) :
 	displayEdges <DisplayEdgePropertyColor<> >(viewNumber);
     displayDeformation (viewNumber);
+    displayAverageAroundBodies (viewNumber);
     glPopAttrib ();
 }
 
