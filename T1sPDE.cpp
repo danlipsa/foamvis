@@ -34,9 +34,9 @@ protected:
 GaussianInitShaderProgram::GaussianInitShaderProgram (const char* frag) :
     ShaderProgram (0, frag)
 {
-    m_intervalMarginLocation = uniformLocation("m_intervalMargin");
+    m_intervalMarginLocation = uniformLocation("u_intervalMargin");
     RuntimeAssert (m_intervalMarginLocation != -1, 
-		   "Invalid location: m_intervalMargin");
+		   "Invalid location: u_intervalMargin");
 
     m_sigmaLocation = uniformLocation("u_sigma");
     RuntimeAssert (m_sigmaLocation != -1, "Invalid location: u_sigma");
