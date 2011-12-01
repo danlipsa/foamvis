@@ -3494,8 +3494,7 @@ G3D::Vector3 GLWidget::getScaleCenterTranslation (
     ViewNumber::Enum viewNumber) const
 {
     G3D::Vector2 center = 
-	GetSimulation (viewNumber).
-	GetFoam (0).GetBoundingBoxTorus ().center ().xy ();
+	GetSimulation (viewNumber).GetBoundingBox ().center ().xy ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     G3D::Vector2 newCenter = vs.GetScaleCenter ();
     return G3D::Vector3 (newCenter - center, 0);

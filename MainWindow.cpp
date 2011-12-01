@@ -107,8 +107,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     }
     setWindowTitle (QString (title.c_str ()));
     widgetHistogram->setHidden (true);
-    // fire as soon as all events have been processed
-    m_timer->setInterval (0);
+    m_timer->setInterval (20);
     //initTranslatedBody ();
     configureInterfaceDataDependent (simulationGroup);    
 }
@@ -209,7 +208,8 @@ void MainWindow::connectSignals ()
 	     this, SLOT (TimeoutTimer ()));
     
     connect (widgetGl, SIGNAL (PaintedGL ()),
-	     widgetDisplay, SLOT (SaveFrame ()), Qt::QueuedConnection);
+	     widgetDisplay, SLOT (SaveFrame ()), 
+	     Qt::QueuedConnection);
     
     
     // BodyOrFacePropertyChanged: 
@@ -1018,8 +1018,8 @@ void MainWindow::ClickedEnd ()
 
 void MainWindow::TimeoutTimer ()
 {
-    //cdbg << "TimeoutTimer" << endl;
     int value = sliderTimeSteps->value ();
+    cdbg << "TimeoutTimer: " << value << endl;
     if (m_playForward)
     {
 	if (value < sliderTimeSteps->maximum ())
