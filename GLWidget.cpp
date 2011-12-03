@@ -751,9 +751,10 @@ G3D::AABox GLWidget::calculateViewingVolume (
     double xOverY, double extendAlongZRatio, 
     ViewingVolumeOperation::Enum enclose) const
 {
-    G3D::AABox bb = GetSimulation (viewNumber).GetBoundingBox ();
+    const Simulation& simulation = GetSimulation (viewNumber);
+    G3D::AABox bb = simulation.GetBoundingBox ();
     G3D::AABox vv = AdjustXOverYRatio (EncloseRotation (bb), xOverY);
-    if (! GetSimulation (viewNumber).Is2D ())
+    if (! simulation.Is2D ())
 	// ExtendAlongZFor3D is used for 3D, 
 	// so that you keep the 3D objects outside the camera
 	vv = ExtendAlongZFor3D (vv, extendAlongZRatio);
@@ -2134,7 +2135,7 @@ void GLWidget::displayAxes (ViewNumber::Enum viewNumber)
 
 	DisplayOrientedSegmentQuadric displayOrientedEdge (
 	    GetQuadricObject (), m_arrowBaseRadius, m_edgeRadius, m_arrowHeight,
-	    DisplaySegmentArrow::TOP_END);
+	    DisplaySegmentArrow1::TOP_END);
 
 	a = fm.height () * m_minimumEdgeRadius;
 	glColor (Qt::red);
@@ -2496,7 +2497,7 @@ void GLWidget::displayEdgesTorusLines () const
     GetSimulation ().GetFoam (0).GetEdgeSet (&edgeSet);
     for_each (edgeSet.begin (), edgeSet.end (),
 	      DisplayEdgeTorus<DisplaySegment, 
-	      DisplaySegmentArrow, false> (
+	      DisplaySegmentArrow1, false> (
 		  *this, 
 		  GetSimulation ().GetFoam (0).GetProperties ()));
     glPopAttrib ();
@@ -2787,7 +2788,7 @@ void GLWidget::displayFacesTorusLines () const
     for_each (faceSet.begin (), faceSet.end (),
 	      DisplayFaceHighlightColor<HighlightNumber::H0,
 	      DisplayFaceEdges<
-	      DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow, true> > > (
+	      DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow1, true> > > (
 		  *this, 
 		  GetSimulation ().GetFoam (0).GetProperties (), 
 		  DisplayElement::FOCUS) );
@@ -3884,7 +3885,8 @@ void GLWidget::CurrentIndexChangedSelectedLight (int selectedLight)
 
 void GLWidget::CurrentIndexChangedSimulation (int i)
 {
-    ViewSettings& vs = GetViewSettings ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (i);
     int rotation2D = simulation.GetRotation2D ();
     vs.SetSimulationIndex (i);
@@ -3895,6 +3897,10 @@ void GLWidget::CurrentIndexChangedSimulation (int i)
 	  AxesOrder::TWO_D_ROTATE_RIGHT90)): AxesOrder::THREE_D);
     vs.SetT1sShiftLower (simulation.GetT1sShiftLower ());
     vs.AverageSetTimeWindow (simulation.GetTimeSteps ());
+    vs.SetScaleCenter (
+	CalculateViewingVolume (
+	    viewNumber, 
+	    ViewingVolumeOperation::DONT_ENCLOSE2D).center ().xy ());
     update ();
 }
 

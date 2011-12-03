@@ -166,8 +166,6 @@ void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body,
 {
     if (body->IsConstraint ())
 	return;
-    const float arrowDegrees = 15.0;
-    const float arrowLengthInPixels = 10;
     ViewNumber::Enum viewNumber = m_propertySetter.GetViewNumber ();
     ViewSettings& vs = m_glWidget.GetViewSettings (viewNumber);
     float size = m_glWidget.GetVelocitySizeInitialRatio (viewNumber) * 
@@ -182,34 +180,8 @@ void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body,
     G3D::Vector2 velocity = clamp (
 	body->GetVelocity ().xy () * size, 
 	m_glWidget.GetCellLength (viewNumber), &clamped);
-    float arrowLength = min (
-	velocity.length (), 
-	arrowLengthInPixels * m_glWidget.GetOnePixelInObjectSpace ());
-    G3D::Vector2 arrow = velocity.direction () * arrowLength;
-    glPushMatrix ();
-    glLineWidth (lineWidth);
-    glTranslate (body->GetCenter ().xy ());
-    glBegin (GL_LINES);
-    ::glVertex (- velocity / 2);
-    ::glVertex (velocity / 2);
-    glEnd ();
-    glTranslate (velocity / 2);
-    glBegin (GL_LINE_STRIP);
-    ::glVertex (- rotate (arrow, arrowDegrees));
-    ::glVertex (G3D::Vector2::zero ());
-    ::glVertex (- rotate (arrow, -arrowDegrees));
-    glEnd ();
-    if (clamped)
-    {
-	glTranslate (- velocity / 2);
-	arrow = G3D::Vector2 (- arrow.y, arrow.x) /2;
-	glBegin (GL_LINES);
-	::glVertex (- arrow);
-	::glVertex (arrow);
-	glEnd ();
-    }
-    glPopMatrix ();
-    glLineWidth (1.0);
+    DisplaySegmentArrow (velocity, body->GetCenter ().xy (), lineWidth,
+			 m_glWidget.GetOnePixelInObjectSpace (), clamped);
 }
 
 // DisplayBodyCenter

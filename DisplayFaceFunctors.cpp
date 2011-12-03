@@ -354,7 +354,7 @@ template class DisplayFaceHighlightColor<HighlightNumber::H0,
     SetterTextureCoordinate>;
 template class DisplayFaceHighlightColor<HighlightNumber::H0,
     DisplayFaceEdges<
-	DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow, true> >, SetterTextureCoordinate>;
+	DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow1, true> >, SetterTextureCoordinate>;
 template class DisplayFaceHighlightColor<HighlightNumber::H0,
     DisplayFaceEdges<
 	DisplayEdgeTorusClipped>, SetterTextureCoordinate>;

@@ -124,7 +124,11 @@ private:
 	const G3D::Vector3& afterP, const G3D::Vector3& origin) const;
 };
 
-class DisplaySegmentArrow
+void DisplaySegmentArrow (G3D::Vector2 v, G3D::Vector2 center,
+			  float lineWidth, 
+			  float onePixelInObjectSpace, bool clamped);
+
+class DisplaySegmentArrow1
 {
 public:
     enum Position
@@ -134,7 +138,7 @@ public:
     };
 
 public:
-    DisplaySegmentArrow (
+    DisplaySegmentArrow1 (
 	GLUquadricObj* quadric = 0,
 	double baseRadius = 0, double topRadius = 0, double height = 0,
 	Position position = BASE_MIDDLE) :
@@ -155,41 +159,41 @@ protected:
     Position m_position;
 };
 
-class DisplaySegmentArrowQuadric : public DisplaySegmentArrow
+class DisplaySegmentArrowQuadric : public DisplaySegmentArrow1
 {
 public:
     DisplaySegmentArrowQuadric (
 	GLUquadricObj* quadric,
 	double baseRadius, double topRadius, double height, 
 	Position position = BASE_MIDDLE) :
-	DisplaySegmentArrow (quadric, baseRadius, topRadius, height, position)
+	DisplaySegmentArrow1 (quadric, baseRadius, topRadius, height, position)
     {
     }
 
     void operator () (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
-class DisplayOrientedSegment : public DisplaySegmentArrow
+class DisplayOrientedSegment : public DisplaySegmentArrow1
 {
 public:
     DisplayOrientedSegment (
 	GLUquadricObj* quadric = 0,
 	double baseRadius = 0, double topRadius = 1.0, double height = 0,
 	Position position = BASE_MIDDLE) :
-	DisplaySegmentArrow (quadric, baseRadius, topRadius, height, position)
+	DisplaySegmentArrow1 (quadric, baseRadius, topRadius, height, position)
     {
     }
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
 };
 
-class DisplayOrientedSegmentQuadric : public DisplaySegmentArrow
+class DisplayOrientedSegmentQuadric : public DisplaySegmentArrow1
 {
 public:
     DisplayOrientedSegmentQuadric (
 	GLUquadricObj* quadric = 0,
 	double baseRadius = 0, double topRadius = 0, double height = 0,
 	Position position = BASE_MIDDLE) :
-	DisplaySegmentArrow (quadric, baseRadius, topRadius, height, position)
+	DisplaySegmentArrow1 (quadric, baseRadius, topRadius, height, position)
     {
     }
     void operator() (const G3D::Vector3& begin, const G3D::Vector3& end);
@@ -199,7 +203,7 @@ public:
 // ======================================================================
 
 template <typename DisplayEdge, 
-	  typename DisplaySegmentArrow, bool showDuplicates>
+	  typename DisplaySegmentArrow1, bool showDuplicates>
 class DisplayEdgeTorus : public DisplayElementFocus
 {
 public:
@@ -226,7 +230,7 @@ protected:
 
 private:
     DisplayEdge m_displayEdge;
-    DisplaySegmentArrow m_displayArrow;
+    DisplaySegmentArrow1 m_displayArrow;
 };
 
 template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay = 

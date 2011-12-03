@@ -144,7 +144,7 @@ void MainWindow::configureInterfaceDataDependent (
 	comboBoxInteractionMode->setCurrentIndex (InteractionMode::SCALE);
 	if (simulation.IsTorus ())
 	{
-	    G3D::AABox box = simulation.GetBoundingBoxTorus ();
+	    G3D::AABox box = simulation.GetBoundingBox ();
 	    G3D::Vector3 extent = box.extent ();
 	    if (extent.x > extent.y && simulation.GetRotation2D () == 0)
 		comboBoxViewLayout->setCurrentIndex (ViewLayout::VERTICAL);

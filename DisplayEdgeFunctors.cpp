@@ -191,10 +191,10 @@ void DisplaySegmentTube::displayTube (const Disk& begin, const Disk& end) const
 }
 
 
-// DisplaySegmentArrow
+// DisplaySegmentArrow1
 // ======================================================================
 
-void DisplaySegmentArrow::operator () (
+void DisplaySegmentArrow1::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
     glLineWidth (3.0);
@@ -202,6 +202,42 @@ void DisplaySegmentArrow::operator () (
     ::glVertex(begin);
     ::glVertex((begin + end) / 2);
     glEnd();
+    glLineWidth (1.0);
+}
+
+
+void DisplaySegmentArrow (G3D::Vector2 v, G3D::Vector2 center,
+			  float lineWidth, 
+			  float onePixelInObjectSpace, bool clamped)
+{
+    const float arrowDegrees = 15.0;
+    const float arrowLengthInPixels = 10;
+    float arrowLength = min (
+	v.length (), arrowLengthInPixels * onePixelInObjectSpace);
+    G3D::Vector2 arrow = v.direction () * arrowLength;
+    glPushMatrix ();
+    glLineWidth (lineWidth);
+    glTranslate (center);
+    glBegin (GL_LINES);
+    ::glVertex (- v / 2);
+    ::glVertex (v / 2);
+    glEnd ();
+    glTranslate (v / 2);
+    glBegin (GL_LINE_STRIP);
+    ::glVertex (- rotate (arrow, arrowDegrees));
+    ::glVertex (G3D::Vector2::zero ());
+    ::glVertex (- rotate (arrow, -arrowDegrees));
+    glEnd ();
+    if (clamped)
+    {
+	glTranslate (- v / 2);
+	arrow = G3D::Vector2 (- arrow.y, arrow.x) /2;
+	glBegin (GL_LINES);
+	::glVertex (- arrow);
+	::glVertex (arrow);
+	glEnd ();
+    }
+    glPopMatrix ();
     glLineWidth (1.0);
 }
 
@@ -264,7 +300,7 @@ void DisplayOrientedSegment::operator () (
     const G3D::Vector3& begin, const G3D::Vector3& end)
 {
     DisplaySegment displayEdge (m_quadric, m_topRadius);
-    DisplaySegmentArrow displayArrow (
+    DisplaySegmentArrow1 displayArrow (
 	m_quadric, m_baseRadius, m_topRadius, m_height, m_position);
     displayEdge (begin, end);
     displayArrow (begin, end);
@@ -285,9 +321,9 @@ void DisplayOrientedSegmentQuadric::operator () (
 
 // DisplayEdgeTorus
 // ======================================================================
-template <typename DisplayEdge, typename DisplaySegmentArrow, 
+template <typename DisplayEdge, typename DisplaySegmentArrow1, 
 	  bool showDuplicates>
-DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow, showDuplicates>::
+DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow1, showDuplicates>::
 DisplayEdgeTorus (const GLWidget& widget, const FoamProperties& fp,
 		  FocusContext focus, bool useZPos, double zPos) : 
     
@@ -300,25 +336,25 @@ DisplayEdgeTorus (const GLWidget& widget, const FoamProperties& fp,
     {
     }
 
-template <typename DisplayEdge, typename DisplaySegmentArrow, 
+template <typename DisplayEdge, typename DisplaySegmentArrow1, 
 	  bool showDuplicates>
-void DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow, showDuplicates>::
+void DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow1, showDuplicates>::
 operator () (const OrientedEdge& oe)
 {
     operator () (oe.GetEdge ());
 }
 
-template <typename DisplayEdge, typename DisplaySegmentArrow, 
+template <typename DisplayEdge, typename DisplaySegmentArrow1, 
 	  bool showDuplicates>
-void DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow, showDuplicates>::
+void DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow1, showDuplicates>::
 operator() (const boost::shared_ptr<OrientedEdge> oe) 
 {
     operator() (oe->GetEdge());
 }
 
-template <typename DisplayEdge, typename DisplaySegmentArrow, 
+template <typename DisplayEdge, typename DisplaySegmentArrow1, 
 	  bool showDuplicates>
-void DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow, showDuplicates>::
+void DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow1, showDuplicates>::
 operator() (const boost::shared_ptr<Edge>  e)
 {
     if (showDuplicates 
@@ -326,9 +362,9 @@ operator() (const boost::shared_ptr<Edge>  e)
 	display (e);
 }
 
-template <typename DisplayEdge, typename DisplaySegmentArrow, 
+template <typename DisplayEdge, typename DisplaySegmentArrow1, 
 	  bool showDuplicates>
-void DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow, showDuplicates>::
+void DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow1, showDuplicates>::
 display (const boost::shared_ptr<Edge>  e)
 {
     glPushAttrib (GL_CURRENT_BIT);
@@ -547,8 +583,8 @@ operator () (const boost::shared_ptr<Face>  f)
 
 template class DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadric, false>;
 template class DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadric, true>;
-template class DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow, false>;
-template class DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow, true>;
+template class DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow1, false>;
+template class DisplayEdgeTorus<DisplaySegment, DisplaySegmentArrow1, true>;
 
 // DisplayHighlightColor
 // ======================================================================
@@ -566,7 +602,7 @@ template class DisplayEdgePropertyColor <DisplayElement::DONT_DISPLAY_TESSELLATI
 // ======================================================================
 
 template class DisplayFaceEdges<
-    DisplayEdgeTorus <DisplaySegment, DisplaySegmentArrow, true> >;
+    DisplayEdgeTorus <DisplaySegment, DisplaySegmentArrow1, true> >;
 template class DisplayFaceEdges<
     DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadric, true> >;
 template class DisplayFaceEdges<
