@@ -1,5 +1,10 @@
 Release log
 ===========
+0.7.    - added arrows for forces
+	- link the grid size (and position) for reflected half view.
+	- fix position of the two_discs for two views.
+	- reflect the ellipse view so that it falls in the same side as the 
+	  two discs.
 0.7.2270 2011-11-30
 	- fixed bug where deformation ellipses are too small for
           datasets containing constraint objects.
