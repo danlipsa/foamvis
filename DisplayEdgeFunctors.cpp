@@ -206,12 +206,13 @@ void DisplaySegmentArrow1::operator () (
 }
 
 
-void DisplaySegmentArrow (G3D::Vector2 v, G3D::Vector2 center,
+void DisplaySegmentArrow (G3D::Vector2 where, G3D::Vector2 v, 
 			  float lineWidth, 
 			  float onePixelInObjectSpace, bool clamped)
 {
     const float arrowDegrees = 15.0;
     const float arrowLengthInPixels = 10;
+    G3D::Vector2 center = where + v / 2;
     float arrowLength = min (
 	v.length (), arrowLengthInPixels * onePixelInObjectSpace);
     G3D::Vector2 arrow = v.direction () * arrowLength;

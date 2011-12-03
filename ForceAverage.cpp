@@ -9,12 +9,14 @@
 
 #include "Body.h"
 #include "DebugStream.h"
+#include "DisplayEdgeFunctors.h"
 #include "ForceAverage.h"
 #include "Simulation.h"
 #include "Foam.h"
 #include "GLWidget.h"
 #include "ViewSettings.h"
 #include "OpenGLUtils.h"
+
 
 void ForceAverage::AverageInit (ViewNumber::Enum viewNumber)
 {
@@ -104,7 +106,6 @@ void ForceAverage::display (
     bool adjustForAverageAroundMovementRotation) const
 {
     const GLWidget& glWidget = GetGLWidget ();
-    const ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
     if (glWidget.GetSimulation (viewNumber).ForcesUsed ())
     {
 	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT | GL_LINE_BIT);
@@ -116,7 +117,6 @@ void ForceAverage::display (
 		viewNumber, glWidget.GetCurrentTime (viewNumber), -1);
 	}
 	glDisable (GL_DEPTH_TEST);
-	glLineWidth (vs.GetForceLineWidth ());
 	BOOST_FOREACH (const Force& force, forces)
 	    displayForces (viewNumber, force, count);
 	if (adjustForAverageAroundMovementRotation)
@@ -136,27 +136,29 @@ void ForceAverage::displayForces (
 	(box.high () - box.low ()).length () / count;
     G3D::Vector3 center = force.m_body->GetCenter ();
     if (vs.IsForceResultShown ())
-	displayForce (
+	displayForce (viewNumber,
 	    GetGLWidget ().GetHighlightColor (viewNumber, HighlightNumber::H2),
 	    center, G3D::Vector3 (
 		unitForceSize * 
 		(force.m_networkForce + force.m_pressureForce), 0));
     if (vs.IsForceNetworkShown ())
-	displayForce (
+	displayForce (viewNumber,
 	    GetGLWidget ().GetHighlightColor (viewNumber, HighlightNumber::H0),
 	    center, G3D::Vector3 (unitForceSize * force.m_networkForce, 0));
     if (vs.IsForcePressureShown ())
-	displayForce (
+	displayForce (viewNumber,
 	    GetGLWidget ().GetHighlightColor (viewNumber, HighlightNumber::H1),
 	    center, G3D::Vector3 (unitForceSize * force.m_pressureForce, 0));
 }
 
-void ForceAverage::displayForce (QColor color,
+void ForceAverage::displayForce (
+    ViewNumber::Enum viewNumber, QColor color,
     const G3D::Vector3& center, const G3D::Vector3& force) const
 {
+    const GLWidget& glWidget = GetGLWidget ();
+    ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
     glColor (color);
-    glBegin (GL_LINES);
-    ::glVertex (center);
-    ::glVertex (center + force);
-    glEnd ();
+    DisplaySegmentArrow (
+	center.xy (), force.xy (), vs.GetForceLineWidth (),
+	glWidget.GetOnePixelInObjectSpace (), false);
 }

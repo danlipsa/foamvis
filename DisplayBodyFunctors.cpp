@@ -180,8 +180,9 @@ void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body,
     G3D::Vector2 velocity = clamp (
 	body->GetVelocity ().xy () * size, 
 	m_glWidget.GetCellLength (viewNumber), &clamped);
-    DisplaySegmentArrow (velocity, body->GetCenter ().xy (), lineWidth,
-			 m_glWidget.GetOnePixelInObjectSpace (), clamped);
+    DisplaySegmentArrow (
+	body->GetCenter ().xy () - velocity / 2, velocity, lineWidth,
+	m_glWidget.GetOnePixelInObjectSpace (), clamped);
 }
 
 // DisplayBodyCenter

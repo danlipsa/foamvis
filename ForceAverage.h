@@ -45,9 +45,9 @@ private:
 	bool adjustForAverageAroundMovementRotation = false) const;
     void displayForces (
 	ViewNumber::Enum viewNumber, const Force& force, size_t count) const;
-    void displayForce (
-	QColor color,
-	const G3D::Vector3& center, const G3D::Vector3& force) const;
+    void displayForce (ViewNumber::Enum viewNumber, QColor color,
+		       const G3D::Vector3& center, 
+		       const G3D::Vector3& force) const;
 
 private:
     vector<Force> m_average;
