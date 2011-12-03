@@ -71,6 +71,7 @@ public:
     {
 	return m_viewNumber;
     }
+    vector<ViewNumber::Enum> GetViewNumbers () const;
     void SetViewNumber (ViewNumber::Enum viewNumber);
     ViewSettings& GetViewSettings (ViewNumber::Enum viewNumber) const
     {
@@ -258,11 +259,11 @@ public:
     {
 	return m_timeLinkage;
     }
-    TransformLinkage::Enum GetTransformLinkage () const
+    bool IsReflectedHalfView () const
     {
-	return m_transformLinkage;
+	return m_reflectedHalfView;
     }
-    void SetTransformLinkage (TransformLinkage::Enum transformLinkage);
+    void SetReflectedHalfView (bool reflectedHalfView);
     size_t GetLinkedTime () const
     {
 	return m_linkedTime;
@@ -827,7 +828,7 @@ private:
     boost::array<
 	boost::shared_ptr<ViewSettings>, ViewNumber::COUNT> m_viewSettings;
     TimeLinkage::Enum m_timeLinkage;
-    TransformLinkage::Enum m_transformLinkage;
+    bool m_reflectedHalfView;
     /**
      * Used to keep trak of time for TimeLinkage::LINKED.
      * It has the resolution of the view that has the maximum interval and the 

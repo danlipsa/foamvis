@@ -70,9 +70,9 @@ Q_SIGNALS:
 public Q_SLOTS:
     void ButtonClickedHistogram (int histogramType);
     void ButtonClickedViewType (int viewType);
-    void ButtonClickedTransformLinkage (int id);
 
     void ToggledHistogramGridShown (bool checked);
+    void ToggledReflectedHalfView (bool checked);
 
     /**
      * Called when the Begin Slider button is pressed. Shows the first

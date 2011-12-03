@@ -428,15 +428,6 @@ struct TimeLinkage
     };
 };
 
-struct TransformLinkage
-{
-    enum Enum
-    {
-	INDEPENDENT,
-	LINKED_HORIZONTAL_AXIS,
-    };
-};
-
 
 
 #endif //__ENUMS_H__

@@ -129,7 +129,6 @@ void MainWindow::configureInterfaceDataDependent (
     if (simulation.T1sAvailable ())
     {
 	checkBoxT1sShown->setEnabled (true);	
-	checkBoxT1sShown->setChecked (true);
 	radioButtonT1sPDE->setEnabled (true);
     }
     if (! simulation.IsTorus ())
@@ -478,12 +477,6 @@ void MainWindow::setupButtonGroups ()
     buttonGroupTimeLinkage->setId (
 	radioButtonTimeLinked, TimeLinkage::LINKED);
     buttonGroupTimeLinkage->button (TimeLinkage::LINKED)->setChecked (true);
-
-    buttonGroupTransformLinkage->setId (
-	radioButtonTransformIndependent, TransformLinkage::INDEPENDENT);
-    buttonGroupTransformLinkage->setId (
-	radioButtonTransformLinkedHorizontalAxis, 
-	TransformLinkage::LINKED_HORIZONTAL_AXIS);
 }
 
 void MainWindow::setupSliderData (const Simulation& simulation)
@@ -1263,10 +1256,11 @@ void MainWindow::ButtonClickedHistogram (int histogramType)
     SetAndDisplayHistogram (KEEP_SELECTION, REPLACE_MAX_VALUE);
 }
 
-void MainWindow::ButtonClickedTransformLinkage (int id)
+
+
+void MainWindow::ToggledReflectedHalfView (bool reflectedHalfView)
 {
-    TransformLinkage::Enum transformLinkage = TransformLinkage::Enum (id);
-    if (transformLinkage == TransformLinkage::LINKED_HORIZONTAL_AXIS &&
+    if (reflectedHalfView &&
 	(widgetGl->GetViewCount () != ViewCount::TWO || 
 	 widgetGl->GetViewLayout () != ViewLayout::VERTICAL))
     {
@@ -1274,10 +1268,10 @@ void MainWindow::ButtonClickedTransformLinkage (int id)
 	msgBox.setText("This feature works only with two views "
 		       "in vertical layout");
 	msgBox.exec();
-	SetCheckedNoSignals (radioButtonTransformIndependent, true);
+	SetCheckedNoSignals (checkBoxReflectedHalfView, false, true);
 	return;
     }
-    widgetGl->SetTransformLinkage (transformLinkage);
+    widgetGl->SetReflectedHalfView (reflectedHalfView);
 }
 
 

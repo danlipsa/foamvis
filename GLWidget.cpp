@@ -200,7 +200,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_viewLayout (ViewLayout::HORIZONTAL),
       m_viewNumber (ViewNumber::VIEW0),
       m_timeLinkage (TimeLinkage::LINKED),
-      m_transformLinkage (TransformLinkage::INDEPENDENT),
+      m_reflectedHalfView (false),
       m_linkedTime (0),
       m_showType (SHOW_NOTHING)
 {
@@ -1390,7 +1390,7 @@ G3D::Matrix3 GLWidget::getRotationAround (int axis, double angleRadians)
 G3D::Vector2 GLWidget::getScaleCenter (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& rect) const
 {
-    if (m_transformLinkage == TransformLinkage::INDEPENDENT)
+    if (! m_reflectedHalfView)
 	return rect.center ();
     else if (viewNumber == ViewNumber::VIEW0)
 	return (rect.x0y0 () + rect.x1y0 ()) / 2;
@@ -1494,7 +1494,7 @@ void GLWidget::scale (ViewNumber::Enum viewNumber, const QPoint& position)
 	vs.SetScaleRatio (vs.GetScaleRatio () / ratio);
     else
     {
-	if (m_transformLinkage == TransformLinkage::LINKED_HORIZONTAL_AXIS)
+	if (m_reflectedHalfView)
 	    for (size_t i = 0; i < 2; ++i)
 	    {
 		ViewNumber::Enum vn = ViewNumber::Enum (i);
@@ -3513,9 +3513,9 @@ void GLWidget::setScaleCenter (ViewNumber::Enum viewNumber)
 }
 
 
-void GLWidget::SetTransformLinkage (TransformLinkage::Enum transformLinkage)
+void GLWidget::SetReflectedHalfView (bool reflectedHalfView)
 {
-    m_transformLinkage = transformLinkage;
+    m_reflectedHalfView = reflectedHalfView;
     setScaleCenter (ViewNumber::VIEW0);
     setScaleCenter (ViewNumber::VIEW1);
     update ();
@@ -3551,13 +3551,13 @@ void GLWidget::toggledT1sKernelTextureSizeShown (
 
 void GLWidget::setOneOrTwoViews (void (GLWidget::*f) (ViewNumber::Enum))
 {
-    if (m_transformLinkage == TransformLinkage::INDEPENDENT)
-	CALL_MEMBER_FN (*this, f) (GetViewNumber ());
-    else
+    if (m_reflectedHalfView)
     {
 	CALL_MEMBER_FN (*this, f) (ViewNumber::VIEW0);
 	CALL_MEMBER_FN (*this, f) (ViewNumber::VIEW1);
     }
+    else
+	CALL_MEMBER_FN (*this, f) (GetViewNumber ());
 }
 
 
@@ -3775,18 +3775,39 @@ void GLWidget::ToggledCenterPathHidden (bool checked)
     update ();
 }
 
+vector<ViewNumber::Enum> GLWidget::GetViewNumbers () const
+{
+    if (m_reflectedHalfView)
+    {
+	vector<ViewNumber::Enum> vn(2);
+	vn[0] = ViewNumber::VIEW0;
+	vn[1] = ViewNumber::VIEW1;
+	return vn;
+    }
+    else
+    {
+	vector<ViewNumber::Enum> vn(1);
+	vn[0] = GetViewNumber ();
+	return vn;
+    }
+}
+
 void GLWidget::ButtonClickedViewType (int id)
 {
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    ViewType::Enum newViewType = ViewType::Enum(id);
-    ViewType::Enum oldViewType = GetViewSettings ().GetViewType ();
-    if (oldViewType == newViewType)
-	return;
-    vs.AverageRelease ();
-    vs.SetViewType (newViewType);
-    vs.AverageInitStep (viewNumber);
-    compile (viewNumber);
+    vector<ViewNumber::Enum> vn = GetViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	ViewType::Enum newViewType = ViewType::Enum(id);
+	ViewType::Enum oldViewType = vs.GetViewType ();
+	if (oldViewType == newViewType)
+	    continue;
+	vs.AverageRelease ();
+	vs.SetViewType (newViewType);
+	vs.AverageInitStep (viewNumber);
+	compile (viewNumber);
+    }
     update ();
 }
 
@@ -4047,13 +4068,13 @@ void GLWidget::ValueChangedT1sKernelTextureSize (int index)
 
 void GLWidget::ToggledT1sKernelTextureSizeShown (bool checked)
 {
-    if (m_transformLinkage == TransformLinkage::INDEPENDENT)
-	toggledT1sKernelTextureSizeShown (GetViewNumber (), checked);
-    else
+    if (m_reflectedHalfView)
     {
 	toggledT1sKernelTextureSizeShown (ViewNumber::VIEW0, checked);
 	toggledT1sKernelTextureSizeShown (ViewNumber::VIEW1, checked);
     }
+    else
+	toggledT1sKernelTextureSizeShown (GetViewNumber (), checked);
     update ();
 }
 
