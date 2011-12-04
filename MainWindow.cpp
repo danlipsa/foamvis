@@ -216,27 +216,32 @@ void MainWindow::connectSignals ()
     connect (
 	this, 
 	SIGNAL (BodyOrFacePropertyChanged (
+		    ViewNumber::Enum,
 		    boost::shared_ptr<ColorBarModel>, size_t)),
 	widgetGl, 
 	SLOT (SetBodyOrFaceProperty (
-		  boost::shared_ptr<ColorBarModel>, size_t)));
+		  ViewNumber::Enum, boost::shared_ptr<ColorBarModel>, size_t)));
     
     // ColorBarModelChanged:
     // from MainWindow to ColorBar, GLWidget and AttributeHistogram
     connect (
 	this, 
-	SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
+	SIGNAL (ColorBarModelChanged (ViewNumber::Enum, 
+				      boost::shared_ptr<ColorBarModel>)),
 	widgetGl, 
-	SLOT (SetColorBarModel (boost::shared_ptr<ColorBarModel>)));
+	SLOT (SetColorBarModel (ViewNumber::Enum, 
+				boost::shared_ptr<ColorBarModel>)));
     
     
     // ColorBarModelChanged:
     // from GLWidget to GLWidget and MainWindow and AttributeHistogram
     connect (
 	widgetGl, 
-	SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
+	SIGNAL (ColorBarModelChanged (ViewNumber::Enum,
+				      boost::shared_ptr<ColorBarModel>)),
 	widgetGl, 
-	SLOT (SetColorBarModel (boost::shared_ptr<ColorBarModel>)));
+	SLOT (SetColorBarModel (ViewNumber::Enum,
+				boost::shared_ptr<ColorBarModel>)));
     
     connectColorBarHistogram (true);
     
@@ -413,24 +418,28 @@ void MainWindow::connectColorBarHistogram (bool connected)
     {
 	connect (
 	    this, 
-	    SIGNAL (BodyOrFacePropertyChanged (boost::shared_ptr<ColorBarModel>,
-					       size_t)),
+	    SIGNAL (BodyOrFacePropertyChanged (
+			ViewNumber::Enum,
+			boost::shared_ptr<ColorBarModel>, size_t)),
 	    this, 
 	    SLOT (SetHistogramColorBarModel (
+		      ViewNumber::Enum,
 		      boost::shared_ptr<ColorBarModel>)));
 	connect (
 	    this, 
-	    SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
+	    SIGNAL (ColorBarModelChanged (ViewNumber::Enum,
+					  boost::shared_ptr<ColorBarModel>)),
 	    this, 
-	    SLOT (SetHistogramColorBarModel (
-		      boost::shared_ptr<ColorBarModel>)), 
+	    SLOT (SetHistogramColorBarModel (ViewNumber::Enum,
+					     boost::shared_ptr<ColorBarModel>)),
 	    Qt::UniqueConnection);
 	connect (
 	    widgetGl, 
-	    SIGNAL (ColorBarModelChanged (boost::shared_ptr<ColorBarModel>)),
+	    SIGNAL (ColorBarModelChanged (
+			ViewNumber::Enum, boost::shared_ptr<ColorBarModel>)),
 	    this, 
 	    SLOT (SetHistogramColorBarModel (
-		      boost::shared_ptr<ColorBarModel>)), 
+		      ViewNumber::Enum, boost::shared_ptr<ColorBarModel>)), 
 	    Qt::UniqueConnection);
     }
     else
@@ -946,6 +955,7 @@ void MainWindow::emitColorBarModelChanged (
     size_t property, StatisticsType::Enum statisticsType)
 {
     Q_EMIT ColorBarModelChanged (
+	viewNumber,
 	getColorBarModel (simulationIndex, 
 			  viewNumber, viewType, property, statisticsType));
 }
@@ -1077,49 +1087,53 @@ void MainWindow::ValueChangedStatisticsTimeWindow (int timeSteps)
 
 void MainWindow::ButtonClickedViewType (int vt)
 {
-    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
-    const Simulation& simulation = widgetGl->GetSimulation (viewNumber);
-    ViewType::Enum viewType = ViewType::Enum(vt);
-    size_t simulationIndex = 
-	widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
-    ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
-    ViewType::Enum oldViewType = vs.GetViewType ();
-    size_t property = vs.GetBodyOrFaceProperty ();
-    StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
-
-    setStackedWidget (viewType);
-    emitColorBarModelChanged (
-	simulationIndex, viewNumber, viewType, property, statisticsType);
-    switch (viewType)
+    vector<ViewNumber::Enum> vn = widgetGl->GetViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
     {
-    case ViewType::FACES:
-	if (m_histogramViewNumber == viewNumber)
-	    ButtonClickedHistogram (m_histogramType);
-	break;
+	ViewNumber::Enum viewNumber = vn[i];
+	const Simulation& simulation = widgetGl->GetSimulation (viewNumber);
+	ViewType::Enum viewType = ViewType::Enum(vt);
+	size_t simulationIndex = 
+	    widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
+	ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
+	ViewType::Enum oldViewType = vs.GetViewType ();
+	size_t property = vs.GetBodyOrFaceProperty ();
+	StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
 
-    case ViewType::FACES_STATISTICS:
-	labelFacesStatisticsColor->setText (
-	    BodyProperty::ToString (BodyProperty::FromSizeT (property)));
-	if (m_histogramViewNumber == viewNumber)
-	    ButtonClickedHistogram (m_histogramType);
-	break;
+	setStackedWidget (viewType);
+	emitColorBarModelChanged (
+	    simulationIndex, viewNumber, viewType, property, statisticsType);
+	switch (viewType)
+	{
+	case ViewType::FACES:
+	    if (m_histogramViewNumber == viewNumber)
+		ButtonClickedHistogram (m_histogramType);
+	    break;
 
-    case ViewType::CENTER_PATHS:
-	labelCenterPathColor->setText (
-	    BodyProperty::ToString (BodyProperty::FromSizeT (property)));
-	if (m_histogramViewNumber == viewNumber)
-	    ButtonClickedHistogram (m_histogramType);
-	break;
+	case ViewType::FACES_STATISTICS:
+	    labelFacesStatisticsColor->setText (
+		BodyProperty::ToString (BodyProperty::FromSizeT (property)));
+	    if (m_histogramViewNumber == viewNumber)
+		ButtonClickedHistogram (m_histogramType);
+	    break;
 
-    case ViewType::T1S_PDE:
-	sliderTimeSteps->setMaximum (simulation.GetT1sTimeSteps () - 1);
-	break;
+	case ViewType::CENTER_PATHS:
+	    labelCenterPathColor->setText (
+		BodyProperty::ToString (BodyProperty::FromSizeT (property)));
+	    if (m_histogramViewNumber == viewNumber)
+		ButtonClickedHistogram (m_histogramType);
+	    break;
 
-    default:
-	break;
+	case ViewType::T1S_PDE:
+	    sliderTimeSteps->setMaximum (simulation.GetT1sTimeSteps () - 1);
+	    break;
+
+	default:
+	    break;
+	}
+	if (oldViewType == ViewType::T1S_PDE)
+	    sliderTimeSteps->setMaximum (simulation.GetTimeSteps () - 1);
     }
-    if (oldViewType == ViewType::T1S_PDE)
-	sliderTimeSteps->setMaximum (simulation.GetTimeSteps () - 1);
 }
 
 
@@ -1185,6 +1199,7 @@ void MainWindow::CurrentIndexChangedFaceColor (int value)
 	::setVisible (widgetsVisible, false);
 	::setEnabled (widgetsEnabled, false);
 	Q_EMIT BodyOrFacePropertyChanged (
+	    viewNumber,
 	    boost::shared_ptr<ColorBarModel> (), value);
     }
     else {
@@ -1192,6 +1207,7 @@ void MainWindow::CurrentIndexChangedFaceColor (int value)
 	::setVisible (widgetsVisible, true);
 	::setEnabled (widgetsEnabled, true);
 	Q_EMIT BodyOrFacePropertyChanged (
+	    viewNumber,
 	    m_colorBarModelBodyProperty
 	    [simulationIndex][viewNumber][property], property);
 	SetAndDisplayHistogram (DISCARD_SELECTION, REPLACE_MAX_VALUE);
@@ -1231,7 +1247,8 @@ void MainWindow::CurrentIndexChangedStatisticsType (int value)
 	::setVisible (widgetsStatisticsTimeWindow, false);
 	break;
     }
-    Q_EMIT ColorBarModelChanged (getColorBarModel ());
+    Q_EMIT ColorBarModelChanged (widgetGl->GetViewNumber (), 
+				 getColorBarModel ());
 }
 
 void MainWindow::CurrentIndexChangedWindowSize (int value)
@@ -1310,14 +1327,16 @@ void MainWindow::ShowEditColorMap ()
     if (m_editColorMap->exec () == QDialog::Accepted)
     {
 	*getColorBarModel () = m_editColorMap->GetColorBarModel ();
-	Q_EMIT ColorBarModelChanged (getColorBarModel ());
+	Q_EMIT ColorBarModelChanged (widgetGl->GetViewNumber (),
+				     getColorBarModel ());
     }
 }
 
 void MainWindow::SetHistogramColorBarModel (
+    ViewNumber::Enum viewNumber,
     boost::shared_ptr<ColorBarModel> colorBarModel)
 {
-    if (m_histogramViewNumber == widgetGl->GetViewNumber ())
+    if (m_histogramViewNumber == viewNumber)
 	widgetHistogram->SetColorBarModel (colorBarModel);
 }
 

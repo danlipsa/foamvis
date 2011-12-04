@@ -63,9 +63,10 @@ public:
 
 Q_SIGNALS:
     void BodyOrFacePropertyChanged (
+	ViewNumber::Enum viewNumber,
 	boost::shared_ptr<ColorBarModel> colorBarModel, size_t property);
-    void ColorBarModelChanged (
-	boost::shared_ptr<ColorBarModel> colorBarModel);
+    void ColorBarModelChanged (ViewNumber::Enum viewNumber, 
+			       boost::shared_ptr<ColorBarModel> colorBarModel);
 
 public Q_SLOTS:
     void ButtonClickedHistogram (int histogramType);
@@ -125,6 +126,7 @@ public Q_SLOTS:
     void ValueChangedT1sKernelSigma (int index);
     void ViewToUI ();
     void SetHistogramColorBarModel (
+	ViewNumber::Enum viewNumber,
 	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 private:

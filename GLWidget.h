@@ -246,10 +246,6 @@ public:
 	StatisticsType::Enum statisticsType);
     ColorBarType::Enum GetColorBarType (ViewNumber::Enum viewNumber) const;
     ColorBarType::Enum GetColorBarType () const;
-    void SetBodyOrFaceProperty (
-	ViewNumber::Enum viewNumber,
-	boost::shared_ptr<ColorBarModel> colorBarModel,
-	size_t property);
     float LinkedTimeStepStretch (ViewNumber::Enum viewNumber) const;
     float LinkedTimeStepStretch (size_t max,
 				    ViewNumber::Enum viewNumber) const;
@@ -280,7 +276,9 @@ public:
 Q_SIGNALS:
     void PaintedGL ();
     void ViewChanged ();
-    void ColorBarModelChanged (boost::shared_ptr<ColorBarModel> colorBarModel);
+    void ColorBarModelChanged (
+	ViewNumber::Enum viewNumber,
+	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 public Q_SLOTS:
     void ButtonClickedTimeLinkage (int id);
@@ -334,11 +332,12 @@ public Q_SLOTS:
     void ToggledShowVelocityGrid (bool checked);
     void ToggledShowDeformationGridCellCenter (bool checked);
 
-
     void SetBodyOrFaceProperty (
+	ViewNumber::Enum viewNumber,
 	boost::shared_ptr<ColorBarModel> colorBarModel,
 	size_t property);
-    void SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel);
+    void SetColorBarModel (ViewNumber::Enum viewNumber, 
+			   boost::shared_ptr<ColorBarModel> colorBarModel);
     void CurrentIndexChangedSimulation (int index);
     void CurrentIndexChangedInteractionMode (int index);
     void CurrentIndexChangedStatisticsType (int index);

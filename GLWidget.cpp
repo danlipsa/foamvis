@@ -1258,10 +1258,11 @@ void GLWidget::ShowReset ()
 
 void GLWidget::ColorBarClampClear ()
 {
-    ViewSettings& vs = GetViewSettings ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
     boost::shared_ptr<ColorBarModel> colorBarModel = vs.GetColorBarModel ();
     colorBarModel->SetClampClear ();
-    Q_EMIT ColorBarModelChanged (colorBarModel);
+    Q_EMIT ColorBarModelChanged (viewNumber, colorBarModel);
 }
 
 
@@ -2586,23 +2587,6 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
     vs.GetForceAverage ().DisplayOneTimeStep (viewNumber);
 }
 
-void GLWidget::displayT1sPDE (ViewNumber::Enum viewNumber) const
-{
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    vs.AverageRotateAndDisplay (viewNumber);
-    displayStandaloneEdges< DisplayEdgePropertyColor<> > (
-	GetSimulation (viewNumber).GetFoam (0));
-    
-
-    T1sPDE& t1sPDE = vs.GetT1sPDE ();
-    if (t1sPDE.IsKernelTextureSizeShown ())
-    {
-	size_t timeStep = GetCurrentTime (viewNumber);
-	size_t stepSize = GetSimulation (viewNumber).GetT1s (timeStep).size ();
-	for (size_t i = 0; i < stepSize; ++i)
-	    t1sPDE.DisplayTextureSize (viewNumber, timeStep, i);
-    }
-}
 
 G3D::Vector2 GLWidget::toTexture (ViewNumber::Enum viewNumber, 
 				  G3D::Vector2 object) const
@@ -2615,6 +2599,24 @@ G3D::Vector2 GLWidget::toTexture (ViewNumber::Enum viewNumber,
 	vs.GetScaleRatio ());
     return (eye - vv.low ().xy ()) / (vv.high ().xy () - vv.low ().xy ());
 }
+
+void GLWidget::displayT1sPDE (ViewNumber::Enum viewNumber) const
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    vs.AverageRotateAndDisplay (viewNumber);
+    displayStandaloneEdges< DisplayEdgePropertyColor<> > (
+	GetSimulation (viewNumber).GetFoam (0));
+    
+    T1sPDE& t1sPDE = vs.GetT1sPDE ();
+    if (t1sPDE.IsKernelTextureSizeShown ())
+    {
+	size_t timeStep = GetCurrentTime (viewNumber);
+	size_t stepSize = GetSimulation (viewNumber).GetT1s (timeStep).size ();
+	for (size_t i = 0; i < stepSize; ++i)
+	    t1sPDE.DisplayTextureSize (viewNumber, timeStep, i);
+    }
+}
+
 
 void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
 {
@@ -3287,15 +3289,14 @@ void GLWidget::displayViewFocus (ViewNumber::Enum viewNumber)
 void GLWidget::displayTextureColorBar (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect)
 {
+    const ViewSettings& vs = GetViewSettings (viewNumber);
     G3D::Rect2D colorBarRect = getViewColorBarRect (viewRect);
     glPushAttrib (GL_POLYGON_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT);
 
     glDisable (GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_1D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    glBindTexture (GL_TEXTURE_1D, 
-		   GetViewSettings (viewNumber).GetColorBarTexture ());
-    
+    glBindTexture (GL_TEXTURE_1D, vs.GetColorBarTexture ());
     glBegin (GL_QUADS);
     glTexCoord1f(0);::glVertex (colorBarRect.x0y0 ());
     glTexCoord1f(1);::glVertex (colorBarRect.x0y1 ());
@@ -3589,11 +3590,13 @@ void GLWidget::CopySelectionFrom (int viewNumber)
 	GetViewSettings (ViewNumber::Enum (viewNumber)));
 }
 
-void GLWidget::CopyColorBarFrom (int viewNumber)
+void GLWidget::CopyColorBarFrom (int other)
 {
-    ViewSettings& vs = GetViewSettings (ViewNumber::Enum (viewNumber));
-    GetViewSettings ().CopyColorBar (vs);
-    Q_EMIT ColorBarModelChanged (GetViewSettings ().GetColorBarModel ());
+    ViewSettings& otherVs = GetViewSettings (ViewNumber::Enum (other));
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings ();
+    vs.CopyColorBar (otherVs);
+    Q_EMIT ColorBarModelChanged (viewNumber, vs.GetColorBarModel ());
 }
 
 
@@ -3989,19 +3992,11 @@ void GLWidget::SetBodyOrFaceProperty (
     update ();
 }
 
-void GLWidget::SetBodyOrFaceProperty (
-    boost::shared_ptr<ColorBarModel> colorBarModel,
-    size_t bodyOrFaceProperty)
-{
-    SetBodyOrFaceProperty (GetViewNumber (), colorBarModel, bodyOrFaceProperty);
-}
-
-
-
-void GLWidget::SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel)
+void GLWidget::SetColorBarModel (ViewNumber::Enum viewNumber, 
+				 boost::shared_ptr<ColorBarModel> colorBarModel)
 {
     makeCurrent ();
-    GetViewSettings ().SetColorBarModel (colorBarModel);
+    GetViewSettings (viewNumber).SetColorBarModel (colorBarModel);
     update ();
 }
 
