@@ -1022,7 +1022,6 @@ void MainWindow::ClickedEnd ()
 void MainWindow::TimeoutTimer ()
 {
     int value = sliderTimeSteps->value ();
-    cdbg << "TimeoutTimer: " << value << endl;
     if (m_playForward)
     {
 	if (value < sliderTimeSteps->maximum ())

@@ -505,8 +505,7 @@ const Simulation& GLWidget::GetSimulation () const
     return GetSimulation (GetViewNumber ());
 }
 
-const Simulation& GLWidget::GetSimulation (
-    ViewNumber::Enum viewNumber) const
+const Simulation& GLWidget::GetSimulation (ViewNumber::Enum viewNumber) const
 {
     return GetSimulation (
 	GetViewSettings (viewNumber).GetSimulationIndex ());
@@ -3085,7 +3084,7 @@ void GLWidget::quadricErrorCallback (GLenum errorCode)
 
 void GLWidget::contextMenuEventColorBar (QMenu* menu) const
 {
-    ViewSettings& vs = GetViewSettings ();
+    const ViewSettings& vs = GetViewSettings ();
     menu->addAction (m_actionClampClear.get ());
     bool actions = false;
     QMenu* menuCopy = menu->addMenu ("Copy");
@@ -3095,11 +3094,11 @@ void GLWidget::contextMenuEventColorBar (QMenu* menu) const
 	for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
 	{
 	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	    const ViewSettings& otherVs = GetViewSettings (viewNumber);
 	    if (viewNumber == m_viewNumber ||
-		GetColorBarType (m_viewNumber) != 
-		GetColorBarType (viewNumber) ||
-		currentProperty !=
-		GetViewSettings (viewNumber).GetBodyOrFaceProperty ())
+		GetColorBarType (m_viewNumber) != GetColorBarType (viewNumber) ||
+		currentProperty != otherVs.GetBodyOrFaceProperty () ||
+		vs.GetSimulationIndex () != otherVs.GetSimulationIndex ())
 		continue;
 	    menuCopy->addAction (m_actionCopyColorMap[i].get ());
 	    actions = true;
