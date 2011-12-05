@@ -1057,11 +1057,15 @@ void MainWindow::ValueChangedHistogramHeight (int s)
 void MainWindow::ValueChangedT1sKernelSigma (int index)
 {
     (void)index;
-    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
-    size_t simulationIndex = 
-	widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
-    m_colorBarModelT1sPDE[simulationIndex][viewNumber]->SetInterval (
-	toQwtDoubleInterval (widgetGl->GetRangeT1sPDE (viewNumber)));
+    vector<ViewNumber::Enum> vn = widgetGl->GetViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	size_t simulationIndex = 
+	    widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
+	m_colorBarModelT1sPDE[simulationIndex][viewNumber]->SetInterval (
+	    toQwtDoubleInterval (widgetGl->GetRangeT1sPDE (viewNumber)));
+    }
 }
 
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)

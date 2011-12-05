@@ -3,7 +3,7 @@ Release log
 0.7.    
 	- fix position of the two_discs for two views.
 	- added arrows for forces
-	- use highlight0 for standalone edges in KDE.
+	- use highlight0 for standalone edges in kernel density estimate.
 	- link the grid size (and position) for reflected half view.
 	- reflect the ellipse view so that it falls in the same side as the 
 	  two discs.
