@@ -395,6 +395,17 @@ DisplayEdgePropertyColor (const GLWidget& widget,const FoamProperties& fp,
 }
 
 template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
+DisplayEdgePropertyColor<tesselationEdgesDisplay>::
+DisplayEdgePropertyColor (const GLWidget& widget,const FoamProperties& fp,
+			  FocusContext focus, ViewNumber::Enum viewNumber,
+			  bool useZPos, double zPos) : 
+    
+    DisplayElementFocus (widget, fp, focus, useZPos, zPos)
+{
+    (void)viewNumber;
+}
+
+template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
 void DisplayEdgePropertyColor<tesselationEdgesDisplay>::
 operator () (const boost::shared_ptr<Edge> edge) const
 {

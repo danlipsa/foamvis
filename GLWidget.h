@@ -574,7 +574,8 @@ private:
     void displayEdgesNormal (ViewNumber::Enum view) const;
     template<typename displayEdge>
     void displayStandaloneEdges (
-	const Foam& foam, bool useZPos = false, double zPos = 0) const;
+	const Foam& foam, ViewNumber::Enum viewNumber = ViewNumber::VIEW0, 
+	bool useZPos = false, double zPos = 0) const;
     void displayStandaloneFaces () const;
     void displayEdgesTorus (ViewNumber::Enum view) const;
     void displayEdgesTorusTubes () const;

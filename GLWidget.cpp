@@ -2192,17 +2192,19 @@ void GLWidget::displayEdges (ViewNumber::Enum viewNumber) const
 }
 
 template<typename displayEdge>
-void GLWidget::displayStandaloneEdges (const Foam& foam, 
-				       bool useZPos, double zPos) const
+void GLWidget::displayStandaloneEdges (
+    const Foam& foam, ViewNumber::Enum viewNumber,
+    bool useZPos, double zPos) const
 {
     if (m_standaloneElementsShown)
     {
 	glPushAttrib (GL_ENABLE_BIT);    
 	glDisable (GL_DEPTH_TEST);
+	displayEdge de (*this, foam.GetProperties (),
+			DisplayElement::FOCUS, viewNumber, useZPos, zPos);
 	const Foam::Edges& standaloneEdges = foam.GetStandaloneEdges ();
 	BOOST_FOREACH (boost::shared_ptr<Edge> edge, standaloneEdges)
-	    displayEdge (*this, foam.GetProperties (),
-			 DisplayElement::FOCUS, useZPos, zPos) (edge);
+	    de(edge);
 	glPopAttrib ();
     }
 }
@@ -2603,7 +2605,7 @@ void GLWidget::displayT1sPDE (ViewNumber::Enum viewNumber) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.AverageRotateAndDisplay (viewNumber);
-    displayStandaloneEdges< DisplayEdgePropertyColor<> > (
+    displayStandaloneEdges< DisplayEdgeHighlightColor<HighlightNumber::H0> > (
 	GetSimulation (viewNumber).GetFoam (0));
     
     T1sPDE& t1sPDE = vs.GetT1sPDE ();
@@ -2820,12 +2822,12 @@ void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
 		viewNumber, IsTimeDisplacementUsed (), zPos));
     }
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (
-	GetSimulation (viewNumber).GetFoam (0), true, 0);
+	GetSimulation (viewNumber).GetFoam (0), viewNumber, true, 0);
     if (GetTimeDisplacement () != 0)
     {
 
 	displayStandaloneEdges< DisplayEdgePropertyColor<> > (
-	    GetSimulation (viewNumber).GetFoam (0),
+	    GetSimulation (viewNumber).GetFoam (0), viewNumber,
 	    IsTimeDisplacementUsed (),
 	    (GetSimulation (viewNumber).GetTimeSteps () - 1) * 
 	    GetTimeDisplacement ());

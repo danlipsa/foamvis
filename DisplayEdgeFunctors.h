@@ -246,6 +246,11 @@ public:
 	const GLWidget& widget, const FoamProperties& fp,
 	FocusContext focus, bool useZPos = false, double zPos = 0);
 
+    DisplayEdgePropertyColor (
+	const GLWidget& widget, const FoamProperties& fp,
+	FocusContext focus, ViewNumber::Enum viewNumber, 
+	bool useZPos = false, double zPos = 0);
+
     void operator () (const boost::shared_ptr<Edge> edge) const;
 
     void operator () (const Edge& edge) const;
@@ -294,6 +299,14 @@ public:
 			     bool useZPos = false, double zPos = 0) : 
 	DisplayElementFocus (widget, fp, focus, useZPos, zPos)
     {
+    }
+
+    DisplayEdgeTorusClipped (const GLWidget& widget, const FoamProperties& fp,
+			     FocusContext focus, ViewNumber::Enum viewNumber,
+			     bool useZPos = false, double zPos = 0) : 
+	DisplayElementFocus (widget, fp, focus, useZPos, zPos)
+    {
+	(void)viewNumber;
     }
 
     void operator () (const boost::shared_ptr<Edge>& edge) const;
