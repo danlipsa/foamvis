@@ -1346,7 +1346,6 @@ void MainWindow::SetHistogramColorBarModel (
 void MainWindow::CurrentIndexChangedInteractionMode (int index)
 {
     InteractionMode::Enum im = InteractionMode::Enum(index);
-    radioButtonInteractionFocus->click ();
     radioButtonInteractionLight->setDisabled (true);
     radioButtonInteractionContext->setDisabled (true);
     radioButtonInteractionGrid->setDisabled (true);
