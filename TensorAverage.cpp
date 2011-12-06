@@ -9,8 +9,10 @@
 
 #include "AverageShaders.h"
 #include "DebugStream.h"
+#include "Foam.h"
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
+#include "Simulation.h"
 #include "TensorAverage.h"
 #include "Utils.h"
 #include "ViewSettings.h"
@@ -109,7 +111,7 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
     float sizeRatio;G3D::Rect2D enclosingRect;float onePixelInObjectSpace;
 
     calculateShaderParameters (
-	viewNumber, rotationCenter, angleDegrees, &gridTranslation, 
+	viewNumber, rotationCenter, &gridTranslation, 
 	&cellLength, &lineWidth, &sizeRatio, &enclosingRect, 
 	&onePixelInObjectSpace);
     m_displayShaderProgram->Bind (
@@ -138,8 +140,7 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
 
 template<typename Setter>
 void TensorAverageTemplate<Setter>::calculateShaderParameters (
-    ViewNumber::Enum viewNumber, G3D::Vector2 rotationCenter, 
-    float angleDegrees,
+    ViewNumber::Enum viewNumber, G3D::Vector2 rotationCenter,
     G3D::Vector2* gridTranslation, float* cellLength, float* lineWidth, 
     float* sizeRatio, G3D::Rect2D* enclosingRect, 
     float* onePixelInObjectSpace) const
@@ -149,18 +150,6 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
     float scaleRatio = vs.GetScaleRatio ();
     float gridScaleRatio = vs.GetScaleRatio () * vs.GetGridScaleRatio ();
     *gridTranslation = (vs.GetGridTranslation () * scaleRatio).xy ();
-    if (false /*angleDegrees != 0.*/)
-    {
-	//cdbg << angleDegrees << endl;
-	//cdbg << "gridTranslation: " << gridTranslation << endl;
-	float cosa = cos (angleDegrees);
-	float sina = sin (angleDegrees);
-	G3D::Matrix2 m;
-	Matrix2SetColumn (&m, 0, G3D::Vector2 (cosa, sina));
-	Matrix2SetColumn (&m, 1, G3D::Vector2 (-sina, cosa));
-	*gridTranslation = m * (*gridTranslation);
-	//cdbg << "gridTranslation: " << gridTranslation << endl << endl;
-    }
     *cellLength = glWidget.GetCellLength (viewNumber) * gridScaleRatio;
     float p = glWidget.GetOnePixelInObjectSpace ();
     *lineWidth = p * 
@@ -169,10 +158,9 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
     *sizeRatio = 
 	CALL_MEMBER_FN (glWidget, m_sizeInitialRatio) (viewNumber) * 
 	CALL_MEMBER_FN (vs, m_sizeRatio) () * gridScaleRatio;
-    *enclosingRect = 
-	toRect2D (
-	    glWidget.CalculateViewingVolume (
-		viewNumber, ViewingVolumeOperation::ENCLOSE2D)) - rotationCenter;
+    *enclosingRect = toRect2D (
+	glWidget.CalculateViewingVolume (
+	    viewNumber, ViewingVolumeOperation::ENCLOSE2D)) - rotationCenter;
 }
 
 TensorAverage::TensorAverage (const GLWidget& glWidget,

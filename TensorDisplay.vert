@@ -14,6 +14,7 @@ void main(void)
     v_objectCoordA = 
 	mat2 (gl_ModelViewMatrix[0].xy, gl_ModelViewMatrix[1].xy) *
 	v_objectCoordA;
+
     gl_Position = ftransform();
     gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
 }

@@ -2645,8 +2645,9 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
     }
     else
     {
-	rotationCenter = toEye (simulation.GetLowerLeftCorner ()) - 
-	    getEyeTransform (viewNumber).xy ();
+	rotationCenter = 
+	    toEye (simulation.GetFoam(0).GetBoundingBoxTorus ().center ().xy ())
+	    - getEyeTransform (viewNumber).xy ();
 	angleDegrees = 0;
     }
     vs.AverageRotateAndDisplay (
