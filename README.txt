@@ -1,13 +1,13 @@
 Release log
 ===========
 0.7.    
-	- fix position of the two_discs for two views.
+	- fix bug: position of the two_discs for two views.
 	- added arrows for forces
 	- use highlight0 for standalone edges in kernel density estimate.
 	- link the grid size (and position) for reflected half view.
 	- reflect the ellipse view so that it falls in the same side as the 
 	  two discs.
-	- added a sequential color map from white to blue.
+	- added a sequential color map based on brewer blues 9.
 0.7.2270 2011-11-30
 	- fixed bug where deformation ellipses are too small for
           datasets containing constraint objects.

@@ -35,12 +35,18 @@ public:
     {
 	return m_title;
     }
-    Palette::Enum GetPalette () const
+    PaletteType::Enum GetPaletteType () const
     {
-	return m_palette;
+	return m_paletteType;
     }
-
-
+    PaletteSequential::Enum GetPaletteSequential () const
+    {
+	return m_paletteSequential;
+    }
+    PaletteDiverging::Enum GetPaletteDiverging () const
+    {
+	return m_paletteDivergent;
+    }
     void SetInterval (QwtDoubleInterval interval)
     {
 	m_interval = interval;
@@ -61,7 +67,8 @@ public:
     void SetClampClear ()
     {
 	m_clampValues = m_interval;
-	SetupPalette (GetPalette ());
+	SetupPalette (GetPaletteType (), GetPaletteSequential (),
+		      GetPaletteDiverging ());
     }
 
     void SetTitle (const char* title)
@@ -69,7 +76,9 @@ public:
 	m_title = title;
     }
     
-    void SetupPalette (Palette::Enum palette);
+    void SetupPalette (PaletteType::Enum type, 
+		       PaletteSequential::Enum paletteSequential,
+		       PaletteDiverging::Enum paletteDivergent);
     QColor GetHighlightColor (HighlightNumber::Enum i) const;
     void SetHighlightColor (HighlightNumber::Enum i, const QColor& color)
     {
@@ -88,6 +97,8 @@ private:
     void setupPaletteBlackBody ();
     void setupPaletteBrewerBlue9 ();
     void setupPaletteDiverging (size_t c);
+    void setupPaletteDiverging (PaletteDiverging::Enum paletteDiverging);
+    void setupPaletteSequential (PaletteSequential::Enum paletteSequential);
 
     template<typename ColorMapper>
     void setup (ColorMapper colorMapper);
@@ -97,7 +108,9 @@ private:
     void setupImage (ColorMapper colorMapper);
 
 private:
-    Palette::Enum m_palette;
+    PaletteType::Enum m_paletteType;
+    PaletteSequential::Enum m_paletteSequential;
+    PaletteDiverging::Enum m_paletteDivergent;
     QwtLinearColorMap m_colorMap;
     QImage m_image;
     QwtDoubleInterval m_interval;

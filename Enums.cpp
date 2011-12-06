@@ -150,31 +150,40 @@ const char* ViewType::ToString (ViewType::Enum t)
 }
 
 
-const char* Palette::ToString (Palette::Enum type)
+const char* PaletteSequential::ToString (PaletteSequential::Enum type)
 {
     switch (type)
     {
-    case RAINBOW:
-	return "Rainbow";
-    case RAINBOW_EXTENDED:
-	return "Rainbow extended";
     case BLACK_BODY:
 	return "Black body radiator";
-    case BLUE_RED_DIVERGING:
-	return "Blue-Red Diverging";
-    case BLUE_TAN_DIVERGING:
-	return "Blue-Tan Diverging";
-    case PURPLE_ORANGE_DIVERGING:
-	return "Purple-Orange Diverging";
-    case GREEN_PURPLE_DIVERGING:
-	return "Green-Purple Diverging";
-    case GREEN_RED_DIVERGING:
-	return "Green-Red Diverging";
+    case BREWER_BLUES9:
+	return "Brewer blues 9";
     default:
 	RuntimeAssert (false, "Invalid Palette: ", type);
 	return 0;
     }
 }
+
+const char* PaletteDiverging::ToString (PaletteDiverging::Enum type)
+{
+    switch (type)
+    {
+    case BLUE_RED:
+	return "Blue-red";
+    case BLUE_TAN:
+	return "Blue-tan";
+    case PURPLE_ORANGE:
+	return "Purple-orange";
+    case GREEN_PURPLE:
+	return "Green-purple";
+    case GREEN_RED:
+	return "Green-red";
+    default:
+	RuntimeAssert (false, "Invalid Palette: ", type);
+	return 0;
+    }
+}
+
 
 size_t ViewCount::GetCount (ViewCount::Enum viewCount)
 {

@@ -64,7 +64,8 @@ void testColorMap ()
 const size_t ColorBarModel::COLORS = 256;
 
 ColorBarModel::ColorBarModel () :
-    m_palette (Palette::FIRST),
+    m_paletteType (PaletteType::DIVERGING),
+    m_paletteDivergent (PaletteDiverging::BLUE_RED),
     m_image (COLORS, 1, QImage::Format_RGB32),
     m_interval (0, 1),
     m_clampValues (0, 1)
@@ -117,29 +118,46 @@ void ColorBarModel::setupPaletteRainbowTelea ()
     m_highlightColor[2] = Qt::white;
 }
 
-void ColorBarModel::SetupPalette (Palette::Enum palette)
+void ColorBarModel::SetupPalette (
+    PaletteType::Enum paletteType, PaletteSequential::Enum paletteSequential,
+    PaletteDiverging::Enum paleteDiverging)
 {
-    m_palette = palette;
-    switch (palette)
+    m_paletteType = paletteType;
+    if (paletteType == PaletteType::SEQUENTIAL)
+	setupPaletteSequential (paletteSequential);
+    else if (paletteType == PaletteType::DIVERGING)
+	setupPaletteDiverging (paleteDiverging);
+}
+
+void ColorBarModel::setupPaletteSequential (
+    PaletteSequential::Enum paletteSequential)
+{
+    m_paletteSequential = paletteSequential;
+    switch (paletteSequential)
     {
-    case Palette::RAINBOW:
-	setupPaletteRainbow ();
-	break;
-    case Palette::RAINBOW_EXTENDED:
-	setupPaletteRainbowExtended ();
-	break;
-    case Palette::BLACK_BODY:
+    case PaletteSequential::BLACK_BODY:
 	setupPaletteBlackBody ();
 	break;
-    case Palette::BREWER_BLUE9:
+    case PaletteSequential::BREWER_BLUES9:
 	setupPaletteBrewerBlue9 ();
 	break;
-    case Palette::BLUE_RED_DIVERGING:
-    case Palette::BLUE_TAN_DIVERGING:
-    case Palette::PURPLE_ORANGE_DIVERGING:
-    case Palette::GREEN_PURPLE_DIVERGING:
-    case Palette::GREEN_RED_DIVERGING:
-	setupPaletteDiverging (palette - Palette::BLUE_RED_DIVERGING);
+    case PaletteSequential::COUNT:
+	ThrowException ("Invalid sequential palette: ", paletteSequential);
+    }
+}
+
+void ColorBarModel::setupPaletteDiverging (
+    PaletteDiverging::Enum paletteDiverging)
+{
+    m_paletteDiverging = paletteDiverging;
+    switch (paletteDiverging)
+    {
+    case Palette::BLUE_RED:
+    case Palette::BLUE_TAN:
+    case Palette::PURPLE_ORANGE:
+    case Palette::GREEN_PURPLE:
+    case Palette::GREEN_RED:
+	setupPaletteDiverging (palette - Palette::BLUE_RED);
 	break;
     }
 }

@@ -869,7 +869,7 @@ void MainWindow::setupColorBarModel (size_t simulationIndex,
     m_colorBarModelBodyProperty[simulationIndex][viewNumber][property]
 	->SetInterval (simulation.GetRange (property));
     m_colorBarModelBodyProperty[simulationIndex][viewNumber][property]
-	->SetupPalette (Palette::BLUE_RED_DIVERGING);
+	->SetupPalette (Palette::BLUE_RED);
 }
 
 void MainWindow::updateLightControls (

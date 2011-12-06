@@ -143,26 +143,43 @@ public:
     };
 };
 
-class Palette
+class PaletteType
 {
 public:
     enum Enum
     {
-	// multihue
-	RAINBOW, FIRST = RAINBOW,
-	RAINBOW_EXTENDED,
-	// sequential
-	BLACK_BODY,
-	BREWER_BLUE9,
-	// diverging
-	BLUE_RED_DIVERGING,
-	BLUE_TAN_DIVERGING,
-	PURPLE_ORANGE_DIVERGING,
-	GREEN_PURPLE_DIVERGING,
-	GREEN_RED_DIVERGING, LAST = GREEN_RED_DIVERGING
+	SEQUENTIAL,
+	DIVERGING
     };
-    static const char* ToString (Palette::Enum name);
 };
+
+class PaletteSequential
+{
+public:
+    enum Enum
+    {
+	BLACK_BODY,
+	BREWER_BLUES9,
+	COUNT
+    };
+    static const char* ToString (PaletteSequential::Enum name);
+};
+
+class PaletteDiverging
+{
+public:
+    enum Enum
+    {
+	BLUE_RED,
+	BLUE_TAN,
+	PURPLE_ORANGE,
+	GREEN_PURPLE,
+	GREEN_RED,
+	COUNT
+    };
+    static const char* ToString (PaletteDiverging::Enum name);
+};
+
 
 class ViewType
 {
