@@ -180,6 +180,16 @@ public:
     static const char* ToString (PaletteDiverging::Enum name);
 };
 
+struct Palette
+{
+    Palette ();
+    Palette (PaletteType::Enum type, int palette);
+    Palette (PaletteType::Enum type, PaletteSequential::Enum sequential,
+	     PaletteDiverging::Enum diverging);
+    PaletteType::Enum m_type;
+    PaletteSequential::Enum m_sequential;
+    PaletteDiverging::Enum m_diverging;
+};
 
 class ViewType
 {

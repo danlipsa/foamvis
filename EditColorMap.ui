@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>409</width>
+    <width>451</width>
     <height>360</height>
    </rect>
   </property>
@@ -51,7 +51,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QComboBox" name="comboBoxPaletteType">
+       <widget class="QComboBox" name="comboBoxType">
         <item>
          <property name="text">
           <string>Sequential</string>
@@ -195,8 +195,8 @@ p, li { white-space: pre-wrap; }
    <slot>ToggledColorCodedHistogram(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>235</x>
-     <y>211</y>
+     <x>296</x>
+     <y>196</y>
     </hint>
     <hint type="destinationlabel">
      <x>408</x>
@@ -211,8 +211,8 @@ p, li { white-space: pre-wrap; }
    <slot>HighlightedPalette(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>140</x>
-     <y>184</y>
+     <x>200</x>
+     <y>173</y>
     </hint>
     <hint type="destinationlabel">
      <x>408</x>
@@ -227,8 +227,8 @@ p, li { white-space: pre-wrap; }
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>272</x>
-     <y>328</y>
+     <x>278</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
      <x>386</x>
@@ -243,8 +243,8 @@ p, li { white-space: pre-wrap; }
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>293</x>
-     <y>328</y>
+     <x>299</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
      <x>386</x>
@@ -259,8 +259,8 @@ p, li { white-space: pre-wrap; }
    <slot>ClampHigh(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>377</x>
-     <y>141</y>
+     <x>389</x>
+     <y>109</y>
     </hint>
     <hint type="destinationlabel">
      <x>386</x>
@@ -291,8 +291,8 @@ p, li { white-space: pre-wrap; }
    <slot>ClampClear()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>386</x>
-     <y>152</y>
+     <x>398</x>
+     <y>109</y>
     </hint>
     <hint type="destinationlabel">
      <x>386</x>
@@ -307,8 +307,8 @@ p, li { white-space: pre-wrap; }
    <slot>ClickedHighlight0()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>199</x>
-     <y>253</y>
+     <x>223</x>
+     <y>239</y>
     </hint>
     <hint type="destinationlabel">
      <x>386</x>
@@ -323,8 +323,8 @@ p, li { white-space: pre-wrap; }
    <slot>ClickedHighlight1()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>199</x>
-     <y>286</y>
+     <x>223</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
      <x>385</x>
@@ -339,12 +339,28 @@ p, li { white-space: pre-wrap; }
    <slot>ClickedHighlight2()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>317</x>
-     <y>246</y>
+     <x>438</x>
+     <y>239</y>
     </hint>
     <hint type="destinationlabel">
      <x>402</x>
      <y>262</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxType</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>EditColorMap</receiver>
+   <slot>CurrentIndexChangedType(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>100</x>
+     <y>136</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>7</x>
+     <y>116</y>
     </hint>
    </hints>
   </connection>
@@ -358,5 +374,6 @@ p, li { white-space: pre-wrap; }
   <slot>ClickedHighlight0()</slot>
   <slot>ClickedHighlight1()</slot>
   <slot>ClickedHighligh2()</slot>
+  <slot>CurrentIndexChangedType(int)</slot>
  </slots>
 </ui>

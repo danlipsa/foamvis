@@ -32,6 +32,7 @@ public Q_SLOTS:
     void ClampLow (double value);
     void ClampClear ();
     void ToggledColorCodedHistogram(bool checked);
+    void CurrentIndexChangedType (int i);
     void ClickedHighlight0 ();
     void ClickedHighlight1 ();
     void ClickedHighlight2 ();
@@ -39,6 +40,10 @@ public Q_SLOTS:
 private:
     void clickedHighlight (HighlightNumber::Enum highlightNumber);
     void setHighlightColors ();
+    void setCombos (Palette palette);
+    void fillCombo (PaletteSequential::Enum paletteSequential);
+    void fillCombo (PaletteDiverging::Enum paletteDiverging);
+    void setPalette (Palette palette);
 
 private:
     static const char* HIGHLIGHT_LABEL_TEXT;

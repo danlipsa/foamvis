@@ -64,8 +64,6 @@ void testColorMap ()
 const size_t ColorBarModel::COLORS = 256;
 
 ColorBarModel::ColorBarModel () :
-    m_paletteType (PaletteType::DIVERGING),
-    m_paletteDivergent (PaletteDiverging::BLUE_RED),
     m_image (COLORS, 1, QImage::Format_RGB32),
     m_interval (0, 1),
     m_clampValues (0, 1)
@@ -118,21 +116,21 @@ void ColorBarModel::setupPaletteRainbowTelea ()
     m_highlightColor[2] = Qt::white;
 }
 
-void ColorBarModel::SetupPalette (
-    PaletteType::Enum paletteType, PaletteSequential::Enum paletteSequential,
-    PaletteDiverging::Enum paleteDiverging)
+void ColorBarModel::SetupPalette (Palette palette)
 {
-    m_paletteType = paletteType;
-    if (paletteType == PaletteType::SEQUENTIAL)
-	setupPaletteSequential (paletteSequential);
-    else if (paletteType == PaletteType::DIVERGING)
-	setupPaletteDiverging (paleteDiverging);
+    m_palette.m_type = palette.m_type;
+    m_palette.m_sequential = PaletteSequential::BLACK_BODY;
+    m_palette.m_diverging = PaletteDiverging::BLUE_RED;
+    if (palette.m_type == PaletteType::SEQUENTIAL)
+	setupPaletteSequential (palette.m_sequential);
+    else if (palette.m_type == PaletteType::DIVERGING)
+	setupPaletteDiverging (palette.m_diverging);
 }
 
 void ColorBarModel::setupPaletteSequential (
     PaletteSequential::Enum paletteSequential)
 {
-    m_paletteSequential = paletteSequential;
+    m_palette.m_sequential = paletteSequential;
     switch (paletteSequential)
     {
     case PaletteSequential::BLACK_BODY:
@@ -149,16 +147,18 @@ void ColorBarModel::setupPaletteSequential (
 void ColorBarModel::setupPaletteDiverging (
     PaletteDiverging::Enum paletteDiverging)
 {
-    m_paletteDiverging = paletteDiverging;
+    m_palette.m_diverging = paletteDiverging;
     switch (paletteDiverging)
     {
-    case Palette::BLUE_RED:
-    case Palette::BLUE_TAN:
-    case Palette::PURPLE_ORANGE:
-    case Palette::GREEN_PURPLE:
-    case Palette::GREEN_RED:
-	setupPaletteDiverging (palette - Palette::BLUE_RED);
+    case PaletteDiverging::BLUE_RED:
+    case PaletteDiverging::BLUE_TAN:
+    case PaletteDiverging::PURPLE_ORANGE:
+    case PaletteDiverging::GREEN_PURPLE:
+    case PaletteDiverging::GREEN_RED:
+	setupPaletteDiverging (paletteDiverging - PaletteDiverging::BLUE_RED);
 	break;
+    case PaletteDiverging::COUNT:
+	ThrowException ("Invalid diverging palette: ", paletteDiverging);
     }
 }
 

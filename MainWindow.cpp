@@ -844,7 +844,8 @@ void MainWindow::setupColorBarModels (size_t simulationIndex,
 	colorBarModel->SetTitle ("Count per area");
 	colorBarModel->SetInterval (
 	    toQwtDoubleInterval (widgetGl->GetRangeCount ()));
-	colorBarModel->SetupPalette (Palette::BLACK_BODY);
+	colorBarModel->SetupPalette (
+	    Palette (PaletteType::SEQUENTIAL, PaletteSequential::BLACK_BODY));
     }
 
     {
@@ -854,7 +855,8 @@ void MainWindow::setupColorBarModels (size_t simulationIndex,
 	colorBarModel->SetTitle ("T1s PDE");
 	colorBarModel->SetInterval (
 	    toQwtDoubleInterval (widgetGl->GetRangeT1sPDE (viewNumber)));
-	colorBarModel->SetupPalette (Palette::BLACK_BODY);
+	colorBarModel->SetupPalette (
+	    Palette (PaletteType::SEQUENTIAL, PaletteSequential::BLACK_BODY));
     }
 }
 
@@ -869,7 +871,9 @@ void MainWindow::setupColorBarModel (size_t simulationIndex,
     m_colorBarModelBodyProperty[simulationIndex][viewNumber][property]
 	->SetInterval (simulation.GetRange (property));
     m_colorBarModelBodyProperty[simulationIndex][viewNumber][property]
-	->SetupPalette (Palette::BLUE_RED);
+	->SetupPalette (
+	    Palette (
+		PaletteType::DIVERGING, PaletteDiverging::BLUE_RED));
 }
 
 void MainWindow::updateLightControls (

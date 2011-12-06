@@ -35,17 +35,9 @@ public:
     {
 	return m_title;
     }
-    PaletteType::Enum GetPaletteType () const
+    Palette GetPalette () const
     {
-	return m_paletteType;
-    }
-    PaletteSequential::Enum GetPaletteSequential () const
-    {
-	return m_paletteSequential;
-    }
-    PaletteDiverging::Enum GetPaletteDiverging () const
-    {
-	return m_paletteDivergent;
+	return m_palette;
     }
     void SetInterval (QwtDoubleInterval interval)
     {
@@ -67,8 +59,7 @@ public:
     void SetClampClear ()
     {
 	m_clampValues = m_interval;
-	SetupPalette (GetPaletteType (), GetPaletteSequential (),
-		      GetPaletteDiverging ());
+	SetupPalette (GetPalette ());
     }
 
     void SetTitle (const char* title)
@@ -76,9 +67,7 @@ public:
 	m_title = title;
     }
     
-    void SetupPalette (PaletteType::Enum type, 
-		       PaletteSequential::Enum paletteSequential,
-		       PaletteDiverging::Enum paletteDivergent);
+    void SetupPalette (Palette palette);
     QColor GetHighlightColor (HighlightNumber::Enum i) const;
     void SetHighlightColor (HighlightNumber::Enum i, const QColor& color)
     {
@@ -108,9 +97,7 @@ private:
     void setupImage (ColorMapper colorMapper);
 
 private:
-    PaletteType::Enum m_paletteType;
-    PaletteSequential::Enum m_paletteSequential;
-    PaletteDiverging::Enum m_paletteDivergent;
+    Palette m_palette;
     QwtLinearColorMap m_colorMap;
     QImage m_image;
     QwtDoubleInterval m_interval;

@@ -149,6 +149,32 @@ const char* ViewType::ToString (ViewType::Enum t)
     }
 }
 
+Palette::Palette () :
+    m_type (PaletteType::SEQUENTIAL),
+    m_sequential (PaletteSequential::BLACK_BODY),
+    m_diverging (PaletteDiverging::BLUE_RED)
+{
+}
+
+Palette::Palette (PaletteType::Enum type, int palette)
+{
+    m_type = type;
+    m_sequential = PaletteSequential::BLACK_BODY;
+    m_diverging = PaletteDiverging::BLUE_RED;
+    if (type == PaletteType::SEQUENTIAL)
+	m_sequential = PaletteSequential::Enum (palette);
+    else
+	m_diverging = PaletteDiverging::Enum (palette);
+}
+
+Palette::Palette (PaletteType::Enum type, PaletteSequential::Enum sequential,
+		  PaletteDiverging::Enum diverging) :
+    m_type (type),
+    m_sequential (sequential),
+    m_diverging (diverging)
+{
+}
+
 
 const char* PaletteSequential::ToString (PaletteSequential::Enum type)
 {
