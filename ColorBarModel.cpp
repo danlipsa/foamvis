@@ -131,6 +131,9 @@ void ColorBarModel::SetupPalette (Palette::Enum palette)
     case Palette::BLACK_BODY:
 	setupPaletteBlackBody ();
 	break;
+    case Palette::BREWER_BLUE9:
+	setupPaletteBrewerBlue9 ();
+	break;
     case Palette::BLUE_RED_DIVERGING:
     case Palette::BLUE_TAN_DIVERGING:
     case Palette::PURPLE_ORANGE_DIVERGING:
@@ -153,6 +156,27 @@ void ColorBarModel::setupPaletteBlackBody ()
   m_highlightColor[0] = Qt::green;
   m_highlightColor[1] = Qt::blue;
   m_highlightColor[2] = Qt::magenta;
+}
+
+// Color Brewer 9
+void ColorBarModel::setupPaletteBrewerBlue9 ()
+{
+    VTK_CREATE(vtkColorTransferFunction, f);
+    f->SetColorSpaceToLab();
+    //f->AddRGBPoint(0.0    , 0.968627, 0.984314, 1.000000);
+    f->AddRGBPoint(0.0    ,        1,        1, 1.000000); // change to white
+    f->AddRGBPoint(0.12500, 0.870588, 0.921569, 0.968627);
+    f->AddRGBPoint(0.25000, 0.776471, 0.858824, 0.937255);
+    f->AddRGBPoint(0.37500, 0.619608, 0.792157, 0.882353);
+    f->AddRGBPoint(0.50000, 0.419608, 0.682353, 0.839216);
+    f->AddRGBPoint(0.62500, 0.258824, 0.572549, 0.776471);
+    f->AddRGBPoint(0.75000, 0.129412, 0.443137, 0.709804);
+    f->AddRGBPoint(0.87500, 0.031373, 0.317647, 0.611765);
+    f->AddRGBPoint(1.00000, 0.031373, 0.188235, 0.419608);
+    setup (ColorMapperVtkColorTransferFunction (f));
+    m_highlightColor[0] = Qt::black;
+    m_highlightColor[1] = Qt::red;
+    m_highlightColor[2] = Qt::green;
 }
 
 void ColorBarModel::setupPaletteRainbowHSV ()

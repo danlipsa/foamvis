@@ -52,6 +52,11 @@
         </item>
         <item>
          <property name="text">
+          <string>Brewer Blue 9</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>Blue to red diverging</string>
          </property>
         </item>
@@ -356,8 +361,8 @@ p, li { white-space: pre-wrap; }
    <sender>pushButtonHighlight2</sender>
    <signal>clicked()</signal>
    <receiver>EditColorMap</receiver>
-      <slot>ClickedHighlight2()</slot>
-      <hints>
+   <slot>ClickedHighlight2()</slot>
+   <hints>
     <hint type="sourcelabel">
      <x>317</x>
      <y>246</y>

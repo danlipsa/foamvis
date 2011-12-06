@@ -85,8 +85,8 @@ private:
     void setupPaletteRainbowHSV ();
     void setupPaletteRainbow ();
     void setupPaletteRainbowExtended ();
-
     void setupPaletteBlackBody ();
+    void setupPaletteBrewerBlue9 ();
     void setupPaletteDiverging (size_t c);
 
     template<typename ColorMapper>

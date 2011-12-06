@@ -153,6 +153,7 @@ public:
 	RAINBOW_EXTENDED,
 	// sequential
 	BLACK_BODY,
+	BREWER_BLUE9,
 	// diverging
 	BLUE_RED_DIVERGING,
 	BLUE_TAN_DIVERGING,
