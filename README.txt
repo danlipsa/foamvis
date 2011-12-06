@@ -7,7 +7,7 @@ Release log
 	- link the grid size (and position) for reflected half view.
 	- reflect the ellipse view so that it falls in the same side as the 
 	  two discs.
-	- added a sequencial color map from white to blue.
+	- added a sequential color map from white to blue.
 0.7.2270 2011-11-30
 	- fixed bug where deformation ellipses are too small for
           datasets containing constraint objects.

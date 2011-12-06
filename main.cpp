@@ -108,6 +108,7 @@ void parseOptions (int argc, char *argv[],
 	    lastDirFile (co[0]->m_fileNames[0].c_str ());
 	simulation.SetName (simulationName);
 	simulation.SetRotation2D (co[i]->m_rotation2D);
+	simulation.SetReflectionAxis (co[i]->m_reflectionAxis);
 	if (simulation.GetTimeSteps () == 0)
 	{
 	    cdbg << "Error: The patern provided does not match any file" 

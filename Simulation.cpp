@@ -127,7 +127,8 @@ Simulation::Simulation () :
         BodyProperty::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
     m_t1sTimeStepShift (0),
     m_useOriginal (false),
-    m_rotation2D (0)
+    m_rotation2D (0),
+    m_reflectAxis (numeric_limits<size_t>::max ())
 {
 }
 
@@ -572,30 +573,6 @@ void Simulation::ParseDMPs (
 		  bl::_1 != boost::shared_ptr<Foam>()) != foams.size ())
 	ThrowException ("Could not process all files\n");
     copy (foams.constBegin (), foams.constEnd (), GetFoams ().begin () + 1);
-}
-
-G3D::Vector2 Simulation::GetLowerLeftCorner () const
-{
-    int rotation2D = GetRotation2D ();
-    G3D::AABox box = GetBoundingBox ();
-    G3D::Vector2 low = box.low ().xy ();
-    G3D::Vector2 high = box.high ().xy ();
-    if (rotation2D == 0)
-    {
-	return low;
-    }
-    else if (rotation2D == 90)
-    {
-	return G3D::Vector2 (low.x, high.y);
-    }
-    else if (rotation2D == -90)
-    {
-	return G3D::Vector2 (high.x, low.y);
-    }
-    else
-    {
-	return low;
-    }
 }
 
 

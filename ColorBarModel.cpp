@@ -186,7 +186,7 @@ void ColorBarModel::setupPaletteDiverging (size_t c)
 	    /* blue to tan */
 	    {{0.217, 0.525, 0.910},
 	     {0.677, 0.492, 0.093},
-	     {0, 0, 0}, {1, 1, 0}, {0, 1, 0}
+	     {0, 0, 0}, {1, 0, 0}, {0, 1, 0}
 	    },
 
 	    /* purple to orange */

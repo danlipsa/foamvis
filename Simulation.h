@@ -212,7 +212,14 @@ public:
     {
 	m_rotation2D = rotation2D;
     }
-    G3D::Vector2 GetLowerLeftCorner () const;
+    size_t GetReflectionAxis () const
+    {
+	return m_reflectAxis;
+    }
+    void SetReflectionAxis (size_t axis)
+    {
+	m_reflectAxis = axis;
+    }
 
 private:
     void MapPerFoam (FoamParamMethod* foamMethods, size_t n);
@@ -266,6 +273,7 @@ private:
     vector<ForceNames> m_forcesNames;
     bool m_useOriginal;
     int m_rotation2D;
+    size_t m_reflectAxis;
     float m_maxDeformationEigenValue;
 };
 

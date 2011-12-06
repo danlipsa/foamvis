@@ -71,7 +71,8 @@ public:
     {
 	return m_viewNumber;
     }
-    vector<ViewNumber::Enum> GetViewNumbers () const;
+    vector<ViewNumber::Enum> GetConnectedViewNumbers (
+	ViewNumber::Enum viewNumber = ViewNumber::COUNT) const;
     void SetViewNumber (ViewNumber::Enum viewNumber);
     ViewSettings& GetViewSettings (ViewNumber::Enum viewNumber) const
     {
@@ -223,7 +224,7 @@ public:
 			     ViewingVolumeOperation::Enum enclose,
 			     G3D::Rect2D& srcRect) const;
     float GetOnePixelInObjectSpace () const;
-    double GetCellLength (ViewNumber::Enum viewNumber) const;
+    float GetCellLength (ViewNumber::Enum viewNumber) const;
     float GetDeformationSizeInitialRatio (ViewNumber::Enum viewNumber) const;
     float GetVelocitySizeInitialRatio (ViewNumber::Enum viewNumber) const;
     G3D::AABox CalculateViewingVolume (
@@ -476,6 +477,7 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    void setSimulation (int i, ViewNumber::Enum viewNumber);
     void initTransformViewport ();
     void cleanupTransformViewport ();
     void setOneOrTwoViews (void (GLWidget::*f) (ViewNumber::Enum));

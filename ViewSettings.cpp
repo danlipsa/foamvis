@@ -10,6 +10,7 @@
 #include "BodySelector.h"
 #include "ColorBarModel.h"
 #include "DebugStream.h"
+#include "Debug.h"
 #include "ScalarAverage.h"
 #include "ForceAverage.h"
 #include "Foam.h"
@@ -486,17 +487,22 @@ void ViewSettings::AverageRelease ()
 
 G3D::Matrix3 ViewSettings::GetRotationForAxesOrder (const Foam& foam) const
 {
-    switch (GetAxesOrder ())
+    switch (m_axesOrder)
     {
+    case AxesOrder::TWO_D:
+	return G3D::Matrix3::identity ();
     case AxesOrder::TWO_D_TIME_DISPLACEMENT:
 	return getRotation2DTimeDisplacement ();
     case AxesOrder::TWO_D_ROTATE_RIGHT90:
 	return getRotation2DRight90 ();
+    case AxesOrder::TWO_D_ROTATE_RIGHT90_REFLECTION:
+	return getRotation2DRight90Reflection ();
     case AxesOrder::TWO_D_ROTATE_LEFT90:
 	return getRotation2DLeft90 ();
     case AxesOrder::THREE_D:
 	return getRotation3D (foam);
     default:
+	ThrowException ("Invalid axes order: ", m_axesOrder);
 	return G3D::Matrix3::identity ();
     }
 }
@@ -520,6 +526,17 @@ G3D::Matrix3 ViewSettings::getRotation2DRight90 ()
      */
     return G3D::Matrix3 (0, 1, 0,  -1, 0, 0,  0, 0, 1);
 }
+
+G3D::Matrix3 ViewSettings::getRotation2DRight90Reflection ()
+{
+    /**
+     *  y       -x
+     *    x ->     y
+     * z        z
+     */
+    return G3D::Matrix3 (0, -1, 0,  -1, 0, 0,  0, 0, 1);
+}
+
 
 G3D::Matrix3 ViewSettings::getRotation2DLeft90 ()
 {

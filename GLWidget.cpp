@@ -475,28 +475,37 @@ void GLWidget::initDisplayView ()
 
 void GLWidget::initViewSettings ()
 {
-    const Simulation& simulation = GetSimulation (0);
-    int rotation2D = simulation.GetRotation2D ();
     ViewNumber::Enum viewNumber (ViewNumber::VIEW0);
     BOOST_FOREACH (boost::shared_ptr<ViewSettings>& vs, m_viewSettings)
     {
 	vs = boost::make_shared <ViewSettings> (*this);
-	vs->SetAxesOrder (
-	    simulation.Is2D () ? 
-	    (rotation2D == 0 ? AxesOrder::TWO_D :
-	     (rotation2D == 90 ? AxesOrder::TWO_D_ROTATE_LEFT90 : 
-	      AxesOrder::TWO_D_ROTATE_RIGHT90)): AxesOrder::THREE_D);
 	vs->SetViewType (ViewType::FACES);
-	vs->SetT1sShiftLower (simulation.GetT1sShiftLower ());
-	vs->AverageSetTimeWindow (simulation.GetTimeSteps ());
-	vs->GetT1sPDE ().AverageSetTimeWindow (simulation.GetT1sTimeSteps ());
-	vs->AverageSetTimeWindow (simulation.GetTimeSteps ());
-	vs->SetScaleCenter (
-	    CalculateViewingVolume (
-		viewNumber, 
-		ViewingVolumeOperation::DONT_ENCLOSE2D).center ().xy ());
+	setSimulation (0, viewNumber);
 	viewNumber = ViewNumber::Enum (viewNumber + 1);
     }
+}
+
+void GLWidget::setSimulation (int i, ViewNumber::Enum viewNumber)
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (i);
+    int rotation2D = simulation.GetRotation2D ();
+    size_t reflexionAxis = simulation.GetReflectionAxis ();
+    vs.SetSimulationIndex (i);
+    vs.SetAxesOrder (
+	simulation.Is2D () ? 
+	(rotation2D == 0 ? AxesOrder::TWO_D :
+	 (rotation2D == 90 ? AxesOrder::TWO_D_ROTATE_LEFT90 : 
+	  ((reflexionAxis == 1) ? 
+	   AxesOrder::TWO_D_ROTATE_RIGHT90_REFLECTION :
+	   AxesOrder::TWO_D_ROTATE_RIGHT90))): AxesOrder::THREE_D);
+    vs.SetT1sShiftLower (simulation.GetT1sShiftLower ());
+    vs.AverageSetTimeWindow (simulation.GetTimeSteps ());
+    vs.GetT1sPDE ().AverageSetTimeWindow (simulation.GetT1sTimeSteps ());
+    vs.SetScaleCenter (
+	CalculateViewingVolume (
+	    viewNumber, 
+	    ViewingVolumeOperation::DONT_ENCLOSE2D).center ().xy ());
 }
 
 
@@ -540,12 +549,22 @@ float GLWidget::GetOnePixelInObjectSpace () const
     return onePixelInObjectSpace;
 }
 
-double GLWidget::GetCellLength (ViewNumber::Enum viewNumber) const
-{
-    const Body& body = GetSimulation (viewNumber).GetFoam (0).GetBody (0);
-    G3D::AABox box = body.GetBoundingBox ();
-    G3D::Vector3 extent = box.extent ();
-    return min (extent.x, extent.y);
+float GLWidget::GetCellLength (ViewNumber::Enum defaultViewNumber) const
+{    
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers (
+	defaultViewNumber);
+    float maxExtent = 0;
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	G3D::Vector2 extent = 
+	    GetSimulation (viewNumber).GetFoam (0).GetBody (0).
+	    GetBoundingBox ().extent ().xy ();
+	float e = max (extent.x, extent.y);
+	if (e > maxExtent)
+	    maxExtent = e;
+    }
+    return maxExtent;
 }
 
 float GLWidget::GetDeformationSizeInitialRatio (
@@ -2642,6 +2661,8 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
 	angleDegrees =
 	    adjustForAverageAroundMovementRotation ? - G3D::toDegrees (
 		rotationCurrent.m_angle - rotationBegin.m_angle) : 0;
+	if (simulation.GetReflectionAxis () == 1)
+	    angleDegrees = - angleDegrees;
     }
     else
     {
@@ -3615,38 +3636,64 @@ void GLWidget::ToggledDirectionalLightEnabled (bool checked)
 
 void GLWidget::ToggledShowDeformation (bool checked)
 {
-    ViewSettings& vs = GetViewSettings ();
-    vs.SetDeformationTensorShown (checked);
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	vs.SetDeformationTensorShown (checked);
+    }
     update ();
 }
 
 void GLWidget::ToggledShowDeformationGrid (bool checked)
 {
-    TensorAverage& ta = GetViewSettings ().GetDeformationAverage ();
-    ta.SetGridShown (checked);
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	TensorAverage& ta = 
+	    GetViewSettings (viewNumber).GetDeformationAverage ();
+	ta.SetGridShown (checked);
+    }
     update ();
 }
 
 void GLWidget::ToggledShowVelocity (bool checked)
 {
-    ViewSettings& vs = GetViewSettings ();
-    vs.SetVelocityShown (checked);
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	vs.SetVelocityShown (checked);
+    }
     update ();
 }
 
 void GLWidget::ToggledShowVelocityGrid (bool checked)
 {
-    VectorAverage& va = GetViewSettings ().GetVelocityAverage ();
-    va.SetGridShown (checked);
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	VectorAverage& va = GetViewSettings (viewNumber).GetVelocityAverage ();
+	va.SetGridShown (checked);
+    }
     update ();
 }
 
 
-
 void GLWidget::ToggledShowDeformationGridCellCenter (bool checked)
 {
-    TensorAverage& ta = GetViewSettings ().GetDeformationAverage ();
-    ta.SetGridCellCenterShown (checked);
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	TensorAverage& ta = 
+	    GetViewSettings (viewNumber).GetDeformationAverage ();
+	ta.SetGridCellCenterShown (checked);
+    }
     update ();
 }
 
@@ -3780,7 +3827,8 @@ void GLWidget::ToggledCenterPathHidden (bool checked)
     update ();
 }
 
-vector<ViewNumber::Enum> GLWidget::GetViewNumbers () const
+vector<ViewNumber::Enum> GLWidget::GetConnectedViewNumbers (
+    ViewNumber::Enum viewNumber) const
 {
     if (m_reflectedHalfView)
     {
@@ -3792,14 +3840,15 @@ vector<ViewNumber::Enum> GLWidget::GetViewNumbers () const
     else
     {
 	vector<ViewNumber::Enum> vn(1);
-	vn[0] = GetViewNumber ();
+	vn[0] = 
+	    (viewNumber == ViewNumber::COUNT ? GetViewNumber () : viewNumber);
 	return vn;
     }
 }
 
 void GLWidget::ButtonClickedViewType (int id)
 {
-    vector<ViewNumber::Enum> vn = GetViewNumbers ();
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -3911,22 +3960,7 @@ void GLWidget::CurrentIndexChangedSelectedLight (int selectedLight)
 
 void GLWidget::CurrentIndexChangedSimulation (int i)
 {
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    const Simulation& simulation = GetSimulation (i);
-    int rotation2D = simulation.GetRotation2D ();
-    vs.SetSimulationIndex (i);
-    vs.SetAxesOrder (
-	simulation.Is2D () ? 
-	(rotation2D == 0 ? AxesOrder::TWO_D :
-	 (rotation2D == 90 ? AxesOrder::TWO_D_ROTATE_LEFT90 : 
-	  AxesOrder::TWO_D_ROTATE_RIGHT90)): AxesOrder::THREE_D);
-    vs.SetT1sShiftLower (simulation.GetT1sShiftLower ());
-    vs.AverageSetTimeWindow (simulation.GetTimeSteps ());
-    vs.SetScaleCenter (
-	CalculateViewingVolume (
-	    viewNumber, 
-	    ViewingVolumeOperation::DONT_ENCLOSE2D).center ().xy ());
+    setSimulation (i, GetViewNumber ());
     update ();
 }
 

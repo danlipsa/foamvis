@@ -264,6 +264,7 @@ const char* Option::m_name[] = {
     "original-pressure",
     "output-text",
     "parameters",
+    "reflection-axis",
     "rotation-2d",
     "simulation",
     "t1s",
@@ -356,12 +357,14 @@ po::options_description CommandLineOptions::getDescription (
 
 CommonOptions::CommonOptions () :
     m_ticksForTimeStep (1),
+    m_reflectionAxis (numeric_limits<size_t>::max ()),
     m_rotation2D (0),
     m_commonOptions (
 	getCommonAndHiddenOptions (
 	    &m_fileNames, 
 	    getDescription (&m_t1sFile, &m_dmpObjectInfo, &m_forcesNames, 
-			    &m_ticksForTimeStep, &m_rotation2D)))
+			    &m_ticksForTimeStep, &m_rotation2D, 
+			    &m_reflectionAxis)))
 {
     m_positionalOptions.add (Option::m_name[Option::DMP_FILES], -1);    
 }
@@ -376,6 +379,9 @@ void CommonOptions::read (int argc, char *argv[])
     if (m_rotation2D != 0)
 	RuntimeAssert (abs (m_rotation2D) == 90, 
 		       "Invalid rotation: ", m_rotation2D);
+    if (m_reflectionAxis != numeric_limits<size_t>::max ())
+	RuntimeAssert (m_reflectionAxis <= 2,
+		       "Invalid axis: ", m_reflectionAxis);
     if (m_dmpObjectInfo.m_constraintIndex != INVALID_INDEX)
 	--m_dmpObjectInfo.m_constraintIndex;
     if (argc == 1 || ! m_vm.count (Option::m_name[Option::DMP_FILES]))
@@ -416,7 +422,8 @@ po::options_description CommonOptions::getDescription (
     DmpObjectInfo* dmpObjectInfo,
     vector<ForceNames>* forcesNames,
     size_t* ticksForTimeStep,
-    int *rotation2D)
+    int *rotation2D,
+    size_t *reflectionAxis)
 {
     po::options_description commonOptions (
 	"\"foam [COMMAND_LINE_OPTIONS] [COMMON_OPTIONS] <files> ...\"\n"
@@ -457,6 +464,10 @@ po::options_description CommonOptions::getDescription (
 	 "the pressure force.")
 	(Option::m_name[Option::ORIGINAL_PRESSURE],
 	 "shows original pressure values")
+	(Option::m_name[Option::REFLECTION_AXIS],
+	 po::value<size_t> (reflectionAxis),
+	 "reflect about specified axis (after rotation).\n"
+	 "arg=<axis>, where <axis> can be 0, 1 or 2.")
 	(Option::m_name[Option::ROTATION_2D],
 	 po::value<int> (rotation2D),
 	 "rotate around Z axes.\n"

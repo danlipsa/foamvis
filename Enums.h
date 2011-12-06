@@ -202,30 +202,11 @@ struct AxesOrder
 {
     enum Enum
     {
-	/**
-	 *  y
-	 *    x
-	 * z
-	 */
 	TWO_D,
-	/**
-	 *  z
-	 *    x
-	 * y
-	 */
 	TWO_D_TIME_DISPLACEMENT,
-	/**
-	 * -x
-	 *    y
-	 * z
-	 */
 	TWO_D_ROTATE_RIGHT90,
+	TWO_D_ROTATE_RIGHT90_REFLECTION,
 	TWO_D_ROTATE_LEFT90,
-	/**
-	 *  z
-	 *    y
-	 * x
-	 */
 	THREE_D,
 	COUNT
     };

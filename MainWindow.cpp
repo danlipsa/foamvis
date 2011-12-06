@@ -1057,7 +1057,7 @@ void MainWindow::ValueChangedHistogramHeight (int s)
 void MainWindow::ValueChangedT1sKernelSigma (int index)
 {
     (void)index;
-    vector<ViewNumber::Enum> vn = widgetGl->GetViewNumbers ();
+    vector<ViewNumber::Enum> vn = widgetGl->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
@@ -1090,7 +1090,7 @@ void MainWindow::ValueChangedStatisticsTimeWindow (int timeSteps)
 
 void MainWindow::ButtonClickedViewType (int vt)
 {
-    vector<ViewNumber::Enum> vn = widgetGl->GetViewNumbers ();
+    vector<ViewNumber::Enum> vn = widgetGl->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
