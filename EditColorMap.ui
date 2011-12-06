@@ -34,53 +34,7 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QComboBox" name="comboBoxPalette">
-        <item>
-         <property name="text">
-          <string>Rainbow</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Rainbow extended</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Black body radiator</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Brewer Blue 9</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Blue to red diverging</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Blue to tan diverging</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Purple to orange diverging</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Green to purple diverging</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Green to red diverging</string>
-         </property>
-        </item>
-       </widget>
+       <widget class="QComboBox" name="comboBoxPalette"/>
       </item>
       <item row="2" column="1">
        <widget class="QCheckBox" name="checkBoxColorCodedHistogram">
