@@ -7,7 +7,9 @@ Release log
 	- link the grid size (and position) for reflected half view.
 	- reflect the ellipse view so that it falls in the same side as the 
 	  two discs.
-	- added a sequential color map based on brewer blues 9.
+	- added a sequential color map based on colorbrewer blues 9.
+	- TODO: sync the clamping for the reflected half view
+	- TODO: clamp velocity vector based on velocity magnitude scalar
 0.7.2270 2011-11-30
 	- fixed bug where deformation ellipses are too small for
           datasets containing constraint objects.
