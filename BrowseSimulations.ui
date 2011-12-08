@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>813</width>
-    <height>309</height>
+    <width>720</width>
+    <height>359</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,45 +17,44 @@
    <item>
     <widget class="QWidget" name="widget_3" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="margin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QWidget" name="widget_2" native="true">
-        <layout class="QFormLayout" name="formLayout">
-         <item row="1" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Simulation</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="ListViewChange" name="listViewSimulation"/>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Filter</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="lineEditFilter"/>
-         </item>
-         <item row="0" column="0">
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item>
           <widget class="QLabel" name="label_3">
            <property name="text">
             <string>Label</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
+         <item>
           <widget class="QComboBox" name="comboBoxLabel"/>
          </item>
-         <item row="3" column="1">
-          <widget class="QLabel" name="label_4">
+         <item>
+          <widget class="QLabel" name="label">
            <property name="text">
-            <string>Use ? to match any number.</string>
+            <string>Simulation</string>
            </property>
           </widget>
+         </item>
+         <item>
+          <widget class="ListViewChange" name="listViewSimulation"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Filter (? matches any digit)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEditFilter"/>
          </item>
         </layout>
        </widget>
