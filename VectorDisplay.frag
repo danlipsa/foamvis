@@ -66,34 +66,40 @@ vec2 rotate (vec2 v, float deg)
     return r * v;
 }
 
-
-
-
-bool isLine (vec2 x, vec2 n, float width, 
+// position: pixel postion relative to the center of the line
+bool isLine (vec2 position, vec2 n, float width, 
 	     float lengthLeft, float lengthRight)
 {
     width = width / 2;
     return 
 	// pixels along the line (perpendicular on n)
-	dot (x, vec2 (n[0], n[1])) <= width &&
-	dot (x, vec2 (-n[0], -n[1])) <= width &&
+	dot (position, vec2 (n[0], n[1])) <= width &&
+	dot (position, vec2 (-n[0], -n[1])) <= width &&
 	// pixels perpendicular to the line (along n)
-	dot (x, vec2 (-n[1], n[0])) <= lengthLeft &&
-	dot (x, vec2 (n[1], -n[0])) <= lengthRight;
+	dot (position, vec2 (-n[1], n[0])) <= lengthLeft &&
+	dot (position, vec2 (n[1], -n[0])) <= lengthRight;
 }
 
-bool isLine (vec2 x, vec2 n, float width, float length)
+bool isLine (vec2 position, vec2 n, float width, float length)
 {
-    width = width / 2;
     length = length / 2;
-    return 
-	// pixels along the line (perpendicular on n)
-	dot (x, vec2 (n[0], n[1])) <= width &&
-	dot (x, vec2 (-n[0], -n[1])) <= width &&
-	// pixels perpendicular to the line (along n)
-	dot (x, vec2 (-n[1], n[0])) <= length &&
-	dot (x, vec2 (n[1], -n[0])) <= length;
+    return isLine (position, n, width, length, length);
 }
+
+bool isHalfSpace (vec2 x, vec2 p1, vec2 p2)
+{
+    vec2 v = normalize (p2 - p1);
+    return dot (x - p1, vec2 (-v[1], v[0])) <= 0;
+}
+
+bool isTriangle (vec2 x, vec2 p1, vec2 p2, vec2 p3)
+{
+    return 
+	isHalfSpace (x, p1, p2) &&
+	isHalfSpace (x, p2, p3) &&
+	isHalfSpace (x, p3, p1);
+}
+
 
 float clampVectorLength (float length, float maxLength)
 {
@@ -114,8 +120,6 @@ vec2 clamp (vec2 v, float maxLength, out bool clamped)
 	return v;
     }
 }
-
-
 
 // x is in [0, 1)
 bool isArrow (vec2 x, vec2 texCoordCenter)
@@ -138,12 +142,18 @@ bool isArrow (vec2 x, vec2 texCoordCenter)
 	vec2 n = vec2 (-v[1], v[0]);
 	vec2 xToMiddle = x - vec2 (.5, .5);
 	vec2 xToTop = xToMiddle - v * (magnitude / 2);
+	vec2 p1 = vec2 (.5, .5) + v * (magnitude / 2);
+	vec2 p2 = p1 - rotate (v, arrowAngle) * arrowLength;
+	vec2 p3 = p1 - rotate (v, -arrowAngle) * arrowLength;
 	return 
-	    isLine (xToMiddle, n, lineWidthPerc, magnitude) ||
+	    isLine (xToMiddle , n, lineWidthPerc, magnitude) ||
+	    isTriangle (x, p1, p2, p3) ||
+/*
 	    isLine (xToTop, rotate (n, arrowAngle), 
 		    lineWidthPerc, arrowLength, 0) ||
 	    isLine (xToTop, rotate (n, -arrowAngle), 
 		    lineWidthPerc, arrowLength, 0) ||
+*/
 	    (clamped && isLine (xToMiddle, v, lineWidthPerc, arrowLength));
     }
     else

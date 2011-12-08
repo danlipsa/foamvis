@@ -224,7 +224,7 @@ void DisplaySegmentArrow (G3D::Vector2 where, G3D::Vector2 v,
     ::glVertex (v / 2);
     glEnd ();
     glTranslate (v / 2);
-    glBegin (GL_LINE_STRIP);
+    glBegin (GL_TRIANGLES);
     ::glVertex (- rotate (arrow, arrowDegrees));
     ::glVertex (G3D::Vector2::zero ());
     ::glVertex (- rotate (arrow, -arrowDegrees));
