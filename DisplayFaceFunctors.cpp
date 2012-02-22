@@ -179,25 +179,20 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	    boost::shared_ptr<Body> body = of->GetAdjacentBody ().GetBody ();
 	    BodyProperty::Enum property = BodyProperty::FromSizeT (
 		this->m_propertySetter.GetBodyOrFaceProperty ());
+	    glColor (Qt::white);
 	    bool deduced;
-	    bool exists = 
-		(! body->IsConstraint ()) &&  
-		body->ExistsPropertyValue (property, &deduced);
+	    bool exists = body->ExistsPropertyValue (property, &deduced);
 	    if (exists && 
 		(! deduced || 
 		 (deduced && 
 		  this->m_glWidget.IsMissingPropertyShown (property))))
 	    {
-		glColor (Qt::white);
 		*useColor = false;
 		this->m_propertySetter (body);
 
 	    }
 	    else
-	    {
-		glColor (Qt::white);
 		this->m_propertySetter ();
-	    }
 	}
     }
     else

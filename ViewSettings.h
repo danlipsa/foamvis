@@ -397,13 +397,13 @@ public:
     void DifferenceBodySelector (const Foam& foam, 
 				 const vector<size_t>& bodyIds);
     void CopySelection (const ViewSettings& other);
-    bool IsContextHidden () const
+    bool IsSelectionContextShown () const
     {
-	return m_contextHidden;
+	return m_selectionContextShown;
     }
-    void SetContextHidden (bool contextHidden)
+    void SetSelectionContextShown (bool shown)
     {
-	m_contextHidden = contextHidden;
+	m_selectionContextShown = shown;
     }
     bool IsCenterPathHidden () const
     {
@@ -597,7 +597,7 @@ private:
     // Context stationary
     AverageAroundMovementShown m_averageAroundMovementShown;
     boost::shared_ptr<BodySelector> m_bodySelector;
-    bool m_contextHidden;
+    bool m_selectionContextShown;
     bool m_centerPathHidden;
     // Simulation related variables
     size_t m_simulationIndex;

@@ -292,26 +292,32 @@ void Body::GetFaceSet (FaceSet* faceSet) const
 bool Body::ExistsPropertyValue (BodyProperty::Enum property, 
 				bool* deduced) const
 {
-    if (deduced != 0)
-	*deduced = false;
+    setPValue (deduced, false);
+    if (IsConstraint ())
+    {
+	if (property == BodyProperty::VELOCITY_X ||
+	    property == BodyProperty::VELOCITY_Y ||
+	    property == BodyProperty::VELOCITY_MAGNITUDE)
+	{
+	    setPValue (deduced, true);
+	    return true;
+	}
+	else
+	    return false;
+    }
     switch (property)
     {
     case BodyProperty::DEFORMATION_P_OVER_SQRTA:
 	return HasAttribute (BodyProperty::TARGET_VOLUME - 
 			     BodyProperty::DMP_BEGIN);
-    case BodyProperty::DEFORMATION_EIGEN:
-	return ! IsConstraint ();
     case BodyProperty::PRESSURE:
-	if (deduced != 0)
-	    *deduced = m_pressureDeduced;
+	setPValue (deduced, m_pressureDeduced);
 	return HasAttribute (property - BodyProperty::DMP_BEGIN);
     case BodyProperty::TARGET_VOLUME:
-	if (deduced != 0)
-	    *deduced = m_targetVolumeDeduced;
+	setPValue (deduced, m_targetVolumeDeduced);
 	return HasAttribute (property - BodyProperty::DMP_BEGIN);
     case BodyProperty::ACTUAL_VOLUME:
-	if (deduced != 0)
-	    *deduced = m_actualVolumeDeduced;
+	setPValue (deduced, m_actualVolumeDeduced);
 	return HasAttribute (property - BodyProperty::DMP_BEGIN);
     default:
 	return true;

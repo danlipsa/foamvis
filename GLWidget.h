@@ -318,7 +318,7 @@ public Q_SLOTS:
     void ToggledFacesShowEdges (bool checked);
     void ToggledLightNumberShown (bool checked);
     void ToggledLightEnabled (bool checked);
-    void ToggledContextHidden (bool checked);
+    void ToggledSelectionContextShown (bool checked);
     void ToggledCenterPathHidden (bool checked);
     void ToggledTorusOriginalDomainShown (bool checked);
     void ToggledT1sShown (bool checked);
@@ -327,6 +327,7 @@ public Q_SLOTS:
     void ToggledTorusOriginalDomainClipped (bool checked);
     void ToggledMissingPressureShown (bool checked);
     void ToggledMissingVolumeShown (bool checked);
+    void ToggledObjectVelocityShown (bool checked);
     void ToggledShowDeformation (bool checked);
     void ToggledShowDeformationGrid (bool checked);
     void ToggledShowVelocity (bool checked);
@@ -817,6 +818,7 @@ private:
     size_t m_highlightLineWidth;
     bool m_missingPressureShown;
     bool m_missingVolumeShown;
+    bool m_objectVelocityShown;
     bool m_titleShown;
     bool m_averageAroundMarked;
     bool m_viewFocusShown;

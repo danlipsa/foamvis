@@ -142,6 +142,11 @@ template<typename Container> void resizeAllowIndex (Container* c, size_t i)
 
 template<typename T> vector<G3D::Vector3> GetEdgeVectors (const T& t);
 template<typename T> G3D::AABox CalculateBoundingBox (const T& t);
+template<typename T> void setPValue (T* p, T value)
+{
+    if (p != 0)
+	*p = value;
+}
 
 
 // Other

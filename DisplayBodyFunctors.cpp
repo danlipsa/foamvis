@@ -256,7 +256,7 @@ display (
     if (bodyFc == DisplayElement::CONTEXT &&
 	(m_contextDisplay == DisplayElement::INVISIBLE_CONTEXT ||
 	 (m_contextDisplay == DisplayElement::USER_DEFINED_CONTEXT && 
-	  vs.IsContextHidden ()))
+	  ! vs.IsSelectionContextShown ()))
 	)
 	return;
     vector<boost::shared_ptr<OrientedFace> > v = b->GetOrientedFaces ();
@@ -352,8 +352,7 @@ valueStep (
 	 BodyProperty::Enum property = BodyProperty::FromSizeT (
 	     this->m_propertySetter.GetBodyOrFaceProperty ());
 	 bool deduced;
-	 bool exists = (! p.m_body->IsConstraint ()) &&
-	     p.m_body->ExistsPropertyValue (property, &deduced);
+	 bool exists = p.m_body->ExistsPropertyValue (property, &deduced);
 	 if (exists && 
 	     (! deduced || 
 	      (deduced && this->m_glWidget.IsMissingPropertyShown (property))))
@@ -381,7 +380,7 @@ displaySegments ()
 	m_focusTextureSegments.begin (), m_focusTextureSegments.end (),
 	boost::bind (&DisplayCenterPath<PropertySetter, DisplaySegment>::
 		     displayFocusTextureSegment, this, _1));
-    if (! vs.IsContextHidden () && 
+    if (vs.IsSelectionContextShown () && 
 	! vs.IsCenterPathHidden () && m_contextSegments.size () > 0)
     {
 	glDisable (GL_TEXTURE_1D);

@@ -80,7 +80,7 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_velocityShown (false),
     m_averageAroundMovementShown (AVERAGE_AROUND_MOVEMENT_NONE),
     m_bodySelector (AllBodySelector::Get ()),
-    m_contextHidden (false),
+    m_selectionContextShown (true),
     m_centerPathHidden (false),
     m_simulationIndex (0),
     m_currentTime (0),

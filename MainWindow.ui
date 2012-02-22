@@ -94,6 +94,8 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <zorder>widgetGl</zorder>
+         <zorder>widgetGl</zorder>
         </widget>
        </item>
        <item>
@@ -321,11 +323,11 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="currentIndex">
-              <number>2</number>
+              <number>3</number>
              </property>
-             <widget class="QWidget" name="tabShow">
+             <widget class="QWidget" name="tabOverlay">
               <attribute name="title">
-               <string>Show</string>
+               <string>Overlay</string>
               </attribute>
               <layout class="QVBoxLayout" name="verticalLayout_5">
                <property name="spacing">
@@ -337,271 +339,8 @@
                <item>
                 <widget class="QTabWidget" name="tabWidgetShow">
                  <property name="currentIndex">
-                  <number>2</number>
+                  <number>0</number>
                  </property>
-                 <widget class="QWidget" name="tabView">
-                  <attribute name="title">
-                   <string>View</string>
-                  </attribute>
-                  <layout class="QFormLayout" name="formLayout_4">
-                   <item row="0" column="0">
-                    <widget class="QLabel" name="labelViewCount">
-                     <property name="text">
-                      <string>Count</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QComboBox" name="comboBoxViewCount">
-                     <item>
-                      <property name="text">
-                       <string>One</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>Two</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>Three</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>Four</string>
-                      </property>
-                     </item>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QLabel" name="labelViewLayout">
-                     <property name="text">
-                      <string>Layout</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QComboBox" name="comboBoxViewLayout">
-                     <item>
-                      <property name="text">
-                       <string>Horizontal</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>Vertical</string>
-                      </property>
-                     </item>
-                    </widget>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QWidget" name="widget_17" native="true">
-                     <layout class="QHBoxLayout" name="horizontalLayout_19">
-                      <property name="margin">
-                       <number>0</number>
-                      </property>
-                      <item>
-                       <widget class="QCheckBox" name="checkBoxContextView">
-                        <property name="text">
-                         <string>Context</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QCheckBox" name="checkBoxReflectedHalfView">
-                        <property name="text">
-                         <string>Reflected half</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </widget>
-                   </item>
-                   <item row="3" column="0">
-                    <widget class="QLabel" name="label_32">
-                     <property name="text">
-                      <string>Time</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="1">
-                    <widget class="QRadioButton" name="radioButtonTimeIndependent">
-                     <property name="text">
-                      <string>Independent</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string>buttonGroupTimeLinkage</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                   <item row="4" column="1">
-                    <widget class="QWidget" name="widget_16" native="true">
-                     <layout class="QHBoxLayout" name="horizontalLayout_13">
-                      <property name="margin">
-                       <number>0</number>
-                      </property>
-                      <item>
-                       <widget class="QWidget" name="widget_14" native="true">
-                        <layout class="QGridLayout" name="gridLayout_3">
-                         <property name="sizeConstraint">
-                          <enum>QLayout::SetDefaultConstraint</enum>
-                         </property>
-                         <property name="margin">
-                          <number>0</number>
-                         </property>
-                         <item row="0" column="0">
-                          <widget class="QLabel" name="label_37">
-                           <property name="text">
-                            <string>Begin</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="0" column="1">
-                          <widget class="QLabel" name="label_38">
-                           <property name="text">
-                            <string>End</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="0" column="2">
-                          <widget class="QLabel" name="label_39">
-                           <property name="text">
-                            <string>Steps</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="1" column="0">
-                          <widget class="QLabel" name="labelLinkedTimeBegin">
-                           <property name="text">
-                            <string>0</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="1" column="1">
-                          <widget class="QLabel" name="labelLinkedTimeEnd">
-                           <property name="text">
-                            <string>0</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="1" column="2">
-                          <widget class="QLabel" name="labelLinkedTimeSteps">
-                           <property name="text">
-                            <string>0</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </widget>
-                      </item>
-                      <item>
-                       <spacer name="horizontalSpacer_2">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                     </layout>
-                    </widget>
-                   </item>
-                   <item row="5" column="1">
-                    <widget class="QRadioButton" name="radioButtonTimeLinked">
-                     <property name="text">
-                      <string>Linked</string>
-                     </property>
-                     <property name="checkable">
-                      <bool>true</bool>
-                     </property>
-                     <property name="checked">
-                      <bool>false</bool>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string>buttonGroupTimeLinkage</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                   <item row="6" column="1">
-                    <widget class="QWidget" name="widget_15" native="true">
-                     <layout class="QHBoxLayout" name="horizontalLayout_11">
-                      <property name="margin">
-                       <number>0</number>
-                      </property>
-                      <item>
-                       <widget class="QWidget" name="widget_3" native="true">
-                        <layout class="QGridLayout" name="gridLayout_2">
-                         <property name="sizeConstraint">
-                          <enum>QLayout::SetDefaultConstraint</enum>
-                         </property>
-                         <property name="margin">
-                          <number>0</number>
-                         </property>
-                         <item row="0" column="0">
-                          <widget class="QLabel" name="label_35">
-                           <property name="text">
-                            <string>Stretch factor</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="1" column="0">
-                          <widget class="QLabel" name="labelLinkedTimeStepStretch">
-                           <property name="text">
-                            <string>1</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </widget>
-                      </item>
-                      <item>
-                       <spacer name="horizontalSpacer">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                     </layout>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
                  <widget class="QWidget" name="tabT1">
                   <attribute name="title">
                    <string>T1</string>
@@ -825,65 +564,6 @@
                    </item>
                   </layout>
                  </widget>
-                 <widget class="QWidget" name="tabOther">
-                  <attribute name="title">
-                   <string>Other</string>
-                  </attribute>
-                  <layout class="QFormLayout" name="formLayout_11">
-                   <property name="fieldGrowthPolicy">
-                    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-                   </property>
-                   <item row="0" column="0">
-                    <widget class="QCheckBox" name="checkBoxFaceCenter">
-                     <property name="text">
-                      <string>Face center</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QCheckBox" name="checkBoxBodyCenter">
-                     <property name="text">
-                      <string>Body center</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QCheckBox" name="checkBoxBodiesBoundingBoxes">
-                     <property name="text">
-                      <string>Body box</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QCheckBox" name="checkBoxBoundingBox">
-                     <property name="text">
-                      <string>Foams box</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0">
-                    <widget class="QCheckBox" name="checkBoxTorusOriginalDomain">
-                     <property name="text">
-                      <string>Torus domain</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QCheckBox" name="checkBoxAxes">
-                     <property name="text">
-                      <string>Axes</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0">
-                    <widget class="QCheckBox" name="checkBoxBodyNeighbors">
-                     <property name="text">
-                      <string>Body neighbors</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
                 </widget>
                </item>
               </layout>
@@ -978,7 +658,7 @@
                   </sizepolicy>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>2</number>
                  </property>
                  <widget class="QWidget" name="tabAmbient">
                   <attribute name="title">
@@ -1330,103 +1010,495 @@
                </item>
               </layout>
              </widget>
-             <widget class="QWidget" name="tabLook">
+             <widget class="QWidget" name="tabShow">
               <attribute name="title">
-               <string>Look</string>
+               <string>Show</string>
               </attribute>
-              <layout class="QFormLayout" name="formLayout_2">
-               <item row="0" column="0">
-                <widget class="QCheckBox" name="checkBoxHistogramGridShown">
-                 <property name="text">
-                  <string>Histogram grid</string>
+              <layout class="QVBoxLayout" name="verticalLayout_6">
+               <property name="margin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QTabWidget" name="tabWidgetVariousAndView">
+                 <property name="currentIndex">
+                  <number>1</number>
                  </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QCheckBox" name="checkBoxAverageAroundMarked">
-                 <property name="text">
-                  <string>Average around marked</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QCheckBox" name="checkBoxMissingPressureShown">
-                 <property name="text">
-                  <string>Pressure shown</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="0">
-                <widget class="QCheckBox" name="checkBoxMissingVolumeShown">
-                 <property name="text">
-                  <string>Volume shown</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QCheckBox" name="checkBoxTitleShown">
-                 <property name="text">
-                  <string>Title</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QCheckBox" name="checkBoxStandaloneElementsShown">
-                 <property name="text">
-                  <string>Standalone</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QCheckBox" name="checkBoxContextHidden">
-                 <property name="text">
-                  <string>Context hidden</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <widget class="QCheckBox" name="checkBoxViewFocusShown">
-                 <property name="text">
-                  <string>View focus</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="0">
-                <widget class="QCheckBox" name="checkBoxConstraints">
-                 <property name="text">
-                  <string>Constraints</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="1">
-                <widget class="QCheckBox" name="checkBoxConstraintPoints">
-                 <property name="text">
-                  <string>Constraint points</string>
-                 </property>
+                 <widget class="QWidget" name="tabVarious">
+                  <attribute name="title">
+                   <string>Various</string>
+                  </attribute>
+                  <widget class="QCheckBox" name="checkBoxAverageAroundMarked">
+                   <property name="geometry">
+                    <rect>
+                     <x>70</x>
+                     <y>0</y>
+                     <width>125</width>
+                     <height>20</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>Average around</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                  <widget class="QCheckBox" name="checkBoxAxes">
+                   <property name="geometry">
+                    <rect>
+                     <x>200</x>
+                     <y>0</y>
+                     <width>56</width>
+                     <height>20</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>Axes</string>
+                   </property>
+                  </widget>
+                  <widget class="QCheckBox" name="checkBoxBodiesBoundingBoxes">
+                   <property name="geometry">
+                    <rect>
+                     <x>100</x>
+                     <y>20</y>
+                     <width>84</width>
+                     <height>20</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>Body box</string>
+                   </property>
+                  </widget>
+                  <widget class="QCheckBox" name="checkBoxBodyCenter">
+                   <property name="geometry">
+                    <rect>
+                     <x>200</x>
+                     <y>20</y>
+                     <width>100</width>
+                     <height>20</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>Body center</string>
+                   </property>
+                  </widget>
+                  <widget class="QCheckBox" name="checkBoxBodyNeighbors">
+                   <property name="geometry">
+                    <rect>
+                     <x>70</x>
+                     <y>40</y>
+                     <width>123</width>
+                     <height>20</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>Body neighbors</string>
+                   </property>
+                  </widget>
+                  <widget class="QCheckBox" name="checkBoxConstraints">
+                   <property name="geometry">
+                    <rect>
+                     <x>200</x>
+                     <y>40</y>
+                     <width>98</width>
+                     <height>20</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>Constraints</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                  <widget class="QCheckBox" name="checkBoxConstraintPoints">
+                   <property name="geometry">
+                    <rect>
+                     <x>60</x>
+                     <y>60</y>
+                     <width>135</width>
+                     <height>20</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>Constraint points</string>
+                   </property>
+                  </widget>
+                  <widget class="QCheckBox" name="checkBoxFaceCenter">
+                   <property name="geometry">
+                    <rect>
+                     <x>200</x>
+                     <y>60</y>
+                     <width>98</width>
+                     <height>20</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>Face center</string>
+                   </property>
+                  </widget>
+                  <widget class="QCheckBox" name="checkBoxBoundingBox">
+                   <property name="geometry">
+                    <rect>
+                     <x>90</x>
+                     <y>80</y>
+                     <width>95</width>
+                     <height>20</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>Foams box</string>
+                   </property>
+                  </widget>
+                  <widget class="QCheckBox" name="checkBoxHistogramGridShown">
+                   <property name="geometry">
+                    <rect>
+                     <x>200</x>
+                     <y>80</y>
+                     <width>120</width>
+                     <height>20</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>Histogram grid</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                  <widget class="QCheckBox" name="checkBoxMissingPressureShown">
+                   <property name="geometry">
+                    <rect>
+                     <x>110</x>
+                     <y>100</y>
+                     <width>79</width>
+                     <height>20</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>Pressure</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                  <widget class="QCheckBox" name="checkBoxStandaloneElementsShown">
+                   <property name="geometry">
+                    <rect>
+                     <x>190</x>
+                     <y>100</y>
+                     <width>95</width>
+                     <height>20</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>Standalone</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                  <widget class="QCheckBox" name="checkBoxSelectionContextShown">
+                   <property name="geometry">
+                    <rect>
+                     <x>60</x>
+                     <y>120</y>
+                     <width>134</width>
+                     <height>20</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>Selection context</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                  <widget class="QCheckBox" name="checkBoxTitleShown">
+                   <property name="geometry">
+                    <rect>
+                     <x>200</x>
+                     <y>120</y>
+                     <width>53</width>
+                     <height>20</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>Title</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                  <widget class="QCheckBox" name="checkBoxTorusOriginalDomain">
+                   <property name="geometry">
+                    <rect>
+                     <x>80</x>
+                     <y>140</y>
+                     <width>113</width>
+                     <height>20</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>Torus domain</string>
+                   </property>
+                  </widget>
+                  <widget class="QCheckBox" name="checkBox">
+                   <property name="geometry">
+                    <rect>
+                     <x>200</x>
+                     <y>140</y>
+                     <width>75</width>
+                     <height>20</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>Velocity</string>
+                   </property>
+                  </widget>
+                  <widget class="QCheckBox" name="checkBoxViewFocusShown">
+                   <property name="geometry">
+                    <rect>
+                     <x>100</x>
+                     <y>160</y>
+                     <width>93</width>
+                     <height>20</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>View focus</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                  <widget class="QCheckBox" name="checkBoxMissingVolumeShown">
+                   <property name="geometry">
+                    <rect>
+                     <x>200</x>
+                     <y>160</y>
+                     <width>73</width>
+                     <height>20</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>Volume</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </widget>
+                 <widget class="QWidget" name="tabView_2">
+                  <attribute name="title">
+                   <string>View</string>
+                  </attribute>
+                  <layout class="QFormLayout" name="formLayout_2">
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="labelViewCount">
+                     <property name="text">
+                      <string>Count</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QComboBox" name="comboBoxViewCount">
+                     <item>
+                      <property name="text">
+                       <string>One</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Two</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Three</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Four</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="labelViewLayout">
+                     <property name="text">
+                      <string>Layout</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QComboBox" name="comboBoxViewLayout">
+                     <item>
+                      <property name="text">
+                       <string>Horizontal</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Vertical</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QCheckBox" name="checkBoxReflectedHalfView">
+                     <property name="text">
+                      <string>Reflected half</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QLabel" name="label_32">
+                     <property name="text">
+                      <string>Time</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QCheckBox" name="checkBoxContextView">
+                     <property name="text">
+                      <string>Context</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="1">
+                    <widget class="QRadioButton" name="radioButtonTimeIndependent">
+                     <property name="text">
+                      <string>Independent</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string>buttonGroupTimeLinkage</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                   <item row="5" column="1">
+                    <widget class="QWidget" name="widget_14" native="true">
+                     <layout class="QGridLayout" name="gridLayout_3">
+                      <property name="sizeConstraint">
+                       <enum>QLayout::SetDefaultConstraint</enum>
+                      </property>
+                      <property name="margin">
+                       <number>0</number>
+                      </property>
+                      <item row="0" column="0">
+                       <widget class="QLabel" name="label_37">
+                        <property name="text">
+                         <string>Begin</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="1">
+                       <widget class="QLabel" name="label_38">
+                        <property name="text">
+                         <string>End</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="2">
+                       <widget class="QLabel" name="label_39">
+                        <property name="text">
+                         <string>Steps</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QLabel" name="labelLinkedTimeBegin">
+                        <property name="text">
+                         <string>0</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="1">
+                       <widget class="QLabel" name="labelLinkedTimeEnd">
+                        <property name="text">
+                         <string>0</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="2">
+                       <widget class="QLabel" name="labelLinkedTimeSteps">
+                        <property name="text">
+                         <string>0</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item row="6" column="1">
+                    <widget class="QRadioButton" name="radioButtonTimeLinked">
+                     <property name="text">
+                      <string>Linked</string>
+                     </property>
+                     <property name="checkable">
+                      <bool>true</bool>
+                     </property>
+                     <property name="checked">
+                      <bool>false</bool>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string>buttonGroupTimeLinkage</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                   <item row="8" column="1">
+                    <widget class="QWidget" name="widget_3" native="true">
+                     <layout class="QGridLayout" name="gridLayout_2">
+                      <property name="sizeConstraint">
+                       <enum>QLayout::SetDefaultConstraint</enum>
+                      </property>
+                      <property name="margin">
+                       <number>0</number>
+                      </property>
+                      <item row="0" column="0">
+                       <widget class="QLabel" name="label_35">
+                        <property name="text">
+                         <string>Stretch factor</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QLabel" name="labelLinkedTimeStepStretch">
+                        <property name="text">
+                         <string>1</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
                 </widget>
                </item>
               </layout>
@@ -2326,6 +2398,10 @@
     <slot>ToggledConstraintsShown(bool)</slot>
     <slot>ToggledConstraintPointsShown(bool)</slot>
     <slot>ToggledReflectedHalf(bool)</slot>
+    <slot>ToggledVelocityShown(bool)</slot>
+    <slot>ToggledIsSelectionContextShown(bool)</slot>
+    <slot>ToggledSelectionContextShown(bool)</slot>
+    <slot>ToggledObjectVelocityShown(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -2462,8 +2538,8 @@
    <slot>ToggledBodyCenterShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>783</x>
-     <y>245</y>
+     <x>721</x>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2632,14 +2708,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxContextHidden</sender>
+   <sender>checkBoxSelectionContextShown</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledContextHidden(bool)</slot>
+   <slot>ToggledSelectionContextShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>975</x>
-     <y>279</y>
+     <x>849</x>
+     <y>237</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2654,8 +2730,8 @@
    <slot>ToggledContextView(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>850</x>
-     <y>326</y>
+     <x>686</x>
+     <y>248</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -2702,8 +2778,8 @@
    <slot>ToggledTorusOriginalDomainShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>780</x>
-     <y>305</y>
+     <x>661</x>
+     <y>250</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2718,8 +2794,8 @@
    <slot>ToggledBoundingBoxShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1007</x>
-     <y>284</y>
+     <x>721</x>
+     <y>246</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2750,8 +2826,8 @@
    <slot>ToggledAxesShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1007</x>
-     <y>305</y>
+     <x>721</x>
+     <y>250</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2814,8 +2890,8 @@
    <slot>ToggledHistogramGridShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>811</x>
-     <y>237</y>
+     <x>785</x>
+     <y>296</y>
     </hint>
     <hint type="destinationlabel">
      <x>869</x>
@@ -2830,7 +2906,7 @@
    <slot>ToggledDirectionalLightEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>822</x>
+     <x>763</x>
      <y>282</y>
     </hint>
     <hint type="destinationlabel">
@@ -2846,8 +2922,8 @@
    <slot>ToggledBodiesBoundingBoxesShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>780</x>
-     <y>284</y>
+     <x>661</x>
+     <y>246</y>
     </hint>
     <hint type="destinationlabel">
      <x>506</x>
@@ -2894,7 +2970,7 @@
    <slot>ToggledLightEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>822</x>
+     <x>763</x>
      <y>263</y>
     </hint>
     <hint type="destinationlabel">
@@ -3007,7 +3083,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>729</x>
-     <y>345</y>
+     <y>346</y>
     </hint>
     <hint type="destinationlabel">
      <x>486</x>
@@ -3023,7 +3099,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>729</x>
-     <y>352</y>
+     <y>377</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3039,7 +3115,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>729</x>
-     <y>358</y>
+     <y>408</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3118,8 +3194,8 @@
    <slot>ToggledT1sShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>817</x>
-     <y>263</y>
+     <x>687</x>
+     <y>245</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3134,8 +3210,8 @@
    <slot>ToggledT1sShiftLower(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>907</x>
-     <y>263</y>
+     <x>721</x>
+     <y>245</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3150,8 +3226,8 @@
    <slot>CurrentIndexChangedViewCount(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1001</x>
-     <y>270</y>
+     <x>715</x>
+     <y>238</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3166,8 +3242,8 @@
    <slot>CurrentIndexChangedViewLayout(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1001</x>
-     <y>300</y>
+     <x>715</x>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3182,8 +3258,8 @@
    <slot>CurrentIndexChangedViewCount(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1001</x>
-     <y>270</y>
+     <x>715</x>
+     <y>238</y>
     </hint>
     <hint type="destinationlabel">
      <x>874</x>
@@ -3198,8 +3274,8 @@
    <slot>ValueChangedT1Size(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>897</x>
-     <y>293</y>
+     <x>716</x>
+     <y>253</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3214,8 +3290,8 @@
    <slot>ToggledMissingPressureShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>855</x>
-     <y>279</y>
+     <x>829</x>
+     <y>317</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3230,8 +3306,8 @@
    <slot>ToggledTitleShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>905</x>
-     <y>237</y>
+     <x>879</x>
+     <y>296</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3246,8 +3322,8 @@
    <slot>ToggledAverageAroundMarked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>855</x>
-     <y>258</y>
+     <x>829</x>
+     <y>382</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3310,8 +3386,8 @@
    <slot>ToggledStandaloneElementsShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>947</x>
-     <y>258</y>
+     <x>921</x>
+     <y>317</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3342,8 +3418,8 @@
    <slot>ValueChangedForceSizeExp(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>913</x>
-     <y>316</y>
+     <x>716</x>
+     <y>253</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3358,8 +3434,8 @@
    <slot>ToggledForcePressureShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>938</x>
-     <y>263</y>
+     <x>721</x>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3374,8 +3450,8 @@
    <slot>ToggledForceNetworkShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>759</x>
-     <y>246</y>
+     <x>687</x>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3390,8 +3466,8 @@
    <slot>ToggledForceResultShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>833</x>
-     <y>286</y>
+     <x>687</x>
+     <y>245</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3406,8 +3482,8 @@
    <slot>ToggledMissingVolumeShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>855</x>
-     <y>300</y>
+     <x>829</x>
+     <y>338</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3486,8 +3562,8 @@
    <slot>ToggledFaceCenterShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>701</x>
-     <y>245</y>
+     <x>661</x>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3502,8 +3578,8 @@
    <slot>ValueChangedDeformationSizeExp(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>873</x>
-     <y>316</y>
+     <x>716</x>
+     <y>253</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3518,8 +3594,8 @@
    <slot>ToggledShowDeformation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>759</x>
-     <y>246</y>
+     <x>687</x>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3550,8 +3626,8 @@
    <slot>ToggledBodyNeighborsShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1007</x>
-     <y>326</y>
+     <x>661</x>
+     <y>256</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3566,8 +3642,8 @@
    <slot>ValueChangedDeformationLineWidthExp(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>873</x>
-     <y>350</y>
+     <x>716</x>
+     <y>260</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3662,8 +3738,8 @@
    <slot>ToggledShowDeformationGrid(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>878</x>
-     <y>263</y>
+     <x>721</x>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -3678,8 +3754,8 @@
    <slot>ToggledShowDeformationGridCellCenter(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>948</x>
-     <y>286</y>
+     <x>721</x>
+     <y>245</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -3854,8 +3930,8 @@
    <slot>ValueChangedForceLineWidthExp(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>913</x>
-     <y>350</y>
+     <x>716</x>
+     <y>260</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -3870,8 +3946,8 @@
    <slot>ToggledViewFocusShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>945</x>
-     <y>300</y>
+     <x>939</x>
+     <y>237</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -3902,8 +3978,8 @@
    <slot>ToggledConstraintPointsShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>987</x>
-     <y>321</y>
+     <x>961</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -3918,12 +3994,28 @@
    <slot>ToggledReflectedHalfView(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>866</x>
-     <y>314</y>
+     <x>712</x>
+     <y>248</y>
     </hint>
     <hint type="destinationlabel">
      <x>1036</x>
      <y>327</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledObjectVelocityShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>781</x>
+     <y>352</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>558</x>
+     <y>380</y>
     </hint>
    </hints>
   </connection>

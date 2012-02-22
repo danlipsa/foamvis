@@ -359,7 +359,8 @@ void MainWindow::ViewToUI ()
     SetCurrentIndexNoSignals (comboBoxStatisticsType, vs.GetStatisticsType ());
     SetCurrentIndexNoSignals (comboBoxAxesOrder, vs.GetAxesOrder ());
 
-    SetCheckedNoSignals (checkBoxContextHidden, vs.IsContextHidden ());
+    SetCheckedNoSignals (checkBoxSelectionContextShown, 
+			 vs.IsSelectionContextShown ());
     SetCheckedNoSignals (checkBoxCenterPathHidden, vs.IsCenterPathHidden ());
     SetCheckedNoSignals (checkBoxT1sShiftLower, vs.IsT1sShiftLower ());
 

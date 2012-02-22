@@ -191,6 +191,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_highlightLineWidth (HIGHLIGHT_LINE_WIDTH),
       m_missingPressureShown (true),
       m_missingVolumeShown (true),
+      m_objectVelocityShown (false),
       m_titleShown (false),
       m_averageAroundMarked (true),
       m_viewFocusShown (true),
@@ -3435,6 +3436,10 @@ bool GLWidget::IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const
     case BodyProperty::TARGET_VOLUME:
     case BodyProperty::ACTUAL_VOLUME:
 	return m_missingVolumeShown;
+    case BodyProperty::VELOCITY_X:
+    case BodyProperty::VELOCITY_Y:
+    case BodyProperty::VELOCITY_MAGNITUDE:
+	return m_objectVelocityShown;
     default:
 	return true;
     }
@@ -3710,6 +3715,11 @@ void GLWidget::ToggledMissingVolumeShown (bool checked)
     update ();
 }
 
+void GLWidget::ToggledObjectVelocityShown (bool checked)
+{
+    m_objectVelocityShown = checked;
+    update ();
+}
 
 void GLWidget::ToggledLightNumberShown (bool checked)
 {
@@ -3813,9 +3823,9 @@ void GLWidget::ToggledCenterPathBodyShown (bool checked)
     update ();
 }
 
-void GLWidget::ToggledContextHidden (bool checked)
+void GLWidget::ToggledSelectionContextShown (bool checked)
 {
-    GetViewSettings ().SetContextHidden (checked);
+    GetViewSettings ().SetSelectionContextShown (checked);
     compile (GetViewNumber ());
     update ();
 }
