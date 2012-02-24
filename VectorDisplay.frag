@@ -31,6 +31,7 @@ uniform sampler2D u_tensorAverageTexUnit;
 uniform sampler2D u_scalarAverageTexUnit;
 uniform bool u_gridShown;
 uniform bool u_gridCellCenterShown;
+uniform bool u_clampingShown;
 uniform float u_onePixelInObjectSpace;
 
 float lineWidthPerc = u_lineWidth / u_cellLength;
@@ -154,7 +155,8 @@ bool isArrow (vec2 x, vec2 texCoordCenter)
 	    isLine (xToTop, rotate (n, -arrowAngle), 
 		    lineWidthPerc, arrowLength, 0) ||
 */
-	    (clamped && isLine (xToMiddle, v, lineWidthPerc, arrowLength));
+	    (u_clampingShown && clamped && 
+	     isLine (xToMiddle, v, lineWidthPerc, arrowLength));
     }
     else
 	return false;

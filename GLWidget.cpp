@@ -6,6 +6,7 @@
  */
 
 // @todo fix the (slow) movement of the focus in context view
+// @todo use velocity magnitude scale for scaling velocity vectors.
 
 #include "Body.h"
 #include "BodyAlongTime.h"
@@ -3664,7 +3665,7 @@ void GLWidget::ToggledShowDeformationGrid (bool checked)
     update ();
 }
 
-void GLWidget::ToggledShowVelocity (bool checked)
+void GLWidget::ToggledVelocityShown (bool checked)
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -3676,7 +3677,7 @@ void GLWidget::ToggledShowVelocity (bool checked)
     update ();
 }
 
-void GLWidget::ToggledShowVelocityGrid (bool checked)
+void GLWidget::ToggledVelocityGridShown (bool checked)
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -3684,6 +3685,18 @@ void GLWidget::ToggledShowVelocityGrid (bool checked)
 	ViewNumber::Enum viewNumber = vn[i];
 	VectorAverage& va = GetViewSettings (viewNumber).GetVelocityAverage ();
 	va.SetGridShown (checked);
+    }
+    update ();
+}
+
+void GLWidget::ToggledVelocityClampingShown (bool checked)
+{
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	VectorAverage& va = GetViewSettings (viewNumber).GetVelocityAverage ();
+	va.SetClampingShown (checked);
     }
     update ();
 }

@@ -1,6 +1,6 @@
 Release log
 ===========
-0.7.    
+0.7.    - reorganize UI
 	- fix bug: position of the two_discs for two views.
 	- added arrows for forces
 	- use highlight0 for standalone edges in kernel density estimate.

@@ -17,6 +17,7 @@
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
 #include "ViewSettings.h"
+#include "VectorAverage.h"
 
 struct ContextSegment : public Segment
 {
@@ -182,7 +183,8 @@ void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body,
 	m_glWidget.GetCellLength (viewNumber), &clamped);
     DisplaySegmentArrow (
 	body->GetCenter ().xy () - velocity / 2, velocity, lineWidth,
-	m_glWidget.GetOnePixelInObjectSpace (), clamped);
+	m_glWidget.GetOnePixelInObjectSpace (), 
+	clamped && vs.GetVelocityAverage ().IsClampingShown ());
 }
 
 // DisplayBodyCenter

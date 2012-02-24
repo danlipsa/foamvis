@@ -21,6 +21,7 @@ class VectorAverage : public TensorAverageTemplate<SetterVelocity>
 public:
     VectorAverage (const GLWidget& glWidget,
 		   FramebufferObjects& scalarAverageFbos);
+
     static void InitShaders ();
 };
 

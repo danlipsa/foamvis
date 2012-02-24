@@ -23,7 +23,8 @@ public:
 	G3D::Vector2 gridTranslation, float cellLength, float lineWidth, 
 	float elipseSizeRatio, G3D::Rect2D enclosingRect,
 	G3D::Vector2 rotationCenter, 
-	bool gridShown, bool gridCellCenterShown, float onePixelInObjectSpace);
+	bool gridShown, bool clampingShown,
+	bool gridCellCenterShown, float onePixelInObjectSpace);
 
     GLint GetTensorAverageTexUnit ()
     {
@@ -45,6 +46,7 @@ private:
     int m_tensorAverageTexUnitLocation;
     int m_scalarAverageTexUnitLocation;
     int m_gridShownLocation;
+    int m_clampingShownLocation;
     int m_gridCellCenterShownLocation;
     int m_onePixelInObjectSpaceLocation;
 };
@@ -65,6 +67,7 @@ public:
 	ImageBasedAverage<Setter> (
 	    glWidget, "tensor", QColor (0, 0, 0, 0), scalarAverageFbos),
 	m_gridShown (false),
+	m_clampingShown (false),
 	m_gridCellCenterShown (false),
 	m_sizeInitialRatio (sizeInitialRatio),
 	m_sizeRatio (sizeRatio),
@@ -79,6 +82,14 @@ public:
     bool IsGridShown () const
     {
 	return m_gridShown;
+    }
+    void SetClampingShown (bool shown)
+    {
+	m_clampingShown = shown;
+    }
+    bool IsClampingShown () const
+    {
+	return m_clampingShown;
     }
     void SetGridCellCenterShown (bool shown)
     {
@@ -111,7 +122,8 @@ protected:
 
 private:
     bool m_gridShown;
-    bool m_gridCellCenterShown;    
+    bool m_clampingShown;
+    bool m_gridCellCenterShown;
     ParameterView m_sizeInitialRatio;
     Parameter m_sizeRatio;
     Parameter m_lineWidthRatio;

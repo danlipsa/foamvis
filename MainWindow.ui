@@ -94,8 +94,6 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <zorder>widgetGl</zorder>
-         <zorder>widgetGl</zorder>
         </widget>
        </item>
        <item>
@@ -296,7 +294,7 @@
         <widget class="QComboBox" name="comboBoxSimulation"/>
        </item>
        <item>
-        <widget class="QTabWidget" name="tabWidget">
+        <widget class="QTabWidget" name="tabWidgetVisualization">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
            <horstretch>0</horstretch>
@@ -310,9 +308,9 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
-         <widget class="QWidget" name="settings">
+         <widget class="QWidget" name="tabSettings">
           <attribute name="title">
            <string>Settings</string>
           </attribute>
@@ -323,251 +321,8 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="currentIndex">
-              <number>3</number>
+              <number>2</number>
              </property>
-             <widget class="QWidget" name="tabOverlay">
-              <attribute name="title">
-               <string>Overlay</string>
-              </attribute>
-              <layout class="QVBoxLayout" name="verticalLayout_5">
-               <property name="spacing">
-                <number>0</number>
-               </property>
-               <property name="margin">
-                <number>0</number>
-               </property>
-               <item>
-                <widget class="QTabWidget" name="tabWidgetShow">
-                 <property name="currentIndex">
-                  <number>0</number>
-                 </property>
-                 <widget class="QWidget" name="tabT1">
-                  <attribute name="title">
-                   <string>T1</string>
-                  </attribute>
-                  <layout class="QFormLayout" name="formLayout_10">
-                   <item row="0" column="0">
-                    <widget class="QCheckBox" name="checkBoxT1sShown">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="text">
-                      <string>Show</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QCheckBox" name="checkBoxT1sShiftLower">
-                     <property name="text">
-                      <string>Shift lower</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QSlider" name="horizontalSliderT1Size">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QLabel" name="labelT1Size">
-                     <property name="text">
-                      <string>Size</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                 <widget class="QWidget" name="tabVelocity">
-                  <attribute name="title">
-                   <string>Velocity</string>
-                  </attribute>
-                  <layout class="QFormLayout" name="formLayout_14">
-                   <item row="0" column="0">
-                    <widget class="QCheckBox" name="checkBoxShowVelocity">
-                     <property name="text">
-                      <string>Show</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QCheckBox" name="checkBoxVelocityGrid">
-                     <property name="text">
-                      <string>Show grid</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QLabel" name="label_34">
-                     <property name="text">
-                      <string>Size</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QSlider" name="horizontalSliderVelocitySize">
-                     <property name="minimum">
-                      <number>0</number>
-                     </property>
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0">
-                    <widget class="QLabel" name="label_33">
-                     <property name="text">
-                      <string>Line width</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QSlider" name="horizontalSliderVelocityLineWidth">
-                     <property name="value">
-                      <number>0</number>
-                     </property>
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                 <widget class="QWidget" name="tabDeformation">
-                  <attribute name="title">
-                   <string>Deformation</string>
-                  </attribute>
-                  <layout class="QFormLayout" name="formLayout_8">
-                   <item row="2" column="0">
-                    <widget class="QLabel" name="label_27">
-                     <property name="text">
-                      <string>Size</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QSlider" name="horizontalSliderDeformationSize">
-                     <property name="minimum">
-                      <number>0</number>
-                     </property>
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0">
-                    <widget class="QLabel" name="label_29">
-                     <property name="text">
-                      <string>Line width</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="1">
-                    <widget class="QSlider" name="horizontalSliderDeformationLineWidth">
-                     <property name="value">
-                      <number>0</number>
-                     </property>
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QCheckBox" name="checkBoxDeformationGrid">
-                     <property name="text">
-                      <string>Show grid</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="0">
-                    <widget class="QCheckBox" name="checkBoxShowDeformation">
-                     <property name="text">
-                      <string>Show</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QCheckBox" name="checkBoxDeformationGridCellCenter">
-                     <property name="text">
-                      <string>Show grid cell center</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                 <widget class="QWidget" name="tabForce">
-                  <attribute name="title">
-                   <string>Force</string>
-                  </attribute>
-                  <layout class="QFormLayout" name="formLayout_12">
-                   <item row="0" column="0">
-                    <widget class="QCheckBox" name="checkBoxForceNetwork">
-                     <property name="text">
-                      <string>Network (h1)</string>
-                     </property>
-                     <property name="checked">
-                      <bool>false</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QCheckBox" name="checkBoxForcePressure">
-                     <property name="text">
-                      <string>Pressure (h2)</string>
-                     </property>
-                     <property name="checked">
-                      <bool>false</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QCheckBox" name="checkBoxForceResult">
-                     <property name="text">
-                      <string>Result (h3)</string>
-                     </property>
-                     <property name="checked">
-                      <bool>false</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0">
-                    <widget class="QLabel" name="label_26">
-                     <property name="text">
-                      <string>Size</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QSlider" name="horizontalSliderForceSize">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0">
-                    <widget class="QLabel" name="label_36">
-                     <property name="text">
-                      <string>Line width</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="1">
-                    <widget class="QSlider" name="horizontalSliderForceLineWidth">
-                     <property name="value">
-                      <number>0</number>
-                     </property>
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </widget>
-               </item>
-              </layout>
-             </widget>
              <widget class="QWidget" name="tabLight">
               <attribute name="title">
                <string>Light</string>
@@ -1021,273 +776,167 @@
                <item>
                 <widget class="QTabWidget" name="tabWidgetVariousAndView">
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="tabVarious">
                   <attribute name="title">
                    <string>Various</string>
                   </attribute>
-                  <widget class="QCheckBox" name="checkBoxAverageAroundMarked">
-                   <property name="geometry">
-                    <rect>
-                     <x>70</x>
-                     <y>0</y>
-                     <width>125</width>
-                     <height>20</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Average around</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkBoxAxes">
-                   <property name="geometry">
-                    <rect>
-                     <x>200</x>
-                     <y>0</y>
-                     <width>56</width>
-                     <height>20</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Axes</string>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkBoxBodiesBoundingBoxes">
-                   <property name="geometry">
-                    <rect>
-                     <x>100</x>
-                     <y>20</y>
-                     <width>84</width>
-                     <height>20</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Body box</string>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkBoxBodyCenter">
-                   <property name="geometry">
-                    <rect>
-                     <x>200</x>
-                     <y>20</y>
-                     <width>100</width>
-                     <height>20</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Body center</string>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkBoxBodyNeighbors">
-                   <property name="geometry">
-                    <rect>
-                     <x>70</x>
-                     <y>40</y>
-                     <width>123</width>
-                     <height>20</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Body neighbors</string>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkBoxConstraints">
-                   <property name="geometry">
-                    <rect>
-                     <x>200</x>
-                     <y>40</y>
-                     <width>98</width>
-                     <height>20</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Constraints</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkBoxConstraintPoints">
-                   <property name="geometry">
-                    <rect>
-                     <x>60</x>
-                     <y>60</y>
-                     <width>135</width>
-                     <height>20</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Constraint points</string>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkBoxFaceCenter">
-                   <property name="geometry">
-                    <rect>
-                     <x>200</x>
-                     <y>60</y>
-                     <width>98</width>
-                     <height>20</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Face center</string>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkBoxBoundingBox">
-                   <property name="geometry">
-                    <rect>
-                     <x>90</x>
-                     <y>80</y>
-                     <width>95</width>
-                     <height>20</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Foams box</string>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkBoxHistogramGridShown">
-                   <property name="geometry">
-                    <rect>
-                     <x>200</x>
-                     <y>80</y>
-                     <width>120</width>
-                     <height>20</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Histogram grid</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkBoxMissingPressureShown">
-                   <property name="geometry">
-                    <rect>
-                     <x>110</x>
-                     <y>100</y>
-                     <width>79</width>
-                     <height>20</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Pressure</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkBoxStandaloneElementsShown">
-                   <property name="geometry">
-                    <rect>
-                     <x>190</x>
-                     <y>100</y>
-                     <width>95</width>
-                     <height>20</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Standalone</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkBoxSelectionContextShown">
-                   <property name="geometry">
-                    <rect>
-                     <x>60</x>
-                     <y>120</y>
-                     <width>134</width>
-                     <height>20</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Selection context</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkBoxTitleShown">
-                   <property name="geometry">
-                    <rect>
-                     <x>200</x>
-                     <y>120</y>
-                     <width>53</width>
-                     <height>20</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Title</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkBoxTorusOriginalDomain">
-                   <property name="geometry">
-                    <rect>
-                     <x>80</x>
-                     <y>140</y>
-                     <width>113</width>
-                     <height>20</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Torus domain</string>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkBox">
-                   <property name="geometry">
-                    <rect>
-                     <x>200</x>
-                     <y>140</y>
-                     <width>75</width>
-                     <height>20</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Velocity</string>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkBoxViewFocusShown">
-                   <property name="geometry">
-                    <rect>
-                     <x>100</x>
-                     <y>160</y>
-                     <width>93</width>
-                     <height>20</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>View focus</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkBoxMissingVolumeShown">
-                   <property name="geometry">
-                    <rect>
-                     <x>200</x>
-                     <y>160</y>
-                     <width>73</width>
-                     <height>20</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>Volume</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
+                  <layout class="QFormLayout" name="formLayout_4">
+                   <item row="0" column="0">
+                    <widget class="QCheckBox" name="checkBoxAverageAroundMarked">
+                     <property name="text">
+                      <string>Average around</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QCheckBox" name="checkBoxAxes">
+                     <property name="text">
+                      <string>Axes</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QCheckBox" name="checkBoxBodiesBoundingBoxes">
+                     <property name="text">
+                      <string>Body box</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QCheckBox" name="checkBoxBodyCenter">
+                     <property name="text">
+                      <string>Body center</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QCheckBox" name="checkBoxBodyNeighbors">
+                     <property name="text">
+                      <string>Body neighbors</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QCheckBox" name="checkBoxConstraints">
+                     <property name="text">
+                      <string>Constraints</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QCheckBox" name="checkBoxConstraintPoints">
+                     <property name="text">
+                      <string>Constraint points</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QCheckBox" name="checkBoxFaceCenter">
+                     <property name="text">
+                      <string>Face center</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QCheckBox" name="checkBoxBoundingBox">
+                     <property name="text">
+                      <string>Foams box</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="1">
+                    <widget class="QCheckBox" name="checkBoxHistogramGridShown">
+                     <property name="text">
+                      <string>Histogram grid</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="1">
+                    <widget class="QCheckBox" name="checkBoxStandaloneElementsShown">
+                     <property name="text">
+                      <string>Standalone</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="1">
+                    <widget class="QCheckBox" name="checkBoxMissingVolumeShown">
+                     <property name="text">
+                      <string>Missing volume</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="0">
+                    <widget class="QCheckBox" name="checkBoxMissingPressureShown">
+                     <property name="text">
+                      <string>Missing pressure</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="0">
+                    <widget class="QCheckBox" name="checkBoxObjectVelocity">
+                     <property name="text">
+                      <string>Object velocity</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="7" column="0">
+                    <widget class="QCheckBox" name="checkBoxSelectionContextShown">
+                     <property name="text">
+                      <string>Selection context</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="7" column="1">
+                    <widget class="QCheckBox" name="checkBoxTitleShown">
+                     <property name="text">
+                      <string>Title</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="8" column="0">
+                    <widget class="QCheckBox" name="checkBoxTorusOriginalDomain">
+                     <property name="text">
+                      <string>Torus domain</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="8" column="1">
+                    <widget class="QCheckBox" name="checkBoxViewFocusShown">
+                     <property name="text">
+                      <string>View focus</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                  <widget class="QWidget" name="tabView_2">
                   <attribute name="title">
@@ -1630,277 +1279,611 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="timeStep">
+         <widget class="QWidget" name="tabVisualization">
           <attribute name="title">
-           <string>Time step</string>
+           <string>Visualization</string>
           </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
+          <layout class="QVBoxLayout" name="verticalLayout_7">
            <item>
-            <widget class="QRadioButton" name="radioButtonEdgesNormal">
-             <property name="text">
-              <string>Edges</string>
-             </property>
-             <property name="checkable">
-              <bool>true</bool>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-             <property name="autoRepeat">
-              <bool>false</bool>
-             </property>
-             <attribute name="buttonGroup">
-              <string>buttonGroupViewType</string>
-             </attribute>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="radioButtonEdgesTorus">
-             <property name="text">
-              <string>Edges (torus model)</string>
-             </property>
-             <attribute name="buttonGroup">
-              <string>buttonGroupViewType</string>
-             </attribute>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="radioButtonFaceEdgesTorus">
-             <property name="text">
-              <string>Face edges (torus model)</string>
-             </property>
-             <attribute name="buttonGroup">
-              <string>buttonGroupViewType</string>
-             </attribute>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="radioButtonFacesNormal">
-             <property name="text">
-              <string>Faces</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-             <attribute name="buttonGroup">
-              <string>buttonGroupViewType</string>
-             </attribute>
-            </widget>
-           </item>
-           <item>
-            <widget class="QStackedWidget" name="stackedWidgetTimeStep">
+            <widget class="QTabWidget" name="tabWidget">
              <property name="currentIndex">
-              <number>2</number>
+              <number>0</number>
              </property>
-             <widget class="QWidget" name="pageTimeStepEmpty"/>
-             <widget class="QWidget" name="pageEdgesNormal">
-              <layout class="QVBoxLayout" name="verticalLayout_15">
-               <property name="margin">
-                <number>0</number>
-               </property>
+             <widget class="QWidget" name="tabTimeStep">
+              <attribute name="title">
+               <string>Time step</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_2">
                <item>
-                <widget class="QCheckBox" name="checkBoxTorusOriginalDomainWrapInside">
+                <widget class="QRadioButton" name="radioButtonEdgesNormal">
                  <property name="text">
-                  <string>Edges clipped</string>
+                  <string>Edges</string>
                  </property>
+                 <property name="checkable">
+                  <bool>true</bool>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                 <property name="autoRepeat">
+                  <bool>false</bool>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string>buttonGroupViewType</string>
+                 </attribute>
                 </widget>
                </item>
                <item>
-                <widget class="QCheckBox" name="checkBoxEdgesTessellation">
+                <widget class="QRadioButton" name="radioButtonEdgesTorus">
                  <property name="text">
-                  <string>Tessellation edges</string>
+                  <string>Edges (torus model)</string>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string>buttonGroupViewType</string>
+                 </attribute>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioButtonFaceEdgesTorus">
+                 <property name="text">
+                  <string>Face edges (torus model)</string>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string>buttonGroupViewType</string>
+                 </attribute>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioButtonFacesNormal">
+                 <property name="text">
+                  <string>Faces</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
                  </property>
+                 <attribute name="buttonGroup">
+                  <string>buttonGroupViewType</string>
+                 </attribute>
                 </widget>
                </item>
                <item>
-                <spacer name="verticalSpacer_4">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
+                <widget class="QStackedWidget" name="stackedWidgetTimeStep">
+                 <property name="currentIndex">
+                  <number>2</number>
                  </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                </spacer>
+                 <widget class="QWidget" name="pageTimeStepEmpty"/>
+                 <widget class="QWidget" name="pageEdgesNormal">
+                  <layout class="QVBoxLayout" name="verticalLayout_15">
+                   <property name="margin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <widget class="QCheckBox" name="checkBoxTorusOriginalDomainWrapInside">
+                     <property name="text">
+                      <string>Edges clipped</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QCheckBox" name="checkBoxEdgesTessellation">
+                     <property name="text">
+                      <string>Tessellation edges</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="verticalSpacer_4">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="pageFacesNormal">
+                  <layout class="QFormLayout" name="formLayout_5">
+                   <property name="fieldGrowthPolicy">
+                    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+                   </property>
+                   <property name="horizontalSpacing">
+                    <number>9</number>
+                   </property>
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>9</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <item row="14" column="0">
+                    <widget class="QWidget" name="widgetFaceColor" native="true">
+                     <layout class="QHBoxLayout" name="horizontalLayout_6">
+                      <property name="spacing">
+                       <number>0</number>
+                      </property>
+                      <property name="margin">
+                       <number>0</number>
+                      </property>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item row="17" column="0">
+                    <widget class="QWidget" name="widgetStatisticsType" native="true">
+                     <layout class="QHBoxLayout" name="horizontalLayout_10">
+                      <property name="spacing">
+                       <number>0</number>
+                      </property>
+                      <property name="margin">
+                       <number>0</number>
+                      </property>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item row="19" column="0">
+                    <spacer name="verticalSpacer_3">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="label_3">
+                     <property name="text">
+                      <string>Colored by</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QComboBox" name="comboBoxColor">
+                     <item>
+                      <property name="text">
+                       <string>Velocity along x</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Velocity along y</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Velocity along z</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Velocity magnitute</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Number of sides</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Deformation P/sqrt(A)</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Deformation eigen</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Pressure</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Target volume</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Actual volume</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Data color</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QCheckBox" name="checkBoxShowEdges">
+                     <property name="text">
+                      <string>Show edges</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QLabel" name="labelFacesHistogram">
+                     <property name="text">
+                      <string>Histogram</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QRadioButton" name="radioButtonHistogramNone">
+                     <property name="text">
+                      <string>None</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string>buttonGroupHistogram</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                   <item row="4" column="1">
+                    <widget class="QRadioButton" name="radioButtonHistogramUnicolor">
+                     <property name="text">
+                      <string>Unicolor</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string>buttonGroupHistogram</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                   <item row="5" column="1">
+                    <widget class="QRadioButton" name="radioButtonHistogramColorCoded">
+                     <property name="text">
+                      <string>Color Coded</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string>buttonGroupHistogram</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </widget>
                </item>
               </layout>
              </widget>
-             <widget class="QWidget" name="pageFacesNormal">
-              <layout class="QFormLayout" name="formLayout_5">
-               <property name="fieldGrowthPolicy">
-                <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-               </property>
-               <property name="horizontalSpacing">
-                <number>9</number>
-               </property>
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="topMargin">
-                <number>9</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
-                <number>0</number>
-               </property>
-               <item row="14" column="0">
-                <widget class="QWidget" name="widgetFaceColor" native="true">
-                 <layout class="QHBoxLayout" name="horizontalLayout_6">
-                  <property name="spacing">
-                   <number>0</number>
-                  </property>
-                  <property name="margin">
-                   <number>0</number>
-                  </property>
-                 </layout>
-                </widget>
-               </item>
-               <item row="17" column="0">
-                <widget class="QWidget" name="widgetStatisticsType" native="true">
-                 <layout class="QHBoxLayout" name="horizontalLayout_10">
-                  <property name="spacing">
-                   <number>0</number>
-                  </property>
-                  <property name="margin">
-                   <number>0</number>
-                  </property>
-                 </layout>
-                </widget>
-               </item>
-               <item row="19" column="0">
-                <spacer name="verticalSpacer_3">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_3">
+             <widget class="QWidget" name="tabTimeDependent">
+              <attribute name="title">
+               <string>Time-dependent</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_11">
+               <item>
+                <widget class="QRadioButton" name="radioButtonBubblesPaths">
                  <property name="text">
-                  <string>Colored by</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QComboBox" name="comboBoxColor">
-                 <item>
-                  <property name="text">
-                   <string>Velocity along x</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Velocity along y</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Velocity along z</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Velocity magnitute</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Number of sides</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Deformation P/sqrt(A)</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Deformation eigen</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Pressure</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Target volume</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Actual volume</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Data color</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QCheckBox" name="checkBoxShowEdges">
-                 <property name="text">
-                  <string>Show edges</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="0">
-                <widget class="QLabel" name="labelFacesHistogram">
-                 <property name="text">
-                  <string>Histogram</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <widget class="QRadioButton" name="radioButtonHistogramNone">
-                 <property name="text">
-                  <string>None</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
+                  <string>Bubbles Paths</string>
                  </property>
                  <attribute name="buttonGroup">
-                  <string>buttonGroupHistogram</string>
+                  <string>buttonGroupViewType</string>
                  </attribute>
                 </widget>
                </item>
-               <item row="4" column="1">
-                <widget class="QRadioButton" name="radioButtonHistogramUnicolor">
+               <item>
+                <widget class="QRadioButton" name="radioButtonFacesStatistics">
                  <property name="text">
-                  <string>Unicolor</string>
+                  <string>Statistics</string>
                  </property>
                  <attribute name="buttonGroup">
-                  <string>buttonGroupHistogram</string>
+                  <string>buttonGroupViewType</string>
                  </attribute>
                 </widget>
                </item>
-               <item row="5" column="1">
-                <widget class="QRadioButton" name="radioButtonHistogramColorCoded">
+               <item>
+                <widget class="QRadioButton" name="radioButtonT1sPDE">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="text">
-                  <string>Color Coded</string>
+                  <string>T1s Probability Density</string>
                  </property>
                  <attribute name="buttonGroup">
-                  <string>buttonGroupHistogram</string>
+                  <string>buttonGroupViewType</string>
                  </attribute>
+                </widget>
+               </item>
+               <item>
+                <widget class="QStackedWidget" name="stackedWidgetTimeDependent">
+                 <property name="currentIndex">
+                  <number>2</number>
+                 </property>
+                 <widget class="QWidget" name="pageTimeDependentEmpty"/>
+                 <widget class="QWidget" name="pageCenterPath">
+                  <layout class="QFormLayout" name="formLayout_7">
+                   <property name="fieldGrowthPolicy">
+                    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+                   </property>
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>9</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>9</number>
+                   </property>
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_2">
+                     <property name="text">
+                      <string>Colored by</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QLabel" name="labelCenterPathColor">
+                     <property name="text">
+                      <string/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QCheckBox" name="checkBoxCenterPathBody">
+                     <property name="text">
+                      <string>Show body</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QLabel" name="label_5">
+                     <property name="text">
+                      <string>Time Displacement</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QSlider" name="horizontalSliderTimeDisplacement">
+                     <property name="maximum">
+                      <number>99</number>
+                     </property>
+                     <property name="pageStep">
+                      <number>10</number>
+                     </property>
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="tickPosition">
+                      <enum>QSlider::TicksAbove</enum>
+                     </property>
+                     <property name="tickInterval">
+                      <number>10</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QWidget" name="widgetCenterPathColor" native="true">
+                     <layout class="QHBoxLayout" name="horizontalLayout_5">
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item row="6" column="0">
+                    <widget class="QWidget" name="widgetTimeDisplacement" native="true">
+                     <layout class="QHBoxLayout" name="horizontalLayout_8">
+                      <property name="margin">
+                       <number>0</number>
+                      </property>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item row="7" column="0">
+                    <spacer name="verticalSpacer">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QCheckBox" name="checkBoxLineCenterPathUsed">
+                     <property name="text">
+                      <string>Line / Tube</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QCheckBox" name="checkBoxTubeCenterPathUsed">
+                     <property name="text">
+                      <string>Tube / Quadric</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QCheckBox" name="checkBoxCenterPathHidden">
+                     <property name="text">
+                      <string>Path hidden</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="pageFacesStatistics">
+                  <layout class="QFormLayout" name="formLayout_6">
+                   <property name="fieldGrowthPolicy">
+                    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+                   </property>
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>9</number>
+                   </property>
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_7">
+                     <property name="text">
+                      <string>Colored by</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QLabel" name="labelFacesStatisticsColor">
+                     <property name="text">
+                      <string/>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="label_22">
+                     <property name="text">
+                      <string>Statistics Type</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QComboBox" name="comboBoxStatisticsType">
+                     <item>
+                      <property name="text">
+                       <string>Average</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Minimum</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Maximum</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Count</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QLabel" name="labelStatisticsTimeWindow">
+                     <property name="text">
+                      <string>Time window</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QSpinBox" name="spinBoxStatisticsTimeWindow">
+                     <property name="minimum">
+                      <number>1</number>
+                     </property>
+                     <property name="value">
+                      <number>1</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QLabel" name="labelStatisticsLinkedTimeWindowTitle">
+                     <property name="text">
+                      <string>Linked time window:</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QLabel" name="labelStatisticsLinkedTimeWindow">
+                     <property name="text">
+                      <string>0</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="pageT1sProbabilityDensity">
+                  <layout class="QFormLayout" name="formLayout_13">
+                   <property name="fieldGrowthPolicy">
+                    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+                   </property>
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_28">
+                     <property name="text">
+                      <string>Texture Size</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QSlider" name="horizontalSliderT1sKernelTextureSize">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QCheckBox" name="checkBoxTextureSizeShown">
+                     <property name="text">
+                      <string>Shown</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QSlider" name="horizontalSliderT1sKernelIntervalPerPixel">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QLabel" name="label_31">
+                     <property name="text">
+                      <string>Sigma</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QSlider" name="horizontalSliderT1sKernelSigma">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QLabel" name="label_30">
+                     <property name="text">
+                      <string>Interval / Pixel</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
                 </widget>
                </item>
               </layout>
@@ -1909,317 +1892,247 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="timeDependent">
+         <widget class="QWidget" name="tabOverlay">
           <attribute name="title">
-           <string>Time-dependent</string>
+           <string>Overlay</string>
           </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_11">
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="margin">
+            <number>0</number>
+           </property>
            <item>
-            <widget class="QRadioButton" name="radioButtonBubblesPaths">
-             <property name="text">
-              <string>Bubbles Paths</string>
-             </property>
-             <attribute name="buttonGroup">
-              <string>buttonGroupViewType</string>
-             </attribute>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="radioButtonFacesStatistics">
-             <property name="text">
-              <string>Statistics</string>
-             </property>
-             <attribute name="buttonGroup">
-              <string>buttonGroupViewType</string>
-             </attribute>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="radioButtonT1sPDE">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>T1s Probability Density</string>
-             </property>
-             <attribute name="buttonGroup">
-              <string>buttonGroupViewType</string>
-             </attribute>
-            </widget>
-           </item>
-           <item>
-            <widget class="QStackedWidget" name="stackedWidgetTimeDependent">
+            <widget class="QTabWidget" name="tabWidgetShow">
              <property name="currentIndex">
-              <number>2</number>
+              <number>1</number>
              </property>
-             <widget class="QWidget" name="pageTimeDependentEmpty"/>
-             <widget class="QWidget" name="pageCenterPath">
-              <layout class="QFormLayout" name="formLayout_7">
-               <property name="fieldGrowthPolicy">
-                <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-               </property>
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="topMargin">
-                <number>9</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
-                <number>9</number>
-               </property>
+             <widget class="QWidget" name="tabT1">
+              <attribute name="title">
+               <string>T1</string>
+              </attribute>
+              <layout class="QFormLayout" name="formLayout_10">
                <item row="0" column="0">
-                <widget class="QLabel" name="label_2">
+                <widget class="QCheckBox" name="checkBoxT1sShown">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="text">
-                  <string>Colored by</string>
+                  <string>Show</string>
                  </property>
                 </widget>
                </item>
                <item row="0" column="1">
-                <widget class="QLabel" name="labelCenterPathColor">
+                <widget class="QCheckBox" name="checkBoxT1sShiftLower">
                  <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QCheckBox" name="checkBoxCenterPathBody">
-                 <property name="text">
-                  <string>Show body</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="0">
-                <widget class="QLabel" name="label_5">
-                 <property name="text">
-                  <string>Time Displacement</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <widget class="QSlider" name="horizontalSliderTimeDisplacement">
-                 <property name="maximum">
-                  <number>99</number>
-                 </property>
-                 <property name="pageStep">
-                  <number>10</number>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="tickPosition">
-                  <enum>QSlider::TicksAbove</enum>
-                 </property>
-                 <property name="tickInterval">
-                  <number>10</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="0">
-                <widget class="QWidget" name="widgetCenterPathColor" native="true">
-                 <layout class="QHBoxLayout" name="horizontalLayout_5">
-                  <property name="topMargin">
-                   <number>0</number>
-                  </property>
-                  <property name="bottomMargin">
-                   <number>0</number>
-                  </property>
-                 </layout>
-                </widget>
-               </item>
-               <item row="6" column="0">
-                <widget class="QWidget" name="widgetTimeDisplacement" native="true">
-                 <layout class="QHBoxLayout" name="horizontalLayout_8">
-                  <property name="margin">
-                   <number>0</number>
-                  </property>
-                 </layout>
-                </widget>
-               </item>
-               <item row="7" column="0">
-                <spacer name="verticalSpacer">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item row="2" column="1">
-                <widget class="QCheckBox" name="checkBoxLineCenterPathUsed">
-                 <property name="text">
-                  <string>Line / Tube</string>
+                  <string>Shift lower</string>
                  </property>
                 </widget>
                </item>
                <item row="1" column="1">
-                <widget class="QCheckBox" name="checkBoxTubeCenterPathUsed">
+                <widget class="QSlider" name="horizontalSliderT1Size">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="labelT1Size">
                  <property name="text">
-                  <string>Tube / Quadric</string>
+                  <string>Size</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tabVelocity">
+              <attribute name="title">
+               <string>Velocity</string>
+              </attribute>
+              <layout class="QFormLayout" name="formLayout_14">
+               <item row="0" column="0">
+                <widget class="QCheckBox" name="checkBoxVelocityShown">
+                 <property name="text">
+                  <string>Show</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QCheckBox" name="checkBoxVelocityGridShown">
+                 <property name="text">
+                  <string>Grid</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_34">
+                 <property name="text">
+                  <string>Size</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QSlider" name="horizontalSliderVelocitySize">
+                 <property name="minimum">
+                  <number>0</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="label_33">
+                 <property name="text">
+                  <string>Line width</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QSlider" name="horizontalSliderVelocityLineWidth">
+                 <property name="value">
+                  <number>0</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QCheckBox" name="checkBoxVelocityClampingShown">
+                 <property name="text">
+                  <string>Clamping</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tabDeformation">
+              <attribute name="title">
+               <string>Deformation</string>
+              </attribute>
+              <layout class="QFormLayout" name="formLayout_8">
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_27">
+                 <property name="text">
+                  <string>Size</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QSlider" name="horizontalSliderDeformationSize">
+                 <property name="minimum">
+                  <number>0</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="label_29">
+                 <property name="text">
+                  <string>Line width</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QSlider" name="horizontalSliderDeformationLineWidth">
+                 <property name="value">
+                  <number>0</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QCheckBox" name="checkBoxDeformationGrid">
+                 <property name="text">
+                  <string>Show grid</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QCheckBox" name="checkBoxShowDeformation">
+                 <property name="text">
+                  <string>Show</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QCheckBox" name="checkBoxDeformationGridCellCenter">
+                 <property name="text">
+                  <string>Show grid cell center</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tabForce">
+              <attribute name="title">
+               <string>Force</string>
+              </attribute>
+              <layout class="QFormLayout" name="formLayout_12">
+               <item row="0" column="0">
+                <widget class="QCheckBox" name="checkBoxForceNetwork">
+                 <property name="text">
+                  <string>Network (h1)</string>
                  </property>
                  <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QCheckBox" name="checkBoxCenterPathHidden">
-                 <property name="text">
-                  <string>Path hidden</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-             <widget class="QWidget" name="pageFacesStatistics">
-              <layout class="QFormLayout" name="formLayout_6">
-               <property name="fieldGrowthPolicy">
-                <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-               </property>
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
-                <number>9</number>
-               </property>
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_7">
-                 <property name="text">
-                  <string>Colored by</string>
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
                <item row="0" column="1">
-                <widget class="QLabel" name="labelFacesStatisticsColor">
+                <widget class="QCheckBox" name="checkBoxForcePressure">
                  <property name="text">
-                  <string/>
+                  <string>Pressure (h2)</string>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
                <item row="1" column="0">
-                <widget class="QLabel" name="label_22">
+                <widget class="QCheckBox" name="checkBoxForceResult">
                  <property name="text">
-                  <string>Statistics Type</string>
+                  <string>Result (h3)</string>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
-               <item row="1" column="1">
-                <widget class="QComboBox" name="comboBoxStatisticsType">
-                 <item>
-                  <property name="text">
-                   <string>Average</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Minimum</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Maximum</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Count</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
                <item row="2" column="0">
-                <widget class="QLabel" name="labelStatisticsTimeWindow">
+                <widget class="QLabel" name="label_26">
                  <property name="text">
-                  <string>Time window</string>
+                  <string>Size</string>
                  </property>
                 </widget>
                </item>
                <item row="2" column="1">
-                <widget class="QSpinBox" name="spinBoxStatisticsTimeWindow">
-                 <property name="minimum">
-                  <number>1</number>
+                <widget class="QSlider" name="horizontalSliderForceSize">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
                  </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="label_36">
+                 <property name="text">
+                  <string>Line width</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QSlider" name="horizontalSliderForceLineWidth">
                  <property name="value">
-                  <number>1</number>
+                  <number>0</number>
                  </property>
-                </widget>
-               </item>
-               <item row="3" column="0">
-                <widget class="QLabel" name="labelStatisticsLinkedTimeWindowTitle">
-                 <property name="text">
-                  <string>Linked time window:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <widget class="QLabel" name="labelStatisticsLinkedTimeWindow">
-                 <property name="text">
-                  <string>0</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-             <widget class="QWidget" name="pageT1sProbabilityDensity">
-              <layout class="QFormLayout" name="formLayout_13">
-               <property name="fieldGrowthPolicy">
-                <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-               </property>
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_28">
-                 <property name="text">
-                  <string>Texture Size</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QSlider" name="horizontalSliderT1sKernelTextureSize">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QCheckBox" name="checkBoxTextureSizeShown">
-                 <property name="text">
-                  <string>Shown</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QSlider" name="horizontalSliderT1sKernelIntervalPerPixel">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="0">
-                <widget class="QLabel" name="label_31">
-                 <property name="text">
-                  <string>Sigma</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <widget class="QSlider" name="horizontalSliderT1sKernelSigma">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="label_30">
-                 <property name="text">
-                  <string>Interval / Pixel</string>
                  </property>
                 </widget>
                </item>
@@ -2402,6 +2315,8 @@
     <slot>ToggledIsSelectionContextShown(bool)</slot>
     <slot>ToggledSelectionContextShown(bool)</slot>
     <slot>ToggledObjectVelocityShown(bool)</slot>
+    <slot>ToggledVelocityGridShown(bool)</slot>
+    <slot>ToggledVelocityClampingShown(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -2442,8 +2357,8 @@
    <slot>ClickedPlay()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>842</x>
-     <y>106</y>
+     <x>850</x>
+     <y>100</y>
     </hint>
     <hint type="destinationlabel">
      <x>66</x>
@@ -2458,8 +2373,8 @@
    <slot>ClickedBegin()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>776</x>
-     <y>106</y>
+     <x>794</x>
+     <y>100</y>
     </hint>
     <hint type="destinationlabel">
      <x>38</x>
@@ -2474,8 +2389,8 @@
    <slot>ClickedEnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>888</x>
-     <y>106</y>
+     <x>889</x>
+     <y>100</y>
     </hint>
     <hint type="destinationlabel">
      <x>53</x>
@@ -2490,8 +2405,8 @@
    <slot>ToggledSaveMovie(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1015</x>
-     <y>105</y>
+     <x>1024</x>
+     <y>98</y>
     </hint>
     <hint type="destinationlabel">
      <x>343</x>
@@ -2522,8 +2437,8 @@
    <slot>ToggledCenterPathBodyShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>716</x>
-     <y>262</y>
+     <x>806</x>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2538,8 +2453,8 @@
    <slot>ToggledBodyCenterShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>721</x>
-     <y>242</y>
+     <x>779</x>
+     <y>186</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2554,8 +2469,8 @@
    <slot>ToggledEdgesTessellation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>738</x>
-     <y>299</y>
+     <x>806</x>
+     <y>241</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2570,8 +2485,8 @@
    <slot>CurrentIndexChangedFaceColor(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1015</x>
-     <y>314</y>
+     <x>814</x>
+     <y>218</y>
     </hint>
     <hint type="destinationlabel">
      <x>780</x>
@@ -2590,8 +2505,8 @@
      <y>34</y>
     </hint>
     <hint type="destinationlabel">
-     <x>602</x>
-     <y>20</y>
+     <x>620</x>
+     <y>534</y>
     </hint>
    </hints>
   </connection>
@@ -2634,8 +2549,8 @@
    <slot>SelectionChangedHistogram()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>602</x>
-     <y>20</y>
+     <x>620</x>
+     <y>534</y>
     </hint>
     <hint type="destinationlabel">
      <x>336</x>
@@ -2666,8 +2581,8 @@
    <slot>ToggledFacesShowEdges(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>736</x>
-     <y>337</y>
+     <x>805</x>
+     <y>220</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2682,8 +2597,8 @@
    <slot>ValueChangedTimeDisplacement(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>738</x>
-     <y>272</y>
+     <x>806</x>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2698,8 +2613,8 @@
    <slot>ToggledTorusOriginalDomainClipped(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>738</x>
-     <y>287</y>
+     <x>806</x>
+     <y>241</y>
     </hint>
     <hint type="destinationlabel">
      <x>414</x>
@@ -2714,8 +2629,8 @@
    <slot>ToggledSelectionContextShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>849</x>
-     <y>237</y>
+     <x>697</x>
+     <y>204</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2730,8 +2645,8 @@
    <slot>ToggledContextView(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>686</x>
-     <y>248</y>
+     <x>779</x>
+     <y>189</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -2746,8 +2661,8 @@
    <slot>ValueChangedContextAlpha(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>908</x>
-     <y>355</y>
+     <x>779</x>
+     <y>195</y>
     </hint>
     <hint type="destinationlabel">
      <x>424</x>
@@ -2762,8 +2677,8 @@
    <slot>ValueChangedEdgesRadius(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>908</x>
-     <y>319</y>
+     <x>779</x>
+     <y>191</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2778,8 +2693,8 @@
    <slot>ToggledTorusOriginalDomainShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>661</x>
-     <y>250</y>
+     <x>697</x>
+     <y>207</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2794,8 +2709,8 @@
    <slot>ToggledBoundingBoxShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>721</x>
-     <y>246</y>
+     <x>697</x>
+     <y>195</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2810,8 +2725,8 @@
    <slot>ValueChangedAngleOfView(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>859</x>
-     <y>247</y>
+     <x>779</x>
+     <y>186</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2826,8 +2741,8 @@
    <slot>ToggledAxesShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>721</x>
-     <y>250</y>
+     <x>779</x>
+     <y>183</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2842,8 +2757,8 @@
    <slot>ToggledLightNumberShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>936</x>
-     <y>282</y>
+     <x>797</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
      <x>424</x>
@@ -2858,8 +2773,8 @@
    <slot>CurrentIndexChangedAxesOrder(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>965</x>
-     <y>280</y>
+     <x>779</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2874,8 +2789,8 @@
    <slot>ValueChangedFontSize(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>881</x>
-     <y>245</y>
+     <x>779</x>
+     <y>184</y>
     </hint>
     <hint type="destinationlabel">
      <x>868</x>
@@ -2890,8 +2805,8 @@
    <slot>ToggledHistogramGridShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>785</x>
-     <y>296</y>
+     <x>779</x>
+     <y>195</y>
     </hint>
     <hint type="destinationlabel">
      <x>869</x>
@@ -2906,8 +2821,8 @@
    <slot>ToggledDirectionalLightEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>763</x>
-     <y>282</y>
+     <x>797</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
      <x>457</x>
@@ -2922,8 +2837,8 @@
    <slot>ToggledBodiesBoundingBoxesShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>661</x>
-     <y>246</y>
+     <x>697</x>
+     <y>186</y>
     </hint>
     <hint type="destinationlabel">
      <x>506</x>
@@ -2938,8 +2853,8 @@
    <slot>CurrentIndexChangedSelectedLight(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>952</x>
-     <y>244</y>
+     <x>797</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -2954,8 +2869,8 @@
    <slot>CurrentIndexChangedSelectedLight(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>952</x>
-     <y>244</y>
+     <x>797</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
      <x>879</x>
@@ -2970,8 +2885,8 @@
    <slot>ToggledLightEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>763</x>
-     <y>263</y>
+     <x>797</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -2986,8 +2901,8 @@
    <slot>ValueChangedLightAmbientRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>986</x>
-     <y>366</y>
+     <x>806</x>
+     <y>231</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3002,8 +2917,8 @@
    <slot>ValueChangedLightDiffuseRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>729</x>
-     <y>345</y>
+     <x>806</x>
+     <y>231</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3018,8 +2933,8 @@
    <slot>ValueChangedLightAmbientGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>986</x>
-     <y>397</y>
+     <x>806</x>
+     <y>237</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3034,8 +2949,8 @@
    <slot>ValueChangedLightAmbientBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>986</x>
-     <y>427</y>
+     <x>806</x>
+     <y>243</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3050,8 +2965,8 @@
    <slot>ValueChangedLightDiffuseGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>729</x>
-     <y>352</y>
+     <x>806</x>
+     <y>237</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3066,8 +2981,8 @@
    <slot>ValueChangedLightDiffuseBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>729</x>
-     <y>358</y>
+     <x>806</x>
+     <y>243</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3082,8 +2997,8 @@
    <slot>ValueChangedLightSpecularRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>729</x>
-     <y>346</y>
+     <x>806</x>
+     <y>231</y>
     </hint>
     <hint type="destinationlabel">
      <x>486</x>
@@ -3098,8 +3013,8 @@
    <slot>ValueChangedLightSpecularGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>729</x>
-     <y>377</y>
+     <x>806</x>
+     <y>237</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3114,8 +3029,8 @@
    <slot>ValueChangedLightSpecularBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>729</x>
-     <y>408</y>
+     <x>806</x>
+     <y>243</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3130,8 +3045,8 @@
    <slot>ToggledCenterPathTubeUsed(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>747</x>
-     <y>262</y>
+     <x>806</x>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3146,8 +3061,8 @@
    <slot>CurrentIndexChangedStatisticsType(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1015</x>
-     <y>316</y>
+     <x>806</x>
+     <y>224</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3162,8 +3077,8 @@
    <slot>CurrentIndexChangedStatisticsType(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1015</x>
-     <y>316</y>
+     <x>806</x>
+     <y>224</y>
     </hint>
     <hint type="destinationlabel">
      <x>874</x>
@@ -3178,8 +3093,8 @@
    <slot>ValueChangedStatisticsTimeWindow(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1012</x>
-     <y>347</y>
+     <x>806</x>
+     <y>229</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3194,8 +3109,8 @@
    <slot>ToggledT1sShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>687</x>
-     <y>245</y>
+     <x>725</x>
+     <y>219</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3210,8 +3125,8 @@
    <slot>ToggledT1sShiftLower(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>721</x>
-     <y>245</y>
+     <x>781</x>
+     <y>219</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3226,8 +3141,8 @@
    <slot>CurrentIndexChangedViewCount(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>715</x>
-     <y>238</y>
+     <x>779</x>
+     <y>183</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3242,8 +3157,8 @@
    <slot>CurrentIndexChangedViewLayout(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>715</x>
-     <y>242</y>
+     <x>779</x>
+     <y>186</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3258,8 +3173,8 @@
    <slot>CurrentIndexChangedViewCount(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>715</x>
-     <y>238</y>
+     <x>779</x>
+     <y>183</y>
     </hint>
     <hint type="destinationlabel">
      <x>874</x>
@@ -3274,8 +3189,8 @@
    <slot>ValueChangedT1Size(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>716</x>
-     <y>253</y>
+     <x>781</x>
+     <y>228</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3290,8 +3205,8 @@
    <slot>ToggledMissingPressureShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>829</x>
-     <y>317</y>
+     <x>697</x>
+     <y>198</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3306,8 +3221,8 @@
    <slot>ToggledTitleShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>879</x>
-     <y>296</y>
+     <x>779</x>
+     <y>204</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3322,8 +3237,8 @@
    <slot>ToggledAverageAroundMarked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>829</x>
-     <y>382</y>
+     <x>697</x>
+     <y>183</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3338,8 +3253,8 @@
    <slot>ToggledCenterPathLineUsed(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>747</x>
-     <y>264</y>
+     <x>806</x>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3354,8 +3269,8 @@
    <slot>ValueChangedHistogramHeight(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>881</x>
-     <y>280</y>
+     <x>779</x>
+     <y>188</y>
     </hint>
     <hint type="destinationlabel">
      <x>872</x>
@@ -3370,8 +3285,8 @@
    <slot>CurrentIndexChangedWindowSize(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>954</x>
-     <y>434</y>
+     <x>779</x>
+     <y>206</y>
     </hint>
     <hint type="destinationlabel">
      <x>1018</x>
@@ -3386,8 +3301,8 @@
    <slot>ToggledStandaloneElementsShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>921</x>
-     <y>317</y>
+     <x>779</x>
+     <y>201</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3402,8 +3317,8 @@
    <slot>ValueChangedHighlightLineWidth(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>905</x>
-     <y>398</y>
+     <x>779</x>
+     <y>202</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3418,8 +3333,8 @@
    <slot>ValueChangedForceSizeExp(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>716</x>
-     <y>253</y>
+     <x>781</x>
+     <y>226</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3434,8 +3349,8 @@
    <slot>ToggledForcePressureShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>721</x>
-     <y>240</y>
+     <x>781</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3450,8 +3365,8 @@
    <slot>ToggledForceNetworkShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>687</x>
-     <y>240</y>
+     <x>757</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3466,8 +3381,8 @@
    <slot>ToggledForceResultShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>687</x>
-     <y>245</y>
+     <x>757</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3482,8 +3397,8 @@
    <slot>ToggledMissingVolumeShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>829</x>
-     <y>338</y>
+     <x>779</x>
+     <y>198</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3546,8 +3461,8 @@
    <slot>ClickedPlayReverse()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>809</x>
-     <y>106</y>
+     <x>822</x>
+     <y>100</y>
     </hint>
     <hint type="destinationlabel">
      <x>1020</x>
@@ -3562,8 +3477,8 @@
    <slot>ToggledFaceCenterShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>661</x>
-     <y>242</y>
+     <x>779</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3578,8 +3493,8 @@
    <slot>ValueChangedDeformationSizeExp(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>716</x>
-     <y>253</y>
+     <x>781</x>
+     <y>226</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3594,8 +3509,8 @@
    <slot>ToggledShowDeformation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>687</x>
-     <y>240</y>
+     <x>757</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3610,8 +3525,8 @@
    <slot>ToggledCenterPathHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>716</x>
-     <y>264</y>
+     <x>806</x>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3626,8 +3541,8 @@
    <slot>ToggledBodyNeighborsShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>661</x>
-     <y>256</y>
+     <x>697</x>
+     <y>189</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3642,8 +3557,8 @@
    <slot>ValueChangedDeformationLineWidthExp(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>716</x>
-     <y>260</y>
+     <x>781</x>
+     <y>231</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3690,8 +3605,8 @@
    <slot>ValueChangedT1sKernelTextureSize(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>730</x>
-     <y>264</y>
+     <x>806</x>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>585</x>
@@ -3706,8 +3621,8 @@
    <slot>ValueChangedT1sKernelIntervalPerPixel(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>730</x>
-     <y>280</y>
+     <x>806</x>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -3722,8 +3637,8 @@
    <slot>ValueChangedT1sKernelSigma(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>730</x>
-     <y>287</y>
+     <x>806</x>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -3738,8 +3653,8 @@
    <slot>ToggledShowDeformationGrid(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>721</x>
-     <y>240</y>
+     <x>781</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -3754,8 +3669,8 @@
    <slot>ToggledShowDeformationGridCellCenter(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>721</x>
-     <y>245</y>
+     <x>781</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -3770,8 +3685,8 @@
    <slot>ToggledT1sKernelTextureSizeShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>735</x>
-     <y>272</y>
+     <x>806</x>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -3786,8 +3701,8 @@
    <slot>ValueChangedT1sKernelSigma(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>730</x>
-     <y>287</y>
+     <x>806</x>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>1039</x>
@@ -3802,8 +3717,8 @@
    <slot>CurrentIndexChangedSimulation(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1030</x>
-     <y>156</y>
+     <x>1033</x>
+     <y>141</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -3850,8 +3765,8 @@
    <slot>ValueChangedStatisticsTimeWindow(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1000</x>
-     <y>342</y>
+     <x>806</x>
+     <y>229</y>
     </hint>
     <hint type="destinationlabel">
      <x>1040</x>
@@ -3860,14 +3775,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxShowVelocity</sender>
+   <sender>checkBoxVelocityShown</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledShowVelocity(bool)</slot>
+   <slot>ToggledVelocityShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>828</x>
-     <y>263</y>
+     <x>759</x>
+     <y>237</y>
     </hint>
     <hint type="destinationlabel">
      <x>589</x>
@@ -3876,14 +3791,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxVelocityGrid</sender>
+   <sender>checkBoxVelocityGridShown</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
-   <slot>ToggledShowVelocityGrid(bool)</slot>
+   <slot>ToggledVelocityGridShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>883</x>
-     <y>254</y>
+     <x>1020</x>
+     <y>237</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
@@ -3930,8 +3845,8 @@
    <slot>ValueChangedForceLineWidthExp(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>716</x>
-     <y>260</y>
+     <x>781</x>
+     <y>231</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -3946,8 +3861,8 @@
    <slot>ToggledViewFocusShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>939</x>
-     <y>237</y>
+     <x>779</x>
+     <y>207</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -3962,8 +3877,8 @@
    <slot>ToggledConstraintsShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>855</x>
-     <y>321</y>
+     <x>779</x>
+     <y>189</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -3978,8 +3893,8 @@
    <slot>ToggledConstraintPointsShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>961</x>
-     <y>359</y>
+     <x>697</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -3994,8 +3909,8 @@
    <slot>ToggledReflectedHalfView(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>712</x>
-     <y>248</y>
+     <x>779</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
      <x>1036</x>
@@ -4004,18 +3919,34 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBox</sender>
+   <sender>checkBoxObjectVelocity</sender>
    <signal>toggled(bool)</signal>
    <receiver>widgetGl</receiver>
    <slot>ToggledObjectVelocityShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>781</x>
-     <y>352</y>
+     <x>697</x>
+     <y>201</y>
     </hint>
     <hint type="destinationlabel">
      <x>558</x>
      <y>380</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBoxVelocityClampingShown</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widgetGl</receiver>
+   <slot>ToggledVelocityClampingShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>747</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>638</x>
+     <y>369</y>
     </hint>
    </hints>
   </connection>

@@ -34,6 +34,7 @@ TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
     m_tensorAverageTexUnitLocation = uniformLocation("u_tensorAverageTexUnit");
     m_scalarAverageTexUnitLocation = uniformLocation("u_scalarAverageTexUnit");
     m_gridShownLocation = uniformLocation ("u_gridShown");
+    m_clampingShownLocation = uniformLocation ("u_clampingShown");
     m_gridCellCenterShownLocation = 
 	uniformLocation ("u_gridCellCenterShown");
     m_onePixelInObjectSpaceLocation = 
@@ -44,7 +45,8 @@ void TensorDisplay::Bind (
     G3D::Vector2 gridTranslation, float cellLength, float lineWidth,
     float ellipseSizeRatio, G3D::Rect2D enclosingRect, 
     G3D::Vector2 rotationCenter,
-    bool gridShown, bool gridCellCenterShown, float onePixelInObjectSpace)
+    bool gridShown, bool clampingShown, bool gridCellCenterShown,
+    float onePixelInObjectSpace)
 {
     ShaderProgram::Bind ();
     setUniformValue (
@@ -63,6 +65,7 @@ void TensorDisplay::Bind (
     setUniformValue (
 	m_scalarAverageTexUnitLocation, GetScalarAverageTexUnit ());
     setUniformValue (m_gridShownLocation, gridShown);
+    setUniformValue (m_clampingShownLocation, clampingShown);
     setUniformValue (m_gridCellCenterShownLocation, 
 		     gridCellCenterShown);
     setUniformValue (m_onePixelInObjectSpaceLocation, onePixelInObjectSpace);
@@ -117,7 +120,7 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
     m_displayShaderProgram->Bind (
 	gridTranslation, cellLength, lineWidth, 
 	sizeRatio, enclosingRect, rotationCenter,
-	m_gridShown, m_gridCellCenterShown, 
+	m_gridShown, m_clampingShown, m_gridCellCenterShown, 
 	onePixelInObjectSpace);
 
     // activate texture unit 1 - tensor average

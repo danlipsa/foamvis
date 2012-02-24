@@ -330,8 +330,9 @@ public Q_SLOTS:
     void ToggledObjectVelocityShown (bool checked);
     void ToggledShowDeformation (bool checked);
     void ToggledShowDeformationGrid (bool checked);
-    void ToggledShowVelocity (bool checked);
-    void ToggledShowVelocityGrid (bool checked);
+    void ToggledVelocityShown (bool checked);
+    void ToggledVelocityGridShown (bool checked);
+    void ToggledVelocityClampingShown (bool checked);
     void ToggledShowDeformationGridCellCenter (bool checked);
 
     void SetBodyOrFaceProperty (

@@ -114,7 +114,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
 
 void MainWindow::configureInterface ()
 {
-    tabWidget->setCurrentWidget (timeStep);
+    tabWidget->setCurrentWidget (tabTimeStep);
     comboBoxWindowSize->setCurrentIndex (WindowSize::GL_720x480);
     horizontalSliderForceSize->setValue (49);
     comboBoxColor->setCurrentIndex (BodyProperty::PRESSURE);
@@ -276,8 +276,8 @@ void MainWindow::deformationViewToUI ()
 void MainWindow::velocityViewToUI ()
 {
     const ViewSettings& vs = widgetGl->GetViewSettings ();
-    SetCheckedNoSignals (checkBoxShowVelocity, vs.IsVelocityShown ());
-    SetCheckedNoSignals (checkBoxVelocityGrid, 
+    SetCheckedNoSignals (checkBoxVelocityShown, vs.IsVelocityShown ());
+    SetCheckedNoSignals (checkBoxVelocityGridShown, 
 			 vs.GetVelocityAverage ().IsGridShown ());
     SetValueNoSignals (
 	horizontalSliderVelocitySize, 
