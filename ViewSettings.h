@@ -98,21 +98,21 @@ public:
     {
 	return m_colorBarModel;
     }
-    boost::shared_ptr<ColorBarModel> GetColorBarModelOverlay () const
+    boost::shared_ptr<ColorBarModel> GetOverlayBarModel () const
     {
-	return m_colorBarModelOverlay;
+	return m_overlayBarModel;
     }
     void SetColorBarModel (
 	const boost::shared_ptr<ColorBarModel>& colorBarModel);
-    void SetColorBarModelOverlay (
+    void SetOverlayBarModel (
 	const boost::shared_ptr<ColorBarModel>& colorBarModel);
     void ResetColorBarModel ()
     {
 	m_colorBarModel.reset ();
     }
-    void ResetColorBarModelOverlay ()
+    void ResetOverlayBarModel ()
     {
-	m_colorBarModelOverlay.reset ();
+	m_overlayBarModel.reset ();
     }
 
 
@@ -128,7 +128,7 @@ public:
     {
 	return m_colorBarTexture[0];
     }
-    GLuint GetColorBarTextureOverlay () const
+    GLuint GetOverlayBarTexture () const
     {
 	return m_colorBarTexture[1];
     }
@@ -571,7 +571,7 @@ private:
     boost::shared_ptr<VectorAverage> m_velocityAverage;
     boost::shared_ptr<ForceAverage> m_forceAverage;
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
-    boost::shared_ptr<ColorBarModel> m_colorBarModelOverlay;
+    boost::shared_ptr<ColorBarModel> m_overlayBarModel;
     G3D::Matrix3 m_rotationModel;
     G3D::Rect2D m_viewport;
     double m_scaleRatio;

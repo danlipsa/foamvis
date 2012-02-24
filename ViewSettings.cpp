@@ -114,7 +114,7 @@ void ViewSettings::initTexture ()
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-    glBindTexture (GL_TEXTURE_1D, GetColorBarTextureOverlay ());
+    glBindTexture (GL_TEXTURE_1D, GetOverlayBarTexture ());
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -261,14 +261,14 @@ void ViewSettings::SetColorBarModel (
     }
 }
 
-void ViewSettings::SetColorBarModelOverlay (
+void ViewSettings::SetOverlayBarModel (
     const boost::shared_ptr<ColorBarModel>& colorBarModel)
 {
-    m_colorBarModelOverlay = colorBarModel;
+    m_overlayBarModel = colorBarModel;
     if (colorBarModel)
     {
 	const QImage image = colorBarModel->GetImage ();
-	glBindTexture (GL_TEXTURE_1D, GetColorBarTextureOverlay ());
+	glBindTexture (GL_TEXTURE_1D, GetOverlayBarTexture ());
 	glTexImage1D (GL_TEXTURE_1D, 0, GL_RGB, image.width (),
 		      0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
     }
