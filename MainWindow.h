@@ -17,7 +17,7 @@ class SimulationGroup;
 class ProcessBodyTorus;
 
 /**
- * Class that contains the OpenGL widget and all other UI.
+ * Class that contains the OpenGL widget and the  UI widgets.
  */
 class MainWindow : public QMainWindow, private Ui::MainWindow
 {
@@ -169,9 +169,19 @@ private:
     void configureInterfaceDataDependent (
 	const SimulationGroup& simulationGroup);
     void configureInterface ();
-    void setupColorBarModel (size_t simulationIndex, 
-			     ViewNumber::Enum viewNumber,
-			     BodyProperty::Enum property);
+    void setupColorBarModelBodyProperty (
+	size_t simulationIndex, 
+	ViewNumber::Enum viewNumber, BodyProperty::Enum property);
+    void setupColorBarModelDomainHistogram (
+	size_t simulationIndex, ViewNumber::Enum viewNumber);
+    void setupColorBarModelVelocityVector (
+	size_t simulationIndex, ViewNumber::Enum viewNumber);
+    void setupColorBarModelT1sPDE (
+	size_t simulationIndex, ViewNumber::Enum viewNumber);
+
+    void setupColorBarModel (
+	boost::shared_ptr<ColorBarModel>& colorBarModel, 
+	BodyProperty::Enum property, size_t simulationIndex);
     void setupColorBarModels (size_t simulationIndex, 
 			      ViewNumber::Enum viewNumber);
     void setupColorBarModels ();
@@ -231,20 +241,20 @@ private:
 
     HistogramType::Enum m_histogramType;
     ViewNumber::Enum m_histogramViewNumber;
-    /*
-     * Index order: simulation index, view number, body property
-     */
+    // index order: simulation index, view number, body property
     vector <
 	boost::array<
 	    boost::array<boost::shared_ptr<ColorBarModel>, 
 			 BodyProperty::COUNT>,
 	    ViewNumber::COUNT> > m_colorBarModelBodyProperty;
     vector <
+	boost::array<boost::shared_ptr<ColorBarModel>, 
+		     ViewNumber::COUNT> > m_colorBarModelVelocityVector;
+    vector <
 	boost::array<boost::shared_ptr<ColorBarModel>,
 		     ViewNumber::COUNT> > m_colorBarModelDomainHistogram;
     vector <boost::array<boost::shared_ptr<ColorBarModel>,
-		     ViewNumber::COUNT> > m_colorBarModelT1sPDE;
-
+			 ViewNumber::COUNT> > m_colorBarModelT1sPDE;
     boost::shared_ptr<EditColorMap> m_editColorMap;
     /**
      * True if the program displays data in a loop, false

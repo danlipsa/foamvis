@@ -51,7 +51,6 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_bodyOrFaceProperty (BodyProperty::PRESSURE),
     m_statisticsType (StatisticsType::AVERAGE),
     m_listCenterPaths (0),
-    m_colorBarTexture (0),
     m_scalarAverage (new ScalarAverage (glWidget)),
     m_t1sPDE (new T1sPDE (glWidget)),
     m_deformationAverage (
@@ -93,7 +92,7 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_velocityLineWidth (1),
     m_forceSize (1),
     m_forceLineWidth (1)
-{
+{    
     initTexture ();
     initList ();
     setInitialLightParameters ();
@@ -103,14 +102,19 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
 
 ViewSettings::~ViewSettings ()
 {
-    glDeleteTextures (1, &m_colorBarTexture);
+    glDeleteTextures (2, m_colorBarTexture);
     glDeleteLists (m_listCenterPaths, 1);
 }
 
 void ViewSettings::initTexture ()
 {
-    glGenTextures (1, &m_colorBarTexture);
-    glBindTexture (GL_TEXTURE_1D, m_colorBarTexture);
+    glGenTextures (2, m_colorBarTexture);
+    glBindTexture (GL_TEXTURE_1D, GetColorBarTexture ());
+    glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    glBindTexture (GL_TEXTURE_1D, GetColorBarTextureOverlay ());
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri (GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -256,6 +260,21 @@ void ViewSettings::SetColorBarModel (
 		      0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
     }
 }
+
+void ViewSettings::SetColorBarModelOverlay (
+    const boost::shared_ptr<ColorBarModel>& colorBarModel)
+{
+    m_colorBarModelOverlay = colorBarModel;
+    if (colorBarModel)
+    {
+	const QImage image = colorBarModel->GetImage ();
+	glBindTexture (GL_TEXTURE_1D, GetColorBarTextureOverlay ());
+	glTexImage1D (GL_TEXTURE_1D, 0, GL_RGB, image.width (),
+		      0, GL_BGRA, GL_UNSIGNED_BYTE, image.scanLine (0));
+    }
+}
+
+
 
 void ViewSettings::SetBodySelector (
     boost::shared_ptr<AllBodySelector> selector, BodySelectorType::Enum type)

@@ -4,6 +4,8 @@
  *
  * Contains definitions for the UI class
  */
+// @todo Store the palette per BodyProperty instead of storing it per view 
+//       and simulation index.
 #include "Application.h"
 #include "BodySelector.h"
 #include "ColorBarModel.h"
@@ -805,6 +807,7 @@ void MainWindow::setupColorBarModels ()
 {
     size_t simulationCount = widgetGl->GetSimulationGroup ().size ();
     m_colorBarModelBodyProperty.resize (simulationCount);
+    m_colorBarModelVelocityVector.resize (simulationCount);
     m_colorBarModelDomainHistogram.resize (simulationCount);
     m_colorBarModelT1sPDE.resize (simulationCount);
     for (size_t simulationIndex = 0; simulationIndex < simulationCount; 
@@ -827,55 +830,80 @@ void MainWindow::setupViews ()
 
 void MainWindow::setupColorBarModels (size_t simulationIndex,
 				      ViewNumber::Enum viewNumber)
-{
-    size_t i = 0;
-    BOOST_FOREACH (boost::shared_ptr<ColorBarModel>& colorBarModel,
-		   m_colorBarModelBodyProperty[simulationIndex][viewNumber])
+{    
+    for (size_t i = 0; i < BodyProperty::COUNT; ++i)
     {
 	BodyProperty::Enum property = BodyProperty::FromSizeT (i);
-	colorBarModel.reset (new ColorBarModel ());
-	setupColorBarModel (simulationIndex, viewNumber, property);
-	++i;
+	setupColorBarModelBodyProperty (simulationIndex, viewNumber, property);
     }
-
-    {
-	boost::shared_ptr<ColorBarModel>& colorBarModel = 
-	    m_colorBarModelDomainHistogram[simulationIndex][viewNumber];
-	colorBarModel.reset (new ColorBarModel ());
-	colorBarModel->SetTitle ("Count per area");
-	colorBarModel->SetInterval (
-	    toQwtDoubleInterval (widgetGl->GetRangeCount ()));
-	colorBarModel->SetupPalette (
-	    Palette (PaletteType::SEQUENTIAL, PaletteSequential::BLACK_BODY));
-    }
-
-    {
-	boost::shared_ptr<ColorBarModel>& colorBarModel = 
-	    m_colorBarModelT1sPDE[simulationIndex][viewNumber];
-	colorBarModel.reset (new ColorBarModel ());
-	colorBarModel->SetTitle ("T1s PDE");
-	colorBarModel->SetInterval (
-	    toQwtDoubleInterval (widgetGl->GetRangeT1sPDE (viewNumber)));
-	colorBarModel->SetupPalette (
-	    Palette (PaletteType::SEQUENTIAL, PaletteSequential::BLACK_BODY));
-    }
+    setupColorBarModelVelocityVector (simulationIndex, viewNumber);
+    setupColorBarModelDomainHistogram (simulationIndex, viewNumber);
+    setupColorBarModelT1sPDE (simulationIndex, viewNumber);
 }
 
-void MainWindow::setupColorBarModel (size_t simulationIndex,
-				     ViewNumber::Enum viewNumber,
-				     BodyProperty::Enum property)
+void MainWindow::setupColorBarModelT1sPDE (
+    size_t simulationIndex,
+    ViewNumber::Enum viewNumber)
 {
-    const Simulation& simulation = 
-	widgetGl->GetSimulation (simulationIndex);
-    m_colorBarModelBodyProperty[simulationIndex][viewNumber][property]
-	->SetTitle (BodyProperty::ToString (property));
-    m_colorBarModelBodyProperty[simulationIndex][viewNumber][property]
-	->SetInterval (simulation.GetRange (property));
-    m_colorBarModelBodyProperty[simulationIndex][viewNumber][property]
-	->SetupPalette (
-	    Palette (
-		PaletteType::DIVERGING, PaletteDiverging::BLUE_RED));
+    boost::shared_ptr<ColorBarModel>& colorBarModel = 
+	m_colorBarModelT1sPDE[simulationIndex][viewNumber];
+    colorBarModel.reset (new ColorBarModel ());
+    colorBarModel->SetTitle ("T1s PDE");
+    colorBarModel->SetInterval (
+	toQwtDoubleInterval (widgetGl->GetRangeT1sPDE (viewNumber)));
+    colorBarModel->SetupPalette (
+	Palette (PaletteType::SEQUENTIAL, PaletteSequential::BLACK_BODY));
 }
+
+
+void MainWindow::setupColorBarModelDomainHistogram (
+    size_t simulationIndex,
+    ViewNumber::Enum viewNumber)
+{
+    boost::shared_ptr<ColorBarModel>& colorBarModel = 
+	m_colorBarModelDomainHistogram[simulationIndex][viewNumber];
+    colorBarModel.reset (new ColorBarModel ());
+    colorBarModel->SetTitle ("Count per area");
+    colorBarModel->SetInterval (
+	toQwtDoubleInterval (widgetGl->GetRangeCount ()));
+    colorBarModel->SetupPalette (
+	Palette (PaletteType::SEQUENTIAL, PaletteSequential::BLACK_BODY));
+}
+
+
+void MainWindow::setupColorBarModelBodyProperty (size_t simulationIndex,
+						 ViewNumber::Enum viewNumber,
+						 BodyProperty::Enum property)
+{
+    boost::shared_ptr<ColorBarModel>& colorBarModel = 
+	m_colorBarModelBodyProperty[simulationIndex][viewNumber][property];
+    setupColorBarModel (colorBarModel, property, simulationIndex);
+}
+
+void MainWindow::setupColorBarModelVelocityVector (
+    size_t simulationIndex,
+    ViewNumber::Enum viewNumber)
+{
+    boost::shared_ptr<ColorBarModel>& colorBarModel = 
+	m_colorBarModelVelocityVector[simulationIndex][viewNumber];
+    BodyProperty::Enum property = BodyProperty::VELOCITY_MAGNITUDE;
+    setupColorBarModel (colorBarModel, property, simulationIndex);
+    colorBarModel->SetTitle ("Velocity vector");
+}
+
+void MainWindow::setupColorBarModel (
+    boost::shared_ptr<ColorBarModel>& colorBarModel, 
+    BodyProperty::Enum property, size_t simulationIndex)
+{
+    colorBarModel.reset (new ColorBarModel ());
+    const Simulation& simulation = widgetGl->GetSimulation (simulationIndex);
+    colorBarModel->SetTitle (BodyProperty::ToString (property));
+    colorBarModel->SetInterval (simulation.GetRange (property));
+    colorBarModel->SetupPalette (
+	Palette (PaletteType::DIVERGING, PaletteDiverging::BLUE_RED));
+}
+
+
 
 void MainWindow::updateLightControls (
     const ViewSettings& vs, LightNumber::Enum lightNumber)

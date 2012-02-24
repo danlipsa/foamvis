@@ -4157,7 +4157,8 @@ void GLWidget::ValueChangedVelocitySizeExp (int index)
     (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetVelocitySize (
-	IndexExponent2Value (static_cast<QSlider*> (sender ()), TENSOR_SIZE_EXP2));
+	IndexExponent2Value (
+	    static_cast<QSlider*> (sender ()), TENSOR_SIZE_EXP2));
     update ();
 }
 
