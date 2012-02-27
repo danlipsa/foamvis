@@ -88,7 +88,6 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_syncViewTimeEnd (0),
     m_deformationSize (1),
     m_deformationLineWidth (1),
-    m_velocitySize (1),
     m_velocityLineWidth (1),
     m_forceSize (1),
     m_forceLineWidth (1)
@@ -105,6 +104,13 @@ ViewSettings::~ViewSettings ()
     glDeleteTextures (2, m_colorBarTexture);
     glDeleteLists (m_listCenterPaths, 1);
 }
+
+float ViewSettings::GetVelocityClampingRatio () const
+{
+    return m_overlayBarModel->GetInterval ().maxValue () / 
+	m_overlayBarModel->GetClampValues ().maxValue ();
+}
+
 
 void ViewSettings::initTexture ()
 {

@@ -406,16 +406,37 @@ void GLWidget::createActions ()
 	    this, SLOT(ShowReset ()));
 
     // actions for the color bar
-    m_actionEditColorMap.reset (
-	new QAction (tr("&Edit Color Map"), this));
-    m_actionEditColorMap->setStatusTip(tr("Edit Color Map"));
+    m_actionEditOverlayMap.reset (
+	new QAction (tr("&Edit overlay map"), this));
+    m_actionEditOverlayMap->setStatusTip(
+	tr("Edit overlay map"));
     // connected in MainWindow
 
-    m_actionClampClear.reset (
-	new QAction (tr("&Clamp Clear"), this));
-    m_actionClampClear->setStatusTip(tr("Clamp Clear"));
-    connect(m_actionClampClear.get (), SIGNAL(triggered()),
+    // actions for the color bar
+    m_actionEditColorMap.reset (
+	new QAction (tr("&Edit color map"), this));
+    m_actionEditColorMap->setStatusTip(tr("Edit color map"));
+    // connected in MainWindow
+
+    m_actionColorBarClampClear.reset (
+	new QAction (tr("&Clamp clear"), this));
+    m_actionColorBarClampClear->setStatusTip(tr("Clamp clear"));
+    connect(m_actionColorBarClampClear.get (), SIGNAL(triggered()),
 	    this, SLOT(ColorBarClampClear ()));
+
+    m_actionOverlayBarClampClear.reset (
+	new QAction (tr("&Clamp clear"), this));
+    m_actionOverlayBarClampClear->setStatusTip(tr("Clamp clear"));
+    connect(m_actionOverlayBarClampClear.get (), SIGNAL(triggered()),
+	    this, SLOT(OverlayBarClampClear ()));
+
+    m_actionOverlayBarClampHighMinimum.reset (
+	new QAction (tr("&Clamp high zero"), this));
+    m_actionOverlayBarClampHighMinimum->setStatusTip(tr("Clamp high zero"));
+    connect(m_actionOverlayBarClampHighMinimum.get (), SIGNAL(triggered()),
+	    this, SLOT(OverlayBarClampHighMinimum ()));
+
+
 
     initCopy (m_actionCopyTransformation, m_signalMapperCopyTransformation);
     connect (m_signalMapperCopyTransformation.get (),
@@ -1285,6 +1306,23 @@ void GLWidget::ColorBarClampClear ()
     Q_EMIT ColorBarModelChanged (viewNumber, colorBarModel);
 }
 
+void GLWidget::OverlayBarClampClear ()
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    boost::shared_ptr<ColorBarModel> colorBarModel = vs.GetOverlayBarModel ();
+    colorBarModel->SetClampClear ();
+    Q_EMIT OverlayBarModelChanged (viewNumber, colorBarModel);
+}
+
+void GLWidget::OverlayBarClampHighMinimum ()
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    boost::shared_ptr<ColorBarModel> colorBarModel = vs.GetOverlayBarModel ();
+    colorBarModel->SetClampHighMinimum ();
+    Q_EMIT OverlayBarModelChanged (viewNumber, colorBarModel);
+}
 
 
 // Uses antialiased points and lines
@@ -2256,7 +2294,7 @@ void GLWidget::displayDeformation (ViewNumber::Enum viewNumber) const
     glDisable (GL_DEPTH_TEST);
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBodyDeformation (
-		  *this, 
+		  *this, viewNumber,
 		  GetSimulation (viewNumber).GetFoam (
 		      GetCurrentTime (viewNumber)).GetProperties (),
 		  vs.GetBodySelector ()));
@@ -2277,7 +2315,7 @@ void GLWidget::displayVelocity (ViewNumber::Enum viewNumber) const
     for_each (
 	bodies.begin (), bodies.end (),
 	DisplayBodyVelocity (
-	    *this, 
+	    *this, viewNumber,
 	    GetSimulation (viewNumber).GetFoam (
 		GetCurrentTime (viewNumber)).GetProperties (),
 	    vs.GetBodySelector ()));
@@ -2300,7 +2338,7 @@ void GLWidget::displayBodyDeformation (
 	glDisable (GL_DEPTH_TEST);
 	glColor (Qt::black);
 	DisplayBodyDeformation (
-	    *this, 
+	    *this, viewNumber,
 	    GetSimulation (viewNumber).GetFoam (
 		GetCurrentTime (viewNumber)).GetProperties (),
 	    vs.GetBodySelector ()) (*foam.FindBody (m_showBodyId));
@@ -2322,7 +2360,7 @@ void GLWidget::displayBodyVelocity (
 	glDisable (GL_DEPTH_TEST);
 	glColor (Qt::black);
 	DisplayBodyVelocity (
-	    *this, 
+	    *this, viewNumber,
 	    GetSimulation (viewNumber).GetFoam (
 		GetCurrentTime (viewNumber)).GetProperties (),
 	    vs.GetBodySelector ()) (*foam.FindBody (m_showBodyId));
@@ -3107,11 +3145,17 @@ void GLWidget::quadricErrorCallback (GLenum errorCode)
     cdbg << "Quadric error:" << message << endl;
 }
 
+void GLWidget::contextMenuEventOverlayBar (QMenu* menu) const
+{
+    menu->addAction (m_actionOverlayBarClampClear.get ());
+    menu->addAction (m_actionOverlayBarClampHighMinimum.get ());
+    menu->addAction (m_actionEditOverlayMap.get ());
+}
 
 void GLWidget::contextMenuEventColorBar (QMenu* menu) const
 {
     const ViewSettings& vs = GetViewSettings ();
-    menu->addAction (m_actionClampClear.get ());
+    menu->addAction (m_actionColorBarClampClear.get ());
     bool actions = false;
     QMenu* menuCopy = menu->addMenu ("Copy");
     if (ViewCount::GetCount (m_viewCount) > 1)
@@ -3214,8 +3258,12 @@ void GLWidget::contextMenuEvent (QContextMenuEvent *event)
     m_contextMenuPosObject = toObjectTransform (m_contextMenuPosScreen);
     QMenu menu (this);
     G3D::Rect2D colorBarRect = getViewColorBarRect (GetViewRect ());
+    G3D::Rect2D overlayBarRect = getViewOverlayBarRect (GetViewRect ());
     if (colorBarRect.contains (QtToOpenGl (m_contextMenuPosScreen, height ())))
 	contextMenuEventColorBar (&menu);
+    else if (overlayBarRect.contains (
+		 QtToOpenGl (m_contextMenuPosScreen, height ())))
+	contextMenuEventOverlayBar (&menu);
     else
 	contextMenuEventView (&menu);
     menu.exec (event->globalPos());
@@ -3349,7 +3397,7 @@ void GLWidget::displayVelocityOverlayBar (
     glColor (GetHighlightColor (viewNumber, HighlightNumber::H0));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     DisplayBox (r);
-    float y = r.y0 () + (r.y1 () - r.y0 ()) / vs.GetVelocitySize ();
+    float y = r.y0 () + (r.y1 () - r.y0 ()) / vs.GetVelocityClampingRatio ();
     glLineWidth (2);    
     glBegin (GL_LINES);
     ::glVertex (G3D::Vector2 (r.x0 (), y));
@@ -3640,7 +3688,7 @@ void GLWidget::ToggledDirectionalLightEnabled (bool checked)
     update ();
 }
 
-void GLWidget::ToggledShowDeformation (bool checked)
+void GLWidget::ToggledDeformationShown (bool checked)
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -3652,7 +3700,7 @@ void GLWidget::ToggledShowDeformation (bool checked)
     update ();
 }
 
-void GLWidget::ToggledShowDeformationGrid (bool checked)
+void GLWidget::ToggledDeformationShownGrid (bool checked)
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -3702,7 +3750,7 @@ void GLWidget::ToggledVelocityClampingShown (bool checked)
 }
 
 
-void GLWidget::ToggledShowDeformationGridCellCenter (bool checked)
+void GLWidget::ToggledDeformationShownGridCellCenter (bool checked)
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -4059,6 +4107,15 @@ void GLWidget::SetColorBarModel (ViewNumber::Enum viewNumber,
     update ();
 }
 
+void GLWidget::SetOverlayBarModel (
+    ViewNumber::Enum viewNumber, 
+    boost::shared_ptr<ColorBarModel> colorBarModel)
+{
+    makeCurrent ();
+    GetViewSettings (viewNumber).SetOverlayBarModel (colorBarModel);
+    update ();
+}
+
 void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 {
     SetCurrentTime (timeStep);
@@ -4149,16 +4206,6 @@ void GLWidget::ValueChangedDeformationLineWidthExp (int index)
     vs.SetDeformationLineWidth (
 	IndexExponent2Value (
 	    static_cast<QSlider*> (sender ()), TENSOR_LINE_WIDTH_EXP2));
-    update ();
-}
-
-void GLWidget::ValueChangedVelocitySizeExp (int index)
-{
-    (void)index;
-    ViewSettings& vs = GetViewSettings ();
-    vs.SetVelocitySize (
-	IndexExponent2Value (
-	    static_cast<QSlider*> (sender ()), TENSOR_SIZE_EXP2));
     update ();
 }
 

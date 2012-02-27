@@ -67,8 +67,12 @@ Q_SIGNALS:
 	boost::shared_ptr<ColorBarModel> colorBarModel, size_t property);
     void ColorBarModelChanged (ViewNumber::Enum viewNumber, 
 			       boost::shared_ptr<ColorBarModel> colorBarModel);
+    void OverlayBarModelChanged (ViewNumber::Enum viewNumber, 
+				 boost::shared_ptr<ColorBarModel> colorBarModel);
+
 
 public Q_SLOTS:
+    void ToggledVelocityShown (bool checked);
     void ButtonClickedHistogram (int histogramType);
     void ButtonClickedViewType (int viewType);
 
@@ -103,6 +107,7 @@ public Q_SLOTS:
     void CurrentIndexChangedWindowSize (int i);
 
     void ShowEditColorMap ();
+    void ShowEditOverlayMap ();
     void RotateShown ();
     void ScaleShown ();
     void TranslateShown ();    
@@ -194,17 +199,14 @@ private:
     void translatedBodyStep ();
     void createActions ();
     void displayHistogramColorBar (bool checked);
-    HistogramInfo getCurrentHistogramInfo () const;
+    HistogramInfo getHistogramInfo (
+	ColorBarType::Enum colorBarType, size_t bodyOrFaceProperty) const;
     boost::shared_ptr<ColorBarModel> getColorBarModel () const;
     boost::shared_ptr<ColorBarModel> getColorBarModel (
 	size_t simulationIndex,
 	ViewNumber::Enum viewNumber,
 	ViewType::Enum viewType, size_t property, 
 	StatisticsType::Enum statisticsType) const;
-    void emitColorBarModelChanged (
-	size_t simulationIndex, ViewNumber::Enum viewNumber,
-	ViewType::Enum viewType, 
-	size_t property, StatisticsType::Enum statisticsType);
     void clickedPlay (PlayType playType);
 
 private:

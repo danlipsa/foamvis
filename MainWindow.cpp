@@ -233,6 +233,14 @@ void MainWindow::connectSignals ()
 	widgetGl, 
 	SLOT (SetColorBarModel (ViewNumber::Enum, 
 				boost::shared_ptr<ColorBarModel>)));
+    connect (
+	this, 
+	SIGNAL (OverlayBarModelChanged (ViewNumber::Enum, 
+					boost::shared_ptr<ColorBarModel>)),
+	widgetGl, 
+	SLOT (SetOverlayBarModel (ViewNumber::Enum, 
+				  boost::shared_ptr<ColorBarModel>)));
+
     
     
     // ColorBarModelChanged:
@@ -244,7 +252,13 @@ void MainWindow::connectSignals ()
 	widgetGl, 
 	SLOT (SetColorBarModel (ViewNumber::Enum,
 				boost::shared_ptr<ColorBarModel>)));
-    
+    connect (
+	widgetGl, 
+	SIGNAL (OverlayBarModelChanged (ViewNumber::Enum,
+					boost::shared_ptr<ColorBarModel>)),
+	widgetGl, 
+	SLOT (SetOverlayBarModel (ViewNumber::Enum,
+				  boost::shared_ptr<ColorBarModel>)));
     connectColorBarHistogram (true);
     
     connect (
@@ -281,10 +295,6 @@ void MainWindow::velocityViewToUI ()
     SetCheckedNoSignals (checkBoxVelocityShown, vs.IsVelocityShown ());
     SetCheckedNoSignals (checkBoxVelocityGridShown, 
 			 vs.GetVelocityAverage ().IsGridShown ());
-    SetValueNoSignals (
-	horizontalSliderVelocitySize, 
-	Value2ExponentIndex (horizontalSliderVelocitySize, 
-		    GLWidget::TENSOR_SIZE_EXP2, vs.GetVelocitySize ()));
     SetValueNoSignals (
 	horizontalSliderVelocityLineWidth, 
 	Value2ExponentIndex (horizontalSliderVelocityLineWidth,
@@ -739,6 +749,8 @@ void MainWindow::createActions ()
     addAction (widgetGl->GetActionResetTransformAll ().get ());    
     connect(widgetGl->GetActionEditColorMap ().get (), SIGNAL(triggered()),
 	    this, SLOT(ShowEditColorMap ()));
+    connect(widgetGl->GetActionEditOverlayMap ().get (), SIGNAL(triggered()),
+	    this, SLOT(ShowEditOverlayMap ()));
     addAction (sliderTimeSteps->GetActionNextSelectedTimeStep ().get ());
     addAction (sliderTimeSteps->GetActionPreviousSelectedTimeStep ().get ());
 
@@ -753,10 +765,11 @@ void MainWindow::createActions ()
 /**
  * @todo Calculate the correct histogram for the 'domain histogram' image.
  */
-MainWindow::HistogramInfo MainWindow::getCurrentHistogramInfo () const
+MainWindow::HistogramInfo MainWindow::getHistogramInfo (
+    ColorBarType::Enum colorBarType, size_t bodyOrFaceProperty) const
 {
     const Simulation& simulation = widgetGl->GetSimulation ();
-    switch (widgetGl->GetColorBarType ())
+    switch (colorBarType)
     {
     case ColorBarType::STATISTICS_COUNT:
 	return createHistogramInfo (widgetGl->GetRangeCount (), 1);
@@ -764,7 +777,7 @@ MainWindow::HistogramInfo MainWindow::getCurrentHistogramInfo () const
     case ColorBarType::PROPERTY:
     {
 	const HistogramStatistics& histogramStatistics = 
-	    simulation.GetHistogram (widgetGl->GetBodyOrFaceProperty ());
+	    simulation.GetHistogram (bodyOrFaceProperty);
 	return HistogramInfo (histogramStatistics.ToQwtIntervalData (), 
 			      histogramStatistics.GetMaxCountPerBin ());
     }
@@ -774,7 +787,7 @@ MainWindow::HistogramInfo MainWindow::getCurrentHistogramInfo () const
 	    widgetGl->GetRangeT1sPDE (), simulation.GetT1sSize ());
 
     default:
-	ThrowException ("Invalid call to getCurrentHistogramInfo");
+	ThrowException ("Invalid call to getHistogramInfo");
 	return createHistogramInfo (widgetGl->GetRangeCount (), 1);
     }
 }
@@ -888,7 +901,7 @@ void MainWindow::setupColorBarModelVelocityVector (
 	m_colorBarModelVelocityVector[simulationIndex][viewNumber];
     BodyProperty::Enum property = BodyProperty::VELOCITY_MAGNITUDE;
     setupColorBarModel (colorBarModel, property, simulationIndex);
-    colorBarModel->SetTitle ("Velocity vector");
+    colorBarModel->SetTitle ("Velocity overlay");
 }
 
 void MainWindow::setupColorBarModel (
@@ -981,19 +994,6 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel () const
 }
 
 
-void MainWindow::emitColorBarModelChanged (
-    size_t simulationIndex,
-    ViewNumber::Enum viewNumber,
-    ViewType::Enum viewType, 
-    size_t property, StatisticsType::Enum statisticsType)
-{
-    Q_EMIT ColorBarModelChanged (
-	viewNumber,
-	getColorBarModel (simulationIndex, 
-			  viewNumber, viewType, property, statisticsType));
-}
-
-
 void MainWindow::clickedPlay (PlayType playType)
 {
     bool* playMovie[] = {&m_playForward, &m_playReverse};
@@ -1024,6 +1024,18 @@ void MainWindow::clickedPlay (PlayType playType)
 
 // Slots
 // ======================================================================
+
+void MainWindow::ToggledVelocityShown (bool checked)
+{
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
+    size_t simulationIndex = 
+	widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
+    boost::shared_ptr<ColorBarModel> colorBarModel = 
+	m_colorBarModelVelocityVector[simulationIndex][viewNumber];
+    Q_EMIT OverlayBarModelChanged (widgetGl->GetViewNumber (), 
+				   colorBarModel);
+    widgetGl->ToggledVelocityShown (checked);
+}
 
 void MainWindow::ToggledHistogramGridShown (bool checked)
 {
@@ -1137,8 +1149,10 @@ void MainWindow::ButtonClickedViewType (int vt)
 	StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
 
 	setStackedWidget (viewType);
-	emitColorBarModelChanged (
-	    simulationIndex, viewNumber, viewType, property, statisticsType);
+	Q_EMIT ColorBarModelChanged (
+	    viewNumber,
+	    getColorBarModel (simulationIndex, 
+			      viewNumber, viewType, property, statisticsType));
 	switch (viewType)
 	{
 	case ViewType::FACES:
@@ -1203,15 +1217,17 @@ void MainWindow::setStackedWidget (ViewType::Enum viewType)
     }
 }
 
-void MainWindow::CurrentIndexChangedSimulation (int index)
+void MainWindow::CurrentIndexChangedSimulation (int simulationIndex)
 {
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
     ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
     ViewType::Enum viewType = vs.GetViewType ();
     size_t property = vs.GetBodyOrFaceProperty ();
     StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
-    emitColorBarModelChanged (
-	index, viewNumber, viewType, property, statisticsType);
+    Q_EMIT ColorBarModelChanged (
+	viewNumber,
+	getColorBarModel (simulationIndex, 
+			  viewNumber, viewType, property, statisticsType));
     ViewToUI ();
 }
 
@@ -1354,9 +1370,31 @@ void MainWindow::SelectionChangedHistogram ()
     widgetGl->update ();
 }
 
+void MainWindow::ShowEditOverlayMap ()
+{
+    HistogramInfo p = getHistogramInfo (
+	ColorBarType::PROPERTY, BodyProperty::VELOCITY_MAGNITUDE);
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
+    size_t simulationIndex = 
+	widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
+    boost::shared_ptr<ColorBarModel> colorBarModel = 
+	m_colorBarModelVelocityVector[simulationIndex][viewNumber];
+    m_editColorMap->SetData (p.first, p.second, 
+			     *colorBarModel,
+			     checkBoxHistogramGridShown->isChecked ());
+    if (m_editColorMap->exec () == QDialog::Accepted)
+    {
+	*colorBarModel = m_editColorMap->GetColorBarModel ();
+	Q_EMIT OverlayBarModelChanged (widgetGl->GetViewNumber (), 
+				       colorBarModel);
+    }
+}
+
+
 void MainWindow::ShowEditColorMap ()
 {
-    HistogramInfo p = getCurrentHistogramInfo ();
+    HistogramInfo p = getHistogramInfo (
+	widgetGl->GetColorBarType (), widgetGl->GetBodyOrFaceProperty ());
     m_editColorMap->SetData (
 	p.first, p.second, *getColorBarModel (),
 	checkBoxHistogramGridShown->isChecked ());

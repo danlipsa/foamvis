@@ -77,7 +77,8 @@ class DisplayBodyDeformation : public DisplayBodyBase<>
 {
 public:
     DisplayBodyDeformation (
-	const GLWidget& widget, const FoamProperties& fp,
+	const GLWidget& widget, ViewNumber::Enum viewNumber, 
+	const FoamProperties& fp,
 	const BodySelector& bodySelector,
 	bool useZPos = false, double zPos = 0);
 
@@ -90,7 +91,8 @@ class DisplayBodyVelocity : public DisplayBodyBase<>
 {
 public:
     DisplayBodyVelocity (
-	const GLWidget& widget, const FoamProperties& fp,
+	const GLWidget& widget, ViewNumber::Enum viewNumber, 
+	const FoamProperties& fp,
 	const BodySelector& bodySelector,
 	bool useZPos = false, double zPos = 0);
 

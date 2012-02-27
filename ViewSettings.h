@@ -493,14 +493,7 @@ public:
     {
 	m_deformationLineWidth = value;
     }
-    float GetVelocitySize () const
-    {
-	return m_velocitySize;
-    }
-    void SetVelocitySize (float value)
-    {
-	m_velocitySize = value;
-    }
+    float GetVelocityClampingRatio () const;
     float GetVelocityLineWidth () const
     {
 	return m_velocityLineWidth;
@@ -628,7 +621,6 @@ private:
     size_t m_syncViewTimeEnd;
     float m_deformationSize;
     float m_deformationLineWidth;
-    float m_velocitySize;
     float m_velocityLineWidth;
     float m_forceSize;
     float m_forceLineWidth;

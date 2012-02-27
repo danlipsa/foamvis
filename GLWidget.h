@@ -178,6 +178,11 @@ public:
     {
 	return m_actionEditColorMap;
     }
+    boost::shared_ptr<QAction> GetActionEditOverlayMap () const
+    {
+	return m_actionEditOverlayMap;
+    }
+
 
     
     /**
@@ -280,6 +285,9 @@ Q_SIGNALS:
     void ColorBarModelChanged (
 	ViewNumber::Enum viewNumber,
 	boost::shared_ptr<ColorBarModel> colorBarModel);
+    void OverlayBarModelChanged (
+	ViewNumber::Enum viewNumber,
+	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 public Q_SLOTS:
     void ButtonClickedTimeLinkage (int id);
@@ -328,12 +336,12 @@ public Q_SLOTS:
     void ToggledMissingPressureShown (bool checked);
     void ToggledMissingVolumeShown (bool checked);
     void ToggledObjectVelocityShown (bool checked);
-    void ToggledShowDeformation (bool checked);
-    void ToggledShowDeformationGrid (bool checked);
+    void ToggledDeformationShown (bool checked);
+    void ToggledDeformationShownGrid (bool checked);
     void ToggledVelocityShown (bool checked);
     void ToggledVelocityGridShown (bool checked);
     void ToggledVelocityClampingShown (bool checked);
-    void ToggledShowDeformationGridCellCenter (bool checked);
+    void ToggledDeformationShownGridCellCenter (bool checked);
 
     void SetBodyOrFaceProperty (
 	ViewNumber::Enum viewNumber,
@@ -341,6 +349,8 @@ public Q_SLOTS:
 	size_t property);
     void SetColorBarModel (ViewNumber::Enum viewNumber, 
 			   boost::shared_ptr<ColorBarModel> colorBarModel);
+    void SetOverlayBarModel (ViewNumber::Enum viewNumber, 
+			     boost::shared_ptr<ColorBarModel> colorBarModel);
     void CurrentIndexChangedSimulation (int index);
     void CurrentIndexChangedInteractionMode (int index);
     void CurrentIndexChangedStatisticsType (int index);
@@ -376,7 +386,6 @@ public Q_SLOTS:
     void ToggledT1sKernelTextureSizeShown (bool checked);
     void ValueChangedDeformationSizeExp (int index);
     void ValueChangedDeformationLineWidthExp (int index);
-    void ValueChangedVelocitySizeExp (int index);
     void ValueChangedVelocityLineWidthExp (int index);
     void ValueChangedForceSizeExp (int index);
     void ValueChangedForceLineWidthExp (int index);
@@ -410,6 +419,8 @@ public Q_SLOTS:
     void ShowReset ();
     // Actions color bar
     void ColorBarClampClear ();
+    void OverlayBarClampClear ();
+    void OverlayBarClampHighMinimum ();
     void CopyTransformationFrom (int viewNumber);
     void CopySelectionFrom (int viewNumber);
     void CopyColorBarFrom (int viewNumber);
@@ -495,6 +506,7 @@ private:
     bool linkedTimesValid (size_t timeBegin, size_t timeEnd);
     bool linkedTimesValid ();
     void contextMenuEventColorBar (QMenu* menu) const;
+    void contextMenuEventOverlayBar (QMenu* menu) const;
     void contextMenuEventView (QMenu* menu) const;
     void activateViewShader (
 	ViewNumber::Enum viewNumber, 
@@ -798,7 +810,10 @@ private:
     boost::shared_ptr<QAction> m_actionShowReset;
 
     boost::shared_ptr<QAction> m_actionEditColorMap;
-    boost::shared_ptr<QAction> m_actionClampClear;
+    boost::shared_ptr<QAction> m_actionColorBarClampClear;
+    boost::shared_ptr<QAction> m_actionEditOverlayMap;
+    boost::shared_ptr<QAction> m_actionOverlayBarClampClear;
+    boost::shared_ptr<QAction> m_actionOverlayBarClampHighMinimum;
     boost::array<boost::shared_ptr<QAction>, 
 		 ViewNumber::COUNT> m_actionCopyTransformation;
     boost::shared_ptr<QSignalMapper> m_signalMapperCopyTransformation;

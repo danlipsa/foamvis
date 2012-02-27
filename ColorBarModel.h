@@ -61,6 +61,12 @@ public:
 	m_clampValues = m_interval;
 	SetupPalette (GetPalette ());
     }
+    void SetClampHighMinimum ()
+    {
+	m_clampValues.setMinValue (m_interval.minValue ());
+	m_clampValues.setMaxValue (m_interval.minValue ());
+	SetupPalette (GetPalette ());
+    }
 
     void SetTitle (const char* title)
     {

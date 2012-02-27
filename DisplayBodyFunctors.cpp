@@ -97,13 +97,14 @@ operator () (boost::shared_ptr<Body> b)
 // ======================================================================
 
 DisplayBodyDeformation::DisplayBodyDeformation (
-    const GLWidget& widget, const FoamProperties& fp,
+    const GLWidget& widget, ViewNumber::Enum viewNumber, 
+    const FoamProperties& fp,
     const BodySelector& bodySelector,
     bool useZPos, double zPos):
     
     DisplayBodyBase<> (
 	widget, fp, bodySelector,
-	SetterTextureCoordinate(widget, ViewNumber::VIEW0), useZPos, zPos)
+	SetterTextureCoordinate(widget, viewNumber), useZPos, zPos)
 {}
 
 void DisplayBodyDeformation::display (const boost::shared_ptr<Body>& body, 
@@ -138,13 +139,14 @@ void DisplayBodyDeformation::display (const boost::shared_ptr<Body>& body,
 // ======================================================================
 
 DisplayBodyVelocity::DisplayBodyVelocity (
-    const GLWidget& widget, const FoamProperties& fp,
+    const GLWidget& widget, ViewNumber::Enum viewNumber, 
+    const FoamProperties& fp,
     const BodySelector& bodySelector,
     bool useZPos, double zPos):
     
     DisplayBodyBase<> (
 	widget, fp, bodySelector,
-	SetterTextureCoordinate(widget, ViewNumber::VIEW0), useZPos, zPos)
+	SetterTextureCoordinate(widget, viewNumber), useZPos, zPos)
 {}
 
 G3D::Vector2 clamp (G3D::Vector2 v, float maxLength, bool* clamped)
@@ -170,7 +172,7 @@ void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body,
     ViewNumber::Enum viewNumber = m_propertySetter.GetViewNumber ();
     ViewSettings& vs = m_glWidget.GetViewSettings (viewNumber);
     float size = m_glWidget.GetVelocitySizeInitialRatio (viewNumber) * 
-	vs.GetVelocitySize ();
+	vs.GetVelocityClampingRatio ();
     float lineWidth = vs.GetVelocityLineWidth ();
     if (fc == FOCUS)
 	glColor (
