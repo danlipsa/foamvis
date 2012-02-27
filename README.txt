@@ -9,7 +9,7 @@ Release log
 	- added a sequential color map based on colorbrewer blues 9.
 	- reorganize UI
 	- Add option for clamping marker for velocity vectors
-	- TODO: clamp velocity vector based on velocity magnitude scalar
+	- clamping for velocity vector is done the same as for scalar attributes.
 	- TODO: sync the clamping for the reflected half view
 
 
