@@ -60,6 +60,15 @@ QMAKE_LEX          = .\\/flex.pl
 TARGET             = foam
 QT                += opengl
 PRECOMPILED_HEADER = stable.h
+
+PREPROCESS_FILES = TensorDisplay.frag.in VectorDisplay.frag.in
+preprocess.name = Processing frag.in files
+preprocess.input = PREPROCESS_FILES
+preprocess.output = ${QMAKE_FILE_BASE}
+preprocess.depend_command = cpp -E -M ${QMAKE_FILE_NAME} | sed "s,^.*: ,,"
+preprocess.commands = cpp -C -P ${QMAKE_FILE_IN} - > ${QMAKE_FILE_BASE}
+QMAKE_EXTRA_COMPILERS += preprocess
+
 CONFIG            += qt precompile_header no_keywords debug_and_release
 CONFIG(debug, debug|release) {
 	TARGET = $$join(TARGET,,,_debug)
