@@ -271,12 +271,12 @@ void MainWindow::connectSignals ()
 void MainWindow::deformationViewToUI ()
 {
     const ViewSettings& vs = widgetGl->GetViewSettings ();
-    SetCheckedNoSignals (checkBoxShowDeformation, 
+    SetCheckedNoSignals (checkBoxDeformationShown, 
 			 vs.IsDeformationShown ());
-    SetCheckedNoSignals (checkBoxDeformationGrid, 
+    SetCheckedNoSignals (checkBoxDeformationGridShown, 
 			 vs.GetDeformationAverage ().IsGridShown ());
     SetCheckedNoSignals (
-	checkBoxDeformationGridCellCenter, 
+	checkBoxDeformationGridCellCenterShown, 
 	vs.GetDeformationAverage ().IsGridCellCenterShown ());
     SetValueNoSignals (
 	horizontalSliderDeformationSize, 

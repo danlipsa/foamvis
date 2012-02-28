@@ -341,7 +341,8 @@ public Q_SLOTS:
     void ToggledVelocityShown (bool checked);
     void ToggledVelocityGridShown (bool checked);
     void ToggledVelocityClampingShown (bool checked);
-    void ToggledDeformationShownGridCellCenter (bool checked);
+    void ToggledDeformationGridCellCenterShown (bool checked);
+    void ToggledVelocityGridCellCenterShown (bool checked);
 
     void SetBodyOrFaceProperty (
 	ViewNumber::Enum viewNumber,

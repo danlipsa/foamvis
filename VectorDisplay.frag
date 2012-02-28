@@ -1,9 +1,9 @@
 #version 120
 /**
- * @file   TensorDisplay.frag
+ * @file   VectorDisplay.frag
  * @author Dan R. Lipsa
  *
- * Displays deformation ellipses
+ * Displays a vector field
  */
 
 struct Rect
@@ -68,7 +68,7 @@ vec2 rotate (vec2 v, float deg)
 }
 
 // position: pixel postion relative to the center of the line
-bool isLine (vec2 position, vec2 n, float width, 
+bool isOnLine (vec2 position, vec2 n, float width, 
 	     float lengthLeft, float lengthRight)
 {
     width = width / 2;
@@ -81,10 +81,10 @@ bool isLine (vec2 position, vec2 n, float width,
 	dot (position, vec2 (n[1], -n[0])) <= lengthRight;
 }
 
-bool isLine (vec2 position, vec2 n, float width, float length)
+bool isOnLine (vec2 position, vec2 n, float width, float length)
 {
     length = length / 2;
-    return isLine (position, n, width, length, length);
+    return isOnLine (position, n, width, length, length);
 }
 
 bool isHalfSpace (vec2 x, vec2 p1, vec2 p2)
@@ -93,7 +93,7 @@ bool isHalfSpace (vec2 x, vec2 p1, vec2 p2)
     return dot (x - p1, vec2 (-v[1], v[0])) <= 0;
 }
 
-bool isTriangle (vec2 x, vec2 p1, vec2 p2, vec2 p3)
+bool isOnTriangle (vec2 x, vec2 p1, vec2 p2, vec2 p3)
 {
     return 
 	isHalfSpace (x, p1, p2) &&
@@ -123,7 +123,7 @@ vec2 clamp (vec2 v, float maxLength, out bool clamped)
 }
 
 // x is in [0, 1)
-bool isArrow (vec2 x, vec2 texCoordCenter)
+bool isOnArrow (vec2 x, vec2 texCoordCenter)
 {
     vec2 v;
     if (getVector (texCoordCenter, v))
@@ -147,51 +147,44 @@ bool isArrow (vec2 x, vec2 texCoordCenter)
 	vec2 p2 = p1 - rotate (v, arrowAngle) * arrowLength;
 	vec2 p3 = p1 - rotate (v, -arrowAngle) * arrowLength;
 	return 
-	    isLine (xToMiddle , n, lineWidthPerc, magnitude) ||
-	    isTriangle (x, p1, p2, p3) ||
-/*
-	    isLine (xToTop, rotate (n, arrowAngle), 
-		    lineWidthPerc, arrowLength, 0) ||
-	    isLine (xToTop, rotate (n, -arrowAngle), 
-		    lineWidthPerc, arrowLength, 0) ||
-*/
+	    isOnLine (xToMiddle , n, lineWidthPerc, magnitude) ||
+	    isOnTriangle (x, p1, p2, p3) ||
 	    (u_clampingShown && clamped && 
-	     isLine (xToMiddle, v, lineWidthPerc, arrowLength));
+	     isOnLine (xToMiddle, v, lineWidthPerc, arrowLength));
     }
     else
 	return false;
 }
 
 // x is in [0, 1)
-bool isGrid (vec2 x)
+bool isOnGrid (vec2 x)
 {
     vec2 isBackground;
-    float perc = (u_cellLength - u_lineWidth) / u_cellLength;
+    float perc = (u_cellLength - u_onePixelInObjectSpace) / u_cellLength;
     vec2 percentage = vec2 (perc, perc);
     isBackground = step (x, percentage);
     return isBackground.x * isBackground.y == 0.;
 }
 
 // x is in [0, 1)
-bool isGridCellCenter (vec2 x)
+bool isOnGridCellCenter (vec2 x, vec2 f)
 {
-    x = fract (vec2 (0.5, 0.5) + x);
-    vec2 isLine;
-    float p = (u_cellLength - u_lineWidth) / u_cellLength;
+    float p = (u_cellLength - 2 * u_onePixelInObjectSpace) / u_cellLength;
     vec2 percentage = vec2 (p, p);
-    isLine = step (percentage, x);
-    return isLine.x * isLine.y == 1.0;
+    vec2 s = (vec2 (1, 1) - percentage) / 2;
+    x = fract (vec2 (0.5, 0.5) + x - s);
+    vec2 isOnLine = step (percentage, x);
+    return isOnLine.x * isOnLine.y == 1.0;
 }
 
 // x is in (-inf, +inf)
-bool isGridCenter (vec2 x)
+bool isOnGridCenter (vec2 x)
 {
     x = abs (x);
-    vec2 isLine;
-    float perc = 2*u_lineWidth / u_cellLength;
+    float perc = 2*u_onePixelInObjectSpace / u_cellLength;
     vec2 percentage = vec2 (perc, perc);
-    isLine = step (x, percentage);
-    return isLine.x * isLine.y == 1.0;
+    vec2 isOnLine = step (x, percentage);
+    return isOnLine.x * isOnLine.y == 1.0;
 }
 
 // See doc/TensorDisplay.pdf
@@ -222,10 +215,12 @@ void main (void)
     vec2 gridCoord, texCoordCenter;
     getCoordinates (gridCoord, texCoordCenter);
     vec2 gridCoordFract = fract (gridCoord);
-    if (isArrow (gridCoordFract, texCoordCenter) || 
-	(u_gridShown && isGrid (gridCoordFract)) ||
-	(u_gridCellCenterShown && isGridCellCenter (gridCoordFract)) ||
-	isGridCenter (gridCoord)
+    vec2 gridCoordFloor = floor (gridCoord);
+    if (isOnArrow (gridCoordFract, texCoordCenter) || 
+	(u_gridShown && isOnGrid (gridCoordFract)) ||
+	(u_gridCellCenterShown && 
+	 isOnGridCellCenter (gridCoordFract, gridCoordFloor)) ||
+	isOnGridCenter (gridCoord)
 	)
 	gl_FragColor = inkColor;
     else

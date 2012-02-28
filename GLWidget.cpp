@@ -3750,7 +3750,7 @@ void GLWidget::ToggledVelocityClampingShown (bool checked)
 }
 
 
-void GLWidget::ToggledDeformationShownGridCellCenter (bool checked)
+void GLWidget::ToggledDeformationGridCellCenterShown (bool checked)
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -3758,6 +3758,19 @@ void GLWidget::ToggledDeformationShownGridCellCenter (bool checked)
 	ViewNumber::Enum viewNumber = vn[i];
 	TensorAverage& ta = 
 	    GetViewSettings (viewNumber).GetDeformationAverage ();
+	ta.SetGridCellCenterShown (checked);
+    }
+    update ();
+}
+
+void GLWidget::ToggledVelocityGridCellCenterShown (bool checked)
+{
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	VectorAverage& ta = 
+	    GetViewSettings (viewNumber).GetVelocityAverage ();
 	ta.SetGridCellCenterShown (checked);
     }
     update ();

@@ -20,7 +20,8 @@ class TensorDisplay : public ShaderProgram
 public:
     TensorDisplay (const char* vert, const char* frag);
     void Bind (
-	G3D::Vector2 gridTranslation, float cellLength, float lineWidth, 
+	G3D::Vector2 gridTranslation, float cellLength, 
+	float lineWidth, 
 	float elipseSizeRatio, G3D::Rect2D enclosingRect,
 	G3D::Vector2 rotationCenter, 
 	bool gridShown, bool clampingShown,

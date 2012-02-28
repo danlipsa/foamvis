@@ -144,7 +144,8 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
 template<typename Setter>
 void TensorAverageTemplate<Setter>::calculateShaderParameters (
     ViewNumber::Enum viewNumber, G3D::Vector2 rotationCenter,
-    G3D::Vector2* gridTranslation, float* cellLength, float* lineWidth, 
+    G3D::Vector2* gridTranslation, float* cellLength,
+    float* lineWidth, 
     float* sizeRatio, G3D::Rect2D* enclosingRect, 
     float* onePixelInObjectSpace) const
 {
@@ -155,9 +156,10 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
     *gridTranslation = (vs.GetGridTranslation () * scaleRatio).xy ();
     *cellLength = glWidget.GetCellLength (viewNumber) * gridScaleRatio;
     float p = glWidget.GetOnePixelInObjectSpace ();
-    *lineWidth = p * 
-	scaleRatio * CALL_MEMBER_FN (vs, m_lineWidthRatio) ();
     *onePixelInObjectSpace = p * scaleRatio;
+    *lineWidth = *onePixelInObjectSpace * 
+	CALL_MEMBER_FN (vs, m_lineWidthRatio) ();
+
     *sizeRatio = 
 	CALL_MEMBER_FN (glWidget, m_sizeInitialRatio) (viewNumber) * 
 	CALL_MEMBER_FN (vs, m_sizeRatio) () * gridScaleRatio;
