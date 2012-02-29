@@ -52,8 +52,6 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	Utils.cpp VectorAverage.cpp Vertex.cpp ViewSettings.cpp
 FORMS += BrowseSimulations.ui SelectBodiesById.ui EditColorMap.ui \
 	 HistogramHeight.ui RestrictedRangeSlider.ui MainWindow.ui Info.ui
-GLSL_PREPROCESS_FILES = TensorDisplay.frag.in VectorDisplay.frag.in
-
 LEXSOURCES        += EvolverData.l
 YACCSOURCES       += EvolverData.y
 RESOURCES          = foam.qrc
@@ -65,11 +63,16 @@ PRECOMPILED_HEADER = stable.h
 CPP                = /usr/bin/cpp
 SED                = /usr/bin/sed
 
+GLSL_PREPROCESS_FILES = TensorDisplay.frag.in VectorDisplay.frag.in
 glsl_preprocess.input = GLSL_PREPROCESS_FILES
 glsl_preprocess.output = ${QMAKE_FILE_BASE}
 glsl_preprocess.depend_command = $${CPP} -E -M ${QMAKE_FILE_IN} |\
 	 $${SED} \'s,^.*: ,,\'
-glsl_preprocess.commands = cpp -C -P ${QMAKE_FILE_IN} - | sed \'1,3d\' > ${QMAKE_FILE_BASE}
+glsl_preprocess.commands = \
+	cat ${QMAKE_FILE_IN} | cpp -C -P - - | \
+	sed \'/version/,\$\$!d\' \
+	sed s/^ *\\(.\\)version/\\1version/ > ${QMAKE_FILE_BASE}
+glsl_preprocess.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += glsl_preprocess
 
 CONFIG            += qt precompile_header no_keywords debug_and_release

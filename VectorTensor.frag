@@ -1,4 +1,4 @@
-#define VERSION  #version 120
+#define VERSION #version 120
 VERSION
 struct Rect
 {
