@@ -70,8 +70,7 @@ glsl_preprocess.depend_command = $${CPP} -E -M ${QMAKE_FILE_IN} |\
 	 $${SED} \'s,^.*: ,,\'
 glsl_preprocess.commands = \
 	cat ${QMAKE_FILE_IN} | cpp -C -P - - | \
-	sed \'/version/,\$\$!d\' \
-	sed s/^ *\\(.\\)version/\\1version/ > ${QMAKE_FILE_BASE}
+	.\\/cleanupFrag.pl > ${QMAKE_FILE_BASE}
 glsl_preprocess.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += glsl_preprocess
 

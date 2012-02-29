@@ -3,25 +3,25 @@ use File::Copy;
 use strict;
 use warnings;
 
-#Removes empty lines and spaces before #version
+#Removes empty lines and spaces before the first nonempty line
 sub cleanupFrag
 {
+    my $first = 1;
+  LINE: 
     while (<STDIN>)
     {
 	my $line = $_;
-	foreach (@{$pairs})
+	if ($line =~ /^$/)
 	{
-	    my ($src, $dest) = @{$_};
-	    $line =~ s/$src/$dest/;
+	    next LINE;
 	}
-	print $out $line;
+	if ($first)
+	{
+	    $line =~ s/ *(.*)/$1/;
+	    $first = 0;
+	}
+	print $line;
     }
-    close ($in)
-	or die "$in: $!";
-    close ($out)
-	or die "$out: $!";
-    move($outName, $inName);
 }
 
-# last expression needs to return a value
-1;
+cleanupFrag ();
