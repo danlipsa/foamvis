@@ -3599,6 +3599,7 @@ void GLWidget::SetReflectedHalfView (bool reflectedHalfView)
     update ();
 }
 
+
 void GLWidget::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -4128,6 +4129,39 @@ void GLWidget::SetOverlayBarModel (
     GetViewSettings (viewNumber).SetOverlayBarModel (colorBarModel);
     update ();
 }
+
+void GLWidget::ValueChangedNoiseStart (int index)
+{
+    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	float noiseStart = 0.5 + 0.5 * index / 99;
+	GetViewSettings (viewNumber).GetVelocityAverage ().
+	    SetNoiseStart (noiseStart);
+	GetViewSettings (viewNumber).GetDeformationAverage ().
+	    SetNoiseStart (noiseStart);
+    }
+    update ();
+}
+
+void GLWidget::ValueChangedNoiseAmplitude (int i)
+{
+}
+
+void GLWidget::ValueChangedNoiseFrequency (int index)
+{
+    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	float noiseFrequency = 4.0 * index;
+	GetViewSettings (viewNumber).GetVelocityAverage ().
+	    SetNoiseFrequency (noiseFrequency);
+	GetViewSettings (viewNumber).GetDeformationAverage ().
+	    SetNoiseFrequency (noiseFrequency);
+    }
+    update ();
+}
+
 
 void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
 {

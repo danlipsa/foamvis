@@ -160,9 +160,11 @@ void main (void)
     vec2 gridCoord, texCoordCenter;
     getCoordinates (gridCoord, texCoordCenter);
     vec2 gridCoordFract = fract (gridCoord);
+    vec2 gridCoordFloor = floor (gridCoord);
     if (isOnEllipse (gridCoordFract, texCoordCenter) || 
 	(u_gridShown && isOnGrid (gridCoordFract)) ||
-	(u_gridCellCenterShown && isOnGridCellCenter (gridCoordFract))
+	(u_gridCellCenterShown && 
+	 isOnGridCellCenter (gridCoordFract, gridCoordFloor))
 	||
 	isOnGridCenter (gridCoord))
 	gl_FragColor = inkColor;

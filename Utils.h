@@ -170,8 +170,7 @@ G3D::AABox EncloseRotation (const G3D::AABox& box);
 G3D::AABox EncloseRotation2D (const G3D::AABox& box);
 G3D::Rect2D EncloseRotation (const G3D::Rect2D& rect);
 
-//#define RESOURCE(name) ":/" name
-#define RESOURCE(name) name
+#define RESOURCE(name) ":/" name
 
 void SetCheckedNoSignals (QButtonGroup* buttonGroup, int buttonId, 
 			  bool checked);

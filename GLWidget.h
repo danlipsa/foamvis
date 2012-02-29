@@ -360,6 +360,10 @@ public Q_SLOTS:
     void CurrentIndexChangedViewCount (int index);
     void CurrentIndexChangedViewLayout (int index);
 
+    void ValueChangedNoiseStart (int i);
+    void ValueChangedNoiseAmplitude (int i);
+    void ValueChangedNoiseFrequency (int i);
+
     void ValueChangedAngleOfView (int newIndex);
     void ValueChangedContextAlpha (int sliderValue);
     void ValueChangedEdgesRadius (int sliderValue);
