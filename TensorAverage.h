@@ -22,6 +22,7 @@ public:
     void Bind (
 	G3D::Vector2 gridTranslation, float cellLength, 
 	float lineWidth, float noiseStart, float noiseFrequency,
+	float noiseAmplitude,
 	float elipseSizeRatio, G3D::Rect2D enclosingRect,
 	G3D::Vector2 rotationCenter, 
 	bool gridShown, bool clampingShown,
@@ -42,6 +43,7 @@ private:
     int m_lineWidthLocation;
     int m_noiseStartLocation;
     int m_noiseFrequencyLocation;
+    int m_noiseAmplitudeLocation;
     int m_ellipseSizeRatioLocation;
     int m_enclosingRectLowLocation;
     int m_enclosingRectHighLocation;
@@ -74,6 +76,7 @@ public:
 	m_gridCellCenterShown (false),
 	m_noiseStart (0.5),
 	m_noiseFrequency (317),
+	m_noiseAmplitude (10.0),
 	m_sizeInitialRatio (sizeInitialRatio),
 	m_sizeRatio (sizeRatio),
 	m_lineWidthRatio (lineWidthRatio)
@@ -112,6 +115,10 @@ public:
     {
 	m_noiseFrequency = noiseFrequency;
     }
+    void SetNoiseAmplitude (float noiseAmplitude)
+    {
+	m_noiseAmplitude = noiseAmplitude;
+    }
     
 
 protected:
@@ -140,6 +147,7 @@ private:
     bool m_gridCellCenterShown;
     float m_noiseStart;
     float m_noiseFrequency;
+    float m_noiseAmplitude;
     ParameterView m_sizeInitialRatio;
     Parameter m_sizeRatio;
     Parameter m_lineWidthRatio;

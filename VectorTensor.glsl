@@ -19,6 +19,7 @@ uniform float u_cellLength;
 uniform float u_lineWidth;
 uniform float u_noiseStart;
 uniform float u_noiseFrequency;
+uniform float u_noiseAmplitude;
 uniform float u_sizeRatio;
 // deformation tensors are stored here.
 uniform sampler2D u_tensorAverageTexUnit;
@@ -42,11 +43,14 @@ bool isOnGrid (vec2 x)
 // x is in [0, 1)
 bool isOnGridCellCenter (vec2 x, vec2 f)
 {
-    float p = (u_cellLength - 2 * u_onePixelInObjectSpace) / u_cellLength;
-    vec2 percentage = vec2 (p, p);
-    vec2 s = (vec2 (1, 1) - percentage) / 2;
-    x = fract (vec2 (0.5, 0.5) + x - s - 
-	       13 * s * noise2 (u_noiseStart + f / u_noiseFrequency));
+    float empty = (u_cellLength - 2 * u_onePixelInObjectSpace) / u_cellLength;
+    float halfFull = (1 - empty) / 2;
+    vec2 percentage = vec2 (empty, empty);
+    x = fract (
+	vec2 (0.5, 0.5) + x - 
+	halfFull * (vec2(1,1) + 
+		    u_noiseAmplitude * noise2 (
+			u_noiseStart + f / u_noiseFrequency)));
     vec2 isOnLine = step (percentage, x);
     return isOnLine.x * isOnLine.y == 1.0;
 }

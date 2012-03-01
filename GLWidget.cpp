@@ -37,6 +37,10 @@
 #include "ViewSettings.h"
 #include "VectorAverage.h"
 
+#define __LOG__(code) code
+//#define __LOG__(code)
+
+
 // Private Classes/Functions
 // ======================================================================
 
@@ -4136,6 +4140,8 @@ void GLWidget::ValueChangedNoiseStart (int index)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	float noiseStart = 0.5 + 0.5 * index / 99;
+	__LOG__ (cdbg << "index=" << index 
+		 << " noiseStart=" << noiseStart << endl;)
 	GetViewSettings (viewNumber).GetVelocityAverage ().
 	    SetNoiseStart (noiseStart);
 	GetViewSettings (viewNumber).GetDeformationAverage ().
@@ -4144,8 +4150,20 @@ void GLWidget::ValueChangedNoiseStart (int index)
     update ();
 }
 
-void GLWidget::ValueChangedNoiseAmplitude (int i)
+void GLWidget::ValueChangedNoiseAmplitude (int index)
 {
+    for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	float noiseAmplitude = 5.0 + index / 10.0;
+	__LOG__ (cdbg << "index=" << index 
+		 << " noiseAmplitude=" << noiseAmplitude << endl;)
+	GetViewSettings (viewNumber).GetVelocityAverage ().
+	    SetNoiseAmplitude (noiseAmplitude);
+	GetViewSettings (viewNumber).GetDeformationAverage ().
+	    SetNoiseAmplitude (noiseAmplitude);
+    }
+    update ();
 }
 
 void GLWidget::ValueChangedNoiseFrequency (int index)
@@ -4154,6 +4172,8 @@ void GLWidget::ValueChangedNoiseFrequency (int index)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	float noiseFrequency = 4.0 * index;
+	__LOG__ (cdbg << "index=" << index 
+		 << " noiseFrequency=" << noiseFrequency << endl;)
 	GetViewSettings (viewNumber).GetVelocityAverage ().
 	    SetNoiseFrequency (noiseFrequency);
 	GetViewSettings (viewNumber).GetDeformationAverage ().
