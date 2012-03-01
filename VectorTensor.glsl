@@ -30,6 +30,13 @@ uniform bool u_gridCellCenterShown;
 uniform bool u_clampingShown;
 uniform float u_onePixelInObjectSpace;
 
+#include "noise2D.glsl"
+
+vec2 snoise2 (vec2 x)
+{
+    return vec2 (snoise (x), snoise (x) + 43);
+}
+
 // x is in [0, 1)
 bool isOnGrid (vec2 x)
 {
