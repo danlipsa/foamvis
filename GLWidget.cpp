@@ -4171,7 +4171,7 @@ void GLWidget::ValueChangedNoiseFrequency (int index)
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	float noiseFrequency = 4.0 * index;
+	float noiseFrequency = (1.0 + index) / 2.0;
 	__LOG__ (cdbg << "index=" << index 
 		 << " noiseFrequency=" << noiseFrequency << endl;)
 	GetViewSettings (viewNumber).GetVelocityAverage ().

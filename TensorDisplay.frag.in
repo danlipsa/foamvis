@@ -1,4 +1,4 @@
-#include "VectorTensor.glsl"
+#include "VectorTensor.frag"
 /**
  * @file   TensorDisplay.frag
  * @author Dan R. Lipsa
