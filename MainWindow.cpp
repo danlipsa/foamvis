@@ -238,7 +238,7 @@ void MainWindow::connectSignals ()
 	SIGNAL (OverlayBarModelChanged (ViewNumber::Enum, 
 					boost::shared_ptr<ColorBarModel>)),
 	widgetGl, 
-	SLOT (SetOverlayBarModel (ViewNumber::Enum, 
+	SLOT (SetVelocityOverlayBarModel (ViewNumber::Enum, 
 				  boost::shared_ptr<ColorBarModel>)));
 
     
@@ -257,7 +257,7 @@ void MainWindow::connectSignals ()
 	SIGNAL (OverlayBarModelChanged (ViewNumber::Enum,
 					boost::shared_ptr<ColorBarModel>)),
 	widgetGl, 
-	SLOT (SetOverlayBarModel (ViewNumber::Enum,
+	SLOT (SetVelocityOverlayBarModel (ViewNumber::Enum,
 				  boost::shared_ptr<ColorBarModel>)));
     connectColorBarHistogram (true);
     

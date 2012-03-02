@@ -343,6 +343,8 @@ public Q_SLOTS:
     void ToggledVelocityClampingShown (bool checked);
     void ToggledDeformationGridCellCenterShown (bool checked);
     void ToggledVelocityGridCellCenterShown (bool checked);
+    void ToggledVelocitySameSize (bool checked);
+    void ToggledVelocityColorMapped (bool checked);
 
     void SetBodyOrFaceProperty (
 	ViewNumber::Enum viewNumber,
@@ -350,7 +352,7 @@ public Q_SLOTS:
 	size_t property);
     void SetColorBarModel (ViewNumber::Enum viewNumber, 
 			   boost::shared_ptr<ColorBarModel> colorBarModel);
-    void SetOverlayBarModel (ViewNumber::Enum viewNumber, 
+    void SetVelocityOverlayBarModel (ViewNumber::Enum viewNumber, 
 			     boost::shared_ptr<ColorBarModel> colorBarModel);
     void CurrentIndexChangedSimulation (int index);
     void CurrentIndexChangedInteractionMode (int index);
@@ -425,7 +427,6 @@ public Q_SLOTS:
     // Actions color bar
     void ColorBarClampClear ();
     void OverlayBarClampClear ();
-    void OverlayBarClampHighMinimum ();
     void CopyTransformationFrom (int viewNumber);
     void CopySelectionFrom (int viewNumber);
     void CopyColorBarFrom (int viewNumber);

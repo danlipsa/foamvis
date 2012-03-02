@@ -75,7 +75,7 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_forceNetworkShown (false),
     m_forcePressureShown (false),
     m_forceResultShown (false),
-    m_deformationTensorShown (false),
+    m_deformationShown (false),
     m_velocityShown (false),
     m_averageAroundMovementShown (AVERAGE_AROUND_MOVEMENT_NONE),
     m_bodySelector (AllBodySelector::Get ()),
@@ -107,8 +107,14 @@ ViewSettings::~ViewSettings ()
 
 float ViewSettings::GetVelocityClampingRatio () const
 {
-    return m_overlayBarModel->GetInterval ().maxValue () / 
-	m_overlayBarModel->GetClampValues ().maxValue ();
+    QwtDoubleInterval values = m_velocityOverlayBarModel->GetInterval ();
+    double interval = values.maxValue () - values.minValue ();
+    QwtDoubleInterval clampValues = m_velocityOverlayBarModel->GetClampValues ();
+    double clampInterval = clampValues.maxValue () - clampValues.minValue ();
+    if (clampInterval == 0)
+	return numeric_limits<float>::max ();
+    else
+	return interval / clampInterval;
 }
 
 
@@ -267,10 +273,10 @@ void ViewSettings::SetColorBarModel (
     }
 }
 
-void ViewSettings::SetOverlayBarModel (
+void ViewSettings::SetVelocityOverlayBarModel (
     const boost::shared_ptr<ColorBarModel>& colorBarModel)
 {
-    m_overlayBarModel = colorBarModel;
+    m_velocityOverlayBarModel = colorBarModel;
     if (colorBarModel)
     {
 	const QImage image = colorBarModel->GetImage ();

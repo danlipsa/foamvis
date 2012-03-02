@@ -27,6 +27,7 @@ TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
     m_gridTranslationLocation = uniformLocation ("u_gridTranslationE");
     m_cellLengthLocation = uniformLocation ("u_cellLength");
     m_lineWidthLocation = uniformLocation ("u_lineWidth");
+    m_sameSizeLocation = uniformLocation ("u_sameSize");
     m_noiseStartLocation = uniformLocation ("u_noiseStart");
     m_noiseFrequencyLocation = uniformLocation ("u_noiseFrequency");
     m_noiseAmplitudeLocation = uniformLocation ("u_noiseAmplitude");
@@ -46,6 +47,7 @@ TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
 
 void TensorDisplay::Bind (
     G3D::Vector2 gridTranslation, float cellLength, float lineWidth,
+    bool sameSize,
     float noiseStart, float noiseFrequency, float noiseAmplitude,
     float ellipseSizeRatio, G3D::Rect2D enclosingRect, 
     G3D::Vector2 rotationCenter,
@@ -57,6 +59,7 @@ void TensorDisplay::Bind (
 	m_gridTranslationLocation, gridTranslation[0], gridTranslation[1]);
     setUniformValue (m_cellLengthLocation, cellLength);
     setUniformValue (m_lineWidthLocation, lineWidth);
+    setUniformValue (m_sameSizeLocation, sameSize);
     setUniformValue (m_noiseStartLocation, noiseStart);
     setUniformValue (m_noiseFrequencyLocation, noiseFrequency);
     setUniformValue (m_noiseAmplitudeLocation, noiseAmplitude);
@@ -125,7 +128,8 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
 	&cellLength, &lineWidth, &sizeRatio, &enclosingRect, 
 	&onePixelInObjectSpace);
     m_displayShaderProgram->Bind (
-	gridTranslation, cellLength, lineWidth, m_noiseStart, m_noiseFrequency,
+	gridTranslation, cellLength, lineWidth, m_sameSize, 
+	m_noiseStart, m_noiseFrequency,
 	m_noiseAmplitude,
 	sizeRatio, enclosingRect, rotationCenter,
 	m_gridShown, m_clampingShown, m_gridCellCenterShown, 
@@ -168,9 +172,8 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
     *lineWidth = *onePixelInObjectSpace * 
 	CALL_MEMBER_FN (vs, m_lineWidthRatio) ();
 
-    *sizeRatio = 
-	CALL_MEMBER_FN (glWidget, m_sizeInitialRatio) (viewNumber) * 
-	CALL_MEMBER_FN (vs, m_sizeRatio) () * gridScaleRatio;
+    *sizeRatio = CALL_MEMBER_FN (glWidget, m_sizeInitialRatio) (viewNumber) * 
+	gridScaleRatio * CALL_MEMBER_FN (vs, m_sizeRatio) ();
     *enclosingRect = toRect2D (
 	glWidget.CalculateViewingVolume (
 	    viewNumber, ViewingVolumeOperation::ENCLOSE2D)) - rotationCenter;
@@ -179,7 +182,8 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
 TensorAverage::TensorAverage (const GLWidget& glWidget,
 			      FramebufferObjects& scalarAverageFbos) :
     TensorAverageTemplate<SetterDeformation> (
-	glWidget, &GLWidget::GetDeformationSizeInitialRatio,
+	glWidget, 
+	&GLWidget::GetDeformationSizeInitialRatio,
 	&ViewSettings::GetDeformationSize,
 	&ViewSettings::GetDeformationLineWidth,
 	scalarAverageFbos)

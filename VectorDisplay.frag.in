@@ -82,13 +82,13 @@ vec2 clamp (vec2 v, float maxLength, out bool clamped)
     float length = length (v);
     if (length > maxLength)
     {
-	clamped = true;
-	return v * (maxLength / length);
+        clamped = true;
+        return v * (maxLength / length);
     }
     else
     {
-	clamped = false;
-	return v;
+        clamped = false;
+        return v;
     }
 }
 
@@ -98,32 +98,35 @@ bool isOnArrow (vec2 x, vec2 texCoordCenter)
     vec2 v;
     if (getVector (texCoordCenter, v))
     {
-	const float arrowAngle = 15.0;
-	const float arrowLengthInPixels = 10;
-	rotateModelView (v);
-	bool clamped = false;
-	v = clamp (v * u_sizeRatio, u_cellLength, clamped);
-	float arrowLength = min (
-	    length (v), arrowLengthInPixels * u_onePixelInObjectSpace) / 
-	    u_cellLength;
-	//float arrowLength = length (v) / u_cellLength;
-	v = v / u_cellLength;
-	float magnitude = length (v);
-	v = normalize (v);
-	vec2 n = vec2 (-v[1], v[0]);
-	vec2 xToMiddle = x - vec2 (.5, .5);
-	vec2 xToTop = xToMiddle - v * (magnitude / 2);
-	vec2 p1 = vec2 (.5, .5) + v * (magnitude / 2);
-	vec2 p2 = p1 - rotate (v, arrowAngle) * arrowLength;
-	vec2 p3 = p1 - rotate (v, -arrowAngle) * arrowLength;
-	return 
-	    isOnLine (xToMiddle , n, lineWidthPerc, magnitude) ||
-	    isOnTriangle (x, p1, p2, p3) ||
-	    (u_clampingShown && clamped && 
-	     isOnLine (xToMiddle, v, lineWidthPerc, arrowLength));
+        const float arrowAngle = 15.0;
+        const float arrowLengthInPixels = 10;
+        rotateModelView (v);
+        bool clamped = false;
+	if (u_sameSize)
+	    v = normalize (v) * u_cellLength;
+	else
+	    v = clamp (v * u_sizeRatio, u_cellLength, clamped);
+        float arrowLength = min (
+            length (v), arrowLengthInPixels * u_onePixelInObjectSpace) / 
+            u_cellLength;
+        //float arrowLength = length (v) / u_cellLength;
+        v = v / u_cellLength;
+        float magnitude = length (v);
+        v = normalize (v);
+        vec2 n = vec2 (-v[1], v[0]);
+        vec2 xToMiddle = x - vec2 (.5, .5);
+        vec2 xToTop = xToMiddle - v * (magnitude / 2);
+        vec2 p1 = vec2 (.5, .5) + v * (magnitude / 2);
+        vec2 p2 = p1 - rotate (v, arrowAngle) * arrowLength;
+        vec2 p3 = p1 - rotate (v, -arrowAngle) * arrowLength;
+        return 
+            isOnLine (xToMiddle , n, lineWidthPerc, magnitude) ||
+            isOnTriangle (x, p1, p2, p3) ||
+            (u_clampingShown && clamped && 
+             isOnLine (xToMiddle, v, lineWidthPerc, arrowLength));
     }
     else
-	return false;
+        return false;
 }
 
 void main (void)

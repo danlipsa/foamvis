@@ -98,23 +98,18 @@ public:
     {
 	return m_colorBarModel;
     }
-    boost::shared_ptr<ColorBarModel> GetOverlayBarModel () const
+    boost::shared_ptr<ColorBarModel> GetVelocityOverlayBarModel () const
     {
-	return m_overlayBarModel;
+	return m_velocityOverlayBarModel;
     }
     void SetColorBarModel (
 	const boost::shared_ptr<ColorBarModel>& colorBarModel);
-    void SetOverlayBarModel (
+    void SetVelocityOverlayBarModel (
 	const boost::shared_ptr<ColorBarModel>& colorBarModel);
     void ResetColorBarModel ()
     {
 	m_colorBarModel.reset ();
     }
-    void ResetOverlayBarModel ()
-    {
-	m_overlayBarModel.reset ();
-    }
-
 
     StatisticsType::Enum GetStatisticsType () const
     {
@@ -357,12 +352,12 @@ public:
 
     void SetDeformationTensorShown (bool deformationTensorShown)
     {
-	m_deformationTensorShown = deformationTensorShown;
+	m_deformationShown = deformationTensorShown;
     }
 
     bool IsDeformationShown () const
     {
-	return m_deformationTensorShown;
+	return m_deformationShown;
     }
 
     void SetVelocityShown (bool velocityShown)
@@ -564,7 +559,7 @@ private:
     boost::shared_ptr<VectorAverage> m_velocityAverage;
     boost::shared_ptr<ForceAverage> m_forceAverage;
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
-    boost::shared_ptr<ColorBarModel> m_overlayBarModel;
+    boost::shared_ptr<ColorBarModel> m_velocityOverlayBarModel;
     G3D::Matrix3 m_rotationModel;
     G3D::Rect2D m_viewport;
     double m_scaleRatio;
@@ -600,7 +595,7 @@ private:
     bool m_forceNetworkShown;
     bool m_forcePressureShown;
     bool m_forceResultShown;
-    bool m_deformationTensorShown;
+    bool m_deformationShown;
     bool m_velocityShown;
     // Context display
     set<size_t> m_contextBody;

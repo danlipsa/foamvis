@@ -21,7 +21,8 @@ public:
     TensorDisplay (const char* vert, const char* frag);
     void Bind (
 	G3D::Vector2 gridTranslation, float cellLength, 
-	float lineWidth, float noiseStart, float noiseFrequency,
+	float lineWidth, bool sameSize, 
+	float noiseStart, float noiseFrequency,
 	float noiseAmplitude,
 	float elipseSizeRatio, G3D::Rect2D enclosingRect,
 	G3D::Vector2 rotationCenter, 
@@ -41,6 +42,7 @@ private:
     int m_gridTranslationLocation;
     int m_cellLengthLocation;
     int m_lineWidthLocation;
+    int m_sameSizeLocation;
     int m_noiseStartLocation;
     int m_noiseFrequencyLocation;
     int m_noiseAmplitudeLocation;
@@ -60,20 +62,22 @@ template<typename Setter>
 class TensorAverageTemplate : public ImageBasedAverage<Setter>
 {
 public:
-    typedef float (GLWidget::*ParameterView) (
+    typedef float (GLWidget::*GLWidgetFloatFunction) (
 	ViewNumber::Enum viewNumber) const;
-    typedef float (ViewSettings::*Parameter) () const;    
+    typedef float (ViewSettings::*ViewSettingsFloatFunction) () const;
 
 public:
     TensorAverageTemplate (
-	const GLWidget& glWidget, ParameterView sizeInitialRatio,
-	Parameter sizeRatio, Parameter lineWidthRatio,
+	const GLWidget& glWidget, GLWidgetFloatFunction sizeInitialRatio,
+	ViewSettingsFloatFunction sizeRatio, 
+	ViewSettingsFloatFunction lineWidthRatio,
 	FramebufferObjects& scalarAverageFbos) :
 	ImageBasedAverage<Setter> (
 	    glWidget, "tensor", QColor (0, 0, 0, 0), scalarAverageFbos),
 	m_gridShown (false),
 	m_clampingShown (false),
 	m_gridCellCenterShown (false),
+	m_sameSize (false),
 	m_noiseStart (0.5),
 	m_noiseFrequency (317),
 	m_noiseAmplitude (10.0),
@@ -107,6 +111,14 @@ public:
     {
 	return m_gridCellCenterShown;
     }
+    void SetSameSize (bool sameSize)
+    {
+	m_sameSize = sameSize;
+    }
+    bool IsSameSize () const
+    {
+	return m_sameSize;
+    }
     void SetNoiseStart (float noiseStart)
     {
 	m_noiseStart = noiseStart;
@@ -134,7 +146,7 @@ protected:
 private:
     void calculateShaderParameters (
 	ViewNumber::Enum viewNumber, G3D::Vector2 rotationCenter, 
-	G3D::Vector2* gridTranslation, float* cellLength, float* lineWidth, 
+	G3D::Vector2* gridTranslation, float* cellLength, float* lineWidth, 	
 	float* elipseSizeRatio, G3D::Rect2D* srcRect, 
 	float* onePixelInObjectSpace) const;
 
@@ -145,12 +157,13 @@ private:
     bool m_gridShown;
     bool m_clampingShown;
     bool m_gridCellCenterShown;
+    bool m_sameSize;
     float m_noiseStart;
     float m_noiseFrequency;
     float m_noiseAmplitude;
-    ParameterView m_sizeInitialRatio;
-    Parameter m_sizeRatio;
-    Parameter m_lineWidthRatio;
+    GLWidgetFloatFunction m_sizeInitialRatio;
+    ViewSettingsFloatFunction m_sizeRatio;
+    ViewSettingsFloatFunction m_lineWidthRatio;
 };
 
 class TensorAverage : public TensorAverageTemplate<SetterDeformation>

@@ -6,7 +6,6 @@
  */
 
 // @todo fix the (slow) movement of the focus in context view
-// @todo use velocity magnitude scale for scaling velocity vectors.
 
 #include "Body.h"
 #include "BodyAlongTime.h"
@@ -433,14 +432,6 @@ void GLWidget::createActions ()
     m_actionOverlayBarClampClear->setStatusTip(tr("Clamp clear"));
     connect(m_actionOverlayBarClampClear.get (), SIGNAL(triggered()),
 	    this, SLOT(OverlayBarClampClear ()));
-
-    m_actionOverlayBarClampHighMinimum.reset (
-	new QAction (tr("&Clamp high zero"), this));
-    m_actionOverlayBarClampHighMinimum->setStatusTip(tr("Clamp high zero"));
-    connect(m_actionOverlayBarClampHighMinimum.get (), SIGNAL(triggered()),
-	    this, SLOT(OverlayBarClampHighMinimum ()));
-
-
 
     initCopy (m_actionCopyTransformation, m_signalMapperCopyTransformation);
     connect (m_signalMapperCopyTransformation.get (),
@@ -1314,20 +1305,10 @@ void GLWidget::OverlayBarClampClear ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    boost::shared_ptr<ColorBarModel> colorBarModel = vs.GetOverlayBarModel ();
+    boost::shared_ptr<ColorBarModel> colorBarModel = vs.GetVelocityOverlayBarModel ();
     colorBarModel->SetClampClear ();
     Q_EMIT OverlayBarModelChanged (viewNumber, colorBarModel);
 }
-
-void GLWidget::OverlayBarClampHighMinimum ()
-{
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    boost::shared_ptr<ColorBarModel> colorBarModel = vs.GetOverlayBarModel ();
-    colorBarModel->SetClampHighMinimum ();
-    Q_EMIT OverlayBarModelChanged (viewNumber, colorBarModel);
-}
-
 
 // Uses antialiased points and lines
 // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
@@ -3152,7 +3133,6 @@ void GLWidget::quadricErrorCallback (GLenum errorCode)
 void GLWidget::contextMenuEventOverlayBar (QMenu* menu) const
 {
     menu->addAction (m_actionOverlayBarClampClear.get ());
-    menu->addAction (m_actionOverlayBarClampHighMinimum.get ());
     menu->addAction (m_actionEditOverlayMap.get ());
 }
 
@@ -3392,6 +3372,8 @@ void GLWidget::displayVelocityOverlayBar (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
+    if (vs.GetVelocityAverage ().IsSameSize ())
+	return;
     G3D::Rect2D r = getViewOverlayBarRect (viewRect);
     glPushAttrib (GL_POLYGON_BIT | GL_ENABLE_BIT | GL_LINE_BIT);
     glDisable (GL_DEPTH_TEST);
@@ -3781,6 +3763,21 @@ void GLWidget::ToggledVelocityGridCellCenterShown (bool checked)
     update ();
 }
 
+void GLWidget::ToggledVelocitySameSize (bool checked)
+{
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+	GetViewSettings (vn[i]).GetVelocityAverage ().
+	    SetSameSize (checked);
+    update ();    
+}
+
+void GLWidget::ToggledVelocityColorMapped (bool checked)
+{
+    
+}
+
+
 
 void GLWidget::ToggledMissingPressureShown (bool checked)
 {
@@ -4125,12 +4122,12 @@ void GLWidget::SetColorBarModel (ViewNumber::Enum viewNumber,
     update ();
 }
 
-void GLWidget::SetOverlayBarModel (
+void GLWidget::SetVelocityOverlayBarModel (
     ViewNumber::Enum viewNumber, 
     boost::shared_ptr<ColorBarModel> colorBarModel)
 {
     makeCurrent ();
-    GetViewSettings (viewNumber).SetOverlayBarModel (colorBarModel);
+    GetViewSettings (viewNumber).SetVelocityOverlayBarModel (colorBarModel);
     update ();
 }
 

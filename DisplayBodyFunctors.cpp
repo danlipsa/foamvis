@@ -180,9 +180,17 @@ void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body,
     else
 	glColor (QColor::fromRgbF (0, 0, 0, m_glWidget.GetContextAlpha ()));
     bool clamped = false;
-    G3D::Vector2 velocity = clamp (
-	body->GetVelocity ().xy () * size, 
-	m_glWidget.GetCellLength (viewNumber), &clamped);
+    G3D::Vector2 velocity;
+    if (vs.GetVelocityAverage ().IsSameSize ())
+    {
+	clamped = true;
+	velocity = body->GetVelocity ().xy ();
+	velocity *= m_glWidget.GetCellLength (viewNumber) / velocity.length ();
+    }
+    else
+	velocity = clamp (
+	    body->GetVelocity ().xy () * size, 
+	    m_glWidget.GetCellLength (viewNumber), &clamped);
     DisplaySegmentArrow (
 	body->GetCenter ().xy () - velocity / 2, velocity, lineWidth,
 	m_glWidget.GetOnePixelInObjectSpace (), 
