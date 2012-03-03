@@ -28,6 +28,7 @@ TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
     m_cellLengthLocation = uniformLocation ("u_cellLength");
     m_lineWidthLocation = uniformLocation ("u_lineWidth");
     m_sameSizeLocation = uniformLocation ("u_sameSize");
+    m_colorMappedLocation = uniformLocation ("u_colorMapped");
     m_noiseStartLocation = uniformLocation ("u_noiseStart");
     m_noiseFrequencyLocation = uniformLocation ("u_noiseFrequency");
     m_noiseAmplitudeLocation = uniformLocation ("u_noiseAmplitude");
@@ -47,7 +48,7 @@ TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
 
 void TensorDisplay::Bind (
     G3D::Vector2 gridTranslation, float cellLength, float lineWidth,
-    bool sameSize,
+    bool sameSize, bool colorMapped,
     float noiseStart, float noiseFrequency, float noiseAmplitude,
     float ellipseSizeRatio, G3D::Rect2D enclosingRect, 
     G3D::Vector2 rotationCenter,
@@ -60,6 +61,7 @@ void TensorDisplay::Bind (
     setUniformValue (m_cellLengthLocation, cellLength);
     setUniformValue (m_lineWidthLocation, lineWidth);
     setUniformValue (m_sameSizeLocation, sameSize);
+    setUniformValue (m_colorMappedLocation, colorMapped);
     setUniformValue (m_noiseStartLocation, noiseStart);
     setUniformValue (m_noiseFrequencyLocation, noiseFrequency);
     setUniformValue (m_noiseAmplitudeLocation, noiseAmplitude);
@@ -128,7 +130,7 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
 	&cellLength, &lineWidth, &sizeRatio, &enclosingRect, 
 	&onePixelInObjectSpace);
     m_displayShaderProgram->Bind (
-	gridTranslation, cellLength, lineWidth, m_sameSize, 
+	gridTranslation, cellLength, lineWidth, m_sameSize, m_colorMapped,
 	m_noiseStart, m_noiseFrequency,
 	m_noiseAmplitude,
 	sizeRatio, enclosingRect, rotationCenter,

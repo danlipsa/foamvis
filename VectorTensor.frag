@@ -22,6 +22,7 @@ uniform float u_noiseFrequency;
 uniform float u_noiseAmplitude;
 uniform float u_sizeRatio;
 uniform bool u_sameSize;
+uniform bool u_colorMapped;
 // deformation tensors are stored here.
 uniform sampler2D u_tensorAverageTexUnit;
 // scalar averages are stored here (sum, count, min, max). We use count.

@@ -43,6 +43,7 @@ private:
     int m_cellLengthLocation;
     int m_lineWidthLocation;
     int m_sameSizeLocation;
+    int m_colorMappedLocation;
     int m_noiseStartLocation;
     int m_noiseFrequencyLocation;
     int m_noiseAmplitudeLocation;
@@ -78,6 +79,7 @@ public:
 	m_clampingShown (false),
 	m_gridCellCenterShown (false),
 	m_sameSize (false),
+	m_colorMapped(false),
 	m_noiseStart (0.5),
 	m_noiseFrequency (317),
 	m_noiseAmplitude (10.0),
@@ -119,6 +121,14 @@ public:
     {
 	return m_sameSize;
     }
+    void SetColorMapped (bool colorMapped)
+    {
+	m_colorMapped = colorMapped;
+    }
+    bool IsColorMapped ()
+    {
+	return m_colorMapped;
+    }
     void SetNoiseStart (float noiseStart)
     {
 	m_noiseStart = noiseStart;
@@ -158,6 +168,7 @@ private:
     bool m_clampingShown;
     bool m_gridCellCenterShown;
     bool m_sameSize;
+    bool m_colorMapped;
     float m_noiseStart;
     float m_noiseFrequency;
     float m_noiseAmplitude;

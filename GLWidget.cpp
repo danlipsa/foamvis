@@ -1305,7 +1305,8 @@ void GLWidget::OverlayBarClampClear ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    boost::shared_ptr<ColorBarModel> colorBarModel = vs.GetVelocityOverlayBarModel ();
+    boost::shared_ptr<ColorBarModel> colorBarModel = 
+	vs.GetVelocityOverlayBarModel ();
     colorBarModel->SetClampClear ();
     Q_EMIT OverlayBarModelChanged (viewNumber, colorBarModel);
 }
@@ -3774,10 +3775,12 @@ void GLWidget::ToggledVelocitySameSize (bool checked)
 
 void GLWidget::ToggledVelocityColorMapped (bool checked)
 {
-    
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+	GetViewSettings (vn[i]).GetVelocityAverage ().
+	    SetColorMapped (checked);
+    update ();    
 }
-
-
 
 void GLWidget::ToggledMissingPressureShown (bool checked)
 {
