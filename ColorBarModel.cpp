@@ -134,10 +134,13 @@ void ColorBarModel::setupPaletteSequential (
     switch (paletteSequential)
     {
     case PaletteSequential::BLACK_BODY:
-	setupPaletteBlackBody ();
+	setupPaletteSequentialBlackBody ();
 	break;
     case PaletteSequential::BREWER_BLUES9:
-	setupPaletteBrewerBlue9 ();
+	setupPaletteSequentialBrewerBlues9 ();
+	break;
+    case PaletteSequential::BREWER_YLORRD9:
+	setupPaletteSequentialBrewerYlOrRd9 ();
 	break;
     case PaletteSequential::COUNT:
 	ThrowException ("Invalid sequential palette: ", paletteSequential);
@@ -162,7 +165,7 @@ void ColorBarModel::setupPaletteDiverging (
     }
 }
 
-void ColorBarModel::setupPaletteBlackBody ()
+void ColorBarModel::setupPaletteSequentialBlackBody ()
 {
   VTK_CREATE(vtkColorTransferFunction, blackbody);
   blackbody->SetColorSpaceToLab();
@@ -176,13 +179,12 @@ void ColorBarModel::setupPaletteBlackBody ()
   m_highlightColor[2] = Qt::magenta;
 }
 
-// Color Brewer 9
-void ColorBarModel::setupPaletteBrewerBlue9 ()
+void ColorBarModel::setupPaletteSequentialBrewerBlues9 ()
 {
     VTK_CREATE(vtkColorTransferFunction, f);
     f->SetColorSpaceToLab();
-    //f->AddRGBPoint(0.0    , 0.968627, 0.984314, 1.000000);
-    f->AddRGBPoint(0.0    ,        1,        1, 1.000000); // change to white
+    f->AddRGBPoint(0.0    , 0.968627, 0.984314, 1.000000);
+    //f->AddRGBPoint(0.0    ,        1,        1, 1.000000); // change to white
     f->AddRGBPoint(0.12500, 0.870588, 0.921569, 0.968627);
     f->AddRGBPoint(0.25000, 0.776471, 0.858824, 0.937255);
     f->AddRGBPoint(0.37500, 0.619608, 0.792157, 0.882353);
@@ -196,6 +198,28 @@ void ColorBarModel::setupPaletteBrewerBlue9 ()
     m_highlightColor[1] = Qt::red;
     m_highlightColor[2] = Qt::green;
 }
+
+void ColorBarModel::setupPaletteSequentialBrewerYlOrRd9 ()
+{
+    VTK_CREATE(vtkColorTransferFunction, f);
+    f->SetColorSpaceToLab();
+    f->AddRGBPoint(0.0    , 1.00000, 1.00000, 0.80000);
+    f->AddRGBPoint(0.12500, 1.00000, 0.92941, 0.62745);
+    f->AddRGBPoint(0.25000, 0.99608, 0.85098, 0.46275);
+    f->AddRGBPoint(0.37500, 0.99608, 0.69804, 0.29804);
+    f->AddRGBPoint(0.50000, 0.99216, 0.55294, 0.23529);
+    f->AddRGBPoint(0.62500, 0.98824, 0.30588, 0.16471);
+    f->AddRGBPoint(0.75000, 0.89020, 0.10196, 0.10980);
+    f->AddRGBPoint(0.87500, 0.74118, 0.00000, 0.14902);
+    f->AddRGBPoint(1.00000, 0.50196, 0.00000, 0.14902);
+    setup (ColorMapperVtkColorTransferFunction (f));
+    m_highlightColor[0] = Qt::black;
+    m_highlightColor[1] = Qt::blue;
+    m_highlightColor[2] = Qt::green;
+}
+
+
+
 
 void ColorBarModel::setupPaletteRainbowHSV ()
 {
@@ -234,7 +258,7 @@ void ColorBarModel::setupPaletteDiverging (size_t c)
 	    /* purple to orange */
 	    {{0.436, 0.308, 0.631},
 	     {0.759, 0.334, 0.046},
-	     {0, 1, 0}, {1, 1, 0}, {0, 0, 1}
+	     {0, 0, 0}, {1, 1, 0}, {0, 0, 1}
 	    },
 
 	    /* green to purple */

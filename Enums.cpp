@@ -183,7 +183,9 @@ const char* PaletteSequential::ToString (PaletteSequential::Enum type)
     case BLACK_BODY:
 	return "Black body radiator";
     case BREWER_BLUES9:
-	return "Brewer blues 9";
+	return "Blues";
+    case BREWER_YLORRD9:
+	return "Yellow Orange Red";
     default:
 	RuntimeAssert (false, "Invalid Palette: ", type);
 	return 0;

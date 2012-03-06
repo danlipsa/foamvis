@@ -2292,11 +2292,18 @@ void GLWidget::displayVelocity (ViewNumber::Enum viewNumber) const
     const Foam& foam = 
 	GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber));
     const ViewSettings& vs = GetViewSettings (viewNumber);
+    const VectorAverage& va = vs.GetVelocityAverage ();
     if (! foam.Is2D () || ! vs.IsVelocityShown ())
 	return;
     Foam::Bodies bodies = foam.GetBodies ();
     glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
     glDisable (GL_DEPTH_TEST);
+    if (va.IsColorMapped ())
+    {
+	glEnable(GL_TEXTURE_1D);
+	glBindTexture (GL_TEXTURE_1D, vs.GetOverlayBarTexture ());
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    }
     glColor (Qt::black);
     for_each (
 	bodies.begin (), bodies.end (),
@@ -2467,6 +2474,17 @@ pair<float, float> GLWidget::GetRange (ViewNumber::Enum viewNumber) const
     }
     return pair<float, float> (minValue, maxValue);
 }
+
+pair<float, float> GLWidget::GetVelocityMagnitudeRange (
+    ViewNumber::Enum viewNumber) const
+{
+    const Simulation& simulation = GetSimulation (viewNumber);
+    BodyProperty::Enum bodyProperty = BodyProperty::VELOCITY_MAGNITUDE;
+    float minValue = simulation.GetMin (bodyProperty);
+    float maxValue = simulation.GetMax (bodyProperty);
+    return pair<float, float> (minValue, maxValue);
+}
+
 
 pair<float, float> GLWidget::GetRangeCount (ViewNumber::Enum viewNumber) const
 {
@@ -3264,9 +3282,18 @@ void GLWidget::displayViewDecorations (ViewNumber::Enum viewNumber)
     glDisable (GL_DEPTH_TEST);
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     if (GetColorBarType (viewNumber) != ColorBarType::NONE)
-	displayTextureColorBar (viewNumber, viewRect);
+	displayTextureColorBar (vs.GetColorBarTexture (),
+				viewNumber, getViewColorBarRect (viewRect));
     if (vs.IsVelocityShown ())
-	displayVelocityOverlayBar (viewNumber, viewRect);
+    {
+	if (vs.GetVelocityAverage ().IsColorMapped ())
+	    displayTextureColorBar (
+		vs.GetOverlayBarTexture (),
+		viewNumber, getViewOverlayBarRect (viewRect));
+	else if (! vs.GetVelocityAverage ().IsSameSize ())
+	    displayVelocityOverlayBar (
+		viewNumber, getViewOverlayBarRect (viewRect));
+    }
     displayViewTitle (viewNumber);
     if (viewNumber == GetViewNumber () && m_viewFocusShown &&
 	GetViewCount () != ViewCount::ONE)
@@ -3345,16 +3372,15 @@ void GLWidget::displayViewFocus (ViewNumber::Enum viewNumber)
 }
 
 void GLWidget::displayTextureColorBar (
-    ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect)
+    GLuint texture,
+    ViewNumber::Enum viewNumber, const G3D::Rect2D& colorBarRect)
 {
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    G3D::Rect2D colorBarRect = getViewColorBarRect (viewRect);
     glPushAttrib (GL_POLYGON_BIT | GL_ENABLE_BIT | GL_TEXTURE_BIT);
-
     glDisable (GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_1D);
+    glBindTexture (GL_TEXTURE_1D, texture);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    glBindTexture (GL_TEXTURE_1D, vs.GetColorBarTexture ());
+
     glBegin (GL_QUADS);
     glTexCoord1f(0);::glVertex (colorBarRect.x0y0 ());
     glTexCoord1f(1);::glVertex (colorBarRect.x0y1 ());
@@ -3370,25 +3396,24 @@ void GLWidget::displayTextureColorBar (
 }
 
 void GLWidget::displayVelocityOverlayBar (
-    ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect)
+    ViewNumber::Enum viewNumber, const G3D::Rect2D& barRect)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
-    if (vs.GetVelocityAverage ().IsSameSize ())
-	return;
-    G3D::Rect2D r = getViewOverlayBarRect (viewRect);
     glPushAttrib (GL_POLYGON_BIT | GL_ENABLE_BIT | GL_LINE_BIT);
     glDisable (GL_DEPTH_TEST);
     glColor (Qt::white);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-    DisplayBox (r);
+    DisplayBox (barRect);
     glColor (GetHighlightColor (viewNumber, HighlightNumber::H0));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-    DisplayBox (r);
-    float y = r.y0 () + (r.y1 () - r.y0 ()) / vs.GetVelocityClampingRatio ();
+    DisplayBox (barRect);
+    float y = 
+	barRect.y0 () + (barRect.y1 () - barRect.y0 ()) / 
+	vs.GetVelocityClampingRatio ();
     glLineWidth (2);    
     glBegin (GL_LINES);
-    ::glVertex (G3D::Vector2 (r.x0 (), y));
-    ::glVertex (G3D::Vector2 (r.x1 (), y));
+    ::glVertex (G3D::Vector2 (barRect.x0 (), y));
+    ::glVertex (G3D::Vector2 (barRect.x1 (), y));
     glEnd ();
     glPopAttrib ();
 }

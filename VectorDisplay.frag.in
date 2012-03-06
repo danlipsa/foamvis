@@ -93,11 +93,12 @@ vec2 clamp (vec2 v, float maxLength, out bool clamped)
 }
 
 // x is in [0, 1)
-bool isOnArrow (vec2 x, vec2 texCoordCenter)
+bool isOnArrow (vec2 x, vec2 texCoordCenter, out float magnitude)
 {
     vec2 v;
     if (getVector (texCoordCenter, v))
     {
+        magnitude = length (v);
         const float arrowAngle = 15.0;
         const float arrowLengthInPixels = 10;
         rotateModelView (v);
@@ -131,18 +132,27 @@ bool isOnArrow (vec2 x, vec2 texCoordCenter)
 
 void main (void)
 {
-    const vec4 inkColor = vec4 (0., 0., 0., 1.);
     vec2 gridCoord, texCoordCenter;
     getCoordinates (gridCoord, texCoordCenter);
     vec2 gridCoordFract = fract (gridCoord);
     vec2 gridCoordFloor = floor (gridCoord);
-    if (isOnArrow (gridCoordFract, texCoordCenter) || 
+    float velocityMagnitude;
+    if (isOnArrow (gridCoordFract, texCoordCenter, velocityMagnitude) || 
 	(u_gridShown && isOnGrid (gridCoordFract)) ||
 	(u_gridCellCenterShown && 
 	 isOnGridCellCenter (gridCoordFract, gridCoordFloor)) ||
-	isOnGridCenter (gridCoord)
-	)
-	gl_FragColor = inkColor;
+	isOnGridCenter (gridCoord))
+    {
+	if (u_colorMapped)
+	{
+	    float index = (velocityMagnitude - u_minValue) / 
+		(u_maxValue - u_minValue);
+	    gl_FragColor = texture1D (u_overlayBarTexUnit, index);
+	    
+	}
+	else
+	    gl_FragColor = vec4 (0., 0., 0., 1.);
+    }
     else
 	discard;
 }

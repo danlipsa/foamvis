@@ -3,15 +3,15 @@
 ScalarDisplay::ScalarDisplay (const char* frag) :
     ShaderProgram (0, frag)
 {
-    m_displayTypeLocation = uniformLocation ("displayType");
-    m_minValueLocation = uniformLocation("minValue");
-    m_maxValueLocation = uniformLocation("maxValue");
-    m_colorBarTexUnitLocation = uniformLocation("colorBarTexUnit");
-    m_scalarAverageTexUnitLocation = uniformLocation("scalarAverageTexUnit");
+    m_displayTypeLocation = uniformLocation ("u_displayType");
+    m_minValueLocation = uniformLocation("u_minValue");
+    m_maxValueLocation = uniformLocation("u_maxValue");
+    m_colorBarTexUnitLocation = uniformLocation("u_colorBarTexUnit");
+    m_scalarAverageTexUnitLocation = uniformLocation("u_scalarAverageTexUnit");
 }
 
 void ScalarDisplay::Bind (GLfloat minValue, GLfloat maxValue,
-				 StatisticsType::Enum displayType)
+			  StatisticsType::Enum displayType)
 {
     ShaderProgram::Bind ();
     setUniformValue (m_displayTypeLocation, displayType);

@@ -292,9 +292,14 @@ void MainWindow::deformationViewToUI ()
 void MainWindow::velocityViewToUI ()
 {
     const ViewSettings& vs = widgetGl->GetViewSettings ();
+    const VectorAverage& va = vs.GetVelocityAverage ();
     SetCheckedNoSignals (checkBoxVelocityShown, vs.IsVelocityShown ());
-    SetCheckedNoSignals (checkBoxVelocityGridShown, 
-			 vs.GetVelocityAverage ().IsGridShown ());
+    SetCheckedNoSignals (checkBoxVelocityGridShown, va.IsGridShown ());
+    SetCheckedNoSignals (checkBoxVelocityClampingShown, va.IsClampingShown ());
+    SetCheckedNoSignals (checkBoxVelocityGridCellCenterShown, 
+			 va.IsGridCellCenterShown ());
+    SetCheckedNoSignals (checkBoxVelocitySameSize, va.IsSameSize ());
+    SetCheckedNoSignals (checkBoxVelocityColorMapped, va.IsColorMapped ());
     SetValueNoSignals (
 	horizontalSliderVelocityLineWidth, 
 	Value2ExponentIndex (horizontalSliderVelocityLineWidth,

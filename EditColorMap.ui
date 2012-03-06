@@ -307,8 +307,8 @@ p, li { white-space: pre-wrap; }
    <slot>ClickedHighlight0()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>223</x>
-     <y>239</y>
+     <x>220</x>
+     <y>253</y>
     </hint>
     <hint type="destinationlabel">
      <x>386</x>
@@ -323,8 +323,8 @@ p, li { white-space: pre-wrap; }
    <slot>ClickedHighlight1()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>223</x>
-     <y>273</y>
+     <x>220</x>
+     <y>286</y>
     </hint>
     <hint type="destinationlabel">
      <x>385</x>
@@ -375,5 +375,6 @@ p, li { white-space: pre-wrap; }
   <slot>ClickedHighlight1()</slot>
   <slot>ClickedHighligh2()</slot>
   <slot>CurrentIndexChangedType(int)</slot>
+  <slot>ToggledReversed(bool)</slot>
  </slots>
 </ui>

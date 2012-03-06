@@ -21,11 +21,11 @@ public:
     TensorDisplay (const char* vert, const char* frag);
     void Bind (
 	G3D::Vector2 gridTranslation, float cellLength, 
-	float lineWidth, bool sameSize, 
+	float lineWidth, bool sameSize, bool colorMapped,
 	float noiseStart, float noiseFrequency,
 	float noiseAmplitude,
 	float elipseSizeRatio, G3D::Rect2D enclosingRect,
-	G3D::Vector2 rotationCenter, 
+	G3D::Vector2 rotationCenter, float minValue, float maxValue,
 	bool gridShown, bool clampingShown,
 	bool gridCellCenterShown, float onePixelInObjectSpace);
 
@@ -36,6 +36,10 @@ public:
     GLint GetScalarAverageTexUnit ()
     {
 	return 2;
+    }
+    GLint GetOverlayBarTexUnit ()
+    {
+	return 0;
     }
 
 private:
@@ -53,6 +57,9 @@ private:
     int m_rotationCenterLocation;
     int m_tensorAverageTexUnitLocation;
     int m_scalarAverageTexUnitLocation;
+    int m_minValueLocation;
+    int m_maxValueLocation;
+    int m_overlayBarTexUnitLocation;
     int m_gridShownLocation;
     int m_clampingShownLocation;
     int m_gridCellCenterShownLocation;
@@ -109,7 +116,7 @@ public:
     {
 	m_gridCellCenterShown = shown;
     }
-    bool IsGridCellCenterShown ()
+    bool IsGridCellCenterShown () const
     {
 	return m_gridCellCenterShown;
     }
@@ -125,7 +132,7 @@ public:
     {
 	m_colorMapped = colorMapped;
     }
-    bool IsColorMapped ()
+    bool IsColorMapped () const
     {
 	return m_colorMapped;
     }

@@ -160,6 +160,7 @@ public:
     {
 	BLACK_BODY,
 	BREWER_BLUES9,
+	BREWER_YLORRD9,
 	COUNT
     };
     static const char* ToString (PaletteSequential::Enum name);

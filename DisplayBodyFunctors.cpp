@@ -171,28 +171,37 @@ void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body,
 	return;
     ViewNumber::Enum viewNumber = m_propertySetter.GetViewNumber ();
     ViewSettings& vs = m_glWidget.GetViewSettings (viewNumber);
-    float size = m_glWidget.GetVelocitySizeInitialRatio (viewNumber) * 
-	vs.GetVelocityClampingRatio ();
-    float lineWidth = vs.GetVelocityLineWidth ();
-    if (fc == FOCUS)
-	glColor (
-	    m_glWidget.GetHighlightColor (viewNumber, HighlightNumber::H0));
-    else
-	glColor (QColor::fromRgbF (0, 0, 0, m_glWidget.GetContextAlpha ()));
     bool clamped = false;
-    G3D::Vector2 velocity;
+    G3D::Vector2 displayVelocity;
+    G3D::Vector2 velocity = body->GetVelocity ().xy (); 
     if (vs.GetVelocityAverage ().IsSameSize ())
     {
 	clamped = true;
-	velocity = body->GetVelocity ().xy ();
-	velocity *= m_glWidget.GetCellLength (viewNumber) / velocity.length ();
+	displayVelocity = velocity;
+	displayVelocity *= 
+	    m_glWidget.GetCellLength (viewNumber) / displayVelocity.length ();
     }
     else
-	velocity = clamp (
-	    body->GetVelocity ().xy () * size, 
+    {
+	float size = m_glWidget.GetVelocitySizeInitialRatio (viewNumber) * 
+	    vs.GetVelocityClampingRatio ();
+	displayVelocity = clamp (
+	    velocity * size, 
 	    m_glWidget.GetCellLength (viewNumber), &clamped);
+    }
+    if (fc == FOCUS)
+    {
+	double value = velocity.length ();
+	float texCoord = vs.GetVelocityOverlayBarModel ()->TexCoord (value);
+	glTexCoord1f (texCoord); 
+	glColor (
+	    m_glWidget.GetHighlightColor (viewNumber, HighlightNumber::H0));
+    }
+    else
+	glColor (QColor::fromRgbF (0, 0, 0, m_glWidget.GetContextAlpha ()));
     DisplaySegmentArrow (
-	body->GetCenter ().xy () - velocity / 2, velocity, lineWidth,
+	body->GetCenter ().xy () - displayVelocity / 2, displayVelocity, 
+	vs.GetVelocityLineWidth (),
 	m_glWidget.GetOnePixelInObjectSpace (), 
 	clamped && vs.GetVelocityAverage ().IsClampingShown ());
 }

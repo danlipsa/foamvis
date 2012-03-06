@@ -89,11 +89,13 @@ private:
     void setupPaletteRainbowHSV ();
     void setupPaletteRainbow ();
     void setupPaletteRainbowExtended ();
-    void setupPaletteBlackBody ();
-    void setupPaletteBrewerBlue9 ();
     void setupPaletteDiverging (size_t c);
     void setupPaletteDiverging (PaletteDiverging::Enum paletteDiverging);
+
     void setupPaletteSequential (PaletteSequential::Enum paletteSequential);
+    void setupPaletteSequentialBlackBody ();
+    void setupPaletteSequentialBrewerBlues9 ();
+    void setupPaletteSequentialBrewerYlOrRd9 ();
 
     template<typename ColorMapper>
     void setup (ColorMapper colorMapper);

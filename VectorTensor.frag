@@ -27,6 +27,9 @@ uniform bool u_colorMapped;
 uniform sampler2D u_tensorAverageTexUnit;
 // scalar averages are stored here (sum, count, min, max). We use count.
 uniform sampler2D u_scalarAverageTexUnit;
+uniform float u_minValue;
+uniform float u_maxValue;
+uniform sampler1D u_overlayBarTexUnit;
 uniform bool u_gridShown;
 uniform bool u_gridCellCenterShown;
 uniform bool u_clampingShown;

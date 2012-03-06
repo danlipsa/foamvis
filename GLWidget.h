@@ -240,6 +240,8 @@ public:
     void DisplayT1Quad (ViewNumber::Enum view, 
 			size_t timeStep, size_t t1Index) const;
     pair<float, float> GetRange (ViewNumber::Enum viewNumber) const;
+    pair<float, float> GetVelocityMagnitudeRange (
+	ViewNumber::Enum viewNumber) const;
     pair<float, float> GetRangeCount (ViewNumber::Enum viewNumber) const;
     pair<float, float> GetRangeCount () const;
     pair<float, float> GetRangeT1sPDE (ViewNumber::Enum viewNumber) const;
@@ -548,10 +550,11 @@ private:
     void displayViewDecorations (ViewNumber::Enum viewNumber);
     void displayViewFocus (ViewNumber::Enum viewNumber);
     void displayViewsGrid ();
-    void displayTextureColorBar (ViewNumber::Enum viewNumber, 
-				 const G3D::Rect2D& viewRect);
+    void displayTextureColorBar (GLuint texture,
+				 ViewNumber::Enum viewNumber, 
+				 const G3D::Rect2D& barRect);
     void displayVelocityOverlayBar (
-	ViewNumber::Enum viewNumber, const G3D::Rect2D& viewRect);
+	ViewNumber::Enum viewNumber, const G3D::Rect2D& barRect);
     void displayViewTitle (ViewNumber::Enum viewNumber);
     void displayViewText (
 	ViewNumber::Enum viewNumber, const string& text, size_t row);

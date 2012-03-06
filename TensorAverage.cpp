@@ -38,6 +38,9 @@ TensorDisplay::TensorDisplay (const char* vert, const char* frag) :
     m_rotationCenterLocation = uniformLocation ("u_rotationCenter");
     m_tensorAverageTexUnitLocation = uniformLocation("u_tensorAverageTexUnit");
     m_scalarAverageTexUnitLocation = uniformLocation("u_scalarAverageTexUnit");
+    m_minValueLocation = uniformLocation ("u_minValue");
+    m_maxValueLocation = uniformLocation ("u_maxValue");
+    m_overlayBarTexUnitLocation = uniformLocation ("u_overlayBarTexUnit");
     m_gridShownLocation = uniformLocation ("u_gridShown");
     m_clampingShownLocation = uniformLocation ("u_clampingShown");
     m_gridCellCenterShownLocation = 
@@ -51,7 +54,7 @@ void TensorDisplay::Bind (
     bool sameSize, bool colorMapped,
     float noiseStart, float noiseFrequency, float noiseAmplitude,
     float ellipseSizeRatio, G3D::Rect2D enclosingRect, 
-    G3D::Vector2 rotationCenter,
+    G3D::Vector2 rotationCenter, float minValue, float maxValue,
     bool gridShown, bool clampingShown, bool gridCellCenterShown,
     float onePixelInObjectSpace)
 {
@@ -76,6 +79,10 @@ void TensorDisplay::Bind (
 	m_tensorAverageTexUnitLocation, GetTensorAverageTexUnit ());
     setUniformValue (
 	m_scalarAverageTexUnitLocation, GetScalarAverageTexUnit ());
+    setUniformValue (m_minValueLocation, minValue);
+    setUniformValue (m_maxValueLocation, maxValue);
+    setUniformValue (
+	m_overlayBarTexUnitLocation, GetOverlayBarTexUnit ());
     setUniformValue (m_gridShownLocation, gridShown);
     setUniformValue (m_clampingShownLocation, clampingShown);
     setUniformValue (m_gridCellCenterShownLocation, 
@@ -122,9 +129,11 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
     (void)minValue;(void)maxValue;(void)displayType;
+
+    const GLWidget& glWidget = this->GetGLWidget ();
     G3D::Vector2 gridTranslation;float cellLength; float lineWidth;
     float sizeRatio;G3D::Rect2D enclosingRect;float onePixelInObjectSpace;
-
+    pair<float,float> minMax = glWidget.GetVelocityMagnitudeRange (viewNumber);
     calculateShaderParameters (
 	viewNumber, rotationCenter, &gridTranslation, 
 	&cellLength, &lineWidth, &sizeRatio, &enclosingRect, 
@@ -134,23 +143,29 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
 	m_noiseStart, m_noiseFrequency,
 	m_noiseAmplitude,
 	sizeRatio, enclosingRect, rotationCenter,
+	minMax.first, minMax.second,
 	m_gridShown, m_clampingShown, m_gridCellCenterShown, 
 	onePixelInObjectSpace);
 
-    // activate texture unit 1 - tensor average
+    // bind "tensor average" to texture unit 1
     this->glActiveTexture (
 	TextureEnum (m_displayShaderProgram->GetTensorAverageTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, srcFbo.first->texture ());
 
-    // activate texture unit 2 - scalar average
+    // bind "scalar average" to texture unit 2
     this->glActiveTexture (
 	TextureEnum (m_displayShaderProgram->GetScalarAverageTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, srcFbo.second->texture ());
     
-    this->GetGLWidget ().ActivateViewShader (viewNumber, enclose,
-				       rotationCenter, angleDegrees);
-    // activate texture unit 0
-    this->glActiveTexture (GL_TEXTURE0);
+    // bind "overlay bar" to texture unit 0
+    ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
+    this->glActiveTexture (
+	TextureEnum (m_displayShaderProgram->GetOverlayBarTexUnit ()));    
+    glBindTexture (GL_TEXTURE_1D, vs.GetOverlayBarTexture ());
+
+    glWidget.ActivateViewShader (viewNumber, enclose,
+				 rotationCenter, angleDegrees);
+
     m_displayShaderProgram->release ();
     WarnOnOpenGLError ("TensorAverage::rotateAndDisplay");
 }
