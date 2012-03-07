@@ -268,6 +268,7 @@ public:
 	return m_reflectedHalfView;
     }
     void SetReflectedHalfView (bool reflectedHalfView);
+    void SetForceDifferenceShown (bool forceDifference);
     size_t GetLinkedTime () const
     {
 	return m_linkedTime;

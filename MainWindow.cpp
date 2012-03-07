@@ -1220,11 +1220,6 @@ void MainWindow::ButtonClickedViewType (int vt)
     }
 }
 
-
-
-
-
-
 void MainWindow::setStackedWidget (ViewType::Enum viewType)
 {
     // WARNING: Has to match ViewType::Enum order
@@ -1356,6 +1351,21 @@ void MainWindow::ToggledReflectedHalfView (bool reflectedHalfView)
     widgetGl->SetReflectedHalfView (reflectedHalfView);
 }
 
+void MainWindow::ToggledForceDifference (bool forceDifference)
+{
+    const ViewSettings& vs = widgetGl->GetViewSettings ();
+    if (vs.GetAverageAroundType () != ViewSettings::AVERAGE_AROUND ||
+	vs.GetAverageAroundSecondBodyId () == INVALID_INDEX)
+    {
+	QMessageBox msgBox (this);
+	msgBox.setText("This feature works only when "
+		       "averaging around two objects.");
+	msgBox.exec();
+	SetCheckedNoSignals (checkBoxForceDifference, false, true);
+	return;
+    }
+    widgetGl->SetForceDifferenceShown (forceDifference);
+}
 
 void MainWindow::SelectionChangedHistogram ()
 {

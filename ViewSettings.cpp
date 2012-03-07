@@ -75,6 +75,7 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_forceNetworkShown (false),
     m_forcePressureShown (false),
     m_forceResultShown (false),
+    m_forceDifferenceShown (false),
     m_deformationShown (false),
     m_velocityShown (false),
     m_averageAroundMovementShown (AVERAGE_AROUND_MOVEMENT_NONE),

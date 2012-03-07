@@ -50,6 +50,7 @@ private:
 		       const G3D::Vector3& force) const;
 
 private:
+    // One set of forces for each object
     vector<Force> m_average;
 };
 

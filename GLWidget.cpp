@@ -3610,6 +3610,10 @@ void GLWidget::SetReflectedHalfView (bool reflectedHalfView)
     update ();
 }
 
+void GLWidget::SetForceDifferenceShown (bool value)
+{
+    GetViewSettings ().SetForceDifferenceShown (value);
+}
 
 void GLWidget::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
 {

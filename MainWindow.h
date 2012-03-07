@@ -78,6 +78,7 @@ public Q_SLOTS:
 
     void ToggledHistogramGridShown (bool checked);
     void ToggledReflectedHalfView (bool checked);
+    void ToggledForceDifference (bool checked);
 
     /**
      * Called when the Begin Slider button is pressed. Shows the first

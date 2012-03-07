@@ -349,6 +349,14 @@ public:
     {
 	return m_forceResultShown;
     }
+    void SetForceDifferenceShown (bool value)
+    {
+	m_forceDifferenceShown = value;
+    }
+    bool IsForceDifferenceShown ()
+    {
+	return m_forceDifferenceShown;
+    }
 
     void SetDeformationTensorShown (bool deformationTensorShown)
     {
@@ -595,6 +603,7 @@ private:
     bool m_forceNetworkShown;
     bool m_forcePressureShown;
     bool m_forceResultShown;
+    bool m_forceDifferenceShown;
     bool m_deformationShown;
     bool m_velocityShown;
     // Context display
