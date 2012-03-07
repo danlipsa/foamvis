@@ -54,6 +54,7 @@ void setEnabled (const boost::array<QWidget*, size>& widgets, bool enabled)
 	widget->setEnabled (enabled);
 }
 
+
 // Static fields
 
 const char* MainWindow::PLAY_FORWARD_TEXT (">");
@@ -1026,6 +1027,34 @@ void MainWindow::clickedPlay (PlayType playType)
     updateButtons ();
 }
 
+void MainWindow::currentIndexChangedFaceColor (ViewNumber::Enum viewNumber)
+{
+    int value = static_cast<QComboBox*> (sender ())->currentIndex ();
+    boost::array<QWidget*, 4> widgetsVisible = {{
+	    labelFacesHistogram, radioButtonHistogramNone,
+	    radioButtonHistogramUnicolor, radioButtonHistogramColorCoded}};
+    boost::array<QWidget*, 1> widgetsEnabled = {{radioButtonFacesStatistics}};
+    size_t simulationIndex = 
+	widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
+    if (value == FaceProperty::DMP_COLOR) {
+	::setVisible (widgetsVisible, false);
+	::setEnabled (widgetsEnabled, false);
+	Q_EMIT BodyOrFacePropertyChanged (
+	    viewNumber,
+	    boost::shared_ptr<ColorBarModel> (), value);
+    }
+    else {
+	BodyProperty::Enum property = BodyProperty::FromSizeT (value);
+	::setVisible (widgetsVisible, true);
+	::setEnabled (widgetsEnabled, true);
+	Q_EMIT BodyOrFacePropertyChanged (
+	    viewNumber,
+	    m_colorBarModelBodyProperty
+	    [simulationIndex][viewNumber][property], property);
+	SetAndDisplayHistogram (DISCARD_SELECTION, REPLACE_MAX_VALUE);
+    }
+}
+
 
 // Slots
 // ======================================================================
@@ -1245,30 +1274,8 @@ void MainWindow::CurrentIndexChangedSelectedLight (int i)
 
 void MainWindow::CurrentIndexChangedFaceColor (int value)
 {
-    boost::array<QWidget*, 4> widgetsVisible = {{
-	    labelFacesHistogram, radioButtonHistogramNone,
-	    radioButtonHistogramUnicolor, radioButtonHistogramColorCoded}};
-    boost::array<QWidget*, 1> widgetsEnabled = {{radioButtonFacesStatistics}};
-    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
-    size_t simulationIndex = 
-	widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
-    if (value == FaceProperty::DMP_COLOR) {
-	::setVisible (widgetsVisible, false);
-	::setEnabled (widgetsEnabled, false);
-	Q_EMIT BodyOrFacePropertyChanged (
-	    viewNumber,
-	    boost::shared_ptr<ColorBarModel> (), value);
-    }
-    else {
-	BodyProperty::Enum property = BodyProperty::FromSizeT (value);
-	::setVisible (widgetsVisible, true);
-	::setEnabled (widgetsEnabled, true);
-	Q_EMIT BodyOrFacePropertyChanged (
-	    viewNumber,
-	    m_colorBarModelBodyProperty
-	    [simulationIndex][viewNumber][property], property);
-	SetAndDisplayHistogram (DISCARD_SELECTION, REPLACE_MAX_VALUE);
-    }
+    (void)value;
+    widgetGl->SetOneOrTwoViews (this, &MainWindow::currentIndexChangedFaceColor);
 }
 
 void MainWindow::CurrentIndexChangedViewCount (int index)
@@ -1345,6 +1352,7 @@ void MainWindow::ToggledReflectedHalfView (bool reflectedHalfView)
 	SetCheckedNoSignals (checkBoxReflectedHalfView, false, true);
 	return;
     }
+    checkBoxTitleShown->setChecked (false);
     widgetGl->SetReflectedHalfView (reflectedHalfView);
 }
 
@@ -1445,3 +1453,4 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
 	break;
     }
 }
+

@@ -6,13 +6,14 @@ Release log
 	- link the grid size (and position) for reflected half view.
 	- reflect the ellipse view so that it falls in the same side as the 
 	  two discs.
-	- added a sequential color map based on colorbrewer blues 9.
+	- added sequential color maps based on colorbrewer blues 9, ...
 	- reorganize UI
 	- Add option for clamping marker for velocity vectors
 	- clamping for velocity vector is done the same as for scalar attributes.
-	- TODO: sync the clamping for the reflected half view
-
-
+	- added Same Size and Color Mapped options for velocity vectors
+	- sync "Colored by" for reflected half view.
+	- TODO: read torque
+	- TODO: add diff option for forces overlay
 0.7.2270 2011-11-30
 	- fixed bug where deformation ellipses are too small for
           datasets containing constraint objects.

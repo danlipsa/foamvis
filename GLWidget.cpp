@@ -25,6 +25,7 @@
 #include "Simulation.h"
 #include "GLWidget.h"
 #include "Info.h"
+#include "MainWindow.h"
 #include "OpenGLUtils.h"
 #include "OrientedEdge.h"
 #include "OrientedFace.h"
@@ -144,8 +145,6 @@ void sendQuad (const G3D::Rect2D& srcRect, const G3D::Rect2D& srcTexRect)
     glTexCoord (srcTexRect.x0y1 ());
     ::glVertex (srcRect.x0y1 ());
 }
-
-
 
 // Static Fields
 // ======================================================================
@@ -3632,23 +3631,11 @@ void GLWidget::valueChangedT1sKernelTextureSize (
     t1sPDE.AverageInitStep (viewNumber);    
 }
 
-void GLWidget::toggledT1sKernelTextureSizeShown (
-    ViewNumber::Enum viewNumber, bool checked)
+void GLWidget::toggledT1sKernelTextureSizeShown (ViewNumber::Enum viewNumber)
 {
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    T1sPDE& t1sPDE = vs.GetT1sPDE ();
-    t1sPDE.SetKernelTextureSizeShown (checked);    
-}
-
-void GLWidget::setOneOrTwoViews (void (GLWidget::*f) (ViewNumber::Enum))
-{
-    if (m_reflectedHalfView)
-    {
-	CALL_MEMBER_FN (*this, f) (ViewNumber::VIEW0);
-	CALL_MEMBER_FN (*this, f) (ViewNumber::VIEW1);
-    }
-    else
-	CALL_MEMBER_FN (*this, f) (GetViewNumber ());
+    bool checked = static_cast<QCheckBox*> (sender ())->isChecked ();
+    GetViewSettings (viewNumber).GetT1sPDE ().
+	SetKernelTextureSizeShown (checked);
 }
 
 
@@ -3661,6 +3648,19 @@ void GLWidget::valueChangedT1sKernelIntervalPerPixel (
 	Index2Value (static_cast<QSlider*> (sender ()), 
 		     T1sPDE::KERNEL_INTERVAL_PER_PIXEL));
     t1sPDE.AverageInitStep (viewNumber);
+}
+
+template<typename T>
+void GLWidget::SetOneOrTwoViews (T* t, void (T::*f) (ViewNumber::Enum))
+{
+    if (IsReflectedHalfView ())
+    {
+	CALL_MEMBER_FN (*t, f) (ViewNumber::VIEW0);
+	CALL_MEMBER_FN (*t, f) (ViewNumber::VIEW1);
+    }
+    else
+	CALL_MEMBER_FN (*t, f) (GetViewNumber ());
+    update ();
 }
 
 
@@ -4251,34 +4251,26 @@ void GLWidget::ValueChangedT1Size (int index)
 void GLWidget::ValueChangedT1sKernelIntervalPerPixel (int index)
 {
     (void)index;
-    setOneOrTwoViews (&GLWidget::valueChangedT1sKernelIntervalPerPixel);
-    update ();
+    SetOneOrTwoViews (this,
+		      &GLWidget::valueChangedT1sKernelIntervalPerPixel);
 }
 
 void GLWidget::ValueChangedT1sKernelSigma (int index)
 {
     (void)index;
-    setOneOrTwoViews (&GLWidget::valueChangedT1sKernelSigma);
-    update ();
+    SetOneOrTwoViews (this, &GLWidget::valueChangedT1sKernelSigma);
 }
 
 void GLWidget::ValueChangedT1sKernelTextureSize (int index)
 {
     (void)index;
-    setOneOrTwoViews (&GLWidget::valueChangedT1sKernelTextureSize);
-    update ();
+    SetOneOrTwoViews (this, &GLWidget::valueChangedT1sKernelTextureSize);
 }
 
 void GLWidget::ToggledT1sKernelTextureSizeShown (bool checked)
 {
-    if (m_reflectedHalfView)
-    {
-	toggledT1sKernelTextureSizeShown (ViewNumber::VIEW0, checked);
-	toggledT1sKernelTextureSizeShown (ViewNumber::VIEW1, checked);
-    }
-    else
-	toggledT1sKernelTextureSizeShown (GetViewNumber (), checked);
-    update ();
+    (void)checked;
+    SetOneOrTwoViews (this, &GLWidget::toggledT1sKernelTextureSizeShown);
 }
 
 void GLWidget::ValueChangedDeformationSizeExp (int index)
@@ -4426,3 +4418,9 @@ void GLWidget::ValueChangedAngleOfView (int angleOfView)
 	    viewRect.width () / viewRect.height (), vs.GetScaleRatio ()));
     update ();
 }
+
+// Template instantiations
+// ======================================================================
+template
+void GLWidget::SetOneOrTwoViews<MainWindow> (
+    MainWindow* t, void (MainWindow::*f) (ViewNumber::Enum));

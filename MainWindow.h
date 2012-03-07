@@ -135,6 +135,7 @@ public Q_SLOTS:
 	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 private:
+    void currentIndexChangedFaceColor (ViewNumber::Enum viewNumber);
     void deformationViewToUI ();
     void velocityViewToUI ();
     void forceViewToUI ();
@@ -265,6 +266,7 @@ private:
     bool m_playForward;
     bool m_playReverse;
 };
+
 
 #endif //__MAIN_WINDOW_H__
 

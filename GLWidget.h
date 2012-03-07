@@ -280,6 +280,9 @@ public:
     {
 	return m_viewLayout;
     }
+    template<typename T>
+    void SetOneOrTwoViews (T* t,void (T::*f) (ViewNumber::Enum));
+
 
 Q_SIGNALS:
     void PaintedGL ();
@@ -501,10 +504,8 @@ private:
     void setSimulation (int i, ViewNumber::Enum viewNumber);
     void initTransformViewport ();
     void cleanupTransformViewport ();
-    void setOneOrTwoViews (void (GLWidget::*f) (ViewNumber::Enum));
     void valueChangedT1sKernelTextureSize (ViewNumber::Enum viewNumber);
-    void toggledT1sKernelTextureSizeShown (
-	ViewNumber::Enum viewNumber, bool checked);
+    void toggledT1sKernelTextureSizeShown (ViewNumber::Enum viewNumber);
     void valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber);
     void valueChangedT1sKernelIntervalPerPixel (ViewNumber::Enum viewNumber);
     void setScaleCenter (ViewNumber::Enum viewNumber);
@@ -868,6 +869,7 @@ private:
     ShowType m_showType;
     size_t m_showBodyId;
 };
+
 
 #endif //__GLWIDGET_H__
 
