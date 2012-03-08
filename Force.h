@@ -15,17 +15,23 @@ class Body;
  */
 struct ForceNames
 {
+    ForceNames ();
     size_t m_bodyId;
     boost::array<string, 2> m_networkForceName;
     boost::array<string, 2> m_pressureForceName;
+    string m_networkTorque;
+    string m_pressureTorque;
 };
 
 struct Force
 {
+    Force ();
     size_t m_bodyId;
     boost::shared_ptr<Body> m_body;
     G3D::Vector2 m_networkForce;
     G3D::Vector2 m_pressureForce;
+    float m_networkTorque;
+    float m_pressureTorque;
 };
 
 #endif //__FORCE_H__

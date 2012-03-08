@@ -105,6 +105,15 @@ void validate(boost::any& v, const std::vector<std::string>& values,
     readStringToken (&fn.m_networkForceName[1], &it);
     readStringToken (&fn.m_pressureForceName[0], &it);
     readStringToken (&fn.m_pressureForceName[1], &it);
+    try
+    {
+	// these can be omitted
+	readStringToken (&fn.m_networkTorque, &it);
+	readStringToken (&fn.m_pressureTorque, &it);
+    }
+    catch (invalid_argument& e)
+    {
+    }
     v = boost::any(fn);    
 }
 
@@ -452,16 +461,20 @@ po::options_description CommonOptions::getDescription (
 	 "<angleName> specifies the name of the parameter that stores "
 	 "the rotation angle. The rotation (in radians) follows the "
 	 "left-hand rule: a rotation around z axis pointing toward "
-	 "the user is clockwise.")
+	 "the user is clockwise. Zero angle is the positive Y axis.")
 	(Option::m_name[Option::FORCES], 
 	 po::value< vector<ForceNames> >(forcesNames),
 	 "reads the forces acting on a body.\n"
-	 "arg=\"<bodyId> <networkXName> <networkYName> "
-	 "<pressureXName> <pressureYName>\" where <bodyId> is the ID of the "
-	 "body the force acts on, (<networkXName>, <networkYName>) are the "
-	 "names of the X and Y components of the network force and "
-	 "(<pressureXName>, <pressureYName>) are the X and Y components of "
-	 "the pressure force.")
+	 "arg=\"<bodyId> <networkForceXName> <networkForceYName> "
+	 "<pressureForceXName> <pressureForceYName> "
+	 "[<networkTorque> <pressureTorque>]\" where "
+	 "<bodyId> is the ID of the body the force acts on, "
+	 "(<networkForceXName>, <networkForceYName>) are the "
+	 "names of the X and Y components of the network force, "
+	 "(<pressureForceXName>, <pressureForceYName>) are the "
+	 "X and Y components of the pressure force, and "
+	 "<networkTorque> and <pressureTorque> are the network and "
+	 "pressure torque on the object, the positive direction is clockwise.")
 	(Option::m_name[Option::ORIGINAL_PRESSURE],
 	 "shows original pressure values")
 	(Option::m_name[Option::REFLECTION_AXIS],

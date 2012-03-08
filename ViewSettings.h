@@ -357,6 +357,32 @@ public:
     {
 	return m_forceResultShown;
     }
+
+    void SetTorqueNetworkShown (bool value)
+    {
+	m_torqueNetworkShown = value;
+    }
+    bool IsTorqueNetworkShown () const
+    {
+	return m_torqueNetworkShown;
+    }
+    void SetTorquePressureShown (bool value)
+    {
+	m_torquePressureShown = value;
+    }
+    bool IsTorquePressureShown () const
+    {
+	return m_torquePressureShown;
+    }
+    void SetTorqueResultShown (bool value)
+    {
+	m_torqueResultShown = value;
+    }
+    bool IsTorqueResultShown () const
+    {
+	return m_torqueResultShown;
+    }
+
     void SetForceDifferenceShown (bool value)
     {
 	m_forceDifferenceShown = value;
@@ -513,21 +539,29 @@ public:
     {
 	m_velocityLineWidth = value;
     }
-    float GetForceSize () const
+    float GetForceTorqueSize () const
     {
-	return m_forceSize;
+	return m_forceTorqueSize;
     }
-    void SetForceSize (float value)
+    void SetForceTorqueSize (float value)
     {
-	m_forceSize = value;
+	m_forceTorqueSize = value;
     }
-    float GetForceLineWidth () const
+    float GetTorqueDistance () const
     {
-	return m_forceLineWidth;
+	return m_torqueDistance;
     }
-    void SetForceLineWidth (float value)
+    void SetTorqueDistance (float value)
     {
-	m_forceLineWidth = value;
+	m_torqueDistance = value;
+    }
+    float GetForceTorqueLineWidth () const
+    {
+	return m_forceTorqueLineWidth;
+    }
+    void SetForceTorqueLineWidth (float value)
+    {
+	m_forceTorqueLineWidth = value;
     }
     G3D::Vector2 GetScaleCenter () const
     {
@@ -612,6 +646,9 @@ private:
     bool m_forceNetworkShown;
     bool m_forcePressureShown;
     bool m_forceResultShown;
+    bool m_torqueNetworkShown;
+    bool m_torquePressureShown;
+    bool m_torqueResultShown;
     bool m_forceDifferenceShown;
     bool m_deformationShown;
     bool m_velocityShown;
@@ -635,8 +672,9 @@ private:
     float m_deformationSize;
     float m_deformationLineWidth;
     float m_velocityLineWidth;
-    float m_forceSize;
-    float m_forceLineWidth;
+    float m_forceTorqueSize;
+    float m_torqueDistance;
+    float m_forceTorqueLineWidth;
     G3D::Vector2 m_scaleCenter;
 };
 

@@ -127,9 +127,9 @@ ParsingData::ParsingData (
 	AddMethodOrQuantity (method);
 }
 
-double ParsingData::GetVariableValue (const char* id) 
+double ParsingData::GetVariableValue (const char* id) const
 {
-    Variables::iterator it = m_variables.find (id);
+    Variables::const_iterator it = m_variables.find (id);
     RuntimeAssert (it != m_variables.end (), "Undeclared variable: ", id);
     return it->second;
 }

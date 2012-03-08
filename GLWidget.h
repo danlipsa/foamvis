@@ -323,6 +323,9 @@ public Q_SLOTS:
     void ToggledForceNetworkShown (bool checked);
     void ToggledForcePressureShown (bool checked);
     void ToggledForceResultShown (bool checked);
+    void ToggledTorqueNetworkShown (bool checked);
+    void ToggledTorquePressureShown (bool checked);
+    void ToggledTorqueResultShown (bool checked);
     void ToggledDirectionalLightEnabled (bool checked);
     void ToggledBodyCenterShown (bool checked);
     void ToggledBodyNeighborsShown (bool checked);
@@ -400,8 +403,9 @@ public Q_SLOTS:
     void ValueChangedDeformationSizeExp (int index);
     void ValueChangedDeformationLineWidthExp (int index);
     void ValueChangedVelocityLineWidthExp (int index);
-    void ValueChangedForceSizeExp (int index);
-    void ValueChangedForceLineWidthExp (int index);
+    void ValueChangedForceTorqueSize (int index);
+    void ValueChangedTorqueDistance (int index);
+    void ValueChangedForceTorqueLineWidth (int index);
     void ValueChangedHighlightLineWidth (int newWidth);
     // Actions
     void ResetTransformAll ();
@@ -444,7 +448,7 @@ public:
     const static pair<float,float> TENSOR_SIZE_EXP2;
     const static pair<float,float> TENSOR_LINE_WIDTH_EXP2;
     const static pair<float,float> FORCE_SIZE_EXP2;
-
+    const static pair<float,float> TORQUE_SIZE_EXP2;
 protected:
     /**
      * Initializes OpenGL

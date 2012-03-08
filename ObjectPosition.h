@@ -35,17 +35,14 @@ struct DmpObjectInfo
     string m_angleName;
 };
 
-/**
- * The angle is stored in radians
- */
 struct ObjectPosition
 {
     ObjectPosition () :
-	m_angle (0)
+	m_angleRadians (0)
     {
     }
     G3D::Vector2 m_rotationCenter;
-    float m_angle;
+    float m_angleRadians;
 };
 
 #endif //__OBJECT_POSITION_H__

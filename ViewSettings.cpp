@@ -76,6 +76,9 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_forceNetworkShown (false),
     m_forcePressureShown (false),
     m_forceResultShown (false),
+    m_torqueNetworkShown (false),
+    m_torquePressureShown (false),
+    m_torqueResultShown (false),
     m_forceDifferenceShown (false),
     m_deformationShown (false),
     m_velocityShown (false),
@@ -91,8 +94,9 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_deformationSize (1),
     m_deformationLineWidth (1),
     m_velocityLineWidth (1),
-    m_forceSize (1),
-    m_forceLineWidth (1)
+    m_forceTorqueSize (1),
+    m_torqueDistance (1),
+    m_forceTorqueLineWidth (1)
 {    
     initTexture ();
     initList ();
@@ -628,7 +632,7 @@ void ViewSettings::SetAverageAroundPositions (
     {
 	ObjectPosition& objectPosition = m_averageAroundPositions[i];
 	const Foam& foam = simulation.GetFoam (i);
-	objectPosition.m_angle = 0;
+	objectPosition.m_angleRadians = 0;
 	objectPosition.m_rotationCenter = 
 	    (*foam.FindBody (bodyId))->GetCenter ().xy ();
     }
@@ -652,6 +656,6 @@ void ViewSettings::SetAverageAroundPositions (
 	    foam.GetAverageAroundAxis (bodyId, secondBodyId);
 	float acosValue = currentAxis.direction ().dot (beginAxis.direction ());
 	float angleRadians = acos (acosValue);
-	objectPosition.m_angle = - angleRadians;
+	objectPosition.m_angleRadians = - angleRadians;
     }
 }

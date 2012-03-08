@@ -158,7 +158,7 @@ const pair<float,float> GLWidget::T1S_SIZE (1, 32);
 const pair<float,float> GLWidget::TENSOR_SIZE_EXP2 (0, 10);
 const pair<float,float> GLWidget::TENSOR_LINE_WIDTH_EXP2 (0, 3);
 const pair<float,float> GLWidget::FORCE_SIZE_EXP2 (-2, 2);
-
+const pair<float,float> GLWidget::TORQUE_SIZE_EXP2 (-4, 4);
 const pair<float,float> GLWidget::CONTEXT_ALPHA (0.05, 0.5);
 const GLfloat GLWidget::HIGHLIGHT_LINE_WIDTH = 2.0;
 
@@ -762,7 +762,8 @@ void GLWidget::RotateAndTranslateAverageAround (
     const ObjectPosition rotationBegin = vs.GetAverageAroundPosition (0);
     const ObjectPosition rotationCurrent = 
 	vs.GetAverageAroundPosition (timeStep);
-    float angleRadians = rotationCurrent.m_angle - rotationBegin.m_angle;
+    float angleRadians = 
+	rotationCurrent.m_angleRadians - rotationBegin.m_angleRadians;
     if (direction > 0)
     {
 	G3D::Vector2 translation = 
@@ -2703,8 +2704,10 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
 	rotationCenter = toEye (rotationCurrent.m_rotationCenter) - 
 	    getEyeTransform (viewNumber).xy ();
 	angleDegrees =
-	    adjustForAverageAroundMovementRotation ? - G3D::toDegrees (
-		rotationCurrent.m_angle - rotationBegin.m_angle) : 0;
+	    adjustForAverageAroundMovementRotation ? 
+	    - G3D::toDegrees (
+		rotationCurrent.m_angleRadians - rotationBegin.m_angleRadians) : 
+	    0;
 	if (simulation.GetReflectionAxis () == 1)
 	    angleDegrees = - angleDegrees;
     }
@@ -3903,6 +3906,25 @@ void GLWidget::ToggledForceResultShown (bool checked)
     update ();
 }
 
+void GLWidget::ToggledTorqueNetworkShown (bool checked)
+{
+    GetViewSettings ().SetTorqueNetworkShown (checked);
+    update ();
+}
+
+void GLWidget::ToggledTorquePressureShown (bool checked)
+{
+    GetViewSettings ().SetTorquePressureShown (checked);
+    update ();
+}
+
+void GLWidget::ToggledTorqueResultShown (bool checked)
+{
+    GetViewSettings ().SetTorqueResultShown (checked);
+    update ();
+}
+
+
 void GLWidget::ToggledAxesShown (bool checked)
 {
     m_axesShown = checked;
@@ -4299,21 +4321,35 @@ void GLWidget::ValueChangedDeformationLineWidthExp (int index)
     update ();
 }
 
-void GLWidget::ValueChangedForceSizeExp (int index)
+void GLWidget::ValueChangedForceTorqueSize (int index)
 {
     (void)index;
     ViewSettings& vs = GetViewSettings ();
-    vs.SetForceSize (
-	IndexExponent2Value (static_cast<QSlider*> (sender ()), FORCE_SIZE_EXP2));
+    vs.SetForceTorqueSize (
+	IndexExponent2Value (
+	    static_cast<QSlider*> (sender ()), FORCE_SIZE_EXP2));
     update ();
 }
 
-void GLWidget::ValueChangedForceLineWidthExp (int index)
+void GLWidget::ValueChangedTorqueDistance (int index)
 {
     (void)index;
     ViewSettings& vs = GetViewSettings ();
-    vs.SetForceLineWidth (IndexExponent2Value (static_cast<QSlider*> (sender ()),
-				     TENSOR_LINE_WIDTH_EXP2));
+    vs.SetTorqueDistance (
+	IndexExponent2Value (
+	    static_cast<QSlider*> (sender ()), FORCE_SIZE_EXP2));
+    update ();
+}
+
+
+
+void GLWidget::ValueChangedForceTorqueLineWidth (int index)
+{
+    (void)index;
+    ViewSettings& vs = GetViewSettings ();
+    vs.SetForceTorqueLineWidth (
+	IndexExponent2Value (static_cast<QSlider*> (sender ()),
+			     TENSOR_LINE_WIDTH_EXP2));
     update ();
 }
 

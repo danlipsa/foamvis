@@ -114,8 +114,8 @@ public:
      * @param name variable name
      * @return variable value
      */
-    double GetVariableValue (const char* name);
-    double GetVariableValue (const string& name)
+    double GetVariableValue (const char* name) const;
+    double GetVariableValue (const string& name) const
     {
 	return GetVariableValue (name.c_str ());
     }

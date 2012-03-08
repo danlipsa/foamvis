@@ -225,9 +225,9 @@ void DisplaySegmentArrow (G3D::Vector2 where, G3D::Vector2 v,
     glEnd ();
     glTranslate (v / 2);
     glBegin (GL_TRIANGLES);
-    ::glVertex (- rotate (arrow, arrowDegrees));
+    ::glVertex (- rotateDegrees (arrow, arrowDegrees));
     ::glVertex (G3D::Vector2::zero ());
-    ::glVertex (- rotate (arrow, -arrowDegrees));
+    ::glVertex (- rotateDegrees (arrow, -arrowDegrees));
     glEnd ();
     if (clamped)
     {

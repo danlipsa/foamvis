@@ -150,37 +150,60 @@ const Force ForceAverage::getForceDifference (ViewNumber::Enum viewNumber,
 void ForceAverage::displayForcesOneObject (
     ViewNumber::Enum viewNumber, const Force& force, size_t count) const
 {
-    ViewSettings& vs = GetGLWidget ().GetViewSettings (viewNumber);
-    const G3D::AABox& box = 
-	GetGLWidget ().GetSimulation (viewNumber).GetFoam (0).
+    const GLWidget& glWidget = GetGLWidget ();
+    ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
+    const Simulation& simulation = glWidget.GetSimulation (viewNumber);
+    const Foam& foam = simulation.GetFoam (glWidget.GetCurrentTime (viewNumber));
+    const G3D::AABox& box = simulation.GetFoam (0).
 	GetBody (0).GetBoundingBox ();
-    float unitForceSize = vs.GetForceSize () * 
-	(box.high () - box.low ()).length () / count;
+    float bubbleSize = (box.high () - box.low ()).length ();
+    float unitForceTorqueSize = vs.GetForceTorqueSize () * bubbleSize / count;
     G3D::Vector3 center = force.m_body->GetCenter ();
-    if (vs.IsForceResultShown ())
-	displayForce (viewNumber,
-	    GetGLWidget ().GetHighlightColor (viewNumber, HighlightNumber::H2),
-	    center, G3D::Vector3 (
-		unitForceSize * 
-		(force.m_networkForce + force.m_pressureForce), 0));
     if (vs.IsForceNetworkShown ())
 	displayForce (viewNumber,
-	    GetGLWidget ().GetHighlightColor (viewNumber, HighlightNumber::H0),
-	    center, G3D::Vector3 (unitForceSize * force.m_networkForce, 0));
+		      glWidget.GetHighlightColor (
+			  viewNumber, HighlightNumber::H0),
+		      center.xy (), unitForceTorqueSize * force.m_networkForce);
     if (vs.IsForcePressureShown ())
 	displayForce (viewNumber,
-	    GetGLWidget ().GetHighlightColor (viewNumber, HighlightNumber::H1),
-	    center, G3D::Vector3 (unitForceSize * force.m_pressureForce, 0));
+		      glWidget.GetHighlightColor (
+			  viewNumber, HighlightNumber::H1), center.xy (), 
+		      unitForceTorqueSize * force.m_pressureForce);
+    if (vs.IsForceResultShown ())
+	displayForce (viewNumber,
+		      glWidget.GetHighlightColor (
+			  viewNumber, HighlightNumber::H2),
+		      center.xy (), unitForceTorqueSize * 
+		      (force.m_networkForce + force.m_pressureForce));
+    pair<G3D::Vector2, G3D::Vector2> centerTorque = 
+	computeTorque (center.xy (), vs.GetTorqueDistance () * bubbleSize,
+		       foam.GetDmpObjectPosition ().m_angleRadians,
+		       unitForceTorqueSize * force.m_networkTorque);
+    if (vs.IsTorqueNetworkShown ())
+	displayForce (viewNumber,
+		      glWidget.GetHighlightColor (
+			  viewNumber, HighlightNumber::H0),
+		      centerTorque.first, centerTorque.second);
 }
 
 void ForceAverage::displayForce (
     ViewNumber::Enum viewNumber, QColor color,
-    const G3D::Vector3& center, const G3D::Vector3& force) const
+    const G3D::Vector2& center, const G3D::Vector2& force) const
 {
     const GLWidget& glWidget = GetGLWidget ();
     ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
     glColor (color);
     DisplaySegmentArrow (
-	center.xy (), force.xy (), vs.GetForceLineWidth (),
+	center, force, vs.GetForceTorqueLineWidth (),
 	glWidget.GetOnePixelInObjectSpace (), false);
+}
+
+pair<G3D::Vector2, G3D::Vector2> ForceAverage::computeTorque (
+    G3D::Vector2 center, float distance, float angleRadians, float torque) const
+{
+    cdbg << angleRadians << endl;
+    G3D::Vector2 displacement = distance * G3D::Vector2 (0, 1);
+    displacement = rotateRadians (displacement, angleRadians);
+    return pair<G3D::Vector2, G3D::Vector2> (
+	center + displacement, G3D::Vector2(0, 1) * torque / distance);
 }

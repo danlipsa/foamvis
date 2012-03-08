@@ -119,7 +119,8 @@ void MainWindow::configureInterface ()
 {
     tabWidget->setCurrentWidget (tabTimeStep);
     comboBoxWindowSize->setCurrentIndex (WindowSize::GL_720x480);
-    horizontalSliderForceSize->setValue (49);
+    horizontalSliderForceTorqueSize->setValue (49);
+    horizontalSliderTorqueDistance->setValue (49);
     comboBoxColor->setCurrentIndex (BodyProperty::PRESSURE);
 }
 
@@ -323,16 +324,14 @@ void MainWindow::forceViewToUI ()
 	checkBoxForceResult, vs.IsForceResultShown (),
 	widgetGl->GetSimulation (viewNumber).ForcesUsed ());
     SetValueNoSignals (
-	horizontalSliderForceSize, vs.GetForceSize ());
+	horizontalSliderForceTorqueSize, 
+	Value2ExponentIndex (horizontalSliderForceTorqueSize,
+		   GLWidget::FORCE_SIZE_EXP2, vs.GetForceTorqueSize ()));
     SetValueNoSignals (
-	horizontalSliderForceSize, 
-	Value2ExponentIndex (horizontalSliderForceSize,
-		   GLWidget::FORCE_SIZE_EXP2, vs.GetForceSize ()));
-    SetValueNoSignals (
-	horizontalSliderForceLineWidth, 
-	Value2ExponentIndex (horizontalSliderForceLineWidth,
+	horizontalSliderForceTorqueLineWidth, 
+	Value2ExponentIndex (horizontalSliderForceTorqueLineWidth,
 		   GLWidget::TENSOR_LINE_WIDTH_EXP2,
-		   vs.GetForceLineWidth ()));
+		   vs.GetForceTorqueLineWidth ()));
 }
 
 void MainWindow::t1sPDEViewToUI ()

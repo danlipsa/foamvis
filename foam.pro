@@ -36,7 +36,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	HistogramStatistics.cpp\
 	SelectBodiesById.cpp EditColorMap.cpp Element.cpp ExpressionTree.cpp \
 	Enums.cpp Foam.cpp\
-	Face.cpp FoamProperties.cpp \
+	Face.cpp FoamProperties.cpp Force.cpp\
 	ForceAverage.cpp \
 	GLWidget.cpp Hashes.cpp Histogram.cpp HistogramItem.cpp \
 	HistogramHeight.cpp main.cpp MainWindow.cpp  \

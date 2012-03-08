@@ -873,7 +873,7 @@ void Foam::SetDmpObjectPosition (const DmpObjectInfo& names)
 	GetParsingData ().GetVariableValue (names.m_xName);
     m_dmpObjectPosition.m_rotationCenter.y =  
 	GetParsingData ().GetVariableValue (names.m_yName);
-    m_dmpObjectPosition.m_angle =  
+    m_dmpObjectPosition.m_angleRadians =  
 	GetParsingData ().GetVariableValue (names.m_angleName);
 }
 
@@ -901,14 +901,21 @@ void Foam::setForcesOneObject (const ForceNames& names, Force* forcesOneObject)
 {
     forcesOneObject->m_bodyId = names.m_bodyId;
     forcesOneObject->m_body = *FindBody (names.m_bodyId);
-    forcesOneObject->m_networkForce[0] = GetParsingData ().GetVariableValue (
+    const ParsingData& parsingData = GetParsingData ();
+    forcesOneObject->m_networkForce[0] = parsingData.GetVariableValue (
 	names.m_networkForceName[0]);
-    forcesOneObject->m_networkForce[1] = GetParsingData ().GetVariableValue (
+    forcesOneObject->m_networkForce[1] = parsingData.GetVariableValue (
 	names.m_networkForceName[1]);
-    forcesOneObject->m_pressureForce[0] = GetParsingData ().GetVariableValue (
+    forcesOneObject->m_pressureForce[0] = parsingData.GetVariableValue (
 	names.m_pressureForceName[0]);
-    forcesOneObject->m_pressureForce[1] = GetParsingData ().GetVariableValue (
+    forcesOneObject->m_pressureForce[1] = parsingData.GetVariableValue (
 	names.m_pressureForceName[1]);
+    if (! names.m_networkTorque.empty ())
+	forcesOneObject->m_networkTorque = parsingData.GetVariableValue (
+	    names.m_networkTorque);
+    if (! names.m_pressureTorque.empty ())
+	forcesOneObject->m_pressureTorque = parsingData.GetVariableValue (
+	    names.m_pressureTorque);
 }
 
 void Foam::StoreAttribute (
