@@ -175,15 +175,44 @@ void ForceAverage::displayForcesOneObject (
 			  viewNumber, HighlightNumber::H2),
 		      center.xy (), unitForceTorqueSize * 
 		      (force.m_networkForce + force.m_pressureForce));
-    pair<G3D::Vector2, G3D::Vector2> centerTorque = 
-	computeTorque (center.xy (), vs.GetTorqueDistance () * bubbleSize,
+    if (vs.IsTorqueNetworkShown ())
+	displayTorque (viewNumber,
+		       glWidget.GetHighlightColor (
+			   viewNumber, HighlightNumber::H0),
+		       center.xy (), vs.GetTorqueDistance () * bubbleSize,
 		       foam.GetDmpObjectPosition ().m_angleRadians,
 		       unitForceTorqueSize * force.m_networkTorque);
-    if (vs.IsTorqueNetworkShown ())
-	displayForce (viewNumber,
-		      glWidget.GetHighlightColor (
-			  viewNumber, HighlightNumber::H0),
-		      centerTorque.first, centerTorque.second);
+}
+
+void ForceAverage::displayTorque (
+    ViewNumber::Enum viewNumber, QColor color,
+    const G3D::Vector2& center, 
+    float distance, float angleRadians, float torque) const
+{
+    const GLWidget& glWidget = GetGLWidget ();
+    ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
+    pair<G3D::Vector2, G3D::Vector2> centerTorque = 
+	computeTorque (center, distance, angleRadians, torque);
+    displayForce (viewNumber, color,
+		  centerTorque.first, centerTorque.second);
+    glLineWidth (vs.GetForceTorqueLineWidth ());
+    glBegin (GL_LINES);
+    ::glVertex (center);
+    ::glVertex (centerTorque.first);
+    glEnd ();    
+}
+
+pair<G3D::Vector2, G3D::Vector2> ForceAverage::computeTorque (
+    G3D::Vector2 center, float distance, 
+    float angleRadians, float torque) const
+{
+    cdbg << angleRadians << endl;
+    G3D::Vector2 displacement = distance * G3D::Vector2 (0, 1);
+    displacement = rotateRadians (displacement, - angleRadians);
+    return pair<G3D::Vector2, G3D::Vector2> (
+	center + displacement, 
+	rotateDegrees (G3D::Vector2(0, 1), 
+		       M_PI - angleRadians) * torque / distance);
 }
 
 void ForceAverage::displayForce (
@@ -198,12 +227,4 @@ void ForceAverage::displayForce (
 	glWidget.GetOnePixelInObjectSpace (), false);
 }
 
-pair<G3D::Vector2, G3D::Vector2> ForceAverage::computeTorque (
-    G3D::Vector2 center, float distance, float angleRadians, float torque) const
-{
-    cdbg << angleRadians << endl;
-    G3D::Vector2 displacement = distance * G3D::Vector2 (0, 1);
-    displacement = rotateRadians (displacement, angleRadians);
-    return pair<G3D::Vector2, G3D::Vector2> (
-	center + displacement, G3D::Vector2(0, 1) * torque / distance);
-}
+

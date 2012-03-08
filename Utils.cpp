@@ -552,9 +552,11 @@ int Value2Index (QSlider* slider,
 	       (maxSlider - minSlider)); 
 }
 
-G3D::Vector2 rotateRadians (G3D::Vector2 v, float rad)
+G3D::Vector2 rotateRadians (G3D::Vector2 v, float radiansCounterClockwise)
 {
-    G3D::Matrix2 m (cos (rad), -sin (rad), sin (rad), cos (rad));
+    G3D::Matrix2 m (
+	cos (radiansCounterClockwise), -sin (radiansCounterClockwise), 
+	sin (radiansCounterClockwise), cos (radiansCounterClockwise));
     return m*v;
 }
 

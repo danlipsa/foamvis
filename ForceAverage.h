@@ -48,6 +48,10 @@ private:
     void displayForce (ViewNumber::Enum viewNumber, QColor color,
 		       const G3D::Vector2& center, 
 		       const G3D::Vector2& force) const;
+    void displayTorque (
+	ViewNumber::Enum viewNumber, QColor color,
+	const G3D::Vector2& center, 
+	float distance, float angleRadians, float torque) const;
     const Force getForceDifference (ViewNumber::Enum viewNumber, 
 				    const vector<Force>& forces) const;
     pair<G3D::Vector2, G3D::Vector2> computeTorque (

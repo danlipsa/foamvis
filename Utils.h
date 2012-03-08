@@ -189,8 +189,8 @@ int Value2ExponentIndex (QSlider* slider,
 float Index2Value (const QSlider* slider, const pair<float,float>& minMax);
 int Value2Index (QSlider* slider, 
 		 const pair<float,float>& minMax, float value);
-G3D::Vector2 rotateRadians (G3D::Vector2, float radians);
-G3D::Vector2 rotateDegrees (G3D::Vector2 v, float degrees);
+G3D::Vector2 rotateRadians (G3D::Vector2, float radiansCounterClockwise);
+G3D::Vector2 rotateDegrees (G3D::Vector2 v, float degreesCounterClockwise);
 
 
 #endif //__UTILS_H__
