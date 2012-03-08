@@ -886,27 +886,28 @@ G3D::Vector2 Foam::GetAverageAroundAxis (
     return (second->GetCenter () - first->GetCenter ()).xy ();
 }
 
-void Foam::SetForces ()
+void Foam::SetForcesAllObjects ()
 {
     const vector<ForceNames>& forcesNames = GetParsingData ().GetForcesNames ();
     if (forcesNames.size () > 0)
     {
 	m_forces.resize (forcesNames.size ());
 	for (size_t i = 0; i < forcesNames.size (); ++i)
-	    setForce (forcesNames[i], &m_forces[i]);
+	    setForcesOneObject (forcesNames[i], &m_forces[i]);
     }
 }
 
-void Foam::setForce (const ForceNames& names, Force* forces)
+void Foam::setForcesOneObject (const ForceNames& names, Force* forcesOneObject)
 {
-    forces->m_body = *FindBody (names.m_bodyId);
-    forces->m_networkForce[0] = GetParsingData ().GetVariableValue (
+    forcesOneObject->m_bodyId = names.m_bodyId;
+    forcesOneObject->m_body = *FindBody (names.m_bodyId);
+    forcesOneObject->m_networkForce[0] = GetParsingData ().GetVariableValue (
 	names.m_networkForceName[0]);
-    forces->m_networkForce[1] = GetParsingData ().GetVariableValue (
+    forcesOneObject->m_networkForce[1] = GetParsingData ().GetVariableValue (
 	names.m_networkForceName[1]);
-    forces->m_pressureForce[0] = GetParsingData ().GetVariableValue (
+    forcesOneObject->m_pressureForce[0] = GetParsingData ().GetVariableValue (
 	names.m_pressureForceName[0]);
-    forces->m_pressureForce[1] = GetParsingData ().GetVariableValue (
+    forcesOneObject->m_pressureForce[1] = GetParsingData ().GetVariableValue (
 	names.m_pressureForceName[1]);
 }
 

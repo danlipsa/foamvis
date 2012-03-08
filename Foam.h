@@ -268,7 +268,7 @@ public:
     {
 	return m_forces;
     }
-    void SetForces ();
+    void SetForcesAllObjects ();
 
     /**
      * Calculate the bounding box for all vertices in this Foam
@@ -299,7 +299,7 @@ public:
     friend ostream& operator<< (ostream& ostr, const Foam& d);
 
 private:
-    void setForce (const ForceNames& names, Force* forces);
+    void setForcesOneObject (const ForceNames& names, Force* forces);
     void copyStandaloneElements ();
     /**
      * The vectors of vertices, edges, faces and bodies may have holes.

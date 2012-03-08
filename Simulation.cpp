@@ -169,7 +169,7 @@ void Simulation::Preprocess ()
     boost::array<FoamParamMethod, 7> methods = {{
 	    boost::bind (&Foam::CreateConstraintBody, _1, 
 			 GetDmpObjectInfo ().m_constraintIndex),
-	    boost::bind (&Foam::SetForces, _1),
+	    boost::bind (&Foam::SetForcesAllObjects, _1),
 	    boost::bind (&Foam::ReleaseParsingData, _1),
 	    boost::bind (&Foam::CalculateBoundingBox, _1),
 	    boost::bind (&Foam::CalculatePerimeterOverArea, _1),

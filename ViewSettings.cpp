@@ -71,6 +71,7 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_axesOrder (AxesOrder::COUNT),
     m_cameraDistance (0),
     m_averageAroundType (AVERAGE_AROUND_NONE),
+    m_differenceBodyId (INVALID_INDEX),
     m_contextView (false),
     m_forceNetworkShown (false),
     m_forcePressureShown (false),

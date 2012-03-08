@@ -39,15 +39,17 @@ protected:
 			     size_t subStep);
 
 private:
-    void display (
+    void displayForcesAllObjects (
 	ViewNumber::Enum viewNumber, 
 	const vector<Force>& forces, size_t timeWindow,
 	bool adjustForAverageAroundMovementRotation = false) const;
-    void displayForces (
+    void displayForcesOneObject (
 	ViewNumber::Enum viewNumber, const Force& force, size_t count) const;
     void displayForce (ViewNumber::Enum viewNumber, QColor color,
 		       const G3D::Vector3& center, 
 		       const G3D::Vector3& force) const;
+    const Force getForceDifference (ViewNumber::Enum viewNumber, 
+				    const vector<Force>& forces) const;
 
 private:
     // One set of forces for each object

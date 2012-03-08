@@ -8,6 +8,7 @@
  */
 
 #include "Body.h"
+#include "Debug.h"
 #include "DebugStream.h"
 #include "DisplayEdgeFunctors.h"
 #include "ForceAverage.h"
@@ -77,7 +78,7 @@ void ForceAverage::Display (
     ViewNumber::Enum viewNumber,
     bool adjustForAverageAroundMovementRotation) const
 {
-    display (viewNumber, m_average, 
+    displayForcesAllObjects (viewNumber, m_average, 
 	     GetCurrentTimeWindow (), adjustForAverageAroundMovementRotation);
 }
 
@@ -85,7 +86,7 @@ void ForceAverage::DisplayOneTimeStep (
     ViewNumber::Enum viewNumber) const
 {
     const GLWidget& widgetGl = GetGLWidget ();
-    display (
+    displayForcesAllObjects (
 	viewNumber, widgetGl.GetSimulation (viewNumber).
 	GetFoam (widgetGl.GetCurrentTime (viewNumber)).GetForces (), 1, false);
 }
@@ -96,16 +97,17 @@ void ForceAverage::AverageRotateAndDisplay (
 {
     (void)displayType;
     (void)displayType;(void)rotationCenter;(void)angleDegrees;
-    display (viewNumber, m_average, GetCurrentTimeWindow ());
+    displayForcesAllObjects (viewNumber, m_average, GetCurrentTimeWindow ());
     cdbg << "WARNING: This function show not be used" << endl;
 }
 
 
-void ForceAverage::display (
+void ForceAverage::displayForcesAllObjects (
     ViewNumber::Enum viewNumber, const vector<Force>& forces, size_t count,
     bool adjustForAverageAroundMovementRotation) const
 {
     const GLWidget& glWidget = GetGLWidget ();
+    ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
     if (glWidget.GetSimulation (viewNumber).ForcesUsed ())
     {
 	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT | GL_LINE_BIT);
@@ -117,15 +119,35 @@ void ForceAverage::display (
 		viewNumber, glWidget.GetCurrentTime (viewNumber), -1);
 	}
 	glDisable (GL_DEPTH_TEST);
-	BOOST_FOREACH (const Force& force, forces)
-	    displayForces (viewNumber, force, count);
+	if (vs.IsForceDifferenceShown ())
+	    displayForcesOneObject (
+		viewNumber, getForceDifference (viewNumber, forces), count);
+	else
+	    BOOST_FOREACH (const Force& force, forces)
+		displayForcesOneObject (viewNumber, force, count);
 	if (adjustForAverageAroundMovementRotation)
 	    glPopMatrix ();
 	glPopAttrib ();
     }
 }
 
-void ForceAverage::displayForces (
+const Force ForceAverage::getForceDifference (ViewNumber::Enum viewNumber, 
+					      const vector<Force>& forces) const
+{
+    RuntimeAssert (forces.size () == 2, 
+		   "Force difference can be shown for two objects only.");
+    ViewSettings& vs = GetGLWidget ().GetViewSettings (viewNumber);
+    size_t index2 = (vs.GetDifferenceBodyId () != forces[0].m_bodyId);
+    size_t index1 = ! index2;
+    Force forceDifference = forces[index2];
+    forceDifference.m_networkForce = 
+	forces[index2].m_networkForce - forces[index1].m_networkForce;
+    forceDifference.m_pressureForce = 
+	forces[index2].m_pressureForce - forces[index1].m_pressureForce;
+    return forceDifference;
+}
+
+void ForceAverage::displayForcesOneObject (
     ViewNumber::Enum viewNumber, const Force& force, size_t count) const
 {
     ViewSettings& vs = GetGLWidget ().GetViewSettings (viewNumber);

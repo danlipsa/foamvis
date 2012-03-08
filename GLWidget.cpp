@@ -1906,6 +1906,7 @@ void GLWidget::AverageAroundSecondBody ()
 		vs.SetAverageAroundSecondBodyId (secondBodyId);
 		vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND);
 		vs.SetAverageAroundPositions (simulation, bodyId, secondBodyId);
+		vs.SetDifferenceBodyId (secondBodyId);
 		update ();
 		return;
 	    }
@@ -3613,6 +3614,7 @@ void GLWidget::SetReflectedHalfView (bool reflectedHalfView)
 void GLWidget::SetForceDifferenceShown (bool value)
 {
     GetViewSettings ().SetForceDifferenceShown (value);
+    update ();
 }
 
 void GLWidget::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)

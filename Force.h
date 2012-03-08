@@ -22,6 +22,7 @@ struct ForceNames
 
 struct Force
 {
+    size_t m_bodyId;
     boost::shared_ptr<Body> m_body;
     G3D::Vector2 m_networkForce;
     G3D::Vector2 m_pressureForce;

@@ -307,6 +307,14 @@ public:
     {
 	m_averageAroundBodyId[1] = id;
     }
+    size_t GetDifferenceBodyId () const
+    {
+	return m_differenceBodyId;
+    }
+    void SetDifferenceBodyId (size_t id)
+    {
+	m_differenceBodyId = id;
+    }
     AverageAroundType GetAverageAroundType () const
     {
 	return m_averageAroundType;
@@ -598,6 +606,7 @@ private:
     //Stationary
     AverageAroundType m_averageAroundType;
     boost::array<size_t, 2> m_averageAroundBodyId;
+    size_t m_differenceBodyId;
     // Context view
     bool m_contextView;
     bool m_forceNetworkShown;
