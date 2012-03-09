@@ -12,7 +12,7 @@
 #include "FoamProperties.h"
 #include "HistogramStatistics.h"
 #include "ObjectPosition.h"
-#include "Force.h"
+#include "ForcesOneObject.h"
 #include "Utils.h"
 
 class Foam;
@@ -157,7 +157,7 @@ public:
     {
 	return m_dmpObjectInfo;
     }    
-    const vector<ForceNames>& GetForcesNames () const
+    const vector<ForcesOneObjectNames>& GetForcesNames () const
     {
 	return m_forcesNames;
     }
@@ -198,7 +198,7 @@ public:
     void ParseDMPs (const vector<string>& fileNames,
 		    bool useOriginal,
 		    const DmpObjectInfo& dmpObjectInfo,
-		    const vector<ForceNames>& forcesNames,
+		    const vector<ForcesOneObjectNames>& forcesNames,
 		    bool debugParsing, bool debugScanning);
     FoamProperties* GetFoamProperties ()
     {
@@ -270,7 +270,7 @@ private:
     vector< vector<G3D::Vector3> > m_t1s;
     int m_t1sTimeStepShift;
     DmpObjectInfo m_dmpObjectInfo;
-    vector<ForceNames> m_forcesNames;
+    vector<ForcesOneObjectNames> m_forcesNames;
     bool m_useOriginal;
     int m_rotation2D;
     size_t m_reflectAxis;

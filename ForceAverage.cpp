@@ -23,7 +23,7 @@ void ForceAverage::AverageInit (ViewNumber::Enum viewNumber)
 {
     (void)viewNumber;
     Average::AverageInit (viewNumber);
-    const vector<Force>& forces = 
+    const vector<ForcesOneObject>& forces = 
 	GetGLWidget ().GetSimulation (viewNumber).GetFoam (0).GetForces ();
     m_average.resize (forces.size ());
     for (size_t i = 0; i < forces.size (); ++i)
@@ -38,7 +38,7 @@ void ForceAverage::addStep (ViewNumber::Enum viewNumber, size_t timeStep,
 			    size_t subStep)
 {
     (void)viewNumber;(void)subStep;
-    const vector<Force>& forces = 
+    const vector<ForcesOneObject>& forces = 
 	GetGLWidget ().GetSimulation (viewNumber).
 	GetFoam (timeStep).GetForces ();
     bool forward = (timeStep == GetGLWidget ().GetCurrentTime (viewNumber));
@@ -55,7 +55,7 @@ void ForceAverage::removeStep (ViewNumber::Enum viewNumber, size_t timeStep,
 			       size_t subStep)
 {
     (void)viewNumber;(void)subStep;
-    const vector<Force>& forces = 
+    const vector<ForcesOneObject>& forces = 
 	GetGLWidget ().
 	GetSimulation (viewNumber).GetFoam (timeStep).GetForces ();
     bool backward = ((timeStep - 1) == 
@@ -64,7 +64,7 @@ void ForceAverage::removeStep (ViewNumber::Enum viewNumber, size_t timeStep,
     {
 	if (backward)
 	{
-	    const vector<Force>& prevForces = 
+	    const vector<ForcesOneObject>& prevForces = 
 		GetGLWidget ().GetSimulation (viewNumber).
 		GetFoam (timeStep - 1).GetForces ();
 	    m_average[i].m_body = prevForces[i].m_body;
@@ -103,7 +103,7 @@ void ForceAverage::AverageRotateAndDisplay (
 
 
 void ForceAverage::displayForcesAllObjects (
-    ViewNumber::Enum viewNumber, const vector<Force>& forces, size_t count,
+    ViewNumber::Enum viewNumber, const vector<ForcesOneObject>& forces, size_t count,
     bool adjustForAverageAroundMovementRotation) const
 {
     const GLWidget& glWidget = GetGLWidget ();
@@ -123,7 +123,7 @@ void ForceAverage::displayForcesAllObjects (
 	    displayForcesOneObject (
 		viewNumber, getForceDifference (viewNumber, forces), count);
 	else
-	    BOOST_FOREACH (const Force& force, forces)
+	    BOOST_FOREACH (const ForcesOneObject& force, forces)
 		displayForcesOneObject (viewNumber, force, count);
 	if (adjustForAverageAroundMovementRotation)
 	    glPopMatrix ();
@@ -131,15 +131,16 @@ void ForceAverage::displayForcesAllObjects (
     }
 }
 
-const Force ForceAverage::getForceDifference (ViewNumber::Enum viewNumber, 
-					      const vector<Force>& forces) const
+const ForcesOneObject ForceAverage::getForceDifference (
+    ViewNumber::Enum viewNumber, 
+    const vector<ForcesOneObject>& forces) const
 {
     RuntimeAssert (forces.size () == 2, 
 		   "Force difference can be shown for two objects only.");
     ViewSettings& vs = GetGLWidget ().GetViewSettings (viewNumber);
     size_t index2 = (vs.GetDifferenceBodyId () != forces[0].m_bodyId);
     size_t index1 = ! index2;
-    Force forceDifference = forces[index2];
+    ForcesOneObject forceDifference = forces[index2];
     forceDifference.m_networkForce = 
 	forces[index2].m_networkForce - forces[index1].m_networkForce;
     forceDifference.m_pressureForce = 
@@ -148,7 +149,8 @@ const Force ForceAverage::getForceDifference (ViewNumber::Enum viewNumber,
 }
 
 void ForceAverage::displayForcesOneObject (
-    ViewNumber::Enum viewNumber, const Force& force, size_t count) const
+    ViewNumber::Enum viewNumber, const ForcesOneObject& forcesOneObject, 
+    size_t count) const
 {
     const GLWidget& glWidget = GetGLWidget ();
     ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
@@ -156,32 +158,50 @@ void ForceAverage::displayForcesOneObject (
     const Foam& foam = simulation.GetFoam (glWidget.GetCurrentTime (viewNumber));
     const G3D::AABox& box = simulation.GetFoam (0).
 	GetBody (0).GetBoundingBox ();
-    float bubbleSize = (box.high () - box.low ()).length ();
+    float bubbleSize = 
+	((box.high () - box.low ()).x + (box.high () - box.low ()).y) / 2;
     float unitForceTorqueSize = vs.GetForceTorqueSize () * bubbleSize / count;
-    G3D::Vector3 center = force.m_body->GetCenter ();
-    if (vs.IsForceNetworkShown ())
-	displayForce (viewNumber,
-		      glWidget.GetHighlightColor (
-			  viewNumber, HighlightNumber::H0),
-		      center.xy (), unitForceTorqueSize * force.m_networkForce);
-    if (vs.IsForcePressureShown ())
-	displayForce (viewNumber,
-		      glWidget.GetHighlightColor (
-			  viewNumber, HighlightNumber::H1), center.xy (), 
-		      unitForceTorqueSize * force.m_pressureForce);
-    if (vs.IsForceResultShown ())
-	displayForce (viewNumber,
-		      glWidget.GetHighlightColor (
-			  viewNumber, HighlightNumber::H2),
-		      center.xy (), unitForceTorqueSize * 
-		      (force.m_networkForce + force.m_pressureForce));
-    if (vs.IsTorqueNetworkShown ())
-	displayTorque (viewNumber,
-		       glWidget.GetHighlightColor (
-			   viewNumber, HighlightNumber::H0),
-		       center.xy (), vs.GetTorqueDistance () * bubbleSize,
-		       foam.GetDmpObjectPosition ().m_angleRadians,
-		       unitForceTorqueSize * force.m_networkTorque);
+    G3D::Vector3 center = forcesOneObject.m_body->GetCenter ();
+    boost::array<bool, 3> isForceShown = {{
+	    vs.IsForceNetworkShown (),
+	    vs.IsForcePressureShown (),
+	    vs.IsForceResultShown ()}};
+    boost::array<HighlightNumber::Enum, 3> highlight = {{
+	    HighlightNumber::H0,
+	    HighlightNumber::H1,
+	    HighlightNumber::H2}};
+    boost::array<G3D::Vector2, 3> force = {{
+	    forcesOneObject.m_networkForce,
+	    forcesOneObject.m_pressureForce,
+	    forcesOneObject.m_networkForce + forcesOneObject.m_pressureForce}};
+    for (size_t i = 0; i < isForceShown.size (); ++i)
+	if (isForceShown[i])
+	    displayForce (viewNumber,
+			  glWidget.GetHighlightColor (
+			      viewNumber, highlight[i]), center.xy (),
+			  unitForceTorqueSize * force[i]);
+    boost::array<bool, 3> isTorqueShown = {{
+	    vs.IsTorqueNetworkShown (),
+	    vs.IsTorquePressureShown (),
+	    vs.IsTorqueResultShown ()}};
+    boost::array<float, 3> torque = {{
+	    forcesOneObject.m_networkTorque,
+	    forcesOneObject.m_pressureTorque,
+	    forcesOneObject.m_networkTorque + forcesOneObject.m_pressureTorque}};
+    float onePixel = glWidget.GetOnePixelInObjectSpace ();
+    boost::array<G3D::Vector2, 3> displacement = {{
+	    G3D::Vector2 (0, 0),
+	    G3D::Vector2 (onePixel, onePixel),
+	    G3D::Vector2 (-onePixel, -onePixel)}};
+    for (size_t i = 0; i < isTorqueShown.size (); ++i)
+	if (isTorqueShown[i])
+	    displayTorque (viewNumber,
+			   glWidget.GetHighlightColor (
+			       viewNumber, highlight[i]),
+			   center.xy () + displacement[i], 
+			   vs.GetTorqueDistance () * bubbleSize,
+			   foam.GetDmpObjectPosition ().m_angleRadians,
+			   unitForceTorqueSize * torque[i]);
 }
 
 void ForceAverage::displayTorque (
@@ -207,12 +227,12 @@ pair<G3D::Vector2, G3D::Vector2> ForceAverage::computeTorque (
     float angleRadians, float torque) const
 {
     cdbg << angleRadians << endl;
-    G3D::Vector2 displacement = distance * G3D::Vector2 (0, 1);
+    G3D::Vector2 displacement (0, 1);
     displacement = rotateRadians (displacement, - angleRadians);
+    G3D::Vector2 t = rotateRadians (displacement, - M_PI / 2);
+    displacement = distance * displacement;
     return pair<G3D::Vector2, G3D::Vector2> (
-	center + displacement, 
-	rotateDegrees (G3D::Vector2(0, 1), 
-		       M_PI - angleRadians) * torque / distance);
+	center + displacement, t * torque / distance);
 }
 
 void ForceAverage::displayForce (

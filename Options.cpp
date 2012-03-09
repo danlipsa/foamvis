@@ -87,10 +87,10 @@ void validate(boost::any& v, const std::vector<std::string>& values,
 
 
 void validate(boost::any& v, const std::vector<std::string>& values,
-              ForceNames* ignore1, int ignore2)
+              ForcesOneObjectNames* ignore1, int ignore2)
 {
     (void)ignore1;(void)ignore2;
-    ForceNames fn;
+    ForcesOneObjectNames fn;
     boost::tokenizer<> tok (values[0]);
     istringstream istr;
     string errorMessage ("--forces needs 5 parameters.");
@@ -429,7 +429,7 @@ void CommonOptions::read (string parameters, string filter)
 po::options_description CommonOptions::getDescription (
     string* t1sFile,
     DmpObjectInfo* dmpObjectInfo,
-    vector<ForceNames>* forcesNames,
+    vector<ForcesOneObjectNames>* forcesNames,
     size_t* ticksForTimeStep,
     int *rotation2D,
     size_t *reflectionAxis)
@@ -463,7 +463,7 @@ po::options_description CommonOptions::getDescription (
 	 "left-hand rule: a rotation around z axis pointing toward "
 	 "the user is clockwise. Zero angle is the positive Y axis.")
 	(Option::m_name[Option::FORCES], 
-	 po::value< vector<ForceNames> >(forcesNames),
+	 po::value< vector<ForcesOneObjectNames> >(forcesNames),
 	 "reads the forces acting on a body.\n"
 	 "arg=\"<bodyId> <networkForceXName> <networkForceYName> "
 	 "<pressureForceXName> <pressureForceYName> "

@@ -19,7 +19,7 @@ class Edge;
 class EditColorMap;
 class Simulation;
 class SimulationGroup;
-class Force;
+class ForcesOneObject;
 class OrientedFace;
 class OrientedEdge;
 class OOBox;

@@ -1,21 +1,21 @@
 /**
- * @file Force.h
+ * @file ForcesOneObject.h
  * @author Dan R. Lipsa
  * @date 7 June 2011
  *
- * Declaration of the Force class
+ * Declaration of the ForcesOneObject class
  */
-#ifndef __FORCE_H__
-#define __FORCE_H__
+#ifndef __FORCES_ONE_OBJECT_H__
+#define __FORCES_ONE_OBJECT_H__
 
 class Body;
 /**
  * Names of parameters in a DMP file where the network and the pressure forces
  * are stored.
  */
-struct ForceNames
+struct ForcesOneObjectNames
 {
-    ForceNames ();
+    ForcesOneObjectNames ();
     size_t m_bodyId;
     boost::array<string, 2> m_networkForceName;
     boost::array<string, 2> m_pressureForceName;
@@ -23,9 +23,9 @@ struct ForceNames
     string m_pressureTorque;
 };
 
-struct Force
+struct ForcesOneObject
 {
-    Force ();
+    ForcesOneObject ();
     size_t m_bodyId;
     boost::shared_ptr<Body> m_body;
     G3D::Vector2 m_networkForce;
@@ -34,7 +34,7 @@ struct Force
     float m_pressureTorque;
 };
 
-#endif //__FORCE_H__
+#endif //__FORCES_ONE_OBJECT_H__
 
 // Local Variables:
 // mode: c++

@@ -10,7 +10,7 @@
 #include "Debug.h"
 #include "Foam.h"
 #include "Simulation.h"
-#include "Force.h"
+#include "ForcesOneObject.h"
 #include "ParsingData.h"
 #include "MainWindow.h"
 #include "DebugStream.h"

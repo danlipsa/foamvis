@@ -11,7 +11,7 @@
 
 #include "Average.h"
 #include "Enums.h"
-#include "Force.h"
+#include "ForcesOneObject.h"
 class GLWidget;
 
 class ForceAverage : public Average
@@ -41,10 +41,10 @@ protected:
 private:
     void displayForcesAllObjects (
 	ViewNumber::Enum viewNumber, 
-	const vector<Force>& forces, size_t timeWindow,
+	const vector<ForcesOneObject>& forces, size_t timeWindow,
 	bool adjustForAverageAroundMovementRotation = false) const;
     void displayForcesOneObject (
-	ViewNumber::Enum viewNumber, const Force& force, size_t count) const;
+	ViewNumber::Enum viewNumber, const ForcesOneObject& force, size_t count) const;
     void displayForce (ViewNumber::Enum viewNumber, QColor color,
 		       const G3D::Vector2& center, 
 		       const G3D::Vector2& force) const;
@@ -52,14 +52,14 @@ private:
 	ViewNumber::Enum viewNumber, QColor color,
 	const G3D::Vector2& center, 
 	float distance, float angleRadians, float torque) const;
-    const Force getForceDifference (ViewNumber::Enum viewNumber, 
-				    const vector<Force>& forces) const;
+    const ForcesOneObject getForceDifference (ViewNumber::Enum viewNumber, 
+				    const vector<ForcesOneObject>& forces) const;
     pair<G3D::Vector2, G3D::Vector2> computeTorque (
 	G3D::Vector2 center, float distance, float angle, float torque) const;
 
 private:
     // One set of forces for each object
-    vector<Force> m_average;
+    vector<ForcesOneObject> m_average;
 };
 
 

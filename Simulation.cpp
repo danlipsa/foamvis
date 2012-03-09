@@ -56,7 +56,7 @@ public:
     ParseDMP (
 	QString dir, 
 	const DmpObjectInfo& dmpObjectInfo, 
-	const vector<ForceNames>& forcesNames,
+	const vector<ForcesOneObjectNames>& forcesNames,
 	bool useOriginal, FoamProperties* foamParameters, 
 	Foam::ParametersOperation parametersOperation,
 	bool debugParsing = false, bool debugScanning = false) : 
@@ -104,7 +104,7 @@ private:
      */
     const string m_dir;
     const DmpObjectInfo& m_dmpObjectInfo;
-    vector<ForceNames> m_forcesNames;
+    vector<ForcesOneObjectNames> m_forcesNames;
     const bool m_useOriginal;
     FoamProperties* m_foamParameters;
     Foam::ParametersOperation m_parametersOperation;
@@ -534,7 +534,7 @@ void Simulation::ParseDMPs (
     const vector<string>& fileNames,
     bool useOriginal,
     const DmpObjectInfo& dmpObjectInfo,
-    const vector<ForceNames>& forcesNames,
+    const vector<ForcesOneObjectNames>& forcesNames,
     bool debugParsing, bool debugScanning)
 {
     QDir dir;

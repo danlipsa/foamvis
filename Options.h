@@ -11,7 +11,7 @@
 
 #include "Labels.h"
 #include "ObjectPosition.h"
-#include "Force.h"
+#include "ForcesOneObject.h"
 
 struct Option
 {
@@ -86,14 +86,14 @@ public:
     static po::options_description getDescription (
 	string* t1sFile,
 	DmpObjectInfo* dmpObjectInfo,
-	vector<ForceNames>* forcesNames,
+	vector<ForcesOneObjectNames>* forcesNames,
 	size_t* ticksForTimeStep, int* rotation2D, size_t* reflectionAxis);
 
 public:
     string m_t1sFile;
     vector<string> m_fileNames;
     DmpObjectInfo m_dmpObjectInfo;
-    vector<ForceNames> m_forcesNames;
+    vector<ForcesOneObjectNames> m_forcesNames;
     size_t m_ticksForTimeStep;
     size_t m_reflectionAxis;
     int m_rotation2D;

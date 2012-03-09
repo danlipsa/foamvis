@@ -11,7 +11,7 @@
 #include "Comparisons.h"
 #include "ParsingEnums.h"
 #include "Enums.h"
-#include "Force.h"
+#include "ForcesOneObject.h"
 #include "Hashes.h"
 #include "HistogramStatistics.h"
 #include "ObjectPosition.h"
@@ -51,7 +51,7 @@ public:
      */
     Foam (bool useOriginal, 
 	  const DmpObjectInfo& dmpObjectInfo,
-	  const vector<ForceNames>& forcesNames,
+	  const vector<ForcesOneObjectNames>& forcesNames,
 	  FoamProperties& foamParameters, ParametersOperation paramsOp);
 
     void GetVertexSet (VertexSet* vertexSet) const;
@@ -264,7 +264,7 @@ public:
 	return m_dmpObjectPosition;
     }
     G3D::Vector2 GetAverageAroundAxis (size_t bodyId, size_t secondBodyId) const;
-    const vector<Force>& GetForces () const
+    const vector<ForcesOneObject>& GetForces () const
     {
 	return m_forces;
     }
@@ -299,7 +299,7 @@ public:
     friend ostream& operator<< (ostream& ostr, const Foam& d);
 
 private:
-    void setForcesOneObject (const ForceNames& names, Force* forces);
+    void setForcesOneObject (const ForcesOneObjectNames& names, ForcesOneObject* forces);
     void copyStandaloneElements ();
     /**
      * The vectors of vertices, edges, faces and bodies may have holes.
@@ -385,7 +385,7 @@ private:
     double m_max[BodyProperty::COUNT];
     vector<HistogramStatistics> m_histogram;
     ObjectPosition m_dmpObjectPosition;
-    vector<Force> m_forces;
+    vector<ForcesOneObject> m_forces;
     /*
      * AdjacentBody, PointIndex for constraint points that need fixing.
      */

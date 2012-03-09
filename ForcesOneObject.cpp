@@ -1,21 +1,21 @@
 /**
- * @file   Force.cpp
+ * @file   ForcesOneObject.cpp
  * @author Dan R. Lipsa
  * @date  8 March 2012
  *
- * Implementation for the Force class 
+ * Implementation for the ForcesOneObject class 
  *
  */
 
-#include "Force.h"
+#include "ForcesOneObject.h"
 #include "Utils.h"
 
-ForceNames::ForceNames () :
+ForcesOneObjectNames::ForcesOneObjectNames () :
     m_bodyId (INVALID_INDEX)
 {
 }
 
-Force::Force () :
+ForcesOneObject::ForcesOneObject () :
     m_bodyId (INVALID_INDEX),
     m_networkTorque (0),
     m_pressureTorque (0)

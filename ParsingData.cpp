@@ -82,7 +82,7 @@ const set<string> ParsingData::OPERATORS (
 ParsingData::ParsingData (
     bool useOriginal, 
     const DmpObjectInfo& dmpObjectInfo,
-    const vector<ForceNames>& forcesNames) :
+    const vector<ForcesOneObjectNames>& forcesNames) :
 
     m_spaceSignificant (false),
     m_parenthesisCount (0),
