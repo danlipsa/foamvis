@@ -73,6 +73,10 @@ glsl_preprocess.commands = \
 	.\\/cleanupFrag.pl > ${QMAKE_FILE_BASE}
 glsl_preprocess.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += glsl_preprocess
+PRE_TARGETDEPS += VectorDisplay.frag TensorDisplay.frag
+# create old empty files that will be updated by the build process
+# to avoid warning from the qmake
+system (touch -t 0001010000 $$PRE_TARGETDEPS)
 
 CONFIG            += qt precompile_header no_keywords debug_and_release
 CONFIG(debug, debug|release) {
