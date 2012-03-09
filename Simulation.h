@@ -220,6 +220,7 @@ public:
     {
 	m_reflectAxis = axis;
     }
+    float GetBubbleSize () const;
 
 private:
     void MapPerFoam (FoamParamMethod* foamMethods, size_t n);

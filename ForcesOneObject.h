@@ -26,6 +26,10 @@ struct ForcesOneObjectNames
 struct ForcesOneObject
 {
     ForcesOneObject ();
+    ForcesOneObject (size_t bodyId, boost::shared_ptr<Body> body);
+    ForcesOneObject& operator+= (const ForcesOneObject& other);
+    ForcesOneObject& operator-= (const ForcesOneObject& other);
+
     size_t m_bodyId;
     boost::shared_ptr<Body> m_body;
     G3D::Vector2 m_networkForce;

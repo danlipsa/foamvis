@@ -394,6 +394,7 @@ public Q_SLOTS:
 
     void ValueChangedSliderTimeSteps (int timeStep);
     void ValueChangedStatisticsTimeWindow (int timeSteps);
+    void ValueChangedT1sTimeWindow (int timeSteps);
     void ValueChangedTimeDisplacement (int timeDisplacement);
     void ValueChangedT1Size (int index);
     void ValueChangedT1sKernelIntervalPerPixel (int index);
@@ -615,7 +616,6 @@ private:
     void displayFacesNormal (ViewNumber::Enum view) const;
     void displayFacesTorus (ViewNumber::Enum view) const;
     void displayFacesAverage (ViewNumber::Enum view) const;
-    void displayT1sPDE (ViewNumber::Enum view) const;
     void displayFacesTorusTubes () const;
     void displayFacesTorusLines () const;
 

@@ -44,7 +44,14 @@ private:
 	const vector<ForcesOneObject>& forces, size_t timeWindow,
 	bool adjustForAverageAroundMovementRotation = false) const;
     void displayForcesOneObject (
-	ViewNumber::Enum viewNumber, const ForcesOneObject& force, size_t count) const;
+	ViewNumber::Enum viewNumber, const ForcesOneObject& force, 
+	size_t count) const;
+    void displayTorqueOneObject (
+	ViewNumber::Enum viewNumber, const ForcesOneObject& force, 
+	size_t count) const;
+    void displayForcesTorqueOneObject (
+	ViewNumber::Enum viewNumber, const ForcesOneObject& force, 
+	size_t count) const;
     void displayForce (ViewNumber::Enum viewNumber, QColor color,
 		       const G3D::Vector2& center, 
 		       const G3D::Vector2& force) const;
@@ -52,8 +59,9 @@ private:
 	ViewNumber::Enum viewNumber, QColor color,
 	const G3D::Vector2& center, 
 	float distance, float angleRadians, float torque) const;
-    const ForcesOneObject getForceDifference (ViewNumber::Enum viewNumber, 
-				    const vector<ForcesOneObject>& forces) const;
+    const ForcesOneObject getForceDifference (
+	ViewNumber::Enum viewNumber, 
+	const vector<ForcesOneObject>& forces) const;
     pair<G3D::Vector2, G3D::Vector2> computeTorque (
 	G3D::Vector2 center, float distance, float angle, float torque) const;
 

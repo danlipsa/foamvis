@@ -27,11 +27,7 @@ void ForceAverage::AverageInit (ViewNumber::Enum viewNumber)
 	GetGLWidget ().GetSimulation (viewNumber).GetFoam (0).GetForces ();
     m_average.resize (forces.size ());
     for (size_t i = 0; i < forces.size (); ++i)
-    {
-	m_average[i].m_body = forces[i].m_body;
-	m_average[i].m_networkForce = G3D::Vector2::zero ();
-	m_average[i].m_pressureForce = G3D::Vector2::zero ();
-    }
+	m_average[i] = ForcesOneObject (forces[i].m_bodyId, forces[i].m_body);
 }
 
 void ForceAverage::addStep (ViewNumber::Enum viewNumber, size_t timeStep, 
@@ -45,9 +41,12 @@ void ForceAverage::addStep (ViewNumber::Enum viewNumber, size_t timeStep,
     for (size_t i = 0; i < forces.size (); ++i)
     {
 	if (forward)
+	{
 	    m_average[i].m_body = forces[i].m_body;
-	m_average[i].m_networkForce += forces[i].m_networkForce;
-	m_average[i].m_pressureForce += forces[i].m_pressureForce;
+	    // bodyId stays the same
+	    //m_average[i].m_bodyId = forces[i].m_bodyId;
+	}
+	m_average[i] += forces[i];
     }
 }
 
@@ -68,9 +67,10 @@ void ForceAverage::removeStep (ViewNumber::Enum viewNumber, size_t timeStep,
 		GetGLWidget ().GetSimulation (viewNumber).
 		GetFoam (timeStep - 1).GetForces ();
 	    m_average[i].m_body = prevForces[i].m_body;
+	    // bodyId stays the same
+	    // m_average[i].m_bodyId = forces[i].m_bodyId;
 	}
-	m_average[i].m_networkForce -= forces[i].m_networkForce;
-	m_average[i].m_pressureForce -= forces[i].m_pressureForce;
+	m_average[i] -= forces[i];
     }
 }
 
@@ -85,10 +85,10 @@ void ForceAverage::Display (
 void ForceAverage::DisplayOneTimeStep (
     ViewNumber::Enum viewNumber) const
 {
-    const GLWidget& widgetGl = GetGLWidget ();
-    displayForcesAllObjects (
-	viewNumber, widgetGl.GetSimulation (viewNumber).
-	GetFoam (widgetGl.GetCurrentTime (viewNumber)).GetForces (), 1, false);
+    const GLWidget& glWidget = GetGLWidget ();
+    const Simulation& simulation = glWidget.GetSimulation (viewNumber);
+    const Foam& foam = simulation.GetFoam (glWidget.GetCurrentTime (viewNumber));
+    displayForcesAllObjects (viewNumber, foam.GetForces (), 1, false);
 }
 
 void ForceAverage::AverageRotateAndDisplay (
@@ -103,7 +103,8 @@ void ForceAverage::AverageRotateAndDisplay (
 
 
 void ForceAverage::displayForcesAllObjects (
-    ViewNumber::Enum viewNumber, const vector<ForcesOneObject>& forces, size_t count,
+    ViewNumber::Enum viewNumber, 
+    const vector<ForcesOneObject>& forces, size_t count,
     bool adjustForAverageAroundMovementRotation) const
 {
     const GLWidget& glWidget = GetGLWidget ();
@@ -120,11 +121,11 @@ void ForceAverage::displayForcesAllObjects (
 	}
 	glDisable (GL_DEPTH_TEST);
 	if (vs.IsForceDifferenceShown ())
-	    displayForcesOneObject (
+	    displayForcesTorqueOneObject (
 		viewNumber, getForceDifference (viewNumber, forces), count);
 	else
 	    BOOST_FOREACH (const ForcesOneObject& force, forces)
-		displayForcesOneObject (viewNumber, force, count);
+		displayForcesTorqueOneObject (viewNumber, force, count);
 	if (adjustForAverageAroundMovementRotation)
 	    glPopMatrix ();
 	glPopAttrib ();
@@ -148,6 +149,16 @@ const ForcesOneObject ForceAverage::getForceDifference (
     return forceDifference;
 }
 
+
+void ForceAverage::displayForcesTorqueOneObject (
+    ViewNumber::Enum viewNumber, const ForcesOneObject& forcesOneObject, 
+    size_t count) const
+{
+    displayForcesOneObject (viewNumber, forcesOneObject, count);
+    displayTorqueOneObject (viewNumber, forcesOneObject, count);
+}
+
+
 void ForceAverage::displayForcesOneObject (
     ViewNumber::Enum viewNumber, const ForcesOneObject& forcesOneObject, 
     size_t count) const
@@ -155,13 +166,10 @@ void ForceAverage::displayForcesOneObject (
     const GLWidget& glWidget = GetGLWidget ();
     ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
     const Simulation& simulation = glWidget.GetSimulation (viewNumber);
-    const Foam& foam = simulation.GetFoam (glWidget.GetCurrentTime (viewNumber));
-    const G3D::AABox& box = simulation.GetFoam (0).
-	GetBody (0).GetBoundingBox ();
-    float bubbleSize = 
-	((box.high () - box.low ()).x + (box.high () - box.low ()).y) / 2;
+    float bubbleSize = simulation.GetBubbleSize ();
     float unitForceTorqueSize = vs.GetForceTorqueSize () * bubbleSize / count;
-    G3D::Vector3 center = forcesOneObject.m_body->GetCenter ();
+    G3D::Vector2 center = forcesOneObject.m_body->GetCenter ().xy ();
+
     boost::array<bool, 3> isForceShown = {{
 	    vs.IsForceNetworkShown (),
 	    vs.IsForcePressureShown (),
@@ -178,8 +186,29 @@ void ForceAverage::displayForcesOneObject (
 	if (isForceShown[i])
 	    displayForce (viewNumber,
 			  glWidget.GetHighlightColor (
-			      viewNumber, highlight[i]), center.xy (),
-			  unitForceTorqueSize * force[i]);
+			      viewNumber, highlight[i]), center,
+			  unitForceTorqueSize * force[i]);    
+}
+
+
+
+
+void ForceAverage::displayTorqueOneObject (
+    ViewNumber::Enum viewNumber, const ForcesOneObject& forcesOneObject, 
+    size_t count) const
+{
+    const GLWidget& glWidget = GetGLWidget ();
+    ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
+    const Simulation& simulation = glWidget.GetSimulation (viewNumber);
+    G3D::Vector2 center = forcesOneObject.m_body->GetCenter ().xy ();
+    const Foam& foam = simulation.GetFoam (glWidget.GetCurrentTime (viewNumber));
+    float bubbleSize = simulation.GetBubbleSize ();
+    float unitForceTorqueSize = vs.GetForceTorqueSize () * bubbleSize / count;
+
+    boost::array<HighlightNumber::Enum, 3> highlight = {{
+	    HighlightNumber::H0,
+	    HighlightNumber::H1,
+	    HighlightNumber::H2}};
     boost::array<bool, 3> isTorqueShown = {{
 	    vs.IsTorqueNetworkShown (),
 	    vs.IsTorquePressureShown (),
@@ -226,7 +255,6 @@ pair<G3D::Vector2, G3D::Vector2> ForceAverage::computeTorque (
     G3D::Vector2 center, float distance, 
     float angleRadians, float torque) const
 {
-    cdbg << angleRadians << endl;
     G3D::Vector2 displacement (0, 1);
     displacement = rotateRadians (displacement, - angleRadians);
     G3D::Vector2 t = rotateRadians (displacement, - M_PI / 2);

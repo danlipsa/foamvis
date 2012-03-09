@@ -52,7 +52,7 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="GLWidget" name="widgetGl" native="true">
+           <widget class="GLWidget" name="glWidget" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
               <horstretch>0</horstretch>
@@ -324,7 +324,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="tabSettings">
           <attribute name="title">
@@ -1671,7 +1671,7 @@
                <item>
                 <widget class="QStackedWidget" name="stackedWidgetTimeDependent">
                  <property name="currentIndex">
-                  <number>2</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="pageTimeDependentEmpty"/>
                  <widget class="QWidget" name="pageCenterPath">
@@ -1941,6 +1941,23 @@
                     <widget class="QLabel" name="label_30">
                      <property name="text">
                       <string>Interval / Pixel</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QLabel" name="labelStatisticsTimeWindow_2">
+                     <property name="text">
+                      <string>Time window</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="1">
+                    <widget class="QSpinBox" name="spinBoxT1sTimeWindow">
+                     <property name="minimum">
+                      <number>1</number>
+                     </property>
+                     <property name="value">
+                      <number>1</number>
                      </property>
                     </widget>
                    </item>
@@ -2517,6 +2534,7 @@
     <slot>ValueChangedTorqueDistance(int)</slot>
     <slot>ValueChangedForceTorqueSize(int)</slot>
     <slot>ValueChangedForceTorqueLineWidth(int)</slot>
+    <slot>ValueChangedT1sTimeWindow(int)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -2617,7 +2635,7 @@
   <connection>
    <sender>comboBoxInteractionMode</sender>
    <signal>currentIndexChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>CurrentIndexChangedInteractionMode(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2633,12 +2651,12 @@
   <connection>
    <sender>checkBoxCenterPathBody</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledCenterPathBodyShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>808</x>
-     <y>295</y>
+     <x>838</x>
+     <y>403</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2649,7 +2667,7 @@
   <connection>
    <sender>checkBoxBodyCenter</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledBodyCenterShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2665,7 +2683,7 @@
   <connection>
    <sender>checkBoxEdgesTessellation</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledEdgesTessellation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2705,7 +2723,7 @@
      <y>59</y>
     </hint>
     <hint type="destinationlabel">
-     <x>703</x>
+     <x>718</x>
      <y>534</y>
     </hint>
    </hints>
@@ -2713,7 +2731,7 @@
   <connection>
    <sender>sliderTimeSteps</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedSliderTimeSteps(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2749,7 +2767,7 @@
    <slot>SelectionChangedHistogram()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>703</x>
+     <x>718</x>
      <y>534</y>
     </hint>
     <hint type="destinationlabel">
@@ -2777,7 +2795,7 @@
   <connection>
    <sender>checkBoxShowEdges</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledFacesShowEdges(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2793,12 +2811,12 @@
   <connection>
    <sender>horizontalSliderTimeDisplacement</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedTimeDisplacement(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>846</x>
-     <y>302</y>
+     <x>1020</x>
+     <y>460</y>
     </hint>
     <hint type="destinationlabel">
      <x>420</x>
@@ -2809,7 +2827,7 @@
   <connection>
    <sender>checkBoxTorusOriginalDomainWrapInside</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledTorusOriginalDomainClipped(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2825,7 +2843,7 @@
   <connection>
    <sender>checkBoxSelectionContextShown</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledSelectionContextShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2841,7 +2859,7 @@
   <connection>
    <sender>checkBoxContextView</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledContextView(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2857,7 +2875,7 @@
   <connection>
    <sender>horizontalSliderContextAlpha</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedContextAlpha(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2873,7 +2891,7 @@
   <connection>
    <sender>horizontalSliderEdgesRadius</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedEdgesRadius(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2889,7 +2907,7 @@
   <connection>
    <sender>checkBoxTorusOriginalDomain</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledTorusOriginalDomainShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2905,7 +2923,7 @@
   <connection>
    <sender>checkBoxBoundingBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledBoundingBoxShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2921,7 +2939,7 @@
   <connection>
    <sender>horizontalSliderAngleOfView</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedAngleOfView(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2937,7 +2955,7 @@
   <connection>
    <sender>checkBoxAxes</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledAxesShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2953,7 +2971,7 @@
   <connection>
    <sender>checkBoxLightPositionShown</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledLightNumberShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2969,7 +2987,7 @@
   <connection>
    <sender>comboBoxAxesOrder</sender>
    <signal>currentIndexChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>CurrentIndexChangedAxesOrder(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3017,7 +3035,7 @@
   <connection>
    <sender>checkBoxDirectionalLightEnabled</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledDirectionalLightEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3033,7 +3051,7 @@
   <connection>
    <sender>checkBoxBodiesBoundingBoxes</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledBodiesBoundingBoxesShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3049,12 +3067,12 @@
   <connection>
    <sender>comboBoxSelectedLight</sender>
    <signal>currentIndexChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>CurrentIndexChangedSelectedLight(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>846</x>
-     <y>300</y>
+     <x>828</x>
+     <y>268</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3069,8 +3087,8 @@
    <slot>CurrentIndexChangedSelectedLight(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>846</x>
-     <y>300</y>
+     <x>828</x>
+     <y>268</y>
     </hint>
     <hint type="destinationlabel">
      <x>879</x>
@@ -3081,7 +3099,7 @@
   <connection>
    <sender>checkBoxLightEnabled</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledLightEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3097,12 +3115,12 @@
   <connection>
    <sender>horizontalSliderLightAmbientRed</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedLightAmbientRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>855</x>
-     <y>315</y>
+     <x>837</x>
+     <y>285</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3113,12 +3131,12 @@
   <connection>
    <sender>horizontalSliderLightDiffuseRed</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedLightDiffuseRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>855</x>
-     <y>315</y>
+     <x>837</x>
+     <y>285</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3129,12 +3147,12 @@
   <connection>
    <sender>horizontalSliderLightAmbientGreen</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedLightAmbientGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>855</x>
-     <y>321</y>
+     <x>837</x>
+     <y>291</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3145,12 +3163,12 @@
   <connection>
    <sender>horizontalSliderLightAmbientBlue</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedLightAmbientBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>855</x>
-     <y>327</y>
+     <x>837</x>
+     <y>297</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3161,12 +3179,12 @@
   <connection>
    <sender>horizontalSliderLightDiffuseGreen</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedLightDiffuseGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>855</x>
-     <y>321</y>
+     <x>837</x>
+     <y>291</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3177,12 +3195,12 @@
   <connection>
    <sender>horizontalSliderLightDiffuseBlue</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedLightDiffuseBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>855</x>
-     <y>327</y>
+     <x>837</x>
+     <y>297</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3193,12 +3211,12 @@
   <connection>
    <sender>horizontalSliderLightSpecularRed</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedLightSpecularRed(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>855</x>
-     <y>315</y>
+     <x>837</x>
+     <y>285</y>
     </hint>
     <hint type="destinationlabel">
      <x>486</x>
@@ -3209,12 +3227,12 @@
   <connection>
    <sender>horizontalSliderLightSpecularGreen</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedLightSpecularGreen(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>855</x>
-     <y>321</y>
+     <x>837</x>
+     <y>291</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3225,12 +3243,12 @@
   <connection>
    <sender>horizontalSliderLightSpecularBlue</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedLightSpecularBlue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>855</x>
-     <y>327</y>
+     <x>837</x>
+     <y>297</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3241,12 +3259,12 @@
   <connection>
    <sender>checkBoxTubeCenterPathUsed</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledCenterPathTubeUsed(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>846</x>
-     <y>295</y>
+     <x>1020</x>
+     <y>403</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3257,12 +3275,12 @@
   <connection>
    <sender>comboBoxStatisticsType</sender>
    <signal>currentIndexChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>CurrentIndexChangedStatisticsType(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>846</x>
-     <y>299</y>
+     <x>1020</x>
+     <y>408</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3277,8 +3295,8 @@
    <slot>CurrentIndexChangedStatisticsType(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>846</x>
-     <y>299</y>
+     <x>1020</x>
+     <y>408</y>
     </hint>
     <hint type="destinationlabel">
      <x>874</x>
@@ -3289,12 +3307,12 @@
   <connection>
    <sender>spinBoxStatisticsTimeWindow</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedStatisticsTimeWindow(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>846</x>
-     <y>304</y>
+     <x>1020</x>
+     <y>440</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3305,7 +3323,7 @@
   <connection>
    <sender>checkBoxT1sShown</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledT1sShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3321,7 +3339,7 @@
   <connection>
    <sender>checkBoxT1sShiftLower</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledT1sShiftLower(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3337,7 +3355,7 @@
   <connection>
    <sender>comboBoxViewCount</sender>
    <signal>currentIndexChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>CurrentIndexChangedViewCount(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3353,7 +3371,7 @@
   <connection>
    <sender>comboBoxViewLayout</sender>
    <signal>currentIndexChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>CurrentIndexChangedViewLayout(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3385,7 +3403,7 @@
   <connection>
    <sender>horizontalSliderT1Size</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedT1Size(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3401,7 +3419,7 @@
   <connection>
    <sender>checkBoxMissingPressureShown</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledMissingPressureShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3417,7 +3435,7 @@
   <connection>
    <sender>checkBoxTitleShown</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledTitleShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3433,7 +3451,7 @@
   <connection>
    <sender>checkBoxAverageAroundMarked</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledAverageAroundMarked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3449,12 +3467,12 @@
   <connection>
    <sender>checkBoxLineCenterPathUsed</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledCenterPathLineUsed(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>846</x>
-     <y>298</y>
+     <x>1020</x>
+     <y>430</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3497,7 +3515,7 @@
   <connection>
    <sender>checkBoxStandaloneElementsShown</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledStandaloneElementsShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3513,7 +3531,7 @@
   <connection>
    <sender>horizontalSlider</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedHighlightLineWidth(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3529,12 +3547,12 @@
   <connection>
    <sender>horizontalSliderForceTorqueSize</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedForceTorqueSize(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1011</x>
-     <y>368</y>
+     <x>1020</x>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3545,12 +3563,12 @@
   <connection>
    <sender>checkBoxForcePressure</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledForcePressureShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>1011</x>
-     <y>316</y>
+     <y>366</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3561,12 +3579,12 @@
   <connection>
    <sender>checkBoxForceNetwork</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledForceNetworkShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>864</x>
-     <y>316</y>
+     <y>366</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3577,12 +3595,12 @@
   <connection>
    <sender>checkBoxForceResult</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledForceResultShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>854</x>
-     <y>343</y>
+     <y>393</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3593,7 +3611,7 @@
   <connection>
    <sender>checkBoxMissingVolumeShown</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledMissingVolumeShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3625,7 +3643,7 @@
   <connection>
    <sender>buttonGroupViewType</sender>
    <signal>buttonClicked(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ButtonClickedViewType(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3641,7 +3659,7 @@
   <connection>
    <sender>buttonGroupTimeLinkage</sender>
    <signal>buttonClicked(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ButtonClickedTimeLinkage(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3673,7 +3691,7 @@
   <connection>
    <sender>checkBoxFaceCenter</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledFaceCenterShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3689,7 +3707,7 @@
   <connection>
    <sender>horizontalSliderDeformationSize</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedDeformationSizeExp(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3705,7 +3723,7 @@
   <connection>
    <sender>checkBoxDeformationShown</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledDeformationShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3721,12 +3739,12 @@
   <connection>
    <sender>checkBoxCenterPathHidden</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledCenterPathHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>808</x>
-     <y>298</y>
+     <x>843</x>
+     <y>430</y>
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
@@ -3737,7 +3755,7 @@
   <connection>
    <sender>checkBoxBodyNeighbors</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledBodyNeighborsShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3753,7 +3771,7 @@
   <connection>
    <sender>horizontalSliderDeformationLineWidth</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedDeformationLineWidthExp(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3785,7 +3803,7 @@
   <connection>
    <sender>buttonGroupInteractionObject</sender>
    <signal>buttonClicked(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ButtonClickedInteractionObject(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3801,12 +3819,12 @@
   <connection>
    <sender>horizontalSliderT1sKernelTextureSize</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedT1sKernelTextureSize(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>294</y>
+     <x>1011</x>
+     <y>379</y>
     </hint>
     <hint type="destinationlabel">
      <x>585</x>
@@ -3817,12 +3835,12 @@
   <connection>
    <sender>horizontalSliderT1sKernelIntervalPerPixel</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedT1sKernelIntervalPerPixel(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>304</y>
+     <x>1011</x>
+     <y>431</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -3833,12 +3851,12 @@
   <connection>
    <sender>horizontalSliderT1sKernelSigma</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedT1sKernelSigma(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>309</y>
+     <x>1011</x>
+     <y>456</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -3849,7 +3867,7 @@
   <connection>
    <sender>checkBoxDeformationGridShown</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledDeformationShownGrid(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3865,7 +3883,7 @@
   <connection>
    <sender>checkBoxDeformationGridCellCenterShown</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledDeformationGridCellCenterShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3881,12 +3899,12 @@
   <connection>
    <sender>checkBoxTextureSizeShown</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledT1sKernelTextureSizeShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>299</y>
+     <x>1011</x>
+     <y>406</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -3901,8 +3919,8 @@
    <slot>ValueChangedT1sKernelSigma(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>309</y>
+     <x>1011</x>
+     <y>456</y>
     </hint>
     <hint type="destinationlabel">
      <x>1039</x>
@@ -3913,7 +3931,7 @@
   <connection>
    <sender>comboBoxSimulation</sender>
    <signal>currentIndexChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>CurrentIndexChangedSimulation(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3945,7 +3963,7 @@
   <connection>
    <sender>toolButtonEnd</sender>
    <signal>clicked()</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ClickedEnd()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3965,8 +3983,8 @@
    <slot>ValueChangedStatisticsTimeWindow(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>846</x>
-     <y>304</y>
+     <x>1020</x>
+     <y>440</y>
     </hint>
     <hint type="destinationlabel">
      <x>1040</x>
@@ -3993,7 +4011,7 @@
   <connection>
    <sender>checkBoxVelocityGridShown</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledVelocityGridShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4009,7 +4027,7 @@
   <connection>
    <sender>horizontalSliderVelocityLineWidth</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedVelocityLineWidthExp(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4025,12 +4043,12 @@
   <connection>
    <sender>horizontalSliderForceTorqueLineWidth</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedForceTorqueLineWidth(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1011</x>
-     <y>393</y>
+     <x>1020</x>
+     <y>289</y>
     </hint>
     <hint type="destinationlabel">
      <x>602</x>
@@ -4041,7 +4059,7 @@
   <connection>
    <sender>checkBoxViewFocusShown</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledViewFocusShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4057,7 +4075,7 @@
   <connection>
    <sender>checkBoxConstraints</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledConstraintsShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4073,7 +4091,7 @@
   <connection>
    <sender>checkBoxConstraintPoints</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledConstraintPointsShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4105,7 +4123,7 @@
   <connection>
    <sender>checkBoxObjectVelocity</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledObjectVelocityShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4121,7 +4139,7 @@
   <connection>
    <sender>checkBoxVelocityClampingShown</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledVelocityClampingShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4137,7 +4155,7 @@
   <connection>
    <sender>checkBoxVelocityGridCellCenterShown</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledVelocityGridCellCenterShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4153,7 +4171,7 @@
   <connection>
    <sender>horizontalSliderNoiseStart</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedNoiseStart(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4169,7 +4187,7 @@
   <connection>
    <sender>horizontalSliderNoiseAmplitude</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedNoiseAmplitude(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4185,7 +4203,7 @@
   <connection>
    <sender>horizontalSliderNoiseFrequency</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedNoiseFrequency(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4201,7 +4219,7 @@
   <connection>
    <sender>checkBoxVelocitySameSize</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledVelocitySameSize(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4217,7 +4235,7 @@
   <connection>
    <sender>checkBoxVelocityColorMapped</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledVelocityColorMapped(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4237,8 +4255,8 @@
    <slot>ToggledForceDifference(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>942</x>
-     <y>335</y>
+     <x>1011</x>
+     <y>393</y>
     </hint>
     <hint type="destinationlabel">
      <x>1039</x>
@@ -4249,7 +4267,7 @@
   <connection>
    <sender>checkBoxTorqueNetwork</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledTorqueNetworkShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4265,7 +4283,7 @@
   <connection>
    <sender>checkBoxTorquePressure</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledTorquePressureShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4281,7 +4299,7 @@
   <connection>
    <sender>checkBoxTorqueResult</sender>
    <signal>toggled(bool)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ToggledTorqueResultShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4297,16 +4315,32 @@
   <connection>
    <sender>horizontalSliderTorqueDistance</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>glWidget</receiver>
    <slot>ValueChangedTorqueDistance(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>933</x>
-     <y>523</y>
+     <x>1011</x>
+     <y>499</y>
     </hint>
     <hint type="destinationlabel">
      <x>700</x>
      <y>470</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxT1sTimeWindow</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>glWidget</receiver>
+   <slot>ValueChangedT1sTimeWindow(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>866</x>
+     <y>472</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>697</x>
+     <y>398</y>
     </hint>
    </hints>
   </connection>

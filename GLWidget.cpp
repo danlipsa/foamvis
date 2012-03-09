@@ -485,7 +485,7 @@ void GLWidget::initDisplayView ()
 	  &GLWidget::displayFacesNormal,
 	  &GLWidget::displayCenterPathsWithBodies,
 	  &GLWidget::displayFacesAverage,
-	  &GLWidget::displayT1sPDE,
+	  &GLWidget::displayFacesAverage,
 	    }};
     copy (displayView.begin (), displayView.end (), m_display.begin ());
 }
@@ -2665,24 +2665,6 @@ G3D::Vector2 GLWidget::toTexture (ViewNumber::Enum viewNumber,
     return (eye - vv.low ().xy ()) / (vv.high ().xy () - vv.low ().xy ());
 }
 
-void GLWidget::displayT1sPDE (ViewNumber::Enum viewNumber) const
-{
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    vs.AverageRotateAndDisplay (viewNumber);
-    displayStandaloneEdges< DisplayEdgeHighlightColor<HighlightNumber::H0> > (
-	GetSimulation (viewNumber).GetFoam (0));
-    
-    T1sPDE& t1sPDE = vs.GetT1sPDE ();
-    if (t1sPDE.IsKernelTextureSizeShown ())
-    {
-	size_t timeStep = GetCurrentTime (viewNumber);
-	size_t stepSize = GetSimulation (viewNumber).GetT1s (timeStep).size ();
-	for (size_t i = 0; i < stepSize; ++i)
-	    t1sPDE.DisplayTextureSize (viewNumber, timeStep, i);
-    }
-}
-
-
 void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -2731,6 +2713,15 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
     displayContextBodies (viewNumber);
     displayContextStationaryFoam (
 	viewNumber, adjustForAverageAroundMovementRotation);
+    T1sPDE& t1sPDE = vs.GetT1sPDE ();
+    if (vs.GetViewType () == ViewType::T1S_PDE &&
+	t1sPDE.IsKernelTextureSizeShown ())
+    {
+	size_t timeStep = GetCurrentTime (viewNumber);
+	size_t stepSize = GetSimulation (viewNumber).GetT1s (timeStep).size ();
+	for (size_t i = 0; i < stepSize; ++i)
+	    t1sPDE.DisplayTextureSize (viewNumber, timeStep, i);
+    }
     glPopAttrib ();
 }
 
@@ -4254,6 +4245,11 @@ void GLWidget::ValueChangedStatisticsTimeWindow (int timeSteps)
 {
     ViewSettings& vs = GetViewSettings ();
     vs.AverageSetTimeWindow (timeSteps);
+}
+
+void GLWidget::ValueChangedT1sTimeWindow (int timeSteps)
+{
+    GetViewSettings ().GetT1sPDE ().AverageSetTimeWindow (timeSteps);
 }
 
 void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)

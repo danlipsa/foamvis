@@ -12,8 +12,9 @@ Release log
 	- clamping for velocity vector is done the same as for scalar attributes.
 	- added Same Size and Color Mapped options for velocity vectors
 	- sync "Colored by" for reflected half view.
-	- TODO: read torque
-	- TODO: add diff option for forces overlay
+	- read torque from DMP files
+	- add diff option for forces overlay
+	- activate T1s KDE around moving objects
 0.7.2270 2011-11-30
 	- fixed bug where deformation ellipses are too small for
           datasets containing constraint objects.

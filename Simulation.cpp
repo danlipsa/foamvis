@@ -586,3 +586,9 @@ string SimulationGroup::ToString () const
     return ostr.str ();
 }
 
+float Simulation::GetBubbleSize () const
+{
+    const G3D::AABox& box = GetFoam (0).GetBody (0).GetBoundingBox ();
+    G3D::Vector3 diagonal = box.high () - box.low ();
+    return (diagonal.x + diagonal.y + diagonal.z) / 3;
+}
