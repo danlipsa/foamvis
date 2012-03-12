@@ -229,7 +229,7 @@ public:
 			     ViewingVolumeOperation::Enum enclose,
 			     G3D::Rect2D& srcRect) const;
     float GetOnePixelInObjectSpace () const;
-    float GetCellLength (ViewNumber::Enum viewNumber) const;
+    float GetBubbleSize (ViewNumber::Enum viewNumber) const;
     float GetDeformationSizeInitialRatio (ViewNumber::Enum viewNumber) const;
     float GetVelocitySizeInitialRatio (ViewNumber::Enum viewNumber) const;
     G3D::AABox CalculateViewingVolume (
@@ -534,9 +534,9 @@ private:
 	ViewNumber::Enum viewNumber, 
 	ViewingVolumeOperation::Enum enclose = 
 	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
-    void mouseMoveRotate (QMouseEvent *event);
-    void mouseMoveTranslate (QMouseEvent *event);
-    void mouseMoveScale (QMouseEvent *event);
+    void mouseMoveRotate (QMouseEvent *event, ViewNumber::Enum viewNumber);
+    void mouseMoveTranslate (QMouseEvent *event, ViewNumber::Enum viewNumber);
+    void mouseMoveScale (QMouseEvent *event, ViewNumber::Enum viewNumber);
     void allTransform (ViewNumber::Enum viewNumber) const;
     void viewportTransform (ViewNumber::Enum viewNumber) const;
     void setLight (int sliderValue, int maximumValue, 

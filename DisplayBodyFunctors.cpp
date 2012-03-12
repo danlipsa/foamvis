@@ -179,7 +179,7 @@ void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body,
 	clamped = true;
 	displayVelocity = velocity;
 	displayVelocity *= 
-	    m_glWidget.GetCellLength (viewNumber) / displayVelocity.length ();
+	    m_glWidget.GetBubbleSize (viewNumber) / displayVelocity.length ();
     }
     else
     {
@@ -187,7 +187,7 @@ void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body,
 	    vs.GetVelocityClampingRatio ();
 	displayVelocity = clamp (
 	    velocity * size, 
-	    m_glWidget.GetCellLength (viewNumber), &clamped);
+	    m_glWidget.GetBubbleSize (viewNumber), &clamped);
     }
     if (fc == FOCUS)
     {

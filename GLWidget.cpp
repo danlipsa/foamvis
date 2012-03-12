@@ -566,28 +566,23 @@ float GLWidget::GetOnePixelInObjectSpace () const
     return onePixelInObjectSpace;
 }
 
-float GLWidget::GetCellLength (ViewNumber::Enum defaultViewNumber) const
+float GLWidget::GetBubbleSize (ViewNumber::Enum defaultViewNumber) const
 {    
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers (
 	defaultViewNumber);
-    float maxExtent = 0;
-    for (size_t i = 0; i < vn.size (); ++i)
+    float size = GetSimulation (vn[0]).GetBubbleSize ();
+    for (size_t i = 1; i < vn.size (); ++i)
     {
-	ViewNumber::Enum viewNumber = vn[i];
-	G3D::Vector2 extent = 
-	    GetSimulation (viewNumber).GetFoam (0).GetBody (0).
-	    GetBoundingBox ().extent ().xy ();
-	float e = max (extent.x, extent.y);
-	if (e > maxExtent)
-	    maxExtent = e;
+	float s = GetSimulation (vn[i]).GetBubbleSize ();
+	size = min (size, s);
     }
-    return maxExtent;
+    return size;
 }
 
 float GLWidget::GetDeformationSizeInitialRatio (
     ViewNumber::Enum viewNumber) const
 {
-    float cellLength = GetCellLength (viewNumber);
+    float cellLength = GetBubbleSize (viewNumber);
     return cellLength / 
 	(2 * GetSimulation (viewNumber).GetMaxDeformationEigenValue ());
 }
@@ -595,7 +590,7 @@ float GLWidget::GetDeformationSizeInitialRatio (
 float GLWidget::GetVelocitySizeInitialRatio (
     ViewNumber::Enum viewNumber) const
 {
-    float cellLength = GetCellLength (viewNumber);
+    float cellLength = GetBubbleSize (viewNumber);
     float velocityMagnitude = 
 	GetSimulation (viewNumber).GetMax (BodyProperty::VELOCITY_MAGNITUDE);
     return cellLength / velocityMagnitude;
@@ -1010,47 +1005,65 @@ void GLWidget::ResetTransformAll ()
 
 void GLWidget::ResetTransformFocus ()
 {
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings ();
-    vs.SetRotationModel (G3D::Matrix3::identity ());
-    vs.SetScaleRatio (1);
-    vs.SetTranslation (G3D::Vector3::zero ());
-    glMatrixMode (GL_PROJECTION);
-    ProjectionTransform (viewNumber);
-    glMatrixMode (GL_MODELVIEW);
-    glLoadIdentity ();
-    vs.AverageInitStep (viewNumber);
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	vs.SetRotationModel (G3D::Matrix3::identity ());
+	vs.SetScaleRatio (1);
+	vs.SetTranslation (G3D::Vector3::zero ());
+	glMatrixMode (GL_PROJECTION);
+	ProjectionTransform (viewNumber);
+	glMatrixMode (GL_MODELVIEW);
+	glLoadIdentity ();
+	vs.AverageInitStep (viewNumber);
+    }
     update ();
 }
 
 void GLWidget::ResetTransformContext ()
 {
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings ();
-    vs.SetContextScaleRatio (1);
-    glMatrixMode (GL_PROJECTION);
-    ProjectionTransform (viewNumber);
-    glMatrixMode (GL_MODELVIEW);
-    glLoadIdentity ();
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	vs.SetContextScaleRatio (1);
+	glMatrixMode (GL_PROJECTION);
+	ProjectionTransform (viewNumber);
+	glMatrixMode (GL_MODELVIEW);
+	glLoadIdentity ();
+    }
     update ();
+
 }
 
 void GLWidget::ResetTransformGrid ()
 {
-    ViewSettings& vs = GetViewSettings ();
-    vs.SetGridScaleRatio (1);
-    vs.SetGridTranslation (G3D::Vector3::zero ());
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	vs.SetGridScaleRatio (1);
+	vs.SetGridTranslation (G3D::Vector3::zero ());
+    }
     update ();
 }
 
 void GLWidget::ResetTransformLight ()
 {
-    ViewNumber::Enum viewNumber = GetViewNumber ();
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    LightNumber::Enum lightNumber = vs.GetSelectedLight ();
-    vs.SetInitialLightPosition (lightNumber);
-    vs.PositionLight (lightNumber, 
-		      getInitialLightPosition (viewNumber, lightNumber));
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	LightNumber::Enum lightNumber = vs.GetSelectedLight ();
+	vs.SetInitialLightPosition (lightNumber);
+	vs.PositionLight (lightNumber, 
+			  getInitialLightPosition (viewNumber, lightNumber));
+    }
     update ();
 }
 
@@ -1538,17 +1551,7 @@ void GLWidget::scale (ViewNumber::Enum viewNumber, const QPoint& position)
     if (vs.IsContextView ())
 	vs.SetScaleRatio (vs.GetScaleRatio () / ratio);
     else
-    {
-	if (m_reflectedHalfView)
-	    for (size_t i = 0; i < 2; ++i)
-	    {
-		ViewNumber::Enum vn = ViewNumber::Enum (i);
-		ViewSettings& vs = GetViewSettings (vn);
-		vs.SetScaleRatio (vs.GetScaleRatio () * ratio);
-	    }
-	else
-	    vs.SetScaleRatio (vs.GetScaleRatio () * ratio);
-    }
+	vs.SetScaleRatio (vs.GetScaleRatio () * ratio);
 }
 
 void GLWidget::scaleGrid (ViewNumber::Enum viewNumber, const QPoint& position)
@@ -1974,9 +1977,8 @@ void GLWidget::deselect (const QPoint& position)
     labelCompileUpdate ();
 }
 
-void GLWidget::mouseMoveRotate (QMouseEvent *event)
+void GLWidget::mouseMoveRotate (QMouseEvent *event, ViewNumber::Enum viewNumber)
 {
-    ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     switch (m_interactionObject)
     {
@@ -1996,9 +1998,9 @@ void GLWidget::mouseMoveRotate (QMouseEvent *event)
     }
 }
 
-void GLWidget::mouseMoveTranslate (QMouseEvent *event)
+void GLWidget::mouseMoveTranslate (QMouseEvent *event, 
+				   ViewNumber::Enum viewNumber)
 {
-    ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     switch (m_interactionObject)
     {
@@ -2028,9 +2030,8 @@ void GLWidget::mouseMoveTranslate (QMouseEvent *event)
     }
 }
 
-void GLWidget::mouseMoveScale (QMouseEvent *event)
+void GLWidget::mouseMoveScale (QMouseEvent *event, ViewNumber::Enum viewNumber)
 {
-    ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     switch (m_interactionObject)
     {
@@ -2052,31 +2053,36 @@ void GLWidget::mouseMoveScale (QMouseEvent *event)
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    switch (m_interactionMode)
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
     {
-    case InteractionMode::ROTATE:
-	mouseMoveRotate (event);
-	break;
+	ViewNumber::Enum viewNumber = vn[i];
+	switch (m_interactionMode)
+	{
+	case InteractionMode::ROTATE:
+	    mouseMoveRotate (event, viewNumber);
+	    break;
 
-    case InteractionMode::TRANSLATE:
-	mouseMoveTranslate (event);
-	break;
+	case InteractionMode::TRANSLATE:
+	    mouseMoveTranslate (event, viewNumber);
+	    break;
 
-    case InteractionMode::SCALE:
-	mouseMoveScale (event);
-	break;
+	case InteractionMode::SCALE:
+	    mouseMoveScale (event, viewNumber);
+	    break;
 
-    case InteractionMode::SELECT:
-	select (event->pos ());
-	break;
+	case InteractionMode::SELECT:
+	    select (event->pos ());
+	    break;
 
-    case InteractionMode::DESELECT:
-	deselect (event->pos ());
-	break;
+	case InteractionMode::DESELECT:
+	    deselect (event->pos ());
+	    break;
 
-    default:
-	break;
+	default:
+	    break;
 
+	}
     }
     m_lastPos = event->pos();
     update ();
@@ -3415,11 +3421,14 @@ void GLWidget::displayVelocityOverlayBar (
 
 void GLWidget::displayViewsGrid ()
 {
+    glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_LINE_BIT);
     initTransformViewport ();
     size_t w = width ();
     size_t h = height ();
     glDisable (GL_DEPTH_TEST);
-    glColor (GetHighlightColor (ViewNumber::VIEW0, HighlightNumber::H0));
+    glColor (Qt::black);
+    if (m_reflectedHalfView)	
+	glLineWidth (3);
     glBegin (GL_LINES);
     switch (m_viewCount)
     {
@@ -3468,6 +3477,7 @@ void GLWidget::displayViewsGrid ()
     }
     glEnd ();
     cleanupTransformViewport ();
+    glPopAttrib ();
 }
 
 QColor GLWidget::GetCenterPathContextColor () const
@@ -3661,6 +3671,25 @@ void GLWidget::SetOneOrTwoViews (T* t, void (T::*f) (ViewNumber::Enum))
     else
 	CALL_MEMBER_FN (*t, f) (GetViewNumber ());
     update ();
+}
+
+vector<ViewNumber::Enum> GLWidget::GetConnectedViewNumbers (
+    ViewNumber::Enum viewNumber) const
+{
+    if (m_reflectedHalfView)
+    {
+	vector<ViewNumber::Enum> vn(2);
+	vn[0] = ViewNumber::VIEW0;
+	vn[1] = ViewNumber::VIEW1;
+	return vn;
+    }
+    else
+    {
+	vector<ViewNumber::Enum> vn(1);
+	vn[0] = 
+	    (viewNumber == ViewNumber::COUNT ? GetViewNumber () : viewNumber);
+	return vn;
+    }
 }
 
 
@@ -3960,25 +3989,6 @@ void GLWidget::ToggledCenterPathHidden (bool checked)
     update ();
 }
 
-vector<ViewNumber::Enum> GLWidget::GetConnectedViewNumbers (
-    ViewNumber::Enum viewNumber) const
-{
-    if (m_reflectedHalfView)
-    {
-	vector<ViewNumber::Enum> vn(2);
-	vn[0] = ViewNumber::VIEW0;
-	vn[1] = ViewNumber::VIEW1;
-	return vn;
-    }
-    else
-    {
-	vector<ViewNumber::Enum> vn(1);
-	vn[0] = 
-	    (viewNumber == ViewNumber::COUNT ? GetViewNumber () : viewNumber);
-	return vn;
-    }
-}
-
 void GLWidget::ButtonClickedViewType (int id)
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
@@ -4173,8 +4183,13 @@ void GLWidget::SetVelocityOverlayBarModel (
     ViewNumber::Enum viewNumber, 
     boost::shared_ptr<ColorBarModel> colorBarModel)
 {
-    makeCurrent ();
-    GetViewSettings (viewNumber).SetVelocityOverlayBarModel (colorBarModel);
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers (viewNumber);
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	vs.SetVelocityOverlayBarModel (colorBarModel);
+    }
     update ();
 }
 
