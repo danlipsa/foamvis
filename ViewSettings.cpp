@@ -279,7 +279,7 @@ void ViewSettings::SetColorBarModel (
     }
 }
 
-void ViewSettings::SetVelocityOverlayBarModel (
+void ViewSettings::SetOverlayBarModel (
     const boost::shared_ptr<ColorBarModel>& colorBarModel)
 {
     m_velocityOverlayBarModel = colorBarModel;

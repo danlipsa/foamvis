@@ -1319,7 +1319,7 @@ void GLWidget::OverlayBarClampClear ()
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     boost::shared_ptr<ColorBarModel> colorBarModel = 
-	vs.GetVelocityOverlayBarModel ();
+	vs.GetOverlayBarModel ();
     colorBarModel->SetClampClear ();
     Q_EMIT OverlayBarModelChanged (viewNumber, colorBarModel);
 }
@@ -3291,7 +3291,7 @@ void GLWidget::displayViewDecorations (ViewNumber::Enum viewNumber)
 		vs.GetOverlayBarTexture (),
 		viewNumber, getViewOverlayBarRect (viewRect));
 	else if (! vs.GetVelocityAverage ().IsSameSize ())
-	    displayVelocityOverlayBar (
+	    displayOverlayBar (
 		viewNumber, getViewOverlayBarRect (viewRect));
     }
     displayViewTitle (viewNumber);
@@ -3395,7 +3395,7 @@ void GLWidget::displayTextureColorBar (
     glPopAttrib ();
 }
 
-void GLWidget::displayVelocityOverlayBar (
+void GLWidget::displayOverlayBar (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& barRect)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -4179,17 +4179,12 @@ void GLWidget::SetColorBarModel (ViewNumber::Enum viewNumber,
     update ();
 }
 
-void GLWidget::SetVelocityOverlayBarModel (
+void GLWidget::SetOverlayBarModel (
     ViewNumber::Enum viewNumber, 
     boost::shared_ptr<ColorBarModel> colorBarModel)
 {
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers (viewNumber);
-    for (size_t i = 0; i < vn.size (); ++i)
-    {
-	ViewNumber::Enum viewNumber = vn[i];
-	ViewSettings& vs = GetViewSettings (viewNumber);
-	vs.SetVelocityOverlayBarModel (colorBarModel);
-    }
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    vs.SetOverlayBarModel (colorBarModel);
     update ();
 }
 

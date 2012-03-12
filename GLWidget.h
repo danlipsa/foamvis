@@ -361,7 +361,7 @@ public Q_SLOTS:
 	size_t property);
     void SetColorBarModel (ViewNumber::Enum viewNumber, 
 			   boost::shared_ptr<ColorBarModel> colorBarModel);
-    void SetVelocityOverlayBarModel (ViewNumber::Enum viewNumber, 
+    void SetOverlayBarModel (ViewNumber::Enum viewNumber, 
 			     boost::shared_ptr<ColorBarModel> colorBarModel);
     void CurrentIndexChangedSimulation (int index);
     void CurrentIndexChangedInteractionMode (int index);
@@ -560,7 +560,7 @@ private:
     void displayTextureColorBar (GLuint texture,
 				 ViewNumber::Enum viewNumber, 
 				 const G3D::Rect2D& barRect);
-    void displayVelocityOverlayBar (
+    void displayOverlayBar (
 	ViewNumber::Enum viewNumber, const G3D::Rect2D& barRect);
     void displayViewTitle (ViewNumber::Enum viewNumber);
     void displayViewText (

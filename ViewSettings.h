@@ -98,13 +98,13 @@ public:
     {
 	return m_colorBarModel;
     }
-    boost::shared_ptr<ColorBarModel> GetVelocityOverlayBarModel () const
+    boost::shared_ptr<ColorBarModel> GetOverlayBarModel () const
     {
 	return m_velocityOverlayBarModel;
     }
     void SetColorBarModel (
 	const boost::shared_ptr<ColorBarModel>& colorBarModel);
-    void SetVelocityOverlayBarModel (
+    void SetOverlayBarModel (
 	const boost::shared_ptr<ColorBarModel>& colorBarModel);
     void ResetColorBarModel ()
     {

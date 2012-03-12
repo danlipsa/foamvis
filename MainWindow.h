@@ -253,7 +253,7 @@ private:
 	    ViewNumber::COUNT> > m_colorBarModelBodyProperty;
     vector <
 	boost::array<boost::shared_ptr<ColorBarModel>, 
-		     ViewNumber::COUNT> > m_colorBarModelVelocityVector;
+		     ViewNumber::COUNT> > m_overlayBarModelVelocityVector;
     vector <
 	boost::array<boost::shared_ptr<ColorBarModel>,
 		     ViewNumber::COUNT> > m_colorBarModelDomainHistogram;

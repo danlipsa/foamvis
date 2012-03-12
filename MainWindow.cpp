@@ -240,8 +240,8 @@ void MainWindow::connectSignals ()
 	SIGNAL (OverlayBarModelChanged (ViewNumber::Enum, 
 					boost::shared_ptr<ColorBarModel>)),
 	glWidget, 
-	SLOT (SetVelocityOverlayBarModel (ViewNumber::Enum, 
-				  boost::shared_ptr<ColorBarModel>)));
+	SLOT (SetOverlayBarModel (ViewNumber::Enum, 
+					  boost::shared_ptr<ColorBarModel>)));
 
     
     
@@ -259,7 +259,7 @@ void MainWindow::connectSignals ()
 	SIGNAL (OverlayBarModelChanged (ViewNumber::Enum,
 					boost::shared_ptr<ColorBarModel>)),
 	glWidget, 
-	SLOT (SetVelocityOverlayBarModel (ViewNumber::Enum,
+	SLOT (SetOverlayBarModel (ViewNumber::Enum,
 				  boost::shared_ptr<ColorBarModel>)));
     connectColorBarHistogram (true);
     
@@ -828,7 +828,7 @@ void MainWindow::setupColorBarModels ()
 {
     size_t simulationCount = glWidget->GetSimulationGroup ().size ();
     m_colorBarModelBodyProperty.resize (simulationCount);
-    m_colorBarModelVelocityVector.resize (simulationCount);
+    m_overlayBarModelVelocityVector.resize (simulationCount);
     m_colorBarModelDomainHistogram.resize (simulationCount);
     m_colorBarModelT1sPDE.resize (simulationCount);
     for (size_t simulationIndex = 0; simulationIndex < simulationCount; 
@@ -906,7 +906,7 @@ void MainWindow::setupColorBarModelVelocityVector (
     ViewNumber::Enum viewNumber)
 {
     boost::shared_ptr<ColorBarModel>& colorBarModel = 
-	m_colorBarModelVelocityVector[simulationIndex][viewNumber];
+	m_overlayBarModelVelocityVector[simulationIndex][viewNumber];
     BodyProperty::Enum property = BodyProperty::VELOCITY_MAGNITUDE;
     setupColorBarModel (colorBarModel, property, simulationIndex);
     colorBarModel->SetTitle ("Velocity overlay");
@@ -1029,13 +1029,16 @@ void MainWindow::clickedPlay (PlayType playType)
     updateButtons ();
 }
 
-void MainWindow::currentIndexChangedFaceColor (ViewNumber::Enum viewNumber)
+void MainWindow::currentIndexChangedFaceColor (
+    ViewNumber::Enum viewNumber)
 {
     int value = static_cast<QComboBox*> (sender ())->currentIndex ();
     boost::array<QWidget*, 4> widgetsVisible = {{
 	    labelFacesHistogram, radioButtonHistogramNone,
-	    radioButtonHistogramUnicolor, radioButtonHistogramColorCoded}};
-    boost::array<QWidget*, 1> widgetsEnabled = {{radioButtonFacesStatistics}};
+	    radioButtonHistogramUnicolor, 
+	    radioButtonHistogramColorCoded}};
+    boost::array<QWidget*, 1> widgetsEnabled = {{
+	    radioButtonFacesStatistics}};
     size_t simulationIndex = 
 	glWidget->GetViewSettings (viewNumber).GetSimulationIndex ();
     if (value == FaceProperty::DMP_COLOR) {
@@ -1063,13 +1066,16 @@ void MainWindow::currentIndexChangedFaceColor (ViewNumber::Enum viewNumber)
 
 void MainWindow::ToggledVelocityShown (bool checked)
 {
-    ViewNumber::Enum viewNumber = glWidget->GetViewNumber ();
-    size_t simulationIndex = 
-	glWidget->GetViewSettings (viewNumber).GetSimulationIndex ();
-    boost::shared_ptr<ColorBarModel> colorBarModel = 
-	m_colorBarModelVelocityVector[simulationIndex][viewNumber];
-    Q_EMIT OverlayBarModelChanged (glWidget->GetViewNumber (), 
-				   colorBarModel);
+    vector<ViewNumber::Enum> vn = glWidget->GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	const ViewSettings& vs = glWidget->GetViewSettings (viewNumber);
+	size_t simulationIndex = vs.GetSimulationIndex ();
+	boost::shared_ptr<ColorBarModel> overlayBarModel = 
+	    m_overlayBarModelVelocityVector[simulationIndex][viewNumber];
+	Q_EMIT OverlayBarModelChanged (viewNumber, overlayBarModel);
+    }
     glWidget->ToggledVelocityShown (checked);
 }
 
@@ -1403,7 +1409,7 @@ void MainWindow::ShowEditOverlayMap ()
     size_t simulationIndex = 
 	glWidget->GetViewSettings (viewNumber).GetSimulationIndex ();
     boost::shared_ptr<ColorBarModel> colorBarModel = 
-	m_colorBarModelVelocityVector[simulationIndex][viewNumber];
+	m_overlayBarModelVelocityVector[simulationIndex][viewNumber];
     m_editColorMap->SetData (p.first, p.second, 
 			     *colorBarModel,
 			     checkBoxHistogramGridShown->isChecked ());

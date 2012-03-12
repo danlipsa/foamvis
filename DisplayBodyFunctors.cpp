@@ -192,7 +192,7 @@ void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body,
     if (fc == FOCUS)
     {
 	double value = velocity.length ();
-	float texCoord = vs.GetVelocityOverlayBarModel ()->TexCoord (value);
+	float texCoord = vs.GetOverlayBarModel ()->TexCoord (value);
 	glTexCoord1f (texCoord); 
 	glColor (
 	    m_glWidget.GetHighlightColor (viewNumber, HighlightNumber::H0));
