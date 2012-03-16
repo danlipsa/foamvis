@@ -1362,7 +1362,7 @@ void MainWindow::ToggledReflectedHalfView (bool reflectedHalfView)
 void MainWindow::ToggledForceDifference (bool forceDifference)
 {
     const ViewSettings& vs = glWidget->GetViewSettings ();
-    if (vs.GetAverageAroundType () != ViewSettings::AVERAGE_AROUND ||
+    if (! vs.IsAverageAround () ||
 	vs.GetAverageAroundSecondBodyId () == INVALID_INDEX)
     {
 	QMessageBox msgBox (this);

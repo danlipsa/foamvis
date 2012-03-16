@@ -744,8 +744,7 @@ void GLWidget::transformFoamAverageAround (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    ViewSettings::AverageAroundType type = vs.GetAverageAroundType ();
-    if (type == ViewSettings::AVERAGE_AROUND)
+    if (vs.IsAverageAround ())
 	RotateAndTranslateAverageAround (viewNumber, timeStep, 1);
 }
 
@@ -1677,8 +1676,7 @@ void GLWidget::displayAverageAroundBodies (
     bool adjustForAverageAroundMovementRotation) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    ViewSettings::AverageAroundType type = vs.GetAverageAroundType ();
-    if (m_averageAroundMarked && type == ViewSettings::AVERAGE_AROUND)
+    if (m_averageAroundMarked && vs.IsAverageAround ())
     {
 	const Simulation& simulation = GetSimulation (viewNumber);
 	glPushAttrib (GL_CURRENT_BIT |
@@ -1746,9 +1744,8 @@ void GLWidget::displayContextStationaryFoam (
     ViewNumber::Enum viewNumber,
     bool adjustForAverageAroundMovementRotation) const
 {
-    ViewSettings::AverageAroundMovementShown type = 
-	GetViewSettings (viewNumber).GetAverageAroundMovementShown ();
-    if (type == ViewSettings::AVERAGE_AROUND_MOVEMENT_ROTATION)
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    if (vs.IsAverageAroundRotationShown ())
     {
 	glPushAttrib (GL_ENABLE_BIT);
 	glDisable (GL_DEPTH_TEST);
@@ -1773,8 +1770,7 @@ string GLWidget::getAverageAroundLabel ()
 {
     ostringstream ostr;
     const ViewSettings& vs = GetViewSettings ();
-    ViewSettings::AverageAroundType type = vs.GetAverageAroundType ();
-    if (type == ViewSettings::AVERAGE_AROUND)
+    if (vs.IsAverageAround ())
     {
 	ostr << "Average around";
 	if (vs.GetAverageAroundSecondBodyId () == INVALID_INDEX)
@@ -1799,9 +1795,7 @@ string GLWidget::getAverageAroundMovementShownLabel ()
 {
     ostringstream ostr;
     const ViewSettings& vs = GetViewSettings ();
-    ViewSettings::AverageAroundMovementShown type = 
-	vs.GetAverageAroundMovementShown ();
-    if (type == ViewSettings::AVERAGE_AROUND_MOVEMENT_ROTATION)
+    if (vs.IsAverageAroundRotationShown ())
 	ostr << "Show rotation";
     return ostr.str ();
 }
@@ -1873,7 +1867,7 @@ void GLWidget::AverageAroundBody ()
 	size_t bodyId = bodies[0]->GetId ();
 	vs.SetAverageAroundBodyId (bodyId);
 	vs.SetAverageAroundSecondBodyId (INVALID_INDEX);
-	vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND);
+	vs.SetAverageAround (true);
 	if (bodies[0]->IsConstraint () && 
 	    simulation.GetDmpObjectInfo ().RotationUsed ())
 	    vs.SetAverageAroundPositions (simulation);
@@ -1908,7 +1902,7 @@ void GLWidget::AverageAroundSecondBody ()
 	    else
 	    {
 		vs.SetAverageAroundSecondBodyId (secondBodyId);
-		vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND);
+		vs.SetAverageAround (true);
 		vs.SetAverageAroundPositions (simulation, bodyId, secondBodyId);
 		vs.SetDifferenceBodyId (secondBodyId);
 		update ();
@@ -1929,7 +1923,7 @@ void GLWidget::AverageAroundSecondBody ()
 void GLWidget::AverageAroundReset ()
 {
     ViewSettings& vs = GetViewSettings ();
-    vs.SetAverageAroundType (ViewSettings::AVERAGE_AROUND_NONE);
+    vs.SetAverageAround (false);
     vs.SetAverageAroundBodyId (INVALID_INDEX);
     vs.SetAverageAroundSecondBodyId (INVALID_INDEX);
     update ();
@@ -1954,9 +1948,7 @@ void GLWidget::ContextDisplayReset ()
 void GLWidget::ToggledAverageAroundAllowRotation (bool checked)
 {
     ViewSettings& vs = GetViewSettings ();
-    vs.SetAverageAroundMovementShown (
-	checked ? ViewSettings::AVERAGE_AROUND_MOVEMENT_ROTATION : 
-	ViewSettings::AVERAGE_AROUND_MOVEMENT_NONE);
+    vs.SetAverageAroundRotationShown (checked);
     update ();
 }
 
@@ -2678,13 +2670,12 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
     glDisable (GL_DEPTH_TEST);
     glBindTexture (GL_TEXTURE_1D, vs.GetColorBarTexture ());
     bool adjustForAverageAroundMovementRotation = 
-	(vs.GetAverageAroundMovementShown () == 
-	 ViewSettings::AVERAGE_AROUND_MOVEMENT_ROTATION);
+	vs.IsAverageAroundRotationShown ();
     const Simulation& simulation = GetSimulation (viewNumber);
 
     G3D::Vector2 rotationCenter;
     float angleDegrees;
-    if (vs.GetAverageAroundType () == ViewSettings::AVERAGE_AROUND)
+    if (vs.IsAverageAround ())
     {
 	const ObjectPosition rotationBegin = vs.GetAverageAroundPosition (0);
 	const ObjectPosition rotationCurrent = 
@@ -3192,8 +3183,7 @@ void GLWidget::contextMenuEventView (QMenu* menu) const
 	    m_actionAverageAroundSecondBody.get ());
 	menuAverageAround->addAction (m_actionAverageAroundReset.get ());
 	m_actionAverageAroundShowRotation->setChecked (
-	    vs.GetAverageAroundMovementShown () == 
-	    ViewSettings::AVERAGE_AROUND_MOVEMENT_ROTATION);
+	    vs.IsAverageAroundRotationShown ());
 	menuAverageAround->addAction (
 	    m_actionAverageAroundShowRotation.get ());
     }

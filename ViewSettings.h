@@ -28,22 +28,6 @@ class VectorAverage;
 class ViewSettings : public AverageInterface
 {
 public:
-    // Average around
-    enum AverageAroundType
-    {
-	AVERAGE_AROUND,
-	AVERAGE_AROUND_NONE
-    };
-
-    // Average around movement
-    enum AverageAroundMovementShown
-    {
-	AVERAGE_AROUND_MOVEMENT_ROTATION,
-	AVERAGE_AROUND_MOVEMENT_NONE
-    };
-
-
-public:
     ViewSettings (const GLWidget& glWidget);
     ~ViewSettings ();
 
@@ -315,13 +299,13 @@ public:
     {
 	m_differenceBodyId = id;
     }
-    AverageAroundType GetAverageAroundType () const
+    bool IsAverageAround () const
     {
-	return m_averageAroundType;
+	return m_averageAround;
     }
-    void SetAverageAroundType (AverageAroundType type)
+    void SetAverageAround (bool averageAround)
     {
-	m_averageAroundType = type;
+	m_averageAround = averageAround;
     }
 
     // Context View
@@ -427,13 +411,13 @@ public:
 	return m_contextBody.size ();
     }
 
-    AverageAroundMovementShown GetAverageAroundMovementShown () const
+    bool IsAverageAroundRotationShown () const
     {
-	return m_averageAroundMovementShown;
+	return m_averageAroundRotationShown;
     }
-    void SetAverageAroundMovementShown (AverageAroundMovementShown movement)
+    void SetAverageAroundRotationShown (bool shown)
     {
-	m_averageAroundMovementShown = movement;
+	m_averageAroundRotationShown = shown;
     }
     
     const BodySelector& GetBodySelector () const
@@ -638,7 +622,7 @@ private:
     float m_cameraDistance;
 
     //Stationary
-    AverageAroundType m_averageAroundType;
+    bool m_averageAround;
     boost::array<size_t, 2> m_averageAroundBodyId;
     size_t m_differenceBodyId;
     // Context view
@@ -655,7 +639,7 @@ private:
     // Context display
     set<size_t> m_contextBody;
     // Context stationary
-    AverageAroundMovementShown m_averageAroundMovementShown;
+    bool m_averageAroundRotationShown;
     boost::shared_ptr<BodySelector> m_bodySelector;
     bool m_selectionContextShown;
     bool m_centerPathHidden;
