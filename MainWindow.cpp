@@ -1327,7 +1327,7 @@ void MainWindow::CurrentIndexChangedWindowSize (int value)
 	resize (720, 480);
 	break;
     case WindowSize::GL_720x480:
-	resize (1109, 596);
+	resize (1062, 596);
 	break;
     }
 }
