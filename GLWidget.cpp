@@ -1776,7 +1776,15 @@ string GLWidget::getAverageAroundLabel ()
 	if (vs.GetAverageAroundSecondBodyId () == INVALID_INDEX)
 	    ostr << " (1)";
 	else
-	    ostr << " (2)";	    
+	    ostr << " (2)";
+	
+	const ObjectPosition rotationBegin = vs.GetAverageAroundPosition (0);
+	const ObjectPosition rotationCurrent = 
+	    vs.GetAverageAroundPosition (GetCurrentTime ());
+	float angleRadians = 
+	    rotationCurrent.m_angleRadians - rotationBegin.m_angleRadians;
+	float angleDegrees =  G3D::toDegrees (angleRadians);
+	ostr << " Rotation: " << angleDegrees;
     }
     return ostr.str ();
 }
