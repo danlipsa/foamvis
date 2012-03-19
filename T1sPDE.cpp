@@ -177,7 +177,7 @@ void T1sPDE::DisplayTextureSize (ViewNumber::Enum viewNumber, size_t timeStep,
     glPushAttrib (GL_CURRENT_BIT | GL_POLYGON_BIT);
     glColor (
 	GetGLWidget ().GetHighlightColor (viewNumber, HighlightNumber::H0));
-    glPolygonMode (GL_FRONT, GL_LINE);
+    glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     GetGLWidget ().DisplayT1Quad (viewNumber, timeStep, subStep);
     glPopAttrib ();
 }

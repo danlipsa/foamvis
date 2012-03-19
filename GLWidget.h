@@ -56,7 +56,7 @@ public:
      * Sets the data displayed by the GLWidget
      * @param dataAlongTime data displayed by the GLWidget
      */
-    void SetSimulationGroup (const SimulationGroup* dataAlongTime);
+    void SetSimulationGroup (SimulationGroup* dataAlongTime);
     const SimulationGroup& GetSimulationGroup ()
     {
 	return *m_simulationGroup;
@@ -65,7 +65,9 @@ public:
      * Gets the data displayed by the GLWidget
      */
     const Simulation& GetSimulation (size_t index) const;
+    Simulation& GetSimulation (size_t index);
     const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
+    Simulation& GetSimulation (ViewNumber::Enum viewNumber);
     const Simulation& GetSimulation () const;
     ViewNumber::Enum GetViewNumber () const
     {
@@ -758,7 +760,7 @@ private:
     /**
      * Foam to be displayd. Each element coresponds to a DMP file
      */
-    const SimulationGroup* m_simulationGroup;
+    SimulationGroup* m_simulationGroup;
     /**
      * Used for rotation, translation and scale
      */

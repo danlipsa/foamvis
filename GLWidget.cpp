@@ -537,12 +537,24 @@ const Simulation& GLWidget::GetSimulation (ViewNumber::Enum viewNumber) const
 	GetViewSettings (viewNumber).GetSimulationIndex ());
 }
 
+Simulation& GLWidget::GetSimulation (ViewNumber::Enum viewNumber)
+{
+    return GetSimulation (
+	GetViewSettings (viewNumber).GetSimulationIndex ());
+}
+
+
 const Simulation& GLWidget::GetSimulation (size_t i) const
 {
     return m_simulationGroup->GetSimulation (i);
 }
 
-void GLWidget::SetSimulationGroup (const SimulationGroup* simulationGroup)
+Simulation& GLWidget::GetSimulation (size_t i)
+{
+    return m_simulationGroup->GetSimulation (i);
+}
+
+void GLWidget::SetSimulationGroup (SimulationGroup* simulationGroup)
 {
     m_simulationGroup = simulationGroup;
     initViewSettings ();
@@ -4088,8 +4100,11 @@ void GLWidget::ToggledT1sShown (bool checked)
 
 void GLWidget::ToggledT1sShiftLower (bool checked)
 {
-    ViewSettings& vs = GetViewSettings ();
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    Simulation& simulation = GetSimulation (viewNumber);
     vs.SetT1sShiftLower (checked);
+    simulation.SetT1sTimeStepShift (checked);
     update ();
 }
 
