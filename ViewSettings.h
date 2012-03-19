@@ -474,6 +474,8 @@ public:
     {
 	return m_averageAroundPositions[timeStep];
     }
+    float AngleDisplay (float angle) const;
+
     void SetAverageAroundPositions (const Simulation& simulation);
     void SetAverageAroundPositions (const Simulation& simulation, size_t bodyId);
     void SetAverageAroundPositions (const Simulation& simulation,

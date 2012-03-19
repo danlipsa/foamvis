@@ -544,6 +544,19 @@ G3D::Matrix3 ViewSettings::GetRotationForAxesOrder (const Foam& foam) const
     }
 }
 
+float ViewSettings::AngleDisplay (float angle) const
+{
+    switch (m_axesOrder)
+    {
+    case AxesOrder::TWO_D_ROTATE_RIGHT90:
+	if (angle != 0)
+	    return - angle;
+    default:
+	return angle;
+    }    
+}
+
+
 G3D::Matrix3 ViewSettings::getRotation2DTimeDisplacement ()
 {
     /**
@@ -659,3 +672,4 @@ void ViewSettings::SetAverageAroundPositions (
 	objectPosition.m_angleRadians = - angleRadians;
     }
 }
+

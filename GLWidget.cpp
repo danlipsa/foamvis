@@ -1784,7 +1784,7 @@ string GLWidget::getAverageAroundLabel ()
 	float angleRadians = 
 	    rotationCurrent.m_angleRadians - rotationBegin.m_angleRadians;
 	float angleDegrees =  G3D::toDegrees (angleRadians);
-	ostr << " Rotation: " << angleDegrees;
+	ostr << " Rotation: " << vs.AngleDisplay (angleDegrees);
     }
     return ostr.str ();
 }
