@@ -183,8 +183,8 @@ void ColorBarModel::setupPaletteSequentialBrewerBlues9 ()
 {
     VTK_CREATE(vtkColorTransferFunction, f);
     f->SetColorSpaceToLab();
-    f->AddRGBPoint(0.0    , 0.968627, 0.984314, 1.000000);
-    //f->AddRGBPoint(0.0    ,        1,        1, 1.000000); // change to white
+    //f->AddRGBPoint(0.0    , 0.968627, 0.984314, 1.000000);
+    f->AddRGBPoint(0.0    ,        1,        1, 1.000000); // change to white
     f->AddRGBPoint(0.12500, 0.870588, 0.921569, 0.968627);
     f->AddRGBPoint(0.25000, 0.776471, 0.858824, 0.937255);
     f->AddRGBPoint(0.37500, 0.619608, 0.792157, 0.882353);
