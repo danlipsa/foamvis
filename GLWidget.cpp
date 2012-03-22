@@ -200,6 +200,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_viewFocusShown (true),
       m_constraintsShown (true),
       m_constraintPointsShown (false),
+      m_contextBoxShown (true),
       m_viewCount (ViewCount::ONE),
       m_viewLayout (ViewLayout::HORIZONTAL),
       m_viewNumber (ViewNumber::VIEW0),
@@ -1752,12 +1753,12 @@ void GLWidget::displayContextBodies (ViewNumber::Enum viewNumber) const
     }
 }
 
-void GLWidget::displayContextStationaryFoam (
+void GLWidget::displayContextBox (
     ViewNumber::Enum viewNumber,
     bool adjustForAverageAroundMovementRotation) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    if (vs.IsAverageAroundRotationShown ())
+    if (m_contextBoxShown && vs.IsAverageAroundRotationShown ())
     {
 	glPushAttrib (GL_ENABLE_BIT);
 	glDisable (GL_DEPTH_TEST);
@@ -2661,7 +2662,7 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (foam);
     displayAverageAroundBodies (viewNumber);
     displayContextBodies (viewNumber);
-    displayContextStationaryFoam (viewNumber);
+    displayContextBox (viewNumber);
     displayStandaloneFaces ();    
     displayDeformation (viewNumber);
     displayVelocity (viewNumber);
@@ -2728,7 +2729,7 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
     displayAverageAroundBodies (
 	viewNumber, adjustForAverageAroundMovementRotation);
     displayContextBodies (viewNumber);
-    displayContextStationaryFoam (
+    displayContextBox (
 	viewNumber, adjustForAverageAroundMovementRotation);
     T1sPDE& t1sPDE = vs.GetT1sPDE ();
     if (vs.GetViewType () == ViewType::T1S_PDE &&
@@ -3915,6 +3916,12 @@ void GLWidget::ToggledContextView (bool checked)
 {
     ViewSettings& vs = GetViewSettings ();
     vs.SetContextView (checked);
+    update ();
+}
+
+void GLWidget::ToggledContextBoxShown (bool checked)
+{
+    m_contextBoxShown = checked;
     update ();
 }
 

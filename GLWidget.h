@@ -356,6 +356,7 @@ public Q_SLOTS:
     void ToggledVelocityGridCellCenterShown (bool checked);
     void ToggledVelocitySameSize (bool checked);
     void ToggledVelocityColorMapped (bool checked);
+    void ToggledContextBoxShown (bool checked);
 
     void SetBodyOrFaceProperty (
 	ViewNumber::Enum viewNumber,
@@ -598,7 +599,7 @@ private:
     void displayView (ViewNumber::Enum view);
     void displayViews ();
     void displayContextBodies (ViewNumber::Enum view) const;
-    void displayContextStationaryFoam (
+    void displayContextBox (
 	ViewNumber::Enum view,
 	bool adjustForAverageAroundMovementRotation = false) const;
     void displayAverageAroundBodies (
@@ -857,6 +858,7 @@ private:
     bool m_viewFocusShown;
     bool m_constraintsShown;
     bool m_constraintPointsShown;
+    bool m_contextBoxShown;
 
     // View related variables
     ViewCount::Enum m_viewCount;
