@@ -2,7 +2,7 @@
  * @file   foam.y
  * @author Dan R. Lipsa
  *
- * Grammar  description for  the parser  used to  read in  a  DMP or a FE file
+ * Grammar  description for  the parser  used to  read in  a  DMP (or a FE) file
  * produced by the Surface Evolver software.
  */
 %skeleton "lalr1.cc"                          /*  -*- C++ -*- */
@@ -305,7 +305,7 @@ header
 : /* empty */
 | header dimensionality nlplus
 | header space_dimension  nlplus
-| header parameter nlplus
+| header parameter_declaration nlplus
 | header attribute nlplus
 | header representation nlplus
 | header scale_factor nlplus
@@ -332,7 +332,7 @@ header
 | header integral_order_1d nlplus
 | header toggle nlplus
 | header suppress_warning nlplus
-| header array nlplus
+| header array_declaration nlplus
 ;
 
 nl: '\n'
@@ -357,8 +357,13 @@ suppress_warning
 : SUPPRESS_WARNING INTEGER_VALUE
 ;
 
-array
-: DEFINE IDENTIFIER number_type array_dimensions array_rest
+array_declaration
+: DEFINE IDENTIFIER number_type array_dimensions 
+  {foam->GetParsingData ().SetSpaceSignificant (true);}
+  array_rest
+{
+    
+}
 ;
 
 array_dimensions
@@ -373,10 +378,16 @@ array_dimension
 array_rest
 : /* empty */
 | '=' nlstar array_initializer
+{
+    $$ = $2;
+}
 ;
 
 array_initializer
 : number
+{
+    $$ = $1;
+}
 | '{' array_initializer_list '}'
 ;
 
@@ -548,7 +559,7 @@ function_parameter_type
 | REAL_TYPE
 ;
 
-parameter: PARAMETER IDENTIFIER '=' const_expr
+parameter_declaration: PARAMETER IDENTIFIER '=' const_expr
 {
     double v = $4;
     foam->GetParsingData ().SetVariable($2, v);

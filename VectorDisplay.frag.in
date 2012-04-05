@@ -14,7 +14,7 @@ float lineWidthPerc = u_lineWidth / u_cellLength;
  */
 bool getVector (vec2 texCoordCenter, out vec2 v)
 {
-    float count = texture2D (u_scalarAverageTexUnit, texCoordCenter).g;
+    float count = texture2D (u_scalarAverageTexUnit, texCoordCenter).y;
     if (count == 0.0)
 	return false;
     v = texture2D (u_tensorAverageTexUnit, texCoordCenter).xy;

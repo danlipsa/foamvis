@@ -10,7 +10,6 @@ void main(void)
 {
     vec4 previous = texture2D (previousTexUnit, gl_TexCoord[0].st);
     vec4 step = texture2D (stepTexUnit, gl_TexCoord[0].st);
-    //previous = vec4 (0.0, 0.0, 0.0, 1.0);
     gl_FragColor = previous + step;
 }
 // Local Variables:

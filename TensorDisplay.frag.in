@@ -70,7 +70,7 @@ vec2 getEigenVector (float l, mat2 a)
  */
 bool getTensor (vec2 texCoordCenter, out mat2 a)
 {
-    float count = texture2D (u_scalarAverageTexUnit, texCoordCenter).g;
+    float count = texture2D (u_scalarAverageTexUnit, texCoordCenter).y;
     if (count == 0.0)
 	return false;
 
