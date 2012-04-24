@@ -183,6 +183,7 @@ private:
      */
     vector<int>* m_values;
 };
+
 /**
  * An attribute that stores an array of reals
  */
@@ -214,6 +215,44 @@ private:
      */
     vector<double>* m_values;
 };
+
+/**
+ * An attribute that stores an array of reals
+ */
+class AttributeArrayAttribute : public Attribute
+{
+public:
+    /**
+     * Constructs an attribute that stores an array of reals
+     * @param values pointer to an array of reals.
+     * WARNING: Takes ownership of values vector
+     */
+    AttributeArrayAttribute (vector<Attribute*>* values)
+    {
+        m_values = values;
+    }
+    /**
+     * Destructor
+     */
+    virtual ~AttributeArrayAttribute ();
+    void AddElement (Attribute* element)
+    {
+	m_values->push_back (element);
+    }
+    /**
+     * Pretty prints the attribute
+     * @param ostr where to print
+     * @return where we printed
+     */
+    virtual ostream& Print (ostream& ostr) const;
+private:
+    /**
+     * Pointer to a vector of reals
+     */
+    vector<Attribute*>* m_values;
+};
+
+
 /**
  * Knows how to print an Attribute
  */

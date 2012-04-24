@@ -30,6 +30,7 @@ class ParsingDriver;
 class ExpressionTree;
 class NameSemanticValue;
 class AttributeCreator;
+class Attribute;
 %}
 
 /**
@@ -67,6 +68,7 @@ class AttributeCreator;
      * Knows how to create an attribute
      */
     AttributeCreator* m_attributeCreator;
+    Attribute* m_attribute;
     DefineAttribute::Enum m_attributeType;
     std::vector<NameSemanticValue*>* m_nameSemanticValueList;
     NameSemanticValue* m_nameSemanticValue;
@@ -256,8 +258,12 @@ class AttributeCreator;
 %type <m_id> constraints
 %type <m_id> tension_or_density
 %type <m_id> pressure_or_lagrange_multiplier
+%type <m_attribute> array_rest
+%type <m_attribute> array_initializer
+%type <m_attribute> array_initializer_list
 
 %{
+#include "Attribute.h"
 #include "Foam.h"
 #include "Debug.h"
 #include "Edge.h"
@@ -358,9 +364,7 @@ suppress_warning
 ;
 
 array_declaration
-: DEFINE IDENTIFIER number_type array_dimensions 
-  {foam->GetParsingData ().SetSpaceSignificant (true);}
-  array_rest
+: DEFINE IDENTIFIER number_type array_dimensions array_rest
 {
     
 }
@@ -377,24 +381,40 @@ array_dimension
 
 array_rest
 : /* empty */
+{
+    $$ = 0;
+}
 | '=' nlstar array_initializer
 {
-    $$ = $2;
+    $$ = $3;
 }
 ;
 
 array_initializer
 : number
 {
-    $$ = $1;
+    $$ = new RealAttribute ($1);
 }
 | '{' array_initializer_list '}'
+{
+    $$ = $2;
+}
 ;
 
 array_initializer_list
 : /* empty */
+{
+    $$ = 0;
+}
 | array_initializer
+{
+    $$ = $1;
+}
 | array_initializer_list ',' nlstar array_initializer
+{
+    static_cast<AttributeArrayAttribute*>($1)->AddElement ($4);
+    $$ = $1;
+}
 ;
 
 toggle

@@ -25,6 +25,19 @@ ostream& RealArrayAttribute::Print (ostream& ostr) const
     return ostr;
 }
 
+
+ostream& AttributeArrayAttribute::Print (ostream& ostr) const
+{
+    ostr << "[";
+    vector<Attribute*>& va = *m_values;
+    BOOST_FOREACH (Attribute* atr, va)
+    {
+	atr->Print (ostr);
+    }
+    ostr << "]";
+    return ostr;
+}
+
 ostream& operator<< (ostream& ostr, const Attribute& attribute)
 {
     return attribute.Print(ostr);
@@ -34,3 +47,4 @@ ostream& operator<< (ostream& ostr, const Attribute* attribute)
 {
     return ostr << *attribute;
 }
+
