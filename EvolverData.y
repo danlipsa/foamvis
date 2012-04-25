@@ -44,6 +44,7 @@ class Attribute;
      * Value for an iteger
      */
     int m_int;
+    size_t m_sizet;
     /**
      * Value for a doubleing point
      */
@@ -52,6 +53,7 @@ class Attribute;
      * Value for a list of integers
      */
     std::vector<int>* m_intList;
+    std::vector<size_t>* m_sizetList;
     /**
      * Value for a list of real numbers
      */
@@ -261,6 +263,8 @@ class Attribute;
 %type <m_attribute> array_rest
 %type <m_attribute> array_initializer
 %type <m_attribute> array_initializer_list
+%type <m_sizetList> array_dimensions;
+%type <m_sizet> array_dimension;
 
 %{
 #include "Attribute.h"
@@ -366,17 +370,35 @@ suppress_warning
 array_declaration
 : DEFINE IDENTIFIER number_type array_dimensions array_rest
 {
-    
+    AttributeArrayAttribute* array = static_cast<AttributeArrayAttribute*> ($5);
+    if (array == 0)
+    {
+	array = AttributeArrayAttribute::NewArray ($4);
+    }
+    else
+	array->CheckDimensions ($4);
+    foam->GetParsingData ().SetArray($2, array);    
 }
 ;
 
 array_dimensions
 : array_dimension
+{
+    $$ = new vector<size_t> (1, $1);
+}
 | array_dimensions array_dimension
+{
+    vector<size_t>* v = $1;
+    v->push_back ($2);
+    $$ = v;
+}
 ;
 
 array_dimension
 : '[' INTEGER_VALUE ']'
+{
+    $$ = $2;
+}
 ;
 
 array_rest
@@ -404,11 +426,11 @@ array_initializer
 array_initializer_list
 : /* empty */
 {
-    $$ = 0;
+    $$ = new AttributeArrayAttribute ();
 }
 | array_initializer
 {
-    $$ = $1;
+    $$ = new AttributeArrayAttribute ($1);
 }
 | array_initializer_list ',' nlstar array_initializer
 {
@@ -800,6 +822,7 @@ constraint_content_c3
 }
 ;
 
+
 const_expr
 : expr
 {
@@ -808,6 +831,20 @@ const_expr
     delete $1;
 }
 
+method_value
+: METHOD_OR_QUANTITY_ID method_value_rest
+{
+    $$ = 0;
+}
+
+method_value_rest
+: /* empty */
+| '.' VALUE
+;
+
+
+/* expressions */
+/* ====================================================================== */
 
 non_const_expr
 : number
@@ -994,17 +1031,6 @@ method_expr
     $$ = new ExpressionTreeConditional (foam->GetParsingData (), $1, $3, $5);
 }
 
-method_value
-: METHOD_OR_QUANTITY_ID method_value_rest
-{
-    $$ = 0;
-}
-
-method_value_rest
-: /* empty */
-| '.' VALUE
-;
-
 
 expr
 : number
@@ -1093,6 +1119,9 @@ expr
 {
     $$ = new ExpressionTreeConditional (foam->GetParsingData (), $1, $3, $5);
 }
+
+/* end expressions */
+/* ====================================================================== */
 
 number
 : INTEGER_VALUE

@@ -152,20 +152,16 @@ public:
      */
     IntegerArrayAttribute (vector<int>* values)
     {
-        m_values = values;
+        m_values.reset (values);
     }
     IntegerArrayAttribute (value_type values)
     {
-	m_values = new vector<int> (values);
+	m_values.reset (new vector<int> (values));
     }
     void set (value_type values)
     {
 	*m_values = values;
     }
-    /**
-     * Destructor for the integer array attribute
-     */
-    virtual ~IntegerArrayAttribute () {delete m_values;}
     /**
      * Pretty print an array of integers attributes
      * @param ostr where to print
@@ -181,7 +177,7 @@ private:
     /**
      * Stores a pointer to an array of integers
      */
-    vector<int>* m_values;
+    boost::shared_ptr< vector<int> > m_values;
 };
 
 /**
@@ -197,12 +193,8 @@ public:
      */
     RealArrayAttribute (vector<double>* values)
     {
-        m_values = values;
+        m_values.reset (values);
     }
-    /**
-     * Destructor
-     */
-    virtual ~RealArrayAttribute () {delete m_values;}
     /**
      * Pretty prints the attribute
      * @param ostr where to print
@@ -210,46 +202,62 @@ public:
      */
     virtual ostream& Print (ostream& ostr) const;
 private:
-    /**
-     * Pointer to a vector of reals
-     */
-    vector<double>* m_values;
+    boost::shared_ptr< vector<double> > m_values;
 };
 
 /**
- * An attribute that stores an array of reals
+ * An attribute that stores an array of attributes (used for
+ * multidimensional arrays)
  */
 class AttributeArrayAttribute : public Attribute
 {
 public:
     /**
-     * Constructs an attribute that stores an array of reals
-     * @param values pointer to an array of reals.
-     * WARNING: Takes ownership of values vector
+     * Constructs an attribute that stores an array of attributes
      */
-    AttributeArrayAttribute (vector<Attribute*>* values)
-    {
-        m_values = values;
-    }
-    /**
-     * Destructor
-     */
-    virtual ~AttributeArrayAttribute ();
+    AttributeArrayAttribute ();
+    // takes ownership of the pointer.
+    AttributeArrayAttribute (Attribute* element);
+    AttributeArrayAttribute (size_t n, double value);
+    AttributeArrayAttribute (size_t n);
+    
+    void CheckDimensions (vector<size_t>* dimensions);
+    static AttributeArrayAttribute* NewArray (vector<size_t>* dimensions);
+    double Get (const vector<size_t>& index) const;
     void AddElement (Attribute* element)
     {
-	m_values->push_back (element);
+	m_values->push_back (boost::shared_ptr<Attribute> (element));
     }
+
     /**
      * Pretty prints the attribute
      * @param ostr where to print
      * @return where we printed
      */
     virtual ostream& Print (ostream& ostr) const;
+    size_t size ()
+    {
+	return m_values->size ();
+    }
+
+private:
+    void setElement (size_t i, Attribute* element)
+    {
+	(*m_values)[i] = boost::shared_ptr<Attribute> (element);
+    }
+    boost::shared_ptr<Attribute> getElement (size_t i) const
+    {
+	return (*m_values)[i];
+    }
+    void checkDimensions (vector<size_t>* dimensions,
+			  size_t currentDimensionIndex);
+    static AttributeArrayAttribute* newArray (vector<size_t>* dimensions,
+					      size_t currentDimensionIndex);
 private:
     /**
      * Pointer to a vector of reals
      */
-    vector<Attribute*>* m_values;
+    boost::shared_ptr< vector<boost::shared_ptr<Attribute> > > m_values;
 };
 
 

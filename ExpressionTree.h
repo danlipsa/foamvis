@@ -22,6 +22,7 @@ public:
     {
 	NUMBER,
 	VARIABLE,
+	ARRAY_ELEMENT,
 	UNARY_FUNCTION,
 	BINARY_FUNCTION,
 	CONDITIONAL
@@ -56,7 +57,7 @@ public:
 	return 0;
     }
     virtual ExpressionTreeType::Enum GetType () const = 0;
-    virtual ExpressionTree* GetSimplified () const = 0;
+    virtual ExpressionTree* GetSimplifiedTree () const = 0;
     virtual string ToString () const = 0;
     virtual bool HasConditional ()
     {
@@ -88,7 +89,7 @@ public:
      * @return value of the number
      */
     virtual double Value () const;
-    virtual ExpressionTree* GetSimplified () const;
+    virtual ExpressionTree* GetSimplifiedTree () const;
     virtual ExpressionTreeType::Enum GetType () const 
     {
 	return ExpressionTreeType::NUMBER;
@@ -122,7 +123,7 @@ public:
      * @return the value of the variable
      */
     virtual double Value () const;
-    virtual ExpressionTree* GetSimplified () const;
+    virtual ExpressionTree* GetSimplifiedTree () const;
     virtual ExpressionTreeType::Enum GetType () const 
     {
 	return ExpressionTreeType::VARIABLE;
@@ -134,6 +135,48 @@ private:
      */
     string m_name;
 };
+
+
+/**
+ * An array element node in an expression tree
+ */
+class ExpressionTreeArrayElement : public ExpressionTree
+{
+public:
+    /**
+     * Constructs a variable node
+     * @param name the name of the variable
+     * @param parsingData data which allows us to get the value of a variable.
+     */
+    ExpressionTreeArrayElement (ParsingData& parsingData, 
+				const char* name, const vector<size_t>& index) :
+
+	ExpressionTree (parsingData),
+        m_name (name),
+	m_index (index)
+    {}
+    /**
+     * Value of the variable
+     * @return the value of the variable
+     */
+    virtual double Value () const;
+    virtual ExpressionTree* GetSimplifiedTree () const;
+    virtual ExpressionTreeType::Enum GetType () const 
+    {
+	return ExpressionTreeType::ARRAY_ELEMENT;
+    }
+    virtual string ToString () const;
+private:
+    /**
+     * Variable name
+     */
+    string m_name;
+    vector<size_t> m_index;
+};
+
+
+
+
 
 /**
  * An unary function or unary operator expression tree node.
@@ -163,7 +206,7 @@ public:
     {
 	return 1 + m_param->Height ();
     }
-    virtual ExpressionTree* GetSimplified () const;
+    virtual ExpressionTree* GetSimplifiedTree () const;
     virtual ExpressionTreeType::Enum GetType () const 
     {
 	return ExpressionTreeType::UNARY_FUNCTION;
@@ -213,7 +256,7 @@ public:
     {
 	return 1 + max (m_first->Height (), m_second->Height ());
     }
-    virtual ExpressionTree* GetSimplified () const;
+    virtual ExpressionTree* GetSimplifiedTree () const;
     virtual ExpressionTreeType::Enum GetType () const 
     {
 	return ExpressionTreeType::BINARY_FUNCTION;
@@ -259,7 +302,7 @@ public:
 	return 1 + max (max (m_first->Height (), m_second->Height ()), 
 		 m_third->Height ());
     }
-    virtual ExpressionTree* GetSimplified () const;
+    virtual ExpressionTree* GetSimplifiedTree () const;
     virtual ExpressionTreeType::Enum GetType () const 
     {
 	return ExpressionTreeType::CONDITIONAL;

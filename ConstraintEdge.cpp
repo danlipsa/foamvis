@@ -401,7 +401,7 @@ void ConstraintEdge::cachePoints ()
 	size_t constraintIndex = GetBegin ().GetConstraintIndex (0);
 	boost::shared_ptr<ExpressionTree> constraint = 
 	m_parsingData->GetConstraint (constraintIndex);
-	boost::shared_ptr<ExpressionTree> c (constraint->GetSimplified ());
+	boost::shared_ptr<ExpressionTree> c (constraint->GetSimplifiedTree ());
 	cdbg << "constraint: " << *c << endl;
 	);
     for (size_t i = 1; i < m_points.size () - 1; ++i)

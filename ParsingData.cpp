@@ -5,6 +5,7 @@
  * Definition of the ParsingData class
  */
 
+#include "Attribute.h"
 #include "Debug.h"
 #include "DebugStream.h"
 #include "Edge.h"
@@ -132,6 +133,20 @@ double ParsingData::GetVariableValue (const char* id) const
     Variables::const_iterator it = m_variables.find (id);
     RuntimeAssert (it != m_variables.end (), "Undeclared variable: ", id);
     return it->second;
+}
+
+double ParsingData::GetArrayValue (const char* name, 
+				   const vector<size_t>& index) const
+{
+    Arrays::const_iterator it = m_arrays.find (name);
+    RuntimeAssert (it != m_arrays.end (), "Undeclared array: ", name);
+    return it->second->Get (index);
+}
+
+
+void ParsingData::SetArray (const char* id, AttributeArrayAttribute* array)
+{
+    m_arrays[id] = boost::shared_ptr<AttributeArrayAttribute> (array);
 }
 
 bool ParsingData::IsVariableSet (const char* id)

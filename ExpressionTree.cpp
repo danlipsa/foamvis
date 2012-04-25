@@ -40,7 +40,7 @@ double ExpressionTreeNumber::Value (void) const
     return m_value;
 }
 
-ExpressionTree* ExpressionTreeNumber::GetSimplified () const
+ExpressionTree* ExpressionTreeNumber::GetSimplifiedTree () const
 {
     return new ExpressionTreeNumber (m_parsingData, m_value);
 }
@@ -59,7 +59,7 @@ double ExpressionTreeVariable::Value (void) const
     return m_parsingData.GetVariableValue (m_name);
 }
 
-ExpressionTree* ExpressionTreeVariable::GetSimplified () const
+ExpressionTree* ExpressionTreeVariable::GetSimplifiedTree () const
 {
     if (m_parsingData.IsVariableSet (m_name))
 	return new ExpressionTreeNumber (m_parsingData, Value ());
@@ -77,6 +77,25 @@ string ExpressionTreeVariable::ToString () const
     return ostr.str ();
 }
 
+// ExpressionTreeArrayElement
+// ======================================================================
+double ExpressionTreeArrayElement::Value (void) const
+{
+    return m_parsingData.GetArrayValue (m_name, m_index);
+}
+
+ExpressionTree* ExpressionTreeArrayElement::GetSimplifiedTree () const
+{
+    return new ExpressionTreeNumber (m_parsingData, Value ());
+}
+
+string ExpressionTreeArrayElement::ToString () const
+{
+    ostringstream ostr;
+    ostr << Value ();
+    return ostr.str ();
+}
+
 
 // ExpressionTreeUnaryFunction
 // ======================================================================
@@ -87,9 +106,9 @@ double ExpressionTreeUnaryFunction::Value (void) const
     return f (value);
 }
 
-ExpressionTree* ExpressionTreeUnaryFunction::GetSimplified () const
+ExpressionTree* ExpressionTreeUnaryFunction::GetSimplifiedTree () const
 {
-    ExpressionTree* simplifiedParam = m_param->GetSimplified ();
+    ExpressionTree* simplifiedParam = m_param->GetSimplifiedTree ();
     if (simplifiedParam->GetType () == ExpressionTreeType::NUMBER)
     {
 	ParsingData::UnaryFunction f = m_parsingData.GetUnaryFunction (m_name);
@@ -119,10 +138,10 @@ double ExpressionTreeBinaryFunction::Value (void) const
     return f (first, second);
 }
 
-ExpressionTree* ExpressionTreeBinaryFunction::GetSimplified () const
+ExpressionTree* ExpressionTreeBinaryFunction::GetSimplifiedTree () const
 {
-    ExpressionTree* simplifiedFirst = m_first->GetSimplified ();
-    ExpressionTree* simplifiedSecond = m_second->GetSimplified ();
+    ExpressionTree* simplifiedFirst = m_first->GetSimplifiedTree ();
+    ExpressionTree* simplifiedSecond = m_second->GetSimplifiedTree ();
     if (simplifiedFirst->GetType () == ExpressionTreeType::NUMBER && 
 	simplifiedSecond->GetType () == ExpressionTreeType::NUMBER)
     {
@@ -179,11 +198,11 @@ double ExpressionTreeConditional::Value (void) const
     }
 }
 
-ExpressionTree* ExpressionTreeConditional::GetSimplified () const
+ExpressionTree* ExpressionTreeConditional::GetSimplifiedTree () const
 {
-    ExpressionTree* simplifiedFirst = m_first->GetSimplified ();
-    ExpressionTree* simplifiedSecond = m_second->GetSimplified ();
-    ExpressionTree* simplifiedThird = m_third->GetSimplified ();
+    ExpressionTree* simplifiedFirst = m_first->GetSimplifiedTree ();
+    ExpressionTree* simplifiedSecond = m_second->GetSimplifiedTree ();
+    ExpressionTree* simplifiedThird = m_third->GetSimplifiedTree ();
     if (simplifiedFirst->GetType () == ExpressionTreeType::NUMBER)
     {
 	double firstValue = simplifiedFirst->Value ();

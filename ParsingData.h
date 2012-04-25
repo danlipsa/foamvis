@@ -15,6 +15,7 @@
 
 class AttributesInfo;
 class ExpressionTree;
+class AttributeArrayAttribute;
 
 /**
  * Stores data used during  the parsing such as identifiers, variables
@@ -27,6 +28,9 @@ public:
      * Variable type
      */
     typedef map<string, double, LessThanNoCase> Variables;
+    typedef map<string, 
+		boost::shared_ptr<AttributeArrayAttribute>, 
+		LessThanNoCase> Arrays;
     /**
      * Unary function type
      */
@@ -119,6 +123,11 @@ public:
     {
 	return GetVariableValue (name.c_str ());
     }
+    double GetArrayValue (const char* name,   const vector<size_t>& index) const;
+    double GetArrayValue (const string& name, const vector<size_t>& index) const
+    {
+	return GetArrayValue (name.c_str (), index);
+    }
     bool IsVariableSet (const char* name);
     bool IsVariableSet (const string& name)
     {
@@ -205,6 +214,7 @@ public:
     {
 	m_variables[id] = value;
     }
+    void SetArray (const char* id, AttributeArrayAttribute* array);
     void SetVariable (const string& id, double value)
     {
 	SetVariable (id.c_str (), value);
@@ -290,6 +300,7 @@ private:
      * PARAMETER keyword in the Evolver DMP file)
      */
     Variables m_variables;
+    Arrays m_arrays;
     /**
      * Unary functions
      */
