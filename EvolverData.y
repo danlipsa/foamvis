@@ -263,8 +263,8 @@ class Attribute;
 %type <m_attribute> array_rest
 %type <m_attribute> array_initializer
 %type <m_attribute> array_initializer_list
-%type <m_sizetList> array_dimensions;
-%type <m_sizet> array_dimension;
+%type <m_sizetList> array_dimensions_or_indexes;
+%type <m_sizet> array_dimension_or_index;
 
 %{
 #include "Attribute.h"
@@ -368,7 +368,7 @@ suppress_warning
 ;
 
 array_declaration
-: DEFINE IDENTIFIER number_type array_dimensions array_rest
+: DEFINE IDENTIFIER number_type array_dimensions_or_indexes array_rest
 {
     AttributeArrayAttribute* array = static_cast<AttributeArrayAttribute*> ($5);
     if (array == 0)
@@ -381,12 +381,12 @@ array_declaration
 }
 ;
 
-array_dimensions
-: array_dimension
+array_dimensions_or_indexes
+: array_dimension_or_index
 {
     $$ = new vector<size_t> (1, $1);
 }
-| array_dimensions array_dimension
+| array_dimensions_or_indexes array_dimension_or_index
 {
     vector<size_t>* v = $1;
     v->push_back ($2);
@@ -394,7 +394,7 @@ array_dimensions
 }
 ;
 
-array_dimension
+array_dimension_or_index
 : '[' INTEGER_VALUE ']'
 {
     $$ = $2;
@@ -845,7 +845,7 @@ method_value_rest
 
 /* expressions */
 /* ====================================================================== */
-
+/* differs from expr in respect to the ATTRIBUTE_ID rule */
 non_const_expr
 : number
 {
@@ -854,6 +854,11 @@ non_const_expr
 | IDENTIFIER
 {
     $$ = new ExpressionTreeVariable (foam->GetParsingData (), $1);
+}
+/* Array values */
+| IDENTIFIER array_dimensions_or_indexes
+{
+    $$ = new ExpressionTreeArrayElement (foam->GetParsingData (), $1, *$2);
 }
 | ATTRIBUTE_ID
 {
@@ -938,7 +943,7 @@ non_const_expr
     $$ = new ExpressionTreeConditional (foam->GetParsingData (), $1, $3, $5);
 }
 
-
+/* differs from expr in respect to the method_value rule */
 method_expr
 : number
 {
@@ -947,6 +952,11 @@ method_expr
 | IDENTIFIER
 {
     $$ = new ExpressionTreeVariable (foam->GetParsingData (), $1);
+}
+/* Array values */
+| IDENTIFIER array_dimensions_or_indexes
+{
+    $$ = new ExpressionTreeArrayElement (foam->GetParsingData (), $1, *$2);
 }
 | method_value
 {
@@ -1031,7 +1041,6 @@ method_expr
     $$ = new ExpressionTreeConditional (foam->GetParsingData (), $1, $3, $5);
 }
 
-
 expr
 : number
 {
@@ -1040,6 +1049,11 @@ expr
 | IDENTIFIER
 {
     $$ = new ExpressionTreeVariable (foam->GetParsingData (), $1);
+}
+/* Array values */
+| IDENTIFIER array_dimensions_or_indexes
+{
+    $$ = new ExpressionTreeArrayElement (foam->GetParsingData (), $1, *$2);
 }
 /* Function calls */
 | IDENTIFIER '(' expr ')'

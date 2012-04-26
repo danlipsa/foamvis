@@ -1,5 +1,9 @@
 Release log
 ===========
+0.7.    
+	- parse and process arrays (for 8balls_5)
+	
+
 0.7.2374 2012-03-09
 	- fix bug: position of the two_discs for two views.
 	- added arrows for forces
@@ -392,7 +396,7 @@ Debug the parser or scanner
 ===========================
 ./foam --debug-parsing
 ./foam --debug-scanning
-See EvolverData.output which is the information about the grammar for the parser.
+See EvolverData.output for information about the grammar for the parser.
 
 Prerequisites
 =============

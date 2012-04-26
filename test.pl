@@ -11,6 +11,7 @@ my @tests =
      ["cststress_vfm/cststress_16_0001.dmp",""],
      ["ctrctndumps_704v_0.1520_0.2400_8.0000_v1/dump_0.1520_0.2400_8.0000_0001.dmp",""],
      ["ctrctndumps_725v_0.1480_0.2400_9.0000_rupt_v1/dump_0.1480_0.2400_9.0000_0171.dmp",""],
+     ["8balls_5/push2_296_0001.dmp"],
      ["ellipse_in_flow/ell0.700000_344v_5.000000_1.dmp",
       "--use-original --constraint-rotation \"4 x0 y0 phi\""],
      ["sedimenting_ellipse_odd/ell_ecc0.700000_8.000000_1233.dmp",
