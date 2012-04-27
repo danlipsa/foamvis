@@ -23,15 +23,29 @@
 // ======================================================================
 
 BodyAlongTime::BodyAlongTime (size_t timeSteps) :
-    m_bodyAlongTime (timeSteps)
+    m_bodyAlongTime (timeSteps),
+    /* set the times to invalid values */
+    m_timeBegin (timeSteps),
+    m_timeEnd (0)
 {
 }
 
+void BodyAlongTime::SetBody (
+    size_t timeStep, const boost::shared_ptr<Body>& body)
+{
+    m_bodyAlongTime[timeStep] = body;
+    if (timeStep < m_timeBegin)
+	m_timeBegin = timeStep;
+    if (timeStep >= m_timeEnd)
+	m_timeEnd = timeStep + 1;
+}
+
+
 void BodyAlongTime::CalculateBodyWraps (const Simulation& simulation)
 {
-    if (simulation.GetFoam (0).IsTorus ())
+    if (simulation.IsTorus ())
     {
-	for (size_t time = 0; time < (m_bodyAlongTime.size () - 1); time++)
+	for (size_t time = m_timeBegin; time < (m_timeEnd - 1); time++)
 	{
 	    const OOBox& originalDomain = 
 		simulation.GetFoam (time+1).GetOriginalDomain ();
@@ -47,20 +61,10 @@ void BodyAlongTime::CalculateBodyWraps (const Simulation& simulation)
     }
 }
 
-void BodyAlongTime::Resize ()
-{
-    Bodies::iterator it = find_if (
-	m_bodyAlongTime.begin (), m_bodyAlongTime.end (), 
-	boost::bind (logical_not< boost::shared_ptr<Body> > (), _1));
-    size_t size = it - m_bodyAlongTime.begin ();
-    m_bodyAlongTime.resize (size);
-}
-
 string BodyAlongTime::ToString () const
 {
     ostringstream ostr;
-    const BodyAlongTime::Bodies& bodies = GetBodies ();
-    ostr << "BodyAlongTime " << bodies[0]->GetId () << ": " << endl;
+    ostr << "BodyAlongTime " << GetId () << ": " << endl;
     
     ostr << "Wraps: ";
     ostream_iterator<size_t> os (ostr, " ");
@@ -74,10 +78,27 @@ string BodyAlongTime::ToString () const
     return ostr.str ();
 }
 
+void BodyAlongTime::AssertDeadBubblesStayDead () const
+{
+    for (size_t i = m_timeBegin; i < m_timeEnd; ++i)
+    {
+	if (m_bodyAlongTime[i] == 0)
+	{
+	    size_t j = i + 1;
+	    while (j < m_timeEnd && m_bodyAlongTime[j] == 0)
+		++j;
+	    RuntimeAssert (false, 
+			   "Body with id (0 based) ", 
+			   m_bodyAlongTime[m_timeBegin]->GetId (),
+			   " is null at time step ", i, 
+			   " and then non-null at timestep ", j);
+   	}
+    }
+}
 
 size_t BodyAlongTime::GetId () const
 {
-    return m_bodyAlongTime[0]->GetId ();
+    return m_bodyAlongTime[m_timeBegin]->GetId ();
 }
 
 
@@ -87,6 +108,7 @@ size_t BodyAlongTime::GetId () const
 // ======================================================================
 BodiesAlongTime::BodiesAlongTime ()
 {
+    cdbg << "bodyMap size " << m_bodyMap.size () << endl;
 }
 
 BodyAlongTime& BodiesAlongTime::getBodyAlongTime (size_t id) const
@@ -97,32 +119,21 @@ BodyAlongTime& BodiesAlongTime::getBodyAlongTime (size_t id) const
     return *(it->second);
 }
 
-void BodiesAlongTime::Allocate (
-    const boost::shared_ptr<Body>  body, size_t timeSteps)
+void BodiesAlongTime::AllocateBodyAlongTime (size_t bodyId, size_t timeSteps)
 {
-    size_t id = body->GetId ();
     boost::shared_ptr<BodyAlongTime> oneBodyPtr (new BodyAlongTime (timeSteps));
-    m_bodyMap.insert (
-	BodyMap::value_type (id, oneBodyPtr));
+    pair<BodyMap::iterator, bool> result = 
+	m_bodyMap.insert (BodyMap::value_type (bodyId, oneBodyPtr));
 }
 
-void BodiesAlongTime::Cache (boost::shared_ptr<Body>  body, size_t timeStep)
+void BodiesAlongTime::CacheBody (
+    boost::shared_ptr<Body> body, size_t timeStep, size_t timeSteps)
 {
     size_t id = body->GetId ();
-    RuntimeAssert (m_bodyMap[id] != 0, 
-		   "Body with id: ", id, 
-		   " (0 based) not defined in the first DMP file");
-    m_bodyMap[id]->GetBody(timeStep) = body;
-}
-
-void BodiesAlongTime::Resize (const boost::shared_ptr<Body>  body)
-{
-    GetBodyAlongTime (body->GetId ()).Resize ();
-}
-
-void BodiesAlongTime::resize (size_t id, size_t timeSteps)
-{
-    m_bodyMap[id]->Resize (timeSteps);
+    // Bubbles might be created at later times steps.
+    if (m_bodyMap.find (id) == m_bodyMap.end ())
+	AllocateBodyAlongTime (id, timeSteps);
+    m_bodyMap[id]->SetBody(timeStep, body);
 }
 
 string BodiesAlongTime::ToString () const
@@ -132,4 +143,11 @@ string BodiesAlongTime::ToString () const
 	 it != m_bodyMap.end(); ++it)
 	ostr << *(it->second) << endl;
     return ostr.str ();
+}
+
+void BodiesAlongTime::AssertDeadBubblesStayDead () const
+{
+    for (BodiesAlongTime::BodyMap::const_iterator it = m_bodyMap.begin ();
+	 it != m_bodyMap.end(); ++it)
+	it->second->AssertDeadBubblesStayDead ();
 }

@@ -337,18 +337,13 @@ void Simulation::storeVelocity (
 
 void Simulation::CacheBodiesAlongTime ()
 {
-    Foam::Bodies& bodies = m_foams[0]->GetBodies ();
-    for_each (bodies.begin (), bodies.end (), 
-	      boost::bind (&BodiesAlongTime::Allocate,
-			   &m_bodiesAlongTime, _1, m_foams.size ()));
     for (size_t timeStep = 0; timeStep < m_foams.size (); timeStep++)
     {
 	Foam::Bodies& bodies = m_foams[timeStep]->GetBodies ();
 	BOOST_FOREACH (boost::shared_ptr<Body>  body, bodies)
-	    m_bodiesAlongTime.Cache (body, timeStep);
+	    m_bodiesAlongTime.CacheBody (body, timeStep, m_foams.size ());
     }
-    for_each (bodies.begin (), bodies.end (),
-	      boost::bind (&BodiesAlongTime::Resize, &m_bodiesAlongTime, _1));
+    m_bodiesAlongTime.AssertDeadBubblesStayDead ();
 }
 
 bool Simulation::Is2D () const

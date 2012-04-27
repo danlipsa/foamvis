@@ -17,25 +17,29 @@
 #include "StripIterator.h"
 #include "Utils.h"
 
+//#define __LOG__(code) code
+#define __LOG__(code)
+
+
 StripIterator::StripIterator (
     const BodyAlongTime& bodyAlongTime,
-    const Simulation& simulation, size_t timeStep) : 
+    const Simulation& simulation) : 
 
-    m_timeStep (timeStep),
+    m_timeCurrent (bodyAlongTime.GetTimeBegin ()),
     m_bodyAlongTime (bodyAlongTime),
     m_simulation (simulation)
 {
     m_currentWrap = 0;
     size_t wrapSize = m_bodyAlongTime.GetWrapSize ();
     if (wrapSize == 0)
-	m_isNextBeginOfStrip = (m_timeStep == 0);
+	m_isNextBeginOfStrip = (m_timeCurrent == 0);
     else
     {
-	while (m_timeStep > m_bodyAlongTime.GetWrap (m_currentWrap) &&
+	while (m_timeCurrent > m_bodyAlongTime.GetWrap (m_currentWrap) &&
 	       m_currentWrap < wrapSize)
 	    ++m_currentWrap;
-	if (m_timeStep == 0 ||
-	    m_timeStep == m_bodyAlongTime.GetWrap (m_currentWrap - 1) + 1)
+	if (m_timeCurrent == 0 ||
+	    m_timeCurrent == m_bodyAlongTime.GetWrap (m_currentWrap - 1) + 1)
 	    m_isNextBeginOfStrip = true;
 	else
 	    m_isNextBeginOfStrip = false;
@@ -65,7 +69,7 @@ void StripIterator::ForEachSegment (ProcessSegment processSegment)
 
 bool StripIterator::HasNext () const
 {
-    return m_timeStep < m_bodyAlongTime.GetBodies ().size ();
+    return m_timeCurrent < m_bodyAlongTime.GetTimeEnd ();
 }
 
 
@@ -76,11 +80,11 @@ StripIteratorPoint StripIterator::Next ()
     if (// last wrap
 	m_currentWrap == m_bodyAlongTime.GetWrapSize () ||
 	// not at the end of a middle wrap
-	m_timeStep < m_bodyAlongTime.GetWrap (m_currentWrap) + 1)
+	m_timeCurrent < m_bodyAlongTime.GetWrap (m_currentWrap) + 1)
     {
 	StripPointLocation::Enum location;
 	if (// at the end of last wrap
-	    m_timeStep == m_bodyAlongTime.GetBodies ().size () - 1)
+	    m_timeCurrent == m_bodyAlongTime.GetTimeEnd () - 1)
 	{
 	    location = StripPointLocation::END;
 	    m_isNextBeginOfStrip = false;
@@ -91,22 +95,22 @@ StripIteratorPoint StripIterator::Next ()
 		StripPointLocation::BEGIN : StripPointLocation::MIDDLE;
 	    m_isNextBeginOfStrip = false;
 	}
-	body = m_bodyAlongTime.GetBody (m_timeStep);
+	body = m_bodyAlongTime.GetBody (m_timeCurrent);
 	point = StripIteratorPoint (
-	    body->GetCenter (), location, m_timeStep++, body);
+	    body->GetCenter (), location, m_timeCurrent++, body);
     }
     else
     { // at the end of a middle wrap
 	m_isNextBeginOfStrip = true;
 	const OOBox& originalDomain = 
-	    m_simulation.GetFoam (m_timeStep).GetOriginalDomain ();
-	body = m_bodyAlongTime.GetBody (m_timeStep);
+	    m_simulation.GetFoam (m_timeCurrent).GetOriginalDomain ();
+	body = m_bodyAlongTime.GetBody (m_timeCurrent);
 	point = StripIteratorPoint (
 	    originalDomain.TorusTranslate (
 		body->GetCenter (),
 		Vector3int16Zero - m_bodyAlongTime.GetTranslation (
 		    m_currentWrap++)), 
-	    StripPointLocation::END, m_timeStep, body);
+	    StripPointLocation::END, m_timeCurrent, body);
     }
     return point;
 }

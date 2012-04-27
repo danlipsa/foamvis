@@ -2594,22 +2594,22 @@ void GLWidget::displayBodyCenters (
 {
     if (m_bodyCenterShown)
     {
-	const BodySelector& bodySelector = GetViewSettings (viewNumber).
-	    GetBodySelector ();
-	double zPos = (GetViewSettings ().GetViewType () == 
-		       ViewType::CENTER_PATHS) ?
-	    GetCurrentTime (viewNumber) * GetTimeDisplacement () : 0;
+	const ViewSettings& vs = GetViewSettings (viewNumber);
+	size_t currentTime = GetCurrentTime (viewNumber);
+	const Simulation& simulation = GetSimulation (viewNumber);
+	const BodySelector& bodySelector = vs.GetBodySelector ();
+	double zPos = (vs.GetViewType () == ViewType::CENTER_PATHS) ?
+	    currentTime * GetTimeDisplacement () : 0;
 	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
 	glDisable (GL_DEPTH_TEST);
 	glPointSize (4.0);
 	glColor (Qt::red);
 	const Foam::Bodies& bodies = 
-	    GetSimulation (viewNumber).GetFoam (0).GetBodies ();
+	    simulation.GetFoam (currentTime).GetBodies ();
 	for_each (bodies.begin (), bodies.end (),
 		  DisplayBodyCenter (
 		      *this, 
-		      GetSimulation (viewNumber).GetFoam (
-			  GetCurrentTime (viewNumber)).GetProperties (),
+		      simulation.GetFoam (currentTime).GetProperties (),
 		      bodySelector, useZPos, zPos));
 	glPopAttrib ();
     }
@@ -2879,6 +2879,8 @@ void GLWidget::displayFacesTorusLines () const
 void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
+    size_t currentTime = GetCurrentTime (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
     const BodySelector& bodySelector = vs.GetBodySelector ();
     displayCenterPaths (viewNumber);
     
@@ -2888,27 +2890,26 @@ void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
     if (IsCenterPathBodyShown ())
     {
 	const Foam::Bodies& bodies = 
-	    GetSimulation (viewNumber).GetFoam (0).GetBodies ();
-	double zPos = GetCurrentTime (viewNumber) * GetTimeDisplacement ();
+	    simulation.GetFoam (currentTime).GetBodies ();
+	double zPos = currentTime * GetTimeDisplacement ();
 	for_each (
 	    bodies.begin (), bodies.end (),
 	    DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H0,
 	    DisplayFaceEdges<DisplayEdgePropertyColor<
 	    DisplayElement::DONT_DISPLAY_TESSELLATION> > > > (
-		*this, GetSimulation (viewNumber).GetFoam (0).GetProperties (),
+		*this, simulation.GetFoam (currentTime).GetProperties (),
 		bodySelector, DisplayElement::USER_DEFINED_CONTEXT,
 		viewNumber, IsTimeDisplacementUsed (), zPos));
     }
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (
-	GetSimulation (viewNumber).GetFoam (0), viewNumber, true, 0);
+	simulation.GetFoam (currentTime), viewNumber, true, 0);
     if (GetTimeDisplacement () != 0)
     {
 
 	displayStandaloneEdges< DisplayEdgePropertyColor<> > (
-	    GetSimulation (viewNumber).GetFoam (0), viewNumber,
+	    simulation.GetFoam (currentTime), viewNumber,
 	    IsTimeDisplacementUsed (),
-	    (GetSimulation (viewNumber).GetTimeSteps () - 1) * 
-	    GetTimeDisplacement ());
+	    (simulation.GetTimeSteps () - 1) * GetTimeDisplacement ());
     }
     glPopAttrib ();
 }

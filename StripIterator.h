@@ -56,7 +56,7 @@ public:
 
 public:
     StripIterator (const BodyAlongTime& bodyAlongTime,
-		   const Simulation& simulation, size_t timeStep = 0);
+		   const Simulation& simulation);
     bool HasNext () const;
     StripIteratorPoint Next ();    
 
@@ -68,7 +68,7 @@ public:
 	const StripIteratorPoint& begin, const StripIteratorPoint& end);
 
 private:
-    size_t m_timeStep;
+    size_t m_timeCurrent;
     /*
      * Index into the vector of wraps pointing to the current wrap or
      * to the end of the vector.
