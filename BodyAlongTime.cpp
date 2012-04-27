@@ -108,7 +108,6 @@ size_t BodyAlongTime::GetId () const
 // ======================================================================
 BodiesAlongTime::BodiesAlongTime ()
 {
-    cdbg << "bodyMap size " << m_bodyMap.size () << endl;
 }
 
 BodyAlongTime& BodiesAlongTime::getBodyAlongTime (size_t id) const
