@@ -1575,6 +1575,8 @@ bodies
 
 body_list
 : /* empty */
+/* hack to keep evolver from reusing bubble IDs */
+| body_list INTEGER_VALUE nlplus
 | body_list INTEGER_VALUE integer_list body_attribute_list nlplus
 {
     vector<int>* intList = $3;
