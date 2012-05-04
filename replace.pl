@@ -10,7 +10,7 @@ sub replace
 {
     my ($inName, $pairs) = @_;
     my $outName = "temp.txt";
-    print "processing $inName ...\n";
+    # print "processing $inName ...\n";
     open (my $in, "<", $inName)
 	or die ("Could not open $inName: $!\n");
     open (my $out, ">", $outName)

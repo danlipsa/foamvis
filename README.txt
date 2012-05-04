@@ -2,7 +2,8 @@ Release log
 ===========
 0.7.    
 	- parse and process arrays (for 8balls_5)
-	- allow bubbles to appear in the simulation (for allcrypt)	
+	- allow bubbles to appear in the simulation (for allcrypt2) and 
+	  allow bodies without any attributes (for allcrypt2)
 
 0.7.2374 2012-03-09
 	- fix bug: position of the two_discs for two views.
