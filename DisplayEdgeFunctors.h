@@ -234,7 +234,7 @@ private:
 };
 
 template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay = 
-	  DisplayElement::TEST_DISPLAY_TESSELLATION>
+	  DisplayElement::DISPLAY_TESSELLATION_EDGES>
 class DisplayEdgePropertyColor : public DisplayElementFocus
 {
 public:
@@ -265,7 +265,7 @@ public:
 
 template <HighlightNumber::Enum highlightNumber,
 	  DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay = 
-	  DisplayElement::TEST_DISPLAY_TESSELLATION>
+	  DisplayElement::DISPLAY_TESSELLATION_EDGES>
 class DisplayEdgeHighlightColor : public DisplayElementFocus
 {
 public:

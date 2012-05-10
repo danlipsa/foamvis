@@ -153,9 +153,14 @@ public:
 	return m_centerPathLineUsed;
     }
 
-    bool IsEdgesTessellation () const
+    bool EdgesShown () const
     {
-	return m_edgesTessellation;
+	return m_edgesShown;
+    }
+
+    bool EdgesTessellationShown () const
+    {
+	return m_edgesTessellationShown;
     }
     bool IsCenterPathBodyShown () const
     {
@@ -332,9 +337,9 @@ public Q_SLOTS:
     void ToggledBodyCenterShown (bool checked);
     void ToggledBodyNeighborsShown (bool checked);
     void ToggledFaceCenterShown (bool checked);
-    void ToggledEdgesTessellation (bool checked);
+    void ToggledEdgesTessellationShown (bool checked);
 
-    void ToggledFacesShowEdges (bool checked);
+    void ToggledEdgesShown (bool checked);
     void ToggledLightNumberShown (bool checked);
     void ToggledLightEnabled (bool checked);
     void ToggledSelectionContextShown (bool checked);
@@ -783,11 +788,11 @@ private:
     double m_arrowBaseRadius;
     double m_arrowHeight;
 
-    bool m_facesShowEdges;
+    bool m_edgesShown;
+    bool m_edgesTessellationShown;
     bool m_bodyCenterShown;
     bool m_bodyNeighborsShown;
     bool m_faceCenterShown;
-    bool m_edgesTessellation;
     bool m_centerPathBodyShown;
     bool m_boundingBoxShown;
     bool m_bodiesBoundingBoxesShown;

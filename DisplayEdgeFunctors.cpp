@@ -418,8 +418,8 @@ operator () (const Edge& edge) const
 {
     bool isPhysical = edge.IsPhysical (this->m_foamProperties);
     if (isPhysical || 
-	(tesselationEdgesDisplay == TEST_DISPLAY_TESSELLATION &&
-	 m_glWidget.IsEdgesTessellation () && 
+	(tesselationEdgesDisplay == DISPLAY_TESSELLATION_EDGES &&
+	 m_glWidget.EdgesTessellationShown () && 
 	 m_focus == FOCUS))
     {
 	bool hasConstraints = edge.HasConstraints ();
@@ -606,8 +606,8 @@ template class DisplayEdgeHighlightColor<(HighlightNumber::Enum)0, (DisplayEleme
 // DisplayEdgePropertyColor
 // ======================================================================
 
-template class DisplayEdgePropertyColor <DisplayElement::TEST_DISPLAY_TESSELLATION>;
-template class DisplayEdgePropertyColor <DisplayElement::DONT_DISPLAY_TESSELLATION>;
+template class DisplayEdgePropertyColor <DisplayElement::DISPLAY_TESSELLATION_EDGES>;
+template class DisplayEdgePropertyColor <DisplayElement::DONT_DISPLAY_TESSELLATION_EDGES>;
 
 
 // DisplayEdgeTorus
@@ -618,8 +618,8 @@ template class DisplayFaceEdges<
 template class DisplayFaceEdges<
     DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadric, true> >;
 template class DisplayFaceEdges<
-    DisplayEdgePropertyColor<DisplayElement::TEST_DISPLAY_TESSELLATION> >;
+    DisplayEdgePropertyColor<DisplayElement::DISPLAY_TESSELLATION_EDGES> >;
 template class DisplayFaceEdges<
-    DisplayEdgePropertyColor<DisplayElement::DONT_DISPLAY_TESSELLATION> >;
+    DisplayEdgePropertyColor<DisplayElement::DONT_DISPLAY_TESSELLATION_EDGES> >;
 template class DisplayFaceEdges<DisplayEdgeTorusClipped>;
 

@@ -88,36 +88,6 @@ private:
 
 template<QRgb faceColor,
 	 typename PropertySetter = SetterTextureCoordinate>
-class DisplayFaceLineStripColor : 
-    public DisplayFaceHighlightColor<HighlightNumber::H0, 
-				     DisplayFaceLineStrip, PropertySetter>
-{
-public:
-    /**
-     * Constructor
-     * @param widget where is the face displayed
-     */
-    DisplayFaceLineStripColor (
-	const GLWidget& widget, const FoamProperties& fp,
-	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
-	ViewNumber::Enum view = ViewNumber::VIEW0, 
-	bool useZPos = false,
-	double zPos = 0);
-
-    DisplayFaceLineStripColor (
-	const GLWidget& widget, const FoamProperties& fp,
-	PropertySetter propertySetter,
-	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
-	bool useZPos = false, 
-	double zPos = 0);
-    void operator () (const boost::shared_ptr<OrientedFace>& of);
-    void operator () (const boost::shared_ptr<Face>& f);
-};
-
-
-
-template<QRgb faceColor,
-	 typename PropertySetter = SetterTextureCoordinate>
 class DisplayFaceDmpColor : 
     public DisplayFaceHighlightColor<HighlightNumber::H0, 
 				     DisplayFaceTriangleFan, PropertySetter>

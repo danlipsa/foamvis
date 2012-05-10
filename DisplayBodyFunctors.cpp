@@ -520,12 +520,12 @@ template class DisplayBodyBase<SetterVelocity>;
 template class DisplayBody<
     DisplayFaceHighlightColor<HighlightNumber::H0,
 	DisplayFaceEdges<
-	    DisplayEdgePropertyColor<DisplayElement::DONT_DISPLAY_TESSELLATION> >,
+	    DisplayEdgePropertyColor<DisplayElement::DONT_DISPLAY_TESSELLATION_EDGES> >,
 	SetterTextureCoordinate>, SetterTextureCoordinate>;
 template class DisplayBody<
     DisplayFaceHighlightColor<HighlightNumber::H0,
 	DisplayFaceEdges<
-	    DisplayEdgePropertyColor<DisplayElement::TEST_DISPLAY_TESSELLATION> >,
+	    DisplayEdgePropertyColor<DisplayElement::DISPLAY_TESSELLATION_EDGES> >,
 	SetterTextureCoordinate>, SetterTextureCoordinate>;
 template class DisplayBody<
     DisplayFaceHighlightColor<HighlightNumber::H0,
@@ -547,8 +547,6 @@ template class DisplayBody<
 template class DisplayBody<DisplayFaceBodyPropertyColor<SetterNop>, SetterNop>;
 
 template class DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H1, DisplayFaceLineStrip, SetterTextureCoordinate>, SetterTextureCoordinate>;
-
-template class DisplayBody<DisplayFaceLineStripColor<0xff000000, SetterTextureCoordinate>, SetterTextureCoordinate>;
 
 template class DisplayBody<DisplayFaceBodyPropertyColor<SetterDeformation>, SetterDeformation>;
 

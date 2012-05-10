@@ -201,72 +201,6 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 }
 
 
-// DisplayFaceLineStripColor
-// ======================================================================
-template<QRgb faceColor, typename PropertySetter>
-DisplayFaceLineStripColor<faceColor, PropertySetter>::
-DisplayFaceLineStripColor (
-    const GLWidget& widget, const FoamProperties& fp,
-    typename DisplayElement::FocusContext focus, ViewNumber::Enum view, 
-    bool useZPos, double zPos) : 
-    
-    DisplayFaceHighlightColor<
-    HighlightNumber::H0, 
-    DisplayFaceLineStrip, PropertySetter> (
-	widget, fp, PropertySetter (widget, view), focus, useZPos, zPos)
-{
-}
-
-template<QRgb faceColor, typename PropertySetter>
-DisplayFaceLineStripColor<faceColor,  PropertySetter>::
-DisplayFaceLineStripColor (
-    const GLWidget& widget, const FoamProperties& fp,
-    PropertySetter propertySetter,
-    typename DisplayElement::FocusContext focus,
-    bool useZPos, double zPos) : 
-
-    DisplayFaceHighlightColor<
-    HighlightNumber::H0, 
-    DisplayFaceLineStrip, PropertySetter> (
-	widget, fp, propertySetter, focus, useZPos, zPos) 
-{
-}
-
-template<QRgb faceColor, typename PropertySetter>
-void DisplayFaceLineStripColor<faceColor, PropertySetter>::
-operator () (const boost::shared_ptr<OrientedFace>& of)
-{
-    bool stationaryOrContext;
-    if (of->IsStandalone ())
-	stationaryOrContext = false;
-    else
-    {
-	boost::shared_ptr<Body> body = of->GetAdjacentBody ().GetBody ();
-	size_t bodyId = body->GetId ();
-	const ViewSettings& vs = this->m_glWidget.GetViewSettings (
-	    this->m_propertySetter.GetViewNumber ());
-	stationaryOrContext = ((bodyId == vs.GetAverageAroundBodyId ()) || 
-			       vs.IsContextDisplayBody (bodyId));
-    }
-    if (! stationaryOrContext)
-    {
-	operator () (of->GetFace ());
-    }
-}
-
-template<QRgb faceColor, typename PropertySetter>
-void DisplayFaceLineStripColor<faceColor, PropertySetter>::
-operator () (const boost::shared_ptr<Face>& f)
-{
-    glColor (this->m_focus == DisplayElement::FOCUS ?
-	     QColor (faceColor) :
-	     QColor::fromRgbF (0, 0, 0, 
-			       this->m_glWidget.GetContextAlpha ()));
-    (DisplayFaceLineStrip (this->m_glWidget, this->m_foamProperties, 
-			   this->m_focus, this->m_useZPos, this->m_zPos)) (f);
-}
-
-
 // DisplayFaceDmpColor
 // ======================================================================
 template<QRgb faceColor, typename PropertySetter>
@@ -355,11 +289,11 @@ template class DisplayFaceHighlightColor<HighlightNumber::H0,
 	DisplayEdgeTorusClipped>, SetterTextureCoordinate>;
 template class DisplayFaceHighlightColor<HighlightNumber::H0,
     DisplayFaceEdges<
-	DisplayEdgePropertyColor<DisplayElement::TEST_DISPLAY_TESSELLATION> >, 
+	DisplayEdgePropertyColor<DisplayElement::DISPLAY_TESSELLATION_EDGES> >, 
     SetterTextureCoordinate>;
 template class DisplayFaceHighlightColor<HighlightNumber::H0,
     DisplayFaceEdges<
-	DisplayEdgePropertyColor<DisplayElement::DONT_DISPLAY_TESSELLATION> >, 
+	DisplayEdgePropertyColor<DisplayElement::DONT_DISPLAY_TESSELLATION_EDGES> >, 
     SetterTextureCoordinate>;
 template class DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceLineStrip, SetterTextureCoordinate>;
 template class DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceLineStrip, SetterVertexAttribute>;
@@ -379,9 +313,6 @@ template class DisplayFaceBodyPropertyColor<SetterDeformation>;
 template class DisplayFaceBodyPropertyColor<SetterNop>;
 template class DisplayFaceBodyPropertyColor<SetterVelocity>;
 
-// DisplayFaceLineStripColor
-// ======================================================================
-template class DisplayFaceLineStripColor<0xff000000, SetterTextureCoordinate>;
 
 // DisplayFaceDmpColor
 // ======================================================================

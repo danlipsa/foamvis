@@ -65,6 +65,7 @@
               <height>128</height>
              </size>
             </property>
+            <zorder>stackedWidgetTimeStep</zorder>
            </widget>
           </item>
           <item>
@@ -941,14 +942,17 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="8" column="0">
-                    <widget class="QCheckBox" name="checkBoxTorusOriginalDomain">
+                   <item row="8" column="1">
+                    <widget class="QCheckBox" name="checkBoxEdgesTessellation">
                      <property name="text">
-                      <string>Torus domain</string>
+                      <string>Tessellation edges</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
                      </property>
                     </widget>
                    </item>
-                   <item row="8" column="1">
+                   <item row="8" column="0">
                     <widget class="QCheckBox" name="checkBoxTitleShown">
                      <property name="text">
                       <string>Title</string>
@@ -958,13 +962,20 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="9" column="0">
+                   <item row="9" column="1">
                     <widget class="QCheckBox" name="checkBoxViewFocusShown">
                      <property name="text">
                       <string>View focus</string>
                      </property>
                      <property name="checked">
                       <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="9" column="0">
+                    <widget class="QCheckBox" name="checkBoxTorusOriginalDomain">
+                     <property name="text">
+                      <string>Torus domain</string>
                      </property>
                     </widget>
                    </item>
@@ -1451,16 +1462,6 @@
                     <widget class="QCheckBox" name="checkBoxTorusOriginalDomainWrapInside">
                      <property name="text">
                       <string>Edges clipped</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QCheckBox" name="checkBoxEdgesTessellation">
-                     <property name="text">
-                      <string>Tessellation edges</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
                      </property>
                     </widget>
                    </item>
@@ -2386,7 +2387,7 @@
     <slot>ToggledBodies(bool)</slot>
     <slot>ToggledCenterPathDisplayBody(bool)</slot>
     <slot>ToggledEdgesBodyCenter(bool)</slot>
-    <slot>ToggledEdgesTessellation(bool)</slot>
+    <slot>ToggledEdgesTessellationShown(bool)</slot>
     <slot>ToggledEdgesTorusTubes(bool)</slot>
     <slot>ToggledFacesTorusTubes(bool)</slot>
     <slot>ToggledTorusOriginalDomainDisplay(bool)</slot>
@@ -2395,7 +2396,7 @@
     <slot>ValueChangedAngleOfView(int)</slot>
     <slot>CurrentIndexChangedInteractionMode(int)</slot>
     <slot>ToggledShowBoundingBox(bool)</slot>
-    <slot>ToggledFacesShowEdges(bool)</slot>
+    <slot>ToggledEdgesShown(bool)</slot>
     <slot>ValueChangedBlend(int)</slot>
     <slot>ToggledFacesTorus(bool)</slot>
     <slot>ValueChangedSliderTimeSteps(int)</slot>
@@ -2683,7 +2684,7 @@
    <sender>checkBoxEdgesTessellation</sender>
    <signal>toggled(bool)</signal>
    <receiver>glWidget</receiver>
-   <slot>ToggledEdgesTessellation(bool)</slot>
+   <slot>ToggledEdgesTessellationShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>846</x>
@@ -2795,7 +2796,7 @@
    <sender>checkBoxShowEdges</sender>
    <signal>toggled(bool)</signal>
    <receiver>glWidget</receiver>
-   <slot>ToggledFacesShowEdges(bool)</slot>
+   <slot>ToggledEdgesShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>854</x>

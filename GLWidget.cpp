@@ -174,11 +174,11 @@ GLWidget::GLWidget(QWidget *parent)
       m_simulationGroup (0), 
       m_minimumEdgeRadius (0),
       m_edgeRadiusRatio (0),
-      m_facesShowEdges (true),
+      m_edgesShown (true),
+      m_edgesTessellationShown (true),
       m_bodyCenterShown (false),
       m_bodyNeighborsShown (false),
       m_faceCenterShown (false),
-      m_edgesTessellation (true),
       m_centerPathBodyShown (false),
       m_boundingBoxShown (false),
       m_bodiesBoundingBoxesShown (false),
@@ -2239,20 +2239,18 @@ void GLWidget::displayAxes (ViewNumber::Enum viewNumber)
 template<typename displayEdge>
 void GLWidget::displayEdges (ViewNumber::Enum viewNumber) const
 {
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
+    const BodySelector& bodySelector = vs.GetBodySelector ();
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
-    const BodySelector& bodySelector = 
-	GetViewSettings (viewNumber).GetBodySelector ();
     const Foam::Bodies& bodies = 
-	GetSimulation (viewNumber).GetFoam (
-	    GetCurrentTime (viewNumber)).GetBodies ();
+	simulation.GetFoam (GetCurrentTime (viewNumber)).GetBodies ();
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
 	      DisplayFaceHighlightColor<HighlightNumber::H0,
 	      DisplayFaceEdges<displayEdge> > > (
-		  *this, GetSimulation (viewNumber).
-		  GetFoam (0).GetProperties (), bodySelector));
-    displayStandaloneEdges<displayEdge> (GetSimulation (viewNumber).GetFoam (0));
-
+		  *this, simulation.GetFoam (0).GetProperties (), bodySelector));
+    displayStandaloneEdges<displayEdge> (simulation.GetFoam (0));
     glPopAttrib ();
 }
 
@@ -2656,7 +2654,7 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
     const Foam& foam = 
 	GetSimulation (viewNumber).GetFoam (vs.GetCurrentTime ());
     const Foam::Bodies& bodies = foam.GetBodies ();
-    if (m_facesShowEdges)
+    if (EdgesShown ())
 	displayFacesContour (bodies, viewNumber);
     displayFacesInterior (bodies, viewNumber);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (foam);
@@ -2758,23 +2756,26 @@ void GLWidget::displayFacesContour (const Foam::Faces& faces) const
 {
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
     for_each (faces.begin (), faces.end (),
-	      DisplayFaceLineStripColor<0xff000000> (
+	      DisplayFaceHighlightColor<HighlightNumber::H0,
+	      DisplayFaceEdges<DisplayEdgePropertyColor<> > > (
 		  *this, GetSimulation ().GetFoam (0).GetProperties ()));
+
     glPopAttrib ();
 }
 
 void GLWidget::displayFacesContour (
     const Foam::Bodies& bodies, ViewNumber::Enum viewNumber) const
 {
-    const BodySelector& bodySelector = 
-	GetViewSettings (viewNumber).GetBodySelector ();
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
+    const BodySelector& bodySelector = vs.GetBodySelector ();
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
-    for_each (
-	bodies.begin (), bodies.end (),
-	DisplayBody< DisplayFaceLineStripColor<0xff000000> > (
-	    *this, 
-	    GetSimulation (viewNumber).GetFoam (0).GetProperties (), 
-	    bodySelector));
+    for_each (bodies.begin (), bodies.end (),
+	      DisplayBody<
+	      DisplayFaceHighlightColor<HighlightNumber::H0,
+	      DisplayFaceEdges<DisplayEdgePropertyColor<> > > > (
+		  *this, simulation.GetFoam (0).GetProperties (), bodySelector));
+
     glPopAttrib ();
 }
 
@@ -2896,7 +2897,7 @@ void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
 	    bodies.begin (), bodies.end (),
 	    DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H0,
 	    DisplayFaceEdges<DisplayEdgePropertyColor<
-	    DisplayElement::DONT_DISPLAY_TESSELLATION> > > > (
+	    DisplayElement::DONT_DISPLAY_TESSELLATION_EDGES> > > > (
 		*this, simulation.GetFoam (currentTime).GetProperties (),
 		bodySelector, DisplayElement::USER_DEFINED_CONTEXT,
 		viewNumber, IsTimeDisplacementUsed (), zPos));
@@ -4054,15 +4055,15 @@ void GLWidget::ToggledFaceCenterShown (bool checked)
 }
 
 
-void GLWidget::ToggledFacesShowEdges (bool checked)
+void GLWidget::ToggledEdgesShown (bool checked)
 {
-    m_facesShowEdges = checked;
+    m_edgesShown = checked;
     update ();
 }
 
-void GLWidget::ToggledEdgesTessellation (bool checked)
+void GLWidget::ToggledEdgesTessellationShown (bool checked)
 {
-    m_edgesTessellation = checked;
+    m_edgesTessellationShown = checked;
     update ();
 }
 
