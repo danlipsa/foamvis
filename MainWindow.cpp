@@ -162,6 +162,7 @@ void MainWindow::configureInterfaceDataDependent (
     else
     {
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::THREE_D);
+	checkBoxLightEnabled->setChecked (true);
     }
     size_t viewCount = min (simulationGroup.size (),
 			    ViewCount::GetCount (ViewCount::MAX));

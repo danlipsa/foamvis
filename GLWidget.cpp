@@ -174,8 +174,8 @@ GLWidget::GLWidget(QWidget *parent)
       m_simulationGroup (0), 
       m_minimumEdgeRadius (0),
       m_edgeRadiusRatio (0),
-      m_edgesShown (true),
-      m_edgesTessellationShown (true),
+      m_edgesShown (false),
+      m_edgesTessellationShown (false),
       m_bodyCenterShown (false),
       m_bodyNeighborsShown (false),
       m_faceCenterShown (false),
@@ -667,18 +667,25 @@ void GLWidget::displayLightDirection (
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsLightPositionShown (i))
     {
-	const double sqrt3 = 1.7321;
-	glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);    
+	const double sqrt3 = sqrt (3.0);
+	glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_POINT_BIT);
 	glPushMatrix ();
 	glLoadIdentity ();
 	glTranslatef (0, 0, - vs.GetCameraDistance ());
 	glMultMatrix (vs.GetRotationLight (i));
-	G3D::Vector3 lp = getInitialLightPosition (
-	    viewNumber, LightNumber::Enum (i)) / sqrt3;
+	G3D::Vector3 initialLightPosition = 
+	    getInitialLightPosition (viewNumber, i);
+	G3D::Vector3 lp =  initialLightPosition / sqrt3;
 	::glColor (QColor (vs.IsLightEnabled (i) ? Qt::red : Qt::gray));
 	if (vs.IsLightingEnabled ())
 	    glDisable (GL_LIGHTING);
 	DisplayOrientedSegment () (lp, G3D::Vector3::zero ());
+
+	glPointSize (8.0);
+	glBegin (GL_POINTS);
+	::glVertex (initialLightPosition * vs.GetLightNumberRatio (i));
+	glEnd ();
+
 	glPopMatrix ();
 	glPopAttrib ();
     }
@@ -866,7 +873,7 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
 	translateAndScale (
 	    viewNumber, vs.GetScaleRatio (), vs.GetTranslation (), false);
     const Foam& foam = simulation.GetFoam (0);
-    glMultMatrix (vs.GetRotationModel () * vs.GetRotationForAxesOrder (foam));
+    glMultMatrix (vs.GetRotationFocus () * vs.GetRotationForAxesOrder (foam));
     glTranslate (- simulation.GetBoundingBox ().center ());
     transformFoamAverageAround (viewNumber, timeStep);
 }
@@ -1022,7 +1029,7 @@ void GLWidget::ResetTransformFocus ()
     {
 	ViewNumber::Enum viewNumber = vn[i];
 	ViewSettings& vs = GetViewSettings (viewNumber);
-	vs.SetRotationModel (G3D::Matrix3::identity ());
+	vs.SetRotationFocus (G3D::Matrix3::identity ());
 	vs.SetScaleRatio (1);
 	vs.SetTranslation (G3D::Vector3::zero ());
 	glMatrixMode (GL_PROJECTION);
@@ -1072,9 +1079,9 @@ void GLWidget::ResetTransformLight ()
 	ViewNumber::Enum viewNumber = vn[i];
 	ViewSettings& vs = GetViewSettings (viewNumber);
 	LightNumber::Enum lightNumber = vs.GetSelectedLight ();
-	vs.SetInitialLightPosition (lightNumber);
-	vs.PositionLight (lightNumber, 
-			  getInitialLightPosition (viewNumber, lightNumber));
+	vs.SetInitialLightParameters (lightNumber);
+	vs.SetLightParameters (lightNumber, 
+			     getInitialLightPosition (viewNumber, lightNumber));
     }
     update ();
 }
@@ -1406,8 +1413,6 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
 {
     //QTime t;t.start ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    vs.SetLightingParameters (
-	getInitialLightPosition (viewNumber, vs.GetSelectedLight ()));
     allTransform (viewNumber);
     m_minimumEdgeRadius = GetOnePixelInObjectSpace ();
     calculateEdgeRadius (m_edgeRadiusRatio,
@@ -1482,9 +1487,10 @@ float GLWidget::ratioFromScaleCenter (
     return ratio;
 }
 
-// @todo add a 2D rotation which rotates only around Z axis.
-G3D::Matrix3 GLWidget::rotate (ViewNumber::Enum viewNumber,
-			       const QPoint& position, const G3D::Matrix3& r)
+G3D::Matrix3 GLWidget::rotate (
+    ViewNumber::Enum viewNumber,
+    const QPoint& position, Qt::KeyboardModifiers modifiers,
+    const G3D::Matrix3& r)
 {
     G3D::Matrix3 rotate = r;
     const G3D::Rect2D& viewport = GetViewSettings (viewNumber).GetViewport ();
@@ -1495,8 +1501,23 @@ G3D::Matrix3 GLWidget::rotate (ViewNumber::Enum viewNumber,
     int side = std::min (viewport.width (), viewport.height ());
     double dxRadians = static_cast<double>(dx) * (M_PI / 2) / side;
     double dyRadians = static_cast<double>(dy) * (M_PI / 2) / side;
-    rotate = getRotationAround (0, dyRadians) * rotate;
-    rotate = getRotationAround (1, dxRadians) * rotate;
+    if (modifiers == Qt::NoModifier)
+    {
+	rotate = getRotationAround (0, dyRadians) * rotate;
+	rotate = getRotationAround (1, dxRadians) * rotate;
+    }
+    else if (modifiers == Qt::ControlModifier)
+    {
+	rotate = getRotationAround (0, dyRadians) * rotate;
+    }
+    else if (modifiers == Qt::ShiftModifier)
+    {
+	rotate = getRotationAround (1, dxRadians) * rotate;
+    }
+    else if (modifiers == (Qt::ControlModifier | Qt::ShiftModifier))
+    {
+	rotate = getRotationAround (2, dxRadians) * rotate;
+    }
     return rotate;
 }
 
@@ -1842,38 +1863,48 @@ string GLWidget::getBodySelectorLabel ()
     }
 }
 
-string GLWidget::getBodyScaleLabel ()
+string GLWidget::getInteractionLabel ()
 {
-    if (m_interactionMode == InteractionMode::SCALE)
+    ostringstream ostr;
+    const ViewSettings& vs = GetViewSettings ();
+    switch (m_interactionMode)
     {
-	ostringstream ostr;
-	const ViewSettings& vs = GetViewSettings ();
+    case InteractionMode::ROTATE:
+	ostr << "Rotate around: Ctrl: X, Shift: Y, Ctrl+Shift: Z, none: XY";
+	break;
+    case InteractionMode::SCALE:
 	ostr << "Scale: " << setprecision (3) << vs.GetScaleRatio ();
-	return ostr.str ();
+	break;
+    case InteractionMode::TRANSLATE:
+	ostr << "Translate";
+	break;
+    case InteractionMode::SELECT:
+	ostr << "Select";
+	break;
+    case InteractionMode::DESELECT:
+	ostr << "Deselect";
+	break;
+    default:
+	ostr << "Ready";
+	break;
     }
-    else
-	return "";
+    return ostr.str ();
 }
 
 void GLWidget::displayStatus ()
 {
     ostringstream ostr;
     boost::array<string, 5> labels = {{
+	    getInteractionLabel (),
 	    getAverageAroundLabel (),
 	    getContextLabel (),
 	    getAverageAroundMovementShownLabel (),
-	    getBodySelectorLabel (),
-	    getBodyScaleLabel ()
+	    getBodySelectorLabel ()
 	}};
-    ostream_iterator<string> o (ostr, " ");
+    ostream_iterator<string> o (ostr, " | ");
     remove_copy_if (labels.begin (), labels.end (), o,
 		    boost::bind (&string::empty, _1));
-    string label;
-    if (ostr.str ().empty ())
-	label = "Ready";
-    else
-	label = " " + ostr.str ();
-    m_labelStatusBar->setText (QString (label.c_str ()));
+    m_labelStatusBar->setText (QString (ostr.str ().c_str ()));
 }
 
 
@@ -1996,14 +2027,17 @@ void GLWidget::mouseMoveRotate (QMouseEvent *event, ViewNumber::Enum viewNumber)
     switch (m_interactionObject)
     {
     case InteractionObject::FOCUS:
-	vs.SetRotationModel (
-	    rotate (viewNumber, event->pos (), vs.GetRotationModel ()));
+	vs.SetRotationFocus (
+	    rotate (viewNumber, event->pos (), event->modifiers (), 
+		    vs.GetRotationFocus ()));
+	break;
     case InteractionObject::LIGHT:
     {
 	LightNumber::Enum i = vs.GetSelectedLight ();
 	vs.SetRotationLight (
-	    i, rotate (viewNumber, event->pos (), vs.GetRotationLight (i)));
-	vs.PositionLight (i, getInitialLightPosition (viewNumber, i));
+	    i, rotate (viewNumber, event->pos (), event->modifiers (), 
+		       vs.GetRotationLight (i)));
+	vs.SetLightParameters (i, getInitialLightPosition (viewNumber, i));
 	break;
     }
     default:
@@ -2025,7 +2059,7 @@ void GLWidget::mouseMoveTranslate (QMouseEvent *event,
     case InteractionObject::LIGHT:
     {
 	LightNumber::Enum i = vs.GetSelectedLight ();
-	vs.PositionLight (i, getInitialLightPosition (viewNumber, i));
+	vs.SetLightParameters (i, getInitialLightPosition (viewNumber, i));
 	translateLight (viewNumber, event->pos ());
 	break;
     }
@@ -3738,7 +3772,7 @@ void GLWidget::ToggledDirectionalLightEnabled (bool checked)
     ViewSettings& vs = GetViewSettings ();
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     vs.SetDirectionalLightEnabled (selectedLight, checked);
-    vs.PositionLight (selectedLight, 
+    vs.SetLightParameters (selectedLight, 
 		      getInitialLightPosition (viewNumber, selectedLight));
     update ();
 }
@@ -3883,7 +3917,7 @@ void GLWidget::ToggledLightEnabled (bool checked)
     vs.SetLightEnabled (selectedLight, checked);
     vs.EnableLighting ();
     if (checked)
-	vs.PositionLight (
+	vs.SetLightParameters (
 	    selectedLight, 
 	    getInitialLightPosition (viewNumber, selectedLight));
     update ();
@@ -4121,6 +4155,7 @@ void GLWidget::CurrentIndexChangedSelectedLight (int selectedLight)
 {
     ViewSettings& vs = GetViewSettings ();
     vs.SetSelectedLight (LightNumber::Enum (selectedLight));
+    update ();
 }
 
 void GLWidget::CurrentIndexChangedSimulation (int i)
@@ -4158,6 +4193,7 @@ void GLWidget::CurrentIndexChangedViewLayout (int index)
 void GLWidget::CurrentIndexChangedInteractionMode (int index)
 {
     m_interactionMode = InteractionMode::Enum(index);
+    update ();
 }
 
 void GLWidget::ButtonClickedInteractionObject (int index)

@@ -65,7 +65,6 @@
               <height>128</height>
              </size>
             </property>
-            <zorder>stackedWidgetTimeStep</zorder>
            </widget>
           </item>
           <item>
@@ -948,7 +947,7 @@
                       <string>Tessellation edges</string>
                      </property>
                      <property name="checked">
-                      <bool>true</bool>
+                      <bool>false</bool>
                      </property>
                     </widget>
                    </item>
@@ -1554,7 +1553,7 @@
                       <string>Show edges</string>
                      </property>
                      <property name="checked">
-                      <bool>true</bool>
+                      <bool>false</bool>
                      </property>
                     </widget>
                    </item>

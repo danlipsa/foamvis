@@ -689,8 +689,10 @@ private:
      */
     void initializeLighting ();
     float ratioFromScaleCenter (ViewNumber::Enum viewNumber, const QPoint& p);
-    G3D::Matrix3 rotate (ViewNumber::Enum viewNumber, 
-			 const QPoint& position, const G3D::Matrix3& rotate);
+    G3D::Matrix3 rotate (
+	ViewNumber::Enum viewNumber, 
+	const QPoint& position, Qt::KeyboardModifiers modifiers,
+	const G3D::Matrix3& rotate);
     void translate (ViewNumber::Enum viewNumber,
 	const QPoint& position,
 	G3D::Vector3::Axis screenXTranslation,
@@ -724,11 +726,11 @@ private:
     
     void initDisplayView ();
     void createActions ();
+    string getInteractionLabel ();
     string getBodySelectorLabel ();
     string getContextLabel ();
     string getAverageAroundMovementShownLabel ();
     string getAverageAroundLabel ();
-    string getBodyScaleLabel ();
     void displayStatus ();
     void transformFoamAverageAround (
 	ViewNumber::Enum viewNumber, size_t timeStep) const;

@@ -147,7 +147,7 @@ void ViewSettings::setInitialLightParameters ()
 {
     for (size_t i = 0; i < LightNumber::COUNT; ++i)
     {
-	SetInitialLightPosition (LightNumber::Enum(i));
+	SetInitialLightParameters (LightNumber::Enum(i));
 	m_directionalLightEnabled[i] = true;
     }
 
@@ -165,11 +165,6 @@ void ViewSettings::setInitialLightParameters ()
 		  boost::bind (initialize, _1, light[i]));
 }
 
-void ViewSettings::SetInitialLightPosition (LightNumber::Enum i)
-{
-    m_lightPositionRatio[i] = 1;
-    m_rotationLight[i] = G3D::Matrix3::identity ();
-}
 
 void ViewSettings::EnableLighting ()
 {
@@ -190,39 +185,43 @@ void ViewSettings::SetLightEnabled (LightNumber::Enum i, bool enabled)
 }
 
 
+void ViewSettings::SetInitialLightParameters (LightNumber::Enum i)
+{
+    m_lightPositionRatio[i] = 1;
+    m_rotationLight[i] = G3D::Matrix3::identity ();
+}
 
-void ViewSettings::PositionLight (
-    LightNumber::Enum lightNumber,
-    const G3D::Vector3& initialLightPosition)
+void ViewSettings::SetLightParameters (
+    LightNumber::Enum lightNumber, const G3D::Vector3& initialLightPosition)
 {
     if (IsLightEnabled (lightNumber))
     {
 	G3D::Vector3 lp = initialLightPosition * 
 	    GetLightNumberRatio (lightNumber);
-	glPushMatrix ();
-	glLoadMatrix (G3D::CoordinateFrame (
-			  GetRotationLight (lightNumber)));
 	if (IsDirectionalLightEnabled (lightNumber))
 	{
+	    glPushMatrix ();
+	    glLoadIdentity ();
+	    glMultMatrix (GetRotationLight (lightNumber));
 	    glLightf(GL_LIGHT0 + lightNumber, GL_SPOT_CUTOFF, 180);
-	    boost::array<GLfloat, 4> lightDirection = {{lp.x, lp.y, lp.z, 0}};
-	    glLightfv(GL_LIGHT0 + lightNumber, GL_POSITION, &lightDirection[0]);
+	    boost::array<GLfloat, 4> lightPosition = {{lp.x, lp.y, lp.z, 0}};
+	    glLightfv(GL_LIGHT0 + lightNumber, GL_POSITION, &lightPosition[0]);
+	    glPopMatrix ();
 	}
 	else
 	{
 	    glLightf(GL_LIGHT0 + lightNumber, GL_SPOT_CUTOFF, 15);
+	    glPushMatrix ();
+	    glLoadIdentity ();	    
+	    glTranslated (0, 0, - m_cameraDistance);
+	    glMultMatrix (GetRotationLight (lightNumber));
 	    boost::array<GLfloat, 3> lightDirection = {{-lp.x, -lp.y, -lp.z}};
 	    glLightfv(GL_LIGHT0 + lightNumber, 
 		      GL_SPOT_DIRECTION, &lightDirection[0]);
-	    glPushMatrix ();
-	    glLoadIdentity ();
-	    glTranslated (0, 0, - m_cameraDistance);
-	    glMultMatrix (GetRotationLight (lightNumber));
 	    GLfloat lightPosition[] = {lp.x, lp.y, lp.z, 1};
 	    glLightfv(GL_LIGHT0 + lightNumber, GL_POSITION, lightPosition);
 	    glPopMatrix ();
 	}
-	glPopMatrix ();
     }
 }
 
@@ -250,7 +249,7 @@ void ViewSettings::SetLightingParameters (
 	if (IsLightEnabled (lightNumber))
 	{
 	    SetLightEnabled (lightNumber, true);
-	    PositionLight (lightNumber, initialLightPosition);
+	    SetLightParameters (lightNumber, initialLightPosition);
 	}
     }
     EnableLighting ();

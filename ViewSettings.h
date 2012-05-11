@@ -112,11 +112,11 @@ public:
 	return m_colorBarTexture[1];
     }
 
-    const G3D::Matrix3& GetRotationModel () const
+    const G3D::Matrix3& GetRotationFocus () const
     {
 	return m_rotationModel;
     }
-    void SetRotationModel (const G3D::Matrix3& rotationModel)
+    void SetRotationFocus (const G3D::Matrix3& rotationModel)
     {
 	m_rotationModel = rotationModel;
     }
@@ -190,6 +190,9 @@ public:
 	m_gridTranslation = gridTranslation;
     }
 
+    /**
+     * Lighting
+     */
     bool IsLightingEnabled () const
     {
 	return m_lightingEnabled;
@@ -216,8 +219,9 @@ public:
     {
 	m_lightPositionShown[i] = shown;
     }
-    void PositionLight (LightNumber::Enum i, 
-			const G3D::Vector3& initialLightPosition);
+    void SetLightParameters (LightNumber::Enum i, 
+			   const G3D::Vector3& initialLightPosition);
+    void SetInitialLightParameters (LightNumber::Enum i);
     const boost::array<GLfloat, 4> GetLight (
 	LightNumber::Enum lightNumber, LightType::Enum lightType) const
     {
@@ -245,7 +249,6 @@ public:
     {
 	m_selectedLight = i;
     }
-    void SetInitialLightPosition (LightNumber::Enum i);
     void SetAxesOrder (AxesOrder::Enum axesOrder)
     {
 	m_axesOrder = axesOrder;
