@@ -225,3 +225,11 @@ ViewCount::Enum ViewCount::FromSizeT (size_t count)
 		   "Value outside of ViewCount::Enum: ", count);
     return ViewCount::Enum (count - 1);
 }
+
+GLenum LightType::ToOpenGL (LightType::Enum lightType)
+{
+    const GLenum glLightType[] = {GL_AMBIENT, GL_DIFFUSE, GL_SPECULAR};
+    RuntimeAssert (lightType < LightType::COUNT, 
+		   "Invalid LightType: ", lightType);
+    return glLightType[lightType];
+}

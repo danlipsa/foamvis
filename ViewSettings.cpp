@@ -14,10 +14,11 @@
 #include "ScalarAverage.h"
 #include "ForceAverage.h"
 #include "Foam.h"
-#include "Utils.h"
+#include "OpenGLUtils.h"
 #include "Simulation.h"
 #include "T1sPDE.h"
 #include "TensorAverage.h"
+#include "Utils.h"
 #include "ViewSettings.h"
 #include "VectorAverage.h"
 
@@ -222,6 +223,7 @@ void ViewSettings::SetLightParameters (
 	    glLightfv(GL_LIGHT0 + lightNumber, GL_POSITION, lightPosition);
 	    glPopMatrix ();
 	}
+	
     }
 }
 
@@ -240,20 +242,25 @@ void ViewSettings::CalculateCameraDistance (
     }    
 }
 
-void ViewSettings::SetLightingParameters (
-    const G3D::Vector3& initialLightPosition)
+void ViewSettings::SetLight (
+    LightNumber::Enum lightNumber, LightType::Enum lightType, 
+    size_t colorIndex, GLfloat color)
 {
-    for (size_t i = 0; i < LightNumber::COUNT; ++i)
-    {
-	LightNumber::Enum lightNumber = LightNumber::Enum (i);
-	if (IsLightEnabled (lightNumber))
-	{
-	    SetLightEnabled (lightNumber, true);
-	    SetLightParameters (lightNumber, initialLightPosition);
-	}
-    }
-    EnableLighting ();
+    m_light[lightNumber][lightType][colorIndex] = color;
+    glLightfv (GL_LIGHT0 + lightNumber, LightType::ToOpenGL (lightType), 
+	       &m_light[lightNumber][lightType][0]);
 }
+
+void ViewSettings::SetLight (
+    LightNumber::Enum lightNumber, LightType::Enum lightType, 
+    const boost::array<GLfloat,4>& color)
+{
+    m_light[lightNumber][lightType] = color;
+    glLightfv (GL_LIGHT0 + lightNumber, LightType::ToOpenGL (lightType), 
+	       &m_light[lightNumber][lightType][0]);
+}
+
+
 
 bool ViewSettings::IsContextDisplayBody (size_t bodyId) const
 {

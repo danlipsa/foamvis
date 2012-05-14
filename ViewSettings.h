@@ -229,10 +229,10 @@ public:
     }
     void SetLight (
 	LightNumber::Enum lightNumber, LightType::Enum lightType, 
-	size_t colorIndex, GLfloat color)
-    {
-	m_light[lightNumber][lightType][colorIndex] = color;
-    }
+	size_t colorIndex, GLfloat color);
+    void SetLight (
+	LightNumber::Enum lightNumber, LightType::Enum lightType, 
+	const boost::array<GLfloat,4>& color);
     double GetLightNumberRatio (LightNumber::Enum i) const
     {
 	return m_lightPositionRatio [i];
@@ -272,7 +272,6 @@ public:
 	return m_cameraDistance;
     }
     void CalculateCameraDistance (const G3D::AABox& centeredViewingVolume);
-    void SetLightingParameters (const G3D::Vector3& initialLightPosition);
     void EnableLighting ();
 
     void CopyTransformation (const ViewSettings& from);
@@ -615,8 +614,8 @@ private:
     boost::array<G3D::Matrix3, LightNumber::COUNT> m_rotationLight;
     boost::array<double, LightNumber::COUNT> m_lightPositionRatio;
     boost::array<
-	boost::array<boost::array<GLfloat, 4>, LightNumber::COUNT>, 
-	LightType::COUNT> m_light;
+	boost::array<boost::array<GLfloat, 4>, LightType::COUNT>, 
+	LightNumber::COUNT> m_light;
 
     //  requires camera distance
     double m_angleOfView;

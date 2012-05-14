@@ -173,7 +173,6 @@ void MainWindow::configureInterfaceDataDependent (
 	glWidget->SetViewNumber (ViewNumber::Enum (i));
 	comboBoxSimulation->setCurrentIndex (i);
     }
-    glWidget->SetViewNumber (ViewNumber::VIEW0);
 }
 
 
@@ -928,42 +927,41 @@ void MainWindow::setupColorBarModel (
 
 
 void MainWindow::updateLightControls (
-    const ViewSettings& vs, LightNumber::Enum lightNumber)
+    const ViewSettings& vs, LightNumber::Enum i)
 {
-    checkBoxLightEnabled->setChecked (vs.IsLightEnabled (lightNumber));
-    checkBoxLightPositionShown->setChecked (
-	vs.IsLightPositionShown (lightNumber));
+    checkBoxLightEnabled->setChecked (vs.IsLightEnabled (i));
+    checkBoxLightPositionShown->setChecked (vs.IsLightPositionShown (i));
     checkBoxDirectionalLightEnabled->setChecked (
-	vs.IsDirectionalLightEnabled (lightNumber));
+	vs.IsDirectionalLightEnabled (i));
     horizontalSliderLightAmbientRed->setValue (
-	floor (vs.GetLight (lightNumber, LightType::AMBIENT)[0] * 
+	floor (vs.GetLight (i, LightType::AMBIENT)[0] * 
 	       horizontalSliderLightAmbientRed->maximum () + 0.5));
     horizontalSliderLightAmbientGreen->setValue (
-	floor (vs.GetLight (lightNumber, LightType::AMBIENT)[1] * 
+	floor (vs.GetLight (i, LightType::AMBIENT)[1] * 
 	       horizontalSliderLightAmbientGreen->maximum () + 0.5));
     horizontalSliderLightAmbientBlue->setValue (
-	floor (vs.GetLight (lightNumber, LightType::AMBIENT)[2] * 
+	floor (vs.GetLight (i, LightType::AMBIENT)[2] * 
 	       horizontalSliderLightAmbientBlue->maximum () + 0.5));
     horizontalSliderLightDiffuseRed->setValue (
-	floor (vs.GetLight (lightNumber, LightType::DIFFUSE)[0] * 
+	floor (vs.GetLight (i, LightType::DIFFUSE)[0] * 
 	       horizontalSliderLightDiffuseRed->maximum () + 0.5));
     horizontalSliderLightDiffuseGreen->setValue (
-	floor (vs.GetLight (lightNumber, LightType::DIFFUSE)[1] * 
+	floor (vs.GetLight (i, LightType::DIFFUSE)[1] * 
 	       horizontalSliderLightDiffuseGreen->maximum () + 0.5));
     horizontalSliderLightDiffuseBlue->setValue (
-	floor (vs.GetLight (lightNumber, LightType::DIFFUSE)[2] * 
+	floor (vs.GetLight (i, LightType::DIFFUSE)[2] * 
 	       horizontalSliderLightDiffuseBlue->maximum () + 0.5));
     horizontalSliderLightSpecularRed->setValue (
 	floor (vs.GetLight (
-		   lightNumber, LightType::SPECULAR)[0] * 
+		   i, LightType::SPECULAR)[0] * 
 	       horizontalSliderLightSpecularRed->maximum () + 0.5));
     horizontalSliderLightSpecularGreen->setValue (
 	floor (vs.GetLight (
-		   lightNumber, LightType::SPECULAR)[1] * 
+		   i, LightType::SPECULAR)[1] * 
 	       horizontalSliderLightSpecularGreen->maximum () + 0.5));
     horizontalSliderLightSpecularBlue->setValue (
 	floor (vs.GetLight (
-		   lightNumber, LightType::SPECULAR)[2] * 
+		   i, LightType::SPECULAR)[2] * 
 	    horizontalSliderLightSpecularBlue->maximum () + 0.5));
 }
 

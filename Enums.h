@@ -348,6 +348,7 @@ struct LightType
 	SPECULAR,
 	COUNT
     };
+    static GLenum ToOpenGL (LightType::Enum lightType);
 };
 
 struct ColorNumber

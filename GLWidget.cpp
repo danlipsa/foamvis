@@ -736,6 +736,25 @@ void GLWidget::initializeLighting ()
     glEnable(GL_RESCALE_NORMAL);
     glShadeModel (GL_SMOOTH);
     glEnable (GL_COLOR_MATERIAL);
+
+    boost::array<GLfloat, 4> ambientLight = {{0, 0, 0, 1}};
+    boost::array<GLfloat, 4> diffuseLight = {{1, 1, 1, 1}};
+    boost::array<GLfloat, 4> specularLight = {{1, 1, 1, 1}};
+
+    // light colors
+    for (size_t viewNumber = 0; viewNumber < ViewNumber::COUNT; ++viewNumber)
+    {
+	ViewSettings& vs = GetViewSettings (ViewNumber::Enum (viewNumber));
+	for (size_t light = 0; light < LightNumber::COUNT; ++light)
+	{
+	    vs.SetLight (LightNumber::Enum (light), 
+			 LightType::AMBIENT, ambientLight);
+	    vs.SetLight (LightNumber::Enum (light), 
+			 LightType::DIFFUSE, diffuseLight);
+	    vs.SetLight (LightNumber::Enum (light), 
+			 LightType::SPECULAR, specularLight);
+	}
+    }
 }
 
 
@@ -1360,7 +1379,8 @@ void GLWidget::initializeGL()
 	VectorAverage::InitShaders ();
 	T1sPDE::InitShaders ();
 	initializeLighting ();
-	WarnOnOpenGLError ("initializeGl");
+	SetViewNumber (ViewNumber::VIEW0);
+	WarnOnOpenGLError ("initializeGL");
     }
     catch (const exception& e)
     {
@@ -3050,9 +3070,6 @@ void GLWidget::setLight (int sliderValue, int maximumValue,
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     vs.SetLight (selectedLight, lightType, colorNumber,  
 		 double(sliderValue) / maximumValue);
-    boost::array<GLfloat, 4> lightAmbient = vs.GetLight (
-	selectedLight, LightType::AMBIENT);
-    glLightfv(GL_LIGHT0 + selectedLight, GL_AMBIENT, &lightAmbient[0]);
     update ();
 }
 
