@@ -316,8 +316,9 @@ public Q_SLOTS:
      */
     void ToggledStandaloneElementsShown (bool checked);
     void ToggledAxesShown (bool checked);
-    void ToggledBoundingBoxShown (bool checked);
-    void ToggledBodiesBoundingBoxesShown (bool checked);
+    void ToggledBoundingBoxFoams (bool checked);
+    void ToggledBoundingBoxFoam (bool checked);
+    void ToggledBoundingBoxBody (bool checked);
     void ToggledAverageAroundMarked (bool checked);
     void ToggledViewFocusShown (bool checked);
     /**
@@ -425,11 +426,12 @@ public Q_SLOTS:
     void ResetTransformContext ();
     void ResetTransformLight ();    
     void ResetTransformGrid ();
-    void SelectBodiesByIdList ();
     void LinkedTimeBegin ();
     void LinkedTimeEnd ();
     void SelectAll ();
     void DeselectAll ();
+    void SelectBodiesByIdList ();
+    void SelectThisBodyOnly ();
     void AverageAroundBody ();
     void AverageAroundSecondBody ();
     void AverageAroundReset ();
@@ -442,6 +444,7 @@ public Q_SLOTS:
     void InfoBody ();
     void InfoFoam ();
     void InfoOpenGL ();
+    void InfoSelectedBodies ();
     void ShowNeighbors ();
     void ShowDeformation ();
     void ShowVelocity ();
@@ -717,9 +720,11 @@ private:
     void select (const QPoint& position);
     void deselect (const QPoint& position);
     G3D::Vector3 brushedBodies (
-	const QPoint& position, vector<size_t>* bodies) const;
-    G3D::Vector3 brushedBodies (const QPoint& position, 
-				vector< boost::shared_ptr<Body> >* bodies) const;
+	const QPoint& position, vector<size_t>* bodies, 
+	bool selected = true) const;
+    G3D::Vector3 brushedBodies (
+	const QPoint& position, 
+	vector< boost::shared_ptr<Body> >* bodies, bool selected = true) const;
     G3D::Vector3 brushedFace (const OrientedFace** of) const;
     OrientedEdge brushedEdge () const;
     void brushedFace (const QPoint& position, vector<size_t>* bodies) const;
@@ -800,8 +805,9 @@ private:
     bool m_bodyNeighborsShown;
     bool m_faceCenterShown;
     bool m_centerPathBodyShown;
-    bool m_boundingBoxShown;
-    bool m_bodiesBoundingBoxesShown;
+    bool m_boundingBoxFoamsShown;    
+    bool m_boundingBoxFoamShown;
+    bool m_boundingBoxBodyShown;
     bool m_axesShown;
     bool m_standaloneElementsShown;
     boost::array<ViewTypeDisplay, ViewType::COUNT> m_display;
@@ -809,14 +815,17 @@ private:
 
     boost::shared_ptr<QAction> m_actionLinkedTimeBegin;
     boost::shared_ptr<QAction> m_actionLinkedTimeEnd;
+
     boost::shared_ptr<QAction> m_actionSelectAll;
     boost::shared_ptr<QAction> m_actionDeselectAll;
+    boost::shared_ptr<QAction> m_actionSelectBodiesByIdList;
+    boost::shared_ptr<QAction> m_actionSelectThisBodyOnly;
+
     boost::shared_ptr<QAction> m_actionResetTransformAll;
     boost::shared_ptr<QAction> m_actionResetTransformFocus;
     boost::shared_ptr<QAction> m_actionResetTransformContext;
     boost::shared_ptr<QAction> m_actionResetTransformLight;
     boost::shared_ptr<QAction> m_actionResetTransformGrid;
-    boost::shared_ptr<QAction> m_actionSelectBodiesById;
 
     boost::shared_ptr<QAction> m_actionAverageAroundBody;
     boost::shared_ptr<QAction> m_actionAverageAroundSecondBody;
@@ -832,6 +841,7 @@ private:
     boost::shared_ptr<QAction> m_actionInfoBody;
     boost::shared_ptr<QAction> m_actionInfoFoam;
     boost::shared_ptr<QAction> m_actionInfoOpenGL;
+    boost::shared_ptr<QAction> m_actionInfoSelectedBodies;
 
     boost::shared_ptr<QAction> m_actionShowNeighbors;
     boost::shared_ptr<QAction> m_actionShowDeformation;
@@ -853,7 +863,7 @@ private:
 		 ViewNumber::COUNT> m_actionCopyColorMap;
     boost::shared_ptr<QSignalMapper> m_signalMapperCopyColorBar;
     double m_timeDisplacement;
-    boost::shared_ptr<SelectBodiesById> m_selectBodiesById;
+    boost::shared_ptr<SelectBodiesById> m_selectBodiesByIdList;
     QLabel *m_labelStatusBar;
     bool m_centerPathTubeUsed;
     bool m_centerPathLineUsed;

@@ -187,12 +187,13 @@ GLWidget::GLWidget(QWidget *parent)
       m_bodyNeighborsShown (false),
       m_faceCenterShown (false),
       m_centerPathBodyShown (false),
-      m_boundingBoxShown (false),
-      m_bodiesBoundingBoxesShown (false),
+      m_boundingBoxFoamsShown (false),
+      m_boundingBoxFoamShown (false),
+      m_boundingBoxBodyShown (false),
       m_axesShown (false),
       m_standaloneElementsShown (true),
       m_timeDisplacement (0.0),
-      m_selectBodiesById (new SelectBodiesById (this)),
+      m_selectBodiesByIdList (new SelectBodiesById (this)),
       m_centerPathTubeUsed (true),
       m_centerPathLineUsed (false),
       m_t1sShown (false),
@@ -286,11 +287,17 @@ void GLWidget::createActions ()
     connect(m_actionDeselectAll.get (), SIGNAL(triggered()),
 	    this, SLOT(DeselectAll ()));
 
-    m_actionSelectBodiesById = boost::make_shared<QAction> (
+    m_actionSelectBodiesByIdList = boost::make_shared<QAction> (
 	tr("&Bodies by id"), this);
-    m_actionSelectBodiesById->setStatusTip(tr("Select bodies by id"));
-    connect(m_actionSelectBodiesById.get (), SIGNAL(triggered()),
+    m_actionSelectBodiesByIdList->setStatusTip(tr("Select bodies by id"));
+    connect(m_actionSelectBodiesByIdList.get (), SIGNAL(triggered()),
 	    this, SLOT(SelectBodiesByIdList ()));
+
+    m_actionSelectThisBodyOnly = boost::make_shared<QAction> (
+	tr("&This body only"), this);
+    m_actionSelectThisBodyOnly->setStatusTip(tr("This body only"));
+    connect(m_actionSelectThisBodyOnly.get (), SIGNAL(triggered()),
+	    this, SLOT(SelectThisBodyOnly ()));
 
     m_actionResetTransformAll = boost::make_shared<QAction> (tr("&All"), this);
     m_actionResetTransformAll->setShortcut(QKeySequence (tr ("Ctrl+R")));
@@ -391,6 +398,12 @@ void GLWidget::createActions ()
     m_actionInfoOpenGL->setStatusTip(tr("Info OpenGL"));
     connect(m_actionInfoOpenGL.get (), SIGNAL(triggered()),
 	    this, SLOT(InfoOpenGL ()));
+
+    m_actionInfoSelectedBodies = 
+	boost::make_shared<QAction> (tr("&Selected bodies"), this);
+    m_actionInfoSelectedBodies->setStatusTip(tr("Info selected bodies"));
+    connect(m_actionInfoSelectedBodies.get (), SIGNAL(triggered()), this, 
+	    SLOT(InfoSelectedBodies ()));
 
     m_actionShowNeighbors = boost::make_shared<QAction> (
 	tr("&Neighbors"), this);
@@ -570,9 +583,9 @@ void GLWidget::SetSimulationGroup (SimulationGroup* simulationGroup)
     if (bodies.size () != 0)
     {
 	size_t maxIndex = bodies.size () - 1;
-	m_selectBodiesById->SetMinBodyId (bodies[0]->GetId ());
-	m_selectBodiesById->SetMaxBodyId (bodies[maxIndex]->GetId ());
-	m_selectBodiesById->UpdateLabelMinMax ();
+	m_selectBodiesByIdList->SetMinBodyId (bodies[0]->GetId ());
+	m_selectBodiesByIdList->SetMaxBodyId (bodies[maxIndex]->GetId ());
+	m_selectBodiesByIdList->UpdateLabelMinMax ();
     }
     update ();
 }
@@ -1112,17 +1125,6 @@ void GLWidget::ResetTransformLight ()
     update ();
 }
 
-void GLWidget::SelectBodiesByIdList ()
-{
-    if (m_selectBodiesById->exec () == QDialog::Accepted)
-    {
-	GetViewSettings ().SetBodySelector (
-	    boost::shared_ptr<IdBodySelector> (
-		new IdBodySelector (m_selectBodiesById->GetIds ())));
-	labelCompileUpdate ();
-    }
-}
-
 bool GLWidget::linkedTimesValid (size_t timeBegin, size_t timeEnd)
 {
     if (timeBegin <= timeEnd)
@@ -1190,7 +1192,7 @@ void GLWidget::SelectAll ()
     GetViewSettings ().
 	SetBodySelector (AllBodySelector::Get (), BodySelectorType::ID);
     labelCompileUpdate ();
-    m_selectBodiesById->ClearEditIds ();
+    m_selectBodiesByIdList->ClearEditIds ();
     update ();
 }
 
@@ -1200,6 +1202,32 @@ void GLWidget::DeselectAll ()
 	boost::shared_ptr<IdBodySelector> (new IdBodySelector ()));
     labelCompileUpdate ();
 }
+
+void GLWidget::SelectBodiesByIdList ()
+{
+    if (m_selectBodiesByIdList->exec () == QDialog::Accepted)
+    {
+	GetViewSettings ().SetBodySelector (
+	    boost::shared_ptr<IdBodySelector> (
+		new IdBodySelector (m_selectBodiesByIdList->GetIds ())));
+	labelCompileUpdate ();
+    }
+}
+
+void GLWidget::SelectThisBodyOnly ()
+{
+    vector<size_t> bodyIds;
+    ViewSettings& vs = GetViewSettings ();
+    brushedBodies (m_contextMenuPosScreen, &bodyIds);
+    if (bodyIds.size () > 0)
+    {
+	vs.SetBodySelector (
+	    boost::shared_ptr<IdBodySelector> (new IdBodySelector ()));
+	vs.UnionBodySelector (bodyIds[0]);
+    }
+    labelCompileUpdate ();
+}
+
 
 void GLWidget::InfoFoam ()
 {
@@ -1249,14 +1277,22 @@ void GLWidget::InfoFace ()
 void GLWidget::InfoBody ()
 {
     Info msgBox (this, "Info");
+    string message = infoSelectedBody ();
+    msgBox.setText (message.c_str ());
+    msgBox.exec();
+}
+
+void GLWidget::InfoSelectedBodies ()
+{
+    Info msgBox (this, "Info");
     const BodySelector& bodySelector = GetViewSettings ().GetBodySelector ();
     string message;
     switch (bodySelector.GetType ())
     {
     case BodySelectorType::ALL:
-	message = infoSelectedBody ();
+	message = "All bodies selected.";
 	break;
-
+	
     case BodySelectorType::ID:
 	message = infoSelectedBodies ();
 	break;
@@ -1268,6 +1304,7 @@ void GLWidget::InfoBody ()
     msgBox.setText (message.c_str ());
     msgBox.exec();
 }
+
 
 string GLWidget::infoSelectedBody () const
 {
@@ -1631,10 +1668,10 @@ void GLWidget::scaleContext (
 }
 
 G3D::Vector3 GLWidget::brushedBodies (
-    const QPoint& position, vector<size_t>* bodies) const
+    const QPoint& position, vector<size_t>* bodies, bool selected) const
 {
     vector< boost::shared_ptr<Body> > b;
-    G3D::Vector3 op = brushedBodies (position, &b);
+    G3D::Vector3 op = brushedBodies (position, &b, selected);
     bodies->resize (b.size ());
     ::transform (b.begin (), b.end (), bodies->begin (),
 	       boost::bind (&Element::GetId, _1));
@@ -1642,15 +1679,23 @@ G3D::Vector3 GLWidget::brushedBodies (
 }
 
 G3D::Vector3 GLWidget::brushedBodies (
-    const QPoint& position, vector< boost::shared_ptr<Body> >* bodies) const
+    const QPoint& position, 
+    vector< boost::shared_ptr<Body> >* bodies, bool selected) const
 {
+    const BodySelector& selector = GetViewSettings ().GetBodySelector ();
     G3D::Vector3 op = toObjectTransform (position);
     const Foam& foam = GetSimulation ().GetFoam (GetCurrentTime ());
     BOOST_FOREACH (boost::shared_ptr<Body> body, foam.GetBodies ())
     {
 	G3D::AABox box = body->GetBoundingBox ();
 	if (box.contains (op))
-	    bodies->push_back (body);
+	{
+	    if (selector (body) == selected)
+	    {
+		bodies->push_back (body);
+		cdbg << body->GetId () << endl;
+	    }
+	}
     }
     return op;
 }
@@ -1895,7 +1940,7 @@ string GLWidget::getInteractionLabel ()
     switch (m_interactionMode)
     {
     case InteractionMode::ROTATE:
-	ostr << "Rotate around: Ctrl: X, Shift: Y, Ctrl+Shift: Z, none: XY";
+	ostr << "Rotate";
 	break;
     case InteractionMode::SCALE:
 	ostr << "Scale: " << setprecision (3) << vs.GetScaleRatio ();
@@ -2032,7 +2077,7 @@ void GLWidget::ToggledAverageAroundAllowRotation (bool checked)
 void GLWidget::select (const QPoint& position)
 {
     vector<size_t> bodyIds;
-    brushedBodies (position, &bodyIds);
+    brushedBodies (position, &bodyIds, false);
     GetViewSettings ().UnionBodySelector (bodyIds);
     labelCompileUpdate ();
 }
@@ -2220,17 +2265,19 @@ void GLWidget::displayFocusBox (ViewNumber::Enum viewNumber) const
 void GLWidget::displayBoundingBox (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
+    const Foam& foam = simulation.GetFoam (GetCurrentTime (viewNumber));
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
     if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
-    if (m_boundingBoxShown)
-	DisplayBox (GetSimulation (viewNumber), Qt::black);
-    if (m_bodiesBoundingBoxesShown)
+    if (m_boundingBoxFoamsShown)
+	DisplayBox (simulation, Qt::black);
+    if (m_boundingBoxFoamShown)
+	DisplayBox (foam, Qt::black);
+    if (m_boundingBoxBodyShown)
     {
-	const Foam::Bodies& bodies = 
-	    GetSimulation (viewNumber).GetFoam (0).GetBodies ();
-	const BodySelector& bodySelector = 
-	    GetViewSettings (viewNumber).GetBodySelector ();
+	const Foam::Bodies& bodies = foam.GetBodies ();
+	const BodySelector& bodySelector = vs.GetBodySelector ();
 	BOOST_FOREACH (boost::shared_ptr<Body> body, bodies)
 	    if (bodySelector (body))
 		DisplayBox (body, Qt::black);
@@ -3315,6 +3362,7 @@ void GLWidget::contextMenuEventView (QMenu* menu) const
 	menuInfo->addAction (m_actionInfoBody.get ());
 	menuInfo->addAction (m_actionInfoFoam.get ());
 	menuInfo->addAction (m_actionInfoOpenGL.get ());
+	menuInfo->addAction (m_actionInfoSelectedBodies.get ());
     }
     {
 	QMenu* menuLinkedTime = menu->addMenu ("Linked time");
@@ -3333,7 +3381,8 @@ void GLWidget::contextMenuEventView (QMenu* menu) const
 	QMenu* menuSelect = menu->addMenu ("Select");
 	menuSelect->addAction (m_actionSelectAll.get ());
 	menuSelect->addAction (m_actionDeselectAll.get ());
-	menuSelect->addAction (m_actionSelectBodiesById.get ());
+	menuSelect->addAction (m_actionSelectBodiesByIdList.get ());
+	menuSelect->addAction (m_actionSelectThisBodyOnly.get ());
     }
     {
 	QMenu* menuShow = menu->addMenu ("Show");
@@ -3967,11 +4016,24 @@ void GLWidget::ToggledLightEnabled (bool checked)
 }
 
 
-void GLWidget::ToggledBoundingBoxShown (bool checked)
+void GLWidget::ToggledBoundingBoxFoams (bool checked)
 {
-    m_boundingBoxShown = checked;
+    m_boundingBoxFoamsShown = checked;
     update ();
 }
+
+void GLWidget::ToggledBoundingBoxFoam (bool checked)
+{
+    m_boundingBoxFoamShown = checked;
+    update ();
+}
+
+void GLWidget::ToggledBoundingBoxBody (bool checked)
+{
+    m_boundingBoxBodyShown = checked;
+    update ();
+}
+
 
 void GLWidget::ToggledAverageAroundMarked (bool checked)
 {
@@ -3985,11 +4047,6 @@ void GLWidget::ToggledViewFocusShown (bool checked)
     update ();
 }
 
-void GLWidget::ToggledBodiesBoundingBoxesShown (bool checked)
-{
-    m_bodiesBoundingBoxesShown = checked;
-    update ();
-}
 
 void GLWidget::ToggledContextView (bool checked)
 {

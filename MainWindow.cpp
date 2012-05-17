@@ -1455,19 +1455,27 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
     {
     case InteractionMode::ROTATE:
 	radioButtonInteractionLight->setEnabled (true);
+	comboBoxInteractionMode->setToolTip (
+	    "Rotate around the X and Y axes<br>"
+	    "press Ctrl to rotate around the X axis<br>"
+	    "press Shift to rotate around the Y axis<br>"
+	    "press Ctrl+Shift to rotate around the Z axis");
 	break;
-	
+
     case InteractionMode::SCALE:
 	radioButtonInteractionContext->setEnabled (true);
 	radioButtonInteractionGrid->setEnabled (true);
+	comboBoxInteractionMode->setToolTip ("");
 	break;
 	
     case InteractionMode::TRANSLATE:
 	radioButtonInteractionLight->setEnabled (true);
 	radioButtonInteractionGrid->setEnabled (true);
+	comboBoxInteractionMode->setToolTip ("");
 	break;
     
     default:
+	comboBoxInteractionMode->setToolTip ("");
 	break;
     }
 }
