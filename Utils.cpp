@@ -172,27 +172,26 @@ ostream& operator<< (ostream& ostr, const G3D::Vector4& v)
     return ostr << v[0] << ", " << v[1] << ", " << v[2] << ", " << v[3];
 }
 
-ostream& operator<< (ostream& ostr, const G3D::Vector2& v)
-{
-    return ostr << v[0] << ", " << v[1];
-}
-
 ostream& operator<< (ostream& ostr, const QVector3D& v)
 {
-    return ostr << "QVector3D(" << v.x () << ", " << v.y () << ", " << v.z () 
-		<< ")";
+    return ostr << "(" << v.x () << ", " << v.y () << ", " << v.z () << ")";
+}
+
+ostream& operator<< (ostream& ostr, const G3D::Vector2& v)
+{
+    return ostr << "(" << v[0] << ", " << v[1] << ")";
 }
 
 ostream& operator<< (ostream& ostr, const QPoint& p)
 {
-    return ostr << "QPoint (" << p.x () << ", " << p.y () << ")";
+    return ostr << "(" << p.x () << ", " << p.y () << ")";
 }
 
 
 template<typename U, typename V>
 ostream& operator<< (ostream& ostr, const pair<U, V>& p)
 {
-    return ostr << "pair(" << p.first << ", " << p.second << ")";
+    return ostr << "(" << p.first << ", " << p.second << ")";
 }
 
 

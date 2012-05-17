@@ -122,6 +122,7 @@ void MainWindow::configureInterface ()
     horizontalSliderForceTorqueSize->setValue (49);
     horizontalSliderTorqueDistance->setValue (49);
     comboBoxColor->setCurrentIndex (BodyProperty::PRESSURE);
+    CurrentIndexChangedInteractionMode (InteractionMode::ROTATE);
 }
 
 

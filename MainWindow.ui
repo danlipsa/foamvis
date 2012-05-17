@@ -180,7 +180,7 @@
                 <item>
                  <widget class="QRadioButton" name="radioButtonInteractionFocus">
                   <property name="text">
-                   <string>Focus</string>
+                   <string>&amp;Focus</string>
                   </property>
                   <property name="checked">
                    <bool>true</bool>

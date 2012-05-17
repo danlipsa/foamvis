@@ -235,7 +235,10 @@ public:
     void ActivateViewShader (ViewNumber::Enum viewNumber,
 			     ViewingVolumeOperation::Enum enclose,
 			     G3D::Rect2D& srcRect) const;
-    float GetOnePixelInObjectSpace () const;
+    float GetOnePixelInObjectSpace () const
+    {
+	return m_onePixelInObjectSpace;
+    }
     float GetBubbleSize (ViewNumber::Enum viewNumber) const;
     float GetDeformationSizeInitialRatio (ViewNumber::Enum viewNumber) const;
     float GetVelocitySizeInitialRatio (ViewNumber::Enum viewNumber) const;
@@ -515,6 +518,7 @@ private:
     typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    float calculateOnePixelInObjectSpace () const;
     void setSimulation (int i, ViewNumber::Enum viewNumber);
     void initTransformViewport ();
     void cleanupTransformViewport ();
@@ -782,7 +786,7 @@ private:
      */
     double m_edgeRadius;
     double m_edgeWidth;
-    double m_minimumEdgeRadius;
+    float m_onePixelInObjectSpace;
     double m_edgeRadiusRatio;
     /**
      * For displaying arrows in the Torus Model edges

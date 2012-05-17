@@ -147,7 +147,7 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 	//{
 	//glPushAttrib (GL_POLYGON_BIT);
 	//glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-	(DisplayFaceTriangleFan (this->m_glWidget, this->m_foamProperties)) (of);
+	DisplayFaceTriangleFan (this->m_glWidget, this->m_foamProperties) (of);
 	    
         //glPopAttrib ();
         //}

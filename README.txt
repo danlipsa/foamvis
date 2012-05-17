@@ -7,7 +7,10 @@ Release log
 	- user option: ability to remove tessellation edges for "face view".
 	- user option: rotate around x,y,z axes using ctrl, shift, and ctrl+shift
 	- default settings: no edges shown, turn on lighting for 3D simulations
-	
+	- fix transparency: transparent objects blend with opaque ones.
+	- fix selection: deselection works front-back, selection works 
+	  back-front.
+	  
 0.7.2374 2012-03-09
 	- fix bug: position of the two_discs for two views.
 	- added arrows for forces

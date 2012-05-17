@@ -38,37 +38,21 @@ public:
 		     PropertySetter propertySetter,
 		     bool useZPos = false, double zPos = 0);
 
-    /**
-     * Functor used  to display a body. Uses  transparencey to display
-     * the context.
-     *
-     * See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
-     * Antialiasing, Fog and Polygon Offset page 293
-     *
-     * @param b the body to be displayed
-     */
-    void operator () (boost::shared_ptr<Body> b);
+    static void BeginContext ();
+    static void EndContext ();
+    bool IsFocus (boost::shared_ptr<Body> b) const
+    {
+	return m_bodySelector (b);
+    }
 
-protected:
-    /**
-     * Displays the body
-     */
-    virtual void display (const boost::shared_ptr<Body>& b,
-			  typename DisplayElement::FocusContext fc)
+    DisplayElement::FocusContext GetFocusContext (
+	boost::shared_ptr<Body> b) const
     {
-	static_cast<void> (b);
-	static_cast<void> (fc);
+	return  IsFocus (b) ? 
+	    DisplayElement::FOCUS : DisplayElement::CONTEXT;
     }
-    void beginContext ()
-    {
-	glEnable (GL_BLEND);
-	glDepthMask (GL_FALSE);
-    }
-    void endContext ()
-    {
-	glDepthMask (GL_TRUE);
-	glDisable (GL_BLEND);
-    }
+
+private:
     const BodySelector& m_bodySelector;
 };
 
@@ -82,8 +66,7 @@ public:
 	const BodySelector& bodySelector,
 	bool useZPos = false, double zPos = 0);
 
-protected:
-    virtual void display (const boost::shared_ptr<Body>& b, FocusContext fc);
+    void operator () (boost::shared_ptr<Body> b);
 };
 
 
@@ -96,8 +79,7 @@ public:
 	const BodySelector& bodySelector,
 	bool useZPos = false, double zPos = 0);
 
-protected:
-    virtual void display (const boost::shared_ptr<Body>& b, FocusContext fc);
+    void operator () (boost::shared_ptr<Body> b);
 };
 
 /**
@@ -114,11 +96,10 @@ public:
 	const BodySelector& bodySelector,
 	bool useZPos = false, double zPos = 0);
 
-protected:
     /**
      * Displays the center of a body (bubble)
      */
-    virtual void display (const boost::shared_ptr<Body>& b, FocusContext fc);
+    void operator () (boost::shared_ptr<Body> b);
 };
 
 
@@ -148,14 +129,10 @@ public:
 	    contextDisplay = DisplayElement::USER_DEFINED_CONTEXT,
 	bool useZPos = false, double zPos = 0);
 			
-
-protected:
     /**
      * Displays a body going through all its faces
      */
-    virtual void display (
-	const boost::shared_ptr<Body>& b, 
-	typename DisplayElement::FocusContext bodyFc);
+    void operator () (boost::shared_ptr<Body> b);
 
 private:
     typename DisplayElement::ContextType m_contextDisplay;

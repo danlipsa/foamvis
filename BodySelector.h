@@ -29,6 +29,22 @@ public:
     boost::shared_ptr<BodySelector> Clone () const;
 };
 
+class BodySelectorPredicate
+{
+public:
+    BodySelectorPredicate (const BodySelector& bs) :
+	m_bs (bs)
+    {
+    }
+    bool operator () (const boost::shared_ptr<Body>& body) const
+    {
+	return m_bs.operator () (body);
+    }
+private:
+    const BodySelector& m_bs;
+};
+
+
 class AllBodySelector : public BodySelector
 {
 public:

@@ -12,6 +12,10 @@
 #include "OOBox.h"
 #include "Utils.h"
 
+//#define __LOG__(code) code
+#define __LOG__(code)
+
+
 // Private Classes
 // ======================================================================
 
@@ -180,7 +184,9 @@ G3D::Vector3 gluUnProject (
     GLint ret = gluUnProject (screenCoord.x, screenCoord.y, zScreenCoord, 
 			      model, proj, view, 
 			      &x, &y, &z);
-    G3D::Vector3 v = G3D::Vector3 (x, y, z);
+    G3D::Vector3 v = 
+	G3D::Vector3 (x, y, 
+		      zOperation == GluUnProjectZOperation::READ ? z : 0);
     if (ret != GLU_TRUE)
     {
 	cdbg << "model: ";
@@ -196,6 +202,8 @@ G3D::Vector3 gluUnProject (
 	WarnOnOpenGLError ("gluUnProject");
 	RuntimeAssert (false, "gluUnproject: ", v, " zOp:", zOperation);
     }
+    __LOG__(
+	cdbg << screenCoord << ", " << zScreenCoord << ", " << v << endl;)
     return v;
 }
 

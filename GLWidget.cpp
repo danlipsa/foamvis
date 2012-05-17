@@ -44,6 +44,13 @@
 // Private Classes/Functions
 // ======================================================================
 
+struct FocusContextInfo
+{
+    Foam::Bodies::const_iterator m_begin;
+    Foam::Bodies::const_iterator m_end;
+    bool m_isContext;	
+};
+
 G3D::AABox AdjustXOverYRatio (const G3D::AABox& box, double xOverY)
 {
     G3D::Vector3 center = box.center ();
@@ -172,7 +179,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_interactionMode (InteractionMode::ROTATE),
       m_interactionObject (InteractionObject::FOCUS),
       m_simulationGroup (0), 
-      m_minimumEdgeRadius (0),
+      m_onePixelInObjectSpace (0),
       m_edgeRadiusRatio (0),
       m_edgesShown (false),
       m_edgesTessellationShown (false),
@@ -571,7 +578,7 @@ void GLWidget::SetSimulationGroup (SimulationGroup* simulationGroup)
 }
 
 
-float GLWidget::GetOnePixelInObjectSpace () const
+float GLWidget::calculateOnePixelInObjectSpace () const
 {
     G3D::Vector3 first = toObject (QPoint (0, 0));
     G3D::Vector3 second = toObject (QPoint (1, 0));
@@ -617,7 +624,7 @@ void GLWidget::calculateEdgeRadius (
 {
     const int maxRadiusMultiplier = 5;
 
-    double r = m_minimumEdgeRadius;
+    double r = GetOnePixelInObjectSpace ();
     double R = maxRadiusMultiplier * r;
 
     *edgeRadius = (R - r) * edgeRadiusRatio + r;
@@ -1399,6 +1406,7 @@ void GLWidget::paintGL ()
 
 void GLWidget::resizeGL(int w, int h)
 {
+    m_onePixelInObjectSpace = calculateOnePixelInObjectSpace ();
     (void)w;(void)h;
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
@@ -1434,7 +1442,6 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     //QTime t;t.start ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     allTransform (viewNumber);
-    m_minimumEdgeRadius = GetOnePixelInObjectSpace ();
     calculateEdgeRadius (m_edgeRadiusRatio,
 			 &m_edgeRadius, &m_arrowBaseRadius,
 			 &m_arrowHeight, &m_edgeWidth);
@@ -1707,8 +1714,6 @@ G3D::Vector3 GLWidget::toObject (const QPoint& position) const
     G3D::Vector3 op = gluUnProject (
 	QtToOpenGl (position, height ()), 
 	is2D ? GluUnProjectZOperation::SET0 : GluUnProjectZOperation::READ);
-    if (is2D)
-	op.z = 0;
     return op;
 }
 
@@ -2256,7 +2261,7 @@ void GLWidget::displayAxes (ViewNumber::Enum viewNumber)
 	    GetQuadricObject (), m_arrowBaseRadius, m_edgeRadius, m_arrowHeight,
 	    DisplaySegmentArrow1::TOP_END);
 
-	a = fm.height () * m_minimumEdgeRadius;
+	a = fm.height () * GetOnePixelInObjectSpace ();
 	glColor (Qt::red);
 	displayOrientedEdge (origin, first);
 	glColor (Qt::black);
@@ -2854,35 +2859,56 @@ void GLWidget::displayFacesContour (
     glPopAttrib ();
 }
 
-
 // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
 // Antialiasing, Fog and Polygon Offset page 293
 void GLWidget::displayFacesInterior (
-    const Foam::Bodies& bodies, ViewNumber::Enum viewNumber) const
+    const Foam::Bodies& b, ViewNumber::Enum viewNumber) const
 {
-    const BodySelector& bodySelector = 
-	GetViewSettings (viewNumber).GetBodySelector ();
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    const FoamProperties& foamProperties = 
+	GetSimulation (viewNumber).GetFoam (0).GetProperties ();
+    Foam::Bodies bodies = b;
+    const BodySelector& bodySelector = vs.GetBodySelector ();
+    // partition: opaque bodies first, then transparent bodies
+    Foam::Bodies::const_iterator contextBodiesBegin = 
+	partition (bodies.begin (), bodies.end (), 
+		   BodySelectorPredicate (bodySelector));
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT | 
 		  GL_TEXTURE_BIT);
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
 
-    glEnable (GL_STENCIL_TEST);
-    glClear(GL_STENCIL_BUFFER_BIT);
+    if (foamProperties.Is2D ())
+    {
+	glEnable (GL_STENCIL_TEST);
+	glClear(GL_STENCIL_BUFFER_BIT);
+    }
 
     glEnable(GL_TEXTURE_1D);
     //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
     //texture mapping?
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    glBindTexture (GL_TEXTURE_1D, 
-		   GetViewSettings (viewNumber).GetColorBarTexture ());
-    for_each (
-	bodies.begin (), bodies.end (),
-	DisplayBody<DisplayFaceBodyPropertyColor<> > (
-	    *this, 
-	    GetSimulation (viewNumber).GetFoam (0).
-	    GetProperties (), bodySelector, 
-	    DisplayElement::USER_DEFINED_CONTEXT, viewNumber));
+    glBindTexture (GL_TEXTURE_1D, vs.GetColorBarTexture ());
+    // render opaque bodies and then transparent objects
+    // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
+    // Antialiasing, Fog and Polygon Offset page 293
+
+    boost::array<FocusContextInfo, 2> beginEnd =
+    {{
+	    {bodies.begin (), contextBodiesBegin, false},
+	    {contextBodiesBegin, bodies.end (), true}
+	}};
+    for (size_t i = 0; i < beginEnd.size (); ++i)
+    {
+	if (beginEnd[i].m_isContext)
+	    DisplayBodyBase<>::BeginContext ();
+	for_each (beginEnd[i].m_begin, beginEnd[i].m_end,
+		  DisplayBody<DisplayFaceBodyPropertyColor<> > (
+		      *this, foamProperties, bodySelector, 
+		      DisplayElement::USER_DEFINED_CONTEXT, viewNumber));
+	if (beginEnd[i].m_isContext)
+	    DisplayBodyBase<>::EndContext ();
+    }
     glPopAttrib ();
 }
 

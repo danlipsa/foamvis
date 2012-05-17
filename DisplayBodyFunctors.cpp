@@ -80,18 +80,20 @@ DisplayBodyBase (const GLWidget& widget, const FoamProperties& fp,
 
 template <typename PropertySetter>
 void DisplayBodyBase<PropertySetter>::
-operator () (boost::shared_ptr<Body> b)
+BeginContext ()
 {
-    bool focus = m_bodySelector (b);
-    if (focus)
-	display (b, DisplayElement::FOCUS);
-    else
-    {
-	beginContext ();
-	display (b, DisplayElement::CONTEXT);
-	endContext ();
-    }
+    glEnable (GL_BLEND);
+    glDepthMask (GL_FALSE);
 }
+
+template <typename PropertySetter>
+void DisplayBodyBase<PropertySetter>::
+EndContext ()
+{
+    glDepthMask (GL_TRUE);
+    glDisable (GL_BLEND);
+}
+
 
 // DisplayBodyDeformation
 // ======================================================================
@@ -107,8 +109,7 @@ DisplayBodyDeformation::DisplayBodyDeformation (
 	SetterTextureCoordinate(widget, viewNumber), useZPos, zPos)
 {}
 
-void DisplayBodyDeformation::display (const boost::shared_ptr<Body>& body, 
-				      FocusContext fc)
+void DisplayBodyDeformation::operator () (boost::shared_ptr<Body> body)
 {
     if (body->IsConstraint ())
 	return;
@@ -117,7 +118,7 @@ void DisplayBodyDeformation::display (const boost::shared_ptr<Body>& body,
     float size = m_glWidget.GetDeformationSizeInitialRatio (viewNumber) * 
 	vs.GetDeformationSize ();
     float lineWidth = vs.GetDeformationLineWidth ();
-    if (fc == FOCUS)
+    if (GetFocusContext (body) == FOCUS)
 	glColor (m_glWidget.GetHighlightColor (viewNumber, HighlightNumber::H0));
     else
 	glColor (QColor::fromRgbF (
@@ -164,8 +165,7 @@ G3D::Vector2 clamp (G3D::Vector2 v, float maxLength, bool* clamped)
     }
 }
 
-void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body, 
-				   FocusContext fc)
+void DisplayBodyVelocity::operator () (boost::shared_ptr<Body> body)
 {
     if (body->IsConstraint ())
 	return;
@@ -189,7 +189,7 @@ void DisplayBodyVelocity::display (const boost::shared_ptr<Body>& body,
 	    velocity * size, 
 	    m_glWidget.GetBubbleSize (viewNumber), &clamped);
     }
-    if (fc == FOCUS)
+    if (GetFocusContext (body) == FOCUS)
     {
 	double value = velocity.length ();
 	float texCoord = vs.GetOverlayBarModel ()->TexCoord (value);
@@ -220,10 +220,9 @@ DisplayBodyCenter::DisplayBodyCenter (
 {}
 
 
-void DisplayBodyCenter::display (const boost::shared_ptr<Body>& b, 
-				 FocusContext fc)
+void DisplayBodyCenter::operator () (boost::shared_ptr<Body> b)
 {
-    if (fc == FOCUS)
+    if (GetFocusContext (b) == FOCUS)
     {
 	G3D::Vector3 v = b->GetCenter ();
 	v = (m_useZPos ? G3D::Vector3 (v.xy (), m_zPos) : v);
@@ -268,12 +267,12 @@ DisplayBody (
 
 template<typename displayFace, typename PropertySetter>
 void DisplayBody<displayFace, PropertySetter>::
-display (
-    const boost::shared_ptr<Body>& b, 
-    typename DisplayElement::FocusContext bodyFc)
+operator () (boost::shared_ptr<Body> b)
 {
-     ViewSettings& vs = this->m_glWidget.GetViewSettings (
-	 this->m_propertySetter.GetViewNumber ());
+    ViewSettings& vs = this->m_glWidget.GetViewSettings (
+	this->m_propertySetter.GetViewNumber ());
+    DisplayElement::FocusContext bodyFc = 
+	DisplayBodyBase<PropertySetter>::GetFocusContext (b);
     if (bodyFc == DisplayElement::CONTEXT &&
 	(m_contextDisplay == DisplayElement::INVISIBLE_CONTEXT ||
 	 (m_contextDisplay == DisplayElement::USER_DEFINED_CONTEXT && 
@@ -367,7 +366,7 @@ valueStep (
  void DisplayCenterPath<PropertySetter, DisplaySegment>::
  halfValueStep (const StripIteratorPoint& p, const Segment& segment)
  {
-     bool focus = this->m_bodySelector (p.m_body);
+     bool focus = this->IsFocus (p.m_body);
      if (focus)
      {
 	 BodyProperty::Enum property = BodyProperty::FromSizeT (
@@ -405,12 +404,12 @@ displaySegments ()
 	! vs.IsCenterPathHidden () && m_contextSegments.size () > 0)
     {
 	glDisable (GL_TEXTURE_1D);
-	DisplayBodyBase<PropertySetter>::beginContext ();
+	DisplayBodyBase<>::BeginContext ();
 	for_each (
 	    m_contextSegments.begin (), m_contextSegments.end (),
 	    boost::bind (&DisplayCenterPath<PropertySetter, DisplaySegment>::
 			 displayContextSegment, this, _1));
-	DisplayBodyBase<PropertySetter>::endContext ();
+	DisplayBodyBase<>::EndContext ();
 	glEnable (GL_TEXTURE_1D);
     }
     if (m_focusColorSegments.size () > 0)
