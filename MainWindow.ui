@@ -324,7 +324,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="tabSettings">
           <attribute name="title">
@@ -864,9 +864,9 @@
                     </widget>
                    </item>
                    <item row="2" column="0">
-                    <widget class="QCheckBox" name="checkBoxBoundingBoxFoams">
+                    <widget class="QCheckBox" name="checkBoxBoundingBoxSimulation">
                      <property name="text">
-                      <string>Box foams</string>
+                      <string>Box simulation</string>
                      </property>
                     </widget>
                    </item>
@@ -2551,7 +2551,7 @@
     <slot>ValueChangedT1sTimeWindow(int)</slot>
     <slot>ToggledFoamContainerShown(bool)</slot>
     <slot>ToggledContextBoxShown(bool)</slot>
-    <slot>ToggledBoundingBoxFoams(bool)</slot>
+    <slot>ToggledBoundingBoxSimulation(bool)</slot>
     <slot>ToggledBoundingBoxBody(bool)</slot>
     <slot>ToggledBoundingBoxFoam(bool)</slot>
    </slots>
@@ -2940,10 +2940,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBoxBoundingBoxFoams</sender>
+   <sender>checkBoxBoundingBoxSimulation</sender>
    <signal>toggled(bool)</signal>
    <receiver>glWidget</receiver>
-   <slot>ToggledBoundingBoxFoams(bool)</slot>
+   <slot>ToggledBoundingBoxSimulation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>838</x>

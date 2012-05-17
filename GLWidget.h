@@ -316,7 +316,7 @@ public Q_SLOTS:
      */
     void ToggledStandaloneElementsShown (bool checked);
     void ToggledAxesShown (bool checked);
-    void ToggledBoundingBoxFoams (bool checked);
+    void ToggledBoundingBoxSimulation (bool checked);
     void ToggledBoundingBoxFoam (bool checked);
     void ToggledBoundingBoxBody (bool checked);
     void ToggledAverageAroundMarked (bool checked);
@@ -805,7 +805,7 @@ private:
     bool m_bodyNeighborsShown;
     bool m_faceCenterShown;
     bool m_centerPathBodyShown;
-    bool m_boundingBoxFoamsShown;    
+    bool m_boundingBoxSimulationShown;    
     bool m_boundingBoxFoamShown;
     bool m_boundingBoxBodyShown;
     bool m_axesShown;

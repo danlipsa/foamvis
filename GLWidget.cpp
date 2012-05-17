@@ -187,7 +187,7 @@ GLWidget::GLWidget(QWidget *parent)
       m_bodyNeighborsShown (false),
       m_faceCenterShown (false),
       m_centerPathBodyShown (false),
-      m_boundingBoxFoamsShown (false),
+      m_boundingBoxSimulationShown (false),
       m_boundingBoxFoamShown (false),
       m_boundingBoxBodyShown (false),
       m_axesShown (false),
@@ -2270,7 +2270,7 @@ void GLWidget::displayBoundingBox (ViewNumber::Enum viewNumber) const
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
     if (vs.IsLightingEnabled ())
 	glDisable (GL_LIGHTING);
-    if (m_boundingBoxFoamsShown)
+    if (m_boundingBoxSimulationShown)
 	DisplayBox (simulation, Qt::black);
     if (m_boundingBoxFoamShown)
 	DisplayBox (foam, Qt::black);
@@ -4016,9 +4016,9 @@ void GLWidget::ToggledLightEnabled (bool checked)
 }
 
 
-void GLWidget::ToggledBoundingBoxFoams (bool checked)
+void GLWidget::ToggledBoundingBoxSimulation (bool checked)
 {
-    m_boundingBoxFoamsShown = checked;
+    m_boundingBoxSimulationShown = checked;
     update ();
 }
 
