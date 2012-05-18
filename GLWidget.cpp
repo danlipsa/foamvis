@@ -1578,7 +1578,7 @@ G3D::Matrix3 GLWidget::rotate (
     {
 	rotate = getRotationAround (1, dxRadians) * rotate;
     }
-    else if (modifiers == (Qt::ControlModifier | Qt::ShiftModifier))
+    else if (modifiers == (Qt::AltModifier))
     {
 	rotate = getRotationAround (2, dxRadians) * rotate;
     }
@@ -1691,10 +1691,7 @@ G3D::Vector3 GLWidget::brushedBodies (
 	if (box.contains (op))
 	{
 	    if (selector (body) == selected)
-	    {
 		bodies->push_back (body);
-		cdbg << body->GetId () << endl;
-	    }
 	}
     }
     return op;

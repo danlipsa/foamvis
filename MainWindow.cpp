@@ -1459,7 +1459,7 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
 	    "Rotate around the X and Y axes<br>"
 	    "press Ctrl to rotate around the X axis<br>"
 	    "press Shift to rotate around the Y axis<br>"
-	    "press Ctrl+Shift to rotate around the Z axis");
+	    "press Alt to rotate around the Z axis");
 	break;
 
     case InteractionMode::SCALE:
