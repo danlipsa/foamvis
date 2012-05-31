@@ -114,13 +114,20 @@ public:
 
     const G3D::Matrix3& GetRotationFocus () const
     {
-	return m_rotationModel;
+	return m_rotationFocus;
     }
-    void SetRotationFocus (const G3D::Matrix3& rotationModel)
+    void SetRotationFocus (const G3D::Matrix3& rotationFocus)
     {
-	m_rotationModel = rotationModel;
+	m_rotationFocus = rotationFocus;
     }
-
+    G3D::Vector3 GetRotationCenter () const
+    {
+	return m_rotationCenter;
+    }
+    void SetRotationCenter (const G3D::Vector3& rotationCenter)
+    {
+	m_rotationCenter = rotationCenter;
+    }
     const G3D::Matrix3& GetRotationLight (LightNumber::Enum i) const
     {
 	return m_rotationLight[i];
@@ -602,7 +609,8 @@ private:
     boost::shared_ptr<ForceAverage> m_forceAverage;
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
     boost::shared_ptr<ColorBarModel> m_velocityOverlayBarModel;
-    G3D::Matrix3 m_rotationModel;
+    G3D::Matrix3 m_rotationFocus;
+    G3D::Vector3 m_rotationCenter;
     G3D::Rect2D m_viewport;
     double m_scaleRatio;
     double m_gridScaleRatio;

@@ -59,7 +59,7 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
     m_velocityAverage (
 	new VectorAverage (glWidget, m_scalarAverage->GetFbos ())),
     m_forceAverage (new ForceAverage (glWidget)),
-    m_rotationModel (G3D::Matrix3::identity ()),
+    m_rotationFocus (G3D::Matrix3::identity ()),
     m_scaleRatio (1),
     m_gridScaleRatio (1),
     m_contextScaleRatio (1),
@@ -446,7 +446,7 @@ void ViewSettings::DifferenceBodySelector (
 
 void ViewSettings::CopyTransformation (const ViewSettings& from)
 {
-    m_rotationModel = from.m_rotationModel;
+    m_rotationFocus = from.m_rotationFocus;
     m_scaleRatio = from.m_scaleRatio;
     m_translation = from.m_translation;
     m_axesOrder = from.m_axesOrder;

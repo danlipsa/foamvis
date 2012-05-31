@@ -8,7 +8,7 @@ Release log
 	- user option: rotate around x,y,z axes using ctrl, shift, and ctrl+shift
 	- default settings: no edges shown, turn on lighting for 3D simulations
 	- fix transparency: transparent objects blend with opaque ones.
-	- fix selection: deselection works front-back, selection works 
+	- fix 3D selection: deselection works front-back, selection works 
 	  back-front.
 	  
 0.7.2374 2012-03-09

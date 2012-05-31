@@ -330,6 +330,18 @@ void GLWidget::createActions ()
     connect(m_actionResetTransformGrid.get (), SIGNAL(triggered()),
 	    this, SLOT(ResetTransformGrid ()));
 
+    m_actionRotationCenterBody = boost::make_shared<QAction> (
+	tr("&Body"), this);
+    m_actionRotationCenterBody->setStatusTip(tr("Rotation center body"));
+    connect(m_actionRotationCenterBody.get (), SIGNAL(triggered()),
+	    this, SLOT(RotationCenterBody ()));
+
+    m_actionRotationCenterFoam = boost::make_shared<QAction> (
+	tr("&Foam"), this);
+    m_actionRotationCenterFoam->setStatusTip(tr("Rotation center foam"));
+    connect(m_actionRotationCenterFoam.get (), SIGNAL(triggered()),
+	    this, SLOT(RotationCenterFoam ()));
+
     m_actionAverageAroundBody = boost::make_shared<QAction> (
 	tr("&Body"), this);
     m_actionAverageAroundBody->setStatusTip(tr("Averaged around body"));
@@ -529,6 +541,8 @@ void GLWidget::setSimulation (int i, ViewNumber::Enum viewNumber)
     const Simulation& simulation = GetSimulation (i);
     int rotation2D = simulation.GetRotation2D ();
     size_t reflexionAxis = simulation.GetReflectionAxis ();
+    G3D::Vector3 center = CalculateViewingVolume (
+	viewNumber, ViewingVolumeOperation::DONT_ENCLOSE2D).center ();
     vs.SetSimulationIndex (i);
     vs.SetAxesOrder (
 	simulation.Is2D () ? 
@@ -540,10 +554,8 @@ void GLWidget::setSimulation (int i, ViewNumber::Enum viewNumber)
     vs.SetT1sShiftLower (simulation.GetT1sShiftLower ());
     vs.AverageSetTimeWindow (simulation.GetTimeSteps ());
     vs.GetT1sPDE ().AverageSetTimeWindow (simulation.GetT1sTimeSteps ());
-    vs.SetScaleCenter (
-	CalculateViewingVolume (
-	    viewNumber, 
-	    ViewingVolumeOperation::DONT_ENCLOSE2D).center ().xy ());
+    vs.SetScaleCenter (center.xy ());
+    vs.SetRotationCenter (center);
 }
 
 
@@ -660,10 +672,8 @@ QSize GLWidget::sizeHint()
 G3D::Vector3 GLWidget::getInitialLightPosition (
     ViewNumber::Enum viewNumber,
     LightNumber::Enum lightPosition) const
-{
-    
-    G3D::AABox bb = calculateCenteredViewingVolume (
-	viewNumber, double (width ()) / height (), 1.0);
+{    
+    G3D::AABox bb = calculateCenteredViewingVolume (viewNumber);
     G3D::Vector3 high = bb.high (), low = bb.low ();
     G3D::Vector3 nearRectangle[] = {
 	G3D::Vector3 (high.x, high.y, high.z),
@@ -835,56 +845,49 @@ void GLWidget::RotateAndTranslateAverageAround (
     }
 }
 
-G3D::AABox GLWidget::calculateViewingVolume (
-    ViewNumber::Enum viewNumber,
-    double xOverY, double extendAlongZRatio, 
-    ViewingVolumeOperation::Enum enclose) const
+
+G3D::AABox GLWidget::calculateCenteredViewingVolume (
+    ViewNumber::Enum viewNumber) const
 {
+    G3D::AABox vv = CalculateViewingVolume (viewNumber);
+    return vv - vv.center ();
+}
+
+G3D::Vector3 GLWidget::calculateViewingVolumeScaledExtent (
+    ViewNumber::Enum viewNumber) const
+{
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    return CalculateViewingVolume (viewNumber).extent () / 
+	vs.GetScaleRatio ();
+}
+
+
+G3D::AABox GLWidget::calculateEyeViewingVolume (
+    ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose) const
+{
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    G3D::AABox vv = CalculateViewingVolume (viewNumber, enclose);
+    vv = vv - vv.center ();
+    G3D::Vector3 translation (vs.GetCameraDistance () * G3D::Vector3::unitZ ());
+    G3D::AABox result = vv - translation;
+    return result;
+}
+
+G3D::AABox GLWidget::CalculateViewingVolume (
+    ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose) const
+{    
     const Simulation& simulation = GetSimulation (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    float xOverY = getXOverY (viewNumber);
     G3D::AABox bb = simulation.GetBoundingBox ();
     G3D::AABox vv = AdjustXOverYRatio (EncloseRotation (bb), xOverY);
     if (! simulation.Is2D ())
 	// ExtendAlongZFor3D is used for 3D, 
 	// so that you keep the 3D objects outside the camera
-	vv = ExtendAlongZFor3D (vv, extendAlongZRatio);
+	vv = ExtendAlongZFor3D (vv, vs.GetScaleRatio ());
     if (enclose == ViewingVolumeOperation::ENCLOSE2D)
 	vv = EncloseRotation2D (vv);
     return vv;
-}
-
-G3D::AABox GLWidget::CalculateViewingVolume (
-    ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose) const
-{
-    double xOverY = getViewXOverY ();
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    double extendAlongZRatio = vs.GetScaleRatio ();
-    return calculateViewingVolume (viewNumber, 
-				   xOverY, extendAlongZRatio, enclose);
-}
-
-
-G3D::AABox GLWidget::calculateCenteredViewingVolume (
-    ViewNumber::Enum viewNumber,
-    double xOverY, double extendAlongZRatio) const
-{
-    G3D::AABox vv = calculateViewingVolume (
-	viewNumber, xOverY, extendAlongZRatio);
-    return vv - vv.center ();
-}
-
-G3D::AABox GLWidget::calculateEyeViewingVolume (
-    ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose) const
-{
-    double xOverY = getViewXOverY ();
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    double extendAlongZRatio = vs.GetScaleRatio ();
-    G3D::AABox vv = calculateViewingVolume (
-	viewNumber,
-	xOverY, extendAlongZRatio, enclose);
-    vv = vv - vv.center ();
-    G3D::Vector3 translation (vs.GetCameraDistance () * G3D::Vector3::unitZ ());
-    G3D::AABox result = vv - translation;
-    return result;
 }
 
 G3D::Vector3 GLWidget::getEyeTransform (ViewNumber::Enum viewNumber) const
@@ -913,7 +916,7 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
 	    viewNumber, vs.GetScaleRatio (), vs.GetTranslation (), false);
     const Foam& foam = simulation.GetFoam (0);
     glMultMatrix (vs.GetRotationFocus () * vs.GetRotationForAxesOrder (foam));
-    glTranslate (- simulation.GetBoundingBox ().center ());
+    glTranslate (- vs.GetRotationCenter ());
     transformFoamAverageAround (viewNumber, timeStep);
 }
 
@@ -1006,6 +1009,25 @@ G3D::Rect2D GLWidget::GetViewRect (ViewNumber::Enum view) const
     }
 }
 
+double GLWidget::getXOverY (ViewNumber::Enum viewNumber) const
+{
+    (void)viewNumber;
+    double xOverY = getXOverY ();
+    double v[] = { 
+	xOverY, xOverY,     // ONE
+	xOverY/2, 2*xOverY, // TWO (HORIZONTAL, VERTICAL)
+	xOverY/3, 3*xOverY, // THREE (HORIZONTAL, VERTICAL)
+	xOverY, xOverY      // FOUR
+    };
+    return v[m_viewCount * 2 + m_viewLayout];
+}
+
+double GLWidget::getXOverY () const
+{
+    return double (width ()) / height ();    
+}
+
+
 void GLWidget::setView (const G3D::Vector2& clickedPoint)
 {
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
@@ -1038,91 +1060,6 @@ G3D::Rect2D GLWidget::getViewOverlayBarRect (const G3D::Rect2D& viewRect)
     return G3D::Rect2D::xywh (
 	viewRect.x0 () + 5 + 10 + 5, viewRect.y0 () + 5,
 	10, max (viewRect.height () / 4, 50.0f));
-}
-
-
-double GLWidget::getViewXOverY () const
-{
-    double xOverY =  double (width ()) / height ();
-    double v[] = { 
-	xOverY, xOverY,     // ONE
-	xOverY/2, 2*xOverY, // TWO (HORIZONTAL, VERTICAL)
-	xOverY/3, 3*xOverY, // THREE (HORIZONTAL, VERTICAL)
-	xOverY, xOverY      // FOUR
-    };
-    return v[m_viewCount * 2 + m_viewLayout];
-}
-
-void GLWidget::ResetTransformAll ()
-{
-    ResetTransformFocus ();
-    ResetTransformContext ();
-    ResetTransformGrid ();
-    ResetTransformLight ();
-}
-
-void GLWidget::ResetTransformFocus ()
-{
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
-    for (size_t i = 0; i < vn.size (); ++i)
-    {
-	ViewNumber::Enum viewNumber = vn[i];
-	ViewSettings& vs = GetViewSettings (viewNumber);
-	vs.SetRotationFocus (G3D::Matrix3::identity ());
-	vs.SetScaleRatio (1);
-	vs.SetTranslation (G3D::Vector3::zero ());
-	glMatrixMode (GL_PROJECTION);
-	ProjectionTransform (viewNumber);
-	glMatrixMode (GL_MODELVIEW);
-	glLoadIdentity ();
-	vs.AverageInitStep (viewNumber);
-    }
-    update ();
-}
-
-void GLWidget::ResetTransformContext ()
-{
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
-    for (size_t i = 0; i < vn.size (); ++i)
-    {
-	ViewNumber::Enum viewNumber = vn[i];
-	ViewSettings& vs = GetViewSettings (viewNumber);
-	vs.SetContextScaleRatio (1);
-	glMatrixMode (GL_PROJECTION);
-	ProjectionTransform (viewNumber);
-	glMatrixMode (GL_MODELVIEW);
-	glLoadIdentity ();
-    }
-    update ();
-
-}
-
-void GLWidget::ResetTransformGrid ()
-{
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
-    for (size_t i = 0; i < vn.size (); ++i)
-    {
-	ViewNumber::Enum viewNumber = vn[i];
-	ViewSettings& vs = GetViewSettings (viewNumber);
-	vs.SetGridScaleRatio (1);
-	vs.SetGridTranslation (G3D::Vector3::zero ());
-    }
-    update ();
-}
-
-void GLWidget::ResetTransformLight ()
-{
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
-    for (size_t i = 0; i < vn.size (); ++i)
-    {
-	ViewNumber::Enum viewNumber = vn[i];
-	ViewSettings& vs = GetViewSettings (viewNumber);
-	LightNumber::Enum lightNumber = vs.GetSelectedLight ();
-	vs.SetInitialLightParameters (lightNumber);
-	vs.SetLightParameters (lightNumber, 
-			     getInitialLightPosition (viewNumber, lightNumber));
-    }
-    update ();
 }
 
 bool GLWidget::linkedTimesValid (size_t timeBegin, size_t timeEnd)
@@ -1570,60 +1507,85 @@ G3D::Matrix3 GLWidget::rotate (
 	rotate = getRotationAround (0, dyRadians) * rotate;
 	rotate = getRotationAround (1, dxRadians) * rotate;
     }
+    // rotate around X axis
     else if (modifiers == Qt::ControlModifier)
     {
 	rotate = getRotationAround (0, dyRadians) * rotate;
     }
+    // rotate around Y axis
     else if (modifiers == Qt::ShiftModifier)
     {
 	rotate = getRotationAround (1, dxRadians) * rotate;
     }
-    else if (modifiers == (Qt::AltModifier))
+    // rotate around Z axis
+    else if (modifiers == Qt::AltModifier ||
+	     modifiers == (Qt::ControlModifier | Qt::ShiftModifier))
     {
-	rotate = getRotationAround (2, dxRadians) * rotate;
+	rotate = getRotationAround (2, - dxRadians) * rotate;
     }
     return rotate;
 }
 
-
-void GLWidget::calculateTranslationRatio (
+G3D::Vector3 GLWidget::calculateTranslationRatio (
     ViewNumber::Enum viewNumber, const QPoint& position,
     G3D::Vector3::Axis screenXTranslation,
-    G3D::Vector3::Axis screenYTranslation, 
-    G3D::Vector3* translationRatio, G3D::Vector3* focusBoxExtent)
+    G3D::Vector3::Axis screenYTranslation) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
-    (*translationRatio)[screenXTranslation] =
-	static_cast<double>(position.x() - m_lastPos.x()) /
-	vs.GetViewport ().width ();
-    (*translationRatio)[screenYTranslation] =
-	- static_cast<double> (position.y() - m_lastPos.y()) / 
-	vs.GetViewport ().height ();
-
-
-    G3D::AABox vv = calculateCenteredViewingVolume (
-	viewNumber, double (width ()) / height (), vs.GetScaleRatio ());
-    *focusBoxExtent = vv.extent () / vs.GetScaleRatio ();
+    G3D::Vector3 translationRatio;
+    if (screenXTranslation != G3D::Vector3::DETECT_AXIS)
+	translationRatio[screenXTranslation] =
+	    static_cast<float>(position.x() - m_lastPos.x()) /
+	    vs.GetViewport ().width ();
+    if (screenYTranslation != G3D::Vector3::DETECT_AXIS)
+	translationRatio[screenYTranslation] =
+	    - static_cast<float> (position.y() - m_lastPos.y()) / 
+	    vs.GetViewport ().height ();
+    return translationRatio;
 }
 
 
 void GLWidget::translate (
     ViewNumber::Enum viewNumber, const QPoint& position,
-    G3D::Vector3::Axis screenXTranslation,
-    G3D::Vector3::Axis screenYTranslation)
+    Qt::KeyboardModifiers modifiers)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
-    G3D::Vector3 translationRatio, focusBoxExtent;
-    calculateTranslationRatio (viewNumber, position, 
-			       screenXTranslation, screenYTranslation, 
-			       &translationRatio, &focusBoxExtent);
+    G3D::Vector3 translationRatio;
+    if (modifiers == Qt::NoModifier)
+    {
+	translationRatio = calculateTranslationRatio (
+	    viewNumber, position, G3D::Vector3::X_AXIS, G3D::Vector3::Y_AXIS);
+    }
+    // translate along X axis
+    else if (modifiers == Qt::ControlModifier)
+    {
+	translationRatio = calculateTranslationRatio (
+	    viewNumber, position, G3D::Vector3::X_AXIS, 
+	    G3D::Vector3::DETECT_AXIS);	
+    }
+    // translate along Y axis
+    else if (modifiers == Qt::ShiftModifier)
+    {
+	translationRatio = calculateTranslationRatio (
+	    viewNumber, position, G3D::Vector3::DETECT_AXIS, 
+	    G3D::Vector3::Y_AXIS);	
+    }
+    // translate along Z axis
+    else if (modifiers == Qt::AltModifier ||
+	     modifiers == (Qt::ControlModifier | Qt::ShiftModifier))
+    {
+	translationRatio = - calculateTranslationRatio (
+	    viewNumber, position, G3D::Vector3::DETECT_AXIS, 
+	    G3D::Vector3::Z_AXIS);	
+    }
+    G3D::Vector3 extent = calculateViewingVolumeScaledExtent (viewNumber);
     if (vs.IsContextView ())
 	vs.SetTranslation (
-	    vs.GetTranslation () - (translationRatio * focusBoxExtent));
+	    vs.GetTranslation () - (translationRatio * extent));
     else
     {
 	G3D::Vector3 translation = 
-	    vs.GetTranslation () + (translationRatio * focusBoxExtent);
+	    vs.GetTranslation () + (translationRatio * extent);
 	vs.SetTranslation (translation);
     }
 }
@@ -1632,13 +1594,11 @@ void GLWidget::translateGrid (
     ViewNumber::Enum viewNumber, const QPoint& position)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
-    G3D::Vector3 translationRatio, focusBoxExtent;
-    calculateTranslationRatio (viewNumber, position, 
-			       G3D::Vector3::X_AXIS,
-			       G3D::Vector3::Y_AXIS, 
-			       &translationRatio, &focusBoxExtent);
+    G3D::Vector3 translationRatio = calculateTranslationRatio (
+	viewNumber, position, G3D::Vector3::X_AXIS, G3D::Vector3::Y_AXIS);
+    G3D::Vector3 extent = calculateViewingVolumeScaledExtent (viewNumber);
     vs.SetGridTranslation (
-	vs.GetGridTranslation () + (translationRatio * focusBoxExtent));
+	vs.GetGridTranslation () + (translationRatio * extent));
 }
 
 void GLWidget::scale (ViewNumber::Enum viewNumber, const QPoint& position)
@@ -2119,8 +2079,7 @@ void GLWidget::mouseMoveTranslate (QMouseEvent *event,
     switch (m_interactionObject)
     {
     case InteractionObject::FOCUS:
-	translate (viewNumber, event->pos (), G3D::Vector3::X_AXIS,
-		   G3D::Vector3::Y_AXIS);
+	translate (viewNumber, event->pos (), event->modifiers ());
 	vs.AverageInitStep (viewNumber);
 	break;
     case InteractionObject::LIGHT:
@@ -2130,16 +2089,10 @@ void GLWidget::mouseMoveTranslate (QMouseEvent *event,
 	translateLight (viewNumber, event->pos ());
 	break;
     }
-    case InteractionObject::CONTEXT:
-    {
-	// translate for context view
-	QPoint point (m_lastPos.x (), event->pos ().y ());
-	translate (viewNumber, 
-		   point, G3D::Vector3::X_AXIS, G3D::Vector3::Z_AXIS);
-	break;
-    }
     case InteractionObject::GRID:
 	translateGrid (viewNumber, event->pos ());
+	break;
+    default:
 	break;
     }
 }
@@ -2239,15 +2192,11 @@ void GLWidget::displayFocusBox (ViewNumber::Enum viewNumber) const
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsContextView ())
     {
-	G3D::Rect2D viewRect = GetViewRect (viewNumber);
-
 	glPushMatrix ();
 	glLoadIdentity ();
 	glTranslatef (0, 0, - vs.GetCameraDistance ());
 
-	G3D::AABox focusBox = calculateCenteredViewingVolume (
-	    viewNumber, double (viewRect.width ()) / viewRect.height (), 
-	    vs.GetScaleRatio ());
+	G3D::AABox focusBox = calculateCenteredViewingVolume (viewNumber);
 	translateAndScale ( viewNumber, 1 / vs.GetScaleRatio (), 
 			    - vs.GetContextScaleRatio () * 
 			    vs.GetTranslation (), true);
@@ -2777,11 +2726,7 @@ G3D::Vector2 GLWidget::toTexture (ViewNumber::Enum viewNumber,
 				  G3D::Vector2 object) const
 {
     G3D::Vector2 eye = toEye (object);
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    G3D::Rect2D viewRect = GetViewRect (viewNumber);
-    G3D::AABox vv = calculateCenteredViewingVolume (
-	viewNumber, double (viewRect.width ()) / viewRect.height (), 
-	vs.GetScaleRatio ());
+    G3D::AABox vv = calculateCenteredViewingVolume (viewNumber);
     return (eye - vv.low ().xy ()) / (vv.high ().xy () - vv.low ().xy ());
 }
 
@@ -3375,6 +3320,11 @@ void GLWidget::contextMenuEventView (QMenu* menu) const
 	menuReset->addAction (m_actionResetTransformGrid.get ());
     }
     {
+	QMenu* menuRotationCenter = menu->addMenu ("Rotation center");
+	menuRotationCenter->addAction (m_actionRotationCenterBody.get ());
+	menuRotationCenter->addAction (m_actionRotationCenterFoam.get ());
+    }
+    {
 	QMenu* menuSelect = menu->addMenu ("Select");
 	menuSelect->addAction (m_actionSelectAll.get ());
 	menuSelect->addAction (m_actionDeselectAll.get ());
@@ -3832,6 +3782,100 @@ vector<ViewNumber::Enum> GLWidget::GetConnectedViewNumbers (
 // Slots
 // ======================================================================
 
+void GLWidget::ResetTransformAll ()
+{
+    ResetTransformFocus ();
+    ResetTransformContext ();
+    ResetTransformGrid ();
+    ResetTransformLight ();
+}
+
+void GLWidget::ResetTransformFocus ()
+{
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	vs.SetRotationFocus (G3D::Matrix3::identity ());
+	vs.SetScaleRatio (1);
+	vs.SetTranslation (G3D::Vector3::zero ());
+	glMatrixMode (GL_PROJECTION);
+	ProjectionTransform (viewNumber);
+	glMatrixMode (GL_MODELVIEW);
+	glLoadIdentity ();
+	vs.AverageInitStep (viewNumber);
+    }
+    update ();
+}
+
+void GLWidget::ResetTransformContext ()
+{
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	vs.SetContextScaleRatio (1);
+	glMatrixMode (GL_PROJECTION);
+	ProjectionTransform (viewNumber);
+	glMatrixMode (GL_MODELVIEW);
+	glLoadIdentity ();
+    }
+    update ();
+
+}
+
+void GLWidget::ResetTransformGrid ()
+{
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	vs.SetGridScaleRatio (1);
+	vs.SetGridTranslation (G3D::Vector3::zero ());
+    }
+    update ();
+}
+
+void GLWidget::ResetTransformLight ()
+{
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	ViewSettings& vs = GetViewSettings (viewNumber);
+	LightNumber::Enum lightNumber = vs.GetSelectedLight ();
+	vs.SetInitialLightParameters (lightNumber);
+	vs.SetLightParameters (lightNumber, 
+			     getInitialLightPosition (viewNumber, lightNumber));
+    }
+    update ();
+}
+
+void GLWidget::RotationCenterBody ()
+{
+    vector< boost::shared_ptr<Body> > bodies;
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    brushedBodies (m_contextMenuPosScreen, &bodies);
+    if (bodies.size () > 0)
+	vs.SetRotationCenter (bodies[0]->GetCenter ());
+    labelCompileUpdate ();
+}
+
+void GLWidget::RotationCenterFoam ()
+{
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
+    G3D::Vector3 center = CalculateViewingVolume (
+	viewNumber, ViewingVolumeOperation::DONT_ENCLOSE2D).center ();
+    vs.SetRotationCenter (center);
+    labelCompileUpdate ();
+}
+
+
 void GLWidget::CopyTransformationFrom (int viewNumber)
 {
     GetViewSettings ().CopyTransformation (
@@ -4269,14 +4313,11 @@ void GLWidget::CurrentIndexChangedViewCount (int index)
     for (size_t i = 0; i < n; ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	G3D::Rect2D viewRect = GetViewRect (viewNumber);
 	ViewSettings& vs = GetViewSettings (viewNumber);
 	if (vs.GetViewType () == ViewType::COUNT)
 	    vs.SetViewType (ViewType::FACES);
 	vs.CalculateCameraDistance (
-	    calculateCenteredViewingVolume (
-		viewNumber,
-		viewRect.width () / viewRect.height (), vs.GetScaleRatio ()));
+	    calculateCenteredViewingVolume (viewNumber));
     }
     update ();
 }
@@ -4612,13 +4653,10 @@ void GLWidget::ValueChangedLightSpecularBlue (int sliderValue)
 void GLWidget::ValueChangedAngleOfView (int angleOfView)
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
-    G3D::Rect2D viewRect = GetViewRect ();
     ViewSettings& vs = GetViewSettings ();
     vs.SetAngleOfView (angleOfView);
     vs.CalculateCameraDistance (
-	calculateCenteredViewingVolume (
-	    viewNumber,
-	    viewRect.width () / viewRect.height (), vs.GetScaleRatio ()));
+	calculateCenteredViewingVolume (viewNumber));
     update ();
 }
 

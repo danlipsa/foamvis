@@ -243,7 +243,9 @@ public:
     float GetDeformationSizeInitialRatio (ViewNumber::Enum viewNumber) const;
     float GetVelocitySizeInitialRatio (ViewNumber::Enum viewNumber) const;
     G3D::AABox CalculateViewingVolume (
-	ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose) const;
+	ViewNumber::Enum viewNumber, 
+	ViewingVolumeOperation::Enum enclose  = 
+	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     void RotateAndTranslateAverageAround (
 	ViewNumber::Enum viewNumber,
 	size_t timeStep, int direction) const;
@@ -426,6 +428,8 @@ public Q_SLOTS:
     void ResetTransformContext ();
     void ResetTransformLight ();    
     void ResetTransformGrid ();
+    void RotationCenterBody ();
+    void RotationCenterFoam ();
     void LinkedTimeBegin ();
     void LinkedTimeEnd ();
     void SelectAll ();
@@ -558,7 +562,8 @@ private:
 		   LightType::Enum lightType, ColorNumber::Enum colorNumber);
     void setView (const G3D::Vector2& clickedPoint);
     void selectView (const G3D::Vector2& clickedPoint);
-    double getViewXOverY () const;
+    double getXOverY (ViewNumber::Enum viewNumber) const;
+    double getXOverY () const;
     static G3D::Rect2D getViewColorBarRect (const G3D::Rect2D& viewRect);
     static G3D::Rect2D getViewOverlayBarRect (const G3D::Rect2D& viewRect);
     void calculateEdgeRadius (
@@ -589,15 +594,10 @@ private:
     void displayLightDirection (
 	ViewNumber::Enum viewNumber, LightNumber::Enum light) const;
     void displayLightDirection (ViewNumber::Enum viewNumber) const;
-    G3D::AABox calculateViewingVolume (
-	ViewNumber::Enum viewNumber,
-	double xOverY, double scaleRatio, 
-	ViewingVolumeOperation::Enum enclose = 
-	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
     G3D::AABox calculateCenteredViewingVolume (
-	ViewNumber::Enum viewNumber, double xOverY,
-	double scaleRatio) const;
-
+	ViewNumber::Enum viewNumber) const;
+    G3D::Vector3 calculateViewingVolumeScaledExtent (
+	ViewNumber::Enum viewNumber) const;
     void initQuadrics ();
     void initEndTranslationColor ();
     void initViewSettings ();
@@ -701,15 +701,13 @@ private:
 	const QPoint& position, Qt::KeyboardModifiers modifiers,
 	const G3D::Matrix3& rotate);
     void translate (ViewNumber::Enum viewNumber,
-	const QPoint& position,
-	G3D::Vector3::Axis screenXTranslation,
-	G3D::Vector3::Axis screenYTranslation);
+		    const QPoint& position,
+		    Qt::KeyboardModifiers modifiers);
     void translateGrid (ViewNumber::Enum viewNumber, const QPoint& position);
-    void calculateTranslationRatio (
-    ViewNumber::Enum viewNumber, const QPoint& position,
-    G3D::Vector3::Axis screenXTranslation,
-    G3D::Vector3::Axis screenYTranslation, 
-    G3D::Vector3* translationRatio, G3D::Vector3* focusBoxExtent);
+    G3D::Vector3 calculateTranslationRatio (
+	ViewNumber::Enum viewNumber, const QPoint& position,
+	G3D::Vector3::Axis screenXTranslation,
+	G3D::Vector3::Axis screenYTranslation) const;
     void translateLight (ViewNumber::Enum viewNumber, const QPoint& position);
     void scale (ViewNumber::Enum viewNumber, const QPoint& position);
     void scaleContext (ViewNumber::Enum viewNumber, const QPoint& position);
@@ -826,6 +824,9 @@ private:
     boost::shared_ptr<QAction> m_actionResetTransformContext;
     boost::shared_ptr<QAction> m_actionResetTransformLight;
     boost::shared_ptr<QAction> m_actionResetTransformGrid;
+
+    boost::shared_ptr<QAction> m_actionRotationCenterBody;
+    boost::shared_ptr<QAction> m_actionRotationCenterFoam;
 
     boost::shared_ptr<QAction> m_actionAverageAroundBody;
     boost::shared_ptr<QAction> m_actionAverageAroundSecondBody;

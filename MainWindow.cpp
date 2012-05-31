@@ -1459,7 +1459,7 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
 	    "Rotate around the X and Y axes<br>"
 	    "press Ctrl to rotate around the X axis<br>"
 	    "press Shift to rotate around the Y axis<br>"
-	    "press Alt to rotate around the Z axis");
+	    "press Alt (or Ctrl+Shift) to rotate around the Z axis");
 	break;
 
     case InteractionMode::SCALE:
@@ -1471,7 +1471,11 @@ void MainWindow::CurrentIndexChangedInteractionMode (int index)
     case InteractionMode::TRANSLATE:
 	radioButtonInteractionLight->setEnabled (true);
 	radioButtonInteractionGrid->setEnabled (true);
-	comboBoxInteractionMode->setToolTip ("");
+	comboBoxInteractionMode->setToolTip (
+	    "Translate in the X and Y plane<br>"
+	    "press Ctrl to translate along the X axis<br>"
+	    "press Shift to translate along the Y axis<br>"
+	    "press Alt (or Ctrl+Shift) to translate along the Z axis");
 	break;
     
     default:
