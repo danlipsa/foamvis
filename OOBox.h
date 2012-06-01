@@ -41,7 +41,7 @@ public:
     G3D::Matrix3 GetMatrix () const;
 
     bool IsZero () const;
-    bool IsTorusDomain () const;
+    bool IsTorus () const;
 
     const G3D::Vector3& operator[] (size_t i) const
     {

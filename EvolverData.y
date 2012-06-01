@@ -1168,7 +1168,7 @@ torus_periods
   const_expr const_expr
 {
     using G3D::Vector3;
-    foam->SetPeriods (Vector3 ($3, $4, 0), Vector3 ($6, $7, 0));
+    foam->SetTorusDomain (Vector3 ($3, $4, 0), Vector3 ($6, $7, 0));
 }
 /* 3D */
 | PERIODS nl
@@ -1177,9 +1177,9 @@ torus_periods
   const_expr const_expr const_expr
 {
     using G3D::Vector3;
-    foam->SetPeriods (Vector3 ($3, $4, $5),
-		     Vector3 ($7, $8, $9),
-		     Vector3 ($11, $12, $13));
+    foam->SetTorusDomain (Vector3 ($3, $4, $5),
+			  Vector3 ($7, $8, $9),
+			  Vector3 ($11, $12, $13));
 }
 
 torus_display_periods

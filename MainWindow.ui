@@ -2432,7 +2432,7 @@
     <slot>ToggledEnableDirectionalLight(bool)</slot>
     <slot>ToggledBoundingBoxShown(bool)</slot>
     <slot>ToggledLightNumberShown(bool)</slot>
-    <slot>ToggledTorusOriginalDomainShown(bool)</slot>
+    <slot>ToggledTorusDomainShown(bool)</slot>
     <slot>ToggledLightingEnabled(bool)</slot>
     <slot>ToggledDirectionalLightEnabled(bool)</slot>
     <slot>ToggledAxesShown(bool)</slot>
@@ -2927,7 +2927,7 @@
    <sender>checkBoxTorusOriginalDomain</sender>
    <signal>toggled(bool)</signal>
    <receiver>glWidget</receiver>
-   <slot>ToggledTorusOriginalDomainShown(bool)</slot>
+   <slot>ToggledTorusDomainShown(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>830</x>

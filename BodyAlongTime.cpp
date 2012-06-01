@@ -48,7 +48,7 @@ void BodyAlongTime::CalculateBodyWraps (const Simulation& simulation)
 	for (size_t time = m_timeBegin; time < (m_timeEnd - 1); time++)
 	{
 	    const OOBox& originalDomain = 
-		simulation.GetFoam (time+1).GetOriginalDomain ();
+		simulation.GetFoam (time+1).GetTorusDomain ();
 	    G3D::Vector3int16 translation;
 	    const G3D::Vector3& begin = m_bodyAlongTime[time]->GetCenter ();
 	    const G3D::Vector3& end = m_bodyAlongTime[time + 1]->GetCenter ();

@@ -28,6 +28,14 @@ class VectorAverage;
 class ViewSettings : public AverageInterface
 {
 public:
+    enum RotationCenterType
+    {
+	ROTATION_CENTER_FOAM,
+	ROTATION_CENTER_BODY
+    };
+
+
+public:
     ViewSettings (const GLWidget& glWidget);
     ~ViewSettings ();
 
@@ -132,7 +140,15 @@ public:
     {
 	return m_rotationLight[i];
     }
-    
+    void SetRotationCenterType (RotationCenterType type)
+    {
+	m_rotationCenterType = type;
+    }
+    RotationCenterType GetRotationCenterType () const
+    {
+	return m_rotationCenterType;
+    }
+
     void SetRotationLight (LightNumber::Enum i, const G3D::Matrix3& rl)
     {
 	m_rotationLight[i] = rl;
@@ -611,6 +627,7 @@ private:
     boost::shared_ptr<ColorBarModel> m_velocityOverlayBarModel;
     G3D::Matrix3 m_rotationFocus;
     G3D::Vector3 m_rotationCenter;
+    RotationCenterType m_rotationCenterType;
     G3D::Rect2D m_viewport;
     double m_scaleRatio;
     double m_gridScaleRatio;

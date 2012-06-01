@@ -11,7 +11,7 @@
 #include "DisplayFaceFunctors.h"
 #include "DisplayEdgeFunctors.h"
 #include "Face.h"
-#include "FoamProperties.h"
+#include "Foam.h"
 #include "GLWidget.h"
 #include "OpenGLUtils.h"
 #include "OrientedFace.h"
@@ -25,12 +25,12 @@ template <HighlightNumber::Enum highlightColorIndex,
 DisplayFaceHighlightColor<highlightColorIndex, 
 			  displayEdges, PropertySetter>::
 DisplayFaceHighlightColor (
-    const GLWidget& widget, const FoamProperties& fp,
+    const GLWidget& widget, const Foam& foam,
     typename DisplayElement::FocusContext focus,
     ViewNumber::Enum view, bool useZPos, double zPos) : 
     
     DisplayElementPropertyFocus<PropertySetter> (
-	widget, fp, PropertySetter (widget, view), focus, useZPos, zPos)
+	widget, foam, PropertySetter (widget, view), focus, useZPos, zPos)
 {
 }
 
@@ -38,13 +38,13 @@ template <HighlightNumber::Enum highlightColorIndex,
 	  typename displayEdges, typename PropertySetter>
 DisplayFaceHighlightColor<highlightColorIndex, 
 			  displayEdges, PropertySetter>::
-DisplayFaceHighlightColor (const GLWidget& widget, const FoamProperties& fp,
+DisplayFaceHighlightColor (const GLWidget& widget, const Foam& foam,
 			   PropertySetter propertySetter,
 			   typename DisplayElement::FocusContext focus,
 			   bool useZPos, double zPos) : 
 
     DisplayElementPropertyFocus<PropertySetter> (
-	widget, fp, propertySetter, focus, useZPos, zPos)
+	widget, foam, propertySetter, focus, useZPos, zPos)
 {
 }
 
@@ -63,7 +63,7 @@ operator () (const boost::shared_ptr<Face>& f)
     else
 	glColor (QColor::fromRgbF (
 		     0, 0, 0, this->m_glWidget.GetContextAlpha ()));
-    (displayEdges (this->m_glWidget, this->m_foamProperties, this->m_focus, 
+    (displayEdges (this->m_glWidget, this->m_foam, this->m_focus, 
 		   this->m_useZPos, this->m_zPos)) (f);
 }
 
@@ -82,21 +82,21 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 template<typename PropertySetter>
 DisplayFaceBodyPropertyColor<PropertySetter>::
 DisplayFaceBodyPropertyColor (
-    const GLWidget& widget,const FoamProperties& fp,
+    const GLWidget& widget,const Foam& foam,
     typename DisplayElement::FocusContext focus, ViewNumber::Enum view, 
     bool useZPos, double zPos) : 
     
     DisplayFaceHighlightColor<
     HighlightNumber::H0, 
     DisplayFaceTriangleFan, PropertySetter> (
-	widget, fp, PropertySetter (widget, view), focus, useZPos, zPos)
+	widget, foam, PropertySetter (widget, view), focus, useZPos, zPos)
 {
 }
 
 template<typename PropertySetter>
 DisplayFaceBodyPropertyColor<PropertySetter>::
 DisplayFaceBodyPropertyColor (
-    const GLWidget& widget,const FoamProperties& fp,
+    const GLWidget& widget,const Foam& foam,
     PropertySetter propertySetter,
     typename DisplayElement::FocusContext focus,
     bool useZPos, double zPos) : 
@@ -104,7 +104,7 @@ DisplayFaceBodyPropertyColor (
     DisplayFaceHighlightColor<
     HighlightNumber::H0, 
     DisplayFaceTriangleFan, PropertySetter> (
-	widget, fp, propertySetter, focus, useZPos, zPos) 
+	widget, foam, propertySetter, focus, useZPos, zPos) 
 {
 }
 
@@ -114,7 +114,7 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 {
     glNormal (of->GetNormal ());
 
-    if (this->m_foamProperties.Is2D ())
+    if (this->m_foam.Is2D ())
     {
 	bool useColor;
 	setColorOrTexture (of, &useColor);
@@ -124,7 +124,7 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 	// write to the stencil buffer 1s for the concave polygon
 	glStencilFunc (GL_NEVER, 0, 0);
 	glStencilOp (GL_INVERT, GL_KEEP, GL_KEEP);
-	(DisplayFaceTriangleFan (this->m_glWidget, this->m_foamProperties)) (of);
+	(DisplayFaceTriangleFan (this->m_glWidget, this->m_foam)) (of);
 	
 	// write to the color buffer only if the stencil bit is 1
 	// and set the stencil bit to 0.
@@ -147,7 +147,7 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 	//{
 	//glPushAttrib (GL_POLYGON_BIT);
 	//glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-	DisplayFaceTriangleFan (this->m_glWidget, this->m_foamProperties) (of);
+	DisplayFaceTriangleFan (this->m_glWidget, this->m_foam) (of);
 	    
         //glPopAttrib ();
         //}
@@ -206,21 +206,21 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 template<QRgb faceColor, typename PropertySetter>
 DisplayFaceDmpColor<faceColor, PropertySetter>::
 DisplayFaceDmpColor (
-    const GLWidget& widget, const FoamProperties& fp,
+    const GLWidget& widget, const Foam& foam,
     typename DisplayElement::FocusContext focus, ViewNumber::Enum view, 
     bool useZPos, double zPos) : 
     
     DisplayFaceHighlightColor<
     HighlightNumber::H0, 
     DisplayFaceTriangleFan, PropertySetter> (
-	widget, fp, PropertySetter (widget, view), focus, useZPos, zPos)
+	widget, foam, PropertySetter (widget, view), focus, useZPos, zPos)
 {
 }
 
 template<QRgb faceColor, typename PropertySetter>
 DisplayFaceDmpColor<faceColor, PropertySetter>::
 DisplayFaceDmpColor (
-    const GLWidget& widget, const FoamProperties& fp,
+    const GLWidget& widget, const Foam& foam,
     PropertySetter propertySetter,
     typename DisplayElement::FocusContext focus,
     bool useZPos, double zPos) : 
@@ -228,7 +228,7 @@ DisplayFaceDmpColor (
     DisplayFaceHighlightColor<
     HighlightNumber::H0, 
     DisplayFaceTriangleFan, PropertySetter> (
-	widget, fp, propertySetter, focus, useZPos, zPos) 
+	widget, foam, propertySetter, focus, useZPos, zPos) 
 {
 }
 
@@ -266,7 +266,7 @@ displayNoNormal (const boost::shared_ptr<Face>& f)
     glColor (f->GetColor (this->m_glWidget.GetHighlightColor (
 			       this->m_propertySetter.GetViewNumber (),
 			       HighlightNumber::H0)));
-    (DisplayFaceTriangleFan (this->m_glWidget, this->m_foamProperties)) (f);
+    (DisplayFaceTriangleFan (this->m_glWidget, this->m_foam)) (f);
 }
 
 

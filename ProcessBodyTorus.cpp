@@ -50,7 +50,7 @@ bool ProcessBodyTorus::Step (
 	return false;
     const OrientedEdge& oe = aof.GetOrientedEdge ();
     const OrientedEdge& nextOe = nextAof.GetOrientedEdge ();
-    const OOBox& periods = m_foam.GetOriginalDomain ();
+    const OOBox& periods = m_foam.GetTorusDomain ();
 
     G3D::Vector3int16 translation = 
 	periods.GetTranslation (nextOe.GetBeginVector (), oe.GetEndVector ());
@@ -58,7 +58,7 @@ bool ProcessBodyTorus::Step (
     {
 	boost::shared_ptr<Face>  translatedNextFace = 
 	    nextAof.GetFace ()->GetDuplicate (
-		m_foam.GetOriginalDomain (), translation,
+		m_foam.GetTorusDomain (), translation,
 		vertexSet, edgeSet, faceSet);
 	boost::shared_ptr<OrientedFace>  nextOf = nextAof.GetOrientedFace ();
 	nextOf->SetFace (translatedNextFace);

@@ -15,7 +15,7 @@
 #include "Hashes.h"
 #include "HistogramStatistics.h"
 #include "ObjectPosition.h"
-
+#include "OOBox.h"
 
 class AttributeCreator;
 class Body;
@@ -24,7 +24,6 @@ class Edge;
 class Face;
 class FoamProperties;
 class NameSemanticValue;
-class OOBox;
 class ParsingData;
 
 /**
@@ -173,10 +172,17 @@ public:
      */
     void Preprocess ();
 
-    const OOBox& GetOriginalDomain () const;
-    void SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y,
-		     const G3D::Vector3& z);
-    void SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y);
+    const OOBox& GetTorusDomain () const 
+    {
+	return m_torusDomain;
+    }
+    void SetTorusDomain (const G3D::Vector3& x, const G3D::Vector3& y,
+		     const G3D::Vector3& z)
+    {
+	m_torusDomain.Set (x, y, z);
+    }
+
+    void SetTorusDomain (const G3D::Vector3& x, const G3D::Vector3& y);
     bool IsTorus () const;
     
     const AttributesInfo& GetAttributesInfo (
@@ -354,6 +360,9 @@ private:
 	const G3D::Vector3& v, size_t constraintIndex) const;
 
 private:
+    // the torus original domain can be different for each time step, as in 
+    // shear_160
+    OOBox m_torusDomain;
     Edges m_standaloneEdges;
     vector< boost::shared_ptr<Edges> > m_constraintEdges;
     Faces m_standaloneFaces;

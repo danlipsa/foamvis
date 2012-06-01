@@ -312,10 +312,10 @@ void Foam::calculateBoundingBoxTorus (G3D::Vector3* low, G3D::Vector3* high)
     using boost::array;
     using G3D::Vector3;
     Vector3 origin = Vector3::zero ();
-    Vector3 first = GetOriginalDomain ()[0];
-    Vector3 second = GetOriginalDomain ()[1];
+    Vector3 first = GetTorusDomain ()[0];
+    Vector3 second = GetTorusDomain ()[1];
     Vector3 sum = first + second;
-    Vector3 third = GetOriginalDomain ()[2];
+    Vector3 third = GetTorusDomain ()[2];
     array<Vector3, 10> additionalVertices =
     {{
 	    *low,
@@ -340,7 +340,7 @@ void Foam::calculateBodiesCenters ()
 
 void Foam::calculateTorusClipped ()
 {
-    const OOBox& periods = GetOriginalDomain ();
+    const OOBox& periods = GetTorusDomain ();
     EdgeSet edgeSet;
     GetEdgeSet (&edgeSet);
     BOOST_FOREACH (boost::shared_ptr<Edge> e, edgeSet)
@@ -378,7 +378,7 @@ void Foam::unwrap (boost::shared_ptr<Edge> edge, VertexSet* vertexSet) const
     if (edge->GetEndTranslation () != Vector3int16Zero)
 	edge->SetEnd (
 	    edge->GetEnd ().GetDuplicate (
-		GetOriginalDomain (), edge->GetEndTranslation (), vertexSet));
+		GetTorusDomain (), edge->GetEndTranslation (), vertexSet));
 }
 
 void Foam::unwrap (boost::shared_ptr<Face> face,
@@ -393,7 +393,7 @@ void Foam::unwrap (boost::shared_ptr<Face> face,
 	    (oe->IsReversed ()) ? edge->GetTranslatedBegin (begin) : begin;
 	oe->SetEdge (
 	    edge->GetDuplicate (
-		GetOriginalDomain (), edgeBegin, vertexSet, edgeSet));
+		GetTorusDomain (), edgeBegin, vertexSet, edgeSet));
 	begin = oe->GetEndVector ();
     }
     face->CalculateCentroidAndArea ();
@@ -452,7 +452,7 @@ void Foam::CalculateBodyNeighbors ()
     if (Is2D ())
 	for_each (m_bodies.begin (), m_bodies.end (),
 		  boost::bind (&Body::CalculateNeighbors2D, _1, 
-			       GetOriginalDomain ()));
+			       GetTorusDomain ()));
 }
 
 void Foam::CalculateBodyDeformationTensor ()
@@ -460,7 +460,7 @@ void Foam::CalculateBodyDeformationTensor ()
     if (Is2D ())
 	for_each (m_bodies.begin (), m_bodies.end (),
 		  boost::bind (&Body::CalculateDeformationTensor, _1, 
-			       GetOriginalDomain ()));
+			       GetTorusDomain ()));
 }
 
 size_t Foam::GetLastEdgeId (const EdgeSet& edgeSet) const
@@ -541,16 +541,16 @@ boost::shared_ptr<ConstraintEdge> Foam::calculateConstraintEdge (
 	    getVectorOnConstraintTranslation (
 		begin->GetVector (), constraintIndex);
 	boost::shared_ptr<Vertex> newEnd = end->GetDuplicate (
-	    GetOriginalDomain (), translation, vertexSet);
+	    GetTorusDomain (), translation, vertexSet);
 	boost::shared_ptr<Vertex> newBegin = begin->GetDuplicate (
-	    GetOriginalDomain (), translation, vertexSet);
+	    GetTorusDomain (), translation, vertexSet);
 	boost::shared_ptr<ConstraintEdge> newConstraintEdge (
 	    new ConstraintEdge (&GetParsingData (), newBegin, newEnd, id,
 				&m_constraintPointsToFix, bodyIndex));
 	return
 	    boost::static_pointer_cast<ConstraintEdge> (
 		newConstraintEdge->GetDuplicate (
-		    GetOriginalDomain (), begin->GetVector (), 
+		    GetTorusDomain (), begin->GetVector (), 
 		    vertexSet, edgeSet));
     }
     else
@@ -583,7 +583,7 @@ G3D::Vector3int16 Foam::getVectorOnConstraintTranslation (
 	}};
     BOOST_FOREACH (G3D::Vector3int16 trial, trials)
     {
-	G3D::Vector3 newV = GetOriginalDomain ().TorusTranslate (v, trial);
+	G3D::Vector3 newV = GetTorusDomain ().TorusTranslate (v, trial);
 	if (isVectorOnConstraint (newV, constraintIndex))
 	    return trial;
     }
@@ -742,7 +742,7 @@ bool Foam::bodyInsideOriginalDomain (
     VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet)
 {
     G3D::Vector3int16 centerLocation =
-	GetOriginalDomain ().GetLocation (body->GetCenter ());
+	GetTorusDomain ().GetLocation (body->GetCenter ());
     if (centerLocation == Vector3int16Zero)
 	return true;
     G3D::Vector3int16 translation = Vector3int16Zero - centerLocation;
@@ -758,7 +758,7 @@ void Foam::bodyTranslate (
     {
 	const Face& original = *of->GetFace ();
 	boost::shared_ptr<Face> duplicate = original.GetDuplicate (
-	    GetOriginalDomain (), translate, vertexSet, edgeSet, faceSet);
+	    GetTorusDomain (), translate, vertexSet, edgeSet, faceSet);
 	of->SetFace (duplicate);
     }
     body->CalculateCenter ();
@@ -994,23 +994,15 @@ void Foam::SetQuadratic (bool quadratic)
 
 bool Foam::IsTorus () const
 {
-    return m_properties.IsTorus ();
+    return GetTorusDomain ().IsTorus ();
 }
 
-const OOBox& Foam::GetOriginalDomain () const
+void Foam::SetTorusDomain (const G3D::Vector3& x, const G3D::Vector3& y)
 {
-    return m_properties.GetOriginalDomain ();
-}
-
-void Foam::SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y,
-		       const G3D::Vector3& z)
-{
-    m_properties.SetPeriods (x, y, z);
-}
-
-void Foam::SetPeriods (const G3D::Vector3& x, const G3D::Vector3& y)
-{
-    m_properties.SetPeriods (x, y);
+    using G3D::Vector3;
+    Vector3 third = x.cross (y).unit ();
+    double thirdLength = min (x.length (), y.length ());
+    SetTorusDomain (x, y, thirdLength * third);
 }
 
 
@@ -1028,7 +1020,7 @@ ostream& operator<< (ostream& ostr, const Foam& d)
     if (d.IsTorus ())
     {
 	ostr << "torus periods:\n";
-	ostr << d.GetOriginalDomain ();
+	ostr << d.GetTorusDomain ();
     }
 
     ostr << "bodies:\n";

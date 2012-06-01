@@ -147,7 +147,7 @@ bool OOBox::IsZero () const
     return GetX ().isZero () && GetY ().isZero () && GetZ ().isZero ();
 }
 
-bool OOBox::IsTorusDomain () const
+bool OOBox::IsTorus () const
 {
     return ! IsZero ();
 }

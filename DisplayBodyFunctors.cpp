@@ -68,12 +68,12 @@ struct FocusColorSegment : public Segment
 
 template <typename PropertySetter>
 DisplayBodyBase<PropertySetter>::
-DisplayBodyBase (const GLWidget& widget, const FoamProperties& fp,
+DisplayBodyBase (const GLWidget& widget, const Foam& foam,
 		 const BodySelector& bodySelector,
 		 PropertySetter propertySetter, bool useZPos, double zPos) :
 
     DisplayElementProperty<PropertySetter> (
-	widget, fp, propertySetter, useZPos, zPos),
+	widget, foam, propertySetter, useZPos, zPos),
     m_bodySelector (bodySelector)
 {
 }
@@ -100,12 +100,12 @@ EndContext ()
 
 DisplayBodyDeformation::DisplayBodyDeformation (
     const GLWidget& widget, ViewNumber::Enum viewNumber, 
-    const FoamProperties& fp,
+    const Foam& foam,
     const BodySelector& bodySelector,
     bool useZPos, double zPos):
     
     DisplayBodyBase<> (
-	widget, fp, bodySelector,
+	widget, foam, bodySelector,
 	SetterTextureCoordinate(widget, viewNumber), useZPos, zPos)
 {}
 
@@ -141,12 +141,12 @@ void DisplayBodyDeformation::operator () (boost::shared_ptr<Body> body)
 
 DisplayBodyVelocity::DisplayBodyVelocity (
     const GLWidget& widget, ViewNumber::Enum viewNumber, 
-    const FoamProperties& fp,
+    const Foam& foam,
     const BodySelector& bodySelector,
     bool useZPos, double zPos):
     
     DisplayBodyBase<> (
-	widget, fp, bodySelector,
+	widget, foam, bodySelector,
 	SetterTextureCoordinate(widget, viewNumber), useZPos, zPos)
 {}
 
@@ -210,12 +210,12 @@ void DisplayBodyVelocity::operator () (boost::shared_ptr<Body> body)
 // ======================================================================
 
 DisplayBodyCenter::DisplayBodyCenter (
-    const GLWidget& widget, const FoamProperties& fp,
+    const GLWidget& widget, const Foam& foam,
     const BodySelector& bodySelector,
     bool useZPos, double zPos):
     
     DisplayBodyBase<> (
-	widget, fp, bodySelector,
+	widget, foam, bodySelector,
 	SetterTextureCoordinate(widget, ViewNumber::VIEW0), useZPos, zPos)
 {}
 
@@ -238,13 +238,13 @@ void DisplayBodyCenter::operator () (boost::shared_ptr<Body> b)
 template<typename displayFace, typename PropertySetter>
 DisplayBody<displayFace, PropertySetter>::
 DisplayBody (
-    const GLWidget& widget, const FoamProperties& fp,
+    const GLWidget& widget, const Foam& foam,
     const BodySelector& bodySelector,
     typename DisplayElement::ContextType contextDisplay, 
     ViewNumber::Enum view, bool useZPos, double zPos) :
 
     DisplayBodyBase<PropertySetter> (
-	widget, fp, bodySelector, PropertySetter (widget, view), useZPos, zPos),
+	widget, foam, bodySelector, PropertySetter (widget, view), useZPos, zPos),
     m_contextDisplay (contextDisplay)
 {
 }
@@ -252,14 +252,14 @@ DisplayBody (
 template<typename displayFace, typename PropertySetter>
 DisplayBody<displayFace, PropertySetter>::
 DisplayBody (
-    const GLWidget& widget, const FoamProperties& fp,
+    const GLWidget& widget, const Foam& foam,
     const BodySelector& bodySelector,
     PropertySetter setter,
     typename DisplayElement::ContextType contextDisplay,
     bool useZPos, double zPos) :
 
     DisplayBodyBase<PropertySetter> (
-	widget, fp, bodySelector, setter, useZPos, zPos),
+	widget, foam, bodySelector, setter, useZPos, zPos),
     m_contextDisplay (contextDisplay)
 {
 }
@@ -283,7 +283,7 @@ operator () (boost::shared_ptr<Body> b)
     for_each (
 	v.begin (), v.end (),
 	displayFace (
-	    this->m_glWidget, this->m_foamProperties, 
+	    this->m_glWidget, this->m_foam, 
 	    this->m_propertySetter, bodyFc,
 	    this->m_useZPos, this->m_zPos));
 }
@@ -295,7 +295,7 @@ operator () (boost::shared_ptr<Body> b)
 template<typename PropertySetter, typename DisplaySegment>
 DisplayCenterPath<PropertySetter, DisplaySegment>::
 DisplayCenterPath (
-    const GLWidget& widget, const FoamProperties& fp,
+    const GLWidget& widget, const Foam& foam,
     ViewNumber::Enum view,
     const BodySelector& bodySelector,
     bool useTimeDisplacement,
@@ -303,7 +303,7 @@ DisplayCenterPath (
     boost::shared_ptr<ofstream> output) :
 
     DisplayBodyBase<PropertySetter> (
-	widget, fp, bodySelector, PropertySetter (widget, view),
+	widget, foam, bodySelector, PropertySetter (widget, view),
 	 useTimeDisplacement, timeDisplacement),
      m_displaySegment (this->m_glWidget.GetQuadricObject (),
 		       this->m_glWidget.IsCenterPathLineUsed () ?

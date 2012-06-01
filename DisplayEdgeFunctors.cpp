@@ -13,7 +13,7 @@
 #include "DisplayVertexFunctors.h"
 #include "Edge.h"
 #include "Face.h"
-#include "FoamProperties.h"
+#include "Foam.h"
 #include "GLWidget.h"
 #include "OrientedEdge.h"
 #include "OrientedFace.h"
@@ -280,7 +280,7 @@ void DisplayEdgeTorusClipped::operator() (
 void DisplayEdgeTorusClipped::operator () (
     const boost::shared_ptr<Edge>& edge) const
 {
-    const OOBox& periods = m_foamProperties.GetOriginalDomain ();
+    const OOBox& periods = m_foam.GetTorusDomain ();
     if (edge->IsClipped ())
     {
 	glColor (edge->GetColor (Color::BLACK));
@@ -325,10 +325,10 @@ void DisplayOrientedSegmentQuadric::operator () (
 template <typename DisplayEdge, typename DisplaySegmentArrow1, 
 	  bool showDuplicates>
 DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow1, showDuplicates>::
-DisplayEdgeTorus (const GLWidget& widget, const FoamProperties& fp,
+DisplayEdgeTorus (const GLWidget& widget, const Foam& foam,
 		  FocusContext focus, bool useZPos, double zPos) : 
     
-    DisplayElementFocus (widget, fp, focus, useZPos, zPos),
+    DisplayElementFocus (widget, foam, focus, useZPos, zPos),
     m_displayEdge (m_glWidget.GetQuadricObject (), m_glWidget.GetEdgeRadius ()),
     m_displayArrow (m_glWidget.GetQuadricObject (),
 		    m_glWidget.GetArrowBaseRadius (),
@@ -386,21 +386,21 @@ display (const boost::shared_ptr<Edge>  e)
 
 template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
 DisplayEdgePropertyColor<tesselationEdgesDisplay>::
-DisplayEdgePropertyColor (const GLWidget& widget,const FoamProperties& fp,
+DisplayEdgePropertyColor (const GLWidget& widget,const Foam& foam,
 			  FocusContext focus,
 			  bool useZPos, double zPos) : 
     
-    DisplayElementFocus (widget, fp, focus, useZPos, zPos)
+    DisplayElementFocus (widget, foam, focus, useZPos, zPos)
 {
 }
 
 template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
 DisplayEdgePropertyColor<tesselationEdgesDisplay>::
-DisplayEdgePropertyColor (const GLWidget& widget,const FoamProperties& fp,
+DisplayEdgePropertyColor (const GLWidget& widget,const Foam& foam,
 			  FocusContext focus, ViewNumber::Enum viewNumber,
 			  bool useZPos, double zPos) : 
     
-    DisplayElementFocus (widget, fp, focus, useZPos, zPos)
+    DisplayElementFocus (widget, foam, focus, useZPos, zPos)
 {
     (void)viewNumber;
 }
@@ -416,7 +416,7 @@ template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
 void DisplayEdgePropertyColor<tesselationEdgesDisplay>::
 operator () (const Edge& edge) const
 {
-    bool isPhysical = edge.IsPhysical (this->m_foamProperties);
+    bool isPhysical = edge.IsPhysical (this->m_foam.GetProperties ());
     if (isPhysical || 
 	(tesselationEdgesDisplay == DISPLAY_TESSELLATION_EDGES &&
 	 m_glWidget.EdgesTessellationShown () && 
@@ -459,12 +459,12 @@ operator() (const boost::shared_ptr<OrientedEdge> oe) const
 template <HighlightNumber::Enum highlightColorIndex,
 	  DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
 DisplayEdgeHighlightColor<highlightColorIndex, tesselationEdgesDisplay>::
-DisplayEdgeHighlightColor (const GLWidget& widget, const FoamProperties& fp,
+DisplayEdgeHighlightColor (const GLWidget& widget, const Foam& foam,
 			   FocusContext focus,
 			   ViewNumber::Enum viewNumber,
 			   bool useZPos, double zPos) : 
     
-    DisplayElementFocus (widget, fp, focus, useZPos, zPos),
+    DisplayElementFocus (widget, foam, focus, useZPos, zPos),
     m_viewNumber (viewNumber)
 {
 }
@@ -558,10 +558,10 @@ void DisplayFaceTriangleFan::operator() (const OrientedFace*  of) const
 template<typename displayEdge>
 DisplayFaceEdges<displayEdge>::
 DisplayFaceEdges (
-    const GLWidget& widget, const FoamProperties& fp,
+    const GLWidget& widget, const Foam& foam,
     FocusContext focus, bool useZPos, double zPos) :
  
-    DisplayElementFocus (widget, fp, focus, useZPos, zPos)
+    DisplayElementFocus (widget, foam, focus, useZPos, zPos)
 {
 }
 
@@ -578,7 +578,7 @@ operator () (const boost::shared_ptr<Face>  f)
 {
     const vector< boost::shared_ptr<OrientedEdge> >& v = 
 	f->GetOrientedEdges ();
-    displayEdge display(m_glWidget, m_foamProperties, 
+    displayEdge display(m_glWidget, m_foam, 
 			m_focus, m_useZPos, m_zPos);
     for (size_t i = 0; i < v.size (); i++)
     {

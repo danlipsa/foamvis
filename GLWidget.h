@@ -350,7 +350,7 @@ public Q_SLOTS:
     void ToggledLightEnabled (bool checked);
     void ToggledSelectionContextShown (bool checked);
     void ToggledCenterPathHidden (bool checked);
-    void ToggledTorusOriginalDomainShown (bool checked);
+    void ToggledTorusDomainShown (bool checked);
     void ToggledT1sShown (bool checked);
     void ToggledTitleShown (bool checked);
     void ToggledT1sShiftLower (bool checked);
@@ -534,9 +534,8 @@ private:
     void valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber);
     void valueChangedT1sKernelIntervalPerPixel (ViewNumber::Enum viewNumber);
     void setScaleCenter (ViewNumber::Enum viewNumber);
-    G3D::Vector3 getScaleCenterTranslation (ViewNumber::Enum viewNumber) const;
-    G3D::Vector2 getScaleCenter (ViewNumber::Enum viewNumber, 
-				 const G3D::Rect2D& rect) const;
+    G3D::Vector2 calculateScaleCenter (ViewNumber::Enum viewNumber, 
+				       const G3D::Rect2D& rect) const;
     bool linkedTimesValid (size_t timeBegin, size_t timeEnd);
     bool linkedTimesValid ();
     void contextMenuEventColorBar (QMenu* menu) const;
@@ -638,7 +637,7 @@ private:
      * Generates a display list for center paths
      */
     void displayCenterPathsWithBodies (ViewNumber::Enum view) const;
-    void displayOriginalDomain (ViewNumber::Enum viewNumber) const;
+    void displayTorusDomain (ViewNumber::Enum viewNumber) const;
     void displayBodyNeighbors (ViewNumber::Enum viewNumber) const;
     void displayBodiesNeighbors () const;
     void displayBodyDeformation (ViewNumber::Enum viewNumber) const;
@@ -650,7 +649,7 @@ private:
     void displayCenterPaths (ViewNumber::Enum view) const;
     void compileCenterPaths (ViewNumber::Enum view) const;
     void compile (ViewNumber::Enum view) const;
-    void labelCompileUpdate ();
+    void compileUpdate ();
 
     void displayBoundingBox (ViewNumber::Enum viewNumber) const;
     void displayFocusBox (ViewNumber::Enum viewNumber) const;
@@ -767,7 +766,7 @@ private:
     /**
      * What do we display
      */
-    bool m_torusOriginalDomainDisplay;
+    bool m_torusDomainShown;
     bool m_torusOriginalDomainClipped;
     InteractionMode::Enum m_interactionMode;
     InteractionObject::Enum m_interactionObject;

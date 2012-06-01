@@ -31,14 +31,14 @@ public:
      * Constructor
      */
     DisplayFaceHighlightColor (
-	const GLWidget& widget, const FoamProperties& fp,
+	const GLWidget& widget, const Foam& foam,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	ViewNumber::Enum view = ViewNumber::VIEW0,
 	bool useZPos = false,
 	double zPos = 0);
     
     DisplayFaceHighlightColor (
-	const GLWidget& widget, const FoamProperties& fp,
+	const GLWidget& widget, const Foam& foam,
 	PropertySetter propertySetter,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	bool useZPos = false,
@@ -65,14 +65,14 @@ class DisplayFaceBodyPropertyColor :
 {
 public:
     DisplayFaceBodyPropertyColor (
-	const GLWidget& widget, const FoamProperties& fp,
+	const GLWidget& widget, const Foam& foam,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	ViewNumber::Enum view = ViewNumber::VIEW0, 
 	bool useZPos = false,
 	double zPos = 0);
 
     DisplayFaceBodyPropertyColor (
-	const GLWidget& widget, const FoamProperties& fp,
+	const GLWidget& widget, const Foam& foam,
 	PropertySetter propertySetter,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	bool useZPos = false, 
@@ -98,14 +98,14 @@ public:
      * @param widget where is the face displayed
      */
     DisplayFaceDmpColor (
-	const GLWidget& widget, const FoamProperties& fp,
+	const GLWidget& widget, const Foam& foam,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	ViewNumber::Enum view = ViewNumber::VIEW0, 
 	bool useZPos = false,
 	double zPos = 0);
 
     DisplayFaceDmpColor (
-	const GLWidget& widget, const FoamProperties& fp,
+	const GLWidget& widget, const Foam& foam,
 	PropertySetter propertySetter,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	bool useZPos = false, 

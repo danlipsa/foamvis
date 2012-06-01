@@ -103,7 +103,7 @@ StripIteratorPoint StripIterator::Next ()
     { // at the end of a middle wrap
 	m_isNextBeginOfStrip = true;
 	const OOBox& originalDomain = 
-	    m_simulation.GetFoam (m_timeCurrent).GetOriginalDomain ();
+	    m_simulation.GetFoam (m_timeCurrent).GetTorusDomain ();
 	body = m_bodyAlongTime.GetBody (m_timeCurrent);
 	point = StripIteratorPoint (
 	    originalDomain.TorusTranslate (

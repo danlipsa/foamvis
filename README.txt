@@ -10,7 +10,9 @@ Release log
 	- fix transparency: transparent objects blend with opaque ones.
 	- fix 3D selection: deselection works front-back, selection works 
 	  back-front.
-	  
+	- Added "Rotation center" user option to allow rotation around a body
+	- Fixed regression bug where the torus domain is stored per
+          simulation instead of storing it per foam.
 0.7.2374 2012-03-09
 	- fix bug: position of the two_discs for two views.
 	- added arrows for forces

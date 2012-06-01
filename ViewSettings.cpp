@@ -60,6 +60,7 @@ ViewSettings::ViewSettings (const GLWidget& glWidget) :
 	new VectorAverage (glWidget, m_scalarAverage->GetFbos ())),
     m_forceAverage (new ForceAverage (glWidget)),
     m_rotationFocus (G3D::Matrix3::identity ()),
+    m_rotationCenterType (ROTATION_CENTER_FOAM),
     m_scaleRatio (1),
     m_gridScaleRatio (1),
     m_contextScaleRatio (1),
