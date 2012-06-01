@@ -572,6 +572,7 @@ private:
     void displayContextMenuPos (ViewNumber::Enum viewNumber) const;
     void displayBodyCenters (ViewNumber::Enum viewNumber, 
 			     bool useZPos = false) const;
+    void displayRotationCenter (ViewNumber::Enum viewNumber) const;
     void displayFaceCenters (ViewNumber::Enum viewNumber) const;
     void displayViewDecorations (ViewNumber::Enum viewNumber);
     void displayViewFocus (ViewNumber::Enum viewNumber);

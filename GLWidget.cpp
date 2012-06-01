@@ -1435,6 +1435,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     displayFocusBox (viewNumber);
     displayLightDirection (viewNumber);
     displayBodyCenters (viewNumber);
+    displayRotationCenter (viewNumber);
     displayFaceCenters (viewNumber);
     ViewNumber::Enum currentView = GetViewNumber ();
     if (currentView == viewNumber)
@@ -1445,12 +1446,12 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     }
     displayBodiesNeighbors ();
     displayStatus ();    
+    
     //displayContextMenuPos (viewNumber);
     WarnOnOpenGLError ("displayView");
     //cdbg << "displayView(" <<  viewNumber << "): " 
     //<< t.elapsed () << " ms" << endl;
 }
-
 
 void GLWidget::allTransform (ViewNumber::Enum viewNumber) const
 {
@@ -2642,6 +2643,25 @@ void GLWidget::displayEdgesTorusLines () const
 	      DisplaySegmentArrow1, false> (
 		  *this, GetSimulation ().GetFoam (0)));
     glPopAttrib ();
+}
+
+
+void GLWidget::displayRotationCenter (ViewNumber::Enum viewNumber) const
+{
+    if (m_interactionMode == InteractionMode::ROTATE)
+    {
+	const ViewSettings& vs = GetViewSettings (viewNumber);
+	glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
+	glDisable (GL_DEPTH_TEST);
+	// display rotation center
+	glPointSize (4.0);
+	glColor (Qt::black);
+	glBegin(GL_POINTS);
+	::glVertex(vs.GetRotationCenter ());
+	glEnd ();	
+	glPopAttrib ();
+
+    }
 }
 
 
