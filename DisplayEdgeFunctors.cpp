@@ -329,11 +329,11 @@ DisplayEdgeTorus (const GLWidget& widget, const Foam& foam,
 		  FocusContext focus, bool useZPos, double zPos) : 
     
     DisplayElementFocus (widget, foam, focus, useZPos, zPos),
-    m_displayEdge (m_glWidget.GetQuadricObject (), m_glWidget.GetEdgeRadius ()),
-    m_displayArrow (m_glWidget.GetQuadricObject (),
-		    m_glWidget.GetArrowBaseRadius (),
-		    m_glWidget.GetEdgeRadius (),
-		    m_glWidget.GetArrowHeight ())
+    m_displayEdge (m_widgetGl.GetQuadricObject (), m_widgetGl.GetEdgeRadius ()),
+    m_displayArrow (m_widgetGl.GetQuadricObject (),
+		    m_widgetGl.GetArrowBaseRadius (),
+		    m_widgetGl.GetEdgeRadius (),
+		    m_widgetGl.GetArrowHeight ())
     {
     }
 
@@ -372,7 +372,7 @@ display (const boost::shared_ptr<Edge>  e)
     const Vertex& begin = e->GetBegin ();
     const Vertex& end = e->GetEnd ();
     G3D::Vector3int16 endLocation = e->GetEndTranslation ();
-    glColor (m_glWidget.GetEndTranslationColor (endLocation));
+    glColor (m_widgetGl.GetEndTranslationColor (endLocation));
 
     if (endLocation != Vector3int16Zero)
 	m_displayArrow(begin.GetVector (), end.GetVector ());
@@ -419,14 +419,14 @@ operator () (const Edge& edge) const
     bool isPhysical = edge.IsPhysical (this->m_foam.GetProperties ());
     if (isPhysical || 
 	(tesselationEdgesDisplay == DISPLAY_TESSELLATION_EDGES &&
-	 m_glWidget.EdgesTessellationShown () && 
+	 m_widgetGl.EdgesTessellationShown () && 
 	 m_focus == FOCUS))
     {
 	bool hasConstraints = edge.HasConstraints ();
-	if (hasConstraints && ! m_glWidget.ConstraintsShown ())
+	if (hasConstraints && ! m_widgetGl.ConstraintsShown ())
 	    return;
 	double alpha = 
-	    (m_focus == FOCUS ? 1.0 : m_glWidget.GetContextAlpha ());
+	    (m_focus == FOCUS ? 1.0 : m_widgetGl.GetContextAlpha ());
 	QColor color = edge.GetColor (Qt::black);
 	glColor (
 	    QColor::fromRgbF(
@@ -435,7 +435,7 @@ operator () (const Edge& edge) const
 	DisplayEdgeVertices (edge, m_useZPos, m_zPos);
 	glEnd ();
 	
-	if (hasConstraints && m_glWidget.ConstraintPointsShown ())
+	if (hasConstraints && m_widgetGl.ConstraintPointsShown ())
 	{
 	    glPointSize (5);
 	    glBegin(GL_POINTS);
@@ -484,12 +484,12 @@ operator () (const Edge& edge) const
 {
     if (this->m_focus == DisplayElement::FOCUS)
     {
-	glColor (this->m_glWidget.GetHighlightColor (
+	glColor (this->m_widgetGl.GetHighlightColor (
 		     m_viewNumber, highlightColorIndex));
     }
     else
 	glColor (QColor::fromRgbF (
-		     0, 0, 0, this->m_glWidget.GetContextAlpha ()));
+		     0, 0, 0, this->m_widgetGl.GetContextAlpha ()));
     glBegin(GL_LINE_STRIP);
     DisplayEdgeVertices (edge, m_useZPos, m_zPos);
     glEnd ();
@@ -578,7 +578,7 @@ operator () (const boost::shared_ptr<Face>  f)
 {
     const vector< boost::shared_ptr<OrientedEdge> >& v = 
 	f->GetOrientedEdges ();
-    displayEdge display(m_glWidget, m_foam, 
+    displayEdge display(m_widgetGl, m_foam, 
 			m_focus, m_useZPos, m_zPos);
     for (size_t i = 0; i < v.size (); i++)
     {

@@ -33,7 +33,7 @@ void Average::AverageStep (ViewNumber::Enum viewNumber, int timeDifference)
 	return;
     }
     Operation first, second;
-    size_t currentTime = m_glWidget.GetCurrentTime (viewNumber);
+    size_t currentTime = m_widgetGl.GetCurrentTime (viewNumber);
     if (timeDifference < 0)
     {
 	++currentTime;

@@ -114,15 +114,15 @@ void DisplayBodyDeformation::operator () (boost::shared_ptr<Body> body)
     if (body->IsConstraint ())
 	return;
     ViewNumber::Enum viewNumber = m_propertySetter.GetViewNumber ();
-    ViewSettings& vs = m_glWidget.GetViewSettings (viewNumber);
-    float size = m_glWidget.GetDeformationSizeInitialRatio (viewNumber) * 
+    ViewSettings& vs = m_widgetGl.GetViewSettings (viewNumber);
+    float size = m_widgetGl.GetDeformationSizeInitialRatio (viewNumber) * 
 	vs.GetDeformationSize ();
     float lineWidth = vs.GetDeformationLineWidth ();
     if (GetFocusContext (body) == FOCUS)
-	glColor (m_glWidget.GetHighlightColor (viewNumber, HighlightNumber::H0));
+	glColor (m_widgetGl.GetHighlightColor (viewNumber, HighlightNumber::H0));
     else
 	glColor (QColor::fromRgbF (
-		     0, 0, 0, this->m_glWidget.GetContextAlpha ()));
+		     0, 0, 0, this->m_widgetGl.GetContextAlpha ()));
 
     G3D::Matrix3 rotation = MatrixFromColumns (
 	body->GetDeformationEigenVector (0),
@@ -170,7 +170,7 @@ void DisplayBodyVelocity::operator () (boost::shared_ptr<Body> body)
     if (body->IsConstraint ())
 	return;
     ViewNumber::Enum viewNumber = m_propertySetter.GetViewNumber ();
-    ViewSettings& vs = m_glWidget.GetViewSettings (viewNumber);
+    ViewSettings& vs = m_widgetGl.GetViewSettings (viewNumber);
     bool clamped = false;
     G3D::Vector2 displayVelocity;
     G3D::Vector2 velocity = body->GetVelocity ().xy (); 
@@ -179,15 +179,15 @@ void DisplayBodyVelocity::operator () (boost::shared_ptr<Body> body)
 	clamped = true;
 	displayVelocity = velocity;
 	displayVelocity *= 
-	    m_glWidget.GetBubbleSize (viewNumber) / displayVelocity.length ();
+	    m_widgetGl.GetBubbleSize (viewNumber) / displayVelocity.length ();
     }
     else
     {
-	float size = m_glWidget.GetVelocitySizeInitialRatio (viewNumber) * 
+	float size = m_widgetGl.GetVelocitySizeInitialRatio (viewNumber) * 
 	    vs.GetVelocityClampingRatio ();
 	displayVelocity = clamp (
 	    velocity * size, 
-	    m_glWidget.GetBubbleSize (viewNumber), &clamped);
+	    m_widgetGl.GetBubbleSize (viewNumber), &clamped);
     }
     if (GetFocusContext (body) == FOCUS)
     {
@@ -195,14 +195,14 @@ void DisplayBodyVelocity::operator () (boost::shared_ptr<Body> body)
 	float texCoord = vs.GetOverlayBarModel ()->TexCoord (value);
 	glTexCoord1f (texCoord); 
 	glColor (
-	    m_glWidget.GetHighlightColor (viewNumber, HighlightNumber::H0));
+	    m_widgetGl.GetHighlightColor (viewNumber, HighlightNumber::H0));
     }
     else
-	glColor (QColor::fromRgbF (0, 0, 0, m_glWidget.GetContextAlpha ()));
+	glColor (QColor::fromRgbF (0, 0, 0, m_widgetGl.GetContextAlpha ()));
     DisplaySegmentArrow (
 	body->GetCenter ().xy () - displayVelocity / 2, displayVelocity, 
 	vs.GetVelocityLineWidth (),
-	m_glWidget.GetOnePixelInObjectSpace (), 
+	m_widgetGl.GetOnePixelInObjectSpace (), 
 	clamped && vs.GetVelocityAverage ().IsClampingShown ());
 }
 
@@ -269,7 +269,7 @@ template<typename displayFace, typename PropertySetter>
 void DisplayBody<displayFace, PropertySetter>::
 operator () (boost::shared_ptr<Body> b)
 {
-    ViewSettings& vs = this->m_glWidget.GetViewSettings (
+    ViewSettings& vs = this->m_widgetGl.GetViewSettings (
 	this->m_propertySetter.GetViewNumber ());
     DisplayElement::FocusContext bodyFc = 
 	DisplayBodyBase<PropertySetter>::GetFocusContext (b);
@@ -283,7 +283,7 @@ operator () (boost::shared_ptr<Body> b)
     for_each (
 	v.begin (), v.end (),
 	displayFace (
-	    this->m_glWidget, this->m_foam, 
+	    this->m_widgetGl, this->m_foam, 
 	    this->m_propertySetter, bodyFc,
 	    this->m_useZPos, this->m_zPos));
 }
@@ -305,10 +305,10 @@ DisplayCenterPath (
     DisplayBodyBase<PropertySetter> (
 	widget, foam, bodySelector, PropertySetter (widget, view),
 	 useTimeDisplacement, timeDisplacement),
-     m_displaySegment (this->m_glWidget.GetQuadricObject (),
-		       this->m_glWidget.IsCenterPathLineUsed () ?
-		       this->m_glWidget.GetEdgeWidth () :
-		       this->m_glWidget.GetEdgeRadius ()),
+     m_displaySegment (this->m_widgetGl.GetQuadricObject (),
+		       this->m_widgetGl.IsCenterPathLineUsed () ?
+		       this->m_widgetGl.GetEdgeWidth () :
+		       this->m_widgetGl.GetEdgeRadius ()),
      m_output (output),
      m_index (0)
 {
@@ -322,9 +322,9 @@ operator () (size_t bodyId)
     m_focusTextureSegments.resize (0);
     m_focusColorSegments.resize (0);
     m_contextSegments.resize (0);
-    const BodyAlongTime& bat = this->m_glWidget.GetBodyAlongTime (bodyId);
+    const BodyAlongTime& bat = this->m_widgetGl.GetBodyAlongTime (bodyId);
     StripIterator it = bat.GetStripIterator (
-	this->m_glWidget.GetSimulation ());
+	this->m_widgetGl.GetSimulation ());
     it.ForEachSegment (
 	boost::bind (&DisplayCenterPath::valueStep, this, _1, _2, _3, _4));
     displaySegments ();
@@ -343,7 +343,7 @@ valueStep (
     G3D::Vector3 pointBegin = getPoint (begin);
     G3D::Vector3 pointEnd = getPoint (end);
     G3D::Vector3 middle = (pointBegin + pointEnd) / 2;
-    ViewSettings& vs = this->m_glWidget.GetViewSettings (
+    ViewSettings& vs = this->m_widgetGl.GetViewSettings (
 	this->m_propertySetter.GetViewNumber ());
     halfValueStep (
 	begin,
@@ -375,18 +375,18 @@ valueStep (
 	 bool exists = p.m_body->ExistsPropertyValue (property, &deduced);
 	 if (exists && 
 	     (! deduced || 
-	      (deduced && this->m_glWidget.IsMissingPropertyShown (property))))
+	      (deduced && this->m_widgetGl.IsMissingPropertyShown (property))))
 	     storeFocusSegment (
 		 p.m_body->GetPropertyValue (property), segment);
 	else
 	    storeFocusSegment (
-		this->m_glWidget.GetHighlightColor (
+		this->m_widgetGl.GetHighlightColor (
 		    this->m_propertySetter.GetViewNumber (),
 		    HighlightNumber::H0), segment);
     }
     else
 	storeContextSegment (
-	    this->m_glWidget.GetCenterPathContextColor (), segment);
+	    this->m_widgetGl.GetCenterPathContextColor (), segment);
 }
 
 
@@ -394,7 +394,7 @@ template<typename PropertySetter, typename DisplaySegment>
 void DisplayCenterPath<PropertySetter, DisplaySegment>::
 displaySegments ()
 {
-     ViewSettings& vs = this->m_glWidget.GetViewSettings (
+     ViewSettings& vs = this->m_widgetGl.GetViewSettings (
 	 this->m_propertySetter.GetViewNumber ());
     for_each (
 	m_focusTextureSegments.begin (), m_focusTextureSegments.end (),
@@ -442,7 +442,7 @@ void DisplayCenterPath<PropertySetter, DisplaySegment>::
 storeFocusSegment (double value, const Segment& segment)
 {
     double textureCoordinate = 
-	this->m_glWidget.GetViewSettings (
+	this->m_widgetGl.GetViewSettings (
 	    this->m_propertySetter.GetViewNumber ()).GetColorBarModel ()
 	->TexCoord (value);
     boost::shared_ptr<FocusTextureSegment> fs = 

@@ -23,10 +23,10 @@ void SetterTextureCoordinate::operator () (
     const boost::shared_ptr<Body>& body)
 {
     BodyProperty::Enum property = BodyProperty::FromSizeT (
-	m_glWidget.GetViewSettings (m_viewNumber).GetBodyOrFaceProperty ());
+	m_widgetGl.GetViewSettings (m_viewNumber).GetBodyOrFaceProperty ());
     double value = body->GetPropertyValue (property);
     double texCoord = 
-	m_glWidget.GetViewSettings (m_viewNumber).
+	m_widgetGl.GetViewSettings (m_viewNumber).
 	GetColorBarModel ()->TexCoord (value);
     glTexCoord1f (texCoord); 
 }
@@ -38,12 +38,12 @@ void SetterTextureCoordinate::operator () ()
 
 int SetterTextureCoordinate::GetBodyOrFaceProperty () const
 {
-    return m_glWidget.GetViewSettings (m_viewNumber).GetBodyOrFaceProperty ();
+    return m_widgetGl.GetViewSettings (m_viewNumber).GetBodyOrFaceProperty ();
 }
 
 G3D::Matrix2 SetterTextureCoordinate::getRotation () const
 {
-    const ViewSettings& vs = m_glWidget.GetViewSettings (m_viewNumber);    
+    const ViewSettings& vs = m_widgetGl.GetViewSettings (m_viewNumber);    
     G3D::Matrix4 modelRotation4; 
     G3D::glGetMatrix (GL_MODELVIEW_MATRIX, modelRotation4);
     return ToMatrix2 (modelRotation4) / vs.GetScaleRatio ();

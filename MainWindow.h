@@ -99,7 +99,7 @@ public Q_SLOTS:
     void CurrentIndexChangedSimulation (int index);
     void CurrentIndexChangedInteractionMode (int index);
     void CurrentIndexChangedFaceColor (int value);
-    void CurrentIndexChangedStatisticsType (int value);
+    void CurrentIndexChangedComputationType (int value);
     void CurrentIndexChangedViewCount (int index);
     /**
      * Copy status from GLWidget to the UI controls
@@ -128,7 +128,7 @@ public Q_SLOTS:
     void ValueChangedFontSize (int value);
     void ValueChangedHistogramHeight (int value);
     void ValueChangedSliderTimeSteps (int value);
-    void ValueChangedStatisticsTimeWindow (int timeSteps);
+    void ValueChangedAverageTimeWindow (int timeSteps);
     void ValueChangedT1sKernelSigma (int index);
     void ViewToUI ();
     void SetHistogramColorBarModel (
@@ -208,7 +208,7 @@ private:
 	size_t simulationIndex,
 	ViewNumber::Enum viewNumber,
 	ViewType::Enum viewType, size_t property, 
-	StatisticsType::Enum statisticsType) const;
+	ComputationType::Enum statisticsType) const;
     void clickedPlay (PlayType playType);
 
 private:

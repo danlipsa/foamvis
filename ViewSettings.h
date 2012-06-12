@@ -36,7 +36,7 @@ public:
 
 
 public:
-    ViewSettings (const GLWidget& glWidget);
+    ViewSettings (const GLWidget& widgetGl);
     ~ViewSettings ();
 
     ViewType::Enum GetViewType () const
@@ -103,11 +103,11 @@ public:
 	m_colorBarModel.reset ();
     }
 
-    StatisticsType::Enum GetStatisticsType () const
+    ComputationType::Enum GetComputationType () const
     {
 	return m_statisticsType;
     }
-    void SetStatisticsType (StatisticsType::Enum statisticsType)
+    void SetComputationType (ComputationType::Enum statisticsType)
     {
 	m_statisticsType = statisticsType;
     }
@@ -591,7 +591,7 @@ public:
     virtual void AverageStep (ViewNumber::Enum viewNumber, int direction);
     virtual void AverageRotateAndDisplay (
 	ViewNumber::Enum viewNumber, 
-	StatisticsType::Enum displayType = StatisticsType::AVERAGE,
+	ComputationType::Enum displayType = ComputationType::AVERAGE,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
     virtual void AverageRelease ();
@@ -614,7 +614,7 @@ private:
 private:
     ViewType::Enum m_viewType;
     size_t m_bodyOrFaceProperty;
-    StatisticsType::Enum m_statisticsType;
+    ComputationType::Enum m_statisticsType;
     GLuint m_listCenterPaths;
     // 0 is for visualization, 1 is for the overlay
     GLuint m_colorBarTexture[2];

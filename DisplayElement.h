@@ -38,14 +38,14 @@ public:
     DisplayElement (
 	const GLWidget& widget, const Foam& foam,
 	bool useZPos = false, double zPos = 0) : 
-	m_glWidget (widget), m_foam (foam),
+	m_widgetGl (widget), m_foam (foam),
 	m_useZPos (useZPos),
 	m_zPos (zPos)
     {
     }
 
 protected:
-    const GLWidget& m_glWidget;
+    const GLWidget& m_widgetGl;
     const Foam& m_foam;
     bool m_useZPos;
     double m_zPos;
@@ -75,11 +75,11 @@ class DisplayElementProperty : public DisplayElement
 {
 public:
     DisplayElementProperty (
-	const GLWidget& glWidget, const Foam& foam, 
+	const GLWidget& widgetGl, const Foam& foam, 
 	PropertySetter propertySetter,
 	bool useZPos = false, double zPos = 0) :
 
-	DisplayElement (glWidget, foam, useZPos, zPos), 
+	DisplayElement (widgetGl, foam, useZPos, zPos), 
 	m_propertySetter (propertySetter)
     {
     }

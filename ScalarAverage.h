@@ -28,10 +28,10 @@ class ScalarAverageTemplate : public ImageBasedAverage<PropertySetter>
 public:
     static void InitShaders ();
 
-    ScalarAverageTemplate (const GLWidget& glWidget, string id, 
+    ScalarAverageTemplate (const GLWidget& widgetGl, string id, 
 			   QColor stepClearColor) :
 	ImageBasedAverage<PropertySetter> (
-	    glWidget, id, stepClearColor, this->m_fbos)
+	    widgetGl, id, stepClearColor, this->m_fbos)
     {
     }
 
@@ -39,7 +39,7 @@ protected:
     virtual void rotateAndDisplay (
 	ViewNumber::Enum viewNumber,
 	GLfloat minValue, GLfloat maxValue,
-	StatisticsType::Enum displayType, 
+	ComputationType::Enum displayType, 
 	typename ImageBasedAverage<PropertySetter>::TensorScalarFbo fbo,
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
@@ -52,9 +52,9 @@ protected:
 class ScalarAverage : public ScalarAverageTemplate<SetterVertexAttribute>
 {
 public:
-    ScalarAverage (const GLWidget& glWidget) :
+    ScalarAverage (const GLWidget& widgetGl) :
 	ScalarAverageTemplate<SetterVertexAttribute> (
-	    glWidget, "scalar", QColor (0, 0, 0, 0))
+	    widgetGl, "scalar", QColor (0, 0, 0, 0))
     {
     }
 };

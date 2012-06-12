@@ -93,19 +93,19 @@ void ImageBasedAverage<PropertySetter>::clear (ViewNumber::Enum viewNumber)
     //save (
     //viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
     //"step", FAKE_TIMESTEP, 0, 
-    //minMax.first, minMax.second, StatisticsType::AVERAGE);
+    //minMax.first, minMax.second, ComputationType::AVERAGE);
 
     initFramebuffer (viewNumber, m_fbos.m_current);
     //save (viewNumber, 
     //make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
     //"current", FAKE_TIMESTEP, 0,
-    //minMax.first, minMax.second, StatisticsType::AVERAGE);
+    //minMax.first, minMax.second, ComputationType::AVERAGE);
     
     initFramebuffer (viewNumber, m_fbos.m_previous);
     // save (viewNumber, 
     // 	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
     // 	  "previous", FAKE_TIMESTEP + 1,
-    // 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
+    // 	  minMax.first, minMax.second, ComputationType::AVERAGE);
     WarnOnOpenGLError ("ImageBasedAverage::clear");
 }
 
@@ -130,20 +130,20 @@ void ImageBasedAverage<PropertySetter>::addStep (
     //save (
     //viewNumber, make_pair (m_fbos.m_step, m_scalarAverageFbos.m_step), 
     //"step", timeStep, subStep, 
-    //minMax.first, minMax.second, StatisticsType::AVERAGE);
+    //minMax.first, minMax.second, ComputationType::AVERAGE);
 
     currentIsPreviousPlusStep (viewNumber);
     //save (viewNumber, 
     //make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
     //"current", timeStep, subStep,
-    //minMax.first, minMax.second, StatisticsType::AVERAGE);
+    //minMax.first, minMax.second, ComputationType::AVERAGE);
     //cdbg << "addStep: " << timeStep << "-" << subStep << endl;
 
     copyCurrentToPrevious ();
     // save (viewNumber, 
     // 	  make_pair (m_fbos.m_previous, m_scalarAverageFbos.m_previous), 
     // 	  "previous", timeStep + 1,
-    // 	  minMax.first, minMax.second, StatisticsType::AVERAGE);
+    // 	  minMax.first, minMax.second, ComputationType::AVERAGE);
     glPopAttrib ();
     WarnOnOpenGLError ("ImageBasedAverage::addStep:" + m_id);
 }
@@ -158,20 +158,20 @@ void ImageBasedAverage<PropertySetter>::removeStep (
     renderToStep (viewNumber, timeStep, subStep);
     //save (viewNumber, 
     //TensorScalarFbo (*m_step, *m_scalarAverage.m_step), 
-    // "step", timeStep, minMax.first, minMax.second, StatisticsType::AVERAGE);
+    // "step", timeStep, minMax.first, minMax.second, ComputationType::AVERAGE);
 
     currentIsPreviousMinusStep (viewNumber);
     //save (viewNumber, 
     //make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
     //"current", timeStep, subStep,
-    //minMax.first, minMax.second, StatisticsType::AVERAGE);
+    //minMax.first, minMax.second, ComputationType::AVERAGE);
     //cdbg << "removeStep: " << timeStep << "-" << subStep << endl;
 
     copyCurrentToPrevious ();
     //save (viewNumber, 
     //TensorScalarFbo (*m_previous, *m_scalarAverage.m_previous), 
     //"previous", timeStep + 1,
-    //minMax.first, minMax.second, StatisticsType::AVERAGE);
+    //minMax.first, minMax.second, ComputationType::AVERAGE);
 
     glPopAttrib ();
     WarnOnOpenGLError ("ImageBasedAverage::removeStep:" + m_id);
@@ -181,15 +181,15 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::renderToStep (
     ViewNumber::Enum viewNumber, size_t timeStep, size_t subStep)
 {
-    const GLWidget& glWidget = GetGLWidget ();
+    const GLWidget& widgetGl = GetGLWidget ();
     G3D::Rect2D destRect = 
-	EncloseRotation (glWidget.GetViewRect (viewNumber));
+	EncloseRotation (widgetGl.GetViewRect (viewNumber));
     glMatrixMode (GL_MODELVIEW);
     glPushMatrix ();
-    glWidget.ModelViewTransform (viewNumber, timeStep);
+    widgetGl.ModelViewTransform (viewNumber, timeStep);
     glMatrixMode (GL_PROJECTION);
     glPushMatrix ();
-    glWidget.ProjectionTransform (
+    widgetGl.ProjectionTransform (
 	viewNumber, ViewingVolumeOperation::ENCLOSE2D);
     glViewport (0, 0, destRect.width (), destRect.height ());    
 
@@ -278,7 +278,7 @@ void ImageBasedAverage<PropertySetter>::initFramebuffer (
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
     ViewNumber::Enum viewNumber,
-    StatisticsType::Enum displayType, 
+    ComputationType::Enum displayType, 
     G3D::Vector2 rotationCenter, 
     float angleDegrees) const
 {    
@@ -295,7 +295,7 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::save (
     ViewNumber::Enum viewNumber,
     TensorScalarFbo fbo, const char* postfix, size_t timeStep, size_t subStep,
-    GLfloat minValue, GLfloat maxValue, StatisticsType::Enum displayType)
+    GLfloat minValue, GLfloat maxValue, ComputationType::Enum displayType)
 {
     // render to the debug buffer
     m_fbos.m_debug->bind ();

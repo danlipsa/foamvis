@@ -47,18 +47,18 @@ boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
 
 // Methods
 // ======================================================================
-ViewSettings::ViewSettings (const GLWidget& glWidget) :
+ViewSettings::ViewSettings (const GLWidget& widgetGl) :
     m_viewType (ViewType::COUNT),
     m_bodyOrFaceProperty (BodyProperty::PRESSURE),
-    m_statisticsType (StatisticsType::AVERAGE),
+    m_statisticsType (ComputationType::AVERAGE),
     m_listCenterPaths (0),
-    m_scalarAverage (new ScalarAverage (glWidget)),
-    m_t1sPDE (new T1sPDE (glWidget)),
+    m_scalarAverage (new ScalarAverage (widgetGl)),
+    m_t1sPDE (new T1sPDE (widgetGl)),
     m_deformationAverage (
-	new TensorAverage (glWidget, m_scalarAverage->GetFbos ())),
+	new TensorAverage (widgetGl, m_scalarAverage->GetFbos ())),
     m_velocityAverage (
-	new VectorAverage (glWidget, m_scalarAverage->GetFbos ())),
-    m_forceAverage (new ForceAverage (glWidget)),
+	new VectorAverage (widgetGl, m_scalarAverage->GetFbos ())),
+    m_forceAverage (new ForceAverage (widgetGl)),
     m_rotationFocus (G3D::Matrix3::identity ()),
     m_rotationCenterType (ROTATION_CENTER_FOAM),
     m_scaleRatio (1),
@@ -496,7 +496,7 @@ void ViewSettings::AverageStep (ViewNumber::Enum viewNumber, int direction)
 }
 
 void ViewSettings::AverageRotateAndDisplay (
-    ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
+    ViewNumber::Enum viewNumber, ComputationType::Enum displayType,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
     switch (GetViewType ())

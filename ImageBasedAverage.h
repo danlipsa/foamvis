@@ -60,16 +60,16 @@ class ImageBasedAverage : public Average
 {
 public:
     ImageBasedAverage (
-	const GLWidget& glWidget, string id, QColor stepClearColor,
+	const GLWidget& widgetGl, string id, QColor stepClearColor,
 	FramebufferObjects& scalarAverageFbos) :
-	Average (glWidget), m_scalarAverageFbos (scalarAverageFbos), m_id (id),
+	Average (widgetGl), m_scalarAverageFbos (scalarAverageFbos), m_id (id),
 	m_stepClearColor (stepClearColor)
     {
     }
     void AverageRelease ();
     void AverageRotateAndDisplay (	
 	ViewNumber::Enum viewNumber, 
-	StatisticsType::Enum displayType = StatisticsType::AVERAGE,	
+	ComputationType::Enum displayType = ComputationType::AVERAGE,	
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
     FramebufferObjects& GetFbos ()
@@ -93,7 +93,7 @@ protected:
     virtual void rotateAndDisplay (
 	ViewNumber::Enum viewNumber,
 	GLfloat minValue, GLfloat maxValue,
-	StatisticsType::Enum displayType, TensorScalarFbo fbo,
+	ComputationType::Enum displayType, TensorScalarFbo fbo,
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const = 0;
@@ -121,7 +121,7 @@ private:
     void save (ViewNumber::Enum viewNumber, TensorScalarFbo fbo, 
 	       const char* fileName, size_t timeStep, size_t subStep,
 	       GLfloat minValue, 
-	       GLfloat maxValue, StatisticsType::Enum displayType);
+	       GLfloat maxValue, ComputationType::Enum displayType);
     void renderToStep (ViewNumber::Enum view, size_t timeStep, size_t subStep);
     void currentIsPreviousPlusStep (ViewNumber::Enum viewNumber);
     void currentIsPreviousMinusStep (ViewNumber::Enum viewNumber);

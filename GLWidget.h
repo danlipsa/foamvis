@@ -263,7 +263,7 @@ public:
     }
     static ColorBarType::Enum GetColorBarType (
 	ViewType::Enum viewType, size_t property, 
-	StatisticsType::Enum statisticsType);
+	ComputationType::Enum statisticsType);
     ColorBarType::Enum GetColorBarType (ViewNumber::Enum viewNumber) const;
     ColorBarType::Enum GetColorBarType () const;
     float LinkedTimeStepStretch (ViewNumber::Enum viewNumber) const;
@@ -379,7 +379,7 @@ public Q_SLOTS:
 			     boost::shared_ptr<ColorBarModel> colorBarModel);
     void CurrentIndexChangedSimulation (int index);
     void CurrentIndexChangedInteractionMode (int index);
-    void CurrentIndexChangedStatisticsType (int index);
+    void CurrentIndexChangedComputationType (int index);
     void CurrentIndexChangedAxesOrder (int index);
     void CurrentIndexChangedSelectedLight (int selectedLight);
     void CurrentIndexChangedViewCount (int index);
@@ -407,7 +407,7 @@ public Q_SLOTS:
 
 
     void ValueChangedSliderTimeSteps (int timeStep);
-    void ValueChangedStatisticsTimeWindow (int timeSteps);
+    void ValueChangedAverageTimeWindow (int timeSteps);
     void ValueChangedT1sTimeWindow (int timeSteps);
     void ValueChangedTimeDisplacement (int timeDisplacement);
     void ValueChangedT1Size (int index);

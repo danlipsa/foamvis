@@ -17,8 +17,8 @@ class GLWidget;
 class Average : public AverageInterface
 {
 public:
-    Average (const GLWidget& glWidget) :
-    m_glWidget (glWidget)
+    Average (const GLWidget& widgetGl) :
+    m_widgetGl (widgetGl)
     {
     }
     void AverageSetTimeWindow (size_t timeWindow)
@@ -32,7 +32,7 @@ public:
     }
     const GLWidget& GetGLWidget () const
     {
-	return m_glWidget;
+	return m_widgetGl;
     }
     size_t GetCurrentTimeWindow () const
     {
@@ -63,7 +63,7 @@ private:
 
 
 private:
-    const GLWidget& m_glWidget;
+    const GLWidget& m_widgetGl;
     size_t m_currentTimeWindow;
     size_t m_timeWindow;
 };

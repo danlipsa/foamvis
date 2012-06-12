@@ -108,8 +108,8 @@ void T1sPDE::InitShaders ()
 				       (RESOURCE ("GaussianStore.frag")));
 }
 
-T1sPDE::T1sPDE (const GLWidget& glWidget) :
-    ScalarAverageTemplate<SetterNop> (glWidget, 
+T1sPDE::T1sPDE (const GLWidget& widgetGl) :
+    ScalarAverageTemplate<SetterNop> (widgetGl, 
 				      "t1sPDE", QColor (0, 255, 0, 0)),
     m_kernelIntervalPerPixel (KERNEL_INTERVAL_PER_PIXEL.first),
     m_kernelSigma (KERNEL_SIGMA.first),

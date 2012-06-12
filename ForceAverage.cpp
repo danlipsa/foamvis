@@ -85,14 +85,14 @@ void ForceAverage::Display (
 void ForceAverage::DisplayOneTimeStep (
     ViewNumber::Enum viewNumber) const
 {
-    const GLWidget& glWidget = GetGLWidget ();
-    const Simulation& simulation = glWidget.GetSimulation (viewNumber);
-    const Foam& foam = simulation.GetFoam (glWidget.GetCurrentTime (viewNumber));
+    const GLWidget& widgetGl = GetGLWidget ();
+    const Simulation& simulation = widgetGl.GetSimulation (viewNumber);
+    const Foam& foam = simulation.GetFoam (widgetGl.GetCurrentTime (viewNumber));
     displayForcesAllObjects (viewNumber, foam.GetForces (), 1, false);
 }
 
 void ForceAverage::AverageRotateAndDisplay (
-    ViewNumber::Enum viewNumber, StatisticsType::Enum displayType,
+    ViewNumber::Enum viewNumber, ComputationType::Enum displayType,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
     (void)displayType;
@@ -107,17 +107,17 @@ void ForceAverage::displayForcesAllObjects (
     const vector<ForcesOneObject>& forces, size_t count,
     bool adjustForAverageAroundMovementRotation) const
 {
-    const GLWidget& glWidget = GetGLWidget ();
-    ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
-    if (glWidget.GetSimulation (viewNumber).ForcesUsed ())
+    const GLWidget& widgetGl = GetGLWidget ();
+    ViewSettings& vs = widgetGl.GetViewSettings (viewNumber);
+    if (widgetGl.GetSimulation (viewNumber).ForcesUsed ())
     {
 	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT | GL_LINE_BIT);
 	if (adjustForAverageAroundMovementRotation)
 	{
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
-	    glWidget.RotateAndTranslateAverageAround (
-		viewNumber, glWidget.GetCurrentTime (viewNumber), -1);
+	    widgetGl.RotateAndTranslateAverageAround (
+		viewNumber, widgetGl.GetCurrentTime (viewNumber), -1);
 	}
 	glDisable (GL_DEPTH_TEST);
 	if (vs.IsForceDifferenceShown ())
@@ -163,9 +163,9 @@ void ForceAverage::displayForcesOneObject (
     ViewNumber::Enum viewNumber, const ForcesOneObject& forcesOneObject, 
     size_t count) const
 {
-    const GLWidget& glWidget = GetGLWidget ();
-    ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
-    const Simulation& simulation = glWidget.GetSimulation (viewNumber);
+    const GLWidget& widgetGl = GetGLWidget ();
+    ViewSettings& vs = widgetGl.GetViewSettings (viewNumber);
+    const Simulation& simulation = widgetGl.GetSimulation (viewNumber);
     float bubbleSize = simulation.GetBubbleSize ();
     float unitForceTorqueSize = vs.GetForceTorqueSize () * bubbleSize / count;
     G3D::Vector2 center = forcesOneObject.m_body->GetCenter ().xy ();
@@ -185,7 +185,7 @@ void ForceAverage::displayForcesOneObject (
     for (size_t i = 0; i < isForceShown.size (); ++i)
 	if (isForceShown[i])
 	    displayForce (viewNumber,
-			  glWidget.GetHighlightColor (
+			  widgetGl.GetHighlightColor (
 			      viewNumber, highlight[i]), center,
 			  unitForceTorqueSize * force[i]);    
 }
@@ -197,11 +197,11 @@ void ForceAverage::displayTorqueOneObject (
     ViewNumber::Enum viewNumber, const ForcesOneObject& forcesOneObject, 
     size_t count) const
 {
-    const GLWidget& glWidget = GetGLWidget ();
-    ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
-    const Simulation& simulation = glWidget.GetSimulation (viewNumber);
+    const GLWidget& widgetGl = GetGLWidget ();
+    ViewSettings& vs = widgetGl.GetViewSettings (viewNumber);
+    const Simulation& simulation = widgetGl.GetSimulation (viewNumber);
     G3D::Vector2 center = forcesOneObject.m_body->GetCenter ().xy ();
-    const Foam& foam = simulation.GetFoam (glWidget.GetCurrentTime (viewNumber));
+    const Foam& foam = simulation.GetFoam (widgetGl.GetCurrentTime (viewNumber));
     float bubbleSize = simulation.GetBubbleSize ();
     float unitForceTorqueSize = vs.GetForceTorqueSize () * bubbleSize / count;
 
@@ -217,7 +217,7 @@ void ForceAverage::displayTorqueOneObject (
 	    forcesOneObject.m_networkTorque,
 	    forcesOneObject.m_pressureTorque,
 	    forcesOneObject.m_networkTorque + forcesOneObject.m_pressureTorque}};
-    float onePixel = glWidget.GetOnePixelInObjectSpace ();
+    float onePixel = widgetGl.GetOnePixelInObjectSpace ();
     boost::array<G3D::Vector2, 3> displacement = {{
 	    G3D::Vector2 (0, 0),
 	    G3D::Vector2 (onePixel, onePixel),
@@ -225,7 +225,7 @@ void ForceAverage::displayTorqueOneObject (
     for (size_t i = 0; i < isTorqueShown.size (); ++i)
 	if (isTorqueShown[i])
 	    displayTorque (viewNumber,
-			   glWidget.GetHighlightColor (
+			   widgetGl.GetHighlightColor (
 			       viewNumber, highlight[i]),
 			   center.xy () + displacement[i], 
 			   vs.GetTorqueDistance () * bubbleSize,
@@ -238,8 +238,8 @@ void ForceAverage::displayTorque (
     const G3D::Vector2& center, 
     float distance, float angleRadians, float torque) const
 {
-    const GLWidget& glWidget = GetGLWidget ();
-    ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
+    const GLWidget& widgetGl = GetGLWidget ();
+    ViewSettings& vs = widgetGl.GetViewSettings (viewNumber);
     pair<G3D::Vector2, G3D::Vector2> centerTorque = 
 	computeTorque (center, distance, angleRadians, torque);
     displayForce (viewNumber, color,
@@ -267,12 +267,12 @@ void ForceAverage::displayForce (
     ViewNumber::Enum viewNumber, QColor color,
     const G3D::Vector2& center, const G3D::Vector2& force) const
 {
-    const GLWidget& glWidget = GetGLWidget ();
-    ViewSettings& vs = glWidget.GetViewSettings (viewNumber);
+    const GLWidget& widgetGl = GetGLWidget ();
+    ViewSettings& vs = widgetGl.GetViewSettings (viewNumber);
     glColor (color);
     DisplaySegmentArrow (
 	center, force, vs.GetForceTorqueLineWidth (),
-	glWidget.GetOnePixelInObjectSpace (), false);
+	widgetGl.GetOnePixelInObjectSpace (), false);
 }
 
 

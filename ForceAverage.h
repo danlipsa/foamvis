@@ -17,8 +17,8 @@ class GLWidget;
 class ForceAverage : public Average
 {
 public:
-    ForceAverage (const GLWidget& glWidget) :
-	Average (glWidget)
+    ForceAverage (const GLWidget& widgetGl) :
+	Average (widgetGl)
     {
     }
     void DisplayOneTimeStep (ViewNumber::Enum viewNumber) const;
@@ -26,7 +26,7 @@ public:
 		  bool adjustForAverageAroundMovementRotation = false) const;    
     virtual void AverageRotateAndDisplay (
 	ViewNumber::Enum viewNumber, 
-	StatisticsType::Enum displayType = StatisticsType::AVERAGE,
+	ComputationType::Enum displayType = ComputationType::AVERAGE,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
     void AverageRelease () {}

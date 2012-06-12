@@ -76,12 +76,12 @@ public:
 
 public:
     TensorAverageTemplate (
-	const GLWidget& glWidget, GLWidgetFloatFunction sizeInitialRatio,
+	const GLWidget& widgetGl, GLWidgetFloatFunction sizeInitialRatio,
 	ViewSettingsFloatFunction sizeRatio, 
 	ViewSettingsFloatFunction lineWidthRatio,
 	FramebufferObjects& scalarAverageFbos) :
 	ImageBasedAverage<Setter> (
-	    glWidget, "tensor", QColor (0, 0, 0, 0), scalarAverageFbos),
+	    widgetGl, "tensor", QColor (0, 0, 0, 0), scalarAverageFbos),
 	m_gridShown (false),
 	m_clampingShown (false),
 	m_gridCellCenterShown (false),
@@ -154,7 +154,7 @@ protected:
     virtual void rotateAndDisplay (
 	ViewNumber::Enum viewNumber,
 	GLfloat minValue, GLfloat maxValue,
-	StatisticsType::Enum displayType, 
+	ComputationType::Enum displayType, 
 	typename ImageBasedAverage<Setter>::TensorScalarFbo srcFbo,
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
@@ -187,7 +187,7 @@ private:
 class TensorAverage : public TensorAverageTemplate<SetterDeformation>
 {
 public:
-    TensorAverage (const GLWidget& glWidget,
+    TensorAverage (const GLWidget& widgetGl,
 		   FramebufferObjects& scalarAverageFbos);
 };
 

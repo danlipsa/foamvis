@@ -23,7 +23,7 @@ public:
 			      int timeDifference) = 0;
     virtual void AverageRotateAndDisplay (
 	ViewNumber::Enum viewNumber, 
-	StatisticsType::Enum displayType = StatisticsType::AVERAGE,
+	ComputationType::Enum displayType = ComputationType::AVERAGE,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const = 0;
     virtual void AverageRelease () = 0;

@@ -16,10 +16,10 @@
 #include "Utils.h"
 #include "ViewSettings.h"
 
-VectorAverage::VectorAverage (const GLWidget& glWidget, 
+VectorAverage::VectorAverage (const GLWidget& widgetGl, 
 			      FramebufferObjects& scalarAverageFbos) :
     TensorAverageTemplate<SetterVelocity> (
-	glWidget,
+	widgetGl,
 	&GLWidget::GetVelocitySizeInitialRatio,
 	&ViewSettings::GetVelocityClampingRatio,
 	&ViewSettings::GetVelocityLineWidth,

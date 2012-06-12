@@ -13,6 +13,8 @@ Release log
 	- Added "Rotation center" user option to allow rotation around a body
 	- Fixed regression bug where the torus domain is stored per
           simulation instead of storing it per foam.
+	- update to vtk-5.10.0 libraries, built dynamically
+	- 
 0.7.2374 2012-03-09
 	- fix bug: position of the two_discs for two views.
 	- added arrows for forces
@@ -271,10 +273,11 @@ ln -s ~/qt-everywhere-opensource-src-4.7.0/include include
 
 Add the following line at the end of ~/.bash_profile
 PATH=/usr/local/Trolltech/Qt-4.7.0/bin:$PATH;export PATH
-Then execute '. .bash_profile'. Make sure the path is set correctly: 'echo $PATH'
-
-Everytime you call qmake, make sure that the newly compiled qmake is
-called by using 'which qmake' to see the path qmake is called from.
+QTDIR=/usr/local/Trolltech/Qt-4.7.0;export QTDIR
+Execute '. .bash_profile'.
+Make sure the variables are set correctly: 'echo $PATH;echo $QTDIR'
+Make sure that the newly compiled qmake is
+     called by using 'which qmake' to see the path qmake is called from.
 
 
 Copy http://csgalati.swansea.ac.uk/foam/build/qt3d-20101008.tgz to ~
@@ -337,6 +340,10 @@ Add the following line at the end of ~/.bash_profile
 LD_LIBRARY_PATH=/usr/local/qwt-5.2.1/lib:$LD_LIBRARY_PATH; export LD_LIBRARY_PATH
 Then execute '. .bash_profile'. Make sure the path is set correctly: 
 'echo $LD_LIBRARY_PATH'
+
+Development only:
+cp $VTK_BINARY_DIR/bin/libQVTKWidgetPlugin.so $QTDIR/plugins/designer
+
 
 
 Windows - not up to date.

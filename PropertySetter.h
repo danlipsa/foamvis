@@ -15,9 +15,9 @@ class SetterTextureCoordinate
 {
 public:
     SetterTextureCoordinate (
-	const GLWidget& glWidget, ViewNumber::Enum view) :
+	const GLWidget& widgetGl, ViewNumber::Enum view) :
 
-	m_glWidget (glWidget), m_viewNumber (view)
+	m_widgetGl (widgetGl), m_viewNumber (view)
     {
     }
 
@@ -33,7 +33,7 @@ protected:
     G3D::Matrix2 getRotation () const;
 
 protected:
-    const GLWidget& m_glWidget;
+    const GLWidget& m_widgetGl;
     ViewNumber::Enum m_viewNumber;
 };
 
@@ -41,9 +41,9 @@ class SetterVertexAttribute : public SetterTextureCoordinate
 {
 public:
     SetterVertexAttribute (
-	const GLWidget& glWidget,  ViewNumber::Enum view,
+	const GLWidget& widgetGl,  ViewNumber::Enum view,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
-	SetterTextureCoordinate (glWidget, view),
+	SetterTextureCoordinate (widgetGl, view),
 	m_program (program), m_attributeLocation (attributeIndex)
     {
     }
@@ -60,9 +60,9 @@ class SetterDeformation : public SetterVertexAttribute
 {
 public:
     SetterDeformation (
-	const GLWidget& glWidget,  ViewNumber::Enum view,
+	const GLWidget& widgetGl,  ViewNumber::Enum view,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
-	SetterVertexAttribute (glWidget, view, program, attributeIndex)
+	SetterVertexAttribute (widgetGl, view, program, attributeIndex)
     {
     }
     int GetBodyOrFaceProperty () const;
@@ -74,9 +74,9 @@ class SetterVelocity : public SetterVertexAttribute
 {
 public:
     SetterVelocity (
-	const GLWidget& glWidget,  ViewNumber::Enum view,
+	const GLWidget& widgetGl,  ViewNumber::Enum view,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
-	SetterVertexAttribute (glWidget, view, program, attributeIndex)
+	SetterVertexAttribute (widgetGl, view, program, attributeIndex)
     {
     }
 
@@ -91,9 +91,9 @@ class SetterNop : public SetterVertexAttribute
 {
 public:
     SetterNop (
-	const GLWidget& glWidget,  ViewNumber::Enum view,
+	const GLWidget& widgetGl,  ViewNumber::Enum view,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
-	SetterVertexAttribute (glWidget, view, program, attributeIndex)
+	SetterVertexAttribute (widgetGl, view, program, attributeIndex)
     {
     }
 

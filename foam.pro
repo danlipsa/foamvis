@@ -97,12 +97,12 @@ LIBS += "C:\G3D-7.00-vc8\lib\GLG3Dd.lib"
 else:macx {
 INCLUDEPATH += /usr/local/include
 INCLUDEPATH += /usr/local/qwt-5.2.1/include
-INCLUDEPATH += /usr/local/include/vtk-5.6
+INCLUDEPATH += /usr/local/include/vtk-5.10
 INCLUDEPATH += /usr/local/Trolltech/Qt-4.7.0/include
 
 LIBS += -L/usr/local/lib
 LIBS += -L/usr/local/qwt-5.2.1/lib
-LIBS += -L/usr/local/lib/vtk-5.6
+LIBS += -L/usr/local/lib/vtk-5.10
 LIBS += -L/usr/local/Trolltech/Qt-4.7.0/lib
 
 LIBS += "-lGLG3D" 
@@ -118,6 +118,7 @@ LIBS += "-lqwtd"
 LIBS += "-lvtkFiltering"
 LIBS += "-lvtkCommon"
 LIBS += "-lvtksys"
+LIBS += "-lQVTK"
 LIBS += "-lQt3D"
 LIBS += "-lgslcblas"
 LIBS += "-lgsl"
@@ -125,13 +126,13 @@ LIBS += "-lboost_program_options"
 }
 else:unix {
 INCLUDEPATH += /usr/local/include
-INCLUDEPATH += /usr/local/include/vtk-5.6
+INCLUDEPATH += /usr/local/include/vtk-5.10
 INCLUDEPATH += /usr/local/qwt-5.2.1/include
 INCLUDEPATH += /usr/local/Trolltech/Qt-4.7.0/include
 
 LIBS += -L/usr/local/lib
 LIBS += -L/usr/local/qwt-5.2.1/lib
-LIBS += -L/usr/local/lib/vtk-5.6
+LIBS += -L/usr/local/lib/vtk-5.10
 LIBS += -L/usr/local/Trolltech/Qt-4.7.0/lib
 
 LIBS += "-lGLG3D"
@@ -149,6 +150,7 @@ LIBS += "-lX11"
 LIBS += "-lvtkFiltering"
 LIBS += "-lvtkCommon"
 LIBS += "-lvtksys"
+LIBS += "-lQVTK"
 LIBS += "-ldl"
 LIBS += "-lQt3D"
 LIBS += "-lgslcblas"

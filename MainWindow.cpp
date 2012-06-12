@@ -92,8 +92,8 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     spinBoxHistogramHeight->setValue (widgetHistogram->sizeHint ().height ());
 
     CurrentIndexChangedViewCount (ViewCount::ONE);
-    glWidget->SetStatus (labelStatusBar);
-    glWidget->SetSimulationGroup (&simulationGroup);
+    widgetGl->SetStatus (labelStatusBar);
+    widgetGl->SetSimulationGroup (&simulationGroup);
     setupColorBarModels ();
     setupViews ();
     initComboBoxSimulation (simulationGroup);
@@ -171,7 +171,7 @@ void MainWindow::configureInterfaceDataDependent (
 	comboBoxViewCount->setCurrentIndex (ViewCount::FromSizeT (viewCount));
     for (size_t i = 1; i < viewCount; ++i)
     {
-	glWidget->SetViewNumber (ViewNumber::Enum (i));
+	widgetGl->SetViewNumber (ViewNumber::Enum (i));
 	comboBoxSimulation->setCurrentIndex (i);
     }
 }
@@ -200,7 +200,7 @@ void MainWindow::translatedBodyInit ()
 {
     m_debugTranslatedBody = true;
     Foam& foam = const_cast<Foam&>
-	(glWidget->GetSimulation ().GetFoam (0));
+	(widgetGl->GetSimulation ().GetFoam (0));
     m_currentTranslatedBody = foam.GetBodies ().begin ();
 }
 
@@ -211,7 +211,7 @@ void MainWindow::connectSignals ()
     connect (m_timer.get (), SIGNAL (timeout()),
 	     this, SLOT (TimeoutTimer ()));
     
-    connect (glWidget, SIGNAL (PaintedGL ()),
+    connect (widgetGl, SIGNAL (PaintedGL ()),
 	     widgetDisplay, SLOT (SaveFrame ()), 
 	     Qt::QueuedConnection);
     
@@ -223,7 +223,7 @@ void MainWindow::connectSignals ()
 	SIGNAL (BodyOrFacePropertyChanged (
 		    ViewNumber::Enum,
 		    boost::shared_ptr<ColorBarModel>, size_t)),
-	glWidget, 
+	widgetGl, 
 	SLOT (SetBodyOrFaceProperty (
 		  ViewNumber::Enum, boost::shared_ptr<ColorBarModel>, size_t)));
     
@@ -233,14 +233,14 @@ void MainWindow::connectSignals ()
 	this, 
 	SIGNAL (ColorBarModelChanged (ViewNumber::Enum, 
 				      boost::shared_ptr<ColorBarModel>)),
-	glWidget, 
+	widgetGl, 
 	SLOT (SetColorBarModel (ViewNumber::Enum, 
 				boost::shared_ptr<ColorBarModel>)));
     connect (
 	this, 
 	SIGNAL (OverlayBarModelChanged (ViewNumber::Enum, 
 					boost::shared_ptr<ColorBarModel>)),
-	glWidget, 
+	widgetGl, 
 	SLOT (SetOverlayBarModel (ViewNumber::Enum, 
 					  boost::shared_ptr<ColorBarModel>)));
 
@@ -249,23 +249,23 @@ void MainWindow::connectSignals ()
     // ColorBarModelChanged:
     // from GLWidget to GLWidget and MainWindow and AttributeHistogram
     connect (
-	glWidget, 
+	widgetGl, 
 	SIGNAL (ColorBarModelChanged (ViewNumber::Enum,
 				      boost::shared_ptr<ColorBarModel>)),
-	glWidget, 
+	widgetGl, 
 	SLOT (SetColorBarModel (ViewNumber::Enum,
 				boost::shared_ptr<ColorBarModel>)));
     connect (
-	glWidget, 
+	widgetGl, 
 	SIGNAL (OverlayBarModelChanged (ViewNumber::Enum,
 					boost::shared_ptr<ColorBarModel>)),
-	glWidget, 
+	widgetGl, 
 	SLOT (SetOverlayBarModel (ViewNumber::Enum,
 				  boost::shared_ptr<ColorBarModel>)));
     connectColorBarHistogram (true);
     
     connect (
-	glWidget,
+	widgetGl,
 	SIGNAL (ViewChanged ()),
 	this,
 	SLOT (ViewToUI ()));
@@ -273,7 +273,7 @@ void MainWindow::connectSignals ()
 
 void MainWindow::deformationViewToUI ()
 {
-    const ViewSettings& vs = glWidget->GetViewSettings ();
+    const ViewSettings& vs = widgetGl->GetViewSettings ();
     SetCheckedNoSignals (checkBoxDeformationShown, 
 			 vs.IsDeformationShown ());
     SetCheckedNoSignals (checkBoxDeformationGridShown, 
@@ -294,7 +294,7 @@ void MainWindow::deformationViewToUI ()
 
 void MainWindow::velocityViewToUI ()
 {
-    const ViewSettings& vs = glWidget->GetViewSettings ();
+    const ViewSettings& vs = widgetGl->GetViewSettings ();
     const VectorAverage& va = vs.GetVelocityAverage ();
     SetCheckedNoSignals (checkBoxVelocityShown, vs.IsVelocityShown ());
     SetCheckedNoSignals (checkBoxVelocityGridShown, va.IsGridShown ());
@@ -312,18 +312,18 @@ void MainWindow::velocityViewToUI ()
 
 void MainWindow::forceViewToUI ()
 {
-    ViewNumber::Enum viewNumber = glWidget->GetViewNumber ();
-    const ViewSettings& vs = glWidget->GetViewSettings (viewNumber);
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
+    const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
     SetCheckedNoSignals (
 	checkBoxForceNetwork, vs.IsForceNetworkShown (),
-	glWidget->GetSimulation (viewNumber).ForcesUsed ());
+	widgetGl->GetSimulation (viewNumber).ForcesUsed ());
     SetCheckedNoSignals (
 	checkBoxForcePressure, 
 	vs.IsForcePressureShown (), 
-	glWidget->GetSimulation (viewNumber).ForcesUsed ());
+	widgetGl->GetSimulation (viewNumber).ForcesUsed ());
     SetCheckedNoSignals (
 	checkBoxForceResult, vs.IsForceResultShown (),
-	glWidget->GetSimulation (viewNumber).ForcesUsed ());
+	widgetGl->GetSimulation (viewNumber).ForcesUsed ());
     SetValueNoSignals (
 	horizontalSliderForceTorqueSize, 
 	Value2ExponentIndex (horizontalSliderForceTorqueSize,
@@ -337,7 +337,7 @@ void MainWindow::forceViewToUI ()
 
 void MainWindow::t1sPDEViewToUI ()
 {
-    const ViewSettings& vs = glWidget->GetViewSettings ();
+    const ViewSettings& vs = widgetGl->GetViewSettings ();
     SetCheckedNoSignals (checkBoxTextureSizeShown, 
 			 vs.GetT1sPDE ().IsKernelTextureSizeShown ());
     SetValueNoSignals (
@@ -359,8 +359,8 @@ void MainWindow::t1sPDEViewToUI ()
 
 void MainWindow::ViewToUI ()
 {
-    ViewNumber::Enum viewNumber = glWidget->GetViewNumber ();
-    const ViewSettings& vs = glWidget->GetViewSettings (viewNumber);
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
+    const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     int property = vs.GetBodyOrFaceProperty ();
     size_t simulationIndex = vs.GetSimulationIndex ();
@@ -374,7 +374,7 @@ void MainWindow::ViewToUI ()
 
     SetCurrentIndexNoSignals (comboBoxColor, property);
     SetCurrentIndexNoSignals (comboBoxSimulation, simulationIndex);
-    SetCurrentIndexNoSignals (comboBoxStatisticsType, vs.GetStatisticsType ());
+    SetCurrentIndexNoSignals (comboBoxComputationType, vs.GetComputationType ());
     SetCurrentIndexNoSignals (comboBoxAxesOrder, vs.GetAxesOrder ());
 
     SetCheckedNoSignals (checkBoxSelectionContextShown, 
@@ -388,33 +388,33 @@ void MainWindow::ViewToUI ()
     t1sPDEViewToUI ();
 
     SetValueNoSignals (horizontalSliderAngleOfView, vs.GetAngleOfView ());
-    SetValueAndMaxNoSignals (spinBoxStatisticsTimeWindow,
+    SetValueAndMaxNoSignals (spinBoxAverageTimeWindow,
 			     vs.GetScalarAverage ().GetTimeWindow (), 
-			     glWidget->GetTimeSteps (viewNumber));
+			     widgetGl->GetTimeSteps (viewNumber));
     SetValueAndMaxNoSignals (spinBoxT1sTimeWindow,
 			     vs.GetT1sPDE ().GetTimeWindow (), 
-			     glWidget->GetTimeSteps (viewNumber));
-    if (glWidget->GetTimeLinkage () == TimeLinkage::INDEPENDENT)
+			     widgetGl->GetTimeSteps (viewNumber));
+    if (widgetGl->GetTimeLinkage () == TimeLinkage::INDEPENDENT)
     {
 	sliderTimeSteps->SetValueAndMaxNoSignals (
-	    vs.GetCurrentTime (), glWidget->GetTimeSteps (viewNumber) - 1);
-	labelStatisticsLinkedTimeWindowTitle->setHidden (true);
-	labelStatisticsLinkedTimeWindow->setHidden (true);
+	    vs.GetCurrentTime (), widgetGl->GetTimeSteps (viewNumber) - 1);
+	labelAverageLinkedTimeWindowTitle->setHidden (true);
+	labelAverageLinkedTimeWindow->setHidden (true);
     }
     else
     {
-	size_t steps = glWidget->LinkedTimeMaxSteps ().first;
-	sliderTimeSteps->SetValueAndMaxNoSignals (glWidget->GetLinkedTime (), 
+	size_t steps = widgetGl->LinkedTimeMaxSteps ().first;
+	sliderTimeSteps->SetValueAndMaxNoSignals (widgetGl->GetLinkedTime (), 
 						  steps - 1);
-	labelStatisticsLinkedTimeWindowTitle->setHidden (false);
-	labelStatisticsLinkedTimeWindow->setHidden (false);
+	labelAverageLinkedTimeWindowTitle->setHidden (false);
+	labelAverageLinkedTimeWindow->setHidden (false);
 	ostringstream ostr;
 	ostr << vs.GetScalarAverage ().GetTimeWindow () * 
-	    glWidget->LinkedTimeStepStretch (viewNumber);
-	labelStatisticsLinkedTimeWindow->setText (ostr.str ().c_str ());
+	    widgetGl->LinkedTimeStepStretch (viewNumber);
+	labelAverageLinkedTimeWindow->setText (ostr.str ().c_str ());
     }
 
-    labelFacesStatisticsColor->setText (BodyOrFacePropertyToString (property));
+    labelAverageColor->setText (BodyOrFacePropertyToString (property));
     labelCenterPathColor->setText (BodyOrFacePropertyToString (property));
 
     ostringstream ostr;
@@ -424,10 +424,10 @@ void MainWindow::ViewToUI ()
     ostr << vs.GetLinkedTimeEnd ();
     labelLinkedTimeEnd->setText (ostr.str ().c_str ());
     ostr.str ("");
-    ostr << glWidget->GetTimeSteps (viewNumber);
+    ostr << widgetGl->GetTimeSteps (viewNumber);
     labelLinkedTimeSteps->setText (ostr.str ().c_str ());
     ostr.str ("");
-    ostr << setprecision (3) << glWidget->LinkedTimeStepStretch (viewNumber);
+    ostr << setprecision (3) << widgetGl->LinkedTimeStepStretch (viewNumber);
     labelLinkedTimeStepStretch->setText (ostr.str ().c_str ());
 
     updateLightControls (vs, selectedLight);
@@ -456,7 +456,7 @@ void MainWindow::connectColorBarHistogram (bool connected)
 					     boost::shared_ptr<ColorBarModel>)),
 	    Qt::UniqueConnection);
 	connect (
-	    glWidget, 
+	    widgetGl, 
 	    SIGNAL (ColorBarModelChanged (
 			ViewNumber::Enum, boost::shared_ptr<ColorBarModel>)),
 	    this, 
@@ -489,7 +489,7 @@ void MainWindow::setupButtonGroups ()
 				ViewType::FACES_TORUS);
     buttonGroupViewType->setId (radioButtonFacesNormal, ViewType::FACES);
     buttonGroupViewType->setId (radioButtonBubblesPaths, ViewType::CENTER_PATHS);
-    buttonGroupViewType->setId (radioButtonFacesStatistics, 
+    buttonGroupViewType->setId (radioButtonAverage, 
 				ViewType::FACES_STATISTICS);
     buttonGroupViewType->setId (radioButtonT1sPDE, ViewType::T1S_PDE);
     
@@ -614,7 +614,7 @@ void MainWindow::translatedBodyStep ()
     if (m_debugTranslatedBody)
     {
 	Foam& currentFoam = const_cast<Foam&> (
-	    glWidget->GetSimulation ().GetFoam (0));
+	    widgetGl->GetSimulation ().GetFoam (0));
 	VertexSet vertexSet;
 	EdgeSet edgeSet;
 	FaceSet faceSet;
@@ -627,7 +627,7 @@ void MainWindow::translatedBodyStep ()
 	{
 	    cdbg << "End body translation" << endl;
 	}
-	glWidget->update ();
+	widgetGl->update ();
     }
 }
 
@@ -635,7 +635,7 @@ void MainWindow::processBodyTorusStep ()
 {
     try
     {
-	const Foam& currentFoam = glWidget->GetSimulation ().GetFoam (0);
+	const Foam& currentFoam = widgetGl->GetSimulation ().GetFoam (0);
 	boost::shared_ptr<Body>  b = currentFoam.GetBodyPtr (m_currentBody);
 	if (m_processBodyTorus == 0)
 	{
@@ -655,10 +655,10 @@ void MainWindow::processBodyTorusStep ()
 		m_processBodyTorus = 0;
 		cdbg << "End process torus" << endl;
 		m_currentBody = (m_currentBody + 1) % 
-		    glWidget->GetSimulation ().GetFoam (0).GetBodies ().size ();
+		    widgetGl->GetSimulation ().GetFoam (0).GetBodies ().size ();
 	    }
 	}
-	glWidget->update ();
+	widgetGl->update ();
     }
     catch (const exception& e)
     {
@@ -688,11 +688,11 @@ void MainWindow::SetAndDisplayHistogram (
 	RuntimeAssert (false, "Invalid histogram type");
 	return;
     }
-    const ViewSettings& vs = glWidget->GetViewSettings (m_histogramViewNumber);
+    const ViewSettings& vs = widgetGl->GetViewSettings (m_histogramViewNumber);
     BodyProperty::Enum property = BodyProperty::FromSizeT (
 	vs.GetBodyOrFaceProperty ());
     ViewType::Enum viewType = vs.GetViewType ();
-    const Simulation& simulation = glWidget->GetSimulation ();
+    const Simulation& simulation = widgetGl->GetSimulation ();
     double maxYValue = 0;
     QwtIntervalData intervalData;
     if (viewType == ViewType::CENTER_PATHS)
@@ -704,7 +704,7 @@ void MainWindow::SetAndDisplayHistogram (
     }
     else
     {
-	intervalData = simulation.GetFoam (glWidget->GetCurrentTime ()).
+	intervalData = simulation.GetFoam (widgetGl->GetCurrentTime ()).
 	    GetHistogram (property).ToQwtIntervalData ();
 	if (maxValueOperation == REPLACE_MAX_VALUE)
 	    maxYValue = simulation.GetMaxCountPerBinIndividual (property);
@@ -755,10 +755,10 @@ void MainWindow::createActions ()
     connect(m_actionDeselectShown.get (), SIGNAL(triggered()),
 	    this, SLOT(DeselectShown ()));
     
-    addAction (glWidget->GetActionResetTransformAll ().get ());    
-    connect(glWidget->GetActionEditColorMap ().get (), SIGNAL(triggered()),
+    addAction (widgetGl->GetActionResetTransformAll ().get ());    
+    connect(widgetGl->GetActionEditColorMap ().get (), SIGNAL(triggered()),
 	    this, SLOT(ShowEditColorMap ()));
-    connect(glWidget->GetActionEditOverlayMap ().get (), SIGNAL(triggered()),
+    connect(widgetGl->GetActionEditOverlayMap ().get (), SIGNAL(triggered()),
 	    this, SLOT(ShowEditOverlayMap ()));
     addAction (sliderTimeSteps->GetActionNextSelectedTimeStep ().get ());
     addAction (sliderTimeSteps->GetActionPreviousSelectedTimeStep ().get ());
@@ -777,11 +777,11 @@ void MainWindow::createActions ()
 MainWindow::HistogramInfo MainWindow::getHistogramInfo (
     ColorBarType::Enum colorBarType, size_t bodyOrFaceProperty) const
 {
-    const Simulation& simulation = glWidget->GetSimulation ();
+    const Simulation& simulation = widgetGl->GetSimulation ();
     switch (colorBarType)
     {
     case ColorBarType::STATISTICS_COUNT:
-	return createHistogramInfo (glWidget->GetRangeCount (), 1);
+	return createHistogramInfo (widgetGl->GetRangeCount (), 1);
     
     case ColorBarType::PROPERTY:
     {
@@ -793,11 +793,11 @@ MainWindow::HistogramInfo MainWindow::getHistogramInfo (
     
     case ColorBarType::T1S_PDE:
 	return createHistogramInfo (
-	    glWidget->GetRangeT1sPDE (), simulation.GetT1sSize ());
+	    widgetGl->GetRangeT1sPDE (), simulation.GetT1sSize ());
 
     default:
 	ThrowException ("Invalid call to getHistogramInfo");
-	return createHistogramInfo (glWidget->GetRangeCount (), 1);
+	return createHistogramInfo (widgetGl->GetRangeCount (), 1);
     }
 }
 
@@ -821,13 +821,13 @@ void MainWindow::displayHistogramColorBar (bool checked)
 {
     widgetHistogram->setVisible (
 	checked && 
-	glWidget->GetBodyOrFaceProperty () != FaceProperty::DMP_COLOR && 
+	widgetGl->GetBodyOrFaceProperty () != FaceProperty::DMP_COLOR && 
 	m_histogramType);
 }
 
 void MainWindow::setupColorBarModels ()
 {
-    size_t simulationCount = glWidget->GetSimulationGroup ().size ();
+    size_t simulationCount = widgetGl->GetSimulationGroup ().size ();
     m_colorBarModelBodyProperty.resize (simulationCount);
     m_overlayBarModelVelocityVector.resize (simulationCount);
     m_colorBarModelDomainHistogram.resize (simulationCount);
@@ -840,10 +840,10 @@ void MainWindow::setupColorBarModels ()
 
 void MainWindow::setupViews ()
 {
-    for (size_t i = 0; i < glWidget->GetViewSettingsSize (); ++i)
+    for (size_t i = 0; i < widgetGl->GetViewSettingsSize (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	glWidget->SetBodyOrFaceProperty (
+	widgetGl->SetBodyOrFaceProperty (
 	    viewNumber, 
 	    m_colorBarModelBodyProperty[0][viewNumber][BodyProperty::PRESSURE], 
 	    BodyProperty::PRESSURE);
@@ -872,7 +872,7 @@ void MainWindow::setupColorBarModelT1sPDE (
     colorBarModel.reset (new ColorBarModel ());
     colorBarModel->SetTitle ("T1s PDE");
     colorBarModel->SetInterval (
-	toQwtDoubleInterval (glWidget->GetRangeT1sPDE (viewNumber)));
+	toQwtDoubleInterval (widgetGl->GetRangeT1sPDE (viewNumber)));
     colorBarModel->SetupPalette (
 	Palette (PaletteType::SEQUENTIAL, PaletteSequential::BLACK_BODY));
 }
@@ -887,7 +887,7 @@ void MainWindow::setupColorBarModelDomainHistogram (
     colorBarModel.reset (new ColorBarModel ());
     colorBarModel->SetTitle ("Count per area");
     colorBarModel->SetInterval (
-	toQwtDoubleInterval (glWidget->GetRangeCount ()));
+	toQwtDoubleInterval (widgetGl->GetRangeCount ()));
     colorBarModel->SetupPalette (
 	Palette (PaletteType::SEQUENTIAL, PaletteSequential::BLACK_BODY));
 }
@@ -918,7 +918,7 @@ void MainWindow::setupColorBarModel (
     BodyProperty::Enum property, size_t simulationIndex)
 {
     colorBarModel.reset (new ColorBarModel ());
-    const Simulation& simulation = glWidget->GetSimulation (simulationIndex);
+    const Simulation& simulation = widgetGl->GetSimulation (simulationIndex);
     colorBarModel->SetTitle (BodyProperty::ToString (property));
     colorBarModel->SetInterval (simulation.GetRange (property));
     colorBarModel->SetupPalette (
@@ -970,7 +970,7 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel (
     size_t simulationIndex,
     ViewNumber::Enum viewNumber,
     ViewType::Enum viewType, size_t property, 
-    StatisticsType::Enum statisticsType) const
+    ComputationType::Enum statisticsType) const
 {
     ColorBarType::Enum colorBarType = GLWidget::GetColorBarType (
 	viewType, property, statisticsType);
@@ -990,13 +990,13 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel (
 
 boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel () const
 {
-    ViewNumber::Enum viewNumber = glWidget->GetViewNumber ();
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
     size_t simulationIndex = 
-	glWidget->GetViewSettings (viewNumber).GetSimulationIndex ();
-    ViewSettings& vs = glWidget->GetViewSettings (viewNumber);
+	widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
+    ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
     ViewType::Enum viewType = vs.GetViewType ();
     size_t property = vs.GetBodyOrFaceProperty ();
-    StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
+    ComputationType::Enum statisticsType = vs.GetComputationType ();
     return getColorBarModel (simulationIndex, 
 			     viewNumber, viewType, property, statisticsType);
 }
@@ -1038,9 +1038,9 @@ void MainWindow::currentIndexChangedFaceColor (
 	    radioButtonHistogramUnicolor, 
 	    radioButtonHistogramColorCoded}};
     boost::array<QWidget*, 1> widgetsEnabled = {{
-	    radioButtonFacesStatistics}};
+	    radioButtonAverage}};
     size_t simulationIndex = 
-	glWidget->GetViewSettings (viewNumber).GetSimulationIndex ();
+	widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
     if (value == FaceProperty::DMP_COLOR) {
 	::setVisible (widgetsVisible, false);
 	::setEnabled (widgetsEnabled, false);
@@ -1066,17 +1066,17 @@ void MainWindow::currentIndexChangedFaceColor (
 
 void MainWindow::ToggledVelocityShown (bool checked)
 {
-    vector<ViewNumber::Enum> vn = glWidget->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = widgetGl->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
-	const ViewSettings& vs = glWidget->GetViewSettings (viewNumber);
+	const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
 	size_t simulationIndex = vs.GetSimulationIndex ();
 	boost::shared_ptr<ColorBarModel> overlayBarModel = 
 	    m_overlayBarModelVelocityVector[simulationIndex][viewNumber];
 	Q_EMIT OverlayBarModelChanged (viewNumber, overlayBarModel);
     }
-    glWidget->ToggledVelocityShown (checked);
+    widgetGl->ToggledVelocityShown (checked);
 }
 
 void MainWindow::ToggledHistogramGridShown (bool checked)
@@ -1144,14 +1144,14 @@ void MainWindow::ValueChangedHistogramHeight (int s)
 void MainWindow::ValueChangedT1sKernelSigma (int index)
 {
     (void)index;
-    vector<ViewNumber::Enum> vn = glWidget->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = widgetGl->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
 	size_t simulationIndex = 
-	    glWidget->GetViewSettings (viewNumber).GetSimulationIndex ();
+	    widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
 	m_colorBarModelT1sPDE[simulationIndex][viewNumber]->SetInterval (
-	    toQwtDoubleInterval (glWidget->GetRangeT1sPDE (viewNumber)));
+	    toQwtDoubleInterval (widgetGl->GetRangeT1sPDE (viewNumber)));
     }
 }
 
@@ -1160,35 +1160,35 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
     (void)timeStep;
     SetAndDisplayHistogram (KEEP_SELECTION, KEEP_MAX_VALUE);
     Foam& foam = const_cast<Foam&>
-	(glWidget->GetSimulation ().GetFoam (0));
+	(widgetGl->GetSimulation ().GetFoam (0));
     if (m_debugTranslatedBody)
 	m_currentTranslatedBody = foam.GetBodies ().begin ();
     updateButtons ();
 }
 
-void MainWindow::ValueChangedStatisticsTimeWindow (int timeSteps)
+void MainWindow::ValueChangedAverageTimeWindow (int timeSteps)
 {
-    ViewNumber::Enum viewNumber = glWidget->GetViewNumber ();
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
     ostringstream ostr;
-    ostr << timeSteps * glWidget->LinkedTimeStepStretch (viewNumber);
-    labelStatisticsLinkedTimeWindow->setText (ostr.str ().c_str ());
+    ostr << timeSteps * widgetGl->LinkedTimeStepStretch (viewNumber);
+    labelAverageLinkedTimeWindow->setText (ostr.str ().c_str ());
 }
 
 
 void MainWindow::ButtonClickedViewType (int vt)
 {
-    vector<ViewNumber::Enum> vn = glWidget->GetConnectedViewNumbers ();
+    vector<ViewNumber::Enum> vn = widgetGl->GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
-	const Simulation& simulation = glWidget->GetSimulation (viewNumber);
+	const Simulation& simulation = widgetGl->GetSimulation (viewNumber);
 	ViewType::Enum viewType = ViewType::Enum(vt);
 	size_t simulationIndex = 
-	    glWidget->GetViewSettings (viewNumber).GetSimulationIndex ();
-	ViewSettings& vs = glWidget->GetViewSettings (viewNumber);
+	    widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
+	ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
 	ViewType::Enum oldViewType = vs.GetViewType ();
 	size_t property = vs.GetBodyOrFaceProperty ();
-	StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
+	ComputationType::Enum statisticsType = vs.GetComputationType ();
 
 	setStackedWidget (viewType);
 	Q_EMIT ColorBarModelChanged (
@@ -1203,7 +1203,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 	    break;
 
 	case ViewType::FACES_STATISTICS:
-	    labelFacesStatisticsColor->setText (
+	    labelAverageColor->setText (
 		BodyProperty::ToString (BodyProperty::FromSizeT (property)));
 	    if (m_histogramViewNumber == viewNumber)
 		ButtonClickedHistogram (m_histogramType);
@@ -1239,7 +1239,7 @@ void MainWindow::setStackedWidget (ViewType::Enum viewType)
 	    pageFacesNormal,
 
 	    pageCenterPath,
-	    pageFacesStatistics,
+	    pageAverage,
 	    pageT1sProbabilityDensity
 	};
     if (ViewType::IsTimeDependent (viewType))
@@ -1256,11 +1256,11 @@ void MainWindow::setStackedWidget (ViewType::Enum viewType)
 
 void MainWindow::CurrentIndexChangedSimulation (int simulationIndex)
 {
-    ViewNumber::Enum viewNumber = glWidget->GetViewNumber ();
-    ViewSettings& vs = glWidget->GetViewSettings (viewNumber);
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
+    ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
     ViewType::Enum viewType = vs.GetViewType ();
     size_t property = vs.GetBodyOrFaceProperty ();
-    StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
+    ComputationType::Enum statisticsType = vs.GetComputationType ();
     Q_EMIT ColorBarModelChanged (
 	viewNumber,
 	getColorBarModel (simulationIndex, 
@@ -1270,7 +1270,7 @@ void MainWindow::CurrentIndexChangedSimulation (int simulationIndex)
 
 void MainWindow::CurrentIndexChangedSelectedLight (int i)
 {
-    const ViewSettings& vs = glWidget->GetViewSettings ();
+    const ViewSettings& vs = widgetGl->GetViewSettings ();
     LightNumber::Enum lightNumber = LightNumber::Enum (i);
     updateLightControls (vs, lightNumber);
 }
@@ -1278,7 +1278,7 @@ void MainWindow::CurrentIndexChangedSelectedLight (int i)
 void MainWindow::CurrentIndexChangedFaceColor (int value)
 {
     (void)value;
-    glWidget->SetOneOrTwoViews (this, &MainWindow::currentIndexChangedFaceColor);
+    widgetGl->SetOneOrTwoViews (this, &MainWindow::currentIndexChangedFaceColor);
 }
 
 void MainWindow::CurrentIndexChangedViewCount (int index)
@@ -1294,27 +1294,27 @@ void MainWindow::CurrentIndexChangedViewCount (int index)
 }
 
 
-void MainWindow::CurrentIndexChangedStatisticsType (int value)
+void MainWindow::CurrentIndexChangedComputationType (int value)
 {
-    boost::array<QWidget*, 2> widgetsStatisticsTimeWindow = 
-	{{ spinBoxStatisticsTimeWindow, labelStatisticsTimeWindow}};
+    boost::array<QWidget*, 2> widgetsAverageTimeWindow = 
+	{{ spinBoxAverageTimeWindow, labelAverageTimeWindow}};
     switch (value)
     {
-    case StatisticsType::AVERAGE:
+    case ComputationType::AVERAGE:
 	connectColorBarHistogram (true);
-	::setVisible (widgetsStatisticsTimeWindow, true);
+	::setVisible (widgetsAverageTimeWindow, true);
 	break;
-    case StatisticsType::MIN:
-    case StatisticsType::MAX:
+    case ComputationType::MIN:
+    case ComputationType::MAX:
 	connectColorBarHistogram (true);
-	::setVisible (widgetsStatisticsTimeWindow, false);
+	::setVisible (widgetsAverageTimeWindow, false);
 	break;
-    case StatisticsType::COUNT:
+    case ComputationType::COUNT:
 	connectColorBarHistogram (false);
-	::setVisible (widgetsStatisticsTimeWindow, false);
+	::setVisible (widgetsAverageTimeWindow, false);
 	break;
     }
-    Q_EMIT ColorBarModelChanged (glWidget->GetViewNumber (), 
+    Q_EMIT ColorBarModelChanged (widgetGl->GetViewNumber (), 
 				 getColorBarModel ());
 }
 
@@ -1336,7 +1336,7 @@ void MainWindow::CurrentIndexChangedWindowSize (int value)
 void MainWindow::ButtonClickedHistogram (int histogramType)
 {
     m_histogramType = HistogramType::Enum (histogramType);
-    m_histogramViewNumber = glWidget->GetViewNumber ();
+    m_histogramViewNumber = widgetGl->GetViewNumber ();
     SetAndDisplayHistogram (KEEP_SELECTION, REPLACE_MAX_VALUE);
 }
 
@@ -1345,8 +1345,8 @@ void MainWindow::ButtonClickedHistogram (int histogramType)
 void MainWindow::ToggledReflectedHalfView (bool reflectedHalfView)
 {
     if (reflectedHalfView &&
-	(glWidget->GetViewCount () != ViewCount::TWO || 
-	 glWidget->GetViewLayout () != ViewLayout::VERTICAL))
+	(widgetGl->GetViewCount () != ViewCount::TWO || 
+	 widgetGl->GetViewLayout () != ViewLayout::VERTICAL))
     {
 	QMessageBox msgBox (this);
 	msgBox.setText("This feature works only with two views "
@@ -1356,12 +1356,12 @@ void MainWindow::ToggledReflectedHalfView (bool reflectedHalfView)
 	return;
     }
     checkBoxTitleShown->setChecked (false);
-    glWidget->SetReflectedHalfView (reflectedHalfView);
+    widgetGl->SetReflectedHalfView (reflectedHalfView);
 }
 
 void MainWindow::ToggledForceDifference (bool forceDifference)
 {
-    const ViewSettings& vs = glWidget->GetViewSettings ();
+    const ViewSettings& vs = widgetGl->GetViewSettings ();
     if (! vs.IsAverageAround () ||
 	vs.GetAverageAroundSecondBodyId () == INVALID_INDEX)
     {
@@ -1372,7 +1372,7 @@ void MainWindow::ToggledForceDifference (bool forceDifference)
 	SetCheckedNoSignals (checkBoxForceDifference, false, true);
 	return;
     }
-    glWidget->SetForceDifferenceShown (forceDifference);
+    widgetGl->SetForceDifferenceShown (forceDifference);
 }
 
 void MainWindow::SelectionChangedHistogram ()
@@ -1380,34 +1380,34 @@ void MainWindow::SelectionChangedHistogram ()
     vector<QwtDoubleInterval> valueIntervals;
     widgetHistogram->GetSelectedIntervals (&valueIntervals);
     vector<bool> timeStepSelection;
-    const Simulation& simulation = glWidget->GetSimulation ();
+    const Simulation& simulation = widgetGl->GetSimulation ();
     simulation.GetTimeStepSelection (
 	BodyProperty::FromSizeT (
-	    glWidget->GetBodyOrFaceProperty (m_histogramViewNumber)), 
+	    widgetGl->GetBodyOrFaceProperty (m_histogramViewNumber)), 
 	valueIntervals, &timeStepSelection);
     sliderTimeSteps->SetRestrictedTo (timeStepSelection);
     
     if (widgetHistogram->AreAllItemsSelected ())
-	glWidget->GetViewSettings (m_histogramViewNumber).SetBodySelector (
+	widgetGl->GetViewSettings (m_histogramViewNumber).SetBodySelector (
 	    AllBodySelector::Get (), BodySelectorType::PROPERTY_VALUE);
     else
-	glWidget->GetViewSettings (m_histogramViewNumber).SetBodySelector (
+	widgetGl->GetViewSettings (m_histogramViewNumber).SetBodySelector (
 	    boost::shared_ptr<PropertyValueBodySelector> (
 		new PropertyValueBodySelector (
 		    BodyProperty::FromSizeT (
-			glWidget->GetBodyOrFaceProperty (
+			widgetGl->GetBodyOrFaceProperty (
 			    m_histogramViewNumber)), 
 		    valueIntervals)));
-    glWidget->update ();
+    widgetGl->update ();
 }
 
 void MainWindow::ShowEditOverlayMap ()
 {
     HistogramInfo p = getHistogramInfo (
 	ColorBarType::PROPERTY, BodyProperty::VELOCITY_MAGNITUDE);
-    ViewNumber::Enum viewNumber = glWidget->GetViewNumber ();
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
     size_t simulationIndex = 
-	glWidget->GetViewSettings (viewNumber).GetSimulationIndex ();
+	widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
     boost::shared_ptr<ColorBarModel> colorBarModel = 
 	m_overlayBarModelVelocityVector[simulationIndex][viewNumber];
     m_editColorMap->SetData (p.first, p.second, 
@@ -1416,7 +1416,7 @@ void MainWindow::ShowEditOverlayMap ()
     if (m_editColorMap->exec () == QDialog::Accepted)
     {
 	*colorBarModel = m_editColorMap->GetColorBarModel ();
-	Q_EMIT OverlayBarModelChanged (glWidget->GetViewNumber (), 
+	Q_EMIT OverlayBarModelChanged (widgetGl->GetViewNumber (), 
 				       colorBarModel);
     }
 }
@@ -1425,14 +1425,14 @@ void MainWindow::ShowEditOverlayMap ()
 void MainWindow::ShowEditColorMap ()
 {
     HistogramInfo p = getHistogramInfo (
-	glWidget->GetColorBarType (), glWidget->GetBodyOrFaceProperty ());
+	widgetGl->GetColorBarType (), widgetGl->GetBodyOrFaceProperty ());
     m_editColorMap->SetData (
 	p.first, p.second, *getColorBarModel (),
 	checkBoxHistogramGridShown->isChecked ());
     if (m_editColorMap->exec () == QDialog::Accepted)
     {
 	*getColorBarModel () = m_editColorMap->GetColorBarModel ();
-	Q_EMIT ColorBarModelChanged (glWidget->GetViewNumber (),
+	Q_EMIT ColorBarModelChanged (widgetGl->GetViewNumber (),
 				     getColorBarModel ());
     }
 }

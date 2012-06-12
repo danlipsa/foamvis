@@ -2536,7 +2536,7 @@ pair<float, float> GLWidget::GetRange (ViewNumber::Enum viewNumber) const
     switch (vs.GetViewType ())
     {
     case ViewType::FACES_STATISTICS:
-	if (vs.GetStatisticsType () == StatisticsType::COUNT)
+	if (vs.GetComputationType () == ComputationType::COUNT)
 	    return GetRangeCount (viewNumber);
 	else
 	{
@@ -2790,7 +2790,7 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
 	angleDegrees = 0;
     }
     vs.AverageRotateAndDisplay (
-	viewNumber, vs.GetStatisticsType (), rotationCenter, angleDegrees);
+	viewNumber, vs.GetComputationType (), rotationCenter, angleDegrees);
     vs.GetForceAverage ().Display (
 	viewNumber, adjustForAverageAroundMovementRotation);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (
@@ -3121,21 +3121,21 @@ ColorBarType::Enum GLWidget::GetColorBarType (ViewNumber::Enum viewNumber) const
     const ViewSettings& vs = GetViewSettings (viewNumber);
     ViewType::Enum viewType = vs.GetViewType ();
     size_t property = vs.GetBodyOrFaceProperty ();
-    StatisticsType::Enum statisticsType = vs.GetStatisticsType ();
+    ComputationType::Enum statisticsType = vs.GetComputationType ();
     return GLWidget::GetColorBarType (viewType, property, statisticsType);
 }
 
 
 ColorBarType::Enum GLWidget::GetColorBarType (
     ViewType::Enum viewType, size_t property, 
-    StatisticsType::Enum statisticsType)
+    ComputationType::Enum statisticsType)
 {
     switch (viewType)
     {
     case ViewType::T1S_PDE:
 	return ColorBarType::T1S_PDE;
     case ViewType::FACES_STATISTICS:
-	if (statisticsType == StatisticsType::COUNT)
+	if (statisticsType == ComputationType::COUNT)
 	    return ColorBarType::STATISTICS_COUNT;
     case ViewType::FACES:
 	if (property == FaceProperty::DMP_COLOR)
@@ -4355,9 +4355,9 @@ void GLWidget::ButtonClickedInteractionObject (int index)
 }
 
 
-void GLWidget::CurrentIndexChangedStatisticsType (int index)
+void GLWidget::CurrentIndexChangedComputationType (int index)
 {
-    GetViewSettings ().SetStatisticsType (StatisticsType::Enum(index));
+    GetViewSettings ().SetComputationType (ComputationType::Enum(index));
     update ();
 }
 
@@ -4462,7 +4462,7 @@ void GLWidget::ClickedEnd ()
     update ();
 }
 
-void GLWidget::ValueChangedStatisticsTimeWindow (int timeSteps)
+void GLWidget::ValueChangedAverageTimeWindow (int timeSteps)
 {
     ViewSettings& vs = GetViewSettings ();
     vs.AverageSetTimeWindow (timeSteps);
