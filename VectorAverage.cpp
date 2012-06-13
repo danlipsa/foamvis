@@ -9,18 +9,18 @@
 
 #include "AverageShaders.h"
 #include "DebugStream.h"
-#include "GLWidget.h"
+#include "WidgetGl.h"
 #include "OpenGLUtils.h"
 #include "ShaderProgram.h"
 #include "VectorAverage.h"
 #include "Utils.h"
 #include "ViewSettings.h"
 
-VectorAverage::VectorAverage (const GLWidget& widgetGl, 
+VectorAverage::VectorAverage (const WidgetGl& widgetGl, 
 			      FramebufferObjects& scalarAverageFbos) :
     TensorAverageTemplate<SetterVelocity> (
 	widgetGl,
-	&GLWidget::GetVelocitySizeInitialRatio,
+	&WidgetGl::GetVelocitySizeInitialRatio,
 	&ViewSettings::GetVelocityClampingRatio,
 	&ViewSettings::GetVelocityLineWidth,
 	scalarAverageFbos)

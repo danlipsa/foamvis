@@ -10,7 +10,7 @@
 #include "Debug.h"
 #include "DebugStream.h"
 #include "Simulation.h"
-#include "GLWidget.h"
+#include "WidgetGl.h"
 #include "OpenGLUtils.h"
 #include "ScalarDisplay.h"
 #include "ShaderProgram.h"
@@ -108,7 +108,7 @@ void T1sPDE::InitShaders ()
 				       (RESOURCE ("GaussianStore.frag")));
 }
 
-T1sPDE::T1sPDE (const GLWidget& widgetGl) :
+T1sPDE::T1sPDE (const WidgetGl& widgetGl) :
     ScalarAverageTemplate<SetterNop> (widgetGl, 
 				      "t1sPDE", QColor (0, 255, 0, 0)),
     m_kernelIntervalPerPixel (KERNEL_INTERVAL_PER_PIXEL.first),
@@ -164,7 +164,7 @@ void T1sPDE::writeStepValues (ViewNumber::Enum viewNumber, size_t timeStep,
 	TextureEnum (m_gaussianStoreShaderProgram->GetGaussianTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, m_kernel->texture ());
     m_gaussianStoreShaderProgram->Bind ();
-    GetGLWidget ().DisplayT1Quad (viewNumber, timeStep, subStep);
+    GetWidgetGl ().DisplayT1Quad (viewNumber, timeStep, subStep);
     m_gaussianStoreShaderProgram->release ();
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);    
@@ -176,13 +176,13 @@ void T1sPDE::DisplayTextureSize (ViewNumber::Enum viewNumber, size_t timeStep,
 {
     glPushAttrib (GL_CURRENT_BIT | GL_POLYGON_BIT);
     glColor (
-	GetGLWidget ().GetHighlightColor (viewNumber, HighlightNumber::H0));
+	GetWidgetGl ().GetHighlightColor (viewNumber, HighlightNumber::H0));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-    GetGLWidget ().DisplayT1Quad (viewNumber, timeStep, subStep);
+    GetWidgetGl ().DisplayT1Quad (viewNumber, timeStep, subStep);
     glPopAttrib ();
 }
 
 size_t T1sPDE::getStepSize (ViewNumber::Enum viewNumber, size_t timeStep) const
 {
-    return GetGLWidget ().GetSimulation (viewNumber).GetT1s (timeStep).size ();
+    return GetWidgetGl ().GetSimulation (viewNumber).GetT1s (timeStep).size ();
 }

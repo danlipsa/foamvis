@@ -12,12 +12,12 @@
 #include "Enums.h"
 #include "AverageInterface.h"
 
-class GLWidget;
+class WidgetGl;
 
 class Average : public AverageInterface
 {
 public:
-    Average (const GLWidget& widgetGl) :
+    Average (const WidgetGl& widgetGl) :
     m_widgetGl (widgetGl)
     {
     }
@@ -30,7 +30,7 @@ public:
     {
 	return m_timeWindow;
     }
-    const GLWidget& GetGLWidget () const
+    const WidgetGl& GetWidgetGl () const
     {
 	return m_widgetGl;
     }
@@ -63,7 +63,7 @@ private:
 
 
 private:
-    const GLWidget& m_widgetGl;
+    const WidgetGl& m_widgetGl;
     size_t m_currentTimeWindow;
     size_t m_timeWindow;
 };

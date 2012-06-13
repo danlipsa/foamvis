@@ -1,5 +1,5 @@
 /**
- * @file   GLWidget.h
+ * @file   WidgetGl.h
  * @author Dan R. Lipsa
  *
  * Widget for displaying foam bubbles using OpenGL
@@ -32,20 +32,20 @@ class AllBodySelector;
 /**
  * Widget for displaying foam bubbles using OpenGL
  */
-class GLWidget : public QGLWidget, public QGLFunctions
+class WidgetGl : public QGLWidget, public QGLFunctions
 {
 public:
     /**
      * Constructor
      * @param parent parent widget
      */
-    GLWidget(QWidget *parent = 0);
+    WidgetGl(QWidget *parent = 0);
     /**
      * Destructor
      */
-    ~GLWidget();
+    ~WidgetGl();
     /**
-     * Gets the minimum size of the GLWidget
+     * Gets the minimum size of the WidgetGl
      */
     QSize minimumSizeHint() ;
     /**
@@ -53,8 +53,8 @@ public:
      */
     QSize sizeHint() ;
     /**
-     * Sets the data displayed by the GLWidget
-     * @param dataAlongTime data displayed by the GLWidget
+     * Sets the data displayed by the WidgetGl
+     * @param dataAlongTime data displayed by the WidgetGl
      */
     void SetSimulationGroup (SimulationGroup* dataAlongTime);
     const SimulationGroup& GetSimulationGroup ()
@@ -62,7 +62,7 @@ public:
 	return *m_simulationGroup;
     }
     /**
-     * Gets the data displayed by the GLWidget
+     * Gets the data displayed by the WidgetGl
      */
     const Simulation& GetSimulation (size_t index) const;
     Simulation& GetSimulation (size_t index);
@@ -474,11 +474,11 @@ protected:
      */
     void initializeGL();
     /**
-     * Called when the GLWidget needs repainted
+     * Called when the WidgetGl needs repainted
      */
     void paintGL();
     /**
-     * Called when the GLWidget is resized
+     * Called when the WidgetGl is resized
      */
     void resizeGL(int width, int height);
     /**
@@ -522,7 +522,7 @@ private:
 
     typedef boost::unordered_map<G3D::Vector3int16, QColor,
 				 Vector3int16Hash> EndLocationColor;
-    typedef void (GLWidget::* ViewTypeDisplay) (ViewNumber::Enum view) const;
+    typedef void (WidgetGl::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
     float calculateOnePixelInObjectSpace () const;

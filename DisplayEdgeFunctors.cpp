@@ -14,7 +14,7 @@
 #include "Edge.h"
 #include "Face.h"
 #include "Foam.h"
-#include "GLWidget.h"
+#include "WidgetGl.h"
 #include "OrientedEdge.h"
 #include "OrientedFace.h"
 #include "OpenGLUtils.h"
@@ -88,7 +88,7 @@ void DisplaySegmentQuadric::operator() (
 	glMultMatrix (frame);
 	gluCylinder (
 	    m_quadric, m_radius, m_radius, (end - begin).length (),
-	    GLWidget::QUADRIC_SLICES, GLWidget::QUADRIC_STACKS);
+	    WidgetGl::QUADRIC_SLICES, WidgetGl::QUADRIC_STACKS);
     }
     glPopMatrix ();
 }
@@ -258,10 +258,10 @@ void DisplaySegmentArrowQuadric::operator () (
     {
 	glMultMatrix (objectToWorld);
 	gluCylinder (m_quadric, m_baseRadius, m_topRadius, m_height,
-		     GLWidget::QUADRIC_SLICES, GLWidget::QUADRIC_STACKS);
+		     WidgetGl::QUADRIC_SLICES, WidgetGl::QUADRIC_STACKS);
 	gluQuadricOrientation (m_quadric, GLU_INSIDE);
-	gluDisk (m_quadric, 0, m_baseRadius, GLWidget::QUADRIC_SLICES,
-		 GLWidget::QUADRIC_STACKS);
+	gluDisk (m_quadric, 0, m_baseRadius, WidgetGl::QUADRIC_SLICES,
+		 WidgetGl::QUADRIC_STACKS);
     }
     gluQuadricOrientation (m_quadric, GLU_OUTSIDE);
     glPopMatrix ();
@@ -325,7 +325,7 @@ void DisplayOrientedSegmentQuadric::operator () (
 template <typename DisplayEdge, typename DisplaySegmentArrow1, 
 	  bool showDuplicates>
 DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow1, showDuplicates>::
-DisplayEdgeTorus (const GLWidget& widget, const Foam& foam,
+DisplayEdgeTorus (const WidgetGl& widget, const Foam& foam,
 		  FocusContext focus, bool useZPos, double zPos) : 
     
     DisplayElementFocus (widget, foam, focus, useZPos, zPos),
@@ -386,7 +386,7 @@ display (const boost::shared_ptr<Edge>  e)
 
 template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
 DisplayEdgePropertyColor<tesselationEdgesDisplay>::
-DisplayEdgePropertyColor (const GLWidget& widget,const Foam& foam,
+DisplayEdgePropertyColor (const WidgetGl& widget,const Foam& foam,
 			  FocusContext focus,
 			  bool useZPos, double zPos) : 
     
@@ -396,7 +396,7 @@ DisplayEdgePropertyColor (const GLWidget& widget,const Foam& foam,
 
 template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
 DisplayEdgePropertyColor<tesselationEdgesDisplay>::
-DisplayEdgePropertyColor (const GLWidget& widget,const Foam& foam,
+DisplayEdgePropertyColor (const WidgetGl& widget,const Foam& foam,
 			  FocusContext focus, ViewNumber::Enum viewNumber,
 			  bool useZPos, double zPos) : 
     
@@ -459,7 +459,7 @@ operator() (const boost::shared_ptr<OrientedEdge> oe) const
 template <HighlightNumber::Enum highlightColorIndex,
 	  DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
 DisplayEdgeHighlightColor<highlightColorIndex, tesselationEdgesDisplay>::
-DisplayEdgeHighlightColor (const GLWidget& widget, const Foam& foam,
+DisplayEdgeHighlightColor (const WidgetGl& widget, const Foam& foam,
 			   FocusContext focus,
 			   ViewNumber::Enum viewNumber,
 			   bool useZPos, double zPos) : 
@@ -558,7 +558,7 @@ void DisplayFaceTriangleFan::operator() (const OrientedFace*  of) const
 template<typename displayEdge>
 DisplayFaceEdges<displayEdge>::
 DisplayFaceEdges (
-    const GLWidget& widget, const Foam& foam,
+    const WidgetGl& widget, const Foam& foam,
     FocusContext focus, bool useZPos, double zPos) :
  
     DisplayElementFocus (widget, foam, focus, useZPos, zPos)

@@ -15,7 +15,7 @@ class AllBodySelector;
 class BodySelector;
 class ColorBarModel;
 class ForceAverage;
-class GLWidget;
+class WidgetGl;
 class IdBodySelector;
 class PropertyValueBodySelector;
 class ScalarAverage;
@@ -36,7 +36,7 @@ public:
 
 
 public:
-    ViewSettings (const GLWidget& widgetGl);
+    ViewSettings (const WidgetGl& widgetGl);
     ~ViewSettings ();
 
     ViewType::Enum GetViewType () const

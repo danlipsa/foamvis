@@ -9,7 +9,7 @@
 
 #include "AverageShaders.h"
 #include "DebugStream.h"
-#include "GLWidget.h"
+#include "WidgetGl.h"
 #include "OpenGLUtils.h"
 #include "ScalarAverage.h"
 #include "ScalarDisplay.h"
@@ -59,7 +59,7 @@ void ScalarAverageTemplate<PropertySetter>::rotateAndDisplay (
     this->glActiveTexture (
 	TextureEnum (m_displayShaderProgram->GetScalarAverageTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, srcFbo.second->texture ());
-    this->GetGLWidget ().ActivateViewShader (viewNumber, enclose,
+    this->GetWidgetGl ().ActivateViewShader (viewNumber, enclose,
 					     rotationCenter, angleDegrees);
     // activate texture unit 0
     this->glActiveTexture (GL_TEXTURE0);

@@ -28,7 +28,7 @@ class T1sPDE : public ScalarAverageTemplate<SetterNop>
 public:
     static void InitShaders ();
     
-    T1sPDE (const GLWidget& widgetGl);
+    T1sPDE (const WidgetGl& widgetGl);
     virtual void AverageInit (ViewNumber::Enum viewNumber);
     float GetKernelIntervalPerPixel () const
     {

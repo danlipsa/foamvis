@@ -10,7 +10,7 @@
 #include "AverageShaders.h"
 #include "DebugStream.h"
 #include "Foam.h"
-#include "GLWidget.h"
+#include "WidgetGl.h"
 #include "OpenGLUtils.h"
 #include "Simulation.h"
 #include "TensorAverage.h"
@@ -130,7 +130,7 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
 {
     (void)minValue;(void)maxValue;(void)displayType;
 
-    const GLWidget& widgetGl = this->GetGLWidget ();
+    const WidgetGl& widgetGl = this->GetWidgetGl ();
     G3D::Vector2 gridTranslation;float cellLength; float lineWidth;
     float sizeRatio;G3D::Rect2D enclosingRect;float onePixelInObjectSpace;
     pair<float,float> minMax = widgetGl.GetVelocityMagnitudeRange (viewNumber);
@@ -178,7 +178,7 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
     float* sizeRatio, G3D::Rect2D* enclosingRect, 
     float* onePixelInObjectSpace) const
 {
-    const GLWidget& widgetGl = this->GetGLWidget ();
+    const WidgetGl& widgetGl = this->GetWidgetGl ();
     ViewSettings& vs = widgetGl.GetViewSettings (viewNumber);
     float scaleRatio = vs.GetScaleRatio ();
     float gridScaleRatio = vs.GetScaleRatio () * vs.GetGridScaleRatio ();
@@ -196,11 +196,11 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
 	    viewNumber, ViewingVolumeOperation::ENCLOSE2D)) - rotationCenter;
 }
 
-TensorAverage::TensorAverage (const GLWidget& widgetGl,
+TensorAverage::TensorAverage (const WidgetGl& widgetGl,
 			      FramebufferObjects& scalarAverageFbos) :
     TensorAverageTemplate<SetterDeformation> (
 	widgetGl, 
-	&GLWidget::GetDeformationSizeInitialRatio,
+	&WidgetGl::GetDeformationSizeInitialRatio,
 	&ViewSettings::GetDeformationSize,
 	&ViewSettings::GetDeformationLineWidth,
 	scalarAverageFbos)

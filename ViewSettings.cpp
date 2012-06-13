@@ -47,7 +47,7 @@ boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
 
 // Methods
 // ======================================================================
-ViewSettings::ViewSettings (const GLWidget& widgetGl) :
+ViewSettings::ViewSettings (const WidgetGl& widgetGl) :
     m_viewType (ViewType::COUNT),
     m_bodyOrFaceProperty (BodyProperty::PRESSURE),
     m_statisticsType (ComputationType::AVERAGE),

@@ -33,7 +33,7 @@ public:
     /**
      * Constructor
      */
-    DisplayBodyBase (const GLWidget& widget, const Foam& foam,
+    DisplayBodyBase (const WidgetGl& widget, const Foam& foam,
 		     const BodySelector& bodySelector, 
 		     PropertySetter propertySetter,
 		     bool useZPos = false, double zPos = 0);
@@ -61,7 +61,7 @@ class DisplayBodyDeformation : public DisplayBodyBase<>
 {
 public:
     DisplayBodyDeformation (
-	const GLWidget& widget, ViewNumber::Enum viewNumber, 
+	const WidgetGl& widget, ViewNumber::Enum viewNumber, 
 	const Foam& foam,
 	const BodySelector& bodySelector,
 	bool useZPos = false, double zPos = 0);
@@ -74,7 +74,7 @@ class DisplayBodyVelocity : public DisplayBodyBase<>
 {
 public:
     DisplayBodyVelocity (
-	const GLWidget& widget, ViewNumber::Enum viewNumber, 
+	const WidgetGl& widget, ViewNumber::Enum viewNumber, 
 	const Foam& foam,
 	const BodySelector& bodySelector,
 	bool useZPos = false, double zPos = 0);
@@ -92,7 +92,7 @@ public:
      * Constructor
      */
     DisplayBodyCenter (
-	const GLWidget& widget, const Foam& foam,
+	const WidgetGl& widget, const Foam& foam,
 	const BodySelector& bodySelector,
 	bool useZPos = false, double zPos = 0);
 
@@ -114,7 +114,7 @@ public:
      * Constructor
      */
     DisplayBody (
-	const GLWidget& widget, const Foam& foam,
+	const WidgetGl& widget, const Foam& foam,
 	const BodySelector& bodySelector,
 	typename DisplayElement::ContextType 
 	contextDisplay = DisplayElement::USER_DEFINED_CONTEXT,
@@ -122,7 +122,7 @@ public:
 	bool useZPos = false, double zPos = 0);
 
     DisplayBody (
-	const GLWidget& widget, const Foam& foam,
+	const WidgetGl& widget, const Foam& foam,
 	const BodySelector& bodySelector,
 	PropertySetter setter,
 	typename DisplayElement::ContextType 
@@ -154,7 +154,7 @@ public:
      * Constructor
      */
     DisplayCenterPath (
-	const GLWidget& widget, const Foam& foam, ViewNumber::Enum view, 
+	const WidgetGl& widget, const Foam& foam, ViewNumber::Enum view, 
 	const BodySelector& bodySelector,
 	bool useTimeDisplacement = false, 
 	double timeDisplacement = 0,

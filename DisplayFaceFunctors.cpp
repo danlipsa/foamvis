@@ -12,7 +12,7 @@
 #include "DisplayEdgeFunctors.h"
 #include "Face.h"
 #include "Foam.h"
-#include "GLWidget.h"
+#include "WidgetGl.h"
 #include "OpenGLUtils.h"
 #include "OrientedFace.h"
 #include "ViewSettings.h"
@@ -25,7 +25,7 @@ template <HighlightNumber::Enum highlightColorIndex,
 DisplayFaceHighlightColor<highlightColorIndex, 
 			  displayEdges, PropertySetter>::
 DisplayFaceHighlightColor (
-    const GLWidget& widget, const Foam& foam,
+    const WidgetGl& widget, const Foam& foam,
     typename DisplayElement::FocusContext focus,
     ViewNumber::Enum view, bool useZPos, double zPos) : 
     
@@ -38,7 +38,7 @@ template <HighlightNumber::Enum highlightColorIndex,
 	  typename displayEdges, typename PropertySetter>
 DisplayFaceHighlightColor<highlightColorIndex, 
 			  displayEdges, PropertySetter>::
-DisplayFaceHighlightColor (const GLWidget& widget, const Foam& foam,
+DisplayFaceHighlightColor (const WidgetGl& widget, const Foam& foam,
 			   PropertySetter propertySetter,
 			   typename DisplayElement::FocusContext focus,
 			   bool useZPos, double zPos) : 
@@ -82,7 +82,7 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 template<typename PropertySetter>
 DisplayFaceBodyPropertyColor<PropertySetter>::
 DisplayFaceBodyPropertyColor (
-    const GLWidget& widget,const Foam& foam,
+    const WidgetGl& widget,const Foam& foam,
     typename DisplayElement::FocusContext focus, ViewNumber::Enum view, 
     bool useZPos, double zPos) : 
     
@@ -96,7 +96,7 @@ DisplayFaceBodyPropertyColor (
 template<typename PropertySetter>
 DisplayFaceBodyPropertyColor<PropertySetter>::
 DisplayFaceBodyPropertyColor (
-    const GLWidget& widget,const Foam& foam,
+    const WidgetGl& widget,const Foam& foam,
     PropertySetter propertySetter,
     typename DisplayElement::FocusContext focus,
     bool useZPos, double zPos) : 
@@ -206,7 +206,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 template<QRgb faceColor, typename PropertySetter>
 DisplayFaceDmpColor<faceColor, PropertySetter>::
 DisplayFaceDmpColor (
-    const GLWidget& widget, const Foam& foam,
+    const WidgetGl& widget, const Foam& foam,
     typename DisplayElement::FocusContext focus, ViewNumber::Enum view, 
     bool useZPos, double zPos) : 
     
@@ -220,7 +220,7 @@ DisplayFaceDmpColor (
 template<QRgb faceColor, typename PropertySetter>
 DisplayFaceDmpColor<faceColor, PropertySetter>::
 DisplayFaceDmpColor (
-    const GLWidget& widget, const Foam& foam,
+    const WidgetGl& widget, const Foam& foam,
     PropertySetter propertySetter,
     typename DisplayElement::FocusContext focus,
     bool useZPos, double zPos) : 

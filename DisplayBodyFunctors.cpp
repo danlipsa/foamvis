@@ -14,7 +14,7 @@
 #include "DisplayFaceFunctors.h"
 #include "DisplayEdgeFunctors.h"
 #include "Simulation.h"
-#include "GLWidget.h"
+#include "WidgetGl.h"
 #include "OpenGLUtils.h"
 #include "ViewSettings.h"
 #include "VectorAverage.h"
@@ -68,7 +68,7 @@ struct FocusColorSegment : public Segment
 
 template <typename PropertySetter>
 DisplayBodyBase<PropertySetter>::
-DisplayBodyBase (const GLWidget& widget, const Foam& foam,
+DisplayBodyBase (const WidgetGl& widget, const Foam& foam,
 		 const BodySelector& bodySelector,
 		 PropertySetter propertySetter, bool useZPos, double zPos) :
 
@@ -99,7 +99,7 @@ EndContext ()
 // ======================================================================
 
 DisplayBodyDeformation::DisplayBodyDeformation (
-    const GLWidget& widget, ViewNumber::Enum viewNumber, 
+    const WidgetGl& widget, ViewNumber::Enum viewNumber, 
     const Foam& foam,
     const BodySelector& bodySelector,
     bool useZPos, double zPos):
@@ -140,7 +140,7 @@ void DisplayBodyDeformation::operator () (boost::shared_ptr<Body> body)
 // ======================================================================
 
 DisplayBodyVelocity::DisplayBodyVelocity (
-    const GLWidget& widget, ViewNumber::Enum viewNumber, 
+    const WidgetGl& widget, ViewNumber::Enum viewNumber, 
     const Foam& foam,
     const BodySelector& bodySelector,
     bool useZPos, double zPos):
@@ -210,7 +210,7 @@ void DisplayBodyVelocity::operator () (boost::shared_ptr<Body> body)
 // ======================================================================
 
 DisplayBodyCenter::DisplayBodyCenter (
-    const GLWidget& widget, const Foam& foam,
+    const WidgetGl& widget, const Foam& foam,
     const BodySelector& bodySelector,
     bool useZPos, double zPos):
     
@@ -238,7 +238,7 @@ void DisplayBodyCenter::operator () (boost::shared_ptr<Body> b)
 template<typename displayFace, typename PropertySetter>
 DisplayBody<displayFace, PropertySetter>::
 DisplayBody (
-    const GLWidget& widget, const Foam& foam,
+    const WidgetGl& widget, const Foam& foam,
     const BodySelector& bodySelector,
     typename DisplayElement::ContextType contextDisplay, 
     ViewNumber::Enum view, bool useZPos, double zPos) :
@@ -252,7 +252,7 @@ DisplayBody (
 template<typename displayFace, typename PropertySetter>
 DisplayBody<displayFace, PropertySetter>::
 DisplayBody (
-    const GLWidget& widget, const Foam& foam,
+    const WidgetGl& widget, const Foam& foam,
     const BodySelector& bodySelector,
     PropertySetter setter,
     typename DisplayElement::ContextType contextDisplay,
@@ -295,7 +295,7 @@ operator () (boost::shared_ptr<Body> b)
 template<typename PropertySetter, typename DisplaySegment>
 DisplayCenterPath<PropertySetter, DisplaySegment>::
 DisplayCenterPath (
-    const GLWidget& widget, const Foam& foam,
+    const WidgetGl& widget, const Foam& foam,
     ViewNumber::Enum view,
     const BodySelector& bodySelector,
     bool useTimeDisplacement,

@@ -10,7 +10,7 @@
 #include "Debug.h"
 #include "DebugStream.h"
 #include "Simulation.h"
-#include "GLWidget.h"
+#include "WidgetGl.h"
 #include "OpenGLUtils.h"
 #include "PropertySetter.h"
 #include "Utils.h"

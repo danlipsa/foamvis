@@ -15,7 +15,7 @@
 #include "Foam.h"
 #include "Simulation.h"
 #include "DebugStream.h"
-#include "GLWidget.h"
+#include "WidgetGl.h"
 #include "MainWindow.h"
 #include "ProcessBodyTorus.h"
 #include "SystemDifferences.h"
@@ -217,7 +217,7 @@ void MainWindow::connectSignals ()
     
     
     // BodyOrFacePropertyChanged: 
-    // from MainWindow to GLWidget and AttributeHistogram
+    // from MainWindow to WidgetGl and AttributeHistogram
     connect (
 	this, 
 	SIGNAL (BodyOrFacePropertyChanged (
@@ -228,7 +228,7 @@ void MainWindow::connectSignals ()
 		  ViewNumber::Enum, boost::shared_ptr<ColorBarModel>, size_t)));
     
     // ColorBarModelChanged:
-    // from MainWindow to ColorBar, GLWidget and AttributeHistogram
+    // from MainWindow to ColorBar, WidgetGl and AttributeHistogram
     connect (
 	this, 
 	SIGNAL (ColorBarModelChanged (ViewNumber::Enum, 
@@ -247,7 +247,7 @@ void MainWindow::connectSignals ()
     
     
     // ColorBarModelChanged:
-    // from GLWidget to GLWidget and MainWindow and AttributeHistogram
+    // from WidgetGl to WidgetGl and MainWindow and AttributeHistogram
     connect (
 	widgetGl, 
 	SIGNAL (ColorBarModelChanged (ViewNumber::Enum,
@@ -284,11 +284,11 @@ void MainWindow::deformationViewToUI ()
     SetValueNoSignals (
 	horizontalSliderDeformationSize, 
 	Value2ExponentIndex (horizontalSliderDeformationSize, 
-		    GLWidget::TENSOR_SIZE_EXP2, vs.GetDeformationSize ()));
+		    WidgetGl::TENSOR_SIZE_EXP2, vs.GetDeformationSize ()));
     SetValueNoSignals (
 	horizontalSliderDeformationLineWidth, 
 	Value2ExponentIndex (horizontalSliderDeformationLineWidth,
-		     GLWidget::TENSOR_LINE_WIDTH_EXP2,
+		     WidgetGl::TENSOR_LINE_WIDTH_EXP2,
 		     vs.GetDeformationLineWidth ()));
 }
 
@@ -306,7 +306,7 @@ void MainWindow::velocityViewToUI ()
     SetValueNoSignals (
 	horizontalSliderVelocityLineWidth, 
 	Value2ExponentIndex (horizontalSliderVelocityLineWidth,
-		    GLWidget::TENSOR_LINE_WIDTH_EXP2,
+		    WidgetGl::TENSOR_LINE_WIDTH_EXP2,
 		    vs.GetVelocityLineWidth ()));
 }
 
@@ -327,11 +327,11 @@ void MainWindow::forceViewToUI ()
     SetValueNoSignals (
 	horizontalSliderForceTorqueSize, 
 	Value2ExponentIndex (horizontalSliderForceTorqueSize,
-		   GLWidget::FORCE_SIZE_EXP2, vs.GetForceTorqueSize ()));
+		   WidgetGl::FORCE_SIZE_EXP2, vs.GetForceTorqueSize ()));
     SetValueNoSignals (
 	horizontalSliderForceTorqueLineWidth, 
 	Value2ExponentIndex (horizontalSliderForceTorqueLineWidth,
-		   GLWidget::TENSOR_LINE_WIDTH_EXP2,
+		   WidgetGl::TENSOR_LINE_WIDTH_EXP2,
 		   vs.GetForceTorqueLineWidth ()));
 }
 
@@ -972,7 +972,7 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel (
     ViewType::Enum viewType, size_t property, 
     ComputationType::Enum statisticsType) const
 {
-    ColorBarType::Enum colorBarType = GLWidget::GetColorBarType (
+    ColorBarType::Enum colorBarType = WidgetGl::GetColorBarType (
 	viewType, property, statisticsType);
     switch (colorBarType)
     {

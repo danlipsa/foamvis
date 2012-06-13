@@ -49,7 +49,7 @@
            <widget class="QVTKWidget" name="widgetQvtk"/>
           </item>
           <item>
-           <widget class="GLWidget" name="widgetGl" native="true">
+           <widget class="WidgetGl" name="widgetGl" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
               <horstretch>0</horstretch>
@@ -2397,9 +2397,9 @@
    <header>QVTKWidget.h</header>
   </customwidget>
   <customwidget>
-   <class>GLWidget</class>
+   <class>WidgetGl</class>
    <extends>QWidget</extends>
-   <header>GLWidget.h</header>
+   <header>WidgetGl.h</header>
    <container>1</container>
    <slots>
     <slot>ToggledBodies(bool)</slot>

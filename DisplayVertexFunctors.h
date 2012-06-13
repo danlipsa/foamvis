@@ -33,7 +33,7 @@ struct DisplayBeginVertex
     {
     }
     
-    DisplayBeginVertex (const GLWidget&) 
+    DisplayBeginVertex (const WidgetGl&) 
     {
     }
     

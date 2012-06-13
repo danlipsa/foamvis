@@ -12,12 +12,12 @@
 #include "Average.h"
 #include "Enums.h"
 #include "ForcesOneObject.h"
-class GLWidget;
+class WidgetGl;
 
 class ForceAverage : public Average
 {
 public:
-    ForceAverage (const GLWidget& widgetGl) :
+    ForceAverage (const WidgetGl& widgetGl) :
 	Average (widgetGl)
     {
     }

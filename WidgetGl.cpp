@@ -1,5 +1,5 @@
 /**
- * @file   GLWidget.cpp
+ * @file   WidgetGl.cpp
  * @author Dan R. Lipsa
  *
  * Definitions for the widget for displaying foam bubbles using OpenGL
@@ -23,7 +23,7 @@
 #include "Face.h"
 #include "Foam.h"
 #include "Simulation.h"
-#include "GLWidget.h"
+#include "WidgetGl.h"
 #include "Info.h"
 #include "MainWindow.h"
 #include "OpenGLUtils.h"
@@ -156,23 +156,23 @@ void sendQuad (const G3D::Rect2D& srcRect, const G3D::Rect2D& srcTexRect)
 // Static Fields
 // ======================================================================
 
-const size_t GLWidget::DISPLAY_ALL(numeric_limits<size_t>::max());
+const size_t WidgetGl::DISPLAY_ALL(numeric_limits<size_t>::max());
 // quadrics
-const size_t GLWidget::QUADRIC_SLICES = 8;
-const size_t GLWidget::QUADRIC_STACKS = 1;
+const size_t WidgetGl::QUADRIC_SLICES = 8;
+const size_t WidgetGl::QUADRIC_STACKS = 1;
 
-const pair<float,float> GLWidget::T1S_SIZE (1, 32);
-const pair<float,float> GLWidget::TENSOR_SIZE_EXP2 (0, 10);
-const pair<float,float> GLWidget::TENSOR_LINE_WIDTH_EXP2 (0, 3);
-const pair<float,float> GLWidget::FORCE_SIZE_EXP2 (-2, 2);
-const pair<float,float> GLWidget::TORQUE_SIZE_EXP2 (-4, 4);
-const pair<float,float> GLWidget::CONTEXT_ALPHA (0.05, 0.5);
-const GLfloat GLWidget::HIGHLIGHT_LINE_WIDTH = 2.0;
+const pair<float,float> WidgetGl::T1S_SIZE (1, 32);
+const pair<float,float> WidgetGl::TENSOR_SIZE_EXP2 (0, 10);
+const pair<float,float> WidgetGl::TENSOR_LINE_WIDTH_EXP2 (0, 3);
+const pair<float,float> WidgetGl::FORCE_SIZE_EXP2 (-2, 2);
+const pair<float,float> WidgetGl::TORQUE_SIZE_EXP2 (-4, 4);
+const pair<float,float> WidgetGl::CONTEXT_ALPHA (0.05, 0.5);
+const GLfloat WidgetGl::HIGHLIGHT_LINE_WIDTH = 2.0;
 
 // Methods
 // ======================================================================
 
-GLWidget::GLWidget(QWidget *parent)
+WidgetGl::WidgetGl(QWidget *parent)
     : QGLWidget(parent),
       m_torusDomainShown (false),
       m_torusOriginalDomainClipped (false),
@@ -224,7 +224,7 @@ GLWidget::GLWidget(QWidget *parent)
     createActions ();
 }
 
-GLWidget::~GLWidget()
+WidgetGl::~WidgetGl()
 {
     makeCurrent();
     gluDeleteQuadric (m_quadric);
@@ -232,7 +232,7 @@ GLWidget::~GLWidget()
 }
 
 
-void GLWidget::initEndTranslationColor ()
+void WidgetGl::initEndTranslationColor ()
 {
     const int DOMAIN_INCREMENT_COLOR[] = {255, 0, 255};
     for (size_t i = 0;
@@ -251,7 +251,7 @@ void GLWidget::initEndTranslationColor ()
 }
 
 
-void GLWidget::initQuadrics ()
+void WidgetGl::initQuadrics ()
 {
     m_quadric = gluNewQuadric ();
     gluQuadricCallback (m_quadric, GLU_ERROR,
@@ -262,7 +262,7 @@ void GLWidget::initQuadrics ()
 }
 
 
-void GLWidget::createActions ()
+void WidgetGl::createActions ()
 {
     m_actionLinkedTimeBegin = boost::make_shared<QAction> (
 	tr("&Begin interval"), this);
@@ -484,7 +484,7 @@ void GLWidget::createActions ()
 	     SLOT (CopyColorBarFrom (int)));
 }
 
-void GLWidget::initCopy (
+void WidgetGl::initCopy (
     boost::array<boost::shared_ptr<QAction>, 
     ViewNumber::COUNT>& actionCopyTransformation,
     boost::shared_ptr<QSignalMapper>& signalMapperCopyTransformation)
@@ -508,22 +508,22 @@ void GLWidget::initCopy (
 }
 
 
-void GLWidget::initDisplayView ()
+void WidgetGl::initDisplayView ()
 {
     // WARNING: This has to be in the same order as ViewType::Enum
     boost::array<ViewTypeDisplay, ViewType::COUNT> displayView =
-	{{&GLWidget::displayEdgesNormal,
-	  &GLWidget::displayEdgesTorus,
-	  &GLWidget::displayFacesTorus,
-	  &GLWidget::displayFacesNormal,
-	  &GLWidget::displayCenterPathsWithBodies,
-	  &GLWidget::displayFacesAverage,
-	  &GLWidget::displayFacesAverage,
+	{{&WidgetGl::displayEdgesNormal,
+	  &WidgetGl::displayEdgesTorus,
+	  &WidgetGl::displayFacesTorus,
+	  &WidgetGl::displayFacesNormal,
+	  &WidgetGl::displayCenterPathsWithBodies,
+	  &WidgetGl::displayFacesAverage,
+	  &WidgetGl::displayFacesAverage,
 	    }};
     copy (displayView.begin (), displayView.end (), m_display.begin ());
 }
 
-void GLWidget::initViewSettings ()
+void WidgetGl::initViewSettings ()
 {
     ViewNumber::Enum viewNumber (ViewNumber::VIEW0);
     BOOST_FOREACH (boost::shared_ptr<ViewSettings>& vs, m_viewSettings)
@@ -535,7 +535,7 @@ void GLWidget::initViewSettings ()
     }
 }
 
-void GLWidget::setSimulation (int i, ViewNumber::Enum viewNumber)
+void WidgetGl::setSimulation (int i, ViewNumber::Enum viewNumber)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (i);
@@ -559,35 +559,35 @@ void GLWidget::setSimulation (int i, ViewNumber::Enum viewNumber)
 }
 
 
-const Simulation& GLWidget::GetSimulation () const
+const Simulation& WidgetGl::GetSimulation () const
 {
     return GetSimulation (GetViewNumber ());
 }
 
-const Simulation& GLWidget::GetSimulation (ViewNumber::Enum viewNumber) const
+const Simulation& WidgetGl::GetSimulation (ViewNumber::Enum viewNumber) const
 {
     return GetSimulation (
 	GetViewSettings (viewNumber).GetSimulationIndex ());
 }
 
-Simulation& GLWidget::GetSimulation (ViewNumber::Enum viewNumber)
+Simulation& WidgetGl::GetSimulation (ViewNumber::Enum viewNumber)
 {
     return GetSimulation (
 	GetViewSettings (viewNumber).GetSimulationIndex ());
 }
 
 
-const Simulation& GLWidget::GetSimulation (size_t i) const
+const Simulation& WidgetGl::GetSimulation (size_t i) const
 {
     return m_simulationGroup->GetSimulation (i);
 }
 
-Simulation& GLWidget::GetSimulation (size_t i)
+Simulation& WidgetGl::GetSimulation (size_t i)
 {
     return m_simulationGroup->GetSimulation (i);
 }
 
-void GLWidget::SetSimulationGroup (SimulationGroup* simulationGroup)
+void WidgetGl::SetSimulationGroup (SimulationGroup* simulationGroup)
 {
     m_simulationGroup = simulationGroup;
     initViewSettings ();
@@ -603,7 +603,7 @@ void GLWidget::SetSimulationGroup (SimulationGroup* simulationGroup)
 }
 
 
-float GLWidget::calculateOnePixelInObjectSpace () const
+float WidgetGl::calculateOnePixelInObjectSpace () const
 {
     G3D::Vector3 first = toObject (QPoint (0, 0));
     G3D::Vector3 second = toObject (QPoint (1, 0));
@@ -611,7 +611,7 @@ float GLWidget::calculateOnePixelInObjectSpace () const
     return onePixelInObjectSpace;
 }
 
-float GLWidget::GetBubbleSize (ViewNumber::Enum defaultViewNumber) const
+float WidgetGl::GetBubbleSize (ViewNumber::Enum defaultViewNumber) const
 {    
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers (
 	defaultViewNumber);
@@ -624,7 +624,7 @@ float GLWidget::GetBubbleSize (ViewNumber::Enum defaultViewNumber) const
     return size;
 }
 
-float GLWidget::GetDeformationSizeInitialRatio (
+float WidgetGl::GetDeformationSizeInitialRatio (
     ViewNumber::Enum viewNumber) const
 {
     float cellLength = GetBubbleSize (viewNumber);
@@ -632,7 +632,7 @@ float GLWidget::GetDeformationSizeInitialRatio (
 	(2 * GetSimulation (viewNumber).GetMaxDeformationEigenValue ());
 }
 
-float GLWidget::GetVelocitySizeInitialRatio (
+float WidgetGl::GetVelocitySizeInitialRatio (
     ViewNumber::Enum viewNumber) const
 {
     float cellLength = GetBubbleSize (viewNumber);
@@ -642,7 +642,7 @@ float GLWidget::GetVelocitySizeInitialRatio (
 }
 
 
-void GLWidget::calculateEdgeRadius (
+void WidgetGl::calculateEdgeRadius (
     double edgeRadiusRatio,
     double* edgeRadius, double* arrowBaseRadius, 
     double* arrowHeight, double* edgeWidth) const
@@ -659,17 +659,17 @@ void GLWidget::calculateEdgeRadius (
 }
 
 
-QSize GLWidget::minimumSizeHint()
+QSize WidgetGl::minimumSizeHint()
 {
     return QSize(50, 50);
 }
 
-QSize GLWidget::sizeHint()
+QSize WidgetGl::sizeHint()
 {
     return QSize(512, 512);
 }
 
-G3D::Vector3 GLWidget::getInitialLightPosition (
+G3D::Vector3 WidgetGl::getInitialLightPosition (
     ViewNumber::Enum viewNumber,
     LightNumber::Enum lightPosition) const
 {    
@@ -685,13 +685,13 @@ G3D::Vector3 GLWidget::getInitialLightPosition (
 }
 
 
-void GLWidget::displayLightDirection (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayLightDirection (ViewNumber::Enum viewNumber) const
 {
     for (size_t i = 0; i < LightNumber::COUNT; ++i)
 	displayLightDirection (viewNumber, LightNumber::Enum (i));
 }
 
-void GLWidget::displayLightDirection (
+void WidgetGl::displayLightDirection (
     ViewNumber::Enum viewNumber, LightNumber::Enum i) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
@@ -721,7 +721,7 @@ void GLWidget::displayLightDirection (
     }
 }
 
-void GLWidget::translateLight (ViewNumber::Enum viewNumber, 
+void WidgetGl::translateLight (ViewNumber::Enum viewNumber, 
 			       const QPoint& position)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -741,7 +741,7 @@ void GLWidget::translateLight (ViewNumber::Enum viewNumber,
 }
 
 
-void GLWidget::initializeLighting ()
+void WidgetGl::initializeLighting ()
 {
     // material colors: ambient and diffuse colors are set using glColor
     GLfloat materialSpecular[] = {1.0, 1.0, 1.0, 1.0}; //(0, 0, 0, 1)
@@ -788,7 +788,7 @@ void GLWidget::initializeLighting ()
 }
 
 
-void GLWidget::transformFoamAverageAround (
+void WidgetGl::transformFoamAverageAround (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
@@ -796,7 +796,7 @@ void GLWidget::transformFoamAverageAround (
 	RotateAndTranslateAverageAround (viewNumber, timeStep, 1);
 }
 
-void GLWidget::RotateAndTranslateAverageAround (
+void WidgetGl::RotateAndTranslateAverageAround (
     ViewNumber::Enum viewNumber,
     size_t timeStep, int direction) const
 {
@@ -825,14 +825,14 @@ void GLWidget::RotateAndTranslateAverageAround (
 }
 
 
-G3D::AABox GLWidget::calculateCenteredViewingVolume (
+G3D::AABox WidgetGl::calculateCenteredViewingVolume (
     ViewNumber::Enum viewNumber) const
 {
     G3D::AABox vv = CalculateViewingVolume (viewNumber);
     return vv - vv.center ();
 }
 
-G3D::Vector3 GLWidget::calculateViewingVolumeScaledExtent (
+G3D::Vector3 WidgetGl::calculateViewingVolumeScaledExtent (
     ViewNumber::Enum viewNumber) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -841,7 +841,7 @@ G3D::Vector3 GLWidget::calculateViewingVolumeScaledExtent (
 }
 
 
-G3D::AABox GLWidget::calculateEyeViewingVolume (
+G3D::AABox WidgetGl::calculateEyeViewingVolume (
     ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
@@ -852,7 +852,7 @@ G3D::AABox GLWidget::calculateEyeViewingVolume (
     return result;
 }
 
-G3D::AABox GLWidget::CalculateViewingVolume (
+G3D::AABox WidgetGl::CalculateViewingVolume (
     ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose) const
 {    
     const Simulation& simulation = GetSimulation (viewNumber);
@@ -869,7 +869,7 @@ G3D::AABox GLWidget::CalculateViewingVolume (
     return vv;
 }
 
-G3D::Vector3 GLWidget::getEyeTransform (ViewNumber::Enum viewNumber) const
+G3D::Vector3 WidgetGl::getEyeTransform (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     return G3D::Vector3 (0, 0, - vs.GetCameraDistance ()) -
@@ -880,7 +880,7 @@ G3D::Vector3 GLWidget::getEyeTransform (ViewNumber::Enum viewNumber) const
 /**
  * @todo: make sure context view works for 3D
  */
-void GLWidget::translateAndScale (
+void WidgetGl::translateAndScale (
     ViewNumber::Enum viewNumber, double scaleRatio,
     const G3D::Vector3& translation, bool contextView) const
 {
@@ -897,7 +897,7 @@ void GLWidget::translateAndScale (
     glTranslate (contextView ? (translation / scaleRatio) : translation);
 }
 
-void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber, 
+void WidgetGl::ModelViewTransform (ViewNumber::Enum viewNumber, 
 				   size_t timeStep) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
@@ -929,7 +929,7 @@ void GLWidget::ModelViewTransform (ViewNumber::Enum viewNumber,
     transformFoamAverageAround (viewNumber, timeStep);
 }
 
-void GLWidget::ProjectionTransform (
+void WidgetGl::ProjectionTransform (
     ViewNumber::Enum viewNumber,
     ViewingVolumeOperation::Enum enclose) const
 {
@@ -945,7 +945,7 @@ void GLWidget::ProjectionTransform (
 
 
 
-void GLWidget::viewportTransform (ViewNumber::Enum viewNumber) const
+void WidgetGl::viewportTransform (ViewNumber::Enum viewNumber) const
 {
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -954,7 +954,7 @@ void GLWidget::viewportTransform (ViewNumber::Enum viewNumber) const
 }
 
 
-G3D::Rect2D GLWidget::GetViewRect (ViewNumber::Enum view) const
+G3D::Rect2D WidgetGl::GetViewRect (ViewNumber::Enum view) const
 {
     float w = width ();
     float h = height ();
@@ -1017,7 +1017,7 @@ G3D::Rect2D GLWidget::GetViewRect (ViewNumber::Enum view) const
     }
 }
 
-double GLWidget::getXOverY (ViewNumber::Enum viewNumber) const
+double WidgetGl::getXOverY (ViewNumber::Enum viewNumber) const
 {
     (void)viewNumber;
     double xOverY = getXOverY ();
@@ -1030,13 +1030,13 @@ double GLWidget::getXOverY (ViewNumber::Enum viewNumber) const
     return v[m_viewCount * 2 + m_viewLayout];
 }
 
-double GLWidget::getXOverY () const
+double WidgetGl::getXOverY () const
 {
     return double (width ()) / height ();    
 }
 
 
-void GLWidget::setView (const G3D::Vector2& clickedPoint)
+void WidgetGl::setView (const G3D::Vector2& clickedPoint)
 {
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
@@ -1050,27 +1050,27 @@ void GLWidget::setView (const G3D::Vector2& clickedPoint)
     }
 }
 
-void GLWidget::SetViewNumber (ViewNumber::Enum viewNumber)
+void WidgetGl::SetViewNumber (ViewNumber::Enum viewNumber)
 {
     m_viewNumber = viewNumber;
     Q_EMIT ViewChanged ();
 }
 
-G3D::Rect2D GLWidget::getViewColorBarRect (const G3D::Rect2D& viewRect)
+G3D::Rect2D WidgetGl::getViewColorBarRect (const G3D::Rect2D& viewRect)
 {
     return G3D::Rect2D::xywh (
 	viewRect.x0 () + 5, viewRect.y0 () + 5,
 	10, max (viewRect.height () / 4, 50.0f));
 }
 
-G3D::Rect2D GLWidget::getViewOverlayBarRect (const G3D::Rect2D& viewRect)
+G3D::Rect2D WidgetGl::getViewOverlayBarRect (const G3D::Rect2D& viewRect)
 {
     return G3D::Rect2D::xywh (
 	viewRect.x0 () + 5 + 10 + 5, viewRect.y0 () + 5,
 	10, max (viewRect.height () / 4, 50.0f));
 }
 
-bool GLWidget::linkedTimesValid (size_t timeBegin, size_t timeEnd)
+bool WidgetGl::linkedTimesValid (size_t timeBegin, size_t timeEnd)
 {
     if (timeBegin <= timeEnd)
 	return true;
@@ -1087,7 +1087,7 @@ bool GLWidget::linkedTimesValid (size_t timeBegin, size_t timeEnd)
 }
 
 
-bool GLWidget::linkedTimesValid ()
+bool WidgetGl::linkedTimesValid ()
 {
     if (GetTimeLinkage () == TimeLinkage::LINKED)
     {
@@ -1102,7 +1102,7 @@ bool GLWidget::linkedTimesValid ()
 }
 
 
-void GLWidget::LinkedTimeBegin ()
+void WidgetGl::LinkedTimeBegin ()
 {
     if (! linkedTimesValid ())
 	return;
@@ -1117,7 +1117,7 @@ void GLWidget::LinkedTimeBegin ()
     }	
 }
 
-void GLWidget::LinkedTimeEnd ()
+void WidgetGl::LinkedTimeEnd ()
 {
     if (! linkedTimesValid ())
 	return;
@@ -1132,7 +1132,7 @@ void GLWidget::LinkedTimeEnd ()
     }
 }
 
-void GLWidget::SelectAll ()
+void WidgetGl::SelectAll ()
 {
     GetViewSettings ().
 	SetBodySelector (AllBodySelector::Get (), BodySelectorType::ID);
@@ -1141,14 +1141,14 @@ void GLWidget::SelectAll ()
     update ();
 }
 
-void GLWidget::DeselectAll ()
+void WidgetGl::DeselectAll ()
 {
     GetViewSettings ().SetBodySelector (
 	boost::shared_ptr<IdBodySelector> (new IdBodySelector ()));
     compileUpdate ();
 }
 
-void GLWidget::SelectBodiesByIdList ()
+void WidgetGl::SelectBodiesByIdList ()
 {
     if (m_selectBodiesByIdList->exec () == QDialog::Accepted)
     {
@@ -1159,7 +1159,7 @@ void GLWidget::SelectBodiesByIdList ()
     }
 }
 
-void GLWidget::SelectThisBodyOnly ()
+void WidgetGl::SelectThisBodyOnly ()
 {
     vector<size_t> bodyIds;
     ViewSettings& vs = GetViewSettings ();
@@ -1174,7 +1174,7 @@ void GLWidget::SelectThisBodyOnly ()
 }
 
 
-void GLWidget::InfoFoam ()
+void WidgetGl::InfoFoam ()
 {
     string message = GetSimulation ().ToHtml ();
     QMessageBox msgBox (this);
@@ -1182,7 +1182,7 @@ void GLWidget::InfoFoam ()
     msgBox.exec();
 }
 
-void GLWidget::InfoPoint ()
+void WidgetGl::InfoPoint ()
 {
     QMessageBox msgBox (this);
     ostringstream ostr;
@@ -1191,7 +1191,7 @@ void GLWidget::InfoPoint ()
     msgBox.exec();
 }
 
-void GLWidget::InfoEdge ()
+void WidgetGl::InfoEdge ()
 {
     Info msgBox (this, "Info");
     ostringstream ostr;
@@ -1205,7 +1205,7 @@ void GLWidget::InfoEdge ()
 }
 
 
-void GLWidget::InfoFace ()
+void WidgetGl::InfoFace ()
 {
     Info msgBox (this, "Info");
     ostringstream ostr;
@@ -1219,7 +1219,7 @@ void GLWidget::InfoFace ()
     msgBox.exec();
 }
 
-void GLWidget::InfoBody ()
+void WidgetGl::InfoBody ()
 {
     Info msgBox (this, "Info");
     string message = infoSelectedBody ();
@@ -1227,7 +1227,7 @@ void GLWidget::InfoBody ()
     msgBox.exec();
 }
 
-void GLWidget::InfoSelectedBodies ()
+void WidgetGl::InfoSelectedBodies ()
 {
     Info msgBox (this, "Info");
     const BodySelector& bodySelector = GetViewSettings ().GetBodySelector ();
@@ -1251,7 +1251,7 @@ void GLWidget::InfoSelectedBodies ()
 }
 
 
-string GLWidget::infoSelectedBody () const
+string WidgetGl::infoSelectedBody () const
 {
     ostringstream ostr;
     vector< boost::shared_ptr<Body> > bodies;
@@ -1263,7 +1263,7 @@ string GLWidget::infoSelectedBody () const
     return ostr.str ();
 }
 
-string GLWidget::infoSelectedBodies () const
+string WidgetGl::infoSelectedBodies () const
 {
     ostringstream ostr;
     const BodySelector& bodySelector = GetViewSettings ().GetBodySelector ();
@@ -1290,7 +1290,7 @@ string GLWidget::infoSelectedBodies () const
     return ostr.str ();
 }
 
-void GLWidget::InfoOpenGL ()
+void WidgetGl::InfoOpenGL ()
 {
     ostringstream ostr;
     printOpenGLInfo (ostr);
@@ -1298,7 +1298,7 @@ void GLWidget::InfoOpenGL ()
     openGLInfo.exec ();
 }
 
-void GLWidget::ShowNeighbors ()
+void WidgetGl::ShowNeighbors ()
 {
     m_showType = SHOW_NEIGHBORS;
     vector<size_t> bodies;
@@ -1307,7 +1307,7 @@ void GLWidget::ShowNeighbors ()
     update ();
 }
 
-void GLWidget::ShowDeformation ()
+void WidgetGl::ShowDeformation ()
 {
     m_showType = SHOW_DEFORMATION_TENSOR;
     vector<size_t> bodies;
@@ -1316,7 +1316,7 @@ void GLWidget::ShowDeformation ()
     update ();
 }
 
-void GLWidget::ShowVelocity ()
+void WidgetGl::ShowVelocity ()
 {
     m_showType = SHOW_VELOCITY;
     vector<size_t> bodies;
@@ -1326,13 +1326,13 @@ void GLWidget::ShowVelocity ()
 }
 
 
-void GLWidget::ShowReset ()
+void WidgetGl::ShowReset ()
 {
     m_showType = SHOW_NOTHING;
     update ();
 }
 
-void GLWidget::ColorBarClampClear ()
+void WidgetGl::ColorBarClampClear ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -1341,7 +1341,7 @@ void GLWidget::ColorBarClampClear ()
     Q_EMIT ColorBarModelChanged (viewNumber, colorBarModel);
 }
 
-void GLWidget::OverlayBarClampClear ()
+void WidgetGl::OverlayBarClampClear ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -1354,7 +1354,7 @@ void GLWidget::OverlayBarClampClear ()
 // Uses antialiased points and lines
 // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
 // Antialiasing, Fog and Polygon Offset page 293
-void GLWidget::initializeGL()
+void WidgetGl::initializeGL()
 {
     try {
 	initializeGLFunctions ();
@@ -1378,7 +1378,7 @@ void GLWidget::initializeGL()
 
 }
 
-void GLWidget::paintGL ()
+void WidgetGl::paintGL ()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     displayViews ();
@@ -1386,7 +1386,7 @@ void GLWidget::paintGL ()
     Q_EMIT PaintedGL ();
 }
 
-void GLWidget::resizeGL(int w, int h)
+void WidgetGl::resizeGL(int w, int h)
 {
     m_onePixelInObjectSpace = calculateOnePixelInObjectSpace ();
     (void)w;(void)h;
@@ -1400,7 +1400,7 @@ void GLWidget::resizeGL(int w, int h)
 }
 
 
-void GLWidget::displayViews ()
+void WidgetGl::displayViews ()
 {
     switch (m_viewCount)
     {
@@ -1419,7 +1419,7 @@ void GLWidget::displayViews ()
     }
 }
 
-void GLWidget::displayView (ViewNumber::Enum viewNumber)
+void WidgetGl::displayView (ViewNumber::Enum viewNumber)
 {
     //QTime t;t.start ();
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -1453,7 +1453,7 @@ void GLWidget::displayView (ViewNumber::Enum viewNumber)
     //<< t.elapsed () << " ms" << endl;
 }
 
-void GLWidget::allTransform (ViewNumber::Enum viewNumber) const
+void WidgetGl::allTransform (ViewNumber::Enum viewNumber) const
 {
     viewportTransform (viewNumber);    
     glMatrixMode (GL_PROJECTION);
@@ -1463,7 +1463,7 @@ void GLWidget::allTransform (ViewNumber::Enum viewNumber) const
 }
 
 
-G3D::Matrix3 GLWidget::getRotationAround (int axis, double angleRadians)
+G3D::Matrix3 WidgetGl::getRotationAround (int axis, double angleRadians)
 {
     using G3D::Matrix3;using G3D::Vector3;
     Vector3 axes[3] = {
@@ -1472,7 +1472,7 @@ G3D::Matrix3 GLWidget::getRotationAround (int axis, double angleRadians)
     return Matrix3::fromAxisAngle (axes[axis], angleRadians);
 }
 
-G3D::Vector2 GLWidget::calculateScaleCenter (
+G3D::Vector2 WidgetGl::calculateScaleCenter (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& rect) const
 {
     if (! m_reflectedHalfView)
@@ -1484,7 +1484,7 @@ G3D::Vector2 GLWidget::calculateScaleCenter (
 }
 
 
-float GLWidget::ratioFromScaleCenter (
+float WidgetGl::ratioFromScaleCenter (
     ViewNumber::Enum viewNumber, const QPoint& p)
 {
     
@@ -1498,7 +1498,7 @@ float GLWidget::ratioFromScaleCenter (
     return ratio;
 }
 
-G3D::Matrix3 GLWidget::rotate (
+G3D::Matrix3 WidgetGl::rotate (
     ViewNumber::Enum viewNumber,
     const QPoint& position, Qt::KeyboardModifiers modifiers,
     const G3D::Matrix3& r)
@@ -1536,7 +1536,7 @@ G3D::Matrix3 GLWidget::rotate (
     return rotate;
 }
 
-G3D::Vector3 GLWidget::calculateTranslationRatio (
+G3D::Vector3 WidgetGl::calculateTranslationRatio (
     ViewNumber::Enum viewNumber, const QPoint& position,
     G3D::Vector3::Axis screenXTranslation,
     G3D::Vector3::Axis screenYTranslation) const
@@ -1555,7 +1555,7 @@ G3D::Vector3 GLWidget::calculateTranslationRatio (
 }
 
 
-void GLWidget::translate (
+void WidgetGl::translate (
     ViewNumber::Enum viewNumber, const QPoint& position,
     Qt::KeyboardModifiers modifiers)
 {
@@ -1600,7 +1600,7 @@ void GLWidget::translate (
     }
 }
 
-void GLWidget::translateGrid (
+void WidgetGl::translateGrid (
     ViewNumber::Enum viewNumber, const QPoint& position)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -1611,7 +1611,7 @@ void GLWidget::translateGrid (
 	vs.GetGridTranslation () + (translationRatio * extent));
 }
 
-void GLWidget::scale (ViewNumber::Enum viewNumber, const QPoint& position)
+void WidgetGl::scale (ViewNumber::Enum viewNumber, const QPoint& position)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     float ratio = ratioFromScaleCenter (viewNumber, position);
@@ -1621,7 +1621,7 @@ void GLWidget::scale (ViewNumber::Enum viewNumber, const QPoint& position)
 	vs.SetScaleRatio (vs.GetScaleRatio () * ratio);
 }
 
-void GLWidget::scaleGrid (ViewNumber::Enum viewNumber, const QPoint& position)
+void WidgetGl::scaleGrid (ViewNumber::Enum viewNumber, const QPoint& position)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     float ratio = ratioFromScaleCenter (viewNumber, position);
@@ -1629,7 +1629,7 @@ void GLWidget::scaleGrid (ViewNumber::Enum viewNumber, const QPoint& position)
 }
 
 
-void GLWidget::scaleContext (
+void WidgetGl::scaleContext (
     ViewNumber::Enum viewNumber, const QPoint& position)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -1637,7 +1637,7 @@ void GLWidget::scaleContext (
     vs.SetContextScaleRatio (vs.GetContextScaleRatio () * ratio);
 }
 
-G3D::Vector3 GLWidget::brushedBodies (
+G3D::Vector3 WidgetGl::brushedBodies (
     const QPoint& position, vector<size_t>* bodies, bool selected) const
 {
     vector< boost::shared_ptr<Body> > b;
@@ -1648,7 +1648,7 @@ G3D::Vector3 GLWidget::brushedBodies (
     return op;
 }
 
-G3D::Vector3 GLWidget::brushedBodies (
+G3D::Vector3 WidgetGl::brushedBodies (
     const QPoint& position, 
     vector< boost::shared_ptr<Body> >* bodies, bool selected) const
 {
@@ -1667,7 +1667,7 @@ G3D::Vector3 GLWidget::brushedBodies (
     return op;
 }
 
-G3D::Vector3 GLWidget::brushedFace (const OrientedFace** of) const
+G3D::Vector3 WidgetGl::brushedFace (const OrientedFace** of) const
 {
     vector< boost::shared_ptr<Body> > bodies;
     G3D::Vector3 op = brushedBodies (m_contextMenuPosScreen, &bodies);
@@ -1696,7 +1696,7 @@ G3D::Vector3 GLWidget::brushedFace (const OrientedFace** of) const
     return op;
 }
 
-OrientedEdge GLWidget::brushedEdge () const
+OrientedEdge WidgetGl::brushedEdge () const
 {
     const OrientedFace* of = 0;
     G3D::Vector3 op = brushedFace (&of);
@@ -1720,7 +1720,7 @@ OrientedEdge GLWidget::brushedEdge () const
     return result;
 }
 
-G3D::Vector3 GLWidget::toObject (const QPoint& position) const
+G3D::Vector3 WidgetGl::toObject (const QPoint& position) const
 {
     bool is2D = GetSimulation ().Is2D ();
     G3D::Vector3 op = gluUnProject (
@@ -1730,19 +1730,19 @@ G3D::Vector3 GLWidget::toObject (const QPoint& position) const
 }
 
 
-G3D::Vector3 GLWidget::toObjectTransform (const QPoint& position, 
+G3D::Vector3 WidgetGl::toObjectTransform (const QPoint& position, 
 					  ViewNumber::Enum viewNumber) const
 {
     allTransform (viewNumber);
     return toObject (position);
 }
 
-G3D::Vector3 GLWidget::toObjectTransform (const QPoint& position) const
+G3D::Vector3 WidgetGl::toObjectTransform (const QPoint& position) const
 {
     return toObjectTransform (position, GetViewNumber ());
 }
 
-void GLWidget::displayAverageAroundBodies (
+void WidgetGl::displayAverageAroundBodies (
     ViewNumber::Enum viewNumber,
     bool adjustForAverageAroundMovementRotation) const
 {
@@ -1787,7 +1787,7 @@ void GLWidget::displayAverageAroundBodies (
 }
 
 
-void GLWidget::displayContextBodies (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayContextBodies (ViewNumber::Enum viewNumber) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.GetContextDisplayBodySize () > 0)
@@ -1811,7 +1811,7 @@ void GLWidget::displayContextBodies (ViewNumber::Enum viewNumber) const
     }
 }
 
-void GLWidget::displayContextBox (
+void WidgetGl::displayContextBox (
     ViewNumber::Enum viewNumber,
     bool adjustForAverageAroundMovementRotation) const
 {
@@ -1837,7 +1837,7 @@ void GLWidget::displayContextBox (
 }
 
 
-string GLWidget::getAverageAroundLabel ()
+string WidgetGl::getAverageAroundLabel ()
 {
     ostringstream ostr;
     const ViewSettings& vs = GetViewSettings ();
@@ -1860,7 +1860,7 @@ string GLWidget::getAverageAroundLabel ()
     return ostr.str ();
 }
 
-string GLWidget::getContextLabel ()
+string WidgetGl::getContextLabel ()
 {
     ostringstream ostr;
     const ViewSettings& vs = GetViewSettings ();
@@ -1870,7 +1870,7 @@ string GLWidget::getContextLabel ()
     return ostr.str ();
 }
 
-string GLWidget::getAverageAroundMovementShownLabel ()
+string WidgetGl::getAverageAroundMovementShownLabel ()
 {
     ostringstream ostr;
     const ViewSettings& vs = GetViewSettings ();
@@ -1880,7 +1880,7 @@ string GLWidget::getAverageAroundMovementShownLabel ()
 }
 
 
-string GLWidget::getBodySelectorLabel ()
+string WidgetGl::getBodySelectorLabel ()
 {
     const BodySelector& bodySelector = GetViewSettings ().GetBodySelector ();
     BodySelectorType::Enum type = bodySelector.GetType ();
@@ -1900,7 +1900,7 @@ string GLWidget::getBodySelectorLabel ()
     }
 }
 
-string GLWidget::getInteractionLabel ()
+string WidgetGl::getInteractionLabel ()
 {
     ostringstream ostr;
     const ViewSettings& vs = GetViewSettings ();
@@ -1930,7 +1930,7 @@ string GLWidget::getInteractionLabel ()
     return ostr.str ();
 }
 
-void GLWidget::displayStatus ()
+void WidgetGl::displayStatus ()
 {
     ostringstream ostr;
     boost::array<string, 5> labels = {{
@@ -1947,7 +1947,7 @@ void GLWidget::displayStatus ()
 }
 
 
-void GLWidget::AverageAroundBody ()
+void WidgetGl::AverageAroundBody ()
 {
     ViewSettings& vs = GetViewSettings ();
     vector< boost::shared_ptr<Body> > bodies;
@@ -1974,7 +1974,7 @@ void GLWidget::AverageAroundBody ()
     }
 }
 
-void GLWidget::AverageAroundSecondBody ()
+void WidgetGl::AverageAroundSecondBody ()
 {
     ViewSettings& vs = GetViewSettings ();
     vector< boost::shared_ptr<Body> > bodies;
@@ -2011,7 +2011,7 @@ void GLWidget::AverageAroundSecondBody ()
 }
 
 
-void GLWidget::AverageAroundReset ()
+void WidgetGl::AverageAroundReset ()
 {
     ViewSettings& vs = GetViewSettings ();
     vs.SetAverageAround (false);
@@ -2020,7 +2020,7 @@ void GLWidget::AverageAroundReset ()
     update ();
 }
 
-void GLWidget::ContextDisplayBody ()
+void WidgetGl::ContextDisplayBody ()
 {
     ViewSettings& vs = GetViewSettings ();
     vector<size_t> bodies;
@@ -2029,21 +2029,21 @@ void GLWidget::ContextDisplayBody ()
     update ();
 }
 
-void GLWidget::ContextDisplayReset ()
+void WidgetGl::ContextDisplayReset ()
 {
     ViewSettings& vs = GetViewSettings ();
     vs.ContextDisplayReset ();
     update ();
 }
 
-void GLWidget::ToggledAverageAroundAllowRotation (bool checked)
+void WidgetGl::ToggledAverageAroundAllowRotation (bool checked)
 {
     ViewSettings& vs = GetViewSettings ();
     vs.SetAverageAroundRotationShown (checked);
     update ();
 }
 
-void GLWidget::select (const QPoint& position)
+void WidgetGl::select (const QPoint& position)
 {
     vector<size_t> bodyIds;
     brushedBodies (position, &bodyIds, false);
@@ -2051,7 +2051,7 @@ void GLWidget::select (const QPoint& position)
     compileUpdate ();
 }
 
-void GLWidget::deselect (const QPoint& position)
+void WidgetGl::deselect (const QPoint& position)
 {
     vector<size_t> bodyIds;
     brushedBodies (position, &bodyIds);
@@ -2060,7 +2060,7 @@ void GLWidget::deselect (const QPoint& position)
     compileUpdate ();
 }
 
-void GLWidget::mouseMoveRotate (QMouseEvent *event, ViewNumber::Enum viewNumber)
+void WidgetGl::mouseMoveRotate (QMouseEvent *event, ViewNumber::Enum viewNumber)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     switch (m_interactionObject)
@@ -2084,7 +2084,7 @@ void GLWidget::mouseMoveRotate (QMouseEvent *event, ViewNumber::Enum viewNumber)
     }
 }
 
-void GLWidget::mouseMoveTranslate (QMouseEvent *event, 
+void WidgetGl::mouseMoveTranslate (QMouseEvent *event, 
 				   ViewNumber::Enum viewNumber)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -2109,7 +2109,7 @@ void GLWidget::mouseMoveTranslate (QMouseEvent *event,
     }
 }
 
-void GLWidget::mouseMoveScale (QMouseEvent *event, ViewNumber::Enum viewNumber)
+void WidgetGl::mouseMoveScale (QMouseEvent *event, ViewNumber::Enum viewNumber)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     switch (m_interactionObject)
@@ -2130,7 +2130,7 @@ void GLWidget::mouseMoveScale (QMouseEvent *event, ViewNumber::Enum viewNumber)
 }
 
 
-void GLWidget::mouseMoveEvent(QMouseEvent *event)
+void WidgetGl::mouseMoveEvent(QMouseEvent *event)
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -2168,7 +2168,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 }
 
 
-void GLWidget::mousePressEvent(QMouseEvent *event)
+void WidgetGl::mousePressEvent(QMouseEvent *event)
 {
     G3D::Vector2 p = QtToOpenGl (event->pos (), height ());
     setView (p);
@@ -2190,7 +2190,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 }
 
 
-void GLWidget::displayTorusDomain (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayTorusDomain (ViewNumber::Enum viewNumber) const
 {
     if (m_torusDomainShown)
 	DisplayBox (GetSimulation (viewNumber).
@@ -2200,7 +2200,7 @@ void GLWidget::displayTorusDomain (ViewNumber::Enum viewNumber) const
 /**
  * @todo display a pyramid frustum for angle of view > 0.
  */
-void GLWidget::displayFocusBox (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayFocusBox (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsContextView ())
@@ -2221,7 +2221,7 @@ void GLWidget::displayFocusBox (ViewNumber::Enum viewNumber) const
     }
 }
 
-void GLWidget::displayBoundingBox (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayBoundingBox (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
@@ -2244,7 +2244,7 @@ void GLWidget::displayBoundingBox (ViewNumber::Enum viewNumber) const
     glPopAttrib ();
 }
 
-void GLWidget::displayAxes (ViewNumber::Enum viewNumber)
+void WidgetGl::displayAxes (ViewNumber::Enum viewNumber)
 {
     if (m_axesShown)
     {
@@ -2302,7 +2302,7 @@ void GLWidget::displayAxes (ViewNumber::Enum viewNumber)
 
 
 template<typename displayEdge>
-void GLWidget::displayEdges (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayEdges (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (viewNumber);
@@ -2320,7 +2320,7 @@ void GLWidget::displayEdges (ViewNumber::Enum viewNumber) const
 }
 
 template<typename displayEdge>
-void GLWidget::displayStandaloneEdges (
+void WidgetGl::displayStandaloneEdges (
     const Foam& foam, ViewNumber::Enum viewNumber,
     bool useZPos, double zPos) const
 {
@@ -2337,7 +2337,7 @@ void GLWidget::displayStandaloneEdges (
     }
 }
 
-void GLWidget::displayEdgesNormal (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayEdgesNormal (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);    
     glPushAttrib (GL_ENABLE_BIT);
@@ -2351,7 +2351,7 @@ void GLWidget::displayEdgesNormal (ViewNumber::Enum viewNumber) const
     glPopAttrib ();
 }
 
-void GLWidget::displayDeformation (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayDeformation (ViewNumber::Enum viewNumber) const
 {
     const Foam& foam = 
 	GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber));
@@ -2369,7 +2369,7 @@ void GLWidget::displayDeformation (ViewNumber::Enum viewNumber) const
     glPopAttrib ();    
 }
 
-void GLWidget::displayVelocity (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayVelocity (ViewNumber::Enum viewNumber) const
 {
     const Foam& foam = 
 	GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber));
@@ -2398,7 +2398,7 @@ void GLWidget::displayVelocity (ViewNumber::Enum viewNumber) const
 
 
 
-void GLWidget::displayBodyDeformation (
+void WidgetGl::displayBodyDeformation (
     ViewNumber::Enum viewNumber) const
 {
     if (m_showType == SHOW_DEFORMATION_TENSOR)
@@ -2419,7 +2419,7 @@ void GLWidget::displayBodyDeformation (
     }
 }
 
-void GLWidget::displayBodyVelocity (
+void WidgetGl::displayBodyVelocity (
     ViewNumber::Enum viewNumber) const
 {
     if (m_showType == SHOW_VELOCITY)
@@ -2441,7 +2441,7 @@ void GLWidget::displayBodyVelocity (
 }
 
 
-void GLWidget::displayBodyNeighbors (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayBodyNeighbors (ViewNumber::Enum viewNumber) const
 {
     if (m_showType != SHOW_NEIGHBORS)
 	return;
@@ -2460,7 +2460,7 @@ void GLWidget::displayBodyNeighbors (ViewNumber::Enum viewNumber) const
 }
 
 
-void GLWidget::displayBodiesNeighbors () const
+void WidgetGl::displayBodiesNeighbors () const
 {
     if (m_bodyNeighborsShown)
     {
@@ -2481,13 +2481,13 @@ void GLWidget::displayBodiesNeighbors () const
     }
 }
 
-void GLWidget::displayT1sDot (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayT1sDot (ViewNumber::Enum viewNumber) const
 {
     for (size_t i = 0; i < GetSimulation (viewNumber).GetT1sTimeSteps (); ++i)
 	displayT1sDot (viewNumber, i);
 }
 
-void GLWidget::displayT1sDot (
+void WidgetGl::displayT1sDot (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
     glPushAttrib (GL_ENABLE_BIT | GL_POINT_BIT | 
@@ -2503,7 +2503,7 @@ void GLWidget::displayT1sDot (
     glPopAttrib ();
 }
 
-void GLWidget::DisplayT1Quad (
+void WidgetGl::DisplayT1Quad (
     ViewNumber::Enum viewNumber, size_t timeStep, size_t t1Index) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -2528,7 +2528,7 @@ void GLWidget::DisplayT1Quad (
 }
 
 // Three types of minMax (and ColorBarModels)
-pair<float, float> GLWidget::GetRange (ViewNumber::Enum viewNumber) const
+pair<float, float> WidgetGl::GetRange (ViewNumber::Enum viewNumber) const
 {
     const Simulation& simulation = GetSimulation (viewNumber);
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -2554,7 +2554,7 @@ pair<float, float> GLWidget::GetRange (ViewNumber::Enum viewNumber) const
     return pair<float, float> (minValue, maxValue);
 }
 
-pair<float, float> GLWidget::GetVelocityMagnitudeRange (
+pair<float, float> WidgetGl::GetVelocityMagnitudeRange (
     ViewNumber::Enum viewNumber) const
 {
     const Simulation& simulation = GetSimulation (viewNumber);
@@ -2565,17 +2565,17 @@ pair<float, float> GLWidget::GetVelocityMagnitudeRange (
 }
 
 
-pair<float, float> GLWidget::GetRangeCount (ViewNumber::Enum viewNumber) const
+pair<float, float> WidgetGl::GetRangeCount (ViewNumber::Enum viewNumber) const
 {
     return pair<float, float> (0, GetSimulation (viewNumber).GetTimeSteps ());
 }
 
-pair<float, float> GLWidget::GetRangeCount () const
+pair<float, float> WidgetGl::GetRangeCount () const
 {
     return GetRangeCount (GetViewNumber ());
 }
 
-pair<float, float> GLWidget::GetRangeT1sPDE (ViewNumber::Enum viewNumber) const
+pair<float, float> WidgetGl::GetRangeT1sPDE (ViewNumber::Enum viewNumber) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     T1sPDE& t1sPDE = vs.GetT1sPDE ();
@@ -2583,7 +2583,7 @@ pair<float, float> GLWidget::GetRangeT1sPDE (ViewNumber::Enum viewNumber) const
     return pair<float, float> (0.0, 1 / (2 * M_PI * sigma * sigma));
 }
 
-QColor GLWidget::GetHighlightColor (
+QColor WidgetGl::GetHighlightColor (
     ViewNumber::Enum viewNumber, HighlightNumber::Enum highlight) const
 {
     boost::shared_ptr<ColorBarModel> colorBarModel = 
@@ -2599,7 +2599,7 @@ QColor GLWidget::GetHighlightColor (
     }
 }
 
-void GLWidget::displayEdgesTorus (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayEdgesTorus (ViewNumber::Enum viewNumber) const
 {
     (void)viewNumber;
     if (m_edgeRadiusRatio > 0)
@@ -2608,7 +2608,7 @@ void GLWidget::displayEdgesTorus (ViewNumber::Enum viewNumber) const
 	displayEdgesTorusLines ();
 }
 
-void GLWidget::displayFacesTorus (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayFacesTorus (ViewNumber::Enum viewNumber) const
 {
     if (m_edgeRadiusRatio > 0)
 	displayFacesTorusTubes ();
@@ -2619,7 +2619,7 @@ void GLWidget::displayFacesTorus (ViewNumber::Enum viewNumber) const
 }
 
 
-void GLWidget::displayEdgesTorusTubes () const
+void WidgetGl::displayEdgesTorusTubes () const
 {
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
     EdgeSet edgeSet;
@@ -2632,7 +2632,7 @@ void GLWidget::displayEdgesTorusTubes () const
     glPopAttrib ();
 }
 
-void GLWidget::displayEdgesTorusLines () const
+void WidgetGl::displayEdgesTorusLines () const
 {
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
 
@@ -2646,7 +2646,7 @@ void GLWidget::displayEdgesTorusLines () const
 }
 
 
-void GLWidget::displayRotationCenter (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayRotationCenter (ViewNumber::Enum viewNumber) const
 {
     if (m_interactionMode == InteractionMode::ROTATE)
     {
@@ -2665,7 +2665,7 @@ void GLWidget::displayRotationCenter (ViewNumber::Enum viewNumber) const
 }
 
 
-void GLWidget::displayBodyCenters (
+void WidgetGl::displayBodyCenters (
     ViewNumber::Enum viewNumber, bool useZPos) const
 {
     if (m_bodyCenterShown)
@@ -2690,7 +2690,7 @@ void GLWidget::displayBodyCenters (
     }
 }
 
-void GLWidget::displayFaceCenters (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayFaceCenters (ViewNumber::Enum viewNumber) const
 {
     (void)viewNumber;
     if (m_faceCenterShown)
@@ -2711,7 +2711,7 @@ void GLWidget::displayFaceCenters (ViewNumber::Enum viewNumber) const
 }
 
     
-void GLWidget::displayContextMenuPos (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayContextMenuPos (ViewNumber::Enum viewNumber) const
 {
     (void)viewNumber;
     glPushAttrib (GL_POINT_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
@@ -2725,7 +2725,7 @@ void GLWidget::displayContextMenuPos (ViewNumber::Enum viewNumber) const
 }
 
 
-void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayFacesNormal (ViewNumber::Enum viewNumber) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     const Foam& foam = 
@@ -2747,7 +2747,7 @@ void GLWidget::displayFacesNormal (ViewNumber::Enum viewNumber) const
 }
 
 
-G3D::Vector2 GLWidget::toTexture (ViewNumber::Enum viewNumber, 
+G3D::Vector2 WidgetGl::toTexture (ViewNumber::Enum viewNumber, 
 				  G3D::Vector2 object) const
 {
     G3D::Vector2 eye = toEye (object);
@@ -2755,7 +2755,7 @@ G3D::Vector2 GLWidget::toTexture (ViewNumber::Enum viewNumber,
     return (eye - vv.low ().xy ()) / (vv.high ().xy () - vv.low ().xy ());
 }
 
-void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     glPushAttrib (GL_ENABLE_BIT);    
@@ -2814,7 +2814,7 @@ void GLWidget::displayFacesAverage (ViewNumber::Enum viewNumber) const
     glPopAttrib ();
 }
 
-void GLWidget::displayStandaloneFaces () const
+void WidgetGl::displayStandaloneFaces () const
 {
     if (m_standaloneElementsShown)
     {
@@ -2825,7 +2825,7 @@ void GLWidget::displayStandaloneFaces () const
     }
 }
 
-void GLWidget::displayFacesContour (const Foam::Faces& faces) const
+void WidgetGl::displayFacesContour (const Foam::Faces& faces) const
 {
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
     for_each (faces.begin (), faces.end (),
@@ -2836,7 +2836,7 @@ void GLWidget::displayFacesContour (const Foam::Faces& faces) const
     glPopAttrib ();
 }
 
-void GLWidget::displayFacesContour (
+void WidgetGl::displayFacesContour (
     const Foam::Bodies& bodies, ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
@@ -2854,7 +2854,7 @@ void GLWidget::displayFacesContour (
 
 
 template<HighlightNumber::Enum highlightColorIndex>
-void GLWidget::displayFacesContour (
+void WidgetGl::displayFacesContour (
     const Foam::Bodies& bodies, ViewNumber::Enum viewNumber, 
     GLfloat lineWidth) const
 {
@@ -2875,7 +2875,7 @@ void GLWidget::displayFacesContour (
 
 // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
 // Antialiasing, Fog and Polygon Offset page 293
-void GLWidget::displayFacesInterior (
+void WidgetGl::displayFacesInterior (
     const Foam::Bodies& b, ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
@@ -2927,7 +2927,7 @@ void GLWidget::displayFacesInterior (
 }
 
 
-void GLWidget::displayFacesInterior (const Foam::Faces& faces) const
+void WidgetGl::displayFacesInterior (const Foam::Faces& faces) const
 {
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
     glEnable (GL_POLYGON_OFFSET_FILL);
@@ -2938,7 +2938,7 @@ void GLWidget::displayFacesInterior (const Foam::Faces& faces) const
     glPopAttrib ();
 }
 
-void GLWidget::displayFacesTorusTubes () const
+void WidgetGl::displayFacesTorusTubes () const
 {
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
     FaceSet faceSet;
@@ -2954,7 +2954,7 @@ void GLWidget::displayFacesTorusTubes () const
 }
 
 
-void GLWidget::displayFacesTorusLines () const
+void WidgetGl::displayFacesTorusLines () const
 {
     glPushAttrib (GL_LINE_BIT | GL_CURRENT_BIT);
 
@@ -2969,7 +2969,7 @@ void GLWidget::displayFacesTorusLines () const
     glPopAttrib ();
 }
 
-void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
+void WidgetGl::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     size_t currentTime = GetCurrentTime (viewNumber);
@@ -3007,18 +3007,18 @@ void GLWidget::displayCenterPathsWithBodies (ViewNumber::Enum viewNumber) const
     glPopAttrib ();
 }
 
-void GLWidget::displayCenterPaths (ViewNumber::Enum view) const
+void WidgetGl::displayCenterPaths (ViewNumber::Enum view) const
 {
     glCallList (GetViewSettings (view).GetListCenterPaths ());
 }
 
-void GLWidget::compileUpdate ()
+void WidgetGl::compileUpdate ()
 {
     compile (GetViewNumber ());
     update ();
 }
 
-void GLWidget::compile (ViewNumber::Enum view) const
+void WidgetGl::compile (ViewNumber::Enum view) const
 {
     switch (GetViewSettings (view).GetViewType ())
     {
@@ -3030,7 +3030,7 @@ void GLWidget::compile (ViewNumber::Enum view) const
     }    
 }
 
-void GLWidget::compileCenterPaths (ViewNumber::Enum viewNumber) const
+void WidgetGl::compileCenterPaths (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const BodySelector& bodySelector = vs.GetBodySelector ();
@@ -3079,7 +3079,7 @@ void GLWidget::compileCenterPaths (ViewNumber::Enum viewNumber) const
 }
 
 
-const QColor& GLWidget::GetEndTranslationColor (
+const QColor& WidgetGl::GetEndTranslationColor (
     const G3D::Vector3int16& di) const
 {
     EndLocationColor::const_iterator it = m_endTranslationColor.find (di);
@@ -3089,18 +3089,18 @@ const QColor& GLWidget::GetEndTranslationColor (
 }
 
 
-const BodiesAlongTime& GLWidget::GetBodiesAlongTime () const
+const BodiesAlongTime& WidgetGl::GetBodiesAlongTime () const
 {
     return GetSimulation ().GetBodiesAlongTime ();
 }
 
-const BodyAlongTime& GLWidget::GetBodyAlongTime (size_t id) const
+const BodyAlongTime& WidgetGl::GetBodyAlongTime (size_t id) const
 {
     return GetBodiesAlongTime ().GetBodyAlongTime (id);
 }
 
 
-void GLWidget::setLight (int sliderValue, int maximumValue, 
+void WidgetGl::setLight (int sliderValue, int maximumValue, 
 			 LightType::Enum lightType, 
 			 ColorNumber::Enum colorNumber)
 {
@@ -3111,22 +3111,22 @@ void GLWidget::setLight (int sliderValue, int maximumValue,
     update ();
 }
 
-ColorBarType::Enum GLWidget::GetColorBarType () const
+ColorBarType::Enum WidgetGl::GetColorBarType () const
 {
     return GetColorBarType (GetViewNumber ());
 }
 
-ColorBarType::Enum GLWidget::GetColorBarType (ViewNumber::Enum viewNumber) const
+ColorBarType::Enum WidgetGl::GetColorBarType (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     ViewType::Enum viewType = vs.GetViewType ();
     size_t property = vs.GetBodyOrFaceProperty ();
     ComputationType::Enum statisticsType = vs.GetComputationType ();
-    return GLWidget::GetColorBarType (viewType, property, statisticsType);
+    return WidgetGl::GetColorBarType (viewType, property, statisticsType);
 }
 
 
-ColorBarType::Enum GLWidget::GetColorBarType (
+ColorBarType::Enum WidgetGl::GetColorBarType (
     ViewType::Enum viewType, size_t property, 
     ComputationType::Enum statisticsType)
 {
@@ -3147,12 +3147,12 @@ ColorBarType::Enum GLWidget::GetColorBarType (
     }
 }
 
-size_t GLWidget::GetCurrentTime (ViewNumber::Enum viewNumber) const
+size_t WidgetGl::GetCurrentTime (ViewNumber::Enum viewNumber) const
 {
     return GetViewSettings (viewNumber).GetCurrentTime ();
 }
 
-void GLWidget::SetCurrentTime (size_t currentTime, bool setLastStep)
+void WidgetGl::SetCurrentTime (size_t currentTime, bool setLastStep)
 {
     switch (m_timeLinkage) 
     {
@@ -3182,7 +3182,7 @@ void GLWidget::SetCurrentTime (size_t currentTime, bool setLastStep)
 }
 
 
-pair<size_t, ViewNumber::Enum> GLWidget::LinkedTimeMaxInterval () const
+pair<size_t, ViewNumber::Enum> WidgetGl::LinkedTimeMaxInterval () const
 {
     pair<size_t, ViewNumber::Enum> max (0, ViewNumber::COUNT);
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
@@ -3199,7 +3199,7 @@ pair<size_t, ViewNumber::Enum> GLWidget::LinkedTimeMaxInterval () const
     return max;
 }
 
-pair<size_t, ViewNumber::Enum> GLWidget::LinkedTimeMaxSteps () const
+pair<size_t, ViewNumber::Enum> WidgetGl::LinkedTimeMaxSteps () const
 {
     pair<size_t, ViewNumber::Enum> maxInterval = LinkedTimeMaxInterval ();    
     pair<size_t, ViewNumber::Enum> max (0, ViewNumber::COUNT);
@@ -3220,12 +3220,12 @@ pair<size_t, ViewNumber::Enum> GLWidget::LinkedTimeMaxSteps () const
 }
 
 
-float GLWidget::LinkedTimeStepStretch (ViewNumber::Enum viewNumber) const
+float WidgetGl::LinkedTimeStepStretch (ViewNumber::Enum viewNumber) const
 {
     return LinkedTimeStepStretch (LinkedTimeMaxInterval ().first, viewNumber);
 }
 
-float GLWidget::LinkedTimeStepStretch (size_t max,
+float WidgetGl::LinkedTimeStepStretch (size_t max,
 					  ViewNumber::Enum viewNumber) const
 {
     return static_cast<float> (max) / 
@@ -3234,7 +3234,7 @@ float GLWidget::LinkedTimeStepStretch (size_t max,
 
 
 
-size_t GLWidget::GetTimeSteps (ViewNumber::Enum viewNumber) const
+size_t WidgetGl::GetTimeSteps (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     ViewType::Enum viewType = vs.GetViewType ();
@@ -3246,19 +3246,19 @@ size_t GLWidget::GetTimeSteps (ViewNumber::Enum viewNumber) const
 }
 
 
-void GLWidget::quadricErrorCallback (GLenum errorCode)
+void WidgetGl::quadricErrorCallback (GLenum errorCode)
 {
     const GLubyte* message = gluErrorString (errorCode);
     cdbg << "Quadric error:" << message << endl;
 }
 
-void GLWidget::contextMenuEventOverlayBar (QMenu* menu) const
+void WidgetGl::contextMenuEventOverlayBar (QMenu* menu) const
 {
     menu->addAction (m_actionOverlayBarClampClear.get ());
     menu->addAction (m_actionEditOverlayMap.get ());
 }
 
-void GLWidget::contextMenuEventColorBar (QMenu* menu) const
+void WidgetGl::contextMenuEventColorBar (QMenu* menu) const
 {
     const ViewSettings& vs = GetViewSettings ();
     menu->addAction (m_actionColorBarClampClear.get ());
@@ -3285,7 +3285,7 @@ void GLWidget::contextMenuEventColorBar (QMenu* menu) const
     menu->addAction (m_actionEditColorMap.get ());
 }
 
-void GLWidget::contextMenuEventView (QMenu* menu) const
+void WidgetGl::contextMenuEventView (QMenu* menu) const
 {
     ViewSettings& vs = GetViewSettings ();
     {
@@ -3364,7 +3364,7 @@ void GLWidget::contextMenuEventView (QMenu* menu) const
 }
 
 
-void GLWidget::contextMenuEvent (QContextMenuEvent *event)
+void WidgetGl::contextMenuEvent (QContextMenuEvent *event)
 {
     m_contextMenuPosScreen = event->pos ();
     m_contextMenuPosObject = toObjectTransform (m_contextMenuPosScreen);
@@ -3382,7 +3382,7 @@ void GLWidget::contextMenuEvent (QContextMenuEvent *event)
 }
 
 
-void GLWidget::displayViewDecorations (ViewNumber::Enum viewNumber)
+void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     initTransformViewport ();
@@ -3410,7 +3410,7 @@ void GLWidget::displayViewDecorations (ViewNumber::Enum viewNumber)
     cleanupTransformViewport ();
 }
 
-void GLWidget::initTransformViewport ()
+void WidgetGl::initTransformViewport ()
 {
     glPushAttrib (
 	GL_POLYGON_BIT | GL_CURRENT_BIT | 
@@ -3424,7 +3424,7 @@ void GLWidget::initTransformViewport ()
     glViewport (0, 0, width (), height ());
 }
 
-void GLWidget::cleanupTransformViewport ()
+void WidgetGl::cleanupTransformViewport ()
 {
     glPopMatrix ();
     glMatrixMode (GL_MODELVIEW);
@@ -3432,7 +3432,7 @@ void GLWidget::cleanupTransformViewport ()
     glPopAttrib ();
 }
 
-void GLWidget::displayViewTitle (ViewNumber::Enum viewNumber)
+void WidgetGl::displayViewTitle (ViewNumber::Enum viewNumber)
 {
     if (! m_titleShown)
 	return;
@@ -3446,7 +3446,7 @@ void GLWidget::displayViewTitle (ViewNumber::Enum viewNumber)
     displayViewText (viewNumber, ostr.str (), 1);
 }
 
-void GLWidget::displayViewText (
+void WidgetGl::displayViewText (
     ViewNumber::Enum viewNumber, const string& t, size_t row)
 {
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
@@ -3463,13 +3463,13 @@ void GLWidget::displayViewText (
 
 
 
-size_t GLWidget::GetBodyOrFaceProperty (ViewNumber::Enum viewNumber) const
+size_t WidgetGl::GetBodyOrFaceProperty (ViewNumber::Enum viewNumber) const
 {
     return GetViewSettings (viewNumber).GetBodyOrFaceProperty ();
 }
 
 
-void GLWidget::displayViewFocus (ViewNumber::Enum viewNumber)
+void WidgetGl::displayViewFocus (ViewNumber::Enum viewNumber)
 {
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     G3D::Vector2 margin (3, 3);
@@ -3480,7 +3480,7 @@ void GLWidget::displayViewFocus (ViewNumber::Enum viewNumber)
     DisplayBox (rect);
 }
 
-void GLWidget::displayTextureColorBar (
+void WidgetGl::displayTextureColorBar (
     GLuint texture,
     ViewNumber::Enum viewNumber, const G3D::Rect2D& colorBarRect)
 {
@@ -3504,7 +3504,7 @@ void GLWidget::displayTextureColorBar (
     glPopAttrib ();
 }
 
-void GLWidget::displayOverlayBar (
+void WidgetGl::displayOverlayBar (
     ViewNumber::Enum viewNumber, const G3D::Rect2D& barRect)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -3528,7 +3528,7 @@ void GLWidget::displayOverlayBar (
 }
 
 
-void GLWidget::displayViewsGrid ()
+void WidgetGl::displayViewsGrid ()
 {
     glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_LINE_BIT);
     initTransformViewport ();
@@ -3589,19 +3589,19 @@ void GLWidget::displayViewsGrid ()
     glPopAttrib ();
 }
 
-QColor GLWidget::GetCenterPathContextColor () const
+QColor WidgetGl::GetCenterPathContextColor () const
 {
     QColor returnColor (Qt::black);
     returnColor.setAlphaF (GetContextAlpha ());
     return returnColor;
 }
 
-bool GLWidget::IsTimeDisplacementUsed () const
+bool WidgetGl::IsTimeDisplacementUsed () const
 {
     return GetTimeDisplacement () > 0;
 }
 
-bool GLWidget::IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const
+bool WidgetGl::IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const
 {
     switch (bodyProperty)
     {
@@ -3631,7 +3631,7 @@ bool GLWidget::IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const
  *
  * @see doc/TensorDisplay.pdf
  */
-void GLWidget::activateViewShader (
+void WidgetGl::activateViewShader (
     ViewNumber::Enum viewNumber, 
     ViewingVolumeOperation::Enum enclose, G3D::Rect2D& srcRect,
     G3D::Vector2 rotationCenter, float angleDegrees) const
@@ -3668,13 +3668,13 @@ void GLWidget::activateViewShader (
     glPopAttrib ();
 }
 
-void GLWidget::ActivateViewShader (ViewNumber::Enum viewNumber) const
+void WidgetGl::ActivateViewShader (ViewNumber::Enum viewNumber) const
 {
     ActivateViewShader (viewNumber, ViewingVolumeOperation::ENCLOSE2D,
 			G3D::Vector2::zero (), 0);
 }
 
-void GLWidget::ActivateViewShader (ViewNumber::Enum viewNumber, 
+void WidgetGl::ActivateViewShader (ViewNumber::Enum viewNumber, 
 				   ViewingVolumeOperation::Enum enclose,
 				   G3D::Rect2D& srcRect) const
 {
@@ -3683,7 +3683,7 @@ void GLWidget::ActivateViewShader (ViewNumber::Enum viewNumber,
 }
 
 
-void GLWidget::ActivateViewShader (
+void WidgetGl::ActivateViewShader (
     ViewNumber::Enum viewNumber, ViewingVolumeOperation::Enum enclose,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
@@ -3694,7 +3694,7 @@ void GLWidget::ActivateViewShader (
 			rotationCenter, angleDegrees);
 }
 
-void GLWidget::setScaleCenter (ViewNumber::Enum viewNumber)
+void WidgetGl::setScaleCenter (ViewNumber::Enum viewNumber)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     G3D::Rect2D rect = 
@@ -3706,7 +3706,7 @@ void GLWidget::setScaleCenter (ViewNumber::Enum viewNumber)
 }
 
 
-void GLWidget::SetReflectedHalfView (bool reflectedHalfView)
+void WidgetGl::SetReflectedHalfView (bool reflectedHalfView)
 {
     m_reflectedHalfView = reflectedHalfView;
     setScaleCenter (ViewNumber::VIEW0);
@@ -3714,13 +3714,13 @@ void GLWidget::SetReflectedHalfView (bool reflectedHalfView)
     update ();
 }
 
-void GLWidget::SetForceDifferenceShown (bool value)
+void WidgetGl::SetForceDifferenceShown (bool value)
 {
     GetViewSettings ().SetForceDifferenceShown (value);
     update ();
 }
 
-void GLWidget::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
+void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
     T1sPDE& t1sPDE = vs.GetT1sPDE ();
@@ -3729,7 +3729,7 @@ void GLWidget::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
     t1sPDE.AverageInitStep (viewNumber);
 }
 
-void GLWidget::valueChangedT1sKernelTextureSize (
+void WidgetGl::valueChangedT1sKernelTextureSize (
     ViewNumber::Enum viewNumber)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -3740,7 +3740,7 @@ void GLWidget::valueChangedT1sKernelTextureSize (
     t1sPDE.AverageInitStep (viewNumber);    
 }
 
-void GLWidget::toggledT1sKernelTextureSizeShown (ViewNumber::Enum viewNumber)
+void WidgetGl::toggledT1sKernelTextureSizeShown (ViewNumber::Enum viewNumber)
 {
     bool checked = static_cast<QCheckBox*> (sender ())->isChecked ();
     GetViewSettings (viewNumber).GetT1sPDE ().
@@ -3748,7 +3748,7 @@ void GLWidget::toggledT1sKernelTextureSizeShown (ViewNumber::Enum viewNumber)
 }
 
 
-void GLWidget::valueChangedT1sKernelIntervalPerPixel (
+void WidgetGl::valueChangedT1sKernelIntervalPerPixel (
     ViewNumber::Enum viewNumber)
 {
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -3760,7 +3760,7 @@ void GLWidget::valueChangedT1sKernelIntervalPerPixel (
 }
 
 template<typename T>
-void GLWidget::SetOneOrTwoViews (T* t, void (T::*f) (ViewNumber::Enum))
+void WidgetGl::SetOneOrTwoViews (T* t, void (T::*f) (ViewNumber::Enum))
 {
     if (IsReflectedHalfView ())
     {
@@ -3772,7 +3772,7 @@ void GLWidget::SetOneOrTwoViews (T* t, void (T::*f) (ViewNumber::Enum))
     update ();
 }
 
-vector<ViewNumber::Enum> GLWidget::GetConnectedViewNumbers (
+vector<ViewNumber::Enum> WidgetGl::GetConnectedViewNumbers (
     ViewNumber::Enum viewNumber) const
 {
     if (m_reflectedHalfView)
@@ -3795,7 +3795,7 @@ vector<ViewNumber::Enum> GLWidget::GetConnectedViewNumbers (
 // Slots
 // ======================================================================
 
-void GLWidget::ResetTransformAll ()
+void WidgetGl::ResetTransformAll ()
 {
     ResetTransformFocus ();
     ResetTransformContext ();
@@ -3803,7 +3803,7 @@ void GLWidget::ResetTransformAll ()
     ResetTransformLight ();
 }
 
-void GLWidget::ResetTransformFocus ()
+void WidgetGl::ResetTransformFocus ()
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -3822,7 +3822,7 @@ void GLWidget::ResetTransformFocus ()
     update ();
 }
 
-void GLWidget::ResetTransformContext ()
+void WidgetGl::ResetTransformContext ()
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -3839,7 +3839,7 @@ void GLWidget::ResetTransformContext ()
 
 }
 
-void GLWidget::ResetTransformGrid ()
+void WidgetGl::ResetTransformGrid ()
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -3852,7 +3852,7 @@ void GLWidget::ResetTransformGrid ()
     update ();
 }
 
-void GLWidget::ResetTransformLight ()
+void WidgetGl::ResetTransformLight ()
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -3867,7 +3867,7 @@ void GLWidget::ResetTransformLight ()
     update ();
 }
 
-void GLWidget::RotationCenterBody ()
+void WidgetGl::RotationCenterBody ()
 {
     vector< boost::shared_ptr<Body> > bodies;
     ViewNumber::Enum viewNumber = GetViewNumber ();
@@ -3880,7 +3880,7 @@ void GLWidget::RotationCenterBody ()
     }
 }
 
-void GLWidget::RotationCenterFoam ()
+void WidgetGl::RotationCenterFoam ()
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -3891,20 +3891,20 @@ void GLWidget::RotationCenterFoam ()
 }
 
 
-void GLWidget::CopyTransformationFrom (int viewNumber)
+void WidgetGl::CopyTransformationFrom (int viewNumber)
 {
     GetViewSettings ().CopyTransformation (
 	GetViewSettings (ViewNumber::Enum (viewNumber)));
     update ();
 }
 
-void GLWidget::CopySelectionFrom (int viewNumber)
+void WidgetGl::CopySelectionFrom (int viewNumber)
 {
     GetViewSettings ().CopySelection (
 	GetViewSettings (ViewNumber::Enum (viewNumber)));
 }
 
-void GLWidget::CopyColorBarFrom (int other)
+void WidgetGl::CopyColorBarFrom (int other)
 {
     ViewSettings& otherVs = GetViewSettings (ViewNumber::Enum (other));
     ViewNumber::Enum viewNumber = GetViewNumber ();
@@ -3914,7 +3914,7 @@ void GLWidget::CopyColorBarFrom (int other)
 }
 
 
-void GLWidget::ToggledDirectionalLightEnabled (bool checked)
+void WidgetGl::ToggledDirectionalLightEnabled (bool checked)
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings ();
@@ -3925,7 +3925,7 @@ void GLWidget::ToggledDirectionalLightEnabled (bool checked)
     update ();
 }
 
-void GLWidget::ToggledDeformationShown (bool checked)
+void WidgetGl::ToggledDeformationShown (bool checked)
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -3937,7 +3937,7 @@ void GLWidget::ToggledDeformationShown (bool checked)
     update ();
 }
 
-void GLWidget::ToggledDeformationShownGrid (bool checked)
+void WidgetGl::ToggledDeformationShownGrid (bool checked)
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -3950,7 +3950,7 @@ void GLWidget::ToggledDeformationShownGrid (bool checked)
     update ();
 }
 
-void GLWidget::ToggledVelocityShown (bool checked)
+void WidgetGl::ToggledVelocityShown (bool checked)
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -3962,7 +3962,7 @@ void GLWidget::ToggledVelocityShown (bool checked)
     update ();
 }
 
-void GLWidget::ToggledVelocityGridShown (bool checked)
+void WidgetGl::ToggledVelocityGridShown (bool checked)
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -3974,7 +3974,7 @@ void GLWidget::ToggledVelocityGridShown (bool checked)
     update ();
 }
 
-void GLWidget::ToggledVelocityClampingShown (bool checked)
+void WidgetGl::ToggledVelocityClampingShown (bool checked)
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -3987,7 +3987,7 @@ void GLWidget::ToggledVelocityClampingShown (bool checked)
 }
 
 
-void GLWidget::ToggledDeformationGridCellCenterShown (bool checked)
+void WidgetGl::ToggledDeformationGridCellCenterShown (bool checked)
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -4000,7 +4000,7 @@ void GLWidget::ToggledDeformationGridCellCenterShown (bool checked)
     update ();
 }
 
-void GLWidget::ToggledVelocityGridCellCenterShown (bool checked)
+void WidgetGl::ToggledVelocityGridCellCenterShown (bool checked)
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -4013,7 +4013,7 @@ void GLWidget::ToggledVelocityGridCellCenterShown (bool checked)
     update ();
 }
 
-void GLWidget::ToggledVelocitySameSize (bool checked)
+void WidgetGl::ToggledVelocitySameSize (bool checked)
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -4022,7 +4022,7 @@ void GLWidget::ToggledVelocitySameSize (bool checked)
     update ();    
 }
 
-void GLWidget::ToggledVelocityColorMapped (bool checked)
+void WidgetGl::ToggledVelocityColorMapped (bool checked)
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -4031,32 +4031,32 @@ void GLWidget::ToggledVelocityColorMapped (bool checked)
     update ();    
 }
 
-void GLWidget::ToggledMissingPressureShown (bool checked)
+void WidgetGl::ToggledMissingPressureShown (bool checked)
 {
     m_missingPressureShown = checked;
     update ();
 }
 
-void GLWidget::ToggledMissingVolumeShown (bool checked)
+void WidgetGl::ToggledMissingVolumeShown (bool checked)
 {
     m_missingVolumeShown = checked;
     update ();
 }
 
-void GLWidget::ToggledObjectVelocityShown (bool checked)
+void WidgetGl::ToggledObjectVelocityShown (bool checked)
 {
     m_objectVelocityShown = checked;
     update ();
 }
 
-void GLWidget::ToggledLightNumberShown (bool checked)
+void WidgetGl::ToggledLightNumberShown (bool checked)
 {
     ViewSettings& vs = GetViewSettings ();
     vs.SetLightPositionShown (vs.GetSelectedLight (), checked);
     update ();
 }
 
-void GLWidget::ToggledLightEnabled (bool checked)
+void WidgetGl::ToggledLightEnabled (bool checked)
 {
     makeCurrent ();
     ViewNumber::Enum viewNumber = GetViewNumber ();
@@ -4072,133 +4072,133 @@ void GLWidget::ToggledLightEnabled (bool checked)
 }
 
 
-void GLWidget::ToggledBoundingBoxSimulation (bool checked)
+void WidgetGl::ToggledBoundingBoxSimulation (bool checked)
 {
     m_boundingBoxSimulationShown = checked;
     update ();
 }
 
-void GLWidget::ToggledBoundingBoxFoam (bool checked)
+void WidgetGl::ToggledBoundingBoxFoam (bool checked)
 {
     m_boundingBoxFoamShown = checked;
     update ();
 }
 
-void GLWidget::ToggledBoundingBoxBody (bool checked)
+void WidgetGl::ToggledBoundingBoxBody (bool checked)
 {
     m_boundingBoxBodyShown = checked;
     update ();
 }
 
 
-void GLWidget::ToggledAverageAroundMarked (bool checked)
+void WidgetGl::ToggledAverageAroundMarked (bool checked)
 {
     m_averageAroundMarked = checked;
     update ();
 }
 
-void GLWidget::ToggledViewFocusShown (bool checked)
+void WidgetGl::ToggledViewFocusShown (bool checked)
 {
     m_viewFocusShown = checked;
     update ();
 }
 
 
-void GLWidget::ToggledContextView (bool checked)
+void WidgetGl::ToggledContextView (bool checked)
 {
     ViewSettings& vs = GetViewSettings ();
     vs.SetContextView (checked);
     update ();
 }
 
-void GLWidget::ToggledContextBoxShown (bool checked)
+void WidgetGl::ToggledContextBoxShown (bool checked)
 {
     m_contextBoxShown = checked;
     update ();
 }
 
-void GLWidget::ToggledForceNetworkShown (bool checked)
+void WidgetGl::ToggledForceNetworkShown (bool checked)
 {
     GetViewSettings ().SetForceNetworkShown (checked);
     update ();
 }
 
-void GLWidget::ToggledForcePressureShown (bool checked)
+void WidgetGl::ToggledForcePressureShown (bool checked)
 {
     GetViewSettings ().SetForcePressureShown (checked);
     update ();
 }
 
-void GLWidget::ToggledForceResultShown (bool checked)
+void WidgetGl::ToggledForceResultShown (bool checked)
 {
     GetViewSettings ().SetForceResultShown (checked);
     update ();
 }
 
-void GLWidget::ToggledTorqueNetworkShown (bool checked)
+void WidgetGl::ToggledTorqueNetworkShown (bool checked)
 {
     GetViewSettings ().SetTorqueNetworkShown (checked);
     update ();
 }
 
-void GLWidget::ToggledTorquePressureShown (bool checked)
+void WidgetGl::ToggledTorquePressureShown (bool checked)
 {
     GetViewSettings ().SetTorquePressureShown (checked);
     update ();
 }
 
-void GLWidget::ToggledTorqueResultShown (bool checked)
+void WidgetGl::ToggledTorqueResultShown (bool checked)
 {
     GetViewSettings ().SetTorqueResultShown (checked);
     update ();
 }
 
 
-void GLWidget::ToggledAxesShown (bool checked)
+void WidgetGl::ToggledAxesShown (bool checked)
 {
     m_axesShown = checked;
     update ();
 }
 
-void GLWidget::ToggledStandaloneElementsShown (bool checked)
+void WidgetGl::ToggledStandaloneElementsShown (bool checked)
 {
     m_standaloneElementsShown = checked;
     update ();
 }
 
-void GLWidget::ToggledConstraintsShown (bool checked)
+void WidgetGl::ToggledConstraintsShown (bool checked)
 {
     m_constraintsShown = checked;
     update ();
 }
 
-void GLWidget::ToggledConstraintPointsShown (bool checked)
+void WidgetGl::ToggledConstraintPointsShown (bool checked)
 {
     m_constraintPointsShown = checked;
     update ();
 }
 
-void GLWidget::ToggledCenterPathBodyShown (bool checked)
+void WidgetGl::ToggledCenterPathBodyShown (bool checked)
 {
     m_centerPathBodyShown = checked;
     update ();
 }
 
-void GLWidget::ToggledSelectionContextShown (bool checked)
+void WidgetGl::ToggledSelectionContextShown (bool checked)
 {
     GetViewSettings ().SetSelectionContextShown (checked);
     compile (GetViewNumber ());
     update ();
 }
 
-void GLWidget::ToggledCenterPathHidden (bool checked)
+void WidgetGl::ToggledCenterPathHidden (bool checked)
 {
     GetViewSettings ().SetCenterPathHidden (checked);
     compile (GetViewNumber ());
     update ();
 }
 
-void GLWidget::ButtonClickedViewType (int id)
+void WidgetGl::ButtonClickedViewType (int id)
 {
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
@@ -4217,7 +4217,7 @@ void GLWidget::ButtonClickedViewType (int id)
     update ();
 }
 
-void GLWidget::ButtonClickedTimeLinkage (int id)
+void WidgetGl::ButtonClickedTimeLinkage (int id)
 {
     m_timeLinkage = TimeLinkage::Enum (id);
     SetCurrentTime (GetCurrentTime ());
@@ -4225,79 +4225,79 @@ void GLWidget::ButtonClickedTimeLinkage (int id)
     Q_EMIT ViewChanged ();
 }
 
-void GLWidget::ToggledBodyCenterShown (bool checked)
+void WidgetGl::ToggledBodyCenterShown (bool checked)
 {
     m_bodyCenterShown = checked;
     update ();
 }
 
-void GLWidget::ToggledBodyNeighborsShown (bool checked)
+void WidgetGl::ToggledBodyNeighborsShown (bool checked)
 {
     m_bodyNeighborsShown = checked;
     update ();
 }
 
 
-void GLWidget::ToggledFaceCenterShown (bool checked)
+void WidgetGl::ToggledFaceCenterShown (bool checked)
 {
     m_faceCenterShown = checked;
     update ();
 }
 
 
-void GLWidget::ToggledEdgesShown (bool checked)
+void WidgetGl::ToggledEdgesShown (bool checked)
 {
     m_edgesShown = checked;
     update ();
 }
 
-void GLWidget::ToggledEdgesTessellationShown (bool checked)
+void WidgetGl::ToggledEdgesTessellationShown (bool checked)
 {
     m_edgesTessellationShown = checked;
     update ();
 }
 
 
-void GLWidget::ToggledTorusDomainShown (bool checked)
+void WidgetGl::ToggledTorusDomainShown (bool checked)
 {
     m_torusDomainShown = checked;
     update ();
 }
 
-void GLWidget::ToggledCenterPathTubeUsed (bool checked)
+void WidgetGl::ToggledCenterPathTubeUsed (bool checked)
 {
     m_centerPathTubeUsed = checked;
     compile (GetViewNumber ());
     update ();
 }
 
-void GLWidget::ToggledCenterPathLineUsed (bool checked)
+void WidgetGl::ToggledCenterPathLineUsed (bool checked)
 {
     m_centerPathLineUsed = checked;
     compile (GetViewNumber ());
     update ();
 }
 
-void GLWidget::ToggledTitleShown (bool checked)
+void WidgetGl::ToggledTitleShown (bool checked)
 {
     m_titleShown = checked;
     update ();
 }
 
 
-void GLWidget::ToggledTorusOriginalDomainClipped (bool checked)
+void WidgetGl::ToggledTorusOriginalDomainClipped (bool checked)
 {
     m_torusOriginalDomainClipped = checked;
     update ();
 }
 
-void GLWidget::ToggledT1sShown (bool checked)
+void WidgetGl::ToggledT1sShown (bool checked)
 {
     m_t1sShown = checked;
     update ();
 }
 
-void GLWidget::ToggledT1sShiftLower (bool checked)
+void WidgetGl::ToggledT1sShiftLower (bool checked)
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -4307,20 +4307,20 @@ void GLWidget::ToggledT1sShiftLower (bool checked)
     update ();
 }
 
-void GLWidget::CurrentIndexChangedSelectedLight (int selectedLight)
+void WidgetGl::CurrentIndexChangedSelectedLight (int selectedLight)
 {
     ViewSettings& vs = GetViewSettings ();
     vs.SetSelectedLight (LightNumber::Enum (selectedLight));
     update ();
 }
 
-void GLWidget::CurrentIndexChangedSimulation (int i)
+void WidgetGl::CurrentIndexChangedSimulation (int i)
 {
     setSimulation (i, GetViewNumber ());
     update ();
 }
 
-void GLWidget::CurrentIndexChangedViewCount (int index)
+void WidgetGl::CurrentIndexChangedViewCount (int index)
 {
     m_viewCount = ViewCount::Enum (index);
     m_viewNumber = ViewNumber::VIEW0;
@@ -4337,37 +4337,37 @@ void GLWidget::CurrentIndexChangedViewCount (int index)
     update ();
 }
 
-void GLWidget::CurrentIndexChangedViewLayout (int index)
+void WidgetGl::CurrentIndexChangedViewLayout (int index)
 {
     m_viewLayout = ViewLayout::Enum (index);
     update ();
 }
 
-void GLWidget::CurrentIndexChangedInteractionMode (int index)
+void WidgetGl::CurrentIndexChangedInteractionMode (int index)
 {
     m_interactionMode = InteractionMode::Enum(index);
     update ();
 }
 
-void GLWidget::ButtonClickedInteractionObject (int index)
+void WidgetGl::ButtonClickedInteractionObject (int index)
 {
     m_interactionObject = InteractionObject::Enum (index);
 }
 
 
-void GLWidget::CurrentIndexChangedComputationType (int index)
+void WidgetGl::CurrentIndexChangedComputationType (int index)
 {
     GetViewSettings ().SetComputationType (ComputationType::Enum(index));
     update ();
 }
 
-void GLWidget::CurrentIndexChangedAxesOrder (int index)
+void WidgetGl::CurrentIndexChangedAxesOrder (int index)
 {
     GetViewSettings ().SetAxesOrder (AxesOrder::Enum(index));
 }
 
 // @todo add a color bar model for BodyProperty::None
-void GLWidget::SetBodyOrFaceProperty (
+void WidgetGl::SetBodyOrFaceProperty (
     ViewNumber::Enum viewNumber,
     boost::shared_ptr<ColorBarModel> colorBarModel,
     size_t bodyOrFaceProperty)
@@ -4382,7 +4382,7 @@ void GLWidget::SetBodyOrFaceProperty (
     update ();
 }
 
-void GLWidget::SetColorBarModel (ViewNumber::Enum viewNumber, 
+void WidgetGl::SetColorBarModel (ViewNumber::Enum viewNumber, 
 				 boost::shared_ptr<ColorBarModel> colorBarModel)
 {
     makeCurrent ();
@@ -4390,7 +4390,7 @@ void GLWidget::SetColorBarModel (ViewNumber::Enum viewNumber,
     update ();
 }
 
-void GLWidget::SetOverlayBarModel (
+void WidgetGl::SetOverlayBarModel (
     ViewNumber::Enum viewNumber, 
     boost::shared_ptr<ColorBarModel> colorBarModel)
 {
@@ -4399,7 +4399,7 @@ void GLWidget::SetOverlayBarModel (
     update ();
 }
 
-void GLWidget::ValueChangedNoiseStart (int index)
+void WidgetGl::ValueChangedNoiseStart (int index)
 {
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
@@ -4415,7 +4415,7 @@ void GLWidget::ValueChangedNoiseStart (int index)
     update ();
 }
 
-void GLWidget::ValueChangedNoiseAmplitude (int index)
+void WidgetGl::ValueChangedNoiseAmplitude (int index)
 {
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
@@ -4431,7 +4431,7 @@ void GLWidget::ValueChangedNoiseAmplitude (int index)
     update ();
 }
 
-void GLWidget::ValueChangedNoiseFrequency (int index)
+void WidgetGl::ValueChangedNoiseFrequency (int index)
 {
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
@@ -4448,13 +4448,13 @@ void GLWidget::ValueChangedNoiseFrequency (int index)
 }
 
 
-void GLWidget::ValueChangedSliderTimeSteps (int timeStep)
+void WidgetGl::ValueChangedSliderTimeSteps (int timeStep)
 {
     SetCurrentTime (timeStep);
     update ();
 }
 
-void GLWidget::ClickedEnd ()
+void WidgetGl::ClickedEnd ()
 {
     size_t steps = ((GetTimeLinkage () == TimeLinkage::INDEPENDENT) ?
 		    GetTimeSteps () : LinkedTimeMaxSteps ().first);
@@ -4462,18 +4462,18 @@ void GLWidget::ClickedEnd ()
     update ();
 }
 
-void GLWidget::ValueChangedAverageTimeWindow (int timeSteps)
+void WidgetGl::ValueChangedAverageTimeWindow (int timeSteps)
 {
     ViewSettings& vs = GetViewSettings ();
     vs.AverageSetTimeWindow (timeSteps);
 }
 
-void GLWidget::ValueChangedT1sTimeWindow (int timeSteps)
+void WidgetGl::ValueChangedT1sTimeWindow (int timeSteps)
 {
     GetViewSettings ().GetT1sPDE ().AverageSetTimeWindow (timeSteps);
 }
 
-void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
+void WidgetGl::ValueChangedTimeDisplacement (int timeDisplacement)
 {
     QSlider* slider = static_cast<QSlider*> (sender ());
     size_t maximum = slider->maximum ();
@@ -4485,7 +4485,7 @@ void GLWidget::ValueChangedTimeDisplacement (int timeDisplacement)
     update ();
 }
 
-void GLWidget::ValueChangedT1Size (int index)
+void WidgetGl::ValueChangedT1Size (int index)
 {
     (void)index;
     m_t1sSize = Index2Value (static_cast<QSlider*> (sender ()), T1S_SIZE);
@@ -4493,32 +4493,32 @@ void GLWidget::ValueChangedT1Size (int index)
 }
 
 
-void GLWidget::ValueChangedT1sKernelIntervalPerPixel (int index)
+void WidgetGl::ValueChangedT1sKernelIntervalPerPixel (int index)
 {
     (void)index;
     SetOneOrTwoViews (this,
-		      &GLWidget::valueChangedT1sKernelIntervalPerPixel);
+		      &WidgetGl::valueChangedT1sKernelIntervalPerPixel);
 }
 
-void GLWidget::ValueChangedT1sKernelSigma (int index)
+void WidgetGl::ValueChangedT1sKernelSigma (int index)
 {
     (void)index;
-    SetOneOrTwoViews (this, &GLWidget::valueChangedT1sKernelSigma);
+    SetOneOrTwoViews (this, &WidgetGl::valueChangedT1sKernelSigma);
 }
 
-void GLWidget::ValueChangedT1sKernelTextureSize (int index)
+void WidgetGl::ValueChangedT1sKernelTextureSize (int index)
 {
     (void)index;
-    SetOneOrTwoViews (this, &GLWidget::valueChangedT1sKernelTextureSize);
+    SetOneOrTwoViews (this, &WidgetGl::valueChangedT1sKernelTextureSize);
 }
 
-void GLWidget::ToggledT1sKernelTextureSizeShown (bool checked)
+void WidgetGl::ToggledT1sKernelTextureSizeShown (bool checked)
 {
     (void)checked;
-    SetOneOrTwoViews (this, &GLWidget::toggledT1sKernelTextureSizeShown);
+    SetOneOrTwoViews (this, &WidgetGl::toggledT1sKernelTextureSizeShown);
 }
 
-void GLWidget::ValueChangedDeformationSizeExp (int index)
+void WidgetGl::ValueChangedDeformationSizeExp (int index)
 {
     (void)index;
     ViewSettings& vs = GetViewSettings ();
@@ -4528,7 +4528,7 @@ void GLWidget::ValueChangedDeformationSizeExp (int index)
     update ();
 }
 
-void GLWidget::ValueChangedDeformationLineWidthExp (int index)
+void WidgetGl::ValueChangedDeformationLineWidthExp (int index)
 {
     (void)index;
     ViewSettings& vs = GetViewSettings ();
@@ -4538,7 +4538,7 @@ void GLWidget::ValueChangedDeformationLineWidthExp (int index)
     update ();
 }
 
-void GLWidget::ValueChangedForceTorqueSize (int index)
+void WidgetGl::ValueChangedForceTorqueSize (int index)
 {
     (void)index;
     ViewSettings& vs = GetViewSettings ();
@@ -4548,7 +4548,7 @@ void GLWidget::ValueChangedForceTorqueSize (int index)
     update ();
 }
 
-void GLWidget::ValueChangedTorqueDistance (int index)
+void WidgetGl::ValueChangedTorqueDistance (int index)
 {
     (void)index;
     ViewSettings& vs = GetViewSettings ();
@@ -4560,7 +4560,7 @@ void GLWidget::ValueChangedTorqueDistance (int index)
 
 
 
-void GLWidget::ValueChangedForceTorqueLineWidth (int index)
+void WidgetGl::ValueChangedForceTorqueLineWidth (int index)
 {
     (void)index;
     ViewSettings& vs = GetViewSettings ();
@@ -4571,7 +4571,7 @@ void GLWidget::ValueChangedForceTorqueLineWidth (int index)
 }
 
 
-void GLWidget::ValueChangedVelocityLineWidthExp (int index)
+void WidgetGl::ValueChangedVelocityLineWidthExp (int index)
 {
     (void)index;
     ViewSettings& vs = GetViewSettings ();
@@ -4581,7 +4581,7 @@ void GLWidget::ValueChangedVelocityLineWidthExp (int index)
     update ();
 }
 
-void GLWidget::ValueChangedContextAlpha (int index)
+void WidgetGl::ValueChangedContextAlpha (int index)
 {
     (void)index;
     m_contextAlpha = Index2Value (static_cast<QSlider*> (sender ()), 
@@ -4591,13 +4591,13 @@ void GLWidget::ValueChangedContextAlpha (int index)
 }
 
 
-void GLWidget::ValueChangedHighlightLineWidth (int newWidth)
+void WidgetGl::ValueChangedHighlightLineWidth (int newWidth)
 {
     m_highlightLineWidth = newWidth;
     update ();
 }
 
-void GLWidget::ValueChangedEdgesRadius (int sliderValue)
+void WidgetGl::ValueChangedEdgesRadius (int sliderValue)
 {
     makeCurrent ();
     size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
@@ -4610,62 +4610,62 @@ void GLWidget::ValueChangedEdgesRadius (int sliderValue)
 }
 
 
-void GLWidget::ValueChangedLightAmbientRed (int sliderValue)
+void WidgetGl::ValueChangedLightAmbientRed (int sliderValue)
 {
     setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
 	      LightType::AMBIENT, ColorNumber::RED);
 }
 
 
-void GLWidget::ValueChangedLightAmbientGreen (int sliderValue)
+void WidgetGl::ValueChangedLightAmbientGreen (int sliderValue)
 {
     setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
 	      LightType::AMBIENT, ColorNumber::GREEN);
 }
 
-void GLWidget::ValueChangedLightAmbientBlue (int sliderValue)
+void WidgetGl::ValueChangedLightAmbientBlue (int sliderValue)
 {
     setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
 	      LightType::AMBIENT, ColorNumber::BLUE);
 }
 
-void GLWidget::ValueChangedLightDiffuseRed (int sliderValue)
+void WidgetGl::ValueChangedLightDiffuseRed (int sliderValue)
 {
     setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
 	      LightType::DIFFUSE, ColorNumber::RED);
 }
 
-void GLWidget::ValueChangedLightDiffuseGreen (int sliderValue)
+void WidgetGl::ValueChangedLightDiffuseGreen (int sliderValue)
 {
     setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
 	      LightType::DIFFUSE, ColorNumber::GREEN);
 }
 
-void GLWidget::ValueChangedLightDiffuseBlue (int sliderValue)
+void WidgetGl::ValueChangedLightDiffuseBlue (int sliderValue)
 {
     setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
 	      LightType::DIFFUSE, ColorNumber::BLUE);
 }
 
-void GLWidget::ValueChangedLightSpecularRed (int sliderValue)
+void WidgetGl::ValueChangedLightSpecularRed (int sliderValue)
 {
     setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
 	      LightType::SPECULAR, ColorNumber::RED);
 }
 
-void GLWidget::ValueChangedLightSpecularGreen (int sliderValue)
+void WidgetGl::ValueChangedLightSpecularGreen (int sliderValue)
 {
     setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
 	      LightType::SPECULAR, ColorNumber::GREEN);
 }
 
-void GLWidget::ValueChangedLightSpecularBlue (int sliderValue)
+void WidgetGl::ValueChangedLightSpecularBlue (int sliderValue)
 {
     setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
 	      LightType::SPECULAR, ColorNumber::BLUE);
 }
 
-void GLWidget::ValueChangedAngleOfView (int angleOfView)
+void WidgetGl::ValueChangedAngleOfView (int angleOfView)
 {
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings ();
@@ -4678,5 +4678,5 @@ void GLWidget::ValueChangedAngleOfView (int angleOfView)
 // Template instantiations
 // ======================================================================
 template
-void GLWidget::SetOneOrTwoViews<MainWindow> (
+void WidgetGl::SetOneOrTwoViews<MainWindow> (
     MainWindow* t, void (MainWindow::*f) (ViewNumber::Enum));

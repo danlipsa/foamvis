@@ -10,7 +10,7 @@
 #include "BodySelector.h"
 #include "Debug.h"
 #include "DebugStream.h"
-#include "GLWidget.h"
+#include "WidgetGl.h"
 #include "Utils.h"
 
 

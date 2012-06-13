@@ -8,7 +8,7 @@
  */
 
 #include "Average.h"
-#include "GLWidget.h"
+#include "WidgetGl.h"
 #include "OpenGLUtils.h"
 
 void Average::AverageInit (ViewNumber::Enum viewNumber)

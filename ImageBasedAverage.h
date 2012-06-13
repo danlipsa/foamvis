@@ -16,7 +16,7 @@
 
 class Body;
 class Foam;
-class GLWidget;
+class WidgetGl;
 class ShaderProgram;
 class AddShaderProgram;
 class StoreShaderProgram;
@@ -60,7 +60,7 @@ class ImageBasedAverage : public Average
 {
 public:
     ImageBasedAverage (
-	const GLWidget& widgetGl, string id, QColor stepClearColor,
+	const WidgetGl& widgetGl, string id, QColor stepClearColor,
 	FramebufferObjects& scalarAverageFbos) :
 	Average (widgetGl), m_scalarAverageFbos (scalarAverageFbos), m_id (id),
 	m_stepClearColor (stepClearColor)

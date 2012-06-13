@@ -12,7 +12,7 @@
 #include "Foam.h"
 
 class QTimer;
-class GLWidget;
+class WidgetGl;
 class SimulationGroup;
 class ProcessBodyTorus;
 
@@ -102,7 +102,7 @@ public Q_SLOTS:
     void CurrentIndexChangedComputationType (int value);
     void CurrentIndexChangedViewCount (int index);
     /**
-     * Copy status from GLWidget to the UI controls
+     * Copy status from WidgetGl to the UI controls
      */
     void CurrentIndexChangedSelectedLight (int i);
     void CurrentIndexChangedWindowSize (int i);

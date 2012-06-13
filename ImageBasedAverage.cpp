@@ -16,7 +16,7 @@
 #include "DisplayEdgeFunctors.h"
 #include "Foam.h"
 #include "Simulation.h"
-#include "GLWidget.h"
+#include "WidgetGl.h"
 #include "OpenGLUtils.h"
 #include "PropertySetter.h"
 #include "ShaderProgram.h"
@@ -47,7 +47,7 @@ void ImageBasedAverage<PropertySetter>::AverageInit (
 {
     Average::AverageInit (viewNumber);
     const G3D::Rect2D extendedArea = EncloseRotation (
-	GetGLWidget ().GetViewRect (viewNumber));
+	GetWidgetGl ().GetViewRect (viewNumber));
     QSize size (extendedArea.width (), extendedArea.height ());
     glPushAttrib (GL_COLOR_BUFFER_BIT);
     m_fbos.m_step.reset (
@@ -86,7 +86,7 @@ void ImageBasedAverage<PropertySetter>::clear (ViewNumber::Enum viewNumber)
 {
     //const size_t FAKE_TIMESTEP = -1;
     pair<float,float> minMax = 
-	GetGLWidget ().GetRange (viewNumber);
+	GetWidgetGl ().GetRange (viewNumber);
     m_fbos.m_step->bind ();
     ClearColorStencilBuffers (getStepClearColor (), 0);
     m_fbos.m_step->release ();
@@ -124,7 +124,7 @@ void ImageBasedAverage<PropertySetter>::addStep (
     ViewNumber::Enum viewNumber, size_t timeStep, size_t subStep)
 {
     pair<float,float> minMax = 
-	GetGLWidget ().GetRange (viewNumber);
+	GetWidgetGl ().GetRange (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, timeStep, subStep);
     //save (
@@ -153,7 +153,7 @@ void ImageBasedAverage<PropertySetter>::removeStep (
     ViewNumber::Enum viewNumber, size_t timeStep, size_t subStep)
 {
     pair<float,float> minMax = 
-	GetGLWidget ().GetRange (viewNumber);
+	GetWidgetGl ().GetRange (viewNumber);
     glPushAttrib (GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT);
     renderToStep (viewNumber, timeStep, subStep);
     //save (viewNumber, 
@@ -181,7 +181,7 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::renderToStep (
     ViewNumber::Enum viewNumber, size_t timeStep, size_t subStep)
 {
-    const GLWidget& widgetGl = GetGLWidget ();
+    const WidgetGl& widgetGl = GetWidgetGl ();
     G3D::Rect2D destRect = 
 	EncloseRotation (widgetGl.GetViewRect (viewNumber));
     glMatrixMode (GL_MODELVIEW);
@@ -223,7 +223,7 @@ void ImageBasedAverage<PropertySetter>::currentIsPreviousPlusStep (
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
 
-    GetGLWidget ().ActivateViewShader (viewNumber);
+    GetWidgetGl ().ActivateViewShader (viewNumber);
     m_addShaderProgram->release ();
     m_fbos.m_current->release ();
     WarnOnOpenGLError ("ImageBasedAverage::currentIsPreviousPlusStep:" + m_id);
@@ -247,7 +247,7 @@ void ImageBasedAverage<PropertySetter>::currentIsPreviousMinusStep (
 
     // activate texture unit 0
     glActiveTexture (GL_TEXTURE0);
-    GetGLWidget ().ActivateViewShader (viewNumber);
+    GetWidgetGl ().ActivateViewShader (viewNumber);
     m_removeShaderProgram->release ();
     m_fbos.m_current->release ();
     WarnOnOpenGLError ("ImageBasedAverage::currentIsPreviousMinusStep:" + m_id);
@@ -270,7 +270,7 @@ void ImageBasedAverage<PropertySetter>::initFramebuffer (
 {
     fbo->bind ();
     m_initShaderProgram->Bind ();
-    GetGLWidget ().ActivateViewShader (viewNumber);
+    GetWidgetGl ().ActivateViewShader (viewNumber);
     m_initShaderProgram->release ();
     fbo->release ();
 }
@@ -282,9 +282,9 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
     G3D::Vector2 rotationCenter, 
     float angleDegrees) const
 {    
-    ViewSettings& vs = GetGLWidget ().GetViewSettings (viewNumber);
+    ViewSettings& vs = GetWidgetGl ().GetViewSettings (viewNumber);
     glBindTexture (GL_TEXTURE_1D, vs.GetColorBarTexture ());
-    pair<float,float> minMax = GetGLWidget ().GetRange (viewNumber);
+    pair<float,float> minMax = GetWidgetGl ().GetRange (viewNumber);
     rotateAndDisplay (
 	viewNumber, minMax.first, minMax.second, displayType, 
 	make_pair (m_fbos.m_current, m_scalarAverageFbos.m_current), 
@@ -317,9 +317,9 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
     ViewNumber::Enum viewNumber, size_t timeStep, size_t subStep)
 {
     (void)subStep;
-    ViewSettings& vs = GetGLWidget ().GetViewSettings (viewNumber);
+    ViewSettings& vs = GetWidgetGl ().GetViewSettings (viewNumber);
     const Foam& foam = 
-	GetGLWidget ().GetSimulation (viewNumber).GetFoam (timeStep);
+	GetWidgetGl ().GetSimulation (viewNumber).GetFoam (timeStep);
     const Foam::Bodies& bodies = foam.GetBodies ();
     m_storeShaderProgram->Bind ();
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT );
@@ -330,10 +330,10 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
 	bodies.begin (), bodies.end (),
 	DisplayBody<DisplayFaceBodyPropertyColor<PropertySetter>,
 	PropertySetter> (
-	    GetGLWidget (), foam,
+	    GetWidgetGl (), foam,
 	    vs.GetBodySelector (), 
 	    PropertySetter (
-		GetGLWidget (), viewNumber, m_storeShaderProgram.get (),
+		GetWidgetGl (), viewNumber, m_storeShaderProgram.get (),
 		m_storeShaderProgram->GetVValueLocation ()),
 	    DisplayElement::INVISIBLE_CONTEXT));
     glPopAttrib ();
@@ -344,7 +344,7 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
 template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::glActiveTexture (GLenum texture) const
 {
-    const_cast<GLWidget&>(GetGLWidget ()).glActiveTexture (texture);
+    const_cast<WidgetGl&>(GetWidgetGl ()).glActiveTexture (texture);
 }
 
 // Template instantiations

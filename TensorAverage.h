@@ -70,13 +70,13 @@ template<typename Setter>
 class TensorAverageTemplate : public ImageBasedAverage<Setter>
 {
 public:
-    typedef float (GLWidget::*GLWidgetFloatFunction) (
+    typedef float (WidgetGl::*WidgetGlFloatFunction) (
 	ViewNumber::Enum viewNumber) const;
     typedef float (ViewSettings::*ViewSettingsFloatFunction) () const;
 
 public:
     TensorAverageTemplate (
-	const GLWidget& widgetGl, GLWidgetFloatFunction sizeInitialRatio,
+	const WidgetGl& widgetGl, WidgetGlFloatFunction sizeInitialRatio,
 	ViewSettingsFloatFunction sizeRatio, 
 	ViewSettingsFloatFunction lineWidthRatio,
 	FramebufferObjects& scalarAverageFbos) :
@@ -179,7 +179,7 @@ private:
     float m_noiseStart;
     float m_noiseFrequency;
     float m_noiseAmplitude;
-    GLWidgetFloatFunction m_sizeInitialRatio;
+    WidgetGlFloatFunction m_sizeInitialRatio;
     ViewSettingsFloatFunction m_sizeRatio;
     ViewSettingsFloatFunction m_lineWidthRatio;
 };
@@ -187,7 +187,7 @@ private:
 class TensorAverage : public TensorAverageTemplate<SetterDeformation>
 {
 public:
-    TensorAverage (const GLWidget& widgetGl,
+    TensorAverage (const WidgetGl& widgetGl,
 		   FramebufferObjects& scalarAverageFbos);
 };
 

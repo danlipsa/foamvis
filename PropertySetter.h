@@ -9,13 +9,13 @@
 #ifndef __PROPERTY_SETTER_H__
 #define __PROPERTY_SETTER_H__
 
-class GLWidget;
+class WidgetGl;
 class Body;
 class SetterTextureCoordinate
 {
 public:
     SetterTextureCoordinate (
-	const GLWidget& widgetGl, ViewNumber::Enum view) :
+	const WidgetGl& widgetGl, ViewNumber::Enum view) :
 
 	m_widgetGl (widgetGl), m_viewNumber (view)
     {
@@ -33,7 +33,7 @@ protected:
     G3D::Matrix2 getRotation () const;
 
 protected:
-    const GLWidget& m_widgetGl;
+    const WidgetGl& m_widgetGl;
     ViewNumber::Enum m_viewNumber;
 };
 
@@ -41,7 +41,7 @@ class SetterVertexAttribute : public SetterTextureCoordinate
 {
 public:
     SetterVertexAttribute (
-	const GLWidget& widgetGl,  ViewNumber::Enum view,
+	const WidgetGl& widgetGl,  ViewNumber::Enum view,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
 	SetterTextureCoordinate (widgetGl, view),
 	m_program (program), m_attributeLocation (attributeIndex)
@@ -60,7 +60,7 @@ class SetterDeformation : public SetterVertexAttribute
 {
 public:
     SetterDeformation (
-	const GLWidget& widgetGl,  ViewNumber::Enum view,
+	const WidgetGl& widgetGl,  ViewNumber::Enum view,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
 	SetterVertexAttribute (widgetGl, view, program, attributeIndex)
     {
@@ -74,7 +74,7 @@ class SetterVelocity : public SetterVertexAttribute
 {
 public:
     SetterVelocity (
-	const GLWidget& widgetGl,  ViewNumber::Enum view,
+	const WidgetGl& widgetGl,  ViewNumber::Enum view,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
 	SetterVertexAttribute (widgetGl, view, program, attributeIndex)
     {
@@ -91,7 +91,7 @@ class SetterNop : public SetterVertexAttribute
 {
 public:
     SetterNop (
-	const GLWidget& widgetGl,  ViewNumber::Enum view,
+	const WidgetGl& widgetGl,  ViewNumber::Enum view,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
 	SetterVertexAttribute (widgetGl, view, program, attributeIndex)
     {
