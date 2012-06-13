@@ -46,7 +46,7 @@
         <widget class="DisplayWidget" name="widgetDisplay" native="true">
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
-           <widget class="QVTKWidget" name="widgetQvtk"/>
+           <widget class="WidgetVtk" name="widgetVtk" native="true"/>
           </item>
           <item>
            <widget class="WidgetGl" name="widgetGl" native="true">
@@ -2392,9 +2392,32 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QVTKWidget</class>
+   <class>DisplayWidget</class>
    <extends>QWidget</extends>
-   <header>QVTKWidget.h</header>
+   <header>DisplayWidget.h</header>
+   <container>1</container>
+   <slots>
+    <slot>ToggledSaveMovie(bool)</slot>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>AttributeHistogram</class>
+   <extends>QWidget</extends>
+   <header>AttributeHistogram.h</header>
+   <container>1</container>
+   <slots>
+    <signal>selectionChanged()</signal>
+    <slot>CurrentIndexChangedInteractionMode(int)</slot>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>TimeStepsSlider</class>
+   <extends>QWidget</extends>
+   <header>TimeStepsSlider.h</header>
+   <container>1</container>
+   <slots>
+    <signal>valueChanged(int)</signal>
+   </slots>
   </customwidget>
   <customwidget>
    <class>WidgetGl</class>
@@ -2559,32 +2582,10 @@
    </slots>
   </customwidget>
   <customwidget>
-   <class>DisplayWidget</class>
+   <class>WidgetVtk</class>
    <extends>QWidget</extends>
-   <header>DisplayWidget.h</header>
+   <header>WidgetVtk.h</header>
    <container>1</container>
-   <slots>
-    <slot>ToggledSaveMovie(bool)</slot>
-   </slots>
-  </customwidget>
-  <customwidget>
-   <class>AttributeHistogram</class>
-   <extends>QWidget</extends>
-   <header>AttributeHistogram.h</header>
-   <container>1</container>
-   <slots>
-    <signal>selectionChanged()</signal>
-    <slot>CurrentIndexChangedInteractionMode(int)</slot>
-   </slots>
-  </customwidget>
-  <customwidget>
-   <class>TimeStepsSlider</class>
-   <extends>QWidget</extends>
-   <header>TimeStepsSlider.h</header>
-   <container>1</container>
-   <slots>
-    <signal>valueChanged(int)</signal>
-   </slots>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -113,6 +113,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     m_timer->setInterval (20);
     //initTranslatedBody ();
     configureInterfaceDataDependent (simulationGroup);    
+    ValueChangedSliderTimeSteps (0);
 }
 
 void MainWindow::configureInterface ()
@@ -217,7 +218,7 @@ void MainWindow::connectSignals ()
     
     
     // BodyOrFacePropertyChanged: 
-    // from MainWindow to WidgetGl and AttributeHistogram
+    // from MainWindow to WidgetGl
     connect (
 	this, 
 	SIGNAL (BodyOrFacePropertyChanged (
@@ -227,8 +228,8 @@ void MainWindow::connectSignals ()
 	SLOT (SetBodyOrFaceProperty (
 		  ViewNumber::Enum, boost::shared_ptr<ColorBarModel>, size_t)));
     
-    // ColorBarModelChanged:
-    // from MainWindow to ColorBar, WidgetGl and AttributeHistogram
+    // ColorBarModelChanged & OverlayBarModelChanged
+    // from MainWindow to WidgetGl
     connect (
 	this, 
 	SIGNAL (ColorBarModelChanged (ViewNumber::Enum, 
@@ -666,8 +667,16 @@ void MainWindow::processBodyTorusStep ()
     }
 }
 
+void MainWindow::update3DAverage (size_t timeStep)
+{
+    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
+    const Simulation& simulation = widgetGl->GetSimulation (viewNumber);
+    const Foam& foam = simulation.GetFoam (timeStep);
+    widgetVtk->UpdateAverage (foam);
+}
 
-void MainWindow::SetAndDisplayHistogram (
+
+void MainWindow::setAndDisplayHistogram (
     HistogramSelection histogramSelection,
     MaxValueOperation maxValueOperation)
 {
@@ -1056,7 +1065,7 @@ void MainWindow::currentIndexChangedFaceColor (
 	    viewNumber,
 	    m_colorBarModelBodyProperty
 	    [simulationIndex][viewNumber][property], property);
-	SetAndDisplayHistogram (DISCARD_SELECTION, REPLACE_MAX_VALUE);
+	setAndDisplayHistogram (DISCARD_SELECTION, REPLACE_MAX_VALUE);
     }
 }
 
@@ -1157,12 +1166,15 @@ void MainWindow::ValueChangedT1sKernelSigma (int index)
 
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
-    (void)timeStep;
-    SetAndDisplayHistogram (KEEP_SELECTION, KEEP_MAX_VALUE);
-    Foam& foam = const_cast<Foam&>
-	(widgetGl->GetSimulation ().GetFoam (0));
+    cdbg << "slider time step: " << timeStep << endl;
+    setAndDisplayHistogram (KEEP_SELECTION, KEEP_MAX_VALUE);
+    update3DAverage (timeStep);
     if (m_debugTranslatedBody)
+    {
+	Foam& foam = const_cast<Foam&>
+	    (widgetGl->GetSimulation ().GetFoam (0));
 	m_currentTranslatedBody = foam.GetBodies ().begin ();
+    }
     updateButtons ();
 }
 
@@ -1337,7 +1349,7 @@ void MainWindow::ButtonClickedHistogram (int histogramType)
 {
     m_histogramType = HistogramType::Enum (histogramType);
     m_histogramViewNumber = widgetGl->GetViewNumber ();
-    SetAndDisplayHistogram (KEEP_SELECTION, REPLACE_MAX_VALUE);
+    setAndDisplayHistogram (KEEP_SELECTION, REPLACE_MAX_VALUE);
 }
 
 

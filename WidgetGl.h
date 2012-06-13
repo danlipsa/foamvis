@@ -4,8 +4,8 @@
  *
  * Widget for displaying foam bubbles using OpenGL
  */
-#ifndef __GLWIDGET_H__
-#define __GLWIDGET_H__
+#ifndef __WIDGETGL_H__
+#define __WIDGETGL_H__
 
 #include "Hashes.h"
 #include "Enums.h"
@@ -902,7 +902,7 @@ private:
 };
 
 
-#endif //__GLWIDGET_H__
+#endif //__WIDGETGL_H__
 
 // Local Variables:
 // mode: c++

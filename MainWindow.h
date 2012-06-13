@@ -53,14 +53,6 @@ public:
      */
     void keyPressEvent (QKeyEvent* event);
 
-    /**
-     * Shows a histogram of the current display
-     */
-    void SetAndDisplayHistogram (
-	HistogramSelection histogramSelection,
-	MaxValueOperation maxValueOperation);
-
-
 Q_SIGNALS:
     void BodyOrFacePropertyChanged (
 	ViewNumber::Enum viewNumber,
@@ -136,6 +128,13 @@ public Q_SLOTS:
 	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 private:
+    /**
+     * Shows a histogram of the current display
+     */
+    void setAndDisplayHistogram (
+	HistogramSelection histogramSelection,
+	MaxValueOperation maxValueOperation);
+    void update3DAverage (size_t timeStep);
     void currentIndexChangedFaceColor (ViewNumber::Enum viewNumber);
     void deformationViewToUI ();
     void velocityViewToUI ();

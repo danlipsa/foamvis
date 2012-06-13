@@ -11,7 +11,8 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	SelectBodiesById.h EditColorMap.h Edge.h Element.h ExpressionTree.h \
 	Enums.h Foam.h \
 	FoamProperties.h Face.h ForcesOneObject.h\
-	WidgetGl.h Hashes.h Histogram.h HistogramItem.h HistogramHeight.h\
+	WidgetGl.h WidgetVtk.h \
+	Hashes.h Histogram.h HistogramItem.h HistogramHeight.h\
 	HistogramStatistics.h Labels.h ListViewChange.h\
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
 	OOBox.h Info.h ObjectPosition.h OpenGLUtils.h OrientedElement.h\
@@ -38,7 +39,8 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	Enums.cpp Foam.cpp\
 	Face.cpp FoamProperties.cpp ForcesOneObject.cpp\
 	ForceAverage.cpp \
-	WidgetGl.cpp Hashes.cpp Histogram.cpp HistogramItem.cpp \
+	WidgetGl.cpp WidgetVtk.cpp \
+	Hashes.cpp Histogram.cpp HistogramItem.cpp \
 	HistogramHeight.cpp main.cpp MainWindow.cpp  \
 	NameSemanticValue.cpp \
 	OOBox.cpp OpenGLUtils.cpp OrientedElement.cpp Options.cpp\
