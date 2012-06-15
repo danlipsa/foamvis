@@ -18,9 +18,9 @@
 
 
 // ======================================================================
-// VertexLessThan
+// VertexPtrLessThan
 
-bool VertexLessThan::operator () (
+bool VertexPtrLessThan::operator () (
     const boost::shared_ptr<const Vertex>& first,
     const boost::shared_ptr<const Vertex>& second) const
 {
@@ -51,16 +51,16 @@ bool FaceLessThan::operator () (
 
 
 // ======================================================================
-// VertexLessThanAlong
+// VertexPtrLessThanAlong
 
-bool VertexLessThanAlong::operator() (
+bool VertexPtrLessThanAlong::operator() (
     const boost::shared_ptr<Vertex>& first,
     const boost::shared_ptr<Vertex>& second) const
 {
     return operator() (first->GetVector (), second->GetVector ());
 }
 
-double VertexLessThanAlong::operator() (
+double VertexPtrLessThanAlong::operator() (
     const boost::shared_ptr<Vertex>& x) const
 {
     return operator() (x->GetVector ());

@@ -48,6 +48,22 @@ public:
     Body (boost::shared_ptr<Face> face, size_t id, 
 	  const FoamProperties& foamParameters);
 
+    const vector<Neighbor>& GetNeighbors () const
+    {
+	return m_neighbors;
+    }
+    
+    const Face& GetFace (size_t i) const;
+    Face& GetFace (size_t i);
+    void GetFaceSet (FaceSet* faceSet) const;
+    const OrientedFace& GetOrientedFace (size_t i) const
+    {
+	return *m_orientedFaces[i];
+    }
+    boost::shared_ptr<OrientedFace> GetOrientedFacePtr (size_t i) const
+    {
+	return m_orientedFaces[i];
+    }
     /**
      * Returns the  vector of oriented faces this body is made of
      * @return a vector of oriented faces
@@ -60,22 +76,8 @@ public:
     {
 	return m_orientedFaces;
     }
-
-    const vector<Neighbor>& GetNeighbors () const
-    {
-	return m_neighbors;
-    }
     
-    const OrientedFace& GetOrientedFace (size_t i) const
-    {
-	return *m_orientedFaces[i];
-    }
-    boost::shared_ptr<OrientedFace> GetOrientedFacePtr (size_t i) const
-    {
-	return m_orientedFaces[i];
-    }
-    const Face& GetFace (size_t i) const;
-    Face& GetFace (size_t i);
+
     size_t size () const
     {
 	return m_orientedFaces.size ();
@@ -109,7 +111,6 @@ public:
 	GetEdgeSet (&set);
 	return set;
     }
-    void GetFaceSet (FaceSet* faceSet) const;
     double GetPropertyValue (BodyProperty::Enum property) const;
     void SetPressureValue (double value);
     void SetPressureDeduced ()

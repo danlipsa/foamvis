@@ -14,7 +14,7 @@ boost::shared_ptr<Application> Application::m_application;
 
 
 Application::Application(int& c, char** v) :
-    QApplication(c, v) 
+    QVTKApplication(c, v) 
 {
 /*
     QFont defaultFont = font ();

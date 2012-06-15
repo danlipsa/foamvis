@@ -9,6 +9,8 @@
 #ifndef __WIDGETVTK_H__
 #define __WIDGETVTK_H__
 
+class vtkActor;
+class vtkDataSetMapper;
 class vtkRenderer;
 class Foam;
 
@@ -23,6 +25,8 @@ public Q_SLOTS:
 private:
     Q_OBJECT
 
+    vtkSmartPointer<vtkDataSetMapper> m_mapper;
+    vtkSmartPointer<vtkActor> m_actor;
     vtkSmartPointer<vtkRenderer> m_renderer;
 };
 

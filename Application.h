@@ -9,7 +9,7 @@
 #ifndef __APPLICATION_H__
 #define __APPLICATION_H__
 
-class Application: public QApplication
+class Application: public QVTKApplication
 {
 public:
     Application(int& c, char** v);

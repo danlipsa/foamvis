@@ -113,17 +113,20 @@
 
 // VTK headers
 #include <vtkColorTransferFunction.h>
-#include "vtkDataSetMapper.h"
-#include "vtkInteractorStyle.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
+#include <vtkDataSetMapper.h>
+#include <vtkInteractorStyle.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkRenderWindow.h>
+#include <vtkGenericOpenGLRenderWindow.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
-#include "vtkTetra.h"
-#include "vtkTDxInteractorStyleCamera.h"
-#include "vtkTDxInteractorStyleSettings.h"
-#include "vtkUnstructuredGrid.h"
+#include <vtkTetra.h>
+#include <vtkTDxInteractorStyleCamera.h>
+#include <vtkTDxInteractorStyleSettings.h>
+#include <vtkUnstructuredGrid.h>
 #include <QVTKWidget.h>
+#include "QVTKWidget2.h"
+#include <QVTKApplication.h>
 
 // OpenGL G3D headers
 #include <GLG3D/getOpenGLState.h>

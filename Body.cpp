@@ -234,6 +234,13 @@ Face& Body::GetFace (size_t i)
     return *GetOrientedFace (i).GetFace ();
 }
 
+void Body::GetFaceSet (FaceSet* faceSet) const
+{
+    const OrientedFaces& orientedFaces = GetOrientedFaces ();
+    BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, orientedFaces)
+	faceSet->insert (of->GetFace ());
+}
+
 string Body::ToString () const
 {
     ostringstream ostr;
@@ -280,13 +287,6 @@ void Body::GetEdgeSet (EdgeSet* edgeSet) const
     const OrientedFaces& orientedFaces = GetOrientedFaces ();
     for_each (orientedFaces.begin (), orientedFaces.end (),
 	      boost::bind (&OrientedFace::GetEdgeSet, _1, edgeSet));
-}
-
-void Body::GetFaceSet (FaceSet* faceSet) const
-{
-    const OrientedFaces& orientedFaces = GetOrientedFaces ();
-    BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, orientedFaces)
-	faceSet->insert (of->GetFace ());
 }
 
 bool Body::ExistsPropertyValue (BodyProperty::Enum property, 

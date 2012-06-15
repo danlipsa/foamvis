@@ -123,13 +123,13 @@ void OrientedFace::CalculatePerimeter ()
     GetFace ()->CalculatePerimeter ();
 }
 
-boost::shared_ptr<Vertex> OrientedFace::getBegin (size_t edgeIndex) const
+boost::shared_ptr<Vertex> OrientedFace::getBeginVertex (size_t edgeIndex) const
 {
     const OrientedEdge& oe = GetOrientedEdge (edgeIndex);
     return oe.GetBeginPtr ();
 }
 
-boost::shared_ptr<Vertex> OrientedFace::getEnd (size_t edgeIndex) const
+boost::shared_ptr<Vertex> OrientedFace::getEndVertex (size_t edgeIndex) const
 {
     const OrientedEdge& oe = GetOrientedEdge (edgeIndex);
     return oe.GetEndPtr ();

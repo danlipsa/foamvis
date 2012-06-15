@@ -14,40 +14,21 @@
 WidgetVtk::WidgetVtk (QWidget* parent) :
     QVTKWidget (parent)
 {
-    // create a window to make it stereo capable and give it to QVTKWidget
-    vtkSmartPointer<vtkRenderWindow> renderWindow = vtkRenderWindow::New ();
-
-    // Activate 3DConnexion device
-    SetUseTDx(true);    
-    SetRenderWindow(renderWindow);
-    
-    const double angleSensitivity=0.02;
-    const double translationSensitivity=0.001;
-  
-    QVTKInteractor *interactor=GetInteractor();
-    vtkInteractorStyle *interactorStyle=
-	static_cast<vtkInteractorStyle *>(interactor->GetInteractorStyle());
-    vtkTDxInteractorStyleCamera *t= static_cast<vtkTDxInteractorStyleCamera *>(
-	interactorStyle->GetTDxStyle());
-  
-    t->GetSettings()->SetAngleSensitivity(angleSensitivity);
-    t->GetSettings()->SetTranslationXSensitivity(translationSensitivity);
-    t->GetSettings()->SetTranslationYSensitivity(translationSensitivity);
-    t->GetSettings()->SetTranslationZSensitivity(translationSensitivity);
-
      // add a renderer
     m_renderer = vtkRenderer::New();
     m_renderer->SetBackground(1,1,1);
     GetRenderWindow()->AddRenderer(m_renderer);
+
+    m_mapper = vtkDataSetMapper::New ();
+    m_actor = vtkActor::New();
+    m_actor->SetMapper(m_mapper);
+    m_renderer->AddViewProp(m_actor);
 }
 
 void WidgetVtk::UpdateAverage (const Foam& foam)
 {
+    cdbg << "Update average" << endl;
     vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid = foam.GetTetraGrid ();
-    vtkSmartPointer<vtkDataSetMapper> mapper = vtkDataSetMapper::New ();
-    mapper->SetInput(aTetraGrid);
-    vtkSmartPointer<vtkActor> actor = vtkActor::New();
-    actor->SetMapper(mapper);
-    m_renderer->AddViewProp(actor);
+    m_mapper->SetInput (aTetraGrid);
     update ();
 }

@@ -45,26 +45,26 @@ public:
      * @param edgeIndex what edge we are interested in
      * @return the begin vertex
      */
-    boost::shared_ptr<Vertex> GetBegin (size_t edgeIndex) 
+    boost::shared_ptr<Vertex> GetBeginVertex (size_t edgeIndex) 
     {
-	return getBegin (edgeIndex);
+	return getBeginVertex (edgeIndex);
     }
-    boost::shared_ptr<const Vertex> GetBegin (size_t edgeIndex) const
+    boost::shared_ptr<const Vertex> GetBeginVertex (size_t edgeIndex) const
     {
-	return getBegin (edgeIndex);
+	return getBeginVertex (edgeIndex);
     }
     /**
      * Gets the end vertex for an edge in this oriented face
      * @param edgeIndex what edge we are interested in
      * @return the end vertex
      */
-    boost::shared_ptr<Vertex> GetEnd (size_t edgeIndex)
+    boost::shared_ptr<Vertex> GetEndVertex (size_t edgeIndex)
     {
-	return getEnd (edgeIndex);
+	return getEndVertex (edgeIndex);
     }
-    boost::shared_ptr<const Vertex> GetEnd (size_t edgeIndex) const
+    boost::shared_ptr<const Vertex> GetEndVertex (size_t edgeIndex) const
     {
-	return getEnd (edgeIndex);
+	return getEndVertex (edgeIndex);
     }
     /**
      * Gets the oriented edge at edgeIndex in face order.
@@ -98,8 +98,8 @@ public:
     }
 
 private:
-    boost::shared_ptr<Vertex> getBegin (size_t edgeIndex) const;
-    boost::shared_ptr<Vertex> getEnd (size_t edgeIndex) const;
+    boost::shared_ptr<Vertex> getBeginVertex (size_t edgeIndex) const;
+    boost::shared_ptr<Vertex> getEndVertex (size_t edgeIndex) const;
 };
 
 /**

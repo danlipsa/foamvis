@@ -52,9 +52,7 @@ struct Vector3int16LessThan
 
 
 
-
-
-struct VertexLessThan
+struct VertexPtrLessThan
 {
     bool operator () (const boost::shared_ptr<const Vertex>& first,
 		      const boost::shared_ptr<const Vertex>& second) const;
@@ -64,14 +62,14 @@ struct VertexLessThan
 /**
  * Functor that compares two vertices along X, Y or Z axis
  */
-class VertexLessThanAlong
+class VertexPtrLessThanAlong
 {
 public:
     /**
      * Constructor
      * Stores the axis we want to do the comparison on.
      */
-VertexLessThanAlong(G3D::Vector3::Axis axis) : 
+VertexPtrLessThanAlong(G3D::Vector3::Axis axis) : 
     m_axis(axis) {}
     /**
      * Compares two vertices
@@ -239,7 +237,7 @@ public:
 };
 
 
-typedef set<boost::shared_ptr<Vertex>, VertexLessThan> VertexSet;
+typedef set<boost::shared_ptr<Vertex>, VertexPtrLessThan> VertexSet;
 typedef set<boost::shared_ptr<Edge>, EdgeLessThan> EdgeSet;
 typedef set<boost::shared_ptr<Face>, FaceLessThan> FaceSet;
 class Body;
