@@ -27,7 +27,6 @@ WidgetVtk::WidgetVtk (QWidget* parent) :
 
 void WidgetVtk::UpdateAverage (const Foam& foam)
 {
-    cdbg << "Update average" << endl;
     vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid = foam.GetTetraGrid ();
     m_mapper->SetInput (aTetraGrid);
     update ();

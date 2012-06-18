@@ -1166,7 +1166,6 @@ void MainWindow::ValueChangedT1sKernelSigma (int index)
 
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
-    cdbg << "slider time step: " << timeStep << endl;
     setAndDisplayHistogram (KEEP_SELECTION, KEEP_MAX_VALUE);
     update3DAverage (timeStep);
     if (m_debugTranslatedBody)

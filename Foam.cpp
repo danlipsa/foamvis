@@ -58,6 +58,7 @@ void compact (vector< boost::shared_ptr<E> >& v)
         else if (step != 0)
             v[i - step] = v[i];
     }
+    cdbg << "Eliminate " << step << " holes" << endl;
     size_t resize = v.size () - step;
     v.resize (resize);
 }
@@ -264,6 +265,9 @@ void Foam::SetBody (size_t i, vector<int>& faces,
     m_bodies[i] = body;
 }
 
+// @todo Use array indexes instead of pointers for faces part of a
+// body, and vertices part of a face.
+// This works better with VTK and with OpenGL vertex arrays.
 void Foam::compact (void)
 {
     ::compact (GetParsingData ().GetVertices ());
@@ -1031,6 +1035,8 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::GetTetraGrid () const
     }
     vector<boost::shared_ptr<Vertex> > sortedPoints (vertexSet.size ());
     copy (vertexSet.begin (), vertexSet.end (), sortedPoints.begin ());
+
+
     vtkSmartPointer<vtkPoints> tetraPoints = vtkPoints::New ();
     tetraPoints->SetNumberOfPoints (sortedPoints.size ());
     for (size_t i = 0; i < sortedPoints.size (); ++i)

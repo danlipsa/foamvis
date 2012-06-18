@@ -2130,66 +2130,6 @@ void WidgetGl::mouseMoveScale (QMouseEvent *event, ViewNumber::Enum viewNumber)
 }
 
 
-void WidgetGl::mouseMoveEvent(QMouseEvent *event)
-{
-    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
-    for (size_t i = 0; i < vn.size (); ++i)
-    {
-	ViewNumber::Enum viewNumber = vn[i];
-	switch (m_interactionMode)
-	{
-	case InteractionMode::ROTATE:
-	    mouseMoveRotate (event, viewNumber);
-	    break;
-
-	case InteractionMode::TRANSLATE:
-	    mouseMoveTranslate (event, viewNumber);
-	    break;
-
-	case InteractionMode::SCALE:
-	    mouseMoveScale (event, viewNumber);
-	    break;
-
-	case InteractionMode::SELECT:
-	    select (event->pos ());
-	    break;
-
-	case InteractionMode::DESELECT:
-	    deselect (event->pos ());
-	    break;
-
-	default:
-	    break;
-
-	}
-    }
-    m_lastPos = event->pos();
-    update ();
-}
-
-
-void WidgetGl::mousePressEvent(QMouseEvent *event)
-{
-    G3D::Vector2 p = QtToOpenGl (event->pos (), height ());
-    setView (p);
-    if (event->button () != Qt::LeftButton)
-	return;
-    switch (m_interactionMode)
-    {
-    case InteractionMode::SELECT:
-	select (event->pos ());
-	break;
-    case InteractionMode::DESELECT:
-	deselect (event->pos ());
-	break;
-    default:
-	break;
-    }
-    update ();
-    m_lastPos = event->pos();
-}
-
-
 void WidgetGl::displayTorusDomain (ViewNumber::Enum viewNumber) const
 {
     if (m_torusDomainShown)
@@ -3363,27 +3303,6 @@ void WidgetGl::contextMenuEventView (QMenu* menu) const
     }
 }
 
-
-void WidgetGl::contextMenuEvent (QContextMenuEvent *event)
-{
-    // make sure you act on the current window's context
-    makeCurrent ();
-    m_contextMenuPosScreen = event->pos ();
-    m_contextMenuPosObject = toObjectTransform (m_contextMenuPosScreen);
-    QMenu menu (this);
-    G3D::Rect2D colorBarRect = getViewColorBarRect (GetViewRect ());
-    G3D::Rect2D overlayBarRect = getViewOverlayBarRect (GetViewRect ());
-    if (colorBarRect.contains (QtToOpenGl (m_contextMenuPosScreen, height ())))
-	contextMenuEventColorBar (&menu);
-    else if (overlayBarRect.contains (
-		 QtToOpenGl (m_contextMenuPosScreen, height ())))
-	contextMenuEventOverlayBar (&menu);
-    else
-	contextMenuEventView (&menu);
-    menu.exec (event->globalPos());
-}
-
-
 void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
@@ -3794,11 +3713,93 @@ vector<ViewNumber::Enum> WidgetGl::GetConnectedViewNumbers (
 }
 
 
-// Slots
-// ======================================================================
+// Slots and methods invoqued by the UI
+// ====================================
+
+void WidgetGl::mousePressEvent(QMouseEvent *event)
+{
+    makeCurrent ();
+    G3D::Vector2 p = QtToOpenGl (event->pos (), height ());
+    setView (p);
+    if (event->button () != Qt::LeftButton)
+	return;
+    switch (m_interactionMode)
+    {
+    case InteractionMode::SELECT:
+	select (event->pos ());
+	break;
+    case InteractionMode::DESELECT:
+	deselect (event->pos ());
+	break;
+    default:
+	break;
+    }
+    update ();
+    m_lastPos = event->pos();
+}
+
+
+void WidgetGl::mouseMoveEvent(QMouseEvent *event)
+{
+    makeCurrent ();
+    vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
+    for (size_t i = 0; i < vn.size (); ++i)
+    {
+	ViewNumber::Enum viewNumber = vn[i];
+	switch (m_interactionMode)
+	{
+	case InteractionMode::ROTATE:
+	    mouseMoveRotate (event, viewNumber);
+	    break;
+
+	case InteractionMode::TRANSLATE:
+	    mouseMoveTranslate (event, viewNumber);
+	    break;
+
+	case InteractionMode::SCALE:
+	    mouseMoveScale (event, viewNumber);
+	    break;
+
+	case InteractionMode::SELECT:
+	    select (event->pos ());
+	    break;
+
+	case InteractionMode::DESELECT:
+	    deselect (event->pos ());
+	    break;
+
+	default:
+	    break;
+
+	}
+    }
+    m_lastPos = event->pos();
+    update ();
+}
+
+void WidgetGl::contextMenuEvent (QContextMenuEvent *event)
+{
+    // make sure you act on the current window's context
+    makeCurrent ();
+    m_contextMenuPosScreen = event->pos ();
+    m_contextMenuPosObject = toObjectTransform (m_contextMenuPosScreen);
+    QMenu menu (this);
+    G3D::Rect2D colorBarRect = getViewColorBarRect (GetViewRect ());
+    G3D::Rect2D overlayBarRect = getViewOverlayBarRect (GetViewRect ());
+    if (colorBarRect.contains (QtToOpenGl (m_contextMenuPosScreen, height ())))
+	contextMenuEventColorBar (&menu);
+    else if (overlayBarRect.contains (
+		 QtToOpenGl (m_contextMenuPosScreen, height ())))
+	contextMenuEventOverlayBar (&menu);
+    else
+	contextMenuEventView (&menu);
+    menu.exec (event->globalPos());
+}
+
 
 void WidgetGl::ResetTransformAll ()
 {
+    makeCurrent ();
     ResetTransformFocus ();
     ResetTransformContext ();
     ResetTransformGrid ();
@@ -3807,6 +3808,7 @@ void WidgetGl::ResetTransformAll ()
 
 void WidgetGl::ResetTransformFocus ()
 {
+    makeCurrent ();
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
@@ -3826,6 +3828,7 @@ void WidgetGl::ResetTransformFocus ()
 
 void WidgetGl::ResetTransformContext ()
 {
+    makeCurrent ();
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
@@ -3843,6 +3846,7 @@ void WidgetGl::ResetTransformContext ()
 
 void WidgetGl::ResetTransformGrid ()
 {
+    makeCurrent ();
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
@@ -3856,6 +3860,7 @@ void WidgetGl::ResetTransformGrid ()
 
 void WidgetGl::ResetTransformLight ()
 {
+    makeCurrent ();
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
@@ -3871,6 +3876,7 @@ void WidgetGl::ResetTransformLight ()
 
 void WidgetGl::RotationCenterBody ()
 {
+    makeCurrent ();
     vector< boost::shared_ptr<Body> > bodies;
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
@@ -3884,6 +3890,7 @@ void WidgetGl::RotationCenterBody ()
 
 void WidgetGl::RotationCenterFoam ()
 {
+    makeCurrent ();
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     G3D::Vector3 center = CalculateViewingVolume (
@@ -3895,6 +3902,7 @@ void WidgetGl::RotationCenterFoam ()
 
 void WidgetGl::CopyTransformationFrom (int viewNumber)
 {
+    makeCurrent ();
     GetViewSettings ().CopyTransformation (
 	GetViewSettings (ViewNumber::Enum (viewNumber)));
     update ();
@@ -3902,12 +3910,14 @@ void WidgetGl::CopyTransformationFrom (int viewNumber)
 
 void WidgetGl::CopySelectionFrom (int viewNumber)
 {
+    makeCurrent ();
     GetViewSettings ().CopySelection (
 	GetViewSettings (ViewNumber::Enum (viewNumber)));
 }
 
 void WidgetGl::CopyColorBarFrom (int other)
 {
+    makeCurrent ();
     ViewSettings& otherVs = GetViewSettings (ViewNumber::Enum (other));
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings ();
@@ -3918,6 +3928,7 @@ void WidgetGl::CopyColorBarFrom (int other)
 
 void WidgetGl::ToggledDirectionalLightEnabled (bool checked)
 {
+    makeCurrent ();
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings ();
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
@@ -3929,6 +3940,7 @@ void WidgetGl::ToggledDirectionalLightEnabled (bool checked)
 
 void WidgetGl::ToggledDeformationShown (bool checked)
 {
+    makeCurrent ();
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
@@ -3941,6 +3953,7 @@ void WidgetGl::ToggledDeformationShown (bool checked)
 
 void WidgetGl::ToggledDeformationShownGrid (bool checked)
 {
+    makeCurrent ();
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
@@ -3954,6 +3967,7 @@ void WidgetGl::ToggledDeformationShownGrid (bool checked)
 
 void WidgetGl::ToggledVelocityShown (bool checked)
 {
+    makeCurrent ();
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
@@ -3966,6 +3980,7 @@ void WidgetGl::ToggledVelocityShown (bool checked)
 
 void WidgetGl::ToggledVelocityGridShown (bool checked)
 {
+    makeCurrent ();
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
@@ -3978,6 +3993,7 @@ void WidgetGl::ToggledVelocityGridShown (bool checked)
 
 void WidgetGl::ToggledVelocityClampingShown (bool checked)
 {
+    makeCurrent ();
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
@@ -3991,6 +4007,7 @@ void WidgetGl::ToggledVelocityClampingShown (bool checked)
 
 void WidgetGl::ToggledDeformationGridCellCenterShown (bool checked)
 {
+    makeCurrent ();
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
@@ -4004,6 +4021,7 @@ void WidgetGl::ToggledDeformationGridCellCenterShown (bool checked)
 
 void WidgetGl::ToggledVelocityGridCellCenterShown (bool checked)
 {
+    makeCurrent ();
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
@@ -4017,6 +4035,7 @@ void WidgetGl::ToggledVelocityGridCellCenterShown (bool checked)
 
 void WidgetGl::ToggledVelocitySameSize (bool checked)
 {
+    makeCurrent ();
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
 	GetViewSettings (vn[i]).GetVelocityAverage ().
@@ -4026,6 +4045,7 @@ void WidgetGl::ToggledVelocitySameSize (bool checked)
 
 void WidgetGl::ToggledVelocityColorMapped (bool checked)
 {
+    makeCurrent ();
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
 	GetViewSettings (vn[i]).GetVelocityAverage ().
@@ -4053,6 +4073,7 @@ void WidgetGl::ToggledObjectVelocityShown (bool checked)
 
 void WidgetGl::ToggledLightNumberShown (bool checked)
 {
+    makeCurrent ();
     ViewSettings& vs = GetViewSettings ();
     vs.SetLightPositionShown (vs.GetSelectedLight (), checked);
     update ();
@@ -4108,6 +4129,7 @@ void WidgetGl::ToggledViewFocusShown (bool checked)
 
 void WidgetGl::ToggledContextView (bool checked)
 {
+    makeCurrent ();
     ViewSettings& vs = GetViewSettings ();
     vs.SetContextView (checked);
     update ();
@@ -4121,36 +4143,42 @@ void WidgetGl::ToggledContextBoxShown (bool checked)
 
 void WidgetGl::ToggledForceNetworkShown (bool checked)
 {
+    makeCurrent ();
     GetViewSettings ().SetForceNetworkShown (checked);
     update ();
 }
 
 void WidgetGl::ToggledForcePressureShown (bool checked)
 {
+    makeCurrent ();
     GetViewSettings ().SetForcePressureShown (checked);
     update ();
 }
 
 void WidgetGl::ToggledForceResultShown (bool checked)
 {
+    makeCurrent ();
     GetViewSettings ().SetForceResultShown (checked);
     update ();
 }
 
 void WidgetGl::ToggledTorqueNetworkShown (bool checked)
 {
+    makeCurrent ();
     GetViewSettings ().SetTorqueNetworkShown (checked);
     update ();
 }
 
 void WidgetGl::ToggledTorquePressureShown (bool checked)
 {
+    makeCurrent ();
     GetViewSettings ().SetTorquePressureShown (checked);
     update ();
 }
 
 void WidgetGl::ToggledTorqueResultShown (bool checked)
 {
+    makeCurrent ();
     GetViewSettings ().SetTorqueResultShown (checked);
     update ();
 }
@@ -4188,6 +4216,7 @@ void WidgetGl::ToggledCenterPathBodyShown (bool checked)
 
 void WidgetGl::ToggledSelectionContextShown (bool checked)
 {
+    makeCurrent ();
     GetViewSettings ().SetSelectionContextShown (checked);
     compile (GetViewNumber ());
     update ();
@@ -4195,6 +4224,7 @@ void WidgetGl::ToggledSelectionContextShown (bool checked)
 
 void WidgetGl::ToggledCenterPathHidden (bool checked)
 {
+    makeCurrent ();
     GetViewSettings ().SetCenterPathHidden (checked);
     compile (GetViewNumber ());
     update ();
@@ -4202,6 +4232,7 @@ void WidgetGl::ToggledCenterPathHidden (bool checked)
 
 void WidgetGl::ButtonClickedViewType (int id)
 {
+    makeCurrent ();
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
     {
@@ -4221,6 +4252,7 @@ void WidgetGl::ButtonClickedViewType (int id)
 
 void WidgetGl::ButtonClickedTimeLinkage (int id)
 {
+    makeCurrent ();
     m_timeLinkage = TimeLinkage::Enum (id);
     SetCurrentTime (GetCurrentTime ());
     update ();
@@ -4268,6 +4300,7 @@ void WidgetGl::ToggledTorusDomainShown (bool checked)
 
 void WidgetGl::ToggledCenterPathTubeUsed (bool checked)
 {
+    makeCurrent ();
     m_centerPathTubeUsed = checked;
     compile (GetViewNumber ());
     update ();
@@ -4275,6 +4308,7 @@ void WidgetGl::ToggledCenterPathTubeUsed (bool checked)
 
 void WidgetGl::ToggledCenterPathLineUsed (bool checked)
 {
+    makeCurrent ();
     m_centerPathLineUsed = checked;
     compile (GetViewNumber ());
     update ();
@@ -4301,6 +4335,7 @@ void WidgetGl::ToggledT1sShown (bool checked)
 
 void WidgetGl::ToggledT1sShiftLower (bool checked)
 {
+    makeCurrent ();
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     Simulation& simulation = GetSimulation (viewNumber);
@@ -4311,6 +4346,7 @@ void WidgetGl::ToggledT1sShiftLower (bool checked)
 
 void WidgetGl::CurrentIndexChangedSelectedLight (int selectedLight)
 {
+    makeCurrent ();
     ViewSettings& vs = GetViewSettings ();
     vs.SetSelectedLight (LightNumber::Enum (selectedLight));
     update ();
@@ -4318,12 +4354,14 @@ void WidgetGl::CurrentIndexChangedSelectedLight (int selectedLight)
 
 void WidgetGl::CurrentIndexChangedSimulation (int i)
 {
+    makeCurrent ();
     setSimulation (i, GetViewNumber ());
     update ();
 }
 
 void WidgetGl::CurrentIndexChangedViewCount (int index)
 {
+    makeCurrent ();
     m_viewCount = ViewCount::Enum (index);
     m_viewNumber = ViewNumber::VIEW0;
     size_t n = ViewCount::GetCount (m_viewCount);
@@ -4359,12 +4397,14 @@ void WidgetGl::ButtonClickedInteractionObject (int index)
 
 void WidgetGl::CurrentIndexChangedComputationType (int index)
 {
+    makeCurrent ();
     GetViewSettings ().SetComputationType (ComputationType::Enum(index));
     update ();
 }
 
 void WidgetGl::CurrentIndexChangedAxesOrder (int index)
 {
+    makeCurrent ();
     GetViewSettings ().SetAxesOrder (AxesOrder::Enum(index));
 }
 
@@ -4374,6 +4414,7 @@ void WidgetGl::SetBodyOrFaceProperty (
     boost::shared_ptr<ColorBarModel> colorBarModel,
     size_t bodyOrFaceProperty)
 {
+    makeCurrent ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetBodyOrFaceProperty (bodyOrFaceProperty);
     if (vs.GetBodyOrFaceProperty () != FaceProperty::DMP_COLOR)
@@ -4396,6 +4437,7 @@ void WidgetGl::SetOverlayBarModel (
     ViewNumber::Enum viewNumber, 
     boost::shared_ptr<ColorBarModel> colorBarModel)
 {
+    makeCurrent ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetOverlayBarModel (colorBarModel);
     update ();
@@ -4403,6 +4445,7 @@ void WidgetGl::SetOverlayBarModel (
 
 void WidgetGl::ValueChangedNoiseStart (int index)
 {
+    makeCurrent ();
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
@@ -4419,6 +4462,7 @@ void WidgetGl::ValueChangedNoiseStart (int index)
 
 void WidgetGl::ValueChangedNoiseAmplitude (int index)
 {
+    makeCurrent ();
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
@@ -4435,6 +4479,7 @@ void WidgetGl::ValueChangedNoiseAmplitude (int index)
 
 void WidgetGl::ValueChangedNoiseFrequency (int index)
 {
+    makeCurrent ();
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
@@ -4452,12 +4497,14 @@ void WidgetGl::ValueChangedNoiseFrequency (int index)
 
 void WidgetGl::ValueChangedSliderTimeSteps (int timeStep)
 {
+    makeCurrent ();
     SetCurrentTime (timeStep);
     update ();
 }
 
 void WidgetGl::ClickedEnd ()
 {
+    makeCurrent ();
     size_t steps = ((GetTimeLinkage () == TimeLinkage::INDEPENDENT) ?
 		    GetTimeSteps () : LinkedTimeMaxSteps ().first);
     SetCurrentTime (steps - 1, true);
@@ -4466,17 +4513,20 @@ void WidgetGl::ClickedEnd ()
 
 void WidgetGl::ValueChangedAverageTimeWindow (int timeSteps)
 {
+    makeCurrent ();
     ViewSettings& vs = GetViewSettings ();
     vs.AverageSetTimeWindow (timeSteps);
 }
 
 void WidgetGl::ValueChangedT1sTimeWindow (int timeSteps)
 {
+    makeCurrent ();
     GetViewSettings ().GetT1sPDE ().AverageSetTimeWindow (timeSteps);
 }
 
 void WidgetGl::ValueChangedTimeDisplacement (int timeDisplacement)
 {
+    makeCurrent ();
     QSlider* slider = static_cast<QSlider*> (sender ());
     size_t maximum = slider->maximum ();
     G3D::AABox bb = GetSimulation ().GetBoundingBox ();
@@ -4489,6 +4539,7 @@ void WidgetGl::ValueChangedTimeDisplacement (int timeDisplacement)
 
 void WidgetGl::ValueChangedT1Size (int index)
 {
+    makeCurrent ();
     (void)index;
     m_t1sSize = Index2Value (static_cast<QSlider*> (sender ()), T1S_SIZE);
     update ();
@@ -4497,6 +4548,7 @@ void WidgetGl::ValueChangedT1Size (int index)
 
 void WidgetGl::ValueChangedT1sKernelIntervalPerPixel (int index)
 {
+    makeCurrent ();
     (void)index;
     SetOneOrTwoViews (this,
 		      &WidgetGl::valueChangedT1sKernelIntervalPerPixel);
@@ -4504,24 +4556,28 @@ void WidgetGl::ValueChangedT1sKernelIntervalPerPixel (int index)
 
 void WidgetGl::ValueChangedT1sKernelSigma (int index)
 {
+    makeCurrent ();
     (void)index;
     SetOneOrTwoViews (this, &WidgetGl::valueChangedT1sKernelSigma);
 }
 
 void WidgetGl::ValueChangedT1sKernelTextureSize (int index)
 {
+    makeCurrent ();
     (void)index;
     SetOneOrTwoViews (this, &WidgetGl::valueChangedT1sKernelTextureSize);
 }
 
 void WidgetGl::ToggledT1sKernelTextureSizeShown (bool checked)
 {
+    makeCurrent ();
     (void)checked;
     SetOneOrTwoViews (this, &WidgetGl::toggledT1sKernelTextureSizeShown);
 }
 
 void WidgetGl::ValueChangedDeformationSizeExp (int index)
 {
+    makeCurrent ();
     (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetDeformationSize (
@@ -4532,6 +4588,7 @@ void WidgetGl::ValueChangedDeformationSizeExp (int index)
 
 void WidgetGl::ValueChangedDeformationLineWidthExp (int index)
 {
+    makeCurrent ();
     (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetDeformationLineWidth (
@@ -4542,6 +4599,7 @@ void WidgetGl::ValueChangedDeformationLineWidthExp (int index)
 
 void WidgetGl::ValueChangedForceTorqueSize (int index)
 {
+    makeCurrent ();
     (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetForceTorqueSize (
@@ -4552,6 +4610,7 @@ void WidgetGl::ValueChangedForceTorqueSize (int index)
 
 void WidgetGl::ValueChangedTorqueDistance (int index)
 {
+    makeCurrent ();
     (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetTorqueDistance (
@@ -4564,6 +4623,7 @@ void WidgetGl::ValueChangedTorqueDistance (int index)
 
 void WidgetGl::ValueChangedForceTorqueLineWidth (int index)
 {
+    makeCurrent ();
     (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetForceTorqueLineWidth (
@@ -4575,6 +4635,7 @@ void WidgetGl::ValueChangedForceTorqueLineWidth (int index)
 
 void WidgetGl::ValueChangedVelocityLineWidthExp (int index)
 {
+    makeCurrent ();
     (void)index;
     ViewSettings& vs = GetViewSettings ();
     vs.SetVelocityLineWidth (
@@ -4585,6 +4646,7 @@ void WidgetGl::ValueChangedVelocityLineWidthExp (int index)
 
 void WidgetGl::ValueChangedContextAlpha (int index)
 {
+    makeCurrent ();
     (void)index;
     m_contextAlpha = Index2Value (static_cast<QSlider*> (sender ()), 
 				  CONTEXT_ALPHA);
@@ -4614,6 +4676,7 @@ void WidgetGl::ValueChangedEdgesRadius (int sliderValue)
 
 void WidgetGl::ValueChangedLightAmbientRed (int sliderValue)
 {
+    makeCurrent ();
     setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
 	      LightType::AMBIENT, ColorNumber::RED);
 }
@@ -4621,54 +4684,63 @@ void WidgetGl::ValueChangedLightAmbientRed (int sliderValue)
 
 void WidgetGl::ValueChangedLightAmbientGreen (int sliderValue)
 {
+    makeCurrent ();
     setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
 	      LightType::AMBIENT, ColorNumber::GREEN);
 }
 
 void WidgetGl::ValueChangedLightAmbientBlue (int sliderValue)
 {
+    makeCurrent ();
     setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
 	      LightType::AMBIENT, ColorNumber::BLUE);
 }
 
 void WidgetGl::ValueChangedLightDiffuseRed (int sliderValue)
 {
+    makeCurrent ();
     setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
 	      LightType::DIFFUSE, ColorNumber::RED);
 }
 
 void WidgetGl::ValueChangedLightDiffuseGreen (int sliderValue)
 {
+    makeCurrent ();
     setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
 	      LightType::DIFFUSE, ColorNumber::GREEN);
 }
 
 void WidgetGl::ValueChangedLightDiffuseBlue (int sliderValue)
 {
+    makeCurrent ();
     setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
 	      LightType::DIFFUSE, ColorNumber::BLUE);
 }
 
 void WidgetGl::ValueChangedLightSpecularRed (int sliderValue)
 {
+    makeCurrent ();
     setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
 	      LightType::SPECULAR, ColorNumber::RED);
 }
 
 void WidgetGl::ValueChangedLightSpecularGreen (int sliderValue)
 {
+    makeCurrent ();
     setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
 	      LightType::SPECULAR, ColorNumber::GREEN);
 }
 
 void WidgetGl::ValueChangedLightSpecularBlue (int sliderValue)
 {
+    makeCurrent ();
     setLight (sliderValue, static_cast<QSlider*> (sender ())->maximum (),
 	      LightType::SPECULAR, ColorNumber::BLUE);
 }
 
 void WidgetGl::ValueChangedAngleOfView (int angleOfView)
 {
+    makeCurrent ();
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings ();
     vs.SetAngleOfView (angleOfView);
