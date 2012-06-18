@@ -3366,6 +3366,8 @@ void WidgetGl::contextMenuEventView (QMenu* menu) const
 
 void WidgetGl::contextMenuEvent (QContextMenuEvent *event)
 {
+    // make sure you act on the current window's context
+    makeCurrent ();
     m_contextMenuPosScreen = event->pos ();
     m_contextMenuPosObject = toObjectTransform (m_contextMenuPosScreen);
     QMenu menu (this);

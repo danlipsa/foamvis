@@ -20,7 +20,17 @@ public:
     WidgetVtk (QWidget* parent);
     void UpdateAverage (const Foam& foam);
 			       
-public Q_SLOTS:
+
+public:
+    QSize sizeHint ()
+    {
+	return QSize (128, 128);
+    }
+
+    QSize minimumSizeHint ()
+    {
+	return QSize (128, 128);
+    }
     
 private:
     Q_OBJECT
