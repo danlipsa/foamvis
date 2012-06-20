@@ -133,7 +133,8 @@ private:
      */
     void setAndDisplayHistogram (
 	HistogramSelection histogramSelection,
-	MaxValueOperation maxValueOperation);
+	MaxValueOperation maxValueOperation,
+	ViewType::Enum viewType);
     void update3DAverage (size_t timeStep);
     void currentIndexChangedFaceColor (ViewNumber::Enum viewNumber);
     void deformationViewToUI ();

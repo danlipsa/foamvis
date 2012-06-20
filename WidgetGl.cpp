@@ -3713,8 +3713,8 @@ vector<ViewNumber::Enum> WidgetGl::GetConnectedViewNumbers (
 }
 
 
-// Slots and methods invoqued by the UI
-// ====================================
+// Slots and methods called by the UI
+// ==================================
 
 void WidgetGl::mousePressEvent(QMouseEvent *event)
 {

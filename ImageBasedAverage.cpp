@@ -268,6 +268,7 @@ void ImageBasedAverage<PropertySetter>::initFramebuffer (
     ViewNumber::Enum viewNumber,
     const boost::shared_ptr<QGLFramebufferObject>& fbo)
 {
+    RuntimeAssert (m_initShaderProgram != 0, "Null shader program");
     fbo->bind ();
     m_initShaderProgram->Bind ();
     GetWidgetGl ().ActivateViewShader (viewNumber);

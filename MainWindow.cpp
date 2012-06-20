@@ -678,7 +678,7 @@ void MainWindow::update3DAverage (size_t timeStep)
 
 void MainWindow::setAndDisplayHistogram (
     HistogramSelection histogramSelection,
-    MaxValueOperation maxValueOperation)
+    MaxValueOperation maxValueOperation, ViewType::Enum viewType)
 {
     switch (m_histogramType)
     {
@@ -700,7 +700,7 @@ void MainWindow::setAndDisplayHistogram (
     const ViewSettings& vs = widgetGl->GetViewSettings (m_histogramViewNumber);
     BodyProperty::Enum property = BodyProperty::FromSizeT (
 	vs.GetBodyOrFaceProperty ());
-    ViewType::Enum viewType = vs.GetViewType ();
+    cdbg << "setAndDisplayHistogram: " << ViewType::ToString (viewType) << endl;
     const Simulation& simulation = widgetGl->GetSimulation ();
     double maxYValue = 0;
     QwtIntervalData intervalData;
@@ -1042,14 +1042,15 @@ void MainWindow::currentIndexChangedFaceColor (
     ViewNumber::Enum viewNumber)
 {
     int value = static_cast<QComboBox*> (sender ())->currentIndex ();
+    const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
+    ViewType::Enum viewType = vs.GetViewType ();
     boost::array<QWidget*, 4> widgetsVisible = {{
 	    labelFacesHistogram, radioButtonHistogramNone,
 	    radioButtonHistogramUnicolor, 
 	    radioButtonHistogramColorCoded}};
     boost::array<QWidget*, 1> widgetsEnabled = {{
 	    radioButtonAverage}};
-    size_t simulationIndex = 
-	widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
+    size_t simulationIndex = vs.GetSimulationIndex ();
     if (value == FaceProperty::DMP_COLOR) {
 	::setVisible (widgetsVisible, false);
 	::setEnabled (widgetsEnabled, false);
@@ -1065,13 +1066,13 @@ void MainWindow::currentIndexChangedFaceColor (
 	    viewNumber,
 	    m_colorBarModelBodyProperty
 	    [simulationIndex][viewNumber][property], property);
-	setAndDisplayHistogram (DISCARD_SELECTION, REPLACE_MAX_VALUE);
+	setAndDisplayHistogram (DISCARD_SELECTION, REPLACE_MAX_VALUE, viewType);
     }
 }
 
 
-// Slots
-// ======================================================================
+// Slots and methods called by the UI
+// ==================================
 
 void MainWindow::ToggledVelocityShown (bool checked)
 {
@@ -1166,7 +1167,9 @@ void MainWindow::ValueChangedT1sKernelSigma (int index)
 
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
-    setAndDisplayHistogram (KEEP_SELECTION, KEEP_MAX_VALUE);
+    ViewSettings& vs = widgetGl->GetViewSettings (widgetGl->GetViewNumber ());
+    ViewType::Enum viewType = vs.GetViewType ();
+    setAndDisplayHistogram (KEEP_SELECTION, KEEP_MAX_VALUE, viewType);
     update3DAverage (timeStep);
     if (m_debugTranslatedBody)
     {
@@ -1206,25 +1209,29 @@ void MainWindow::ButtonClickedViewType (int vt)
 	    viewNumber,
 	    getColorBarModel (simulationIndex, 
 			      viewNumber, viewType, property, statisticsType));
+
 	switch (viewType)
 	{
 	case ViewType::FACES:
 	    if (m_histogramViewNumber == viewNumber)
-		ButtonClickedHistogram (m_histogramType);
+		setAndDisplayHistogram (
+		    KEEP_SELECTION, REPLACE_MAX_VALUE, viewType);
 	    break;
 
 	case ViewType::FACES_STATISTICS:
 	    labelAverageColor->setText (
 		BodyProperty::ToString (BodyProperty::FromSizeT (property)));
 	    if (m_histogramViewNumber == viewNumber)
-		ButtonClickedHistogram (m_histogramType);
+		setAndDisplayHistogram (
+		    KEEP_SELECTION, REPLACE_MAX_VALUE, viewType);
 	    break;
 
 	case ViewType::CENTER_PATHS:
 	    labelCenterPathColor->setText (
 		BodyProperty::ToString (BodyProperty::FromSizeT (property)));
 	    if (m_histogramViewNumber == viewNumber)
-		ButtonClickedHistogram (m_histogramType);
+		setAndDisplayHistogram (
+		    KEEP_SELECTION, REPLACE_MAX_VALUE, viewType);
 	    break;
 
 	case ViewType::T1S_PDE:
@@ -1348,7 +1355,9 @@ void MainWindow::ButtonClickedHistogram (int histogramType)
 {
     m_histogramType = HistogramType::Enum (histogramType);
     m_histogramViewNumber = widgetGl->GetViewNumber ();
-    setAndDisplayHistogram (KEEP_SELECTION, REPLACE_MAX_VALUE);
+    const ViewSettings& vs = widgetGl->GetViewSettings (m_histogramViewNumber);
+    ViewType::Enum viewType = vs.GetViewType ();
+    setAndDisplayHistogram (KEEP_SELECTION, REPLACE_MAX_VALUE, viewType);
 }
 
 
