@@ -205,7 +205,7 @@ public:
         FACES,
 
 	CENTER_PATHS,
-	FACES_STATISTICS,
+	AVERAGE,
 	T1S_PDE,
         COUNT
     };

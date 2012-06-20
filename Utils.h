@@ -193,7 +193,6 @@ int Value2Index (QSlider* slider,
 G3D::Vector2 rotateRadians (G3D::Vector2, float radiansCounterClockwise);
 G3D::Vector2 rotateDegrees (G3D::Vector2 v, float degreesCounterClockwise);
 
-
 #endif //__UTILS_H__
 
 // Local Variables:

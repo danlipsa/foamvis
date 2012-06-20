@@ -13,6 +13,21 @@
 DebugStream cdbg;
 
 #else //_MSC_VER
+
 ostream& cdbg = cerr;
 
 #endif //_MSC_VER
+
+
+MeasureTime::MeasureTime ()
+{
+    m_start = clock ();
+}
+
+void MeasureTime::EndInterval (const char* intervalName)
+{
+    clock_t end = clock ();
+    cdbg << intervalName << ": " 
+	 << (end - m_start) * 1000 / CLOCKS_PER_SEC << " ms" << endl;
+    m_start = end;
+}

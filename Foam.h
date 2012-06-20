@@ -306,6 +306,15 @@ public:
     friend ostream& operator<< (ostream& ostr, const Foam& d);
 
 private:
+    void getTetraPoints (
+	vtkSmartPointer<vtkPoints>* tetraPoints,
+	vector<boost::shared_ptr<Vertex> >* sortedPoints,
+	size_t* maxId,
+	size_t* gridSize) const;
+    void createTetraCells (
+	vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
+	const vector<boost::shared_ptr<Vertex> >& sortedPoints,
+	size_t maxId) const;
     void setForcesOneObject (const ForcesOneObjectNames& names, ForcesOneObject* forces);
     void copyStandaloneElements ();
     /**

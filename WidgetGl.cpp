@@ -2475,7 +2475,7 @@ pair<float, float> WidgetGl::GetRange (ViewNumber::Enum viewNumber) const
     float minValue = 0.0, maxValue = 0.0;
     switch (vs.GetViewType ())
     {
-    case ViewType::FACES_STATISTICS:
+    case ViewType::AVERAGE:
 	if (vs.GetComputationType () == ComputationType::COUNT)
 	    return GetRangeCount (viewNumber);
 	else
@@ -2697,7 +2697,11 @@ G3D::Vector2 WidgetGl::toTexture (ViewNumber::Enum viewNumber,
 
 void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
 {
-    ViewSettings& vs = GetViewSettings (viewNumber);
+    const ViewSettings& vs = GetViewSettings (viewNumber);
+    const Foam& foam = GetSimulation (viewNumber).GetFoam (0);
+    const FoamProperties& foamProperties = foam.GetProperties ();
+    if (! foamProperties.Is2D ())
+	return;
     glPushAttrib (GL_ENABLE_BIT);    
     glDisable (GL_DEPTH_TEST);
     glBindTexture (GL_TEXTURE_1D, vs.GetColorBarTexture ());
@@ -3074,7 +3078,7 @@ ColorBarType::Enum WidgetGl::GetColorBarType (
     {
     case ViewType::T1S_PDE:
 	return ColorBarType::T1S_PDE;
-    case ViewType::FACES_STATISTICS:
+    case ViewType::AVERAGE:
 	if (statisticsType == ComputationType::COUNT)
 	    return ColorBarType::STATISTICS_COUNT;
     case ViewType::FACES:

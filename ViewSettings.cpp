@@ -480,7 +480,7 @@ void ViewSettings::AverageStep (ViewNumber::Enum viewNumber, int direction)
 {
     switch (GetViewType ())
     {
-    case ViewType::FACES_STATISTICS:
+    case ViewType::AVERAGE:
 	GetScalarAverage ().AverageStep (viewNumber, direction);
 	GetDeformationAverage ().AverageStep (viewNumber, direction);
 	GetVelocityAverage ().AverageStep (viewNumber, direction);
@@ -501,7 +501,7 @@ void ViewSettings::AverageRotateAndDisplay (
 {
     switch (GetViewType ())
     {
-    case ViewType::FACES_STATISTICS:
+    case ViewType::AVERAGE:
 	GetScalarAverage ().AverageRotateAndDisplay (
 	    viewNumber, displayType, rotationCenter, angleDegrees);
 	if (IsDeformationShown ())

@@ -28,6 +28,10 @@ public:
     {
 	return m_spaceDimension == 2;
     }
+    bool Is3D () const
+    {
+	return ! Is2D ();
+    }
     bool IsQuadratic () const
     {
 	return m_quadratic;

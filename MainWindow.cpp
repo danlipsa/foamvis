@@ -114,6 +114,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     //initTranslatedBody ();
     configureInterfaceDataDependent (simulationGroup);    
     ValueChangedSliderTimeSteps (0);
+    ButtonClickedViewType (ViewType::FACES);
 }
 
 void MainWindow::configureInterface ()
@@ -491,7 +492,7 @@ void MainWindow::setupButtonGroups ()
     buttonGroupViewType->setId (radioButtonFacesNormal, ViewType::FACES);
     buttonGroupViewType->setId (radioButtonBubblesPaths, ViewType::CENTER_PATHS);
     buttonGroupViewType->setId (radioButtonAverage, 
-				ViewType::FACES_STATISTICS);
+				ViewType::AVERAGE);
     buttonGroupViewType->setId (radioButtonT1sPDE, ViewType::T1S_PDE);
     
 
@@ -1169,14 +1170,12 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
     ViewSettings& vs = widgetGl->GetViewSettings (widgetGl->GetViewNumber ());
     ViewType::Enum viewType = vs.GetViewType ();
+    const Foam& foam = widgetGl->GetSimulation ().GetFoam (0);
     setAndDisplayHistogram (KEEP_SELECTION, KEEP_MAX_VALUE, viewType);
-    update3DAverage (timeStep);
+    if (foam.GetProperties ().Is3D () && viewType == ViewType::AVERAGE)
+	update3DAverage (timeStep);
     if (m_debugTranslatedBody)
-    {
-	Foam& foam = const_cast<Foam&>
-	    (widgetGl->GetSimulation ().GetFoam (0));
-	m_currentTranslatedBody = foam.GetBodies ().begin ();
-    }
+	m_currentTranslatedBody = const_cast<Foam&> (foam).GetBodies ().begin ();
     updateButtons ();
 }
 
@@ -1196,6 +1195,7 @@ void MainWindow::ButtonClickedViewType (int vt)
     {
 	ViewNumber::Enum viewNumber = vn[i];
 	const Simulation& simulation = widgetGl->GetSimulation (viewNumber);
+	const Foam& foam = simulation.GetFoam (0);
 	ViewType::Enum viewType = ViewType::Enum(vt);
 	size_t simulationIndex = 
 	    widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
@@ -1216,14 +1216,25 @@ void MainWindow::ButtonClickedViewType (int vt)
 	    if (m_histogramViewNumber == viewNumber)
 		setAndDisplayHistogram (
 		    KEEP_SELECTION, REPLACE_MAX_VALUE, viewType);
+	    if (foam.GetProperties ().Is3D ())
+	    {
+		widgetVtk->setHidden (true);
+		widgetGl->setVisible (true);
+	    }
 	    break;
 
-	case ViewType::FACES_STATISTICS:
+	case ViewType::AVERAGE:
 	    labelAverageColor->setText (
 		BodyProperty::ToString (BodyProperty::FromSizeT (property)));
 	    if (m_histogramViewNumber == viewNumber)
 		setAndDisplayHistogram (
 		    KEEP_SELECTION, REPLACE_MAX_VALUE, viewType);
+	    if (foam.GetProperties ().Is3D ())
+	    {
+		update3DAverage (widgetGl->GetCurrentTime (viewNumber));
+		widgetGl->setHidden (true);
+		widgetVtk->setVisible (true);
+	    }
 	    break;
 
 	case ViewType::CENTER_PATHS:
@@ -1232,13 +1243,28 @@ void MainWindow::ButtonClickedViewType (int vt)
 	    if (m_histogramViewNumber == viewNumber)
 		setAndDisplayHistogram (
 		    KEEP_SELECTION, REPLACE_MAX_VALUE, viewType);
+	    if (foam.GetProperties ().Is3D ())
+	    {
+		widgetVtk->setHidden (true);
+		widgetGl->setVisible (true);
+	    }
 	    break;
 
 	case ViewType::T1S_PDE:
 	    sliderTimeSteps->setMaximum (simulation.GetT1sTimeSteps () - 1);
+	    if (foam.GetProperties ().Is3D ())
+	    {
+		widgetGl->setHidden (true);
+		widgetVtk->setVisible (true);
+	    }
 	    break;
 
 	default:
+	    if (foam.GetProperties ().Is3D ())
+	    {
+		widgetVtk->setHidden (true);
+		widgetGl->setVisible (true);
+	    }
 	    break;
 	}
 	if (oldViewType == ViewType::T1S_PDE)

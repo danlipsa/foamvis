@@ -36,6 +36,7 @@ public:
 extern DebugStream cdbg;
 
 #else   //_MSC_VER
+
 /**
  * Stream where all debugging output should be sent. Works bor both MS
  * Visual C++ and for g++.
@@ -43,6 +44,17 @@ extern DebugStream cdbg;
 extern ostream& cdbg;
 
 #endif  //_MSC_VER
+
+class MeasureTime
+{
+public:
+    MeasureTime ();
+    void EndInterval (const char* intervalName);
+private:
+    clock_t m_start;
+};
+
+
 #endif  //__DEBUG_STREAM_H__
 
 // Local Variables:
