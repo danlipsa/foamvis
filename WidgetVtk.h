@@ -9,6 +9,8 @@
 #ifndef __WIDGETVTK_H__
 #define __WIDGETVTK_H__
 
+#include "Enums.h"
+
 class vtkActor;
 class vtkDataSetMapper;
 class vtkRenderer;
@@ -18,7 +20,7 @@ class WidgetVtk : public QVTKWidget
 {
 public:
     WidgetVtk (QWidget* parent);
-    void UpdateAverage (const Foam& foam);
+    void UpdateAverage (const Foam& foam, BodyProperty::Enum bodyProperty);
 			       
 
 public:

@@ -110,6 +110,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     }
     setWindowTitle (QString (title.c_str ()));
     widgetHistogram->setHidden (true);
+    widgetVtk->setHidden (true);
     m_timer->setInterval (20);
     //initTranslatedBody ();
     configureInterfaceDataDependent (simulationGroup);    
@@ -673,7 +674,9 @@ void MainWindow::update3DAverage (size_t timeStep)
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
     const Simulation& simulation = widgetGl->GetSimulation (viewNumber);
     const Foam& foam = simulation.GetFoam (timeStep);
-    widgetVtk->UpdateAverage (foam);
+    BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT (
+	widgetGl->GetBodyOrFaceProperty ());
+    widgetVtk->UpdateAverage (foam, bodyProperty);
 }
 
 

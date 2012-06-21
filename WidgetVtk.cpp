@@ -25,9 +25,11 @@ WidgetVtk::WidgetVtk (QWidget* parent) :
     m_renderer->AddViewProp(m_actor);
 }
 
-void WidgetVtk::UpdateAverage (const Foam& foam)
+void WidgetVtk::UpdateAverage (const Foam& foam, 
+			       BodyProperty::Enum bodyProperty)
 {
-    vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid = foam.GetTetraGrid ();
+    vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid = 
+	foam.SetCellScalar (foam.GetTetraGrid (), bodyProperty);
     m_mapper->SetInput (aTetraGrid);
     update ();
 }

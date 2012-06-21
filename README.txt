@@ -238,6 +238,16 @@ Release log
 	 - histogram selection resulting in selection of time steps in the 
 	   face view
 
+Requirements
+============
+A graphics card with:
+  OpenGL version >= 2.1
+  Shading language >= 1.2
+  GL_ARB_texture_float
+On Linux, run:
+'glxinfo' to check capabilities of the drivers and
+'lspci | grep VGA' to see the what graphics card you have in your system
+
 
 
 Compile

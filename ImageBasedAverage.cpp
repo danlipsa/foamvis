@@ -45,40 +45,47 @@ template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::AverageInit (
     ViewNumber::Enum viewNumber)
 {
-    Average::AverageInit (viewNumber);
-    const G3D::Rect2D extendedArea = EncloseRotation (
-	GetWidgetGl ().GetViewRect (viewNumber));
-    QSize size (extendedArea.width (), extendedArea.height ());
-    glPushAttrib (GL_COLOR_BUFFER_BIT);
-    m_fbos.m_step.reset (
-	new QGLFramebufferObject (
-	    size, QGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_2D, 
-	    GL_RGBA32F));
+    try
+    {
+	Average::AverageInit (viewNumber);
+	const G3D::Rect2D extendedArea = EncloseRotation (
+	    GetWidgetGl ().GetViewRect (viewNumber));
+	QSize size (extendedArea.width (), extendedArea.height ());
+	glPushAttrib (GL_COLOR_BUFFER_BIT);
+	m_fbos.m_step.reset (
+	    new QGLFramebufferObject (
+		size, QGLFramebufferObject::CombinedDepthStencil, GL_TEXTURE_2D, 
+		GL_RGBA32F));
+	RuntimeAssert (m_fbos.m_step->isValid (), 
+		       "Framebuffer initialization failed:" + m_id);
+	RuntimeAssert (m_fbos.m_step->attachment () == 
+		       QGLFramebufferObject::CombinedDepthStencil,
+		       "No stencil attachement available:" + m_id);
 
-    RuntimeAssert (m_fbos.m_step->isValid (), 
-		   "Framebuffer initialization failed:" + m_id);
-    RuntimeAssert (m_fbos.m_step->attachment () == 
-		   QGLFramebufferObject::CombinedDepthStencil,
-		   "No stencil attachement available:" + m_id);
-
-    m_fbos.m_current.reset (
-	new QGLFramebufferObject (
-	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D,
-	    GL_RGBA32F));
-    RuntimeAssert (m_fbos.m_current->isValid (), 
-		   "Framebuffer initialization failed:" + m_id);
-    m_fbos.m_previous.reset (
-	new QGLFramebufferObject (
-	    size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D,
-	    GL_RGBA32F));
-    RuntimeAssert (m_fbos.m_previous->isValid (), 
-		   "Framebuffer initialization failed:" + m_id);
-    m_fbos.m_debug.reset (new QGLFramebufferObject (size));
-    RuntimeAssert (m_fbos.m_debug->isValid (), 
-		   "Framebuffer initialization failed:" + m_id);
-    glPopAttrib ();
-    clear (viewNumber);
-    WarnOnOpenGLError ("ImageBasedAverage::init");
+	m_fbos.m_current.reset (
+	    new QGLFramebufferObject (
+		size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D,
+		GL_RGBA32F));
+	RuntimeAssert (m_fbos.m_current->isValid (), 
+		       "Framebuffer initialization failed:" + m_id);
+	m_fbos.m_previous.reset (
+	    new QGLFramebufferObject (
+		size, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D,
+		GL_RGBA32F));
+	RuntimeAssert (m_fbos.m_previous->isValid (), 
+		       "Framebuffer initialization failed:" + m_id);
+	m_fbos.m_debug.reset (new QGLFramebufferObject (size));
+	RuntimeAssert (m_fbos.m_debug->isValid (), 
+		       "Framebuffer initialization failed:" + m_id);
+	glPopAttrib ();
+	clear (viewNumber);
+	WarnOnOpenGLError ("ImageBasedAverage::init");
+    }
+    catch (exception& e)
+    {
+	glPopAttrib ();
+	cdbg << e.what () << endl;
+    }
 }
 
 template<typename PropertySetter>

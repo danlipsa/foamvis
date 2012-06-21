@@ -1023,16 +1023,16 @@ void Foam::getTetraPoints (
     vtkSmartPointer<vtkPoints>* tetraPoints,
     vector<boost::shared_ptr<Vertex> >* sortedPoints,
     size_t* maxId,
-    size_t* gridSize) const
+    size_t* numberOfCells) const
 {
     MeasureTime mt;
     VertexSet vertexSet = GetVertexSet ();
     *maxId = (*(--vertexSet.end ()))->GetId ();
-    *gridSize = 0;
+    *numberOfCells = 0;
     size_t centerId = (*maxId) + 1;
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
     {
-	gridSize += body->GetOrientedFaces ().size ();
+	numberOfCells += body->GetOrientedFaces ().size ();
 	vertexSet.insert (
 	    boost::shared_ptr<Vertex> (new Vertex (body->GetCenter (), 
 						   centerId++)));
@@ -1053,22 +1053,22 @@ void Foam::getTetraPoints (
 }
     
 void Foam::createTetraCells (
-    vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
+    vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid, 
     const vector<boost::shared_ptr<Vertex> >& sortedPoints,
-    size_t maxId) const
+    size_t maxPointId) const
 {
     MeasureTime mt;
     // create the cells
-    size_t centerId = maxId + 1;
+    vtkIdType cellId = 0;
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
     {
 	boost::shared_ptr<Vertex> center (
-	    new Vertex (body->GetCenter (), centerId++));
+	    new Vertex (body->GetCenter (), maxPointId + cellId + 1));
 	size_t centerIndex = pointIndex (sortedPoints, center);
 	BOOST_FOREACH (const boost::shared_ptr<OrientedFace>& of, 
 		       body->GetOrientedFaces ())
 	{
-	    vtkSmartPointer<vtkTetra> aTetra = vtkTetra::New ();
+	    VTK_CREATE(vtkTetra, aTetra);
 	    for (size_t i = 0; i < 3; i++)
 	    {
 		boost::shared_ptr<Vertex> point = of->GetBeginVertex (i);
@@ -1079,7 +1079,8 @@ void Foam::createTetraCells (
 	    aTetraGrid->InsertNextCell(aTetra->GetCellType(), 
 				       aTetra->GetPointIds());
 	}
-    }    
+	++cellId;
+    }
     mt.EndInterval ("createTetraCells");
 }
 
@@ -1089,19 +1090,37 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::GetTetraGrid () const
     // create the points    
     vtkSmartPointer<vtkPoints> tetraPoints;
     vector<boost::shared_ptr<Vertex> > sortedPoints;
-    size_t maxId, gridSize;
-    getTetraPoints (&tetraPoints, &sortedPoints, &maxId, &gridSize);
+    size_t maxPointId, numberOfCells;
+    getTetraPoints (&tetraPoints, &sortedPoints, &maxPointId, &numberOfCells);
 
     // create the unstructured grid
-    vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid = 
-	vtkUnstructuredGrid::New ();
-    aTetraGrid->Allocate(gridSize, 1);
+    VTK_CREATE (vtkUnstructuredGrid, aTetraGrid);
+    aTetraGrid->Allocate(numberOfCells, numberOfCells);
     aTetraGrid->SetPoints(tetraPoints);
     
     // create the cells
-    createTetraCells (aTetraGrid, sortedPoints, maxId);
+    createTetraCells (aTetraGrid, sortedPoints, maxPointId);
     return aTetraGrid;
 }
+
+vtkSmartPointer<vtkUnstructuredGrid> Foam::SetCellScalar (
+    vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
+    BodyProperty::Enum bodyProperty) const
+{
+    vtkIdType numberOfCells = aTetraGrid->GetNumberOfCells ();
+    VTK_CREATE(vtkFloatArray, scalars);
+    scalars->SetNumberOfValues (numberOfCells);
+    vtkIdType cellId = 0;
+    BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
+    {
+	float propertyValue = body->GetPropertyValue (bodyProperty);
+	scalars->SetValue (cellId, propertyValue);
+	++cellId;
+    }
+    aTetraGrid->GetCellData ()->SetScalars (scalars);
+    return aTetraGrid;
+}
+
 
 // Static and Friends Methods
 // ======================================================================

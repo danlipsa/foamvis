@@ -113,7 +113,9 @@
 
 // VTK headers
 #include <vtkColorTransferFunction.h>
+#include <vtkCellData.h>
 #include <vtkDataSetMapper.h>
+#include <vtkFloatArray.h>
 #include <vtkInteractorStyle.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkRenderWindow.h>

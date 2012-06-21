@@ -295,6 +295,10 @@ public:
     void SetSpaceDimension (size_t spaceDimension);
     void SetQuadratic (bool quadratic);
     vtkSmartPointer<vtkUnstructuredGrid> GetTetraGrid () const;
+    vtkSmartPointer<vtkUnstructuredGrid> SetCellScalar (
+	vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
+	BodyProperty::Enum bodyProperty) const;
+
 
 public:
     static const double Z_COORDINATE_2D = 0.0;
