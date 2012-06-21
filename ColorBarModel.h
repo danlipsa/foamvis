@@ -84,8 +84,7 @@ public:
 
     static const size_t COLORS;
 
-private:
-    void setupPaletteRainbowTelea ();
+private:    
     void setupPaletteRainbowHSV ();
     void setupPaletteRainbow ();
     void setupPaletteRainbowExtended ();
@@ -97,12 +96,10 @@ private:
     void setupPaletteSequentialBrewerBlues9 ();
     void setupPaletteSequentialBrewerYlOrRd9 ();
 
-    template<typename ColorMapper>
-    void setup (ColorMapper colorMapper);
-    template<typename ColorMapper>
-    void setupColorMap (ColorMapper colorMapper);
-    template<typename ColorMapper>
-    void setupImage (ColorMapper colorMapper);
+    void setup ();
+    void setupColorMap ();
+    void setupImage ();
+    QColor getColor (double value) const;
 
 private:
     Palette m_palette;
@@ -110,6 +107,7 @@ private:
     QImage m_image;
     QwtDoubleInterval m_interval;
     QwtDoubleInterval m_clampValues;
+    vtkSmartPointer<vtkColorTransferFunction> m_colorTransferFunction;
     QString m_title;
     boost::array<QColor,HighlightNumber::COUNT> m_highlightColor;
 };

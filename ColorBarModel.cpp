@@ -11,22 +11,6 @@
 #include "DebugStream.h"
 #include "Utils.h"
 
-/**
- * Implementation of the Rainbow Colormap from 
- * Data Visualization, Principles and Practice,
- * Alexandru C. Telea
- * Section 5.2 Designing Effective Colormaps, page 132
- * Returns the rainbow color coresponding o a value between 0 and 1, 
- * blue=0, green=.5 red=1
- *
- */
-
-class ColorMapperRainbowTelea
-{
-public:
-    QColor operator() (double value);
-};
-
 class ColorMapperVtkColorTransferFunction
 {
 public:
@@ -49,17 +33,6 @@ private:
     vtkSmartPointer<vtkColorTransferFunction> m_colorTransferFunction;
 };
 
-void testColorMap ()
-{
-    cdbg << "Test Color map:" << endl;
-    ColorMapperRainbowTelea rainbowTeleaMapper;
-    for (size_t i = 0; i <= 12; i++)
-    {
-	double value = static_cast<double>(i) / 2;
-	cdbg << setw (3) << value << " " << rainbowTeleaMapper (value/6) << endl;
-    }
-}
-
 
 const size_t ColorBarModel::COLORS = 256;
 
@@ -75,16 +48,25 @@ QColor ColorBarModel::GetHighlightColor (HighlightNumber::Enum i) const
     return m_highlightColor[i];
 }
 
+QColor ColorBarModel::getColor (double value) const
+{
+    QColor color;
+    color.setRedF (m_colorTransferFunction->GetRedValue (value));
+    color.setGreenF (m_colorTransferFunction->GetGreenValue (value));
+    color.setBlueF (m_colorTransferFunction->GetBlueValue (value));
+    return color;    
+}
+
 void ColorBarModel::setupPaletteRainbow ()
 {
-    VTK_CREATE(vtkColorTransferFunction, rainbow);
-    rainbow->SetColorSpaceToLab();
-    rainbow->AddRGBPoint(0.0, 0, 0, 1);   // blue
-    rainbow->AddRGBPoint(0.25, 0, 1, 1);   // cyan
-    rainbow->AddRGBPoint(0.50, 0, 1, 0);   // green
-    rainbow->AddRGBPoint(0.75, 1, 1, 0);   // yellow
-    rainbow->AddRGBPoint(1.0, 1, 0, 0);   // red
-    setup (ColorMapperVtkColorTransferFunction (rainbow));
+    m_colorTransferFunction = vtkColorTransferFunction::New ();
+    m_colorTransferFunction->SetColorSpaceToLab();
+    m_colorTransferFunction->AddRGBPoint(0.0, 0, 0, 1);   // blue
+    m_colorTransferFunction->AddRGBPoint(0.25, 0, 1, 1);   // cyan
+    m_colorTransferFunction->AddRGBPoint(0.50, 0, 1, 0);   // green
+    m_colorTransferFunction->AddRGBPoint(0.75, 1, 1, 0);   // yellow
+    m_colorTransferFunction->AddRGBPoint(1.0, 1, 0, 0);   // red
+    setup ();
     m_highlightColor[0] = Qt::black;
     m_highlightColor[1] = Qt::yellow;
     m_highlightColor[2] = Qt::white;
@@ -92,29 +74,19 @@ void ColorBarModel::setupPaletteRainbow ()
 
 void ColorBarModel::setupPaletteRainbowExtended ()
 {
-    VTK_CREATE(vtkColorTransferFunction, rainbow);
-    rainbow->SetColorSpaceToLab();
-    rainbow->AddRGBPoint(0.0, 1, 0, 1);   // magenta
-    rainbow->AddRGBPoint(0.2, 0, 0, 1);   // blue
-    rainbow->AddRGBPoint(0.4, 0, 1, 1);   // cyan
-    rainbow->AddRGBPoint(0.6, 0, 1, 0);   // green
-    rainbow->AddRGBPoint(0.8, 1, 1, 0);   // yellow
-    rainbow->AddRGBPoint(1.0, 1, 0, 0);   // red
-    setup (ColorMapperVtkColorTransferFunction (rainbow));    
+    m_colorTransferFunction->SetColorSpaceToLab();
+    m_colorTransferFunction->AddRGBPoint(0.0, 1, 0, 1);   // magenta
+    m_colorTransferFunction->AddRGBPoint(0.2, 0, 0, 1);   // blue
+    m_colorTransferFunction->AddRGBPoint(0.4, 0, 1, 1);   // cyan
+    m_colorTransferFunction->AddRGBPoint(0.6, 0, 1, 0);   // green
+    m_colorTransferFunction->AddRGBPoint(0.8, 1, 1, 0);   // yellow
+    m_colorTransferFunction->AddRGBPoint(1.0, 1, 0, 0);   // red
+    setup ();    
     m_highlightColor[0] = Qt::black;
     m_highlightColor[1] = Qt::yellow;
     m_highlightColor[2] = Qt::white;
 }
 
-
-
-void ColorBarModel::setupPaletteRainbowTelea ()
-{
-    setup (ColorMapperRainbowTelea ());
-    m_highlightColor[0] = Qt::black;
-    m_highlightColor[1] = Qt::yellow;
-    m_highlightColor[2] = Qt::white;
-}
 
 void ColorBarModel::SetupPalette (Palette palette)
 {
@@ -167,13 +139,13 @@ void ColorBarModel::setupPaletteDiverging (
 
 void ColorBarModel::setupPaletteSequentialBlackBody ()
 {
-  VTK_CREATE(vtkColorTransferFunction, blackbody);
-  blackbody->SetColorSpaceToLab();
-  blackbody->AddRGBPoint(0.0, 0, 0, 0);   // black
-  blackbody->AddRGBPoint(0.33, 1, 0, 0);   // red
-  blackbody->AddRGBPoint(0.66, 1, 1, 0);   // yellow
-  blackbody->AddRGBPoint(1.0, 1, 1, 1);   // white
-  setup (ColorMapperVtkColorTransferFunction (blackbody));
+  m_colorTransferFunction = vtkColorTransferFunction::New ();
+  m_colorTransferFunction->SetColorSpaceToLab();
+  m_colorTransferFunction->AddRGBPoint(0.0, 0, 0, 0);   // black
+  m_colorTransferFunction->AddRGBPoint(0.33, 1, 0, 0);   // red
+  m_colorTransferFunction->AddRGBPoint(0.66, 1, 1, 0);   // yellow
+  m_colorTransferFunction->AddRGBPoint(1.0, 1, 1, 1);   // white
+  setup ();
   m_highlightColor[0] = Qt::green;
   m_highlightColor[1] = Qt::blue;
   m_highlightColor[2] = Qt::magenta;
@@ -181,19 +153,19 @@ void ColorBarModel::setupPaletteSequentialBlackBody ()
 
 void ColorBarModel::setupPaletteSequentialBrewerBlues9 ()
 {
-    VTK_CREATE(vtkColorTransferFunction, f);
-    f->SetColorSpaceToLab();
-    //f->AddRGBPoint(0.0    , 0.968627, 0.984314, 1.000000);
-    f->AddRGBPoint(0.0    ,        1,        1, 1.000000); // change to white
-    f->AddRGBPoint(0.12500, 0.870588, 0.921569, 0.968627);
-    f->AddRGBPoint(0.25000, 0.776471, 0.858824, 0.937255);
-    f->AddRGBPoint(0.37500, 0.619608, 0.792157, 0.882353);
-    f->AddRGBPoint(0.50000, 0.419608, 0.682353, 0.839216);
-    f->AddRGBPoint(0.62500, 0.258824, 0.572549, 0.776471);
-    f->AddRGBPoint(0.75000, 0.129412, 0.443137, 0.709804);
-    f->AddRGBPoint(0.87500, 0.031373, 0.317647, 0.611765);
-    f->AddRGBPoint(1.00000, 0.031373, 0.188235, 0.419608);
-    setup (ColorMapperVtkColorTransferFunction (f));
+    m_colorTransferFunction = vtkColorTransferFunction::New ();
+    m_colorTransferFunction->SetColorSpaceToLab();
+    //m_colorTransferFunction->AddRGBPoint(0.0    , 0.968627, 0.984314, 1.000000);
+    m_colorTransferFunction->AddRGBPoint(0.0    ,        1,        1, 1.000000); // change to white
+    m_colorTransferFunction->AddRGBPoint(0.12500, 0.870588, 0.921569, 0.968627);
+    m_colorTransferFunction->AddRGBPoint(0.25000, 0.776471, 0.858824, 0.937255);
+    m_colorTransferFunction->AddRGBPoint(0.37500, 0.619608, 0.792157, 0.882353);
+    m_colorTransferFunction->AddRGBPoint(0.50000, 0.419608, 0.682353, 0.839216);
+    m_colorTransferFunction->AddRGBPoint(0.62500, 0.258824, 0.572549, 0.776471);
+    m_colorTransferFunction->AddRGBPoint(0.75000, 0.129412, 0.443137, 0.709804);
+    m_colorTransferFunction->AddRGBPoint(0.87500, 0.031373, 0.317647, 0.611765);
+    m_colorTransferFunction->AddRGBPoint(1.00000, 0.031373, 0.188235, 0.419608);
+    setup ();
     m_highlightColor[0] = Qt::black;
     m_highlightColor[1] = Qt::red;
     m_highlightColor[2] = Qt::green;
@@ -201,18 +173,18 @@ void ColorBarModel::setupPaletteSequentialBrewerBlues9 ()
 
 void ColorBarModel::setupPaletteSequentialBrewerYlOrRd9 ()
 {
-    VTK_CREATE(vtkColorTransferFunction, f);
-    f->SetColorSpaceToLab();
-    f->AddRGBPoint(0.0    , 1.00000, 1.00000, 0.80000);
-    f->AddRGBPoint(0.12500, 1.00000, 0.92941, 0.62745);
-    f->AddRGBPoint(0.25000, 0.99608, 0.85098, 0.46275);
-    f->AddRGBPoint(0.37500, 0.99608, 0.69804, 0.29804);
-    f->AddRGBPoint(0.50000, 0.99216, 0.55294, 0.23529);
-    f->AddRGBPoint(0.62500, 0.98824, 0.30588, 0.16471);
-    f->AddRGBPoint(0.75000, 0.89020, 0.10196, 0.10980);
-    f->AddRGBPoint(0.87500, 0.74118, 0.00000, 0.14902);
-    f->AddRGBPoint(1.00000, 0.50196, 0.00000, 0.14902);
-    setup (ColorMapperVtkColorTransferFunction (f));
+    m_colorTransferFunction = vtkColorTransferFunction::New ();
+    m_colorTransferFunction->SetColorSpaceToLab();
+    m_colorTransferFunction->AddRGBPoint(0.0    , 1.00000, 1.00000, 0.80000);
+    m_colorTransferFunction->AddRGBPoint(0.12500, 1.00000, 0.92941, 0.62745);
+    m_colorTransferFunction->AddRGBPoint(0.25000, 0.99608, 0.85098, 0.46275);
+    m_colorTransferFunction->AddRGBPoint(0.37500, 0.99608, 0.69804, 0.29804);
+    m_colorTransferFunction->AddRGBPoint(0.50000, 0.99216, 0.55294, 0.23529);
+    m_colorTransferFunction->AddRGBPoint(0.62500, 0.98824, 0.30588, 0.16471);
+    m_colorTransferFunction->AddRGBPoint(0.75000, 0.89020, 0.10196, 0.10980);
+    m_colorTransferFunction->AddRGBPoint(0.87500, 0.74118, 0.00000, 0.14902);
+    m_colorTransferFunction->AddRGBPoint(1.00000, 0.50196, 0.00000, 0.14902);
+    setup ();
     m_highlightColor[0] = Qt::black;
     m_highlightColor[1] = Qt::blue;
     m_highlightColor[2] = Qt::green;
@@ -223,12 +195,12 @@ void ColorBarModel::setupPaletteSequentialBrewerYlOrRd9 ()
 
 void ColorBarModel::setupPaletteRainbowHSV ()
 {
-  VTK_CREATE(vtkColorTransferFunction, rainbow);
-  rainbow->SetColorSpaceToHSV();
-  rainbow->HSVWrapOff();
-  rainbow->AddHSVPoint(0.0, 0.66667, 1.0, 1.0); // blue
-  rainbow->AddHSVPoint(1.0, 0.0, 1.0, 1.0);     // red
-  setup (ColorMapperVtkColorTransferFunction (rainbow));
+  m_colorTransferFunction = vtkColorTransferFunction::New ();
+  m_colorTransferFunction->SetColorSpaceToHSV();
+  m_colorTransferFunction->HSVWrapOff();
+  m_colorTransferFunction->AddHSVPoint(0.0, 0.66667, 1.0, 1.0); // blue
+  m_colorTransferFunction->AddHSVPoint(1.0, 0.0, 1.0, 1.0);     // red
+  setup ();
 }
 
 
@@ -273,50 +245,49 @@ void ColorBarModel::setupPaletteDiverging (size_t c)
 	     {0, 0, 0}, {1, 1, 0}, {0, 0, 1}
 	    }
 	};    
-    VTK_CREATE(vtkColorTransferFunction, colorTransferFunction);
-    colorTransferFunction->SetColorSpaceToDiverging();
-    colorTransferFunction->AddRGBPoint(
+    m_colorTransferFunction = vtkColorTransferFunction::New ();
+    m_colorTransferFunction->SetColorSpaceToDiverging();
+    m_colorTransferFunction->AddRGBPoint(
 	0.0, colors[c][0][0], colors[c][0][1], colors[c][0][2]);
-    colorTransferFunction->AddRGBPoint(
+    m_colorTransferFunction->AddRGBPoint(
 	1.0, colors[c][1][0], colors[c][1][1], colors[c][1][2]);
-    setup (ColorMapperVtkColorTransferFunction (colorTransferFunction));
+    setup ();
     for (size_t i = 0; i < m_highlightColor.size (); ++i)
 	m_highlightColor[i] = QColor::fromRgbF (
 	    colors[c][i+2][0], colors[c][i+2][1], colors[c][i+2][2]);
 }
 
-template<typename ColorMapper>
-void ColorBarModel::setup (ColorMapper colorMapper)
+void ColorBarModel::setup ()
 {
-    setupColorMap (colorMapper);
-    setupImage (colorMapper);
+    setupColorMap ();
+    setupImage ();
+    m_colorTransferFunction->SetRange (m_clampValues.minValue (),
+				       m_clampValues.maxValue ());
 }
 
 
-template<typename ColorMapper>
-void ColorBarModel::setupColorMap (ColorMapper colorMapper)
+void ColorBarModel::setupColorMap ()
 {
-    m_colorMap.setColorInterval (colorMapper (0), colorMapper (1));
+    m_colorMap.setColorInterval (getColor (0), getColor (1));
     double width = m_interval.width ();
     double low = (m_clampValues.minValue () -  m_interval.minValue ()) / width;
     double high = (m_clampValues.maxValue () -  m_interval.minValue ()) / width;
     if (low != 0)
-	m_colorMap.addColorStop (low, colorMapper (0));
+	m_colorMap.addColorStop (low, getColor (0));
     if (high != 1)
-	m_colorMap.addColorStop (high, colorMapper (1));
+	m_colorMap.addColorStop (high, getColor (1));
     m_colorMap.setMode (QwtLinearColorMap::FixedColors);
     size_t colors = COLORS - 1;
     for (size_t i = 1; i < colors; ++i)
     {
 	double value = static_cast<double>(i) / colors;
 	double insideClamp = low + value * (high - low);
-	m_colorMap.addColorStop (insideClamp, colorMapper (value));
+	m_colorMap.addColorStop (insideClamp, getColor (value));
     }
 }
 
 
-template<typename ColorMapper>
-void ColorBarModel::setupImage (ColorMapper colorMapper)
+void ColorBarModel::setupImage ()
 {
     double width = m_interval.width ();
     double low = (m_clampValues.minValue () -  m_interval.minValue ()) / width;
@@ -328,15 +299,15 @@ void ColorBarModel::setupImage (ColorMapper colorMapper)
 	uint rgb;
 	if (value <= low)
 	    rgb = static_cast<uint> (
-		colorMapper (0).rgb ());
+		getColor (0).rgb ());
 	else if (value >= high)
 	    rgb = static_cast<uint> (
-		colorMapper (1).rgb ());
+		getColor (1).rgb ());
 	else
 	{
 	    double inside01 = (value - low) / (high - low);
 	    rgb = static_cast<uint> (
-		colorMapper (inside01).rgb ());
+		getColor (inside01).rgb ());
 	}
 	m_image.setPixel (i, 0, rgb);
     }
@@ -359,20 +330,6 @@ double trapezoid (
     if (value > heigh2 && value < low2)
 	return (low2 - value) / (low2 - heigh2);
     return 1;
-}
-
-QColor ColorMapperRainbowTelea::operator() (double f)
-{
-    const double dx = 1;
-    QColor color;
-
-    f = (f < 0) ? 0 : (f > 1) ? 1 : f; // clamp f in [0, 1]
-    double g = (6 - 2*dx) * f + dx;    // scale f to [dx, 6 - dx]
-
-    color.setBlueF (trapezoid (g, 0, 1, 2.2, 3));
-    color.setGreenF (trapezoid (g, 1, 2.2, 3.8, 5));
-    color.setRedF (trapezoid (g, 3, 3.8, 5, 6));
-    return color;
 }
 
 double ColorBarModel::TexCoord (double value) const
