@@ -125,7 +125,6 @@
 #include <vtkTDxInteractorStyleSettings.h>
 #include <vtkUnstructuredGrid.h>
 #include <QVTKWidget.h>
-#include "QVTKWidget2.h"
 #include <QVTKApplication.h>
 
 // OpenGL G3D headers
