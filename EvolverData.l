@@ -97,8 +97,12 @@ SPACENONEWLINE ([[:space:]]{-}[{NEWLINE}])
     errno = 0;
     yylval->m_real = strtod (yytext, &tail);
     yylloc->begin.line = yylineno;
-    if (errno)
-	ThrowException (string() + "Scanner: overflow " + yytext);
+    // report error only for overflow, not for underflow
+    if (errno && (yylval->m_real == HUGE_VAL || yylval->m_real == -HUGE_VAL))
+    {
+	ThrowException (string("Scanner: overflow ") + yytext);
+	errno = 0;
+    }
     return parser::token::REAL_VALUE;
 	}
 

@@ -181,7 +181,7 @@ WidgetGl::WidgetGl(QWidget *parent)
       m_simulationGroup (0), 
       m_onePixelInObjectSpace (0),
       m_edgeRadiusRatio (0),
-      m_edgesShown (false),
+      m_edgesShown (true),
       m_edgesTessellationShown (false),
       m_bodyCenterShown (false),
       m_bodyNeighborsShown (false),

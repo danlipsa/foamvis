@@ -133,6 +133,9 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName ("Swansea University");
     QCoreApplication::setOrganizationDomain ("www.swansea.ac.uk");
     QCoreApplication::setApplicationName ("FoamVis");
+    /*cdbg << "min: " << numeric_limits<double>::min ()
+	 << " max: " << numeric_limits<double>::max () << endl;
+    */
 
     boost::shared_ptr<Application> app = Application::Get (argc, argv);
     bool outputText;

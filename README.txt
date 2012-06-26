@@ -14,7 +14,8 @@ Release log
 	- Fixed regression bug where the torus domain is stored per
           simulation instead of storing it per foam.
 	- update to vtk-5.10.0 libraries, built dynamically
-	- 
+	- fix "scanner overflow" error (for 1000.dmp) by reporting only 
+	  overflows not underflows.
 0.7.2374 2012-03-09
 	- fix bug: position of the two_discs for two views.
 	- added arrows for forces

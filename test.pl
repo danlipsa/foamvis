@@ -26,7 +26,7 @@ my @tests =
      ["wetfoam/dump_050.dmp",""],
      ["pierra-20111013/3cells0.dmp",""],
      ["pierra-20111013/3cellsv15.dmp",""],
-
+     ["1000.dmp", ""],
      ["all_outside.fe",""],
      ["dry_cross_4.fe",""],
      ["dump_0.1520_0.2400_8.0000_0600.dmp",""],

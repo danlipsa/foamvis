@@ -261,8 +261,6 @@ void ColorBarModel::setup ()
 {
     setupColorMap ();
     setupImage ();
-    m_colorTransferFunction->SetRange (m_clampValues.minValue (),
-				       m_clampValues.maxValue ());
 }
 
 

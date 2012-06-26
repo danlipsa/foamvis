@@ -188,10 +188,7 @@ bool Edge::IsPhysical (const FoamProperties& foamParameters) const
 {
     if (foamParameters.Is2D ())
     {
-	if (foamParameters.IsQuadratic ())
-	    return true;
-	else
-	    return false;
+	return true;
     }
     else
     {

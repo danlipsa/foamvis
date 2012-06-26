@@ -58,7 +58,7 @@ void compact (vector< boost::shared_ptr<E> >& v)
         else if (step != 0)
             v[i - step] = v[i];
     }
-    cdbg << "Eliminate " << step << " holes" << endl;
+    //cdbg << "Eliminate " << step << " holes" << endl;
     size_t resize = v.size () - step;
     v.resize (resize);
 }
