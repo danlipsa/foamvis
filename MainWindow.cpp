@@ -274,6 +274,46 @@ void MainWindow::connectSignals ()
 	SLOT (ViewToUI ()));
 }
 
+void MainWindow::connectColorBarHistogram (bool connected)
+{
+    if (connected)
+    {
+	connect (
+	    this, 
+	    SIGNAL (BodyOrFacePropertyChanged (
+			ViewNumber::Enum,
+			boost::shared_ptr<ColorBarModel>, size_t)),
+	    this, 
+	    SLOT (SetHistogramColorBarModel (
+		      ViewNumber::Enum,
+		      boost::shared_ptr<ColorBarModel>)));
+	connect (
+	    this, 
+	    SIGNAL (ColorBarModelChanged (ViewNumber::Enum,
+					  boost::shared_ptr<ColorBarModel>)),
+	    this, 
+	    SLOT (SetHistogramColorBarModel (ViewNumber::Enum,
+					     boost::shared_ptr<ColorBarModel>)),
+	    Qt::UniqueConnection);
+	connect (
+	    widgetGl, 
+	    SIGNAL (ColorBarModelChanged (
+			ViewNumber::Enum, boost::shared_ptr<ColorBarModel>)),
+	    this, 
+	    SLOT (SetHistogramColorBarModel (
+		      ViewNumber::Enum, boost::shared_ptr<ColorBarModel>)), 
+	    Qt::UniqueConnection);
+    }
+    else
+    {
+	disconnect (
+	    this, 
+	    SLOT (SetHistogramColorBarModel (
+		      boost::shared_ptr<ColorBarModel>)));
+    }
+}
+
+
 void MainWindow::deformationViewToUI ()
 {
     const ViewSettings& vs = widgetGl->GetViewSettings ();
@@ -435,45 +475,6 @@ void MainWindow::ViewToUI ()
 
     updateLightControls (vs, selectedLight);
     updateButtons ();
-}
-
-void MainWindow::connectColorBarHistogram (bool connected)
-{
-    if (connected)
-    {
-	connect (
-	    this, 
-	    SIGNAL (BodyOrFacePropertyChanged (
-			ViewNumber::Enum,
-			boost::shared_ptr<ColorBarModel>, size_t)),
-	    this, 
-	    SLOT (SetHistogramColorBarModel (
-		      ViewNumber::Enum,
-		      boost::shared_ptr<ColorBarModel>)));
-	connect (
-	    this, 
-	    SIGNAL (ColorBarModelChanged (ViewNumber::Enum,
-					  boost::shared_ptr<ColorBarModel>)),
-	    this, 
-	    SLOT (SetHistogramColorBarModel (ViewNumber::Enum,
-					     boost::shared_ptr<ColorBarModel>)),
-	    Qt::UniqueConnection);
-	connect (
-	    widgetGl, 
-	    SIGNAL (ColorBarModelChanged (
-			ViewNumber::Enum, boost::shared_ptr<ColorBarModel>)),
-	    this, 
-	    SLOT (SetHistogramColorBarModel (
-		      ViewNumber::Enum, boost::shared_ptr<ColorBarModel>)), 
-	    Qt::UniqueConnection);
-    }
-    else
-    {
-	disconnect (
-	    this, 
-	    SLOT (SetHistogramColorBarModel (
-		      boost::shared_ptr<ColorBarModel>)));
-    }
 }
 
 
@@ -696,6 +697,7 @@ void MainWindow::setAndDisplayHistogram (
     case HistogramType::COLOR_CODED:
 	widgetHistogram->setVisible (true);
 	widgetHistogram->SetColorCoded (true);
+	//widgetHistogram->SetColorTransferFunction (getColorBarModel ());
 	break;
     default:
 	RuntimeAssert (false, "Invalid histogram type");
@@ -704,7 +706,6 @@ void MainWindow::setAndDisplayHistogram (
     const ViewSettings& vs = widgetGl->GetViewSettings (m_histogramViewNumber);
     BodyProperty::Enum property = BodyProperty::FromSizeT (
 	vs.GetBodyOrFaceProperty ());
-    cdbg << "setAndDisplayHistogram: " << ViewType::ToString (viewType) << endl;
     const Simulation& simulation = widgetGl->GetSimulation ();
     double maxYValue = 0;
     QwtIntervalData intervalData;
@@ -848,19 +849,7 @@ void MainWindow::setupColorBarModels ()
     for (size_t simulationIndex = 0; simulationIndex < simulationCount; 
 	 ++simulationIndex)
 	for (size_t vn = 0; vn < ViewNumber::COUNT; ++vn)
-	    setupColorBarModels (simulationIndex, ViewNumber::Enum (vn));    
-}
-
-void MainWindow::setupViews ()
-{
-    for (size_t i = 0; i < widgetGl->GetViewSettingsSize (); ++i)
-    {
-	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	widgetGl->SetBodyOrFaceProperty (
-	    viewNumber, 
-	    m_colorBarModelBodyProperty[0][viewNumber][BodyProperty::PRESSURE], 
-	    BodyProperty::PRESSURE);
-    }
+	    setupColorBarModels (simulationIndex, ViewNumber::Enum (vn));
 }
 
 void MainWindow::setupColorBarModels (size_t simulationIndex,
@@ -874,6 +863,19 @@ void MainWindow::setupColorBarModels (size_t simulationIndex,
     setupColorBarModelVelocityVector (simulationIndex, viewNumber);
     setupColorBarModelDomainHistogram (simulationIndex, viewNumber);
     setupColorBarModelT1sPDE (simulationIndex, viewNumber);
+}
+
+
+void MainWindow::setupViews ()
+{
+    for (size_t i = 0; i < widgetGl->GetViewSettingsSize (); ++i)
+    {
+	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
+	widgetGl->SetBodyOrFaceProperty (
+	    viewNumber, 
+	    m_colorBarModelBodyProperty[0][viewNumber][BodyProperty::PRESSURE], 
+	    BodyProperty::PRESSURE);
+    }
 }
 
 void MainWindow::setupColorBarModelT1sPDE (
@@ -1387,6 +1389,7 @@ void MainWindow::ButtonClickedHistogram (int histogramType)
     const ViewSettings& vs = widgetGl->GetViewSettings (m_histogramViewNumber);
     ViewType::Enum viewType = vs.GetViewType ();
     setAndDisplayHistogram (KEEP_SELECTION, REPLACE_MAX_VALUE, viewType);
+    widgetHistogram->SetColorTransferFunction (getColorBarModel ());
 }
 
 
@@ -1491,7 +1494,7 @@ void MainWindow::SetHistogramColorBarModel (
     boost::shared_ptr<ColorBarModel> colorBarModel)
 {
     if (m_histogramViewNumber == viewNumber)
-	widgetHistogram->SetColorBarModel (colorBarModel);
+	widgetHistogram->SetColorTransferFunction (colorBarModel);
 }
 
 void MainWindow::CurrentIndexChangedInteractionMode (int index)

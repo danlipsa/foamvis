@@ -902,7 +902,8 @@ G3D::Vector2 Foam::GetAverageAroundAxis (
 
 void Foam::SetForcesAllObjects ()
 {
-    const vector<ForcesOneObjectNames>& forcesNames = GetParsingData ().GetForcesNames ();
+    const vector<ForcesOneObjectNames>& forcesNames = 
+	GetParsingData ().GetForcesNames ();
     if (forcesNames.size () > 0)
     {
 	m_forces.resize (forcesNames.size ());
@@ -911,7 +912,8 @@ void Foam::SetForcesAllObjects ()
     }
 }
 
-void Foam::setForcesOneObject (const ForcesOneObjectNames& names, ForcesOneObject* forcesOneObject)
+void Foam::setForcesOneObject (const ForcesOneObjectNames& names, 
+			       ForcesOneObject* forcesOneObject)
 {
     forcesOneObject->m_bodyId = names.m_bodyId;
     forcesOneObject->m_body = *FindBody (names.m_bodyId);

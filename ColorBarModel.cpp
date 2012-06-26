@@ -11,28 +11,6 @@
 #include "DebugStream.h"
 #include "Utils.h"
 
-class ColorMapperVtkColorTransferFunction
-{
-public:
-    ColorMapperVtkColorTransferFunction (
-	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction) :
-	m_colorTransferFunction (colorTransferFunction)
-    {
-    }
-
-    QColor operator () (double value)
-    {
-	QColor color;
-	color.setRedF (m_colorTransferFunction->GetRedValue (value));
-	color.setGreenF (m_colorTransferFunction->GetGreenValue (value));
-	color.setBlueF (m_colorTransferFunction->GetBlueValue (value));
-	return color;
-    }
-
-private:
-    vtkSmartPointer<vtkColorTransferFunction> m_colorTransferFunction;
-};
-
 
 const size_t ColorBarModel::COLORS = 256;
 
@@ -41,6 +19,7 @@ ColorBarModel::ColorBarModel () :
     m_interval (0, 1),
     m_clampValues (0, 1)
 {
+    m_colorTransferFunction = vtkColorTransferFunction::New ();
 }
 
 QColor ColorBarModel::GetHighlightColor (HighlightNumber::Enum i) const
@@ -59,7 +38,7 @@ QColor ColorBarModel::getColor (double value) const
 
 void ColorBarModel::setupPaletteRainbow ()
 {
-    m_colorTransferFunction = vtkColorTransferFunction::New ();
+    m_colorTransferFunction->RemoveAllPoints ();
     m_colorTransferFunction->SetColorSpaceToLab();
     m_colorTransferFunction->AddRGBPoint(0.0, 0, 0, 1);   // blue
     m_colorTransferFunction->AddRGBPoint(0.25, 0, 1, 1);   // cyan
@@ -139,7 +118,7 @@ void ColorBarModel::setupPaletteDiverging (
 
 void ColorBarModel::setupPaletteSequentialBlackBody ()
 {
-  m_colorTransferFunction = vtkColorTransferFunction::New ();
+  m_colorTransferFunction->RemoveAllPoints ();
   m_colorTransferFunction->SetColorSpaceToLab();
   m_colorTransferFunction->AddRGBPoint(0.0, 0, 0, 0);   // black
   m_colorTransferFunction->AddRGBPoint(0.33, 1, 0, 0);   // red
@@ -153,7 +132,7 @@ void ColorBarModel::setupPaletteSequentialBlackBody ()
 
 void ColorBarModel::setupPaletteSequentialBrewerBlues9 ()
 {
-    m_colorTransferFunction = vtkColorTransferFunction::New ();
+    m_colorTransferFunction->RemoveAllPoints ();
     m_colorTransferFunction->SetColorSpaceToLab();
     //m_colorTransferFunction->AddRGBPoint(0.0    , 0.968627, 0.984314, 1.000000);
     m_colorTransferFunction->AddRGBPoint(0.0    ,        1,        1, 1.000000); // change to white
@@ -173,7 +152,7 @@ void ColorBarModel::setupPaletteSequentialBrewerBlues9 ()
 
 void ColorBarModel::setupPaletteSequentialBrewerYlOrRd9 ()
 {
-    m_colorTransferFunction = vtkColorTransferFunction::New ();
+    m_colorTransferFunction->RemoveAllPoints ();
     m_colorTransferFunction->SetColorSpaceToLab();
     m_colorTransferFunction->AddRGBPoint(0.0    , 1.00000, 1.00000, 0.80000);
     m_colorTransferFunction->AddRGBPoint(0.12500, 1.00000, 0.92941, 0.62745);
@@ -195,7 +174,7 @@ void ColorBarModel::setupPaletteSequentialBrewerYlOrRd9 ()
 
 void ColorBarModel::setupPaletteRainbowHSV ()
 {
-  m_colorTransferFunction = vtkColorTransferFunction::New ();
+  m_colorTransferFunction->RemoveAllPoints ();
   m_colorTransferFunction->SetColorSpaceToHSV();
   m_colorTransferFunction->HSVWrapOff();
   m_colorTransferFunction->AddHSVPoint(0.0, 0.66667, 1.0, 1.0); // blue
@@ -245,7 +224,7 @@ void ColorBarModel::setupPaletteDiverging (size_t c)
 	     {0, 0, 0}, {1, 1, 0}, {0, 0, 1}
 	    }
 	};    
-    m_colorTransferFunction = vtkColorTransferFunction::New ();
+    m_colorTransferFunction->RemoveAllPoints ();
     m_colorTransferFunction->SetColorSpaceToDiverging();
     m_colorTransferFunction->AddRGBPoint(
 	0.0, colors[c][0][0], colors[c][0][1], colors[c][0][2]);
@@ -261,6 +240,15 @@ void ColorBarModel::setup ()
 {
     setupColorMap ();
     setupImage ();
+    // [0,1] -> m_clampValues 
+    for (int i = 0; i < m_colorTransferFunction->GetSize (); ++i)
+    {
+	double v[6];
+	m_colorTransferFunction->GetNodeValue (i, v);
+	v[0] = m_clampValues.minValue () +
+	    v[0] * (m_clampValues.maxValue () - m_clampValues.minValue ());
+	m_colorTransferFunction->SetNodeValue (i, v);
+    }
 }
 
 
@@ -311,25 +299,6 @@ void ColorBarModel::setupImage ()
     }
 }
 
-/*
- * @return 1 if value is between heigh1 and heigh2
- *         0 if value is less than low1 or greater than heigh2
- *         value linearly scaled between [0, 1] if value is in [low1, heigh1]
- *         or [heigh2, low2]
- */
-double trapezoid (
-    double value,
-    double low1, double heigh1, double heigh2, double low2)
-{
-    if (value <= low1 || value >= low2)
-	return 0;
-    if (value > low1 && value < heigh1)
-	return (value - low1) / (heigh1 - low1);
-    if (value > heigh2 && value < low2)
-	return (low2 - value) / (low2 - heigh2);
-    return 1;
-}
-
 double ColorBarModel::TexCoord (double value) const
 {
     RuntimeAssert (m_interval.contains (value),
@@ -341,6 +310,8 @@ double ColorBarModel::TexCoord (double value) const
 string ColorBarModel::ToString () const
 {
     ostringstream ostr;
-    ostr << "ColorBarModel: " << m_interval;
+    ostr << "palette: " << m_palette
+	 << ", interval: " << m_interval
+	 << ", clamping: " << m_clampValues << endl;
     return ostr.str ();
 }

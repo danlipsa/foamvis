@@ -175,6 +175,27 @@ Palette::Palette (PaletteType::Enum type, PaletteSequential::Enum sequential,
 {
 }
 
+string Palette::ToString () const
+{
+    ostringstream ostr;
+    ostr << PaletteType::ToString (m_type) << ", ";
+    if (m_type == PaletteType::SEQUENTIAL)
+	ostr << PaletteSequential::ToString (m_sequential);
+    else
+	ostr << PaletteDiverging::ToString (m_diverging);
+    return ostr.str ();
+}
+
+const char* PaletteType::ToString (PaletteType::Enum type)
+{
+    switch (type)
+    {
+    case SEQUENTIAL:
+	return "Sequential";
+    case DIVERGING:
+	return "Diverging";
+    }
+}
 
 const char* PaletteSequential::ToString (PaletteSequential::Enum type)
 {

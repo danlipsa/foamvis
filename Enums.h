@@ -151,11 +151,11 @@ public:
 	SEQUENTIAL,
 	DIVERGING
     };
+    static const char* ToString (PaletteType::Enum type);
 };
 
-class PaletteSequential
+struct PaletteSequential
 {
-public:
     enum Enum
     {
 	BLACK_BODY,
@@ -166,9 +166,8 @@ public:
     static const char* ToString (PaletteSequential::Enum name);
 };
 
-class PaletteDiverging
+struct PaletteDiverging
 {
-public:
     enum Enum
     {
 	BLUE_RED,
@@ -190,7 +189,14 @@ struct Palette
     PaletteType::Enum m_type;
     PaletteSequential::Enum m_sequential;
     PaletteDiverging::Enum m_diverging;
+    string ToString () const;
 };
+
+inline ostream& operator<< (ostream& ostr, const Palette& b)
+{
+    return ostr << b.ToString ();
+}
+
 
 class ViewType
 {

@@ -19,6 +19,10 @@ public:
     {
 	return m_colorMap;
     }
+    vtkSmartPointer<vtkColorTransferFunction> GetColorTransferFunction () const
+    {
+	return m_colorTransferFunction;
+    }
     const QImage& GetImage () const
     {
 	return m_image;

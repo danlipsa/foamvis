@@ -248,8 +248,8 @@ void Histogram::SetDisplayColorBar (bool displayColorBar)
     scaleWidget->setColorBarEnabled (displayColorBar);
 }
 
-void Histogram::SetColorMap (const QwtDoubleInterval& interval, 
-			     const QwtLinearColorMap& colorMap)
+void Histogram::SetColorTransferFunction (const QwtDoubleInterval& interval, 
+					  const QwtLinearColorMap& colorMap)
 {
     m_histogramItem.setColorMap (colorMap);    
     QwtScaleWidget* scaleWidget = axisWidget (QwtPlot::xBottom);

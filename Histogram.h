@@ -51,8 +51,8 @@ public:
     {
 	m_histogramItem.setColorCoded (colorCoded);
     }
-    void SetColorMap (const QwtDoubleInterval& interval, 
-		      const QwtLinearColorMap& colorMap);
+    void SetColorTransferFunction (const QwtDoubleInterval& interval, 
+				   const QwtLinearColorMap& colorMap);
     void SetDisplayColorBar (bool displayColorBar = true);
     void SetMaxValueAxis (double axisMaxValue);
     void SetLogValueAxis (bool logValueAxis);

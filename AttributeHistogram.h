@@ -21,7 +21,8 @@ public Q_SLOTS:
     void SelectAll ();
     void DeselectAll ();
     void CurrentIndexChangedInteractionMode (int index);
-    void SetColorBarModel (boost::shared_ptr<ColorBarModel> colorBarModel);
+    void SetColorTransferFunction (
+	boost::shared_ptr<ColorBarModel> colorBarModel);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event);

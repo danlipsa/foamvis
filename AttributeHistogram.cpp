@@ -67,9 +67,10 @@ void AttributeHistogram::createActions ()
 	    this, SLOT(HistogramHeightDialog ()));
 }
 
-void AttributeHistogram::SetColorBarModel (
+void AttributeHistogram::SetColorTransferFunction (
     boost::shared_ptr<ColorBarModel> colorBarModel)
 {
-    SetColorMap (colorBarModel->GetInterval (), colorBarModel->GetColorMap ());
+    Histogram::SetColorTransferFunction (
+	colorBarModel->GetInterval (), colorBarModel->GetColorMap ());
     replot ();
 }
