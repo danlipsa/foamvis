@@ -673,11 +673,15 @@ void MainWindow::processBodyTorusStep ()
 void MainWindow::update3DAverage (size_t timeStep)
 {
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
+    const ViewSettings& vs = widgetGl->GetViewSettings ();
     const Simulation& simulation = widgetGl->GetSimulation (viewNumber);
     const Foam& foam = simulation.GetFoam (timeStep);
     BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT (
 	widgetGl->GetBodyOrFaceProperty ());
-    widgetVtk->UpdateAverage (foam, bodyProperty);
+    widgetVtk->UpdateAverage (
+	foam, vs.GetBodySelector (),
+	bodyProperty, 
+	getColorBarModel ()->GetColorTransferFunction ());
 }
 
 

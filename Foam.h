@@ -19,6 +19,7 @@
 
 class AttributeCreator;
 class Body;
+class BodySelector;
 class ConstraintEdge;
 class Edge;
 class Face;
@@ -294,9 +295,11 @@ public:
     }
     void SetSpaceDimension (size_t spaceDimension);
     void SetQuadratic (bool quadratic);
-    vtkSmartPointer<vtkUnstructuredGrid> GetTetraGrid () const;
+    vtkSmartPointer<vtkUnstructuredGrid> GetTetraGrid (
+	const BodySelector& bodySelector) const;
     vtkSmartPointer<vtkUnstructuredGrid> SetCellScalar (
 	vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
+	const BodySelector& bodySelector,
 	BodyProperty::Enum bodyProperty) const;
 
 
@@ -311,12 +314,14 @@ public:
 
 private:
     void getTetraPoints (
+	const BodySelector& bodySelector,
 	vtkSmartPointer<vtkPoints>* tetraPoints,
 	vector<boost::shared_ptr<Vertex> >* sortedPoints,
 	size_t* maxId,
 	size_t* gridSize) const;
     void createTetraCells (
 	vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
+	const BodySelector& bodySelector,
 	const vector<boost::shared_ptr<Vertex> >& sortedPoints,
 	size_t maxId) const;
     void setForcesOneObject (const ForcesOneObjectNames& names, ForcesOneObject* forces);

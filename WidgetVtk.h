@@ -15,12 +15,16 @@ class vtkActor;
 class vtkDataSetMapper;
 class vtkRenderer;
 class Foam;
+class BodySelector;
 
 class WidgetVtk : public QVTKWidget
 {
 public:
     WidgetVtk (QWidget* parent);
-    void UpdateAverage (const Foam& foam, BodyProperty::Enum bodyProperty);
+    void UpdateAverage (
+	const Foam& foam, const BodySelector& bodySelector,
+	BodyProperty::Enum bodyProperty,
+	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction);
 			       
 
 public:
