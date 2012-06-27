@@ -26,7 +26,11 @@ public:
 	vtkSmartPointer<vtkMatrix4x4> modelView,
 	BodyProperty::Enum bodyProperty,
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction);
-			       
+    void UpdateRenderStructured (
+	const Foam& foam, const BodySelector& bodySelector,
+	vtkSmartPointer<vtkMatrix4x4> modelView,
+	BodyProperty::Enum bodyProperty,
+	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction);
 
 public:
     QSize sizeHint ()

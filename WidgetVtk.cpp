@@ -41,3 +41,29 @@ void WidgetVtk::UpdateRenderUnstructured (
     m_mapper->SetInput (aTetraGrid);
     update ();
 }
+
+void WidgetVtk::UpdateRenderStructured (
+    const Foam& foam, const BodySelector& bodySelector,
+    vtkSmartPointer<vtkMatrix4x4> modelView,
+    BodyProperty::Enum bodyProperty,
+    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction)
+{
+    
+    vtkSmartPointer<vtkUnstructuredGrid> tetraFoam = 
+	foam.SetCellScalar (foam.GetTetraGrid (bodySelector), bodySelector, 
+			    bodyProperty);
+    VTK_CREATE (vtkImageData, regularFoam);
+    size_t numberOfPoints = 256;
+    G3D::AABox bb = foam.GetBoundingBox ();
+    G3D::Vector3 low = bb.low ();
+    G3D::Vector3 extent = bb.extent () / (numberOfPoints - 1);
+    regularFoam->SetExtent (0, numberOfPoints - 1,
+			    0, numberOfPoints - 1,
+			    0, numberOfPoints - 1);
+    regularFoam->SetOrigin (low.x, low.y, low.z);
+    regularFoam->SetSpacing (extent.x, extent.y, extent.z);
+    m_actor->SetUserMatrix (modelView);
+    m_mapper->SetLookupTable (colorTransferFunction);
+    m_mapper->SetInput (regularFoam);
+    update ();
+}

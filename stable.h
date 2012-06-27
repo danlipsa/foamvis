@@ -116,11 +116,13 @@
 #include <vtkCellData.h>
 #include <vtkDataSetMapper.h>
 #include <vtkFloatArray.h>
+#include <vtkImageData.h>
 #include <vtkInteractorStyle.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkRenderWindow.h>
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkMatrix4x4.h>
+#include <vtkProbeFilter.h>
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkTetra.h>
