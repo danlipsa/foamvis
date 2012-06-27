@@ -929,6 +929,21 @@ void WidgetGl::ModelViewTransform (ViewNumber::Enum viewNumber,
     transformFoamAverageAround (viewNumber, timeStep);
 }
 
+vtkSmartPointer<vtkMatrix4x4> WidgetGl::GetModelViewMatrix (
+    ViewNumber::Enum viewNumber, 
+    size_t timeStep) const
+{
+    GLdouble mv[16];
+    glPushMatrix ();
+    ModelViewTransform (viewNumber, timeStep);
+    glGetDoublev (GL_MODELVIEW_MATRIX, mv);
+    glPopMatrix ();
+    VTK_CREATE(vtkMatrix4x4, modelView);
+    modelView->DeepCopy (mv);
+    modelView->Transpose ();    
+    return modelView;
+}
+
 void WidgetGl::ProjectionTransform (
     ViewNumber::Enum viewNumber,
     ViewingVolumeOperation::Enum enclose) const

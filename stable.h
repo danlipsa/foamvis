@@ -120,6 +120,7 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkRenderWindow.h>
 #include <vtkGenericOpenGLRenderWindow.h>
+#include <vtkMatrix4x4.h>
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkTetra.h>

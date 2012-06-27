@@ -21,8 +21,9 @@ class WidgetVtk : public QVTKWidget
 {
 public:
     WidgetVtk (QWidget* parent);
-    void UpdateAverage (
+    void UpdateRenderUnstructured (
 	const Foam& foam, const BodySelector& bodySelector,
+	vtkSmartPointer<vtkMatrix4x4> modelView,
 	BodyProperty::Enum bodyProperty,
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction);
 			       

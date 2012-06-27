@@ -16,30 +16,27 @@ WidgetVtk::WidgetVtk (QWidget* parent) :
     QVTKWidget (parent)
 {
      // add a renderer
-    m_renderer = vtkRenderer::New();
+    m_renderer = vtkSmartPointer<vtkRenderer>::New();
     m_renderer->SetBackground(1,1,1);
     GetRenderWindow()->AddRenderer(m_renderer);
-
-    m_mapper = vtkDataSetMapper::New ();
+    m_mapper = vtkSmartPointer<vtkDataSetMapper>::New ();
     
-    m_actor = vtkActor::New();
+    m_actor = vtkSmartPointer<vtkActor>::New ();    
     m_actor->SetMapper(m_mapper);
     m_renderer->AddViewProp(m_actor);
 }
 
-void WidgetVtk::UpdateAverage (
+void WidgetVtk::UpdateRenderUnstructured (
     const Foam& foam, const BodySelector& bodySelector,
+    vtkSmartPointer<vtkMatrix4x4> modelView,
     BodyProperty::Enum bodyProperty,
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction)
 {
     
     vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid = 
-    foam.SetCellScalar (foam.GetTetraGrid (bodySelector), bodySelector, 
-    bodyProperty);
-    /*
-    vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid = 
-	foam.GetTetraGrid (bodySelector);
-    */
+	foam.SetCellScalar (foam.GetTetraGrid (bodySelector), bodySelector, 
+			    bodyProperty);
+    m_actor->SetUserMatrix (modelView);
     m_mapper->SetLookupTable (colorTransferFunction);
     m_mapper->SetInput (aTetraGrid);
     update ();

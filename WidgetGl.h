@@ -197,6 +197,9 @@ public:
      */
     void ModelViewTransform (ViewNumber::Enum viewNumber, 
 			     size_t timeStep) const;
+    vtkSmartPointer<vtkMatrix4x4> GetModelViewMatrix (
+	ViewNumber::Enum viewNumber, size_t timeStep) const;
+
     /**
      * Setup the viewing volume first centered around origin and then 
      * translated toward negative Z with m_cameraDistance.

@@ -154,7 +154,7 @@ template<typename T> void setPValue (T* p, T value)
 // ======================================================================
 
 #define VTK_CREATE(type, name) \
-    vtkSmartPointer<type> name (type::New())
+    vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 const static size_t HISTOGRAM_INTERVALS = 256;
 const static size_t INVALID_INDEX = numeric_limits<size_t>::max ();
