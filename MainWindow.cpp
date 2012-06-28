@@ -678,7 +678,7 @@ void MainWindow::update3DAverage (size_t timeStep)
     const Foam& foam = simulation.GetFoam (timeStep);
     BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT (
 	widgetGl->GetBodyOrFaceProperty ());
-    widgetVtk->UpdateRenderUnstructured (
+    widgetVtk->UpdateRenderStructured (
 	foam, vs.GetBodySelector (), 
 	widgetGl->GetModelViewMatrix (viewNumber, timeStep),
 	bodyProperty, 

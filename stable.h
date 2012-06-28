@@ -125,6 +125,7 @@
 #include <vtkProbeFilter.h>
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
+#include <vtkShrinkFilter.h>
 #include <vtkTetra.h>
 #include <vtkTDxInteractorStyleCamera.h>
 #include <vtkTDxInteractorStyleSettings.h>

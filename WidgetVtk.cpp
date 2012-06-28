@@ -48,22 +48,32 @@ void WidgetVtk::UpdateRenderStructured (
     BodyProperty::Enum bodyProperty,
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction)
 {
-    
+    // vtkUnstructuredGrid->vtkProbeFilter->vtkShrinkFilter->vtkDatasetMapper
+    // vtkImageData       ->    
     vtkSmartPointer<vtkUnstructuredGrid> tetraFoam = 
 	foam.SetCellScalar (foam.GetTetraGrid (bodySelector), bodySelector, 
 			    bodyProperty);
-    VTK_CREATE (vtkImageData, regularFoam);
-    size_t numberOfPoints = 256;
+    size_t pointsPerAxis = 5;
     G3D::AABox bb = foam.GetBoundingBox ();
-    G3D::Vector3 low = bb.low ();
-    G3D::Vector3 extent = bb.extent () / (numberOfPoints - 1);
-    regularFoam->SetExtent (0, numberOfPoints - 1,
-			    0, numberOfPoints - 1,
-			    0, numberOfPoints - 1);
-    regularFoam->SetOrigin (low.x, low.y, low.z);
-    regularFoam->SetSpacing (extent.x, extent.y, extent.z);
+    G3D::Vector3 spacing = bb.extent () / (pointsPerAxis - 1);
+    G3D::Vector3 origin = bb.low ();
+    VTK_CREATE (vtkImageData, regularFoam);
+    regularFoam->SetExtent (0, pointsPerAxis - 1,
+			    0, pointsPerAxis - 1,
+			    0, pointsPerAxis - 1);
+    regularFoam->SetOrigin (origin.x, origin.y, origin.z);
+    regularFoam->SetSpacing (spacing.x, spacing.y, spacing.z);
+
+    VTK_CREATE (vtkProbeFilter, regularProbe);
+    regularProbe->SetSource (tetraFoam);
+    regularProbe->SetInput (regularFoam);
+
+    VTK_CREATE (vtkShrinkFilter, shrink);
+    shrink->SetInputConnection (regularProbe->GetOutputPort ());
+    shrink->SetShrinkFactor (0.9);
+
     m_actor->SetUserMatrix (modelView);
     m_mapper->SetLookupTable (colorTransferFunction);
-    m_mapper->SetInput (regularFoam);
+    m_mapper->SetInputConnection (shrink->GetOutputPort ());
     update ();
 }
