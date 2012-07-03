@@ -1122,6 +1122,7 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::SetCellScalar (
     const BodySelector& bodySelector,
     BodyProperty::Enum bodyProperty) const
 {
+    MeasureTime mt;
     vtkIdType numberOfCells = aTetraGrid->GetNumberOfCells ();
     VTK_CREATE(vtkFloatArray, scalars);
     scalars->SetNumberOfValues (numberOfCells);
@@ -1141,6 +1142,7 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::SetCellScalar (
 	}
     }
     aTetraGrid->GetCellData ()->SetScalars (scalars);
+    mt.EndInterval ("SetCellScalar");
     return aTetraGrid;
 }
 

@@ -26,34 +26,22 @@ WidgetVtk::WidgetVtk (QWidget* parent) :
     m_renderer->AddViewProp(m_actor);
 }
 
-void WidgetVtk::UpdateRenderUnstructured (
-    const Foam& foam, const BodySelector& bodySelector,
-    vtkSmartPointer<vtkMatrix4x4> modelView,
-    BodyProperty::Enum bodyProperty,
-    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction)
-{
-    
-    vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid = 
-	foam.SetCellScalar (foam.GetTetraGrid (bodySelector), bodySelector, 
-			    bodyProperty);
-    m_actor->SetUserMatrix (modelView);
-    m_mapper->SetLookupTable (colorTransferFunction);
-    m_mapper->SetInput (aTetraGrid);
-    update ();
-}
-
 void WidgetVtk::UpdateRenderStructured (
     const Foam& foam, const BodySelector& bodySelector,
     vtkSmartPointer<vtkMatrix4x4> modelView,
     BodyProperty::Enum bodyProperty,
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction)
 {
-    // vtkUnstructuredGrid->vtkProbeFilter->vtkShrinkFilter->vtkDatasetMapper
-    // vtkImageData       ->    
+    // vtkUnstructuredGrid->
+    // vtkCellDatatoPointData, vtkImageData ->vtkProbeFilter->vtkShrinkFilter->vtkDatasetMapper
+    // vtkImageData          ->
     vtkSmartPointer<vtkUnstructuredGrid> tetraFoam = 
 	foam.SetCellScalar (foam.GetTetraGrid (bodySelector), bodySelector, 
 			    bodyProperty);
-    size_t pointsPerAxis = 5;
+    VTK_CREATE (vtkCellDataToPointData, cellToPoint);
+    cellToPoint->SetInput (tetraFoam);
+
+    size_t pointsPerAxis = 64;
     G3D::AABox bb = foam.GetBoundingBox ();
     G3D::Vector3 spacing = bb.extent () / (pointsPerAxis - 1);
     G3D::Vector3 origin = bb.low ();
@@ -65,15 +53,21 @@ void WidgetVtk::UpdateRenderStructured (
     regularFoam->SetSpacing (spacing.x, spacing.y, spacing.z);
 
     VTK_CREATE (vtkProbeFilter, regularProbe);
-    regularProbe->SetSource (tetraFoam);
+    regularProbe->SetSourceConnection (cellToPoint->GetOutputPort ());
     regularProbe->SetInput (regularFoam);
 
-    VTK_CREATE (vtkShrinkFilter, shrink);
-    shrink->SetInputConnection (regularProbe->GetOutputPort ());
-    shrink->SetShrinkFactor (0.9);
+    VTK_CREATE (vtkThreshold, threshold);
+    threshold->ThresholdByUpper (0.1);
+    threshold->AllScalarsOn ();
+    threshold->SetInputConnection (regularProbe->GetOutputPort ());
+
+    // VTK_CREATE (vtkShrinkFilter, shrink);
+    // shrink->SetInputConnection (threshold->GetOutputPort ());
+    // shrink->SetShrinkFactor (0.5);
 
     m_actor->SetUserMatrix (modelView);
     m_mapper->SetLookupTable (colorTransferFunction);
-    m_mapper->SetInputConnection (shrink->GetOutputPort ());
+    m_mapper->SetInputConnection (threshold->GetOutputPort ());
     update ();
 }
+

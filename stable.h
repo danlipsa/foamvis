@@ -114,6 +114,7 @@
 // VTK headers
 #include <vtkColorTransferFunction.h>
 #include <vtkCellData.h>
+#include <vtkCellDataToPointData.h>
 #include <vtkDataSetMapper.h>
 #include <vtkFloatArray.h>
 #include <vtkImageData.h>
@@ -129,6 +130,7 @@
 #include <vtkTetra.h>
 #include <vtkTDxInteractorStyleCamera.h>
 #include <vtkTDxInteractorStyleSettings.h>
+#include <vtkThreshold.h>
 #include <vtkUnstructuredGrid.h>
 #include <QVTKWidget.h>
 #include <QVTKApplication.h>
