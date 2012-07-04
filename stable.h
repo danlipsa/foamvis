@@ -112,9 +112,10 @@
 #include <G3D/Vector3int16.h>
 
 // VTK headers
-#include <vtkColorTransferFunction.h>
 #include <vtkCellData.h>
 #include <vtkCellDataToPointData.h>
+#include <vtkColorTransferFunction.h>
+#include <vtkCommand.h>
 #include <vtkDataSetMapper.h>
 #include <vtkFloatArray.h>
 #include <vtkImageData.h>

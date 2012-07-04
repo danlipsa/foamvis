@@ -21,6 +21,11 @@ ostream& cdbg = cerr;
 
 MeasureTime::MeasureTime ()
 {
+    StartInterval ();
+}
+
+void MeasureTime::StartInterval ()
+{
     m_start = clock ();
 }
 
@@ -30,4 +35,24 @@ void MeasureTime::EndInterval (const char* intervalName)
     cdbg << intervalName << ": " 
 	 << (end - m_start) * 1000 / CLOCKS_PER_SEC << " ms" << endl;
     m_start = end;
+}
+
+void MeasureTimeVtk::Execute (
+    vtkObject *caller, unsigned long eventId, void *callData)
+{
+    (void)callData;
+    if (eventId == vtkCommand::StartEvent)
+    {
+	m_measure.StartInterval ();
+    }
+    else if (eventId == vtkCommand::EndEvent)
+    {
+	m_measure.EndInterval (caller->GetClassName ());
+    }
+}
+
+void MeasureTimeVtk::Measure (vtkObject* caller)
+{
+    caller->AddObserver (vtkCommand::StartEvent, this);
+    caller->AddObserver (vtkCommand::EndEvent, this);
 }

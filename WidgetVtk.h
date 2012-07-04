@@ -21,11 +21,12 @@ class WidgetVtk : public QVTKWidget
 {
 public:
     WidgetVtk (QWidget* parent);
+    void UpdateColorTransferFunction (
+	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction);
     void UpdateRenderStructured (
 	const Foam& foam, const BodySelector& bodySelector,
 	vtkSmartPointer<vtkMatrix4x4> modelView,
-	BodyProperty::Enum bodyProperty,
-	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction);
+	BodyProperty::Enum bodyProperty);
 
 public:
     QSize sizeHint ()
@@ -40,12 +41,7 @@ public:
     
 private:
     Q_OBJECT
-    
-    // vtkUnstructuredGrid->vtkCellDatatoPointData->
-    //,vtkImageData->vtkProbeFilter->vtkShrinkFilter->vtkDatasetMapper
     vtkSmartPointer<vtkDataSetMapper> m_mapper;
-    vtkSmartPointer<vtkActor> m_actor;
-    vtkSmartPointer<vtkRenderer> m_renderer;
 };
 
 

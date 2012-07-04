@@ -681,7 +681,8 @@ void MainWindow::update3DAverage (size_t timeStep)
     widgetVtk->UpdateRenderStructured (
 	foam, vs.GetBodySelector (), 
 	widgetGl->GetModelViewMatrix (viewNumber, timeStep),
-	bodyProperty, 
+	bodyProperty);
+    widgetVtk->UpdateColorTransferFunction (
 	getColorBarModel ()->GetColorTransferFunction ());
 }
 

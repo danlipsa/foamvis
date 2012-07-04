@@ -49,9 +49,23 @@ class MeasureTime
 {
 public:
     MeasureTime ();
+    void StartInterval ();
     void EndInterval (const char* intervalName);
 private:
     clock_t m_start;
+};
+
+class MeasureTimeVtk : public vtkCommand
+{
+public:
+    MeasureTimeVtk ()
+    {
+    }
+    void Execute (vtkObject *caller, unsigned long eventId, void *callData);
+    void Measure (vtkObject *caller);
+
+private:
+    MeasureTime m_measure;
 };
 
 
