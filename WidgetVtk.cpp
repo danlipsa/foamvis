@@ -20,6 +20,11 @@ WidgetVtk::WidgetVtk (QWidget* parent) :
 {
 }
 
+void WidgetVtk::paintEvent (QPaintEvent * event)
+{
+    QVTKWidget::paintEvent (event);
+    Q_EMIT Paint ();
+}
 
 void WidgetVtk::UpdateColorTransferFunction (
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction)

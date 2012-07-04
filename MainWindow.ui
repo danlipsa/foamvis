@@ -45,6 +45,9 @@
        <item>
         <widget class="DisplayWidget" name="widgetDisplay" native="true">
          <layout class="QVBoxLayout" name="verticalLayout">
+          <property name="margin">
+           <number>0</number>
+          </property>
           <item>
            <widget class="WidgetVtk" name="widgetVtk" native="true"/>
           </item>

@@ -214,10 +214,13 @@ void MainWindow::connectSignals ()
     connect (m_timer.get (), SIGNAL (timeout()),
 	     this, SLOT (TimeoutTimer ()));
     
-    connect (widgetGl, SIGNAL (PaintedGL ()),
+    connect (widgetGl, SIGNAL (Paint ()),
 	     widgetDisplay, SLOT (SaveFrame ()), 
 	     Qt::QueuedConnection);
-    
+
+    connect (widgetVtk, SIGNAL (Paint ()),
+	     widgetDisplay, SLOT (SaveFrame ()), 
+	     Qt::QueuedConnection);
     
     // BodyOrFacePropertyChanged: 
     // from MainWindow to WidgetGl

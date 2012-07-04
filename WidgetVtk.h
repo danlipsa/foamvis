@@ -38,6 +38,13 @@ public:
     {
 	return QSize (128, 128);
     }
+
+Q_SIGNALS:
+    void Paint ();
+
+
+protected:
+    void paintEvent (QPaintEvent * event);
     
 private:
     Q_OBJECT

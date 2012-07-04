@@ -301,7 +301,7 @@ public:
 
 
 Q_SIGNALS:
-    void PaintedGL ();
+    void Paint ();
     void ViewChanged ();
     void ColorBarModelChanged (
 	ViewNumber::Enum viewNumber,
