@@ -1398,7 +1398,7 @@ void WidgetGl::paintGL ()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     displayViews ();
     displayViewsGrid ();
-    Q_EMIT Paint ();
+    Q_EMIT PaintEnd ();
 }
 
 void WidgetGl::resizeGL(int w, int h)

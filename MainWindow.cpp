@@ -214,11 +214,11 @@ void MainWindow::connectSignals ()
     connect (m_timer.get (), SIGNAL (timeout()),
 	     this, SLOT (TimeoutTimer ()));
     
-    connect (widgetGl, SIGNAL (Paint ()),
+    connect (widgetGl, SIGNAL (PaintEnd ()),
 	     widgetDisplay, SLOT (SaveFrame ()), 
 	     Qt::QueuedConnection);
 
-    connect (widgetVtk, SIGNAL (Paint ()),
+    connect (widgetVtk, SIGNAL (PaintEnd ()),
 	     widgetDisplay, SLOT (SaveFrame ()), 
 	     Qt::QueuedConnection);
     

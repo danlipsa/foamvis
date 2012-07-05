@@ -11,6 +11,30 @@
 #include "Foam.h"
 #include "WidgetVtk.h"
 
+// Private Classes/Functions
+// ======================================================================
+
+class SendPaintEnd : public vtkCommand
+{
+public:
+    SendPaintEnd (WidgetVtk* widgetVtk) :
+	m_widgetVtk (widgetVtk)
+    {
+    }
+    void Execute (vtkObject *caller, unsigned long eventId, void *callData);
+private:
+    WidgetVtk* m_widgetVtk;
+};
+
+
+void SendPaintEnd::Execute (
+    vtkObject *caller, unsigned long eventId, void *callData)
+{
+    (void) caller;(void)callData;
+    if (eventId == vtkCommand::EndEvent)
+	Q_EMIT m_widgetVtk->PaintEnd ();
+}
+
 
 // Methods
 // ======================================================================
@@ -18,12 +42,6 @@
 WidgetVtk::WidgetVtk (QWidget* parent) :
     QVTKWidget (parent)
 {
-}
-
-void WidgetVtk::paintEvent (QPaintEvent * event)
-{
-    QVTKWidget::paintEvent (event);
-    Q_EMIT Paint ();
 }
 
 void WidgetVtk::UpdateColorTransferFunction (
@@ -38,6 +56,7 @@ void WidgetVtk::UpdateRenderStructured (
     BodyProperty::Enum bodyProperty)
 {
     vtkSmartPointer<MeasureTimeVtk> measureTime (new MeasureTimeVtk ());
+    vtkSmartPointer<SendPaintEnd> sendPaint (new SendPaintEnd (this));
 
     // vtkUnstructuredGrid->vtkCellDatatoPointData, vtkImageData
     //           X                                      X 
@@ -87,6 +106,7 @@ void WidgetVtk::UpdateRenderStructured (
     renderer->AddViewProp(actor);
 
     GetRenderWindow()->AddRenderer(renderer);
+    GetRenderWindow ()->AddObserver (vtkCommand::EndEvent, sendPaint);
     update ();
 }
 

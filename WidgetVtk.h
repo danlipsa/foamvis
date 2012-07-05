@@ -16,9 +16,13 @@ class vtkDataSetMapper;
 class vtkRenderer;
 class Foam;
 class BodySelector;
+class SendPaintEnd;
+
 
 class WidgetVtk : public QVTKWidget
 {
+    friend class SendPaintEnd;
+    
 public:
     WidgetVtk (QWidget* parent);
     void UpdateColorTransferFunction (
@@ -40,11 +44,7 @@ public:
     }
 
 Q_SIGNALS:
-    void Paint ();
-
-
-protected:
-    void paintEvent (QPaintEvent * event);
+    void PaintEnd ();
     
 private:
     Q_OBJECT
