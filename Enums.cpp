@@ -92,8 +92,6 @@ const char* FaceProperty::ToString (FaceProperty::Enum faceProperty)
     {
     case DMP_COLOR:
 	return "Dmp color";
-    case EDGES_PER_FACE:
-	return "Edges per face";
     default:
 	return "Error";
     }

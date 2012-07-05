@@ -101,7 +101,7 @@ public:
 	VELOCITY_Y,
 	VELOCITY_Z,
 	VELOCITY_MAGNITUDE,
-	SIDES_PER_BODY,
+	SIDES_PER_BODY, // faces per body for 3D, edges per face for 2D
 	DEFORMATION_P_OVER_SQRTA,
 	DEFORMATION_EIGEN,
 
@@ -122,7 +122,6 @@ public:
     enum Enum
     {
 	DMP_COLOR = BodyProperty::COUNT,
-	EDGES_PER_FACE,
 	COUNT
     };
 public:
