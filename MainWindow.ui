@@ -1529,12 +1529,12 @@
                      </item>
                      <item>
                       <property name="text">
-                       <string>Sides per bubble</string>
+                       <string>Edges per face</string>
                       </property>
                      </item>
                      <item>
                       <property name="text">
-                       <string>Deformation P/sqrt(A)</string>
+                       <string>Deformation P / sqrt(A)</string>
                       </property>
                      </item>
                      <item>
