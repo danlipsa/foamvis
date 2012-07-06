@@ -369,15 +369,15 @@ valueStep (
      bool focus = this->IsFocus (p.m_body);
      if (focus)
      {
-	 BodyProperty::Enum property = BodyProperty::FromSizeT (
-	     this->m_propertySetter.GetBodyOrFaceProperty ());
+	 BodyScalar::Enum property = BodyScalar::FromSizeT (
+	     this->m_propertySetter.GetBodyOrFaceScalar ());
 	 bool deduced;
 	 bool exists = p.m_body->ExistsPropertyValue (property, &deduced);
 	 if (exists && 
 	     (! deduced || 
 	      (deduced && this->m_widgetGl.IsMissingPropertyShown (property))))
 	     storeFocusSegment (
-		 p.m_body->GetPropertyValue (property), segment);
+		 p.m_body->GetScalarValue (property), segment);
 	else
 	    storeFocusSegment (
 		this->m_widgetGl.GetHighlightColor (
@@ -538,16 +538,16 @@ template class DisplayBody<
 template class DisplayBody<
     DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceTriangleFan, SetterTextureCoordinate>, SetterTextureCoordinate>;
 template class DisplayBody<
-    DisplayFaceBodyPropertyColor<SetterTextureCoordinate>, SetterTextureCoordinate>;
-template class DisplayBody<DisplayFaceBodyPropertyColor<SetterVelocity>, SetterVelocity>;
+    DisplayFaceBodyScalarColor<SetterTextureCoordinate>, SetterTextureCoordinate>;
+template class DisplayBody<DisplayFaceBodyScalarColor<SetterVelocity>, SetterVelocity>;
 template class DisplayBody<
-    DisplayFaceBodyPropertyColor<SetterVertexAttribute>,
+    DisplayFaceBodyScalarColor<SetterVertexAttribute>,
     SetterVertexAttribute>;
-template class DisplayBody<DisplayFaceBodyPropertyColor<SetterNop>, SetterNop>;
+template class DisplayBody<DisplayFaceBodyScalarColor<SetterNop>, SetterNop>;
 
 template class DisplayBody<DisplayFaceHighlightColor<HighlightNumber::H1, DisplayFaceLineStrip, SetterTextureCoordinate>, SetterTextureCoordinate>;
 
-template class DisplayBody<DisplayFaceBodyPropertyColor<SetterDeformation>, SetterDeformation>;
+template class DisplayBody<DisplayFaceBodyScalarColor<SetterDeformation>, SetterDeformation>;
 
 // DisplayCenterPath
 // ======================================================================

@@ -64,7 +64,7 @@ public:
         m_dir (qPrintable(dir)), 
 	m_dmpObjectInfo (dmpObjectInfo), 
 	m_useOriginal (useOriginal),
-	m_foamParameters (foamParameters), 
+	m_foamProperties (foamParameters), 
 	m_parametersOperation (parametersOperation),
 	m_debugParsing (debugParsing),
 	m_debugScanning (debugScanning)
@@ -88,7 +88,7 @@ public:
 	cdbg << ostr.str ();
 	foam.reset (
 	    new Foam (m_useOriginal, m_dmpObjectInfo,
-		      m_forcesNames, *m_foamParameters, 
+		      m_forcesNames, *m_foamProperties, 
 		      m_parametersOperation));
 	foam->GetParsingData ().SetDebugParsing (m_debugParsing);
 	foam->GetParsingData ().SetDebugScanning (m_debugScanning);	    
@@ -106,7 +106,7 @@ private:
     const DmpObjectInfo& m_dmpObjectInfo;
     vector<ForcesOneObjectNames> m_forcesNames;
     const bool m_useOriginal;
-    FoamProperties* m_foamParameters;
+    FoamProperties* m_foamProperties;
     Foam::ParametersOperation m_parametersOperation;
     const bool m_debugParsing;
     const bool m_debugScanning;
@@ -124,7 +124,7 @@ const vector<G3D::Vector3> Simulation::NO_T1S;
 // ======================================================================
 Simulation::Simulation () :
     m_histogram (
-        BodyProperty::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
+        BodyScalar::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
     m_t1sTimeStepShift (0),
     m_useOriginal (false),
     m_rotation2D (0),
@@ -221,7 +221,7 @@ size_t foamsIndex (
 
 double GetPressureBody0 (const boost::shared_ptr<Foam>& foam)
 {
-    return foam->GetBody (0).GetPropertyValue (BodyProperty::PRESSURE);
+    return foam->GetBody (0).GetScalarValue (BodyScalar::PRESSURE);
 }
 
 void Simulation::adjustPressureSubtractReference ()
@@ -240,14 +240,14 @@ void Simulation::adjustPressureAlignMedians ()
     QtConcurrent::blockingMap (
 	m_foams.begin (), m_foams.end (),
 	boost::bind (&Foam::AdjustPressure, _1, 
-		     boost::bind (&Foam::GetMin, _1, BodyProperty::PRESSURE)));
+		     boost::bind (&Foam::GetMin, _1, BodyScalar::PRESSURE)));
 
     // adjust the pressure by aligning the medians in every time step,
     // with the max median for all time steps
     vector<double> medians = 
 	QtConcurrent::blockingMapped< vector<double> > (
 	    m_foams.begin (), m_foams.end (),
-	    boost::bind (&Foam::CalculateMedian, _1, BodyProperty::PRESSURE));
+	    boost::bind (&Foam::CalculateMedian, _1, BodyScalar::PRESSURE));
     double maxMedian = *max_element (medians.begin (), medians.end ());
     for (size_t i = 0; i < m_foams.size (); ++i)
 	m_foams[i]->AdjustPressure (medians[i] - maxMedian);
@@ -255,12 +255,12 @@ void Simulation::adjustPressureAlignMedians ()
 
 void Simulation::calculateStatistics ()
 {
-    for (size_t i = BodyProperty::PROPERTY_BEGIN; 
-	 i < BodyProperty::COUNT; ++i)
+    for (size_t i = BodyScalar::PROPERTY_BEGIN; 
+	 i < BodyScalar::COUNT; ++i)
     {
 	MinMaxStatistics minMaxStat;
 	// statistics for all time-steps
-	BodyProperty::Enum property = BodyProperty::FromSizeT (i);
+	BodyScalar::Enum property = BodyScalar::FromSizeT (i);
 	forAllBodiesAccumulateProperty (&minMaxStat, property);
 	m_histogram[property] (acc::min (minMaxStat));
 	m_histogram[property] (acc::max (minMaxStat));
@@ -272,7 +272,7 @@ void Simulation::calculateStatistics ()
 	QtConcurrent::blockingMap (
 	    m_foams.begin (), m_foams.end (),
 	    boost::bind (&Foam::CalculateHistogramStatistics, _1,
-			 BodyProperty::FromSizeT (i), min, max));
+			 BodyScalar::FromSizeT (i), min, max));
     }
     {
 	MinMaxStatistics minMaxStat;
@@ -282,20 +282,20 @@ void Simulation::calculateStatistics ()
     }
 }
 
-template <typename Accumulator, typename GetBodyProperty>
+template <typename Accumulator, typename GetBodyScalar>
 void Simulation::forAllBodiesAccumulate (
-    Accumulator* acc, GetBodyProperty getBodyProperty)
+    Accumulator* acc, GetBodyScalar getBodyScalar)
 {
     QtConcurrent::blockingMap (
 	m_foams.begin (), m_foams.end (),
-	boost::bind (&Foam::Accumulate<Accumulator, GetBodyProperty>, 
-		     _1, acc, getBodyProperty));
+	boost::bind (&Foam::Accumulate<Accumulator, GetBodyScalar>, 
+		     _1, acc, getBodyScalar));
 }
 
 
 template <typename Accumulator>
 void Simulation::forAllBodiesAccumulateProperty (
-    Accumulator* acc, BodyProperty::Enum property)
+    Accumulator* acc, BodyScalar::Enum property)
 {
     QtConcurrent::blockingMap (
 	m_foams.begin (), m_foams.end (),
@@ -420,7 +420,7 @@ void Simulation::SetTimeSteps (size_t timeSteps)
 
 
 void Simulation::GetTimeStepSelection (
-    BodyProperty::Enum property,
+    BodyScalar::Enum property,
     const vector<QwtDoubleInterval>& valueIntervals,
     vector<bool>* timeStepSelection) const
 {
@@ -431,7 +431,7 @@ void Simulation::GetTimeStepSelection (
 }
 
 void Simulation::GetTimeStepSelection (
-    BodyProperty::Enum property,
+    BodyScalar::Enum property,
     const QwtDoubleInterval& valueInterval,
     vector<bool>* timeStepSelection) const
 {
@@ -450,7 +450,7 @@ bool Simulation::IsQuadratic () const
 }
 
 size_t Simulation::GetMaxCountPerBinIndividual (
-    BodyProperty::Enum property) const
+    BodyScalar::Enum property) const
 {
     size_t size = GetTimeSteps ();
     size_t max = 0;

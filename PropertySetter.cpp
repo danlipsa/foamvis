@@ -22,9 +22,9 @@
 void SetterTextureCoordinate::operator () (
     const boost::shared_ptr<Body>& body)
 {
-    BodyProperty::Enum property = BodyProperty::FromSizeT (
-	m_widgetGl.GetViewSettings (m_viewNumber).GetBodyOrFaceProperty ());
-    double value = body->GetPropertyValue (property);
+    BodyScalar::Enum property = BodyScalar::FromSizeT (
+	m_widgetGl.GetViewSettings (m_viewNumber).GetBodyOrFaceScalar ());
+    double value = body->GetScalarValue (property);
     double texCoord = 
 	m_widgetGl.GetViewSettings (m_viewNumber).
 	GetColorBarModel ()->TexCoord (value);
@@ -36,17 +36,17 @@ void SetterTextureCoordinate::operator () ()
     glTexCoord1f (0); 
 }
 
-int SetterTextureCoordinate::GetBodyOrFaceProperty () const
+int SetterTextureCoordinate::GetBodyOrFaceScalar () const
 {
-    return m_widgetGl.GetViewSettings (m_viewNumber).GetBodyOrFaceProperty ();
+    return m_widgetGl.GetViewSettings (m_viewNumber).GetBodyOrFaceScalar ();
 }
 
-G3D::Matrix2 SetterTextureCoordinate::getRotation () const
+G3D::Matrix3 SetterTextureCoordinate::getRotation () const
 {
     const ViewSettings& vs = m_widgetGl.GetViewSettings (m_viewNumber);    
     G3D::Matrix4 modelRotation4; 
     G3D::glGetMatrix (GL_MODELVIEW_MATRIX, modelRotation4);
-    return ToMatrix2 (modelRotation4) / vs.GetScaleRatio ();
+    return ToMatrix3 (modelRotation4 * (1.0 / vs.GetScaleRatio ()));
 }
 
 
@@ -55,9 +55,9 @@ G3D::Matrix2 SetterTextureCoordinate::getRotation () const
 void SetterVertexAttribute::operator () (
     const boost::shared_ptr<Body>& body)
 {
-    BodyProperty::Enum bodyProperty = BodyProperty::FromSizeT (
-	GetBodyOrFaceProperty ());
-    double value = body->GetPropertyValue (bodyProperty);
+    BodyScalar::Enum bodyProperty = BodyScalar::FromSizeT (
+	GetBodyOrFaceScalar ());
+    double value = body->GetScalarValue (bodyProperty);
     m_program->setAttributeValue (m_attributeLocation, value);
 }
 
@@ -74,17 +74,7 @@ void SetterVertexAttribute::operator () ()
 // ======================================================================
 void SetterDeformation::operator () (const boost::shared_ptr<Body>& body)
 {
-    // Practical Linear Algebra, A Geometry Toolbox, 
-    // Gerald Farin, Dianne Hansford, Sec 7.5
-    G3D::Matrix2 l = G3D::Matrix2::identity ();
-    l[0][0] = body->GetDeformationEigenValue (0);
-    l[1][1] = body->GetDeformationEigenValue (1);
-    G3D::Matrix2 modelRotation = getRotation ();
-    G3D::Matrix2 r = 
-	mult (modelRotation,
-	      MatrixFromColumns (body->GetDeformationEigenVector (0).xy (),
-				 body->GetDeformationEigenVector (1).xy ()));
-    G3D::Matrix2 a = mult (mult (r, l), r.transpose ());
+    G3D::Matrix2 a = ToMatrix2 (body->GetDeformationTensor (getRotation ()));
 
     // GLSL uses matrices in column order
     m_program->setAttributeValue (
@@ -98,9 +88,9 @@ void SetterDeformation::operator () ()
     m_program->setAttributeValue (m_attributeLocation, 0, 0, 0, 0);
 }
 
-int SetterDeformation::GetBodyOrFaceProperty () const
+int SetterDeformation::GetBodyOrFaceScalar () const
 {
-    return BodyProperty::DEFORMATION_EIGEN;
+    return BodyScalar::DEFORMATION_EIGEN;
 }
 
 
@@ -110,7 +100,7 @@ int SetterDeformation::GetBodyOrFaceProperty () const
 void SetterVelocity::operator () (const boost::shared_ptr<Body>& body)
 {
     G3D::Vector2 velocity = body->GetVelocity ().xy ();
-    G3D::Matrix2 m = getRotation ();
+    G3D::Matrix2 m = ToMatrix2 (getRotation ());
     velocity = m * velocity;
     m_program->setAttributeValue (m_attributeLocation, velocity.x, velocity.y);
 }
@@ -120,7 +110,7 @@ void SetterVelocity::operator () ()
     m_program->setAttributeValue (m_attributeLocation, 0, 0);
 }
 
-int SetterVelocity::GetBodyOrFaceProperty () const
+int SetterVelocity::GetBodyOrFaceScalar () const
 {
-    return BodyProperty::VELOCITY_MAGNITUDE;
+    return BodyScalar::VELOCITY_MAGNITUDE;
 }

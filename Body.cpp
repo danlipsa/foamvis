@@ -124,30 +124,27 @@ private:
 Body::Body(
     const vector<int>& faceIndexes,
     const vector<boost::shared_ptr<Face> >& faces,
-    size_t id, const FoamProperties& foamParameters, 
+    size_t id,
     ElementStatus::Enum duplicateStatus) :
     Element(id, duplicateStatus),
     m_perimeterOverSqrtArea (0),
     m_pressureDeduced (false),
     m_targetVolumeDeduced (false),
     m_actualVolumeDeduced (false),
-    m_constraint (false),
-    m_foamParameters (foamParameters)
+    m_constraint (false)
 {
     m_orientedFaces.resize (faceIndexes.size ());
     transform (faceIndexes.begin(), faceIndexes.end(), m_orientedFaces.begin(), 
                indexToOrientedFace(faces));
 }
 
-Body::Body (boost::shared_ptr<Face> face, size_t id, 
-	    const FoamProperties& foamParameters) :
+Body::Body (boost::shared_ptr<Face> face, size_t id) :
     Element (id, ElementStatus::ORIGINAL),
     m_perimeterOverSqrtArea (0),
     m_pressureDeduced (false),
     m_targetVolumeDeduced (false),
     m_actualVolumeDeduced (false),
-    m_constraint (true),
-    m_foamParameters (foamParameters)
+    m_constraint (true)
 {
     m_orientedFaces.resize (1);
     m_orientedFaces[0].reset (new OrientedFace (face, false));
@@ -173,8 +170,7 @@ void Body::splitTessellationPhysical (
     copy (src.begin (), src.end (), destTessellation->begin ());
     vector< boost::shared_ptr<Vertex> >::iterator bp;
     bp = partition (destTessellation->begin (), destTessellation->end (), 
-		    !boost::bind(&Vertex::IsPhysical, _1, 
-				 m_foamParameters));
+		    !boost::bind(&Vertex::IsPhysical, _1));
     destPhysical->resize (destTessellation->end () - bp);
     copy (bp, destTessellation->end (), destPhysical->begin ());
     destTessellation->resize (bp - destTessellation->begin ());
@@ -183,7 +179,7 @@ void Body::splitTessellationPhysical (
 
 void Body::CalculateCenter ()
 {
-    if (m_foamParameters.Is2D ())
+    if (FOAM_PROPERTIES.Is2D ())
     {
 	m_center = GetFace (0).GetCenter ();
 	return;
@@ -289,15 +285,15 @@ void Body::GetEdgeSet (EdgeSet* edgeSet) const
 	      boost::bind (&OrientedFace::GetEdgeSet, _1, edgeSet));
 }
 
-bool Body::ExistsPropertyValue (BodyProperty::Enum property, 
+bool Body::ExistsPropertyValue (BodyScalar::Enum property, 
 				bool* deduced) const
 {
     setPValue (deduced, false);
     if (IsConstraint ())
     {
-	if (property == BodyProperty::VELOCITY_X ||
-	    property == BodyProperty::VELOCITY_Y ||
-	    property == BodyProperty::VELOCITY_MAGNITUDE)
+	if (property == BodyScalar::VELOCITY_X ||
+	    property == BodyScalar::VELOCITY_Y ||
+	    property == BodyScalar::VELOCITY_MAGNITUDE)
 	{
 	    setPValue (deduced, true);
 	    return true;
@@ -307,50 +303,85 @@ bool Body::ExistsPropertyValue (BodyProperty::Enum property,
     }
     switch (property)
     {
-    case BodyProperty::DEFORMATION_P_OVER_SQRTA:
-	return HasAttribute (BodyProperty::TARGET_VOLUME - 
-			     BodyProperty::DMP_BEGIN);
-    case BodyProperty::PRESSURE:
+    case BodyScalar::DEFORMATION_SIMPLE:
+	return HasAttribute (BodyScalar::TARGET_VOLUME - 
+			     BodyScalar::DMP_BEGIN);
+    case BodyScalar::PRESSURE:
 	setPValue (deduced, m_pressureDeduced);
-	return HasAttribute (property - BodyProperty::DMP_BEGIN);
-    case BodyProperty::TARGET_VOLUME:
+	return HasAttribute (property - BodyScalar::DMP_BEGIN);
+    case BodyScalar::TARGET_VOLUME:
 	setPValue (deduced, m_targetVolumeDeduced);
-	return HasAttribute (property - BodyProperty::DMP_BEGIN);
-    case BodyProperty::ACTUAL_VOLUME:
+	return HasAttribute (property - BodyScalar::DMP_BEGIN);
+    case BodyScalar::ACTUAL_VOLUME:
 	setPValue (deduced, m_actualVolumeDeduced);
-	return HasAttribute (property - BodyProperty::DMP_BEGIN);
+	return HasAttribute (property - BodyScalar::DMP_BEGIN);
     default:
 	return true;
     }
 }
 
-double Body::GetPropertyValue (BodyProperty::Enum property) const
+float Body::GetScalarValue (BodyScalar::Enum property) const
 {
     switch (property)
     {
-    case BodyProperty::VELOCITY_X:
+    case BodyScalar::VELOCITY_X:
 	return GetVelocity ().x;
-    case BodyProperty::VELOCITY_Y:
+    case BodyScalar::VELOCITY_Y:
 	return GetVelocity ().y;
-    case BodyProperty::VELOCITY_Z:
+    case BodyScalar::VELOCITY_Z:
 	return GetVelocity ().z;
-    case BodyProperty::VELOCITY_MAGNITUDE:
+    case BodyScalar::VELOCITY_MAGNITUDE:
 	return GetVelocity ().length ();
-    case BodyProperty::SIDES_PER_BODY:
+    case BodyScalar::SIDES_PER_BUBBLE:
 	return GetSidesPerBody ();
-    case BodyProperty::DEFORMATION_P_OVER_SQRTA:
+    case BodyScalar::DEFORMATION_SIMPLE:
 	return GetPerimeterOverSqrtArea ();
-    case BodyProperty::DEFORMATION_EIGEN:
-	return GetDeformationEigen ();
-    case BodyProperty::COUNT:
-	ThrowException ("Invalid BodyProperty: ", property);
+    case BodyScalar::DEFORMATION_EIGEN:
+	return GetDeformationEigenScalar ();
+    case BodyScalar::COUNT:
+	ThrowException ("Invalid BodyScalar: ", property);
     default:
 	return GetAttribute<RealAttribute, double> (
-	    property - BodyProperty::DMP_BEGIN);
+	    property - BodyScalar::DMP_BEGIN);
     }
 }
 
-float Body::GetDeformationEigen () const
+void Body::GetAttributeValue (BodyAttribute::Enum attribute, float* value)
+{
+    if (BodyAttribute::IsScalar (attribute))
+    {
+	float v = GetScalarValue (BodyAttribute::ToBodyScalar (attribute));
+	*value = v;
+    }
+    else if (BodyAttribute::IsVector (attribute))
+    {
+	G3D::Vector3 v = GetVelocity ();
+	value[0] = v.x;
+	value[1] = v.y;
+	value[2] = v.z;
+    }
+    else
+    {
+	// tensor
+	GetDeformationTensor (value, G3D::Matrix3::identity ());
+    }
+}
+
+G3D::Matrix3 Body::GetDeformationTensor (
+    const G3D::Matrix3& additionalRotation) const
+{
+    // Practical Linear Algebra, A Geometry Toolbox, 
+    // Gerald Farin, Dianne Hansford, Sec 7.5
+    G3D::Matrix3 l = G3D::Matrix3::fromDiagonal (GetDeformationEigenValues ());
+    G3D::Matrix3 r = 
+	additionalRotation *
+	MatrixFromColumns (GetDeformationEigenVector (0),
+			   GetDeformationEigenVector (1),
+			   GetDeformationEigenVector (2));
+    return r * l * r.transpose ();
+}
+
+float Body::GetDeformationEigenScalar () const
 {
     float deformationEigen = 1. - 
 	GetDeformationEigenValue (1) / GetDeformationEigenValue (0);
@@ -361,8 +392,7 @@ size_t Body::GetSidesPerBody () const
 {
     size_t ofSize = m_orientedFaces.size ();
     if (ofSize == 1)
-	return GetOrientedFace (0).GetFace ()->GetEdgesPerFace (
-	    m_foamParameters);
+	return GetOrientedFace (0).GetFace ()->GetEdgesPerFace ();
     else
 	return ofSize;
 }
@@ -371,7 +401,7 @@ size_t Body::GetSidesPerBody () const
 void Body::SetPressureValue (double value)
 {
     SetAttribute<RealAttribute, double> (
-	BodyProperty::PRESSURE - BodyProperty::DMP_BEGIN, value);
+	BodyScalar::PRESSURE - BodyScalar::DMP_BEGIN, value);
 }
 
 void Body::CalculateBoundingBox ()
@@ -382,26 +412,26 @@ void Body::CalculateBoundingBox ()
 void Body::CalculatePerimeterOverSqrtArea ()
 {
     if (m_orientedFaces.size () == 1 && 
-	ExistsPropertyValue (BodyProperty::TARGET_VOLUME))
+	ExistsPropertyValue (BodyScalar::TARGET_VOLUME))
     {
 	boost::shared_ptr<OrientedFace> of = GetOrientedFacePtr (0);
 	of->CalculatePerimeter ();
 	m_perimeterOverSqrtArea = of->GetPerimeter () / 
-	    sqrt (GetPropertyValue (BodyProperty::TARGET_VOLUME));
+	    sqrt (GetScalarValue (BodyScalar::TARGET_VOLUME));
     }
 }
 
-const char* Body::GetAttributeKeywordString (BodyProperty::Enum bp)
+const char* Body::GetAttributeKeywordString (BodyScalar::Enum bp)
 {
     using EvolverData::parser;
     switch (bp)
     {
-    case BodyProperty::PRESSURE:
+    case BodyScalar::PRESSURE:
 	return ParsingDriver::GetKeywordString(
 	    parser::token::LAGRANGE_MULTIPLIER);
-    case BodyProperty::TARGET_VOLUME:
+    case BodyScalar::TARGET_VOLUME:
 	return ParsingDriver::GetKeywordString(parser::token::VOLUME);	
-    case BodyProperty::ACTUAL_VOLUME:
+    case BodyScalar::ACTUAL_VOLUME:
 	return ParsingDriver::GetKeywordString(parser::token::ACTUAL);
     default:
 	return 0;

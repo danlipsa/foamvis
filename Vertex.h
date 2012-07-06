@@ -13,7 +13,6 @@
 class Body;
 class AttributesInfo;
 class Edge;
-class FoamProperties;
 class OOBox;
 
 /**
@@ -34,7 +33,7 @@ public:
      * Is this a physical (not tesselation) vertex
      * @return true if it is physical, false otherwise
      */
-    bool IsPhysical (const FoamProperties& foamParameters) const ;
+    bool IsPhysical () const ;
     /**
      * Adds an edge that is adjacent to this vertex
      * @param edge edge touched by this vertex

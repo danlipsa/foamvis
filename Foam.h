@@ -93,7 +93,7 @@ public:
 
     Bodies::const_iterator FindBody (size_t bodyId) const;
     bool ExistsBodyWithValueIn (
-	BodyProperty::Enum property, const QwtDoubleInterval& interval) const;
+	BodyScalar::Enum property, const QwtDoubleInterval& interval) const;
 
     /**
      * Gets all bodies from the Foam
@@ -234,32 +234,32 @@ public:
     void AddDefaultBodyAttributes ();
     template <typename Accumulator>
     void AccumulateProperty (
-	Accumulator* acc, BodyProperty::Enum property) const;
-    template <typename Accumulator, typename GetBodyProperty>
-    void Accumulate (Accumulator* acc, GetBodyProperty getBodyProperty) const;
+	Accumulator* acc, BodyScalar::Enum property) const;
+    template <typename Accumulator, typename GetBodyScalar>
+    void Accumulate (Accumulator* acc, GetBodyScalar getBodyScalar) const;
 
     void AdjustPressure (double adjustment);
 
-    void CalculateHistogramStatistics (BodyProperty::Enum property,
+    void CalculateHistogramStatistics (BodyScalar::Enum property,
 				       double min, double max);
-    double CalculateMedian (BodyProperty::Enum property);
+    double CalculateMedian (BodyScalar::Enum property);
 
-    const HistogramStatistics& GetHistogram (BodyProperty::Enum property) const
+    const HistogramStatistics& GetHistogram (BodyScalar::Enum property) const
     {
 	return m_histogram[property];
     }
 
-    double GetMin (BodyProperty::Enum property) const
+    double GetMin (BodyScalar::Enum property) const
     {
 	return m_min[property];
     }
 
-    double GetMax (BodyProperty::Enum property) const
+    double GetMax (BodyScalar::Enum property) const
     {
 	return m_max[property];
     }
 
-    QwtDoubleInterval GetRange (BodyProperty::Enum property) const
+    QwtDoubleInterval GetRange (BodyScalar::Enum property) const
     {
 	return QwtDoubleInterval (GetMin (property), GetMax (property));
     }
@@ -283,7 +283,7 @@ public:
     void CalculateBoundingBox ();
     void CalculatePerimeterOverArea ();
     void FixConstraintPoints (const Foam* prevFoam);
-    void StoreAttribute (Body* body, BodyProperty::Enum property, double r);
+    void StoreAttribute (Body* body, BodyScalar::Enum property, double r);
     void CalculateBodyNeighbors ();
     void CalculateBodyDeformationTensor ();
     void CreateConstraintBody (size_t constraint);
@@ -295,12 +295,10 @@ public:
     }
     void SetSpaceDimension (size_t spaceDimension);
     void SetQuadratic (bool quadratic);
-    vtkSmartPointer<vtkUnstructuredGrid> GetTetraGrid (
-	const BodySelector& bodySelector) const;
-    vtkSmartPointer<vtkUnstructuredGrid> SetCellScalar (
+    vtkSmartPointer<vtkUnstructuredGrid> GetTetraGrid () const;
+    vtkSmartPointer<vtkUnstructuredGrid> setCellAttributes (
 	vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
-	const BodySelector& bodySelector,
-	BodyProperty::Enum bodyProperty) const;
+	BodyAttribute::Enum attribute) const;
 
 
 public:
@@ -314,14 +312,12 @@ public:
 
 private:
     void getTetraPoints (
-	const BodySelector& bodySelector,
 	vtkSmartPointer<vtkPoints>* tetraPoints,
 	vector<boost::shared_ptr<Vertex> >* sortedPoints,
 	size_t* maxId,
 	size_t* gridSize) const;
     void createTetraCells (
 	vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
-	const BodySelector& bodySelector,
 	const vector<boost::shared_ptr<Vertex> >& sortedPoints,
 	size_t maxId) const;
     void setForcesOneObject (const ForcesOneObjectNames& names, ForcesOneObject* forces);
@@ -354,7 +350,7 @@ private:
      * @params high high point of the aabox for the foam (input/output)
      */
     void calculateBoundingBoxTorus (G3D::Vector3* low, G3D::Vector3* high);
-    void calculateMinMaxStatistics (BodyProperty::Enum property);
+    void calculateMinMaxStatistics (BodyScalar::Enum property);
 
     void unwrap (VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
     void unwrap (boost::shared_ptr<Edge> edge, VertexSet* vertexSet) const;
@@ -409,8 +405,8 @@ private:
     G3D::AABox m_boundingBox;
     G3D::AABox m_boundingBoxTorus;
 
-    double m_min[BodyProperty::COUNT];
-    double m_max[BodyProperty::COUNT];
+    double m_min[BodyScalar::COUNT];
+    double m_max[BodyScalar::COUNT];
     vector<HistogramStatistics> m_histogram;
     ObjectPosition m_dmpObjectPosition;
     vector<ForcesOneObject> m_forces;

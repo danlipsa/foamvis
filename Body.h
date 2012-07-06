@@ -14,7 +14,6 @@
 class AttributesInfo;
 class Edge;
 class Face;
-class FoamProperties;
 class OrientedFace;
 class OrientedEdge;
 class OOBox;
@@ -40,13 +39,12 @@ public:
      */
     Body(const vector<int>& faceIndexes,
 	 const vector< boost::shared_ptr<Face> >& faces,
-	 size_t id, const FoamProperties& foamParameters,
+	 size_t id,
 	 ElementStatus::Enum duplicateStatus = ElementStatus::ORIGINAL);
     /**
      * Creates a body for a constraint
      */
-    Body (boost::shared_ptr<Face> face, size_t id, 
-	  const FoamProperties& foamParameters);
+    Body (boost::shared_ptr<Face> face, size_t id);
 
     const vector<Neighbor>& GetNeighbors () const
     {
@@ -111,7 +109,14 @@ public:
 	GetEdgeSet (&set);
 	return set;
     }
-    double GetPropertyValue (BodyProperty::Enum property) const;
+    float GetScalarValue (BodyScalar::Enum property) const;
+    void GetAttributeValue (BodyAttribute::Enum attribute, float* value);
+    G3D::Vector3 GetVelocity () const
+    {
+	return m_velocity;
+    }
+
+
     void SetPressureValue (double value);
     void SetPressureDeduced ()
     {
@@ -125,16 +130,12 @@ public:
     {
 	m_actualVolumeDeduced = true;
     }
-    bool ExistsPropertyValue (BodyProperty::Enum property, 
+    bool ExistsPropertyValue (BodyScalar::Enum property, 
 			      bool* deduced = 0) const;
 
     bool operator< (const Body& other) const;
     bool operator< (size_t otherBodyId) const;
 
-    G3D::Vector3 GetVelocity () const
-    {
-	return m_velocity;
-    }
     void SetVelocity (const G3D::Vector3& velocity)
     {
 	m_velocity = velocity;
@@ -150,16 +151,32 @@ public:
 	return m_perimeterOverSqrtArea;
     }
     void CalculatePerimeterOverSqrtArea ();
-    static const char* GetAttributeKeywordString (BodyProperty::Enum bp);
+    static const char* GetAttributeKeywordString (BodyScalar::Enum bp);
     void CalculateNeighbors2D (const OOBox& originalDomain);
     void CalculateDeformationTensor (const OOBox& originalDomain);
-    float GetDeformationEigen () const;
+    G3D::Matrix3 GetDeformationTensor (
+	const G3D::Matrix3& additionalRotation) const;
+    void GetDeformationTensor (float value[6], 
+			       const G3D::Matrix3& additionalRotation)
+    {
+	G3D::Matrix3 m = GetDeformationTensor (additionalRotation);
+	memcpy (value, m, sizeof (value));
+    }
+
+
+    float GetDeformationEigenScalar () const;
     /**
      * The eigen values are sorted decreasing.
      */
     float GetDeformationEigenValue (size_t i) const
     {
 	return m_deformationEigenValues[i];
+    }
+    G3D::Vector3 GetDeformationEigenValues () const
+    {
+	return G3D::Vector3 (
+	    m_deformationEigenValues[0], m_deformationEigenValues[1], 
+	    m_deformationEigenValues[2]);
     }
     G3D::Vector3 GetDeformationEigenVector (size_t i) const
     {
@@ -210,7 +227,6 @@ private:
     bool m_targetVolumeDeduced;
     bool m_actualVolumeDeduced;
     bool m_constraint;
-    const FoamProperties& m_foamParameters;
 };
 
 /**

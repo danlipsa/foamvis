@@ -80,7 +80,7 @@ class PropertyValueBodySelector : public BodySelector
 public:
     typedef vector<QwtDoubleInterval> ValueIntervals;
 public:
-    PropertyValueBodySelector (BodyProperty::Enum property,
+    PropertyValueBodySelector (BodyScalar::Enum property,
 			       vector<QwtDoubleInterval> valueIntervals) :
 	m_property (property), m_valueIntervals (valueIntervals)
     {
@@ -99,7 +99,7 @@ public:
     string ToUserString () const;
 
 private:
-    BodyProperty::Enum m_property;
+    BodyScalar::Enum m_property;
     ValueIntervals m_valueIntervals;
 };
 

@@ -142,7 +142,7 @@ private:
 /**
  * Displays the center path for a certain body id
  *
- * @todo Use Simulation::GetBodyPropertyValue instead of
+ * @todo Use Simulation::GetBodyScalarValue instead of
  * StripIterator functions
  */
 template<typename PropertySetter = SetterTextureCoordinate,

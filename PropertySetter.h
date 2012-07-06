@@ -23,14 +23,14 @@ public:
 
     void operator () ();
     void operator () (const boost::shared_ptr<Body>& body);
-    int GetBodyOrFaceProperty () const;
+    int GetBodyOrFaceScalar () const;
     ViewNumber::Enum GetViewNumber () const
     {
 	return m_viewNumber;
     }
 
 protected:
-    G3D::Matrix2 getRotation () const;
+    G3D::Matrix3 getRotation () const;
 
 protected:
     const WidgetGl& m_widgetGl;
@@ -65,7 +65,7 @@ public:
 	SetterVertexAttribute (widgetGl, view, program, attributeIndex)
     {
     }
-    int GetBodyOrFaceProperty () const;
+    int GetBodyOrFaceScalar () const;
     void operator () ();
     void operator () (const boost::shared_ptr<Body>& body);
 };
@@ -80,7 +80,7 @@ public:
     {
     }
 
-    int GetBodyOrFaceProperty () const;
+    int GetBodyOrFaceScalar () const;
     void operator () ();
     void operator () (const boost::shared_ptr<Body>& body);
 };

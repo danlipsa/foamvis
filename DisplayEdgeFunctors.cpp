@@ -416,7 +416,7 @@ template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
 void DisplayEdgePropertyColor<tesselationEdgesDisplay>::
 operator () (const Edge& edge) const
 {
-    bool isPhysical = edge.IsPhysical (this->m_foam.GetProperties ());
+    bool isPhysical = edge.IsPhysical ();
     if (isPhysical || 
 	(tesselationEdgesDisplay == DISPLAY_TESSELLATION_EDGES &&
 	 m_widgetGl.EdgesTessellationShown () && 

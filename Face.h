@@ -15,7 +15,6 @@ class AttributesInfo;
 class Body;
 class ConstraintEdge;
 class Foam;
-class FoamProperties;
 class Edge;
 class OrientedEdge;
 class OOBox;
@@ -136,7 +135,7 @@ public:
     void CalculateCentroidAndArea ();
     void CalculatePerimeter ();
     QColor GetColor (const QColor& defaultColor) const;
-    size_t GetEdgesPerFace (const FoamProperties& foamParameters) const;
+    size_t GetEdgesPerFace () const;
     
 private:
     boost::shared_ptr<Face> createDuplicate (

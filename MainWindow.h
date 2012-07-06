@@ -54,7 +54,7 @@ public:
     void keyPressEvent (QKeyEvent* event);
 
 Q_SIGNALS:
-    void BodyOrFacePropertyChanged (
+    void BodyOrFaceScalarChanged (
 	ViewNumber::Enum viewNumber,
 	boost::shared_ptr<ColorBarModel> colorBarModel, size_t property);
     void ColorBarModelChanged (ViewNumber::Enum viewNumber, 
@@ -176,9 +176,9 @@ private:
     void configureInterfaceDataDependent (
 	const SimulationGroup& simulationGroup);
     void configureInterface ();
-    void setupColorBarModelBodyProperty (
+    void setupColorBarModelBodyScalar (
 	size_t simulationIndex, 
-	ViewNumber::Enum viewNumber, BodyProperty::Enum property);
+	ViewNumber::Enum viewNumber, BodyScalar::Enum property);
     void setupColorBarModelDomainHistogram (
 	size_t simulationIndex, ViewNumber::Enum viewNumber);
     void setupColorBarModelVelocityVector (
@@ -188,7 +188,7 @@ private:
 
     void setupColorBarModel (
 	boost::shared_ptr<ColorBarModel>& colorBarModel, 
-	BodyProperty::Enum property, size_t simulationIndex);
+	BodyScalar::Enum property, size_t simulationIndex);
     void setupColorBarModels (size_t simulationIndex, 
 			      ViewNumber::Enum viewNumber);
     void setupColorBarModels ();
@@ -202,7 +202,7 @@ private:
     void createActions ();
     void displayHistogramColorBar (bool checked);
     HistogramInfo getHistogramInfo (
-	ColorBarType::Enum colorBarType, size_t bodyOrFaceProperty) const;
+	ColorBarType::Enum colorBarType, size_t bodyOrFaceScalar) const;
     boost::shared_ptr<ColorBarModel> getColorBarModel () const;
     boost::shared_ptr<ColorBarModel> getColorBarModel (
 	size_t simulationIndex,
@@ -249,8 +249,8 @@ private:
     vector <
 	boost::array<
 	    boost::array<boost::shared_ptr<ColorBarModel>, 
-			 BodyProperty::COUNT>,
-	    ViewNumber::COUNT> > m_colorBarModelBodyProperty;
+			 BodyScalar::COUNT>,
+	    ViewNumber::COUNT> > m_colorBarModelBodyScalar;
     vector <
 	boost::array<boost::shared_ptr<ColorBarModel>, 
 		     ViewNumber::COUNT> > m_overlayBarModelVelocityVector;

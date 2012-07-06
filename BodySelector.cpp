@@ -54,7 +54,7 @@ bool PropertyValueBodySelector::operator () (
 {
     if (body->ExistsPropertyValue (m_property))
     {
-	double value = body->GetPropertyValue (m_property);
+	double value = body->GetScalarValue (m_property);
 	ValueIntervals::const_iterator it = find_if (
 	    m_valueIntervals.begin (), m_valueIntervals.end (),
 	    boost::bind (&QwtDoubleInterval::contains, _1, value));
@@ -67,7 +67,7 @@ bool PropertyValueBodySelector::operator () (
 string PropertyValueBodySelector::ToUserString () const
 {
     ostringstream ostr;
-    ostr << "Selection on " << BodyProperty::ToString (m_property) << endl
+    ostr << "Selection on " << BodyScalar::ToString (m_property) << endl
 	 << "Intervals: ";
     ostream_iterator<QwtDoubleInterval> ido (ostr, " ");
     copy (m_valueIntervals.begin (), m_valueIntervals.end (), ido);

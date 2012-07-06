@@ -76,12 +76,12 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
     operator () (of->GetFace ());
 }
 
-// DisplayFaceBodyPropertyColor
+// DisplayFaceBodyScalarColor
 // ======================================================================
 
 template<typename PropertySetter>
-DisplayFaceBodyPropertyColor<PropertySetter>::
-DisplayFaceBodyPropertyColor (
+DisplayFaceBodyScalarColor<PropertySetter>::
+DisplayFaceBodyScalarColor (
     const WidgetGl& widget,const Foam& foam,
     typename DisplayElement::FocusContext focus, ViewNumber::Enum view, 
     bool useZPos, double zPos) : 
@@ -94,8 +94,8 @@ DisplayFaceBodyPropertyColor (
 }
 
 template<typename PropertySetter>
-DisplayFaceBodyPropertyColor<PropertySetter>::
-DisplayFaceBodyPropertyColor (
+DisplayFaceBodyScalarColor<PropertySetter>::
+DisplayFaceBodyScalarColor (
     const WidgetGl& widget,const Foam& foam,
     PropertySetter propertySetter,
     typename DisplayElement::FocusContext focus,
@@ -109,7 +109,7 @@ DisplayFaceBodyPropertyColor (
 }
 
 template<typename PropertySetter>
-void DisplayFaceBodyPropertyColor<PropertySetter>::
+void DisplayFaceBodyScalarColor<PropertySetter>::
 operator () (const boost::shared_ptr<OrientedFace>& of)
 {
     glNormal (of->GetNormal ());
@@ -158,15 +158,15 @@ operator () (const boost::shared_ptr<OrientedFace>& of)
 
 
 template<typename PropertySetter>
-void DisplayFaceBodyPropertyColor<PropertySetter>::
+void DisplayFaceBodyScalarColor<PropertySetter>::
 setColorOrTexture (const boost::shared_ptr<OrientedFace>& of, 
 		   bool* useColor)
 {
     *useColor = true;
     if (this->m_focus == DisplayElement::FOCUS)
     {
-	if (this->m_propertySetter.GetBodyOrFaceProperty () == 
-	    FaceProperty::DMP_COLOR)
+	if (this->m_propertySetter.GetBodyOrFaceScalar () == 
+	    DisplayFaceScalar::DMP_COLOR)
 	{
 	    glColor (of->GetColor (
 			 this->m_widgetGl.GetHighlightColor (
@@ -177,8 +177,8 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 	else
 	{
 	    boost::shared_ptr<Body> body = of->GetAdjacentBody ().GetBody ();
-	    BodyProperty::Enum property = BodyProperty::FromSizeT (
-		this->m_propertySetter.GetBodyOrFaceProperty ());
+	    BodyScalar::Enum property = BodyScalar::FromSizeT (
+		this->m_propertySetter.GetBodyOrFaceScalar ());
 	    glColor (Qt::white);
 	    bool deduced;
 	    bool exists = body->ExistsPropertyValue (property, &deduced);
@@ -304,14 +304,14 @@ template class DisplayFaceHighlightColor<HighlightNumber::H0, DisplayFaceTriangl
 template class DisplayFaceHighlightColor<HighlightNumber::H1, DisplayFaceLineStrip, SetterTextureCoordinate>;
 
 
-// DisplayFaceBodyPropertyColor
+// DisplayFaceBodyScalarColor
 // ======================================================================
 
-template class DisplayFaceBodyPropertyColor<SetterTextureCoordinate>;
-template class DisplayFaceBodyPropertyColor<SetterVertexAttribute>;
-template class DisplayFaceBodyPropertyColor<SetterDeformation>;
-template class DisplayFaceBodyPropertyColor<SetterNop>;
-template class DisplayFaceBodyPropertyColor<SetterVelocity>;
+template class DisplayFaceBodyScalarColor<SetterTextureCoordinate>;
+template class DisplayFaceBodyScalarColor<SetterVertexAttribute>;
+template class DisplayFaceBodyScalarColor<SetterDeformation>;
+template class DisplayFaceBodyScalarColor<SetterNop>;
+template class DisplayFaceBodyScalarColor<SetterVelocity>;
 
 
 // DisplayFaceDmpColor

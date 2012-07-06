@@ -111,7 +111,7 @@ public:
     }
     size_t GetTimeSteps (ViewNumber::Enum viewNumber) const;
 
-    bool IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const;
+    bool IsMissingPropertyShown (BodyScalar::Enum bodyProperty) const;
 
     bool IsTimeDisplacementUsed () const;
 
@@ -208,12 +208,12 @@ public:
 	ViewNumber::Enum viewNumber, 
 	ViewingVolumeOperation::Enum enclose = 
 	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
-    size_t GetBodyOrFaceProperty () const
+    size_t GetBodyOrFaceScalar () const
     {
-	return GetBodyOrFaceProperty (GetViewNumber ());
+	return GetBodyOrFaceScalar (GetViewNumber ());
     }
 
-    size_t GetBodyOrFaceProperty (ViewNumber::Enum viewNumber) const;
+    size_t GetBodyOrFaceScalar (ViewNumber::Enum viewNumber) const;
 
     G3D::Rect2D GetViewRect (ViewNumber::Enum viewNumber) const;
     G3D::Rect2D GetViewRect () const
@@ -238,10 +238,7 @@ public:
     void ActivateViewShader (ViewNumber::Enum viewNumber,
 			     ViewingVolumeOperation::Enum enclose,
 			     G3D::Rect2D& srcRect) const;
-    float GetOnePixelInObjectSpace () const
-    {
-	return m_onePixelInObjectSpace;
-    }
+    float GetOnePixelInObjectSpace () const;
     float GetBubbleSize (ViewNumber::Enum viewNumber) const;
     float GetDeformationSizeInitialRatio (ViewNumber::Enum viewNumber) const;
     float GetVelocitySizeInitialRatio (ViewNumber::Enum viewNumber) const;
@@ -372,7 +369,7 @@ public Q_SLOTS:
     void ToggledVelocityColorMapped (bool checked);
     void ToggledContextBoxShown (bool checked);
 
-    void SetBodyOrFaceProperty (
+    void SetBodyOrFaceScalar (
 	ViewNumber::Enum viewNumber,
 	boost::shared_ptr<ColorBarModel> colorBarModel,
 	size_t property);
@@ -528,7 +525,6 @@ private:
     typedef void (WidgetGl::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
-    float calculateOnePixelInObjectSpace () const;
     void setSimulation (int i, ViewNumber::Enum viewNumber);
     void initTransformViewport ();
     void cleanupTransformViewport ();
@@ -792,7 +788,6 @@ private:
      */
     double m_edgeRadius;
     double m_edgeWidth;
-    float m_onePixelInObjectSpace;
     double m_edgeRadiusRatio;
     /**
      * For displaying arrows in the Torus Model edges

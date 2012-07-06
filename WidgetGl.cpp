@@ -179,7 +179,6 @@ WidgetGl::WidgetGl(QWidget *parent)
       m_interactionMode (InteractionMode::ROTATE),
       m_interactionObject (InteractionObject::FOCUS),
       m_simulationGroup (0), 
-      m_onePixelInObjectSpace (0),
       m_edgeRadiusRatio (0),
       m_edgesShown (true),
       m_edgesTessellationShown (false),
@@ -603,7 +602,7 @@ void WidgetGl::SetSimulationGroup (SimulationGroup* simulationGroup)
 }
 
 
-float WidgetGl::calculateOnePixelInObjectSpace () const
+float WidgetGl::GetOnePixelInObjectSpace () const
 {
     G3D::Vector3 first = toObject (QPoint (0, 0));
     G3D::Vector3 second = toObject (QPoint (1, 0));
@@ -637,7 +636,7 @@ float WidgetGl::GetVelocitySizeInitialRatio (
 {
     float cellLength = GetBubbleSize (viewNumber);
     float velocityMagnitude = 
-	GetSimulation (viewNumber).GetMax (BodyProperty::VELOCITY_MAGNITUDE);
+	GetSimulation (viewNumber).GetMax (BodyScalar::VELOCITY_MAGNITUDE);
     return cellLength / velocityMagnitude;
 }
 
@@ -1295,8 +1294,8 @@ string WidgetGl::infoSelectedBodies () const
 	ostr << "Selected ids: ";
 	ostream_iterator<size_t> out (ostr, " ");
 	copy (ids.begin (), ids.end (), out);
-	if (GetViewSettings ().GetBodyOrFaceProperty () != 
-	    FaceProperty::DMP_COLOR)
+	if (GetViewSettings ().GetBodyOrFaceScalar () != 
+	    DisplayFaceScalar::DMP_COLOR)
 	{
 	    ostr << endl;
 		
@@ -1403,7 +1402,6 @@ void WidgetGl::paintGL ()
 
 void WidgetGl::resizeGL(int w, int h)
 {
-    m_onePixelInObjectSpace = calculateOnePixelInObjectSpace ();
     (void)w;(void)h;
     for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
     {
@@ -2495,8 +2493,8 @@ pair<float, float> WidgetGl::GetRange (ViewNumber::Enum viewNumber) const
 	    return GetRangeCount (viewNumber);
 	else
 	{
-	    BodyProperty::Enum bodyProperty = 
-		BodyProperty::FromSizeT (vs.GetBodyOrFaceProperty ());
+	    BodyScalar::Enum bodyProperty = 
+		BodyScalar::FromSizeT (vs.GetBodyOrFaceScalar ());
 	    minValue = simulation.GetMin (bodyProperty);
 	    maxValue = simulation.GetMax (bodyProperty);
 	}
@@ -2513,7 +2511,7 @@ pair<float, float> WidgetGl::GetVelocityMagnitudeRange (
     ViewNumber::Enum viewNumber) const
 {
     const Simulation& simulation = GetSimulation (viewNumber);
-    BodyProperty::Enum bodyProperty = BodyProperty::VELOCITY_MAGNITUDE;
+    BodyScalar::Enum bodyProperty = BodyScalar::VELOCITY_MAGNITUDE;
     float minValue = simulation.GetMin (bodyProperty);
     float maxValue = simulation.GetMax (bodyProperty);
     return pair<float, float> (minValue, maxValue);
@@ -2876,7 +2874,7 @@ void WidgetGl::displayFacesInterior (
 	if (beginEnd[i].m_isContext)
 	    DisplayBodyBase<>::BeginContext ();
 	for_each (beginEnd[i].m_begin, beginEnd[i].m_end,
-		  DisplayBody<DisplayFaceBodyPropertyColor<> > (
+		  DisplayBody<DisplayFaceBodyScalarColor<> > (
 		      *this, foam, bodySelector, 
 		      DisplayElement::USER_DEFINED_CONTEXT, viewNumber));
 	if (beginEnd[i].m_isContext)
@@ -3079,7 +3077,7 @@ ColorBarType::Enum WidgetGl::GetColorBarType (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     ViewType::Enum viewType = vs.GetViewType ();
-    size_t property = vs.GetBodyOrFaceProperty ();
+    size_t property = vs.GetBodyOrFaceScalar ();
     ComputationType::Enum statisticsType = vs.GetComputationType ();
     return WidgetGl::GetColorBarType (viewType, property, statisticsType);
 }
@@ -3097,7 +3095,7 @@ ColorBarType::Enum WidgetGl::GetColorBarType (
 	if (statisticsType == ComputationType::COUNT)
 	    return ColorBarType::STATISTICS_COUNT;
     case ViewType::FACES:
-	if (property == FaceProperty::DMP_COLOR)
+	if (property == DisplayFaceScalar::DMP_COLOR)
 	    return ColorBarType::NONE;
     case ViewType::CENTER_PATHS:
 	return ColorBarType::PROPERTY;
@@ -3225,14 +3223,14 @@ void WidgetGl::contextMenuEventColorBar (QMenu* menu) const
     QMenu* menuCopy = menu->addMenu ("Copy");
     if (ViewCount::GetCount (m_viewCount) > 1)
     {
-	size_t currentProperty = vs.GetBodyOrFaceProperty ();
+	size_t currentProperty = vs.GetBodyOrFaceScalar ();
 	for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
 	{
 	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	    const ViewSettings& otherVs = GetViewSettings (viewNumber);
 	    if (viewNumber == m_viewNumber ||
 		GetColorBarType (m_viewNumber) != GetColorBarType (viewNumber) ||
-		currentProperty != otherVs.GetBodyOrFaceProperty () ||
+		currentProperty != otherVs.GetBodyOrFaceScalar () ||
 		vs.GetSimulationIndex () != otherVs.GetSimulationIndex ())
 		continue;
 	    menuCopy->addAction (m_actionCopyColorMap[i].get ());
@@ -3380,7 +3378,7 @@ void WidgetGl::displayViewTitle (ViewNumber::Enum viewNumber)
     ViewSettings& vs = GetViewSettings (viewNumber);
     ostr << "View " << viewNumber << " - "
 	 << ViewType::ToString (vs.GetViewType ()) << " - "
-	 << BodyOrFacePropertyToString (vs.GetBodyOrFaceProperty ()) << " - "
+	 << BodyOrFaceScalarToString (vs.GetBodyOrFaceScalar ()) << " - "
 	 << vs.GetCurrentTime ();    
     displayViewText (viewNumber, GetSimulation (viewNumber).GetName (), 0);
     displayViewText (viewNumber, ostr.str (), 1);
@@ -3403,9 +3401,9 @@ void WidgetGl::displayViewText (
 
 
 
-size_t WidgetGl::GetBodyOrFaceProperty (ViewNumber::Enum viewNumber) const
+size_t WidgetGl::GetBodyOrFaceScalar (ViewNumber::Enum viewNumber) const
 {
-    return GetViewSettings (viewNumber).GetBodyOrFaceProperty ();
+    return GetViewSettings (viewNumber).GetBodyOrFaceScalar ();
 }
 
 
@@ -3541,18 +3539,18 @@ bool WidgetGl::IsTimeDisplacementUsed () const
     return GetTimeDisplacement () > 0;
 }
 
-bool WidgetGl::IsMissingPropertyShown (BodyProperty::Enum bodyProperty) const
+bool WidgetGl::IsMissingPropertyShown (BodyScalar::Enum bodyProperty) const
 {
     switch (bodyProperty)
     {
-    case BodyProperty::PRESSURE:
+    case BodyScalar::PRESSURE:
 	return m_missingPressureShown;
-    case BodyProperty::TARGET_VOLUME:
-    case BodyProperty::ACTUAL_VOLUME:
+    case BodyScalar::TARGET_VOLUME:
+    case BodyScalar::ACTUAL_VOLUME:
 	return m_missingVolumeShown;
-    case BodyProperty::VELOCITY_X:
-    case BodyProperty::VELOCITY_Y:
-    case BodyProperty::VELOCITY_MAGNITUDE:
+    case BodyScalar::VELOCITY_X:
+    case BodyScalar::VELOCITY_Y:
+    case BodyScalar::VELOCITY_MAGNITUDE:
 	return m_objectVelocityShown;
     default:
 	return true;
@@ -4427,16 +4425,16 @@ void WidgetGl::CurrentIndexChangedAxesOrder (int index)
     GetViewSettings ().SetAxesOrder (AxesOrder::Enum(index));
 }
 
-// @todo add a color bar model for BodyProperty::None
-void WidgetGl::SetBodyOrFaceProperty (
+// @todo add a color bar model for BodyScalar::None
+void WidgetGl::SetBodyOrFaceScalar (
     ViewNumber::Enum viewNumber,
     boost::shared_ptr<ColorBarModel> colorBarModel,
-    size_t bodyOrFaceProperty)
+    size_t bodyOrFaceScalar)
 {
     makeCurrent ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    vs.SetBodyOrFaceProperty (bodyOrFaceProperty);
-    if (vs.GetBodyOrFaceProperty () != FaceProperty::DMP_COLOR)
+    vs.SetBodyOrFaceScalar (bodyOrFaceScalar);
+    if (vs.GetBodyOrFaceScalar () != DisplayFaceScalar::DMP_COLOR)
 	vs.SetColorBarModel (colorBarModel);
     else
 	vs.ResetColorBarModel ();

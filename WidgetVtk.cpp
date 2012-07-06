@@ -53,7 +53,7 @@ void WidgetVtk::UpdateColorTransferFunction (
 void WidgetVtk::UpdateRenderStructured (
     const Foam& foam, const BodySelector& bodySelector,
     vtkSmartPointer<vtkMatrix4x4> modelView,
-    BodyProperty::Enum bodyProperty)
+    BodyScalar::Enum bodyProperty)
 {
     vtkSmartPointer<MeasureTimeVtk> measureTime (new MeasureTimeVtk ());
     vtkSmartPointer<SendPaintEnd> sendPaint (new SendPaintEnd (this));
@@ -64,9 +64,7 @@ void WidgetVtk::UpdateRenderStructured (
     //     
     // vtkDatasetMapper->vtkActor->vtkRenderer
     //       X               X
-    vtkSmartPointer<vtkUnstructuredGrid> tetraFoamCell = 
-	foam.SetCellScalar (foam.GetTetraGrid (bodySelector), bodySelector, 
-			    bodyProperty);
+    vtkSmartPointer<vtkUnstructuredGrid> tetraFoamCell = foam.GetTetraGrid ();
 
     VTK_CREATE (vtkCellDataToPointData, cellToPoint);
     cellToPoint->SetInput (tetraFoamCell);

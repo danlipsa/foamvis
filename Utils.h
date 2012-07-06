@@ -84,6 +84,7 @@ int polyCentroid2D(T x[], T y[], size_t n,
 		 T* xCentroid, T* yCentroid, T* area);
 void Matrix2SetColumn (G3D::Matrix2* m, size_t i, const G3D::Vector2& v);
 template <typename M> G3D::Matrix2 ToMatrix2 (const M& m);
+G3D::Matrix3 ToMatrix3 (const G3D::Matrix4& m);
 G3D::Matrix2 MatrixFromColumns (
     const G3D::Vector2& col1, const G3D::Vector2& col2);
 G3D::Matrix3 MatrixFromColumns (

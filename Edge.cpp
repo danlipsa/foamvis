@@ -184,9 +184,9 @@ string Edge::AdjacentFacesToString () const
     return ostr.str ();
 }
 
-bool Edge::IsPhysical (const FoamProperties& foamParameters) const
+bool Edge::IsPhysical () const
 {
-    if (foamParameters.Is2D ())
+    if (FOAM_PROPERTIES.Is2D ())
     {
 	return true;
     }

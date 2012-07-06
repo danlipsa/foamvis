@@ -41,6 +41,15 @@ G3D::Matrix2 ToMatrix2 (const M& matrix)
     return m2;
 }
 
+G3D::Matrix3 ToMatrix3 (const G3D::Matrix4& other)
+{
+    G3D::Matrix3 m;
+    for (size_t i = 0; i < 3; ++i)
+	m.setColumn (i, other.column (i).xyz ());
+    return m;
+}
+
+
 G3D::Matrix2 MatrixFromColumns (
     const G3D::Vector2& col0, const G3D::Vector2& col1)
 {

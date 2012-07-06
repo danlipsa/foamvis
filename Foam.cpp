@@ -26,6 +26,14 @@
 // Private Functions
 // ======================================================================
 
+struct AttributeDescription
+{
+    boost::function<void (Foam*)> m_getter;
+    const char* m_name;
+    size_t m_size;
+};
+
+
 template<typename Element>
 void copyStandalone (const vector< boost::shared_ptr<Element> >& source,
 		     vector< boost::shared_ptr<Element> >* destination)
@@ -86,7 +94,7 @@ Foam::Foam (bool useOriginal,
     m_parsingData (new ParsingData (
 		       useOriginal, dmpObjectInfo, forcesNames)),
     m_histogram (
-	BodyProperty::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
+	BodyScalar::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
     m_properties (foamParameters),
     m_parametersOperation (paramsOp)
 {
@@ -100,22 +108,22 @@ Foam::Foam (bool useOriginal,
 
 template <typename Accumulator>
 void Foam::AccumulateProperty (Accumulator* acc, 
-			       BodyProperty::Enum property) const
+			       BodyScalar::Enum property) const
 {
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
     {
 	if (body->ExistsPropertyValue (property))
-	    (*acc) (body->GetPropertyValue (property));
+	    (*acc) (body->GetScalarValue (property));
     }
 }
 
-template <typename Accumulator, typename GetBodyProperty>
-void Foam::Accumulate (Accumulator* acc, GetBodyProperty getBodyProperty) const
+template <typename Accumulator, typename GetBodyScalar>
+void Foam::Accumulate (Accumulator* acc, GetBodyScalar getBodyScalar) const
 {
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
     {
 	if (! body->IsConstraint ())
-	    (*acc) (getBodyProperty (body));
+	    (*acc) (getBodyScalar (body));
     }
 }
 
@@ -126,7 +134,7 @@ void Foam::AddDefaultBodyAttributes ()
     AttributesInfo* infos = &m_attributesInfo[DefineAttribute::BODY];
 
     // the order of the attributes should match the order in
-    // BodyProperty::Enum
+    // BodyScalar::Enum
     boost::shared_ptr<AttributeCreator> ac;
 
     ac.reset (new RealAttributeCreator ());
@@ -251,7 +259,7 @@ void Foam::SetBody (size_t i, vector<int>& faces,
 {
     resizeAllowIndex (&m_bodies, i);
     boost::shared_ptr<Body> body = boost::make_shared<Body> (
-	faces, GetParsingData ().GetFaces (), i, m_properties);
+	faces, GetParsingData ().GetFaces (), i);
     if (&attributes != 0)
         body->StoreAttributes (attributes,
 			       m_attributesInfo[DefineAttribute::BODY]);
@@ -660,23 +668,23 @@ void Foam::setMissingVolume ()
 	BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
 	{
 	    double area = body->GetOrientedFace (0).GetArea ();
-	    if (! body->ExistsPropertyValue (BodyProperty::TARGET_VOLUME))
+	    if (! body->ExistsPropertyValue (BodyScalar::TARGET_VOLUME))
 	    {
 		body->SetTargetVolumeDeduced ();
-		StoreAttribute (body.get (), BodyProperty::TARGET_VOLUME, area);
+		StoreAttribute (body.get (), BodyScalar::TARGET_VOLUME, area);
 	    }
 	    /*
 	    else
 	    {
 		cdbg << "area: " << area 
-		     << body->GetPropertyValue (BodyProperty::TARGET_VOLUME) 
+		     << body->GetScalarValue (BodyScalar::TARGET_VOLUME) 
 		     << endl;
 	    }
 	    */
-	    if (! body->ExistsPropertyValue (BodyProperty::ACTUAL_VOLUME))
+	    if (! body->ExistsPropertyValue (BodyScalar::ACTUAL_VOLUME))
 	    {
 		body->SetActualVolumeDeduced ();
-		StoreAttribute (body.get (), BodyProperty::ACTUAL_VOLUME, area);
+		StoreAttribute (body.get (), BodyScalar::ACTUAL_VOLUME, area);
 	    }
 	}
     }
@@ -687,9 +695,9 @@ void Foam::setMissingPressureZero ()
     using EvolverData::parser;
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
-	if (! body->ExistsPropertyValue (BodyProperty::PRESSURE))
+	if (! body->ExistsPropertyValue (BodyScalar::PRESSURE))
 	{
-	    StoreAttribute (body.get (), BodyProperty::PRESSURE, 0);
+	    StoreAttribute (body.get (), BodyScalar::PRESSURE, 0);
 	    body->SetPressureDeduced ();
 	}
     }
@@ -699,24 +707,24 @@ void Foam::AdjustPressure (double adjustment)
 {
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
-	if (body->ExistsPropertyValue (BodyProperty::PRESSURE))
+	if (body->ExistsPropertyValue (BodyScalar::PRESSURE))
 	{
 	    double newPressure =
-		body->GetPropertyValue (BodyProperty::PRESSURE) - adjustment;
+		body->GetScalarValue (BodyScalar::PRESSURE) - adjustment;
 	    body->SetPressureValue (newPressure);
 	}
     }
-    m_min[BodyProperty::PRESSURE] -= adjustment;
-    m_max[BodyProperty::PRESSURE] -= adjustment;
+    m_min[BodyScalar::PRESSURE] -= adjustment;
+    m_max[BodyScalar::PRESSURE] -= adjustment;
 }
 
-double Foam::CalculateMedian (BodyProperty::Enum property)
+double Foam::CalculateMedian (BodyScalar::Enum property)
 {
     MedianStatistics median;
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
 	if (body->ExistsPropertyValue (property))
-	    median (body->GetPropertyValue (property));
+	    median (body->GetScalarValue (property));
     }
     return acc::median (median);
 }
@@ -839,28 +847,28 @@ void Foam::SetViewMatrix (
 
 void Foam::CalculateMinMaxStatistics ()
 {
-    for (size_t i = BodyProperty::PROPERTY_BEGIN;
-	 i < BodyProperty::COUNT; ++i)
+    for (size_t i = BodyScalar::PROPERTY_BEGIN;
+	 i < BodyScalar::COUNT; ++i)
     {
 	// statistics for all time-steps
-	BodyProperty::Enum property = BodyProperty::FromSizeT (i);
+	BodyScalar::Enum property = BodyScalar::FromSizeT (i);
 	calculateMinMaxStatistics (property);
     }
 }
 
-void Foam::calculateMinMaxStatistics (BodyProperty::Enum property)
+void Foam::calculateMinMaxStatistics (BodyScalar::Enum property)
 {
     MinMaxStatistics minMax;
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
 	if (body->ExistsPropertyValue (property))
-	    minMax (body->GetPropertyValue (property));
+	    minMax (body->GetScalarValue (property));
     }
     m_min[property] = acc::min (minMax);
     m_max[property] = acc::max (minMax);
 }
 
-void Foam::CalculateHistogramStatistics (BodyProperty::Enum property,
+void Foam::CalculateHistogramStatistics (BodyScalar::Enum property,
 					 double min, double max)
 {
     m_histogram[property](min);
@@ -868,17 +876,17 @@ void Foam::CalculateHistogramStatistics (BodyProperty::Enum property,
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
 	if (body->ExistsPropertyValue (property))
-	    m_histogram[property] (body->GetPropertyValue (property));
+	    m_histogram[property] (body->GetScalarValue (property));
     }
 }
 
 bool Foam::ExistsBodyWithValueIn (
-    BodyProperty::Enum property, const QwtDoubleInterval& interval) const
+    BodyScalar::Enum property, const QwtDoubleInterval& interval) const
 {
     Foam::Bodies::const_iterator it = find_if
 	(m_bodies.begin (), m_bodies.end (),
 	 boost::bind (&QwtDoubleInterval::contains, interval, 
-		      boost::bind (&Body::GetPropertyValue, _1, property)));
+		      boost::bind (&Body::GetScalarValue, _1, property)));
     return it != m_bodies.end ();
 }
 
@@ -936,7 +944,7 @@ void Foam::setForcesOneObject (const ForcesOneObjectNames& names,
 }
 
 void Foam::StoreAttribute (
-    Body* body, BodyProperty::Enum bp, double value)
+    Body* body, BodyScalar::Enum bp, double value)
 {
     body->StoreAttribute (Body::GetAttributeKeywordString(bp), value,
 			  m_attributesInfo[DefineAttribute::BODY]);
@@ -972,8 +980,7 @@ void Foam::CreateConstraintBody (size_t constraint)
     EdgeSet edgeSet = GetEdgeSet ();
     unwrap (face, &vertexSet, &edgeSet);
     size_t lastBodyId = GetLastBodyId ();
-    boost::shared_ptr<Body> body (new Body (face,  lastBodyId + 1, 
-					    m_properties));
+    boost::shared_ptr<Body> body (new Body (face,  lastBodyId + 1));
     body->UpdateAdjacentBody (body);
     body->CalculateCenter ();
     m_bodies.push_back (body);
@@ -1023,7 +1030,6 @@ void Foam::SetTorusDomain (const G3D::Vector3& x, const G3D::Vector3& y)
 }
 
 void Foam::getTetraPoints (
-    const BodySelector& bodySelector,
     vtkSmartPointer<vtkPoints>* tetraPoints,
     vector<boost::shared_ptr<Vertex> >* sortedPoints,
     size_t* maxId,
@@ -1036,14 +1042,11 @@ void Foam::getTetraPoints (
     vtkIdType bodyIndex = 0;
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
     {
-	if (bodySelector (body))
-	{
-	    numberOfCells += body->GetOrientedFaces ().size ();
-	    vertexSet.insert (
-		boost::shared_ptr<Vertex> (new Vertex (body->GetCenter (), 
+	numberOfCells += body->GetOrientedFaces ().size ();
+	vertexSet.insert (
+	    boost::shared_ptr<Vertex> (new Vertex (body->GetCenter (), 
 						   *maxId + bodyIndex + 1)));
-	    ++bodyIndex;
-	}
+	++bodyIndex;
     }
     sortedPoints->resize(vertexSet.size ());
     copy (vertexSet.begin (), vertexSet.end (), sortedPoints->begin ());
@@ -1059,10 +1062,44 @@ void Foam::getTetraPoints (
 
     mt.EndInterval ("getTetraPoints");
 }
-    
+
+vtkSmartPointer<vtkUnstructuredGrid> Foam::setCellAttributes (
+    vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
+    BodyAttribute::Enum attribute) const
+{
+    MeasureTime mt;
+    vtkIdType numberOfCells = aTetraGrid->GetNumberOfCells ();
+    VTK_CREATE(vtkFloatArray, attributes);
+    attributes->SetNumberOfComponents (
+	BodyAttribute::GetNumberOfComponents (attribute));
+    attributes->SetNumberOfTuples (numberOfCells);
+    attributes->SetName (BodyAttribute::ToString (attribute));
+    vtkIdType faceIndex = 0;
+    BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
+    {
+	float value[6];
+	body->GetAttributeValue (attribute, value);
+	BOOST_FOREACH (const boost::shared_ptr<OrientedFace>& of, 
+		       body->GetOrientedFaces ())
+	{
+	    (void)of;
+	    attributes->SetTuple (faceIndex, value);
+	    ++faceIndex;
+	}
+    }
+    if (BodyAttribute::IsScalar (attribute))
+	aTetraGrid->GetCellData ()->SetScalars (attributes);
+    else if (BodyAttribute::IsVector (attribute))
+	aTetraGrid->GetCellData ()->SetVectors (attributes);
+    else if (BodyAttribute::IsTensor (attribute))
+	aTetraGrid->GetCellData ()->SetTensors (attributes);
+    mt.EndInterval ("SetCellScalar");
+    return aTetraGrid;
+}
+
+
 void Foam::createTetraCells (
     vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid, 
-    const BodySelector& bodySelector,
     const vector<boost::shared_ptr<Vertex> >& sortedPoints,
     size_t maxPointId) const
 {
@@ -1071,41 +1108,36 @@ void Foam::createTetraCells (
     vtkIdType bodyIndex = 0;
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
     {
-	if (bodySelector (body))
+	boost::shared_ptr<Vertex> center (
+	    new Vertex (body->GetCenter (), maxPointId + bodyIndex + 1));
+	size_t centerIndex = pointIndex (sortedPoints, center);
+	BOOST_FOREACH (const boost::shared_ptr<OrientedFace>& of, 
+		       body->GetOrientedFaces ())
 	{
-	    boost::shared_ptr<Vertex> center (
-		new Vertex (body->GetCenter (), maxPointId + bodyIndex + 1));
-	    size_t centerIndex = pointIndex (sortedPoints, center);
-	    BOOST_FOREACH (const boost::shared_ptr<OrientedFace>& of, 
-			   body->GetOrientedFaces ())
+	    VTK_CREATE(vtkTetra, aTetra);
+	    for (size_t i = 0; i < 3; i++)
 	    {
-		VTK_CREATE(vtkTetra, aTetra);
-		for (size_t i = 0; i < 3; i++)
-		{
-		    boost::shared_ptr<Vertex> point = of->GetBeginVertex (i);
-		    size_t pi = pointIndex (sortedPoints, point);
-		    aTetra->GetPointIds ()->SetId (i, pi);
-		}
-		aTetra->GetPointIds()->SetId(3, centerIndex);
-		aTetraGrid->InsertNextCell(aTetra->GetCellType(), 
-					   aTetra->GetPointIds());
+		boost::shared_ptr<Vertex> point = of->GetBeginVertex (i);
+		size_t pi = pointIndex (sortedPoints, point);
+		aTetra->GetPointIds ()->SetId (i, pi);
 	    }
-	    ++bodyIndex;
+	    aTetra->GetPointIds()->SetId(3, centerIndex);
+	    aTetraGrid->InsertNextCell(aTetra->GetCellType(), 
+				       aTetra->GetPointIds());
 	}
+	++bodyIndex;
     }
     mt.EndInterval ("createTetraCells");
 }
 
 
-vtkSmartPointer<vtkUnstructuredGrid> Foam::GetTetraGrid (
-    const BodySelector& bodySelector) const
+vtkSmartPointer<vtkUnstructuredGrid> Foam::GetTetraGrid () const
 {
     // create the points    
     vtkSmartPointer<vtkPoints> tetraPoints;
     vector<boost::shared_ptr<Vertex> > sortedPoints;
     size_t maxPointId, numberOfCells;
-    getTetraPoints (bodySelector,
-		    &tetraPoints, &sortedPoints, &maxPointId, &numberOfCells);
+    getTetraPoints (&tetraPoints, &sortedPoints, &maxPointId, &numberOfCells);
 
     // create the unstructured grid
     VTK_CREATE (vtkUnstructuredGrid, aTetraGrid);
@@ -1113,38 +1145,10 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::GetTetraGrid (
     aTetraGrid->SetPoints(tetraPoints);
     
     // create the cells
-    createTetraCells (aTetraGrid, bodySelector, sortedPoints, maxPointId);
+    createTetraCells (aTetraGrid, sortedPoints, maxPointId);
     return aTetraGrid;
 }
 
-vtkSmartPointer<vtkUnstructuredGrid> Foam::SetCellScalar (
-    vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
-    const BodySelector& bodySelector,
-    BodyProperty::Enum bodyProperty) const
-{
-    MeasureTime mt;
-    vtkIdType numberOfCells = aTetraGrid->GetNumberOfCells ();
-    VTK_CREATE(vtkFloatArray, scalars);
-    scalars->SetNumberOfValues (numberOfCells);
-    vtkIdType faceIndex = 0;
-    BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
-    {
-	if (bodySelector (body))
-	{
-	    float propertyValue = body->GetPropertyValue (bodyProperty);
-	    BOOST_FOREACH (const boost::shared_ptr<OrientedFace>& of, 
-			   body->GetOrientedFaces ())
-	    {
-		(void)of;
-		scalars->SetValue (faceIndex, propertyValue);
-		++faceIndex;
-	    }
-	}
-    }
-    aTetraGrid->GetCellData ()->SetScalars (scalars);
-    mt.EndInterval ("SetCellScalar");
-    return aTetraGrid;
-}
 
 
 // Static and Friends Methods
@@ -1174,9 +1178,9 @@ ostream& operator<< (ostream& ostr, const Foam& d)
 // ======================================================================
 /// @cond
 template void Foam::AccumulateProperty<HistogramStatistics> (
-    HistogramStatistics* acc, BodyProperty::Enum property) const;
+    HistogramStatistics* acc, BodyScalar::Enum property) const;
 template void Foam::AccumulateProperty<MinMaxStatistics> (
-    MinMaxStatistics* acc, BodyProperty::Enum property) const;
+    MinMaxStatistics* acc, BodyScalar::Enum property) const;
 
 template void Foam::Accumulate<
     MinMaxStatistics, 

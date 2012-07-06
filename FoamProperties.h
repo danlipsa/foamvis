@@ -16,10 +16,6 @@ public:
     {
     }
 
-    void SetSpaceDimension (size_t spaceDimension) 
-    {
-	m_spaceDimension = spaceDimension;
-    }
     size_t GetSpaceDimension () const
     {
 	return m_spaceDimension;
@@ -40,6 +36,11 @@ public:
     {
 	m_quadratic = quadratic;
     }
+    void SetSpaceDimension (size_t spaceDimension) 
+    {
+	m_spaceDimension = spaceDimension;
+    }
+
 
     bool operator== (const FoamProperties& other)
     {
@@ -57,7 +58,7 @@ private:
     bool m_quadratic;
 };
 
-
+extern FoamProperties FOAM_PROPERTIES;
 
 #endif //__FOAM_PROPERTIES_H__
 

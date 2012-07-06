@@ -11,7 +11,6 @@
 #include "AdjacentOrientedFace.h"
 class AttributesInfo;
 class Foam;
-class FoamProperties;
 class OOBox;
 class OrientedFace;
 class Vertex;
@@ -92,7 +91,7 @@ public:
      * In quadradic model all edges are physical
      * @return true if this is a physical edge, false otherwise
      */
-    bool IsPhysical (const FoamProperties& foamParameters) const;
+    bool IsPhysical () const;
 
     /**
      * Adds a face touched by this edge

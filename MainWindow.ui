@@ -1529,7 +1529,7 @@
                      </item>
                      <item>
                       <property name="text">
-                       <string>Number of sides</string>
+                       <string>Sides per bubble</string>
                       </property>
                      </item>
                      <item>

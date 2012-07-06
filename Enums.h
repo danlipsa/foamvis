@@ -89,9 +89,9 @@ struct AttributeType
 
 
 /**
- * Body attributes.
+ * Body scalars.
  */
-class BodyProperty
+class BodyScalar
 {
 public:
     enum Enum
@@ -101,10 +101,10 @@ public:
 	VELOCITY_Y,
 	VELOCITY_Z,
 	VELOCITY_MAGNITUDE,
-	SIDES_PER_BODY, // faces per body for 3D, edges per face for 2D
-	DEFORMATION_P_OVER_SQRTA,
-	DEFORMATION_EIGEN,
-
+	SIDES_PER_BUBBLE, // edges per face for 2D, faces per body for 3D
+	DEFORMATION_SIMPLE, // P / sqrt (A) for 2D, A / V^(2/3) for 3D
+	DEFORMATION_EIGEN,  // l - l_min / l_max where (l_i are the eigen values
+	                    // for the deformation tensor
 	PRESSURE,
 	    DMP_BEGIN = PRESSURE,
 	TARGET_VOLUME,
@@ -112,24 +112,69 @@ public:
 	COUNT
     };
 public:
-    static const char* ToString (BodyProperty::Enum property);
+    static const char* ToString (BodyScalar::Enum property);
     static Enum FromSizeT (size_t i);
+    static void Set3D ();
+
+private:
+    static boost::array<const char*, COUNT> NAME2D;
+    static boost::array<const char*,COUNT> NAME3D;
+    static boost::array<const char*, COUNT>* NAME;
 };
 
-class FaceProperty
+class DisplayFaceScalar
 {
 public:
     enum Enum
     {
-	DMP_COLOR = BodyProperty::COUNT,
+	DMP_COLOR = BodyScalar::COUNT,
 	COUNT
     };
 public:
-    static const char* ToString (FaceProperty::Enum property);
+    static const char* ToString (DisplayFaceScalar::Enum property);
     static Enum FromSizeT (size_t i);
 };
 
-const char* BodyOrFacePropertyToString (size_t property);
+
+struct BodyAttribute
+{
+    enum Enum
+    {
+	SIDES_PER_BUBBLE,
+	PRESSURE,
+	TARGET_VOLUME,
+	ACTUAL_VOLUME,
+	VELOCITY,
+	DEFORMATION,
+	COUNT
+    };
+    static const char* ToString (BodyAttribute::Enum attribute);
+    static size_t GetNumberOfComponents (BodyAttribute::Enum attribute);
+    static bool IsScalar (BodyAttribute::Enum attribute)
+    {
+	return GetNumberOfComponents (attribute) == 1;
+    }
+    static bool IsVector (BodyAttribute::Enum attribute)
+    {
+	return GetNumberOfComponents (attribute) == 3;
+    }
+    static bool IsTensor (BodyAttribute::Enum attribute)
+    {
+	return GetNumberOfComponents (attribute) == 6;
+    }
+    static BodyScalar::Enum ToBodyScalar (
+	BodyAttribute::Enum attribute);
+private:
+    struct Info
+    {
+	Enum m_attribute;
+	const char* m_name;
+	size_t m_numberOfComponents;
+    };
+    static boost::array<Info, COUNT> INFO;
+};
+
+const char* BodyOrFaceScalarToString (size_t property);
 
 class HistogramType
 {
@@ -443,6 +488,7 @@ struct TimeLinkage
 	LINKED,
     };
 };
+
 
 
 

@@ -413,12 +413,12 @@ QColor Face::GetColor (const QColor& defaultColor) const
 	return defaultColor;
 }
 
-size_t Face::GetEdgesPerFace (const FoamProperties& foamParameters) const
+size_t Face::GetEdgesPerFace () const
 {
     size_t count = 0;
     BOOST_FOREACH (boost::shared_ptr<OrientedEdge> oe, GetOrientedEdges ())
     {
-	if (oe->GetBegin ().IsPhysical (foamParameters))
+	if (oe->GetBegin ().IsPhysical ())
 	    ++count;
     }
     return count;

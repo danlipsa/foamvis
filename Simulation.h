@@ -89,12 +89,12 @@ public:
 	return m_histogram[property];
     }
 
-    double GetMin (BodyProperty::Enum property) const
+    double GetMin (BodyScalar::Enum property) const
     {
 	return acc::min (GetHistogram (property));
     }
 
-    double GetMax (BodyProperty::Enum property) const
+    double GetMax (BodyScalar::Enum property) const
     {
 	return acc::max (GetHistogram (property));
     }
@@ -102,7 +102,7 @@ public:
     {
 	return m_maxDeformationEigenValue;
     }
-    QwtDoubleInterval GetRange (BodyProperty::Enum property) const
+    QwtDoubleInterval GetRange (BodyScalar::Enum property) const
     {
 	return QwtDoubleInterval (GetMin (property), GetMax (property));
     }
@@ -112,7 +112,7 @@ public:
      * For the histogram associated with each foam this is the maximum of 
      * GetMaxCountPerBin for all foams.
      */
-    size_t GetMaxCountPerBinIndividual (BodyProperty::Enum property) const;
+    size_t GetMaxCountPerBinIndividual (BodyScalar::Enum property) const;
 
     size_t GetTimeSteps () const
     {
@@ -123,11 +123,11 @@ public:
      * valueIntervals.
      */
     void GetTimeStepSelection (
-	BodyProperty::Enum property,
+	BodyScalar::Enum property,
 	const vector<QwtDoubleInterval>& valueIntervals,
 	vector<bool>* timeStepSelection) const;
     void GetTimeStepSelection (
-	BodyProperty::Enum property,
+	BodyScalar::Enum property,
 	const QwtDoubleInterval& valueInterval,
 	vector<bool>* timeStepSelection) const;
 
@@ -202,7 +202,7 @@ public:
 		    bool debugParsing, bool debugScanning);
     FoamProperties* GetFoamProperties ()
     {
-	return &m_foamParameters;
+	return &m_foamProperties;
     }
     int GetRotation2D () const
     {
@@ -241,10 +241,10 @@ private:
     
     template <typename Accumulator>
     void forAllBodiesAccumulateProperty (
-	Accumulator* acc, BodyProperty::Enum property);
-    template <typename Accumulator, typename GetBodyProperty>
+	Accumulator* acc, BodyScalar::Enum property);
+    template <typename Accumulator, typename GetBodyScalar>
     void forAllBodiesAccumulate (
-	Accumulator* acc, GetBodyProperty getBodyProperty);
+	Accumulator* acc, GetBodyScalar getBodyScalar);
 
 
 private:
@@ -256,7 +256,7 @@ private:
      */
     Foams m_foams;
     BodiesAlongTime m_bodiesAlongTime;
-    FoamProperties m_foamParameters;
+    FoamProperties m_foamProperties;
     /**
      * The AABox for this vector of Foam objects
      */

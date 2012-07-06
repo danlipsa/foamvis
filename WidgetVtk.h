@@ -30,7 +30,7 @@ public:
     void UpdateRenderStructured (
 	const Foam& foam, const BodySelector& bodySelector,
 	vtkSmartPointer<vtkMatrix4x4> modelView,
-	BodyProperty::Enum bodyProperty);
+	BodyScalar::Enum bodyProperty);
 
 public:
     QSize sizeHint ()

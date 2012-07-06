@@ -48,13 +48,13 @@ public:
 	m_viewType = viewType;
     }
 
-    size_t GetBodyOrFaceProperty () const
+    size_t GetBodyOrFaceScalar () const
     {
-	return m_bodyOrFaceProperty;
+	return m_bodyOrFaceScalar;
     }
-    void SetBodyOrFaceProperty (size_t bodyOrFaceProperty)
+    void SetBodyOrFaceScalar (size_t bodyOrFaceScalar)
     {
-	m_bodyOrFaceProperty = bodyOrFaceProperty;
+	m_bodyOrFaceScalar = bodyOrFaceScalar;
     }
 
     ScalarAverage& GetScalarAverage () const
@@ -595,8 +595,7 @@ public:
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
     virtual void AverageRelease ();
-
-
+    
 private:
     static G3D::Matrix3 getRotation2DTimeDisplacement ();
     static G3D::Matrix3 getRotation2DRight90 ();
@@ -613,7 +612,7 @@ private:
 
 private:
     ViewType::Enum m_viewType;
-    size_t m_bodyOrFaceProperty;
+    size_t m_bodyOrFaceScalar;
     ComputationType::Enum m_statisticsType;
     GLuint m_listCenterPaths;
     // 0 is for visualization, 1 is for the overlay

@@ -336,7 +336,7 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
 
     for_each (
 	bodies.begin (), bodies.end (),
-	DisplayBody<DisplayFaceBodyPropertyColor<PropertySetter>,
+	DisplayBody<DisplayFaceBodyScalarColor<PropertySetter>,
 	PropertySetter> (
 	    GetWidgetGl (), foam,
 	    vs.GetBodySelector (), 

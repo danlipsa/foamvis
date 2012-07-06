@@ -59,19 +59,19 @@ public:
  * @todo: color by the number of edges of a face in 3D
  */
 template<typename PropertySetter = SetterTextureCoordinate>
-class DisplayFaceBodyPropertyColor : 
+class DisplayFaceBodyScalarColor : 
     public DisplayFaceHighlightColor<HighlightNumber::H0, 
 				     DisplayFaceTriangleFan, PropertySetter>
 {
 public:
-    DisplayFaceBodyPropertyColor (
+    DisplayFaceBodyScalarColor (
 	const WidgetGl& widget, const Foam& foam,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	ViewNumber::Enum view = ViewNumber::VIEW0, 
 	bool useZPos = false,
 	double zPos = 0);
 
-    DisplayFaceBodyPropertyColor (
+    DisplayFaceBodyScalarColor (
 	const WidgetGl& widget, const Foam& foam,
 	PropertySetter propertySetter,
 	typename DisplayElement::FocusContext focus = DisplayElement::FOCUS,

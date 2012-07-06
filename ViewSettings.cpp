@@ -49,7 +49,7 @@ boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
 // ======================================================================
 ViewSettings::ViewSettings (const WidgetGl& widgetGl) :
     m_viewType (ViewType::COUNT),
-    m_bodyOrFaceProperty (BodyProperty::PRESSURE),
+    m_bodyOrFaceScalar (BodyScalar::PRESSURE),
     m_statisticsType (ComputationType::AVERAGE),
     m_listCenterPaths (0),
     m_scalarAverage (new ScalarAverage (widgetGl)),
@@ -679,4 +679,3 @@ void ViewSettings::SetAverageAroundPositions (
 	objectPosition.m_angleRadians = - angleRadians;
     }
 }
-

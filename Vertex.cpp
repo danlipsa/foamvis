@@ -80,11 +80,11 @@ bool Vertex::fuzzyEq (const Vertex& other) const
 }
 
 
-bool Vertex::IsPhysical (const FoamProperties& foamParameters) const 
+bool Vertex::IsPhysical () const 
 {
-    if (foamParameters.Is2D ())
+    if (FOAM_PROPERTIES.Is2D ())
     {
-	if (foamParameters.IsQuadratic ())
+	if (FOAM_PROPERTIES.IsQuadratic ())
 	    return true;
 	else
 	    return m_adjacentEdges.size () >= 3;
@@ -92,7 +92,7 @@ bool Vertex::IsPhysical (const FoamProperties& foamParameters) const
     else
 	return 
 	    count_if (m_adjacentEdges.begin (), m_adjacentEdges.end (),
-		      boost::bind (&Edge::IsPhysical, _1, foamParameters)) 
+		      boost::bind (&Edge::IsPhysical, _1)) 
 	    == 4;
 }
 

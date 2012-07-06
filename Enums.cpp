@@ -50,43 +50,53 @@ ostream& operator<< (ostream& ostr, AttributeType::Enum type)
     return ostr;
 }
 
-const char* BodyProperty::ToString (BodyProperty::Enum property)
+boost::array<const char*, BodyScalar::COUNT> BodyScalar::NAME2D = {{
+	"Velocity along x",
+	"Velocity along y",
+	"Velocity along z",
+	"Velocity magnitude",
+	"Edges per face",
+	"Deformation P / sqrt(A)",
+	"Deformation eigen",
+	"Pressure",
+	"Target volume",
+	"Actual volume"
+    }};
+
+boost::array<const char*, BodyScalar::COUNT> BodyScalar::NAME3D = {{
+	"Velocity along x",
+	"Velocity along y",
+	"Velocity along z",
+	"Velocity magnitude",
+	"Faces per body",
+	"Deformation A / V^(2/3)",
+	"Deformation eigen",
+	"Pressure",
+	"Target volume",
+	"Actual volume",
+    }};
+
+boost::array<const char*, BodyScalar::COUNT>* BodyScalar::NAME = &NAME2D;
+
+void BodyScalar::Set3D ()
 {
-    switch (property)
-    {
-    case VELOCITY_X:
-	return "Velocity along x";
-    case VELOCITY_Y:
-	return "Velocity along y";
-    case VELOCITY_Z:
-	return "Velocity along z";
-    case VELOCITY_MAGNITUDE:
-	return "Velocity magnitude";
-    case SIDES_PER_BODY:
-	return "Number of sides";
-    case DEFORMATION_P_OVER_SQRTA:
-	return "Deformation P / sqrt(A)";
-    case DEFORMATION_EIGEN:
-	return "Deformation eigen";
-    case PRESSURE:
-	return "Pressure";
-    case TARGET_VOLUME:
-	return "Target volume";
-    case ACTUAL_VOLUME:
-	return "Actual volume";
-    case COUNT:
-	return "Error";
-    }
-    return "Error";
+    NAME = &NAME3D;
 }
 
-BodyProperty::Enum BodyProperty::FromSizeT (size_t i)
+const char* BodyScalar::ToString (BodyScalar::Enum property)
 {
-    RuntimeAssert (i < COUNT, "Value outside of BodyProperty::Enum: ", i);
-    return BodyProperty::Enum (i);
+    RuntimeAssert (property < static_cast<int> (NAME->size ()), 
+		   "Invalid BodyScalar: ", property);
+    return (*NAME)[property];
 }
 
-const char* FaceProperty::ToString (FaceProperty::Enum faceProperty)
+BodyScalar::Enum BodyScalar::FromSizeT (size_t i)
+{
+    RuntimeAssert (i < COUNT, "Value outside of BodyScalar::Enum: ", i);
+    return BodyScalar::Enum (i);
+}
+
+const char* DisplayFaceScalar::ToString (DisplayFaceScalar::Enum faceProperty)
 {
     switch (faceProperty)
     {
@@ -97,12 +107,53 @@ const char* FaceProperty::ToString (FaceProperty::Enum faceProperty)
     }
 }
 
-const char* BodyOrFacePropertyToString (size_t i)
+boost::array<BodyAttribute::Info,BodyAttribute::COUNT> BodyAttribute::INFO = {{
+	{BodyAttribute::SIDES_PER_BUBBLE,
+	 BodyScalar::ToString (BodyScalar::SIDES_PER_BUBBLE), 1},
+	{BodyAttribute::PRESSURE,
+	 BodyScalar::ToString (BodyScalar::PRESSURE), 1},
+	{BodyAttribute::TARGET_VOLUME,
+	 BodyScalar::ToString (BodyScalar::TARGET_VOLUME),1},
+	{BodyAttribute::ACTUAL_VOLUME,
+	 BodyScalar::ToString (BodyScalar::ACTUAL_VOLUME),1},
+	{BodyAttribute::VELOCITY, "Velocity",3},
+	{BodyAttribute::DEFORMATION, "Deformation",6}
+    }};
+
+const char* BodyAttribute::ToString (BodyAttribute::Enum attribute)
 {
-    if (i < BodyProperty::COUNT)
-	return BodyProperty::ToString (BodyProperty::Enum (i));
+    return INFO[attribute].m_name;
+}
+
+size_t BodyAttribute::GetNumberOfComponents (BodyAttribute::Enum attribute)
+{
+    return INFO[attribute].m_numberOfComponents;
+}
+
+BodyScalar::Enum BodyAttribute::ToBodyScalar (
+    BodyAttribute::Enum attribute)
+{
+    BodyScalar::Enum v[] = {
+	BodyScalar::SIDES_PER_BUBBLE,
+	BodyScalar::PRESSURE,
+	BodyScalar::TARGET_VOLUME,
+	BodyScalar::ACTUAL_VOLUME,
+	BodyScalar::COUNT,
+	BodyScalar::COUNT
+    };
+    BodyScalar::Enum displayBodyScalar = v[attribute];
+    RuntimeAssert (displayBodyScalar != BodyScalar::COUNT,
+		   "BodyAttribute::Enum is not a scalar: ", attribute);
+    return displayBodyScalar;
+}
+
+
+const char* BodyOrFaceScalarToString (size_t i)
+{
+    if (i < BodyScalar::COUNT)
+	return BodyScalar::ToString (BodyScalar::Enum (i));
     else
-	return FaceProperty::ToString (FaceProperty::Enum (i));
+	return DisplayFaceScalar::ToString (DisplayFaceScalar::Enum (i));
 }
 
 ViewType::Enum ViewType::FromSizeT (size_t i)
