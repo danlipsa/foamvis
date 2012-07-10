@@ -101,6 +101,7 @@ public:
 	VELOCITY_Y,
 	VELOCITY_Z,
 	VELOCITY_MAGNITUDE,
+
 	SIDES_PER_BUBBLE, // edges per face for 2D, faces per body for 3D
 	DEFORMATION_SIMPLE, // P / sqrt (A) for 2D, A / V^(2/3) for 3D
 	DEFORMATION_EIGEN,  // l - l_min / l_max where (l_i are the eigen values
@@ -141,6 +142,8 @@ struct BodyAttribute
     enum Enum
     {
 	SIDES_PER_BUBBLE,
+	DEFORMATION_SIMPLE,
+	DEFORMATION_EIGEN,
 	PRESSURE,
 	TARGET_VOLUME,
 	ACTUAL_VOLUME,
@@ -164,6 +167,9 @@ struct BodyAttribute
     }
     static BodyScalar::Enum ToBodyScalar (
 	BodyAttribute::Enum attribute);
+    static BodyAttribute::Enum FromBodyScalar (
+	BodyScalar::Enum scalar);
+
 private:
     struct Info
     {

@@ -15,7 +15,6 @@ class vtkActor;
 class vtkDataSetMapper;
 class vtkRenderer;
 class Foam;
-class BodySelector;
 class SendPaintEnd;
 
 
@@ -28,8 +27,7 @@ public:
     void UpdateColorTransferFunction (
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction);
     void UpdateRenderStructured (
-	const Foam& foam, const BodySelector& bodySelector,
-	vtkSmartPointer<vtkMatrix4x4> modelView,
+	const Foam& foam, vtkSmartPointer<vtkMatrix4x4> modelView,
 	BodyScalar::Enum bodyProperty);
 
 public:

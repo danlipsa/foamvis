@@ -110,6 +110,10 @@ const char* DisplayFaceScalar::ToString (DisplayFaceScalar::Enum faceProperty)
 boost::array<BodyAttribute::Info,BodyAttribute::COUNT> BodyAttribute::INFO = {{
 	{BodyAttribute::SIDES_PER_BUBBLE,
 	 BodyScalar::ToString (BodyScalar::SIDES_PER_BUBBLE), 1},
+	{BodyAttribute::DEFORMATION_SIMPLE,
+	 BodyScalar::ToString (BodyScalar::DEFORMATION_SIMPLE), 1},
+	{BodyAttribute::DEFORMATION_EIGEN,
+	 BodyScalar::ToString (BodyScalar::DEFORMATION_EIGEN), 1},
 	{BodyAttribute::PRESSURE,
 	 BodyScalar::ToString (BodyScalar::PRESSURE), 1},
 	{BodyAttribute::TARGET_VOLUME,
@@ -117,7 +121,7 @@ boost::array<BodyAttribute::Info,BodyAttribute::COUNT> BodyAttribute::INFO = {{
 	{BodyAttribute::ACTUAL_VOLUME,
 	 BodyScalar::ToString (BodyScalar::ACTUAL_VOLUME),1},
 	{BodyAttribute::VELOCITY, "Velocity",3},
-	{BodyAttribute::DEFORMATION, "Deformation",6}
+	{BodyAttribute::DEFORMATION, "Deformation",9}
     }};
 
 const char* BodyAttribute::ToString (BodyAttribute::Enum attribute)
@@ -135,9 +139,12 @@ BodyScalar::Enum BodyAttribute::ToBodyScalar (
 {
     BodyScalar::Enum v[] = {
 	BodyScalar::SIDES_PER_BUBBLE,
+	BodyScalar::DEFORMATION_SIMPLE,
+	BodyScalar::DEFORMATION_EIGEN,
 	BodyScalar::PRESSURE,
 	BodyScalar::TARGET_VOLUME,
 	BodyScalar::ACTUAL_VOLUME,
+	BodyScalar::COUNT,
 	BodyScalar::COUNT,
 	BodyScalar::COUNT
     };
@@ -146,6 +153,31 @@ BodyScalar::Enum BodyAttribute::ToBodyScalar (
 		   "BodyAttribute::Enum is not a scalar: ", attribute);
     return displayBodyScalar;
 }
+
+BodyAttribute::Enum BodyAttribute::FromBodyScalar (
+    BodyScalar::Enum s)
+{
+    BodyAttribute::Enum v[] = {
+	BodyAttribute::COUNT,
+	BodyAttribute::COUNT,
+	BodyAttribute::COUNT,
+	BodyAttribute::COUNT,
+
+	BodyAttribute::SIDES_PER_BUBBLE,
+	BodyAttribute::DEFORMATION_SIMPLE,
+	BodyAttribute::DEFORMATION_EIGEN,
+	BodyAttribute::PRESSURE,
+	BodyAttribute::TARGET_VOLUME,
+	BodyAttribute::ACTUAL_VOLUME,
+	BodyAttribute::COUNT
+    };
+    BodyAttribute::Enum attribute = v[s];
+    RuntimeAssert (attribute != BodyAttribute::COUNT,
+		   "BodyScalar::Enum is not a body attribute: ", s);
+    return attribute;
+}
+
+
 
 
 const char* BodyOrFaceScalarToString (size_t i)

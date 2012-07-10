@@ -88,11 +88,11 @@ public:
     }
     G3D::Plane GetPlane () const;
 
-    double GetPerimeter () const
+    float GetPerimeter () const
     {
 	return m_perimeter;
     }
-    double GetArea () const
+    float GetArea () const
     {
 	return m_area;
     }
@@ -166,8 +166,8 @@ private:
     vector<AdjacentBody> m_adjacentBodies;
     G3D::Vector3 m_normal;
     G3D::Vector3 m_center;
-    double m_perimeter;
-    double m_area;
+    float m_perimeter;
+    float m_area;
 };
 /**
  * Pretty prints this Face by printing the edges in DIRECT order

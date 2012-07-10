@@ -146,13 +146,14 @@ public:
     }
     
     size_t GetSidesPerBody () const;
-    double GetPerimeterOverSqrtArea () const
+    float GetDeformationSimple () const;
+    float GetArea () const
     {
-	return m_perimeterOverSqrtArea;
+	return m_area;
     }
-    void CalculatePerimeterOverSqrtArea ();
+    void CalculateDeformationSimple ();
     static const char* GetAttributeKeywordString (BodyScalar::Enum bp);
-    void CalculateNeighbors2D (const OOBox& originalDomain);
+    void CalculateNeighbors (const OOBox& originalDomain);
     void CalculateDeformationTensor (const OOBox& originalDomain);
     G3D::Matrix3 GetDeformationTensor (
 	const G3D::Matrix3& additionalRotation) const;
@@ -194,6 +195,7 @@ private:
      */
     void calculatePhysicalVertices (
 	vector< boost::shared_ptr<Vertex> >* physicalVertices);
+    void calculateArea ();
 
 private:
     /**
@@ -207,6 +209,9 @@ private:
 	const VertexSet& src,
 	vector< boost::shared_ptr<Vertex> >* destTessellation,
 	vector< boost::shared_ptr<Vertex> >* destPhysical);
+    void calculateNeighbors2D (const OOBox& originalDomain);
+    void calculateNeighbors3D (const OOBox& originalDomain);
+
 
 private:
     /**
@@ -222,7 +227,8 @@ private:
     G3D::Vector3 m_center;
     G3D::AABox m_boundingBox;
     G3D::Vector3 m_velocity;
-    double m_perimeterOverSqrtArea;
+    float m_area;
+    float m_deformationSimple;
     bool m_pressureDeduced;
     bool m_targetVolumeDeduced;
     bool m_actualVolumeDeduced;

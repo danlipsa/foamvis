@@ -105,7 +105,6 @@ Foam::Foam (bool useOriginal,
     AddDefaultBodyAttributes ();
 }
 
-
 template <typename Accumulator>
 void Foam::AccumulateProperty (Accumulator* acc, 
 			       BodyScalar::Enum property) const
@@ -127,6 +126,17 @@ void Foam::Accumulate (Accumulator* acc, GetBodyScalar getBodyScalar) const
     }
 }
 
+template <typename Accumulator>
+void Foam::Acc (Accumulator* acc, 
+		boost::function<float (
+		    const boost::shared_ptr<Body>& body)> getBodyScalar) const
+{
+    BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
+    {
+	if (! body->IsConstraint ())
+	    (*acc) (getBodyScalar (body));
+    }
+}
 
 void Foam::AddDefaultBodyAttributes ()
 {
@@ -324,10 +334,10 @@ void Foam::CalculateBoundingBox ()
     m_boundingBoxTorus.set (low, high);
 }
 
-void Foam::CalculatePerimeterOverArea ()
+void Foam::CalculateDeformationSimple ()
 {
     for_each (m_bodies.begin (), m_bodies.end (),
-	      boost::bind (&Body::CalculatePerimeterOverSqrtArea, _1));
+	      boost::bind (&Body::CalculateDeformationSimple, _1));
 }
 
 void Foam::calculateBoundingBoxTorus (G3D::Vector3* low, G3D::Vector3* high)
@@ -472,10 +482,8 @@ void Foam::Preprocess ()
 
 void Foam::CalculateBodyNeighbors ()
 {
-    if (Is2D ())
-	for_each (m_bodies.begin (), m_bodies.end (),
-		  boost::bind (&Body::CalculateNeighbors2D, _1, 
-			       GetTorusDomain ()));
+    for_each (m_bodies.begin (), m_bodies.end (),
+	      boost::bind (&Body::CalculateNeighbors, _1, GetTorusDomain ()));
 }
 
 void Foam::CalculateBodyDeformationTensor ()
@@ -1063,7 +1071,7 @@ void Foam::getTetraPoints (
     mt.EndInterval ("getTetraPoints");
 }
 
-vtkSmartPointer<vtkUnstructuredGrid> Foam::setCellAttributes (
+vtkSmartPointer<vtkUnstructuredGrid> Foam::AddCellAttribute (
     vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
     BodyAttribute::Enum attribute) const
 {
@@ -1077,7 +1085,7 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::setCellAttributes (
     vtkIdType faceIndex = 0;
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
     {
-	float value[6];
+	float value[9];
 	body->GetAttributeValue (attribute, value);
 	BOOST_FOREACH (const boost::shared_ptr<OrientedFace>& of, 
 		       body->GetOrientedFaces ())
@@ -1087,12 +1095,7 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::setCellAttributes (
 	    ++faceIndex;
 	}
     }
-    if (BodyAttribute::IsScalar (attribute))
-	aTetraGrid->GetCellData ()->SetScalars (attributes);
-    else if (BodyAttribute::IsVector (attribute))
-	aTetraGrid->GetCellData ()->SetVectors (attributes);
-    else if (BodyAttribute::IsTensor (attribute))
-	aTetraGrid->GetCellData ()->SetTensors (attributes);
+    aTetraGrid->GetCellData ()->AddArray (attributes);
     mt.EndInterval ("SetCellScalar");
     return aTetraGrid;
 }
@@ -1146,6 +1149,10 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::GetTetraGrid () const
     
     // create the cells
     createTetraCells (aTetraGrid, sortedPoints, maxPointId);
+    // set the cell attributes
+    for (size_t i = 0; i < BodyAttribute::COUNT; ++i)
+	AddCellAttribute (aTetraGrid, BodyAttribute::Enum (i));
+    
     return aTetraGrid;
 }
 

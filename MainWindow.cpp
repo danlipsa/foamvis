@@ -81,6 +81,8 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     FOAM_PROPERTIES.SetQuadratic (
 	simulationGroup.GetSimulation (0).GetFoamProperties ()->
 	IsQuadratic ());
+    if (FOAM_PROPERTIES.Is3D ())
+    	BodyScalar::Set3D ();
 
     // for anti-aliased lines
     QGLFormat format = QGLFormat::defaultFormat ();
@@ -174,7 +176,6 @@ void MainWindow::configureInterfaceDataDependent (
     {
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::THREE_D);
 	checkBoxLightEnabled->setChecked (true);
-	BodyScalar::Set3D ();
 	comboBoxColor->setItemText (
 	    BodyScalar::SIDES_PER_BUBBLE, 
 	    BodyScalar::ToString (BodyScalar::SIDES_PER_BUBBLE));
@@ -690,14 +691,12 @@ void MainWindow::processBodyTorusStep ()
 void MainWindow::update3DAverage (size_t timeStep)
 {
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
-    const ViewSettings& vs = widgetGl->GetViewSettings ();
     const Simulation& simulation = widgetGl->GetSimulation (viewNumber);
     const Foam& foam = simulation.GetFoam (timeStep);
     BodyScalar::Enum bodyProperty = BodyScalar::FromSizeT (
 	widgetGl->GetBodyOrFaceScalar ());
     widgetVtk->UpdateRenderStructured (
-	foam, vs.GetBodySelector (), 
-	widgetGl->GetModelViewMatrix (viewNumber, timeStep),
+	foam, widgetGl->GetModelViewMatrix (viewNumber, timeStep),
 	bodyProperty);
     widgetVtk->UpdateColorTransferFunction (
 	getColorBarModel ()->GetColorTransferFunction ());

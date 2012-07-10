@@ -237,6 +237,10 @@ public:
 	Accumulator* acc, BodyScalar::Enum property) const;
     template <typename Accumulator, typename GetBodyScalar>
     void Accumulate (Accumulator* acc, GetBodyScalar getBodyScalar) const;
+    template <typename Accumulator>
+    void Acc (Accumulator* acc, 
+	      boost::function<float (
+		  const boost::shared_ptr<Body>& body)> getBodyScalar) const;
 
     void AdjustPressure (double adjustment);
 
@@ -281,7 +285,7 @@ public:
      * Calculate the bounding box for all vertices in this Foam
      */
     void CalculateBoundingBox ();
-    void CalculatePerimeterOverArea ();
+    void CalculateDeformationSimple ();
     void FixConstraintPoints (const Foam* prevFoam);
     void StoreAttribute (Body* body, BodyScalar::Enum property, double r);
     void CalculateBodyNeighbors ();
@@ -296,10 +300,9 @@ public:
     void SetSpaceDimension (size_t spaceDimension);
     void SetQuadratic (bool quadratic);
     vtkSmartPointer<vtkUnstructuredGrid> GetTetraGrid () const;
-    vtkSmartPointer<vtkUnstructuredGrid> setCellAttributes (
+    vtkSmartPointer<vtkUnstructuredGrid> AddCellAttribute (
 	vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
 	BodyAttribute::Enum attribute) const;
-
 
 public:
     static const double Z_COORDINATE_2D = 0.0;

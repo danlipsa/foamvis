@@ -15,6 +15,8 @@
 
 // Private Functions and classes
 // ======================================================================
+
+
 class FoamParamMethodList
 {
 public:
@@ -172,7 +174,7 @@ void Simulation::Preprocess ()
 	    boost::bind (&Foam::SetForcesAllObjects, _1),
 	    boost::bind (&Foam::ReleaseParsingData, _1),
 	    boost::bind (&Foam::CalculateBoundingBox, _1),
-	    boost::bind (&Foam::CalculatePerimeterOverArea, _1),
+	    boost::bind (&Foam::CalculateDeformationSimple, _1),
 	    boost::bind (&Foam::CalculateBodyNeighbors, _1),
 	    boost::bind (&Foam::CalculateBodyDeformationTensor, _1)
     }};
@@ -276,8 +278,9 @@ void Simulation::calculateStatistics ()
     }
     {
 	MinMaxStatistics minMaxStat;
-	forAllBodiesAccumulate (&minMaxStat, 
-				getBodyDeformationEigenValue<0> ());
+	forAllBodiesAccumulate (
+	    &minMaxStat, 
+	    getBodyDeformationEigenValue<0> ());
 	m_maxDeformationEigenValue = acc::max (minMaxStat);
     }
 }

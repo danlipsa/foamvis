@@ -127,7 +127,8 @@ Body::Body(
     size_t id,
     ElementStatus::Enum duplicateStatus) :
     Element(id, duplicateStatus),
-    m_perimeterOverSqrtArea (0),
+    m_area (0),
+    m_deformationSimple (0),
     m_pressureDeduced (false),
     m_targetVolumeDeduced (false),
     m_actualVolumeDeduced (false),
@@ -140,7 +141,7 @@ Body::Body(
 
 Body::Body (boost::shared_ptr<Face> face, size_t id) :
     Element (id, ElementStatus::ORIGINAL),
-    m_perimeterOverSqrtArea (0),
+    m_deformationSimple (0),
     m_pressureDeduced (false),
     m_targetVolumeDeduced (false),
     m_actualVolumeDeduced (false),
@@ -335,7 +336,7 @@ float Body::GetScalarValue (BodyScalar::Enum property) const
     case BodyScalar::SIDES_PER_BUBBLE:
 	return GetSidesPerBody ();
     case BodyScalar::DEFORMATION_SIMPLE:
-	return GetPerimeterOverSqrtArea ();
+	return GetDeformationSimple ();
     case BodyScalar::DEFORMATION_EIGEN:
 	return GetDeformationEigenScalar ();
     case BodyScalar::COUNT:
@@ -367,6 +368,11 @@ void Body::GetAttributeValue (BodyAttribute::Enum attribute, float* value)
     }
 }
 
+float Body::GetDeformationSimple () const
+{
+    return m_deformationSimple;
+}
+
 G3D::Matrix3 Body::GetDeformationTensor (
     const G3D::Matrix3& additionalRotation) const
 {
@@ -383,8 +389,10 @@ G3D::Matrix3 Body::GetDeformationTensor (
 
 float Body::GetDeformationEigenScalar () const
 {
-    float deformationEigen = 1. - 
-	GetDeformationEigenValue (1) / GetDeformationEigenValue (0);
+    size_t maxIndex = 0;
+    size_t minIndex = FOAM_PROPERTIES.Is2D () ? 1 : 2;
+    float deformationEigen = 1. - GetDeformationEigenValue (minIndex) / 
+	GetDeformationEigenValue (maxIndex);
     return deformationEigen;
 }
 
@@ -409,16 +417,30 @@ void Body::CalculateBoundingBox ()
     m_boundingBox = ::CalculateBoundingBox (*this);
 }
 
-void Body::CalculatePerimeterOverSqrtArea ()
+void Body::calculateArea ()
 {
-    if (m_orientedFaces.size () == 1 && 
-	ExistsPropertyValue (BodyScalar::TARGET_VOLUME))
+    m_area = 0;
+    BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, GetOrientedFaces ())
+	m_area += (of->GetArea ());
+}
+
+
+void Body::CalculateDeformationSimple ()
+{
+    if (! ExistsPropertyValue (BodyScalar::TARGET_VOLUME))
+	return;    
+    calculateArea ();
+    if (FOAM_PROPERTIES.Is2D ())
     {
 	boost::shared_ptr<OrientedFace> of = GetOrientedFacePtr (0);
 	of->CalculatePerimeter ();
-	m_perimeterOverSqrtArea = of->GetPerimeter () / 
+	m_deformationSimple = of->GetPerimeter () / 
 	    sqrt (GetScalarValue (BodyScalar::TARGET_VOLUME));
     }
+    else
+	m_deformationSimple = 
+	    GetArea () / 
+	    pow (GetScalarValue (BodyScalar::TARGET_VOLUME), 2.0 / 3.0);
 }
 
 const char* Body::GetAttributeKeywordString (BodyScalar::Enum bp)
@@ -438,7 +460,20 @@ const char* Body::GetAttributeKeywordString (BodyScalar::Enum bp)
     }
 }
 
-void Body::CalculateNeighbors2D (const OOBox& originalDomain)
+
+void Body::CalculateNeighbors (const OOBox& originalDomain)
+{
+    if (FOAM_PROPERTIES.Is2D ())
+	calculateNeighbors2D (originalDomain);
+    else
+	calculateNeighbors3D (originalDomain);
+}
+
+void Body::calculateNeighbors3D (const OOBox& originalDomain)
+{
+}
+
+void Body::calculateNeighbors2D (const OOBox& originalDomain)
 {
     const OrientedFace& of = GetOrientedFace (0);
     m_neighbors.resize (of.size ());

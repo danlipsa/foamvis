@@ -113,7 +113,7 @@ double OrientedFace::GetPerimeter () const
     return GetFace ()->GetPerimeter ();
 }
 
-double OrientedFace::GetArea () const
+float OrientedFace::GetArea () const
 {
     return GetFace ()->GetArea ();
 }
