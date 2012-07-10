@@ -12,7 +12,7 @@
 #include "Edge.h"
 #include "EvolverData_yacc.h"
 #include "Foam.h"
-#include "FoamProperties.h"
+#include "DataProperties.h"
 #include "OrientedFace.h"
 #include "OrientedEdge.h"
 #include "ParsingDriver.h"
@@ -186,7 +186,7 @@ string Edge::AdjacentFacesToString () const
 
 bool Edge::IsPhysical () const
 {
-    if (FOAM_PROPERTIES.Is2D ())
+    if (DATA_PROPERTIES.Is2D ())
     {
 	return true;
     }
@@ -210,7 +210,7 @@ bool Edge::IsPhysical () const
     }
 }
 
-string Edge::ToString () const
+string Edge::ToString (const AttributesInfo* ai) const
 {
     ostringstream ostr;
     ostr << "Edge " << GetStringId () << " "
@@ -221,7 +221,7 @@ string Edge::ToString () const
     if (HasAttributes ())
     {
 	ostr << " Edge attributes: ";
-	PrintAttributes (ostr);
+	PrintAttributes (ostr, ai);
     }
     return ostr.str ();
 }

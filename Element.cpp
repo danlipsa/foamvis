@@ -119,12 +119,17 @@ void Element::StoreAttributes (
     for_each (list.begin (), list.end (), ::storeAttribute(*this, infos));
 }
 
-ostream& Element::PrintAttributes (ostream& ostr) const
+ostream& Element::PrintAttributes (ostream& ostr,
+				   const AttributesInfo* infos) const
 {
     if (HasAttributes ())
 	for (size_t i = 0; i < m_attributes.size (); ++i)
 	    if (HasAttribute (i))
+	    {
+		if (infos != 0)
+		    ostr << infos->GetAttributeName (i) << ": ";
 		ostr << m_attributes[i] << " ";
+	    }
     return ostr;
 }
 

@@ -115,12 +115,11 @@ public:
 public:
     static const char* ToString (BodyScalar::Enum property);
     static Enum FromSizeT (size_t i);
-    static void Set3D ();
 
 private:
     static boost::array<const char*, COUNT> NAME2D;
     static boost::array<const char*,COUNT> NAME3D;
-    static boost::array<const char*, COUNT>* NAME;
+    static const boost::array<const char*, COUNT>& NAME ();
 };
 
 class DisplayFaceScalar
@@ -177,7 +176,7 @@ private:
 	const char* m_name;
 	size_t m_numberOfComponents;
     };
-    static boost::array<Info, COUNT> INFO;
+    static const Info* INFO ();
 };
 
 const char* BodyOrFaceScalarToString (size_t property);

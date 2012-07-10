@@ -10,7 +10,7 @@
 #include "Body.h"
 #include "Edge.h"
 #include "Foam.h"
-#include "FoamProperties.h"
+#include "DataProperties.h"
 #include "EvolverData_yacc.h"
 #include "DebugStream.h"
 #include "Debug.h"
@@ -82,9 +82,9 @@ bool Vertex::fuzzyEq (const Vertex& other) const
 
 bool Vertex::IsPhysical () const 
 {
-    if (FOAM_PROPERTIES.Is2D ())
+    if (DATA_PROPERTIES.Is2D ())
     {
-	if (FOAM_PROPERTIES.IsQuadratic ())
+	if (DATA_PROPERTIES.IsQuadratic ())
 	    return true;
 	else
 	    return m_adjacentEdges.size () >= 3;
@@ -96,7 +96,7 @@ bool Vertex::IsPhysical () const
 	    == 4;
 }
 
-string Vertex::ToString () const
+string Vertex::ToString (const AttributesInfo* ai) const
 {
     ostringstream ostr;
     ostr << "Vertex " << GetStringId () << " "
@@ -105,7 +105,7 @@ string Vertex::ToString () const
     if (HasAttributes ())
     {
 	ostr << endl << "Vertex attributes: ";
-	PrintAttributes (ostr);
+	PrintAttributes (ostr, ai);
     }
     return ostr.str ();
 }

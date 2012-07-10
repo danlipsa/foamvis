@@ -94,7 +94,7 @@ public:
 	return m_center;
     }
     void UpdateAdjacentBody (const boost::shared_ptr<Body>& body);
-    string ToString () const;
+    string ToString (const AttributesInfo* ai = 0) const;
     void GetVertexSet (VertexSet* vertexSet) const;    
     VertexSet GetVertexSet () const
     {

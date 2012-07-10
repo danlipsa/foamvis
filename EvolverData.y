@@ -1220,7 +1220,7 @@ vertex_list
 	intToUnsigned($2- 1,
 		      "Semantic error: vertex index less than 0: "),
 	$5, $7, $9, *nameSemanticValueList,
-	foam->GetAttributesInfo (DefineAttribute::VERTEX));
+	foam->GetAttributesInfoElements ().GetInfoVertex ());
     if (nameSemanticValueList != 0)
 	NameSemanticValue::DeleteVector(nameSemanticValueList);
 }
@@ -1332,7 +1332,7 @@ edge_list
 	intToUnsigned($5 - 1, "Semantic error: edge midpoint less than 0: "),
 	*$6,
 	*$7,
-	foam->GetAttributesInfo (DefineAttribute::EDGE),
+	foam->GetAttributesInfoElements ().GetInfoEdge (),
 	foam->IsQuadratic ());
     delete $6;
     NameSemanticValue::DeleteVector($7);
@@ -1451,7 +1451,7 @@ face_list
     foam->GetParsingData ().SetFace (
 	intToUnsigned($2- 1, "Semantic error: face index less than 0"),
 	*intList, *$4,
-	foam->GetAttributesInfo (DefineAttribute::FACE));
+	foam->GetAttributesInfoElements ().GetInfoFace ());
     delete intList;
     NameSemanticValue::DeleteVector($4);
 }

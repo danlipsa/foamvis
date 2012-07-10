@@ -67,7 +67,7 @@ void WidgetVtk::UpdateRenderStructured (
     tetraFoamCell->GetCellData ()->SetActiveScalars (
 	BodyScalar::ToString (bodyScalar));
 
-
+/*
     VTK_CREATE (vtkCellDataToPointData, cellToPoint);
     cellToPoint->SetInput (tetraFoamCell);
 
@@ -93,8 +93,10 @@ void WidgetVtk::UpdateRenderStructured (
     threshold->AllScalarsOn ();
     threshold->SetInputConnection (regularProbe->GetOutputPort ());
 
+*/
     VTK_CREATE (vtkDataSetMapper, mapper);
-    mapper->SetInputConnection (threshold->GetOutputPort ());
+    //mapper->SetInputConnection (threshold->GetOutputPort ());
+    mapper->SetInput (tetraFoamCell);
     m_mapper = mapper;
 
     VTK_CREATE(vtkActor, actor);

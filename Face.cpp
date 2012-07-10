@@ -9,7 +9,7 @@
 #include "AttributeInfo.h"
 #include "Body.h"
 #include "Foam.h"
-#include "FoamProperties.h"
+#include "DataProperties.h"
 #include "Debug.h"
 #include "DebugStream.h"
 #include "Edge.h"
@@ -297,7 +297,7 @@ void Face::PrintAdjacentBodyInformation (ostream& ostr) const
     ostr << endl;
 }
 
-string Face::ToString () const
+string Face::ToString (const AttributesInfo* ai) const
 {
     ostringstream ostr;
     ostr << "Face " << GetStringId () << " "
@@ -309,7 +309,7 @@ string Face::ToString () const
     if (HasAttributes ())
     {
 	ostr << "Face attributes: ";
-	PrintAttributes (ostr);
+	PrintAttributes (ostr, ai);
     }
     ostr << "Adjacent bodies" << "(" << m_adjacentBodies.size () << "): ";
     BOOST_FOREACH (AdjacentBody bi, m_adjacentBodies)

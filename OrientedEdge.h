@@ -74,7 +74,7 @@ public:
     void SetEdge (boost::shared_ptr<Edge> edge);
     //bool IsZero () const;
     G3D::Vector3 GetEdgeVector () const;
-    string ToString () const;
+    string ToString (const AttributesInfo* ai = 0) const;
     string ToStringShort () const;
     void GetVertexSet (VertexSet* vertexSet) const;
     bool IsPhysical () const;

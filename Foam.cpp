@@ -88,7 +88,7 @@ size_t pointIndex (const vector<boost::shared_ptr<Vertex> >& sortedPoints,
 Foam::Foam (bool useOriginal, 
 	    const DmpObjectInfo& dmpObjectInfo,
 	    const vector<ForcesOneObjectNames>& forcesNames, 
-	    FoamProperties& foamParameters,
+	    DataProperties& foamParameters,
 	    ParametersOperation paramsOp) :
     m_viewMatrix (new G3D::Matrix4 (G3D::Matrix4::identity ())),
     m_parsingData (new ParsingData (
@@ -99,10 +99,6 @@ Foam::Foam (bool useOriginal,
     m_parametersOperation (paramsOp)
 {
     m_parsingData->SetVariable ("pi", M_PI);
-    AddDefaultVertexAttributes ();
-    AddDefaultEdgeAttributes ();
-    AddDefaultFaceAttributes ();
-    AddDefaultBodyAttributes ();
 }
 
 template <typename Accumulator>
@@ -138,131 +134,6 @@ void Foam::Acc (Accumulator* acc,
     }
 }
 
-void Foam::AddDefaultBodyAttributes ()
-{
-    using EvolverData::parser;
-    AttributesInfo* infos = &m_attributesInfo[DefineAttribute::BODY];
-
-    // the order of the attributes should match the order in
-    // BodyScalar::Enum
-    boost::shared_ptr<AttributeCreator> ac;
-
-    ac.reset (new RealAttributeCreator ());
-    size_t index = infos->AddAttributeInfoLoad (
-        ParsingDriver::GetKeywordString(
-	    parser::token::LAGRANGE_MULTIPLIER), ac);
-    RuntimeAssert (index == BodyAttributeIndex::PRESSURE,
-		   "Pressure body attribute index is ", index);
-
-    ac.reset (new RealAttributeCreator());
-    index = infos->AddAttributeInfoLoad (
-        ParsingDriver::GetKeywordString(parser::token::VOLUME), ac);
-    RuntimeAssert (index == BodyAttributeIndex::TARGET_VOLUME,
-		   "Target volume body attribute index is ", index);
-
-    ac.reset (new RealAttributeCreator());
-    index = infos->AddAttributeInfoLoad (
-        ParsingDriver::GetKeywordString(parser::token::ACTUAL), ac);
-    RuntimeAssert (index == BodyAttributeIndex::ACTUAL_VOLUME,
-		   "Actual volume body attribute index is ", index);
-
-    ac.reset (new IntegerAttributeCreator ());
-    index = infos->AddAttributeInfoLoad (
-        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
-    RuntimeAssert (index == BodyAttributeIndex::ORIGINAL,
-		   "Volume original attribute index is ", index);
-
-
-    ac.reset (new RealAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::VOLCONST), ac);
-
-    ac.reset (new RealAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::ACTUAL_VOLUME), ac);
-}
-
-
-void Foam::AddDefaultFaceAttributes ()
-{
-    using EvolverData::parser;
-    AttributesInfo* infos = &m_attributesInfo[DefineAttribute::FACE];
-    boost::shared_ptr<AttributeCreator> ac;
-
-    ac.reset (new ColorAttributeCreator ());
-    size_t index = infos->AddAttributeInfoLoad (
-        ParsingDriver::GetKeywordString(parser::token::COLOR), ac);
-    RuntimeAssert (
-	index == FaceAttributeIndex::COLOR,
-	"Color face attribute index is ", FaceAttributeIndex::COLOR);
-
-    ac.reset (new RealAttributeCreator ());
-    index = infos->AddAttributeInfoLoad (
-        ParsingDriver::GetKeywordString(parser::token::AREA), ac);
-    RuntimeAssert (
-	index == FaceAttributeIndex::AREA,
-	"Face area attribute index is ", FaceAttributeIndex::AREA);
-
-    ac.reset (new IntegerVectorAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
-
-    ac.reset (new IntegerAttributeCreator ());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
-
-    ac.reset (new RealAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::DENSITY), ac);
-}
-
-
-void Foam::AddDefaultEdgeAttributes ()
-{
-    using EvolverData::parser;
-    AttributesInfo* infos = &m_attributesInfo[DefineAttribute::EDGE];
-    boost::shared_ptr<AttributeCreator> ac;
-
-    ac.reset (new ColorAttributeCreator ());
-    size_t index = infos->AddAttributeInfoLoad (
-	ParsingDriver::GetKeywordString(parser::token::COLOR), ac);
-    RuntimeAssert (
-	index == EdgeAttributeIndex::COLOR, 
-	"Color edge attribute index is ", index);
-
-    ac.reset (new IntegerVectorAttributeCreator());
-    index = infos->AddAttributeInfoLoad (
-        ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
-    RuntimeAssert (
-	index == EdgeAttributeIndex::CONSTRAINTS, 
-	"Constraints edge attribute index is ", index);
-
-    ac.reset (new IntegerAttributeCreator ());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
-
-    ac.reset (new RealAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::DENSITY), ac);
-}
-
-
-void Foam::AddDefaultVertexAttributes ()
-{
-    using EvolverData::parser;
-    AttributesInfo* infos = &m_attributesInfo[DefineAttribute::VERTEX];
-    boost::shared_ptr<AttributeCreator> ac;
-
-    ac.reset (new IntegerVectorAttributeCreator());
-    size_t index = infos->AddAttributeInfoLoad (
-        ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
-    RuntimeAssert (index == VertexAttributeIndex::CONSTRAINTS, 
-		   "Constraints vertex attribute index is ", index);
-
-    ac.reset (new IntegerAttributeCreator());
-    infos->AddAttributeInfo (
-        ParsingDriver::GetKeywordString(parser::token::ORIGINAL), ac);
-}
 
 void Foam::SetBody (size_t i, vector<int>& faces,
                     vector<NameSemanticValue*>& attributes, bool useOriginal)
@@ -272,7 +143,7 @@ void Foam::SetBody (size_t i, vector<int>& faces,
 	faces, GetParsingData ().GetFaces (), i);
     if (&attributes != 0)
         body->StoreAttributes (attributes,
-			       m_attributesInfo[DefineAttribute::BODY]);
+			       GetAttributesInfoElements ().GetInfoBody ());
     if (useOriginal)
 	if (body->HasAttribute (BodyAttributeIndex::ORIGINAL))
 	{
@@ -741,7 +612,7 @@ void Foam::AddAttributeInfo (
     DefineAttribute::Enum type, const char* name,
     boost::shared_ptr<AttributeCreator> creator)
 {
-    m_attributesInfo[type].AddAttributeInfo (name, creator);
+    m_attributesInfoElements.GetInfo (type).AddAttributeInfo (name, creator);
     m_parsingData->AddAttribute (name);
 }
 
@@ -824,11 +695,6 @@ void Foam::GetFaceSet (FaceSet* faceSet) const
 	faceSet->insert (face);
 }
 
-const AttributesInfo& Foam::GetAttributesInfo (
-    DefineAttribute::Enum attributeType) const
-{
-    return m_attributesInfo[attributeType];
-}
 
 boost::shared_ptr<Edge> Foam::GetStandardEdge () const
 {
@@ -955,7 +821,7 @@ void Foam::StoreAttribute (
     Body* body, BodyScalar::Enum bp, double value)
 {
     body->StoreAttribute (Body::GetAttributeKeywordString(bp), value,
-			  m_attributesInfo[DefineAttribute::BODY]);
+			  m_attributesInfoElements.GetInfoBody ());
 }
 
 void Foam::SortConstraintEdges (size_t constraintIndex)
@@ -1006,7 +872,7 @@ bool Foam::IsQuadratic () const
 
 void Foam::SetSpaceDimension (size_t spaceDimension)
 {
-    if (m_parametersOperation == SET_FOAM_PROPERTIES)
+    if (m_parametersOperation == SET_DATA_PROPERTIES)
 	m_properties.SetSpaceDimension (spaceDimension);
     else
 	if (m_properties.GetSpaceDimension () != spaceDimension)
@@ -1016,7 +882,7 @@ void Foam::SetSpaceDimension (size_t spaceDimension)
 
 void Foam::SetQuadratic (bool quadratic)
 {
-    if (m_parametersOperation == SET_FOAM_PROPERTIES)
+    if (m_parametersOperation == SET_DATA_PROPERTIES)
 	m_properties.SetQuadratic (quadratic);
     else
 	if (m_properties.IsQuadratic () != quadratic)

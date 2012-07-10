@@ -125,7 +125,7 @@ public:
     {
 	return m_orientedEdges.size ();
     }
-    string ToString () const;
+    string ToString (const AttributesInfo* ai = 0) const;
     bool IsStandalone () const
     {
 	return GetAdjacentBodySize () == 0;

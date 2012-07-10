@@ -59,7 +59,7 @@ public:
 	QString dir, 
 	const DmpObjectInfo& dmpObjectInfo, 
 	const vector<ForcesOneObjectNames>& forcesNames,
-	bool useOriginal, FoamProperties* foamParameters, 
+	bool useOriginal, DataProperties* foamParameters, 
 	Foam::ParametersOperation parametersOperation,
 	bool debugParsing = false, bool debugScanning = false) : 
 
@@ -108,7 +108,7 @@ private:
     const DmpObjectInfo& m_dmpObjectInfo;
     vector<ForcesOneObjectNames> m_forcesNames;
     const bool m_useOriginal;
-    FoamProperties* m_foamProperties;
+    DataProperties* m_foamProperties;
     Foam::ParametersOperation m_parametersOperation;
     const bool m_debugParsing;
     const bool m_debugScanning;
@@ -554,19 +554,19 @@ void Simulation::ParseDMPs (
 	    fileInfo.filePath ().toStdString () + "\"");
 
     SetTimeSteps (files.size ());
-    // FoamProperties are shared between all Foams
+    // DataProperties are shared between all Foams
     GetFoams ()[0] = ParseDMP (
 	dir.absolutePath (), GetDmpObjectInfo (),
-	GetForcesNames (), OriginalUsed (), GetFoamProperties (),
-	Foam::SET_FOAM_PROPERTIES,
+	GetForcesNames (), OriginalUsed (), GetDataProperties (),
+	Foam::SET_DATA_PROPERTIES,
 	debugParsing, debugScanning) (*files.begin ());
     QList< boost::shared_ptr<Foam> > foams = QtConcurrent::blockingMapped 
 	< QList < boost::shared_ptr<Foam> > > (
 	    files.begin () + 1, files.end (),
 	    ParseDMP (	
 		dir.absolutePath (), GetDmpObjectInfo (),
-		GetForcesNames (), OriginalUsed (), GetFoamProperties (),
-		Foam::TEST_FOAM_PROPERTIES, debugParsing, debugScanning));
+		GetForcesNames (), OriginalUsed (), GetDataProperties (),
+		Foam::TEST_DATA_PROPERTIES, debugParsing, debugScanning));
     if (count_if (foams.constBegin (), foams.constEnd (),
 		  bl::_1 != boost::shared_ptr<Foam>()) != foams.size ())
 	ThrowException ("Could not process all files\n");

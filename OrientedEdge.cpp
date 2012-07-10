@@ -4,6 +4,7 @@
  *
  * Implementation of the OrientedFace class
  */
+#include "AttributeInfo.h"
 #include "Debug.h"
 #include "Edge.h"
 #include "Face.h"
@@ -82,7 +83,7 @@ string OrientedEdge::ToStringShort () const
     return ostr.str ();
 }
 
-string OrientedEdge::ToString () const
+string OrientedEdge::ToString (const AttributesInfo* ai) const
 {
     ostringstream ostr;
     using G3D::Vector3;
@@ -99,7 +100,7 @@ string OrientedEdge::ToString () const
     if (GetEdge ()->HasAttributes ())
     {
 	ostr << "Edge attributes: ";
-	GetEdge ()->PrintAttributes (ostr);
+	GetEdge ()->PrintAttributes (ostr, ai);
     }
     return ostr.str ();
 }

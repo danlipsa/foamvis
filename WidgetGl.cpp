@@ -1269,11 +1269,13 @@ string WidgetGl::infoSelectedBody () const
 {
     ostringstream ostr;
     vector< boost::shared_ptr<Body> > bodies;
+    const Foam& foam = GetSimulation ().GetFoam (GetCurrentTime ());
     brushedBodies (m_contextMenuPosScreen, &bodies);
     if (bodies.size () == 0)
 	ostr << "No bodies focused.";
     else
-	ostr << bodies[0];
+	ostr << bodies[0]->ToString (
+	    &foam.GetAttributesInfoElements ().GetInfoBody ());
     return ostr.str ();
 }
 
@@ -2712,7 +2714,7 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Foam& foam = GetSimulation (viewNumber).GetFoam (0);
-    const FoamProperties& foamProperties = foam.GetProperties ();
+    const DataProperties& foamProperties = foam.GetDataProperties ();
     if (! foamProperties.Is2D ())
 	return;
     glPushAttrib (GL_ENABLE_BIT);    
@@ -2837,7 +2839,7 @@ void WidgetGl::displayFacesInterior (
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Foam& foam = GetSimulation (viewNumber).GetFoam (0);
-    const FoamProperties& foamProperties = foam.GetProperties ();
+    const DataProperties& foamProperties = foam.GetDataProperties ();
     Foam::Bodies bodies = b;
     const BodySelector& bodySelector = vs.GetBodySelector ();
     // partition: opaque bodies first, then transparent bodies

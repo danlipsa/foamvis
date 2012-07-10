@@ -81,7 +81,8 @@ public:
     /**
      * Pretty print attributes of an element
      */
-    ostream& PrintAttributes (ostream& ostr) const;
+    ostream& PrintAttributes (ostream& ostr,
+			      const AttributesInfo* infos = 0) const;
 private:
     void storeAttribute (
 	const NameSemanticValue& nv, const AttributesInfo& infos);

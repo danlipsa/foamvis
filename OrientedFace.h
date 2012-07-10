@@ -82,7 +82,7 @@ public:
     double GetPerimeter () const;
     float GetArea () const;
     void CalculatePerimeter ();
-    string ToString () const;
+    string ToString (const AttributesInfo* ai = 0) const;
     void GetVertexSet (VertexSet* vertexSet) const;
     void GetEdgeSet (EdgeSet* edgeSet) const;
 

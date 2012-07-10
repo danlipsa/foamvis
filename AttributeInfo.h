@@ -9,6 +9,7 @@
 #define __ATTRIBUTE_INFO_H__
 
 #include "Comparisons.h"
+#include "ParsingEnums.h"
 
 class AttributeCreator;
 
@@ -60,7 +61,7 @@ inline ostream& operator<< (ostream& ostr, const AttributeInfo& ai)
 
 
 /**
- * Information about all attributes
+ * Information about all attributes of an Element
  */
 class AttributesInfo
 {
@@ -129,6 +130,69 @@ inline ostream& operator<< (ostream& ostr, const AttributesInfo& ai)
     return ostr << ai.ToString ();
 }
 
+
+class AttributesInfoElements
+{
+public:
+    AttributesInfoElements ();
+    const AttributesInfo& GetInfo (DefineAttribute::Enum attribute) const
+    {
+	return m_attributesInfo[attribute];
+    }
+    AttributesInfo& GetInfo (DefineAttribute::Enum attribute)
+    {
+	return m_attributesInfo[attribute];
+    }
+    const AttributesInfo& GetInfoBody () const
+    {
+	return GetInfo (DefineAttribute::BODY);
+    }
+    AttributesInfo& GetInfoBody ()
+    {
+	return m_attributesInfo [DefineAttribute::BODY];
+    }
+    const AttributesInfo& GetInfoFace () const
+    {
+	return GetInfo (DefineAttribute::FACE);
+    }
+    const AttributesInfo& GetInfoEdge () const
+    {
+	return GetInfo (DefineAttribute::EDGE);
+    }
+    const AttributesInfo& GetInfoVertex () const
+    {
+	return GetInfo (DefineAttribute::VERTEX);
+    }
+
+private:
+    /**
+     * Specifies the default attributes for the Vertex object.
+     * These attributes don't appear as a DEFINE in the .DMP file
+     */
+    void addDefaultVertexAttributes ();
+    /**
+     * Specifies the default attributes for an Edge object.
+     * These attributes don't appear as a DEFINE in the .DMP file
+     */
+    void addDefaultEdgeAttributes ();
+    /**
+     * Specifies the default attributes for an Face object.
+     * These attributes don't appear as a DEFINE in the .DMP file
+     */
+    void addDefaultFaceAttributes ();
+    /**
+     * Specifies the default attributes for the Body object.
+     * These attributes don't appear as a DEFINE in the .DMP file
+     */
+    void addDefaultBodyAttributes ();
+
+private:
+    /**
+     * Vector of maps between the name of an attribute and information about it.
+     * The indexes in the vector are for vertices, edges, faces, ...
+     */
+    boost::array<AttributesInfo, DefineAttribute::COUNT> m_attributesInfo;
+};
 
 
 #endif //__ATTRIBUTE_INFO_H__

@@ -23,7 +23,7 @@ class BodySelector;
 class ConstraintEdge;
 class Edge;
 class Face;
-class FoamProperties;
+class DataProperties;
 class NameSemanticValue;
 class ParsingData;
 
@@ -40,8 +40,8 @@ public:
     typedef vector< boost::shared_ptr<Body> > Bodies;
     enum ParametersOperation 
     {
-	SET_FOAM_PROPERTIES,
-	TEST_FOAM_PROPERTIES
+	SET_DATA_PROPERTIES,
+	TEST_DATA_PROPERTIES
     };
 
 
@@ -52,7 +52,7 @@ public:
     Foam (bool useOriginal, 
 	  const DmpObjectInfo& dmpObjectInfo,
 	  const vector<ForcesOneObjectNames>& forcesNames,
-	  FoamProperties& foamParameters, ParametersOperation paramsOp);
+	  DataProperties& foamParameters, ParametersOperation paramsOp);
 
     void GetVertexSet (VertexSet* vertexSet) const;
     VertexSet GetVertexSet () const
@@ -186,8 +186,6 @@ public:
     void SetTorusDomain (const G3D::Vector3& x, const G3D::Vector3& y);
     bool IsTorus () const;
     
-    const AttributesInfo& GetAttributesInfo (
-	DefineAttribute::Enum attributeType) const;
     const Edges& GetStandaloneEdges () const
     {
 	return m_standaloneEdges;
@@ -212,26 +210,6 @@ public:
     Foam::Bodies::iterator BodyInsideOriginalDomainStep (
 	Foam::Bodies::iterator begin,
 	VertexSet* vertexSet, EdgeSet* edgeSet, FaceSet* faceSet);
-    /**
-     * Specifies the default attributes for the Vertex object.
-     * These attributes don't appear as a DEFINE in the .DMP file
-     */
-    void AddDefaultVertexAttributes ();
-    /**
-     * Specifies the default attributes for an Edge object.
-     * These attributes don't appear as a DEFINE in the .DMP file
-     */
-    void AddDefaultEdgeAttributes ();
-    /**
-     * Specifies the default attributes for an Face object.
-     * These attributes don't appear as a DEFINE in the .DMP file
-     */
-    void AddDefaultFaceAttributes ();
-    /**
-     * Specifies the default attributes for the Body object.
-     * These attributes don't appear as a DEFINE in the .DMP file
-     */
-    void AddDefaultBodyAttributes ();
     template <typename Accumulator>
     void AccumulateProperty (
 	Accumulator* acc, BodyScalar::Enum property) const;
@@ -293,7 +271,7 @@ public:
     void CreateConstraintBody (size_t constraint);
     bool Is2D () const;
     bool IsQuadratic () const;
-    const FoamProperties& GetProperties () const
+    const DataProperties& GetDataProperties () const
     {
 	return m_properties;
     }
@@ -303,6 +281,10 @@ public:
     vtkSmartPointer<vtkUnstructuredGrid> AddCellAttribute (
 	vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
 	BodyAttribute::Enum attribute) const;
+    const AttributesInfoElements& GetAttributesInfoElements () const
+    {
+	return m_attributesInfoElements;
+    }
 
 public:
     static const double Z_COORDINATE_2D = 0.0;
@@ -394,11 +376,6 @@ private:
      */
     boost::shared_ptr<G3D::Matrix4> m_viewMatrix;
     /**
-     * Vector of maps between the name of an attribute and information about it.
-     * The indexes in the vector are for vertices, edges, faces, ...
-     */
-    boost::array<AttributesInfo, DefineAttribute::COUNT> m_attributesInfo;
-    /**
      * Data used in parsing the DMP file.
      */
     boost::scoped_ptr<ParsingData> m_parsingData;
@@ -417,8 +394,9 @@ private:
      * AdjacentBody, PointIndex for constraint points that need fixing.
      */
     vector< pair<size_t, size_t> > m_constraintPointsToFix;
-    FoamProperties& m_properties;    
+    DataProperties& m_properties;    
     ParametersOperation m_parametersOperation;
+    AttributesInfoElements m_attributesInfoElements;
 };
 
 /**

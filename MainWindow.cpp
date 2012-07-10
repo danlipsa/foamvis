@@ -75,14 +75,12 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     m_playForward (false),
     m_playReverse (false)
 {
-    FOAM_PROPERTIES.SetSpaceDimension (
-	simulationGroup.GetSimulation (0).GetFoamProperties ()->
+    DATA_PROPERTIES.SetSpaceDimension (
+	simulationGroup.GetSimulation (0).GetDataProperties ()->
 	GetSpaceDimension ());
-    FOAM_PROPERTIES.SetQuadratic (
-	simulationGroup.GetSimulation (0).GetFoamProperties ()->
+    DATA_PROPERTIES.SetQuadratic (
+	simulationGroup.GetSimulation (0).GetDataProperties ()->
 	IsQuadratic ());
-    if (FOAM_PROPERTIES.Is3D ())
-    	BodyScalar::Set3D ();
 
     // for anti-aliased lines
     QGLFormat format = QGLFormat::defaultFormat ();
@@ -1199,7 +1197,7 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
     ViewType::Enum viewType = vs.GetViewType ();
     const Foam& foam = widgetGl->GetSimulation ().GetFoam (0);
     setAndDisplayHistogram (KEEP_SELECTION, KEEP_MAX_VALUE, viewType);
-    if (foam.GetProperties ().Is3D () && viewType == ViewType::AVERAGE)
+    if (foam.GetDataProperties ().Is3D () && viewType == ViewType::AVERAGE)
 	update3DAverage (timeStep);
     if (m_debugTranslatedBody)
 	m_currentTranslatedBody = const_cast<Foam&> (foam).GetBodies ().begin ();
@@ -1243,7 +1241,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 	    if (m_histogramViewNumber == viewNumber)
 		setAndDisplayHistogram (
 		    KEEP_SELECTION, REPLACE_MAX_VALUE, viewType);
-	    if (foam.GetProperties ().Is3D ())
+	    if (foam.GetDataProperties ().Is3D ())
 	    {
 		widgetVtk->setHidden (true);
 		widgetGl->setVisible (true);
@@ -1256,7 +1254,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 	    if (m_histogramViewNumber == viewNumber)
 		setAndDisplayHistogram (
 		    KEEP_SELECTION, REPLACE_MAX_VALUE, viewType);
-	    if (foam.GetProperties ().Is3D ())
+	    if (foam.GetDataProperties ().Is3D ())
 	    {
 		update3DAverage (widgetGl->GetCurrentTime (viewNumber));
 		widgetGl->setHidden (true);
@@ -1270,7 +1268,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 	    if (m_histogramViewNumber == viewNumber)
 		setAndDisplayHistogram (
 		    KEEP_SELECTION, REPLACE_MAX_VALUE, viewType);
-	    if (foam.GetProperties ().Is3D ())
+	    if (foam.GetDataProperties ().Is3D ())
 	    {
 		widgetVtk->setHidden (true);
 		widgetGl->setVisible (true);
@@ -1279,7 +1277,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 
 	case ViewType::T1S_PDE:
 	    sliderTimeSteps->setMaximum (simulation.GetT1sTimeSteps () - 1);
-	    if (foam.GetProperties ().Is3D ())
+	    if (foam.GetDataProperties ().Is3D ())
 	    {
 		widgetGl->setHidden (true);
 		widgetVtk->setVisible (true);
@@ -1287,7 +1285,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 	    break;
 
 	default:
-	    if (foam.GetProperties ().Is3D ())
+	    if (foam.GetDataProperties ().Is3D ())
 	    {
 		widgetVtk->setHidden (true);
 		widgetGl->setVisible (true);

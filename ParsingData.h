@@ -9,7 +9,7 @@
 
 #include "ObjectPosition.h"
 #include "Comparisons.h"
-#include "FoamProperties.h"
+#include "DataProperties.h"
 #include "ForcesOneObject.h"
 #include "ParsingDriver.h"
 

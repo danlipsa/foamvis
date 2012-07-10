@@ -5,6 +5,7 @@
  * Implementation of the OrientedFace class
  */
 
+#include "AttributeInfo.h"
 #include "OrientedFace.h"
 #include "OrientedEdge.h"
 #include "Debug.h"
@@ -135,7 +136,7 @@ boost::shared_ptr<Vertex> OrientedFace::getEndVertex (size_t edgeIndex) const
     return oe.GetEndPtr ();
 }
 
-string OrientedFace::ToString () const
+string OrientedFace::ToString (const AttributesInfo* ai) const
 {
     ostringstream ostr;
     boost::shared_ptr<Face> face = GetFace ();
@@ -147,7 +148,7 @@ string OrientedFace::ToString () const
 	ostr << i << ": " << GetOrientedEdge (i).ToStringShort () << endl;
     ostr << "Face attributes: ";
     if (face->HasAttributes ())
-	face->PrintAttributes (ostr);
+	face->PrintAttributes (ostr, ai);
     ostr << " center=" << GetFace ()->GetCenter () 
 	 << " "
 	 << endl;

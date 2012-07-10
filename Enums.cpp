@@ -6,8 +6,10 @@
  * Implementations for functionality declared in Enums.h
  */
 
-#include "Enums.h"
+#include "DataProperties.h"
 #include "Debug.h"
+#include "Enums.h"
+
 
 ostream& operator<< (ostream& ostr, ElementStatus::Enum duplicateStatus)
 {
@@ -76,18 +78,19 @@ boost::array<const char*, BodyScalar::COUNT> BodyScalar::NAME3D = {{
 	"Actual volume",
     }};
 
-boost::array<const char*, BodyScalar::COUNT>* BodyScalar::NAME = &NAME2D;
-
-void BodyScalar::Set3D ()
+const boost::array<const char*, BodyScalar::COUNT>& BodyScalar::NAME ()
 {
-    NAME = &NAME3D;
+    // C++ FAQ, 10.5 How do I prevent the "static initialization order fiasco"
+    static boost::array<const char*, BodyScalar::COUNT>* name = 
+	(DATA_PROPERTIES.Is2D ()) ? &NAME2D : &NAME3D;
+    return *name;
 }
 
 const char* BodyScalar::ToString (BodyScalar::Enum property)
 {
-    RuntimeAssert (property < static_cast<int> (NAME->size ()), 
+    RuntimeAssert (property < static_cast<int> (NAME ().size ()), 
 		   "Invalid BodyScalar: ", property);
-    return (*NAME)[property];
+    return NAME ()[property];
 }
 
 BodyScalar::Enum BodyScalar::FromSizeT (size_t i)
@@ -107,7 +110,10 @@ const char* DisplayFaceScalar::ToString (DisplayFaceScalar::Enum faceProperty)
     }
 }
 
-boost::array<BodyAttribute::Info,BodyAttribute::COUNT> BodyAttribute::INFO = {{
+const BodyAttribute::Info* BodyAttribute::INFO ()
+{
+    // C++ FAQ, 10.5 How do I prevent the "static initialization order fiasco"
+    static Info info[COUNT] = {
 	{BodyAttribute::SIDES_PER_BUBBLE,
 	 BodyScalar::ToString (BodyScalar::SIDES_PER_BUBBLE), 1},
 	{BodyAttribute::DEFORMATION_SIMPLE,
@@ -122,16 +128,18 @@ boost::array<BodyAttribute::Info,BodyAttribute::COUNT> BodyAttribute::INFO = {{
 	 BodyScalar::ToString (BodyScalar::ACTUAL_VOLUME),1},
 	{BodyAttribute::VELOCITY, "Velocity",3},
 	{BodyAttribute::DEFORMATION, "Deformation",9}
-    }};
+    };
+    return info;
+}
 
 const char* BodyAttribute::ToString (BodyAttribute::Enum attribute)
 {
-    return INFO[attribute].m_name;
+    return INFO ()[attribute].m_name;
 }
 
 size_t BodyAttribute::GetNumberOfComponents (BodyAttribute::Enum attribute)
 {
-    return INFO[attribute].m_numberOfComponents;
+    return INFO ()[attribute].m_numberOfComponents;
 }
 
 BodyScalar::Enum BodyAttribute::ToBodyScalar (

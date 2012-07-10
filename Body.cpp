@@ -10,7 +10,7 @@
 #include "Body.h"
 #include "Edge.h"
 #include "Foam.h"
-#include "FoamProperties.h"
+#include "DataProperties.h"
 #include "Debug.h"
 #include "DebugStream.h"
 #include "Utils.h"
@@ -180,7 +180,7 @@ void Body::splitTessellationPhysical (
 
 void Body::CalculateCenter ()
 {
-    if (FOAM_PROPERTIES.Is2D ())
+    if (DATA_PROPERTIES.Is2D ())
     {
 	m_center = GetFace (0).GetCenter ();
 	return;
@@ -238,17 +238,17 @@ void Body::GetFaceSet (FaceSet* faceSet) const
 	faceSet->insert (of->GetFace ());
 }
 
-string Body::ToString () const
+string Body::ToString (const AttributesInfo* ai) const
 {
     ostringstream ostr;
     ostr << "Body " << GetId () << ":" << endl;
     ostr << m_orientedFaces.size () << " faces part of the body\n";
     BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, m_orientedFaces)
-	ostr << of->GetStringId ();
+	ostr << of->GetStringId () << " ";
     if (HasAttributes ())
     {
-	ostr << " Body attributes: ";
-	PrintAttributes (ostr);
+	ostr << "\nBody attributes: ";
+	PrintAttributes (ostr, ai);
     }
     ostr << "\nBody center: " << m_center;
     if (IsConstraint ())
@@ -390,7 +390,7 @@ G3D::Matrix3 Body::GetDeformationTensor (
 float Body::GetDeformationEigenScalar () const
 {
     size_t maxIndex = 0;
-    size_t minIndex = FOAM_PROPERTIES.Is2D () ? 1 : 2;
+    size_t minIndex = DATA_PROPERTIES.Is2D () ? 1 : 2;
     float deformationEigen = 1. - GetDeformationEigenValue (minIndex) / 
 	GetDeformationEigenValue (maxIndex);
     return deformationEigen;
@@ -430,7 +430,7 @@ void Body::CalculateDeformationSimple ()
     if (! ExistsPropertyValue (BodyScalar::TARGET_VOLUME))
 	return;    
     calculateArea ();
-    if (FOAM_PROPERTIES.Is2D ())
+    if (DATA_PROPERTIES.Is2D ())
     {
 	boost::shared_ptr<OrientedFace> of = GetOrientedFacePtr (0);
 	of->CalculatePerimeter ();
@@ -463,7 +463,7 @@ const char* Body::GetAttributeKeywordString (BodyScalar::Enum bp)
 
 void Body::CalculateNeighbors (const OOBox& originalDomain)
 {
-    if (FOAM_PROPERTIES.Is2D ())
+    if (DATA_PROPERTIES.Is2D ())
 	calculateNeighbors2D (originalDomain);
     else
 	calculateNeighbors3D (originalDomain);

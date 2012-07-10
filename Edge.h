@@ -140,7 +140,7 @@ public:
     }
     bool HasConstraints () const;
 
-    string ToString () const;
+    string ToString (const AttributesInfo* ai = 0) const;
     void GetVertexSet (VertexSet* vertexSet) const;
     double GetLength () const;
 

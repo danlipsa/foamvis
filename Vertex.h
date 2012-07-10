@@ -48,7 +48,7 @@ public:
     }
     size_t GetConstraintIndex (size_t i) const;
 
-    string ToString () const;
+    string ToString (const AttributesInfo* ai = 0) const;
     boost::shared_ptr<Vertex> GetDuplicate (
 	const OOBox& periods,
 	const G3D::Vector3int16& translation,
