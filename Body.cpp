@@ -347,11 +347,11 @@ float Body::GetScalarValue (BodyScalar::Enum property) const
     }
 }
 
-void Body::GetAttributeValue (BodyAttribute::Enum attribute, float* value)
+void Body::GetAttributeValue (size_t attribute, float* value)
 {
     if (BodyAttribute::IsScalar (attribute))
     {
-	float v = GetScalarValue (BodyAttribute::ToBodyScalar (attribute));
+	float v = GetScalarValue (BodyScalar::FromSizeT(attribute));
 	*value = v;
     }
     else if (BodyAttribute::IsVector (attribute))

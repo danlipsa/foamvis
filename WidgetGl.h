@@ -208,12 +208,12 @@ public:
 	ViewNumber::Enum viewNumber, 
 	ViewingVolumeOperation::Enum enclose = 
 	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
-    size_t GetBodyOrFaceScalar () const
+    size_t GetFaceScalar () const
     {
-	return GetBodyOrFaceScalar (GetViewNumber ());
+	return GetFaceScalar (GetViewNumber ());
     }
 
-    size_t GetBodyOrFaceScalar (ViewNumber::Enum viewNumber) const;
+    size_t GetFaceScalar (ViewNumber::Enum viewNumber) const;
 
     G3D::Rect2D GetViewRect (ViewNumber::Enum viewNumber) const;
     G3D::Rect2D GetViewRect () const

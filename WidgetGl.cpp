@@ -768,7 +768,7 @@ void WidgetGl::initializeLighting ()
 
     boost::array<GLfloat, 4> ambientLight = {{0, 0, 0, 1}};
     boost::array<GLfloat, 4> diffuseLight = {{1, 1, 1, 1}};
-    boost::array<GLfloat, 4> specularLight = {{1, 1, 1, 1}};
+    boost::array<GLfloat, 4> specularLight = {{0, 0, 0, 1}};
 
     // light colors
     for (size_t viewNumber = 0; viewNumber < ViewNumber::COUNT; ++viewNumber)
@@ -1296,8 +1296,8 @@ string WidgetGl::infoSelectedBodies () const
 	ostr << "Selected ids: ";
 	ostream_iterator<size_t> out (ostr, " ");
 	copy (ids.begin (), ids.end (), out);
-	if (GetViewSettings ().GetBodyOrFaceScalar () != 
-	    DisplayFaceScalar::DMP_COLOR)
+	if (GetViewSettings ().GetFaceScalar () != 
+	    FaceScalar::DMP_COLOR)
 	{
 	    ostr << endl;
 		
@@ -2496,7 +2496,7 @@ pair<float, float> WidgetGl::GetRange (ViewNumber::Enum viewNumber) const
 	else
 	{
 	    BodyScalar::Enum bodyProperty = 
-		BodyScalar::FromSizeT (vs.GetBodyOrFaceScalar ());
+		BodyScalar::FromSizeT (vs.GetFaceScalar ());
 	    minValue = simulation.GetMin (bodyProperty);
 	    maxValue = simulation.GetMax (bodyProperty);
 	}
@@ -3079,7 +3079,7 @@ ColorBarType::Enum WidgetGl::GetColorBarType (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     ViewType::Enum viewType = vs.GetViewType ();
-    size_t property = vs.GetBodyOrFaceScalar ();
+    size_t property = vs.GetFaceScalar ();
     ComputationType::Enum statisticsType = vs.GetComputationType ();
     return WidgetGl::GetColorBarType (viewType, property, statisticsType);
 }
@@ -3097,7 +3097,7 @@ ColorBarType::Enum WidgetGl::GetColorBarType (
 	if (statisticsType == ComputationType::COUNT)
 	    return ColorBarType::STATISTICS_COUNT;
     case ViewType::FACES:
-	if (property == DisplayFaceScalar::DMP_COLOR)
+	if (property == FaceScalar::DMP_COLOR)
 	    return ColorBarType::NONE;
     case ViewType::CENTER_PATHS:
 	return ColorBarType::PROPERTY;
@@ -3225,14 +3225,14 @@ void WidgetGl::contextMenuEventColorBar (QMenu* menu) const
     QMenu* menuCopy = menu->addMenu ("Copy");
     if (ViewCount::GetCount (m_viewCount) > 1)
     {
-	size_t currentProperty = vs.GetBodyOrFaceScalar ();
+	size_t currentProperty = vs.GetFaceScalar ();
 	for (size_t i = 0; i < ViewCount::GetCount (m_viewCount); ++i)
 	{
 	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	    const ViewSettings& otherVs = GetViewSettings (viewNumber);
 	    if (viewNumber == m_viewNumber ||
 		GetColorBarType (m_viewNumber) != GetColorBarType (viewNumber) ||
-		currentProperty != otherVs.GetBodyOrFaceScalar () ||
+		currentProperty != otherVs.GetFaceScalar () ||
 		vs.GetSimulationIndex () != otherVs.GetSimulationIndex ())
 		continue;
 	    menuCopy->addAction (m_actionCopyColorMap[i].get ());
@@ -3380,7 +3380,7 @@ void WidgetGl::displayViewTitle (ViewNumber::Enum viewNumber)
     ViewSettings& vs = GetViewSettings (viewNumber);
     ostr << "View " << viewNumber << " - "
 	 << ViewType::ToString (vs.GetViewType ()) << " - "
-	 << BodyOrFaceScalarToString (vs.GetBodyOrFaceScalar ()) << " - "
+	 << FaceScalar::ToString (vs.GetFaceScalar ()) << " - "
 	 << vs.GetCurrentTime ();    
     displayViewText (viewNumber, GetSimulation (viewNumber).GetName (), 0);
     displayViewText (viewNumber, ostr.str (), 1);
@@ -3403,9 +3403,9 @@ void WidgetGl::displayViewText (
 
 
 
-size_t WidgetGl::GetBodyOrFaceScalar (ViewNumber::Enum viewNumber) const
+size_t WidgetGl::GetFaceScalar (ViewNumber::Enum viewNumber) const
 {
-    return GetViewSettings (viewNumber).GetBodyOrFaceScalar ();
+    return GetViewSettings (viewNumber).GetFaceScalar ();
 }
 
 
@@ -4436,7 +4436,7 @@ void WidgetGl::SetBodyOrFaceScalar (
     makeCurrent ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetBodyOrFaceScalar (bodyOrFaceScalar);
-    if (vs.GetBodyOrFaceScalar () != DisplayFaceScalar::DMP_COLOR)
+    if (vs.GetFaceScalar () != FaceScalar::DMP_COLOR)
 	vs.SetColorBarModel (colorBarModel);
     else
 	vs.ResetColorBarModel ();

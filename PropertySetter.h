@@ -23,7 +23,7 @@ public:
 
     void operator () ();
     void operator () (const boost::shared_ptr<Body>& body);
-    int GetBodyOrFaceScalar () const;
+    int GetFaceScalar () const;
     ViewNumber::Enum GetViewNumber () const
     {
 	return m_viewNumber;
@@ -65,7 +65,7 @@ public:
 	SetterVertexAttribute (widgetGl, view, program, attributeIndex)
     {
     }
-    int GetBodyOrFaceScalar () const;
+    int GetFaceScalar () const;
     void operator () ();
     void operator () (const boost::shared_ptr<Body>& body);
 };
@@ -80,7 +80,7 @@ public:
     {
     }
 
-    int GetBodyOrFaceScalar () const;
+    int GetFaceScalar () const;
     void operator () ();
     void operator () (const boost::shared_ptr<Body>& body);
 };

@@ -939,7 +939,7 @@ void Foam::getTetraPoints (
 
 vtkSmartPointer<vtkUnstructuredGrid> Foam::AddCellAttribute (
     vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
-    BodyAttribute::Enum attribute) const
+    size_t attribute) const
 {
     MeasureTime mt;
     vtkIdType numberOfCells = aTetraGrid->GetNumberOfCells ();
@@ -1017,7 +1017,7 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::GetTetraGrid () const
     createTetraCells (aTetraGrid, sortedPoints, maxPointId);
     // set the cell attributes
     for (size_t i = 0; i < BodyAttribute::COUNT; ++i)
-	AddCellAttribute (aTetraGrid, BodyAttribute::Enum (i));
+	AddCellAttribute (aTetraGrid, i);
     
     return aTetraGrid;
 }

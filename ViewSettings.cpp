@@ -25,12 +25,6 @@
 // Private Functions
 // ======================================================================
 
-void initialize (boost::array<GLfloat, 4>& colors,
-		 const boost::array<GLfloat, 4>& values)
-{
-    copy (values.begin (), values.end (), colors.begin ());
-}
-
 boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
     const Foam& foam, const vector<size_t> bodyIds)
 {
@@ -153,18 +147,20 @@ void ViewSettings::setInitialLightParameters ()
 	m_directionalLightEnabled[i] = true;
     }
 
-    boost::array<
-    boost::array<GLfloat,4>, LightType::COUNT> light = {{
-	// default (0, 0, 0, 1)
-	{{0, 0, 0, 1.0}},
-	// default (1, 1, 1, 1)
-	{{1.0, 1.0, 1.0, 1.0}},
-	// default (1, 1, 1, 1)
-	{{1.0, 1.0, 1.0, 1.0}}
+    boost::array<boost::array<GLfloat,4>, LightType::COUNT> light = {{
+	    // default (0, 0, 0, 1) ambient
+	    {{0, 0, 0, 1.0}},
+	    // default (1, 1, 1, 1) diffuse
+	    {{1.0, 1.0, 1.0, 1.0}},
+	    // default (1, 1, 1, 1) specular
+	    {{0.0, 0.0, 0.0, 1.0}}
 	}};
-    for(size_t i = 0; i < LightType::COUNT; ++i)
-	for_each (m_light[i].begin (), m_light[i].end (),
-		  boost::bind (initialize, _1, light[i]));
+    for(size_t i = 0; i < LightNumber::COUNT; ++i)
+	for (size_t j = 0; j < LightType::COUNT; ++j)
+	{
+	    boost::array<GLfloat, 4>& src = light[j];
+	    copy (src.begin (), src.end (), m_light[i][j].begin ());
+	}
 }
 
 

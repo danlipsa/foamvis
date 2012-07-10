@@ -104,6 +104,7 @@ private:
     void setupColorMap ();
     void setupImage ();
     QColor getColor (double value) const;
+    void adjustColorTransferFunction ();
 
 private:
     Palette m_palette;
@@ -111,6 +112,7 @@ private:
     QImage m_image;
     QwtDoubleInterval m_interval;
     QwtDoubleInterval m_clampValues;
+    vtkSmartPointer<vtkColorTransferFunction> m_ctf;
     vtkSmartPointer<vtkColorTransferFunction> m_colorTransferFunction;
     QString m_title;
     boost::array<QColor,HighlightNumber::COUNT> m_highlightColor;

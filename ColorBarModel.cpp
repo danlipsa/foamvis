@@ -19,6 +19,7 @@ ColorBarModel::ColorBarModel () :
     m_interval (0, 1),
     m_clampValues (0, 1)
 {
+    m_ctf = vtkColorTransferFunction::New ();
     m_colorTransferFunction = vtkColorTransferFunction::New ();
 }
 
@@ -30,21 +31,21 @@ QColor ColorBarModel::GetHighlightColor (HighlightNumber::Enum i) const
 QColor ColorBarModel::getColor (double value) const
 {
     QColor color;
-    color.setRedF (m_colorTransferFunction->GetRedValue (value));
-    color.setGreenF (m_colorTransferFunction->GetGreenValue (value));
-    color.setBlueF (m_colorTransferFunction->GetBlueValue (value));
+    color.setRedF (m_ctf->GetRedValue (value));
+    color.setGreenF (m_ctf->GetGreenValue (value));
+    color.setBlueF (m_ctf->GetBlueValue (value));
     return color;    
 }
 
 void ColorBarModel::setupPaletteRainbow ()
 {
-    m_colorTransferFunction->RemoveAllPoints ();
-    m_colorTransferFunction->SetColorSpaceToLab();
-    m_colorTransferFunction->AddRGBPoint(0.0, 0, 0, 1);   // blue
-    m_colorTransferFunction->AddRGBPoint(0.25, 0, 1, 1);   // cyan
-    m_colorTransferFunction->AddRGBPoint(0.50, 0, 1, 0);   // green
-    m_colorTransferFunction->AddRGBPoint(0.75, 1, 1, 0);   // yellow
-    m_colorTransferFunction->AddRGBPoint(1.0, 1, 0, 0);   // red
+    m_ctf->RemoveAllPoints ();
+    m_ctf->SetColorSpaceToLab();
+    m_ctf->AddRGBPoint(0.0, 0, 0, 1);   // blue
+    m_ctf->AddRGBPoint(0.25, 0, 1, 1);   // cyan
+    m_ctf->AddRGBPoint(0.50, 0, 1, 0);   // green
+    m_ctf->AddRGBPoint(0.75, 1, 1, 0);   // yellow
+    m_ctf->AddRGBPoint(1.0, 1, 0, 0);   // red
     setup ();
     m_highlightColor[0] = Qt::black;
     m_highlightColor[1] = Qt::yellow;
@@ -53,13 +54,13 @@ void ColorBarModel::setupPaletteRainbow ()
 
 void ColorBarModel::setupPaletteRainbowExtended ()
 {
-    m_colorTransferFunction->SetColorSpaceToLab();
-    m_colorTransferFunction->AddRGBPoint(0.0, 1, 0, 1);   // magenta
-    m_colorTransferFunction->AddRGBPoint(0.2, 0, 0, 1);   // blue
-    m_colorTransferFunction->AddRGBPoint(0.4, 0, 1, 1);   // cyan
-    m_colorTransferFunction->AddRGBPoint(0.6, 0, 1, 0);   // green
-    m_colorTransferFunction->AddRGBPoint(0.8, 1, 1, 0);   // yellow
-    m_colorTransferFunction->AddRGBPoint(1.0, 1, 0, 0);   // red
+    m_ctf->SetColorSpaceToLab();
+    m_ctf->AddRGBPoint(0.0, 1, 0, 1);   // magenta
+    m_ctf->AddRGBPoint(0.2, 0, 0, 1);   // blue
+    m_ctf->AddRGBPoint(0.4, 0, 1, 1);   // cyan
+    m_ctf->AddRGBPoint(0.6, 0, 1, 0);   // green
+    m_ctf->AddRGBPoint(0.8, 1, 1, 0);   // yellow
+    m_ctf->AddRGBPoint(1.0, 1, 0, 0);   // red
     setup ();    
     m_highlightColor[0] = Qt::black;
     m_highlightColor[1] = Qt::yellow;
@@ -118,12 +119,12 @@ void ColorBarModel::setupPaletteDiverging (
 
 void ColorBarModel::setupPaletteSequentialBlackBody ()
 {
-  m_colorTransferFunction->RemoveAllPoints ();
-  m_colorTransferFunction->SetColorSpaceToLab();
-  m_colorTransferFunction->AddRGBPoint(0.0, 0, 0, 0);   // black
-  m_colorTransferFunction->AddRGBPoint(0.33, 1, 0, 0);   // red
-  m_colorTransferFunction->AddRGBPoint(0.66, 1, 1, 0);   // yellow
-  m_colorTransferFunction->AddRGBPoint(1.0, 1, 1, 1);   // white
+  m_ctf->RemoveAllPoints ();
+  m_ctf->SetColorSpaceToLab();
+  m_ctf->AddRGBPoint(0.0, 0, 0, 0);   // black
+  m_ctf->AddRGBPoint(0.33, 1, 0, 0);   // red
+  m_ctf->AddRGBPoint(0.66, 1, 1, 0);   // yellow
+  m_ctf->AddRGBPoint(1.0, 1, 1, 1);   // white
   setup ();
   m_highlightColor[0] = Qt::green;
   m_highlightColor[1] = Qt::blue;
@@ -132,18 +133,18 @@ void ColorBarModel::setupPaletteSequentialBlackBody ()
 
 void ColorBarModel::setupPaletteSequentialBrewerBlues9 ()
 {
-    m_colorTransferFunction->RemoveAllPoints ();
-    m_colorTransferFunction->SetColorSpaceToLab();
-    //m_colorTransferFunction->AddRGBPoint(0.0    , 0.968627, 0.984314, 1.000000);
-    m_colorTransferFunction->AddRGBPoint(0.0    ,        1,        1, 1.000000); // change to white
-    m_colorTransferFunction->AddRGBPoint(0.12500, 0.870588, 0.921569, 0.968627);
-    m_colorTransferFunction->AddRGBPoint(0.25000, 0.776471, 0.858824, 0.937255);
-    m_colorTransferFunction->AddRGBPoint(0.37500, 0.619608, 0.792157, 0.882353);
-    m_colorTransferFunction->AddRGBPoint(0.50000, 0.419608, 0.682353, 0.839216);
-    m_colorTransferFunction->AddRGBPoint(0.62500, 0.258824, 0.572549, 0.776471);
-    m_colorTransferFunction->AddRGBPoint(0.75000, 0.129412, 0.443137, 0.709804);
-    m_colorTransferFunction->AddRGBPoint(0.87500, 0.031373, 0.317647, 0.611765);
-    m_colorTransferFunction->AddRGBPoint(1.00000, 0.031373, 0.188235, 0.419608);
+    m_ctf->RemoveAllPoints ();
+    m_ctf->SetColorSpaceToLab();
+    //m_ctf->AddRGBPoint(0.0    , 0.968627, 0.984314, 1.000000);
+    m_ctf->AddRGBPoint(0.0    ,        1,        1, 1.000000); // change to white
+    m_ctf->AddRGBPoint(0.12500, 0.870588, 0.921569, 0.968627);
+    m_ctf->AddRGBPoint(0.25000, 0.776471, 0.858824, 0.937255);
+    m_ctf->AddRGBPoint(0.37500, 0.619608, 0.792157, 0.882353);
+    m_ctf->AddRGBPoint(0.50000, 0.419608, 0.682353, 0.839216);
+    m_ctf->AddRGBPoint(0.62500, 0.258824, 0.572549, 0.776471);
+    m_ctf->AddRGBPoint(0.75000, 0.129412, 0.443137, 0.709804);
+    m_ctf->AddRGBPoint(0.87500, 0.031373, 0.317647, 0.611765);
+    m_ctf->AddRGBPoint(1.00000, 0.031373, 0.188235, 0.419608);
     setup ();
     m_highlightColor[0] = Qt::black;
     m_highlightColor[1] = Qt::red;
@@ -152,17 +153,17 @@ void ColorBarModel::setupPaletteSequentialBrewerBlues9 ()
 
 void ColorBarModel::setupPaletteSequentialBrewerYlOrRd9 ()
 {
-    m_colorTransferFunction->RemoveAllPoints ();
-    m_colorTransferFunction->SetColorSpaceToLab();
-    m_colorTransferFunction->AddRGBPoint(0.0    , 1.00000, 1.00000, 0.80000);
-    m_colorTransferFunction->AddRGBPoint(0.12500, 1.00000, 0.92941, 0.62745);
-    m_colorTransferFunction->AddRGBPoint(0.25000, 0.99608, 0.85098, 0.46275);
-    m_colorTransferFunction->AddRGBPoint(0.37500, 0.99608, 0.69804, 0.29804);
-    m_colorTransferFunction->AddRGBPoint(0.50000, 0.99216, 0.55294, 0.23529);
-    m_colorTransferFunction->AddRGBPoint(0.62500, 0.98824, 0.30588, 0.16471);
-    m_colorTransferFunction->AddRGBPoint(0.75000, 0.89020, 0.10196, 0.10980);
-    m_colorTransferFunction->AddRGBPoint(0.87500, 0.74118, 0.00000, 0.14902);
-    m_colorTransferFunction->AddRGBPoint(1.00000, 0.50196, 0.00000, 0.14902);
+    m_ctf->RemoveAllPoints ();
+    m_ctf->SetColorSpaceToLab();
+    m_ctf->AddRGBPoint(0.0    , 1.00000, 1.00000, 0.80000);
+    m_ctf->AddRGBPoint(0.12500, 1.00000, 0.92941, 0.62745);
+    m_ctf->AddRGBPoint(0.25000, 0.99608, 0.85098, 0.46275);
+    m_ctf->AddRGBPoint(0.37500, 0.99608, 0.69804, 0.29804);
+    m_ctf->AddRGBPoint(0.50000, 0.99216, 0.55294, 0.23529);
+    m_ctf->AddRGBPoint(0.62500, 0.98824, 0.30588, 0.16471);
+    m_ctf->AddRGBPoint(0.75000, 0.89020, 0.10196, 0.10980);
+    m_ctf->AddRGBPoint(0.87500, 0.74118, 0.00000, 0.14902);
+    m_ctf->AddRGBPoint(1.00000, 0.50196, 0.00000, 0.14902);
     setup ();
     m_highlightColor[0] = Qt::black;
     m_highlightColor[1] = Qt::blue;
@@ -174,11 +175,11 @@ void ColorBarModel::setupPaletteSequentialBrewerYlOrRd9 ()
 
 void ColorBarModel::setupPaletteRainbowHSV ()
 {
-  m_colorTransferFunction->RemoveAllPoints ();
-  m_colorTransferFunction->SetColorSpaceToHSV();
-  m_colorTransferFunction->HSVWrapOff();
-  m_colorTransferFunction->AddHSVPoint(0.0, 0.66667, 1.0, 1.0); // blue
-  m_colorTransferFunction->AddHSVPoint(1.0, 0.0, 1.0, 1.0);     // red
+  m_ctf->RemoveAllPoints ();
+  m_ctf->SetColorSpaceToHSV();
+  m_ctf->HSVWrapOff();
+  m_ctf->AddHSVPoint(0.0, 0.66667, 1.0, 1.0); // blue
+  m_ctf->AddHSVPoint(1.0, 0.0, 1.0, 1.0);     // red
   setup ();
 }
 
@@ -224,11 +225,11 @@ void ColorBarModel::setupPaletteDiverging (size_t c)
 	     {0, 0, 0}, {1, 1, 0}, {0, 0, 1}
 	    }
 	};    
-    m_colorTransferFunction->RemoveAllPoints ();
-    m_colorTransferFunction->SetColorSpaceToDiverging();
-    m_colorTransferFunction->AddRGBPoint(
+    m_ctf->RemoveAllPoints ();
+    m_ctf->SetColorSpaceToDiverging();
+    m_ctf->AddRGBPoint(
 	0.0, colors[c][0][0], colors[c][0][1], colors[c][0][2]);
-    m_colorTransferFunction->AddRGBPoint(
+    m_ctf->AddRGBPoint(
 	1.0, colors[c][1][0], colors[c][1][1], colors[c][1][2]);
     setup ();
     for (size_t i = 0; i < m_highlightColor.size (); ++i)
@@ -240,14 +241,21 @@ void ColorBarModel::setup ()
 {
     setupColorMap ();
     setupImage ();
+    adjustColorTransferFunction ();
+}
+
+void ColorBarModel::adjustColorTransferFunction ()
+{
     // [0,1] -> m_clampValues 
-    for (int i = 0; i < m_colorTransferFunction->GetSize (); ++i)
+    m_colorTransferFunction->SetColorSpace (m_ctf->GetColorSpace ());
+    for (int i = 0; i < m_ctf->GetSize (); ++i)
     {
 	double v[6];
-	m_colorTransferFunction->GetNodeValue (i, v);
+	m_ctf->GetNodeValue (i, v);
 	v[0] = m_clampValues.minValue () +
 	    v[0] * (m_clampValues.maxValue () - m_clampValues.minValue ());
-	m_colorTransferFunction->SetNodeValue (i, v);
+	m_colorTransferFunction->AddRGBPoint (
+	    v[0], v[1], v[2], v[3], v[4], v[5]);
     }
 }
 

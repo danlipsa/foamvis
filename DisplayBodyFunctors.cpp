@@ -370,7 +370,7 @@ valueStep (
      if (focus)
      {
 	 BodyScalar::Enum property = BodyScalar::FromSizeT (
-	     this->m_propertySetter.GetBodyOrFaceScalar ());
+	     this->m_propertySetter.GetFaceScalar ());
 	 bool deduced;
 	 bool exists = p.m_body->ExistsPropertyValue (property, &deduced);
 	 if (exists && 

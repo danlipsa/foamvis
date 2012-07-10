@@ -23,7 +23,7 @@ void SetterTextureCoordinate::operator () (
     const boost::shared_ptr<Body>& body)
 {
     BodyScalar::Enum property = BodyScalar::FromSizeT (
-	m_widgetGl.GetViewSettings (m_viewNumber).GetBodyOrFaceScalar ());
+	m_widgetGl.GetViewSettings (m_viewNumber).GetFaceScalar ());
     double value = body->GetScalarValue (property);
     double texCoord = 
 	m_widgetGl.GetViewSettings (m_viewNumber).
@@ -36,9 +36,9 @@ void SetterTextureCoordinate::operator () ()
     glTexCoord1f (0); 
 }
 
-int SetterTextureCoordinate::GetBodyOrFaceScalar () const
+int SetterTextureCoordinate::GetFaceScalar () const
 {
-    return m_widgetGl.GetViewSettings (m_viewNumber).GetBodyOrFaceScalar ();
+    return m_widgetGl.GetViewSettings (m_viewNumber).GetFaceScalar ();
 }
 
 G3D::Matrix3 SetterTextureCoordinate::getRotation () const
@@ -56,7 +56,7 @@ void SetterVertexAttribute::operator () (
     const boost::shared_ptr<Body>& body)
 {
     BodyScalar::Enum bodyProperty = BodyScalar::FromSizeT (
-	GetBodyOrFaceScalar ());
+	GetFaceScalar ());
     double value = body->GetScalarValue (bodyProperty);
     m_program->setAttributeValue (m_attributeLocation, value);
 }
@@ -88,7 +88,7 @@ void SetterDeformation::operator () ()
     m_program->setAttributeValue (m_attributeLocation, 0, 0, 0, 0);
 }
 
-int SetterDeformation::GetBodyOrFaceScalar () const
+int SetterDeformation::GetFaceScalar () const
 {
     return BodyScalar::DEFORMATION_EIGEN;
 }
@@ -110,7 +110,7 @@ void SetterVelocity::operator () ()
     m_program->setAttributeValue (m_attributeLocation, 0, 0);
 }
 
-int SetterVelocity::GetBodyOrFaceScalar () const
+int SetterVelocity::GetFaceScalar () const
 {
     return BodyScalar::VELOCITY_MAGNITUDE;
 }

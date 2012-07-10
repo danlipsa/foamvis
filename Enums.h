@@ -122,7 +122,7 @@ private:
     static const boost::array<const char*, COUNT>& NAME ();
 };
 
-class DisplayFaceScalar
+class FaceScalar
 {
 public:
     enum Enum
@@ -131,43 +131,39 @@ public:
 	COUNT
     };
 public:
-    static const char* ToString (DisplayFaceScalar::Enum property);
+    static const char* ToString (FaceScalar::Enum property);
+    static const char* ToString (size_t property);
     static Enum FromSizeT (size_t i);
 };
-
 
 struct BodyAttribute
 {
     enum Enum
     {
-	SIDES_PER_BUBBLE,
-	DEFORMATION_SIMPLE,
-	DEFORMATION_EIGEN,
-	PRESSURE,
-	TARGET_VOLUME,
-	ACTUAL_VOLUME,
-	VELOCITY,
+	VELOCITY = BodyScalar::COUNT,
 	DEFORMATION,
 	COUNT
     };
     static const char* ToString (BodyAttribute::Enum attribute);
+    static const char* ToString (size_t attribute);
+
     static size_t GetNumberOfComponents (BodyAttribute::Enum attribute);
-    static bool IsScalar (BodyAttribute::Enum attribute)
+    static size_t GetNumberOfComponents (size_t attribute);
+    static BodyAttribute::Enum FromSizeT (size_t i);
+
+
+    static bool IsScalar (size_t attribute)
     {
 	return GetNumberOfComponents (attribute) == 1;
     }
-    static bool IsVector (BodyAttribute::Enum attribute)
+    static bool IsVector (size_t attribute)
     {
 	return GetNumberOfComponents (attribute) == 3;
     }
-    static bool IsTensor (BodyAttribute::Enum attribute)
+    static bool IsTensor (size_t attribute)
     {
 	return GetNumberOfComponents (attribute) == 6;
     }
-    static BodyScalar::Enum ToBodyScalar (
-	BodyAttribute::Enum attribute);
-    static BodyAttribute::Enum FromBodyScalar (
-	BodyScalar::Enum scalar);
 
 private:
     struct Info
@@ -176,10 +172,9 @@ private:
 	const char* m_name;
 	size_t m_numberOfComponents;
     };
-    static const Info* INFO ();
+    static Info INFO[];
 };
 
-const char* BodyOrFaceScalarToString (size_t property);
 
 class HistogramType
 {

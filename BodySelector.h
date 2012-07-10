@@ -95,8 +95,11 @@ public:
 	return BodySelectorType::PROPERTY_VALUE;
     }
     boost::shared_ptr<PropertyValueBodySelector> Clone () const;
-
     string ToUserString () const;
+    const vector<QwtDoubleInterval>& GetIntervals () const
+    {
+	return m_valueIntervals;
+    }
 
 private:
     BodyScalar::Enum m_property;

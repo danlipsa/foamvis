@@ -280,7 +280,7 @@ public:
     vtkSmartPointer<vtkUnstructuredGrid> GetTetraGrid () const;
     vtkSmartPointer<vtkUnstructuredGrid> AddCellAttribute (
 	vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
-	BodyAttribute::Enum attribute) const;
+	size_t attribute) const;
     const AttributesInfoElements& GetAttributesInfoElements () const
     {
 	return m_attributesInfoElements;

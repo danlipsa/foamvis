@@ -110,7 +110,7 @@ public:
 	return set;
     }
     float GetScalarValue (BodyScalar::Enum property) const;
-    void GetAttributeValue (BodyAttribute::Enum attribute, float* value);
+    void GetAttributeValue (size_t attribute, float* value);
     G3D::Vector3 GetVelocity () const
     {
 	return m_velocity;

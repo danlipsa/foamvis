@@ -99,7 +99,7 @@ BodyScalar::Enum BodyScalar::FromSizeT (size_t i)
     return BodyScalar::Enum (i);
 }
 
-const char* DisplayFaceScalar::ToString (DisplayFaceScalar::Enum faceProperty)
+const char* FaceScalar::ToString (FaceScalar::Enum faceProperty)
 {
     switch (faceProperty)
     {
@@ -110,91 +110,63 @@ const char* DisplayFaceScalar::ToString (DisplayFaceScalar::Enum faceProperty)
     }
 }
 
-const BodyAttribute::Info* BodyAttribute::INFO ()
+BodyAttribute::Info BodyAttribute::INFO[] = {
+    {BodyAttribute::VELOCITY, "Velocity",3},
+    {BodyAttribute::DEFORMATION, "Deformation",9}
+};
+
+BodyAttribute::Enum BodyAttribute::FromSizeT (size_t i)
 {
-    // C++ FAQ, 10.5 How do I prevent the "static initialization order fiasco"
-    static Info info[COUNT] = {
-	{BodyAttribute::SIDES_PER_BUBBLE,
-	 BodyScalar::ToString (BodyScalar::SIDES_PER_BUBBLE), 1},
-	{BodyAttribute::DEFORMATION_SIMPLE,
-	 BodyScalar::ToString (BodyScalar::DEFORMATION_SIMPLE), 1},
-	{BodyAttribute::DEFORMATION_EIGEN,
-	 BodyScalar::ToString (BodyScalar::DEFORMATION_EIGEN), 1},
-	{BodyAttribute::PRESSURE,
-	 BodyScalar::ToString (BodyScalar::PRESSURE), 1},
-	{BodyAttribute::TARGET_VOLUME,
-	 BodyScalar::ToString (BodyScalar::TARGET_VOLUME),1},
-	{BodyAttribute::ACTUAL_VOLUME,
-	 BodyScalar::ToString (BodyScalar::ACTUAL_VOLUME),1},
-	{BodyAttribute::VELOCITY, "Velocity",3},
-	{BodyAttribute::DEFORMATION, "Deformation",9}
-    };
-    return info;
+    RuntimeAssert (i < COUNT && i >= BodyScalar::COUNT, 
+		   "Value outside of BodyAttribute::Enum: ", i);
+    return BodyAttribute::Enum (i);
 }
+
 
 const char* BodyAttribute::ToString (BodyAttribute::Enum attribute)
 {
-    return INFO ()[attribute].m_name;
+    return INFO[attribute - BodyScalar::COUNT].m_name;
 }
+
+const char* BodyAttribute::ToString (size_t attribute)
+{
+    if (attribute < BodyScalar::COUNT)
+	return BodyScalar::ToString (BodyScalar::FromSizeT (attribute));
+    else
+	return BodyAttribute::ToString (BodyAttribute::FromSizeT (attribute));
+}
+
 
 size_t BodyAttribute::GetNumberOfComponents (BodyAttribute::Enum attribute)
 {
-    return INFO ()[attribute].m_numberOfComponents;
+    return INFO[attribute  - BodyScalar::COUNT].m_numberOfComponents;
 }
 
-BodyScalar::Enum BodyAttribute::ToBodyScalar (
-    BodyAttribute::Enum attribute)
+size_t BodyAttribute::GetNumberOfComponents (size_t attribute)
 {
-    BodyScalar::Enum v[] = {
-	BodyScalar::SIDES_PER_BUBBLE,
-	BodyScalar::DEFORMATION_SIMPLE,
-	BodyScalar::DEFORMATION_EIGEN,
-	BodyScalar::PRESSURE,
-	BodyScalar::TARGET_VOLUME,
-	BodyScalar::ACTUAL_VOLUME,
-	BodyScalar::COUNT,
-	BodyScalar::COUNT,
-	BodyScalar::COUNT
-    };
-    BodyScalar::Enum displayBodyScalar = v[attribute];
-    RuntimeAssert (displayBodyScalar != BodyScalar::COUNT,
-		   "BodyAttribute::Enum is not a scalar: ", attribute);
-    return displayBodyScalar;
-}
-
-BodyAttribute::Enum BodyAttribute::FromBodyScalar (
-    BodyScalar::Enum s)
-{
-    BodyAttribute::Enum v[] = {
-	BodyAttribute::COUNT,
-	BodyAttribute::COUNT,
-	BodyAttribute::COUNT,
-	BodyAttribute::COUNT,
-
-	BodyAttribute::SIDES_PER_BUBBLE,
-	BodyAttribute::DEFORMATION_SIMPLE,
-	BodyAttribute::DEFORMATION_EIGEN,
-	BodyAttribute::PRESSURE,
-	BodyAttribute::TARGET_VOLUME,
-	BodyAttribute::ACTUAL_VOLUME,
-	BodyAttribute::COUNT
-    };
-    BodyAttribute::Enum attribute = v[s];
-    RuntimeAssert (attribute != BodyAttribute::COUNT,
-		   "BodyScalar::Enum is not a body attribute: ", s);
-    return attribute;
+    if (attribute < BodyScalar::COUNT)
+	return 1;
+    else
+	return GetNumberOfComponents (BodyAttribute::FromSizeT (attribute));
 }
 
 
-
-
-const char* BodyOrFaceScalarToString (size_t i)
+const char* FaceScalar::ToString (size_t i)
 {
     if (i < BodyScalar::COUNT)
-	return BodyScalar::ToString (BodyScalar::Enum (i));
+	return BodyScalar::ToString (BodyScalar::FromSizeT (i));
     else
-	return DisplayFaceScalar::ToString (DisplayFaceScalar::Enum (i));
+	return FaceScalar::ToString (FaceScalar::FromSizeT (i));
 }
+
+FaceScalar::Enum FaceScalar::FromSizeT (size_t i)
+{
+    RuntimeAssert (i < COUNT && i >= BodyScalar::COUNT, 
+		   "Value outside of FaceScalar::Enum: ", i);
+    return FaceScalar::Enum (i);
+}
+
+
 
 ViewType::Enum ViewType::FromSizeT (size_t i)
 {

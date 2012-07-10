@@ -343,7 +343,7 @@
            <item>
             <widget class="QTabWidget" name="tabWidgetGeneralOptions">
              <property name="currentIndex">
-              <number>2</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="tabLight">
               <attribute name="title">
@@ -619,7 +619,7 @@
                       <item>
                        <widget class="QSlider" name="horizontalSliderLightSpecularRed">
                         <property name="value">
-                         <number>99</number>
+                         <number>0</number>
                         </property>
                         <property name="orientation">
                          <enum>Qt::Horizontal</enum>
@@ -645,7 +645,7 @@
                       <item>
                        <widget class="QSlider" name="horizontalSliderLightSpecularGreen">
                         <property name="value">
-                         <number>99</number>
+                         <number>0</number>
                         </property>
                         <property name="orientation">
                          <enum>Qt::Horizontal</enum>
@@ -671,7 +671,7 @@
                       <item>
                        <widget class="QSlider" name="horizontalSliderLightSpecularBlue">
                         <property name="value">
-                         <number>99</number>
+                         <number>0</number>
                         </property>
                         <property name="orientation">
                          <enum>Qt::Horizontal</enum>
