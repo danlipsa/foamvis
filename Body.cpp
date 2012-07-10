@@ -254,11 +254,11 @@ string Body::ToString (const AttributesInfo* ai) const
     if (IsConstraint ())
 	ostr << " constraint";
     ostr << "\nEigen values: " 
-	 << GetDeformationEigenValue (0) << ", "
-	 << GetDeformationEigenValue (1)
+	 << GetDeformationEigenValues ()
 	 << "\nEigen vectors: "
 	 << GetDeformationEigenVector (0) << ", "
-	 << GetDeformationEigenVector (1);
+	 << GetDeformationEigenVector (1) << ", " 
+	 << GetDeformationEigenVector (2);
     return ostr.str ();
 }
 
