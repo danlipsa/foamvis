@@ -468,7 +468,23 @@ void Body::CalculateNeighbors (const OOBox& originalDomain)
 
 void Body::calculateNeighbors3D (const OOBox& originalDomain)
 {
-    
+    set<size_t> neighborsIds;
+    BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, GetOrientedFaces ())
+    {
+	const AdjacentBody& ab = of->GetAdjacentBody (true);
+	pair< set<size_t>::iterator, bool> result = 
+	    neighborsIds.insert (ab.GetBodyId ());
+	if (! result.second)
+	    // this neighbor is already in the list
+	    continue;
+	Neighbor neighbor;
+	neighbor.m_body = ab.GetBody ();
+	G3D::Vector3int16 translation;
+	originalDomain.IsWrap (GetCenter (), neighbor.m_body->GetCenter (),
+			       &translation);
+	neighbor.m_translation = Vector3int16Zero - translation;
+	m_neighbors.push_back (neighbor);
+    }
 }
 
 void Body::calculateNeighbors2D (const OOBox& originalDomain)

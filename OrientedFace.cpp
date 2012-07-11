@@ -70,9 +70,10 @@ void OrientedFace::AddAdjacentBody (const boost::shared_ptr<Body>& body,
     GetFace ()->AddAdjacentBody (body, ofIndex);
 }
 
-const AdjacentBody& OrientedFace::GetAdjacentBody () const
+const AdjacentBody& OrientedFace::GetAdjacentBody (bool faceReversed) const
 {
-    return GetFace ()->GetAdjacentBody (IsReversed ());
+    return GetFace ()->GetAdjacentBody (
+	IsReversed () ^ faceReversed);
 }
 
 void OrientedFace::UpdateAdjacentFace (const boost::shared_ptr<OrientedFace>& of)

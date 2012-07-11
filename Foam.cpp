@@ -359,10 +359,9 @@ void Foam::CalculateBodyNeighbors ()
 
 void Foam::CalculateBodyDeformationTensor ()
 {
-    if (Is2D ())
-	for_each (m_bodies.begin (), m_bodies.end (),
-		  boost::bind (&Body::CalculateDeformationTensor, _1, 
-			       GetTorusDomain ()));
+    for_each (m_bodies.begin (), m_bodies.end (),
+	      boost::bind (&Body::CalculateDeformationTensor, _1, 
+			   GetTorusDomain ()));
 }
 
 size_t Foam::GetLastEdgeId (const EdgeSet& edgeSet) const

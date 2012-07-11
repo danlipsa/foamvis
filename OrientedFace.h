@@ -37,7 +37,7 @@ public:
     void SetFace (const boost::shared_ptr<Face>& face);
 
     void AddAdjacentBody (const boost::shared_ptr<Body>& body, size_t ofIndex);
-    const AdjacentBody& GetAdjacentBody () const;
+    const AdjacentBody& GetAdjacentBody (bool faceReversed = false) const;
     void UpdateAdjacentFace (const boost::shared_ptr<OrientedFace>& of);
 
     /**

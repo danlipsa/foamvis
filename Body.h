@@ -26,6 +26,11 @@ class Body : public Element
 {
 public:
     typedef vector<boost::shared_ptr<OrientedFace> > OrientedFaces;
+    /**
+     * Store the neighbor m_body and an eventual translation for the periodic
+     * domain (m_translation) or 
+     * a point obtained by reflecting against a wall or object m_centerReflection
+     */
     typedef struct {
 	G3D::Vector3int16 m_translation;
 	boost::shared_ptr<Body> m_body;

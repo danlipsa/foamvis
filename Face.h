@@ -57,10 +57,6 @@ public:
     }
 
     const AdjacentBody& GetAdjacentBody (bool faceReversed) const;
-    const AdjacentBody& GetAdjacentBody (size_t i) const
-    {
-	return m_adjacentBodies[i];
-    }
     size_t GetAdjacentBodySize () const
     {
 	return m_adjacentBodies.size ();
@@ -73,8 +69,6 @@ public:
 	GetEdgeSet (&set);
 	return set;
     }
-
-
     size_t GetNextValidIndex (size_t index) const;
     size_t GetPreviousValidIndex (size_t index) const;
 

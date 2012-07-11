@@ -114,7 +114,7 @@ void display (const char* name, const T& what)
     cdbg << endl;
 }
 
-void displayBodyNeighbors2D (boost::shared_ptr<Body> body, 
+void displayBodyNeighbors (boost::shared_ptr<Body> body, 
 			     const OOBox& originalDomain)
 {
     if (body->IsConstraint ())
@@ -2409,7 +2409,7 @@ void WidgetGl::displayBodyNeighbors (ViewNumber::Enum viewNumber) const
 	GetCurrentTime(viewNumber));
     const OOBox& originalDomain = foam.GetTorusDomain ();
     Foam::Bodies::const_iterator showBody = foam.FindBody (m_showBodyId);
-    ::displayBodyNeighbors2D (*showBody, originalDomain);
+    ::displayBodyNeighbors (*showBody, originalDomain);
     glEnd ();
     glPopAttrib ();
 }
@@ -2429,7 +2429,7 @@ void WidgetGl::displayBodiesNeighbors () const
 	glBegin (GL_LINES);
 	for_each (bodies.begin (), bodies.end (),
 		  boost::bind (
-		      ::displayBodyNeighbors2D, _1, 
+		      ::displayBodyNeighbors, _1, 
 		      GetSimulation ().GetFoam (0).GetTorusDomain ()));
 	glEnd ();
 	glPopAttrib ();
