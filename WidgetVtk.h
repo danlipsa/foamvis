@@ -11,12 +11,10 @@
 
 #include "Enums.h"
 
-class vtkActor;
-class vtkDataSetMapper;
-class vtkRenderer;
 class Foam;
 class SendPaintEnd;
-
+class vtkDataSetMapper;
+class vtkThreshold;
 
 class WidgetVtk : public QVTKWidget
 {
@@ -26,9 +24,11 @@ public:
     WidgetVtk (QWidget* parent);
     void UpdateColorTransferFunction (
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction);
+    void UpdateThreshold (QwtDoubleInterval interval);
     void UpdateRenderStructured (
 	const Foam& foam, vtkSmartPointer<vtkMatrix4x4> modelView,
-	BodyScalar::Enum bodyProperty);
+	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
+	QwtDoubleInterval interval, BodyScalar::Enum bodyScalar);
 
 public:
     QSize sizeHint ()
@@ -47,6 +47,7 @@ Q_SIGNALS:
 private:
     Q_OBJECT
     vtkSmartPointer<vtkDataSetMapper> m_mapper;
+    vtkSmartPointer<vtkThreshold> m_threshold;
 };
 
 

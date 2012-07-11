@@ -44,15 +44,30 @@ WidgetVtk::WidgetVtk (QWidget* parent) :
 {
 }
 
+void WidgetVtk::UpdateThreshold (QwtDoubleInterval interval)
+{
+    if (m_threshold != 0)
+    {
+	m_threshold->ThresholdBetween (
+	    interval.minValue (), interval.maxValue ());
+	update ();
+    }
+}
+
 void WidgetVtk::UpdateColorTransferFunction (
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction)
 {
-    m_mapper->SetLookupTable (colorTransferFunction);    
+    if (m_mapper != 0)
+    {
+	m_mapper->SetLookupTable (colorTransferFunction);
+	update ();
+    }
 }
 
 void WidgetVtk::UpdateRenderStructured (
     const Foam& foam, vtkSmartPointer<vtkMatrix4x4> modelView,
-    BodyScalar::Enum bodyScalar)
+    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
+    QwtDoubleInterval interval, BodyScalar::Enum bodyScalar)
 {
     vtkSmartPointer<MeasureTimeVtk> measureTime (new MeasureTimeVtk ());
     vtkSmartPointer<SendPaintEnd> sendPaint (new SendPaintEnd (this));
@@ -67,7 +82,7 @@ void WidgetVtk::UpdateRenderStructured (
     tetraFoamCell->GetCellData ()->SetActiveScalars (
 	BodyScalar::ToString (bodyScalar));
 
-/*
+
     VTK_CREATE (vtkCellDataToPointData, cellToPoint);
     cellToPoint->SetInput (tetraFoamCell);
 
@@ -89,14 +104,14 @@ void WidgetVtk::UpdateRenderStructured (
     measureTime->Measure (regularProbe);
 
     VTK_CREATE (vtkThreshold, threshold);
-    threshold->ThresholdByUpper (0.1);
+    threshold->ThresholdBetween (interval.minValue (), interval.maxValue ());
     threshold->AllScalarsOn ();
     threshold->SetInputConnection (regularProbe->GetOutputPort ());
+    m_threshold = threshold;
 
-*/
     VTK_CREATE (vtkDataSetMapper, mapper);
-    //mapper->SetInputConnection (threshold->GetOutputPort ());
-    mapper->SetInput (tetraFoamCell);
+    mapper->SetInputConnection (threshold->GetOutputPort ());
+    mapper->SetLookupTable (colorTransferFunction);
     m_mapper = mapper;
 
     VTK_CREATE(vtkActor, actor);

@@ -362,10 +362,7 @@ void Body::GetAttributeValue (size_t attribute, float* value)
 	value[2] = v.z;
     }
     else
-    {
-	// tensor
 	GetDeformationTensor (value, G3D::Matrix3::identity ());
-    }
 }
 
 float Body::GetDeformationSimple () const
@@ -471,6 +468,7 @@ void Body::CalculateNeighbors (const OOBox& originalDomain)
 
 void Body::calculateNeighbors3D (const OOBox& originalDomain)
 {
+    
 }
 
 void Body::calculateNeighbors2D (const OOBox& originalDomain)

@@ -693,11 +693,30 @@ void MainWindow::update3DAverage (size_t timeStep)
     const Foam& foam = simulation.GetFoam (timeStep);
     BodyScalar::Enum bodyProperty = BodyScalar::FromSizeT (
 	widgetGl->GetFaceScalar ());
+    const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
+    const BodySelector& bodySelector = vs.GetBodySelector ();
+    QwtDoubleInterval interval;
+    vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction = 
+	getColorBarModel ()->GetColorTransferFunction ();
+    if (bodySelector.GetType () == BodySelectorType::PROPERTY_VALUE)
+    {
+	const vector<QwtDoubleInterval>& v = 
+	    static_cast<const PropertyValueBodySelector&> (bodySelector).
+	    GetIntervals ();
+	interval = v[0];
+    }
+    else
+    {
+	double range[2];
+	colorTransferFunction->GetRange (range);
+	interval.setMinValue (range[0]);
+	interval.setMaxValue (range[1]);
+    }
+
     widgetVtk->UpdateRenderStructured (
 	foam, widgetGl->GetModelViewMatrix (viewNumber, timeStep),
+	colorTransferFunction, interval,
 	bodyProperty);
-    widgetVtk->UpdateColorTransferFunction (
-	getColorBarModel ()->GetColorTransferFunction ());
 }
 
 
@@ -1453,24 +1472,22 @@ void MainWindow::SelectionChangedHistogram ()
     widgetHistogram->GetSelectedIntervals (&valueIntervals);
     vector<bool> timeStepSelection;
     const Simulation& simulation = widgetGl->GetSimulation ();
+    ViewSettings& vs = widgetGl->GetViewSettings (m_histogramViewNumber);
+    BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT (
+	widgetGl->GetFaceScalar (m_histogramViewNumber));
     simulation.GetTimeStepSelection (
-	BodyScalar::FromSizeT (
-	    widgetGl->GetFaceScalar (m_histogramViewNumber)), 
-	valueIntervals, &timeStepSelection);
+	bodyScalar, valueIntervals, &timeStepSelection);
     sliderTimeSteps->SetRestrictedTo (timeStepSelection);
     
     if (widgetHistogram->AreAllItemsSelected ())
-	widgetGl->GetViewSettings (m_histogramViewNumber).SetBodySelector (
+	vs.SetBodySelector (
 	    AllBodySelector::Get (), BodySelectorType::PROPERTY_VALUE);
     else
-	widgetGl->GetViewSettings (m_histogramViewNumber).SetBodySelector (
+	vs.SetBodySelector (
 	    boost::shared_ptr<PropertyValueBodySelector> (
-		new PropertyValueBodySelector (
-		    BodyScalar::FromSizeT (
-			widgetGl->GetFaceScalar (
-			    m_histogramViewNumber)), 
-		    valueIntervals)));
+		new PropertyValueBodySelector (bodyScalar, valueIntervals)));
     widgetGl->update ();
+    widgetVtk->UpdateThreshold (valueIntervals[0]);
 }
 
 void MainWindow::ShowEditOverlayMap ()
