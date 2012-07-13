@@ -43,7 +43,7 @@ private:
      * Quadratic function applied to parameter t in [0, 2]
      */
     void cachePoints ();
-    G3D::Vector3 computePoint (size_t i) const;
+    G3D::Vector3 calculatePoint (size_t i) const;
     double quadratic (double t, size_t axis) const;
     G3D::Vector3 quadratic (double t) const;
     void setMiddle (boost::shared_ptr<Vertex> middle)

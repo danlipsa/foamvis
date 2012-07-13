@@ -75,13 +75,6 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     m_playForward (false),
     m_playReverse (false)
 {
-    DATA_PROPERTIES.SetSpaceDimension (
-	simulationGroup.GetSimulation (0).GetDataProperties ()->
-	GetSpaceDimension ());
-    DATA_PROPERTIES.SetQuadratic (
-	simulationGroup.GetSimulation (0).GetDataProperties ()->
-	IsQuadratic ());
-
     // for anti-aliased lines
     QGLFormat format = QGLFormat::defaultFormat ();
     format.setSampleBuffers (true);

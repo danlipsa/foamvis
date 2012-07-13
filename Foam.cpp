@@ -107,7 +107,7 @@ void Foam::AccumulateProperty (Accumulator* acc,
 {
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
     {
-	if (body->ExistsPropertyValue (property))
+	if (body->HasScalarValue (property))
 	    (*acc) (body->GetScalarValue (property));
     }
 }
@@ -117,7 +117,7 @@ void Foam::Accumulate (Accumulator* acc, GetBodyScalar getBodyScalar) const
 {
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
     {
-	if (! body->IsConstraint ())
+	if (! body->IsObject ())
 	    (*acc) (getBodyScalar (body));
     }
 }
@@ -129,7 +129,7 @@ void Foam::Acc (Accumulator* acc,
 {
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
     {
-	if (! body->IsConstraint ())
+	if (! body->IsObject ())
 	    (*acc) (getBodyScalar (body));
     }
 }
@@ -495,38 +495,42 @@ G3D::Vector3int16 Foam::getVectorOnConstraintTranslation (
 
 void Foam::FixConstraintPoints (const Foam* prevFoam)
 {
-    pair<size_t, size_t> index;
-    ConstraintEdge* prevProcessedEdge = 0;
-    BOOST_FOREACH (index, m_constraintPointsToFix)
+    if (Is2D ())
     {
-	//cdbg << "process: " << index.first << ", " << index.second << endl;
-	bool valid;
-	const Face& face = GetBody (index.first).GetFace (0);
-	ConstraintEdge& edge = static_cast<ConstraintEdge&> (
-	    *face.GetOrientedEdge (face.size () - 1).GetEdge ());
-	if (prevFoam == 0)
-	    edge.FixPointsConcaveOrConvex ();
-	else
+	pair<size_t, size_t> index;
+	ConstraintEdge* prevProcessedEdge = 0;
+	BOOST_FOREACH (index, m_constraintPointsToFix)
 	{
-	    const Face& prevFace = prevFoam->GetBody (index.first).GetFace (0);
-	    ConstraintEdge& prevEdge = static_cast<ConstraintEdge&> (
-		*prevFace.GetOrientedEdge (prevFace.size () - 1).GetEdge ());
-	    G3D::Vector2 prevPoint = prevEdge.GetPoint (index.second).xy ();
-	    G3D::Vector3 newPoint = edge.ComputePointMulti (
-		index.second, &valid, prevPoint);
-	    if (valid)
-		edge.ChoosePoint (index.second, newPoint);
-	    if (prevProcessedEdge != &edge)
+	    //cdbg << "process: " << index.first << ", " << index.second << endl;
+	    bool valid;
+	    const Face& face = GetBody (index.first).GetFace (0);
+	    ConstraintEdge& edge = static_cast<ConstraintEdge&> (
+		*face.GetOrientedEdge (face.size () - 1).GetEdge ());
+	    if (prevFoam == 0)
+		edge.FixPointsConcaveOrConvex ();
+	    else
 	    {
-		if (prevProcessedEdge != 0)
-		    prevProcessedEdge->FixPointsConcaveOrConvex ();
-		prevProcessedEdge = &edge;	    
+		const Face& prevFace = 
+		    prevFoam->GetBody (index.first).GetFace (0);
+		ConstraintEdge& prevEdge = static_cast<ConstraintEdge&> (
+		    *prevFace.GetOrientedEdge (prevFace.size () - 1).GetEdge ());
+		G3D::Vector2 prevPoint = prevEdge.GetPoint (index.second).xy ();
+		G3D::Vector3 newPoint = edge.CalculatePointMulti (
+		    index.second, &valid, prevPoint);
+		if (valid)
+		    edge.ChoosePoint (index.second, newPoint);
+		if (prevProcessedEdge != &edge)
+		{
+		    if (prevProcessedEdge != 0)
+			prevProcessedEdge->FixPointsConcaveOrConvex ();
+		    prevProcessedEdge = &edge;	    
+		}
 	    }
 	}
+	if (prevProcessedEdge != 0)
+	    prevProcessedEdge->FixPointsConcaveOrConvex ();
+	m_constraintPointsToFix.clear ();
     }
-    if (prevProcessedEdge != 0)
-	prevProcessedEdge->FixPointsConcaveOrConvex ();
-    m_constraintPointsToFix.clear ();
 }
 
 
@@ -546,7 +550,7 @@ void Foam::setMissingVolume ()
 	BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
 	{
 	    double area = body->GetOrientedFace (0).GetArea ();
-	    if (! body->ExistsPropertyValue (BodyScalar::TARGET_VOLUME))
+	    if (! body->HasScalarValue (BodyScalar::TARGET_VOLUME))
 	    {
 		body->SetTargetVolumeDeduced ();
 		StoreAttribute (body.get (), BodyScalar::TARGET_VOLUME, area);
@@ -559,7 +563,7 @@ void Foam::setMissingVolume ()
 		     << endl;
 	    }
 	    */
-	    if (! body->ExistsPropertyValue (BodyScalar::ACTUAL_VOLUME))
+	    if (! body->HasScalarValue (BodyScalar::ACTUAL_VOLUME))
 	    {
 		body->SetActualVolumeDeduced ();
 		StoreAttribute (body.get (), BodyScalar::ACTUAL_VOLUME, area);
@@ -573,7 +577,7 @@ void Foam::setMissingPressureZero ()
     using EvolverData::parser;
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
-	if (! body->ExistsPropertyValue (BodyScalar::PRESSURE))
+	if (! body->HasScalarValue (BodyScalar::PRESSURE))
 	{
 	    StoreAttribute (body.get (), BodyScalar::PRESSURE, 0);
 	    body->SetPressureDeduced ();
@@ -585,7 +589,7 @@ void Foam::AdjustPressure (double adjustment)
 {
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
-	if (body->ExistsPropertyValue (BodyScalar::PRESSURE))
+	if (body->HasScalarValue (BodyScalar::PRESSURE))
 	{
 	    double newPressure =
 		body->GetScalarValue (BodyScalar::PRESSURE) - adjustment;
@@ -601,7 +605,7 @@ double Foam::CalculateMedian (BodyScalar::Enum property)
     MedianStatistics median;
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
-	if (body->ExistsPropertyValue (property))
+	if (body->HasScalarValue (property))
 	    median (body->GetScalarValue (property));
     }
     return acc::median (median);
@@ -734,7 +738,7 @@ void Foam::calculateMinMaxStatistics (BodyScalar::Enum property)
     MinMaxStatistics minMax;
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
-	if (body->ExistsPropertyValue (property))
+	if (body->HasScalarValue (property))
 	    minMax (body->GetScalarValue (property));
     }
     m_min[property] = acc::min (minMax);
@@ -748,7 +752,7 @@ void Foam::CalculateHistogramStatistics (BodyScalar::Enum property,
     m_histogram[property](max);
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, m_bodies)
     {
-	if (body->ExistsPropertyValue (property))
+	if (body->HasScalarValue (property))
 	    m_histogram[property] (body->GetScalarValue (property));
     }
 }
@@ -841,22 +845,25 @@ void Foam::SortConstraintEdges (size_t constraintIndex)
     }
 }
 
-void Foam::CreateConstraintBody (size_t constraint)
+void Foam::CreateObjectBody (size_t constraint)
 {
     if (constraint == INVALID_INDEX)
 	return;
-    SortConstraintEdges (constraint);
-    size_t lastFaceId = GetLastFaceId ();
-    boost::shared_ptr<Face> face (
-	new Face (GetConstraintEdges (constraint), ++lastFaceId));
-    VertexSet vertexSet = GetVertexSet ();
-    EdgeSet edgeSet = GetEdgeSet ();
-    unwrap (face, &vertexSet, &edgeSet);
-    size_t lastBodyId = GetLastBodyId ();
-    boost::shared_ptr<Body> body (new Body (face,  lastBodyId + 1));
-    body->UpdateAdjacentBody (body);
-    body->CalculateCenter ();
-    m_bodies.push_back (body);
+    if (Is2D ())
+    {
+	SortConstraintEdges (constraint);
+	size_t lastFaceId = GetLastFaceId ();
+	boost::shared_ptr<Face> face (
+	    new Face (GetConstraintEdges (constraint), ++lastFaceId));
+	VertexSet vertexSet = GetVertexSet ();
+	EdgeSet edgeSet = GetEdgeSet ();
+	unwrap (face, &vertexSet, &edgeSet);
+	size_t lastBodyId = GetLastBodyId ();
+	boost::shared_ptr<Body> body (new Body (face,  lastBodyId + 1));
+	body->UpdateAdjacentBody (body);
+	body->CalculateCenter ();
+	m_bodies.push_back (body);
+    }
 }
 
 bool Foam::Is2D () const
@@ -908,7 +915,6 @@ void Foam::getTetraPoints (
     size_t* maxId,
     size_t* numberOfCells) const
 {
-    MeasureTime mt;
     VertexSet vertexSet = GetVertexSet ();
     *maxId = (*(--vertexSet.end ()))->GetId ();
     *numberOfCells = 0;
@@ -932,15 +938,12 @@ void Foam::getTetraPoints (
 	G3D::Vector3 p = (*sortedPoints)[i]->GetVector ();
 	(*tetraPoints)->InsertPoint (i, p.x, p.y, p.z);
     }
-
-    mt.EndInterval ("getTetraPoints");
 }
 
-vtkSmartPointer<vtkUnstructuredGrid> Foam::AddCellAttribute (
+vtkSmartPointer<vtkUnstructuredGrid> Foam::addCellAttribute (
     vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
     size_t attribute) const
 {
-    MeasureTime mt;
     vtkIdType numberOfCells = aTetraGrid->GetNumberOfCells ();
     VTK_CREATE(vtkFloatArray, attributes);
     attributes->SetNumberOfComponents (
@@ -961,7 +964,6 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::AddCellAttribute (
 	}
     }
     aTetraGrid->GetCellData ()->AddArray (attributes);
-    mt.EndInterval ("SetCellScalar");
     return aTetraGrid;
 }
 
@@ -971,7 +973,6 @@ void Foam::createTetraCells (
     const vector<boost::shared_ptr<Vertex> >& sortedPoints,
     size_t maxPointId) const
 {
-    MeasureTime mt;
     // create the cells
     vtkIdType bodyIndex = 0;
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
@@ -995,11 +996,10 @@ void Foam::createTetraCells (
 	}
 	++bodyIndex;
     }
-    mt.EndInterval ("createTetraCells");
 }
 
 
-vtkSmartPointer<vtkUnstructuredGrid> Foam::GetTetraGrid () const
+vtkSmartPointer<vtkUnstructuredGrid> Foam::getTetraGrid () const
 {
     // create the points    
     vtkSmartPointer<vtkPoints> tetraPoints;
@@ -1016,11 +1016,68 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::GetTetraGrid () const
     createTetraCells (aTetraGrid, sortedPoints, maxPointId);
     // set the cell attributes
     for (size_t i = 0; i < BodyAttribute::COUNT; ++i)
-	AddCellAttribute (aTetraGrid, i);
+	addCellAttribute (aTetraGrid, i);
     
     return aTetraGrid;
 }
 
+void Foam::SaveRegularGrid () const
+{
+
+    const size_t pointsPerAxis = 64;
+    string message = string ("Resampling ") + GetDmpName () + " ...\n";
+    cdbg << message;
+    vtkSmartPointer<vtkImageData> id = calculateRegularGrid (pointsPerAxis);
+    VTK_CREATE (vtkXMLImageDataWriter, writer);
+    writer->SetFileName (getVtiPath ().c_str ());
+    writer->SetInput (id);
+    writer->Write ();
+}
+
+vtkSmartPointer<vtkImageData> Foam::GetRegularGrid () const
+{
+    VTK_CREATE (vtkXMLImageDataReader, reader);
+    reader->SetFileName (getVtiPath ().c_str ());
+    reader->Update ();
+    return reader->GetOutput ();
+}
+
+vtkSmartPointer<vtkImageData> Foam::calculateRegularGrid (
+    size_t pointsPerAxis) const
+{
+    // vtkUnstructuredGrid->vtkCellDatatoPointData, vtkImageData->vtkProbeFilter
+     vtkSmartPointer<vtkUnstructuredGrid> tetraFoamCell = getTetraGrid ();
+
+    VTK_CREATE (vtkCellDataToPointData, cellToPoint);
+    cellToPoint->SetInput (tetraFoamCell);
+
+    G3D::AABox bb = GetBoundingBox ();
+    G3D::Vector3 spacing = bb.extent () / (pointsPerAxis - 1);
+    G3D::Vector3 origin = bb.low ();
+
+    VTK_CREATE (vtkImageData, regularFoam);
+    regularFoam->SetExtent (0, pointsPerAxis - 1,
+			    0, pointsPerAxis - 1,
+			    0, pointsPerAxis - 1);
+    regularFoam->SetOrigin (origin.x, origin.y, origin.z);
+    regularFoam->SetSpacing (spacing.x, spacing.y, spacing.z);
+
+    VTK_CREATE (vtkProbeFilter, regularProbe);
+    regularProbe->SetSourceConnection (cellToPoint->GetOutputPort ());
+    regularProbe->SetInput (regularFoam);
+    regularProbe->Update ();
+    return vtkImageData::SafeDownCast(regularProbe->GetOutput ());
+}
+
+string Foam::getVtiPath () const
+{
+    return ChangeExtension (m_dmpPath, "vti");
+}
+
+string Foam::GetDmpName () const
+{
+    return NameFromPath (m_dmpPath);
+}
 
 
 // Static and Friends Methods

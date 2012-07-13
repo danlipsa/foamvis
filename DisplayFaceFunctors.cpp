@@ -108,12 +108,13 @@ DisplayFaceBodyScalarColor (
 {
 }
 
+
+
 template<typename PropertySetter>
 void DisplayFaceBodyScalarColor<PropertySetter>::
 operator () (const boost::shared_ptr<OrientedFace>& of)
 {
     glNormal (of->GetNormal ());
-
     if (this->m_foam.Is2D ())
     {
 	bool useColor;
@@ -181,7 +182,7 @@ setColorOrTexture (const boost::shared_ptr<OrientedFace>& of,
 		this->m_propertySetter.GetFaceScalar ());
 	    glColor (Qt::white);
 	    bool deduced;
-	    bool exists = body->ExistsPropertyValue (property, &deduced);
+	    bool exists = body->HasScalarValue (property, &deduced);
 	    if (exists && 
 		(! deduced || 
 		 (deduced && 

@@ -277,9 +277,11 @@ bool Face::IsClosed () const
 
 const AdjacentBody& Face::GetAdjacentBody (bool faceReversed) const
 {
-    RuntimeAssert (! IsStandalone (), "GetAdjacentBody for standalone face: ",
-		   GetId ());
+    RuntimeAssert (! IsStandalone (), 
+		   "Face::GetAdjacentBody for standalone face: ", GetId ());
     size_t index = faceReversed ^ m_adjacentBodies[0].IsOrientedFaceReversed ();
+    RuntimeAssert (index < m_adjacentBodies.size (), 
+		   "Face::GetAdjacentBody for wall face: ", GetId ());
     return m_adjacentBodies[index];
 }
 
@@ -422,4 +424,9 @@ size_t Face::GetEdgesPerFace () const
 	    ++count;
     }
     return count;
+}
+
+bool Face::HasConstraints () const
+{
+    return HasAttribute (FaceAttributeIndex::CONSTRAINTS);
 }

@@ -76,6 +76,11 @@ const AdjacentBody& OrientedFace::GetAdjacentBody (bool faceReversed) const
 	IsReversed () ^ faceReversed);
 }
 
+size_t OrientedFace::GetAdjacentBodySize () const
+{
+    return GetFace ()->GetAdjacentBodySize ();
+}
+
 void OrientedFace::UpdateAdjacentFace (const boost::shared_ptr<OrientedFace>& of)
 {
     for (size_t i = 0; i < size (); i++)
@@ -175,4 +180,9 @@ bool OrientedFace::IsStandalone () const
 QColor OrientedFace::GetColor (const QColor& defaultColor) const
 {
     return GetFace ()->GetColor (defaultColor);
+}
+
+bool OrientedFace::HasConstraints () const
+{
+    return GetFace ()->HasConstraints ();
 }

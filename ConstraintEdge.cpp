@@ -262,10 +262,10 @@ size_t ConstraintEdge::storePointsToFix (
     vector<Side> side (GetPointCount ());
     size_t countPlus, countMinus, countZero, countInvalid;
 
-    computeSide (&side, &countPlus, &countMinus, 
+    calculateSide (&side, &countPlus, &countMinus, 
 		 &countZero, &countInvalid);
-    float score = computeScore (countPlus, countMinus, countZero, countInvalid);
-    int correctSide = computeCorrectSide (countPlus, countMinus, countZero);
+    float score = calculateScore (countPlus, countMinus, countZero, countInvalid);
+    int correctSide = calculateCorrectSide (countPlus, countMinus, countZero);
     if (G3D::fuzzyEq (score, 1))
 	return 0;
     else if (score < 0.5)
@@ -294,8 +294,8 @@ void ConstraintEdge::FixPointsConcaveOrConvex ()
 {
     vector<Side> side (GetPointCount ());
     size_t countPlus, countMinus, countZero, countInvalid;
-    computeSide (&side, &countPlus, &countMinus, &countZero, &countInvalid);
-    Side correctSide = computeCorrectSide (countPlus, countMinus, countZero);
+    calculateSide (&side, &countPlus, &countMinus, &countZero, &countInvalid);
+    Side correctSide = calculateCorrectSide (countPlus, countMinus, countZero);
     side[0] = side[side.size () - 1] = correctSide;
     
     for (size_t i = 1; i < GetPointCount () - 1; ++i)
@@ -309,7 +309,7 @@ void ConstraintEdge::FixPointsConcaveOrConvex ()
 	fixPointInTriple (i, correctSide);
 }
 
-float ConstraintEdge::computeScore (
+float ConstraintEdge::calculateScore (
     size_t countPlus,  size_t countMinus, size_t countZero, size_t countInvalid)
 {
     size_t maxCount = max (countPlus, max (countMinus, countZero));
@@ -318,7 +318,7 @@ float ConstraintEdge::computeScore (
     return score;
 }
 
-ConstraintEdge::Side ConstraintEdge::computeCorrectSide (
+ConstraintEdge::Side ConstraintEdge::calculateCorrectSide (
     size_t countPlus,  size_t countMinus, size_t countZero)
 {
     Side correctSide;
@@ -345,7 +345,7 @@ void ConstraintEdge::fixPointInTriple (size_t i, Side correctSide)
 }
 
 
-void ConstraintEdge::computeSide (
+void ConstraintEdge::calculateSide (
     vector<Side>* side,
     size_t* countPlus, size_t* countMinus, 
     size_t* countZero, size_t* countInvalid)
@@ -407,13 +407,13 @@ void ConstraintEdge::cachePoints ()
     for (size_t i = 1; i < m_points.size () - 1; ++i)
     {
 	bool valid;
-	m_points[i] = computePointMulti (i, &valid);	
+	m_points[i] = calculatePointMulti (i, &valid);	
 	m_valid[i] = valid;
 	//cdbg << i << ": " << m_points[i] << " " << m_valid[i] << endl;
     }
 }
 
-G3D::Vector3 ConstraintEdge::computePointMulti (
+G3D::Vector3 ConstraintEdge::calculatePointMulti (
     size_t i, bool* valid, const G3D::Vector2* previousTimeStepPoint) const
 {
     const size_t NUMBER_ITERATIONS = 18;

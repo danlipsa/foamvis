@@ -117,7 +117,7 @@ void display (const char* name, const T& what)
 void displayBodyNeighbors (boost::shared_ptr<Body> body, 
 			     const OOBox& originalDomain)
 {
-    if (body->IsConstraint ())
+    if (body->IsObject ())
 	return;
     BOOST_FOREACH (Body::Neighbor neighbor, body->GetNeighbors ())
     {
@@ -1228,7 +1228,10 @@ void WidgetGl::InfoFace ()
     if (of == 0)
 	ostr << "No face focused.";
     else
-	ostr << *of;
+    {
+	const Foam& foam = GetSimulation ().GetFoam (GetCurrentTime ());
+	ostr << of->ToString (&foam.GetAttributesInfoElements ().GetInfoFace ());
+    }
     msgBox.setText(ostr.str ().c_str ());
     msgBox.exec();
 }
@@ -1974,7 +1977,7 @@ void WidgetGl::AverageAroundBody ()
 	vs.SetAverageAroundBodyId (bodyId);
 	vs.SetAverageAroundSecondBodyId (INVALID_INDEX);
 	vs.SetAverageAround (true);
-	if (bodies[0]->IsConstraint () && 
+	if (bodies[0]->IsObject () && 
 	    simulation.GetDmpObjectInfo ().RotationUsed ())
 	    vs.SetAverageAroundPositions (simulation);
 	else

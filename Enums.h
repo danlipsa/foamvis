@@ -437,7 +437,8 @@ struct FaceAttributeIndex
     enum Enum
     {
 	COLOR,
-	AREA
+	AREA,
+	CONSTRAINTS
     };
 };
 

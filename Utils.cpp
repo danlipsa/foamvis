@@ -349,6 +349,25 @@ QStringList ToQStringList (const vector<string>& v)
     return list;
 }
 
+// file name utilities
+// ======================================================================
+string ChangeExtension (const string& path, const char* ext)
+{
+    string extPath (path);
+    extPath.replace (extPath.size () - 3, 3, ext);
+    return extPath;
+}
+
+string NameFromPath (const string& path)
+{
+    size_t slashPos = path.rfind ("/");
+    if (slashPos == path.size ())
+	slashPos = 0;
+    else
+	++slashPos;
+    return path.substr (slashPos);
+}
+
 
 // Container algorithms
 // ======================================================================

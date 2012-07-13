@@ -268,7 +268,7 @@ public:
     void StoreAttribute (Body* body, BodyScalar::Enum property, double r);
     void CalculateBodyNeighbors ();
     void CalculateBodyDeformationTensor ();
-    void CreateConstraintBody (size_t constraint);
+    void CreateObjectBody (size_t constraint);
     bool Is2D () const;
     bool IsQuadratic () const;
     const DataProperties& GetDataProperties () const
@@ -277,14 +277,18 @@ public:
     }
     void SetSpaceDimension (size_t spaceDimension);
     void SetQuadratic (bool quadratic);
-    vtkSmartPointer<vtkUnstructuredGrid> GetTetraGrid () const;
-    vtkSmartPointer<vtkUnstructuredGrid> AddCellAttribute (
-	vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
-	size_t attribute) const;
+    vtkSmartPointer<vtkImageData> GetRegularGrid () const;
+
     const AttributesInfoElements& GetAttributesInfoElements () const
     {
 	return m_attributesInfoElements;
     }
+    void SetDmpPath (const string& dmpPath)
+    {
+	m_dmpPath = dmpPath;
+    }
+    string GetDmpName () const;
+    void SaveRegularGrid () const;
 
 public:
     static const double Z_COORDINATE_2D = 0.0;
@@ -296,6 +300,14 @@ public:
     friend ostream& operator<< (ostream& ostr, const Foam& d);
 
 private:
+    vtkSmartPointer<vtkUnstructuredGrid> getTetraGrid () const;
+    vtkSmartPointer<vtkImageData> calculateRegularGrid (
+	size_t pointsPerAxis) const;
+    vtkSmartPointer<vtkUnstructuredGrid> addCellAttribute (
+	vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
+	size_t attribute) const;
+
+    string getVtiPath () const;
     void getTetraPoints (
 	vtkSmartPointer<vtkPoints>* tetraPoints,
 	vector<boost::shared_ptr<Vertex> >* sortedPoints,
@@ -360,8 +372,10 @@ private:
 	const G3D::Vector3& v, size_t constraintIndex) const;
 
 private:
-    // the torus original domain can be different for each time step, as in 
-    // shear_160
+    /**
+     * The torus original domain. 
+     * Can be different for each time step, as in shear_160
+     */
     OOBox m_torusDomain;
     Edges m_standaloneEdges;
     vector< boost::shared_ptr<Edges> > m_constraintEdges;
@@ -397,6 +411,7 @@ private:
     DataProperties& m_properties;    
     ParametersOperation m_parametersOperation;
     AttributesInfoElements m_attributesInfoElements;
+    string m_dmpPath;
 };
 
 /**

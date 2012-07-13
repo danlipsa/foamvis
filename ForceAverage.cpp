@@ -241,7 +241,7 @@ void ForceAverage::displayTorque (
     const WidgetGl& widgetGl = GetWidgetGl ();
     ViewSettings& vs = widgetGl.GetViewSettings (viewNumber);
     pair<G3D::Vector2, G3D::Vector2> centerTorque = 
-	computeTorque (center, distance, angleRadians, torque);
+	calculateTorque (center, distance, angleRadians, torque);
     displayForce (viewNumber, color,
 		  centerTorque.first, centerTorque.second);
     glLineWidth (vs.GetForceTorqueLineWidth ());
@@ -251,7 +251,7 @@ void ForceAverage::displayTorque (
     glEnd ();    
 }
 
-pair<G3D::Vector2, G3D::Vector2> ForceAverage::computeTorque (
+pair<G3D::Vector2, G3D::Vector2> ForceAverage::calculateTorque (
     G3D::Vector2 center, float distance, 
     float angleRadians, float torque) const
 {

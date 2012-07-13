@@ -130,6 +130,7 @@ public:
     void CalculatePerimeter ();
     QColor GetColor (const QColor& defaultColor) const;
     size_t GetEdgesPerFace () const;
+    bool HasConstraints () const;
     
 private:
     boost::shared_ptr<Face> createDuplicate (

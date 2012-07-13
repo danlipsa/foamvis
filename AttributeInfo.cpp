@@ -172,18 +172,22 @@ void AttributesInfoElements::addDefaultFaceAttributes ()
         ParsingDriver::GetKeywordString(parser::token::COLOR), ac);
     RuntimeAssert (
 	index == FaceAttributeIndex::COLOR,
-	"Color face attribute index is ", FaceAttributeIndex::COLOR);
+	"Color face attribute index is ", index);
 
     ac.reset (new RealAttributeCreator ());
     index = infos->AddAttributeInfoLoad (
         ParsingDriver::GetKeywordString(parser::token::AREA), ac);
     RuntimeAssert (
-	index == FaceAttributeIndex::AREA,
-	"Face area attribute index is ", FaceAttributeIndex::AREA);
+	index == FaceAttributeIndex::AREA, 
+	"Face area attribute index is ", index);
 
     ac.reset (new IntegerVectorAttributeCreator());
-    infos->AddAttributeInfo (
+    index = infos->AddAttributeInfoLoad (
         ParsingDriver::GetKeywordString(parser::token::CONSTRAINTS), ac);
+    RuntimeAssert (
+	index == FaceAttributeIndex::CONSTRAINTS,
+	"Face area attribute index is ", index);
+
 
     ac.reset (new IntegerAttributeCreator ());
     infos->AddAttributeInfo (

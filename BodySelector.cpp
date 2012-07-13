@@ -52,7 +52,7 @@ boost::shared_ptr<AllBodySelector> AllBodySelector::SELECTOR =
 bool PropertyValueBodySelector::operator () (
     const boost::shared_ptr<Body>& body) const
 {
-    if (body->ExistsPropertyValue (m_property))
+    if (body->HasScalarValue (m_property))
     {
 	double value = body->GetScalarValue (m_property);
 	ValueIntervals::const_iterator it = find_if (

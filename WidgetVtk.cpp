@@ -69,44 +69,18 @@ void WidgetVtk::UpdateRenderStructured (
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
     QwtDoubleInterval interval, BodyScalar::Enum bodyScalar)
 {
-    vtkSmartPointer<MeasureTimeVtk> measureTime (new MeasureTimeVtk ());
+    // vtkImageData->vtkThreshold->vtkDatasetMapper->vtkActor->vtkRenderer
     vtkSmartPointer<SendPaintEnd> sendPaint (new SendPaintEnd (this));
 
-    // vtkUnstructuredGrid->vtkCellDatatoPointData, vtkImageData
-    //           X                                      X 
-    // ->vtkProbeFilter->vtkThreshold->
-    //     
-    // vtkDatasetMapper->vtkActor->vtkRenderer
-    //       X               X
-    vtkSmartPointer<vtkUnstructuredGrid> tetraFoamCell = foam.GetTetraGrid ();
-    tetraFoamCell->GetCellData ()->SetActiveScalars (
+    vtkSmartPointer<vtkImageData> regularFoam = foam.GetRegularGrid ();
+    regularFoam->GetPointData ()->SetActiveScalars (
 	BodyScalar::ToString (bodyScalar));
-
-
-    VTK_CREATE (vtkCellDataToPointData, cellToPoint);
-    cellToPoint->SetInput (tetraFoamCell);
-
-    size_t pointsPerAxis = 64;
-    G3D::AABox bb = foam.GetBoundingBox ();
-    G3D::Vector3 spacing = bb.extent () / (pointsPerAxis - 1);
-    G3D::Vector3 origin = bb.low ();
-
-    VTK_CREATE (vtkImageData, regularFoam);
-    regularFoam->SetExtent (0, pointsPerAxis - 1,
-			    0, pointsPerAxis - 1,
-			    0, pointsPerAxis - 1);
-    regularFoam->SetOrigin (origin.x, origin.y, origin.z);
-    regularFoam->SetSpacing (spacing.x, spacing.y, spacing.z);
-
-    VTK_CREATE (vtkProbeFilter, regularProbe);
-    regularProbe->SetSourceConnection (cellToPoint->GetOutputPort ());
-    regularProbe->SetInput (regularFoam);
-    measureTime->Measure (regularProbe);
 
     VTK_CREATE (vtkThreshold, threshold);
     threshold->ThresholdBetween (interval.minValue (), interval.maxValue ());
     threshold->AllScalarsOn ();
-    threshold->SetInputConnection (regularProbe->GetOutputPort ());
+    //threshold->SetInputConnection (regularProbe->GetOutputPort ());
+    threshold->SetInput (regularFoam);
     m_threshold = threshold;
 
     VTK_CREATE (vtkDataSetMapper, mapper);

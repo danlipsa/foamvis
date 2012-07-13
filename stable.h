@@ -125,6 +125,7 @@
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkMatrix4x4.h>
 #include <vtkProbeFilter.h>
+#include <vtkPointData.h>
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkShrinkFilter.h>
@@ -133,6 +134,8 @@
 #include <vtkTDxInteractorStyleSettings.h>
 #include <vtkThreshold.h>
 #include <vtkUnstructuredGrid.h>
+#include <vtkXMLImageDataWriter.h>
+#include <vtkXMLImageDataReader.h>
 #include <QVTKWidget.h>
 #include <QVTKApplication.h>
 

@@ -25,11 +25,11 @@ public:
     ConstraintEdge (const ConstraintEdge& ce);
 
     void FixPointsConcaveOrConvex ();
-    G3D::Vector3 ComputePointMulti (
+    G3D::Vector3 CalculatePointMulti (
 	size_t i, bool* success,
 	G3D::Vector2 previousTimeStepPoint) const
     {
-	return computePointMulti (i, success, &previousTimeStepPoint);
+	return calculatePointMulti (i, success, &previousTimeStepPoint);
     }
     void ChoosePoint (size_t i, const G3D::Vector3& p);
 
@@ -49,18 +49,18 @@ private:
     };
 
 private:
-    G3D::Vector3 computePointMulti (
+    G3D::Vector3 calculatePointMulti (
 	size_t i, bool* success,
 	const G3D::Vector2* previousTimeStepPoint = 0) const;
     void cachePoints ();
     void fixPoint (size_t i, const vector<Side>& side, Side correctSide);
     void fixPointInTriple (size_t i, Side correctSide);
-    void computeSide (vector<Side>* side,
+    void calculateSide (vector<Side>* side,
 		      size_t* countPlus, size_t* countMinus, 
 		      size_t* countZero, size_t* countInvalid);
-    Side computeCorrectSide (
+    Side calculateCorrectSide (
 	size_t countPlus,  size_t countMinus, size_t countZero);
-    float computeScore (
+    float calculateScore (
 	size_t countPlus,  size_t countMinus, size_t countZero, 
 	size_t countInvalid);
     size_t storePointsToFix (

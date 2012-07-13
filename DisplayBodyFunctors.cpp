@@ -111,7 +111,7 @@ DisplayBodyDeformation::DisplayBodyDeformation (
 
 void DisplayBodyDeformation::operator () (boost::shared_ptr<Body> body)
 {
-    if (body->IsConstraint ())
+    if (body->IsObject ())
 	return;
     ViewNumber::Enum viewNumber = m_propertySetter.GetViewNumber ();
     ViewSettings& vs = m_widgetGl.GetViewSettings (viewNumber);
@@ -167,7 +167,7 @@ G3D::Vector2 clamp (G3D::Vector2 v, float maxLength, bool* clamped)
 
 void DisplayBodyVelocity::operator () (boost::shared_ptr<Body> body)
 {
-    if (body->IsConstraint ())
+    if (body->IsObject ())
 	return;
     ViewNumber::Enum viewNumber = m_propertySetter.GetViewNumber ();
     ViewSettings& vs = m_widgetGl.GetViewSettings (viewNumber);
@@ -372,7 +372,7 @@ valueStep (
 	 BodyScalar::Enum property = BodyScalar::FromSizeT (
 	     this->m_propertySetter.GetFaceScalar ());
 	 bool deduced;
-	 bool exists = p.m_body->ExistsPropertyValue (property, &deduced);
+	 bool exists = p.m_body->HasScalarValue (property, &deduced);
 	 if (exists && 
 	     (! deduced || 
 	      (deduced && this->m_widgetGl.IsMissingPropertyShown (property))))

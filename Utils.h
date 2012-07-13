@@ -150,6 +150,12 @@ template<typename T> void setPValue (T* p, T value)
 	*p = value;
 }
 
+// file name utilities
+// ======================================================================
+string ChangeExtension (const string& path, const char* ext);
+string NameFromPath (const string& path);
+
+
 
 // Other
 // ======================================================================

@@ -36,6 +36,10 @@ public:
      */
     void CalculateBoundingBox ();
     bool Is2D () const;
+    bool Is3D () const
+    {
+	return ! Is2D ();
+    }
     bool IsTorus () const;
 
     /**
@@ -202,7 +206,7 @@ public:
 		    bool debugParsing, bool debugScanning);
     DataProperties* GetDataProperties ()
     {
-	return &m_foamProperties;
+	return &m_dataProperties;
     }
     int GetRotation2D () const
     {
@@ -256,7 +260,7 @@ private:
      */
     Foams m_foams;
     BodiesAlongTime m_bodiesAlongTime;
-    DataProperties m_foamProperties;
+    DataProperties m_dataProperties;
     /**
      * The AABox for this vector of Foam objects
      */

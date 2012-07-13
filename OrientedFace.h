@@ -38,6 +38,7 @@ public:
 
     void AddAdjacentBody (const boost::shared_ptr<Body>& body, size_t ofIndex);
     const AdjacentBody& GetAdjacentBody (bool faceReversed = false) const;
+    size_t GetAdjacentBodySize () const;
     void UpdateAdjacentFace (const boost::shared_ptr<OrientedFace>& of);
 
     /**
@@ -88,6 +89,7 @@ public:
 
     bool IsStandalone () const;
     QColor GetColor (const QColor& defaultColor) const;
+    bool HasConstraints () const;
 
 public:
     static pair< G3D::Vector3, boost::shared_ptr<OrientedFace> > 

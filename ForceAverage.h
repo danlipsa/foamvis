@@ -62,7 +62,7 @@ private:
     const ForcesOneObject getForceDifference (
 	ViewNumber::Enum viewNumber, 
 	const vector<ForcesOneObject>& forces) const;
-    pair<G3D::Vector2, G3D::Vector2> computeTorque (
+    pair<G3D::Vector2, G3D::Vector2> calculateTorque (
 	G3D::Vector2 center, float distance, float angle, float torque) const;
 
 private:

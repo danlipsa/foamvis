@@ -132,7 +132,7 @@ Body::Body(
     m_pressureDeduced (false),
     m_targetVolumeDeduced (false),
     m_actualVolumeDeduced (false),
-    m_constraint (false)
+    m_object (false)
 {
     m_orientedFaces.resize (faceIndexes.size ());
     transform (faceIndexes.begin(), faceIndexes.end(), m_orientedFaces.begin(), 
@@ -145,7 +145,7 @@ Body::Body (boost::shared_ptr<Face> face, size_t id) :
     m_pressureDeduced (false),
     m_targetVolumeDeduced (false),
     m_actualVolumeDeduced (false),
-    m_constraint (true)
+    m_object (true)
 {
     m_orientedFaces.resize (1);
     m_orientedFaces[0].reset (new OrientedFace (face, false));
@@ -183,30 +183,32 @@ void Body::CalculateCenter ()
     if (DATA_PROPERTIES.Is2D ())
     {
 	m_center = GetFace (0).GetCenter ();
-	return;
-    }
-    vector< boost::shared_ptr<Vertex> > physicalVertices;
-    calculatePhysicalVertices (&physicalVertices);
-    size_t size = physicalVertices.size ();
-    if (size >= 3)
-    {	
-	m_center = accumulate (
-	    physicalVertices.begin (), physicalVertices.end (),
-	    G3D::Vector3::zero (), 
-	    boost::bind (plus<G3D::Vector3> (),
-			 _1, boost::bind (&Vertex::GetVector, _2)));
     }
     else
     {
-	VertexSet vertices;
-	GetVertexSet (&vertices);
-	size = vertices.size ();
-	m_center = accumulate (
-	    vertices.begin (), vertices.end (), G3D::Vector3::zero (), 
-	    boost::bind (plus<G3D::Vector3> (),
-			 _1, boost::bind (&Vertex::GetVector, _2)));
+	vector< boost::shared_ptr<Vertex> > physicalVertices;
+	calculatePhysicalVertices (&physicalVertices);
+	size_t size = physicalVertices.size ();
+	if (size >= 3)
+	{	
+	    m_center = accumulate (
+		physicalVertices.begin (), physicalVertices.end (),
+		G3D::Vector3::zero (), 
+		boost::bind (plus<G3D::Vector3> (),
+			     _1, boost::bind (&Vertex::GetVector, _2)));
+	}
+	else
+	{
+	    VertexSet vertices;
+	    GetVertexSet (&vertices);
+	    size = vertices.size ();
+	    m_center = accumulate (
+		vertices.begin (), vertices.end (), G3D::Vector3::zero (), 
+		boost::bind (plus<G3D::Vector3> (),
+			     _1, boost::bind (&Vertex::GetVector, _2)));
+	}
+	m_center /= G3D::Vector3(size, size, size);
     }
-    m_center /= G3D::Vector3(size, size, size);
 }
 
 
@@ -241,7 +243,12 @@ void Body::GetFaceSet (FaceSet* faceSet) const
 string Body::ToString (const AttributesInfo* ai) const
 {
     ostringstream ostr;
-    ostr << "Body " << GetId () << ":" << endl;
+    ostr << "Body " << GetId ();
+    if (IsObject ())
+	ostr << " Object (" << GetConstraintIndex () << "):";
+    else 
+	ostr << " Bubble:";
+    ostr << endl;
     ostr << m_orientedFaces.size () << " faces part of the body\n";
     BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, m_orientedFaces)
 	ostr << of->GetStringId () << " ";
@@ -251,8 +258,6 @@ string Body::ToString (const AttributesInfo* ai) const
 	PrintAttributes (ostr, ai);
     }
     ostr << "\nBody center: " << m_center;
-    if (IsConstraint ())
-	ostr << " constraint";
     ostr << "\nEigen values: " 
 	 << GetDeformationEigenValues ()
 	 << "\nEigen vectors: "
@@ -286,11 +291,11 @@ void Body::GetEdgeSet (EdgeSet* edgeSet) const
 	      boost::bind (&OrientedFace::GetEdgeSet, _1, edgeSet));
 }
 
-bool Body::ExistsPropertyValue (BodyScalar::Enum property, 
+bool Body::HasScalarValue (BodyScalar::Enum property, 
 				bool* deduced) const
 {
     setPValue (deduced, false);
-    if (IsConstraint ())
+    if (IsObject ())
     {
 	if (property == BodyScalar::VELOCITY_X ||
 	    property == BodyScalar::VELOCITY_Y ||
@@ -351,7 +356,8 @@ void Body::GetAttributeValue (size_t attribute, float* value)
 {
     if (BodyAttribute::IsScalar (attribute))
     {
-	float v = GetScalarValue (BodyScalar::FromSizeT(attribute));
+	BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT(attribute);
+	float v = HasScalarValue (bodyScalar) ? GetScalarValue (bodyScalar) : 0;
 	*value = v;
     }
     else if (BodyAttribute::IsVector (attribute))
@@ -424,7 +430,7 @@ void Body::calculateArea ()
 
 void Body::CalculateDeformationSimple ()
 {
-    if (! ExistsPropertyValue (BodyScalar::TARGET_VOLUME))
+    if (! HasScalarValue (BodyScalar::TARGET_VOLUME))
 	return;    
     calculateArea ();
     if (DATA_PROPERTIES.Is2D ())
@@ -471,19 +477,27 @@ void Body::calculateNeighbors3D (const OOBox& originalDomain)
     set<size_t> neighborsIds;
     BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, GetOrientedFaces ())
     {
-	const AdjacentBody& ab = of->GetAdjacentBody (true);
-	pair< set<size_t>::iterator, bool> result = 
-	    neighborsIds.insert (ab.GetBodyId ());
-	if (! result.second)
-	    // this neighbor is already in the list
-	    continue;
-	Neighbor neighbor;
-	neighbor.m_body = ab.GetBody ();
-	G3D::Vector3int16 translation;
-	originalDomain.IsWrap (GetCenter (), neighbor.m_body->GetCenter (),
-			       &translation);
-	neighbor.m_translation = Vector3int16Zero - translation;
-	m_neighbors.push_back (neighbor);
+	// wall faces do not create neighbors (have only this as adjacent body)
+	if (of->HasConstraints ())
+	{
+	    // reflect
+	}
+	else if (of->GetAdjacentBodySize () == 2)
+	{
+	    const AdjacentBody& ab = of->GetAdjacentBody (true);
+	    pair< set<size_t>::iterator, bool> result = 
+		neighborsIds.insert (ab.GetBodyId ());
+	    if (! result.second)
+		// this neighbor is already in the list
+		continue;
+	    Neighbor neighbor;
+	    neighbor.m_body = ab.GetBody ();
+	    G3D::Vector3int16 translation;
+	    originalDomain.IsWrap (GetCenter (), neighbor.m_body->GetCenter (),
+				   &translation);
+	    neighbor.m_translation = Vector3int16Zero - translation;
+	    m_neighbors.push_back (neighbor);
+	}
     }
 }
 
@@ -495,7 +509,6 @@ void Body::calculateNeighbors2D (const OOBox& originalDomain)
     for (size_t i = 0; i < of.size (); ++i, ++j)
     {
 	OrientedEdge oe = of.GetOrientedEdge (i);
-	const AdjacentOrientedFaces& aofs = oe.GetAdjacentFaces ();
 	if (oe.HasConstraints ())
 	{	    
 	    G3D::Vector3 b = oe.GetBeginVector ();
@@ -511,6 +524,9 @@ void Body::calculateNeighbors2D (const OOBox& originalDomain)
 	}
 	else
 	{
+	    const AdjacentOrientedFaces& aofs = oe.GetAdjacentFaces ();
+	    RuntimeAssert (aofs.size () <= 2, 
+			   "AdjacentOrientedFaces size > 2: ", aofs.size ());
 	    AdjacentOrientedFaces::const_iterator it = aofs.begin ();
 	    while (it != aofs.end () && (it->IsStandalone () ||
 					 it->GetBodyId () == GetId ()))
@@ -527,15 +543,13 @@ void Body::calculateNeighbors2D (const OOBox& originalDomain)
 				   &translation);
 	    m_neighbors[j].m_translation = Vector3int16Zero - translation;
 	}
-	RuntimeAssert (aofs.size () <= 2, 
-		       "AdjacentOrientedFaces size > 2: ", aofs.size ());
     }
     m_neighbors.resize (j);
 }
 
 void Body::CalculateDeformationTensor (const OOBox& originalDomain)
 {
-    if (IsConstraint ())
+    if (IsObject ())
 	return;
     size_t bubbleNeighborsCount = 0;
     G3D::Matrix3 textureTensor = G3D::Matrix3::zero ();
@@ -579,7 +593,7 @@ void Body::CalculateDeformationTensor (const OOBox& originalDomain)
 	      m_deformationEigenVectors.end (), ov);
 	);
     if (bubbleNeighborsCount == 0)
-	m_constraint = true;
+	m_object = true;
 }
 
 size_t Body::GetConstraintIndex () const

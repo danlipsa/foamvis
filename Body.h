@@ -115,6 +115,7 @@ public:
 	return set;
     }
     float GetScalarValue (BodyScalar::Enum property) const;
+    bool HasScalarValue (BodyScalar::Enum property, bool* deduced = 0) const;
     void GetAttributeValue (size_t attribute, float* value);
     G3D::Vector3 GetVelocity () const
     {
@@ -135,8 +136,6 @@ public:
     {
 	m_actualVolumeDeduced = true;
     }
-    bool ExistsPropertyValue (BodyScalar::Enum property, 
-			      bool* deduced = 0) const;
 
     bool operator< (const Body& other) const;
     bool operator< (size_t otherBodyId) const;
@@ -188,9 +187,13 @@ public:
     {
 	return m_deformationEigenVectors[i];
     }
-    bool IsConstraint () const
+
+    /**
+     * Objects are not bubbles, and they are defined by constraints.
+     */
+    bool IsObject () const
     {
-	return m_constraint;
+	return m_object;
     }
     size_t GetConstraintIndex () const;
 
@@ -237,7 +240,7 @@ private:
     bool m_pressureDeduced;
     bool m_targetVolumeDeduced;
     bool m_actualVolumeDeduced;
-    bool m_constraint;
+    bool m_object;
 };
 
 /**

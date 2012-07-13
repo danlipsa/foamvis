@@ -59,14 +59,14 @@ public:
 	QString dir, 
 	const DmpObjectInfo& dmpObjectInfo, 
 	const vector<ForcesOneObjectNames>& forcesNames,
-	bool useOriginal, DataProperties* foamParameters, 
+	bool useOriginal, DataProperties* dataProperties, 
 	Foam::ParametersOperation parametersOperation,
 	bool debugParsing = false, bool debugScanning = false) : 
 
         m_dir (qPrintable(dir)), 
 	m_dmpObjectInfo (dmpObjectInfo), 
 	m_useOriginal (useOriginal),
-	m_foamProperties (foamParameters), 
+	m_dataProperties (dataProperties), 
 	m_parametersOperation (parametersOperation),
 	m_debugParsing (debugParsing),
 	m_debugScanning (debugScanning)
@@ -82,19 +82,19 @@ public:
     boost::shared_ptr<Foam> operator () (QString dmpFile)
     {
 	boost::shared_ptr<Foam> foam;
-	string file;
+	string file = qPrintable (dmpFile);
+	string fullPath = m_dir + '/' + file;
 	int result;
-	file = qPrintable (dmpFile);
 	ostringstream ostr;
 	ostr << "Parsing " << file << " ..." << endl;
 	cdbg << ostr.str ();
 	foam.reset (
 	    new Foam (m_useOriginal, m_dmpObjectInfo,
-		      m_forcesNames, *m_foamProperties, 
+		      m_forcesNames, *m_dataProperties, 
 		      m_parametersOperation));
 	foam->GetParsingData ().SetDebugParsing (m_debugParsing);
 	foam->GetParsingData ().SetDebugScanning (m_debugScanning);	    
-	string fullPath = m_dir + '/' + file;
+	foam->SetDmpPath (fullPath);
 	result = foam->GetParsingData ().Parse (fullPath, foam.get ());
 	if (result != 0)
 	    ThrowException ("Error parsing ", fullPath);
@@ -108,7 +108,7 @@ private:
     const DmpObjectInfo& m_dmpObjectInfo;
     vector<ForcesOneObjectNames> m_forcesNames;
     const bool m_useOriginal;
-    DataProperties* m_foamProperties;
+    DataProperties* m_dataProperties;
     Foam::ParametersOperation m_parametersOperation;
     const bool m_debugParsing;
     const bool m_debugScanning;
@@ -169,7 +169,7 @@ void Simulation::Preprocess ()
     cdbg << "Preprocess temporal foam data ..." << endl;
     fixConstraintPoints ();
     boost::array<FoamParamMethod, 7> methods = {{
-	    boost::bind (&Foam::CreateConstraintBody, _1, 
+	    boost::bind (&Foam::CreateObjectBody, _1, 
 			 GetDmpObjectInfo ().m_constraintIndex),
 	    boost::bind (&Foam::SetForcesAllObjects, _1),
 	    boost::bind (&Foam::ReleaseParsingData, _1),
@@ -192,6 +192,13 @@ void Simulation::Preprocess ()
 	cdbg << "Show ORIGINAL pressure values." << endl;
     }
     calculateStatistics ();
+
+    if (Is3D ())
+    {
+	cdbg << "Resampling to regular grids ..." << endl;
+	f = boost::bind (&Foam::SaveRegularGrid, _1);
+	MapPerFoam (&f, 1);
+    }
 }
 
 
@@ -560,6 +567,9 @@ void Simulation::ParseDMPs (
 	GetForcesNames (), OriginalUsed (), GetDataProperties (),
 	Foam::SET_DATA_PROPERTIES,
 	debugParsing, debugScanning) (*files.begin ());
+    DATA_PROPERTIES.SetSpaceDimension (
+	GetDataProperties ()->GetSpaceDimension ());
+    DATA_PROPERTIES.SetQuadratic (GetDataProperties ()->IsQuadratic ());
     QList< boost::shared_ptr<Foam> > foams = QtConcurrent::blockingMapped 
 	< QList < boost::shared_ptr<Foam> > > (
 	    files.begin () + 1, files.end (),
