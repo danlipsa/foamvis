@@ -138,12 +138,12 @@ G3D::Vector3 gluProject (G3D::Vector3 object)
     return G3D::Vector3 (x, y, z);
 }
 
-G3D::Vector2 toEye (G3D::Vector2 object)
+G3D::Vector3 toEye (G3D::Vector3 object)
 {
     G3D::Matrix4 m;
-    G3D::Vector4 o (object, 0, 1);
+    G3D::Vector4 o (object, 1);
     G3D::glGetMatrix (GL_MODELVIEW_MATRIX, m);
-    return (m * o).xy ();
+    return (m * o).xyz ();
 }
 
 bool isMatrixValid (GLenum matrixType)

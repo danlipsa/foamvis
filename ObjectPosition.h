@@ -41,7 +41,7 @@ struct ObjectPosition
 	m_angleRadians (0)
     {
     }
-    G3D::Vector2 m_rotationCenter;
+    G3D::Vector3 m_rotationCenter;
     float m_angleRadians;
 };
 

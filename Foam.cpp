@@ -1027,11 +1027,14 @@ void Foam::SaveRegularGrid () const
     const size_t pointsPerAxis = 64;
     string message = string ("Resampling ") + GetDmpName () + " ...\n";
     cdbg << message;
-    vtkSmartPointer<vtkImageData> id = calculateRegularGrid (pointsPerAxis);
-    VTK_CREATE (vtkXMLImageDataWriter, writer);
-    writer->SetFileName (getVtiPath ().c_str ());
-    writer->SetInput (id);
-    writer->Write ();
+    if (! QFile (getVtiPath ().c_str ()).exists ())
+    {
+	vtkSmartPointer<vtkImageData> id = calculateRegularGrid (pointsPerAxis);
+	VTK_CREATE (vtkXMLImageDataWriter, writer);
+	writer->SetFileName (getVtiPath ().c_str ());
+	writer->SetInput (id);
+	writer->Write ();
+    }
 }
 
 vtkSmartPointer<vtkImageData> Foam::GetRegularGrid () const

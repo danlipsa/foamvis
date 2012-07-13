@@ -61,7 +61,7 @@ inline void glViewport (G3D::Rect2D viewport)
 /**
  * Maps object coordinates to eye coordinates.
  */
-G3D::Vector2 toEye (G3D::Vector2 object);
+G3D::Vector3 toEye (G3D::Vector3 object);
 /**
  * Maps object coordinates to window coordinates
  */

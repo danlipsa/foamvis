@@ -807,13 +807,13 @@ void WidgetGl::RotateAndTranslateAverageAround (
 	rotationCurrent.m_angleRadians - rotationBegin.m_angleRadians;
     if (direction > 0)
     {
-	G3D::Vector2 translation = 
+	G3D::Vector3 translation = 
 	    rotationBegin.m_rotationCenter - rotationCurrent.m_rotationCenter;
 	glTranslate (translation);
     }
     if (angleRadians != 0)
     {
-	G3D::Vector2 rotationCenter = rotationCurrent.m_rotationCenter;
+	G3D::Vector3 rotationCenter = rotationCurrent.m_rotationCenter;
 	glTranslate (rotationCenter);
 	float angleDegrees =  G3D::toDegrees (angleRadians);
 	//cdbg << "angle degrees = " << angleDegrees << endl;
@@ -1972,13 +1972,13 @@ void WidgetGl::AverageAroundBody ()
     brushedBodies (m_contextMenuPosScreen, &bodies);
     if (bodies.size () != 0)
     {
+	boost::shared_ptr<Body> body = bodies[0];
 	const Simulation& simulation = GetSimulation ();
-	size_t bodyId = bodies[0]->GetId ();
+	size_t bodyId = body->GetId ();
 	vs.SetAverageAroundBodyId (bodyId);
 	vs.SetAverageAroundSecondBodyId (INVALID_INDEX);
 	vs.SetAverageAround (true);
-	if (bodies[0]->IsObject () && 
-	    simulation.GetDmpObjectInfo ().RotationUsed ())
+	if (body->IsObject () && simulation.GetDmpObjectInfo ().RotationUsed ())
 	    vs.SetAverageAroundPositions (simulation);
 	else
 	    vs.SetAverageAroundPositions (simulation, bodyId);
@@ -2708,7 +2708,7 @@ void WidgetGl::displayFacesNormal (ViewNumber::Enum viewNumber) const
 G3D::Vector2 WidgetGl::toTexture (ViewNumber::Enum viewNumber, 
 				  G3D::Vector2 object) const
 {
-    G3D::Vector2 eye = toEye (object);
+    G3D::Vector2 eye = toEye (G3D::Vector3 (object, 0)).xy ();
     G3D::AABox vv = calculateCenteredViewingVolume (viewNumber);
     return (eye - vv.low ().xy ()) / (vv.high ().xy () - vv.low ().xy ());
 }
@@ -2727,15 +2727,16 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
 	vs.IsAverageAroundRotationShown ();
     const Simulation& simulation = GetSimulation (viewNumber);
 
-    G3D::Vector2 rotationCenter;
+    G3D::Vector3 rotationCenter;
     float angleDegrees;
     if (vs.IsAverageAround ())
     {
 	const ObjectPosition rotationBegin = vs.GetAverageAroundPosition (0);
 	const ObjectPosition rotationCurrent = 
 	    vs.GetAverageAroundPosition (GetCurrentTime (viewNumber));
-	rotationCenter = toEye (rotationCurrent.m_rotationCenter) - 
-	    getEyeTransform (viewNumber).xy ();
+	rotationCenter = 
+	    toEye (rotationCurrent.m_rotationCenter) - 
+	    getEyeTransform (viewNumber);
 	angleDegrees =
 	    adjustForAverageAroundMovementRotation ? 
 	    - G3D::toDegrees (
@@ -2747,12 +2748,13 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     else
     {
 	rotationCenter = 
-	    toEye (simulation.GetFoam(0).GetBoundingBoxTorus ().center ().xy ())
-	    - getEyeTransform (viewNumber).xy ();
+	    toEye (simulation.GetFoam(0).GetBoundingBoxTorus ().center ())
+	    - getEyeTransform (viewNumber);
 	angleDegrees = 0;
     }
     vs.AverageRotateAndDisplay (
-	viewNumber, vs.GetComputationType (), rotationCenter, angleDegrees);
+	viewNumber, vs.GetComputationType (), 
+	rotationCenter.xy (), angleDegrees);
     vs.GetForceAverage ().Display (
 	viewNumber, adjustForAverageAroundMovementRotation);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (

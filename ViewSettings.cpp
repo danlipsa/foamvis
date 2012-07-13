@@ -650,7 +650,7 @@ void ViewSettings::SetAverageAroundPositions (
 	const Foam& foam = simulation.GetFoam (i);
 	objectPosition.m_angleRadians = 0;
 	objectPosition.m_rotationCenter = 
-	    (*foam.FindBody (bodyId))->GetCenter ().xy ();
+	    (*foam.FindBody (bodyId))->GetCenter ();
     }
 }
 
