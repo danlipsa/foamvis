@@ -1778,26 +1778,37 @@ void WidgetGl::displayAverageAroundBodies (
 		viewNumber, GetCurrentTime (viewNumber), -1);
 	}
 	glDisable (GL_DEPTH_TEST);
+	// display focus body 1
 	Foam::Bodies focusBody (1);
 	size_t bodyId = vs.GetAverageAroundBodyId ();
 	focusBody[0] = *simulation.GetFoam (
 	    vs.GetCurrentTime ()).FindBody (bodyId);
-	displayFacesContour<HighlightNumber::H0> (
-	    focusBody, viewNumber, GetHighlightLineWidth ());
+	displayFacesContour (focusBody, viewNumber, GetHighlightLineWidth ());
+	glEnable (GL_DEPTH_TEST);
+	displayFacesInterior (focusBody, viewNumber);
+	glDisable (GL_DEPTH_TEST);
+	
+
+
+	// display body center for focus body 1.
 	glPointSize (4.0);
 	glColor (Qt::black);
 	DisplayBodyCenter (
 	    *this, simulation.GetFoam (vs.GetCurrentTime ()), 
 	    IdBodySelector (bodyId)) (focusBody[0]);
+
+	// display focus body 2
 	size_t secondBodyId = vs.GetAverageAroundSecondBodyId ();
 	if (secondBodyId != INVALID_INDEX)
 	{
-	    focusBody[0] = 
-		*simulation.GetFoam (vs.GetCurrentTime ()).
+	    focusBody[0] = *simulation.GetFoam (vs.GetCurrentTime ()).
 		FindBody (secondBodyId);
-	    displayFacesContour<HighlightNumber::H0> (
-		focusBody, viewNumber, GetHighlightLineWidth ());
+	    displayFacesContour (focusBody, viewNumber, 
+				 GetHighlightLineWidth ());
+	    glEnable (GL_DEPTH_TEST);
+	    displayFacesInterior (focusBody, viewNumber);
 	}
+
 	if (adjustForAverageAroundMovementRotation)
 	    glPopMatrix ();
 	glPopAttrib ();
@@ -1811,20 +1822,20 @@ void WidgetGl::displayContextBodies (ViewNumber::Enum viewNumber) const
     if (vs.GetContextDisplayBodySize () > 0)
     {
 	glPushAttrib (GL_ENABLE_BIT);
-	glDisable (GL_DEPTH_TEST);
 	const Foam::Bodies& bodies = 
 	    GetSimulation (viewNumber).GetFoam (
 		GetCurrentTime (viewNumber)).GetBodies ();
-	Foam::Bodies contextBodies (bodies.size ());
-	
-
+	Foam::Bodies contextBodies (bodies.size ());       
 	size_t j = 0;
 	for (size_t i = 0; i < bodies.size (); ++i)
 	    if (vs.IsContextDisplayBody (bodies[i]->GetId ()))
 		contextBodies[j++] = bodies[i];
 	contextBodies.resize (j);
-	displayFacesContour<HighlightNumber::H1> (
-	    contextBodies, viewNumber, GetHighlightLineWidth ());
+	glDisable (GL_DEPTH_TEST);
+	displayFacesContour (contextBodies, viewNumber, 
+			     GetHighlightLineWidth ());
+	glEnable (GL_DEPTH_TEST);
+	displayFacesInterior (contextBodies, viewNumber);
 	glPopAttrib ();
     }
 }
@@ -2801,12 +2812,14 @@ void WidgetGl::displayFacesContour (const Foam::Faces& faces) const
 }
 
 void WidgetGl::displayFacesContour (
-    const Foam::Bodies& bodies, ViewNumber::Enum viewNumber) const
+    const Foam::Bodies& bodies, ViewNumber::Enum viewNumber,
+    GLfloat lineWidth) const
 {
-    const ViewSettings& vs = GetViewSettings (viewNumber);
+    const BodySelector& bodySelector = 
+	GetViewSettings (viewNumber).GetBodySelector ();
     const Simulation& simulation = GetSimulation (viewNumber);
-    const BodySelector& bodySelector = vs.GetBodySelector ();
-    glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT);
+    glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_LINE_BIT);
+    glLineWidth (lineWidth);
     for_each (bodies.begin (), bodies.end (),
 	      DisplayBody<
 	      DisplayFaceHighlightColor<HighlightNumber::H0,
@@ -2817,25 +2830,6 @@ void WidgetGl::displayFacesContour (
 }
 
 
-template<HighlightNumber::Enum highlightColorIndex>
-void WidgetGl::displayFacesContour (
-    const Foam::Bodies& bodies, ViewNumber::Enum viewNumber, 
-    GLfloat lineWidth) const
-{
-    const BodySelector& bodySelector = 
-	GetViewSettings (viewNumber).GetBodySelector ();
-    glPushAttrib (GL_CURRENT_BIT | GL_ENABLE_BIT | GL_LINE_BIT);
-    glLineWidth (lineWidth);
-    for_each (bodies.begin (), bodies.end (),
-	      DisplayBody< DisplayFaceHighlightColor<highlightColorIndex, 
-	      DisplayFaceLineStrip>,
-	      SetterTextureCoordinate> (
-		  *this, 
-		  GetSimulation (viewNumber).GetFoam (0), 
-		  bodySelector, SetterTextureCoordinate (
-		      *this, viewNumber)));
-    glPopAttrib ();
-}
 
 // See OpenGL Programming Guide, 7th edition, Chapter 6: Blending,
 // Antialiasing, Fog and Polygon Offset page 293
@@ -2844,7 +2838,6 @@ void WidgetGl::displayFacesInterior (
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     const Foam& foam = GetSimulation (viewNumber).GetFoam (0);
-    const DataProperties& foamProperties = foam.GetDataProperties ();
     Foam::Bodies bodies = b;
     const BodySelector& bodySelector = vs.GetBodySelector ();
     // partition: opaque bodies first, then transparent bodies
@@ -2856,7 +2849,7 @@ void WidgetGl::displayFacesInterior (
     glEnable (GL_POLYGON_OFFSET_FILL);
     glPolygonOffset (1, 1);
 
-    if (foamProperties.Is2D ())
+    if (DATA_PROPERTIES.Is2D ())
     {
 	glEnable (GL_STENCIL_TEST);
 	glClear(GL_STENCIL_BUFFER_BIT);

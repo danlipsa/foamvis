@@ -357,6 +357,13 @@ void Foam::CalculateBodyNeighbors ()
 	      boost::bind (&Body::CalculateNeighbors, _1, GetTorusDomain ()));
 }
 
+void Foam::StoreObjects ()
+{
+    BOOST_FOREACH (boost::shared_ptr<Body> body, m_bodies)
+	if (body->IsObject ())
+	    m_objects.push_back (body);
+}
+
 void Foam::CalculateBodyDeformationTensor ()
 {
     for_each (m_bodies.begin (), m_bodies.end (),

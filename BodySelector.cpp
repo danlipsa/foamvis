@@ -52,6 +52,8 @@ boost::shared_ptr<AllBodySelector> AllBodySelector::SELECTOR =
 bool PropertyValueBodySelector::operator () (
     const boost::shared_ptr<Body>& body) const
 {
+    if (body->IsObject ())
+	return true;
     if (body->HasScalarValue (m_property))
     {
 	double value = body->GetScalarValue (m_property);

@@ -107,6 +107,14 @@ public:
     {
 	return m_bodies;
     }
+    Bodies& GetObjects ()
+    {
+	return m_objects;
+    }
+    const Bodies& GetObjects () const
+    {
+	return m_objects;
+    }
     size_t GetLastBodyId () const;
 
     /**
@@ -267,6 +275,7 @@ public:
     void FixConstraintPoints (const Foam* prevFoam);
     void StoreAttribute (Body* body, BodyScalar::Enum property, double r);
     void CalculateBodyNeighbors ();
+    void StoreObjects ();
     void CalculateBodyDeformationTensor ();
     void CreateObjectBody (size_t constraint);
     bool Is2D () const;
@@ -385,6 +394,10 @@ private:
      * A vector of bodies sorted by ID.
      */
     Bodies m_bodies;
+    /**
+     * A vector of objects interacting with the foam, sorted by ID.
+     */
+    Bodies m_objects;
     /**
      * View matrix for displaying vertices, edges, faces and bodies.
      */

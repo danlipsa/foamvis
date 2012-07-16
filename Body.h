@@ -189,7 +189,8 @@ public:
     }
 
     /**
-     * Objects are not bubbles, and they are defined by constraints.
+     * Objects are rigid and they interact with the foam. Objects are
+     * defined by constraints.
      */
     bool IsObject () const
     {

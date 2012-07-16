@@ -669,13 +669,9 @@ private:
      * continuous contours  for polygons.
      * @param bodies displays all the faces in these bodies
      */
-    template<HighlightNumber::Enum highlightColorIndex>
     void displayFacesContour (
 	const vector< boost::shared_ptr<Body> >& bodies, 
-	ViewNumber::Enum viewNumber, GLfloat lineWidth) const;
-    void displayFacesContour (
-	const vector< boost::shared_ptr<Body> >& bodies, 
-	ViewNumber::Enum viewNumber) const;
+	ViewNumber::Enum viewNumber, GLfloat lineWidth = 1) const;
     void displayFacesContour (
 	const vector< boost::shared_ptr<Face> >& faces) const;
     /**
