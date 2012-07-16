@@ -139,6 +139,11 @@ inline ostream& operator<< (ostream& ostr,
 
 size_t hash_value (Vertex const& v);
 
+size_t FindVertex (const vector<boost::shared_ptr<Vertex> >& sortedPoints,
+		   const boost::shared_ptr<Vertex>& point);
+
+
+
 #endif //__VERTEX_H__
 
 // Local Variables:

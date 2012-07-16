@@ -133,11 +133,7 @@ public:
 	return GetAdjacentFaces ().size () == 0;
     }
 
-    size_t GetConstraintIndex (size_t i) const;
-    size_t GetConstraintIndex () const
-    {
-	return GetConstraintIndex (0);
-    }
+    size_t GetConstraintIndex (size_t i = 0) const;
     bool HasConstraints () const;
 
     string ToString (const AttributesInfo* ai = 0) const;

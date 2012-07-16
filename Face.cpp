@@ -430,3 +430,10 @@ bool Face::HasConstraints () const
 {
     return HasAttribute (FaceAttributeIndex::CONSTRAINTS);
 }
+
+size_t Face::GetConstraintIndex (size_t i) const
+{
+    return GetAttribute<IntegerArrayAttribute, 
+	IntegerArrayAttribute::value_type> (
+	    FaceAttributeIndex::CONSTRAINTS)[i] - 1;
+}

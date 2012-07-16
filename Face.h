@@ -130,6 +130,7 @@ public:
     void CalculatePerimeter ();
     QColor GetColor (const QColor& defaultColor) const;
     size_t GetEdgesPerFace () const;
+    size_t GetConstraintIndex (size_t i = 0) const;
     bool HasConstraints () const;
     
 private:

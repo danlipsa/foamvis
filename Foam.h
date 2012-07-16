@@ -23,6 +23,7 @@ class BodySelector;
 class ConstraintEdge;
 class Edge;
 class Face;
+class OrientedFace;
 class DataProperties;
 class NameSemanticValue;
 class ParsingData;
@@ -37,6 +38,7 @@ class Foam
 public:
     typedef vector< boost::shared_ptr<Edge> > Edges;
     typedef vector< boost::shared_ptr<Face> > Faces;
+    typedef vector< boost::shared_ptr<OrientedFace> > OrientedFaces;
     typedef vector< boost::shared_ptr<Body> > Bodies;
     enum ParametersOperation 
     {
@@ -298,6 +300,7 @@ public:
     }
     string GetDmpName () const;
     void SaveRegularGrid () const;
+    void StoreConstraintFaces ();
 
 public:
     static const double Z_COORDINATE_2D = 0.0;
@@ -396,8 +399,14 @@ private:
     Bodies m_bodies;
     /**
      * A vector of objects interacting with the foam, sorted by ID.
+     * An object is defined with a constraint
      */
     Bodies m_objects;
+    /**
+     * All the faces associated with a constraint, but not in an foam object.
+     */
+    map<size_t, OrientedFaces> m_constraintFaces;
+
     /**
      * View matrix for displaying vertices, edges, faces and bodies.
      */

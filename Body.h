@@ -197,6 +197,7 @@ public:
 	return m_object;
     }
     size_t GetConstraintIndex () const;
+    vtkSmartPointer<vtkPolyData> GetPolyData () const;
 
 private:
     /**
@@ -205,6 +206,13 @@ private:
     void calculatePhysicalVertices (
 	vector< boost::shared_ptr<Vertex> >* physicalVertices);
     void calculateArea ();
+    void getPolyPoints (
+	vtkSmartPointer<vtkPoints>* polyPoints,
+	vector<boost::shared_ptr<Vertex> >* sortedPoints) const;
+    void createPolyCells (
+	vtkSmartPointer<vtkPolyData> polyData, 
+	const vector<boost::shared_ptr<Vertex> >& sortedPoints) const;
+
 
 private:
     /**

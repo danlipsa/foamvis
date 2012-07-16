@@ -72,14 +72,6 @@ void compact (vector< boost::shared_ptr<E> >& v)
     v.resize (resize);
 }
 
-size_t pointIndex (const vector<boost::shared_ptr<Vertex> >& sortedPoints,
-		   const boost::shared_ptr<Vertex>& point)
-{
-    vector<boost::shared_ptr<Vertex> >::const_iterator centerIt = 
-	lower_bound (sortedPoints.begin (), sortedPoints.end (), point, 
-		     VertexPtrLessThan ());
-    return centerIt - sortedPoints.begin ();
-}
 
 
 // Methods
@@ -363,6 +355,19 @@ void Foam::StoreObjects ()
 	if (body->IsObject ())
 	    m_objects.push_back (body);
 }
+
+void Foam::StoreConstraintFaces ()
+{
+    BOOST_FOREACH (boost::shared_ptr<Body> body, GetBodies ())
+    {
+	BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, 
+		       body->GetOrientedFaces ())
+	{
+	    
+	}
+    }
+}
+
 
 void Foam::CalculateBodyDeformationTensor ()
 {
@@ -986,7 +991,7 @@ void Foam::createTetraCells (
     {
 	boost::shared_ptr<Vertex> center (
 	    new Vertex (body->GetCenter (), maxPointId + bodyIndex + 1));
-	size_t centerIndex = pointIndex (sortedPoints, center);
+	size_t centerIndex = FindVertex (sortedPoints, center);
 	BOOST_FOREACH (const boost::shared_ptr<OrientedFace>& of, 
 		       body->GetOrientedFaces ())
 	{
@@ -994,7 +999,7 @@ void Foam::createTetraCells (
 	    for (size_t i = 0; i < 3; i++)
 	    {
 		boost::shared_ptr<Vertex> point = of->GetBeginVertex (i);
-		size_t pi = pointIndex (sortedPoints, point);
+		size_t pi = FindVertex (sortedPoints, point);
 		aTetra->GetPointIds ()->SetId (i, pi);
 	    }
 	    aTetra->GetPointIds()->SetId(3, centerIndex);

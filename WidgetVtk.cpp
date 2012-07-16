@@ -6,6 +6,7 @@
  * Definitions for the widget for displaying foam bubbles using Vtk
  */
 
+#include "Body.h"
 #include "BodySelector.h"
 #include "DebugStream.h"
 #include "Foam.h"
@@ -83,18 +84,34 @@ void WidgetVtk::UpdateRenderStructured (
     threshold->SetInput (regularFoam);
     m_threshold = threshold;
 
-    VTK_CREATE (vtkDataSetMapper, mapper);
-    mapper->SetInputConnection (threshold->GetOutputPort ());
-    mapper->SetLookupTable (colorTransferFunction);
-    m_mapper = mapper;
 
-    VTK_CREATE(vtkActor, actor);
-    actor->SetMapper(mapper);
-    actor->SetUserMatrix (modelView);
+    // average mapper and actor
+    VTK_CREATE (vtkDataSetMapper, averageMapper);
+    averageMapper->SetInputConnection (threshold->GetOutputPort ());
+    averageMapper->SetLookupTable (colorTransferFunction);
+    m_mapper = averageMapper;
+
+    VTK_CREATE(vtkActor, averageActor);
+    averageActor->SetMapper(averageMapper);
+    averageActor->SetUserMatrix (modelView);
 
     VTK_CREATE (vtkRenderer, renderer);
     renderer->SetBackground(1,1,1);
-    renderer->AddViewProp(actor);
+    renderer->AddViewProp(averageActor);
+
+
+    // foam objects mappers and actors
+    Foam::Bodies objects = foam.GetObjects ();
+    for (size_t i = 0; i < objects.size (); ++i)
+    {
+	VTK_CREATE (vtkDataSetMapper, objectMapper);
+	objectMapper->SetInput (objects[i]->GetPolyData ());
+
+	VTK_CREATE (vtkActor, objectActor);
+	objectActor->SetMapper (objectMapper);
+	objectActor->SetUserMatrix (modelView);
+	renderer->AddViewProp (objectActor);
+    }
 
     GetRenderWindow()->AddRenderer(renderer);
     GetRenderWindow ()->AddObserver (vtkCommand::EndEvent, sendPaint);

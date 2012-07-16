@@ -124,8 +124,9 @@
 #include <vtkRenderWindow.h>
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkMatrix4x4.h>
-#include <vtkProbeFilter.h>
 #include <vtkPointData.h>
+#include <vtkPolyData.h>
+#include <vtkProbeFilter.h>
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkShrinkFilter.h>
@@ -133,6 +134,7 @@
 #include <vtkTDxInteractorStyleCamera.h>
 #include <vtkTDxInteractorStyleSettings.h>
 #include <vtkThreshold.h>
+#include <vtkTriangle.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLImageDataWriter.h>
 #include <vtkXMLImageDataReader.h>

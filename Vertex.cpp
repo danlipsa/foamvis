@@ -150,3 +150,12 @@ size_t Vertex::GetConstraintIndex (size_t i) const
 	    IntegerArrayAttribute::value_type> (
 		VertexAttributeIndex::CONSTRAINTS) [i] - 1;
 }
+
+size_t FindVertex (const vector<boost::shared_ptr<Vertex> >& sortedPoints,
+		   const boost::shared_ptr<Vertex>& point)
+{
+    vector<boost::shared_ptr<Vertex> >::const_iterator centerIt = 
+	lower_bound (sortedPoints.begin (), sortedPoints.end (), point, 
+		     VertexPtrLessThan ());
+    return centerIt - sortedPoints.begin ();
+}
