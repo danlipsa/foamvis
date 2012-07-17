@@ -279,9 +279,7 @@ bool Body::operator< (size_t otherBodyId) const
 
 void Body::GetVertexSet (VertexSet* vertexSet) const
 {
-    const OrientedFaces& orientedFaces = GetOrientedFaces ();
-    for_each (orientedFaces.begin (), orientedFaces.end (),
-	      boost::bind (&OrientedFace::GetVertexSet, _1, vertexSet));
+    return OrientedFace::GetVertexSetV (GetOrientedFaces (), vertexSet);
 }
 
 void Body::GetEdgeSet (EdgeSet* edgeSet) const
@@ -601,58 +599,8 @@ size_t Body::GetConstraintIndex () const
     return GetFace (0).GetOrientedEdge (0).GetConstraintIndex ();
 }
 
-void Body::getPolyPoints (
-    vtkSmartPointer<vtkPoints>* polyPoints,
-    vector<boost::shared_ptr<Vertex> >* sortedPoints) const
-{
-    VertexSet vertexSet = GetVertexSet ();
-    sortedPoints->resize(vertexSet.size ());
-    copy (vertexSet.begin (), vertexSet.end (), sortedPoints->begin ());
-
-
-    *polyPoints = vtkPoints::New ();
-    (*polyPoints)->SetNumberOfPoints (sortedPoints->size ());
-    for (size_t i = 0; i < sortedPoints->size (); ++i)
-    {
-	G3D::Vector3 p = (*sortedPoints)[i]->GetVector ();
-	(*polyPoints)->InsertPoint (i, p.x, p.y, p.z);
-    }
-}
-
-
 vtkSmartPointer<vtkPolyData> Body::GetPolyData () const
 {
-    // create the points    
-    vtkSmartPointer<vtkPoints> polyPoints;
-    vector<boost::shared_ptr<Vertex> > sortedPoints;
-    getPolyPoints (&polyPoints, &sortedPoints);
-
-    // create the unstructured grid
-    VTK_CREATE (vtkPolyData, polyData);
-    size_t numberOfCells = GetOrientedFaces ().size ();
-    polyData->Allocate (numberOfCells, numberOfCells);
-    polyData->SetPoints (polyPoints);
-    
-    // create the cells
-    createPolyCells (polyData, sortedPoints);
-    return polyData;
+    return OrientedFace::GetPolyData (GetOrientedFaces ());
 }
 
-
-void Body::createPolyCells (
-    vtkSmartPointer<vtkPolyData> polyData, 
-    const vector<boost::shared_ptr<Vertex> >& sortedPoints) const
-{
-    BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, GetOrientedFaces ())
-    {
-	VTK_CREATE(vtkTriangle, aTriangle);
-	for (size_t i = 0; i < 3; i++)
-	{
-	    boost::shared_ptr<Vertex> point = of->GetBeginVertex (i);
-	    size_t pi = FindVertex (sortedPoints, point);
-	    aTriangle->GetPointIds ()->SetId (i, pi);
-	}
-	polyData->InsertNextCell(aTriangle->GetCellType(), 
-				 aTriangle->GetPointIds());
-    }
-}

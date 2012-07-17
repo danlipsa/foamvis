@@ -6,11 +6,13 @@
  */
 
 #include "AttributeInfo.h"
-#include "OrientedFace.h"
-#include "OrientedEdge.h"
 #include "Debug.h"
 #include "DebugStream.h"
 #include "Face.h"
+#include "OrientedFace.h"
+#include "OrientedEdge.h"
+#include "Utils.h"
+#include "Vertex.h"
 
 
 OrientedFace::OrientedFace(const boost::shared_ptr<Face>& face, bool reversed) : 
@@ -186,3 +188,75 @@ bool OrientedFace::HasConstraints () const
 {
     return GetFace ()->HasConstraints ();
 }
+
+size_t OrientedFace::GetConstraintIndex (size_t i) const
+{
+    return GetFace ()->GetConstraintIndex (i);
+}
+
+
+void OrientedFace::GetVertexSetV (
+    const vector<boost::shared_ptr<OrientedFace> >& vof,
+    VertexSet* vertexSet)
+{
+    for_each (vof.begin (), vof.end (),
+	      boost::bind (&OrientedFace::GetVertexSet, _1, vertexSet));
+}
+
+vtkSmartPointer<vtkPolyData> OrientedFace::GetPolyData (
+    const vector<boost::shared_ptr<OrientedFace> >& vof)
+{
+    // create and set the points
+    vtkSmartPointer<vtkPoints> polyPoints;
+    vector<boost::shared_ptr<Vertex> > sortedPoints;
+    getPolyPoints (vof, &polyPoints, &sortedPoints);
+    VTK_CREATE (vtkPolyData, polyData);
+    polyData->SetPoints (polyPoints);
+    
+    // create the cells
+    size_t numberOfCells = vof.size ();
+    polyData->Allocate (numberOfCells, numberOfCells);
+    createPolyCells (vof, polyData, sortedPoints);
+    return polyData;
+}
+
+
+void OrientedFace::getPolyPoints (
+    const vector<boost::shared_ptr<OrientedFace> >& vof,
+    vtkSmartPointer<vtkPoints>* polyPoints,
+    vector<boost::shared_ptr<Vertex> >* sortedPoints)
+{
+    VertexSet vertexSet;
+    OrientedFace::GetVertexSetV (vof, &vertexSet);
+    sortedPoints->resize(vertexSet.size ());
+    copy (vertexSet.begin (), vertexSet.end (), sortedPoints->begin ());
+
+
+    *polyPoints = vtkPoints::New ();
+    (*polyPoints)->SetNumberOfPoints (sortedPoints->size ());
+    for (size_t i = 0; i < sortedPoints->size (); ++i)
+    {
+	G3D::Vector3 p = (*sortedPoints)[i]->GetVector ();
+	(*polyPoints)->InsertPoint (i, p.x, p.y, p.z);
+    }
+}
+
+void OrientedFace::createPolyCells (
+    const vector<boost::shared_ptr<OrientedFace> >& vof,
+    vtkSmartPointer<vtkPolyData> polyData, 
+    const vector<boost::shared_ptr<Vertex> >& sortedPoints)
+{
+    BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, vof)
+    {
+	VTK_CREATE(vtkTriangle, aTriangle);
+	for (size_t i = 0; i < 3; i++)
+	{
+	    boost::shared_ptr<Vertex> point = of->GetBeginVertex (i);
+	    size_t pi = FindVertex (sortedPoints, point);
+	    aTriangle->GetPointIds ()->SetId (i, pi);
+	}
+	polyData->InsertNextCell(aTriangle->GetCellType(), 
+				 aTriangle->GetPointIds());
+    }
+}
+

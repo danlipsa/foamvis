@@ -55,7 +55,6 @@ public:
 	  const DmpObjectInfo& dmpObjectInfo,
 	  const vector<ForcesOneObjectNames>& forcesNames,
 	  DataProperties& foamParameters, ParametersOperation paramsOp);
-
     void GetVertexSet (VertexSet* vertexSet) const;
     VertexSet GetVertexSet () const
     {
@@ -188,7 +187,7 @@ public:
 	return m_torusDomain;
     }
     void SetTorusDomain (const G3D::Vector3& x, const G3D::Vector3& y,
-		     const G3D::Vector3& z)
+			 const G3D::Vector3& z)
     {
 	m_torusDomain.Set (x, y, z);
     }
@@ -301,11 +300,13 @@ public:
     string GetDmpName () const;
     void SaveRegularGrid () const;
     void StoreConstraintFaces ();
+    vtkSmartPointer<vtkPolyData> GetConstraintFacesPolyData (
+	size_t constraintIndex) const;
+    size_t GetConstraintFacesSize () const
+    {
+	return m_constraintFaces.size ();
+    }
 
-public:
-    static const double Z_COORDINATE_2D = 0.0;
-
-public:
     /**
      * Pretty print the Foam object
      */
@@ -318,7 +319,6 @@ private:
     vtkSmartPointer<vtkUnstructuredGrid> addCellAttribute (
 	vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
 	size_t attribute) const;
-
     string getVtiPath () const;
     void getTetraPoints (
 	vtkSmartPointer<vtkPoints>* tetraPoints,
@@ -329,7 +329,8 @@ private:
 	vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
 	const vector<boost::shared_ptr<Vertex> >& sortedPoints,
 	size_t maxId) const;
-    void setForcesOneObject (const ForcesOneObjectNames& names, ForcesOneObject* forces);
+    void setForcesOneObject (
+	const ForcesOneObjectNames& names, ForcesOneObject* forces);
     void copyStandaloneElements ();
     /**
      * The vectors of vertices, edges, faces and bodies may have holes.
@@ -383,6 +384,9 @@ private:
     G3D::Vector3int16 getVectorOnConstraintTranslation (
 	const G3D::Vector3& v, size_t constraintIndex) const;
 
+public:
+    static const double Z_COORDINATE_2D = 0.0;
+
 private:
     /**
      * The torus original domain. 
@@ -405,7 +409,7 @@ private:
     /**
      * All the faces associated with a constraint, but not in an foam object.
      */
-    map<size_t, OrientedFaces> m_constraintFaces;
+    multimap<size_t, boost::shared_ptr<OrientedFace> > m_constraintFaces;
 
     /**
      * View matrix for displaying vertices, edges, faces and bodies.

@@ -85,23 +85,38 @@ public:
     void CalculatePerimeter ();
     string ToString (const AttributesInfo* ai = 0) const;
     void GetVertexSet (VertexSet* vertexSet) const;
+    static void GetVertexSetV (
+	const vector<boost::shared_ptr<OrientedFace> >& vof,
+	VertexSet* vertexSet);
     void GetEdgeSet (EdgeSet* edgeSet) const;
 
     bool IsStandalone () const;
     QColor GetColor (const QColor& defaultColor) const;
     bool HasConstraints () const;
-
-public:
+    size_t GetConstraintIndex (size_t i = 0) const;
     static pair< G3D::Vector3, boost::shared_ptr<OrientedFace> > 
     MakeNormalFacePair (boost::shared_ptr<OrientedFace> face)
     {
 	return pair<G3D::Vector3, boost::shared_ptr<OrientedFace> > (
 	    face->GetNormal (), face);
     }
+    static vtkSmartPointer<vtkPolyData> GetPolyData (
+	const vector<boost::shared_ptr<OrientedFace> >& vof);
+
 
 private:
     boost::shared_ptr<Vertex> getBeginVertex (size_t edgeIndex) const;
     boost::shared_ptr<Vertex> getEndVertex (size_t edgeIndex) const;
+    static void getPolyPoints (
+	const vector<boost::shared_ptr<OrientedFace> >& vof,
+	vtkSmartPointer<vtkPoints>* polyPoints,
+	vector<boost::shared_ptr<Vertex> >* sortedPoints);
+    static void createPolyCells (
+	const vector<boost::shared_ptr<OrientedFace> >& vof,
+	vtkSmartPointer<vtkPolyData> polyData, 
+	const vector<boost::shared_ptr<Vertex> >& sortedPoints);
+
+
 };
 
 /**

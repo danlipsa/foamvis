@@ -107,6 +107,7 @@ public:
 	GetVertexSet (&set);
 	return set;
     }
+
     void GetEdgeSet (EdgeSet* edgeSet) const;
     EdgeSet GetEdgeSet () const
     {
@@ -196,7 +197,12 @@ public:
     {
 	return m_object;
     }
+    bool HasConstraints () const
+    {
+	return IsObject ();
+    }
     size_t GetConstraintIndex () const;
+
     vtkSmartPointer<vtkPolyData> GetPolyData () const;
 
 private:
@@ -206,15 +212,7 @@ private:
     void calculatePhysicalVertices (
 	vector< boost::shared_ptr<Vertex> >* physicalVertices);
     void calculateArea ();
-    void getPolyPoints (
-	vtkSmartPointer<vtkPoints>* polyPoints,
-	vector<boost::shared_ptr<Vertex> >* sortedPoints) const;
-    void createPolyCells (
-	vtkSmartPointer<vtkPolyData> polyData, 
-	const vector<boost::shared_ptr<Vertex> >& sortedPoints) const;
 
-
-private:
     /**
      * Splits a  set of  vertices in  physical and
      * tesselation vertices

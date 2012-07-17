@@ -84,6 +84,17 @@ void WidgetVtk::UpdateRenderStructured (
     threshold->SetInput (regularFoam);
     m_threshold = threshold;
 
+    // renderer
+    VTK_CREATE (vtkRenderer, renderer);
+    renderer->SetBackground(1,1,1);
+
+    // scalar bar
+    VTK_CREATE (vtkScalarBarActor, scalarBar);
+    scalarBar->SetLookupTable (colorTransferFunction);
+    scalarBar->SetOrientationToVertical ();
+    scalarBar->SetHeight (0.8);
+    scalarBar->SetWidth (0.17);
+    renderer->AddViewProp (scalarBar);
 
     // average mapper and actor
     VTK_CREATE (vtkDataSetMapper, averageMapper);
@@ -94,9 +105,6 @@ void WidgetVtk::UpdateRenderStructured (
     VTK_CREATE(vtkActor, averageActor);
     averageActor->SetMapper(averageMapper);
     averageActor->SetUserMatrix (modelView);
-
-    VTK_CREATE (vtkRenderer, renderer);
-    renderer->SetBackground(1,1,1);
     renderer->AddViewProp(averageActor);
 
 
@@ -104,13 +112,26 @@ void WidgetVtk::UpdateRenderStructured (
     Foam::Bodies objects = foam.GetObjects ();
     for (size_t i = 0; i < objects.size (); ++i)
     {
-	VTK_CREATE (vtkDataSetMapper, objectMapper);
-	objectMapper->SetInput (objects[i]->GetPolyData ());
+	VTK_CREATE (vtkDataSetMapper, mapper);
+	mapper->SetInput (objects[i]->GetPolyData ());
 
-	VTK_CREATE (vtkActor, objectActor);
-	objectActor->SetMapper (objectMapper);
-	objectActor->SetUserMatrix (modelView);
-	renderer->AddViewProp (objectActor);
+	VTK_CREATE (vtkActor, actor);
+	actor->SetMapper (mapper);
+	actor->SetUserMatrix (modelView);
+	renderer->AddViewProp (actor);
+    }
+
+    // constraint faces rendered transparent
+    for (size_t i = 0; i < foam.GetConstraintFacesSize (); ++i)
+    {
+	VTK_CREATE (vtkDataSetMapper, mapper);
+	mapper->SetInput (foam.GetConstraintFacesPolyData (i));
+
+	VTK_CREATE (vtkActor, actor);
+	actor->SetMapper (mapper);
+	actor->SetUserMatrix (modelView);
+	actor->GetProperty ()->SetOpacity (0.05);
+	renderer->AddViewProp (actor);
     }
 
     GetRenderWindow()->AddRenderer(renderer);

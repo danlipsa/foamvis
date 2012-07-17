@@ -363,8 +363,17 @@ void Foam::StoreConstraintFaces ()
 	BOOST_FOREACH (boost::shared_ptr<OrientedFace> of, 
 		       body->GetOrientedFaces ())
 	{
-	    
+	    if (of->HasConstraints ())
+	    {
+		pair<size_t, boost::shared_ptr<OrientedFace> > p(
+		    of->GetConstraintIndex (), of);
+		m_constraintFaces.insert (p);
+	    }
 	}
+    }
+    BOOST_FOREACH (boost::shared_ptr<Body> object, GetObjects ())
+    {
+	m_constraintFaces.erase (object->GetConstraintIndex ());
     }
 }
 
@@ -1093,6 +1102,32 @@ string Foam::GetDmpName () const
 {
     return NameFromPath (m_dmpPath);
 }
+
+boost::shared_ptr<OrientedFace> pairGetSecond (
+    pair<size_t, boost::shared_ptr<OrientedFace> > p)
+{
+    return p.second;
+}
+
+
+vtkSmartPointer<vtkPolyData> Foam::GetConstraintFacesPolyData (
+    size_t constraintIndex) const
+{
+    typedef multimap<size_t, boost::shared_ptr<OrientedFace> >::const_iterator 
+	ConstIterator;
+    pair<ConstIterator, ConstIterator> range
+	= m_constraintFaces.equal_range (constraintIndex);
+    vector<boost::shared_ptr<OrientedFace> > vof;
+    size_t s = 0;
+    for (ConstIterator it = range.first; 
+	 it != range.second; ++it)
+	++s;
+    vof.resize (s);
+    transform (range.first, range.second, vof.begin (),
+	       boost::bind (pairGetSecond, _1));
+    return OrientedFace::GetPolyData (vof);
+}
+
 
 
 // Static and Friends Methods

@@ -112,6 +112,7 @@
 #include <G3D/Vector3int16.h>
 
 // VTK headers
+#define VTK_EXCLUDE_STRSTREAM_HEADERS
 #include <vtkCellData.h>
 #include <vtkCellDataToPointData.h>
 #include <vtkColorTransferFunction.h>
@@ -127,7 +128,9 @@
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkProbeFilter.h>
+#include <vtkProperty.h>
 #include <vtkRenderer.h>
+#include <vtkScalarBarActor.h>
 #include <vtkSmartPointer.h>
 #include <vtkShrinkFilter.h>
 #include <vtkTetra.h>
