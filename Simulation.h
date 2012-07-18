@@ -305,7 +305,7 @@ public:
     }
     const vector<Simulation>& GetSimulations () const
     {
-	return m_simulations;
+	return m_simulation;
     }
     string ToString () const;
     float GetBubbleSize () const;    

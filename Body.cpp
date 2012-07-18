@@ -441,7 +441,8 @@ void Body::CalculateDeformationSimple ()
     else
 	m_deformationSimple = 
 	    GetArea () / 
-	    pow (GetScalarValue (BodyScalar::TARGET_VOLUME), 2.0 / 3.0);
+	    pow (GetScalarValue (BodyScalar::TARGET_VOLUME), 
+		 static_cast<float>(2.0 / 3.0));
 }
 
 const char* Body::GetAttributeKeywordString (BodyScalar::Enum bp)

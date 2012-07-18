@@ -257,6 +257,7 @@ Mac OS X Snow Leopard
 ---------------------
 Install XCode 3.2.6 (search for 'Xcode snow leopard')
 
+
 Linux
 -----
 Install using your system installation utility (yum, yast2, ...)
@@ -314,11 +315,13 @@ qmake
 make
 make install
 
-Copy http://csgalati.swansea.ac.uk/foam/build/VTK-5.6.0.tgz to /usr/local
-tar xzf VTK-5.6.0.tgz
-mkdir VTK-5.6.0-build
-cd VTK-5.6.0-build
-ccmake ../VTK-5.6.0
+Copy http://csgalati.swansea.ac.uk/foam/build/VTK-5.10.0.tgz to /usr/local
+tar xzf VTK-5.10.0.tgz
+mkdir VTK-5.10.0-build
+cd VTK-5.10.0-build
+ccmake ../VTK-5.10.0
+Enable: VTK_USE_QT
+Make sure the "qmake executable" is for the Qt installation you want!
 press c twice to configure the build and then g to generate the makefile and exit
 make -j <number_of_processors> (or just make if you have one processor)
 make install
