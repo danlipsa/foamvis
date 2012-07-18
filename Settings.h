@@ -1,0 +1,258 @@
+/**
+ * @file   Settings.h
+ * @author Dan R. Lipsa
+ * @date 17 July 2012
+ *
+ * Settings applying to all the views
+ */
+#ifndef __SETTINGS_H__
+#define __SETTINGS_H__
+
+#include "Hashes.h"
+
+class ViewSettings;
+class Simulation;
+
+class Settings
+{
+public:
+    typedef boost::unordered_map<G3D::Vector3int16, QColor,
+	Vector3int16Hash> EndLocationColor;
+
+public:
+    Settings (const Simulation& simulation, float xOverY);
+    float GetContextAlpha () const
+    {
+	return m_contextAlpha;
+    }
+    void SetContextAlpha (float contextAlpha)
+    {
+	m_contextAlpha = contextAlpha;
+    }
+    float GetEdgeRadius () const 
+    {
+	return m_edgeRadius;
+    }
+    void SetEdgeRadius (float edgeRadius)
+    {
+	m_edgeRadius = edgeRadius;
+    }
+    float GetEdgeWidth () const 
+    {
+	return m_edgeWidth;
+    }
+    void SetEdgeWidth (float edgeWidth)
+    {
+	m_edgeWidth = edgeWidth;
+    }
+    float GetArrowBaseRadius () const 
+    {
+	return m_arrowBaseRadius;
+    }
+    void SetArrowBaseRadius (float arrowBaseRadius)
+    {
+	m_arrowBaseRadius = arrowBaseRadius;
+    }
+    float GetArrowHeight () const 
+    {
+	return m_arrowHeight;
+    }
+    void SetArrowHeight (float arrowHeight)
+    {
+	m_arrowHeight = arrowHeight;
+    }
+    void SetEdgeArrow (float onePixelInObjectSpace);
+    float GetEdgeRadiusRatio () const
+    {
+	return m_edgeRadiusRatio;
+    }
+    void SetEdgeRadiusRatio (float edgeRadiusRatio)
+    {
+	m_edgeRadiusRatio = edgeRadiusRatio;
+    }
+    const QColor& GetEndTranslationColor (const G3D::Vector3int16& di) const;
+    bool EdgesTessellationShown () const
+    {
+	return m_edgesTessellationShown;
+    }
+    void SetEdgesTessellationShown (bool shown)
+    {
+	m_edgesTessellationShown = shown;
+    }
+    bool ConstraintsShown () const
+    {
+	return m_constraintsShown;
+    }
+    void SetConstraintsShown (bool shown)
+    {
+	m_constraintsShown = shown;
+    }
+    bool ConstraintPointsShown () const
+    {
+	return m_constraintPointsShown;
+    }
+    void SetConstraintPointsShown (bool shown)
+    {
+	m_constraintPointsShown = shown;
+    }
+    QColor GetHighlightColor (ViewNumber::Enum viewNumber, 
+			      HighlightNumber::Enum highlight) const;
+
+
+    ViewNumber::Enum GetViewNumber () const
+    {
+	return m_viewNumber;
+    }
+    void SetViewNumber (ViewNumber::Enum viewNumber);
+    ViewSettings& GetViewSettings (ViewNumber::Enum viewNumber) const
+    {
+	return *m_viewSettings[viewNumber];
+    }
+    ViewSettings& GetViewSettings () const
+    {
+	return GetViewSettings (GetViewNumber ());
+    }
+    size_t GetViewSettingsSize ()
+    {
+	return m_viewSettings.size ();
+    }
+    size_t GetCurrentTime () const
+    {
+	return GetCurrentTime (GetViewNumber ());
+    }
+    void SetCurrentTime (size_t time, bool setLastStep = false);
+    size_t GetCurrentTime (ViewNumber::Enum viewNumber) const;
+    void LinkedTimeBegin ();
+    void LinkedTimeEnd ();
+    void SetTimeLinkage (TimeLinkage::Enum timeLinkage);
+    TimeLinkage::Enum GetTimeLinkage () const
+    {
+	return m_timeLinkage;
+    }
+    size_t GetTimeSteps () const
+    {
+	return GetTimeSteps (GetViewNumber ());
+    }
+    size_t GetTimeSteps (ViewNumber::Enum viewNumber) const;
+    void SetSimulation (int i, const Simulation& simulation, float xOverY,
+			ViewNumber::Enum viewNumber);
+    size_t GetLinkedTime () const
+    {
+	return m_linkedTime;
+    }
+    ViewCount::Enum GetViewCount () const
+    {
+	return m_viewCount;
+    }
+    void SetViewCount (ViewCount::Enum viewCount)
+    {
+	m_viewCount = viewCount;
+    }
+    ViewLayout::Enum GetViewLayout () const
+    {
+	return m_viewLayout;
+    }
+    void SetViewLayout (ViewLayout::Enum viewLayout)
+    {
+	m_viewLayout = viewLayout;
+    }
+    bool IsMissingPropertyShown (BodyScalar::Enum bodyProperty) const;
+    void SetMissingPressureShown (bool shown)
+    {
+	m_missingPressureShown = shown;
+    }
+    void SetMissingVolumeShown (bool shown)
+    {
+	m_missingVolumeShown = shown;
+    }
+    void SetObjectVelocityShown (bool shown)
+    {
+	m_objectVelocityShown = shown;
+    }
+    bool IsCenterPathLineUsed () const
+    {
+	return m_centerPathLineUsed;
+    }
+    bool IsCenterPathTubeUsed () const
+    {
+	return m_centerPathTubeUsed;
+    }
+    void SetCenterPathTubeUsed (bool used)
+    {
+	m_centerPathTubeUsed = used;
+    }
+    void SetCenterPathLineUsed (bool used)
+    {
+	m_centerPathLineUsed = used;
+    }
+    QColor GetCenterPathContextColor () const;
+    float LinkedTimeStepStretch (ViewNumber::Enum viewNumber) const;
+    float LinkedTimeStepStretch (size_t max,
+				 ViewNumber::Enum viewNumber) const;
+    pair<size_t, ViewNumber::Enum> LinkedTimeMaxInterval () const;
+    float GetXOverY (float xOverYWindow, ViewNumber::Enum viewNumber) const;
+    G3D::AABox CalculateViewingVolume (
+	ViewNumber::Enum viewNumber, const Simulation& simulation, float xOverY,
+	ViewingVolumeOperation::Enum enclose) const;
+
+
+Q_SIGNALS:
+    void ViewChanged ();
+
+public:
+    const static pair<float,float> CONTEXT_ALPHA;
+    const static size_t QUADRIC_SLICES;
+    const static size_t QUADRIC_STACKS;
+
+private:
+    void initEndTranslationColor ();
+    void initViewSettings (const Simulation& simulation, float xOverY);
+    void checkLinkedTimesValid (size_t timeBegin, size_t timeEnd) const;
+    void checkLinkedTimesValid () const;
+
+private:
+    Q_OBJECT
+    float m_contextAlpha;
+    /**
+     * For displaying edges as tubes
+     */
+    float m_edgeRadius;
+    float m_edgeWidth;
+    float m_edgeRadiusRatio;
+    /**
+     * For displaying arrows in the Torus Model edges
+     */
+    float m_arrowBaseRadius;
+    float m_arrowHeight;
+    EndLocationColor m_endTranslationColor;
+    bool m_edgesTessellationShown;
+    bool m_constraintsShown;
+    bool m_constraintPointsShown;
+    ViewNumber::Enum m_viewNumber;
+    boost::array<
+	boost::shared_ptr<ViewSettings>, ViewNumber::COUNT> m_viewSettings;
+    TimeLinkage::Enum m_timeLinkage;
+    /**
+     * Used to keep trak of time for TimeLinkage::LINKED.
+     * It has the resolution of the view that has the maximum interval and the 
+     * range of the view that has the maximum range.
+     * @see LinkedTimeMaxInterval, @see LinkedTimeMaxSteps
+     */
+    size_t m_linkedTime;
+    // View related variables
+    ViewCount::Enum m_viewCount;
+    ViewLayout::Enum m_viewLayout;
+    bool m_missingPressureShown;
+    bool m_missingVolumeShown;
+    bool m_objectVelocityShown;
+    bool m_centerPathTubeUsed;
+    bool m_centerPathLineUsed;
+};
+
+
+
+#endif //__SETTINGS_H__
+
+// Local Variables:
+// mode: c++
+// End:
