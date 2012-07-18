@@ -14,7 +14,7 @@
 #include "Edge.h"
 #include "Face.h"
 #include "Foam.h"
-#include "WidgetGl.h"
+#include "Settings.h"
 #include "OrientedEdge.h"
 #include "OrientedFace.h"
 #include "OpenGLUtils.h"
@@ -88,7 +88,7 @@ void DisplaySegmentQuadric::operator() (
 	glMultMatrix (frame);
 	gluCylinder (
 	    m_quadric, m_radius, m_radius, (end - begin).length (),
-	    WidgetGl::QUADRIC_SLICES, WidgetGl::QUADRIC_STACKS);
+	    Settings::QUADRIC_SLICES, Settings::QUADRIC_STACKS);
     }
     glPopMatrix ();
 }
@@ -258,10 +258,10 @@ void DisplaySegmentArrowQuadric::operator () (
     {
 	glMultMatrix (objectToWorld);
 	gluCylinder (m_quadric, m_baseRadius, m_topRadius, m_height,
-		     WidgetGl::QUADRIC_SLICES, WidgetGl::QUADRIC_STACKS);
+		     Settings::QUADRIC_SLICES, Settings::QUADRIC_STACKS);
 	gluQuadricOrientation (m_quadric, GLU_INSIDE);
-	gluDisk (m_quadric, 0, m_baseRadius, WidgetGl::QUADRIC_SLICES,
-		 WidgetGl::QUADRIC_STACKS);
+	gluDisk (m_quadric, 0, m_baseRadius, Settings::QUADRIC_SLICES,
+		 Settings::QUADRIC_STACKS);
     }
     gluQuadricOrientation (m_quadric, GLU_OUTSIDE);
     glPopMatrix ();
@@ -325,15 +325,16 @@ void DisplayOrientedSegmentQuadric::operator () (
 template <typename DisplayEdge, typename DisplaySegmentArrow1, 
 	  bool showDuplicates>
 DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow1, showDuplicates>::
-DisplayEdgeTorus (const WidgetGl& widget, const Foam& foam,
-		  FocusContext focus, bool useZPos, double zPos) : 
+DisplayEdgeTorus (const Settings& widget, const Foam& foam, 
+		  GLUquadricObj* quadric, FocusContext focus, 
+		  bool useZPos, double zPos) : 
     
     DisplayElementFocus (widget, foam, focus, useZPos, zPos),
-    m_displayEdge (m_widgetGl.GetQuadricObject (), m_widgetGl.GetEdgeRadius ()),
-    m_displayArrow (m_widgetGl.GetQuadricObject (),
-		    m_widgetGl.GetArrowBaseRadius (),
-		    m_widgetGl.GetEdgeRadius (),
-		    m_widgetGl.GetArrowHeight ())
+    m_displayEdge (quadric, m_settings.GetEdgeRadius ()),
+    m_displayArrow (quadric,
+		    m_settings.GetArrowBaseRadius (),
+		    m_settings.GetEdgeRadius (),
+		    m_settings.GetArrowHeight ())
     {
     }
 
@@ -372,7 +373,7 @@ display (const boost::shared_ptr<Edge>  e)
     const Vertex& begin = e->GetBegin ();
     const Vertex& end = e->GetEnd ();
     G3D::Vector3int16 endLocation = e->GetEndTranslation ();
-    glColor (m_widgetGl.GetEndTranslationColor (endLocation));
+    glColor (m_settings.GetEndTranslationColor (endLocation));
 
     if (endLocation != Vector3int16Zero)
 	m_displayArrow(begin.GetVector (), end.GetVector ());
@@ -386,7 +387,7 @@ display (const boost::shared_ptr<Edge>  e)
 
 template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
 DisplayEdgePropertyColor<tesselationEdgesDisplay>::
-DisplayEdgePropertyColor (const WidgetGl& widget,const Foam& foam,
+DisplayEdgePropertyColor (const Settings& widget,const Foam& foam,
 			  FocusContext focus,
 			  bool useZPos, double zPos) : 
     
@@ -396,7 +397,7 @@ DisplayEdgePropertyColor (const WidgetGl& widget,const Foam& foam,
 
 template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
 DisplayEdgePropertyColor<tesselationEdgesDisplay>::
-DisplayEdgePropertyColor (const WidgetGl& widget,const Foam& foam,
+DisplayEdgePropertyColor (const Settings& widget,const Foam& foam,
 			  FocusContext focus, ViewNumber::Enum viewNumber,
 			  bool useZPos, double zPos) : 
     
@@ -419,14 +420,14 @@ operator () (const Edge& edge) const
     bool isPhysical = edge.IsPhysical ();
     if (isPhysical || 
 	(tesselationEdgesDisplay == DISPLAY_TESSELLATION_EDGES &&
-	 m_widgetGl.EdgesTessellationShown () && 
+	 m_settings.EdgesTessellationShown () && 
 	 m_focus == FOCUS))
     {
 	bool hasConstraints = edge.HasConstraints ();
-	if (hasConstraints && ! m_widgetGl.ConstraintsShown ())
+	if (hasConstraints && ! m_settings.ConstraintsShown ())
 	    return;
 	double alpha = 
-	    (m_focus == FOCUS ? 1.0 : m_widgetGl.GetContextAlpha ());
+	    (m_focus == FOCUS ? 1.0 : m_settings.GetContextAlpha ());
 	QColor color = edge.GetColor (Qt::black);
 	glColor (
 	    QColor::fromRgbF(
@@ -435,7 +436,7 @@ operator () (const Edge& edge) const
 	DisplayEdgeVertices (edge, m_useZPos, m_zPos);
 	glEnd ();
 	
-	if (hasConstraints && m_widgetGl.ConstraintPointsShown ())
+	if (hasConstraints && m_settings.ConstraintPointsShown ())
 	{
 	    glPointSize (5);
 	    glBegin(GL_POINTS);
@@ -459,7 +460,7 @@ operator() (const boost::shared_ptr<OrientedEdge> oe) const
 template <HighlightNumber::Enum highlightColorIndex,
 	  DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay>
 DisplayEdgeHighlightColor<highlightColorIndex, tesselationEdgesDisplay>::
-DisplayEdgeHighlightColor (const WidgetGl& widget, const Foam& foam,
+DisplayEdgeHighlightColor (const Settings& widget, const Foam& foam,
 			   FocusContext focus,
 			   ViewNumber::Enum viewNumber,
 			   bool useZPos, double zPos) : 
@@ -484,12 +485,12 @@ operator () (const Edge& edge) const
 {
     if (this->m_focus == DisplayElement::FOCUS)
     {
-	glColor (this->m_widgetGl.GetHighlightColor (
+	glColor (this->m_settings.GetHighlightColor (
 		     m_viewNumber, highlightColorIndex));
     }
     else
 	glColor (QColor::fromRgbF (
-		     0, 0, 0, this->m_widgetGl.GetContextAlpha ()));
+		     0, 0, 0, this->m_settings.GetContextAlpha ()));
     glBegin(GL_LINE_STRIP);
     DisplayEdgeVertices (edge, m_useZPos, m_zPos);
     glEnd ();
@@ -558,7 +559,7 @@ void DisplayFaceTriangleFan::operator() (const OrientedFace*  of) const
 template<typename displayEdge>
 DisplayFaceEdges<displayEdge>::
 DisplayFaceEdges (
-    const WidgetGl& widget, const Foam& foam,
+    const Settings& widget, const Foam& foam,
     FocusContext focus, bool useZPos, double zPos) :
  
     DisplayElementFocus (widget, foam, focus, useZPos, zPos)
@@ -578,7 +579,7 @@ operator () (const boost::shared_ptr<Face>  f)
 {
     const vector< boost::shared_ptr<OrientedEdge> >& v = 
 	f->GetOrientedEdges ();
-    displayEdge display(m_widgetGl, m_foam, 
+    displayEdge display(m_settings, m_foam, 
 			m_focus, m_useZPos, m_zPos);
     for (size_t i = 0; i < v.size (); i++)
     {

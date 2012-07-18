@@ -8,7 +8,7 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	DebugStream.h Disk.h ImageBasedAverage.h ForceAverage.h\
 	DisplayBodyFunctors.h DisplayFaceFunctors.h DisplayVertexFunctors.h \
 	DisplayEdgeFunctors.h DisplayElement.h DisplayWidget.h\
-	SelectBodiesById.h EditColorMap.h Edge.h Element.h ExpressionTree.h \
+	EditColorMap.h Edge.h Element.h ExpressionTree.h \
 	Enums.h Foam.h \
 	DataProperties.h Face.h ForcesOneObject.h\
 	WidgetGl.h WidgetVtk.h \
@@ -17,7 +17,8 @@ HEADERS += Application.h ApproximationEdge.h AdjacentOrientedFace.h \
 	LineEditFocus.h MainWindow.h NameSemanticValue.h \
 	OOBox.h Info.h ObjectPosition.h OpenGLUtils.h OrientedElement.h\
 	OrientedEdge.h OrientedFace.h Options.h \
-	ParsingData.h ParsingDriver.h ScalarAverage.h ShaderProgram.h\
+	ParsingData.h ParsingDriver.h \
+	Settings.h SelectBodiesById.h ScalarAverage.h ShaderProgram.h\
 	ParsingEnums.h ProcessBodyTorus.h PropertySetter.h \
 	QuadraticEdge.h \
 	RestrictedRangeSlider.h Simulation.h\
@@ -36,7 +37,7 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	DisplayEdgeFunctors.cpp	\
 	DisplayWidget.cpp DisplayVertexFunctors.cpp Edge.cpp \
 	HistogramStatistics.cpp\
-	SelectBodiesById.cpp EditColorMap.cpp Element.cpp ExpressionTree.cpp \
+	EditColorMap.cpp Element.cpp ExpressionTree.cpp \
 	Enums.cpp Foam.cpp\
 	Face.cpp DataProperties.cpp ForcesOneObject.cpp\
 	ForceAverage.cpp \
@@ -46,7 +47,8 @@ SOURCES += Application.cpp ApproximationEdge.cpp\
 	NameSemanticValue.cpp \
 	OOBox.cpp OpenGLUtils.cpp OrientedElement.cpp Options.cpp\
 	OrientedEdge.cpp OrientedFace.cpp AdjacentOrientedFace.cpp\
-	ScalarAverage.cpp ParsingData.cpp ParsingDriver.cpp \
+	ScalarAverage.cpp Settings.cpp SelectBodiesById.cpp \
+	ParsingData.cpp ParsingDriver.cpp \
 	ParsingEnums.cpp ProcessBodyTorus.cpp \
 	PropertySetter.cpp ShaderProgram.cpp\
 	QuadraticEdge.cpp \

@@ -9,15 +9,15 @@
 #ifndef __PROPERTY_SETTER_H__
 #define __PROPERTY_SETTER_H__
 
-class WidgetGl;
+class Settings;
 class Body;
 class SetterTextureCoordinate
 {
 public:
     SetterTextureCoordinate (
-	const WidgetGl& widgetGl, ViewNumber::Enum view) :
+	const Settings& settings, ViewNumber::Enum view) :
 
-	m_widgetGl (widgetGl), m_viewNumber (view)
+	m_settings (settings), m_viewNumber (view)
     {
     }
 
@@ -33,7 +33,7 @@ protected:
     G3D::Matrix3 getRotation () const;
 
 protected:
-    const WidgetGl& m_widgetGl;
+    const Settings& m_settings;
     ViewNumber::Enum m_viewNumber;
 };
 
@@ -41,9 +41,9 @@ class SetterVertexAttribute : public SetterTextureCoordinate
 {
 public:
     SetterVertexAttribute (
-	const WidgetGl& widgetGl,  ViewNumber::Enum view,
+	const Settings& settings,  ViewNumber::Enum view,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
-	SetterTextureCoordinate (widgetGl, view),
+	SetterTextureCoordinate (settings, view),
 	m_program (program), m_attributeLocation (attributeIndex)
     {
     }
@@ -60,9 +60,9 @@ class SetterDeformation : public SetterVertexAttribute
 {
 public:
     SetterDeformation (
-	const WidgetGl& widgetGl,  ViewNumber::Enum view,
+	const Settings& settings,  ViewNumber::Enum view,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
-	SetterVertexAttribute (widgetGl, view, program, attributeIndex)
+	SetterVertexAttribute (settings, view, program, attributeIndex)
     {
     }
     int GetFaceScalar () const;
@@ -74,9 +74,9 @@ class SetterVelocity : public SetterVertexAttribute
 {
 public:
     SetterVelocity (
-	const WidgetGl& widgetGl,  ViewNumber::Enum view,
+	const Settings& settings,  ViewNumber::Enum view,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
-	SetterVertexAttribute (widgetGl, view, program, attributeIndex)
+	SetterVertexAttribute (settings, view, program, attributeIndex)
     {
     }
 
@@ -91,9 +91,9 @@ class SetterNop : public SetterVertexAttribute
 {
 public:
     SetterNop (
-	const WidgetGl& widgetGl,  ViewNumber::Enum view,
+	const Settings& settings,  ViewNumber::Enum view,
 	QGLShaderProgram* program = 0, int attributeIndex = 0) :
-	SetterVertexAttribute (widgetGl, view, program, attributeIndex)
+	SetterVertexAttribute (settings, view, program, attributeIndex)
     {
     }
 

@@ -13,6 +13,7 @@
 #include "WidgetGl.h"
 #include "OpenGLUtils.h"
 #include "ScalarDisplay.h"
+#include "Settings.h"
 #include "ShaderProgram.h"
 #include "T1sPDE.h"
 #include "Utils.h"
@@ -176,7 +177,8 @@ void T1sPDE::DisplayTextureSize (ViewNumber::Enum viewNumber, size_t timeStep,
 {
     glPushAttrib (GL_CURRENT_BIT | GL_POLYGON_BIT);
     glColor (
-	GetWidgetGl ().GetHighlightColor (viewNumber, HighlightNumber::H0));
+	GetWidgetGl ().GetSettings ()->GetHighlightColor (
+	    viewNumber, HighlightNumber::H0));
     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
     GetWidgetGl ().DisplayT1Quad (viewNumber, timeStep, subStep);
     glPopAttrib ();

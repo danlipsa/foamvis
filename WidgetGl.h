@@ -24,6 +24,7 @@ class OrientedFace;
 class OrientedEdge;
 class OOBox;
 class SelectBodiesById;
+class Settings;
 class ViewSettings;
 class PropertyValueBodySelector;
 class IdBodySelector;
@@ -61,6 +62,14 @@ public:
     {
 	return *m_simulationGroup;
     }
+    void SetSettings (boost::shared_ptr<Settings> settings)
+    {
+	m_settings = settings;
+    }
+    boost::shared_ptr<Settings> GetSettings () const
+    {
+	return m_settings;
+    }
     /**
      * Gets the data displayed by the WidgetGl
      */
@@ -69,28 +78,9 @@ public:
     const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
     Simulation& GetSimulation (ViewNumber::Enum viewNumber);
     const Simulation& GetSimulation () const;
-    ViewNumber::Enum GetViewNumber () const
-    {
-	return m_viewNumber;
-    }
     vector<ViewNumber::Enum> GetConnectedViewNumbers (
 	ViewNumber::Enum viewNumber = ViewNumber::COUNT) const;
-    void SetViewNumber (ViewNumber::Enum viewNumber);
-    ViewSettings& GetViewSettings (ViewNumber::Enum viewNumber) const
-    {
-	return *m_viewSettings[viewNumber];
-    }
-    ViewSettings& GetViewSettings () const
-    {
-	return GetViewSettings (GetViewNumber ());
-    }
-    size_t GetViewSettingsSize ()
-    {
-	return m_viewSettings.size ();
-    }
 
-    QColor GetHighlightColor (ViewNumber::Enum view, 
-			      HighlightNumber::Enum highlight) const;
     size_t GetHighlightLineWidth () const
     {
 	return m_highlightLineWidth;
@@ -104,7 +94,6 @@ public:
 	return GetCurrentTime (GetViewNumber ());
     }
     size_t GetCurrentTime (ViewNumber::Enum viewNumber) const;
-    void SetCurrentTime (size_t time, bool setLastStep = false);
     size_t GetTimeSteps () const
     {
 	return GetTimeSteps (GetViewNumber ());
@@ -121,36 +110,9 @@ public:
     }
     
 
-    double GetContextAlpha () const
-    {
-	return m_contextAlpha;
-    }
-
-    const QColor& GetEndTranslationColor (const G3D::Vector3int16& di) const;
-    QColor GetCenterPathContextColor () const;
-
     GLUquadricObj* GetQuadricObject () const 
     {
 	return m_quadric;
-    }
-
-    double GetArrowBaseRadius () const {return m_arrowBaseRadius;}
-    double GetArrowHeight () const 
-    {
-	return m_arrowHeight;
-    }
-    double GetEdgeRadius () const 
-    {
-	return m_edgeRadius;
-    }
-    double GetEdgeWidth () const 
-    {
-	return m_edgeWidth;
-    }
-
-    bool IsCenterPathLineUsed () const
-    {
-	return m_centerPathLineUsed;
     }
 
     bool EdgesShown () const
@@ -158,24 +120,11 @@ public:
 	return m_edgesShown;
     }
 
-    bool EdgesTessellationShown () const
-    {
-	return m_edgesTessellationShown;
-    }
     bool IsCenterPathBodyShown () const
     {
 	return m_centerPathBodyShown;
     }
 
-    bool ConstraintsShown () const
-    {
-	return m_constraintsShown;
-    }
-
-    bool ConstraintPointsShown () const
-    {
-	return m_constraintPointsShown;
-    }
 
     boost::shared_ptr<QAction> GetActionResetTransformAll () const
     {
@@ -266,40 +215,25 @@ public:
 	ComputationType::Enum statisticsType);
     ColorBarType::Enum GetColorBarType (ViewNumber::Enum viewNumber) const;
     ColorBarType::Enum GetColorBarType () const;
-    float LinkedTimeStepStretch (ViewNumber::Enum viewNumber) const;
-    float LinkedTimeStepStretch (size_t max,
-				    ViewNumber::Enum viewNumber) const;
-    pair<size_t, ViewNumber::Enum> LinkedTimeMaxInterval () const;
     pair<size_t, ViewNumber::Enum> LinkedTimeMaxSteps () const;
-    TimeLinkage::Enum GetTimeLinkage () const
-    {
-	return m_timeLinkage;
-    }
     bool IsReflectedHalfView () const
     {
 	return m_reflectedHalfView;
     }
     void SetReflectedHalfView (bool reflectedHalfView);
     void SetForceDifferenceShown (bool forceDifference);
-    size_t GetLinkedTime () const
-    {
-	return m_linkedTime;
-    }
-    ViewCount::Enum GetViewCount () const
-    {
-	return m_viewCount;
-    }
-    ViewLayout::Enum GetViewLayout () const
-    {
-	return m_viewLayout;
-    }
     template<typename T>
     void SetOneOrTwoViews (T* t,void (T::*f) (ViewNumber::Enum));
-
+    ViewNumber::Enum GetViewNumber () const;
+    ViewSettings& GetViewSettings (ViewNumber::Enum viewNumber) const;
+    ViewSettings& GetViewSettings () const
+    {
+	return GetViewSettings (GetViewNumber ());
+    }
+    float GetXOverY () const;
 
 Q_SIGNALS:
     void PaintEnd ();
-    void ViewChanged ();
     void ColorBarModelChanged (
 	ViewNumber::Enum viewNumber,
 	boost::shared_ptr<ColorBarModel> colorBarModel);
@@ -462,8 +396,6 @@ public Q_SLOTS:
 
 public:
     const static  size_t DISPLAY_ALL;
-    const static size_t QUADRIC_SLICES;
-    const static size_t QUADRIC_STACKS;
     const static pair<float,float> TENSOR_SIZE_EXP2;
     const static pair<float,float> TENSOR_LINE_WIDTH_EXP2;
     const static pair<float,float> FORCE_SIZE_EXP2;
@@ -520,8 +452,6 @@ private:
 	SHOW_VELOCITY
     };
 
-    typedef boost::unordered_map<G3D::Vector3int16, QColor,
-				 Vector3int16Hash> EndLocationColor;
     typedef void (WidgetGl::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
@@ -560,14 +490,8 @@ private:
 		   LightType::Enum lightType, ColorNumber::Enum colorNumber);
     void setView (const G3D::Vector2& clickedPoint);
     void selectView (const G3D::Vector2& clickedPoint);
-    double getXOverY (ViewNumber::Enum viewNumber) const;
-    double getXOverY () const;
     static G3D::Rect2D getViewColorBarRect (const G3D::Rect2D& viewRect);
     static G3D::Rect2D getViewOverlayBarRect (const G3D::Rect2D& viewRect);
-    void calculateEdgeRadius (
-	double edgeRadiusMultiplier,
-	double* edgeRadius, double* arrowBaseRadius, 
-	double* arrowHeight, double* edgeWidth) const;
     void displayContextMenuPos (ViewNumber::Enum viewNumber) const;
     void displayBodyCenters (ViewNumber::Enum viewNumber, 
 			     bool useZPos = false) const;
@@ -598,8 +522,6 @@ private:
     G3D::Vector3 calculateViewingVolumeScaledExtent (
 	ViewNumber::Enum viewNumber) const;
     void initQuadrics ();
-    void initEndTranslationColor ();
-    void initViewSettings ();
     void calculateCameraDistance (ViewNumber::Enum viewNumber);
     /**
      * Generates a display list for edges
@@ -753,11 +675,11 @@ private:
     // Min, max values for T1s, Context alpha, force length
     const static pair<float,float> T1S_SIZE;
     const static pair<float,float> CELL_LENGTH_EXP2;
-    const static pair<float,float> CONTEXT_ALPHA;
     const static GLfloat HIGHLIGHT_LINE_WIDTH;
 
 private:
     Q_OBJECT
+    boost::shared_ptr<Settings> m_settings;
 
     /**
      * What do we display
@@ -777,22 +699,9 @@ private:
     QPoint m_lastPos;
     QPoint m_contextMenuPosScreen;
     G3D::Vector3 m_contextMenuPosObject;
-    EndLocationColor m_endTranslationColor;
-    GLUquadricObj* m_quadric;    
-    /**
-     * For displaying edges as tubes
-     */
-    double m_edgeRadius;
-    double m_edgeWidth;
-    double m_edgeRadiusRatio;
-    /**
-     * For displaying arrows in the Torus Model edges
-     */
-    double m_arrowBaseRadius;
-    double m_arrowHeight;
+    GLUquadricObj* m_quadric;
 
     bool m_edgesShown;
-    bool m_edgesTessellationShown;
     bool m_bodyCenterShown;
     bool m_bodyNeighborsShown;
     bool m_faceCenterShown;
@@ -860,37 +769,14 @@ private:
     double m_timeDisplacement;
     boost::shared_ptr<SelectBodiesById> m_selectBodiesByIdList;
     QLabel *m_labelStatusBar;
-    bool m_centerPathTubeUsed;
-    bool m_centerPathLineUsed;
     bool m_t1sShown;
     double m_t1sSize;
-    double m_contextAlpha;
     size_t m_highlightLineWidth;
-    bool m_missingPressureShown;
-    bool m_missingVolumeShown;
-    bool m_objectVelocityShown;
     bool m_titleShown;
     bool m_averageAroundMarked;
     bool m_viewFocusShown;
-    bool m_constraintsShown;
-    bool m_constraintPointsShown;
     bool m_contextBoxShown;
-
-    // View related variables
-    ViewCount::Enum m_viewCount;
-    ViewLayout::Enum m_viewLayout;
-    ViewNumber::Enum m_viewNumber;
-    boost::array<
-	boost::shared_ptr<ViewSettings>, ViewNumber::COUNT> m_viewSettings;
-    TimeLinkage::Enum m_timeLinkage;
     bool m_reflectedHalfView;
-    /**
-     * Used to keep trak of time for TimeLinkage::LINKED.
-     * It has the resolution of the view that has the maximum interval and the 
-     * range of the view that has the maximum range.
-     * @see LinkedTimeMaxInterval, @see LinkedTimeMaxSteps
-     */
-    size_t m_linkedTime;
     ShowType m_showType;
     size_t m_showBodyId;
 };

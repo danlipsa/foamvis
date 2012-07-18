@@ -11,10 +11,11 @@
 #include "Enums.h"
 #include "Foam.h"
 
-class QTimer;
-class WidgetGl;
-class SimulationGroup;
 class ProcessBodyTorus;
+class QTimer;
+class Settings;
+class SimulationGroup;
+class WidgetGl;
 
 /**
  * Class that contains the OpenGL widget and the  UI widgets.
@@ -231,6 +232,7 @@ private:
      */    
     boost::scoped_ptr<QTimer> m_timer;
     ProcessBodyTorus* m_processBodyTorus;
+    boost::shared_ptr<Settings> m_settings;
     
     bool m_debugTranslatedBody;
     Foam::Bodies::iterator m_currentTranslatedBody;

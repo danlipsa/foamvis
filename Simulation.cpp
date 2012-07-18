@@ -122,7 +122,7 @@ const vector<G3D::Vector3> Simulation::NO_T1S;
 
 
 
-// Members
+// Members: Simulation
 // ======================================================================
 Simulation::Simulation () :
     m_histogram (
@@ -589,6 +589,16 @@ void Simulation::ParseDMPs (
     copy (foams.constBegin (), foams.constEnd (), GetFoams ().begin () + 1);
 }
 
+float Simulation::GetBubbleSize () const
+{
+    const G3D::AABox& box = GetFoam (0).GetBody (0).GetBoundingBox ();
+    G3D::Vector3 e = box.extent ();
+    return (e.x + e.y + e.z) / 3;
+}
+
+
+// Members: SimulationGroup
+// ======================================================================
 
 string SimulationGroup::ToString () const
 {
@@ -600,9 +610,7 @@ string SimulationGroup::ToString () const
     return ostr.str ();
 }
 
-float Simulation::GetBubbleSize () const
+float SimulationGroup::GetBubbleSize () const
 {
-    const G3D::AABox& box = GetFoam (0).GetBody (0).GetBoundingBox ();
-    G3D::Vector3 diagonal = box.extent ();
-    return (diagonal.x + diagonal.y + diagonal.z) / 3;
+    
 }

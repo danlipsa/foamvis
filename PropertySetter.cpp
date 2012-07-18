@@ -10,7 +10,7 @@
 #include "Debug.h"
 #include "DebugStream.h"
 #include "Simulation.h"
-#include "WidgetGl.h"
+#include "Settings.h"
 #include "OpenGLUtils.h"
 #include "PropertySetter.h"
 #include "Utils.h"
@@ -23,10 +23,10 @@ void SetterTextureCoordinate::operator () (
     const boost::shared_ptr<Body>& body)
 {
     BodyScalar::Enum property = BodyScalar::FromSizeT (
-	m_widgetGl.GetViewSettings (m_viewNumber).GetFaceScalar ());
+	m_settings.GetViewSettings (m_viewNumber).GetFaceScalar ());
     double value = body->GetScalarValue (property);
     double texCoord = 
-	m_widgetGl.GetViewSettings (m_viewNumber).
+	m_settings.GetViewSettings (m_viewNumber).
 	GetColorBarModel ()->TexCoord (value);
     glTexCoord1f (texCoord); 
 }
@@ -38,12 +38,12 @@ void SetterTextureCoordinate::operator () ()
 
 int SetterTextureCoordinate::GetFaceScalar () const
 {
-    return m_widgetGl.GetViewSettings (m_viewNumber).GetFaceScalar ();
+    return m_settings.GetViewSettings (m_viewNumber).GetFaceScalar ();
 }
 
 G3D::Matrix3 SetterTextureCoordinate::getRotation () const
 {
-    const ViewSettings& vs = m_widgetGl.GetViewSettings (m_viewNumber);    
+    const ViewSettings& vs = m_settings.GetViewSettings (m_viewNumber);    
     G3D::Matrix4 modelRotation4; 
     G3D::glGetMatrix (GL_MODELVIEW_MATRIX, modelRotation4);
     return ToMatrix3 (modelRotation4 * (1.0 / vs.GetScaleRatio ()));

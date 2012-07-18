@@ -303,7 +303,12 @@ public:
     {
 	return m_simulation[i];
     }
+    const vector<Simulation>& GetSimulations () const
+    {
+	return m_simulations;
+    }
     string ToString () const;
+    float GetBubbleSize () const;    
 
 private:
     vector<Simulation> m_simulation;

@@ -338,10 +338,11 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
 	bodies.begin (), bodies.end (),
 	DisplayBody<DisplayFaceBodyScalarColor<PropertySetter>,
 	PropertySetter> (
-	    GetWidgetGl (), foam,
+	    *GetWidgetGl ().GetSettings (), foam,
 	    vs.GetBodySelector (), 
 	    PropertySetter (
-		GetWidgetGl (), viewNumber, m_storeShaderProgram.get (),
+		*GetWidgetGl ().GetSettings (), 
+		viewNumber, m_storeShaderProgram.get (),
 		m_storeShaderProgram->GetVValueLocation ()),
 	    DisplayElement::INVISIBLE_CONTEXT));
     glPopAttrib ();

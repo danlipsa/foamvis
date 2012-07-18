@@ -11,7 +11,7 @@
 
 #include "Enums.h"
 #include "PropertySetter.h"
-class WidgetGl;
+class Settings;
 class Foam;
 
 class DisplayElement
@@ -36,16 +36,16 @@ public:
 
 public:
     DisplayElement (
-	const WidgetGl& widget, const Foam& foam,
+	const Settings& settings, const Foam& foam,
 	bool useZPos = false, double zPos = 0) : 
-	m_widgetGl (widget), m_foam (foam),
+	m_settings (settings), m_foam (foam),
 	m_useZPos (useZPos),
 	m_zPos (zPos)
     {
     }
 
 protected:
-    const WidgetGl& m_widgetGl;
+    const Settings& m_settings;
     const Foam& m_foam;
     bool m_useZPos;
     double m_zPos;
@@ -56,10 +56,10 @@ class DisplayElementFocus : public DisplayElement
 {
 public:
     DisplayElementFocus (
-	const WidgetGl& widget, const Foam& foam,
+	const Settings& settings, const Foam& foam,
 	FocusContext focus = FOCUS, bool useZPos = false, double zPos = 0) :
 	
-	DisplayElement (widget, foam, useZPos, zPos),
+	DisplayElement (settings, foam, useZPos, zPos),
 	m_focus (focus)
     {
     }
@@ -75,11 +75,11 @@ class DisplayElementProperty : public DisplayElement
 {
 public:
     DisplayElementProperty (
-	const WidgetGl& widgetGl, const Foam& foam, 
+	const Settings& settings, const Foam& foam, 
 	PropertySetter propertySetter,
 	bool useZPos = false, double zPos = 0) :
 
-	DisplayElement (widgetGl, foam, useZPos, zPos), 
+	DisplayElement (settings, foam, useZPos, zPos), 
 	m_propertySetter (propertySetter)
     {
     }
@@ -95,13 +95,13 @@ class DisplayElementPropertyFocus :
 {
 public:
     DisplayElementPropertyFocus (
-	const WidgetGl& widget, const Foam& foam,
+	const Settings& settings, const Foam& foam,
 	PropertySetter setter,
 	DisplayElement::FocusContext focus = DisplayElement::FOCUS,
 	bool useZPos = false, double zPos = 0) :
 	
 	DisplayElementProperty<PropertySetter> (
-	    widget, foam, setter, useZPos, zPos),
+	    settings, foam, setter, useZPos, zPos),
 	m_focus (focus)
     {
     }

@@ -18,6 +18,7 @@
 #include "WidgetGl.h"
 #include "MainWindow.h"
 #include "ProcessBodyTorus.h"
+#include "Settings.h"
 #include "SystemDifferences.h"
 #include "T1sPDE.h"
 #include "TensorAverage.h"
@@ -67,6 +68,8 @@ const char* MainWindow::PAUSE_TEXT ("||");
 MainWindow::MainWindow (SimulationGroup& simulationGroup) : 
     m_timer (new QTimer(this)),
     m_processBodyTorus (0), 
+    m_settings (new Settings (simulationGroup.GetSimulation (0), 
+			      widgetGl->GetXOverY ())),
     m_debugTranslatedBody (false),
     m_currentBody (0),
     m_histogramType (HistogramType::NONE),
@@ -92,6 +95,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     spinBoxHistogramHeight->setValue (widgetHistogram->sizeHint ().height ());
 
     CurrentIndexChangedViewCount (ViewCount::ONE);
+    widgetGl->SetSettings (m_settings);
     widgetGl->SetStatus (labelStatusBar);
     widgetGl->SetSimulationGroup (&simulationGroup);
     setupColorBarModels ();
@@ -180,7 +184,7 @@ void MainWindow::configureInterfaceDataDependent (
 	comboBoxViewCount->setCurrentIndex (ViewCount::FromSizeT (viewCount));
     for (size_t i = 1; i < viewCount; ++i)
     {
-	widgetGl->SetViewNumber (ViewNumber::Enum (i));
+	m_settings->SetViewNumber (ViewNumber::Enum (i));
 	comboBoxSimulation->setCurrentIndex (i);
     }
 }
@@ -446,7 +450,7 @@ void MainWindow::ViewToUI ()
     SetValueAndMaxNoSignals (spinBoxT1sTimeWindow,
 			     vs.GetT1sPDE ().GetTimeWindow (), 
 			     widgetGl->GetTimeSteps (viewNumber));
-    if (widgetGl->GetTimeLinkage () == TimeLinkage::INDEPENDENT)
+    if (m_settings->GetTimeLinkage () == TimeLinkage::INDEPENDENT)
     {
 	sliderTimeSteps->SetValueAndMaxNoSignals (
 	    vs.GetCurrentTime (), widgetGl->GetTimeSteps (viewNumber) - 1);
@@ -456,13 +460,13 @@ void MainWindow::ViewToUI ()
     else
     {
 	size_t steps = widgetGl->LinkedTimeMaxSteps ().first;
-	sliderTimeSteps->SetValueAndMaxNoSignals (widgetGl->GetLinkedTime (), 
-						  steps - 1);
+	sliderTimeSteps->SetValueAndMaxNoSignals (
+	    m_settings->GetLinkedTime (), steps - 1);
 	labelAverageLinkedTimeWindowTitle->setHidden (false);
 	labelAverageLinkedTimeWindow->setHidden (false);
 	ostringstream ostr;
 	ostr << vs.GetScalarAverage ().GetTimeWindow () * 
-	    widgetGl->LinkedTimeStepStretch (viewNumber);
+	    m_settings->LinkedTimeStepStretch (viewNumber);
 	labelAverageLinkedTimeWindow->setText (ostr.str ().c_str ());
     }
 
@@ -479,7 +483,7 @@ void MainWindow::ViewToUI ()
     ostr << widgetGl->GetTimeSteps (viewNumber);
     labelLinkedTimeSteps->setText (ostr.str ().c_str ());
     ostr.str ("");
-    ostr << setprecision (3) << widgetGl->LinkedTimeStepStretch (viewNumber);
+    ostr << setprecision (3) << m_settings->LinkedTimeStepStretch (viewNumber);
     labelLinkedTimeStepStretch->setText (ostr.str ().c_str ());
 
     updateLightControls (vs, selectedLight);
@@ -900,7 +904,7 @@ void MainWindow::setupColorBarModels (size_t simulationIndex,
 
 void MainWindow::setupViews ()
 {
-    for (size_t i = 0; i < widgetGl->GetViewSettingsSize (); ++i)
+    for (size_t i = 0; i < m_settings->GetViewSettingsSize (); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	widgetGl->SetBodyOrFaceScalar (
@@ -1220,7 +1224,7 @@ void MainWindow::ValueChangedAverageTimeWindow (int timeSteps)
 {
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
     ostringstream ostr;
-    ostr << timeSteps * widgetGl->LinkedTimeStepStretch (viewNumber);
+    ostr << timeSteps * m_settings->LinkedTimeStepStretch (viewNumber);
     labelAverageLinkedTimeWindow->setText (ostr.str ().c_str ());
 }
 
@@ -1429,8 +1433,8 @@ void MainWindow::ButtonClickedHistogram (int histogramType)
 void MainWindow::ToggledReflectedHalfView (bool reflectedHalfView)
 {
     if (reflectedHalfView &&
-	(widgetGl->GetViewCount () != ViewCount::TWO || 
-	 widgetGl->GetViewLayout () != ViewLayout::VERTICAL))
+	(m_settings->GetViewCount () != ViewCount::TWO || 
+	 m_settings->GetViewLayout () != ViewLayout::VERTICAL))
     {
 	QMessageBox msgBox (this);
 	msgBox.setText("This feature works only with two views "

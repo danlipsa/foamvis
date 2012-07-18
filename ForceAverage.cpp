@@ -11,12 +11,14 @@
 #include "Debug.h"
 #include "DebugStream.h"
 #include "DisplayEdgeFunctors.h"
-#include "ForceAverage.h"
-#include "Simulation.h"
 #include "Foam.h"
+#include "ForceAverage.h"
+#include "OpenGLUtils.h"
+#include "Settings.h"
+#include "Simulation.h"
 #include "WidgetGl.h"
 #include "ViewSettings.h"
-#include "OpenGLUtils.h"
+
 
 
 void ForceAverage::AverageInit (ViewNumber::Enum viewNumber)
@@ -185,7 +187,7 @@ void ForceAverage::displayForcesOneObject (
     for (size_t i = 0; i < isForceShown.size (); ++i)
 	if (isForceShown[i])
 	    displayForce (viewNumber,
-			  widgetGl.GetHighlightColor (
+			  widgetGl.GetSettings ()->GetHighlightColor (
 			      viewNumber, highlight[i]), center,
 			  unitForceTorqueSize * force[i]);    
 }
@@ -225,7 +227,7 @@ void ForceAverage::displayTorqueOneObject (
     for (size_t i = 0; i < isTorqueShown.size (); ++i)
 	if (isTorqueShown[i])
 	    displayTorque (viewNumber,
-			   widgetGl.GetHighlightColor (
+			   widgetGl.GetSettings ()->GetHighlightColor (
 			       viewNumber, highlight[i]),
 			   center.xy () + displacement[i], 
 			   vs.GetTorqueDistance () * bubbleSize,

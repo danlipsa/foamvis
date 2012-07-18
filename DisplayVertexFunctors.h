@@ -13,6 +13,7 @@
 class Edge;
 class OrientedEdge;
 class Vertex;
+class Settings;
 
 void DisplayEdgeVertices (const Edge& edge,
 			  bool useZPos = false, double zPos = 0);
@@ -33,7 +34,7 @@ struct DisplayBeginVertex
     {
     }
     
-    DisplayBeginVertex (const WidgetGl&) 
+    DisplayBeginVertex (const Settings&) 
     {
     }
     

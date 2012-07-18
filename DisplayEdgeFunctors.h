@@ -207,11 +207,8 @@ template <typename DisplayEdge,
 class DisplayEdgeTorus : public DisplayElementFocus
 {
 public:
-    /**
-     * Constructor
-     * @param widget Where should be the edge displayed
-     */
-    DisplayEdgeTorus (const WidgetGl& widget, const Foam& foam,
+    DisplayEdgeTorus (const Settings& settings, const Foam& foam, 
+		      GLUquadricObj* quadric,
 		      FocusContext focus = FOCUS, 
 		      bool useZPos = false, double zPos = 0);
 
@@ -238,16 +235,12 @@ template <DisplayElement::TessellationEdgesDisplay tesselationEdgesDisplay =
 class DisplayEdgePropertyColor : public DisplayElementFocus
 {
 public:
-    /**
-     * Constructor
-     * @param widget Where should be the edge displayed
-     */
     DisplayEdgePropertyColor (
-	const WidgetGl& widget, const Foam& foam,
+	const Settings& settings, const Foam& foam,
 	FocusContext focus, bool useZPos = false, double zPos = 0);
 
     DisplayEdgePropertyColor (
-	const WidgetGl& widget, const Foam& foam,
+	const Settings& settings, const Foam& foam,
 	FocusContext focus, ViewNumber::Enum viewNumber, 
 	bool useZPos = false, double zPos = 0);
 
@@ -269,12 +262,8 @@ template <HighlightNumber::Enum highlightNumber,
 class DisplayEdgeHighlightColor : public DisplayElementFocus
 {
 public:
-    /**
-     * Constructor
-     * @param widget Where should be the edge displayed
-     */
     DisplayEdgeHighlightColor (
-	const WidgetGl& widget, const Foam& foam,
+	const Settings& settings, const Foam& foam,
 	FocusContext focus, ViewNumber::Enum viewNumber,
 	bool useZPos = false, double zPos = 0);
 
@@ -294,17 +283,17 @@ private:
 class DisplayEdgeTorusClipped : public DisplayElementFocus
 {
 public:
-    DisplayEdgeTorusClipped (const WidgetGl& widget, const Foam& foam,
+    DisplayEdgeTorusClipped (const Settings& settings, const Foam& foam,
 			     FocusContext focus, 
 			     bool useZPos = false, double zPos = 0) : 
-	DisplayElementFocus (widget, foam, focus, useZPos, zPos)
+	DisplayElementFocus (settings, foam, focus, useZPos, zPos)
     {
     }
 
-    DisplayEdgeTorusClipped (const WidgetGl& widget, const Foam& foam,
+    DisplayEdgeTorusClipped (const Settings& settings, const Foam& foam,
 			     FocusContext focus, ViewNumber::Enum viewNumber,
 			     bool useZPos = false, double zPos = 0) : 
-	DisplayElementFocus (widget, foam, focus, useZPos, zPos)
+	DisplayElementFocus (settings, foam, focus, useZPos, zPos)
     {
 	(void)viewNumber;
     }
@@ -321,10 +310,10 @@ class DisplayFaceLineStrip : public DisplayElementFocus
 {
 public:
     DisplayFaceLineStrip (
-	const WidgetGl& widget, const Foam& foam,
+	const Settings& settings, const Foam& foam,
 	FocusContext focus = FOCUS,
 	bool useZPos = false, double zPos = 0) :
-	DisplayElementFocus (widget, foam, focus, useZPos, zPos)
+	DisplayElementFocus (settings, foam, focus, useZPos, zPos)
     {
     }
     void operator() (const boost::shared_ptr<OrientedFace>& of);
@@ -340,10 +329,10 @@ class DisplayFaceTriangleFan : public DisplayElementFocus
 {
 public:
     DisplayFaceTriangleFan (
-	const WidgetGl& widget, const Foam& foam,
+	const Settings& settings, const Foam& foam,
 	FocusContext focus = FOCUS,
 	bool useZPos = false, double zPos = 0) : 
-	DisplayElementFocus (widget, foam, focus, useZPos, zPos)
+	DisplayElementFocus (settings, foam, focus, useZPos, zPos)
     {
     }
 
@@ -360,7 +349,7 @@ template<typename displayEdge>
 class DisplayFaceEdges : public DisplayElementFocus
 {
 public:
-    DisplayFaceEdges (const WidgetGl& widget, const Foam& foam,
+    DisplayFaceEdges (const Settings& settings, const Foam& foam,
 		      FocusContext focus, 
 		      bool useZPos = false, double zPos = 0);
 
