@@ -613,11 +613,12 @@ template class DisplayEdgePropertyColor <DisplayElement::DONT_DISPLAY_TESSELLATI
 
 // DisplayEdgeTorus
 // ======================================================================
-
+/*
 template class DisplayFaceEdges<
     DisplayEdgeTorus <DisplaySegment, DisplaySegmentArrow1, true> >;
 template class DisplayFaceEdges<
     DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadric, true> >;
+*/
 template class DisplayFaceEdges<
     DisplayEdgePropertyColor<DisplayElement::DISPLAY_TESSELLATION_EDGES> >;
 template class DisplayFaceEdges<

@@ -136,7 +136,7 @@ void Settings::initViewSettings (const Simulation& simulation, float xOverY)
     ViewNumber::Enum viewNumber (ViewNumber::VIEW0);
     BOOST_FOREACH (boost::shared_ptr<ViewSettings>& vs, m_viewSettings)
     {
-	vs = boost::make_shared <ViewSettings> (*this);
+	vs = boost::make_shared <ViewSettings> ();
 	vs->SetViewType (ViewType::FACES);
 	SetSimulation (0, simulation, xOverY, viewNumber);
 	viewNumber = ViewNumber::Enum (viewNumber + 1);
@@ -224,15 +224,20 @@ void Settings::SetTimeLinkage (TimeLinkage::Enum timeLinkage)
     Q_EMIT ViewChanged ();
 }
 
-void Settings::SetCurrentTime (size_t currentTime, bool setLastStep)
+void Settings::SetCurrentTime (
+    size_t currentTime, 
+    boost::array<int, ViewNumber::COUNT>* d, bool setLastStep)
 {
+    boost::array<int, ViewNumber::COUNT> direction;
+    fill (direction.begin (), direction.end (), 0);
     switch (GetTimeLinkage ()) 
     {
     case TimeLinkage::INDEPENDENT:
     {
 	ViewNumber::Enum viewNumber = GetViewNumber ();
 	ViewSettings& vs = GetViewSettings (viewNumber);
-	vs.SetCurrentTime (currentTime, viewNumber);
+	direction[viewNumber] = 
+	    vs.SetCurrentTime (currentTime, viewNumber);
 	break;
     }
     case TimeLinkage::LINKED:
@@ -245,12 +250,15 @@ void Settings::SetCurrentTime (size_t currentTime, bool setLastStep)
 	    size_t timeSteps = GetTimeSteps (viewNumber);
 	    size_t time = floor (m_linkedTime / multiplier);
 	    if (time < timeSteps)
-		vs.SetCurrentTime (time, viewNumber);
+		direction[viewNumber] = vs.SetCurrentTime (time, viewNumber);
 	    else if (setLastStep)
-		vs.SetCurrentTime (timeSteps - 1, viewNumber);
+		direction[viewNumber] = vs.SetCurrentTime (
+		    timeSteps - 1, viewNumber);
 	}
 	break;
     }
+    if (d)
+	copy (direction.begin (), direction.end (), d->begin ());
 }
 
 void Settings::SetSimulation (int i, const Simulation& simulation, float xOverY,
@@ -271,8 +279,6 @@ void Settings::SetSimulation (int i, const Simulation& simulation, float xOverY,
 	   AxesOrder::TWO_D_ROTATE_RIGHT90_REFLECTION :
 	   AxesOrder::TWO_D_ROTATE_RIGHT90))): AxesOrder::THREE_D);
     vs.SetT1sShiftLower (simulation.GetT1sShiftLower ());
-    vs.AverageSetTimeWindow (simulation.GetTimeSteps ());
-    vs.GetT1sPDE ().AverageSetTimeWindow (simulation.GetT1sTimeSteps ());
     vs.SetScaleCenter (center.xy ());
     vs.SetRotationCenter (center);
 }

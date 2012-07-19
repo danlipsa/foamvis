@@ -22,6 +22,7 @@ class ContextSegment;
 class FocusTextureSegment;
 class FocusColorSegment;
 class Segment;
+class Simulation;
 
 /**
  * Functor used to display a body
@@ -63,10 +64,12 @@ public:
     DisplayBodyDeformation (
 	const Settings& settings, ViewNumber::Enum viewNumber, 
 	const Foam& foam,
-	const BodySelector& bodySelector,
+	const BodySelector& bodySelector, float deformationSizeInitialRatio,
 	bool useZPos = false, double zPos = 0);
 
     void operator () (boost::shared_ptr<Body> b);
+private:
+    float m_deformationSizeInitialRatio;
 };
 
 
@@ -76,10 +79,19 @@ public:
     DisplayBodyVelocity (
 	const Settings& settings, ViewNumber::Enum viewNumber, 
 	const Foam& foam,
-	const BodySelector& bodySelector,
+	const BodySelector& bodySelector, float bubbleSize, 
+	float velocitySizeInitialRatio, float onePixelInObjectSpace,
+	bool sameSize, bool clampingShown,
 	bool useZPos = false, double zPos = 0);
 
     void operator () (boost::shared_ptr<Body> b);
+
+private:
+    float m_bubbleSize;
+    float m_velocitySizeInitialRatio;
+    float m_onePixelInObjectSpace;
+    bool m_sameSize;
+    bool m_clampingShown;
 };
 
 /**
@@ -155,7 +167,8 @@ public:
      */
     DisplayCenterPath (
 	const Settings& settings, const Foam& foam, ViewNumber::Enum view, 
-	const BodySelector& bodySelector,
+	const BodySelector& bodySelector, GLUquadricObj* quadric, 
+	const Simulation& simulation,
 	bool useTimeDisplacement = false, 
 	double timeDisplacement = 0,
 	boost::shared_ptr<ofstream> output = boost::shared_ptr<ofstream>());
@@ -211,6 +224,7 @@ private:
     vector< boost::shared_ptr<ContextSegment> > m_contextSegments;
     boost::shared_ptr<ofstream> m_output;
     size_t m_index;
+    const Simulation& m_simulation;
 };
 
 

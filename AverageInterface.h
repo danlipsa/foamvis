@@ -9,6 +9,8 @@
 #ifndef __AVERAGE_INTERFACE_H__
 #define __AVERAGE_INTERFACE_H__
 
+#include "Enums.h"
+
 class AverageInterface
 {
 public:

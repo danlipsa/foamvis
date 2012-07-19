@@ -101,12 +101,13 @@ EndContext ()
 DisplayBodyDeformation::DisplayBodyDeformation (
     const Settings& settings, ViewNumber::Enum viewNumber, 
     const Foam& foam,
-    const BodySelector& bodySelector,
+    const BodySelector& bodySelector, float deformationSizeInitialRatio,
     bool useZPos, double zPos):
     
     DisplayBodyBase<> (
 	settings, foam, bodySelector,
-	SetterTextureCoordinate(settings, viewNumber), useZPos, zPos)
+	SetterTextureCoordinate(settings, viewNumber), useZPos, zPos),
+    m_deformationSizeInitialRatio (deformationSizeInitialRatio)
 {}
 
 void DisplayBodyDeformation::operator () (boost::shared_ptr<Body> body)
@@ -115,8 +116,7 @@ void DisplayBodyDeformation::operator () (boost::shared_ptr<Body> body)
 	return;
     ViewNumber::Enum viewNumber = m_propertySetter.GetViewNumber ();
     ViewSettings& vs = m_settings.GetViewSettings (viewNumber);
-    float size = m_settings.GetDeformationSizeInitialRatio (viewNumber) * 
-	vs.GetDeformationSize ();
+    float size = m_deformationSizeInitialRatio * vs.GetDeformationSize ();
     float lineWidth = vs.GetDeformationLineWidth ();
     if (GetFocusContext (body) == FOCUS)
 	glColor (m_settings.GetHighlightColor (viewNumber, HighlightNumber::H0));
@@ -142,12 +142,19 @@ void DisplayBodyDeformation::operator () (boost::shared_ptr<Body> body)
 DisplayBodyVelocity::DisplayBodyVelocity (
     const Settings& settings, ViewNumber::Enum viewNumber, 
     const Foam& foam,
-    const BodySelector& bodySelector,
+    const BodySelector& bodySelector, float bubbleSize, 
+    float velocitySizeInitialRatio, float onePixelInObjectSpace,
+    bool sameSize, bool clampingShown,
     bool useZPos, double zPos):
     
     DisplayBodyBase<> (
 	settings, foam, bodySelector,
-	SetterTextureCoordinate(settings, viewNumber), useZPos, zPos)
+	SetterTextureCoordinate(settings, viewNumber), useZPos, zPos),
+    m_bubbleSize (bubbleSize),
+    m_velocitySizeInitialRatio (velocitySizeInitialRatio),
+    m_onePixelInObjectSpace (onePixelInObjectSpace),
+    m_sameSize (sameSize),
+    m_clampingShown (clampingShown)
 {}
 
 G3D::Vector2 clamp (G3D::Vector2 v, float maxLength, bool* clamped)
@@ -174,20 +181,16 @@ void DisplayBodyVelocity::operator () (boost::shared_ptr<Body> body)
     bool clamped = false;
     G3D::Vector2 displayVelocity;
     G3D::Vector2 velocity = body->GetVelocity ().xy (); 
-    if (vs.GetVelocityAverage ().IsSameSize ())
+    if (m_sameSize)
     {
 	clamped = true;
 	displayVelocity = velocity;
-	displayVelocity *= 
-	    m_settings.GetBubbleSize (viewNumber) / displayVelocity.length ();
+	displayVelocity *= m_bubbleSize / displayVelocity.length ();
     }
     else
     {
-	float size = m_settings.GetVelocitySizeInitialRatio (viewNumber) * 
-	    vs.GetVelocityClampingRatio ();
-	displayVelocity = clamp (
-	    velocity * size, 
-	    m_settings.GetBubbleSize (viewNumber), &clamped);
+	float size = m_velocitySizeInitialRatio * vs.GetVelocityClampingRatio ();
+	displayVelocity = clamp (velocity * size, m_bubbleSize, &clamped);
     }
     if (GetFocusContext (body) == FOCUS)
     {
@@ -201,9 +204,8 @@ void DisplayBodyVelocity::operator () (boost::shared_ptr<Body> body)
 	glColor (QColor::fromRgbF (0, 0, 0, m_settings.GetContextAlpha ()));
     DisplaySegmentArrow (
 	body->GetCenter ().xy () - displayVelocity / 2, displayVelocity, 
-	vs.GetVelocityLineWidth (),
-	m_settings.GetOnePixelInObjectSpace (), 
-	clamped && vs.GetVelocityAverage ().IsClampingShown ());
+	vs.GetVelocityLineWidth (), m_onePixelInObjectSpace, 
+	clamped && m_clampingShown);
 }
 
 // DisplayBodyCenter
@@ -297,20 +299,22 @@ DisplayCenterPath<PropertySetter, DisplaySegment>::
 DisplayCenterPath (
     const Settings& settings, const Foam& foam,
     ViewNumber::Enum view,
-    const BodySelector& bodySelector,
+    const BodySelector& bodySelector, GLUquadricObj* quadric,
+    const Simulation& simulation,
     bool useTimeDisplacement,
     double timeDisplacement,
     boost::shared_ptr<ofstream> output) :
 
     DisplayBodyBase<PropertySetter> (
 	settings, foam, bodySelector, PropertySetter (settings, view),
-	 useTimeDisplacement, timeDisplacement),
-     m_displaySegment (this->m_settings.GetQuadricObject (),
-		       this->m_settings.IsCenterPathLineUsed () ?
-		       this->m_settings.GetEdgeWidth () :
-		       this->m_settings.GetEdgeRadius ()),
-     m_output (output),
-     m_index (0)
+	useTimeDisplacement, timeDisplacement),
+    m_displaySegment (quadric,
+		      this->m_settings.IsCenterPathLineUsed () ?
+		      this->m_settings.GetEdgeWidth () :
+		      this->m_settings.GetEdgeRadius ()),
+    m_output (output),
+    m_index (0),
+    m_simulation (simulation)
 {
 }
 
@@ -322,9 +326,8 @@ operator () (size_t bodyId)
     m_focusTextureSegments.resize (0);
     m_focusColorSegments.resize (0);
     m_contextSegments.resize (0);
-    const BodyAlongTime& bat = this->m_settings.GetBodyAlongTime (bodyId);
-    StripIterator it = bat.GetStripIterator (
-	this->m_settings.GetSimulation ());
+    const BodyAlongTime& bat = m_simulation.GetBodyAlongTime (bodyId);
+    StripIterator it = bat.GetStripIterator (m_simulation);
     it.ForEachSegment (
 	boost::bind (&DisplayCenterPath::valueStep, this, _1, _2, _3, _4));
     displaySegments ();

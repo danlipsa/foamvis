@@ -62,6 +62,8 @@ public:
     {
 	return m_bodiesAlongTime;
     }
+    const BodyAlongTime& GetBodyAlongTime (size_t id) const;
+    
     const Body& GetBody (size_t bodyId, size_t timeStep) const;
     /**
      * Gets the vector of Foam objects

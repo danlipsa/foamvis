@@ -25,6 +25,7 @@
 #include "Utils.h"
 #include "OpenGLUtils.h"
 #include "VectorAverage.h"
+#include "ViewAverage.h"
 #include "ViewSettings.h"
 
 
@@ -95,9 +96,8 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     spinBoxHistogramHeight->setValue (widgetHistogram->sizeHint ().height ());
 
     CurrentIndexChangedViewCount (ViewCount::ONE);
-    widgetGl->SetSettings (m_settings);
+    widgetGl->Init (m_settings, &simulationGroup);
     widgetGl->SetStatus (labelStatusBar);
-    widgetGl->SetSimulationGroup (&simulationGroup);
     setupColorBarModels ();
     setupViews ();
     initComboBoxSimulation (simulationGroup);
@@ -330,13 +330,15 @@ void MainWindow::connectColorBarHistogram (bool connected)
 void MainWindow::deformationViewToUI ()
 {
     const ViewSettings& vs = widgetGl->GetViewSettings ();
+    ViewAverage& va = widgetGl->GetViewAverage ();
     SetCheckedNoSignals (checkBoxDeformationShown, 
 			 vs.IsDeformationShown ());
-    SetCheckedNoSignals (checkBoxDeformationGridShown, 
-			 vs.GetDeformationAverage ().IsGridShown ());
+    SetCheckedNoSignals (
+	checkBoxDeformationGridShown, 
+	va.GetDeformationAverage ().IsGridShown ());
     SetCheckedNoSignals (
 	checkBoxDeformationGridCellCenterShown, 
-	vs.GetDeformationAverage ().IsGridCellCenterShown ());
+	va.GetDeformationAverage ().IsGridCellCenterShown ());
     SetValueNoSignals (
 	horizontalSliderDeformationSize, 
 	Value2ExponentIndex (horizontalSliderDeformationSize, 
@@ -351,7 +353,7 @@ void MainWindow::deformationViewToUI ()
 void MainWindow::velocityViewToUI ()
 {
     const ViewSettings& vs = widgetGl->GetViewSettings ();
-    const VectorAverage& va = vs.GetVelocityAverage ();
+    const VectorAverage& va = widgetGl->GetViewAverage ().GetVelocityAverage ();
     SetCheckedNoSignals (checkBoxVelocityShown, vs.IsVelocityShown ());
     SetCheckedNoSignals (checkBoxVelocityGridShown, va.IsGridShown ());
     SetCheckedNoSignals (checkBoxVelocityClampingShown, va.IsClampingShown ());
@@ -393,30 +395,31 @@ void MainWindow::forceViewToUI ()
 
 void MainWindow::t1sPDEViewToUI ()
 {
-    const ViewSettings& vs = widgetGl->GetViewSettings ();
+    ViewAverage& va = widgetGl->GetViewAverage ();
     SetCheckedNoSignals (checkBoxTextureSizeShown, 
-			 vs.GetT1sPDE ().IsKernelTextureSizeShown ());
+			 va.GetT1sPDE ().IsKernelTextureSizeShown ());
     SetValueNoSignals (
 	horizontalSliderT1sKernelTextureSize,
 	Value2Index (horizontalSliderT1sKernelTextureSize,
 		     T1sPDE::KERNEL_TEXTURE_SIZE,
-		     vs.GetT1sPDE ().GetKernelTextureSize ()));
+		     va.GetT1sPDE ().GetKernelTextureSize ()));
     SetValueNoSignals (
 	horizontalSliderT1sKernelIntervalPerPixel,
 	Value2Index(horizontalSliderT1sKernelIntervalPerPixel,
 		    T1sPDE::KERNEL_INTERVAL_PER_PIXEL,
-		    vs.GetT1sPDE ().GetKernelIntervalPerPixel ()));
+		    va.GetT1sPDE ().GetKernelIntervalPerPixel ()));
     SetValueNoSignals (
 	horizontalSliderT1sKernelSigma,
 	Value2Index (horizontalSliderT1sKernelSigma,
 		     T1sPDE::KERNEL_SIGMA,
-		     vs.GetT1sPDE ().GetKernelSigma ()));
+		     va.GetT1sPDE ().GetKernelSigma ()));
 }
 
 void MainWindow::ViewToUI ()
 {
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
     const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
+    const ViewAverage& va = widgetGl->GetViewAverage (viewNumber);
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     int property = vs.GetFaceScalar ();
     size_t simulationIndex = vs.GetSimulationIndex ();
@@ -445,10 +448,10 @@ void MainWindow::ViewToUI ()
 
     SetValueNoSignals (horizontalSliderAngleOfView, vs.GetAngleOfView ());
     SetValueAndMaxNoSignals (spinBoxAverageTimeWindow,
-			     vs.GetScalarAverage ().GetTimeWindow (), 
+			     va.GetScalarAverage ().GetTimeWindow (), 
 			     widgetGl->GetTimeSteps (viewNumber));
     SetValueAndMaxNoSignals (spinBoxT1sTimeWindow,
-			     vs.GetT1sPDE ().GetTimeWindow (), 
+			     va.GetT1sPDE ().GetTimeWindow (), 
 			     widgetGl->GetTimeSteps (viewNumber));
     if (m_settings->GetTimeLinkage () == TimeLinkage::INDEPENDENT)
     {
@@ -465,7 +468,7 @@ void MainWindow::ViewToUI ()
 	labelAverageLinkedTimeWindowTitle->setHidden (false);
 	labelAverageLinkedTimeWindow->setHidden (false);
 	ostringstream ostr;
-	ostr << vs.GetScalarAverage ().GetTimeWindow () * 
+	ostr << va.GetScalarAverage ().GetTimeWindow () * 
 	    m_settings->LinkedTimeStepStretch (viewNumber);
 	labelAverageLinkedTimeWindow->setText (ostr.str ().c_str ());
     }

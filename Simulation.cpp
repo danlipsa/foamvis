@@ -596,6 +596,11 @@ float Simulation::GetBubbleSize () const
     return (e.x + e.y + e.z) / 3;
 }
 
+const BodyAlongTime& Simulation::GetBodyAlongTime (size_t id) const
+{
+    return GetBodiesAlongTime ().GetBodyAlongTime (id);
+}
+
 
 // Members: SimulationGroup
 // ======================================================================
@@ -612,5 +617,10 @@ string SimulationGroup::ToString () const
 
 float SimulationGroup::GetBubbleSize () const
 {
-    
+    acc::accumulator_set<float, acc::features<acc::tag::min> > a;
+    BOOST_FOREACH (const Simulation& simulation, GetSimulations ())
+    {
+	a (simulation.GetBubbleSize ());
+    }
+    return acc::min (a);
 }

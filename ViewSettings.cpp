@@ -11,16 +11,12 @@
 #include "ColorBarModel.h"
 #include "DebugStream.h"
 #include "Debug.h"
-#include "ScalarAverage.h"
-#include "ForceAverage.h"
 #include "Foam.h"
 #include "OpenGLUtils.h"
 #include "Simulation.h"
-#include "T1sPDE.h"
-#include "TensorAverage.h"
 #include "Utils.h"
 #include "ViewSettings.h"
-#include "VectorAverage.h"
+
 
 // Private Functions
 // ======================================================================
@@ -41,18 +37,11 @@ boost::shared_ptr<IdBodySelector> idBodySelectorComplement (
 
 // Methods
 // ======================================================================
-ViewSettings::ViewSettings (const WidgetGl& widgetGl) :
+ViewSettings::ViewSettings () :
     m_viewType (ViewType::COUNT),
     m_bodyOrFaceScalar (BodyScalar::PRESSURE),
     m_statisticsType (ComputationType::AVERAGE),
     m_listCenterPaths (0),
-    m_scalarAverage (new ScalarAverage (widgetGl)),
-    m_t1sPDE (new T1sPDE (widgetGl)),
-    m_deformationAverage (
-	new TensorAverage (widgetGl, m_scalarAverage->GetFbos ())),
-    m_velocityAverage (
-	new VectorAverage (widgetGl, m_scalarAverage->GetFbos ())),
-    m_forceAverage (new ForceAverage (widgetGl)),
     m_rotationFocus (G3D::Matrix3::identity ()),
     m_rotationCenterType (ROTATION_CENTER_FOAM),
     m_scaleRatio (1),
@@ -455,75 +444,6 @@ void ViewSettings::CopySelection (const ViewSettings& other)
     m_bodySelector = other.m_bodySelector->Clone ();
 }
 
-void ViewSettings::AverageInit (ViewNumber::Enum viewNumber)
-{
-    GetScalarAverage ().AverageInit (viewNumber);
-    GetDeformationAverage ().AverageInit (viewNumber);
-    GetVelocityAverage ().AverageInit (viewNumber);
-    GetForceAverage ().AverageInit (viewNumber);
-    GetT1sPDE ().AverageInit (viewNumber);
-}
-
-void ViewSettings::AverageSetTimeWindow (size_t timeSteps)
-{
-    GetScalarAverage ().AverageSetTimeWindow (timeSteps);
-    GetDeformationAverage ().AverageSetTimeWindow (timeSteps);
-    GetVelocityAverage ().AverageSetTimeWindow (timeSteps);
-    GetForceAverage ().AverageSetTimeWindow (timeSteps);
-}
-
-void ViewSettings::AverageStep (ViewNumber::Enum viewNumber, int direction)
-{
-    switch (GetViewType ())
-    {
-    case ViewType::AVERAGE:
-	GetScalarAverage ().AverageStep (viewNumber, direction);
-	GetDeformationAverage ().AverageStep (viewNumber, direction);
-	GetVelocityAverage ().AverageStep (viewNumber, direction);
-	GetForceAverage ().AverageStep (viewNumber, direction);
-	break;
-	
-    case ViewType::T1S_PDE:
-	GetT1sPDE ().AverageStep (viewNumber, direction);
-	break;
-    default:
-	break;
-    }
-}
-
-void ViewSettings::AverageRotateAndDisplay (
-    ViewNumber::Enum viewNumber, ComputationType::Enum displayType,
-    G3D::Vector2 rotationCenter, float angleDegrees) const
-{
-    switch (GetViewType ())
-    {
-    case ViewType::AVERAGE:
-	GetScalarAverage ().AverageRotateAndDisplay (
-	    viewNumber, displayType, rotationCenter, angleDegrees);
-	if (IsDeformationShown ())
-	    GetDeformationAverage ().AverageRotateAndDisplay (
-		viewNumber, displayType, rotationCenter, angleDegrees);
-	if (IsVelocityShown ())
-	    GetVelocityAverage ().AverageRotateAndDisplay (
-		viewNumber, displayType, rotationCenter, angleDegrees);	    
-	break;
-	
-    case ViewType::T1S_PDE:
-	GetT1sPDE ().AverageRotateAndDisplay (
-	    viewNumber, displayType, rotationCenter, angleDegrees);
-	break;
-    default:
-	break;
-    }
-}
-
-void ViewSettings::AverageRelease ()
-{
-    GetScalarAverage ().AverageRelease ();
-    GetDeformationAverage ().AverageRelease ();
-    GetVelocityAverage ().AverageRelease ();
-    GetT1sPDE ().AverageRelease ();
-}
 
 G3D::Matrix3 ViewSettings::GetRotationForAxesOrder (const Foam& foam) const
 {
@@ -623,13 +543,11 @@ size_t ViewSettings::GetCurrentTime () const
 }
 
 
-void ViewSettings::SetCurrentTime (size_t time, ViewNumber::Enum viewNumber)
+int ViewSettings::SetCurrentTime (size_t time, ViewNumber::Enum viewNumber)
 {
     int direction = time - GetCurrentTime ();
-    if (direction == 0)
-	return;
     m_currentTime = time;
-    AverageStep (viewNumber, direction);
+    return direction;
 }
 
 void ViewSettings::SetAverageAroundPositions (const Simulation& simulation)

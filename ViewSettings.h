@@ -9,23 +9,17 @@
 #define __VIEW_SETTINGS_H__
 
 #include "Enums.h"
-#include "AverageInterface.h"
 #include "ObjectPosition.h"
 class AllBodySelector;
 class BodySelector;
 class ColorBarModel;
-class ForceAverage;
 class WidgetGl;
 class IdBodySelector;
 class PropertyValueBodySelector;
-class ScalarAverage;
 class Simulation;
-class T1sPDE;
-class TensorAverage;
-class VectorAverage;
 
 
-class ViewSettings : public AverageInterface
+class ViewSettings
 {
 public:
     enum RotationCenterType
@@ -36,7 +30,7 @@ public:
 
 
 public:
-    ViewSettings (const WidgetGl& widgetGl);
+    ViewSettings ();
     ~ViewSettings ();
 
     ViewType::Enum GetViewType () const
@@ -55,30 +49,6 @@ public:
     void SetBodyOrFaceScalar (size_t bodyOrFaceScalar)
     {
 	m_bodyOrFaceScalar = bodyOrFaceScalar;
-    }
-
-    ScalarAverage& GetScalarAverage () const
-    {
-	return *m_scalarAverage;
-    }
-    
-    T1sPDE& GetT1sPDE () const
-    {
-	return *m_t1sPDE;
-    }
-
-    TensorAverage& GetDeformationAverage () const
-    {
-	return *m_deformationAverage;
-    }
-    VectorAverage& GetVelocityAverage () const
-    {
-	return *m_velocityAverage;
-    }
-
-    ForceAverage& GetForceAverage () const
-    {
-	return *m_forceAverage;
     }
     
     GLuint GetListCenterPaths () const
@@ -489,7 +459,10 @@ public:
     }
 
     size_t GetCurrentTime () const;
-    void SetCurrentTime (size_t time, ViewNumber::Enum viewNumber);
+    /**
+     * Return positive if time has moved forward or negative otherwise
+     */
+    int SetCurrentTime (size_t time, ViewNumber::Enum viewNumber);
     bool IsT1sShiftLower () const
     {
 	return m_t1sShiftLower;
@@ -586,15 +559,6 @@ public:
     {
 	m_scaleCenter = scaleCenter;
     }
-    virtual void AverageInit (ViewNumber::Enum viewNumber);
-    virtual void AverageSetTimeWindow (size_t timeSteps);
-    virtual void AverageStep (ViewNumber::Enum viewNumber, int direction);
-    virtual void AverageRotateAndDisplay (
-	ViewNumber::Enum viewNumber, 
-	ComputationType::Enum displayType = ComputationType::AVERAGE,
-	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
-	float angleDegrees = 0) const;
-    virtual void AverageRelease ();
     
 private:
     static G3D::Matrix3 getRotation2DTimeDisplacement ();
@@ -617,11 +581,6 @@ private:
     GLuint m_listCenterPaths;
     // 0 is for visualization, 1 is for the overlay
     GLuint m_colorBarTexture[2];
-    boost::shared_ptr<ScalarAverage> m_scalarAverage;
-    boost::shared_ptr<T1sPDE> m_t1sPDE;
-    boost::shared_ptr<TensorAverage> m_deformationAverage;
-    boost::shared_ptr<VectorAverage> m_velocityAverage;
-    boost::shared_ptr<ForceAverage> m_forceAverage;
     boost::shared_ptr<ColorBarModel> m_colorBarModel;
     boost::shared_ptr<ColorBarModel> m_velocityOverlayBarModel;
     G3D::Matrix3 m_rotationFocus;

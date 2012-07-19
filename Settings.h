@@ -9,11 +9,12 @@
 #define __SETTINGS_H__
 
 #include "Hashes.h"
+#include "Enums.h"
 
 class ViewSettings;
 class Simulation;
 
-class Settings
+class Settings : public QObject
 {
 public:
     typedef boost::unordered_map<G3D::Vector3int16, QColor,
@@ -120,7 +121,10 @@ public:
     {
 	return GetCurrentTime (GetViewNumber ());
     }
-    void SetCurrentTime (size_t time, bool setLastStep = false);
+    void SetCurrentTime (
+	size_t time, 
+	boost::array<int, ViewNumber::COUNT>* direction = 0, 
+	bool setLastStep = false);
     size_t GetCurrentTime (ViewNumber::Enum viewNumber) const;
     void LinkedTimeBegin ();
     void LinkedTimeEnd ();

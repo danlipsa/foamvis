@@ -36,6 +36,7 @@
 #include "Utils.h"
 #include "Vertex.h"
 #include "ViewSettings.h"
+#include "ViewAverage.h"
 #include "VectorAverage.h"
 
 #define __LOG__(code) code
@@ -471,7 +472,7 @@ Simulation& WidgetGl::GetSimulation (size_t i)
     return m_simulationGroup->GetSimulation (i);
 }
 
-void WidgetGl::SetSimulationGroup (SimulationGroup* simulationGroup)
+void WidgetGl::setSimulationGroup (SimulationGroup* simulationGroup)
 {
     m_simulationGroup = simulationGroup;
     Foam::Bodies bodies = GetSimulation ().GetFoam (0).GetBodies ();
@@ -483,6 +484,20 @@ void WidgetGl::SetSimulationGroup (SimulationGroup* simulationGroup)
 	m_selectBodiesByIdList->UpdateLabelMinMax ();
     }
     update ();
+}
+
+void WidgetGl::Init (
+    boost::shared_ptr<Settings> settings, SimulationGroup* simulationGroup)
+{
+    m_settings = settings;
+    for (size_t i = 0; i < ViewNumber::COUNT; ++i)
+    {
+	m_viewAverage[i].reset (
+	    new ViewAverage (
+		*this, m_settings->GetViewSettings (ViewNumber::Enum (i))));
+	m_viewAverage[i]->SetSimulation (simulationGroup->GetSimulation (0));
+    }
+    setSimulationGroup (simulationGroup);
 }
 
 
@@ -1217,8 +1232,7 @@ void WidgetGl::resizeGL(int w, int h)
     for (size_t i = 0; i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
-	ViewSettings& vs = GetViewSettings (viewNumber);
-	vs.AverageInitStep (viewNumber);
+	GetViewAverage (viewNumber).AverageInitStep (viewNumber);
     }
     WarnOnOpenGLError ("resizeGl");
 }
@@ -1926,7 +1940,7 @@ void WidgetGl::mouseMoveTranslate (QMouseEvent *event,
     {
     case InteractionObject::FOCUS:
 	translate (viewNumber, event->pos (), event->modifiers ());
-	vs.AverageInitStep (viewNumber);
+	GetViewAverage (viewNumber).AverageInitStep (viewNumber);
 	break;
     case InteractionObject::LIGHT:
     {
@@ -1945,12 +1959,11 @@ void WidgetGl::mouseMoveTranslate (QMouseEvent *event,
 
 void WidgetGl::mouseMoveScale (QMouseEvent *event, ViewNumber::Enum viewNumber)
 {
-    ViewSettings& vs = GetViewSettings (viewNumber);
     switch (m_interactionObject)
     {
     case InteractionObject::FOCUS:
 	scale (viewNumber, event->pos ());
-	vs.AverageInitStep (viewNumber);
+	GetViewAverage (viewNumber).AverageInitStep (viewNumber);
 	break;
     case InteractionObject::CONTEXT:
 	scaleContext (viewNumber, event->pos ());
@@ -2141,7 +2154,8 @@ void WidgetGl::displayDeformation (ViewNumber::Enum viewNumber) const
 	      DisplayBodyDeformation (
 		  *m_settings, viewNumber,
 		  GetSimulation (viewNumber).GetFoam (
-		      GetCurrentTime (viewNumber)), vs.GetBodySelector ()));
+		      GetCurrentTime (viewNumber)), vs.GetBodySelector (),
+		  GetDeformationSizeInitialRatio (viewNumber)));
     glPopAttrib ();    
 }
 
@@ -2150,7 +2164,7 @@ void WidgetGl::displayVelocity (ViewNumber::Enum viewNumber) const
     const Foam& foam = 
 	GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber));
     const ViewSettings& vs = GetViewSettings (viewNumber);
-    const VectorAverage& va = vs.GetVelocityAverage ();
+    const VectorAverage& va = GetViewAverage (viewNumber).GetVelocityAverage ();
     if (! foam.Is2D () || ! vs.IsVelocityShown ())
 	return;
     Foam::Bodies bodies = foam.GetBodies ();
@@ -2168,7 +2182,10 @@ void WidgetGl::displayVelocity (ViewNumber::Enum viewNumber) const
 	DisplayBodyVelocity (
 	    *m_settings, viewNumber,
 	    GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber)),
-	    vs.GetBodySelector ()));
+	    vs.GetBodySelector (), GetBubbleSize (viewNumber), 
+	    GetVelocitySizeInitialRatio (viewNumber),
+	    GetOnePixelInObjectSpace (), 
+	    va.IsSameSize (), va.IsClampingShown ()));
     glPopAttrib ();    
 }
 
@@ -2190,7 +2207,9 @@ void WidgetGl::displayBodyDeformation (
 	DisplayBodyDeformation (
 	    *m_settings, viewNumber,
 	    GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber)),
-	    vs.GetBodySelector ()) (*foam.FindBody (m_showBodyId));
+	    vs.GetBodySelector (), 
+	    GetDeformationSizeInitialRatio (viewNumber)) (
+		*foam.FindBody (m_showBodyId));
 	glPopAttrib ();
     }
 }
@@ -2208,10 +2227,16 @@ void WidgetGl::displayBodyVelocity (
 	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glDisable (GL_DEPTH_TEST);
 	glColor (Qt::black);
+	const VectorAverage& va = 
+	    m_viewAverage[viewNumber]->GetVelocityAverage ();
 	DisplayBodyVelocity (
 	    *m_settings, viewNumber,
 	    GetSimulation (viewNumber).GetFoam (GetCurrentTime (viewNumber)),
-	    vs.GetBodySelector ()) (*foam.FindBody (m_showBodyId));
+	    vs.GetBodySelector (), 
+	    GetBubbleSize (viewNumber), 
+	    GetVelocitySizeInitialRatio (viewNumber),
+	    GetOnePixelInObjectSpace (), va.IsSameSize (), 
+	    va.IsClampingShown ()) (*foam.FindBody (m_showBodyId));
 	glPopAttrib ();
     }
 }
@@ -2282,8 +2307,7 @@ void WidgetGl::displayT1sDot (
 void WidgetGl::DisplayT1Quad (
     ViewNumber::Enum viewNumber, size_t timeStep, size_t t1Index) const
 {
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    T1sPDE& t1sPDE = vs.GetT1sPDE ();
+    T1sPDE& t1sPDE = GetViewAverage (viewNumber).GetT1sPDE ();
     float rectSize = t1sPDE.GetKernelTextureSize () * 
 	GetOnePixelInObjectSpace ();
     float half = rectSize / 2;
@@ -2353,8 +2377,7 @@ pair<float, float> WidgetGl::GetRangeCount () const
 
 pair<float, float> WidgetGl::GetRangeT1sPDE (ViewNumber::Enum viewNumber) const
 {
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    T1sPDE& t1sPDE = vs.GetT1sPDE ();
+    T1sPDE& t1sPDE = GetViewAverage (viewNumber).GetT1sPDE ();
     float sigma = t1sPDE.GetKernelSigma ();
     return pair<float, float> (0.0, 1 / (2 * M_PI * sigma * sigma));
 }
@@ -2504,7 +2527,8 @@ void WidgetGl::displayFacesNormal (ViewNumber::Enum viewNumber) const
     displayVelocity (viewNumber);
     if (m_t1sShown)
 	displayT1sDot (viewNumber, GetCurrentTime (viewNumber));
-    vs.GetForceAverage ().DisplayOneTimeStep (viewNumber);
+    GetViewAverage (viewNumber).GetForceAverage ().DisplayOneTimeStep (
+	viewNumber);
 }
 
 
@@ -2555,10 +2579,10 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
 	    - getEyeTransform (viewNumber);
 	angleDegrees = 0;
     }
-    vs.AverageRotateAndDisplay (
+    GetViewAverage (viewNumber).AverageRotateAndDisplay (
 	viewNumber, vs.GetComputationType (), 
 	rotationCenter.xy (), angleDegrees);
-    vs.GetForceAverage ().Display (
+    GetViewAverage (viewNumber).GetForceAverage ().Display (
 	viewNumber, adjustForAverageAroundMovementRotation);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (
 	GetSimulation (viewNumber).GetFoam (0));
@@ -2569,7 +2593,7 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
     displayContextBodies (viewNumber);
     displayContextBox (
 	viewNumber, adjustForAverageAroundMovementRotation);
-    T1sPDE& t1sPDE = vs.GetT1sPDE ();
+    T1sPDE& t1sPDE = GetViewAverage (viewNumber).GetT1sPDE ();
     if (vs.GetViewType () == ViewType::T1S_PDE &&
 	t1sPDE.IsKernelTextureSizeShown ())
     {
@@ -2793,7 +2817,8 @@ void WidgetGl::compileCenterPaths (ViewNumber::Enum viewNumber) const
     //See OpenGL FAQ 21.030 Why doesn't lighting work when I turn on 
     //texture mapping?
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    const BodiesAlongTime::BodyMap& bats = GetBodiesAlongTime ().GetBodyMap ();
+    const BodiesAlongTime::BodyMap& bats = 
+	GetSimulation ().GetBodiesAlongTime ().GetBodyMap ();
     if (m_settings->GetEdgeRadiusRatio () > 0 && ! m_settings->IsCenterPathLineUsed ())
     {
 	if (m_settings->IsCenterPathTubeUsed ())
@@ -2803,7 +2828,8 @@ void WidgetGl::compileCenterPaths (ViewNumber::Enum viewNumber) const
 		SetterTextureCoordinate, DisplaySegmentTube> (
 		    *m_settings, 
 		    GetSimulation (viewNumber).GetFoam (0), 
-		    GetViewNumber (), bodySelector,
+		    GetViewNumber (), bodySelector, GetQuadricObject (),
+		    GetSimulation (viewNumber),
 		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
 	else
 	    for_each (
@@ -2812,7 +2838,8 @@ void WidgetGl::compileCenterPaths (ViewNumber::Enum viewNumber) const
 		SetterTextureCoordinate, DisplaySegmentQuadric> (
 		    *m_settings, 
 		    GetSimulation (viewNumber).GetFoam (0), 
-		    GetViewNumber (), bodySelector,
+		    GetViewNumber (), bodySelector, GetQuadricObject (),
+		    GetSimulation (viewNumber),
 		    IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     }
     else
@@ -2821,22 +2848,12 @@ void WidgetGl::compileCenterPaths (ViewNumber::Enum viewNumber) const
 		  DisplaySegment> (
 		      *m_settings, 
 		      GetSimulation (viewNumber).GetFoam (0), 
-		      GetViewNumber (), bodySelector,
+		      GetViewNumber (), bodySelector, GetQuadricObject (),
+		      GetSimulation (viewNumber),
 		      IsTimeDisplacementUsed (), GetTimeDisplacement ()));
     glPopAttrib ();
     glEndList ();
 }
-
-const BodiesAlongTime& WidgetGl::GetBodiesAlongTime () const
-{
-    return GetSimulation ().GetBodiesAlongTime ();
-}
-
-const BodyAlongTime& WidgetGl::GetBodyAlongTime (size_t id) const
-{
-    return GetBodiesAlongTime ().GetBodyAlongTime (id);
-}
-
 
 void WidgetGl::setLight (int sliderValue, int maximumValue, 
 			 LightType::Enum lightType, 
@@ -3054,11 +3071,12 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
 				viewNumber, getViewColorBarRect (viewRect));
     if (vs.IsVelocityShown ())
     {
-	if (vs.GetVelocityAverage ().IsColorMapped ())
+	if (GetViewAverage (viewNumber).GetVelocityAverage ().IsColorMapped ())
 	    displayTextureColorBar (
 		vs.GetOverlayBarTexture (),
 		viewNumber, getViewOverlayBarRect (viewRect));
-	else if (! vs.GetVelocityAverage ().IsSameSize ())
+	else if ( 
+	    ! GetViewAverage (viewNumber).GetVelocityAverage ().IsSameSize ())
 	    displayOverlayBar (
 		viewNumber, getViewOverlayBarRect (viewRect));
     }
@@ -3356,8 +3374,7 @@ void WidgetGl::SetForceDifferenceShown (bool value)
 
 void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
 {
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    T1sPDE& t1sPDE = vs.GetT1sPDE ();
+    T1sPDE& t1sPDE = GetViewAverage (viewNumber).GetT1sPDE ();
     t1sPDE.SetKernelSigma (
 	Index2Value (static_cast<QSlider*> (sender ()), T1sPDE::KERNEL_SIGMA));
     t1sPDE.AverageInitStep (viewNumber);
@@ -3366,8 +3383,7 @@ void WidgetGl::valueChangedT1sKernelSigma (ViewNumber::Enum viewNumber)
 void WidgetGl::valueChangedT1sKernelTextureSize (
     ViewNumber::Enum viewNumber)
 {
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    T1sPDE& t1sPDE = vs.GetT1sPDE ();
+    T1sPDE& t1sPDE = GetViewAverage (viewNumber).GetT1sPDE ();
     t1sPDE.SetKernelTextureSize (
 	Index2Value (static_cast<QSlider*> (sender ()), 
 		     T1sPDE::KERNEL_TEXTURE_SIZE));
@@ -3377,16 +3393,14 @@ void WidgetGl::valueChangedT1sKernelTextureSize (
 void WidgetGl::toggledT1sKernelTextureSizeShown (ViewNumber::Enum viewNumber)
 {
     bool checked = static_cast<QCheckBox*> (sender ())->isChecked ();
-    GetViewSettings (viewNumber).GetT1sPDE ().
-	SetKernelTextureSizeShown (checked);
+    GetViewAverage (viewNumber).GetT1sPDE ().SetKernelTextureSizeShown (checked);
 }
 
 
 void WidgetGl::valueChangedT1sKernelIntervalPerPixel (
     ViewNumber::Enum viewNumber)
 {
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    T1sPDE& t1sPDE = vs.GetT1sPDE ();
+    T1sPDE& t1sPDE = GetViewAverage (viewNumber).GetT1sPDE ();
     t1sPDE.SetKernelIntervalPerPixel (
 	Index2Value (static_cast<QSlider*> (sender ()), 
 		     T1sPDE::KERNEL_INTERVAL_PER_PIXEL));
@@ -3534,7 +3548,7 @@ void WidgetGl::ResetTransformFocus ()
 	ProjectionTransform (viewNumber);
 	glMatrixMode (GL_MODELVIEW);
 	glLoadIdentity ();
-	vs.AverageInitStep (viewNumber);
+	GetViewAverage (viewNumber).AverageInitStep (viewNumber);
     }
     update ();
 }
@@ -3672,7 +3686,7 @@ void WidgetGl::ToggledDeformationShownGrid (bool checked)
     {
 	ViewNumber::Enum viewNumber = vn[i];
 	TensorAverage& ta = 
-	    GetViewSettings (viewNumber).GetDeformationAverage ();
+	    GetViewAverage (viewNumber).GetDeformationAverage ();
 	ta.SetGridShown (checked);
     }
     update ();
@@ -3698,7 +3712,7 @@ void WidgetGl::ToggledVelocityGridShown (bool checked)
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
-	VectorAverage& va = GetViewSettings (viewNumber).GetVelocityAverage ();
+	VectorAverage& va = GetViewAverage (viewNumber).GetVelocityAverage ();
 	va.SetGridShown (checked);
     }
     update ();
@@ -3711,7 +3725,7 @@ void WidgetGl::ToggledVelocityClampingShown (bool checked)
     for (size_t i = 0; i < vn.size (); ++i)
     {
 	ViewNumber::Enum viewNumber = vn[i];
-	VectorAverage& va = GetViewSettings (viewNumber).GetVelocityAverage ();
+	VectorAverage& va = GetViewAverage (viewNumber).GetVelocityAverage ();
 	va.SetClampingShown (checked);
     }
     update ();
@@ -3726,7 +3740,7 @@ void WidgetGl::ToggledDeformationGridCellCenterShown (bool checked)
     {
 	ViewNumber::Enum viewNumber = vn[i];
 	TensorAverage& ta = 
-	    GetViewSettings (viewNumber).GetDeformationAverage ();
+	    GetViewAverage (viewNumber).GetDeformationAverage ();
 	ta.SetGridCellCenterShown (checked);
     }
     update ();
@@ -3740,7 +3754,7 @@ void WidgetGl::ToggledVelocityGridCellCenterShown (bool checked)
     {
 	ViewNumber::Enum viewNumber = vn[i];
 	VectorAverage& ta = 
-	    GetViewSettings (viewNumber).GetVelocityAverage ();
+	    GetViewAverage (viewNumber).GetVelocityAverage ();
 	ta.SetGridCellCenterShown (checked);
     }
     update ();
@@ -3751,8 +3765,7 @@ void WidgetGl::ToggledVelocitySameSize (bool checked)
     makeCurrent ();
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
-	GetViewSettings (vn[i]).GetVelocityAverage ().
-	    SetSameSize (checked);
+	GetViewAverage (vn[i]).GetVelocityAverage ().SetSameSize (checked);
     update ();    
 }
 
@@ -3761,8 +3774,7 @@ void WidgetGl::ToggledVelocityColorMapped (bool checked)
     makeCurrent ();
     vector<ViewNumber::Enum> vn = GetConnectedViewNumbers ();
     for (size_t i = 0; i < vn.size (); ++i)
-	GetViewSettings (vn[i]).GetVelocityAverage ().
-	    SetColorMapped (checked);
+	GetViewAverage (vn[i]).GetVelocityAverage ().SetColorMapped (checked);
     update ();    
 }
 
@@ -3955,9 +3967,9 @@ void WidgetGl::ButtonClickedViewType (int id)
 	ViewType::Enum oldViewType = vs.GetViewType ();
 	if (oldViewType == newViewType)
 	    continue;
-	vs.AverageRelease ();
+	GetViewAverage (viewNumber).AverageRelease ();
 	vs.SetViewType (newViewType);
-	vs.AverageInitStep (viewNumber);
+	GetViewAverage (viewNumber).AverageInitStep (viewNumber);
 	compile (viewNumber);
     }
     update ();
@@ -4066,7 +4078,10 @@ void WidgetGl::CurrentIndexChangedSelectedLight (int selectedLight)
 void WidgetGl::CurrentIndexChangedSimulation (int i)
 {
     makeCurrent ();
-    setSimulation (i, GetViewNumber ());
+    ViewNumber::Enum viewNumber = GetViewNumber ();
+    const Simulation& simulation = GetSimulation (i);
+    m_settings->SetSimulation (i, simulation, GetXOverY (), viewNumber);
+    m_viewAverage[viewNumber]->SetSimulation (simulation);
     update ();
 }
 
@@ -4163,9 +4178,9 @@ void WidgetGl::ValueChangedNoiseStart (int index)
 	float noiseStart = 0.5 + 0.5 * index / 99;
 	__LOG__ (cdbg << "index=" << index 
 		 << " noiseStart=" << noiseStart << endl;)
-	GetViewSettings (viewNumber).GetVelocityAverage ().
+	GetViewAverage (viewNumber).GetVelocityAverage ().
 	    SetNoiseStart (noiseStart);
-	GetViewSettings (viewNumber).GetDeformationAverage ().
+	GetViewAverage (viewNumber).GetDeformationAverage ().
 	    SetNoiseStart (noiseStart);
     }
     update ();
@@ -4180,9 +4195,9 @@ void WidgetGl::ValueChangedNoiseAmplitude (int index)
 	float noiseAmplitude = 5.0 + index / 10.0;
 	__LOG__ (cdbg << "index=" << index 
 		 << " noiseAmplitude=" << noiseAmplitude << endl;)
-	GetViewSettings (viewNumber).GetVelocityAverage ().
+	GetViewAverage (viewNumber).GetVelocityAverage ().
 	    SetNoiseAmplitude (noiseAmplitude);
-	GetViewSettings (viewNumber).GetDeformationAverage ().
+	GetViewAverage (viewNumber).GetDeformationAverage ().
 	    SetNoiseAmplitude (noiseAmplitude);
     }
     update ();
@@ -4197,9 +4212,9 @@ void WidgetGl::ValueChangedNoiseFrequency (int index)
 	float noiseFrequency = (1.0 + index) / 2.0;
 	__LOG__ (cdbg << "index=" << index 
 		 << " noiseFrequency=" << noiseFrequency << endl;)
-	GetViewSettings (viewNumber).GetVelocityAverage ().
+	GetViewAverage (viewNumber).GetVelocityAverage ().
 	    SetNoiseFrequency (noiseFrequency);
-	GetViewSettings (viewNumber).GetDeformationAverage ().
+	GetViewAverage (viewNumber).GetDeformationAverage ().
 	    SetNoiseFrequency (noiseFrequency);
     }
     update ();
@@ -4209,7 +4224,11 @@ void WidgetGl::ValueChangedNoiseFrequency (int index)
 void WidgetGl::ValueChangedSliderTimeSteps (int timeStep)
 {
     makeCurrent ();
-    m_settings->SetCurrentTime (timeStep);
+    boost::array<int, ViewNumber::COUNT> direction;
+    m_settings->SetCurrentTime (timeStep, &direction);
+    for (size_t i = 0; i < ViewNumber::COUNT; ++i)
+	if (direction[i] != 0)
+	    m_viewAverage[i]->AverageStep (ViewNumber::Enum (i), direction[i]);
     update ();
 }
 
@@ -4219,21 +4238,24 @@ void WidgetGl::ClickedEnd ()
     size_t steps = 
 	((m_settings->GetTimeLinkage () == TimeLinkage::INDEPENDENT) ?
 	 GetTimeSteps () : LinkedTimeMaxSteps ().first);
-    m_settings->SetCurrentTime (steps - 1, true);
+    boost::array<int, ViewNumber::COUNT> direction;
+    m_settings->SetCurrentTime (steps - 1, &direction, true);
+    for (size_t i = 0; i < ViewNumber::COUNT; ++i)
+	if (direction[i] != 0)
+	    m_viewAverage[i]->AverageStep (ViewNumber::Enum (i), direction[i]);
     update ();
 }
 
 void WidgetGl::ValueChangedAverageTimeWindow (int timeSteps)
 {
     makeCurrent ();
-    ViewSettings& vs = GetViewSettings ();
-    vs.AverageSetTimeWindow (timeSteps);
+    GetViewAverage ().AverageSetTimeWindow (timeSteps);
 }
 
 void WidgetGl::ValueChangedT1sTimeWindow (int timeSteps)
 {
     makeCurrent ();
-    GetViewSettings ().GetT1sPDE ().AverageSetTimeWindow (timeSteps);
+    GetViewAverage ().GetT1sPDE ().AverageSetTimeWindow (timeSteps);
 }
 
 void WidgetGl::ValueChangedTimeDisplacement (int timeDisplacement)

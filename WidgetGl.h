@@ -26,6 +26,7 @@ class OOBox;
 class SelectBodiesById;
 class Settings;
 class ViewSettings;
+class ViewAverage;
 class PropertyValueBodySelector;
 class IdBodySelector;
 class AllBodySelector;
@@ -57,15 +58,12 @@ public:
      * Sets the data displayed by the WidgetGl
      * @param dataAlongTime data displayed by the WidgetGl
      */
-    void SetSimulationGroup (SimulationGroup* dataAlongTime);
     const SimulationGroup& GetSimulationGroup ()
     {
 	return *m_simulationGroup;
     }
-    void SetSettings (boost::shared_ptr<Settings> settings)
-    {
-	m_settings = settings;
-    }
+    void Init (boost::shared_ptr<Settings> settings,
+	       SimulationGroup* dataAlongTime);
     boost::shared_ptr<Settings> GetSettings () const
     {
 	return m_settings;
@@ -85,9 +83,6 @@ public:
     {
 	return m_highlightLineWidth;
     }
-
-    const BodiesAlongTime& GetBodiesAlongTime () const;
-    const BodyAlongTime& GetBodyAlongTime (size_t bodyId) const;
 
     size_t GetCurrentTime () const
     {
@@ -226,6 +221,14 @@ public:
     void SetOneOrTwoViews (T* t,void (T::*f) (ViewNumber::Enum));
     ViewNumber::Enum GetViewNumber () const;
     ViewSettings& GetViewSettings (ViewNumber::Enum viewNumber) const;
+    ViewAverage& GetViewAverage (ViewNumber::Enum viewNumber) const
+    {
+	return *m_viewAverage[viewNumber];
+    }
+    ViewAverage& GetViewAverage () const
+    {
+	return *m_viewAverage[GetViewNumber ()];
+    }
     ViewSettings& GetViewSettings () const
     {
 	return GetViewSettings (GetViewNumber ());
@@ -455,6 +458,7 @@ private:
     typedef void (WidgetGl::* ViewTypeDisplay) (ViewNumber::Enum view) const;
 
 private:
+    void setSimulationGroup (SimulationGroup* dataAlongTime);
     void setSimulation (int i, ViewNumber::Enum viewNumber);
     void initTransformViewport ();
     void cleanupTransformViewport ();
@@ -779,6 +783,8 @@ private:
     bool m_reflectedHalfView;
     ShowType m_showType;
     size_t m_showBodyId;
+    boost::array<
+	boost::shared_ptr<ViewAverage>, ViewNumber::COUNT> m_viewAverage;
 };
 
 
