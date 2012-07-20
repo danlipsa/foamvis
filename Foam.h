@@ -319,6 +319,10 @@ private:
     vtkSmartPointer<vtkUnstructuredGrid> addCellAttribute (
 	vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
 	size_t attribute) const;
+    static void addRedundantAttributes (vtkSmartPointer<vtkImageData> data);
+    static void addRedundantAttribute (
+	vtkSmartPointer<vtkImageData> data, size_t attribute);
+    
     string getVtiPath () const;
     void getTetraPoints (
 	vtkSmartPointer<vtkPoints>* tetraPoints,

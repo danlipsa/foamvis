@@ -117,6 +117,10 @@ public:
     }
     float GetScalarValue (BodyScalar::Enum property) const;
     bool HasScalarValue (BodyScalar::Enum property, bool* deduced = 0) const;
+    /**
+     * 1, 3 or 9 floats have to be alocated in 'value' for scalars, 
+     * vectors and tensors
+     */
     void GetAttributeValue (size_t attribute, float* value);
     G3D::Vector3 GetVelocity () const
     {

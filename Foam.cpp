@@ -380,6 +380,7 @@ void Foam::StoreConstraintFaces ()
 
 void Foam::CalculateBodyDeformationTensor ()
 {
+    // this prevents a unique body to be set as an object.
     if (m_bodies.size () > 1)
 	for_each (m_bodies.begin (), m_bodies.end (),
 		  boost::bind (&Body::CalculateDeformationTensor, _1, 
@@ -990,6 +991,42 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::addCellAttribute (
 }
 
 
+void Foam::addRedundantAttributes (vtkSmartPointer<vtkImageData> data)
+{
+    for (size_t attribute = 0; attribute < BodyAttribute::COUNT; ++attribute)
+	if (BodyAttribute::IsRedundant (attribute))
+	    addRedundantAttribute (data, attribute);
+}
+
+void Foam::addRedundantAttribute (
+    vtkSmartPointer<vtkImageData> data, size_t attribute)
+{
+    vtkSmartPointer<vtkPointData> pointData = data->GetPointData ();
+
+    vtkSmartPointer<vtkFloatArray> dependsOnAttributes = 
+	vtkFloatArray::SafeDownCast (
+	    pointData->GetArray (BodyAttribute::ToString (
+				     BodyAttribute::DependsOn (attribute))));
+    BodyAttribute::ConvertType convert = BodyAttribute::Convert (attribute);
+
+    size_t numberOfTuples = dependsOnAttributes->GetNumberOfTuples ();
+    VTK_CREATE (vtkFloatArray, attributes);
+    attributes->SetNumberOfComponents (
+	BodyAttribute::GetNumberOfComponents (attribute));
+    attributes->SetNumberOfTuples (numberOfTuples);
+    attributes->SetName (BodyAttribute::ToString (attribute));
+
+    double from[9], to[9];
+    for (size_t tuple = 0; tuple < numberOfTuples; ++tuple)
+    {
+	dependsOnAttributes->GetTuple (tuple, from);
+	convert (from, to);
+	attributes->SetTuple (tuple, to);
+    }
+    pointData->AddArray (attributes);
+}
+
+
 void Foam::createTetraCells (
     vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid, 
     const vector<boost::shared_ptr<Vertex> >& sortedPoints,
@@ -1038,8 +1075,8 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::getTetraGrid () const
     createTetraCells (aTetraGrid, sortedPoints, maxPointId);
     // set the cell attributes
     for (size_t i = 0; i < BodyAttribute::COUNT; ++i)
-	addCellAttribute (aTetraGrid, i);
-    
+	if (! BodyAttribute::IsRedundant (i))
+	    addCellAttribute (aTetraGrid, i);
     return aTetraGrid;
 }
 
@@ -1064,7 +1101,9 @@ vtkSmartPointer<vtkImageData> Foam::GetRegularGrid () const
     VTK_CREATE (vtkXMLImageDataReader, reader);
     reader->SetFileName (getVtiPath ().c_str ());
     reader->Update ();
-    return reader->GetOutput ();
+    vtkSmartPointer<vtkImageData> foamImageData = reader->GetOutput ();
+    addRedundantAttributes (foamImageData);
+    return foamImageData;
 }
 
 vtkSmartPointer<vtkImageData> Foam::calculateRegularGrid (

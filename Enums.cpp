@@ -11,6 +11,9 @@
 #include "Enums.h"
 
 
+// Methods ElementStatus
+// ======================================================================
+
 ostream& operator<< (ostream& ostr, ElementStatus::Enum duplicateStatus)
 {
     switch (duplicateStatus)
@@ -26,6 +29,9 @@ ostream& operator<< (ostream& ostr, ElementStatus::Enum duplicateStatus)
     }
     return ostr;
 }
+
+// Methods AttributeType
+// ======================================================================
 
 ostream& operator<< (ostream& ostr, AttributeType::Enum type)
 {
@@ -52,6 +58,8 @@ ostream& operator<< (ostream& ostr, AttributeType::Enum type)
     return ostr;
 }
 
+// Methods BodyScalar
+// ======================================================================
 boost::array<const char*, BodyScalar::COUNT> BodyScalar::NAME2D = {{
 	"Velocity along x",
 	"Velocity along y",
@@ -78,6 +86,24 @@ boost::array<const char*, BodyScalar::COUNT> BodyScalar::NAME3D = {{
 	"Actual volume",
     }};
 
+boost::array<bool, BodyScalar::COUNT> BodyScalar::REDUNDANT = {{
+	true,
+	true,
+	true,
+	true,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false
+    }};
+
+bool BodyScalar::IsRedundant (BodyScalar::Enum scalar)
+{
+    return REDUNDANT[scalar];
+}
+
 const boost::array<const char*, BodyScalar::COUNT>& BodyScalar::NAME ()
 {
     // C++ FAQ, 10.5 How do I prevent the "static initialization order fiasco"
@@ -99,6 +125,8 @@ BodyScalar::Enum BodyScalar::FromSizeT (size_t i)
     return BodyScalar::Enum (i);
 }
 
+// Methods FaceScalar
+// ======================================================================
 const char* FaceScalar::ToString (FaceScalar::Enum faceProperty)
 {
     switch (faceProperty)
@@ -110,10 +138,65 @@ const char* FaceScalar::ToString (FaceScalar::Enum faceProperty)
     }
 }
 
-BodyAttribute::Info BodyAttribute::INFO[] = {
-    {BodyAttribute::VELOCITY, "Velocity",3},
-    {BodyAttribute::DEFORMATION, "Deformation",9}
-};
+const char* FaceScalar::ToString (size_t i)
+{
+    if (i < BodyScalar::COUNT)
+	return BodyScalar::ToString (BodyScalar::FromSizeT (i));
+    else
+	return FaceScalar::ToString (FaceScalar::FromSizeT (i));
+}
+
+FaceScalar::Enum FaceScalar::FromSizeT (size_t i)
+{
+    RuntimeAssert (i < COUNT && i >= BodyScalar::COUNT, 
+		   "Value outside of FaceScalar::Enum: ", i);
+    return FaceScalar::Enum (i);
+}
+
+// Methods BodyAttribute
+// ======================================================================
+
+template<size_t component>
+void vectorExtract (double from[9], double to[9])
+{
+    to[0] = from[component];
+}
+
+void vectorMagnitude (double from[9], double to[9])
+{
+    to[0] = sqrt (from[0] * from[0] + from[1] * from[1] + from[2] * from[2]);
+}
+
+boost::array<BodyAttribute::DependsOnInfo, BodyAttribute::COUNT> 
+BodyAttribute::DEPENDS_ON_INFO = {{
+	{10, vectorExtract<0>},
+	{10, vectorExtract<1>},
+	{10, vectorExtract<2>},
+	{10, vectorMagnitude},
+	{COUNT, 0},
+	{COUNT, 0},
+	{COUNT, 0},
+	{COUNT, 0},
+	{COUNT, 0},
+	{COUNT, 0},
+	{COUNT, 0},
+	{COUNT, 0}
+    }};
+
+boost::array<BodyAttribute::Info, BodyAttribute::COUNT> BodyAttribute::INFO = {{
+	{BodyAttribute::VELOCITY, "Velocity", 3},
+	{BodyAttribute::DEFORMATION, "Deformation", 9}
+    }};
+
+size_t BodyAttribute::DependsOn (size_t attribute)
+{
+    return DEPENDS_ON_INFO[attribute].m_dependsOnAttribute;
+}
+
+BodyAttribute::ConvertType BodyAttribute::Convert (size_t attribute)
+{
+    return DEPENDS_ON_INFO[attribute].m_convert;
+}
 
 BodyAttribute::Enum BodyAttribute::FromSizeT (size_t i)
 {
@@ -136,6 +219,14 @@ const char* BodyAttribute::ToString (size_t attribute)
 	return BodyAttribute::ToString (BodyAttribute::FromSizeT (attribute));
 }
 
+bool BodyAttribute::IsRedundant (size_t attribute)
+{
+    if (attribute < BodyScalar::COUNT)
+	return BodyScalar::IsRedundant (BodyScalar::FromSizeT (attribute));
+    else
+	return BodyAttribute::IsRedundant (BodyAttribute::FromSizeT (attribute));
+}
+
 
 size_t BodyAttribute::GetNumberOfComponents (BodyAttribute::Enum attribute)
 {
@@ -151,22 +242,8 @@ size_t BodyAttribute::GetNumberOfComponents (size_t attribute)
 }
 
 
-const char* FaceScalar::ToString (size_t i)
-{
-    if (i < BodyScalar::COUNT)
-	return BodyScalar::ToString (BodyScalar::FromSizeT (i));
-    else
-	return FaceScalar::ToString (FaceScalar::FromSizeT (i));
-}
-
-FaceScalar::Enum FaceScalar::FromSizeT (size_t i)
-{
-    RuntimeAssert (i < COUNT && i >= BodyScalar::COUNT, 
-		   "Value outside of FaceScalar::Enum: ", i);
-    return FaceScalar::Enum (i);
-}
-
-
+// Methods ViewType
+// ======================================================================
 
 ViewType::Enum ViewType::FromSizeT (size_t i)
 {
@@ -210,6 +287,9 @@ const char* ViewType::ToString (ViewType::Enum t)
     }
 }
 
+// Methods Palette
+// ======================================================================
+
 Palette::Palette () :
     m_type (PaletteType::SEQUENTIAL),
     m_sequential (PaletteSequential::BLACK_BODY),
@@ -247,6 +327,9 @@ string Palette::ToString () const
     return ostr.str ();
 }
 
+// Methods PaletteType
+// ======================================================================
+
 const char* PaletteType::ToString (PaletteType::Enum type)
 {
     switch (type)
@@ -257,6 +340,9 @@ const char* PaletteType::ToString (PaletteType::Enum type)
 	return "Diverging";
     }
 }
+
+// Methods PaletteSequential
+// ======================================================================
 
 const char* PaletteSequential::ToString (PaletteSequential::Enum type)
 {
@@ -273,6 +359,9 @@ const char* PaletteSequential::ToString (PaletteSequential::Enum type)
 	return 0;
     }
 }
+
+// Methods PaletteDiverging
+// ======================================================================
 
 const char* PaletteDiverging::ToString (PaletteDiverging::Enum type)
 {
@@ -294,6 +383,8 @@ const char* PaletteDiverging::ToString (PaletteDiverging::Enum type)
     }
 }
 
+// Methods ViewCount
+// ======================================================================
 
 size_t ViewCount::GetCount (ViewCount::Enum viewCount)
 {
@@ -307,6 +398,9 @@ ViewCount::Enum ViewCount::FromSizeT (size_t count)
 		   "Value outside of ViewCount::Enum: ", count);
     return ViewCount::Enum (count - 1);
 }
+
+// Methods LightType
+// ======================================================================
 
 GLenum LightType::ToOpenGL (LightType::Enum lightType)
 {

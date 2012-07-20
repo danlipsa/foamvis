@@ -115,10 +115,12 @@ public:
 public:
     static const char* ToString (BodyScalar::Enum property);
     static Enum FromSizeT (size_t i);
+    static bool IsRedundant (BodyScalar::Enum scalar);
 
 private:
     static boost::array<const char*, COUNT> NAME2D;
     static boost::array<const char*,COUNT> NAME3D;
+    static boost::array<bool, BodyScalar::COUNT> REDUNDANT;
     static const boost::array<const char*, COUNT>& NAME ();
 };
 
@@ -138,6 +140,7 @@ public:
 
 struct BodyAttribute
 {
+    typedef boost::function<void (double[9], double[9])> ConvertType;
     enum Enum
     {
 	VELOCITY = BodyScalar::COUNT,
@@ -146,6 +149,8 @@ struct BodyAttribute
     };
     static const char* ToString (BodyAttribute::Enum attribute);
     static const char* ToString (size_t attribute);
+    static size_t DependsOn (size_t attribute);
+    static ConvertType Convert (size_t attribute);
 
     static size_t GetNumberOfComponents (BodyAttribute::Enum attribute);
     static size_t GetNumberOfComponents (size_t attribute);
@@ -164,6 +169,11 @@ struct BodyAttribute
     {
 	return GetNumberOfComponents (attribute) == 6;
     }
+    static bool IsRedundant (size_t attribute);
+    static bool IsRedundant (BodyAttribute::Enum)
+    {
+	return false;
+    }
 
 private:
     struct Info
@@ -172,7 +182,13 @@ private:
 	const char* m_name;
 	size_t m_numberOfComponents;
     };
-    static Info INFO[];
+    struct DependsOnInfo
+    {
+	size_t m_dependsOnAttribute;
+	ConvertType m_convert;
+    };
+    static boost::array<Info, COUNT> INFO;
+    static boost::array<DependsOnInfo, COUNT> DEPENDS_ON_INFO;
 };
 
 
