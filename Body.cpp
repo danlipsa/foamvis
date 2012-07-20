@@ -89,12 +89,12 @@ public:
     }
 
     void Calculate (
-	const G3D::Matrix3& tensor,
+	const G3D::Matrix3& from,
 	float eigenValues[3], G3D::Vector3 eigenVectors[3])
     {
 	for (size_t i = 0; i < SIZE; ++i)
 	    for (size_t j = 0; j < SIZE; ++j)
-		gsl_matrix_set (m_m, i, j, tensor[i][j]);
+		gsl_matrix_set (m_m, i, j, from[i][j]);
 	
 	gsl_eigen_symmv (m_m, m_eval, m_evec, m_w);     
 	gsl_eigen_symmv_sort (m_eval, m_evec, GSL_EIGEN_SORT_ABS_DESC);
