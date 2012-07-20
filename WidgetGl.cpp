@@ -2411,7 +2411,8 @@ void WidgetGl::displayEdgesTorusTubes () const
 	edgeSet.begin (), edgeSet.end (),
 	DisplayEdgeTorus<DisplaySegmentQuadric, 
 	DisplaySegmentArrowQuadric, false>(
-	    *m_settings, GetSimulation ().GetFoam (0), GetQuadricObject ()));
+	    *m_settings, GetSimulation ().GetFoam (0), DisplayElement::FOCUS, 
+	    false, 0.0, GetQuadricObject ()));
     glPopAttrib ();
 }
 
@@ -2424,8 +2425,8 @@ void WidgetGl::displayEdgesTorusLines () const
     for_each (edgeSet.begin (), edgeSet.end (),
 	      DisplayEdgeTorus<DisplaySegment, 
 	      DisplaySegmentArrow1, false> (
-		  *m_settings, GetSimulation ().GetFoam (0), 
-		  GetQuadricObject ()));
+		  *m_settings, GetSimulation ().GetFoam (0), DisplayElement::FOCUS,
+		  false, 0.0, GetQuadricObject ()));
     glPopAttrib ();
 }
 
@@ -4079,8 +4080,12 @@ void WidgetGl::CurrentIndexChangedSimulation (int i)
 {
     makeCurrent ();
     ViewNumber::Enum viewNumber = GetViewNumber ();
+    ViewSettings& vs = GetViewSettings (viewNumber);
     const Simulation& simulation = GetSimulation (i);
-    m_settings->SetSimulation (i, simulation, GetXOverY (), viewNumber);
+    G3D::Vector3 center = m_settings->CalculateViewingVolume (
+	viewNumber, simulation, GetXOverY (),
+	ViewingVolumeOperation::DONT_ENCLOSE2D).center ();
+    vs.SetSimulation (i, simulation, center);
     m_viewAverage[viewNumber]->SetSimulation (simulation);
     update ();
 }

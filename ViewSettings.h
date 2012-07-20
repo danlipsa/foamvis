@@ -453,16 +453,19 @@ public:
     {
 	return m_simulationIndex;
     }
-    void SetSimulationIndex (size_t i)
-    {
-	m_simulationIndex = i;
-    }
 
-    size_t GetCurrentTime () const;
+    size_t GetCurrentTime () const
+    {
+	return m_currentTime;
+    }    
     /**
      * Return positive if time has moved forward or negative otherwise
      */
-    int SetCurrentTime (size_t time, ViewNumber::Enum viewNumber);
+    int SetCurrentTime (size_t time);
+    size_t GetTimeSteps () const
+    {
+	return m_timeSteps;
+    }
     bool IsT1sShiftLower () const
     {
 	return m_t1sShiftLower;
@@ -482,6 +485,8 @@ public:
     void SetAverageAroundPositions (const Simulation& simulation, size_t bodyId);
     void SetAverageAroundPositions (const Simulation& simulation,
 				    size_t bodyId, size_t secondBodyId);
+    void SetSimulation (int i, const Simulation& simulation,
+			G3D::Vector3 viewingVolumeCenter);
     void SetLinkedTimeBegin (size_t begin)
     {
 	m_syncViewTimeBegin = begin;
@@ -559,6 +564,7 @@ public:
     {
 	m_scaleCenter = scaleCenter;
     }
+
     
 private:
     static G3D::Matrix3 getRotation2DTimeDisplacement ();
@@ -573,6 +579,15 @@ private:
      * Rotates the view so that we get the same image as in Surface Evolver
      */
     G3D::Matrix3 getRotation3D (const Foam& foam) const;
+    void setSimulationIndex (size_t i)
+    {
+	m_simulationIndex = i;
+    }
+    void setTimeSteps (size_t timeSteps)
+    {
+	m_timeSteps = timeSteps;
+    }
+
 
 private:
     ViewType::Enum m_viewType;
@@ -641,6 +656,7 @@ private:
      * Index into m_foam that shows the current DMP file displayed
      */
     size_t m_currentTime;
+    size_t m_timeSteps;
     bool m_t1sShiftLower;
     size_t m_syncViewTimeBegin;
     size_t m_syncViewTimeEnd;

@@ -138,7 +138,10 @@ void Settings::initViewSettings (const Simulation& simulation, float xOverY)
     {
 	vs = boost::make_shared <ViewSettings> ();
 	vs->SetViewType (ViewType::FACES);
-	SetSimulation (0, simulation, xOverY, viewNumber);
+	G3D::Vector3 center = CalculateViewingVolume (
+	    viewNumber, simulation, xOverY,
+	    ViewingVolumeOperation::DONT_ENCLOSE2D).center ();
+	vs->SetSimulation (0, simulation, center);
 	viewNumber = ViewNumber::Enum (viewNumber + 1);
     }
 }
@@ -237,7 +240,7 @@ void Settings::SetCurrentTime (
 	ViewNumber::Enum viewNumber = GetViewNumber ();
 	ViewSettings& vs = GetViewSettings (viewNumber);
 	direction[viewNumber] = 
-	    vs.SetCurrentTime (currentTime, viewNumber);
+	    vs.SetCurrentTime (currentTime);
 	break;
     }
     case TimeLinkage::LINKED:
@@ -247,13 +250,12 @@ void Settings::SetCurrentTime (
 	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	    ViewSettings& vs = GetViewSettings (viewNumber);
 	    float multiplier = LinkedTimeStepStretch (viewNumber);
-	    size_t timeSteps = GetTimeSteps (viewNumber);
+	    size_t timeSteps = vs.GetTimeSteps ();
 	    size_t time = floor (m_linkedTime / multiplier);
 	    if (time < timeSteps)
-		direction[viewNumber] = vs.SetCurrentTime (time, viewNumber);
+		direction[viewNumber] = vs.SetCurrentTime (time);
 	    else if (setLastStep)
-		direction[viewNumber] = vs.SetCurrentTime (
-		    timeSteps - 1, viewNumber);
+		direction[viewNumber] = vs.SetCurrentTime (timeSteps - 1);
 	}
 	break;
     }
@@ -261,27 +263,6 @@ void Settings::SetCurrentTime (
 	copy (direction.begin (), direction.end (), d->begin ());
 }
 
-void Settings::SetSimulation (int i, const Simulation& simulation, float xOverY,
-			      ViewNumber::Enum viewNumber)
-{
-    ViewSettings& vs = GetViewSettings (viewNumber);
-    int rotation2D = simulation.GetRotation2D ();
-    size_t reflexionAxis = simulation.GetReflectionAxis ();
-    G3D::Vector3 center = CalculateViewingVolume (
-	viewNumber, simulation, xOverY,
-	ViewingVolumeOperation::DONT_ENCLOSE2D).center ();
-    vs.SetSimulationIndex (i);
-    vs.SetAxesOrder (
-	simulation.Is2D () ? 
-	(rotation2D == 0 ? AxesOrder::TWO_D :
-	 (rotation2D == 90 ? AxesOrder::TWO_D_ROTATE_LEFT90 : 
-	  ((reflexionAxis == 1) ? 
-	   AxesOrder::TWO_D_ROTATE_RIGHT90_REFLECTION :
-	   AxesOrder::TWO_D_ROTATE_RIGHT90))): AxesOrder::THREE_D);
-    vs.SetT1sShiftLower (simulation.GetT1sShiftLower ());
-    vs.SetScaleCenter (center.xy ());
-    vs.SetRotationCenter (center);
-}
 
 bool Settings::IsMissingPropertyShown (BodyScalar::Enum bodyProperty) const
 {
@@ -337,17 +318,6 @@ pair<size_t, ViewNumber::Enum> Settings::LinkedTimeMaxInterval () const
     return max;
 }
 
-float Settings::GetXOverY (float xOverY, ViewNumber::Enum viewNumber) const
-{
-    (void)viewNumber;
-    float v[] = { 
-	xOverY, xOverY,     // ONE
-	xOverY/2, 2*xOverY, // TWO (HORIZONTAL, VERTICAL)
-	xOverY/3, 3*xOverY, // THREE (HORIZONTAL, VERTICAL)
-	xOverY, xOverY      // FOUR
-    };
-    return v[GetViewCount () * 2 + GetViewLayout ()];
-}
 
 G3D::AABox Settings::CalculateViewingVolume (
     ViewNumber::Enum viewNumber, const Simulation& simulation, 
@@ -364,4 +334,16 @@ G3D::AABox Settings::CalculateViewingVolume (
     if (enclose == ViewingVolumeOperation::ENCLOSE2D)
 	vv = EncloseRotation2D (vv);
     return vv;
+}
+
+float Settings::GetXOverY (float xOverY, ViewNumber::Enum viewNumber) const
+{
+    (void)viewNumber;
+    float v[] = { 
+	xOverY, xOverY,     // ONE
+	xOverY/2, 2*xOverY, // TWO (HORIZONTAL, VERTICAL)
+	xOverY/3, 3*xOverY, // THREE (HORIZONTAL, VERTICAL)
+	xOverY, xOverY      // FOUR
+    };
+    return v[GetViewCount () * 2 + GetViewLayout ()];
 }

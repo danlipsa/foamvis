@@ -326,8 +326,8 @@ template <typename DisplayEdge, typename DisplaySegmentArrow1,
 	  bool showDuplicates>
 DisplayEdgeTorus<DisplayEdge, DisplaySegmentArrow1, showDuplicates>::
 DisplayEdgeTorus (const Settings& widget, const Foam& foam, 
-		  GLUquadricObj* quadric, FocusContext focus, 
-		  bool useZPos, double zPos) : 
+		  FocusContext focus, bool useZPos, double zPos, 
+		  GLUquadricObj* quadric) : 
     
     DisplayElementFocus (widget, foam, focus, useZPos, zPos),
     m_displayEdge (quadric, m_settings.GetEdgeRadius ()),
@@ -613,12 +613,11 @@ template class DisplayEdgePropertyColor <DisplayElement::DONT_DISPLAY_TESSELLATI
 
 // DisplayEdgeTorus
 // ======================================================================
-/*
+
 template class DisplayFaceEdges<
     DisplayEdgeTorus <DisplaySegment, DisplaySegmentArrow1, true> >;
 template class DisplayFaceEdges<
     DisplayEdgeTorus<DisplaySegmentQuadric, DisplaySegmentArrowQuadric, true> >;
-*/
 template class DisplayFaceEdges<
     DisplayEdgePropertyColor<DisplayElement::DISPLAY_TESSELLATION_EDGES> >;
 template class DisplayFaceEdges<

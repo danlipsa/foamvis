@@ -207,10 +207,10 @@ template <typename DisplayEdge,
 class DisplayEdgeTorus : public DisplayElementFocus
 {
 public:
-    DisplayEdgeTorus (const Settings& settings, const Foam& foam, 
-		      GLUquadricObj* quadric,
-		      FocusContext focus = FOCUS, 
-		      bool useZPos = false, double zPos = 0);
+    DisplayEdgeTorus (const Settings& settings, const Foam& foam,
+		      FocusContext focus = FOCUS,
+		      bool useZPos = false, double zPos = 0, 
+		      GLUquadricObj* quadric = 0);
 
     void operator () (const OrientedEdge& oe);
 

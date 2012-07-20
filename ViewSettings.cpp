@@ -537,13 +537,8 @@ G3D::Matrix3 ViewSettings::getRotation3D (const Foam& foam) const
     return rotation;
 }
 
-size_t ViewSettings::GetCurrentTime () const
-{
-    return m_currentTime;
-}
 
-
-int ViewSettings::SetCurrentTime (size_t time, ViewNumber::Enum viewNumber)
+int ViewSettings::SetCurrentTime (size_t time)
 {
     int direction = time - GetCurrentTime ();
     m_currentTime = time;
@@ -593,3 +588,22 @@ void ViewSettings::SetAverageAroundPositions (
 	objectPosition.m_angleRadians = - angleRadians;
     }
 }
+
+void ViewSettings::SetSimulation (int i, const Simulation& simulation, 
+				  G3D::Vector3 viewingVolumeCenter)
+{
+    int rotation2D = simulation.GetRotation2D ();
+    size_t reflexionAxis = simulation.GetReflectionAxis ();
+    setSimulationIndex (i);
+    SetAxesOrder (simulation.Is2D () ? 
+		  (rotation2D == 0 ? AxesOrder::TWO_D :
+		   (rotation2D == 90 ? AxesOrder::TWO_D_ROTATE_LEFT90 : 
+		    ((reflexionAxis == 1) ? 
+		     AxesOrder::TWO_D_ROTATE_RIGHT90_REFLECTION :
+		     AxesOrder::TWO_D_ROTATE_RIGHT90))): AxesOrder::THREE_D);
+    SetT1sShiftLower (simulation.GetT1sShiftLower ());
+    SetScaleCenter (viewingVolumeCenter.xy ());
+    SetRotationCenter (viewingVolumeCenter);
+    setTimeSteps (simulation.GetTimeSteps ());
+}
+

@@ -133,13 +133,7 @@ public:
     {
 	return m_timeLinkage;
     }
-    size_t GetTimeSteps () const
-    {
-	return GetTimeSteps (GetViewNumber ());
-    }
     size_t GetTimeSteps (ViewNumber::Enum viewNumber) const;
-    void SetSimulation (int i, const Simulation& simulation, float xOverY,
-			ViewNumber::Enum viewNumber);
     size_t GetLinkedTime () const
     {
 	return m_linkedTime;
