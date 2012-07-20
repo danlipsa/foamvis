@@ -380,9 +380,10 @@ void Foam::StoreConstraintFaces ()
 
 void Foam::CalculateBodyDeformationTensor ()
 {
-    for_each (m_bodies.begin (), m_bodies.end (),
-	      boost::bind (&Body::CalculateDeformationTensor, _1, 
-			   GetTorusDomain ()));
+    if (m_bodies.size () > 1)
+	for_each (m_bodies.begin (), m_bodies.end (),
+		  boost::bind (&Body::CalculateDeformationTensor, _1, 
+			       GetTorusDomain ()));
 }
 
 size_t Foam::GetLastEdgeId (const EdgeSet& edgeSet) const
