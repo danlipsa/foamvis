@@ -234,6 +234,7 @@ public:
 	return GetViewSettings (GetViewNumber ());
     }
     float GetXOverY () const;
+    void CompileUpdate ();
 
 Q_SIGNALS:
     void PaintEnd ();
@@ -327,7 +328,6 @@ public Q_SLOTS:
     void ValueChangedNoiseFrequency (int i);
 
     void ValueChangedAngleOfView (int newIndex);
-    void ValueChangedContextAlpha (int sliderValue);
     void ValueChangedEdgesRadius (int sliderValue);
 
     void ValueChangedLightAmbientRed (int sliderValue);
@@ -575,7 +575,6 @@ private:
     void displayCenterPaths (ViewNumber::Enum view) const;
     void compileCenterPaths (ViewNumber::Enum view) const;
     void compile (ViewNumber::Enum view) const;
-    void compileUpdate ();
 
     void displayBoundingBox (ViewNumber::Enum viewNumber) const;
     void displayFocusBox (ViewNumber::Enum viewNumber) const;

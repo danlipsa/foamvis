@@ -13,8 +13,7 @@
 
 class Foam;
 class SendPaintEnd;
-class vtkDataSetMapper;
-class vtkThreshold;
+class Settings;
 
 class WidgetVtk : public QVTKWidget
 {
@@ -29,6 +28,11 @@ public:
 	const Foam& foam, vtkSmartPointer<vtkMatrix4x4> modelView,
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
 	QwtDoubleInterval interval, BodyScalar::Enum bodyScalar);
+    void SetSettings (boost::shared_ptr<Settings> settings)
+    {
+	m_settings = settings;
+    }
+    void UpdateOpacity ();
 
 public:
     QSize sizeHint ()
@@ -48,6 +52,8 @@ private:
     Q_OBJECT
     vtkSmartPointer<vtkDataSetMapper> m_mapper;
     vtkSmartPointer<vtkThreshold> m_threshold;
+    vector< vtkSmartPointer<vtkActor> > m_constraintSurface;
+    boost::shared_ptr<Settings> m_settings;
 };
 
 

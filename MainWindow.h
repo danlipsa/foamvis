@@ -65,6 +65,7 @@ Q_SIGNALS:
 
 
 public Q_SLOTS:
+    void ValueChangedContextAlpha (int sliderValue);
     void ToggledVelocityShown (bool checked);
     void ButtonClickedHistogram (int histogramType);
     void ButtonClickedViewType (int viewType);

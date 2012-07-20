@@ -2900,7 +2900,7 @@
   <connection>
    <sender>horizontalSliderContextAlpha</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
+   <receiver>MainWindow</receiver>
    <slot>ValueChangedContextAlpha(int)</slot>
    <hints>
     <hint type="sourcelabel">

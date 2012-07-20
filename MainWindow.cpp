@@ -69,8 +69,6 @@ const char* MainWindow::PAUSE_TEXT ("||");
 MainWindow::MainWindow (SimulationGroup& simulationGroup) : 
     m_timer (new QTimer(this)),
     m_processBodyTorus (0), 
-    m_settings (new Settings (simulationGroup.GetSimulation (0), 
-			      widgetGl->GetXOverY ())),
     m_debugTranslatedBody (false),
     m_currentBody (0),
     m_histogramType (HistogramType::NONE),
@@ -86,6 +84,8 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     QGLFormat::setDefaultFormat(format);
     
     setupUi (this);
+    m_settings.reset (new Settings (simulationGroup.GetSimulation (0), 
+				    widgetGl->GetXOverY ())),
     connectSignals ();
     setupButtonGroups ();
 
@@ -98,6 +98,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     CurrentIndexChangedViewCount (ViewCount::ONE);
     widgetGl->Init (m_settings, &simulationGroup);
     widgetGl->SetStatus (labelStatusBar);
+    widgetVtk->SetSettings (m_settings);
     setupColorBarModels ();
     setupViews ();
     initComboBoxSimulation (simulationGroup);
@@ -281,7 +282,7 @@ void MainWindow::connectSignals ()
     connectColorBarHistogram (true);
     
     connect (
-	widgetGl,
+	m_settings.get (),
 	SIGNAL (ViewChanged ()),
 	this,
 	SLOT (ViewToUI ()));
@@ -1118,6 +1119,16 @@ void MainWindow::currentIndexChangedFaceColor (
 
 // Slots and methods called by the UI
 // ==================================
+
+void MainWindow::ValueChangedContextAlpha (int index)
+{
+    (void)index;
+    m_settings->SetContextAlpha (
+	Index2Value (static_cast<QSlider*> (sender ()), 
+		     Settings::CONTEXT_ALPHA));
+    widgetGl->CompileUpdate ();
+    widgetVtk->UpdateOpacity ();
+}
 
 void MainWindow::ToggledVelocityShown (bool checked)
 {

@@ -10,6 +10,7 @@
 #include "BodySelector.h"
 #include "DebugStream.h"
 #include "Foam.h"
+#include "Settings.h"
 #include "WidgetVtk.h"
 
 // Private Classes/Functions
@@ -122,6 +123,7 @@ void WidgetVtk::UpdateRenderStructured (
     }
 
     // constraint faces rendered transparent
+    m_constraintSurface.resize (foam.GetConstraintFacesSize ());
     for (size_t i = 0; i < foam.GetConstraintFacesSize (); ++i)
     {
 	VTK_CREATE (vtkDataSetMapper, mapper);
@@ -130,7 +132,8 @@ void WidgetVtk::UpdateRenderStructured (
 	VTK_CREATE (vtkActor, actor);
 	actor->SetMapper (mapper);
 	actor->SetUserMatrix (modelView);
-	actor->GetProperty ()->SetOpacity (0.05);
+	actor->GetProperty ()->SetOpacity (m_settings->GetContextAlpha ());
+	m_constraintSurface[i] = actor;
 	renderer->AddViewProp (actor);
     }
 
@@ -139,3 +142,11 @@ void WidgetVtk::UpdateRenderStructured (
     update ();
 }
 
+void WidgetVtk::UpdateOpacity ()
+{
+    BOOST_FOREACH (vtkSmartPointer<vtkActor> actor, m_constraintSurface)
+    {
+	actor->GetProperty ()->SetOpacity (m_settings->GetContextAlpha ());
+    }
+    update ();
+}

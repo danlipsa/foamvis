@@ -971,7 +971,7 @@ void WidgetGl::SelectAll ()
 {
     GetViewSettings ().
 	SetBodySelector (AllBodySelector::Get (), BodySelectorType::ID);
-    compileUpdate ();
+    CompileUpdate ();
     m_selectBodiesByIdList->ClearEditIds ();
     update ();
 }
@@ -980,7 +980,7 @@ void WidgetGl::DeselectAll ()
 {
     GetViewSettings ().SetBodySelector (
 	boost::shared_ptr<IdBodySelector> (new IdBodySelector ()));
-    compileUpdate ();
+    CompileUpdate ();
 }
 
 void WidgetGl::SelectBodiesByIdList ()
@@ -990,7 +990,7 @@ void WidgetGl::SelectBodiesByIdList ()
 	GetViewSettings ().SetBodySelector (
 	    boost::shared_ptr<IdBodySelector> (
 		new IdBodySelector (m_selectBodiesByIdList->GetIds ())));
-	compileUpdate ();
+	CompileUpdate ();
     }
 }
 
@@ -1005,7 +1005,7 @@ void WidgetGl::SelectThisBodyOnly ()
 	    boost::shared_ptr<IdBodySelector> (new IdBodySelector ()));
 	vs.UnionBodySelector (bodyIds[0]);
     }
-    compileUpdate ();
+    CompileUpdate ();
 }
 
 
@@ -1896,7 +1896,7 @@ void WidgetGl::select (const QPoint& position)
     vector<size_t> bodyIds;
     brushedBodies (position, &bodyIds, false);
     GetViewSettings ().UnionBodySelector (bodyIds);
-    compileUpdate ();
+    CompileUpdate ();
 }
 
 void WidgetGl::deselect (const QPoint& position)
@@ -1905,7 +1905,7 @@ void WidgetGl::deselect (const QPoint& position)
     brushedBodies (position, &bodyIds);
     GetViewSettings ().DifferenceBodySelector (
 	GetSimulation ().GetFoam (0), bodyIds);
-    compileUpdate ();
+    CompileUpdate ();
 }
 
 void WidgetGl::mouseMoveRotate (QMouseEvent *event, ViewNumber::Enum viewNumber)
@@ -2786,8 +2786,9 @@ void WidgetGl::displayCenterPaths (ViewNumber::Enum view) const
     glCallList (GetViewSettings (view).GetListCenterPaths ());
 }
 
-void WidgetGl::compileUpdate ()
+void WidgetGl::CompileUpdate ()
 {
+    makeCurrent ();
     compile (GetViewNumber ());
     update ();
 }
@@ -3944,16 +3945,14 @@ void WidgetGl::ToggledSelectionContextShown (bool checked)
 {
     makeCurrent ();
     GetViewSettings ().SetSelectionContextShown (checked);
-    compile (GetViewNumber ());
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledCenterPathHidden (bool checked)
 {
     makeCurrent ();
     GetViewSettings ().SetCenterPathHidden (checked);
-    compile (GetViewNumber ());
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ButtonClickedViewType (int id)
@@ -4026,16 +4025,14 @@ void WidgetGl::ToggledCenterPathTubeUsed (bool checked)
 {
     makeCurrent ();
     m_settings->SetCenterPathTubeUsed (checked);
-    compile (GetViewNumber ());
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledCenterPathLineUsed (bool checked)
 {
     makeCurrent ();
     m_settings->SetCenterPathLineUsed (checked);
-    compile (GetViewNumber ());
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ToggledTitleShown (bool checked)
@@ -4152,8 +4149,7 @@ void WidgetGl::SetBodyOrFaceScalar (
 	vs.SetColorBarModel (colorBarModel);
     else
 	vs.ResetColorBarModel ();
-    compile (viewNumber);
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::SetColorBarModel (ViewNumber::Enum viewNumber, 
@@ -4272,8 +4268,7 @@ void WidgetGl::ValueChangedTimeDisplacement (int timeDisplacement)
     m_timeDisplacement =
 	(bb.high () - bb.low ()).z * timeDisplacement /
 	GetSimulation ().GetTimeSteps () / maximum;
-    compile (GetViewNumber ());
-    update ();
+    CompileUpdate ();
 }
 
 void WidgetGl::ValueChangedT1Size (int index)
@@ -4383,17 +4378,6 @@ void WidgetGl::ValueChangedVelocityLineWidthExp (int index)
     update ();
 }
 
-void WidgetGl::ValueChangedContextAlpha (int index)
-{
-    makeCurrent ();
-    (void)index;
-    GetSettings ()->SetContextAlpha (
-	Index2Value (static_cast<QSlider*> (sender ()), 
-		     Settings::CONTEXT_ALPHA));
-    compile (GetViewNumber ());
-    update ();
-}
-
 
 void WidgetGl::ValueChangedHighlightLineWidth (int newWidth)
 {
@@ -4407,8 +4391,7 @@ void WidgetGl::ValueChangedEdgesRadius (int sliderValue)
     size_t maximum = static_cast<QSlider*> (sender ())->maximum ();
     m_settings->SetEdgeRadiusRatio (static_cast<double>(sliderValue) / maximum);
     m_settings->SetEdgeArrow (GetOnePixelInObjectSpace ());
-    compile (GetViewNumber ());
-    update ();
+    CompileUpdate ();
 }
 
 
