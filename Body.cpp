@@ -71,7 +71,8 @@ private:
 class SymmetricMatrixEigen
 {
 public:
-    SymmetricMatrixEigen (size_t size) : SIZE (size)
+    SymmetricMatrixEigen () : 
+	SIZE (3)
     {
 	m_m = gsl_matrix_alloc (SIZE, SIZE);	
 	m_eval = gsl_vector_alloc (SIZE);
@@ -576,9 +577,9 @@ void Body::CalculateDeformationTensor (const OOBox& originalDomain)
 				       l.z * l.x, l.z * l.y, l.z * l.z);
     }
     textureTensor /= neighbors.size ();
-    SymmetricMatrixEigen(3).Calculate (textureTensor, 
-				       &m_deformationEigenValues[0], 
-				       &m_deformationEigenVectors[0]);
+    SymmetricMatrixEigen().Calculate (textureTensor, 
+				      &m_deformationEigenValues[0], 
+				      &m_deformationEigenVectors[0]);
     //textureTensor.eigenSolveSymmetric (
     //&m_deformationEigenValues[0], &m_deformationEigenVectors[0]);
 

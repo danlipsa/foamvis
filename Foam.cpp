@@ -380,11 +380,13 @@ void Foam::StoreConstraintFaces ()
 
 void Foam::CalculateBodyDeformationTensor ()
 {
+    MeasureTime t;
     // this prevents a unique body to be set as an object.
     if (m_bodies.size () > 1)
 	for_each (m_bodies.begin (), m_bodies.end (),
 		  boost::bind (&Body::CalculateDeformationTensor, _1, 
 			       GetTorusDomain ()));
+    t.EndInterval ("eigen");
 }
 
 size_t Foam::GetLastEdgeId (const EdgeSet& edgeSet) const

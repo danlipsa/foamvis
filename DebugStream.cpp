@@ -33,7 +33,7 @@ void MeasureTime::EndInterval (const char* intervalName)
 {
     clock_t end = clock ();
     cdbg << intervalName << ": " 
-	 << (end - m_start) * 1000 / CLOCKS_PER_SEC << " ms" << endl;
+	 << (end - m_start) * 1000.0 / CLOCKS_PER_SEC << " ms" << endl;
     m_start = end;
 }
 

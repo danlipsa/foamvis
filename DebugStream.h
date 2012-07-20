@@ -51,6 +51,10 @@ public:
     MeasureTime ();
     void StartInterval ();
     void EndInterval (const char* intervalName);
+    void EndInterval (const string& intervalName)
+    {
+	EndInterval (intervalName.c_str ());
+    }
 private:
     clock_t m_start;
 };

@@ -86,24 +86,6 @@ boost::array<const char*, BodyScalar::COUNT> BodyScalar::NAME3D = {{
 	"Actual volume",
     }};
 
-boost::array<bool, BodyScalar::COUNT> BodyScalar::REDUNDANT = {{
-	true,
-	true,
-	true,
-	true,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false
-    }};
-
-bool BodyScalar::IsRedundant (BodyScalar::Enum scalar)
-{
-    return REDUNDANT[scalar];
-}
-
 const boost::array<const char*, BodyScalar::COUNT>& BodyScalar::NAME ()
 {
     // C++ FAQ, 10.5 How do I prevent the "static initialization order fiasco"
@@ -221,10 +203,7 @@ const char* BodyAttribute::ToString (size_t attribute)
 
 bool BodyAttribute::IsRedundant (size_t attribute)
 {
-    if (attribute < BodyScalar::COUNT)
-	return BodyScalar::IsRedundant (BodyScalar::FromSizeT (attribute));
-    else
-	return BodyAttribute::IsRedundant (BodyAttribute::FromSizeT (attribute));
+    return BodyAttribute::DependsOn (attribute) != COUNT;
 }
 
 

@@ -115,12 +115,10 @@ public:
 public:
     static const char* ToString (BodyScalar::Enum property);
     static Enum FromSizeT (size_t i);
-    static bool IsRedundant (BodyScalar::Enum scalar);
 
 private:
     static boost::array<const char*, COUNT> NAME2D;
     static boost::array<const char*,COUNT> NAME3D;
-    static boost::array<bool, BodyScalar::COUNT> REDUNDANT;
     static const boost::array<const char*, COUNT>& NAME ();
 };
 
@@ -170,10 +168,6 @@ struct BodyAttribute
 	return GetNumberOfComponents (attribute) == 6;
     }
     static bool IsRedundant (size_t attribute);
-    static bool IsRedundant (BodyAttribute::Enum)
-    {
-	return false;
-    }
 
 private:
     struct Info
