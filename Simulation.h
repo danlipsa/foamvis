@@ -173,11 +173,7 @@ public:
     }
 
     bool T1sAvailable () const;
-    void SetT1sTimeStepShift (int i)
-    {
-	m_t1sTimeStepShift = i;
-    }
-    int GetT1sTimeStepShift () const
+    int GetT1sShift () const
     {
 	return m_t1sTimeStepShift;
     }
@@ -185,7 +181,7 @@ public:
     {
 	return m_t1sTimeStepShift == 1;
     }
-    const vector<G3D::Vector3>& GetT1s (size_t timeStep) const;
+    const vector<G3D::Vector3>& GetT1s (size_t timeStep, int t1sShift) const;
     size_t GetT1sSize () const;
     size_t GetT1sTimeSteps () const;
 

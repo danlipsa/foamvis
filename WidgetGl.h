@@ -72,9 +72,7 @@ public:
      * Gets the data displayed by the WidgetGl
      */
     const Simulation& GetSimulation (size_t index) const;
-    Simulation& GetSimulation (size_t index);
     const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
-    Simulation& GetSimulation (ViewNumber::Enum viewNumber);
     const Simulation& GetSimulation () const;
     vector<ViewNumber::Enum> GetConnectedViewNumbers (
 	ViewNumber::Enum viewNumber = ViewNumber::COUNT) const;
@@ -690,7 +688,7 @@ private:
     /**
      * Foam to be displayd. Each element coresponds to a DMP file
      */
-    SimulationGroup* m_simulationGroup;
+    const SimulationGroup* m_simulationGroup;
     /**
      * Used for rotation, translation and scale
      */

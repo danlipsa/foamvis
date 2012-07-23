@@ -21,7 +21,7 @@ public:
 	Vector3int16Hash> EndLocationColor;
 
 public:
-    Settings (const Simulation& simulation, float xOverY);
+    Settings (const Simulation& simulation, float xOverY, bool t1sShiftLower);
     float GetContextAlpha () const
     {
 	return m_contextAlpha;
@@ -204,7 +204,8 @@ public:
 
 private:
     void initEndTranslationColor ();
-    void initViewSettings (const Simulation& simulation, float xOverY);
+    void initViewSettings (const Simulation& simulation, float xOverY, 
+			   bool t1sShiftLower);
     void checkLinkedTimesValid (size_t timeBegin, size_t timeEnd) const;
     void checkLinkedTimesValid () const;
 

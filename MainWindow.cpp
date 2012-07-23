@@ -84,8 +84,10 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     QGLFormat::setDefaultFormat(format);
     
     setupUi (this);
-    m_settings.reset (new Settings (simulationGroup.GetSimulation (0), 
-				    widgetGl->GetXOverY ())),
+    const Simulation& simulation = simulationGroup.GetSimulation (0);
+    m_settings.reset (new Settings (simulation, 
+				    widgetGl->GetXOverY (),
+				    simulation.GetT1sShift ()));
     connectSignals ();
     setupButtonGroups ();
 
@@ -440,7 +442,7 @@ void MainWindow::ViewToUI ()
     SetCheckedNoSignals (checkBoxSelectionContextShown, 
 			 vs.IsSelectionContextShown ());
     SetCheckedNoSignals (checkBoxCenterPathHidden, vs.IsCenterPathHidden ());
-    SetCheckedNoSignals (checkBoxT1sShiftLower, vs.IsT1sShiftLower ());
+    SetCheckedNoSignals (checkBoxT1sShiftLower, vs.T1sShiftLower ());
 
     deformationViewToUI ();
     velocityViewToUI ();
@@ -689,7 +691,7 @@ void MainWindow::processBodyTorusStep ()
 
 void MainWindow::update3DAverage (size_t timeStep)
 {
-    ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
+    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
     const Simulation& simulation = widgetGl->GetSimulation (viewNumber);
     const Foam& foam = simulation.GetFoam (timeStep);
     BodyScalar::Enum bodyProperty = BodyScalar::FromSizeT (
@@ -1225,12 +1227,14 @@ void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
     ViewSettings& vs = widgetGl->GetViewSettings (widgetGl->GetViewNumber ());
     ViewType::Enum viewType = vs.GetViewType ();
-    const Foam& foam = widgetGl->GetSimulation ().GetFoam (0);
     setAndDisplayHistogram (KEEP_SELECTION, KEEP_MAX_VALUE, viewType);
-    if (foam.GetDataProperties ().Is3D () && viewType == ViewType::AVERAGE)
+    if (DATA_PROPERTIES.Is3D () && viewType == ViewType::AVERAGE)
 	update3DAverage (timeStep);
     if (m_debugTranslatedBody)
+    {
+	const Foam& foam = widgetGl->GetSimulation ().GetFoam (0);
 	m_currentTranslatedBody = const_cast<Foam&> (foam).GetBodies ().begin ();
+    }
     updateButtons ();
 }
 
@@ -1250,7 +1254,6 @@ void MainWindow::ButtonClickedViewType (int vt)
     {
 	ViewNumber::Enum viewNumber = vn[i];
 	const Simulation& simulation = widgetGl->GetSimulation (viewNumber);
-	const Foam& foam = simulation.GetFoam (0);
 	ViewType::Enum viewType = ViewType::Enum(vt);
 	size_t simulationIndex = 
 	    widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
@@ -1271,7 +1274,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 	    if (m_histogramViewNumber == viewNumber)
 		setAndDisplayHistogram (
 		    KEEP_SELECTION, REPLACE_MAX_VALUE, viewType);
-	    if (foam.GetDataProperties ().Is3D ())
+	    if (DATA_PROPERTIES.Is3D ())
 	    {
 		widgetVtk->setHidden (true);
 		widgetGl->setVisible (true);
@@ -1284,7 +1287,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 	    if (m_histogramViewNumber == viewNumber)
 		setAndDisplayHistogram (
 		    KEEP_SELECTION, REPLACE_MAX_VALUE, viewType);
-	    if (foam.GetDataProperties ().Is3D ())
+	    if (DATA_PROPERTIES.Is3D ())
 	    {
 		update3DAverage (widgetGl->GetCurrentTime (viewNumber));
 		widgetGl->setHidden (true);
@@ -1298,7 +1301,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 	    if (m_histogramViewNumber == viewNumber)
 		setAndDisplayHistogram (
 		    KEEP_SELECTION, REPLACE_MAX_VALUE, viewType);
-	    if (foam.GetDataProperties ().Is3D ())
+	    if (DATA_PROPERTIES.Is3D ())
 	    {
 		widgetVtk->setHidden (true);
 		widgetGl->setVisible (true);
@@ -1307,7 +1310,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 
 	case ViewType::T1S_PDE:
 	    sliderTimeSteps->setMaximum (simulation.GetT1sTimeSteps () - 1);
-	    if (foam.GetDataProperties ().Is3D ())
+	    if (DATA_PROPERTIES.Is3D ())
 	    {
 		widgetGl->setHidden (true);
 		widgetVtk->setVisible (true);
@@ -1315,7 +1318,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 	    break;
 
 	default:
-	    if (foam.GetDataProperties ().Is3D ())
+	    if (DATA_PROPERTIES.Is3D ())
 	    {
 		widgetVtk->setHidden (true);
 		widgetGl->setVisible (true);

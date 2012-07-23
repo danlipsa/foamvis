@@ -528,13 +528,14 @@ void Simulation::ParseT1s (
 	    m_t1s.resize (timeStep + 1);
 	m_t1s[timeStep].push_back (G3D::Vector3 (x, y, Foam::Z_COORDINATE_2D));
     }
-    SetT1sTimeStepShift (shiftT1sLower ? 1 : 0);
+    m_t1sTimeStepShift = (shiftT1sLower ? 1 : 0);
     cdbg << "last T1s'  timestep: " << timeStep << endl;
 }
 
-const vector<G3D::Vector3>& Simulation::GetT1s (size_t timeStep) const
+const vector<G3D::Vector3>& Simulation::GetT1s (size_t timeStep,
+						int t1sShift) const
 {
-    int t = int(timeStep) + m_t1sTimeStepShift;
+    int t = int(timeStep) + t1sShift;
     if (t < 0 || size_t (t) >= m_t1s.size ())
 	return NO_T1S;
     else

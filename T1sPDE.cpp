@@ -186,5 +186,7 @@ void T1sPDE::DisplayTextureSize (ViewNumber::Enum viewNumber, size_t timeStep,
 
 size_t T1sPDE::getStepSize (ViewNumber::Enum viewNumber, size_t timeStep) const
 {
-    return GetWidgetGl ().GetSimulation (viewNumber).GetT1s (timeStep).size ();
+    ViewSettings& vs = GetSettings ().GetViewSettings (viewNumber);
+    return GetSimulation (viewNumber).GetT1s (timeStep, 
+					      vs.T1sShiftLower ()).size ();
 }

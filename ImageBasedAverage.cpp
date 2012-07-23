@@ -15,6 +15,7 @@
 #include "DisplayFaceFunctors.h"
 #include "DisplayEdgeFunctors.h"
 #include "Foam.h"
+#include "Settings.h"
 #include "Simulation.h"
 #include "WidgetGl.h"
 #include "OpenGLUtils.h"
@@ -302,7 +303,7 @@ void ImageBasedAverage<PropertySetter>::AverageRotateAndDisplay (
     G3D::Vector2 rotationCenter, 
     float angleDegrees) const
 {    
-    ViewSettings& vs = GetWidgetGl ().GetViewSettings (viewNumber);
+    ViewSettings& vs = GetSettings ().GetViewSettings (viewNumber);
     glBindTexture (GL_TEXTURE_1D, vs.GetColorBarTexture ());
     pair<float,float> minMax = GetWidgetGl ().GetRange (viewNumber);
     rotateAndDisplay (
@@ -337,9 +338,8 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
     ViewNumber::Enum viewNumber, size_t timeStep, size_t subStep)
 {
     (void)subStep;
-    ViewSettings& vs = GetWidgetGl ().GetViewSettings (viewNumber);
-    const Foam& foam = 
-	GetWidgetGl ().GetSimulation (viewNumber).GetFoam (timeStep);
+    ViewSettings& vs = GetSettings ().GetViewSettings (viewNumber);
+    const Foam& foam = GetFoam (viewNumber, timeStep);
     const Foam::Bodies& bodies = foam.GetBodies ();
     m_storeShaderProgram->Bind ();
     glPushAttrib (GL_POLYGON_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT );
@@ -350,12 +350,10 @@ void ImageBasedAverage<PropertySetter>::writeStepValues (
 	bodies.begin (), bodies.end (),
 	DisplayBody<DisplayFaceBodyScalarColor<PropertySetter>,
 	PropertySetter> (
-	    *GetWidgetGl ().GetSettings (), foam,
-	    vs.GetBodySelector (), 
-	    PropertySetter (
-		*GetWidgetGl ().GetSettings (), 
-		viewNumber, m_storeShaderProgram.get (),
-		m_storeShaderProgram->GetVValueLocation ()),
+	    GetSettings (), foam, vs.GetBodySelector (), 
+	    PropertySetter (GetSettings (), 
+			    viewNumber, m_storeShaderProgram.get (),
+			    m_storeShaderProgram->GetVValueLocation ()),
 	    DisplayElement::INVISIBLE_CONTEXT));
     glPopAttrib ();
     m_storeShaderProgram->release ();

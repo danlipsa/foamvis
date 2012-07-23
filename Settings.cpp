@@ -66,7 +66,8 @@ const size_t Settings::QUADRIC_SLICES = 8;
 const size_t Settings::QUADRIC_STACKS = 1;
 
 
-Settings::Settings (const Simulation& simulation, float xOverY) :
+Settings::Settings (const Simulation& simulation, float xOverY, 
+		    bool t1sShiftLower) :
     m_contextAlpha (CONTEXT_ALPHA.first),
     m_edgeRadius (0),
     m_edgeWidth (0),
@@ -87,7 +88,7 @@ Settings::Settings (const Simulation& simulation, float xOverY) :
     m_centerPathTubeUsed (true),
     m_centerPathLineUsed (false)
 {
-    initViewSettings (simulation, xOverY);
+    initViewSettings (simulation, xOverY, t1sShiftLower);
     initEndTranslationColor ();
 }
 
@@ -131,7 +132,8 @@ void Settings::initEndTranslationColor ()
     m_endTranslationColor[G3D::Vector3int16(0,0,0)] = QColor(0,0,0);
 }
 
-void Settings::initViewSettings (const Simulation& simulation, float xOverY)
+void Settings::initViewSettings (
+    const Simulation& simulation, float xOverY, bool t1sShiftLower)
 {
     ViewNumber::Enum viewNumber (ViewNumber::VIEW0);
     BOOST_FOREACH (boost::shared_ptr<ViewSettings>& vs, m_viewSettings)
@@ -141,7 +143,7 @@ void Settings::initViewSettings (const Simulation& simulation, float xOverY)
 	G3D::Vector3 center = CalculateViewingVolume (
 	    viewNumber, simulation, xOverY,
 	    ViewingVolumeOperation::DONT_ENCLOSE2D).center ();
-	vs->SetSimulation (0, simulation, center);
+	vs->SetSimulation (0, simulation, center, t1sShiftLower);
 	viewNumber = ViewNumber::Enum (viewNumber + 1);
     }
 }

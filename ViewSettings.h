@@ -466,7 +466,7 @@ public:
     {
 	return m_timeSteps;
     }
-    bool IsT1sShiftLower () const
+    bool T1sShiftLower () const
     {
 	return m_t1sShiftLower;
     }
@@ -486,7 +486,8 @@ public:
     void SetAverageAroundPositions (const Simulation& simulation,
 				    size_t bodyId, size_t secondBodyId);
     void SetSimulation (int i, const Simulation& simulation,
-			G3D::Vector3 viewingVolumeCenter);
+			G3D::Vector3 viewingVolumeCenter,
+			bool t1sShiftLower);
     void SetLinkedTimeBegin (size_t begin)
     {
 	m_syncViewTimeBegin = begin;

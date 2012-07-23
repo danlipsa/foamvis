@@ -455,19 +455,7 @@ const Simulation& WidgetGl::GetSimulation (ViewNumber::Enum viewNumber) const
 	GetViewSettings (viewNumber).GetSimulationIndex ());
 }
 
-Simulation& WidgetGl::GetSimulation (ViewNumber::Enum viewNumber)
-{
-    return GetSimulation (
-	GetViewSettings (viewNumber).GetSimulationIndex ());
-}
-
-
 const Simulation& WidgetGl::GetSimulation (size_t i) const
-{
-    return m_simulationGroup->GetSimulation (i);
-}
-
-Simulation& WidgetGl::GetSimulation (size_t i)
 {
     return m_simulationGroup->GetSimulation (i);
 }
@@ -2245,6 +2233,7 @@ void WidgetGl::displayT1sDot (ViewNumber::Enum viewNumber) const
 void WidgetGl::displayT1sDot (
     ViewNumber::Enum viewNumber, size_t timeStep) const
 {
+    ViewSettings& vs = GetViewSettings (viewNumber);
     glPushAttrib (GL_ENABLE_BIT | GL_POINT_BIT | 
 		  GL_CURRENT_BIT | GL_POLYGON_BIT);
     glDisable (GL_DEPTH_TEST);
@@ -2252,7 +2241,8 @@ void WidgetGl::displayT1sDot (
     glColor (m_settings->GetHighlightColor (viewNumber, HighlightNumber::H0));
     glBegin (GL_POINTS);
     BOOST_FOREACH (const G3D::Vector3 t1Pos, 
-		   GetSimulation (viewNumber).GetT1s (timeStep))
+		   GetSimulation (viewNumber).GetT1s (timeStep, 
+						      vs.T1sShiftLower ()))
 	::glVertex (t1Pos);
     glEnd ();
     glPopAttrib ();
@@ -2261,13 +2251,15 @@ void WidgetGl::displayT1sDot (
 void WidgetGl::DisplayT1Quad (
     ViewNumber::Enum viewNumber, size_t timeStep, size_t t1Index) const
 {
+    ViewSettings& vs = GetViewSettings (viewNumber);
     T1sPDE& t1sPDE = GetViewAverage (viewNumber).GetT1sPDE ();
     float rectSize = t1sPDE.GetKernelTextureSize () * 
 	GetOnePixelInObjectSpace ();
     float half = rectSize / 2;
     G3D::Rect2D srcTexRect = G3D::Rect2D::xyxy (0., 0., 1., 1.);
     const G3D::Vector3 t1Pos = 
-	GetSimulation (viewNumber).GetT1s (timeStep)[t1Index];
+	GetSimulation (viewNumber).GetT1s (
+	    timeStep, vs.T1sShiftLower ())[t1Index];
     G3D::Vector2 v = t1Pos.xy ();
     G3D::Rect2D srcRect = G3D::Rect2D::xyxy (
 	v + G3D::Vector2 (- half, - half),
@@ -2553,7 +2545,8 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
 	t1sPDE.IsKernelTextureSizeShown ())
     {
 	size_t timeStep = GetCurrentTime (viewNumber);
-	size_t stepSize = GetSimulation (viewNumber).GetT1s (timeStep).size ();
+	size_t stepSize = GetSimulation (viewNumber).GetT1s (
+	    timeStep, vs.T1sShiftLower ()).size ();
 	for (size_t i = 0; i < stepSize; ++i)
 	    t1sPDE.DisplayTextureSize (viewNumber, timeStep, i);
     }
@@ -4013,9 +4006,7 @@ void WidgetGl::ToggledT1sShiftLower (bool checked)
     makeCurrent ();
     ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings (viewNumber);
-    Simulation& simulation = GetSimulation (viewNumber);
     vs.SetT1sShiftLower (checked);
-    simulation.SetT1sTimeStepShift (checked);
     update ();
 }
 
@@ -4036,7 +4027,7 @@ void WidgetGl::CurrentIndexChangedSimulation (int i)
     G3D::Vector3 center = m_settings->CalculateViewingVolume (
 	viewNumber, simulation, GetXOverY (),
 	ViewingVolumeOperation::DONT_ENCLOSE2D).center ();
-    vs.SetSimulation (i, simulation, center);
+    vs.SetSimulation (i, simulation, center, vs.T1sShiftLower ());
     m_viewAverage[viewNumber]->SetSimulation (simulation);
     update ();
 }
