@@ -12,14 +12,30 @@
 #include "Enums.h"
 #include "AverageInterface.h"
 
-class WidgetGl;
+class Foam;
+class Settings;
+class Simulation;
+class SimulationGroup;
 
+
+/**
+ * Computes average along time for foam quantities. Includes average
+ * for a time window for forward and backward moving time.
+ */
 class Average : public AverageInterface
 {
 public:
-    Average (const WidgetGl& widgetGl) :
-    m_widgetGl (widgetGl)
+    Average (const Settings& settings, const SimulationGroup& simulationGroup) :
+	m_settings (settings), m_simulationGroup (simulationGroup)
     {
+    }
+    const SimulationGroup& GetSimulationGroup () const
+    {
+	return m_simulationGroup;
+    }
+    const Settings& GetSettings () const
+    {
+	return m_settings;
     }
     void AverageSetTimeWindow (size_t timeWindow)
     {
@@ -30,15 +46,14 @@ public:
     {
 	return m_timeWindow;
     }
-    const WidgetGl& GetWidgetGl () const
-    {
-	return m_widgetGl;
-    }
     size_t GetCurrentTimeWindow () const
     {
 	return m_currentTimeWindow;
     }
     virtual void AverageInit (ViewNumber::Enum viewNumber);
+    const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
+    const Foam& GetFoam (ViewNumber::Enum viewNumber, size_t timeStep) const;
+
 
 protected:
     //@todo write and add/remove in one operations instead of two.
@@ -63,7 +78,8 @@ private:
 
 
 private:
-    const WidgetGl& m_widgetGl;
+    const Settings& m_settings;
+    const SimulationGroup& m_simulationGroup;
     size_t m_currentTimeWindow;
     size_t m_timeWindow;
 };

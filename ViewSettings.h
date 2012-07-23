@@ -366,7 +366,7 @@ public:
     {
 	m_forceDifferenceShown = value;
     }
-    bool IsForceDifferenceShown ()
+    bool IsForceDifferenceShown () const
     {
 	return m_forceDifferenceShown;
     }
@@ -564,6 +564,9 @@ public:
     {
 	m_scaleCenter = scaleCenter;
     }
+    void RotateAndTranslateAverageAround (
+	size_t timeStep, int direction) const;
+
 
     
 private:

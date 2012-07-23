@@ -58,7 +58,7 @@ public:
      * Sets the data displayed by the WidgetGl
      * @param dataAlongTime data displayed by the WidgetGl
      */
-    const SimulationGroup& GetSimulationGroup ()
+    const SimulationGroup& GetSimulationGroup () const
     {
 	return *m_simulationGroup;
     }
@@ -182,7 +182,6 @@ public:
     void ActivateViewShader (ViewNumber::Enum viewNumber,
 			     ViewingVolumeOperation::Enum enclose,
 			     G3D::Rect2D& srcRect) const;
-    float GetOnePixelInObjectSpace () const;
     float GetBubbleSize (ViewNumber::Enum viewNumber) const;
     float GetDeformationSizeInitialRatio (ViewNumber::Enum viewNumber) const;
     float GetVelocitySizeInitialRatio (ViewNumber::Enum viewNumber) const;
@@ -190,9 +189,6 @@ public:
 	ViewNumber::Enum viewNumber, 
 	ViewingVolumeOperation::Enum enclose  = 
 	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
-    void RotateAndTranslateAverageAround (
-	ViewNumber::Enum viewNumber,
-	size_t timeStep, int direction) const;
     void DisplayT1Quad (ViewNumber::Enum view, 
 			size_t timeStep, size_t t1Index) const;
     pair<float, float> GetRange (ViewNumber::Enum viewNumber) const;
@@ -647,7 +643,6 @@ private:
     OrientedEdge brushedEdge () const;
     void brushedFace (const QPoint& position, vector<size_t>* bodies) const;
     G3D::Vector3 toObjectTransform (const QPoint& position) const;
-    G3D::Vector3 toObject (const QPoint& position) const;
     G3D::Vector3 toObjectTransform (const QPoint& position, 
 				    ViewNumber::Enum viewNumber) const;
     

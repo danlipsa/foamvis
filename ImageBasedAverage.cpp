@@ -42,6 +42,18 @@ template<typename PropertySetter> boost::shared_ptr<AddShaderProgram>
 ImageBasedAverage<PropertySetter>::m_removeShaderProgram;
 
 template<typename PropertySetter>
+ImageBasedAverage<PropertySetter>::ImageBasedAverage (
+    const WidgetGl& widgetGl, string id, QColor stepClearColor,
+    FramebufferObjects& scalarAverageFbos) :
+    Average (*widgetGl.GetSettings (), widgetGl.GetSimulationGroup ()), 
+    m_scalarAverageFbos (scalarAverageFbos), m_id (id),
+    m_stepClearColor (stepClearColor),
+    m_widgetGl (widgetGl)
+{
+}
+
+
+template<typename PropertySetter>
 void ImageBasedAverage<PropertySetter>::AverageInit (
     ViewNumber::Enum viewNumber)
 {

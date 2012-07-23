@@ -94,6 +94,34 @@ G3D::Matrix2 mult (const G3D::Matrix2& first, const G3D::Matrix2& second);
 G3D::Rect2D toRect2D (G3D::AABox aabox);
 
 
+/**
+ * Eigen things calculations
+ */
+class SymmetricMatrixEigen
+{
+public:
+    SymmetricMatrixEigen ();
+    ~SymmetricMatrixEigen ();
+    /**
+     * The eigen values are sorted in deacreasing order.
+     */
+    void Calculate (const G3D::Matrix3& from,
+		    float eigenValues[3], G3D::Vector3 eigenVectors[3]);
+private:
+    const size_t SIZE;
+    gsl_matrix* m_m;
+    gsl_vector* m_eval;
+    gsl_matrix* m_evec;
+    gsl_eigen_symmv_workspace* m_w;
+};
+
+G3D::AABox EncloseRotation (const G3D::AABox& box);
+G3D::AABox EncloseRotation2D (const G3D::AABox& box);
+G3D::Rect2D EncloseRotation (const G3D::Rect2D& rect);
+G3D::Vector2 rotateRadians (G3D::Vector2, float radiansCounterClockwise);
+G3D::Vector2 rotateDegrees (G3D::Vector2 v, float degreesCounterClockwise);
+
+
 // Conversions Qt - G3D
 // ======================================================================
 
@@ -174,9 +202,6 @@ boost::shared_ptr<QGLShader> CreateShader (const QString& resourceUrl,
 				   QGLShader::ShaderType type);
 G3D::Rect2D TexRectFromInsideRect (G3D::Rect2D insideRect);
 G3D::Vector2 TexCoord (G3D::Rect2D enclosingRect, G3D::Vector2 v);
-G3D::AABox EncloseRotation (const G3D::AABox& box);
-G3D::AABox EncloseRotation2D (const G3D::AABox& box);
-G3D::Rect2D EncloseRotation (const G3D::Rect2D& rect);
 
 #define RESOURCE(name) ":/" name
 
@@ -197,8 +222,6 @@ int Value2ExponentIndex (QSlider* slider,
 float Index2Value (const QSlider* slider, const pair<float,float>& minMax);
 int Value2Index (QSlider* slider, 
 		 const pair<float,float>& minMax, float value);
-G3D::Vector2 rotateRadians (G3D::Vector2, float radiansCounterClockwise);
-G3D::Vector2 rotateDegrees (G3D::Vector2 v, float degreesCounterClockwise);
 
 #endif //__UTILS_H__
 

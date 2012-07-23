@@ -13,6 +13,7 @@
 #include "TensorAverage.h"
 #include "VectorAverage.h"
 #include "ViewAverage.h"
+#include "WidgetGl.h"
 
 
 // Private Functions
@@ -32,7 +33,8 @@ ViewAverage::ViewAverage (const WidgetGl& widgetGl,
 	new TensorAverage (widgetGl, m_scalarAverage->GetFbos ())),
     m_velocityAverage (
 	new VectorAverage (widgetGl, m_scalarAverage->GetFbos ())),
-    m_forceAverage (new ForceAverage (widgetGl)),
+    m_forceAverage (new ForceAverage (*widgetGl.GetSettings (),
+				      widgetGl.GetSimulationGroup ())),
     m_viewSettings (viewSettings)
 {
 }

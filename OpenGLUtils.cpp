@@ -6,10 +6,11 @@
  * Implementation of various OpenGL utility functions
  */
 
-#include "OpenGLUtils.h"
+#include "DataProperties.h"
 #include "DebugStream.h"
 #include "Debug.h"
 #include "OOBox.h"
+#include "OpenGLUtils.h"
 #include "Utils.h"
 
 //#define __LOG__(code) code
@@ -163,6 +164,32 @@ bool isMatrixValid (GLenum matrixType)
     }
     return true;
 }
+
+float GetOnePixelInObjectSpace ()
+{
+    G3D::Vector3 first = toObject (G3D::Vector2 (0, 1));
+    G3D::Vector3 second = toObject (G3D::Vector2 (1, 1));
+    float onePixelInObjectSpace = (second - first).length ();
+    return onePixelInObjectSpace;
+}
+
+
+G3D::Vector3 toObject (const G3D::Vector2& positionGl)
+{
+    bool is2D = DATA_PROPERTIES.Is2D ();
+    G3D::Vector3 op = gluUnProject (positionGl, 
+				    is2D ? GluUnProjectZOperation::SET0 : 
+				    GluUnProjectZOperation::READ);
+    return op;
+}
+
+
+G3D::Vector3 toObject (const QPoint& positionQt, int windowHeight)
+{
+    G3D::Vector2 positionGl = QtToOpenGl (positionQt, windowHeight);
+    return toObject (positionGl);
+}
+
 
 G3D::Vector3 gluUnProject (
     G3D::Vector2 screenCoord, 

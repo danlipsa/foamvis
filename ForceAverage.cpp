@@ -21,12 +21,12 @@
 
 
 
+
 void ForceAverage::AverageInit (ViewNumber::Enum viewNumber)
 {
     (void)viewNumber;
     Average::AverageInit (viewNumber);
-    const vector<ForcesOneObject>& forces = 
-	GetWidgetGl ().GetSimulation (viewNumber).GetFoam (0).GetForces ();
+    const vector<ForcesOneObject>& forces = GetForces (viewNumber, 0);
     m_average.resize (forces.size ());
     for (size_t i = 0; i < forces.size (); ++i)
 	m_average[i] = ForcesOneObject (forces[i].m_bodyId, forces[i].m_body);
@@ -36,10 +36,8 @@ void ForceAverage::addStep (ViewNumber::Enum viewNumber, size_t timeStep,
 			    size_t subStep)
 {
     (void)viewNumber;(void)subStep;
-    const vector<ForcesOneObject>& forces = 
-	GetWidgetGl ().GetSimulation (viewNumber).
-	GetFoam (timeStep).GetForces ();
-    bool forward = (timeStep == GetWidgetGl ().GetCurrentTime (viewNumber));
+    const vector<ForcesOneObject>& forces = GetForces (viewNumber, timeStep);
+    bool forward = (timeStep == GetSettings ().GetCurrentTime (viewNumber));
     for (size_t i = 0; i < forces.size (); ++i)
     {
 	if (forward)
@@ -56,18 +54,15 @@ void ForceAverage::removeStep (ViewNumber::Enum viewNumber, size_t timeStep,
 			       size_t subStep)
 {
     (void)viewNumber;(void)subStep;
-    const vector<ForcesOneObject>& forces = 
-	GetWidgetGl ().
-	GetSimulation (viewNumber).GetFoam (timeStep).GetForces ();
+    const vector<ForcesOneObject>& forces = GetForces (viewNumber, timeStep);
     bool backward = ((timeStep - 1) == 
-		     GetWidgetGl ().GetCurrentTime (viewNumber));
+		     GetSettings ().GetCurrentTime (viewNumber));
     for (size_t i = 0; i < forces.size (); ++i)
     {
 	if (backward)
 	{
-	    const vector<ForcesOneObject>& prevForces = 
-		GetWidgetGl ().GetSimulation (viewNumber).
-		GetFoam (timeStep - 1).GetForces ();
+	    const vector<ForcesOneObject>& prevForces = GetForces (
+		viewNumber, timeStep - 1);
 	    m_average[i].m_body = prevForces[i].m_body;
 	    // bodyId stays the same
 	    // m_average[i].m_bodyId = forces[i].m_bodyId;
@@ -87,10 +82,10 @@ void ForceAverage::Display (
 void ForceAverage::DisplayOneTimeStep (
     ViewNumber::Enum viewNumber) const
 {
-    const WidgetGl& widgetGl = GetWidgetGl ();
-    const Simulation& simulation = widgetGl.GetSimulation (viewNumber);
-    const Foam& foam = simulation.GetFoam (widgetGl.GetCurrentTime (viewNumber));
-    displayForcesAllObjects (viewNumber, foam.GetForces (), 1, false);
+    displayForcesAllObjects (
+	viewNumber, 
+	GetForces (
+	    viewNumber, GetSettings ().GetCurrentTime (viewNumber)), 1, false);
 }
 
 void ForceAverage::AverageRotateAndDisplay (
@@ -109,17 +104,15 @@ void ForceAverage::displayForcesAllObjects (
     const vector<ForcesOneObject>& forces, size_t count,
     bool adjustForAverageAroundMovementRotation) const
 {
-    const WidgetGl& widgetGl = GetWidgetGl ();
-    ViewSettings& vs = widgetGl.GetViewSettings (viewNumber);
-    if (widgetGl.GetSimulation (viewNumber).ForcesUsed ())
+    const ViewSettings& vs = GetSettings ().GetViewSettings (viewNumber);
+    if (GetSimulation (viewNumber).ForcesUsed ())
     {
 	glPushAttrib (GL_ENABLE_BIT | GL_CURRENT_BIT | GL_LINE_BIT);
 	if (adjustForAverageAroundMovementRotation)
 	{
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
-	    widgetGl.RotateAndTranslateAverageAround (
-		viewNumber, widgetGl.GetCurrentTime (viewNumber), -1);
+	    vs.RotateAndTranslateAverageAround (vs.GetCurrentTime (), -1);
 	}
 	glDisable (GL_DEPTH_TEST);
 	if (vs.IsForceDifferenceShown ())
@@ -140,7 +133,7 @@ const ForcesOneObject ForceAverage::getForceDifference (
 {
     RuntimeAssert (forces.size () == 2, 
 		   "Force difference can be shown for two objects only.");
-    ViewSettings& vs = GetWidgetGl ().GetViewSettings (viewNumber);
+    ViewSettings& vs = GetSettings ().GetViewSettings (viewNumber);
     size_t index2 = (vs.GetDifferenceBodyId () != forces[0].m_bodyId);
     size_t index1 = ! index2;
     ForcesOneObject forceDifference = forces[index2];
@@ -165,9 +158,8 @@ void ForceAverage::displayForcesOneObject (
     ViewNumber::Enum viewNumber, const ForcesOneObject& forcesOneObject, 
     size_t count) const
 {
-    const WidgetGl& widgetGl = GetWidgetGl ();
-    ViewSettings& vs = widgetGl.GetViewSettings (viewNumber);
-    const Simulation& simulation = widgetGl.GetSimulation (viewNumber);
+    ViewSettings& vs = GetSettings ().GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
     float bubbleSize = simulation.GetBubbleSize ();
     float unitForceTorqueSize = vs.GetForceTorqueSize () * bubbleSize / count;
     G3D::Vector2 center = forcesOneObject.m_body->GetCenter ().xy ();
@@ -187,7 +179,7 @@ void ForceAverage::displayForcesOneObject (
     for (size_t i = 0; i < isForceShown.size (); ++i)
 	if (isForceShown[i])
 	    displayForce (viewNumber,
-			  widgetGl.GetSettings ()->GetHighlightColor (
+			  GetSettings ().GetHighlightColor (
 			      viewNumber, highlight[i]), center,
 			  unitForceTorqueSize * force[i]);    
 }
@@ -199,11 +191,11 @@ void ForceAverage::displayTorqueOneObject (
     ViewNumber::Enum viewNumber, const ForcesOneObject& forcesOneObject, 
     size_t count) const
 {
-    const WidgetGl& widgetGl = GetWidgetGl ();
-    ViewSettings& vs = widgetGl.GetViewSettings (viewNumber);
-    const Simulation& simulation = widgetGl.GetSimulation (viewNumber);
+    ViewSettings& vs = GetSettings ().GetViewSettings (viewNumber);
+    const Simulation& simulation = GetSimulation (viewNumber);
     G3D::Vector2 center = forcesOneObject.m_body->GetCenter ().xy ();
-    const Foam& foam = simulation.GetFoam (widgetGl.GetCurrentTime (viewNumber));
+    const Foam& foam = GetFoam (viewNumber, 
+				GetSettings ().GetCurrentTime (viewNumber));
     float bubbleSize = simulation.GetBubbleSize ();
     float unitForceTorqueSize = vs.GetForceTorqueSize () * bubbleSize / count;
 
@@ -219,20 +211,20 @@ void ForceAverage::displayTorqueOneObject (
 	    forcesOneObject.m_networkTorque,
 	    forcesOneObject.m_pressureTorque,
 	    forcesOneObject.m_networkTorque + forcesOneObject.m_pressureTorque}};
-    float onePixel = widgetGl.GetOnePixelInObjectSpace ();
+    float onePixel = GetOnePixelInObjectSpace ();
     boost::array<G3D::Vector2, 3> displacement = {{
 	    G3D::Vector2 (0, 0),
 	    G3D::Vector2 (onePixel, onePixel),
 	    G3D::Vector2 (-onePixel, -onePixel)}};
     for (size_t i = 0; i < isTorqueShown.size (); ++i)
 	if (isTorqueShown[i])
-	    displayTorque (viewNumber,
-			   widgetGl.GetSettings ()->GetHighlightColor (
-			       viewNumber, highlight[i]),
-			   center.xy () + displacement[i], 
-			   vs.GetTorqueDistance () * bubbleSize,
-			   foam.GetDmpObjectPosition ().m_angleRadians,
-			   unitForceTorqueSize * torque[i]);
+	    displayTorque (
+		viewNumber,
+		GetSettings ().GetHighlightColor (viewNumber, highlight[i]),
+		center.xy () + displacement[i], 
+		vs.GetTorqueDistance () * bubbleSize,
+		foam.GetDmpObjectPosition ().m_angleRadians,
+		unitForceTorqueSize * torque[i]);
 }
 
 void ForceAverage::displayTorque (
@@ -240,8 +232,7 @@ void ForceAverage::displayTorque (
     const G3D::Vector2& center, 
     float distance, float angleRadians, float torque) const
 {
-    const WidgetGl& widgetGl = GetWidgetGl ();
-    ViewSettings& vs = widgetGl.GetViewSettings (viewNumber);
+    ViewSettings& vs = GetSettings ().GetViewSettings (viewNumber);
     pair<G3D::Vector2, G3D::Vector2> centerTorque = 
 	calculateTorque (center, distance, angleRadians, torque);
     displayForce (viewNumber, color,
@@ -269,12 +260,16 @@ void ForceAverage::displayForce (
     ViewNumber::Enum viewNumber, QColor color,
     const G3D::Vector2& center, const G3D::Vector2& force) const
 {
-    const WidgetGl& widgetGl = GetWidgetGl ();
-    ViewSettings& vs = widgetGl.GetViewSettings (viewNumber);
+    ViewSettings& vs = GetSettings ().GetViewSettings (viewNumber);
     glColor (color);
     DisplaySegmentArrow (
 	center, force, vs.GetForceTorqueLineWidth (),
-	widgetGl.GetOnePixelInObjectSpace (), false);
+	GetOnePixelInObjectSpace (), false);
 }
 
 
+const vector<ForcesOneObject>& ForceAverage::GetForces (
+    ViewNumber::Enum viewNumber, size_t timeStep) const
+{
+    return GetFoam (viewNumber, timeStep).GetForces ();
+}

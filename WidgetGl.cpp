@@ -483,13 +483,13 @@ void WidgetGl::setSimulationGroup (SimulationGroup* simulationGroup)
 	m_selectBodiesByIdList->SetMaxBodyId (bodies[maxIndex]->GetId ());
 	m_selectBodiesByIdList->UpdateLabelMinMax ();
     }
-    update ();
 }
 
 void WidgetGl::Init (
     boost::shared_ptr<Settings> settings, SimulationGroup* simulationGroup)
 {
     m_settings = settings;
+    setSimulationGroup (simulationGroup);
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
     {
 	m_viewAverage[i].reset (
@@ -497,16 +497,7 @@ void WidgetGl::Init (
 		*this, m_settings->GetViewSettings (ViewNumber::Enum (i))));
 	m_viewAverage[i]->SetSimulation (simulationGroup->GetSimulation (0));
     }
-    setSimulationGroup (simulationGroup);
-}
-
-
-float WidgetGl::GetOnePixelInObjectSpace () const
-{
-    G3D::Vector3 first = toObject (QPoint (0, 0));
-    G3D::Vector3 second = toObject (QPoint (1, 0));
-    float onePixelInObjectSpace = (second - first).length ();
-    return onePixelInObjectSpace;
+    update ();
 }
 
 float WidgetGl::GetBubbleSize (ViewNumber::Enum defaultViewNumber) const
@@ -673,36 +664,9 @@ void WidgetGl::transformFoamAverageAround (
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     if (vs.IsAverageAround ())
-	RotateAndTranslateAverageAround (viewNumber, timeStep, 1);
+	vs.RotateAndTranslateAverageAround (timeStep, 1);
 }
 
-void WidgetGl::RotateAndTranslateAverageAround (
-    ViewNumber::Enum viewNumber,
-    size_t timeStep, int direction) const
-{
-    const ViewSettings& vs = GetViewSettings (viewNumber);
-    const ObjectPosition rotationBegin = vs.GetAverageAroundPosition (0);
-    const ObjectPosition rotationCurrent = 
-	vs.GetAverageAroundPosition (timeStep);
-    float angleRadians = 
-	rotationCurrent.m_angleRadians - rotationBegin.m_angleRadians;
-    if (direction > 0)
-    {
-	G3D::Vector3 translation = 
-	    rotationBegin.m_rotationCenter - rotationCurrent.m_rotationCenter;
-	glTranslate (translation);
-    }
-    if (angleRadians != 0)
-    {
-	G3D::Vector3 rotationCenter = rotationCurrent.m_rotationCenter;
-	glTranslate (rotationCenter);
-	float angleDegrees =  G3D::toDegrees (angleRadians);
-	//cdbg << "angle degrees = " << angleDegrees << endl;
-	angleDegrees = direction > 0 ? angleDegrees : - angleDegrees;
-	glRotatef (angleDegrees, 0, 0, 1);
-	glTranslate (-rotationCenter);
-    }
-}
 
 
 G3D::AABox WidgetGl::calculateCenteredViewingVolume (
@@ -1556,21 +1520,13 @@ OrientedEdge WidgetGl::brushedEdge () const
     return result;
 }
 
-G3D::Vector3 WidgetGl::toObject (const QPoint& position) const
-{
-    bool is2D = GetSimulation ().Is2D ();
-    G3D::Vector3 op = gluUnProject (
-	QtToOpenGl (position, height ()), 
-	is2D ? GluUnProjectZOperation::SET0 : GluUnProjectZOperation::READ);
-    return op;
-}
 
 
 G3D::Vector3 WidgetGl::toObjectTransform (const QPoint& position, 
 					  ViewNumber::Enum viewNumber) const
 {
     allTransform (viewNumber);
-    return toObject (position);
+    return toObject (position, height ());
 }
 
 G3D::Vector3 WidgetGl::toObjectTransform (const QPoint& position) const
@@ -1592,8 +1548,7 @@ void WidgetGl::displayAverageAroundBodies (
 	{
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
-	    RotateAndTranslateAverageAround (
-		viewNumber, GetCurrentTime (viewNumber), -1);
+	    vs.RotateAndTranslateAverageAround (vs.GetCurrentTime (), -1);
 	}
 	glDisable (GL_DEPTH_TEST);
 	// display focus body 1
@@ -1671,8 +1626,7 @@ void WidgetGl::displayContextBox (
 	{
 	    glMatrixMode (GL_MODELVIEW);
 	    glPushMatrix ();
-	    RotateAndTranslateAverageAround (
-		viewNumber, GetCurrentTime (viewNumber), -1);
+	    vs.RotateAndTranslateAverageAround (vs.GetCurrentTime (), -1);
 	}
 	DisplayBox (GetSimulation (viewNumber), 
 		    m_settings->GetHighlightColor (

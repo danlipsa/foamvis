@@ -9,6 +9,34 @@
 #include "DataProperties.h"
 #include "Debug.h"
 #include "Enums.h"
+#include "Utils.h"
+
+// Private Classes/Functions
+// ======================================================================
+
+template<size_t component>
+void vectorExtract (double from[9], double to[9])
+{
+    to[0] = from[component];
+}
+
+void vectorMagnitude (double from[9], double to[9])
+{
+    to[0] = sqrt (from[0] * from[0] + from[1] * from[1] + from[2] * from[2]);
+}
+
+void deformationEigen (double from[9], double to[9])
+{
+    SymmetricMatrixEigen c;
+    float values[3];
+    G3D::Vector3 vectors[3];
+    c.Calculate (G3D::Matrix3 (from[0], from[1], from[2],
+			       from[3], from[4], from[5],
+			       from[6], from[7], from[8]),
+		 values, vectors);
+    to[0] = 1.0 - values[2] / values[0];
+}
+
 
 
 // Methods ElementStatus
@@ -137,18 +165,6 @@ FaceScalar::Enum FaceScalar::FromSizeT (size_t i)
 
 // Methods BodyAttribute
 // ======================================================================
-
-template<size_t component>
-void vectorExtract (double from[9], double to[9])
-{
-    to[0] = from[component];
-}
-
-void vectorMagnitude (double from[9], double to[9])
-{
-    to[0] = sqrt (from[0] * from[0] + from[1] * from[1] + from[2] * from[2]);
-}
-
 boost::array<BodyAttribute::DependsOnInfo, BodyAttribute::COUNT> 
 BodyAttribute::DEPENDS_ON_INFO = {{
 	{10, vectorExtract<0>},
@@ -157,6 +173,7 @@ BodyAttribute::DEPENDS_ON_INFO = {{
 	{10, vectorMagnitude},
 	{COUNT, 0},
 	{COUNT, 0},
+	//{11, deformationEigen}, // this takes too much time
 	{COUNT, 0},
 	{COUNT, 0},
 	{COUNT, 0},

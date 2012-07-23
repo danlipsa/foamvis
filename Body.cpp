@@ -68,55 +68,6 @@ private:
     const vector<boost::shared_ptr<Face> >& m_faces;
 };
 
-class SymmetricMatrixEigen
-{
-public:
-    SymmetricMatrixEigen () : 
-	SIZE (3)
-    {
-	m_m = gsl_matrix_alloc (SIZE, SIZE);	
-	m_eval = gsl_vector_alloc (SIZE);
-	m_evec = gsl_matrix_alloc (SIZE, SIZE);     
-	m_w = gsl_eigen_symmv_alloc (SIZE);
-    }
-
-    ~SymmetricMatrixEigen ()
-    {
-	gsl_eigen_symmv_free (m_w);
-	gsl_matrix_free (m_evec);
-	gsl_vector_free (m_eval);
-	gsl_matrix_free (m_m);
-    }
-
-    void Calculate (
-	const G3D::Matrix3& from,
-	float eigenValues[3], G3D::Vector3 eigenVectors[3])
-    {
-	for (size_t i = 0; i < SIZE; ++i)
-	    for (size_t j = 0; j < SIZE; ++j)
-		gsl_matrix_set (m_m, i, j, from[i][j]);
-	
-	gsl_eigen_symmv (m_m, m_eval, m_evec, m_w);     
-	gsl_eigen_symmv_sort (m_eval, m_evec, GSL_EIGEN_SORT_ABS_DESC);
-       
-	for (size_t i = 0; i < SIZE; ++i)
-	{
-	    eigenValues[i] = gsl_vector_get (m_eval, i);
-	    for (size_t j = 0; j < SIZE; ++j)
-	    {
-		gsl_vector_view evec_i = gsl_matrix_column (m_evec, i);
-		eigenVectors[i][j] = gsl_vector_get (&evec_i.vector, j);
-	    }
-	}
-    }
-
-private:
-    const size_t SIZE;
-    gsl_matrix* m_m;
-    gsl_vector* m_eval;
-    gsl_matrix* m_evec;
-    gsl_eigen_symmv_workspace* m_w;
-};
 
 
 // Methods

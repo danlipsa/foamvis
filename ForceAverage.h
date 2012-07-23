@@ -12,13 +12,20 @@
 #include "Average.h"
 #include "Enums.h"
 #include "ForcesOneObject.h"
-class WidgetGl;
+class Settings;
+class SimulationGroup;
+class Simulation;
+class Foam;
 
+/**
+ * Average along time for forces acting on objects interacting with foam
+ */
 class ForceAverage : public Average
 {
 public:
-    ForceAverage (const WidgetGl& widgetGl) :
-	Average (widgetGl)
+    ForceAverage (const Settings& settings, 
+		  const SimulationGroup& simulationGroup) :
+	Average (settings, simulationGroup)
     {
     }
     void DisplayOneTimeStep (ViewNumber::Enum viewNumber) const;
@@ -31,6 +38,9 @@ public:
 	float angleDegrees = 0) const;
     void AverageRelease () {}
     virtual void AverageInit (ViewNumber::Enum viewNumber);
+    const vector<ForcesOneObject>& GetForces (ViewNumber::Enum viewNumber, 
+					      size_t timeStep) const;
+
 
 protected:
     virtual void addStep (ViewNumber::Enum viewNumber, size_t timeStep, 

@@ -8,8 +8,10 @@
  */
 
 #include "Average.h"
-#include "WidgetGl.h"
+#include "Settings.h"
+#include "Simulation.h"
 #include "OpenGLUtils.h"
+#include "ViewSettings.h"
 
 void Average::AverageInit (ViewNumber::Enum viewNumber)
 {
@@ -33,7 +35,7 @@ void Average::AverageStep (ViewNumber::Enum viewNumber, int timeDifference)
 	return;
     }
     Operation first, second;
-    size_t currentTime = m_widgetGl.GetCurrentTime (viewNumber);
+    size_t currentTime = m_settings.GetCurrentTime (viewNumber);
     if (timeDifference < 0)
     {
 	++currentTime;
@@ -56,3 +58,15 @@ void Average::AverageStep (ViewNumber::Enum viewNumber, int timeDifference)
     WarnOnOpenGLError ("AverageStep");
 }
 
+const Simulation& Average::GetSimulation (ViewNumber::Enum viewNumber) const
+{
+    return
+	GetSimulationGroup ().GetSimulation (
+	    GetSettings ().GetViewSettings (viewNumber).GetSimulationIndex ());
+}
+
+const Foam& Average::GetFoam (
+    ViewNumber::Enum viewNumber, size_t timeStep) const
+{
+    return GetSimulation (viewNumber).GetFoam (timeStep);
+}

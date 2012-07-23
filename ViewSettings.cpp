@@ -607,3 +607,28 @@ void ViewSettings::SetSimulation (int i, const Simulation& simulation,
     setTimeSteps (simulation.GetTimeSteps ());
 }
 
+void ViewSettings::RotateAndTranslateAverageAround (
+    size_t timeStep, int direction) const
+{
+    const ObjectPosition rotationBegin = GetAverageAroundPosition (0);
+    const ObjectPosition rotationCurrent = 
+	GetAverageAroundPosition (timeStep);
+    float angleRadians = 
+	rotationCurrent.m_angleRadians - rotationBegin.m_angleRadians;
+    if (direction > 0)
+    {
+	G3D::Vector3 translation = 
+	    rotationBegin.m_rotationCenter - rotationCurrent.m_rotationCenter;
+	glTranslate (translation);
+    }
+    if (angleRadians != 0)
+    {
+	G3D::Vector3 rotationCenter = rotationCurrent.m_rotationCenter;
+	glTranslate (rotationCenter);
+	float angleDegrees =  G3D::toDegrees (angleRadians);
+	//cdbg << "angle degrees = " << angleDegrees << endl;
+	angleDegrees = direction > 0 ? angleDegrees : - angleDegrees;
+	glRotatef (angleDegrees, 0, 0, 1);
+	glTranslate (-rotationCenter);
+    }
+}

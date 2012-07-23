@@ -61,11 +61,7 @@ class ImageBasedAverage : public Average
 public:
     ImageBasedAverage (
 	const WidgetGl& widgetGl, string id, QColor stepClearColor,
-	FramebufferObjects& scalarAverageFbos) :
-	Average (widgetGl), m_scalarAverageFbos (scalarAverageFbos), m_id (id),
-	m_stepClearColor (stepClearColor)
-    {
-    }
+	FramebufferObjects& scalarAverageFbos);
     void AverageRelease ();
     void AverageRotateAndDisplay (	
 	ViewNumber::Enum viewNumber, 
@@ -81,6 +77,10 @@ public:
     {
 	return m_id;
     }    
+    const WidgetGl& GetWidgetGl () const
+    {
+	return m_widgetGl;
+    }
 
 protected:
     typedef pair<boost::shared_ptr<QGLFramebufferObject>, 
@@ -133,6 +133,7 @@ private:
 private:
     string m_id;
     QColor m_stepClearColor;
+    const WidgetGl& m_widgetGl;
 };
 
 #endif //__IMAGE_BASED_AVERAGE_H__

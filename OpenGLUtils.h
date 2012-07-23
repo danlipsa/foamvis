@@ -58,6 +58,10 @@ inline void glViewport (G3D::Rect2D viewport)
 		viewport.width (), viewport.height ());
 }
 
+float GetOnePixelInObjectSpace ();
+
+G3D::Vector3 toObject (const G3D::Vector2& positionGl);
+G3D::Vector3 toObject (const QPoint& positionQt, int windowHeight);
 /**
  * Maps object coordinates to eye coordinates.
  */

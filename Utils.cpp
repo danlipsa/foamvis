@@ -278,6 +278,134 @@ bool Intersection (
 	return false;
 }
 
+SymmetricMatrixEigen::SymmetricMatrixEigen () : 
+    SIZE (3)
+{
+    m_m = gsl_matrix_alloc (SIZE, SIZE);	
+    m_eval = gsl_vector_alloc (SIZE);
+    m_evec = gsl_matrix_alloc (SIZE, SIZE);     
+    m_w = gsl_eigen_symmv_alloc (SIZE);
+}
+
+SymmetricMatrixEigen::~SymmetricMatrixEigen ()
+{
+    gsl_eigen_symmv_free (m_w);
+    gsl_matrix_free (m_evec);
+    gsl_vector_free (m_eval);
+    gsl_matrix_free (m_m);
+}
+
+void SymmetricMatrixEigen::Calculate (
+    const G3D::Matrix3& from,
+    float eigenValues[3], G3D::Vector3 eigenVectors[3])
+{
+    for (size_t i = 0; i < SIZE; ++i)
+	for (size_t j = 0; j < SIZE; ++j)
+	    gsl_matrix_set (m_m, i, j, from[i][j]);
+	
+    gsl_eigen_symmv (m_m, m_eval, m_evec, m_w);     
+    gsl_eigen_symmv_sort (m_eval, m_evec, GSL_EIGEN_SORT_ABS_DESC);
+       
+    for (size_t i = 0; i < SIZE; ++i)
+    {
+	eigenValues[i] = gsl_vector_get (m_eval, i);
+	for (size_t j = 0; j < SIZE; ++j)
+	{
+	    gsl_vector_view evec_i = gsl_matrix_column (m_evec, i);
+	    eigenVectors[i][j] = gsl_vector_get (&evec_i.vector, j);
+	}
+    }
+}
+
+template<typename T>
+int polyCentroid2D(T x[], T y[], size_t n, T *xCentroid, T *yCentroid, T *area)
+{
+    register size_t i, j;
+    T ai, atmp = 0, xtmp = 0, ytmp = 0;
+    if (n < 3)
+	return 1;
+    for (i = n-1, j = 0; j < n; i = j, j++)
+    {
+	ai = x[i] * y[j] - x[j] * y[i];
+	atmp += ai;
+	xtmp += (x[j] + x[i]) * ai;
+	ytmp += (y[j] + y[i]) * ai;
+    }
+    *area = atmp / 2;
+    if (atmp != 0)
+    {
+	*xCentroid =	xtmp / (3 * atmp);
+	*yCentroid =	ytmp / (3 * atmp);
+	return 0;
+    }
+    return 2;
+}
+
+template<typename T> vector<G3D::Vector3> GetEdgeVectors (const T& t)
+{
+    EdgeSet edges = t.GetEdgeSet ();
+    vector<G3D::Vector3> v;
+    BOOST_FOREACH (boost::shared_ptr<Edge> edge, edges)
+    {
+	for (size_t i = 0; i < edge->GetPointCount (); ++i)
+	    v.push_back (edge->GetPoint (i));
+    }
+    return v;
+}
+
+template<typename T> G3D::AABox CalculateBoundingBox (const T& t)
+{
+    G3D::Vector3 low, high;
+    vector<G3D::Vector3> v (GetEdgeVectors (t));
+    CalculateAggregate <vector<G3D::Vector3>, vector<G3D::Vector3>::iterator, 
+	VertexPtrLessThanAlong> () (min_element, v, &low);
+    CalculateAggregate <vector<G3D::Vector3>, vector<G3D::Vector3>::iterator, 
+	VertexPtrLessThanAlong>()(max_element, v, &high);
+    return G3D::AABox (low, high);
+}
+
+G3D::AABox EncloseRotation (const G3D::AABox& box)
+{
+    using G3D::Vector3;
+    Vector3 center = box.center ();
+    double halfSideLength = (box.high () - center).length ();
+    Vector3 halfDiagonal = halfSideLength * 
+	(Vector3::unitX () + Vector3::unitY () + Vector3::unitZ ());
+    return G3D::AABox (center - halfDiagonal, center + halfDiagonal);
+}
+
+G3D::AABox EncloseRotation2D (const G3D::AABox& box)
+{
+    G3D::Vector3 center = box.center ();
+    float halfSideLength = (box.high ().xy () - center.xy ()).length ();
+    G3D::Vector3 halfDiagonal = halfSideLength * 
+	(G3D::Vector3::unitX () + 
+	 G3D::Vector3::unitY () + G3D::Vector3::unitZ ());
+    return G3D::AABox (center - halfDiagonal, center + halfDiagonal);
+}
+
+G3D::Rect2D EncloseRotation (const G3D::Rect2D& rect)
+{
+    G3D::Vector2 center = rect.center ();
+    float halfSideLength = (rect.x1y1 () - center).length ();
+    G3D::Vector2 halfDiagonal = halfSideLength * 
+	(G3D::Vector2::unitX () + G3D::Vector2::unitY ());
+    return G3D::Rect2D::xyxy (center - halfDiagonal, center + halfDiagonal);
+}
+
+G3D::Vector2 rotateRadians (G3D::Vector2 v, float radiansCounterClockwise)
+{
+    G3D::Matrix2 m (
+	cos (radiansCounterClockwise), -sin (radiansCounterClockwise), 
+	sin (radiansCounterClockwise), cos (radiansCounterClockwise));
+    return m*v;
+}
+
+G3D::Vector2 rotateDegrees (G3D::Vector2 v, float degrees)
+{
+    return rotateRadians (v, G3D::toRadians (degrees));
+}
+
 
 // Conversions Qt - G3D
 // ======================================================================
@@ -391,52 +519,6 @@ operator() (Aggregate aggregate, Container& container, G3D::Vector3* v)
     v->z = comparator (*it);
 }
 
-template<typename T>
-int polyCentroid2D(T x[], T y[], size_t n, T *xCentroid, T *yCentroid, T *area)
-{
-    register size_t i, j;
-    T ai, atmp = 0, xtmp = 0, ytmp = 0;
-    if (n < 3)
-	return 1;
-    for (i = n-1, j = 0; j < n; i = j, j++)
-    {
-	ai = x[i] * y[j] - x[j] * y[i];
-	atmp += ai;
-	xtmp += (x[j] + x[i]) * ai;
-	ytmp += (y[j] + y[i]) * ai;
-    }
-    *area = atmp / 2;
-    if (atmp != 0)
-    {
-	*xCentroid =	xtmp / (3 * atmp);
-	*yCentroid =	ytmp / (3 * atmp);
-	return 0;
-    }
-    return 2;
-}
-
-template<typename T> vector<G3D::Vector3> GetEdgeVectors (const T& t)
-{
-    EdgeSet edges = t.GetEdgeSet ();
-    vector<G3D::Vector3> v;
-    BOOST_FOREACH (boost::shared_ptr<Edge> edge, edges)
-    {
-	for (size_t i = 0; i < edge->GetPointCount (); ++i)
-	    v.push_back (edge->GetPoint (i));
-    }
-    return v;
-}
-
-template<typename T> G3D::AABox CalculateBoundingBox (const T& t)
-{
-    G3D::Vector3 low, high;
-    vector<G3D::Vector3> v (GetEdgeVectors (t));
-    CalculateAggregate <vector<G3D::Vector3>, vector<G3D::Vector3>::iterator, 
-	VertexPtrLessThanAlong> () (min_element, v, &low);
-    CalculateAggregate <vector<G3D::Vector3>, vector<G3D::Vector3>::iterator, 
-	VertexPtrLessThanAlong>()(max_element, v, &high);
-    return G3D::AABox (low, high);
-}
 
 QString ReadShader (const QString& resourceUrl)
 {
@@ -518,34 +600,6 @@ G3D::Vector2 TexCoord (G3D::Rect2D enclosingRect, G3D::Vector2 v)
 }
 
 
-G3D::AABox EncloseRotation (const G3D::AABox& box)
-{
-    using G3D::Vector3;
-    Vector3 center = box.center ();
-    double halfSideLength = (box.high () - center).length ();
-    Vector3 halfDiagonal = halfSideLength * 
-	(Vector3::unitX () + Vector3::unitY () + Vector3::unitZ ());
-    return G3D::AABox (center - halfDiagonal, center + halfDiagonal);
-}
-
-G3D::AABox EncloseRotation2D (const G3D::AABox& box)
-{
-    G3D::Vector3 center = box.center ();
-    float halfSideLength = (box.high ().xy () - center.xy ()).length ();
-    G3D::Vector3 halfDiagonal = halfSideLength * 
-	(G3D::Vector3::unitX () + 
-	 G3D::Vector3::unitY () + G3D::Vector3::unitZ ());
-    return G3D::AABox (center - halfDiagonal, center + halfDiagonal);
-}
-
-G3D::Rect2D EncloseRotation (const G3D::Rect2D& rect)
-{
-    G3D::Vector2 center = rect.center ();
-    float halfSideLength = (rect.x1y1 () - center).length ();
-    G3D::Vector2 halfDiagonal = halfSideLength * 
-	(G3D::Vector2::unitX () + G3D::Vector2::unitY ());
-    return G3D::Rect2D::xyxy (center - halfDiagonal, center + halfDiagonal);
-}
 
 float IndexExponent2Value (
     const QSlider* slider, const pair<float,float>& exponentMinMax)
@@ -586,19 +640,6 @@ int Value2Index (QSlider* slider,
     return minSlider + 
 	floor ((value - minMax.first) / (minMax.second - minMax.first) * 
 	       (maxSlider - minSlider)); 
-}
-
-G3D::Vector2 rotateRadians (G3D::Vector2 v, float radiansCounterClockwise)
-{
-    G3D::Matrix2 m (
-	cos (radiansCounterClockwise), -sin (radiansCounterClockwise), 
-	sin (radiansCounterClockwise), cos (radiansCounterClockwise));
-    return m*v;
-}
-
-G3D::Vector2 rotateDegrees (G3D::Vector2 v, float degrees)
-{
-    return rotateRadians (v, G3D::toRadians (degrees));
 }
 
 // Template instantiations

@@ -380,13 +380,13 @@ void Foam::StoreConstraintFaces ()
 
 void Foam::CalculateBodyDeformationTensor ()
 {
-    MeasureTime t;
+    //MeasureTime t;
     // this prevents a unique body to be set as an object.
     if (m_bodies.size () > 1)
 	for_each (m_bodies.begin (), m_bodies.end (),
 		  boost::bind (&Body::CalculateDeformationTensor, _1, 
 			       GetTorusDomain ()));
-    t.EndInterval ("eigen");
+    //t.EndInterval ("eigen");
 }
 
 size_t Foam::GetLastEdgeId (const EdgeSet& edgeSet) const
@@ -1003,6 +1003,7 @@ void Foam::addRedundantAttributes (vtkSmartPointer<vtkImageData> data)
 void Foam::addRedundantAttribute (
     vtkSmartPointer<vtkImageData> data, size_t attribute)
 {
+    MeasureTime mt;
     vtkSmartPointer<vtkPointData> pointData = data->GetPointData ();
 
     vtkSmartPointer<vtkFloatArray> dependsOnAttributes = 
@@ -1025,7 +1026,10 @@ void Foam::addRedundantAttribute (
 	convert (from, to);
 	attributes->SetTuple (tuple, to);
     }
-    pointData->AddArray (attributes);
+    pointData->AddArray (attributes);    
+    mt.EndInterval (
+	string("addRedundantAttributes ") + 
+	BodyAttribute::ToString (attribute) + " ");
 }
 
 
