@@ -175,11 +175,11 @@ public:
     bool T1sAvailable () const;
     int GetT1sShift () const
     {
-	return m_t1sTimeStepShift;
+	return m_t1sShift;
     }
     bool GetT1sShiftLower () const
     {
-	return m_t1sTimeStepShift == 1;
+	return m_t1sShift == 1;
     }
     const vector<G3D::Vector3>& GetT1s (size_t timeStep, int t1sShift) const;
     size_t GetT1sSize () const;
@@ -196,7 +196,7 @@ public:
      *
      */
     void ParseT1s (
-	const string& fileName, size_t ticksForTimeStep, bool shiftT1sLower);
+	const string& fileName, size_t ticksForTimeStep, bool t1sShiftLower);
     void ParseDMPs (const vector<string>& fileNames,
 		    bool useOriginal,
 		    const DmpObjectInfo& dmpObjectInfo,
@@ -271,7 +271,7 @@ private:
     vector<HistogramStatistics> m_histogram;
     bool m_adjustPressure;
     vector< vector<G3D::Vector3> > m_t1s;
-    int m_t1sTimeStepShift;
+    int m_t1sShift;
     DmpObjectInfo m_dmpObjectInfo;
     vector<ForcesOneObjectNames> m_forcesNames;
     bool m_useOriginal;

@@ -127,7 +127,7 @@ const vector<G3D::Vector3> Simulation::NO_T1S;
 Simulation::Simulation () :
     m_histogram (
         BodyScalar::COUNT, HistogramStatistics (HISTOGRAM_INTERVALS)),
-    m_t1sTimeStepShift (0),
+    m_t1sShift (0),
     m_useOriginal (false),
     m_rotation2D (0),
     m_reflectAxis (numeric_limits<size_t>::max ())
@@ -501,7 +501,7 @@ size_t Simulation::GetT1sSize () const
 
 
 void Simulation::ParseT1s (
-    const string& fileName, size_t ticksForTimeStep, bool shiftT1sLower)
+    const string& fileName, size_t ticksForTimeStep, bool t1sShiftLower)
 {
     cdbg << "Parsing T1s file...";
     const size_t LINE_LENGTH = 256;
@@ -528,7 +528,7 @@ void Simulation::ParseT1s (
 	    m_t1s.resize (timeStep + 1);
 	m_t1s[timeStep].push_back (G3D::Vector3 (x, y, Foam::Z_COORDINATE_2D));
     }
-    m_t1sTimeStepShift = (shiftT1sLower ? 1 : 0);
+    m_t1sShift = (t1sShiftLower ? 1 : 0);
     cdbg << "last T1s'  timestep: " << timeStep << endl;
 }
 

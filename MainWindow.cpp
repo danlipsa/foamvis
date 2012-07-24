@@ -101,6 +101,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     widgetGl->Init (m_settings, &simulationGroup);
     widgetGl->SetStatus (labelStatusBar);
     widgetVtk->SetSettings (m_settings);
+    widgetVtk->SetupPipeline (simulationGroup.GetSimulation (0).GetFoam (0));
     setupColorBarModels ();
     setupViews ();
     initComboBoxSimulation (simulationGroup);

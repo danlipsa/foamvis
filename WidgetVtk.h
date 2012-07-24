@@ -24,6 +24,7 @@ public:
     void UpdateColorTransferFunction (
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction);
     void UpdateThreshold (QwtDoubleInterval interval);
+    void UpdateModelView (vtkSmartPointer<vtkMatrix4x4> modelView);
     void UpdateRenderStructured (
 	const Foam& foam, vtkSmartPointer<vtkMatrix4x4> modelView,
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
@@ -33,6 +34,8 @@ public:
 	m_settings = settings;
     }
     void UpdateOpacity ();
+    void UpdateInput (const Foam& foam, BodyScalar::Enum bodyScalar);
+    void SetupPipeline (const Foam& foam);
 
 public:
     QSize sizeHint ()
@@ -50,9 +53,11 @@ Q_SIGNALS:
     
 private:
     Q_OBJECT
-    vtkSmartPointer<vtkDataSetMapper> m_mapper;
+    vtkSmartPointer<vtkScalarBarActor> m_scalarBar;
+    vtkSmartPointer<vtkActor> m_averageActor;
     vtkSmartPointer<vtkThreshold> m_threshold;
-    vector< vtkSmartPointer<vtkActor> > m_constraintSurface;
+    vector<vtkSmartPointer<vtkActor> > m_constraintSurface;
+    vector<vtkSmartPointer<vtkActor> > m_object;
     boost::shared_ptr<Settings> m_settings;
 };
 

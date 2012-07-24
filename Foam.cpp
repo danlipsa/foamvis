@@ -1003,7 +1003,7 @@ void Foam::addRedundantAttributes (vtkSmartPointer<vtkImageData> data)
 void Foam::addRedundantAttribute (
     vtkSmartPointer<vtkImageData> data, size_t attribute)
 {
-    MeasureTime mt;
+//    MeasureTime mt;
     vtkSmartPointer<vtkPointData> pointData = data->GetPointData ();
 
     vtkSmartPointer<vtkFloatArray> dependsOnAttributes = 
@@ -1027,9 +1027,11 @@ void Foam::addRedundantAttribute (
 	attributes->SetTuple (tuple, to);
     }
     pointData->AddArray (attributes);    
+    /*
     mt.EndInterval (
-	string("addRedundantAttributes ") + 
+    string("addRedundantAttributes ") + 
 	BodyAttribute::ToString (attribute) + " ");
+    */
 }
 
 
