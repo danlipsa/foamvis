@@ -77,6 +77,8 @@ void compact (vector< boost::shared_ptr<E> >& v)
 // Methods
 // ======================================================================
 
+const size_t Foam::REGULAR_GRID_POINTS_PER_AXIS = 64;
+
 Foam::Foam (bool useOriginal, 
 	    const DmpObjectInfo& dmpObjectInfo,
 	    const vector<ForcesOneObjectNames>& forcesNames, 
@@ -992,6 +994,18 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::addCellAttribute (
     return aTetraGrid;
 }
 
+void Foam::addEmptyPointAttribute (
+    vtkSmartPointer<vtkImageData> regularGrid, size_t attribute)
+{
+    vtkIdType numberOfCells = regularGrid->GetNumberOfCells ();
+    VTK_CREATE(vtkFloatArray, attributes);
+    attributes->SetNumberOfComponents (
+	BodyAttribute::GetNumberOfComponents (attribute));
+    attributes->SetNumberOfTuples (numberOfCells);
+    attributes->SetName (BodyAttribute::ToString (attribute));
+    regularGrid->GetPointData ()->AddArray (attributes);
+}
+
 
 void Foam::addRedundantAttributes (vtkSmartPointer<vtkImageData> data)
 {
@@ -1090,13 +1104,11 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::getTetraGrid () const
 
 void Foam::SaveRegularGrid () const
 {
-
-    const size_t pointsPerAxis = 64;
     string message = string ("Resampling ") + GetDmpName () + " ...\n";
     cdbg << message;
     if (! QFile (getVtiPath ().c_str ()).exists ())
     {
-	vtkSmartPointer<vtkImageData> id = calculateRegularGrid (pointsPerAxis);
+	vtkSmartPointer<vtkImageData> id = calculateRegularGrid ();
 	VTK_CREATE (vtkXMLImageDataWriter, writer);
 	writer->SetFileName (getVtiPath ().c_str ());
 	writer->SetInput (id);
@@ -1114,8 +1126,31 @@ vtkSmartPointer<vtkImageData> Foam::GetRegularGrid () const
     return foamImageData;
 }
 
-vtkSmartPointer<vtkImageData> Foam::calculateRegularGrid (
-    size_t pointsPerAxis) const
+vtkSmartPointer<vtkImageData> Foam::createRegularGridNoAttributes () const
+{
+    G3D::AABox bb = GetBoundingBox ();
+    G3D::Vector3 spacing = bb.extent () / (REGULAR_GRID_POINTS_PER_AXIS - 1);
+    G3D::Vector3 origin = bb.low ();
+
+    VTK_CREATE (vtkImageData, regularFoam);
+    regularFoam->SetExtent (0, REGULAR_GRID_POINTS_PER_AXIS - 1,
+			    0, REGULAR_GRID_POINTS_PER_AXIS - 1,
+			    0, REGULAR_GRID_POINTS_PER_AXIS - 1);
+    regularFoam->SetOrigin (origin.x, origin.y, origin.z);
+    regularFoam->SetSpacing (spacing.x, spacing.y, spacing.z);
+    return regularFoam;
+}
+
+vtkSmartPointer<vtkImageData> Foam::CreateEmptyRegularGrid () const
+{
+    vtkSmartPointer<vtkImageData> regularFoam = createRegularGridNoAttributes ();
+    for (size_t i = 0; i < BodyAttribute::COUNT; ++i)
+	addEmptyPointAttribute (regularFoam, i);
+    return regularFoam;
+}
+
+
+vtkSmartPointer<vtkImageData> Foam::calculateRegularGrid () const
 {
     // vtkUnstructuredGrid->vtkCellDatatoPointData, vtkImageData->vtkProbeFilter
      vtkSmartPointer<vtkUnstructuredGrid> tetraFoamCell = getTetraGrid ();
@@ -1123,16 +1158,7 @@ vtkSmartPointer<vtkImageData> Foam::calculateRegularGrid (
     VTK_CREATE (vtkCellDataToPointData, cellToPoint);
     cellToPoint->SetInput (tetraFoamCell);
 
-    G3D::AABox bb = GetBoundingBox ();
-    G3D::Vector3 spacing = bb.extent () / (pointsPerAxis - 1);
-    G3D::Vector3 origin = bb.low ();
-
-    VTK_CREATE (vtkImageData, regularFoam);
-    regularFoam->SetExtent (0, pointsPerAxis - 1,
-			    0, pointsPerAxis - 1,
-			    0, pointsPerAxis - 1);
-    regularFoam->SetOrigin (origin.x, origin.y, origin.z);
-    regularFoam->SetSpacing (spacing.x, spacing.y, spacing.z);
+    vtkSmartPointer<vtkImageData> regularFoam = createRegularGridNoAttributes ();
 
     VTK_CREATE (vtkProbeFilter, regularProbe);
     regularProbe->SetSourceConnection (cellToPoint->GetOutputPort ());

@@ -100,7 +100,7 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     CurrentIndexChangedViewCount (ViewCount::ONE);
     widgetGl->Init (m_settings, &simulationGroup);
     widgetGl->SetStatus (labelStatusBar);
-    widgetVtk->SetSettings (m_settings);
+    widgetVtk->Init (m_settings, simulationGroup);
     widgetVtk->SetupPipeline (simulationGroup.GetSimulation (0).GetFoam (0));
     setupColorBarModels ();
     setupViews ();

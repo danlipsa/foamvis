@@ -14,6 +14,8 @@
 class Foam;
 class SendPaintEnd;
 class Settings;
+class SimulationGroup;
+class RegularGridAverage;
 
 class WidgetVtk : public QVTKWidget
 {
@@ -29,10 +31,8 @@ public:
 	const Foam& foam, vtkSmartPointer<vtkMatrix4x4> modelView,
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
 	QwtDoubleInterval interval, BodyScalar::Enum bodyScalar);
-    void SetSettings (boost::shared_ptr<Settings> settings)
-    {
-	m_settings = settings;
-    }
+    void Init (boost::shared_ptr<Settings> settings,
+	       const SimulationGroup& simulationGroup);
     void UpdateOpacity ();
     void UpdateInput (const Foam& foam, BodyScalar::Enum bodyScalar);
     void SetupPipeline (const Foam& foam);
@@ -53,6 +53,7 @@ Q_SIGNALS:
     
 private:
     Q_OBJECT
+    boost::shared_ptr<RegularGridAverage> m_average;
     vtkSmartPointer<vtkScalarBarActor> m_scalarBar;
     vtkSmartPointer<vtkActor> m_averageActor;
     vtkSmartPointer<vtkThreshold> m_threshold;

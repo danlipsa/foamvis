@@ -10,6 +10,7 @@
 #include "BodySelector.h"
 #include "DebugStream.h"
 #include "Foam.h"
+#include "RegularGridAverage.h"
 #include "Settings.h"
 #include "WidgetVtk.h"
 
@@ -44,6 +45,13 @@ void SendPaintEnd::Execute (
 WidgetVtk::WidgetVtk (QWidget* parent) :
     QVTKWidget (parent)
 {
+}
+
+void WidgetVtk::Init (boost::shared_ptr<Settings> settings,
+		      const SimulationGroup& simulationGroup)    
+{
+    m_settings = settings;
+    m_average.reset (new RegularGridAverage (*settings, simulationGroup));
 }
 
 void WidgetVtk::SetupPipeline (const Foam& foam)

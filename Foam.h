@@ -288,6 +288,7 @@ public:
     void SetSpaceDimension (size_t spaceDimension);
     void SetQuadratic (bool quadratic);
     vtkSmartPointer<vtkImageData> GetRegularGrid () const;
+    vtkSmartPointer<vtkImageData> CreateEmptyRegularGrid () const;
 
     const AttributesInfoElements& GetAttributesInfoElements () const
     {
@@ -314,11 +315,12 @@ public:
 
 private:
     vtkSmartPointer<vtkUnstructuredGrid> getTetraGrid () const;
-    vtkSmartPointer<vtkImageData> calculateRegularGrid (
-	size_t pointsPerAxis) const;
+    vtkSmartPointer<vtkImageData> calculateRegularGrid () const;
     vtkSmartPointer<vtkUnstructuredGrid> addCellAttribute (
 	vtkSmartPointer<vtkUnstructuredGrid> aTetraGrid,
 	size_t attribute) const;
+    static void addEmptyPointAttribute (
+	vtkSmartPointer<vtkImageData> regularGrid, size_t attribute);
     static void addRedundantAttributes (vtkSmartPointer<vtkImageData> data);
     static void addRedundantAttribute (
 	vtkSmartPointer<vtkImageData> data, size_t attribute);
@@ -387,6 +389,7 @@ private:
 			       size_t constraintIndex) const;
     G3D::Vector3int16 getVectorOnConstraintTranslation (
 	const G3D::Vector3& v, size_t constraintIndex) const;
+    vtkSmartPointer<vtkImageData> createRegularGridNoAttributes () const;
 
 public:
     static const double Z_COORDINATE_2D = 0.0;
@@ -442,6 +445,7 @@ private:
     ParametersOperation m_parametersOperation;
     AttributesInfoElements m_attributesInfoElements;
     string m_dmpPath;
+    const static size_t REGULAR_GRID_POINTS_PER_AXIS;
 };
 
 /**
