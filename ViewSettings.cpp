@@ -152,23 +152,10 @@ void ViewSettings::setInitialLightParameters ()
 	}
 }
 
-
-void ViewSettings::EnableLighting ()
-{
-    m_lightingEnabled = m_lightEnabled.any ();
-    if (m_lightingEnabled)
-	glEnable (GL_LIGHTING);
-    else
-	glDisable (GL_LIGHTING);
-}
-
 void ViewSettings::SetLightEnabled (LightNumber::Enum i, bool enabled)
 {
     m_lightEnabled[i] = enabled;
-    if (enabled)
-	glEnable(GL_LIGHT0 + i);
-    else
-	glDisable (GL_LIGHT0 + i);
+    m_lightingEnabled = m_lightEnabled.any ();
 }
 
 
@@ -178,11 +165,42 @@ void ViewSettings::SetInitialLightParameters (LightNumber::Enum i)
     m_rotationLight[i] = G3D::Matrix3::identity ();
 }
 
-void ViewSettings::SetLightParameters (
-    LightNumber::Enum lightNumber, const G3D::Vector3& initialLightPosition)
+G3D::Vector3 ViewSettings::GetInitialLightPosition (
+    G3D::AABox centeredViewingVolume,
+    LightNumber::Enum lightNumber)
+{    
+    G3D::Vector3 high = centeredViewingVolume.high (), 
+	low = centeredViewingVolume.low ();
+    G3D::Vector3 nearRectangle[] = {
+	G3D::Vector3 (high.x, high.y, high.z),
+	G3D::Vector3 (low.x, high.y, high.z),
+	G3D::Vector3 (low.x, low.y, high.z),
+	G3D::Vector3 (high.x, low.y, high.z),
+    };
+    return nearRectangle[lightNumber];
+}
+
+
+void ViewSettings::SetGlLightParameters (
+    G3D::AABox centeredViewingVolume) const
+{
+    if (m_lightingEnabled)
+	glEnable (GL_LIGHTING);
+    else
+	glDisable (GL_LIGHTING);
+    for (size_t i = 0; i < LightNumber::COUNT; ++i)
+	SetGlLightParameters (LightNumber::Enum (i), centeredViewingVolume);
+}
+
+void ViewSettings::SetGlLightParameters (
+    LightNumber::Enum lightNumber, 
+    G3D::AABox centeredViewingVolume) const
 {
     if (IsLightEnabled (lightNumber))
     {
+	glEnable(GL_LIGHT0 + lightNumber);
+	G3D::Vector3 initialLightPosition = GetInitialLightPosition (
+	    centeredViewingVolume, lightNumber);
 	G3D::Vector3 lp = initialLightPosition * 
 	    GetLightNumberRatio (lightNumber);
 	if (IsDirectionalLightEnabled (lightNumber))
@@ -211,6 +229,8 @@ void ViewSettings::SetLightParameters (
 	}
 	
     }
+    else
+	glDisable (GL_LIGHT0 + lightNumber);
 }
 
 void ViewSettings::CalculateCameraDistance (

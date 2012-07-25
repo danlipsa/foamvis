@@ -528,21 +528,6 @@ QSize WidgetGl::sizeHint()
     return QSize(512, 512);
 }
 
-G3D::Vector3 WidgetGl::getInitialLightPosition (
-    ViewNumber::Enum viewNumber,
-    LightNumber::Enum lightPosition) const
-{    
-    G3D::AABox bb = calculateCenteredViewingVolume (viewNumber);
-    G3D::Vector3 high = bb.high (), low = bb.low ();
-    G3D::Vector3 nearRectangle[] = {
-	G3D::Vector3 (high.x, high.y, high.z),
-	G3D::Vector3 (low.x, high.y, high.z),
-	G3D::Vector3 (low.x, low.y, high.z),
-	G3D::Vector3 (high.x, low.y, high.z),
-    };
-    return nearRectangle[lightPosition];
-}
-
 
 void WidgetGl::displayLightDirection (ViewNumber::Enum viewNumber) const
 {
@@ -563,7 +548,8 @@ void WidgetGl::displayLightDirection (
 	glTranslatef (0, 0, - vs.GetCameraDistance ());
 	glMultMatrix (vs.GetRotationLight (i));
 	G3D::Vector3 initialLightPosition = 
-	    getInitialLightPosition (viewNumber, i);
+	    vs.GetInitialLightPosition (
+		calculateCenteredViewingVolume (viewNumber), i);
 	G3D::Vector3 lp =  initialLightPosition / sqrt3;
 	::glColor (QColor (vs.IsLightEnabled (i) ? Qt::red : Qt::gray));
 	if (vs.IsLightingEnabled ())
@@ -625,25 +611,6 @@ void WidgetGl::initializeLighting ()
     glEnable(GL_RESCALE_NORMAL);
     glShadeModel (GL_SMOOTH);
     glEnable (GL_COLOR_MATERIAL);
-
-    boost::array<GLfloat, 4> ambientLight = {{0, 0, 0, 1}};
-    boost::array<GLfloat, 4> diffuseLight = {{1, 1, 1, 1}};
-    boost::array<GLfloat, 4> specularLight = {{0, 0, 0, 1}};
-
-    // light colors
-    for (size_t viewNumber = 0; viewNumber < ViewNumber::COUNT; ++viewNumber)
-    {
-	ViewSettings& vs = GetViewSettings (ViewNumber::Enum (viewNumber));
-	for (size_t light = 0; light < LightNumber::COUNT; ++light)
-	{
-	    vs.SetLight (LightNumber::Enum (light), 
-			 LightType::AMBIENT, ambientLight);
-	    vs.SetLight (LightNumber::Enum (light), 
-			 LightType::DIFFUSE, diffuseLight);
-	    vs.SetLight (LightNumber::Enum (light), 
-			 LightType::SPECULAR, specularLight);
-	}
-    }
 }
 
 
@@ -864,7 +831,8 @@ float WidgetGl::GetXOverY () const
 
 void WidgetGl::setView (const G3D::Vector2& clickedPoint)
 {
-    for (size_t i = 0; i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+    for (size_t i = 0; 
+	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	G3D::Rect2D viewRect = GetViewRect (viewNumber);
@@ -1213,6 +1181,7 @@ void WidgetGl::displayView (ViewNumber::Enum viewNumber)
 {
     //QTime t;t.start ();
     ViewSettings& vs = GetViewSettings (viewNumber);
+    vs.SetGlLightParameters (calculateCenteredViewingVolume (viewNumber));
     allTransform (viewNumber);
     m_settings->SetEdgeArrow (GetOnePixelInObjectSpace ());
     (this->*(m_display[vs.GetViewType ()])) (viewNumber);
@@ -1866,7 +1835,6 @@ void WidgetGl::mouseMoveRotate (QMouseEvent *event, ViewNumber::Enum viewNumber)
 	vs.SetRotationLight (
 	    i, rotate (viewNumber, event->pos (), event->modifiers (), 
 		       vs.GetRotationLight (i)));
-	vs.SetLightParameters (i, getInitialLightPosition (viewNumber, i));
 	break;
     }
     default:
@@ -1877,7 +1845,6 @@ void WidgetGl::mouseMoveRotate (QMouseEvent *event, ViewNumber::Enum viewNumber)
 void WidgetGl::mouseMoveTranslate (QMouseEvent *event, 
 				   ViewNumber::Enum viewNumber)
 {
-    ViewSettings& vs = GetViewSettings (viewNumber);
     switch (m_interactionObject)
     {
     case InteractionObject::FOCUS:
@@ -1886,8 +1853,6 @@ void WidgetGl::mouseMoveTranslate (QMouseEvent *event,
 	break;
     case InteractionObject::LIGHT:
     {
-	LightNumber::Enum i = vs.GetSelectedLight ();
-	vs.SetLightParameters (i, getInitialLightPosition (viewNumber, i));
 	translateLight (viewNumber, event->pos ());
 	break;
     }
@@ -3544,8 +3509,6 @@ void WidgetGl::ResetTransformLight ()
 	ViewSettings& vs = GetViewSettings (viewNumber);
 	LightNumber::Enum lightNumber = vs.GetSelectedLight ();
 	vs.SetInitialLightParameters (lightNumber);
-	vs.SetLightParameters (lightNumber, 
-			     getInitialLightPosition (viewNumber, lightNumber));
     }
     update ();
 }
@@ -3605,12 +3568,9 @@ void WidgetGl::CopyColorBarFrom (int other)
 void WidgetGl::ToggledDirectionalLightEnabled (bool checked)
 {
     makeCurrent ();
-    ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings ();
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     vs.SetDirectionalLightEnabled (selectedLight, checked);
-    vs.SetLightParameters (selectedLight, 
-		      getInitialLightPosition (viewNumber, selectedLight));
     update ();
 }
 
@@ -3756,15 +3716,9 @@ void WidgetGl::ToggledLightNumberShown (bool checked)
 void WidgetGl::ToggledLightEnabled (bool checked)
 {
     makeCurrent ();
-    ViewNumber::Enum viewNumber = GetViewNumber ();
     ViewSettings& vs = GetViewSettings ();
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
     vs.SetLightEnabled (selectedLight, checked);
-    vs.EnableLighting ();
-    if (checked)
-	vs.SetLightParameters (
-	    selectedLight, 
-	    getInitialLightPosition (viewNumber, selectedLight));
     update ();
 }
 

@@ -212,8 +212,9 @@ public:
     {
 	m_lightPositionShown[i] = shown;
     }
-    void SetLightParameters (LightNumber::Enum i, 
-			   const G3D::Vector3& initialLightPosition);
+    void SetGlLightParameters (LightNumber::Enum i, 
+			       G3D::AABox centeredViewingVolume) const;
+    void SetGlLightParameters (G3D::AABox centeredViewingVolume) const;
     void SetInitialLightParameters (LightNumber::Enum i);
     const boost::array<GLfloat, 4> GetLight (
 	LightNumber::Enum lightNumber, LightType::Enum lightType) const
@@ -265,7 +266,6 @@ public:
 	return m_cameraDistance;
     }
     void CalculateCameraDistance (const G3D::AABox& centeredViewingVolume);
-    void EnableLighting ();
 
     void CopyTransformation (const ViewSettings& from);
     void CopyColorBar (const ViewSettings& from);
@@ -568,6 +568,9 @@ public:
     void RotateAndTranslateAverageAround (
 	size_t timeStep, int direction) const;
 
+    static G3D::Vector3 GetInitialLightPosition (
+	G3D::AABox centeredViewingVolume,
+	LightNumber::Enum lightPosition);
 
     
 private:
@@ -591,7 +594,6 @@ private:
     {
 	m_timeSteps = timeSteps;
     }
-
 
 private:
     ViewType::Enum m_viewType;

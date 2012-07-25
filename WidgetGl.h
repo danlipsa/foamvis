@@ -573,8 +573,6 @@ private:
     void displayBoundingBox (ViewNumber::Enum viewNumber) const;
     void displayFocusBox (ViewNumber::Enum viewNumber) const;
     void displayAxes (ViewNumber::Enum viewNumber);
-    G3D::Vector3 getInitialLightPosition (ViewNumber::Enum viewNumber,
-					  LightNumber::Enum lightPosition) const;
 
     /**
      * Returns a rotation around an axis with a certain angle

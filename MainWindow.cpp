@@ -174,7 +174,6 @@ void MainWindow::configureInterfaceDataDependent (
     else
     {
 	comboBoxAxesOrder->setCurrentIndex (AxesOrder::THREE_D);
-	checkBoxLightEnabled->setChecked (true);
 	comboBoxColor->setItemText (
 	    BodyScalar::SIDES_PER_BUBBLE, 
 	    BodyScalar::ToString (BodyScalar::SIDES_PER_BUBBLE));

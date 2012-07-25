@@ -145,6 +145,22 @@ void Settings::initViewSettings (
 	    ViewingVolumeOperation::DONT_ENCLOSE2D).center ();
 	vs->SetSimulation (0, simulation, center, t1sShiftLower);
 	viewNumber = ViewNumber::Enum (viewNumber + 1);
+	if (simulation.Is3D ())
+	    vs->SetLightEnabled (LightNumber::LIGHT0, true);
+
+	boost::array<GLfloat, 4> ambientLight = {{0, 0, 0, 1}};
+	boost::array<GLfloat, 4> diffuseLight = {{1, 1, 1, 1}};
+	boost::array<GLfloat, 4> specularLight = {{0, 0, 0, 1}};
+	// light colors
+	for (size_t light = 0; light < LightNumber::COUNT; ++light)
+	{
+	    vs->SetLight (LightNumber::Enum (light), 
+			  LightType::AMBIENT, ambientLight);
+	    vs->SetLight (LightNumber::Enum (light), 
+			  LightType::DIFFUSE, diffuseLight);
+	    vs->SetLight (LightNumber::Enum (light), 
+			  LightType::SPECULAR, specularLight);
+	}
     }
 }
 
