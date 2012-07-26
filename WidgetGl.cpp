@@ -759,69 +759,11 @@ void WidgetGl::viewportTransform (ViewNumber::Enum viewNumber) const
     glViewport (viewRect);
 }
 
-
-G3D::Rect2D WidgetGl::GetViewRect (ViewNumber::Enum view) const
+G3D::Rect2D WidgetGl::GetViewRect (ViewNumber::Enum viewNumber) const
 {
-    float w = width ();
-    float h = height ();
-    using G3D::Rect2D;
-    switch (m_settings->GetViewCount ())
-    {
-    case ViewCount::ONE:
-	return Rect2D::xywh (0, 0, w, h);
-    case ViewCount::TWO:
-    {
-	RuntimeAssert (view < 2, "Invalid view: ", view);
-	Rect2D v[][2] = {
-	    // 0 | 1
-	    // horizontal layout
-	    {Rect2D::xywh (0, 0, w/2, h), Rect2D::xywh (w/2, 0, w/2, h)},
-	    // 0
-	    // -
-	    // 1
-	    // vertical layout
-	    {Rect2D::xywh (0, h/2, w, h/2), Rect2D::xywh (0, 0, w, h/2)}
-	};
-	return v[m_settings->GetViewLayout ()][view];
-    }
-    case ViewCount::THREE:
-    {
-	RuntimeAssert (view < 3, "Invalid view: ", view);
-	Rect2D v[][3] = {
-	    // 0 | 1 | 3
-	    // horizontal layout
-	    {Rect2D::xywh (0, 0, w/3, h), Rect2D::xywh (w/3, 0, w/3, h),
-	     Rect2D::xywh (2*w/3, 0, w/3, h)},
-	    // 0
-	    // -
-	    // 1
-	    // -
-	    // 3
-	    // vertical layout
-	    {Rect2D::xywh (0, 2*h/3, w, h/3), Rect2D::xywh (0, h/3, w, h/3), 
-	     Rect2D::xywh (0, 0, w, h/3)}
-	};
-	return v[m_settings->GetViewLayout ()][view];
-    }
-    case ViewCount::FOUR:
-    {
-	//  0 | 1
-	//  -----
-	//  2 | 3
-	RuntimeAssert (view < 4, "Invalid view: ", view);
-	Rect2D v[] = {
-	    Rect2D::xywh (0, h/2, w/2, h/2), Rect2D::xywh (w/2, h/2, w/2, h/2),
-	    Rect2D::xywh (0, 0, w/2, h/2), Rect2D::xywh (w/2, 0, w/2, h/2)
-	};
-	return v[view];
-    }
-    default:
-    {
-	RuntimeAssert (false, "Illegal number of views: ", m_settings->GetViewCount ());
-	return Rect2D ();	
-    }
-    }
+    return m_settings->GetViewRect (width (), height (), viewNumber);
 }
+
 
 float WidgetGl::GetXOverY () const
 {
@@ -842,21 +784,6 @@ void WidgetGl::setView (const G3D::Vector2& clickedPoint)
 	    break;
 	}
     }
-}
-
-
-G3D::Rect2D WidgetGl::getViewColorBarRect (const G3D::Rect2D& viewRect)
-{
-    return G3D::Rect2D::xywh (
-	viewRect.x0 () + 5, viewRect.y0 () + 5,
-	10, max (viewRect.height () / 4, 50.0f));
-}
-
-G3D::Rect2D WidgetGl::getViewOverlayBarRect (const G3D::Rect2D& viewRect)
-{
-    return G3D::Rect2D::xywh (
-	viewRect.x0 () + 5 + 10 + 5, viewRect.y0 () + 5,
-	10, max (viewRect.height () / 4, 50.0f));
 }
 
 void WidgetGl::LinkedTimeBegin ()
@@ -1040,7 +967,7 @@ string WidgetGl::infoSelectedBodies () const
 	ostr << "Selected ids: ";
 	ostream_iterator<size_t> out (ostr, " ");
 	copy (ids.begin (), ids.end (), out);
-	if (GetViewSettings ().GetFaceScalar () != 
+	if (GetViewSettings ().GetBodyOrFaceScalar () != 
 	    FaceScalar::DMP_COLOR)
 	{
 	    ostr << endl;
@@ -1149,7 +1076,8 @@ void WidgetGl::paintGL ()
 void WidgetGl::resizeGL(int w, int h)
 {
     (void)w;(void)h;
-    for (size_t i = 0; i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+    for (size_t i = 0; 
+	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
     {
 	ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	GetViewAverage (viewNumber).AverageInitStep (viewNumber);
@@ -2252,7 +2180,7 @@ pair<float, float> WidgetGl::GetRange (ViewNumber::Enum viewNumber) const
 	else
 	{
 	    BodyScalar::Enum bodyProperty = 
-		BodyScalar::FromSizeT (vs.GetFaceScalar ());
+		BodyScalar::FromSizeT (vs.GetBodyOrFaceScalar ());
 	    minValue = simulation.GetMin (bodyProperty);
 	    maxValue = simulation.GetMax (bodyProperty);
 	}
@@ -2439,8 +2367,7 @@ void WidgetGl::displayFacesNormal (ViewNumber::Enum viewNumber) const
     displayVelocity (viewNumber);
     if (m_t1sShown)
 	displayT1sDot (viewNumber, GetCurrentTime (viewNumber));
-    GetViewAverage (viewNumber).GetForceAverage ().DisplayOneTimeStep (
-	viewNumber);
+    GetViewAverage (viewNumber).GetForceAverage ().DisplayOneTimeStep ();
 }
 
 
@@ -2492,10 +2419,9 @@ void WidgetGl::displayFacesAverage (ViewNumber::Enum viewNumber) const
 	angleDegrees = 0;
     }
     GetViewAverage (viewNumber).AverageRotateAndDisplay (
-	viewNumber, vs.GetComputationType (), 
-	rotationCenter.xy (), angleDegrees);
+	vs.GetComputationType (), rotationCenter.xy (), angleDegrees);
     GetViewAverage (viewNumber).GetForceAverage ().Display (
-	viewNumber, adjustForAverageAroundMovementRotation);
+	adjustForAverageAroundMovementRotation);
     displayStandaloneEdges< DisplayEdgePropertyColor<> > (
 	GetSimulation (viewNumber).GetFoam (0));
     if (m_t1sShown)
@@ -2789,7 +2715,7 @@ ColorBarType::Enum WidgetGl::GetColorBarType (ViewNumber::Enum viewNumber) const
 {
     const ViewSettings& vs = GetViewSettings (viewNumber);
     ViewType::Enum viewType = vs.GetViewType ();
-    size_t property = vs.GetFaceScalar ();
+    size_t property = vs.GetBodyOrFaceScalar ();
     ComputationType::Enum statisticsType = vs.GetComputationType ();
     return WidgetGl::GetColorBarType (viewType, property, statisticsType);
 }
@@ -2875,14 +2801,14 @@ void WidgetGl::contextMenuEventColorBar (QMenu* menu) const
     QMenu* menuCopy = menu->addMenu ("Copy");
     if (ViewCount::GetCount (m_settings->GetViewCount ()) > 1)
     {
-	size_t currentProperty = vs.GetFaceScalar ();
+	size_t currentProperty = vs.GetBodyOrFaceScalar ();
 	for (size_t i = 0; i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
 	{
 	    ViewNumber::Enum viewNumber = ViewNumber::Enum (i);
 	    const ViewSettings& otherVs = GetViewSettings (viewNumber);
 	    if (viewNumber == GetViewNumber () ||
 		GetColorBarType (GetViewNumber ()) != GetColorBarType (viewNumber) ||
-		currentProperty != otherVs.GetFaceScalar () ||
+		currentProperty != otherVs.GetBodyOrFaceScalar () ||
 		vs.GetSimulationIndex () != otherVs.GetSimulationIndex ())
 		continue;
 	    menuCopy->addAction (m_actionCopyColorMap[i].get ());
@@ -2981,18 +2907,25 @@ void WidgetGl::displayViewDecorations (ViewNumber::Enum viewNumber)
     glDisable (GL_DEPTH_TEST);
     G3D::Rect2D viewRect = GetViewRect (viewNumber);
     if (GetColorBarType (viewNumber) != ColorBarType::NONE)
-	displayTextureColorBar (vs.GetColorBarTexture (),
-				viewNumber, getViewColorBarRect (viewRect));
+    {
+	G3D::Rect2D viewColorBarRect = Settings::GetViewColorBarRect (viewRect);
+	/*
+	cdbg << viewRect << endl;
+	cdbg << viewColorBarRect << endl;
+	*/
+	displayTextureColorBar (
+	    vs.GetColorBarTexture (), viewNumber, viewColorBarRect);
+    }
     if (vs.IsVelocityShown ())
     {
 	if (GetViewAverage (viewNumber).GetVelocityAverage ().IsColorMapped ())
 	    displayTextureColorBar (
 		vs.GetOverlayBarTexture (),
-		viewNumber, getViewOverlayBarRect (viewRect));
+		viewNumber, Settings::GetViewOverlayBarRect (viewRect));
 	else if ( 
 	    ! GetViewAverage (viewNumber).GetVelocityAverage ().IsSameSize ())
 	    displayOverlayBar (
-		viewNumber, getViewOverlayBarRect (viewRect));
+		viewNumber, Settings::GetViewOverlayBarRect (viewRect));
     }
     displayViewTitle (viewNumber);
     if (viewNumber == GetViewNumber () && m_viewFocusShown &&
@@ -3031,7 +2964,7 @@ void WidgetGl::displayViewTitle (ViewNumber::Enum viewNumber)
     ViewSettings& vs = GetViewSettings (viewNumber);
     ostr << "View " << viewNumber << " - "
 	 << ViewType::ToString (vs.GetViewType ()) << " - "
-	 << FaceScalar::ToString (vs.GetFaceScalar ()) << " - "
+	 << FaceScalar::ToString (vs.GetBodyOrFaceScalar ()) << " - "
 	 << vs.GetCurrentTime ();    
     displayViewText (viewNumber, GetSimulation (viewNumber).GetName (), 0);
     displayViewText (viewNumber, ostr.str (), 1);
@@ -3054,9 +2987,9 @@ void WidgetGl::displayViewText (
 
 
 
-size_t WidgetGl::GetFaceScalar (ViewNumber::Enum viewNumber) const
+size_t WidgetGl::GetBodyOrFaceScalar (ViewNumber::Enum viewNumber) const
 {
-    return GetViewSettings (viewNumber).GetFaceScalar ();
+    return GetViewSettings (viewNumber).GetBodyOrFaceScalar ();
 }
 
 
@@ -3425,8 +3358,9 @@ void WidgetGl::contextMenuEvent (QContextMenuEvent *event)
     m_contextMenuPosScreen = event->pos ();
     m_contextMenuPosObject = toObjectTransform (m_contextMenuPosScreen);
     QMenu menu (this);
-    G3D::Rect2D colorBarRect = getViewColorBarRect (GetViewRect ());
-    G3D::Rect2D overlayBarRect = getViewOverlayBarRect (GetViewRect ());
+    G3D::Rect2D colorBarRect = Settings::GetViewColorBarRect (GetViewRect ());
+    G3D::Rect2D overlayBarRect = 
+	Settings::GetViewOverlayBarRect (GetViewRect ());
     if (colorBarRect.contains (QtToOpenGl (m_contextMenuPosScreen, height ())))
 	contextMenuEventColorBar (&menu);
     else if (overlayBarRect.contains (
@@ -4044,7 +3978,7 @@ void WidgetGl::SetBodyOrFaceScalar (
     makeCurrent ();
     ViewSettings& vs = GetViewSettings (viewNumber);
     vs.SetBodyOrFaceScalar (bodyOrFaceScalar);
-    if (vs.GetFaceScalar () != FaceScalar::DMP_COLOR)
+    if (vs.GetBodyOrFaceScalar () != FaceScalar::DMP_COLOR)
 	vs.SetColorBarModel (colorBarModel);
     else
 	vs.ResetColorBarModel ();
@@ -4128,7 +4062,7 @@ void WidgetGl::ValueChangedSliderTimeSteps (int timeStep)
     m_settings->SetCurrentTime (timeStep, &direction);
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
 	if (direction[i] != 0)
-	    m_viewAverage[i]->AverageStep (ViewNumber::Enum (i), direction[i]);
+	    m_viewAverage[i]->AverageStep (direction[i]);
     update ();
 }
 
@@ -4142,7 +4076,7 @@ void WidgetGl::ClickedEnd ()
     m_settings->SetCurrentTime (steps - 1, &direction, true);
     for (size_t i = 0; i < ViewNumber::COUNT; ++i)
 	if (direction[i] != 0)
-	    m_viewAverage[i]->AverageStep (ViewNumber::Enum (i), direction[i]);
+	    m_viewAverage[i]->AverageStep (direction[i]);
     update ();
 }
 

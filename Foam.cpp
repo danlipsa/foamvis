@@ -1141,11 +1141,11 @@ vtkSmartPointer<vtkImageData> Foam::createRegularGridNoAttributes () const
     return regularFoam;
 }
 
-vtkSmartPointer<vtkImageData> Foam::CreateEmptyRegularGrid () const
+vtkSmartPointer<vtkImageData> Foam::CreateEmptyRegularGrid (
+    size_t bodyAttribute) const
 {
     vtkSmartPointer<vtkImageData> regularFoam = createRegularGridNoAttributes ();
-    for (size_t i = 0; i < BodyAttribute::COUNT; ++i)
-	addEmptyPointAttribute (regularFoam, i);
+    addEmptyPointAttribute (regularFoam, bodyAttribute);
     return regularFoam;
 }
 

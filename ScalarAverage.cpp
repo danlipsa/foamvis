@@ -47,7 +47,6 @@ void ScalarAverageTemplate<PropertySetter>::InitShaders ()
 
 template<typename PropertySetter>
 void ScalarAverageTemplate<PropertySetter>::rotateAndDisplay (
-    ViewNumber::Enum viewNumber,
     GLfloat minValue, GLfloat maxValue,
     ComputationType::Enum displayType, 
     typename ImageBasedAverage<PropertySetter>::TensorScalarFbo srcFbo,
@@ -59,8 +58,9 @@ void ScalarAverageTemplate<PropertySetter>::rotateAndDisplay (
     this->glActiveTexture (
 	TextureEnum (m_displayShaderProgram->GetScalarAverageTexUnit ()));
     glBindTexture (GL_TEXTURE_2D, srcFbo.second->texture ());
-    this->GetWidgetGl ().ActivateViewShader (viewNumber, enclose,
-					     rotationCenter, angleDegrees);
+    this->GetWidgetGl ().ActivateViewShader (
+	this->GetViewNumber (), enclose,
+	rotationCenter, angleDegrees);
     // activate texture unit 0
     this->glActiveTexture (GL_TEXTURE0);
     m_displayShaderProgram->release ();

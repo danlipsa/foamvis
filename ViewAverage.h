@@ -51,9 +51,8 @@ public:
     void SetSimulation (const Simulation& simulation);
     virtual void AverageInit (ViewNumber::Enum viewNumber);
     virtual void AverageSetTimeWindow (size_t timeSteps);
-    virtual void AverageStep (ViewNumber::Enum viewNumber, int direction);
+    virtual void AverageStep (int direction);
     virtual void AverageRotateAndDisplay (
-	ViewNumber::Enum viewNumber, 
 	ComputationType::Enum displayType = ComputationType::AVERAGE,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;

@@ -184,9 +184,9 @@ void T1sPDE::DisplayTextureSize (ViewNumber::Enum viewNumber, size_t timeStep,
     glPopAttrib ();
 }
 
-size_t T1sPDE::getStepSize (ViewNumber::Enum viewNumber, size_t timeStep) const
+size_t T1sPDE::getStepSize (size_t timeStep) const
 {
-    ViewSettings& vs = GetSettings ().GetViewSettings (viewNumber);
-    return GetSimulation (viewNumber).GetT1s (timeStep, 
-					      vs.T1sShiftLower ()).size ();
+    ViewSettings& vs = GetSettings ().GetViewSettings (GetViewNumber ());
+    return GetSimulation ().GetT1s (timeStep, 
+				    vs.T1sShiftLower ()).size ();
 }

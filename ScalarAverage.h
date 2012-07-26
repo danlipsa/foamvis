@@ -37,7 +37,6 @@ public:
 
 protected:
     virtual void rotateAndDisplay (
-	ViewNumber::Enum viewNumber,
 	GLfloat minValue, GLfloat maxValue,
 	ComputationType::Enum displayType, 
 	typename ImageBasedAverage<PropertySetter>::TensorScalarFbo fbo,

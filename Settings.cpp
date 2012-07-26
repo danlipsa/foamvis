@@ -365,3 +365,79 @@ float Settings::GetXOverY (float xOverY, ViewNumber::Enum viewNumber) const
     };
     return v[GetViewCount () * 2 + GetViewLayout ()];
 }
+
+G3D::Rect2D Settings::GetViewRect (float w, float h,
+				   ViewNumber::Enum viewNumber) const
+{
+    using G3D::Rect2D;
+    switch (GetViewCount ())
+    {
+    case ViewCount::ONE:
+	return Rect2D::xywh (0, 0, w, h);
+    case ViewCount::TWO:
+    {
+	RuntimeAssert (viewNumber < 2, "Invalid view: ", viewNumber);
+	Rect2D v[][2] = {
+	    // 0 | 1
+	    // horizontal layout
+	    {Rect2D::xywh (0, 0, w/2, h), Rect2D::xywh (w/2, 0, w/2, h)},
+	    // 0
+	    // -
+	    // 1
+	    // vertical layout
+	    {Rect2D::xywh (0, h/2, w, h/2), Rect2D::xywh (0, 0, w, h/2)}
+	};
+	return v[GetViewLayout ()][viewNumber];
+    }
+    case ViewCount::THREE:
+    {
+	RuntimeAssert (viewNumber < 3, "Invalid view: ", viewNumber);
+	Rect2D v[][3] = {
+	    // 0 | 1 | 3
+	    // horizontal layout
+	    {Rect2D::xywh (0, 0, w/3, h), Rect2D::xywh (w/3, 0, w/3, h),
+	     Rect2D::xywh (2*w/3, 0, w/3, h)},
+	    // 0
+	    // -
+	    // 1
+	    // -
+	    // 3
+	    // vertical layout
+	    {Rect2D::xywh (0, 2*h/3, w, h/3), Rect2D::xywh (0, h/3, w, h/3), 
+	     Rect2D::xywh (0, 0, w, h/3)}
+	};
+	return v[GetViewLayout ()][viewNumber];
+    }
+    case ViewCount::FOUR:
+    {
+	//  0 | 1
+	//  -----
+	//  2 | 3
+	RuntimeAssert (viewNumber < 4, "Invalid view: ", viewNumber);
+	Rect2D v[] = {
+	    Rect2D::xywh (0, h/2, w/2, h/2), Rect2D::xywh (w/2, h/2, w/2, h/2),
+	    Rect2D::xywh (0, 0, w/2, h/2), Rect2D::xywh (w/2, 0, w/2, h/2)
+	};
+	return v[viewNumber];
+    }
+    default:
+    {
+	RuntimeAssert (false, "Illegal number of views: ", GetViewCount ());
+	return Rect2D ();	
+    }
+    }
+}
+
+G3D::Rect2D Settings::GetViewColorBarRect (const G3D::Rect2D& viewRect)
+{
+    return G3D::Rect2D::xywh (
+	viewRect.x0 () + 5, viewRect.y0 () + 5,
+	10, max (viewRect.height () / 4, 50.0f));
+}
+
+G3D::Rect2D Settings::GetViewOverlayBarRect (const G3D::Rect2D& viewRect)
+{
+    return G3D::Rect2D::xywh (
+	viewRect.x0 () + 5 + 10 + 5, viewRect.y0 () + 5,
+	10, max (viewRect.height () / 4, 50.0f));
+}

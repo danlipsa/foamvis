@@ -150,12 +150,12 @@ public:
 	ViewNumber::Enum viewNumber, 
 	ViewingVolumeOperation::Enum enclose = 
 	ViewingVolumeOperation::DONT_ENCLOSE2D) const;
-    size_t GetFaceScalar () const
+    size_t GetBodyOrFaceScalar () const
     {
-	return GetFaceScalar (GetViewNumber ());
+	return GetBodyOrFaceScalar (GetViewNumber ());
     }
 
-    size_t GetFaceScalar (ViewNumber::Enum viewNumber) const;
+    size_t GetBodyOrFaceScalar (ViewNumber::Enum viewNumber) const;
 
     G3D::Rect2D GetViewRect (ViewNumber::Enum viewNumber) const;
     G3D::Rect2D GetViewRect () const
@@ -488,8 +488,6 @@ private:
 		   LightType::Enum lightType, ColorNumber::Enum colorNumber);
     void setView (const G3D::Vector2& clickedPoint);
     void selectView (const G3D::Vector2& clickedPoint);
-    static G3D::Rect2D getViewColorBarRect (const G3D::Rect2D& viewRect);
-    static G3D::Rect2D getViewOverlayBarRect (const G3D::Rect2D& viewRect);
     void displayContextMenuPos (ViewNumber::Enum viewNumber) const;
     void displayBodyCenters (ViewNumber::Enum viewNumber, 
 			     bool useZPos = false) const;

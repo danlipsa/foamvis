@@ -12,6 +12,7 @@
 #include "Foam.h"
 #include "RegularGridAverage.h"
 #include "Settings.h"
+#include "Simulation.h"
 #include "WidgetVtk.h"
 
 // Private Classes/Functions
@@ -51,10 +52,11 @@ void WidgetVtk::Init (boost::shared_ptr<Settings> settings,
 		      const SimulationGroup& simulationGroup)    
 {
     m_settings = settings;
-    m_average.reset (new RegularGridAverage (*settings, simulationGroup));
+    for (size_t i = 0; i < m_average.size (); ++i)
+	m_average[i].reset (new RegularGridAverage (*settings, simulationGroup));
 }
 
-void WidgetVtk::SetupPipeline (const Foam& foam)
+void WidgetVtk::SetupPipeline (size_t objects, size_t constraintSurfaces)
 {
     // vtkImageData->vtkThreshold->vtkDatasetMapper->vtkActor->vtkRenderer
     vtkSmartPointer<SendPaintEnd> sendPaint (new SendPaintEnd (this));
@@ -71,8 +73,7 @@ void WidgetVtk::SetupPipeline (const Foam& foam)
     // scalar bar
     VTK_CREATE (vtkScalarBarActor, scalarBar);
     scalarBar->SetOrientationToVertical ();
-    scalarBar->SetHeight (0.8);
-    scalarBar->SetWidth (0.17);
+    scalarBar->SetNumberOfLabels (0);
     m_scalarBar = scalarBar;
     renderer->AddViewProp (scalarBar);
 
@@ -87,9 +88,8 @@ void WidgetVtk::SetupPipeline (const Foam& foam)
     m_averageActor = averageActor;
 
     // foam objects
-    Foam::Bodies objects = foam.GetObjects ();
-    m_object.resize (objects.size ());
-    for (size_t i = 0; i < objects.size (); ++i)
+    m_object.resize (objects);
+    for (size_t i = 0; i < objects; ++i)
     {
 	VTK_CREATE (vtkDataSetMapper, mapper);
 
@@ -100,8 +100,8 @@ void WidgetVtk::SetupPipeline (const Foam& foam)
     }
 
     // constraint faces rendered transparent
-    m_constraintSurface.resize (foam.GetConstraintFacesSize ());
-    for (size_t i = 0; i < foam.GetConstraintFacesSize (); ++i)
+    m_constraintSurface.resize (constraintSurfaces);
+    for (size_t i = 0; i < constraintSurfaces; ++i)
     {
 	VTK_CREATE (vtkDataSetMapper, mapper);
 
@@ -136,6 +136,25 @@ void WidgetVtk::UpdateColorTransferFunction (
 	update ();
     }
 }
+
+void WidgetVtk::resizeEvent (QResizeEvent * event)
+{
+    (void) event;
+    G3D::Rect2D viewRect = m_settings->GetViewRect (width (), height ());
+    G3D::Rect2D viewColorBarRect = Settings::GetViewColorBarRect (viewRect);
+    float heightRatio = viewColorBarRect.height () / viewRect.height ();
+    float widthRatio = viewColorBarRect.width () / viewRect.width ();
+    /*
+    cdbg << viewRect << endl;
+    cdbg << viewColorBarRect << endl;
+    cdbg << heightRatio << ", " << widthRatio << endl;    
+    */
+    m_scalarBar->SetHeight (heightRatio * 1.2);
+    m_scalarBar->SetWidth (widthRatio * 1.3);
+    m_scalarBar->SetPosition (viewColorBarRect.x0 () / viewRect.width (),
+			      viewColorBarRect.y0 () / viewRect.height ());
+}
+
 
 void WidgetVtk::UpdateOpacity ()
 {

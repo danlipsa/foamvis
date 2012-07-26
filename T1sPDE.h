@@ -73,8 +73,7 @@ public:
 protected:
     virtual void writeStepValues (ViewNumber::Enum view, size_t timeStep, 
 				  size_t subStep);
-    virtual size_t getStepSize (ViewNumber::Enum viewNumber, 
-				size_t timeStep) const;
+    virtual size_t getStepSize (size_t timeStep) const;
 
 private:
     void initKernel ();

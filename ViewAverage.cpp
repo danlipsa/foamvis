@@ -56,19 +56,19 @@ void ViewAverage::AverageSetTimeWindow (size_t timeSteps)
     GetForceAverage ().AverageSetTimeWindow (timeSteps);
 }
 
-void ViewAverage::AverageStep (ViewNumber::Enum viewNumber, int direction)
+void ViewAverage::AverageStep (int direction)
 {
     switch (m_viewSettings.GetViewType ())
     {
     case ViewType::AVERAGE:
-	GetScalarAverage ().AverageStep (viewNumber, direction);
-	GetDeformationAverage ().AverageStep (viewNumber, direction);
-	GetVelocityAverage ().AverageStep (viewNumber, direction);
-	GetForceAverage ().AverageStep (viewNumber, direction);
+	GetScalarAverage ().AverageStep (direction);
+	GetDeformationAverage ().AverageStep (direction);
+	GetVelocityAverage ().AverageStep (direction);
+	GetForceAverage ().AverageStep (direction);
 	break;
 	
     case ViewType::T1S_PDE:
-	GetT1sPDE ().AverageStep (viewNumber, direction);
+	GetT1sPDE ().AverageStep (direction);
 	break;
     default:
 	break;
@@ -76,25 +76,25 @@ void ViewAverage::AverageStep (ViewNumber::Enum viewNumber, int direction)
 }
 
 void ViewAverage::AverageRotateAndDisplay (
-    ViewNumber::Enum viewNumber, ComputationType::Enum displayType,
+    ComputationType::Enum displayType,
     G3D::Vector2 rotationCenter, float angleDegrees) const
 {
     switch (m_viewSettings.GetViewType ())
     {
     case ViewType::AVERAGE:
 	GetScalarAverage ().AverageRotateAndDisplay (
-	    viewNumber, displayType, rotationCenter, angleDegrees);
+	    displayType, rotationCenter, angleDegrees);
 	if (m_viewSettings.IsDeformationShown ())
 	    GetDeformationAverage ().AverageRotateAndDisplay (
-		viewNumber, displayType, rotationCenter, angleDegrees);
+		displayType, rotationCenter, angleDegrees);
 	if (m_viewSettings.IsVelocityShown ())
 	    GetVelocityAverage ().AverageRotateAndDisplay (
-		viewNumber, displayType, rotationCenter, angleDegrees);	    
+		displayType, rotationCenter, angleDegrees);	    
 	break;
 	
     case ViewType::T1S_PDE:
 	GetT1sPDE ().AverageRotateAndDisplay (
-	    viewNumber, displayType, rotationCenter, angleDegrees);
+	    displayType, rotationCenter, angleDegrees);
 	break;
     default:
 	break;

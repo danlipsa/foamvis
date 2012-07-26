@@ -192,7 +192,14 @@ public:
     G3D::AABox CalculateViewingVolume (
 	ViewNumber::Enum viewNumber, const Simulation& simulation, float xOverY,
 	ViewingVolumeOperation::Enum enclose) const;
-
+    G3D::Rect2D GetViewRect (float w, float h,
+			     ViewNumber::Enum viewNumber) const;
+    G3D::Rect2D GetViewRect (float w, float h) const
+    {
+	return GetViewRect (w, h, GetViewNumber ());
+    }
+    static G3D::Rect2D GetViewColorBarRect (const G3D::Rect2D& viewRect);
+    static G3D::Rect2D GetViewOverlayBarRect (const G3D::Rect2D& viewRect);
 
 Q_SIGNALS:
     void ViewChanged ();

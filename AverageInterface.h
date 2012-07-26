@@ -14,21 +14,33 @@
 class AverageInterface
 {
 public:
-    virtual void AverageInit (ViewNumber::Enum viewNumber) = 0;
+    AverageInterface () :
+	m_viewNumber (ViewNumber::COUNT)
+    {
+    }
+    virtual void AverageInit (ViewNumber::Enum viewNumber)
+    {
+	m_viewNumber = viewNumber;
+    }
+    ViewNumber::Enum GetViewNumber () const
+    {
+	return m_viewNumber;
+    }
     void AverageInitStep (ViewNumber::Enum viewNumber)
     {
 	AverageInit (viewNumber);
-	AverageStep (viewNumber, 1);
+	AverageStep (1);
     }
     virtual void AverageSetTimeWindow (size_t timeSteps) = 0;
-    virtual void AverageStep (ViewNumber::Enum viewNumber, 
-			      int timeDifference) = 0;
-    virtual void AverageRotateAndDisplay (
-	ViewNumber::Enum viewNumber, 
+    virtual void AverageStep (int timeDifference) = 0;
+    virtual void AverageRotateAndDisplay (	
 	ComputationType::Enum displayType = ComputationType::AVERAGE,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const = 0;
     virtual void AverageRelease () = 0;
+
+private:
+    ViewNumber::Enum m_viewNumber;
 };
 
 #endif //__AVERAGE_INTERFACE_H__

@@ -15,27 +15,26 @@
 
 void Average::AverageInit (ViewNumber::Enum viewNumber)
 {
-    (void)viewNumber;
+    AverageInterface::AverageInit (viewNumber);
     m_currentTimeWindow = 0;
 }
 
-void Average::loopOperation (Operation op, 
-			     ViewNumber::Enum viewNumber, size_t currentTime)
+void Average::loopOperation (Operation op, size_t currentTime)
 {
-    size_t stepSize = getStepSize (viewNumber, currentTime);
+    size_t stepSize = getStepSize (currentTime);
     for (size_t i = 0; i < stepSize; ++i)
-	(this->*op) (viewNumber, currentTime, i);
+	(this->*op) (currentTime, i);
 }
 
-void Average::AverageStep (ViewNumber::Enum viewNumber, int timeDifference)
+void Average::AverageStep (int timeDifference)
 {
     if (abs (timeDifference) > 1)
     {
-	AverageInitStep (viewNumber);
+	AverageInitStep (GetViewNumber ());
 	return;
     }
     Operation first, second;
-    size_t currentTime = m_settings.GetCurrentTime (viewNumber);
+    size_t currentTime = m_settings.GetCurrentTime (GetViewNumber ());
     if (timeDifference < 0)
     {
 	++currentTime;
@@ -47,26 +46,26 @@ void Average::AverageStep (ViewNumber::Enum viewNumber, int timeDifference)
 	first = &Average::addStep;
 	second = &Average::removeStep;
     }
-    loopOperation (first, viewNumber, currentTime);
+    loopOperation (first, currentTime);
     if (m_currentTimeWindow >= m_timeWindow && currentTime >= m_timeWindow)
     {
 	currentTime -= m_timeWindow;
-	loopOperation (second, viewNumber, currentTime);
+	loopOperation (second, currentTime);
     }
     else
 	m_currentTimeWindow += timeDifference;
     WarnOnOpenGLError ("AverageStep");
 }
 
-const Simulation& Average::GetSimulation (ViewNumber::Enum viewNumber) const
+const Simulation& Average::GetSimulation () const
 {
     return
 	GetSimulationGroup ().GetSimulation (
-	    GetSettings ().GetViewSettings (viewNumber).GetSimulationIndex ());
+	    GetSettings ().GetViewSettings (
+		GetViewNumber ()).GetSimulationIndex ());
 }
 
-const Foam& Average::GetFoam (
-    ViewNumber::Enum viewNumber, size_t timeStep) const
+const Foam& Average::GetFoam (size_t timeStep) const
 {
-    return GetSimulation (viewNumber).GetFoam (timeStep);
+    return GetSimulation ().GetFoam (timeStep);
 }

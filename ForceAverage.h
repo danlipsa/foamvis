@@ -28,49 +28,37 @@ public:
 	Average (settings, simulationGroup)
     {
     }
-    void DisplayOneTimeStep (ViewNumber::Enum viewNumber) const;
-    void Display (ViewNumber::Enum viewNumber,
-		  bool adjustForAverageAroundMovementRotation = false) const;    
+    void DisplayOneTimeStep () const;
+    void Display (bool adjustForAverageAroundMovementRotation = false) const;    
     virtual void AverageRotateAndDisplay (
-	ViewNumber::Enum viewNumber, 
 	ComputationType::Enum displayType = ComputationType::AVERAGE,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
     void AverageRelease () {}
     virtual void AverageInit (ViewNumber::Enum viewNumber);
-    const vector<ForcesOneObject>& GetForces (ViewNumber::Enum viewNumber, 
-					      size_t timeStep) const;
+    const vector<ForcesOneObject>& GetForces (size_t timeStep) const;
 
 
 protected:
-    virtual void addStep (ViewNumber::Enum viewNumber, size_t timeStep, 
-			  size_t subStep);
-    virtual void removeStep (ViewNumber::Enum viewNumber, size_t timeStep, 
-			     size_t subStep);
+    virtual void addStep (size_t timeStep, size_t subStep);
+    virtual void removeStep (size_t timeStep, size_t subStep);
 
 private:
     void displayForcesAllObjects (
-	ViewNumber::Enum viewNumber, 
 	const vector<ForcesOneObject>& forces, size_t timeWindow,
 	bool adjustForAverageAroundMovementRotation = false) const;
     void displayForcesOneObject (
-	ViewNumber::Enum viewNumber, const ForcesOneObject& force, 
-	size_t count) const;
-    void displayTorqueOneObject (
-	ViewNumber::Enum viewNumber, const ForcesOneObject& force, 
-	size_t count) const;
-    void displayForcesTorqueOneObject (
-	ViewNumber::Enum viewNumber, const ForcesOneObject& force, 
-	size_t count) const;
-    void displayForce (ViewNumber::Enum viewNumber, QColor color,
-		       const G3D::Vector2& center, 
+	const ForcesOneObject& force, size_t count) const;
+    void displayTorqueOneObject (const ForcesOneObject& force, 
+				 size_t count) const;
+    void displayForcesTorqueOneObject (const ForcesOneObject& force, 
+				       size_t count) const;
+    void displayForce (QColor color, const G3D::Vector2& center, 
 		       const G3D::Vector2& force) const;
     void displayTorque (
-	ViewNumber::Enum viewNumber, QColor color,
-	const G3D::Vector2& center, 
+	QColor color, const G3D::Vector2& center, 
 	float distance, float angleRadians, float torque) const;
     const ForcesOneObject getForceDifference (
-	ViewNumber::Enum viewNumber, 
 	const vector<ForcesOneObject>& forces) const;
     pair<G3D::Vector2, G3D::Vector2> calculateTorque (
 	G3D::Vector2 center, float distance, float angle, float torque) const;

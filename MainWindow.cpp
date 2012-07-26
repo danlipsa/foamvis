@@ -101,7 +101,9 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     widgetGl->Init (m_settings, &simulationGroup);
     widgetGl->SetStatus (labelStatusBar);
     widgetVtk->Init (m_settings, simulationGroup);
-    widgetVtk->SetupPipeline (simulationGroup.GetSimulation (0).GetFoam (0));
+    const Foam& foam = simulationGroup.GetSimulation (0).GetFoam (0);
+    widgetVtk->SetupPipeline (
+	foam.GetObjects ().size (), foam.GetConstraintFacesSize ());
     setupColorBarModels ();
     setupViews ();
     initComboBoxSimulation (simulationGroup);
@@ -424,7 +426,7 @@ void MainWindow::ViewToUI ()
     const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
     const ViewAverage& va = widgetGl->GetViewAverage (viewNumber);
     LightNumber::Enum selectedLight = vs.GetSelectedLight ();
-    int property = vs.GetFaceScalar ();
+    int property = vs.GetBodyOrFaceScalar ();
     size_t simulationIndex = vs.GetSimulationIndex ();
     ViewType::Enum viewType = vs.GetViewType ();
 
@@ -695,7 +697,7 @@ void MainWindow::update3DAverage (size_t timeStep)
     const Simulation& simulation = widgetGl->GetSimulation (viewNumber);
     const Foam& foam = simulation.GetFoam (timeStep);
     BodyScalar::Enum bodyProperty = BodyScalar::FromSizeT (
-	widgetGl->GetFaceScalar ());
+	widgetGl->GetBodyOrFaceScalar ());
     const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
     const BodySelector& bodySelector = vs.GetBodySelector ();
     QwtDoubleInterval interval;
@@ -747,7 +749,7 @@ void MainWindow::setAndDisplayHistogram (
     }
     const ViewSettings& vs = widgetGl->GetViewSettings (m_histogramViewNumber);
     BodyScalar::Enum property = BodyScalar::FromSizeT (
-	vs.GetFaceScalar ());
+	vs.GetBodyOrFaceScalar ());
     const Simulation& simulation = widgetGl->GetSimulation ();
     double maxYValue = 0;
     QwtIntervalData intervalData;
@@ -877,7 +879,7 @@ void MainWindow::displayHistogramColorBar (bool checked)
 {
     widgetHistogram->setVisible (
 	checked && 
-	widgetGl->GetFaceScalar () != FaceScalar::DMP_COLOR && 
+	widgetGl->GetBodyOrFaceScalar () != FaceScalar::DMP_COLOR && 
 	m_histogramType);
 }
 
@@ -1052,7 +1054,7 @@ boost::shared_ptr<ColorBarModel> MainWindow::getColorBarModel () const
 	widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
     ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
     ViewType::Enum viewType = vs.GetViewType ();
-    size_t property = vs.GetFaceScalar ();
+    size_t property = vs.GetBodyOrFaceScalar ();
     ComputationType::Enum statisticsType = vs.GetComputationType ();
     return getColorBarModel (simulationIndex, 
 			     viewNumber, viewType, property, statisticsType);
@@ -1259,7 +1261,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 	    widgetGl->GetViewSettings (viewNumber).GetSimulationIndex ();
 	ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
 	ViewType::Enum oldViewType = vs.GetViewType ();
-	size_t property = vs.GetFaceScalar ();
+	size_t property = vs.GetBodyOrFaceScalar ();
 	ComputationType::Enum statisticsType = vs.GetComputationType ();
 
 	setStackedWidget (viewType);
@@ -1361,7 +1363,7 @@ void MainWindow::CurrentIndexChangedSimulation (int simulationIndex)
     ViewNumber::Enum viewNumber = widgetGl->GetViewNumber ();
     ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
     ViewType::Enum viewType = vs.GetViewType ();
-    size_t property = vs.GetFaceScalar ();
+    size_t property = vs.GetBodyOrFaceScalar ();
     ComputationType::Enum statisticsType = vs.GetComputationType ();
     Q_EMIT ColorBarModelChanged (
 	viewNumber,
@@ -1488,7 +1490,7 @@ void MainWindow::SelectionChangedHistogram ()
     const Simulation& simulation = widgetGl->GetSimulation ();
     ViewSettings& vs = widgetGl->GetViewSettings (m_histogramViewNumber);
     BodyScalar::Enum bodyScalar = BodyScalar::FromSizeT (
-	widgetGl->GetFaceScalar (m_histogramViewNumber));
+	widgetGl->GetBodyOrFaceScalar (m_histogramViewNumber));
     simulation.GetTimeStepSelection (
 	bodyScalar, valueIntervals, &timeStepSelection);
     sliderTimeSteps->SetRestrictedTo (timeStepSelection);
@@ -1528,7 +1530,7 @@ void MainWindow::ShowEditOverlayMap ()
 void MainWindow::ShowEditColorMap ()
 {
     HistogramInfo p = getHistogramInfo (
-	widgetGl->GetColorBarType (), widgetGl->GetFaceScalar ());
+	widgetGl->GetColorBarType (), widgetGl->GetBodyOrFaceScalar ());
     m_editColorMap->SetData (
 	p.first, p.second, *getColorBarModel (),
 	checkBoxHistogramGridShown->isChecked ());

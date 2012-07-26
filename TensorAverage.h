@@ -152,7 +152,6 @@ public:
 
 protected:
     virtual void rotateAndDisplay (
-	ViewNumber::Enum viewNumber,
 	GLfloat minValue, GLfloat maxValue,
 	ComputationType::Enum displayType, 
 	typename ImageBasedAverage<Setter>::TensorScalarFbo srcFbo,
@@ -162,7 +161,7 @@ protected:
 
 private:
     void calculateShaderParameters (
-	ViewNumber::Enum viewNumber, G3D::Vector2 rotationCenter, 
+	G3D::Vector2 rotationCenter, 
 	G3D::Vector2* gridTranslation, float* cellLength, float* lineWidth, 	
 	float* elipseSizeRatio, G3D::Rect2D* srcRect, 
 	float* onePixelInObjectSpace) const;

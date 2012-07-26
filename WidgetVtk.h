@@ -35,7 +35,7 @@ public:
 	       const SimulationGroup& simulationGroup);
     void UpdateOpacity ();
     void UpdateInput (const Foam& foam, BodyScalar::Enum bodyScalar);
-    void SetupPipeline (const Foam& foam);
+    void SetupPipeline (size_t objects, size_t constraintSurfaces);
 
 public:
     QSize sizeHint ()
@@ -48,18 +48,22 @@ public:
 	return QSize (128, 128);
     }
 
+protected:
+    virtual void resizeEvent (QResizeEvent * event);
+
 Q_SIGNALS:
     void PaintEnd ();
-    
+
 private:
     Q_OBJECT
-    boost::shared_ptr<RegularGridAverage> m_average;
+    boost::shared_ptr<Settings> m_settings;
+    boost::array<boost::shared_ptr<RegularGridAverage>,
+		 ViewNumber::COUNT> m_average;
     vtkSmartPointer<vtkScalarBarActor> m_scalarBar;
     vtkSmartPointer<vtkActor> m_averageActor;
     vtkSmartPointer<vtkThreshold> m_threshold;
     vector<vtkSmartPointer<vtkActor> > m_constraintSurface;
     vector<vtkSmartPointer<vtkActor> > m_object;
-    boost::shared_ptr<Settings> m_settings;
 };
 
 

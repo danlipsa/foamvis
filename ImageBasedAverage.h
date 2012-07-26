@@ -64,7 +64,6 @@ public:
 	FramebufferObjects& scalarAverageFbos);
     void AverageRelease ();
     void AverageRotateAndDisplay (	
-	ViewNumber::Enum viewNumber, 
 	ComputationType::Enum displayType = ComputationType::AVERAGE,	
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const;
@@ -86,19 +85,15 @@ protected:
     typedef pair<boost::shared_ptr<QGLFramebufferObject>, 
 		 boost::shared_ptr<QGLFramebufferObject> > 
 	TensorScalarFbo;
-    virtual void addStep (ViewNumber::Enum viewNumber, size_t timeStep, 
-			  size_t subStep);
-    virtual void removeStep (ViewNumber::Enum viewNumber, size_t timeStep, 
-			     size_t subStep);
+    virtual void addStep (size_t timeStep, size_t subStep);
+    virtual void removeStep (size_t timeStep, size_t subStep);
     virtual void rotateAndDisplay (
-	ViewNumber::Enum viewNumber,
 	GLfloat minValue, GLfloat maxValue,
 	ComputationType::Enum displayType, TensorScalarFbo fbo,
 	ViewingVolumeOperation::Enum enclose,
 	G3D::Vector2 rotationCenter = G3D::Vector2::zero (), 
 	float angleDegrees = 0) const = 0;
-    virtual void writeStepValues (ViewNumber::Enum view, size_t timeStep, 
-				  size_t subStep);
+    virtual void writeStepValues (size_t timeStep, size_t subStep);
 
     void glActiveTexture (GLenum texture) const;
     QColor getStepClearColor ()
@@ -116,20 +111,18 @@ protected:
     FramebufferObjects m_fbos;
 
 private:
-    void clear (ViewNumber::Enum viewNumber);
+    void clear ();
 
-    void save (ViewNumber::Enum viewNumber, TensorScalarFbo fbo, 
+    void save (TensorScalarFbo fbo, 
 	       const char* fileName, size_t timeStep, size_t subStep,
 	       GLfloat minValue, 
 	       GLfloat maxValue, ComputationType::Enum displayType);
-    void renderToStep (ViewNumber::Enum view, size_t timeStep, size_t subStep);
-    void currentIsPreviousPlusStep (ViewNumber::Enum viewNumber);
-    void currentIsPreviousMinusStep (ViewNumber::Enum viewNumber);
+    void renderToStep (size_t timeStep, size_t subStep);
+    void currentIsPreviousPlusStep ();
+    void currentIsPreviousMinusStep ();
     void copyCurrentToPrevious ();
-    void initFramebuffer (
-	ViewNumber::Enum viewNumber,
-	const boost::shared_ptr<QGLFramebufferObject>& fbo);
-
+    void initFramebuffer (const boost::shared_ptr<QGLFramebufferObject>& fbo);
+    
 private:
     string m_id;
     QColor m_stepClearColor;

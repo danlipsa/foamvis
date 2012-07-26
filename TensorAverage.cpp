@@ -121,7 +121,6 @@ void TensorAverageTemplate<Setter>::InitShaders ()
 
 template<typename Setter>
 void TensorAverageTemplate<Setter>::rotateAndDisplay (
-    ViewNumber::Enum viewNumber,
     GLfloat minValue, GLfloat maxValue,
     ComputationType::Enum displayType, 
     typename ImageBasedAverage<Setter>::TensorScalarFbo srcFbo,
@@ -133,9 +132,10 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
     const WidgetGl& widgetGl = this->GetWidgetGl ();
     G3D::Vector2 gridTranslation;float cellLength; float lineWidth;
     float sizeRatio;G3D::Rect2D enclosingRect;float onePixelInObjectSpace;
-    pair<float,float> minMax = widgetGl.GetVelocityMagnitudeRange (viewNumber);
+    pair<float,float> minMax = 
+	widgetGl.GetVelocityMagnitudeRange (this->GetViewNumber ());
     calculateShaderParameters (
-	viewNumber, rotationCenter, &gridTranslation, 
+	rotationCenter, &gridTranslation, 
 	&cellLength, &lineWidth, &sizeRatio, &enclosingRect, 
 	&onePixelInObjectSpace);
     m_displayShaderProgram->Bind (
@@ -158,12 +158,12 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
     glBindTexture (GL_TEXTURE_2D, srcFbo.second->texture ());
     
     // bind "overlay bar" to texture unit 0
-    ViewSettings& vs = widgetGl.GetViewSettings (viewNumber);
+    ViewSettings& vs = widgetGl.GetViewSettings (this->GetViewNumber ());
     this->glActiveTexture (
 	TextureEnum (m_displayShaderProgram->GetOverlayBarTexUnit ()));    
     glBindTexture (GL_TEXTURE_1D, vs.GetOverlayBarTexture ());
 
-    widgetGl.ActivateViewShader (viewNumber, enclose,
+    widgetGl.ActivateViewShader (this->GetViewNumber (), enclose,
 				 rotationCenter, angleDegrees);
 
     m_displayShaderProgram->release ();
@@ -172,28 +172,29 @@ void TensorAverageTemplate<Setter>::rotateAndDisplay (
 
 template<typename Setter>
 void TensorAverageTemplate<Setter>::calculateShaderParameters (
-    ViewNumber::Enum viewNumber, G3D::Vector2 rotationCenter,
+    G3D::Vector2 rotationCenter,
     G3D::Vector2* gridTranslation, float* cellLength,
     float* lineWidth, 
     float* sizeRatio, G3D::Rect2D* enclosingRect, 
     float* onePixelInObjectSpace) const
 {
     const WidgetGl& widgetGl = this->GetWidgetGl ();
-    ViewSettings& vs = widgetGl.GetViewSettings (viewNumber);
+    ViewSettings& vs = widgetGl.GetViewSettings (this->GetViewNumber ());
     float scaleRatio = vs.GetScaleRatio ();
     float gridScaleRatio = vs.GetScaleRatio () * vs.GetGridScaleRatio ();
     *gridTranslation = (vs.GetGridTranslation () * scaleRatio).xy ();
-    *cellLength = widgetGl.GetBubbleSize (viewNumber) * gridScaleRatio;
+    *cellLength = widgetGl.GetBubbleSize (this->GetViewNumber ()) * gridScaleRatio;
     float p = GetOnePixelInObjectSpace ();
     *onePixelInObjectSpace = p * scaleRatio;
     *lineWidth = *onePixelInObjectSpace * 
 	CALL_MEMBER_FN (vs, m_lineWidthRatio) ();
 
-    *sizeRatio = CALL_MEMBER_FN (widgetGl, m_sizeInitialRatio) (viewNumber) * 
+    *sizeRatio = 
+	CALL_MEMBER_FN (widgetGl, m_sizeInitialRatio) (this->GetViewNumber ()) * 
 	gridScaleRatio * CALL_MEMBER_FN (vs, m_sizeRatio) ();
     *enclosingRect = toRect2D (
 	widgetGl.CalculateViewingVolume (
-	    viewNumber, ViewingVolumeOperation::ENCLOSE2D)) - rotationCenter;
+	    this->GetViewNumber (), ViewingVolumeOperation::ENCLOSE2D)) - rotationCenter;
 }
 
 TensorAverage::TensorAverage (const WidgetGl& widgetGl,

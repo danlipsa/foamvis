@@ -26,6 +26,7 @@ class Average : public AverageInterface
 {
 public:
     Average (const Settings& settings, const SimulationGroup& simulationGroup) :
+	AverageInterface (),
 	m_settings (settings), m_simulationGroup (simulationGroup)
     {
     }
@@ -41,7 +42,7 @@ public:
     {
 	m_timeWindow = timeWindow;
     }
-    void AverageStep (ViewNumber::Enum viewNumber, int timeDifference);
+    void AverageStep (int timeDifference);
     size_t GetTimeWindow () const
     {
 	return m_timeWindow;
@@ -51,31 +52,26 @@ public:
 	return m_currentTimeWindow;
     }
     virtual void AverageInit (ViewNumber::Enum viewNumber);
-    const Simulation& GetSimulation (ViewNumber::Enum viewNumber) const;
-    const Foam& GetFoam (ViewNumber::Enum viewNumber, size_t timeStep) const;
+    const Simulation& GetSimulation () const;
+    const Foam& GetFoam (size_t timeStep) const;
 
 
 protected:
     //@todo write and add/remove in one operations instead of two.
-    virtual void addStep (
-	ViewNumber::Enum viewNumber, size_t timeStep, size_t subStep) = 0;
-    virtual void removeStep (ViewNumber::Enum viewNumber, 
-			     size_t timeStep, size_t subStep) = 0;
+    virtual void addStep (size_t timeStep, size_t subStep) = 0;
+    virtual void removeStep (size_t timeStep, size_t subStep) = 0;
     /**
      * A step is divident in stepSize subSteps
      */
-    virtual size_t getStepSize (
-	ViewNumber::Enum viewNumber, size_t timeStep) const
+    virtual size_t getStepSize (size_t timeStep) const
     {
-	(void)timeStep;(void)viewNumber;
+	(void)timeStep;
 	return 1;
     }
 
 private:
-    typedef void (Average::*Operation) (ViewNumber::Enum viewNumber, 
-					size_t timeStep, size_t subStep);
-    void loopOperation (Operation op, ViewNumber::Enum viewNumber, 
-			size_t currentTime);
+    typedef void (Average::*Operation) (size_t timeStep, size_t subStep);
+    void loopOperation (Operation op, size_t currentTime);
 
 
 

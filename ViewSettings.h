@@ -42,7 +42,7 @@ public:
 	m_viewType = viewType;
     }
 
-    size_t GetFaceScalar () const
+    size_t GetBodyOrFaceScalar () const
     {
 	return m_bodyOrFaceScalar;
     }
