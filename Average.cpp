@@ -14,6 +14,10 @@
 #include "OpenGLUtils.h"
 #include "ViewSettings.h"
 
+//#define __LOG__(code) code
+#define __LOG__(code)
+
+
 Average::Average (
     const Settings& settings, const SimulationGroup& simulationGroup) :
     AverageInterface (),
@@ -42,7 +46,7 @@ void Average::loopOperation (Operation op, size_t currentTime)
 
 void Average::AverageStep (int timeDifference)
 {
-    cdbg << "AverageStep: " << timeDifference << endl;
+    __LOG__ (cdbg << "AverageStep: " << timeDifference << endl;)
     if (timeDifference == 0)
 	return;
     if (abs (timeDifference) > 1)

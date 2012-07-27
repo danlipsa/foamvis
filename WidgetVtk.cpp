@@ -16,6 +16,9 @@
 #include "ViewSettings.h"
 #include "WidgetVtk.h"
 
+//#define __LOG__(code) code
+#define __LOG__(code)
+
 // Private Classes/Functions
 // ======================================================================
 
@@ -180,7 +183,7 @@ void WidgetVtk::UpdateModelView (vtkSmartPointer<vtkMatrix4x4> modelView)
 void WidgetVtk::UpdateAverage (
     const boost::array<int, ViewNumber::COUNT>& direction)
 {
-    cdbg << "UpdateAverage: " << direction[0] << endl;
+    __LOG__ (cdbg << "UpdateAverage: " << direction[0] << endl;)
     ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
 
     const Foam& foam = m_average[viewNumber]->GetFoam ();

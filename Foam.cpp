@@ -23,8 +23,8 @@
 #include "ProcessBodyTorus.h"
 #include "Vertex.h"
 
-#define __LOG__(code) code
-//#define __LOG__(code)
+//#define __LOG__(code) code
+#define __LOG__(code)
 
 
 // Private Functions
