@@ -1,5 +1,5 @@
 /**
- * \mainpage The Foam Project
+ * \mainpage The FoamVis Project
  * \section intro_sec Introduction
  *
  * This project visualizes and helps gaining insights into foam

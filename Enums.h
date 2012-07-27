@@ -138,7 +138,16 @@ public:
 
 struct BodyAttribute
 {
-    typedef boost::function<void (double[9], double[9])> ConvertType;
+    enum NumberOfComponents
+    {
+	SCALAR_NUMBER_OF_COMPONENTS = 1,
+	VECTOR_NUMBER_OF_COMPONENTS = 3,
+	TENSOR_NUMBER_OF_COMPONENTS = 9,
+	MAX_NUMBER_OF_COMPONENTS = 9
+    };
+    typedef boost::function<void (
+	double[MAX_NUMBER_OF_COMPONENTS], 
+	double[MAX_NUMBER_OF_COMPONENTS])> ConvertType;
     enum Enum
     {
 	VELOCITY = BodyScalar::COUNT,
@@ -157,16 +166,16 @@ struct BodyAttribute
 
     static bool IsScalar (size_t attribute)
     {
-	return GetNumberOfComponents (attribute) == 1;
+	return GetNumberOfComponents (attribute) == SCALAR_NUMBER_OF_COMPONENTS;
     }
     static bool IsVector (size_t attribute)
     {
-	return GetNumberOfComponents (attribute) == 3;
+	return GetNumberOfComponents (attribute) == VECTOR_NUMBER_OF_COMPONENTS;
     }
     static bool IsTensor (size_t attribute)
     {
-	return GetNumberOfComponents (attribute) == 6;
-    }
+	return GetNumberOfComponents (attribute) == TENSOR_NUMBER_OF_COMPONENTS;
+    }    
     static bool IsRedundant (size_t attribute);
 
 private:

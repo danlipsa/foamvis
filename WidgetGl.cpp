@@ -3287,6 +3287,17 @@ vector<ViewNumber::Enum> WidgetGl::GetConnectedViewNumbers (
 }
 
 
+void WidgetGl::UpdateAverage (
+    const boost::array<int, ViewNumber::COUNT>& direction)
+{
+    for (size_t i = 0;
+	 i < ViewCount::GetCount (m_settings->GetViewCount ()); ++i)
+	if (direction[i] != 0)
+	    m_viewAverage[i]->AverageStep (direction[i]);
+    update ();
+}
+
+
 // Slots and methods called by the UI
 // ==================================
 
@@ -4054,17 +4065,6 @@ void WidgetGl::ValueChangedNoiseFrequency (int index)
     update ();
 }
 
-
-void WidgetGl::ValueChangedSliderTimeSteps (int timeStep)
-{
-    makeCurrent ();
-    boost::array<int, ViewNumber::COUNT> direction;
-    m_settings->SetCurrentTime (timeStep, &direction);
-    for (size_t i = 0; i < ViewNumber::COUNT; ++i)
-	if (direction[i] != 0)
-	    m_viewAverage[i]->AverageStep (direction[i]);
-    update ();
-}
 
 void WidgetGl::ClickedEnd ()
 {

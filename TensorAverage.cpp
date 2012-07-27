@@ -183,7 +183,8 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
     float scaleRatio = vs.GetScaleRatio ();
     float gridScaleRatio = vs.GetScaleRatio () * vs.GetGridScaleRatio ();
     *gridTranslation = (vs.GetGridTranslation () * scaleRatio).xy ();
-    *cellLength = widgetGl.GetBubbleSize (this->GetViewNumber ()) * gridScaleRatio;
+    *cellLength = widgetGl.GetBubbleSize (
+	this->GetViewNumber ()) * gridScaleRatio;
     float p = GetOnePixelInObjectSpace ();
     *onePixelInObjectSpace = p * scaleRatio;
     *lineWidth = *onePixelInObjectSpace * 
@@ -194,7 +195,8 @@ void TensorAverageTemplate<Setter>::calculateShaderParameters (
 	gridScaleRatio * CALL_MEMBER_FN (vs, m_sizeRatio) ();
     *enclosingRect = toRect2D (
 	widgetGl.CalculateViewingVolume (
-	    this->GetViewNumber (), ViewingVolumeOperation::ENCLOSE2D)) - rotationCenter;
+	    this->GetViewNumber (), 
+	    ViewingVolumeOperation::ENCLOSE2D)) - rotationCenter;
 }
 
 TensorAverage::TensorAverage (const WidgetGl& widgetGl,

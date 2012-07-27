@@ -257,8 +257,7 @@ void Settings::SetCurrentTime (
     {
 	ViewNumber::Enum viewNumber = GetViewNumber ();
 	ViewSettings& vs = GetViewSettings (viewNumber);
-	direction[viewNumber] = 
-	    vs.SetCurrentTime (currentTime);
+	direction[viewNumber] = vs.SetCurrentTime (currentTime);
 	break;
     }
     case TimeLinkage::LINKED:

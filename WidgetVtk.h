@@ -27,14 +27,14 @@ public:
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction);
     void UpdateThreshold (QwtDoubleInterval interval);
     void UpdateModelView (vtkSmartPointer<vtkMatrix4x4> modelView);
-    void UpdateRenderStructured (
-	const Foam& foam, vtkSmartPointer<vtkMatrix4x4> modelView,
+    void InitAverage (
+	vtkSmartPointer<vtkMatrix4x4> modelView,
 	vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
-	QwtDoubleInterval interval, BodyScalar::Enum bodyScalar);
+	QwtDoubleInterval interval);
     void Init (boost::shared_ptr<Settings> settings,
 	       const SimulationGroup& simulationGroup);
     void UpdateOpacity ();
-    void UpdateInput (const Foam& foam, BodyScalar::Enum bodyScalar);
+    void UpdateAverage (const boost::array<int, ViewNumber::COUNT>& direction);
     void SetupPipeline (size_t objects, size_t constraintSurfaces);
 
 public:

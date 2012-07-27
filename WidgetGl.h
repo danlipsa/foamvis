@@ -229,6 +229,7 @@ public:
     }
     float GetXOverY () const;
     void CompileUpdate ();
+    void UpdateAverage (const boost::array<int, ViewNumber::COUNT>& direction);
 
 Q_SIGNALS:
     void PaintEnd ();
@@ -336,8 +337,6 @@ public Q_SLOTS:
     void ValueChangedLightSpecularGreen (int sliderValue);
     void ValueChangedLightSpecularBlue (int sliderValue);
 
-
-    void ValueChangedSliderTimeSteps (int timeStep);
     void ValueChangedAverageTimeWindow (int timeSteps);
     void ValueChangedT1sTimeWindow (int timeSteps);
     void ValueChangedTimeDisplacement (int timeDisplacement);

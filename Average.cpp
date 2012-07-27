@@ -8,15 +8,29 @@
  */
 
 #include "Average.h"
+#include "DebugStream.h"
 #include "Settings.h"
 #include "Simulation.h"
 #include "OpenGLUtils.h"
 #include "ViewSettings.h"
 
+Average::Average (
+    const Settings& settings, const SimulationGroup& simulationGroup) :
+    AverageInterface (),
+
+    m_settings (settings),
+    m_simulationGroup (simulationGroup),
+    m_currentTimeWindow (0),
+    m_timeWindow (0)
+{
+}
+
+
 void Average::AverageInit (ViewNumber::Enum viewNumber)
 {
     AverageInterface::AverageInit (viewNumber);
     m_currentTimeWindow = 0;
+    m_timeWindow = GetSimulation ().GetFoams ().size ();
 }
 
 void Average::loopOperation (Operation op, size_t currentTime)
@@ -28,6 +42,9 @@ void Average::loopOperation (Operation op, size_t currentTime)
 
 void Average::AverageStep (int timeDifference)
 {
+    cdbg << "AverageStep: " << timeDifference << endl;
+    if (timeDifference == 0)
+	return;
     if (abs (timeDifference) > 1)
     {
 	AverageInitStep (GetViewNumber ());
@@ -68,4 +85,18 @@ const Simulation& Average::GetSimulation () const
 const Foam& Average::GetFoam (size_t timeStep) const
 {
     return GetSimulation ().GetFoam (timeStep);
+}
+
+const Foam& Average::GetFoam () const
+{
+    size_t currentTime = GetSettings ().GetViewSettings (
+	GetViewNumber ()).GetCurrentTime ();
+    return GetSimulation ().GetFoam (currentTime);
+}
+
+
+size_t Average::GetBodyAttribute () const
+{
+    return GetSettings ().GetViewSettings (
+	GetViewNumber ()).GetBodyOrFaceScalar ();
 }

@@ -18,7 +18,7 @@ class Simulation;
 class Foam;
 
 /**
- * Average along time for forces acting on objects interacting with foam
+ * Average along time for forces acting on objects interacting with foam.
  */
 class ForceAverage : public Average
 {

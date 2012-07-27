@@ -13,6 +13,7 @@
 #include "RegularGridAverage.h"
 #include "Settings.h"
 #include "Simulation.h"
+#include "ViewSettings.h"
 #include "WidgetVtk.h"
 
 // Private Classes/Functions
@@ -53,7 +54,9 @@ void WidgetVtk::Init (boost::shared_ptr<Settings> settings,
 {
     m_settings = settings;
     for (size_t i = 0; i < m_average.size (); ++i)
+    {
 	m_average[i].reset (new RegularGridAverage (*settings, simulationGroup));
+    }
 }
 
 void WidgetVtk::SetupPipeline (size_t objects, size_t constraintSurfaces)
@@ -174,13 +177,17 @@ void WidgetVtk::UpdateModelView (vtkSmartPointer<vtkMatrix4x4> modelView)
 	actor->SetUserMatrix (modelView);
 }
 
-void WidgetVtk::UpdateInput (const Foam& foam, BodyScalar::Enum bodyScalar)
+void WidgetVtk::UpdateAverage (
+    const boost::array<int, ViewNumber::COUNT>& direction)
 {
-    vtkSmartPointer<vtkImageData> regularFoam = foam.GetRegularGrid ();
-    regularFoam->GetPointData ()->SetActiveScalars (
-	BodyScalar::ToString (bodyScalar));
-    m_threshold->SetInput (regularFoam);
+    cdbg << "UpdateAverage: " << direction[0] << endl;
+    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
 
+    const Foam& foam = m_average[viewNumber]->GetFoam ();
+    // calculate average
+    m_average[viewNumber]->AverageStep (direction[viewNumber]);
+
+    m_threshold->SetInput (m_average[viewNumber]->GetAverage ());
     Foam::Bodies objects = foam.GetObjects ();
     for (size_t i = 0; i < objects.size (); ++i)
 	vtkDataSetMapper::SafeDownCast (m_object[i]->GetMapper ())
@@ -189,14 +196,19 @@ void WidgetVtk::UpdateInput (const Foam& foam, BodyScalar::Enum bodyScalar)
     for (size_t i = 0; i < foam.GetConstraintFacesSize (); ++i)
 	vtkDataSetMapper::SafeDownCast (m_constraintSurface[i]->GetMapper ())
 	    ->SetInput (foam.GetConstraintFacesPolyData (i));
+    update ();
 }
 
-void WidgetVtk::UpdateRenderStructured (
-    const Foam& foam, vtkSmartPointer<vtkMatrix4x4> modelView,
+void WidgetVtk::InitAverage (
+    vtkSmartPointer<vtkMatrix4x4> modelView,
     vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction,
-    QwtDoubleInterval interval, BodyScalar::Enum bodyScalar)
-{
-    UpdateInput (foam, bodyScalar);
+    QwtDoubleInterval interval)
+{    
+    ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
+    m_average[viewNumber]->AverageInitStep (viewNumber);
+
+    boost::array<int, ViewNumber::COUNT> direction = {{0, 0, 0, 0}};
+    UpdateAverage (direction);
     UpdateModelView (modelView);
     UpdateOpacity ();
     UpdateThreshold (interval);

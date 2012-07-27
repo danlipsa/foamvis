@@ -75,7 +75,8 @@ MainWindow::MainWindow (SimulationGroup& simulationGroup) :
     m_histogramViewNumber (ViewNumber::COUNT),
     m_editColorMap (new EditColorMap (this)),
     m_playForward (false),
-    m_playReverse (false)
+    m_playReverse (false),
+    m_simulationGroup (simulationGroup)
 {
     // for anti-aliased lines
     QGLFormat format = QGLFormat::defaultFormat ();
@@ -691,13 +692,9 @@ void MainWindow::processBodyTorusStep ()
     }
 }
 
-void MainWindow::update3DAverage (size_t timeStep)
+void MainWindow::init3DAverage ()
 {
     ViewNumber::Enum viewNumber = m_settings->GetViewNumber ();
-    const Simulation& simulation = widgetGl->GetSimulation (viewNumber);
-    const Foam& foam = simulation.GetFoam (timeStep);
-    BodyScalar::Enum bodyProperty = BodyScalar::FromSizeT (
-	widgetGl->GetBodyOrFaceScalar ());
     const ViewSettings& vs = widgetGl->GetViewSettings (viewNumber);
     const BodySelector& bodySelector = vs.GetBodySelector ();
     QwtDoubleInterval interval;
@@ -717,11 +714,10 @@ void MainWindow::update3DAverage (size_t timeStep)
 	interval.setMinValue (range[0]);
 	interval.setMaxValue (range[1]);
     }
-
-    widgetVtk->UpdateRenderStructured (
-	foam, widgetGl->GetModelViewMatrix (viewNumber, timeStep),
-	colorTransferFunction, interval,
-	bodyProperty);
+    
+    widgetVtk->InitAverage (
+	widgetGl->GetModelViewMatrix (viewNumber, vs.GetCurrentTime ()),
+	colorTransferFunction, interval);
 }
 
 
@@ -1227,14 +1223,24 @@ void MainWindow::ValueChangedT1sKernelSigma (int index)
 
 void MainWindow::ValueChangedSliderTimeSteps (int timeStep)
 {
-    ViewSettings& vs = widgetGl->GetViewSettings (widgetGl->GetViewNumber ());
+    ViewSettings& vs = m_settings->GetViewSettings ();
     ViewType::Enum viewType = vs.GetViewType ();
+
+    boost::array<int, ViewNumber::COUNT> direction;
+    m_settings->SetCurrentTime (timeStep, &direction);
     setAndDisplayHistogram (KEEP_SELECTION, KEEP_MAX_VALUE, viewType);
-    if (DATA_PROPERTIES.Is3D () && viewType == ViewType::AVERAGE)
-	update3DAverage (timeStep);
+    if (viewType == ViewType::AVERAGE)
+    {
+	if (DATA_PROPERTIES.Is3D ())
+	    widgetVtk->UpdateAverage (direction);
+	else
+	    widgetGl->UpdateAverage (direction);
+    }
     if (m_debugTranslatedBody)
     {
-	const Foam& foam = widgetGl->GetSimulation ().GetFoam (0);
+	const Foam& foam = 
+	    m_simulationGroup.GetSimulation (
+		vs.GetSimulationIndex ()).GetFoam (0);
 	m_currentTranslatedBody = const_cast<Foam&> (foam).GetBodies ().begin ();
     }
     updateButtons ();
@@ -1291,7 +1297,7 @@ void MainWindow::ButtonClickedViewType (int vt)
 		    KEEP_SELECTION, REPLACE_MAX_VALUE, viewType);
 	    if (DATA_PROPERTIES.Is3D ())
 	    {
-		update3DAverage (widgetGl->GetCurrentTime (viewNumber));
+		init3DAverage ();
 		widgetGl->setHidden (true);
 		widgetVtk->setVisible (true);
 	    }

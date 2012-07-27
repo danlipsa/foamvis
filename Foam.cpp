@@ -23,6 +23,10 @@
 #include "ProcessBodyTorus.h"
 #include "Vertex.h"
 
+#define __LOG__(code) code
+//#define __LOG__(code)
+
+
 // Private Functions
 // ======================================================================
 
@@ -72,6 +76,21 @@ void compact (vector< boost::shared_ptr<E> >& v)
     v.resize (resize);
 }
 
+vtkDataSetAttributes::AttributeTypes componentsToAttributeTypes (
+    size_t components)
+{
+    switch (components)
+    {
+    case 1:
+	return vtkDataSetAttributes::SCALARS;
+    case 3:
+	return vtkDataSetAttributes::VECTORS;
+    case 9:
+	return vtkDataSetAttributes::TENSORS;
+    default:
+	return vtkDataSetAttributes::NUM_ATTRIBUTES;
+    }
+}
 
 
 // Methods
@@ -980,7 +999,7 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::addCellAttribute (
     vtkIdType faceIndex = 0;
     BOOST_FOREACH (const boost::shared_ptr<Body>& body, GetBodies ())
     {
-	float value[9];
+	float value[BodyAttribute::MAX_NUMBER_OF_COMPONENTS];
 	body->GetAttributeValue (attribute, value);
 	BOOST_FOREACH (const boost::shared_ptr<OrientedFace>& of, 
 		       body->GetOrientedFaces ())
@@ -997,12 +1016,15 @@ vtkSmartPointer<vtkUnstructuredGrid> Foam::addCellAttribute (
 void Foam::addEmptyPointAttribute (
     vtkSmartPointer<vtkImageData> regularGrid, size_t attribute)
 {
-    vtkIdType numberOfCells = regularGrid->GetNumberOfCells ();
+    vtkIdType numberOfPoints = regularGrid->GetNumberOfPoints ();
     VTK_CREATE(vtkFloatArray, attributes);
     attributes->SetNumberOfComponents (
 	BodyAttribute::GetNumberOfComponents (attribute));
-    attributes->SetNumberOfTuples (numberOfCells);
+    attributes->SetNumberOfTuples (numberOfPoints);
     attributes->SetName (BodyAttribute::ToString (attribute));
+    vector<float> v (BodyAttribute::MAX_NUMBER_OF_COMPONENTS, 0);
+    for (vtkIdType i = 0; i < numberOfPoints; ++i)
+	attributes->SetTuple (i, &v[0]);
     regularGrid->GetPointData ()->AddArray (attributes);
 }
 
@@ -1033,7 +1055,8 @@ void Foam::addRedundantAttribute (
     attributes->SetNumberOfTuples (numberOfTuples);
     attributes->SetName (BodyAttribute::ToString (attribute));
 
-    double from[9], to[9];
+    double from[BodyAttribute::MAX_NUMBER_OF_COMPONENTS], 
+	to[BodyAttribute::MAX_NUMBER_OF_COMPONENTS];
     for (size_t tuple = 0; tuple < numberOfTuples; ++tuple)
     {
 	dependsOnAttributes->GetTuple (tuple, from);
@@ -1116,15 +1139,33 @@ void Foam::SaveRegularGrid () const
     }
 }
 
-vtkSmartPointer<vtkImageData> Foam::GetRegularGrid () const
+vtkSmartPointer<vtkImageData> Foam::GetRegularGrid (size_t bodyAttribute) const
 {
-    VTK_CREATE (vtkXMLImageDataReader, reader);
+    VTK_CREATE (vtkXMLImageDataReader, reader);    
     reader->SetFileName (getVtiPath ().c_str ());
     reader->Update ();
     vtkSmartPointer<vtkImageData> foamImageData = reader->GetOutput ();
     addRedundantAttributes (foamImageData);
+    foamImageData->GetPointData ()->SetActiveAttribute (
+	BodyAttribute::ToString (bodyAttribute),
+	componentsToAttributeTypes (
+	    BodyAttribute::GetNumberOfComponents (bodyAttribute)));
+    __LOG__ (cdbg << "Foam::GetRegularGrid: " << getVtiPath () << endl;)
     return foamImageData;
 }
+
+vtkSmartPointer<vtkImageData> Foam::CreateEmptyRegularGrid (
+    size_t bodyAttribute) const
+{
+    vtkSmartPointer<vtkImageData> regularFoam = createRegularGridNoAttributes ();
+    addEmptyPointAttribute (regularFoam, bodyAttribute);
+    regularFoam->GetPointData ()->SetActiveAttribute (
+	BodyAttribute::ToString (bodyAttribute),
+	componentsToAttributeTypes (
+	    BodyAttribute::GetNumberOfComponents (bodyAttribute)));
+    return regularFoam;
+}
+
 
 vtkSmartPointer<vtkImageData> Foam::createRegularGridNoAttributes () const
 {
@@ -1141,13 +1182,6 @@ vtkSmartPointer<vtkImageData> Foam::createRegularGridNoAttributes () const
     return regularFoam;
 }
 
-vtkSmartPointer<vtkImageData> Foam::CreateEmptyRegularGrid (
-    size_t bodyAttribute) const
-{
-    vtkSmartPointer<vtkImageData> regularFoam = createRegularGridNoAttributes ();
-    addEmptyPointAttribute (regularFoam, bodyAttribute);
-    return regularFoam;
-}
 
 
 vtkSmartPointer<vtkImageData> Foam::calculateRegularGrid () const

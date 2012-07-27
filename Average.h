@@ -20,16 +20,13 @@ class SimulationGroup;
 
 /**
  * Computes average along time for foam quantities. Includes average
- * for a time window for forward and backward moving time.
+ * for a time window behind the current time step for forward and
+ * backward moving time.
  */
 class Average : public AverageInterface
 {
 public:
-    Average (const Settings& settings, const SimulationGroup& simulationGroup) :
-	AverageInterface (),
-	m_settings (settings), m_simulationGroup (simulationGroup)
-    {
-    }
+    Average (const Settings& settings, const SimulationGroup& simulationGroup);
     const SimulationGroup& GetSimulationGroup () const
     {
 	return m_simulationGroup;
@@ -54,7 +51,8 @@ public:
     virtual void AverageInit (ViewNumber::Enum viewNumber);
     const Simulation& GetSimulation () const;
     const Foam& GetFoam (size_t timeStep) const;
-
+    const Foam& GetFoam () const;
+    size_t GetBodyAttribute () const;
 
 protected:
     //@todo write and add/remove in one operations instead of two.

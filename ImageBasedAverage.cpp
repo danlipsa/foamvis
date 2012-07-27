@@ -55,8 +55,7 @@ ImageBasedAverage<PropertySetter>::ImageBasedAverage (
 
 
 template<typename PropertySetter>
-void ImageBasedAverage<PropertySetter>::AverageInit (
-    ViewNumber::Enum viewNumber)
+void ImageBasedAverage<PropertySetter>::AverageInit (ViewNumber::Enum viewNumber)
 {
     try
     {

@@ -15,17 +15,23 @@
 // ======================================================================
 
 template<size_t component>
-void vectorExtract (double from[9], double to[9])
+void vectorExtract (
+    double from[BodyAttribute::MAX_NUMBER_OF_COMPONENTS], 
+    double to[BodyAttribute::MAX_NUMBER_OF_COMPONENTS])
 {
     to[0] = from[component];
 }
 
-void vectorMagnitude (double from[9], double to[9])
+void vectorMagnitude (
+    double from[BodyAttribute::MAX_NUMBER_OF_COMPONENTS], 
+    double to[BodyAttribute::MAX_NUMBER_OF_COMPONENTS])
 {
     to[0] = sqrt (from[0] * from[0] + from[1] * from[1] + from[2] * from[2]);
 }
 
-void deformationEigen (double from[9], double to[9])
+void deformationEigen (
+    double from[BodyAttribute::MAX_NUMBER_OF_COMPONENTS], 
+    double to[BodyAttribute::MAX_NUMBER_OF_COMPONENTS])
 {
     SymmetricMatrixEigen c;
     float values[3];
@@ -167,13 +173,13 @@ FaceScalar::Enum FaceScalar::FromSizeT (size_t i)
 // ======================================================================
 boost::array<BodyAttribute::DependsOnInfo, BodyAttribute::COUNT> 
 BodyAttribute::DEPENDS_ON_INFO = {{
-	{10, vectorExtract<0>},
-	{10, vectorExtract<1>},
-	{10, vectorExtract<2>},
-	{10, vectorMagnitude},
+	{BodyAttribute::VELOCITY, vectorExtract<0>},
+	{BodyAttribute::VELOCITY, vectorExtract<1>},
+	{BodyAttribute::VELOCITY, vectorExtract<2>},
+	{BodyAttribute::VELOCITY, vectorMagnitude},
 	{COUNT, 0},
 	{COUNT, 0},
-	//{11, deformationEigen}, // this takes too much time
+	//{BodyAttribute::DEFORMATION, deformationEigen}, // takes too much time
 	{COUNT, 0},
 	{COUNT, 0},
 	{COUNT, 0},
@@ -183,8 +189,10 @@ BodyAttribute::DEPENDS_ON_INFO = {{
     }};
 
 boost::array<BodyAttribute::Info, BodyAttribute::COUNT> BodyAttribute::INFO = {{
-	{BodyAttribute::VELOCITY, "Velocity", 3},
-	{BodyAttribute::DEFORMATION, "Deformation", 9}
+	{BodyAttribute::VELOCITY, "Velocity", 
+	 BodyAttribute::VECTOR_NUMBER_OF_COMPONENTS},
+	{BodyAttribute::DEFORMATION, "Deformation", 
+	 BodyAttribute::TENSOR_NUMBER_OF_COMPONENTS}
     }};
 
 size_t BodyAttribute::DependsOn (size_t attribute)

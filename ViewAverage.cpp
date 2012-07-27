@@ -109,6 +109,8 @@ void ViewAverage::AverageRelease ()
     GetT1sPDE ().AverageRelease ();
 }
 
+//@todo remove this and replace with AverageInit
+//@todo overwrite AverageInit for T1sPDE
 void ViewAverage::SetSimulation (const Simulation& simulation)
 {
     AverageSetTimeWindow (simulation.GetTimeSteps ());

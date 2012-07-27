@@ -2756,22 +2756,6 @@
   <connection>
    <sender>sliderTimeSteps</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>widgetGl</receiver>
-   <slot>ValueChangedSliderTimeSteps(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>416</x>
-     <y>548</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>301</x>
-     <y>349</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>sliderTimeSteps</sender>
-   <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>ValueChangedSliderTimeSteps(int)</slot>
    <hints>

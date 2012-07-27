@@ -137,7 +137,7 @@ private:
 	HistogramSelection histogramSelection,
 	MaxValueOperation maxValueOperation,
 	ViewType::Enum viewType);
-    void update3DAverage (size_t timeStep);
+    void init3DAverage ();
     void currentIndexChangedFaceColor (ViewNumber::Enum viewNumber);
     void deformationViewToUI ();
     void velocityViewToUI ();
@@ -269,6 +269,7 @@ private:
      */
     bool m_playForward;
     bool m_playReverse;
+    const SimulationGroup& m_simulationGroup;
 };
 
 

@@ -11,6 +11,9 @@
 
 #include "Enums.h"
 
+/**
+ * Interface for computing and displaying averages of datasets.
+ */
 class AverageInterface
 {
 public:
@@ -31,6 +34,7 @@ public:
 	AverageInit (viewNumber);
 	AverageStep (1);
     }
+    size_t GetBodyAttribute () const;
     virtual void AverageSetTimeWindow (size_t timeSteps) = 0;
     virtual void AverageStep (int timeDifference) = 0;
     virtual void AverageRotateAndDisplay (	

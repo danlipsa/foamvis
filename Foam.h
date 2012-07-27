@@ -287,7 +287,7 @@ public:
     }
     void SetSpaceDimension (size_t spaceDimension);
     void SetQuadratic (bool quadratic);
-    vtkSmartPointer<vtkImageData> GetRegularGrid () const;
+    vtkSmartPointer<vtkImageData> GetRegularGrid (size_t bodyAttribute) const;
     vtkSmartPointer<vtkImageData> CreateEmptyRegularGrid (
 	size_t bodyAttribute) const;
 
